@@ -666,7 +666,7 @@ static int8 getStateProp(const int32_t (*stateTable)[256], int8 stateProps[], in
 	for(min = 0;; ++min) {
 		entry = row[min];
 		nextState = MBCS_ENTRY_STATE(entry);
-		if(stateProps[nextState]==-1) {
+		if(stateProps[nextState] == -1) {
 			getStateProp(stateTable, stateProps, nextState);
 		}
 		if(MBCS_ENTRY_IS_TRANSITION(entry)) {
@@ -688,7 +688,7 @@ static int8 getStateProp(const int32_t (*stateTable)[256], int8 stateProps[], in
 	for(max = 0xff; min<max; --max) {
 		entry = row[max];
 		nextState = MBCS_ENTRY_STATE(entry);
-		if(stateProps[nextState]==-1) {
+		if(stateProps[nextState] == -1) {
 			getStateProp(stateTable, stateProps, nextState);
 		}
 		if(MBCS_ENTRY_IS_TRANSITION(entry)) {
@@ -706,7 +706,7 @@ static int8 getStateProp(const int32_t (*stateTable)[256], int8 stateProps[], in
 	while(min<=max) {
 		entry = row[min];
 		nextState = MBCS_ENTRY_STATE(entry);
-		if(stateProps[nextState]==-1) {
+		if(stateProps[nextState] == -1) {
 			getStateProp(stateTable, stateProps, nextState);
 		}
 		if(MBCS_ENTRY_IS_FINAL(entry)) {
@@ -755,7 +755,7 @@ static void ucnv_MBCSEnumToUnicode(UConverterMBCSTable * mbcsTable,
 	/* recurse from state 0 and set all stateProps */
 	getStateProp(mbcsTable->stateTable, stateProps, 0);
 	for(state = 0; state<mbcsTable->countStates; ++state) {
-		/*if(stateProps[state]==-1) {
+		/*if(stateProps[state] == -1) {
 		    printf("unused/unreachable <icu:state> %d\n", state);
 		   }*/
 		if(stateProps[state]>=0x40) {

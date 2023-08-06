@@ -708,7 +708,7 @@ int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc 
 			GetAltGoodsStrucID(rIdent.GoodsID, 0, &gs_id);
 		PPObjGoodsStruc gs_obj;
 		PPGoodsStruc gs;
-		if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(&rIdent, pGs))
+		if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(rIdent, pGs))
 			ok = 1;
 		else
 			ok = (PPErrCode = PPERR_UNDEFGOODSSTRUC, -1);
@@ -727,7 +727,7 @@ int PPObjGoods::LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, TSCollection 
 			GetAltGoodsStrucID(rIdent.GoodsID, 0, &gs_id);
 		PPObjGoodsStruc gs_obj;
 		PPGoodsStruc gs;
-		if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(&rIdent, rGsList) > 0)
+		if(gs_id > 0 && gs_obj.Get(gs_id, &gs) > 0 && gs.Select(rIdent, rGsList) > 0)
 			ok = 1;
 		else
 			ok = (PPErrCode = PPERR_UNDEFGOODSSTRUC, -1);
@@ -952,6 +952,62 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 	}
 	else
 		rCode.Z();
+	return ok;
+}
+
+/*static*/int PPObjGoods::ProcessBomEstimatedValues() // @v11.7.11 @construction
+{
+	int    ok = -1;
+	const  LDATE now_date = getcurdate_();
+	PPObjQuotKind qk_obj;
+	PPQuotKind qk_rec;
+	PPObjGoodsStruc gs_obj;
+	PPObjGoods goods_obj;
+	Goods2Tbl::Rec goods_rec;
+	GoodsFilt goods_filt;
+	goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
+	PPLogger logger;
+	if(qk_obj.Fetch(PPQUOTK_ESTBOMVALUE, &qk_rec) > 0) {
+		PPID   loc_id = 0; // @todo Нужен перебор по складам. Вероятно, цикл следует инициировать для каждого товара по складам, на которых есть или были лоты этого товара.
+		SString temp_buf;
+		SString fmt_buf;
+		SString msg_buf;
+		PPLoadText(PPTXT_SETBOMESTVALUE, fmt_buf);
+		PPWait(1);
+		PPTransaction tra(1);
+		THROW(tra);
+		for(GoodsIterator gi(&goods_filt, 0); gi.Next(&goods_rec) > 0;) {
+			const PPID goods_id = goods_rec.ID;
+			const PPID struc_id = goods_rec.StrucID;
+			PPGoodsStruc gs;
+			if(gs_obj.Get(struc_id, &gs) > 0) {
+				PPGoodsStruc::Ident gsi(goods_id, GSF_COMPL, GSF_PARTITIAL|GSF_PRESENT|GSF_SUBST, now_date);
+				PPGoodsStruc gs_selected;
+				if(gs.Select(gsi, &gs_selected) > 0) {
+					double bom_value = 0.0;
+					int    uncert = 0;
+					gs_selected.CalcEstimationPrice(loc_id, &bom_value, &uncert, 1);
+					if(!uncert) {
+						PPQuot q(goods_id);
+						q.Kind = qk_rec.ID;
+						q.LocID = loc_id;
+						q.Quot = bom_value;
+						THROW(goods_obj.P_Tbl->SetQuot(q, 0));
+						{
+							//PPTXT_SETBOMESTVALUE
+							temp_buf.Z().Cat(goods_rec.Name).CatDiv('-', 1).Cat(bom_value, MKSFMTD(0, 2, 0));
+							msg_buf.Printf(fmt_buf, temp_buf.cptr());
+							logger.Log(msg_buf);
+						}
+					}
+				}
+			}
+			PPWaitPercent(gi.GetIterCounter());
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	PPWait(0);
 	return ok;
 }
 //

@@ -77,7 +77,7 @@ static const cairo_surface_backend_t _cairo_xcb_pixmap_backend = {
 
 static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_create(cairo_xcb_surface_t * target, int width, int height)
 {
-	cairo_xcb_pixmap_t * surface = _cairo_malloc(sizeof(cairo_xcb_pixmap_t));
+	cairo_xcb_pixmap_t * surface = SAlloc::M_zon0(sizeof(cairo_xcb_pixmap_t));
 	if(UNLIKELY(!surface))
 		return (cairo_xcb_pixmap_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xcb_pixmap_backend, NULL, target->base.content, FALSE/* is_vector */);
@@ -95,7 +95,7 @@ static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_create(cairo_xcb_surface_t * targe
 
 static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_copy(cairo_xcb_surface_t * target)
 {
-	cairo_xcb_pixmap_t * surface = _cairo_malloc(sizeof(cairo_xcb_pixmap_t));
+	cairo_xcb_pixmap_t * surface = SAlloc::M_zon0(sizeof(cairo_xcb_pixmap_t));
 	if(UNLIKELY(!surface))
 		return (cairo_xcb_pixmap_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xcb_pixmap_backend, NULL, target->base.content, FALSE/* is_vector */);

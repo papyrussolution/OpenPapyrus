@@ -53,7 +53,7 @@ MEM_STATIC unsigned ZSTD_isLegacy(const void* src, size_t srcSize)
 	uint32 magicNumberLE;
 	if(srcSize<4) 
 		return 0;
-	magicNumberLE = MEM_readLE32(src);
+	magicNumberLE = SMem::GetLe32(src);
 	switch(magicNumberLE) {
 #if (ZSTD_LEGACY_SUPPORT <= 1)
 		case ZSTDv01_magicNumberLE: return 1;

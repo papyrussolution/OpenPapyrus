@@ -16,8 +16,6 @@
 	#include <fcntl.h>   // for _O_BINARY
 	#include <io.h>      // for _setmode()
 #endif
-//#include <stdlib.h>
-//#include <string.h>
 #include "../examples/unicode.h"
 
 // -----------------------------------------------------------------------------

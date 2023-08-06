@@ -575,13 +575,13 @@ void VP8FiltersInit(void);
 //
 // Endian related functions.
 //
-#if defined(SL_BIGENDIAN)
-	#define HToLE32 BSwap32
-	#define HToLE16 BSwap16
-#else
-	#define HToLE32(x) (x)
-	#define HToLE16(x) (x)
-#endif
+//#if defined(SL_BIGENDIAN)
+	//#define HToLE32 BSwap32
+	//#define HToLE16 BSwap16
+//#else
+	//#define HToLE32(x) (x)
+	//#define HToLE16(x) (x)
+//#endif
 #if !defined(HAVE_CONFIG_H)
 	#if LOCAL_GCC_PREREQ(4, 8) || __has_builtin(__builtin_bswap16)
 		#define HAVE_BUILTIN_BSWAP16
@@ -593,7 +593,7 @@ void VP8FiltersInit(void);
 		#define HAVE_BUILTIN_BSWAP64
 	#endif
 #endif  // !HAVE_CONFIG_H
-
+/* @sobolev
 static FORCEINLINE uint16_t BSwap16(uint16_t x) 
 {
 #if defined(HAVE_BUILTIN_BSWAP16)
@@ -646,7 +646,7 @@ static FORCEINLINE uint64_t BSwap64(uint64_t x)
 	x = ((x & 0xff00ff00ff00ff00ull) >>  8) | ((x & 0x00ff00ff00ff00ffull) <<  8);
 	return x;
 #endif  // HAVE_BUILTIN_BSWAP64
-}
+}*/
 //
 //#include "src/utils/bit_reader_inl_utils.h"
 //
@@ -705,13 +705,13 @@ static WEBP_UBSAN_IGNORE_UNDEF FORCEINLINE void VP8LoadNewBytes(VP8BitReader* _R
 		br->buf_ += BITS >> 3;
 #if !defined(SL_BIGENDIAN)
 	#if (BITS > 32)
-			bits = BSwap64(in_bits);
+			bits = /*BSwap64*/SMem::BSwap(in_bits);
 			bits >>= 64 - BITS;
 	#elif (BITS >= 24)
-			bits = BSwap32(in_bits);
+			bits = /*BSwap32*/SMem::BSwap(in_bits);
 			bits >>= (32 - BITS);
 	#elif (BITS == 16)
-			bits = BSwap16(in_bits);
+			bits = /*BSwap16*/SMem::BSwap(in_bits);
 	#else   // BITS == 8
 			bits = (bit_t)in_bits;
 	#endif  // BITS > 32

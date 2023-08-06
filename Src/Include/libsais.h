@@ -61,7 +61,7 @@ void libsais_free_ctx(void * ctx);
  * @param freq [0..255] The output symbol frequency table (can be NULL).
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais(const uint8_t * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq);
+int32_t libsais(const uint8 * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq);
 /**
  * Constructs the suffix array of a given integer array.
  * Note, during construction input array will be modified, but restored at the end if no errors occurred.
@@ -84,7 +84,7 @@ int32_t libsais_int(int32_t * T, int32_t * SA, int32_t n, int32_t k, int32_t fs)
  * @param freq [0..255] The output symbol frequency table (can be NULL).
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_ctx(const void * ctx, const uint8_t * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq);
+int32_t libsais_ctx(const void * ctx, const uint8 * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq);
 
 #if defined(LIBSAIS_OPENMP)
 	/**
@@ -97,7 +97,7 @@ int32_t libsais_ctx(const void * ctx, const uint8_t * T, int32_t * SA, int32_t n
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int32_t libsais_omp(const uint8_t * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq, int32_t threads);
+	int32_t libsais_omp(const uint8 * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq, int32_t threads);
 	/**
 	 * Constructs the suffix array of a given integer array in parallel using OpenMP.
 	 * Note, during construction input array will be modified, but restored at the end if no errors occurred.
@@ -122,7 +122,7 @@ int32_t libsais_ctx(const void * ctx, const uint8_t * T, int32_t * SA, int32_t n
  * @param freq [0..255] The output symbol frequency table (can be NULL).
  * @return The primary index if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_bwt(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq);
+int32_t libsais_bwt(const uint8 * T, uint8 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq);
 
 /**
  * Constructs the burrows-wheeler transformed string (BWT) of a given string with auxiliary indexes.
@@ -136,7 +136,7 @@ int32_t libsais_bwt(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, int3
  * @param I [0..(n-1)/r] The output auxiliary indexes.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_bwt_aux(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I);
+int32_t libsais_bwt_aux(const uint8 * T, uint8 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I);
 
 /**
  * Constructs the burrows-wheeler transformed string (BWT) of a given string using libsais context.
@@ -149,7 +149,7 @@ int32_t libsais_bwt_aux(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, 
  * @param freq [0..255] The output symbol frequency table (can be NULL).
  * @return The primary index if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_bwt_ctx(const void * ctx, const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq);
+int32_t libsais_bwt_ctx(const void * ctx, const uint8 * T, uint8 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq);
 
 /**
  * Constructs the burrows-wheeler transformed string (BWT) of a given string with auxiliary indexes using libsais context.
@@ -164,7 +164,7 @@ int32_t libsais_bwt_ctx(const void * ctx, const uint8_t * T, uint8_t * U, int32_
  * @param I [0..(n-1)/r] The output auxiliary indexes.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_bwt_aux_ctx(const void * ctx, const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I);
+int32_t libsais_bwt_aux_ctx(const void * ctx, const uint8 * T, uint8 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I);
 
 #if defined(LIBSAIS_OPENMP)
 /**
@@ -178,7 +178,7 @@ int32_t libsais_bwt_aux_ctx(const void * ctx, const uint8_t * T, uint8_t * U, in
  * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
  * @return The primary index if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_bwt_omp(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t threads);
+int32_t libsais_bwt_omp(const uint8 * T, uint8 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t threads);
 
 /**
  * Constructs the burrows-wheeler transformed string (BWT) of a given string with auxiliary indexes in parallel using OpenMP.
@@ -193,7 +193,7 @@ int32_t libsais_bwt_omp(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, 
  * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_bwt_aux_omp(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I, int32_t threads);
+int32_t libsais_bwt_aux_omp(const uint8 * T, uint8 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I, int32_t threads);
 #endif
 
 /**
@@ -228,7 +228,7 @@ void libsais_unbwt_free_ctx(void * ctx);
  * @param i The primary index.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_unbwt(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i);
+int32_t libsais_unbwt(const uint8 * T, uint8 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i);
 
 /**
  * Constructs the original string from a given burrows-wheeler transformed string (BWT) with primary index using libsais reverse BWT context.
@@ -241,7 +241,7 @@ int32_t libsais_unbwt(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, co
  * @param i The primary index.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_unbwt_ctx(const void * ctx, const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i);
+int32_t libsais_unbwt_ctx(const void * ctx, const uint8 * T, uint8 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i);
 /**
  * Constructs the original string from a given burrows-wheeler transformed string (BWT) with auxiliary indexes.
  * @param T [0..n-1] The input string.
@@ -253,7 +253,7 @@ int32_t libsais_unbwt_ctx(const void * ctx, const uint8_t * T, uint8_t * U, int3
  * @param I [0..(n-1)/r] The input auxiliary indexes.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_unbwt_aux(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I);
+int32_t libsais_unbwt_aux(const uint8 * T, uint8 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I);
 
 /**
  * Constructs the original string from a given burrows-wheeler transformed string (BWT) with auxiliary indexes using libsais reverse BWT context.
@@ -267,7 +267,7 @@ int32_t libsais_unbwt_aux(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n
  * @param I [0..(n-1)/r] The input auxiliary indexes.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais_unbwt_aux_ctx(const void * ctx, const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I);
+int32_t libsais_unbwt_aux_ctx(const void * ctx, const uint8 * T, uint8 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I);
 
 #if defined(LIBSAIS_OPENMP)
 	/**
@@ -281,7 +281,7 @@ int32_t libsais_unbwt_aux_ctx(const void * ctx, const uint8_t * T, uint8_t * U, 
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int32_t libsais_unbwt_omp(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i, int32_t threads);
+	int32_t libsais_unbwt_omp(const uint8 * T, uint8 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i, int32_t threads);
 	/**
 	 * Constructs the original string from a given burrows-wheeler transformed string (BWT) with auxiliary indexes in parallel using OpenMP.
 	 * @param T [0..n-1] The input string.
@@ -294,7 +294,7 @@ int32_t libsais_unbwt_aux_ctx(const void * ctx, const uint8_t * T, uint8_t * U, 
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int32_t libsais_unbwt_aux_omp(const uint8_t * T, uint8_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I, int32_t threads);
+	int32_t libsais_unbwt_aux_omp(const uint8 * T, uint8 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I, int32_t threads);
 #endif
 /**
  * Constructs the permuted longest common prefix array (PLCP) of a given string and a suffix array.
@@ -304,7 +304,7 @@ int32_t libsais_unbwt_aux_ctx(const void * ctx, const uint8_t * T, uint8_t * U, 
  * @param n The length of the string and the suffix array.
  * @return 0 if no error occurred, -1 otherwise.
  */
-int32_t libsais_plcp(const uint8_t * T, const int32_t * SA, int32_t * PLCP, int32_t n);
+int32_t libsais_plcp(const uint8 * T, const int32_t * SA, int32_t * PLCP, int32_t n);
 /**
  * Constructs the longest common prefix array (LCP) of a given permuted longest common prefix array (PLCP) and a suffix array.
  * @param PLCP [0..n-1] The input permuted longest common prefix array.
@@ -325,7 +325,7 @@ int32_t libsais_lcp(const int32_t * PLCP, const int32_t * SA, int32_t * LCP, int
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 otherwise.
 	 */
-	int32_t libsais_plcp_omp(const uint8_t * T, const int32_t * SA, int32_t * PLCP, int32_t n, int32_t threads);
+	int32_t libsais_plcp_omp(const uint8 * T, const int32_t * SA, int32_t * PLCP, int32_t n, int32_t threads);
 	/**
 	 * Constructs the longest common prefix array (LCP) of a given permuted longest common prefix array (PLCP) and a suffix array in parallel using OpenMP.
 	 * @param PLCP [0..n-1] The input permuted longest common prefix array.
@@ -370,7 +370,7 @@ void libsais16_free_ctx(void * ctx);
  * @param freq [0..65535] The output 16-bit symbol frequency table (can be NULL).
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais16(const uint16_t * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq);
+int32_t libsais16(const uint16 * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq);
 /**
  * Constructs the suffix array of a given 16-bit string using libsais16 context.
  * @param ctx The libsais16 context.
@@ -381,7 +381,7 @@ int32_t libsais16(const uint16_t * T, int32_t * SA, int32_t n, int32_t fs, int32
  * @param freq [0..65535] The output 16-bit symbol frequency table (can be NULL).
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais16_ctx(const void * ctx, const uint16_t * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq);
+int32_t libsais16_ctx(const void * ctx, const uint16 * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq);
 
 #if defined(LIBSAIS_OPENMP)
 	/**
@@ -394,7 +394,7 @@ int32_t libsais16_ctx(const void * ctx, const uint16_t * T, int32_t * SA, int32_
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int32_t libsais16_omp(const uint16_t * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq, int32_t threads);
+	int32_t libsais16_omp(const uint16 * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq, int32_t threads);
 #endif
 /**
  * Constructs the burrows-wheeler transformed 16-bit string (BWT) of a given 16-bit string.
@@ -406,7 +406,7 @@ int32_t libsais16_ctx(const void * ctx, const uint16_t * T, int32_t * SA, int32_
  * @param freq [0..65535] The output 16-bit symbol frequency table (can be NULL).
  * @return The primary index if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais16_bwt(const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq);
+int32_t libsais16_bwt(const uint16 * T, uint16 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq);
 /**
  * Constructs the burrows-wheeler transformed 16-bit string (BWT) of a given 16-bit string with auxiliary indexes.
  * @param T [0..n-1] The input 16-bit string.
@@ -419,7 +419,7 @@ int32_t libsais16_bwt(const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, 
  * @param I [0..(n-1)/r] The output auxiliary indexes.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais16_bwt_aux(const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I);
+int32_t libsais16_bwt_aux(const uint16 * T, uint16 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I);
 /**
  * Constructs the burrows-wheeler transformed 16-bit string (BWT) of a given 16-bit string using libsais16 context.
  * @param ctx The libsais16 context.
@@ -431,7 +431,7 @@ int32_t libsais16_bwt_aux(const uint16_t * T, uint16_t * U, int32_t * A, int32_t
  * @param freq [0..65535] The output 16-bit symbol frequency table (can be NULL).
  * @return The primary index if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais16_bwt_ctx(const void * ctx, const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq);
+int32_t libsais16_bwt_ctx(const void * ctx, const uint16 * T, uint16 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq);
 
 /**
  * Constructs the burrows-wheeler transformed 16-bit string (BWT) of a given 16-bit string with auxiliary indexes using libsais16 context.
@@ -446,7 +446,7 @@ int32_t libsais16_bwt_ctx(const void * ctx, const uint16_t * T, uint16_t * U, in
  * @param I [0..(n-1)/r] The output auxiliary indexes.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais16_bwt_aux_ctx(const void * ctx, const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I);
+int32_t libsais16_bwt_aux_ctx(const void * ctx, const uint16 * T, uint16 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I);
 
 #if defined(LIBSAIS_OPENMP)
 	/**
@@ -460,7 +460,7 @@ int32_t libsais16_bwt_aux_ctx(const void * ctx, const uint16_t * T, uint16_t * U
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return The primary index if no error occurred, -1 or -2 otherwise.
 	 */
-	int32_t libsais16_bwt_omp(const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t threads);
+	int32_t libsais16_bwt_omp(const uint16 * T, uint16 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t threads);
 
 	/**
 	 * Constructs the burrows-wheeler transformed 16-bit string (BWT) of a given 16-bit string with auxiliary indexes in parallel using OpenMP.
@@ -475,7 +475,7 @@ int32_t libsais16_bwt_aux_ctx(const void * ctx, const uint16_t * T, uint16_t * U
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int32_t libsais16_bwt_aux_omp(const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I, int32_t threads);
+	int32_t libsais16_bwt_aux_omp(const uint16 * T, uint16 * U, int32_t * A, int32_t n, int32_t fs, int32_t * freq, int32_t r, int32_t * I, int32_t threads);
 #endif
 
 /**
@@ -509,7 +509,7 @@ void libsais16_unbwt_free_ctx(void * ctx);
  * @param i The primary index.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais16_unbwt(const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i);
+int32_t libsais16_unbwt(const uint16 * T, uint16 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i);
 /**
  * Constructs the original 16-bit string from a given burrows-wheeler transformed 16-bit string (BWT) with primary index using libsais16 reverse BWT context.
  * @param ctx The libsais16 reverse BWT context.
@@ -521,7 +521,7 @@ int32_t libsais16_unbwt(const uint16_t * T, uint16_t * U, int32_t * A, int32_t n
  * @param i The primary index.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais16_unbwt_ctx(const void * ctx, const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i);
+int32_t libsais16_unbwt_ctx(const void * ctx, const uint16 * T, uint16 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i);
 /**
  * Constructs the original 16-bit string from a given burrows-wheeler transformed 16-bit string (BWT) with auxiliary indexes.
  * @param T [0..n-1] The input 16-bit string.
@@ -533,7 +533,7 @@ int32_t libsais16_unbwt_ctx(const void * ctx, const uint16_t * T, uint16_t * U, 
  * @param I [0..(n-1)/r] The input auxiliary indexes.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais16_unbwt_aux(const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I);
+int32_t libsais16_unbwt_aux(const uint16 * T, uint16 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I);
 /**
  * Constructs the original 16-bit string from a given burrows-wheeler transformed 16-bit string (BWT) with auxiliary indexes using libsais16 reverse BWT context.
  * @param ctx The libsais16 reverse BWT context.
@@ -546,7 +546,7 @@ int32_t libsais16_unbwt_aux(const uint16_t * T, uint16_t * U, int32_t * A, int32
  * @param I [0..(n-1)/r] The input auxiliary indexes.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int32_t libsais16_unbwt_aux_ctx(const void * ctx, const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I);
+int32_t libsais16_unbwt_aux_ctx(const void * ctx, const uint16 * T, uint16 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I);
 
 #if defined(LIBSAIS_OPENMP)
 	/**
@@ -560,7 +560,7 @@ int32_t libsais16_unbwt_aux_ctx(const void * ctx, const uint16_t * T, uint16_t *
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int32_t libsais16_unbwt_omp(const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i, int32_t threads);
+	int32_t libsais16_unbwt_omp(const uint16 * T, uint16 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t i, int32_t threads);
 	/**
 	 * Constructs the original 16-bit string from a given burrows-wheeler transformed 16-bit string (BWT) with auxiliary indexes in parallel using OpenMP.
 	 * @param T [0..n-1] The input 16-bit string.
@@ -573,7 +573,7 @@ int32_t libsais16_unbwt_aux_ctx(const void * ctx, const uint16_t * T, uint16_t *
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int32_t libsais16_unbwt_aux_omp(const uint16_t * T, uint16_t * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I, int32_t threads);
+	int32_t libsais16_unbwt_aux_omp(const uint16 * T, uint16 * U, int32_t * A, int32_t n, const int32_t * freq, int32_t r, const int32_t * I, int32_t threads);
 #endif
 /**
  * Constructs the permuted longest common prefix array (PLCP) of a given 16-bit string and a suffix array.
@@ -583,7 +583,7 @@ int32_t libsais16_unbwt_aux_ctx(const void * ctx, const uint16_t * T, uint16_t *
  * @param n The length of the 16-bit string and the suffix array.
  * @return 0 if no error occurred, -1 otherwise.
  */
-int32_t libsais16_plcp(const uint16_t * T, const int32_t * SA, int32_t * PLCP, int32_t n);
+int32_t libsais16_plcp(const uint16 * T, const int32_t * SA, int32_t * PLCP, int32_t n);
 /**
  * Constructs the longest common prefix array (LCP) of a given permuted longest common prefix array (PLCP) and a suffix array.
  * @param PLCP [0..n-1] The input permuted longest common prefix array.
@@ -604,7 +604,7 @@ int32_t libsais16_lcp(const int32_t * PLCP, const int32_t * SA, int32_t * LCP, i
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 otherwise.
 	 */
-	int32_t libsais16_plcp_omp(const uint16_t * T, const int32_t * SA, int32_t * PLCP, int32_t n, int32_t threads);
+	int32_t libsais16_plcp_omp(const uint16 * T, const int32_t * SA, int32_t * PLCP, int32_t n, int32_t threads);
 	/**
 	 * Constructs the longest common prefix array (LCP) of a given permuted longest common prefix array (PLCP) and a suffix array in parallel using OpenMP.
 	 * @param PLCP [0..n-1] The input permuted longest common prefix array.
@@ -628,7 +628,7 @@ int32_t libsais16_lcp(const int32_t * PLCP, const int32_t * SA, int32_t * LCP, i
  * @param freq [0..255] The output symbol frequency table (can be NULL).
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int64_t libsais64(const uint8_t * T, int64_t * SA, int64_t n, int64_t fs, int64_t * freq);
+int64_t libsais64(const uint8 * T, int64_t * SA, int64_t n, int64_t fs, int64_t * freq);
 
 #if defined(LIBSAIS_OPENMP)
 	/**
@@ -641,7 +641,7 @@ int64_t libsais64(const uint8_t * T, int64_t * SA, int64_t n, int64_t fs, int64_
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int64_t libsais64_omp(const uint8_t * T, int64_t * SA, int64_t n, int64_t fs, int64_t * freq, int64_t threads);
+	int64_t libsais64_omp(const uint8 * T, int64_t * SA, int64_t n, int64_t fs, int64_t * freq, int64_t threads);
 #endif
 /**
  * Constructs the burrows-wheeler transformed string (BWT) of a given string.
@@ -653,7 +653,7 @@ int64_t libsais64(const uint8_t * T, int64_t * SA, int64_t n, int64_t fs, int64_
  * @param freq [0..255] The output symbol frequency table (can be NULL).
  * @return The primary index if no error occurred, -1 or -2 otherwise.
  */
-int64_t libsais64_bwt(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n, int64_t fs, int64_t * freq);
+int64_t libsais64_bwt(const uint8 * T, uint8 * U, int64_t * A, int64_t n, int64_t fs, int64_t * freq);
 /**
  * Constructs the burrows-wheeler transformed string (BWT) of a given string with auxiliary indexes.
  * @param T [0..n-1] The input string.
@@ -666,7 +666,7 @@ int64_t libsais64_bwt(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n, in
  * @param I [0..(n-1)/r] The output auxiliary indexes.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int64_t libsais64_bwt_aux(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n, int64_t fs, int64_t * freq, int64_t r, int64_t * I);
+int64_t libsais64_bwt_aux(const uint8 * T, uint8 * U, int64_t * A, int64_t n, int64_t fs, int64_t * freq, int64_t r, int64_t * I);
 #if defined(LIBSAIS_OPENMP)
 	/**
 	 * Constructs the burrows-wheeler transformed string (BWT) of a given string in parallel using OpenMP.
@@ -679,7 +679,7 @@ int64_t libsais64_bwt_aux(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return The primary index if no error occurred, -1 or -2 otherwise.
 	 */
-	int64_t libsais64_bwt_omp(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n, int64_t fs, int64_t * freq, int64_t threads);
+	int64_t libsais64_bwt_omp(const uint8 * T, uint8 * U, int64_t * A, int64_t n, int64_t fs, int64_t * freq, int64_t threads);
 
 	/**
 	 * Constructs the burrows-wheeler transformed string (BWT) of a given string with auxiliary indexes in parallel using OpenMP.
@@ -694,7 +694,7 @@ int64_t libsais64_bwt_aux(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int64_t libsais64_bwt_aux_omp(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n, int64_t fs, int64_t * freq, int64_t r, int64_t * I, int64_t threads);
+	int64_t libsais64_bwt_aux_omp(const uint8 * T, uint8 * U, int64_t * A, int64_t n, int64_t fs, int64_t * freq, int64_t r, int64_t * I, int64_t threads);
 #endif
 /**
  * Constructs the original string from a given burrows-wheeler transformed string (BWT) with primary index.
@@ -706,7 +706,7 @@ int64_t libsais64_bwt_aux(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n
  * @param i The primary index.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int64_t libsais64_unbwt(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n, const int64_t * freq, int64_t i);
+int64_t libsais64_unbwt(const uint8 * T, uint8 * U, int64_t * A, int64_t n, const int64_t * freq, int64_t i);
 /**
  * Constructs the original string from a given burrows-wheeler transformed string (BWT) with auxiliary indexes.
  * @param T [0..n-1] The input string.
@@ -718,7 +718,7 @@ int64_t libsais64_unbwt(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n, 
  * @param I [0..(n-1)/r] The input auxiliary indexes.
  * @return 0 if no error occurred, -1 or -2 otherwise.
  */
-int64_t libsais64_unbwt_aux(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n, const int64_t * freq, int64_t r, const int64_t * I);
+int64_t libsais64_unbwt_aux(const uint8 * T, uint8 * U, int64_t * A, int64_t n, const int64_t * freq, int64_t r, const int64_t * I);
 
 #if defined(LIBSAIS_OPENMP)
 	/**
@@ -732,7 +732,7 @@ int64_t libsais64_unbwt_aux(const uint8_t * T, uint8_t * U, int64_t * A, int64_t
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int64_t libsais64_unbwt_omp(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n, const int64_t * freq, int64_t i, int64_t threads);
+	int64_t libsais64_unbwt_omp(const uint8 * T, uint8 * U, int64_t * A, int64_t n, const int64_t * freq, int64_t i, int64_t threads);
 	/**
 	 * Constructs the original string from a given burrows-wheeler transformed string (BWT) with auxiliary indexes in parallel using OpenMP.
 	 * @param T [0..n-1] The input string.
@@ -745,7 +745,7 @@ int64_t libsais64_unbwt_aux(const uint8_t * T, uint8_t * U, int64_t * A, int64_t
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 or -2 otherwise.
 	 */
-	int64_t libsais64_unbwt_aux_omp(const uint8_t * T, uint8_t * U, int64_t * A, int64_t n, const int64_t * freq, int64_t r, const int64_t * I, int64_t threads);
+	int64_t libsais64_unbwt_aux_omp(const uint8 * T, uint8 * U, int64_t * A, int64_t n, const int64_t * freq, int64_t r, const int64_t * I, int64_t threads);
 #endif
 /**
  * Constructs the permuted longest common prefix array (PLCP) of a given string and a suffix array.
@@ -755,7 +755,7 @@ int64_t libsais64_unbwt_aux(const uint8_t * T, uint8_t * U, int64_t * A, int64_t
  * @param n The length of the string and the suffix array.
  * @return 0 if no error occurred, -1 otherwise.
  */
-int64_t libsais64_plcp(const uint8_t * T, const int64_t * SA, int64_t * PLCP, int64_t n);
+int64_t libsais64_plcp(const uint8 * T, const int64_t * SA, int64_t * PLCP, int64_t n);
 /**
  * Constructs the longest common prefix array (LCP) of a given permuted longest common prefix array (PLCP) and a suffix array.
  * @param PLCP [0..n-1] The input permuted longest common prefix array.
@@ -776,7 +776,7 @@ int64_t libsais64_lcp(const int64_t * PLCP, const int64_t * SA, int64_t * LCP, i
 	 * @param threads The number of OpenMP threads to use (can be 0 for OpenMP default).
 	 * @return 0 if no error occurred, -1 otherwise.
 	 */
-	int64_t libsais64_plcp_omp(const uint8_t * T, const int64_t * SA, int64_t * PLCP, int64_t n, int64_t threads);
+	int64_t libsais64_plcp_omp(const uint8 * T, const int64_t * SA, int64_t * PLCP, int64_t n, int64_t threads);
 
 	/**
 	 * Constructs the longest common prefix array (LCP) of a given permuted longest common prefix array (PLCP) and a suffix array in parallel using OpenMP.

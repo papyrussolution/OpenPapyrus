@@ -4735,7 +4735,7 @@ int PPALDD_GoodsStruc::InitData(PPFilt & rFilt, long rsrv)
 			H.LocID = LConfig.Location;
 			H.VariedPropObjType = p_gs->Rec.VariedPropObjType;
 			H.CommDenom = p_gs->Rec.CommDenom;
-			p_gs->CalcEstimationPrice(&H.EstPrice, &uncertainty, 1);
+			p_gs->CalcEstimationPrice(0, &H.EstPrice, &uncertainty, 1);
 			H.fUncertainPrice = uncertainty;
 			H.ItemsCount = p_gs->Items.getCount();
 		}

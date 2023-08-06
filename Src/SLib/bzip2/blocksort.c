@@ -76,7 +76,7 @@ static void fallbackQSort3(uint32 * fmap, uint32 * eclass, int32 loSt, int32 hiS
 	int32  sp = 0;
 	fpush(loSt, hiSt);
 	while(sp > 0) {
-		AssertH(sp < FALLBACK_QSORT_STACK_SIZE - 1, 1004);
+		assert(sp < FALLBACK_QSORT_STACK_SIZE - 1/*, 1004*/);
 		fpop(lo, hi);
 		if((hi - lo) < FALLBACK_QSORT_SMALL_THRESH) {
 			fallbackSimpleSort(fmap, eclass, lo, hi);
@@ -292,7 +292,7 @@ static void fallbackSort(uint32 * fmap, uint32 * eclass, uint32 * bhtab, int32 n
 		ftabCopy[j]--;
 		eclass8[fmap[i]] = (uchar)j;
 	}
-	AssertH(j < 256, 1005);
+	assert(j < 256/*, 1005*/);
 }
 
 #undef       SET_BH
@@ -307,7 +307,6 @@ static void fallbackSort(uint32 * fmap, uint32 * eclass, uint32 * bhtab, int32 n
 /*--- non-repetitive blocks.                ---*/
 /*---------------------------------------------*/
 
-/*---------------------------------------------*/
 static __inline__ bool mainGtU(uint32 i1, uint32 i2, uchar*  block, uint16* quadrant, uint32 nblock, int32*  budget)
 {
 	int32 k;
@@ -565,7 +564,7 @@ static void mainQSort3(uint32 * ptr, uchar*  block, uint16* quadrant, int32 nblo
 	sp = 0;
 	mpush(loSt, hiSt, dSt);
 	while(sp > 0) {
-		AssertH(sp < MAIN_QSORT_STACK_SIZE - 2, 1001);
+		assert(sp < MAIN_QSORT_STACK_SIZE - 2/*, 1001*/);
 		mpop(lo, hi, d);
 		if(hi - lo < MAIN_QSORT_SMALL_THRESH || d > MAIN_QSORT_DEPTH_THRESH) {
 			mainSimpleSort(ptr, block, quadrant, nblock, lo, hi, d, budget);
@@ -805,7 +804,7 @@ zero:
 				ftab[sb] |= SETMASK;
 			}
 		}
-		AssertH(!bigDone[ss], 1006);
+		assert(!bigDone[ss]/*, 1006*/);
 		/*--
 		   Step 2:
 		   Now scan this big bucket [ss] so as to synthesise the
@@ -831,12 +830,12 @@ zero:
 					ptr[ copyEnd[c1]-- ] = k;
 			}
 		}
-		AssertH((copyStart[ss]-1 == copyEnd[ss]) ||
+		assert((copyStart[ss]-1 == copyEnd[ss]) ||
 		    /* Extremely rare case missing in bzip2-1.0.0 and 1.0.1.
 		       Necessity for this case is demonstrated by compressing
 		       a sequence of approximately 48.5 million of character
 		       251; 1.0.0/1.0.1 will then die here. */
-		    (copyStart[ss] == 0 && copyEnd[ss] == nblock-1), 1007)
+		    (copyStart[ss] == 0 && copyEnd[ss] == nblock-1)/*, 1007*/);
 		for(j = 0; j <= 255; j++) 
 			ftab[(j << 8) + ss] |= SETMASK;
 
@@ -893,7 +892,7 @@ zero:
 				if(a2update < BZ_N_OVERSHOOT)
 					quadrant[a2update + nblock] = qVal;
 			}
-			AssertH(((bbSize-1) >> shifts) <= 65535, 1002);
+			assert(((bbSize-1) >> shifts) <= 65535/*, 1002*/);
 		}
 	}
 	if(verb >= 4)
@@ -966,5 +965,5 @@ void BZ2_blockSort(EState * s)
 			s->origPtr = i; 
 			break;
 		}
-	AssertH(s->origPtr != -1, 1003);
+	assert(s->origPtr != -1/*, 1003*/);
 }

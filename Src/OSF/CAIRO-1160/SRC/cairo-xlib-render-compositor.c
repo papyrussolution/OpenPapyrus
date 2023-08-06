@@ -933,7 +933,7 @@ BAIL:
 static cairo_xlib_font_t * _cairo_xlib_font_create(cairo_xlib_display_t * display, cairo_scaled_font_t * font)
 {
 	int i;
-	cairo_xlib_font_t * priv = _cairo_malloc(sizeof(cairo_xlib_font_t));
+	cairo_xlib_font_t * priv = SAlloc::M_zon0(sizeof(cairo_xlib_font_t));
 	if(UNLIKELY(priv == NULL))
 		return NULL;
 	_cairo_scaled_font_attach_private(font, &priv->base, display, _cairo_xlib_font_fini);
@@ -1018,7 +1018,7 @@ static cairo_status_t _cairo_xlib_glyph_attach(cairo_xlib_display_t * display,
 {
 	cairo_xlib_glyph_private_t * priv;
 
-	priv = _cairo_malloc(sizeof(*priv));
+	priv = SAlloc::M_zon0(sizeof(*priv));
 	if(UNLIKELY(priv == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -1183,7 +1183,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 				uchar * n;
 			    if(!c)
 				    break;
-			    p_new = _cairo_malloc(c);
+			    p_new = SAlloc::M_zon0(c);
 			    if(!p_new) {
 				    status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				    goto BAIL;
@@ -1210,7 +1210,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 				uint32 * n;
 			    if(!c)
 				    break;
-			    p_new = _cairo_malloc(4 * c);
+			    p_new = SAlloc::M_zon0(4 * c);
 			    if(UNLIKELY(p_new == NULL)) {
 				    status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				    goto BAIL;

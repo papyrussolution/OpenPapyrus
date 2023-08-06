@@ -3223,7 +3223,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    int32_t minCount = (int32_t)pat[instrOperandLoc+1];
 			    int32_t maxCount = (int32_t)pat[instrOperandLoc+2];
 			    U_ASSERT(minCount>=0);
-			    U_ASSERT(maxCount>=minCount || maxCount==-1);
+			    U_ASSERT(maxCount>=minCount || maxCount == -1);
 			    U_ASSERT(loopLoc>=fp->fPatIdx);
 
 			    if(minCount == 0) {
@@ -3291,7 +3291,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    int32_t minCount = (int32_t)pat[instrOperandLoc+1];
 			    int32_t maxCount = (int32_t)pat[instrOperandLoc+2];
 			    U_ASSERT(minCount>=0);
-			    U_ASSERT(maxCount>=minCount || maxCount==-1);
+			    U_ASSERT(maxCount>=minCount || maxCount == -1);
 			    U_ASSERT(loopLoc>fp->fPatIdx);
 			    if(maxCount == -1) {
 				    fp->fExtra[opValue+1] = fp->fInputIdx; //  Save initial input index for loop
@@ -4688,7 +4688,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    int32_t minCount = (int32_t)pat[instrOperandLoc+1];
 			    int32_t maxCount = (int32_t)pat[instrOperandLoc+2];
 			    U_ASSERT(minCount>=0);
-			    U_ASSERT(maxCount>=minCount || maxCount==-1);
+			    U_ASSERT(maxCount>=minCount || maxCount == -1);
 			    U_ASSERT(loopLoc>=fp->fPatIdx);
 
 			    if(minCount == 0) {
@@ -4755,7 +4755,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    int32_t minCount = (int32_t)pat[instrOperandLoc+1];
 			    int32_t maxCount = (int32_t)pat[instrOperandLoc+2];
 			    U_ASSERT(minCount>=0);
-			    U_ASSERT(maxCount>=minCount || maxCount==-1);
+			    U_ASSERT(maxCount>=minCount || maxCount == -1);
 			    U_ASSERT(loopLoc>fp->fPatIdx);
 			    if(maxCount == -1) {
 				    fp->fExtra[opValue+1] = fp->fInputIdx; //  Save initial input index for loop

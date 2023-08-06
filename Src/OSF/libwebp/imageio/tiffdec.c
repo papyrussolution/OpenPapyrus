@@ -12,14 +12,7 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "./tiffdec.h"
-//#ifdef HAVE_CONFIG_H
-	//#include "webp/config.h"
-//#endif
-//#include <limits.h>
-//#include <stdio.h>
-//#include <string.h>
 #ifdef WEBP_HAVE_TIFF
-//#include <tiffio.h>
 #include <..\slib\libtiff\tiffio.h>
 #include "webp/encode.h"
 #include "./imageio_util.h"

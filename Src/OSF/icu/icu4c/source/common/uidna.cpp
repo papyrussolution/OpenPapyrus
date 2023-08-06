@@ -363,7 +363,7 @@ static int32_t _internal_toUnicode(const char16_t * src, int32_t srcLength, char
 	   int32_t failPos =0;*/
 
 	// step 1: find out if all the codepoints in src are ASCII
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		srcLength = 0;
 		for(; src[srcLength]!=0;) {
 			if(src[srcLength]> 0x7f) {

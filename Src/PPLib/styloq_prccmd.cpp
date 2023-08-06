@@ -198,7 +198,7 @@ SJson * PPStyloQInterchange::ProcessCommand_GetBlob(const StyloQCore::StoragePac
 			{
 				SFileStorage sfs(blob_path);
 				int64   fs = 0; // file-size
-				SHandle rh; // read-handle
+				SPtrHandle rh; // read-handle
 				size_t  actual_size = 0;
 				THROW_SL(sfs.IsValid());
 				rh = sfs.GetFile(_signature, &fs);
@@ -312,7 +312,7 @@ SJson * PPStyloQInterchange::ProcessCommand_ReqBlobInfoList(const StyloQCore::St
 							int64   fs = 0; // file-size
 							size_t  actual_size = 0;
 							content_buf.Z();
-							SHandle rh = sfs.GetFile(p_entry->Signature, &fs); // read-handle
+							SPtrHandle rh = sfs.GetFile(p_entry->Signature, &fs); // read-handle
 							if(rh) {
 								do {
 									THROW_SL(sfs.Read(rh, rb, nominal_readbuf_size, &actual_size));

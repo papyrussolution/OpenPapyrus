@@ -315,7 +315,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const char16_t * src, int32_t srcLen
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		srcLength = u_strlen(src);
 	}
 	if(srcLength>0) {

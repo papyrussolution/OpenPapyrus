@@ -1044,7 +1044,7 @@ static uLong crc32_combine_(uLong crc1, uLong crc2, int64 len2)
 	if(len2 <= 0)
 		return crc1;
 	// put operator for one zero bit in odd 
-	odd[0] = 0xedb88320UL; /* CRC-32 polynomial */
+	odd[0] = /*0xedb88320UL*/SlConst::CrcPoly_CCITT32; /* CRC-32 polynomial */
 	row = 1;
 	for(n = 1; n < GF2_DIM; n++) {
 		odd[n] = row;
@@ -3035,7 +3035,8 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	/* save the current position for rewinding (only if reading) */
 	if(state->mode == GZ_READ) {
 		state->start = LSEEK(state->fd, 0, SEEK_CUR);
-		if(state->start == -1) state->start = 0;
+		if(state->start == -1) 
+			state->start = 0;
 	}
 	gz_reset(state); /* initialize stream */
 	return (gzFile)state; /* return stream */

@@ -228,7 +228,7 @@ static void face_props_parse(twin_face_properties_t * props, const char * s)
 
 static twin_face_properties_t * twin_font_face_create_properties(cairo_font_face_t * twin_face)
 {
-	twin_face_properties_t * props = (twin_face_properties_t *)_cairo_malloc(sizeof(twin_face_properties_t));
+	twin_face_properties_t * props = (twin_face_properties_t *)SAlloc::M_zon0(sizeof(twin_face_properties_t));
 	if(UNLIKELY(props == NULL))
 		return NULL;
 	props->stretch  = TWIN_STRETCH_NORMAL;
@@ -322,7 +322,7 @@ static void twin_hint_pen_and_margins(cairo_t * cr, double * penx, double * peny
 static cairo_status_t twin_scaled_font_compute_properties(cairo_scaled_font_t * scaled_font, cairo_t * cr)
 {
 	cairo_status_t status;
-	twin_scaled_properties_t * props = (twin_scaled_properties_t *)_cairo_malloc(sizeof(twin_scaled_properties_t));
+	twin_scaled_properties_t * props = (twin_scaled_properties_t *)SAlloc::M_zon0(sizeof(twin_scaled_properties_t));
 	if(UNLIKELY(props == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	props->face_props = (twin_face_properties_t *)cairo_font_face_get_user_data(cairo_scaled_font_get_font_face(scaled_font), &twin_properties_key);

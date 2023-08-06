@@ -1734,7 +1734,7 @@ static void makeTokenMap(const UDataSwapper * ds,
 		}
 		/* set the direct bytes (byte 0 always maps to itself) */
 		for(i = 1; i<tokenCount; ++i) {
-			if(tokens[i]==-1) {
+			if(tokens[i] == -1) {
 				/* convert the direct byte character */
 				c1 = (uint8)i;
 				ds->swapInvChars(ds, &c1, 1, &c2, pErrorCode);

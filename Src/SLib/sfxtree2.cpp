@@ -1601,185 +1601,93 @@ int TestSuffixTree()
 	}
 	return ok;
 }
+//
+//
+//
+/*static*/int SaIndex::Cmp(const int32 * pSaIdx_, const SString * pPattern_, const SString * pBuf)
+{
+	int    result = 0;
+	if(pBuf && pPattern_ && pSaIdx_) {
+		//const SBaseBuffer * p_buf = static_cast<const SBaseBuffer *>(pExtraData);
+		const uint8 * p_text_base = pBuf->ucptr();
+		//const int32 & r_idx = *pSaIdx_;
+		//const SString * p_pattern = static_cast<const SString *>(pPattern);
+		const uint8 * p = p_text_base + *pSaIdx_;
+		const size_t sfx_len = pBuf->Len() - *pSaIdx_;
+		result = memcmp(p, pPattern_->ucptr(), MIN(pPattern_->Len(), sfx_len));
+		if(result == 0 && sfx_len < pPattern_->Len())
+			result = -1;
+	}
+	return result;
+}
 
-class SaIndex {
-	static int Cmp(const int32 * pSaIdx_, const SString * pPattern_, const SString * pBuf)
-	{
-		int    result = 0;
-		if(pBuf && pPattern_ && pSaIdx_) {
-			//const SBaseBuffer * p_buf = static_cast<const SBaseBuffer *>(pExtraData);
-			const uint8 * p_text_base = pBuf->ucptr();
-			//const int32 & r_idx = *pSaIdx_;
-			//const SString * p_pattern = static_cast<const SString *>(pPattern);
-			const uint8 * p = p_text_base + *pSaIdx_;
-			const size_t sfx_len = pBuf->Len() - *pSaIdx_;
-			result = memcmp(p, pPattern_->ucptr(), MIN(pPattern_->Len(), sfx_len));
-			if(result == 0 && sfx_len < pPattern_->Len())
-				result = -1;
-		}
-		return result;
+/*static*/IMPL_CMPMEMBFUNC(SaIndex, SaIndexEntry, pSaIdx, pPattern)
+{
+	return Cmp(static_cast<const int32 *>(pSaIdx), static_cast<const SString *>(pPattern), static_cast<const SString *>(pExtraData));
+}
+
+SaIndex::SaIndex()
+{
+}
+
+SaIndex::SaIndex(const char * pText, size_t textLen)
+{
+	if(pText && textLen) {
+		Text.CopyFromN(pText, textLen);
 	}
-	static IMPL_CMPFUNC(SaIndexEntry, pSaIdx, pPattern)
-	{
-		return Cmp(static_cast<const int32 *>(pSaIdx), static_cast<const SString *>(pPattern), static_cast<const SString *>(pExtraData));
-	}
-public:
-	SaIndex()
-	{
-	}
-	SaIndex(const char * pText, size_t textLen)
-	{
-		if(pText && textLen) {
-			Text.CopyFromN(pText, textLen);
-		}
-	}
-	~SaIndex()
-	{
-		Text.Destroy();
-	}
-	int    Build()
-	{
-		int    ok = -1;
-		if(Text.Len()) {
-			if(Sa.insertChunk(static_cast<uint>(Text.Len()), 0)) {
-				if(libsais(Text.ucptr(), reinterpret_cast<int32_t *>(Sa.dataPtr()), static_cast<uint>(Text.Len()), 0, 0/*freq*/) == 0)
-					ok = 1;
-				else
-					ok = 0;
-			}
+}
+
+SaIndex::~SaIndex()
+{
+	Text.Destroy();
+}
+	
+int SaIndex::Build()
+{
+	int    ok = -1;
+	if(Text.Len()) {
+		if(Sa.insertChunk(static_cast<uint>(Text.Len()), 0)) {
+			if(libsais(Text.ucptr(), reinterpret_cast<int32_t *>(Sa.dataPtr()), static_cast<uint>(Text.Len()), 0, 0/*freq*/) == 0)
+				ok = 1;
 			else
 				ok = 0;
 		}
-		return ok;
+		else
+			ok = 0;
 	}
-	uint   Search_fallback(const char * pPattern, LongArray * pPosList) const
-	{
-		uint   _count = 0;
-		size_t  pos = 0;
-		if(Text.Search(pPattern, 0, 0, &pos)) {
-			do {
-				if(pPosList)
-					pPosList->add(static_cast<uint>(pos));
-				_count++;
-				pos++;				
-			} while(pos < Text.Len() && Text.Search(pPattern, pos, 0, &pos));
-		}
-		return _count;
-	}
-	uint   Search(const char * pPattern, LongArray * pPosList) const
-	{
-		uint   _count = 0;
-		CALLPTRMEMB(pPosList, Z());
-		if(Text.Len() && Sa.getCount() >= Text.Len() && !isempty(pPattern)) {
-			uint   pos = 0;
-			SString pattern(pPattern);
-			if(Sa.bsearch(&pattern, &pos, PTR_CMPFUNC(SaIndexEntry), 0, const_cast<SString *>(&Text))) {
-				do {
-					if(pPosList)
-						pPosList->add(Sa.at(pos));
-					_count++;
-					pos++;
-				} while(pos < Sa.getCount() && Cmp(&Sa.at(pos), &pattern, &Text) == 0);
-			}
-		}
-		return _count;
-	}
-	SString Text;
-	TSVector <int32> Sa; // suffix array  
-};
-
-#if SLTEST_RUNNING // {
-
-struct TestFixtureSuffixArray {
-	TestFixtureSuffixArray() : SfxArray_Sais(0), SfxArray_DivSufSort(0), InBuf(SKILOBYTE(16)), InBufSize(0)
-	{
-	}
-	int Init(const char * pInFileName)
-	{
-		int    ok = 1;
-		SFile f_inp(pInFileName, SFile::mRead|SFile::mBinary);
-		THROW(f_inp.IsValid());
-		THROW(InBuf.IsValid());
-		THROW(f_inp.ReadAll(InBuf, 0, &InBufSize));
-		assert(InBuf.GetSize() >= InBufSize);
-		THROW(SfxArray_Sais = new int32[InBufSize]);
-		THROW(SfxArray_DivSufSort = new int32[InBufSize]);
-		CATCHZOK
-		return ok;
-	}
-	~TestFixtureSuffixArray()
-	{
-		delete [] SfxArray_Sais;
-		delete [] SfxArray_DivSufSort;
-	}
-	STempBuffer InBuf;
-	size_t InBufSize;
-	int32 * SfxArray_Sais;
-	int32 * SfxArray_DivSufSort;
-};
-
-SLTEST_FIXTURE(SuffixArray, TestFixtureSuffixArray)
-{
-	// int32_t libsais(const uint8_t * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq);
-	// int divsufsort(const uchar * T, int * SA, int n, int openMP);
-	// benchmark=sais;divsufsort
-	int    bm = -1;
-	if(pBenchmark == 0) {
-		THROW(SLCHECK_NZ(F.Init(MakeInputFilePath("shakespeare.txt"))));
-		bm = 0;
-	}
-	else if(sstreqi_ascii(pBenchmark, "sais"))
-		bm = 1;
-	else if(sstreqi_ascii(pBenchmark, "divsufsort"))
-		bm = 2;
-	//SFile f_inp(MakeInputFilePath("shakespeare.txt"), SFile::mRead|SFile::mBinary);
-	//STempBuffer in_buf(SKILOBYTE(16));
-	//int32 * sfxarray_sais = 0;
-	//int32 * sfxarray_divsufsort = 0;
-	//size_t in_buf_size = 0;
-	
-	//f_inp.CalcSize(&fsize);
-	//size_t size = ftell(fp);
-	//fseek(fp, 0, SEEK_SET);
-	
-	//THROW(SLCHECK_NZ(f_inp.IsValid()));
-	//THROW(SLCHECK_NZ(in_buf.IsValid()));
-	//THROW(SLCHECK_NZ(f_inp.ReadAll(in_buf, 0, &in_buf_size)));
-	//assert(in_buf.GetSize() >= in_buf_size);
-	if(bm == 0) {
-		//sfxarray_sais = new int32[in_buf_size];
-		THROW(SLCHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, F.InBufSize, 0, 0/*freq*/)));
-		//sfxarray_divsufsort = new int32[in_buf_size];
-		THROW(SLCHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, F.InBufSize, 0)));
-		THROW(SLCHECK_Z(memcmp(F.SfxArray_Sais, F.SfxArray_DivSufSort, F.InBufSize * sizeof(int32))));
-		{
-			const char * p_pattern = "trophies";
-			LongArray pos_list_fallback;
-			LongArray pos_list;
-			SaIndex saidx(F.InBuf, F.InBufSize);
-			saidx.Text.Utf8ToLower();
-			THROW(SLCHECK_NZ(saidx.Build()));
-			uint cf = saidx.Search_fallback(p_pattern, &pos_list_fallback);
-			uint c = saidx.Search(p_pattern, &pos_list);
-			pos_list_fallback.sort();
-			pos_list.sort();
-			SLCHECK_LE(0U, cf);
-			SLCHECK_EQ(cf, c);
-			SLCHECK_NZ(pos_list.IsEq(&pos_list_fallback));
-		}
-	}
-	else if(bm == 1) {
-		memzero(F.SfxArray_Sais, F.InBufSize * sizeof(int));
-		THROW(SLCHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, F.InBufSize, 0, 0/*freq*/)));
-	}
-	else if(bm == 2) {
-		memzero(F.SfxArray_DivSufSort, F.InBufSize);
-		THROW(SLCHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, F.InBufSize, 0)));
-	}
-	CATCH
-		CurrentStatus = 0;
-	ENDCATCH
-	return CurrentStatus;
+	return ok;
 }
 
-#endif
+uint SaIndex::Search_fallback(const char * pPattern, LongArray * pPosList) const
+{
+	uint   _count = 0;
+	size_t  pos = 0;
+	if(Text.Search(pPattern, 0, 0, &pos)) {
+		do {
+			if(pPosList)
+				pPosList->add(static_cast<uint>(pos));
+			_count++;
+			pos++;				
+		} while(pos < Text.Len() && Text.Search(pPattern, pos, 0, &pos));
+	}
+	return _count;
+}
+
+uint SaIndex::Search(const char * pPattern, LongArray * pPosList) const
+{
+	uint   _count = 0;
+	CALLPTRMEMB(pPosList, Z());
+	if(Text.Len() && Sa.getCount() >= Text.Len() && !isempty(pPattern)) {
+		uint   pos = 0;
+		SString pattern(pPattern);
+		if(Sa.bsearch(&pattern, &pos, PTR_CMPFUNC(SaIndexEntry), 0, const_cast<SString *>(&Text))) {
+			do {
+				if(pPosList)
+					pPosList->add(Sa.at(pos));
+				_count++;
+				pos++;
+			} while(pos < Sa.getCount() && Cmp(&Sa.at(pos), &pattern, &Text) == 0);
+		}
+	}
+	return _count;
+}

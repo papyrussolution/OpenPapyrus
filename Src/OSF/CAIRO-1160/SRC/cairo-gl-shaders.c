@@ -617,7 +617,7 @@ static void compile_shader(cairo_gl_context_t * ctx,
 		return;
 	}
 
-	log = _cairo_malloc(log_size + 1);
+	log = SAlloc::M_zon0(log_size + 1);
 	dispatch->GetShaderInfoLog(*shader, log_size, &num_chars, log);
 	log[num_chars] = '\0';
 
@@ -662,7 +662,7 @@ static void link_shader_program(cairo_gl_context_t * ctx,
 		return;
 	}
 
-	log = _cairo_malloc(log_size + 1);
+	log = SAlloc::M_zon0(log_size + 1);
 	dispatch->GetProgramInfoLog(*program, log_size, &num_chars, log);
 	log[num_chars] = '\0';
 
@@ -882,7 +882,7 @@ cairo_status_t _cairo_gl_get_shader_by_type(cairo_gl_context_t * ctx,
 	if(UNLIKELY(status))
 		return status;
 
-	entry = _cairo_malloc(sizeof(cairo_shader_cache_entry_t));
+	entry = SAlloc::M_zon0(sizeof(cairo_shader_cache_entry_t));
 	if(UNLIKELY(entry == NULL)) {
 		SAlloc::F(fs_source);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);

@@ -91,14 +91,14 @@ static size_t ZSTD_loadEntropy_intoDDict(ZSTD_DDict* ddict,
 			return ERROR(dictionary_corrupted); /* only accept specified dictionaries */
 		return 0; /* pure content mode */
 	}
-	{   const uint32 magic = MEM_readLE32(ddict->dictContent);
+	{   const uint32 magic = SMem::GetLe32(ddict->dictContent);
 	    if(magic != ZSTD_MAGIC_DICTIONARY) {
 		    if(dictContentType == ZSTD_dct_fullDict)
 			    return ERROR(dictionary_corrupted); /* only accept specified dictionaries */
 		    return 0; /* pure content mode */
 	    }
 	}
-	ddict->dictID = MEM_readLE32((const char *)ddict->dictContent + ZSTD_FRAMEIDSIZE);
+	ddict->dictID = SMem::GetLe32((const char *)ddict->dictContent + ZSTD_FRAMEIDSIZE);
 
 	/* load entropy tables */
 	RETURN_ERROR_IF(ZSTD_isError(ZSTD_loadDEntropy(

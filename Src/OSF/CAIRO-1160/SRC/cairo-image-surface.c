@@ -135,7 +135,7 @@ void _cairo_image_surface_init(cairo_image_surface_t * surface, pixman_image_t *
 
 cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * pixman_image, pixman_format_code_t pixman_format)
 {
-	cairo_image_surface_t * surface = static_cast<cairo_image_surface_t *>(_cairo_malloc(sizeof(cairo_image_surface_t)));
+	cairo_image_surface_t * surface = static_cast<cairo_image_surface_t *>(SAlloc::M_zon0(sizeof(cairo_image_surface_t)));
 	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_image_surface_backend, NULL/* device */, _cairo_content_from_pixman_format(pixman_format), FALSE/* is_vector */);

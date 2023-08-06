@@ -1842,6 +1842,11 @@ void FASTCALL SPaintObj::Brush::SetSimple(SColor c)
 SFontSource::SFontSource()
 {
 }
+
+bool FASTCALL SFontSource::IsEq(const SFontSource & rS) const
+{
+	return Face.IsEqiAscii(rS.Face) && Src.IsEqiAscii(rS.Src);
+}
 	
 SFontSource & SFontSource::Z()
 {

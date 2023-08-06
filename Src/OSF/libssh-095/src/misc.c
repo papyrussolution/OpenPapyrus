@@ -1219,8 +1219,7 @@ int ssh_make_milliseconds(long sec, long usec)
 	int res = usec ? (usec / 1000) : 0;
 	res += (sec * 1000);
 	if(res == 0) {
-		res = 10 * 1000; /* use a reasonable default value in case
-		                  * SSH_OPTIONS_TIMEOUT is not set in options. */
+		res = 10 * 1000; /* use a reasonable default value in case SSH_OPTIONS_TIMEOUT is not set in options. */
 	}
 	return res;
 }
@@ -1251,9 +1250,7 @@ int ssh_timeout_elapsed(struct ssh_timestamp * ts, int timeout)
 		default:
 		    break;
 	}
-
 	ssh_timestamp_init(&now);
-
 	return (ssh_timestamp_difference(ts, &now) >= timeout);
 }
 
@@ -1264,7 +1261,8 @@ int ssh_timeout_elapsed(struct ssh_timestamp * ts, int timeout)
  *       timeout
  * @returns   remaining time in milliseconds, 0 if elapsed, -1 if never.
  */
-int ssh_timeout_update(struct ssh_timestamp * ts, int timeout){
+int ssh_timeout_update(struct ssh_timestamp * ts, int timeout)
+{
 	struct ssh_timestamp now;
 	int ms, ret;
 	if(timeout <= 0) {
@@ -1280,12 +1278,9 @@ int ssh_timeout_update(struct ssh_timestamp * ts, int timeout){
 
 int ssh_match_group(const char * group, const char * object)
 {
-	const char * a;
-	const char * z;
-
-	z = group;
+	const char * z = group;
 	do {
-		a = strchr(z, ',');
+		const char * a = strchr(z, ',');
 		if(!a) {
 			if(strcmp(z, object) == 0) {
 				return 1;

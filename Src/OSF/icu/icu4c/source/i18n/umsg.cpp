@@ -335,7 +335,7 @@ U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const char16_t * s
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-	if(sourceLength==-1) {
+	if(sourceLength == -1) {
 		sourceLength = u_strlen(source);
 	}
 	UnicodeString srcString(source, sourceLength);

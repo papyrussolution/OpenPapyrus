@@ -209,9 +209,15 @@ int FASTCALL S_GUID_Base::FromStr(const char * pBuf)
 		uint8 * p_data = reinterpret_cast<uint8 *>(Data);
 		for(i = 0; i < 16; i++)
 			p_data[i] = hextobyte(temp_buf + (i << 1));
-		for(i = 0; i < 4; i++)
+		/*
+		for(i = 0; i < 4; i++) {
 			*reinterpret_cast<uint16 *>(p_data+i*2) = swapw(*PTR16(p_data+i*2));
+		}
 		*reinterpret_cast<uint32 *>(p_data) = swapdw(*PTR32(p_data));
+		*/
+		*reinterpret_cast<uint32 *>(p_data) = SMem::BSwap(*PTR32(p_data));
+		*reinterpret_cast<uint16 *>(p_data+sizeof(uint32)) = SMem::BSwap(*PTR16(p_data+sizeof(uint32)));
+		*reinterpret_cast<uint16 *>(p_data+sizeof(uint32)+sizeof(uint16)) = SMem::BSwap(*PTR16(p_data+sizeof(uint32)+sizeof(uint16)));
 	}
 	else {
 		memzero(Data, sizeof(Data));

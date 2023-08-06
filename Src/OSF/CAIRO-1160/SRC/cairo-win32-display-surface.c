@@ -230,7 +230,7 @@ static cairo_surface_t * _cairo_win32_display_surface_create_for_dc(HDC original
 	cairo_device_t * device;
 	uchar * bits;
 	int rowstride;
-	cairo_win32_display_surface_t * surface = static_cast<cairo_win32_display_surface_t *>(_cairo_malloc(sizeof(*surface)));
+	cairo_win32_display_surface_t * surface = static_cast<cairo_win32_display_surface_t *>(SAlloc::M_zon0(sizeof(*surface)));
 	if(surface == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface->fallback = NULL;
@@ -549,7 +549,7 @@ cairo_status_t _cairo_win32_display_surface_set_clip(const cairo_win32_display_s
 	 */
 	data_size = sizeof(RGNDATAHEADER) + num_rects * sizeof(RECT);
 	if(data_size > sizeof(stack)) {
-		data = static_cast<RGNDATA *>(_cairo_malloc(data_size));
+		data = static_cast<RGNDATA *>(SAlloc::M_zon0(data_size));
 		if(!data)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -731,7 +731,7 @@ cairo_surface_t * cairo_win32_surface_create_with_format(HDC hdc, cairo_format_t
 		case CAIRO_FORMAT_RGB24:
 		    break;
 	}
-	surface = static_cast<cairo_win32_display_surface_t *>(_cairo_malloc(sizeof(*surface)));
+	surface = static_cast<cairo_win32_display_surface_t *>(SAlloc::M_zon0(sizeof(*surface)));
 	if(surface == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	status = _cairo_win32_save_initial_clip(hdc, surface);

@@ -2389,7 +2389,7 @@ MEM_STATIC size_t ZSTD_entropyCompressSeqStore_internal(seqStore_t* seqStorePtr,
 	}
 	else {
 		op[0] = 0xFF;
-		MEM_writeLE16(op+1, (uint16)(nbSeq - LONGNBSEQ));
+		SMem::PutLe(op+1, (uint16)(nbSeq - LONGNBSEQ));
 		op += 3;
 	}
 	assert(op <= oend);
@@ -2759,7 +2759,7 @@ static int ZSTD_isRLE(const BYTE * src, size_t length)
 	}
 	for(i = prefixLength; i != length; i += unrollSize) {
 		for(u = 0; u < unrollSize; u += sizeof(size_t)) {
-			if(MEM_readST(ip + i + u) != valueST) {
+			if(SMem::GetSizeT(ip + i + u) != valueST) {
 				return 0;
 			}
 		}
@@ -3740,7 +3740,7 @@ static size_t ZSTD_writeFrameHeader(void * dst, size_t dstCapacity,
 	RETURN_ERROR_IF(dstCapacity < ZSTD_FRAMEHEADERSIZE_MAX, dstSize_tooSmall, "dst buf is too small to fit worst-case frame header size.");
 	DEBUGLOG(4, "ZSTD_writeFrameHeader : dictIDFlag : %u ; dictID : %u ; dictIDSizeCode : %u", !params->fParams.noDictIDFlag, (uint)dictID, (uint)dictIDSizeCode);
 	if(params->format == ZSTD_f_zstd1) {
-		MEM_writeLE32(dst, ZSTD_MAGICNUMBER);
+		SMem::PutLe(dst, ZSTD_MAGICNUMBER);
 		pos = 4;
 	}
 	op[pos++] = frameHeaderDescriptionByte;
@@ -3752,18 +3752,17 @@ static size_t ZSTD_writeFrameHeader(void * dst, size_t dstCapacity,
 		    CXX_FALLTHROUGH;
 		case 0: break;
 		case 1: op[pos] = (BYTE)(dictID); pos++; break;
-		case 2: MEM_writeLE16(op+pos, (uint16)dictID); pos += 2; break;
-		case 3: MEM_writeLE32(op+pos, dictID); pos += 4; break;
+		case 2: SMem::PutLe(op+pos, (uint16)dictID); pos += 2; break;
+		case 3: SMem::PutLe(op+pos, dictID); pos += 4; break;
 	}
-	switch(fcsCode)
-	{
+	switch(fcsCode) {
 		default:
 		    assert(0); /* impossible */
 		    CXX_FALLTHROUGH;
 		case 0: if(singleSegment) op[pos++] = (BYTE)(pledgedSrcSize); break;
-		case 1: MEM_writeLE16(op+pos, (uint16)(pledgedSrcSize-256)); pos += 2; break;
-		case 2: MEM_writeLE32(op+pos, (uint32)(pledgedSrcSize)); pos += 4; break;
-		case 3: MEM_writeLE64(op+pos, (uint64)(pledgedSrcSize)); pos += 8; break;
+		case 1: SMem::PutLe(op+pos, (uint16)(pledgedSrcSize-256)); pos += 2; break;
+		case 2: SMem::PutLe(op+pos, (uint32)(pledgedSrcSize)); pos += 4; break;
+		case 3: SMem::PutLe(op+pos, (uint64)(pledgedSrcSize)); pos += 8; break;
 	}
 	return pos;
 }
@@ -3782,8 +3781,8 @@ size_t ZSTD_writeSkippableFrame(void * dst, size_t dstCapacity, const void * src
 	RETURN_ERROR_IF(srcSize > (uint)0xFFFFFFFF, srcSize_wrong, "Src size too large for skippable frame");
 	RETURN_ERROR_IF(magicVariant > 15, parameter_outOfBound, "Skippable frame magic number variant not supported");
 
-	MEM_writeLE32(op, (uint32)(ZSTD_MAGIC_SKIPPABLE_START + magicVariant));
-	MEM_writeLE32(op+4, (uint32)srcSize);
+	SMem::PutLe(op, (uint32)(ZSTD_MAGIC_SKIPPABLE_START + magicVariant));
+	SMem::PutLe(op+4, (uint32)srcSize);
 	memcpy(op+8, src, srcSize);
 	return srcSize + ZSTD_SKIPPABLEHEADERSIZE;
 }
@@ -4067,9 +4066,9 @@ size_t ZSTD_loadCEntropy(ZSTD_compressedBlockState_t* bs, void * workspace, cons
 	    dictPtr += litlengthHeaderSize;
 	}
 	RETURN_ERROR_IF(dictPtr+12 > dictEnd, dictionary_corrupted, "");
-	bs->rep[0] = MEM_readLE32(dictPtr+0);
-	bs->rep[1] = MEM_readLE32(dictPtr+4);
-	bs->rep[2] = MEM_readLE32(dictPtr+8);
+	bs->rep[0] = SMem::GetLe32(dictPtr+0);
+	bs->rep[1] = SMem::GetLe32(dictPtr+4);
+	bs->rep[2] = SMem::GetLe32(dictPtr+8);
 	dictPtr += 12;
 	{   
 		const size_t dictContentSize = (size_t)(dictEnd - dictPtr);
@@ -4109,9 +4108,9 @@ static size_t ZSTD_loadZstdDictionary(ZSTD_compressedBlockState_t* bs, ZSTD_matc
 	size_t eSize;
 	ZSTD_STATIC_ASSERT(HUF_WORKSPACE_SIZE >= (1<<MAX(MLFSELog, LLFSELog)));
 	assert(dictSize >= 8);
-	assert(MEM_readLE32(dictPtr) == ZSTD_MAGIC_DICTIONARY);
+	assert(SMem::GetLe32(dictPtr) == ZSTD_MAGIC_DICTIONARY);
 
-	dictID = params->fParams.noDictIDFlag ? 0 :  MEM_readLE32(dictPtr + 4 /* skip magic number */);
+	dictID = params->fParams.noDictIDFlag ? 0 :  SMem::GetLe32(dictPtr + 4 /* skip magic number */);
 	eSize = ZSTD_loadCEntropy(bs, workspace, dict, dictSize);
 	FORWARD_IF_ERROR(eSize, "ZSTD_loadCEntropy failed");
 	dictPtr += eSize;
@@ -4139,7 +4138,7 @@ static size_t ZSTD_compress_insertDictionary(ZSTD_compressedBlockState_t* bs, ZS
 	/* dict restricted modes */
 	if(dictContentType == ZSTD_dct_rawContent)
 		return ZSTD_loadDictionaryContent(ms, ls, ws, params, dict, dictSize, dtlm);
-	if(MEM_readLE32(dict) != ZSTD_MAGIC_DICTIONARY) {
+	if(SMem::GetLe32(dict) != ZSTD_MAGIC_DICTIONARY) {
 		if(dictContentType == ZSTD_dct_auto) {
 			DEBUGLOG(4, "raw content dictionary detected");
 			return ZSTD_loadDictionaryContent(ms, ls, ws, params, dict, dictSize, dtlm);
@@ -4243,7 +4242,7 @@ static size_t ZSTD_writeEpilogue(ZSTD_CCtx* cctx, void * dst, size_t dstCapacity
 		/* write one last empty block, make it the "last" block */
 		const uint32 cBlockHeader24 = 1 /* last block */ + (((uint32)bt_raw)<<1) + 0;
 		RETURN_ERROR_IF(dstCapacity<4, dstSize_tooSmall, "no room for epilogue");
-		MEM_writeLE32(op, cBlockHeader24);
+		SMem::PutLe(op, cBlockHeader24);
 		op += ZSTD_blockHeaderSize;
 		dstCapacity -= ZSTD_blockHeaderSize;
 	}
@@ -4251,7 +4250,7 @@ static size_t ZSTD_writeEpilogue(ZSTD_CCtx* cctx, void * dst, size_t dstCapacity
 		const uint32 checksum = (uint32)XXH64_digest(&cctx->xxhState);
 		RETURN_ERROR_IF(dstCapacity<4, dstSize_tooSmall, "no room for checksum");
 		DEBUGLOG(4, "ZSTD_writeEpilogue: write checksum : %08X", (uint)checksum);
-		MEM_writeLE32(op, checksum);
+		SMem::PutLe(op, checksum);
 		op += 4;
 	}
 	cctx->stage = ZSTDcs_created; /* return to "created but no init" status */
@@ -5664,7 +5663,7 @@ static size_t ZSTD_compressSequences_internal(ZSTD_CCtx* cctx,
 	if(remaining == 0) {
 		const uint32 cBlockHeader24 = 1 /* last block */ + (((uint32)bt_raw)<<1);
 		RETURN_ERROR_IF(dstCapacity<4, dstSize_tooSmall, "No room for empty frame block header");
-		MEM_writeLE32(op, cBlockHeader24);
+		SMem::PutLe(op, cBlockHeader24);
 		op += ZSTD_blockHeaderSize;
 		dstCapacity -= ZSTD_blockHeaderSize;
 		cSize += ZSTD_blockHeaderSize;
@@ -5802,7 +5801,7 @@ size_t ZSTD_compressSequences(ZSTD_CCtx* cctx,
 		const uint32 checksum = (uint32)XXH64_digest(&cctx->xxhState);
 		RETURN_ERROR_IF(dstCapacity<4, dstSize_tooSmall, "no room for checksum");
 		DEBUGLOG(4, "Write checksum : %08X", (uint)checksum);
-		MEM_writeLE32((char *)dst + cSize, checksum);
+		SMem::PutLe((char *)dst + cSize, checksum);
 		cSize += 4;
 	}
 

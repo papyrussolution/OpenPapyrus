@@ -886,7 +886,7 @@ void StdTreeListBoxDef2_::getScrollData(long * pScrollDelta, long * pScrollPos)
 		uint   pos = 0;
 		long * p_id = static_cast<long *>(getRow_(_curItem()));
 		if(p_id && *p_id /*&& LL.lsearch(*p_id, &pos)*/) {
-			SHandle h = P_SaList->Search(*p_id);
+			SPtrHandle h = P_SaList->Search(*p_id);
 			if(h) {
 				uintptr_t extra = P_SaList->GetNodeExtraPtr(h);
 				ASSIGN_PTR(pScrollPos, static_cast<long>(extra));
@@ -943,7 +943,7 @@ int  StdTreeListBoxDef2_::search(const void * pPattern, CompFunc fcmp, int srchM
 				}*/
 				if(p_pattern[0]) {
 					bool do_setup_pos = false;
-					TSVector <SHandle> result_list;
+					TSVector <SPtrHandle> result_list;
 					SETIFZ(fcmp, substFCMP);
 					/*if(dir == srchFirst && Sb.P_LastResult && Sb.LastPattern != p_pattern) {
 						const uint lsrp = Sb.P_LastResult->getPointer();

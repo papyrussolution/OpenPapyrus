@@ -1444,7 +1444,7 @@ static size_t ZSTDMT_flushProduced(ZSTDMT_CCtx* mtctx, ZSTD_outBuffer* output, u
 	    if( (srcConsumed == srcSize) /* job completed -> worker no longer active */ && mtctx->jobs[wJobID].frameChecksumNeeded) {
 		    const uint32 checksum = (uint32)XXH64_digest(&mtctx->serial.xxhState);
 		    DEBUGLOG(4, "ZSTDMT_flushProduced: writing checksum : %08X \n", checksum);
-		    MEM_writeLE32((char *)mtctx->jobs[wJobID].dstBuff.start + mtctx->jobs[wJobID].cSize, checksum);
+		    SMem::PutLe((char *)mtctx->jobs[wJobID].dstBuff.start + mtctx->jobs[wJobID].cSize, checksum);
 		    cSize += 4;
 		    mtctx->jobs[wJobID].cSize += 4; /* can write this shared value, as worker is no longer active */
 		    mtctx->jobs[wJobID].frameChecksumNeeded = 0;

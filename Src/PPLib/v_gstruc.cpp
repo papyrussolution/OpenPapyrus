@@ -1003,9 +1003,9 @@ StrAssocTree * GoodsStrucTreeListViewBlock::MakeTree()
 			const GoodsStrucProcessingBlock::StrucEntry & r_se = Cb.StrucList.at(sidx);
 			if(r_se.ParentStrucID == 0) {
 				const PPID gs_id = r_se.GStrucID;
-				SHandle _ph = p_list->Search(gs_id);
+				SPtrHandle _ph = p_list->Search(gs_id);
 				if(!_ph) {
-					SHandle result = p_list->Add_Unsafe(SHandle(), gs_id, MakeText(r_se, temp_buf));
+					SPtrHandle result = p_list->Add_Unsafe(SPtrHandle(), gs_id, MakeText(r_se, temp_buf));
 					if(result) {
 						for(uint iidx = 0; iidx < Cb.ItemList.getCount(); iidx++) {
 							const GoodsStrucProcessingBlock::ItemEntry & r_ie = Cb.ItemList.at(iidx);
@@ -1064,7 +1064,7 @@ SString & GoodsStrucTreeListViewBlock::MakeText(const GoodsStrucProcessingBlock:
 	return rTitleBuf;
 }
 	
-void GoodsStrucTreeListViewBlock::AddEntry_TopDown(StrAssocTree * pList, uint level, uint idx, const GoodsStrucProcessingBlock::ItemEntry & rEntry, SHandle hParent, LongArray & rRecurList)
+void GoodsStrucTreeListViewBlock::AddEntry_TopDown(StrAssocTree * pList, uint level, uint idx, const GoodsStrucProcessingBlock::ItemEntry & rEntry, SPtrHandle hParent, LongArray & rRecurList)
 {
 	assert(level <= 255);
 	if(rEntry.GStrucID && !rRecurList.lsearch(rEntry.GoodsID)) {
@@ -1079,7 +1079,7 @@ void GoodsStrucTreeListViewBlock::AddEntry_TopDown(StrAssocTree * pList, uint le
 		else
 			TitleBuf = "#ng";
 		const long _ident = (idx | ((level + 1) << 24));
-		SHandle h_new = pList->Add_Unsafe(hParent, _ident, TitleBuf);
+		SPtrHandle h_new = pList->Add_Unsafe(hParent, _ident, TitleBuf);
 		if(h_new) {
 			rRecurList.add(rEntry.GoodsID);
 			for(uint inner_gl_idx = 0; Cb.StrucList.lsearch(&rEntry.GoodsID, &inner_gl_idx, CMPF_LONG, offsetof(GoodsStrucProcessingBlock::StrucEntry, PrmrGoodsID)); inner_gl_idx++) {
@@ -1205,7 +1205,7 @@ static int __MakeGoodsStrucTreeListView(/*PPViewBrowser * pBrw*/)
 	return ok;
 }
 
-static int Helper_TreeListToSylk(const StrAssocTree * pData, SHandle hEntry, uint & rRowN, uint levelN, SylkWriter & rSw)
+static int Helper_TreeListToSylk(const StrAssocTree * pData, SPtrHandle hEntry, uint & rRowN, uint levelN, SylkWriter & rSw)
 {
 	int    ok = 0;
 	assert(pData);
@@ -1223,7 +1223,7 @@ static int Helper_TreeListToSylk(const StrAssocTree * pData, SHandle hEntry, uin
 			do_process_list = true;
 		}
 		if(do_process_list) {
-			TSVector <SHandle> inner_list;
+			TSVector <SPtrHandle> inner_list;
 			if(pData->GetListByParent_Unsafe(hEntry, false, inner_list) > 0) {
 				assert(inner_list.getCount());
 				for(uint i = 0; i < inner_list.getCount(); i++) {
@@ -1239,7 +1239,7 @@ static int CopyTreeListToClipboard(const StrAssocTree * pData)
 {
 	int    ok = -1;
 	if(pData && pData->GetCount()) {
-		const uint _depth = pData->GetDepth(SHandle(0));
+		const uint _depth = pData->GetDepth(SPtrHandle(0));
 		SString val_buf;
 		SString out_buf;
 		if(_depth > 0) {
@@ -1257,7 +1257,7 @@ static int CopyTreeListToClipboard(const StrAssocTree * pData)
 			sw.PutRec('F', "G");
 			uint   rown = 0;
 			uint   level = 0;
-			Helper_TreeListToSylk(pData, SHandle(0), rown, level, sw);
+			Helper_TreeListToSylk(pData, SPtrHandle(0), rown, level, sw);
 			sw.PutLine("E");
 			{
 				sw.GetBuf(&out_buf);

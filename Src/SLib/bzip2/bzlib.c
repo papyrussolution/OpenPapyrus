@@ -29,6 +29,7 @@
 // Compression stuff
 // 
 #ifndef BZ_NO_STDIO
+#if 0 // @v11.7.11 {
 void BZ2_bz__AssertH__fail(int errcode)
 {
 	slfprintf_stderr("\n\nbzip2/libbzip2: internal error number %d.\n"
@@ -68,6 +69,7 @@ void BZ2_bz__AssertH__fail(int errcode)
 	}
 	exit(3);
 }
+#endif // } @v11.7.11
 #endif
 
 /* @v10.7.12 (tested at slsess) static int bz_config_ok(void)
@@ -782,7 +784,7 @@ int BZ2_bzDecompress(bz_stream *strm)
 			if(s->state != BZ_X_OUTPUT) return r;
 		}
 	}
-	AssertH(0, 6001);
+	assert(0/*, 6001*/);
 	return 0; /*NOTREACHED*/
 }
 

@@ -79,7 +79,7 @@ static const cairo_surface_backend_t proxy_backend  = {
 
 static cairo_surface_t * attach_proxy(cairo_surface_t * source, cairo_surface_t * target)
 {
-	struct proxy * proxy = static_cast<struct proxy *>(_cairo_malloc(sizeof(*proxy)));
+	struct proxy * proxy = static_cast<struct proxy *>(SAlloc::M_zon0(sizeof(*proxy)));
 	if(UNLIKELY(proxy == NULL))
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_surface_init(&proxy->base, &proxy_backend, NULL, target->content, target->is_vector);
@@ -576,7 +576,7 @@ cairo_surface_t * _cairo_analysis_surface_create(cairo_surface_t * target)
 	cairo_status_t status = target->status;
 	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
-	surface = static_cast<cairo_analysis_surface_t *>(_cairo_malloc(sizeof(cairo_analysis_surface_t)));
+	surface = static_cast<cairo_analysis_surface_t *>(SAlloc::M_zon0(sizeof(cairo_analysis_surface_t)));
 	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
@@ -690,7 +690,7 @@ static const cairo_surface_backend_t cairo_null_surface_backend = {
 
 cairo_surface_t * _cairo_null_surface_create(cairo_content_t content)
 {
-	cairo_surface_t * surface = static_cast<cairo_surface_t *>(_cairo_malloc(sizeof(cairo_surface_t)));
+	cairo_surface_t * surface = static_cast<cairo_surface_t *>(SAlloc::M_zon0(sizeof(cairo_surface_t)));
 	if(UNLIKELY(!surface)) {
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}

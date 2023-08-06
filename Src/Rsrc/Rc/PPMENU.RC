@@ -171,6 +171,7 @@
 			MENUITEM "@cmd_replaceunit",				cmReplaceUnit
 			MENUITEM "@cmd_replacedynamicobj",			cmReplaceDynamicObj
 			MENUITEM "@cmd_replacebrand",				cmReplaceBrand
+			MENUITEM "@cmd_processbomestimatedvalues",  cmProcessBomEstimatedValues
 		}
 		POPUP "@cmdpu_accounting" {
 			MENUITEM "@cmd_accsheet",					cmAccSheet

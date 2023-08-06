@@ -801,6 +801,26 @@ SUiLayout::~SUiLayout()
 
 bool SUiLayout::IsConsistent() const { return (this != 0 && Signature == SlConst::SUiLayoutSignature); }
 
+bool FASTCALL SUiLayout::IsEq(const SUiLayout & rS) const
+{
+	bool   eq = true;
+	if(Signature != rS.Signature)
+		eq = false;
+	else if(ID != rS.ID)
+		eq = false;
+	else if(Symb != rS.Symb)
+		eq = false;
+	else if(ALB != rS.ALB)
+		eq = false;
+	else if((!P_HgL && rS.P_HgL) || (P_HgL && !rS.P_HgL))
+		eq = false;
+	else if(P_HgL && rS.P_HgL && !P_HgL->IsEq(*rS.P_HgL))
+		eq = false;
+	else if(!TSCollection_IsEq(P_Children, rS.P_Children))
+		eq = false;
+	return eq;
+}
+
 int SUiLayout::GetID() const { return ID; }
 
 int SUiLayout::SetID(int id)

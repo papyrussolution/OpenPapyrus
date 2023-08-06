@@ -1642,7 +1642,7 @@ found:
 		;
 	}
 
-	surface = _cairo_malloc(sizeof(cairo_xlib_surface_t));
+	surface = SAlloc::M_zon0(sizeof(cairo_xlib_surface_t));
 	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 

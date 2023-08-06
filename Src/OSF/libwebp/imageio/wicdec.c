@@ -18,7 +18,7 @@
 #endif
 #define CINTERFACE
 #define COBJMACROS
-#define _WIN32_IE 0x500  // Workaround bug in shlwapi.h when compiling C++ code with COBJMACROS.
+// @sobolev (defined at slib.h) #define _WIN32_IE 0x500  // Workaround bug in shlwapi.h when compiling C++ code with COBJMACROS.
 #include <ole2.h>  // CreateStreamOnHGlobal()
 #include <shlwapi.h>
 #include <wincodec.h>

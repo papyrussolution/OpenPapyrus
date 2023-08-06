@@ -433,7 +433,7 @@ static struct _pool_chunk * FASTCALL _pool_chunk_init(struct _pool_chunk * p, st
 
 static struct _pool_chunk * _pool_chunk_create(struct pool * pool, size_t size)                             
 {
-	struct _pool_chunk * p = (struct _pool_chunk *)_cairo_malloc(SIZEOF_POOL_CHUNK + size);
+	struct _pool_chunk * p = (struct _pool_chunk *)SAlloc::M_zon0(SIZEOF_POOL_CHUNK + size);
 	if(UNLIKELY(NULL == p))
 		longjmp(*pool->jmp, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	return _pool_chunk_init(p, pool->current, size);
@@ -1650,7 +1650,7 @@ cairo_scan_converter_t * _cairo_tor_scan_converter_create(int xmin, int ymin, in
     cairo_fill_rule_t fill_rule, cairo_antialias_t antialias)
 {
 	cairo_status_t status;
-	cairo_tor_scan_converter_t * self = (cairo_tor_scan_converter_t *)_cairo_malloc(sizeof(struct _cairo_tor_scan_converter));
+	cairo_tor_scan_converter_t * self = (cairo_tor_scan_converter_t *)SAlloc::M_zon0(sizeof(struct _cairo_tor_scan_converter));
 	if(UNLIKELY(self == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail_nomem;

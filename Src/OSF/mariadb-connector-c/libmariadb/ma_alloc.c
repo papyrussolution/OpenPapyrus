@@ -50,8 +50,8 @@ void * FASTCALL ma_alloc_root(MA_MEM_ROOT * mem_root, size_t Size)
 #else
 	size_t get_size;
 	void * point;
-	reg1 MA_USED_MEM * next = 0;
-	reg2 MA_USED_MEM ** prev;
+	MA_USED_MEM * next = 0;
+	MA_USED_MEM ** prev;
 	Size = ALIGN_SIZE(Size);
 	if((*(prev = &mem_root->free))) {
 		if((*prev)->left < Size && mem_root->first_block_usage++ >= 16 && (*prev)->left < 4096) {
@@ -92,7 +92,8 @@ void * FASTCALL ma_alloc_root(MA_MEM_ROOT * mem_root, size_t Size)
 //
 void FASTCALL ma_free_root(MA_MEM_ROOT * root, myf MyFlags)
 {
-	reg1 MA_USED_MEM * next, * old;
+	MA_USED_MEM * next;
+	MA_USED_MEM * old;
 	if(!root)
 		return; /* purecov: inspected */
 	if(!(MyFlags & MY_KEEP_PREALLOC))

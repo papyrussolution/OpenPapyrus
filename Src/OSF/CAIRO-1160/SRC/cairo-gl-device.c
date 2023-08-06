@@ -282,7 +282,7 @@ cairo_status_t _cairo_gl_context_init(cairo_gl_context_t * ctx)
 
 	ctx->vbo_size = _cairo_gl_get_vbo_size();
 
-	ctx->vb = _cairo_malloc(ctx->vbo_size);
+	ctx->vb = SAlloc::M_zon0(ctx->vbo_size);
 	if(UNLIKELY(ctx->vb == NULL)) {
 		_cairo_cache_fini(&ctx->gradients);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);

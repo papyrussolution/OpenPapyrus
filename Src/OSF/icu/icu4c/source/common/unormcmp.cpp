@@ -1,24 +1,14 @@
+// unormcmp.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2001-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  unormcmp.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2004sep13
- *   created by: Markus W. Scherer
- *
- *   unorm_compare() function moved here from unorm.cpp for better modularization.
- *   Depends on both normalization and case folding.
- *   Allows unorm.cpp to not depend on any character properties code.
- */
+// Copyright (C) 2001-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2004sep13
+// created by: Markus W. Scherer
+// unorm_compare() function moved here from unorm.cpp for better modularization.
+// Depends on both normalization and case folding.
+// Allows unorm.cpp to not depend on any character properties code.
+ // 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -136,19 +126,15 @@ typedef struct CmpEquivLevel CmpEquivLevel;
 #define _COMPARE_EQUIV 0x80000
 
 /* internal function */
-static int32_t unorm_cmpEquivFold(const char16_t * s1, int32_t length1,
-    const char16_t * s2, int32_t length2,
-    uint32_t options,
-    UErrorCode * pErrorCode) {
+static int32_t unorm_cmpEquivFold(const char16_t * s1, int32_t length1, const char16_t * s2, int32_t length2,
+    uint32_t options, UErrorCode * pErrorCode) 
+{
 	const Normalizer2Impl * nfcImpl;
-
 	/* current-level start/limit - s1/s2 as current */
 	const char16_t * start1, * start2, * limit1, * limit2;
-
 	/* decomposition and case folding variables */
 	const char16_t * p;
 	int32_t length;
-
 	/* stacks of previous-level start/current/limit */
 	CmpEquivLevel stack1[2], stack2[2];
 
@@ -185,7 +171,7 @@ static int32_t unorm_cmpEquivFold(const char16_t * s1, int32_t length1,
 
 	/* initialize */
 	start1 = s1;
-	if(length1==-1) {
+	if(length1 == -1) {
 		limit1 = NULL;
 	}
 	else {
@@ -193,7 +179,7 @@ static int32_t unorm_cmpEquivFold(const char16_t * s1, int32_t length1,
 	}
 
 	start2 = s2;
-	if(length2==-1) {
+	if(length2 == -1) {
 		limit2 = NULL;
 	}
 	else {

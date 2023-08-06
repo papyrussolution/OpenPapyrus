@@ -38,7 +38,7 @@ static ulong crc32(ulong crc, const void * _p, size_t len)
 			crc2 = b;
 			for(i = 8; i > 0; --i) {
 				if(crc2 & 1)
-					crc2 = (crc2 >> 1) ^ 0xedb88320UL;
+					crc2 = (crc2 >> 1) ^ /*0xedb88320UL*/SlConst::CrcPoly_CCITT32;
 				else
 					crc2 = (crc2 >> 1);
 			}

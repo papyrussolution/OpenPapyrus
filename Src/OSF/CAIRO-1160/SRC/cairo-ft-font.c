@@ -242,7 +242,7 @@ static cairo_status_t _cairo_ft_unscaled_font_map_create(void)
 	 * _cairo_ft_unscaled_font_map_lock. So we'll crash if we can
 	 * detect some other call path. */
 	assert(cairo_ft_unscaled_font_map == NULL);
-	font_map = (cairo_ft_unscaled_font_map_t *)(_cairo_malloc(sizeof(cairo_ft_unscaled_font_map_t)));
+	font_map = (cairo_ft_unscaled_font_map_t *)(SAlloc::M_zon0(sizeof(cairo_ft_unscaled_font_map_t)));
 	if(UNLIKELY(font_map == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	font_map->hash_table = _cairo_hash_table_create(_cairo_ft_unscaled_font_keys_equal);
@@ -426,7 +426,7 @@ static cairo_status_t _cairo_ft_unscaled_font_create_internal(boolint from_face,
 		goto DONE;
 	}
 	/* Otherwise create it and insert into hash table. */
-	unscaled = (cairo_ft_unscaled_font_t *)_cairo_malloc(sizeof(cairo_ft_unscaled_font_t));
+	unscaled = (cairo_ft_unscaled_font_t *)SAlloc::M_zon0(sizeof(cairo_ft_unscaled_font_t));
 	if(UNLIKELY(unscaled == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto UNWIND_FONT_MAP_LOCK;
@@ -1665,7 +1665,7 @@ static cairo_status_t _cairo_ft_font_face_scaled_font_create(void * abstract_fon
 	face = _cairo_ft_unscaled_font_lock_face(font_face->unscaled);
 	if(UNLIKELY(face == NULL)) /* backend error */
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	scaled_font = static_cast<cairo_ft_scaled_font_t *>(_cairo_malloc(sizeof(cairo_ft_scaled_font_t)));
+	scaled_font = static_cast<cairo_ft_scaled_font_t *>(SAlloc::M_zon0(sizeof(cairo_ft_scaled_font_t)));
 	if(UNLIKELY(scaled_font == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL;
@@ -2616,7 +2616,7 @@ static cairo_font_face_t * _cairo_ft_font_face_create_for_pattern(FcPattern * pa
 {
 	cairo_ft_font_face_t * font_face;
 
-	font_face = _cairo_malloc(sizeof(cairo_ft_font_face_t));
+	font_face = SAlloc::M_zon0(sizeof(cairo_ft_font_face_t));
 	if(UNLIKELY(font_face == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
@@ -2676,7 +2676,7 @@ static cairo_font_face_t * _cairo_ft_font_face_create(cairo_ft_unscaled_font_t *
 		}
 	}
 	/* No match found, create a new one */
-	font_face = (cairo_ft_font_face_t *)_cairo_malloc(sizeof(cairo_ft_font_face_t));
+	font_face = (cairo_ft_font_face_t *)SAlloc::M_zon0(sizeof(cairo_ft_font_face_t));
 	if(UNLIKELY(!font_face)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_font_face_t*)&_cairo_font_face_nil;

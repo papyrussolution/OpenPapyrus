@@ -777,8 +777,8 @@ static cairo_int_status_t _cairo_win32_printing_surface_paint_linear_pattern(cai
 	num_rects = num_stops - 1;
 
 	/* Add an extra four points and two rectangles for EXTEND_PAD */
-	vert = (TRIVERTEX *)_cairo_malloc(sizeof(TRIVERTEX) * (num_rects*2*num_ranges + 4));
-	rect = (GRADIENT_RECT *)_cairo_malloc(sizeof(GRADIENT_RECT) * (num_rects*num_ranges + 2));
+	vert = (TRIVERTEX *)SAlloc::M_zon0(sizeof(TRIVERTEX) * (num_rects*2*num_ranges + 4));
+	rect = (GRADIENT_RECT *)SAlloc::M_zon0(sizeof(GRADIENT_RECT) * (num_rects*num_ranges + 2));
 
 	for(i = 0; i < num_ranges*num_rects; i++) {
 		vert[i*2].y = (LONG)clip.top;
@@ -1713,7 +1713,7 @@ static boolint _cairo_win32_printing_surface_supports_fine_grained_fallbacks(voi
 cairo_surface_t * cairo_win32_printing_surface_create(HDC hdc)
 {
 	cairo_surface_t * paginated;
-	cairo_win32_printing_surface_t * surface = (cairo_win32_printing_surface_t *)_cairo_malloc(sizeof(cairo_win32_printing_surface_t));
+	cairo_win32_printing_surface_t * surface = (cairo_win32_printing_surface_t *)SAlloc::M_zon0(sizeof(cairo_win32_printing_surface_t));
 	if(surface == NULL)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 #if 0

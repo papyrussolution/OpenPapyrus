@@ -93,7 +93,7 @@ static cairo_status_t _cairo_xcb_connection_find_visual_formats(cairo_xcb_connec
 				cairo_xcb_xrender_format_t * f;
 				cairo_status_t status;
 
-				f = _cairo_malloc(sizeof(cairo_xcb_xrender_format_t));
+				f = SAlloc::M_zon0(sizeof(cairo_xcb_xrender_format_t));
 				if(UNLIKELY(f == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -147,7 +147,7 @@ static cairo_status_t _cairo_xcb_connection_parse_xrender_formats(cairo_xcb_conn
 			cairo_hash_entry_t key;
 			key.hash = pixman_format;
 			if(!_cairo_hash_table_lookup(connection->xrender_formats, &key)) {
-				cairo_xcb_xrender_format_t * f = _cairo_malloc(sizeof(cairo_xcb_xrender_format_t));
+				cairo_xcb_xrender_format_t * f = SAlloc::M_zon0(sizeof(cairo_xcb_xrender_format_t));
 				if(UNLIKELY(f == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				f->key.hash = pixman_format;
@@ -562,7 +562,7 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 		}
 	}
 
-	connection = _cairo_malloc(sizeof(cairo_xcb_connection_t));
+	connection = SAlloc::M_zon0(sizeof(cairo_xcb_connection_t));
 	if(UNLIKELY(connection == NULL))
 		goto unlock;
 

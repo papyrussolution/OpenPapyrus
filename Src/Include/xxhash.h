@@ -142,7 +142,7 @@ typedef enum {
 #define XXH_VERSION_MINOR    7
 #define XXH_VERSION_RELEASE  1
 #define XXH_VERSION_NUMBER  (XXH_VERSION_MAJOR *100*100 + XXH_VERSION_MINOR *100 + XXH_VERSION_RELEASE)
-XXH_PUBLIC_API unsigned XXH_versionNumber(void);
+XXH_PUBLIC_API unsigned XXH_versionNumber();
 // 
 // 32-bit hash
 //
@@ -221,7 +221,7 @@ XXH_PUBLIC_API uint64 XXH64(const void * input, size_t length, unsigned long lon
 // Streaming
 //
 typedef struct XXH64_state_s XXH64_state_t; /* incomplete type */
-XXH_PUBLIC_API XXH64_state_t* XXH64_createState(void);
+XXH_PUBLIC_API XXH64_state_t* XXH64_createState();
 XXH_PUBLIC_API XXH_errorcode  XXH64_freeState(XXH64_state_t* statePtr);
 XXH_PUBLIC_API void XXH64_copyState(XXH64_state_t* dst_state, const XXH64_state_t* src_state);
 XXH_PUBLIC_API XXH_errorcode XXH64_reset(XXH64_state_t* statePtr, unsigned long long seed);
@@ -400,7 +400,7 @@ struct XXH3_state_s {
  * As a consequence, streaming is slower than one-shot hashing.
  * For better performance, prefer using one-shot functions whenever possible. */
 
-XXH_PUBLIC_API XXH3_state_t* XXH3_createState(void);
+XXH_PUBLIC_API XXH3_state_t* XXH3_createState();
 XXH_PUBLIC_API XXH_errorcode XXH3_freeState(XXH3_state_t* statePtr);
 XXH_PUBLIC_API void XXH3_copyState(XXH3_state_t* dst_state, const XXH3_state_t* src_state);
 // 

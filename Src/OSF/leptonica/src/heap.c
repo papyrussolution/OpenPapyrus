@@ -70,9 +70,8 @@
 static const uint32 MaxPtrArraySize = 100000;
 static const int32 InitialPtrArraySize = 20; /*!< n'importe quoi */
 
-#define SWAP_ITEMS(i, j)       { void * tempitem = lh->array[(i)]; \
-				 lh->array[(i)] = lh->array[(j)]; \
-				 lh->array[(j)] = tempitem; }
+#define SWAP_ITEMS(i, j) { void * tempitem = lh->array[(i)]; \
+	lh->array[(i)] = lh->array[(j)]; lh->array[(j)] = tempitem; }
 
 /* Static functions */
 static int32 lheapExtendArray(L_HEAP * lh);
@@ -89,16 +88,12 @@ static l_ok lheapSwapDown(L_HEAP * lh);
  * \param[in]    direction   L_SORT_INCREASING, L_SORT_DECREASING
  * \return  lheap, or NULL on error
  */
-L_HEAP * lheapCreate(int32 n,
-    int32 direction)
+L_HEAP * lheapCreate(int32 n, int32 direction)
 {
 	L_HEAP  * lh;
-
 	PROCNAME(__FUNCTION__);
-
 	if(n < InitialPtrArraySize || n > MaxPtrArraySize)
 		n = InitialPtrArraySize;
-
 	/* Allocate ptr array and initialize counters. */
 	lh = (L_HEAP*)SAlloc::C(1, sizeof(L_HEAP));
 	if((lh->array = (void**)SAlloc::C(n, sizeof(void *))) == NULL) {
@@ -309,15 +304,11 @@ void * lheapGetElement(L_HEAP  * lh,
 l_ok lheapSort(L_HEAP  * lh)
 {
 	int32 i;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!lh)
 		return ERROR_INT("lh not defined", procName, 1);
-
 	for(i = 0; i < lh->n; i++)
 		lheapSwapUp(lh, i);
-
 	return 0;
 }
 
@@ -385,20 +376,16 @@ l_ok lheapSortStrictOrder(L_HEAP  * lh)
  *          is in the correct position already vis-a-vis the child.
  * </pre>
  */
-static l_ok lheapSwapUp(L_HEAP  * lh,
-    int32 index)
+static l_ok lheapSwapUp(L_HEAP  * lh, int32 index)
 {
 	int32 ip; /* index to heap for parent; 1 larger than array index */
 	int32 ic; /* index into heap for child */
 	float valp, valc;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!lh)
 		return ERROR_INT("lh not defined", procName, 1);
 	if(index < 0 || index >= lh->n)
 		return ERROR_INT("invalid index", procName, 1);
-
 	ic = index + 1; /* index into heap: add 1 to array index */
 	if(lh->direction == L_SORT_INCREASING) {
 		while(1) {

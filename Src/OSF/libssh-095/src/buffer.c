@@ -1,8 +1,6 @@
 /*
  * buffer.c - buffer functions
- *
  * This file is part of the SSH Library
- *
  * Copyright (c) 2003-2009 by Aris Adamantiadis
  *
  * The SSH Library is free software; you can redistribute it and/or modify
@@ -50,9 +48,7 @@ struct ssh_buffer_struct {
 #ifdef DEBUG_BUFFER
 /**
  * @internal
- *
  * @brief Check that preconditions and postconditions are valid.
- *
  * @param[in]  buf      The buffer to check.
  */
 static void buffer_verify(ssh_buffer buf)
@@ -104,7 +100,6 @@ struct ssh_buffer_struct * ssh_buffer_new()
 		return NULL;
 	}
 	buffer_verify(buf);
-
 	return buf;
 }
 
@@ -524,15 +519,10 @@ uint32_t FASTCALL ssh_buffer_get_len(const struct ssh_buffer_struct * buffer)
 }
 /**
  * @internal
- *
  * @brief Advance the position in the buffer.
- *
  * This has effect to "eat" bytes at head of the buffer.
- *
  * @param[in]  buffer   The buffer to advance the position.
- *
  * @param[in]  len      The number of bytes to eat.
- *
  * @return              The new size of the buffer.
  */
 uint32_t ssh_buffer_pass_bytes(struct ssh_buffer_struct * buffer, uint32_t len)
@@ -552,13 +542,9 @@ uint32_t ssh_buffer_pass_bytes(struct ssh_buffer_struct * buffer, uint32_t len)
 }
 /**
  * @internal
- *
  * @brief Cut the end of the buffer.
- *
  * @param[in]  buffer   The buffer to cut.
- *
  * @param[in]  len      The number of bytes to remove from the tail.
- *
  * @return              The new size of the buffer.
  */
 uint32_t ssh_buffer_pass_bytes_end(struct ssh_buffer_struct * buffer, uint32_t len)
@@ -613,16 +599,11 @@ uint32_t FASTCALL ssh_buffer_get_data(struct ssh_buffer_struct * buffer, void * 
 int ssh_buffer_get_u8(struct ssh_buffer_struct * buffer, uint8 * data){
 	return ssh_buffer_get_data(buffer, data, sizeof(uint8));
 }
-
 /**
  * @internal
- *
  * @brief gets a 32 bits uint out of the buffer. Adjusts the read pointer.
- *
  * @param[in]  buffer   The buffer to read.
- *
  * @param[in]  data     A pointer to a uint32_t where to store the data.
- *
  * @returns             0 if there is not enough data in buffer, 4 otherwise.
  */
 int ssh_buffer_get_u32(struct ssh_buffer_struct * buffer, uint32_t * data)
@@ -635,22 +616,17 @@ int ssh_buffer_get_u32(struct ssh_buffer_struct * buffer, uint32_t * data)
  *
  * @brief Get a 64 bits uint out of the buffer and adjusts the read
  * pointer.
- *
  * @param[in]  buffer   The buffer to read.
- *
  * @param[in]  data     A pointer to a uint64_t where to store the data.
- *
  * @returns             0 if there is not enough data in buffer, 8 otherwise.
  */
-int ssh_buffer_get_u64(struct ssh_buffer_struct * buffer, uint64_t * data){
+int ssh_buffer_get_u64(struct ssh_buffer_struct * buffer, uint64_t * data)
+{
 	return ssh_buffer_get_data(buffer, data, sizeof(uint64_t));
 }
-
 /**
  * @brief Valdiates that the given length can be obtained from the buffer.
- *
  * @param[in]  buffer  The buffer to read from.
- *
  * @param[in]  len     The length to be checked.
  *
  * @return             SSH_OK if the length is valid, SSH_ERROR otherwise.
@@ -1050,7 +1026,7 @@ int ssh_buffer_unpack_va(struct ssh_buffer_struct * buffer,
 			    o.qword = va_arg(ap, uint64_t*);
 			    rlen = ssh_buffer_get_u64(buffer, o.qword);
 			    if(rlen == 8) {
-				    *o.qword = ntohll(*o.qword);
+				    *o.qword = /*ntohll*/SMem::CBe(*o.qword);
 				    rc = SSH_OK;
 			    }
 			    break;

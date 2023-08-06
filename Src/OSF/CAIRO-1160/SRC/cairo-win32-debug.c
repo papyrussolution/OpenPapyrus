@@ -59,7 +59,7 @@ void _cairo_win32_debug_dump_hrgn(HRGN rgn, char * header)
 		slfprintf_stderr(" NULL\n");
 	}
 	z = GetRegionData(rgn, 0, NULL);
-	rd = static_cast<RGNDATA *>(_cairo_malloc(z));
+	rd = static_cast<RGNDATA *>(SAlloc::M_zon0(z));
 	z = GetRegionData(rgn, z, rd);
 	slfprintf_stderr(" %ld rects, bounds: %ld %ld %ld %ld\n",
 	    rd->rdh.nCount, rd->rdh.rcBound.left, rd->rdh.rcBound.top,

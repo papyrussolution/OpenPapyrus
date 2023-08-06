@@ -492,7 +492,7 @@ static cairo_status_t _cairo_mono_scan_converter_generate(void * converter, cair
 cairo_scan_converter_t * _cairo_mono_scan_converter_create(int xmin, int ymin, int xmax, int ymax, cairo_fill_rule_t fill_rule)
 {
 	cairo_status_t status;
-	cairo_mono_scan_converter_t * self = (cairo_mono_scan_converter_t *)_cairo_malloc(sizeof(struct _cairo_mono_scan_converter));
+	cairo_mono_scan_converter_t * self = (cairo_mono_scan_converter_t *)SAlloc::M_zon0(sizeof(struct _cairo_mono_scan_converter));
 	if(UNLIKELY(self == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail_nomem;

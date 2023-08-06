@@ -363,7 +363,7 @@ static size_t FSE_buildDTable(FSE_DTable* dt, const short* normalizedCounter, ui
 	/* Init, lay down lowprob symbols */
 	DTableH[0].tableLog = (uint16)tableLog;
 	for(s = 0; s<=maxSymbolValue; s++) {
-		if(normalizedCounter[s]==-1) {
+		if(normalizedCounter[s] == -1) {
 			tableDecode[highThreshold--].symbol = (FSE_FUNCTION_TYPE)s;
 			symbolNext[s] = 1;
 		}

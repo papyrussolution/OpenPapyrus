@@ -53,7 +53,7 @@ cairo_surface_t * _cairo_gl_pattern_to_source(cairo_surface_t * dst, const cairo
 	TRACE_FUNCTION_SIMPLE();
 	if(pattern == NULL)
 		return _cairo_gl_white_source();
-	source = _cairo_malloc(sizeof(*source));
+	source = SAlloc::M_zon0(sizeof(*source));
 	if(UNLIKELY(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&source->base, &cairo_gl_source_backend, NULL/* device */, CAIRO_CONTENT_COLOR_ALPHA, FALSE/* is_vector */);
@@ -68,7 +68,7 @@ cairo_surface_t * _cairo_gl_pattern_to_source(cairo_surface_t * dst, const cairo
 
 cairo_surface_t * _cairo_gl_white_source(void)
 {
-	cairo_gl_source_t * source = _cairo_malloc(sizeof(*source));
+	cairo_gl_source_t * source = SAlloc::M_zon0(sizeof(*source));
 	if(UNLIKELY(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&source->base, &cairo_gl_source_backend, NULL/* device */, CAIRO_CONTENT_COLOR_ALPHA, FALSE/* is_vector */);

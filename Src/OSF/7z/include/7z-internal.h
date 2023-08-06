@@ -37,8 +37,6 @@
 		#define VARIANT_TRUE ((VARIANT_BOOL)-1)
 	#endif
 #else
-	//#include <stddef.h> // for wchar_t
-	//#include <string.h>
 	#include <MyGuidDef.h>
 
 	#define WINAPI

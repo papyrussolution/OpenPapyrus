@@ -18,11 +18,15 @@
 #define OPENSSL_IA32_SSE2
 #define OPENSSL_BN_ASM_GF2m
 #define OPENSSL_BN_ASM_MONT
-#define OPENSSL_BN_ASM_PART_WORDS
+#if CXX_ARCH_X86_64 != 1 // @v11.7.11 после разноски процессинга .pl-файлов и сборки результирующих .asm-файлов под x64
+	#define OPENSSL_BN_ASM_PART_WORDS
+#endif
 #define DES_ASM
 #define RC4_ASM
 #define SHA1_ASM
-#define SHA256_ASM
+#if CXX_ARCH_X86_64 != 1 // @v11.7.11 после разноски процессинга .pl-файлов и сборки результирующих .asm-файлов под x64
+	#define SHA256_ASM
+#endif
 #define SHA512_ASM
 #define MD5_ASM
 #define RMD160_ASM

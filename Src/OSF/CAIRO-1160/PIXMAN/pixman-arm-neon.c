@@ -31,8 +31,6 @@
 	#include <config.h>
 #endif
 #undef IN
-//#include <string.h>
-//#include "pixman-private.h"
 #include "pixman-arm-common.h"
 
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST(neon, src_8888_8888, uint32, 1, uint32, 1)

@@ -1483,7 +1483,8 @@ static int get_crazy_fail(int test) {
 	return(fail);
 }
 
-static int runcrazy(void) {
+static int runcrazy() 
+{
 	int ret = 0, res = 0;
 	int old_errors, old_tests, old_leaks;
 	unsigned int i;
@@ -1517,21 +1518,17 @@ static int runcrazy(void) {
 		if((nb_errors == old_errors) && (nb_leaks == old_leaks))
 			printf("Ran %d tests, no errors\n", nb_tests - old_tests);
 		else
-			printf("Ran %d tests, %d errors, %d leaks\n",
-			    nb_tests - old_tests,
-			    nb_errors - old_errors,
-			    nb_leaks - old_leaks);
+			printf("Ran %d tests, %d errors, %d leaks\n", nb_tests - old_tests, nb_errors - old_errors, nb_leaks - old_leaks);
 	}
 	return(ret);
 }
 
-int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) {
+int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
+{
 	int i, a, ret = 0;
 	int subset = 0;
-
 	fillFilling();
 	initializeLibxml2();
-
 	for(a = 1; a < argc; a++) {
 		if(!strcmp(argv[a], "-v"))
 			verbose = 1;
@@ -1548,16 +1545,13 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) {
 	ret += runcrazy();
 	if((nb_errors == 0) && (nb_leaks == 0)) {
 		ret = 0;
-		printf("Total %d tests, no errors\n",
-		    nb_tests);
+		printf("Total %d tests, no errors\n", nb_tests);
 	}
 	else {
 		ret = 1;
-		printf("Total %d tests, %d errors, %d leaks\n",
-		    nb_tests, nb_errors, nb_leaks);
+		printf("Total %d tests, %d errors, %d leaks\n", nb_tests, nb_errors, nb_leaks);
 	}
 	xmlCleanupParser();
 	xmlMemoryDump();
-
 	return(ret);
 }

@@ -148,7 +148,7 @@ static wchar_t * _strToWCS(wchar_t * dest, int32_t destCapacity, int32_t * pDest
 			 */
 			retVal = uprv_mbstowcs(pIntTarget, (tempBuf+nulLen), remaining);
 
-			if(retVal==-1) {
+			if(retVal == -1) {
 				*pErrorCode = U_INVALID_CHAR_FOUND;
 				break;
 			}
@@ -268,7 +268,7 @@ static char16_t * _strFromWCS(char16_t * dest,
 	const wchar_t * pSrc = src;
 	const wchar_t * pSrcLimit = NULL;
 
-	if(srcLength ==-1) {
+	if(srcLength  == -1) {
 		/* if the wchar_t source is null terminated we can safely
 		 * assume that there are no embedded nulls, this is a fast
 		 * path for null terminated strings.
@@ -330,7 +330,7 @@ static char16_t * _strFromWCS(char16_t * dest,
 				 */
 				retVal = uprv_wcstombs(pCSrc, pSrc, remaining);
 
-				if(retVal==-1) {
+				if(retVal == -1) {
 					/* an error occurred bail out */
 					*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 					goto cleanup;

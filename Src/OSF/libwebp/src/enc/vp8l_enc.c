@@ -27,23 +27,23 @@
 
 // Palette reordering for smaller sum of deltas (and for smaller storage).
 
-static int PaletteCompareColorsForQsort(const void* p1, const void* p2) {
-	const uint32_t a = WebPMemToUint32((uint8*)p1);
-	const uint32_t b = WebPMemToUint32((uint8*)p2);
+static int PaletteCompareColorsForQsort(const void* p1, const void* p2) 
+{
+	const uint32_t a = SMem::Get32((uint8*)p1);
+	const uint32_t b = SMem::Get32((uint8*)p2);
 	assert(a != b);
 	return (a < b) ? -1 : 1;
 }
 
-static FORCEINLINE uint32_t PaletteComponentDistance(uint32_t v) {
-	return (v <= 128) ? v : (256 - v);
-}
+static FORCEINLINE uint32_t PaletteComponentDistance(uint32_t v) { return (v <= 128) ? v : (256 - v); }
 
 // Computes a value that is related to the entropy created by the
 // palette entry diff.
 //
 // Note that the last & 0xff is a no-operation in the next statement, but
 // removed by most compilers and is here only for regularity of the code.
-static FORCEINLINE uint32_t PaletteColorDistance(uint32_t col1, uint32_t col2) {
+static FORCEINLINE uint32_t PaletteColorDistance(uint32_t col1, uint32_t col2) 
+{
 	const uint32_t diff = VP8LSubPixels(col1, col2);
 	const int kMoreWeightForRGBThanForAlpha = 9;
 	uint32_t score;
@@ -61,10 +61,11 @@ static FORCEINLINE void SwapColor(uint32_t* const col1, uint32_t* const col2) {
 	*col2 = tmp;
 }
 
-static FORCEINLINE int SearchColorNoIdx(const uint32_t sorted[], uint32_t color,
-    int num_colors) {
+static FORCEINLINE int SearchColorNoIdx(const uint32_t sorted[], uint32_t color, int num_colors) 
+{
 	int low = 0, hi = num_colors;
-	if(sorted[low] == color) return low; // loop invariant: sorted[low] != color
+	if(sorted[low] == color) 
+		return low; // loop invariant: sorted[low] != color
 	while(1) {
 		const int mid = (low + hi) >> 1;
 		if(sorted[mid] == color) {
@@ -87,12 +88,11 @@ static FORCEINLINE int SearchColorNoIdx(const uint32_t sorted[], uint32_t color,
 // no benefit to re-organize them greedily. A monotonic development
 // would be spotted in green-only situations (like lossy alpha) or gray-scale
 // images.
-static int PaletteHasNonMonotonousDeltas(const uint32_t* const palette,
-    int num_colors) {
+static int PaletteHasNonMonotonousDeltas(const uint32_t* const palette, int num_colors) 
+{
 	uint32_t predict = 0x000000;
-	int i;
 	uint8 sign_found = 0x00;
-	for(i = 0; i < num_colors; ++i) {
+	for(int i = 0; i < num_colors; ++i) {
 		const uint32_t diff = VP8LSubPixels(palette[i], predict);
 		const uint8 rd = (diff >> 16) & 0xff;
 		const uint8 gd = (diff >>  8) & 0xff;

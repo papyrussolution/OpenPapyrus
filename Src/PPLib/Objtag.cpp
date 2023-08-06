@@ -3334,8 +3334,7 @@ void TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	//
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
-	// @v9.9.5 PPStringSetSCD ss;
-	StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+	StringSet & r_ss = DS.AcquireRvlSsSCD();
 	r_ss.setBuf(temp_buf, sstrlen(temp_buf)+1);
 	uint   p = 0;
 	r_ss.get(&p, p_tag->Name, sizeof(p_tag->Name));

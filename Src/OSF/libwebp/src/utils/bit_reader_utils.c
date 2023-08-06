@@ -192,7 +192,7 @@ void FASTCALL VP8LDoFillBitWindow(VP8LBitReader * const br)
 	if(br->pos_ + sizeof(br->val_) < br->len_) {
 		br->val_ >>= VP8L_WBITS;
 		br->bit_pos_ -= VP8L_WBITS;
-		br->val_ |= (vp8l_val_t)HToLE32(WebPMemToUint32(br->buf_ + br->pos_)) << (VP8L_LBITS - VP8L_WBITS);
+		br->val_ |= (vp8l_val_t)/*HToLE32*/SMem::CLe(SMem::Get32(br->buf_ + br->pos_)) << (VP8L_LBITS - VP8L_WBITS);
 		br->pos_ += VP8L_LOG8_WBITS;
 		return;
 	}

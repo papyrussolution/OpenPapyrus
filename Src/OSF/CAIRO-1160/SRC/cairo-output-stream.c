@@ -115,7 +115,7 @@ static cairo_status_t closure_close(cairo_output_stream_t * stream)
 
 cairo_output_stream_t * _cairo_output_stream_create(cairo_write_func_t write_func, cairo_close_func_t close_func, void * closure)
 {
-	cairo_output_stream_with_closure_t * stream = static_cast<cairo_output_stream_with_closure_t *>(_cairo_malloc(sizeof(cairo_output_stream_with_closure_t)));
+	cairo_output_stream_with_closure_t * stream = static_cast<cairo_output_stream_with_closure_t *>(SAlloc::M_zon0(sizeof(cairo_output_stream_with_closure_t)));
 	if(UNLIKELY(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
@@ -135,7 +135,7 @@ cairo_output_stream_t * _cairo_output_stream_create_in_error(cairo_status_t stat
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
 	if(status == CAIRO_STATUS_WRITE_ERROR)
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil_write_error;
-	stream = (cairo_output_stream_t *)_cairo_malloc(sizeof(cairo_output_stream_t));
+	stream = (cairo_output_stream_t *)SAlloc::M_zon0(sizeof(cairo_output_stream_t));
 	if(UNLIKELY(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
@@ -515,7 +515,7 @@ cairo_output_stream_t * _cairo_output_stream_create_for_file(FILE * file)
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil_write_error;
 	}
 	else {
-		stdio_stream_t * stream = (stdio_stream_t *)_cairo_malloc(sizeof *stream);
+		stdio_stream_t * stream = (stdio_stream_t *)SAlloc::M_zon0(sizeof *stream);
 		if(UNLIKELY(stream == NULL)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_output_stream_t*)&_cairo_output_stream_nil;
@@ -546,7 +546,7 @@ cairo_output_stream_t * _cairo_output_stream_create_for_filename(const char * fi
 			    return (cairo_output_stream_t*)&_cairo_output_stream_nil_write_error;
 		}
 	}
-	stream = (stdio_stream_t *)_cairo_malloc(sizeof *stream);
+	stream = (stdio_stream_t *)SAlloc::M_zon0(sizeof *stream);
 	if(UNLIKELY(stream == NULL)) {
 		fclose(file);
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
@@ -577,7 +577,7 @@ static cairo_status_t memory_close(cairo_output_stream_t * base)
 
 cairo_output_stream_t * _cairo_memory_stream_create(void)
 {
-	memory_stream_t * stream = (memory_stream_t *)_cairo_malloc(sizeof *stream);
+	memory_stream_t * stream = (memory_stream_t *)SAlloc::M_zon0(sizeof *stream);
 	if(UNLIKELY(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
@@ -595,7 +595,7 @@ cairo_status_t _cairo_memory_stream_destroy(cairo_output_stream_t * abstract_str
 		return _cairo_output_stream_destroy(abstract_stream);
 	stream = (memory_stream_t*)abstract_stream;
 	*length_out = _cairo_array_num_elements(&stream->array);
-	*data_out = static_cast<uchar *>(_cairo_malloc(*length_out));
+	*data_out = static_cast<uchar *>(SAlloc::M_zon0(*length_out));
 	if(UNLIKELY(*data_out == NULL)) {
 		status = _cairo_output_stream_destroy(abstract_stream);
 		assert(status == CAIRO_STATUS_SUCCESS);
@@ -629,7 +629,7 @@ static cairo_status_t null_write(cairo_output_stream_t * base, const uchar * dat
 
 cairo_output_stream_t * _cairo_null_stream_create(void)
 {
-	cairo_output_stream_t * stream = (cairo_output_stream_t *)_cairo_malloc(sizeof *stream);
+	cairo_output_stream_t * stream = (cairo_output_stream_t *)SAlloc::M_zon0(sizeof *stream);
 	if(UNLIKELY(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;

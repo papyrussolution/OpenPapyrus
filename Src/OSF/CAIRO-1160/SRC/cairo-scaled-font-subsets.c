@@ -143,7 +143,7 @@ static cairo_sub_font_glyph_t * _cairo_sub_font_glyph_create(ulong scaled_font_g
     char * utf8,
     int utf8_len)
 {
-	cairo_sub_font_glyph_t * sub_font_glyph = (cairo_sub_font_glyph_t *)_cairo_malloc(sizeof(cairo_sub_font_glyph_t));
+	cairo_sub_font_glyph_t * sub_font_glyph = (cairo_sub_font_glyph_t *)SAlloc::M_zon0(sizeof(cairo_sub_font_glyph_t));
 	if(UNLIKELY(sub_font_glyph == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;
@@ -233,7 +233,7 @@ static cairo_status_t _cairo_sub_font_create(cairo_scaled_font_subsets_t * paren
     cairo_sub_font_t  ** sub_font_out)
 {
 	int i;
-	cairo_sub_font_t * sub_font = (cairo_sub_font_t *)_cairo_malloc(sizeof(cairo_sub_font_t));
+	cairo_sub_font_t * sub_font = (cairo_sub_font_t *)SAlloc::M_zon0(sizeof(cairo_sub_font_t));
 	if(UNLIKELY(sub_font == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	sub_font->is_scaled = is_scaled;
@@ -329,7 +329,7 @@ static cairo_status_t _cairo_sub_font_glyph_lookup_unicode(cairo_scaled_font_t *
 	if(unicode != (uint32)-1) {
 		len = _cairo_ucs4_to_utf8(unicode, buf);
 		if(len > 0) {
-			*utf8_out = (char *)_cairo_malloc(len+1);
+			*utf8_out = (char *)SAlloc::M_zon0(len+1);
 			if(UNLIKELY(*utf8_out == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			memcpy(*utf8_out, buf, len);
@@ -356,7 +356,7 @@ static cairo_status_t _cairo_sub_font_glyph_map_to_unicode(cairo_sub_font_glyph_
 		}
 		else {
 			/* No existing mapping. Use the requested mapping */
-			sub_font_glyph->utf8 = (char *)_cairo_malloc(utf8_len + 1);
+			sub_font_glyph->utf8 = (char *)SAlloc::M_zon0(utf8_len + 1);
 			if(UNLIKELY(sub_font_glyph->utf8 == NULL))
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			memcpy(sub_font_glyph->utf8, utf8, utf8_len);
@@ -468,7 +468,7 @@ static cairo_status_t _cairo_sub_font_map_glyph(cairo_sub_font_t * sub_font, ulo
 				if(ucs4_len == 1) {
 					font_unicode = ucs4[0];
 					SAlloc::F(font_utf8);
-					font_utf8 = (char *)_cairo_malloc(text_utf8_len + 1);
+					font_utf8 = (char *)SAlloc::M_zon0(text_utf8_len + 1);
 					if(font_utf8 == NULL) {
 						SAlloc::F(ucs4);
 						return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -585,7 +585,7 @@ static void _cairo_sub_font_collect(void * entry, void * closure)
 
 static cairo_scaled_font_subsets_t * FASTCALL _cairo_scaled_font_subsets_create_internal(cairo_subsets_type_t type)
 {
-	cairo_scaled_font_subsets_t * subsets = (cairo_scaled_font_subsets_t *)_cairo_malloc(sizeof(cairo_scaled_font_subsets_t));
+	cairo_scaled_font_subsets_t * subsets = (cairo_scaled_font_subsets_t *)SAlloc::M_zon0(sizeof(cairo_scaled_font_subsets_t));
 	if(UNLIKELY(subsets == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;
@@ -911,7 +911,7 @@ static void _cairo_string_init_key(cairo_string_entry_t * key, char * s)
 
 static cairo_status_t create_string_entry(char * s, cairo_string_entry_t ** entry)
 {
-	*entry = static_cast<cairo_string_entry_t *>(_cairo_malloc(sizeof(cairo_string_entry_t)));
+	*entry = static_cast<cairo_string_entry_t *>(SAlloc::M_zon0(sizeof(cairo_string_entry_t)));
 	if(UNLIKELY(*entry == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_string_init_key(*entry, s);

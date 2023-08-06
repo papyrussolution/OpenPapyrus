@@ -82,25 +82,25 @@ static size_t HIST_count_parallel_wksp(uint * count, uint * maxSymbolValuePtr,
 	memzero(workSpace, 4*256*sizeof(uint));
 	/* by stripes of 16 bytes */
 	{   
-		uint32 cached = MEM_read32(ip); 
+		uint32 cached = SMem::Get32(ip); 
 		ip += 4;
 	    while(ip < iend-15) {
-		    uint32 c = cached; cached = MEM_read32(ip); ip += 4;
+		    uint32 c = cached; cached = SMem::Get32(ip); ip += 4;
 		    Counting1[(BYTE)c     ]++;
 		    Counting2[(BYTE)(c>>8) ]++;
 		    Counting3[(BYTE)(c>>16)]++;
 		    Counting4[       c>>24 ]++;
-		    c = cached; cached = MEM_read32(ip); ip += 4;
+		    c = cached; cached = SMem::Get32(ip); ip += 4;
 		    Counting1[(BYTE)c     ]++;
 		    Counting2[(BYTE)(c>>8) ]++;
 		    Counting3[(BYTE)(c>>16)]++;
 		    Counting4[       c>>24 ]++;
-		    c = cached; cached = MEM_read32(ip); ip += 4;
+		    c = cached; cached = SMem::Get32(ip); ip += 4;
 		    Counting1[(BYTE)c     ]++;
 		    Counting2[(BYTE)(c>>8) ]++;
 		    Counting3[(BYTE)(c>>16)]++;
 		    Counting4[       c>>24 ]++;
-		    c = cached; cached = MEM_read32(ip); ip += 4;
+		    c = cached; cached = SMem::Get32(ip); ip += 4;
 		    Counting1[(BYTE)c     ]++;
 		    Counting2[(BYTE)(c>>8) ]++;
 		    Counting3[(BYTE)(c>>16)]++;

@@ -212,7 +212,9 @@ static const Rune __space2[] =
 	0x0020,	0x0020,	/* space */
 	0x00a0,	0x00a0,	/*   */
 	0x2000,	0x200b,	/*   - ​ */
-	0x2028,	0x2029,	/*   -   */
+	0x2028,	0x2029,	/* 
+ - 
+ */
 	0x3000,	0x3000,	/* 　 */
 	0xfeff,	0xfeff,	/* ﻿ */
 };
@@ -997,8 +999,7 @@ static const Rune __tolower1[] =
  * title characters are those between
  * upper and lower case. ie DZ Dz dz
  */
-static const Rune __totitle1[] =
-{
+static const Rune __totitle1[] = {
 	0x01c4, 501,	/* Ǆ ǅ */
 	0x01c6, 499,	/* ǆ ǅ */
 	0x01c7, 501,	/* Ǉ ǈ */
@@ -1014,14 +1015,14 @@ bsearch(Rune c, const Rune *t, int n, int ne)
 {
 	const Rune *p;
 	int m;
-
 	while(n > 1) {
 		m = n/2;
 		p = t + m*ne;
 		if(c >= p[0]) {
 			t = p;
 			n = n-m;
-		} else
+		} 
+		else
 			n = m;
 	}
 	if(n && c >= t[0])
@@ -1029,101 +1030,80 @@ bsearch(Rune c, const Rune *t, int n, int ne)
 	return 0;
 }
 
-Rune
-tolowerrune(Rune c)
+Rune tolowerrune(Rune c)
 {
-	const Rune *p;
-
-	p = bsearch(c, __tolower2, nelem(__tolower2)/3, 3);
+	const Rune * p = bsearch(c, __tolower2, SIZEOFARRAY(__tolower2)/3, 3);
 	if(p && c >= p[0] && c <= p[1])
 		return c + p[2] - 500;
-	p = bsearch(c, __tolower1, nelem(__tolower1)/2, 2);
+	p = bsearch(c, __tolower1, SIZEOFARRAY(__tolower1)/2, 2);
 	if(p && c == p[0])
 		return c + p[1] - 500;
 	return c;
 }
 
-Rune
-toupperrune(Rune c)
+Rune toupperrune(Rune c)
 {
-	const Rune *p;
-
-	p = bsearch(c, __toupper2, nelem(__toupper2)/3, 3);
+	const Rune *p = bsearch(c, __toupper2, SIZEOFARRAY(__toupper2)/3, 3);
 	if(p && c >= p[0] && c <= p[1])
 		return c + p[2] - 500;
-	p = bsearch(c, __toupper1, nelem(__toupper1)/2, 2);
+	p = bsearch(c, __toupper1, SIZEOFARRAY(__toupper1)/2, 2);
 	if(p && c == p[0])
 		return c + p[1] - 500;
 	return c;
 }
 
-Rune
-totitlerune(Rune c)
+Rune totitlerune(Rune c)
 {
-	const Rune *p;
-
-	p = bsearch(c, __totitle1, nelem(__totitle1)/2, 2);
+	const Rune *p = bsearch(c, __totitle1, SIZEOFARRAY(__totitle1)/2, 2);
 	if(p && c == p[0])
 		return c + p[1] - 500;
 	return c;
 }
 
-int
-islowerrune(Rune c)
+int islowerrune(Rune c)
 {
-	const Rune *p;
-
-	p = bsearch(c, __toupper2, nelem(__toupper2)/3, 3);
+	const Rune *p = bsearch(c, __toupper2, SIZEOFARRAY(__toupper2)/3, 3);
 	if(p && c >= p[0] && c <= p[1])
 		return 1;
-	p = bsearch(c, __toupper1, nelem(__toupper1)/2, 2);
+	p = bsearch(c, __toupper1, SIZEOFARRAY(__toupper1)/2, 2);
 	if(p && c == p[0])
 		return 1;
 	return 0;
 }
 
-int
-isupperrune(Rune c)
+int isupperrune(Rune c)
 {
-	const Rune *p;
-
-	p = bsearch(c, __tolower2, nelem(__tolower2)/3, 3);
+	const Rune *p = bsearch(c, __tolower2, SIZEOFARRAY(__tolower2)/3, 3);
 	if(p && c >= p[0] && c <= p[1])
 		return 1;
-	p = bsearch(c, __tolower1, nelem(__tolower1)/2, 2);
+	p = bsearch(c, __tolower1, SIZEOFARRAY(__tolower1)/2, 2);
 	if(p && c == p[0])
 		return 1;
 	return 0;
 }
 
-int
-isalpharune(Rune c)
+int isalpharune(Rune c)
 {
 	const Rune *p;
-
 	if(isupperrune(c) || islowerrune(c))
 		return 1;
-	p = bsearch(c, __alpha2, nelem(__alpha2)/2, 2);
+	p = bsearch(c, __alpha2, SIZEOFARRAY(__alpha2)/2, 2);
 	if(p && c >= p[0] && c <= p[1])
 		return 1;
-	p = bsearch(c, __alpha1, nelem(__alpha1), 1);
+	p = bsearch(c, __alpha1, SIZEOFARRAY(__alpha1), 1);
 	if(p && c == p[0])
 		return 1;
 	return 0;
 }
 
-int
-istitlerune(Rune c)
+int istitlerune(Rune c)
 {
 	return isupperrune(c) && islowerrune(c);
 }
 
-int
-isspacerune(Rune c)
+int isspacerune(Rune c)
 {
-	const Rune *p;
-
-	p = bsearch(c, __space2, nelem(__space2)/2, 2);
+	const Rune *p = bsearch(c, __space2, SIZEOFARRAY(__space2)/2, 2);
 	if(p && c >= p[0] && c <= p[1])
 		return 1;
 	return 0;

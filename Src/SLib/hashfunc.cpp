@@ -1792,10 +1792,10 @@ SCRC32::~SCRC32()
 // 
 // The constants of the form CRC_POLY_xxxx define the polynomials for some well known CRC calculations.
 // 
-#define CRC_POLY_16     0xA001                 // ANSI-16
-#define CRC_POLY_32     0xEDB88320ul           // CCITT-32
+// @v11.7.11 (replaced with SlConst::CrcPoly_ANSI16) #define CRC_POLY_16     0xA001                 // ANSI-16
+// @v11.7.11 (replaced with SlConst::CrcPoly_CCITT32) #define CRC_POLY_32     0xEDB88320ul           // CCITT-32
 #define CRC_POLY_64     0x42F0E1EBA9EA3693ull
-#define CRC_POLY_CCITT  0x1021                 // CCITT-16
+// @v11.7.11 (replaced with SlConst::CrcPoly_CCITT16) #define CRC_POLY_CCITT  0x1021                 // CCITT-16
 #define CRC_POLY_DNP    0xA6BC
 #define CRC_POLY_KERMIT 0x8408
 #define CRC_POLY_SICK   0x8005
@@ -3468,10 +3468,6 @@ void TestCRC()
 			const BdtTestItem * p_item = data_set.at(i);
 			const size_t src_size = p_item->In.GetLen();
 			const void * p_src_buf = p_item->In.GetBufC();
-			//uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
-			//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-			//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-			//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
 			uint32 pattern_value = sbswap32(PTR32C(p_item->Out.GetBufC())[0]);
 			{
 				uint32 r = SlHash::CRC32(0, p_src_buf, src_size);
@@ -3499,10 +3495,6 @@ void TestCRC()
 			const BdtTestItem * p_item = data_set.at(i);
 			const size_t src_size = p_item->In.GetLen();
 			const void * p_src_buf = p_item->In.GetBufC();
-			//uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
-			//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-			//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-			//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
 			uint32 pattern_value = sbswap32(PTR32C(p_item->Out.GetBufC())[0]);
 			{
 				uint32 r = SlHash::Adler32(0, p_src_buf, src_size);
@@ -3896,6 +3888,12 @@ uint32 StCheckSum(int alg, int phase, const SBaseBuffer & rIn);
 //
 //
 //
+SBdtFunct::State_::State_() : P_Tab(0), P_Ctx(0), P_Ext(0)
+{
+	MEMSZERO(O);
+	MEMSZERO(S);
+}
+
 SBdtFunct::State_ & SBdtFunct::State_::Z()
 {
 	P_Tab = 0;
@@ -3904,6 +3902,40 @@ SBdtFunct::State_ & SBdtFunct::State_::Z()
 	MEMSZERO(O);
 	MEMSZERO(S);
 	return *this;
+}
+
+void SBdtFunct::Info::Set(int alg, int cls, uint flags, int inverseAlg, uint inBufQuant, uint outSize, uint keyLen)
+{
+	Alg = alg;
+	Cls = cls;
+	InverseAlg = inverseAlg;
+	Flags = flags;
+	InBufQuant = inBufQuant;
+	OutSize = outSize;
+	KeyLen = keyLen;
+}
+
+SBdtFunct::TransformBlock::TransformBlock() : Phase(phaseInit), InBufLen(0), P_InBuf(0), P_OutBuf(0), OutBufLen(0), OutBufPos(0)
+{
+	assert(Phase == phaseInit);
+}
+
+SBdtFunct::TransformBlock::TransformBlock(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen) : Phase(phaseUpdate), 
+	InBufLen(inBufLen), P_InBuf(pInBuf), P_OutBuf(pOutBuf), OutBufLen(outBufLen), OutBufPos(0)
+{
+	assert(Phase == phaseUpdate);
+}
+
+SBdtFunct::TransformBlock::TransformBlock(void * pOutBuf, size_t outBufLen) : Phase(phaseFinish), InBufLen(0), P_InBuf(0), P_OutBuf(pOutBuf), OutBufLen(outBufLen), OutBufPos(0)
+{
+}
+
+SBdtFunct::TransformBlock::TransformBlock(SBdtFunct::Info * pInfo) : Phase(phaseGetInfo), InBufLen(0), P_InBuf(0), P_OutBuf(pInfo), OutBufLen(pInfo ? sizeof(*pInfo) : 0), OutBufPos(0)
+{
+}
+
+SBdtFunct::TransformBlock::TransformBlock(SBdtFunct::Stat * pStat) : Phase(phaseGetStat), InBufLen(0), P_InBuf(0), P_OutBuf(pStat), OutBufLen(pStat ? sizeof(*pStat) : 0), OutBufPos(0)
+{
 }
 
 SBdtFunct::SBdtFunct(int alg) : A(alg)

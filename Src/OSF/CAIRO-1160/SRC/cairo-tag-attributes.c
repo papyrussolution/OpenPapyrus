@@ -38,7 +38,6 @@
 #include "cairo-array-private.h"
 #include "cairo-list-inline.h"
 #include "cairo-tag-attributes-private.h"
-//#include <string.h>
 
 typedef enum {
 	ATTRIBUTE_BOOL, /* Either true/false or 1/0 may be used. */
@@ -257,7 +256,7 @@ static const char * parse_string(const char * p, char ** s)
 	const char * end = decode_string(p, &len, NULL);
 	if(!end)
 		return NULL;
-	*s = (char *)_cairo_malloc(len + 1);
+	*s = (char *)SAlloc::M_zon0(len + 1);
 	decode_string(p, &len, *s);
 	(*s)[len] = 0;
 	return end;
@@ -313,7 +312,7 @@ static cairo_int_status_t parse_name(const char * p, const char ** end, char ** 
 	while(isasciialpha(*p2) || isdec(*p2))
 		p2++;
 	len = p2 - p;
-	name = (char *)_cairo_malloc(len + 1);
+	name = (char *)SAlloc::M_zon0(len + 1);
 	if(UNLIKELY(name == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	memcpy(name, p, len);

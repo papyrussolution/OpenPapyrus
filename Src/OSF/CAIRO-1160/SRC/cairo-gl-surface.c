@@ -1142,7 +1142,7 @@ static cairo_image_surface_t * _cairo_gl_surface_map_to_image(void * abstract_su
 		uint8 * bot = image->data + (image->height-1)*image->stride;
 
 		if(image->stride > (int)sizeof(stack)) {
-			row = _cairo_malloc(image->stride);
+			row = SAlloc::M_zon0(image->stride);
 			if(UNLIKELY(row == NULL)) {
 				cairo_surface_destroy(&image->base);
 				return _cairo_image_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));

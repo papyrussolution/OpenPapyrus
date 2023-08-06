@@ -4,7 +4,7 @@
 #include <7z-internal.h>
 #pragma hdrstop
 
-#define kCrcPoly   0xEDB88320
+// @v11.7.11 (replaced with SlConst::CrcPoly_CCITT32) #define kCrcPoly   0xEDB88320
 #define kCrc64Poly UINT64_CONST(0xC96C5795D7870F42)
 
 #define CRC_UPDATE_BYTE_2(crc, b) (table[((crc) ^ (b)) & 0xFF] ^ ((crc) >> 8))
@@ -52,7 +52,7 @@ void FASTCALL CrcGenerateTable()
 		uint32 r = i;
 		uint   j;
 		for(j = 0; j < 8; j++)
-			r = (r >> 1) ^ (kCrcPoly & ((uint32)0 - (r & 1)));
+			r = (r >> 1) ^ (SlConst::CrcPoly_CCITT32 & ((uint32)0 - (r & 1)));
 		g_CrcTable[i] = r;
 	}
 	for(i = 256; i < 256 * CRC32_NUM_TABLES; i++) {

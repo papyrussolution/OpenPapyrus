@@ -182,7 +182,7 @@ cairo_xcb_screen_t * _cairo_xcb_screen_get(xcb_connection_t * xcb_connection,
 			goto unlock;
 		}
 	}
-	screen = _cairo_malloc(sizeof(cairo_xcb_screen_t));
+	screen = SAlloc::M_zon0(sizeof(cairo_xcb_screen_t));
 	if(UNLIKELY(screen == NULL))
 		goto unlock;
 	screen_idx = _get_screen_index(connection, xcb_screen);

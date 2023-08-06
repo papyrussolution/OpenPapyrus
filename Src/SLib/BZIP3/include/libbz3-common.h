@@ -56,13 +56,13 @@ static void write_neutral_s32(uint8 * data, int32 value)
     #define HAS_BUILTIN_PREFETCH
 #endif
 
-#if defined(__has_builtin)
-    #if __has_builtin(__builtin_bswap16)
-        #define HAS_BUILTIN_BSWAP16
-    #endif
-#elif defined(__GNUC__) && (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)) || (__GNUC__ >= 5))
-    #define HAS_BUILTIN_BSWAP16
-#endif
+//#if defined(__has_builtin)
+    //#if __has_builtin(__builtin_bswap16)
+        //#define HAS_BUILTIN_BSWAP16
+    //#endif
+//#elif defined(__GNUC__) && (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)) || (__GNUC__ >= 5))
+    //#define HAS_BUILTIN_BSWAP16
+//#endif
 
 #if defined(HAS_BUILTIN_PREFETCH)
     #define prefetch(address) __builtin_prefetch((const void *)(address), 0, 0)
@@ -84,7 +84,7 @@ static void write_neutral_s32(uint8 * data, int32 value)
 #else
     #error Your compiler, configuration or platform is not supported.
 #endif
-
+/* @sobolev
 #if !defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)
     #if defined(_LITTLE_ENDIAN) || (defined(BYTE_ORDER) && defined(LITTLE_ENDIAN) && BYTE_ORDER == LITTLE_ENDIAN) || \
         (defined(_BYTE_ORDER) && defined(_LITTLE_ENDIAN) && _BYTE_ORDER == _LITTLE_ENDIAN) ||                        \
@@ -114,5 +114,5 @@ static void write_neutral_s32(uint8 * data, int32 value)
 #else
     #error Your compiler, configuration or platform is not supported.
 #endif
-
+*/
 #endif

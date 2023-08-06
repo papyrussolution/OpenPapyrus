@@ -275,7 +275,7 @@ static const cairo_device_backend_t _cairo_device_observer_backend = {
 static cairo_device_t * _cairo_device_create_observer_internal(cairo_device_t * target, boolint record)
 {
 	cairo_status_t status;
-	cairo_device_observer_t * device = (cairo_device_observer_t *)_cairo_malloc(sizeof(cairo_device_observer_t));
+	cairo_device_observer_t * device = (cairo_device_observer_t *)SAlloc::M_zon0(sizeof(cairo_device_observer_t));
 	if(UNLIKELY(device == NULL))
 		return _cairo_device_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_device_init(&device->base, &_cairo_device_observer_backend);
@@ -298,7 +298,7 @@ static cairo_device_observer_t * to_device(cairo_surface_observer_t * suface)
 static cairo_surface_t * _cairo_surface_create_observer_internal(cairo_device_t * device, cairo_surface_t * target)
 {
 	cairo_status_t status;
-	cairo_surface_observer_t * surface = (cairo_surface_observer_t *)_cairo_malloc(sizeof(cairo_surface_observer_t));
+	cairo_surface_observer_t * surface = (cairo_surface_observer_t *)SAlloc::M_zon0(sizeof(cairo_surface_observer_t));
 	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_surface_observer_backend, device, target->content, target->is_vector);
@@ -1097,7 +1097,7 @@ cairo_surface_t * cairo_surface_create_observer(cairo_surface_t * target,
 
 static cairo_status_t _cairo_surface_observer_add_callback(cairo_list_t * head, cairo_surface_observer_callback_t func, void * data)
 {
-	struct callback_list * cb = (struct callback_list *)_cairo_malloc(sizeof(*cb));
+	struct callback_list * cb = (struct callback_list *)SAlloc::M_zon0(sizeof(*cb));
 	if(UNLIKELY(cb == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	cairo_list_add(&cb->link, head);

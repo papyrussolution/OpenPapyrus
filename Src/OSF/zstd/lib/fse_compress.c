@@ -85,7 +85,7 @@ size_t FSE_buildCTable_wksp(FSE_CTable* ct, const short* normalizedCounter, uint
 		uint32 u;
 	    cumul[0] = 0;
 	    for(u = 1; u <= maxSV1; u++) {
-		    if(normalizedCounter[u-1]==-1) { /* Low proba symbol */
+		    if(normalizedCounter[u-1] == -1) { /* Low proba symbol */
 			    cumul[u] = cumul[u-1] + 1;
 			    tableSymbol[highThreshold--] = (FSE_FUNCTION_TYPE)(u-1);
 		    }
@@ -111,9 +111,9 @@ size_t FSE_buildCTable_wksp(FSE_CTable* ct, const short* normalizedCounter, uint
 		    for(s = 0; s<maxSV1; ++s, sv += add) {
 			    int i;
 			    int const n = normalizedCounter[s];
-			    MEM_write64(spread + pos, sv);
+			    SMem::Put(spread + pos, sv);
 			    for(i = 8; i < n; i += 8) {
-				    MEM_write64(spread + pos + i, sv);
+				    SMem::Put(spread + pos + i, sv);
 			    }
 			    assert(n>=0);
 			    pos += (size_t)n;

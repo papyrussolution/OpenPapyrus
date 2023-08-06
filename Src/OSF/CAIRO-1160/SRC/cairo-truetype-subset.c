@@ -160,7 +160,7 @@ static cairo_status_t _cairo_truetype_font_create(cairo_scaled_font_subset_t * s
 	status = backend->load_truetype_table(scaled_font_subset->scaled_font, TT_TAG_hhea, 0, (uchar *)&hhea, &size);
 	if(UNLIKELY(status))
 		return status;
-	font = (cairo_truetype_font_t *)_cairo_malloc(sizeof(cairo_truetype_font_t));
+	font = (cairo_truetype_font_t *)SAlloc::M_zon0(sizeof(cairo_truetype_font_t));
 	if(UNLIKELY(font == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	font->backend = backend;
@@ -210,7 +210,7 @@ static cairo_status_t _cairo_truetype_font_create(cairo_scaled_font_subset_t * s
 
 	/* If the PS name is not found, create a CairoFont-x-y name. */
 	if(font->base.ps_name == NULL) {
-		font->base.ps_name = (char *)_cairo_malloc(30);
+		font->base.ps_name = (char *)SAlloc::M_zon0(30);
 		if(UNLIKELY(font->base.ps_name == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail3;
@@ -553,7 +553,7 @@ static cairo_status_t cairo_truetype_font_write_glyf_table(cairo_truetype_font_t
 		size = sizeof(int16) * (font->base.num_glyphs_in_face + 1);
 	else
 		size = sizeof(int32) * (font->base.num_glyphs_in_face + 1);
-	u.bytes = static_cast<uchar *>(_cairo_malloc(size));
+	u.bytes = static_cast<uchar *>(SAlloc::M_zon0(size));
 	if(UNLIKELY(u.bytes == NULL))
 		return _cairo_truetype_font_set_error(font, CAIRO_STATUS_NO_MEMORY);
 	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font, TT_TAG_loca, 0, u.bytes, &size);
@@ -1012,7 +1012,7 @@ static cairo_status_t cairo_truetype_subset_init_internal(cairo_truetype_subset_
 	truetype_subset->ascent = (double)font->base.ascent/font->base.units_per_em;
 	truetype_subset->descent = (double)font->base.descent/font->base.units_per_em;
 	if(length) {
-		truetype_subset->data = static_cast<uchar *>(_cairo_malloc(length));
+		truetype_subset->data = static_cast<uchar *>(SAlloc::M_zon0(length));
 		if(UNLIKELY(truetype_subset->data == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail4;
@@ -1024,7 +1024,7 @@ static cairo_status_t cairo_truetype_subset_init_internal(cairo_truetype_subset_
 	truetype_subset->data_length = length;
 	if(num_strings) {
 		offsets_length = num_strings * sizeof(ulong);
-		truetype_subset->string_offsets = (ulong *)_cairo_malloc(offsets_length);
+		truetype_subset->string_offsets = (ulong *)SAlloc::M_zon0(offsets_length);
 		if(UNLIKELY(truetype_subset->string_offsets == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail5;
@@ -1090,7 +1090,7 @@ static cairo_int_status_t _cairo_truetype_reverse_cmap(cairo_scaled_font_t * sca
 	if(be16_to_cpu(map->format) != 4)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	size = be16_to_cpu(map->length);
-	map = static_cast<tt_segment_map_t *>(_cairo_malloc(size));
+	map = static_cast<tt_segment_map_t *>(SAlloc::M_zon0(size));
 	if(UNLIKELY(map == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = backend->load_truetype_table(scaled_font, TT_TAG_cmap, table_offset, (uchar *)map, &size);
@@ -1206,7 +1206,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 				break;
 			if(len > MAX_FONT_NAME_LENGTH)
 				break;
-			str = static_cast<char *>(_cairo_malloc(len+1));
+			str = static_cast<char *>(SAlloc::M_zon0(len+1));
 			if(!str)
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			memcpy(str, ((char *)name) + be16_to_cpu(name->strings_offset) + be16_to_cpu(record->offset), len);
@@ -1227,7 +1227,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 		for(i = 0; i < u_len; i++)
 			size += _cairo_ucs4_to_utf8(be16_to_cpu(u[i]), NULL);
 
-		utf8 = static_cast<char *>(_cairo_malloc(size + 1));
+		utf8 = static_cast<char *>(SAlloc::M_zon0(size + 1));
 		if(!utf8) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail;
@@ -1263,7 +1263,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 		}
 	}
 	if(has_tag) {
-		p = static_cast<char *>(_cairo_malloc(len - 6));
+		p = static_cast<char *>(SAlloc::M_zon0(len - 6));
 		if(UNLIKELY(p == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail;
@@ -1294,7 +1294,7 @@ cairo_int_status_t _cairo_truetype_read_font_name(cairo_scaled_font_t * scaled_f
 	status = backend->load_truetype_table(scaled_font, TT_TAG_name, 0, NULL, &size);
 	if(status)
 		return status;
-	name = (tt_name_t *)_cairo_malloc(size);
+	name = (tt_name_t *)SAlloc::M_zon0(size);
 	if(!name)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = backend->load_truetype_table(scaled_font, TT_TAG_name, 0, (uchar *)name, &size);

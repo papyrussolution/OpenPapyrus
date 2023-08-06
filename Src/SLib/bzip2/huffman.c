@@ -77,7 +77,7 @@ void BZ2_hbMakeCodeLengths(uchar * len, int32 * freq, int32 alphaSize, int32 max
 			heap[nHeap] = i;
 			UPHEAP(nHeap);
 		}
-		AssertH(nHeap < (BZ_MAX_ALPHA_SIZE+2), 2001);
+		assert(nHeap < (BZ_MAX_ALPHA_SIZE+2)/*, 2001*/);
 		while(nHeap > 1) {
 			n1 = heap[1]; heap[1] = heap[nHeap]; nHeap--; DOWNHEAP(1);
 			n2 = heap[1]; heap[1] = heap[nHeap]; nHeap--; DOWNHEAP(1);
@@ -89,7 +89,7 @@ void BZ2_hbMakeCodeLengths(uchar * len, int32 * freq, int32 alphaSize, int32 max
 			heap[nHeap] = nNodes;
 			UPHEAP(nHeap);
 		}
-		AssertH(nNodes < (BZ_MAX_ALPHA_SIZE * 2), 2002);
+		assert(nNodes < (BZ_MAX_ALPHA_SIZE * 2)/*, 2002*/);
 		tooLong = false;
 		for(i = 1; i <= alphaSize; i++) {
 			j = 0;

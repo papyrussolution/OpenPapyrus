@@ -23,12 +23,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#ifdef HAVE_CONFIG_H
-	#include <config.h>
-#endif
-//#include <math.h>
-//#include <string.h>
-//#include "pixman-private.h"
 #include "pixman-combine32.h"
 
 /* component alpha helper functions */

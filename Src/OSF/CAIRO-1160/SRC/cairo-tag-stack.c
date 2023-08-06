@@ -163,7 +163,7 @@ cairo_int_status_t _cairo_tag_stack_push(cairo_tag_stack_t * stack, const char *
 			stack->type = TAG_TREE_TYPE_STRUCTURE;
 		}
 	}
-	elem = (cairo_tag_stack_elem_t *)_cairo_malloc(sizeof(cairo_tag_stack_elem_t));
+	elem = (cairo_tag_stack_elem_t *)SAlloc::M_zon0(sizeof(cairo_tag_stack_elem_t));
 	if(UNLIKELY(elem == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	elem->name = sstrdup(name);

@@ -551,9 +551,9 @@ endhdr_2:
 		s->storedCombinedCRC = (s->storedCombinedCRC << 8) | ((uint32)uc);
 		s->state = BZ_X_IDLE;
 		RETURN(BZ_STREAM_END);
-		default: AssertH(false, 4001);
+		default: assert(false/*, 4001*/);
 	}
-	AssertH(false, 4002);
+	assert(false/*, 4002*/);
 save_state_and_return:
 	s->save_i   = i;
 	s->save_j   = j;

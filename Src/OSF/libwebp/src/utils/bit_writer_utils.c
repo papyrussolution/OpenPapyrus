@@ -293,7 +293,7 @@ void VP8LPutBitsFlushBits(VP8LBitWriter* const bw) {
 			return;
 		}
 	}
-	*(vp8l_wtype_t*)bw->cur_ = (vp8l_wtype_t)WSWAP((vp8l_wtype_t)bw->bits_);
+	*(vp8l_wtype_t*)bw->cur_ = (vp8l_wtype_t)/*WSWAP*/SMem::CLe((vp8l_wtype_t)bw->bits_);
 	bw->cur_ += VP8L_WRITER_BYTES;
 	bw->bits_ >>= VP8L_WRITER_BITS;
 	bw->used_ -= VP8L_WRITER_BITS;
@@ -322,14 +322,13 @@ void VP8LPutBitsInternal(VP8LBitWriter* const bw, uint32_t bits, int n_bits) {
 		while(used >= VP8L_WRITER_BITS) {
 			if(bw->cur_ + VP8L_WRITER_BYTES > bw->end_) {
 				const uint64_t extra_size = (bw->end_ - bw->buf_) + MIN_EXTRA_SIZE;
-				if(!CheckSizeOverflow(extra_size) ||
-				    !VP8LBitWriterResize(bw, (size_t)extra_size)) {
+				if(!CheckSizeOverflow(extra_size) || !VP8LBitWriterResize(bw, (size_t)extra_size)) {
 					bw->cur_ = bw->buf_;
 					bw->error_ = 1;
 					return;
 				}
 			}
-			*(vp8l_wtype_t*)bw->cur_ = (vp8l_wtype_t)WSWAP((vp8l_wtype_t)lbits);
+			*(vp8l_wtype_t*)bw->cur_ = (vp8l_wtype_t)/*WSWAP*/SMem::CLe((vp8l_wtype_t)lbits);
 			bw->cur_ += VP8L_WRITER_BYTES;
 			lbits >>= VP8L_WRITER_BITS;
 			used -= VP8L_WRITER_BITS;

@@ -17,5 +17,31 @@
 #define ZSTD_LZ4COMPRESS
 #define ZSTD_LZ4DECOMPRESS
 
-#endif // !__ZSTD_INTERNAL_H
+// @sobolev {
+inline constexpr uint MEM_32bits() { return sizeof(size_t)==4; }
+inline constexpr uint MEM_64bits() { return sizeof(size_t)==8; }
 
+FORCEINLINE constexpr uint MEM_isLittleEndian()
+{
+#if defined(SL_LITTLEENDIAN)
+	return 1;
+#elif defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+	return 1;
+#elif defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+	return 0;
+#elif defined(__clang__) && __LITTLE_ENDIAN__
+	return 1;
+#elif defined(__clang__) && __BIG_ENDIAN__
+	return 0;
+#elif defined(_MSC_VER) && (_M_AMD64 || _M_IX86)
+	return 1;
+#elif defined(__DMC__) && defined(_M_IX86)
+	return 1;
+#else
+	constexpr union { uint32 u; BYTE c[4]; } one = { 1 }; // don't use static : performance detrimental
+	return one.c[0];
+#endif
+}
+// } @sobolev
+
+#endif // !__ZSTD_INTERNAL_H

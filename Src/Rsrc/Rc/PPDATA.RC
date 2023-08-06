@@ -999,9 +999,10 @@ ROD_ELINKKIND PP_RCDATA {
 // Зарезервированные записи объекта PPOBJ_QUOTKIND
 //
 ROD_QUOTKIND PP_RCDATA {
-	2,
+	3,
 	1, "@{basequote}\0", "BASE\0",
 	2, "Подарочная скидка\0", "GIFT\0"
+	3, "BOM - Ожидаемая стоимость комплектации\0", "ESTBOMVALUE\0" // @v11.7.11
 }
 //
 // Зарезервированные записи объекта PPOBJ_TAG

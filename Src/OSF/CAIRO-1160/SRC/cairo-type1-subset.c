@@ -262,7 +262,7 @@ static cairo_status_t cairo_type1_font_subset_get_matrix(cairo_type1_font_subset
 	if(end == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	s_max = end - start + 5*decimal_point_len + 1;
-	s = (char *)_cairo_malloc(s_max);
+	s = (char *)SAlloc::M_zon0(s_max);
 	if(UNLIKELY(s == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	i = 0;
@@ -332,7 +332,7 @@ static cairo_status_t cairo_type1_font_subset_get_fontname(cairo_type1_font_subs
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	while(end > start && _cairo_isspace(end[-1]))
 		end--;
-	s = (char *)_cairo_malloc(end - start + 1);
+	s = (char *)SAlloc::M_zon0(end - start + 1);
 	if(UNLIKELY(s == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	strncpy(s, start, end - start);
@@ -497,7 +497,7 @@ static cairo_status_t cairo_type1_font_subset_decrypt_eexec_segment(cairo_type1_
 	int i;
 	uchar * in = (uchar *)font->eexec_segment;
 	uchar * end = (uchar *)in + font->eexec_segment_size;
-	font->cleartext = (char *)_cairo_malloc(font->eexec_segment_size + 1);
+	font->cleartext = (char *)SAlloc::M_zon0(font->eexec_segment_size + 1);
 	if(UNLIKELY(font->cleartext == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	out = font->cleartext;
@@ -649,7 +649,7 @@ static cairo_status_t cairo_type1_font_subset_parse_charstring(cairo_type1_font_
 	const uchar * end;
 	const uchar * p;
 	int command;
-	uchar * charstring = static_cast<uchar *>(_cairo_malloc(encrypted_charstring_length));
+	uchar * charstring = static_cast<uchar *>(SAlloc::M_zon0(encrypted_charstring_length));
 	if(UNLIKELY(charstring == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	cairo_type1_font_subset_decrypt_charstring((const uchar *)encrypted_charstring, encrypted_charstring_length, charstring);
@@ -939,7 +939,7 @@ static cairo_status_t cairo_type1_font_subset_build_glyph_list(cairo_type1_font_
 {
 	glyph_data_t glyph;
 	cairo_status_t status;
-	char * s = (char *)_cairo_malloc(name_length + 1);
+	char * s = (char *)SAlloc::M_zon0(name_length + 1);
 	if(UNLIKELY(s == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	strnzcpy(s, name, name_length+1);
@@ -1085,7 +1085,7 @@ static cairo_status_t cairo_type1_font_subset_write_private_dict(cairo_type1_fon
 		lenIV_end = find_token(lenIV_start, font->cleartext_end, "def");
 		if(lenIV_end == NULL)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
-		lenIV_str = static_cast<char *>(_cairo_malloc(lenIV_end - lenIV_start + 1));
+		lenIV_str = static_cast<char *>(SAlloc::M_zon0(lenIV_end - lenIV_start + 1));
 		if(UNLIKELY(lenIV_str == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		strncpy(lenIV_str, lenIV_start, lenIV_end - lenIV_start);
@@ -1343,7 +1343,7 @@ static cairo_status_t cairo_type1_font_subset_generate(void * abstract_font, con
 	if(status)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	font->type1_length = data_length;
-	font->type1_data = static_cast<char *>(_cairo_malloc(font->type1_length));
+	font->type1_data = static_cast<char *>(SAlloc::M_zon0(font->type1_length));
 	if(UNLIKELY(font->type1_data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = scaled_font->backend->load_type1_data(scaled_font, 0, reinterpret_cast<uchar *>(font->type1_data), &data_length);
@@ -1432,7 +1432,7 @@ cairo_status_t _cairo_type1_subset_init(cairo_type1_subset_t * type1_subset, con
 	type1_subset->ascent = font.base.ascent;
 	type1_subset->descent = font.base.descent;
 	length = font.base.header_size + font.base.data_size + font.base.trailer_size;
-	type1_subset->data = (char *)_cairo_malloc(length);
+	type1_subset->data = (char *)SAlloc::M_zon0(length);
 	if(UNLIKELY(type1_subset->data == NULL))
 		goto fail3;
 	memcpy(type1_subset->data, _cairo_array_index(&font.contents, 0), length);

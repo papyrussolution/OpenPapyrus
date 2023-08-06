@@ -359,10 +359,10 @@ static void HE4(uint8* dst, const uint8* top) {    // horizontal
 	const int J = top[-3];
 	const int K = top[-4];
 	const int L = top[-5];
-	WebPUint32ToMem(dst + 0 * BPS, 0x01010101U * AVG3(X, I, J));
-	WebPUint32ToMem(dst + 1 * BPS, 0x01010101U * AVG3(I, J, K));
-	WebPUint32ToMem(dst + 2 * BPS, 0x01010101U * AVG3(J, K, L));
-	WebPUint32ToMem(dst + 3 * BPS, 0x01010101U * AVG3(K, L, L));
+	SMem::Put(dst + 0 * BPS, 0x01010101U * AVG3(X, I, J));
+	SMem::Put(dst + 1 * BPS, 0x01010101U * AVG3(I, J, K));
+	SMem::Put(dst + 2 * BPS, 0x01010101U * AVG3(J, K, L));
+	SMem::Put(dst + 3 * BPS, 0x01010101U * AVG3(K, L, L));
 }
 
 static void DC4(uint8* dst, const uint8* top) {

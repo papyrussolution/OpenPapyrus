@@ -251,14 +251,12 @@ static float CombinedShannonEntropy_SSE2(const int X[256], const int Y[256])
 		const __m128i y2 = _mm_loadu_si128((const __m128i*)(Y + i +  8));
 		const __m128i x3 = _mm_loadu_si128((const __m128i*)(X + i + 12));
 		const __m128i y3 = _mm_loadu_si128((const __m128i*)(Y + i + 12));
-		const __m128i x4 = _mm_packs_epi16(_mm_packs_epi32(x0, x1),
-			_mm_packs_epi32(x2, x3));
-		const __m128i y4 = _mm_packs_epi16(_mm_packs_epi32(y0, y1),
-			_mm_packs_epi32(y2, y3));
+		const __m128i x4 = _mm_packs_epi16(_mm_packs_epi32(x0, x1), _mm_packs_epi32(x2, x3));
+		const __m128i y4 = _mm_packs_epi16(_mm_packs_epi32(y0, y1), _mm_packs_epi32(y2, y3));
 		const int32_t mx = _mm_movemask_epi8(_mm_cmpgt_epi8(x4, zero));
 		int32_t my = _mm_movemask_epi8(_mm_cmpgt_epi8(y4, zero)) | mx;
 		while(my) {
-			const int32_t j = BitsCtz(my);
+			const int32_t j = SBits::Ctz(my);
 			int xy;
 			if((mx >> j) & 1) {
 				const int x = X[i + j];

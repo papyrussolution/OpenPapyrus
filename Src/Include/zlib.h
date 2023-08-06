@@ -646,7 +646,7 @@ typedef gz_header  * gz_headerp;
 //
 // basic functions 
 //
-ZEXTERN const char * zlibVersion(void);
+ZEXTERN const char * zlibVersion();
 // 
 // The application can compare zlibVersion and ZLIB_VERSION for consistency.
 // If the first character differs, the library code actually used is not
@@ -1524,7 +1524,7 @@ ZEXTERN int inflateBackEnd(z_streamp strm);
      inflateBackEnd() returns Z_OK on success, or Z_STREAM_ERROR if the stream
    state was inconsistent.
  */
-ZEXTERN uLong zlibCompileFlags(void);
+ZEXTERN uLong zlibCompileFlags();
 /* Return flags indicating compile-time options.
 
     Type sizes, two bits each, 00 = 16 bits, 01 = 32, 10 = 64, 11 = other:
@@ -2157,7 +2157,7 @@ ZEXTERN int gzgetc_(gzFile file); /* backward compatibility */
 /* undocumented functions */
 ZEXTERN const char * zError(int);
 ZEXTERN int inflateSyncPoint(z_streamp);
-ZEXTERN const z_crc_t  * get_crc_table(void);
+ZEXTERN const z_crc_t  * get_crc_table();
 ZEXTERN int inflateUndermine(z_streamp, int);
 ZEXTERN int inflateValidate(z_streamp, int);
 ZEXTERN unsigned long inflateCodesUsed(z_streamp);

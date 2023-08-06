@@ -379,6 +379,7 @@ int PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 		ZDELETE(P_Rpe); // @v10.3.2
 		GoodsIDs.Clear();
 		StrPool.ClearS();
+		SubstPriceQuotList.clear(); // @v11.7.11
 		if(Filt.Flags & GoodsRestFilt::fNullRestsOnly)
 			Filt.Flags |= GoodsRestFilt::fNullRest;
 		if(Filt.Flags & GoodsRestFilt::fNoZeroOrderOnly)
@@ -429,6 +430,7 @@ int PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 		{
 			double prf_measure = 0.0;
 			PROFILE(ok = CreateTempTable(1, &prf_measure));
+			SubstPriceQuotList.sort(PTR_CMPFUNC(_2long)); // @v11.7.11
 			ufp.SetFactor(0, prf_measure);
 		}
 		ufp.Commit();
@@ -1501,6 +1503,12 @@ int PPViewGoodsRest::AddGoodsThruCache(PPID goodsID, PPID locID, int isSubst,
 	grci.Deficit  = pGRV->Deficit;
 	grci.DraftRcpt = pGRV->DraftRcpt;
 	grci.Expiry   = pGRV->Expiry; // @v11.6.2 @fix
+	// @v11.7.11 {
+	if(pGRV->Flags & (GoodsRestVal::fCostByQuot|GoodsRestVal::fPriceByQuot)) {
+		SubstPriceQuotEntry entry(goodsID, locID);
+		SubstPriceQuotList.insert(&entry);
+	}
+	// } @v11.7.11 
 	CacheBuf.SetupCacheItemSerial(grci, pGRV->Serial);
 	CacheBuf.SetupCacheItemLotTag(grci, pGRV->LotTagText);
 	if(Filt.CalcMethod == GoodsRestParam::pcmMostRecent)
@@ -1559,6 +1567,12 @@ int PPViewGoodsRest::GetLastLot_(PPID goodsID, PPID locID, ReceiptTbl::Rec & rRe
 				rRec.Price = qv;
 			else if(quot_usage == 2)
 				rRec.Cost = qv;
+			// @v11.7.11 {
+			{
+				SubstPriceQuotEntry entry(goodsID, locID);
+				SubstPriceQuotList.insert(&entry);
+			}
+			// } @v11.7.11 
 			ok = 2;
 		}
 	}
@@ -1620,11 +1634,12 @@ int PPViewGoodsRest::AddTotal(const PPViewGoodsRest::CacheItem & rItem)
 int PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const PPIDArray * pAgentBillList)
 {
 	int    ok = 1;
+	bool   skip = false;
 	const  long ff = Filt.Flags;
 	const  int  each_loc   = BIN(ff & GoodsRestFilt::fEachLocation);
 	const  int  draft_rcpt = BIN(ff & GoodsRestFilt::fShowDraftReceipt);
 	const  int  calc_uncompl_sess = BIN(ff & GoodsRestFilt::fCalcUncompleteSess);
-	const int quot_usage = (Filt.QuotKindID > 0) ? Filt.GetQuotUsage() : 0;
+	// @v11.7.11 const int quot_usage = (Filt.QuotKindID > 0) ? Filt.GetQuotUsage() : 0;
 	PPID   goods_id = goodsID;
 	int    is_subst = 0;
 	double order = 0.0, ph_u_per_u = 0.0, min_stock = 0.0;
@@ -1650,174 +1665,176 @@ int PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const PPIDArr
 		THROW(P_BObj->trfr->GetRest(ord_p));
 		order = ord_p.Total.Rest;
 		if(order == 0.0 && (ff & GoodsRestFilt::fNoZeroOrderOnly))
-			return 1;
+			skip = true;
 	}
-	if(ff & GoodsRestFilt::fUnderMinStock) {
+	if(!skip && ff & GoodsRestFilt::fUnderMinStock) {
 		GoodsStockExt gse;
 		if(GObj.GetStockExt(goods_id, &gse, 1) <= 0 || (min_stock = gse.GetMaxMinStock(0)) <= 0)
-			return 1;
+			skip = true;
 	}
-	p.QuotKindID = Filt.QuotKindID;
-	p.AgentID    = Filt.AgentID;
-	p.P_SupplAgentBillList = pAgentBillList;
-	if(Filt.Sgg == sggLocation)
-		p.DiffParam |= GoodsRestParam::_diffLoc;
-	THROW(P_BObj->trfr->GetRest(p));
-	p.Total.Rest -= GetUncompleteSessQttyByLocList(p.GoodsID, &p.LocList, 0);
-	if(draft_rcpt && p.Total.Rest == 0.0)
-		p.Total.DraftRcpt = GetDraftRcptByLocList(goods_id, &p.LocList, 0);
-	if(order || p.Total.Rest || min_stock > 0.0 || p.Total.DraftRcpt || (ff & GoodsRestFilt::fNullRest)) {
-		//
-		// Пассивный товар с нулевым остатком не учитываем
-		//
-		if(order == 0.0 && p.Total.Rest == 0.0 && min_stock <= 0.0 && GObj.CheckFlag(goods_id, GF_PASSIV))
-			return 1;
-		double deficit = GetDeficit(goods_id);
-		ReceiptTbl::Rec rrec;
-		GObj.GetPhUPerU(goods_id, 0, &ph_u_per_u);
-		if(p.Total.Rest == 0.0 && p.Total.DraftRcpt == 0.0) {
-			// В цикле для каждого склада Х
-			const  PPID temp_loc_id = LocList.GetSingle();
-			const  int llr = GetLastLot_(goodsID, temp_loc_id, rrec);
-			if(llr > 0 || (ff & (GoodsRestFilt::fUseGoodsMatrix|GoodsRestFilt::fForceNullRest))) {
-				p.Total.Init(&rrec);
-				p.Total.Deficit = deficit;
-				if(Filt.Sgg) {
-					PPObjGoods::SubstBlock sgg_blk;
-					sgg_blk.ExclParentID = Filt.GoodsGrpID;
-					if(llr > 0) {
-						sgg_blk.LocID = rrec.LocID;
-						sgg_blk.P_LotRec = &rrec;
-					}
-					THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
-					is_subst = 1;
-				}
-				THROW(AddGoodsThruCache(goods_id, LocList.GetSingle(), is_subst, order, ph_u_per_u, &p.Total, pBei));
-			}
-			// }
-		}
-		else if(!(ff & GoodsRestFilt::fNullRestsOnly)) {
-			if(p.getCount()) {
-				GoodsRestVal * p_val = 0;
-				PPIDArray ord_loc_list;
-				uint   i;
-				if(each_loc && (order != 0.0 || draft_rcpt)) {
-					for(i = 0; DraftRcptList.lsearch(&goodsID, &i, CMPF_LONG); i++) {
-						const PPID loc_id = DraftRcptList.at(i).LocID;
-						if(loc_id)
-							ord_loc_list.add(loc_id);
-					}
-					for(i = 0; i < ord_p.getCount(); i++)
-						ord_loc_list.add(ord_p.at(i).LocID);
-					ord_loc_list.sortAndUndup();
-				}
-				for(uint j = 0; p.enumItems(&j, reinterpret_cast<void **>(&p_val));) {
-					PPID   loc_id = 0;
-					double temp_order = order;
-					if(each_loc) {
-						loc_id = p_val->LocID;
-						temp_order = ord_p.GetRestByLoc(loc_id);
-						ord_loc_list.freeByKey(loc_id, 1 /* binary */);
-					}
-					else
-						loc_id = LocList.GetSingle();
-					p_val->Deficit   = deficit;
-					p_val->DraftRcpt = GetDraftReceipt(goodsID, loc_id);
-					p_val->Rest -= GetUncompleteSessQtty(goodsID, loc_id);
+	if(!skip) {
+		p.QuotKindID = Filt.QuotKindID;
+		p.AgentID    = Filt.AgentID;
+		p.P_SupplAgentBillList = pAgentBillList;
+		if(Filt.Sgg == sggLocation)
+			p.DiffParam |= GoodsRestParam::_diffLoc;
+		THROW(P_BObj->trfr->GetRest(p));
+		p.Total.Rest -= GetUncompleteSessQttyByLocList(p.GoodsID, &p.LocList, 0);
+		if(draft_rcpt && p.Total.Rest == 0.0)
+			p.Total.DraftRcpt = GetDraftRcptByLocList(goods_id, &p.LocList, 0);
+		if(order || p.Total.Rest || min_stock > 0.0 || p.Total.DraftRcpt || (ff & GoodsRestFilt::fNullRest)) {
+			//
+			// Пассивный товар с нулевым остатком не учитываем
+			//
+			if(order == 0.0 && p.Total.Rest == 0.0 && min_stock <= 0.0 && GObj.CheckFlag(goods_id, GF_PASSIV))
+				return 1;
+			double deficit = GetDeficit(goods_id);
+			ReceiptTbl::Rec rrec;
+			GObj.GetPhUPerU(goods_id, 0, &ph_u_per_u);
+			if(p.Total.Rest == 0.0 && p.Total.DraftRcpt == 0.0) {
+				// В цикле для каждого склада Х
+				const  PPID temp_loc_id = LocList.GetSingle();
+				const  int llr = GetLastLot_(goodsID, temp_loc_id, rrec);
+				if(llr > 0 || (ff & (GoodsRestFilt::fUseGoodsMatrix|GoodsRestFilt::fForceNullRest))) {
+					p.Total.Init(&rrec);
+					p.Total.Deficit = deficit;
 					if(Filt.Sgg) {
 						PPObjGoods::SubstBlock sgg_blk;
 						sgg_blk.ExclParentID = Filt.GoodsGrpID;
-						sgg_blk.LocID = p_val->LocID;
-						sgg_blk.LotID = p_val->LotID;
+						if(llr > 0) {
+							sgg_blk.LocID = rrec.LocID;
+							sgg_blk.P_LotRec = &rrec;
+						}
 						THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
 						is_subst = 1;
 					}
-					THROW(AddGoodsThruCache(goods_id, loc_id, is_subst, temp_order, ph_u_per_u, p_val, pBei));
+					THROW(AddGoodsThruCache(goods_id, LocList.GetSingle(), is_subst, order, ph_u_per_u, &p.Total, pBei));
 				}
-				if(each_loc && (order != 0.0 || draft_rcpt)) {
-					for(i = 0; i < ord_loc_list.getCount(); i++) {
-						const PPID loc_id = ord_loc_list.get(i);
-						GoodsRestVal temp_val;
-						temp_val.LocID = loc_id;
-						temp_val.DraftRcpt = GetDraftReceipt(goodsID, loc_id);
+				// }
+			}
+			else if(!(ff & GoodsRestFilt::fNullRestsOnly)) {
+				if(p.getCount()) {
+					GoodsRestVal * p_val = 0;
+					PPIDArray ord_loc_list;
+					uint   i;
+					if(each_loc && (order != 0.0 || draft_rcpt)) {
+						for(i = 0; DraftRcptList.lsearch(&goodsID, &i, CMPF_LONG); i++) {
+							const PPID loc_id = DraftRcptList.at(i).LocID;
+							if(loc_id)
+								ord_loc_list.add(loc_id);
+						}
+						for(i = 0; i < ord_p.getCount(); i++)
+							ord_loc_list.add(ord_p.at(i).LocID);
+						ord_loc_list.sortAndUndup();
+					}
+					for(uint j = 0; p.enumItems(&j, reinterpret_cast<void **>(&p_val));) {
+						PPID   loc_id = 0;
+						double temp_order = order;
+						if(each_loc) {
+							loc_id = p_val->LocID;
+							temp_order = ord_p.GetRestByLoc(loc_id);
+							ord_loc_list.freeByKey(loc_id, 1 /* binary */);
+						}
+						else
+							loc_id = LocList.GetSingle();
+						p_val->Deficit   = deficit;
+						p_val->DraftRcpt = GetDraftReceipt(goodsID, loc_id);
+						p_val->Rest -= GetUncompleteSessQtty(goodsID, loc_id);
 						if(Filt.Sgg) {
 							PPObjGoods::SubstBlock sgg_blk;
 							sgg_blk.ExclParentID = Filt.GoodsGrpID;
-							sgg_blk.LocID = loc_id;
+							sgg_blk.LocID = p_val->LocID;
 							sgg_blk.LotID = p_val->LotID;
 							THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
 							is_subst = 1;
 						}
-						THROW(AddGoodsThruCache(goods_id, loc_id, is_subst, ord_p.GetRestByLoc(loc_id), ph_u_per_u, &temp_val, pBei));
+						THROW(AddGoodsThruCache(goods_id, loc_id, is_subst, temp_order, ph_u_per_u, p_val, pBei));
 					}
-				}
-			}
-			else if((draft_rcpt || calc_uncompl_sess) && each_loc) {
-				DraftRcptItem item;
-				// @v10.8.0 @ctr MEMSZERO(item);
-				if(draft_rcpt) {
-					for(uint pos = 0; EnumDraftRcpt(goods_id, &pos, &item) > 0;) {
-						if(item.LocID != 0) {
-							p.Total.DraftRcpt = item.Qtty;
-							const int llr = GetLastLot_(goodsID, item.LocID, rrec);
-							p.Total.Cost  = rrec.Cost;
-							p.Total.Price = rrec.Price;
+					if(each_loc && (order != 0.0 || draft_rcpt)) {
+						for(i = 0; i < ord_loc_list.getCount(); i++) {
+							const PPID loc_id = ord_loc_list.get(i);
+							GoodsRestVal temp_val;
+							temp_val.LocID = loc_id;
+							temp_val.DraftRcpt = GetDraftReceipt(goodsID, loc_id);
 							if(Filt.Sgg) {
 								PPObjGoods::SubstBlock sgg_blk;
 								sgg_blk.ExclParentID = Filt.GoodsGrpID;
-								sgg_blk.LocID = item.LocID;
-								if(llr > 0)
-									sgg_blk.P_LotRec = &rrec;
-								// Здесь не следует точно идентифицировать лот в sgg_blk по скольку фактически лота нет (rrec -
-								// просто последний лот).
+								sgg_blk.LocID = loc_id;
+								sgg_blk.LotID = p_val->LotID;
 								THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
 								is_subst = 1;
 							}
-							THROW(AddGoodsThruCache(goods_id, item.LocID, is_subst, order, ph_u_per_u, &p.Total, pBei));
+							THROW(AddGoodsThruCache(goods_id, loc_id, is_subst, ord_p.GetRestByLoc(loc_id), ph_u_per_u, &temp_val, pBei));
 						}
 					}
 				}
-				if(calc_uncompl_sess) {
-					for(uint pos = 0; EnumUncompleteSessQtty(goods_id, &pos, &item) > 0;) {
-						if(item.LocID != 0) {
-							p.Total.Rest -= item.Qtty;
-							int    llr = GetLastLot_(goodsID, item.LocID, rrec);
+				else if((draft_rcpt || calc_uncompl_sess) && each_loc) {
+					DraftRcptItem item;
+					// @v10.8.0 @ctr MEMSZERO(item);
+					if(draft_rcpt) {
+						for(uint pos = 0; EnumDraftRcpt(goods_id, &pos, &item) > 0;) {
+							if(item.LocID != 0) {
+								p.Total.DraftRcpt = item.Qtty;
+								const int llr = GetLastLot_(goodsID, item.LocID, rrec);
+								p.Total.Cost  = rrec.Cost;
+								p.Total.Price = rrec.Price;
+								if(Filt.Sgg) {
+									PPObjGoods::SubstBlock sgg_blk;
+									sgg_blk.ExclParentID = Filt.GoodsGrpID;
+									sgg_blk.LocID = item.LocID;
+									if(llr > 0)
+										sgg_blk.P_LotRec = &rrec;
+									// Здесь не следует точно идентифицировать лот в sgg_blk по скольку фактически лота нет (rrec -
+									// просто последний лот).
+									THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
+									is_subst = 1;
+								}
+								THROW(AddGoodsThruCache(goods_id, item.LocID, is_subst, order, ph_u_per_u, &p.Total, pBei));
+							}
+						}
+					}
+					if(calc_uncompl_sess) {
+						for(uint pos = 0; EnumUncompleteSessQtty(goods_id, &pos, &item) > 0;) {
+							if(item.LocID != 0) {
+								p.Total.Rest -= item.Qtty;
+								int    llr = GetLastLot_(goodsID, item.LocID, rrec);
+								p.Total.Cost  = rrec.Cost;
+								p.Total.Price = rrec.Price;
+								if(Filt.Sgg) {
+									PPObjGoods::SubstBlock sgg_blk;
+									sgg_blk.ExclParentID = Filt.GoodsGrpID;
+									sgg_blk.LocID = item.LocID;
+									if(llr > 0)
+										sgg_blk.P_LotRec = &rrec;
+									// Здесь не следует точно идентифицировать лот в sgg_blk по скольку фактически лота нет (rrec -
+									// просто последний лот).
+									THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
+									is_subst = 1;
+								}
+								THROW(AddGoodsThruCache(goods_id, item.LocID, is_subst, order, ph_u_per_u, &p.Total, pBei));
+							}
+						}
+					}
+				}
+				else {
+					PPObjGoods::SubstBlock sgg_blk;
+					sgg_blk.ExclParentID = Filt.GoodsGrpID;
+					sgg_blk.LocID = p.Total.LocID;
+					p.Total.Deficit   = deficit;
+					p.Total.DraftRcpt = GetDraftReceipt(goods_id, p.LocID);
+					if(p.Total.DraftRcpt > 0.0 && p.Total.Rest == 0.0) {
+						if(GetLastLot_(goodsID, p.LocID, rrec) > 0) {
 							p.Total.Cost  = rrec.Cost;
 							p.Total.Price = rrec.Price;
-							if(Filt.Sgg) {
-								PPObjGoods::SubstBlock sgg_blk;
-								sgg_blk.ExclParentID = Filt.GoodsGrpID;
-								sgg_blk.LocID = item.LocID;
-								if(llr > 0)
-									sgg_blk.P_LotRec = &rrec;
-								// Здесь не следует точно идентифицировать лот в sgg_blk по скольку фактически лота нет (rrec -
-								// просто последний лот).
-								THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
-								is_subst = 1;
-							}
-							THROW(AddGoodsThruCache(goods_id, item.LocID, is_subst, order, ph_u_per_u, &p.Total, pBei));
+							sgg_blk.P_LotRec = &rrec;
 						}
 					}
-				}
-			}
-			else {
-				PPObjGoods::SubstBlock sgg_blk;
-				sgg_blk.ExclParentID = Filt.GoodsGrpID;
-				sgg_blk.LocID = p.Total.LocID;
-				p.Total.Deficit   = deficit;
-				p.Total.DraftRcpt = GetDraftReceipt(goods_id, p.LocID);
-				if(p.Total.DraftRcpt > 0.0 && p.Total.Rest == 0.0) {
-					if(GetLastLot_(goodsID, p.LocID, rrec) > 0) {
-						p.Total.Cost  = rrec.Cost;
-						p.Total.Price = rrec.Price;
-						sgg_blk.P_LotRec = &rrec;
+					if(Filt.Sgg) {
+						THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
+						is_subst = 1;
 					}
+					THROW(AddGoodsThruCache(goods_id, p.LocID, is_subst, order, ph_u_per_u, &p.Total, pBei));
 				}
-				if(Filt.Sgg) {
-					THROW(GObj.SubstGoods(goodsID, &goods_id, Filt.Sgg, &sgg_blk, &Gsl));
-					is_subst = 1;
-				}
-				THROW(AddGoodsThruCache(goods_id, p.LocID, is_subst, order, ph_u_per_u, &p.Total, pBei));
 			}
 		}
 	}
@@ -2008,10 +2025,21 @@ int PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec &
 					double qv = 0.0;
 					const QuotIdent qi(rRec.LocID, Filt.QuotKindID);
 					if(GObj.GetQuotExt(rRec.GoodsID, qi, grci.Cost, grci.Price, &qv, 1) > 0) {
+						bool do_register = true;
 						if(quot_usage == 2)
 							grci.Cost = qv;
-						else if(quot_usage == 1 && !P_Rpe) // @v10.3.2 !P_Rpe
-							grci.Price = qv;
+						else if(quot_usage == 1) {
+							if(!P_Rpe)
+								grci.Price = qv;
+							else
+								do_register = false;
+						}
+						// @v11.7.11 {
+						if(do_register) {
+							SubstPriceQuotEntry entry(rRec.GoodsID, rRec.LocID);
+							SubstPriceQuotList.insert(&entry);
+						}
+						// } @v11.7.11 
 					}
 				}
 				if(rRec.Flags & (LOTF_COSTWOVAT|LOTF_PRICEWOTAXES)) {
@@ -3300,45 +3328,91 @@ void PPViewGoodsRest::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoods
 	ASSIGN_PTR(pGoodsID, goods_id);
 }
 
-static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, void * extraPtr)
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
+	/* @v11.7.11 
 	PPViewGoodsRest * p_view = static_cast<PPViewGoodsRest *>(extraPtr);
-	return p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pCellStyle) : -1;
+	return p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle) : -1;
+	*/
+	// @v11.7.11 {
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewGoodsRest * p_view = static_cast<PPViewGoodsRest *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
+	// } @v11.7.11 
 }
 
-int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle)
+int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	if(pData && pCellStyle && col >= 0) {
-		const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
-		const int is_crosst = IsCrosstab();
-		if(Filt.Flags & GoodsRestFilt::fShowGoodsMatrixBelongs || !r_tag_filt.IsEmpty() || (!is_crosst && Filt.DiffParam == GoodsRestParam::_diffSerial)) {
-			int    accept = 0;
-			PPID   goods_id = 0, loc_id = 0;
-			// 26 
-			/* @construction if(col == 26 && (!is_crosst && Filt.DiffParam == GoodsRestParam::_diffSerial)) {
-				if(SETIFZ(P_SpoilTbl, new SpecSeriesCore)) {
-					//if(P_SpoilTbl->)
-					//ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
+	//if(col >= 0 && col < p_def->getCountI()) {
+	if(pData && pStyle && pBrw) {
+		BrowserDef * p_def = pBrw->getDef();
+		if(col >= 0 && col < p_def->getCountI()) {
+			const BroColumn & r_col = p_def->at(col);
+			const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
+			const bool is_crosst = IsCrosstab();
+			PPID   goods_id = 0;
+			PPID   loc_id = 0;
+			bool   ids_inted = false;
+			// @v11.7.11 @construction {
+			if(!is_crosst) {
+				const int qu = Filt.GetQuotUsage();
+				if(qu == 2 && r_col.OrgOffs == 12) {
+					if(!ids_inted) {
+						GetEditIds(pData, &loc_id, &goods_id, col);
+						ids_inted = true;
+					}
+					const SubstPriceQuotEntry key(goods_id, loc_id);
+					if(SubstPriceQuotList.bsearch(&key, 0, PTR_CMPFUNC(_2long))) { // список отсортирован в ::Init_
+						ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrBlue));
+					}
+				}
+				else if(qu == 1 && r_col.OrgOffs == 13) {
+					if(!ids_inted) {
+						GetEditIds(pData, &loc_id, &goods_id, col);
+						ids_inted = true;
+					}
+					const SubstPriceQuotEntry key(goods_id, loc_id);
+					if(SubstPriceQuotList.bsearch(&key, 0, PTR_CMPFUNC(_2long))) { // список отсортирован в ::Init_
+						ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrBlue));
+					}
 				}
 			}
-			else */ {
-				if((col == 0 && is_crosst == 0) || (col && is_crosst)) {
-					GetEditIds(pData, &loc_id, &goods_id, col);
-					if(goods_id && (!is_crosst || loc_id))
-						accept = 1;
-				}
-				if(accept) {
-					if(Filt.Flags & GoodsRestFilt::fShowGoodsMatrixBelongs) {
-						if(GObj.P_Tbl->BelongToMatrix(goods_id, loc_id) > 0)
-							ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
-						else
-							ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+			// } @v11.7.11 @construction
+			if(Filt.Flags & GoodsRestFilt::fShowGoodsMatrixBelongs || !r_tag_filt.IsEmpty() || (!is_crosst && Filt.DiffParam == GoodsRestParam::_diffSerial)) {
+				int    accept = 0;
+				// 26 
+				/* @construction if(col == 26 && (!is_crosst && Filt.DiffParam == GoodsRestParam::_diffSerial)) {
+					if(SETIFZ(P_SpoilTbl, new SpecSeriesCore)) {
+						//if(P_SpoilTbl->)
+						//ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
 					}
-					if(!r_tag_filt.IsEmpty()) {
-						SColor clr;
-						if(r_tag_filt.SelectIndicator(goods_id, clr) > 0)
-							ok = pCellStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+				}
+				else */ {
+					if((col == 0 && is_crosst == 0) || (col && is_crosst)) {
+						if(!ids_inted) {
+							GetEditIds(pData, &loc_id, &goods_id, col);
+							ids_inted = true;
+						}
+						if(goods_id && (!is_crosst || loc_id))
+							accept = 1;
+					}
+					if(accept) {
+						if(Filt.Flags & GoodsRestFilt::fShowGoodsMatrixBelongs) {
+							if(GObj.P_Tbl->BelongToMatrix(goods_id, loc_id) > 0)
+								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+							else
+								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+						}
+						if(!r_tag_filt.IsEmpty()) {
+							SColor clr;
+							if(r_tag_filt.SelectIndicator(goods_id, clr) > 0)
+								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+						}
 					}
 				}
 			}
@@ -3413,7 +3487,7 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 		if(Filt.ExtViewFlags & GoodsRestFilt::evfShowLastSaleDate)
 			pBrw->InsColumn(-1, "@lastselldate", 29, 0, MKSFMT(0, DATF_DMY|ALIGN_RIGHT), 0);
 	}
-	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, this));
+	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, /*this*/pBrw));
 }
 
 /*virtual*/DBQuery * PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

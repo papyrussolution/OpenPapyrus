@@ -503,13 +503,6 @@ PPObjOprKind::PPObjOprKind(void * extraPtr) : PPObjReference(PPOBJ_OPRKIND, extr
 	return ok;
 }
 
-int FetchInvOpEx(PPID opID, PPInventoryOpEx * pInvOpEx); // Prototype @defined(ppkernel\oputil.cpp)
-
-int PPObjOprKind::FetchInventoryData(PPID id, PPInventoryOpEx * pInvOpEx)
-{
-	return ::FetchInvOpEx(id, pInvOpEx);
-}
-
 int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 {
 	int    ok = 1;
@@ -2856,6 +2849,66 @@ int PPObjOprKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace,
 //
 //
 //
+class ReckonOpExCache : public ObjCache { // @v11.7.11
+public:
+	struct Data : public ObjCacheEntry {
+		LDATE  Beg;
+		LDATE  End;
+		long   Flags;
+		PPID   PersonRelTypeID;
+		uint   OpCount;
+		PPID   OpList[128]; // PPReckonOpEx содержит список зачитывающих операций. Так как здесь нам нужна "плоская" структура, то
+			// предположим, что количество зачитывающих операций не может превышать 128.
+			// Переменная OpCount содержит фактическое количество операций в массиве.
+			// И да, я знаю, что сделал криво, однако, работать это будет.
+	};
+	ReckonOpExCache() : ObjCache(PPOBJ_OPRKIND, sizeof(Data))
+	{
+	}
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+};
+
+/*virtual*/int ReckonOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+{
+	int    ok = 1;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
+	PPReckonOpEx rec;
+	PPObjOprKind op_obj;
+	if(op_obj.GetReckonExData(id, &rec) > 0) {
+	   	p_cache_rec->Beg  = rec.Beg;
+		p_cache_rec->End = rec.End;
+	   	p_cache_rec->Flags = rec.Flags;
+		p_cache_rec->PersonRelTypeID = rec.PersonRelTypeID;
+		p_cache_rec->OpCount = 0;
+		memzero(p_cache_rec->OpList, sizeof(p_cache_rec->OpList));
+		for(uint i = 0; i < rec.OpList.getCount() && i < SIZEOFARRAY(p_cache_rec->OpList); i++) {
+			p_cache_rec->OpList[i] = rec.OpList.get(i);
+			p_cache_rec->OpCount++;
+		}
+		if(rec.OpList.getCount() > SIZEOFARRAY(p_cache_rec->OpList)) {
+			// @todo @log (надо как-то сигнализировать, что не удалось загрузить все зачитывающие операции в массив)
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+/*virtual*/void ReckonOpExCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+{
+	PPReckonOpEx * p_data_rec = static_cast<PPReckonOpEx *>(pDataRec);
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
+	memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_rec->Beg  = p_cache_rec->Beg;
+	p_data_rec->End = p_cache_rec->End;
+	p_data_rec->Flags  = p_cache_rec->Flags;
+	p_data_rec->PersonRelTypeID = p_cache_rec->PersonRelTypeID;
+	for(uint i = 0; i < p_cache_rec->OpCount; i++) {
+		p_data_rec->OpList.add(p_cache_rec->OpList[i]);
+	}
+}
+
 class InvOpExCache : public ObjCache {
 public:
 	struct Data : public ObjCacheEntry {
@@ -2943,6 +2996,7 @@ public:
 	virtual int FASTCALL Dirty(PPID); // @sync_w
 	int    GetReckonOpList(PPIDArray *); // @sync_rw
 	int    GetInventoryOpEx(PPID, PPInventoryOpEx *); // @>>IoeC.Get()
+	int    GetReckonExData(PPID, PPReckonOpEx *); // @v11.7.11
 	PPID   FASTCALL GetBySymb(const char * pSymb);
 private:
 	virtual int  FetchEntry(PPID, ObjCacheEntry * entry, long);
@@ -2956,6 +3010,7 @@ private:
 	};
 	long   State;
 	InvOpExCache IoeC;
+	ReckonOpExCache RoxC;
 	PPIDArray * P_ReckonOpList;
 	StrAssocArray OpSymbList;
 };
@@ -3008,10 +3063,8 @@ PPID FASTCALL OpCache::GetBySymb(const char * pSymb)
 	return op_id;
 }
 
-int OpCache::GetInventoryOpEx(PPID opID, PPInventoryOpEx * pInvOpEx)
-{
-	return IoeC.Get(opID, pInvOpEx);
-}
+int OpCache::GetInventoryOpEx(PPID opID, PPInventoryOpEx * pInvOpEx) { return IoeC.Get(opID, pInvOpEx); }
+int OpCache::GetReckonExData(PPID opID, PPReckonOpEx * pData) { return RoxC.Get(opID, pData); } // @v11.7.11
 
 int OpCache::GetReckonOpList(PPIDArray * pList)
 {
@@ -3131,6 +3184,15 @@ int FetchInvOpEx(PPID opID, PPInventoryOpEx * pInvOpEx)
 	OpCache * p_cache = GetDbLocalCachePtr <OpCache> (PPOBJ_OPRKIND);
 	return p_cache ? p_cache->GetInventoryOpEx(opID, pInvOpEx) : 0;
 }
+
+int FetchReckonExData(PPID opID, PPReckonOpEx * pData) // @v11.7.11
+{
+	OpCache * p_cache = GetDbLocalCachePtr <OpCache> (PPOBJ_OPRKIND);
+	return p_cache ? p_cache->GetReckonExData(opID, pData) : 0;
+}
+
+int PPObjOprKind::FetchInventoryData(PPID id, PPInventoryOpEx * pInvOpEx) { return ::FetchInvOpEx(id, pInvOpEx); }
+int PPObjOprKind::FetchReckonExData(PPID opID, PPReckonOpEx * pData) { return ::FetchReckonExData(opID, pData); } // @v11.7.11
 
 int FASTCALL GetReckonOpList(PPIDArray * pList)
 {

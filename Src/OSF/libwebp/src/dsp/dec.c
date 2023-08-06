@@ -281,10 +281,10 @@ static void HE4_C(uint8* dst) // horizontal
 	const int C = dst[-1 + BPS];
 	const int D = dst[-1 + 2 * BPS];
 	const int E = dst[-1 + 3 * BPS];
-	WebPUint32ToMem(dst + 0 * BPS, 0x01010101U * AVG3(A, B, C));
-	WebPUint32ToMem(dst + 1 * BPS, 0x01010101U * AVG3(B, C, D));
-	WebPUint32ToMem(dst + 2 * BPS, 0x01010101U * AVG3(C, D, E));
-	WebPUint32ToMem(dst + 3 * BPS, 0x01010101U * AVG3(D, E, E));
+	SMem::Put(dst + 0 * BPS, 0x01010101U * AVG3(A, B, C));
+	SMem::Put(dst + 1 * BPS, 0x01010101U * AVG3(B, C, D));
+	SMem::Put(dst + 2 * BPS, 0x01010101U * AVG3(C, D, E));
+	SMem::Put(dst + 3 * BPS, 0x01010101U * AVG3(D, E, E));
 }
 
 #if !WEBP_NEON_OMIT_C_CODE

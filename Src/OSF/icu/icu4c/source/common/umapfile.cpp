@@ -213,7 +213,7 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, const char * path, UErrorCode * s
 
 	/* open the file */
 	fd = open(path, O_RDONLY);
-	if(fd==-1) {
+	if(fd == -1) {
 		return FALSE;
 	}
 
@@ -241,7 +241,7 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, const char * path, UErrorCode * s
 U_CFUNC void uprv_unmapFile(UDataMemory * pData) {
 	if(pData!=nullptr && pData->map!=nullptr) {
 		size_t dataLen = (char *)pData->map - (char *)pData->mapAddr;
-		if(munmap(pData->mapAddr, dataLen)==-1) {
+		if(munmap(pData->mapAddr, dataLen) == -1) {
 		}
 		pData->pHeader = nullptr;
 		pData->map = 0;
@@ -430,7 +430,7 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, const char * path, UErrorCode * s
 
 		/* open the file */
 		fd = open(path, O_RDONLY);
-		if(fd==-1) {
+		if(fd == -1) {
 			return FALSE;
 		}
 

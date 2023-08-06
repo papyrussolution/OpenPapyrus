@@ -100,9 +100,6 @@ int memdword(void * p, size_t size, uint32 key, size_t * pOffs)
 	return 0;
 }
 
-uint16 FASTCALL swapw(uint16 w) { return ((w>>8) | (w<<8)); }
-uint32 FASTCALL swapdw(uint32 dw) { return (((dw & 0xffff0000U) >> 16) | ((dw & 0x0000ffffU) << 16)); }
-
 uint32 FASTCALL msb32(uint32 x)
 {
 	x |= (x >> 1);

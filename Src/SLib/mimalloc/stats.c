@@ -189,7 +189,7 @@ static void mi_stat_print(const mi_stat_count_t* stat, const char* msg, int64_t 
 		mi_print_amount(stat->allocated, -1, out, arg);
 		mi_print_amount(stat->freed, -1, out, arg);
 		mi_print_amount(stat->current, -1, out, arg);
-		if(unit==-1) {
+		if(unit == -1) {
 			_mi_fprintf(out, arg, "%22s", "");
 		}
 		else {

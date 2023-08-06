@@ -128,7 +128,7 @@ int jsV_toboolean(js_State * J, js_Value * v)
 const char * js_itoa(char * out, int v)
 {
 	char buf[32], * s = out;
-	unsigned int a;
+	uint a;
 	int i = 0;
 	if(v < 0) {
 		a = -v;

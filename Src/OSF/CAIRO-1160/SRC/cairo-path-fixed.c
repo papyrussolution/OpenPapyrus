@@ -228,7 +228,7 @@ boolint _cairo_path_fixed_equal(const cairo_path_fixed_t * a, const cairo_path_f
 
 cairo_path_fixed_t * _cairo_path_fixed_create(void)
 {
-	cairo_path_fixed_t * path = static_cast<cairo_path_fixed_t *>(_cairo_malloc(sizeof(cairo_path_fixed_t)));
+	cairo_path_fixed_t * path = static_cast<cairo_path_fixed_t *>(SAlloc::M_zon0(sizeof(cairo_path_fixed_t)));
 	if(!path) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 	}

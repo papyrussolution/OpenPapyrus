@@ -4995,6 +4995,7 @@ PPTXT_SUPPLIXTESTMODE_STOCKSENDING   "Отправка складских ост
 PPTXT_SUPPLIXTESTMODE_NOSENDING      "Тестовый режим: отправка не осуществляется"
 PPTXT_ROUNDHOURPICKER                "Круговой слайдер для выбора времени"
 PPTXT_ROUNDMINUTEPICKER              "Круговой слайдер для выбора минут"
+PPTXT_SETBOMESTVALUE                 "Установлена оценочная цена на производимый товар: %s"
 //
 // LastText
 
@@ -9135,6 +9136,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_scardpane                            "Информация о персональной карте"
 @cmd_underconstruction                    "В разработке"
 @cmd_processued                           "Процессинг UED (internal)"
+@cmd_processbomestimatedvalues            "Расчет оценочных цен на продукцию (BOM)"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"

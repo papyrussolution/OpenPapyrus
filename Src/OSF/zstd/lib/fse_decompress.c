@@ -81,7 +81,7 @@ static size_t FSE_buildDTable_internal(FSE_DTable* dt, const short* normalizedCo
 	    {   
 			const int16 largeLimit = (int16)(1 << (tableLog-1));
 			for(uint32 s = 0; s<maxSV1; s++) {
-				if(normalizedCounter[s]==-1) {
+				if(normalizedCounter[s] == -1) {
 					tableDecode[highThreshold--].symbol = (FSE_FUNCTION_TYPE)s;
 					symbolNext[s] = 1;
 				}
@@ -112,9 +112,9 @@ static size_t FSE_buildDTable_internal(FSE_DTable* dt, const short* normalizedCo
 			for(s = 0; s<maxSV1; ++s, sv += add) {
 				int i;
 				int const n = normalizedCounter[s];
-				MEM_write64(spread + pos, sv);
+				SMem::Put(spread + pos, sv);
 				for(i = 8; i < n; i += 8) {
-					MEM_write64(spread + pos + i, sv);
+					SMem::Put(spread + pos + i, sv);
 				}
 				pos += n;
 			}

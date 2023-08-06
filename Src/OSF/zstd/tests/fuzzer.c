@@ -45,7 +45,7 @@ static const int nbTestsDefault = 30000;
 //
 #define DISPLAY(...)          slfprintf_stderr(__VA_ARGS__)
 #define DISPLAYLEVEL(l, ...)  if(g_displayLevel>=l) { DISPLAY(__VA_ARGS__); }
-static uint32 g_displayLevel = 2;
+static uint32 g_displayLevel = 3; // @sobolev  2-->3
 
 static const uint64 g_refreshRate = SEC_TO_MICRO / 6;
 static UTIL_time_t g_displayClock = UTIL_TIME_INITIALIZER;
@@ -720,27 +720,27 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 
 		DISPLAYLEVEL(3, "test%3i : ZSTD_compressCCtx() doesn't use advanced parameters", testNb++);
 		CHECK_Z(ZSTD_compressCCtx(cctx, compressedBuffer, compressedBufferSize, NULL, 0, 1));
-		if(MEM_readLE32(compressedBuffer) != ZSTD_MAGICNUMBER) goto _output_error;
+		if(SMem::GetLe32(compressedBuffer) != ZSTD_MAGICNUMBER) goto _output_error;
 		DISPLAYLEVEL(3, "OK \n");
 
 		DISPLAYLEVEL(3, "test%3i : ZSTD_compress_usingDict() doesn't use advanced parameters: ", testNb++);
 		CHECK_Z(ZSTD_compress_usingDict(cctx, compressedBuffer, compressedBufferSize, NULL, 0, NULL, 0, 1));
-		if(MEM_readLE32(compressedBuffer) != ZSTD_MAGICNUMBER) goto _output_error;
+		if(SMem::GetLe32(compressedBuffer) != ZSTD_MAGICNUMBER) goto _output_error;
 		DISPLAYLEVEL(3, "OK \n");
 
 		DISPLAYLEVEL(3, "test%3i : ZSTD_compress_usingCDict() doesn't use advanced parameters: ", testNb++);
 		CHECK_Z(ZSTD_compress_usingCDict(cctx, compressedBuffer, compressedBufferSize, NULL, 0, cdict));
-		if(MEM_readLE32(compressedBuffer) != ZSTD_MAGICNUMBER) goto _output_error;
+		if(SMem::GetLe32(compressedBuffer) != ZSTD_MAGICNUMBER) goto _output_error;
 		DISPLAYLEVEL(3, "OK \n");
 
 		DISPLAYLEVEL(3, "test%3i : ZSTD_compress_advanced() doesn't use advanced parameters: ", testNb++);
 		CHECK_Z(ZSTD_compress_advanced(cctx, compressedBuffer, compressedBufferSize, NULL, 0, NULL, 0, params));
-		if(MEM_readLE32(compressedBuffer) != ZSTD_MAGICNUMBER) goto _output_error;
+		if(SMem::GetLe32(compressedBuffer) != ZSTD_MAGICNUMBER) goto _output_error;
 		DISPLAYLEVEL(3, "OK \n");
 
 		DISPLAYLEVEL(3, "test%3i : ZSTD_compress_usingCDict_advanced() doesn't use advanced parameters: ", testNb++);
 		CHECK_Z(ZSTD_compress_usingCDict_advanced(cctx, compressedBuffer, compressedBufferSize, NULL, 0, cdict, params.fParams));
-		if(MEM_readLE32(compressedBuffer) != ZSTD_MAGICNUMBER) goto _output_error;
+		if(SMem::GetLe32(compressedBuffer) != ZSTD_MAGICNUMBER) goto _output_error;
 		DISPLAYLEVEL(3, "OK \n");
 		ZSTD_freeCDict(cdict);
 		ZSTD_freeCCtx(cctx);
@@ -2263,7 +2263,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		    assert(rawDictBuffer);
 		    memcpy(rawDictBuffer, (char *)dictBuffer + 2, dictSize - 2);
 		    memzero(rawDictBuffer + dictSize - 2, 2);
-		    MEM_writeLE32((char *)rawDictBuffer, ZSTD_MAGIC_DICTIONARY);
+		    SMem::PutLe((char *)rawDictBuffer, ZSTD_MAGIC_DICTIONARY);
 		    DISPLAYLEVEL(3, "test%3i : Loading rawContent starting with dict header w/ ZSTD_dct_auto should fail : ", testNb++);
 		    {
 			    size_t ret;
@@ -2495,14 +2495,14 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		    BYTE* dictPtr = (BYTE*)dictBuffer;
 		    BYTE* dictLimit = dictPtr + dictSize - 12;
 		    /* Find the repcodes */
-		    while(dictPtr < dictLimit &&
-			(MEM_readLE32(dictPtr) != 1 || MEM_readLE32(dictPtr + 4) != 4 || MEM_readLE32(dictPtr + 8) != 8)) {
+		    while(dictPtr < dictLimit && (SMem::GetLe32(dictPtr) != 1 || SMem::GetLe32(dictPtr + 4) != 4 || SMem::GetLe32(dictPtr + 8) != 8)) {
 			    ++dictPtr;
 		    }
-		    if(dictPtr >= dictLimit) goto _output_error;
-		    MEM_writeLE32(dictPtr + 0, 10);
-		    MEM_writeLE32(dictPtr + 4, 10);
-		    MEM_writeLE32(dictPtr + 8, 10);
+		    if(dictPtr >= dictLimit) 
+				goto _output_error;
+		    SMem::PutLe(dictPtr + 0, 10U);
+		    SMem::PutLe(dictPtr + 4, 10U);
+		    SMem::PutLe(dictPtr + 8, 10U);
 		    /* Set the last 8 bytes to 'x' */
 		    memset((BYTE*)dictBuffer + dictSize - 8, 'x', 8);
 	    }
@@ -2551,7 +2551,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		    /* Create a bunch of DDicts with random dict IDs */
 		    for(i = 0; i < numDicts; ++i) {
 			    uint32 currDictID = FUZ_rand(&dictIDSeed);
-			    MEM_writeLE32(dictBufferMulti+ZSTD_FRAMEIDSIZE, currDictID);
+			    SMem::PutLe(dictBufferMulti+ZSTD_FRAMEIDSIZE, currDictID);
 			    ddictTable[i] = ZSTD_createDDict(dictBufferMulti, dictBufferFixedSize);
 			    cdictTable[i] = ZSTD_createCDict(dictBufferMulti, dictBufferFixedSize, 3);
 			    if(!ddictTable[i] || !cdictTable[i] ||
@@ -3343,19 +3343,19 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		if(rand64 == 0) 
 			rand64 = 1; // CLZ and CTZ are undefined on 0
 		/* Test ZSTD_countTrailingZeros32 */
-		CHECK_EQ(ZSTD_countTrailingZeros32(lowbit_only_32), 0u);
-		CHECK_EQ(ZSTD_countTrailingZeros32(highbit_only_32), 31u);
-		CHECK_EQ(ZSTD_countTrailingZeros32(rand32), ZSTD_countTrailingZeros32_fallback(rand32));
+		CHECK_EQ(/*ZSTD_countTrailingZeros32*/SBits::Ctz(lowbit_only_32), 0u);
+		CHECK_EQ(/*ZSTD_countTrailingZeros32*/SBits::Ctz(highbit_only_32), 31u);
+		CHECK_EQ(/*ZSTD_countTrailingZeros32*/SBits::Ctz(rand32), /*ZSTD_countTrailingZeros32_fallback*/SBits::Ctz_fallback(rand32));
 		/* Test ZSTD_countLeadingZeros32 */
-		CHECK_EQ(ZSTD_countLeadingZeros32(lowbit_only_32), 31u);
-		CHECK_EQ(ZSTD_countLeadingZeros32(highbit_only_32), 0u);
-		CHECK_EQ(ZSTD_countLeadingZeros32(rand32), ZSTD_countLeadingZeros32_fallback(rand32));
+		CHECK_EQ(/*ZSTD_countLeadingZeros32*/SBits::Clz(lowbit_only_32), 31u);
+		CHECK_EQ(/*ZSTD_countLeadingZeros32*/SBits::Clz(highbit_only_32), 0u);
+		CHECK_EQ(/*ZSTD_countLeadingZeros32*/SBits::Clz(rand32), /*ZSTD_countLeadingZeros32_fallback*/SBits::Clz_fallback(rand32));
 		/* Test ZSTD_countTrailingZeros64 */
-		CHECK_EQ(ZSTD_countTrailingZeros64(lowbit_only_64), 0u);
-		CHECK_EQ(ZSTD_countTrailingZeros64(highbit_only_64), 63u);
+		CHECK_EQ(/*ZSTD_countTrailingZeros64*/SBits::Ctz(lowbit_only_64), 0u);
+		CHECK_EQ(/*ZSTD_countTrailingZeros64*/SBits::Ctz(highbit_only_64), 63u);
 		/* Test ZSTD_countLeadingZeros64 */
-		CHECK_EQ(ZSTD_countLeadingZeros64(lowbit_only_64), 63u);
-		CHECK_EQ(ZSTD_countLeadingZeros64(highbit_only_64), 0u);
+		CHECK_EQ(/*ZSTD_countLeadingZeros64*/SBits::Clz(lowbit_only_64), 63u);
+		CHECK_EQ(/*ZSTD_countLeadingZeros64*/SBits::Clz(highbit_only_64), 0u);
 		/* Test ZSTD_highbit32 */
 		CHECK_EQ(ZSTD_highbit32(lowbit_only_32), 0u);
 		CHECK_EQ(ZSTD_highbit32(highbit_only_32), 31u);
@@ -3383,15 +3383,15 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		}
 
 		/* Test MEM_ intrinsics */
-		CHECK_EQ(MEM_swap32(rand32), MEM_swap32_fallback(rand32));
-		CHECK_EQ(MEM_swap64(rand64), MEM_swap64_fallback(rand64));
+		CHECK_EQ(SMem::BSwap(rand32), SMem::BSwap_fallback(rand32));
+		CHECK_EQ(SMem::BSwap(rand64), SMem::BSwap_fallback(rand64));
 
 		/* Test fallbacks vs intrinsics on a range of small integers */
 		for(i = 1; i <= 1000; i++) {
-			CHECK_EQ(MEM_swap32(i), MEM_swap32_fallback(i));
-			CHECK_EQ(MEM_swap64((uint64)i), MEM_swap64_fallback((uint64)i));
-			CHECK_EQ(ZSTD_countTrailingZeros32(i), ZSTD_countTrailingZeros32_fallback(i));
-			CHECK_EQ(ZSTD_countLeadingZeros32(i), ZSTD_countLeadingZeros32_fallback(i));
+			CHECK_EQ(SMem::BSwap(i), SMem::BSwap_fallback(i));
+			CHECK_EQ(SMem::BSwap((uint64)i), SMem::BSwap_fallback((uint64)i));
+			CHECK_EQ(/*ZSTD_countTrailingZeros32*/SBits::Ctz(i), /*ZSTD_countTrailingZeros32_fallback*/SBits::Ctz_fallback(i));
+			CHECK_EQ(/*ZSTD_countLeadingZeros32*/SBits::Clz(i), /*ZSTD_countLeadingZeros32_fallback*/SBits::Clz_fallback(i));
 		}
 	}
 	DISPLAYLEVEL(3, "OK \n");

@@ -1054,7 +1054,7 @@ cairo_t * _cairo_default_context_create(void * target)
 	cairo_status_t status;
 	cairo_default_context_t * cr = _freed_pool_get(&context_pool);
 	if(UNLIKELY(cr == NULL)) {
-		cr = (cairo_default_context_t *)_cairo_malloc(sizeof(cairo_default_context_t));
+		cr = (cairo_default_context_t *)SAlloc::M_zon0(sizeof(cairo_default_context_t));
 		if(UNLIKELY(cr == NULL))
 			return _cairo_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}

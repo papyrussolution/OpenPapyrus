@@ -454,7 +454,7 @@ static cairo_xlib_shm_t * _cairo_xlib_shm_pool_create(cairo_xlib_display_t * dis
 	size_t bytes, maxbits = 16, minbits = MIN_BITS;
 	Status success;
 
-	pool = _cairo_malloc(sizeof(cairo_xlib_shm_t));
+	pool = SAlloc::M_zon0(sizeof(cairo_xlib_shm_t));
 	if(pool == NULL)
 		return NULL;
 
@@ -529,7 +529,7 @@ static cairo_xlib_shm_info_t * _cairo_xlib_shm_info_create(cairo_xlib_display_t 
 
 	assert(mem != NULL);
 
-	info = _cairo_malloc(sizeof(*info));
+	info = SAlloc::M_zon0(sizeof(*info));
 	if(!info) {
 		_cairo_mempool_free(&pool->mem, mem);
 		return NULL;
@@ -688,7 +688,7 @@ static cairo_xlib_shm_surface_t * _cairo_xlib_shm_surface_create(cairo_xlib_surf
 	if(size < MIN_SIZE)
 		return NULL;
 
-	shm = _cairo_malloc(sizeof(*shm));
+	shm = SAlloc::M_zon0(sizeof(*shm));
 	if(UNLIKELY(shm == NULL))
 		return (cairo_xlib_shm_surface_t*)_cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -1192,7 +1192,7 @@ void _cairo_xlib_display_init_shm(cairo_xlib_display_t * display)
 	display->shm = NULL;
 	if(!can_use_shm(display->display, &has_pixmap))
 		return;
-	shm = _cairo_malloc(sizeof(*shm));
+	shm = SAlloc::M_zon0(sizeof(*shm));
 	if(UNLIKELY(shm == NULL))
 		return;
 	codes = XInitExtension(display->display, SHMNAME);

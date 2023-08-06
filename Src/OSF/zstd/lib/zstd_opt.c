@@ -340,12 +340,12 @@ MEM_STATIC uint32 ZSTD_readMINMATCH(const void * memPtr, uint32 length)
 {
 	switch(length) {
 		default:
-		case 4: return MEM_read32(memPtr);
+		case 4: return SMem::Get32(memPtr);
 		case 3: 
 			if(MEM_isLittleEndian())
-			    return MEM_read32(memPtr)<<8;
+			    return SMem::Get32(memPtr)<<8;
 		    else
-			    return MEM_read32(memPtr)>>8;
+			    return SMem::Get32(memPtr)>>8;
 	}
 }
 

@@ -119,8 +119,7 @@ static const bool encodeDirectlyRestricted[128] = {
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0
 };
 
-static const uint8
-    toBase64[64] = {
+static const uint8 toBase64[64] = {
 	/* A-Z */
 	65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77,
 	78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
@@ -133,8 +132,7 @@ static const uint8
 	43, 47
 };
 
-static const int8
-    fromBase64[128] = {
+static const int8 fromBase64[128] = {
 	/* C0 controls, -1 for legal ones (CR LF TAB), -3 for illegal ones */
 	-3, -3, -3, -3, -3, -3, -3, -3, -3, -1, -1, -3, -3, -1, -3, -3,
 	-3, -3, -3, -3, -3, -3, -3, -3, -3, -3, -3, -3, -3, -3, -3, -3,
@@ -178,8 +176,7 @@ static void U_CALLCONV _UTF7Reset(UConverter * cnv, UConverterResetChoice choice
 	}
 	if(choice!=UCNV_RESET_TO_UNICODE) {
 		/* reset fromUnicode */
-		cnv->fromUnicodeStatus = (cnv->fromUnicodeStatus&0xf0000000)|0x1000000; /* keep version,
-		                                                                           inDirectMode=TRUE */
+		cnv->fromUnicodeStatus = (cnv->fromUnicodeStatus&0xf0000000)|0x1000000; /* keep version, inDirectMode=TRUE */
 	}
 }
 
@@ -297,7 +294,7 @@ unicodeMode:
 				bytes[byteIndex++] = b = *source++;
 				++nextSourceIndex;
 				base64Value = -3; /* initialize as illegal */
-				if(b>=126 || (base64Value = fromBase64[b])==-3 || base64Value==-1) {
+				if(b>=126 || (base64Value = fromBase64[b])==-3 || base64Value == -1) {
 					/* either
 					 * base64Value==-1 for any legal character except base64 and minus sign, or
 					 * base64Value==-3 for illegal characters:
@@ -314,7 +311,7 @@ unicodeMode:
 					 *here.
 					 */
 					inDirectMode = TRUE;
-					if(base64Counter==-1) {
+					if(base64Counter == -1) {
 						/* illegal: + immediately followed by something other than base64 or
 						   minus sign */
 						/* include the plus sign in the reported sequence, but not the
@@ -403,7 +400,7 @@ unicodeMode:
 				else { /*base64Value==-2*/
 					/* minus sign terminates the base64 sequence */
 					inDirectMode = TRUE;
-					if(base64Counter==-1) {
+					if(base64Counter == -1) {
 						/* +- i.e. a minus immediately following a plus */
 						*target++ = PLUS;
 						if(offsets) {
@@ -1074,7 +1071,7 @@ unicodeMode:
 				else if(base64Value==-2) {
 					/* minus sign terminates the base64 sequence */
 					inDirectMode = TRUE;
-					if(base64Counter==-1) {
+					if(base64Counter == -1) {
 						/* &- i.e. a minus immediately following an ampersand */
 						*target++ = AMPERSAND;
 						if(offsets) {
@@ -1095,7 +1092,7 @@ unicodeMode:
 					goto directMode;
 				}
 				else {
-					if(base64Counter==-1) {
+					if(base64Counter == -1) {
 						/* illegal: & immediately followed by something other than base64 or
 						   minus sign */
 						/* include the ampersand in the reported sequence */
@@ -1135,7 +1132,7 @@ endloop:
 	    !inDirectMode && byteIndex==0 &&
 	    pArgs->flush && source>=sourceLimit
 	    ) {
-		if(base64Counter==-1) {
+		if(base64Counter == -1) {
 			/* & at the very end of the input */
 			/* make the ampersand the reported sequence */
 			bytes[0] = AMPERSAND;

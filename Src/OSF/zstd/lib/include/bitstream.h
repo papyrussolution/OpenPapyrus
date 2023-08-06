@@ -190,7 +190,7 @@ MEM_STATIC void BIT_flushBitsFast(BIT_CStream_t* bitC)
 	const size_t nbBytes = bitC->bitPos >> 3;
 	assert(bitC->bitPos < sizeof(bitC->bitContainer) * 8);
 	assert(bitC->ptr <= bitC->endPtr);
-	MEM_writeLEST(bitC->ptr, bitC->bitContainer);
+	/*MEM_writeLEST*/SMem::PutLe(bitC->ptr, bitC->bitContainer);
 	bitC->ptr += nbBytes;
 	bitC->bitPos &= 7;
 	bitC->bitContainer >>= nbBytes*8;
@@ -206,9 +206,10 @@ MEM_STATIC void BIT_flushBits(BIT_CStream_t* bitC)
 	const size_t nbBytes = bitC->bitPos >> 3;
 	assert(bitC->bitPos < sizeof(bitC->bitContainer) * 8);
 	assert(bitC->ptr <= bitC->endPtr);
-	MEM_writeLEST(bitC->ptr, bitC->bitContainer);
+	/*MEM_writeLEST*/SMem::PutLe(bitC->ptr, bitC->bitContainer);
 	bitC->ptr += nbBytes;
-	if(bitC->ptr > bitC->endPtr) bitC->ptr = bitC->endPtr;
+	if(bitC->ptr > bitC->endPtr) 
+		bitC->ptr = bitC->endPtr;
 	bitC->bitPos &= 7;
 	bitC->bitContainer >>= nbBytes*8;
 }
@@ -242,7 +243,7 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t * bitD, const void * srcBuffer, 
 	bitD->limitPtr = bitD->start + sizeof(bitD->bitContainer);
 	if(srcSize >=  sizeof(bitD->bitContainer)) {/* normal case */
 		bitD->ptr   = (const char *)srcBuffer + srcSize - sizeof(bitD->bitContainer);
-		bitD->bitContainer = MEM_readLEST(bitD->ptr);
+		bitD->bitContainer = SMem::GetLeSizeT(bitD->ptr);
 		{ 
 			BYTE const lastByte = ((const BYTE *)srcBuffer)[srcSize-1];
 			bitD->bitsConsumed = lastByte ? 8 - ZSTD_highbit32(lastByte) : 0; // ensures bitsConsumed is always set 
@@ -365,7 +366,7 @@ MEM_STATIC BIT_DStream_status BIT_reloadDStreamFast(BIT_DStream_t* bitD)
 	assert(bitD->bitsConsumed <= sizeof(bitD->bitContainer)*8);
 	bitD->ptr -= bitD->bitsConsumed >> 3;
 	bitD->bitsConsumed &= 7;
-	bitD->bitContainer = MEM_readLEST(bitD->ptr);
+	bitD->bitContainer = SMem::GetLeSizeT(bitD->ptr);
 	return BIT_DStream_unfinished;
 }
 
@@ -396,7 +397,7 @@ MEM_STATIC BIT_DStream_status BIT_reloadDStream(BIT_DStream_t* bitD)
 	    }
 	    bitD->ptr -= nbBytes;
 	    bitD->bitsConsumed -= nbBytes*8;
-	    bitD->bitContainer = MEM_readLEST(bitD->ptr); /* reminder : srcSize > sizeof(bitD->bitContainer), otherwise bitD->ptr == bitD->start */
+	    bitD->bitContainer = SMem::GetLeSizeT(bitD->ptr); /* reminder : srcSize > sizeof(bitD->bitContainer), otherwise bitD->ptr == bitD->start */
 	    return result;
 	}
 }

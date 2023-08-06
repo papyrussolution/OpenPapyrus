@@ -443,6 +443,7 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(float) == 4); // @v10.7.11
 	STATIC_ASSERT(sizeof(double) == 8); // @v10.7.11
 	STATIC_ASSERT(sizeof(S_GUID) == 16);
+	STATIC_ASSERT(sizeof(S_GUID) == sizeof(S_GUID_Base));
 	STATIC_ASSERT(sizeof(SColorBase) == 4); // @v10.2.4
 	STATIC_ASSERT(sizeof(SColor) == sizeof(SColorBase)); // @v10.2.4
 	STATIC_ASSERT(sizeof(IntRange) == 8);

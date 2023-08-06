@@ -113,7 +113,7 @@ cairo_device_t * _cairo_win32_device_get(void)
 	CAIRO_MUTEX_INITIALIZE();
 	if(__cairo_win32_device)
 		return cairo_device_reference(__cairo_win32_device);
-	device = static_cast<cairo_win32_device_t *>(_cairo_malloc(sizeof(*device)));
+	device = static_cast<cairo_win32_device_t *>(SAlloc::M_zon0(sizeof(*device)));
 	_cairo_device_init(&device->base, &_cairo_win32_device_backend);
 	device->compositor = _cairo_win32_gdi_compositor_get();
 	device->msimg32_dll = NULL;

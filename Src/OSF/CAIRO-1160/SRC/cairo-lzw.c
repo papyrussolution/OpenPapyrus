@@ -62,7 +62,7 @@ static void _lzw_buf_init(lzw_buf_t * buf, int size)
 	buf->num_data = 0;
 	buf->pending = 0;
 	buf->pending_bits = 0;
-	buf->data = static_cast<uchar *>(_cairo_malloc(size));
+	buf->data = static_cast<uchar *>(SAlloc::M_zon0(size));
 	if(UNLIKELY(buf->data == NULL)) {
 		buf->data_size = 0;
 		buf->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);

@@ -321,7 +321,7 @@ cairo_status_t _cairo_xlib_screen_get(Display * dpy,
 		goto CLEANUP_DISPLAY;
 	}
 
-	info = _cairo_malloc(sizeof(cairo_xlib_screen_t));
+	info = SAlloc::M_zon0(sizeof(cairo_xlib_screen_t));
 	if(UNLIKELY(info == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP_DISPLAY;

@@ -9,14 +9,11 @@
 //
 // Lossless decoder: internal header.
 //
-// Author: Skal (pascal.massimino@gmail.com)
-//         Vikas Arora(vikaas.arora@gmail.com)
+// Author: Skal (pascal.massimino@gmail.com) Vikas Arora(vikaas.arora@gmail.com)
 
 #ifndef WEBP_DEC_VP8LI_DEC_H_
 #define WEBP_DEC_VP8LI_DEC_H_
 
-//#include <string.h>     // for memcpy()
-//#include "src/dec/webpi_dec.h"
 #include "src/utils/bit_reader_utils.h"
 #include "src/utils/color_cache_utils.h"
 #include "src/utils/huffman_utils.h"

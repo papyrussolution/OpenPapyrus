@@ -307,7 +307,7 @@ static cairo_output_stream_t * _word_wrap_stream_create(cairo_output_stream_t * 
 	word_wrap_stream_t * stream;
 	if(output->status)
 		return _cairo_output_stream_create_in_error(output->status);
-	stream = (word_wrap_stream_t *)_cairo_malloc(sizeof(word_wrap_stream_t));
+	stream = (word_wrap_stream_t *)SAlloc::M_zon0(sizeof(word_wrap_stream_t));
 	if(UNLIKELY(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;

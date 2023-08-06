@@ -654,13 +654,13 @@ MEM_STATIC size_t ZSTD_count(const BYTE * pIn, const BYTE * pMatch, const BYTE *
 	const BYTE * const pInLoopLimit = pInLimit - (sizeof(size_t)-1);
 	if(pIn < pInLoopLimit) {
 		{ 
-			const size_t diff = MEM_readST(pMatch) ^ MEM_readST(pIn);
+			const size_t diff = SMem::GetSizeT(pMatch) ^ SMem::GetSizeT(pIn);
 			if(diff) 
 				return ZSTD_NbCommonBytes(diff); 
 		}
 		pIn += sizeof(size_t); pMatch += sizeof(size_t);
 		while(pIn < pInLoopLimit) {
-			const size_t diff = MEM_readST(pMatch) ^ MEM_readST(pIn);
+			const size_t diff = SMem::GetSizeT(pMatch) ^ SMem::GetSizeT(pIn);
 			if(!diff) {
 				pIn += sizeof(size_t); pMatch += sizeof(size_t); continue;
 			}
@@ -668,10 +668,10 @@ MEM_STATIC size_t ZSTD_count(const BYTE * pIn, const BYTE * pMatch, const BYTE *
 			return (size_t)(pIn - pStart);
 		}
 	}
-	if(MEM_64bits() && (pIn<(pInLimit-3)) && (MEM_read32(pMatch) == MEM_read32(pIn))) {
+	if(MEM_64bits() && (pIn<(pInLimit-3)) && (SMem::Get32(pMatch) == SMem::Get32(pIn))) {
 		pIn += 4; pMatch += 4;
 	}
-	if((pIn<(pInLimit-1)) && (MEM_read16(pMatch) == MEM_read16(pIn))) {
+	if((pIn<(pInLimit-1)) && (SMem::Get16(pMatch) == SMem::Get16(pIn))) {
 		pIn += 2; pMatch += 2;
 	}
 	if((pIn<pInLimit) && (*pMatch == *pIn)) pIn++;
@@ -700,23 +700,23 @@ MEM_STATIC size_t ZSTD_count_2segments(const BYTE * ip, const BYTE * match, cons
 static const uint32 prime3bytes = 506832829U;
 static uint32    ZSTD_hash3(uint32 u, uint32 h) { return ((u << (32-24)) * prime3bytes)  >> (32-h); }
 
-MEM_STATIC size_t ZSTD_hash3Ptr(const void* ptr, uint32 h) { return ZSTD_hash3(MEM_readLE32(ptr), h); } /* only in zstd_opt.h */
+MEM_STATIC size_t ZSTD_hash3Ptr(const void* ptr, uint32 h) { return ZSTD_hash3(SMem::GetLe32(ptr), h); } /* only in zstd_opt.h */
 
 //static const uint32 prime4bytes = SlConst::MagicHashPrime32/*2654435761U*/;
 static uint32 ZSTD_hash4(uint32 u, uint32 h) { return (u * SlConst::MagicHashPrime32/*prime4bytes*/) >> (32-h); }
-static size_t ZSTD_hash4Ptr(const void* ptr, uint32 h) { return ZSTD_hash4(MEM_read32(ptr), h); }
+static size_t ZSTD_hash4Ptr(const void* ptr, uint32 h) { return ZSTD_hash4(SMem::Get32(ptr), h); }
 static const uint64 prime5bytes = 889523592379ULL;
 static size_t ZSTD_hash5(uint64 u, uint32 h) { return (size_t)(((u << (64-40)) * prime5bytes) >> (64-h)); }
-static size_t ZSTD_hash5Ptr(const void* p, uint32 h) { return ZSTD_hash5(MEM_readLE64(p), h); }
+static size_t ZSTD_hash5Ptr(const void* p, uint32 h) { return ZSTD_hash5(SMem::GetLe64(p), h); }
 static const uint64 prime6bytes = 227718039650203ULL;
 static size_t ZSTD_hash6(uint64 u, uint32 h) { return (size_t)(((u << (64-48)) * prime6bytes) >> (64-h)); }
-static size_t ZSTD_hash6Ptr(const void* p, uint32 h) { return ZSTD_hash6(MEM_readLE64(p), h); }
+static size_t ZSTD_hash6Ptr(const void* p, uint32 h) { return ZSTD_hash6(SMem::GetLe64(p), h); }
 static const uint64 prime7bytes = 58295818150454627ULL;
 static size_t ZSTD_hash7(uint64 u, uint32 h) { return (size_t)(((u << (64-56)) * prime7bytes) >> (64-h)); }
-static size_t ZSTD_hash7Ptr(const void* p, uint32 h) { return ZSTD_hash7(MEM_readLE64(p), h); }
+static size_t ZSTD_hash7Ptr(const void* p, uint32 h) { return ZSTD_hash7(SMem::GetLe64(p), h); }
 static const uint64 prime8bytes = 0xCF1BBCDCB7A56463ULL;
 static size_t ZSTD_hash8(uint64 u, uint32 h) { return (size_t)(((u) * prime8bytes) >> (64-h)); }
-static size_t ZSTD_hash8Ptr(const void* p, uint32 h) { return ZSTD_hash8(MEM_readLE64(p), h); }
+static size_t ZSTD_hash8Ptr(const void* p, uint32 h) { return ZSTD_hash8(SMem::GetLe64(p), h); }
 
 MEM_STATIC FORCEINLINE size_t ZSTD_hashPtr(const void* p, uint32 hBits, uint32 mls)
 {

@@ -399,7 +399,7 @@ static struct _pool_chunk * FASTCALL _pool_chunk_init(struct _pool_chunk * p, st
 
 static struct _pool_chunk * _pool_chunk_create(struct pool * pool, size_t size)                             
 {
-	struct _pool_chunk * p = (struct _pool_chunk *)_cairo_malloc(size + sizeof(struct _pool_chunk));
+	struct _pool_chunk * p = (struct _pool_chunk *)SAlloc::M_zon0(size + sizeof(struct _pool_chunk));
 	if(UNLIKELY(NULL == p))
 		longjmp(*pool->jmp, _cairo_error(CAIRO_STATUS_NO_MEMORY));
 	return _pool_chunk_init(p, pool->current, size);

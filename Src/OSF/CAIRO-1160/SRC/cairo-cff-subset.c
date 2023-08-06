@@ -492,7 +492,7 @@ static cairo_status_t cff_index_append_copy(cairo_array_t * index, const uchar *
 	cairo_status_t status;
 	element.length = length;
 	element.is_copy = TRUE;
-	element.data = static_cast<uchar *>(_cairo_malloc(element.length));
+	element.data = static_cast<uchar *>(SAlloc::M_zon0(element.length));
 	if(UNLIKELY(element.data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	memcpy(element.data, object, element.length);
@@ -539,11 +539,11 @@ static void _cairo_dict_init_key(cff_dict_operator_t * key, int oprtr)
 
 static cairo_status_t cff_dict_create_operator(int oprtr, uchar * operand, int size, cff_dict_operator_t ** out)
 {
-	cff_dict_operator_t * op = (cff_dict_operator_t *)_cairo_malloc(sizeof(cff_dict_operator_t));
+	cff_dict_operator_t * op = (cff_dict_operator_t *)SAlloc::M_zon0(sizeof(cff_dict_operator_t));
 	if(UNLIKELY(op == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_dict_init_key(op, oprtr);
-	op->operand = static_cast<uchar *>(_cairo_malloc(size));
+	op->operand = static_cast<uchar *>(SAlloc::M_zon0(size));
 	if(UNLIKELY(op->operand == NULL)) {
 		SAlloc::F(op);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -622,7 +622,7 @@ static cairo_status_t cff_dict_set_operands(cairo_hash_table_t * dict, unsigned 
 	op = (cff_dict_operator_t *)_cairo_hash_table_lookup(dict, &key.base);
 	if(op) {
 		SAlloc::F(op->operand);
-		op->operand = static_cast<uchar *>(_cairo_malloc(size));
+		op->operand = static_cast<uchar *>(SAlloc::M_zon0(size));
 		if(UNLIKELY(op->operand == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -750,7 +750,7 @@ static cairo_int_status_t cairo_cff_font_read_name(cairo_cff_font_t * font)
 				len -= 7;
 			}
 		}
-		font->ps_name = (char *)_cairo_malloc(len+1);
+		font->ps_name = (char *)SAlloc::M_zon0(len+1);
 		if(UNLIKELY(font->ps_name == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -1667,7 +1667,7 @@ static cairo_status_t cairo_cff_font_create_cid_fontdict(cairo_cff_font_t * font
 	uchar * end_buf;
 	cairo_status_t status;
 	font->num_fontdicts = 1;
-	font->fd_dict = (cairo_hash_table_t **)_cairo_malloc(sizeof(cairo_hash_table_t *));
+	font->fd_dict = (cairo_hash_table_t **)SAlloc::M_zon0(sizeof(cairo_hash_table_t *));
 	if(UNLIKELY(font->fd_dict == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	if(cff_dict_init(&font->fd_dict[0])) {
@@ -1676,10 +1676,10 @@ static cairo_status_t cairo_cff_font_create_cid_fontdict(cairo_cff_font_t * font
 		font->num_fontdicts = 0;
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-	font->fd_subset_map = static_cast<int *>(_cairo_malloc(sizeof(int)));
+	font->fd_subset_map = static_cast<int *>(SAlloc::M_zon0(sizeof(int)));
 	if(UNLIKELY(font->fd_subset_map == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	font->private_dict_offset = static_cast<int *>(_cairo_malloc(sizeof(int)));
+	font->private_dict_offset = static_cast<int *>(SAlloc::M_zon0(sizeof(int)));
 	if(UNLIKELY(font->private_dict_offset == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	font->fd_subset_map[0] = 0;
@@ -1771,7 +1771,7 @@ static cairo_status_t cairo_cff_font_subset_font(cairo_cff_font_t * font)
 			return status;
 	}
 	else {
-		font->private_dict_offset = static_cast<int *>(_cairo_malloc(sizeof(int)));
+		font->private_dict_offset = static_cast<int *>(SAlloc::M_zon0(sizeof(int)));
 		if(UNLIKELY(font->private_dict_offset == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -2292,7 +2292,7 @@ static cairo_int_status_t cairo_cff_font_generate(cairo_cff_font_t * font, const
 		return status;
 	/* If the PS name is not found, create a CairoFont-x-y name. */
 	if(font->ps_name == NULL) {
-		font->ps_name = (char *)_cairo_malloc(30);
+		font->ps_name = (char *)SAlloc::M_zon0(30);
 		if(UNLIKELY(font->ps_name == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		snprintf(font->ps_name, 30, "CairoFont-%u-%u", font->scaled_font_subset->font_id, font->scaled_font_subset->subset_id);
@@ -2420,7 +2420,7 @@ static cairo_int_status_t _cairo_cff_font_load_opentype_cff(cairo_cff_font_t * f
 
 	font->is_opentype = TRUE;
 	font->data_length = data_length;
-	font->data = static_cast<uchar *>(_cairo_malloc(data_length));
+	font->data = static_cast<uchar *>(SAlloc::M_zon0(data_length));
 	if(UNLIKELY(font->data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font, TT_TAG_CFF, 0, font->data, &font->data_length);
@@ -2446,7 +2446,7 @@ static cairo_int_status_t _cairo_cff_font_load_cff(cairo_cff_font_t * font)
 	font->font_name = NULL;
 	font->is_opentype = FALSE;
 	font->data_length = data_length;
-	font->data = static_cast<uchar *>(_cairo_malloc(data_length));
+	font->data = static_cast<uchar *>(SAlloc::M_zon0(data_length));
 	if(UNLIKELY(font->data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = font->backend->load_type1_data(font->scaled_font_subset->scaled_font, 0, font->data, &font->data_length);
@@ -2647,7 +2647,7 @@ cairo_status_t _cairo_cff_subset_init(cairo_cff_subset_t * cff_subset, const cha
 	cff_subset->ascent = (double)font->ascent/font->units_per_em;
 	cff_subset->descent = (double)font->descent/font->units_per_em;
 
-	cff_subset->data = (char *)_cairo_malloc(length);
+	cff_subset->data = (char *)SAlloc::M_zon0(length);
 	if(UNLIKELY(cff_subset->data == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail4;
@@ -2695,7 +2695,7 @@ boolint _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font)
 	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
 	/* Try to load an OpenType/CFF font */
 	if(backend->load_truetype_table && (status = backend->load_truetype_table(scaled_font, TT_TAG_CFF, 0, NULL, &data_length)) == CAIRO_INT_STATUS_SUCCESS) {
-		data = static_cast<uchar *>(_cairo_malloc(data_length));
+		data = static_cast<uchar *>(SAlloc::M_zon0(data_length));
 		if(UNLIKELY(data == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			return FALSE;
@@ -2706,7 +2706,7 @@ boolint _cairo_cff_scaled_font_is_cid_cff(cairo_scaled_font_t * scaled_font)
 	}
 	/* Try to load a CFF font */
 	if(status == CAIRO_INT_STATUS_UNSUPPORTED && backend->load_type1_data && (status = backend->load_type1_data(scaled_font, 0, NULL, &data_length)) == CAIRO_INT_STATUS_SUCCESS) {
-		data = static_cast<uchar *>(_cairo_malloc(data_length));
+		data = static_cast<uchar *>(SAlloc::M_zon0(data_length));
 		if(UNLIKELY(data == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			return FALSE;
@@ -2764,7 +2764,7 @@ fail1:
 static cairo_int_status_t _cairo_cff_font_fallback_create(cairo_scaled_font_subset_t * scaled_font_subset, cairo_cff_font_t ** font_return, const char * subset_name)
 {
 	cairo_status_t status;
-	cairo_cff_font_t * font = (cairo_cff_font_t *)_cairo_malloc(sizeof(cairo_cff_font_t));
+	cairo_cff_font_t * font = (cairo_cff_font_t *)SAlloc::M_zon0(sizeof(cairo_cff_font_t));
 	if(UNLIKELY(font == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	font->backend = NULL;
@@ -2930,7 +2930,7 @@ static cairo_int_status_t cairo_cff_font_fallback_generate(cairo_cff_font_t * fo
 			return status;
 	}
 	else {
-		font->private_dict_offset = static_cast<int *>(_cairo_malloc(sizeof(int)));
+		font->private_dict_offset = static_cast<int *>(SAlloc::M_zon0(sizeof(int)));
 		if(UNLIKELY(font->private_dict_offset == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -2986,7 +2986,7 @@ cairo_status_t _cairo_cff_fallback_init(cairo_cff_subset_t * cff_subset, const c
 	cff_subset->y_max = (double)type2_subset.y_max/1000;
 	cff_subset->ascent = (double)type2_subset.y_max/1000;
 	cff_subset->descent = (double)type2_subset.y_min/1000;
-	cff_subset->data = static_cast<char *>(_cairo_malloc(length));
+	cff_subset->data = static_cast<char *>(SAlloc::M_zon0(length));
 	if(UNLIKELY(cff_subset->data == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail4;

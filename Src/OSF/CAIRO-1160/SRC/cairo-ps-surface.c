@@ -875,7 +875,7 @@ static const char * _cairo_ps_surface_get_page_media(cairo_ps_surface_t * surfac
 			break;
 		}
 	}
-	page = (cairo_page_media_t *)_cairo_malloc(sizeof(cairo_page_media_t));
+	page = (cairo_page_media_t *)SAlloc::M_zon0(sizeof(cairo_page_media_t));
 	if(UNLIKELY(page == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;
@@ -907,7 +907,7 @@ static const char * _cairo_ps_surface_get_page_media(cairo_ps_surface_t * surfac
 static cairo_surface_t * _cairo_ps_surface_create_for_stream_internal(cairo_output_stream_t * stream, double width, double height)
 {
 	cairo_status_t status, status_ignored;
-	cairo_ps_surface_t * surface = (cairo_ps_surface_t *)_cairo_malloc(sizeof(cairo_ps_surface_t));
+	cairo_ps_surface_t * surface = (cairo_ps_surface_t *)SAlloc::M_zon0(sizeof(cairo_ps_surface_t));
 	if(UNLIKELY(!surface)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP;
@@ -2027,7 +2027,7 @@ static cairo_status_t _base85_string_wrap_stream_close(cairo_output_stream_t * b
  */
 static cairo_output_stream_t * _base85_strings_stream_create(cairo_output_stream_t * output)
 {
-	string_array_stream_t * stream = (string_array_stream_t *)_cairo_malloc(sizeof(string_array_stream_t));
+	string_array_stream_t * stream = (string_array_stream_t *)SAlloc::M_zon0(sizeof(string_array_stream_t));
 	if(UNLIKELY(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
@@ -2049,7 +2049,7 @@ static cairo_output_stream_t * _base85_strings_stream_create(cairo_output_stream
  */
 static cairo_output_stream_t * _base85_wrap_stream_create(cairo_output_stream_t * output)
 {
-	string_array_stream_t * stream = (string_array_stream_t *)_cairo_malloc(sizeof(string_array_stream_t));
+	string_array_stream_t * stream = (string_array_stream_t *)SAlloc::M_zon0(sizeof(string_array_stream_t));
 	if(UNLIKELY(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
@@ -2294,7 +2294,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 	if(use_mask)
 		data_size += (ps_image->width + 7)/8;
 	data_size *= ps_image->height;
-	data = static_cast<uchar *>(_cairo_malloc(data_size));
+	data = static_cast<uchar *>(SAlloc::M_zon0(data_size));
 	if(UNLIKELY(data == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail1;
@@ -3061,7 +3061,7 @@ static cairo_int_status_t _cairo_ps_surface_use_form(cairo_ps_surface_t * surfac
 	if(surface->total_form_size + params->approx_size > max_size)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	surface->total_form_size += params->approx_size > max_size;
-	unique_id = static_cast<uchar *>(_cairo_malloc(source_key.unique_id_length));
+	unique_id = static_cast<uchar *>(SAlloc::M_zon0(source_key.unique_id_length));
 	if(unique_id == NULL)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	unique_id_length = source_key.unique_id_length;

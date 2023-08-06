@@ -2009,7 +2009,7 @@ int PPView::Init_(const PPBaseFilt * pFilt) { return PPSetError(PPERR_BASEFILTUN
 int PPView::GetOuterChangesStatus() const { return BIN(BaseState & bsOuterChangesStatus); }
 const char * PPView::GetSymb() const { return Symb.cptr(); }
 const char * PPView::GetDescr() const { return Descr.cptr(); }
-int PPView::IsCrosstab() const { return BIN(P_Ct);}
+bool PPView::IsCrosstab() const { return LOGIC(P_Ct);}
 const IterCounter & PPView::GetCounter() const { return Counter; }
 void * PPView::GetEditExtraParam() { return 0; }
 DBQuery * PPView::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle) { return 0; }

@@ -811,14 +811,14 @@ static FORCEINLINE uint64 XXH3_hashLong_internal(const void * _RESTRICT data, si
 	return XXH3_mergeAccs(acc, PTRCHRC(secret) + XXH_SECRET_MERGEACCS_START, (uint64)len * PRIME64_1);
 }
 
-XXH_NO_INLINE uint64 // It's important for performance that XXH3_hashLong is not inlined. Not sure why (uop cache maybe ?), but difference is large and easily measurable 
-XXH3_hashLong_64b_defaultSecret(const void * _RESTRICT data, size_t len)
+// It's important for performance that XXH3_hashLong is not inlined. Not sure why (uop cache maybe ?), but difference is large and easily measurable 
+XXH_NO_INLINE uint64 XXH3_hashLong_64b_defaultSecret(const void * _RESTRICT data, size_t len)
 {
 	return XXH3_hashLong_internal(data, len, kSecret, sizeof(kSecret));
 }
 
-XXH_NO_INLINE uint64 // It's important for performance that XXH3_hashLong is not inlined. Not sure why (uop cache maybe ?), but difference is large and easily measurable 
-XXH3_hashLong_64b_withSecret(const void * _RESTRICT data, size_t len, const void * _RESTRICT secret, size_t secretSize)
+// It's important for performance that XXH3_hashLong is not inlined. Not sure why (uop cache maybe ?), but difference is large and easily measurable 
+XXH_NO_INLINE uint64 XXH3_hashLong_64b_withSecret(const void * _RESTRICT data, size_t len, const void * _RESTRICT secret, size_t secretSize)
 {
 	return XXH3_hashLong_internal(data, len, secret, secretSize);
 }

@@ -1301,7 +1301,7 @@ LPDIR opendir(const char * dirname
 next:
 
 		memset(&data, 0, sizeof(struct _finddata_t));
-		if(_findnext(dirp->d_handle, &data)==-1) {
+		if(_findnext(dirp->d_handle, &data) == -1) {
 			closedir(dirp);
 			return NULL;
 		}
@@ -1336,7 +1336,7 @@ LPDIRENT readdir(LPDIR dirp
 next:
 
 	memset(&data, 0, sizeof(struct _finddata_t));
-	if(_findnext(dirp->d_handle, &data)==-1) return NULL;
+	if(_findnext(dirp->d_handle, &data) == -1) return NULL;
 
 	/* TODO: Remove this block to allow hidden and/or system files. */
 	if(is_filtered(data) ) goto next;
@@ -1376,7 +1376,7 @@ INT readdir_r(LPDIR dirp,
 next:
 
 	memset(&data, 0, sizeof(struct _finddata_t));
-	if(_findnext(dirp->d_handle, &data)==-1) {
+	if(_findnext(dirp->d_handle, &data) == -1) {
 		*result = NULL;
 		return ENOENT;
 	}
@@ -19668,7 +19668,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 			const char * zCol = (const char *)sqlite3_column_text(pStmt, 2);
 			i++;
 			if(zCol==0) {
-				if(sqlite3_column_int(pStmt, 1)==-1) {
+				if(sqlite3_column_int(pStmt, 1) == -1) {
 					zCol = "_ROWID_";
 				}
 				else {

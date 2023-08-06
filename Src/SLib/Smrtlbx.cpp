@@ -592,8 +592,8 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 			StrAssocTree * p_tree = p_def2->P_SaList;
 			if(p_tree) {
 				if(pParent) {
-					//SHandle h = p_tree->Search(parentP);
-					h_parent = reinterpret_cast<HTREEITEM>(p_tree->GetNodeExtraPtr(SHandle(pParent)));
+					//SPtrHandle h = p_tree->Search(parentP);
+					h_parent = reinterpret_cast<HTREEITEM>(p_tree->GetNodeExtraPtr(SPtrHandle(pParent)));
 				}
 				else {
 					save_pos = p_def2->_curItem();
@@ -612,13 +612,13 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 				{
 					//LongArray item_id_list;
 					//p_tree->GetListByParent(parentP, false, item_id_list);
-					TSVector <SHandle> item_h_list;
-					p_tree->GetListByParent_Unsafe(SHandle(pParent), false, item_h_list);
+					TSVector <SPtrHandle> item_h_list;
+					p_tree->GetListByParent_Unsafe(SPtrHandle(pParent), false, item_h_list);
 					//for(uint i = 0; i < item_id_list.getCount(); i++) {
 					for(uint i = 0; i < item_h_list.getCount(); i++) {
 						//const long current_id = item_id_list.get(i);
-						//SHandle current_h = p_tree->Search(current_id);
-						SHandle current_h = item_h_list.at(i);
+						//SPtrHandle current_h = p_tree->Search(current_id);
+						SPtrHandle current_h = item_h_list.at(i);
 						if(current_h) {
 							const long current_id = p_tree->GetNodeKey(current_h);
 							if(pParent || p_def2->BelongToTopLevelResriction(current_id)) {

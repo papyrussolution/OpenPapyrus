@@ -28,9 +28,8 @@
 	#define __inline__  /* */
 #endif
 #ifndef BZ_NO_STDIO
-	extern void BZ2_bz__AssertH__fail(int errcode);
-	#define AssertH(cond, errcode) { if(!(cond)) BZ2_bz__AssertH__fail(errcode); }
-
+	// @v11.7.11 extern void BZ2_bz__AssertH__fail(int errcode);
+	// @v11.7.11 #define AssertH(cond, errcode) { if(!(cond)) BZ2_bz__AssertH__fail(errcode); }
 	#if BZ_DEBUG
 		#define AssertD(cond, msg) { if(!(cond)) { slfprintf_stderr("\n\nlibbzip2(debug build): internal error\n\t%s\n", msg); exit(1); }}
 	#else
@@ -45,7 +44,7 @@
 	#define VPrintf5(zf, za1, za2, za3, za4, za5) slfprintf_stderr(zf, za1, za2, za3, za4, za5)
 #else
 	extern void bz_internal_error(int errcode);
-	#define AssertH(cond, errcode)            { if(!(cond)) bz_internal_error(errcode); }
+	// @v11.7.11 #define AssertH(cond, errcode)            { if(!(cond)) bz_internal_error(errcode); }
 	#define AssertD(cond, msg)                do { } while(0)
 	#define VPrintf0(zf)                     do { } while(0)
 	#define VPrintf1(zf, za1)                 do { } while(0)

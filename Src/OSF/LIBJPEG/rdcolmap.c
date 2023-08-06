@@ -96,11 +96,11 @@ static void read_gif_map(j_decompress_ptr cinfo, FILE * infile)
 
 /* Support routines for reading PPM */
 
-static int pbm_getc(FILE * infile)
 /* Read next char, skipping over any comments */
 /* A comment/newline sequence is returned as a newline */
+static int pbm_getc(FILE * infile)
 {
-	register int ch = getc(infile);
+	int ch = getc(infile);
 	if(ch == '#') {
 		do {
 			ch = getc(infile);
@@ -109,11 +109,11 @@ static int pbm_getc(FILE * infile)
 	return ch;
 }
 
-LOCAL(uint) read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
 /* Read an unsigned decimal integer from the PPM file */
 /* Swallows one trailing character after the integer */
 /* Note that on a 16-bit-int machine, only values up to 64k can be read. */
 /* This should not be a problem in practice. */
+LOCAL(uint) read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
 {
 	int ch;
 	uint val;

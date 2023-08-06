@@ -3617,9 +3617,10 @@ int CheckPaneDialog::SetupSalByCode(const SString & rInput)
 
 void CheckPaneDialog::AddFromBasket()
 {
-	int    ok = 1, is_locked = 0;
+	int    is_locked = 0;
 	PPBasketCombine bc;
-	if((ok = GoodsBasketDialog(bc, 2)) > 0 && bc.BasketID) {
+	int    ok = GoodsBasketDialog(bc, 2);
+	if(ok > 0 && bc.BasketID) {
 		ILTI * p_item;
 		for(uint i = 0; bc.Pack.Lots.enumItems(&i, (void **)&p_item);) {
 			PgsBlock pgsb(p_item->Quantity);
@@ -3631,18 +3632,20 @@ void CheckPaneDialog::AddFromBasket()
 
 void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 {
-	if(CheckID <= 0 && CnSpeciality == PPCashNode::spApteka) {
+	if(CheckID <= 0/* @v11.7.11 && CnSpeciality == PPCashNode::spApteka*/) {
 		PPID   goods_id = goodsId ? goodsId : (P.HasCur() ? P.GetCur().GoodsID : 0);
 		if(goods_id) {
 			PPID   assc = PPASS_GOODS2WAREPLACE;
 			SString out_msg, loc_name, tag_name, tag_value; //@erik v10.4.9{add tag_value}
-			GoodsToObjAssoc gtoa(assc, PPOBJ_LOCATION);
-			if(gtoa.IsValid() && gtoa.Load()) {
-				PPID   loc_id = 0;
-				if(gtoa.Get(goods_id, &loc_id) > 0 && loc_id) {
-					LocationTbl::Rec loc_rec;
-					if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0)
-						loc_name = loc_rec.Name;
+			{
+				GoodsToObjAssoc gtoa(assc, PPOBJ_LOCATION);
+				if(gtoa.IsValid() && gtoa.Load()) {
+					PPID   loc_id = 0;
+					if(gtoa.Get(goods_id, &loc_id) > 0 && loc_id) {
+						LocationTbl::Rec loc_rec;
+						if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0)
+							loc_name = loc_rec.Name;
+					}
 				}
 			}
 			{
@@ -3661,8 +3664,8 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 				}
 			}
 			//@erik v10.4.9{
-			if (tag_name.Len()) {
-				if (tag_value.Len()) {
+			if(tag_name.Len()) {
+				if(tag_value.Len()) {
 					(out_msg = (tag_name.Colon())).CR();
 					(out_msg.Cat(tag_value)).CR().CR();
 				}

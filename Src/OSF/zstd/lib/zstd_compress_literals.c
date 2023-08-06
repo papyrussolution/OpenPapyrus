@@ -41,10 +41,10 @@ size_t ZSTD_noCompressLiterals(void * dst, size_t dstCapacity, const void * src,
 		    ostart[0] = (BYTE)((uint32)set_basic + (srcSize<<3));
 		    break;
 		case 2: /* 2 - 2 - 12 */
-		    MEM_writeLE16(ostart, (uint16)((uint32)set_basic + (1<<2) + (srcSize<<4)));
+		    SMem::PutLe(ostart, (uint16)((uint32)set_basic + (1<<2) + (srcSize<<4)));
 		    break;
 		case 3: /* 2 - 2 - 20 */
-		    MEM_writeLE32(ostart, (uint32)((uint32)set_basic + (3<<2) + (srcSize<<4)));
+		    SMem::PutLe(ostart, (uint32)((uint32)set_basic + (3<<2) + (srcSize<<4)));
 		    break;
 		default: /* not necessary : flSize is {1,2,3} */
 		    assert(0);
@@ -64,10 +64,10 @@ size_t ZSTD_compressRleLiteralsBlock(void * dst, size_t dstCapacity, const void 
 		    ostart[0] = (BYTE)((uint32)set_rle + (srcSize<<3));
 		    break;
 		case 2: /* 2 - 2 - 12 */
-		    MEM_writeLE16(ostart, (uint16)((uint32)set_rle + (1<<2) + (srcSize<<4)));
+		    SMem::PutLe(ostart, (uint16)((uint32)set_rle + (1<<2) + (srcSize<<4)));
 		    break;
 		case 3: /* 2 - 2 - 20 */
-		    MEM_writeLE32(ostart, (uint32)((uint32)set_rle + (3<<2) + (srcSize<<4)));
+		    SMem::PutLe(ostart, (uint32)((uint32)set_rle + (3<<2) + (srcSize<<4)));
 		    break;
 		default: /* not necessary : flSize is {1,2,3} */
 		    assert(0);
@@ -140,13 +140,13 @@ size_t ZSTD_compressLiterals(ZSTD_hufCTables_t const* prevHuf, ZSTD_hufCTables_t
 		case 4: /* 2 - 2 - 14 - 14 */
 			{   
 				const uint32 lhc = hType + (2 << 2) + ((uint32)srcSize<<4) + ((uint32)cLitSize<<18);
-				MEM_writeLE32(ostart, lhc);
+				SMem::PutLe(ostart, lhc);
 				break;
 			}
 		case 5: /* 2 - 2 - 18 - 18 */
 			{   
 				const uint32 lhc = hType + (3 << 2) + ((uint32)srcSize<<4) + ((uint32)cLitSize<<22);
-				MEM_writeLE32(ostart, lhc);
+				SMem::PutLe(ostart, lhc);
 				ostart[4] = (BYTE)(cLitSize >> 10);
 				break;
 			}

@@ -43,39 +43,38 @@ extern "C" {
 // Compiler specifics
 //
 #if defined(__GNUC__)
-#define MEM_STATIC static __attribute__((unused))
+	#define MEM_STATIC static __attribute__((unused))
 #elif defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */)
-#define MEM_STATIC static inline
+	#define MEM_STATIC static inline
 #elif defined(_MSC_VER)
-#define MEM_STATIC static __inline
+	#define MEM_STATIC static __inline
 #else
-#define MEM_STATIC static  /* this version may generate warnings for unused static functions; disable the relevant
-	                        warning */
+	#define MEM_STATIC static  /* this version may generate warnings for unused static functions; disable the relevant warning */
 #endif
 //
 // Basic Types
 //
 #if  !defined (__VMS) && (defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */))
-#if defined(_AIX)
-#include <inttypes.h>
+	#if defined(_AIX)
+		#include <inttypes.h>
+	#else
+		#include <stdint.h> /* intptr_t */
+	#endif
+	typedef  uint8_t BYTE;
+	//typedef uint16_t U16_Removed;
+	//typedef  int16_t S16_Removed;
+	//typedef uint32_t U32_Removed;
+	//typedef  int32_t S32_Removed;
+	//typedef uint64_t U64_Removed;
+	//typedef  int64_t S64_Removed;
 #else
-#include <stdint.h> /* intptr_t */
-#endif
-typedef  uint8_t BYTE;
-//typedef uint16_t U16_Removed;
-//typedef  int16_t S16_Removed;
-//typedef uint32_t U32_Removed;
-//typedef  int32_t S32_Removed;
-//typedef uint64_t U64_Removed;
-//typedef  int64_t S64_Removed;
-#else
-typedef unsigned char BYTE;
-//typedef unsigned short U16_Removed;
-//typedef   signed short S16_Removed;
-//typedef unsigned int U32_Removed;
-//typedef  signed int S32_Removed;
-//typedef uint64 U64_Removed;
-//typedef   signed long long S64_Removed;
+	typedef unsigned char BYTE;
+	//typedef unsigned short U16_Removed;
+	//typedef   signed short S16_Removed;
+	//typedef unsigned int U32_Removed;
+	//typedef  signed int S32_Removed;
+	//typedef uint64 U64_Removed;
+	//typedef   signed long long S64_Removed;
 #endif
 //
 // Memory I/O
@@ -99,23 +98,23 @@ typedef unsigned char BYTE;
 #endif
 #endif
 
-MEM_STATIC uint MEM_32bits() { return sizeof(size_t)==4; }
-MEM_STATIC uint MEM_64bits() { return sizeof(size_t)==8; }
+//MEM_STATIC uint MEM_32bits() { return sizeof(size_t)==4; }
+//MEM_STATIC uint MEM_64bits() { return sizeof(size_t)==8; }
 
-MEM_STATIC uint MEM_isLittleEndian()
+/*MEM_STATIC uint MEM_isLittleEndian()
 {
-	const union { uint32 u; BYTE c[4]; } one = { 1 }; /* don't use static : performance detrimental  */
+	const union { uint32 u; BYTE c[4]; } one = { 1 }; // don't use static : performance detrimental
 	return one.c[0];
-}
+}*/
 
 #if defined(MEM_FORCE_MEMORY_ACCESS) && (MEM_FORCE_MEMORY_ACCESS==2)
 
 /* violates C standard, by lying on structure alignment.
    Only use if no other choice to achieve best performance on target platform */
-MEM_STATIC uint16 MEM_read16(const void* memPtr) { return *(const uint16*)memPtr; }
-MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32 *)memPtr; }
-MEM_STATIC uint64 MEM_read64(const void* memPtr) { return *(const uint64*)memPtr; }
-MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
+//MEM_STATIC uint16 MEM_read16_Removed(const void* memPtr) { return *(const uint16*)memPtr; }
+//MEM_STATIC uint32 MEM_read32_Removed(const void* memPtr) { return *(const uint32 *)memPtr; }
+//MEM_STATIC uint64 MEM_read64_Removed(const void* memPtr) { return *(const uint64*)memPtr; }
+//MEM_STATIC void MEM_write16_Removed(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
 
 #elif defined(MEM_FORCE_MEMORY_ACCESS) && (MEM_FORCE_MEMORY_ACCESS==1)
 
@@ -123,57 +122,36 @@ MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { *(uint16*)memPtr = val
 /* currently only defined for gcc and icc */
 typedef union { uint16 u16; uint32 u32; uint64 u64; size_t st; } __attribute__((packed)) unalign;
 
-MEM_STATIC uint16 MEM_read16(const void* ptr) { return ((const unalign*)ptr)->u16; }
-MEM_STATIC uint32 MEM_read32(const void* ptr) { return ((const unalign*)ptr)->u32; }
-MEM_STATIC uint64 MEM_read64(const void* ptr) { return ((const unalign*)ptr)->u64; }
-MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { ((unalign*)memPtr)->u16 = value; }
+//MEM_STATIC uint16 MEM_read16_Removed(const void* ptr) { return ((const unalign*)ptr)->u16; }
+//MEM_STATIC uint32 MEM_read32_Removed(const void* ptr) { return ((const unalign*)ptr)->u32; }
+//MEM_STATIC uint64 MEM_read64_Removed(const void* ptr) { return ((const unalign*)ptr)->u64; }
+//MEM_STATIC void MEM_write16_Removed(void* memPtr, uint16 value) { ((unalign*)memPtr)->u16 = value; }
 
 #else
 
 /* default method, safe and standard. can sometimes prove slower */
 
-MEM_STATIC uint16 MEM_read16(const void* memPtr)
-{
-	uint16 val; 
-	memcpy(&val, memPtr, sizeof(val)); 
-	return val;
-}
-
-MEM_STATIC uint32 MEM_read32(const void* memPtr)
-{
-	uint32 val; 
-	memcpy(&val, memPtr, sizeof(val)); 
-	return val;
-}
-
-MEM_STATIC uint64 MEM_read64(const void* memPtr)
-{
-	uint64 val; 
-	memcpy(&val, memPtr, sizeof(val)); 
-	return val;
-}
-
-MEM_STATIC void MEM_write16(void* memPtr, uint16 value)
-{
-	memcpy(memPtr, &value, sizeof(value));
-}
+//MEM_STATIC uint16 MEM_read16_Removed(const void* memPtr) { uint16 val; memcpy(&val, memPtr, sizeof(val)); return val; }
+//MEM_STATIC uint32 MEM_read32_Removed(const void* memPtr) { uint32 val; memcpy(&val, memPtr, sizeof(val)); return val; }
+//MEM_STATIC uint64 MEM_read64_Removed(const void* memPtr) { uint64 val; memcpy(&val, memPtr, sizeof(val)); return val; }
+//MEM_STATIC void MEM_write16_Removed(void* memPtr, uint16 value) { memcpy(memPtr, &value, sizeof(value)); }
 
 #endif /* MEM_FORCE_MEMORY_ACCESS */
 
-MEM_STATIC uint32 MEM_swap32(uint32 in)
+/*MEM_STATIC uint32 MEM_swap32_Removed(uint32 in)
 {
-#if defined(_MSC_VER)     /* Visual Studio */
+#if defined(_MSC_VER)
 	return _byteswap_ulong(in);
 #elif defined (__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)
 	return __builtin_bswap32(in);
 #else
 	return ((in << 24) & 0xff000000 ) | ((in <<  8) & 0x00ff0000 ) | ((in >>  8) & 0x0000ff00 ) | ((in >> 24) & 0x000000ff );
 #endif
-}
+}*/
 
-MEM_STATIC uint64 MEM_swap64(uint64 in)
+/*MEM_STATIC uint64 MEM_swap64_Removed(uint64 in)
 {
-#if defined(_MSC_VER)     /* Visual Studio */
+#if defined(_MSC_VER)
 	return _byteswap_uint64(in);
 #elif defined (__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)
 	return __builtin_bswap64(in);
@@ -187,55 +165,55 @@ MEM_STATIC uint64 MEM_swap64(uint64 in)
 	       ((in >> 40) & 0x000000000000ff00ULL) |
 	       ((in >> 56) & 0x00000000000000ffULL);
 #endif
-}
+}*/
 
 /*=== Little endian r/w ===*/
 
-MEM_STATIC uint16 MEM_readLE16(const void* memPtr)
+/*MEM_STATIC uint16 MEM_readLE16_Removed(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
-		return MEM_read16(memPtr);
+		return SMem::Get16(memPtr);
 	else {
 		const BYTE * p = (const BYTE *)memPtr;
 		return (uint16)(p[0] + (p[1]<<8));
 	}
-}
+}*/
 
-MEM_STATIC void MEM_writeLE16(void* memPtr, uint16 val)
+/*MEM_STATIC void MEM_writeLE16_Removed(void* memPtr, uint16 val)
 {
 	if(MEM_isLittleEndian()) {
-		MEM_write16(memPtr, val);
+		SMem::Put(memPtr, val);
 	}
 	else {
 		BYTE * p = (BYTE *)memPtr;
 		p[0] = (BYTE)val;
 		p[1] = (BYTE)(val>>8);
 	}
-}
+}*/
 
-MEM_STATIC uint32 MEM_readLE32(const void* memPtr)
+/*MEM_STATIC uint32 MEM_readLE32_Removed(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
-		return MEM_read32(memPtr);
+		return SMem::Get32(memPtr);
 	else
-		return MEM_swap32(MEM_read32(memPtr));
-}
+		return SMem::BSwap(SMem::Get32(memPtr));
+}*/
 
-MEM_STATIC uint64 MEM_readLE64(const void* memPtr)
+/*MEM_STATIC uint64 MEM_readLE64_Removed(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
-		return MEM_read64(memPtr);
+		return SMem::Get64(memPtr);
 	else
-		return MEM_swap64(MEM_read64(memPtr));
-}
+		return SMem::BSwap(SMem::Get64(memPtr));
+}*/
 
-MEM_STATIC size_t MEM_readLEST(const void* memPtr)
+/*MEM_STATIC size_t MEM_readLEST_Removed(const void* memPtr)
 {
 	if(MEM_32bits())
-		return (size_t)MEM_readLE32(memPtr);
+		return (size_t)SMem::GetLe32(memPtr);
 	else
-		return (size_t)MEM_readLE64(memPtr);
-}
+		return (size_t)SMem::GetLe64(memPtr);
+}*/
 
 #if defined (__cplusplus)
 }
@@ -777,7 +755,7 @@ MEM_STATIC size_t BITv06_initDStream(BITv06_DStream_t* bitD, const void* srcBuff
 	if(srcSize >=  sizeof(bitD->bitContainer)) {/* normal case */
 		bitD->start = (const char *)srcBuffer;
 		bitD->ptr   = (const char *)srcBuffer + srcSize - sizeof(bitD->bitContainer);
-		bitD->bitContainer = MEM_readLEST(bitD->ptr);
+		bitD->bitContainer = SMem::GetLeSizeT(bitD->ptr);
 		{ 
 			BYTE const lastByte = ((const BYTE *)srcBuffer)[srcSize-1];
 			if(lastByte == 0) 
@@ -851,7 +829,7 @@ MEM_STATIC BITv06_DStream_status BITv06_reloadDStream(BITv06_DStream_t* bitD)
 	if(bitD->ptr >= bitD->start + sizeof(bitD->bitContainer)) {
 		bitD->ptr -= bitD->bitsConsumed >> 3;
 		bitD->bitsConsumed &= 7;
-		bitD->bitContainer = MEM_readLEST(bitD->ptr);
+		bitD->bitContainer = SMem::GetLeSizeT(bitD->ptr);
 		return BITv06_DStream_unfinished;
 	}
 	if(bitD->ptr == bitD->start) {
@@ -866,7 +844,7 @@ MEM_STATIC BITv06_DStream_status BITv06_reloadDStream(BITv06_DStream_t* bitD)
 	    }
 	    bitD->ptr -= nbBytes;
 	    bitD->bitsConsumed -= nbBytes*8;
-	    bitD->bitContainer = MEM_readLEST(bitD->ptr); /* reminder : srcSize > sizeof(bitD) */
+	    bitD->bitContainer = SMem::GetLeSizeT(bitD->ptr); /* reminder : srcSize > sizeof(bitD) */
 	    return result;}
 }
 
@@ -1107,7 +1085,7 @@ size_t FSEv06_readNCount(short* normalizedCounter, uint * maxSVPtr, uint32 * tab
 	int previous0 = 0;
 	if(hbSize < 4) 
 		return ERROR(srcSize_wrong);
-	bitStream = MEM_readLE32(ip);
+	bitStream = SMem::GetLe32(ip);
 	nbBits = (bitStream & 0xF) + FSEv06_MIN_TABLELOG; /* extract tableLog */
 	if(nbBits > FSEv06_TABLELOG_ABSOLUTE_MAX) return ERROR(tableLog_tooLarge);
 	bitStream >>= 4;
@@ -1124,7 +1102,7 @@ size_t FSEv06_readNCount(short* normalizedCounter, uint * maxSVPtr, uint32 * tab
 				n0 += 24;
 				if(ip < iend-5) {
 					ip += 2;
-					bitStream = MEM_readLE32(ip) >> bitCount;
+					bitStream = SMem::GetLe32(ip) >> bitCount;
 				}
 				else {
 					bitStream >>= 16;
@@ -1143,7 +1121,7 @@ size_t FSEv06_readNCount(short* normalizedCounter, uint * maxSVPtr, uint32 * tab
 			if((ip <= iend-7) || (ip + (bitCount>>3) <= iend-4)) {
 				ip += bitCount>>3;
 				bitCount &= 7;
-				bitStream = MEM_readLE32(ip) >> bitCount;
+				bitStream = SMem::GetLe32(ip) >> bitCount;
 			}
 			else
 				bitStream >>= 2;
@@ -1177,7 +1155,7 @@ size_t FSEv06_readNCount(short* normalizedCounter, uint * maxSVPtr, uint32 * tab
 			    bitCount -= (int)(8 * (iend - 4 - ip));
 			    ip = iend - 4;
 		    }
-		    bitStream = MEM_readLE32(ip) >> (bitCount & 31);}
+		    bitStream = SMem::GetLe32(ip) >> (bitCount & 31);}
 	}   /* while ((remaining>1) && (charnum<=*maxSVPtr)) */
 	if(remaining != 1) 
 		return ERROR(GENERIC);
@@ -1285,7 +1263,7 @@ size_t FSEv06_buildDTable(FSEv06_DTable* dt, const short* normalizedCounter, uin
 		int16 const largeLimit = (int16)(1 << (tableLog-1));
 		uint32 s;
 		for(s = 0; s<maxSV1; s++) {
-			if(normalizedCounter[s]==-1) {
+			if(normalizedCounter[s] == -1) {
 				tableDecode[highThreshold--].symbol = (FSEv06_FUNCTION_TYPE)s;
 				symbolNext[s] = 1;
 			}
@@ -1895,9 +1873,9 @@ size_t HUFv06_decompress4X2_usingDTable(void* dst,  size_t dstSize,
 	    BITv06_DStream_t bitD2;
 	    BITv06_DStream_t bitD3;
 	    BITv06_DStream_t bitD4;
-	    const size_t length1 = MEM_readLE16(istart);
-	    const size_t length2 = MEM_readLE16(istart+2);
-	    const size_t length3 = MEM_readLE16(istart+4);
+	    const size_t length1 = SMem::GetLe16(istart);
+	    const size_t length2 = SMem::GetLe16(istart+2);
+	    const size_t length3 = SMem::GetLe16(istart+4);
 	    size_t length4;
 	    const BYTE * const istart1 = istart + 6; /* jumpTable */
 	    const BYTE * const istart2 = istart1 + length1;
@@ -1993,7 +1971,7 @@ static void HUFv06_fillDTableX4Level2(HUFv06_DEltX4* DTable, uint32 sizeLog, con
 	/* fill skipped values */
 	if(minWeight>1) {
 		uint32 i, skipSize = rankVal[minWeight];
-		MEM_writeLE16(&(DElt.sequence), baseSeq);
+		SMem::PutLe(&(DElt.sequence), baseSeq);
 		DElt.nbBits   = (BYTE)(consumed);
 		DElt.length   = 1;
 		for(i = 0; i < skipSize; i++)
@@ -2011,7 +1989,7 @@ static void HUFv06_fillDTableX4Level2(HUFv06_DEltX4* DTable, uint32 sizeLog, con
 		  uint32 i = start;
 		  const uint32 end = start + length;
 
-		  MEM_writeLE16(&(DElt.sequence), (uint16)(baseSeq + (symbol << 8)));
+		  SMem::PutLe(&(DElt.sequence), (uint16)(baseSeq + (symbol << 8)));
 		  DElt.nbBits = (BYTE)(nbBits + consumed);
 		  DElt.length = 2;
 		  do {
@@ -2052,7 +2030,7 @@ static void HUFv06_fillDTableX4(HUFv06_DEltX4* DTable, const uint32 targetLog, c
 		}
 		else {
 			HUFv06_DEltX4 DElt;
-			MEM_writeLE16(&(DElt.sequence), symbol);
+			SMem::PutLe(&(DElt.sequence), symbol);
 			DElt.nbBits = (BYTE)(nbBits);
 			DElt.length = 1;
 			{   
@@ -2250,9 +2228,9 @@ size_t HUFv06_decompress4X4_usingDTable(void* dst,  size_t dstSize, const void* 
 	    BITv06_DStream_t bitD2;
 	    BITv06_DStream_t bitD3;
 	    BITv06_DStream_t bitD4;
-	    const size_t length1 = MEM_readLE16(istart);
-	    const size_t length2 = MEM_readLE16(istart+2);
-	    const size_t length3 = MEM_readLE16(istart+4);
+	    const size_t length1 = SMem::GetLe16(istart);
+	    const size_t length2 = SMem::GetLe16(istart+2);
+	    const size_t length3 = SMem::GetLe16(istart+4);
 	    size_t length4;
 	    const BYTE * const istart1 = istart + 6; /* jumpTable */
 	    const BYTE * const istart2 = istart1 + length1;
@@ -2677,7 +2655,7 @@ size_t ZSTDv06_getFrameParams(ZSTDv06_frameParams* fparamsPtr, const void* src, 
 	const BYTE * ip = (const BYTE *)src;
 	if(srcSize < ZSTDv06_frameHeaderSize_min) 
 		return ZSTDv06_frameHeaderSize_min;
-	if(MEM_readLE32(src) != ZSTDv06_MAGICNUMBER) 
+	if(SMem::GetLe32(src) != ZSTDv06_MAGICNUMBER) 
 		return ERROR(prefix_unknown);
 	/* ensure there is enough `srcSize` to fully read/decode frame header */
 	{ 
@@ -2694,8 +2672,8 @@ size_t ZSTDv06_getFrameParams(ZSTDv06_frameParams* fparamsPtr, const void* src, 
 		    default: /* impossible */
 		    case 0: fparamsPtr->frameContentSize = 0; break;
 		    case 1: fparamsPtr->frameContentSize = ip[5]; break;
-		    case 2: fparamsPtr->frameContentSize = MEM_readLE16(ip+5)+256; break;
-		    case 3: fparamsPtr->frameContentSize = MEM_readLE64(ip+5); break;
+		    case 2: fparamsPtr->frameContentSize = SMem::GetLe16(ip+5)+256; break;
+		    case 3: fparamsPtr->frameContentSize = SMem::GetLe64(ip+5); break;
 	    }   
 	}
 	return 0;
@@ -2925,7 +2903,7 @@ static size_t ZSTDv06_decodeSeqHeaders(int* nbSeqPtr,
 	    if(nbSeq > 0x7F) {
 		    if(nbSeq == 0xFF) {
 			    if(ip+2 > iend) return ERROR(srcSize_wrong);
-			    nbSeq = MEM_readLE16(ip) + LONGNBSEQ, ip += 2;
+			    nbSeq = SMem::GetLe16(ip) + LONGNBSEQ, ip += 2;
 		    }
 		    else {
 			    if(ip >= iend) return ERROR(srcSize_wrong);
@@ -3361,7 +3339,7 @@ void ZSTDv06_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* c
 		    ZSTD_errorFrameSizeInfoLegacy(cSize, dBound, frameHeaderSize);
 		    return;
 	    }
-	    if(MEM_readLE32(src) != ZSTDv06_MAGICNUMBER) {
+	    if(SMem::GetLe32(src) != ZSTDv06_MAGICNUMBER) {
 		    ZSTD_errorFrameSizeInfoLegacy(cSize, dBound, ERROR(prefix_unknown));
 		    return;
 	    }
@@ -3554,7 +3532,7 @@ static size_t ZSTDv06_loadEntropy(ZSTDv06_DCtx* dctx, const void* dict, size_t d
 static size_t ZSTDv06_decompress_insertDictionary(ZSTDv06_DCtx* dctx, const void* dict, size_t dictSize)
 {
 	size_t eSize;
-	const uint32 magic = MEM_readLE32(dict);
+	const uint32 magic = SMem::GetLe32(dict);
 	if(magic != ZSTDv06_DICT_MAGIC) {
 		/* pure content mode */
 		ZSTDv06_refDictContent(dctx, dict, dictSize);

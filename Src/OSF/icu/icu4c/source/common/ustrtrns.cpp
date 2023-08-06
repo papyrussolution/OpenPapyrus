@@ -727,7 +727,7 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest, int32_t destCapacity, in
 	}
 	ASSIGN_PTR(pNumSubstitutions, 0);
 	numSubstitutions = 0;
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		while((ch = *pSrc)!=0) {
 			++pSrc;
 			if(ch <= 0x7f) {
@@ -1204,7 +1204,7 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		/* Convert NUL-terminated ASCII, then find the string length. */
 		while((ch = *src)<=0x7f && ch != 0 && pDest<pDestLimit) {
 			*pDest++ = (uint8)ch;

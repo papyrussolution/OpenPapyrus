@@ -1554,7 +1554,7 @@ static void lha_crc16_init(void)
 		uint j;
 		uint16 crc = (uint16)i;
 		for(j = 8; j; j--)
-			crc = (crc >> 1) ^ ((crc & 1) * 0xA001);
+			crc = (crc >> 1) ^ ((crc & 1) * /*0xA001*/SlConst::CrcPoly_ANSI16);
 		crc16tbl[0][i] = crc;
 	}
 	for(i = 0; i < 256; i++) {
@@ -1598,7 +1598,8 @@ static uint16 lha_crc16(uint16 crc, const void * pp, size_t len)
 #endif
 #define CRC16W  do {    \
 		if(u.c[0] == 1) { /* Big endian */              \
-			crc ^= bswap16(*buff); buff++;          \
+			crc ^= bswap16(*buff); \
+			buff++;          \
 		} else                                          \
 			crc ^= *buff++;                         \
 		crc = crc16tbl[1][crc & 0xff] ^ crc16tbl[0][crc >> 8]; \

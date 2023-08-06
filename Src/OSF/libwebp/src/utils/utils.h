@@ -49,17 +49,14 @@ WEBP_EXTERN void FASTCALL WebPSafeFree(void* const ptr);
 
 //#include <string.h>
 // memcpy() is the safe way of moving potentially unaligned 32b memory.
-/*static*/FORCEINLINE uint32_t WebPMemToUint32(const uint8* const ptr) 
+/* @sobolev FORCEINLINE uint32_t SMem::Get32(const uint8* const ptr) 
 {
 	uint32_t A;
 	memcpy(&A, ptr, sizeof(A));
 	return A;
-}
+}*/
 
-/*static*/FORCEINLINE void WebPUint32ToMem(uint8* const ptr, uint32_t val) 
-{
-	memcpy(ptr, &val, sizeof(val));
-}
+// @sobolev FORCEINLINE void SMem::Put(uint8* const ptr, uint32_t val) { memcpy(ptr, &val, sizeof(val)); }
 //
 // Reading/writing data.
 //
@@ -94,7 +91,7 @@ WEBP_EXTERN void FASTCALL WebPSafeFree(void* const ptr);
 // Returns (int)floor(log2(n)). n must be > 0.
 /*static*/FORCEINLINE int BitsLog2Floor(uint32_t n) { return 31 ^ __builtin_clz(n); }
 // counts the number of trailing zero
-/*static*/FORCEINLINE int BitsCtz(uint32_t n) { return __builtin_ctz(n); }
+///*static*/FORCEINLINE int BitsCtz_Removed(uint32_t n) { return __builtin_ctz(n); }
 
 #elif defined(_MSC_VER) && _MSC_VER > 1310 && (defined(_M_X64) || defined(_M_IX86))
 #include <intrin.h>
@@ -108,12 +105,12 @@ WEBP_EXTERN void FASTCALL WebPSafeFree(void* const ptr);
 	return first_set_bit;
 }
 
-/*static*/FORCEINLINE int BitsCtz(uint32_t n) 
+/*FORCEINLINE int BitsCtz_Removed(uint32_t n) 
 {
 	ulong first_set_bit; // NOLINT (runtime/int)
 	_BitScanForward(&first_set_bit, n);
 	return first_set_bit;
-}
+}*/
 
 #else   // default: use the (slow) C-version.
 #define WEBP_HAVE_SLOW_CLZ_CTZ   // signal that the Clz/Ctz function are slow
@@ -134,14 +131,14 @@ extern const uint8 WebPLogTable8bit[256];
 
 /*static*/FORCEINLINE int BitsLog2Floor(uint32_t n) { return WebPLog2FloorC(n); }
 
-/*static*/FORCEINLINE int BitsCtz(uint32_t n) 
+/*FORCEINLINE int BitsCtz_Removed(uint32_t n) 
 {
 	for(int i = 0; i < 32; ++i, n >>= 1) {
 		if(n & 1) 
 			return i;
 	}
 	return 32;
-}
+}*/
 
 #endif
 //

@@ -15,11 +15,6 @@
 // 
 #include <pp.h>
 #pragma hdrstop
-//#include <stdio.h>
-//#include <string.h>
-//#include <memory.h>
-//#include <stdlib.h>
-//#include "asmlib.h"
 
 /*void Failure(const char * text) 
 {

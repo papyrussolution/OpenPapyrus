@@ -74,7 +74,7 @@ static cairo_surface_t * _create_recording_surface_for_target(cairo_surface_t * 
 cairo_surface_t * _cairo_paginated_surface_create(cairo_surface_t * target, cairo_content_t content, const cairo_paginated_surface_backend_t * backend)
 {
 	cairo_status_t status;
-	cairo_paginated_surface_t * surface = (cairo_paginated_surface_t *)_cairo_malloc(sizeof(cairo_paginated_surface_t));
+	cairo_paginated_surface_t * surface = (cairo_paginated_surface_t *)SAlloc::M_zon0(sizeof(cairo_paginated_surface_t));
 	if(UNLIKELY(!surface)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL;

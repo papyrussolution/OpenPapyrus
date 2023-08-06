@@ -74,7 +74,7 @@ UnicodeString::UnicodeString(const char * src, int32_t srcLength,
 		}
 		else {
 			// get input length
-			if(srcLength==-1) {
+			if(srcLength == -1) {
 				srcLength = (int32_t)strlen(src);
 			}
 			if(srcLength>0) {
@@ -239,7 +239,7 @@ int32_t UnicodeString::doExtract(int32_t start, int32_t length,
 	if(destCapacity==0) {
 		destLimit = dest = 0;
 	}
-	else if(destCapacity==-1) {
+	else if(destCapacity == -1) {
 		// Pin the limit to U_MAX_PTR if the "magic" destCapacity is used.
 		destLimit = (char *)U_MAX_PTR(dest);
 		// for NUL-termination, translate into highest int32_t

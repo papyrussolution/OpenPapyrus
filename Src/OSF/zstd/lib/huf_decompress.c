@@ -119,7 +119,7 @@ static size_t HUF_initDStream(BYTE const* ip)
 {
 	BYTE const lastByte = ip[7];
 	const size_t bitsConsumed = lastByte ? 8 - ZSTD_highbit32(lastByte) : 0;
-	const size_t value = MEM_readLEST(ip) | 1;
+	const size_t value = SMem::GetLeSizeT(ip) | 1;
 	assert(bitsConsumed <= 8);
 	return value << bitsConsumed;
 }
@@ -161,9 +161,9 @@ static size_t HUF_DecompressAsmArgs_init(HUF_DecompressAsmArgs* args, void * dst
 	/* Read the jump table. */
 	{
 		const BYTE * const istart = (const BYTE *)src;
-		const size_t length1 = MEM_readLE16(istart);
-		const size_t length2 = MEM_readLE16(istart+2);
-		const size_t length3 = MEM_readLE16(istart+4);
+		const size_t length1 = SMem::GetLe16(istart);
+		const size_t length2 = SMem::GetLe16(istart+2);
+		const size_t length3 = SMem::GetLe16(istart+4);
 		const size_t length4 = srcSize - (length1 + length2 + length3 + 6);
 		args->iend[0] = istart + 6; /* jumpTable */
 		args->iend[1] = args->iend[0] + length1;
@@ -231,7 +231,7 @@ static size_t HUF_initRemainingDStream(BIT_DStream_t* bit, HUF_DecompressAsmArgs
 		return ERROR(corruption_detected);
 	/* Construct the BIT_DStream_t. */
 	assert(sizeof(size_t) == 8);
-	bit->bitContainer = MEM_readLE64(args->ip[stream]);
+	bit->bitContainer = SMem::GetLe64(args->ip[stream]);
 	bit->bitsConsumed = ZSTD_countTrailingZeros64(args->bits[stream]);
 	bit->start = (const char *)args->iend[0];
 	bit->limitPtr = bit->start + sizeof(size_t);
@@ -412,15 +412,15 @@ size_t HUF_readDTableX1_wksp_bmi2(HUF_DTable* DTable, const void * src, size_t s
 				case 4:
 				    for(s = 0; s<symbolCount; ++s) {
 					    uint64 const D4 = HUF_DEltX1_set4(wksp->symbols[symbol + s], nbBits);
-					    MEM_write64(dt + uStart, D4);
+					    SMem::Put(dt + uStart, D4);
 					    uStart += 4;
 				    }
 				    break;
 				case 8:
 				    for(s = 0; s<symbolCount; ++s) {
 					    uint64 const D4 = HUF_DEltX1_set4(wksp->symbols[symbol + s], nbBits);
-					    MEM_write64(dt + uStart, D4);
-					    MEM_write64(dt + uStart + 4, D4);
+					    SMem::Put(dt + uStart, D4);
+					    SMem::Put(dt + uStart + 4, D4);
 					    uStart += 8;
 				    }
 				    break;
@@ -428,10 +428,10 @@ size_t HUF_readDTableX1_wksp_bmi2(HUF_DTable* DTable, const void * src, size_t s
 				    for(s = 0; s<symbolCount; ++s) {
 					    uint64 const D4 = HUF_DEltX1_set4(wksp->symbols[symbol + s], nbBits);
 					    for(u = 0; u < length; u += 16) {
-						    MEM_write64(dt + uStart + u + 0, D4);
-						    MEM_write64(dt + uStart + u + 4, D4);
-						    MEM_write64(dt + uStart + u + 8, D4);
-						    MEM_write64(dt + uStart + u + 12, D4);
+						    SMem::Put(dt + uStart + u + 0, D4);
+						    SMem::Put(dt + uStart + u + 4, D4);
+						    SMem::Put(dt + uStart + u + 8, D4);
+						    SMem::Put(dt + uStart + u + 12, D4);
 					    }
 					    assert(u == length);
 					    uStart += length;
@@ -517,9 +517,9 @@ FORCE_INLINE_TEMPLATE size_t HUF_decompress4X1_usingDTable_internal_body(void * 
 	    BIT_DStream_t bitD2;
 	    BIT_DStream_t bitD3;
 	    BIT_DStream_t bitD4;
-	    const size_t length1 = MEM_readLE16(istart);
-	    const size_t length2 = MEM_readLE16(istart+2);
-	    const size_t length3 = MEM_readLE16(istart+4);
+	    const size_t length1 = SMem::GetLe16(istart);
+	    const size_t length2 = SMem::GetLe16(istart+2);
+	    const size_t length3 = SMem::GetLe16(istart+4);
 	    const size_t length4 = cSrcSize - (length1 + length2 + length3 + 6);
 	    const BYTE * const istart1 = istart + 6; /* jumpTable */
 	    const BYTE * const istart2 = istart1 + length1;
@@ -1163,9 +1163,9 @@ FORCE_INLINE_TEMPLATE size_t HUF_decompress4X2_usingDTable_internal_body(void * 
 	    BIT_DStream_t bitD2;
 	    BIT_DStream_t bitD3;
 	    BIT_DStream_t bitD4;
-	    const size_t length1 = MEM_readLE16(istart);
-	    const size_t length2 = MEM_readLE16(istart+2);
-	    const size_t length3 = MEM_readLE16(istart+4);
+	    const size_t length1 = SMem::GetLe16(istart);
+	    const size_t length2 = SMem::GetLe16(istart+2);
+	    const size_t length3 = SMem::GetLe16(istart+4);
 	    const size_t length4 = cSrcSize - (length1 + length2 + length3 + 6);
 	    const BYTE * const istart1 = istart + 6; /* jumpTable */
 	    const BYTE * const istart2 = istart1 + length1;

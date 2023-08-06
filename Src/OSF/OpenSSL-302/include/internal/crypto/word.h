@@ -12,9 +12,6 @@
 #ifndef OSSL_CRYPTO_EC_CURVE448_WORD_H
 #define OSSL_CRYPTO_EC_CURVE448_WORD_H
 
-//#include <string.h>
-//#include <assert.h>
-//#include <stdlib.h>
 #include <openssl/e_os2.h>
 #include "curve448utils.h"
 #ifdef INT128_MAX

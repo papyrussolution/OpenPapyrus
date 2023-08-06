@@ -475,7 +475,7 @@ static cairo_status_t _cairo_svg_surface_add_source_surface(cairo_svg_surface_t 
 		return CAIRO_STATUS_SUCCESS;
 	}
 	if(source_key.unique_id && source_key.unique_id_length > 0) {
-		unique_id = (uchar *)_cairo_malloc(source_key.unique_id_length);
+		unique_id = (uchar *)SAlloc::M_zon0(source_key.unique_id_length);
 		if(unique_id == NULL) {
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
@@ -557,7 +557,7 @@ static cairo_surface_t * _cairo_svg_surface_create_for_document(cairo_svg_docume
 {
 	cairo_surface_t * paginated;
 	cairo_status_t status, status_ignored;
-	cairo_svg_surface_t * surface = (cairo_svg_surface_t *)_cairo_malloc(sizeof(cairo_svg_surface_t));
+	cairo_svg_surface_t * surface = (cairo_svg_surface_t *)SAlloc::M_zon0(sizeof(cairo_svg_surface_t));
 	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &cairo_svg_surface_backend,
@@ -974,7 +974,7 @@ static cairo_status_t base64_write_func(void * closure, const uchar * data, uint
 	base64_write_closure_t * info = (base64_write_closure_t*)closure;
 	uint i;
 	uchar * src = info->src;
-	if(info->in_mem + length < 3) {
+	if((info->in_mem + length) < 3) {
 		for(i = 0; i < length; i++) {
 			src[i + info->in_mem] = *data++;
 		}
@@ -2310,7 +2310,7 @@ static cairo_status_t _cairo_svg_document_create(cairo_output_stream_t * output_
 	cairo_status_t status, status_ignored;
 	if(output_stream->status)
 		return output_stream->status;
-	document = (cairo_svg_document_t *)_cairo_malloc(sizeof(cairo_svg_document_t));
+	document = (cairo_svg_document_t *)SAlloc::M_zon0(sizeof(cairo_svg_document_t));
 	if(UNLIKELY(document == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 

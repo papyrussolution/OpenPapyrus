@@ -2350,7 +2350,7 @@ static int FIO_decompressFrames(FIO_ctx_t* const fCtx,
 			return 1;
 #endif
 		}
-		else if(MEM_readLE32(buf) == LZ4_MAGICNUMBER) {
+		else if(SMem::GetLe32(buf) == LZ4_MAGICNUMBER) {
 #ifdef ZSTD_LZ4DECOMPRESS
 			unsigned long long const frameSize = FIO_decompressLz4Frame(&ress, srcFileName);
 			if(frameSize == FIO_ERROR_FRAME_DECODING) return 1;
@@ -2705,7 +2705,7 @@ static InfoError FIO_analyzeFrames(fileInfo_t* info, FILE* const srcFile)
 			ERROR_IF(1, info_frame_error, "Error: did not reach end of file but ran out of frames");
 		}
 		{   
-			const uint32 magicNumber = MEM_readLE32(headerBuffer);
+			const uint32 magicNumber = SMem::GetLe32(headerBuffer);
 			/* Zstandard frame */
 		    if(magicNumber == ZSTD_MAGICNUMBER) {
 			    ZSTD_frameHeader header;
@@ -2758,7 +2758,7 @@ static InfoError FIO_analyzeFrames(fileInfo_t* info, FILE* const srcFile)
 		    }
 			/* Skippable frame */
 		    else if((magicNumber & ZSTD_MAGIC_SKIPPABLE_MASK) == ZSTD_MAGIC_SKIPPABLE_START) {
-			    const uint32 frameSize = MEM_readLE32(headerBuffer + 4);
+			    const uint32 frameSize = SMem::GetLe32(headerBuffer + 4);
 			    long const seek = (long)(8 + frameSize - numBytesRead);
 			    ERROR_IF(LONG_SEEK(srcFile, seek, SEEK_CUR) != 0,
 				info_frame_error, "Error: could not find end of skippable frame");

@@ -821,3 +821,16 @@ SLTEST_R(SMathGamma)
 #endif // } 0
 	return s;
 }
+
+SLTEST_R(DebtGammaProb)
+{
+	double eta = 328.0342;
+	double K = 0.0813;
+	double sum = 0.0;
+	for(uint x = 1; x < 1000; x++) {
+		double prob = (GammaIncompleteP(K, x/eta) - GammaIncompleteP(K, (x-1)/eta));
+		sum += prob;
+	}
+	SLCHECK_EQ_TOL(sum, 1.0, 0.01);
+	return CurrentStatus;
+}

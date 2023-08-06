@@ -1405,7 +1405,7 @@ static const cairo_surface_backend_t cairo_vg_surface_backend = {
 
 static cairo_surface_t * _vg_surface_create_internal(cairo_vg_context_t * context, VGImage image, VGImageFormat format, int width, int height)
 {
-	cairo_vg_surface_t * surface = _cairo_malloc(sizeof(cairo_vg_surface_t));
+	cairo_vg_surface_t * surface = SAlloc::M_zon0(sizeof(cairo_vg_surface_t));
 	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface->context = _vg_context_reference(context);
@@ -1571,7 +1571,7 @@ cairo_vg_context_t * cairo_vg_context_create_for_glx(Display * dpy, GLXContext c
 	cairo_vg_context_t * context;
 	cairo_status_t status;
 
-	context = _cairo_malloc(sizeof(*context));
+	context = SAlloc::M_zon0(sizeof(*context));
 	if(UNLIKELY(context == NULL))
 		return (cairo_vg_context_t*)&_vg_context_nil;
 
@@ -1665,7 +1665,7 @@ static void egl_destroy_target(cairo_vg_context_t * context, cairo_vg_surface_t 
 cairo_vg_context_t * cairo_vg_context_create_for_egl(EGLDisplay egl_display, EGLContext egl_context)
 {
 	cairo_status_t status;
-	cairo_vg_context_t * context = _cairo_malloc(sizeof(*context));
+	cairo_vg_context_t * context = SAlloc::M_zon0(sizeof(*context));
 	if(UNLIKELY(context == NULL))
 		return (cairo_vg_context_t*)&_vg_context_nil;
 	status = _vg_context_init(context);

@@ -1960,7 +1960,22 @@
     <ClCompile Include="..\SLib\libxml\valid.c" />
     <ClCompile Include="..\SLib\libxml\xinclude.c" />
     <ClCompile Include="..\SLib\libxml\xlink.c" />
-    <ClCompile Include="..\SLib\libxml\xmlcatalog.c" />
+    <ClCompile Include="..\SLib\libxml\xmlcatalog.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\SLib\libxml\xmlIO.c" />
     <ClCompile Include="..\SLib\libxml\xmllint.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -2006,6 +2021,7 @@
     <ClCompile Include="..\SLib\soapdbt.cpp" />
     <ClCompile Include="..\SLib\txttable.cpp" />
     <ClCompile Include="..\SLib\vslocate.c" />
+    <ClCompile Include="..\SLib\winprofile.cpp" />
     <ClCompile Include="..\SLib\xlstable.cpp" />
     <ClCompile Include="..\SLib\xmltable.cpp" />
     <ClCompile Include="..\SLib\Arma.cpp" />
@@ -4468,7 +4484,6 @@
     <ClInclude Include="..\Include\fann2.h" />
     <ClInclude Include="..\Include\getopt.h" />
     <ClInclude Include="..\Include\gif_lib.h" />
-    <ClInclude Include="..\Include\json.h" />
     <ClInclude Include="..\Include\LIBPNG\png.h" />
     <ClInclude Include="..\Include\LIBPNG\pngconf.h" />
     <ClInclude Include="..\Include\LIBPNG\pngdebug.h" />
@@ -4493,6 +4508,9 @@
     <ClInclude Include="..\Include\zlib.h" />
     <ClInclude Include="..\SLib\bzip2\bzlib.h" />
     <ClInclude Include="..\SLib\bzip2\bzlib_private.h" />
+    <ClInclude Include="..\SLib\BZIP3\include\getopt-shim.h" />
+    <ClInclude Include="..\SLib\BZIP3\include\libbz3-common.h" />
+    <ClInclude Include="..\SLib\BZIP3\include\libbz3.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo-internal.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo.h" />
     <ClInclude Include="..\SLib\gumbo\tag_enum.h" />

@@ -77,7 +77,7 @@ static cairo_status_t _cairo_surface_snapshot_acquire_source_image(void * abstra
 {
 	cairo_surface_snapshot_t * surface = static_cast<cairo_surface_snapshot_t *>(abstract_surface);
 	cairo_status_t status;
-	struct snapshot_extra * extra = (struct snapshot_extra *)_cairo_malloc(sizeof(*extra));
+	struct snapshot_extra * extra = (struct snapshot_extra *)SAlloc::M_zon0(sizeof(*extra));
 	if(UNLIKELY(extra == NULL)) {
 		*extra_out = NULL;
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -209,7 +209,7 @@ cairo_surface_t * _cairo_surface_snapshot(cairo_surface_t * surface)
 	snapshot = (cairo_surface_snapshot_t*)_cairo_surface_has_snapshot(surface, &_cairo_surface_snapshot_backend);
 	if(snapshot)
 		return cairo_surface_reference(&snapshot->base);
-	snapshot = (cairo_surface_snapshot_t *)_cairo_malloc(sizeof(cairo_surface_snapshot_t));
+	snapshot = (cairo_surface_snapshot_t *)SAlloc::M_zon0(sizeof(cairo_surface_snapshot_t));
 	if(UNLIKELY(snapshot == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 	_cairo_surface_init(&snapshot->base, &_cairo_surface_snapshot_backend, NULL/* device */, surface->content, surface->is_vector);

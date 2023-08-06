@@ -115,7 +115,7 @@ static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * sha
 	 * 4 colors. Each color is stored in 2 bytes * num_color_components.
 	 */
 	shading->data_length = num_patches * (1 + 16 * 2 * 4 + 4 * 2 * num_color_components);
-	shading->data = (uchar *)_cairo_malloc(shading->data_length);
+	shading->data = (uchar *)SAlloc::M_zon0(shading->data_length);
 	if(UNLIKELY(shading->data == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	x_off = shading->decode_array[0];

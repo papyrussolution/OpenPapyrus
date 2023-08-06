@@ -521,7 +521,7 @@ static inline uint32_t bsr32(uint32_t n)
 #endif
 }
 
-static inline uint32_t clz32(uint32_t n)
+/* @sobolev static inline uint32_t clz32(uint32_t n)
 {
 #if defined(__INTEL_COMPILER)
 	return _bit_scan_reverse(n) ^ 31U;
@@ -559,9 +559,9 @@ static inline uint32_t clz32(uint32_t n)
 		++i;
 	return i;
 #endif
-}
+}*/
 
-static inline uint32_t ctz32(uint32_t n)
+/* @sobolev static inline uint32_t ctz32(uint32_t n)
 {
 #if defined(__INTEL_COMPILER)
 	return _bit_scan_forward(n);
@@ -597,8 +597,8 @@ static inline uint32_t ctz32(uint32_t n)
 		++i;
 	return i;
 #endif
-}
+}*/
 
-#define bsf32 ctz32
+// @sobolev #define bsf32 ctz32
 
 #endif

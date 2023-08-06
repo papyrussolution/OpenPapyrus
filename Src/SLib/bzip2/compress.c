@@ -227,7 +227,7 @@ static void sendMTFValues(EState* s)
 			s->len[t][v] = BZ_GREATER_ICOST;
 
 	/*--- Decide how many coding tables to use ---*/
-	AssertH(s->nMTF > 0, 3001);
+	assert(s->nMTF > 0/*, 3001*/);
 	if(s->nMTF < 200) 
 		nGroups = 2; 
 	else if(s->nMTF < 600) 
@@ -400,8 +400,8 @@ static void sendMTFValues(EState* s)
 		for(t = 0; t < nGroups; t++)
 			BZ2_hbMakeCodeLengths(&(s->len[t][0]), &(s->rfreq[t][0]), alphaSize, 17 /*20*/);
 	}
-	AssertH(nGroups < 8, 3002);
-	AssertH(nSelectors < 32768 && nSelectors <= (2 + (900000 / BZ_G_SIZE)), 3003);
+	assert(nGroups < 8/*, 3002*/);
+	assert(nSelectors < 32768 && nSelectors <= (2 + (900000 / BZ_G_SIZE))/*, 3003*/);
 	/*--- Compute MTF values for the selectors. ---*/
 	{
 		uchar pos[BZ_N_GROUPS];
@@ -432,8 +432,8 @@ static void sendMTFValues(EState* s)
 			if(s->len[t][i] > maxLen) maxLen = s->len[t][i];
 			if(s->len[t][i] < minLen) minLen = s->len[t][i];
 		}
-		AssertH(!(maxLen > 17 /*20*/ ), 3004);
-		AssertH(!(minLen < 1),  3005);
+		assert(!(maxLen > 17 /*20*/ )/*, 3004*/);
+		assert(!(minLen < 1)/*, 3005*/);
 		BZ2_hbAssignCodes(&(s->code[t][0]), &(s->len[t][0]), minLen, maxLen, alphaSize);
 	}
 
@@ -503,7 +503,7 @@ static void sendMTFValues(EState* s)
 		ge = gs + BZ_G_SIZE - 1;
 		if(ge >= s->nMTF) 
 			ge = s->nMTF-1;
-		AssertH(s->selector[selCtr] < nGroups, 3006);
+		assert(s->selector[selCtr] < nGroups/*, 3006*/);
 		if(nGroups == 6 && 50 == ge-gs+1) {
 			/*--- fast track the common case ---*/
 			uint16 mtfv_i;
@@ -536,7 +536,7 @@ static void sendMTFValues(EState* s)
 		gs = ge+1;
 		selCtr++;
 	}
-	AssertH(selCtr == nSelectors, 3007);
+	assert(selCtr == nSelectors/*, 3007*/);
 	if(s->verbosity >= 3)
 		VPrintf1("codes %d\n", s->numZ-nBytes);
 }

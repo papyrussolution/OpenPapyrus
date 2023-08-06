@@ -544,7 +544,7 @@ int    BrowserDef::refresh() { return 1; }
 
 int BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMode, int srchCol)
 {
-	char   str[256];
+	char   str[2048]; // @v11.7.11 [256]-->[2048]
 	const  char * p = static_cast<const char *>(pPattern);
 	int    r = (srchMode == srchFirst) ? top() : step(1);
 	if(r) do {

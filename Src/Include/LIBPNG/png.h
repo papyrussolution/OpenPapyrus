@@ -898,19 +898,19 @@ typedef PNG_CALLBACK (void, * png_free_ptr, (png_structp, void *));
  */
 
 /* Returns the version number of the library */
-PNG_EXPORT(1, uint32, png_access_version_number, (void));
+uint32 png_access_version_number();
 
 /* Tell lib we have already handled the first <num_bytes> magic bytes.
  * Handling more than 8 bytes from the beginning of the file is an error.
  */
-PNG_EXPORT(2, void, png_set_sig_bytes, (png_structrp png_ptr, int num_bytes));
+void png_set_sig_bytes(png_structrp png_ptr, int num_bytes);
 
 /* Check sig[start] through sig[start + num_to_check - 1] to see if it's a
  * PNG file.  Returns zero if the supplied bytes match the 8-byte PNG
  * signature, and non-zero otherwise.  Having num_to_check == 0 or
  * start > 7 will always fail (ie return non-zero).
  */
-PNG_EXPORT(3, int, png_sig_cmp, (png_const_bytep sig, size_t start, size_t num_to_check));
+int png_sig_cmp(png_const_bytep sig, size_t start, size_t num_to_check);
 
 /* Simple signature checking function.  This is the same as calling
  * png_check_sig(sig, n) := !png_sig_cmp(sig, 0, n).
@@ -918,15 +918,11 @@ PNG_EXPORT(3, int, png_sig_cmp, (png_const_bytep sig, size_t start, size_t num_t
 #define png_check_sig(sig, n) !png_sig_cmp((sig), 0, (n))
 
 /* Allocate and initialize png_ptr struct for reading, and any other memory. */
-PNG_EXPORTA(4, png_structp, png_create_read_struct, (const char * user_png_ver, void * error_ptr, png_error_ptr error_fn, png_error_ptr warn_fn),
-    PNG_ALLOCATED);
-
+png_structp png_create_read_struct(const char * user_png_ver, void * error_ptr, png_error_ptr error_fn, png_error_ptr warn_fn);
 /* Allocate and initialize png_ptr struct for writing, and any other memory */
-PNG_EXPORTA(5, png_structp, png_create_write_struct, (const char * user_png_ver, void * error_ptr, png_error_ptr error_fn,
-    png_error_ptr warn_fn), PNG_ALLOCATED);
-
-PNG_EXPORT(6, size_t, png_get_compression_buffer_size, (png_const_structrp png_ptr));
-PNG_EXPORT(7, void, png_set_compression_buffer_size, (png_structrp png_ptr, size_t size));
+png_structp png_create_write_struct(const char * user_png_ver, void * error_ptr, png_error_ptr error_fn, png_error_ptr warn_fn);
+size_t png_get_compression_buffer_size(png_const_structrp png_ptr);
+void   png_set_compression_buffer_size(png_structrp png_ptr, size_t size);
 
 /* Moved from pngconf.h in 1.4.0 and modified to ensure setjmp/longjmp
  * match up.
@@ -939,7 +935,7 @@ PNG_EXPORT(7, void, png_set_compression_buffer_size, (png_structrp png_ptr, size
  * allocated by the library - the call will return NULL on a mismatch
  * indicating an ABI mismatch.
  */
-PNG_EXPORT(8, jmp_buf*, png_set_longjmp_fn, (png_structrp png_ptr, png_longjmp_ptr longjmp_fn, size_t jmp_buf_size));
+jmp_buf * png_set_longjmp_fn(png_structrp png_ptr, png_longjmp_ptr longjmp_fn, size_t jmp_buf_size);
 #define png_jmpbuf(png_ptr) (*png_set_longjmp_fn((png_ptr), longjmp, (sizeof(jmp_buf))))
 #else
 #define png_jmpbuf(png_ptr) (LIBPNG_WAS_COMPILED_WITH__PNG_NO_SETJMP)
@@ -2128,33 +2124,23 @@ PNG_EXPORT(176, int, png_get_unknown_chunks, (png_const_structrp png_ptr, png_in
  * If you need to turn it off for a chunk that your application has freed,
  * you can use png_set_invalid(png_ptr, info_ptr, PNG_INFO_CHNK);
  */
-PNG_EXPORT(177, void, png_set_invalid, (png_const_structrp png_ptr,
-    png_inforp info_ptr, int mask));
-
+PNG_EXPORT(177, void, png_set_invalid, (png_const_structrp png_ptr, png_inforp info_ptr, int mask));
 #ifdef PNG_INFO_IMAGE_SUPPORTED
 /* The "params" pointer is currently not used and is for future expansion. */
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
-PNG_EXPORT(178, void, png_read_png, (png_structrp png_ptr, png_inforp info_ptr,
-    int transforms, void * params));
+    PNG_EXPORT(178, void, png_read_png, (png_structrp png_ptr, png_inforp info_ptr, int transforms, void * params));
 #endif
 #ifdef PNG_WRITE_SUPPORTED
-PNG_EXPORT(179, void, png_write_png, (png_structrp png_ptr, png_inforp info_ptr,
-    int transforms, void * params));
+    PNG_EXPORT(179, void, png_write_png, (png_structrp png_ptr, png_inforp info_ptr, int transforms, void * params));
 #endif
 #endif
 
-PNG_EXPORT(180, const char *, png_get_copyright,
-    (png_const_structrp png_ptr));
-PNG_EXPORT(181, const char *, png_get_header_ver,
-    (png_const_structrp png_ptr));
-PNG_EXPORT(182, const char *, png_get_header_version,
-    (png_const_structrp png_ptr));
-PNG_EXPORT(183, const char *, png_get_libpng_ver,
-    (png_const_structrp png_ptr));
-
+PNG_EXPORT(180, const char *, png_get_copyright, (png_const_structrp png_ptr));
+PNG_EXPORT(181, const char *, png_get_header_ver, (png_const_structrp png_ptr));
+PNG_EXPORT(182, const char *, png_get_header_version, (png_const_structrp png_ptr));
+PNG_EXPORT(183, const char *, png_get_libpng_ver, (png_const_structrp png_ptr));
 #ifdef PNG_MNG_FEATURES_SUPPORTED
-PNG_EXPORT(184, uint32, png_permit_mng_features, (png_structrp png_ptr,
-    uint32 mng_features_permitted));
+    PNG_EXPORT(184, uint32, png_permit_mng_features, (png_structrp png_ptr, uint32 mng_features_permitted));
 #endif
 
 /* For use in png_set_keep_unknown, added to version 1.2.6 */
@@ -2168,45 +2154,29 @@ PNG_EXPORT(184, uint32, png_permit_mng_features, (png_structrp png_ptr,
  * messages before passing them to the error or warning handler.
  */
 #ifdef PNG_ERROR_NUMBERS_SUPPORTED
-PNG_EXPORT(185, void, png_set_strip_error_numbers, (png_structrp png_ptr,
-    uint32 strip_mode));
+    void png_set_strip_error_numbers(png_structrp png_ptr, uint32 strip_mode);
 #endif
 
 /* Added in libpng-1.2.6 */
 #ifdef PNG_SET_USER_LIMITS_SUPPORTED
-PNG_EXPORT(186, void, png_set_user_limits, (png_structrp png_ptr,
-    uint32 user_width_max, uint32 user_height_max));
-PNG_EXPORT(187, uint32, png_get_user_width_max,
-    (png_const_structrp png_ptr));
-PNG_EXPORT(188, uint32, png_get_user_height_max,
-    (png_const_structrp png_ptr));
+PNG_EXPORT(186, void, png_set_user_limits, (png_structrp png_ptr, uint32 user_width_max, uint32 user_height_max));
+PNG_EXPORT(187, uint32, png_get_user_width_max, (png_const_structrp png_ptr));
+PNG_EXPORT(188, uint32, png_get_user_height_max, (png_const_structrp png_ptr));
 /* Added in libpng-1.4.0 */
-PNG_EXPORT(189, void, png_set_chunk_cache_max, (png_structrp png_ptr,
-    uint32 user_chunk_cache_max));
-PNG_EXPORT(190, uint32, png_get_chunk_cache_max,
-    (png_const_structrp png_ptr));
+PNG_EXPORT(189, void, png_set_chunk_cache_max, (png_structrp png_ptr, uint32 user_chunk_cache_max));
+PNG_EXPORT(190, uint32, png_get_chunk_cache_max, (png_const_structrp png_ptr));
 /* Added in libpng-1.4.1 */
-PNG_EXPORT(191, void, png_set_chunk_malloc_max, (png_structrp png_ptr,
-    png_alloc_size_t user_chunk_cache_max));
-PNG_EXPORT(192, png_alloc_size_t, png_get_chunk_malloc_max,
-    (png_const_structrp png_ptr));
+PNG_EXPORT(191, void, png_set_chunk_malloc_max, (png_structrp png_ptr, png_alloc_size_t user_chunk_cache_max));
+PNG_EXPORT(192, png_alloc_size_t, png_get_chunk_malloc_max, (png_const_structrp png_ptr));
 #endif
 
 #if defined(PNG_INCH_CONVERSIONS_SUPPORTED)
-PNG_EXPORT(193, uint32, png_get_pixels_per_inch,
-    (png_const_structrp png_ptr, png_const_inforp info_ptr));
-
-PNG_EXPORT(194, uint32, png_get_x_pixels_per_inch,
-    (png_const_structrp png_ptr, png_const_inforp info_ptr));
-
-PNG_EXPORT(195, uint32, png_get_y_pixels_per_inch,
-    (png_const_structrp png_ptr, png_const_inforp info_ptr));
-
-PNG_FP_EXPORT(196, float, png_get_x_offset_inches,
-    (png_const_structrp png_ptr, png_const_inforp info_ptr))
+PNG_EXPORT(193, uint32, png_get_pixels_per_inch, (png_const_structrp png_ptr, png_const_inforp info_ptr));
+PNG_EXPORT(194, uint32, png_get_x_pixels_per_inch, (png_const_structrp png_ptr, png_const_inforp info_ptr));
+PNG_EXPORT(195, uint32, png_get_y_pixels_per_inch, (png_const_structrp png_ptr, png_const_inforp info_ptr));
+PNG_FP_EXPORT(196, float, png_get_x_offset_inches, (png_const_structrp png_ptr, png_const_inforp info_ptr))
 #ifdef PNG_FIXED_POINT_SUPPORTED /* otherwise not implemented. */
-PNG_FIXED_EXPORT(211, png_fixed_point, png_get_x_offset_inches_fixed,
-    (png_const_structrp png_ptr, png_const_inforp info_ptr))
+PNG_FIXED_EXPORT(211, png_fixed_point, png_get_x_offset_inches_fixed, (png_const_structrp png_ptr, png_const_inforp info_ptr))
 #endif
 
 PNG_FP_EXPORT(197, float, png_get_y_offset_inches, (png_const_structrp png_ptr,
@@ -2217,22 +2187,17 @@ PNG_FIXED_EXPORT(212, png_fixed_point, png_get_y_offset_inches_fixed,
 #endif
 
 #ifdef PNG_pHYs_SUPPORTED
-PNG_EXPORT(198, uint32, png_get_pHYs_dpi, (png_const_structrp png_ptr,
-    png_const_inforp info_ptr, uint32 *res_x, uint32 *res_y,
-    int * unit_type));
+uint32 png_get_pHYs_dpi(png_const_structrp png_ptr, png_const_inforp info_ptr, uint32 *res_x, uint32 *res_y, int * unit_type);
 #endif /* pHYs */
 #endif  /* INCH_CONVERSIONS */
 
 /* Added in libpng-1.4.0 */
 #ifdef PNG_IO_STATE_SUPPORTED
-PNG_EXPORT(199, uint32, png_get_io_state, (png_const_structrp png_ptr));
+uint32 png_get_io_state(png_const_structrp png_ptr);
 
 /* Removed from libpng 1.6; use png_get_io_chunk_type. */
-PNG_REMOVED(200, png_const_bytep, png_get_io_chunk_name, (png_structrp png_ptr),
-    PNG_DEPRECATED)
-
-PNG_EXPORT(216, uint32, png_get_io_chunk_type,
-    (png_const_structrp png_ptr));
+PNG_REMOVED(200, png_const_bytep, png_get_io_chunk_name, (png_structrp png_ptr), PNG_DEPRECATED)
+PNG_EXPORT(216, uint32, png_get_io_chunk_type, (png_const_structrp png_ptr));
 
 /* The flags returned by png_get_io_state() are the following: */
 #define PNG_IO_NONE        0x0000   /* no I/O at this moment */
@@ -2288,10 +2253,8 @@ PNG_EXPORT(216, uint32, png_get_io_chunk_type,
  * necessary to find the row in the output image given a row in an interlaced
  * image, so two more macros:
  */
-#define PNG_ROW_FROM_PASS_ROW(y_in, pass) \
-	(((y_in)<<PNG_PASS_ROW_SHIFT(pass))+PNG_PASS_START_ROW(pass))
-#define PNG_COL_FROM_PASS_COL(x_in, pass) \
-	(((x_in)<<PNG_PASS_COL_SHIFT(pass))+PNG_PASS_START_COL(pass))
+#define PNG_ROW_FROM_PASS_ROW(y_in, pass) (((y_in)<<PNG_PASS_ROW_SHIFT(pass))+PNG_PASS_START_ROW(pass))
+#define PNG_COL_FROM_PASS_COL(x_in, pass) (((x_in)<<PNG_PASS_COL_SHIFT(pass))+PNG_PASS_START_COL(pass))
 
 /* Two macros which return a boolean (0 or 1) saying whether the given row
  * or column is in a particular pass.  These use a common utility macro that
@@ -2342,25 +2305,25 @@ PNG_EXPORT(216, uint32, png_get_io_chunk_type,
 	    32767) / 65535))
 #endif /* READ_COMPOSITE_NODIV */
 #ifdef PNG_READ_INT_FUNCTIONS_SUPPORTED
-PNG_EXPORT(201, uint32, png_get_uint_32, (png_const_bytep buf));
-PNG_EXPORT(202, uint16, png_get_uint_16, (png_const_bytep buf));
-PNG_EXPORT(203, int32_t, png_get_int_32, (png_const_bytep buf));
+    uint32 png_get_uint_32(png_const_bytep buf);
+    uint16 png_get_uint_16(png_const_bytep buf);
+    int32_t png_get_int_32(png_const_bytep buf);
 #endif
-PNG_EXPORT(204, uint32, png_get_uint_31, (png_const_structrp png_ptr, png_const_bytep buf));
+uint32 png_get_uint_31(png_const_structrp png_ptr, png_const_bytep buf);
 /* No png_get_int_16 -- may be added if there's a real need for it. */
 /* Place a 32-bit number into a buffer in PNG byte order (big-endian). */
 #ifdef PNG_WRITE_INT_FUNCTIONS_SUPPORTED
-PNG_EXPORT(205, void, png_save_uint_32, (png_bytep buf, uint32 i));
+    void png_save_uint_32(png_bytep buf, uint32 i);
 #endif
 #ifdef PNG_SAVE_INT_32_SUPPORTED
-PNG_EXPORT(206, void, png_save_int_32, (png_bytep buf, int32_t i));
+    void png_save_int_32(png_bytep buf, int32_t i);
 #endif
 /* Place a 16-bit number into a buffer in PNG byte order.
  * The parameter is declared unsigned int, not uint16,
  * just to avoid potential problems on pre-ANSI C compilers.
  */
 #ifdef PNG_WRITE_INT_FUNCTIONS_SUPPORTED
-PNG_EXPORT(207, void, png_save_uint_16, (png_bytep buf, unsigned int i));
+void png_save_uint_16(png_bytep buf, unsigned int i);
 /* No png_save_int_16 -- may be added if there's a real need for it. */
 #endif
 #ifdef PNG_USE_READ_MACROS
@@ -2375,8 +2338,7 @@ PNG_EXPORT(207, void, png_save_uint_16, (png_bytep buf, unsigned int i));
  * function) incorrectly returned a value of type uint32.
  */
 #define PNG_get_uint_16(buf) ((uint16)(((uint)(*(buf)) << 8) + ((uint)(*((buf) + 1)))))
-#define PNG_get_int_32(buf) ((int32_t)((*(buf) & \
-	0x80) ? -((int32_t)(((png_get_uint_32(buf)^0xffffffffU)+1U)&0x7fffffffU)) : (int32_t)png_get_uint_32(buf)))
+#define PNG_get_int_32(buf) ((int32_t)((*(buf) & 0x80) ? -((int32_t)(((png_get_uint_32(buf)^0xffffffffU)+1U)&0x7fffffffU)) : (int32_t)png_get_uint_32(buf)))
 
 /* If PNG_PREFIX is defined the same thing as below happens in pnglibconf.h,
  * but defining a macro name prefixed with PNG_PREFIX.
@@ -2394,14 +2356,11 @@ PNG_EXPORT(207, void, png_save_uint_16, (png_bytep buf, unsigned int i));
 #define PNG_get_int_32  (png_get_int_32)
 #endif
 #endif
-
 #ifdef PNG_CHECK_FOR_INVALID_INDEX_SUPPORTED
-PNG_EXPORT(242, void, png_set_check_for_invalid_index,
-    (png_structrp png_ptr, int allowed));
-#ifdef PNG_GET_PALETTE_MAX_SUPPORTED
-PNG_EXPORT(243, int, png_get_palette_max, (png_const_structp png_ptr,
-    png_const_infop info_ptr));
-#endif
+    void png_set_check_for_invalid_index(png_structrp png_ptr, int allowed);
+    #ifdef PNG_GET_PALETTE_MAX_SUPPORTED
+        int png_get_palette_max(png_const_structp png_ptr, png_const_infop info_ptr);
+    #endif
 #endif /* CHECK_FOR_INVALID_INDEX */
 
 /*******************************************************************************
@@ -2562,13 +2521,11 @@ typedef struct {
 #define PNG_FORMAT_FLAG_COLOR    0x02U /* color format: otherwise grayscale */
 #define PNG_FORMAT_FLAG_LINEAR   0x04U /* 2-byte channels else 1-byte */
 #define PNG_FORMAT_FLAG_COLORMAP 0x08U /* image data is color-mapped */
-
 #ifdef PNG_FORMAT_BGR_SUPPORTED
-#define PNG_FORMAT_FLAG_BGR    0x10U /* BGR colors, else order is RGB */
+    #define PNG_FORMAT_FLAG_BGR    0x10U /* BGR colors, else order is RGB */
 #endif
-
 #ifdef PNG_FORMAT_AFIRST_SUPPORTED
-#define PNG_FORMAT_FLAG_AFIRST 0x20U /* alpha channel comes first */
+    #define PNG_FORMAT_FLAG_AFIRST 0x20U /* alpha channel comes first */
 #endif
 
 /* Commonly used formats have predefined macros.
@@ -2591,8 +2548,7 @@ typedef struct {
 #define PNG_FORMAT_LINEAR_Y PNG_FORMAT_FLAG_LINEAR
 #define PNG_FORMAT_LINEAR_Y_ALPHA (PNG_FORMAT_FLAG_LINEAR|PNG_FORMAT_FLAG_ALPHA)
 #define PNG_FORMAT_LINEAR_RGB (PNG_FORMAT_FLAG_LINEAR|PNG_FORMAT_FLAG_COLOR)
-#define PNG_FORMAT_LINEAR_RGB_ALPHA \
-	(PNG_FORMAT_FLAG_LINEAR|PNG_FORMAT_FLAG_COLOR|PNG_FORMAT_FLAG_ALPHA)
+#define PNG_FORMAT_LINEAR_RGB_ALPHA (PNG_FORMAT_FLAG_LINEAR|PNG_FORMAT_FLAG_COLOR|PNG_FORMAT_FLAG_ALPHA)
 
 /* With color-mapped formats the image data is one byte for each pixel, the byte
  * is an index into the color-map which is formatted as above.  To obtain a
@@ -2676,8 +2632,7 @@ typedef struct {
 /* The size, in bytes, of a complete pixel; 1 for a color-mapped image. */
 
 /* Information about the whole row, or whole image */
-#define PNG_IMAGE_ROW_STRIDE(image) \
-	(PNG_IMAGE_PIXEL_CHANNELS((image).format) * (image).width)
+#define PNG_IMAGE_ROW_STRIDE(image) (PNG_IMAGE_PIXEL_CHANNELS((image).format) * (image).width)
 /* Return the total number of components in a single row of the image; this
  * is the minimum 'row stride', the minimum count of components between each
  * row.  For a color-mapped image this is the minimum number of bytes in a
@@ -2687,9 +2642,7 @@ typedef struct {
  * and very large image widths.  libpng will refuse to process an image where
  * this macro would overflow.
  */
-
-#define PNG_IMAGE_BUFFER_SIZE(image, row_stride) \
-	(PNG_IMAGE_PIXEL_COMPONENT_SIZE((image).format)*(image).height*(row_stride))
+#define PNG_IMAGE_BUFFER_SIZE(image, row_stride) (PNG_IMAGE_PIXEL_COMPONENT_SIZE((image).format)*(image).height*(row_stride))
 /* Return the size, in bytes, of an image buffer given a png_image and a row
  * stride - the number of components to leave space for in each row.
  *
@@ -2697,14 +2650,12 @@ typedef struct {
  * libpng will refuse to process an image where such an overflow would occur.
  */
 
-#define PNG_IMAGE_SIZE(image) \
-	PNG_IMAGE_BUFFER_SIZE(image, PNG_IMAGE_ROW_STRIDE(image))
+#define PNG_IMAGE_SIZE(image) PNG_IMAGE_BUFFER_SIZE(image, PNG_IMAGE_ROW_STRIDE(image))
 /* Return the size, in bytes, of the image in memory given just a png_image;
  * the row stride is the minimum stride required for the image.
  */
 
-#define PNG_IMAGE_COLORMAP_SIZE(image) \
-	(PNG_IMAGE_SAMPLE_SIZE((image).format) * (image).colormap_entries)
+#define PNG_IMAGE_COLORMAP_SIZE(image) (PNG_IMAGE_SAMPLE_SIZE((image).format) * (image).colormap_entries)
 /* Return the size, in bytes, of the color-map of this image.  If the image
  * format is not a color-map format this will return a size sufficient for
  * 256 entries in the given format; check PNG_FORMAT_FLAG_COLORMAP if
@@ -2758,15 +2709,14 @@ typedef struct {
  * the png_controlp field 'opaque' to NULL (or, safer, memset the whole thing.)
  */
 #ifdef PNG_STDIO_SUPPORTED
-PNG_EXPORT(234, int, png_image_begin_read_from_file, (png_imagep image, const char * file_name));
+int png_image_begin_read_from_file(png_imagep image, const char * file_name);
 /* The named file is opened for read and the image header is filled in from the PNG header in the file. */
-PNG_EXPORT(235, int, png_image_begin_read_from_stdio, (png_imagep image, FILE* file));
+int png_image_begin_read_from_stdio(png_imagep image, FILE* file);
 /* The PNG header is read from the stdio FILE object. */
 #endif /* STDIO */
-PNG_EXPORT(236, int, png_image_begin_read_from_memory, (png_imagep image, const void * memory, size_t size));
+int png_image_begin_read_from_memory(png_imagep image, const void * memory, size_t size);
 /* The PNG header is read from the given memory buffer. */
-PNG_EXPORT(237, int, png_image_finish_read,
-    (png_imagep image, png_const_colorp background, void * buffer, int32_t row_stride, void * colormap));
+int png_image_finish_read(png_imagep image, png_const_colorp background, void * buffer, int32_t row_stride, void * colormap);
 /* Finish reading the image into the supplied buffer and clean up the
  * png_image structure.
  *
@@ -2798,7 +2748,7 @@ PNG_EXPORT(237, int, png_image_finish_read,
  * image->colormap_entries will be updated to the actual number of entries
  * written to the colormap; this may be less than the original value.
  */
-PNG_EXPORT(238, void, png_image_free, (png_imagep image));
+void png_image_free(png_imagep image);
 /* Free any data allocated by libpng in image->opaque, setting the pointer to
  * NULL.  May be called at any time after the structure is initialized.
  */
@@ -2822,11 +2772,9 @@ PNG_EXPORT(238, void, png_image_free, (png_imagep image));
  * colormap_entries: set to the number of entries in the color-map (0 to 256)
  */
 #ifdef PNG_SIMPLIFIED_WRITE_STDIO_SUPPORTED
-PNG_EXPORT(239, int, png_image_write_to_file,
-    (png_imagep image, const char * file, int convert_to_8bit, const void * buffer, int32_t row_stride, const void * colormap));
+int png_image_write_to_file(png_imagep image, const char * file, int convert_to_8bit, const void * buffer, int32_t row_stride, const void * colormap);
 /* Write the image to the named file. */
-PNG_EXPORT(240, int, png_image_write_to_stdio,
-    (png_imagep image, FILE *file, int convert_to_8_bit, const void * buffer, int32_t row_stride, const void * colormap));
+int png_image_write_to_stdio(png_imagep image, FILE *file, int convert_to_8_bit, const void * buffer, int32_t row_stride, const void * colormap);
 /* Write the image to the given (FILE *). */
 #endif /* SIMPLIFIED_WRITE_STDIO */
 
@@ -2850,9 +2798,8 @@ PNG_EXPORT(240, int, png_image_write_to_stdio,
  * most ancillary chunks.  If you need to write text chunks (e.g. for copyright
  * notices) you need to use one of the other APIs.
  */
-PNG_EXPORT(245, int, png_image_write_to_memory, (png_imagep image, void * memory,
-    png_alloc_size_t * _RESTRICT memory_bytes, int convert_to_8_bit,
-    const void * buffer, int32_t row_stride, const void * colormap));
+int png_image_write_to_memory(png_imagep image, void * memory, png_alloc_size_t * _RESTRICT memory_bytes, int convert_to_8_bit,
+    const void * buffer, int32_t row_stride, const void * colormap);
 /* Write the image to the given memory buffer.  The function both writes the
  * whole PNG data stream to *memory and updates *memory_bytes with the count
  * of bytes written.
@@ -2875,10 +2822,8 @@ PNG_EXPORT(245, int, png_image_write_to_memory, (png_imagep image, void * memory
  * bytes and will be bigger that the original value.
  */
 
-#define png_image_write_get_memory_size(image, size, convert_to_8_bit, buffer, \
-	    row_stride, colormap) \
-	png_image_write_to_memory(&(image), 0, &(size), convert_to_8_bit, buffer, \
-	    row_stride, colormap)
+#define png_image_write_get_memory_size(image, size, convert_to_8_bit, buffer, row_stride, colormap) \
+	png_image_write_to_memory(&(image), 0, &(size), convert_to_8_bit, buffer, row_stride, colormap)
 /* Return the amount of memory in 'size' required to compress this image.
  * The png_image structure 'image' must be filled in as in the above
  * function and must not be changed before the actual write call, the buffer
@@ -2986,7 +2931,7 @@ PNG_EXPORT(245, int, png_image_write_to_memory, (png_imagep image, void * memory
 #define PNG_OPTION_OFF     2
 #define PNG_OPTION_ON      3
 
-PNG_EXPORT(244, int, png_set_option, (png_structrp png_ptr, int option, int onoff));
+int png_set_option(png_structrp png_ptr, int option, int onoff);
 #endif /* SET_OPTION */
 
 /*******************************************************************************

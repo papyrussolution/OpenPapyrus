@@ -184,10 +184,6 @@ SLTEST_R(BDT)
 				const BdtTestItem * p_item = data_set.at(i);
 				const size_t src_size = p_item->In.GetLen();
 				const void * p_src_buf = p_item->In.GetBufC();
-				//uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
-				//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-				//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-				//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
 				uint32 pattern_value = sbswap32(PTR32C(p_item->Out.GetBufC())[0]);
 				SLCHECK_EQ(SlHash::CRC32(0, p_src_buf, src_size), pattern_value);
 				if(src_size > 10) {
@@ -210,10 +206,6 @@ SLTEST_R(BDT)
 				const BdtTestItem * p_item = data_set.at(i);
 				const size_t src_size = p_item->In.GetLen();
 				const void * p_src_buf = p_item->In.GetBufC();
-				//uint32 pattern_value = PTR32C(p_item->Out.GetBufC())[0];
-				//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-				//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-				//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
 				uint32 pattern_value = sbswap32(PTR32C(p_item->Out.GetBufC())[0]);
 				SLCHECK_EQ(SlHash::Adler32(0, p_src_buf, src_size), pattern_value);
 				if(src_size > 10) {
@@ -409,10 +401,11 @@ SLTEST_R(BDT)
 				BdtTestItem * p_item = data_set.at(i);
 				if(p_item) {
 					SLCHECK_EQ(p_item->Out.GetLen(), sizeof(uint32));
-					uint32 pattern_value = PTR32(p_item->Out.GetBuf())[0];
-					PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-					PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-					PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+					uint32 pattern_value = SMem::GetBe32(p_item->Out.GetBuf());
+					//uint32 pattern_value = PTR32(p_item->Out.GetBuf())[0];
+					//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
+					//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
+					//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
 					//
 					{
 						uint32 result;
@@ -458,10 +451,11 @@ SLTEST_R(BDT)
 				BdtTestItem * p_item = data_set.at(i);
 				if(p_item) {
 					SLCHECK_EQ(p_item->Out.GetLen(), sizeof(uint32));
-					uint32 pattern_value = PTR32(p_item->Out.GetBuf())[0];
-					PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
-					PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
-					PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
+					uint32 pattern_value = SMem::GetBe32(p_item->Out.GetBuf());
+					//uint32 pattern_value = PTR32(p_item->Out.GetBuf())[0];
+					//PTR16(&pattern_value)[0] = swapw(PTR16(&pattern_value)[0]);
+					//PTR16(&pattern_value)[1] = swapw(PTR16(&pattern_value)[1]);
+					//PTR32(&pattern_value)[0] = swapdw(PTR32(&pattern_value)[0]);
 					//
 					{
 						uint32 result;

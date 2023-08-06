@@ -480,22 +480,22 @@ void GraphCycles::RemoveNode(void* ptr) {
 	}
 }
 
-void* GraphCycles::Ptr(GraphId id) {
+void* GraphCycles::Ptr(GraphId id) 
+{
 	Node* n = FindNode(rep_, id);
-	return n == nullptr ? nullptr
-	       : base_internal::UnhidePtr<void>(n->masked_ptr);
+	return n == nullptr ? nullptr : base_internal::UnhidePtr<void>(n->masked_ptr);
 }
 
-bool GraphCycles::HasNode(GraphId node) {
-	return FindNode(rep_, node) != nullptr;
-}
+bool GraphCycles::HasNode(GraphId node) { return FindNode(rep_, node) != nullptr; }
 
-bool GraphCycles::HasEdge(GraphId x, GraphId y) const {
+bool GraphCycles::HasEdge(GraphId x, GraphId y) const 
+{
 	Node* xn = FindNode(rep_, x);
 	return xn && FindNode(rep_, y) && xn->out.contains(NodeIndex(y));
 }
 
-void GraphCycles::RemoveEdge(GraphId x, GraphId y) {
+void GraphCycles::RemoveEdge(GraphId x, GraphId y) 
+{
 	Node* xn = FindNode(rep_, x);
 	Node* yn = FindNode(rep_, y);
 	if(xn && yn) {
@@ -512,7 +512,8 @@ static void Reorder(GraphCycles::Rep* r);
 static void Sort(const Vec<Node*>&, Vec<int32_t>* delta);
 static void MoveToList(GraphCycles::Rep* r, Vec<int32_t>* src, Vec<int32_t>* dst);
 
-bool GraphCycles::InsertEdge(GraphId idx, GraphId idy) {
+bool GraphCycles::InsertEdge(GraphId idx, GraphId idy) 
+{
 	Rep* r = rep_;
 	const int32_t x = NodeIndex(idx);
 	const int32_t y = NodeIndex(idy);
@@ -601,10 +602,10 @@ static void BackwardDFS(GraphCycles::Rep* r, int32_t n, int32_t lower_bound) {
 	}
 }
 
-static void Reorder(GraphCycles::Rep* r) {
+static void Reorder(GraphCycles::Rep* r) 
+{
 	Sort(r->nodes_, &r->deltab_);
 	Sort(r->nodes_, &r->deltaf_);
-
 	// Adds contents of delta lists to list_ (backwards deltas first).
 	r->list_.clear();
 	MoveToList(r, &r->deltab_, &r->list_);
@@ -622,14 +623,12 @@ static void Reorder(GraphCycles::Rep* r) {
 	}
 }
 
-static void Sort(const Vec<Node*>& nodes, Vec<int32_t>* delta) {
+static void Sort(const Vec<Node*>& nodes, Vec<int32_t>* delta) 
+{
 	struct ByRank {
 		const Vec<Node*>* nodes;
-		bool operator()(int32_t a, int32_t b) const {
-			return (*nodes)[a] -> rank < (* nodes)[b] -> rank;
-		}
+		bool operator()(int32_t a, int32_t b) const { return (*nodes)[a] -> rank < (* nodes)[b] -> rank; }
 	};
-
 	ByRank cmp;
 	cmp.nodes = &nodes;
 	std::sort(delta->begin(), delta->end(), cmp);

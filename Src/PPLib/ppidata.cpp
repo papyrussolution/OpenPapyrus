@@ -1,5 +1,5 @@
 // PPYIDATA.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -316,7 +316,8 @@ int CurrListTagParser::SaveTagVal(const char * pTag)
 int PpyInetDataPrcssr::ImportCurrencyList(ulong * pAcceptedRows, int use_ta)
 {
 	int    ok = 1;
-	char   filename[MAXFILE], url[256];
+	char   filename[/*MAXFILE*/260];
+	char   url[256];
 	SString path;
 	uint   i = 0, items_count = 0;
 	ulong  accepted_rows = 0;
@@ -594,13 +595,8 @@ static int FtpReInit(WinInetFTP * pFtp, PPLogger * pLog)
 
 static SString & GetFileName(const char * pPath, SString & rFile)
 {
-	// @v10.6.10 {
 	SPathStruc ps(pPath);
 	ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rFile); 
-	// } @v10.6.10
-	//@v10.6.10 char drv[MAXDRIVE], dir[MAXDIR], fname[MAX_PATH], ext[MAXEXT];
-	//@v10.6.10 fnsplit(pPath, drv, dir, fname, ext);
-	//@v10.6.10 (rFile = fname).Cat(ext);
 	return rFile;
 }
 
@@ -990,10 +986,6 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 int WinInetFTP::CD(const char * pDir, int isFullPath /*=1*/)
 {
 	int    ok = 1, r;
-	//THROW_INVARG(pDir);
-	//char   drv[MAXDRIVE], dir[MAXDIR], fname[MAXFILE + MAXEXT], ext[MAXEXT];
-	//fnsplit(pDir, drv, dir, fname, ext);
-	//sdir = dir;
 	if(pDir) {
 		SPathStruc ps(pDir);
 		SString sdir = ps.Dir;

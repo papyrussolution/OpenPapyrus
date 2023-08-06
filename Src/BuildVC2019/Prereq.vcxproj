@@ -1015,6 +1015,21 @@ CompileShaders.cmd</Command>
     <Font Include="..\Rsrc\Font\mupdf\noto\NotoSerifTibetan-Regular.otf" />
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="..\OSF\OpenSSL-302\crypto\__ASM__\sha256-c64xplus.pl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\perl\perl %(FullPath) masm ../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ossl perl to asm x64 [%(FullPath)]</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../osf/OpenSSL-302/crypto/generated/%(Filename).asm</Outputs>
+    </CustomBuild>
     <None Include="..\Rsrc\Font\mupdf\han\SourceHanSerif-Regular.ttc" />
     <None Include="..\Rsrc\Font\mupdf\sil\CharisSIL-Bold.cff" />
     <None Include="..\Rsrc\Font\mupdf\sil\CharisSIL-BoldItalic.cff" />

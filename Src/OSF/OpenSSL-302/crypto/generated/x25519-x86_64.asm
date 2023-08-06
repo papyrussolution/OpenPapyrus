@@ -408,34 +408,463 @@ $L$fe51_mul121666_epilogue::
 
 $L$SEH_end_x25519_fe51_mul121666::
 x25519_fe51_mul121666	ENDP
+EXTERN	OPENSSL_ia32cap_P:NEAR
 PUBLIC	x25519_fe64_eligible
 
 ALIGN	32
 x25519_fe64_eligible	PROC PUBLIC
 
+	mov	ecx,DWORD PTR[((OPENSSL_ia32cap_P+8))]
 	xor	eax,eax
+	and	ecx,080100h
+	cmp	ecx,080100h
+	cmove	eax,ecx
 	DB	0F3h,0C3h		;repret
 
 x25519_fe64_eligible	ENDP
 
 PUBLIC	x25519_fe64_mul
 
-PUBLIC	x25519_fe64_sqr
-PUBLIC	x25519_fe64_mul121666
-PUBLIC	x25519_fe64_add
-PUBLIC	x25519_fe64_sub
-PUBLIC	x25519_fe64_tobytes
+ALIGN	32
 x25519_fe64_mul	PROC PUBLIC
-x25519_fe64_sqr::
-x25519_fe64_mul121666::
-x25519_fe64_add::
-x25519_fe64_sub::
-x25519_fe64_tobytes::
+	mov	QWORD PTR[8+rsp],rdi	;WIN64 prologue
+	mov	QWORD PTR[16+rsp],rsi
+	mov	rax,rsp
+$L$SEH_begin_x25519_fe64_mul::
+	mov	rdi,rcx
+	mov	rsi,rdx
+	mov	rdx,r8
 
-DB	00fh,00bh
+
+
+	push	rbp
+
+	push	rbx
+
+	push	r12
+
+	push	r13
+
+	push	r14
+
+	push	r15
+
+	push	rdi
+
+	lea	rsp,QWORD PTR[((-16))+rsp]
+
+$L$fe64_mul_body::
+
+	mov	rax,rdx
+	mov	rbp,QWORD PTR[rdx]
+	mov	rdx,QWORD PTR[rsi]
+	mov	rcx,QWORD PTR[8+rax]
+	mov	r14,QWORD PTR[16+rax]
+	mov	r15,QWORD PTR[24+rax]
+
+	mulx	rax,r8,rbp
+	xor	edi,edi
+	mulx	rbx,r9,rcx
+	adcx	r9,rax
+	mulx	rax,r10,r14
+	adcx	r10,rbx
+	mulx	r12,r11,r15
+	mov	rdx,QWORD PTR[8+rsi]
+	adcx	r11,rax
+	mov	QWORD PTR[rsp],r14
+	adcx	r12,rdi
+
+	mulx	rbx,rax,rbp
+	adox	r9,rax
+	adcx	r10,rbx
+	mulx	rbx,rax,rcx
+	adox	r10,rax
+	adcx	r11,rbx
+	mulx	rbx,rax,r14
+	adox	r11,rax
+	adcx	r12,rbx
+	mulx	r13,rax,r15
+	mov	rdx,QWORD PTR[16+rsi]
+	adox	r12,rax
+	adcx	r13,rdi
+	adox	r13,rdi
+
+	mulx	rbx,rax,rbp
+	adcx	r10,rax
+	adox	r11,rbx
+	mulx	rbx,rax,rcx
+	adcx	r11,rax
+	adox	r12,rbx
+	mulx	rbx,rax,r14
+	adcx	r12,rax
+	adox	r13,rbx
+	mulx	r14,rax,r15
+	mov	rdx,QWORD PTR[24+rsi]
+	adcx	r13,rax
+	adox	r14,rdi
+	adcx	r14,rdi
+
+	mulx	rbx,rax,rbp
+	adox	r11,rax
+	adcx	r12,rbx
+	mulx	rbx,rax,rcx
+	adox	r12,rax
+	adcx	r13,rbx
+	mulx	rbx,rax,QWORD PTR[rsp]
+	adox	r13,rax
+	adcx	r14,rbx
+	mulx	r15,rax,r15
+	mov	edx,38
+	adox	r14,rax
+	adcx	r15,rdi
+	adox	r15,rdi
+
+	jmp	$L$reduce64
+$L$fe64_mul_epilogue::
+
+$L$SEH_end_x25519_fe64_mul::
+x25519_fe64_mul	ENDP
+
+PUBLIC	x25519_fe64_sqr
+
+ALIGN	32
+x25519_fe64_sqr	PROC PUBLIC
+	mov	QWORD PTR[8+rsp],rdi	;WIN64 prologue
+	mov	QWORD PTR[16+rsp],rsi
+	mov	rax,rsp
+$L$SEH_begin_x25519_fe64_sqr::
+	mov	rdi,rcx
+	mov	rsi,rdx
+
+
+
+	push	rbp
+
+	push	rbx
+
+	push	r12
+
+	push	r13
+
+	push	r14
+
+	push	r15
+
+	push	rdi
+
+	lea	rsp,QWORD PTR[((-16))+rsp]
+
+$L$fe64_sqr_body::
+
+	mov	rdx,QWORD PTR[rsi]
+	mov	rcx,QWORD PTR[8+rsi]
+	mov	rbp,QWORD PTR[16+rsi]
+	mov	rsi,QWORD PTR[24+rsi]
+
+
+	mulx	r15,r8,rdx
+	mulx	rax,r9,rcx
+	xor	edi,edi
+	mulx	rbx,r10,rbp
+	adcx	r10,rax
+	mulx	r12,r11,rsi
+	mov	rdx,rcx
+	adcx	r11,rbx
+	adcx	r12,rdi
+
+
+	mulx	rbx,rax,rbp
+	adox	r11,rax
+	adcx	r12,rbx
+	mulx	r13,rax,rsi
+	mov	rdx,rbp
+	adox	r12,rax
+	adcx	r13,rdi
+
+
+	mulx	r14,rax,rsi
+	mov	rdx,rcx
+	adox	r13,rax
+	adcx	r14,rdi
+	adox	r14,rdi
+
+	adcx	r9,r9
+	adox	r9,r15
+	adcx	r10,r10
+	mulx	rbx,rax,rdx
+	mov	rdx,rbp
+	adcx	r11,r11
+	adox	r10,rax
+	adcx	r12,r12
+	adox	r11,rbx
+	mulx	rbx,rax,rdx
+	mov	rdx,rsi
+	adcx	r13,r13
+	adox	r12,rax
+	adcx	r14,r14
+	adox	r13,rbx
+	mulx	r15,rax,rdx
+	mov	edx,38
+	adox	r14,rax
+	adcx	r15,rdi
+	adox	r15,rdi
+	jmp	$L$reduce64
+
+ALIGN	32
+$L$reduce64::
+	mulx	rbx,rax,r12
+	adcx	r8,rax
+	adox	r9,rbx
+	mulx	rbx,rax,r13
+	adcx	r9,rax
+	adox	r10,rbx
+	mulx	rbx,rax,r14
+	adcx	r10,rax
+	adox	r11,rbx
+	mulx	r12,rax,r15
+	adcx	r11,rax
+	adox	r12,rdi
+	adcx	r12,rdi
+
+	mov	rdi,QWORD PTR[16+rsp]
+	imul	r12,rdx
+
+	add	r8,r12
+	adc	r9,0
+	adc	r10,0
+	adc	r11,0
+
+	sbb	rax,rax
+	and	rax,38
+
+	add	r8,rax
+	mov	QWORD PTR[8+rdi],r9
+	mov	QWORD PTR[16+rdi],r10
+	mov	QWORD PTR[24+rdi],r11
+	mov	QWORD PTR[rdi],r8
+
+	mov	r15,QWORD PTR[24+rsp]
+
+	mov	r14,QWORD PTR[32+rsp]
+
+	mov	r13,QWORD PTR[40+rsp]
+
+	mov	r12,QWORD PTR[48+rsp]
+
+	mov	rbx,QWORD PTR[56+rsp]
+
+	mov	rbp,QWORD PTR[64+rsp]
+
+	lea	rsp,QWORD PTR[72+rsp]
+
+$L$fe64_sqr_epilogue::
+	mov	rdi,QWORD PTR[8+rsp]	;WIN64 epilogue
+	mov	rsi,QWORD PTR[16+rsp]
 	DB	0F3h,0C3h		;repret
 
-x25519_fe64_mul	ENDP
+$L$SEH_end_x25519_fe64_sqr::
+x25519_fe64_sqr	ENDP
+
+PUBLIC	x25519_fe64_mul121666
+
+ALIGN	32
+x25519_fe64_mul121666	PROC PUBLIC
+	mov	QWORD PTR[8+rsp],rdi	;WIN64 prologue
+	mov	QWORD PTR[16+rsp],rsi
+	mov	rax,rsp
+$L$SEH_begin_x25519_fe64_mul121666::
+	mov	rdi,rcx
+	mov	rsi,rdx
+
+
+$L$fe64_mul121666_body::
+
+	mov	edx,121666
+	mulx	rcx,r8,QWORD PTR[rsi]
+	mulx	rax,r9,QWORD PTR[8+rsi]
+	add	r9,rcx
+	mulx	rcx,r10,QWORD PTR[16+rsi]
+	adc	r10,rax
+	mulx	rax,r11,QWORD PTR[24+rsi]
+	adc	r11,rcx
+	adc	rax,0
+
+	imul	rax,rax,38
+
+	add	r8,rax
+	adc	r9,0
+	adc	r10,0
+	adc	r11,0
+
+	sbb	rax,rax
+	and	rax,38
+
+	add	r8,rax
+	mov	QWORD PTR[8+rdi],r9
+	mov	QWORD PTR[16+rdi],r10
+	mov	QWORD PTR[24+rdi],r11
+	mov	QWORD PTR[rdi],r8
+
+$L$fe64_mul121666_epilogue::
+	mov	rdi,QWORD PTR[8+rsp]	;WIN64 epilogue
+	mov	rsi,QWORD PTR[16+rsp]
+	DB	0F3h,0C3h		;repret
+
+$L$SEH_end_x25519_fe64_mul121666::
+x25519_fe64_mul121666	ENDP
+
+PUBLIC	x25519_fe64_add
+
+ALIGN	32
+x25519_fe64_add	PROC PUBLIC
+	mov	QWORD PTR[8+rsp],rdi	;WIN64 prologue
+	mov	QWORD PTR[16+rsp],rsi
+	mov	rax,rsp
+$L$SEH_begin_x25519_fe64_add::
+	mov	rdi,rcx
+	mov	rsi,rdx
+	mov	rdx,r8
+
+
+$L$fe64_add_body::
+
+	mov	r8,QWORD PTR[rsi]
+	mov	r9,QWORD PTR[8+rsi]
+	mov	r10,QWORD PTR[16+rsi]
+	mov	r11,QWORD PTR[24+rsi]
+
+	add	r8,QWORD PTR[rdx]
+	adc	r9,QWORD PTR[8+rdx]
+	adc	r10,QWORD PTR[16+rdx]
+	adc	r11,QWORD PTR[24+rdx]
+
+	sbb	rax,rax
+	and	rax,38
+
+	add	r8,rax
+	adc	r9,0
+	adc	r10,0
+	mov	QWORD PTR[8+rdi],r9
+	adc	r11,0
+	mov	QWORD PTR[16+rdi],r10
+	sbb	rax,rax
+	mov	QWORD PTR[24+rdi],r11
+	and	rax,38
+
+	add	r8,rax
+	mov	QWORD PTR[rdi],r8
+
+$L$fe64_add_epilogue::
+	mov	rdi,QWORD PTR[8+rsp]	;WIN64 epilogue
+	mov	rsi,QWORD PTR[16+rsp]
+	DB	0F3h,0C3h		;repret
+
+$L$SEH_end_x25519_fe64_add::
+x25519_fe64_add	ENDP
+
+PUBLIC	x25519_fe64_sub
+
+ALIGN	32
+x25519_fe64_sub	PROC PUBLIC
+	mov	QWORD PTR[8+rsp],rdi	;WIN64 prologue
+	mov	QWORD PTR[16+rsp],rsi
+	mov	rax,rsp
+$L$SEH_begin_x25519_fe64_sub::
+	mov	rdi,rcx
+	mov	rsi,rdx
+	mov	rdx,r8
+
+
+$L$fe64_sub_body::
+
+	mov	r8,QWORD PTR[rsi]
+	mov	r9,QWORD PTR[8+rsi]
+	mov	r10,QWORD PTR[16+rsi]
+	mov	r11,QWORD PTR[24+rsi]
+
+	sub	r8,QWORD PTR[rdx]
+	sbb	r9,QWORD PTR[8+rdx]
+	sbb	r10,QWORD PTR[16+rdx]
+	sbb	r11,QWORD PTR[24+rdx]
+
+	sbb	rax,rax
+	and	rax,38
+
+	sub	r8,rax
+	sbb	r9,0
+	sbb	r10,0
+	mov	QWORD PTR[8+rdi],r9
+	sbb	r11,0
+	mov	QWORD PTR[16+rdi],r10
+	sbb	rax,rax
+	mov	QWORD PTR[24+rdi],r11
+	and	rax,38
+
+	sub	r8,rax
+	mov	QWORD PTR[rdi],r8
+
+$L$fe64_sub_epilogue::
+	mov	rdi,QWORD PTR[8+rsp]	;WIN64 epilogue
+	mov	rsi,QWORD PTR[16+rsp]
+	DB	0F3h,0C3h		;repret
+
+$L$SEH_end_x25519_fe64_sub::
+x25519_fe64_sub	ENDP
+
+PUBLIC	x25519_fe64_tobytes
+
+ALIGN	32
+x25519_fe64_tobytes	PROC PUBLIC
+	mov	QWORD PTR[8+rsp],rdi	;WIN64 prologue
+	mov	QWORD PTR[16+rsp],rsi
+	mov	rax,rsp
+$L$SEH_begin_x25519_fe64_tobytes::
+	mov	rdi,rcx
+	mov	rsi,rdx
+
+
+$L$fe64_to_body::
+
+	mov	r8,QWORD PTR[rsi]
+	mov	r9,QWORD PTR[8+rsi]
+	mov	r10,QWORD PTR[16+rsi]
+	mov	r11,QWORD PTR[24+rsi]
+
+
+	lea	rax,QWORD PTR[r11*1+r11]
+	sar	r11,63
+	shr	rax,1
+	and	r11,19
+	add	r11,19
+
+	add	r8,r11
+	adc	r9,0
+	adc	r10,0
+	adc	rax,0
+
+	lea	r11,QWORD PTR[rax*1+rax]
+	sar	rax,63
+	shr	r11,1
+	not	rax
+	and	rax,19
+
+	sub	r8,rax
+	sbb	r9,0
+	sbb	r10,0
+	sbb	r11,0
+
+	mov	QWORD PTR[rdi],r8
+	mov	QWORD PTR[8+rdi],r9
+	mov	QWORD PTR[16+rdi],r10
+	mov	QWORD PTR[24+rdi],r11
+
+$L$fe64_to_epilogue::
+	mov	rdi,QWORD PTR[8+rsp]	;WIN64 epilogue
+	mov	rsi,QWORD PTR[16+rsp]
+	DB	0F3h,0C3h		;repret
+
+$L$SEH_end_x25519_fe64_tobytes::
+x25519_fe64_tobytes	ENDP
 DB	88,50,53,53,49,57,32,112,114,105,109,105,116,105,118,101
 DB	115,32,102,111,114,32,120,56,54,95,54,52,44,32,67,82
 DB	89,80,84,79,71,65,77,83,32,98,121,32,60,97,112,112
@@ -573,6 +1002,29 @@ ALIGN	4
 	DD	imagerel $L$SEH_begin_x25519_fe51_mul121666
 	DD	imagerel $L$SEH_end_x25519_fe51_mul121666
 	DD	imagerel $L$SEH_info_x25519_fe51_mul121666
+	DD	imagerel $L$SEH_begin_x25519_fe64_mul
+	DD	imagerel $L$SEH_end_x25519_fe64_mul
+	DD	imagerel $L$SEH_info_x25519_fe64_mul
+
+	DD	imagerel $L$SEH_begin_x25519_fe64_sqr
+	DD	imagerel $L$SEH_end_x25519_fe64_sqr
+	DD	imagerel $L$SEH_info_x25519_fe64_sqr
+
+	DD	imagerel $L$SEH_begin_x25519_fe64_mul121666
+	DD	imagerel $L$SEH_end_x25519_fe64_mul121666
+	DD	imagerel $L$SEH_info_x25519_fe64_mul121666
+
+	DD	imagerel $L$SEH_begin_x25519_fe64_add
+	DD	imagerel $L$SEH_end_x25519_fe64_add
+	DD	imagerel $L$SEH_info_x25519_fe64_add
+
+	DD	imagerel $L$SEH_begin_x25519_fe64_sub
+	DD	imagerel $L$SEH_end_x25519_fe64_sub
+	DD	imagerel $L$SEH_info_x25519_fe64_sub
+
+	DD	imagerel $L$SEH_begin_x25519_fe64_tobytes
+	DD	imagerel $L$SEH_end_x25519_fe64_tobytes
+	DD	imagerel $L$SEH_info_x25519_fe64_tobytes
 .pdata	ENDS
 .xdata	SEGMENT READONLY ALIGN(8)
 ALIGN	8
@@ -591,6 +1043,32 @@ DB	9,0,0,0
 	DD	imagerel full_handler
 	DD	imagerel $L$fe51_mul121666_body,imagerel $L$fe51_mul121666_epilogue
 	DD	88,0
+$L$SEH_info_x25519_fe64_mul::
+DB	9,0,0,0
+	DD	imagerel full_handler
+	DD	imagerel $L$fe64_mul_body,imagerel $L$fe64_mul_epilogue
+	DD	72,0
+$L$SEH_info_x25519_fe64_sqr::
+DB	9,0,0,0
+	DD	imagerel full_handler
+	DD	imagerel $L$fe64_sqr_body,imagerel $L$fe64_sqr_epilogue
+	DD	72,0
+$L$SEH_info_x25519_fe64_mul121666::
+DB	9,0,0,0
+	DD	imagerel short_handler
+	DD	imagerel $L$fe64_mul121666_body,imagerel $L$fe64_mul121666_epilogue
+$L$SEH_info_x25519_fe64_add::
+DB	9,0,0,0
+	DD	imagerel short_handler
+	DD	imagerel $L$fe64_add_body,imagerel $L$fe64_add_epilogue
+$L$SEH_info_x25519_fe64_sub::
+DB	9,0,0,0
+	DD	imagerel short_handler
+	DD	imagerel $L$fe64_sub_body,imagerel $L$fe64_sub_epilogue
+$L$SEH_info_x25519_fe64_tobytes::
+DB	9,0,0,0
+	DD	imagerel short_handler
+	DD	imagerel $L$fe64_to_body,imagerel $L$fe64_to_epilogue
 
 .xdata	ENDS
 END

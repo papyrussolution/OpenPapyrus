@@ -512,6 +512,7 @@ private:
 	int    SCardPaymEntryN;    // @v10.6.2 PPINIPARAM_SHTRIHFRSCARDPAYMENTRY Регистр аппарата, в который заносится оплата по корпоративной карте [1..16]
 	long   CheckStrLen;        //
 	long   Flags;              //
+	SVerT  ProtocolVer;        // @v11.7.11 @!ConnectFR()
 	uint   RibbonParam;        //
 	SString AdmName;           // Имя сист.администратора
 };
@@ -1216,7 +1217,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		if(_fiscal != 0.0) {
 			// @v11.7.2 {
-			if(ExtMethodsFlags & extmethfFNCloseCheckEx) {
+			if(ExtMethodsFlags & extmethfFNCloseCheckEx && ProtocolVer.IsGe(5, 0, 0)) { // @v11.7.11 (&& ProtocolVer.IsGt(5, 0, 0))
 				THROW(ExecFRPrintOper(FNCloseCheckEx));
 			} // } @v11.7.2 
 			else if(ExtMethodsFlags & extmethfCloseCheckEx) { // @v10.6.3
@@ -2399,6 +2400,7 @@ int SCS_SHTRIHFRF::ConnectFR()
 		THROW(GetFR(UModel, &model_type));
 		THROW(GetFR(UMajorProtocolVersion, &major_prot_ver));
 		THROW(GetFR(UMinorProtocolVersion, &minor_prot_ver));
+		ProtocolVer.Set(major_prot_ver, minor_prot_ver, 0); // @v11.7.11
 		if(oneof2(model_type, SHTRIH_FRF, SHTRIH_FRK))
 			DeviceType = devtypeShtrih;
 		else if(oneof2(model_type, SHTRIH_MINI_FRK, SHTRIH_MINI_FRK_V2))
@@ -2494,6 +2496,12 @@ bool SCS_SHTRIHFRF::GetFR(int id, int * pBuf)
 		}
 		else if(id == ECRAdvancedMode) {
 			LogDebug("GetProperty(ECRAdvancedMode) result", -1, temp_buf.Z().Cat(*pBuf)); 
+		}
+		else if(id == UMajorProtocolVersion) { // @v11.7.11
+			LogDebug("GetProperty(UMajorProtocolVersion) result", -1, temp_buf.Z().Cat(*pBuf)); 
+		}
+		else if(id == UMinorProtocolVersion) { // @v11.7.11
+			LogDebug("GetProperty(UMajorProtocolVersion) result", -1, temp_buf.Z().Cat(*pBuf)); 
 		}
 	}
 	// } @v11.6.12 
@@ -2830,7 +2838,7 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 						{
 							const uint code_len = sstrlen(pCode);
 							temp_buf.Z();
-							for(uint cidx = 0; cidx < code_len; cidx < code_len) {
+							for(uint cidx = 0; cidx < code_len; cidx++) { // @v11.7.11 @fix (я - долбоеб. это - точно!) (cidx < code_len)-->cidx++
 								temp_buf.CatHex(static_cast<uint8>(pCode[cidx]));
 							}
 							THROW(SetFR(BarcodeHex, temp_buf));

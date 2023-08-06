@@ -920,7 +920,7 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 			if(ssh_buffer_get_u64(buf, &attr->size) != 8) {
 				break;
 			}
-			attr->size = ntohll(attr->size);
+			attr->size = /*ntohll*/SMem::CBe(attr->size);
 		}
 		if(flags & SSH_FILEXFER_ATTR_OWNERGROUP) {
 			owner = ssh_buffer_get_ssh_string(buf);
@@ -963,7 +963,7 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 			if(ssh_buffer_get_u64(buf, &attr->atime64) != 8) {
 				break;
 			}
-			attr->atime64 = ntohll(attr->atime64);
+			attr->atime64 = /*ntohll*/SMem::CBe(attr->atime64);
 			if(flags & SSH_FILEXFER_ATTR_SUBSECOND_TIMES) {
 				if(ssh_buffer_get_u32(buf, &attr->atime_nseconds) != 4) {
 					break;
@@ -975,7 +975,7 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 			if(ssh_buffer_get_u64(buf, &attr->createtime) != 8) {
 				break;
 			}
-			attr->createtime = ntohll(attr->createtime);
+			attr->createtime = /*ntohll*/SMem::CBe(attr->createtime);
 			if(flags & SSH_FILEXFER_ATTR_SUBSECOND_TIMES) {
 				if(ssh_buffer_get_u32(buf, &attr->createtime_nseconds) != 4) {
 					break;
@@ -987,7 +987,7 @@ static sftp_attributes sftp_parse_attr_4(sftp_session sftp, ssh_buffer buf, int 
 			if(ssh_buffer_get_u64(buf, &attr->mtime64) != 8) {
 				break;
 			}
-			attr->mtime64 = ntohll(attr->mtime64);
+			attr->mtime64 = /*ntohll*/SMem::CBe(attr->mtime64);
 			if(flags & SSH_FILEXFER_ATTR_SUBSECOND_TIMES) {
 				if(ssh_buffer_get_u32(buf, &attr->mtime_nseconds) != 4) {
 					break;

@@ -883,7 +883,7 @@ FORCE_INLINE_TEMPLATE void HUF_flushBits(HUF_CStream_t* bitC, int kFast)
 	assert(nbBits > 0);
 	assert(nbBits <= sizeof(bitC->bitContainer[0]) * 8);
 	assert(bitC->ptr <= bitC->endPtr);
-	MEM_writeLEST(bitC->ptr, bitContainer);
+	/*MEM_writeLEST*/SMem::PutLe(bitC->ptr, bitContainer);
 	bitC->ptr += nbBytes;
 	assert(!kFast || bitC->ptr <= bitC->endPtr);
 	if(!kFast && bitC->ptr > bitC->endPtr) bitC->ptr = bitC->endPtr;
@@ -1103,7 +1103,7 @@ static size_t HUF_compress4X_usingCTable_internal(void * dst, size_t dstSize, co
 		CHECK_V_F(cSize, HUF_compress1X_usingCTable_internal(op, (size_t)(oend-op), ip, segmentSize, CTable, bmi2) );
 	    if(cSize == 0 || cSize > 65535) 
 			return 0;
-	    MEM_writeLE16(ostart, (uint16)cSize);
+	    SMem::PutLe(ostart, (uint16)cSize);
 	    op += cSize;
 	}
 	ip += segmentSize;
@@ -1112,7 +1112,7 @@ static size_t HUF_compress4X_usingCTable_internal(void * dst, size_t dstSize, co
 		CHECK_V_F(cSize, HUF_compress1X_usingCTable_internal(op, (size_t)(oend-op), ip, segmentSize, CTable, bmi2) );
 	    if(cSize == 0 || cSize > 65535) 
 			return 0;
-	    MEM_writeLE16(ostart+2, (uint16)cSize);
+	    SMem::PutLe(ostart+2, (uint16)cSize);
 	    op += cSize;
 	}
 	ip += segmentSize;
@@ -1121,7 +1121,7 @@ static size_t HUF_compress4X_usingCTable_internal(void * dst, size_t dstSize, co
 		CHECK_V_F(cSize, HUF_compress1X_usingCTable_internal(op, (size_t)(oend-op), ip, segmentSize, CTable, bmi2) );
 	    if(cSize == 0 || cSize > 65535) 
 			return 0;
-	    MEM_writeLE16(ostart+4, (uint16)cSize);
+	    SMem::PutLe(ostart+4, (uint16)cSize);
 	    op += cSize;
 	}
 	ip += segmentSize;

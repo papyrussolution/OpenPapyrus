@@ -401,7 +401,8 @@ static void installDirs(xmlNodePtr tst, const xmlChar * base) {
 	xmlFree(res);
 }
 
-static int xsdTestCase(xmlNodePtr tst) {
+static int xsdTestCase(xmlNodePtr tst) 
+{
 	xmlNodePtr test, tmp, cur;
 	xmlBufferPtr buf;
 	xmlDocPtr doc = NULL;
@@ -485,11 +486,9 @@ static int xsdTestCase(xmlNodePtr tst) {
 			 */
 			mem = xmlMemUsed();
 			extraMemoryFromResolver = 0;
-			doc = xmlReadMemory((const char *)buf->content, buf->use,
-				"test", NULL, 0);
+			doc = xmlReadMemory((const char *)buf->content, buf->use, "test", NULL, 0);
 			if(doc == NULL) {
-				test_log("Failed to parse valid instance line %ld\n",
-				    xmlGetLineNo(tmp));
+				test_log("Failed to parse valid instance line %ld\n", xmlGetLineNo(tmp));
 				nb_errors++;
 			}
 			else {
@@ -502,21 +501,18 @@ static int xsdTestCase(xmlNodePtr tst) {
 				ret = xmlRelaxNGValidateDoc(ctxt, doc);
 				xmlRelaxNGFreeValidCtxt(ctxt);
 				if(ret > 0) {
-					test_log("Failed to validate valid instance line %ld\n",
-					    xmlGetLineNo(tmp));
+					test_log("Failed to validate valid instance line %ld\n", xmlGetLineNo(tmp));
 					nb_errors++;
 				}
 				else if(ret < 0) {
-					test_log("Internal error validating instance line %ld\n",
-					    xmlGetLineNo(tmp));
+					test_log("Internal error validating instance line %ld\n", xmlGetLineNo(tmp));
 					nb_errors++;
 				}
 				xmlFreeDoc(doc);
 			}
 			xmlResetLastError();
 			if((mem != xmlMemUsed()) && (extraMemoryFromResolver == 0)) {
-				test_log("Validation of instance line %ld leaked %d\n",
-				    xmlGetLineNo(tmp), xmlMemUsed() - mem);
+				test_log("Validation of instance line %ld leaked %d\n", xmlGetLineNo(tmp), xmlMemUsed() - mem);
 				xmlMemoryDump();
 				nb_leaks++;
 			}

@@ -195,7 +195,7 @@ cairo_path_t * _cairo_path_create_in_error(cairo_status_t status)
 	/* special case NO_MEMORY so as to avoid allocations */
 	if(status == CAIRO_STATUS_NO_MEMORY)
 		return (cairo_path_t*)&_cairo_path_nil;
-	path = (cairo_path_t *)_cairo_malloc(sizeof(cairo_path_t));
+	path = (cairo_path_t *)SAlloc::M_zon0(sizeof(cairo_path_t));
 	if(UNLIKELY(path == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_path_t*)&_cairo_path_nil;
@@ -208,7 +208,7 @@ cairo_path_t * _cairo_path_create_in_error(cairo_status_t status)
 
 static cairo_path_t * _cairo_path_create_internal(cairo_path_fixed_t * path_fixed, cairo_t * cr, boolint flatten)
 {
-	cairo_path_t * path = static_cast<cairo_path_t *>(_cairo_malloc(sizeof(cairo_path_t)));
+	cairo_path_t * path = static_cast<cairo_path_t *>(SAlloc::M_zon0(sizeof(cairo_path_t)));
 	if(UNLIKELY(path == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_path_t*)&_cairo_path_nil;

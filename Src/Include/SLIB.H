@@ -164,10 +164,6 @@
 	// } @v11.3.10 
 	// @v10.3.10 #define pow10l(x) pow(10,(x))
 	// @v10.3.10 #define pow10(x)  pow(10,(x))
-	#define MAXDRIVE   3
-	#define MAXFILE  257
-	#define MAXEXT     5
-	#define MAXDIR   257
 	// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed  261
 #endif // _WIN32
 #ifndef SLIB_DONT_UNDEF_MINMAX // @v11.1.11
@@ -1363,6 +1359,9 @@ public:
 	static constexpr long   OneBillion = 1000000000L; // @v11.7.6
 	static constexpr const char * P_HxDigL = "0123456789abcdef";
 	static constexpr const char * P_HxDigU = "0123456789ABCDEF";
+	static constexpr uint16 CrcPoly_ANSI16  = 0xA001;
+	static constexpr uint16 CrcPoly_CCITT16 = 0x1021;
+	static constexpr uint32 CrcPoly_CCITT32 = 0xEDB88320U;
 };
 
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
@@ -2485,15 +2484,31 @@ enum SEOLFormat {
 //
 //
 //
-class SHandle {
+class SIntHandle {
 public:
-	SHandle() : P(0)
+	static bool IsValid(HANDLE h) { return (reinterpret_cast<uintptr_t>(h) != -1); }
+	static bool IsInvalid(HANDLE h) { return (reinterpret_cast<uintptr_t>(h) == -1); }
+	SIntHandle() : H(static_cast<uintptr_t>(-1))
 	{
 	}
-	explicit SHandle(void * ptr) : P(ptr)
+	SIntHandle(HANDLE h) : H(reinterpret_cast<uintptr_t>(h))
 	{
 	}
-	SHandle & operator = (void * ptr)
+	bool operator !() const { return (H == static_cast<uintptr_t>(-1)); }
+	operator HANDLE() const { return reinterpret_cast<HANDLE>(H); }
+private:
+	uintptr_t H;
+};
+
+class SPtrHandle {
+public:
+	SPtrHandle() : P(0)
+	{
+	}
+	explicit SPtrHandle(void * ptr) : P(ptr)
+	{
+	}
+	SPtrHandle & operator = (void * ptr)
 	{
 		P = ptr;
 		return *this;
@@ -4529,6 +4544,7 @@ public:
 	SString & CatEq(const char * pKey, int64 val);
 	SString & CatEq(const char * pKey, uint64 val);
 	SString & CatEq(const char * pKey, double val, long fmt = SFMT_QTTY);
+	SString & CatEq(const char * pKey, const S_GUID_Base & rVal, long fmt = S_GUID_Base::fmtIDL);
 	SString & CatEq(const char * pKey, LDATE val, long fmt = DATF_DMY|DATF_CENTURY);
 	SString & CatEq(const char * pKey, LTIME val, long fmt = TIMF_HMS);
 	SString & CatEq(const char * pKey, LDATETIME val, long dtFmt = DATF_DMY|DATF_CENTURY, long tmFmt = TIMF_HMS);
@@ -4668,6 +4684,8 @@ public:
 	const wchar_t * ucptr() const { return P_Buf; }
 	SStringU & FASTCALL operator = (const SStringU &);
 	SStringU & FASTCALL operator = (const wchar_t *);
+	bool   IsEmpty() const { return Len() == 0; }
+	bool   NotEmpty() const { return !IsEmpty(); }
 	bool   FASTCALL IsEq(const SStringU & rS) const;
 	bool   FASTCALL IsEq(const wchar_t * pS) const;
 	int    FASTCALL Cmp(const SStringU & rS) const;
@@ -4682,7 +4700,9 @@ public:
 	//
 	// Descr: Определяет факт наличия в строке this символа c.
 	//
-	int    FASTCALL HasChr(wchar_t c) const;
+	bool   FASTCALL HasChr(wchar_t c) const;
+	const  wchar_t * SearchCharPos(size_t startPos, int c, size_t * pPos) const;
+	const  wchar_t * SearchChar(int c, size_t * pPos) const;
 	int    Search(const wchar_t * pPattern, size_t startPos, size_t * pPos) const;
 	SStringU & Z();
 	wchar_t Last() const;
@@ -4730,6 +4750,7 @@ public:
 	int    AnalyzeCase() const;
 	long   ToLong() const;
 	int64  ToInt64() const;
+	int    Divide(int divChr, SStringU & rLeft, SStringU & rRight) const;
 	//
 	bool   Ensure(uint sz); // @internal
 private:
@@ -6105,11 +6126,11 @@ void   FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize);
 //
 // Descr: Меняет порядок байтов двухбайтового слова
 //
-uint16 FASTCALL swapw(uint16);
+FORCEINLINE uint16 swapw(uint16 w) { return ((w>>8) | (w<<8)); }
 //
 // Descr: Меняет местами слова в двойном слове dw
 //
-uint32 FASTCALL swapdw(uint32 dw);
+FORCEINLINE uint32 swapdw(uint32 dw) { return (((dw & 0xffff0000U) >> 16) | ((dw & 0x0000ffffU) << 16)); }
 //
 //
 //
@@ -6142,6 +6163,197 @@ FORCEINLINE uint64 sbswap64_fallback(uint64 n)
 	FORCEINLINE uint32 sbswap32(uint32 n) { return sbswap32_fallback(n); }
 	FORCEINLINE uint64 sbswap64(uint64 n) { return sbswap64_fallback(n); }
 #endif
+//
+#ifndef SMEM_UNALINEDACCESS
+	//
+	// Макро-константа, определяющая способ доступа к памяти методами SMem::Get, SMem::Put
+	//   0 - консервативный: посредством memcpy
+	//   1 - специальный метод, использующий упакованную структуру
+	//   2 - прямой: данные без дополнительных преобразований передаются получателю
+	//  Подробности здесь: http://fastcompression.blogspot.com/2015/08/accessing-unaligned-memory.html
+	//  Так же, некоторые соображения можно почерпнуть из комментариев в zstd, xxhash, lzma
+	//
+	#define SMEM_UNALINEDACCESS 0
+#endif
+//
+// Descr: Подборка низкоуровневых функций для работы с памятью.
+//   Мотивацией для создания этого класса является неистребимое желание 
+//   унифицировать бесконечные однотипные функции в разных компонентах системы.
+// 
+class SMem { // @v11.7.11 @construction
+public:
+	//
+	// Функции с сигнатурой BSwap меняют порядок байт в 2-х, 4-х и 8-ми байтовых беззнаковых значениях
+	// для преодоления различия между little- и big-endian порядками следования байтов.
+	// Все эти функции циклически-обратимы с периодом в 2 такта. То есть, BSwap(BSwap(x)) == x.
+	// Функции с сигнатурой BSwap_fallback реализуют функционал BSwap переносимым образом, то есть
+	// без использования специальных ассемблерных или зависимых от компилятора или операционной системы,
+	// методов. В связи с этим, функции BSwap_fallback() могут быть медленнее (что не обязательно) соответствующих
+	// аналогов BSwap().
+	//
+	static FORCEINLINE uint16 BSwap_fallback(uint16 v) 
+		{ return static_cast<uint16>(((v & 0x00FFU) << 8) | ((v & 0xFF00U) >> 8)); }
+	static FORCEINLINE uint   BSwap_fallback(uint v) 
+		{ return static_cast<uint>(((v & 0x000000FFU) << 24) | ((v & 0x0000FF00U) << 8) | ((v & 0x00FF0000U) >> 8) | ((v & 0xFF000000U) >> 24)); }
+	static FORCEINLINE uint64 BSwap_fallback(uint64 v)
+	{
+		return static_cast<uint64>(((v & 0x00000000000000FFULL) << 56) | ((v & 0x000000000000FF00ULL) << 40) |
+			((v & 0x0000000000FF0000ULL) << 24) | ((v & 0x00000000FF000000ULL) << 8) | ((v & 0x000000FF00000000ULL) >> 8) |
+			((v & 0x0000FF0000000000ULL) >> 24) | ((v & 0x00FF000000000000ULL) >> 40) | ((v & 0xFF00000000000000ULL) >> 56));
+	}
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	#pragma intrinsic(_byteswap_ushort)
+	#pragma intrinsic(_byteswap_ulong)
+	#pragma intrinsic(_byteswap_uint64)
+	static FORCEINLINE uint16 BSwap(uint16 n) { return _byteswap_ushort(n); }
+	static FORCEINLINE uint   BSwap(uint n) { return _byteswap_ulong(n); }
+	static FORCEINLINE uint64 BSwap(uint64 n) { return _byteswap_uint64(n); }
+#elif defined(__GNUC__) && ((__GNUC__ == 4 && __GNUC_MINOR__ >= 8) || __GNUC__ > 4) // GCC 4.8 and later has __builtin_bswapXX() 
+	static FORCEINLINE uint16 BSwap(uint16 n) { return __builtin_bswap16(n); }
+	static FORCEINLINE uint   BSwap(uint n) { return __builtin_bswap32(n); }
+	static FORCEINLINE uint64 BSwap(uint64 n) { return __builtin_bswap64(n); }
+#elif defined(__clang__) // All clang versions have __builtin_bswapXX()
+	static FORCEINLINE uint16 BSwap(uint16 n) { return __builtin_bswap16(n); }
+	static FORCEINLINE uint   BSwap(uint n) { return __builtin_bswap32(n); }
+	static FORCEINLINE uint64 BSwap(uint64 n) { return __builtin_bswap64(n); }
+#else
+	static FORCEINLINE uint16 BSwap(uint16 n) { return BSwap_fallback(n); }
+	static FORCEINLINE uint   BSwap(uint n) { return BSwap_fallback(n); }
+	static FORCEINLINE uint64 BSwap(uint64 n) { return BSwap_fallback(n); }
+#endif
+	//
+	// Функции с сигнатурой GetXX() предназначены для безопасного считывания из памяти 
+	// 2-х, 4-х и 8-ми байтовых беззнаковых значений, расположенных, в общем случае,
+	// по невыровненным указателям (аргумент p функций).
+	// Так как спецификация этих функций имеет только один аргумент с независящим от возвращаемого
+	// значения типом, то в наименования таких функкций добавлен суффикс, определяющих ширину
+	// аргумента в битах (Get16, Get32 и Get64).
+	// 
+	// Функции с сигнатурой Put() предназначены для безопасной записи в память по, в общем случае,
+	// невыровненному адресу 2-х, 4-х и 8-ми байтовых беззнаковых значений.
+	// Так как такие функции содержат тип перемещаемых данных, то наименование функций одно и то же
+	// для всех типов. Обратим внимание, что существуют отдельные функции с типами uint и ulong
+	// с тем, что бы компилятор не сталкивался с неоднозначностью.
+	//
+#if SMEM_UNALINEDACCESS==2
+	static FORCEINLINE uint16 Get16(const void * p) { return static_cast<uint16 *>(p); }
+	static FORCEINLINE uint32 Get32(const void * p) { return static_cast<uint32 *>(p); }
+	static FORCEINLINE uint64 Get64(const void * p) { return static_cast<uint64 *>(p); }
+	static FORCEINLINE void   Put(void * p, uint16 v) { *static_cast<uint16 *>(p) = v; }
+	static FORCEINLINE void   Put(void * p, uint v)   { *static_cast<uint *>(p) = v; }
+	static FORCEINLINE void   Put(void * p, uint64 v) { *static_cast<uint64 *>(p) = v; }
+#ielf SMEM_UNALINEDACCESS==1
+	// __pack instructions are safer, but compiler specific, hence potentially problematic for some compilers 
+	// currently only defined for gcc and icc 
+	typedef union { uint16 u16; uint32 u32; uint64 u64; size_t st; } __attribute__((packed)) unalign;
+
+	static FORCEINLINE uint16 Get16(const void * p) { return static_cast<const unalign *>(ptr)->u16; }
+	static FORCEINLINE uint32 Get32(const void * p) { return static_cast<const unalign *>(ptr)->u32; }
+	static FORCEINLINE uint64 Get64(const void * p) { return static_cast<const unalign *>(ptr)->u64; }
+#else // SMEM_UNALINEDACCESS undefined or ==0
+	static FORCEINLINE uint16 Get16(const void * p)
+	{
+		uint16 v; 
+		memcpy(&v, p, sizeof(v));
+		return v;
+	}
+	static FORCEINLINE uint32 Get32(const void * p)
+	{
+		uint32 v; 
+		memcpy(&v, p, sizeof(v));
+		return v;
+	}
+	static FORCEINLINE uint64 Get64(const void * p)
+	{
+		uint64 v; 
+		memcpy(&v, p, sizeof(v));
+		return v;
+	}
+	static FORCEINLINE void   Put(void * p, uint16 v) { memcpy(p, &v, sizeof(v)); }
+	static FORCEINLINE void   Put(void * p, uint v)   { memcpy(p, &v, sizeof(v)); }
+	static FORCEINLINE void   Put(void * p, uint64 v) { memcpy(p, &v, sizeof(v)); }
+#endif
+	//
+	// Сигнатуры CBe и CLe используются для функций, преобразующих, соответственно,
+	// big-endian и little-endian значения к формату, используемом на машине, которая //
+	// исполняет код.
+	//
+#ifdef SL_LITTLEENDIAN
+	static FORCEINLINE uint16 CBe(uint16 v) { return BSwap(v); }
+	static FORCEINLINE uint   CBe(uint v)   { return BSwap(v); }
+	static FORCEINLINE ulong  CBe(ulong v)  { return BSwap(v); }
+	static FORCEINLINE uint64 CBe(uint64 v) { return BSwap(v); }
+	
+	static FORCEINLINE uint16 CLe(uint16 v) { return v; }
+	static FORCEINLINE uint   CLe(uint v)   { return v; }
+	static FORCEINLINE ulong  CLe(ulong v)  { return v; }
+	static FORCEINLINE uint64 CLe(uint64 v) { return v; }
+
+	static FORCEINLINE uint16 GetLe16(const void * p) { return Get16(p); }
+	static FORCEINLINE uint32 GetLe32(const void * p) { return Get32(p); }
+	static FORCEINLINE uint64 GetLe64(const void * p) { return Get64(p); }
+	static FORCEINLINE uint16 GetBe16(const void * p) { return BSwap(Get16(p)); }
+	static FORCEINLINE uint32 GetBe32(const void * p) { return BSwap(Get32(p)); }
+	static FORCEINLINE uint64 GetBe64(const void * p) { return BSwap(Get64(p)); }
+
+	static FORCEINLINE void   PutLe(void * p, uint16 v) { Put(p, v); }
+	static FORCEINLINE void   PutLe(void * p, uint v) { Put(p, v); }
+	static FORCEINLINE void   PutLe(void * p, uint64 v) { Put(p, v); }
+	static FORCEINLINE void   PutBe(void * p, uint16 v) { Put(p, BSwap(v)); }
+	static FORCEINLINE void   PutBe(void * p, uint v) { Put(p, BSwap(v)); }
+	static FORCEINLINE void   PutBe(void * p, uint64 v) { Put(p, BSwap(v)); }
+#else
+	static FORCEINLINE uint16 CBe(uint16 v) { return v; }
+	static FORCEINLINE uint   CBe(uint v)   { return v; }
+	static FORCEINLINE ulong  CBe(ulong v)  { return v; }
+	static FORCEINLINE uint64 CBe(uint64 v) { return v; }
+	
+	static FORCEINLINE uint16 CLe(uint16 v) { return BSwap(v); }
+	static FORCEINLINE uint   CLe(uint v)   { return BSwap(v); }
+	static FORCEINLINE ulong  CLe(ulong v)  { return BSwap(v); }
+	static FORCEINLINE uint64 CLe(uint64 v) { return BSwap(v); }
+
+	static FORCEINLINE uint16 GetLe16(const void * p) { return BSwap(Get16(p)); }
+	static FORCEINLINE uint32 GetLe32(const void * p) { return BSwap(Get32(p)); }
+	static FORCEINLINE uint64 GetLe64(const void * p) { return BSwap(Get64(p)); }
+	static FORCEINLINE uint16 GetBe16(const void * p) { return Get16(p); }
+	static FORCEINLINE uint32 GetBe32(const void * p) { return Get32(p); }
+	static FORCEINLINE uint64 GetBe64(const void * p) { return Get64(p); }
+
+	static FORCEINLINE void   PutLe(void * p, uint16 v) { Put(p, BSwap(v)); }
+	static FORCEINLINE void   PutLe(void * p, uint v) { Put(p, BSwap(v)); }
+	static FORCEINLINE void   PutLe(void * p, uint64 v) { Put(p, BSwap(v)); }
+	static FORCEINLINE void   PutBe(void * p, uint16 v) { Put(p, v); }
+	static FORCEINLINE void   PutBe(void * p, uint v) { Put(p, v); }
+	static FORCEINLINE void   PutBe(void * p, uint64 v) { Put(p, v); }
+#endif
+	static FORCEINLINE void * Cpy(void * pDest, const void * pSrc, size_t size) { return A_memcpy(pDest, pSrc, size); }
+	static FORCEINLINE void * Mov(void * pDest, const void * pSrc, size_t size) { return A_memmove(pDest, pSrc, size); }
+	static FORCEINLINE int    Cmp(const void * p1, const void * p2, size_t size) { return A_memcmp(p1, p2, size); }
+	static FORCEINLINE void * Set(void * p, int c, size_t size) { return A_memset(p, c, size); }
+	static FORCEINLINE void * Zero(void * p, size_t size) { return memzero(p, size); }
+	static void * Ff(void * p, size_t size);
+
+	static void * Obfuscate(void * p, size_t size);
+	//
+	// Для типа ulong - дополнительные перегрузки функций с тем, чтобы везде в кодах ulong трактовался как uint32.
+	//
+	static FORCEINLINE ulong  BSwap_fallback(ulong v) { return BSwap_fallback(static_cast<uint>(v)); }
+	static FORCEINLINE ulong  BSwap(ulong v) { return BSwap(static_cast<uint>(v)); }
+#if __SL_PLATFORM_BIT == 64
+	static FORCEINLINE size_t GetSizeT(const void * p) { return static_cast<size_t>(Get64(p)); }
+	static FORCEINLINE size_t GetLeSizeT(const void * p) { return static_cast<size_t>(GetLe64(p)); }
+	static FORCEINLINE size_t GetBeSizeT(const void * p) { return static_cast<size_t>(GetBe64(p)); }
+#else
+	static FORCEINLINE size_t GetSizeT(const void * p) { return static_cast<size_t>(Get32(p)); }
+	static FORCEINLINE size_t GetLeSizeT(const void * p) { return static_cast<size_t>(GetLe32(p)); }
+	static FORCEINLINE size_t GetBeSizeT(const void * p) { return static_cast<size_t>(GetBe32(p)); }
+#endif
+	static FORCEINLINE void   Put(void * p, int v) { Put(p, static_cast<uint>(v)); }
+	static FORCEINLINE void   Put(void * p, ulong v) { Put(p, static_cast<uint>(v)); }
+	static FORCEINLINE void   PutLe(void * p, ulong v) { PutLe(p, static_cast<uint>(v)); }
+	static FORCEINLINE void   PutBe(void * p, ulong v) { PutBe(p, static_cast<uint>(v)); }
+};
 //
 // Descr: Находит самый старший установленный бит (MSB) в x.
 // Returns:
@@ -7379,8 +7591,15 @@ uint8  FASTCALL bitscanforward(ulong * pIdx, uint32 mask);
 uint8  FASTCALL bitscanreverse(uint * pIdx, uint32 mask);
 uint8  FASTCALL bitscanreverse(ulong * pIdx, uint32 mask);
 
-class SBits { // @v11.7.10 @construction
+class SBits { // @v11.7.10
 public:
+	static uint FASTCALL Bsf_fallback(uint v);
+	static uint FASTCALL Bsf_fallback(uint64 v);
+	static uint FASTCALL Bsr_fallback(uint v);
+	static uint FASTCALL Bsr_fallback(uint64 v);
+	static FORCEINLINE uint Bsf_fallback(ulong v) { return Bsf_fallback((uint)v); }
+	static FORCEINLINE uint Bsr_fallback(ulong v) { return Bsr_fallback((uint)v); }
+
 	static uint FASTCALL Ctz_fallback(uint32 v);
 	static uint FASTCALL Ctz_fallback(uint64 v);
 	static uint FASTCALL Clz_fallback(uint32 v);
@@ -8173,6 +8392,70 @@ template <class T> int TSCollection_Copy(TSCollection <T> & rDest, const TSColle
 	}
 	return 1;
 }
+//
+// Descr: Сопоставляет две коллекции pC1 и pC2 на предмет равенства.
+//   Коллекции считаются равными если:
+//   -- оба указателя pC1 и pC2 нулевые ИЛИ
+//   -- количество элементов в pC1 равно количеству элементов в pC2 И для каждого элемента в pC1 есть равный (в соответствии с 
+//     оператором T::operator == (const T &)) в коллекции pC2 и наоборот для каждого элемента в pC2 есть равный в коллекции pC1.
+//     Если какой-либо элемент в коллекции является нулевым (nullptr-указатель), то наличие в другой коллекции аналогичного
+//     элемента означает наличие соответствия.
+// Returns:
+//     true - коллекции, на которые указывают pC1 и pC2 равны в соответствии с указанными выше критериями.
+//     false - коллекции, на которые указывают pC1 и pC2 не равны.
+//
+template <class T> bool TSCollection_IsEq(const TSCollection <T> * pC1, const TSCollection <T> * pC2)
+{
+	bool   eq = true;
+	if(pC1) {
+		if(!pC2)
+			eq = false;
+		else {
+			const uint _c = pC1->getCount();
+			if(_c != pC2->getCount())
+				eq = false;
+			else {
+				{
+					for(uint i = 0; eq && i < _c; i++) {
+						const T * p1 = pC1->at(i);
+						bool found = false;
+						for(uint j = 0; !found && j < _c; j++) {
+							const T * p2 = pC2->at(j);
+							if(p1 && p2) {
+								if(*p1 == *p2)
+									found = true;
+							}
+							else if(!p1 && !p2)
+								found = true;
+						}
+						if(!found)
+							eq = false;
+					}
+				}
+				{
+					for(uint i = 0; eq && i < _c; i++) {
+						const T * p1 = pC2->at(i);
+						bool found = false;
+						for(uint j = 0; !found && j < _c; j++) {
+							const T * p2 = pC1->at(j);
+							if(p1 && p2) {
+								if(*p1 == *p2)
+									found = true;
+							}
+							else if(!p1 && !p2)
+								found = true;
+						}
+						if(!found)
+							eq = false;
+					}
+				}
+			}
+		}
+	}
+	else if(pC2)
+		eq = false;
+	return eq;
+}
 
 template <class T> int TSDupPtr(T ** ppDest, T * pSrc)
 {
@@ -8219,6 +8502,23 @@ public:
 	T &    FASTCALL pop() { return *static_cast<T *>(SQueue::pop()); }
 	T &    FASTCALL peek() const { return *static_cast<T *>(SQueue::peek()); }
 	T &    FASTCALL get(uint p) const { return *static_cast<T *>(SQueue::get(p)); }
+};
+//
+// Descr: Суффиксный массив
+//
+class SaIndex {
+	static int Cmp(const int32 * pSaIdx_, const SString * pPattern_, const SString * pBuf);
+	static IMPL_CMPFUNC(SaIndexEntry, pSaIdx, pPattern);
+public:
+	SaIndex();
+	SaIndex(const char * pText, size_t textLen);
+	~SaIndex();
+	int    Build();
+	uint   Search_fallback(const char * pPattern, LongArray * pPosList) const;
+	uint   Search(const char * pPattern, LongArray * pPosList) const;
+
+	SString Text;
+	TSVector <int32> Sa; // suffix array  
 };
 //
 // Descr: Шаблон для револьверных структур, обеспечивающих повторное использование
@@ -9043,7 +9343,7 @@ private:
 			int    FASTCALL Copy(const BaseList & rS);
 			uint   GetCount() const;
 			uint   GetDepth() const;
-			bool   Implement_Get_Unsafe(SHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const;
+			bool   Implement_Get_Unsafe(SPtrHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const;
 			//
 			// Descr: Реализует вставку в конец вектора нового элемента с идентификатором key и позицией строки strP.
 			// Returns:
@@ -9085,7 +9385,7 @@ private:
 	};
 public:
 	//
-	// Заметки по поводу операций, базирующихся на SHandle:
+	// Заметки по поводу операций, базирующихся на SPtrHandle:
 	// 1. Физически, handle это - указатель на ENTRY
 	// 2. Как следствие, при изменениях дерева (включение новых элементов, удаление существующих) эти манипуляторы могут стать инвалидными
 	//
@@ -9097,24 +9397,24 @@ public:
 	uint   GetCount() const;
 	bool   HasChildren(long id) const;
 	bool   Search(long id, long * pParentId, SString * pBuf) const;
-	SHandle FASTCALL Search(long id) const;
-	SHandle SearchByText(const char * pTxt, int ignoreCase) const;
-	bool   SearchByText(const char * pTxt, CompFunc fcmp, TSVector <SHandle> & rList) const;
+	SPtrHandle FASTCALL Search(long id) const;
+	SPtrHandle SearchByText(const char * pTxt, int ignoreCase) const;
+	bool   SearchByText(const char * pTxt, CompFunc fcmp, TSVector <SPtrHandle> & rList) const;
 	//
 	// Методы получения атрибутов узла дерева по манипулятору
 	//
-	bool   Get_Unsafe(SHandle h, long * pId, long * pParentId, SString * pBuf) const;
-	bool   HasNodeChildren(SHandle h) const;
-	bool   SetNodeExtraPtr(SHandle h, uintptr_t extraPtr);
-	uintptr_t GetNodeExtraPtr(SHandle h) const;
-	int32  GetNodeKey(SHandle h) const;
-	SString & GetNodeString(SHandle h, SString & rBuf) const;
-	uint   GetNodeFlags(SHandle h) const;
+	bool   Get_Unsafe(SPtrHandle h, long * pId, long * pParentId, SString * pBuf) const;
+	bool   HasNodeChildren(SPtrHandle h) const;
+	bool   SetNodeExtraPtr(SPtrHandle h, uintptr_t extraPtr);
+	uintptr_t GetNodeExtraPtr(SPtrHandle h) const;
+	int32  GetNodeKey(SPtrHandle h) const;
+	SString & GetNodeString(SPtrHandle h, SString & rBuf) const;
+	uint   GetNodeFlags(SPtrHandle h) const;
 	//
 	// Descr: Возвращает глубину вложенности вниз элемента h (включая его самого).
 	//   Если h == 0, то возвращает глубину вложенности всего дерева.
 	//
-	uint   GetDepth(SHandle h) const;
+	uint   GetDepth(SPtrHandle h) const;
 	//
 	// Descr: Формирует полный список ключевых идентификаторов, хранящихся в дереве.
 	//  Порядок обхода элементов дерева - в глубину: перебираются элементы корневого уровня и для каждого элемента,
@@ -9124,7 +9424,7 @@ public:
 	//
 	int    GetList(LongArray & rList) const;
 	int    GetListByParent(long parentId, bool recursive, LongArray & rList) const;
-	int    GetListByParent_Unsafe(SHandle hParent, bool recursive, TSVector <SHandle> & rList) const;
+	int    GetListByParent_Unsafe(SPtrHandle hParent, bool recursive, TSVector <SPtrHandle> & rList) const;
 	int    Add(long id, const char * pStr, int replaceDup);
 	int    Add(long id, long parentId, const char * pStr, int replaceDup);
 	//
@@ -9140,7 +9440,7 @@ public:
 	//   !0 - функция завершилась успешно. Результат - манипулятор нового элемента.
 	//    0 - error
 	//
-	SHandle Add_Unsafe(SHandle hParent, long id, const char * pStr);
+	SPtrHandle Add_Unsafe(SPtrHandle hParent, long id, const char * pStr);
 	bool   MakeStringIndex(LAssocArray & rIndex) const;
 	bool   GetTextByPos(uint strP, SString & rBuf) const;
 	void   SortByID();
@@ -9151,7 +9451,7 @@ private:
 	ENTRY::BaseList L;
 	static int Helper_CmpFunc_ByText(const void * p1, const void * p2, const StrAssocTree * pArray);
 	friend DECL_CMPFUNC(StrAssocTreeEntry_ByText);
-	bool   FASTCALL ValidateEntryHandle(const SHandle h) const;
+	bool   FASTCALL ValidateEntryHandle(const SPtrHandle h) const;
 };
 //
 // Descr: Пул элементов файлового каталога.
@@ -11319,6 +11619,14 @@ struct SStrScan : public SRegExpSet {
 	bool   IsNumber();
 	bool   IsHex();
 	//
+	// Descr: Если символы, начиная с текущего являются валидными шестнадцатиричными цифрами (0..9, a-f, A-F),
+	//   то возвращает true и устанавливает внутреннюю переменную Len в значение длины шестнадцатиричной 
+	//   последовательности. 
+	// Note: Отличается от IsHex тем, что IsHex ищет последовательность "^[+-]?0[xX][0-9a-fA-F]+" и не меняет
+	//   значение Len.
+	//
+	bool   IsXDigits(); // @v11.7.11
+	//
 	// Descr: сопоставляет текущий и, возможно, следующий символ с символом новой строки.
 	//   Параметр eolf задает формат новой строки.
 	//   Если eolf == eolUndef, то любая из трех комбинаций "\xD\xA" || "\xD" || "\xA" воспринимается
@@ -12092,27 +12400,27 @@ public:
 	bool   IsValid() const { return !(State & stError); }
 	bool   operator !() const { return !IsValid(); }
 	bool   Init(const char * pBasePath);
-	SHandle Write_Start(const char * pName);
-	bool   Write(SHandle handle, const void * pBuf, size_t size);
-	bool   Write_End(SHandle handle, uint64 * pWrittenSize);
+	SPtrHandle Write_Start(const char * pName);
+	bool   Write(SPtrHandle handle, const void * pBuf, size_t size);
+	bool   Write_End(SPtrHandle handle, uint64 * pWrittenSize);
 	int    PutFile(const char * pName, const void * pBuf, size_t size);
 	int    PutFile(const char * pName, const char * pSourceFilePath);
-	SHandle GetFile(const char * pName, int64 * pFileSize);
-	bool   Read(SHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize);
+	SPtrHandle GetFile(const char * pName, int64 * pFileSize);
+	bool   Read(SPtrHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize);
 	//
 	// Descr: Возвращает общий размер считанных с помощью манипулятора handle байт.
 	//   Если манипулятор открыт для записи, то возвращает 0.
 	//
-	uint64 GetTotalRdSize(SHandle handle) const;
+	uint64 GetTotalRdSize(SPtrHandle handle) const;
 	//
 	// Descr: Возвращает общий размер записанных с помощью манипулятора handle байт.
 	//   Если манипулятор открыт для чтения, то возвращает 0.
 	//
-	uint64 GetTotalWrSize(SHandle handle) const;
+	uint64 GetTotalWrSize(SPtrHandle handle) const;
 	//
 	// Descr: Закрывает файл, открытый либо функцией Write_Start() либо GetFile()
 	//
-	bool   CloseFile(SHandle handle);
+	bool   CloseFile(SPtrHandle handle);
 private:
 	bool   ValidateName(const char * pName) const;
 	int    MakeFileEntry(const char * pName, SString & rEntryName, bool writing);
@@ -14025,7 +14333,7 @@ public:
 	int    AddFrame(const TRect & rR, uint halfThick, int combine);
 	TRect  GetBounds() const;
 private:
-	SHandle H;
+	SPtrHandle H;
 };
 //
 // Descr: Специализированная структура для представления 2D-точки
@@ -14168,7 +14476,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrDarkcyan       		 = 0x00008b8b,
 	SClrDarkgoldenrod  		 = 0x00b8860b,
 	SClrDarkgrey       		 = 0x00555555,
-	SClrDarkgrey_npp = 0x00404040, // @v11.1.12 darkGrey according to notepad++
+	SClrDarkgrey_npp         = 0x00404040, // @v11.1.12 darkGrey according to notepad++
 	SClrDarkgreen      		 = 0x00006400,
 	SClrDarkkhaki      		 = 0x00bdb76b,
 	SClrDarkmagenta    		 = 0x008b008b,
@@ -14209,7 +14517,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrLightcoral     		 = 0x00f08080,
 	SClrLightcyan      		 = 0x00e0ffff,
 	SClrLightgoldenrodyellow = 0x00fafad2,
-	SClrLightgreen   = 0x0090ee90,
+	SClrLightgreen           = 0x0090ee90,
 	SClrLightgrey       	 = 0x00d3d3d3,
 	SClrLightpink       	 = 0x00ffb6c1,
 	SClrLightsalmon     	 = 0x00ffa07a,
@@ -14233,7 +14541,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrMediumspringgreen 	 = 0x0000fa9a,
 	SClrMediumturquoise   	 = 0x0048d1cc,
 	SClrMediumvioletred   	 = 0x00c71585,
-	SClrMidnightblue = 0x00191970,
+	SClrMidnightblue         = 0x00191970,
 	SClrMintcream     		 = 0x00f5fffa, // Очень светло-голубой //
 	SClrMistyrose     		 = 0x00ffe4e1, // Нежно-розовый
 	SClrNavajowhite   		 = 0x00ffdead, // Телесный
@@ -14325,10 +14633,12 @@ struct SColorBase { // @persistent
 	SColorBase SetAlphaF(float a/*[0..1]*/);
 	SColorBase PremultiplyAlpha();
 	enum {
-		fmtHEX         = 1, // #rrggbb
-		fmtRGB         = 2, // rgb(rr, gg, bb)
+		fmtHEX                 = 1, // #rrggbb
+		fmtRGB                 = 2, // rgb(rr, gg, bb)
 		fmtRgbHexWithoutPrefix = 3, // rrggbb
-		fmtName        = 0x1000
+		fmtName                = 0x1000,
+		fmtForceHashPrefix     = 0x2000  // @v11.7.11 Добавить префикс # в случае успешного fmtName или rgb() формата (ie: #red, #rgb(r,g,b))
+			// fmtRgbHexWithoutPrefix имеет приоритет перед fmtForceHashPrefix!
 	};
 	int    FASTCALL FromStr(const char *);
 	SString & ToStr(SString & rBuf, int format = fmtHEX) const;
@@ -14625,36 +14935,6 @@ private:
 	SSerializeContext * P_SCtx;
 };
 //
-// Descr: Специализированная функция для сериализации шаблонизированных массивов, элементы которых
-//   поддерживают невиртуальный метод Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-//
-#if 0 // @unused {
-template <class T> int TSArray_Serialize(TSArray <T> & rList, int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-{
-	int    ok = 1;
-	uint32 c = 0;
-	if(dir > 0) {
-		c = rList.getCount();
-		THROW(pSCtx->Serialize(dir, c, rBuf));
-		for(uint i = 0; i < c; i++) {
-			T & r_item = rList.at(i);
-			THROW(r_item.Serialize(dir, rBuf, pSCtx));
-		}
-	}
-	else if(dir < 0) {
-		rList.clear();
-		THROW(pSCtx->Serialize(dir, c, rBuf));
-		for(uint i = 0; i < c; i++) {
-			T  item;
-			THROW(item.Serialize(dir, rBuf, pSCtx));
-			THROW(rList.insert(&item));
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0
-//
 // Descr: Специализированная функция для сериализации шаблонизированных векторов, элементы которых
 //   поддерживают невиртуальный метод Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 //
@@ -14755,6 +15035,15 @@ public:
 		}
 		ASSIGN_PTR(ppItem, p_item);
 		return LOGIC(p_item);
+	}
+	uint   GetCount() const
+	{
+		uint   _c = 0;
+		for(uint idx = 0; idx < getCount(); idx++) {
+			if(at(idx) != 0)
+				_c++;
+		}
+		return _c;
 	}
 	T * Get(const void * pKey, uint keySize) const
 	{
@@ -15772,15 +16061,18 @@ public:
 	//
 	static void * FASTCALL M(size_t sz);
 	static void * FASTCALL M_zon0(size_t sz); // Тот же SAlloc::M, но гарантированно возвращающий null при аргументе sz==0
+	static void * FASTCALL M_aonz(size_t sz); // @v11.7.11 @construction Тот же что и SAlloc::M, но аварийно завершающая процесс при получении нулевого результата
 	//
 	// Descr: Функция, замещающая calloc.
 	//
 	static void * FASTCALL C(size_t n, size_t sz);
 	static void * FASTCALL C_zon0(size_t n, size_t sz); // Тот же SAlloc::C, но гарантированно возвращающий null при аргументе sz==0
+	static void * FASTCALL C_aonz(size_t n, size_t sz); // @v11.7.11 @construction Тот же что и SAlloc::C, но аварийно завершающая процесс при получении нулевого результата
 	//
 	// Descr: Функция, замещающая realloc.
 	//
 	static void * FASTCALL R(void * ptr, size_t sz);
+	static void * FASTCALL R_aonz(void * ptr, size_t sz); // @v11.7.11 @construction Тот же что и SAlloc::R, но аварийно завершающая процесс при получении нулевого результата
 	//
 	// Descr: Функция, замещающая free.
 	//
@@ -17775,9 +18067,7 @@ template <class T> bool checkirange(T n, T low, T upp)
 class VisualStudioInstallationLocator {
 public:
 	struct Entry {
-		Entry() : InstallTime(ZERODATETIME)
-		{
-		}
+		Entry();
 		LDATETIME InstallTime; 
 		SString InstanceId; // utf-8
 		SString Name; // utf-8
@@ -17989,6 +18279,7 @@ public:
 	int    _check_eq(LDATE a, LDATE b, const char * pA, const char * pB);
 	int    _check_eq(const SString & rVA, const SString & rVB, const char * pA, const char * pB);
 	int    _check_eq(const SString & rVA, const char * pVB, const char * pA, const char * pB);
+	int    _check_eq(const S_GUID_Base & a, const S_GUID_Base & b, const char * pA, const char * pB);
 	int    _check_le(int a, int b, const char * pA, const char * pB);
 	int    _check_le(long a, long b, const char * pA, const char * pB);
 	int    _check_le(uint a, uint b, const char * pA, const char * pB);
@@ -18061,7 +18352,7 @@ private:
 	};
 };
 //
-//
+// Descr: Вспомогательный класс для тестирования и анализа трансформаторов данных.
 //
 class SBdtFunct {
 public:
@@ -18090,21 +18381,12 @@ public:
 	};
 	enum {
 		fFixedSize     = 0x0001, // Результат операции имеет фиксированных конечный размер
-		fKey   = 0x0002, // Операция требует ключа
+		fKey           = 0x0002, // Операция требует ключа
 		fWriteAtFinish = 0x0004, // Результат операции записывается в буфер во время вызова метода Finish()
 		fReversible    = 0x0008  // Обратимая функция  
 	};
 	struct Info {
-		void   Set(int alg, int cls, uint flags, int inverseAlg, uint inBufQuant, uint outSize, uint keyLen)
-		{
-			Alg = alg;
-			Cls = cls;
-			InverseAlg = inverseAlg;
-			Flags = flags;
-			InBufQuant = inBufQuant;
-			OutSize = outSize;
-			KeyLen = keyLen;
-		}
+		void   Set(int alg, int cls, uint flags, int inverseAlg, uint inBufQuant, uint outSize, uint keyLen);
         int    Alg;
         int    Cls;
 		int    InverseAlg;  // Обратная функция
@@ -18122,36 +18404,23 @@ public:
 		//
 		// Descr: Конструктор для фазы phaseInit
 		//
-		TransformBlock() : Phase(phaseInit), InBufLen(0), P_InBuf(0), P_OutBuf(0), OutBufLen(0), OutBufPos(0)
-		{
-			assert(Phase == phaseInit);
-		}
+		TransformBlock();
 		//
 		// Descr: Конструктор для фазы phaseUpdate
 		//
-		TransformBlock(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen) : Phase(phaseUpdate), 
-			InBufLen(inBufLen), P_InBuf(pInBuf), P_OutBuf(pOutBuf), OutBufLen(outBufLen), OutBufPos(0)
-		{
-			assert(Phase == phaseUpdate);
-		}
+		TransformBlock(const void * pInBuf, size_t inBufLen, void * pOutBuf, size_t outBufLen);
 		//
 		// Descr: Конструктор для фазы phaseFinish
 		//
-		TransformBlock(void * pOutBuf, size_t outBufLen) : Phase(phaseFinish), InBufLen(0), P_InBuf(0), P_OutBuf(pOutBuf), OutBufLen(outBufLen), OutBufPos(0)
-		{
-		}
+		TransformBlock(void * pOutBuf, size_t outBufLen);
 		//
 		// Descr: Конструктор для получения информации об алгоритме
 		//
-		TransformBlock(SBdtFunct::Info * pInfo) : Phase(phaseGetInfo), InBufLen(0), P_InBuf(0), P_OutBuf(pInfo), OutBufLen(pInfo ? sizeof(*pInfo) : 0), OutBufPos(0)
-		{
-		}
+		TransformBlock(SBdtFunct::Info * pInfo);
 		//
 		// Descr: Конструктор для получения статистики после завершения работы алгоритма
 		//
-		TransformBlock(SBdtFunct::Stat * pStat) : Phase(phaseGetStat), InBufLen(0), P_InBuf(0), P_OutBuf(pStat), OutBufLen(pStat ? sizeof(*pStat) : 0), OutBufPos(0)
-		{
-		}
+		TransformBlock(SBdtFunct::Stat * pStat);
 		const int  Phase;
 		const void * P_InBuf;
 		const size_t InBufLen;
@@ -18181,11 +18450,7 @@ private:
 	int    FASTCALL Implement_Transform(TransformBlock & rBlk);
 
 	struct State_ {
-		State_() : P_Tab(0), P_Ctx(0), P_Ext(0)
-		{
-			MEMSZERO(O);
-			MEMSZERO(S);
-		}
+		State_();
 		State_ & Z();
 
         const void * P_Tab;
@@ -18268,71 +18533,6 @@ struct BdtTestItem {
 //Iterations = 6
 //Passphrase = ftlkfbxdtbjbvllvbwiw
 };
-//
-// @vmiller {
-//
-#if 0 // {
-
-struct KeyValuePair {
-	SString Key;
-	SString Value;
-};
-
-class KeyValueCollection {
-public:
-	KeyValueCollection(SString & rStr)
-	{
-		Parse(rStr);
-	}
-	int getValue(const char * pKey, SString & rValue)
-	{
-		int    ok = 0;
-		for(uint i = 0, n = Coll.getCount(); i < n; i++) {
-			KeyValuePair * p_pair = Coll.at(i);
-			if(p_pair) {
-				if(p_pair->Key == pKey) {
-					rValue = p_pair->Value;
-					ok = 1;
-					break;
-				}
-			}
-		}
-		return ok;
-	}
-private:
-	int Parse(SString & rStr)
-	{
-		int    ok = 1;
-		SString rec, tail, s1, s2, temp_buf;
-		if(!rStr.IsEmpty()) {
-			int    r = rStr.Divide(';', rec, tail);
-			if(r) {
-				r = rec.Divide('=', s1, s2);
-				if(r) {
-					if(r > 0) {
-						KeyValuePair * p_pair = new KeyValuePair();
-						p_pair->Key = s1;
-						p_pair->Value = s2;
-						Coll.insert(p_pair);
-					}
-					if(!tail.IsEmpty())
-						Parse(tail);    // @recursion
-				}
-				else {
-					ok = 0;
-				}
-			}
-			else {
-				ok = 0;
-			}
-		}
-		return ok;
-	}
-
-	TSCollection <KeyValuePair> Coll;
-};
-#endif // } 0
-// } @vmiller
 
 extern "C" typedef STestCase * (*FN_SLTEST_FACTORY)(STestSuite * pSuite);
 

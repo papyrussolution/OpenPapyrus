@@ -53,7 +53,6 @@ typedef struct {
 
 typedef struct {
 	fz_output * out;
-
 	int do_incremental;
 	int do_tight;
 	int do_ascii;

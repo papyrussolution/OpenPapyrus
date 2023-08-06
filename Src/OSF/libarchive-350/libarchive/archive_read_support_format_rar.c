@@ -94,7 +94,7 @@
 #define COMPRESS_METHOD_GOOD    0x34
 #define COMPRESS_METHOD_BEST    0x35
 
-#define CRC_POLYNOMIAL 0xEDB88320
+// @v11.7.11 (replaced with SlConst::CrcPoly_CCITT32) #define CRC_POLYNOMIAL 0xEDB88320
 
 #define NS_UNIT 10000000
 

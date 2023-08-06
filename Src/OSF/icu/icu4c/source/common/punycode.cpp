@@ -191,7 +191,7 @@ U_CAPI int32_t u_strToPunycode(const char16_t * src, int32_t srcLength,
 	 * convert extended ones to UTF-32 in cpBuffer (caseFlag in sign bit):
 	 */
 	srcCPCount = destLength = 0;
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		/* NUL-terminated input */
 		for(j = 0; /* no condition */; ++j) {
 			if((c = src[j])==0) {
@@ -374,8 +374,7 @@ U_CAPI int32_t u_strFromPunycode(const char16_t * src, int32_t srcLength,
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		srcLength = u_strlen(src);
 	}
 	if(srcLength>DECODE_MAX_CHARS) {

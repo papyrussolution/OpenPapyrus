@@ -153,7 +153,7 @@ cairo_status_t _cairo_gstate_save(cairo_gstate_t ** gstate, cairo_gstate_t ** fr
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	top = *freelist;
 	if(top == NULL) {
-		top = (cairo_gstate_t *)_cairo_malloc(sizeof(cairo_gstate_t));
+		top = (cairo_gstate_t *)SAlloc::M_zon0(sizeof(cairo_gstate_t));
 		if(UNLIKELY(top == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}

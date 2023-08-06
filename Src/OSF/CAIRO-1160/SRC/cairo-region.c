@@ -179,7 +179,7 @@ void FASTCALL _cairo_region_fini(cairo_region_t * region)
  **/
 cairo_region_t * cairo_region_create(void)
 {
-	cairo_region_t * region = static_cast<cairo_region_t *>(_cairo_malloc(sizeof(cairo_region_t)));
+	cairo_region_t * region = static_cast<cairo_region_t *>(SAlloc::M_zon0(sizeof(cairo_region_t)));
 	if(region == NULL)
 		return (cairo_region_t *)&_cairo_region_nil;
 	region->status = CAIRO_STATUS_SUCCESS;
@@ -210,7 +210,7 @@ cairo_region_t * FASTCALL cairo_region_create_rectangles(const cairo_rectangle_i
 	pixman_box32_t stack_pboxes[CAIRO_STACK_ARRAY_LENGTH(pixman_box32_t)];
 	pixman_box32_t * pboxes = stack_pboxes;
 	int i;
-	cairo_region_t * region = static_cast<cairo_region_t *>(_cairo_malloc(sizeof(cairo_region_t)));
+	cairo_region_t * region = static_cast<cairo_region_t *>(SAlloc::M_zon0(sizeof(cairo_region_t)));
 	if(UNLIKELY(region == NULL))
 		return _cairo_region_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	CAIRO_REFERENCE_COUNT_INIT(&region->ref_count, 1);
@@ -246,7 +246,7 @@ slim_hidden_def(cairo_region_create_rectangles);
 
 cairo_region_t * _cairo_region_create_from_boxes(const cairo_box_t * boxes, int count)
 {
-	cairo_region_t * region = static_cast<cairo_region_t *>(_cairo_malloc(sizeof(cairo_region_t)));
+	cairo_region_t * region = static_cast<cairo_region_t *>(SAlloc::M_zon0(sizeof(cairo_region_t)));
 	if(UNLIKELY(region == NULL))
 		return _cairo_region_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	CAIRO_REFERENCE_COUNT_INIT(&region->ref_count, 1);
@@ -284,7 +284,7 @@ cairo_box_t * _cairo_region_get_boxes(const cairo_region_t * region, int * nbox)
  **/
 cairo_region_t * cairo_region_create_rectangle(const cairo_rectangle_int_t * rectangle)
 {
-	cairo_region_t * region = static_cast<cairo_region_t *>(_cairo_malloc(sizeof(cairo_region_t)));
+	cairo_region_t * region = static_cast<cairo_region_t *>(SAlloc::M_zon0(sizeof(cairo_region_t)));
 	if(UNLIKELY(region == NULL))
 		return (cairo_region_t *)&_cairo_region_nil;
 	region->status = CAIRO_STATUS_SUCCESS;

@@ -145,7 +145,6 @@ extern "C" BN_ULONG bn_sub_part_words(BN_ULONG * r, const BN_ULONG * a, const BN
 	}
 	return c;
 }
-
 #endif
 
 #ifdef BN_RECURSION

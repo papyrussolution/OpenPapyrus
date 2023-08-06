@@ -160,12 +160,12 @@ _start: /* Requires: ip0 */
 	idx = hashTable[hash0];
 	do {
 		/* load repcode match for ip[2]*/
-		const uint32 rval = MEM_read32(ip2 - rep_offset1);
+		const uint32 rval = SMem::Get32(ip2 - rep_offset1);
 		/* write back hash table entry */
 		current0 = (uint32)(ip0 - base);
 		hashTable[hash0] = current0;
 		/* check repcode at ip[2] */
-		if((MEM_read32(ip2) == rval) & (rep_offset1 > 0)) {
+		if((SMem::Get32(ip2) == rval) & (rep_offset1 > 0)) {
 			ip0 = ip2;
 			match0 = ip0 - rep_offset1;
 			mLength = ip0[-1] == match0[-1];
@@ -177,13 +177,13 @@ _start: /* Requires: ip0 */
 		}
 		/* load match for ip[0] */
 		if(idx >= prefixStartIndex) {
-			mval = MEM_read32(base + idx);
+			mval = SMem::Get32(base + idx);
 		}
 		else {
-			mval = MEM_read32(ip0) ^ 1; /* guaranteed to not match. */
+			mval = SMem::Get32(ip0) ^ 1; /* guaranteed to not match. */
 		}
 		/* check match at ip[0] */
-		if(MEM_read32(ip0) == mval) {
+		if(SMem::Get32(ip0) == mval) {
 			/* found a match! */
 			goto _offset;
 		}
@@ -201,13 +201,13 @@ _start: /* Requires: ip0 */
 		hashTable[hash0] = current0;
 		/* load match for ip[0] */
 		if(idx >= prefixStartIndex) {
-			mval = MEM_read32(base + idx);
+			mval = SMem::Get32(base + idx);
 		}
 		else {
-			mval = MEM_read32(ip0) ^ 1; /* guaranteed to not match. */
+			mval = SMem::Get32(ip0) ^ 1; /* guaranteed to not match. */
 		}
 		/* check match at ip[0] */
-		if(MEM_read32(ip0) == mval) {
+		if(SMem::Get32(ip0) == mval) {
 			/* found a match! */
 			goto _offset;
 		}
@@ -268,7 +268,7 @@ _match: /* Requires: ip0, match0, offcode */
 		hashTable[ZSTD_hashPtr(base+current0+2, hlog, mls)] = current0+2; /* here because current+2 could be > iend-8 */
 		hashTable[ZSTD_hashPtr(ip0-2, hlog, mls)] = (uint32)(ip0-2-base);
 		if(rep_offset2 > 0) { /* rep_offset2==0 means rep_offset2 is invalidated */
-			while( (ip0 <= ilimit) && (MEM_read32(ip0) == MEM_read32(ip0 - rep_offset2)) ) {
+			while( (ip0 <= ilimit) && (SMem::Get32(ip0) == SMem::Get32(ip0 - rep_offset2)) ) {
 				/* store sequence */
 				const size_t rLength = ZSTD_count(ip0+4, ip0+4-rep_offset2, iend) + 4;
 				{ 
@@ -419,7 +419,7 @@ size_t ZSTD_compressBlock_fast_dictMatchState_generic(ZSTD_matchState_t* ms, seq
 
 			if(((uint32)((prefixStartIndex - 1) - repIndex) >=
 			    3) /* intentional underflow : ensure repIndex isn't overlapping dict + prefix */
-			    && (MEM_read32(repMatch) == MEM_read32(ip0 + 1))) {
+			    && (SMem::Get32(repMatch) == SMem::Get32(ip0 + 1))) {
 				const BYTE * const repMatchEnd = repIndex < prefixStartIndex ? dictEnd : iend;
 				mLength = ZSTD_count_2segments(ip0 + 1 + 4, repMatch + 4, iend, repMatchEnd, prefixStart) + 4;
 				ip0++;
@@ -430,7 +430,7 @@ size_t ZSTD_compressBlock_fast_dictMatchState_generic(ZSTD_matchState_t* ms, seq
 				/* We only look for a dict match if the normal matchIndex is invalid */
 				const BYTE * dictMatch = dictBase + dictMatchIndex;
 				if(dictMatchIndex > dictStartIndex &&
-				    MEM_read32(dictMatch) == MEM_read32(ip0)) {
+				    SMem::Get32(dictMatch) == SMem::Get32(ip0)) {
 					/* found a dict match */
 					const uint32 offset = (uint32)(curr - dictMatchIndex - dictIndexDelta);
 					mLength = ZSTD_count_2segments(ip0 + 4, dictMatch + 4, iend, dictEnd, prefixStart) + 4;
@@ -446,7 +446,7 @@ size_t ZSTD_compressBlock_fast_dictMatchState_generic(ZSTD_matchState_t* ms, seq
 					break;
 				}
 			}
-			else if(MEM_read32(match) == MEM_read32(ip0)) {
+			else if(SMem::Get32(match) == SMem::Get32(ip0)) {
 				/* found a regular match */
 				const uint32 offset = (uint32)(ip0 - match);
 				mLength = ZSTD_count(ip0 + 4, match + 4, iend) + 4;
@@ -491,7 +491,7 @@ size_t ZSTD_compressBlock_fast_dictMatchState_generic(ZSTD_matchState_t* ms, seq
 				const uint32 current2 = (uint32)(ip0-base);
 				const uint32 repIndex2 = current2 - offset_2;
 				const BYTE * repMatch2 = repIndex2 < prefixStartIndex ? dictBase - dictIndexDelta + repIndex2 : base + repIndex2;
-				if( ((uint32)((prefixStartIndex-1) - (uint32)repIndex2) >= 3 /* intentional overflow */) && (MEM_read32(repMatch2) == MEM_read32(ip0))) {
+				if( ((uint32)((prefixStartIndex-1) - (uint32)repIndex2) >= 3 /* intentional overflow */) && (SMem::Get32(repMatch2) == SMem::Get32(ip0))) {
 					const BYTE * const repEnd2 = repIndex2 < prefixStartIndex ? dictEnd : iend;
 					const size_t repLength2 = ZSTD_count_2segments(ip0+4, repMatch2+4, iend, repEnd2, prefixStart) + 4;
 					uint32 tmpOffset = offset_2; offset_2 = offset_1; offset_1 = tmpOffset; /* swap offset_2 <=> offset_1 */
@@ -583,7 +583,7 @@ static size_t ZSTD_compressBlock_fast_extDict_generic(ZSTD_matchState_t* ms, seq
 
 		if( ( ((uint32)((prefixStartIndex-1) - repIndex) >= 3) /* intentional underflow */
 		    & (offset_1 <= curr+1 - dictStartIndex) ) /* note: we are searching at curr+1 */
-		    && (MEM_read32(repMatch) == MEM_read32(ip+1)) ) {
+		    && (SMem::Get32(repMatch) == SMem::Get32(ip+1)) ) {
 			const BYTE * const repMatchEnd = repIndex < prefixStartIndex ? dictEnd : iend;
 			const size_t rLength = ZSTD_count_2segments(ip+1 +4, repMatch +4, iend, repMatchEnd, prefixStart) + 4;
 			ip++;
@@ -592,7 +592,7 @@ static size_t ZSTD_compressBlock_fast_extDict_generic(ZSTD_matchState_t* ms, seq
 			anchor = ip;
 		}
 		else {
-			if((matchIndex < dictStartIndex) || (MEM_read32(match) != MEM_read32(ip)) ) {
+			if((matchIndex < dictStartIndex) || (SMem::Get32(match) != SMem::Get32(ip)) ) {
 				assert(stepSize >= 1);
 				ip += ((ip-anchor) >> kSearchStrength) + stepSize;
 				continue;
@@ -623,7 +623,7 @@ static size_t ZSTD_compressBlock_fast_extDict_generic(ZSTD_matchState_t* ms, seq
 				const uint32 repIndex2 = current2 - offset_2;
 				const BYTE * const repMatch2 = repIndex2 < prefixStartIndex ? dictBase + repIndex2 : base + repIndex2;
 				if( (((uint32)((prefixStartIndex-1) - repIndex2) >= 3) & (offset_2 <= curr - dictStartIndex)) /* intentional overflow */
-				    && (MEM_read32(repMatch2) == MEM_read32(ip)) ) {
+				    && (SMem::Get32(repMatch2) == SMem::Get32(ip)) ) {
 					const BYTE * const repEnd2 = repIndex2 < prefixStartIndex ? dictEnd : iend;
 					const size_t repLength2 = ZSTD_count_2segments(ip+4, repMatch2+4, iend, repEnd2, prefixStart) + 4;
 					{ 

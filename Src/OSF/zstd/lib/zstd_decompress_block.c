@@ -131,7 +131,7 @@ size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx,
 			{   size_t lhSize, litSize, litCSize;
 			    uint32 singleStream = 0;
 			    const uint32 lhlCode = (istart[0] >> 2) & 3;
-			    const uint32 lhc = MEM_readLE32(istart);
+			    const uint32 lhc = SMem::GetLe32(istart);
 			    size_t hufSuccess;
 			    size_t expectedWriteSize = MIN(ZSTD_BLOCKSIZE_MAX, dstCapacity);
 			    switch(lhlCode)
@@ -233,7 +233,7 @@ size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx,
 							break;
 						case 1:
 							lhSize = 2;
-							litSize = MEM_readLE16(istart) >> 4;
+							litSize = SMem::GetLe16(istart) >> 4;
 							break;
 						case 3:
 							lhSize = 3;
@@ -279,7 +279,7 @@ size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx,
 							break;
 						case 1:
 							lhSize = 2;
-							litSize = MEM_readLE16(istart) >> 4;
+							litSize = SMem::GetLe16(istart) >> 4;
 							break;
 						case 3:
 							lhSize = 3;
@@ -456,7 +456,7 @@ FORCE_INLINE_TEMPLATE void ZSTD_buildFSETable_body(ZSTD_seqSymbol* dt, const sho
 			const int16 largeLimit = (int16)(1 << (tableLog-1));
 			uint32 s;
 			for(s = 0; s<maxSV1; s++) {
-				if(normalizedCounter[s]==-1) {
+				if(normalizedCounter[s] == -1) {
 					tableDecode[highThreshold--].baseValue = s;
 					symbolNext[s] = 1;
 				}
@@ -490,13 +490,11 @@ FORCE_INLINE_TEMPLATE void ZSTD_buildFSETable_body(ZSTD_seqSymbol* dt, const sho
 			uint64 const add = 0x0101010101010101ull;
 			size_t pos = 0;
 			uint64 sv = 0;
-			uint32 s;
-			for(s = 0; s<maxSV1; ++s, sv += add) {
-				int i;
+			for(uint32 s = 0; s<maxSV1; ++s, sv += add) {
 				int const n = normalizedCounter[s];
-				MEM_write64(spread + pos, sv);
-				for(i = 8; i < n; i += 8) {
-					MEM_write64(spread + pos + i, sv);
+				SMem::Put(spread + pos, sv);
+				for(int i = 8; i < n; i += 8) {
+					SMem::Put(spread + pos + i, sv);
 				}
 				pos += n;
 			}
@@ -652,7 +650,7 @@ size_t ZSTD_decodeSeqHeaders(ZSTD_DCtx* dctx, int* nbSeqPtr, const void * src, s
 	if(nbSeq > 0x7F) {
 		if(nbSeq == 0xFF) {
 			RETURN_ERROR_IF(ip+2 > iend, srcSize_wrong, "");
-			nbSeq = MEM_readLE16(ip) + LONGNBSEQ;
+			nbSeq = SMem::GetLe16(ip) + LONGNBSEQ;
 			ip += 2;
 		}
 		else {

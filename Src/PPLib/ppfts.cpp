@@ -118,7 +118,7 @@ public:
 	// Примерный сценарий индексации:
 	// {
 	//    PPFtsDatabase db(true/*for_update*/);
-	//    SHandle tra = db.BeginTransaction();
+	//    SPtrHandle tra = db.BeginTransaction();
 	//    for(uint i = 0; i < doc_count; i++) {
 	//       PPFtsDatabase::Entity entity = ...; // Расширенный идентификатор документа
 	//       StringSet ss = ...; // Набор термов документа в кодировке UTF8
@@ -127,15 +127,15 @@ public:
 	//    db.CommitTransaction(tra);
 	// }
 	//
-	SHandle BeginTransaction();
-	int    CommitTransaction(SHandle);
-	int    AbortTransaction(SHandle);
+	SPtrHandle BeginTransaction();
+	int    CommitTransaction(SPtrHandle);
+	int    AbortTransaction(SPtrHandle);
 	//
 	// Returns:
 	//   >0 - идентификатор документа в базе данных
 	//    0 - error
 	//
-	uint64 PutEntity(SHandle transaction, PPFtsInterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData);
+	uint64 PutEntity(SPtrHandle transaction, PPFtsInterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData);
 	int    Search(const char * pQueryUtf8, uint maxItems, TSCollection <PPFtsInterface::SearchResultEntry> & rResult);
 private:
 	static ReadWriteLock RwL; // Блокировка, управляющая синхронизацией читателей/писателей
@@ -222,7 +222,7 @@ PPFtsInterface::Ptr::~Ptr()
 int PPFtsDatabase::Search(const char * pQueryUtf8, uint maxItems, TSCollection <PPFtsInterface::SearchResultEntry> & rResult)
 {
 	int    ok = -1;
-	SHandle tra;
+	SPtrHandle tra;
 	//SString temp_buf;
 	if(!isempty(pQueryUtf8)) {
 		SString query_buf(pQueryUtf8);
@@ -472,10 +472,10 @@ PPFtsDatabase::~PPFtsDatabase()
 	P_SupplementalDb = 0; // !Мы не владеем экземпляром, на который указывает P_SupplementalDb
 }
 
-SHandle PPFtsDatabase::BeginTransaction()
+SPtrHandle PPFtsDatabase::BeginTransaction()
 {
 	if(P_CurrentTra) {
-		return SHandle(0);
+		return SPtrHandle(0);
 	}
 	else {
 		P_CurrentTra = new Transaction(*this);
@@ -483,11 +483,11 @@ SHandle PPFtsDatabase::BeginTransaction()
 			PPSetError(PPERR_FTS_BEGINTRANSACTIONFAULT);
 			ZDELETE(P_CurrentTra);
 		}
-		return SHandle(P_CurrentTra);
+		return SPtrHandle(P_CurrentTra);
 	}
 }
 
-int PPFtsDatabase::CommitTransaction(SHandle tra)
+int PPFtsDatabase::CommitTransaction(SPtrHandle tra)
 {
 	int    ok = 1;
 	if(P_CurrentTra && P_CurrentTra == tra)  {
@@ -497,7 +497,7 @@ int PPFtsDatabase::CommitTransaction(SHandle tra)
 	return ok;
 }
 
-int PPFtsDatabase::AbortTransaction(SHandle tra)
+int PPFtsDatabase::AbortTransaction(SPtrHandle tra)
 {
 	int    ok = 1;
 	if(P_CurrentTra && P_CurrentTra == tra)  {
@@ -649,7 +649,7 @@ int PPFtsDatabase::StoreEntityKey(uint64 surrogateScopeIdent, const SBuffer & rE
 	return ok;
 }
 
-uint64 PPFtsDatabase::PutEntity(SHandle tra, PPFtsInterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData)
+uint64 PPFtsDatabase::PutEntity(SPtrHandle tra, PPFtsInterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData)
 {
 	uint64  result = 0;
 	SString temp_buf;
@@ -801,7 +801,7 @@ static int Test_Fts2()
 	{
 		PPFtsInterface db(true/*forUpdate*/, 0/*default*/);
 		if(!!db) {
-			//SHandle tra;
+			//SPtrHandle tra;
 			PPObjGoods goods_obj;
 			PPViewGoods v_goods;
 			GoodsFilt f_goods;

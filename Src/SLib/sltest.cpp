@@ -113,6 +113,8 @@ static SString & FASTCALL catval(const SString & rS, const char * pV, SString & 
 	{ return rBuf.CatChar('(').CatEq(pV, rS).CatChar(')'); }
 static SString & FASTCALL catval(const char * pS, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, pS).CatChar(')'); }
+static SString & FASTCALL catval(const S_GUID_Base & rS, const char * pV, SString & rBuf)
+	{ return rBuf.CatChar('(').CatEq(pV, rS, S_GUID::fmtIDL).CatChar(')'); }
 
 int STestCase::_check_nz(int result, const char * pV)
 {
@@ -241,6 +243,7 @@ int STestCase::_check_eq(double a, double b, const char * pA, const char * pB) {
 int STestCase::_check_eq(float a, float b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
 int STestCase::_check_eq(LDATE a, LDATE b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
 int STestCase::_check_eq(const SString & rVA, const SString & rVB, const char * pA, const char * pB) { return Implement_check_eq(rVA, rVB, pA, pB); }
+int STestCase::_check_eq(const S_GUID_Base & a, const S_GUID_Base & b, const char * pA, const char * pB) { return Implement_check_eq(a, b, pA, pB); }
 
 int STestCase::_check_eq_tolerance(double a, double b, double tol, const char * pA, const char * pB)
 {
@@ -702,8 +705,10 @@ int STestSuite::ReportTestEntry(int title, const Entry * pEntry)
 			Cat(static_cast<long>(pEntry->Timing / 10000L)).Semicol().
 			Cat(static_cast<long>(pEntry->SysTiming / 10000L)).Semicol().
 			Cat(inc_mem_blk).Semicol().Cat(inc_mem_size);
-		if(CaseBuffer.NotEmpty())
-			line_buf.Semicol().Cat(CaseBuffer);
+		if(CaseBuffer.NotEmpty()) {
+			// @v11.7.11 line_buf.Semicol().Cat(CaseBuffer);
+			line_buf.CR().Cat(CaseBuffer); // @v11.7.11
+		}
 		SLS.LogMessage(LogFileName, line_buf);
 		for(uint i = 0; i < pEntry->BmrList.getCount(); i++) {
 			const Benchmark * p_bm = static_cast<const Benchmark *>(pEntry->BmrList.at(i));
@@ -755,8 +760,10 @@ int STestSuite::Run(const char * pIniFileName)
 		ReportTestEntry(2, 0);
 		// Распределяем достаточно большой буфер для строки вывода тестов, дабы в дальнейшем
 		// не было увеличения этого буфера (иначе будем видеть искажение результатов замера используемой тестами памяти)
-		CaseBuffer.CatCharN(' ', 8192);
+		// @v11.7.11 CaseBuffer.CatCharN(' ', 8192);
+		CaseBuffer.Ensure(SKILOBYTE(64)); // @v11.7.11 
 		SString temp_buf(8192);
+		SString ffn;
 		for(CurIdx = 0; CurIdx < static_cast<TSCollection <Entry> *>(P_List)->getCount(); CurIdx++) {
 			STestCase * p_case = 0;
 			Entry * p_entry = static_cast<TSCollection <Entry> *>(P_List)->at(CurIdx);
@@ -765,11 +772,10 @@ int STestSuite::Run(const char * pIniFileName)
 			p_entry->SuccCount = p_entry->FailCount = 0;
 			p_entry->Timing = 0;
 			p_entry->SysTiming = 0;
-			SString ffn;
-			ffn.Cat("SLTCF_").Cat(p_entry->TestName);
+			ffn.Z().Cat("SLTCF_").Cat(p_entry->TestName);
 			FN_SLTEST_FACTORY f = reinterpret_cast<FN_SLTEST_FACTORY>(GetProcAddress(SLS.GetHInst(), ffn));
 			if(f) {
-				CaseBuffer = 0;
+				CaseBuffer.Z();
 				/*// @v9.0.8*/ assert(Mht.CalcStat(&p_entry->HeapBefore));
 				p_case = f(this);
 				if(p_case) {

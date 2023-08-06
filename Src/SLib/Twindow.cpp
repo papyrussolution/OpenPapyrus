@@ -1022,7 +1022,7 @@ void TWindow::invalidateRect(const FRect & rRect, bool erase)
 void TWindow::invalidateRegion(const SRegion & rRgn, bool erase)
 {
 	if(HW) {
-		const SHandle * p_hdl = reinterpret_cast<const SHandle *>(&rRgn); // @trick
+		const SPtrHandle * p_hdl = reinterpret_cast<const SPtrHandle *>(&rRgn); // @trick
 		const HRGN h_rgn = static_cast<HRGN>(static_cast<void *>(*p_hdl));
 		::InvalidateRgn(HW, h_rgn, erase);
 	}

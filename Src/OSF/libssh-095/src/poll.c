@@ -933,7 +933,8 @@ int ssh_event_remove_fd(ssh_event event, socket_t fd)
 int ssh_event_remove_session(ssh_event event, ssh_session session) 
 {
 	ssh_poll_handle p;
-	register size_t i, used;
+	size_t i;
+	size_t used;
 	int rc = SSH_ERROR;
 #ifdef WITH_SERVER
 	struct ssh_iterator * iterator;

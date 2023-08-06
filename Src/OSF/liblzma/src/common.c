@@ -105,13 +105,11 @@ extern lzma_ret lzma_strm_init(lzma_stream * strm)
 		strm->internal = (lzma_internal *)lzma_alloc(sizeof(lzma_internal), strm->allocator);
 		if(strm->internal == NULL)
 			return LZMA_MEM_ERROR;
-
 		strm->internal->next.SetDefault();// = LZMA_NEXT_CODER_INIT;
 	}
 	memzero(strm->internal->supported_actions, sizeof(strm->internal->supported_actions));
 	strm->internal->sequence = lzma_internal_s::ISEQ_RUN;
 	strm->internal->allow_buf_error = false;
-
 	strm->total_in = 0;
 	strm->total_out = 0;
 	return LZMA_OK;
@@ -144,20 +142,11 @@ lzma_ret lzma_code(lzma_stream *strm, lzma_action action)
 	switch(strm->internal->sequence) {
 		case lzma_internal_s::ISEQ_RUN:
 		    switch(action) {
-			    case LZMA_RUN:
-				break;
-			    case LZMA_SYNC_FLUSH:
-				strm->internal->sequence = lzma_internal_s::ISEQ_SYNC_FLUSH;
-				break;
-			    case LZMA_FULL_FLUSH:
-				strm->internal->sequence = lzma_internal_s::ISEQ_FULL_FLUSH;
-				break;
-			    case LZMA_FINISH:
-				strm->internal->sequence = lzma_internal_s::ISEQ_FINISH;
-				break;
-			    case LZMA_FULL_BARRIER:
-				strm->internal->sequence = lzma_internal_s::ISEQ_FULL_BARRIER;
-				break;
+			    case LZMA_RUN: break;
+			    case LZMA_SYNC_FLUSH: strm->internal->sequence = lzma_internal_s::ISEQ_SYNC_FLUSH; break;
+			    case LZMA_FULL_FLUSH: strm->internal->sequence = lzma_internal_s::ISEQ_FULL_FLUSH; break;
+			    case LZMA_FINISH: strm->internal->sequence = lzma_internal_s::ISEQ_FINISH; break;
+			    case LZMA_FULL_BARRIER: strm->internal->sequence = lzma_internal_s::ISEQ_FULL_BARRIER; break;
 		    }
 		    break;
 		case lzma_internal_s::ISEQ_SYNC_FLUSH:

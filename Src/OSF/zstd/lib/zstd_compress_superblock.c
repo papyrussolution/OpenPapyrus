@@ -106,13 +106,13 @@ static size_t ZSTD_compressSubBlock_literal(const HUF_CElt* hufTable,
 		case 4: /* 2 - 2 - 14 - 14 */
 	    {   
 			const uint32 lhc = hType + (2 << 2) + ((uint32)litSize<<4) + ((uint32)cLitSize<<18);
-			MEM_writeLE32(ostart, lhc);
+			SMem::PutLe(ostart, lhc);
 			break;
 		}
 		case 5: /* 2 - 2 - 18 - 18 */
 	    {   
 			const uint32 lhc = hType + (3 << 2) + ((uint32)litSize<<4) + ((uint32)cLitSize<<22);
-			MEM_writeLE32(ostart, lhc);
+			SMem::PutLe(ostart, lhc);
 			ostart[4] = (BYTE)(cLitSize >> 10);
 			break;
 		}
@@ -173,7 +173,7 @@ static size_t ZSTD_compressSubBlock_sequences(const ZSTD_fseCTables_t* fseTables
 	else if(nbSeq < LONGNBSEQ)
 		op[0] = (BYTE)((nbSeq>>8) + 0x80), op[1] = (BYTE)nbSeq, op += 2;
 	else
-		op[0] = 0xFF, MEM_writeLE16(op+1, (uint16)(nbSeq - LONGNBSEQ)), op += 3;
+		op[0] = 0xFF, SMem::PutLe(op+1, (uint16)(nbSeq - LONGNBSEQ)), op += 3;
 	if(nbSeq==0) {
 		return op - ostart;
 	}

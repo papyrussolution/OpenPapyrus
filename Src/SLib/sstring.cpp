@@ -550,6 +550,16 @@ int FASTCALL SStrScan::GetIdent(SString & rBuf)
 		return 0;
 }
 
+bool SStrScan::IsXDigits()
+{
+    bool ok = 0;
+    if(SETIFZ(P_ReXDigits, new SRegExp2("^[0-9a-fA-F]+", cp1251, SRegExp2::syntaxDefault, 0))) {
+        if(P_ReXDigits->Find(this, 0))
+            ok = true;
+    }
+    return ok;
+}
+
 int FASTCALL SStrScan::GetXDigits(SString & rBuf)
 {
     int    ok = 0;
@@ -1111,6 +1121,7 @@ SString & SString::CatEq(const char * pKey, ulong val) { return Cat(pKey).CatCha
 SString & SString::CatEq(const char * pKey, int64 val) { return Cat(pKey).CatChar('=').Cat(val); }
 SString & SString::CatEq(const char * pKey, uint64 val) { return Cat(pKey).CatChar('=').Cat(val); }
 SString & SString::CatEq(const char * pKey, double val, long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
+SString & SString::CatEq(const char * pKey, const S_GUID_Base & rVal, long fmt) { return Cat(pKey).CatChar('=').Cat(rVal, fmt); }
 SString & SString::CatEq(const char * pKey, LTIME val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
 SString & SString::CatEq(const char * pKey, LDATE val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
 SString & SString::CatEq(const char * pKey, LDATETIME val, long dtFmt, long tmFmt) { return Cat(pKey).CatChar('=').Cat(val, dtFmt, tmFmt); }
@@ -3732,7 +3743,7 @@ int SString::DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen)
 		if(out_len < bufLen) {
 			PTR8(pBuf)[out_len] = byte;
 			out_len++;
-			if(swapb) {
+			/*if(swapb) {
 				if(!(out_len & 0x1)) {
 					uint16 * p_word = PTR16(PTR8(pBuf)+out_len-2);
 					*p_word = swapw(*p_word);
@@ -3741,10 +3752,23 @@ int SString::DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen)
 						*p_dword = swapdw(*p_dword);
 					}
 				}
-			}
+			}*/
 		}
 		else
 			out_len++;
+	}
+	if(swapb) {
+		size_t ofs = 0;
+		for(; (ofs+sizeof(uint32)) <= out_len; ofs += sizeof(uint32)) {
+			uint32 * p_dword = PTR32(PTR8(pBuf)+ofs);
+			*p_dword = SMem::BSwap(*p_dword);			
+		}
+		if((ofs+sizeof(uint16)) <= out_len) {
+			uint16 * p_word = PTR16(PTR8(pBuf)+ofs);
+			*p_word = SMem::BSwap(*p_word);
+			ofs += sizeof(uint16);
+		}
+		assert(ofs == out_len || ofs == (out_len-1));
 	}
 	ASSIGN_PTR(pRealLen, out_len);
 	return ok;
@@ -4280,24 +4304,38 @@ int SStringU::Search(const wchar_t * pPattern, size_t startPos, size_t * pPos) c
 
 wchar_t SStringU::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
 
-int FASTCALL SStringU::HasChr(wchar_t c) const
+bool FASTCALL SStringU::HasChr(wchar_t c) const
 {
 	if(!c)
-		return 0;
+		return false;
 	else {
 		const wchar_t * p_buf = P_Buf;
 		switch(L) {
 			case 0:
-			case 1:  return 0;
+			case 1:  return false;
 			case 2:  return (p_buf[0] == c);
 			case 3:  return (p_buf[0] == c || p_buf[1] == c);
 			case 4:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c);
 			case 5:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c || p_buf[3] == c);
-			default: return BIN(wmemchr(p_buf, c, L-1));
+			default: return LOGIC(wmemchr(p_buf, c, L-1));
 		}
 	}
 }
 
+const wchar_t * SStringU::SearchCharPos(size_t startPos, int c, size_t * pPos) const
+{
+	size_t pos = 0;
+	const  wchar_t * p = 0;
+	if(L > (startPos+1)) {
+		p = static_cast<const wchar_t *>(wmemchr(P_Buf+startPos, static_cast<uchar>(c), Len()-startPos));
+		if(p)
+			pos = static_cast<size_t>(p - P_Buf);
+	}
+	ASSIGN_PTR(pPos, pos);
+	return p;
+}
+
+const wchar_t * SStringU::SearchChar(int c, size_t * pPos) const { return SearchCharPos(0, c, pPos); }
 SStringU & FASTCALL SStringU::operator = (const SStringU & s) { return CopyFrom(s); }
 SStringU & FASTCALL SStringU::operator = (const wchar_t * pS) { return CopyFrom(pS); }
 
@@ -4852,6 +4890,26 @@ int64 SStringU::ToInt64() const
 	}
 	else
 		return 0;
+}
+
+int SStringU::Divide(int divChr, SStringU & rLeft, SStringU & rRight) const
+{
+	rLeft.Z();
+	rRight.Z();
+
+	int    ok = 0;
+	size_t pos = 0;
+	const wchar_t * p = SearchChar(divChr, &pos);
+	if(p) {
+		Sub(0, pos, rLeft);
+		Sub(pos+1, UINT_MAX, rRight);
+		ok = 1;
+	}
+	else {
+		rLeft = *this;
+		ok = -1;
+	}
+	return ok;
 }
 
 SStringU & SStringU::ToUpper()

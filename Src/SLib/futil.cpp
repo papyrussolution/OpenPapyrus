@@ -104,31 +104,6 @@ static int Win_IsFileExists(const char * pFileName)
 
 #endif
 
-/* @v10.5.6 char * replacePath(char * fileName, const char * newPath, int force)
-{
-	char   drv[MAXDRIVE], dir[MAX_PATH], nam[MAXFILE], ext[MAXEXT];
-	fnsplit(fileName, drv, dir, nam, ext);
-	if(force || (*drv == 0 && *dir == 0))
-		strcat(strcat(setLastSlash(strcpy(fileName, newPath)), nam), ext);
-	return fileName;
-} */
-
-/* @v10.5.6 char * replaceExt(char * fileName, const char * newExt, int force)
-{
-	char   drv[MAXDRIVE], dir[MAX_PATH], nam[MAXFILE], ext[MAXEXT];
-	fnsplit(fileName, drv, dir, nam, ext);
-	if(force || *ext == 0) {
-		if(newExt[0] != '.') {
-			ext[0] = '.';
-			strnzcpy(ext+1, newExt, sizeof(ext)-1);
-		}
-		else
-			strnzcpy(ext, newExt, sizeof(ext));
-		fnmerge(fileName, drv, dir, nam, ext);
-	}
-	return fileName;
-}*/
-
 char * setLastSlash(char * p)
 {
 	size_t len = sstrlen(p);
@@ -259,46 +234,6 @@ static char * squeeze(char * path)
 }
 #endif // } __WIN32__
 
-/* @v10.8.2 (unused) static char * fexpand(char * rpath)
-{
-#ifdef __WIN32__
-	TCHAR * fn = 0;
-	TCHAR  buf[MAX_PATH];
-	::GetFullPathName(SUcSwitch(rpath), SIZEOFARRAY(buf), buf, &fn);
-	return strcpy(rpath, SUcSwitch(buf));
-#else
-	char path[MAX_PATH];
-	char drive[MAXDRIVE];
-	char dir[MAXDIR];
-	char file[MAXFILE];
-	char ext[MAXEXT];
-	char curdir[MAXDIR];
-	char * p = dir;
-	int flags = fnsplit(rpath, drive, dir, file, ext);
-	if((flags & FNF_DRIVE) == 0) {
-		drive[0] = getdisk() + 'A';
-		drive[1] = ':';
-		drive[2] = '\0';
-	}
-	else
-		drive[0] = toupper(drive[0]);
-	if(!(flags & FNF_DIRECTORY) || (dir[0] != '\\' && dir[0] != '/')) {
-		getcurdir(drive[0] - 'A' + 1, curdir);
-		strcat(curdir, dir);
-		if(*curdir != '\\' && *curdir != '/') {
-			*dir = '\\';
-			strcpy(dir + 1, curdir);
-		}
-		else
-			strcpy(dir, curdir);
-	}
-	while((p = sstrchr(p, '/')) != 0)
-		*p = '\\';
-	fnmerge(path, drive, squeeze(dir), file, ext);
-	return strcpy(rpath, strupr(path));
-#endif
-}*/
-
 int pathValid(const char * pPath, int existOnly)
 {
 	SString exp_path(pPath);
@@ -310,19 +245,6 @@ int pathValid(const char * pPath, int existOnly)
 	}
 	return (exp_path.Len() <= 3) ? driveValid(exp_path) : (existOnly ? IsDirectory(exp_path.RmvLastSlash()) : 1);
 }
-
-/* @v10.8.2 (unused)
-int validFileName(const char * pFileName)
-{
-	static const char * illegalChars = ";,=+<>|\"[] \\";
-	char   path[MAX_PATH];
-	char   dir[MAXDIR];
-	char   name[MAXFILE];
-	char   ext[MAXEXT];
-	fnsplit(pFileName, path, dir, name, ext);
-	return ((*dir && !pathValid(strcat(path, dir), 1)) || strpbrk(name, illegalChars) ||
-		strpbrk(ext + 1, illegalChars) || sstrchr(ext + 1, '.')) ? 0 : 1;
-}*/
 
 SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
 {
@@ -390,13 +312,6 @@ bool FASTCALL IsWild(const char * f)
 SString & makeExecPathFileName(const char * pName, const char * pExt, SString & rPath)
 {
 	HMODULE h_inst = SLS.GetHInst();
-	// @v10.3.9 char   drv[MAXDRIVE], dir[MAXDIR];
-	// @v10.3.9 char   path[MAX_PATH];
-	// @v10.3.9 GetModuleFileName(h_inst, path, sizeof(path)); // @unicodeproblem
-	// @v10.3.9 fnsplit(path, drv, dir, 0, 0);
-	// @v10.3.9 fnmerge(path, drv, dir, pName, pExt);
-	// @v10.3.9 rPath = path;
-	// @v10.3.9 {
 	SString path;
 	SSystem::SGetModuleFileName(h_inst, path);
 	SPathStruc ps(path);

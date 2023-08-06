@@ -205,7 +205,7 @@ static cairo_status_t _bitmap_next_id(struct _cairo_script_context::_bitmap * b,
 		b = b->next;
 	} while(b);
 	assert(prev != NULL);
-	bb = (struct _cairo_script_context::_bitmap *)_cairo_malloc(sizeof(struct _cairo_script_context::_bitmap));
+	bb = (struct _cairo_script_context::_bitmap *)SAlloc::M_zon0(sizeof(struct _cairo_script_context::_bitmap));
 	if(UNLIKELY(bb == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	*prev = bb;
@@ -778,7 +778,7 @@ static void attach_snapshot(cairo_script_context_t * ctx, cairo_surface_t * sour
 	struct script_snapshot * surface;
 	if(!ctx->attach_snapshots)
 		return;
-	surface = (struct script_snapshot *)_cairo_malloc(sizeof(*surface));
+	surface = (struct script_snapshot *)SAlloc::M_zon0(sizeof(*surface));
 	if(UNLIKELY(!surface))
 		return;
 	_cairo_surface_init(&surface->base, &script_snapshot_backend, &ctx->base, source->content, source->is_vector);
@@ -890,7 +890,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output, const
 	}
 #else
 	if(stride > ARRAY_LENGTH(row_stack)) {
-		rowdata = (uint8 *)_cairo_malloc(stride);
+		rowdata = (uint8 *)SAlloc::M_zon0(stride);
 		if(UNLIKELY(rowdata == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -1558,7 +1558,7 @@ static cairo_status_t _cairo_script_surface_finish(void * abstract_surface)
 				cairo_list_del(&surface->operand.link);
 			}
 			else {
-				struct deferred_finish * link = (struct deferred_finish *)_cairo_malloc(sizeof(*link));
+				struct deferred_finish * link = (struct deferred_finish *)SAlloc::M_zon0(sizeof(*link));
 				if(link == NULL) {
 					status2 = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 					if(status == CAIRO_STATUS_SUCCESS)
@@ -2059,7 +2059,7 @@ static cairo_status_t _emit_type42_font(cairo_script_surface_t * surface, cairo_
 	status = backend->load_truetype_table(scaled_font, 0, 0, NULL, &size);
 	if(UNLIKELY(status))
 		return status;
-	buf = (uint8 *)_cairo_malloc(size);
+	buf = (uint8 *)SAlloc::M_zon0(size);
 	if(UNLIKELY(buf == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
@@ -2100,7 +2100,7 @@ static cairo_status_t _emit_scaled_font_init(cairo_script_surface_t * surface, c
 {
 	cairo_script_context_t * ctx = to_context(surface);
 	cairo_int_status_t status;
-	cairo_script_font_t * font_private = (cairo_script_font_t *)_cairo_malloc(sizeof(cairo_script_font_t));
+	cairo_script_font_t * font_private = (cairo_script_font_t *)SAlloc::M_zon0(sizeof(cairo_script_font_t));
 	if(UNLIKELY(font_private == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_scaled_font_attach_private(scaled_font, &font_private->base, ctx, _cairo_script_scaled_font_fini);
@@ -2428,31 +2428,24 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 	cairo_script_font_t * font_private;
 	cairo_scaled_glyph_t * scaled_glyph;
 	cairo_matrix_t matrix;
-	cairo_status_t status;
 	double x, y, ix, iy;
 	int n;
 	cairo_output_stream_t * base85_stream = NULL;
-
-	status = active(surface);
+	cairo_status_t status = active(surface);
 	if(UNLIKELY(status))
 		return status;
-
 	status = _cairo_surface_clipper_set_clip(&surface->clipper, clip);
 	if(UNLIKELY(status))
 		goto BAIL;
-
 	status = _emit_context(surface);
 	if(UNLIKELY(status))
 		goto BAIL;
-
 	status = _emit_source(surface, op, source);
 	if(UNLIKELY(status))
 		goto BAIL;
-
 	status = _emit_scaled_font(surface, scaled_font);
 	if(UNLIKELY(status))
 		goto BAIL;
-
 	status = _emit_operator(surface, op);
 	if(UNLIKELY(status))
 		goto BAIL;
@@ -2720,7 +2713,7 @@ static cairo_script_surface_t * _cairo_script_surface_create_internal(cairo_scri
 	cairo_script_surface_t * surface;
 	if(UNLIKELY(ctx == NULL))
 		return (cairo_script_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NULL_POINTER));
-	surface = (cairo_script_surface_t *)_cairo_malloc(sizeof(cairo_script_surface_t));
+	surface = (cairo_script_surface_t *)SAlloc::M_zon0(sizeof(cairo_script_surface_t));
 	if(UNLIKELY(!surface))
 		return (cairo_script_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_script_surface_backend, &ctx->base, content, TRUE); /* is_vector */
@@ -2751,7 +2744,7 @@ static const cairo_device_backend_t _cairo_script_device_backend = {
 
 cairo_device_t * _cairo_script_context_create_internal(cairo_output_stream_t * stream)
 {
-	cairo_script_context_t * ctx = (cairo_script_context_t *)_cairo_malloc(sizeof(cairo_script_context_t));
+	cairo_script_context_t * ctx = (cairo_script_context_t *)SAlloc::M_zon0(sizeof(cairo_script_context_t));
 	if(UNLIKELY(ctx == NULL))
 		return _cairo_device_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	memzero(ctx, sizeof(cairo_script_context_t));

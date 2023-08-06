@@ -12,6 +12,8 @@
 
 #include "zstd_mem.h"
 
+#if 0 // @sobolev {
+
 MEM_STATIC uint ZSTD_countTrailingZeros32_fallback(uint32 val)
 {
 	assert(val != 0);
@@ -34,8 +36,7 @@ MEM_STATIC uint ZSTD_countTrailingZeros32(uint32 val)
 		return (uint)r;
 	}
 	else {
-		/* Should not reach this code path */
-		__assume(0);
+		__assume(0); // Should not reach this code path
 	}
 #endif
 #elif defined(__GNUC__) && (__GNUC__ >= 4)
@@ -149,22 +150,24 @@ MEM_STATIC uint ZSTD_countLeadingZeros64(uint64 val)
 #endif
 }
 
+#endif // } 0 @sobolev
+
 MEM_STATIC uint ZSTD_NbCommonBytes(size_t val)
 {
 	if(MEM_isLittleEndian()) {
 		if(MEM_64bits()) {
-			return ZSTD_countTrailingZeros64((uint64)val) >> 3;
+			return /*ZSTD_countTrailingZeros64*/SBits::Ctz((uint64)val) >> 3;
 		}
 		else {
-			return ZSTD_countTrailingZeros32((uint32)val) >> 3;
+			return /*ZSTD_countTrailingZeros32*/SBits::Ctz((uint32)val) >> 3;
 		}
 	}
 	else { /* Big Endian CPU */
 		if(MEM_64bits()) {
-			return ZSTD_countLeadingZeros64((uint64)val) >> 3;
+			return /*ZSTD_countLeadingZeros64*/SBits::Clz((uint64)val) >> 3;
 		}
 		else {
-			return ZSTD_countLeadingZeros32((uint32)val) >> 3;
+			return /*ZSTD_countLeadingZeros32*/SBits::Clz((uint32)val) >> 3;
 		}
 	}
 }
@@ -172,7 +175,7 @@ MEM_STATIC uint ZSTD_NbCommonBytes(size_t val)
 MEM_STATIC uint ZSTD_highbit32(uint32 val)   /* compress, dictBuilder, decodeCorpus */
 {
 	assert(val != 0);
-	return 31 - ZSTD_countLeadingZeros32(val);
+	return 31 - /*ZSTD_countLeadingZeros32*/SBits::Clz(val);
 }
 
 #endif /* ZSTD_BITS_H */

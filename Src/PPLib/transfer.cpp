@@ -430,6 +430,7 @@ void GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
 	Deficit = 0.0;
 	DraftRcpt = 0.0;
 	Rest = r;
+	Flags = 0; // @v11.7.11
 	Serial[0] = 0;
 	LotTagText[0] = 0;
 }
@@ -596,6 +597,7 @@ int GoodsRestParam::AddToItem(int p, LDATE dt, long opn, GoodsRestVal * pAdd)
 		v->Count++;
 		v->UnitsPerPack = pAdd->UnitsPerPack;
 		v->LocID = pAdd->LocID;
+		v->Flags |= pAdd->Flags; // @v11.7.11
 		if(up || uc) {
 			if(CalcMethod == pcmLastLot) {
    		        if(!Md_ || dt > Md_ || (dt == Md_ && opn >= Mo_)) {
@@ -662,10 +664,14 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 			double q_price;
 			const QuotIdent qi(QIDATE(getcurdate_()), (DiffParam & _diffLoc) ? pLotRec->LocID : LocID, QuotKindID);
 			if(gobj.GetQuotExt(pLotRec->GoodsID, qi, add.Cost, add.Price, &q_price, 1) > 0) {
-				if(byquot_cost)
+				if(byquot_cost) {
 					add.Cost = q_price;
-				else if(!retail_price && byquot_price)
+					add.Flags |= GoodsRestVal::fCostByQuot; // @v11.7.11
+				}
+				else if(!retail_price && byquot_price) {
 					add.Price = q_price;
+					add.Flags |= GoodsRestVal::fPriceByQuot; // @v11.7.11
+				}
 			}
 		}
 		if(costwovat || pricewotaxes || setcostwovat || setpricewovat) { // @v10.6.6 setpricewovat

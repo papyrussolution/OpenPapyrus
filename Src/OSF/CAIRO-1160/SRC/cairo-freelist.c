@@ -40,7 +40,7 @@ void * _cairo_freelist_alloc(cairo_freelist_t * freelist)
 		VG(VALGRIND_MAKE_MEM_UNDEFINED(node, freelist->nodesize));
 		return node;
 	}
-	return _cairo_malloc(freelist->nodesize);
+	return SAlloc::M_zon0(freelist->nodesize);
 }
 
 void * _cairo_freelist_calloc(cairo_freelist_t * freelist)
@@ -101,7 +101,7 @@ void * _cairo_freepool_alloc_from_new_pool(cairo_freepool_t * freepool)
 	}
 	else {
 		poolsize = (freepool->pools != &freepool->embedded_pool) ? (2 * freepool->pools->size) : ((128 * freepool->nodesize + 8191) & -8192);
-		pool = (cairo_freelist_pool_t *)_cairo_malloc(sizeof(cairo_freelist_pool_t) + poolsize);
+		pool = (cairo_freelist_pool_t *)SAlloc::M_zon0(sizeof(cairo_freelist_pool_t) + poolsize);
 		if(UNLIKELY(pool == NULL))
 			return pool;
 		pool->size = poolsize;

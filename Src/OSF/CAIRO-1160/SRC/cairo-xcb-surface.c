@@ -980,7 +980,7 @@ const cairo_surface_backend_t _cairo_xcb_surface_backend = {
 cairo_surface_t * _cairo_xcb_surface_create_internal(cairo_xcb_screen_t * screen, xcb_drawable_t drawable, boolint owns_pixmap,
     pixman_format_code_t pixman_format, xcb_render_pictformat_t xrender_format, int width, int height)
 {
-	cairo_xcb_surface_t * surface = _cairo_malloc(sizeof(cairo_xcb_surface_t));
+	cairo_xcb_surface_t * surface = SAlloc::M_zon0(sizeof(cairo_xcb_surface_t));
 	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xcb_surface_backend, &screen->connection->device, _cairo_content_from_pixman_format(pixman_format), FALSE/* is_vector */);

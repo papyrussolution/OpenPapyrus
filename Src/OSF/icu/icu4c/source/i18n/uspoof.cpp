@@ -397,8 +397,8 @@ U_CAPI int32_t U_EXPORT2 uspoof_areConfusable(const USpoofChecker * sc,
 		return 0;
 	}
 
-	UnicodeString id1Str((length1==-1), id1, length1); // Aliasing constructor
-	UnicodeString id2Str((length2==-1), id2, length2); // Aliasing constructor
+	UnicodeString id1Str((length1 == -1), id1, length1); // Aliasing constructor
+	UnicodeString id2Str((length2 == -1), id2, length2); // Aliasing constructor
 	return uspoof_areConfusableUnicodeString(sc, id1Str, id2Str, status);
 }
 
@@ -630,7 +630,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_getSkeleton(const USpoofChecker * sc,
 		return 0;
 	}
 
-	UnicodeString idStr((length==-1), id, length); // Aliasing constructor
+	UnicodeString idStr((length == -1), id, length); // Aliasing constructor
 	UnicodeString destStr;
 	uspoof_getSkeletonUnicodeString(sc, type, idStr, destStr, status);
 	destStr.extract(dest, destCapacity, *status);

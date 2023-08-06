@@ -131,6 +131,49 @@ SColorSet::SColorSet(const char * pSymb) : L(256, this), Symb(pSymb)
 {
 }
 
+bool FASTCALL SColorSet::IsEq(const SColorSet & rS) const
+{
+	bool   eq = true;
+	if(!Symb.IsEqiAscii(rS.Symb))
+		eq = false;
+	else {
+		const uint _c = L.GetCount();
+		if(_c != rS.L.GetCount())
+			eq = false;
+		else {
+			InnerEntry * p_e1;
+			InnerEntry * p_e2;
+			{
+				for(uint idx1 = 0; eq && L.Enum(&idx1, &p_e1);) {
+					bool found = false;
+					assert(p_e1);
+					for(uint idx2 = 0; !found && rS.L.Enum(&idx2, &p_e2);) {
+						assert(p_e2);
+						if(IsInnerEntryEq(*p_e1, rS, *p_e2))
+							found = true;
+					}
+					if(!found)
+						eq = false;
+				}
+			}
+			{
+				for(uint idx1 = 0; eq && rS.L.Enum(&idx1, &p_e1);) {
+					bool found = false;
+					assert(p_e1);
+					for(uint idx2 = 0; !found && L.Enum(&idx2, &p_e2);) {
+						assert(p_e2);
+						if(rS.IsInnerEntryEq(*p_e1, *this, *p_e2))
+							found = true;
+					}
+					if(!found)
+						eq = false;
+				}
+			}
+		}
+	}
+	return eq;
+}
+
 SColorSet & SColorSet::Z()
 {
 	Symb.Z();
@@ -200,6 +243,18 @@ SColorSet::ComplexColorBlock::ComplexColorBlock(const ComplexColorBlock & rS)
 	Copy(rS);
 }
 
+bool FASTCALL SColorSet::ComplexColorBlock::IsEq(const ComplexColorBlock & rS) const
+{
+	bool eq = true;
+	if(C != rS.C)
+		eq = false;
+	else if(Func != rS.Func)
+		eq = false;
+	else if(!TSCollection_IsEq(&ArgList, &rS.ArgList))
+		eq = false;
+	return eq;
+}
+
 SColorSet::ComplexColorBlock & FASTCALL SColorSet::ComplexColorBlock::operator = (const ComplexColorBlock & rS)
 {
 	return Copy(rS);
@@ -228,37 +283,35 @@ SString & SColorSet::ComplexColorBlock::ToStr(SString & rBuf) const
 	rBuf.Z();
 	SString temp_buf;
 	if(Func) {
+		temp_buf.Z();
 		switch(Func) {
-			case funcLerp:
-				{
-					rBuf.Cat("lerp");
-					for(uint i = 0; i < ArgList.getCount(); i++) {
-						const ColorArg * p_arg = ArgList.at(i);
-						if(p_arg) {
-							p_arg->ToStr(temp_buf);
-							rBuf.Space().Cat(temp_buf);
-						}
-					}
+			case funcEmpty: temp_buf = "empty"; break;
+			case funcLerp: temp_buf = "lerp"; break;
+			case funcLighten: temp_buf = "lighten"; break;
+			case funcDarken: temp_buf = "darken"; break;
+			case funcGrey: temp_buf = "grey"; break;
+			default: break;
+		}
+		if(temp_buf.NotEmpty()) {
+			rBuf.Cat(temp_buf);
+			for(uint i = 0; i < ArgList.getCount(); i++) {
+				const ColorArg * p_arg = ArgList.at(i);
+				if(p_arg) {
+					p_arg->ToStr(temp_buf);
+					rBuf.Space().Cat(temp_buf);
 				}
-				break;
-			case funcLighten:
-				break;
-			case funcDarken:
-				break;
-			case funcGrey:
-				break;
-			default:
-				break;
+			}
 		}
 	}
 	else if(RefSymb.NotEmpty()) {
-		rBuf.Cat(RefSymb);
+		rBuf.CatChar('$').Cat(RefSymb);
+		if(C.Alpha > 0 && C.Alpha < 255)
+			rBuf.CatChar('|').Cat(C.Alpha);
 	}
 	else if(!C.IsEmpty()) {
 		C.ToStr(rBuf, SColor::fmtHEX|SColor::fmtName);
-		if(C.Alpha < 255) {
+		if(C.Alpha < 255)
 			rBuf.CatChar('|').Cat(C.Alpha);
-		}
 	}
 	else {
 		;
@@ -270,24 +323,25 @@ int SColorSet::Helper_ParsePrimitive(SStrScan & rScan, ColorArg & rItem) const
 {
 	rItem.Z();
 	int    ok = 0;
+	bool   debug_mark = false;
 	bool   syntax_err = false;
 	SString temp_buf;
 	rScan.Skip();
 	if(rScan[0] == '#') {
 		rScan.Incr();
-		if(rScan.GetXDigits(temp_buf)) {
-			// hex-цвет
-			temp_buf.Insert(0, "#");
-			if(rItem.C.FromStr(temp_buf))
-				ok = 1;
-		}
-		else if(rScan.GetIdent(temp_buf)) {
+		rScan.GetUntil('|', temp_buf);
+		temp_buf.Insert(0, "#");
+		if(rItem.C.FromStr(temp_buf))
+			ok = 1;			
+		else
+			syntax_err = true;
+		/*if(rScan.GetIdent(temp_buf)) {
 			// именованный цвет	
 			if(rItem.C.FromStr(temp_buf))
 				ok = 1;			
 		}
 		else 
-			syntax_err = true;
+				syntax_err = true;*/
 		if(!syntax_err) {
 			if(rScan[0] == '|') {
 				// alpha
@@ -300,6 +354,15 @@ int SColorSet::Helper_ParsePrimitive(SStrScan & rScan, ColorArg & rItem) const
 						rItem.C.SetAlphaF(static_cast<float>(alpha));
 					else {
 						ok = 0; // @todo @err
+					}
+					if(ok && rItem.C.IsEmpty()) {
+						// Эксклюзивный случай: валидное текстовое представление цвета
+						// определяет пустое с точки зрения slib значение {0,0,0,0}
+						// для того, что бы другие слои подсистемы не трактовали его
+						// как инвалидное определим alpha как 1, что в реальности 
+						// почти не отличается от нуля (я, по крайней мере, так надеюсь).
+						//rItem.C.Alpha = 1;
+						debug_mark = true;
 					}
 				}
 			}
@@ -363,7 +426,10 @@ int SColorSet::ParseComplexColorBlock(const char * pText, ComplexColorBlock & rB
 			//funcDarken,    // (color, factor)
 			//funcGrey,      // (whitePart)
 			int    func = funcNone;
-			if(temp_buf.IsEqiAscii("lerp")) {
+			if(temp_buf.IsEqiAscii("empty")) {
+				func = funcEmpty;
+			}
+			else if(temp_buf.IsEqiAscii("lerp")) {
 				func = funcLerp;
 			}
 			else if(temp_buf.IsEqiAscii("lighten")) {
@@ -391,10 +457,13 @@ int SColorSet::ParseComplexColorBlock(const char * pText, ComplexColorBlock & rB
 					; // @todo @err
 					ok = 0;
 				}
-				scan.Skip();
+				scan.Skip().IncrChr(',');
 			}
 			if(ok) {
 				switch(func) {
+					case funcEmpty:
+						THROW(rBlk.ArgList.getCount() == 0); // @todo @err
+						break;
 					case funcLerp:
 						THROW(rBlk.ArgList.getCount() == 3); // @todo @err
 						{
@@ -467,6 +536,10 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor &
 	int    ok = 1;
 	if(rBlk.Func) {
 		switch(rBlk.Func) {
+			case funcEmpty:
+				THROW(rBlk.ArgList.getCount() == 0); // @todo @err
+				rC = ZEROCOLOR;
+				break;
 			case funcLerp:
 				THROW(rBlk.ArgList.getCount() == 3); // @todo @err
 				{
@@ -631,7 +704,25 @@ SJson * SColorSet::ToJsonObj() const
 	for(uint idx = 0; L.Enum(&idx, &p_entry);) {
 		GetS(p_entry->SymbP, symb_buf);
 		if(symb_buf.NotEmptyS()) {
-			p_entry->C.ToStr(val_buf, SColor::fmtName|SColor::fmtHEX);
+			if(p_entry->CcbP) {
+				if(p_entry->CcbP <= CcC.getCount()) {
+					const ComplexColorBlock * p_ccb = CcC.at(p_entry->CcbP-1);
+					if(p_ccb) {
+						p_ccb->ToStr(val_buf);
+					}
+					else {
+						; // @todo @err
+					}
+				}
+				else {
+					; // @todo @err
+				}
+			}
+			else {
+				p_entry->C.ToStr(val_buf, SColor::fmtName|SColor::fmtHEX|SColor::fmtForceHashPrefix);
+				if(p_entry->C.Alpha < 255)
+					val_buf.CatChar('|').Cat(p_entry->C.Alpha);
+			}
 			p_result->InsertString(symb_buf.Escape(), val_buf);
 		}
 	}
@@ -691,8 +782,15 @@ int SColorSet::Put(const char * pSymb, ComplexColorBlock * pBlk)
 			p_new_entry->CcbP = CcC.getCount(); // Индекс получаем после вставки так как поле значений этих индексов начинается с единицы ([1..CcC.getCount()])
 			do_delete_blk = false;
 		}
+		else if(pBlk->C.IsEmpty()) {
+			pBlk->Func = funcEmpty;
+			CcC.insert(pBlk);
+			p_new_entry = new InnerEntry;
+			p_new_entry->CcbP = CcC.getCount(); // Индекс получаем после вставки так как поле значений этих индексов начинается с единицы ([1..CcC.getCount()])
+			do_delete_blk = false;
+		}
 		else {
-			THROW(!pBlk->C.IsEmpty()); // @todo @err
+			//THROW(!pBlk->C.IsEmpty()); // @todo @err
 			p_new_entry = new InnerEntry;
 			p_new_entry->C = pBlk->C;
 		}
@@ -756,6 +854,30 @@ int SColorSet::Helper_Get(const char * pSymb, SColor & rC, StringSet * pRecurSym
 	rC = c;
 	return ok;
 }
+
+bool FASTCALL SColorSet::IsInnerEntryEq(const InnerEntry & rE1, const SColorSet & rS, const InnerEntry & rE2) const
+{
+	bool   eq = true;
+	SString & r_buf1 = SLS.AcquireRvlStr();
+	SString & r_buf2 = SLS.AcquireRvlStr();
+	GetS(rE1.SymbP, r_buf1);
+	rS.GetS(rE2.SymbP, r_buf2);
+	if(!r_buf1.IsEqiAscii(r_buf2))
+		eq = false;
+	else if(rE1.C != rE2.C)
+		eq = false;
+	else {
+		const ComplexColorBlock * p_ccb1 = (rE1.CcbP > 0 && rE1.CcbP <= CcC.getCount()) ? CcC.at(rE1.CcbP-1) : 0;
+		const ComplexColorBlock * p_ccb2 = (rE2.CcbP > 0 && rE2.CcbP <= rS.CcC.getCount()) ? rS.CcC.at(rE2.CcbP-1) : 0;
+		if(p_ccb1 && p_ccb2) {
+			if(!p_ccb1->IsEq(*p_ccb2))
+				eq = false;
+		}
+		else if(LOGIC(p_ccb1) != LOGIC(p_ccb2))
+			eq = false;
+	}
+	return eq;
+}
 	
 int SColorSet::Get(const char * pSymb, SColor & rC) const
 {
@@ -776,6 +898,18 @@ UiDescription & UiDescription::Z()
 	ClrList.clear();
 	LoList.clear();
 	return *this;
+}
+
+bool FASTCALL UiDescription::IsEq(const UiDescription & rS) const
+{
+	bool eq = true;
+	if(!TSCollection_IsEq(&FontList, &rS.FontList))
+		eq = false;
+	else if(!TSCollection_IsEq(&ClrList, &rS.ClrList))	
+		eq = false;
+	else if(!TSCollection_IsEq(&LoList, &rS.LoList))	
+		eq = false;
+	return eq;
 }
 
 UiDescription & UiDescription::Copy(const UiDescription & rS)

@@ -1395,7 +1395,7 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const char16_t * source, int32_t sourceLe
 		return 0;
 	}
 	/* determine the source length */
-	if(sourceLength==-1) {
+	if(sourceLength == -1) {
 		sourceLength = u_strlen(source);
 	}
 	if(sourceLength<=0) {

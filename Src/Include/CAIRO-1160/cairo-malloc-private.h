@@ -47,13 +47,13 @@
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of malloc() failure or size is 0.
  **/
-#define _cairo_malloc(size) ((size) > 0 ? SAlloc::M(static_cast<uint>(size)) : NULL)
+// @v11.7.11 (replaced with SAlloc::M_zon0) #define _cairo_malloc_Removed(size) ((size) > 0 ? SAlloc::M(static_cast<uint>(size)) : NULL)
 /**
  * _cairo_malloc_ab:
  * @a: number of elements to allocate
  * @size: size of each element
  *
- * Allocates @a*@size memory using _cairo_malloc(), taking care to not
+ * Allocates @a*@size memory using SAlloc::M_zon0(), taking care to not
  * overflow when doing the multiplication.  Behaves much like
  * calloc(), except that the returned memory is not set to zero.
  * The memory should be freed using SAlloc::F().
@@ -62,9 +62,7 @@
  *
  * Return value: A pointer to the newly allocated memory, or %NULL in case of malloc() failure or overflow.
  **/
-
-#define _cairo_malloc_ab(a, size) ((size) && static_cast<uint>(a) >= INT32_MAX / static_cast<uint>(size) ? NULL : _cairo_malloc(static_cast<uint>(a) * static_cast<uint>(size)))
-
+#define _cairo_malloc_ab(a, size) ((size) && static_cast<uint>(a) >= INT32_MAX / static_cast<uint>(size) ? NULL : SAlloc::M_zon0(static_cast<uint>(a) * static_cast<uint>(size)))
 /**
  * _cairo_realloc_ab:
  * @ptr: original pointer to block of memory to be resized
@@ -89,7 +87,7 @@
  * @b: second factor of number of elements to allocate
  * @size: size of each element
  *
- * Allocates @a*@b*@size memory using _cairo_malloc(), taking care to not
+ * Allocates @a*@b*@size memory using SAlloc::M_zon0(), taking care to not
  * overflow when doing the multiplication.  Behaves like
  * _cairo_malloc_ab().  The memory should be freed using SAlloc::F().
  *
@@ -99,20 +97,20 @@
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of malloc() failure or overflow.
  **/
-#define _cairo_malloc_abc(a, b, size) ((b) && (uint)(a) >= INT32_MAX / (uint)(b) ? NULL : (size) && (uint)((a)*(b)) >= INT32_MAX / (uint)(size) ? NULL : _cairo_malloc((uint)(a) * (uint)(b) * (uint)(size)))
+#define _cairo_malloc_abc(a, b, size) ((b) && (uint)(a) >= INT32_MAX / (uint)(b) ? NULL : (size) && (uint)((a)*(b)) >= INT32_MAX / (uint)(size) ? NULL : SAlloc::M_zon0((uint)(a) * (uint)(b) * (uint)(size)))
 /**
  * _cairo_malloc_ab_plus_c:
  * @a: number of elements to allocate
  * @size: size of each element
  * @c: additional size to allocate
  *
- * Allocates @a*@size+@c memory using _cairo_malloc(), taking care to not
+ * Allocates @a*@size+@c memory using SAlloc::M_zon0(), taking care to not
  * overflow when doing the arithmetic.  Behaves similar to
  * _cairo_malloc_ab().  The memory should be freed using SAlloc::F().
  *
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of malloc() failure or overflow.
  **/
-#define _cairo_malloc_ab_plus_c(a, size, c) ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : (uint)(c) >= INT32_MAX - (uint)(a) * (uint)(size) ? NULL : _cairo_malloc((uint)(a) * (uint)(size) + (uint)(c)))
+#define _cairo_malloc_ab_plus_c(a, size, c) ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : (uint)(c) >= INT32_MAX - (uint)(a) * (uint)(size) ? NULL : SAlloc::M_zon0((uint)(a) * (uint)(size) + (uint)(c)))
 
 #endif /* CAIRO_MALLOC_PRIVATE_H */

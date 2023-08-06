@@ -51,13 +51,9 @@
 	#else
 		#include <varargs.h>
 	#endif
-	//#include <ctype.h>
-	//#include <errno.h>
 	#include <fcntl.h>
-	//#include <limits.h>
 	#include <signal.h>
 	#include <stddef.h>
-	//#include <string.h>
 	#include <unistd.h>
 #endif /* !HAVE_SYSTEM_INCLUDE_FILES */
 #ifdef DB_WIN32

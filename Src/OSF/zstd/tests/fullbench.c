@@ -133,16 +133,13 @@ FORCE_NOINLINE size_t ZSTD_decodeLiteralsHeader(ZSTD_DCtx* dctx, void const* src
 		BYTE const* istart = (BYTE const*)src;
 		symbolEncodingType_e const litEncType = (symbolEncodingType_e)(istart[0] & 3);
 		if(litEncType == set_compressed) {
-			RETURN_ERROR_IF(srcSize < 5, corruption_detected,
-			    "srcSize >= MIN_CBLOCK_SIZE == 3; here we need up to 5 for case 3");
+			RETURN_ERROR_IF(srcSize < 5, corruption_detected, "srcSize >= MIN_CBLOCK_SIZE == 3; here we need up to 5 for case 3");
 			{
 				size_t lhSize, litSize, litCSize;
 				const uint32 lhlCode = (istart[0] >> 2) & 3;
-				const uint32 lhc = MEM_readLE32(istart);
-				switch(lhlCode)
-				{
-					case 0: case 1: default: /* note : default is impossible, since lhlCode into
-					                            [0..3] */
+				const uint32 lhc = SMem::GetLe32(istart);
+				switch(lhlCode) {
+					case 0: case 1: default: /* note : default is impossible, since lhlCode into [0..3] */
 					    /* 2 - 2 - 10 - 10 */
 					    lhSize = 3;
 					    litSize  = (lhc >> 4) & 0x3FF;
@@ -164,16 +161,10 @@ FORCE_NOINLINE size_t ZSTD_decodeLiteralsHeader(ZSTD_DCtx* dctx, void const* src
 				RETURN_ERROR_IF(litSize > ZSTD_BLOCKSIZE_MAX, corruption_detected, "");
 				RETURN_ERROR_IF(litCSize + lhSize > srcSize, corruption_detected, "");
 #ifndef HUF_FORCE_DECOMPRESS_X2
-				return HUF_readDTableX1_wksp_bmi2(
-					dctx->entropy.hufTable,
-					istart+lhSize, litCSize,
-					dctx->workspace, sizeof(dctx->workspace),
-					ZSTD_DCtx_get_bmi2(dctx));
+				return HUF_readDTableX1_wksp_bmi2(dctx->entropy.hufTable, istart+lhSize, litCSize,
+					dctx->workspace, sizeof(dctx->workspace), ZSTD_DCtx_get_bmi2(dctx));
 #else
-				return HUF_readDTableX2_wksp(
-					dctx->entropy.hufTable,
-					istart+lhSize, litCSize,
-					dctx->workspace, sizeof(dctx->workspace));
+				return HUF_readDTableX2_wksp(dctx->entropy.hufTable, istart+lhSize, litCSize, dctx->workspace, sizeof(dctx->workspace));
 #endif
 			}
 		}

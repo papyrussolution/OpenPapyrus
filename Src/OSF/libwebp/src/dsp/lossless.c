@@ -500,7 +500,7 @@ static void CopyOrSwap(const uint32_t* src, int num_pixels, uint8* dst, int swap
 		const uint32_t* const src_end = src + num_pixels;
 		while(src < src_end) {
 			const uint32_t argb = *src++;
-			WebPUint32ToMem(dst, BSwap32(argb));
+			SMem::Put(dst, /*BSwap32*/SMem::BSwap(argb));
 			dst += sizeof(argb);
 		}
 	}

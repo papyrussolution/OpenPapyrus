@@ -1845,9 +1845,9 @@ static int xmlNanoHTTPFetchContent(void * ctx, char ** ptr, int * len) {
 }
 
 #ifdef STANDALONE
-int main(int argc, char ** argv) {
+int main(int argc, char ** argv) 
+{
 	char * contentType = NULL;
-
 	if(argv[1] != NULL) {
 		if(argv[2] != NULL)
 			xmlNanoHTTPFetch(argv[1], argv[2], &contentType);
@@ -1856,10 +1856,8 @@ int main(int argc, char ** argv) {
 		if(contentType != NULL) xmlFree(contentType);
 	}
 	else {
-		xmlGenericError(xmlGenericErrorContext,
-		    "%s: minimal HTTP GET implementation\n", argv[0]);
-		xmlGenericError(xmlGenericErrorContext,
-		    "\tusage %s [ URL [ filename ] ]\n", argv[0]);
+		xmlGenericError(xmlGenericErrorContext, "%s: minimal HTTP GET implementation\n", argv[0]);
+		xmlGenericError(xmlGenericErrorContext, "\tusage %s [ URL [ filename ] ]\n", argv[0]);
 	}
 	xmlNanoHTTPCleanup();
 	xmlMemoryDump();

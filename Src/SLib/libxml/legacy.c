@@ -10,12 +10,7 @@
 #pragma hdrstop
 
 #ifdef LIBXML_LEGACY_ENABLED
-#include <string.h>
-
 #include <libxml/tree.h>
-//#include <libxml/entities.h>
-//#include <libxml/SAX.h>
-//#include <libxml/parserInternals.h>
 #include <libxml/HTMLparser.h>
 
 void xmlUpgradeOldNs(xmlDocPtr doc);

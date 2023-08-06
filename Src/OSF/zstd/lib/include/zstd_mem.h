@@ -73,46 +73,44 @@ extern "C" {
 // Memory I/O
 //
 /*=== Static platform detection ===*/
-MEM_STATIC uint MEM_32bits(void);
-MEM_STATIC uint MEM_64bits(void);
-MEM_STATIC uint MEM_isLittleEndian();
+// @sobolev MEM_STATIC uint MEM_32bits(void);
+// @sobolev MEM_STATIC uint MEM_64bits(void);
+// @sobolev MEM_STATIC uint MEM_isLittleEndian();
 
 /*=== Native unaligned read/write ===*/
-MEM_STATIC uint16 MEM_read16(const void* memPtr);
-MEM_STATIC uint32 MEM_read32(const void* memPtr);
-MEM_STATIC uint64 MEM_read64(const void* memPtr);
-MEM_STATIC size_t MEM_readST(const void* memPtr);
-
-MEM_STATIC void MEM_write16(void* memPtr, uint16 value);
-MEM_STATIC void MEM_write32(void* memPtr, uint32 value);
-MEM_STATIC void MEM_write64(void* memPtr, uint64 value);
+//MEM_STATIC uint16 MEM_read16_Removed(const void* memPtr);
+//MEM_STATIC uint32 MEM_read32_Removed(const void* memPtr);
+//MEM_STATIC uint64 MEM_read64_Removed(const void* memPtr);
+//MEM_STATIC size_t MEM_readST_Removed(const void* memPtr);
+//MEM_STATIC void MEM_write16_Removed(void* memPtr, uint16 value);
+//MEM_STATIC void MEM_write32_Removed(void* memPtr, uint32 value);
+//MEM_STATIC void MEM_write64_Removed(void* memPtr, uint64 value);
 
 /*=== Little endian unaligned read/write ===*/
-MEM_STATIC uint16 MEM_readLE16(const void* memPtr);
+//MEM_STATIC uint16 MEM_readLE16_Removed(const void* memPtr);
 MEM_STATIC uint32 MEM_readLE24(const void* memPtr);
-MEM_STATIC uint32 MEM_readLE32(const void* memPtr);
-MEM_STATIC uint64 MEM_readLE64(const void* memPtr);
-MEM_STATIC size_t MEM_readLEST(const void* memPtr);
+//MEM_STATIC uint32 MEM_readLE32_Removed(const void* memPtr);
+//MEM_STATIC uint64 MEM_readLE64_Removed(const void* memPtr);
+//MEM_STATIC size_t MEM_readLEST_Removed(const void* memPtr);
 
-MEM_STATIC void MEM_writeLE16(void* memPtr, uint16 val);
+//MEM_STATIC void MEM_writeLE16_Removed(void* memPtr, uint16 val);
 MEM_STATIC void MEM_writeLE24(void* memPtr, uint32 val);
-MEM_STATIC void MEM_writeLE32(void* memPtr, uint32 val32);
-MEM_STATIC void MEM_writeLE64(void* memPtr, uint64 val64);
-MEM_STATIC void MEM_writeLEST(void* memPtr, size_t val);
+//MEM_STATIC void MEM_writeLE32_Removed(void* memPtr, uint32 val32);
+//MEM_STATIC void MEM_writeLE64_Removed(void* memPtr, uint64 val64);
+//MEM_STATIC void MEM_writeLEST_Removed(void* memPtr, size_t val);
 
 /*=== Big endian unaligned read/write ===*/
-MEM_STATIC uint32 MEM_readBE32(const void* memPtr);
-MEM_STATIC uint64 MEM_readBE64(const void* memPtr);
-MEM_STATIC size_t MEM_readBEST(const void* memPtr);
-
-MEM_STATIC void MEM_writeBE32(void* memPtr, uint32 val32);
-MEM_STATIC void MEM_writeBE64(void* memPtr, uint64 val64);
-MEM_STATIC void MEM_writeBEST(void* memPtr, size_t val);
+//MEM_STATIC uint32 MEM_readBE32_Removed(const void* memPtr);
+//MEM_STATIC uint64 MEM_readBE64_Removed(const void* memPtr);
+//MEM_STATIC size_t MEM_readBEST_Removed(const void* memPtr);
+//MEM_STATIC void MEM_writeBE32_Removed(void* memPtr, uint32 val32);
+//MEM_STATIC void MEM_writeBE64_Removed(void* memPtr, uint64 val64);
+//MEM_STATIC void MEM_writeBEST_Removed(void* memPtr, size_t val);
 
 /*=== Byteswap ===*/
-MEM_STATIC uint32 MEM_swap32(uint32 in);
-MEM_STATIC uint64 MEM_swap64(uint64 in);
-MEM_STATIC size_t MEM_swapST(size_t in);
+//MEM_STATIC uint32 MEM_swap32_Removed(uint32 in);
+//MEM_STATIC uint64 MEM_swap64_Removed(uint64 in);
+//MEM_STATIC size_t MEM_swapST_Removed(size_t in);
 //
 // Memory I/O
 //
@@ -135,10 +133,10 @@ MEM_STATIC size_t MEM_swapST(size_t in);
 	#endif
 #endif
 
-inline uint MEM_32bits() { return sizeof(size_t)==4; }
-inline uint MEM_64bits() { return sizeof(size_t)==8; }
+//inline uint MEM_32bits() { return sizeof(size_t)==4; }
+//inline uint MEM_64bits() { return sizeof(size_t)==8; }
 
-MEM_STATIC uint MEM_isLittleEndian()
+/*MEM_STATIC uint MEM_isLittleEndian()
 {
 #if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
 	return 1;
@@ -153,22 +151,22 @@ MEM_STATIC uint MEM_isLittleEndian()
 #elif defined(__DMC__) && defined(_M_IX86)
 	return 1;
 #else
-	const union { uint32 u; BYTE c[4]; } one = { 1 }; /* don't use static : performance detrimental  */
+	const union { uint32 u; BYTE c[4]; } one = { 1 }; // don't use static : performance detrimental
 	return one.c[0];
 #endif
-}
+}*/
 
 #if defined(MEM_FORCE_MEMORY_ACCESS) && (MEM_FORCE_MEMORY_ACCESS==2)
 
 /* violates C standard, by lying on structure alignment.
    Only use if no other choice to achieve best performance on target platform */
-MEM_STATIC uint16 MEM_read16(const void* memPtr) { return *(const uint16*)memPtr; }
-MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32 *)memPtr; }
-MEM_STATIC uint64 MEM_read64(const void* memPtr) { return *(const uint64*)memPtr; }
-MEM_STATIC size_t MEM_readST(const void* memPtr) { return *(const size_t*)memPtr; }
-MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
-MEM_STATIC void MEM_write32(void* memPtr, uint32 value) { *(uint32 *)memPtr = value; }
-MEM_STATIC void MEM_write64(void* memPtr, uint64 value) { *(uint64*)memPtr = value; }
+//MEM_STATIC uint16 MEM_read16_Removed(const void* memPtr) { return *(const uint16*)memPtr; }
+//MEM_STATIC uint32 MEM_read32_Removed(const void* memPtr) { return *(const uint32 *)memPtr; }
+//MEM_STATIC uint64 MEM_read64_Removed(const void* memPtr) { return *(const uint64*)memPtr; }
+//MEM_STATIC size_t MEM_readST_Removed(const void* memPtr) { return *(const size_t*)memPtr; }
+//MEM_STATIC void MEM_write16_Removed(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
+//MEM_STATIC void MEM_write32_Removed(void* memPtr, uint32 value) { *(uint32 *)memPtr = value; }
+//MEM_STATIC void MEM_write64_Removed(void* memPtr, uint64 value) { *(uint64*)memPtr = value; }
 
 #elif defined(MEM_FORCE_MEMORY_ACCESS) && (MEM_FORCE_MEMORY_ACCESS==1)
 
@@ -188,222 +186,193 @@ typedef struct { uint64 v; } __attribute__((packed)) unalign64;
 typedef struct { size_t v; } __attribute__((packed)) unalignArch;
 #endif
 
-MEM_STATIC uint16 MEM_read16(const void* ptr) { return ((const unalign16*)ptr)->v; }
-MEM_STATIC uint32 MEM_read32(const void* ptr) { return ((const unalign32*)ptr)->v; }
-MEM_STATIC uint64 MEM_read64(const void* ptr) { return ((const unalign64*)ptr)->v; }
-MEM_STATIC size_t MEM_readST(const void* ptr) { return ((const unalignArch*)ptr)->v; }
-MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { ((unalign16*)memPtr)->v = value; }
-MEM_STATIC void MEM_write32(void* memPtr, uint32 value) { ((unalign32*)memPtr)->v = value; }
-MEM_STATIC void MEM_write64(void* memPtr, uint64 value) { ((unalign64*)memPtr)->v = value; }
+//MEM_STATIC uint16 MEM_read16_Removed(const void* ptr) { return ((const unalign16*)ptr)->v; }
+//MEM_STATIC uint32 MEM_read32_Removed(const void* ptr) { return ((const unalign32*)ptr)->v; }
+//MEM_STATIC uint64 MEM_read64_Removed(const void* ptr) { return ((const unalign64*)ptr)->v; }
+//MEM_STATIC size_t MEM_readST_Removed(const void* ptr) { return ((const unalignArch*)ptr)->v; }
+//MEM_STATIC void MEM_write16_Removed(void* memPtr, uint16 value) { ((unalign16*)memPtr)->v = value; }
+//MEM_STATIC void MEM_write32_Removed(void* memPtr, uint32 value) { ((unalign32*)memPtr)->v = value; }
+//MEM_STATIC void MEM_write64_Removed(void* memPtr, uint64 value) { ((unalign64*)memPtr)->v = value; }
 
 #else
 //
 // default method, safe and standard. can sometimes prove slower 
 //
-MEM_STATIC uint16 MEM_read16(const void* memPtr)
-{
-	uint16 val; 
-	memcpy(&val, memPtr, sizeof(val)); return val;
-}
-
-MEM_STATIC uint32 MEM_read32(const void* memPtr)
-{
-	uint32 val; 
-	memcpy(&val, memPtr, sizeof(val)); return val;
-}
-
-MEM_STATIC uint64 MEM_read64(const void* memPtr)
-{
-	uint64 val; 
-	memcpy(&val, memPtr, sizeof(val)); return val;
-}
-
-MEM_STATIC size_t MEM_readST(const void* memPtr)
-{
-	size_t val; 
-	memcpy(&val, memPtr, sizeof(val)); return val;
-}
-
-MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { memcpy(memPtr, &value, sizeof(value)); }
-MEM_STATIC void MEM_write32(void* memPtr, uint32 value) { memcpy(memPtr, &value, sizeof(value)); }
-MEM_STATIC void MEM_write64(void* memPtr, uint64 value) { memcpy(memPtr, &value, sizeof(value)); }
+//MEM_STATIC uint16 MEM_read16_Removed(const void* memPtr) { uint16 val; memcpy(&val, memPtr, sizeof(val)); return val; }
+//MEM_STATIC uint32 MEM_read32_Removed(const void* memPtr) { uint32 val; memcpy(&val, memPtr, sizeof(val)); return val; }
+//MEM_STATIC uint64 MEM_read64_Removed(const void* memPtr) { uint64 val; memcpy(&val, memPtr, sizeof(val)); return val; }
+//MEM_STATIC size_t MEM_readST_Removed(const void* memPtr) { size_t val; memcpy(&val, memPtr, sizeof(val)); return val; }
+//MEM_STATIC void MEM_write16_Removed(void* memPtr, uint16 value) { memcpy(memPtr, &value, sizeof(value)); }
+//MEM_STATIC void MEM_write32_Removed(void* memPtr, uint32 value) { memcpy(memPtr, &value, sizeof(value)); }
+//MEM_STATIC void MEM_write64_Removed(void* memPtr, uint64 value) { memcpy(memPtr, &value, sizeof(value)); }
 
 #endif /* MEM_FORCE_MEMORY_ACCESS */
 
-MEM_STATIC uint32 MEM_swap32_fallback(uint32 in)
+/*MEM_STATIC uint32 MEM_swap32_fallback_Removed(uint32 in)
 {
 	return ((in << 24) & 0xff000000 ) | ((in <<  8) & 0x00ff0000 ) | ((in >>  8) & 0x0000ff00 ) | ((in >> 24) & 0x000000ff );
-}
+}*/
 
-MEM_STATIC uint32 MEM_swap32(uint32 in)
+/*MEM_STATIC uint32 MEM_swap32_Removed(uint32 in)
 {
-#if defined(_MSC_VER)     /* Visual Studio */
+#if defined(_MSC_VER)
 	return _byteswap_ulong(in);
 #elif (defined (__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)) || (defined(__clang__) && __has_builtin(__builtin_bswap32))
 	return __builtin_bswap32(in);
 #else
 	return MEM_swap32_fallback(in);
 #endif
-}
+}*/
 
-MEM_STATIC uint64 MEM_swap64_fallback(uint64 in)
+/*MEM_STATIC uint64 MEM_swap64_fallback_Removed(uint64 in)
 {
 	return ((in << 56) & 0xff00000000000000ULL) | ((in << 40) & 0x00ff000000000000ULL) | ((in << 24) & 0x0000ff0000000000ULL) |
 	       ((in << 8)  & 0x000000ff00000000ULL) | ((in >> 8)  & 0x00000000ff000000ULL) | ((in >> 24) & 0x0000000000ff0000ULL) |
 	       ((in >> 40) & 0x000000000000ff00ULL) | ((in >> 56) & 0x00000000000000ffULL);
-}
+}*/
 
-MEM_STATIC uint64 MEM_swap64(uint64 in)
+/*MEM_STATIC uint64 MEM_swap64_Removed(uint64 in)
 {
-#if defined(_MSC_VER)     /* Visual Studio */
+#if defined(_MSC_VER)
 	return _byteswap_uint64(in);
 #elif (defined (__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)) || (defined(__clang__) && __has_builtin(__builtin_bswap64))
 	return __builtin_bswap64(in);
 #else
 	return MEM_swap64_fallback(in);
 #endif
-}
+}*/
 
-MEM_STATIC size_t MEM_swapST(size_t in)
-{
-	if(MEM_32bits())
-		return (size_t)MEM_swap32((uint32)in);
-	else
-		return (size_t)MEM_swap64((uint64)in);
-}
+/*MEM_STATIC size_t MEM_swapST_Removed(size_t in)
+{ 
+	return MEM_32bits() ? (size_t)SMem::BSwap((uint32)in) : (size_t)SMem::BSwap((uint64)in);
+}*/
 
 /*=== Little endian r/w ===*/
 
-inline uint16 MEM_readLE16(const void* memPtr)
+/*inline uint16 MEM_readLE16_Removed(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
-		return MEM_read16(memPtr);
+		return SMem::Get16(memPtr);
 	else {
 		const BYTE * p = (const BYTE *)memPtr;
 		return (uint16)(p[0] + (p[1]<<8));
 	}
-}
+}*/
 
-inline void MEM_writeLE16(void* memPtr, uint16 val)
+/*inline void MEM_writeLE16_Removed(void* memPtr, uint16 val)
 {
 	if(MEM_isLittleEndian()) {
-		MEM_write16(memPtr, val);
+		SMem::Put(memPtr, val);
 	}
 	else {
 		BYTE * p = (BYTE *)memPtr;
 		p[0] = (BYTE)val;
 		p[1] = (BYTE)(val>>8);
 	}
-}
+}*/
 
 inline uint32 MEM_readLE24(const void* memPtr)
 {
-	return (uint32)MEM_readLE16(memPtr) + ((uint32)(((const BYTE *)memPtr)[2]) << 16);
+	return (uint32)SMem::GetLe16(memPtr) + ((uint32)(((const BYTE *)memPtr)[2]) << 16);
 }
 
 inline void MEM_writeLE24(void* memPtr, uint32 val)
 {
-	MEM_writeLE16(memPtr, (uint16)val);
+	SMem::PutLe(memPtr, (uint16)val);
 	((BYTE *)memPtr)[2] = (BYTE)(val>>16);
 }
 
-MEM_STATIC uint32 MEM_readLE32(const void* memPtr)
+/*MEM_STATIC uint32 MEM_readLE32_Removed(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
-		return MEM_read32(memPtr);
+		return SMem::Get32(memPtr);
 	else
-		return MEM_swap32(MEM_read32(memPtr));
-}
+		return SMem::BSwap(SMem::Get32(memPtr));
+}*/
 
-MEM_STATIC void MEM_writeLE32(void* memPtr, uint32 val32)
+/*MEM_STATIC void MEM_writeLE32_Removed(void* memPtr, uint32 val32)
 {
 	if(MEM_isLittleEndian())
-		MEM_write32(memPtr, val32);
+		SMem::Put(memPtr, val32);
 	else
-		MEM_write32(memPtr, MEM_swap32(val32));
-}
+		SMem::Put(memPtr, SMem::BSwap(val32));
+}*/
 
-MEM_STATIC uint64 MEM_readLE64(const void* memPtr)
+/*MEM_STATIC uint64 MEM_readLE64_Removed(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
-		return MEM_read64(memPtr);
+		return SMem::Get64(memPtr);
 	else
-		return MEM_swap64(MEM_read64(memPtr));
-}
+		return SMem::BSwap(SMem::Get64(memPtr));
+}*/
 
-MEM_STATIC void MEM_writeLE64(void* memPtr, uint64 val64)
+/*MEM_STATIC void MEM_writeLE64_Removed(void* memPtr, uint64 val64)
 {
 	if(MEM_isLittleEndian())
-		MEM_write64(memPtr, val64);
+		SMem::Put(memPtr, val64);
 	else
-		MEM_write64(memPtr, MEM_swap64(val64));
-}
+		SMem::Put(memPtr, SMem::BSwap(val64));
+}*/
 
-MEM_STATIC size_t MEM_readLEST(const void* memPtr)
+/*MEM_STATIC size_t MEM_readLEST_Removed(const void* memPtr)
 {
 	if(MEM_32bits())
-		return (size_t)MEM_readLE32(memPtr);
+		return (size_t)SMem::GetLe32(memPtr);
 	else
-		return (size_t)MEM_readLE64(memPtr);
-}
+		return (size_t)SMem::GetLe64(memPtr);
+}*/
 
-MEM_STATIC void MEM_writeLEST(void* memPtr, size_t val)
+/*MEM_STATIC void MEM_writeLEST_Removed(void* memPtr, size_t val)
 {
 	if(MEM_32bits())
-		MEM_writeLE32(memPtr, (uint32)val);
+		SMem::PutLe(memPtr, (uint32)val);
 	else
-		MEM_writeLE64(memPtr, (uint64)val);
-}
+		SMem::PutLe(memPtr, (uint64)val);
+}*/
 
 /*=== Big endian r/w ===*/
 
-MEM_STATIC uint32 MEM_readBE32(const void* memPtr)
+/*MEM_STATIC uint32 MEM_readBE32_Removed(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
-		return MEM_swap32(MEM_read32(memPtr));
+		return SMem::BSwap(SMem::Get32(memPtr));
 	else
-		return MEM_read32(memPtr);
-}
+		return SMem::Get32(memPtr);
+}*/
 
-MEM_STATIC void MEM_writeBE32(void* memPtr, uint32 val32)
+/*MEM_STATIC void MEM_writeBE32_Removed(void* memPtr, uint32 val32)
 {
 	if(MEM_isLittleEndian())
-		MEM_write32(memPtr, MEM_swap32(val32));
+		SMem::Put(memPtr, SMem::BSwap(val32));
 	else
-		MEM_write32(memPtr, val32);
-}
+		SMem::Put(memPtr, val32);
+}*/
 
-MEM_STATIC uint64 MEM_readBE64(const void* memPtr)
+/*MEM_STATIC uint64 MEM_readBE64_Removed(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
-		return MEM_swap64(MEM_read64(memPtr));
+		return SMem::BSwap(SMem::Get64(memPtr));
 	else
-		return MEM_read64(memPtr);
-}
+		return SMem::Get64(memPtr);
+}*/
 
-MEM_STATIC void MEM_writeBE64(void* memPtr, uint64 val64)
+/*MEM_STATIC void MEM_writeBE64_Removed(void* memPtr, uint64 val64)
 {
 	if(MEM_isLittleEndian())
-		MEM_write64(memPtr, MEM_swap64(val64));
+		SMem::Put(memPtr, SMem::BSwap(val64));
 	else
-		MEM_write64(memPtr, val64);
-}
+		SMem::Put(memPtr, val64);
+}*/
 
-MEM_STATIC size_t MEM_readBEST(const void* memPtr)
+/*MEM_STATIC size_t MEM_readBEST_Removed(const void* memPtr)
 {
 	if(MEM_32bits())
-		return (size_t)MEM_readBE32(memPtr);
+		return (size_t)SMem::GetBe32(memPtr);
 	else
-		return (size_t)MEM_readBE64(memPtr);
-}
+		return (size_t)SMem::GetBe64(memPtr);
+}*/
 
-MEM_STATIC void MEM_writeBEST(void* memPtr, size_t val)
-{
-	if(MEM_32bits())
-		MEM_writeBE32(memPtr, (uint32)val);
-	else
-		MEM_writeBE64(memPtr, (uint64)val);
-}
+//MEM_STATIC void MEM_writeBEST_Removed(void* memPtr, size_t val) { SMem::PutBe(memPtr, MEM_32bits() ? (uint32)val : (uint64)val); }
 
 /* code only tested on 32 and 64 bits systems */
 MEM_STATIC void MEM_check(void) { DEBUG_STATIC_ASSERT((sizeof(size_t)==4) || (sizeof(size_t)==8)); }

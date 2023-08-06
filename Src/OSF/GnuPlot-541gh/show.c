@@ -1162,7 +1162,7 @@ void GnuPlot::ShowGrid()
 			fprintf(stderr, "\tGrid radii drawn every %f %s\n", AxS.polar_grid_angle / Gg.ang2rad, (Gg.ang2rad == 1.0) ? "radians" : "degrees");
 		if(AxS.grid_spiderweb)
 			fprintf(stderr, "\tGrid shown in spiderplots\n");
-		fprintf(stderr, "\tGrid drawn at %s\n", (AxS.grid_layer==-1) ? "default layer" : ((AxS.grid_layer==0) ? "back" : "front"));
+		fprintf(stderr, "\tGrid drawn at %s\n", (AxS.grid_layer == -1) ? "default layer" : ((AxS.grid_layer==0) ? "back" : "front"));
 	}
 }
 

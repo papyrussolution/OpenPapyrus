@@ -250,7 +250,7 @@ cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t b
 	pool->num_sizes = num_sizes;
 	for(i = 0; i < ARRAY_LENGTH(pool->free); i++)
 		cairo_list_init(&pool->free[i]);
-	pool->map = static_cast<uchar *>(_cairo_malloc((num_blocks + 7) >> 3));
+	pool->map = static_cast<uchar *>(SAlloc::M_zon0((num_blocks + 7) >> 3));
 	if(pool->map == NULL) {
 		SAlloc::F(pool->blocks);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);

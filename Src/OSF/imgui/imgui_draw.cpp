@@ -1957,8 +1957,7 @@ ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
 		ImFormatString(font_cfg.Name, SIZEOFARRAYi(font_cfg.Name), "ProggyClean.ttf, %dpx", (int)font_cfg.SizePixels);
 	font_cfg.EllipsisChar = (ImWchar)0x0085;
 	font_cfg.GlyphOffset.y = 1.0f * IM_FLOOR(font_cfg.SizePixels / 13.0f); // Add +1 offset per 13 units
-
-	const char* ttf_compressed_base85 = GetDefaultCompressedFontDataTTFBase85();
+	const char * ttf_compressed_base85 = GetDefaultCompressedFontDataTTFBase85();
 	const ImWchar* glyph_ranges = font_cfg.GlyphRanges != NULL ? font_cfg.GlyphRanges : GetGlyphRangesDefault();
 	ImFont* font = AddFontFromMemoryCompressedBase85TTF(ttf_compressed_base85, font_cfg.SizePixels, &font_cfg, glyph_ranges);
 	return font;

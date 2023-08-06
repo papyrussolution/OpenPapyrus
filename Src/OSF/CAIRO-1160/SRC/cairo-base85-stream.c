@@ -39,14 +39,13 @@ typedef struct _cairo_base85_stream {
 
 static void _expand_four_tuple_to_five(uchar four_tuple[4], uchar five_tuple[5], boolint * all_zero)
 {
-	int digit, i;
 	uint32 value = four_tuple[0] << 24 | four_tuple[1] << 16 | four_tuple[2] << 8 | four_tuple[3];
-	if(all_zero)
-		*all_zero = TRUE;
-	for(i = 0; i < 5; i++) {
-		digit = value % 85;
-		if(digit != 0 && all_zero)
-			*all_zero = FALSE;
+	ASSIGN_PTR(all_zero, TRUE);
+	for(int i = 0; i < 5; i++) {
+		int digit = value % 85;
+		if(digit) {
+			ASSIGN_PTR(all_zero, FALSE);
+		}
 		five_tuple[4-i] = digit + 33;
 		value = value / 85;
 	}
@@ -90,7 +89,7 @@ cairo_output_stream_t * _cairo_base85_stream_create(cairo_output_stream_t * outp
 	cairo_base85_stream_t * stream;
 	if(output->status)
 		return _cairo_output_stream_create_in_error(output->status);
-	stream = (cairo_base85_stream_t *)_cairo_malloc(sizeof(cairo_base85_stream_t));
+	stream = (cairo_base85_stream_t *)SAlloc::M_zon0(sizeof(cairo_base85_stream_t));
 	if(UNLIKELY(stream == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;

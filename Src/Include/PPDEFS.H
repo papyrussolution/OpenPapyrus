@@ -813,6 +813,7 @@
 #define PPOBJ_QUOTKIND           29L // $ Виды котировок
 	#define PPQUOTK_BASE         1 // Базовая котировка
 	#define PPQUOTK_GIFT         2 // @v6.3.10 Подарочная котировка
+	#define PPQUOTK_ESTBOMVALUE  3 // @v11.7.11 Ожидаемая цена, рассчитанная по товарной структуре (комплектация)
 #define PPOBJ_PERSONOPKIND       30L // $ Вид персональной операции
 	//
 	// Extra records of PPOBJ_PERSONOPKIND

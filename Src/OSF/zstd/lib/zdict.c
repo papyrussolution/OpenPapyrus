@@ -80,15 +80,15 @@ uint ZDICT_getDictID(const void * dictBuffer, size_t dictSize)
 {
 	if(dictSize < 8) 
 		return 0;
-	if(MEM_readLE32(dictBuffer) != ZSTD_MAGIC_DICTIONARY) 
+	if(SMem::GetLe32(dictBuffer) != ZSTD_MAGIC_DICTIONARY) 
 		return 0;
-	return MEM_readLE32((const char *)dictBuffer + 4);
+	return SMem::GetLe32((const char *)dictBuffer + 4);
 }
 
 size_t ZDICT_getDictHeaderSize(const void * dictBuffer, size_t dictSize)
 {
 	size_t headerSize;
-	if(dictSize <= 8 || MEM_readLE32(dictBuffer) != ZSTD_MAGIC_DICTIONARY) 
+	if(dictSize <= 8 || SMem::GetLe32(dictBuffer) != ZSTD_MAGIC_DICTIONARY) 
 		return ERROR(dictionary_corrupted);
 	{   
 		ZSTD_compressedBlockState_t* bs = (ZSTD_compressedBlockState_t*)SAlloc::M(sizeof(ZSTD_compressedBlockState_t));
@@ -117,7 +117,7 @@ static size_t ZDICT_count(const void * pIn, const void * pMatch)
 {
 	const char* const pStart = (const char *)pIn;
 	for(;;) {
-		const size_t diff = MEM_readST(pMatch) ^ MEM_readST(pIn);
+		const size_t diff = SMem::GetSizeT(pMatch) ^ SMem::GetSizeT(pIn);
 		if(!diff) {
 			pIn = (const char *)pIn+sizeof(size_t);
 			pMatch = (const char *)pMatch+sizeof(size_t);
@@ -157,12 +157,14 @@ static dictItem ZDICT_analyzePos(BYTE * doneMarks, const int* suffix, uint32 sta
 	memzero(&solution, sizeof(solution));
 	doneMarks[pos] = 1;
 	/* trivial repetition cases */
-	if((MEM_read16(b+pos+0) == MEM_read16(b+pos+2)) ||(MEM_read16(b+pos+1) == MEM_read16(b+pos+3)) ||(MEM_read16(b+pos+2) == MEM_read16(b+pos+4))) {
+	if((SMem::Get16(b+pos+0) == SMem::Get16(b+pos+2)) ||(SMem::Get16(b+pos+1) == SMem::Get16(b+pos+3)) ||(SMem::Get16(b+pos+2) == SMem::Get16(b+pos+4))) {
 		/* skip and mark segment */
-		uint16 const pattern16 = MEM_read16(b+pos+4);
+		uint16 const pattern16 = SMem::Get16(b+pos+4);
 		uint32 u, patternEnd = 6;
-		while(MEM_read16(b+pos+patternEnd) == pattern16) patternEnd += 2;
-		if(b[pos+patternEnd] == b[pos+patternEnd-1]) patternEnd++;
+		while(SMem::Get16(b+pos+patternEnd) == pattern16) 
+			patternEnd += 2;
+		if(b[pos+patternEnd] == b[pos+patternEnd-1]) 
+			patternEnd++;
 		for(u = 1; u<patternEnd; u++)
 			doneMarks[pos+u] = 1;
 		return solution;
@@ -180,7 +182,8 @@ static dictItem ZDICT_analyzePos(BYTE * doneMarks, const int* suffix, uint32 sta
 		size_t length;
 	    do {
 		    length = ZDICT_count(b + pos, b + *(suffix+start-1));
-		    if(length >=MINMATCHLENGTH) start--;
+		    if(length >=MINMATCHLENGTH) 
+				start--;
 	    } while(length >= MINMATCHLENGTH);
 	}
 	/* exit if not found a minimum nb of repetitions */
@@ -369,7 +372,7 @@ static uint32 ZDICT_tryMerge(dictItem* table, dictItem elt, uint32 eltNbToSkip, 
 			return u;
 		}
 
-		if(MEM_read64(buf + table[u].pos) == MEM_read64(buf + elt.pos + 1)) {
+		if(SMem::Get64(buf + table[u].pos) == SMem::Get64(buf + elt.pos + 1)) {
 			if(isIncluded(buf + table[u].pos, buf + elt.pos + 1, table[u].length)) {
 				const size_t addedLength = MAX( (int)elt.length - (int)table[u].length, 1);
 				table[u].pos = elt.pos;
@@ -791,15 +794,15 @@ static size_t ZDICT_analyzeEntropy(void *  dstBuffer, size_t maxDstSize, int com
 		goto _cleanup;
 	}
 #if 0
-	MEM_writeLE32(dstPtr+0, bestRepOffset[0].offset);
-	MEM_writeLE32(dstPtr+4, bestRepOffset[1].offset);
-	MEM_writeLE32(dstPtr+8, bestRepOffset[2].offset);
+	SMem::PutLe(dstPtr+0, bestRepOffset[0].offset);
+	SMem::PutLe(dstPtr+4, bestRepOffset[1].offset);
+	SMem::PutLe(dstPtr+8, bestRepOffset[2].offset);
 #else
 	/* at this stage, we don't use the result of "most common first offset",
 	 * as the impact of statistics is not properly evaluated */
-	MEM_writeLE32(dstPtr+0, repStartValue[0]);
-	MEM_writeLE32(dstPtr+4, repStartValue[1]);
-	MEM_writeLE32(dstPtr+8, repStartValue[2]);
+	SMem::PutLe(dstPtr+0, repStartValue[0]);
+	SMem::PutLe(dstPtr+4, repStartValue[1]);
+	SMem::PutLe(dstPtr+8, repStartValue[2]);
 #endif
 	eSize += 12;
 _cleanup:
@@ -835,12 +838,12 @@ size_t ZDICT_finalizeDictionary(void * dictBuffer, size_t dictBufferCapacity, co
 	if(dictBufferCapacity < dictContentSize) return ERROR(dstSize_tooSmall);
 	if(dictBufferCapacity < ZDICT_DICTSIZE_MIN) return ERROR(dstSize_tooSmall);
 	/* dictionary header */
-	MEM_writeLE32(header, ZSTD_MAGIC_DICTIONARY);
+	SMem::PutLe(header, ZSTD_MAGIC_DICTIONARY);
 	{   
 		uint64 const randomID = XXH64(customDictContent, dictContentSize, 0);
 	    const uint32 compliantID = (randomID % ((1U<<31)-32768)) + 32768;
 	    const uint32 dictID = params.dictID ? params.dictID : compliantID;
-	    MEM_writeLE32(header+4, dictID);
+	    SMem::PutLe(header+4, dictID);
 	}
 	hSize = 8;
 	/* entropy tables */
@@ -905,12 +908,12 @@ static size_t ZDICT_addEntropyTablesFromBuffer_advanced(void * dictBuffer, size_
 	    hSize += eSize;
 	}
 	/* add dictionary header (after entropy tables) */
-	MEM_writeLE32(dictBuffer, ZSTD_MAGIC_DICTIONARY);
+	SMem::PutLe(dictBuffer, ZSTD_MAGIC_DICTIONARY);
 	{   
 		uint64 const randomID = XXH64((char *)dictBuffer + dictBufferCapacity - dictContentSize, dictContentSize, 0);
 	    const uint32 compliantID = (randomID % ((1U<<31)-32768)) + 32768;
 	    const uint32 dictID = params.dictID ? params.dictID : compliantID;
-	    MEM_writeLE32((char *)dictBuffer+4, dictID);
+	    SMem::PutLe((char *)dictBuffer+4, dictID);
 	}
 	if(hSize + dictContentSize < dictBufferCapacity)
 		memmove((char *)dictBuffer + hSize, (char *)dictBuffer + dictBufferCapacity - dictContentSize, dictContentSize);

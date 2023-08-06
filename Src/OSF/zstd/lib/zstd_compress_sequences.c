@@ -43,7 +43,7 @@ static uint FASTCALL ZSTD_getFSEMaxSymbolValue(const FSE_CTable * ctable)
 {
 	const void * ptr = ctable;
 	const uint16 * u16ptr = (const uint16 *)ptr;
-	const uint32 maxSymbolValue = MEM_read16(u16ptr + 1);
+	const uint32 maxSymbolValue = SMem::Get16(u16ptr + 1);
 	return maxSymbolValue;
 }
 /**

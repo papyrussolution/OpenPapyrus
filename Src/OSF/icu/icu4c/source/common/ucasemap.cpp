@@ -796,7 +796,7 @@ int32_t ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_IT
 		return 0;
 	}
 	/* get the string length */
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		srcLength = (int32_t)strlen((const char *)src);
 	}
 	/* check for overlapping source and destination */

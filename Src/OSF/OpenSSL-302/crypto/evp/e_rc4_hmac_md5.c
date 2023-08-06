@@ -76,14 +76,10 @@ static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		/* cipher has to "fall behind" */
 		if(rc4_off > md5_off)
 			md5_off += MD5_CBLOCK;
-
-		if(plen > md5_off && (blocks = (plen - md5_off) / MD5_CBLOCK) &&
-		    (OPENSSL_ia32cap_P[0] & (1 << 20)) == 0) {
+		if(plen > md5_off && (blocks = (plen - md5_off) / MD5_CBLOCK) && (OPENSSL_ia32cap_P[0] & (1 << 20)) == 0) {
 			MD5_Update(&key->md, in, md5_off);
 			RC4(&key->ks, rc4_off, in, out);
-
-			rc4_md5_enc(&key->ks, in + rc4_off, out + rc4_off,
-			    &key->md, in + md5_off, blocks);
+			rc4_md5_enc(&key->ks, in + rc4_off, out + rc4_off, &key->md, in + md5_off, blocks);
 			blocks *= MD5_CBLOCK;
 			rc4_off += blocks;
 			md5_off += blocks;
@@ -123,14 +119,10 @@ static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 			rc4_off += 2 * MD5_CBLOCK;
 		else
 			rc4_off += MD5_CBLOCK;
-
-		if(len > rc4_off && (blocks = (len - rc4_off) / MD5_CBLOCK) &&
-		    (OPENSSL_ia32cap_P[0] & (1 << 20)) == 0) {
+		if(len > rc4_off && (blocks = (len - rc4_off) / MD5_CBLOCK) && (OPENSSL_ia32cap_P[0] & (1 << 20)) == 0) {
 			RC4(&key->ks, rc4_off, in, out);
 			MD5_Update(&key->md, out, md5_off);
-
-			rc4_md5_enc(&key->ks, in + rc4_off, out + rc4_off,
-			    &key->md, out + md5_off, blocks);
+			rc4_md5_enc(&key->ks, in + rc4_off, out + rc4_off, &key->md, out + md5_off, blocks);
 			blocks *= MD5_CBLOCK;
 			rc4_off += blocks;
 			md5_off += blocks;

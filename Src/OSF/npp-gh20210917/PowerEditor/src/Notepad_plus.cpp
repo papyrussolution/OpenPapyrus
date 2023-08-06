@@ -3706,9 +3706,7 @@ void Notepad_plus::docOpenInNewInstance(FileTransferMode mode, int x, int y)
 		command += TEXT(" -y");
 		command += pY;
 	}
-
 	LangType lt = buf->getLangType();
-
 	// In case of UDL, "-lLANG" argument part is ignored.
 	// We let new instance detect the user lang type via file extension -
 	// it works in the most of case, except if user applies an UDL manually.

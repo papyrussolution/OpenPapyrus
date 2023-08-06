@@ -2333,7 +2333,7 @@ static cairo_int_status_t inplace_renderer_init(cairo_image_span_renderer_t * r,
 		/* Create an effectively unbounded mask by repeating the single line */
 		buf = r->_buf;
 		if(width > SZ_BUF) {
-			buf = (uint8 *)_cairo_malloc(width);
+			buf = (uint8 *)SAlloc::M_zon0(width);
 			if(UNLIKELY(buf == NULL)) {
 				pixman_image_unref(r->src);
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);

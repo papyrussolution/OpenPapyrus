@@ -1249,7 +1249,7 @@ U_CFUNC int32_t ustrcase_map(int32_t caseLocale, uint32_t options, UCASEMAP_BREA
 		return 0;
 	}
 	/* get the string length */
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		srcLength = u_strlen(src);
 	}
 	/* check for overlapping source and destination */
@@ -1280,7 +1280,7 @@ U_CFUNC int32_t ustrcase_mapWithOverlap(int32_t caseLocale, uint32_t options, UC
 		return 0;
 	}
 	/* get the string length */
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		srcLength = u_strlen(src);
 	}
 	/* check for overlapping source and destination */
@@ -1426,7 +1426,7 @@ static int32_t _cmpFold(const char16_t * s1, int32_t length1,
 		*matchLen2 = 0;
 	}
 	start1 = m1 = org1 = s1;
-	if(length1==-1) {
+	if(length1 == -1) {
 		limit1 = NULL;
 	}
 	else {
@@ -1434,7 +1434,7 @@ static int32_t _cmpFold(const char16_t * s1, int32_t length1,
 	}
 
 	start2 = m2 = org2 = s2;
-	if(length2==-1) {
+	if(length2 == -1) {
 		limit2 = NULL;
 	}
 	else {

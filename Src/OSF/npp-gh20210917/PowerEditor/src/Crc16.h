@@ -14,7 +14,7 @@
 
 class CRC16_ISO_3309 {
 public:
-	CRC16_ISO_3309(ushort polynom = 0x1021, ushort initVal = 0xFFFF) : _polynom(polynom), _initVal(initVal) 
+	CRC16_ISO_3309(ushort polynom = /*0x1021*/SlConst::CrcPoly_CCITT16, ushort initVal = 0xFFFF) : _polynom(polynom), _initVal(initVal) 
 	{
 	}
 	~CRC16_ISO_3309()
@@ -66,7 +66,7 @@ public:
 		// Reverse all bits of the byte then copy the result byte by byte in the array
 		for(int i = 0; i < count; i++)
 			pBuffer[i] = reverseByte<uchar>(data[i]);
-		// calculate CRC : by default polynom = 0x1021, init val = 0xFFFF)
+		// calculate CRC : by default polynom = /*0x1021*/SlConst::CrcPoly_CCITT16, init val = 0xFFFF)
 		ushort wordResult = CRC16_ISO_3309::calculate(pBuffer, count);
 		// Reverse the WORD bits
 		wordResult = reverseByte<ushort>(wordResult);

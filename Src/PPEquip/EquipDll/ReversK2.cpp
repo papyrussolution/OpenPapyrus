@@ -82,7 +82,7 @@ static uint16 FASTCALL crc16_update(uint16 crc, uint8 a)
     crc ^= a;
     for(int i = 0; i < 8; ++i) {
         if(crc & 1)
-            crc = (crc >> 1) ^ 0xA001;
+            crc = (crc >> 1) ^ /*0xA001*/SlConst::CrcPoly_ANSI16;
         else
             crc = (crc >> 1);
     }

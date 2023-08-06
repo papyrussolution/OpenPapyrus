@@ -246,8 +246,8 @@ static int COVER_cmp(COVER_ctx_t * ctx, const void * lp, const void * rp)
 static int COVER_cmp8(COVER_ctx_t * ctx, const void * lp, const void * rp) 
 {
 	uint64 const mask = (ctx->d == 8) ? (uint64)-1 : (((uint64)1 << (8 * ctx->d)) - 1);
-	uint64 const lhs = MEM_readLE64(ctx->samples + *(const uint32 *)lp) & mask;
-	uint64 const rhs = MEM_readLE64(ctx->samples + *(const uint32 *)rp) & mask;
+	uint64 const lhs = SMem::GetLe64(ctx->samples + *(const uint32 *)lp) & mask;
+	uint64 const rhs = SMem::GetLe64(ctx->samples + *(const uint32 *)rp) & mask;
 	if(lhs < rhs) {
 		return -1;
 	}

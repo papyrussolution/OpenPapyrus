@@ -74,7 +74,6 @@
 /// Start of internal Filter ID space. These IDs must never be used in Streams.
 #define LZMA_FILTER_RESERVED_START (LZMA_VLI_C(1) << 62)
 
-
 /// Supported flags that can be passed to lzma_stream_decoder() or lzma_auto_decoder().
 #define LZMA_SUPPORTED_FLAGS (LZMA_TELL_NO_CHECK | LZMA_TELL_UNSUPPORTED_CHECK | LZMA_TELL_ANY_CHECK | LZMA_IGNORE_CHECK | LZMA_CONCATENATED)
 /// Largest valid lzma_action value as unsigned integer.
@@ -160,7 +159,7 @@ typedef lzma_ret (*lzma_init_function)(lzma_next_coder *next, const lzma_allocat
 struct lzma_filter_info {
 	lzma_vli id; /// Filter ID. This is used only by the encoder with lzma_filters_update().
 	lzma_init_function init; /// Pointer to function used to initialize the filter. This is NULL to indicate end of array.
-	void *options; /// Pointer to filter's options structure
+	void * options; /// Pointer to filter's options structure
 };
 
 /// Macro to initialize lzma_next_coder structure
@@ -237,7 +236,6 @@ do { \
 		return ret_; \
 } while(0)
 
-
 /// If next isn't already initialized, free the previous coder. Then mark
 /// that next is _possibly_ initialized for the coder using this macro.
 /// "Possibly" means that if e.g. allocation of next->coder fails, the
@@ -249,7 +247,6 @@ do { \
 		lzma_next_end(next, allocator); \
 	(next)->init = (uintptr_t)(func); \
 } while(0)
-
 
 /// Initializes lzma_strm and calls func() to initialize strm->internal->next.
 /// (The function being called will use lzma_next_coder_init()). If

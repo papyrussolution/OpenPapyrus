@@ -16,26 +16,21 @@
 #include "internal/deprecated.h"
 #include "cipher_rc4_hmac_md5.h"
 
+extern "C" void rc4_md5_enc(RC4_KEY * key, const void * in0, void * out, MD5_CTX * ctx, const void * inp, size_t blocks);
+
 #define NO_PAYLOAD_LENGTH ((size_t)-1)
 
-#if defined(RC4_ASM)                                                           \
-	&& defined(MD5_ASM)                                                        \
-	&& (defined(__x86_64)                                                      \
-	|| defined(__x86_64__)                                                 \
-	|| defined(_M_AMD64)                                                   \
-	|| defined(_M_X64))
-#define STITCHED_CALL
-#define MOD 32 /* 32 is $MOD from rc4_md5-x86_64.pl */
+#if defined(RC4_ASM) && defined(MD5_ASM) && (defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64))
+	#define STITCHED_CALL
+	#define MOD 32 /* 32 is $MOD from rc4_md5-x86_64.pl */
 #else
-#define rc4_off 0
-#define md5_off 0
+	#define rc4_off 0
+	#define md5_off 0
 #endif
 
-static int cipher_hw_rc4_hmac_md5_initkey(PROV_CIPHER_CTX * bctx,
-    const uint8_t * key, size_t keylen)
+static int cipher_hw_rc4_hmac_md5_initkey(PROV_CIPHER_CTX * bctx, const uint8_t * key, size_t keylen)
 {
 	PROV_RC4_HMAC_MD5_CTX * ctx = (PROV_RC4_HMAC_MD5_CTX*)bctx;
-
 	RC4_set_key(&ctx->ks.ks, keylen, key);
 	MD5_Init(&ctx->head);   /* handy when benchmarking */
 	ctx->tail = ctx->head;
@@ -45,23 +40,18 @@ static int cipher_hw_rc4_hmac_md5_initkey(PROV_CIPHER_CTX * bctx,
 	return 1;
 }
 
-static int cipher_hw_rc4_hmac_md5_cipher(PROV_CIPHER_CTX * bctx,
-    unsigned char * out,
-    const unsigned char * in, size_t len)
+static int cipher_hw_rc4_hmac_md5_cipher(PROV_CIPHER_CTX * bctx, unsigned char * out, const unsigned char * in, size_t len)
 {
 	PROV_RC4_HMAC_MD5_CTX * ctx = (PROV_RC4_HMAC_MD5_CTX*)bctx;
 	RC4_KEY * ks = &ctx->ks.ks;
-
 #if defined(STITCHED_CALL)
 	size_t rc4_off = MOD - 1 - (ks->x & (MOD - 1));
 	size_t md5_off = MD5_CBLOCK - ctx->md.num, blocks;
 	unsigned int l;
 #endif
 	size_t plen = ctx->payload_length;
-
 	if(plen != NO_PAYLOAD_LENGTH && len != (plen + MD5_DIGEST_LENGTH))
 		return 0;
-
 	if(ctx->base.enc) {
 		if(plen == NO_PAYLOAD_LENGTH)
 			plen = len;
@@ -119,9 +109,7 @@ static int cipher_hw_rc4_hmac_md5_cipher(PROV_CIPHER_CTX * bctx,
 		    && (OPENSSL_ia32cap_P[0] & (1 << 20)) == 0) {
 			RC4(ks, rc4_off, in, out);
 			MD5_Update(&ctx->md, out, md5_off);
-
-			rc4_md5_enc(ks, in + rc4_off, out + rc4_off,
-			    &ctx->md, out + md5_off, blocks);
+			rc4_md5_enc(ks, in + rc4_off, out + rc4_off, &ctx->md, out + md5_off, blocks);
 			blocks *= MD5_CBLOCK;
 			rc4_off += blocks;
 			md5_off += blocks;

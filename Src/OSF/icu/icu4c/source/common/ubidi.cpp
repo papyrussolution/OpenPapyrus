@@ -2243,13 +2243,13 @@ U_CAPI void U_EXPORT2 ubidi_setContext(UBiDi * pBiDi, const char16_t * prologue,
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-	if(proLength==-1) {
+	if(proLength == -1) {
 		pBiDi->proLength = u_strlen(prologue);
 	}
 	else {
 		pBiDi->proLength = proLength;
 	}
-	if(epiLength==-1) {
+	if(epiLength == -1) {
 		pBiDi->epiLength = u_strlen(epilogue);
 	}
 	else {

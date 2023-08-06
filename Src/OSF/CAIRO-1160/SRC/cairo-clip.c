@@ -21,8 +21,7 @@
  *
  * The contents of this file are subject to the Mozilla Public License
  * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
+ * compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
  *
  * The Original Code is the cairo graphics library.
  * The Initial Developer of the Original Code is University of Southern California.
@@ -41,7 +40,7 @@ static cairo_clip_path_t * _cairo_clip_path_create(cairo_clip_t * clip)
 {
 	cairo_clip_path_t * clip_path = _freed_pool_get(&clip_path_pool);
 	if(UNLIKELY(clip_path == NULL)) {
-		clip_path = static_cast<cairo_clip_path_t *>(_cairo_malloc(sizeof(cairo_clip_path_t)));
+		clip_path = static_cast<cairo_clip_path_t *>(SAlloc::M_zon0(sizeof(cairo_clip_path_t)));
 		if(UNLIKELY(clip_path == NULL))
 			return NULL;
 	}
@@ -73,7 +72,7 @@ cairo_clip_t * _cairo_clip_create(void)
 {
 	cairo_clip_t * clip = _freed_pool_get(&clip_pool);
 	if(UNLIKELY(clip == NULL)) {
-		clip = static_cast<cairo_clip_t *>(_cairo_malloc(sizeof(cairo_clip_t)));
+		clip = static_cast<cairo_clip_t *>(SAlloc::M_zon0(sizeof(cairo_clip_t)));
 		if(UNLIKELY(clip == NULL))
 			return NULL;
 	}
@@ -525,7 +524,7 @@ cairo_rectangle_list_t * _cairo_rectangle_list_create_in_error(cairo_status_t st
 	else if(status == CAIRO_STATUS_CLIP_NOT_REPRESENTABLE)
 		return (cairo_rectangle_list_t*)&_cairo_rectangles_not_representable;
 	else {
-		cairo_rectangle_list_t * list = static_cast<cairo_rectangle_list_t *>(_cairo_malloc(sizeof(*list)));
+		cairo_rectangle_list_t * list = static_cast<cairo_rectangle_list_t *>(SAlloc::M_zon0(sizeof(*list)));
 		if(UNLIKELY(list == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_rectangle_list_t*)&_cairo_rectangles_nil;
@@ -571,7 +570,7 @@ cairo_rectangle_list_t * _cairo_clip_copy_rectangle_list(const cairo_clip_t * cl
 		}
 	}
 DONE:
-	list = static_cast<cairo_rectangle_list_t *>(_cairo_malloc(sizeof(cairo_rectangle_list_t)));
+	list = static_cast<cairo_rectangle_list_t *>(SAlloc::M_zon0(sizeof(cairo_rectangle_list_t)));
 	if(UNLIKELY(list == NULL)) {
 		SAlloc::F(rectangles);
 		return ERROR_LIST(CAIRO_STATUS_NO_MEMORY);

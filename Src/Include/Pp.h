@@ -12893,6 +12893,10 @@ struct GoodsRestVal {
 	explicit GoodsRestVal(const ReceiptTbl::Rec * = 0, double = 0.0);
 	void   Init(const ReceiptTbl::Rec * = 0, double = 0.0);
 
+	enum {
+		fCostByQuot  = 0x0001,
+		fPriceByQuot = 0x0002
+	};
 	int    Count;
 	double UnitsPerPack;
 	double Rest;
@@ -12903,6 +12907,7 @@ struct GoodsRestVal {
 	LDATE  Expiry;
 	double Deficit;
 	double DraftRcpt;
+	uint   Flags; // @v11.7.11
 	char   Serial[24];
 	char   LotTagText[128];
 };
@@ -16159,7 +16164,7 @@ public:
 	PPObject * GetObj() const;
 	const  char * GetSymb() const;
 	const  char * GetDescr() const;
-	int    IsCrosstab() const;
+	bool   IsCrosstab() const;
 	//
 	// Descr: Устанавливает заголовок отображаемой таблицы. Эта функция должна быть вызвана после метода
 	//   PPView::Init_ поскольку он очищает внешний заголовок.
@@ -19687,10 +19692,10 @@ struct PPReckonOpEx {
 
 	LDATE  Beg;
 	LDATE  End;
-	long   Flags;           //
+	long   Flags;           // @flags ROXF_XXX
 	PPID   PersonRelTypeID; // Тип персонального отношения, используемый для коллективного зачета
 	long   Reserve[4];      // @reserve
-	PPIDArray OpList;       // Список операций оплат, применяемых для зечета этой операции
+	PPIDArray OpList;       // Список операций оплат, применяемых для зачета этой операции
 };
 //
 // Дополнительные опции драфт-операций
@@ -19844,6 +19849,7 @@ public:
 	int    PutPacket(PPID *, PPOprKindPacket *, int use_ta);
 	int    SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    FetchInventoryData(PPID, PPInventoryOpEx *);
+	int    FetchReckonExData(PPID opID, PPReckonOpEx * pData); // @v11.7.11
 	int    GetPaymentOpList(PPID linkOpID, PPIDArray *);
 	int    GetCorrectionOpList(PPID linkOpID, PPIDArray * pList);
 	//
@@ -24492,8 +24498,8 @@ public:
 	//       имеет определенного коэффициента PhUPerU.
 	//
 	int    RecalcQttyByMainItemPh(double * pQtty) const;
-	int    GetEstimationPrice(uint itemIdx, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pLotRec) const;
-	void   CalcEstimationPrice(double * pPrice, int * pUncertainty, int calcInner) const;
+	int    GetEstimationPrice(uint itemIdx, PPID locID, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pLotRec) const;
+	void   CalcEstimationPrice(PPID locID, double * pPrice, int * pUncertainty, int calcInner) const;
 	int    FASTCALL HasGoods(PPID goodsID) const;
 	int    SearchSymb(const char * pSymb, uint * pPos) const;
 	int    CopyItemsFrom(const PPGoodsStruc * pS);
@@ -24530,8 +24536,8 @@ public:
 	//  <0 - Структура не является родительской
 	//
 	int    Reduce();
-	int    Select(const Ident * pIdent, PPGoodsStruc * pGs) const;
-	int    Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const;
+	int    Select(const Ident & rIdent, PPGoodsStruc * pGs) const;
+	int    Select(const Ident & rIdent, TSCollection <PPGoodsStruc> & rList) const;
 	int    GetItemQtty(PPID goodsID, double complQtty, double * pQtty) const;
 	SString & MakeChildDefaultName(SString & rBuf) const;
 	//
@@ -24554,7 +24560,7 @@ public:
 private:
 	int    SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) const;
 		// @<<PPGoodsStruc::EnumItemsExt
-	int    Helper_Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const;
+	int    Helper_Select(const Ident & rIdent, TSCollection <PPGoodsStruc> & rList) const;
 	int    RecursiveUnrollIncome(PPID goodsID, double reqQtty, const PPBillPacket * pBillPack, PPComplBlock & rData);
 };
 
@@ -29774,6 +29780,7 @@ public:
 	static int FASTCALL ReadConfig(PPGoodsConfig *);
 	static int EditConfig();
 	static int FASTCALL ReadGoodsExTitles(PPID grpID, SString & rBuf);
+	static int ProcessBomEstimatedValues(); // @v11.7.11
 
 	struct ExtUniteBlock {
 		ExtUniteBlock();
@@ -31227,7 +31234,7 @@ public:
 	GoodsStrucProcessingBlock Cb; // @todo must be private
 private:
 	SString & MakeText(const GoodsStrucProcessingBlock::StrucEntry & rSe, SString & rTitleBuf);
-	void AddEntry_TopDown(StrAssocTree * pList, uint level, uint idx, const GoodsStrucProcessingBlock::ItemEntry & rEntry, SHandle hParent, LongArray & rRecurList);
+	void AddEntry_TopDown(StrAssocTree * pList, uint level, uint idx, const GoodsStrucProcessingBlock::ItemEntry & rEntry, SPtrHandle hParent, LongArray & rRecurList);
 	const long ItemOffset;
 	SString TitleBuf;
 };
@@ -33195,6 +33202,7 @@ struct ReckonOpArItem {
 	PPID   PayableOpID;
 	PPID   PayableArID;
 	PPID   PayableAccSheetID;
+	long   RoxFlags; // @v11.7.11 Проекция поля PPReckonOpEx::Flags
 	PPIDArray * P_BillIDList;
 };
 
@@ -34921,7 +34929,7 @@ public:
 	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	static int   TotalTransmitProblems(ObjTransmContext * pCtx, int * pNextPassNeeded); // Realy private function. Accessed only from PPObject::ReceivePackets()
 	int    GetAlternateArticle(PPID arID, PPID sheetID, PPID * pAltArID);
-	int    GetPayableOpListByReckonOp(const PPReckonOpEx *, PPID arID, ReckonOpArList *);
+	int    GetPayableOpListByReckonOp(const PPReckonOpEx &, PPID arID, ReckonOpArList *);
 	int    GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOpArList * pList);
 
 	struct PplBlock {
@@ -41524,7 +41532,7 @@ public:
 	void   GetTabTitle(long tabID, SString & rBuf);
 	void   GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
 	int    ExportUhtt(int silent);
-	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle);
+	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
 	struct LotQueryBlock {
 		LotQueryBlock();
@@ -41691,6 +41699,19 @@ private:
 	ObjIdListFilt  LocList;           // @!PPViewGoodsRest::Init_
 		// Проекция Filt.LocList (LocList = PPObjLocation::ResolveWarehouseList(&Filt.LocList.Get()))
 	RetailPriceExtractor * P_Rpe; // @v10.3.2 @transient
+	//
+	// Descr: Элемент списка пар {товар, склад}, индицирующий факт замещения цены котировкой. 
+	//    Введен для цветового отображения значений, которые были реально замещены с целью отличить
+	//    от тех, для которых котировка найдена не была.
+	//
+	struct SubstPriceQuotEntry { // @v11.7.11
+		SubstPriceQuotEntry(PPID goodsID, PPID locID) : GoodsID(goodsID), LocID(locID)
+		{
+		}
+		PPID   GoodsID;
+		PPID   LocID;
+	};
+	TSVector <SubstPriceQuotEntry> SubstPriceQuotList; // @v11.7.11 применяется когда Filt.GetQuotUsage() != 0
 };
 //
 //
@@ -42481,7 +42502,11 @@ private:
 	int    NextProcessStep(BillTbl::Rec & rRec, ProcessBlock & rBlk);
 	int    PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlock & rBlk, PPID * pArID, PPBillExt * pBillExt, double * pPart);
 	int    ProcessBill(const BillTbl::Rec & rRec, ProcessBlock & rBlk);
-	int    ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const PayPlanTbl::Rec & rPayPlanEntry, PPID arID, ProcessBlock & rBlk);
+	//
+	// ARG(inverseSign IN): @v11.7.1 если true, то суммы документа и оплаты должны инвертироваться с минуса на плюс. Это - 
+	//   специальный случай зачета корректировочного документа.
+	//
+	int    ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const PayPlanTbl::Rec & rPayPlanEntry, PPID arID, bool inverseSign, ProcessBlock & rBlk);
 
 	const int UseOmtPaymAmt;        // = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
 	DebtTrnovrFilt  Filt;           // @viewstatefilt
@@ -47042,7 +47067,7 @@ public:
 		//
 		uint64 PutEntity(PPFtsInterface::Entity & rEnt, StringSet & rSsUtf8, const char * pOpaqueData);
 	private:
-		SHandle H;
+		SPtrHandle H;
 		PPFtsInterface & R_Ifc;
 	};
 

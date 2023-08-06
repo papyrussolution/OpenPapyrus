@@ -1392,22 +1392,71 @@ static char FASTCALL hexdigit(uint d) { return (d >= 0 && d <= 9) ? (d + '0') : 
 int FASTCALL SColorBase::FromStr(const char * pStr)
 {
 	int    ok = 0;
+	SString temp_buf;
 	SStrScan scan(pStr);
 	*reinterpret_cast<uint32 *>(this) = 0;
 	Alpha = 0xff;
 	scan.Skip();
 	size_t len = sstrlen(scan);
-	if(scan[0] == '#') {
+	bool is_rgb_prefix = false;
+	if(scan.Is("#rgb")) {
+		scan.Incr(4);
+		is_rgb_prefix = true;
+	}
+	else if(scan.Is("rgb")) {
+		scan.Incr(3);
+		is_rgb_prefix = true;
+	}
+	if(is_rgb_prefix) { // #rgb(r, g, b) || rgb(r, g, b)
+		double c = 0.0;
+		scan.IncrLen();
+		scan.Skip();
+		scan.IncrChr('(');
+		if(scan.GetNumber(temp_buf)) {
+			c = temp_buf.ToReal();
+			if(scan.Skip().IncrChr('%'))
+				c *= 2.55;
+			else if(c == 0.0f)
+				c = 0;
+			else if(c > 0.0f && c <= 1.0f)
+				c *= 255.0;
+			R = static_cast<uint8>(c);
+			//
+			scan.Skip().IncrChr(',');
+			if(scan.Skip().GetNumber(temp_buf)) {
+				c = temp_buf.ToReal();
+				if(scan.Skip().IncrChr('%'))
+					c *= 2.55;
+				else if(c >= 0.0f && c <= 1.0f)
+					c *= 255.0;
+				G = static_cast<uint8>(c);
+				//
+				scan.Skip().IncrChr(',');
+				if(scan.Skip().GetNumber(temp_buf)) {
+					c = temp_buf.ToReal();
+					if(scan.Skip().IncrChr('%'))
+						c *= 2.55;
+					else if(c >= 0.0f && c <= 1.0f)
+						c *= 255.0;
+					B = static_cast<uint8>(c);
+					//
+					scan.Skip().IncrChr(')');
+					ok = fmtRGB;
+				}
+			}
+		}
+	}
+	else if(scan[0] == '#') {
 		len--;
 		scan.Incr();
-		if(len >= 6) {
+		if(scan.IsXDigits() && scan.GetLen() == 6) { // #xxxxxx
 			R = (hex(scan[0]) << 4) | hex(scan[1]);
 			G = (hex(scan[2]) << 4) | hex(scan[3]);
 			B = (hex(scan[4]) << 4) | hex(scan[5]);
 			scan.Incr(6);
 			ok = fmtHEX;
 		}
-		else if(len >= 3) {
+		if(scan.IsXDigits() && scan.GetLen() == 3) { // #xxx
 			uint8 _h = hex(scan[0]);
 			R = (_h << 4) | _h;
 			_h = hex(scan[1]);
@@ -1417,40 +1466,37 @@ int FASTCALL SColorBase::FromStr(const char * pStr)
 			scan.Incr(3);
 			ok = fmtHEX;
 		}
-	}
-	else if(strncmp(pStr, "rgb", 3) == 0) {
-		double c = 0.0;
-		SString nmb_buf;
-		scan.Incr(3);
-		scan.Skip();
-		scan.IncrChr('(');
-		if(scan.GetNumber(nmb_buf)) {
-			c = nmb_buf.ToReal();
-			if(scan.Skip().IncrChr('%'))
-				c *= 2.55;
-			R = static_cast<uint8>(c);
-			//
-			scan.Skip().IncrChr(',');
-			if(scan.Skip().GetNumber(nmb_buf)) {
-				c = nmb_buf.ToReal();
-				if(scan.Skip().IncrChr('%'))
-					c *= 2.55;
-				G = static_cast<uint8>(c);
-				//
-				scan.Skip().IncrChr(',');
-				if(scan.Skip().GetNumber(nmb_buf)) {
-					c = nmb_buf.ToReal();
-					if(scan.Skip().IncrChr('%'))
-						c *= 2.55;
-					B = static_cast<uint8>(c);
-					//
-					scan.Skip().IncrChr(')');
-					ok = fmtRGB;
+		else if(scan.GetIdent(temp_buf)) { // #color_name
+			scan.IncrLen();
+			for(uint i = 0; !ok && i < SIZEOFARRAY(ColorNameList); i++) {
+				if(temp_buf.IsEqiAscii(ColorNameList[i].N)) {
+					uint32 c = ColorNameList[i].C;
+					R = (uint8)((c & 0x00ff0000) >> 16);
+					G = (uint8)((c & 0x0000ff00) >> 8);
+					B = (uint8)(c & 0xff);
+					ok = fmtName;
 				}
 			}
 		}
+		/*else if(len >= 6) { // #xxxxxx
+			R = (hex(scan[0]) << 4) | hex(scan[1]);
+			G = (hex(scan[2]) << 4) | hex(scan[3]);
+			B = (hex(scan[4]) << 4) | hex(scan[5]);
+			scan.Incr(6);
+			ok = fmtHEX;
+		}
+		else if(len >= 3) { // #xxx
+			uint8 _h = hex(scan[0]);
+			R = (_h << 4) | _h;
+			_h = hex(scan[1]);
+			G = (_h << 4) | _h;
+			_h = hex(scan[2]);
+			B = (_h << 4) | _h;
+			scan.Incr(3);
+			ok = fmtHEX;
+		}*/
 	}
-	else {
+	else { // color_name
 		for(uint i = 0; !ok && i < SIZEOFARRAY(ColorNameList); i++) {
 			if(sstreqi_ascii(pStr, ColorNameList[i].N)) {
 				uint32 c = ColorNameList[i].C;
@@ -1471,13 +1517,18 @@ SString & SColorBase::ToStr(SString & rBuf, int format) const
 		const uint32 c = (R << 16) | (G << 8) | B;
 		for(uint i = 0; i < SIZEOFARRAY(ColorNameList); i++) {
 			if(ColorNameList[i].C == c) {
-				rBuf = ColorNameList[i].N;
+				if(format & fmtForceHashPrefix)
+					rBuf.CatChar('#').Cat(ColorNameList[i].N);
+				else
+					rBuf = ColorNameList[i].N;
 			}
 		}
 	}
 	if(rBuf.IsEmpty()) {
-		const long f = (format & ~fmtName);
+		const long f = (format & ~(fmtName|fmtForceHashPrefix));
 		if(f == fmtRGB) {
+			if(format & fmtForceHashPrefix)
+				rBuf.CatChar('#');
 			rBuf.Cat("rgb").CatChar('(').Cat((uint)R).Comma().Cat((uint)G).Comma().Cat((uint)B).CatChar(')');
 		}
 		else if(f == fmtRgbHexWithoutPrefix) {

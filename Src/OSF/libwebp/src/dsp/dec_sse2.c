@@ -138,8 +138,7 @@ static void Transform_SSE2(const int16_t* in, uint8* dst, int do_two)
 		const __m128i shifted3 = _mm_srai_epi16(tmp3, 3);
 
 		// Transpose the two 4x4.
-		VP8Transpose_2_4x4_16b(&shifted0, &shifted1, &shifted2, &shifted3, &T0, &T1,
-		    &T2, &T3);
+		VP8Transpose_2_4x4_16b(&shifted0, &shifted1, &shifted2, &shifted3, &T0, &T1, &T2, &T3);
 	}
 
 	// Add inverse transform to 'dst' and store.
@@ -156,10 +155,10 @@ static void Transform_SSE2(const int16_t* in, uint8* dst, int do_two)
 		}
 		else {
 			// Load four bytes/pixels per line.
-			dst0 = _mm_cvtsi32_si128(WebPMemToUint32(dst + 0 * BPS));
-			dst1 = _mm_cvtsi32_si128(WebPMemToUint32(dst + 1 * BPS));
-			dst2 = _mm_cvtsi32_si128(WebPMemToUint32(dst + 2 * BPS));
-			dst3 = _mm_cvtsi32_si128(WebPMemToUint32(dst + 3 * BPS));
+			dst0 = _mm_cvtsi32_si128(SMem::Get32(dst + 0 * BPS));
+			dst1 = _mm_cvtsi32_si128(SMem::Get32(dst + 1 * BPS));
+			dst2 = _mm_cvtsi32_si128(SMem::Get32(dst + 2 * BPS));
+			dst3 = _mm_cvtsi32_si128(SMem::Get32(dst + 3 * BPS));
 		}
 		// Convert to 16b.
 		dst0 = _mm_unpacklo_epi8(dst0, zero);
@@ -186,17 +185,18 @@ static void Transform_SSE2(const int16_t* in, uint8* dst, int do_two)
 		}
 		else {
 			// Store four bytes/pixels per line.
-			WebPUint32ToMem(dst + 0 * BPS, _mm_cvtsi128_si32(dst0));
-			WebPUint32ToMem(dst + 1 * BPS, _mm_cvtsi128_si32(dst1));
-			WebPUint32ToMem(dst + 2 * BPS, _mm_cvtsi128_si32(dst2));
-			WebPUint32ToMem(dst + 3 * BPS, _mm_cvtsi128_si32(dst3));
+			SMem::Put(dst + 0 * BPS, _mm_cvtsi128_si32(dst0));
+			SMem::Put(dst + 1 * BPS, _mm_cvtsi128_si32(dst1));
+			SMem::Put(dst + 2 * BPS, _mm_cvtsi128_si32(dst2));
+			SMem::Put(dst + 3 * BPS, _mm_cvtsi128_si32(dst3));
 		}
 	}
 }
 
 #if (USE_TRANSFORM_AC3 == 1)
 #define MUL(a, b) (((a) * (b)) >> 16)
-static void TransformAC3(const int16_t* in, uint8* dst) {
+static void TransformAC3(const int16_t* in, uint8* dst) 
+{
 	static const int kC1 = 20091 + (1 << 16);
 	static const int kC2 = 35468;
 	const __m128i A = _mm_set1_epi16(in[0] + 4);
@@ -212,10 +212,10 @@ static void TransformAC3(const int16_t* in, uint8* dst) {
 	const __m128i m3 = _mm_subs_epi16(B, d4);
 	const __m128i zero = _mm_setzero_si128();
 	// Load the source pixels.
-	__m128i dst0 = _mm_cvtsi32_si128(WebPMemToUint32(dst + 0 * BPS));
-	__m128i dst1 = _mm_cvtsi32_si128(WebPMemToUint32(dst + 1 * BPS));
-	__m128i dst2 = _mm_cvtsi32_si128(WebPMemToUint32(dst + 2 * BPS));
-	__m128i dst3 = _mm_cvtsi32_si128(WebPMemToUint32(dst + 3 * BPS));
+	__m128i dst0 = _mm_cvtsi32_si128(SMem::Get32(dst + 0 * BPS));
+	__m128i dst1 = _mm_cvtsi32_si128(SMem::Get32(dst + 1 * BPS));
+	__m128i dst2 = _mm_cvtsi32_si128(SMem::Get32(dst + 2 * BPS));
+	__m128i dst3 = _mm_cvtsi32_si128(SMem::Get32(dst + 3 * BPS));
 	// Convert to 16b.
 	dst0 = _mm_unpacklo_epi8(dst0, zero);
 	dst1 = _mm_unpacklo_epi8(dst1, zero);
@@ -232,10 +232,10 @@ static void TransformAC3(const int16_t* in, uint8* dst) {
 	dst2 = _mm_packus_epi16(dst2, dst2);
 	dst3 = _mm_packus_epi16(dst3, dst3);
 	// Store the results.
-	WebPUint32ToMem(dst + 0 * BPS, _mm_cvtsi128_si32(dst0));
-	WebPUint32ToMem(dst + 1 * BPS, _mm_cvtsi128_si32(dst1));
-	WebPUint32ToMem(dst + 2 * BPS, _mm_cvtsi128_si32(dst2));
-	WebPUint32ToMem(dst + 3 * BPS, _mm_cvtsi128_si32(dst3));
+	SMem::Put(dst + 0 * BPS, _mm_cvtsi128_si32(dst0));
+	SMem::Put(dst + 1 * BPS, _mm_cvtsi128_si32(dst1));
+	SMem::Put(dst + 2 * BPS, _mm_cvtsi128_si32(dst2));
+	SMem::Put(dst + 3 * BPS, _mm_cvtsi128_si32(dst3));
 }
 
 #undef MUL
@@ -450,8 +450,8 @@ static FORCEINLINE void Load8x4_SSE2(const uint8* const b, int stride, __m128i* 
 {
 	// A0 = 63 62 61 60 23 22 21 20 43 42 41 40 03 02 01 00
 	// A1 = 73 72 71 70 33 32 31 30 53 52 51 50 13 12 11 10
-	const __m128i A0 = _mm_set_epi32(WebPMemToUint32(&b[6 * stride]), WebPMemToUint32(&b[2 * stride]), WebPMemToUint32(&b[4 * stride]), WebPMemToUint32(&b[0 * stride]));
-	const __m128i A1 = _mm_set_epi32(WebPMemToUint32(&b[7 * stride]), WebPMemToUint32(&b[3 * stride]), WebPMemToUint32(&b[5 * stride]), WebPMemToUint32(&b[1 * stride]));
+	const __m128i A0 = _mm_set_epi32(SMem::Get32(&b[6 * stride]), SMem::Get32(&b[2 * stride]), SMem::Get32(&b[4 * stride]), SMem::Get32(&b[0 * stride]));
+	const __m128i A1 = _mm_set_epi32(SMem::Get32(&b[7 * stride]), SMem::Get32(&b[3 * stride]), SMem::Get32(&b[5 * stride]), SMem::Get32(&b[1 * stride]));
 	// B0 = 53 43 52 42 51 41 50 40 13 03 12 02 11 01 10 00
 	// B1 = 73 63 72 62 71 61 70 60 33 23 32 22 31 21 30 20
 	const __m128i B0 = _mm_unpacklo_epi8(A0, A1);
@@ -503,7 +503,7 @@ static FORCEINLINE void Load16x4_SSE2(const uint8* const r0, const uint8* const 
 static FORCEINLINE void Store4x4_SSE2(__m128i* const x, uint8* dst, int stride) 
 {
 	for(int i = 0; i < 4; ++i, dst += stride) {
-		WebPUint32ToMem(dst, _mm_cvtsi128_si32(*x));
+		SMem::Put(dst, _mm_cvtsi128_si32(*x));
 		*x = _mm_srli_si128(*x, 4);
 	}
 }
@@ -831,7 +831,7 @@ static void VE4_SSE2(uint8* dst) {    // vertical
 	const uint32_t vals = _mm_cvtsi128_si32(avg);
 	int i;
 	for(i = 0; i < 4; ++i) {
-		WebPUint32ToMem(dst + i * BPS, vals);
+		SMem::Put(dst + i * BPS, vals);
 	}
 }
 
@@ -845,10 +845,10 @@ static void LD4_SSE2(uint8* dst) {   // Down-Left
 	const __m128i lsb = _mm_and_si128(_mm_xor_si128(ABCDEFGH, CDEFGHH0), one);
 	const __m128i avg2 = _mm_subs_epu8(avg1, lsb);
 	const __m128i abcdefg = _mm_avg_epu8(avg2, BCDEFGH0);
-	WebPUint32ToMem(dst + 0 * BPS, _mm_cvtsi128_si32(abcdefg));
-	WebPUint32ToMem(dst + 1 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 1)));
-	WebPUint32ToMem(dst + 2 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 2)));
-	WebPUint32ToMem(dst + 3 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 3)));
+	SMem::Put(dst + 0 * BPS, _mm_cvtsi128_si32(abcdefg));
+	SMem::Put(dst + 1 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 1)));
+	SMem::Put(dst + 2 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 2)));
+	SMem::Put(dst + 3 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 3)));
 }
 
 static void VR4_SSE2(uint8* dst) {   // Vertical-Right
@@ -866,10 +866,10 @@ static void VR4_SSE2(uint8* dst) {   // Vertical-Right
 	const __m128i lsb = _mm_and_si128(_mm_xor_si128(IXABCD, ABCD0), one);
 	const __m128i avg2 = _mm_subs_epu8(avg1, lsb);
 	const __m128i efgh = _mm_avg_epu8(avg2, XABCD);
-	WebPUint32ToMem(dst + 0 * BPS, _mm_cvtsi128_si32(abcd));
-	WebPUint32ToMem(dst + 1 * BPS, _mm_cvtsi128_si32(efgh));
-	WebPUint32ToMem(dst + 2 * BPS, _mm_cvtsi128_si32(_mm_slli_si128(abcd, 1)));
-	WebPUint32ToMem(dst + 3 * BPS, _mm_cvtsi128_si32(_mm_slli_si128(efgh, 1)));
+	SMem::Put(dst + 0 * BPS, _mm_cvtsi128_si32(abcd));
+	SMem::Put(dst + 1 * BPS, _mm_cvtsi128_si32(efgh));
+	SMem::Put(dst + 2 * BPS, _mm_cvtsi128_si32(_mm_slli_si128(abcd, 1)));
+	SMem::Put(dst + 3 * BPS, _mm_cvtsi128_si32(_mm_slli_si128(efgh, 1)));
 
 	// these two are hard to implement in SSE2, so we keep the C-version:
 	DST(0, 2) = AVG3(J, I, X);
@@ -891,10 +891,10 @@ static void VL4_SSE2(uint8* dst) {   // Vertical-Left
 	const __m128i lsb2 = _mm_and_si128(abbc, lsb1);
 	const __m128i avg4 = _mm_subs_epu8(avg3, lsb2);
 	const uint32_t extra_out = _mm_cvtsi128_si32(_mm_srli_si128(avg4, 4));
-	WebPUint32ToMem(dst + 0 * BPS, _mm_cvtsi128_si32(avg1));
-	WebPUint32ToMem(dst + 1 * BPS, _mm_cvtsi128_si32(avg4));
-	WebPUint32ToMem(dst + 2 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(avg1, 1)));
-	WebPUint32ToMem(dst + 3 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(avg4, 1)));
+	SMem::Put(dst + 0 * BPS, _mm_cvtsi128_si32(avg1));
+	SMem::Put(dst + 1 * BPS, _mm_cvtsi128_si32(avg4));
+	SMem::Put(dst + 2 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(avg1, 1)));
+	SMem::Put(dst + 3 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(avg4, 1)));
 	// these two are hard to get and irregular
 	DST(3, 2) = (extra_out >> 0) & 0xff;
 	DST(3, 3) = (extra_out >> 8) & 0xff;
@@ -918,10 +918,10 @@ static void RD4_SSE2(uint8* dst) // Down-right
 	const __m128i lsb = _mm_and_si128(_mm_xor_si128(JIXABCD__, LKJIXABCD), one);
 	const __m128i avg2 = _mm_subs_epu8(avg1, lsb);
 	const __m128i abcdefg = _mm_avg_epu8(avg2, KJIXABCD_);
-	WebPUint32ToMem(dst + 3 * BPS, _mm_cvtsi128_si32(abcdefg));
-	WebPUint32ToMem(dst + 2 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 1)));
-	WebPUint32ToMem(dst + 1 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 2)));
-	WebPUint32ToMem(dst + 0 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 3)));
+	SMem::Put(dst + 3 * BPS, _mm_cvtsi128_si32(abcdefg));
+	SMem::Put(dst + 2 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 1)));
+	SMem::Put(dst + 1 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 2)));
+	SMem::Put(dst + 0 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 3)));
 }
 
 #undef DST
@@ -935,13 +935,13 @@ static FORCEINLINE void TrueMotion_SSE2(uint8* dst, int size)
 	const __m128i zero = _mm_setzero_si128();
 	int y;
 	if(size == 4) {
-		const __m128i top_values = _mm_cvtsi32_si128(WebPMemToUint32(top));
+		const __m128i top_values = _mm_cvtsi32_si128(SMem::Get32(top));
 		const __m128i top_base = _mm_unpacklo_epi8(top_values, zero);
 		for(y = 0; y < 4; ++y, dst += BPS) {
 			const int val = dst[-1] - top[-1];
 			const __m128i base = _mm_set1_epi16(val);
 			const __m128i out = _mm_packus_epi16(_mm_add_epi16(base, top_base), zero);
-			WebPUint32ToMem(dst, _mm_cvtsi128_si32(out));
+			SMem::Put(dst, _mm_cvtsi128_si32(out));
 		}
 	}
 	else if(size == 8) {

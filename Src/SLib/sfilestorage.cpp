@@ -106,7 +106,7 @@ int SFileStorage::PutFile(const char * pName, const char * pSourceFilePath)
 {
 	const  int64 size_limit_for_copy_in_one_chunk = SMEGABYTE(4);
 	int    ok = 1;
-	SHandle h;
+	SPtrHandle h;
 	SString real_path;
 	THROW(fileExists(pSourceFilePath));
 	THROW(IsValid());
@@ -163,9 +163,9 @@ int SFileStorage::PutFile(const char * pName, const char * pSourceFilePath)
 	return ok;
 }
 
-SHandle SFileStorage::Write_Start(const char * pName)
+SPtrHandle SFileStorage::Write_Start(const char * pName)
 {
-	SHandle result;
+	SPtrHandle result;
 	InnerWritingBlock * p_item = 0;
 	SString entry_name;
 	THROW(MakeFileEntry(pName, entry_name, true/*writing*/));
@@ -181,7 +181,7 @@ SHandle SFileStorage::Write_Start(const char * pName)
 	return result;
 }
 
-bool SFileStorage::Write(SHandle handle, const void * pBuf, size_t size)
+bool SFileStorage::Write(SPtrHandle handle, const void * pBuf, size_t size)
 {
 	bool    ok = true;
 	InnerWritingBlock * p_item = 0;
@@ -204,7 +204,7 @@ bool SFileStorage::Write(SHandle handle, const void * pBuf, size_t size)
 	return ok;
 }
 
-bool SFileStorage::Write_End(SHandle handle, uint64 * pWrittenSize)
+bool SFileStorage::Write_End(SPtrHandle handle, uint64 * pWrittenSize)
 {
 	bool    ok = true;
 	uint64  written_size = 0;
@@ -230,7 +230,7 @@ bool SFileStorage::Write_End(SHandle handle, uint64 * pWrittenSize)
 	return ok;
 }
 
-uint64 SFileStorage::GetTotalRdSize(SHandle handle) const
+uint64 SFileStorage::GetTotalRdSize(SPtrHandle handle) const
 {
 	uint64 result = 0;
 	uint   item_idx = 0;
@@ -255,7 +255,7 @@ uint64 SFileStorage::GetTotalRdSize(SHandle handle) const
 	return result;
 }
 
-uint64 SFileStorage::GetTotalWrSize(SHandle handle) const
+uint64 SFileStorage::GetTotalWrSize(SPtrHandle handle) const
 {
 	uint64 result = 0;
 	uint   item_idx = 0;
@@ -280,7 +280,7 @@ uint64 SFileStorage::GetTotalWrSize(SHandle handle) const
 	return result;
 }
 
-bool SFileStorage::CloseFile(SHandle handle)
+bool SFileStorage::CloseFile(SPtrHandle handle)
 {
 	bool   ok = true;
 	uint   witem_idx = 0;
@@ -329,9 +329,9 @@ bool SFileStorage::CloseFile(SHandle handle)
 	return ok;
 }
 
-SHandle SFileStorage::GetFile(const char * pName, int64 * pFileSize)
+SPtrHandle SFileStorage::GetFile(const char * pName, int64 * pFileSize)
 {
-	SHandle result;
+	SPtrHandle result;
 	int64  fsize = 0;
 	InnerReadingBlock * p_item = 0;
 	SString entry_name;
@@ -351,7 +351,7 @@ SHandle SFileStorage::GetFile(const char * pName, int64 * pFileSize)
 	return result;
 }
 
-bool SFileStorage::Read(SHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize)
+bool SFileStorage::Read(SPtrHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize)
 {
 	bool    ok = true;
 	size_t actual_size = 0;
@@ -386,8 +386,8 @@ SLTEST_R(SFileStorage)
 	const  ulong rng_max = SKILOBYTE(512);
 	const  ulong rng_big_max = SMEGABYTE(16);
 	const  ulong rng_gen_max = 0x7fffffffUL;
-	SHandle hw;
-	SHandle hr;
+	SPtrHandle hw;
+	SPtrHandle hr;
 	const SString path(GetSuiteEntry()->InPath);
 	const SString out_path(GetSuiteEntry()->OutPath);
 	SString storage_base_path;

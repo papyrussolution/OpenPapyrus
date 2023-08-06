@@ -225,7 +225,7 @@ static int cli_report_progress(MYSQL * mysql, uchar * packet, uint length)
 //
 ulong FASTCALL net_field_length(uchar ** packet)
 {
-	reg1 uchar * pos = *packet;
+	uchar * pos = *packet;
 	if(*pos < 251) {
 		(*packet)++;
 		return (ulong)*pos;
@@ -250,7 +250,7 @@ ulong FASTCALL net_field_length(uchar ** packet)
 // 
 static uint64 net_field_length_ll(uchar ** packet)
 {
-	reg1 uchar * pos = *packet;
+	uchar * pos = *packet;
 	if(*pos < 251) {
 		(*packet)++;
 		return (uint64)*pos;

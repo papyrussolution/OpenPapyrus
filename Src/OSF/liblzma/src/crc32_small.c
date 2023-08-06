@@ -12,12 +12,12 @@ uint32_t lzma_crc32_table[1][256];
 
 static void crc32_init(void)
 {
-	static const uint32_t poly32 = UINT32_C(0xEDB88320);
+	//static const uint32_t poly32 = UINT32_C(0xEDB88320);
 	for(size_t b = 0; b < 256; ++b) {
 		uint32_t r = b;
 		for(size_t i = 0; i < 8; ++i) {
 			if(r & 1)
-				r = (r >> 1) ^ poly32;
+				r = (r >> 1) ^ /*poly32*/SlConst::CrcPoly_CCITT32;
 			else
 				r >>= 1;
 		}

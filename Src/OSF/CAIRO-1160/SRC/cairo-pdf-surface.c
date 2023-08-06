@@ -292,7 +292,7 @@ static cairo_status_t _cairo_pdf_surface_clipper_intersect_clip_path(cairo_surfa
 static cairo_surface_t * _cairo_pdf_surface_create_for_stream_internal(cairo_output_stream_t * output, double width, double height)
 {
 	cairo_status_t status, status_ignored;
-	cairo_pdf_surface_t * surface = (cairo_pdf_surface_t *)_cairo_malloc(sizeof(cairo_pdf_surface_t));
+	cairo_pdf_surface_t * surface = (cairo_pdf_surface_t *)SAlloc::M_zon0(sizeof(cairo_pdf_surface_t));
 	if(UNLIKELY(!surface)) {
 		/* destroy stream on behalf of caller */
 		status = _cairo_output_stream_destroy(output);
@@ -1233,7 +1233,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_source_surface(cairo_pdf_surfac
 		return status;
 	}
 	if(surface_key.unique_id && surface_key.unique_id_length > 0) {
-		unique_id = static_cast<uchar *>(_cairo_malloc(surface_key.unique_id_length));
+		unique_id = static_cast<uchar *>(SAlloc::M_zon0(surface_key.unique_id_length));
 		if(unique_id == NULL) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto fail1;
@@ -1246,7 +1246,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_source_surface(cairo_pdf_surfac
 		unique_id = NULL;
 		unique_id_length = 0;
 	}
-	surface_entry = (cairo_pdf_source_surface_entry_t *)_cairo_malloc(sizeof(cairo_pdf_source_surface_entry_t));
+	surface_entry = (cairo_pdf_source_surface_entry_t *)SAlloc::M_zon0(sizeof(cairo_pdf_source_surface_entry_t));
 	if(surface_entry == NULL) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail1;
@@ -2397,7 +2397,7 @@ static cairo_int_status_t _cairo_pdf_surface_lookup_jbig2_global(cairo_pdf_surfa
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
-	global.id = static_cast<uchar *>(_cairo_malloc(global_id_length));
+	global.id = static_cast<uchar *>(SAlloc::M_zon0(global_id_length));
 	if(UNLIKELY(global.id == NULL)) {
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -4488,7 +4488,7 @@ cairo_int_status_t _cairo_utf8_to_pdf_string(const char * utf8, char ** str_out)
 		}
 	}
 	if(ascii) {
-		str = (char *)_cairo_malloc(len + 3);
+		str = (char *)SAlloc::M_zon0(len + 3);
 		if(!str)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		str[0] = '(';
@@ -4503,7 +4503,7 @@ cairo_int_status_t _cairo_utf8_to_pdf_string(const char * utf8, char ** str_out)
 		status = _cairo_utf8_to_utf16(utf8, -1, &utf16, &utf16_len);
 		if(UNLIKELY(status))
 			return status;
-		str = (char *)_cairo_malloc(utf16_len*4 + 7);
+		str = (char *)SAlloc::M_zon0(utf16_len*4 + 7);
 		if(!str) {
 			SAlloc::F(utf16);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -7185,7 +7185,7 @@ static cairo_int_status_t _cairo_pdf_surface_show_text_glyphs(void * abstract_su
 		}
 		group->source_res = pattern_res;
 		if(utf8_len) {
-			group->utf8 = static_cast<char *>(_cairo_malloc(utf8_len));
+			group->utf8 = static_cast<char *>(SAlloc::M_zon0(utf8_len));
 			if(UNLIKELY(group->utf8 == NULL)) {
 				_cairo_pdf_smask_group_destroy(group);
 				status = _cairo_error(CAIRO_STATUS_NO_MEMORY);

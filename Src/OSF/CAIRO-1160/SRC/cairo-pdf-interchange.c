@@ -66,7 +66,7 @@ static void write_rect_int_to_pdf_bbox(cairo_output_stream_t * stream, const cai
 
 static cairo_int_status_t add_tree_node(cairo_pdf_surface_t * surface, cairo_pdf_struct_tree_node_t  * parent, const char * name, cairo_pdf_struct_tree_node_t ** new_node)
 {
-	cairo_pdf_struct_tree_node_t * node = (cairo_pdf_struct_tree_node_t *)_cairo_malloc(sizeof(cairo_pdf_struct_tree_node_t));
+	cairo_pdf_struct_tree_node_t * node = (cairo_pdf_struct_tree_node_t *)SAlloc::M_zon0(sizeof(cairo_pdf_struct_tree_node_t));
 	if(UNLIKELY(node == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	node->name = sstrdup(name);
@@ -708,7 +708,7 @@ static char * split_label(const char * label, int * num)
 		sscanf(label + i, "%d", num);
 
 	if(i > 0) {
-		char * s = (char *)_cairo_malloc(i + 1);
+		char * s = (char *)SAlloc::M_zon0(i + 1);
 		if(!s)
 			return NULL;
 		memcpy(s, label, i);
@@ -1347,7 +1347,7 @@ cairo_int_status_t _cairo_pdf_interchange_add_outline(cairo_pdf_surface_t * surf
 	cairo_int_status_t status;
 	if(parent_id < 0 || parent_id >= (int)_cairo_array_num_elements(&ic->outline))
 		return CAIRO_STATUS_SUCCESS;
-	outline = (cairo_pdf_outline_entry_t *)_cairo_malloc(sizeof(cairo_pdf_outline_entry_t));
+	outline = (cairo_pdf_outline_entry_t *)SAlloc::M_zon0(sizeof(cairo_pdf_outline_entry_t));
 	if(UNLIKELY(outline == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = _cairo_tag_parse_link_attributes(link_attribs, &outline->link_attrs);

@@ -119,7 +119,7 @@ static boolint _cairo_hash_table_uid_keys_equal(const void * key_a, const void *
  **/
 cairo_hash_table_t * FASTCALL _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_equal)
 {
-	cairo_hash_table_t * hash_table = (cairo_hash_table_t *)_cairo_malloc(sizeof(cairo_hash_table_t));
+	cairo_hash_table_t * hash_table = (cairo_hash_table_t *)SAlloc::M_zon0(sizeof(cairo_hash_table_t));
 	if(UNLIKELY(hash_table == NULL)) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;

@@ -60,7 +60,7 @@ FORCE_INLINE_TEMPLATE size_t FSE_readNCount_body(short* normalizedCounter, uint 
 	assert(hbSize >= 8);
 	/* init */
 	memzero(normalizedCounter, (*maxSVPtr+1) * sizeof(normalizedCounter[0])); /* all symbols not present in NCount have a frequency of 0 */
-	bitStream = MEM_readLE32(ip);
+	bitStream = SMem::GetLe32(ip);
 	nbBits = (bitStream & 0xF) + FSE_MIN_TABLELOG; /* extract tableLog */
 	if(nbBits > FSE_TABLELOG_ABSOLUTE_MAX) 
 		return ERROR(tableLog_tooLarge);
@@ -77,7 +77,7 @@ FORCE_INLINE_TEMPLATE size_t FSE_readNCount_body(short* normalizedCounter, uint 
 			 * repeat.
 			 * Avoid UB by setting the high bit to 1.
 			 */
-			int repeats = ZSTD_countTrailingZeros32(~bitStream | 0x80000000) >> 1;
+			int repeats = /*ZSTD_countTrailingZeros32*/SBits::Ctz(~bitStream | 0x80000000) >> 1;
 			while(repeats >= 12) {
 				charnum += 3 * 12;
 				if(LIKELY(ip <= iend-7)) {
@@ -88,28 +88,25 @@ FORCE_INLINE_TEMPLATE size_t FSE_readNCount_body(short* normalizedCounter, uint 
 					bitCount &= 31;
 					ip = iend - 4;
 				}
-				bitStream = MEM_readLE32(ip) >> bitCount;
-				repeats = ZSTD_countTrailingZeros32(~bitStream | 0x80000000) >> 1;
+				bitStream = SMem::GetLe32(ip) >> bitCount;
+				repeats = /*ZSTD_countTrailingZeros32*/SBits::Ctz(~bitStream | 0x80000000) >> 1;
 			}
 			charnum += 3 * repeats;
 			bitStream >>= 2 * repeats;
 			bitCount += 2 * repeats;
-
 			/* Add the final repeat which isn't 0b11. */
 			assert((bitStream & 3) < 3);
 			charnum += bitStream & 3;
 			bitCount += 2;
-
 			/* This is an error, but break and return an error
 			 * at the end, because returning out of a loop makes
 			 * it harder for the compiler to optimize.
 			 */
-			if(charnum >= maxSV1) break;
-
+			if(charnum >= maxSV1) 
+				break;
 			/* We don't need to set the normalized count to 0
 			 * because we already memset the whole buffer to 0.
 			 */
-
 			if(LIKELY(ip <= iend-7) || (ip + (bitCount>>3) <= iend-4)) {
 				assert((bitCount >> 3) <= 3); /* For first condition to work */
 				ip += bitCount>>3;
@@ -120,7 +117,7 @@ FORCE_INLINE_TEMPLATE size_t FSE_readNCount_body(short* normalizedCounter, uint 
 				bitCount &= 31;
 				ip = iend - 4;
 			}
-			bitStream = MEM_readLE32(ip) >> bitCount;
+			bitStream = SMem::GetLe32(ip) >> bitCount;
 		}
 		{
 			int const max = (2*threshold-1) - remaining;
@@ -168,7 +165,7 @@ FORCE_INLINE_TEMPLATE size_t FSE_readNCount_body(short* normalizedCounter, uint 
 				bitCount &= 31;
 				ip = iend - 4;
 			}
-			bitStream = MEM_readLE32(ip) >> bitCount;
+			bitStream = SMem::GetLe32(ip) >> bitCount;
 		}
 	}
 	if(remaining != 1) 

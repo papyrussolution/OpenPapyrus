@@ -362,7 +362,7 @@ static cairo_device_t * _cairo_xlib_xcb_device_create(Display * dpy, cairo_devic
 		}
 	}
 
-	display = _cairo_malloc(sizeof(cairo_xlib_xcb_display_t));
+	display = SAlloc::M_zon0(sizeof(cairo_xlib_xcb_display_t));
 	if(UNLIKELY(display == NULL)) {
 		device = _cairo_device_create_in_error(CAIRO_STATUS_NO_MEMORY);
 		goto unlock;
@@ -408,7 +408,7 @@ static cairo_surface_t * _cairo_xlib_xcb_surface_create(void * dpy,
 	if(UNLIKELY(xcb->status))
 		return xcb;
 
-	surface = _cairo_malloc(sizeof(*surface));
+	surface = SAlloc::M_zon0(sizeof(*surface));
 	if(UNLIKELY(!surface)) {
 		cairo_surface_destroy(xcb);
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);

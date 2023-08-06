@@ -289,7 +289,7 @@ static cairo_status_t _cairo_user_font_face_scaled_font_create(void * abstract_f
 	cairo_user_scaled_font_t * user_scaled_font = NULL;
 	cairo_font_extents_t font_extents = {1., 0., 1., 1., 0.};
 	font_face->immutable = TRUE;
-	user_scaled_font = (cairo_user_scaled_font_t *)_cairo_malloc(sizeof(cairo_user_scaled_font_t));
+	user_scaled_font = (cairo_user_scaled_font_t *)SAlloc::M_zon0(sizeof(cairo_user_scaled_font_t));
 	if(UNLIKELY(user_scaled_font == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = _cairo_scaled_font_init(&user_scaled_font->base, &font_face->base, font_matrix, ctm, options, &_cairo_user_scaled_font_backend);
@@ -392,7 +392,7 @@ boolint _cairo_font_face_is_user(cairo_font_face_t * font_face)
  **/
 cairo_font_face_t * cairo_user_font_face_create(void)
 {
-	cairo_user_font_face_t * font_face = (cairo_user_font_face_t *)_cairo_malloc(sizeof(cairo_user_font_face_t));
+	cairo_user_font_face_t * font_face = (cairo_user_font_face_t *)SAlloc::M_zon0(sizeof(cairo_user_font_face_t));
 	if(!font_face) {
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_font_face_t*)&_cairo_font_face_nil;

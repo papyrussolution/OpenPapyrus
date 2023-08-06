@@ -1945,7 +1945,7 @@ LRESULT CALLBACK GridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					if(z!=c) {
 						//resizing hidden column to the left of cursor
-						if(c==-1) {
+						if(c == -1) {
 							c = static_cast<int32_t>(SendMessage(hWnd, BGM_GETCOLS, 0, 0));
 						}
 						else {

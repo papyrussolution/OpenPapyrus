@@ -137,7 +137,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <SDLCheck />
       <SupportJustMyCode>false</SupportJustMyCode>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -158,7 +158,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <SDLCheck />
       <DebugInformationFormat>None</DebugInformationFormat>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <ExceptionHandling>false</ExceptionHandling>
@@ -200,7 +200,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <SDLCheck />
       <SupportJustMyCode>false</SupportJustMyCode>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
@@ -221,7 +221,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <SDLCheck />
       <DebugInformationFormat>None</DebugInformationFormat>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <ExceptionHandling>false</ExceptionHandling>

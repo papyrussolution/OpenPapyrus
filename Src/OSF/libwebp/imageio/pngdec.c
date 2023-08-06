@@ -22,9 +22,6 @@
 #define PNG_USER_MEM_SUPPORTED  // for png_create_read_struct_2
 #endif
 #include <libpng/png.h>
-#include <setjmp.h>   // note: this must be included *after* png.h
-//#include <stdlib.h>
-//#include <string.h>
 #include "webp/encode.h"
 #include "./imageio_util.h"
 #include "./metadata.h"

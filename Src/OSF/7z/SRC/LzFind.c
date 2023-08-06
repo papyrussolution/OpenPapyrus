@@ -119,19 +119,18 @@ static void FASTCALL MatchFinder_SetDefaultSettings(CMatchFinder * p)
 	p->bigHash = 0;
 }
 
-#define kCrcPoly 0xEDB88320
+// @v11.7.11 (replaced with SlConst::CrcPoly_CCITT32) #define kCrcPoly 0xEDB88320
 
 void MatchFinder_Construct(CMatchFinder * p)
 {
-	uint32 i;
 	p->bufferBase = NULL;
 	p->directInput = 0;
 	p->hash = NULL;
 	MatchFinder_SetDefaultSettings(p);
-	for(i = 0; i < 256; i++) {
+	for(uint32 i = 0; i < 256; i++) {
 		uint32 r = i;
 		for(uint j = 0; j < 8; j++)
-			r = (r >> 1) ^ (kCrcPoly & ((uint32)0 - (r & 1)));
+			r = (r >> 1) ^ (SlConst::CrcPoly_CCITT32 & ((uint32)0 - (r & 1)));
 		p->crc[i] = r;
 	}
 }

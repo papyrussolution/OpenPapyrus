@@ -776,6 +776,9 @@ public:
 	SUiLayout(const SUiLayoutParam & rP);
 	~SUiLayout();
 	bool   IsConsistent() const;
+	bool   FASTCALL IsEq(const SUiLayout & rS) const;
+	bool   FASTCALL operator == (const SUiLayout & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const SUiLayout & rS) const { return !IsEq(rS); }
 	//
 	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
 	//
@@ -1051,6 +1054,9 @@ private:
 class SColorSet : private SStrGroup { // @v11.7.10 @construction
 public:
 	explicit SColorSet(const char * pSymb = 0);
+	bool   FASTCALL IsEq(const SColorSet & rS) const;
+	bool   FASTCALL operator == (const SColorSet & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const SColorSet & rS) const { return !IsEq(rS); }
 	SColorSet & Z();
 	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const; // Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
 	int    SetSymb(const char * pSymb);
@@ -1063,6 +1069,7 @@ public:
 private:
 	enum {
 		funcNone = 0,
+		funcEmpty,     // ZEROCOLOR
 		funcLerp,      // (color, color, factor)
 		funcLighten,   // (color, factor)
 		funcDarken,    // (color, factor)
@@ -1076,6 +1083,12 @@ private:
 	};
 	struct ColorArg {
 		ColorArg();
+		bool FASTCALL IsEq(const ColorArg & rS) const
+		{
+			return (C == rS.C && F == rS.F && RefSymb.IsEqiAscii(rS.RefSymb));
+		}
+		bool FASTCALL operator == (const ColorArg & rS) const { return IsEq(rS); }
+		bool FASTCALL operator != (const ColorArg & rS) const { return !IsEq(rS); }
 		ColorArg & Z();
 		SString & ToStr(SString & rBuf) const;
 		//
@@ -1090,6 +1103,7 @@ private:
 	struct ComplexColorBlock {
 		ComplexColorBlock();
 		ComplexColorBlock(const ComplexColorBlock & rS);
+		bool   FASTCALL IsEq(const ComplexColorBlock & rS) const;
 		ComplexColorBlock & FASTCALL operator = (const ComplexColorBlock & rS);
 		ComplexColorBlock & Copy(const ComplexColorBlock & rS);
 		ComplexColorBlock & Z();
@@ -1099,6 +1113,13 @@ private:
 		SString RefSymb;
 		int   Func;
 		TSCollection <ColorArg> ArgList;
+	};
+	struct InnerEntry {
+		InnerEntry();
+		const void * GetHashKey(const void * pCtx, uint * pKeyLen) const; // Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
+		uint   SymbP;
+		SColor C;
+		uint   CcbP; // Ссылка на позицию в CcC [1..CcC.getCount()]
 	};
 	// 
 	// Returns:
@@ -1119,14 +1140,8 @@ private:
 	int    Put(const char * pSymb, ComplexColorBlock * pBlk);
 	int    Get(const char * pSymb, ComplexColorBlock * pBlk) const;
 	int    Helper_Get(const char * pSymb, SColor & rC, StringSet * pRecurSymbList) const;
+	bool   FASTCALL IsInnerEntryEq(const InnerEntry & rE1, const SColorSet & rS, const InnerEntry & rE2) const;
 
-	struct InnerEntry {
-		InnerEntry();
-		const void * GetHashKey(const void * pCtx, uint * pKeyLen) const; // Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
-		uint   SymbP;
-		SColor C;
-		uint   CcbP; // Ссылка на позицию в CcC [1..CcC.getCount()]
-	};
 	SString Symb; // Символ набора цветов (не путать с символом отдельного цвета)
 	TSHashCollection <InnerEntry> L;
 	TSCollection <ComplexColorBlock> CcC;
@@ -1152,6 +1167,9 @@ private:
 class SFontSource { // @v11.7.10 @construction
 public:
 	SFontSource();
+	bool   FASTCALL IsEq(const SFontSource & rS) const;
+	bool   FASTCALL operator == (const SFontSource & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const SFontSource & rS) const { return !IsEq(rS); }
 	SFontSource & Z();
 	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const; // Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
 	SJson * ToJsonObj() const;
@@ -1169,6 +1187,9 @@ public:
 	~UiDescription();
 	UiDescription & Z();
 	UiDescription & Copy(const UiDescription & rS);
+	bool   FASTCALL IsEq(const UiDescription & rS) const;
+	bool   FASTCALL operator == (const UiDescription & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const UiDescription & rS) const { return !IsEq(rS); }
 	SJson * ToJsonObj() const;
 	int FromJsonObj(const SJson * pJsObj);
 	const SColorSet * GetColorSetC(const char * pCsSymb) const;

@@ -3088,7 +3088,7 @@ uint StrAssocTree::ENTRY::BaseList::GetDepth() const
 	return _d;
 }
 
-bool StrAssocTree::ENTRY::BaseList::Implement_Get_Unsafe(SHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const
+bool StrAssocTree::ENTRY::BaseList::Implement_Get_Unsafe(SPtrHandle h, int32 currentParentId, long * pId, long * pParentId, uint * pStrP) const
 {
 	bool result = false;
 	if(h) {
@@ -3315,7 +3315,7 @@ uint StrAssocTree::GetCount() const
 	return L.GetCount();
 }
 
-uint StrAssocTree::GetDepth(SHandle h) const
+uint StrAssocTree::GetDepth(SPtrHandle h) const
 {
 	uint   result = 0;
 	if(!h) {
@@ -3350,20 +3350,20 @@ bool StrAssocTree::Search(long id, long * pParentId, SString * pBuf) const
 		return false;
 }
 
-bool FASTCALL StrAssocTree::ValidateEntryHandle(const SHandle h) const
+bool FASTCALL StrAssocTree::ValidateEntryHandle(const SPtrHandle h) const
 {
 	return L.ValidateEntryPtr(h);
 }
 	
-SHandle FASTCALL StrAssocTree::Search(long id) const
+SPtrHandle FASTCALL StrAssocTree::Search(long id) const
 {
 	ENTRY * p_entry = L.Implement_Search(id, 0, 0);
-	return SHandle(p_entry);
+	return SPtrHandle(p_entry);
 }
 
-SHandle StrAssocTree::SearchByText(const char * pTxt, int ignoreCase) const
+SPtrHandle StrAssocTree::SearchByText(const char * pTxt, int ignoreCase) const
 {
-	SHandle result;
+	SPtrHandle result;
 	uint   pos = 0;
 	while(!result && Pool.search(pTxt, &pos, ignoreCase)) {
 		TSVector <ENTRY *> entry_list;
@@ -3380,9 +3380,9 @@ SHandle StrAssocTree::SearchByText(const char * pTxt, int ignoreCase) const
 	return result;
 }
 
-bool StrAssocTree::SearchByText(const char * pTxt, CompFunc fcmp, TSVector <SHandle> & rList) const
+bool StrAssocTree::SearchByText(const char * pTxt, CompFunc fcmp, TSVector <SPtrHandle> & rList) const
 {
-	//SHandle result;
+	//SPtrHandle result;
 	rList.clear();
 	bool   result = false;
 	uint   pos = 0;
@@ -3394,7 +3394,7 @@ bool StrAssocTree::SearchByText(const char * pTxt, CompFunc fcmp, TSVector <SHan
 			assert(entry_list.getCount());
 			//result = entry_list.at(0);
 			//for(uint i = 0; i < entry_list.getCount(); i++) {
-			SForEachVectorItem(entry_list, i) { rList.insert(&SHandle(entry_list.at(i))); }
+			SForEachVectorItem(entry_list, i) { rList.insert(&SPtrHandle(entry_list.at(i))); }
 			result = true;
 		}
 		pos = next_pos;
@@ -3402,7 +3402,7 @@ bool StrAssocTree::SearchByText(const char * pTxt, CompFunc fcmp, TSVector <SHan
 	return result;
 }
 
-bool StrAssocTree::Get_Unsafe(SHandle h, long * pId, long * pParentId, SString * pBuf) const
+bool StrAssocTree::Get_Unsafe(SPtrHandle h, long * pId, long * pParentId, SString * pBuf) const
 {
 	uint  strp = 0;
 	bool result = L.Implement_Get_Unsafe(h, 0, pId, pParentId, &strp);
@@ -3411,7 +3411,7 @@ bool StrAssocTree::Get_Unsafe(SHandle h, long * pId, long * pParentId, SString *
 	return result;
 }
 
-bool StrAssocTree::HasNodeChildren(SHandle h) const
+bool StrAssocTree::HasNodeChildren(SPtrHandle h) const
 {
 	bool   result = false;
 	if(h) {
@@ -3422,7 +3422,7 @@ bool StrAssocTree::HasNodeChildren(SHandle h) const
 	return result;
 }
 
-int32 StrAssocTree::GetNodeKey(SHandle h) const
+int32 StrAssocTree::GetNodeKey(SPtrHandle h) const
 {
 	if(h) {
 		const ENTRY * p_entry = static_cast<const ENTRY *>(static_cast<const void *>(h));
@@ -3432,7 +3432,7 @@ int32 StrAssocTree::GetNodeKey(SHandle h) const
 		return 0;
 }
 
-uintptr_t StrAssocTree::GetNodeExtraPtr(SHandle h) const
+uintptr_t StrAssocTree::GetNodeExtraPtr(SPtrHandle h) const
 {
 	if(h) {
 		const ENTRY * p_entry = static_cast<const ENTRY *>(static_cast<const void *>(h));
@@ -3442,7 +3442,7 @@ uintptr_t StrAssocTree::GetNodeExtraPtr(SHandle h) const
 		return 0;
 }
 
-bool StrAssocTree::SetNodeExtraPtr(SHandle h, uintptr_t extraPtr)
+bool StrAssocTree::SetNodeExtraPtr(SPtrHandle h, uintptr_t extraPtr)
 {
 	bool   ok = true;
 	if(h) {
@@ -3492,7 +3492,7 @@ int StrAssocTree::GetListByParent(long parentId, bool recursive, LongArray & rLi
 	return rList.getCount() ? 1 : -1;
 }
 
-int StrAssocTree::GetListByParent_Unsafe(SHandle hParent, bool recursive, TSVector <SHandle> & rList) const
+int StrAssocTree::GetListByParent_Unsafe(SPtrHandle hParent, bool recursive, TSVector <SPtrHandle> & rList) const
 {
 	rList.clear();
 	int    ok = 0;
@@ -3507,7 +3507,7 @@ int StrAssocTree::GetListByParent_Unsafe(SHandle hParent, bool recursive, TSVect
 	//CALLPTRMEMB(p_list, GetKeyList(recursive, rList));
 	if(p_list && p_list->getCount()) {
 		for(uint i = 0; i < p_list->getCount(); i++) {
-			SHandle h(&p_list->at(i));
+			SPtrHandle h(&p_list->at(i));
 			rList.insert(&h);
 		}
 		ok = 1;
@@ -3560,9 +3560,9 @@ int StrAssocTree::Add(long id, long parentId, const char * pStr, int replaceDup)
 	return ok;
 }
 
-SHandle StrAssocTree::Add_Unsafe(SHandle hParent, long id, const char * pStr)
+SPtrHandle StrAssocTree::Add_Unsafe(SPtrHandle hParent, long id, const char * pStr)
 {
-	SHandle result;
+	SPtrHandle result;
 	uint strp = 0;
 	if(hParent) {
 		//assert(ValidateEntryHandle(hParent));

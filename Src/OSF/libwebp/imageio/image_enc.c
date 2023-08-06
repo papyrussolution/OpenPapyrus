@@ -12,11 +12,8 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "./image_enc.h"
-//#include <assert.h>
-//#include <string.h>
 #ifdef WEBP_HAVE_PNG
 	#include <libpng/png.h>
-	// @v11.7.1 #include <setjmp.h>   // note: this must be included *after* png.h
 #endif
 #ifdef HAVE_WINCODEC_H
 	#ifdef __MINGW32__

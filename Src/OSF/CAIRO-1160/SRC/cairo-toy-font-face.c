@@ -249,7 +249,7 @@ cairo_font_face_t * cairo_toy_font_face_create(const char * family, cairo_font_s
 		_cairo_hash_table_remove(hash_table, &font_face->base.hash_entry);
 	}
 	/* Otherwise create it and insert into hash table. */
-	font_face = (cairo_toy_font_face_t *)_cairo_malloc(sizeof(cairo_toy_font_face_t));
+	font_face = (cairo_toy_font_face_t *)SAlloc::M_zon0(sizeof(cairo_toy_font_face_t));
 	if(UNLIKELY(font_face == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto UNWIND_HASH_TABLE_LOCK;

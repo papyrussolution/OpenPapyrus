@@ -329,7 +329,7 @@ void GnuPlot::SaveSetAll(FILE * fp)
 		SAVE_GRID(COLOR_AXIS);
 		fputs("\n", fp);
 #undef SAVE_GRID
-		fprintf(fp, "set grid %s%s  ", (AxS.grid_vertical_lines) ? "vertical " : "", (AxS.grid_layer==-1) ? "layerdefault" : ((AxS.grid_layer==0) ? "back" : "front"));
+		fprintf(fp, "set grid %s%s  ", (AxS.grid_vertical_lines) ? "vertical " : "", (AxS.grid_layer == -1) ? "layerdefault" : ((AxS.grid_layer==0) ? "back" : "front"));
 		save_linetype(fp, &AxS.grid_lp, FALSE);
 		fprintf(fp, ", ");
 		save_linetype(fp, &AxS.mgrid_lp, FALSE);

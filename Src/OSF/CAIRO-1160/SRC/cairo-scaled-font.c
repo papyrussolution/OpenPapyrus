@@ -343,7 +343,7 @@ static cairo_scaled_font_map_t * _cairo_scaled_font_map_lock(void)
 {
 	CAIRO_MUTEX_LOCK(_cairo_scaled_font_map_mutex);
 	if(cairo_scaled_font_map == NULL) {
-		cairo_scaled_font_map = (cairo_scaled_font_map_t *)_cairo_malloc(sizeof(cairo_scaled_font_map_t));
+		cairo_scaled_font_map = (cairo_scaled_font_map_t *)SAlloc::M_zon0(sizeof(cairo_scaled_font_map_t));
 		if(UNLIKELY(cairo_scaled_font_map == NULL))
 			goto CLEANUP_MUTEX_LOCK;
 		cairo_scaled_font_map->mru_scaled_font = NULL;
@@ -449,7 +449,7 @@ cairo_status_t _cairo_scaled_font_register_placeholder_and_unlock_font_map(cairo
 	status = scaled_font->status;
 	if(UNLIKELY(status))
 		return status;
-	placeholder_scaled_font = (cairo_scaled_font_t *)_cairo_malloc(sizeof(cairo_scaled_font_t));
+	placeholder_scaled_font = (cairo_scaled_font_t *)SAlloc::M_zon0(sizeof(cairo_scaled_font_t));
 	if(UNLIKELY(placeholder_scaled_font == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	/* full initialization is wasteful, but who cares... */
@@ -998,7 +998,7 @@ cairo_scaled_font_t * _cairo_scaled_font_create_in_error(cairo_status_t status)
 	CAIRO_MUTEX_LOCK(_cairo_scaled_font_error_mutex);
 	scaled_font = _cairo_scaled_font_nil_objects[status];
 	if(UNLIKELY(scaled_font == NULL)) {
-		scaled_font = (cairo_scaled_font_t *)_cairo_malloc(sizeof(cairo_scaled_font_t));
+		scaled_font = (cairo_scaled_font_t *)SAlloc::M_zon0(sizeof(cairo_scaled_font_t));
 		if(UNLIKELY(scaled_font == NULL)) {
 			CAIRO_MUTEX_UNLOCK(_cairo_scaled_font_error_mutex);
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
@@ -2274,7 +2274,7 @@ static cairo_status_t _cairo_scaled_font_allocate_glyph(cairo_scaled_font_t * sc
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
-	page = static_cast<cairo_scaled_glyph_page_t *>(_cairo_malloc(sizeof(cairo_scaled_glyph_page_t)));
+	page = static_cast<cairo_scaled_glyph_page_t *>(SAlloc::M_zon0(sizeof(cairo_scaled_glyph_page_t)));
 	if(UNLIKELY(page == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	page->cache_entry.hash = (ulong)scaled_font;

@@ -706,7 +706,7 @@ static pixman_fixed_t * create_separable_convolution(int * n_values, kernel_t xf
 		while(sy * (1 << ysubsample) <= 128.0) ysubsample++;
 	size_y = (1 << ysubsample) * ywidth;
 	*n_values = 4 + size_x + size_y;
-	params = (pixman_fixed_t *)_cairo_malloc(*n_values * sizeof(pixman_fixed_t));
+	params = (pixman_fixed_t *)SAlloc::M_zon0(*n_values * sizeof(pixman_fixed_t));
 	if(!params) 
 		return 0;
 	params[0] = pixman_int_to_fixed(xwidth);
@@ -871,7 +871,7 @@ static const cairo_surface_backend_t proxy_backend  = {
 
 static cairo_surface_t * attach_proxy(cairo_surface_t * source, cairo_surface_t * image)
 {
-	struct proxy * proxy = (struct proxy *)_cairo_malloc(sizeof(*proxy));
+	struct proxy * proxy = (struct proxy *)SAlloc::M_zon0(sizeof(*proxy));
 	if(UNLIKELY(proxy == NULL))
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_surface_init(&proxy->base, &proxy_backend, NULL, image->content, FALSE);
@@ -1112,7 +1112,7 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst, c
 			_cairo_surface_release_source_image(pattern->surface, image, extra);
 			return NULL;
 		}
-		cleanup = (struct acquire_source_cleanup *)_cairo_malloc(sizeof(*cleanup));
+		cleanup = (struct acquire_source_cleanup *)SAlloc::M_zon0(sizeof(*cleanup));
 		if(UNLIKELY(cleanup == NULL)) {
 			_cairo_surface_release_source_image(pattern->surface, image, extra);
 			pixman_image_unref(pixman_image);
@@ -1178,7 +1178,7 @@ static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst, co
 		_cairo_raster_source_pattern_release(&pattern->base, surface);
 		return NULL;
 	}
-	cleanup = (struct raster_source_cleanup *)_cairo_malloc(sizeof(*cleanup));
+	cleanup = (struct raster_source_cleanup *)SAlloc::M_zon0(sizeof(*cleanup));
 	if(UNLIKELY(cleanup == NULL)) {
 		pixman_image_unref(pixman_image);
 		_cairo_surface_release_source_image(surface, image, extra);
@@ -1238,7 +1238,7 @@ cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst, 
     const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y)
 {
 	TRACE_FUNCTION_SIMPLE();
-	cairo_image_source_t * source = (cairo_image_source_t *)_cairo_malloc(sizeof(cairo_image_source_t));
+	cairo_image_source_t * source = (cairo_image_source_t *)SAlloc::M_zon0(sizeof(cairo_image_source_t));
 	if(UNLIKELY(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	source->pixman_image = _pixman_image_for_pattern((cairo_image_surface_t*)dst, pattern, is_mask, extents, sample, src_x, src_y);

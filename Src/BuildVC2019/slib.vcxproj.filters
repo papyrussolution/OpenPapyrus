@@ -658,11 +658,9 @@
     <ClCompile Include="..\SLib\libxml\xmluri.c">
       <Filter>libxml</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\winprofile.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\json.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Slib.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -847,6 +845,15 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\slui.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\BZIP3\include\getopt-shim.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\BZIP3\include\libbz3.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\BZIP3\include\libbz3-common.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

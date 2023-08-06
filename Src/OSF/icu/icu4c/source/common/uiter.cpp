@@ -278,7 +278,7 @@ U_CAPI void U_EXPORT2 uiter_setUTF16BE(UCharIterator * iter, const char * s, int
 	if(iter) {
 		// allow only even-length strings (the input length counts bytes)
 		if(s && (length==-1 || (length>=0 && IS_EVEN_(length)))) {
-			/* length/=2, except that >>=1 also works for -1 (-1/2==0, -1>>1==-1) */
+			/* length/=2, except that >>=1 also works for -1 (-1/2==0, -1>>1 == -1) */
 			length >>= 1;
 			if(U_IS_BIG_ENDIAN && IS_POINTER_EVEN(s)) {
 				/* big-endian machine and 2-aligned UTF-16BE string: use normal char16_t iterator */

@@ -131,8 +131,7 @@ static const int64 kint64min = -kint64max - 1;
 static const uint32 kuint32max = 0xFFFFFFFFu;
 static const uint64 kuint64max = uint64_t{0xFFFFFFFFFFFFFFFFu};
 
-#if defined(ADDRESS_SANITIZER) || defined(THREAD_SANITIZER) || \
-	defined(MEMORY_SANITIZER)
+#if defined(ADDRESS_SANITIZER) || defined(THREAD_SANITIZER) || defined(MEMORY_SANITIZER)
 
 #ifdef __cplusplus
 extern "C" {
@@ -211,11 +210,8 @@ inline void GOOGLE_UNALIGNED_STORE64(void * p, uint64 v) { memcpy(p, &v, sizeof 
 #elif !defined(__linux__) && !defined(__ANDROID__) && !defined(__CYGWIN__)
 
 #ifndef bswap_16
-static inline uint16 bswap_16(uint16 x) {
-	return static_cast<uint16>(((x & 0xFF) << 8) | ((x & 0xFF00) >> 8));
-}
-
-#define bswap_16(x) bswap_16(x)
+	static inline uint16 bswap_16(uint16 x) { return static_cast<uint16>(((x & 0xFF) << 8) | ((x & 0xFF00) >> 8)); }
+	#define bswap_16(x) bswap_16(x)
 #endif
 
 #ifndef bswap_32
@@ -228,7 +224,8 @@ static inline uint32 bswap_32(uint32 x)
 #endif
 
 #ifndef bswap_64
-static inline uint64 bswap_64(uint64 x) {
+static inline uint64 bswap_64(uint64 x) 
+{
 	return (((x & uint64_t{0xFFu}) << 56) | ((x & uint64_t{0xFF00u}) << 40) |
 	       ((x & uint64_t{0xFF0000u}) << 24) |
 	       ((x & uint64_t{0xFF000000u}) << 8) |

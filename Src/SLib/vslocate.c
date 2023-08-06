@@ -104,6 +104,10 @@ static size_t get_library_path(char * path, size_t capacity)
 	return path_length + subpath_length;
 }
 
+VisualStudioInstallationLocator::Entry::Entry() : InstallTime(ZERODATETIME)
+{
+}
+
 int VisualStudioInstallationLocator::Locate(TSCollection <Entry> & rList, SString * pErrMsg)
 {
 	int    ok = 1;

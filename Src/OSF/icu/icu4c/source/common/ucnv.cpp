@@ -1479,7 +1479,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_fromUChars(UConverter * cnv, char * dest, int32_t 
 	/* initialize */
 	ucnv_resetFromUnicode(cnv);
 	originalDest = dest;
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		srcLength = u_strlen(src);
 	}
 	if(srcLength>0) {
@@ -1523,7 +1523,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_toUChars(UConverter * cnv, char16_t * dest, int32_
 	/* initialize */
 	ucnv_resetToUnicode(cnv);
 	originalDest = dest;
-	if(srcLength==-1) {
+	if(srcLength == -1) {
 		srcLength = (int32_t)strlen(src);
 	}
 	if(srcLength>0) {
@@ -2378,7 +2378,7 @@ U_CAPI const char * U_EXPORT2 ucnv_detectUnicodeSignature(const char * source, i
 		return NULL;
 	}
 	SETIFZQ(signatureLength, &dummy);
-	if(sourceLength==-1) {
+	if(sourceLength == -1) {
 		sourceLength = (int32_t)strlen(source);
 	}
 	while(i<sourceLength&& i<SIG_MAX_LEN) {

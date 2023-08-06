@@ -625,8 +625,7 @@ U_CAPI char16_t * U_EXPORT2 u_strtok_r(char16_t * src,
 
 /* Miscellaneous functions -------------------------------------------------- */
 
-U_CAPI char16_t * U_EXPORT2 u_strcat(char16_t * dst,
-    const char16_t * src)
+U_CAPI char16_t * U_EXPORT2 u_strcat(char16_t * dst, const char16_t * src)
 {
 	char16_t * anchor = dst; /* save a pointer to start of dst */
 	while(*dst != 0) {          /* To end of first string */
@@ -679,23 +678,21 @@ U_CAPI int32_t U_EXPORT2 u_strcmp(const char16_t * s1,
 	return (int32_t)c1 - (int32_t)c2;
 }
 
-U_CFUNC int32_t U_EXPORT2 uprv_strCompare(const char16_t * s1, int32_t length1,
-    const char16_t * s2, int32_t length2,
-    bool strncmpStyle, bool codePointOrder) {
-	const char16_t * start1, * start2, * limit1, * limit2;
+U_CFUNC int32_t U_EXPORT2 uprv_strCompare(const char16_t * s1, int32_t length1, const char16_t * s2, int32_t length2,
+    bool strncmpStyle, bool codePointOrder) 
+{
+	const char16_t * limit1;
+	const char16_t * limit2;
 	char16_t c1, c2;
-
 	/* setup for fix-up */
-	start1 = s1;
-	start2 = s2;
-
+	const char16_t * start1 = s1;
+	const char16_t * start2 = s2;
 	/* compare identical prefixes - they do not need to be fixed up */
 	if(length1<0 && length2<0) {
 		/* strcmp style, both NUL-terminated */
 		if(s1==s2) {
 			return 0;
 		}
-
 		for(;;) {
 			c1 = *s1;
 			c2 = *s2;
@@ -708,7 +705,6 @@ U_CFUNC int32_t U_EXPORT2 uprv_strCompare(const char16_t * s1, int32_t length1,
 			++s1;
 			++s2;
 		}
-
 		/* setup for fix-up */
 		limit1 = limit2 = NULL;
 	}
@@ -717,15 +713,12 @@ U_CFUNC int32_t U_EXPORT2 uprv_strCompare(const char16_t * s1, int32_t length1,
 		if(s1==s2) {
 			return 0;
 		}
-
 		limit1 = start1+length1;
-
 		for(;;) {
 			/* both lengths are same, check only one limit */
 			if(s1==limit1) {
 				return 0;
 			}
-
 			c1 = *s1;
 			c2 = *s2;
 			if(c1!=c2) {
@@ -1446,7 +1439,8 @@ err:
 		} \
 } UPRV_BLOCK_MACRO_END
 
-U_CAPI char16_t U_EXPORT2 u_asciiToUpper(char16_t c) {
+U_CAPI char16_t U_EXPORT2 u_asciiToUpper(char16_t c) 
+{
 	if(u'a' <= c && c <= u'z') {
 		c = c + u'A' - u'a';
 	}
@@ -1505,16 +1499,6 @@ U_CAPI int32_t U_EXPORT2 u_terminateWChars(wchar_t * dest, int32_t destCapacity,
 } UPRV_BLOCK_MACRO_END
 
 /* Used by UnicodeString to compute its hashcode - Not public API. */
-U_CAPI int32_t U_EXPORT2 ustr_hashUCharsN(const char16_t * str, int32_t length) 
-{
-	STRING_HASH(char16_t, str, length, *p);
-}
-
-U_CAPI int32_t U_EXPORT2 ustr_hashCharsN(const char * str, int32_t length) 
-{
-	STRING_HASH(uint8, str, length, *p);
-}
-
-U_CAPI int32_t U_EXPORT2 ustr_hashICharsN(const char * str, int32_t length) {
-	STRING_HASH(char, str, length, (uint8)uprv_tolower(*p));
-}
+U_CAPI int32_t U_EXPORT2 ustr_hashUCharsN(const char16_t * str, int32_t length) { STRING_HASH(char16_t, str, length, *p); }
+U_CAPI int32_t U_EXPORT2 ustr_hashCharsN(const char * str, int32_t length) { STRING_HASH(uint8, str, length, *p); }
+U_CAPI int32_t U_EXPORT2 ustr_hashICharsN(const char * str, int32_t length) { STRING_HASH(char, str, length, (uint8)uprv_tolower(*p)); }

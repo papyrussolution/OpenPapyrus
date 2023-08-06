@@ -1,5 +1,5 @@
 // V_DEBT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Implementation of PPViewDebtTrnovr
 //
@@ -91,8 +91,8 @@ IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); DebtTrnovrFilt::DebtTrnovrFilt() : PPBaseF
 {
 #define _S_ DebtTrnovrFilt
 	SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, LocIDList)-offsetof(_S_, ReserveStart));
-	SetBranchSVector(offsetof(_S_, LocIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
-	SetBranchSVector(offsetof(_S_, CliIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+	SetBranchSVector(offsetof(_S_, LocIDList));
+	SetBranchSVector(offsetof(_S_, CliIDList));
 	SetBranchObjIdListFilt(offsetof(_S_, BillList));
 	SetBranchObjIdListFilt(offsetof(_S_, RcknBillList));
 	SetBranchObjIdListFilt(offsetof(_S_, DebtDimList));
@@ -110,8 +110,8 @@ IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); DebtTrnovrFilt::DebtTrnovrFilt() : PPBaseF
 			{
 			#define _S_ DebtTrnovrFilt
 				SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, LocIDList)-offsetof(_S_, ReserveStart));
-				SetBranchSVector(offsetof(_S_, LocIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
-				SetBranchSVector(offsetof(_S_, CliIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+				SetBranchSVector(offsetof(_S_, LocIDList));
+				SetBranchSVector(offsetof(_S_, CliIDList));
 				SetBranchObjIdListFilt(offsetof(_S_, BillList));
 				SetBranchObjIdListFilt(offsetof(_S_, RcknBillList));
 			#undef _S_
@@ -562,6 +562,7 @@ protected:
 
 int PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 {
+	// @todo (учесть флаг ROXF_RECKONNEGONLY) const bool reckon_neg_only = LOGIC(reckon_data.Flags & ROXF_RECKONNEGONLY);
 	int    ok = 1;
 	int    use_ta = 1;
 	uint   i;
@@ -945,7 +946,7 @@ int PPViewDebtTrnovr::ProcessBlock::AddStepItem(PPID tabID, double paym, double 
 	return ok;
 }
 
-int PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const PayPlanTbl::Rec & rPayPlanEntry, PPID arID, ProcessBlock & rBlk)
+int PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const PayPlanTbl::Rec & rPayPlanEntry, PPID arID, bool inverseSign, ProcessBlock & rBlk)
 {
 	int    ok = 1;
 	rBlk.PayDate = rPayPlanEntry.PayDate;
@@ -957,17 +958,25 @@ int PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const 
 		else
 			P_BObj->P_Tbl->CalcPayment(rRec.ID, rBlk.ByLinks, rBlk.P_PaymPeriod, rRec.CurID, &rBlk.Paym);
 		// @v10.3.6 {
-		if(rRec.Amount < 0.0) {
-			rBlk.Paym = -rBlk.Paym;
-			rBlk.Debt = (rRec.Amount - rBlk.Paym);
+		double effective_amount = rRec.Amount;
+		if(effective_amount < 0.0) {
+			if(inverseSign) { // @v11.7.11
+				effective_amount = -effective_amount;
+				rBlk.Paym = -rBlk.Paym;
+				rBlk.Debt = (effective_amount - rBlk.Paym);
+			}
+			else {
+				rBlk.Paym = -rBlk.Paym;
+				rBlk.Debt = (effective_amount - rBlk.Paym);
+			}
 		}
 		else { // } @v10.3.6
-			rBlk.Debt = (rRec.Amount - rBlk.Paym);
+			rBlk.Debt = (effective_amount - rBlk.Paym);
 		}
 		if(!(Filt.Flags & DebtTrnovrFilt::fDebtOnly) || rBlk.Debt > 0.0) {
 			if(Filt.Flags & DebtTrnovrFilt::fByCost)
 				P_BObj->P_Tbl->GetAmount(rRec.ID, PPAMT_BUYING, rRec.CurID, &rBlk.Cost);
-			rBlk.Amount = rRec.Amount;
+			rBlk.Amount = effective_amount;
 			rBlk.CurID = rRec.CurID;
 			rBlk.Date  = rRec.Dt;
 			if(rBlk.PayDate < rBlk.CurrentDate)
@@ -1167,33 +1176,54 @@ int PPViewDebtTrnovr::ProcessBill(const BillTbl::Rec & rRec, ProcessBlock & rBlk
         rBlk.Ext = bill_ext;
 		LDATE  pay_date = ZERODATE;
 		PayPlanTbl::Rec pay_plan_entry;
-		if(Filt.ExpiryPeriod.IsZero()) {
-			P_BObj->P_Tbl->GetLastPayDate(rRec.ID, &pay_date);
-			MEMSZERO(pay_plan_entry);
-			pay_plan_entry.Amount = rRec.Amount;
-			pay_plan_entry.PayDate = pay_date;
-			THROW(ok = ProcessBillPaymPlanEntry(rRec, pay_plan_entry, ar_id, rBlk));
-		}
-		else {
-			PayPlanArray pay_plan;
-			P_BObj->P_Tbl->GetPayPlan(rRec.ID, &pay_plan);
-			pay_plan.Sort();
-			MEMSZERO(pay_plan_entry);
-			double pay_plan_total = 0.0;
-			for(uint i = 0; i < pay_plan.getCount(); i++) {
-				const PayPlanTbl::Rec & r_item = pay_plan.at(i); // @v8.5.11 @fix r_item --> &r_item
-				pay_plan_total += r_item.Amount;
-				if(Filt.ExpiryPeriod.CheckDate(r_item.PayDate)) {
-					pay_plan_entry.BillID = rRec.ID;
-					pay_plan_entry.PayDate = r_item.PayDate;
-					pay_plan_entry.Amount += r_item.Amount;
-				}
+		// @v11.7.11 (пытаюсь учесть флаг зачетной операции ROXF_RECKONNEGONLY) {
+		bool   do_process_positive_amt_only = false;
+		bool   inverse_sign = false;
+		double effective_rec_amt = 0.0;
+		if(oneof2(rBlk.IterPath, ProcessBlock::ipReckonOp, ProcessBlock::ipReckonBillList)) {
+			PPObjOprKind op_obj;
+			PPReckonOpEx rox;
+			const bool reckon_neg_only = (op_obj.FetchReckonExData(rRec.OpID, &rox) > 0) ? LOGIC(rox.Flags & ROXF_RECKONNEGONLY) : false;
+			if(rRec.Amount > 0.0 && !reckon_neg_only)
+				effective_rec_amt = rRec.Amount;
+			else if(rRec.Amount < 0.0 && reckon_neg_only) {
+				effective_rec_amt = -rRec.Amount;
+				inverse_sign = true;
 			}
-			if(pay_plan_entry.BillID) {
-                BillTbl::Rec temp_bill_rec;
-				temp_bill_rec = rRec;
-				temp_bill_rec.Amount = fdivnz(pay_plan_entry.Amount, pay_plan_total) * rRec.Amount;
-				THROW(ok = ProcessBillPaymPlanEntry(temp_bill_rec, pay_plan_entry, ar_id, rBlk));
+			do_process_positive_amt_only = true;
+		}
+		else
+			effective_rec_amt = rRec.Amount;
+		if(!do_process_positive_amt_only || effective_rec_amt > 0.0) { 
+			// } @v11.7.11
+			if(Filt.ExpiryPeriod.IsZero()) {
+				P_BObj->P_Tbl->GetLastPayDate(rRec.ID, &pay_date);
+				MEMSZERO(pay_plan_entry);
+				pay_plan_entry.Amount = effective_rec_amt;
+				pay_plan_entry.PayDate = pay_date;
+				THROW(ok = ProcessBillPaymPlanEntry(rRec, pay_plan_entry, ar_id, inverse_sign, rBlk));
+			}
+			else {
+				PayPlanArray pay_plan;
+				P_BObj->P_Tbl->GetPayPlan(rRec.ID, &pay_plan);
+				pay_plan.Sort();
+				MEMSZERO(pay_plan_entry);
+				double pay_plan_total = 0.0;
+				for(uint i = 0; i < pay_plan.getCount(); i++) {
+					const PayPlanTbl::Rec & r_item = pay_plan.at(i); // @v8.5.11 @fix r_item --> &r_item
+					pay_plan_total += r_item.Amount;
+					if(Filt.ExpiryPeriod.CheckDate(r_item.PayDate)) {
+						pay_plan_entry.BillID = rRec.ID;
+						pay_plan_entry.PayDate = r_item.PayDate;
+						pay_plan_entry.Amount += r_item.Amount;
+					}
+				}
+				if(pay_plan_entry.BillID) {
+					BillTbl::Rec temp_bill_rec;
+					temp_bill_rec = rRec;
+					temp_bill_rec.Amount = fdivnz(pay_plan_entry.Amount, pay_plan_total) * effective_rec_amt;
+					THROW(ok = ProcessBillPaymPlanEntry(temp_bill_rec, pay_plan_entry, ar_id, inverse_sign, rBlk));
+				}
 			}
 		}
 	}
@@ -3887,9 +3917,9 @@ int PrcssrDebtRate::Run()
 						const PPID ar_id = ar_list.get(i);
 						LAssoc p(ar_id, 0);
 						uint   set_pos = 0, reset_pos = 0;
-						const int _set = BIN(set_stop_list.bsearch(&p, &set_pos, PTR_CMPFUNC(_2long)));
-						const int _reset = BIN(reset_stop_list.bsearch(&p, &reset_pos, PTR_CMPFUNC(_2long)));
-						assert((_set + _reset) == 1);
+						const bool _set = set_stop_list.bsearch(&p, &set_pos, PTR_CMPFUNC(_2long));
+						const bool _reset = reset_stop_list.bsearch(&p, &reset_pos, PTR_CMPFUNC(_2long));
+						assert(_set != _reset);
 						if(ArObj.GetPacket(ar_id, &pack) > 0) {
 							int    do_turn_pack = 0;
 							if(_set) {
@@ -4763,18 +4793,3 @@ int PPALDD_DebtorStat::NextIteration(long iterId)
 }
 
 void PPALDD_DebtorStat::Destroy() { DESTROY_PPVIEW_ALDD(DebtorStat); }
-
-#if SLTEST_RUNNING
-	SLTEST_R(DebtGammaProb)
-	{
-		double eta = 328.0342;
-		double K = 0.0813;
-		double sum = 0.0;
-		for(uint x = 1; x < 1000; x++) {
-			double prob = (GammaIncompleteP(K, x/eta) - GammaIncompleteP(K, (x-1)/eta));
-			sum += prob;
-		}
-		SLCHECK_EQ(sum, 1.0);
-		return 1;
-	}
-#endif

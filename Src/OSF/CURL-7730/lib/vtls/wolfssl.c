@@ -564,7 +564,7 @@ static CURLcode wolfssl_connect_step2(struct connectdata * conn,
 		/* If key logging is enabled, wait for the handshake to complete and then
 		 * proceed with logging secrets (for TLS 1.2 or older).
 		 *
-		 * During the handshake (ret==-1), wolfSSL_want_read() is true as it waits
+		 * During the handshake (ret == -1), wolfSSL_want_read() is true as it waits
 		 * for the server response. At that point the master secret is not yet
 		 * available, so we must not try to read it.
 		 * To log the secret on completion with a handshake failure, detect

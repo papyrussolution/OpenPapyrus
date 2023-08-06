@@ -3,18 +3,16 @@
 #include "jsi.h"
 
 #if defined(_MSC_VER) && (_MSC_VER < 1700) /* VS2012 has stdint.h */
-typedef unsigned int uint32_t;
-typedef unsigned __int64 uint64_t;
+	typedef unsigned int uint32_t;
+	typedef unsigned __int64 uint64_t;
 #else
-#include <stdint.h>
+	#include <stdint.h>
 #endif
-
 #include <errno.h>
 #include <assert.h>
-
 #ifndef TRUE
-#define TRUE 1
-#define FALSE 0
+	#define TRUE 1
+	#define FALSE 0
 #endif
 
 /*
@@ -24,7 +22,6 @@ void js_fmtexp(char * p, int e)
 {
 	char se[9];
 	int i;
-
 	*p++ = 'e';
 	if(e < 0) {
 		*p++ = '-';
@@ -540,17 +537,7 @@ static int maxExponent = 511;
  * is 10^2^i. Used to convert decimal
  * exponents into floating-point numbers.
  */
-static double powersOf10[] = {
-	10.,
-	100.,
-	1.0e4,
-	1.0e8,
-	1.0e16,
-	1.0e32,
-	1.0e64,
-	1.0e128,
-	1.0e256
-};
+static double powersOf10[] = { 10., 100., 1.0e4, 1.0e8, 1.0e16, 1.0e32, 1.0e64, 1.0e128, 1.0e256 };
 
 /* Parse a decimal ASCII floating-point number, optionally preceded by white
  * space. Must have form "-I.FE-X", where I is the integer part of the
@@ -564,12 +551,10 @@ double js_strtod(const char * string, char ** endPtr)
 {
 	int sign, expSign = FALSE;
 	double fraction, dblExp, * d;
-	register const char * p;
-	register int c;
-
+	const char * p;
+	int c;
 	/* Exponent read from "EX" field. */
 	int exp = 0;
-
 	/* Exponent that derives from the fractional part. Under normal
 	 * circumstances, it is the negative of the number of digits in F.
 	 * However, if I is very long, the last digits of I get dropped
@@ -578,20 +563,12 @@ double js_strtod(const char * string, char ** endPtr)
 	 * incremented one for each dropped digit.
 	 */
 	int fracExp = 0;
-
-	/* Number of digits in mantissa. */
-	int mantSize;
-
-	/* Number of mantissa digits BEFORE decimal point. */
-	int decPt;
-
-	/* Temporarily holds location of exponent in string. */
-	const char * pExp;
-
+	int mantSize; /* Number of digits in mantissa. */
+	int decPt; /* Number of mantissa digits BEFORE decimal point. */
+	const char * pExp; /* Temporarily holds location of exponent in string. */
 	/*
 	 * Strip off leading blanks and check for a sign.
 	 */
-
 	p = string;
 	while(*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') {
 		p += 1;
@@ -745,7 +722,6 @@ done:
 	if(endPtr != NULL) {
 		*endPtr = (char*)p;
 	}
-
 	if(sign) {
 		return -fraction;
 	}

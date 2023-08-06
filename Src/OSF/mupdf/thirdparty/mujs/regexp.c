@@ -12,7 +12,7 @@
 #define next regnext
 #define accept regaccept
 
-#define nelem(a) (int)(sizeof(a) / sizeof(a)[0])
+// @sobolev #define nelem(a) (int)(sizeof(a) / sizeof(a)[0])
 
 #define REPINF 255
 #ifndef REG_MAXPROG
@@ -210,7 +210,7 @@ static int lexcount(struct cstate * g)
 
 static void newcclass(struct cstate * g)
 {
-	if(g->ncclass >= nelem(g->prog->cclass))
+	if(g->ncclass >= SIZEOFARRAY(g->prog->cclass))
 		die(g, "too many character classes");
 	g->yycc = g->prog->cclass + g->ncclass++;
 	g->yycc->end = g->yycc->spans;
@@ -220,7 +220,7 @@ static void addrange(struct cstate * g, Rune a, Rune b)
 {
 	if(a > b)
 		die(g, "invalid character class range");
-	if(g->yycc->end + 2 >= g->yycc->spans + nelem(g->yycc->spans))
+	if(g->yycc->end + 2 >= g->yycc->spans + SIZEOFARRAY(g->yycc->spans))
 		die(g, "too many character class ranges");
 	*g->yycc->end++ = a;
 	*g->yycc->end++ = b;

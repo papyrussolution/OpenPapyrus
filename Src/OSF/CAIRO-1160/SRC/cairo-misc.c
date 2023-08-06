@@ -938,7 +938,7 @@ cairo_status_t _cairo_intern_string(const char ** str_inout, int len)
 	}
 	istring = (cairo_intern_string_t *)_cairo_hash_table_lookup(_cairo_intern_string_ht, &tmpl.hash_entry);
 	if(istring == NULL) {
-		istring = (cairo_intern_string_t *)_cairo_malloc(sizeof(cairo_intern_string_t) + len + 1);
+		istring = (cairo_intern_string_t *)SAlloc::M_zon0(sizeof(cairo_intern_string_t) + len + 1);
 		if(LIKELY(istring != NULL)) {
 			istring->hash_entry.hash = tmpl.hash_entry.hash;
 			istring->len = tmpl.len;

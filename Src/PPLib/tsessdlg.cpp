@@ -327,16 +327,13 @@ int TSessionDialog::SetupPayment()
 			TSesObj.CalcBalance(Data.Rec.ID, &debt, &paym_bill, &cc_paym);
 			debt_netto = debt - paym_bill - cc_paym;
 			if(paym_bill != 0.0) {
-				PPLoadString("payment", temp_buf);
-				text_buf.Cat(temp_buf).CatDiv(':', 2).Cat(paym_bill, SFMT_MONEY).CRB();
+				text_buf.Cat(PPLoadStringS("payment", temp_buf)).CatDiv(':', 2).Cat(paym_bill, SFMT_MONEY).CRB();
 			}
 			if(cc_paym != 0.0) {
-				PPLoadString("paymentcc", temp_buf);
-				text_buf.Cat(temp_buf).CatDiv(':', 2).Cat(cc_paym, SFMT_MONEY).CRB();
+				text_buf.Cat(PPLoadStringS("paymentcc", temp_buf)).CatDiv(':', 2).Cat(cc_paym, SFMT_MONEY).CRB();
 			}
 			if(debt_netto != 0.0) {
-				PPLoadString("debt", temp_buf);
-				text_buf.Cat(temp_buf).CatDiv(':', 2).Cat(debt_netto, SFMT_MONEY).CRB();
+				text_buf.Cat(PPLoadStringS("debt", temp_buf)).CatDiv(':', 2).Cat(debt_netto, SFMT_MONEY).CRB();
 			}
 			if(TSesObj.GetPrc(Data.Rec.PrcID, &prc_rec, 1, 1) > 0 && prc_rec.WrOffOpID) {
 				PPOprKind op_rec;

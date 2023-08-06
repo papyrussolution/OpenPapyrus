@@ -891,7 +891,7 @@ int PPObjBill::GetAlternateArticle(PPID arID, PPID sheetID, PPID * pAltArID)
 	return ok;
 }
 
-int PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx * pRcknData, PPID arID, ReckonOpArList * pList)
+int PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx & rRcknData, PPID arID, ReckonOpArList * pList)
 {
 	int    ok = -1;
 	uint   i;
@@ -899,16 +899,16 @@ int PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx * pRcknData, PPID a
 	ArticleTbl::Rec ar_rec;
 	THROW(ArObj.Fetch(arID, &ar_rec) > 0);
 	paym_sheet_id = ar_rec.AccSheetID;
-	for(i = 0; i < pRcknData->OpList.getCount(); i++) {
-		PPID   article_id = 0;
+	for(i = 0; i < rRcknData.OpList.getCount(); i++) {
 		PPOprKind opk;
-		PPID   paym_op_id = pRcknData->OpList.at(i);
+		const  PPID paym_op_id = rRcknData.OpList.at(i);
 		GetOpData(paym_op_id, &opk);
 		if(opk.LinkOpID) {
 			GetOpData(opk.LinkOpID, &opk);
-			PPID   op_id        = opk.ID;
+			const PPID op_id     = opk.ID;
+			const long opk_flags = opk.Flags;
 			PPID   acc_sheet_id = opk.AccSheetID;
-			long   opk_flags    = opk.Flags;
+			PPID   article_id = 0;
 			if(!acc_sheet_id && opk.LinkOpID) {
 				GetOpData(opk.LinkOpID, &opk);
 				acc_sheet_id = opk.AccSheetID;
@@ -922,7 +922,7 @@ int PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx * pRcknData, PPID a
 					article_id = arID;
 			}
 			if(article_id) {
-				const  PPID rel_type_id = NZOR(pRcknData->PersonRelTypeID, PPPSNRELTYP_AFFIL);
+				const  PPID rel_type_id = NZOR(rRcknData.PersonRelTypeID, PPPSNRELTYP_AFFIL);
 				PPIDArray ar_list;
 				ArObj.GetRelPersonList(article_id, rel_type_id, 1, &ar_list);
 				ar_list.addUnique(article_id);
@@ -932,6 +932,7 @@ int PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx * pRcknData, PPID a
 					item.PaymentArID = arID;
 					item.PayableOpID = op_id;
 					item.PayableArID = ar_list.at(j);
+					item.RoxFlags = rRcknData.Flags; // @v11.7.11
 					ok = 1;
 					if(pList)
 						THROW_SL(pList->insert(&item));
@@ -957,8 +958,8 @@ int PPObjBill::GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOpArList
 	}
 	THROW(GetReckonOpList(&op_list));
 	THROW(P_OpObj->GetPaymentOpList(debtOpID, &paym_op_list));
-	for(i = 0; i < op_list.getCount(); i++) {
-		PPID   op_id = op_list.at(i);
+	for(i = 0; i < op_list.getCount(); i++) { // Цикл по списку зачетных операций
+		const PPID op_id = op_list.at(i); // Зачетная операция //
 		PPReckonOpEx reckon_data;
 		if(GetOpData(op_id, &op_rec) > 0 && op_rec.Flags & OPKF_RECKON) {
 			PPID   acc_sheet_id = op_rec.AccSheetID;
@@ -990,6 +991,7 @@ int PPObjBill::GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOpArList
 							item.PayableOpID = op_id;
 							item.PayableArID = ar_list.get(k);
 							item.PayableAccSheetID = acc_sheet_id;
+							item.RoxFlags = reckon_data.Flags; // @v11.7.11
 							THROW_SL(pList->insert(&item));
 						}
 					}
@@ -1466,7 +1468,7 @@ int PPObjBill::ReckoningPaym(PPID billID, const ReckonParam & rParam, int use_ta
 					}
 					if(reckon_data.Flags & ROXF_BYEXTOBJ && bill_rec.Object2 && bill_rec.Object2 != debtor_id)
 						debtor_id = bill_rec.Object2;
-					THROW(GetPayableOpListByReckonOp(&reckon_data, debtor_id, &op_list));
+					THROW(GetPayableOpListByReckonOp(reckon_data, debtor_id, &op_list));
 					do {
 						uint   i;
 						double total_debt = 0.0;

@@ -223,7 +223,7 @@ static void index_tree_append(index_tree * tree, index_tree_node * node)
 	uint32_t up = tree->count ^ (UINT32_C(1) << bsr32(tree->count));
 	if(up != 0) {
 		// Locate the root node for the rotation.
-		up = ctz32(tree->count) + 2;
+		up = SBits::Ctz(tree->count) + 2;
 		do {
 			node = node->parent;
 		} while(--up > 0);

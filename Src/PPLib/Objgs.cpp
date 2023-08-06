@@ -187,24 +187,24 @@ int PPGoodsStruc::SetKind(int kind)
 	return rBuf;
 }
 
-int PPGoodsStruc::Select(const Ident * pIdent, PPGoodsStruc * pGs) const
+int PPGoodsStruc::Select(const Ident & rIdent, PPGoodsStruc * pGs) const
 {
 	if(Rec.Flags & GSF_FOLDER) {
 		for(uint i = 0; i < Children.getCount(); i++) {
 			const PPGoodsStruc * p_child = Children.at(i);
-			if(p_child && p_child->Select(pIdent, pGs)) // @recursion
+			if(p_child && p_child->Select(rIdent, pGs)) // @recursion
 				return 1;
 		}
 	}
 	else {
 		DateRange period = Rec.Period;
-		if(!pIdent->Dt || period.Actualize(ZERODATE).CheckDate(pIdent->Dt)) {
-			if(!pIdent->AndFlags || (Rec.Flags & pIdent->AndFlags) == pIdent->AndFlags) {
-				if(!(Rec.Flags & pIdent->NotFlags)) {
-					// ((Rec.Flags & pIdent->NotFlags) != pIdent->NotFlags)-->!(Rec.Flags & pIdent->NotFlags)
+		if(!rIdent.Dt || period.Actualize(ZERODATE).CheckDate(rIdent.Dt)) {
+			if(!rIdent.AndFlags || (Rec.Flags & rIdent.AndFlags) == rIdent.AndFlags) {
+				if(!(Rec.Flags & rIdent.NotFlags)) {
+					// ((Rec.Flags & rIdent.NotFlags) != rIdent.NotFlags)-->!(Rec.Flags & rIdent.NotFlags)
 					if(pGs) {
 						*pGs = *this;
-						pGs->GoodsID = pIdent->GoodsID;
+						pGs->GoodsID = rIdent.GoodsID;
 					}
 					return 1;
 				}
@@ -214,14 +214,14 @@ int PPGoodsStruc::Select(const Ident * pIdent, PPGoodsStruc * pGs) const
 	return 0;
 }
 
-int PPGoodsStruc::Helper_Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const
+int PPGoodsStruc::Helper_Select(const Ident & rIdent, TSCollection <PPGoodsStruc> & rList) const
 {
 	int    ok = -1;
 	if(Rec.Flags & GSF_FOLDER) {
 		for(uint i = 0; i < Children.getCount(); i++) {
 			const PPGoodsStruc * p_child = Children.at(i);
 			if(p_child) {
-				int    r = p_child->Helper_Select(pIdent, rList); // @recursion
+				int    r = p_child->Helper_Select(rIdent, rList); // @recursion
 				THROW(r);
 				if(r > 0)
 					ok = 1;
@@ -230,31 +230,31 @@ int PPGoodsStruc::Helper_Select(const Ident * pIdent, TSCollection <PPGoodsStruc
 	}
 	else {
 		DateRange period = Rec.Period;
-		if(!pIdent->Dt || period.Actualize(ZERODATE).CheckDate(pIdent->Dt)) {
+		if(!rIdent.Dt || period.Actualize(ZERODATE).CheckDate(rIdent.Dt)) {
 			int    suit_by_and_flags = 0;
-			if(!pIdent->AndFlags)
+			if(!rIdent.AndFlags)
 				suit_by_and_flags = 1;
-			else if(pIdent->Options & pIdent->oAnyOfAndFlags && (Rec.Flags & pIdent->AndFlags))
+			else if(rIdent.Options & rIdent.oAnyOfAndFlags && (Rec.Flags & rIdent.AndFlags))
 				suit_by_and_flags = 1;
-			else if(!(pIdent->Options & pIdent->oAnyOfAndFlags) && (Rec.Flags & pIdent->AndFlags) == pIdent->AndFlags)
+			else if(!(rIdent.Options & rIdent.oAnyOfAndFlags) && (Rec.Flags & rIdent.AndFlags) == rIdent.AndFlags)
 				suit_by_and_flags = 1;
-			if(suit_by_and_flags && !(Rec.Flags & pIdent->NotFlags)) {
-				// ((Rec.Flags & pIdent->NotFlags) != pIdent->NotFlags)-->!(Rec.Flags & pIdent->NotFlags)
+			if(suit_by_and_flags && !(Rec.Flags & rIdent.NotFlags)) {
+				// ((Rec.Flags & rIdent.NotFlags) != rIdent.NotFlags)-->!(Rec.Flags & rIdent.NotFlags)
 
 				//
 				// Защита от рекурсивных структур: если в списке уже есть структура с таким ID, то мы - в рекурсии.
 				//
-				int    found = 0;
+				bool   found = false;
 				for(uint i = 0; !found && i < rList.getCount(); i++) {
 					const PPGoodsStruc * p_item = rList.at(i);
 					if(p_item && p_item->Rec.ID == Rec.ID)
-						found = 1;
+						found = true;
 				}
 				if(!found) {
 					PPGoodsStruc * p_new_item = new PPGoodsStruc;
 					THROW_MEM(p_new_item);
 					*p_new_item = *this;
-					p_new_item->GoodsID = pIdent->GoodsID;
+					p_new_item->GoodsID = rIdent.GoodsID;
 					THROW_SL(rList.insert(p_new_item));
 					ok = 1;
 				}
@@ -268,10 +268,10 @@ int PPGoodsStruc::Helper_Select(const Ident * pIdent, TSCollection <PPGoodsStruc
 	return ok;
 }
 
-int PPGoodsStruc::Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const
+int PPGoodsStruc::Select(const Ident & rIdent, TSCollection <PPGoodsStruc> & rList) const
 {
 	rList.freeAll();
-	return Helper_Select(pIdent, rList);
+	return Helper_Select(rIdent, rList);
 }
 
 PPGoodsStruc & FASTCALL PPGoodsStruc::Copy(const PPGoodsStruc & rS)
@@ -315,7 +315,7 @@ int PPGoodsStruc::RecalcQttyByMainItemPh(double * pQtty) const
 	return ok;
 }
 
-int PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pRec) const
+int PPGoodsStruc::GetEstimationPrice(uint itemIdx, PPID locID, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pRec) const
 {
 	int    ok = -1;
 	double p = 0.0;
@@ -373,35 +373,36 @@ int PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double * pTo
 	return ok;
 }
 
-void PPGoodsStruc::CalcEstimationPrice(double * pPrice, int * pUncertainty, int calcInner) const
+void PPGoodsStruc::CalcEstimationPrice(PPID locID, double * pPrice, int * pUncertainty, int calcInner) const
 {
-	int    uncertainty = 0;
+	bool   uncertainty = false;
 	double price = 0.0;
 	for(uint i = 0; i < Items.getCount(); i++) {
 		PPGoodsStrucItem * p_item = & Items.at(i);
-		double iprice = 0.0, tprice = 0.0;
-		int    is_inner_struc = 0;
+		double iprice = 0.0;
+		double tprice = 0.0;
+		bool   is_inner_struc = false;
 		if(calcInner) {
 			PPGoodsStruc inner_struc;
 			if(LoadGoodsStruc(PPGoodsStruc::Ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL|GSF_SUBST), &inner_struc) > 0) {
 				int    uncert = 0;
-				inner_struc.CalcEstimationPrice(&iprice, &uncert, 1); // @recursion
+				inner_struc.CalcEstimationPrice(locID, &iprice, &uncert, 1); // @recursion
 				p_item->GetQtty(iprice / GetDenom(), &iprice);
 				price += iprice;
 				if(uncert)
-					uncertainty = 1;
+					uncertainty = true;
 				SETFLAG(p_item->Flags, GSIF_UNCERTPRICE, uncert);
-				is_inner_struc = 1;
+				is_inner_struc = true;
 			}
 		}
 		if(!is_inner_struc) {
-			if(GetEstimationPrice(i, &iprice, &tprice, 0) > 0 && tprice > 0) {
+			if(GetEstimationPrice(i, locID, &iprice, &tprice, 0) > 0 && tprice > 0) {
 				price += R2(tprice);
 				p_item->Flags &= ~GSIF_UNCERTPRICE;
 			}
 			else {
 				p_item->Flags |= GSIF_UNCERTPRICE;
-				uncertainty = 1;
+				uncertainty = true;
 			}
 		}
 	}
@@ -1116,7 +1117,7 @@ int GSDialog::setDTS(const PPGoodsStruc * pData)
 	setCtrlData(CTL_GSTRUC_COMMDENOM, &Data.Rec.CommDenom);
 	SetPeriodInput(this, CTL_GSTRUC_PERIOD, &Data.Rec.Period);
 
-	long   kind = Data.GetKind();
+	const long kind = Data.GetKind();
 	AddClusterAssocDef(CTL_GSTRUC_KIND, 0, PPGoodsStruc::kUndef);
 	AddClusterAssoc(CTL_GSTRUC_KIND, 1, PPGoodsStruc::kBOM);
 	AddClusterAssoc(CTL_GSTRUC_KIND, 2, PPGoodsStruc::kPart);
@@ -1335,13 +1336,16 @@ void GSDialog::selNamedGS()
 int GSDialog::setupList()
 {
 	int    ok = 1;
-	int    show_total = 0;
-	double t_qtty = 0.0, t_netto = 0.0, t_sum = 0.0;
+	bool   show_total = false;
+	double t_qtty = 0.0;
+	double t_netto = 0.0;
+	double t_sum = 0.0;
 	PPGoodsStrucItem * p_item = 0;
 	SString sub;
 	long   qtty_fmt = MKSFMTD(0, 3, NMBF_NOZERO);
 	long   money_fmt = MKSFMTD(0, 2, NMBF_NOZERO);
 	uint   i = 0;
+	const  PPID loc_id = LConfig.Location; // @v11.7.11
 	while(Data.Items.enumItems(&i, (void **)&p_item)) {
 		double price = 0.0, sum = 0.0;
 		Goods2Tbl::Rec goods_rec;
@@ -1372,7 +1376,7 @@ int GSDialog::setupList()
 		if(inner_struc.Rec.ID) {
 			if(GsObj.CheckStruc(inner_struc.Rec.ID, 0) != 2) {
 				int    uncert = 0;
-				inner_struc.CalcEstimationPrice(&price, &uncert, 1); // @bottleneck
+				inner_struc.CalcEstimationPrice(loc_id, &price, &uncert, 1); // @bottleneck
 				p_item->GetQtty(price / Data.GetDenom(), &sum);
 			}
 			else {
@@ -1381,7 +1385,7 @@ int GSDialog::setupList()
 			}
 		}
 		else
-			Data.GetEstimationPrice(i-1, &price, &sum, 0);
+			Data.GetEstimationPrice(i-1, loc_id, &price, &sum, 0);
 		t_netto += p_item->Netto;
 		t_sum   += sum;
 		ss.add(sub.Z().Cat(p_item->Netto, qtty_fmt));
@@ -1392,7 +1396,7 @@ int GSDialog::setupList()
 			sub.CatChar('R');
 		ss.add(sub);
 		THROW(addStringToList(i, ss.getBuf()));
-		show_total = 1;
+		show_total = true;
 	}
 	if(show_total) {
 		StringSet ss(SLBColumnDelim);
@@ -2472,6 +2476,7 @@ int GStrucIterator::LoadItems(const PPGoodsStruc * pStruc, PPID parentGoodsID, d
 		double dest_qtty = 0.0;
 		SString s_qtty;
 		PPObjGoods g_obj;
+		PPObjGoodsStruc gs_obj;
 		GStrucRecurItem gsr_item;
 		MEMSZERO(gsr_item);
 		gsr_item.Level = level;
@@ -2483,16 +2488,15 @@ int GStrucIterator::LoadItems(const PPGoodsStruc * pStruc, PPID parentGoodsID, d
 			s_qtty.Z().Cat(dest_qtty, fmt);
 			gsr_item.Qtty = dest_qtty;
 			gsr_item.Item.SetEstimationString(s_qtty);
-			if(pStruc->GetEstimationPrice(i-1, &gsr_item.Price, &gsr_item.Sum, &lot_rec) > 0)
+			if(pStruc->GetEstimationPrice(i-1, 0, &gsr_item.Price, &gsr_item.Sum, &lot_rec) > 0)
 				gsr_item.LastLotID = lot_rec.ID;
 			gsr_item.HasInner = 0;
 			{
-				int    r = 0;
-				PPObjGoodsStruc gs_obj;
-				THROW(r = g_obj.LoadGoodsStruc(PPGoodsStruc::Ident(gsr_item.Item.GoodsID), &inner_struc));
+				const int r = g_obj.LoadGoodsStruc(PPGoodsStruc::Ident(gsr_item.Item.GoodsID), &inner_struc);
+				THROW(r);
 				if(r > 0 && gs_obj.CheckStruc(inner_struc.Rec.ID, 0) != 2) {
 					int    uncert = 0;
-					inner_struc.CalcEstimationPrice(&gsr_item.Price, &uncert, 1);
+					inner_struc.CalcEstimationPrice(0, &gsr_item.Price, &uncert, 1);
 					gsr_item.Item.GetQtty(gsr_item.Price / GStruc.GetDenom(), &sum);
 					gsr_item.Item.SetEstimationString(s_qtty);
 					gsr_item.HasInner = 1;

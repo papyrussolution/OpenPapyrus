@@ -5,6 +5,10 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <combaseapi.h>
+#include "..\slib\bzip3\include\libbz3.h"
+#include "libsais.h"
+#include "..\OSF\zstd\lib\include\divsufsort.h"
 //
 //
 //
@@ -643,5 +647,251 @@ SLTEST_R(SColorSet)
 {
 	SColorSet cs;
 	SLCHECK_NZ(cs.Test());
+	return CurrentStatus;
+}
+
+SLTEST_R(GUID) // @v11.7.11
+{
+	{
+		S_GUID u;
+		SLCHECK_NZ(u.IsZero());
+		u.Generate();
+		SLCHECK_Z(u.IsZero());
+		S_GUID u2(u);
+		SLCHECK_EQ(u2, u);
+		u2.Z();
+		SLCHECK_Z(u2 == u);
+		SLCHECK_Z(u2);
+	}
+	{
+		const char * p_guid_text1 = "{076A7660-6891-4E8B-A9D7-E7A8B074267B}";
+		const char * p_guid_text2 = "076A7660-6891-4E8B-A9D7-E7A8B074267B";
+		const char * p_guid_text3 = "076a7660-6891-4e8b-a9d7-e7a8b074267b";
+		SString temp_buf;
+		GUID win_guid;
+		S_GUID u;
+		S_GUID u2;
+		u.FromStr(p_guid_text1);
+		u2.FromStr(p_guid_text2);
+		SLCHECK_Z(CLSIDFromString(SUcSwitchW(p_guid_text1), &win_guid));
+		SLCHECK_Z(SMem::Cmp(&win_guid, &u, sizeof(S_GUID)));
+		SLCHECK_NZ(u2 == u);
+		u.ToStr(S_GUID::fmtIDL, temp_buf);
+		SLCHECK_EQ(temp_buf, p_guid_text2);
+		u.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
+		SLCHECK_EQ(temp_buf, p_guid_text3);
+	}
+	return CurrentStatus;
+}
+
+SLTEST_R(bzip3)
+{
+	{
+		//SetInfo("Compressing shakespeare.txt back and forth in memory");
+		// Read the entire "shakespeare.txt" file to memory:
+		SFile f_inp(MakeInputFilePath("shakespeare.txt"), SFile::mRead|SFile::mBinary);
+		//FILE * fp = fopen("shakespeare.txt", "rb");
+		//fseek(fp, 0, SEEK_END);
+		//int64 fsize = 0LL;
+		STempBuffer in_buf(SKILOBYTE(16));
+		size_t in_buf_size = 0;
+		//f_inp.CalcSize(&fsize);
+		//size_t size = ftell(fp);
+		//fseek(fp, 0, SEEK_SET);
+		THROW(SLCHECK_NZ(f_inp.IsValid()));
+		THROW(SLCHECK_NZ(in_buf.IsValid()));
+		THROW(SLCHECK_NZ(f_inp.ReadAll(in_buf, 0, &in_buf_size)));
+		assert(in_buf.GetSize() >= in_buf_size);
+		{
+			//uint8 * buffer = (uint8 *)SAlloc::M(size);
+			//fread(buffer, 1, size, fp);
+			//fclose(fp);
+			// Compress the file:
+			size_t out_size = bz3_bound(in_buf_size);
+			STempBuffer out_buf(out_size);
+			//uint8 * outbuf = (uint8 *)SAlloc::M(out_size);
+			THROW(SLCHECK_NZ(out_buf.IsValid()));
+			THROW(SLCHECK_EQ(bz3_compress(SMEGABYTE(1), in_buf.ucptr(), static_cast<uint8 *>(out_buf.vptr()), in_buf_size, &out_size), BZ3_OK));
+			//printf("%d => %d\n", size, out_size);
+			{
+				// Decompress the file.
+				size_t inflated_size = in_buf_size * 2;
+				STempBuffer inflate_buf(inflated_size);
+				THROW(SLCHECK_NZ(inflate_buf.IsValid()));
+				THROW(SLCHECK_EQ(bz3_decompress(out_buf.ucptr(), static_cast<uint8 *>(inflate_buf.vptr()), out_size, &inflated_size), BZ3_OK));
+				THROW(SLCHECK_EQ(inflated_size, in_buf_size));
+				{
+					bool debug_mark = false;
+					for(uint i = 0; i < inflated_size; i++) {
+						if(inflate_buf[i] != in_buf[i]) {
+							debug_mark = true;
+						}
+					}
+				}
+				THROW(SLCHECK_Z(memcmp(inflate_buf.vcptr(), in_buf.vcptr(), in_buf_size)));
+				//printf("%d => %d\n", out_size, size);
+				//SAlloc::F(buffer);
+				//SAlloc::F(outbuf);
+				//return 0;
+			}
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
+}
+
+struct TestFixtureSuffixArray {
+	TestFixtureSuffixArray() : SfxArray_Sais(0), SfxArray_DivSufSort(0), InBuf(SKILOBYTE(16)), InBufSize(0)
+	{
+	}
+	int Init(const char * pInFileName)
+	{
+		int    ok = 1;
+		SFile f_inp(pInFileName, SFile::mRead|SFile::mBinary);
+		THROW(f_inp.IsValid());
+		THROW(InBuf.IsValid());
+		THROW(f_inp.ReadAll(InBuf, 0, &InBufSize));
+		assert(InBuf.GetSize() >= InBufSize);
+		THROW(SfxArray_Sais = new int32[InBufSize]);
+		THROW(SfxArray_DivSufSort = new int32[InBufSize]);
+		CATCHZOK
+		return ok;
+	}
+	~TestFixtureSuffixArray()
+	{
+		delete [] SfxArray_Sais;
+		delete [] SfxArray_DivSufSort;
+	}
+	STempBuffer InBuf;
+	size_t InBufSize;
+	int32 * SfxArray_Sais;
+	int32 * SfxArray_DivSufSort;
+};
+
+SLTEST_FIXTURE(SuffixArray, TestFixtureSuffixArray)
+{
+	// int32_t libsais(const uint8_t * T, int32_t * SA, int32_t n, int32_t fs, int32_t * freq);
+	// int divsufsort(const uchar * T, int * SA, int n, int openMP);
+	// benchmark=sais;divsufsort
+	int    bm = -1;
+	if(pBenchmark == 0) {
+		THROW(SLCHECK_NZ(F.Init(MakeInputFilePath("shakespeare.txt"))));
+		bm = 0;
+	}
+	else if(sstreqi_ascii(pBenchmark, "sais"))
+		bm = 1;
+	else if(sstreqi_ascii(pBenchmark, "divsufsort"))
+		bm = 2;
+	//SFile f_inp(MakeInputFilePath("shakespeare.txt"), SFile::mRead|SFile::mBinary);
+	//STempBuffer in_buf(SKILOBYTE(16));
+	//int32 * sfxarray_sais = 0;
+	//int32 * sfxarray_divsufsort = 0;
+	//size_t in_buf_size = 0;
+	
+	//f_inp.CalcSize(&fsize);
+	//size_t size = ftell(fp);
+	//fseek(fp, 0, SEEK_SET);
+	
+	//THROW(SLCHECK_NZ(f_inp.IsValid()));
+	//THROW(SLCHECK_NZ(in_buf.IsValid()));
+	//THROW(SLCHECK_NZ(f_inp.ReadAll(in_buf, 0, &in_buf_size)));
+	//assert(in_buf.GetSize() >= in_buf_size);
+	if(bm == 0) {
+		//sfxarray_sais = new int32[in_buf_size];
+		THROW(SLCHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, F.InBufSize, 0, 0/*freq*/)));
+		//sfxarray_divsufsort = new int32[in_buf_size];
+		THROW(SLCHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, F.InBufSize, 0)));
+		THROW(SLCHECK_Z(memcmp(F.SfxArray_Sais, F.SfxArray_DivSufSort, F.InBufSize * sizeof(int32))));
+		{
+			const char * p_pattern = "trophies";
+			LongArray pos_list_fallback;
+			LongArray pos_list;
+			SaIndex saidx(F.InBuf, F.InBufSize);
+			saidx.Text.Utf8ToLower();
+			THROW(SLCHECK_NZ(saidx.Build()));
+			uint cf = saidx.Search_fallback(p_pattern, &pos_list_fallback);
+			uint c = saidx.Search(p_pattern, &pos_list);
+			pos_list_fallback.sort();
+			pos_list.sort();
+			SLCHECK_LE(0U, cf);
+			SLCHECK_EQ(cf, c);
+			SLCHECK_NZ(pos_list.IsEq(&pos_list_fallback));
+		}
+	}
+	else if(bm == 1) {
+		memzero(F.SfxArray_Sais, F.InBufSize * sizeof(int));
+		THROW(SLCHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, F.InBufSize, 0, 0/*freq*/)));
+	}
+	else if(bm == 2) {
+		memzero(F.SfxArray_DivSufSort, F.InBufSize);
+		THROW(SLCHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, F.InBufSize, 0)));
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
+}
+
+SLTEST_R(UiDescription)
+{
+	SJson * p_js = 0;
+	SJson * p_js2 = 0;
+	SJson * p_js_reverse = 0;
+	UiDescription uid;
+	UiDescription uid2; // Результат, полученный из реверсивного json'а
+	SString temp_buf;
+	{
+		SFile f_inp(MakeInputFilePath("colorset-imgui-test.json"), SFile::mRead|SFile::mBinary);
+		THROW(SLCHECK_NZ(f_inp.IsValid()));
+		{
+			{
+				STempBuffer in_buf(4096);
+				size_t actual_size = 0;
+				THROW(SLCHECK_NZ(in_buf.IsValid()));
+				THROW(SLCHECK_NZ(f_inp.ReadAll(in_buf, 0, &actual_size)));
+				temp_buf.Z().CatN(in_buf, actual_size);
+			}
+			{
+				p_js = SJson::Parse(temp_buf);
+				THROW(SLCHECK_NZ(p_js));
+				SLCHECK_NZ(uid.FromJsonObj(p_js));
+			}
+			{
+				p_js_reverse = uid.ToJsonObj();
+				THROW(SLCHECK_NZ(p_js_reverse));
+				THROW(SLCHECK_NZ(p_js_reverse->ToStr(temp_buf)));
+				{
+					SFile f_out(MakeOutputFilePath("colorset-imgui-test-reverse.json"), SFile::mWrite);
+					THROW(SLCHECK_NZ(f_out.IsValid()));
+					f_out.Write(temp_buf.cptr(), temp_buf.Len());
+				}
+			}
+		}
+	}
+	{
+		SFile f_inp2(MakeOutputFilePath("colorset-imgui-test-reverse.json"), SFile::mRead|SFile::mBinary);
+		THROW(SLCHECK_NZ(f_inp2.IsValid()));
+		{
+			STempBuffer in_buf(4096);
+			size_t actual_size = 0;
+			THROW(SLCHECK_NZ(in_buf.IsValid()));
+			THROW(SLCHECK_NZ(f_inp2.ReadAll(in_buf, 0, &actual_size)));
+			temp_buf.Z().CatN(in_buf, actual_size);
+		}
+		{
+			p_js2 = SJson::Parse(temp_buf);
+			THROW(SLCHECK_NZ(p_js2));
+			SLCHECK_NZ(uid2.FromJsonObj(p_js2));
+			SLCHECK_NZ(uid2.IsEq(uid));
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	delete p_js;
+	delete p_js2;
+	delete p_js_reverse;
 	return CurrentStatus;
 }

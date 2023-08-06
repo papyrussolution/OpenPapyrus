@@ -890,6 +890,7 @@ int PPApp::processCommand(uint cmd)
 		case cmValidateXml:             PPValidateXml(); break;
 		case cmDumpData:                DoDbDump(0); break; // @v10.0.05
 		case cmProcessTSessions:        TSessionMaintenance(); break; // @v11.0.4
+		case cmProcessBomEstimatedValues: PPObjGoods::ProcessBomEstimatedValues(); break; // @v11.7.11
 		case cmConstructionTest:        DoConstructionTest(); break;
 		// @v10.5.12 case cmTestUhttGetLocByPhone:   PPUhttClient::TestUi_GetLocationListByPhone(); break;
 		// @v10.5.12 case cmTestUhttGetQuotByLoc:    PPUhttClient::TestUi_GetQuotByLoc(); break;

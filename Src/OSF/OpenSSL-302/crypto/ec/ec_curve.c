@@ -31,9 +31,7 @@ static const struct {
 	EC_CURVE_DATA h;
 	unsigned char data[20 + 24 * 6];
 } _EC_NIST_PRIME_192 = {
-	{
-		NID_X9_62_prime_field, 20, 24, 1
-	},
+	{ NID_X9_62_prime_field, 20, 24, 1 },
 	{
 		/* seed */
 		0x30, 0x45, 0xAE, 0x6F, 0xC8, 0x42, 0x2F, 0x64, 0xED, 0x57, 0x95, 0x28,
@@ -63,9 +61,7 @@ static const struct {
 	EC_CURVE_DATA h;
 	unsigned char data[20 + 28 * 6];
 } _EC_NIST_PRIME_224 = {
-	{
-		NID_X9_62_prime_field, 20, 28, 1
-	},
+	{ NID_X9_62_prime_field, 20, 28, 1 },
 	{
 		/* seed */
 		0xBD, 0x71, 0x34, 0x47, 0x99, 0xD5, 0xC7, 0xFC, 0xDC, 0x45, 0xB5, 0x9F,
@@ -101,9 +97,7 @@ static const struct {
 	EC_CURVE_DATA h;
 	unsigned char data[20 + 48 * 6];
 } _EC_NIST_PRIME_384 = {
-	{
-		NID_X9_62_prime_field, 20, 48, 1
-	},
+	{ NID_X9_62_prime_field, 20, 48, 1 },
 	{
 		/* seed */
 		0xA3, 0x35, 0x92, 0x6A, 0xA3, 0x19, 0xA2, 0x7A, 0x1D, 0x00, 0x89, 0x6A,
@@ -145,9 +139,7 @@ static const struct {
 	EC_CURVE_DATA h;
 	unsigned char data[20 + 66 * 6];
 } _EC_NIST_PRIME_521 = {
-	{
-		NID_X9_62_prime_field, 20, 66, 1
-	},
+	{ NID_X9_62_prime_field, 20, 66, 1 },
 	{
 		/* seed */
 		0xD0, 0x9E, 0x88, 0x00, 0x29, 0x1C, 0xB8, 0x53, 0x96, 0xCC, 0x67, 0x17,
@@ -203,9 +195,7 @@ static const struct {
 	EC_CURVE_DATA h;
 	unsigned char data[20 + 24 * 6];
 } _EC_X9_62_PRIME_192V2 = {
-	{
-		NID_X9_62_prime_field, 20, 24, 1
-	},
+	{ NID_X9_62_prime_field, 20, 24, 1 },
 	{
 		/* seed */
 		0x31, 0xA9, 0x2E, 0xE2, 0x02, 0x9F, 0xD1, 0x0D, 0x90, 0x1B, 0x11, 0x3E,
@@ -235,9 +225,7 @@ static const struct {
 	EC_CURVE_DATA h;
 	unsigned char data[20 + 24 * 6];
 } _EC_X9_62_PRIME_192V3 = {
-	{
-		NID_X9_62_prime_field, 20, 24, 1
-	},
+	{ NID_X9_62_prime_field, 20, 24, 1 },
 	{
 		/* seed */
 		0xC4, 0x69, 0x68, 0x44, 0x35, 0xDE, 0xB3, 0x78, 0xC4, 0xB6, 0x5C, 0xA9,
@@ -267,9 +255,7 @@ static const struct {
 	EC_CURVE_DATA h;
 	unsigned char data[20 + 30 * 6];
 } _EC_X9_62_PRIME_239V1 = {
-	{
-		NID_X9_62_prime_field, 20, 30, 1
-	},
+	{ NID_X9_62_prime_field, 20, 30, 1 },
 	{
 		/* seed */
 		0xE4, 0x3B, 0xB4, 0x60, 0xF0, 0xB8, 0x0C, 0xC0, 0xC0, 0xB0, 0x75, 0x79,
@@ -305,9 +291,7 @@ static const struct {
 	EC_CURVE_DATA h;
 	unsigned char data[20 + 30 * 6];
 } _EC_X9_62_PRIME_239V2 = {
-	{
-		NID_X9_62_prime_field, 20, 30, 1
-	},
+	{ NID_X9_62_prime_field, 20, 30, 1 },
 	{
 		/* seed */
 		0xE8, 0xB4, 0x01, 0x16, 0x04, 0x09, 0x53, 0x03, 0xCA, 0x3B, 0x80, 0x99,
@@ -3171,23 +3155,18 @@ err:
 	return group;
 }
 
-EC_GROUP * EC_GROUP_new_by_curve_name_ex(OSSL_LIB_CTX * libctx, const char * propq,
-    int nid)
+EC_GROUP * EC_GROUP_new_by_curve_name_ex(OSSL_LIB_CTX * libctx, const char * propq, int nid)
 {
 	EC_GROUP * ret = NULL;
 	const ec_list_element * curve;
-
-	if((curve = ec_curve_nid2curve(nid)) == NULL
-	    || (ret = ec_group_new_from_data(libctx, propq, *curve)) == NULL) {
+	if((curve = ec_curve_nid2curve(nid)) == NULL || (ret = ec_group_new_from_data(libctx, propq, *curve)) == NULL) {
 #ifndef FIPS_MODULE
-		ERR_raise_data(ERR_LIB_EC, EC_R_UNKNOWN_GROUP,
-		    "name=%s", OBJ_nid2sn(nid));
+		ERR_raise_data(ERR_LIB_EC, EC_R_UNKNOWN_GROUP, "name=%s", OBJ_nid2sn(nid));
 #else
 		ERR_raise(ERR_LIB_EC, EC_R_UNKNOWN_GROUP);
 #endif
 		return NULL;
 	}
-
 	return ret;
 }
 

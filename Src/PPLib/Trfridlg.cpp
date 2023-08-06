@@ -799,7 +799,7 @@ int TrfrItemDialog::GetGoodsListSuitableForSourceSerial(PPID goodsID, PPIDArray 
 		PPGoodsStruc gs;
 		PPGoodsStruc::Ident gsident(0, GSF_COMPL, 0);
 		TSCollection <PPGoodsStruc> gs_list;
-		if(GObj.GSObj.Get(goods_rec.StrucID, &gs) > 0 && gs.Select(&gsident, gs_list) > 0) {
+		if(GObj.GSObj.Get(goods_rec.StrucID, &gs) > 0 && gs.Select(gsident, gs_list) > 0) {
 			for(uint i = 0; i < gs_list.getCount(); i++) {
 				const PPGoodsStruc * p_gs = gs_list.at(i);
 				if(p_gs) {

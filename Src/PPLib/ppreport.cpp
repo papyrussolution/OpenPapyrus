@@ -630,7 +630,7 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, bool
 							ok = -1;
 						break;
 				}
-				char   ext[MAXEXT];
+				char   ext[/*MAXEXT*/32];
 				PPGetSubStr(PPTXT_EXPORT_EXTS, idx, ext, sizeof(ext));
 				PPIniFile::GetParamSymb(PPINIPARAM_REPORT_DESTINATION, param_symb);
 				THROW(ini_file.GetParam(pReportName, param_symb, dest));
