@@ -1,5 +1,5 @@
 // OBJOPRK.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -46,35 +46,32 @@ void PPInventoryOpEx::SetAccelInputMode(int mode)
 //
 // PPReckonOpEx
 //
-PPReckonOpEx::PPReckonOpEx()
+PPReckonOpEx::PPReckonOpEx() : Beg(ZERODATE), End(ZERODATE), Flags(0), PersonRelTypeID(0)
 {
-	Init();
+	memzero(Reserve, sizeof(Reserve));
 }
 
-void PPReckonOpEx::Init()
+PPReckonOpEx & PPReckonOpEx::Z()
 {
 	Beg = End = ZERODATE;
 	Flags = 0;
 	PersonRelTypeID = 0;
 	memzero(Reserve, sizeof(Reserve));
 	OpList.clear(); // @v10.6.1 freeAll-->clear
-}
-
-PPReckonOpEx & FASTCALL PPReckonOpEx::operator = (const PPReckonOpEx & src)
-{
-	Init();
-	Beg = src.Beg;
-	End = src.End;
-	Flags = src.Flags;
-	PersonRelTypeID = src.PersonRelTypeID;
-	OpList.copy(src.OpList);
 	return *this;
 }
 
-bool PPReckonOpEx::IsEmpty() const
+PPReckonOpEx & FASTCALL PPReckonOpEx::operator = (const PPReckonOpEx & rS)
 {
-	return (!Beg && !End && !Flags && !OpList.getCount());
+	Beg = rS.Beg;
+	End = rS.End;
+	Flags = rS.Flags;
+	PersonRelTypeID = rS.PersonRelTypeID;
+	OpList = rS.OpList;
+	return *this;
 }
+
+bool PPReckonOpEx::IsEmpty() const { return (!Beg && !End && !Flags && !OpList.getCount()); }
 
 int PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
@@ -102,7 +99,7 @@ int PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 		}
 	}
 	else if(dir < 0) {
-		Init();
+		Z();
 		THROW_SL(rBuf.Read(&sz, sizeof(sz)));
 		if(sz) {
 			if(sz >= sizeof(SRD)) {
@@ -690,7 +687,7 @@ int PPObjOprKind::GetReckonExData(PPID id, PPReckonOpEx * pData)
 	PPIDArray temp;
 	if(P_Ref->GetPropArray(Obj, id, OPKPRP_PAYMOPLIST, &temp) > 0) {
 		if(temp.getCount() < ROX_HDR_DW_COUNT) {
-			CALLPTRMEMB(pData, Init());
+			CALLPTRMEMB(pData, Z());
 		}
 		else {
 			if(pData) {
@@ -701,7 +698,7 @@ int PPObjOprKind::GetReckonExData(PPID id, PPReckonOpEx * pData)
 				memzero(pData->Reserve, sizeof(pData->Reserve));
 				for(uint i = ROX_HDR_DW_COUNT; i < temp.getCount(); i++)
 					if(!pData->OpList.add(temp.at(i))) {
-						pData->Init();
+						pData->Z();
 						return PPSetErrorSLib();
 					}
 			}
@@ -2899,10 +2896,10 @@ public:
 {
 	PPReckonOpEx * p_data_rec = static_cast<PPReckonOpEx *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
-	p_data_rec->Beg  = p_cache_rec->Beg;
+	p_data_rec->Z();
+	p_data_rec->Beg = p_cache_rec->Beg;
 	p_data_rec->End = p_cache_rec->End;
-	p_data_rec->Flags  = p_cache_rec->Flags;
+	p_data_rec->Flags = p_cache_rec->Flags;
 	p_data_rec->PersonRelTypeID = p_cache_rec->PersonRelTypeID;
 	for(uint i = 0; i < p_cache_rec->OpCount; i++) {
 		p_data_rec->OpList.add(p_cache_rec->OpList[i]);

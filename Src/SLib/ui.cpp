@@ -127,7 +127,7 @@ const void * SColorSet::InnerEntry::GetHashKey(const void * pCtx, uint * pKeyLen
 	return p_result;
 }
 
-SColorSet::SColorSet(const char * pSymb) : L(256, this), Symb(pSymb)
+SColorSet::SColorSet(const char * pSymb) : L(256, this), Symb(pSymb), State(0)
 {
 }
 
@@ -176,6 +176,7 @@ bool FASTCALL SColorSet::IsEq(const SColorSet & rS) const
 
 SColorSet & SColorSet::Z()
 {
+	State = 0;
 	Symb.Z();
 	L.Z();
 	return *this;
@@ -528,6 +529,47 @@ int SColorSet::ParseComplexColorBlock(const char * pText, ComplexColorBlock & rB
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int SColorSet::Resolve()
+{
+	int    ok = 1;
+	if(State & stateResolved) {
+		ok = -1;
+	}
+	else {
+		InnerEntry * p_entry = 0;
+		for(uint i = 0; L.Enum(&i, &p_entry);) {
+			if(p_entry->CcbP) {
+				if(p_entry->CcbP <= CcC.getCount()) {
+					const ComplexColorBlock * p_ccb = CcC.at(p_entry->CcbP-1);
+					if(p_ccb) {
+						SColor c;
+						StringSet recur_symb_list;
+						if(ResolveComplexColorBlock(*p_ccb, c, recur_symb_list)) {
+							p_entry->C = c;
+						}
+						else {
+							; // @todo @err
+							ok = 0;
+						}
+					}
+					else {
+						; // @todo @err
+						ok = 0;
+					}
+				}
+				else {
+					; // @todo @err
+					ok = 0;
+				}
+			}
+			else {
+			}
+		}
+		State |= stateResolved;
+	}
 	return ok;
 }
 

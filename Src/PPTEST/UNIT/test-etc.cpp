@@ -895,3 +895,20 @@ SLTEST_R(UiDescription)
 	delete p_js_reverse;
 	return CurrentStatus;
 }
+
+SLTEST_R(WinToken)
+{
+	SetInfo("@construction");
+	/*
+	HANDLE h = SSystem::GetLocalSystemProcessToken();
+	SSystem::WinUserBlock wub;
+	uint   guhf = 0;
+	BOOL   loaded_profile = false;
+	PROFILEINFO profile_info;
+	HANDLE h_cmd_pipe = 0;
+	wub.UserName = _T("petroglif\\sobolev");
+	wub.Password = _T("AntonSobolev1969");
+	bool guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);
+	*/
+	return CurrentStatus;
+}

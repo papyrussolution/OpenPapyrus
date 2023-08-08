@@ -19681,7 +19681,7 @@ struct PPDebtInventOpEx {    // @persistent @store(PropertyTbl)
 
 struct PPReckonOpEx {
 	PPReckonOpEx();
-	void   Init();
+	PPReckonOpEx & Z();
 	bool   IsEmpty() const;
 	PPReckonOpEx & FASTCALL operator = (const PPReckonOpEx &);
 	int    GetReckonPeriod(LDATE debtDate, DateRange & rPeriod) const;
@@ -33920,7 +33920,8 @@ private:
 	int    BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack);
 	int    AddBRow(Sdr_BRow & rRow, uint * pRowId);
 	const  Sdr_Bill * SearchBillForRow(const SString & rBillIdent, const Sdr_BRow & rRow) const;
-	int    SearchNextRowForBill(const Sdr_Bill & rBill, uint * pPos) const;
+	int    SearchNextRowForBill(const Sdr_Bill & rBill, const LongArray * pSeenPosList, uint * pPos) const;
+	int    GatherRowsForSameTransferItem(const Sdr_Bill & rBill, uint thisPos, const LongArray & rSeenPosList, LongArray & rResultPosList) const;
 	//
 	// Descr: Считывает из исходного файла строки документов.
 	// ARG(pImpExp IN): Блок параметров импорта

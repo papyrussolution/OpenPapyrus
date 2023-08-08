@@ -8290,7 +8290,7 @@ int CheckPaneDialog::RemoveRow()
 				do_show_egaismark = 1;
 		}
 		if(do_show_egaismark && !p_list->SearchColumnByIdent(column_egais_ident, 0)) {
-			p_list->AddColumn(-1, "@egaisexcisemark", 20, 0, column_egais_ident);
+			p_list->AddColumn(-1, "@egaismark", 20, 0, column_egais_ident);
 		}
 		*/
 		for(i = 0; P.enumItems(&i, (void **)&p_item);) {

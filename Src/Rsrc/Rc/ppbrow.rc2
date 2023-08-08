@@ -7393,6 +7393,8 @@ record BRow {
 	Expiry        date         "@{lotexpirationdate}";
 	Serial        zstring(32)  "@{serial}";
 	CLB           zstring(32)  "@{cargocustomsdeclaration_s}";
+	ChZnMark      zstring(252) "@{chznmark}"; // @v11.7.12
+	EgaisMark     zstring(252) "@{egaismark}"; // @v11.7.12
 	QcCode        zstring(32)  "Код сертификата качества";
 	QcBc          zstring(16)  "Код бланка сертификата качества";
 	QcManuf       zstring(48)  "Наименование производителя, указанное в сертификате качества";

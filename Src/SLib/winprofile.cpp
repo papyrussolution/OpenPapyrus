@@ -7,41 +7,32 @@
 #include <sddl.h>
 #include <psapi.h>
 #include <userenv.h>
-
-struct WinUserBlock {
-	WinUserBlock()
-	{
-	}
-	SStringU UserName;
-	SStringU Password;
-	HANDLE H_User;
-};
 //
 // Returns:
 //   0 - error (empty input string)
 //   1 - user name only
 //   2 - user name and domain
 //
-int GetUserDomain(const wchar_t * userIn, SStringU & user, SStringU & domain)
+int GetUserDomain(const wchar_t * pUserIn, SStringU & rUserName, SStringU & rDomainName)
 {
-	user.Z();
-	domain.Z();
+	rUserName.Z();
+	rDomainName.Z();
 	int    ok = 0;
-	if(!isempty(userIn)) {
+	if(!isempty(pUserIn)) {
 		//run as specified user
-		if(wcschr(userIn, L'@')) {
-			user = userIn; //leave domain as NULL
+		if(wcschr(pUserIn, L'@')) {
+			rUserName = pUserIn; //leave domain as NULL
 			ok = 1;
 		}
 		else {
-			SStringU tmp(userIn);
-			if(tmp.Divide(L'\\', user, domain) > 0) {
+			SStringU tmp(pUserIn);
+			if(tmp.Divide(L'\\', rDomainName, rUserName) > 0) {
 				ok = 2;
 			}
 			else {
 				//no domain given
-				user = userIn;
-				domain = L".";
+				rUserName = pUserIn;
+				rDomainName = L".";
 				ok = 1;
 			}
 		}
@@ -92,7 +83,7 @@ int GetTokenUserSID(HANDLE hToken, SStringU & rUserName)
 	return ok;
 }
 
-HANDLE GetLocalSystemProcessToken()
+/*static*/HANDLE SSystem::GetLocalSystemProcessToken()
 {
 	HANDLE h_token = 0;
 	DWORD pids[1024*10] = {0};
@@ -152,17 +143,17 @@ bool EnablePrivilege(LPCWSTR privilegeStr, HANDLE hToken /* = NULL */)
 {
 	TOKEN_PRIVILEGES tp; // token privileges
 	LUID luid;
-	bool bCloseToken = false;
+	bool do_close_token = false;
 	if(!hToken) {
 		if(!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
 			//Log(StrFormat(L"Failed to open process to enable privilege %s", privilegeStr), false);
 			return false;
 		}
-		bCloseToken = true;
+		do_close_token = true;
 	}
 	if(!LookupPrivilegeValue(NULL, privilegeStr, &luid)) {
-		if(bCloseToken)
-			CloseHandle (hToken);
+		if(do_close_token)
+			CloseHandle(hToken);
 		_ASSERT(0);
 		//Log(StrFormat(L"Could not find privilege %s", privilegeStr), false);
 		return false;
@@ -171,29 +162,21 @@ bool EnablePrivilege(LPCWSTR privilegeStr, HANDLE hToken /* = NULL */)
 	tp.PrivilegeCount = 1;
 	tp.Privileges[0].Luid = luid;
 	tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-
 	// Adjust Token privileges
-	if(!AdjustTokenPrivileges (hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), NULL, NULL)) {
+	if(!AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), NULL, NULL)) {
 		DWORD gle = GetLastError();
 		//Log(StrFormat(L"Failed to adjust token for privilege %s", privilegeStr), gle);
-		if(bCloseToken)
-			CloseHandle (hToken);
+		if(do_close_token)
+			CloseHandle(hToken);
 		_ASSERT(0);
 		return false;
 	}
-	if(bCloseToken)
-		CloseHandle (hToken);
+	if(do_close_token)
+		CloseHandle(hToken);
 	return true;
 }
-//
-// Descr: Флаги функции GetUserHandle
-//
-enum {
-	guhfUseSystemAccount = 0x0001,
-	guhfDontLoadProfile  = 0x0002
-};
 
-bool GetUserHandle(/*Settings*/WinUserBlock & rSettings, uint flags, BOOL & bLoadedProfile, PROFILEINFO & rProfile, HANDLE hCmdPipe)
+/*static*/bool SSystem::GetUserHandle(/*Settings*/WinUserBlock & rSettings, uint flags, BOOL & bLoadedProfile, PROFILEINFO & rProfile, HANDLE hCmdPipe)
 {
 	bool   ok = true;
 	DWORD  gle = 0;
@@ -221,6 +204,11 @@ bool GetUserHandle(/*Settings*/WinUserBlock & rSettings, uint flags, BOOL & bLoa
 			if(!SIntHandle::IsInvalid(rSettings.H_User) && !(flags & guhfDontLoadProfile)) {
 				EnablePrivilege(SE_RESTORE_NAME, NULL);
 				EnablePrivilege(SE_BACKUP_NAME, NULL);
+				wchar_t user_name_buf[256];
+				STRNSCPY(user_name_buf, user);
+				MEMSZERO(rProfile);
+				rProfile.dwSize = sizeof(rProfile);
+				rProfile.lpUserName = user_name_buf;
 				bLoadedProfile = LoadUserProfile(rSettings.H_User, &rProfile);
 #ifdef _DEBUG
 				gle = GetLastError();

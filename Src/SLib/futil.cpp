@@ -138,13 +138,14 @@ int driveValid(const char * pPath)
 		// @v11.7.10 {
 		SPathStruc ps(pPath);
 		if(ps.Drv.NotEmpty()) {
+			SString temp_buf;
 			if(ps.Flags & SPathStruc::fUNC) {
-				SString volume_buf;
-				(volume_buf = "\\\\").Cat(ps.Drv).SetLastSlash();
-				ok = GetVolumeInformation(SUcSwitch(volume_buf), 0, 0, 0, 0, 0, 0, 0);
+				(temp_buf = "\\\\").Cat(ps.Drv).SetLastSlash();
+				ok = GetVolumeInformation(SUcSwitch(temp_buf), 0, 0, 0, 0, 0, 0, 0);
 			}
 			else {
-				uint t = GetDriveType(SUcSwitch(ps.Drv));
+				(temp_buf = ps.Drv).Colon().SetLastSlash();
+				uint t = GetDriveType(SUcSwitch(temp_buf));
 				if(t != DRIVE_UNKNOWN && t != DRIVE_NO_ROOT_DIR)
 					ok = 1;
 			}

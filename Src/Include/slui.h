@@ -1064,6 +1064,7 @@ public:
 	SJson * ToJsonObj() const;
 	int    FromJsonObj(const SJson * pJs);
 	int    Get(const char * pSymb, SColor & rC) const;
+	int    Resolve();
 	//
 	int    Test();
 private:
@@ -1083,10 +1084,7 @@ private:
 	};
 	struct ColorArg {
 		ColorArg();
-		bool FASTCALL IsEq(const ColorArg & rS) const
-		{
-			return (C == rS.C && F == rS.F && RefSymb.IsEqiAscii(rS.RefSymb));
-		}
+		bool FASTCALL IsEq(const ColorArg & rS) const { return (C == rS.C && F == rS.F && RefSymb.IsEqiAscii(rS.RefSymb)); }
 		bool FASTCALL operator == (const ColorArg & rS) const { return IsEq(rS); }
 		bool FASTCALL operator != (const ColorArg & rS) const { return !IsEq(rS); }
 		ColorArg & Z();
@@ -1142,6 +1140,10 @@ private:
 	int    Helper_Get(const char * pSymb, SColor & rC, StringSet * pRecurSymbList) const;
 	bool   FASTCALL IsInnerEntryEq(const InnerEntry & rE1, const SColorSet & rS, const InnerEntry & rE2) const;
 
+	enum {
+		stateResolved = 0x0001
+	};
+	uint   State; // @transient 
 	SString Symb; // Символ набора цветов (не путать с символом отдельного цвета)
 	TSHashCollection <InnerEntry> L;
 	TSCollection <ComplexColorBlock> CcC;

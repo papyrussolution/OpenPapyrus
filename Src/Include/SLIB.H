@@ -137,6 +137,7 @@
 	#include <windows.h>
 	// @v11.7.0 {
 	#ifndef RC_INVOKED
+		#include <ProfInfo.h> // @v11.7.12
 		#ifdef SLIB_INCLUDE_WINHTTP
 			#include <winhttp.h> 
 		#else
@@ -10637,6 +10638,33 @@ public:
 	static uint SFormatMessage(int sysErrCode, SString & rMsg);
 	static uint SFormatMessage(SString & rMsg);
 	static char FASTCALL TranslateWmCharToAnsi(uintptr_t wparam);
+#ifdef WIN32
+	//
+	// @v11.7.12 {
+	// Следующий блок я включил в этот класс поскольку пока не понимаю, куда это лучше отнести.
+	// Блок пока экспериментальный для отработки взаимодействия с windows- процессами, пользователями и т.д. (в рамках работы над WSCTL)
+	// 
+	struct WinUserBlock {
+		WinUserBlock()
+		{
+		}
+		SStringU UserName;
+		SStringU Password;
+		HANDLE H_User;
+	};
+	//
+	// Descr: Флаги функции GetUserHandle
+	//
+	enum {
+		guhfUseSystemAccount = 0x0001,
+		guhfDontLoadProfile  = 0x0002
+	};
+
+	static bool   GetUserHandle(/*Settings*/WinUserBlock & rSettings, uint flags, BOOL & bLoadedProfile, PROFILEINFO & rProfile, HANDLE hCmdPipe);
+	static HANDLE GetLocalSystemProcessToken();
+	// } @v11.7.12
+#endif
+	//
 	static int  CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD);
 	//
 	// Descr: Возвращает значение системного таймера в микросекундах

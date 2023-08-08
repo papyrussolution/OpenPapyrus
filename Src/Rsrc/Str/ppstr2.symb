@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494727
+LastSignatureCode=2147494728
 LastAutoCodeList=1,12212;102,10177;103,10072;110,10000;111,12094;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10314;124,10279;125,10047
 
 [SignatureList]
@@ -8734,7 +8734,7 @@ trfranlzval_linksumprice=2147491568
 trfranlzval_extval1=2147491569
 trfranlzval_linecount=2147491570
 trfranlzval_dateanddocno=2147494306
-egaisexcisemark=2147491571
+egaismark=2147494728
 chznmark=2147491572
 doscanmark=2147491573
 unmatchedmarks=2147494588
@@ -11075,6 +11075,7 @@ styloqindexingparam_fprocessors=2147494509
 rtag_dimentions=2147485655
 rtag_locfreightpackage=2147485683
 cfgcomm_ccflg_ccflg_dontundoopcntronesc=2147487469
+egaisexcisemark=2147491571
 styloqconfig_cliffaceselfmodifying=2147494645
 
 [GrpSymbList]

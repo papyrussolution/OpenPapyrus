@@ -1842,25 +1842,49 @@ const Sdr_Bill * PPBillImporter::SearchBillForRow(const SString & rBillIdent, co
 	return 0;
 }
 
-int PPBillImporter::SearchNextRowForBill(const Sdr_Bill & rBill, uint * pPos) const
+int PPBillImporter::SearchNextRowForBill(const Sdr_Bill & rBill, const LongArray * pSeenPosList, uint * pPos) const
 {
-    uint p = DEREFPTRORZ(pPos);
-	while(BillsRows.lsearch(rBill.ID, &p, PTR_CMPFUNC(Pchar))) {
-		const Sdr_BRow * p_row = &BillsRows.at(p);
-		if((!p_row->BillDate || p_row->BillDate == rBill.Date) && (!p_row->INN[0] || sstreq(p_row->INN, rBill.INN))) {
-			ASSIGN_PTR(pPos, p);
-			return 1;
+	for(uint p = DEREFPTRORZ(pPos); BillsRows.lsearch(rBill.ID, &p, PTR_CMPFUNC(Pchar)); p++) {
+		if(!pSeenPosList || !pSeenPosList->lsearch(static_cast<long>(p))) {
+			const Sdr_BRow * p_row = &BillsRows.at(p);
+			if((!p_row->BillDate || p_row->BillDate == rBill.Date) && (!p_row->INN[0] || sstreq(p_row->INN, rBill.INN))) {
+				ASSIGN_PTR(pPos, p);
+				return 1;
+			}
 		}
-		else
-			p++;
 	}
 	return 0;
 }
 
+int PPBillImporter::GatherRowsForSameTransferItem(const Sdr_Bill & rBill, uint thisPos, const LongArray & rSeenPosList, LongArray & rResultPosList) const
+{
+	int    ok = -1;
+	rResultPosList.Z();
+	if(thisPos < BillsRows.getCount()) {
+		rResultPosList.add(thisPos);
+		const Sdr_BRow * p_this_row = &BillsRows.at(thisPos);
+		for(uint p = thisPos+1; BillsRows.lsearch(rBill.ID, &p, PTR_CMPFUNC(Pchar)); p++) {
+			if(!rSeenPosList.lsearch(static_cast<long>(p))) {
+				const Sdr_BRow * p_row = &BillsRows.at(p);
+				if((!p_row->BillDate || p_row->BillDate == rBill.Date) && (!p_row->INN[0] || sstreq(p_row->INN, rBill.INN))) {
+					// GoodsID, LotID, Cost, Price, Expiry, QcCode, CLB, Serial
+					if(p_row->GoodsID == p_this_row->GoodsID && p_row->LotID == p_this_row->LotID && 
+						p_row->Cost == p_this_row->Cost && p_row->Price == p_this_row->Price && 
+						p_row->Expiry == p_this_row->Expiry && sstreq(p_row->QcCode, p_this_row->QcCode) && sstreq(p_row->CLB, p_this_row->CLB) &&
+						sstreq(p_row->Serial, p_this_row->Serial)) {
+						rResultPosList.add(p);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int PPBillImporter::AddBRow(Sdr_BRow & rRow, uint * pRowId)
 {
-	LineIdSeq++;
-	rRow.LineId = LineIdSeq;
+	rRow.LineId = ++LineIdSeq;
 	ASSIGN_PTR(pRowId, rRow.LineId);
 	return BillsRows.insert(&rRow) ? 1 : PPSetErrorSLib();
 }
@@ -3169,11 +3193,13 @@ int PPBillImporter::Import(int useTa)
 									}
 								}
 							}
-							for(pos = 0; SearchNextRowForBill(bill, &pos); pos++) {
+							LongArray seen_pos_list; // @v11.7.12 Список позиций строк, которые уже были обработаны
+							for(pos = 0; SearchNextRowForBill(bill, &seen_pos_list, &pos); pos++) {
 								const  Sdr_BRow & r_row = BillsRows.at(pos);
+								seen_pos_list.add(pos); // @v11.7.12
 								if(r_row.LineNo > 0 && r_row.LineNo <= (int)pack.GetTCount()) {
 									const uint ti_idx = r_row.LineNo-1;
-									int    tag_list_updated = 0;
+									bool  tag_list_updated = false;
 									ObjTagList * p_tag_list = pack.LTagL.Get(ti_idx);
 									if(!RVALUEPTR(tag_list, p_tag_list))
 										tag_list.Destroy();
@@ -3182,7 +3208,7 @@ int PPBillImporter::Import(int useTa)
 										if(alc_cat_lot_tag_id && r_row.AlcoCatCode[0]) {
 											if(tag_item.SetStr(alc_cat_lot_tag_id, r_row.AlcoCatCode)) {
 												tag_list.PutItem(alc_cat_lot_tag_id, &tag_item);
-												tag_list_updated = 1;
+												tag_list_updated = true;
 											}
 										}
 										if(alc_manuf_lot_tag_id && r_row.ManufINN[0]) {
@@ -3202,25 +3228,22 @@ int PPBillImporter::Import(int useTa)
 											}
 											else if((temp_buf = r_row.LotManuf).NotEmptyS()) {
 												PPPersonPacket psn_pack;
+												RegisterTbl::Rec reg_rec;
 												STRNSCPY(psn_pack.Rec.Name, temp_buf);
 												psn_pack.Kinds.add(alc_manuf_kind_id);
 												{
-													RegisterTbl::Rec reg_rec;
 													PPObjRegister::InitPacket(&reg_rec, PPREGT_TPID, PPObjID(PPOBJ_PERSON, 0), r_row.ManufINN);
 													psn_pack.Regs.insert(&reg_rec);
 												}
 												if(r_row.ManufKPP[0]) {
-													RegisterTbl::Rec reg_rec;
 													PPObjRegister::InitPacket(&reg_rec, PPREGT_KPP, PPObjID(PPOBJ_PERSON, 0), r_row.ManufKPP);
 													psn_pack.Regs.insert(&reg_rec);
 												}
 												THROW(PsnObj.PutPacket(&manuf_id, &psn_pack, 0));
 											}
-											if(manuf_id) {
-												if(tag_item.SetInt(alc_manuf_lot_tag_id, manuf_id)) {
-													tag_list.PutItem(alc_manuf_lot_tag_id, &tag_item);
-													tag_list_updated = 1;
-												}
+											if(manuf_id && tag_item.SetInt(alc_manuf_lot_tag_id, manuf_id)) {
+												tag_list.PutItem(alc_manuf_lot_tag_id, &tag_item);
+												tag_list_updated = true;
 											}
 										}
 									}
@@ -3244,8 +3267,36 @@ int PPBillImporter::Import(int useTa)
 				THROW(pack.CreateBlank2(OpID, bill.Date, LocID, 0));
 				if(BillToBillRec(&bill, &pack) > 0) {
 					int    is_bad_packet = 0; // Признак того, что документ не удалось правильно преобразовать
-					for(pos = 0; !is_bad_packet && SearchNextRowForBill(bill, &pos); pos++) {
+					LongArray seen_pos_list; // @v11.7.12 Список позиций строк, которые уже были обработаны
+					LongArray unite_pos_list; // @v11.7.12 Список позиций строк, которые необходимо объединить в одну строку TransferItem
+					StringSet ss_chzn_mark;  // @v11.7.12 
+					StringSet ss_egais_mark; // @v11.7.12 
+					for(pos = 0; !is_bad_packet && SearchNextRowForBill(bill, &seen_pos_list, &pos); pos++) {
 						const Sdr_BRow & r_row = BillsRows.at(pos);
+						// @v11.7.12 {
+						// (see loop below) seen_pos_list.add(pos); 
+						GatherRowsForSameTransferItem(bill, pos, seen_pos_list, unite_pos_list); 
+						double quantity = 0.0;
+						double pckg_quantity = 0.0;
+						double ph_quantity = 0.0;
+						{
+							assert(unite_pos_list.lsearch(static_cast<long>(pos)));
+							ss_chzn_mark.Z();
+							ss_egais_mark.Z();
+							for(uint uidx = 0; uidx < unite_pos_list.getCount(); uidx++) {
+								const uint upos = unite_pos_list.get(uidx);
+								const Sdr_BRow & r_u_row = BillsRows.at(upos);
+								quantity += r_u_row.Quantity;
+								pckg_quantity += r_u_row.PckgQtty;
+								ph_quantity += r_u_row.PhQtty;
+								if(r_u_row.ChZnMark[0])
+									ss_chzn_mark.add(r_u_row.ChZnMark);
+								if(r_u_row.EgaisMark[0])
+									ss_egais_mark.add(r_u_row.EgaisMark);
+								seen_pos_list.add(upos);
+							}
+						}
+						// } @v11.7.12
 						(serial = r_row.Serial).Strip().Transf(CTRANSF_OUTER_TO_INNER);
 						if(!r_row.GoodsID) {
 							;
@@ -3265,7 +3316,7 @@ int PPBillImporter::Import(int useTa)
 									ciltif_ |= CILTIF_USESYNCLOT;
 								}
 							}
-							ilti.Setup(r_row.GoodsID, -1, r_row.Quantity, r_row.Cost, r_row.Price);
+							ilti.Setup(r_row.GoodsID, -1, /*r_row.Quantity*/quantity, r_row.Cost, r_row.Price);
 							const int rconv = P_BObj->ConvertILTI(&ilti, &pack, 0, ciltif_, serial.NotEmpty() ? serial.cptr() : 0, 0);
 							if(!rconv) {
 								Logger.LogLastError();
@@ -3289,7 +3340,7 @@ int PPBillImporter::Import(int useTa)
 						}
 						else {
 							PPID   qcert_id = 0;
-							double upp = 0.0;
+							double upp = 0.0; // units per pack
 							int    upp_inited = 0;
 							PPTransferItem ti(&pack.Rec, TISIGN_UNDEF);
 							ti.GoodsID  = r_row.GoodsID;
@@ -3304,10 +3355,8 @@ int PPBillImporter::Import(int useTa)
 										ti.TFlags |= PPTransferItem::tfForceLotID;
 									}
 								}
-								else {
-									if(lot_id_exists && temp_lot_rec.GoodsID == ti.GoodsID && temp_lot_rec.LocID == LocID) {
-										THROW(ti.SetupLot(r_row.LotID, &temp_lot_rec, 0));
-									}
+								else if(lot_id_exists && temp_lot_rec.GoodsID == ti.GoodsID && temp_lot_rec.LocID == LocID) {
+									THROW(ti.SetupLot(r_row.LotID, &temp_lot_rec, 0));
 								}
 							}
 							if(checkdate(r_row.Expiry))
@@ -3320,9 +3369,9 @@ int PPBillImporter::Import(int useTa)
 								upp_inited = 0;
 								ti.UnitPerPack = upp;
 							}
-							if(r_row.Quantity != 0.0)
-								ti.Quantity_ = fabs(r_row.Quantity);
-							else if(r_row.PckgQtty != 0.0) {
+							if(/*r_row.Quantity*/quantity != 0.0)
+								ti.Quantity_ = fabs(/*r_row.Quantity*/quantity);
+							else if(/*r_row.PckgQtty*/pckg_quantity != 0.0) {
 								if(upp <= 0.0) {
 									GoodsStockExt gse;
 									if(GObj.GetStockExt(ti.GoodsID, &gse, 1) > 0)
@@ -3333,7 +3382,7 @@ int PPBillImporter::Import(int useTa)
 									upp_inited = 0;
 								}
 								if(upp > 0.0)
-									ti.Quantity_ = fabs(r_row.PckgQtty * upp);
+									ti.Quantity_ = fabs(/*r_row.PckgQtty*/pckg_quantity * upp);
 							}
 							THROW(P_BObj->SetupImportedPrice(&pack, &ti, 0));
 							//
@@ -3381,6 +3430,25 @@ int PPBillImporter::Import(int useTa)
 											pack.LTagL.AddNumber(PPTAG_LOT_CLB, new_item_pos, temp_buf);
 										if(serial.NotEmpty())
 											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_item_pos, serial);
+									}
+									{
+										const bool is_there_chzn_marks = LOGIC(ss_chzn_mark.getCount());
+										const bool is_there_egais_marks = LOGIC(ss_egais_mark.getCount());
+										if(is_there_chzn_marks || is_there_egais_marks) {
+											PPLotExtCodeContainer::MarkSet ms;
+											if(is_there_chzn_marks) {
+												for(uint ssp = 0; ss_chzn_mark.get(&ssp, temp_buf);) {
+													ms.AddNum(0, temp_buf, 0);
+													//pack.XcL.Add()
+												}
+											}
+											if(is_there_egais_marks) {
+												for(uint ssp = 0; ss_egais_mark.get(&ssp, temp_buf);) {
+													ms.AddNum(0, temp_buf, 0);
+												}										
+											}
+											pack.XcL.Add(new_item_pos+1, ms);
+										}
 									}
 								}
 								if(need_price_restrict) {
@@ -6583,10 +6651,8 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_AMTTAXTOTAL));
 			if(total_vat != 0.0)
 				n_e.PutInner(GetToken_Ansi(/*PPHSC_RU_AMTVAT*/PPHSC_RU_AMTTAX), temp_buf.Z().Cat(fabs(total_vat), MKSFMTD(0, 2, 0)));
-			else {
-				temp_buf = GetToken_Ansi(PPHSC_RU_NOVAT_VAL);
-				n_e.PutInner(GetToken_Ansi(PPHSC_RU_NOVAT_TAG), temp_buf);
-			}
+			else
+				n_e.PutInner(GetToken_Ansi(PPHSC_RU_NOVAT_TAG), GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
 		}
 	}
 	return ok;

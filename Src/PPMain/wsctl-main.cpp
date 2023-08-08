@@ -569,14 +569,38 @@ public:
 	// Descr: Вариант экранов приложения //
 	//
 	enum {
-		screenUndef = 0,    // неопределенный
-		screenConstruction, // Тестовый режим для разработки 
-		screenHybernat,     // спящий режим 
-		screenRegister,         // регистрация //
-		screenLogin,            // авторизация //
-		screenAuthSelectSess,   // авторизованный режим - выбор сессии
-		screenSession           // рабочая сессия //
+		screenUndef          = 0, // неопределенный
+		screenConstruction   = 1, // Тестовый режим для разработки 
+		screenHybernat       = 2, // спящий режим 
+		screenRegister       = 3, // регистрация //
+		screenLogin          = 4, // авторизация //
+		screenAuthSelectSess = 5, // авторизованный режим - выбор сессии
+		screenSession        = 6  // рабочая сессия //
 	};
+	//
+	enum {
+		// Значения до 10000 используются для идентификации экранов (screenXXX) и 
+		// одновременно как идентификаторы соответствующих лейаутов верхнего уровня.
+		//loidRoot = 1,
+		loidUpperGroup  = 10001,
+		loidBottomGroup = 10002,
+		loidCtl01       = 10003,
+		loidCtl02       = 10004,
+		loidAdv01       = 10005,
+		loidAdv02       = 10006,
+		loidAdv03       = 10007,
+		loidMenuBlock   = 10008,
+		loidMainGroup   = 10009,
+		loidLoginBlock  = 10010,
+		loidPersonInfo  = 10011,
+		loidAccountInfo = 10012,
+		loidSessionSelection      = 10013,
+		loidSessionButtonGroup    = 10014,
+		loidBottomCtrlGroup       = 10015,
+		loidSessionInfo           = 10016,
+		loidSessionProgramGallery = 10017,
+	};
+
 	struct QuotKindEntry {
 		QuotKindEntry() : ID(0), Rank(0), DaysOfWeek(0)
 		{
@@ -625,36 +649,13 @@ public:
 	//
 	class DServerError {
 	public:
-		DServerError() : _Status(0)
-		{
-		}
-		DServerError(const DServerError & rS)
-		{
-			Copy(rS);
-		}
-		DServerError & FASTCALL operator = (const DServerError & rS)
-		{
-			return Copy(rS);
-		}
-		DServerError & Copy(const DServerError & rS)
-		{
-			_Status = rS._Status;
-			_Message = rS._Message;
-			return *this;
-		}
-		DServerError & Z()
-		{
-			_Status = 0;
-			_Message.Z();
-			return *this;
-		}
-		DServerError & SetupByLastError()
-		{
-			_Status = PPErrCode;
-			PPGetLastErrorMessage(1, _Message);
-			_Message.Transf(CTRANSF_INNER_TO_UTF8);
-			return *this;
-		}
+		DServerError();
+		DServerError(const DServerError & rS);
+		DServerError & FASTCALL operator = (const DServerError & rS);
+		DServerError & Copy(const DServerError & rS);
+		DServerError & Z();
+		DServerError & SetupByLastError();
+
 		int    _Status; // 0 - ok, -1 - abstract error, >0 - error code
 		SString _Message;
 	};
@@ -750,63 +751,10 @@ public:
 	};
 	class DTSess : public DServerError {
 	public:
-		DTSess() : TSessID(0), GoodsID(0), TechID(0), SCardID(0), WrOffAmount(0.0), DtmActual(ZERODATETIME)
-		{
-		}
-		DTSess & Z()
-		{
-			DServerError::Z();
-			DtmActual.Z();
-			TSessID = 0;
-			GoodsID = 0;
-			TechID = 0;
-			SCardID = 0;
-			WrOffAmount = 0.0;
-			TmChunk.Z();
-			TmScOp.Z();
-			return *this;
-		}
-		int    FromJsonObject(const SJson * pJsObj)
-		{
-			int    ok = 0;
-			Z();
-			if(SJson::IsObject(pJsObj)) {
-				bool is_there_tsess_id = false;
-				for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_cur->P_Next) {
-					if(p_cur->P_Child) {
-						if(p_cur->Text.IsEqiAscii("tsessid")) {
-							TSessID = p_cur->P_Child->Text.ToLong();
-							is_there_tsess_id = true;
-						}
-						else if(p_cur->Text.IsEqiAscii("techid")) {
-							TechID = p_cur->P_Child->Text.ToLong();
-						}
-						else if(p_cur->Text.IsEqiAscii("goodsid")) {
-							GoodsID = p_cur->P_Child->Text.ToLong();
-						}
-						else if(p_cur->Text.IsEqiAscii("tm_start")) {
-							strtodatetime(p_cur->P_Child->Text, &TmChunk.Start, DATF_ISO8601CENT, TIMF_HMS);
-						}
-						else if(p_cur->Text.IsEqiAscii("tm_finish")) {
-							strtodatetime(p_cur->P_Child->Text, &TmChunk.Finish, DATF_ISO8601CENT, TIMF_HMS);
-						}
-						else if(p_cur->Text.IsEqiAscii("scardid")) {
-							SCardID = p_cur->P_Child->Text.ToLong();
-						}
-						else if(p_cur->Text.IsEqiAscii("wroffamt")) {
-							WrOffAmount = p_cur->P_Child->Text.ToReal();
-						}
-						else if(p_cur->Text.IsEqiAscii("tm_scop")) {
-							strtodatetime(p_cur->P_Child->Text, &TmScOp, DATF_ISO8601CENT, TIMF_HMS);
-						}
-					}
-				}
-				if(is_there_tsess_id) {
-					ok = 1;
-				}
-			}
-			return ok;
-		}
+		DTSess();
+		DTSess & Z();
+		int    FromJsonObject(const SJson * pJsObj);
+
 		LDATETIME DtmActual; // Момент последней актуализации данных
 		PPID   TSessID;
 		PPID   GoodsID;
@@ -852,9 +800,8 @@ public:
 			{
 				Lck.Lock();
 				Data = rData;
-				if(P_OuterState) {
+				if(P_OuterState)
 					P_OuterState->D_LastErr.SetData(rData);
-				}
 				Lck.Unlock();
 			}
 			void GetData(T & rData)
@@ -971,62 +918,10 @@ public:
 	}
 	class ImDialog_WsCtlConfig : public ImDialogState {
 	public:
-		ImDialog_WsCtlConfig(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_Config * pCtx) : R_Blk(rBlk), ImDialogState(pCtx)
-		{
-			if(pCtx) {
-				Data = *pCtx;
-			}
-			STRNSCPY(SubstTxt_Server, Data.Server);
-			STRNSCPY(SubstTxt_DbSymb, Data.DbSymb);
-			STRNSCPY(SubstTxt_User, Data.User);
-			STRNSCPY(SubstTxt_Password, Data.Password);
-		}
-		~ImDialog_WsCtlConfig()
-		{
-			memzero(SubstTxt_Server, sizeof(SubstTxt_Server));
-			memzero(SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
-			memzero(SubstTxt_User, sizeof(SubstTxt_User));
-			memzero(SubstTxt_Password, sizeof(SubstTxt_Password));
-		}
-		virtual int Build()
-		{
-			int    result = 0;
-			const char * p_popup_title = "Config";
-			ImGui::OpenPopup(p_popup_title);
-			if(ImGui::BeginPopup(p_popup_title)) {
-				ImGui::InputText(R_Blk.InputLabelPrefix("server"), SubstTxt_Server, sizeof(SubstTxt_Server));
-				ImGui::InputInt(R_Blk.InputLabelPrefix("port"), &Data.Port);
-				ImGui::InputText(R_Blk.InputLabelPrefix("dbsymb"), SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
-				ImGui::InputText(R_Blk.InputLabelPrefix("user"), SubstTxt_User, sizeof(SubstTxt_User));
-				ImGui::InputText(R_Blk.InputLabelPrefix("password"), SubstTxt_Password, sizeof(SubstTxt_Password));
-				ImGui::NewLine();
-				if(ImGui::Button("ok", ButtonSize_Std)) {
-					ImGui::CloseCurrentPopup();
-					result = 1;
-				}
-				ImGui::SameLine();
-				if(ImGui::Button("cancel", ButtonSize_Std)) {
-					ImGui::CloseCurrentPopup();
-					result = -1;
-				}
-				ImGui::EndPopup();
-			}
-			return result;
-		}
-		virtual bool CommitData()
-		{
-			bool   ok = true;
-			if(P_Ctx) {
-				Data.Server = SubstTxt_Server;
-				Data.DbSymb = SubstTxt_DbSymb;
-				Data.User = SubstTxt_User;
-				Data.Password = SubstTxt_Password;
-				*static_cast<WsCtl_Config *>(P_Ctx) = Data;
-			}
-			else
-				ok = false;
-			return ok;
-		}
+		ImDialog_WsCtlConfig(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_Config * pCtx);
+		~ImDialog_WsCtlConfig();
+		virtual int Build();
+		virtual bool CommitData();
 	private:
 		WsCtl_ImGuiSceneBlock & R_Blk;
 		WsCtl_Config Data;
@@ -1066,6 +961,7 @@ private:
 	TSHashCollection <SImFontDescription> Cache_Font; // @v11.7.8
 	
 	WsCtl_Config JsP;
+	UiDescription Uid; // @v11.7.12
 	State  St;
 	LongArray SyncReqList; // @fastreuse Список объектов состояния, для которых необходимо запросить обновление у сервера (по таймеру)
 	WsCtlReqQueue * P_CmdQ; // Очередь команд для сервера. Указатель передается в совместное владение потоку обработки команд
@@ -1078,46 +974,9 @@ private:
 	};
 	TestBlock TestBlk;
 	//
-	enum {
-		// Значения до 10000 используются для идентификации экранов (screenXXX) и 
-		// одновременно как идентификаторы соответствующих лейаутов верхнего уровня.
-		//loidRoot = 1,
-		loidUpperGroup = 10001,
-		loidBottomGroup,
-		loidCtl01,
-		loidCtl02,
-		loidAdv01,
-		loidAdv02,
-		loidAdv03,
-		loidMenuBlock,
-		loidMainGroup,
-		loidLoginBlock,
-		loidPersonInfo,
-		loidAccountInfo,
-		loidSessionSelection,
-		loidSessionButtonGroup,
-		loidBottomCtrlGroup,
-		loidSessionInfo,
-		loidSessionProgramGallery,
-	};
-	//
 	void   Render();
 	void   MakeLayout(SJson ** ppJsList);
-	void   ErrorPopup(bool isErr)
-	{
-		if(isErr) {
-			const char * p_popup_title = "Error message";
-			ImGui::OpenPopup(p_popup_title);
-			if(ImGui::BeginPopup(p_popup_title)) {
-				ImGui::Text(LastSvrErr._Message);
-				if(ImGui::Button("Close", ButtonSize_Std)) {
-					LastSvrErr.Z(); // Сбрасываем информацию об ошибке
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::EndPopup();
-			}
-		}
-	}
+	void   ErrorPopup(bool isErr);
 	static int CbInput(ImGuiInputTextCallbackData * pInputData);
 	//
 	char   TestInput[128];
@@ -1161,10 +1020,113 @@ public:
 		// P_CmdQ не разрушаем поскольку на него ссылается отдельный поток.
 		// Все равно этот объект живет в течении всего жизненного цикла процесса.
 	}
+	void WsCtlStyleColors(bool useUiDescription, ImGuiStyle * pDest)
+	{
+		ImGuiStyle * style = pDest ? pDest : &ImGui::GetStyle();
+		ImVec4 * colors = style->Colors;
+		colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+		colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+		colors[ImGuiCol_WindowBg]               = SColor(0x2B, 0x30, 0x38);//ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
+		colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+		colors[ImGuiCol_Border]                 = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
+		colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_FrameBg]                = SColor(SClrBlack, 0.95f); //ImVec4(0.16f, 0.29f, 0.48f, 0.54f);
+		colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+		colors[ImGuiCol_FrameBgActive]          = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+		colors[ImGuiCol_TitleBg]                = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
+		colors[ImGuiCol_TitleBgActive]          = ImVec4(0.16f, 0.29f, 0.48f, 1.00f);
+		colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
+		colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+		colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+		colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
+		colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_SliderGrab]             = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
+		colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+		colors[ImGuiCol_ButtonHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_ButtonActive]           = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
+		colors[ImGuiCol_Header]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
+		colors[ImGuiCol_HeaderHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+		colors[ImGuiCol_HeaderActive]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_Separator]              = colors[ImGuiCol_Border];
+		colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
+		colors[ImGuiCol_SeparatorActive]        = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
+		colors[ImGuiCol_ResizeGrip]             = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
+		colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+		colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+		colors[ImGuiCol_Tab]                    = ImLerp(colors[ImGuiCol_Header], colors[ImGuiCol_TitleBgActive], 0.80f);
+		colors[ImGuiCol_TabHovered]             = colors[ImGuiCol_HeaderHovered];
+		colors[ImGuiCol_TabActive]              = ImLerp(colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f);
+		colors[ImGuiCol_TabUnfocused]           = ImLerp(colors[ImGuiCol_Tab], colors[ImGuiCol_TitleBg], 0.80f);
+		colors[ImGuiCol_TabUnfocusedActive]     = ImLerp(colors[ImGuiCol_TabActive], colors[ImGuiCol_TitleBg], 0.40f);
+		colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+		colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+		colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+		colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+		colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
+		colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);// Prefer using Alpha=1.0 here
+		colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);// Prefer using Alpha=1.0 here
+		colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+		colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+		colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+		colors[ImGuiCol_NavHighlight]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+		colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+		colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+		if(useUiDescription) {
+			SColorSet * p_cs = Uid.GetColorSet("imgui-style");	
+			if(p_cs) {
+				for(uint i = 0; i < SIZEOFARRAY(style->Colors); i++) {
+					const char * p_color_name = ImGui::GetStyleColorName(i);
+					if(!isempty(p_color_name)) {
+						SColor c;
+						if(p_cs->Get(p_color_name, c)) {
+							style->Colors[i] = c;
+						}
+					}
+				}
+			}
+		}
+	}
+	int  LoadUiDescription()
+	{
+		int    ok = 0;
+		SJson * p_js = 0;
+		SString temp_buf;
+		getExecPath(temp_buf);
+		temp_buf.SetLastSlash().Cat("config").SetLastSlash().Cat("wsctl-ui.json");
+		SFile f_in(temp_buf, SFile::mRead);
+		{
+			STempBuffer in_buf(8192);
+			size_t actual_size = 0;
+			THROW(in_buf.IsValid());
+			THROW(f_in.ReadAll(in_buf, 0, &actual_size));
+			temp_buf.Z().CatN(in_buf, actual_size);
+		}
+		{
+			p_js = SJson::Parse(temp_buf);
+			THROW(p_js);
+			THROW(Uid.FromJsonObj(p_js));
+		}
+		{
+			SColorSet * p_cs = Uid.GetColorSet("imgui-style");
+			if(p_cs) {
+				p_cs->Resolve();
+			}
+		}
+		CATCHZOK
+		delete p_js;
+		return ok;
+	}
 	int  Init()
 	{
 		int    ok = 0;
 		PPIniFile ini_file;
+		LoadUiDescription();
 		if((ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &JsP.Port) <= 0 || JsP.Port <= 0))
 			JsP.Port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
 		if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_CLIENTSOCKETTIMEOUT, &JsP.Timeout) <= 0 || JsP.Timeout <= 0)
@@ -1245,6 +1207,162 @@ public:
 //
 //
 //
+WsCtl_ImGuiSceneBlock::ImDialog_WsCtlConfig::ImDialog_WsCtlConfig(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_Config * pCtx) : R_Blk(rBlk), ImDialogState(pCtx)
+{
+	if(pCtx) {
+		Data = *pCtx;
+	}
+	STRNSCPY(SubstTxt_Server, Data.Server);
+	STRNSCPY(SubstTxt_DbSymb, Data.DbSymb);
+	STRNSCPY(SubstTxt_User, Data.User);
+	STRNSCPY(SubstTxt_Password, Data.Password);
+}
+		
+WsCtl_ImGuiSceneBlock::ImDialog_WsCtlConfig::~ImDialog_WsCtlConfig()
+{
+	memzero(SubstTxt_Server, sizeof(SubstTxt_Server));
+	memzero(SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
+	memzero(SubstTxt_User, sizeof(SubstTxt_User));
+	memzero(SubstTxt_Password, sizeof(SubstTxt_Password));
+}
+		
+/*virtual*/int WsCtl_ImGuiSceneBlock::ImDialog_WsCtlConfig::Build()
+{
+	int    result = 0;
+	const char * p_popup_title = "Config";
+	ImGui::OpenPopup(p_popup_title);
+	if(ImGui::BeginPopup(p_popup_title)) {
+		ImGui::InputText(R_Blk.InputLabelPrefix("server"), SubstTxt_Server, sizeof(SubstTxt_Server));
+		ImGui::InputInt(R_Blk.InputLabelPrefix("port"), &Data.Port);
+		ImGui::InputText(R_Blk.InputLabelPrefix("dbsymb"), SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
+		ImGui::InputText(R_Blk.InputLabelPrefix("user"), SubstTxt_User, sizeof(SubstTxt_User));
+		ImGui::InputText(R_Blk.InputLabelPrefix("password"), SubstTxt_Password, sizeof(SubstTxt_Password));
+		ImGui::NewLine();
+		if(ImGui::Button("ok", ButtonSize_Std)) {
+			ImGui::CloseCurrentPopup();
+			result = 1;
+		}
+		ImGui::SameLine();
+		if(ImGui::Button("cancel", ButtonSize_Std)) {
+			ImGui::CloseCurrentPopup();
+			result = -1;
+		}
+		ImGui::EndPopup();
+	}
+	return result;
+}
+		
+/*virtual*/bool WsCtl_ImGuiSceneBlock::ImDialog_WsCtlConfig::CommitData()
+{
+	bool   ok = true;
+	if(P_Ctx) {
+		Data.Server = SubstTxt_Server;
+		Data.DbSymb = SubstTxt_DbSymb;
+		Data.User = SubstTxt_User;
+		Data.Password = SubstTxt_Password;
+		*static_cast<WsCtl_Config *>(P_Ctx) = Data;
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+WsCtl_ImGuiSceneBlock::DTSess::DTSess() : TSessID(0), GoodsID(0), TechID(0), SCardID(0), WrOffAmount(0.0), DtmActual(ZERODATETIME)
+{
+}
+		
+WsCtl_ImGuiSceneBlock::DTSess & WsCtl_ImGuiSceneBlock::DTSess::Z()
+{
+	DServerError::Z();
+	DtmActual.Z();
+	TSessID = 0;
+	GoodsID = 0;
+	TechID = 0;
+	SCardID = 0;
+	WrOffAmount = 0.0;
+	TmChunk.Z();
+	TmScOp.Z();
+	return *this;
+}
+
+int WsCtl_ImGuiSceneBlock::DTSess::FromJsonObject(const SJson * pJsObj)
+{
+	int    ok = 0;
+	Z();
+	if(SJson::IsObject(pJsObj)) {
+		bool is_there_tsess_id = false;
+		for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->P_Child) {
+				if(p_cur->Text.IsEqiAscii("tsessid")) {
+					TSessID = p_cur->P_Child->Text.ToLong();
+					is_there_tsess_id = true;
+				}
+				else if(p_cur->Text.IsEqiAscii("techid")) {
+					TechID = p_cur->P_Child->Text.ToLong();
+				}
+				else if(p_cur->Text.IsEqiAscii("goodsid")) {
+					GoodsID = p_cur->P_Child->Text.ToLong();
+				}
+				else if(p_cur->Text.IsEqiAscii("tm_start")) {
+					strtodatetime(p_cur->P_Child->Text, &TmChunk.Start, DATF_ISO8601CENT, TIMF_HMS);
+				}
+				else if(p_cur->Text.IsEqiAscii("tm_finish")) {
+					strtodatetime(p_cur->P_Child->Text, &TmChunk.Finish, DATF_ISO8601CENT, TIMF_HMS);
+				}
+				else if(p_cur->Text.IsEqiAscii("scardid")) {
+					SCardID = p_cur->P_Child->Text.ToLong();
+				}
+				else if(p_cur->Text.IsEqiAscii("wroffamt")) {
+					WrOffAmount = p_cur->P_Child->Text.ToReal();
+				}
+				else if(p_cur->Text.IsEqiAscii("tm_scop")) {
+					strtodatetime(p_cur->P_Child->Text, &TmScOp, DATF_ISO8601CENT, TIMF_HMS);
+				}
+			}
+		}
+		if(is_there_tsess_id) {
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+WsCtl_ImGuiSceneBlock::DServerError::DServerError() : _Status(0)
+{
+}
+
+WsCtl_ImGuiSceneBlock::DServerError::DServerError(const DServerError & rS)
+{
+	Copy(rS);
+}
+
+WsCtl_ImGuiSceneBlock::DServerError & FASTCALL WsCtl_ImGuiSceneBlock::DServerError::operator = (const DServerError & rS)
+{
+	return Copy(rS);
+}
+
+WsCtl_ImGuiSceneBlock::DServerError & WsCtl_ImGuiSceneBlock::DServerError::Copy(const DServerError & rS)
+{
+	_Status = rS._Status;
+	_Message = rS._Message;
+	return *this;
+}
+
+WsCtl_ImGuiSceneBlock::DServerError & WsCtl_ImGuiSceneBlock::DServerError::Z()
+{
+	_Status = 0;
+	_Message.Z();
+	return *this;
+}
+
+WsCtl_ImGuiSceneBlock::DServerError & WsCtl_ImGuiSceneBlock::DServerError::SetupByLastError()
+{
+	_Status = PPErrCode;
+	PPGetLastErrorMessage(1, _Message);
+	_Message.Transf(CTRANSF_INNER_TO_UTF8);
+	return *this;
+}
+
 WsCtl_ImGuiSceneBlock::DPrices::DPrices() : DtmActual(ZERODATETIME)
 {
 }
@@ -2052,6 +2170,22 @@ void WsCtl_ImGuiSceneBlock::Render()
 	return 0;
 }
 
+void WsCtl_ImGuiSceneBlock::ErrorPopup(bool isErr)
+{
+	if(isErr) {
+		const char * p_popup_title = "Error message";
+		ImGui::OpenPopup(p_popup_title);
+		if(ImGui::BeginPopup(p_popup_title)) {
+			ImGui::Text(LastSvrErr._Message);
+			if(ImGui::Button("Close", ButtonSize_Std)) {
+				LastSvrErr.Z(); // Сбрасываем информацию об ошибке
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+	}
+}
+
 void WsCtl_ImGuiSceneBlock::MakeLayout(SJson ** ppJsList)
 {
 	const FRect margin_(2.0f, 1.0f, 2.0f, 1.0f);
@@ -2812,65 +2946,6 @@ static int MakeColorSet(UiDescription & rUiDescr)
 	return ok;
 }
 
-static void WsCtlStyleColors(ImGuiStyle * dst)
-{
-	ImGuiStyle * style = dst ? dst : &ImGui::GetStyle();
-	ImVec4 * colors = style->Colors;
-	colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-	colors[ImGuiCol_WindowBg]               = SColor(0x2B, 0x30, 0x38);//ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
-	colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
-	colors[ImGuiCol_Border]                 = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
-	colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_FrameBg]                = SColor(SClrBlack, 0.95f); //ImVec4(0.16f, 0.29f, 0.48f, 0.54f);
-	colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-	colors[ImGuiCol_FrameBgActive]          = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-	colors[ImGuiCol_TitleBg]                = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
-	colors[ImGuiCol_TitleBgActive]          = ImVec4(0.16f, 0.29f, 0.48f, 1.00f);
-	colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
-	colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-	colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
-	colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
-	colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-	colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
-	colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-	colors[ImGuiCol_SliderGrab]             = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
-	colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-	colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-	colors[ImGuiCol_ButtonHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-	colors[ImGuiCol_ButtonActive]           = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
-	colors[ImGuiCol_Header]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
-	colors[ImGuiCol_HeaderHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
-	colors[ImGuiCol_HeaderActive]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-	colors[ImGuiCol_Separator]              = colors[ImGuiCol_Border];
-	colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
-	colors[ImGuiCol_SeparatorActive]        = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
-	colors[ImGuiCol_ResizeGrip]             = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
-	colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-	colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-	colors[ImGuiCol_Tab]                    = ImLerp(colors[ImGuiCol_Header], colors[ImGuiCol_TitleBgActive], 0.80f);
-	colors[ImGuiCol_TabHovered]             = colors[ImGuiCol_HeaderHovered];
-	colors[ImGuiCol_TabActive]              = ImLerp(colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f);
-	colors[ImGuiCol_TabUnfocused]           = ImLerp(colors[ImGuiCol_Tab], colors[ImGuiCol_TitleBg], 0.80f);
-	colors[ImGuiCol_TabUnfocusedActive]     = ImLerp(colors[ImGuiCol_TabActive], colors[ImGuiCol_TitleBg], 0.40f);
-	colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
-	colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-	colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-	colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-	colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
-	colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);// Prefer using Alpha=1.0 here
-	colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);// Prefer using Alpha=1.0 here
-	colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
-	colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
-	colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-	colors[ImGuiCol_NavHighlight]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-	colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-	colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-}
-
 int main(int, char**)
 {
 	int    result = 0;
@@ -2899,7 +2974,6 @@ int main(int, char**)
 		// Setup Dear ImGui style
 		//ImGui::StyleColorsDark();
 		//ImGui::StyleColorsLight();
-		WsCtlStyleColors(0);
 		// Setup Platform/Renderer backends
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX11_Init(ImgRtb.g_pd3dDevice, ImgRtb.g_pd3dDeviceContext);
@@ -2924,6 +2998,7 @@ int main(int, char**)
 		//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		WsCtl_ImGuiSceneBlock scene_blk;
 		scene_blk.Init();
+		scene_blk.WsCtlStyleColors(true, 0);
 		scene_blk.SetScreen(WsCtl_ImGuiSceneBlock::screenConstruction);
 		{
 			///Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf

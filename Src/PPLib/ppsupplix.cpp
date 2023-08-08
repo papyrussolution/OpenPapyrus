@@ -10897,24 +10897,21 @@ private:
 						}
 						// @v11.7.0 {
 						{
-							PPID   agent_id = pBp->Ext.AgentID;
+							PPID   agent_psn_id = 0;
+							PersonTbl::Rec agent_psn_rec;
 							// @v11.7.4 {
 							if(LocAgentTagID && dlvr_loc_id) {
 								ObjTagItem tag_item;
 								if(p_ref->Ot.GetTag(PPOBJ_LOCATION, dlvr_loc_id, LocAgentTagID, &tag_item) > 0) {
 									long   inner_agent_id = 0;
-									PersonTbl::Rec inner_agent_psn_rec;
-									if(tag_item.GetInt(&inner_agent_id) && PsnObj.Fetch(inner_agent_id, &inner_agent_psn_rec) > 0)
-										agent_id = inner_agent_id;
+									if(tag_item.GetInt(&inner_agent_id) && PsnObj.Fetch(inner_agent_id, &agent_psn_rec) > 0)
+										agent_psn_id = inner_agent_id;
 								}
 							}
+							SETIFZQ(agent_psn_id, ObjectToPerson(pBp->Ext.AgentID, 0));
 							// } @v11.7.4 
-							if(agent_id) {
-								PPID agent_psn_id = ObjectToPerson(agent_id, 0);
-								PersonTbl::Rec agent_psn_rec;
-								if(agent_psn_id && PsnObj.Fetch(agent_psn_id, &agent_psn_rec) > 0)
-									p_new_pack->AgentID = agent_psn_id;
-							}
+							if(agent_psn_id && PsnObj.Fetch(agent_psn_id, &agent_psn_rec) > 0)
+								p_new_pack->AgentID = agent_psn_id;
 						}
 						// } @v11.7.0 
 						/*{

@@ -62,19 +62,16 @@ int FASTCALL GetArticleSheetID(PPID arID, PPID * pAccSheetID, PPID * pLnkObjID)
 
 PPID FASTCALL ObjectToPerson(PPID objID, PPID * pAccSheetID)
 {
-	if(objID) { // @v10.0.02
-		PPID   acc_sheet_id = 0, lnk_obj_id = 0;
-		if(GetArticleSheetID(objID, &acc_sheet_id, &lnk_obj_id) > 0) {
-			PPObjAccSheet acc_sheet_obj;
-			PPAccSheet acs_rec;
-			if(acc_sheet_obj.Fetch(acc_sheet_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
-				ASSIGN_PTR(pAccSheetID, acc_sheet_id);
-				return lnk_obj_id;
-			}
-		}
+	PPID   result_id = 0;
+	PPID   acc_sheet_id = 0;
+	PPID   lnk_obj_id = 0;
+	if(objID && GetArticleSheetID(objID, &acc_sheet_id, &lnk_obj_id) > 0) {
+		PPObjAccSheet acc_sheet_obj;
+		PPAccSheet acs_rec;
+		result_id = (acc_sheet_obj.Fetch(acc_sheet_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) ? lnk_obj_id : 0;
 	}
-	ASSIGN_PTR(pAccSheetID, 0);
-	return 0;
+	ASSIGN_PTR(pAccSheetID, acc_sheet_id);
+	return result_id;
 }
 
 int FASTCALL GetArticleName(PPID arID, SString & rBuf)
