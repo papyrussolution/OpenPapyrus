@@ -15,7 +15,7 @@
 #include "lcms2_internal.h"
 #pragma hdrstop
 
-#define DSWAP(x, y)     {double tmp = (x); (x) = (y); (y) = tmp;}
+// @sobolev (unused) #define DSWAP(x, y)     {double tmp = (x); (x) = (y); (y) = tmp;}
 
 // Initiate a vector
 void CMSEXPORT _cmsVEC3init(cmsVEC3* r, double x, double y, double z)
@@ -56,9 +56,9 @@ double CMSEXPORT _cmsVEC3length(const cmsVEC3* a)
 // Euclidean distance
 double CMSEXPORT _cmsVEC3distance(const cmsVEC3* a, const cmsVEC3* b)
 {
-	double d1 = a->n[VX] - b->n[VX];
-	double d2 = a->n[VY] - b->n[VY];
-	double d3 = a->n[VZ] - b->n[VZ];
+	const double d1 = a->n[VX] - b->n[VX];
+	const double d2 = a->n[VY] - b->n[VY];
+	const double d3 = a->n[VZ] - b->n[VZ];
 	return sqrt(d1*d1 + d2*d2 + d3*d3);
 }
 
@@ -81,7 +81,8 @@ boolint CMSEXPORT _cmsMAT3isIdentity(const cmsMAT3* a)
 	_cmsMAT3identity(&Identity);
 	for(int i = 0; i < 3; i++)
 		for(int j = 0; j < 3; j++)
-			if(!CloseEnough(a->v[i].n[j], Identity.v[i].n[j])) return FALSE;
+			if(!CloseEnough(a->v[i].n[j], Identity.v[i].n[j])) 
+				return FALSE;
 	return TRUE;
 }
 
@@ -117,7 +118,7 @@ boolint CMSEXPORT _cmsMAT3inverse(const cmsMAT3* a, cmsMAT3* b)
 }
 
 // Solve a system in the form Ax = b
-boolint CMSEXPORT _cmsMAT3solve(cmsVEC3* x, cmsMAT3* a, cmsVEC3* b)
+boolint CMSEXPORT _cmsMAT3solve(cmsVEC3* x, const cmsMAT3 * a, const cmsVEC3 * b)
 {
 	cmsMAT3 m, a_1;
 	memmove(&m, a, sizeof(cmsMAT3));

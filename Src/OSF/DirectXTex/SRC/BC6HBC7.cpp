@@ -443,7 +443,6 @@ public:
 		b -= c.b;
 		return *this;
 	}
-
 	INTColor& operator &=(_In_ const INTColor& c) noexcept
 	{
 		r &= c.r;
@@ -451,26 +450,21 @@ public:
 		b &= c.b;
 		return *this;
 	}
-
 	int& operator [](_In_ uint8_t i) noexcept
 	{
 		assert(i < sizeof(INTColor) / sizeof(int));
 		_Analysis_assume_(i < sizeof(INTColor) / sizeof(int));
 		return reinterpret_cast<int*>(this)[i];
 	}
-
 	void Set(_In_ const HDRColorA& c, _In_ bool bSigned) noexcept
 	{
 		PackedVector::XMHALF4 aF16;
-
 		const XMVECTOR v = XMLoadFloat4(reinterpret_cast<const XMFLOAT4*>(&c));
 		XMStoreHalf4(&aF16, v);
-
 		r = F16ToINT(aF16.x, bSigned);
 		g = F16ToINT(aF16.y, bSigned);
 		b = F16ToINT(aF16.z, bSigned);
 	}
-
 	INTColor& Clamp(_In_ int iMin, _In_ int iMax) noexcept
 	{
 		r = std::min<int>(iMax, std::max<int>(iMin, r));
@@ -478,7 +472,6 @@ public:
 		b = std::min<int>(iMax, std::max<int>(iMin, b));
 		return *this;
 	}
-
 	INTColor& SignExtend(_In_ const LDRColorA& Prec) noexcept
 	{
 		r = SIGN_EXTEND(r, int(Prec.r));
@@ -486,14 +479,12 @@ public:
 		b = SIGN_EXTEND(b, int(Prec.b));
 		return *this;
 	}
-
 	void ToF16(_Out_writes_(3) PackedVector::HALF aF16[3], _In_ bool bSigned) const noexcept
 	{
 		aF16[0] = INT2F16(r, bSigned);
 		aF16[1] = INT2F16(g, bSigned);
 		aF16[2] = INT2F16(b, bSigned);
 	}
-
 private:
 	static int F16ToINT(_In_ const PackedVector::HALF& f, _In_ bool bSigned) noexcept
 	{
@@ -502,13 +493,17 @@ private:
 		if(bSigned) {
 			s = input & F16S_MASK;
 			input &= F16EM_MASK;
-			if(input > F16MAX)  out = F16MAX;
-			else out = input;
+			if(input > F16MAX)
+				out = F16MAX;
+			else
+				out = input;
 			out = s ? -out : out;
 		}
 		else {
-			if(input & F16S_MASK)  out = 0;
-			else out = input;
+			if(input & F16S_MASK)
+				out = 0;
+			else
+				out = input;
 		}
 		return out;
 	}

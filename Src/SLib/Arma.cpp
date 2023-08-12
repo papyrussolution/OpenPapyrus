@@ -1,5 +1,5 @@
 // ARMA.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2010, 2011, 2016, 2017, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2010, 2011, 2016, 2017, 2020, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -28,7 +28,7 @@ void ARMA::GetPQ(int * pP, int * pQ) const
 //
 void ARMA::Init(int p, int q, const double * pInitTSeries)
 {
-	LMIDX i;
+	uint   i;
 	P = p;
 	Q = q;
 	IterCount = 0;
@@ -86,9 +86,8 @@ double ARMA::Predict() const
 int ARMA::Step(double val)
 {
 	IterCount++;
-
 	int    ok = 1;
-	LMIDX i;
+	uint   i;
 	LVect gain_factor, vec_temp;
 	double ape = ComputePredictError(val);
 	gain_factor.init(P+Q+1);

@@ -12952,7 +12952,7 @@ struct SMathResult {
 	double E; // Error
 };
 
-typedef long LMIDX;
+// @v11.7.12 typedef uint LMIDX_Removed; // @v11.7.12 long-->uint
 typedef TSVector <unsigned long> UlongArray;
 // @v10.9.1 {
 #if !defined(INFINITY)
@@ -13171,17 +13171,17 @@ public:
 		fNotOwner = 0x0001
 	};
 	LVect();
-	explicit LVect(LMIDX dim);
+	explicit LVect(uint dim);
 	~LVect();
-	int    init(LMIDX dim, const double * pVals = 0);
+	int    init(uint dim, const double * pVals = 0);
 	int    FASTCALL copy(const LVect &);
 	//const  char * getname() const { return P_Name; }
 	//void   FASTCALL setname(const char * pName);
-	LMIDX  size() const { return Dim; }
-	double FASTCALL get(LMIDX) const;
-	int    set(LMIDX, double);
+	uint   size() const { return Dim; }
+	double FASTCALL get(uint) const;
+	int    set(uint, double);
 	void   FillWithSequence(double startVal, double incr);
-	int    zero(LMIDX = -1);
+	int    zero(uint = -1);
 	void   mult(double val);           // this *= val
 	void   div(double val);            // this /= val
 	int    add(const LVect & s);       // this += s
@@ -13193,7 +13193,7 @@ public:
 	friend LMatrix * FASTCALL operator * (const LVect &, const LVect &);
 private:
 	//char * P_Name;
-	LMIDX  Dim;
+	uint   Dim;
 	double * P_Vals;
 };
 
@@ -13201,21 +13201,21 @@ class LMatrix {
 public:
 	LMatrix();
 	~LMatrix();
-	int    init(LMIDX numRows, LMIDX numCols);
+	int    init(uint numRows, uint numCols);
 	int    FASTCALL copy(const LMatrix &);
 	const  char * getname() const { return P_Name; }
 	void   FASTCALL setname(const char * pName);
-	int    checktarget(LMIDX row, LMIDX col) const;
-	LMIDX  rows() const { return NumRows; }
-	LMIDX  cols() const { return NumCols; }
-	double get(LMIDX row, LMIDX col) const;
-	LVect * getrow(LMIDX row) const;
-	LVect * getcol(LMIDX col) const;
-	int    set(LMIDX row, LMIDX col, double);
-	int    setrow(LMIDX row, const LVect &);
-	int    setcol(LMIDX col, const LVect &);
-	void   zero(LMIDX row, LMIDX col);
-	void   swaprows(LMIDX r1, LMIDX r2);
+	int    checktarget(uint row, uint col) const;
+	uint   rows() const { return NumRows; }
+	uint   cols() const { return NumCols; }
+	double get(uint row, uint col) const;
+	LVect * getrow(uint row) const;
+	LVect * getcol(uint col) const;
+	int    set(uint row, uint col, double);
+	int    setrow(uint row, const LVect &);
+	int    setcol(uint col, const LVect &);
+	void   zero(uint row, uint col);
+	void   swaprows(uint r1, uint r2);
 	int    transpose(const LMatrix &);
 	double Jacobian() const;
 	int    FASTCALL operator += (const LMatrix &);
@@ -13225,19 +13225,19 @@ public:
 	friend LVect   * FASTCALL operator * (const LVect &, const LMatrix &);
 	friend LMatrix * FASTCALL operator * (const LVect &, const LVect &);
 private:
-	double * sget(LMIDX, LMIDX) const;
+	double * sget(uint, uint) const;
 	int    add(const LMatrix &, int minus);
 	size_t dim() const { return static_cast<size_t>(NumRows * NumCols); }
 
 	char * P_Name;
-	LMIDX  NumRows;
-	LMIDX  NumCols;
+	uint   NumRows;
+	uint   NumCols;
 	uint   Flags;
 	double * P_Vals; // Column(0), Column(1), .., Column(NumCols-1)
 };
 
-void   lubksb(LMatrix & a, const LMIDX indx[/*b.size()*/], LVect & b);
-int    ludcmp(LMatrix & a, LMIDX indx[/*a.rows()*/], int & d);
+void   lubksb(LMatrix & a, const uint indx[/*b.size()*/], LVect & b);
+int    ludcmp(LMatrix & a, uint indx[/*a.rows()*/], int & d);
 void   print(const LVect &, FILE *, long fmt);
 void   print(const LMatrix &, FILE *, long fmt);
 int    read(LVect *, FILE *);

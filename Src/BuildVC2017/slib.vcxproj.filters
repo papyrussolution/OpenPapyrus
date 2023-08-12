@@ -670,6 +670,7 @@
     <ClCompile Include="..\SLib\libxml\xzlib.c">
       <Filter>libxml</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\winprofile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

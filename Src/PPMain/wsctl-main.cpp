@@ -1867,6 +1867,7 @@ int WsCtl_ImGuiSceneBlock::ApplyClientPolicy()
 	DClientPolicy policy;
 	St.D_Policy.GetData(policy);
 	if(policy.Dirty) {
+		/* @construction
 		if(policy.P.SysUser.NotEmpty()) {
 			HANDLE h = SSystem::GetLocalSystemProcessToken();
 			SSystem::WinUserBlock wub;
@@ -1885,7 +1886,7 @@ int WsCtl_ImGuiSceneBlock::ApplyClientPolicy()
 			win_user_name_len = SIZEOFARRAY(win_user_name_after);
 			GetUserName(win_user_name_after, &win_user_name_len);
 			//
-		}
+		}*/
 		policy.Dirty = false;
 		St.D_Policy.SetData(policy);
 		ok = 1;

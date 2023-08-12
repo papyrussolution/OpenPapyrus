@@ -311,12 +311,15 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 			MpLo.yspacing.SetX(screen, 0.05);
 		}
 		// Sanity check that screen tmargin is > screen bmargin 
-		if(MpLo.bmargin.scalex == screen && MpLo.tmargin.scalex == screen)
+		if(MpLo.bmargin.scalex == screen && MpLo.tmargin.scalex == screen) {
+			SExchangeForOrder(&MpLo.bmargin.x, &MpLo.tmargin.x); // @v11.7.11
+			/* @v11.7.11
 			if(MpLo.bmargin.x > MpLo.tmargin.x) {
 				double tmp = MpLo.bmargin.x;
 				MpLo.bmargin.x = MpLo.tmargin.x;
 				MpLo.tmargin.x = tmp;
-			}
+			}*/
+		}
 	}
 	// If we reach here, then the command has been successfully parsed.
 	// Aug 2013: call term_start_plot() before setting multiplot so that

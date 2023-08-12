@@ -33,8 +33,8 @@ void LssLin::Solve(const LVect & x, const LVect & y)
 		double m_y = 0.0;
 		double m_dx2 = 0.0;
 		double m_dxdy = 0.0;
-		LMIDX  i;
-		const  LMIDX n = x.size();
+		uint   i;
+		const  uint n = x.size();
 		for(i = 0; i < n; i++) {
 			const double i_p1 = static_cast<double>(i + 1);
 			m_x += (x.get(i) - m_x) / i_p1;
@@ -269,8 +269,8 @@ int LssTest(const char * pFileName)
 		printf("Error: Unable open file %s\n", pFileName);
 		return 0;
 	}
-	LMIDX count = 0;
-	char input_buf[256];
+	uint   count = 0;
+	char   input_buf[256];
 	while(fgets(input_buf, sizeof(input_buf), f_in))
 		if(*strip(input_buf))
 			count++;

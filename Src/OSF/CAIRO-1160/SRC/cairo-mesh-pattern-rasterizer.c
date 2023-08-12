@@ -336,21 +336,16 @@ static inline double bezier_steps_sq(const cairo_point_double_t p[4])
  * The output control nodes have to be distinct.
  */
 static inline void split_bezier_1D(double x,  double y,  double z,  double w,
-    double * x0, double * y0, double * z0, double * w0,
-    double * x1, double * y1, double * z1, double * w1)
+    double * x0, double * y0, double * z0, double * w0, double * x1, double * y1, double * z1, double * w1)
 {
 	double tmp;
-
 	*x0 = x;
 	*w1 = w;
-
 	tmp = 0.5 * (y + z);
 	*y0 = 0.5 * (x + y);
 	*z1 = 0.5 * (z + w);
-
 	*z0 = 0.5 * (*y0 + tmp);
 	*y1 = 0.5 * (tmp + *z1);
-
 	*w0 = *x1 = 0.5 * (*z0 + *y1);
 }
 /*

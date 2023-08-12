@@ -93,7 +93,7 @@ int PredictSalesStat::Finish()
 		if(P_List && P_List->getCount() > 1) {
 			P_List->sort(PTR_CMPFUNC(int16));
 			uint   i;
-			LMIDX  dim = static_cast<LMIDX>(P_List->getCount());
+			uint   dim = P_List->getCount();
 			LVect  x_vect;
 			LVect  y_vect;
 			x_vect.init(dim);

@@ -73,7 +73,7 @@ CMSAPI void CMSEXPORT _cmsMAT3identity(cmsMAT3* a);
 CMSAPI boolint CMSEXPORT _cmsMAT3isIdentity(const cmsMAT3* a);
 CMSAPI void CMSEXPORT _cmsMAT3per(cmsMAT3* r, const cmsMAT3* a, const cmsMAT3* b);
 CMSAPI boolint CMSEXPORT _cmsMAT3inverse(const cmsMAT3* a, cmsMAT3* b);
-CMSAPI boolint CMSEXPORT _cmsMAT3solve(cmsVEC3* x, cmsMAT3* a, cmsVEC3* b);
+CMSAPI boolint CMSEXPORT _cmsMAT3solve(cmsVEC3* x, const cmsMAT3 * a, const cmsVEC3 * b);
 CMSAPI void CMSEXPORT _cmsMAT3eval(cmsVEC3* r, const cmsMAT3* a, const cmsVEC3* v);
 
 // MD5 low level  -------------------------------------------------------------------------------------

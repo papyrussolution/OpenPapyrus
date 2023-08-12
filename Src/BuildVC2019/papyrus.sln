@@ -30,7 +30,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzip", "libzip.vcxproj", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{103CF90D-914A-4BDB-9D73-1284A87E1E41}"
 	ProjectSection(SolutionItems) = preProject
-		optimization.txt = optimization.txt
 		..\Doc\ppdialogs.txt = ..\Doc\ppdialogs.txt
 		..\Doc\VERSION.TXT = ..\Doc\VERSION.TXT
 		..\Doc\visual-studio-debugwatch-cheatsheet.txt = ..\Doc\visual-studio-debugwatch-cheatsheet.txt

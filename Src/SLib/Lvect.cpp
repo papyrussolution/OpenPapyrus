@@ -1,5 +1,5 @@
 // LVECT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -17,7 +17,7 @@ LMatrix::~LMatrix()
 	delete P_Name;
 }
 
-int LMatrix::init(LMIDX numRows, LMIDX numCols)
+int LMatrix::init(uint numRows, uint numCols)
 {
 	NumRows = numRows;
 	NumCols = numCols;
@@ -47,35 +47,35 @@ void FASTCALL LMatrix::setname(const char * pName)
 	P_Name = newStr(pName);
 }
 
-int LMatrix::checktarget(LMIDX row, LMIDX col) const
+int LMatrix::checktarget(uint row, uint col) const
 {
-	assert(row >= 0 && row < NumRows);
-	assert(col >= 0 && col < NumCols);
-	return (checkirange(row, 0L, NumRows-1) && checkirange(col, 0L, NumCols-1)) ? 1 : 0;
+	assert(row < NumRows);
+	assert(col < NumCols);
+	return (checkirange(row, 0U, NumRows-1) && checkirange(col, 0U, NumCols-1)) ? 1 : 0;
 }
 
-double * LMatrix::sget(LMIDX row, LMIDX col) const
+double * LMatrix::sget(uint row, uint col) const
 {
 	return &P_Vals[(size_t)(col * NumRows + row)];
 }
 
-double LMatrix::get(LMIDX row, LMIDX col) const
+double LMatrix::get(uint row, uint col) const
 {
 	return P_Vals && checktarget(row, col) ? *sget(row, col) : 0L;
 }
 
-LVect * LMatrix::getrow(LMIDX r) const
+LVect * LMatrix::getrow(uint r) const
 {
 	LVect * p_x = 0;
 	if(checktarget(r, 0) && (p_x = new LVect) != 0 && p_x->init(NumCols))
-		for(LMIDX i = 0; i < NumCols; i++)
+		for(uint i = 0; i < NumCols; i++)
 			p_x->set(i, *sget(r, i));
 	else
 		ZDELETE(p_x);
 	return p_x;
 }
 
-LVect * LMatrix::getcol(LMIDX c) const
+LVect * LMatrix::getcol(uint c) const
 {
 	LVect * p_x = 0;
 	if(!checktarget(0, c) || !(p_x = new LVect) || !p_x->init(NumRows, P_Vals+(size_t)(c*NumRows)))
@@ -83,7 +83,7 @@ LVect * LMatrix::getcol(LMIDX c) const
 	return p_x;
 }
 
-int LMatrix::set(LMIDX row, LMIDX col, double val)
+int LMatrix::set(uint row, uint col, double val)
 {
 	if(checktarget(row, col)) {
 		*sget(row, col) = val;
@@ -93,11 +93,11 @@ int LMatrix::set(LMIDX row, LMIDX col, double val)
 		return 0;
 }
 
-int LMatrix::setrow(LMIDX row, const LVect & rVect)
+int LMatrix::setrow(uint row, const LVect & rVect)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
-	LMIDX  i;
+	uint  i;
 	THROW(checktarget(row, 0));
 	THROW_V(rVect.size() <= NumCols, SLERR_MTX_INCOMPATDIM_VIMX);
 	for(i = 0; i < rVect.size(); i++)
@@ -106,7 +106,7 @@ int LMatrix::setrow(LMIDX row, const LVect & rVect)
 	return ok;
 }
 
-int LMatrix::setcol(LMIDX col, const LVect & rVect)
+int LMatrix::setcol(uint col, const LVect & rVect)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
@@ -117,29 +117,29 @@ int LMatrix::setcol(LMIDX col, const LVect & rVect)
 	return ok;
 }
 
-void LMatrix::zero(LMIDX row, LMIDX col)
+void LMatrix::zero(uint row, uint col)
 {
 	if(P_Vals)
 		if(row < 0)
 			if(col < 0)
 				memzero(P_Vals, dim() * sizeof(double));
 			else {
-				for(LMIDX i = 0; i < NumRows; i++)
+				for(uint i = 0; i < NumRows; i++)
 					set(i, col, 0L);
 			}
 		else
 			if(col < 0) {
-				for(LMIDX i = 0; i < NumCols; i++)
+				for(uint i = 0; i < NumCols; i++)
 					set(row, i, 0L);
 			}
 			else
 				set(row, col, 0L);
 }
 
-void LMatrix::swaprows(LMIDX r1, LMIDX r2)
+void LMatrix::swaprows(uint r1, uint r2)
 {
 	if(r1 != r2)
-		for(LMIDX i = 0; i < NumCols; i++) {
+		for(uint i = 0; i < NumCols; i++) {
 			double temp = get(r1, i);
 			set(r1, i, get(r2, i));
 			set(r2, i, temp);
@@ -151,8 +151,8 @@ int LMatrix::add(const LMatrix & s, int minus)
 	if(cols() != s.cols() || rows() != s.rows())
 		return (SLibError = SLERR_MTX_INCOMPATDIM_MMADD, 0);
 	else {
-		for(LMIDX j = 0; j < NumCols; j++)
-			for(LMIDX i = 0; i < NumRows; i++) {
+		for(uint j = 0; j < NumCols; j++)
+			for(uint i = 0; i < NumRows; i++) {
 				double a = minus ? -s.get(i, j) : s.get(i, j);
 				set(i, j, get(i, j) + a);
 			}
@@ -176,7 +176,7 @@ LVect::LVect() : Dim(0), P_Vals(0)/*, P_Name(0)*/
 {
 }
 
-LVect::LVect(LMIDX dim) : Dim(0), P_Vals(0)
+LVect::LVect(uint dim) : Dim(0), P_Vals(0)
 {
 	init(dim, 0);
 }
@@ -186,7 +186,7 @@ LVect::~LVect()
 	delete [] P_Vals;
 }
 
-int LVect::init(LMIDX dim, const double * pVals)
+int LVect::init(uint dim, const double * pVals)
 {
 	ZDELETE(P_Vals);
 	Dim = dim;
@@ -211,12 +211,12 @@ int FASTCALL LVect::copy(const LVect & s)
 	P_Name = newStr(pName);
 }*/
 
-double FASTCALL LVect::get(LMIDX p) const
+double FASTCALL LVect::get(uint p) const
 {
 	return checkupper((uint)p, (uint)Dim) ? P_Vals[p] : 0;
 }
 
-int LVect::set(LMIDX p, double v)
+int LVect::set(uint p, double v)
 {
 	return checkupper((uint)p, (uint)Dim) ? ((P_Vals[p] = v), 1) : 0;
 }
@@ -224,13 +224,13 @@ int LVect::set(LMIDX p, double v)
 void LVect::FillWithSequence(double startVal, double incr)
 {
 	double value = startVal;
-	for(LMIDX i = 0; i < Dim; i++) {
+	for(uint i = 0; i < Dim; i++) {
         set(i, value);
         value += incr;
 	}
 }
 
-int LVect::zero(LMIDX p)
+int LVect::zero(uint p)
 {
 	if(p < 0) {
 		memzero(P_Vals, Dim * sizeof(double));
@@ -243,14 +243,14 @@ int LVect::zero(LMIDX p)
 void LVect::mult(double v)
 {
 	if(P_Vals)
-		for(LMIDX i = 0; i < Dim; i++)
+		for(uint i = 0; i < Dim; i++)
 			P_Vals[i] *= v;
 }
 
 void LVect::div(double v)
 {
 	if(P_Vals)
-		for(LMIDX i = 0; i < Dim; i++)
+		for(uint i = 0; i < Dim; i++)
 			P_Vals[i] /= v;
 }
 
@@ -260,7 +260,7 @@ int LVect::add(const LVect & v)
 		return (SLibError = SLERR_MTX_INCOMPATDIM_VADD, 0);
 	else {
 		if(P_Vals && v.P_Vals)
-			for(LMIDX i = 0; i < Dim; i++)
+			for(uint i = 0; i < Dim; i++)
 				P_Vals[i] += v.P_Vals[i];
 		return 1;
 	}
@@ -270,8 +270,8 @@ double LVect::dot(const LVect & s) const // return this * s (scalar)
 {
 	double r = 0;
 	if(P_Vals && s.P_Vals) {
-		LMIDX d = MIN(Dim, s.Dim);
-		for(LMIDX i = 0; i < d; i++)
+		uint d = MIN(Dim, s.Dim);
+		for(uint i = 0; i < d; i++)
 			r += P_Vals[i] * s.P_Vals[i];
 	}
 	return r;
@@ -280,8 +280,8 @@ double LVect::dot(const LVect & s) const // return this * s (scalar)
 void LVect::saxpy(double a, const LVect & y) // this = this * a + y
 {
 	if(P_Vals && y.P_Vals) {
-		LMIDX d = MIN(Dim, y.Dim);
-		for(LMIDX i = 0; i < d; i++)
+		uint d = MIN(Dim, y.Dim);
+		for(uint i = 0; i < d; i++)
 			P_Vals[i] = P_Vals[i] * a + y.P_Vals[i];
 	}
 }
@@ -291,13 +291,13 @@ void LVect::saxpy(double a, const LVect & y) // this = this * a + y
 LVect * FASTCALL operator * (const LMatrix & m, const LVect & v)
 {
 	EXCEPTVAR(SLibError);
-	LMIDX i, j;
+	uint i, j;
 	LVect * p_result = 0;
 	THROW_V(m.cols() == v.size(), SLERR_MTX_INCOMPATDIM_MVMUL);
 	THROW_V(p_result = new LVect, SLERR_NOMEM);
 	THROW(p_result->init(m.NumRows));
 	for(j = 0; j < m.cols(); j++) {
-		LMIDX col_idx = j * m.rows();
+		uint col_idx = j * m.rows();
 		double jv = v.P_Vals[j];
 		for(i = 0; i < m.rows(); i++)
 			p_result->P_Vals[i] += jv * m.P_Vals[col_idx + i];
@@ -321,13 +321,13 @@ LMatrix * FASTCALL operator * (const LMatrix & x, const LMatrix & y)
 {
 	EXCEPTVAR(SLibError);
 	LMatrix * p_z = 0;
-	LMIDX i, j, k;
+	uint i, j, k;
 	THROW_V(x.cols() == y.rows(), SLERR_MTX_INCOMPATDIM_MMMUL);
 	THROW_V(p_z = new LMatrix, SLERR_NOMEM);
 	THROW(p_z->init(x.rows(), y.cols()));
 	for(j = 0; j < y.cols(); j++) {
 		for(k = 0; k < x.cols(); k++) {
-			LMIDX col_idx = j * p_z->rows();
+			uint col_idx = j * p_z->rows();
 		   	for(i = 0; i < x.rows(); i++)
 				p_z->P_Vals[col_idx + i] += x.get(i, k) * y.get(k, j);
 		}
@@ -344,7 +344,7 @@ LVect * FASTCALL operator * (const LVect & x, const LMatrix & y)
 {
 	EXCEPTVAR(SLibError);
 	LVect * p_z = 0;
-	LMIDX j, k;
+	uint j, k;
 	THROW_V(x.size() == y.rows(), SLERR_MTX_INCOMPATDIM_MMMUL);
 	THROW_V(p_z = new LVect, SLERR_NOMEM);
 	THROW(p_z->init(y.cols()));
@@ -363,11 +363,11 @@ LMatrix * FASTCALL operator * (const LVect & x, const LVect & y)
 {
 	EXCEPTVAR(SLibError);
 	LMatrix * p_z = 0;
-	LMIDX i, j;
+	uint i, j;
 	THROW_V(p_z = new LMatrix, SLERR_NOMEM);
 	THROW(p_z->init(x.size(), y.size()));
 	for(j = 0; j < y.size(); j++) {
-		//LMIDX col_idx = j * p_z->rows();
+		//uint col_idx = j * p_z->rows();
 	   	for(i = 0; i < x.size(); i++) {
 			// @v3.11.11 p_z->P_Vals[col_idx + i] += x.get(i) * y.get(j);
 			p_z->set(i, j, p_z->get(i, j) + x.get(i) * y.get(j));
@@ -385,7 +385,7 @@ void print(const LVect & vect, FILE * pF, long fmt)
 	/*if(vect.getname())
 		fprintf(pF, vect.getname());*/
 	fprintf(pF, ",1,%ld]\n", vect.size());
-	for(LMIDX i = 0; i < vect.size(); i++) {
+	for(uint i = 0; i < vect.size(); i++) {
 		char buf[64];
 		fprintf(pF, realfmt(vect.get(i), fmt, buf));
 		if(i < (vect.size()-1))
@@ -399,8 +399,8 @@ void print(const LMatrix & matrix, FILE * pF, long fmt)
 	if(matrix.getname())
 		fprintf(pF, matrix.getname());
 	fprintf(pF, ",%ld,%ld]\n", matrix.rows(), matrix.cols());
-	for(LMIDX i = 0; i < matrix.rows(); i++) {
-		for(LMIDX j = 0; j < matrix.cols(); j++) {
+	for(uint i = 0; i < matrix.rows(); i++) {
+		for(uint j = 0; j < matrix.cols(); j++) {
 			char buf[64];
 			fprintf(pF, realfmt(matrix.get(i, j), fmt, buf));
 			if(j < (matrix.cols()-1))
@@ -410,12 +410,12 @@ void print(const LMatrix & matrix, FILE * pF, long fmt)
 	}
 }
 
-static int read_header(FILE * pF, LMIDX * pRows, LMIDX * pCols, char * pName, size_t bufSize)
+static int read_header(FILE * pF, uint * pRows, uint * pCols, char * pName, size_t bufSize)
 {
 	int    ok = 1, c;
 	char   buf[256], sub[64];
 	uint   p;
-	LMIDX  num_rows = 0, num_cols = 0;
+	uint   num_rows = 0, num_cols = 0;
 	StringSet ss(',', 0);
 	while((c = fgetc(pF)) != 0 && c != '[')
 		;
@@ -445,7 +445,7 @@ static int read_header(FILE * pF, LMIDX * pRows, LMIDX * pCols, char * pName, si
 static int read_row(FILE * pF, LVect * pVect)
 {
 	int  ok = 1, c = 0;
-	for(LMIDX i = 0; i < pVect->size(); i++) {
+	for(uint i = 0; i < pVect->size(); i++) {
 		size_t p = 0;
 		char buf[64];
 		while((c = fgetc(pF)) != ',' && c != '\n' && c != 0) {
@@ -463,7 +463,7 @@ static int read_row(FILE * pF, LVect * pVect)
 int read(LVect * pVect, FILE * pF)
 {
 	int    ok = 1;
-	LMIDX  rows = 0, cols = 0;
+	uint   rows = 0, cols = 0;
 	char name_buf[64];
 	THROW(read_header(pF, &rows, &cols, name_buf, sizeof(name_buf)));
 	THROW(rows == 1);
@@ -477,7 +477,7 @@ int read(LVect * pVect, FILE * pF)
 int read(LMatrix * pMtx, FILE * pF)
 {
 	int    ok = 1;
-	LMIDX  rows = 0, cols = 0, i;
+	uint   rows = 0, cols = 0, i;
 	char   name_buf[64];
 	THROW(read_header(pF, &rows, &cols, name_buf, sizeof(name_buf)));
 	pMtx->init(rows, cols);
@@ -496,10 +496,10 @@ int minv(LMatrix & a)
 {
 	double s, t, tq = 0., zr = 1.e-15;
 	//double *pa, *pd, *ps, *p, *q;
-	LMIDX pa, pd;
-	LMIDX i, j, k, /*m, l,*/ lc;
-	LMIDX N = a.rows();
-	LMIDX * le = static_cast<LMIDX *>(SAlloc::M(N * sizeof(LMIDX)));
+	uint  pa, pd;
+	uint  i, j, k, /*m, l,*/ lc;
+	uint  N = a.rows();
+	uint * le = static_cast<uint *>(SAlloc::M(N * sizeof(uint)));
 	LVect q0;
 	q0.init(N);
 	/*
@@ -624,15 +624,15 @@ int minv(LMatrix & a)
 //
 int inverse(LMatrix & a)
 {
-	LMIDX i, j;
+	uint  i, j;
 	int   ret = 0;
-	LMIDX n = a.rows();
+	uint  n = a.rows();
 	LMatrix ai;
 	LVect col;
 	int d;
 	ai.init(n, n);
 	col.init(n);
-	LMIDX * p_indx = new LMIDX[n];
+	uint * p_indx = new uint[n];
 	if(ludcmp(a, p_indx, d)) {
 		for(j = 0; j < n; j++) {
 			for(i = 0; i < n; i++)
@@ -655,12 +655,12 @@ int inverse(LMatrix & a)
 // and can be left in place for successive colls with different
 // right-hand sides b.
 //
-void lubksb(LMatrix & a, const LMIDX indx[/*b.size()*/], LVect & b)
+void lubksb(LMatrix & a, const uint indx[/*b.size()*/], LVect & b)
 {
-	LMIDX ii = -1, j;
+	uint ii = -1, j;
 	double sum;
-	LMIDX n = a.rows();
-	LMIDX i;
+	uint n = a.rows();
+	uint i;
 	for(i = 0; i < n; i++) {
 		sum = b.get(indx[i]);
 		b.set(indx[i], b.get(i));
@@ -684,11 +684,11 @@ void lubksb(LMatrix & a, const LMIDX indx[/*b.size()*/], LVect & b)
 // This routine is used in combination with lubksb to solve linear
 // equations or invert a matrix.
 //
-int ludcmp(LMatrix & a, LMIDX indx[/*a.rows()*/], int & d)
+int ludcmp(LMatrix & a, uint indx[/*a.rows()*/], int & d)
 {
-	LMIDX  i, imax, j, k;
+	uint   i, imax, j, k;
 	double big, dum, sum, temp;
-	LMIDX  n = a.rows();
+	uint   n = a.rows();
 	LVect vv;
 	vv.init(n);
 	double zero = 0L;
