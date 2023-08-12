@@ -138,7 +138,7 @@ const void * WinRegValue::GetBinary(size_t * pDataLen) const
 	return P_Buf;
 }
 
-int WinRegValue::GetString(SString & rBuf) const
+int WinRegValue::GetStringUtf8(SString & rBuf) const
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -173,17 +173,22 @@ int WinRegValue::PutBinary(const void * pBuf, size_t dataSize)
 		return 0;
 }
 
-int WinRegValue::PutString(const char * pStr)
+int WinRegValue::PutStringUtf8(const char * pStr)
 {
+	int    ok = 1;
 	Type = REG_SZ;
-	size_t len = pStr ? sstrlen(pStr)+1 : 0;
-	if(Alloc(len)) {
-		memcpy(P_Buf, pStr, len);
+	SString temp_buf(pStr);
+	THROW(temp_buf.IsLegalUtf8()); // @todo @err
+	{
+		SStringU temp_buf_u;
+		temp_buf_u.CopyFromUtf8(temp_buf);
+		const size_t len = (temp_buf_u.Len() + 1) * sizeof(wchar_t);
+		THROW(Alloc(len));
+		memcpy(P_Buf, temp_buf_u.ucptr(), len);
 		DataSize = len;
-		return 1;
 	}
-	else
-		return 0;
+	CATCHZOK
+	return ok;
 }
 //
 //
@@ -376,6 +381,43 @@ int WinRegKey::PutValue(const char * pParam, const WinRegValue * pVal)
 		return 0;
 	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, pVal->GetType(), static_cast<const uint8 *>(pVal->P_Buf), (DWORD)pVal->DataSize);
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
+}
+
+int WinRegKey::PutEnumeratedStrings(const StringSet & rSs, StrAssocArray * pResult)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString param_buf;
+	WinRegValue value;
+	StrAssocArray ex_list;
+	CALLPTRMEMB(pResult, Z());
+	THROW(Key);
+	{
+		for(uint i = 0; EnumValues(&i, &param_buf, &value) > 0;) {
+			if(param_buf.IsDigit()) {
+				const long p = param_buf.ToLong();
+				value.GetStringUtf8(temp_buf);
+				if(temp_buf.NotEmptyS()) {
+					ex_list.Add(p, temp_buf, 1);
+					CALLPTRMEMB(pResult, Add(p, temp_buf, 1));
+				}
+			}
+		}
+	}
+	{
+		long _max_id = 0;
+		ex_list.GetMaxID(&_max_id);
+		for(uint ssp = 0; rSs.get(&ssp, temp_buf);) {
+			if(!ex_list.SearchByText(temp_buf, 1, 0)) {
+				value.PutStringUtf8(temp_buf);
+				param_buf.Z().Cat(++_max_id);
+				THROW(PutValue(param_buf, &value));
+				CALLPTRMEMB(pResult, Add(_max_id, temp_buf, 1));
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int WinRegKey::EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal)

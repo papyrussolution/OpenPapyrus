@@ -1309,7 +1309,7 @@ static int StoreLastBinPath()
 		const size_t prfx_len = sstrlen(PPConst::WrParam_BinPath);
 		if(strnicmp(param, PPConst::WrParam_BinPath, prfx_len) == 0) {
 			last_path_idx = smax(static_cast<long>(satoi(param+prfx_len)), last_path_idx);
-			if(reg_val.GetString(temp_buf) && path.CmpNC(temp_buf) == 0)
+			if(reg_val.GetStringUtf8(temp_buf) && path.CmpNC(temp_buf) == 0)
 				return -1;
 		}
 	}

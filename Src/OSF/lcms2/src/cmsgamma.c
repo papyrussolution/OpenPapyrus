@@ -188,9 +188,11 @@ static cmsToneCurve * AllocateToneCurveStruct(cmsContext ContextID, uint32 nEntr
 	}
 	else {
 		p->Segments = (cmsCurveSegment*)_cmsCalloc(ContextID, nSegments, sizeof(cmsCurveSegment));
-		if(p->Segments == NULL) goto Error;
+		if(p->Segments == NULL) 
+			goto Error;
 		p->Evals    = (cmsParametricCurveEvaluator*)_cmsCalloc(ContextID, nSegments, sizeof(cmsParametricCurveEvaluator));
-		if(p->Evals == NULL) goto Error;
+		if(p->Evals == NULL) 
+			goto Error;
 	}
 	p->nSegments = nSegments;
 	// This 16-bit table contains a limited precision representation of the whole curve and is kept for
@@ -200,7 +202,8 @@ static cmsToneCurve * AllocateToneCurveStruct(cmsContext ContextID, uint32 nEntr
 	}
 	else {
 		p->Table16 = (uint16*)_cmsCalloc(ContextID, nEntries, sizeof(uint16));
-		if(p->Table16 == NULL) goto Error;
+		if(p->Table16 == NULL) 
+			goto Error;
 	}
 	p->nEntries  = nEntries;
 	// Initialize members if requested

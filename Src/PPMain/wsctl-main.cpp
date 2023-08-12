@@ -4,6 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <wsctl.h>
 #include "imgui.h"
 #include "backends\imgui_impl_dx9.h"
 #include "backends\imgui_impl_dx11.h"
@@ -56,7 +57,6 @@
 	ColorNavWindowingDimBg
 	ColorModalWindowDimBg
 */
-
 static FORCEINLINE float ColorComponentBlendOverlay(float sa, float s, float da, float d)
 {
 	return ((2 * d) < da) ? (2 * s * d) : (sa * da - 2 * (da - d) * (sa - s));
@@ -326,179 +326,6 @@ private:
 	SMtLock Lck;
 };
 //
-// Descr: Блок само-идентификации. 
-//
-class WsCtl_SelfIdentityBlock {
-public:
-	WsCtl_SelfIdentityBlock() : PrcID(0)
-	{
-	}
-	int    GetOwnUuid()
-	{
-		int    ok = 1;
-		bool   found = false;
-		S_GUID _uuid;
-		{
-			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_WsCtl, 1);
-			if(reg_key.GetBinary(PPConst::WrParam_WsCtl_MachineUUID, &_uuid, sizeof(_uuid)) > 0) {
-				Uuid = _uuid;
-				found = true;
-			}
-		}
-		if(!found) {
-			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_WsCtl, 0);
-			_uuid.Generate();
-			if(reg_key.PutBinary(PPConst::WrParam_WsCtl_MachineUUID, &_uuid, sizeof(_uuid))) {
-				Uuid = _uuid;
-				ok = 2;
-			}
-			else
-				ok = 0;
-		}
-		if(ok > 0) {
-			SString msg_buf;
-			msg_buf.Z().Cat("WSCTL own-uuid").CatDiv(':', 2).Cat(Uuid, S_GUID::fmtIDL);
-			PPLogMessage("wsctl-debug.log", msg_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_SLSSESSGUID);
-		}
-		return ok;
-	}
-	S_GUID   Uuid;
-	PPID   PrcID; // Идентификатор процессора на сервере. Инициируется ответом от сервера.
-	SString PrcName; // Наименование процессора на сервере. Инициируется ответом от сервера.
-};
-//
-// 
-// 
-class WsCtl_Config {
-public:
-	WsCtl_Config() : Port(0), Timeout(0)
-	{
-	}
-	WsCtl_Config & Z()
-	{
-		Server.Z();
-		Port = 0;
-		Timeout = 0;
-		DbSymb.Z();
-		User.Z();
-		Password.Z();
-		return *this;
-	}
-	//
-	// Descr: Считывает конфигурацию из win-реестра
-	//
-	int    Read()
-	{
-		int    ok = 1;
-		SJson * p_js = 0;
-		SSecretTagPool pool;
-		{
-			SBuffer sbuf;
-			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_WsCtl, 1);
-			int    r = reg_key.GetBinary(PPConst::WrParam_WsCtl_Config, sbuf);
-			THROW_SL(r);
-			if(r > 0) {
-				SString temp_buf;
-				SSecretTagPool pool;
-				THROW_SL(pool.Serialize(-1, sbuf, 0));
-				p_js = pool.GetJson(SSecretTagPool::tagRawData);
-				THROW(FromJsonObj(p_js));
-			}
-			else
-				ok = -1;
-		}
-		CATCHZOK
-		delete p_js;
-		return ok;
-	}
-	//
-	// Descr: Записывает конфигурацию в win-реестр
-	//
-	int    Write()
-	{
-		int    ok = 1;
-		SString temp_buf;
-		SSecretTagPool pool;
-		SBuffer sbuf;
-		SJson * p_js = ToJsonObj();
-		THROW(p_js);
-		p_js->ToStr(temp_buf);
-		THROW_SL(pool.Put(SSecretTagPool::tagRawData, temp_buf, temp_buf.Len(), 0));
-		THROW_SL(pool.Serialize(+1, sbuf, 0));
-		{
-			WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_WsCtl, 0);
-			THROW_SL(reg_key.PutBinary(PPConst::WrParam_WsCtl_Config, sbuf.GetBufC(), sbuf.GetAvailableSize()));
-			ok = 1;
-		}
-		CATCHZOK
-		delete p_js;
-		return ok;
-	}
-	SJson * ToJsonObj() const
-	{
-		SJson * p_result = SJson::CreateObj();
-		SString temp_buf;
-		p_result->InsertStringNe("server", (temp_buf = Server).Escape());
-		if(Port > 0) {
-			p_result->InsertInt("port", Port);
-		}
-		if(Timeout > 0) {
-			p_result->InsertInt("timeout", Timeout);
-		}
-		p_result->InsertStringNe("dbsymb", (temp_buf = DbSymb).Escape());
-		p_result->InsertStringNe("user", (temp_buf = User).Escape());
-		p_result->InsertStringNe("password", (temp_buf = Password).Escape());
-		return p_result;
-	}
-	int    FromJsonObj(const SJson * pJsObj)
-	{
-		int    ok = 0;
-		if(SJson::IsObject(pJsObj)) {
-			Z();
-			const SJson * p_c = pJsObj->FindChildByKey("server");
-			if(SJson::IsString(p_c))
-				(Server = p_c->Text).Unescape();
-			p_c = pJsObj->FindChildByKey("port");
-			if(SJson::IsNumber(p_c))
-				Port = p_c->Text.ToLong();
-			p_c = pJsObj->FindChildByKey("timeout");
-			if(SJson::IsNumber(p_c))
-				Timeout = p_c->Text.ToLong();
-			p_c = pJsObj->FindChildByKey("dbsymb");
-			if(SJson::IsString(p_c))
-				(DbSymb = p_c->Text).Unescape();
-			p_c = pJsObj->FindChildByKey("user");
-			if(SJson::IsString(p_c))
-				(User = p_c->Text).Unescape();
-			p_c = pJsObj->FindChildByKey("password");
-			if(SJson::IsString(p_c))
-				(Password = p_c->Text).Unescape();
-			ok = 1;
-		}
-		return ok;
-	}
-	SString Server;
-	int    Port;
-	int    Timeout;
-	//
-	SString DbSymb;
-	SString User;
-	SString Password;
-
-	/*struct JobSrvParam {
-		JobSrvParam() : Port(0), Timeout(0)
-		{
-		}
-		SString Addr;
-		int    Port;
-		int    Timeout;
-		//
-		SString DbSymb;   // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
-		SString User;     // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
-		SString Password; // @debug Это поле необходимо будет инкапуслировать во что-то секретное и решить как инициировать
-	};*/
-};
-//
 // 
 // 
 class ImDialogState {
@@ -675,6 +502,18 @@ public:
 		int    S;
 	};
 	//
+	//
+	//
+	class DClientPolicy : public DServerError {
+	public:
+		DClientPolicy() : DtmActual(ZERODATETIME), Dirty(false)
+		{
+		}
+		LDATETIME DtmActual; // Момент последней актуализации данных
+		WsCtl_ClientPolicy P;
+		bool Dirty; // Специальный флаг, индицирующий обновление данных со стороны потока обмена с сервером.
+	};
+	//
 	// Descr: Информационный блок о состоянии процессора на сервере, с которым ассоциирована данная рабочая станция //
 	//
 	class DPrc : public DServerError {
@@ -781,6 +620,7 @@ public:
 			syncdataJobSrvConnStatus, // int статус соединения с сервером
 			syncdataAuth,             // DAuth
 			syncdataAutonomousTSess,  // DTSess Поддержка актуальности автономных данных о текущей сессии
+			syncdataClientPolicy      // DPolicy Политика ограничений пользовательского сеанса
 		};
 		//
 		// Descr: Элемент состояния, который получен от сервера.
@@ -827,9 +667,11 @@ public:
 		SyncEntry <DTSess>   D_TSess;
 		SyncEntry <DConnectionStatus> D_ConnStatus;
 		SyncEntry <DAuth>    D_Auth;
+		SyncEntry <DClientPolicy> D_Policy;
 
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
-			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError)
+			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError),
+			D_Policy(syncdataClientPolicy)
 		{
 		}
 		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
@@ -985,223 +827,12 @@ private:
 	DServerError LastSvrErr;
 	ImDialog_WsCtlConfig * P_Dlg_Cfg;
 public:
-	WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
-		//ClearColor(0.45f, 0.55f, 0.60f, 1.00f), 
-		ClearColor(SColor(0x1E, 0x22, 0x28)),
-		P_CmdQ(new WsCtlReqQueue),
-		Cache_Layout(512, 0), Cache_Texture(1024, 0), Cache_Font(101, 0),
-		P_Dlg_Cfg(0)
-	{
-		TestInput[0] = 0;
-		LoginText[0] = 0;
-		PwText[0] = 0;
-		{
-			SJson * p_js_lo_list = 0;
-			MakeLayout(&p_js_lo_list);
-			if(p_js_lo_list) {
-				SString temp_buf;
-				PPGetFilePath(PPPATH_OUT, "wsctl_ui.json", temp_buf);
-				SFile f_out(temp_buf, SFile::mWrite);
-				if(f_out.IsValid()) {
-					SJson js_ui(SJson::tOBJECT);
-					js_ui.Insert("layout_list", p_js_lo_list);
-					p_js_lo_list = 0;
-					SString js_fmt_buf;
-					js_ui.ToStr(temp_buf);
-					SJson::FormatText(temp_buf, js_fmt_buf);
-					f_out.Write(js_fmt_buf, js_fmt_buf.Len());
-				}
-				ZDELETE(p_js_lo_list);
-			}
-		}
-	}
-	~WsCtl_ImGuiSceneBlock()
-	{
-		// P_CmdQ не разрушаем поскольку на него ссылается отдельный поток.
-		// Все равно этот объект живет в течении всего жизненного цикла процесса.
-	}
-	void WsCtlStyleColors(bool useUiDescription, ImGuiStyle * pDest)
-	{
-		ImGuiStyle * style = pDest ? pDest : &ImGui::GetStyle();
-		ImVec4 * colors = style->Colors;
-		colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-		colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-		colors[ImGuiCol_WindowBg]               = SColor(0x2B, 0x30, 0x38);//ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
-		colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-		colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
-		colors[ImGuiCol_Border]                 = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
-		colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-		colors[ImGuiCol_FrameBg]                = SColor(SClrBlack, 0.95f); //ImVec4(0.16f, 0.29f, 0.48f, 0.54f);
-		colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-		colors[ImGuiCol_FrameBgActive]          = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-		colors[ImGuiCol_TitleBg]                = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
-		colors[ImGuiCol_TitleBgActive]          = ImVec4(0.16f, 0.29f, 0.48f, 1.00f);
-		colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
-		colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-		colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
-		colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
-		colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-		colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
-		colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-		colors[ImGuiCol_SliderGrab]             = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
-		colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-		colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-		colors[ImGuiCol_ButtonHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-		colors[ImGuiCol_ButtonActive]           = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
-		colors[ImGuiCol_Header]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
-		colors[ImGuiCol_HeaderHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
-		colors[ImGuiCol_HeaderActive]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-		colors[ImGuiCol_Separator]              = colors[ImGuiCol_Border];
-		colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
-		colors[ImGuiCol_SeparatorActive]        = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
-		colors[ImGuiCol_ResizeGrip]             = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
-		colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-		colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-		colors[ImGuiCol_Tab]                    = ImLerp(colors[ImGuiCol_Header], colors[ImGuiCol_TitleBgActive], 0.80f);
-		colors[ImGuiCol_TabHovered]             = colors[ImGuiCol_HeaderHovered];
-		colors[ImGuiCol_TabActive]              = ImLerp(colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f);
-		colors[ImGuiCol_TabUnfocused]           = ImLerp(colors[ImGuiCol_Tab], colors[ImGuiCol_TitleBg], 0.80f);
-		colors[ImGuiCol_TabUnfocusedActive]     = ImLerp(colors[ImGuiCol_TabActive], colors[ImGuiCol_TitleBg], 0.40f);
-		colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
-		colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-		colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-		colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-		colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
-		colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);// Prefer using Alpha=1.0 here
-		colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);// Prefer using Alpha=1.0 here
-		colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-		colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
-		colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
-		colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-		colors[ImGuiCol_NavHighlight]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-		colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-		colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-		colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-		if(useUiDescription) {
-			SColorSet * p_cs = Uid.GetColorSet("imgui-style");	
-			if(p_cs) {
-				for(uint i = 0; i < SIZEOFARRAY(style->Colors); i++) {
-					const char * p_color_name = ImGui::GetStyleColorName(i);
-					if(!isempty(p_color_name)) {
-						SColor c;
-						if(p_cs->Get(p_color_name, c)) {
-							style->Colors[i] = c;
-						}
-					}
-				}
-			}
-		}
-	}
-	int  LoadUiDescription()
-	{
-		int    ok = 0;
-		SJson * p_js = 0;
-		SString temp_buf;
-		getExecPath(temp_buf);
-		temp_buf.SetLastSlash().Cat("config").SetLastSlash().Cat("wsctl-ui.json");
-		SFile f_in(temp_buf, SFile::mRead);
-		{
-			STempBuffer in_buf(8192);
-			size_t actual_size = 0;
-			THROW(in_buf.IsValid());
-			THROW(f_in.ReadAll(in_buf, 0, &actual_size));
-			temp_buf.Z().CatN(in_buf, actual_size);
-		}
-		{
-			p_js = SJson::Parse(temp_buf);
-			THROW(p_js);
-			THROW(Uid.FromJsonObj(p_js));
-		}
-		{
-			SColorSet * p_cs = Uid.GetColorSet("imgui-style");
-			if(p_cs) {
-				p_cs->Resolve();
-			}
-		}
-		CATCHZOK
-		delete p_js;
-		return ok;
-	}
-	int  Init()
-	{
-		int    ok = 0;
-		PPIniFile ini_file;
-		LoadUiDescription();
-		if((ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &JsP.Port) <= 0 || JsP.Port <= 0))
-			JsP.Port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
-		if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_CLIENTSOCKETTIMEOUT, &JsP.Timeout) <= 0 || JsP.Timeout <= 0)
-			JsP.Timeout = -1;
-		ini_file.Get(PPINISECT_SERVER, PPINIPARAM_SERVER_NAME, JsP.Server);
-		St.SidBlk.GetOwnUuid();
-		JsP.Read();
-		if(JsP.Server.NotEmpty()) {
-			//
-			JsP.DbSymb.SetIfEmpty("wsctl");
-			JsP.User.SetIfEmpty("master");
-			JsP.Password.SetIfEmpty("");
-			//
-			WsCtl_CliSession * p_sess = new WsCtl_CliSession(JsP, &St, P_CmdQ);
-			p_sess->Start(1);
-			if(!!St.SidBlk.Uuid) {
-				WsCtlReqQueue::Req req(PPSCMD_WSCTL_INIT);
-				req.P.Uuid = St.SidBlk.Uuid;
-				P_CmdQ->Push(req);
-			}
-			ok = 1;
-		}
-		{
-			St.SetupSyncUpdateTime(State::syncdataPrices, 30000);
-			St.SetupSyncUpdateTime(State::syncdataAccount, 29000);
-			St.SetupSyncUpdateTime(State::syncdataTSess, 15000);
-			St.SetupSyncUpdateTime(State::syncdataAutonomousTSess, 2000);
-		}
-		return ok;
-	}
-	void EmitEvents()
-	{
-		if(St.CheckSyncUpdateTimers(SyncReqList) > 0) {
-			assert(SyncReqList.getCount() > 0);
-			for(uint i = 0; i < SyncReqList.getCount(); i++) {
-				const int sync_data_id = SyncReqList.get(i);
-				switch(sync_data_id) {
-					case State::syncdataUndef:
-						break;
-					case State::syncdataTest:
-						break;
-					case State::syncdataPrc:
-						break;
-					case State::syncdataAccount:
-						{
-							DAuth auth_data;
-							St.D_Auth.GetData(auth_data);
-							if(auth_data.SCardID && !(auth_data.State & auth_data.stWaitOn)) {
-								WsCtlReqQueue::Req req(PPSCMD_WSCTL_GETACCOUNTSTATE);
-								req.P.SCardID = auth_data.SCardID;
-								P_CmdQ->Push(req);
-							}
-						}
-						break;
-					case State::syncdataPrices:
-						P_CmdQ->Push(WsCtlReqQueue::Req(PPSCMD_WSCTL_GETQUOTLIST));
-						break;
-					case State::syncdataAutonomousTSess:
-						{
-							
-						}
-						break;
-					case State::syncdataTSess:
-						P_CmdQ->Push(WsCtlReqQueue::Req(PPSCMD_WSCTL_TSESS));
-						break;
-					case State::syncdataJobSrvConnStatus:
-						break;
-				}
-				St.SetSyncUpdateTimerLastReqTime(sync_data_id); // Отмечаем время отправки запроса
-			}
-		}
-		else {
-			assert(SyncReqList.getCount() == 0);
-		}
-	}
+	WsCtl_ImGuiSceneBlock();
+	~WsCtl_ImGuiSceneBlock();
+	int  LoadUiDescription();
+	int  Init(ImGuiIO & rIo);
+	int  ApplyClientPolicy();
+	void EmitEvents();
 	void BuildScene();
 };
 //
@@ -1432,32 +1063,6 @@ bool WsCtl_ImGuiSceneBlock::DPrices::GetGoodsPrice(PPID goodsID, double * pPrice
 		
 int WsCtl_ImGuiSceneBlock::DPrices::FromJsonObject(const SJson * pJsObj)
 {
-	/*
-		{
-			"qk_list" : [
-				{
-					"id" : int
-					"nm" : string
-				}
-			]
-			"goods_list" : [
-				{
-					"id" : int
-					"nm" : string
-					"quot_list" : [
-						{
-							"id" : int
-							"val" : double
-						}
-						{
-							"id" : int
-							"val" : double
-						}
-					]
-				}
-			]
-		}
-	*/
 	int    ok = 1;
 	Z();
 	if(pJsObj && pJsObj->Type == SJson::tOBJECT) {
@@ -1570,67 +1175,67 @@ int WsCtl_ImGuiSceneBlock::DPrices::FromJsonObject(const SJson * pJsObj)
 //
 //
 //
-	bool WsCtl_ImGuiSceneBlock::State::SetSelectedTecGoodsID(PPID goodsID)
-	{
-		if(goodsID != SelectedTecGoodsID) {
-			SelectedTecGoodsID = goodsID;
-			return true;
-		}
-		else
-			return false;
+bool WsCtl_ImGuiSceneBlock::State::SetSelectedTecGoodsID(PPID goodsID)
+{
+	if(goodsID != SelectedTecGoodsID) {
+		SelectedTecGoodsID = goodsID;
+		return true;
 	}
+	else
+		return false;
+}
 
-	int WsCtl_ImGuiSceneBlock::State::SetupSyncUpdateTime(int syncDataId, uint msecToUpdate)
-	{
-		int    ok = -1;
-		bool   found = false;
-		for(uint i = 0; !found && i < SutList.getCount(); i++) {
-			SyncUpdateTimer & r_entry = SutList.at(i);
-			if(r_entry.SyncDataId == syncDataId) {
-				if(r_entry.MsecToUpdate != msecToUpdate) {
-					r_entry.MsecToUpdate = msecToUpdate;
-					ok = 1;
-				}
-				found = true;
-			}
-		}
-		if(!found) {
-			SyncUpdateTimer new_entry(syncDataId, msecToUpdate);
-			SutList.insert(&new_entry);
-			ok = 2;
-		}
-		return ok;
-	}
-
-	int WsCtl_ImGuiSceneBlock::State::CheckSyncUpdateTimers(LongArray & rList) const
-	{
-		rList.Z();
-		int    ok = -1;
-		const  time_t now_time = time(0);
-		for(uint i = 0; i < SutList.getCount(); i++) {
-			const SyncUpdateTimer & r_entry = SutList.at(i);
-			if(r_entry.LastReqTime == 0 || now_time >= (r_entry.LastReqTime + (r_entry.MsecToUpdate / 1000))) {
-				rList.insert(&r_entry.SyncDataId);
+int WsCtl_ImGuiSceneBlock::State::SetupSyncUpdateTime(int syncDataId, uint msecToUpdate)
+{
+	int    ok = -1;
+	bool   found = false;
+	for(uint i = 0; !found && i < SutList.getCount(); i++) {
+		SyncUpdateTimer & r_entry = SutList.at(i);
+		if(r_entry.SyncDataId == syncDataId) {
+			if(r_entry.MsecToUpdate != msecToUpdate) {
+				r_entry.MsecToUpdate = msecToUpdate;
 				ok = 1;
 			}
+			found = true;
 		}
-		return ok;
 	}
+	if(!found) {
+		SyncUpdateTimer new_entry(syncDataId, msecToUpdate);
+		SutList.insert(&new_entry);
+		ok = 2;
+	}
+	return ok;
+}
+
+int WsCtl_ImGuiSceneBlock::State::CheckSyncUpdateTimers(LongArray & rList) const
+{
+	rList.Z();
+	int    ok = -1;
+	const  time_t now_time = time(0);
+	for(uint i = 0; i < SutList.getCount(); i++) {
+		const SyncUpdateTimer & r_entry = SutList.at(i);
+		if(r_entry.LastReqTime == 0 || now_time >= (r_entry.LastReqTime + (r_entry.MsecToUpdate / 1000))) {
+			rList.insert(&r_entry.SyncDataId);
+			ok = 1;
+		}
+	}
+	return ok;
+}
 		
-	int WsCtl_ImGuiSceneBlock::State::SetSyncUpdateTimerLastReqTime(int syncDataId)
-	{
-		int    ok = -1;
-		bool   found = false;
-		for(uint i = 0; !found && i < SutList.getCount(); i++) {
-			SyncUpdateTimer & r_entry = SutList.at(i);
-			if(r_entry.SyncDataId == syncDataId) {
-				r_entry.LastReqTime = time(0);
-				ok = 1;
-				found = true;
-			}
+int WsCtl_ImGuiSceneBlock::State::SetSyncUpdateTimerLastReqTime(int syncDataId)
+{
+	int    ok = -1;
+	bool   found = false;
+	for(uint i = 0; !found && i < SutList.getCount(); i++) {
+		SyncUpdateTimer & r_entry = SutList.at(i);
+		if(r_entry.SyncDataId == syncDataId) {
+			r_entry.LastReqTime = time(0);
+			ok = 1;
+			found = true;
 		}
-		return ok;
 	}
+	return ok;
+}
 //
 //
 //
@@ -1997,6 +1602,14 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 							if(SJson::IsString(p_c)) {
 								st_data.PrcUuid.FromStr(p_c->Text);
 							}
+							// @v11.7.12 {
+							{
+								// Сразу отправляем запрос на получение клиентской политики
+								WsCtlReqQueue::Req inner_req(PPSCMD_WSCTL_QUERYPOLICY);
+								inner_req.P.Uuid = rReq.P.Uuid;
+								SendRequest(rCli, inner_req); // @recursion
+							}
+							// } @v11.7.12 
 						}
 						else {
 							PPSetErrorSLib();
@@ -2011,6 +1624,36 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 					st_data.SetupByLastError();
 				st_data.DtmActual = getcurdatetime_();
 				P_St->D_Prc.SetData(st_data);
+			}
+			break;
+		case PPSCMD_WSCTL_QUERYPOLICY: // @v11.7.12 @construction
+			if(P_St) {
+				WsCtl_ImGuiSceneBlock::DClientPolicy st_data;
+				WsCtl_ImGuiSceneBlock::DClientPolicy st_data_org;
+				P_St->D_Policy.GetData(st_data_org);
+				PPJobSrvCmd cmd;
+				cmd.StartWriting(PPSCMD_WSCTL_QUERYPOLICY);
+				cmd.Write(&rReq.P.Uuid, sizeof(rReq.P.Uuid));
+				cmd.FinishWriting();
+				if(rCli.Exec(cmd, reply)) {
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+						SJson * p_js_obj = SJson::Parse(reply_buf);
+						if(st_data.P.FromJsonObj(p_js_obj)) {
+							if(st_data.P != st_data_org.P) {
+								st_data.DtmActual = getcurdatetime_();
+								st_data.Dirty = true;
+								P_St->D_Policy.SetData(st_data);
+							}
+						}
+						else {
+							PPSetErrorSLib();
+							st_data.SetupByLastError();
+						}
+						ZDELETE(p_js_obj);						
+					}
+				}
 			}
 			break;
 		case PPSCMD_WSCTL_GETQUOTLIST:
@@ -2132,6 +1775,307 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				P_St->D_TSess.SetData(st_data);
 			}
 			break;
+	}
+}
+
+WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
+	//ClearColor(0.45f, 0.55f, 0.60f, 1.00f), 
+	ClearColor(SColor(0x1E, 0x22, 0x28)),
+	P_CmdQ(new WsCtlReqQueue),
+	Cache_Layout(512, 0), Cache_Texture(1024, 0), Cache_Font(101, 0),
+	P_Dlg_Cfg(0)
+{
+	TestInput[0] = 0;
+	LoginText[0] = 0;
+	PwText[0] = 0;
+}
+
+WsCtl_ImGuiSceneBlock::~WsCtl_ImGuiSceneBlock()
+{
+	// P_CmdQ не разрушаем поскольку на него ссылается отдельный поток.
+	// Все равно этот объект живет в течении всего жизненного цикла процесса.
+}
+
+int WsCtl_ImGuiSceneBlock::LoadUiDescription()
+{
+	int    ok = 0;
+	SJson * p_js = 0;
+	SString temp_buf;
+	PPGetPath(PPPATH_WORKSPACE, temp_buf);
+	temp_buf.SetLastSlash().Cat("wsctl").SetLastSlash().Cat("wsctl-ui.json");
+	SFile f_in(temp_buf, SFile::mRead);
+	{
+		STempBuffer in_buf(8192);
+		size_t actual_size = 0;
+		THROW(in_buf.IsValid());
+		THROW(f_in.ReadAll(in_buf, 0, &actual_size));
+		temp_buf.Z().CatN(in_buf, actual_size);
+	}
+	{
+		p_js = SJson::Parse(temp_buf);
+		THROW(p_js);
+		THROW(Uid.FromJsonObj(p_js));
+	}
+	{
+		SColorSet * p_cs = Uid.GetColorSet("imgui-style");
+		if(p_cs) {
+			p_cs->Resolve();
+		}
+	}
+	{
+		const bool use_outer_layout_description = true;
+		if(use_outer_layout_description) {
+			for(uint i = 0; i < Uid.LoList.getCount(); i++) {
+				const SUiLayout * p_lo = Uid.LoList.at(i);
+				if(p_lo) {
+					SUiLayout * p_new_lo = new SUiLayout(*p_lo);
+					Cache_Layout.Put(p_new_lo, true);
+				}
+			}
+		}
+		else {
+			SJson * p_js_lo_list = 0;
+			MakeLayout(&p_js_lo_list);
+			if(p_js_lo_list) {
+				SString temp_buf;
+				PPGetFilePath(PPPATH_OUT, "wsctl_ui.json", temp_buf);
+				SFile f_out(temp_buf, SFile::mWrite);
+				if(f_out.IsValid()) {
+					SJson js_ui(SJson::tOBJECT);
+					js_ui.Insert("layout_list", p_js_lo_list);
+					p_js_lo_list = 0;
+					SString js_fmt_buf;
+					js_ui.ToStr(temp_buf);
+					SJson::FormatText(temp_buf, js_fmt_buf);
+					f_out.Write(js_fmt_buf, js_fmt_buf.Len());
+				}
+				ZDELETE(p_js_lo_list);
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js;
+	return ok;
+}
+
+int WsCtl_ImGuiSceneBlock::ApplyClientPolicy()
+{
+	int    ok = -1;
+	wchar_t win_user_name_before[256]; // @debug
+	wchar_t win_user_name_after[256]; // @debug
+	bool   guhr = false;
+	DClientPolicy policy;
+	St.D_Policy.GetData(policy);
+	if(policy.Dirty) {
+		if(policy.P.SysUser.NotEmpty()) {
+			HANDLE h = SSystem::GetLocalSystemProcessToken();
+			SSystem::WinUserBlock wub;
+			uint   guhf = 0;
+			BOOL   loaded_profile = false;
+			PROFILEINFO profile_info;
+			HANDLE h_cmd_pipe = 0;
+			wub.UserName.CopyFromUtf8(policy.P.SysUser);
+			wub.Password.CopyFromUtf8(policy.P.SysPassword);
+			//
+			DWORD win_user_name_len = SIZEOFARRAY(win_user_name_before);
+			GetUserName(win_user_name_before, &win_user_name_len);
+			//
+			guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);		
+			//
+			win_user_name_len = SIZEOFARRAY(win_user_name_after);
+			GetUserName(win_user_name_after, &win_user_name_len);
+			//
+		}
+		policy.Dirty = false;
+		St.D_Policy.SetData(policy);
+		ok = 1;
+	}
+	return ok;
+}
+
+int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
+{
+	int    ok = 0;
+	PPIniFile ini_file;
+	LoadUiDescription();
+	if((ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &JsP.Port) <= 0 || JsP.Port <= 0))
+		JsP.Port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
+	if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_CLIENTSOCKETTIMEOUT, &JsP.Timeout) <= 0 || JsP.Timeout <= 0)
+		JsP.Timeout = -1;
+	ini_file.Get(PPINISECT_SERVER, PPINIPARAM_SERVER_NAME, JsP.Server);
+	St.SidBlk.GetOwnUuid();
+	JsP.Read();
+	if(JsP.Server.NotEmpty()) {
+		//
+		JsP.DbSymb.SetIfEmpty("wsctl");
+		JsP.User.SetIfEmpty("master");
+		JsP.Password.SetIfEmpty("");
+		//
+		WsCtl_CliSession * p_sess = new WsCtl_CliSession(JsP, &St, P_CmdQ);
+		p_sess->Start(1);
+		if(!!St.SidBlk.Uuid) {
+			WsCtlReqQueue::Req req(PPSCMD_WSCTL_INIT);
+			req.P.Uuid = St.SidBlk.Uuid;
+			P_CmdQ->Push(req);
+		}
+		ok = 1;
+	}
+	{
+		St.SetupSyncUpdateTime(State::syncdataPrices, 30000);
+		St.SetupSyncUpdateTime(State::syncdataAccount, 29000);
+		St.SetupSyncUpdateTime(State::syncdataTSess, 15000);
+		St.SetupSyncUpdateTime(State::syncdataAutonomousTSess, 2000);
+		St.SetupSyncUpdateTime(State::syncdataClientPolicy, 600000); // @v11.7.12
+	}
+	//WsCtlStyleColors(true, 0);
+	//void WsCtlStyleColors(bool useUiDescription, ImGuiStyle * pDest)
+	{
+		const bool use_ui_descripton = true;
+		ImGuiStyle * p_dest_style = 0;
+		ImGuiStyle * style = p_dest_style ? p_dest_style : &ImGui::GetStyle();
+		ImVec4 * colors = style->Colors;
+		colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+		colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+		colors[ImGuiCol_WindowBg]               = SColor(0x2B, 0x30, 0x38);//ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
+		colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_PopupBg]                = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+		colors[ImGuiCol_Border]                 = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
+		colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_FrameBg]                = SColor(SClrBlack, 0.95f); //ImVec4(0.16f, 0.29f, 0.48f, 0.54f);
+		colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+		colors[ImGuiCol_FrameBgActive]          = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+		colors[ImGuiCol_TitleBg]                = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
+		colors[ImGuiCol_TitleBgActive]          = ImVec4(0.16f, 0.29f, 0.48f, 1.00f);
+		colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
+		colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+		colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+		colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
+		colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_SliderGrab]             = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
+		colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+		colors[ImGuiCol_ButtonHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_ButtonActive]           = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
+		colors[ImGuiCol_Header]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
+		colors[ImGuiCol_HeaderHovered]          = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+		colors[ImGuiCol_HeaderActive]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_Separator]              = colors[ImGuiCol_Border];
+		colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
+		colors[ImGuiCol_SeparatorActive]        = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
+		colors[ImGuiCol_ResizeGrip]             = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
+		colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+		colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+		colors[ImGuiCol_Tab]                    = ImLerp(colors[ImGuiCol_Header], colors[ImGuiCol_TitleBgActive], 0.80f);
+		colors[ImGuiCol_TabHovered]             = colors[ImGuiCol_HeaderHovered];
+		colors[ImGuiCol_TabActive]              = ImLerp(colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f);
+		colors[ImGuiCol_TabUnfocused]           = ImLerp(colors[ImGuiCol_Tab], colors[ImGuiCol_TitleBg], 0.80f);
+		colors[ImGuiCol_TabUnfocusedActive]     = ImLerp(colors[ImGuiCol_TabActive], colors[ImGuiCol_TitleBg], 0.40f);
+		colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+		colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+		colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+		colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+		colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
+		colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);// Prefer using Alpha=1.0 here
+		colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);// Prefer using Alpha=1.0 here
+		colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+		colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+		colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+		colors[ImGuiCol_NavHighlight]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+		colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+		colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+		colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+		if(use_ui_descripton) {
+			SColorSet * p_cs = Uid.GetColorSet("imgui-style");	
+			if(p_cs) {
+				for(uint i = 0; i < SIZEOFARRAY(style->Colors); i++) {
+					const char * p_color_name = ImGui::GetStyleColorName(i);
+					if(!isempty(p_color_name)) {
+						SColor c;
+						if(p_cs->Get(p_color_name, c)) {
+							style->Colors[i] = c;
+						}
+					}
+				}
+			}
+		}
+	}
+	{
+		SColorSet * p_cs = Uid.GetColorSet("imgui-style");	
+		{
+			///Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf
+			//C:/Windows/Fonts/Tahoma.ttf
+			ImFontConfig f;
+			SColor primary_font_color;
+			SColor secondary_font_color;
+			SColor substrat_color;
+			if(p_cs) {
+				p_cs->Get("TextPrimary", primary_font_color);
+				p_cs->Get("TextSecondary", secondary_font_color);
+				p_cs->Get("Substrat", substrat_color);
+			}
+			else {
+				substrat_color.Set(0x1E, 0x22, 0x28);
+				primary_font_color = SColor(SClrWhite);
+				secondary_font_color = SColor(SClrSilver);
+			}
+			ClearColor = substrat_color;
+			CreateFontEntry(rIo, "FontSecondary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 14.0f, 0, &secondary_font_color);
+			CreateFontEntry(rIo, "FontPrimary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 16.0f, 0, &primary_font_color);
+		}
+	}
+	return ok;
+}
+
+void WsCtl_ImGuiSceneBlock::EmitEvents()
+{
+	if(St.CheckSyncUpdateTimers(SyncReqList) > 0) {
+		assert(SyncReqList.getCount() > 0);
+		for(uint i = 0; i < SyncReqList.getCount(); i++) {
+			const int sync_data_id = SyncReqList.get(i);
+			switch(sync_data_id) {
+				case State::syncdataUndef:
+					break;
+				case State::syncdataTest:
+					break;
+				case State::syncdataPrc:
+					break;
+				case State::syncdataAccount:
+					{
+						DAuth auth_data;
+						St.D_Auth.GetData(auth_data);
+						if(auth_data.SCardID && !(auth_data.State & auth_data.stWaitOn)) {
+							WsCtlReqQueue::Req req(PPSCMD_WSCTL_GETACCOUNTSTATE);
+							req.P.SCardID = auth_data.SCardID;
+							P_CmdQ->Push(req);
+						}
+					}
+					break;
+				case State::syncdataPrices:
+					P_CmdQ->Push(WsCtlReqQueue::Req(PPSCMD_WSCTL_GETQUOTLIST));
+					break;
+				case State::syncdataAutonomousTSess:
+					{
+							
+					}
+					break;
+				case State::syncdataTSess:
+					P_CmdQ->Push(WsCtlReqQueue::Req(PPSCMD_WSCTL_TSESS));
+					break;
+				case State::syncdataJobSrvConnStatus:
+					break;
+				case State::syncdataClientPolicy: // @v11.7.12
+					//P_CmdQ->Push(WsCtlReqQueue::Req(PPSCMD_WSCTL_QUERYPOLICY));
+					break;
+			}
+			St.SetSyncUpdateTimerLastReqTime(sync_data_id); // Отмечаем время отправки запроса
+		}
+		ApplyClientPolicy(); // @debug
+	}
+	else {
+		assert(SyncReqList.getCount() == 0);
 	}
 }
 //
@@ -2950,7 +2894,7 @@ int main(int, char**)
 {
 	int    result = 0;
 	//
-	DS.Init(PPSession::fWsCtlApp, 0);
+	DS.Init(PPSession::fWsCtlApp|PPSession::fInitPaths, 0);
 	// Create application window
 	//ImGui_ImplWin32_EnableDpiAwareness();
 	WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"WSCTL_WCLS", nullptr };
@@ -2997,18 +2941,8 @@ int main(int, char**)
 		//bool show_another_window = false;
 		//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		WsCtl_ImGuiSceneBlock scene_blk;
-		scene_blk.Init();
-		scene_blk.WsCtlStyleColors(true, 0);
+		scene_blk.Init(io);
 		scene_blk.SetScreen(WsCtl_ImGuiSceneBlock::screenConstruction);
-		{
-			///Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf
-			//C:/Windows/Fonts/Tahoma.ttf
-			ImFontConfig f;
-			SColor primary_font_color(SClrWhite);
-			SColor secondary_font_color(SClrSilver);
-			scene_blk.CreateFontEntry(io, "FontSecondary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 14.0f, 0, &secondary_font_color);
-			scene_blk.CreateFontEntry(io, "FontPrimary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 16.0f, 0, &primary_font_color);
-		}
 		{
 			const char * p_img_path = "/Papyrus/Src/PPTEST/DATA/test-gif.gif";
 			P_TestImgTexture = ImgRtb.LoadTexture(p_img_path);

@@ -81,6 +81,76 @@ StringSet::~StringSet()
 		SAlloc::F(P_Buf);
 }
 
+bool FASTCALL StringSet::IsEqPermutation(const StringSet & rS) const
+{
+	bool   eq = true;   
+	if(sstreq(Delim, rS.Delim)) {
+		const uint _c1 = getCount();
+		const uint _c2 = rS.getCount();
+		if(_c1 == _c2) {
+			SString & r_temp_buf1 = SLS.AcquireRvlStr();
+			SString & r_temp_buf2 = SLS.AcquireRvlStr();
+			uint   p1 = 0;
+			uint   p2 = 0;
+			uint   preserve_p1 = p1;
+			uint   preserve_p2 = p2;
+			int    r1 = 0;
+			int    r2 = 0;
+			while(eq) {
+				preserve_p1 = p1;
+				r1 = get(&p1, r_temp_buf1);
+				preserve_p2 = p2;
+				r2 = rS.get(&p2, r_temp_buf2);
+				assert(r1 == r2);
+				if(r1 != 0 && r2 != 0) {
+					if(r_temp_buf1 != r_temp_buf2) {
+						eq = false;
+						//
+						// Мы дошли до пары элементов в this и rS, которые не равны.
+						// Теперь мы, начиная с позиции preserve_p1 в this и preserve_p2 в rS,
+						// перебирая каждый элемент, находим соответствие в сравниваемом контейнере.
+						// Если для какого-то элемента соответствие не найдено, то общий результат false
+						//
+						{
+							eq = true;
+							{
+								for(uint ssp1 = preserve_p1; eq && get(&ssp1, r_temp_buf1);) {
+									bool found = false;
+									for(uint ssp2 = preserve_p2; !found && rS.get(&ssp2, r_temp_buf2);) {
+										if(r_temp_buf1 == r_temp_buf2)
+											found = true;
+									}
+									if(!found)
+										eq = false;
+								}
+							}
+							if(eq) {
+								for(uint ssp2 = preserve_p2; eq && rS.get(&ssp2, r_temp_buf2);) {
+									bool found = false;
+									for(uint ssp1 = preserve_p1; !found && get(&ssp1, r_temp_buf1);) {
+										if(r_temp_buf1 == r_temp_buf2)
+											found = true;
+									}
+									if(!found)
+										eq = false;
+								}
+							}
+						}
+						break; // !exit-loop while(eq)
+					}
+				}
+				else
+					break;
+			}
+		}
+		else
+			eq = false;
+	}
+	else
+		eq = false;
+	return eq;
+}
+
 bool FASTCALL StringSet::IsEq(const StringSet & rS) const
 {
 	bool   eq = true;   
@@ -105,7 +175,7 @@ bool FASTCALL StringSet::IsEq(const StringSet & rS) const
 				else
 					break;
 			}
-			assert(r1 == 0 && r2 == 0); // Мы выше сравнили количество элементов. Если результаты получения очередной
+			assert(LOGIC(r1) == LOGIC(r2)); // Мы выше сравнили количество элементов. Если результаты получения очередной
 				// подстроки отличаются для разных экземпляров, то значит у нас тяжелая ошибка в коде.
 		}
 		else
@@ -173,8 +243,6 @@ int StringSet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return (dir > 0) ? Write(rBuf) : ((dir < 0) ? Read(rBuf) : -1);
 }
 
-#ifndef _WIN32_WCE // {
-
 int StringSet::Write(SFile & rFile, long) const
 {
 	int    ok = 1;
@@ -213,8 +281,6 @@ int StringSet::Read(SFile & rFile, long)
 	CATCHZOK
 	return ok;
 }
-
-#endif // } _WIN32_WCE
 
 StringSet & FASTCALL StringSet::operator + (const char * s)
 {
@@ -296,6 +362,24 @@ void StringSet::sort()
 			add(temp_list.Get(i).Txt);
 	}
 	assert(getCount() == org_count); // @v11.4.8 дорогая проверка (из-за getCount()), но в релизе ее не будет 
+}
+
+void StringSet::shuffle()
+{
+	const uint org_count = getCount(); // @v11.4.8 see considerations at StringSet::sortAndUndup()
+	if(org_count > 1) {
+		StrAssocArray temp_list;
+		SString str;
+		uint   i;
+		long   id = 0;
+		for(i = 0; get(&i, str);)
+			temp_list.AddFast(++id, str);
+		temp_list.Shuffle();
+		clear();
+		for(i = 0; i < temp_list.getCount(); i++)
+			add(temp_list.Get(i).Txt);
+	}
+	assert(getCount() == org_count); // дорогая проверка (из-за getCount()), но в релизе ее не будет 
 }
 
 void StringSet::sortAndUndup()
@@ -581,15 +665,17 @@ bool StringSet::get(uint * pPos, SString & s) const
 	uint   len = 0;
 	uint   delim_len = 0;
 	if(p < DataLen) {
-		if(Delim[0]) {
-			c = strstr(P_Buf + p, Delim);
+		assert(P_Buf);
+		const size_t _dlen = strlen(Delim); // strlen чуть быстрее чем sstrlen и точно известно что аргумент не нулевой
+		if(_dlen) {
+			c = (_dlen == 1) ? sstrchr(P_Buf + p, Delim[0]) : strstr(P_Buf + p, Delim);
 			if(c) {
-				delim_len = sstrlen(Delim);
+				delim_len = _dlen;
 				len = static_cast<uint>(c - (P_Buf + p));
 			}
 			else {
 				delim_len = 1;
-				len = sstrlen(P_Buf + p);
+				len = strlen(P_Buf + p);
 			}
 			c = P_Buf + p;
 		}
@@ -597,7 +683,7 @@ bool StringSet::get(uint * pPos, SString & s) const
 			delim_len = 1;
 			c = P_Buf + p;
 			if(*c)
-				len = sstrlen(c);
+				len = strlen(c);
 			else {
 				c = 0;
 				ok = false;

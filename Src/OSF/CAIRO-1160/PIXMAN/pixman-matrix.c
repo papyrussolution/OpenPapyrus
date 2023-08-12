@@ -580,9 +580,8 @@ PIXMAN_EXPORT void pixman_f_transform_from_pixman_transform(struct pixman_f_tran
 
 PIXMAN_EXPORT boolint pixman_transform_from_pixman_f_transform(struct pixman_transform * t, const struct pixman_f_transform * ft)
 {
-	int i, j;
-	for(j = 0; j < 3; j++) {
-		for(i = 0; i < 3; i++) {
+	for(int j = 0; j < 3; j++) {
+		for(int i = 0; i < 3; i++) {
 			double d = ft->m[j][i];
 			if(d < -32767.0 || d > 32767.0)
 				return FALSE;
@@ -598,9 +597,8 @@ PIXMAN_EXPORT boolint pixman_f_transform_invert(struct pixman_f_transform * dst,
 	static const int a[3] = { 2, 2, 1 };
 	static const int b[3] = { 1, 0, 0 };
 	pixman_f_transform_t d;
-	double det;
+	double det = 0.0;
 	int i, j;
-	det = 0;
 	for(i = 0; i < 3; i++) {
 		double p;
 		int ai = a[i];
@@ -641,7 +639,6 @@ PIXMAN_EXPORT boolint pixman_f_transform_point(const struct pixman_f_transform *
 			a += t->m[j][i] * v->v[i];
 		result.v[j] = a;
 	}
-
 	if(!result.v[2])
 		return FALSE;
 

@@ -331,7 +331,8 @@ struct ExpDigits {
 // array of {'1', '0', '0', '0', '0', '0'}.  If value is exactly halfway between
 // two possible representations, e.g. value = 100000.5, then "round to even" is
 // performed.
-static ExpDigits SplitToSix(const double value) {
+static ExpDigits SplitToSix(const double value) 
+{
 	ExpDigits exp_dig;
 	int exp = 5;
 	double d = value;

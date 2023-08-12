@@ -63,16 +63,13 @@ static boolint RegisterTypesPlugin(cmsContext id, cmsPluginBase* Data, _cmsMemor
 		ctx->TagTypes = NULL;
 		return TRUE;
 	}
-
 	// Registering happens in plug-in memory pool.
 	pt = (_cmsTagTypeLinkedList*)_cmsPluginMalloc(id, sizeof(_cmsTagTypeLinkedList));
-	if(pt == NULL) return FALSE;
-
+	if(pt == NULL) 
+		return FALSE;
 	pt->Handler   = Plugin->Handler;
 	pt->Next      = ctx->TagTypes;
-
 	ctx->TagTypes = pt;
-
 	return TRUE;
 }
 
@@ -83,10 +80,12 @@ static cmsTagTypeHandler* GetHandler(cmsTagTypeSignature sig, _cmsTagTypeLinkedL
 {
 	_cmsTagTypeLinkedList* pt;
 	for(pt = PluginLinkedList; pt; pt = pt->Next) {
-		if(sig == pt->Handler.Signature) return &pt->Handler;
+		if(sig == pt->Handler.Signature) 
+			return &pt->Handler;
 	}
 	for(pt = DefaultLinkedList; pt; pt = pt->Next) {
-		if(sig == pt->Handler.Signature) return &pt->Handler;
+		if(sig == pt->Handler.Signature) 
+			return &pt->Handler;
 	}
 	return NULL;
 }
@@ -94,11 +93,11 @@ static cmsTagTypeHandler* GetHandler(cmsTagTypeSignature sig, _cmsTagTypeLinkedL
 // Auxiliary to convert UTF-32 to UTF-16 in some cases
 static boolint _cmsWriteWCharArray(cmsIOHANDLER* io, uint32 n, const wchar_t * Array)
 {
-	uint32 i;
 	assert(io);
 	assert(!(Array == NULL && n > 0));
-	for(i = 0; i < n; i++) {
-		if(!_cmsWriteUInt16Number(io, (uint16)Array[i])) return FALSE;
+	for(uint32 i = 0; i < n; i++) {
+		if(!_cmsWriteUInt16Number(io, (uint16)Array[i])) 
+			return FALSE;
 	}
 	return TRUE;
 }
@@ -106,16 +105,17 @@ static boolint _cmsWriteWCharArray(cmsIOHANDLER* io, uint32 n, const wchar_t * A
 // Auxiliary to read an array of wchar_t
 static boolint _cmsReadWCharArray(cmsIOHANDLER* io, uint32 n, wchar_t * Array)
 {
-	uint32 i;
-	uint16 tmp;
 	assert(io);
-	for(i = 0; i < n; i++) {
+	for(uint32 i = 0; i < n; i++) {
 		if(Array) {
-			if(!_cmsReadUInt16Number(io, &tmp)) return FALSE;
+			uint16 tmp;
+			if(!_cmsReadUInt16Number(io, &tmp)) 
+				return FALSE;
 			Array[i] = (wchar_t)tmp;
 		}
 		else {
-			if(!_cmsReadUInt16Number(io, NULL)) return FALSE;
+			if(!_cmsReadUInt16Number(io, NULL)) 
+				return FALSE;
 		}
 	}
 	return TRUE;
@@ -123,10 +123,7 @@ static boolint _cmsReadWCharArray(cmsIOHANDLER* io, uint32 n, wchar_t * Array)
 
 // To deal with position tables
 typedef boolint (* PositionTableEntryFn)(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    void * Cargo,
-    uint32 n,
-    uint32 SizeOfTag);
+    cmsIOHANDLER* io, void * Cargo, uint32 n, uint32 SizeOfTag);
 
 // Helper function to deal with position tables as described in ICC spec 4.3
 // A table of n elements is read, where first comes n records containing offsets and sizes and
@@ -463,22 +460,19 @@ static void * Type_U16Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHA
 	double *  array_double;
 	uint32 v;
 	uint32 i, n;
-
 	*nItems = 0;
 	n = SizeOfTag / sizeof(uint32);
 	array_double = (double *)_cmsCalloc(self->ContextID, n, sizeof(double));
-	if(array_double == NULL) return NULL;
-
+	if(array_double == NULL) 
+		return NULL;
 	for(i = 0; i < n; i++) {
 		if(!_cmsReadUInt32Number(io, &v)) {
 			_cmsFree(self->ContextID, (void *)array_double);
 			return NULL;
 		}
-
 		// Convert to double
 		array_double[i] =  (double)(v / 65536.0);
 	}
-
 	*nItems = n;
 	return (void *)array_double;
 }
@@ -486,10 +480,10 @@ static void * Type_U16Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHA
 static boolint Type_U16Fixed16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	double * Value = (double *)Ptr;
-	uint32 i;
-	for(i = 0; i < nItems; i++) {
+	for(uint32 i = 0; i < nItems; i++) {
 		uint32 v = (uint32)floor(Value[i]*65536.0 + 0.5);
-		if(!_cmsWriteUInt32Number(io, v)) return FALSE;
+		if(!_cmsWriteUInt32Number(io, v)) 
+			return FALSE;
 	}
 	return TRUE;
 	CXX_UNUSED(self);
@@ -515,8 +509,10 @@ static void Type_U16Fixed16_Free(struct _cms_typehandler_struct* self, void * Pt
 static void * Type_Signature_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsSignature* SigPtr = (cmsSignature*)_cmsMalloc(self->ContextID, sizeof(cmsSignature));
-	if(SigPtr == NULL) return NULL;
-	if(!_cmsReadUInt32Number(io, SigPtr)) return NULL;
+	if(SigPtr == NULL) 
+		return NULL;
+	if(!_cmsReadUInt32Number(io, SigPtr)) 
+		return NULL;
 	*nItems = 1;
 	return SigPtr;
 	CXX_UNUSED(SizeOfTag);

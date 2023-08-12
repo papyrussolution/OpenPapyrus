@@ -337,5 +337,6 @@
     <ClCompile Include="..\PPLib\ppidata.cpp" />
     <ClCompile Include="..\PPLib\Ppappo.cpp" />
     <ClCompile Include="..\PPLib\ppifcimp.cpp" />
+    <ClCompile Include="..\PPLib\wsctl.cpp" />
   </ItemGroup>
 </Project>

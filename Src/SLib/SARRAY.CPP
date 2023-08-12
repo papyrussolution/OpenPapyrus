@@ -2981,15 +2981,9 @@ void StrAssocArray::SortByTextInTreeOrder()
 	*this = temp_list;
 }
 
-void StrAssocArray::SortByLength(int descend)
-{
-	LAssocArray::sort(descend ? PTR_CMPFUNC(StrAssoc_ByLength_Descend) : PTR_CMPFUNC(StrAssoc_ByLength), &Pool);
-}
-
-void StrAssocArray::Reverse()
-{
-	LAssocArray::reverse(0, LAssocArray::getCount());
-}
+void StrAssocArray::SortByLength(int descend) { LAssocArray::sort(descend ? PTR_CMPFUNC(StrAssoc_ByLength_Descend) : PTR_CMPFUNC(StrAssoc_ByLength), &Pool); }
+void StrAssocArray::Reverse() { LAssocArray::reverse(0, LAssocArray::getCount()); }
+void StrAssocArray::Shuffle() { LAssocArray::shuffle(); }
 
 int FASTCALL StrAssocArray::Write(SBuffer & rBuf, long o) const
 {

@@ -14,4 +14,15 @@
     <ClCompile Include="..\PPMain\wsctl-main.cpp" />
     <ClCompile Include="..\OSF\imgui\imgui_demo.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\wsctl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\pp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\slib.H">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

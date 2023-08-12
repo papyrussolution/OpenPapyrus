@@ -783,6 +783,12 @@ SUiLayout::SUiLayout() : Signature(SlConst::SUiLayoutSignature), P_Parent(0), P_
 {
 }
 
+SUiLayout::SUiLayout(const SUiLayout & rS) : Signature(SlConst::SUiLayoutSignature), P_Parent(0), P_Link(0), managed_ptr(0), 
+	CbSelfSizing(0), CbSetup(0), State(0), ALB(), P_HgL(0), P_Children(0), ID(0)
+{
+	Copy(rS);
+}
+
 SUiLayout::SUiLayout(const SUiLayoutParam & rP) : Signature(SlConst::SUiLayoutSignature), P_Parent(0), P_Link(0), managed_ptr(0), 
 	CbSelfSizing(0), CbSetup(0), State(0), ALB(), P_HgL(0), P_Children(0), ID(0)
 {
@@ -797,6 +803,63 @@ SUiLayout::~SUiLayout()
 	CbSelfSizing = 0; // @v11.0.0
 	CbSetup = 0; // @v11.0.0
 	P_Link = 0;
+}
+
+SUiLayout & SUiLayout::Copy(const SUiLayout & rS)
+{
+	ZDELETE(P_Children);
+	ZDELETE(P_HgL);
+	managed_ptr = 0; // @v11.0.0
+	CbSelfSizing = 0; // @v11.0.0
+	CbSetup = 0; // @v11.0.0
+	P_Link = 0;
+	
+	ALB = rS.ALB;
+	managed_ptr = rS.managed_ptr;
+	CbSelfSizing = rS.CbSelfSizing;
+	CbSetup = rS.CbSetup;
+	P_Parent = 0;
+	State = rS.State;
+	CplxComponentId = rS.CplxComponentId;
+	ID = rS.ID;
+	Symb = rS.Symb;
+	if(rS.P_Children) {
+		P_Children = new TSCollection <SUiLayout>();
+		for(uint i = 0; i < rS.P_Children->getCount(); i++) {
+			const SUiLayout * p_src = rS.P_Children->at(i);
+			SUiLayout * p_new = 0;
+			if(p_src) {
+				p_new = new SUiLayout(*p_src);
+				p_new->P_Parent = this;
+			}
+			P_Children->insert(p_new);
+		}
+	}
+	if(rS.P_HgL) {
+		P_HgL = new HomogeneousArray(*rS.P_HgL);
+	}
+	/*
+	uint32 Signature; // non const. Инициализиуется в ctr, обнуляется в dtr.
+	SUiLayoutParam ALB;
+	void * managed_ptr; // NULL // An item can store an arbitrary pointer, which can be used by bindings as the address of a managed object.
+		// An item can provide a self_sizing callback function that will be called
+		// during layout and which can customize the dimensions (width and height) of the item.
+	FlexSelfSizingProc CbSelfSizing; // NULL
+	FlexSetupProc CbSetup; // NULL
+	SUiLayout * P_Parent;
+	uint   State;
+	uint16 CplxComponentId;
+	uint16 Reserve;
+	int    ID; // @v11.6.12 Идентификатор экземпляра. Определяется создающим клиентом класса.
+	SString Symb; // @v11.7.9 Символьный идентификатор экземпляра.
+	const  SUiLayout * P_Link; // @transient При сложных схемах построения формируются искусственные лейауты, получающие
+		// в этом поле ссылку на порождающий реальный элемент. 
+	TSCollection <SUiLayout> * P_Children;
+	HomogeneousArray * P_HgL;
+	mutable Result R;
+	*/
+
+	return *this;
 }
 
 bool SUiLayout::IsConsistent() const { return (this != 0 && Signature == SlConst::SUiLayoutSignature); }

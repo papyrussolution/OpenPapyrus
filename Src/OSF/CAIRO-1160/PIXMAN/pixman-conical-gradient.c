@@ -68,33 +68,23 @@ static uint32 * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32 *
 		if(!pixman_transform_point_3d(image->common.transform, &v))
 			return iter->buffer;
 
-		cx = image->common.transform->matrix[0][0] / 65536.;
-		cy = image->common.transform->matrix[1][0] / 65536.;
-		cz = image->common.transform->matrix[2][0] / 65536.;
-
-		rx = v.vector[0] / 65536.;
-		ry = v.vector[1] / 65536.;
-		rz = v.vector[2] / 65536.;
-
-		affine =
-		    image->common.transform->matrix[2][0] == 0 &&
-		    v.vector[2] == pixman_fixed_1;
+		cx = image->common.transform->matrix[0][0] / 65536.0;
+		cy = image->common.transform->matrix[1][0] / 65536.0;
+		cz = image->common.transform->matrix[2][0] / 65536.0;
+		rx = v.vector[0] / 65536.0;
+		ry = v.vector[1] / 65536.0;
+		rz = v.vector[2] / 65536.0;
+		affine = image->common.transform->matrix[2][0] == 0 && v.vector[2] == pixman_fixed_1;
 	}
-
 	if(affine) {
 		rx -= conical->center.x / 65536.;
 		ry -= conical->center.y / 65536.;
-
 		while(buffer < end) {
 			if(!mask || *mask++) {
 				double t = coordinates_to_parameter(rx, ry, conical->angle);
-
-				*buffer = _pixman_gradient_walker_pixel(
-					&walker, (pixman_fixed_48_16_t)pixman_double_to_fixed(t));
+				*buffer = _pixman_gradient_walker_pixel(&walker, (pixman_fixed_48_16_t)pixman_double_to_fixed(t));
 			}
-
 			++buffer;
-
 			rx += cx;
 			ry += cy;
 		}
@@ -102,10 +92,8 @@ static uint32 * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32 *
 	else {
 		while(buffer < end) {
 			double x, y;
-
 			if(!mask || *mask++) {
 				double t;
-
 				if(rz != 0) {
 					x = rx / rz;
 					y = ry / rz;
@@ -113,16 +101,11 @@ static uint32 * conical_get_scanline_narrow(pixman_iter_t * iter, const uint32 *
 				else {
 					x = y = 0.;
 				}
-
-				x -= conical->center.x / 65536.;
-				y -= conical->center.y / 65536.;
-
+				x -= conical->center.x / 65536.0;
+				y -= conical->center.y / 65536.0;
 				t = coordinates_to_parameter(x, y, conical->angle);
-
-				*buffer = _pixman_gradient_walker_pixel(
-					&walker, (pixman_fixed_48_16_t)pixman_double_to_fixed(t));
+				*buffer = _pixman_gradient_walker_pixel(&walker, (pixman_fixed_48_16_t)pixman_double_to_fixed(t));
 			}
-
 			++buffer;
 
 			rx += cx;

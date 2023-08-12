@@ -337,5 +337,6 @@
     <ClCompile Include="..\PPLib\Ppcalc.cpp" />
     <ClCompile Include="..\PPLib\ppbulletinboard.cpp" />
     <ClCompile Include="..\PPLib\ppbuild.cpp" />
+    <ClCompile Include="..\PPLib\wsctl.cpp" />
   </ItemGroup>
 </Project>

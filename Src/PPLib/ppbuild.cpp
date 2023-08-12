@@ -427,7 +427,7 @@ instId: d1c0a2bd instTime: 2020-05-10T12:26:05 dispName: Visual Studio Build Too
 		for(uint vidx = 0; reg_key.EnumValues(&vidx, &temp_buf, &reg_val);) {
 			if(temp_buf.Divide('.', major, minor) > 0) {
 				long msvs_ver = (major.ToLong() << 16) | (minor.ToLong() & 0xffff);
-				if(reg_val.GetString(path_buf) && path_buf.NotEmpty() && fileExists(path_buf)) {
+				if(reg_val.GetStringUtf8(path_buf) && path_buf.NotEmpty() && fileExists(path_buf)) {
 					path_buf.SetLastSlash().Cat("Common7").SetLastSlash().Cat("IDE").SetLastSlash();
 					if(fileExists(path_buf)) {
 						rList.Add(msvs_ver, path_buf, 0/*replaceDup*/);

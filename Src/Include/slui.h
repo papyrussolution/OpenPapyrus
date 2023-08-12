@@ -773,12 +773,15 @@ public:
 	static void * GetParentsManagedPtr(SUiLayout * pItem);
 
 	SUiLayout();
+	SUiLayout(const SUiLayout & rS);
 	SUiLayout(const SUiLayoutParam & rP);
 	~SUiLayout();
 	bool   IsConsistent() const;
 	bool   FASTCALL IsEq(const SUiLayout & rS) const;
 	bool   FASTCALL operator == (const SUiLayout & rS) const { return IsEq(rS); }
 	bool   FASTCALL operator != (const SUiLayout & rS) const { return !IsEq(rS); }
+	SUiLayout & FASTCALL operator = (const SUiLayout & rS) { return Copy(rS); }
+	SUiLayout & Copy(const SUiLayout & rS);
 	//
 	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
 	//
@@ -922,6 +925,15 @@ public:
 			vfGrowFactor
 		};
 		HomogeneousArray();
+		HomogeneousArray(const HomogeneousArray & rS) : TSVector <HomogeneousEntry>(rS), VariableFactor(rS.VariableFactor)
+		{
+		}
+		HomogeneousArray & FASTCALL operator = (const HomogeneousArray & rS)
+		{
+			TSVector <HomogeneousEntry>::operator = (rS);
+			VariableFactor = rS.VariableFactor;
+			return *this;
+		}
 		uint   VariableFactor;
 	};
 

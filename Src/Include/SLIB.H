@@ -19,7 +19,7 @@
 #ifndef __SLCONFIG_H
 	#include <slconfig.h>
 #endif
-#define WINDOWS_IGNORE_PACKING_MISMATCH // @v10.9.11
+// @v11.7.12 (defined at slconfig.h) #define WINDOWS_IGNORE_PACKING_MISMATCH // @v10.9.11
 #define U_STATIC_IMPLEMENTATION // @v11.3.0 ICU включается как статическая библиотека
 #ifndef RC_INVOKED
 	#include <slport.h>
@@ -4778,6 +4778,10 @@ public:
 	StringSet(const StringSet &);
 	~StringSet();
 	bool   FASTCALL IsEq(const StringSet & rS) const;
+	//
+	// Descr: Возвращает true если наборы эквивалентны с точностью до перестановки элементов.
+	//
+	bool   FASTCALL IsEqPermutation(const StringSet & rS) const;
 	bool   FASTCALL operator == (const StringSet & rS) const { return IsEq(rS); }
 	bool   FASTCALL operator != (const StringSet & rS) const { return !IsEq(rS); }
 	//
@@ -4862,6 +4866,7 @@ public:
 	// Descr: Сортирует строки набора в лексикографическом порядке
 	//
 	void   sort();
+	void   shuffle();
 	//
 	// Descr: Сортирует строки набора в лексикографическом порядке и удаляет из него дубликаты
 	//
@@ -8163,7 +8168,7 @@ public:
 template <class T> class TSVector : public SVector {
 public:
 	TSVector() : SVector(sizeof(T)) {}
-	TSVector(const TSVector & src) : SVector(src) {}
+	TSVector(const TSVector & rS) : SVector(rS) {}
 	T &    FASTCALL at(uint pos) const { return *reinterpret_cast<T *>(SVector::at(pos)); }
 };
 //
@@ -9276,6 +9281,7 @@ public:
 	void   SortByTextInTreeOrder();
 	void   SortByLength(int descend = 0);
 	void   Reverse();
+	void   Shuffle();
 	int    RemoveRecursion(LongArray * pBadList);
 	//
 	// Descr: Узкоспециализированная функция, извлекающая позицию текстовой строки
@@ -12659,7 +12665,9 @@ struct SJson {
 	};
 	static SJson * CreateObj(); // { return new SJson(tOBJECT); }
 	static SJson * CreateArr(); // { return new SJson(tARRAY); }
+	static SJson * CreateString(const char * pText);
 	static SJson * FASTCALL Parse(const char * pText);
+	static SJson * FASTCALL ParseFile(const char * pFileName);
 	static bool FASTCALL IsObject(const SJson * pN) { return (pN && pN->Type == SJson::tOBJECT); }
 	static bool FASTCALL IsArray(const SJson * pN) { return (pN && pN->Type == SJson::tARRAY); }
 	static bool FASTCALL IsString(const SJson * pN) { return (pN && pN->Type == SJson::tSTRING); }
@@ -15528,10 +15536,10 @@ public:
 	uint32 GetDWord() const;
 	const  void * GetBinary(size_t * pDataLen) const;
 	//const  char * GetString() const;
-	int    GetString(SString & rBuf) const;
+	int    GetStringUtf8(SString & rBuf) const;
 	int    PutDWord(uint32);
 	int    PutBinary(const void * pBuf, size_t dataSize);
-	int    PutString(const char * pStr);
+	int    PutStringUtf8(const char * pStr);
 private:
 	uint   Type;
 	void * P_Buf;
@@ -15568,6 +15576,26 @@ public:
 	int    PutString(const char * pParam, const char *);
 	int    PutBinary(const char * pParam, const void * pBuf, size_t bufLen);
 	int    PutValue(const char * pParam, const WinRegValue *);
+	//
+	// Descr: Записывает в ветку реестра перечисление строк из набора rSs.
+	//   Предварительно извлекаются параметры ветки и если в rSs присутствуют
+	//   значения, которых еще нет, то они вносятся, начиная с индекса, следующего
+	//   за максимальным присутствующим ранее.
+	//   То есть, если, скажем, ветка была пуста и набор rSs состоит из строк [str1, str2, str3] 
+	//   то в ветке появятся параметры:
+	//   { 1; str1 },  { 2; str2 }, { 3; str3 } 
+	//   Если ранее в ветке были параметры: { 1; other_str1 },  { 2; str2 }, { 3; other_str3 },
+	//   то после успешной отработки функции будет:
+	//   { 1; other_str1 },  { 2; str2 }, { 3; other_str3 }, { 4, str1 }, { 5, str3 }.
+	// ARG(rSs IN): Набор строк для вставки в ветку реестра, соответствующую ключу this.
+	//   @attention: все строки в наборе обязательно должны быть в кодировке utf8.
+	// ARG(pResult OUT): Если указатель не нулевой, то по нему будет присвоен полный список перечисляемых значений ветки,
+	//   по состоянию на момент завершения функции.
+	// Returns:
+	//   >0 - success
+	//    0 - error
+	//
+	int    PutEnumeratedStrings(const StringSet & rSs, StrAssocArray * pResult);
 private:
 	HKEY   Key;
 };

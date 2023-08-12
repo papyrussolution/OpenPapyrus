@@ -509,13 +509,10 @@ uint16 CMSEXPORT _cmsFloat2Half(float flt)
         float flt;
         uint32  num;
     } in;
-
     uint32 n, j;
-
     in.flt = flt;
     n = in.num;
     j = (n >> 23) & 0x1ff;
-
     return (uint16) ((uint32) Base[ j ] + (( n & 0x007fffff) >> Shift[ j ]));
 }
 

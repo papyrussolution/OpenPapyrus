@@ -378,7 +378,7 @@ class  PPTextAnalyzerWrapper;
 class  SelectObjectBlock;
 class  Backend_SelectObjectBlock;
 class  CPosNodeBlock;
-class  WsCtlBlock; // @v11.7.2
+class  WsCtlSrvBlock; // @v11.7.2
 struct CPosProcessor_SetupDiscontBlock; // @v10.2.3
 class  PersonCache;
 class  BhtTSess;
@@ -5917,6 +5917,7 @@ private:
 #define PPSCMD_WSCTL_END_SESS        10131 // @v11.7.6  WSCTL Завершение рабочего сеанса
 #define PPSCMD_WSCTL_TSESS           10132 // @v11.7.7  WSCTL Возвращает статус текущей сессии процессора
 #define PPSCMD_WSCTL_LOGOUT          10133 // @v11.7.7  WSCTL Выход из сеанса (без завершения текущей рабочей сессии)
+#define PPSCMD_WSCTL_QUERYPOLICY     10134 // @v11.7.12 WSCTL Запрос политики ограничений сеанса
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -7557,7 +7558,7 @@ protected:
 	long   Counter; // Счетчик, используемый для получения уникального значения, с помощью которого
 		// можно синхронизировать действия с клиентом
 	CPosNodeBlock * P_CPosBlk;
-	WsCtlBlock * P_WsCtlBlk; // @v11.7.3
+	WsCtlSrvBlock * P_WsCtlBlk; // @v11.7.3
 	//
 	// Descr: Управляющая структура для сохранения состояния пересылки файла
 	//

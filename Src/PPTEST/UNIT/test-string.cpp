@@ -1500,6 +1500,20 @@ SLTEST_R(StringSet)
 				SLCHECK_NZ(ss2 == ss);
 				SLCHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
 			}
+			{
+				// Проверяем Shuffle и IsEqPermutation
+				StringSet ss2;
+				ss2.copy(ss);
+				SLCHECK_NZ(ss.IsEq(ss2));
+				SLCHECK_NZ(ss2 == ss);
+				SLCHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
+				// @v11.7.12 {
+				ss2.shuffle();
+				SLCHECK_NZ(ss2 != ss);
+				SLCHECK_NZ(ss2.IsEqPermutation(ss));
+				// Здесь InnerBlock::Verify не сработает
+				// } @v11.7.12 
+			}
 		}
 		{
 			// Функция getByIdx

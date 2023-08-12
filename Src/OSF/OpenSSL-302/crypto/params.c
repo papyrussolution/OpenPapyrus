@@ -605,8 +605,7 @@ int OSSL_PARAM_get_int64(const OSSL_PARAM * p, int64_t * val)
 			         * 15 bits of INT64_MAX to avoid using imprecise floating
 			         * point values.
 			         */
-				&& d < (double)(INT64_MAX - 65535) + 65536.0
-				&& d == (int64_t)d) {
+				&& d < (double)(INT64_MAX - 65535) + 65536.0 && d == (int64_t)d) {
 				    *val = (int64_t)d;
 				    return 1;
 			    }

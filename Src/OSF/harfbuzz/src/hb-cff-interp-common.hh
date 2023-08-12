@@ -207,54 +207,29 @@ namespace CFF {
 #define OpCode_Invalid          0xFFFFu
 
 	struct number_t {
-		void init() {
+		void init() 
+		{
 			set_real(0.0);
 		}
-
-		void fini() {
-		}
-
-		void set_int(int v) {
-			value = v;
-		}
-
-		int to_int() const {
-			return value;
-		}
-
-		void set_fixed(int32_t v) {
-			value = v / 65536.0;
-		}
-
-		int32_t to_fixed() const {
-			return value * 65536.0;
-		}
-
-		void set_real(double v)   {
-			value = v;
-		}
-
-		double to_real() const {
-			return value;
-		}
-
-		bool in_int_range() const
+		void fini() 
 		{
-			return ((double)(int16_t)to_int() == value);
 		}
-
+		void set_int(int v) { value = v; }
+		int to_int() const { return value; }
+		void set_fixed(int32_t v) { value = v / 65536.0; }
+		int32_t to_fixed() const { return value * 65536.0; }
+		void set_real(double v)   { value = v; }
+		double to_real() const { return value; }
+		bool in_int_range() const { return ((double)(int16_t)to_int() == value); }
 		bool operator >  (const number_t &n) const { return value > n.to_real(); }
 		bool operator <  (const number_t &n) const { return n > *this; }
 		bool operator >= (const number_t &n) const { return !(*this < n); }
 		bool operator <= (const number_t &n) const { return !(*this > n); }
-
 		const number_t &operator += (const number_t &n)
 		{
 			set_real(to_real() + n.to_real());
-
 			return *this;
 		}
-
 protected:
 		double value;
 	};
@@ -276,18 +251,14 @@ protected:
 			return_trace(c->check_assign(*ip, value));
 		}
 
-		template <typename V>
-		static bool serialize_int4(hb_serialize_context_t * c, V value)
+		template <typename V> static bool serialize_int4(hb_serialize_context_t * c, V value)
 		{
 			return serialize_int<HBINT32> (c, OpCode_longintdict, value);
 		}
-
-		template <typename V>
-		static bool serialize_int2(hb_serialize_context_t * c, V value)
+		template <typename V> static bool serialize_int2(hb_serialize_context_t * c, V value)
 		{
 			return serialize_int<HBINT16> (c, OpCode_shortint, value);
 		}
-
 		/* Defining null_size allows a Null object may be created. Should be safe because:
 		 * A descendent struct Dict uses a Null pointer to indicate a missing table,
 		 * checked before access.
@@ -300,25 +271,23 @@ protected:
 
 /* Holder of a section of byte string within a CFFIndex entry */
 	struct byte_str_t : hb_ubytes_t {
-		byte_str_t()
-			: hb_ubytes_t() {
+		byte_str_t() : hb_ubytes_t() 
+		{
 		}
-		byte_str_t(const UnsizedByteStr &s, uint l)
-			: hb_ubytes_t((const uchar *)&s, l) {
+		byte_str_t(const UnsizedByteStr &s, uint l) : hb_ubytes_t((const uchar *)&s, l) 
+		{
 		}
-		byte_str_t(const uchar * s, uint l)
-			: hb_ubytes_t(s, l) {
+		byte_str_t(const uchar * s, uint l) : hb_ubytes_t(s, l) 
+		{
 		}
-		byte_str_t(const hb_ubytes_t &ub) /* conversion from hb_ubytes_t */
-			: hb_ubytes_t(ub) {
+		byte_str_t(const hb_ubytes_t &ub) /* conversion from hb_ubytes_t */ : hb_ubytes_t(ub) 
+		{
 		}
-
 		/* sub-string */
 		byte_str_t sub_str(uint offset, uint len_) const
 		{
 			return byte_str_t(hb_ubytes_t::sub_array(offset, len_));
 		}
-
 		bool check_limit(uint offset, uint count) const
 		{
 			return (offset + count <= length);

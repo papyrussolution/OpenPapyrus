@@ -1675,6 +1675,7 @@
     <ClCompile Include="..\PPLib\v_tsess.cpp" />
     <ClCompile Include="..\PPLib\v_usprof.cpp" />
     <ClCompile Include="..\PPLib\workbook.cpp" />
+    <ClCompile Include="..\PPLib\wsctl.cpp" />
     <ClCompile Include="..\Pptest\pptest.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200prs.cpp" />

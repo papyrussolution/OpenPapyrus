@@ -131,12 +131,43 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 /*static*/SJson * SJson::CreateObj() { return new SJson(tOBJECT); }
 /*static*/SJson * SJson::CreateArr() { return new SJson(tARRAY); }
 
+/*static*/SJson * SJson::CreateString(const char * pText)
+{
+	SJson * p_result = new SJson(tSTRING);
+	p_result->Text = pText;
+	return p_result;
+}
+
 /*static*/SJson * FASTCALL SJson::Parse(const char * pText)
 {
 	SJson * p_result = 0;
 	if(json_parse_document(&p_result, pText) != JSON_OK) {
 		ZDELETE(p_result);
 	}
+	return p_result;
+}
+
+/*static*/SJson * FASTCALL SJson::ParseFile(const char * pFileName)
+{
+	SJson * p_result = 0;
+	THROW(!isempty(pFileName));
+	THROW(fileExists(pFileName));
+	{
+		SString temp_buf;
+		SFile f_inp(pFileName, SFile::mRead|SFile::mBinary);
+		THROW(f_inp.IsValid());
+		{
+			STempBuffer in_buf(4096);
+			size_t actual_size = 0;
+			THROW(in_buf.IsValid());
+			THROW(f_inp.ReadAll(in_buf, 0, &actual_size));
+			temp_buf.Z().CatN(in_buf, actual_size);
+		}
+		p_result = SJson::Parse(temp_buf);
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
 	return p_result;
 }
 

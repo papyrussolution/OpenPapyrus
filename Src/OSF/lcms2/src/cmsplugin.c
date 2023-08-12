@@ -223,9 +223,8 @@ boolint CMSEXPORT _cmsWriteUInt16Array(cmsIOHANDLER* io, uint32 n, const uint16*
 
 boolint /*CMSEXPORT*/FASTCALL _cmsWriteUInt32Number(cmsIOHANDLER* io, uint32 n)
 {
-	uint32 tmp;
 	assert(io);
-	tmp = _cmsAdjustEndianess32(n);
+	uint32 tmp = _cmsAdjustEndianess32(n);
 	if(io->Write(io, sizeof(uint32), &tmp) != 1)
 		return FALSE;
 	return TRUE;
