@@ -223,15 +223,8 @@ public:
 	const TWhatman * P_Wtm;
 };
 
-int LayoutEntryDialogBlock::EditEntry(const TWhatman * pWtm)
-{
-	DIALOG_PROC_BODY_P1(LayoutEntryDialog, pWtm, this);
-}
-
-int LayoutEntryDialogBlock::EditContainer()
-{
-	DIALOG_PROC_BODY(LayoutContainerDialog, this);
-}
+int LayoutEntryDialogBlock::EditEntry(const TWhatman * pWtm) { DIALOG_PROC_BODY_P1(LayoutEntryDialog, pWtm, this); }
+int LayoutEntryDialogBlock::EditContainer() { DIALOG_PROC_BODY(LayoutContainerDialog, this); }
 
 class BaseWtmToolDialog : public TDialog {
 	DECL_DIALOG_DATA(TWhatmanToolArray::Item);

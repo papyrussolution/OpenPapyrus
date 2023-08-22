@@ -8446,7 +8446,7 @@ private:
 //    0 - строка с идентификатором fldID не найдена в пуле
 //   -2 - пул rLine пуст или же в нем нет ни одного тега (плоская строка)
 //
-int    FASTCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf);
+int    STDCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf);
 //
 // Descr: Извлекает из пула-хранилища строк rLine строку с идентификатором fldID и присваивает
 //   ее буферу rBuf. Если в пуле строка с идентификатором fldID не найдена, но пул не
@@ -8459,7 +8459,7 @@ int    FASTCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf
 //    0 - строка с идентификатором fldID не найдена в пуле
 //   -2 - пул rLine пуст или же в нем нет ни одного тега (плоская строка)
 //
-int    FASTCALL PPGetExtStrData_def(int fldID, int defFldID, const SString & rLine, SString & rBuf);
+int    STDCALL PPGetExtStrData_def(int fldID, int defFldID, const SString & rLine, SString & rBuf);
 //
 // Descr: Сравнивает значения тегированных подстрок с идентификатором fldID в строке rLine1 и rLine2.
 // ARG(fldID   IN): Идентификатор тега подстроки
@@ -8472,9 +8472,9 @@ int    FASTCALL PPGetExtStrData_def(int fldID, int defFldID, const SString & rLi
 //  <0 - строка из rLine1 лексикографически меньше, чем из rLine2
 //  >0 - строка из rLine1 лексикографически больше, чем из rLine2
 //
-int    FASTCALL PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options);
-int    FASTCALL PPPutExtStrData(int fldID, SString & rLine, const char * pBuf);
-int    FASTCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf);
+int    STDCALL PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options);
+int    STDCALL PPPutExtStrData(int fldID, SString & rLine, const char * pBuf);
+int    STDCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf);
 //
 // Descr: преобразует период *pPeriod в пересечение с периодом документов, определенным в правах
 //   пользователя. Если результат является пустым, то возвращает 0 и устанавливает код ошибки (PPERR_NORTPERIOD).
@@ -12058,11 +12058,11 @@ public:
 	int    RemoveAutoComplRow(uint pos);
 	int    GetComplete(PPID lotID, CompleteArray * pList);
 	//
-	// Descr: возвращает значение >0 если пакет относится к операции модификации и содержит
+	// Descr: возвращает true если пакет относится к операции модификации и содержит
 	//   как минимум одну товарную строку, помеченную признаками PPTFR_PLUS и
 	//   PPTFR_RECEIPT (независимый выход). Такие строки недопустимы в пакете рекомплектации.
 	//
-	int    HasIndepModifPlus() const;
+	bool   HasIndepModifPlus() const;
 	//
 	// Descr: используется в диалоге TrfrItemDialog. Это весьма развитая функция.
 	//   Она добавляет новую или изменяет существующую товарную строку, одновременно обрабатывая все
@@ -12095,12 +12095,12 @@ public:
 	int    InitPckg(); // @<<PPObjBill::PutPackgList
 	//
 	// Returns:
-	//   !0 - вид операции (Rec.OpID), к которой относится данный пакет принадлежит
+	//   true  - вид операции (Rec.OpID), к которой относится данный пакет принадлежит
 	//      одному из типов: {PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT}
-	//   0  - в противном случае
+	//   false - в противном случае
 	//
-	int    IsDraft() const; //
-	int    IsGoodsDetail() const;
+	bool   IsDraft() const; //
+	bool   IsGoodsDetail() const;
 	int    SetupVirtualTItems();
 	int    RemoveVirtualTItems();
 	//
@@ -15240,8 +15240,7 @@ public:
     //  } @erik v10.4.12
 	//
 	//
-	//
-	enum {
+	enum { // @persistent
 		extssMemo               =  1, // @reserved Примечание
 		extssSign               =  2, // Строка подписи чека (ЕГАИС)
 		extssEgaisUrl           =  3, // Текст URL информации о чеке ЕГАИС
@@ -15251,14 +15250,17 @@ public:
 		extssBuyerName          =  7, // @v11.0.4 Наименование покупателя (при формировании чека по документу)
 		extssBuyerPhone         =  8, // @v11.0.4 Телефон покупателя //
 		extssBuyerEMail         =  9, // @v11.3.6 Адрес электронной почты покупателя //
-		extssUuid               = 10, // @v11.5.2 UUID чека. Применяется в органиченном наборе сценариев. Введен ради взаимодействия со Stylo-Q.
-		// @attention: После вставки очередного элемента в этот enum добавьте этот элемент в ccpack_textext_ident_list (ccheck.cpp). 
+		extssUuid               = 10, // @v11.5.2 UUID чека. Применяется в ограниченном наборе сценариев. Введен ради взаимодействия со Stylo-Q.
+		extssPrescrDate         = 11, // @v11.7.12 Дата медицинского рецепта. Сохраняется в формате DATF_ISO8601 без разделителей, eg 20230821
+		extssPrescrSerial       = 12, // @v11.7.12 Серия медицинского рецепта
+		extssPrescrNumber       = 13  // @v11.7.12 Номер медицинского рецепта
+		// @attention: После вставки очередного элемента в enum добавьте этот элемент в ccpack_textext_ident_list (ccheck.cpp). 
 		//   Иначе этот атрибут не будет сохраняться в чеке.
 	};
 	//
 	// Descr: Идентификаторы текстовых расширений строк чека
 	//
-	enum {
+	enum { // @persistent
 		lnextSerial     = 1, // Серийный номер
 		lnextEgaisMark  = 2, // Марка ЕГАИС
 		lnextRemoteProcessingTa = 3, // @v10.1.4 Символ транзакции удаленной обработки строки. Имеет специальное назначение,
@@ -24217,8 +24219,8 @@ public:
 	// Descr: осуществляет кэшированное извлечение записи по идентификатору id.
 	//   Поля инициализируемые в записи pRec: {Tag, ID, Name, WrOffGrpID, AmtCost, AmtPrice, AmtDscnt, AmtCVat, Flags}
 	//
-	int    FASTCALL Fetch(PPID, PPGoodsType *);
-	int    FASTCALL IsUnlim(PPID);
+	int    FASTCALL Fetch(PPID id, PPGoodsType *);
+	bool   FASTCALL IsUnlim(PPID id);
 private:
 	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
@@ -31480,7 +31482,8 @@ public:
 			fEgaisVer2Fmt     = 0x0004, // Применять 2-ю версию форматов ЕГАИС
 			fEgaisVer3Fmt     = 0x0008, // Применять 3-ю версию форматов ЕГАИС (автоматически отменяет fEgaisVer2Fmt для тех документов, к которым применим 3-й формат).
 			fInvcCodePref     = 0x0010, // @v11.0.8 Если в документе есть номер счет-фактуры, то использовать его вместо номера документа
-			fEgaisVer4Fmt     = 0x0020  // @v11.0.11 Применять 4-ю версию форматов ЕГАИС
+			fEgaisVer4Fmt     = 0x0020, // @v11.0.11 Применять 4-ю версию форматов ЕГАИС
+			fNMarkedBalance   = 0x0040  // @v11.7.12 Немаркированную продукцию уравнивать по остаткам (дополнение к опции woswByCChecks)
 		};
 		//
 		// Descr: Варианты списания остатков с регистра 2 ЕГАИС
@@ -31753,14 +31756,15 @@ struct GoodsViewItem : public Goods2Tbl::Rec {
 class PPViewGoods : public PPView {
 public:
 	enum IterOrder {
-		OrdByDefault = 0, // Внутренние сортировки, для отображения в списках
+		OrdByDefault = 0,  // Внутренние сортировки, для отображения в списках
 		OrdByName,
 		OrdByAbbr,
 		OrdByGrp_Name,
 		OrdByGrp_Abbr,
-		OrdByBarcode,     // Сортировка на выбор пользователем, включая OrdByName
+		OrdByBarcode,      // Сортировка на выбор пользователем, включая OrdByName
 		OrdByBrand_Name,
-		OrdByBarcode_Name
+		OrdByBarcode_Name,
+		OrdByID            // @v11.7.12 Сортировка строго по идентификатору
 	};
 	PPViewGoods();
 	~PPViewGoods();
@@ -33757,7 +33761,8 @@ public:
 		fCreateAbsenceGoods   = 0x0010, // @v10.4.12 Создавать отсутствующие товары (если возможно)
 		fDontIdentGoodsByName = 0x0020, // @v10.5.0  При идентификации товаров
 		fChZnMarkAsCDATA      = 0x0040, // @v11.5.0 Для xml-форматов при экспорте марок чезнак обрамлять значения в конструкцию CDATA
-		fChZnMarkGTINSER      = 0x0080  // @v11.5.0 Марки чезнак экспортировать в виде GTIN-SERIAL, в противном случае - полную марку
+		fChZnMarkGTINSER      = 0x0080, // @v11.5.0 Марки чезнак экспортировать в виде GTIN-SERIAL, в противном случае - полную марку
+		fUseExtGoodsName      = 0x0100, // @v11.7.12 При экспорте использовать расширенные наименования товаров (если определены)
 	};
 	//
 	// Descr: Предопределенный форматы импорт/экспорта документов
@@ -56244,7 +56249,7 @@ protected:
 
 		Packet();
 		Packet & FASTCALL operator = (const CCheckItemArray & rS);
-		void   Clear();
+		Packet & Z();
 		void   ClearCur();
 		int    ClearGift();
 		int    HasCur() const;
@@ -56286,6 +56291,18 @@ protected:
 		SaModif CurModifList;    // Список выбранных модификаторов для текущей позиции
 		CcAmountList AmL;        // Список оплат по чеку
 		SString BuyersEAddr;     // @v11.3.6 Электронный адрес покупателя (email or phone)
+
+		struct Prescription { // @v11.7.12
+			Prescription();
+			Prescription & Z();
+			bool   IsValid() const;
+
+			LDATE Dt;
+			SString Serial;
+			SString Number;
+		};
+
+		Prescription Prescr; // @v11.7.12
 	};
 	struct RetBlock {
 		RetBlock();
@@ -56461,7 +56478,7 @@ private:
 	int    VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty, const CCheckItem * pCurItem, bool checkInputBuffer); // @v11.0.3 checkInputBuffer
 	void   AcceptSCard(PPID scardID, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb, uint ascf);
 	void   AcceptManualDiscount();
-	int    LoadCheck(const CCheckPacket *, int makeRetCheck, int notShow = 0);
+	int    LoadCheck(const CCheckPacket *, int makeRetCheck, bool dontShow);
 	int    SetupOrder(PPID ordCheckID);
 	void   setupRetCheck(int ret);
 	void   setupHint();
@@ -56505,6 +56522,7 @@ private:
 	int    ProcessPhnSvc(int mode);
 	int    InputComplexDinner(SaComplex & rComplex);
 	int    EditMemo(const char * pDlvrPhone, const char * pChannel);
+	int    EditPrescription();
 	void   ViewStoragePlaces(PPID goodsId);
 	int    ConfirmPosPaymBank(double amount);
 

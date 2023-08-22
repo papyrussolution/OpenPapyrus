@@ -959,7 +959,10 @@ static const int ccpack_textext_ident_list[] = {
 	CCheckPacket::extssBuyerName,         // @v11.0.4 Наименование покупателя (при формировании чека по документу)
 	CCheckPacket::extssBuyerPhone,        // @v11.0.4 Телефон покупателя //
 	CCheckPacket::extssBuyerEMail,        // @v11.3.6 
-	CCheckPacket::extssUuid               // @v11.5.2
+	CCheckPacket::extssUuid,              // @v11.5.2
+	CCheckPacket::extssPrescrDate,        // @v11.7.12 Дата медицинского рецепта
+	CCheckPacket::extssPrescrSerial,      // @v11.7.12 Серия медицинского рецепта
+	CCheckPacket::extssPrescrNumber,      // @v11.7.12 Номер медицинского рецепта
 };
 
 int CCheckPacket::PackTextExt(SString & rResult) const
@@ -2284,8 +2287,8 @@ int CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack)
 				entry.Type = pCpTbl->data.PaymType;
 				entry.Amount = intmnytodbl(pCpTbl->data.Amount);
 				entry.AddedID = pCpTbl->data.SCardID;
-				entry.CurID = pCpTbl->data.CurID; // @v9.0.4
-				entry.CurAmount = intmnytodbl(pCpTbl->data.CurAmount); // @v9.0.4
+				entry.CurID = pCpTbl->data.CurID;
+				entry.CurAmount = intmnytodbl(pCpTbl->data.CurAmount);
 				THROW_SL(rList.insert(&entry));
 			} while(pCpTbl->search(0, &cpk0, spNext) && pCpTbl->data.CheckID == id);
 			ok = 1;
@@ -3381,7 +3384,7 @@ int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, co
 	{
 		PPID   min_id = 0;
 		if(pCcDate2MaxIdIndex) {
-			LDATE first_date = plusdate(getcurdate_(), -backDays);
+			const LDATE first_date = plusdate(getcurdate_(), -static_cast<int>(backDays));
 			uint i = pCcDate2MaxIdIndex->getCount();
 			if(i) do {
 				const LAssoc & r_entry = pCcDate2MaxIdIndex->at(--i);
@@ -6060,10 +6063,11 @@ int CCheckCore::CorrectCCLineProblem01()
 				// @v10.8.7 (LoadPacket) cc_pack.Z();
 				THROW_DB(getPosition(&c_pos));
 				if(LoadPacket(cc_id, 0, &cc_pack) > 0) {
-					double amt = 0.0, dscnt = 0.0;
+					double amt = 0.0;
+					double dscnt = 0.0;
 					cc_pack.CalcAmount(&amt, &dscnt);
-					double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
-					double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
+					const double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
+					const double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
 					if(fabs(amt - rec_amt) > tolerance) {
 						LongArray rbc_list;
 						uint c = cc_pack.Items_.getCount();

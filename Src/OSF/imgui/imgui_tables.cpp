@@ -328,7 +328,7 @@ bool ImGui::BeginTableEx(const char* name, ImGuiID id, int columns_count, ImGuiT
 
 	// Instance data (for instance 0, TableID == TableInstanceID)
 	ImGuiID instance_id;
-	table->InstanceCurrent = (ImS16)instance_no;
+	table->InstanceCurrent = (int16)instance_no;
 	if(instance_no > 0) {
 		assert(table->ColumnsCount == columns_count && "BeginTable(): Cannot change columns count mid-frame while preserving same ID");
 		if(table->InstanceDataExtra.Size < instance_no)
@@ -688,9 +688,9 @@ static void TableSetupColumnFlags(ImGuiTable* table, ImGuiTableColumn* column, I
 		if((table->Flags & ImGuiTableFlags_SortTristate) || count == 0) {
 			mask |= 1 << ImGuiSortDirection_None; count++;
 		}
-		column->SortDirectionsAvailList = (ImU8)list;
-		column->SortDirectionsAvailMask = (ImU8)mask;
-		column->SortDirectionsAvailCount = (ImU8)count;
+		column->SortDirectionsAvailList = (uint8)list;
+		column->SortDirectionsAvailMask = (uint8)mask;
+		column->SortDirectionsAvailCount = (uint8)count;
 		ImGui::TableFixColumnSortDirection(table, column);
 	}
 }
@@ -934,7 +934,7 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
 		const int column_n = table->DisplayOrderToIndex[order_n];
 		ImGuiTableColumn* column = &table->Columns[column_n];
 
-		column->NavLayerCurrent = (ImS8)(table->FreezeRowsCount > 0 ? ImGuiNavLayer_Menu : ImGuiNavLayer_Main); // Use Count NOT request so Header line changes layer when frozen
+		column->NavLayerCurrent = (int8)(table->FreezeRowsCount > 0 ? ImGuiNavLayer_Menu : ImGuiNavLayer_Main); // Use Count NOT request so Header line changes layer when frozen
 
 		if(offset_x_frozen && table->FreezeColumnsCount == visible_n) {
 			offset_x += work_rect.Min.x - table->OuterRect.Min.x;
@@ -1411,14 +1411,14 @@ void ImGui::TableSetupColumn(const char* label, ImGuiTableColumnFlags flags, flo
 		if(flags & ImGuiTableColumnFlags_DefaultSort && (table->SettingsLoadedFlags & ImGuiTableFlags_Sortable) == 0) {
 			column->SortOrder = 0; // Multiple columns using _DefaultSort will be reassigned unique SortOrder values when building the sort specs.
 			column->SortDirection =
-			    (column->Flags & ImGuiTableColumnFlags_PreferSortDescending) ? (ImS8)ImGuiSortDirection_Descending : (ImU8)(ImGuiSortDirection_Ascending);
+			    (column->Flags & ImGuiTableColumnFlags_PreferSortDescending) ? (int8)ImGuiSortDirection_Descending : (uint8)(ImGuiSortDirection_Ascending);
 		}
 	}
 
 	// Store name (append with zero-terminator in contiguous buffer)
 	column->NameOffset = -1;
 	if(label != NULL && label[0] != 0) {
-		column->NameOffset = (ImS16)table->ColumnsNames.size();
+		column->NameOffset = (int16)table->ColumnsNames.size();
 		table->ColumnsNames.append(label, label + strlen(label) + 1);
 	}
 }
@@ -2542,7 +2542,7 @@ void ImGui::TableFixColumnSortDirection(ImGuiTable* table, ImGuiTableColumn* col
 {
 	if(column->SortOrder == -1 || (column->SortDirectionsAvailMask & (1 << column->SortDirection)) != 0)
 		return;
-	column->SortDirection = (ImU8)TableGetColumnAvailSortDirection(column, 0);
+	column->SortDirection = (uint8)TableGetColumnAvailSortDirection(column, 0);
 	table->IsSortSpecsDirty = true;
 }
 
@@ -2577,7 +2577,7 @@ void ImGui::TableSetColumnSortDirection(int column_n, ImGuiSortDirection sort_di
 		for(int other_column_n = 0; other_column_n < table->ColumnsCount; other_column_n++)
 			sort_order_max = smax(sort_order_max, table->Columns[other_column_n].SortOrder);
 	ImGuiTableColumn* column = &table->Columns[column_n];
-	column->SortDirection = (ImU8)sort_direction;
+	column->SortDirection = (uint8)sort_direction;
 	if(column->SortDirection == ImGuiSortDirection_None)
 		column->SortOrder = -1;
 	else if(column->SortOrder == -1 || !append_to_sort_specs)
@@ -2599,7 +2599,7 @@ void ImGui::TableSortSpecsSanitize(ImGuiTable* table)
 
 	// Clear SortOrder from hidden column and verify that there's no gap or duplicate.
 	int sort_order_count = 0;
-	ImU64 sort_order_mask = 0x00;
+	uint64 sort_order_mask = 0x00;
 	for(int column_n = 0; column_n < table->ColumnsCount; column_n++) {
 		ImGuiTableColumn* column = &table->Columns[column_n];
 		if(column->SortOrder != -1 && !column->IsEnabled)
@@ -2607,24 +2607,24 @@ void ImGui::TableSortSpecsSanitize(ImGuiTable* table)
 		if(column->SortOrder == -1)
 			continue;
 		sort_order_count++;
-		sort_order_mask |= ((ImU64)1 << column->SortOrder);
+		sort_order_mask |= ((uint64)1 << column->SortOrder);
 		assert(sort_order_count < (int)sizeof(sort_order_mask) * 8);
 	}
 
-	const bool need_fix_linearize = ((ImU64)1 << sort_order_count) != (sort_order_mask + 1);
+	const bool need_fix_linearize = ((uint64)1 << sort_order_count) != (sort_order_mask + 1);
 	const bool need_fix_single_sort_order = (sort_order_count > 1) && !(table->Flags & ImGuiTableFlags_SortMulti);
 	if(need_fix_linearize || need_fix_single_sort_order) {
-		ImU64 fixed_mask = 0x00;
+		uint64 fixed_mask = 0x00;
 		for(int sort_n = 0; sort_n < sort_order_count; sort_n++) {
 			// Fix: Rewrite sort order fields if needed so they have no gap or duplicate.
 			// (e.g. SortOrder 0 disappeared, SortOrder 1..2 exists --> rewrite then as SortOrder 0..1)
 			int column_with_smallest_sort_order = -1;
 			for(int column_n = 0; column_n < table->ColumnsCount; column_n++)
-				if((fixed_mask & ((ImU64)1 << (ImU64)column_n)) == 0 && table->Columns[column_n].SortOrder != -1)
+				if((fixed_mask & ((uint64)1 << (uint64)column_n)) == 0 && table->Columns[column_n].SortOrder != -1)
 					if(column_with_smallest_sort_order == -1 || table->Columns[column_n].SortOrder < table->Columns[column_with_smallest_sort_order].SortOrder)
 						column_with_smallest_sort_order = column_n;
 			assert(column_with_smallest_sort_order != -1);
-			fixed_mask |= ((ImU64)1 << column_with_smallest_sort_order);
+			fixed_mask |= ((uint64)1 << column_with_smallest_sort_order);
 			table->Columns[column_with_smallest_sort_order].SortOrder = (ImGuiTableColumnIdx)sort_n;
 
 			// Fix: Make sure only one column has a SortOrder if ImGuiTableFlags_MultiSortable is not set.
@@ -2645,7 +2645,7 @@ void ImGui::TableSortSpecsSanitize(ImGuiTable* table)
 			if(column->IsEnabled && !(column->Flags & ImGuiTableColumnFlags_NoSort)) {
 				sort_order_count = 1;
 				column->SortOrder = 0;
-				column->SortDirection = (ImU8)TableGetColumnAvailSortDirection(column, 0);
+				column->SortDirection = (uint8)TableGetColumnAvailSortDirection(column, 0);
 				break;
 			}
 		}
@@ -3148,7 +3148,7 @@ void ImGui::TableLoadSettings(ImGuiTable* table)
 
 	// Serialize ImGuiTableSettings/ImGuiTableColumnSettings into ImGuiTable/ImGuiTableColumn
 	ImGuiTableColumnSettings* column_settings = settings->GetColumnSettings();
-	ImU64 display_order_mask = 0;
+	uint64 display_order_mask = 0;
 	for(int data_n = 0; data_n < settings->ColumnsCount; data_n++, column_settings++) {
 		int column_n = column_settings->Index;
 		if(column_n < 0 || column_n >= table->ColumnsCount)
@@ -3166,14 +3166,14 @@ void ImGui::TableLoadSettings(ImGuiTable* table)
 			column->DisplayOrder = column_settings->DisplayOrder;
 		else
 			column->DisplayOrder = (ImGuiTableColumnIdx)column_n;
-		display_order_mask |= (ImU64)1 << column->DisplayOrder;
+		display_order_mask |= (uint64)1 << column->DisplayOrder;
 		column->IsUserEnabled = column->IsUserEnabledNextFrame = column_settings->IsEnabled;
 		column->SortOrder = column_settings->SortOrder;
 		column->SortDirection = column_settings->SortDirection;
 	}
 
 	// Validate and fix invalid display order data
-	const ImU64 expected_display_order_mask = (settings->ColumnsCount == 64) ? ~0 : ((ImU64)1 << settings->ColumnsCount) - 1;
+	const uint64 expected_display_order_mask = (settings->ColumnsCount == 64) ? ~0 : ((uint64)1 << settings->ColumnsCount) - 1;
 	if(display_order_mask != expected_display_order_mask)
 		for(int column_n = 0; column_n < table->ColumnsCount; column_n++)
 			table->Columns[column_n].DisplayOrder = (ImGuiTableColumnIdx)column_n;
@@ -3247,7 +3247,7 @@ static void TableSettingsHandler_ReadLine(ImGuiContext*, ImGuiSettingsHandler*, 
 			line = ImStrSkipBlank(line + r); column->WidthOrWeight = f; column->IsStretch = 1; settings->SaveFlags |= ImGuiTableFlags_Resizable;
 		}
 		if(sscanf(line, "Visible=%d%n", &n, &r) == 1) {
-			line = ImStrSkipBlank(line + r); column->IsEnabled = (ImU8)n; settings->SaveFlags |= ImGuiTableFlags_Hideable;
+			line = ImStrSkipBlank(line + r); column->IsEnabled = (uint8)n; settings->SaveFlags |= ImGuiTableFlags_Hideable;
 		}
 		if(sscanf(line, "Order=%d%n", &n, &r) == 1) {
 			line = ImStrSkipBlank(line + r); column->DisplayOrder = (ImGuiTableColumnIdx)n; settings->SaveFlags |= ImGuiTableFlags_Reorderable;

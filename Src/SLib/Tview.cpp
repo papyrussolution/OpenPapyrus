@@ -87,18 +87,18 @@ int TCommandSet::has(int cmd) const
 void TCommandSet::enableAll()
 	{ memset(cmds, 0xff, sizeof(cmds)); }
 
-void TCommandSet::enableCmd(int cmd, int is_enable)
+void TCommandSet::enableCmd(int cmd, bool toEnable)
 {
-	if(is_enable)
+	if(toEnable)
 		setbit32(cmds, sizeof(cmds), cmd);
 	else
 		resetbit32(cmds, sizeof(cmds), cmd);
 }
 
-void TCommandSet::enableCmd(const TCommandSet & tc, int is_enable)
+void TCommandSet::enableCmd(const TCommandSet & tc, bool toEnable)
 {
 	int    i = 0;
-	if(is_enable)
+	if(toEnable)
 		for(; i < SIZEOFARRAY(cmds); i++)
 			cmds[i] |= tc.cmds[i];
 	else
@@ -646,7 +646,7 @@ TView * TView::prevView() const { return (this == P_Owner->GetFirstView()) ? 0 :
 int    TView::commandEnabled(ushort command) const { return BIN((command >= 64*32) || !P_CmdSet || P_CmdSet->has(command)); }
 int    TView::TransmitData(int dir, void * pData) { return 0; } // Ничего не передается и не получается. Размер данных - 0.
 
-void STDCALL TView::enableCommands(const TCommandSet & cmds, int areEnabled)
+void STDCALL TView::enableCommands(const TCommandSet & cmds, bool toEnable)
 {
 	if(!P_CmdSet) {
 		P_CmdSet = new TCommandSet;
@@ -654,13 +654,13 @@ void STDCALL TView::enableCommands(const TCommandSet & cmds, int areEnabled)
 	}
 	if(P_CmdSet) {
 		if(!(Sf & sfCmdSetChanged))
-			if(areEnabled) {
+			if(toEnable) {
 				SETFLAG(Sf, sfCmdSetChanged, (*P_CmdSet & cmds) != cmds);
 			}
 			else {
 				SETFLAG(Sf, sfCmdSetChanged, !(*P_CmdSet & cmds).IsEmpty());
 			}
-		P_CmdSet->enableCmd(cmds, areEnabled);
+		P_CmdSet->enableCmd(cmds, toEnable);
 		if(Sf & sfCmdSetChanged) {
 			TView::messageBroadcast(this, cmCommandSetChanged);
 			Sf &= ~sfCmdSetChanged;
@@ -668,7 +668,7 @@ void STDCALL TView::enableCommands(const TCommandSet & cmds, int areEnabled)
 	}
 }
 
-void STDCALL TView::enableCommand(ushort cmd, int isEnabled)
+void STDCALL TView::enableCommand(ushort cmd, bool toEnable)
 {
 	if(!P_CmdSet) {
 		P_CmdSet = new TCommandSet;
@@ -677,12 +677,12 @@ void STDCALL TView::enableCommand(ushort cmd, int isEnabled)
 	if(P_CmdSet) {
 		if(!(Sf & sfCmdSetChanged))
 			if(P_CmdSet->has(cmd)) {
-				SETFLAG(Sf, sfCmdSetChanged, !isEnabled);
+				SETFLAG(Sf, sfCmdSetChanged, !toEnable);
 			}
 			else {
-				SETFLAG(Sf, sfCmdSetChanged, isEnabled);
+				SETFLAG(Sf, sfCmdSetChanged, toEnable);
 			}
-		P_CmdSet->enableCmd(cmd, isEnabled);
+		P_CmdSet->enableCmd(cmd, toEnable);
 		if(Sf & sfCmdSetChanged) {
 			TView::messageBroadcast(this, cmCommandSetChanged);
 			Sf &= ~sfCmdSetChanged;

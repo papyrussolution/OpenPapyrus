@@ -370,8 +370,8 @@ public:
 	bool   IsEmpty() const;
 	int    has(int cmd) const;
 	void   enableAll();
-	void   enableCmd(int cmd, int is_enable);
-	void   enableCmd(const TCommandSet&, int is_enable);
+	void   enableCmd(int cmd, bool toEnable);
+	void   enableCmd(const TCommandSet&, bool toEnable);
 	void   operator += (int cmd);
 	void   operator -= (int cmd);
 	void   operator += (const TCommandSet&);
@@ -453,6 +453,10 @@ public:
 	//
 	uint   GetCount() const;
 	//
+	// Descr: Возвращает общий размер скроллируемой области.
+	//
+	float  GetSize() const { return P_ItemSizeList ? P_ItemSizeList->Sum() : (FixedItemSize * ItemCount); }
+	//
 	// Descr: Возвращает индекс текущей позиции.
 	//
 	uint   GetCurrentIndex() const;
@@ -468,12 +472,25 @@ public:
 	// Descr: Возвращает значение верхней позиции текущей страницы в точках.
 	//
 	float  GetCurrentPageTopPoint() const;
+	//
+	// Descr: Определяет, содержится ли индекс idx в видимой зоне скроллирования согласно внутреннему списку P_LineContent.
+	// Note: Аргумент idx представлен знаковым целым числом поскольку контейнер P_LineContent содержит значения такого же типа.
+	// Returns:
+	//   >0 - индекс idx содержится в видимой зоне
+	//    0 - индекс idx не содержится в видимой зоне
+	//   <0 - не возможно ответить на запрос поскольку внутренний список P_LineContent не определен либо инвалиден.
+	//
+	int    FASTCALL CheckLineContentIndex(long idx) const;
 	int    LineDown(uint ic, bool moveCursor);
 	int    LineUp(uint ic, bool moveCursor);
 	int    PageDown(uint pc);
 	int    PageUp(uint pc);
 	int    Top();
 	int    Bottom();
+	//
+	// Descr: Устанавливает индекс текущей позиции
+	//
+	int    SetCurrentIndex(uint idx);
 	uint   GetPageBottomIndex(uint topIdx) const;
 	uint   GetPageTopIndex(uint bottomIdx) const;
 	//
@@ -496,8 +513,26 @@ public:
 		float  FixedItemSize;
 		FloatArray ItemSizeList; // Если FixedItemSize > 0.0 то ItemSizeList игнорируется в противном случае
 			// assert(ItemSizeList.getCount() == ItemCount)
+		TSCollection <LongArray> LineContent; // @v11.7.12
 	};
 	int    Setup(const SetupBlock & rBlk);
+
+	struct Position {
+		Position() : ItemIdxPageTop(0), ItemIdxCurrent(0)
+		{
+		}
+		Position & Z()
+		{
+			ItemIdxPageTop = 0;
+			ItemIdxCurrent = 0;
+			return *this;
+		}
+		uint   ItemIdxPageTop;
+		uint   ItemIdxCurrent;
+	};
+
+	int    GetPosition(Position & rP) const;
+	int    SetPosition(const Position & rP);
 private:
 	uint   AdjustTopIdx(uint idx) const;
 	//
@@ -510,8 +545,9 @@ private:
 	uint   PageCurrent;
 	float  ViewSize;
 	float  FixedItemSize;
-	uint   ItemIdxPageTop;
-	uint   ItemIdxCurrent;
+	//uint   ItemIdxPageTop;
+	//uint   ItemIdxCurrent;
+	Position P;
 	FloatArray * P_ItemSizeList; // Используется если размеры элементов отличаются один от другого
 	TSCollection <LongArray> * P_LineContent; // Список якорных идентификаторов, ассоциированных с элементами
 		// assert(!P_LineContent || P_LineContent->getCount() == ItemCount)
@@ -826,6 +862,7 @@ public:
 	int    Evaluate(const Param * pP);
 	SUiLayout * InsertItem();
 	SUiLayout * InsertItem(void * pManagedPtr, const SUiLayoutParam * pAlb, int id = 0);
+	SUiLayout * InsertCopy(const SUiLayout * pOriginalLayout);
 	void   DeleteItem(uint idx);
 	void   DeleteAllItems();
 	int    GetOrder() const;
@@ -850,7 +887,18 @@ public:
 	//   Если идентфикатор уже не нулевой, то просто возвращает его значение.
 	//
 	int    SetupUniqueID();
-	const  SUiLayout * FindByID(int id) const;
+	//
+	// Descr: Функция ищет дочерний элемент рекурсивно по всему дереву лейаутов, начиная с this.
+	//   Поиск осуществляется по критерию эквивалентности идентификатора элемента заначению параметра id.
+	//   constant-версия.
+	//
+	const  SUiLayout * FindByIdC(int id) const;
+	//
+	// Descr: Функция ищет дочерний элемент рекурсивно по всему дереву лейаутов, начиная с this.
+	//   Поиск осуществляется по критерию эквивалентности идентификатора элемента заначению параметра id.
+	//   nonconstant-версия.
+	//
+	SUiLayout * FindById(int id);
 	//
 	// Descr: Вычисляет полную ширину элемента без рассмотрения его внутренних компонентов.
 	//   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
@@ -905,7 +953,8 @@ public:
 	// Descr: Возвращает корневой элемент дерева, компонентом которого является this.
 	//
 	SUiLayout * GetRoot();
-	const  Result & GetResult() const { return R; }
+	const  Result & GetResultC() const { return R; }
+	Result & GetResult_() { return R; }
 	//
 	// Descr: Гомогенный элемент. Вектор таких элементов (HomogeneousList) заменяет множество 
 	//   однообразных элементов. За счет использования гомогенных списков я рассчитываю получить
@@ -2267,8 +2316,8 @@ public:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	DECL_HANDLE_EVENT;
 	int    commandEnabled(ushort command) const;
-	void   STDCALL enableCommands(const TCommandSet & commands, int areEnabled);
-	void   STDCALL enableCommand(ushort command, int isEnabled);
+	void   STDCALL enableCommands(const TCommandSet & commands, bool toEnable);
+	void   STDCALL enableCommand(ushort command, bool toEnable);
 	void   getCommands(TCommandSet & commands) const;
 	void   setCommands(const TCommandSet & commands);
 	void   setBounds(const TRect & bounds);

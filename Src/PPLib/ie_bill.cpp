@@ -899,6 +899,7 @@ int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 5, PPBillImpExpParam::fCreateAbsenceGoods); // @v10.4.12 @v10.5.0 4-->5
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 6, PPBillImpExpParam::fChZnMarkAsCDATA); // @v11.5.0
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 7, PPBillImpExpParam::fChZnMarkGTINSER); // @v11.5.0
+	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 8, PPBillImpExpParam::fUseExtGoodsName); // @v11.7.12
 	SetClusterData(CTL_IMPEXPBILH_FLAGS, Data.Flags);
 
 	PPIDArray op_types;
@@ -5887,7 +5888,8 @@ int PPBillExporter::GetReg(PPID arID, PPID regTypeID, SString & rRegNum)
 //
 int PPBillExporter::CheckBillsWasExported(ImpExpDll * pExpDll)
 {
-	int    ok = 1, r = 1;
+	int    ok = 1;
+	int    r = 1;
 	{
 		Sdr_DllImpExpReceipt exp_rcpt;
 		// @v10.7.9 @ctr MEMSZERO(exp_rcpt);
@@ -6151,6 +6153,7 @@ void DocNalogRu_Generator::EndDocument()
 int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction/*= false*/)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	double total_amt = 0.0;
 	double total_amt_before = 0.0;
 	double total_amt_after = 0.0;
@@ -6162,6 +6165,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 	double total_vat_after = 0.0;
 	const  long exclude_tax_flags = (rHi.Flags & FileInfo::fVatFree) ? GTAXVF_VAT : 0L;
 	SString temp_buf;
+	SString goods_ext_strings;
 	SString unit_name;
 	SString unit_code;
 	SString goods_code;
@@ -6280,7 +6284,15 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			if(GObj.Fetch(goods_id, &goods_rec) > 0) {
 				PPUnit u_rec;
 				PPGoodsType gt_rec;
-				temp_buf = goods_rec.Name;
+				temp_buf.Z(); // @v11.7.12
+				// @v11.7.12 {
+				if(rParam.Flags & PPBillImpExpParam::fUseExtGoodsName) {
+					if(p_ref->GetPropVlrString(PPOBJ_GOODS, goods_id, GDSPRP_EXTSTRDATA, goods_ext_strings) > 0)
+						PPGetExtStrData(GDSEXSTR_LABELNAME, goods_ext_strings, temp_buf);
+				}
+				// } @v11.7.12
+				if(temp_buf.IsEmpty())
+					temp_buf = goods_rec.Name;
 				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WARENAME), EncText(temp_buf));
 				if(GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
 					(unit_name = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v10.6.11
@@ -7392,8 +7404,18 @@ int WriteBill_NalogRu2_Invoice2(const PPBillImpExpParam & rParam, const PPBillPa
 				PPID   suppl_psn_id = 0;
 				PPID   suppl_loc_id = 0;
 				PPID   buyer_psn_id = 0;
-				int    do_skip = 0;
-				int    is_intrexpend = 0;
+				bool   do_skip = false;
+				bool   is_intrexpend = false;
+				// @v11.7.12 {
+				bool   are_all_goods_unlim = true;
+				{
+					for(uint i = 0; are_all_goods_unlim && i < rBp.GetTCount(); i++) {
+						const PPTransferItem & r_ti = rBp.ConstTI(i);
+						if(!(r_ti.Flags & PPTFR_UNLIM))
+							are_all_goods_unlim = false;
+					}
+				}
+				// } @v11.7.12
 				{
 					if(oneof2(rBp.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
 						PPID   ar2_main_org_id = 0;
@@ -7403,7 +7425,7 @@ int WriteBill_NalogRu2_Invoice2(const PPBillImpExpParam & rParam, const PPBillPa
 							buyer_psn_id = consignee_psn_id;
 							shipper_psn_id = _blk.MainOrgID;
 							shipper_loc_id = rBp.Rec.LocID;
-							is_intrexpend = 1;
+							is_intrexpend = true;
 						}
 						else {
 							consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
@@ -7441,13 +7463,15 @@ int WriteBill_NalogRu2_Invoice2(const PPBillImpExpParam & rParam, const PPBillPa
 					}
 				}
 				_blk.G.WriteOrgInfo(_blk.GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, rBp.Rec.Dt, 0);
-				// @v10.8.2 {
-				{
-					SXml::WNode n_1(_blk.G.P_X, _blk.GetToken(PPHSC_RU_CONSIGNORINFO));
-					_blk.G.WriteOrgInfo(_blk.GetToken(PPHSC_RU_CONSIGNORINFO2), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
+				if(!are_all_goods_unlim) { // @v11.7.12
+					// @v10.8.2 {
+					{
+						SXml::WNode n_1(_blk.G.P_X, _blk.GetToken(PPHSC_RU_CONSIGNORINFO));
+						_blk.G.WriteOrgInfo(_blk.GetToken(PPHSC_RU_CONSIGNORINFO2), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
+					}
+					_blk.G.WriteOrgInfo(_blk.GetToken(PPHSC_RU_CONSIGNEEINFO), buyer_psn_id, consignee_loc_id, rBp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
+					// } @v10.8.2
 				}
-				_blk.G.WriteOrgInfo(_blk.GetToken(PPHSC_RU_CONSIGNEEINFO), buyer_psn_id, consignee_loc_id, rBp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
-				// } @v10.8.2
 				{
 					// @v11.4.12 {
 					PPID   _buyer_person_id = 0;

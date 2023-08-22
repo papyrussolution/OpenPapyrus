@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494728
+LastSignatureCode=2147494732
 LastAutoCodeList=1,12212;102,10177;103,10072;110,10000;111,12094;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10314;124,10279;125,10047
 
 [SignatureList]
@@ -1413,6 +1413,7 @@ documentmemo=2147484821
 documentnew=2147484822
 documentpool=2147484823
 documentpool_pl=2147484824
+medprescription=2147494729
 draftdocument=2147484825
 draftdocument_pl=2147484826
 reckondocument=2147484827
@@ -1581,6 +1582,7 @@ sortby_turnover=2147484949
 sortby_owner=2147484950
 sortby_goodsgroupandname=2147484951
 sortby_goodsgroupcodeandname=2147484952
+sortby_id=2147494730
 ru_iftscode=2147493961
 ru_iftsterrareacode=2147493962
 civillawsubj_individual_ss=2147493963
@@ -4282,6 +4284,7 @@ cfgalcreport_woswbycchecks=2147487319
 cfgalcreport_woswbybills=2147487320
 cfgalcreport_rtlsaleallwtime=2147487321
 cfgalcreport_supplagent=2147493820
+cfgalcreport_fnmarkedbalance=2147494731
 cfgbill_addfilesfolder=2147487322
 cfgbill_bcf_acceptgoodsbillchg=2147487323
 cfgbill_bcf_addautoqttybybrcode=2147487324
@@ -9378,6 +9381,7 @@ impexpparambillh_fcreateabsencegoods=2147492172
 impexpparambillh_fdontidentgoodsbyname=2147492173
 impexpparambillh_fchznmarkascdata=2147494608
 impexpparambillh_fchznmarkgtinser=2147494609
+impexpparambillh_fuseextgoodsname=2147494732
 impexpparambillh_impop=2147492174
 impexpparambillh_predefformat=2147492175
 impexpparambillh_pfundef=2147492176

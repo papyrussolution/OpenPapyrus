@@ -4223,6 +4223,15 @@ int    FASTCALL FloatArray::add(SPoint2F p) { return insertChunk(2, &p); }
 float  FASTCALL FloatArray::get(uint i) const { return at(i); }
 float & FASTCALL FloatArray::operator [] (size_t i) const { return at(i); }
 
+float FloatArray::Sum() const
+{
+	float result = 0.0f;
+	for(uint i = 0; i < getCount(); i++) {
+		result += at(i);
+	}
+	return result;
+}
+
 int FASTCALL FloatArray::dim(uint numItems)
 {
     clear();

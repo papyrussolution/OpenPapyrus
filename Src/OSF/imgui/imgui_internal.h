@@ -313,7 +313,7 @@ ImU32         ImAlphaBlendColors(ImU32 col_a, ImU32 col_b);
 
 // Helpers: Bit manipulation
 static inline bool ImIsPowerOfTwo(int v)    { return v != 0 && (v & (v - 1)) == 0; }
-static inline bool ImIsPowerOfTwo(ImU64 v)  { return v != 0 && (v & (v - 1)) == 0; }
+static inline bool ImIsPowerOfTwo(uint64 v)  { return v != 0 && (v & (v - 1)) == 0; }
 static inline int  ImUpperPowerOfTwo(int v) { v--; v |= v >> 1; v |= v >> 2; v |= v >> 4; v |= v >> 8; v |= v >> 16; v++; return v; }
 
 // Helpers: String
@@ -362,17 +362,17 @@ int           ImTextCountUtf8BytesFromStr(const ImWchar* in_text, const ImWchar*
 	typedef void* ImFileHandle;
 	static inline ImFileHandle  ImFileOpen(const char*, const char*)                    { return NULL; }
 	static inline bool  ImFileClose(ImFileHandle)                               { return false; }
-	static inline ImU64 ImFileGetSize(ImFileHandle)                             { return (ImU64)-1; }
-	static inline ImU64 ImFileRead(void*, ImU64, ImU64, ImFileHandle)           { return 0; }
-	static inline ImU64 ImFileWrite(const void*, ImU64, ImU64, ImFileHandle)    { return 0; }
+	static inline uint64 ImFileGetSize(ImFileHandle)                             { return (uint64)-1; }
+	static inline uint64 ImFileRead(void*, uint64, uint64, ImFileHandle)           { return 0; }
+	static inline uint64 ImFileWrite(const void*, uint64, uint64, ImFileHandle)    { return 0; }
 #endif
 #ifndef IMGUI_DISABLE_DEFAULT_FILE_FUNCTIONS
 	typedef FILE* ImFileHandle;
 	ImFileHandle ImFileOpen(const char* filename, const char* mode);
 	bool  ImFileClose(ImFileHandle file);
-	ImU64 ImFileGetSize(ImFileHandle file);
-	ImU64 ImFileRead(void* data, ImU64 size, ImU64 count, ImFileHandle file);
-	ImU64 ImFileWrite(const void* data, ImU64 size, ImU64 count, ImFileHandle file);
+	uint64 ImFileGetSize(ImFileHandle file);
+	uint64 ImFileRead(void* data, uint64 size, uint64 count, ImFileHandle file);
+	uint64 ImFileWrite(const void* data, uint64 size, uint64 count, ImFileHandle file);
 #else
 	#define IMGUI_DISABLE_TTY_FUNCTIONS // Can't use stdout, fflush if we are not using default file functions
 #endif
@@ -563,7 +563,7 @@ inline void ImBitArraySetBitRange(ImU32* arr, int n, int n2)     // Works on ran
 	while(n <= n2) {
 		int a_mod = (n & 31);
 		int b_mod = (n2 > (n | 31) ? 31 : (n2 & 31)) + 1;
-		ImU32 mask = (ImU32)(((ImU64)1 << b_mod) - 1) & ~(ImU32)(((ImU64)1 << a_mod) - 1);
+		ImU32 mask = (ImU32)(((uint64)1 << b_mod) - 1) & ~(ImU32)(((uint64)1 << a_mod) - 1);
 		arr[n >> 5] |= mask;
 		n = (n + 32) & ~31;
 	}
@@ -878,7 +878,7 @@ struct ImDrawListSharedData {
 	// [Internal] Lookup tables
 	ImVec2 ArcFastVtx[IM_DRAWLIST_ARCFAST_TABLE_SIZE];      // Sample points on the quarter of the circle.
 	float ArcFastRadiusCutoff;                              // Cutoff radius after which arc drawing will fallback to slower PathArcTo()
-	ImU8 CircleSegmentCounts[64];           // Precomputed segment count for given radius before we calculate it dynamically (to avoid calculation overhead)
+	uint8 CircleSegmentCounts[64];           // Precomputed segment count for given radius before we calculate it dynamically (to avoid calculation overhead)
 	const ImVec4*   TexUvLines;             // UV of anti-aliased lines in the atlas
 
 	ImDrawListSharedData();
@@ -1065,7 +1065,7 @@ struct ImGuiDataVarInfo {
 };
 
 struct ImGuiDataTypeTempStorage {
-	ImU8 Data[8];           // Can fit any data up to ImGuiDataType_COUNT
+	uint8 Data[8];           // Can fit any data up to ImGuiDataType_COUNT
 };
 
 // Type information associated to one ImGuiDataType. Retrieve with DataTypeGetInfo().
@@ -1132,12 +1132,12 @@ struct ImGuiGroupData {
 struct ImGuiMenuColumns {
 	ImU32 TotalWidth;
 	ImU32 NextTotalWidth;
-	ImU16 Spacing;
-	ImU16 OffsetIcon;           // Always zero for now
-	ImU16 OffsetLabel;          // Offsets are locked in Update()
-	ImU16 OffsetShortcut;
-	ImU16 OffsetMark;
-	ImU16 Widths[4];            // Width of:   Icon, Label, Shortcut, Mark  (accumulators for current frame)
+	uint16 Spacing;
+	uint16 OffsetIcon;           // Always zero for now
+	uint16 OffsetLabel;          // Offsets are locked in Update()
+	uint16 OffsetShortcut;
+	uint16 OffsetMark;
+	uint16 Widths[4];            // Width of:   Icon, Label, Shortcut, Mark  (accumulators for current frame)
 
 	ImGuiMenuColumns() {
 		THISZERO();
@@ -1453,7 +1453,7 @@ struct ImGuiInputEvent {
 #define ImGuiKeyOwner_Any           ((ImGuiID)0)    // Accept key that have an owner, UNLESS a call to SetKeyOwner() explicitly used ImGuiInputFlags_LockThisFrame or ImGuiInputFlags_LockUntilRelease.
 #define ImGuiKeyOwner_None          ((ImGuiID)-1)   // Require key to have no owner.
 
-typedef ImS16 ImGuiKeyRoutingIndex;
+typedef int16 ImGuiKeyRoutingIndex;
 
 // Routing table entry (sizeof() == 16 bytes)
 struct ImGuiKeyRoutingData {
@@ -1461,8 +1461,8 @@ struct ImGuiKeyRoutingData {
 	{
 	}
 	ImGuiKeyRoutingIndex NextEntryIndex;
-	ImU16 Mods;                                     // Technically we'd only need 4-bits but for simplify we store ImGuiMod_ values which need 16-bits. ImGuiMod_Shortcut is already translated to Ctrl/Super.
-	ImU8 RoutingNextScore;                          // Lower is better (0: perfect score)
+	uint16 Mods;                                     // Technically we'd only need 4-bits but for simplify we store ImGuiMod_ values which need 16-bits. ImGuiMod_Shortcut is already translated to Ctrl/Super.
+	uint8 RoutingNextScore;                          // Lower is better (0: perfect score)
 	ImGuiID RoutingCurr;
 	ImGuiID RoutingNext;
 };
@@ -1553,12 +1553,12 @@ struct ImGuiListClipperRange {
 	int Min;
 	int Max;
 	bool PosToIndexConvert;     // Begin/End are absolute position (will be converted to indices later)
-	ImS8 PosToIndexOffsetMin;   // Add to Min after converting to indices
-	ImS8 PosToIndexOffsetMax;   // Add to Min after converting to indices
+	int8 PosToIndexOffsetMin;   // Add to Min after converting to indices
+	int8 PosToIndexOffsetMax;   // Add to Min after converting to indices
 
 	static ImGuiListClipperRange FromIndices(int min, int max)                               { ImGuiListClipperRange r = { min, max, false, 0, 0 }; return r; }
 	static ImGuiListClipperRange FromPositions(float y1, float y2, int off_min,
-	int off_max) { ImGuiListClipperRange r = { (int)y1, (int)y2, true, (ImS8)off_min, (ImS8)off_max }; return r; }
+	int off_max) { ImGuiListClipperRange r = { (int)y1, (int)y2, true, (int8)off_min, (int8)off_max }; return r; }
 };
 
 // Temporary clipper data, buffers shared/reused between instances
@@ -1861,7 +1861,7 @@ struct ImGuiStackLevelInfo {
 		THISZERO();
 	}
 	ImGuiID ID;
-	ImS8 QueryFrameCount;       // >= 1: Query in progress
+	int8 QueryFrameCount;       // >= 1: Query in progress
 	bool QuerySuccess;          // Obtained result from DebugHookIdInfo()
 	ImGuiDataType DataType : 8;
 	char Desc[57];              // Arbitrarily sized buffer to hold a result (FIXME: could replace Results[] with a chunk stream?) FIXME: Now that we added CTRL+C this should be fixed.
@@ -2159,11 +2159,11 @@ struct ImGuiContext {
 	ImGuiDebugLogFlags DebugLogFlags;
 	ImGuiTextBuffer DebugLogBuf;
 	ImGuiTextIndex DebugLogIndex;
-	ImU8   DebugLogClipperAutoDisableFrames;
-	ImU8   DebugLocateFrames;                 // For DebugLocateItemOnHover(). This is used together with DebugLocateId which is in a hot/cached spot above.
-	ImS8   DebugBeginReturnValueCullDepth;    // Cycle between 0..9 then wrap around.
+	uint8   DebugLogClipperAutoDisableFrames;
+	uint8   DebugLocateFrames;                 // For DebugLocateItemOnHover(). This is used together with DebugLocateId which is in a hot/cached spot above.
+	int8   DebugBeginReturnValueCullDepth;    // Cycle between 0..9 then wrap around.
 	bool   DebugItemPickerActive;             // Item picker is active (started with DebugStartItemPicker())
-	ImU8   DebugItemPickerMouseButton;
+	uint8   DebugItemPickerMouseButton;
 	ImGuiID DebugItemPickerBreakId;         // Will call IM_DEBUG_BREAK() when encountering this ID
 	ImGuiMetricsConfig DebugMetricsConfig;
 	ImGuiStackTool DebugStackTool;
@@ -2364,7 +2364,7 @@ struct ImGuiWindowTempData {
 	ImVec2 MenuBarOffset;                       // MenuBarOffset.x is sort of equivalent of a per-layer CursorPos.x, saved/restored as we switch to the menu bar. The only situation when MenuBarOffset.y is > 0 if when (SafeAreaPadding.y > FramePadding.y), often used on TVs.
 	ImGuiMenuColumns MenuColumns;               // Simplified columns storage for menu items measurement
 	int TreeDepth;                              // Current tree depth.
-	ImU32 TreeJumpToParentOnPopMask;               // Store a copy of !g.NavIdIsAlive for TreeDepth 0..31.. Could be turned into a ImU64 if necessary.
+	ImU32 TreeJumpToParentOnPopMask;               // Store a copy of !g.NavIdIsAlive for TreeDepth 0..31.. Could be turned into a uint64 if necessary.
 	ImVector<ImGuiWindow*>  ChildWindows;
 	ImGuiStorage*           StateStorage;       // Current persistent per-window storage (store e.g. tree node open/close state)
 	ImGuiOldColumns*        CurrentColumns;     // Current columns set
@@ -2382,94 +2382,94 @@ struct ImGuiWindowTempData {
 
 // Storage for one window
 struct ImGuiWindow {
-	ImGuiContext * Ctx;                     // Parent UI context (needs to be set explicitly by parent).
-	char * Name;                            // Window name, owned by the window.
-	ImGuiID ID;                             // == ImHashStr(Name)
-	ImGuiWindowFlags Flags;                 // See enum ImGuiWindowFlags_
-	ImGuiViewportP * Viewport;              // Always set in Begin(). Inactive windows may have a NULL value here if their viewport was discarded.
-	ImVec2 Pos;                             // Position (always rounded-up to nearest pixel)
-	ImVec2 Size;                            // Current size (==SizeFull or collapsed title bar size)
-	ImVec2 SizeFull;                        // Size when non collapsed
-	ImVec2 ContentSize;                     // Size of contents/scrollable client area (calculated from the extents reach of the cursor) from previous frame. Does not include window decoration or window padding.
+	ImGuiContext * Ctx;        // Parent UI context (needs to be set explicitly by parent).
+	char * Name;               // Window name, owned by the window.
+	ImGuiID ID;                // == ImHashStr(Name)
+	ImGuiWindowFlags Flags;    // See enum ImGuiWindowFlags_
+	ImGuiViewportP * Viewport; // Always set in Begin(). Inactive windows may have a NULL value here if their viewport was discarded.
+	ImVec2 Pos;                // Position (always rounded-up to nearest pixel)
+	ImVec2 Size;               // Current size (==SizeFull or collapsed title bar size)
+	ImVec2 SizeFull;           // Size when non collapsed
+	ImVec2 ContentSize;        // Size of contents/scrollable client area (calculated from the extents reach of the cursor) from previous frame. Does not include window decoration or window padding.
 	ImVec2 ContentSizeIdeal;
-	ImVec2 ContentSizeExplicit;             // Size of contents/scrollable client area explicitly request by the user via SetNextWindowContentSize().
-	ImVec2 WindowPadding;                   // Window padding at the time of Begin().
-	float WindowRounding;                   // Window rounding at the time of Begin(). May be clamped lower to avoid rendering artifacts with title bar, menu bar etc.
-	float WindowBorderSize;                 // Window border size at the time of Begin().
+	ImVec2 ContentSizeExplicit; // Size of contents/scrollable client area explicitly request by the user via SetNextWindowContentSize().
+	ImVec2 WindowPadding;       // Window padding at the time of Begin().
+	float WindowRounding;       // Window rounding at the time of Begin(). May be clamped lower to avoid rendering artifacts with title bar, menu bar etc.
+	float WindowBorderSize;     // Window border size at the time of Begin().
 	float DecoOuterSizeX1, DecoOuterSizeY1; // Left/Up offsets. Sum of non-scrolling outer decorations (X1 generally == 0.0f. Y1 generally = TitleBarHeight + MenuBarHeight). Locked during Begin().
 	float DecoOuterSizeX2, DecoOuterSizeY2; // Right/Down offsets (X2 generally == ScrollbarSize.x, Y2 == ScrollbarSizes.y).
 	float DecoInnerSizeX1, DecoInnerSizeY1; // Applied AFTER/OVER InnerRect. Specialized for Tables as they use specialized form of clipping and frozen rows/columns are inside InnerRect (and not part of regular decoration sizes).
-	int    NameBufLen;                      // Size of buffer storing Name. May be larger than strlen(Name)!
-	ImGuiID MoveId;                         // == window->GetID("#MOVE")
-	ImGuiID ChildId;                        // ID of corresponding item in parent window (for navigation to return from child window to parent window)
+	int    NameBufLen;          // Size of buffer storing Name. May be larger than strlen(Name)!
+	ImGuiID MoveId;             // == window->GetID("#MOVE")
+	ImGuiID ChildId;            // ID of corresponding item in parent window (for navigation to return from child window to parent window)
 	ImVec2 Scroll;
 	ImVec2 ScrollMax;
-	ImVec2 ScrollTarget;                    // target scroll position. stored as cursor position with scrolling canceled out, so the highest point is always 0.0f. (FLT_MAX for no change)
-	ImVec2 ScrollTargetCenterRatio;         // 0.0f = scroll so that target position is at top, 0.5f = scroll so that target position is centered
-	ImVec2 ScrollTargetEdgeSnapDist;        // 0.0f = no snapping, >0.0f snapping threshold
-	ImVec2 ScrollbarSizes;                  // Size taken by each scrollbars on their smaller axis. Pay attention! ScrollbarSizes.x == width of the vertical scrollbar, ScrollbarSizes.y = height of the horizontal scrollbar.
-	bool ScrollbarX, ScrollbarY;            // Are scrollbars visible?
-	bool Active;                            // Set to true on Begin(), unless Collapsed
+	ImVec2 ScrollTarget;        // target scroll position. stored as cursor position with scrolling canceled out, so the highest point is always 0.0f. (FLT_MAX for no change)
+	ImVec2 ScrollTargetCenterRatio;  // 0.0f = scroll so that target position is at top, 0.5f = scroll so that target position is centered
+	ImVec2 ScrollTargetEdgeSnapDist; // 0.0f = no snapping, >0.0f snapping threshold
+	ImVec2 ScrollbarSizes;           // Size taken by each scrollbars on their smaller axis. Pay attention! ScrollbarSizes.x == width of the vertical scrollbar, ScrollbarSizes.y = height of the horizontal scrollbar.
+	bool ScrollbarX, ScrollbarY;     // Are scrollbars visible?
+	bool Active;                     // Set to true on Begin(), unless Collapsed
 	bool WasActive;
-	bool WriteAccessed;                     // Set to true when any widget access the current window
-	bool Collapsed;                         // Set when collapsing window to become only title-bar
+	bool WriteAccessed;              // Set to true when any widget access the current window
+	bool Collapsed;                  // Set when collapsing window to become only title-bar
 	bool WantCollapseToggle;
-	bool SkipItems;                         // Set when items can safely be all clipped (e.g. window not visible or collapsed)
-	bool Appearing;                         // Set during the frame where the window is appearing (or re-appearing)
-	bool Hidden;                            // Do not display (== HiddenFrames*** > 0)
-	bool IsFallbackWindow;                  // Set on the "Debug##Default" window.
-	bool IsExplicitChild;                   // Set when passed _ChildWindow, left to false by BeginDocked()
-	bool HasCloseButton;                    // Set when the window has a close button (p_open != NULL)
-	signed char ResizeBorderHeld;           // Current border being held for resize (-1: none, otherwise 0-3)
-	short BeginCount;                       // Number of Begin() during the current frame (generally 0 or 1, 1+ if appending via multiple Begin/End pairs)
-	short BeginCountPreviousFrame;          // Number of Begin() during the previous frame
-	short BeginOrderWithinParent;           // Begin() order within immediate parent window, if we are a child window. Otherwise 0.
-	short BeginOrderWithinContext;          // Begin() order within entire imgui context. This is mostly used for debugging submission order related issues.
-	short FocusOrder;                       // Order within WindowsFocusOrder[], altered when windows are focused.
-	ImGuiID PopupId;                        // ID in the popup stack when this window is used as a popup/menu (because we use generic Name/ID for recycling)
-	ImS8 AutoFitFramesX, AutoFitFramesY;
-	ImS8 AutoFitChildAxises;
+	bool SkipItems;                  // Set when items can safely be all clipped (e.g. window not visible or collapsed)
+	bool Appearing;                  // Set during the frame where the window is appearing (or re-appearing)
+	bool Hidden;                     // Do not display (== HiddenFrames*** > 0)
+	bool IsFallbackWindow;           // Set on the "Debug##Default" window.
+	bool IsExplicitChild;            // Set when passed _ChildWindow, left to false by BeginDocked()
+	bool HasCloseButton;             // Set when the window has a close button (p_open != NULL)
+	signed char ResizeBorderHeld;    // Current border being held for resize (-1: none, otherwise 0-3)
+	short BeginCount;                // Number of Begin() during the current frame (generally 0 or 1, 1+ if appending via multiple Begin/End pairs)
+	short BeginCountPreviousFrame;   // Number of Begin() during the previous frame
+	short BeginOrderWithinParent;    // Begin() order within immediate parent window, if we are a child window. Otherwise 0.
+	short BeginOrderWithinContext;   // Begin() order within entire imgui context. This is mostly used for debugging submission order related issues.
+	short FocusOrder;                // Order within WindowsFocusOrder[], altered when windows are focused.
+	ImGuiID PopupId;                 // ID in the popup stack when this window is used as a popup/menu (because we use generic Name/ID for recycling)
+	int8 AutoFitFramesX, AutoFitFramesY;
+	int8 AutoFitChildAxises;
 	bool AutoFitOnlyGrows;
 	ImGuiDir AutoPosLastDirection;
-	ImS8 HiddenFramesCanSkipItems;          // Hide the window for N frames
-	ImS8 HiddenFramesCannotSkipItems;       // Hide the window for N frames while allowing items to be submitted so we can measure their size
-	ImS8 HiddenFramesForRenderOnly;         // Hide the window until frame N at Render() time only
-	ImS8 DisableInputsFrames;               // Disable window interactions for N frames
+	int8 HiddenFramesCanSkipItems;    // Hide the window for N frames
+	int8 HiddenFramesCannotSkipItems; // Hide the window for N frames while allowing items to be submitted so we can measure their size
+	int8 HiddenFramesForRenderOnly;   // Hide the window until frame N at Render() time only
+	int8 DisableInputsFrames;         // Disable window interactions for N frames
 	ImGuiCond SetWindowPosAllowFlags : 8;   // store acceptable condition flags for SetNextWindowPos() use.
 	ImGuiCond SetWindowSizeAllowFlags : 8;  // store acceptable condition flags for SetNextWindowSize() use.
 	ImGuiCond SetWindowCollapsedAllowFlags : 8; // store acceptable condition flags for SetNextWindowCollapsed() use.
-	ImVec2 SetWindowPosVal;                 // store window position when using a non-zero Pivot (position set needs to be processed when we know the window size)
-	ImVec2 SetWindowPosPivot;               // store window pivot for positioning. ImVec2(0, 0) when positioning from top-left corner; ImVec2(0.5f, 0.5f) for centering; ImVec2(1, 1) for bottom right.
+	ImVec2 SetWindowPosVal;           // store window position when using a non-zero Pivot (position set needs to be processed when we know the window size)
+	ImVec2 SetWindowPosPivot;         // store window pivot for positioning. ImVec2(0, 0) when positioning from top-left corner; ImVec2(0.5f, 0.5f) for centering; ImVec2(1, 1) for bottom right.
 
-	ImVector<ImGuiID>       IDStack;        // ID stack. ID are hashes seeded with the value at the top of the stack. (In theory this should be in the TempData structure)
-	ImGuiWindowTempData DC;                 // Temporary per-window data, reset at the beginning of the frame. This used to be called ImGuiDrawContext, hence the "DC" variable name.
+	ImVector<ImGuiID>       IDStack;  // ID stack. ID are hashes seeded with the value at the top of the stack. (In theory this should be in the TempData structure)
+	ImGuiWindowTempData DC;           // Temporary per-window data, reset at the beginning of the frame. This used to be called ImGuiDrawContext, hence the "DC" variable name.
 
 	// The best way to understand what those rectangles are is to use the 'Metrics->Tools->Show Windows Rectangles' viewer.
 	// The main 'OuterRect', omitted as a field, is window->Rect().
-	ImRect OuterRectClipped;                // == Window->Rect() just after setup in Begin(). == window->Rect() for root window.
-	ImRect InnerRect;                       // Inner rectangle (omit title bar, menu bar, scroll bar)
-	ImRect InnerClipRect;                   // == InnerRect shrunk by WindowPadding*0.5f on each side, clipped within viewport or parent clip rect.
-	ImRect WorkRect;                        // Initially covers the whole scrolling region. Reduced by containers e.g columns/tables when active. Shrunk by WindowPadding*1.0f on each side. This is meant to replace ContentRegionRect over time (from 1.71+ onward).
-	ImRect ParentWorkRect;                  // Backup of WorkRect before entering a container such as columns/tables. Used by e.g. SpanAllColumns functions to easily access. Stacked containers are responsible for maintaining this. // FIXME-WORKRECT: Could be a stack?
-	ImRect ClipRect;                        // Current clipping/scissoring rectangle, evolve as we are using PushClipRect(), etc. == DrawList->clip_rect_stack.back().
-	ImRect ContentRegionRect;               // FIXME: This is currently confusing/misleading. It is essentially WorkRect but not handling of scrolling. We currently rely on it as right/bottom aligned sizing operation need some size to rely on.
-	ImVec2ih HitTestHoleSize;               // Define an optional rectangular hole where mouse will pass-through the window.
+	ImRect OuterRectClipped;          // == Window->Rect() just after setup in Begin(). == window->Rect() for root window.
+	ImRect InnerRect;                 // Inner rectangle (omit title bar, menu bar, scroll bar)
+	ImRect InnerClipRect;             // == InnerRect shrunk by WindowPadding*0.5f on each side, clipped within viewport or parent clip rect.
+	ImRect WorkRect;                  // Initially covers the whole scrolling region. Reduced by containers e.g columns/tables when active. Shrunk by WindowPadding*1.0f on each side. This is meant to replace ContentRegionRect over time (from 1.71+ onward).
+	ImRect ParentWorkRect;            // Backup of WorkRect before entering a container such as columns/tables. Used by e.g. SpanAllColumns functions to easily access. Stacked containers are responsible for maintaining this. // FIXME-WORKRECT: Could be a stack?
+	ImRect ClipRect;                  // Current clipping/scissoring rectangle, evolve as we are using PushClipRect(), etc. == DrawList->clip_rect_stack.back().
+	ImRect ContentRegionRect;         // FIXME: This is currently confusing/misleading. It is essentially WorkRect but not handling of scrolling. We currently rely on it as right/bottom aligned sizing operation need some size to rely on.
+	ImVec2ih HitTestHoleSize;         // Define an optional rectangular hole where mouse will pass-through the window.
 	ImVec2ih HitTestHoleOffset;
 
-	int LastFrameActive;                    // Last frame number the window was Active.
-	float LastTimeActive;                   // Last timestamp the window was Active (using float as we don't need high precision there)
+	int LastFrameActive;              // Last frame number the window was Active.
+	float LastTimeActive;             // Last timestamp the window was Active (using float as we don't need high precision there)
 	float ItemWidthDefault;
 	ImGuiStorage StateStorage;
 	ImVector<ImGuiOldColumns> ColumnsStorage;
-	float FontWindowScale;                  // User scale multiplier per-window, via SetWindowFontScale()
-	int SettingsOffset;                     // Offset into SettingsWindows[] (offsets are always valid as we only grow the array from the back)
+	float FontWindowScale;            // User scale multiplier per-window, via SetWindowFontScale()
+	int SettingsOffset;               // Offset into SettingsWindows[] (offsets are always valid as we only grow the array from the back)
 
-	ImDrawList *  DrawList;                 // == &DrawListInst (for backward compatibility reason with code using imgui_internal.h we keep this a pointer)
+	ImDrawList *  DrawList;           // == &DrawListInst (for backward compatibility reason with code using imgui_internal.h we keep this a pointer)
 	ImDrawList DrawListInst;
-	ImGuiWindow * ParentWindow;             // If we are a child _or_ popup _or_ docked window, this is pointing to our parent. Otherwise NULL.
+	ImGuiWindow * ParentWindow;       // If we are a child _or_ popup _or_ docked window, this is pointing to our parent. Otherwise NULL.
 	ImGuiWindow * ParentWindowInBeginStack;
-	ImGuiWindow * RootWindow;               // Point to ourself or first ancestor that is not a child window. Doesn't cross through popups/dock nodes.
-	ImGuiWindow * RootWindowPopupTree;      // Point to ourself or first ancestor that is not a child window. Cross through popups parent<>child.
+	ImGuiWindow * RootWindow;         // Point to ourself or first ancestor that is not a child window. Doesn't cross through popups/dock nodes.
+	ImGuiWindow * RootWindowPopupTree; // Point to ourself or first ancestor that is not a child window. Cross through popups parent<>child.
 	ImGuiWindow * RootWindowForTitleBarHighlight; // Point to ourself or first ancestor which will display TitleBgActive color when this window is active.
 	ImGuiWindow * RootWindowForNav;         // Point to ourself or first ancestor which doesn't have the NavFlattened flag.
 	ImGuiWindow * NavLastChildNavWindow;    // When going to the menu bar, we remember the child window we came from. (This could probably be made implicit if we kept g.Windows sorted by last focused including child window.)
@@ -2541,8 +2541,8 @@ struct ImGuiTabItem {
 	float ContentWidth;       // Width of label, stored during BeginTabItem() call
 	float RequestedWidth;     // Width optionally requested by caller, -1.0f is unused
 	ImS32 NameOffset;         // When Window==NULL, offset to name within parent ImGuiTabBar::TabsNames
-	ImS16 BeginOrder;         // BeginTabItem() order, used to re-order tabs after toggling ImGuiTabBarFlags_Reorderable
-	ImS16 IndexDuringLayout;  // Index only used during TabBarLayout(). Tabs gets reordered so 'Tabs[n].IndexDuringLayout == n' but may mismatch during additions.
+	int16 BeginOrder;         // BeginTabItem() order, used to re-order tabs after toggling ImGuiTabBarFlags_Reorderable
+	int16 IndexDuringLayout;  // Index only used during TabBarLayout(). Tabs gets reordered so 'Tabs[n].IndexDuringLayout == n' but may mismatch during additions.
 	bool  WantClose;          // Marked as closed by SetTabItemClosed()
 
 	ImGuiTabItem()      
@@ -2577,13 +2577,13 @@ struct ImGuiTabBar {
 	float ScrollingRectMinX;
 	float ScrollingRectMaxX;
 	ImGuiID ReorderRequestTabId;
-	ImS16 ReorderRequestOffset;
-	ImS8 BeginCount;
+	int16 ReorderRequestOffset;
+	int8 BeginCount;
 	bool WantLayout;
 	bool VisibleTabWasSubmitted;
 	bool TabsAddedNew;         // Set to true when a new tab item or button has been added to the tab bar during last frame
-	ImS16 TabsActiveCount;     // Number of tabs submitted this frame.
-	ImS16 LastTabItemIdx;      // Index of last BeginTabItem() tab for use by EndTabItem()
+	int16 TabsActiveCount;     // Number of tabs submitted this frame.
+	int16 LastTabItemIdx;      // Index of last BeginTabItem() tab for use by EndTabItem()
 	float ItemSpacingY;
 	ImVec2 FramePadding;       // style.FramePadding locked at the time of BeginTabBar()
 	ImVec2 BackupCursorPos;
@@ -2598,8 +2598,8 @@ struct ImGuiTabBar {
 #define IMGUI_TABLE_MAX_COLUMNS         512                 // May be further lifted
 
 // Our current column maximum is 64 but we may raise that in the future.
-typedef ImS16 ImGuiTableColumnIdx;
-typedef ImU16 ImGuiTableDrawChannelIdx;
+typedef int16 ImGuiTableColumnIdx;
+typedef uint16 ImGuiTableDrawChannelIdx;
 
 // [Internal] sizeof() ~ 104
 // We use the terminology "Enabled" to refer to a column that is not Hidden by user/api.
@@ -2623,7 +2623,7 @@ struct ImGuiTableColumn {
 	float ContentMaxXUnfrozen;
 	float ContentMaxXHeadersUsed;                       // Contents maximum position for headers rows (regardless of freezing). TableHeader() automatically softclip itself + report ideal desired size, to avoid creating extraneous draw calls
 	float ContentMaxXHeadersIdeal;
-	ImS16 NameOffset;                                   // Offset into parent ColumnsNames[]
+	int16 NameOffset;                                   // Offset into parent ColumnsNames[]
 	ImGuiTableColumnIdx DisplayOrder;                   // Index within Table's IndexToDisplayOrder[] (column may be reordered by users)
 	ImGuiTableColumnIdx IndexWithinEnabledSet;          // Index within enabled/visible set (<= IndexToDisplayOrder)
 	ImGuiTableColumnIdx PrevEnabledColumn;              // Index of prev enabled/visible column within Columns[], -1 if first enabled/visible column
@@ -2640,13 +2640,13 @@ struct ImGuiTableColumn {
 	bool IsRequestOutput;                               // Return value for TableSetColumnIndex() / TableNextColumn(): whether we request user to output contents or not.
 	bool IsSkipItems;                                   // Do we want item submissions to this column to be completely ignored (no layout will happen).
 	bool IsPreserveWidthAuto;
-	ImS8 NavLayerCurrent;                               // ImGuiNavLayer in 1 byte
-	ImU8 AutoFitQueue;                                  // Queue of 8 values for the next 8 frames to request auto-fit
-	ImU8 CannotSkipItemsQueue;                          // Queue of 8 values for the next 8 frames to disable Clipped/SkipItem
-	ImU8 SortDirection : 2;                             // ImGuiSortDirection_Ascending or ImGuiSortDirection_Descending
-	ImU8 SortDirectionsAvailCount : 2;                  // Number of available sort directions (0 to 3)
-	ImU8 SortDirectionsAvailMask : 4;                   // Mask of available sort directions (1-bit each)
-	ImU8 SortDirectionsAvailList;                       // Ordered of available sort directions (2-bits each)
+	int8 NavLayerCurrent;                               // ImGuiNavLayer in 1 byte
+	uint8 AutoFitQueue;                                  // Queue of 8 values for the next 8 frames to request auto-fit
+	uint8 CannotSkipItemsQueue;                          // Queue of 8 values for the next 8 frames to disable Clipped/SkipItem
+	uint8 SortDirection : 2;                             // ImGuiSortDirection_Ascending or ImGuiSortDirection_Descending
+	uint8 SortDirectionsAvailCount : 2;                  // Number of available sort directions (0 to 3)
+	uint8 SortDirectionsAvailMask : 4;                   // Mask of available sort directions (1-bit each)
+	uint8 SortDirectionsAvailList;                       // Ordered of available sort directions (2-bits each)
 
 	ImGuiTableColumn()
 	{
@@ -2657,7 +2657,7 @@ struct ImGuiTableColumn {
 		PrevEnabledColumn = NextEnabledColumn = -1;
 		SortOrder = -1;
 		SortDirection = ImGuiSortDirection_None;
-		DrawChannelCurrent = DrawChannelFrozen = DrawChannelUnfrozen = (ImU8)-1;
+		DrawChannelCurrent = DrawChannelFrozen = DrawChannelUnfrozen = (uint8)-1;
 	}
 };
 
@@ -2709,8 +2709,8 @@ struct ImGuiTable {
 	int    ColumnsCount;                  // Number of columns declared in BeginTable()
 	int    CurrentRow;
 	int    CurrentColumn;
-	ImS16  InstanceCurrent;               // Count of BeginTable() calls with same ID in the same frame (generally 0). This is a little bit similar to BeginCount for a window, but multiple table with same ID look are multiple tables, they are just synched.
-	ImS16  InstanceInteracted;            // Mark which instance (generally 0) of the same ID is being interacted with
+	int16  InstanceCurrent;               // Count of BeginTable() calls with same ID in the same frame (generally 0). This is a little bit similar to BeginCount for a window, but multiple table with same ID look are multiple tables, they are just synched.
+	int16  InstanceInteracted;            // Mark which instance (generally 0) of the same ID is being interacted with
 	float  RowPosY1;
 	float  RowPosY2;
 	float  RowMinHeight;                  // Height submitted to TableNextRow()
@@ -2840,9 +2840,9 @@ struct ImGuiTableColumnSettings {
 	ImGuiTableColumnIdx Index;
 	ImGuiTableColumnIdx DisplayOrder;
 	ImGuiTableColumnIdx SortOrder;
-	ImU8 SortDirection : 2;
-	ImU8 IsEnabled : 1;                // "Visible" in ini file
-	ImU8 IsStretch : 1;
+	uint8 SortDirection : 2;
+	uint8 IsEnabled : 1;                // "Visible" in ini file
+	uint8 IsStretch : 1;
 };
 
 // This is designed to be stored in a single ImChunkStream (1 header followed by N ImGuiTableColumnSettings, etc.)
@@ -3288,14 +3288,14 @@ bool ImageButtonEx(ImGuiID id, ImTextureID texture_id, const ImVec2 & size, cons
 ImGuiButtonFlags flags = 0);
 void SeparatorEx(ImGuiSeparatorFlags flags);
 void SeparatorTextEx(ImGuiID id, const char* label, const char* label_end, float extra_width);
-bool CheckboxFlags(const char* label, ImS64* flags, ImS64 flags_value);
-bool CheckboxFlags(const char* label, ImU64* flags, ImU64 flags_value);
+bool CheckboxFlags(const char* label, int64* flags, int64 flags_value);
+bool CheckboxFlags(const char* label, uint64* flags, uint64 flags_value);
 
 // Widgets: Window Decorations
 bool CloseButton(ImGuiID id, const ImVec2 & pos);
 bool CollapseButton(ImGuiID id, const ImVec2 & pos);
 void Scrollbar(ImGuiAxis axis);
-bool ScrollbarEx(const ImRect& bb, ImGuiID id, ImGuiAxis axis, ImS64* p_scroll_v, ImS64 avail_v, ImS64 contents_v, ImDrawFlags flags);
+bool ScrollbarEx(const ImRect& bb, ImGuiID id, ImGuiAxis axis, int64* p_scroll_v, int64 avail_v, int64 contents_v, ImDrawFlags flags);
 ImRect GetWindowScrollbarRect(ImGuiWindow * window, ImGuiAxis axis);
 ImGuiID GetWindowScrollbarID(ImGuiWindow * window, ImGuiAxis axis);
 ImGuiID GetWindowResizeCornerID(ImGuiWindow * window, int n);           // 0..3: corners

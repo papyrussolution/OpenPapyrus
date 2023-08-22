@@ -74,28 +74,28 @@ SLTEST_R(LayoutFlex)
 				//SLCHECK_EQ(rc.Height(), p.ForceHeight);
 			}
 			{
-				const SUiLayout * p_lo_found = lo_main.FindByID(loidUpr);
+				const SUiLayout * p_lo_found = lo_main.FindByIdC(loidUpr);
 				SLCHECK_EQ(p_lo_found, p_lo_upr);
 				const FRect rc = p_lo_upr->GetFrameAdjustedToParent();
 				SLCHECK_EQ(rc.Width(), p.ForceWidth);
 				SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
 			}
 			{
-				const SUiLayout * p_lo_found = lo_main.FindByID(loidLwr);
+				const SUiLayout * p_lo_found = lo_main.FindByIdC(loidLwr);
 				SLCHECK_EQ(p_lo_found, p_lo_lwr);
 				const FRect rc = p_lo_lwr->GetFrameAdjustedToParent();
 				SLCHECK_EQ(rc.Width(), p.ForceWidth);
 				SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
 			}
 			{
-				const SUiLayout * p_lo_found = lo_main.FindByID(loidF);
+				const SUiLayout * p_lo_found = lo_main.FindByIdC(loidF);
 				SLCHECK_EQ(p_lo_found, p_lo_f);
 				const FRect rc = p_lo_f->GetFrameAdjustedToParent();
 				SLCHECK_EQ(rc.Width(), p.ForceWidth-f_width);
 				SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
 			}
 			{
-				const SUiLayout * p_lo_found = lo_main.FindByID(loidB);
+				const SUiLayout * p_lo_found = lo_main.FindByIdC(loidB);
 				SLCHECK_EQ(p_lo_found, p_lo_b);
 				const FRect rc = p_lo_b->GetFrameAdjustedToParent();
 				SLCHECK_EQ(rc.Width(), f_width);
@@ -142,7 +142,7 @@ SLTEST_R(LayoutFlex)
 							//SLCHECK_EQ(rc.Height(), p.ForceHeight);
 						}
 						{
-							const SUiLayout * p_lo_found = lo_main2.FindByID(loidUpr);
+							const SUiLayout * p_lo_found = lo_main2.FindByIdC(loidUpr);
 							SLCHECK_NZ(p_lo_found);
 							if(p_lo_found) {
 								SLCHECK_NZ(p_lo_found->GetLayoutBlockC().IsEq(p_lo_upr->GetLayoutBlockC()));
@@ -152,7 +152,7 @@ SLTEST_R(LayoutFlex)
 							}
 						}
 						{
-							const SUiLayout * p_lo_found = lo_main2.FindByID(loidLwr);
+							const SUiLayout * p_lo_found = lo_main2.FindByIdC(loidLwr);
 							SLCHECK_NZ(p_lo_found);
 							if(p_lo_found) {
 								SLCHECK_NZ(p_lo_found->GetLayoutBlockC().IsEq(p_lo_lwr->GetLayoutBlockC()));
@@ -162,7 +162,7 @@ SLTEST_R(LayoutFlex)
 							}
 						}
 						{
-							const SUiLayout * p_lo_found = lo_main2.FindByID(loidF);
+							const SUiLayout * p_lo_found = lo_main2.FindByIdC(loidF);
 							SLCHECK_NZ(p_lo_found);
 							if(p_lo_found) {
 								SLCHECK_NZ(p_lo_found->GetLayoutBlockC().IsEq(p_lo_f->GetLayoutBlockC()));
@@ -172,7 +172,7 @@ SLTEST_R(LayoutFlex)
 							}
 						}
 						{
-							const SUiLayout * p_lo_found = lo_main2.FindByID(loidB);
+							const SUiLayout * p_lo_found = lo_main2.FindByIdC(loidB);
 							SLCHECK_NZ(p_lo_found);
 							if(p_lo_found) {
 								SLCHECK_NZ(p_lo_found->GetLayoutBlockC().IsEq(p_lo_b->GetLayoutBlockC()));

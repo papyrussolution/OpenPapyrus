@@ -6,6 +6,7 @@
 #pragma hdrstop
 #include <wsctl.h>
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "backends\imgui_impl_dx9.h"
 #include "backends\imgui_impl_dx11.h"
 #include "backends\imgui_impl_win32.h"
@@ -14,6 +15,14 @@
 #include <d3d11.h>
 #include <..\OSF\DirectXTex\SRC\DirectXTex.h>
 #include <..\OSF\DirectXTex\SRC\WICTextureLoader11.h>
+
+ImVec2 FPointToImVec2(const SPoint2F & rP) { return ImVec2(rP.x, rP.y); }
+ImRect FRectToImRect(const FRect & rR) { return ImRect(FPointToImVec2(rR.a), FPointToImVec2(rR.b)); 
+}
+
+namespace ImGui {
+	bool ScrollbarEx(const ImRect & bb_frame, ImGuiID id, ImGuiAxis axis, int64* p_scroll_v, int64 size_avail_v, int64 size_contents_v, ImDrawFlags flags);
+}
 /*
 	Style tokens:
 
@@ -409,23 +418,28 @@ public:
 		// Значения до 10000 используются для идентификации экранов (screenXXX) и 
 		// одновременно как идентификаторы соответствующих лейаутов верхнего уровня.
 		//loidRoot = 1,
-		loidUpperGroup  = 10001,
-		loidBottomGroup = 10002,
-		loidCtl01       = 10003,
-		loidCtl02       = 10004,
-		loidAdv01       = 10005,
-		loidAdv02       = 10006,
-		loidAdv03       = 10007,
-		loidMenuBlock   = 10008,
-		loidMainGroup   = 10009,
-		loidLoginBlock  = 10010,
-		loidPersonInfo  = 10011,
-		loidAccountInfo = 10012,
-		loidSessionSelection      = 10013,
-		loidSessionButtonGroup    = 10014,
-		loidBottomCtrlGroup       = 10015,
-		loidSessionInfo           = 10016,
-		loidSessionProgramGallery = 10017,
+		loidUpperGroup              = 10001,
+		loidBottomGroup             = 10002,
+		loidCtl01                   = 10003,
+		loidCtl02                   = 10004,
+		loidTestProgramGallery      = 10005,
+		//loidAdv02                 = 10006,
+		//loidAdv03                 = 10007,
+		loidMenuBlock               = 10008,
+		loidMainGroup               = 10009,
+		loidLoginBlock              = 10010,
+		loidPersonInfo              = 10011,
+		loidAccountInfo             = 10012,
+		loidSessionSelection        = 10013,
+		loidSessionButtonGroup      = 10014,
+		loidBottomCtrlGroup         = 10015,
+		loidSessionInfo             = 10016,
+		loidSessionProgramGallery   = 10017,
+		loidProgramEntryTemplate    = 10018, // Шаблон для элемента выбора программы
+		loidInternalProgramGallery  = 10019, // Внутренний лейаут программной галлереи. Формируется динамически (не включен в json-описание)!
+		loidProgramGalleryScrollbar = 10020, // Область для размещения скроллбара программной галлереи
+		//
+		loidStartProgramEntry        = 20000  // Стартовый идентификатор для иконок выбора программ. Первый layout идентифицируется как (loidStartProgramEntry+1)
 	};
 
 	struct QuotKindEntry {
@@ -801,6 +815,7 @@ private:
 	TSHashCollection <SUiLayout> Cache_Layout;
 	TSHashCollection <SCachedFileEntity> Cache_Texture;
 	TSHashCollection <SImFontDescription> Cache_Font; // @v11.7.8
+	WsCtl_ProgramCollection PgmL; // @v11.7.12 Список программ, которые клиент может запустить из нашей оболочки
 	
 	WsCtl_Config JsP;
 	UiDescription Uid; // @v11.7.12
@@ -826,12 +841,14 @@ private:
 	char   PwText[128];
 	DServerError LastSvrErr;
 	ImDialog_WsCtlConfig * P_Dlg_Cfg;
+	SScroller::Position PgmGalleryScrollerPosition_Develop; // @v11.7.12
 public:
 	WsCtl_ImGuiSceneBlock();
 	~WsCtl_ImGuiSceneBlock();
 	int  LoadUiDescription();
 	int  Init(ImGuiIO & rIo);
 	int  ApplyClientPolicy();
+	int  LoadProgramList();
 	void EmitEvents();
 	void BuildScene();
 };
@@ -1858,6 +1875,49 @@ int WsCtl_ImGuiSceneBlock::LoadUiDescription()
 	return ok;
 }
 
+int WsCtl_ImGuiSceneBlock::LoadProgramList()
+{
+	int    ok = 1;
+	//PgmL
+	//D:\Papyrus\ppy\workspace\wsctl\wsctl-program.json 
+	SString temp_buf;
+	PPGetPath(PPPATH_WORKSPACE, temp_buf);
+	temp_buf.SetLastSlash().Cat("wsctl").SetLastSlash().Cat("wsctl-program.json"); // По этому пути находится тестовый фейковый список программ
+	SJson * p_js = SJson::ParseFile(temp_buf);
+	THROW_SL(p_js);
+	THROW(PgmL.FromJsonObj(p_js));
+	{
+		const int pgm_entry_template_id = loidProgramEntryTemplate;
+		const SUiLayout * p_pe_template = Cache_Layout.Get(&pgm_entry_template_id, sizeof(pgm_entry_template_id));
+		
+		SUiLayoutParam lop_head;
+		lop_head.SetContainerDirection(DIREC_VERT);
+		lop_head.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+		lop_head.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+		lop_head.Flags |= (SUiLayoutParam::fEvaluateScroller|SUiLayoutParam::fContainerWrap);
+		SUiLayout * p_lo_head = new SUiLayout(lop_head);
+		SUiLayoutParam lop_entry;
+		if(p_pe_template) {
+			lop_entry = p_pe_template->GetLayoutBlockC();
+		}
+		else {
+			lop_entry.SetFixedSizeX(128.0f);
+			lop_entry.SetFixedSizeY(128.0f);
+		}
+		for(uint i = 0; i < PgmL.getCount(); i++) {
+			const WsCtl_ProgramEntry * p_pe = PgmL.at(i);
+			if(p_pe) {
+				p_lo_head->InsertItem(0, &lop_entry, loidStartProgramEntry+i+1);
+			}
+		}
+		p_lo_head->SetID(loidInternalProgramGallery);
+		Cache_Layout.Put(p_lo_head, true);
+	}
+	CATCHZOK
+	delete p_js;
+	return ok;
+}
+
 int WsCtl_ImGuiSceneBlock::ApplyClientPolicy()
 {
 	int    ok = -1;
@@ -2298,10 +2358,10 @@ void WsCtl_ImGuiSceneBlock::MakeLayout(SJson ** ppJsList)
 					SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
 					alb.SetMargin(margin_).SetGrowFactor(0.8f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					SUiLayout * p_lo_dn_group = p_lo_main_group->InsertItem(0, &alb, loidBottomGroup);
-					{
+					/*{
 						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
 						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-						p_lo_dn_group->InsertItem(0, &alb01, loidAdv01);
+						p_lo_dn_group->InsertItem(0, &alb01, loidTestProgramGallery);
 					}
 					{
 						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
@@ -2312,7 +2372,7 @@ void WsCtl_ImGuiSceneBlock::MakeLayout(SJson ** ppJsList)
 						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
 						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 						p_lo_dn_group->InsertItem(0, &alb01, loidAdv03);
-					}
+					}*/
 				}
 			}
 		}
@@ -2339,12 +2399,14 @@ void WsCtl_ImGuiSceneBlock::MakeLayout(SJson ** ppJsList)
 }
 
 class ImGuiWindowByLayout {
-public:
-	ImGuiWindowByLayout(const SUiLayout * pLoParent, int loId, const char * pWindowId, ImGuiWindowFlags viewFlags) : 
-		P_Lo(pLoParent ? pLoParent->FindByID(loId) : 0)
+	void   Helper_Ctr(const SUiLayout * pLo, const SPoint2F * pOffset, const char * pWindowId, ImGuiWindowFlags viewFlags)
 	{
+		P_Lo = pLo;
 		if(P_Lo) {
 			FRect r = P_Lo->GetFrameAdjustedToParent();
+			if(pOffset) {
+				r.Move__(pOffset->x, pOffset->y);
+			}
 			SPoint2F s = r.GetSize();
 			ImVec2 lu(r.a.x, r.a.y);
 			ImVec2 sz(s.x, s.y);
@@ -2353,14 +2415,23 @@ public:
 			SString & r_symb = SLS.AcquireRvlStr();
 			if(pWindowId)
 				r_symb = pWindowId;
-			else {
-				//char  random_data[20];
-				//SLS.GetTLA().Rg.ObfuscateBuffer(random_data, sizeof(random_data));
-				//r_symb.EncodeMime64(random_data, sizeof(random_data)).Insert(0, "##");
-				r_symb.Cat(loId);
-			}
+			else
+				r_symb.Cat(pLo->GetID());
 			ImGui::Begin(r_symb, 0, viewFlags);
 		}
+	}
+public:
+	ImGuiWindowByLayout(const SUiLayout * pLoParent, int loId, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(0)
+	{
+		Helper_Ctr((pLoParent ? pLoParent->FindByIdC(loId) : 0), 0, pWindowId, viewFlags);
+	}
+	ImGuiWindowByLayout(const SUiLayout * pLo, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
+	{
+		Helper_Ctr(pLo, 0, pWindowId, viewFlags);
+	}
+	ImGuiWindowByLayout(const SUiLayout * pLo, SPoint2F & rOffset, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
+	{
+		Helper_Ctr(pLo, &rOffset, pWindowId, viewFlags);
 	}
 	~ImGuiWindowByLayout()
 	{
@@ -2635,15 +2706,29 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 				}
 			}
 			else if(_screen == screenConstruction) {
-				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
-				if(p_tl) {
-					p_tl->Evaluate(&evp);
+				//
+				// Здесь рабочий экземпляр лейаута мы создаем на стеке (tl) ибо необходимо вставить в него динамический лейаут галлереи!
+				//
+				const SUiLayout * p_tl_ = Cache_Layout.Get(&_screen, sizeof(_screen));
+				if(p_tl_) {
+					SUiLayout tl(*p_tl_);
+					{
+						SUiLayout * p_tpg = tl.FindById(loidTestProgramGallery);
+						if(p_tpg) {
+							const int lo_id = loidInternalProgramGallery;
+							SUiLayout * p_ipg = Cache_Layout.Get(&lo_id, sizeof(lo_id));
+							if(p_ipg) {
+								p_tpg->InsertCopy(p_ipg);
+							}
+						}
+					}
+					tl.Evaluate(&evp);
 					ImGuiObjStack __ost;
 					__ost.PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
 					{
-						ImGuiWindowByLayout wbl(p_tl, loidMenuBlock, "##MENUBLOCK", view_flags);
+						ImGuiWindowByLayout wbl(&tl, loidMenuBlock, "##MENUBLOCK", view_flags);
 						if(wbl.IsValid()) {
-							FRect rect_frame = p_tl->GetFrameAdjustedToParent();
+							FRect rect_frame = tl.GetFrameAdjustedToParent();
 							ImVec2 button_size;
 							button_size.x = rect_frame.Width() - 2.0f;
 							button_size.y = 0.0f;
@@ -2663,7 +2748,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						}
 					}
 					{
-						ImGuiWindowByLayout wbl(p_tl, loidCtl01, "##CTL-01", view_flags);
+						ImGuiWindowByLayout wbl(&tl, loidCtl01, "##CTL-01", view_flags);
 						if(wbl.IsValid()) {
 							{
 								if(P_Dlg_Cfg) {
@@ -2708,22 +2793,23 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							{
 								//ImGui::PopAllowKeyboardFocus
 							}
+							// @debug {
+							if(P_TestImgTexture) {
+								ImVec2 sz(128.0f, 128.0f);
+								ImGui::Image(P_TestImgTexture, sz);
+							}
+							// } @debug 
 						}
 					}
 					{
-						ImGuiWindowByLayout wbl(p_tl, loidCtl02, "##CTL-02", view_flags);
+						ImGuiWindowByLayout wbl(&tl, loidCtl02, "##CTL-02", view_flags);
 						if(wbl.IsValid()) {
 							//ImGui::Text("CTL-02");
 							ImGui::Text(SLS.AcquireRvlStr().Cat("Сервер").CatDiv(':', 2).Cat(JsP.Server).CatChar(':').Cat(JsP.Port));
 							{
 								DConnectionStatus conn_status;
 								St.D_ConnStatus.GetData(conn_status);
-								if(conn_status.S == 0) {
-									ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat(conn_status._Message));
-								}
-								else {
-									ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat("OK"));
-								}
+								ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat((conn_status.S == 0) ? conn_status._Message.cptr() : "OK"));
 							}
 							{
 								DTest test_result;
@@ -2769,18 +2855,86 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						}
 					}
 					{
-						ImGuiWindowByLayout wbl(p_tl, loidAdv01, "##ADV-01", view_flags);
+						float total_size = 0.0f;
+						SUiLayout * p_lo_ipg = tl.FindById(loidInternalProgramGallery); // non-const!
+						SUiLayout::Result * p_lor = 0;
+						SScroller * p_scr = 0;
+						if(p_lo_ipg) {
+							p_lor = &p_lo_ipg->GetResult_(); // non-const!
+							p_scr = p_lor->P_Scrlr;
+							if(p_scr) {
+								p_scr->SetPosition(PgmGalleryScrollerPosition_Develop);
+								total_size = p_scr->GetSize();
+								//ImGui::SetNextWindowContentSize(ImVec2(total_size, 0.0f));
+							}
+						}
+						ImGuiWindowByLayout wbl(&tl, loidTestProgramGallery, "##TestProgramGallery", 
+							view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
 						if(wbl.IsValid()) {
 							//ImGui::Text("ADV-01");
-							// @debug {
-							if(P_TestImgTexture) {
-								ImVec2 sz(128.0f, 128.0f);
-								ImGui::Image(P_TestImgTexture, sz);
+							{
+								SString temp_buf;
+								const bool is_line_content_valid = p_scr ? (p_scr->CheckLineContentIndex(-1) >= 0) : false;
+								SPoint2F offset;
+								if(p_scr) {
+									offset.x = -p_scr->GetCurrentPageTopPoint();
+								}
+								for(uint loidx = 0; loidx < p_lo_ipg->GetChildrenCount(); loidx++) {
+									const SUiLayout * p_lo_entry = p_lo_ipg->GetChildC(loidx);
+									if(p_lo_entry) {
+										if(!is_line_content_valid || p_scr->CheckLineContentIndex(loidx) > 0) {
+											ImGuiWindowByLayout wbl_entry(p_lo_entry, offset, temp_buf.Z().Cat("##GALLERYENTRY").Cat(p_lo_entry->GetID()), view_flags);
+											if(wbl_entry.IsValid()) {
+												//const uint pe_idx = i-(loidStartProgramEntry+1);
+												assert(loidx < PgmL.getCount());
+												if(loidx < PgmL.getCount()) {
+													const WsCtl_ProgramEntry * p_pe = PgmL.at(loidx);
+													if(p_pe->Category.NotEmpty())
+														ImGui::Text(p_pe->Category);
+													if(p_pe->Title.NotEmpty())
+														ImGui::Text(p_pe->Title);
+												}
+											}
+											else
+												break;
+										}
+									}
+									else
+										break;
+								}
 							}
-							// } @debug 
+							if(p_lor) {
+								ImGuiWindowByLayout wsb(&tl, loidProgramGalleryScrollbar, "##ProgramScrollbar",
+									view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
+								int64 scroll_value = 0;
+								int64 scroll_size = p_lor->P_Scrlr ? p_lor->P_Scrlr->GetCount() : 0;
+								int64 scroll_frame = 1; // @?
+								bool debug_mark = false; // @debug
+								if(scroll_size > 0) {
+									const SUiLayout * p_lo_sb = tl.FindByIdC(loidProgramGalleryScrollbar);
+									if(p_lo_sb) {
+										//SPoint2F s = r.GetSize();
+										//if(p_ipg->P_)
+										SScroller::Position scrp;
+										if(p_scr)
+											p_scr->GetPosition(scrp);
+										ImDrawFlags sb_flags = 0;
+										ImRect imr = FRectToImRect(p_lo_sb->GetFrameAdjustedToParent());
+										scroll_value = scrp.ItemIdxCurrent;
+										bool sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags);
+										if(sbr) {
+											if(scroll_value >= 0) {
+												PgmGalleryScrollerPosition_Develop.ItemIdxCurrent = static_cast<uint>(scroll_value);
+											}
+											debug_mark = true; // @debug
+										}
+									}
+								}
+								//ImGui::Scrollbar(ImGuiAxis_X);
+							}
 						}
 					}
-					{
+					/*{
 						ImGuiWindowByLayout wbl(p_tl, loidAdv02, "##ADV-02", view_flags);
 						if(wbl.IsValid()) {
 							//ImGui::Text("ADV-02");
@@ -2791,7 +2945,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						if(wbl.IsValid()) {
 							//ImGui::Text("ADV-03");
 						}
-					}
+					}*/
 				}
 			}
 		}
@@ -2943,6 +3097,7 @@ int main(int, char**)
 		//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		WsCtl_ImGuiSceneBlock scene_blk;
 		scene_blk.Init(io);
+		scene_blk.LoadProgramList(); // @v11.7.12
 		scene_blk.SetScreen(WsCtl_ImGuiSceneBlock::screenConstruction);
 		{
 			const char * p_img_path = "/Papyrus/Src/PPTEST/DATA/test-gif.gif";

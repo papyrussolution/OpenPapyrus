@@ -1941,30 +1941,30 @@ static void ShowDemoWindowWidgets()
 		// Setup limits (as helper variables so we can take their address, as explained above)
 		// Note: SliderScalar() functions have a maximum usable range of half the natural type maximum, hence the /2.
 	#ifndef LLONG_MIN
-		ImS64 LLONG_MIN = -9223372036854775807LL - 1;
-		ImS64 LLONG_MAX = 9223372036854775807LL;
-		ImU64 ULLONG_MAX = (2ULL * 9223372036854775807LL + 1);
+		int64 LLONG_MIN = -9223372036854775807LL - 1;
+		int64 LLONG_MAX = 9223372036854775807LL;
+		uint64 ULLONG_MAX = (2ULL * 9223372036854775807LL + 1);
 	#endif
 		const char s8_zero  = 0,   s8_one  = 1,   s8_fifty  = 50, s8_min  = -128,        s8_max = 127;
-		const ImU8 u8_zero  = 0,   u8_one  = 1,   u8_fifty  = 50, u8_min  = 0,           u8_max = 255;
+		const uint8 u8_zero  = 0,   u8_one  = 1,   u8_fifty  = 50, u8_min  = 0,           u8_max = 255;
 		const short s16_zero = 0,   s16_one = 1,   s16_fifty = 50, s16_min = -32768,      s16_max = 32767;
-		const ImU16 u16_zero = 0,   u16_one = 1,   u16_fifty = 50, u16_min = 0,           u16_max = 65535;
+		const uint16 u16_zero = 0,   u16_one = 1,   u16_fifty = 50, u16_min = 0,           u16_max = 65535;
 		const ImS32 s32_zero = 0,   s32_one = 1,   s32_fifty = 50, s32_min = INT_MIN/2,   s32_max = INT_MAX/2,    s32_hi_a = INT_MAX/2 - 100,    s32_hi_b = INT_MAX/2;
 		const ImU32 u32_zero = 0,   u32_one = 1,   u32_fifty = 50, u32_min = 0,           u32_max = UINT_MAX/2,   u32_hi_a = UINT_MAX/2 - 100,   u32_hi_b = UINT_MAX/2;
-		const ImS64 s64_zero = 0,   s64_one = 1,   s64_fifty = 50, s64_min = LLONG_MIN/2, s64_max = LLONG_MAX/2,  s64_hi_a = LLONG_MAX/2 - 100,  s64_hi_b = LLONG_MAX/2;
-		const ImU64 u64_zero = 0,   u64_one = 1,   u64_fifty = 50, u64_min = 0,           u64_max = ULLONG_MAX/2, u64_hi_a = ULLONG_MAX/2 - 100, u64_hi_b = ULLONG_MAX/2;
+		const int64 s64_zero = 0,   s64_one = 1,   s64_fifty = 50, s64_min = LLONG_MIN/2, s64_max = LLONG_MAX/2,  s64_hi_a = LLONG_MAX/2 - 100,  s64_hi_b = LLONG_MAX/2;
+		const uint64 u64_zero = 0,   u64_one = 1,   u64_fifty = 50, u64_min = 0,           u64_max = ULLONG_MAX/2, u64_hi_a = ULLONG_MAX/2 - 100, u64_hi_b = ULLONG_MAX/2;
 		const float f32_zero = 0.f, f32_one = 1.f, f32_lo_a = -10000000000.0f, f32_hi_a = +10000000000.0f;
 		const double f64_zero = 0.,  f64_one = 1.,  f64_lo_a = -1000000000000000.0, f64_hi_a = +1000000000000000.0;
 
 		// State
 		static char s8_v  = 127;
-		static ImU8 u8_v  = 255;
+		static uint8 u8_v  = 255;
 		static short s16_v = 32767;
-		static ImU16 u16_v = 65535;
+		static uint16 u16_v = 65535;
 		static ImS32 s32_v = -1;
 		static ImU32 u32_v = (ImU32)-1;
-		static ImS64 s64_v = -1;
-		static ImU64 u64_v = (ImU64)-1;
+		static int64 s64_v = -1;
+		static uint64 u64_v = (uint64)-1;
 		static float f32_v = 0.123f;
 		static double f64_v = 90000.01234567890123456789;
 
@@ -2947,9 +2947,10 @@ static void ShowDemoWindowLayout()
 			child_w = 1.0f;
 		ImGui::PushID("##VerticalScrolling");
 		for(int i = 0; i < 5; i++) {
-			if(i > 0)  ImGui::SameLine();
+			if(i > 0)  
+				ImGui::SameLine();
 			ImGui::BeginGroup();
-			const char* names[] = { "Top", "25%", "Center", "75%", "Bottom" };
+			const char * names[] = { "Top", "25%", "Center", "75%", "Bottom" };
 			ImGui::TextUnformatted(names[i]);
 
 			const ImGuiWindowFlags child_flags = enable_extra_decorations ? ImGuiWindowFlags_MenuBar : 0;
@@ -6474,7 +6475,8 @@ struct ExampleAppConsole {
 		const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 		if(ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar)) {
 			if(ImGui::BeginPopupContextWindow()) {
-				if(ImGui::Selectable("Clear"))  ClearLog();
+				if(ImGui::Selectable("Clear"))
+					ClearLog();
 				ImGui::EndPopup();
 			}
 

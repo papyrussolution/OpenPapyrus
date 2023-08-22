@@ -337,7 +337,7 @@ void ImDrawListSharedData::SetCircleTessellationMaxError(float max_error)
 	CircleSegmentMaxError = max_error;
 	for(int i = 0; i < SIZEOFARRAYi(CircleSegmentCounts); i++) {
 		const float radius = (float)i;
-		CircleSegmentCounts[i] = (ImU8)((i > 0) ? IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(radius, CircleSegmentMaxError) : IM_DRAWLIST_ARCFAST_SAMPLE_MAX);
+		CircleSegmentCounts[i] = (uint8)((i > 0) ? IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(radius, CircleSegmentMaxError) : IM_DRAWLIST_ARCFAST_SAMPLE_MAX);
 	}
 	ArcFastRadiusCutoff = IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(IM_DRAWLIST_ARCFAST_SAMPLE_MAX, CircleSegmentMaxError);
 }

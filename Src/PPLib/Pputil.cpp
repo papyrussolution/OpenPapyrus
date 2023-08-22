@@ -1453,7 +1453,7 @@ int PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, S
     return ok;
 }
 
-int FASTCALL PPGetExtStrData_def(int fldID, int defFldID, const SString & rLine, SString & rBuf)
+int STDCALL PPGetExtStrData_def(int fldID, int defFldID, const SString & rLine, SString & rBuf)
 {
 	int    ok = -1;
 	int    r = 0;
@@ -1474,7 +1474,7 @@ int FASTCALL PPGetExtStrData_def(int fldID, int defFldID, const SString & rLine,
 	return ok;
 }
 
-int FASTCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf)
+int STDCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf)
 {
 	int    ok = -1;
 	int    r = 0;
@@ -1491,7 +1491,7 @@ int FASTCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf)
 	return ok;
 }
 
-int FASTCALL PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options)
+int STDCALL PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options)
 {
     SString buf1, buf2;
     PPExtStringStorage ess;
@@ -1500,13 +1500,13 @@ int FASTCALL PPCmpExtStrData(int fldID, const SString & rLine1, const SString & 
 	return buf1.Cmp(buf2, BIN(options & srchNoCase));
 }
 
-int FASTCALL PPPutExtStrData(int fldID, SString & rLine, const char * pBuf)
+int STDCALL PPPutExtStrData(int fldID, SString & rLine, const char * pBuf)
 {
 	PPExtStringStorage ess;
 	return ess.Put(rLine, fldID, pBuf);
 }
 
-int FASTCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf)
+int STDCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf)
 {
 	PPExtStringStorage ess;
 	return ess.Put(rLine, fldID, rBuf);

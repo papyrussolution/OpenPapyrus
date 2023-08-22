@@ -2767,17 +2767,17 @@ int PPBillPacket::SerializeLots(int dir, SBuffer & rBuf, SSerializeContext * pSC
 	return ok;
 }
 
-int PPBillPacket::IsDraft() const
+bool PPBillPacket::IsDraft() const
 {
 	const PPID op_type_id = OpTypeID;
-	return BIN(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ));
+	return oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ);
 }
 
-int PPBillPacket::IsGoodsDetail() const
+bool PPBillPacket::IsGoodsDetail() const
 {
 	const PPID op_type_id = OpTypeID;
-	return BIN(oneof12(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GOODSRECEIPT, 
-		PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER));
+	return oneof12(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GOODSRECEIPT, 
+		PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER);
 }
 
 int PPBillPacket::UngetCounter()
@@ -3409,15 +3409,15 @@ void PPBillPacket::SetPoolMembership(PoolKind poolKind, PPID poolID)
 	}
 }
 
-int PPBillPacket::HasIndepModifPlus() const
+bool PPBillPacket::HasIndepModifPlus() const
 {
 	if(Rec.Flags & BILLF_GMODIF) {
 		PPTransferItem * p_ti;
 		for(uint i = 0; EnumTItems(&i, &p_ti);)
 			if(p_ti->Flags & PPTFR_PLUS && p_ti->Flags & PPTFR_RECEIPT)
-				return 1;
+				return true;
 	}
-	return 0;
+	return false;
 }
 
 PPBillPacket::CgrRetBlock::CgrRetBlock()

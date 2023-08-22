@@ -1862,6 +1862,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 									CPM.ResetCurrentDocument();
 									NotifyCurrentDocumentChanged();
+									CPM.MakeCurrentDocList(); // @v11.7.12
+									NotifyTabContentChanged(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView); // @v11.7.12
 									GotoTab(CommonPrereqModule.Tab.tabRegistry, R.id.orderPrereqRegistryListView, -1, -1);
 									//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 									SetupCurrentDocument(false, true);

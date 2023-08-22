@@ -82,17 +82,17 @@ static const ImS32 IM_S32_MAX = INT_MAX;             // (2147483647), (0x7FFFFFF
 static const ImU32 IM_U32_MIN = 0;
 static const ImU32 IM_U32_MAX = UINT_MAX;            // (0xFFFFFFFF)
 #ifdef LLONG_MIN
-	static const ImS64 IM_S64_MIN = LLONG_MIN;           // (-9223372036854775807ll - 1ll);
-	static const ImS64 IM_S64_MAX = LLONG_MAX;           // (9223372036854775807ll);
+	static const int64 IM_S64_MIN = LLONG_MIN;           // (-9223372036854775807ll - 1ll);
+	static const int64 IM_S64_MAX = LLONG_MAX;           // (9223372036854775807ll);
 #else
-	static const ImS64 IM_S64_MIN = -9223372036854775807LL - 1;
-	static const ImS64 IM_S64_MAX = 9223372036854775807LL;
+	static const int64 IM_S64_MIN = -9223372036854775807LL - 1;
+	static const int64 IM_S64_MAX = 9223372036854775807LL;
 #endif
-static const ImU64 IM_U64_MIN = 0;
+static const uint64 IM_U64_MIN = 0;
 #ifdef ULLONG_MAX
-	static const ImU64 IM_U64_MAX = ULLONG_MAX;          // (0xFFFFFFFFFFFFFFFFull);
+	static const uint64 IM_U64_MAX = ULLONG_MAX;          // (0xFFFFFFFFFFFFFFFFull);
 #else
-	static const ImU64 IM_U64_MAX = (2ULL * 9223372036854775807LL + 1);
+	static const uint64 IM_U64_MAX = (2ULL * 9223372036854775807LL + 1);
 #endif
 //
 // [SECTION] Forward Declarations
@@ -803,18 +803,19 @@ void ImGui::Scrollbar(ImGuiAxis axis)
 	}
 	float size_avail = window->InnerRect.Max[axis] - window->InnerRect.Min[axis];
 	float size_contents = window->ContentSize[axis] + window->WindowPadding[axis] * 2.0f;
-	ImS64 scroll = (ImS64)window->Scroll[axis];
-	ScrollbarEx(bb, id, axis, &scroll, (ImS64)size_avail, (ImS64)size_contents, rounding_corners);
+	int64 scroll = (int64)window->Scroll[axis];
+	ScrollbarEx(bb, id, axis, &scroll, (int64)size_avail, (int64)size_contents, rounding_corners);
 	window->Scroll[axis] = (float)scroll;
 }
-
+//
 // Vertical/Horizontal scrollbar
 // The entire piece of code below is rather confusing because:
 // - We handle absolute seeking (when first clicking outside the grab) and relative manipulation (afterward or when clicking inside the grab)
 // - We store values as normalized ratio and in a form that allows the window content to change while we are holding on a scrollbar
 // - We handle both horizontal and vertical scrollbars, which makes the terminology not ideal.
 // Still, the code should probably be made simpler..
-bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS64* p_scroll_v, ImS64 size_avail_v, ImS64 size_contents_v, ImDrawFlags flags)
+//
+bool ImGui::ScrollbarEx(const ImRect & bb_frame, ImGuiID id, ImGuiAxis axis, int64* p_scroll_v, int64 size_avail_v, int64 size_contents_v, ImDrawFlags flags)
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = g.CurrentWindow;
@@ -824,27 +825,22 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
 	const float bb_frame_height = bb_frame.GetHeight();
 	if(bb_frame_width <= 0.0f || bb_frame_height <= 0.0f)
 		return false;
-
 	// When we are too small, start hiding and disabling the grab (this reduce visual noise on very small window and facilitate using the window resize grab)
 	float alpha = 1.0f;
 	if((axis == ImGuiAxis_Y) && bb_frame_height < g.FontSize + g.Style.FramePadding.y * 2.0f)
 		alpha = ImSaturate((bb_frame_height - g.FontSize) / (g.Style.FramePadding.y * 2.0f));
 	if(alpha <= 0.0f)
 		return false;
-
 	const ImGuiStyle& style = g.Style;
 	const bool allow_interaction = (alpha >= 1.0f);
-
 	ImRect bb = bb_frame;
 	bb.Expand(ImVec2(-sclamp(IM_FLOOR((bb_frame_width - 2.0f) * 0.5f), 0.0f, 3.0f), -sclamp(IM_FLOOR((bb_frame_height - 2.0f) * 0.5f), 0.0f, 3.0f)));
-
 	// V denote the main, longer axis of the scrollbar (= height for a vertical scrollbar)
 	const float scrollbar_size_v = (axis == ImGuiAxis_X) ? bb.GetWidth() : bb.GetHeight();
-
 	// Calculate the height of our grabbable box. It generally represent the amount visible (vs the total scrollable amount)
 	// But we maintain a minimum size in pixel to allow for the user to still aim inside.
 	assert(smax(size_contents_v, size_avail_v) > 0.0f); // Adding this assert to check if the smax(XXX,1.0f) is still needed. PLEASE CONTACT ME if this triggers.
-	const ImS64 win_size_v = smax(smax(size_contents_v, size_avail_v), (ImS64)1);
+	const int64 win_size_v = smax(smax(size_contents_v, size_avail_v), (int64)1);
 	const float grab_h_pixels = sclamp(scrollbar_size_v * ((float)size_avail_v / (float)win_size_v), style.GrabMinSize, scrollbar_size_v);
 	const float grab_h_norm = grab_h_pixels / scrollbar_size_v;
 
@@ -854,7 +850,7 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
 	ItemAdd(bb_frame, id, NULL, ImGuiItemFlags_NoNav);
 	ButtonBehavior(bb, id, &hovered, &held, ImGuiButtonFlags_NoNavFocus);
 
-	const ImS64 scroll_max = smax((ImS64)1, size_contents_v - size_avail_v);
+	const int64 scroll_max = smax((int64)1, size_contents_v - size_avail_v);
 	float scroll_ratio = ImSaturate((float)*p_scroll_v / (float)scroll_max);
 	float grab_v_norm = scroll_ratio * (scrollbar_size_v - grab_h_pixels) / scrollbar_size_v; // Grab position in normalized space
 	if(held && allow_interaction && grab_h_norm < 1.0f) {
@@ -874,12 +870,10 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
 			else
 				g.ScrollbarClickDeltaToGrabCenter = clicked_v_norm - grab_v_norm - grab_h_norm * 0.5f;
 		}
-
 		// Apply scroll (p_scroll_v will generally point on one member of window->Scroll)
 		// It is ok to modify Scroll here because we are being called in Begin() after the calculation of ContentSize and before setting up our starting position
 		const float scroll_v_norm = ImSaturate((clicked_v_norm - g.ScrollbarClickDeltaToGrabCenter - grab_h_norm * 0.5f) / (1.0f - grab_h_norm));
-		*p_scroll_v = (ImS64)(scroll_v_norm * scroll_max);
-
+		*p_scroll_v = (int64)(scroll_v_norm * scroll_max);
 		// Update values for rendering
 		scroll_ratio = ImSaturate((float)*p_scroll_v / (float)scroll_max);
 		grab_v_norm = scroll_ratio * (scrollbar_size_v - grab_h_pixels) / scrollbar_size_v;
@@ -1057,8 +1051,8 @@ template <typename T> bool ImGui::CheckboxFlagsT(const char* label, T* flags, T 
 
 bool ImGui::CheckboxFlags(const char* label, int* flags, int flags_value) { return CheckboxFlagsT(label, flags, flags_value); }
 bool ImGui::CheckboxFlags(const char* label, uint* flags, uint flags_value) { return CheckboxFlagsT(label, flags, flags_value); }
-bool ImGui::CheckboxFlags(const char* label, ImS64* flags, ImS64 flags_value) { return CheckboxFlagsT(label, flags, flags_value); }
-bool ImGui::CheckboxFlags(const char* label, ImU64* flags, ImU64 flags_value) { return CheckboxFlagsT(label, flags, flags_value); }
+bool ImGui::CheckboxFlags(const char* label, int64* flags, int64 flags_value) { return CheckboxFlagsT(label, flags, flags_value); }
+bool ImGui::CheckboxFlags(const char* label, uint64* flags, uint64 flags_value) { return CheckboxFlagsT(label, flags, flags_value); }
 
 bool ImGui::RadioButton(const char* label, bool active)
 {
@@ -1750,11 +1744,11 @@ static const ImGuiDataTypeInfo GDataTypeInfo[] = {
 	{ sizeof(int),      "S32",  "%d",   "%d"    },// ImGuiDataType_S32
 	{ sizeof(uint),     "U32",  "%u",   "%u"    },
 #ifdef _MSC_VER
-	{ sizeof(ImS64),    "S64",  "%I64d", "%I64d" },// ImGuiDataType_S64
-	{ sizeof(ImU64),    "U64",  "%I64u", "%I64u" },
+	{ sizeof(int64),    "S64",  "%I64d", "%I64d" },// ImGuiDataType_S64
+	{ sizeof(uint64),    "U64",  "%I64u", "%I64u" },
 #else
-	{ sizeof(ImS64),    "S64",  "%lld", "%lld"  },// ImGuiDataType_S64
-	{ sizeof(ImU64),    "U64",  "%llu", "%llu"  },
+	{ sizeof(int64),    "S64",  "%lld", "%lld"  },// ImGuiDataType_S64
+	{ sizeof(uint64),    "U64",  "%llu", "%llu"  },
 #endif
 	{ sizeof(float),    "float", "%.3f", "%f"    },// ImGuiDataType_Float (float are promoted to double in va_arg)
 	{ sizeof(double),   "double", "%f",  "%lf"   },// ImGuiDataType_Double
@@ -1773,19 +1767,19 @@ int ImGui::DataTypeFormatString(char* buf, int buf_size, ImGuiDataType data_type
 	if(data_type == ImGuiDataType_S32 || data_type == ImGuiDataType_U32)
 		return ImFormatString(buf, buf_size, format, *(const ImU32*)p_data);
 	if(data_type == ImGuiDataType_S64 || data_type == ImGuiDataType_U64)
-		return ImFormatString(buf, buf_size, format, *(const ImU64*)p_data);
+		return ImFormatString(buf, buf_size, format, *(const uint64*)p_data);
 	if(data_type == ImGuiDataType_Float)
 		return ImFormatString(buf, buf_size, format, *(const float*)p_data);
 	if(data_type == ImGuiDataType_Double)
 		return ImFormatString(buf, buf_size, format, *(const double*)p_data);
 	if(data_type == ImGuiDataType_S8)
-		return ImFormatString(buf, buf_size, format, *(const ImS8*)p_data);
+		return ImFormatString(buf, buf_size, format, *(const int8*)p_data);
 	if(data_type == ImGuiDataType_U8)
-		return ImFormatString(buf, buf_size, format, *(const ImU8*)p_data);
+		return ImFormatString(buf, buf_size, format, *(const uint8*)p_data);
 	if(data_type == ImGuiDataType_S16)
-		return ImFormatString(buf, buf_size, format, *(const ImS16*)p_data);
+		return ImFormatString(buf, buf_size, format, *(const int16*)p_data);
 	if(data_type == ImGuiDataType_U16)
-		return ImFormatString(buf, buf_size, format, *(const ImU16*)p_data);
+		return ImFormatString(buf, buf_size, format, *(const uint16*)p_data);
 	assert(0);
 	return 0;
 }
@@ -1796,34 +1790,34 @@ void ImGui::DataTypeApplyOp(ImGuiDataType data_type, int op, void* output, const
 	switch(data_type) {
 		case ImGuiDataType_S8:
 		    if(op == '+') {
-			    *(ImS8*)output  = ImAddClampOverflow(*(const ImS8*)arg1,  *(const ImS8*)arg2,  IM_S8_MIN,  IM_S8_MAX);
+			    *(int8*)output  = ImAddClampOverflow(*(const int8*)arg1,  *(const int8*)arg2,  IM_S8_MIN,  IM_S8_MAX);
 		    }
 		    if(op == '-') {
-			    *(ImS8*)output  = ImSubClampOverflow(*(const ImS8*)arg1,  *(const ImS8*)arg2,  IM_S8_MIN,  IM_S8_MAX);
+			    *(int8*)output  = ImSubClampOverflow(*(const int8*)arg1,  *(const int8*)arg2,  IM_S8_MIN,  IM_S8_MAX);
 		    }
 		    return;
 		case ImGuiDataType_U8:
 		    if(op == '+') {
-			    *(ImU8*)output  = ImAddClampOverflow(*(const ImU8*)arg1,  *(const ImU8*)arg2,  IM_U8_MIN,  IM_U8_MAX);
+			    *(uint8*)output  = ImAddClampOverflow(*(const uint8*)arg1,  *(const uint8*)arg2,  IM_U8_MIN,  IM_U8_MAX);
 		    }
 		    if(op == '-') {
-			    *(ImU8*)output  = ImSubClampOverflow(*(const ImU8*)arg1,  *(const ImU8*)arg2,  IM_U8_MIN,  IM_U8_MAX);
+			    *(uint8*)output  = ImSubClampOverflow(*(const uint8*)arg1,  *(const uint8*)arg2,  IM_U8_MIN,  IM_U8_MAX);
 		    }
 		    return;
 		case ImGuiDataType_S16:
 		    if(op == '+') {
-			    *(ImS16*)output = ImAddClampOverflow(*(const ImS16*)arg1, *(const ImS16*)arg2, IM_S16_MIN, IM_S16_MAX);
+			    *(int16*)output = ImAddClampOverflow(*(const int16*)arg1, *(const int16*)arg2, IM_S16_MIN, IM_S16_MAX);
 		    }
 		    if(op == '-') {
-			    *(ImS16*)output = ImSubClampOverflow(*(const ImS16*)arg1, *(const ImS16*)arg2, IM_S16_MIN, IM_S16_MAX);
+			    *(int16*)output = ImSubClampOverflow(*(const int16*)arg1, *(const int16*)arg2, IM_S16_MIN, IM_S16_MAX);
 		    }
 		    return;
 		case ImGuiDataType_U16:
 		    if(op == '+') {
-			    *(ImU16*)output = ImAddClampOverflow(*(const ImU16*)arg1, *(const ImU16*)arg2, IM_U16_MIN, IM_U16_MAX);
+			    *(uint16*)output = ImAddClampOverflow(*(const uint16*)arg1, *(const uint16*)arg2, IM_U16_MIN, IM_U16_MAX);
 		    }
 		    if(op == '-') {
-			    *(ImU16*)output = ImSubClampOverflow(*(const ImU16*)arg1, *(const ImU16*)arg2, IM_U16_MIN, IM_U16_MAX);
+			    *(uint16*)output = ImSubClampOverflow(*(const uint16*)arg1, *(const uint16*)arg2, IM_U16_MIN, IM_U16_MAX);
 		    }
 		    return;
 		case ImGuiDataType_S32:
@@ -1844,18 +1838,18 @@ void ImGui::DataTypeApplyOp(ImGuiDataType data_type, int op, void* output, const
 		    return;
 		case ImGuiDataType_S64:
 		    if(op == '+') {
-			    *(ImS64*)output = ImAddClampOverflow(*(const ImS64*)arg1, *(const ImS64*)arg2, IM_S64_MIN, IM_S64_MAX);
+			    *(int64*)output = ImAddClampOverflow(*(const int64*)arg1, *(const int64*)arg2, IM_S64_MIN, IM_S64_MAX);
 		    }
 		    if(op == '-') {
-			    *(ImS64*)output = ImSubClampOverflow(*(const ImS64*)arg1, *(const ImS64*)arg2, IM_S64_MIN, IM_S64_MAX);
+			    *(int64*)output = ImSubClampOverflow(*(const int64*)arg1, *(const int64*)arg2, IM_S64_MIN, IM_S64_MAX);
 		    }
 		    return;
 		case ImGuiDataType_U64:
 		    if(op == '+') {
-			    *(ImU64*)output = ImAddClampOverflow(*(const ImU64*)arg1, *(const ImU64*)arg2, IM_U64_MIN, IM_U64_MAX);
+			    *(uint64*)output = ImAddClampOverflow(*(const uint64*)arg1, *(const uint64*)arg2, IM_U64_MIN, IM_U64_MAX);
 		    }
 		    if(op == '-') {
-			    *(ImU64*)output = ImSubClampOverflow(*(const ImU64*)arg1, *(const ImU64*)arg2, IM_U64_MIN, IM_U64_MAX);
+			    *(uint64*)output = ImSubClampOverflow(*(const uint64*)arg1, *(const uint64*)arg2, IM_U64_MIN, IM_U64_MAX);
 		    }
 		    return;
 		case ImGuiDataType_Float:
@@ -1907,13 +1901,13 @@ bool ImGui::DataTypeApplyFromText(const char* buf, ImGuiDataType data_type, void
 		return false;
 	if(type_info->Size < 4) {
 		if(data_type == ImGuiDataType_S8)
-			*(ImS8*)p_data = (ImS8)sclamp(v32, (int)IM_S8_MIN, (int)IM_S8_MAX);
+			*(int8*)p_data = (int8)sclamp(v32, (int)IM_S8_MIN, (int)IM_S8_MAX);
 		else if(data_type == ImGuiDataType_U8)
-			*(ImU8*)p_data = (ImU8)sclamp(v32, (int)IM_U8_MIN, (int)IM_U8_MAX);
+			*(uint8*)p_data = (uint8)sclamp(v32, (int)IM_U8_MIN, (int)IM_U8_MAX);
 		else if(data_type == ImGuiDataType_S16)
-			*(ImS16*)p_data = (ImS16)sclamp(v32, (int)IM_S16_MIN, (int)IM_S16_MAX);
+			*(int16*)p_data = (int16)sclamp(v32, (int)IM_S16_MIN, (int)IM_S16_MAX);
 		else if(data_type == ImGuiDataType_U16)
-			*(ImU16*)p_data = (ImU16)sclamp(v32, (int)IM_U16_MIN, (int)IM_U16_MAX);
+			*(uint16*)p_data = (uint16)sclamp(v32, (int)IM_U16_MIN, (int)IM_U16_MAX);
 		else
 			assert(0);
 	}
@@ -1932,14 +1926,14 @@ static int DataTypeCompareT(const T* lhs, const T* rhs)
 int ImGui::DataTypeCompare(ImGuiDataType data_type, const void* arg_1, const void* arg_2)
 {
 	switch(data_type) {
-		case ImGuiDataType_S8:     return DataTypeCompareT<ImS8  >((const ImS8*)arg_1, (const ImS8*)arg_2);
-		case ImGuiDataType_U8:     return DataTypeCompareT<ImU8  >((const ImU8*)arg_1, (const ImU8*)arg_2);
-		case ImGuiDataType_S16:    return DataTypeCompareT<ImS16 >((const ImS16*)arg_1, (const ImS16*)arg_2);
-		case ImGuiDataType_U16:    return DataTypeCompareT<ImU16 >((const ImU16*)arg_1, (const ImU16*)arg_2);
+		case ImGuiDataType_S8:     return DataTypeCompareT<int8  >((const int8*)arg_1, (const int8*)arg_2);
+		case ImGuiDataType_U8:     return DataTypeCompareT<uint8  >((const uint8*)arg_1, (const uint8*)arg_2);
+		case ImGuiDataType_S16:    return DataTypeCompareT<int16 >((const int16*)arg_1, (const int16*)arg_2);
+		case ImGuiDataType_U16:    return DataTypeCompareT<uint16 >((const uint16*)arg_1, (const uint16*)arg_2);
 		case ImGuiDataType_S32:    return DataTypeCompareT<ImS32 >((const ImS32*)arg_1, (const ImS32*)arg_2);
 		case ImGuiDataType_U32:    return DataTypeCompareT<ImU32 >((const ImU32*)arg_1, (const ImU32*)arg_2);
-		case ImGuiDataType_S64:    return DataTypeCompareT<ImS64 >((const ImS64*)arg_1, (const ImS64*)arg_2);
-		case ImGuiDataType_U64:    return DataTypeCompareT<ImU64 >((const ImU64*)arg_1, (const ImU64*)arg_2);
+		case ImGuiDataType_S64:    return DataTypeCompareT<int64 >((const int64*)arg_1, (const int64*)arg_2);
+		case ImGuiDataType_U64:    return DataTypeCompareT<uint64 >((const uint64*)arg_1, (const uint64*)arg_2);
 		case ImGuiDataType_Float:  return DataTypeCompareT<float >((const float*)arg_1, (const float*)arg_2);
 		case ImGuiDataType_Double: return DataTypeCompareT<double>((const double*)arg_1, (const double*)arg_2);
 		case ImGuiDataType_COUNT:  break;
@@ -1965,14 +1959,14 @@ template <typename T> static bool DataTypeClampT(T* v, const T* v_min, const T* 
 bool ImGui::DataTypeClamp(ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max)
 {
 	switch(data_type) {
-		case ImGuiDataType_S8:     return DataTypeClampT<ImS8  >((ImS8*)p_data, (const ImS8*)p_min, (const ImS8*)p_max);
-		case ImGuiDataType_U8:     return DataTypeClampT<ImU8  >((ImU8*)p_data, (const ImU8*)p_min, (const ImU8*)p_max);
-		case ImGuiDataType_S16:    return DataTypeClampT<ImS16 >((ImS16*)p_data, (const ImS16*)p_min, (const ImS16*)p_max);
-		case ImGuiDataType_U16:    return DataTypeClampT<ImU16 >((ImU16*)p_data, (const ImU16*)p_min, (const ImU16*)p_max);
+		case ImGuiDataType_S8:     return DataTypeClampT<int8  >((int8*)p_data, (const int8*)p_min, (const int8*)p_max);
+		case ImGuiDataType_U8:     return DataTypeClampT<uint8  >((uint8*)p_data, (const uint8*)p_min, (const uint8*)p_max);
+		case ImGuiDataType_S16:    return DataTypeClampT<int16 >((int16*)p_data, (const int16*)p_min, (const int16*)p_max);
+		case ImGuiDataType_U16:    return DataTypeClampT<uint16 >((uint16*)p_data, (const uint16*)p_min, (const uint16*)p_max);
 		case ImGuiDataType_S32:    return DataTypeClampT<ImS32 >((ImS32*)p_data, (const ImS32*)p_min, (const ImS32*)p_max);
 		case ImGuiDataType_U32:    return DataTypeClampT<ImU32 >((ImU32*)p_data, (const ImU32*)p_min, (const ImU32*)p_max);
-		case ImGuiDataType_S64:    return DataTypeClampT<ImS64 >((ImS64*)p_data, (const ImS64*)p_min, (const ImS64*)p_max);
-		case ImGuiDataType_U64:    return DataTypeClampT<ImU64 >((ImU64*)p_data, (const ImU64*)p_min, (const ImU64*)p_max);
+		case ImGuiDataType_S64:    return DataTypeClampT<int64 >((int64*)p_data, (const int64*)p_min, (const int64*)p_max);
+		case ImGuiDataType_U64:    return DataTypeClampT<uint64 >((uint64*)p_data, (const uint64*)p_min, (const uint64*)p_max);
 		case ImGuiDataType_Float:  return DataTypeClampT<float >((float*)p_data, (const float*)p_min, (const float*)p_max);
 		case ImGuiDataType_Double: return DataTypeClampT<double>((double*)p_data, (const double*)p_min, (const double*)p_max);
 		case ImGuiDataType_COUNT:  break;
@@ -2156,40 +2150,40 @@ bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* p_v, float v
 	switch(data_type) {
 		case ImGuiDataType_S8:     
 			{ 
-				ImS32 v32 = (ImS32)*(ImS8*)p_v;  
-				bool r = DragBehaviorT<ImS32, ImS32, float>(ImGuiDataType_S32, &v32, v_speed, p_min ? *(const ImS8*)p_min : IM_S8_MIN, p_max ? *(const ImS8*)p_max  : IM_S8_MAX, format, flags); 
+				ImS32 v32 = (ImS32)*(int8*)p_v;  
+				bool r = DragBehaviorT<ImS32, ImS32, float>(ImGuiDataType_S32, &v32, v_speed, p_min ? *(const int8*)p_min : IM_S8_MIN, p_max ? *(const int8*)p_max  : IM_S8_MAX, format, flags); 
 				if(r)   
-					*(ImS8*)p_v = (ImS8)v32; 
+					*(int8*)p_v = (int8)v32; 
 				return r; 
 			}
 		case ImGuiDataType_U8:     
 			{ 
-				ImU32 v32 = (ImU32)*(ImU8*)p_v;  
-				bool r = DragBehaviorT<ImU32, ImS32, float>(ImGuiDataType_U32, &v32, v_speed, p_min ? *(const ImU8*)p_min : IM_U8_MIN, p_max ? *(const ImU8*)p_max  : IM_U8_MAX, format, flags); 
+				ImU32 v32 = (ImU32)*(uint8*)p_v;  
+				bool r = DragBehaviorT<ImU32, ImS32, float>(ImGuiDataType_U32, &v32, v_speed, p_min ? *(const uint8*)p_min : IM_U8_MIN, p_max ? *(const uint8*)p_max  : IM_U8_MAX, format, flags); 
 				if(r)   
-					*(ImU8*)p_v = (ImU8)v32; 
+					*(uint8*)p_v = (uint8)v32; 
 				return r; 
 			}
 		case ImGuiDataType_S16:    
 			{ 
-				ImS32 v32 = (ImS32)*(ImS16*)p_v; 
-				bool r = DragBehaviorT<ImS32, ImS32, float>(ImGuiDataType_S32, &v32, v_speed, p_min ? *(const ImS16*)p_min : IM_S16_MIN, p_max ? *(const ImS16*)p_max : IM_S16_MAX, format, flags); 
+				ImS32 v32 = (ImS32)*(int16*)p_v; 
+				bool r = DragBehaviorT<ImS32, ImS32, float>(ImGuiDataType_S32, &v32, v_speed, p_min ? *(const int16*)p_min : IM_S16_MIN, p_max ? *(const int16*)p_max : IM_S16_MAX, format, flags); 
 				if(r)  
-					*(ImS16*)p_v = (ImS16)v32; 
+					*(int16*)p_v = (int16)v32; 
 				return r; 
 			}
 		case ImGuiDataType_U16:    
 			{ 
-				ImU32 v32 = (ImU32)*(ImU16*)p_v; 
-				bool r = DragBehaviorT<ImU32, ImS32, float>(ImGuiDataType_U32, &v32, v_speed, p_min ? *(const ImU16*)p_min : IM_U16_MIN, p_max ? *(const ImU16*)p_max : IM_U16_MAX, format, flags); 
+				ImU32 v32 = (ImU32)*(uint16*)p_v; 
+				bool r = DragBehaviorT<ImU32, ImS32, float>(ImGuiDataType_U32, &v32, v_speed, p_min ? *(const uint16*)p_min : IM_U16_MIN, p_max ? *(const uint16*)p_max : IM_U16_MAX, format, flags); 
 				if(r)  
-					*(ImU16*)p_v = (ImU16)v32; 
+					*(uint16*)p_v = (uint16)v32; 
 				return r; 
 			}
 		case ImGuiDataType_S32: return DragBehaviorT<ImS32, ImS32, float >(data_type, (ImS32*)p_v,  v_speed, p_min ? *(const ImS32*)p_min : IM_S32_MIN, p_max ? *(const ImS32*)p_max : IM_S32_MAX, format, flags);
 		case ImGuiDataType_U32: return DragBehaviorT<ImU32, ImS32, float >(data_type, (ImU32*)p_v,  v_speed, p_min ? *(const ImU32*)p_min : IM_U32_MIN, p_max ? *(const ImU32*)p_max : IM_U32_MAX, format, flags);
-		case ImGuiDataType_S64: return DragBehaviorT<ImS64, ImS64, double>(data_type, (ImS64*)p_v,  v_speed, p_min ? *(const ImS64*)p_min : IM_S64_MIN, p_max ? *(const ImS64*)p_max : IM_S64_MAX, format, flags);
-		case ImGuiDataType_U64: return DragBehaviorT<ImU64, ImS64, double>(data_type, (ImU64*)p_v,  v_speed, p_min ? *(const ImU64*)p_min : IM_U64_MIN, p_max ? *(const ImU64*)p_max : IM_U64_MAX, format, flags);
+		case ImGuiDataType_S64: return DragBehaviorT<int64, int64, double>(data_type, (int64*)p_v,  v_speed, p_min ? *(const int64*)p_min : IM_S64_MIN, p_max ? *(const int64*)p_max : IM_S64_MAX, format, flags);
+		case ImGuiDataType_U64: return DragBehaviorT<uint64, int64, double>(data_type, (uint64*)p_v,  v_speed, p_min ? *(const uint64*)p_min : IM_U64_MIN, p_max ? *(const uint64*)p_max : IM_U64_MAX, format, flags);
 		case ImGuiDataType_Float: return DragBehaviorT<float, float, float >(data_type, (float*)p_v,  v_speed, p_min ? *(const float*)p_min : -FLT_MAX, p_max ? *(const float*)p_max : FLT_MAX,    format, flags);
 		case ImGuiDataType_Double: return DragBehaviorT<double, double, double>(data_type, (double*)p_v, v_speed, p_min ? *(const double*)p_min : -DBL_MAX, p_max ? *(const double*)p_max : DBL_MAX,    format, flags);
 		case ImGuiDataType_COUNT:  break;
@@ -2722,50 +2716,50 @@ bool ImGui::SliderBehavior(const ImRect& bb,
 		return false;
 
 	switch(data_type) {
-		case ImGuiDataType_S8:  { ImS32 v32 = (ImS32)*(ImS8*)p_v;
+		case ImGuiDataType_S8:  { ImS32 v32 = (ImS32)*(int8*)p_v;
 					  bool r = SliderBehaviorT<ImS32, ImS32, float>(bb,
 						  id,
 						  ImGuiDataType_S32,
 						  &v32,
-						  *(const ImS8*)p_min,
-						  *(const ImS8*)p_max,
+						  *(const int8*)p_min,
+						  *(const int8*)p_max,
 						  format,
 						  flags,
 						  out_grab_bb);
-					  if(r)  *(ImS8*)p_v  = (ImS8)v32; return r; }
-		case ImGuiDataType_U8:  { ImU32 v32 = (ImU32)*(ImU8*)p_v;
+					  if(r)  *(int8*)p_v  = (int8)v32; return r; }
+		case ImGuiDataType_U8:  { ImU32 v32 = (ImU32)*(uint8*)p_v;
 					  bool r = SliderBehaviorT<ImU32, ImS32, float>(bb,
 						  id,
 						  ImGuiDataType_U32,
 						  &v32,
-						  *(const ImU8*)p_min,
-						  *(const ImU8*)p_max,
+						  *(const uint8*)p_min,
+						  *(const uint8*)p_max,
 						  format,
 						  flags,
 						  out_grab_bb);
-					  if(r)  *(ImU8*)p_v  = (ImU8)v32; return r; }
-		case ImGuiDataType_S16: { ImS32 v32 = (ImS32)*(ImS16*)p_v;
+					  if(r)  *(uint8*)p_v  = (uint8)v32; return r; }
+		case ImGuiDataType_S16: { ImS32 v32 = (ImS32)*(int16*)p_v;
 					  bool r = SliderBehaviorT<ImS32, ImS32, float>(bb,
 						  id,
 						  ImGuiDataType_S32,
 						  &v32,
-						  *(const ImS16*)p_min,
-						  *(const ImS16*)p_max,
+						  *(const int16*)p_min,
+						  *(const int16*)p_max,
 						  format,
 						  flags,
 						  out_grab_bb);
-					  if(r)  *(ImS16*)p_v = (ImS16)v32; return r; }
-		case ImGuiDataType_U16: { ImU32 v32 = (ImU32)*(ImU16*)p_v;
+					  if(r)  *(int16*)p_v = (int16)v32; return r; }
+		case ImGuiDataType_U16: { ImU32 v32 = (ImU32)*(uint16*)p_v;
 					  bool r = SliderBehaviorT<ImU32, ImS32, float>(bb,
 						  id,
 						  ImGuiDataType_U32,
 						  &v32,
-						  *(const ImU16*)p_min,
-						  *(const ImU16*)p_max,
+						  *(const uint16*)p_min,
+						  *(const uint16*)p_max,
 						  format,
 						  flags,
 						  out_grab_bb);
-					  if(r)  *(ImU16*)p_v = (ImU16)v32; return r; }
+					  if(r)  *(uint16*)p_v = (uint16)v32; return r; }
 		case ImGuiDataType_S32:
 		    assert(*(const ImS32*)p_min >= IM_S32_MIN / 2 && *(const ImS32*)p_max <= IM_S32_MAX / 2);
 		    return SliderBehaviorT<ImS32, ImS32, float >(bb, id, data_type, (ImS32*)p_v,  *(const ImS32*)p_min,  *(const ImS32*)p_max,  format, flags, out_grab_bb);
@@ -2773,11 +2767,11 @@ bool ImGui::SliderBehavior(const ImRect& bb,
 		    assert(*(const ImU32*)p_max <= IM_U32_MAX / 2);
 		    return SliderBehaviorT<ImU32, ImS32, float >(bb, id, data_type, (ImU32*)p_v,  *(const ImU32*)p_min,  *(const ImU32*)p_max,  format, flags, out_grab_bb);
 		case ImGuiDataType_S64:
-		    assert(*(const ImS64*)p_min >= IM_S64_MIN / 2 && *(const ImS64*)p_max <= IM_S64_MAX / 2);
-		    return SliderBehaviorT<ImS64, ImS64, double>(bb, id, data_type, (ImS64*)p_v,  *(const ImS64*)p_min,  *(const ImS64*)p_max,  format, flags, out_grab_bb);
+		    assert(*(const int64*)p_min >= IM_S64_MIN / 2 && *(const int64*)p_max <= IM_S64_MAX / 2);
+		    return SliderBehaviorT<int64, int64, double>(bb, id, data_type, (int64*)p_v,  *(const int64*)p_min,  *(const int64*)p_max,  format, flags, out_grab_bb);
 		case ImGuiDataType_U64:
-		    assert(*(const ImU64*)p_max <= IM_U64_MAX / 2);
-		    return SliderBehaviorT<ImU64, ImS64, double>(bb, id, data_type, (ImU64*)p_v,  *(const ImU64*)p_min,  *(const ImU64*)p_max,  format, flags, out_grab_bb);
+		    assert(*(const uint64*)p_max <= IM_U64_MAX / 2);
+		    return SliderBehaviorT<uint64, int64, double>(bb, id, data_type, (uint64*)p_v,  *(const uint64*)p_min,  *(const uint64*)p_max,  format, flags, out_grab_bb);
 		case ImGuiDataType_Float:
 		    assert(*(const float*)p_min >= -FLT_MAX / 2.0f && *(const float*)p_max <= FLT_MAX / 2.0f);
 		    return SliderBehaviorT<float, float, float >(bb, id, data_type, (float*)p_v,  *(const float*)p_min,  *(const float*)p_max,  format, flags, out_grab_bb);
@@ -6415,7 +6409,7 @@ void ImGuiMenuColumns::Update(float spacing, bool window_reappearing)
 {
 	if(window_reappearing)
 		memzero(Widths, sizeof(Widths));
-	Spacing = (ImU16)spacing;
+	Spacing = (uint16)spacing;
 	CalcNextTotalWidth(true);
 	memzero(Widths, sizeof(Widths));
 	TotalWidth = NextTotalWidth;
@@ -6424,10 +6418,10 @@ void ImGuiMenuColumns::Update(float spacing, bool window_reappearing)
 
 void ImGuiMenuColumns::CalcNextTotalWidth(bool update_offsets)
 {
-	ImU16 offset = 0;
+	uint16 offset = 0;
 	bool want_spacing = false;
 	for(int i = 0; i < SIZEOFARRAYi(Widths); i++) {
-		ImU16 width = Widths[i];
+		uint16 width = Widths[i];
 		if(want_spacing && width > 0)
 			offset += Spacing;
 		want_spacing |= (width > 0);
@@ -6449,10 +6443,10 @@ void ImGuiMenuColumns::CalcNextTotalWidth(bool update_offsets)
 
 float ImGuiMenuColumns::DeclColumns(float w_icon, float w_label, float w_shortcut, float w_mark)
 {
-	Widths[0] = smax(Widths[0], (ImU16)w_icon);
-	Widths[1] = smax(Widths[1], (ImU16)w_label);
-	Widths[2] = smax(Widths[2], (ImU16)w_shortcut);
-	Widths[3] = smax(Widths[3], (ImU16)w_mark);
+	Widths[0] = smax(Widths[0], (uint16)w_icon);
+	Widths[1] = smax(Widths[1], (uint16)w_label);
+	Widths[2] = smax(Widths[2], (uint16)w_shortcut);
+	Widths[3] = smax(Widths[3], (uint16)w_mark);
 	CalcNextTotalWidth(false);
 	return (float)smax(TotalWidth, NextTotalWidth);
 }
@@ -7146,7 +7140,7 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
 			tab_bar->Tabs[tab_dst_n] = tab_bar->Tabs[tab_src_n];
 
 		tab = &tab_bar->Tabs[tab_dst_n];
-		tab->IndexDuringLayout = (ImS16)tab_dst_n;
+		tab->IndexDuringLayout = (int16)tab_dst_n;
 
 		// We will need sorting if tabs have changed section (e.g. moved from one of Leading/Central/Trailing to another)
 		int curr_tab_section_n = TabItemGetSectionIdx(tab);
@@ -7487,7 +7481,7 @@ void ImGui::TabBarQueueReorder(ImGuiTabBar* tab_bar, ImGuiTabItem* tab, int offs
 	assert(offset != 0);
 	assert(tab_bar->ReorderRequestTabId == 0);
 	tab_bar->ReorderRequestTabId = tab->ID;
-	tab_bar->ReorderRequestOffset = (ImS16)offset;
+	tab_bar->ReorderRequestOffset = (int16)offset;
 }
 
 void ImGui::TabBarQueueReorderFromMousePos(ImGuiTabBar* tab_bar, ImGuiTabItem* src_tab, ImVec2 mouse_pos)
@@ -7742,7 +7736,7 @@ bool ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, ImG
 		tab->ID = id;
 		tab_bar->TabsAddedNew = tab_is_new = true;
 	}
-	tab_bar->LastTabItemIdx = (ImS16)tab_bar->Tabs.index_from_ptr(tab);
+	tab_bar->LastTabItemIdx = (int16)tab_bar->Tabs.index_from_ptr(tab);
 
 	// Calculate tab contents size
 	ImVec2 size = TabItemCalcSize(label, (p_open != NULL) || (flags & ImGuiTabItemFlags_UnsavedDocument));

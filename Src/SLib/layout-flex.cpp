@@ -939,7 +939,7 @@ int SUiLayout::GetMaxComponentID() const
 	return result;
 }
 
-const SUiLayout * SUiLayout::FindByID(int id) const
+const SUiLayout * SUiLayout::FindByIdC(int id) const
 {
 	const SUiLayout * p_result = 0;
 	if(id > 0) {
@@ -951,13 +951,15 @@ const SUiLayout * SUiLayout::FindByID(int id) const
 				for(uint i = 0; !p_result && i < _cc; i++) {
 					const SUiLayout * p_child = GetChildC(i);
 					if(p_child)
-						p_result = p_child->FindByID(id);
+						p_result = p_child->FindByIdC(id); // @recursion
 				}
 			}
 		}
 	}
 	return p_result;
 }
+
+SUiLayout * SUiLayout::FindById(int id) { return const_cast<SUiLayout *>(FindByIdC(id)); }
 
 /*static*/void * SUiLayout::GetManagedPtr(SUiLayout * pItem) { return pItem ? pItem->managed_ptr : 0; }
 /*static*/void * SUiLayout::GetParentsManagedPtr(SUiLayout * pItem) { return pItem ? GetManagedPtr(pItem->P_Parent) : 0; }
@@ -1433,6 +1435,27 @@ SUiLayout * SUiLayout::GetRoot()
 	return p_root;
 }
 
+SUiLayout * SUiLayout::InsertCopy(const SUiLayout * pOriginalLayout)
+{
+	SUiLayout * p_result_item = 0;
+	assert(pOriginalLayout);
+	if(pOriginalLayout) {
+		if(!P_Children) {
+			P_Children = new TSCollection <SUiLayout>;
+		}
+		if(P_Children) {
+			p_result_item = P_Children->CreateNewItem();
+			if(p_result_item) {
+				p_result_item->Copy(*pOriginalLayout);
+				p_result_item->P_Parent = this;
+				p_result_item->managed_ptr = 0;
+				p_result_item->UpdateShouldOrderChildren();
+			}
+		}
+	}
+	return p_result_item;
+}
+
 SUiLayout * SUiLayout::InsertItem(void * pManagedPtr, const SUiLayoutParam * pAlb, int id/*=0*/)
 {
 	SUiLayout * p_result_item = 0;
@@ -1897,6 +1920,7 @@ void SUiLayout::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint chil
 		if((p_layout->Flags & LayoutFlexProcessor::fWrap) && (p_layout->Flags & LayoutFlexProcessor::fReverse2)) {
 			p_layout->Pos2 -= p_layout->LineDim;
 		}
+		LongArray * p_scroller_content_list = 0; // @v11.7.12
 		for(uint i = childBeginIdx; i < childEndIdx; i++) {
 			const SUiLayout & r_child = p_layout->GetChildByIndex(this, i);
 			if(!r_child.ALB.IsPositionAbsolute(ALB.GetContainerDirection())) { // Isn't already positioned
@@ -1974,6 +1998,10 @@ void SUiLayout::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint chil
 					}
 					if(pSsb) {
 						pSsb->ItemCount++;
+						// @v11.7.12 {
+						SETIFZQ(p_scroller_content_list, pSsb->LineContent.CreateNewItem());
+						CALLPTRMEMB(p_scroller_content_list, add(static_cast<long>(i)));
+						// } @v11.7.12 
 						pSsb->ItemSizeList.add(_s);
 					}
 				}
@@ -2152,6 +2180,14 @@ void SUiLayout::DoLayout(const Param & rP) const
 						const float _s = r_line.Size + spacing;
 						if(ALB.Flags & ALB.fEvaluateScroller) {
 							ssb.ItemSizeList.add(_s);
+							// @v11.7.12 {
+							LongArray * p_content_list = ssb.LineContent.CreateNewItem();
+							if(p_content_list) {
+								for(uint ci = r_line.ChildBeginIdx; ci < r_line.ChildEndIdx; ci++) {
+									p_content_list->add(static_cast<long>(ci));
+								}
+							}
+							// } @v11.7.12 
 							ssb.ItemCount++;
 						}
 						if(is_reverse2) {
@@ -2865,12 +2901,10 @@ int SUiLayout::FromJsonObj(const SJson * pJs)
 	THROW(SJson::IsObject(pJs)); // @todo @err
 	for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
 		if(p_jsn->P_Child) {
-			if(p_jsn->Text.IsEqiAscii("id")) {
+			if(p_jsn->Text.IsEqiAscii("id"))
 				ID = p_jsn->P_Child->Text.ToLong();
-			}
-			else if(p_jsn->Text.IsEqiAscii("symb")) {
+			else if(p_jsn->Text.IsEqiAscii("symb"))
 				(Symb = p_jsn->P_Child->Text).Unescape();
-			}
 			else if(p_jsn->Text.IsEqiAscii("flags")) {
 				StringSet ss(' ', p_jsn->P_Child->Text);
 				bool is_horizontal = false;
@@ -2879,21 +2913,16 @@ int SUiLayout::FromJsonObj(const SJson * pJs)
 				bool is_wrap = false;
 				bool is_wrapreverse = false;
 				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-					if(temp_buf.IsEqiAscii("horizontal") || temp_buf.IsEqiAscii("horiz")) {
+					if(temp_buf.IsEqiAscii("horizontal") || temp_buf.IsEqiAscii("horiz"))
 						is_horizontal = true;
-					}
-					else if(temp_buf.IsEqiAscii("vertical") || temp_buf.IsEqiAscii("vert")) {
+					else if(temp_buf.IsEqiAscii("vertical") || temp_buf.IsEqiAscii("vert"))
 						is_vertical = true;
-					}
-					else if(temp_buf.IsEqiAscii("reverse")) {
+					else if(temp_buf.IsEqiAscii("reverse"))
 						is_reverse = true;
-					}
-					else if(temp_buf.IsEqiAscii("wrapreverse")) {
+					else if(temp_buf.IsEqiAscii("wrapreverse"))
 						is_wrapreverse = true;
-					}
-					else if(temp_buf.IsEqiAscii("wrap")) {
+					else if(temp_buf.IsEqiAscii("wrap"))
 						is_wrap = true;
-					}
 				}
 				if(is_horizontal) {
 					if(is_vertical) {
@@ -2928,123 +2957,94 @@ int SUiLayout::FromJsonObj(const SJson * pJs)
 			}
 			else if(p_jsn->Text.IsEqiAscii("justifycontent")) {
 				temp_buf = p_jsn->P_Child->Text;
-				if(temp_buf.IsEqiAscii("stretch")) {
+				if(temp_buf.IsEqiAscii("stretch"))
 					ALB.JustifyContent = SUiLayoutParam::alignStretch;
-				}
-				else if(temp_buf.IsEqiAscii("center")) {
+				else if(temp_buf.IsEqiAscii("center"))
 					ALB.JustifyContent = SUiLayoutParam::alignCenter;
-				}
-				else if(temp_buf.IsEqiAscii("start")) {
+				else if(temp_buf.IsEqiAscii("start"))
 					ALB.JustifyContent = SUiLayoutParam::alignStart;
-				}
-				else if(temp_buf.IsEqiAscii("end")) {
+				else if(temp_buf.IsEqiAscii("end"))
 					ALB.JustifyContent = SUiLayoutParam::alignEnd;
-				}
-				else if(temp_buf.IsEqiAscii("SpaceBetween")) {
+				else if(temp_buf.IsEqiAscii("SpaceBetween"))
 					ALB.JustifyContent = SUiLayoutParam::alignSpaceBetween;
-				}
-				else if(temp_buf.IsEqiAscii("SpaceAround")) {
+				else if(temp_buf.IsEqiAscii("SpaceAround"))
 					ALB.JustifyContent = SUiLayoutParam::alignSpaceAround;
-				}
-				else if(temp_buf.IsEqiAscii("SpaceEvenly")) {
+				else if(temp_buf.IsEqiAscii("SpaceEvenly"))
 					ALB.JustifyContent = SUiLayoutParam::alignSpaceEvenly;
-				}
 				else {
 					; // @todo @err
 				}
 			}
 			else if(p_jsn->Text.IsEqiAscii("aligncontent")) {
 				temp_buf = p_jsn->P_Child->Text;
-				if(temp_buf.IsEqiAscii("stretch")) {
+				if(temp_buf.IsEqiAscii("stretch"))
 					ALB.AlignContent = SUiLayoutParam::alignStretch;
-				}
-				else if(temp_buf.IsEqiAscii("center")) {
+				else if(temp_buf.IsEqiAscii("center"))
 					ALB.AlignContent = SUiLayoutParam::alignCenter;
-				}
-				else if(temp_buf.IsEqiAscii("start")) {
+				else if(temp_buf.IsEqiAscii("start"))
 					ALB.AlignContent = SUiLayoutParam::alignStart;
-				}
-				else if(temp_buf.IsEqiAscii("end")) {
+				else if(temp_buf.IsEqiAscii("end"))
 					ALB.AlignContent = SUiLayoutParam::alignEnd;
-				}
-				else if(temp_buf.IsEqiAscii("SpaceBetween")) {
+				else if(temp_buf.IsEqiAscii("SpaceBetween"))
 					ALB.AlignContent = SUiLayoutParam::alignSpaceBetween;
-				}
-				else if(temp_buf.IsEqiAscii("SpaceAround")) {
+				else if(temp_buf.IsEqiAscii("SpaceAround"))
 					ALB.AlignContent = SUiLayoutParam::alignSpaceAround;
-				}
-				else if(temp_buf.IsEqiAscii("SpaceEvenly")) {
+				else if(temp_buf.IsEqiAscii("SpaceEvenly"))
 					ALB.AlignContent = SUiLayoutParam::alignSpaceEvenly;
-				}
 				else {
 					; // @todo @err
 				}
 			}
 			else if(p_jsn->Text.IsEqiAscii("alignitems")) {
 				temp_buf = p_jsn->P_Child->Text;
-				if(temp_buf.IsEqiAscii("stretch")) {
+				if(temp_buf.IsEqiAscii("stretch"))
 					ALB.AlignItems = SUiLayoutParam::alignStretch;
-				}
-				else if(temp_buf.IsEqiAscii("center")) {
+				else if(temp_buf.IsEqiAscii("center"))
 					ALB.AlignItems = SUiLayoutParam::alignCenter;
-				}
-				else if(temp_buf.IsEqiAscii("start")) {
+				else if(temp_buf.IsEqiAscii("start"))
 					ALB.AlignItems = SUiLayoutParam::alignStart;
-				}
-				else if(temp_buf.IsEqiAscii("end")) {
+				else if(temp_buf.IsEqiAscii("end"))
 					ALB.AlignItems = SUiLayoutParam::alignEnd;
-				}
 				else {
 					; // @todo @err
 				}
 			}
 			else if(p_jsn->Text.IsEqiAscii("alignself")) {
 				temp_buf = p_jsn->P_Child->Text;
-				if(temp_buf.IsEqiAscii("stretch")) {
+				if(temp_buf.IsEqiAscii("stretch"))
 					ALB.AlignSelf = SUiLayoutParam::alignStretch;
-				}
-				else if(temp_buf.IsEqiAscii("center")) {
+				else if(temp_buf.IsEqiAscii("center"))
 					ALB.AlignSelf = SUiLayoutParam::alignCenter;
-				}
-				else if(temp_buf.IsEqiAscii("start")) {
+				else if(temp_buf.IsEqiAscii("start"))
 					ALB.AlignSelf = SUiLayoutParam::alignStart;
-				}
-				else if(temp_buf.IsEqiAscii("end")) {
+				else if(temp_buf.IsEqiAscii("end"))
 					ALB.AlignSelf = SUiLayoutParam::alignEnd;
-				}
-				else if(temp_buf.IsEqiAscii("auto")) {
+				else if(temp_buf.IsEqiAscii("auto"))
 					ALB.AlignSelf = SUiLayoutParam::alignAuto;
-				}
 				else {
 					; // @todo @err
 				}
 			}
 			else if(p_jsn->Text.IsEqiAscii("gravityx")) {
 				temp_buf = p_jsn->P_Child->Text;
-				if(temp_buf.IsEqiAscii("left")) {
+				if(temp_buf.IsEqiAscii("left"))
 					ALB.GravityX = SIDE_LEFT;
-				}
-				else if(temp_buf.IsEqiAscii("right")) {
+				else if(temp_buf.IsEqiAscii("right"))
 					ALB.GravityX = SIDE_RIGHT;
-				}
-				else if(temp_buf.IsEqiAscii("center")) {
+				else if(temp_buf.IsEqiAscii("center"))
 					ALB.GravityX = SIDE_CENTER;
-				}
 				else {
 					; // @todo @err
 				}
 			}
 			else if(p_jsn->Text.IsEqiAscii("gravityy")) {
 				temp_buf = p_jsn->P_Child->Text;
-				if(temp_buf.IsEqiAscii("left")) {
+				if(temp_buf.IsEqiAscii("left"))
 					ALB.GravityY = SIDE_LEFT;
-				}
-				else if(temp_buf.IsEqiAscii("right")) {
+				else if(temp_buf.IsEqiAscii("right"))
 					ALB.GravityY = SIDE_RIGHT;
-				}
-				else if(temp_buf.IsEqiAscii("center")) {
+				else if(temp_buf.IsEqiAscii("center"))
 					ALB.GravityY = SIDE_CENTER;
-				}
 				else {
 					; // @todo @err
 				}

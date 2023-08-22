@@ -851,10 +851,8 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 			alb_root.Flags |= SUiLayoutParam::fEvaluateScroller;
 			lo_root.SetLayoutBlock(alb_root);
 			lo_root.Evaluate(0);
-			const SUiLayout::Result & r_result = lo_root.GetResult();
-			if(r_result.P_Scrlr) {
-				p_scrl = r_result.P_Scrlr;
-			}
+			const SUiLayout::Result & r_result = lo_root.GetResultC();
+			p_scrl = r_result.P_Scrlr;
 		}
 		if(p_scrl) {
 			ASSIGN_PTR(pScrlr, *p_scrl);

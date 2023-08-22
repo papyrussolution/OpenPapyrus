@@ -10453,6 +10453,7 @@
 	#define CTLSEL_ALCREPCFG_OP_MFG    (45 + WINDOWS_ID_BIAS)
 	#define CTL_ALCREPCFG_SPLAGT       (46 + WINDOWS_ID_BIAS) // @v11.0.8
 	#define CTLSEL_ALCREPCFG_SPLAGT    (47 + WINDOWS_ID_BIAS) // @v11.0.8
+	#define CTL_ALCREPCFG_WOSW_NMR     (48 + WINDOWS_ID_BIAS) // @v11.7.12
 
 #define DLG_INPUTNUM              1271
 	#define CTL_INPUTNUM_NUM           (1 + WINDOWS_ID_BIAS)
@@ -11462,6 +11463,11 @@
 	#define CTL_TIACCEPTNC_AQTTY            (4  + WINDOWS_ID_BIAS)
 	#define CTL_TIACCEPTNC_ACOST            (5  + WINDOWS_ID_BIAS)
 	#define CTL_TIACCEPTNC_APRICE           (6  + WINDOWS_ID_BIAS)
+#define DLG_CCPRESCR              1431 // @v11.7.12 Параметры рецепта, по которому продается лекарство в аптеке через кассовый узел
+	#define CTL_CCPRESCR_DT                 (1  + WINDOWS_ID_BIAS)
+	#define CTLCAL_CCPRESCR_DT              (2  + WINDOWS_ID_BIAS)
+	#define CTL_CCPRESCR_SERIAL             (3  + WINDOWS_ID_BIAS)
+	#define CTL_CCPRESCR_NUMBER             (4  + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

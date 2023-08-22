@@ -1,5 +1,5 @@
 // OBJGGRP.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1880,10 +1880,7 @@ BrandFilt & FASTCALL BrandFilt::operator = (const BrandFilt & rS)
 	return *this;
 }
 
-bool BrandFilt::IsEmpty() const
-{
-	return (!Flags && SrchStr.IsEmpty() && ParentList.IsEmpty() && OwnerList.IsEmpty());
-}
+bool BrandFilt::IsEmpty() const { return (!Flags && SrchStr.IsEmpty() && ParentList.IsEmpty() && OwnerList.IsEmpty()); }
 
 PPBrandPacket::PPBrandPacket()
 {
@@ -1902,10 +1899,7 @@ void PPBrandPacket::Init()
 	TagL.Destroy(); // @v11.2.12
 }
 
-bool FASTCALL PPBrandPacket::IsEq(const PPBrandPacket & rS) const
-{
-	return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL));
-}
+bool FASTCALL PPBrandPacket::IsEq(const PPBrandPacket & rS) const { return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL)); }
 
 PPBrandPacket & FASTCALL PPBrandPacket::operator = (const PPBrandPacket & rSrc)
 {

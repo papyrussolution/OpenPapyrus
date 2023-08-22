@@ -2111,13 +2111,28 @@ char * STDCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 	if(dest) {
 		if(src) {
 			if(maxlen) {
-				const char * p = static_cast<const char *>(smemchr(src, 0, maxlen)); // @v11.7.0 memchr-->smemchr
+				//
+				// @v11.7.12 Пришлось перестроить код: проблема в том, что smemchr может "посмотреть" чуть дальше чем находится '\0'
+				// и таким образом привести к исключению по чтению недуступного адреса.
+				// Новый код быстрее (strlen быстрее чем smemchr), но если src не содержит нуля в разумных границах, то
+				// исключение все равно будет.
+				//
+				/* @v11.7.12 const char * p = static_cast<const char *>(smemchr(src, 0, maxlen)); // @v11.7.0 memchr-->smemchr
 				if(p)
 					memcpy(dest, src, (size_t)(p - src)+1);
 				else {
 					memcpy(dest, src, maxlen-1);
 					dest[maxlen-1] = 0;
+				}*/
+				// @v11.7.12 {
+				const size_t src_len = strlen(src);
+				if(src_len < maxlen)
+					memcpy(dest, src, src_len+1);
+				else {
+					memcpy(dest, src, maxlen-1);
+					dest[maxlen-1] = 0;					
 				}
+				// } @v11.7.12 
 			}
 			else
 				strcpy(dest, src);

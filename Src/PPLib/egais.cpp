@@ -5585,93 +5585,13 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 				SString egais_code_by_mark;
 				ReceiptTbl::Rec lot_rec;
 				PPIDArray lot_id_list;
-				if(Cfg.E.WrOffShopWay == Cfg.woswBalanceWithLots) {
-					// @v11.7.2 if(!v3markMode) {
-						SString ref_a; // @v11.7.3 Справка А из отчета об остатках
-						SString ref_b; // @v11.7.3 Справка Б из отчета об остатках
-						SString lot_ref_b; // @v11.7.7 Справка Б из лота (для обора только тех лотов, которые соответствуют строке остатка)
-						for(uint i = 0; i < pCurrentRestPack->GetTCount(); i++) {
-							const PPTransferItem & r_ti = pCurrentRestPack->ConstTI(i);
-							if(r_ti.Quantity_ > 0.0 && pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
-								bool is_beer = false;
-								assert(egais_code.NotEmpty());
-								p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code, &lot_id_list);
-								double current_lot_rest = 0.0;
-								// @v11.7.2 {
-								bool do_process = false;
-								if(!v3markMode) {
-									do_process = true;
-								}
-								else {
-									PrcssrAlcReport::GoodsItem agi;
-									if(PreprocessGoodsItem(labs(r_ti.GoodsID), /*org_lot_id*/0, 0, 0, agi) > 0) {
-										is_beer = LOGIC(PrcssrAlcReport::IsBeerCategoryCode(agi.CategoryCode));
-										if(is_beer)
-											do_process = true;
-									}
-								}
-								// } @v11.7.2 
-								if(do_process) {
-									pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARINFA, ref_a); // @v11.7.3
-									pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARINFB, ref_b); // @v11.7.3
-									double _last_cost = 0.0; // @v11.7.4
-									double _last_price = 0.0; // @v11.7.4
-									for(uint j = 0; j < lot_id_list.getCount(); j++) {
-										const PPID lot_id = lot_id_list.get(j);
-										if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
-											// @v11.7.8 {
-											bool do_reckon_lot_rest = false;
-											if(v3markMode) {
-												do_reckon_lot_rest = (p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_FSRARINFB, lot_ref_b) && lot_ref_b.IsEqiAscii(ref_b));
-											}
-											else {
-												do_reckon_lot_rest = true;
-											}
-											// } @v11.7.8 
-											if(do_reckon_lot_rest) { // @v11.7.7
-												double _rest = 0.0;
-												P_BObj->trfr->GetRest(lot_id, _cur_date, MAXLONG, &_rest, 0);
-												current_lot_rest += _rest;
-												//
-												_last_cost = lot_rec.Cost; // @v11.7.4
-												_last_price = lot_rec.Price; // @v11.7.4
-											}
-										}
-									}
-									const double wroff_qtty = (r_ti.Quantity_ - current_lot_rest);
-									if(wroff_qtty > 0.0) { // @v10.4.3 (wroff_qtty >= 1.0)-->(wroff_qtty > 0.0)
-										if(!p_wroff_bp) {
-											THROW_MEM(p_wroff_bp = new PPBillPacket);
-											THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
-										}
-										{
-											PPTransferItem ti;
-											const uint new_pos = p_wroff_bp->GetTCount();
-											THROW(ti.Init(&p_wroff_bp->Rec, 1));
-											THROW(ti.SetupGoods(r_ti.GoodsID, 0));
-											ti.Quantity_ = wroff_qtty;
-											ti.Cost  = _last_cost; // @v11.7.4
-											ti.Price = _last_price; // @v11.7.4
-											THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
-											{
-												ObjTagList tag_list;
-												tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
-												// @v11.7.3 {
-												if(is_beer) {
-													tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, ref_a);
-													tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, ref_b);
-												}
-												// } @v11.7.3 
-												THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
-											}
-										}
-									}
-								}
-							}
-						}
-					// @v11.7.2 }
-				}
-				else if(Cfg.E.WrOffShopWay == Cfg.woswByCChecks) {
+
+				bool do_balance_with_lots_unmarked_only = false; // @v11.7.12 Балансировать с текущими остатками только немаркированную продукцию
+				if(Cfg.E.WrOffShopWay == Cfg.woswByCChecks) {
+					// @v11.7.12 {
+					if(Cfg.E.Flags & Cfg.fNMarkedBalance)
+						do_balance_with_lots_unmarked_only = true;
+					// } @v11.7.12
 					int    skip = 0;
 					CCheckFilt cc_filt;
 					if(!Cfg.P_CcFilt) {
@@ -5918,6 +5838,90 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 							}
 						}
 					}
+				}
+				if(Cfg.E.WrOffShopWay == Cfg.woswBalanceWithLots || do_balance_with_lots_unmarked_only) {
+					// @v11.7.2 if(!v3markMode) {
+						SString ref_a; // @v11.7.3 Справка А из отчета об остатках
+						SString ref_b; // @v11.7.3 Справка Б из отчета об остатках
+						SString lot_ref_b; // @v11.7.7 Справка Б из лота (для обора только тех лотов, которые соответствуют строке остатка)
+						for(uint i = 0; i < pCurrentRestPack->GetTCount(); i++) {
+							const PPTransferItem & r_ti = pCurrentRestPack->ConstTI(i);
+							if(r_ti.Quantity_ > 0.0 && pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
+								bool is_beer = false;
+								assert(egais_code.NotEmpty());
+								p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code, &lot_id_list);
+								double current_lot_rest = 0.0;
+								PrcssrAlcReport::GoodsItem agi;
+								// @v11.7.2 {
+								bool do_process = false;
+								if(!v3markMode && !do_balance_with_lots_unmarked_only) { // @v11.7.12 (&& !do_balance_with_lots_unmarked_only)
+									do_process = true;
+								}
+								else if(PreprocessGoodsItem(labs(r_ti.GoodsID), /*org_lot_id*/0, 0, 0, agi) > 0) {
+									is_beer = LOGIC(PrcssrAlcReport::IsBeerCategoryCode(agi.CategoryCode));
+									if(is_beer)
+										do_process = true;
+								}
+								// } @v11.7.2 
+								if(do_process) {
+									pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARINFA, ref_a); // @v11.7.3
+									pCurrentRestPack->LTagL.GetTagStr(i, PPTAG_LOT_FSRARINFB, ref_b); // @v11.7.3
+									double _last_cost = 0.0; // @v11.7.4
+									double _last_price = 0.0; // @v11.7.4
+									for(uint j = 0; j < lot_id_list.getCount(); j++) {
+										const PPID lot_id = lot_id_list.get(j);
+										if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
+											// @v11.7.8 {
+											bool do_reckon_lot_rest = false;
+											if(v3markMode) {
+												do_reckon_lot_rest = (p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_FSRARINFB, lot_ref_b) && lot_ref_b.IsEqiAscii(ref_b));
+											}
+											else {
+												do_reckon_lot_rest = true;
+											}
+											// } @v11.7.8 
+											if(do_reckon_lot_rest) { // @v11.7.7
+												double _rest = 0.0;
+												P_BObj->trfr->GetRest(lot_id, _cur_date, MAXLONG, &_rest, 0);
+												current_lot_rest += _rest;
+												//
+												_last_cost = lot_rec.Cost; // @v11.7.4
+												_last_price = lot_rec.Price; // @v11.7.4
+											}
+										}
+									}
+									const double wroff_qtty = (r_ti.Quantity_ - current_lot_rest);
+									if(wroff_qtty > 0.0) { // @v10.4.3 (wroff_qtty >= 1.0)-->(wroff_qtty > 0.0)
+										if(!p_wroff_bp) {
+											THROW_MEM(p_wroff_bp = new PPBillPacket);
+											THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
+										}
+										{
+											PPTransferItem ti;
+											const uint new_pos = p_wroff_bp->GetTCount();
+											THROW(ti.Init(&p_wroff_bp->Rec, 1));
+											THROW(ti.SetupGoods(r_ti.GoodsID, 0));
+											ti.Quantity_ = wroff_qtty;
+											ti.Cost  = _last_cost; // @v11.7.4
+											ti.Price = _last_price; // @v11.7.4
+											THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
+											{
+												ObjTagList tag_list;
+												tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+												// @v11.7.3 {
+												if(is_beer) {
+													tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, ref_a);
+													tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, ref_b);
+												}
+												// } @v11.7.3 
+												THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
+											}
+										}
+									}
+								}
+							}
+						}
+					// @v11.7.2 }
 				}
 				if(p_wroff_bp && p_wroff_bp->GetTCount()) {
 					p_wroff_bp->InitAmounts();

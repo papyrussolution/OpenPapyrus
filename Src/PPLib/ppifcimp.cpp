@@ -4034,6 +4034,7 @@ int32 DL6ICLS_PPObjGoods::SetVad(int32 goodsID, SPpyO_Goods * pGRec)
 	int    ok = 1;
 	PPObjGoods * p_obj = static_cast<PPObjGoods *>(ExtraPtr);
 	if(p_obj) {
+		Reference * p_ref = PPRef;
 		GoodsStockExt gse;
 		SString ext_string, temp_buf;
 		SStringU temp_u_buf;
@@ -4042,7 +4043,7 @@ int32 DL6ICLS_PPObjGoods::SetVad(int32 goodsID, SPpyO_Goods * pGRec)
 		THROW(tra);
 		THROW(p_obj->Search(goodsID, &goods_rec) > 0);
 		THROW(p_obj->P_Tbl->GetStockExt(goodsID, &gse, 0));
-		THROW(PPRef->GetPropVlrString(PPOBJ_GOODS, goodsID, GDSPRP_EXTSTRDATA, ext_string));
+		THROW(p_ref->GetPropVlrString(PPOBJ_GOODS, goodsID, GDSPRP_EXTSTRDATA, ext_string));
 
 		//   Brutto, Length, Width, Height, MinStock, Package, ExpiryPeriod
 		//   Storage, Standard, Ingred, Energy, Usage, LabelName
@@ -4054,8 +4055,8 @@ int32 DL6ICLS_PPObjGoods::SetVad(int32 goodsID, SPpyO_Goods * pGRec)
 		gse.SetMinStock(0, pGRec->MinStock);
 		gse.Package = pGRec->Package;
 		gse.MinShippmQtty = pGRec->MinShippmQtty;
-		gse.ExpiryPeriod = (int16)pGRec->ExpiryPeriod;
-		// @v10.6.2 {
+		gse.ExpiryPeriod = static_cast<int16>(pGRec->ExpiryPeriod);
+		//
 		struct { int FldID; const BSTR SrcStr; } fld_descr_list[] = {
 			{ GDSEXSTR_STORAGE, pGRec->Storage }, { GDSEXSTR_STANDARD, pGRec->Standard }, { GDSEXSTR_INGRED,    pGRec->Ingred    },
 			{ GDSEXSTR_ENERGY,  pGRec->Energy  }, { GDSEXSTR_USAGE,    pGRec->Usage },    { GDSEXSTR_LABELNAME, pGRec->LabelName },
@@ -4064,29 +4065,9 @@ int32 DL6ICLS_PPObjGoods::SetVad(int32 goodsID, SPpyO_Goods * pGRec)
 			(temp_u_buf = fld_descr_list[fdlidx].SrcStr).CopyToUtf8(temp_buf, 1);
 			PPPutExtStrData(fld_descr_list[fdlidx].FldID, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 		}
-		// } @v10.6.2 
-		/* @v10.6.2 
-		(temp_u_buf = pGRec->Storage).CopyToUtf8(temp_buf, 1);
-		PPPutExtStrData(GDSEXSTR_STORAGE, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-		//
-		(temp_u_buf = pGRec->Standard).CopyToUtf8(temp_buf, 1);
-		PPPutExtStrData(GDSEXSTR_STANDARD, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-		//
-		(temp_u_buf = pGRec->Ingred).CopyToUtf8(temp_buf, 1);
-		PPPutExtStrData(GDSEXSTR_INGRED, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-		//
-		(temp_u_buf = pGRec->Energy).CopyToUtf8(temp_buf, 1);
-		PPPutExtStrData(GDSEXSTR_ENERGY, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-		//
-		(temp_u_buf = pGRec->Usage).CopyToUtf8(temp_buf, 1);
-		PPPutExtStrData(GDSEXSTR_USAGE, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-		//
-		(temp_u_buf = pGRec->LabelName).CopyToUtf8(temp_buf, 1);
-		PPPutExtStrData(GDSEXSTR_LABELNAME, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-		*/
 		//
 		THROW(p_obj->P_Tbl->PutStockExt(goodsID, &gse, 0));
-		THROW(PPRef->PutPropVlrString(PPOBJ_GOODS, goodsID, GDSPRP_EXTSTRDATA, ext_string));
+		THROW(p_ref->PutPropVlrString(PPOBJ_GOODS, goodsID, GDSPRP_EXTSTRDATA, ext_string));
 		{
 			long new_goods_flags = goods_rec.Flags;
 			SETFLAG(new_goods_flags, GF_EXTPROP, ext_string.NotEmptyS());

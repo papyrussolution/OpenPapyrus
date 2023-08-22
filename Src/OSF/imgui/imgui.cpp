@@ -1226,7 +1226,7 @@ ImGuiIO::ImGuiIO()
 		KeysData[i].DownDuration = KeysData[i].DownDurationPrev = -1.0f;
 	}
 	AppAcceptingEvents = true;
-	BackendUsingLegacyKeyArrays = (ImS8)-1;
+	BackendUsingLegacyKeyArrays = (int8)-1;
 	BackendUsingLegacyNavInputArray = true; // assume using legacy array until proven wrong
 }
 
@@ -1948,11 +1948,11 @@ ImFileHandle ImFileOpen(const char* filename, const char* mode)
 
 // We should in theory be using fseeko()/ftello() with off_t and _fseeki64()/_ftelli64() with __int64, waiting for the PR that does that in a very portable pre-C++11 zero-warnings way.
 bool    ImFileClose(ImFileHandle f)     { return fclose(f) == 0; }
-ImU64   ImFileGetSize(ImFileHandle f)   {
-	long off = 0, sz = 0; return ((off = ftell(f)) != -1 && !fseek(f, 0, SEEK_END) && (sz = ftell(f)) != -1 && !fseek(f, off, SEEK_SET)) ? (ImU64)sz : (ImU64)-1;
+uint64   ImFileGetSize(ImFileHandle f)   {
+	long off = 0, sz = 0; return ((off = ftell(f)) != -1 && !fseek(f, 0, SEEK_END) && (sz = ftell(f)) != -1 && !fseek(f, off, SEEK_SET)) ? (uint64)sz : (uint64)-1;
 }
-ImU64   ImFileRead(void* data, ImU64 sz, ImU64 count, ImFileHandle f)           { return fread(data, (size_t)sz, (size_t)count, f); }
-ImU64   ImFileWrite(const void* data, ImU64 sz, ImU64 count, ImFileHandle f)    { return fwrite(data, (size_t)sz, (size_t)count, f); }
+uint64   ImFileRead(void* data, uint64 sz, uint64 count, ImFileHandle f)           { return fread(data, (size_t)sz, (size_t)count, f); }
+uint64   ImFileWrite(const void* data, uint64 sz, uint64 count, ImFileHandle f)    { return fwrite(data, (size_t)sz, (size_t)count, f); }
 #endif // #ifndef IMGUI_DISABLE_DEFAULT_FILE_FUNCTIONS
 
 // Helper: Load file content into memory
@@ -5161,7 +5161,7 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2 & size_arg, 
 	g.Style.ChildBorderSize = backup_border_size;
 	ImGuiWindow* child_window = g.CurrentWindow;
 	child_window->ChildId = id;
-	child_window->AutoFitChildAxises = (ImS8)auto_fit_axises;
+	child_window->AutoFitChildAxises = (int8)auto_fit_axises;
 	// Set the cursor to handle case where the user called SetNextWindowPos()+BeginChild() manually.
 	// While this is not really documented/defined, it seems that the expected thing to do.
 	if(child_window->BeginCount == 1)
@@ -5192,10 +5192,8 @@ void ImGui::EndChild()
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = g.CurrentWindow;
-
 	assert(g.WithinEndChild == false);
 	assert(window->Flags & ImGuiWindowFlags_ChildWindow); // Mismatched BeginChild()/EndChild() calls
-
 	g.WithinEndChild = true;
 	if(window->BeginCount > 1) {
 		End();
@@ -6400,18 +6398,11 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
 			const bool title_bar_is_highlight = want_focus ||
 			    (window_to_highlight && window->RootWindowForTitleBarHighlight == window_to_highlight->RootWindowForTitleBarHighlight);
 			const bool handle_borders_and_resize_grips = true; // This exists to facilitate merge with 'docking' branch.
-			RenderWindowDecorations(window,
-			    title_bar_rect,
-			    title_bar_is_highlight,
-			    handle_borders_and_resize_grips,
-			    resize_grip_count,
-			    resize_grip_col,
-			    resize_grip_draw_size);
-
+			RenderWindowDecorations(window, title_bar_rect, title_bar_is_highlight, handle_borders_and_resize_grips,
+			    resize_grip_count, resize_grip_col, resize_grip_draw_size);
 			if(render_decorations_in_parent)
 				window->DrawList = &window->DrawListInst;
 		}
-
 		// UPDATE RECTANGLES (2- THOSE AFFECTED BY SCROLLING)
 
 		// Work rectangle.
@@ -6451,7 +6442,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
 		window->DC.ColumnsOffset.x = 0.0f;
 
 		// Record the loss of precision of CursorStartPos which can happen due to really large scrolling amount.
-		// This is used by clipper to compensate and fix the most common use case of large scroll area. Easy and cheap, next best thing compared to switching everything to double or ImU64.
+		// This is used by clipper to compensate and fix the most common use case of large scroll area. Easy and cheap, next best thing compared to switching everything to double or uint64.
 		double start_pos_highp_x = (double)window->Pos.x + window->WindowPadding.x - (double)window->Scroll.x + window->DecoOuterSizeX1 + window->DC.ColumnsOffset.x;
 		double start_pos_highp_y = (double)window->Pos.y + window->WindowPadding.y - (double)window->Scroll.y + window->DecoOuterSizeY1;
 		window->DC.CursorStartPos  = ImVec2((float)start_pos_highp_x, (float)start_pos_highp_y);
@@ -6500,8 +6491,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
 		if(!(flags & ImGuiWindowFlags_NoTitleBar))
 			RenderWindowTitleBarContents(window,
 			    ImRect(title_bar_rect.Min.x + window->WindowBorderSize, title_bar_rect.Min.y, title_bar_rect.Max.x - window->WindowBorderSize, title_bar_rect.Max.y),
-			    name,
-			    p_open);
+			    name, p_open);
 
 		// Clear hit test shape every frame
 		window->HitTestHoleSize.x = window->HitTestHoleSize.y = 0;
@@ -6518,11 +6508,8 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
 
 		// We fill last item data based on Title Bar/Tab, in order for IsItemHovered() and IsItemActive() to be usable after Begin().
 		// This is useful to allow creating context menus on title bar only, etc.
-		SetLastItemData(window->MoveId,
-		    g.CurrentItemFlags,
-		    IsMouseHoveringRect(title_bar_rect.Min, title_bar_rect.Max, false) ? ImGuiItemStatusFlags_HoveredRect : 0,
+		SetLastItemData(window->MoveId, g.CurrentItemFlags, IsMouseHoveringRect(title_bar_rect.Min, title_bar_rect.Max, false) ? ImGuiItemStatusFlags_HoveredRect : 0,
 		    title_bar_rect);
-
 		// [DEBUG]
 #ifndef IMGUI_DISABLE_DEBUG_TOOLS
 		if(g.DebugLocateId != 0 && (window->ID == g.DebugLocateId || window->MoveId == g.DebugLocateId))
@@ -6539,14 +6526,11 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
 		// Append
 		SetCurrentWindow(window);
 	}
-
 	PushClipRect(window->InnerClipRect.Min, window->InnerClipRect.Max, true);
-
 	// Clear 'accessed' flag last thing (After PushClipRect which will set the flag. We want the flag to stay false when the default "Debug" window is unused)
 	window->WriteAccessed = false;
 	window->BeginCount++;
 	g.NextWindowData.ClearFlags();
-
 	// Update visibility
 	if(first_begin_of_the_frame) {
 		if(flags & ImGuiWindowFlags_ChildWindow) {
@@ -6592,8 +6576,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
 
 	// [DEBUG] io.ConfigDebugBeginReturnValue override return value to test Begin/End and BeginChild/EndChild behaviors.
 	// (The implicit fallback window is NOT automatically ended allowing it to always be able to receive commands without crashing)
-	if(!window->IsFallbackWindow &&
-	    ((g.IO.ConfigDebugBeginReturnValueOnce && window_just_created) ||
+	if(!window->IsFallbackWindow && ((g.IO.ConfigDebugBeginReturnValueOnce && window_just_created) ||
 	    (g.IO.ConfigDebugBeginReturnValueLoop && g.DebugBeginReturnValueCullDepth == g.CurrentWindowStack.Size))) {
 		if(window->AutoFitFramesX > 0) {
 			window->AutoFitFramesX++;
@@ -6603,7 +6586,6 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
 		}
 		return false;
 	}
-
 	return !window->SkipItems;
 }
 
@@ -7696,7 +7678,7 @@ ImGuiKeyRoutingData* ImGui::GetShortcutRoutingData(ImGuiKeyChord key_chord)
 	ImGuiKeyRoutingIndex routing_data_idx = (ImGuiKeyRoutingIndex)rt->Entries.Size;
 	rt->Entries.push_back(ImGuiKeyRoutingData());
 	routing_data = &rt->Entries[routing_data_idx];
-	routing_data->Mods = (ImU16)mods;
+	routing_data->Mods = (uint16)mods;
 	routing_data->NextEntryIndex = rt->Index[key - ImGuiKey_NamedKey_BEGIN]; // Setup linked list
 	rt->Index[key - ImGuiKey_NamedKey_BEGIN] = routing_data_idx;
 	return routing_data;
@@ -7778,7 +7760,7 @@ bool ImGui::SetShortcutRouting(ImGuiKeyChord key_chord, ImGuiID owner_id, ImGuiI
 	//const bool set_route = (flags & ImGuiInputFlags_ServeLast) ? (score <= routing_data->RoutingNextScore) : (score < routing_data->RoutingNextScore);
 	if(score < routing_data->RoutingNextScore) {
 		routing_data->RoutingNext = routing_id;
-		routing_data->RoutingNextScore = (ImU8)score;
+		routing_data->RoutingNextScore = (uint8)score;
 	}
 
 	// Return routing state for CURRENT frame
@@ -9532,7 +9514,6 @@ ImVec2 ImGui::ScrollToRectEx(ImGuiWindow * window, const ImRect& item_rect, ImGu
 		else
 			SetScrollFromPosX(window, item_rect.Min.x - window->Pos.x, 0.0f);
 	}
-
 	if((flags & ImGuiScrollFlags_KeepVisibleEdgeY) && !fully_visible_y) {
 		if(item_rect.Min.y < scroll_rect.Min.y || !can_be_fully_visible_y)
 			SetScrollFromPosY(window, item_rect.Min.y - g.Style.ItemSpacing.y - window->Pos.y, 0.0f);
@@ -9545,10 +9526,8 @@ ImVec2 ImGui::ScrollToRectEx(ImGuiWindow * window, const ImRect& item_rect, ImGu
 		else
 			SetScrollFromPosY(window, item_rect.Min.y - window->Pos.y, 0.0f);
 	}
-
 	ImVec2 next_scroll = CalcNextScrollFromScrollTargetAndClamp(window);
 	ImVec2 delta_scroll = next_scroll - window->Scroll;
-
 	// Also scroll parent window to keep us into view if necessary
 	if(!(flags & ImGuiScrollFlags_NoScrollParent) && (window->Flags & ImGuiWindowFlags_ChildWindow)) {
 		// FIXME-SCROLL: May be an option?
@@ -9564,25 +9543,25 @@ ImVec2 ImGui::ScrollToRectEx(ImGuiWindow * window, const ImRect& item_rect, ImGu
 
 float ImGui::GetScrollX()
 {
-	ImGuiWindow * window = GImGui->CurrentWindow;
+	const ImGuiWindow * window = GImGui->CurrentWindow;
 	return window->Scroll.x;
 }
 
 float ImGui::GetScrollY()
 {
-	ImGuiWindow * window = GImGui->CurrentWindow;
+	const ImGuiWindow * window = GImGui->CurrentWindow;
 	return window->Scroll.y;
 }
 
 float ImGui::GetScrollMaxX()
 {
-	ImGuiWindow * window = GImGui->CurrentWindow;
+	const ImGuiWindow * window = GImGui->CurrentWindow;
 	return window->ScrollMax.x;
 }
 
 float ImGui::GetScrollMaxY()
 {
-	ImGuiWindow * window = GImGui->CurrentWindow;
+	const ImGuiWindow * window = GImGui->CurrentWindow;
 	return window->ScrollMax.y;
 }
 
@@ -11945,7 +11924,7 @@ static inline void LogTextV(ImGuiContext & g, const char* fmt, va_list args)
 	if(g.LogFile) {
 		g.LogBuffer.Buf.resize(0);
 		g.LogBuffer.appendfv(fmt, args);
-		ImFileWrite(g.LogBuffer.c_str(), sizeof(char), (ImU64)g.LogBuffer.size(), g.LogFile);
+		ImFileWrite(g.LogBuffer.c_str(), sizeof(char), (uint64)g.LogBuffer.size(), g.LogFile);
 	}
 	else {
 		g.LogBuffer.appendfv(fmt, args);
@@ -14075,7 +14054,7 @@ void ImGui::UpdateDebugToolItemPicker()
 	}
 	for(int mouse_button = 0; mouse_button < 3; mouse_button++)
 		if(change_mapping && IsMouseClicked(mouse_button))
-			g.DebugItemPickerMouseButton = (ImU8)mouse_button;
+			g.DebugItemPickerMouseButton = (uint8)mouse_button;
 	SetNextWindowBgAlpha(0.70f);
 	if(!BeginTooltip())
 		return;

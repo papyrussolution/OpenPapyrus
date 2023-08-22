@@ -7454,6 +7454,10 @@ private:
 								item.Cost = fabs(ti.NetPrice());
 								GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, item.Cost, &vat_sum_in_full_price, 0, 0, 16);
 								item.CostWoVat = (item.Cost - vat_sum_in_full_price);
+								// @v11.7.12 {
+								item.Cost *= item.Qtty;
+								item.CostWoVat *= item.Qtty;
+								// } @v11.7.12 
 								const GazpromNeftGoodsPacket * p_goods_entry = SearchGoodsEntry(ware_ident);
 								if(p_goods_entry) {
 									//double volume = 0.0;

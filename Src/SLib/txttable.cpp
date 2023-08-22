@@ -320,9 +320,14 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 	int    ok = -1;
 	THROW(CheckParam(rRec));
 	if(CurRec >= 0 && CurRec < static_cast<long>(RecPosList.getCount())) {
-		SString line, field_buf, fn, fv;
+		SString line;
+		SString field_buf;
+		SString fn;
+		SString fv;
 		SdbField fld;
 		STextEncodingStat tes;
+		field_buf.Ensure(1024); // @v11.7.12 Возникло затруднение: новая функция smemchr (глубже по стеку вызова) читает лишние байты вызывая исключение.
+			// Связано это с особенностями работы stfromstr - там нужны правки, но они включают значительную переработку в том числе концептуальную :(
 		if(P.Flags & fVerticalRec) {
 			F.Seek(RecPosList.at(CurRec), SEEK_SET);
 			for(uint fld_pos = 0; F.ReadLine(line, SFile::rlfChomp|SFile::rlfStrip) && !IsTerminalLine(line, fld_pos); fld_pos++) {

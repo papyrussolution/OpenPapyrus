@@ -85,10 +85,7 @@ struct SaComplexEntry {
 	SaComplexEntry(PPID goodsID, double qtty) : GoodsID(goodsID), FinalGoodsID(0), Qtty(qtty), OrgPrice(0.0), FinalPrice(0.0), Flags(0)
 	{
 	}
-	int    IsComplete() const
-	{
-		return BIN(GoodsID && (!(Flags & fGeneric) || FinalGoodsID));
-	}
+	bool   IsComplete() const { return (GoodsID && (!(Flags & fGeneric) || FinalGoodsID)); }
 	int    Subst(uint genListIdx)
 	{
 		int    ok = 1;
@@ -124,7 +121,7 @@ public:
 	{
 		return (itemIdx < getCount() && at(itemIdx).Subst(entryItemIdx) > 0) ? RecalcFinalPrice() : 0;
 	}
-	int    IsComplete() const;
+	bool   IsComplete() const;
 
 	PPID   GoodsID;
 	PPID   StrucID;
@@ -143,10 +140,10 @@ void SaComplex::Init(PPID goodsID, PPID strucID, double qtty)
 	freeAll();
 }
 
-int SaComplex::IsComplete() const
+bool SaComplex::IsComplete() const
 {
-	SForEachVectorItem(*this, i) { if(!at(i).IsComplete()) return 0; }
-	return 1;
+	SForEachVectorItem(*this, i) { if(!at(i).IsComplete()) return false; }
+	return true;
 }
 
 void SaComplex::SetQuantity(double qtty)
@@ -214,9 +211,26 @@ CPosProcessor::GrpListItem * CPosProcessor::GroupArray::Get(PPID id, uint * pPos
 //
 //
 //
+CPosProcessor::Packet::Prescription::Prescription() : Dt(ZERODATE)
+{
+}
+
+CPosProcessor::Packet::Prescription & CPosProcessor::Packet::Prescription::Z()
+{
+	Dt = ZERODATE;
+	Serial.Z();
+	Number.Z();
+	return *this;
+}
+
+bool CPosProcessor::Packet::Prescription::IsValid() const
+{
+	return checkdate(Dt, 1) ? true : PPSetErrorSLib();
+}
+
 CPosProcessor::Packet::Packet()
 {
-	Clear();
+	Z();
 }
 
 CPosProcessor::Packet & FASTCALL CPosProcessor::Packet::operator = (const CCheckItemArray & rS)
@@ -225,7 +239,7 @@ CPosProcessor::Packet & FASTCALL CPosProcessor::Packet::operator = (const CCheck
 	return *this;
 }
 
-void CPosProcessor::Packet::Clear()
+CPosProcessor::Packet & CPosProcessor::Packet::Z()
 {
 	TableCode = 0;
 	GuestCount = 0;
@@ -234,11 +248,13 @@ void CPosProcessor::Packet::Clear()
 	OrgAgentID = 0;
 	OrderCheckID = 0;
 	OrgUserID = 0;
-	clear();
+	SVector::clear();
 	ClearCur();
 	IterIdx = 0;
 	Eccd.Z();
 	GiftAssoc.clear();
+	Prescr.Z();
+	return *this;
 }
 
 void CPosProcessor::Packet::ClearCur()
@@ -325,6 +341,19 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 			SETFLAG(pPack->Rec.Flags, CCHKF_PAPERLESS, 0);
 		}
 		// } @v11.3.6 
+		// @v11.7.12 {
+		{
+			SString temp_buf;
+			if(checkdate(Prescr.Dt)) {
+				temp_buf.Z().Cat(Prescr.Dt, DATF_ISO8601CENT);
+				pPack->PutExtStrData(CCheckPacket::extssPrescrDate, temp_buf);
+			}
+			if(Prescr.Serial.NotEmpty())
+				pPack->PutExtStrData(CCheckPacket::extssPrescrSerial, Prescr.Serial);
+			if(Prescr.Number.NotEmpty())
+				pPack->PutExtStrData(CCheckPacket::extssPrescrNumber, Prescr.Number);
+		}
+		// } @v11.7.12 
 		if(Eccd.Flags & Eccd.fDelivery) {
 			pPack->SetDlvrAddr(&Eccd.Addr_);
 			pPack->Ext.StartOrdDtm = Eccd.DlvrDtm;
@@ -2517,21 +2546,12 @@ int CPosProcessor::AutosaveCheck()
 			// Перед окончательным проведением чека необходимо распределить подарочную скидку (если она есть) по строкам чека.
 			//
 			if(mode == accmRegular) {
-				/* @v10.9.8 CCheckItem * p_item;
-				for(uint i = 0; P.enumItems(&i, (void **)&p_item);) {
-					if(p_item->Flags & cifGiftDiscount) {
-						SetupDiscount(1);
-						break;
-					}
-				}*/
-				// @v10.9.8 {
 				for(uint i = 0; i < P.getCount(); i++) {
 					if(P.at(i).Flags & cifGiftDiscount) {
 						SetupDiscount(1);
 						break;
 					}
 				}
-				// } @v10.9.8 
 			}
 			THROW(Helper_InitCcPacket(&epb.Pack, (((mode == accmRegular || reprint_regular) && !altPosNodeID) ? &epb.ExtPack : 0), pPl, 0));
 			if(mode == accmRegular && P_CM_EXT) {
@@ -2705,7 +2725,7 @@ int CPosProcessor::AutosaveCheck()
 	//SetPrintedFlag(0);
 	SetupAgent(0, 0);
 	P.OrderCheckID = 0;
-	P.Clear();
+	P.Z();
 	OuterOi.Z();
 	if(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
 		SetupState(sEMPTYLIST_EMPTYBUF);
@@ -3376,7 +3396,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	// @v10.4.12 setCtrlOption(CTL_CHKPAN_INPUT, ofFramed, 1);
 	setupHint();
 	SetupInfo(0);
-	if(!SetupStrListBox(this, CTL_CHKPAN_LIST) || !LoadCheck(P_ChkPack, 0))
+	if(!SetupStrListBox(this, CTL_CHKPAN_LIST) || !LoadCheck(P_ChkPack, 0, false))
 		PPError();
 	if(Flags & fTouchScreen) {
 		SETFLAG(CnFlags, CASHF_NOASKPAYMTYPE, !(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPayment));
@@ -6092,7 +6112,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 {
 	int    ok = -1;
 	PPID   sc_id = 0;
-	const  int preserve_delivery_flag = BIN(P.Eccd.Flags & P.Eccd.fDelivery);
+	const  bool preserve_delivery_flag = LOGIC(P.Eccd.Flags & P.Eccd.fDelivery);
 	if(LocationCore::IsEmptyAddressRec(P.Eccd.Addr_)) {
 		if(P.Eccd.Memo.IsEmpty() && CnSpeciality == PPCashNode::spDelivery)
 			P.Eccd.Flags |= P.Eccd.fDelivery;
@@ -6131,6 +6151,31 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 	}
 	else
 		ok = 0;
+	delete dlg;
+	return ok;
+}
+
+int CheckPaneDialog::EditPrescription()
+{
+	int   ok = -1;
+	Packet::Prescription data(P.Prescr);
+	TDialog * dlg = new TDialog(DLG_CCPRESCR);
+	THROW(CheckDialogPtr(&dlg));
+	dlg->setCtrlDate(CTL_CCPRESCR_DT, data.Dt);
+	dlg->setCtrlString(CTL_CCPRESCR_SERIAL, data.Serial);
+	dlg->setCtrlString(CTL_CCPRESCR_NUMBER, data.Number);
+	while(ok < 0 && ExecView(dlg) == cmOK) {
+		data.Dt = dlg->getCtrlDate(CTL_CCPRESCR_DT);
+		dlg->getCtrlString(CTL_CCPRESCR_SERIAL, data.Serial);
+		dlg->getCtrlString(CTL_CCPRESCR_NUMBER, data.Number);
+		if(data.IsValid()) {
+			P.Prescr = data;
+			ok = 1;
+		}
+		else
+			PPError();
+	}
+	CATCHZOK
 	delete dlg;
 	return ok;
 }
@@ -6498,8 +6543,16 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				break;
 			case cmInputDblClk:
 				if(!Barrier()) {
-					if(TVINFOVIEW && TVINFOVIEW->GetId() == CTL_CHKPAN_INPUT)
-						EditMemo(0, 0);
+					if(TVINFOVIEW && TVINFOVIEW->GetId() == CTL_CHKPAN_INPUT) {
+						// @v11.7.12 Для аптек по двойному клику в строке ввода теперь будет редактироваться рецепт 
+						// (это не очень хорошо - если кто-то скажет, что им нужна доставка и(или) примечание, то придется пересматривать подход)
+						if(CnSpeciality == PPCashNode::spApteka) { 
+							EditPrescription();
+						}
+						else {
+							EditMemo(0, 0);
+						}
+					}
 					Barrier(1);
 				}
 				break;
@@ -6891,7 +6944,16 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case kbShiftF7: BARRIER(PrintToLocalPrinters(0)); break;
 			case kbF8:      BARRIER(SuspendCheck()); break;
 			case kbF9:      BARRIER(AcceptDivision()); break;
-			case kbF10:     BARRIER(EditMemo(0, 0)); break;
+			case kbF10:     
+				// @v11.7.12 Для аптек по двойному клику в строке ввода теперь будет редактироваться рецепт 
+				// (это не очень хорошо - если кто-то скажет, что им нужна доставка и(или) примечание, то придется пересматривать подход)
+				if(CnSpeciality == PPCashNode::spApteka) { 
+					BARRIER(EditPrescription());
+				}
+				else {
+					BARRIER(EditMemo(0, 0));
+				}
+				break;
 			case kbF11:     BARRIER(ResetOperRightsByKey()); break;
 			case kbCtrlF3:
 				if(InitCashMachine() && P_CM->GetNodeData().Flags & CASHF_OPENBOX)
@@ -7784,7 +7846,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 					if(r) {
 						int    crcc_arg = -1; // Аргумент последующего вызова функции CalcRestByCrdCard_ (-1 - не вызывать)
 						if(r == cmaAll) {
-							LoadCheck(&chk_pack, 1);
+							LoadCheck(&chk_pack, 1, false);
 							SelLines.freeAll();
 							CCheckLineTbl::Rec line;
 							for(uint i = 0; SelPack.EnumLines(&i, &line);)
@@ -11412,7 +11474,7 @@ int CPosProcessor::AcceptRow(PPID giftID)
 	setupRetCheck(0);
 }
 
-int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, int notShow)
+int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, bool dontShow)
 {
 	if(pPack) {
 		Goods2Tbl::Rec goods_rec;
@@ -11431,7 +11493,7 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, int
 				break;
 			}
 		}
-		if(!notShow) {
+		if(!dontShow) {
 			if(P_ChkPack) {
 				setStaticText(CTL_CHKPAN_CHKID,   temp_buf.Z().Cat(P_ChkPack->Rec.ID));
 				setStaticText(CTL_CHKPAN_CHKDTTM, temp_buf.Z().Cat(P_ChkPack->Rec.Dt).Space().Cat(P_ChkPack->Rec.Tm));

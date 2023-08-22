@@ -174,10 +174,10 @@ public:
 
 IMPL_OBJ_FETCH(PPObjGoodsType, PPGoodsType, GoodsTypeCache);
 
-int FASTCALL PPObjGoodsType::IsUnlim(PPID id)
+bool FASTCALL PPObjGoodsType::IsUnlim(PPID id)
 {
 	PPGoodsType gt_rec;
-	return BIN(id && id != PPGT_DEFAULT && Fetch(id, &gt_rec) > 0 && gt_rec.Flags & (GTF_UNLIMITED|GTF_AUTOCOMPL));
+	return (id && id != PPGT_DEFAULT && Fetch(id, &gt_rec) > 0 && gt_rec.Flags & (GTF_UNLIMITED|GTF_AUTOCOMPL));
 }
 
 int PPObjGoodsType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)

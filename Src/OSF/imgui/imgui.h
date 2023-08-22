@@ -213,14 +213,14 @@ typedef int ImGuiWindowFlags;       // -> enum ImGuiWindowFlags_     // Flags: f
 #endif
 // Scalar data types
 typedef unsigned int ImGuiID;       // A unique ID used by widgets (typically the result of hashing a stack of string)
-typedef signed char ImS8;           // 8-bit signed integer
-typedef unsigned char ImU8;         // 8-bit unsigned integer
-typedef signed short ImS16;         // 16-bit signed integer
-typedef unsigned short ImU16;       // 16-bit unsigned integer
+// @v11.7.12 typedef signed char ImS8_Removed;           // 8-bit signed integer
+// @v11.7.12 typedef unsigned char ImU8_Removed;         // 8-bit unsigned integer
+// @v11.7.12 typedef signed short ImS16_Remove;         // 16-bit signed integer
+// @v11.7.12 typedef unsigned short ImU16_Removed;       // 16-bit unsigned integer
 typedef signed int ImS32;           // 32-bit signed integer == int
 typedef unsigned int ImU32;         // 32-bit unsigned integer (often used to store packed colors)
-typedef signed long long ImS64;     // 64-bit signed integer
-typedef unsigned long long ImU64;   // 64-bit unsigned integer
+// @v11.7.12 typedef signed long long ImS64_Removed;     // 64-bit signed integer
+// @v11.7.12 typedef unsigned long long ImU64_Removed;   // 64-bit unsigned integer
 // Character types
 // (we generally use UTF-8 encoded string in the API. This is storage specifically for a decoded character used for keyboard input and display)
 typedef unsigned short ImWchar16;   // A single decoded U16 character/code point. We encode them as multi bytes UTF-8 when used in strings.
@@ -407,12 +407,12 @@ ImVec2 GetWindowContentRegionMax(); // content boundaries max for the full windo
 // Windows Scrolling
 // - Any change of Scroll will be applied at the beginning of next frame in the first call to Begin().
 // - You may instead use SetNextWindowScroll() prior to calling Begin() to avoid this delay, as an alternative to using SetScrollX()/SetScrollY().
-float  GetScrollX();                                // get scrolling amount [0 .. GetScrollMaxX()]
-float  GetScrollY();                                // get scrolling amount [0 .. GetScrollMaxY()]
-void   SetScrollX(float scroll_x);                  // set scrolling amount [0 .. GetScrollMaxX()]
-void   SetScrollY(float scroll_y);                  // set scrolling amount [0 .. GetScrollMaxY()]
-float  GetScrollMaxX();                             // get maximum scrolling amount ~~ ContentSize.x - WindowSize.x - DecorationsSize.x
-float  GetScrollMaxY();                             // get maximum scrolling amount ~~ ContentSize.y - WindowSize.y - DecorationsSize.y
+float  GetScrollX();               // get scrolling amount [0 .. GetScrollMaxX()]
+float  GetScrollY();               // get scrolling amount [0 .. GetScrollMaxY()]
+void   SetScrollX(float scroll_x); // set scrolling amount [0 .. GetScrollMaxX()]
+void   SetScrollY(float scroll_y); // set scrolling amount [0 .. GetScrollMaxY()]
+float  GetScrollMaxX();            // get maximum scrolling amount ~~ ContentSize.x - WindowSize.x - DecorationsSize.x
+float  GetScrollMaxY();            // get maximum scrolling amount ~~ ContentSize.y - WindowSize.y - DecorationsSize.y
 void   SetScrollHereX(float center_x_ratio = 0.5f); // adjust scrolling amount to make current cursor position visible. center_x_ratio=0.0: left, 0.5: center, 1.0: right. When using to make a "default/current item" visible, consider using SetItemDefaultFocus() instead.
 void   SetScrollHereY(float center_y_ratio = 0.5f); // adjust scrolling amount to make current cursor position visible. center_y_ratio=0.0: top, 0.5: center, 1.0: bottom. When using to make a "default/current item" visible, consider using SetItemDefaultFocus() instead.
 void   SetScrollFromPosX(float local_x, float center_x_ratio = 0.5f); // adjust scrolling amount to make given position visible. Generally GetCursorStartPos() + offset to compute a valid position.
@@ -2239,8 +2239,8 @@ struct ImGuiIO {
 	double MouseClickedTime[5];                 // Time of last click (used to figure out double-click)
 	bool MouseClicked[5];                       // Mouse button went from !Down to Down (same as MouseClickedCount[x] != 0)
 	bool MouseDoubleClicked[5];                 // Has mouse button been double-clicked? (same as MouseClickedCount[x] == 2)
-	ImU16 MouseClickedCount[5];                 // == 0 (not clicked), == 1 (same as MouseClicked[]), == 2 (double-clicked), == 3 (triple-clicked) etc. when going from !Down to Down
-	ImU16 MouseClickedLastCount[5];             // Count successive number of clicks. Stays valid after mouse release. Reset after another click is done.
+	uint16 MouseClickedCount[5];                 // == 0 (not clicked), == 1 (same as MouseClicked[]), == 2 (double-clicked), == 3 (triple-clicked) etc. when going from !Down to Down
+	uint16 MouseClickedLastCount[5];             // Count successive number of clicks. Stays valid after mouse release. Reset after another click is done.
 	bool MouseReleased[5];                      // Mouse button went from Down to !Down
 	bool MouseDownOwned[5];                     // Track if button was clicked inside a dear imgui window or over void blocked by a popup. We don't request mouse capture from the application if click started outside ImGui bounds.
 	bool MouseDownOwnedUnlessPopupClose[5];     // Track if button was clicked inside a dear imgui window.
@@ -2251,7 +2251,7 @@ struct ImGuiIO {
 	float PenPressure;                          // Touch/Pen pressure (0.0f to 1.0f, should be >0.0f only when MouseDown[0] == true). Helper storage currently unused by Dear ImGui.
 	bool AppFocusLost;                          // Only modify via AddFocusEvent()
 	bool AppAcceptingEvents;                    // Only modify via SetAppAcceptingEvents()
-	ImS8 BackendUsingLegacyKeyArrays;           // -1: unknown, 0: using AddKeyEvent(), 1: using legacy io.KeysDown[]
+	int8 BackendUsingLegacyKeyArrays;           // -1: unknown, 0: using AddKeyEvent(), 1: using legacy io.KeysDown[]
 	bool BackendUsingLegacyNavInputArray;       // 0: using AddKeyAnalogEvent(), 1: writing to legacy io.NavInputs[] directly
 	ImWchar16 InputQueueSurrogate;              // For AddInputCharacterUTF16()
 	ImVector<ImWchar> InputQueueCharacters;     // Queue of _characters_ input (obtained by platform backend). Fill using AddInputCharacter() helper.
@@ -2348,8 +2348,8 @@ struct ImGuiPayload {
 // Sorting specification for one column of a table (sizeof == 12 bytes)
 struct ImGuiTableColumnSortSpecs {
 	ImGuiID ColumnUserID;                       // User id of the column (if specified by a TableSetupColumn() call)
-	ImS16 ColumnIndex;                          // Index of the column
-	ImS16 SortOrder;                            // Index within parent ImGuiTableSortSpecs (always stored in order starting from 0, tables sorted on a single criteria will always have a 0 here)
+	int16 ColumnIndex;                          // Index of the column
+	int16 SortOrder;                            // Index within parent ImGuiTableSortSpecs (always stored in order starting from 0, tables sorted on a single criteria will always have a 0 here)
 	ImGuiSortDirection SortDirection : 8;       // ImGuiSortDirection_Ascending or ImGuiSortDirection_Descending (you can use this or SortSign, whichever is more convenient for your sort function)
 	ImGuiTableColumnSortSpecs() 
 	{
@@ -3194,7 +3194,7 @@ struct ImFont {
 	float Ascent;                    // 4+4   // out //       // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize] 
 	float Descent;                   //
 	int   MetricsTotalSurface;       // 4     // out //       // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
-	ImU8  Used4kPagesMap[(IM_UNICODE_CODEPOINT_MAX+1)/4096/8];      // 2 bytes if ImWchar=ImWchar16, 34 bytes if ImWchar==ImWchar32. Store 1-bit for each block of 4K codepoints that has one active glyph. This is mainly used to facilitate iterations across all used codepoints.
+	uint8  Used4kPagesMap[(IM_UNICODE_CODEPOINT_MAX+1)/4096/8];      // 2 bytes if ImWchar=ImWchar16, 34 bytes if ImWchar==ImWchar32. Store 1-bit for each block of 4K codepoints that has one active glyph. This is mainly used to facilitate iterations across all used codepoints.
 
 	// Methods
 	ImFont();

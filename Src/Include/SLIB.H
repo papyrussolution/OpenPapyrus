@@ -8609,6 +8609,9 @@ public:
 	//   Все элементы обнуляются.
 	//
 	int    FASTCALL dim(uint numItems);
+	//
+	// Descr: Возвращает сумму всех элементов вектора
+	//
 	double Sum() const;
 	//
 	// Descr: Вычисляет разницу между элементами [idx] и [idx-stride]
@@ -8639,6 +8642,10 @@ public:
 	//
 	const  SPoint2F & FASTCALL getPoint(uint i) const;
 	float & FASTCALL operator [] (size_t i) const;
+	//
+	// Descr: Возвращает сумму всех элементов вектора
+	//
+	float  Sum() const;
 };
 //
 //

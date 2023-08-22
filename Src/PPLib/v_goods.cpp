@@ -1737,10 +1737,14 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		q->where(*dbq);
 		if(Filt.GoodsStrucID)
 			q->orderBy(g->StrucID, 0L);
-		else if(Filt.GrpID)
-			q->orderBy(g->Kind, g->ParentID, g->Name, 0L);
-		else
-			q->orderBy(g->Kind, g->Name, 0L);
+		else {
+			if(Filt.InitOrder == OrdByID) // @v11.7.12
+				q->orderBy(g->ID, 0L);
+			else if(Filt.GrpID)
+				q->orderBy(g->Kind, g->ParentID, g->Name, 0L);
+			else
+				q->orderBy(g->Kind, g->Name, 0L);
+		}
 	}
 	q->options |= DBQuery::correct_search_more_problem;
 	THROW(CheckQueryPtr(q));
@@ -1798,7 +1802,10 @@ void PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderTbl::Re
 		SString last_alphabet_symb;
 		memzero(pOrdRec, sizeof(*pOrdRec));
 		pOrdRec->ID = pGoodsRec->ID;
-		if(oneof2(ord, OrdByBarcode, OrdByBarcode_Name)) {
+		if(ord == OrdByID) { // @v11.7.12
+			buf.CatLongZ(pGoodsRec->ID, 8);
+		}
+		else if(oneof2(ord, OrdByBarcode, OrdByBarcode_Name)) {
 			GObj.FetchSingleBarcode(pGoodsRec->ID, temp_buf);
 			buf.Printf("%032s", temp_buf.cptr());
 			if(ord == OrdByBarcode_Name)
@@ -1922,7 +1929,7 @@ bool PPViewGoods::IsTempTblNeeded()
 					if(GObj.Fetch(Filt.GrpID, &grp_rec) > 0 && (grp_rec.Flags & (GF_FOLDER|GF_GENERIC|GF_DYNAMICALTGRP)))
 						return true;
 				}
-				else if(!oneof2(Filt.InitOrder, OrdByDefault, OrdByName))
+				else if(!oneof3(Filt.InitOrder, OrdByDefault, OrdByName, OrdByID)) // @v11.7.12 OrdByID
 					return true;
 			}
 		}
@@ -4010,17 +4017,14 @@ int PPViewGoods::ExportUhtt()
 	return ok;
 }
 
-PPViewGoods::IterOrder PPViewGoods::GetIterOrder() const
-{
-	return OrdByName;
-}
+PPViewGoods::IterOrder PPViewGoods::GetIterOrder() const { return OrdByName; }
 
 int PPViewGoods::CreateTempTable(IterOrder ord, TempOrderTbl ** ppTbl)
 {
 	int    ok = 1;
 	TempOrderTbl * p_o = 0;
 	*ppTbl = 0;
-	if(IsTempTblNeeded() || ord != OrdByDefault) {
+	if(IsTempTblNeeded() || !oneof2(ord, OrdByID, OrdByDefault)) { // @v11.7.12 OrdByID
 		THROW(p_o = CreateTempOrderFile());
 		{
 			GoodsFilt flt = Filt;

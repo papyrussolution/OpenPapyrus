@@ -2541,7 +2541,8 @@ bool SCS_SHTRIHFRF::GetFR(int id, char * pBuf, size_t bufLen)
 
 int SCS_SHTRIHFRF::GetResultCode(int methID)
 {
-	const  int func_without_retcode_checking[] = { GetECRStatus, Beep, Connect, OpenCheck, FNOperation, CloseCheckEx, CloseCheck };
+	const  int func_without_retcode_checking[] = { GetECRStatus, Beep, Connect, OpenCheck, FNOperation, CloseCheckEx, CloseCheck,
+		FeedDocument }; // @v11.7.12 FeedDocument
 	int    ok = 1;
 	{
 		bool do_check_result_code = true;

@@ -2001,10 +2001,10 @@ IMPL_INVARIANT_C(SScroller)
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P(!P_LineContent || P_LineContent->getCount() == ItemCount, pInvP);
 	//S_ASSERT_P(!P_PageContent || P_PageContent->getCount() == PageCount, pInvP);
-	S_ASSERT_P(!ItemCount || ItemIdxPageTop < ItemCount, pInvP);
-	S_ASSERT_P(ItemCount || ItemIdxPageTop == ItemCount, pInvP);
-	S_ASSERT_P(!ItemCount || ItemIdxCurrent < ItemCount, pInvP);
-	S_ASSERT_P(ItemCount || ItemIdxCurrent == ItemCount, pInvP);
+	S_ASSERT_P(!ItemCount || P.ItemIdxPageTop < ItemCount, pInvP);
+	S_ASSERT_P(ItemCount || P.ItemIdxPageTop == ItemCount, pInvP);
+	S_ASSERT_P(!ItemCount || P.ItemIdxCurrent < ItemCount, pInvP);
+	S_ASSERT_P(ItemCount || P.ItemIdxCurrent == ItemCount, pInvP);
 	S_INVARIANT_EPILOG(pInvP);
 }
 
@@ -2013,13 +2013,13 @@ SScroller::SetupBlock::SetupBlock() : ItemCount(0), ViewSize(0.0f), FixedItemSiz
 }
 
 SScroller::SScroller() : P_ItemSizeList(0), Flags(0), ItemCount(0), /*PageCount(0),*/PageCurrent(0), ViewSize(0.0f), FixedItemSize(0.0f),
-	P_LineContent(0), P_PageContent(0), ItemIdxPageTop(0), ItemIdxCurrent(0)
+	P_LineContent(0), P_PageContent(0)
 {
 }
 
 SScroller::SScroller(const SScroller & rS) :  P_ItemSizeList(0), P_LineContent(0), P_PageContent(0),
 	Flags(rS.Flags), ItemCount(rS.ItemCount), /*PageCount(rS.PageCount),*/PageCurrent(rS.PageCurrent), ViewSize(rS.ViewSize),
-	FixedItemSize(rS.FixedItemSize), ItemIdxPageTop(rS.ItemIdxPageTop), ItemIdxCurrent(rS.ItemIdxCurrent)
+	FixedItemSize(rS.FixedItemSize), P(rS.P)
 {
 	if(rS.P_ItemSizeList) {
 		SETIFZ(P_ItemSizeList, new FloatArray(*rS.P_ItemSizeList));
@@ -2049,8 +2049,7 @@ SScroller & SScroller::Z()
 	PageCurrent = 0;
 	ViewSize = 0.0f;
 	FixedItemSize = 0.0f;
-	ItemIdxPageTop = 0;
-	ItemIdxCurrent = 0;
+	P.Z();
 	ZDELETE(P_ItemSizeList);
 	ZDELETE(P_LineContent);
 	ZDELETE(P_PageContent);
@@ -2070,8 +2069,7 @@ SScroller & FASTCALL SScroller::Copy(const SScroller & rS)
 	PageCurrent = rS.PageCurrent;
 	ViewSize = rS.ViewSize;
 	FixedItemSize = rS.FixedItemSize;
-	ItemIdxPageTop = rS.ItemIdxPageTop;
-	ItemIdxCurrent = rS.ItemIdxCurrent;
+	P = rS.P;
 	if(rS.P_ItemSizeList) {
 		if(!P_ItemSizeList)
 			P_ItemSizeList = new FloatArray(*rS.P_ItemSizeList);
@@ -2113,6 +2111,10 @@ int SScroller::Setup(const SetupBlock & rBlk)
 				*P_ItemSizeList = rBlk.ItemSizeList;
 			else
 				P_ItemSizeList = new FloatArray(rBlk.ItemSizeList);
+			assert(rBlk.LineContent.getCount() == rBlk.ItemCount);
+			P_LineContent = new TSCollection <LongArray>();
+			if(P_LineContent)
+				TSCollection_Copy(*P_LineContent, rBlk.LineContent);
 		}
 	}
 	else
@@ -2120,15 +2122,8 @@ int SScroller::Setup(const SetupBlock & rBlk)
 	return ok;
 }
 
-uint SScroller::GetCount() const
-{
-	return ItemCount;
-}
-
-uint SScroller::GetCurrentIndex() const
-{
-	return ItemIdxCurrent;
-}
+uint SScroller::GetCount() const { return ItemCount; }
+uint SScroller::GetCurrentIndex() const { return P.ItemIdxCurrent; }
 
 float SScroller::GetAbsolutePosition(uint idx) const
 {
@@ -2145,20 +2140,9 @@ float SScroller::GetAbsolutePosition(uint idx) const
 	return result;
 }
 
-float SScroller::GetCurrentPoint() const
-{
-	return GetAbsolutePosition(ItemIdxCurrent);
-}
-
-float SScroller::GetCurrentPageTopPoint() const
-{
-	return GetAbsolutePosition(ItemIdxPageTop);
-}
-
-uint SScroller::GetCurrentPageTopIndex() const
-{
-	return ItemIdxPageTop;
-}
+float SScroller::GetCurrentPoint() const { return GetAbsolutePosition(P.ItemIdxCurrent); }
+float SScroller::GetCurrentPageTopPoint() const { return GetAbsolutePosition(P.ItemIdxPageTop); }
+uint SScroller::GetCurrentPageTopIndex() const { return P.ItemIdxPageTop; }
 
 uint SScroller::GetPageBottomIndex(uint topIdx) const
 {
@@ -2238,33 +2222,88 @@ uint SScroller::AdjustTopIdx(uint idx) const
 	return idx;
 }
 
+int FASTCALL SScroller::CheckLineContentIndex(long idx) const
+{
+	int    ok = 0;
+	if(P_LineContent && P_LineContent->getCount() == ItemCount) {
+		const uint top_idx = P.ItemIdxPageTop;
+		const uint bottom_idx = GetPageBottomIndex(P.ItemIdxPageTop);
+		for(uint i = top_idx; !ok && i <= bottom_idx && i < ItemCount; i++) {
+			const LongArray * p_item = P_LineContent->at(i);
+			if(p_item && p_item->lsearch(idx))
+				ok = 1;
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+int SScroller::GetPosition(Position & rP) const
+{
+	rP = P;
+	return 1;
+}
+
+int SScroller::SetPosition(const Position & rP)
+{
+	SetCurrentIndex(rP.ItemIdxCurrent);
+	return 1;
+}
+
+int SScroller::SetCurrentIndex(uint idx)
+{
+	int    updated = 0;
+	const uint prev_page_top_idx = P.ItemIdxPageTop;
+	const uint prev_cur_idx = P.ItemIdxCurrent;
+	SETMIN(idx, (ItemCount-1));
+	if(idx != prev_cur_idx) {
+		const uint prev_bottom_idx = GetPageBottomIndex(P.ItemIdxPageTop);
+		if(idx >= P.ItemIdxPageTop && idx <= prev_bottom_idx) { // Фрейм не смещается поскольку мы переместились в его пределах
+			P.ItemIdxCurrent = idx;
+			updated = 1;
+		}
+		else if(idx > P.ItemIdxPageTop) { // Перемещаемся вниз
+			P.ItemIdxPageTop = idx;
+			P.ItemIdxCurrent = idx;
+			updated = 1;
+		}
+		else { // Перемещаемся вверх
+			P.ItemIdxPageTop = GetPageTopIndex(idx);
+			P.ItemIdxCurrent = idx;
+			updated = 1;
+		}
+	}
+	return updated;
+}
+
 int SScroller::LineDown(uint ic, bool moveCursor)
 {
 	int    updated = 0;
 	if(ic && ItemCount) {
 		if(moveCursor) {
-			uint   new_idx = MIN((ItemIdxCurrent + ic), (ItemCount-1));
-			if(new_idx != ItemIdxCurrent) {
-				const uint bottom_idx = GetPageBottomIndex(ItemIdxPageTop);
+			uint   new_idx = MIN((P.ItemIdxCurrent + ic), (ItemCount-1));
+			if(new_idx != P.ItemIdxCurrent) {
+				const uint bottom_idx = GetPageBottomIndex(P.ItemIdxPageTop);
 				if(new_idx <= bottom_idx) {
-					if(new_idx < ItemIdxPageTop) {
+					if(new_idx < P.ItemIdxPageTop) {
 						// сдвинуть фрейм так, чтобы ItemIdxCurrent стал равен ItemIdxPageTop
-						ItemIdxPageTop = new_idx;
+						P.ItemIdxPageTop = new_idx;
 					}
 				}
 				else {
 					// сдвинуть фрейм вниз
 					uint   bottom_idx = new_idx;
-					ItemIdxPageTop = GetPageTopIndex(bottom_idx);
+					P.ItemIdxPageTop = GetPageTopIndex(bottom_idx);
 				}
-				ItemIdxCurrent = new_idx;
+				P.ItemIdxCurrent = new_idx;
 				updated = 1;
 			}
 		}
 		else {
-			uint new_top_idx = AdjustTopIdx(MIN(ItemIdxPageTop + ic, (ItemCount-1)));
-			if(new_top_idx != ItemIdxPageTop) {
-				ItemIdxPageTop = new_top_idx;
+			uint new_top_idx = AdjustTopIdx(MIN(P.ItemIdxPageTop + ic, (ItemCount-1)));
+			if(new_top_idx != P.ItemIdxPageTop) {
+				P.ItemIdxPageTop = new_top_idx;
 				updated = 1;
 			}
 		}
@@ -2277,30 +2316,30 @@ int SScroller::LineUp(uint ic, bool moveCursor)
 	int    updated = 0;
 	if(ic && ItemCount) {
 		if(moveCursor) {
-			uint   new_idx = (ItemIdxCurrent > ic) ? (ItemIdxCurrent - ic) : 0;
-			if(new_idx != ItemIdxCurrent) {
-				if(new_idx >= ItemIdxPageTop) {
-					const uint bottom_idx = GetPageBottomIndex(ItemIdxPageTop);
+			uint   new_idx = (P.ItemIdxCurrent > ic) ? (P.ItemIdxCurrent - ic) : 0;
+			if(new_idx != P.ItemIdxCurrent) {
+				if(new_idx >= P.ItemIdxPageTop) {
+					const uint bottom_idx = GetPageBottomIndex(P.ItemIdxPageTop);
 					if(new_idx > bottom_idx) {
 						// new_idx становится нижним элементом страницы
-						ItemIdxPageTop = GetPageTopIndex(new_idx);
+						P.ItemIdxPageTop = GetPageTopIndex(new_idx);
 					}
 				}
 				else {
 					// new_idx становится верхним элементом страницы
-					ItemIdxPageTop = new_idx;
+					P.ItemIdxPageTop = new_idx;
 				}
-				ItemIdxCurrent = new_idx;
+				P.ItemIdxCurrent = new_idx;
 				updated = 1;
 			}
 		}
 		else {
-			const uint cur_bottom_idx = GetPageBottomIndex(ItemIdxPageTop);
+			const uint cur_bottom_idx = GetPageBottomIndex(P.ItemIdxPageTop);
 			uint    new_bottom_idx = cur_bottom_idx ? MIN(cur_bottom_idx-1, (ItemCount-1)) : 0;
 			uint    new_top_idx = GetPageTopIndex(new_bottom_idx);
 			//uint    new_top_idx = (ItemIdxCurrent > ic) ? (ItemIdxCurrent - ic) : 0;
-			if(new_top_idx != ItemIdxPageTop) {
-				ItemIdxPageTop = new_top_idx;
+			if(new_top_idx != P.ItemIdxPageTop) {
+				P.ItemIdxPageTop = new_top_idx;
 				updated = 1;
 			}
 		}
@@ -2312,8 +2351,8 @@ int SScroller::PageDown(uint pc)
 {
 	int    updated = 0;
 	if(pc && ItemCount) {
-		uint page_top_idx = ItemIdxPageTop;
-		uint cur_idx = ItemIdxCurrent;
+		uint page_top_idx = P.ItemIdxPageTop;
+		uint cur_idx = P.ItemIdxCurrent;
 		for(uint pi = 0; pi < pc; pi++) {
 			const uint bottom_idx = GetPageBottomIndex(page_top_idx);
 			const uint prev_page_top_idx = page_top_idx;
@@ -2340,8 +2379,8 @@ int SScroller::PageDown(uint pc)
 			else
 				break;
 		}
-		ItemIdxPageTop = page_top_idx;
-		ItemIdxCurrent = cur_idx;
+		P.ItemIdxPageTop = page_top_idx;
+		P.ItemIdxCurrent = cur_idx;
 	}
 	return updated;
 }
@@ -2350,8 +2389,8 @@ int SScroller::PageUp(uint pc)
 {
 	int    updated = 0;
 	if(pc && ItemCount) {
-		uint page_top_idx = ItemIdxPageTop;
-		uint cur_idx = ItemIdxCurrent;
+		uint page_top_idx = P.ItemIdxPageTop;
+		uint cur_idx = P.ItemIdxCurrent;
 		for(uint pi = 0; pi < pc; pi++) {
 			uint bottom_idx = GetPageBottomIndex(page_top_idx);
 			const uint prev_page_top_idx = page_top_idx;
@@ -2380,8 +2419,8 @@ int SScroller::PageUp(uint pc)
 			else
 				break;
 		}
-		ItemIdxPageTop = page_top_idx;
-		ItemIdxCurrent = cur_idx;
+		P.ItemIdxPageTop = page_top_idx;
+		P.ItemIdxCurrent = cur_idx;
 	}
 	return updated;
 }
@@ -2389,13 +2428,12 @@ int SScroller::PageUp(uint pc)
 int SScroller::Top()
 {
 	int    updated = 0;
-	const uint prev_page_top_idx = ItemIdxPageTop;
-	const uint prev_cur_idx = ItemIdxCurrent;
-	ItemIdxPageTop = 0;
-	ItemIdxCurrent = 0;
-	if(ItemIdxPageTop != prev_page_top_idx)
+	const uint prev_page_top_idx = P.ItemIdxPageTop;
+	const uint prev_cur_idx = P.ItemIdxCurrent;
+	P.Z();
+	if(P.ItemIdxPageTop != prev_page_top_idx)
 		updated = 1;
-	else if(Flags & fUseCursor && ItemIdxCurrent != prev_cur_idx)
+	else if(Flags & fUseCursor && P.ItemIdxCurrent != prev_cur_idx)
 		updated = 1;
 	return updated;
 }
@@ -2403,19 +2441,19 @@ int SScroller::Top()
 int SScroller::Bottom()
 {
 	int    updated = 0;
-	const uint prev_page_top_idx = ItemIdxPageTop;
-	const uint prev_cur_idx = ItemIdxCurrent;
+	const uint prev_page_top_idx = P.ItemIdxPageTop;
+	const uint prev_cur_idx = P.ItemIdxCurrent;
 	if(ItemCount) {
-		ItemIdxPageTop = GetPageTopIndex(ItemCount-1);
-		ItemIdxCurrent = ItemCount-1;
+		P.ItemIdxPageTop = GetPageTopIndex(ItemCount-1);
+		P.ItemIdxCurrent = ItemCount-1;
 	}
 	else {
-		ItemIdxPageTop = 0;
-		ItemIdxCurrent = 0;		
+		P.ItemIdxPageTop = 0;
+		P.ItemIdxCurrent = 0;		
 	}
-	if(ItemIdxPageTop != prev_page_top_idx)
+	if(P.ItemIdxPageTop != prev_page_top_idx)
 		updated = 1;
-	else if(Flags & fUseCursor && ItemIdxCurrent != prev_cur_idx)
+	else if(Flags & fUseCursor && P.ItemIdxCurrent != prev_cur_idx)
 		updated = 1;
 	return updated;
 }

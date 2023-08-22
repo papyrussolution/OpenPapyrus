@@ -729,3 +729,95 @@ int WsCtlSrvBlock::SendClientPolicy(SString & rResult)
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+WsCtl_ProgramEntry::WsCtl_ProgramEntry()
+{
+}
+
+WsCtl_ProgramEntry & WsCtl_ProgramEntry::Z()
+{
+	Title.Z();
+	ExeFileName.Z();
+	FullResolvedPath.Z();
+	PicSymb.Z();
+	return *this;
+}
+
+SJson * WsCtl_ProgramEntry::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	SString temp_buf;
+	p_result->InsertString("category", (temp_buf = Category).Escape());
+	p_result->InsertString("title", (temp_buf = Title).Escape());
+	p_result->InsertString("exefile", (temp_buf = ExeFileName).Escape());
+	p_result->InsertString("picsymb", (temp_buf = PicSymb).Escape());
+	return p_result;
+}
+
+int WsCtl_ProgramEntry::FromJsonObj(const SJson * pJsObj)
+{
+	int    ok = 1;
+	THROW(SJson::IsObject(pJsObj));
+	{
+		const SJson * p_c = pJsObj->FindChildByKey("title");
+		if(SJson::IsString(p_c))
+			(Title = p_c->Text).Unescape();
+		p_c = pJsObj->FindChildByKey("category");
+		if(SJson::IsString(p_c))
+			(Category = p_c->Text).Unescape();
+		p_c = pJsObj->FindChildByKey("exefile");
+		if(SJson::IsString(p_c))
+			(ExeFileName = p_c->Text).Unescape();
+		p_c = pJsObj->FindChildByKey("picsymb");
+		if(SJson::IsString(p_c))
+			(PicSymb = p_c->Text).Unescape();
+	}
+	CATCHZOK
+	return ok;
+}
+
+WsCtl_ProgramCollection::WsCtl_ProgramCollection() : TSCollection <WsCtl_ProgramEntry>()
+{
+}
+	
+SJson * WsCtl_ProgramCollection::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	SJson * p_js_list = SJson::CreateArr();
+	for(uint i = 0; i < getCount(); i++) {
+		const WsCtl_ProgramEntry * p_entry = at(i);
+		if(p_entry) {
+			SJson * p_js_entry = p_entry->ToJsonObj();
+			THROW(p_js_entry);
+			p_js_list->InsertChild(p_js_entry);
+		}
+	}
+	p_result->Insert("list", p_js_list);
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
+int WsCtl_ProgramCollection::FromJsonObj(const SJson * pJsObj)
+{
+	int    ok = 1;
+	//SString temp_buf;
+	THROW(SJson::IsObject(pJsObj));
+	{
+		const SJson * p_c = pJsObj->FindChildByKey("list");
+		if(p_c) {
+			THROW(SJson::IsArray(p_c)); // @todo @err
+			for(const SJson * p_js_entry = p_c->P_Child; p_js_entry; p_js_entry = p_js_entry->P_Next) {
+				if(SJson::IsObject(p_js_entry)) {
+					WsCtl_ProgramEntry * p_new_entry = CreateNewItem();
+					THROW(p_new_entry->FromJsonObj(p_js_entry));
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}

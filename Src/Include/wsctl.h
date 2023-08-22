@@ -74,6 +74,28 @@ public:
 	StringSet SsAppDisabled;
 };
 //
+// Descr: Дескриптор исполняемой программы, отображаемый в клиентском окне.
+//
+class WsCtl_ProgramEntry {
+public:
+	WsCtl_ProgramEntry();
+	WsCtl_ProgramEntry & Z();
+	SJson * ToJsonObj() const;
+	int    FromJsonObj(const SJson * pJsObj);
+	SString Category;         // utf8 Категория программы
+	SString Title;            // utf8 Отображаемый на экране заголовок программы
+	SString ExeFileName;      // utf8 Имя исполняемого файла (с расширением) 
+	SString FullResolvedPath; // utf8 Полный путь к исполняемому файлу.
+	SString PicSymb;          // utf8 Символ изображения иконки //
+};
+
+class WsCtl_ProgramCollection : public TSCollection <WsCtl_ProgramEntry> {
+public:
+	WsCtl_ProgramCollection();
+	SJson * ToJsonObj() const;
+	int    FromJsonObj(const SJson * pJsObj);
+};
+//
 // Descr: Блок, отвечающий за взаимодействие серверной сессии с модулем WsCtl
 //
 class WsCtlSrvBlock {

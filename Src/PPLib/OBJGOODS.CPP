@@ -727,123 +727,6 @@ int PPObjGoods::GetValueAddedData(PPID id, PPGoodsPacket * pPack)
 	return ok;
 }
 
-#if 0 // @v9.8.11 {
-#define GOODSPACK_VER 3 // @v6.2.0 0-->1; @v7.2.0 1-->2; @v7.7.12 2-->3
-
-int PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer * pBuf)
-{
-	/* Фиксированная часть записи HistGoodsTbl
-	{
-		autolong ID;
-		long   GoodsID;
-		long   Ver;
-		long   Sz;
-	}
-	*/
-	int    ok = 1;
-	assert(pBuf);
-	if(toBuf) {
-		SString temp_buf;
-		uint16 pack_ver = GOODSPACK_VER;
-		long   ver = 0;
-		long   data_size = 0;
-		PPID   id = 0;
-		pBuf->Write(id);
-		pBuf->Write(pPack->Rec.ID);
-		pBuf->Write(ver = TLP(HistGoods).IsOpened() ? HistGoods->GetNextVer(pPack->Rec.ID) : 0);
-		pBuf->Write(data_size); // Нулевое значение. В предыдущих версиях инициализировалось, но без необходимости.
-		pBuf->Write(pack_ver);
-		pBuf->Write(&pPack->Rec, sizeof(pPack->Rec));
-		pBuf->Write(&pPack->Codes, 0);
-		pBuf->Write(&pPack->ArCodes, 0);
-		pBuf->Write(&pPack->ExtRec, sizeof(pPack->ExtRec));
-		pBuf->Write(&pPack->Stock, offsetof(GoodsStockExt, MinStockList));
-		pBuf->Write(&pPack->Stock.MinStockList, 0);
-		pBuf->Write(&pPack->Stock.PltList, 0);
-		pPack->TagL.Write__(*pBuf);
-		pBuf->Write(pPack->ExtString);
-		pBuf->Write(pPack->ExTitles);
-		pPack->GenericList.Write(*pBuf);
-		{
-			//
-			// CRC рассчитываем начиная со смещения sizeof(long) из-за того, что
-			// после записи в БД первые 4 байта будут содержать идентификатор.
-			//
-			SCRC32 c;
-			ulong crc = c.Calc(0, ((const uint8 *)pBuf->GetBuf())+sizeof(long), pBuf->GetAvailableSize()-sizeof(long));
-			pBuf->Write(crc);
-		}
-	}
-	else {
-		uint16 pack_ver = 0;
-		long   ver = 0;
-		long   size = 0;
-		PPID   id = 0;
-		//
-		// Считываем содержимое буфера во временный буфер b для вычисления CRC32
-		// (для версий пакета 1 или более).
-		//
-		size_t data_len = pBuf->GetAvailableSize();
-		STempBuffer b(data_len);
-		THROW_SL(b.IsValid());
-		pBuf->ReadStatic(b, data_len);
-		//
-		pPack->destroy();
-		pBuf->Read(id);
-		pBuf->Read(pPack->Rec.ID);
-		pBuf->Read(ver);
-		pBuf->Read(size);
-		pBuf->Read(pack_ver);
-		if(pack_ver < 1) {
-			uint16 len_extstr = 0;
-			uint16 len_extitles = 0;
-
-			pBuf->Read(&pPack->Codes, 0);
-			pBuf->Read(&pPack->Rec,    sizeof(pPack->Rec));
-			pBuf->Read(&pPack->ExtRec, sizeof(pPack->ExtRec));
-			pBuf->Read(&pPack->Stock,  offsetof(GoodsStockExt, MinStockList));
-			// pBuf->Read(&pPack->Stock.MinStockList);
-			pBuf->Read(len_extstr);
-			if(len_extstr) {
-				STempBuffer temp_buf(len_extitles);
-				pBuf->Read(temp_buf, len_extstr);
-				pPack->ExtString = temp_buf;
-			}
-			pBuf->Read(len_extitles);
-			if(len_extitles) {
-				STempBuffer temp_buf(len_extitles);
-				pBuf->Read(temp_buf, len_extitles);
-				pPack->ExTitles = temp_buf;
-			}
-		}
-		else {
-			SCRC32 c;
-			ulong crc = 0, crc2;
-			crc = c.Calc(0, ((const uint8 *)(char *)b)+sizeof(long), data_len-sizeof(crc)-sizeof(long));
-			pBuf->Read(&pPack->Rec, sizeof(pPack->Rec));
-			pBuf->Read(&pPack->Codes, 0);
-			pBuf->Read(&pPack->ArCodes, 0);
-			pBuf->Read(&pPack->ExtRec, sizeof(pPack->ExtRec));
-			pBuf->Read(&pPack->Stock, offsetof(GoodsStockExt, MinStockList));
-			pBuf->Read(&pPack->Stock.MinStockList, 0);
-			if(pack_ver >= 2) {
-				pBuf->Read(&pPack->Stock.PltList, 0);
-				pPack->TagL.Read__(*pBuf);
-			}
-			pBuf->Read(pPack->ExtString);
-			pBuf->Read(pPack->ExTitles);
-			if(pack_ver >= 3) {
-				THROW(pPack->GenericList.Read(*pBuf));
-			}
-			pBuf->Read(crc2);
-			THROW_PP(crc2 == crc, PPERR_HISTGOODSBUFCORRUPTED);
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0 @v9.8.11
-
 int PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 {
 	int    ok = 1;
@@ -908,9 +791,8 @@ int PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 				ok = 1;
 			}
 		}
-		else if(c >= '0' && c <= '9') {
+		else if(isdec(c))
 			nd++;
-		}
 		else
 			break;
 	} while(!ok && pos);

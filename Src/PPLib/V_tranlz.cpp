@@ -1548,7 +1548,7 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 				rec.DlvrLocID = dlvr_loc_id;
 			}
 			if(Flags & fAsGoodsCard) {
-				if(!(pTrfrRec->Flags & (PPTFR_UNLIM | PPTFR_ACK)) || Filt.ArList.GetSingle())
+				if(!(pTrfrRec->Flags & (PPTFR_UNLIM|PPTFR_ACK)) || Filt.ArList.GetSingle())
 					InRest = faddwsign(InRest, pTrfrRec->Quantity, (Filt.Flags & TrfrAnlzFilt::fLabelOnly) ? -1 : +1);
 				if(Filt.Flags & TrfrAnlzFilt::fGByDate) {
 					InRest -= pBillRec->CRate;
@@ -4493,6 +4493,11 @@ public:
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  2, PrcssrAlcReport::Config::woswByCChecks);
 		AddClusterAssoc(CTL_ALCREPCFG_WOSW,  3, PrcssrAlcReport::Config::woswByBills);
 		SetClusterData(CTL_ALCREPCFG_WOSW, Data.E.WrOffShopWay);
+		// @v11.7.12 {
+		AddClusterAssoc(CTL_ALCREPCFG_WOSW_NMR, 0, PrcssrAlcReport::Config::fNMarkedBalance);
+		SetClusterData(CTL_ALCREPCFG_WOSW_NMR, Data.E.Flags);
+		DisableClusterItem(CTL_ALCREPCFG_WOSW_NMR, 0, Data.E.WrOffShopWay != PrcssrAlcReport::Config::woswByCChecks);
+		// } @v11.7.12 
 		SetTimeRangeInput(this, CTL_ALCREPCFG_RSAT, TIMF_HM, &Data.E.RtlSaleAllwTime); // @v10.2.4
 		enableCommand(cmCCheckFilt, Data.E.WrOffShopWay == PrcssrAlcReport::Config::woswByCChecks);
 		return ok;
@@ -4532,6 +4537,11 @@ public:
 
 		GetClusterData(CTL_ALCREPCFG_FLAGS, &Data.E.Flags);
 		GetClusterData(CTL_ALCREPCFG_WOSW, &Data.E.WrOffShopWay);
+		// @v11.7.12 {
+		GetClusterData(CTL_ALCREPCFG_WOSW_NMR, &Data.E.Flags); 
+		if(Data.E.WrOffShopWay != PrcssrAlcReport::Config::woswByCChecks)
+			Data.E.Flags &= ~PrcssrAlcReport::Config::fNMarkedBalance;
+		// } @v11.7.12 
 		GetTimeRangeInput(this, CTL_ALCREPCFG_RSAT, TIMF_HM, &Data.E.RtlSaleAllwTime); // @v10.2.4
 
 		ASSIGN_PTR(pData, Data);
@@ -4544,6 +4554,7 @@ public:
 		if(event.isClusterClk(CTL_ALCREPCFG_WOSW)) {
 			GetClusterData(CTL_ALCREPCFG_WOSW, &Data.E.WrOffShopWay);
 			enableCommand(cmCCheckFilt, Data.E.WrOffShopWay == PrcssrAlcReport::Config::woswByCChecks);
+			DisableClusterItem(CTL_ALCREPCFG_WOSW_NMR, 0, Data.E.WrOffShopWay != PrcssrAlcReport::Config::woswByCChecks); // @v11.7.12
 		}
 		else if(event.isCmd(cmCCheckFilt)) {
             CCheckFilt cc_filt;
