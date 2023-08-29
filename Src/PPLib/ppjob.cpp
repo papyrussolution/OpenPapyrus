@@ -2253,7 +2253,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 			HdrList.GetText(hdr_id, sect);
 			if(sect.NotEmpty()) {
 				uint p = 0;
-				if(LineList.SearchByText(sect, 1, &p) > 0)
+				if(LineList.SearchByTextNc(sect, &p) > 0)
 					setCtrlLong(CTLSEL_BILLEXPFILT_RCFG, LineList.Get(p).Id);
 			}
 		}
@@ -2264,7 +2264,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 				LineList.GetText(row_id, sect);
 				if(sect.NotEmpty()) {
 					uint p = 0;
-					if(HdrList.SearchByText(sect, 1, &p) > 0)
+					if(HdrList.SearchByTextNc(sect, &p) > 0)
 						setCtrlLong(CTLSEL_BILLEXPFILT_CFG, HdrList.Get(p).Id);
 				}
 			}
@@ -2292,7 +2292,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 					HdrList.Add(id, buf);
 				}
 				GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
-				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0;
+				id = (HdrList.SearchByTextNc(bill_param.Name, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0;
 				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, HdrList, id, 0);
 			}
 			else {
@@ -2300,9 +2300,9 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 				GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &bill_param, &HdrList, 1);
 				bill_param.Init();
 				GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
-				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0;
+				id = (HdrList.SearchByTextNc(bill_param.Name, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0;
 				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, HdrList, id, 0);
-				id = (LineList.SearchByText(brow_param.Name, 1, &(p = 0)) > 0) ? LineList.Get(p).Id : 0;
+				id = (LineList.SearchByTextNc(brow_param.Name, &(p = 0)) > 0) ? LineList.Get(p).Id : 0;
 				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_RCFG, LineList, id, 0);
 			}
 		}
@@ -2328,9 +2328,9 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 			SString sect;
 			PPBillImpExpParam bill_param, brow_param;
 			GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
-			id = (HdrList.SearchByText(bill_param.Name, 1, &p) > 0) ? (uint)HdrList.Get(p).Id : 0;
+			id = (HdrList.SearchByTextNc(bill_param.Name, &p) > 0) ? (uint)HdrList.Get(p).Id : 0;
 			SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, HdrList, (long)id, 0);
-			id = (LineList.SearchByText(brow_param.Name, 1, &p) > 0) ? (uint)LineList.Get(p).Id : 0;
+			id = (LineList.SearchByTextNc(brow_param.Name, &p) > 0) ? (uint)LineList.Get(p).Id : 0;
 			SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_RCFG, LineList, (long)id, 0);
 		}
 	}//@vmiller
@@ -2353,7 +2353,7 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 			HdrList.Add(id, buf);
 		}
 		GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
-		id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0;
+		id = (HdrList.SearchByTextNc(bill_param.Name, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0;
 		SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, HdrList, (long)id, 0);
 	}
 	// } @vmiller
@@ -2554,7 +2554,7 @@ public:
 			uint    p  = 0;
 			PPGoodsImpExpParam param;
 			GetParamByName(Data.ExpCfg, &param);
-			const uint id = (CfgList.SearchByText(param.Name, 1, &p) > 0) ? static_cast<uint>(CfgList.Get(p).Id) : 0;
+			const uint id = (CfgList.SearchByTextNc(param.Name, &p) > 0) ? static_cast<uint>(CfgList.Get(p).Id) : 0;
 			SetupStrAssocCombo(this, CTLSEL_GOODSEXPFILT_CFG, CfgList, static_cast<long>(id), 0);
 			SetupLocationCombo(this, CTLSEL_GOODSEXPFILT_LOC, Data.LocID, 0, 0); // @v10.9.5
 		}

@@ -17,8 +17,7 @@
 #include <..\OSF\DirectXTex\SRC\WICTextureLoader11.h>
 
 ImVec2 FPointToImVec2(const SPoint2F & rP) { return ImVec2(rP.x, rP.y); }
-ImRect FRectToImRect(const FRect & rR) { return ImRect(FPointToImVec2(rR.a), FPointToImVec2(rR.b)); 
-}
+ImRect FRectToImRect(const FRect & rR) { return ImRect(FPointToImVec2(rR.a), FPointToImVec2(rR.b)); }
 
 namespace ImGui {
 	bool ScrollbarEx(const ImRect & bb_frame, ImGuiID id, ImGuiAxis axis, int64* p_scroll_v, int64 size_avail_v, int64 size_contents_v, ImDrawFlags flags);
@@ -265,6 +264,12 @@ public:
 		}
 		return p_result;
 	}
+	void ReleaseTexture(void * pTextureView)
+	{
+		if(pTextureView) {
+			static_cast<IUnknown *>(pTextureView)->Release();
+		}
+	}
 	// Data
 	ID3D11Device           * g_pd3dDevice;
 	ID3D11DeviceContext    * g_pd3dDeviceContext;
@@ -418,28 +423,29 @@ public:
 		// Значения до 10000 используются для идентификации экранов (screenXXX) и 
 		// одновременно как идентификаторы соответствующих лейаутов верхнего уровня.
 		//loidRoot = 1,
-		loidUpperGroup              = 10001,
-		loidBottomGroup             = 10002,
-		loidCtl01                   = 10003,
-		loidCtl02                   = 10004,
-		loidTestProgramGallery      = 10005,
-		//loidAdv02                 = 10006,
-		//loidAdv03                 = 10007,
-		loidMenuBlock               = 10008,
-		loidMainGroup               = 10009,
-		loidLoginBlock              = 10010,
-		loidPersonInfo              = 10011,
-		loidAccountInfo             = 10012,
-		loidSessionSelection        = 10013,
-		loidSessionButtonGroup      = 10014,
-		loidBottomCtrlGroup         = 10015,
-		loidSessionInfo             = 10016,
-		loidSessionProgramGallery   = 10017,
-		loidProgramEntryTemplate    = 10018, // Шаблон для элемента выбора программы
-		loidInternalProgramGallery  = 10019, // Внутренний лейаут программной галлереи. Формируется динамически (не включен в json-описание)!
-		loidProgramGalleryScrollbar = 10020, // Область для размещения скроллбара программной галлереи
+		loidUpperGroup                = 10001,
+		loidBottomGroup               = 10002,
+		loidCtl01                     = 10003,
+		loidCtl02                     = 10004,
+		loidTestProgramGallery        = 10005,
+		//loidAdv02                   = 10006,
+		//loidAdv03                   = 10007,
+		loidMenuBlock                 = 10008,
+		loidMainGroup                 = 10009,
+		loidLoginBlock                = 10010,
+		loidPersonInfo                = 10011,
+		loidAccountInfo               = 10012,
+		loidSessionSelection          = 10013,
+		loidSessionButtonGroup        = 10014,
+		loidBottomCtrlGroup           = 10015,
+		loidSessionInfo               = 10016,
+		loidSessionProgramGallery     = 10017,
+		loidProgramEntryTemplate      = 10018, // Шаблон для элемента выбора программы
+		loidInternalProgramGallery    = 10019, // Внутренний лейаут программной галлереи. Формируется динамически (не включен в json-описание)!
+		loidProgramGalleryScrollbar   = 10020, // Область для размещения скроллбара программной галлереи
+		loidProgramGalleryCatSelector = 10021, // Область для размещения комбо-бокса выбора категории
 		//
-		loidStartProgramEntry        = 20000  // Стартовый идентификатор для иконок выбора программ. Первый layout идентифицируется как (loidStartProgramEntry+1)
+		loidStartProgramEntry         = 20000  // Стартовый идентификатор для иконок выбора программ. Первый layout идентифицируется как (loidStartProgramEntry+1)
 	};
 
 	struct QuotKindEntry {
@@ -812,8 +818,56 @@ private:
 	int    Screen; // screenXXX
 	ImVec4 ClearColor;
 	//SUiLayout Lo01; // = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
+
+	class Texture_CachedFileEntity : public SCachedFileEntity {
+	public:
+		Texture_CachedFileEntity() : SCachedFileEntity(), P_Texture(0)
+		{
+		}
+		void * P_Texture;
+	private:
+		virtual bool InitEntity(void * extraPtr)
+		{
+			bool   ok = false;
+			if(extraPtr) {
+				ImGuiRuntimeBlock * p_rtb = static_cast<ImGuiRuntimeBlock *>(extraPtr);
+				P_Texture = p_rtb->LoadTexture(GetFilePath());
+				if(P_Texture)
+					ok = true;
+			}
+			return ok;
+		}
+		virtual void DestroyEntity()
+		{
+			if(P_Texture) {
+				static_cast<IUnknown *>(P_Texture)->Release();
+				P_Texture = 0;
+			}
+		}
+	};
+	//
+	class TextureCache : public TSHashCollection <Texture_CachedFileEntity> {
+	public:
+		TextureCache(uint initCount, const void * pCtx) : TSHashCollection <Texture_CachedFileEntity>(initCount, pCtx)
+		{
+		}
+		void SetBasePath(const char * pPath)
+		{
+			SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash|SPathStruc::npfCompensateDotDot, BasePath);
+		}
+		void MakeKey(const char * pFileName, SString & rKey)
+		{
+			rKey.Z();
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			(r_temp_buf = BasePath).SetLastSlash().Cat(pFileName);
+			SPathStruc::NormalizePath(r_temp_buf, SPathStruc::npfSlash|SPathStruc::npfCompensateDotDot, rKey);
+		}
+	private:
+		SString BasePath;
+	};
+
+	TextureCache Cache_Texture;
 	TSHashCollection <SUiLayout> Cache_Layout;
-	TSHashCollection <SCachedFileEntity> Cache_Texture;
 	TSHashCollection <SImFontDescription> Cache_Font; // @v11.7.8
 	WsCtl_ProgramCollection PgmL; // @v11.7.12 Список программ, которые клиент может запустить из нашей оболочки
 	
@@ -833,6 +887,7 @@ private:
 	//
 	void   Render();
 	void   MakeLayout(SJson ** ppJsList);
+	SUiLayout * MakePgmListLayout();
 	void   ErrorPopup(bool isErr);
 	static int CbInput(ImGuiInputTextCallbackData * pInputData);
 	//
@@ -1875,6 +1930,43 @@ int WsCtl_ImGuiSceneBlock::LoadUiDescription()
 	return ok;
 }
 
+SUiLayout * WsCtl_ImGuiSceneBlock::MakePgmListLayout()
+{
+	const int pgm_entry_template_id = loidProgramEntryTemplate;
+	const SUiLayout * p_pe_template = Cache_Layout.Get(&pgm_entry_template_id, sizeof(pgm_entry_template_id));
+	SString filt_cat_text;		
+	SUiLayoutParam lop_head;
+	lop_head.SetContainerDirection(DIREC_VERT);
+	lop_head.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+	lop_head.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+	lop_head.Flags |= (SUiLayoutParam::fEvaluateScroller|SUiLayoutParam::fContainerWrap);
+	SUiLayout * p_lo_head = new SUiLayout(lop_head);
+	SUiLayoutParam lop_entry;
+	if(p_pe_template) {
+		lop_entry = p_pe_template->GetLayoutBlockC();
+	}
+	else {
+		lop_entry.SetFixedSizeX(128.0f);
+		lop_entry.SetFixedSizeY(128.0f);
+	}
+	if(PgmL.SelectedCatSurrogateId) {
+		uint sel_idx = 0;
+		if(PgmL.CatList.Search(PgmL.SelectedCatSurrogateId, &sel_idx)) {
+			filt_cat_text = PgmL.CatList.Get(sel_idx).Txt;
+		}
+	}
+	for(uint i = 0; i < PgmL.getCount(); i++) {
+		const WsCtl_ProgramEntry * p_pe = PgmL.at(i);
+		if(p_pe) {
+			if(filt_cat_text.IsEmpty() || filt_cat_text.IsEqiUtf8(p_pe->Category))
+				p_lo_head->InsertItem(const_cast<WsCtl_ProgramEntry *>(p_pe), &lop_entry, loidStartProgramEntry+i+1);
+		}
+	}
+	p_lo_head->SetID(loidInternalProgramGallery);
+	//Cache_Layout.Put(p_lo_head, true);
+	return p_lo_head;
+}
+
 int WsCtl_ImGuiSceneBlock::LoadProgramList()
 {
 	int    ok = 1;
@@ -1886,32 +1978,33 @@ int WsCtl_ImGuiSceneBlock::LoadProgramList()
 	SJson * p_js = SJson::ParseFile(temp_buf);
 	THROW_SL(p_js);
 	THROW(PgmL.FromJsonObj(p_js));
+	PgmL.MakeCatList();
 	{
-		const int pgm_entry_template_id = loidProgramEntryTemplate;
-		const SUiLayout * p_pe_template = Cache_Layout.Get(&pgm_entry_template_id, sizeof(pgm_entry_template_id));
-		
-		SUiLayoutParam lop_head;
-		lop_head.SetContainerDirection(DIREC_VERT);
-		lop_head.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-		lop_head.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-		lop_head.Flags |= (SUiLayoutParam::fEvaluateScroller|SUiLayoutParam::fContainerWrap);
-		SUiLayout * p_lo_head = new SUiLayout(lop_head);
-		SUiLayoutParam lop_entry;
-		if(p_pe_template) {
-			lop_entry = p_pe_template->GetLayoutBlockC();
-		}
-		else {
-			lop_entry.SetFixedSizeX(128.0f);
-			lop_entry.SetFixedSizeY(128.0f);
-		}
-		for(uint i = 0; i < PgmL.getCount(); i++) {
-			const WsCtl_ProgramEntry * p_pe = PgmL.at(i);
-			if(p_pe) {
-				p_lo_head->InsertItem(0, &lop_entry, loidStartProgramEntry+i+1);
+		SString pic_base_path;
+		PPGetPath(PPPATH_WORKSPACE, temp_buf);
+		(pic_base_path = temp_buf).SetLastSlash().Cat("cache").SetLastSlash().Cat("img").SetLastSlash();
+		if(pathValid(pic_base_path, 1)) {
+			Cache_Texture.SetBasePath(pic_base_path);
+			for(uint i = 0; i < PgmL.getCount(); i++) {
+				const WsCtl_ProgramEntry * p_pe = PgmL.at(i);
+				if(p_pe && p_pe->PicSymb.NotEmpty()) {
+					(temp_buf = pic_base_path).Cat(p_pe->PicSymb);
+					if(fileExists(temp_buf)) {
+						Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+						if(p_cfe && p_cfe->Init(temp_buf)) {
+							if(p_cfe->Reload(true, &ImgRtb)) {
+								Cache_Texture.Put(p_cfe, true);
+							}
+						}
+					}
+				}
 			}
 		}
-		p_lo_head->SetID(loidInternalProgramGallery);
-		Cache_Layout.Put(p_lo_head, true);
+	}
+	{
+		SUiLayout * p_lo_head = MakePgmListLayout();
+		if(p_lo_head)
+			Cache_Layout.Put(p_lo_head, true);
 	}
 	CATCHZOK
 	delete p_js;
@@ -2716,9 +2809,11 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						SUiLayout * p_tpg = tl.FindById(loidTestProgramGallery);
 						if(p_tpg) {
 							const int lo_id = loidInternalProgramGallery;
-							SUiLayout * p_ipg = Cache_Layout.Get(&lo_id, sizeof(lo_id));
-							if(p_ipg) {
-								p_tpg->InsertCopy(p_ipg);
+							//SUiLayout * p_ipg = Cache_Layout.Get(&lo_id, sizeof(lo_id));
+							SUiLayout * p_ipg_ = MakePgmListLayout();
+							if(p_ipg_) {
+								//p_tpg->InsertCopy(p_ipg_);
+								p_tpg->Insert(p_ipg_);
 							}
 						}
 					}
@@ -2880,12 +2975,33 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									offset.x = -p_scr->GetCurrentPageTopPoint();
 								}
 								for(uint loidx = 0; loidx < p_lo_ipg->GetChildrenCount(); loidx++) {
-									const SUiLayout * p_lo_entry = p_lo_ipg->GetChildC(loidx);
+									SUiLayout * p_lo_entry = p_lo_ipg->GetChild(loidx);
 									if(p_lo_entry) {
 										if(!is_line_content_valid || p_scr->CheckLineContentIndex(loidx) > 0) {
 											ImGuiWindowByLayout wbl_entry(p_lo_entry, offset, temp_buf.Z().Cat("##GALLERYENTRY").Cat(p_lo_entry->GetID()), view_flags);
 											if(wbl_entry.IsValid()) {
 												//const uint pe_idx = i-(loidStartProgramEntry+1);
+												const WsCtl_ProgramEntry * p_pe_ = static_cast<const WsCtl_ProgramEntry *>(SUiLayout::GetManagedPtr(p_lo_entry));
+												if(p_pe_) {
+													Texture_CachedFileEntity * p_te = 0;
+													if(p_pe_->PicSymb.NotEmpty()) {
+														Cache_Texture.MakeKey(p_pe_->PicSymb, temp_buf);
+														p_te = Cache_Texture.Get(temp_buf, temp_buf.Len());
+													}
+													if(p_te && p_te->P_Texture) {
+														if(p_pe_->Title.NotEmpty())
+															ImGui::Text(p_pe_->Title);
+														ImVec2 sz(96.0f, 96.0f);
+														ImGui::Image(p_te->P_Texture, sz);
+													}
+													else {
+														if(p_pe_->Category.NotEmpty())
+															ImGui::Text(p_pe_->Category);
+														if(p_pe_->Title.NotEmpty())
+															ImGui::Text(p_pe_->Title);
+													}
+												}
+												/*
 												assert(loidx < PgmL.getCount());
 												if(loidx < PgmL.getCount()) {
 													const WsCtl_ProgramEntry * p_pe = PgmL.at(loidx);
@@ -2893,7 +3009,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 														ImGui::Text(p_pe->Category);
 													if(p_pe->Title.NotEmpty())
 														ImGui::Text(p_pe->Title);
-												}
+												}*/
 											}
 											else
 												break;
@@ -2904,33 +3020,55 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								}
 							}
 							if(p_lor) {
-								ImGuiWindowByLayout wsb(&tl, loidProgramGalleryScrollbar, "##ProgramScrollbar",
+								{
+									ImGuiWindowByLayout wsb(&tl, loidProgramGalleryCatSelector, "##ProgramCatSelector",
 									view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
-								int64 scroll_value = 0;
-								int64 scroll_size = p_lor->P_Scrlr ? p_lor->P_Scrlr->GetCount() : 0;
-								int64 scroll_frame = 1; // @?
-								bool debug_mark = false; // @debug
-								if(scroll_size > 0) {
-									const SUiLayout * p_lo_sb = tl.FindByIdC(loidProgramGalleryScrollbar);
-									if(p_lo_sb) {
-										//SPoint2F s = r.GetSize();
-										//if(p_ipg->P_)
-										SScroller::Position scrp;
-										if(p_scr)
-											p_scr->GetPosition(scrp);
-										ImDrawFlags sb_flags = 0;
-										ImRect imr = FRectToImRect(p_lo_sb->GetFrameAdjustedToParent());
-										scroll_value = scrp.ItemIdxCurrent;
-										bool sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags);
-										if(sbr) {
-											if(scroll_value >= 0) {
-												PgmGalleryScrollerPosition_Develop.ItemIdxCurrent = static_cast<uint>(scroll_value);
+									if(PgmL.CatList.getCount()) {
+										const char * p_selected_text = 0;
+										uint    selected_idx = 0;
+										if(PgmL.CatList.Search(PgmL.SelectedCatSurrogateId, &selected_idx) > 0) {
+											StrAssocArray::Item item = PgmL.CatList.Get(selected_idx);
+											p_selected_text = item.Txt;
+										}
+										if(ImGui::BeginCombo("##pgmcatlist", p_selected_text)) {
+											for(uint catidx = 0; catidx < PgmL.CatList.getCount(); catidx++) {
+												StrAssocArray::Item item = PgmL.CatList.Get(catidx);
+												if(ImGui::Selectable(item.Txt, item.Id == PgmL.SelectedCatSurrogateId))
+													PgmL.SelectedCatSurrogateId = item.Id;
 											}
-											debug_mark = true; // @debug
+											ImGui::EndCombo();
 										}
 									}
 								}
-								//ImGui::Scrollbar(ImGuiAxis_X);
+								{
+									ImGuiWindowByLayout wsb(&tl, loidProgramGalleryScrollbar, "##ProgramScrollbar",
+										view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
+									int64 scroll_value = 0;
+									int64 scroll_size = p_lor->P_Scrlr ? p_lor->P_Scrlr->GetCount() : 0;
+									int64 scroll_frame = 1; // @?
+									bool debug_mark = false; // @debug
+									if(scroll_size > 0) {
+										const SUiLayout * p_lo_sb = tl.FindByIdC(loidProgramGalleryScrollbar);
+										if(p_lo_sb) {
+											//SPoint2F s = r.GetSize();
+											//if(p_ipg->P_)
+											SScroller::Position scrp;
+											if(p_scr)
+												p_scr->GetPosition(scrp);
+											ImDrawFlags sb_flags = 0;
+											ImRect imr = FRectToImRect(p_lo_sb->GetFrameAdjustedToParent());
+											scroll_value = scrp.ItemIdxCurrent;
+											bool sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags);
+											if(sbr) {
+												if(scroll_value >= 0) {
+													PgmGalleryScrollerPosition_Develop.ItemIdxCurrent = static_cast<uint>(scroll_value);
+												}
+												debug_mark = true; // @debug
+											}
+										}
+									}
+									//ImGui::Scrollbar(ImGuiAxis_X);
+								}
 							}
 						}
 					}

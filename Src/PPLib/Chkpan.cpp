@@ -211,23 +211,6 @@ CPosProcessor::GrpListItem * CPosProcessor::GroupArray::Get(PPID id, uint * pPos
 //
 //
 //
-CPosProcessor::Packet::Prescription::Prescription() : Dt(ZERODATE)
-{
-}
-
-CPosProcessor::Packet::Prescription & CPosProcessor::Packet::Prescription::Z()
-{
-	Dt = ZERODATE;
-	Serial.Z();
-	Number.Z();
-	return *this;
-}
-
-bool CPosProcessor::Packet::Prescription::IsValid() const
-{
-	return checkdate(Dt, 1) ? true : PPSetErrorSLib();
-}
-
 CPosProcessor::Packet::Packet()
 {
 	Z();
@@ -299,6 +282,75 @@ double CPosProcessor::Packet::GetGoodsQtty(PPID goodsID) const
 			qtty += r_item.Quantity;
 	}
 	return qtty;
+}
+
+static void FASTCALL CatCharByFlag(long val, long flag, int chr, SString & rBuf, int inverse)
+{
+	if((!inverse && val & flag) || (inverse && !(val & flag)))
+		rBuf.CatChar(chr);
+}
+
+int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, bool dontShow)
+{
+	if(pPack) {
+		Goods2Tbl::Rec goods_rec;
+		SString temp_buf;
+		CCheckItem cc_item;
+		for(uint i = 0; pPack->EnumLines(&i, &cc_item);) {
+			cc_item.Quantity  = makeRetCheck ? -fabs(cc_item.Quantity) : cc_item.Quantity;
+			cc_item.Flags    |= cc_item.Quantity ? 0 : cifGift;
+			if(GObj.Fetch(cc_item.GoodsID, &goods_rec) > 0) {
+				STRNSCPY(cc_item.GoodsName, goods_rec.Name);
+				GObj.FetchSingleBarcode(cc_item.GoodsID, temp_buf.Z());
+				temp_buf.CopyTo(cc_item.BarCode, sizeof(cc_item.BarCode));
+			}
+			if(!P.insert(&cc_item)) {
+				MessageError(PPERR_SLIB, 0, eomMsgWindow);
+				break;
+			}
+		}
+		{
+			// @v11.8.0 .. 
+		}
+		if(!dontShow) {
+			if(P_ChkPack) {
+				setStaticText(CTL_CHKPAN_CHKID,   temp_buf.Z().Cat(P_ChkPack->Rec.ID));
+				setStaticText(CTL_CHKPAN_CHKDTTM, temp_buf.Z().Cat(P_ChkPack->Rec.Dt).Space().Cat(P_ChkPack->Rec.Tm));
+				setStaticText(CTL_CHKPAN_CHKNUM,  temp_buf.Z().Cat(P_ChkPack->Rec.Code));
+				setStaticText(CTL_CHKPAN_CASHNUM, temp_buf.Z().Cat(P_ChkPack->Rec.CashID));
+				setStaticText(CTL_CHKPAN_INITDTM, temp_buf.Z().Cat(P_ChkPack->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO));
+				// @v10.6.8 {
+				if(P_ChkPack->Ext.CreationUserID)
+					GetObjectName(PPOBJ_USR, P_ChkPack->Ext.CreationUserID, temp_buf);
+				else
+					temp_buf.Z();
+				setStaticText(CTL_CHKPAN_INITUSER, temp_buf);
+				// } @v10.6.8
+				temp_buf.Z();
+				const long f = P_ChkPack->Rec.Flags;
+				CatCharByFlag(f, CCHKF_NOTUSED,   'G', temp_buf, 1);
+				CatCharByFlag(f, CCHKF_PRINTED,   'P', temp_buf, 0);
+				CatCharByFlag(f, CCHKF_RETURN,    'R', temp_buf, 0);
+				CatCharByFlag(f, CCHKF_ZCHECK,    'Z', temp_buf, 0);
+				CatCharByFlag(f, CCHKF_TRANSMIT,  'T', temp_buf, 0);
+				CatCharByFlag(f, CCHKF_BANKING,   'B', temp_buf, 0);
+				CatCharByFlag(f, CCHKF_INCORPCRD, 'I', temp_buf, 0);
+				CatCharByFlag(f, CCHKF_SUSPENDED, 'S', temp_buf, 0);
+				CatCharByFlag(f, CCHKF_JUNK,      'J', temp_buf, 0);
+				setStaticText(CTL_CHKPAN_FLAGS, temp_buf);
+				if(P_ChkPack->Rec.SCardID) {
+					SCardTbl::Rec sc_rec;
+					if(ScObj.Search(P_ChkPack->Rec.SCardID, &sc_rec) > 0) {
+						temp_buf.Z().Cat(sc_rec.Code);
+						setStaticText(CTL_CHKPAN_SCARDCODE, temp_buf);
+					}
+				}
+			}
+			OnUpdateList(0);
+			ClearRow();
+		}
+	}
+	return 1;
 }
 
 void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, const CardState & rCSt) const
@@ -1336,9 +1388,29 @@ void CPosProcessor::SetupExt(const CCheckPacket * pPack)
 		P.Eccd.InitDtm = pPack->Ext.CreationDtm;
 		P.Eccd.InitUserID = pPack->Ext.CreationUserID; // @v10.6.8
 		pPack->GetGuid(P.Eccd.Uuid); // @v11.5.8
-		if(P.Eccd.Flags & P.Eccd.fDelivery)
+		if(P.Eccd.Flags & P.Eccd.fDelivery) {
 			P.Eccd.DlvrDtm = pPack->Ext.StartOrdDtm;
+			// @v11.8.0 {
+			const LocationTbl::Rec * p_dlvr_addr = pPack->GetDlvrAddr();
+			RVALUEPTR(P.Eccd.Addr_, p_dlvr_addr);
+			// } @v11.8.0 
+		}
 		P.AmL = pPack->AL_Const();
+		// @v11.8.0 {
+		{
+			SString temp_buf;
+			P.Paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+			if(pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+				P.BuyersEAddrType = SNTOK_EMAIL;
+				P.BuyersEAddr = temp_buf;
+			}
+			else if(pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+				P.BuyersEAddrType = SNTOK_PHONE;
+				P.BuyersEAddr = temp_buf;
+			}
+			pPack->GetPrescription(P.Prescr);
+		}
+		// } @v11.8.0 
 	}
 }
 
@@ -6158,7 +6230,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 int CheckPaneDialog::EditPrescription()
 {
 	int   ok = -1;
-	Packet::Prescription data(P.Prescr);
+	CCheckPacket::Prescription data(P.Prescr);
 	TDialog * dlg = new TDialog(DLG_CCPRESCR);
 	THROW(CheckDialogPtr(&dlg));
 	dlg->setCtrlDate(CTL_CCPRESCR_DT, data.Dt);
@@ -8427,12 +8499,6 @@ int CheckPaneDialog::RemoveRow()
 		}
 	}
 	SetupInfo(0);
-}
-
-static void FASTCALL CatCharByFlag(long val, long flag, int chr, SString & rBuf, int inverse)
-{
-	if((!inverse && val & flag) || (inverse && !(val & flag)))
-		rBuf.CatChar(chr);
 }
 
 /*virtual*/int CheckPaneDialog::MessageError(int errCode, const char * pAddedMsg, long outputMode)
@@ -11472,66 +11538,6 @@ int CPosProcessor::AcceptRow(PPID giftID)
 	CPosProcessor::ClearCheck();
 	ClearRow();
 	setupRetCheck(0);
-}
-
-int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, bool dontShow)
-{
-	if(pPack) {
-		Goods2Tbl::Rec goods_rec;
-		SString temp_buf;
-		CCheckItem cc_item;
-		for(uint i = 0; pPack->EnumLines(&i, &cc_item);) {
-			cc_item.Quantity  = makeRetCheck ? -fabs(cc_item.Quantity) : cc_item.Quantity;
-			cc_item.Flags    |= cc_item.Quantity ? 0 : cifGift;
-			if(GObj.Fetch(cc_item.GoodsID, &goods_rec) > 0) {
-				STRNSCPY(cc_item.GoodsName, goods_rec.Name);
-				GObj.FetchSingleBarcode(cc_item.GoodsID, temp_buf.Z());
-				temp_buf.CopyTo(cc_item.BarCode, sizeof(cc_item.BarCode));
-			}
-			if(!P.insert(&cc_item)) {
-				MessageError(PPERR_SLIB, 0, eomMsgWindow);
-				break;
-			}
-		}
-		if(!dontShow) {
-			if(P_ChkPack) {
-				setStaticText(CTL_CHKPAN_CHKID,   temp_buf.Z().Cat(P_ChkPack->Rec.ID));
-				setStaticText(CTL_CHKPAN_CHKDTTM, temp_buf.Z().Cat(P_ChkPack->Rec.Dt).Space().Cat(P_ChkPack->Rec.Tm));
-				setStaticText(CTL_CHKPAN_CHKNUM,  temp_buf.Z().Cat(P_ChkPack->Rec.Code));
-				setStaticText(CTL_CHKPAN_CASHNUM, temp_buf.Z().Cat(P_ChkPack->Rec.CashID));
-				setStaticText(CTL_CHKPAN_INITDTM, temp_buf.Z().Cat(P_ChkPack->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO));
-				// @v10.6.8 {
-				if(P_ChkPack->Ext.CreationUserID)
-					GetObjectName(PPOBJ_USR, P_ChkPack->Ext.CreationUserID, temp_buf);
-				else
-					temp_buf.Z();
-				setStaticText(CTL_CHKPAN_INITUSER, temp_buf);
-				// } @v10.6.8
-				temp_buf.Z();
-				const long f = P_ChkPack->Rec.Flags;
-				CatCharByFlag(f, CCHKF_NOTUSED,   'G', temp_buf, 1);
-				CatCharByFlag(f, CCHKF_PRINTED,   'P', temp_buf, 0);
-				CatCharByFlag(f, CCHKF_RETURN,    'R', temp_buf, 0);
-				CatCharByFlag(f, CCHKF_ZCHECK,    'Z', temp_buf, 0);
-				CatCharByFlag(f, CCHKF_TRANSMIT,  'T', temp_buf, 0);
-				CatCharByFlag(f, CCHKF_BANKING,   'B', temp_buf, 0);
-				CatCharByFlag(f, CCHKF_INCORPCRD, 'I', temp_buf, 0);
-				CatCharByFlag(f, CCHKF_SUSPENDED, 'S', temp_buf, 0);
-				CatCharByFlag(f, CCHKF_JUNK,      'J', temp_buf, 0);
-				setStaticText(CTL_CHKPAN_FLAGS, temp_buf);
-				if(P_ChkPack->Rec.SCardID) {
-					SCardTbl::Rec sc_rec;
-					if(ScObj.Search(P_ChkPack->Rec.SCardID, &sc_rec) > 0) {
-						temp_buf.Z().Cat(sc_rec.Code);
-						setStaticText(CTL_CHKPAN_SCARDCODE, temp_buf);
-					}
-				}
-			}
-			OnUpdateList(0);
-			ClearRow();
-		}
-	}
-	return 1;
 }
 
 int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)

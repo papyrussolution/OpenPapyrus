@@ -2691,11 +2691,48 @@ int StrAssocArray::AtFree(uint pos)
 int StrAssocArray::Search(long id, uint * pPos) const { return LAssocArray::Search(id, pPos); }
 int FASTCALL StrAssocArray::Search(long id) const { return LAssocArray::Search(id, 0); }
 
-int StrAssocArray::SearchByText(const char * pTxt, int ignoreCase, uint * pPos) const
+int StrAssocArray::SearchByText(const char * pTxt, /* @v11.8.0 int ignoreCase,*/uint * pPos) const
 {
-	uint   pos = 0, assc_pos;
-	while(Pool.search(pTxt, &pos, ignoreCase)) {
-		if(LAssocArray::lsearch(&pos, &(assc_pos = 0), CMPF_LONG, offsetof(LAssoc, Val))) {
+	uint   pos = 0;
+	while(Pool.search(pTxt, &pos, /*ignoreCase*/0)) {
+		uint    assc_pos = 0; // initialization is important!
+		if(LAssocArray::lsearch(&pos, &assc_pos, CMPF_LONG, offsetof(LAssoc, Val))) {
+			ASSIGN_PTR(pPos, assc_pos);
+			return 1;
+		}
+		else {
+			size_t _len = Pool.getLen(pos);
+			uint   _dlen = Pool.getDelimLen();
+			pos += (_len + _dlen);
+		}
+	}
+	return 0;
+}
+
+int StrAssocArray::SearchByTextNc(const char * pTxt, uint * pPos) const
+{
+	uint   pos = 0;
+	while(Pool.search(pTxt, &pos, 1)) {
+		uint    assc_pos = 0; // initialization is important!
+		if(LAssocArray::lsearch(&pos, &assc_pos, CMPF_LONG, offsetof(LAssoc, Val))) {
+			ASSIGN_PTR(pPos, assc_pos);
+			return 1;
+		}
+		else {
+			size_t _len = Pool.getLen(pos);
+			uint   _dlen = Pool.getDelimLen();
+			pos += (_len + _dlen);
+		}
+	}
+	return 0;
+}
+
+int StrAssocArray::SearchByTextNcUtf8(const char * pTxt, uint * pPos) const
+{
+	uint   pos = 0;
+	while(Pool.searchNcUtf8(pTxt, &pos)) {
+		uint    assc_pos = 0; // initialization is important!
+		if(LAssocArray::lsearch(&pos, &assc_pos, CMPF_LONG, offsetof(LAssoc, Val))) {
 			ASSIGN_PTR(pPos, assc_pos);
 			return 1;
 		}

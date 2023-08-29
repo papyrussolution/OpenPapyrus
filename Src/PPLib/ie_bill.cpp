@@ -1136,10 +1136,10 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			THROW(LoadSdRecord(PPREC_BILL, &P_Data->BillParam.InrRec)); // @vmiller (для отображения в фильтре иконки)
 			THROW(LoadSdRecord(PPREC_BROW, &P_Data->BRowParam.InrRec)); // @vmiller (для отображения в фильтре иконки)
 			P_Data->BillParam.ProcessName(2, sect = P_Data->CfgNameBill); // @vmiller (для отображения в фильтре иконки)
-			id = (HdrList.SearchByText(sect, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
+			id = (HdrList.SearchByTextNc(sect, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
 			SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, HdrList, (long)id, 0);
 			P_Data->BRowParam.ProcessName(2, sect = P_Data->CfgNameBRow); // @vmiller (для отображения в фильтре иконки)
-			id = (LineList.SearchByText(sect, 1, &(p = 0)) > 0) ? (uint)LineList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
+			id = (LineList.SearchByTextNc(sect, &(p = 0)) > 0) ? (uint)LineList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
 			SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BROW, LineList, (long)id, 0);
 			SetTech();
 			if(Import) {
@@ -1291,7 +1291,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					HdrList.Add(id, buf);
 				}
 				P_Data->BillParam.ProcessName(2, sect = P_Data->CfgNameBill); // @vmiller (для отображения в фильтре иконки)
-				id = (HdrList.SearchByText(sect, 1, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
+				id = (HdrList.SearchByTextNc(sect, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
 				SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, HdrList, id, 0);
 				ok = 1;
 			}
@@ -1341,7 +1341,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					else {
 						HdrList.Z();
 						if(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &param, &HdrList, Import ? 2 : 1) > 0) {
-							id = (HdrList.SearchByText(sect, 1, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
+							id = (HdrList.SearchByTextNc(sect, &(p = 0)) > 0) ? HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
 							SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, HdrList, id, 0);
 						}
 					}
@@ -1354,7 +1354,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				HdrList.GetText(hdr_id, sect);
 				if(sect.NotEmpty()) {
 					uint p = 0;
-					if(LineList.SearchByText(sect, 1, &p) > 0)
+					if(LineList.SearchByTextNc(sect, &p) > 0)
 						setCtrlLong(CTLSEL_IEBILLSEL_BROW, LineList.Get(p).Id);
 					if(P_Data && P_IniFile) {
 						P_Data->BillParam.ProcessName(1, sect);
@@ -1371,7 +1371,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					LineList.GetText(row_id, sect);
 					if(sect.NotEmpty()) {
 						uint p = 0;
-						if(HdrList.SearchByText(sect, 1, &p) > 0)
+						if(HdrList.SearchByTextNc(sect, &p) > 0)
 							setCtrlLong(CTLSEL_IEBILLSEL_BILL, HdrList.Get(p).Id);
 					}
 				}

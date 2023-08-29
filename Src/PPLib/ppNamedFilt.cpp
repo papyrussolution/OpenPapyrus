@@ -608,7 +608,7 @@ int FiltPoolDialog::setupList()
 		ss.add(nfilt.Symb);
 		uint    pos = 0;
 		temp_buf.Z();
-		if(CmdSymbList.SearchByText(nfilt.ViewSymb, 1, &pos)) {
+		if(CmdSymbList.SearchByTextNc(nfilt.ViewSymb, &pos)) {
 			StrAssocArray::Item symb_item = CmdSymbList.at_WithoutParent(pos);
 			uint  tpos = 0;
 			if(CmdTextList.Search(symb_item.Id, &tpos))

@@ -141,13 +141,13 @@ public:
 				for(; i < _list.getCount(); i++) {
 					ReportViewItem & r_item = _list.at(i);
 					StdReportList.Add(i + 1, r_item.StdName);
-					if(sstrlen(r_item.StrucName) && StrucList.SearchByText(r_item.StrucName, 1, 0) <= 0)
+					if(sstrlen(r_item.StrucName) && StrucList.SearchByTextNc(r_item.StrucName, 0) <= 0)
 						StrucList.Add(i + 1, r_item.StrucName);
 				}
 				pView->CreateRptList(&_list);
 				for(; i < _list.getCount(); i++) {
 					ReportViewItem & r_item = _list.at(i);
-					if(sstrlen(r_item.StrucName) && StrucList.SearchByText(r_item.StrucName, 1, 0) <= 0)
+					if(sstrlen(r_item.StrucName) && StrucList.SearchByTextNc(r_item.StrucName, 0) <= 0)
 						StrucList.Add(i + 1, r_item.StrucName);
 				}
 			}
@@ -168,10 +168,10 @@ int ReportFiltDlg::setDTS(const ReportFilt * pData)
 	uint   pos = 0;
 	long   _id = 0;
 	Data.Copy(pData, 1);
-	if(StdReportList.SearchByText(Data.StdName, 1, &pos) > 0)
+	if(StdReportList.SearchByTextNc(Data.StdName, &pos) > 0)
 		_id = StdReportList.Get(pos).Id;
 	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STDNAME, StdReportList, _id, 0);
-	_id = (StrucList.SearchByText(Data.StrucName, 1, &pos) > 0) ? StrucList.Get(pos).Id : 0;
+	_id = (StrucList.SearchByTextNc(Data.StrucName, &pos) > 0) ? StrucList.Get(pos).Id : 0;
 	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STRUC, StrucList, _id, 0);
 	SetPeriodInput(this, CTL_REPORTFLT_PERIOD, &Data.Period);
 	AddClusterAssocDef(CTL_REPORTFLT_TYPE,  0, ReportFilt::rpttAll);
@@ -711,7 +711,7 @@ public:
 				for(uint i = 0; i < _list.getCount(); i++) {
 					ReportViewItem & r_item = _list.at(i);
 					RptList.Add(i + 1, r_item.StdName);
-					if(sstrlen(r_item.StrucName) && StrucList.SearchByText(r_item.StrucName, 1, 0) <= 0)
+					if(sstrlen(r_item.StrucName) && StrucList.SearchByTextNc(r_item.StrucName, 0) <= 0)
 						StrucList.Add(i + 1, r_item.StrucName);
 				}
 			}
@@ -725,10 +725,10 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		setCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
-		if(RptList.SearchByText(Data.StdName, 1, &pos) > 0)
+		if(RptList.SearchByTextNc(Data.StdName, &pos) > 0)
 			_id = RptList.Get(pos).Id;
 		SetupStrAssocCombo(this, CTLSEL_REPORT_STDNAME, RptList, _id,   0);
-		if(StrucList.SearchByText(Data.StrucName, 1, &pos) > 0)
+		if(StrucList.SearchByTextNc(Data.StrucName, &pos) > 0)
 			_id = StrucList.Get(pos).Id;
 		else
 			_id = 0;

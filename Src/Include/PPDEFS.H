@@ -11468,6 +11468,8 @@
 	#define CTLCAL_CCPRESCR_DT              (2  + WINDOWS_ID_BIAS)
 	#define CTL_CCPRESCR_SERIAL             (3  + WINDOWS_ID_BIAS)
 	#define CTL_CCPRESCR_NUMBER             (4  + WINDOWS_ID_BIAS)
+#define DLG_STQBNDRYFLT           1432 // @v11.8.0
+	#define CTL_STQBNDRYFLT_KFLAGS          (1  + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

@@ -408,7 +408,7 @@ int WinRegKey::PutEnumeratedStrings(const StringSet & rSs, StrAssocArray * pResu
 		long _max_id = 0;
 		ex_list.GetMaxID(&_max_id);
 		for(uint ssp = 0; rSs.get(&ssp, temp_buf);) {
-			if(!ex_list.SearchByText(temp_buf, 1, 0)) {
+			if(!ex_list.SearchByTextNc(temp_buf, 0)) {
 				value.PutStringUtf8(temp_buf);
 				param_buf.Z().Cat(++_max_id);
 				THROW(PutValue(param_buf, &value));

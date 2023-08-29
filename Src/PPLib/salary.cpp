@@ -1272,7 +1272,7 @@ int PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 	else if(strnicmp(pSymb, "sck", 3) == 0) { // charge
 		const char * p_symb = pSymb+3;
 		uint   pos = 0;
-		if(ScSymbList.SearchByText(p_symb, 1, &pos)) {
+		if(ScSymbList.SearchByTextNc(p_symb, &pos)) {
 			result = (double)ScSymbList.Get(pos).Id;
 			if(!(P.Flags & Param::fSilent) && P.Flags & Param::fVerbose) {
 				Logger.Log(PPFormatT(PPTXT_LOG_PRCSALUSEDPOSTAMT, &msg_buf, pSymb, result));
@@ -1289,7 +1289,7 @@ int PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		const char * p_symb = pSymb+3;
 		if(CurPostPack.Rec.PersonID) {
 			uint   pos = 0;
-			if(TagSymbList.SearchByText(p_symb, 1, &pos) > 0) {
+			if(TagSymbList.SearchByTextNc(p_symb, &pos) > 0) {
 				PPID   tag_id = TagSymbList.Get(pos).Id;
 				ObjTagItem tag_item;
 				if(PPRef->Ot.GetTag(PPOBJ_PERSON, CurPostPack.Rec.PersonID, tag_id, &tag_item) > 0) {
@@ -1372,7 +1372,7 @@ int PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 	else if(strnicmp(pSymb, "ev", 2) == 0) {
 		const char * p_symb = pSymb+2;
 		uint   pos = 0;
-		if(EvSymbList.SearchByText(p_symb, 1, &pos)) {
+		if(EvSymbList.SearchByTextNc(p_symb, &pos)) {
 			result = (double)EvSymbList.Get(pos).Id;
 			if(!(P.Flags & Param::fSilent) && P.Flags & Param::fVerbose) {
 				Logger.Log(PPFormatT(PPTXT_LOG_PRCSALUUSEDPSNEV, &msg_buf, pSymb, result));
@@ -1431,7 +1431,7 @@ int PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 				Logger.LogLastError();
 		}
 	}
-	else if(AmtTypeList.SearchByText(pSymb, 1, &(pos = 0))) {
+	else if(AmtTypeList.SearchByTextNc(pSymb, &(pos = 0))) {
 		PPID   amt_id = AmtTypeList.Get(pos).Id;
 		if(CurPostPack.Amounts.Get(amt_id, cur_id, P.NominalPeriod.low, &result) > 0) {
 			if(!(P.Flags & Param::fSilent) && P.Flags & Param::fVerbose) {
@@ -1449,7 +1449,7 @@ int PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 			}
 		}
 		else {
-			if(CalList.SearchByText(pSymb, 1, &(pos = 0))) {
+			if(CalList.SearchByTextNc(pSymb, &(pos = 0))) {
 				result = (double)CalList.Get(pos).Id;
 			}
 			else {
@@ -1461,7 +1461,7 @@ int PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		}
 		ok = 1;
 	}
-	else if(CalList.SearchByText(pSymb, 1, &(pos = 0))) {
+	else if(CalList.SearchByTextNc(pSymb, &(pos = 0))) {
 		result = (double)CalList.Get(pos).Id;
 		ok = 1;
 	}

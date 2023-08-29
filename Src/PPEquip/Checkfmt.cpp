@@ -1556,6 +1556,10 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 									else if(gt_rec.Flags & GTF_UNLIMITED)
 										pIter->Stt = CCheckPacket::sttService;
 									// } @erik v10.4.12
+									// @v11.8.0 {
+									else if(gt_rec.Flags & GTF_EXCISEPROFORMA)
+										pIter->Stt = CCheckPacket::sttExcisableGood;
+									// } @v11.8.0 
 
 								}
 								// } @v10.4.1 

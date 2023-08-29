@@ -468,7 +468,7 @@ int ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
 		}
 		if(ok) {
 			uint   pos = 0;
-			if(SearchByText(pSymb, 1, &pos)) {
+			if(SearchByTextNc(pSymb, &pos)) {
 				id = at_WithoutParent(pos).Id;
 				ok = 1;
 			}

@@ -101,7 +101,7 @@ long PPViewAlcoDeclRu::GetAlcoCodeIdent(const char * pCode)
 	long   ident = 0;
 	if(!isempty(pCode)) {
 		uint    pos = 0;
-		if(AlcoCodeList.SearchByText(pCode, 1, &pos)) {
+		if(AlcoCodeList.SearchByTextNc(pCode, &pos)) {
 			ident = AlcoCodeList.at_WithoutParent(pos).Id;
 		}
 		else {
@@ -111,7 +111,7 @@ long PPViewAlcoDeclRu::GetAlcoCodeIdent(const char * pCode)
 			AlcoCodeList.AddFast(ident, pCode);
 			{
 				pos = 0;
-				assert(AlcoCodeList.SearchByText(pCode, 1, &pos) && AlcoCodeList.at_WithoutParent(pos).Id == ident);
+				assert(AlcoCodeList.SearchByTextNc(pCode, &pos) && AlcoCodeList.at_WithoutParent(pos).Id == ident);
 			}
 		}
 	}

@@ -1680,7 +1680,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 											pos = 0;
 											const StrAssocArray::Item & r_item = iter_ext.SfList.Get(i);
 											if(r_item.Id || r_item.Txt) {
-												if(p_sdescr->Values.SearchByText(r_item.Txt, 1, &pos) == 0)
+												if(p_sdescr->Values.SearchByTextNc(r_item.Txt, &pos) == 0)
 													p_sdescr->Values.AddFast(r_item.Id, r_item.ParentId, r_item.Txt);
 											}
 										}
@@ -1924,7 +1924,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 												p_sdescr->Values.AddFast(_item.Id, _item.ParentId, _item.Txt);
 										}
 										else if(!isempty(_item.Txt)) {
-											if(!p_sdescr->Values.SearchByText(_item.Txt, 1, &pos))
+											if(!p_sdescr->Values.SearchByTextNc(_item.Txt, &pos))
 												p_sdescr->Values.AddFast(_item.Id, _item.ParentId, _item.Txt);
 										}
 									}

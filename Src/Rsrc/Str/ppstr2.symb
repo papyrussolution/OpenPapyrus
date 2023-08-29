@@ -1,8 +1,8 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494732
-LastAutoCodeList=1,12212;102,10177;103,10072;110,10000;111,12094;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10144;120,10005;1001,10000;121,10000;122,10000;123,10314;124,10279;125,10047
+LastSignatureCode=2147494735
+LastAutoCodeList=1,12212;102,10177;103,10072;110,10000;111,12094;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10147;120,10005;1001,10000;121,10000;122,10000;123,10314;124,10279;125,10047
 
 [SignatureList]
 testsign1=2147483649
@@ -2758,6 +2758,7 @@ filter_styloqincominglistparam_fbillwithmarkedgoodsonly=2147494587
 filter_styloqpersoneventparam=2147494660
 filter_styloqpersoneventparam_maxgeodist=2147494661
 filter_styloqpersoneventparam_packet=2147494662
+filter_styloqbindery=2147494734
 cmd_window=2147485847
 cmd_menutree=2147485848
 cmd_toolpane=2147485849
@@ -6162,6 +6163,7 @@ oprkind_bpoxf_onedate=2147489128
 oprkind_bpoxf_oneobject=2147489129
 oprkind_bpoxf_uniteaccturns=2147489130
 oprkind_bpoxf_unitepayments=2147489131
+oprkind_bpoxf_autoamount=2147494735
 oprkind_curtransnominal=2147489132
 oprkind_curtransnominal_inp=2147489133
 oprkind_curtransnominal_out=2147489134
@@ -10965,6 +10967,7 @@ styloq_binderykind_session=2147494018
 styloq_binderykind_face=2147494019
 styloq_binderykind_docincoming=2147494228
 styloq_binderykind_docoutcominig=2147494229
+styloq_binderykind_kcounter=2147494733
 styloqbasecmd_personevent=2147494079
 styloqbasecmd_report=2147494080
 styloqbasecmd_rsrvorderprereq=2147494462
@@ -15776,6 +15779,9 @@ DVCPARAM_UOMFRAGM=7743387
 DVCPARAM_BUYERSPHONE=7743388
 DVCPARAM_BUYERSEMAIL=7743389
 DVCPARAM_PAPERLESS=7743390
+DVCPARAM_PRESCRDATE=7743393
+DVCPARAM_PRESCRSERIAL=7743394
+DVCPARAM_PRESCRNUMB=7743395
 IMPEXPCMD_ORDRSP=7874321
 IMPEXPCMD_APERAK=7874322
 IMPEXPCMD_DESADV=7874323

@@ -518,15 +518,8 @@ public:
 	int    Setup(const SetupBlock & rBlk);
 
 	struct Position {
-		Position() : ItemIdxPageTop(0), ItemIdxCurrent(0)
-		{
-		}
-		Position & Z()
-		{
-			ItemIdxPageTop = 0;
-			ItemIdxCurrent = 0;
-			return *this;
-		}
+		Position();
+		Position & Z();
 		uint   ItemIdxPageTop;
 		uint   ItemIdxCurrent;
 	};
@@ -862,6 +855,7 @@ public:
 	int    Evaluate(const Param * pP);
 	SUiLayout * InsertItem();
 	SUiLayout * InsertItem(void * pManagedPtr, const SUiLayoutParam * pAlb, int id = 0);
+	SUiLayout * Insert(SUiLayout * pOriginalLayout);
 	SUiLayout * InsertCopy(const SUiLayout * pOriginalLayout);
 	void   DeleteItem(uint idx);
 	void   DeleteAllItems();
@@ -1114,6 +1108,14 @@ private:
 // 
 class SColorSet : private SStrGroup { // @v11.7.10 @construction
 public:
+	enum {
+		funcNone = 0,
+		funcEmpty,     // ZEROCOLOR
+		funcLerp,      // (color, color, factor)
+		funcLighten,   // (color, factor)
+		funcDarken,    // (color, factor)
+		funcGrey,      // (whitePart)
+	};
 	explicit SColorSet(const char * pSymb = 0);
 	bool   FASTCALL IsEq(const SColorSet & rS) const;
 	bool   FASTCALL operator == (const SColorSet & rS) const { return IsEq(rS); }
@@ -1129,14 +1131,6 @@ public:
 	//
 	int    Test();
 private:
-	enum {
-		funcNone = 0,
-		funcEmpty,     // ZEROCOLOR
-		funcLerp,      // (color, color, factor)
-		funcLighten,   // (color, factor)
-		funcDarken,    // (color, factor)
-		funcGrey,      // (whitePart)
-	};
 	enum {
 		argtNone = 0,
 		argtAbsoluteColor,

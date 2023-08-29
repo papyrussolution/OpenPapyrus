@@ -3922,7 +3922,7 @@ namespace NArchive {
 		#endif
 		};
 
-		static void FASTCALL CopyOneItem(CRecordVector<uint64> & src, CRecordVector<uint64> & dest, uint32 item)
+		static void CopyOneItem(CRecordVector<uint64> & src, CRecordVector<uint64> & dest, uint32 item)
 		{
 			FOR_VECTOR(i, src) {
 				if(src[i] == item) {
@@ -6164,7 +6164,7 @@ namespace NArchive {
 		   res += GetHex((Byte)(value & 0xF));
 		   }
 		 */
-		static char * FASTCALL AddProp32(char * s, const char * name, uint32 v)
+		static char * STDCALL AddProp32(char * s, const char * name, uint32 v)
 		{
 			*s++ = ':';
 			s = MyStpCpy(s, name);
@@ -6261,7 +6261,7 @@ namespace NArchive {
 		  #endif
 		}
 
-		static void FASTCALL SetFileTimeProp_From_UInt64Def(PROPVARIANT * prop, const CUInt64DefVector &v, int index)
+		static void STDCALL SetFileTimeProp_From_UInt64Def(PROPVARIANT * prop, const CUInt64DefVector &v, int index)
 		{
 			uint64 value;
 			if(v.GetItem(index, value))

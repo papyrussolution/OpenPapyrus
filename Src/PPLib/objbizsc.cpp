@@ -189,7 +189,7 @@ public:
 		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_BIZSCORE, str.Z());
 		Primitiv_List.Add(7, str);
 		//
-		id = (Primitiv_List.SearchByText(Primitiv_List.Get(Data.Kind-1).Txt, 1, &(pos = 0)) > 0) ? (uint)Primitiv_List.Get(pos).Id : 0;
+		id = (Primitiv_List.SearchByTextNc(Primitiv_List.Get(Data.Kind-1).Txt, &(pos = 0)) > 0) ? (uint)Primitiv_List.Get(pos).Id : 0;
 		SetupStrAssocCombo(this, CTLSEL_BIZPRCRT_PRIMITIV, Primitiv_List, (long)id, 0);
 		// В зависимости от выбранного примитива активируем/блокируем остальные параметры
 		DisableControls(id);

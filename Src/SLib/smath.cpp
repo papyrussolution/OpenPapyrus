@@ -4,7 +4,8 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-
+#include <cmath>
+#include <..\OSF\abseil\absl\numeric\int128.h>
 /*
 #define PI__  3.1415926535897932384626433832795
 #define PI__f 3.14159265358979323846f
@@ -1737,10 +1738,7 @@ SDecimal & SDecimal::Z()
 	return *this;
 }
 	
-bool SDecimal::IsZero() const
-{
-	return (Mant == 0);
-}
+bool SDecimal::IsZero() const { return (Mant == 0); }
 
 /*static*/SDecimal SDecimal::Neg(const SDecimal & rV)
 {
@@ -1768,6 +1766,32 @@ static uint64 RoundToNearestMul10(uint64 m) // @construction
 		}
 	}
 	return result;
+}
+
+static absl::uint128 RoundToNearestMul10(absl::uint128 m) // @construction
+{
+	const absl::uint128 m_div_10 = (m / 10ULL);
+	const absl::uint128 m_l = m_div_10 * 10ULL;
+	absl::uint128 result = m_l;
+	if(m_l != m) {
+		const absl::uint128 dl = m - m_l;
+		if(dl >= 5) {
+			const absl::uint128 m_u = m_l + 10ULL;
+			if(dl > 5)
+				result = m_u;
+			else {
+				assert(dl == 5);
+				result = (m_div_10 & 1) ? m_u : m_l; // Ближайшее четное
+			}
+		}
+	}
+	return result;
+}
+
+static int TrimInt128(const absl::int128 & rVMant, int16 vexp, int64 & rMant, int16 & rExp)
+{
+	int   ok = 1;
+	return ok;
 }
 
 enum UedDecSpecialValue {
@@ -2099,9 +2123,15 @@ int SDecimal::Mul(const SDecimal & rA, const SDecimal & rB)
 	if(rA.IsZero() || rB.IsZero())
 		Z();
 	else {
-		Mant = rA.Mant * rB.Mant;
-		Exp = rA.Exp + rB.Exp;
-		Normalize();
+		absl::int128 wide_mant = absl::int128(rA.Mant) * absl::int128(rB.Mant);
+		if(absl::Int128High64(wide_mant) != 0) {
+			
+		}
+		else {
+			Mant = absl::Int128Low64(wide_mant);//rA.Mant * rB.Mant;
+			Exp = rA.Exp + rB.Exp;
+			Normalize();
+		}
 	}
 	return ok;
 }

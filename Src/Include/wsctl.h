@@ -94,6 +94,10 @@ public:
 	WsCtl_ProgramCollection();
 	SJson * ToJsonObj() const;
 	int    FromJsonObj(const SJson * pJsObj);
+	int    MakeCatList();
+
+	StrAssocArray CatList;
+	long   SelectedCatSurrogateId;
 };
 //
 // Descr: Блок, отвечающий за взаимодействие серверной сессии с модулем WsCtl

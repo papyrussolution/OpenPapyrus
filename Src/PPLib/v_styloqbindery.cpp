@@ -12,7 +12,28 @@ IMPLEMENT_PPFILT_FACTORY(StyloQBindery); StyloQBinderyFilt::StyloQBinderyFilt() 
 	Init(1, 0);
 }
 
-PPViewStyloQBindery::PPViewStyloQBindery() : PPView(0, &Filt, PPVIEW_STYLOQBINDERY, (implBrowseArray|implDontEditNullFilter), 0), P_DsList(0), State(0)
+int StyloQBinderyFilt::GetKindList(LongArray & rList) const
+{
+	rList.Z();
+	int    ok = 0;
+	const int kind_list[] = { StyloQCore::kNativeService, StyloQCore::kForeignService, StyloQCore::kClient, StyloQCore::kSession,
+		StyloQCore::kFace, StyloQCore::kDocIncoming, StyloQCore::kDocOutcoming, StyloQCore::kCounter };
+	bool all_are_set = true;
+	for(uint i = 0; i < SIZEOFARRAY(kind_list); i++) {
+		if(KindFlags & (1 << kind_list[i])) {
+			rList.add(kind_list[i]);
+			ok = 1;
+		}
+		else
+			all_are_set = false;
+	}
+	if(ok && all_are_set)
+		ok = -1;
+	rList.sortAndUndup();
+	return ok;
+}
+
+PPViewStyloQBindery::PPViewStyloQBindery() : PPView(0, &Filt, PPVIEW_STYLOQBINDERY, (implBrowseArray/*|implDontEditNullFilter*/), 0), P_DsList(0), State(0)
 {
 }
 
@@ -47,7 +68,26 @@ PPViewStyloQBindery::~PPViewStyloQBindery()
 
 /*virtual*/int PPViewStyloQBindery::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	return -1;
+	int    ok = -1;
+	StyloQBinderyFilt * p_filt = static_cast<StyloQBinderyFilt *>(pBaseFilt);
+	TDialog * dlg = new TDialog(DLG_STQBNDRYFLT);
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->AddClusterAssoc(CTL_STQBNDRYFLT_KFLAGS, 0, (1 << StyloQCore::kNativeService));
+		dlg->AddClusterAssoc(CTL_STQBNDRYFLT_KFLAGS, 1, (1 << StyloQCore::kForeignService));
+		dlg->AddClusterAssoc(CTL_STQBNDRYFLT_KFLAGS, 2, (1 << StyloQCore::kClient));
+		dlg->AddClusterAssoc(CTL_STQBNDRYFLT_KFLAGS, 3, (1 << StyloQCore::kSession));
+		dlg->AddClusterAssoc(CTL_STQBNDRYFLT_KFLAGS, 4, (1 << StyloQCore::kFace));
+		dlg->AddClusterAssoc(CTL_STQBNDRYFLT_KFLAGS, 5, (1 << StyloQCore::kDocIncoming));
+		dlg->AddClusterAssoc(CTL_STQBNDRYFLT_KFLAGS, 6, (1 << StyloQCore::kDocOutcoming));
+		dlg->AddClusterAssoc(CTL_STQBNDRYFLT_KFLAGS, 7, (1 << StyloQCore::kCounter));
+		dlg->SetClusterData(CTL_STQBNDRYFLT_KFLAGS, p_filt->KindFlags);
+		if(ExecView(dlg) == cmOK) {
+			p_filt->KindFlags = dlg->GetClusterData(CTL_STQBNDRYFLT_KFLAGS);
+			ok = 1;
+		}
+	}
+	delete dlg;
+	return ok;
 }
 
 int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
@@ -60,6 +100,9 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 	}
 	StrPool.ClearS();
 	{
+		bool debug_mark = false; // @debug
+		LongArray kind_list;
+		const int gklr = Filt.GetKindList(kind_list);
 		SString temp_buf;
 		StyloQCore::StoragePacket pack;
 		SBinaryChunk face_chunk;
@@ -68,42 +111,47 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 		MEMSZERO(k0);
 		StyloQCore * p_t = Obj.P_Tbl;
 		if(p_t->search(0, &k0, spFirst)) do {
-			if(p_t->ReadCurrentPacket(&pack)) {
-				BrwItem new_entry;
-				MEMSZERO(new_entry);
-				new_entry.ID = pack.Rec.ID;
-				new_entry.Kind = pack.Rec.Kind;
-				assert(sizeof(new_entry.BI) == sizeof(pack.Rec.BI));
-				memcpy(new_entry.BI, pack.Rec.BI, sizeof(new_entry.BI));
-				new_entry.CorrespondID = pack.Rec.CorrespondID;
-				new_entry.Expiration = pack.Rec.Expiration;
-				new_entry.LinkOid.Set(pack.Rec.LinkObjType, pack.Rec.LinkObjID);
-				new_entry.DocType = pack.Rec.DocType; // @v11.4.5
-				new_entry.Flags = pack.Rec.Flags; // @v11.4.5
-				if(new_entry.LinkOid.Obj && new_entry.LinkOid.Id) {
-					char   name_buf[256];
-					PPObject * ppobj = ObjColl.GetObjectPtr(new_entry.LinkOid.Obj);
-					if(ppobj && ppobj->GetName(new_entry.LinkOid.Id, name_buf, sizeof(name_buf)) > 0) {
-						temp_buf = name_buf;
-						StrPool.AddS(temp_buf, &new_entry.ObjNameP);
-					}
-				}
-				{
-					uint32  face_tag_id = 0;
-					if(oneof2(pack.Rec.Kind, StyloQCore::kClient, StyloQCore::kForeignService))
-						face_tag_id = SSecretTagPool::tagFace;
-					else
-						face_tag_id = SSecretTagPool::tagSelfyFace;
-					face_chunk.Z();
-					if(face_tag_id && pack.Pool.Get(face_tag_id, &face_chunk)) {
-						if(face_pack.FromJson(face_chunk.ToRawStr(temp_buf)) && face_pack.GetRepresentation(0, temp_buf)) {
-							assert(temp_buf.NotEmpty()); // face_pack.GetRepresentation() != 0 garantees this assertion
-							temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // в базе данных лик хранится в utf-8
-							StrPool.AddS(temp_buf, &new_entry.FaceP);
+			if(gklr <= 0 || kind_list.bsearch(p_t->data.Kind)) {
+				if(p_t->ReadCurrentPacket(&pack)) {
+					BrwItem new_entry;
+					MEMSZERO(new_entry);
+					new_entry.ID = pack.Rec.ID;
+					new_entry.Kind = pack.Rec.Kind;
+					assert(sizeof(new_entry.BI) == sizeof(pack.Rec.BI));
+					memcpy(new_entry.BI, pack.Rec.BI, sizeof(new_entry.BI));
+					new_entry.CorrespondID = pack.Rec.CorrespondID;
+					new_entry.Expiration = pack.Rec.Expiration;
+					new_entry.LinkOid.Set(pack.Rec.LinkObjType, pack.Rec.LinkObjID);
+					new_entry.DocType = pack.Rec.DocType; // @v11.4.5
+					new_entry.Flags = pack.Rec.Flags; // @v11.4.5
+					if(new_entry.LinkOid.Obj && new_entry.LinkOid.Id) {
+						char   name_buf[256];
+						PPObject * ppobj = ObjColl.GetObjectPtr(new_entry.LinkOid.Obj);
+						if(ppobj && ppobj->GetName(new_entry.LinkOid.Id, name_buf, sizeof(name_buf)) > 0) {
+							temp_buf = name_buf;
+							StrPool.AddS(temp_buf, &new_entry.ObjNameP);
 						}
 					}
+					{
+						uint32  face_tag_id = 0;
+						if(oneof2(pack.Rec.Kind, StyloQCore::kClient, StyloQCore::kForeignService))
+							face_tag_id = SSecretTagPool::tagFace;
+						else
+							face_tag_id = SSecretTagPool::tagSelfyFace;
+						face_chunk.Z();
+						if(face_tag_id && pack.Pool.Get(face_tag_id, &face_chunk)) {
+							if(face_pack.FromJson(face_chunk.ToRawStr(temp_buf)) && face_pack.GetRepresentation(0, temp_buf)) {
+								assert(temp_buf.NotEmpty()); // face_pack.GetRepresentation() != 0 garantees this assertion
+								temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // в базе данных лик хранится в utf-8
+								StrPool.AddS(temp_buf, &new_entry.FaceP);
+							}
+						}
+					}
+					THROW_SL(P_DsList->insert(&new_entry));
 				}
-				THROW_SL(P_DsList->insert(&new_entry));
+				else {
+					debug_mark = true; // @debug
+				}
 			}
 		} while(p_t->search(&k0, spNext));
 	}
@@ -1062,7 +1110,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					{
 						enable_cmd_param = true;
 						uint   pos = 0;
-						const  long view_id = (Data.ViewSymb.NotEmpty() && CmdSymbList.SearchByText(Data.ViewSymb, 1, &pos)) ? CmdSymbList.at_WithoutParent(pos).Id : 0;
+						const  long view_id = (Data.ViewSymb.NotEmpty() && CmdSymbList.SearchByTextNc(Data.ViewSymb, &pos)) ? CmdSymbList.at_WithoutParent(pos).Id : 0;
 						//setCtrlLong(CTLSEL_STQCMD_VCMD, view_id);
 						{
 							setLabelText(CTL_STQCMD_VCMD, PPLoadStringS("styloqcommand_viewsymb", temp_buf));

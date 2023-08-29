@@ -494,10 +494,21 @@ public class Document {
 			final int preserve_status = GetDocStatus();
 			if(s == preserve_status)
 				ok = true;
-			else if(((s << 1) & ~StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags) == 0) {
-				H.Flags &= ~StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags;
-				H.Flags |= ((s << 1) & StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags);
-				ok = true;
+			else {
+				// @v11.8.0 {
+				// Предотвращаем установку статуса draft или undef если документ имеет уже сформированный "боевой" статус
+				if((s == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT || s == StyloQDatabase.SecStoragePacket.styloqdocstUNDEF) &&
+						preserve_status > StyloQDatabase.SecStoragePacket.styloqdocstDRAFT) {
+					ok = true;
+				}
+				// } @v11.8.0
+				if(!ok) {
+					if(((s << 1) & ~StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags) == 0) {
+						H.Flags &= ~StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags;
+						H.Flags |= ((s << 1) & StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags);
+						ok = true;
+					}
+				}
 			}
 		}
 		return ok;

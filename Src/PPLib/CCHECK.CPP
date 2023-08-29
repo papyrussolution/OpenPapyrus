@@ -607,6 +607,23 @@ CCheckPacket::PreprocessChZnCodeResult & CCheckPacket::PreprocessChZnCodeResult:
 	THISZERO();
 	return *this;
 }
+
+CCheckPacket::Prescription::Prescription() : Dt(ZERODATE)
+{
+}
+
+CCheckPacket::Prescription & CCheckPacket::Prescription::Z()
+{
+	Dt = ZERODATE;
+	Serial.Z();
+	Number.Z();
+	return *this;
+}
+
+bool CCheckPacket::Prescription::IsValid() const
+{
+	return checkdate(Dt, 1) ? true : PPSetErrorSLib();
+}
 //
 //
 //
@@ -845,6 +862,24 @@ int CCheckPacket::GenerateGuid(S_GUID & rUuid)
 	THROW_SL(rUuid.Generate());
 	THROW(SetGuid(&rUuid));
 	CATCHZOK
+	return ok;
+}
+
+int CCheckPacket::GetPrescription(Prescription & rP) const
+{
+	int    ok = 0;
+	SString temp_buf;
+	rP.Z();
+	if(GetExtStrData(extssPrescrDate, temp_buf) && temp_buf.NotEmptyS()) {
+		rP.Dt = strtodate_(temp_buf, DATF_ISO8601CENT);
+	}
+	if(GetExtStrData(extssPrescrSerial, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+		rP.Serial = temp_buf;
+	}
+	if(GetExtStrData(extssPrescrNumber, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+		rP.Number = temp_buf;
+		ok = 1;
+	}
 	return ok;
 }
 

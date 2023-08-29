@@ -522,7 +522,7 @@ int DL2_Resolver::ResolveName(const char * pExpression, SString & rName)
 	long   id = -1;
 	SString buf;
 	rName.Z();
-	if(NameVars.SearchByText(pExpression, 1, &pos) > 0)
+	if(NameVars.SearchByTextNc(pExpression, &pos) > 0)
 		id = NameVars.Get(pos).Id - 1;
 	switch(id) {
 		case PPDL200_NAMEVAR_MAINORGNAME:
@@ -810,7 +810,7 @@ int DL200_Context::IsFunc(const char * pSymb, int * pFuncId)
 		SString symb(pSymb);
 		symb.Strip();
 		uint   pos = 0;
-		if(FuncList.SearchByText(symb, 1, &pos)) {
+		if(FuncList.SearchByTextNc(symb, &pos)) {
 			func_id = FuncList.Get(pos).Id;
 		}
 		else {

@@ -20,8 +20,8 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 
 //typedef uchar  uint8;
 
-int	   ErrorCode = 0;
-char   FS = 0x1C;
+static int ErrorCode = 0;
+static constexpr char FS = 0x1C;
 // @v10.9.4 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 
 // @v11.2.3 Следующие мнемоники заменены на CHR_XXX определенные в SLIB.H
@@ -121,7 +121,7 @@ struct Config {
 struct CheckStruct {
 	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), UomFragm(0), TaxSys(0), Tax(0),
 		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0), //@erik v10.4.12 add "Stt(0),"
-		Timestamp(ZERODATETIME) /*v11.2.3*/
+		Timestamp(ZERODATETIME) /*@v11.2.3*/, PrescrDate(ZERODATE)/*@v11.8.0*/
 	{
 	}
 	CheckStruct & Z()
@@ -151,6 +151,9 @@ struct CheckStruct {
 		Timestamp.Z(); // @v11.2.3
 		BuyersEmail.Z(); // @v11.3.6
 		BuyersPhone.Z(); // @v11.3.6
+		PrescrDate.Z();    // @v11.8.0 Рецепт: Дата  //
+		PrescrSerial.Z(); // @v11.8.0 Рецепт: Серия //
+		PrescrNumber.Z(); // @v11.8.0 Рецепт: Номер //
 		return *this;
 	}
 	int    CheckType;
@@ -190,6 +193,9 @@ struct CheckStruct {
 	SString ChZnSid;     // @v10.8.12 Ид предприятия для передачи в честный знак
 	SString BuyersEmail; // @v11.3.6
 	SString BuyersPhone; // @v11.3.6
+	LDATE  PrescrDate;    // @v11.8.0 Рецепт: Дата  //
+	SString PrescrSerial; // @v11.8.0 Рецепт: Серия //
+	SString PrescrNumber; // @v11.8.0 Рецепт: Номер //
 };
 
 class PiritEquip {
@@ -1204,6 +1210,19 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.CheckType |= 0x80;
 			}
 			// } @v11.3.6 
+			// @v11.8.0 {
+			{
+				if(pb.Get("PRESCRDATE", param_val) > 0) {
+					Check.PrescrDate = strtodate_(param_val, DATF_ISO8601CENT);
+				}
+				if(pb.Get("PRESCRSERIAL", param_val) > 0) {
+					Check.PrescrSerial = param_val;
+				}
+				if(pb.Get("PRESCRNUMB", param_val) > 0) {
+					Check.PrescrNumber = param_val;
+				}
+			}
+			// } @v11.8.0 
 			THROW(RunCheck(0));
 		}
 		else if(cmd.IsEqiAscii("CLOSECHECK")) {
@@ -1410,6 +1429,18 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 		}
 		else if(cmd.IsEqiAscii("PRINTFISCAL")) {
+			/*
+				struct Prescription { // @v11.7.12
+					Prescription();
+					Prescription & Z();
+					bool   IsValid() const;
+
+					LDATE Dt;
+					SString Serial;
+					SString Number;
+				};
+				PRESCRDATE, PRESCRSERIAL, PRESCRNUMB
+			*/
 			double _vat_rate = 0.0;
 			int   is_vat_free = 0;
 			SetLastItems(cmd, 0);
@@ -1507,6 +1538,19 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					Check.Stt = 19;
 				// } @erik v10.4.12
 			}
+			// @v11.8.0 {
+			{
+				if(pb.Get("PRESCRDATE", param_val) > 0) {
+					Check.PrescrDate = strtodate_(param_val, DATF_ISO8601CENT);
+				}
+				if(pb.Get("PRESCRSERIAL", param_val) > 0) {
+					Check.PrescrSerial = param_val;
+				}
+				if(pb.Get("PRESCRNUMB", param_val) > 0) {
+					Check.PrescrNumber = param_val;
+				}
+			}
+			// } @v11.8.0 
 			{
 				if(Check.Price <= 0.0) {
 					Check.Price = 0.0;
@@ -2528,15 +2572,30 @@ int PiritEquip::RunCheck(int opertype)
 									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								// @v11.2.3 {
 								{
+									str.Z();
 									// 1265 "industryDetails": "tm=mdlp&sid=12121212121212&"
+									// tm=mdlp&ps=45102&dn=АБV492&&781&dd=181110&sid=00752852194630&
+									//
+									// ps - серия рецепта;
+									// dn - номер рецепта;
+									// dd - дата рецепта.
+									//
 									if(Check.ChZnProdType == 4) {
-										str.Z().CatEq("tm", "mdlp");
+										str.CatEq("tm", "mdlp");
 										if(Check.ChZnSid.NotEmpty())
 											str.CatChar('&').CatEq("sid", Check.ChZnSid);
+										// @v11.8.0 {
+										if(Check.PrescrNumber.NotEmpty()) {
+											if(Check.PrescrSerial.NotEmpty())
+												str.CatChar('&').CatEq("ps", Check.PrescrSerial);
+											str.CatChar('&').CatEq("dn", Check.PrescrNumber);
+											if(checkdate(Check.PrescrDate)) {
+												str.CatChar('&').CatEq("dd", Check.PrescrDate, DATF_DMY|DATF_NODIV);
+											}
+										}
+										// } @v11.8.0 
 										str.CatChar('&');
 									}
-									else
-										str.Z();
 									CreateStr(str, in_data); // #18 (tag 1265) Значение отраслевого реквизита. Значение определяется отраслевым НПА. 
 										// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								}
@@ -2670,7 +2729,7 @@ int PiritEquip::RunCheck(int opertype)
 						text_attr = 0x10; // Шрифт 8х14, 56 символов в строке
 					else if(Check.FontSize > 4)
 						text_attr = (0x20|0x10);
-					if(Check.Text.Len() + 1 > 54)
+					if((Check.Text.Len() + 1) > 54)
 						Check.Text.Trim(52);
 					CreateStr(Check.Text.ToOem(), in_data);
 					if(text_attr != 0)

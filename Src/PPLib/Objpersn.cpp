@@ -623,7 +623,7 @@ int ExtFieldsDialog::Edit(SStringTag * pItem)
 				PPError();
 			else if(is_new && Data.Search(pItem->Id, &pos) > 0)
 				PPError(PPERR_DUPEXTID);
-			else if(Data.SearchByText(*pItem, 1, &(pos = 0)) > 0 && Data.Get(pos).Id != pItem->Id)
+			else if(Data.SearchByTextNc(*pItem, &(pos = 0)) > 0 && Data.Get(pos).Id != pItem->Id)
 				PPError(PPERR_DUPEXTFLD);
 			else
 				valid_data = ok = 1;

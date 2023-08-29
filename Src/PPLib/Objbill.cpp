@@ -9172,18 +9172,26 @@ int PPObjBill::UpdatePool(PPID poolID, int use_ta)
 	int    ok = 1;
 	PPBillPacket pack;
 	AmtList amounts;
-	{
-		PPTransaction tra(use_ta);
-		THROW(tra);
-		if(ExtractPacket(poolID, &pack) > 0) {
-			P_Tbl->CalcPoolAmounts(PPASS_OPBILLPOOL, poolID, &amounts);
-			pack.Amounts.copy(amounts);
-			const double main_amount = amounts.Get(PPAMT_MAIN, 0L/*@curID*/);
-			pack.Rec.Amount = BR2(main_amount);
-			THROW(FillTurnList(&pack));
-			THROW(UpdatePacket(&pack, 0));
+	BillTbl::Rec _rec;
+	if(Search(poolID, &_rec) > 0) {
+		// @v11.8.0 {
+		// Если для пула установлен флаг BPOXF_AUTOAMOUNT то не надо суммировать величины из подчиненных документов!
+		PPObjOprKind op_obj;
+		PPBillPoolOpEx bpox;
+		const bool is_auto_amount = (op_obj.GetPoolExData(_rec.OpID, &bpox) > 0 && bpox.Flags & BPOXF_AUTOAMOUNT);
+		if(!is_auto_amount) { // } @v11.8.0
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			if(ExtractPacket(poolID, &pack) > 0) {
+				P_Tbl->CalcPoolAmounts(PPASS_OPBILLPOOL, poolID, &amounts);
+				pack.Amounts.copy(amounts);
+				const double main_amount = amounts.Get(PPAMT_MAIN, 0L/*@curID*/);
+				pack.Rec.Amount = BR2(main_amount);
+				THROW(FillTurnList(&pack));
+				THROW(UpdatePacket(&pack, 0));
+			}
+			THROW(tra.Commit());
 		}
-		THROW(tra.Commit());
 	}
 	CATCHZOK
 	return ok;

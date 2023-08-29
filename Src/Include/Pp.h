@@ -15310,6 +15310,18 @@ public:
 			// 3 Оборот товара приостановлен
 	};
 	//
+	// Descr: Структура интерфейсного представления параметром фармацевтического рецепта
+	//
+	struct Prescription { // @v11.7.12
+		Prescription();
+		Prescription & Z();
+		bool   IsValid() const;
+
+		LDATE Dt;
+		SString Serial;
+		SString Number;
+	};
+	//
 	// Двум следующим классам необходим открытый доступ к полям Items_ и SerialList
 	// для сериализации объекта CCheckPacket
 	//
@@ -15343,6 +15355,13 @@ public:
 	int    GetGuid(S_GUID & rUuid) const; 
 	int    SetGuid(const S_GUID * pUuid);
 	int    GenerateGuid(S_GUID & rUuid);
+	//
+	// Descr: Возвращает параметры рецепта, хранящиеся в чеке.
+	// Returns:
+	//   > - чек содержит по крайней мере номер рецепта.
+	//   0 - чек не содержит параметро рецепта (rP обнуляется вызвом rP.Z())
+	//
+	int    GetPrescription(Prescription & rP) const;
 	//
 	// Descr: Упаковывает все строки расширения чека и его строк в общую строку для сохранения в базе данных.
 	//
@@ -19731,6 +19750,7 @@ struct PPDraftOpEx {
 #define BPOXF_ONEOBJECT      0x0004L // Объединять только по одному контрагенту
 #define BPOXF_UNITEACCTURNS  0x0008L // Объединять бухгалтерские проводки
 #define BPOXF_UNITEPAYMENTS  0x0010L // Объединять оплаты
+#define BPOXF_AUTOAMOUNT     0x0020L // @v11.8.0 Документ пула имеет автономную номинальную сумму (не суммирует входящие в пул документы)
 
 #define BPOX_HDR_DW_COUNT    17
 
@@ -48584,9 +48604,18 @@ public:
 class StyloQBinderyFilt : public PPBaseFilt {
 public:
 	StyloQBinderyFilt();
+	//
+	// Descr: В списке по ссылке rList возвращает списко видов записей, соответствующих
+	//   полю KindFlags, по которому следует фильтровать выборку реестра.
+	// Returns:
+	//   0 - нет ни одного вида, по которому следует фильтровать реестр
+	//  -1 - выбраны все возможные виды записей
+	//   1 - выбран один или более видов, но не все возможные
+	//
+	int    GetKindList(LongArray & rList) const;
 
 	uint8  ReserveStart[64];
-	int32  Kind;
+	uint32 KindFlags;         // Flags: (1 << StyloQCore::kXXX)
 	uint8  Reserve[64]; // @anchor
 };
 
@@ -56291,18 +56320,7 @@ protected:
 		SaModif CurModifList;    // Список выбранных модификаторов для текущей позиции
 		CcAmountList AmL;        // Список оплат по чеку
 		SString BuyersEAddr;     // @v11.3.6 Электронный адрес покупателя (email or phone)
-
-		struct Prescription { // @v11.7.12
-			Prescription();
-			Prescription & Z();
-			bool   IsValid() const;
-
-			LDATE Dt;
-			SString Serial;
-			SString Number;
-		};
-
-		Prescription Prescr; // @v11.7.12
+		CCheckPacket::Prescription Prescr; // @v11.7.12
 	};
 	struct RetBlock {
 		RetBlock();

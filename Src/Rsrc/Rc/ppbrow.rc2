@@ -6639,6 +6639,7 @@ browser STYLOQBINDERY north(100), 1, 0, "@{view_styloqbindery}", OWNER|GRID, 0
 		TEST             : kbCtrlT,    PPDV_TEST01,         "@{test}\tCtrl-T"
 		separator
 		SYSJ             : kbCtrlJ,    PPDV_SYSJOURNAL,     "@{dobrowsesjbybill}\tCtrl-J"
+		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V" // @v11.8.0
 		REFRESH          : kbAltV,     PPDV_REFRESH01,      "@{refresh}\tAlt-V" // @v11.3.12
 	}
 }
@@ -7019,6 +7020,7 @@ cmd AlcoDeclRu            { "@{cmd_alcodeclru}"                            PPDV_
 cmd StyloQBindery         { "@{cmd_styloqbindery}"                         none                   none cmStyloQBindery  view=StyloQBindery } // @v11.1.7
 cmd StyloQCommands        { "@{cmd_styloqcommands}"                        none                   none cmStyloQCommands view=StyloQCommand } // @v11.1.9
 cmd ProcessUED            { "@{cmd_processued}"                            none                   none cmProcessUED } // @v11.6.6
+cmd ProcessBomEstimatedValues { "@{cmd_processbomestimatedvalues}"         none                   none cmProcessBomEstimatedValues } // @v11.8.0
 //
 // -------------- Описания серверных задач
 //

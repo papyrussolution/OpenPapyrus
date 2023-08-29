@@ -4,7 +4,484 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
+//
+//
+//
+IMPL_INVARIANT_C(SScroller)
+{
+	S_INVARIANT_PROLOG(pInvP);
+	S_ASSERT_P(!P_LineContent || P_LineContent->getCount() == ItemCount, pInvP);
+	//S_ASSERT_P(!P_PageContent || P_PageContent->getCount() == PageCount, pInvP);
+	S_ASSERT_P(!ItemCount || P.ItemIdxPageTop < ItemCount, pInvP);
+	S_ASSERT_P(ItemCount || P.ItemIdxPageTop == ItemCount, pInvP);
+	S_ASSERT_P(!ItemCount || P.ItemIdxCurrent < ItemCount, pInvP);
+	S_ASSERT_P(ItemCount || P.ItemIdxCurrent == ItemCount, pInvP);
+	S_INVARIANT_EPILOG(pInvP);
+}
 
+SScroller::SetupBlock::SetupBlock() : ItemCount(0), ViewSize(0.0f), FixedItemSize(0.0f)
+{
+}
+
+SScroller::SScroller() : P_ItemSizeList(0), Flags(0), ItemCount(0), /*PageCount(0),*/PageCurrent(0), ViewSize(0.0f), FixedItemSize(0.0f),
+	P_LineContent(0), P_PageContent(0)
+{
+}
+
+SScroller::SScroller(const SScroller & rS) :  P_ItemSizeList(0), P_LineContent(0), P_PageContent(0),
+	Flags(rS.Flags), ItemCount(rS.ItemCount), /*PageCount(rS.PageCount),*/PageCurrent(rS.PageCurrent), ViewSize(rS.ViewSize),
+	FixedItemSize(rS.FixedItemSize), P(rS.P)
+{
+	if(rS.P_ItemSizeList) {
+		SETIFZ(P_ItemSizeList, new FloatArray(*rS.P_ItemSizeList));
+	}
+	if(rS.P_LineContent) {
+		if(SETIFZ(P_LineContent, new TSCollection <LongArray>))
+			TSCollection_Copy(*P_LineContent, *rS.P_LineContent);
+	}
+	if(rS.P_PageContent) {
+		if(SETIFZ(P_PageContent, new TSCollection <LongArray>)) {
+			TSCollection_Copy(*P_PageContent, *rS.P_PageContent);
+		}
+	}
+}
+
+SScroller::~SScroller()
+{
+	delete P_ItemSizeList;
+	delete P_LineContent;
+	delete P_PageContent;
+}
+
+SScroller & SScroller::Z()
+{
+	Flags = 0;
+	ItemCount = 0;
+	PageCurrent = 0;
+	ViewSize = 0.0f;
+	FixedItemSize = 0.0f;
+	P.Z();
+	ZDELETE(P_ItemSizeList);
+	ZDELETE(P_LineContent);
+	ZDELETE(P_PageContent);
+	return *this;
+}
+
+SScroller & FASTCALL SScroller::operator = (const SScroller & rS)
+{
+	return Copy(rS);
+}
+
+SScroller & FASTCALL SScroller::Copy(const SScroller & rS)
+{
+	Flags = rS.Flags;
+	ItemCount = rS.ItemCount;
+	//PageCount = rS.PageCount;
+	PageCurrent = rS.PageCurrent;
+	ViewSize = rS.ViewSize;
+	FixedItemSize = rS.FixedItemSize;
+	P = rS.P;
+	if(rS.P_ItemSizeList) {
+		if(!P_ItemSizeList)
+			P_ItemSizeList = new FloatArray(*rS.P_ItemSizeList);
+		else
+			*P_ItemSizeList = *rS.P_ItemSizeList;
+	}
+	else {
+		ZDELETE(P_ItemSizeList);
+	}
+	if(rS.P_LineContent) {
+		if(SETIFZ(P_LineContent, new TSCollection <LongArray>))
+			TSCollection_Copy(*P_LineContent, *rS.P_LineContent);
+	}
+	else {
+		ZDELETE(P_LineContent);
+	}
+	if(rS.P_PageContent) {
+		if(SETIFZ(P_PageContent, new TSCollection <LongArray>)) {
+			TSCollection_Copy(*P_PageContent, *rS.P_PageContent);
+		}
+	}
+	else {
+		ZDELETE(P_PageContent);
+	}
+	return *this;
+}
+
+int SScroller::Setup(const SetupBlock & rBlk)
+{
+	int    ok = 1;
+	assert(rBlk.ViewSize > 0.0f);
+	assert(rBlk.FixedItemSize >= 0.0f);
+	assert(rBlk.FixedItemSize == 0.0f || rBlk.ItemSizeList.getCount() == rBlk.ItemCount);
+	if(rBlk.ViewSize > 0.0f && rBlk.FixedItemSize >= 0.0f && (rBlk.FixedItemSize == 0.0f || rBlk.ItemSizeList.getCount() == rBlk.ItemCount)) {
+		ItemCount = rBlk.ItemCount;
+		ViewSize = rBlk.ViewSize;
+		if(rBlk.ItemCount && rBlk.ItemSizeList.getCount() == rBlk.ItemCount) {
+			if(P_ItemSizeList)
+				*P_ItemSizeList = rBlk.ItemSizeList;
+			else
+				P_ItemSizeList = new FloatArray(rBlk.ItemSizeList);
+			assert(rBlk.LineContent.getCount() <= rBlk.ItemCount); // @todo Надо разбираться в каких случаях (rBlk.LineContent.getCount() < rBlk.ItemCount)
+			P_LineContent = new TSCollection <LongArray>();
+			if(P_LineContent)
+				TSCollection_Copy(*P_LineContent, rBlk.LineContent);
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+uint SScroller::GetCount() const { return ItemCount; }
+uint SScroller::GetCurrentIndex() const { return P.ItemIdxCurrent; }
+
+float SScroller::GetAbsolutePosition(uint idx) const
+{
+	assert(idx < ItemCount);
+	float result = 0.0f;
+	if(FixedItemSize > 0.0f) {
+		result = (FixedItemSize * idx);
+	}
+	else if(P_ItemSizeList) {
+		assert(P_ItemSizeList->getCount() == ItemCount);
+		for(uint i = 0; i < idx; i++)
+			result += P_ItemSizeList->at(i);
+	}	
+	return result;
+}
+
+float SScroller::GetCurrentPoint() const { return GetAbsolutePosition(P.ItemIdxCurrent); }
+float SScroller::GetCurrentPageTopPoint() const { return GetAbsolutePosition(P.ItemIdxPageTop); }
+uint SScroller::GetCurrentPageTopIndex() const { return P.ItemIdxPageTop; }
+
+uint SScroller::GetPageBottomIndex(uint topIdx) const
+{
+	uint    result_idx = topIdx;
+	assert(topIdx < ItemCount);
+	if(ViewSize > 0.0f) {
+		uint c = 0;
+		if(FixedItemSize > 0.0f) {
+			c = fceili(ViewSize / FixedItemSize);
+		}
+		else if(P_ItemSizeList) {
+			assert(P_ItemSizeList->getCount() == ItemCount);
+			float s = 0.0f;
+			for(uint i = topIdx; i < ItemCount; i++) {
+				if(s < ViewSize) {
+					c++;
+					s += P_ItemSizeList->at(i);
+				}
+				else
+					break;
+			}
+		}
+		if(c)
+			result_idx = MIN(topIdx + c - 1, ItemCount-1);
+	}
+	assert(result_idx < ItemCount);
+	return result_idx;
+}
+
+uint SScroller::GetPageTopIndex(uint bottomIdx) const
+{
+	uint    result_idx = 0;
+	if(ItemCount) {
+		const uint _local_bottom_idx = MIN(bottomIdx, (ItemCount-1));
+		result_idx = _local_bottom_idx;
+		if(ViewSize > 0.0f) {
+			uint c = 0;
+			if(FixedItemSize > 0.0f) {
+				c = fceili(ViewSize / FixedItemSize);
+			}
+			else if(P_ItemSizeList) {
+				assert(P_ItemSizeList->getCount() == ItemCount);
+				float s = 0.0f;
+				uint  i = _local_bottom_idx;
+				do {
+					assert(i < ItemCount);
+					if(s < ViewSize) {
+						c++;
+						s += P_ItemSizeList->at(i);
+					}
+					else
+						break;
+				} while(i--); // !Опасное условие из-за uint: вверху цикла стоит assert с целью гарантировать корректность цикла
+			}
+			if(c) {
+				if(_local_bottom_idx > (c - 1))
+					result_idx = _local_bottom_idx - (c - 1);
+				else
+					result_idx = 0;
+			}
+		}
+	}
+	return result_idx;
+}
+
+uint SScroller::AdjustTopIdx(uint idx) const
+{
+	const uint temp_bottom_idx = GetPageBottomIndex(idx);
+	const uint temp_top_idx = GetPageTopIndex(temp_bottom_idx);
+	if(temp_top_idx < idx) {
+		//
+		// Если после перемещения фрейма последняя страница оказалась заполнена лишь частично,
+		// то смещаем результирующий page-top так чтобы страница стала заполнена максимально.
+		//
+		idx = temp_top_idx;
+	}
+	return idx;
+}
+
+int FASTCALL SScroller::CheckLineContentIndex(long idx) const
+{
+	int    ok = 0;
+	if(P_LineContent && P_LineContent->getCount() == ItemCount) {
+		const uint top_idx = P.ItemIdxPageTop;
+		const uint bottom_idx = GetPageBottomIndex(P.ItemIdxPageTop);
+		for(uint i = top_idx; !ok && i <= bottom_idx && i < ItemCount; i++) {
+			const LongArray * p_item = P_LineContent->at(i);
+			if(p_item && p_item->lsearch(idx))
+				ok = 1;
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+SScroller::Position::Position() : ItemIdxPageTop(0), ItemIdxCurrent(0)
+{
+}
+		
+SScroller::Position & SScroller::Position::Z()
+{
+	ItemIdxPageTop = 0;
+	ItemIdxCurrent = 0;
+	return *this;
+}
+
+int SScroller::GetPosition(Position & rP) const
+{
+	rP = P;
+	return 1;
+}
+
+int SScroller::SetPosition(const Position & rP)
+{
+	SetCurrentIndex(rP.ItemIdxCurrent);
+	return 1;
+}
+
+int SScroller::SetCurrentIndex(uint idx)
+{
+	int    updated = 0;
+	const uint prev_page_top_idx = P.ItemIdxPageTop;
+	const uint prev_cur_idx = P.ItemIdxCurrent;
+	SETMIN(idx, (ItemCount-1));
+	if(idx != prev_cur_idx) {
+		const uint prev_bottom_idx = GetPageBottomIndex(P.ItemIdxPageTop);
+		if(idx >= P.ItemIdxPageTop && idx <= prev_bottom_idx) { // Фрейм не смещается поскольку мы переместились в его пределах
+			P.ItemIdxCurrent = idx;
+			updated = 1;
+		}
+		else if(idx > P.ItemIdxPageTop) { // Перемещаемся вниз
+			P.ItemIdxPageTop = idx;
+			P.ItemIdxCurrent = idx;
+			updated = 1;
+		}
+		else { // Перемещаемся вверх
+			P.ItemIdxPageTop = GetPageTopIndex(idx);
+			P.ItemIdxCurrent = idx;
+			updated = 1;
+		}
+	}
+	return updated;
+}
+
+int SScroller::LineDown(uint ic, bool moveCursor)
+{
+	int    updated = 0;
+	if(ic && ItemCount) {
+		if(moveCursor) {
+			uint   new_idx = MIN((P.ItemIdxCurrent + ic), (ItemCount-1));
+			if(new_idx != P.ItemIdxCurrent) {
+				const uint bottom_idx = GetPageBottomIndex(P.ItemIdxPageTop);
+				if(new_idx <= bottom_idx) {
+					if(new_idx < P.ItemIdxPageTop) {
+						// сдвинуть фрейм так, чтобы ItemIdxCurrent стал равен ItemIdxPageTop
+						P.ItemIdxPageTop = new_idx;
+					}
+				}
+				else {
+					// сдвинуть фрейм вниз
+					uint   bottom_idx = new_idx;
+					P.ItemIdxPageTop = GetPageTopIndex(bottom_idx);
+				}
+				P.ItemIdxCurrent = new_idx;
+				updated = 1;
+			}
+		}
+		else {
+			uint new_top_idx = AdjustTopIdx(MIN(P.ItemIdxPageTop + ic, (ItemCount-1)));
+			if(new_top_idx != P.ItemIdxPageTop) {
+				P.ItemIdxPageTop = new_top_idx;
+				updated = 1;
+			}
+		}
+	}
+	return updated;
+}
+
+int SScroller::LineUp(uint ic, bool moveCursor)
+{
+	int    updated = 0;
+	if(ic && ItemCount) {
+		if(moveCursor) {
+			uint   new_idx = (P.ItemIdxCurrent > ic) ? (P.ItemIdxCurrent - ic) : 0;
+			if(new_idx != P.ItemIdxCurrent) {
+				if(new_idx >= P.ItemIdxPageTop) {
+					const uint bottom_idx = GetPageBottomIndex(P.ItemIdxPageTop);
+					if(new_idx > bottom_idx) {
+						// new_idx становится нижним элементом страницы
+						P.ItemIdxPageTop = GetPageTopIndex(new_idx);
+					}
+				}
+				else {
+					// new_idx становится верхним элементом страницы
+					P.ItemIdxPageTop = new_idx;
+				}
+				P.ItemIdxCurrent = new_idx;
+				updated = 1;
+			}
+		}
+		else {
+			const uint cur_bottom_idx = GetPageBottomIndex(P.ItemIdxPageTop);
+			uint    new_bottom_idx = cur_bottom_idx ? MIN(cur_bottom_idx-1, (ItemCount-1)) : 0;
+			uint    new_top_idx = GetPageTopIndex(new_bottom_idx);
+			//uint    new_top_idx = (ItemIdxCurrent > ic) ? (ItemIdxCurrent - ic) : 0;
+			if(new_top_idx != P.ItemIdxPageTop) {
+				P.ItemIdxPageTop = new_top_idx;
+				updated = 1;
+			}
+		}
+	}
+	return updated;
+}
+
+int SScroller::PageDown(uint pc)
+{
+	int    updated = 0;
+	if(pc && ItemCount) {
+		uint page_top_idx = P.ItemIdxPageTop;
+		uint cur_idx = P.ItemIdxCurrent;
+		for(uint pi = 0; pi < pc; pi++) {
+			const uint bottom_idx = GetPageBottomIndex(page_top_idx);
+			const uint prev_page_top_idx = page_top_idx;
+			const uint prev_cur_idx = cur_idx;
+			if(Flags & fUseCursor) {
+				if(Flags & fFirstPageMoveToEdge && cur_idx < bottom_idx) {
+					cur_idx = bottom_idx;
+				}
+				else {
+					const uint cur_delta = (cur_idx > page_top_idx) ? (cur_idx - page_top_idx) : 0;
+					page_top_idx = AdjustTopIdx(MIN(bottom_idx+1, ItemCount-1));
+					if(Flags & fFirstPageMoveToEdge)
+						cur_idx = GetPageBottomIndex(page_top_idx);
+					else
+						cur_idx = page_top_idx + cur_delta;
+				}
+			}
+			else {
+				page_top_idx = AdjustTopIdx(MIN(bottom_idx+1, ItemCount-1));
+			}
+			if(cur_idx != prev_cur_idx || page_top_idx != prev_page_top_idx) {
+				updated = 1;
+			}
+			else
+				break;
+		}
+		P.ItemIdxPageTop = page_top_idx;
+		P.ItemIdxCurrent = cur_idx;
+	}
+	return updated;
+}
+
+int SScroller::PageUp(uint pc)
+{
+	int    updated = 0;
+	if(pc && ItemCount) {
+		uint page_top_idx = P.ItemIdxPageTop;
+		uint cur_idx = P.ItemIdxCurrent;
+		for(uint pi = 0; pi < pc; pi++) {
+			uint bottom_idx = GetPageBottomIndex(page_top_idx);
+			const uint prev_page_top_idx = page_top_idx;
+			const uint prev_cur_idx = cur_idx;
+			if(Flags & fUseCursor) {
+				if(Flags & fFirstPageMoveToEdge && cur_idx > page_top_idx) {
+					cur_idx = page_top_idx;
+				}
+				else {
+					const uint cur_delta = (cur_idx > page_top_idx) ? (cur_idx - page_top_idx) : 0;
+					bottom_idx = page_top_idx ? (page_top_idx - 1) : 0;
+					page_top_idx = GetPageTopIndex(bottom_idx);
+					if(Flags & fFirstPageMoveToEdge)
+						cur_idx = page_top_idx;
+					else
+						cur_idx = page_top_idx + cur_delta;
+				}
+			}
+			else {
+				bottom_idx = page_top_idx ? (page_top_idx - 1) : 0;
+				page_top_idx = GetPageTopIndex(bottom_idx);
+			}
+			if(cur_idx != prev_cur_idx || page_top_idx != prev_page_top_idx) {
+				updated = 1;
+			}
+			else
+				break;
+		}
+		P.ItemIdxPageTop = page_top_idx;
+		P.ItemIdxCurrent = cur_idx;
+	}
+	return updated;
+}
+
+int SScroller::Top()
+{
+	int    updated = 0;
+	const uint prev_page_top_idx = P.ItemIdxPageTop;
+	const uint prev_cur_idx = P.ItemIdxCurrent;
+	P.Z();
+	if(P.ItemIdxPageTop != prev_page_top_idx)
+		updated = 1;
+	else if(Flags & fUseCursor && P.ItemIdxCurrent != prev_cur_idx)
+		updated = 1;
+	return updated;
+}
+
+int SScroller::Bottom()
+{
+	int    updated = 0;
+	const uint prev_page_top_idx = P.ItemIdxPageTop;
+	const uint prev_cur_idx = P.ItemIdxCurrent;
+	if(ItemCount) {
+		P.ItemIdxPageTop = GetPageTopIndex(ItemCount-1);
+		P.ItemIdxCurrent = ItemCount-1;
+	}
+	else {
+		P.ItemIdxPageTop = 0;
+		P.ItemIdxCurrent = 0;		
+	}
+	if(P.ItemIdxPageTop != prev_page_top_idx)
+		updated = 1;
+	else if(Flags & fUseCursor && P.ItemIdxCurrent != prev_cur_idx)
+		updated = 1;
+	return updated;
+}
+//
+//
+//
 /*static*/int UiItemKind::GetTextList(StrAssocArray & rList)
 {
 	int    ok = 1;
@@ -278,22 +755,45 @@ SColorSet::ComplexColorBlock & SColorSet::ComplexColorBlock::Z()
 	ArgList.clear();
 	return *this;
 }
+
+struct SColorSet_FuncEntry : public SIntToSymbTabEntry {
+	uint   ArcCount;
+};
+
+static const SIntToSymbTabEntry SColorSet_FuncList[] = {
+	{ SColorSet::funcEmpty, "empty" },
+	{ SColorSet::funcLerp, "lerp" },
+	{ SColorSet::funcLighten, "lighten" },
+	{ SColorSet::funcDarken, "darken" },
+	{ SColorSet::funcGrey, "grey" },
+};
+
+static uint SColorSet_GetFuncArcCount(int func)
+{
+	static const LAssoc FuncArcCountList[] = {
+		{ SColorSet::funcEmpty, 0 },
+		{ SColorSet::funcLerp, 3 },
+		{ SColorSet::funcLighten, 2 },
+		{ SColorSet::funcDarken, 2 },
+		{ SColorSet::funcGrey, 1 },
+	};
+	uint result = 0;
+	for(uint i = 0; i < SIZEOFARRAY(FuncArcCountList); i++) {
+		if(FuncArcCountList[i].Key == func) {
+			result = static_cast<uint>(FuncArcCountList[i].Val);
+			break;
+		}
+	}
+	return result;
+}
 		
 SString & SColorSet::ComplexColorBlock::ToStr(SString & rBuf) const
 {
 	rBuf.Z();
 	SString temp_buf;
 	if(Func) {
-		temp_buf.Z();
-		switch(Func) {
-			case funcEmpty: temp_buf = "empty"; break;
-			case funcLerp: temp_buf = "lerp"; break;
-			case funcLighten: temp_buf = "lighten"; break;
-			case funcDarken: temp_buf = "darken"; break;
-			case funcGrey: temp_buf = "grey"; break;
-			default: break;
-		}
-		if(temp_buf.NotEmpty()) {
+		if(SIntToSymbTab_GetSymb(SColorSet_FuncList, SIZEOFARRAY(SColorSet_FuncList), Func, temp_buf)) {
+			assert(temp_buf.NotEmpty());
 			rBuf.Cat(temp_buf);
 			for(uint i = 0; i < ArgList.getCount(); i++) {
 				const ColorArg * p_arg = ArgList.at(i);
@@ -302,6 +802,9 @@ SString & SColorSet::ComplexColorBlock::ToStr(SString & rBuf) const
 					rBuf.Space().Cat(temp_buf);
 				}
 			}
+		}
+		else {
+			; // @todo @err
 		}
 	}
 	else if(RefSymb.NotEmpty()) {
@@ -426,25 +929,8 @@ int SColorSet::ParseComplexColorBlock(const char * pText, ComplexColorBlock & rB
 			//funcLighten,   // (color, factor)
 			//funcDarken,    // (color, factor)
 			//funcGrey,      // (whitePart)
-			int    func = funcNone;
-			if(temp_buf.IsEqiAscii("empty")) {
-				func = funcEmpty;
-			}
-			else if(temp_buf.IsEqiAscii("lerp")) {
-				func = funcLerp;
-			}
-			else if(temp_buf.IsEqiAscii("lighten")) {
-				func = funcLighten;
-			}
-			else if(temp_buf.IsEqiAscii("darken")) {
-				func = funcDarken;
-			}
-			else if(temp_buf.IsEqiAscii("grey")) {
-				func = funcGrey;
-			}
-			else {
-				CALLEXCEPT(); // @todo @err
-			}
+			const int func = SIntToSymbTab_GetId(SColorSet_FuncList, SIZEOFARRAY(SColorSet_FuncList), temp_buf);
+			THROW(func != funcNone); // @todo @err
 			rBlk.Func = func;
 			scan.Skip();
 			while(ok && !scan.IsEnd()) {
@@ -461,12 +947,11 @@ int SColorSet::ParseComplexColorBlock(const char * pText, ComplexColorBlock & rB
 				scan.Skip().IncrChr(',');
 			}
 			if(ok) {
+				THROW(SColorSet_GetFuncArcCount(func) == rBlk.ArgList.getCount()); // @todo @err
 				switch(func) {
 					case funcEmpty:
-						THROW(rBlk.ArgList.getCount() == 0); // @todo @err
 						break;
 					case funcLerp:
-						THROW(rBlk.ArgList.getCount() == 3); // @todo @err
 						{
 							const ColorArg * p_arg1 = rBlk.ArgList.at(0);
 							const int argt = p_arg1->GetType();
@@ -485,7 +970,6 @@ int SColorSet::ParseComplexColorBlock(const char * pText, ComplexColorBlock & rB
 						break;
 					case funcLighten:
 					case funcDarken:
-						THROW(rBlk.ArgList.getCount() == 2); // @todo @err
 						{
 							const ColorArg * p_arg1 = rBlk.ArgList.at(0);
 							THROW(!p_arg1->C.IsEmpty() || p_arg1->RefSymb.NotEmpty());
@@ -496,7 +980,6 @@ int SColorSet::ParseComplexColorBlock(const char * pText, ComplexColorBlock & rB
 						}
 						break;
 					case funcGrey:
-						THROW(rBlk.ArgList.getCount() == 1); // @todo @err
 						{
 							const ColorArg * p_arg1 = rBlk.ArgList.at(0);
 							THROW(p_arg1->F > 0.0f);
@@ -577,13 +1060,12 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor &
 {
 	int    ok = 1;
 	if(rBlk.Func) {
+		THROW(SColorSet_GetFuncArcCount(rBlk.Func) == rBlk.ArgList.getCount()); // @todo @err
 		switch(rBlk.Func) {
 			case funcEmpty:
-				THROW(rBlk.ArgList.getCount() == 0); // @todo @err
 				rC = ZEROCOLOR;
 				break;
 			case funcLerp:
-				THROW(rBlk.ArgList.getCount() == 3); // @todo @err
 				{
 					SColor arg1_c(ZEROCOLOR);
 					SColor arg2_c(ZEROCOLOR);
@@ -632,7 +1114,6 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor &
 				}
 				break;
 			case funcLighten:
-				THROW(rBlk.ArgList.getCount() == 2); // @todo @err
 				{
 					SColor arg1_c(ZEROCOLOR);
 					float arg2_n = 0.0f;
@@ -665,7 +1146,6 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor &
 				}
 				break;
 			case funcDarken:
-				THROW(rBlk.ArgList.getCount() == 2); // @todo @err
 				{
 					SColor arg1_c(ZEROCOLOR);
 					float arg2_n = 0.0f;	
@@ -698,7 +1178,6 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor &
 				}
 				break;
 			case funcGrey:
-				THROW(rBlk.ArgList.getCount() == 1); // @todo @err
 				{
 					float arg1_n = 0.0f;
 					{
@@ -859,9 +1338,7 @@ int SColorSet::Get(const char * pSymb, ComplexColorBlock * pBlk) const
 				{
 					const ComplexColorBlock * p_inner_blk = CcC.at(p_entry->CcbP-1);
 					THROW(p_inner_blk); // @todo @err
-					if(pBlk) {
-						*pBlk = *p_inner_blk;
-					}
+					ASSIGN_PTR(pBlk, *p_inner_blk);
 				}
 			}
 			else {

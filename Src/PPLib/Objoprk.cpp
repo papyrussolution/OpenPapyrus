@@ -2575,6 +2575,7 @@ void OprKindDialog::editPoolOptions()
 			AddClusterAssoc(CTL_OPRPOOL_FLAGS, 2, BPOXF_ONEOBJECT);
 			AddClusterAssoc(CTL_OPRPOOL_FLAGS, 3, BPOXF_UNITEACCTURNS);
 			AddClusterAssoc(CTL_OPRPOOL_FLAGS, 4, BPOXF_UNITEPAYMENTS);
+			AddClusterAssoc(CTL_OPRPOOL_FLAGS, 5, BPOXF_AUTOAMOUNT); // @v11.8.0
 			SetClusterData(CTL_OPRPOOL_FLAGS, p_bpox->Flags);
 			AddClusterAssoc(CTL_OPRPOOL_COMMF, 0, OPKF_NEEDPAYMENT);
 			AddClusterAssoc(CTL_OPRPOOL_COMMF, 1, OPKF_FREIGHT);
@@ -3051,7 +3052,7 @@ PPID FASTCALL OpCache::GetBySymb(const char * pSymb)
 		}
 		if(State & stOpSymbListInited) {
 			uint pos = 0;
-			if(OpSymbList.SearchByText(pSymb, 1, &pos)) {
+			if(OpSymbList.SearchByTextNc(pSymb, &pos)) {
 				StrAssocArray::Item item = OpSymbList.at_WithoutParent(pos);
 				op_id = item.Id;
 			}

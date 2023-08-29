@@ -2112,10 +2112,7 @@ public class StyloQDatabase extends Database {
 			{
 				super();
 			}
-			static int GetDocStatus(int flags)
-			{
-				return ((flags & SecStoragePacket.styloqfDocStatusFlags) >> 1);
-			}
+			static int GetDocStatus(int flags) { return ((flags & SecStoragePacket.styloqfDocStatusFlags) >> 1); }
 			int GetDocStatus()
 			{
 				return SecStoragePacket.IsDocKind(Kind) ? GetDocStatus(Flags) : 0;
@@ -2126,8 +2123,19 @@ public class StyloQDatabase extends Database {
 				try {
 					THROW(SecStoragePacket.IsDocKind(Kind), 0);
 					THROW(((styloqDocStatus << 1) & ~SecStoragePacket.styloqfDocStatusFlags) == 0, 0); // Проверяем чтоб за пределами битовой зоны статусов ничего не было.
-					Flags &= ~SecStoragePacket.styloqfDocStatusFlags;
-					Flags |= ((styloqDocStatus << 1) & SecStoragePacket.styloqfDocStatusFlags);
+					// @v11.8.0 {
+					// Предотвращаем установку статуса draft или undef если документ имеет уже сформированный "боевой" статус
+					boolean done = false;
+					int preserve_status = GetDocStatus();
+					if((styloqDocStatus == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT || styloqDocStatus == StyloQDatabase.SecStoragePacket.styloqdocstUNDEF) &&
+							preserve_status > StyloQDatabase.SecStoragePacket.styloqdocstDRAFT) {
+						done = true;
+					}
+					// } @v11.8.0
+					if(!done) {
+						Flags &= ~SecStoragePacket.styloqfDocStatusFlags;
+						Flags |= ((styloqDocStatus << 1) & SecStoragePacket.styloqfDocStatusFlags);
+					}
 				} catch(StyloQException exn) {
 					ok = false;
 				}

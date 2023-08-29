@@ -1504,6 +1504,7 @@
 #define PPCMD_STYLOQBINDERY                         1348
 #define PPCMD_STYLOQCOMMANDS                        1349
 #define PPCMD_PROCESSUED                            1350
+#define PPCMD_PROCESSBOMESTIMATEDVALUES             1351
 //
 // PPJOB definitions
 //

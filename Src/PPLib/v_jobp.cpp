@@ -56,7 +56,7 @@ public:
 		P_Mngr->GetResourceList(1, cmd_txt_list);
 		cmd_txt_list.SortByText();
 		uint   pos = 0;
-		if(CmdSymbList.SearchByText(Data.Descr.Symb, 1, &pos))
+		if(CmdSymbList.SearchByTextNc(Data.Descr.Symb, &pos))
 			cmd_id = CmdSymbList.Get(pos).Id;
 		SetupStrAssocCombo(this, CTLSEL_JOBITEM_CMD, cmd_txt_list, cmd_id, 0);
 		SetupWordSelector(CTLSEL_JOBITEM_CMD, 0, cmd_id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.7.8
@@ -782,7 +782,7 @@ int PPViewJob::CheckForFilt(PPJob & rJob)
 	if(Filt.CmdId) {
 		uint pos = 0;
 		PPID cmd_id = 0;
-		if(CmdSymbList.SearchByText(rJob.Descr.Symb, 1, &pos))
+		if(CmdSymbList.SearchByTextNc(rJob.Descr.Symb, &pos))
 			cmd_id = CmdSymbList.Get(pos).Id;
 		r = BIN(Filt.CmdId == cmd_id);
 	}

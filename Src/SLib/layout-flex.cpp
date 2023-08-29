@@ -1435,6 +1435,22 @@ SUiLayout * SUiLayout::GetRoot()
 	return p_root;
 }
 
+SUiLayout * SUiLayout::Insert(SUiLayout * pLayoutToInsert)
+{
+	if(pLayoutToInsert) {
+		if(!P_Children) {
+			P_Children = new TSCollection <SUiLayout>;
+		}
+		if(P_Children) {
+			pLayoutToInsert->P_Parent = this;
+			pLayoutToInsert->managed_ptr = 0;
+			pLayoutToInsert->UpdateShouldOrderChildren();
+			P_Children->insert(pLayoutToInsert);
+		}
+	}
+	return pLayoutToInsert;
+}
+
 SUiLayout * SUiLayout::InsertCopy(const SUiLayout * pOriginalLayout)
 {
 	SUiLayout * p_result_item = 0;

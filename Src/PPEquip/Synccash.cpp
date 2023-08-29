@@ -684,6 +684,8 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		SString buyers_email;
 		SString buyers_phone;
 		bool  paperless = false; 
+		CCheckPacket::Prescription prescr; // @v11.8.0
+		pPack->GetPrescription(prescr); // @v11.8.0
 		/*
 		// @v10.8.12 {
 		SString chzn_sid;
@@ -729,9 +731,9 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 				RibbonParam = 0;
 				Arr_In.Z();
 				CheckForRibbonUsing(sdc_param.RegTo, Arr_In);
-				if(_fiscal != 0.0) {
-					PROFILE_START_S("DVCCMD_OPENCHECK")
-					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK));
+				{
+					PROFILE_START_S("DVCCMD_OPENCHECK");
+					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (_fiscal != 0.0) ? ((flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK) : SERVICEDOC));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
 					// @v11.2.3 {
 					{
@@ -747,32 +749,23 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(ArrAdd(Arr_In, DVCPARAM_PAPERLESS, 1)); 
 					}
 					// } @v11.3.6 
-					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
-					PROFILE_END
-				}
-				else {
-					PROFILE_START_S("DVCCMD_OPENCHECK")
-					//THROW(SetFR(DocumentName, "" /*sdc_param.Title*/));
-					//THROW(ExecFRPrintOper(PrintDocumentTitle));
-					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
-					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
-					// @v11.2.3 {
+					// @v11.8.0 {
 					{
-						LDATETIME ccts;
-						temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601CENT, 0);
-						THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTIMESTAMP, temp_buf));
+						if(prescr.Number.NotEmpty()) {
+							THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRNUMB, prescr.Number)); 
+							if(prescr.Serial.NotEmpty()) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRSERIAL, prescr.Serial)); 
+							}
+							if(checkdate(prescr.Dt)) {
+								temp_buf.Z().Cat(prescr.Dt, DATF_ISO8601CENT);
+								THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRDATE, temp_buf)); 
+							}
+						}
 					}
-					// } @v11.2.3 
-					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
-					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofdf.OfdVer)); // @v11.1.9
-					// @v11.3.6 {
-					if(paperless) {
-						THROW(ArrAdd(Arr_In, DVCPARAM_PAPERLESS, 1)); 
-					}
-					// } @v11.3.6 
+					// } @v11.8.0 
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
-					if(!paperless) { // @v11.3.6
+					if(_fiscal == 0.0 && !paperless) { // @v11.3.6
 						PROFILE_START_S("DVCCMD_PRINTTEXT")
 						Arr_In.Z();
 						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sdc_param.Title));
@@ -870,6 +863,20 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							}
 						}
 						// } @erik v10.4.12
+						// @v11.8.0 {
+						{
+							if(prescr.Number.NotEmpty()) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRNUMB, prescr.Number)); 
+								if(prescr.Serial.NotEmpty()) {
+									THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRSERIAL, prescr.Serial)); 
+								}
+								if(checkdate(prescr.Dt)) {
+									temp_buf.Z().Cat(prescr.Dt, DATF_ISO8601CENT);
+									THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRDATE, temp_buf)); 
+								}
+							}
+						}
+						// } @v11.8.0 
 						THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
 						PROFILE_END
 						Flags |= sfOpenCheck;

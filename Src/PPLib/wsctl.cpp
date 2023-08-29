@@ -778,7 +778,7 @@ int WsCtl_ProgramEntry::FromJsonObj(const SJson * pJsObj)
 	return ok;
 }
 
-WsCtl_ProgramCollection::WsCtl_ProgramCollection() : TSCollection <WsCtl_ProgramEntry>()
+WsCtl_ProgramCollection::WsCtl_ProgramCollection() : TSCollection <WsCtl_ProgramEntry>(), SelectedCatSurrogateId(0)
 {
 }
 	
@@ -819,5 +819,26 @@ int WsCtl_ProgramCollection::FromJsonObj(const SJson * pJsObj)
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int WsCtl_ProgramCollection::MakeCatList()
+{
+	int    ok = -1;
+	long   surrogate_id = 0;
+	CatList.Z();
+	SString temp_buf;
+	for(uint i = 0; i < getCount(); i++) {
+		const WsCtl_ProgramEntry * p_entry = at(i);
+		if(p_entry) {
+			temp_buf = p_entry->Category;
+			if(temp_buf.NotEmptyS()) {
+				if(!CatList.SearchByTextNcUtf8(temp_buf, 0)) {
+					CatList.Add(++surrogate_id, temp_buf);
+					ok = 1;
+				}
+			}
+		}
+	}
 	return ok;
 }

@@ -1,5 +1,5 @@
 // V_PLIST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage windows-1251
 //
 // @todo Убрать вкладку "Дополнительно" из фильтра (она полностью дублирует опции товарного фильтра)
@@ -414,7 +414,7 @@ int SelectPriceListImportCfg(PPPriceListImpExpParam * pParam, int forExport)
 	param = *pParam;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_PRICELIST, &param, &list, forExport ? 1 : 2));
-	if(list.SearchByText(param.Name, 1, &p) > 0)
+	if(list.SearchByTextNc(param.Name, &p) > 0)
 		id = (uint)list.Get(p).Id;
 	if(ListBoxSelDialog::Run(&list, forExport ? PPTXT_PLISTEXPORTCFG : PPTXT_PLISTIMPORTCFG, &id) > 0 && id > 0) {
 		SString sect;

@@ -1508,11 +1508,11 @@ bool ImGui::BeginCombo(const char* label, const char* preview_value, ImGuiComboF
 	// Custom preview
 	if(flags & ImGuiComboFlags_CustomPreview) {
 		g.ComboPreviewData.PreviewRect = ImRect(bb.Min.x, bb.Min.y, value_x2, bb.Max.y);
-		assert(preview_value == NULL || preview_value[0] == 0);
+		assert(isempty(preview_value));
 		preview_value = NULL;
 	}
 	// Render preview and label
-	if(preview_value != NULL && !(flags & ImGuiComboFlags_NoPreview)) {
+	if(preview_value && !(flags & ImGuiComboFlags_NoPreview)) {
 		if(g.LogEnabled)
 			LogSetNextTextDecoration("{", "}");
 		RenderTextClipped(bb.Min + style.FramePadding, ImVec2(value_x2, bb.Max.y), preview_value, NULL, NULL);

@@ -540,6 +540,22 @@ bool StringSet::searchNcAscii(const char * pPattern, uint * pPos, uint * pNextPo
 	return false;
 }
 
+bool StringSet::searchNcUtf8(const char * pPattern, uint * pPos, uint * pNextPos) const
+{
+	uint   pos = DEREFPTRORZ(pPos);
+	SString temp_buf;
+	for(uint prev_pos = pos; get(&pos, temp_buf); prev_pos = pos) {
+		if(temp_buf.IsEqiUtf8(pPattern)) {
+			ASSIGN_PTR(pPos, prev_pos);
+			ASSIGN_PTR(pNextPos, pos);
+			return true;
+		}
+	}
+	ASSIGN_PTR(pPos, 0);
+	ASSIGN_PTR(pNextPos, pos);
+	return false;
+}
+
 bool StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const
 {
 	bool   ok = false;

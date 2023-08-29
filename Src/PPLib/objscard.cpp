@@ -5137,7 +5137,7 @@ static int SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_SCARD, &param, &list, import ? 2 : 1));
-	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.Get(p).Id : 0;
+	id = (list.SearchByTextNc(pParam->Name, &p) > 0) ? (uint)list.Get(p).Id : 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);

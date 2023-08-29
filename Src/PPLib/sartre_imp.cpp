@@ -5478,7 +5478,7 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 							{
 								for(uint ssp = 0, locus_pos = 0; p_base_list->get(&ssp, temp_buf); locus_pos++) {
 									uint   lingua_pos = 0;
-									if(lingua_id_list.SearchByText(temp_buf, 1, &lingua_pos)) {
+									if(lingua_id_list.SearchByTextNc(temp_buf, &lingua_pos)) {
 										long local_id = lingua_id_list.at_WithoutParent(lingua_pos).Id;
 										p_id_list->Add(local_id, temp_buf);
 										reckoned_pos_list.add(static_cast<long>(locus_pos));
@@ -5576,7 +5576,7 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 						for(uint validx = 0; validx < value_list.getCount(); validx++) {
 							const LlccUglyEntry & r_le = value_list.at(validx);
 							uint id_pos = 0;
-							if(p_id_list->SearchByText(r_le.Id, 1, &id_pos)) {
+							if(p_id_list->SearchByTextNc(r_le.Id, &id_pos)) {
 								StrAssocArray::Item id_item = p_id_list->at_WithoutParent(id_pos);
 								assert(sstreq(id_item.Txt, r_le.Id));
 								int   do_skip_lang_entry = 0; // Если !0 то строчку пропускаем поскольку такое описание уже определено для

@@ -5826,6 +5826,9 @@ DVCPARAM_UOMFRAGM                     "UOMFRAGM"     // @v11.2.5 Фрагмен�
 DVCPARAM_BUYERSPHONE                  "BUYERSPHONE"  // @v11.3.6
 DVCPARAM_BUYERSEMAIL                  "BUYERSEMAIL"  // @v11.3.6
 DVCPARAM_PAPERLESS                    "PAPERLESS"    // @v11.3.6
+DVCPARAM_PRESCRDATE                   "PRESCRDATE"   // @v11.8.0 // Рецепт: Дата
+DVCPARAM_PRESCRSERIAL                 "PRESCRSERIAL" // @v11.8.0 // Рецепт: Серия
+DVCPARAM_PRESCRNUMB                   "PRESCRNUMB"   // @v11.8.0 // Рецепт: Номер
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -8688,6 +8691,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_styloqpersoneventparam                  "Параметры создания персональной операции для Stylo-Q"
 @filter_styloqpersoneventparam_maxgeodist                 "Максимальная дистанция до офиса, метров"
 @filter_styloqpersoneventparam_packet                     "Параметры события"
+@filter_styloqbindery                                     "Фильтр подшивки объектов Stylo-Q"
 //
 // Команды и popup-меню
 //
@@ -12270,6 +12274,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @oprkind_bpoxf_oneobject                  "Объединять только по одному контрагенту"
 @oprkind_bpoxf_uniteaccturns              "Общие бухгалтерские проводки"
 @oprkind_bpoxf_unitepayments              "Общие платежи"
+@oprkind_bpoxf_autoamount                 "Автономная номинальная сумма"
 @oprkind_curtransnominal                  "Номинал валютного транзита" // generic
 @oprkind_curtransnominal_inp              "@{curtransnominal_inp}"
 @oprkind_curtransnominal_out              "@{curtransnominal_out}"
@@ -17509,6 +17514,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloq_binderykind_face                      "Лик Stylo-Q"                // 5
 @styloq_binderykind_docincoming               "Входящий документ Stylo-Q"  // 6
 @styloq_binderykind_docoutcominig             "Исходящий документ Stylo-Q" // 7
+@styloq_binderykind_kcounter                  "Внутренний счетчик"         // 8
 
 @styloqbasecmd_personevent                    "@{personevent}"
 @styloqbasecmd_report                         "@{report}"

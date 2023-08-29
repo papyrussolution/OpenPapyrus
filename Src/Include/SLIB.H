@@ -4862,6 +4862,7 @@ public:
 	//   набора.
 	//
 	bool   searchNcAscii(const char * pPattern, uint * pPos, uint * pNextPos = 0) const;
+	bool   searchNcUtf8(const char * pPattern, uint * pPos, uint * pNextPos = 0) const;
 	//
 	// Descr: Сортирует строки набора в лексикографическом порядке
 	//
@@ -9163,7 +9164,9 @@ public:
 	//   !0 - элемент найден
 	//   0  - элемент не найден
 	//
-	int    SearchByText(const char * pTxt, int ignoreCase, uint * pPos) const;
+	int    SearchByText(const char * pTxt, /* @v11.8.0 int ignoreCase,*/uint * pPos) const;
+	int    SearchByTextNc(const char * pTxt, uint * pPos) const;
+	int    SearchByTextNcUtf8(const char * pTxt, uint * pPos) const;
 	int    SearchByText(const char * pTxt, CompFunc fcmp, uint * pPos) const;
 	//
 	// Descr: Извлекает из списка строку с идентификатором id.
@@ -16776,7 +16779,7 @@ protected:
 	bool   InitFileModTime();
 	bool   IsModified();
 	void * P_Entity;
-	mutable SMtLock Lck; // Блокирующи объект, используемый одновременно в общем методе Reload() и в методах получения копии 
+	mutable SMtLock Lck; // Блокирующий объект, используемый одновременно в общем методе Reload() и в методах получения копии 
 		// сущности, реализуемых порожденными классами.
 private:
 	enum {

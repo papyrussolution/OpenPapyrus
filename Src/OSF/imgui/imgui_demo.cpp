@@ -3605,7 +3605,7 @@ static void EditTableSizingFlags(ImGuiTableFlags* p_flags)
 
 	static const EnumDesc policies[] =
 	{
-		{ ImGuiTableFlags_None,               "Default",
+		{ ImGuiTableFlags_None, "Default",
 		  "Use default sizing policy:\n- ImGuiTableFlags_SizingFixedFit if ScrollX is on or if host window has ImGuiWindowFlags_AlwaysAutoResize.\n- ImGuiTableFlags_SizingStretchSame otherwise." },
 		{ ImGuiTableFlags_SizingFixedFit,     "ImGuiTableFlags_SizingFixedFit",
 		  "Columns default to _WidthFixed (if resizable) or _WidthAuto (if not resizable), matching contents width." },
@@ -5879,8 +5879,8 @@ namespace ImGui {
 // Here we use the regular BeginCombo()/EndCombo() api which is the more flexible one.
 void ImGui::ShowFontSelector(const char* label)
 {
-	ImGuiIO& io = ImGui::GetIO();
-	ImFont* font_current = ImGui::GetFont();
+	ImGuiIO & io = ImGui::GetIO();
+	ImFont * font_current = ImGui::GetFont();
 	if(ImGui::BeginCombo(label, font_current->GetDebugName())) {
 		for(int n = 0; n < io.Fonts->Fonts.Size; n++) {
 			ImFont* font = io.Fonts->Fonts[n];

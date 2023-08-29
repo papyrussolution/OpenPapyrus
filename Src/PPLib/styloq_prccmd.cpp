@@ -2229,7 +2229,7 @@ int PPStyloQInterchange::ProcessCommand_Report(const StyloQCommandList::Item & r
 		SString dl600_name(rCmdItem.Vd.GetStrucSymb());
 		uint p = 0;
 		LoadViewSymbList();
-		long   view_id = ViewSymbList.SearchByText(rCmdItem.ViewSymb, 1, &p) ? ViewSymbList.at_WithoutParent(p).Id : 0;
+		long   view_id = ViewSymbList.SearchByTextNc(rCmdItem.ViewSymb, &p) ? ViewSymbList.at_WithoutParent(p).Id : 0;
 		THROW_PP_S(view_id, PPERR_NAMEDFILTUNDEFVIEWID, rCmdItem.ViewSymb);
 		THROW(PPView::CreateInstance(view_id, &p_view));
 		{
