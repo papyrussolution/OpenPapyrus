@@ -72,6 +72,7 @@ public:
 	SString SysPassword;
 	StringSet SsAppEnabled;
 	StringSet SsAppDisabled;
+	StringSet SsAppPaths; // @v11.8.1
 };
 //
 // Descr: Дескриптор исполняемой программы, отображаемый в клиентском окне.

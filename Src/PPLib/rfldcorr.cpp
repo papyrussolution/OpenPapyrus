@@ -1,5 +1,5 @@
 // RFLDCORR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2242,6 +2242,8 @@ enum {
 	iefrmArRegDate,      // @v8.1.1 arregdate(regtypesymb, article_id)   Дата регистра по ид аналитической статьи
 	iefrmCat,            // @v9.3.10 cat(...) Текстовая конкатенация списка аргументов (без вставки пробелов)
 	iefrmCats,           // @v9.3.10 cats(...) Текстовая конкатенация списка аргументов (со вставкой пробелов между каждой парой)
+	iefrmObjTagRaw,      // @v11.8.1 objtagraw(tagsymb, objtype, obj_id) Текстовое значение тега объекта. За исключением типов OTTYP_OBJLINK, OTTYP_ENUM 
+		// для которых возвращается идентифицирующее целое значение.
 };
 
 /*static*/int PPImpExp::ResolveVarName(const char * pSymb, const SdRecord & rRec, double * pVal)
@@ -2341,7 +2343,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 				if(cc == '@') {
 					int    do_incr_len = 1;
 					scan.Incr();
-					long   sym  = st.Translate(scan);
+					const long sym  = st.Translate(scan);
 					switch(sym) {
 						case iefrmEmpty: break;
 						case iefrmRecNo: rResult.Cat(W_RecNo); break;
@@ -2442,6 +2444,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 							}
 							break;
 						case iefrmObjTag:
+						case iefrmObjTagRaw: // @v11.8.1
 							scan.IncrLen();
 							do_incr_len = 0;
 							if(GetArgList(scan, arg_list)) {
@@ -2457,7 +2460,11 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 										if(tag_obj.SearchBySymb(tag_symb, &tag_id, 0) > 0) {
 											ObjTagItem tag_item;
 											PPRef->Ot.GetTag(obj_type, obj_id, tag_id, &tag_item);
-											tag_item.GetStr(temp_buf);
+											if(sym == iefrmObjTagRaw && oneof2(tag_item.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM)) { // @v11.8.1
+												temp_buf.Z().Cat(tag_item.Val.IntVal);
+											}
+											else
+												tag_item.GetStr(temp_buf);
 											// @v10.9.6 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 											rResult.Cat(temp_buf);
 										}

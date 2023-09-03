@@ -1235,21 +1235,23 @@ public class SLib {
 	// Если добавляете новые значения, то согласуйте их с соответствующим набором констант.
 	// @persistent
 	//
-	public static final int PPOBJATTR_NAME      =   1; // Наименование
-	public static final int PPOBJATTR_SYMB      =   2; // Символ
-	public static final int PPOBJATTR_LONGNAME  =   3; // Длинное наименование
-	public static final int PPOBJATTR_MEMO      =   4;
-	public static final int PPOBJATTR_RAWADDR   =   6;
-	public static final int PPOBJATTR_DESCR     =   8;
-	public static final int PPOBJATTR_CODE      =   9;
-	public static final int PPOBJATTR_ID        =  21; // Целочисленный уникальный идентификатор
-	public static final int PPOBJATTR_FLAGS     =  22;
-	public static final int PPOBJATTR_PHONE     =  23;
-	public static final int PPOBJATTR_EMAIL     =  24;
-	public static final int PPOBJATTR_GLN       =  25;
-	public static final int PPOBJATTR_RUINN     =  26;
-	public static final int PPOBJATTR_RUKPP     =  27;
-	public static final int PPOBJATTR_RUSNILS   =  28;
+	public static final int PPOBJATTR_NAME        =   1; // Наименование
+	public static final int PPOBJATTR_SYMB        =   2; // Символ
+	public static final int PPOBJATTR_LONGNAME    =   3; // Длинное наименование
+	public static final int PPOBJATTR_MEMO        =   4;
+	public static final int PPOBJATTR_RAWADDR     =   6;
+	public static final int PPOBJATTR_DESCR       =   8;
+	public static final int PPOBJATTR_CODE        =   9;
+	public static final int PPOBJATTR_ID          =  21; // Целочисленный уникальный идентификатор
+	public static final int PPOBJATTR_FLAGS       =  22;
+	public static final int PPOBJATTR_PHONE       =  23;
+	public static final int PPOBJATTR_EMAIL       =  24;
+	public static final int PPOBJATTR_GLN         =  25;
+	public static final int PPOBJATTR_RUINN       =  26;
+	public static final int PPOBJATTR_RUKPP       =  27;
+	public static final int PPOBJATTR_RUSNILS     =  28;
+	public static final int PPOBJATTR_RAWMAINADDR =  29; // @v11.8.1 основной адрес персоналии
+	public static final int PPOBJATTR_RAWRADDR    =  30; // @v11.8.1 фактический адрес персоналии
 	//
 	// Descr: Идентификаторы системных событий. Заимствованы из ppdefs.h
 	// В stylo-q используется лишь небольшая часть этих значений (тем не менее, заимствование полное

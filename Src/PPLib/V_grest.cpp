@@ -4427,6 +4427,7 @@ int PPViewGoodsRest::SerializeState(int dir, SBuffer & rBuf, SSerializeContext *
 	THROW_SL(pCtx->Serialize(dir, &ExclUncompleteSessQttyList, rBuf));
 	THROW_SL(LocList.Serialize(dir, rBuf, pCtx));
 	THROW(StrPool.SerializeS(dir, rBuf, pCtx));
+	THROW_SL(pCtx->Serialize(dir, &SubstPriceQuotList, rBuf)); // @v11.8.1
 	THROW(SerializeDbTableByFileName <TempOrderTbl>     (dir, &P_TempOrd, rBuf, pCtx));
 	THROW(SerializeDbTableByFileName <TempGoodsRestTbl> (dir, &P_Tbl,     rBuf, pCtx));
 	if(dir > 0) {

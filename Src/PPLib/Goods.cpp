@@ -421,9 +421,9 @@ GoodsCore::~GoodsCore()
 	delete P_Qc2;
 }
 
-int GoodsCore::Validate(const Goods2Tbl::Rec * pRec)
+bool GoodsCore::IsRecValid(const Goods2Tbl::Rec * pRec)
 {
-	int    ok = 1;
+	bool   ok = true;
 	const  long  k = pRec->Kind;
 	Goods2Tbl::Rec parent_rec;
 	if(k == PPGDSK_GOODS) {
@@ -465,7 +465,7 @@ int GoodsCore::Update(PPID * pGoodsID, Goods2Tbl::Rec * pRec, int use_ta)
 		if(id) {
 			if(pRec) {
 				pRec->Flags &= ~(GF_TRANSGLED|GF_TRANSQUOT);
-				THROW(Validate(pRec));
+				THROW(IsRecValid(pRec));
 				THROW(SearchByID_ForUpdate(this, obj_type, id, 0));
 				if(!updateRecBuf(pRec)) { // @sfu
 					if(BtrError == BE_DUP) {
@@ -495,7 +495,7 @@ int GoodsCore::Update(PPID * pGoodsID, Goods2Tbl::Rec * pRec, int use_ta)
 		else if(pRec) {
 			int    r;
 			pRec->Flags &= ~(GF_TRANSGLED|GF_TRANSQUOT);
-			THROW(Validate(pRec));
+			THROW(IsRecValid(pRec));
 			r = AddObjRecByID(this, obj_type, pGoodsID, pRec, 0);
 			if(!r && BtrError == BE_DUP) {
 				SString msg_buf;

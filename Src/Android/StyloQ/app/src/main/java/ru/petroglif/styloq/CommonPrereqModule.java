@@ -443,7 +443,7 @@ public class CommonPrereqModule {
 			State = (GetCount() > 0) ? 1 : 2;
 		}
 		int  GetState() { return State; }
-		void Sort(boolean dueDateAsNominal)
+		void Sort(boolean dueDateAsNominal, boolean descending)
 		{
 			if(GetCount() > 1) {
 				HList.sort(new Comparator<Document.DisplayEntry>() {
@@ -451,7 +451,7 @@ public class CommonPrereqModule {
 					{
 						final SLib.LDATE lh_d = lh.GetNominalDate(dueDateAsNominal);
 						final SLib.LDATE rh_d = rh.GetNominalDate(dueDateAsNominal);
-						int si = SLib.Cmp(lh_d, rh_d);
+						int si = descending ? SLib.Cmp(rh_d, lh_d) : SLib.Cmp(lh_d, rh_d);
 						return si;
 						//return (lh_d < rh_d) ? +1 : ((lh > rh) ? -1 : 0);
 					}
@@ -2086,7 +2086,7 @@ public class CommonPrereqModule {
 									}
 								}
 							}
-							RegBlk.Sort(GetOption_DueDateAsNominal());
+							RegBlk.Sort(GetOption_DueDateAsNominal(), true/*desc*/);
 						}
 					}
 				}

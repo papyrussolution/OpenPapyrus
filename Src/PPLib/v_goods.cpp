@@ -5348,14 +5348,15 @@ struct UhttGoodsBlock {
 	{
 		DefUnitID = GObj.GetConfig().DefUnitID;
 	}
-	void Clear()
+	UhttGoodsBlock & Z()
 	{
-		Pack.destroy();
+		Pack.Z();
 		BarcodeIterCounter = 0;
 		TagIterCounter = 0;
 		State = stFetch;
 		PrivateGoodsGroupTagID = 0;
 		PrivateGoodsGroup.Z();
+		return *this;
 	}
 	PPObjGoods GObj;
 	PPObjTag   TagObj;
@@ -5388,7 +5389,7 @@ int PPALDD_UhttGoods::InitData(PPFilt & rFilt, long rsrv)
 {
 	int   ok = -1;
 	UhttGoodsBlock & r_blk = *static_cast<UhttGoodsBlock *>(Extra[0].Ptr);
-	r_blk.Clear();
+	r_blk.Z();
 	MEMSZERO(H);
 	if(r_blk.GObj.GetPacket(rFilt.ID, &r_blk.Pack, PPObjGoods::gpoSkipQuot) > 0) {
 		const PPGoodsPacket & r_pack = r_blk.Pack;
@@ -5551,7 +5552,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 	UhttGoodsBlock & r_blk = *static_cast<UhttGoodsBlock *>(Extra[0].Ptr);
 	const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
 	if(r_blk.State != UhttGoodsBlock::stSet) {
-		r_blk.Clear();
+		r_blk.Z();
 		r_blk.State = r_blk.stSet;
 	}
 	PPGoodsPacket & r_pack = r_blk.Pack;
@@ -5715,7 +5716,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 	}
 	CATCHZOK
 	if(commit || !ok)
-		r_blk.Clear();
+		r_blk.Z();
 	return ok;
 }
 //

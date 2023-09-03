@@ -1601,7 +1601,9 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 	*/
 	SJson * p_result = 0;
 	if(pPack) {
+		CCheckPacket::Prescription prescr;
 		SString temp_buf;
+		SString chzn_sid;
 		SString debug_log_buf;
 		PPID   tax_sys_id = 0;
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
@@ -1617,6 +1619,11 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 		const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
+		// @v11.8.1 {
+		if(SCn.LocID)
+			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
+		// } @v11.8.1 
+		pPack->GetPrescription(prescr);
 		CnObj.GetTaxSystem(NodeID, pPack->Rec.Dt, &tax_sys_id);
 		p_result = SJson::CreateObj();
 		p_result->InsertString("type", (pPack->Rec.Flags & CCHKF_RETURN) ? "sellReturn" : "sell");
@@ -1769,6 +1776,26 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 										//
 										p_js_item->Insert("imcParams", p_js_imcparams);
 									}
+									// @v11.8.1 {
+									if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
+										temp_buf.Z();
+										temp_buf.CatEq("tm", "mdlp");
+										if(chzn_sid.NotEmpty())
+											temp_buf.CatChar('&').CatEq("sid", chzn_sid);
+										if(prescr.Number.NotEmpty()) {
+											if(prescr.Serial.NotEmpty())
+												temp_buf.CatChar('&').CatEq("ps", prescr.Serial);
+											temp_buf.CatChar('&').CatEq("dn", prescr.Number);
+											if(checkdate(prescr.Dt)) {
+												temp_buf.CatChar('&').CatEq("dd", prescr.Dt, DATF_DMY|DATF_NODIV);
+											}
+										}
+										temp_buf.CatChar('&').ToUtf8();
+										SJson * p_js_industry_info = SJson::CreateObj();
+										p_js_industry_info->InsertString("industryAttribute", temp_buf.Escape());
+										p_js_item->Insert("industryInfo", p_js_industry_info);
+									}
+									// } @v11.8.1 
 								}
 							}
 							else {

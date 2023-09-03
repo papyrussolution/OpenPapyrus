@@ -1170,6 +1170,7 @@ class  DBTable;
 struct SJson;
 struct SDataMoveProgressInfo;
 class  SImageBuffer;
+class  SFileEntryPool;
 struct _finddatai64_t;
 struct _cairo;
 struct cairo_pattern_t;
@@ -6064,6 +6065,7 @@ public:
 	//   необходимые поля.
 	//
 	int    Run();
+protected:
 	//
 	// Descr: вызывается на каждый найденный по заданным условиям файл, а также
 	//   для всех каталогов, вложенных в стартовый каталог P_Path.
@@ -6073,14 +6075,26 @@ public:
 	//   0 - метод Run следует остановить. В этом случае Run() вернет 0.
 	//
 	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
-
 	const  char * P_Path;     // @#{vptr}
-	const  char * P_FileName; // @#{vptr0}
-	const  char * P_SubStr;   // reserved
-	long   Flags;
+	//const  char * P_FileName; // @#{vptr0}
+	//const  char * P_SubStr;   // reserved
+	SString FileNamePattern;
+	SString SubStr;           // reserved
+	uint   Flags;
+	uint   State;
 	long   DirCount;          // Увеличивается на единицу для каждого найденного подкаталога
 	long   FileCount;         // Увеличивается на единицу для каждого найденного файла,
 		// соответствующего шаблону PFileName
+	friend int Helper_SFindFile(const SString * pPath, SFindFile * pParam);
+};
+
+class SFindFile_ToPool : public SFindFile { // @v11.8.1
+public:
+	SFindFile_ToPool(const char * pPath = 0, const char * pFileName = 0);
+	int    Run(SFileEntryPool & rResult);
+private:
+	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
+	SFileEntryPool * P_UserContainer;
 };
 //
 // Memory manipulation functions
@@ -6112,6 +6126,18 @@ int    memdword(void * p, size_t size, uint32 k, size_t * pOffs);
 //
 void * FASTCALL memzero(void * p, size_t s);
 bool   FASTCALL ismemzero(const void * p, size_t s);
+// @v11.8.1 {
+constexpr uint8  FFFF(uint8 & rV) { rV = static_cast<uint8>(0xff); return rV; }
+constexpr int8   FFFF(int8 & rV) { rV = static_cast<int8>(0xff); return rV; }
+constexpr uint16 FFFF(uint16 & rV) { rV = static_cast<uint16>(0xffff); return rV; }
+constexpr int16  FFFF(int16 & rV) { rV = static_cast<int16>(0xffff); return rV; }
+constexpr uint   FFFF(uint & rV) { rV = 0xffffffffU; return rV; }
+constexpr int    FFFF(int & rV) { rV = 0xffffffff; return rV; }
+constexpr ulong  FFFF(ulong & rV) { rV = 0xffffffffUL; return rV; }
+constexpr long   FFFF(long & rV) { rV = 0xffffffffL; return rV; }
+constexpr uint64 FFFF(uint64 & rV) { rV = 0xffffffffffffffffULL; return rV; }
+constexpr int64  FFFF(int64 & rV) { rV = 0xffffffffffffffffLL; return rV; }
+// } @v11.8.1
 //
 // Descr: Обнуляет память по указателю &p размером sizeof(p).
 // Attention! Не применять для классов с виртуальными функциями и динамически распределенных объектов.

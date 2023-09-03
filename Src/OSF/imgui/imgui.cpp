@@ -3686,6 +3686,42 @@ ImGuiID ImGuiWindow::GetIDFromRectangle(const ImRect& r_abs)
 	return id;
 }
 
+ImGuiTabItem::ImGuiTabItem()
+{
+	THISZERO(); 
+	FFFF(LastFrameVisible);
+	FFFF(LastFrameSelected);
+	RequestedWidth = -1.0f; 
+	FFFF(NameOffset); 
+	FFFF(BeginOrder);
+	FFFF(IndexDuringLayout);
+}
+
+ImGuiTableColumn::ImGuiTableColumn()
+{
+	THISZERO();
+	StretchWeight = WidthRequest = -1.0f;
+	FFFF(NameOffset);
+	FFFF(DisplayOrder);
+	FFFF(IndexWithinEnabledSet);
+	FFFF(PrevEnabledColumn);
+	FFFF(NextEnabledColumn);
+	FFFF(SortOrder);
+	SortDirection = ImGuiSortDirection_None;
+	FFFF(DrawChannelCurrent);
+	FFFF(DrawChannelFrozen);
+	FFFF(DrawChannelUnfrozen);
+}
+
+ImGuiTableInstanceData::ImGuiTableInstanceData() : TableInstanceID(0), LastOuterHeight(0.0f), LastFirstRowHeight(0.0f), LastFrozenHeight(0.0f)
+{
+}
+
+ImGuiTableColumnSettings::ImGuiTableColumnSettings() : WidthOrWeight(0.0f), UserID(0), Index(-1), DisplayOrder(-1), SortOrder(-1),
+	SortDirection(ImGuiSortDirection_None), IsEnabled(1), IsStretch(0)
+{
+}
+
 static void SetCurrentWindow(ImGuiWindow * window)
 {
 	ImGuiContext & g = *GImGui;

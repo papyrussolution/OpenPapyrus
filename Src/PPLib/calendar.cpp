@@ -21,7 +21,7 @@ public:
 		THISZERO();
 	}
 	void   SetupCalendar();
-	void   Validate();
+	void   Normalize();
 	void   CheckTimer();
 	void   SendToEditBox(LDATE d1, LDATE d2, int);
 	void   SendToEditBox(int, int, int, int);
@@ -79,7 +79,7 @@ public:
 		Left = 10;
 		if(DateCtlID == -1 || !P_Dlg || !P_Dlg->getCtrlData(DateCtlID, &D)) {
 			D = getcurdate_();
-			Validate();
+			Normalize();
 		}
 		else if(P_Dlg && P_Dlg->getCtrlData(DateCtlID, &D)) {
 			d = getcurdate_();
@@ -89,7 +89,7 @@ public:
 				D.setmonth(d.month());
 			if(D.day() < 1 || D.day() > 31)
 				D.setday(d.day());
-			Validate();
+			Normalize();
 		}
 		SetupCalendar();
 	}
@@ -97,7 +97,7 @@ public:
 	{
 		D = dt;
 		y_firstyear = D.year() - 2;
-		Validate();
+		Normalize();
 		SetupCalendar();
 		::InvalidateRect(c_hWnd, 0, true);
 		::SetFocus(c_hWnd);
@@ -157,7 +157,7 @@ public:
 		D  = checkdate(d1) ? d1 : getcurdate_();
 		D1 = d1;
 		D2 = d2;
-		Validate();
+		Normalize();
 		SetupCalendar();
 	}
 	~TCalendarP()
@@ -236,7 +236,7 @@ public:
 #define SEL_YEARS    3
 #define SEL_WEEKS    4
 
-void TCalendar::Validate()
+void TCalendar::Normalize()
 {
 	NDays = D.dayspermonth();
 	LDATE  dt = D;
@@ -674,7 +674,7 @@ void TDateCalendar::OnLButtonUp(HWND hWnd, LPARAM lParam)
 int TDateCalendar::SelectYear(HWND hWnd, int n /* 1..NumYearInBar */)
 {
 	D.setyear(y_firstyear + n - 1);
-	Validate();
+	Normalize();
 	SetupCalendar();
 	if(PeriodSelect && seltype == SEL_YEARS) {
 		if(SelStarted3) {
@@ -720,7 +720,7 @@ int TDateCalendar::ScrollYear(HWND hWnd, int dir)
 	}
 	if(ok > 0) {
 		RECT rr;
-		Validate();
+		Normalize();
 		SetupCalendar();
 		rr.left   = y_bl;
 		rr.right  = y_br;
@@ -787,7 +787,7 @@ void TDateCalendar::SelectMonth(HWND hWnd, const SPoint2S pt)
 	LDATE  dd2 = encodedate(1, j + 1 + i * 6, D.year());
 	if(dd1 != dd2 || (dd1 == dd2 && !SelStarted2)) {
 		D.setmonth(j + 1 + i * 6);
-		Validate();
+		Normalize();
 		SetupCalendar();
 		if(PeriodSelect && seltype == SEL_MONTHS) {
 			if(SelStarted2) {
@@ -795,20 +795,20 @@ void TDateCalendar::SelectMonth(HWND hWnd, const SPoint2S pt)
 				if(D1 > D2) {
 					i = D.month();
 					D.setmonth(D1.month());
-					Validate();
+					Normalize();
 					D1.setday(NDays);
 					D2.setday(1);
 					D.setmonth(i);
-					Validate();
+					Normalize();
 				}
 				else {
 					i = D.month();
 					D.setmonth(D2.month());
-					Validate();
+					Normalize();
 					D1.setday(1);
 					D2.setday(NDays);
 					D.setmonth(i);
-					Validate();
+					Normalize();
 				}
 			}
 			else {
@@ -832,7 +832,7 @@ void TDateCalendar::SelectQuart(HWND hWnd, const SPoint2S pt)
 	LDATE  dd2 = encodedate(1, (q - 1) * 3 + 1, D.year());
 	if(dd1 != dd2 || (dd1 == dd2 && !SelStarted2)) {
 		D.setmonth((q - 1) * 3 + 1);
-		Validate();
+		Normalize();
 		SetupCalendar();
 		if(SelStarted2) {
 			D2.setmonth(D.month() + 2);
@@ -846,11 +846,11 @@ void TDateCalendar::SelectQuart(HWND hWnd, const SPoint2S pt)
 				if(oneof4(mon1, 1, 4, 7, 10))
 					D1.setmonth(mon1+2);
 				D.setmonth(D1.month());
-				Validate();
+				Normalize();
 				D1.setday(NDays);
 				D2.setday(1);
 				D.setmonth(i);
-				Validate();
+				Normalize();
 			}
 			else {
 				i = D.month();
@@ -858,11 +858,11 @@ void TDateCalendar::SelectQuart(HWND hWnd, const SPoint2S pt)
 				if(oneof4(mon1, 3, 6, 9, 12))
 					D1.setmonth(mon1-2);
 				D.setmonth(D2.month());
-				Validate();
+				Normalize();
 				D1.setday(1);
 				D2.setday(NDays);
 				D.setmonth(i);
-				Validate();
+				Normalize();
 			}
 		}
 		else {
@@ -1238,7 +1238,7 @@ int TDateCalendar::OnRButtonDown(HWND hWnd)
 	if(D1.day() && PeriodSelect) {
 		D1 = ZERODATE;
 		D2 = ZERODATE;
-		Validate();
+		Normalize();
 		SetupCalendar();
 		SelStarted1 = 0;
 		SelStarted2 = 0;
@@ -1447,7 +1447,7 @@ void TPeriodCalendar::SelectByFastPrd(HWND hWnd)
 			P_Inner->D  = d1;
 			P_Inner->D1 = d1;
 			P_Inner->D2 = d2;
-			P_Inner->Validate();
+			P_Inner->Normalize();
 			P_Inner->SetupCalendar();
 			P_Inner->SendToEditBox(P_Inner->D1, P_Inner->D2, 0);
 			InvalidateRect(hWnd, NULL, false);
@@ -1636,7 +1636,7 @@ int TCalendarP::OnResetButton(int kind /* -1 - left, 0 - all, 1 - right */)
 void TCalendarP::ShowCalendar(HWND hwParent)
 {
 	parent_hWnd = hwParent;
-	Validate();
+	Normalize();
 	SetupCalendar();
 	LPCTSTR p_classname = _T("PpyPeriodCalendar");
 	{

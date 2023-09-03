@@ -1,46 +1,14 @@
 // STRSTORE.H
-// Copyright (c) A.Sobolev 1996-1999, 2005, 2007, 2016, 2018, 2020
+// Copyright (c) A.Sobolev 1996-1999, 2005, 2007, 2016, 2018, 2020, 2023
 // @codepage windows-1251
 //
 #ifndef __STRSTORE_H
 #define __STRSTORE_H
 
 #include <slib.h>
-
-#if 0 // @v9.0.2 {
-class StringStore : public SArray {
-public:
-	StringStore(const char * fname, int for_writing = 0);
-	~StringStore();
-	int    open(const char *, int = 0);
-	int    close();
-	int    addString(int group, int code, Pchar string);
-	int    getString(int group, int code, SString & s);
-	int    getString(int group, int code, Pchar buf, size_t bufLen);
-		// @>>StringStore::getString(int, int, SString &)
-	int    error;
-protected:
-	struct IdxItem {
-		int16  group;
-		int16  code;
-		uint16 offs;
-	};
-	struct Header {
-		int32  sign;
-		uint16 offs;
-		uint16 count;
-		char   pad[8]; // Поле, выравнивающее структуру по границе параграфа
-	};
-	FILE * file;
-	int    writing;
-	uint   last;
-};
-#endif // } 0 @v9.0.2
 //
 //
 //
-// @v9.0.2 struct StringStoreItem;
-
 class StringStore2 {
 public:
 	StringStore2();
@@ -230,4 +198,3 @@ private:
 };
 
 #endif /* __STRSTORE_H */
-

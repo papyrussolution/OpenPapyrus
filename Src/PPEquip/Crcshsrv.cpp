@@ -4122,11 +4122,11 @@ int ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 					else if(cs_chkln.Article && goods_obj.SearchByArticle(cs_chkln.Article, &bc_rec) > 0)
 						goods_id = bc_rec.GoodsID;
 					else if((goods_name = cs_chkln.GoodsName).Transf(CTRANSF_OUTER_TO_INNER).NotEmptyS()) {
-						gds_pack.destroy();
+						gds_pack.Z();
 						THROW(goods_obj.P_Tbl->SearchByName(PPGDSK_GOODS, goods_name, &goods_id, &gds_pack.Rec));
 					}
 					if(!goods_id) {
-						gds_pack.destroy();
+						gds_pack.Z();
 						gds_pack.Rec.Kind = PPGDSK_GOODS;
 						if(cs_chkln.Article)
 							article.Z().CatChar('$').Cat(cs_chkln.Article);

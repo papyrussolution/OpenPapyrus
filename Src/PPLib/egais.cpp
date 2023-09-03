@@ -3610,7 +3610,7 @@ int PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPa
 			pExt->OuterUnpackedTag = is_unpacked;
 		}
 		if(pPack) {
-			pPack->destroy();
+			pPack->Z();
 			if(alc_goods_item.EgaisCode.NotEmptyS()) {
 				int    found_by_rarcode = 0;
 				SString goods_name;

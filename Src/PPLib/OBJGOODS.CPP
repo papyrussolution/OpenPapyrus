@@ -731,7 +731,7 @@ int PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 {
 	int    ok = 1;
 	id = labs(id);
-	pPack->destroy();
+	pPack->Z();
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		ok = Search(id, &pPack->Rec);
 		if(ok > 0) {

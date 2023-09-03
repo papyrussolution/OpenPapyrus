@@ -936,12 +936,12 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 				else {
 					buf = "ATOL";
 					if(!grp_id && goods_obj.P_Tbl->SearchByName(PPGDSK_GROUP, buf, &grp_id, &gds_pack.Rec) <= 0) {
-						gds_pack.destroy();
+						gds_pack.Z();
 						gds_pack.Rec.Kind = PPGDSK_GROUP;
 						buf.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
 						THROW(goods_obj.PutPacket(&grp_id, &gds_pack, 0));
 					}
-					gds_pack.destroy();
+					gds_pack.Z();
 					gds_pack.Rec.Kind = PPGDSK_GOODS;
 					gds_pack.Rec.ParentID = grp_id;
 					buf.Z().CatEq("ID", goods_id);

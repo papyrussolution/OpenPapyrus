@@ -225,7 +225,7 @@ int StringStore2::Helper_GetDescription(long ident, SString & rBuf) // @noncost
 			int32  rd_ident = 0;
 			THROW_SL(f_in.Seek(offs));
 			THROW_SL(f_in.Read(&rd_ident, sizeof(rd_ident)));
-			THROW(rd_ident == ident);
+			THROW(rd_ident == ident); // @todo @err
 			THROW_SL(f_in.Read(&tlen, sizeof(tlen)));
 			if(tlen) {
 				THROW_SL(rBuf.Read(f_in, tlen));

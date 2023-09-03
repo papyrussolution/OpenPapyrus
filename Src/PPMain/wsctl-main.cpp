@@ -404,6 +404,52 @@ private:
 //
 //
 //
+class ImGuiWindowByLayout {
+	void   Helper_Ctr(const SUiLayout * pLo, const SPoint2F * pOffset, const char * pWindowId, ImGuiWindowFlags viewFlags)
+	{
+		P_Lo = pLo;
+		if(P_Lo) {
+			FRect r = P_Lo->GetFrameAdjustedToParent();
+			if(pOffset) {
+				r.Move__(pOffset->x, pOffset->y);
+			}
+			SPoint2F s = r.GetSize();
+			ImVec2 lu(r.a.x, r.a.y);
+			ImVec2 sz(s.x, s.y);
+			ImGui::SetNextWindowPos(lu);
+			ImGui::SetNextWindowSize(sz);
+			SString & r_symb = SLS.AcquireRvlStr();
+			if(pWindowId)
+				r_symb = pWindowId;
+			else
+				r_symb.Cat(pLo->GetID());
+			ImGui::Begin(r_symb, 0, viewFlags);
+		}
+	}
+public:
+	ImGuiWindowByLayout(const SUiLayout * pLoParent, int loId, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(0)
+	{
+		Helper_Ctr((pLoParent ? pLoParent->FindByIdC(loId) : 0), 0, pWindowId, viewFlags);
+	}
+	ImGuiWindowByLayout(const SUiLayout * pLo, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
+	{
+		Helper_Ctr(pLo, 0, pWindowId, viewFlags);
+	}
+	ImGuiWindowByLayout(const SUiLayout * pLo, SPoint2F & rOffset, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
+	{
+		Helper_Ctr(pLo, &rOffset, pWindowId, viewFlags);
+	}
+	~ImGuiWindowByLayout()
+	{
+		if(P_Lo) {
+			ImGui::End();
+			P_Lo = 0;
+		}
+	}
+	bool IsValid() const { return (P_Lo != 0); }
+	const SUiLayout * P_Lo;
+};
+
 class WsCtl_ImGuiSceneBlock {
 public:
 	//
@@ -888,8 +934,10 @@ private:
 	void   Render();
 	void   MakeLayout(SJson ** ppJsList);
 	SUiLayout * MakePgmListLayout();
+	void   EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl);
 	void   ErrorPopup(bool isErr);
 	static int CbInput(ImGuiInputTextCallbackData * pInputData);
+
 	//
 	char   TestInput[128];
 	char   LoginText[256];
@@ -904,6 +952,7 @@ public:
 	int  Init(ImGuiIO & rIo);
 	int  ApplyClientPolicy();
 	int  LoadProgramList();
+	int  ResolveProgramPaths();
 	void EmitEvents();
 	void BuildScene();
 };
@@ -1986,14 +2035,16 @@ int WsCtl_ImGuiSceneBlock::LoadProgramList()
 		if(pathValid(pic_base_path, 1)) {
 			Cache_Texture.SetBasePath(pic_base_path);
 			for(uint i = 0; i < PgmL.getCount(); i++) {
-				const WsCtl_ProgramEntry * p_pe = PgmL.at(i);
-				if(p_pe && p_pe->PicSymb.NotEmpty()) {
-					(temp_buf = pic_base_path).Cat(p_pe->PicSymb);
-					if(fileExists(temp_buf)) {
-						Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
-						if(p_cfe && p_cfe->Init(temp_buf)) {
-							if(p_cfe->Reload(true, &ImgRtb)) {
-								Cache_Texture.Put(p_cfe, true);
+				WsCtl_ProgramEntry * p_pe = PgmL.at(i);
+				if(p_pe) {
+					if(p_pe->PicSymb.NotEmpty()) {
+						(temp_buf = pic_base_path).Cat(p_pe->PicSymb);
+						if(fileExists(temp_buf)) {
+							Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+							if(p_cfe && p_cfe->Init(temp_buf)) {
+								if(p_cfe->Reload(true, &ImgRtb)) {
+									Cache_Texture.Put(p_cfe, true);
+								}
 							}
 						}
 					}
@@ -2008,6 +2059,38 @@ int WsCtl_ImGuiSceneBlock::LoadProgramList()
 	}
 	CATCHZOK
 	delete p_js;
+	return ok;
+}
+
+int WsCtl_ImGuiSceneBlock::ResolveProgramPaths()
+{
+	int    ok = -1;
+	SString temp_buf;
+	DClientPolicy policy;
+	St.D_Policy.GetData(policy);
+	const bool is_there_app_paths = (policy.P.SsAppPaths.getCount() > 0);
+	SFileEntryPool fep;
+	SFileEntryPool::Entry fe;
+	SString path;
+	for(uint i = 0; i < PgmL.getCount(); i++) {
+		WsCtl_ProgramEntry * p_pe = PgmL.at(i);
+		if(p_pe && p_pe->ExeFileName.NotEmpty() && p_pe->FullResolvedPath.IsEmpty()) {
+			if(is_there_app_paths) {
+				for(uint ssp = 0; policy.P.SsAppPaths.get(&ssp, temp_buf);) {
+					SFindFile_ToPool ff(temp_buf.Strip(), p_pe->ExeFileName);
+					ff.Run(fep);
+					if(fep.GetCount()) {
+						for(uint fepidx = 0; fep.Get(fepidx, &fe, &path) > 0; fepidx++) {
+							p_pe->FullResolvedPath = path;
+							break;
+						}
+					}
+				}
+			}
+			else {
+			}
+		}
+	}
 	return ok;
 }
 
@@ -2040,6 +2123,7 @@ int WsCtl_ImGuiSceneBlock::ApplyClientPolicy()
 			GetUserName(win_user_name_after, &win_user_name_len);
 			//
 		}*/
+		ResolveProgramPaths();
 		policy.Dirty = false;
 		St.D_Policy.SetData(policy);
 		ok = 1;
@@ -2491,51 +2575,129 @@ void WsCtl_ImGuiSceneBlock::MakeLayout(SJson ** ppJsList)
 	}
 }
 
-class ImGuiWindowByLayout {
-	void   Helper_Ctr(const SUiLayout * pLo, const SPoint2F * pOffset, const char * pWindowId, ImGuiWindowFlags viewFlags)
-	{
-		P_Lo = pLo;
-		if(P_Lo) {
-			FRect r = P_Lo->GetFrameAdjustedToParent();
-			if(pOffset) {
-				r.Move__(pOffset->x, pOffset->y);
+void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl)
+{
+	const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration;
+	if(rW.IsValid()) {
+		float total_size = 0.0f;
+		SUiLayout * p_lo_ipg = rTl.FindById(loidInternalProgramGallery); // non-const!
+		SUiLayout::Result * p_lor = 0;
+		SScroller * p_scr = 0;
+		if(p_lo_ipg) {
+			p_lor = &p_lo_ipg->GetResult_(); // non-const!
+			p_scr = p_lor->P_Scrlr;
+			if(p_scr) {
+				p_scr->SetPosition(PgmGalleryScrollerPosition_Develop);
+				total_size = p_scr->GetSize();
+				//ImGui::SetNextWindowContentSize(ImVec2(total_size, 0.0f));
 			}
-			SPoint2F s = r.GetSize();
-			ImVec2 lu(r.a.x, r.a.y);
-			ImVec2 sz(s.x, s.y);
-			ImGui::SetNextWindowPos(lu);
-			ImGui::SetNextWindowSize(sz);
-			SString & r_symb = SLS.AcquireRvlStr();
-			if(pWindowId)
-				r_symb = pWindowId;
-			else
-				r_symb.Cat(pLo->GetID());
-			ImGui::Begin(r_symb, 0, viewFlags);
+		}
+		{
+			SString temp_buf;
+			const bool is_line_content_valid = p_scr ? (p_scr->CheckLineContentIndex(-1) >= 0) : false;
+			SPoint2F offset;
+			if(p_scr) {
+				offset.x = -p_scr->GetCurrentPageTopPoint();
+			}
+			for(uint loidx = 0; loidx < p_lo_ipg->GetChildrenCount(); loidx++) {
+				SUiLayout * p_lo_entry = p_lo_ipg->GetChild(loidx);
+				if(p_lo_entry) {
+					if(!is_line_content_valid || p_scr->CheckLineContentIndex(loidx) > 0) {
+						ImGuiWindowByLayout wbl_entry(p_lo_entry, offset, temp_buf.Z().Cat("##GALLERYENTRY").Cat(p_lo_entry->GetID()), view_flags);
+						if(wbl_entry.IsValid()) {
+							//const uint pe_idx = i-(loidStartProgramEntry+1);
+							const WsCtl_ProgramEntry * p_pe_ = static_cast<const WsCtl_ProgramEntry *>(SUiLayout::GetManagedPtr(p_lo_entry));
+							if(p_pe_) {
+								Texture_CachedFileEntity * p_te = 0;
+								if(p_pe_->PicSymb.NotEmpty()) {
+									Cache_Texture.MakeKey(p_pe_->PicSymb, temp_buf);
+									p_te = Cache_Texture.Get(temp_buf, temp_buf.Len());
+								}
+								if(p_te && p_te->P_Texture) {
+									if(p_pe_->Title.NotEmpty())
+										ImGui::Text(p_pe_->Title);
+									const SPoint2F __s = p_lo_entry->GetFrame().GetSize();
+									ImVec2 sz(__s.x-4.0f, __s.y-16.0f);
+									ImGui::Image(p_te->P_Texture, sz);
+								}
+								else {
+									if(p_pe_->Category.NotEmpty())
+										ImGui::Text(p_pe_->Category);
+									if(p_pe_->Title.NotEmpty())
+										ImGui::Text(p_pe_->Title);
+								}
+							}
+							/*
+							assert(loidx < PgmL.getCount());
+							if(loidx < PgmL.getCount()) {
+								const WsCtl_ProgramEntry * p_pe = PgmL.at(loidx);
+								if(p_pe->Category.NotEmpty())
+									ImGui::Text(p_pe->Category);
+								if(p_pe->Title.NotEmpty())
+									ImGui::Text(p_pe->Title);
+							}*/
+						}
+						else
+							break;
+					}
+				}
+				else
+					break;
+			}
+		}
+		if(p_lor) {
+			{
+				ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryCatSelector, "##ProgramCatSelector",
+					view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
+				if(PgmL.CatList.getCount()) {
+					const char * p_selected_text = 0;
+					uint    selected_idx = 0;
+					if(PgmL.CatList.Search(PgmL.SelectedCatSurrogateId, &selected_idx) > 0) {
+						StrAssocArray::Item item = PgmL.CatList.Get(selected_idx);
+						p_selected_text = item.Txt;
+					}
+					if(ImGui::BeginCombo("##pgmcatlist", p_selected_text)) {
+						for(uint catidx = 0; catidx < PgmL.CatList.getCount(); catidx++) {
+							StrAssocArray::Item item = PgmL.CatList.Get(catidx);
+							if(ImGui::Selectable(item.Txt, item.Id == PgmL.SelectedCatSurrogateId))
+								PgmL.SelectedCatSurrogateId = item.Id;
+						}
+						ImGui::EndCombo();
+					}
+				}
+			}
+			{
+				ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryScrollbar, "##ProgramScrollbar",
+					view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
+				int64 scroll_value = 0;
+				int64 scroll_size = p_lor->P_Scrlr ? p_lor->P_Scrlr->GetCount() : 0;
+				int64 scroll_frame = 1; // @?
+				bool debug_mark = false; // @debug
+				if(scroll_size > 0) {
+					const SUiLayout * p_lo_sb = rTl.FindByIdC(loidProgramGalleryScrollbar);
+					if(p_lo_sb) {
+						//SPoint2F s = r.GetSize();
+						//if(p_ipg->P_)
+						SScroller::Position scrp;
+						if(p_scr)
+							p_scr->GetPosition(scrp);
+						ImDrawFlags sb_flags = 0;
+						ImRect imr = FRectToImRect(p_lo_sb->GetFrameAdjustedToParent());
+						scroll_value = scrp.ItemIdxCurrent;
+						bool sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags);
+						if(sbr) {
+							if(scroll_value >= 0) {
+								PgmGalleryScrollerPosition_Develop.ItemIdxCurrent = static_cast<uint>(scroll_value);
+							}
+							debug_mark = true; // @debug
+						}
+					}
+				}
+				//ImGui::Scrollbar(ImGuiAxis_X);
+			}
 		}
 	}
-public:
-	ImGuiWindowByLayout(const SUiLayout * pLoParent, int loId, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(0)
-	{
-		Helper_Ctr((pLoParent ? pLoParent->FindByIdC(loId) : 0), 0, pWindowId, viewFlags);
-	}
-	ImGuiWindowByLayout(const SUiLayout * pLo, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
-	{
-		Helper_Ctr(pLo, 0, pWindowId, viewFlags);
-	}
-	ImGuiWindowByLayout(const SUiLayout * pLo, SPoint2F & rOffset, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
-	{
-		Helper_Ctr(pLo, &rOffset, pWindowId, viewFlags);
-	}
-	~ImGuiWindowByLayout()
-	{
-		if(P_Lo) {
-			ImGui::End();
-			P_Lo = 0;
-		}
-	}
-	bool IsValid() const { return (P_Lo != 0); }
-	const SUiLayout * P_Lo;
-};
+}
 
 void WsCtl_ImGuiSceneBlock::BuildScene()
 {
@@ -2618,8 +2780,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 				}
 			}
 			else if(_screen == screenSession) {
-				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
-				if(p_tl) {
+				//SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
+				const SUiLayout * p_tl_ = Cache_Layout.Get(&_screen, sizeof(_screen));
+				if(p_tl_) {
 					DAccount st_data_acc;
 					DTSess st_data_tses;
 					St.D_Acc.GetData(st_data_acc);
@@ -2631,14 +2794,24 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						SetScreen(screenAuthSelectSess);
 					}
 					else {
-						p_tl->Evaluate(&evp);
+						SUiLayout tl(*p_tl_);
 						{
-							ImGuiWindowByLayout wbl(p_tl, loidMenuBlock, "##MENUBLOCK", view_flags);
+							SUiLayout * p_tpg = tl.FindById(/*loidSessionProgramGallery*/loidTestProgramGallery);
+							if(p_tpg) {
+								const int lo_id = loidInternalProgramGallery;
+								SUiLayout * p_ipg_ = MakePgmListLayout();
+								if(p_ipg_)
+									p_tpg->Insert(p_ipg_);
+							}
+						}
+						tl.Evaluate(&evp);
+						{
+							ImGuiWindowByLayout wbl(&tl, loidMenuBlock, "##MENUBLOCK", view_flags);
 							if(wbl.IsValid()) {
 							}
 						}
 						{
-							ImGuiWindowByLayout wbl(p_tl, loidSessionInfo, "##SESSIONINFO", view_flags);
+							ImGuiWindowByLayout wbl(&tl, loidSessionInfo, "##SESSIONINFO", view_flags);
 							if(wbl.IsValid()) {
 								SString & r_text_buf = SLS.AcquireRvlStr();
 								r_text_buf.Cat(st_data_acc.SCardCode).CatDiv('-', 1).Cat(st_data_acc.PersonName);
@@ -2661,9 +2834,10 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							}
 						}
 						{
-							ImGuiWindowByLayout wbl(p_tl, loidSessionProgramGallery, "##PROGRAMGALLERY", view_flags);
-							if(wbl.IsValid()) {
-							}
+							ImGuiWindowByLayout wbl(&tl, loidSessionProgramGallery, "##PROGRAMGALLERY", view_flags);
+							EmitProgramGallery(wbl, tl);
+							//if(wbl.IsValid()) {
+							//}
 						}
 					}
 				}
@@ -2809,12 +2983,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						SUiLayout * p_tpg = tl.FindById(loidTestProgramGallery);
 						if(p_tpg) {
 							const int lo_id = loidInternalProgramGallery;
-							//SUiLayout * p_ipg = Cache_Layout.Get(&lo_id, sizeof(lo_id));
 							SUiLayout * p_ipg_ = MakePgmListLayout();
-							if(p_ipg_) {
-								//p_tpg->InsertCopy(p_ipg_);
+							if(p_ipg_)
 								p_tpg->Insert(p_ipg_);
-							}
 						}
 					}
 					tl.Evaluate(&evp);
@@ -2950,127 +3121,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						}
 					}
 					{
-						float total_size = 0.0f;
-						SUiLayout * p_lo_ipg = tl.FindById(loidInternalProgramGallery); // non-const!
-						SUiLayout::Result * p_lor = 0;
-						SScroller * p_scr = 0;
-						if(p_lo_ipg) {
-							p_lor = &p_lo_ipg->GetResult_(); // non-const!
-							p_scr = p_lor->P_Scrlr;
-							if(p_scr) {
-								p_scr->SetPosition(PgmGalleryScrollerPosition_Develop);
-								total_size = p_scr->GetSize();
-								//ImGui::SetNextWindowContentSize(ImVec2(total_size, 0.0f));
-							}
-						}
 						ImGuiWindowByLayout wbl(&tl, loidTestProgramGallery, "##TestProgramGallery", 
 							view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
-						if(wbl.IsValid()) {
-							//ImGui::Text("ADV-01");
-							{
-								SString temp_buf;
-								const bool is_line_content_valid = p_scr ? (p_scr->CheckLineContentIndex(-1) >= 0) : false;
-								SPoint2F offset;
-								if(p_scr) {
-									offset.x = -p_scr->GetCurrentPageTopPoint();
-								}
-								for(uint loidx = 0; loidx < p_lo_ipg->GetChildrenCount(); loidx++) {
-									SUiLayout * p_lo_entry = p_lo_ipg->GetChild(loidx);
-									if(p_lo_entry) {
-										if(!is_line_content_valid || p_scr->CheckLineContentIndex(loidx) > 0) {
-											ImGuiWindowByLayout wbl_entry(p_lo_entry, offset, temp_buf.Z().Cat("##GALLERYENTRY").Cat(p_lo_entry->GetID()), view_flags);
-											if(wbl_entry.IsValid()) {
-												//const uint pe_idx = i-(loidStartProgramEntry+1);
-												const WsCtl_ProgramEntry * p_pe_ = static_cast<const WsCtl_ProgramEntry *>(SUiLayout::GetManagedPtr(p_lo_entry));
-												if(p_pe_) {
-													Texture_CachedFileEntity * p_te = 0;
-													if(p_pe_->PicSymb.NotEmpty()) {
-														Cache_Texture.MakeKey(p_pe_->PicSymb, temp_buf);
-														p_te = Cache_Texture.Get(temp_buf, temp_buf.Len());
-													}
-													if(p_te && p_te->P_Texture) {
-														if(p_pe_->Title.NotEmpty())
-															ImGui::Text(p_pe_->Title);
-														ImVec2 sz(96.0f, 96.0f);
-														ImGui::Image(p_te->P_Texture, sz);
-													}
-													else {
-														if(p_pe_->Category.NotEmpty())
-															ImGui::Text(p_pe_->Category);
-														if(p_pe_->Title.NotEmpty())
-															ImGui::Text(p_pe_->Title);
-													}
-												}
-												/*
-												assert(loidx < PgmL.getCount());
-												if(loidx < PgmL.getCount()) {
-													const WsCtl_ProgramEntry * p_pe = PgmL.at(loidx);
-													if(p_pe->Category.NotEmpty())
-														ImGui::Text(p_pe->Category);
-													if(p_pe->Title.NotEmpty())
-														ImGui::Text(p_pe->Title);
-												}*/
-											}
-											else
-												break;
-										}
-									}
-									else
-										break;
-								}
-							}
-							if(p_lor) {
-								{
-									ImGuiWindowByLayout wsb(&tl, loidProgramGalleryCatSelector, "##ProgramCatSelector",
-									view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
-									if(PgmL.CatList.getCount()) {
-										const char * p_selected_text = 0;
-										uint    selected_idx = 0;
-										if(PgmL.CatList.Search(PgmL.SelectedCatSurrogateId, &selected_idx) > 0) {
-											StrAssocArray::Item item = PgmL.CatList.Get(selected_idx);
-											p_selected_text = item.Txt;
-										}
-										if(ImGui::BeginCombo("##pgmcatlist", p_selected_text)) {
-											for(uint catidx = 0; catidx < PgmL.CatList.getCount(); catidx++) {
-												StrAssocArray::Item item = PgmL.CatList.Get(catidx);
-												if(ImGui::Selectable(item.Txt, item.Id == PgmL.SelectedCatSurrogateId))
-													PgmL.SelectedCatSurrogateId = item.Id;
-											}
-											ImGui::EndCombo();
-										}
-									}
-								}
-								{
-									ImGuiWindowByLayout wsb(&tl, loidProgramGalleryScrollbar, "##ProgramScrollbar",
-										view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
-									int64 scroll_value = 0;
-									int64 scroll_size = p_lor->P_Scrlr ? p_lor->P_Scrlr->GetCount() : 0;
-									int64 scroll_frame = 1; // @?
-									bool debug_mark = false; // @debug
-									if(scroll_size > 0) {
-										const SUiLayout * p_lo_sb = tl.FindByIdC(loidProgramGalleryScrollbar);
-										if(p_lo_sb) {
-											//SPoint2F s = r.GetSize();
-											//if(p_ipg->P_)
-											SScroller::Position scrp;
-											if(p_scr)
-												p_scr->GetPosition(scrp);
-											ImDrawFlags sb_flags = 0;
-											ImRect imr = FRectToImRect(p_lo_sb->GetFrameAdjustedToParent());
-											scroll_value = scrp.ItemIdxCurrent;
-											bool sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags);
-											if(sbr) {
-												if(scroll_value >= 0) {
-													PgmGalleryScrollerPosition_Develop.ItemIdxCurrent = static_cast<uint>(scroll_value);
-												}
-												debug_mark = true; // @debug
-											}
-										}
-									}
-									//ImGui::Scrollbar(ImGuiAxis_X);
-								}
-							}
-						}
+						EmitProgramGallery(wbl, tl);
 					}
 					/*{
 						ImGuiWindowByLayout wbl(p_tl, loidAdv02, "##ADV-02", view_flags);

@@ -1,22 +1,29 @@
 // GDSPACK.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// @codepage UTF-8
+// Пакет товара и сопутствующие объекты (PPGoodsPacket, PPGdsClsProp, PPGdsClsDim, PPGdsClsPacket, etc)
 //
 #include <pp.h>
 #pragma hdrstop
 //
 // PPGoodsPacket
 //
-PPGoodsPacket::PPGoodsPacket() : P_Filt(0), P_Quots(0), P_Gled(0)
+PPGoodsPacket::PPGoodsPacket() : P_Filt(0), P_Quots(0), P_Gled(0), UpdFlags(0), ClsDimZeroFlags(0)
 {
-	destroy();
+	// @v11.8.1 destroy();
 }
 
 PPGoodsPacket::~PPGoodsPacket()
 {
-	destroy();
+	// @v11.8.1 destroy();
+	// @v11.8.1 {
+	ZDELETE(P_Filt);
+	ZDELETE(P_Quots);
+	ZDELETE(P_Gled);
+	// } @v11.8.1 
 }
 
-void PPGoodsPacket::destroy()
+PPGoodsPacket & PPGoodsPacket::Z()
 {
 	UpdFlags = 0;
 	ClsDimZeroFlags = 0;
@@ -33,12 +40,18 @@ void PPGoodsPacket::destroy()
 	TagL.Destroy();
 	GenericList.Set(0);
 	GS.Init(); // @v10.3.8 @fix
+	return *this;
 }
 
 PPGoodsPacket & FASTCALL PPGoodsPacket::operator = (const PPGoodsPacket & rS)
 {
 	if(this != &rS) {
-		destroy();
+		// @v11.8.1 destroy();
+		// @v11.8.1 {
+		ZDELETE(P_Filt);
+		ZDELETE(P_Quots);
+		ZDELETE(P_Gled);
+		// } @v11.8.1 
 		UpdFlags = rS.UpdFlags;
 		ClsDimZeroFlags = rS.ClsDimZeroFlags;
 		Rec = rS.Rec;
@@ -90,19 +103,19 @@ int FASTCALL PPGoodsPacket::GetGroupCode(SString & rBuf) const
 	return rBuf.NotEmptyS() ? 1 : -1;
 }
 
-int PPGoodsPacket::SetGroupCode(const char * buf)
+int PPGoodsPacket::SetGroupCode(const char * pBuf)
 {
 	Codes.clear();
-	if(buf && buf[0]) {
-		char   temp[32];
+	if(!isempty(pBuf)) {
+		char   temp[64];
 		char * p;
-		if(buf[0] != '@') {
+		if(pBuf[0] != '@') {
 			temp[0] = '@';
 			p = temp+1;
 		}
 		else
 			p = temp;
-		strnzcpy(p, buf, sizeof(temp) - 1);
+		strnzcpy(p, pBuf, sizeof(temp) - 1);
 		return AddCode(temp, 0, 1L);
 	}
 	else
@@ -122,9 +135,9 @@ int PPGoodsPacket::GetArCode(PPID arID, SString & rCode) const
 	return ok;
 }
 
-int PPGoodsPacket::IsExtRecEmpty() const
+bool PPGoodsPacket::IsExtRecEmpty() const
 {
-	return (ExtRec.KindID || ExtRec.GradeID || ExtRec.AddObjID || ExtRec.AddObj2ID || ExtRec.X || ExtRec.Y || ExtRec.Z || ExtRec.W) ? 0 : 1;
+	return !(ExtRec.KindID || ExtRec.GradeID || ExtRec.AddObjID || ExtRec.AddObj2ID || ExtRec.X || ExtRec.Y || ExtRec.Z || ExtRec.W);
 }
 
 /*static*/int PPGoodsPacket::ValidateAddedMsgSign(const char * pSign, size_t signBufSize)
@@ -132,8 +145,8 @@ int PPGoodsPacket::IsExtRecEmpty() const
 	int    ok = 1;
 	int    par_open = 0;
 	uint   in_par_count = 0;
-	if(!isempty(pSign)) {
-		const size_t len = sstrlen(pSign);
+	const  size_t len = sstrlen(pSign);
+	if(len) {
 		if(signBufSize && len >= signBufSize)
 			ok = 0;
 		else {
@@ -262,12 +275,12 @@ int PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, const 
 //
 PPGdsClsProp::PPGdsClsProp() : ItemsListID(0)
 {
-	PTR32(Name)[0] = 0;
+	Name[0] = 0;
 }
 
 PPGdsClsProp & PPGdsClsProp::Z()
 {
-	PTR32(Name)[0] = 0;
+	Name[0] = 0;
 	ItemsListID = 0;
 	return *this;
 }
@@ -283,12 +296,12 @@ PPGdsClsProp & FASTCALL PPGdsClsProp::operator = (const PPGdsClsProp & s)
 //
 PPGdsClsDim::PPGdsClsDim() : Scale(0)
 {
-	PTR32(Name)[0] = 0;
+	Name[0] = 0;
 }
 
 PPGdsClsDim & PPGdsClsDim::Z()
 {
-	PTR32(Name)[0] = 0;
+	Name[0] = 0;
 	Scale = 0;
 	ValList.Z(); // @v11.2.7 freeAll()-->Z()
 	return *this;
@@ -361,7 +374,7 @@ PPGdsCls2::PPGdsCls2()
 }
 
 void   PPGdsCls2::SetDynGenMask(int fld, int val) { DynGenMask |= (1 << (fld-1)); }
-int    FASTCALL PPGdsCls2::GetDynGenMask(int fld) const { return (DynGenMask & (1 << (fld-1))) ? 1 : 0; }
+bool   FASTCALL PPGdsCls2::GetDynGenMask(int fld) const { return LOGIC(DynGenMask & (1 << (fld-1))); }
 
 /*static*/long FASTCALL PPGdsCls2::UseFlagToE(long useFlag)
 {
@@ -615,7 +628,9 @@ int PPGdsClsPacket::CheckForSgg(long sym, SubstGrpGoods sgg) const
 {
 	int    r = 1;
 	if(sgg != sggNone && sym != PPSYM_GC_NAME) {
-		long   sym1 = 0, sym2 = 0, sym3 = 0;
+		long   sym1 = 0;
+		long   sym2 = 0;
+		long   sym3 = 0;
 		if(sgg == sggDimX)
 			sym1 = PPSYM_GC_DIMX;
 		else if(sgg == sggDimY)

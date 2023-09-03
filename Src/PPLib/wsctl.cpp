@@ -166,6 +166,7 @@ WsCtl_ClientPolicy & WsCtl_ClientPolicy::Z()
 	SysPassword.Z();
 	SsAppEnabled.Z();
 	SsAppDisabled.Z();
+	SsAppPaths.Z(); // @v11.8.1
 	return *this;
 }
 
@@ -206,21 +207,29 @@ SJson * WsCtl_ClientPolicy::ToJsonObj() const
 		if(SsAppEnabled.getCount()) {
 			SJson * p_js_arr = SJson::CreateArr();
 			for(uint ssp = 0; SsAppEnabled.get(&ssp, temp_buf);) {
-				if(temp_buf.NotEmptyS()) {
+				if(temp_buf.NotEmptyS())
 					p_js_arr->InsertChild(SJson::CreateString(temp_buf));
-				}
 			}
 			p_js_app->Insert("enable", p_js_arr);
 		}
 		if(SsAppDisabled.getCount()) {
 			SJson * p_js_arr = SJson::CreateArr();
 			for(uint ssp = 0; SsAppDisabled.get(&ssp, temp_buf);) {
-				if(temp_buf.NotEmptyS()) {
+				if(temp_buf.NotEmptyS())
 					p_js_arr->InsertChild(SJson::CreateString(temp_buf));
-				}
 			}
 			p_js_app->Insert("disable", p_js_arr);
 		}
+		// @v11.8.1 {
+		if(SsAppPaths.getCount()) {
+			SJson * p_js_arr = SJson::CreateArr();
+			for(uint ssp = 0; SsAppPaths.get(&ssp, temp_buf);) {
+				if(temp_buf.NotEmptyS())
+					p_js_arr->InsertChild(SJson::CreateString(temp_buf));
+			}
+			p_js_app->Insert("paths", p_js_arr);
+		}
+		// } @v11.8.1 
 		p_js->Insert("app", p_js_app);
 	}
 	return p_js;
@@ -249,23 +258,26 @@ int WsCtl_ClientPolicy::FromJsonObj(const SJson * pJsObj)
 			const SJson * p_ac = p_c->FindChildByKey("enable");
 			if(SJson::IsArray(p_ac)) {
 				for(const SJson * p_js_item = p_ac->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
-					if(SJson::IsString(p_js_item)) {
-						(temp_buf = p_js_item->Text).Unescape();
-						if(temp_buf.NotEmptyS())
-							SsAppEnabled.add(temp_buf);
-					}
+					if(SJson::IsString(p_js_item) && (temp_buf = p_js_item->Text).NotEmptyS())
+						SsAppEnabled.add(temp_buf.Unescape());
 				}
 			}
 			p_ac = p_c->FindChildByKey("disable");
 			if(SJson::IsArray(p_ac)) {
 				for(const SJson * p_js_item = p_ac->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
-					if(SJson::IsString(p_js_item)) {
-						(temp_buf = p_js_item->Text).Unescape();
-						if(temp_buf.NotEmptyS())
-							SsAppDisabled.add(temp_buf);
-					}
+					if(SJson::IsString(p_js_item) && (temp_buf = p_js_item->Text).NotEmptyS())
+						SsAppDisabled.add(temp_buf.Unescape());
 				}
 			}
+			// @v11.8.1 {
+			p_ac = p_c->FindChildByKey("paths");
+			if(SJson::IsArray(p_ac)) {
+				for(const SJson * p_js_item = p_ac->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+					if(SJson::IsString(p_js_item) && (temp_buf = p_js_item->Text).NotEmptyS())
+						SsAppPaths.add(temp_buf.Unescape());
+				}
+			}
+			// } @v11.8.1 
 		}
 		ok = 1;			
 	}

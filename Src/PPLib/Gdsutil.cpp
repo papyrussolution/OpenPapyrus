@@ -971,8 +971,10 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 		PPID   loc_id = 0; // @todo Нужен перебор по складам. Вероятно, цикл следует инициировать для каждого товара по складам, на которых есть или были лоты этого товара.
 		SString temp_buf;
 		SString fmt_buf;
+		SString fmt_buf_uncert;
 		SString msg_buf;
 		PPLoadText(PPTXT_SETBOMESTVALUE, fmt_buf);
+		PPLoadText(PPTXT_BOMESTVALUENOTSET_UNCERT, fmt_buf_uncert);
 		PPWait(1);
 		PPTransaction tra(1);
 		THROW(tra);
@@ -987,7 +989,13 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 					double bom_value = 0.0;
 					int    uncert = 0;
 					gs_selected.CalcEstimationPrice(loc_id, &bom_value, &uncert, 1);
-					if(!uncert) {
+					if(uncert) {
+						// @todo logmessage
+						temp_buf.Z().Cat(goods_rec.Name);
+						msg_buf.Printf(fmt_buf_uncert, temp_buf.cptr());
+						logger.Log(msg_buf);
+					}
+					else {
 						PPQuot q(goods_id);
 						q.Kind = qk_rec.ID;
 						q.LocID = loc_id;

@@ -5023,7 +5023,7 @@ public:
 
 	GoodsCore();
 	~GoodsCore();
-	int    Validate(const Goods2Tbl::Rec * pRec);
+	bool   IsRecValid(const Goods2Tbl::Rec * pRec);
 	int    Update(PPID * pID, Goods2Tbl::Rec *, int use_ta);
 	int    UpdateBarcodes(PPID goodsID, const BarcodeArray * pCodeList, int use_ta);
 	int    UpdateArCodes(PPID goodsID, const ArGoodsCodeArray * pCodeList, int use_ta);
@@ -19302,7 +19302,7 @@ struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
 
 	PPGdsCls2();
 	void   SetDynGenMask(int fld, int val);
-	int    FASTCALL GetDynGenMask(int fld) const;
+	bool   FASTCALL GetDynGenMask(int fld) const;
 
 	enum { // @persistent
 		eKind  = 1,
@@ -29216,7 +29216,12 @@ public:
 	int    ReadFromProp(PPID obj, PPID id, PPID prop, PPID propBefore8604);
 	int    WriteToProp(PPID obj, PPID id, PPID prop, PPID propBefore8604);
 
-	char   ReserveStart[26];   // @anchor Проецируется на __GoodsFilt::Reserve // @v11.5.8 [4]-->[28] // @v11.6.2 [28]-->[26]
+	char   ReserveStart[8];    // @anchor Проецируется на __GoodsFilt::Reserve // @v11.5.8 [4]-->[28] // @v11.6.2 [28]-->[26] // @v11.8.1 [26]-->[8]
+	IntRange IdRange;          // @v11.8.1 @construction Диапазон идентификаторов товаров
+	IntRange GrpCountRange;    // @v11.8.1 @construction Диапазон мощностей родительских групп (по-человечески: диапазон, в который попадает количество товаров, 
+		// находящихся в родительской группе). Критерий нужен для извлечения товаров, принадлежащих группам, в которых либо очень мало, либо очень много товаров
+		// для наведения порядка в справочнике.
+	uint16 Reserve;            // @v11.8.1 @alignment  
 	int16  AheadExpiryDays;    // @v11.6.2 Минимальное количество дней до истечения срока, при котором товарная позиция попадает в риск-категорию (see f2SoonExpiredOnly)
 	PPID   GoodsLocAssocID;    // @v11.5.8 Если установлен флаг Flags2 & f2ShowWhPlace то в этом поле может быть определен id именованной ассоциации.
 	PPID   UhttStoreID;        // Магазин Universe-HTT в контексте которого извлекаются товары.
@@ -29613,14 +29618,14 @@ class PPGoodsPacket {
 public:
 	PPGoodsPacket();
 	~PPGoodsPacket();
-	void   destroy();
+	PPGoodsPacket & Z();
 	PPGoodsPacket & FASTCALL operator = (const PPGoodsPacket &);
 	int    AddCode(const char *, long codeType, double uPerP);
 	int    FASTCALL GetGroupCode(SString & rBuf) const;
 	int    SetGroupCode(const char *);
 	int    GetExtStrData(int fldID, SString & rBuf) const;
 	int    PutExtStrData(int fldID, const SString & rBuf/*const char * pBuf*/);
-	int    IsExtRecEmpty() const;
+	bool   IsExtRecEmpty() const;
 	GoodsPacketKind GetPacketKind() const;
 	int    GetArCode(PPID arID, SString & rCode) const;
 	static int ValidateAddedMsgSign(const char * pSign, size_t signBufSize);
@@ -48261,6 +48266,7 @@ private:
 	SJson * MakeObjJson_Brand(const SBinaryChunk & rOwnIdent, const PPBrandPacket & rPack, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjArrayJson_Brand(const SBinaryChunk & rOwnIdent, PPIDArray & rIdList, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
 	SJson * MakeObjJson_Prc(const SBinaryChunk & rOwnIdent, const ProcessorTbl::Rec & rRec, uint flags, Stq_CmdStat_MakeRsrv_Response * pStat);
+	SJson * MakeObjJson_Address(PPID addrID);
 	int    MakeInnerGoodsList(const PPIDArray & rGoodsIdList);
 	int    MakeDocDeclareJs(const StyloQCommandList::Item & rCmdItem, const char * pDl600Symb, SString & rDocDeclaration);
 	//
@@ -48432,12 +48438,13 @@ public:
 	StyloQDocumentPrereqParam & FASTCALL operator = (const StyloQDocumentPrereqParam & rS);
 
 	enum {
-		fUseBarcodeSearch  = 0x0001, // На клиенте будет доступна функция поиска по штрихкоду
-		fUseBrands         = 0x0002, // Отправлять клиенту список брендов. Флаг действителен только если PalmID == 0, в противном случае этим управляют опции записи StyloPalm
-		fDlvrDateAsNominal = 0x0004, // @v11.6.1 Трактовать дату исполнения заказа как номинальную дату документа
-		fUseHierarchGroups = 0x0008, // @v11.6.4 На клиенте товарные группы представлены иерархическим списком. Сервис отправляет данные по группам со ссылками
+		fUseBarcodeSearch   = 0x0001, // На клиенте будет доступна функция поиска по штрихкоду
+		fUseBrands          = 0x0002, // Отправлять клиенту список брендов. Флаг действителен только если PalmID == 0, в противном случае этим управляют опции записи StyloPalm
+		fDlvrDateAsNominal  = 0x0004, // @v11.6.1 Трактовать дату исполнения заказа как номинальную дату документа
+		fUseHierarchGroups  = 0x0008, // @v11.6.4 На клиенте товарные группы представлены иерархическим списком. Сервис отправляет данные по группам со ссылками
 			// на родительские группы.
-		fHideStock         = 0x0010  // @v11.6.4 Не отображать остатки на клиентском устройстве
+		fHideStock          = 0x0010, // @v11.6.4 Не отображать остатки на клиентском устройстве
+		fExpPsnAddresses    = 0x0020, // @v11.8.1 Экспортировать собственные адреса персоналий (основной и фактический). Этот флаг не влияет на экспорт списка адресов доставки!
 	};
 
 	uint8    ReserveStart[64]; // @anchor

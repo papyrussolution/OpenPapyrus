@@ -805,6 +805,9 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 {
 	SETFLAG(Flags, fEditMode, isEdit);
 	const int is_cash = BIN(P_Pack->Rec.Flags & BILLF_CASH);
+	PPObjOprKind op_obj;
+	PPOprKind  op_rec;
+	GetOpData(P_Pack->Rec.OpID, &op_rec);
 	Ptb.SetBrush(brushIllPaymDate, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 	Ptb.SetBrush(brushSynced, SPaintObj::bsSolid, GetColorRef(SClrLightsteelblue), 0);
 	const long lcfgf = LConfig.Flags;
@@ -834,23 +837,32 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 	SetupCalPeriod(CTLCAL_BILL_PERIOD, CTL_BILL_PERIOD);
 	disableCtrls(is_cash || (Flags & fEditMode && !P_BObj->CheckRights(BILLRT_MODDATE)), CTL_BILL_DATE, CTLCAL_BILL_DATE, 0);
 	{
-		const int do_disable_object = (Flags & fEditMode && !P_BObj->CheckRights(BILLOPRT_MODOBJ, 1));
+		const bool do_disable_object = (Flags & fEditMode && !P_BObj->CheckRights(BILLOPRT_MODOBJ, 1));
 		disableCtrl(CTLSEL_BILL_OBJECT, do_disable_object);
 		SetupAgreementButton();
 	}
-	// @v9.4.3 disableCtrl(CTL_BILL_AMOUNT, BIN(P_Pack->Rec.Flags & BILLF_GOODS || P_Pack->OprType == PPOPT_POOL || P_Pack->IsDraft()));
-	disableCtrl(CTL_BILL_AMOUNT, BIN(P_Pack->IsGoodsDetail() || P_Pack->OpTypeID == PPOPT_POOL)); // @v9.4.3
+	{
+		// @v11.8.1 bool do_disable_amount = (P_Pack->IsGoodsDetail() || P_Pack->OpTypeID == PPOPT_POOL);
+		// @v11.8.1 {
+		bool do_disable_amount = false;
+		if(P_Pack->IsGoodsDetail())
+			do_disable_amount = true;
+		else if(P_Pack->OpTypeID == PPOPT_POOL) {
+			PPBillPoolOpEx bpox;
+			do_disable_amount = !(op_obj.GetPoolExData(P_Pack->Rec.OpID, &bpox) > 0 && (bpox.Flags & BPOXF_AUTOAMOUNT));
+		}
+		// } @v11.8.1 
+		disableCtrl(CTL_BILL_AMOUNT, do_disable_amount);
+	}
 	disableCtrl(CTL_BILL_ADV_TOUT, 1);
 	disableCtrl(CTL_BILL_DEBTSUM, 1);
 	setupPosition();
 	DefaultRect = getRect();
 	showLinkFilesList();
 	{
-		PPOprKind  op_rec;
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
-		GetOpData(P_Pack->Rec.OpID, &op_rec);
-		SETFLAG(Flags, fCheckAgreement, BIN(acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0 && (acs_rec.Flags & (ACSHF_USECLIAGT|ACSHF_USESUPPLAGT))));
+		SETFLAG(Flags, fCheckAgreement, (acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0 && (acs_rec.Flags & (ACSHF_USECLIAGT|ACSHF_USESUPPLAGT))));
 	}
 	setSmartListBoxOption(CTL_BILL_LNKFILELIST, lbtExtMenu);
 }
@@ -2567,8 +2579,8 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	double dis = 0.0;
 	ushort v;
 	AmtEntry * ae;
-	int    dsbl_object = 0;
-	int    dsbl_object2 = 0;
+	bool   dsbl_object = false;
+	bool   dsbl_object2 = false;
 	PPOprKindPacket op_pack;
 	PPObjOprKind    opkobj;
 	PPID   id = 0;
@@ -2637,10 +2649,10 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		SetupArCombo(this, CTLSEL_BILL_OBJECT, P_Pack->Rec.Object,  OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID, sacfNonGeneric);
 		SetupArCombo(this, CTLSEL_BILL_PAYER,  P_Pack->Ext.PayerID, OLW_LOADDEFONOPEN|OLW_CANINSERT, P_Pack->AccSheetID, sacfNonGeneric);
 		if(P_Pack->Rec.LinkBillID || (P_Pack->Rec.ID && !P_BObj->CheckRights(BILLOPRT_MODOBJ, 1)))
-			dsbl_object = 1;
+			dsbl_object = true;
 	}
 	else
-		dsbl_object = 1;
+		dsbl_object = true;
 	SetupAgreementButton();
 	if(op_pack.Rec.AccSheet2ID) {
 		PPClientAgreement ca_rec;
@@ -2650,7 +2662,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		setStaticText(CTL_BILL_OBJ2NAME, temp_buf);
 	}
 	else
-		dsbl_object2 = 1;
+		dsbl_object2 = true;
 	disableCtrls(dsbl_object2, CTL_BILL_OBJ2, CTLSEL_BILL_OBJ2, CTL_BILL_OBJ2NAME, 0);
 	showCtrl(CTL_BILL_OBJ2,     !dsbl_object2);
 	showCtrl(CTLSEL_BILL_OBJ2,  !dsbl_object2);

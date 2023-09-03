@@ -5,8 +5,10 @@
 #pragma hdrstop
 
 SFindFile::SFindFile(const char * pPath /* =0 */, const char * pFileName /* =0 */) :
-	P_Path(pPath), P_FileName(pFileName), P_SubStr(0), Flags(0), DirCount(0), FileCount(0)
+	P_Path(pPath), Flags(0), State(0), DirCount(0), FileCount(0)
 {
+	FileNamePattern = pFileName;
+	//SubStr
 }
 
 int SFindFile::CallbackProc(const char * pPath, SDirEntry * pEntry)
@@ -21,8 +23,7 @@ static int Helper_SFindFile(const SString * pPath, SFindFile * pParam)
 	if(!RVALUEPTR(path, pPath))
 		path = pParam->P_Path;
 	path.Strip().SetLastSlash();
-	inner_path = path;
-	inner_path.CatChar('*').Dot().CatChar('*');
+	(inner_path = path).CatChar('*').Dot().CatChar('*');
 	SDirec dir(inner_path, 1);
 	SDirEntry dir_entry;
 	while(ok && dir.Next(&dir_entry) > 0) {
@@ -38,8 +39,8 @@ static int Helper_SFindFile(const SString * pPath, SFindFile * pParam)
 				ok = 0;
 		}
 	}
-	if(pParam->P_FileName) {
-		(inner_path = path).Cat(pParam->P_FileName);
+	if(pParam->FileNamePattern.NotEmpty()) {
+		(inner_path = path).Cat(pParam->FileNamePattern);
 		for(dir.Init(inner_path, 0); ok && dir.Next(&dir_entry) > 0;) {
 			pParam->FileCount++;
 			if(pParam->CallbackProc(path, &dir_entry) == 0)
@@ -52,6 +53,30 @@ static int Helper_SFindFile(const SString * pPath, SFindFile * pParam)
 int SFindFile::Run()
 {
 	return Helper_SFindFile(0, this);
+}
+//
+//
+//
+SFindFile_ToPool::SFindFile_ToPool(const char * pPath, const char * pFileName) : SFindFile(pPath, pFileName), P_UserContainer(0)
+{
+}
+
+/*virtual*/int SFindFile_ToPool::CallbackProc(const char * pPath, SDirEntry * pEntry)
+{
+	if(P_UserContainer && pEntry) {
+		//if(sstreqi_ascii(FileNamePattern.cptr(), pEntry->Name))
+			P_UserContainer->Add(pPath, *pEntry);
+	}
+	return 1;
+}
+
+int SFindFile_ToPool::Run(SFileEntryPool & rResult)
+{
+	int    ok = -1;
+	rResult.Z();
+	P_UserContainer = &rResult;
+	ok = SFindFile::Run();
+	return ok;
 }
 //
 // TEST

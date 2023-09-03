@@ -7414,6 +7414,29 @@ PPStyloQInterchange::InnerGoodsEntry & PPStyloQInterchange::InnerGoodsEntry::Z()
 	return *this;
 }
 
+SJson * PPStyloQInterchange::MakeObjJson_Address(PPID addrID)
+{
+	SJson * p_result = 0;
+	if(addrID) {
+		PPObjLocation loc_obj;
+		LocationTbl::Rec loc_rec;
+		SString addr_buf;
+		if(loc_obj.Fetch(addrID, &loc_rec) > 0 && LocationCore::GetAddress(loc_rec, 0, addr_buf) && addr_buf.NotEmptyS()) {
+			p_result = SJson::CreateObj();
+			p_result->InsertInt("id", loc_rec.ID);
+			p_result->InsertString("addr", addr_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+			{
+				SGeoPosLL geopos(loc_rec.Latitude, loc_rec.Longitude);
+				if(geopos.IsValid() && !geopos.IsZero()) {
+					p_result->InsertDouble("lat", geopos.Lat, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+					p_result->InsertDouble("lon", geopos.Lon, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+				}
+			}
+		}
+	}
+	return p_result;
+}
+
 int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryChunk & rOwnIdent, const StyloQDocumentPrereqParam & rParam, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat)
 {
 	int    ok = 1;
@@ -7440,7 +7463,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 	if(!rParam.PalmID || !(palm_pack.Rec.Flags & PLMF_BLOCKED)) {
 		SJson * p_js_client_list = 0;
 		SString wait_msg;
-		SString addr;
+		SString addr_buf;
 		SString inn_buf;
 		SString kpp_buf;
 		PPIDArray dlvr_loc_list;
@@ -7453,6 +7476,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 		PPObjAccSheet acc_sheet_obj;
 		PPAccSheet acs_rec;
 		PPOprKind op_rec;
+		PersonTbl::Rec psn_rec; // @v11.8.1
 		//StyloQBlobInfo blob_info;
 		SString blob_signature;
 		PPID   op_id = 0;
@@ -7490,10 +7514,6 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 						_def_due_period_hr = cli_agt.DefDuePeriodHour;
 					// } @v11.4.8 
 				}
-				if(acs_rec.Assoc == PPOBJ_PERSON) {
-					psn_obj.GetRegNumber(ar_item.ObjID, PPREGT_TPID, inn_buf);
-					psn_obj.GetRegNumber(ar_item.ObjID, PPREGT_KPP, kpp_buf);
-				}
 				if(rParam.PalmID && (palm_pack.Rec.Flags & PLMF_EXPSTOPFLAG) && (ar_item.Flags & ARTRF_STOPBILL)) {
 					_flags |= CLIENTF_BLOCKED;
 				}
@@ -7504,11 +7524,23 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 				SJson * p_js_obj = SJson::CreateObj();
 				p_js_obj->InsertInt("id", ar_item.ID);
 				p_js_obj->InsertString("nm", (temp_buf = ar_item.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-				if(inn_buf.NotEmpty()) {
-					p_js_obj->InsertString("ruinn", inn_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
-					if(kpp_buf.NotEmpty())
-						p_js_obj->InsertString("rukpp", kpp_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+				if(acs_rec.Assoc == PPOBJ_PERSON && psn_obj.Fetch(ar_item.ObjID, &psn_rec) > 0) {
+					psn_obj.GetRegNumber(ar_item.ObjID, PPREGT_TPID, inn_buf);
+					psn_obj.GetRegNumber(ar_item.ObjID, PPREGT_KPP, kpp_buf);
+					if(inn_buf.NotEmpty()) {
+						p_js_obj->InsertString("ruinn", inn_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						if(kpp_buf.NotEmpty())
+							p_js_obj->InsertString("rukpp", kpp_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					}
+					// @v11.8.1 {
+					if(rParam.Flags & StyloQDocumentPrereqParam::fExpPsnAddresses) {
+						p_js_obj->InsertNz("mainaddr", MakeObjJson_Address(psn_rec.MainLoc));
+						p_js_obj->InsertNz("raddr", MakeObjJson_Address(psn_rec.RLoc));
+					}
+					// } @v11.8.1 
 				}
+				else
+					psn_rec.ID = 0; // Явный признак того, что со статьей персоналия не ассоциирована!
 				if(quot_kind_id) {
 					p_js_obj->InsertInt("quotkind", quot_kind_id); // @v11.7.1 @fix "quotkid"-->"quotkind"
 				}
@@ -7523,9 +7555,9 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 					p_js_obj->InsertBool("dontuseminshipmqty", true);
 				if(_flags & CLIENTF_BLOCKED)
 					p_js_obj->InsertBool("blocked", true);
-				if(acs_rec.Assoc == PPOBJ_PERSON) {
+				if(/*acs_rec.Assoc == PPOBJ_PERSON*/psn_rec.ID) {
 					{
-						const PPObjID oid(PPOBJ_PERSON, ar_item.ObjID);
+						const PPObjID oid(PPOBJ_PERSON, psn_rec.ID);
 						Stq_CmdStat_MakeRsrv_Response::RegisterOid(pStat, oid);
 						if(FetchBlobSignature(rOwnIdent, oid, 0, blob_signature)) {
 							assert(blob_signature.Len() && blob_signature.IsAscii());
@@ -7533,32 +7565,21 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 							Stq_CmdStat_MakeRsrv_Response::RegisterBlobOid(pStat, oid);
 						}
 					}
-					SJson * p_js_dlvrloc_list = 0;
 					dlvr_loc_list.clear();
-					LocationTbl::Rec loc_rec;
-					THROW(psn_obj.GetDlvrLocList(ar_item.ObjID, &dlvr_loc_list));
-					for(uint i = 0; i < dlvr_loc_list.getCount(); i++) {
-						const PPID dlvr_loc_id = dlvr_loc_list.at(i);
-						if(loc_obj.Fetch(dlvr_loc_id, &loc_rec) > 0 && LocationCore::GetAddress(loc_rec, 0, addr) && addr.NotEmptyS()) {
-							SJson * p_js_adr = SJson::CreateObj();
-							p_js_adr->InsertInt("id", dlvr_loc_id);
-							p_js_adr->InsertString("addr", (temp_buf = addr).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-							// @v11.6.1 {
-							{
-								SGeoPosLL geopos(loc_rec.Latitude, loc_rec.Longitude);
-								if(geopos.IsValid() && !geopos.IsZero()) {
-									p_js_adr->InsertDouble("lat", geopos.Lat, MKSFMTD(0, 12, NMBF_NOTRAILZ));
-									p_js_adr->InsertDouble("lon", geopos.Lon, MKSFMTD(0, 12, NMBF_NOTRAILZ));
-								}
+					THROW(psn_obj.GetDlvrLocList(psn_rec.ID, &dlvr_loc_list));
+					if(dlvr_loc_list.getCount()) {
+						SJson * p_js_dlvrloc_list = 0;
+						for(uint i = 0; i < dlvr_loc_list.getCount(); i++) {
+							SJson * p_js_adr = MakeObjJson_Address(dlvr_loc_list.at(i));
+							if(p_js_adr) {
+								SETIFZ(p_js_dlvrloc_list, SJson::CreateArr());
+								p_js_dlvrloc_list->InsertChild(p_js_adr);
+								if(pStat)
+									pStat->DlvrLocCount++;
 							}
-							// } @v11.6.1 
-							SETIFZ(p_js_dlvrloc_list, SJson::CreateArr());
-							p_js_dlvrloc_list->InsertChild(p_js_adr);
-							if(pStat)
-								pStat->DlvrLocCount++;
 						}
+						p_js_obj->InsertNz("dlvrloc_list", p_js_dlvrloc_list);
 					}
-					p_js_obj->InsertNz("dlvrloc_list", p_js_dlvrloc_list);
 				}
 				if(p_debt_view) {
 					SJson * p_js_debtlist = 0;
@@ -8166,6 +8187,7 @@ int StyloQAttendancePrereqParam::InitInstance()
 			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 2, StyloQDocumentPrereqParam::fDlvrDateAsNominal); // @v11.6.1
 			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 3, StyloQDocumentPrereqParam::fUseHierarchGroups); // @v11.6.4
 			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 4, StyloQDocumentPrereqParam::fHideStock); // @v11.6.4
+			AddClusterAssoc(CTL_STQDOCPARAM_FLAGS, 5, StyloQDocumentPrereqParam::fExpPsnAddresses); // @v11.8.1
 			SetClusterData(CTL_STQDOCPARAM_FLAGS, Data.Flags);
 			SetupCtrls();
 			return ok;

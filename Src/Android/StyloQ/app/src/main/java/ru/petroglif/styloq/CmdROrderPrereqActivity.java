@@ -94,6 +94,24 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RUINN, ruinn, nm);
 						String rukpp = ce.JsItem.optString("rukpp");
 						CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RUKPP, rukpp, nm);
+						// @v11.8.1 {
+						// Следующие 2 адреса (если определены) ассоциируются с идентификатором персоналии.
+						// То есть id из json-объекта адреса мы игнорируем (это ид локации в базе данных сервиса)
+						{
+							JSONObject js_item = ce.JsItem.optJSONObject("mainaddr");
+							if(js_item != null) {
+								String addr = js_item.optString("addr");
+								CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RAWMAINADDR, addr, nm);
+							}
+						}
+						{
+							JSONObject js_item = ce.JsItem.optJSONObject("raddr");
+							if(js_item != null) {
+								String addr = js_item.optString("addr");
+								CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RAWRADDR, addr, nm);
+							}
+						}
+						// } @v11.8.1
 						JSONArray dlvr_loc_list = ce.JsItem.optJSONArray("dlvrloc_list");
 						if(dlvr_loc_list != null) {
 							for(int j = 0; j < dlvr_loc_list.length(); j++) {

@@ -3066,7 +3066,7 @@ protected:
 			}
 		}
 		// } @v10.9.0 
-		else if(event.isCmd(cmCopyToClipboardAll)) {
+		/* @v11.8.1 (Увы, реализацию пришлось разнести по порожденным классам - для каждого встречаются нюансы) else if(event.isCmd(cmCopyToClipboardAll)) {
 			SString buf_to_copy;
 			SString temp_buf;
 			StringSet ss;
@@ -3078,20 +3078,17 @@ protected:
 					temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
 					buf_to_copy.Cat(temp_buf).CRB();
 					ms.GetByBoxID(msentry.BoxID, ss);
-					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						//temp_buf.Insert(0, " "); @erik	 v10.4.9
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);)
 						buf_to_copy.Cat(temp_buf).CRB();
-					}
 				}
 			}
 			ms.GetByBoxID(0, ss);
 			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 				buf_to_copy.Cat(temp_buf).CRB();
 			}
-			if(buf_to_copy.NotEmpty()) {
+			if(buf_to_copy.NotEmpty())
 				SClipboard::Copy_Text(buf_to_copy, buf_to_copy.Len());
-			}
-		}
+		} */
 		//@erik v10.8.2 {
 		//else if(event.isCmd(cmPasteFromClipboardAll)){
 		//	PasteFromClipboardAll();
@@ -3277,6 +3274,50 @@ private:
 				else
 					p_draw_item->ItemAction = 0; // Список не активен - строку не рисуем
 			}
+		}
+		else if(event.isCmd(cmCopyToClipboardAll)) { // @v11.8.1
+			SString temp_buf;
+			SString buf_to_copy;
+			StringSet ss;
+			PPLotExtCodeContainer::MarkSet ms;
+			PPLotExtCodeContainer::MarkSet::Entry msentry;
+			LongArray idx_list;
+			Data.Get(RowIdx, &idx_list, ms);
+			for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
+				if(ms.GetByIdx(boxidx, msentry)) {
+					if(msentry.Flags & PPLotExtCodeContainer::fBox) {
+						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
+						//THROW(addStringToList(list_pos_idx, temp_buf));
+						ms.GetByBoxID(msentry.BoxID, ss);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							temp_buf.Insert(0, " ");
+							buf_to_copy.Cat(temp_buf).CRB();
+							//THROW(addStringToList(list_pos_idx, temp_buf));
+						}
+					}
+				}
+			}
+			{
+				ms.GetByBoxID(0, ss);
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					//THROW(addStringToList(list_pos_idx, temp_buf));
+					buf_to_copy.Cat(temp_buf).CRB();
+				}
+			}
+			if(ViewFlags & vfShowUncheckedItems) {
+				uint oc = P_Pack->XcL.GetCount();
+				PPLotExtCodeContainer::Item2 oi;
+				for(uint i = 0; i < oc; i++) {
+					if(P_Pack->XcL.GetByIdx(i, oi)) {
+						int   row_idx = 0;
+						uint  inner_idx = 0;
+						if(!Data.Search(oi.Num, &row_idx, &inner_idx))
+							buf_to_copy.Cat(oi.Num).CRB();
+					}
+				}
+			}
+			if(buf_to_copy.NotEmpty())
+				SClipboard::Copy_Text(buf_to_copy, buf_to_copy.Len());
 		}
 		else if(event.isCmd(cmPasteFromClipboardAll)) { // @erik v10.8.2 
 			PasteFromClipboardAll(/*validation*/1);
@@ -3535,6 +3576,29 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 						updateList(-1);
 					}
 				}
+			}
+			else if(event.isCmd(cmCopyToClipboardAll)) { // @v11.8.1
+				SString buf_to_copy;
+				SString temp_buf;
+				StringSet ss;
+				PPLotExtCodeContainer::MarkSet ms;
+				PPLotExtCodeContainer::MarkSet::Entry msentry;
+				Data.Get(RowIdx, 0, ms);
+				for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
+					if(ms.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
+						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
+						buf_to_copy.Cat(temp_buf).CRB();
+						ms.GetByBoxID(msentry.BoxID, ss);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);)
+							buf_to_copy.Cat(temp_buf).CRB();
+					}
+				}
+				ms.GetByBoxID(0, ss);
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					buf_to_copy.Cat(temp_buf).CRB();
+				}
+				if(buf_to_copy.NotEmpty())
+					SClipboard::Copy_Text(buf_to_copy, buf_to_copy.Len());
 			}
 			else if(event.isCmd(cmPasteFromClipboardAll)) { // @erik v10.8.2 
 				PasteFromClipboardAll(/*validation*/0);

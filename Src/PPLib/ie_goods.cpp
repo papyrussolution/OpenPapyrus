@@ -874,12 +874,11 @@ int SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 //
 // Export
 //
-PPGoodsExporter::PPGoodsExporter()
+PPGoodsExporter::PPGoodsExporter() : P_IEGoods(0)
 {
 	P_GObj = new PPObjGoods;
 	P_PsnObj = new PPObjPerson;
 	P_QcObj = new PPObjQCert;
-	P_IEGoods = 0;
 	PPGoodsConfig goods_cfg;
 	PPObjGoods::ReadConfig(&goods_cfg);
 	memzero(WeightPrefix, sizeof(WeightPrefix));

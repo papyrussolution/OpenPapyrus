@@ -2482,8 +2482,8 @@ struct ImGuiWindow {
 public:
 	ImGuiWindow(ImGuiContext* context, const char* name);
 	~ImGuiWindow();
-	ImGuiID GetID(const char* str, const char* str_end = NULL);
-	ImGuiID GetID(const void* ptr);
+	ImGuiID GetID(const char * str, const char* str_end = NULL);
+	ImGuiID GetID(const void * ptr);
 	ImGuiID GetID(int n);
 	ImGuiID GetIDFromRectangle(const ImRect& r_abs);
 	// We don't use g.FontSize because the window may be != g.CurrentWindow.
@@ -2532,6 +2532,7 @@ enum ImGuiTabItemFlagsPrivate_ {
 
 // Storage for one active tab item (sizeof() 40 bytes)
 struct ImGuiTabItem {
+	ImGuiTabItem();
 	ImGuiID ID;
 	ImGuiTabItemFlags Flags;
 	int LastFrameVisible;
@@ -2544,19 +2545,11 @@ struct ImGuiTabItem {
 	int16 BeginOrder;         // BeginTabItem() order, used to re-order tabs after toggling ImGuiTabBarFlags_Reorderable
 	int16 IndexDuringLayout;  // Index only used during TabBarLayout(). Tabs gets reordered so 'Tabs[n].IndexDuringLayout == n' but may mismatch during additions.
 	bool  WantClose;          // Marked as closed by SetTabItemClosed()
-
-	ImGuiTabItem()      
-	{
-		THISZERO(); 
-		LastFrameVisible = LastFrameSelected = -1; 
-		RequestedWidth = -1.0f; 
-		NameOffset = -1; 
-		BeginOrder = IndexDuringLayout = -1;
-	}
 };
 
 // Storage for a tab bar (sizeof() 152 bytes)
 struct ImGuiTabBar {
+	ImGuiTabBar();
 	ImVector<ImGuiTabItem> Tabs;
 	ImGuiTabBarFlags Flags;
 	ImGuiID ID;                   // Zero for tab-bars used by docking
@@ -2588,8 +2581,6 @@ struct ImGuiTabBar {
 	ImVec2 FramePadding;       // style.FramePadding locked at the time of BeginTabBar()
 	ImVec2 BackupCursorPos;
 	ImGuiTextBuffer TabsNames; // For non-docking tab bar we re-append names in a contiguous buffer.
-
-	ImGuiTabBar();
 };
 //
 // [SECTION] Table support
@@ -2606,24 +2597,25 @@ typedef uint16 ImGuiTableDrawChannelIdx;
 // We use the terminology "Clipped" to refer to a column that is out of sight because of scrolling/clipping.
 // This is in contrast with some user-facing api such as IsItemVisible() / IsRectVisible() which use "Visible" to mean "not clipped".
 struct ImGuiTableColumn {
-	ImGuiTableColumnFlags Flags;                        // Flags after some patching (not directly same as provided by user). See ImGuiTableColumnFlags_
-	float WidthGiven;                                   // Final/actual width visible == (MaxX - MinX), locked in TableUpdateLayout(). May be > WidthRequest to honor minimum width, may be < WidthRequest to honor shrinking columns down in tight space.
-	float MinX;                                         // Absolute positions
+	ImGuiTableColumn();
+	ImGuiTableColumnFlags Flags;        // Flags after some patching (not directly same as provided by user). See ImGuiTableColumnFlags_
+	float WidthGiven;                   // Final/actual width visible == (MaxX - MinX), locked in TableUpdateLayout(). May be > WidthRequest to honor minimum width, may be < WidthRequest to honor shrinking columns down in tight space.
+	float MinX;                         // Absolute positions
 	float MaxX;
-	float WidthRequest;                                 // Master width absolute value when !(Flags & _WidthStretch). When Stretch this is derived every frame from StretchWeight in TableUpdateLayout()
-	float WidthAuto;                                    // Automatic width
-	float StretchWeight;                                // Master width weight when (Flags & _WidthStretch). Often around ~1.0f initially.
-	float InitStretchWeightOrWidth;                     // Value passed to TableSetupColumn(). For Width it is a content width (_without padding_).
-	ImRect ClipRect;                                    // Clipping rectangle for the column
-	ImGuiID UserID;                                     // Optional, value passed to TableSetupColumn()
-	float WorkMinX;                                     // Contents region min ~(MinX + CellPaddingX + CellSpacingX1) == cursor start position when entering column
-	float WorkMaxX;                                     // Contents region max ~(MaxX - CellPaddingX - CellSpacingX2)
-	float ItemWidth;                                    // Current item width for the column, preserved across rows
-	float ContentMaxXFrozen;                            // Contents maximum position for frozen rows (apart from headers), from which we can infer content width.
+	float WidthRequest;                 // Master width absolute value when !(Flags & _WidthStretch). When Stretch this is derived every frame from StretchWeight in TableUpdateLayout()
+	float WidthAuto;                    // Automatic width
+	float StretchWeight;                // Master width weight when (Flags & _WidthStretch). Often around ~1.0f initially.
+	float InitStretchWeightOrWidth;     // Value passed to TableSetupColumn(). For Width it is a content width (_without padding_).
+	ImRect ClipRect;                    // Clipping rectangle for the column
+	ImGuiID UserID;                     // Optional, value passed to TableSetupColumn()
+	float WorkMinX;                     // Contents region min ~(MinX + CellPaddingX + CellSpacingX1) == cursor start position when entering column
+	float WorkMaxX;                     // Contents region max ~(MaxX - CellPaddingX - CellSpacingX2)
+	float ItemWidth;                    // Current item width for the column, preserved across rows
+	float ContentMaxXFrozen;            // Contents maximum position for frozen rows (apart from headers), from which we can infer content width.
 	float ContentMaxXUnfrozen;
-	float ContentMaxXHeadersUsed;                       // Contents maximum position for headers rows (regardless of freezing). TableHeader() automatically softclip itself + report ideal desired size, to avoid creating extraneous draw calls
+	float ContentMaxXHeadersUsed;       // Contents maximum position for headers rows (regardless of freezing). TableHeader() automatically softclip itself + report ideal desired size, to avoid creating extraneous draw calls
 	float ContentMaxXHeadersIdeal;
-	int16 NameOffset;                                   // Offset into parent ColumnsNames[]
+	int16 NameOffset;                   // Offset into parent ColumnsNames[]
 	ImGuiTableColumnIdx DisplayOrder;                   // Index within Table's IndexToDisplayOrder[] (column may be reordered by users)
 	ImGuiTableColumnIdx IndexWithinEnabledSet;          // Index within enabled/visible set (<= IndexToDisplayOrder)
 	ImGuiTableColumnIdx PrevEnabledColumn;              // Index of prev enabled/visible column within Columns[], -1 if first enabled/visible column
@@ -2632,33 +2624,21 @@ struct ImGuiTableColumn {
 	ImGuiTableDrawChannelIdx DrawChannelCurrent;        // Index within DrawSplitter.Channels[]
 	ImGuiTableDrawChannelIdx DrawChannelFrozen;         // Draw channels for frozen rows (often headers)
 	ImGuiTableDrawChannelIdx DrawChannelUnfrozen;       // Draw channels for unfrozen rows
-	bool IsEnabled;                                     // IsUserEnabled && (Flags & ImGuiTableColumnFlags_Disabled) == 0
-	bool IsUserEnabled;                                 // Is the column not marked Hidden by the user? (unrelated to being off view, e.g. clipped by scrolling).
+	bool IsEnabled;                     // IsUserEnabled && (Flags & ImGuiTableColumnFlags_Disabled) == 0
+	bool IsUserEnabled;                 // Is the column not marked Hidden by the user? (unrelated to being off view, e.g. clipped by scrolling).
 	bool IsUserEnabledNextFrame;
-	bool IsVisibleX;                                    // Is actually in view (e.g. overlapping the host window clipping rectangle, not scrolled).
+	bool IsVisibleX;                    // Is actually in view (e.g. overlapping the host window clipping rectangle, not scrolled).
 	bool IsVisibleY;
-	bool IsRequestOutput;                               // Return value for TableSetColumnIndex() / TableNextColumn(): whether we request user to output contents or not.
-	bool IsSkipItems;                                   // Do we want item submissions to this column to be completely ignored (no layout will happen).
+	bool IsRequestOutput;               // Return value for TableSetColumnIndex() / TableNextColumn(): whether we request user to output contents or not.
+	bool IsSkipItems;                   // Do we want item submissions to this column to be completely ignored (no layout will happen).
 	bool IsPreserveWidthAuto;
-	int8 NavLayerCurrent;                               // ImGuiNavLayer in 1 byte
-	uint8 AutoFitQueue;                                  // Queue of 8 values for the next 8 frames to request auto-fit
-	uint8 CannotSkipItemsQueue;                          // Queue of 8 values for the next 8 frames to disable Clipped/SkipItem
-	uint8 SortDirection : 2;                             // ImGuiSortDirection_Ascending or ImGuiSortDirection_Descending
-	uint8 SortDirectionsAvailCount : 2;                  // Number of available sort directions (0 to 3)
-	uint8 SortDirectionsAvailMask : 4;                   // Mask of available sort directions (1-bit each)
-	uint8 SortDirectionsAvailList;                       // Ordered of available sort directions (2-bits each)
-
-	ImGuiTableColumn()
-	{
-		THISZERO();
-		StretchWeight = WidthRequest = -1.0f;
-		NameOffset = -1;
-		DisplayOrder = IndexWithinEnabledSet = -1;
-		PrevEnabledColumn = NextEnabledColumn = -1;
-		SortOrder = -1;
-		SortDirection = ImGuiSortDirection_None;
-		DrawChannelCurrent = DrawChannelFrozen = DrawChannelUnfrozen = (uint8)-1;
-	}
+	int8 NavLayerCurrent;               // ImGuiNavLayer in 1 byte
+	uint8 AutoFitQueue;                 // Queue of 8 values for the next 8 frames to request auto-fit
+	uint8 CannotSkipItemsQueue;         // Queue of 8 values for the next 8 frames to disable Clipped/SkipItem
+	uint8 SortDirection : 2;            // ImGuiSortDirection_Ascending or ImGuiSortDirection_Descending
+	uint8 SortDirectionsAvailCount : 2; // Number of available sort directions (0 to 3)
+	uint8 SortDirectionsAvailMask  : 4; // Mask of available sort directions (1-bit each)
+	uint8 SortDirectionsAvailList;      // Ordered of available sort directions (2-bits each)
 };
 
 // Transient cell data stored per row.
@@ -2670,16 +2650,11 @@ struct ImGuiTableCellData {
 
 // Per-instance data that needs preserving across frames (seemingly most others do not need to be preserved aside from debug needs. Does that means they could be moved to ImGuiTableTempData?)
 struct ImGuiTableInstanceData {
+	ImGuiTableInstanceData();
 	ImGuiID TableInstanceID;
 	float LastOuterHeight;     // Outer height from last frame
 	float LastFirstRowHeight;  // Height of first row from last frame (FIXME: this is used as "header height" and may be reworked)
 	float LastFrozenHeight;    // Height of frozen section from last frame
-
-	ImGuiTableInstanceData()    
-	{
-		TableInstanceID = 0; 
-		LastOuterHeight = LastFirstRowHeight = LastFrozenHeight = 0.0f;
-	}
 };
 
 // FIXME-TABLE: more transient data could be stored in a stacked ImGuiTableTempData: e.g. SortSpecs, incoming RowData
@@ -2825,16 +2800,7 @@ struct ImGuiTableTempData {
 
 // sizeof() ~ 12
 struct ImGuiTableColumnSettings {
-	ImGuiTableColumnSettings()
-	{
-		WidthOrWeight = 0.0f;
-		UserID = 0;
-		Index = -1;
-		DisplayOrder = SortOrder = -1;
-		SortDirection = ImGuiSortDirection_None;
-		IsEnabled = 1;
-		IsStretch = 0;
-	}
+	ImGuiTableColumnSettings();
 	float WidthOrWeight;
 	ImGuiID UserID;
 	ImGuiTableColumnIdx Index;

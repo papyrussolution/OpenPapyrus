@@ -700,6 +700,36 @@ static void InitTest()
 		assert(p_malloc == 0);
 	}
 	// } @v11.7.4
+	// @v11.8.1 {
+	{
+		union {
+			uint8 RawData[256];
+			struct {
+				int8   I8;
+				uint8  U8;
+				int16  I16;
+				uint16 U16;
+				int    I;
+				uint   U;
+				long   L;
+				ulong  UL;
+				int64  II;
+				uint64 UII;
+			} TD;
+		} U;
+		SObfuscateBuffer(&U, sizeof(U));
+		assert(SBits::Cpop((uint8)FFFF(U.TD.I8)) == 8);
+		assert(SBits::Cpop(FFFF(U.TD.U8)) == 8);
+		assert(SBits::Cpop((uint16)FFFF(U.TD.I16)) == 16);
+		assert(SBits::Cpop(FFFF(U.TD.U16)) == 16);
+		assert(SBits::Cpop((uint)FFFF(U.TD.I)) == 32);
+		assert(SBits::Cpop(FFFF(U.TD.U)) == 32);
+		assert(SBits::Cpop((ulong)FFFF(U.TD.L)) == 32);
+		assert(SBits::Cpop(FFFF(U.TD.UL)) == 32);
+		assert(SBits::Cpop((uint64)FFFF(U.TD.II)) == 64);
+		assert(SBits::Cpop(FFFF(U.TD.UII)) == 64);
+	}
+	// } @v11.8.1
 #endif // } NDEBUG
 }
 

@@ -427,7 +427,7 @@ int PPDS_CrrGoods::InitData(Ido op, void * dataPtr, long addedParam)
 {
 	int    ok = 1;
 	if(op == idoAlloc) {
-		Data.destroy();
+		Data.Z();
 		UnitName[0] = 0;
 		PhUnitName[0] = 0;
 		PhUPerU = 0.0;
