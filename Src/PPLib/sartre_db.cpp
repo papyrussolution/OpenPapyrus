@@ -1934,7 +1934,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 					word_buf.Sub(pfx_len+base_len, afx_len, afx_buf_u);
 					afx_buf_u.CopyToUtf8(temp_buf, 0);
 					uint   afx_pos = 0;
-					if(afx_list.SearchByText(temp_buf, 0, &afx_pos))
+					if(afx_list.SearchByText(temp_buf, &afx_pos))
 						afx_id = afx_list.Get(afx_pos).Id;
 					else if(pfx_len == 0 && FetchSpecialWord(SrWordTbl::spcAffix, temp_buf, &afx_id) > 0) {
 						//

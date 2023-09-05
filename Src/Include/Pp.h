@@ -31201,18 +31201,21 @@ private:
 //
 struct GoodsStrucProcessingBlock {
 	enum {
-		intfMultAssociatedTech = 0x0001 // Со структурой связано более одной ассоциированных технологий
+		intfMultAssociatedTech = 0x0001, // Со структурой связано более одной ассоциированных технологий
+		intfUncertEstPrice     = 0x0002, // @v11.8.2 Ожидаемая цена по структуре не может быть точно вычислена 
 	};
 	struct ItemEntry {
 		PPID   GStrucID;
 		PPID   GoodsID;
 		long   ItemNo;     // Порядковый номер элемента в структуре [1..]
 		long   Flags;
+		long   InternalFlags; // @v11.8.2 intfXXX Транзиентные флаги элемента, не связанные с persistent-флагами Flags
 		long   StrucFlags; // Для быстрого доступа (дублирует StrucEntry::Flags)
 		uint   StrucEntryP;
 		double Median;
 		double Denom;
 		double Netto;
+		double EstPrice;   // @v11.8.2
 	};
 	struct StrucEntry {
 		PPID   GStrucID;
@@ -31239,7 +31242,8 @@ struct GoodsStrucProcessingBlock {
 		addifCheckExistance = 0x0001,
 		addifRecursive      = 0x0002,
 		addifMainTreeOnly   = 0x0004,
-		addifInitTech       = 0x0008  // @v11.7.6 Инициализировать информацию об ассоциированных технологиях // 
+		addifInitTech       = 0x0008, // @v11.7.6 Инициализировать информацию об ассоциированных технологиях // 
+		addifInitEstValue   = 0x0010, // @v11.8.2 Инициализировать ожидаемую цену
 	};
 	int    AddItem(PPID goodsID, PPID strucID, PPID filtScndGroupID, PPID filtScndID, uint flags/*bool checkExistance, bool recursive*/);
 	PPObjGoodsStruc GSObj;
@@ -31907,6 +31911,7 @@ public:
 		fShowUnrefs         = 0x0020, // @v10.0.10 Показывать структуры, на которые не ссылается ни один товар
 		fSkipByPassiveOwner = 0x0040, // @v10.3.2 Не показывать структуры, все товары-владельцы которых пассивные
 		fShowTech           = 0x0080, // @v11.7.6 Показывать связанные технологии
+		fShowEstValue       = 0x0100  // @v11.8.2 Показывать оценочную стоимость структуры
 	};
 	char   ReserveStart[32]; // @anchor
 	PPID   PrmrGoodsGrpID;

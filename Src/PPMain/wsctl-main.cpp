@@ -953,6 +953,7 @@ public:
 	int  ApplyClientPolicy();
 	int  LoadProgramList();
 	int  ResolveProgramPaths();
+	int  ExecuteProgram(const WsCtl_ProgramEntry * pPe);
 	void EmitEvents();
 	void BuildScene();
 };
@@ -2062,6 +2063,39 @@ int WsCtl_ImGuiSceneBlock::LoadProgramList()
 	return ok;
 }
 
+int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
+{
+	int    ok = 0;
+	int    r = 0;
+	if(pPe && pPe->FullResolvedPath.NotEmpty()) {
+		wchar_t cmd_line_[512];
+		wchar_t working_dir_[512];
+		SString temp_buf;
+		SStringU cmd_line_u;
+		SStringU working_dir_u;
+		cmd_line_u.CopyFromUtf8(pPe->FullResolvedPath);
+		STRNSCPY(cmd_line_, cmd_line_u);
+		SPathStruc ps(pPe->FullResolvedPath);
+		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+		working_dir_u.CopyFromUtf8(temp_buf.SetLastSlash());
+		STRNSCPY(working_dir_, working_dir_u);
+		SECURITY_ATTRIBUTES process_attr;
+		SECURITY_ATTRIBUTES thread_attr;
+		BOOL   inherit_handles = FALSE;
+		DWORD  creation_flags = 0;
+		void * p_env = 0;
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+		MEMSZERO(si);
+		si.cb = sizeof(si);
+		MEMSZERO(pi);
+		r = ::CreateProcessW(0, cmd_line_, 0, 0, inherit_handles, creation_flags, p_env, working_dir_, &si, &pi);
+		if(r)
+			ok = 1;
+	}
+	return ok;
+}
+
 int WsCtl_ImGuiSceneBlock::ResolveProgramPaths()
 {
 	int    ok = -1;
@@ -2075,19 +2109,22 @@ int WsCtl_ImGuiSceneBlock::ResolveProgramPaths()
 	for(uint i = 0; i < PgmL.getCount(); i++) {
 		WsCtl_ProgramEntry * p_pe = PgmL.at(i);
 		if(p_pe && p_pe->ExeFileName.NotEmpty() && p_pe->FullResolvedPath.IsEmpty()) {
-			if(is_there_app_paths) {
-				for(uint ssp = 0; policy.P.SsAppPaths.get(&ssp, temp_buf);) {
-					SFindFile_ToPool ff(temp_buf.Strip(), p_pe->ExeFileName);
-					ff.Run(fep);
-					if(fep.GetCount()) {
-						for(uint fepidx = 0; fep.Get(fepidx, &fe, &path) > 0; fepidx++) {
-							p_pe->FullResolvedPath = path;
-							break;
+			if(!p_pe->ExeFileName.HasPrefixIAscii("prog")) { // С префиксом prog - фейковые отладочные наименования программ
+				if(is_there_app_paths) {
+					bool found = false;
+					for(uint ssp = 0; !found && policy.P.SsAppPaths.get(&ssp, temp_buf);) {
+						SFindFileParam ffp(temp_buf, p_pe->ExeFileName);
+						SFindFile2(ffp, fep);
+						if(fep.GetCount()) {
+							for(uint fepidx = 0; !found && fep.Get(fepidx, &fe, &path) > 0; fepidx++) {
+								p_pe->FullResolvedPath = path;
+								found = true;
+							}
 						}
 					}
 				}
-			}
-			else {
+				else {
+				}
 			}
 		}
 	}
@@ -2599,6 +2636,7 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 			if(p_scr) {
 				offset.x = -p_scr->GetCurrentPageTopPoint();
 			}
+			const WsCtl_ProgramEntry * p_clicked_entry = 0;
 			for(uint loidx = 0; loidx < p_lo_ipg->GetChildrenCount(); loidx++) {
 				SUiLayout * p_lo_entry = p_lo_ipg->GetChild(loidx);
 				if(p_lo_entry) {
@@ -2626,6 +2664,9 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 									if(p_pe_->Title.NotEmpty())
 										ImGui::Text(p_pe_->Title);
 								}
+								if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
+									p_clicked_entry = p_pe_;
+								}
 							}
 							/*
 							assert(loidx < PgmL.getCount());
@@ -2643,6 +2684,9 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 				}
 				else
 					break;
+			}
+			if(p_clicked_entry) {
+				ExecuteProgram(p_clicked_entry);
 			}
 		}
 		if(p_lor) {

@@ -1441,7 +1441,7 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 							if(rParam.CategoryTagID) {
 								if(p_ref->Ot.GetTagStr(PPOBJ_GOODS, native_goods_id, rParam.CategoryTagID, temp_buf) > 0) {
 									uint   cp = 0;
-									if(category_name_list.SearchByText(temp_buf, 0, &cp))
+									if(category_name_list.SearchByText(temp_buf, &cp))
 										native_category_id = category_name_list.Get(cp).Id;
 									else {
 										long max_cat_id = 0;

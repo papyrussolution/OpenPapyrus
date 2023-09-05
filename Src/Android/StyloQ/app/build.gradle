@@ -22,9 +22,9 @@ android {
     defaultConfig {
         applicationId "ru.petroglif.styloq"
         minSdkVersion 28
-        targetSdkVersion 31
-        versionCode 94
-        versionName '0.7.02'
+        targetSdkVersion 33
+        versionCode 95
+        versionName '0.7.03'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }

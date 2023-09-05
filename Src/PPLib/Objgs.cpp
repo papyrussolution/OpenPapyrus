@@ -396,7 +396,7 @@ void PPGoodsStruc::CalcEstimationPrice(PPID locID, double * pPrice, int * pUncer
 			}
 		}
 		if(!is_inner_struc) {
-			if(GetEstimationPrice(i, locID, &iprice, &tprice, 0) > 0 && tprice > 0) {
+			if(GetEstimationPrice(i, locID, &iprice, &tprice, 0) > 0 && tprice > 0.0) {
 				price += R2(tprice);
 				p_item->Flags &= ~GSIF_UNCERTPRICE;
 			}
@@ -1344,10 +1344,13 @@ int GSDialog::setupList()
 	SString sub;
 	long   qtty_fmt = MKSFMTD(0, 3, NMBF_NOZERO);
 	long   money_fmt = MKSFMTD(0, 2, NMBF_NOZERO);
+	int    uncert = 0; // @v11.8.2 Признак того, что расчетная оценка стоимости комплекта неполная
 	uint   i = 0;
 	const  PPID loc_id = LConfig.Location; // @v11.7.11
 	while(Data.Items.enumItems(&i, (void **)&p_item)) {
-		double price = 0.0, sum = 0.0;
+		double price = 0.0;
+		double sum = 0.0;
+		int    local_uncert = 0;
 		Goods2Tbl::Rec goods_rec;
 		StringSet ss(SLBColumnDelim);
 		PPGoodsStruc inner_struc;
@@ -1375,22 +1378,34 @@ int GSDialog::setupList()
 		sub.Z();
 		if(inner_struc.Rec.ID) {
 			if(GsObj.CheckStruc(inner_struc.Rec.ID, 0) != 2) {
-				int    uncert = 0;
-				inner_struc.CalcEstimationPrice(loc_id, &price, &uncert, 1); // @bottleneck
+				inner_struc.CalcEstimationPrice(loc_id, &price, &local_uncert, 1); // @bottleneck
 				p_item->GetQtty(price / Data.GetDenom(), &sum);
+				if(local_uncert)
+					uncert = 1;
 			}
 			else {
 				price = 0.0;
 				PPError(PPERR_CYCLEGOODSSTRUC);
 			}
 		}
-		else
-			Data.GetEstimationPrice(i-1, loc_id, &price, &sum, 0);
+		else {
+			if(Data.GetEstimationPrice(i-1, loc_id, &price, &sum, 0) > 0 && sum > 0.0) {
+				;
+			}
+			else {
+				uncert = 1;
+			}
+		}
 		t_netto += p_item->Netto;
 		t_sum   += sum;
 		ss.add(sub.Z().Cat(p_item->Netto, qtty_fmt));
 		ss.add(sub.Z().Cat(price, money_fmt));
-		ss.add(sub.Z().Cat(sum,   money_fmt));
+		{
+			sub.Z();
+			if(sum != 0.0 && local_uncert)
+				sub.CatChar('?');
+			ss.add(sub.Cat(sum,   money_fmt));
+		}
 		sub.Z();
 		if(inner_struc.Rec.ID)
 			sub.CatChar('R');
@@ -1405,7 +1420,12 @@ int GSDialog::setupList()
 		ss.add(sub.Z().Cat(t_qtty,  qtty_fmt));
 		ss.add(sub.Z().Cat(t_netto, qtty_fmt));
 		ss.add(0);
-		ss.add(sub.Z().Cat(t_sum, money_fmt));
+		{
+			sub.Z();
+			if(t_sum != 0.0 && uncert)
+				sub.CatChar('?');
+			ss.add(sub.Cat(t_sum, money_fmt));
+		}
 		THROW(addStringToList(i+1, ss.getBuf()));
 	}
 	CATCHZOK

@@ -324,7 +324,7 @@ int StringStore2::GetDescription(const char * pSignature, SString & rBuf) // @no
 			ok = Helper_GetDescription((long)hval, rBuf);
         }
 	}
-	else if(SignatureList.SearchByText(pSignature, 0, &pos) > 0) {
+	else if(SignatureList.SearchByText(pSignature, &pos) > 0) {
 		long   code_str = SignatureList.Get(pos).Id;
 		ok = Helper_GetDescription(code_str, rBuf);
 	}
@@ -395,7 +395,7 @@ int StringStore2::GetString(const char * pSignature, SString & rBuf) const
 			ok = Helper_GetString((long)hval, rBuf);
         }
 	}
-	else if(SignatureList.SearchByText(pSignature, 0, &pos) > 0) {
+	else if(SignatureList.SearchByText(pSignature, &pos) > 0) {
 		long   code_str = SignatureList.Get(pos).Id;
 		ok = Helper_GetString(code_str, rBuf);
 	}
@@ -1278,11 +1278,11 @@ int StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 	uint   pos;
 	if(rItem.Group == 0) {
 		if(rItem.GroupSymb.NotEmpty()) {
-			if(/*P_Pb->*/GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
+			if(/*P_Pb->*/GrpSymbList.SearchByText(rItem.GroupSymb, &(pos = 0))) {
 				rItem.Group = /*P_Pb->*/GrpSymbList.Get(pos).Id;
 				ok = 2;
 			}
-			else if(P_Pb->Saved_GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
+			else if(P_Pb->Saved_GrpSymbList.SearchByText(rItem.GroupSymb, &(pos = 0))) {
 				rItem.Group = P_Pb->Saved_GrpSymbList.Get(pos).Id;
 				THROW(/*P_Pb->*/GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
 				if(!P_Pb->LastAutoCodeList.Search(rItem.Group, 0)) {
@@ -1310,7 +1310,7 @@ int StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 			THROW(rItem.GroupSymb.Cmp(/*P_Pb->*/GrpSymbList.Get(pos).Txt, 0) == 0);
 			ok = 2;
 		}
-		else if(!empty_symb && /*P_Pb->*/GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
+		else if(!empty_symb && /*P_Pb->*/GrpSymbList.SearchByText(rItem.GroupSymb, &(pos = 0))) {
 			THROW(rItem.Group == /*P_Pb->*/GrpSymbList.Get(pos).Id);
 			ok = 2;
 		}
@@ -1338,7 +1338,7 @@ int StringStore2::AddString(long group, StringStore2::ParseItem & rItem, long * 
 	SString temp_buf;
 	THROW_V(group < 0x7fff, sc2eGrpCodeLimit); // @str Превышение максимального значения кода группы
 	if(rItem.CodeSymb.NotEmpty()) {
-		if(P_Pb->StrSymbList.SearchByText(rItem.CodeSymb, 0, &(pos = 0))) {
+		if(P_Pb->StrSymbList.SearchByText(rItem.CodeSymb, &(pos = 0))) {
 			temp_buf = P_Pb->StrSymbList.Get(pos).Txt;
 			THROW_V(temp_buf == rItem.CodeSymb, sc2eCodeSymbConflict);
 			code_str = P_Pb->StrSymbList.Get(pos).Id;
@@ -1347,7 +1347,7 @@ int StringStore2::AddString(long group, StringStore2::ParseItem & rItem, long * 
 		}
 		else {
 			if(rItem.Code == 0) {
-                if(P_Pb->Saved_StrSymbList.SearchByText(rItem.CodeSymb, 0, &(pos = 0))) {
+                if(P_Pb->Saved_StrSymbList.SearchByText(rItem.CodeSymb, &(pos = 0))) {
 					long temp_code_str = P_Pb->Saved_StrSymbList.Get(pos).Id;
 					rItem.Code = LoWord(temp_code_str);
 					ErrAddedMsg = rItem.CodeSymb;
@@ -1369,10 +1369,10 @@ int StringStore2::AddString(long group, StringStore2::ParseItem & rItem, long * 
 	else {
 		rItem.CodeSymb = P_StrSt_EmptyCodeSymb;
 		if(rItem.Signature.NotEmpty()) {
-			if(SignatureList.SearchByText(rItem.Signature, 0, &(pos = 0))) {
+			if(SignatureList.SearchByText(rItem.Signature, &(pos = 0))) {
 				code_str = SignatureList.Get(pos).Id;
 			}
-			else if(P_Pb->Saved_SignatureList.SearchByText(rItem.Signature, 0, &(pos = 0))) {
+			else if(P_Pb->Saved_SignatureList.SearchByText(rItem.Signature, &(pos = 0))) {
 				code_str = P_Pb->Saved_SignatureList.Get(pos).Id;
 				THROW(SignatureList.Add(code_str, rItem.Signature));
 			}

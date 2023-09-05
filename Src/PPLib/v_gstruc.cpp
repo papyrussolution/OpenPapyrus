@@ -124,6 +124,7 @@ public:
 		AddClusterAssoc(CTL_GSFILT_FLAGS, 0, GoodsStrucFilt::fShowUnrefs);
 		AddClusterAssoc(CTL_GSFILT_FLAGS, 1, GoodsStrucFilt::fSkipByPassiveOwner); // @v10.3.2
 		AddClusterAssoc(CTL_GSFILT_FLAGS, 2, GoodsStrucFilt::fShowTech); // @v11.7.6
+		AddClusterAssoc(CTL_GSFILT_FLAGS, 3, GoodsStrucFilt::fShowEstValue); // @v11.8.2
 		SetClusterData(CTL_GSFILT_FLAGS, Data.Flags);
 		return ok;
 	}
@@ -228,6 +229,8 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 	if(Filt.Flags & Filt.fShowTech)
 		add_item_flags = GoodsStrucProcessingBlock::addifInitTech;
 	// } @v11.7.6 
+	if(Filt.Flags & Filt.fShowEstValue)
+		add_item_flags = GoodsStrucProcessingBlock::addifInitEstValue;
 	// @v10.8.2 const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
 	Goods2Tbl::Rec grec;
 	if(Filt.PrmrGoodsID) {
@@ -292,6 +295,7 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 {
 	int    ok = 1;
 	PPGoodsStruc struc;
+	const  PPID loc_id = LConfig.Location; // @v11.8.2
 	if(__flags & addifCheckExistance) {
 		PPIDArray ex_goods_list; // Список товаров, с которыми была связана структура strucID в списках
 		for(uint ex_spos = 0; StrucList.lsearch(&strucID, &ex_spos, CMPF_LONG, offsetof(StrucEntry, GStrucID)); ex_spos++) {
@@ -385,6 +389,16 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 						new_item.Median = r_i.Median;
 						new_item.Denom = r_i.Denom;
 						new_item.Netto = r_i.Netto;
+						// @v11.8.2 {
+						if(__flags & addifInitEstValue) { 
+							double price = 0.0;
+							double sum = 0.0;
+							if(struc.GetEstimationPrice(i, loc_id, &price, &sum, 0) > 0 && sum > 0.0)
+								new_item.EstPrice = sum;
+							else
+								new_item.InternalFlags |= intfUncertEstPrice;
+						}
+						// } @v11.8.2 
 						THROW_SL(ItemList.insert(&new_item));
 						if(__flags & addifRecursive) {
 							PPGoodsStruc inner_struc;
@@ -514,6 +528,20 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					}
 				}
 				break;
+			case 10: // @v11.9.2 Ожидаемая цена
+				{
+					temp_buf.Z();
+					if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
+						if(p_item->InternalFlags & GoodsStrucProcessingBlock::intfUncertEstPrice) {
+							temp_buf.CatChar('?');
+						}
+						else if(p_item->EstPrice > 0.0) {
+							temp_buf.Cat(p_item->EstPrice, MKSFMTD(0, 2, 0));
+						}
+						pBlk->Set(temp_buf);
+					}
+				}
+				break;
 		}
 	}
 	return ok;
@@ -584,8 +612,11 @@ void PPViewGoodsStruc::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewGoodsStruc::GetDataForBrowser, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+		if(Filt.Flags & GoodsStrucFilt::fShowEstValue) { // @v11.8.2
+			pBrw->InsColumn(-1, "@expectedprice", 10, MKSTYPE(S_ZSTRING, 64), MKSFMT(0, ALIGN_RIGHT), BCO_USERPROC); // #10 estimated price
+		}
 		if(Filt.Flags & GoodsStrucFilt::fShowTech) {
-			pBrw->InsColumn(-1, "@tech", 9, MKSTYPE(S_ZSTRING, 64), MKSFMT(0, 64), BCO_USERPROC); // #9  tech
+			pBrw->InsColumn(-1, "@tech", 9, MKSTYPE(S_ZSTRING, 64), MKSFMT(64, 0), BCO_USERPROC); // #9  tech
 		}
 		pBrw->Helper_SetAllColumnsSortable(); // @v10.7.5
 	}

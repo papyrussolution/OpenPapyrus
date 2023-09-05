@@ -1865,7 +1865,7 @@ private:
             pEntry->AddParagraph(pPara);
 			if(pPara->Topic.NotEmpty()) {
 				uint p = 0;
-				if(TopicCountList.SearchByText(pPara->Topic, 0, &p)) {
+				if(TopicCountList.SearchByText(pPara->Topic, &p)) {
 					long c = TopicCountList.Get(p).Id;
 					TopicCountList.UpdateByPos(p, c+1);
 				}

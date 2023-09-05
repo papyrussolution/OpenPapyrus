@@ -917,7 +917,7 @@ int SXml::GetValID(const char * pVal, uint32 * pID)
 	int    ok = 0;
 	uint   pos = 0;
 	uint32 id = 0;
-	if(ValList.SearchByText(pVal, 0, &pos)) {
+	if(ValList.SearchByText(pVal, &pos)) {
 		id = ValList.at(pos).Id;
 		ok = 1;
 	}
@@ -947,7 +947,7 @@ int SXml::SearchVal(const char * pVal, uint32 * pID)
 	int    ok = 0;
 	uint   pos = 0;
 	uint32 id = 0;
-	if(ValList.SearchByText(pVal, 0, &pos)) {
+	if(ValList.SearchByText(pVal, &pos)) {
 		id = ValList.at(pos).Id;
 		ok = 1;
 	}

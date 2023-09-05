@@ -3550,7 +3550,7 @@ public:
 					di.dt  = dt;
 					di.end = dt;
 					while(p_bobj->P_Tbl->EnumByDate(&di, &bill_rec) > 0 && bill_rec.Dt == dt)
-						if(codes_list.getCount() == 0 || codes_list.SearchByText(bill_rec.Code, 0, 0) > 0)
+						if(codes_list.getCount() == 0 || codes_list.SearchByText(bill_rec.Code, 0) > 0)
 							filt.List.Add(bill_rec.ID);
 				}
 				if(filt.List.GetCount())

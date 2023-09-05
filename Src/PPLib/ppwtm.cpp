@@ -140,7 +140,7 @@ public:
 			P_Wtm->GetLayoutSymbList(layout_symb_list);
 			if(Data.ParentLayoutSymb.NotEmpty()) {
 				uint pos = 0;
-				if(layout_symb_list.SearchByText(Data.ParentLayoutSymb, 0, &pos)) {
+				if(layout_symb_list.SearchByText(Data.ParentLayoutSymb, &pos)) {
 					init_parent_id = layout_symb_list.Get(pos).Id;
 				}
 			}

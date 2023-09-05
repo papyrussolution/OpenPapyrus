@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494736
+LastSignatureCode=2147494738
 LastAutoCodeList=1,12212;102,10177;103,10072;110,10000;111,12095;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10147;120,10005;1001,10000;121,10000;122,10000;123,10314;124,10279;125,10047
 
 [SignatureList]
@@ -1093,6 +1093,7 @@ price=2147484546
 priceaftertaxes=2147484547
 pricebeforetaxes=2147484548
 pricewithdiscount=2147484549
+expectedprice=2147494738
 factprice=2147484550
 baseprice=2147484551
 baseprice_rlz=2147484552
@@ -8781,6 +8782,7 @@ gsfilt_ordbystructypeprmrgoodsname=2147491607
 gsfilt_fshowunrefs=2147491608
 gsfilt_fskipbypassiveowner=2147491609
 gsfilt_fshowtech=2147494723
+gsfilt_fshowestvalue=2147494737
 objtransm=2147491610
 objtransmmod=2147491611
 objtransm_destdbdivlist=2147491612

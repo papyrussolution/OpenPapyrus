@@ -4,6 +4,73 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
+SFindFileParam::SFindFileParam() : Flags(0)
+{
+}
+
+SFindFileParam::SFindFileParam(const char * pInitPath, const char * pFileNamePattern) : Flags(0)
+{
+	InitPath = pInitPath;
+	FileNamePattern = pFileNamePattern;
+}
+
+static int Helper_SFindFile2(const SFindFileParam & rP, const SString & rBasePath, SFileEntryPool & rResult)
+{
+	assert(rBasePath.NotEmpty());
+	int    ok = -1;
+	SString path;
+	SString inner_path;
+	SDirEntry dir_entry;
+	(path = rBasePath).Strip().SetLastSlash();
+	if(rP.FileNamePattern.NotEmpty()) {
+		(inner_path = path).Cat(rP.FileNamePattern);
+		for(SDirec dir(inner_path, 0); dir.Next(&dir_entry) > 0;) {
+			THROW(rResult.Add(path, dir_entry));
+		}
+	}
+	{
+		(inner_path = path).CatChar('*').Dot().CatChar('*');
+		for(SDirec dir(inner_path, 1); dir.Next(&dir_entry) > 0;) {
+			if(!dir_entry.IsSelf() && !dir_entry.IsUpFolder()) {
+				dir_entry.GetNameA(path, inner_path);
+				MEMSZERO(dir_entry);
+				THROW(Helper_SFindFile2(rP, inner_path, rResult)); // @recursion
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SFindFile2(const SFindFileParam & rP, SFileEntryPool & rResult)
+{
+	rResult.Z();
+	int    ok = 1;
+	SString base_path;
+	if(rP.InitPath.NotEmpty()) {
+		base_path = rP.InitPath;
+		THROW(Helper_SFindFile2(rP, base_path, rResult));
+	}
+	else {
+		for(int i = 'A'; i <= 'Z'; i++) {
+			char path[MAX_PATH];
+			path[0] = i;
+			path[1] = ':';
+			path[2] = '\\';
+			path[3] = 0;
+			uint drive_type = ::GetDriveType(SUcSwitch(path));
+			if(oneof2(drive_type, DRIVE_FIXED, DRIVE_REMOTE)) {
+				base_path.Z().CatChar(i).Colon().BSlash();
+				THROW(Helper_SFindFile2(rP, base_path, rResult));
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
 SFindFile::SFindFile(const char * pPath /* =0 */, const char * pFileName /* =0 */) :
 	P_Path(pPath), Flags(0), State(0), DirCount(0), FileCount(0)
 {

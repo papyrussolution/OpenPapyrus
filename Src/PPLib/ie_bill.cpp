@@ -2275,7 +2275,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 						inn = p_bill ? p_bill->INN : brow_.INN;
 						if(!inn.NotEmptyS())
 							inn = def_inn;
-						if(articles.SearchByText(inn, 0, &pos) > 0)
+						if(articles.SearchByText(inn, &pos) > 0)
 							ar_id = articles.Get(pos).Id;
 						else {
 							const PPID local_dlvr_loc_id = p_bill ? p_bill->DlvrAddrID : brow_.DlvrAddrID; // @v11.7.7 (: 0)-->(: brow_.DlvrAddrID)

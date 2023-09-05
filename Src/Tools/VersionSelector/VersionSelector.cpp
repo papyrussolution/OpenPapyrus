@@ -97,7 +97,7 @@ static int GetVersBuf(const char * pPath, char * pBuf, size_t bufSize)
 	return ok;
 }
 
-int FindVers::CallbackProc(const char* pPath, SDirEntry * pEntry)
+int FindVers::CallbackProc(const char * pPath, SDirEntry * pEntry)
 {
 	MSG    msg;
 	char   buf[MAX_PATH + 30];
@@ -135,9 +135,9 @@ static int FillVersList(HWND list, int byDiscs)
 			path[3] = 0;
 			uint drive_type = ::GetDriveType(SUcSwitch(path));
 			if(oneof2(drive_type, DRIVE_FIXED, DRIVE_REMOTE)) {
-				FindVers param(list);
-				param.P_Path = path;
-				param.P_FileName = "ppw.exe";
+				FindVers param(list, path, "ppw.exe");
+				//param.P_Path = path;
+				//param.P_FileName = "ppw.exe";
 				param.Run();
 			}
 			::SetWindowText(::GetDlgItem(GetParent(list), IDC_STATIC), NULL);
@@ -155,7 +155,7 @@ static int FillVersList(HWND list, int byDiscs)
 		while(reg_key.EnumValues(&i, &key_param, &key_val)) {
 			key_param.Trim(7);
 			if(sstreqi_ascii(key_param, param)) {
-				if(key_val.GetString(reg_buf)) {
+				if(key_val.GetStringUtf8(reg_buf)) {
 					STRNSCPY(buf, reg_buf);
 					GetVersBuf(buf, buf, sizeof(buf));
 					::SendMessage(list, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(SUcSwitch(buf)));

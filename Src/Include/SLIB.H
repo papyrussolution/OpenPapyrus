@@ -6050,6 +6050,17 @@ private:
 
 int    GetFileStat(const char * pFileName, SDirEntry * pEntry);
 int    RemoveDir(const char * pDir);
+
+struct SFindFileParam {
+	SFindFileParam();
+	SFindFileParam(const char * pInitPath, const char * pFileNamePattern);
+	uint   Flags;
+	SString InitPath;
+	SString FileNamePattern;
+	SString ContentPattern;
+};
+
+int    SFindFile2(const SFindFileParam & rP, SFileEntryPool & rResult);
 //
 // Descr: Класс, реализующий функцию поиска файла (каталога) по шаблону.
 //   Осуществляет рекурсивный поиск файла по шаблону P_FileName, начиная с

@@ -1242,7 +1242,7 @@ public:
 		setCtrlString(CTL_SBIICFG_DEVICENAME,  Data.DeviceName);
 		if(Data.UserName.Len()) {
 			uint pos = 0;
-			if(UserList.SearchByText(Data.UserName, 0, &pos) <= 0) {
+			if(UserList.SearchByText(Data.UserName, &pos) <= 0) {
 				PPSetAddedMsgString(Data.UserName);
 				PPError(PPERR_USERNOTFOUND);
 			}
