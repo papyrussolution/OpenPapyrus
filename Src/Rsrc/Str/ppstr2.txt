@@ -16351,6 +16351,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @chznprcssrparam_ar                       "@{supplier}"
 @chznprcssrparam_afqueryticket            "Запрос тикета по документу"
 @chznprcssrparam_afquerykizinfo           "Запрос информации о марке"
+@chznprcssrparam_afquerydoclistin         "Запрос списка входящих документов"
 @chznprcssrparam_loc                      "@{warehouse}"
 
 @restorelostprjtperson                    "Восстановление утерянных персоналий для задач"

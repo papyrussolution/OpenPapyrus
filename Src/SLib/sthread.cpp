@@ -117,20 +117,9 @@ SCriticalSection::Data::~Data()
 		DeleteCriticalSection(&C);
 }
 
-void SCriticalSection::Data::Enter()
-{
-	EnterCriticalSection(&C);
-}
-
-int SCriticalSection::Data::TryEnter()
-{
-	return TryEnterCriticalSection(&C);
-}
-
-void SCriticalSection::Data::Leave()
-{
-	LeaveCriticalSection(&C);
-}
+void SCriticalSection::Data::Enter() { EnterCriticalSection(&C); }
+int  SCriticalSection::Data::TryEnter() { return TryEnterCriticalSection(&C); }
+void SCriticalSection::Data::Leave() { LeaveCriticalSection(&C); }
 //
 //
 //
@@ -574,44 +563,7 @@ int SReadWriteLocker::Unlock()
 	return ok;
 }
 
-int FASTCALL SReadWriteLocker::Toggle(Type t)
-{
-	return Toggle(t, 0, 0);
-	/*
-	assert(oneof3(t, Read, Write, None));
-	int    ok = 0;
-	if(t == Read) {
-		if(State & stRLocked)
-			ok = 1;
-		else if(State & stWLocked) {
-			Unlock();
-			ok = R_L.Helper_ReadLock(Timeout);
-			if(ok > 0)
-				State = stRLocked;
-		}
-	}
-	else if(t == Write) {
-		if(State & stWLocked)
-			ok = 1;
-		else if(State & stRLocked) {
-			Unlock();
-			ok = R_L.Helper_WriteLock(Timeout);
-			if(ok > 0)
-				State = stWLocked;
-		}
-	}
-	else if(t == None) {
-		Unlock();
-		ok = 1;
-	}
-	if(ok <= 0) {
-		State = stError;
-		if(ok < 0)
-			State |= stTimeout;
-	}
-	return ok;
-	*/
-}
+int FASTCALL SReadWriteLocker::Toggle(Type t) { return Toggle(t, 0, 0); }
 
 int SReadWriteLocker::Toggle(Type t, const char * pSrcFileName, uint srcLineNo)
 {
@@ -664,9 +616,9 @@ int SReadWriteLocker::Toggle(Type t, const char * pSrcFileName, uint srcLineNo)
 //
 //
 //
-#define SIGN_SLTHREAD 0x09970199UL
+// @v11.8.2 (replaced with Signature_SlThread) #define SIGN_SLTHREAD 0x09970199UL
 
-SlThread::SlThread(void * pInitData, long stopTimeout) : Sign(SIGN_SLTHREAD), P_StartupSignal(0), P_Creation(0), P_Tla(0)
+SlThread::SlThread(void * pInitData, long stopTimeout) : Sign(SlConst::Signature_SlThread), P_StartupSignal(0), P_Creation(0), P_Tla(0)
 {
 	Reset(pInitData, 1, stopTimeout);
 }
@@ -689,7 +641,7 @@ int SlThread::InitStartupSignal()
 	}
 }
 
-bool SlThread::IsConsistent() const { return (Sign == SIGN_SLTHREAD); }
+bool SlThread::IsConsistent() const { return (Sign == SlConst::Signature_SlThread); }
 int  SlThread::SignalStartup() { return P_StartupSignal ? P_StartupSignal->Signal() : 0; }
 void SlThread::SetIdleState() { State_Slt |= stIdle; }
 void SlThread::ResetIdleState() { State_Slt &= ~stIdle; }
@@ -887,448 +839,305 @@ void SLockStack::ToStr(SString & rBuf) const
 	}
 }
 //
-#if SLTEST_RUNNING // {
-
-SLTEST_R(Evnt)
+// 
+//
+SlProcess::SlProcess() : Flags(0)
 {
-	class EvntThread : public SlThread {
-	public:
-		struct InitBlock {
-			uint   Id;
-			const  char * P_EvntNameStart;
-			const  char * P_EvntNameFinish;
-			volatile int * P_SignalVar;
-			volatile int * P_Result;
-		};
-		EvntThread(InitBlock * pBlk) : SlThread(pBlk)
-		{
-			Id = pBlk->Id;
-			EvntNameStart  = pBlk->P_EvntNameStart;
-			EvntNameFinish = pBlk->P_EvntNameFinish;
-			P_SignalVar = pBlk->P_SignalVar;
-			P_Result = pBlk->P_Result;
-		}
-		virtual void Run()
-		{
-			assert(SLS.GetConstTLA().Id == GetThreadID());
-			*P_Result = 1;
-			Evnt evnt_start(EvntNameStart, Evnt::modeOpen);
-			Evnt evnt_finish(EvntNameFinish, Evnt::modeCreate);
-#ifndef NDEBUG
-			assert((HANDLE)evnt_start);
-			assert((HANDLE)evnt_finish);
-			assert(evnt_start.Wait(-1) > 0);
-#else
-			if(!(HANDLE)evnt_start)
-				*P_Result = 0;
-			if(!(HANDLE)evnt_finish)
-				*P_Result = 0;
-			if(evnt_start.Wait(-1) < 0)
-				*P_Result = 0;
-#endif
-			*P_SignalVar = Id;
-			SDelay(500);
-			*P_SignalVar = -(int)Id; // @v9.6.3
-			evnt_finish.Signal();
-			// @v9.6.3 *P_SignalVar = -(int)Id;
-		}
-	private:
-		uint   Id;
-		volatile int * P_SignalVar;
-		volatile int * P_Result;
-		SString EvntNameStart;
-		SString EvntNameFinish;
-	};
-
-	int    ok = 1;
-	static volatile int signal_var = 0;
-	static volatile int result = 0;
-	SString evnt_name_start("TestEvnt_Start");
-	SString evnt_name_finish("TestEvnt_Finish");
-	Evnt ev_start(evnt_name_start, Evnt::modeCreate);
-	SLCHECK_NZ((HANDLE)ev_start);
-	{
-		int    ok = 1;
-		for(uint i = 1; i <= 10; i++) {
-			const  uint tid = i;
-			EvntThread::InitBlock blk;
-			blk.Id = tid;
-			blk.P_EvntNameStart  = evnt_name_start;
-			blk.P_EvntNameFinish = evnt_name_finish;
-			blk.P_SignalVar = &signal_var;
-			blk.P_Result = &result;
-			EvntThread * p_thread = new EvntThread(&blk);
-			p_thread->Start();
-			SDelay(500);
-			{
-				Evnt ev_finish(evnt_name_finish, Evnt::modeOpen);
-				SLCHECK_NZ((HANDLE)ev_finish);
-#ifndef NDEBUG
-				assert(signal_var == 0);
-#else
-				SLCHECK_NZ(signal_var == 0);
-#endif
-				ev_start.Signal();
-				SDelay(10);
-#ifndef NDEBUG
-				assert(signal_var == tid);
-				assert(ev_finish.Wait(-1) > 0);
-				assert(signal_var == -(int)tid);
-#else
-				SLCHECK_NZ(signal_var == tid);
-				SLCHECK_NZ(ev_finish.Wait(-1) > 0);
-				SLCHECK_NZ(signal_var == -(int)tid);
-#endif
-			}
-			WaitForSingleObject((HANDLE)*p_thread, INFINITE);
-			signal_var = 0;
-			ev_start.Reset();
-		}
-	}
-	return CurrentStatus;
 }
 
-SLTEST_R(ReadWriteLock)
+SlProcess::~SlProcess()
 {
-	//
-	// Тест ReadWrite-блокировки (ReadWriteLock)
-	// Идея теста в том, чтобы заставить очень много потоков (128)
-	// толкаться вокруг небольшого буфера RwlCommonDataList с целью записывать
-	// в него предсказуемые значения, зависящие от номера потока (RwlThread::Id)
-	// и параллельно считывать эти значения с одновременной проверкой корректности.
-	//
-	// Корректность записанных/считанных значений верифицируется следующим образом:
-	// -- предварительно формируется буфер RwlDataPatternList допустимых для каждого
-	//   потока значений (по RwlPattersPerThread на каждый поток).
-	// -- поток за одну итерацию записывает в RwlCommonDataList какое-то одно из этих допустимых
-	//   значений вместе с собственным идентификатором.
-	// -- поток, читающий RwlCommonDataList проверяет весь массив на предмет того,
-	//   чтобы каждый элемент (RwlEntry) массива содержал либо {0; 0} (еще не записанные
-	//   ячейки), либо {Id; одно из допустимых для потока Id значение }.
-	//
-	// Так как количество ячеек в RwlCommonDataList мало по сравнению с количеством
-	// потоков, они (потоки), будучи запущенными одновременно, станут толкаться вокруг
-	// этого буфера и нарушение синхронизации моментально приведет к возникновению исключения (assert).
-	// Последнее утверждение легко проверяется отключением вызовов WriteLock()/Unlock() или
-	// ReadLock()/Unlock().
-	//
-	// Каждый поток при очередной итерации может быть либо "писателем" либо "читателем" в
-	// зависимости от четности случайного числа, полученного на этой итерации. Кроме того,
-	// после каждой итерации осуществляется небольшая случайная задержка SDelay(rn%7)
-	//
-	struct RwlEntry {
-		uint   Id;
-		int64  Val;
-	};
+}
 
-	static const uint RwlThreadCount = 128;
-	static const uint RwlPattersPerThread = 16;
-	static RwlEntry RwlCommonDataList[37];
-	static int64 RwlDataPatternList[RwlThreadCount*RwlPattersPerThread];
-	static const char * P_StartEvntName = "RwlTest_Start";
-	static volatile int ResultList[RwlThreadCount];
+bool SlProcess::SetFlags(uint flags)
+{
+	bool  ok = true;
+	// @todo Необходимо проверить переданные с аргументов флаги на непротиворечивость.
+	// Например, internal-флаги не должны передаваться (их надо игнорировать).
+	Flags |= flags;
+	return ok;
+}
 
-	class RwlThread : public SlThread {
-	public:
-		struct InitBlock {
-			uint   Id;
-			ReadWriteLock * P_Lock;
-			volatile int  * P_Result;
-		};
-		RwlThread(InitBlock * pBlk) : SlThread(pBlk), Id(pBlk->Id), P_Lock(pBlk->P_Lock), P_Result(pBlk->P_Result)
-		{
-		}
-		virtual void Run()
-		{
-			assert(SLS.GetConstTLA().Id == GetThreadID());
-			*P_Result = 1;
-			//int    lck = 0;
-			assert(Id > 0 && Id <= RwlThreadCount);
-			Evnt start_evnt(P_StartEvntName, Evnt::modeOpen);
-			start_evnt.Wait(-1);
-			for(uint i = 0; i < 10000; i++) {
-				const  uint rn = SLS.GetTLA().Rg.GetUniformInt(200000+Id*7+i);
-				const  int  writer = BIN((rn % 2) == 0);
-				if(writer) {
-					uint j = (rn % RwlPattersPerThread);
-					int64 pattern = RwlDataPatternList[((Id-1) * RwlPattersPerThread)+j];
-					{
-						//P_Lock->WriteLock(); 
-						SRWLOCKER(*P_Lock, SReadWriteLocker::Write);
-						//lck = 1;
-						const uint pos = rn%SIZEOFARRAY(RwlCommonDataList);
-						RwlCommonDataList[pos].Id = Id;
-						RwlCommonDataList[pos].Val = pattern;
-						//P_Lock->Unlock(); 
-						//lck = 0;
-					}
-				}
-				else {
-					//P_Lock->ReadLock(); 
-					SRWLOCKER(*P_Lock, SReadWriteLocker::Read);
-					//lck = 1;
-					for(uint j = 0; j < SIZEOFARRAY(RwlCommonDataList); j++) {
-						const RwlEntry & r_entry = RwlCommonDataList[j];
-#ifndef NDEBUG
-						assert(r_entry.Id != 0 || r_entry.Val == 0);
-						assert(r_entry.Id >= 0 && r_entry.Id <= RwlThreadCount);
-#else
-						THROW(r_entry.Id != 0 || r_entry.Val == 0);
-						THROW(r_entry.Id >= 0 && r_entry.Id <= RwlThreadCount);
-#endif
-						if(r_entry.Id) {
-							int    found = 0;
-							uint   k;
-							for(k = 0; !found && k < RwlPattersPerThread; k++) {
-								int64 pattern = RwlDataPatternList[((r_entry.Id-1) * RwlPattersPerThread)+k];
-								if(r_entry.Val == pattern)
-									found = 1;
-							}
-							uint   real_id = 0;
-							for(k = 0; !real_id && k < SIZEOFARRAY(RwlDataPatternList); k++) {
-								if(RwlDataPatternList[k] == r_entry.Val) {
-									real_id = (k % RwlPattersPerThread) + 1;
-								}
-							}
-#ifndef NDEBUG
-							assert(found);
-#else
-							THROW(found);
-#endif
-						}
-					}
-					//P_Lock->Unlock(); 
-					//lck = 0;
-				}
-				SDelay(rn%7);
-			}
-			CATCH
-				//if(lck)
-					//P_Lock->Unlock();
-				*P_Result = 0;
-			ENDCATCH
-		}
-		uint   Id;
-		ReadWriteLock * P_Lock;
-		volatile int * P_Result;
-	};
-	int    ok = 1;
-	{
-		int    r1 = 0;
-		int    r2 = 0;
-		int    r3 = 0;
-		int    ur = 0;
-		ReadWriteLock lck;
-		r1 = lck.WriteLockT_(1000);
-		assert(r1 > 0);
-		r2 = lck.ReadLockT_(1000);
-		assert(r2 < 0);
-		ur = lck.Unlock_();
-		assert(ur);
-		r2 = lck.ReadLockT_(1000);
-		assert(r2 > 0);
-		r3 = lck.ReadLockT_(1000);
-		assert(r3 > 0);
-		r1 = lck.WriteLockT_(1000);
-		assert(r1 < 0);
-		ur = lck.Unlock_();
-		assert(ur);
-		ur = lck.Unlock_();
-		assert(ur);
-		r1 = lck.WriteLockT_(1000);
-		assert(r1 > 0);
-		ur = lck.Unlock_();
-		assert(ur);
-		r2 = lck.ReadLockT_(1000);
-		assert(r2 > 0);
-		ur = lck.Unlock_();
-		assert(ur);
+static void foo()
+{
+	/*
+	const char * p_app_name = 0;
+	const char * p_cmd_line = 0;
+		BOOL CreateProcessW(
+		  [in, optional]      LPCWSTR               lpApplicationName,
+		  [in, out, optional] LPWSTR                lpCommandLine,
+		  [in, optional]      LPSECURITY_ATTRIBUTES lpProcessAttributes,
+		  [in, optional]      LPSECURITY_ATTRIBUTES lpThreadAttributes,
+		  [in]                BOOL                  bInheritHandles,
+		  [in]                DWORD                 dwCreationFlags,
+		  [in, optional]      LPVOID                lpEnvironment,
+		  [in, optional]      LPCWSTR               lpCurrentDirectory,
+		  [in]                LPSTARTUPINFOW        lpStartupInfo,
+		  [out]               LPPROCESS_INFORMATION lpProcessInformation
+		);
+	*/
+	/*
+
+	fBreakawayFromJob           CREATE_BREAKAWAY_FROM_JOB
+	fDefaultErrorMode           CREATE_DEFAULT_ERROR_MODE
+	fNewConsole                 CREATE_NEW_CONSOLE
+	fNewProcessGroup            CREATE_NEW_PROCESS_GROUP
+	fNoWindow                   CREATE_NO_WINDOW
+	fProtectedProcess           CREATE_PROTECTED_PROCESS
+	fPreserveCodeAuthzLevel     CREATE_PRESERVE_CODE_AUTHZ_LEVEL
+	fSecureProcess              CREATE_SECURE_PROCESS
+	fSeparateWowVdm             CREATE_SEPARATE_WOW_VDM
+	fSharedWowVdm               CREATE_SHARED_WOW_VDM
+	fSuspended                  CREATE_SUSPENDED
+	fUnicodeEnvironment         CREATE_UNICODE_ENVIRONMENT
+	fDebugOnlyThisProcess       DEBUG_ONLY_THIS_PROCESS
+	fDebugProcess               DEBUG_PROCESS
+	fDetachedProcess            DETACHED_PROCESS
+	fExtendedStartupinfoPresent EXTENDED_STARTUPINFO_PRESENT
+	fInheritParentAffinity      INHERIT_PARENT_AFFINITY
+
+	Creation Flags: 
+		Constant/value 	Description
+		CREATE_BREAKAWAY_FROM_JOB 0x01000000
+			The child processes of a process associated with a job are not associated with the job.
+			If the calling process is not associated with a job, this constant has no effect. 
+			If the calling process is associated with a job, the job must set the JOB_OBJECT_LIMIT_BREAKAWAY_OK limit.
+		CREATE_DEFAULT_ERROR_MODE 0x04000000
+			The new process does not inherit the error mode of the calling process. Instead, the new process gets the default error mode.
+			This feature is particularly useful for multithreaded shell applications that run with hard errors disabled.
+			The default behavior is for the new process to inherit the error mode of the caller. Setting this flag changes that default behavior.
+		CREATE_NEW_CONSOLE 0x00000010
+			The new process has a new console, instead of inheriting its parent's console (the default). For more information, see Creation of a Console.
+			This flag cannot be used with DETACHED_PROCESS.
+		CREATE_NEW_PROCESS_GROUP 0x00000200
+			The new process is the root process of a new process group. The process group includes all processes that are descendants of this root process. The process identifier of the new process group is the same as the process identifier, which is returned in the lpProcessInformation parameter. Process groups are used by the GenerateConsoleCtrlEvent function to enable sending a CTRL+BREAK signal to a group of console processes.
+			If this flag is specified, CTRL+C signals will be disabled for all processes within the new process group.
+			This flag is ignored if specified with CREATE_NEW_CONSOLE.
+		CREATE_NO_WINDOW 0x08000000
+			The process is a console application that is being run without a console window. Therefore, the console handle for the application is not set.
+			This flag is ignored if the application is not a console application, or if it is used with either CREATE_NEW_CONSOLE or DETACHED_PROCESS.
+		CREATE_PROTECTED_PROCESS 0x00040000
+			The process is to be run as a protected process. The system restricts access to protected processes and the threads of protected processes. For more information on how processes can interact with protected processes, see Process Security and Access Rights.
+			To activate a protected process, the binary must have a special signature. This signature is provided by Microsoft but not currently available for non-Microsoft binaries. There are currently four protected processes: media foundation, audio engine, Windows error reporting, and system. Components that load into these binaries must also be signed. Multimedia companies can leverage the first two protected processes. For more information, see Overview of the Protected Media Path.
+			Windows Server 2003 and Windows XP: This value is not supported.
+		CREATE_PRESERVE_CODE_AUTHZ_LEVEL 0x02000000
+			Allows the caller to execute a child process that bypasses the process restrictions that would normally be applied automatically to the process.
+		CREATE_SECURE_PROCESS 0x00400000
+			This flag allows secure processes, that run in the Virtualization-Based Security environment, to launch.
+		CREATE_SEPARATE_WOW_VDM 0x00000800
+			This flag is valid only when starting a 16-bit Windows-based application. If set, the new process runs in a private Virtual DOS Machine (VDM). By default, all 16-bit Windows-based applications run as threads in a single, shared VDM. The advantage of running separately is that a crash only terminates the single VDM; any other programs running in distinct VDMs continue to function normally. Also, 16-bit Windows-based applications that are run in separate VDMs have separate input queues. That means that if one application stops responding momentarily, applications in separate VDMs continue to receive input. The disadvantage of running separately is that it takes significantly more memory to do so. You should use this flag only if the user requests that 16-bit applications should run in their own VDM.
+		CREATE_SHARED_WOW_VDM 0x00001000
+			The flag is valid only when starting a 16-bit Windows-based application. If the DefaultSeparateVDM switch in the Windows section of WIN.INI is TRUE, 
+			this flag overrides the switch. The new process is run in the shared Virtual DOS Machine.
+		CREATE_SUSPENDED 0x00000004
+			The primary thread of the new process is created in a suspended state, and does not run until the ResumeThread function is called.
+		CREATE_UNICODE_ENVIRONMENT 0x00000400
+			If this flag is set, the environment block pointed to by lpEnvironment uses Unicode characters. Otherwise, the environment block uses ANSI characters.
+		DEBUG_ONLY_THIS_PROCESS 0x00000002
+			The calling thread starts and debugs the new process. It can receive all related debug events using the WaitForDebugEvent function.
+		DEBUG_PROCESS 0x00000001
+			The calling thread starts and debugs the new process and all child processes created by the new process. 
+			It can receive all related debug events using the WaitForDebugEvent function.
+			A process that uses DEBUG_PROCESS becomes the root of a debugging chain. 
+			This continues until another process in the chain is created with DEBUG_PROCESS.
+			If this flag is combined with DEBUG_ONLY_THIS_PROCESS, the caller debugs only the new process, not any child processes.
+		DETACHED_PROCESS 0x00000008
+			For console processes, the new process does not inherit its parent's console (the default). The new process can call the AllocConsole function at a later time to create a console. For more information, see Creation of a Console.
+			This value cannot be used with CREATE_NEW_CONSOLE.
+		EXTENDED_STARTUPINFO_PRESENT 0x00080000
+			The process is created with extended startup information; the lpStartupInfo parameter specifies a STARTUPINFOEX structure.
+			Windows Server 2003 and Windows XP: This value is not supported.
+		INHERIT_PARENT_AFFINITY 0x00010000
+			The process inherits its parent's affinity. If the parent process has threads in more than one processor group, 
+			the new process inherits the group-relative affinity of an arbitrary group in use by the parent.
+			Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP: This value is not supported.
+	*/
+	/*
+		typedef struct _STARTUPINFOA {
+			DWORD  cb;
+			LPSTR  lpReserved;
+			LPSTR  lpDesktop;
+			LPSTR  lpTitle;
+			DWORD  dwX;
+			DWORD  dwY;
+			DWORD  dwXSize;
+			DWORD  dwYSize;
+			DWORD  dwXCountChars;
+			DWORD  dwYCountChars;
+			DWORD  dwFillAttribute;
+			DWORD  dwFlags;
+			WORD   wShowWindow;
+			WORD   cbReserved2;
+			LPBYTE lpReserved2;
+			HANDLE hStdInput;
+			HANDLE hStdOutput;
+			HANDLE hStdError;
+		} STARTUPINFOA, *LPSTARTUPINFOA;
+	*/
+	//::CreateProcessW()
+}
+
+SlProcess::StartUpBlock::StartUpBlock() : Flags(0), ShowWindowFlags(0), P_AttributeList(0)
+{
+	ConsoleCharCount.Z();
+}
+
+SlProcess::StartUpBlock::~StartUpBlock()
+{
+	if(P_AttributeList) {
+		DeleteProcThreadAttributeList(static_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(P_AttributeList));
 	}
-	{
-		static ReadWriteLock _RwLck;
-		class AbstractWriter {
-			void * P;
-		public:
-			AbstractWriter(long timeout) : P(0)
-			{
-				P = (_RwLck.WriteLockT_(timeout) > 0) ? reinterpret_cast<void *>(1) : 0;
-			}
-			~AbstractWriter()
-			{
-				if(P) {
-					_RwLck.Unlock_();
-					P = 0;
-				}
-				assert(P == 0);
-			}
-			bool    IsValid() const { return (P != 0); }
-		};
-		class AbstractReader {
-			void * P;
-		public:
-			AbstractReader(long timeout) : P(0)
-			{
-				P = (_RwLck.ReadLockT_(timeout) > 0) ? reinterpret_cast<void *>(1) : 0;
-			}
-			~AbstractReader()
-			{
-				if(P) {
-					_RwLck.Unlock_();
-					P = 0;
-				}
-				assert(P == 0);
-			}
-			bool   IsValid() const { return (P != 0); }
-		};
-		class Thread_W : public SlThread_WithStartupSignal {
-			long    Timeout;
-		public:
-			Thread_W(long timeout) : SlThread_WithStartupSignal(0), Timeout(timeout)
-			{
-				assert(Timeout > 0);
-			}
-			void Run()
-			{
-				AbstractWriter o(Timeout*3);
-				assert(o.IsValid());
-				SDelay(Timeout / 2);
-			}
-		};
-		class Thread_R : public SlThread_WithStartupSignal {
-			long    Timeout;
-		public:
-			Thread_R(long timeout) : SlThread_WithStartupSignal(0), Timeout(timeout)
-			{
-				assert(Timeout > 0);
-			}
-			void Run()
-			{
-				AbstractReader o(Timeout*3);
-				assert(o.IsValid());
-				SDelay(Timeout / 2);
-			}
-		};
-		//
-		int    r1 = 0;
-		int    r2 = 0;
-		uint   tc = 0;
-		HANDLE tl[128];
-		MEMSZERO(tl);
-		{
-			Thread_W * p_w = new Thread_W(8000);
-			p_w->Start(1);
-			tl[tc++] = *p_w;
-		}
-		{
-			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
-			tl[tc++] = *p_r;
-		}
-		{
-			Thread_W * p_w = new Thread_W(8000);
-			p_w->Start(1);
-			tl[tc++] = *p_w;
-		}
-		{
-			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
-			tl[tc++] = *p_r;
-		}
-		{
-			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
-			tl[tc++] = *p_r;
-		}
-		{
-			Thread_W * p_w = new Thread_W(8000);
-			p_w->Start(1);
-			tl[tc++] = *p_w;
-		}
-		{
-			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
-			tl[tc++] = *p_r;
-		}
-		{
-			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
-			tl[tc++] = *p_r;
-		}
-		{
-			Thread_W * p_w = new Thread_W(8000);
-			p_w->Start(1);
-			tl[tc++] = *p_w;
-		}
-		{
-			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
-			tl[tc++] = *p_r;
-		}
-		{
-			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
-			tl[tc++] = *p_r;
-		}
-		{
-			Thread_W * p_w = new Thread_W(8000);
-			p_w->Start(1);
-			tl[tc++] = *p_w;
-		}
-		//
-		::WaitForMultipleObjects(tc, tl, TRUE, INFINITE);
-		r1 = _RwLck.WriteLock_();
-		assert(r1 > 0);
-		r1 = _RwLck.Unlock_();
-		assert(r1 > 0);
-		r2 = _RwLck.ReadLock_();
-		assert(r2 > 0);
-		r2 = _RwLck.Unlock_();
-		assert(r2 > 0);
+}
+
+bool SlProcess::Helper_SetParam(SStringU & rInner, const char * pParamUtf8)
+{
+	bool   ok = true;
+	if(isempty(pParamUtf8)) {
+		rInner.Z();
 	}
-	uint   i;
-	ReadWriteLock * p_lock = new ReadWriteLock();
-	memzero(RwlCommonDataList, sizeof(RwlCommonDataList));
-	for(i = 0; i < RwlThreadCount; i++) {
-		for(uint j = 0; j < RwlPattersPerThread; j++) {
-			int64 pattern = (int64)SLS.GetTLA().Rg.GetUniformInt(2000000000L);
-			RwlDataPatternList[(i * RwlPattersPerThread)+j] = pattern;
-		}
-	}
-	{
-		size_t h_chunk_count = 0;
-		size_t h_count[6];
-		HANDLE h_list[6][MAXIMUM_WAIT_OBJECTS];
-		memzero(h_count, sizeof(h_count));
-		memzero(h_list, sizeof(h_list));
-		Evnt start_evnt(P_StartEvntName, Evnt::modeCreate);
-		for(i = 0; i < RwlThreadCount; i++) {
-			RwlThread::InitBlock blk;
-			blk.Id = i+1;
-			blk.P_Lock = p_lock;
-			blk.P_Result = ResultList+i;
-			RwlThread * p_thread = new RwlThread(&blk);
-			p_thread->Start(0);
-			//
-			// WaitForMultipleObjects не может обработать более
-			// MAXIMUM_WAIT_OBJECTS (64) объектов за один вызов
-			//
-			if(h_count[h_chunk_count] == MAXIMUM_WAIT_OBJECTS) {
-				h_chunk_count++;
-				assert(h_chunk_count < SIZEOFARRAY(h_count));
-			}
-			h_list[h_chunk_count][h_count[h_chunk_count]++] = (HANDLE)*p_thread;
-		}
-		start_evnt.Signal();
-		int    r;
-		for(i = 0; i <= h_chunk_count; i++) {
-			r = WaitForMultipleObjects(h_count[i], h_list[i], 1, INFINITE);
-		}
-		for(i = 0; ok && i < RwlThreadCount; i++) {
-			if(ResultList[i] == 0)
-				ok = 0;
-		}
+	else {
+		SString temp_buf(pParamUtf8);
+		ok = temp_buf.IsLegalUtf8() ? rInner.CopyFromUtf8(temp_buf) : false;
 	}
 	return ok;
 }
 
-#endif // } SLTEST_RUNNING
+bool SlProcess::Helper_SetParam(SStringU & rInner, const wchar_t * pParam)
+{
+	bool   ok = true;
+	if(isempty(pParam)) {
+		rInner.Z();
+	}
+	else {
+		rInner = pParam;
+	}
+	return ok;
+}
+
+bool SlProcess::Helper_SsAdd(StringSet & rInner, const char * pAddendumUtf8)
+{
+	bool   ok = true;
+	if(isempty(pAddendumUtf8)) {
+		;
+	}
+	else {
+		SString temp_buf(pAddendumUtf8);
+		if(temp_buf.IsLegalUtf8()) {
+			// @todo Здесь надо как-то проверить добавляемую строку на предмет того, что 
+			// ничего подобного в контейнере rInner нет, но в виду различной природы
+			// контейнеров не понятно как это сделать унифицированным образом.
+			rInner.add(temp_buf);
+		}
+		else
+			ok = false;
+	}
+	return ok;
+}
+
+bool SlProcess::Helper_SsAdd(StringSet & rInner, const wchar_t * pAddendum)
+{
+	bool   ok = true;
+	if(isempty(pAddendum)) {
+		;
+	}
+	else {
+		SString temp_buf;
+		if(temp_buf.CopyUtf8FromUnicode(pAddendum, sstrlen(pAddendum), 1) && temp_buf.IsLegalUtf8()) {
+			// @todo Здесь надо как-то проверить добавляемую строку на предмет того, что 
+			// ничего подобного в контейнере rInner нет, но в виду различной природы
+			// контейнеров не понятно как это сделать унифицированным образом.
+			rInner.add(temp_buf);
+		}
+		else
+			ok = false;
+	}
+	return ok;	
+}
+
+bool SlProcess::SetAppName(const char * pAppNameUtf8) { return Helper_SetParam(AppName, pAppNameUtf8); }
+bool SlProcess::SetAppName(const wchar_t * pAppName) { return Helper_SetParam(AppName, pAppName); }
+bool SlProcess::SetPath(const char * pPathUtf8) { return Helper_SetParam(Path, pPathUtf8); }
+bool SlProcess::SetPath(const wchar_t * pPath) { return Helper_SetParam(Path, pPath); }
+bool SlProcess::SetWorkingDir(const char * pWorkingDirUtf8) { return Helper_SetParam(WorkingDir, pWorkingDirUtf8); }
+bool SlProcess::SetWorkingDir(const wchar_t * pWorkingDir) { return Helper_SetParam(WorkingDir, pWorkingDir); }
+
+bool SlProcess::AddArg(const char * pArgUtf8) { return Helper_SsAdd(SsArgUtf8, pArgUtf8); }
+bool SlProcess::AddArg(const wchar_t * pArg) { return Helper_SsAdd(SsArgUtf8, pArg); }
+bool SlProcess::AddEnv(const char * pKeyUtf8, const char * pValUtf8)
+{
+	bool   ok = true;
+	if(sstrchr(pKeyUtf8, '=') || sstrchr(pValUtf8, '=')) {
+		ok = false; // @todo @err
+	}
+	else {
+		SString temp_buf;
+		temp_buf.CatEq(pKeyUtf8, pValUtf8);
+		ok = Helper_SsAdd(SsEnvUtf8, temp_buf);
+	}
+	return ok;
+}
+
+bool   SlProcess::AddEnv(const wchar_t * pKey, const wchar_t * pVal)
+{
+	bool   ok = true;
+	if(sstrchr(pKey, L'=') || sstrchr(pVal, L'=')) {
+		ok = false; // @todo @err
+	}
+	else {
+		SStringU temp_buf;
+		temp_buf.CatEq(pKey, pVal);
+		ok = Helper_SsAdd(SsEnvUtf8, temp_buf);
+	}
+	return ok;
+}
+
+int SlProcess::Run()
+{
+	int    ok = 0;
+	THROW(Path.NotEmpty()); // @todo @err
+	{
+		/*
+		wchar_t cmd_line_[512];
+		wchar_t working_dir_[512];
+		SString temp_buf;
+		SStringU cmd_line_u;
+		SStringU working_dir_u;
+		cmd_line_u.CopyFromUtf8(pPe->FullResolvedPath);
+		STRNSCPY(cmd_line_, cmd_line_u);
+		SPathStruc ps(pPe->FullResolvedPath);
+		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+		working_dir_u.CopyFromUtf8(temp_buf.SetLastSlash());
+		STRNSCPY(working_dir_, working_dir_u);
+		SECURITY_ATTRIBUTES process_attr;
+		SECURITY_ATTRIBUTES thread_attr;
+		BOOL   inherit_handles = FALSE;
+		DWORD  creation_flags = 0;
+		void * p_env = 0;
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+		MEMSZERO(si);
+		si.cb = sizeof(si);
+		MEMSZERO(pi);
+		r = ::CreateProcessW(0, cmd_line_, 0, 0, inherit_handles, creation_flags, p_env, working_dir_, &si, &pi);
+		*/
+		const wchar_t * p_app_name = 0;
+		wchar_t * p_cmd_line = 0;
+		STempBuffer cmd_line(1024 * sizeof(wchar_t));
+		SECURITY_ATTRIBUTES * p_prc_attr_list = 0;
+		SECURITY_ATTRIBUTES * p_thread_attr_list = 0;
+		BOOL inherit_handles = false;
+		DWORD creation_flags = 0;
+		void * p_env = 0;
+		const wchar_t * p_curr_dir = 0;
+		STARTUPINFOEXW startup_info;
+		/*_Out_*/PROCESS_INFORMATION prc_info;
+		//
+		if(AppName.NotEmpty()) {
+			p_app_name = AppName.ucptr();
+		}
+		//
+		//int r = ::CreateProcessW(p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, creation_flags, p_env, p_curr_dir, &startup_info, &prc_info);
+	}
+	CATCHZOK
+	return ok;
+}

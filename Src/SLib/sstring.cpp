@@ -4391,6 +4391,21 @@ SStringU & SStringU::CatN(const wchar_t * pS, size_t maxLen)
 	return *this;
 }
 
+SStringU & SStringU::Cat(const wchar_t * pS) // @v11.8.2
+{
+	const size_t add_len = sstrlen(pS);
+	if(add_len) {
+		const size_t new_len = (L ? L : 1) + add_len;
+		if(new_len <= Size || Alloc(new_len)) {
+			memcpy(P_Buf+Len(), pS, (add_len+1)*sizeof(wchar_t));
+			L = new_len;
+		}
+	}
+	return *this;
+}
+
+SStringU & SStringU::CatEq(const wchar_t * pKey, const wchar_t * pVal) { return Cat(pKey).CatChar(L'=').Cat(pVal); } // @v11.8.2
+
 SStringU & FASTCALL SStringU::CopyFrom(const SStringU & rS)
 {
 	const size_t sl = rS.L;
@@ -4730,10 +4745,10 @@ void SString::Cat_Unsafe(const uint8 * pChr, size_t numChr)
 	}
 }
 
-int SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion)
+bool SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion)
 {
 	CopyFrom(0); // Обрезаем строку до пустой
-	int    ok = 1;
+	bool   ok = true;
 	const  uint32 byteMask = 0xBF;
 	const  uint32 byteMark = 0x80;
 	uint8  temp_mb[8];
@@ -4802,15 +4817,15 @@ int STDCALL SStringU::CopyToUtf8(SString & rBuf, int strictConversion) const
 	return rBuf.CopyUtf8FromUnicode(P_Buf, Len(), strictConversion);
 }
 
-int FASTCALL SStringU::CopyFromUtf8(const SString & rS) { return Helper_CopyFromUtf8(rS.cptr(), rS.Len(), 0, 0); }
-int FASTCALL SStringU::CopyFromUtf8R(const SString & rS, size_t * pActualSrcSize) { return Helper_CopyFromUtf8(rS.cptr(), rS.Len(), 0, pActualSrcSize); }
-int STDCALL SStringU::CopyFromUtf8(const char * pSrc, size_t srcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 0, 0); }
-int STDCALL SStringU::CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 0, pActualSrcSize); }
-int STDCALL SStringU::CopyFromUtf8Strict(const char * pSrc, size_t srcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 1, 0); }
+bool FASTCALL SStringU::CopyFromUtf8(const SString & rS) { return Helper_CopyFromUtf8(rS.cptr(), rS.Len(), 0, 0); }
+bool FASTCALL SStringU::CopyFromUtf8R(const SString & rS, size_t * pActualSrcSize) { return Helper_CopyFromUtf8(rS.cptr(), rS.Len(), 0, pActualSrcSize); }
+bool STDCALL  SStringU::CopyFromUtf8(const char * pSrc, size_t srcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 0, 0); }
+bool STDCALL  SStringU::CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 0, pActualSrcSize); }
+bool STDCALL  SStringU::CopyFromUtf8Strict(const char * pSrc, size_t srcSize) { return Helper_CopyFromUtf8(pSrc, srcSize, 1, 0); }
 
-int SStringU::Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize)
+bool SStringU::Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize)
 {
-	int    ok = 1;
+	bool   ok = true;
 	Trim(0);
 	const uint8 * p_src = reinterpret_cast<const uint8 *>(pSrc);
 	wchar_t line[1024];

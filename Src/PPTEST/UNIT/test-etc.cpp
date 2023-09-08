@@ -476,8 +476,12 @@ SLTEST_R(WsCtl)
 		SLCHECK_NZ(cp2 == cp);
 	}
 	{
-		int r = cp.Apply();
-		SLCHECK_NZ(r);
+		// ƒл€ этого блока нужны права значительные права доступа к реестру. ѕо-этому его блокируем и отрабатываем только под отладчиком.
+		const bool enable_test = false;
+		if(enable_test) {
+			int r = cp.Apply();
+			SLCHECK_NZ(r);
+		}
 	}
 	CATCH
 		;

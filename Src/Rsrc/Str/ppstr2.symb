@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494738
+LastSignatureCode=2147494739
 LastAutoCodeList=1,12212;102,10177;103,10072;110,10000;111,12095;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10147;120,10005;1001,10000;121,10000;122,10000;123,10314;124,10279;125,10047
 
 [SignatureList]
@@ -9947,6 +9947,7 @@ chznprcssrparam_param=2147492720
 chznprcssrparam_ar=2147492721
 chznprcssrparam_afqueryticket=2147492722
 chznprcssrparam_afquerykizinfo=2147492723
+chznprcssrparam_afquerydoclistin=2147494739
 chznprcssrparam_loc=2147492724
 restorelostprjtperson=2147492725
 restorelostprjtperson_resolvecreator=2147492726

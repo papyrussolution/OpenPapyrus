@@ -24,5 +24,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-hash.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-agner.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-slui.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-process.cpp" />
   </ItemGroup>
 </Project>

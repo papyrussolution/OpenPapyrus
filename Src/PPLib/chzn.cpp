@@ -568,7 +568,7 @@ public:
 	//   SNTOK_CHZN_GS1_GTIN SNTOK_CHZN_SIGN_SGTIN SNTOK_CHZN_SSCC
 	//
 	enum {
-		doctypUnkn                       = 0,
+		doctypUnkn                               =   0,
 		doctypMdlpResult                   		 = 200,
 		doctypMdlpQueryKizInfo             		 = 210,
 		doctypMdlpKizInfo                  		 = 211,
@@ -576,11 +576,12 @@ public:
 		doctypMdlpMoveOrder                		 = 415, // @v10.9.2
 		doctypMdlpReceiveOrder             		 = 416,
 		doctypMdlpMovePlace                		 = 431, // @v10.8.7 
-		doctypMdlpMoveUnregisteredOrder  = 441, // @v11.2.0
-		doctypMdlpRetailSale             = 511, // @v11.0.1
+		doctypMdlpMoveUnregisteredOrder          = 441, // @v11.2.0
+		doctypMdlpRetailSale                     = 511, // @v11.0.1
+		doctypMdlpMoveOrderNotification          = 601, // @v11.8.2
 		doctypMdlpReceiveOrderNotification 		 = 602,
-		doctypMdlpAccept                 = 701,
-		doctypMdlpPosting                = 702, // @v10.9.7
+		doctypMdlpAccept                         = 701,
+		doctypMdlpPosting                        = 702, // @v10.9.7
 		//
 		// Следующие типы определены для интерфейса ГИС МТ. Для них нет заданных внешним сервисом числовых значений
 		//
@@ -2633,7 +2634,7 @@ int ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, 
 						count_limit = pFilt->CountLimit;
 					count_offset = pFilt->CountOffset;
 				}
-				created_from = (pFilt && pFilt->Period.low) ? pFilt->Period.low.GetTimeT() : encodedate(1, 1, 2020).GetTimeT();
+				created_from = (pFilt && pFilt->Period.low) ? pFilt->Period.low.GetTimeT() : encodedate(1, 1, 2023).GetTimeT();
 				created_to = (pFilt && pFilt->Period.upp) ? pFilt->Period.upp.GetTimeT() : getcurdate_().GetTimeT();
 				temp_buf.Z();
 				temp_buf.CatEq("limit", count_limit);
@@ -3007,6 +3008,7 @@ int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 			SetupPPObjCombo(this, CTLSEL_CHZNIX_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, 0);
 			AddClusterAssocDef(CTL_CHZNIX_WHAT, 0, Data._afQueryTicket);
 			AddClusterAssoc(CTL_CHZNIX_WHAT, 1, Data._afQueryKizInfo);
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 2, Data._afQueryDocListIn); // @v11.8.2
 			SetClusterData(CTL_CHZNIX_WHAT, Data.DocType);
 			setCtrlString(CTL_CHZNIX_PARAM, Data.ParamString);
 			SetupArCombo(this, CTLSEL_CHZNIX_SUPPL, Data.ArID, 0, GetSupplAccSheet(), 0);
@@ -3034,7 +3036,7 @@ int PPChZnPrcssr::InteractiveQuery()
 	QueryParam _param;
 	_param.LocID = LConfig.Location;
 	while(EditQueryParam(&_param) > 0) {
-		if(oneof2(_param.DocType, QueryParam::_afQueryTicket, QueryParam::_afQueryKizInfo)) {
+		if(oneof3(_param.DocType, QueryParam::_afQueryTicket, QueryParam::_afQueryKizInfo, QueryParam::_afQueryDocListIn)) {
 			ChZnInterface ifc;
 			ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
 			p_ib->ProtocolId = ChZnInterface::InitBlock::protidMdlp;
@@ -3053,6 +3055,14 @@ int PPChZnPrcssr::InteractiveQuery()
 				p_cq->ArID = _param.ArID;
 				if(!ifc.TransmitDocument2(*p_ib, pack, result_buf))
 					LogLastError();
+			}
+			else if(_param.DocType == QueryParam::_afQueryDocListIn) { // @v11.8.2
+				ChZnInterface::DocumentFilt filt;
+				filt.Flags |= ChZnInterface::DocumentFilt::fIncoming;
+				TSCollection <ChZnInterface::Document> doc_list; 
+				if(!ifc.GetDocumentList(*p_ib, &filt, doc_list)) {
+					LogLastError();
+				}
 			}
 		}
 		ok = 1;

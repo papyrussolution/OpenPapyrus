@@ -1353,6 +1353,7 @@ public:
 	static constexpr uint32 ListBoxDefSignature_STRING  = 0xABCD0004;  //0xABCD0004 // StringListBoxDef
 	static constexpr uint32 ListBoxDefSignature_DBQ = 0xABCD0005;      //0xABCD0005 // DBQListBoxDef
 	static constexpr uint32 ListBoxDefSignature_STDTREE2 = 0xABCD0006; //0xABCD0006 // StdTreeListBoxDef2
+	static constexpr uint32 Signature_SlThread = 0x09970199U; // @v11.8.2 Сигнатура потоков SlThread для идентификации консистентности
 	static constexpr uint32 MagicHashPrime32 = 2654435761U; // @v11.3.10 Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
 	static constexpr uint32 GoldenRatioInt32 = 2654435769U; // @v11.3.12 The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
 		//0x9e3779b9 is the integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
@@ -4407,7 +4408,7 @@ public:
 	SString & FASTCALL SetIfEmpty(const SString & rS);
 	int    IsAscii() const;
 	bool   IsLegalUtf8() const;
-	int    CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
+	bool   CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
 	//
 	// Descr: Копирует в нашу строку не более maxLen символов из строки pSrc.
 	//   Если завершающий ноль в строке pStr встретится раньше, чем будут скопированы
@@ -4714,7 +4715,9 @@ public:
 	//
 	wchar_t    FASTCALL C(size_t n) const;
 	SStringU & FASTCALL CatChar(wchar_t);
+	SStringU & Cat(const wchar_t * pS);
 	SStringU & CatN(const wchar_t * pS, size_t maxLen);
+	SStringU & CatEq(const wchar_t * pKey, const wchar_t * pVal);
 	SStringU & FASTCALL CopyFrom(const SStringU & rS);
 	SStringU & FASTCALL CopyFrom(const wchar_t * pS);
 	SStringU & CopyFromN(const wchar_t * pS, size_t maxLen);
@@ -4729,11 +4732,11 @@ public:
 	SStringU & CopyFromMb_INNER(const char * pS, size_t srcLen);
 	wchar_t *  CopyTo(wchar_t * pS, size_t maxLen);
 	SStringU & Sub(size_t startPos, size_t len, SStringU & rBuf) const;
-	int    STDCALL  CopyFromUtf8(const char * pSrc, size_t srcSize);
-	int    STDCALL  CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize);
-	int    FASTCALL CopyFromUtf8(const SString & rS);
-	int    FASTCALL CopyFromUtf8R(const SString & rS, size_t * pActualSrcSize);
-	int    STDCALL  CopyFromUtf8Strict(const char * pSrc, size_t srcSize);
+	bool   STDCALL  CopyFromUtf8(const char * pSrc, size_t srcSize);
+	bool   STDCALL  CopyFromUtf8R(const char * pSrc, size_t srcSize, size_t * pActualSrcSize);
+	bool   FASTCALL CopyFromUtf8(const SString & rS);
+	bool   FASTCALL CopyFromUtf8R(const SString & rS, size_t * pActualSrcSize);
+	bool   STDCALL  CopyFromUtf8Strict(const char * pSrc, size_t srcSize);
 	int    STDCALL  CopyToUtf8(SString & rBuf, int strictConversion) const;
 	int    CopyToMb(int cp, SString & rBuf) const;
 	SStringU & FASTCALL Trim(size_t n);
@@ -4757,7 +4760,7 @@ public:
 	bool   Ensure(uint sz); // @internal
 private:
 	int    FASTCALL Alloc(size_t sz);
-	int    Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize);
+	bool   Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize);
 
 	size_t L; // @firstmember
 	size_t Size;
@@ -16312,6 +16315,79 @@ public:
 template <class T> class TSClassWrapper : public SClassWrapper {
 	virtual void * Create() { return new T(); }
 	virtual void Destroy(void * ptr) { delete static_cast<T *>(ptr); }
+};
+//
+// 
+// 
+class SlProcess {
+public:
+	enum {
+		fBreakawayFromJob           = 0x00000001,
+		fDefaultErrorMode           = 0x00000002,
+		fNewConsole                 = 0x00000004,
+		fNewProcessGroup            = 0x00000008,
+		fNoWindow                   = 0x00000010,
+		fProtectedProcess           = 0x00000020,
+		fPreserveCodeAuthzLevel     = 0x00000040,
+		fSecureProcess              = 0x00000080,
+		fSeparateWowVdm             = 0x00000100,
+		fSharedWowVdm               = 0x00000200,
+		fSuspended                  = 0x00000400,
+		fUnicodeEnvironment         = 0x00000800, // @internal
+		fDebugOnlyThisProcess       = 0x00001000,
+		fDebugProcess               = 0x00002000,
+		fDetachedProcess            = 0x00004000,
+		fExtendedStartupinfoPresent = 0x00008000, // @internal
+		fInheritParentAffinity      = 0x00010000,
+		//
+		fInheritHandles             = 0x00020000
+	};
+
+	class StartUpBlock {
+	public:
+		StartUpBlock();
+		~StartUpBlock();
+
+		uint   Flags;
+		uint   ShowWindowFlags;
+		TRect  R;
+		SPoint2S ConsoleCharCount;
+		SIntHandle StdIn;
+		SIntHandle StdOut;
+		SIntHandle StdErr;
+		SString DesktopNameUtf8;  // 
+		SString ConsoleTitleUtf8; //
+	private:
+		void * P_AttributeList;
+	};
+	
+	SlProcess();
+	~SlProcess();
+	bool   SetAppName(const char * pAppNameUtf8);
+	bool   SetAppName(const wchar_t * pAppName);
+	bool   SetPath(const char * pPathUtf8);
+	bool   SetPath(const wchar_t * pPath);
+	bool   SetWorkingDir(const char * pWorkingDirUtf8);
+	bool   SetWorkingDir(const wchar_t * pWorkingDir);
+	bool   AddArg(const char * pArgUtf8);
+	bool   AddArg(const wchar_t * pArg);
+	bool   AddEnv(const char * pKeyUtf8, const char * pValUtf8);
+	bool   AddEnv(const wchar_t * pKey, const wchar_t * pVal);
+	bool   SetFlags(uint flags);
+	
+	int    Run();
+private:
+	bool   Helper_SetParam(SStringU & rInner, const char * pParamUtf8);
+	bool   Helper_SetParam(SStringU & rInner, const wchar_t * pParam);
+	bool   Helper_SsAdd(StringSet & rInner, const char * pAddendumUtf8);
+	bool   Helper_SsAdd(StringSet & rInner, const wchar_t * pAddendum);
+
+	uint   Flags;
+	SStringU AppName;
+	SStringU Path;       // Полный путь до exe-модуля //
+	SStringU WorkingDir; // Текущий рабочий каталог для запускаемого процесса
+	StringSet SsArgUtf8; // Аргументы командной строки без имени exe-модуля в utf8-кодировке
+	StringSet SsEnvUtf8; // Переменные среды окружения запускаемого процесса
 };
 //
 //

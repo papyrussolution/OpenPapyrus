@@ -51049,9 +51049,10 @@ public:
 		QueryParam();
 
 		enum {
-			_afQueryTicket       = 0x0001,
-			_afQueryKizInfo      = 0x0002,
-			_afSendCc    = 0x0004  // @v11.0.1 Отправка кассовых чеков
+			_afQueryTicket    = 0x0001,
+			_afQueryKizInfo   = 0x0002,
+			_afSendCc         = 0x0004, // @v11.0.1 Отправка кассовых чеков
+			_afQueryDocListIn = 0x0008, // @v11.8.2 Запрос списка входящих документов
 		};
 		long   DocType;
 		long   Flags;

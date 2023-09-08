@@ -1191,7 +1191,6 @@ int StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 	THROW(pData->List.Write(rF, 0));
 	hdr.SListOffs = (uint32)rF.Tell();
 	THROW(SignatureList.Write(rF, 0));
-	// @v9.6.4 {
 	{
 		HashGroupList.sortAndUndup();
 		pData->HashAssocList.Sort();
@@ -1200,9 +1199,7 @@ int StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 		THROW(HashGroupList.Write(rF, 0));
 		THROW(pData->HashAssocList.Write(rF, 0));
 	}
-	// } @v9.6.4
 	{
-		// @v9.0.8 {
 		pData->DescrPosList.freeAll();
 		for(uint i = 0; i < pData->DescrList.getCount(); i++) {
             long   offs = rF.Tell();
@@ -1216,7 +1213,6 @@ int StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 		}
 		hdr.DescrListOffs = (uint32)rF.Tell();
 		THROW(pData->DescrPosList.Write(rF, 0));
-		// } @v9.0.8
 	}
 	THROW(rF.CalcCRC(sizeof(hdr), &hdr.Crc32));
 	rF.Seek(0);
