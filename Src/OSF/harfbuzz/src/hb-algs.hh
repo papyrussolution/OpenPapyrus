@@ -463,11 +463,7 @@ template <typename T> static inline bool hb_in_ranges(T u, T lo1, T hi1, T lo2, 
  */
 
 /* Consider __builtin_mul_overflow use here also */
-static inline bool hb_unsigned_mul_overflows(uint count, uint size)
-{
-	return (size > 0) && (count >= ((uint)-1) / size);
-}
-
+static inline bool hb_unsigned_mul_overflows(uint count, uint size) { return (size > 0) && (count >= ((uint)-1) / size); }
 /*
  * Sort and search.
  */

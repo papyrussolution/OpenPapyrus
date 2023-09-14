@@ -5,6 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <sartre.h>
+#include <ued.h>
 // @v11.7.1 #include <locale.h>
 #include <unicode/urename.h>
 #include <unicode/ures.h>
@@ -5677,7 +5678,7 @@ int PrcssrSartre::UED_Import_PackageTypes()
 			}
 			if(new_entry.Code[0]) {
 				id++;
-				new_entry.ID = UED::MakeCanonical(id, meta);
+				new_entry.ID = UED::ApplyMetaToRawValue32(meta, id);
 				blk.L.insert(&new_entry);
 			}
 		}
@@ -5838,7 +5839,7 @@ int PrcssrSartre::UED_ImportIcuNames()
 												do_skip = true;
 											else {
 												UED_IcuCalendar_Block::Entry new_entry;
-												new_entry.ID = UED::MakeCanonical(i+1, meta_month);
+												new_entry.ID = UED::ApplyMetaToRawValue32(meta_month, i+1);
 												new_entry.Lingua = lingua_id;
 												blk.AddS(temp_buf, &new_entry.NameP);
 												blk.L.insert(&new_entry);
@@ -5891,7 +5892,7 @@ int PrcssrSartre::UED_ImportIcuNames()
 												else {
 													UED_IcuCalendar_Block::Entry new_entry;
 													const uint32 _val = (i == 0) ? 7 : i;
-													new_entry.ID = UED::MakeCanonical(_val, meta_dow);
+													new_entry.ID = UED::ApplyMetaToRawValue32(meta_dow, _val);
 													new_entry.Lingua = lingua_id;
 													blk.AddS(temp_buf, &new_entry.NameP);
 													blk.L.insert(&new_entry);
@@ -6044,7 +6045,7 @@ int PrcssrSartre::UED_Import_Atoms()
 							if(name.NotEmpty() && symb.NotEmpty() && atomic_number > 0) {
 								UED_Atom_Block::Entry new_entry;
 								MEMSZERO(new_entry);
-								new_entry.ID = UED::MakeCanonical(atomic_number, meta);
+								new_entry.ID = UED::ApplyMetaToRawValue32(meta, atomic_number);
 								new_entry.AtomicNumber = atomic_number;
 								name.Utf8ToLower();
 								symb.Utf8ToLower();
@@ -6175,7 +6176,7 @@ int PrcssrSartre::UED_Import_Scripts() // @v11.7.7
 								if(num > 0 && name.NotEmpty() && symb.NotEmpty()) {
 									UED_Script_Block::Entry new_entry;
 									MEMSZERO(new_entry);
-									new_entry.ID = UED::MakeCanonical(num, meta);
+									new_entry.ID = UED::ApplyMetaToRawValue32(meta, num);
 									new_entry.Numeric = num;
 									name.Utf8ToLower();
 									symb.Utf8ToLower();

@@ -974,6 +974,80 @@ backtrack:
 	}
 }
 
+static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
+	{ SFile::accsf_DELETE,       "delete" },
+	{ SFile::accsf_READCONTROL,  "readcontrol" },
+	{ SFile::accsf_WRITE_DAC,    "write_dac" },
+	{ SFile::accsf_WRITE_OWNER,  "write_owner" },
+	{ SFile::accsf_SYNCHRONIZE,  "synchronize" },
+	{ SFile::accsf_STD_REQUIRED, "std_required" },
+	{ SFile::accsf_STD_READ,     "std_read" },
+	{ SFile::accsf_STD_WRITE,    "std_write" },
+	{ SFile::accsf_STD_EXEC,     "std_exec" },
+	{ SFile::accsf_STD_ALL,      "std_all" },
+	{ SFile::accsf_SPECIFIC_ALL, "specific_all" },
+	{ SFile::accsfDataRead,      "dataread" },
+	{ SFile::accsfDataWrite,     "datawrite" },
+	{ SFile::accsfDataAppend,    "dataappend" },
+	{ SFile::accsfDirList,       "dirlist" },
+	{ SFile::accsfDirAddFile,    "diraddfile" },
+	{ SFile::accsfDirAddSub,     "diraddsub" },
+	{ SFile::accsfPipeCreate,    "pipecreate" },
+	{ SFile::accsfEaRead,        "earead" },
+	{ SFile::accsfEaWrite,       "eawrite" },
+	{ SFile::accsfExec,          "exec" },
+	{ SFile::accsfDirTraverse,   "dirtraverse" },
+	{ SFile::accsfDirDelete,     "dirdelete" },
+	{ SFile::accsfAttrRead,      "attrread" },
+	{ SFile::accsfAttrWrite,     "attrwrite" },
+	{ SFile::accsfAll,           "all" },
+	{ SFile::accsfGenericRead,   "genericread" },
+	{ SFile::accsfGenericWrite,  "genericwrite" },
+	{ SFile::accsfGenericExec,   "genericexec" },
+};
+
+/*static*/uint SFile::ParseAccsf(const char * pSymb) // @v11.8.2 @construction
+{
+	uint   accsf = 0;
+	if(!isempty(pSymb)) {
+		SString temp_buf;
+		SStrScan scan(pSymb);
+		while(scan.GetIdent(temp_buf)) {
+			int f = SIntToSymbTab_GetId(SFileAccsfSymbList, SIZEOFARRAY(SFileAccsfSymbList), temp_buf);
+			if(f) {
+				accsf |= static_cast<uint>(f);
+				scan.SkipOptionalDiv('|', SStrScan::wsSpace|SStrScan::wsTab);
+			}
+			else {
+				accsf = 0; // @error
+				break;
+			}
+		}
+	}
+	return accsf;
+}
+
+/*static*/int SFile::GetAccsfSymb(uint accsf, SString & rBuf) // @v11.8.2 @construction
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(accsf) {
+		if(oneof4(accsf, accsfAll, accsfGenericRead, accsfGenericWrite, accsfGenericExec))
+			ok = SIntToSymbTab_GetSymb(SFileAccsfSymbList, SIZEOFARRAY(SFileAccsfSymbList), accsf, rBuf);
+		/*else if(SBits::Cpop(accsf) == 1) {
+			ok = SIntToSymbTab_GetSymb(SFileAccsfSymbList, SIZEOFARRAY(SFileAccsfSymbList), accsf, rBuf);
+		}
+		else {
+			//for()
+		}*/
+		//accsfAll                  = (accsf_STD_REQUIRED|accsf_SYNCHRONIZE|0x1ff),
+		//accsfGenericRead          = (accsf_STD_READ|accsfDataRead|accsfAttrRead|accsfEaRead|accsf_SYNCHRONIZE),
+		//accsfGenericWrite         = (accsf_STD_WRITE|accsfDataWrite|accsfAttrWrite|accsfEaWrite|accsfDataAppend|accsf_SYNCHRONIZE),
+		//accsfGenericExec          = (accsf_STD_EXEC|accsfAttrRead|accsfExec|accsf_SYNCHRONIZE))
+	}
+	return ok;
+}
+
 /*static*/int FASTCALL SFile::Remove(const char * pFileName)
 {
 	return isempty(pFileName) ? -1 : ((::remove(pFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_DELETE, pFileName));

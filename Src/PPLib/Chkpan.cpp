@@ -6507,7 +6507,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 							chk_line = P_ChkPack->GetLineC(static_cast<uint>(cur));
 							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextSerial, serial);
 							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextEgaisMark, egais_mark);
-							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextChZnMark, egais_mark);
+							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextChZnMark, chzn_mark); // @v11.8.2 @fix egais_mark-->chzn_mark
 							p_line   = &chk_line;
 						}
 					}
@@ -7894,6 +7894,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 					PPLoadString("selectccheck_forrefund", temp_buf); // @v10.9.6
 					if(SelectCheck(&chk_id, 0, temp_buf/*pTitle*/, 0) > 0) {
 						GetCc().LoadPacket(chk_id, 0, &SelPack);
+						//chk_pack.PPExtStrContainer::Copy(SelPack); // @v11.8.2
 						chk_pack.CopyLines(SelPack);
 						if(SelPack.Rec.SCardID)
 							AcceptSCard(SelPack.Rec.SCardID, 0, ascfIgnoreRights);
@@ -7930,6 +7931,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							Goods2Tbl::Rec goods_rec;
 							const CCheckLineTbl::Rec & cclr = chk_pack.GetLineC(0);
 							CCheckItem & r_cur_item = P.GetCur();
+							//const int cur_item_idx = P.CurPos; // @v11.8.2
 							r_cur_item.GoodsID = cclr.GoodsID;
 							if(GObj.Fetch(r_cur_item.GoodsID, &goods_rec) > 0) {
 								STRNSCPY(r_cur_item.GoodsName, goods_rec.Name);

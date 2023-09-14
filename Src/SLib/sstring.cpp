@@ -1018,7 +1018,7 @@ SStrScan & SStrScan::SkipOptionalDiv(int div, int skipWs)
 {
 	if(Skip(skipWs)[0] == div) {
 		Incr();
-		Skip();
+		Skip(NZOR(skipWs, wsSpace|wsTab)); // @v11.8.12 ()-->(NZOR(skipWs, wsSpace|wsTab))
 	}
 	return *this;
 }
@@ -4354,12 +4354,50 @@ SStringU & SStringU::Z()
 	return *this;
 }
 
+SStringU & SStringU::Strip()
+{
+	if(L > 1) {
+		while(Last() == L' ')
+			TrimRight();
+		if(L > 1) {
+			size_t p = 0;
+			while(p < (L-1) && P_Buf[p] == L' ')
+				p++;
+			ShiftLeft(p);
+		}
+	}
+	return *this;
+}
+
 SStringU & FASTCALL SStringU::Trim(size_t n)
 {
 	if(n < Len()) {
 		P_Buf[n] = 0;
 		L = n+1;
 	}
+	return *this;
+}
+
+SStringU & SStringU::TrimRight()
+{
+	if(L > 1) {
+		P_Buf[L-2] = 0;
+		L--;
+	}
+	return *this;
+}
+
+SStringU & FASTCALL SStringU::ShiftLeft(size_t n)
+{
+	if(n > 0)
+		if(Len() > n) {
+			memmove(P_Buf, P_Buf+n, (L-n)*sizeof(wchar_t));
+			L -= n;
+		}
+		else if(L > 1) {
+			L = 1;
+			P_Buf[0] = 0;
+		}
 	return *this;
 }
 
@@ -4405,6 +4443,7 @@ SStringU & SStringU::Cat(const wchar_t * pS) // @v11.8.2
 }
 
 SStringU & SStringU::CatEq(const wchar_t * pKey, const wchar_t * pVal) { return Cat(pKey).CatChar(L'=').Cat(pVal); } // @v11.8.2
+SStringU & SStringU::Space() { return CatChar(L' '); }
 
 SStringU & FASTCALL SStringU::CopyFrom(const SStringU & rS)
 {
@@ -5450,14 +5489,22 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 /*static*/SString & SPathStruc::NormalizePath(const char * pPath, long flags, SString & rNormalizedPath)
 {
 	(rNormalizedPath = pPath).Strip();
-	if(flags & npfOEM)
+	const bool is_org_utf8 = rNormalizedPath.IsLegalUtf8();
+	if(flags & npfOEM && !is_org_utf8) { // Черт его знает: вдруг передали utf8 а флагом определили OEM
 		rNormalizedPath.Transf(CTRANSF_INNER_TO_OUTER);
+	}
 	if(!(flags & npfKeepCase)) {
 		if(flags & npfUpper) {
-			rNormalizedPath.ToUpper1251();
+			if(is_org_utf8)
+				rNormalizedPath.Utf8ToUpper();
+			else
+				rNormalizedPath.ToUpper1251();
 		}
 		else {
-			rNormalizedPath.ToLower1251();
+			if(is_org_utf8)
+				rNormalizedPath.Utf8ToLower();
+			else
+				rNormalizedPath.ToLower1251();
 		}
 	}
 	{

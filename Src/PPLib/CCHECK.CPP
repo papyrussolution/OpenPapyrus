@@ -989,15 +989,16 @@ static const int ccpack_textext_ident_list[] = {
 	CCheckPacket::extssSign, 
 	CCheckPacket::extssEgaisUrl, 
 	CCheckPacket::extssRemoteProcessingTa,
-	CCheckPacket::extssChZnProcessingTag, // @v11.0.1
-	CCheckPacket::extssBuyerINN,          // @v11.0.4 ИНН покупателя (при формировании чека по документу)
-	CCheckPacket::extssBuyerName,         // @v11.0.4 Наименование покупателя (при формировании чека по документу)
-	CCheckPacket::extssBuyerPhone,        // @v11.0.4 Телефон покупателя //
-	CCheckPacket::extssBuyerEMail,        // @v11.3.6 
-	CCheckPacket::extssUuid,              // @v11.5.2
-	CCheckPacket::extssPrescrDate,        // @v11.7.12 Дата медицинского рецепта
-	CCheckPacket::extssPrescrSerial,      // @v11.7.12 Серия медицинского рецепта
-	CCheckPacket::extssPrescrNumber,      // @v11.7.12 Номер медицинского рецепта
+	CCheckPacket::extssChZnProcessingTag,  // @v11.0.1
+	CCheckPacket::extssBuyerINN,           // @v11.0.4 ИНН покупателя (при формировании чека по документу)
+	CCheckPacket::extssBuyerName,          // @v11.0.4 Наименование покупателя (при формировании чека по документу)
+	CCheckPacket::extssBuyerPhone,         // @v11.0.4 Телефон покупателя //
+	CCheckPacket::extssBuyerEMail,         // @v11.3.6 
+	CCheckPacket::extssUuid,               // @v11.5.2
+	CCheckPacket::extssPrescrDate,         // @v11.7.12 Дата медицинского рецепта
+	CCheckPacket::extssPrescrSerial,       // @v11.7.12 Серия медицинского рецепта
+	CCheckPacket::extssPrescrNumber,       // @v11.7.12 Номер медицинского рецепта
+	CCheckPacket::extssEgaisProcessingTag, // @v11.8.2
 };
 
 int CCheckPacket::PackTextExt(SString & rResult) const

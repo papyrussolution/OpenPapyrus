@@ -671,6 +671,7 @@
       <Filter>libxml</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\winprofile.cpp" />
+    <ClCompile Include="..\SLib\sprocess.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -794,6 +795,12 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\slui.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\ued.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\ued-id.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

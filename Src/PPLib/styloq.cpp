@@ -2757,7 +2757,7 @@ private:
 		else {
 			disableCtrl(CTLSEL_STQCLIMATCH_OG, 1);
 		}
-		SetupPPObjCombo(this, CTLSEL_STQCLIMATCH_OBJ, Data.Oid.Obj, Data.Oid.Id, 0);
+		SetupPPObjCombo(this, CTLSEL_STQCLIMATCH_OBJ, Data.Oid.Obj, Data.Oid.Id, OLW_CANDELETE); // @v11.8.2 OLW_CANDELETE
 	}
 };
 

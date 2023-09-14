@@ -659,6 +659,7 @@
       <Filter>libxml</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\winprofile.cpp" />
+    <ClCompile Include="..\SLib\sprocess.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Slib.h">
@@ -854,6 +855,12 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\SLib\BZIP3\include\libbz3-common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\ued-id.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\ued.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

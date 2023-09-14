@@ -60,6 +60,9 @@ public:
 class WsCtl_ClientPolicy {
 public:
 	WsCtl_ClientPolicy();
+	WsCtl_ClientPolicy(const WsCtl_ClientPolicy & rS);
+	WsCtl_ClientPolicy & FASTCALL Copy(const WsCtl_ClientPolicy & rS);
+	WsCtl_ClientPolicy & FASTCALL operator = (const WsCtl_ClientPolicy & rS) { return Copy(rS); }
 	bool FASTCALL operator == (const WsCtl_ClientPolicy & rS) { return IsEq(rS); }
 	bool FASTCALL operator != (const WsCtl_ClientPolicy & rS) { return !IsEq(rS); }
 	WsCtl_ClientPolicy & Z();
@@ -73,6 +76,32 @@ public:
 	StringSet SsAppEnabled;
 	StringSet SsAppDisabled;
 	StringSet SsAppPaths; // @v11.8.1
+
+	struct AllowedPath {
+		AllowedPath() : Flags(0)
+		{
+		}
+		bool  FASTCALL operator == (const AllowedPath & rS) const
+		{
+			return (Flags == rS.Flags && Path == rS.Path);
+		}
+		uint  Flags;   // SFile::accsfXXX
+		SString Path;
+	};
+	struct AllowedRegistryEntry {
+		AllowedRegistryEntry() : RegKeyType(0), Flags(0)
+		{
+		}
+		bool   FASTCALL operator == (const AllowedRegistryEntry & rS) const
+		{
+			return (RegKeyType == rS.RegKeyType && Flags == rS.Flags && Branch == rS.Branch);
+		}
+		int   RegKeyType; // WinRegKey::regkeytypXXX general || wow64_32 || wow64_64
+		uint  Flags;       
+		SString Branch;
+	};
+	TSCollection <AllowedPath> AllowedPathList;
+	TSCollection <AllowedRegistryEntry> AllowedRegList;
 };
 //
 // Descr: Дескриптор исполняемой программы, отображаемый в клиентском окне.

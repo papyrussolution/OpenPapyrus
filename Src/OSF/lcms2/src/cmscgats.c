@@ -489,14 +489,11 @@ static void ReadReal(cmsIT8 * it8, int32 inum)
 			sgn = +1;
 			NextCh(it8);
 		}
-
 		e = 0;
 		while(isdigit(it8->ch)) {
 			int32 digit = (it8->ch - '0');
-
 			if((double)e * 10.0 + (double)digit < (double)+2147483647.0)
 				e = e * 10 + digit;
-
 			NextCh(it8);
 		}
 		e = sgn*e;
@@ -512,8 +509,8 @@ static double ParseFloatNumber(const char * Buffer)
 	double dnum = 0.0;
 	int sign = 1;
 	// keep safe
-	if(Buffer == NULL) return 0.0;
-
+	if(Buffer == NULL) 
+		return 0.0;
 	if(*Buffer == '-' || *Buffer == '+') {
 		sign = (*Buffer == '-') ? -1 : 1;
 		Buffer++;
@@ -527,9 +524,8 @@ static double ParseFloatNumber(const char * Buffer)
 	if(*Buffer == '.') {
 		double frac = 0.0; // fraction
 		int prec = 0;             // precision
-
-		if(*Buffer) Buffer++;
-
+		if(*Buffer) 
+			Buffer++;
 		while(*Buffer && isdigit((int)*Buffer)) {
 			frac = frac * 10.0 + (*Buffer - '0');
 			prec++;
@@ -613,11 +609,11 @@ static void InSymbol(cmsIT8 * it8)
 					NextCh(it8);
 					while(isxdigit(it8->ch)) {
 						it8->ch = toupper(it8->ch);
-						if(it8->ch >= 'A' && it8->ch <= 'F') j = it8->ch -'A'+10;
-						else j = it8->ch - '0';
-
-						if((double)it8->inum * 16.0 + (double)j >
-						    (double)+2147483647.0) {
+						if(it8->ch >= 'A' && it8->ch <= 'F') 
+							j = it8->ch -'A'+10;
+						else 
+							j = it8->ch - '0';
+						if((double)it8->inum * 16.0 + (double)j > (double)+2147483647.0) {
 							SynError(it8, "Invalid hexadecimal number");
 							return;
 						}

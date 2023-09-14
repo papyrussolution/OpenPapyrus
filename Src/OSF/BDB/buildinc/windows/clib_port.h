@@ -28,12 +28,12 @@
 	#endif
 #endif
 #ifndef	LONG_MAX			/* maximum (signed) long value */
-#if SIZEOF_LONG == 4
-#define	LONG_MAX	2147483647
-#endif
-#if SIZEOF_LONG == 8
-#define	LONG_MAX	9223372036854775807L
-#endif
+	#if SIZEOF_LONG == 4
+		#define	LONG_MAX	2147483647
+	#endif
+	#if SIZEOF_LONG == 8
+		#define	LONG_MAX	9223372036854775807L
+	#endif
 #endif
 #ifndef	LONG_MIN			/* minimum (signed) long value */
 	#define	LONG_MIN	(-LONG_MAX-1)

@@ -401,10 +401,7 @@ public:
 		{
 			return as_array(len).lfind(x, pos);
 		}
-		void qsort(uint len, uint start = 0, uint end = (uint)-1)
-		{
-			as_array(len).qsort(start, end);
-		}
+		void qsort(uint len, uint start = 0, uint end = (uint)-1) { as_array(len).qsort(start, end); }
 		bool serialize(hb_serialize_context_t * c, uint items_len)
 		{
 			TRACE_SERIALIZE(this);
@@ -490,29 +487,19 @@ public:
 /* An array with sorted elements.  Supports binary searching. */
 	template <typename Type>
 	struct SortedUnsizedArrayOf : UnsizedArrayOf<Type> {
-		hb_sorted_array_t<Type> as_array(uint len)
-		{
-			return hb_sorted_array(this->arrayZ, len);
-		}
-		hb_sorted_array_t<const Type> as_array(uint len) const
-		{ return hb_sorted_array(this->arrayZ, len); }
-		operator hb_sorted_array_t<Type> ()             { return as_array(); }
+		hb_sorted_array_t<Type> as_array(uint len) { return hb_sorted_array(this->arrayZ, len); }
+		hb_sorted_array_t<const Type> as_array(uint len) const { return hb_sorted_array(this->arrayZ, len); }
+		operator hb_sorted_array_t<Type> () { return as_array(); }
 		operator hb_sorted_array_t<const Type> () const { return as_array(); }
-
-		template <typename T>
-		Type &bsearch(uint len, const T &x, Type &not_found = Crap (Type))
+		template <typename T> Type &bsearch(uint len, const T &x, Type &not_found = Crap (Type))
 		{
 			return *as_array(len).bsearch(x, &not_found);
 		}
-
-		template <typename T>
-		const Type &bsearch(uint len, const T &x, const Type &not_found = Null (Type)) const
+		template <typename T> const Type &bsearch(uint len, const T &x, const Type &not_found = Null (Type)) const
 		{
 			return *as_array(len).bsearch(x, &not_found);
 		}
-
-		template <typename T>
-		bool bfind(uint len, const T &x, uint * i = nullptr,
+		template <typename T> bool bfind(uint len, const T &x, uint * i = nullptr,
 		    hb_bfind_not_found_t not_found = HB_BFIND_NOT_FOUND_DONT_STORE,
 		    uint to_store = (uint)-1) const
 		{
@@ -555,22 +542,10 @@ public:
 		/* Iterator. */
 		typedef hb_array_t<const Type>   iter_t;
 		typedef hb_array_t<Type> writer_t;
-		iter_t   iter() const {
-			return as_array();
-		}
-
-		writer_t writer() {
-			return as_array();
-		}
-
-		operator   iter_t() const {
-			return iter();
-		}
-
-		operator writer_t() {
-			return writer();
-		}
-
+		iter_t   iter() const { return as_array(); }
+		writer_t writer() { return as_array(); }
+		operator   iter_t() const { return iter(); }
+		operator writer_t() { return writer(); }
 		hb_array_t<const Type> sub_array(uint start_offset, uint count) const
 		{ return as_array().sub_array(start_offset, count); }
 		hb_array_t<const Type> sub_array(uint start_offset, uint * count = nullptr /* IN/OUT */) const
@@ -583,7 +558,6 @@ public:
 		{
 			return as_array().sub_array(start_offset, count);
 		}
-
 		hb_success_t serialize(hb_serialize_context_t * c, unsigned items_len)
 		{
 			TRACE_SERIALIZE(this);
@@ -652,18 +626,14 @@ public:
 		{
 			return *as_array().lsearch(x, &not_found);
 		}
-
-		template <typename T>
-		bool lfind(const T &x, unsigned * pos = nullptr) const
+		template <typename T> bool lfind(const T &x, unsigned * pos = nullptr) const
 		{
 			return as_array().lfind(x, pos);
 		}
-
 		void qsort(uint start = 0, uint end = (uint)-1)
 		{
 			as_array().qsort(start, end);
 		}
-
 		bool sanitize_shallow(hb_sanitize_context_t * c) const
 		{
 			TRACE_SANITIZE(this);
@@ -682,16 +652,12 @@ public:
 	using PString = ArrayOf<HBUINT8, HBUINT8>;
 
 /* Array of Offset's */
-	template <typename Type>
-	using OffsetArrayOf = ArrayOf<OffsetTo<Type, HBUINT16>>;
-	template <typename Type>
-	using LOffsetArrayOf = ArrayOf<OffsetTo<Type, HBUINT32>>;
-	template <typename Type>
-	using LOffsetLArrayOf = ArrayOf<OffsetTo<Type, HBUINT32>, HBUINT32>;
+	template <typename Type> using OffsetArrayOf = ArrayOf<OffsetTo<Type, HBUINT16>>;
+	template <typename Type> using LOffsetArrayOf = ArrayOf<OffsetTo<Type, HBUINT32>>;
+	template <typename Type> using LOffsetLArrayOf = ArrayOf<OffsetTo<Type, HBUINT32>, HBUINT32>;
 
 /* Array of offsets relative to the beginning of the array itself. */
-	template <typename Type>
-	struct OffsetListOf : OffsetArrayOf<Type> {
+	template <typename Type> struct OffsetListOf : OffsetArrayOf<Type> {
 		const Type& operator [] (int i_)const
 		{
 			uint i = (uint)i_;

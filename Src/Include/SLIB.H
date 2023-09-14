@@ -4718,6 +4718,7 @@ public:
 	SStringU & Cat(const wchar_t * pS);
 	SStringU & CatN(const wchar_t * pS, size_t maxLen);
 	SStringU & CatEq(const wchar_t * pKey, const wchar_t * pVal);
+	SStringU & Space();   // @>>CatChar(' ')
 	SStringU & FASTCALL CopyFrom(const SStringU & rS);
 	SStringU & FASTCALL CopyFrom(const wchar_t * pS);
 	SStringU & CopyFromN(const wchar_t * pS, size_t maxLen);
@@ -4739,7 +4740,14 @@ public:
 	bool   STDCALL  CopyFromUtf8Strict(const char * pSrc, size_t srcSize);
 	int    STDCALL  CopyToUtf8(SString & rBuf, int strictConversion) const;
 	int    CopyToMb(int cp, SString & rBuf) const;
+	SStringU & Strip();
 	SStringU & FASTCALL Trim(size_t n);
+	SStringU & TrimRight();
+	//
+	// Descr: сдвигает строку на n позиций влево. n левых символов теряются.
+	//   Если длина строки меньше n, то длина строки становится нулевой.
+	//
+	SStringU & FASTCALL ShiftLeft(size_t n = 1);
 	SStringU & ToUpper();
 	SStringU & ToLower();
 	SStringU & ReplaceChar(wchar_t patternChr, wchar_t replaceChr);
@@ -6141,6 +6149,14 @@ int    memdword(void * p, size_t size, uint32 k, size_t * pOffs);
 void * FASTCALL memzero(void * p, size_t s);
 bool   FASTCALL ismemzero(const void * p, size_t s);
 // @v11.8.1 {
+static constexpr uint8  _FFFF8   = static_cast<uint8>(0xff);
+static constexpr uint16 _FFFF16  = static_cast<uint16>(0xffff);
+static constexpr uint32 _FFFF32  = static_cast<uint32>(0xffffffffU);
+static constexpr uint   _FFFFU   = static_cast<uint>(0xffffffffU);
+static constexpr ulong  _FFFFUL  = static_cast<ulong>(0xffffffffUL);
+static constexpr uint64 _FFFF64  = static_cast<uint64>(0xffffffffffffffffULL);
+static constexpr size_t _FFFFST  = static_cast<size_t>(-1);
+
 constexpr uint8  FFFF(uint8 & rV) { rV = static_cast<uint8>(0xff); return rV; }
 constexpr int8   FFFF(int8 & rV) { rV = static_cast<int8>(0xff); return rV; }
 constexpr uint16 FFFF(uint16 & rV) { rV = static_cast<uint16>(0xffff); return rV; }
@@ -12179,12 +12195,53 @@ typedef int (*SFileSortProgressCbProc)(const SFileSortProgressData *);
 
 class SFile {
 public:
+	//
+	// Descr: Трансляция прав доступа к файлам и каталогам из winnt.h
+	//   Флаги совпадают с соответствующими символами Windows, но в будущем это факт может быть отменен!
+	//   Напрямую флаги из winnt.h я не хочу использовать потому, что хочу иметь возможность маневра
+	//   при унификации прав доступа к различным типам объектов и на случай переноса кода на другие платформы.
+	//
+	enum {
+		accsf_DELETE              = 0x00010000,
+		accsf_READCONTROL         = 0x00020000,
+		accsf_WRITE_DAC           = 0x00040000,
+		accsf_WRITE_OWNER         = 0x00080000,
+		accsf_SYNCHRONIZE         = 0x00100000,
+		accsf_STD_REQUIRED        = 0x000f0000,
+		accsf_STD_READ            = accsf_READCONTROL,
+		accsf_STD_WRITE           = accsf_READCONTROL, 
+		accsf_STD_EXEC            = accsf_READCONTROL, 
+		accsf_STD_ALL             = 0x001f0000,
+		accsf_SPECIFIC_ALL        = 0x0000ffff,
+		//
+		accsfDataRead             = 0x00000001, // file & pipe
+		accsfDataWrite            = 0x00000002, // file & pipe
+		accsfDataAppend           = 0x00000004, // file
+		accsfDirList              = 0x00000001, // directory
+		accsfDirAddFile           = 0x00000002, // directory
+		accsfDirAddSub            = 0x00000004, // directory
+		accsfPipeCreate           = 0x00000004, // named pipe
+		accsfEaRead               = 0x00000008, // file & directory
+		accsfEaWrite              = 0x00000010, // file & directory
+		accsfExec                 = 0x00000020, // file
+		accsfDirTraverse          = 0x00000020, // directory
+		accsfDirDelete            = 0x00000040, // directory
+		accsfAttrRead             = 0x00000080, // all
+		accsfAttrWrite            = 0x00000100, // all
+		accsfAll                  = (accsf_STD_REQUIRED|accsf_SYNCHRONIZE|0x1ff),
+		accsfGenericRead          = (accsf_STD_READ|accsfDataRead|accsfAttrRead|accsfEaRead|accsf_SYNCHRONIZE),
+		accsfGenericWrite         = (accsf_STD_WRITE|accsfDataWrite|accsfAttrWrite|accsfEaWrite|accsfDataAppend|accsf_SYNCHRONIZE),
+		accsfGenericExec          = (accsf_STD_EXEC|accsfAttrRead|accsfExec|accsf_SYNCHRONIZE)
+	};
+
 	DECL_INVARIANT_C();
 
-	static int FASTCALL Remove(const char * pFileName);
-	static int Rename(const char * pFileName, const char * pNewFileName);
-	static int Compare(const char * pFileName1, const char * pFileName2, long flags);
-	static int FASTCALL WildcardMatch(const char * pPattern, const char * pStr);
+	static uint ParseAccsf(const char * pSymb);
+	static int  GetAccsfSymb(uint accsf, SString & rBuf);
+	static int  FASTCALL Remove(const char * pFileName);
+	static int  Rename(const char * pFileName, const char * pNewFileName);
+	static int  Compare(const char * pFileName1, const char * pFileName2, long flags);
+	static int  FASTCALL WildcardMatch(const char * pPattern, const char * pStr);
 	//
 	// Descr: Структура дополнительных параметров сортировки файла
 	//
@@ -15599,6 +15656,48 @@ private:
 
 class WinRegKey {
 public:
+	//
+	// Descr: Перечисление определяющее типы ключей реестра.
+	//   Это перечисление на текущий момент не используется непосредственно
+	//   классом WinRegKey. Здесь размещено только потому, что это - логично.
+	//
+	enum {
+		regkeytypGeneral = 0,
+		regkeytypWow64_32,
+		regkeytypWow64_64,
+	};
+	//
+	//
+	//
+	enum {
+		accsfQueryValue       = 0x0001,
+		accsfSetValue         = 0x0002,
+		accsfCreateSub        = 0x0004,
+		accsfEnumSub          = 0x0008,
+		accsfNotify           = 0x0010,
+		accsfCreateLink       = 0x0020,
+		acccfWow64_64         = 0x0100, 
+		accsfWow64_32         = 0x0200,
+		accsfWow64_Res        = 0x0300,
+	};
+
+	/*
+#define KEY_QUERY_VALUE         (0x0001)
+#define KEY_SET_VALUE           (0x0002)
+#define KEY_CREATE_SUB_KEY      (0x0004)
+#define KEY_ENUMERATE_SUB_KEYS  (0x0008)
+#define KEY_NOTIFY              (0x0010)
+#define KEY_CREATE_LINK         (0x0020)
+#define KEY_WOW64_32KEY         (0x0200)
+#define KEY_WOW64_64KEY         (0x0100)
+#define KEY_WOW64_RES           (0x0300)
+
+#define KEY_READ                ((STANDARD_RIGHTS_READ|KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS|KEY_NOTIFY)&(~SYNCHRONIZE))
+#define KEY_WRITE               ((STANDARD_RIGHTS_WRITE|KEY_SET_VALUE|KEY_CREATE_SUB_KEY)&(~SYNCHRONIZE))
+#define KEY_EXECUTE             ((KEY_READ)&(~SYNCHRONIZE))
+#define KEY_ALL_ACCESS          ((STANDARD_RIGHTS_ALL|KEY_QUERY_VALUE|KEY_SET_VALUE|KEY_CREATE_SUB_KEY|KEY_ENUMERATE_SUB_KEYS|KEY_NOTIFY|KEY_CREATE_LINK)&(~SYNCHRONIZE))
+	*/ 
+
 	WinRegKey();
 	WinRegKey(HKEY, const char * pSubKey, int readOnly);
 	~WinRegKey();
@@ -16050,7 +16149,7 @@ public:
 	//
 	SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout, const char * pSrcFileName, uint srcLineNo);
 	~SReadWriteLocker();
-	int    operator !() const;
+	bool   operator !() const;
 	int    GetState() const;
 	int    FASTCALL Toggle(Type t);
 	int    Toggle(Type t, const char * pSrcFileName, uint srcLineNo);
@@ -16322,23 +16421,59 @@ template <class T> class TSClassWrapper : public SClassWrapper {
 class SlProcess {
 public:
 	enum {
-		fBreakawayFromJob           = 0x00000001,
-		fDefaultErrorMode           = 0x00000002,
-		fNewConsole                 = 0x00000004,
-		fNewProcessGroup            = 0x00000008,
-		fNoWindow                   = 0x00000010,
-		fProtectedProcess           = 0x00000020,
-		fPreserveCodeAuthzLevel     = 0x00000040,
-		fSecureProcess              = 0x00000080,
-		fSeparateWowVdm             = 0x00000100,
-		fSharedWowVdm               = 0x00000200,
-		fSuspended                  = 0x00000400,
-		fUnicodeEnvironment         = 0x00000800, // @internal
-		fDebugOnlyThisProcess       = 0x00001000,
-		fDebugProcess               = 0x00002000,
-		fDetachedProcess            = 0x00004000,
-		fExtendedStartupinfoPresent = 0x00008000, // @internal
-		fInheritParentAffinity      = 0x00010000,
+		fBreakawayFromJob           = 0x00000001, // The child processes of a process associated with a job are not associated with the job.
+			// If the calling process is not associated with a job, this constant has no effect. 
+			// If the calling process is associated with a job, the job must set the JOB_OBJECT_LIMIT_BREAKAWAY_OK limit.
+		fDefaultErrorMode           = 0x00000002, // The new process does not inherit the error mode of the calling process. Instead, the new process gets the default error mode.
+			// This feature is particularly useful for multithreaded shell applications that run with hard errors disabled.
+			// The default behavior is for the new process to inherit the error mode of the caller. Setting this flag changes that default behavior.
+		fNewConsole                 = 0x00000004, // The new process has a new console, instead of inheriting its parent's console (the default). 
+			// For more information, see Creation of a Console. This flag cannot be used with DETACHED_PROCESS.
+		fNewProcessGroup            = 0x00000008, // The new process is the root process of a new process group. The process group includes all processes 
+			// that are descendants of this root process. The process identifier of the new process group is the same as the process identifier, 
+			// which is returned in the lpProcessInformation parameter. Process groups are used by the GenerateConsoleCtrlEvent function to enable 
+			// sending a CTRL+BREAK signal to a group of console processes.
+			// If this flag is specified, CTRL+C signals will be disabled for all processes within the new process group.
+			// This flag is ignored if specified with CREATE_NEW_CONSOLE.
+		fNoWindow                   = 0x00000010, // The process is a console application that is being run without a console window. 
+			// Therefore, the console handle for the application is not set.
+			// This flag is ignored if the application is not a console application, or if it is used with either CREATE_NEW_CONSOLE or DETACHED_PROCESS.
+		fProtectedProcess           = 0x00000020, // The process is to be run as a protected process. The system restricts access to protected processes and 
+			// the threads of protected processes. For more information on how processes can interact with protected processes, see Process Security and Access Rights.
+			// To activate a protected process, the binary must have a special signature. This signature is provided by Microsoft but not currently available for 
+			// non-Microsoft binaries. There are currently four protected processes: media foundation, audio engine, Windows error reporting, and system. 
+			// Components that load into these binaries must also be signed. Multimedia companies can leverage the first two protected processes. 
+			// For more information, see Overview of the Protected Media Path.
+			// Windows Server 2003 and Windows XP: This value is not supported.
+		fPreserveCodeAuthzLevel     = 0x00000040, // Allows the caller to execute a child process that bypasses the process restrictions that would 
+			// normally be applied automatically to the process.
+		fSecureProcess              = 0x00000080, // This flag allows secure processes, that run in the Virtualization-Based Security environment, to launch.
+		fSeparateWowVdm             = 0x00000100, // This flag is valid only when starting a 16-bit Windows-based application. 
+			// If set, the new process runs in a private Virtual DOS Machine (VDM). By default, all 16-bit Windows-based applications run as threads 
+			// in a single, shared VDM. The advantage of running separately is that a crash only terminates the single VDM; 
+			// any other programs running in distinct VDMs continue to function normally. Also, 16-bit Windows-based applications that are run in separate VDMs 
+			// have separate input queues. That means that if one application stops responding momentarily, applications in separate VDMs continue to receive input. 
+			// The disadvantage of running separately is that it takes significantly more memory to do so. You should use this flag only if the user requests 
+			// that 16-bit applications should run in their own VDM.
+		fSharedWowVdm               = 0x00000200, // The flag is valid only when starting a 16-bit Windows-based application. If the DefaultSeparateVDM switch 
+			// in the Windows section of WIN.INI is TRUE, this flag overrides the switch. The new process is run in the shared Virtual DOS Machine.
+		fSuspended                  = 0x00000400, // The primary thread of the new process is created in a suspended state, and does not run until the ResumeThread function is called.
+		fUnicodeEnvironment         = 0x00000800, // @internal If this flag is set, the environment block pointed to by lpEnvironment uses Unicode characters. 
+			// Otherwise, the environment block uses ANSI characters.
+		fDebugOnlyThisProcess       = 0x00001000, // The calling thread starts and debugs the new process. It can receive all related debug events using the WaitForDebugEvent function.
+		fDebugProcess               = 0x00002000, // The calling thread starts and debugs the new process and all child processes created by the new process. 
+			// It can receive all related debug events using the WaitForDebugEvent function. A process that uses DEBUG_PROCESS becomes the root of a debugging chain. 
+			// This continues until another process in the chain is created with DEBUG_PROCESS. If this flag is combined with DEBUG_ONLY_THIS_PROCESS, 
+			// the caller debugs only the new process, not any child processes.
+		fDetachedProcess            = 0x00004000, // For console processes, the new process does not inherit its parent's console (the default). 
+			// The new process can call the AllocConsole function at a later time to create a console. For more information, see Creation of a Console.
+			// This value cannot be used with CREATE_NEW_CONSOLE.
+		fExtendedStartupinfoPresent = 0x00008000, // @internal The process is created with extended startup information; the lpStartupInfo 
+			// parameter specifies a STARTUPINFOEX structure.
+			// Windows Server 2003 and Windows XP: This value is not supported.
+		fInheritParentAffinity      = 0x00010000, // The process inherits its parent's affinity. If the parent process has threads in more than one processor group, 
+			// the new process inherits the group-relative affinity of an arbitrary group in use by the parent.
+			// Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP: This value is not supported.
 		//
 		fInheritHandles             = 0x00020000
 	};
@@ -16360,11 +16495,42 @@ public:
 	private:
 		void * P_AttributeList;
 	};
+
+	struct Result {
+		Result() : ProcessId(0), ThreadId(0)
+		{
+		}
+		SIntHandle HProcess;
+		SIntHandle HThread;
+		uint   ProcessId;
+		uint   ThreadId;
+	};
+
+	class AppContainer {
+	public:
+		AppContainer();
+		~AppContainer();
+		bool   Create(const char * pName);
+		bool   Delete();
+
+		bool   AllowPath(const char * pPathUtf8, uint accsf);
+		bool   AllowRegistry(const char * pKeyUtf8, int keyType, uint accsf);
+	private:
+		bool   GetFolder();
+		bool   AllowNamedObjectAccess(const wchar_t * pName, /*SE_OBJECT_TYPE*/int type, /*ACCESS_MASK*/uint accessMask);
+
+		SString NameUtf8;
+		SString FolderUtf8;
+		SPtrHandle Sid;
+	};
 	
 	SlProcess();
 	~SlProcess();
 	bool   SetAppName(const char * pAppNameUtf8);
 	bool   SetAppName(const wchar_t * pAppName);
+	//
+	// Descr: Устанавливает полный путь к исполняемому файлу.
+	//
 	bool   SetPath(const char * pPathUtf8);
 	bool   SetPath(const wchar_t * pPath);
 	bool   SetWorkingDir(const char * pWorkingDirUtf8);
@@ -16375,7 +16541,7 @@ public:
 	bool   AddEnv(const wchar_t * pKey, const wchar_t * pVal);
 	bool   SetFlags(uint flags);
 	
-	int    Run();
+	int    Run(Result * pResult);
 private:
 	bool   Helper_SetParam(SStringU & rInner, const char * pParamUtf8);
 	bool   Helper_SetParam(SStringU & rInner, const wchar_t * pParam);
@@ -16388,6 +16554,7 @@ private:
 	SStringU WorkingDir; // Текущий рабочий каталог для запускаемого процесса
 	StringSet SsArgUtf8; // Аргументы командной строки без имени exe-модуля в utf8-кодировке
 	StringSet SsEnvUtf8; // Переменные среды окружения запускаемого процесса
+	Result R;
 };
 //
 //

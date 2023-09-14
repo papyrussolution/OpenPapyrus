@@ -5947,7 +5947,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @globalservice_shopify               "Shopify"
 
 @papyrusversion                      "Версия Papyrus"
-
+@testapp_path                        "Тестовое Приложение" // @v11.8.2 Подкаталог рабочего каталога ppy, в котором размещается тестовое приложение SlTestApp.exe
 @from                                "От"
 @to                                  "До"
 @etc_neut                            "Другое"

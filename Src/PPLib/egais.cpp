@@ -83,14 +83,14 @@ static SString & Egais_GetBillCode(const PPBillPacket & rPack, SString & rBuf)
 
 PPEgaisProcessor::Ack::Ack() : Ver(0), SignSize(0), Status(0)
 {
-	PTR32(Sign)[0] = 0;
+	Sign[0] = 0;
 }
 
 void PPEgaisProcessor::Ack::Clear()
 {
 	Ver = 0;
 	SignSize = 0;
-	PTR32(Sign)[0] = 0;
+	Sign[0] = 0;
 	Id.Z();
 	Status = 0;
 	Url.Z();
@@ -178,8 +178,8 @@ int PPEgaisProcessor::InformAReg::FromStr(const SString & rBuf)
 
 PPEgaisProcessor::InformBItem::InformBItem() : P(0), BottlingDate(ZERODATE)
 {
-	PTR32(OrgRowIdent)[0] = 0;
-	PTR32(Ident)[0] = 0;
+	OrgRowIdent[0] = 0;
+	Ident[0] = 0;
 }
 
 void PPEgaisProcessor::InformBItem::Clear()
@@ -207,7 +207,7 @@ void PPEgaisProcessor::InformB::Clear()
 
 PPEgaisProcessor::ActInformItem::ActInformItem() : P(0)
 {
-	PTR32(AIdent)[0] = 0;
+	AIdent[0] = 0;
 }
 
 PPEgaisProcessor::RepealWb::RepealWb() : BillID(0), ReqTime(ZERODATETIME), Confirm(0)
@@ -224,8 +224,8 @@ PPEgaisProcessor::ReplyRestBCode::ReplyRestBCode() : RestTime(ZERODATETIME)
 
 PPEgaisProcessor::UtmEntry::UtmEntry() : MainOrgID(0), Flags(0)
 {
-    PTR32(Url)[0] = 0;
-    PTR32(FSRARID)[0] = 0;
+    Url[0] = 0;
+    FSRARID[0] = 0;
 }
 
 PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), IntrBillID(0), P_Data(0), SrcReplyPos(0)
@@ -5534,6 +5534,12 @@ struct EgaisRestItem { // @flat
     double Rest;
 };
 
+int PPEgaisProcessor::Helper_CreateWriteOff_ByCCheck(const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod) 
+{
+	int    ok = 1;
+	return ok;
+}
+
 int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod) // @indevelopment
 {
 	int    ok = 1;
@@ -5683,8 +5689,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 																	int16 ln = 0;
 																	PPTransferItem lec_ti;
 																	for(int lec_rbb = 0; P_BObj->P_CpTrfr->EnumItems(lec_bill_rec.ID, &lec_rbb, &lec_ti, 0) > 0;) {
-																		ln++;
-																		if(ln == r_lec_rec.RByBill)
+																		if(++ln == r_lec_rec.RByBill)
 																			break;
 																	}
 																	if(ln == r_lec_rec.RByBill) {
@@ -5764,8 +5769,31 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 													}
 												}
 											}
-											else { // no mark
-												
+											else if(egais_mark.IsEmpty()) { // no mark
+												// @v11.8.2 @construction Списание немаркированной продукции со склада по
+												// чекам вскрытия тары.
+												double wroff_qtty = 0.0;
+												if(wroff_qtty != 0.0 && false/* @construction */) {
+													uint   crpidx = 0;
+													if(pCurrentRestPack->SearchGoods(goods_id, &crpidx)) {
+														if(!p_wroff_bp) {
+															THROW_MEM(p_wroff_bp = new PPBillPacket);
+															THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
+															p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf)); // "Реализация"
+														}
+														PPTransferItem ti;
+														uint   new_pos = p_wroff_bp->GetTCount();
+														THROW(ti.Init(&p_wroff_bp->Rec, 1));
+														THROW(ti.SetupGoods(goods_id, 0));
+														ti.Quantity_ = -wroff_qtty;
+														THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
+														{
+															ObjTagList tag_list;
+															tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+															THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
+														}
+													}
+												}
 											}
 										}
 										else if(!v3markMode) {
@@ -5781,7 +5809,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 													}
 												}
 												else
-													ex_row_list.clear();
+													ex_row_list.Z();
 												{
 													pCurrentRestPack->LTagL.SearchString(egais_code, PPTAG_LOT_FSRARLOTGOODSCODE, 0, crest_row_list);
 													for(uint cri = 0; cri < crest_row_list.getCount(); cri++) {
@@ -5801,10 +5829,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 														if(!p_wroff_bp) {
 															THROW_MEM(p_wroff_bp = new PPBillPacket);
 															THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
-															{
-																PPLoadString(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf); // "Реализация"
-																p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, temp_buf);
-															}
+															p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf)); // "Реализация"
 														}
 														if(ex_row_list.getCount()) {
 															const uint ex_pos = ex_row_list.get(0);

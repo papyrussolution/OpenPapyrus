@@ -222,7 +222,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 	protected:
 
 		void set_with_hash(K key, uint32_t hash, V value)
-			{
+		{
 			if(UNLIKELY(!successful)) return;
 			if(UNLIKELY(key == kINVALID)) return;
 			if((occupancy + occupancy / 2) >= mask && !resize()) return;
@@ -245,14 +245,9 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 			if(!items[i].is_tombstone())
 				population++;
 		}
-
-		uint bucket_for(K key) const
-			{
-			return bucket_for_hash(key, hb_hash(key));
-		}
-
+		uint bucket_for(K key) const { return bucket_for_hash(key, hb_hash(key)); }
 		uint bucket_for_hash(K key, uint32_t hash) const
-			{
+		{
 			uint i = hash % prime;
 			uint step = 0;
 			uint tombstone = (uint)-1;
@@ -266,7 +261,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 			return tombstone == (uint)-1 ? i : tombstone;
 		}
 		static uint prime_for(uint shift)
-			{
+		{
 		        /* Following comment and table copied from glib. */
 		        /* Each table size has an associated prime modulo (the first prime
 		 * lower than the table size) used to find the initial bucket. Probing
@@ -274,8 +269,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 		 * good distribution with poor hash functions.
 		         */
 		        /* Not declaring static to make all kinds of compilers happy... */
-		        /*static*/ const uint prime_mod [32] =
-			{
+		        /*static*/ const uint prime_mod[32] = {
 				1, /* For 1 << 0 */
 				2,
 				3,

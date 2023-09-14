@@ -159,6 +159,22 @@ int WsCtl_Config::FromJsonObj(const SJson * pJsObj)
 WsCtl_ClientPolicy::WsCtl_ClientPolicy()
 {
 }
+
+WsCtl_ClientPolicy::WsCtl_ClientPolicy(const WsCtl_ClientPolicy & rS)
+{
+	Copy(rS);
+}
+
+WsCtl_ClientPolicy & FASTCALL WsCtl_ClientPolicy::Copy(const WsCtl_ClientPolicy & rS)
+{
+	SysUser = rS.SysUser;
+	SysPassword = rS.SysPassword;
+	SsAppEnabled = rS.SsAppEnabled;
+	SsAppDisabled = rS.SsAppDisabled;
+	TSCollection_Copy(AllowedPathList, rS.AllowedPathList);
+	TSCollection_Copy(AllowedRegList, rS.AllowedRegList);
+	return *this;
+}
 	
 WsCtl_ClientPolicy & WsCtl_ClientPolicy::Z()
 {
@@ -167,6 +183,8 @@ WsCtl_ClientPolicy & WsCtl_ClientPolicy::Z()
 	SsAppEnabled.Z();
 	SsAppDisabled.Z();
 	SsAppPaths.Z(); // @v11.8.1
+	AllowedPathList.freeAll(); // @v11.8.2
+	AllowedRegList.freeAll(); // @v11.8.2
 	return *this;
 }
 
@@ -181,6 +199,10 @@ bool FASTCALL WsCtl_ClientPolicy::IsEq(const WsCtl_ClientPolicy & rS) const
 		if(!SsAppEnabled.IsEqPermutation(rS.SsAppEnabled))
 			eq = false;
 		else if(!SsAppDisabled.IsEqPermutation(rS.SsAppDisabled))
+			eq = false;
+		else if(!TSCollection_IsEq(&AllowedPathList, &rS.AllowedPathList))
+			eq = false;
+		else if(!TSCollection_IsEq(&AllowedRegList, &rS.AllowedRegList))
 			eq = false;
 	}
 	return eq;
@@ -230,6 +252,44 @@ SJson * WsCtl_ClientPolicy::ToJsonObj() const
 			p_js_app->Insert("paths", p_js_arr);
 		}
 		// } @v11.8.1 
+		if(AllowedPathList.getCount()) {
+			SJson * p_js_arr = SJson::CreateArr();
+			for(uint i = 0; i < AllowedPathList.getCount(); i++) {
+				const AllowedPath * p_item = AllowedPathList.at(i);
+				if(p_item && p_item->Path.NotEmpty()) {
+					//"path"
+					//"access"
+					SJson * p_js_item = SJson::CreateObj();
+					p_js_item->InsertString("path", (temp_buf = p_item->Path).Escape());
+					if(p_item->Flags) {
+						// @todo
+					}
+				}
+			}
+		}
+		if(AllowedRegList.getCount()) {
+			SJson * p_js_arr = SJson::CreateArr();
+			for(uint i = 0; i < AllowedRegList.getCount(); i++) {
+				const AllowedRegistryEntry * p_item = AllowedRegList.at(i);
+				if(p_item && p_item->Branch.NotEmpty()) {
+					SJson * p_js_item = SJson::CreateObj();
+					p_js_item->InsertString("key", (temp_buf = p_item->Branch).Escape());
+					temp_buf.Z();
+					if(p_item->RegKeyType == WinRegKey::regkeytypGeneral)
+						temp_buf = "general";
+					else if(p_item->RegKeyType == WinRegKey::regkeytypWow64_64)
+						temp_buf = "wow64_64";
+					else if(p_item->RegKeyType == WinRegKey::regkeytypWow64_32)
+						temp_buf = "wow64_32";
+					if(temp_buf.NotEmpty()) {
+						p_js_item->InsertString("type", temp_buf);
+					}
+					if(p_item->Flags) {
+						// @todo
+					}
+				}
+			}
+		}
 		p_js->Insert("app", p_js_app);
 	}
 	return p_js;
@@ -278,9 +338,71 @@ int WsCtl_ClientPolicy::FromJsonObj(const SJson * pJsObj)
 				}
 			}
 			// } @v11.8.1 
+			// @v11.8.2 {
+			p_ac = p_c->FindChildByKey("allowedpaths");
+			if(SJson::IsArray(p_ac)) {
+				for(const SJson * p_js_item = p_ac->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+					if(SJson::IsObject(p_js_item)) {
+						const SJson * p_js_item = p_c->FindChildByKey("path");
+						if(SJson::IsString(p_js_item)) {
+							AllowedPath * p_new_item = AllowedPathList.CreateNewItem();
+							THROW(p_new_item);
+							(p_new_item->Path = p_js_item->Text).Unescape();
+							//
+							p_js_item = p_c->FindChildByKey("access");
+							if(SJson::IsString(p_js_item)) {
+								p_new_item->Flags = SFile::accsfAll; // @stub
+							}
+							else {
+								p_new_item->Flags = SFile::accsfAll;
+							}
+						}
+					}
+				}
+			}
+			p_ac = p_c->FindChildByKey("allowedregisters");
+			if(SJson::IsArray(p_ac)) {
+				for(const SJson * p_js_item = p_ac->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+					if(SJson::IsObject(p_js_item)) {
+						/*
+							struct AllowedRegistryEntry {
+								int   RegKeyType; // WinRegKey::regkeytypXXX general || wow64_32 || wow64_64
+								uint  Flags;       
+								SString Branch;
+							};
+						*/
+						const SJson * p_js_item = p_c->FindChildByKey("key");
+						if(SJson::IsString(p_js_item)) {
+							AllowedRegistryEntry * p_new_item = AllowedRegList.CreateNewItem();
+							(p_new_item->Branch = p_js_item->Text).Unescape();
+							p_js_item = p_c->FindChildByKey("type");
+							WinRegKey wrk;
+							if(SJson::IsString(p_js_item)) {
+								(temp_buf = p_js_item->Text).Unescape().Strip();
+								if(temp_buf.IsEqiAscii("general"))
+									p_new_item->RegKeyType = WinRegKey::regkeytypGeneral;
+								else if(temp_buf.IsEqiAscii("wow64_32"))
+									p_new_item->RegKeyType = WinRegKey::regkeytypWow64_32;
+								else if(temp_buf.IsEqiAscii("wow64_64"))
+									p_new_item->RegKeyType = WinRegKey::regkeytypWow64_64;
+								else
+									p_new_item->RegKeyType = WinRegKey::regkeytypWow64_64; // @default (я не уверен, что это - правильно)
+							}
+							p_js_item = p_c->FindChildByKey("access");
+							if(SJson::IsString(p_js_item)) {
+								p_new_item->Flags = SFile::accsfAll; // @stub
+							}
+							else
+								p_new_item->Flags = SFile::accsfAll;
+						}
+					}
+				}
+			}
+			// } @v11.8.2
 		}
 		ok = 1;			
 	}
+	CATCHZOK
 	return ok;
 }
 

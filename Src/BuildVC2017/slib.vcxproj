@@ -2049,6 +2049,7 @@
     <ClCompile Include="..\SLib\sdrecord.cpp" />
     <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\SLib\soapdbt.cpp" />
+    <ClCompile Include="..\SLib\sprocess.cpp" />
     <ClCompile Include="..\SLib\txttable.cpp" />
     <ClCompile Include="..\SLib\vslocate.c" />
     <ClCompile Include="..\SLib\winprofile.cpp" />
@@ -4411,6 +4412,8 @@
     <ClInclude Include="..\Include\sxml.h" />
     <ClInclude Include="..\Include\Tvdefs.h" />
     <ClInclude Include="..\Include\uchardet.h" />
+    <ClInclude Include="..\Include\ued-id.h" />
+    <ClInclude Include="..\Include\ued.h" />
     <ClInclude Include="..\Include\Uri.h" />
     <ClInclude Include="..\Include\xxh3.h" />
     <ClInclude Include="..\Include\xxhash.h" />

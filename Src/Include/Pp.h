@@ -15253,7 +15253,9 @@ public:
 		extssUuid               = 10, // @v11.5.2 UUID чека. Применяется в ограниченном наборе сценариев. Введен ради взаимодействия со Stylo-Q.
 		extssPrescrDate         = 11, // @v11.7.12 Дата медицинского рецепта. Сохраняется в формате DATF_ISO8601 без разделителей, eg 20230821
 		extssPrescrSerial       = 12, // @v11.7.12 Серия медицинского рецепта
-		extssPrescrNumber       = 13  // @v11.7.12 Номер медицинского рецепта
+		extssPrescrNumber       = 13, // @v11.7.12 Номер медицинского рецепта
+		extssEgaisProcessingTag = 14, // @v11.8.2  Внутренний символ обработки для списания товаров по чеку в ЕГАИС. 
+			// Не путать с extssEgaisUrl, являющегося признаком того, что чек отправлен на-прямую в ЕГАИС.
 		// @attention: После вставки очередного элемента в enum добавьте этот элемент в ccpack_textext_ident_list (ccheck.cpp). 
 		//   Иначе этот атрибут не будет сохраняться в чеке.
 	};
@@ -51003,6 +51005,7 @@ private:
 	int    Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID);
 	int    Helper_CreateTransferToShop(const PPBillPacket * pCurrentRestPack);
 	int    Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod);
+	int    Helper_CreateWriteOff_ByCCheck(const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod); // @v11.8.2
 	// @v10.2.9 (moved to LotExtCodeCore) int    Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCodes, uint * pExtCodeCount);
 	int    Helper_ExtractGoodsCodesFromBills(PPID opID, StringSet & rSs);
 	// @v10.6.5 void   FASTCALL Log(const SString & rMsg);

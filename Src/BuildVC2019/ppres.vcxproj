@@ -1668,6 +1668,66 @@ COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
       <SuppressCompilerWarnings Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</SuppressCompilerWarnings>
     </Midl>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Rsrc\UED\UED.txt">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</BuildInParallel>
+      <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</BuildInParallel>
+    </CustomBuild>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

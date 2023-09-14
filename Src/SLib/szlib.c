@@ -1,7 +1,10 @@
 // SZLIB.C
 // Copyright (C) 2004-2017 Mark Adler
-//
+// @codepage UTF-8
 // Note: This is the merging of several small module of original zlib for compacting.
+// 
+// @sobolev's note (2023-09-10): после того, как я адаптировал оригинальный пакет, его автор (madler)
+//   вносил некоторые, вероятно, значимые изменения. Возможно, нужна ревизия.
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -1363,7 +1366,7 @@ int uncompress2(Byte * dest, uLongf * destLen, const Byte * source, uLong * sour
 {
 	z_stream stream;
 	int err;
-	const uInt max = (uInt)-1;
+	const uInt max = _FFFFU; //(uInt)-1;
 	uLong len, left;
 	Byte buf[1]; /* for detection of incomplete stream when *destLen == 0 */
 	len = *sourceLen;
@@ -1694,7 +1697,7 @@ int compress2(Byte * dest, uLongf * destLen, const Byte * source, uLong sourceLe
 {
 	z_stream stream;
 	int err;
-	const uInt max = (uInt)-1;
+	const uInt max = _FFFFU; //(uInt)-1;
 	uLong left = *destLen;
 	*destLen = 0;
 	stream.zalloc = (alloc_func)0;
@@ -2977,7 +2980,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 #ifdef WIDECHAR
 	if(fd == -2) {
 		len = wcstombs(NULL, static_cast<const wchar_t *>(path), 0);
-		if(len == (size_t)-1)
+		if(len == _FFFFST/*(size_t)-1*/)
 			len = 0;
 	}
 	else
@@ -4123,7 +4126,7 @@ static void FASTCALL slide_hash(deflate_state * s)
 	Posf * p = &s->head[n];
 	do {
 		m = *--p;
-		*p = static_cast<Pos>(m >= wsize ? m - wsize : NIL);
+		*p = static_cast<Pos>(m >= wsize ? (m - wsize) : NIL);
 	} while(--n);
 	n = wsize;
 #ifndef FASTEST
@@ -4545,11 +4548,14 @@ uLong deflateBound(z_streamp strm, uLong sourceLen)
 		default: // for compiler happiness
 		    wraplen = 6;
 	}
-	/* if not default parameters, return conservative bound */
-	if(s->w_bits != 15 || s->hash_bits != 8 + 7)
+	// if not default parameters, return conservative bound
+	if(s->w_bits != 15 || s->hash_bits != 8 + 7) {
 		return complen + wraplen;
-	/* default settings: return tight bound for that case */
-	return sourceLen + (sourceLen >> 12) + (sourceLen >> 14) + (sourceLen >> 25) + 13 - 6 + wraplen;
+	}
+	else {
+		// default settings: return tight bound for that case
+		return sourceLen + (sourceLen >> 12) + (sourceLen >> 14) + (sourceLen >> 25) + 13 - 6 + wraplen;
+	}
 }
 // 
 // Put a short in the pending buffer. The 16-bit value is put in MSB order.
@@ -5183,21 +5189,19 @@ static void FASTCALL fill_window(deflate_state * s)
 	assert(s->lookahead < MIN_LOOKAHEAD);
 	do {
 		more = (uint)(s->window_size -(ulong)s->lookahead -(ulong)s->strstart);
-		/* Deal with !@#$% 64K limit: */
+		// Deal with !@#$% 64K limit:
 		if(sizeof(int) <= 2) {
 			if(more == 0 && s->strstart == 0 && s->lookahead == 0) {
 				more = wsize;
 			}
 			else if(more == (uint)(-1)) {
-				/* Very unlikely, but possible on 16 bit machine if
-				 * strstart == 0 && lookahead == 1 (input done a byte at time)
-				 */
+				// Very unlikely, but possible on 16 bit machine if
+				// strstart == 0 && lookahead == 1 (input done a byte at time)
 				more--;
 			}
 		}
-		/* If the window is almost full and there is insufficient lookahead,
-		 * move the upper half to the lower one to make room in the upper half.
-		 */
+		// If the window is almost full and there is insufficient lookahead,
+		// move the upper half to the lower one to make room in the upper half.
 		if(s->strstart >= wsize+MAX_DIST(s)) {
 			memcpy(s->window, s->window+wsize, (uint)wsize - more);
 			s->match_start -= wsize;
@@ -5206,8 +5210,8 @@ static void FASTCALL fill_window(deflate_state * s)
 			slide_hash(s);
 			more += wsize;
 		}
-		if(s->strm->avail_in == 0) break;
-
+		if(s->strm->avail_in == 0) 
+			break;
 		/* If there was no sliding:
 		 *  strstart <= WSIZE+MAX_DIST-1 && lookahead <= MIN_LOOKAHEAD - 1 &&
 		 *  more == window_size - lookahead - strstart
@@ -5222,7 +5226,7 @@ static void FASTCALL fill_window(deflate_state * s)
 		assert(more >= 2);
 		n = read_buf(s->strm, s->window + s->strstart + s->lookahead, more);
 		s->lookahead += n;
-		/* Initialize the hash value now that we have some input: */
+		// Initialize the hash value now that we have some input:
 		if(s->lookahead + s->insert >= MIN_MATCH) {
 			uInt str = s->strstart - s->insert;
 			s->ins_h = s->window[str];
@@ -5242,11 +5246,9 @@ static void FASTCALL fill_window(deflate_state * s)
 					break;
 			}
 		}
-		/* If the whole input has less than MIN_MATCH bytes, ins_h is garbage,
-		 * but this is not important since only literal bytes will be emitted.
-		 */
+		// If the whole input has less than MIN_MATCH bytes, ins_h is garbage,
+		// but this is not important since only literal bytes will be emitted.
 	} while(s->lookahead < MIN_LOOKAHEAD && s->strm->avail_in != 0);
-
 	/* If the WIN_INIT bytes after the end of the current data have never been
 	 * written, then zero those bytes in order to avoid memory check reports of
 	 * the use of uninitialized (or uninitialised as Julian writes) bytes by
@@ -5258,9 +5260,7 @@ static void FASTCALL fill_window(deflate_state * s)
 		ulong curr = s->strstart + (ulong)(s->lookahead);
 		ulong init;
 		if(s->high_water < curr) {
-			/* Previous high water mark below current data -- zero WIN_INIT
-			 * bytes or up to end of window, whichever is less.
-			 */
+			// Previous high water mark below current data -- zero WIN_INIT bytes or up to end of window, whichever is less.
 			init = s->window_size - curr;
 			SETMIN(init, WIN_INIT);
 			memzero(s->window + curr, (uint)init);
@@ -7215,32 +7215,33 @@ static int FASTCALL inflateStateCheck(const z_streamp strm)
 		return 1;
 	else {
 		const struct inflate_state * state = (struct inflate_state *)strm->state;
-		return (!state || state->strm != strm || state->mode < HEAD || state->mode > SYNC) ? 1 : 0;
+		return BIN(!state || state->strm != strm || state->mode < HEAD || state->mode > SYNC);
 	}
 }
 
 int inflateResetKeep(z_streamp strm)
 {
-	struct inflate_state  * state;
 	if(inflateStateCheck(strm)) 
 		return Z_STREAM_ERROR;
-	state = (struct inflate_state *)strm->state;
-	strm->total_in = strm->total_out = state->total = 0;
-	strm->msg = Z_NULL;
-	if(state->wrap)     /* to support ill-conceived Java test suite */
-		strm->adler = state->wrap & 1;
-	state->mode = HEAD;
-	state->last = 0;
-	state->havedict = 0;
-	state->dmax = 32768U;
-	state->head = Z_NULL;
-	state->hold = 0;
-	state->bits = 0;
-	state->lencode = state->distcode = state->next = state->codes;
-	state->sane = 1;
-	state->back = -1;
-	Tracev((stderr, "inflate: reset\n"));
-	return Z_OK;
+	else {
+		struct inflate_state * state = (struct inflate_state *)strm->state;
+		strm->total_in = strm->total_out = state->total = 0;
+		strm->msg = Z_NULL;
+		if(state->wrap) // to support ill-conceived Java test suite
+			strm->adler = state->wrap & 1;
+		state->mode = HEAD;
+		state->last = 0;
+		state->havedict = 0;
+		state->dmax = 32768U;
+		state->head = Z_NULL;
+		state->hold = 0;
+		state->bits = 0;
+		state->lencode = state->distcode = state->next = state->codes;
+		state->sane = 1;
+		state->back = -1;
+		Tracev((stderr, "inflate: reset\n"));
+		return Z_OK;
+	}
 }
 
 int inflateReset(z_streamp strm)
@@ -7356,7 +7357,7 @@ int inflatePrime(z_streamp strm, int bits, int value)
 		}
 	}
 }
-#if 0 // @sobolev (������� ������������� � 2-� �������. ����� ������� ������� �������� ���� ����������) {
+#if 0 // @sobolev (функция дублировалась в 2-х модулях. после слияния модулей осталась одна реализация) {
 /*
    Return state with length and distance decoding tables and index sizes set to
    fixed code decoding.  Normally this returns fixed tables from inffixed.h.
@@ -8353,7 +8354,7 @@ int inflateGetHeader(z_streamp strm, gz_headerp head)
 // called again with more data and the *have state.  *have is initialized to
 // zero for the first call.
 // 
-static uint syncsearch(uint * have, const uchar  * buf, uint len)
+static uint syncsearch(uint * have, const uchar * buf, uint len)
 {
 	uint got = *have;
 	uint next = 0;
@@ -8429,7 +8430,7 @@ int inflateSyncPoint(z_streamp strm)
 		return Z_STREAM_ERROR;
 	else {
 		struct inflate_state * state = (struct inflate_state *)strm->state;
-		return state->mode == STORED && state->bits == 0;
+		return (state->mode == STORED && state->bits == 0);
 	}
 }
 
@@ -8520,7 +8521,7 @@ long inflateMark(z_streamp strm)
 ulong inflateCodesUsed(z_streamp strm)
 {
 	if(inflateStateCheck(strm)) 
-		return (ulong)-1;
+		return _FFFFUL;//(ulong)-1;
 	else {
 		struct inflate_state * state = reinterpret_cast<struct inflate_state *>(strm->state);
 		return (ulong)(state->next - state->codes);

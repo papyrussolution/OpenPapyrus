@@ -1285,21 +1285,17 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 	return ret;
 }
 
-static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char * buff,
-    size_t size)
+static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char * buff, size_t size)
 {
 	const char * buffer_to_write;
 	size_t bytes_to_write;
 	int ret;
-
 	if(a->decmpfs_block_count == (uint)-1) {
 		void * new_block;
 		size_t new_size;
 		uint block_count;
-
 		if(a->decmpfs_header_p == NULL) {
-			new_block = SAlloc::M(MAX_DECMPFS_XATTR_SIZE
-				+ sizeof(uint32));
+			new_block = SAlloc::M(MAX_DECMPFS_XATTR_SIZE + sizeof(uint32));
 			if(new_block == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for decmpfs");
 				return ARCHIVE_FATAL;
@@ -1307,26 +1303,17 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 			a->decmpfs_header_p = new_block;
 		}
 		a->decmpfs_attr_size = DECMPFS_HEADER_SIZE;
-		archive_le32enc(&a->decmpfs_header_p[DECMPFS_COMPRESSION_MAGIC],
-		    DECMPFS_MAGIC);
-		archive_le32enc(&a->decmpfs_header_p[DECMPFS_COMPRESSION_TYPE],
-		    CMP_RESOURCE_FORK);
-		archive_le64enc(&a->decmpfs_header_p[DECMPFS_UNCOMPRESSED_SIZE],
-		    a->filesize);
-
+		archive_le32enc(&a->decmpfs_header_p[DECMPFS_COMPRESSION_MAGIC], DECMPFS_MAGIC);
+		archive_le32enc(&a->decmpfs_header_p[DECMPFS_COMPRESSION_TYPE], CMP_RESOURCE_FORK);
+		archive_le64enc(&a->decmpfs_header_p[DECMPFS_UNCOMPRESSED_SIZE], a->filesize);
 		/* Calculate a block count of the file. */
-		block_count =
-		    (a->filesize + MAX_DECMPFS_BLOCK_SIZE -1) /
-		    MAX_DECMPFS_BLOCK_SIZE;
+		block_count = (a->filesize + MAX_DECMPFS_BLOCK_SIZE -1) / MAX_DECMPFS_BLOCK_SIZE;
 		/*
 		 * Allocate buffer for resource fork.
 		 * Set up related pointers;
 		 */
-		new_size =
-		    RSRC_H_SIZE + /* header */
-		    4 + /* Block count */
-		    (block_count * sizeof(uint32) * 2) +
-		    RSRC_F_SIZE; /* footer */
+		new_size = RSRC_H_SIZE + /* header */ 4 + /* Block count */
+		    (block_count * sizeof(uint32) * 2) + RSRC_F_SIZE; /* footer */
 		if(new_size > a->resource_fork_allocated_size) {
 			new_block = SAlloc::R(a->resource_fork, new_size);
 			if(new_block == NULL) {
@@ -1356,14 +1343,12 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 		a->rsrc_xattr_options = XATTR_CREATE;
 		/* Get the position where we are going to set a bunch
 		 * of block info. */
-		a->decmpfs_block_info =
-		    (uint32 *)(a->resource_fork + RSRC_H_SIZE);
+		a->decmpfs_block_info = (uint32 *)(a->resource_fork + RSRC_H_SIZE);
 		/* Set the block count to the resource fork. */
 		archive_le32enc(a->decmpfs_block_info++, block_count);
 		/* Get the position where we are going to set compressed
 		 * data. */
-		a->compressed_rsrc_position =
-		    RSRC_H_SIZE + 4 + (block_count * 8);
+		a->compressed_rsrc_position = RSRC_H_SIZE + 4 + (block_count * 8);
 		a->compressed_rsrc_position_v = a->compressed_rsrc_position;
 		a->decmpfs_block_count = block_count;
 	}

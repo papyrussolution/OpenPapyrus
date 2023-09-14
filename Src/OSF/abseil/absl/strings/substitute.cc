@@ -93,7 +93,7 @@ Arg::Arg(const void* value)
 		char* ptr = scratch_ + sizeof(scratch_);
 		uintptr_t num = reinterpret_cast<uintptr_t>(value);
 		do {
-			*--ptr = absl::numbers_internal::kHexChar[num & 0xf];
+			*--ptr = SlConst::P_HxDigL[num & 0xf];
 			num >>= 4;
 		} while(num != 0);
 		*--ptr = 'x';
@@ -103,12 +103,13 @@ Arg::Arg(const void* value)
 }
 
 // TODO(jorg): Don't duplicate so much code between here and str_cat.cc
-Arg::Arg(Hex hex) {
+Arg::Arg(Hex hex) 
+{
 	char* const end = &scratch_[numbers_internal::kFastToBufferSize];
 	char* writer = end;
 	uint64_t value = hex.value;
 	do {
-		*--writer = absl::numbers_internal::kHexChar[value & 0xF];
+		*--writer = SlConst::P_HxDigL[value & 0xF];
 		value >>= 4;
 	} while(value != 0);
 

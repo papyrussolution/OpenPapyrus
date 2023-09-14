@@ -7038,7 +7038,7 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 				SPathStruc ps(path);
 				if(ps.Flags & SPathStruc::fUNC || ((ps.Flags & SPathStruc::fDrv) && GetDriveType(SUcSwitch(ps.Drv.SetLastSlash())) == DRIVE_REMOTE)) { // @unicodeproblem
 					//
-					// ¬ св€зи с проблемой загрузки help'а с сетевого каталога коприруем файла в
+					// ¬ св€зи с проблемой загрузки help'а с сетевого каталога коприруем файл в
 					// локальный каталог. ѕри этом, чтобы избежать лишних копирований, провер€ем, нет ли
 					// в локальном каталоге скопированного до этого актуального файла.
 					//
