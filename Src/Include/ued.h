@@ -26,31 +26,12 @@ public:
 	static bool   GetRawValue32(uint64 ued, uint32 * pRawValue);
 	static uint64 ApplyMetaToRawValue(uint64 meta, uint64 rawValue);
 	static uint64 ApplyMetaToRawValue32(uint64 meta, uint32 rawValue);
-	/*static uint32 MakeShort(uint64 ued, uint64 meta)
-	{
-		uint32 result = 0;
-		THROW(IsMetaId(meta));
-		THROW(BelongToMeta(ued, meta));
-		result = static_cast<uint32>(ued & 0xffffffffULL);
-		CATCH
-			result = 0;
-		ENDCATCH
-		return result;
-	}*/
-	/*static uint64 MakeCanonical(uint32 shortUed, uint64 meta)
-	{
-		uint64 result = 0;
-		if(IsMetaId(meta)) {
-			result = (((meta & 0xffffffffULL) << 32) | shortUed);
-		}
-		return result;
-	}*/
-	static uint64 ConvertGeoLoc(const SGeoPosLL & rGeoPos);
-	static uint64 StraightenGeoLoc(uint64 ued, SGeoPosLL & rGeoPos);
-	static uint64 ConvertPlanarAngle_Deg(double deg);
-	static uint64 StraightenPlanarAngle_Deg(uint64 ued, double & rDeg);
-	static uint64 ConvertColor(const SColor & rC);
-	static uint64 StraightenColor(uint64 ued, SColor & rC);
+	static uint64 SetRaw_GeoLoc(const SGeoPosLL & rGeoPos);
+	static bool   GetRaw_GeoLoc(uint64 ued, SGeoPosLL & rGeoPos);
+	static uint64 SetRaw_PlanarAngleDeg(double deg);
+	static bool   GetRaw_PlanarAngleDeg(uint64 ued, double & rDeg);
+	static uint64 SetRaw_Color(const SColor & rC);
+	static bool   GetRaw_Color(uint64 ued, SColor & rC);
 };
 //
 //

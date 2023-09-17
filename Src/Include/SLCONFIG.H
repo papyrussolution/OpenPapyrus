@@ -64,8 +64,9 @@
 			#define _WIN32_WINNT 0x0600
 		#else
 			// @v10.7.11 #define _WIN32_WINNT 0x0501 // @v9.1.12 0x0600-->0x0501
-			#define _WIN32_WINNT 0x0600 // @v10.7.11
+			// @v11.8.2 #define _WIN32_WINNT 0x0600 // @v10.7.11
 			//#define _WIN32_WINNT 0x0603 // @v10.9.9
+			#define _WIN32_WINNT 0x0602 // @v11.8.2
 		#endif
 	#endif
 	#ifndef NTDDI_VERSION
@@ -78,6 +79,15 @@
 	#endif
 	// } @v10.9.10 
 #endif
+// @v11.8.2 {
+#ifndef WINVER
+	#if defined _WIN32_WINNT
+		#define WINVER _WIN32_WINNT
+	#else
+		#define WINVER 0x0602
+	#endif
+#endif
+// } @v11.8.2
 #ifndef __STDC_LIMIT_MACROS
 	#define __STDC_LIMIT_MACROS // @v10.5.4
 #endif

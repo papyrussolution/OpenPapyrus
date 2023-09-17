@@ -943,11 +943,6 @@
 #endif
 // } @v11.7.3
 #if defined(_WIN32) || defined(_WIN64)
-	// @v11.8.2 {
-	#ifndef WINVER
-		#define WINVER 0x0602 
-	#endif
-	// } @v11.8.2 
 	//typedef long pid_t;
 	// @v10.8.5 #define getpid GetCurrentProcessId
 	// @v10.8.5 #define chdir  SetCurrentDirectory

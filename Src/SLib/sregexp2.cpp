@@ -1,5 +1,5 @@
 // SREGEXP2.CPP
-// Copyright (c) A.Sobolev 2021, 2022
+// Copyright (c) A.Sobolev 2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -272,60 +272,3 @@ bool SRegExp2::Find(const char * pText) const { return Find(pText, sstrlen(pText
 bool SRegExp2::Find(SStrScan * pScan) const { return Find(pScan, 0); }
 SRegExp2::Error SRegExp2::GetLastErr() const { return LastErr; }
 bool SRegExp2::IsValid() const { return (H != 0); }
-
-#if SLTEST_RUNNING // {
-
-SLTEST_R(SRegExp)
-{
-	int    ok = 1;
-	SString file_name, temp_buf;
-	uint   arg_no = 0;
-	if(EnumArg(&arg_no, temp_buf))
-		file_name = temp_buf;
-	else
-		file_name = temp_buf = "cregexp.txt";
-	SFile file(MakeInputFilePath(file_name), SFile::mRead);
-	if(file.IsValid()) {
-		SString line_buf, re_buf, text_buf, temp_buf, out_line;
-		SPathStruc::ReplaceExt(file_name, "out", 1);
-		SFile out_file(MakeOutputFilePath(file_name), SFile::mWrite);
-		while(file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-			if(line_buf.NotEmpty()) {
-				StringSet ss(':', line_buf);
-				uint   ssp = 0;
-				ss.get(&ssp, re_buf);
-				ss.get(&ssp, text_buf);
-				ss.get(&ssp, temp_buf);
-				const long right_count = temp_buf.ToLong();
-				long   count = 0;
-				SRegExp2 re;
-				THROW(SLCHECK_NZ(re.Compile(re_buf, cp1251, SRegExp2::syntaxDefault, 0)));
-				{
-					const char * p = text_buf;
-					out_line.Z().Cat(re_buf).CatDiv(':', 2).Cat(text_buf);
-					SStrScan scan(text_buf);
-					if(re.Find(&scan)) {
-						out_line.CatDiv(':', 2);
-						do {
-							scan.Get(temp_buf);
-							if(count)
-								out_line.CatDiv(',', 2);
-							out_line.CatQStr(temp_buf);
-							scan.IncrLen();
-							count++;
-						} while(re.Find(&scan));
-					}
-					out_line.CatDiv(':', 2).Cat(count).CR();
-					out_file.WriteLine(out_line);
-					THROW(SLCHECK_EQ(count, right_count));
-				}
-			}
-		}
-	}
-	CATCH
-		CurrentStatus = ok = 0;
-	ENDCATCH
-	return CurrentStatus;
-}
-
-#endif

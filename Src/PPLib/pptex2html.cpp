@@ -122,6 +122,13 @@ private:
 		long   Flags; // _thfXXX
 	};
 	struct _TexEnvItem {
+		_TexEnvItem() : P_StartBlk(0), P_ThEntry(0)
+		{
+		}
+		_TexEnvItem(const  PPTex2HtmlPrcssr::TextBlock * pStart, const _TexToHtmlEntry * pEntry) :
+			P_StartBlk(pStart), P_ThEntry(pEntry)
+		{
+		}
 		const  PPTex2HtmlPrcssr::TextBlock * P_StartBlk;
 		const  _TexToHtmlEntry * P_ThEntry;
 	};
@@ -356,6 +363,15 @@ int PPTex2HtmlPrcssr::ReadText(long mode, long state, TextBlock * pText)
 							inner_state &= ~rtsVerbatim;
 						debug_break = 1;
 					}
+					// @v11.8.12 {
+					if(p_arg->Text == "lstlisting") {
+						if(p_current_blk->Text == "begin")
+							inner_state |= rtsVerbatim;
+						else if(p_current_blk->Text == "end")
+							inner_state &= ~rtsVerbatim;
+						debug_break = 1;
+					}
+					// } @v11.8.12 
 					// } @debug
 					{
 						if(p_current_blk->P_ArgBrc == 0)
@@ -485,7 +501,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, long state, TextBlock * pText)
 				else if(c == '\\') {
 					St.Scan.Incr();
 					const char c_next = St.GetCurChr();
-					const char * p_literal = "%{}[]_$^&"; // @v11.0.10 ^&
+					const char * p_literal = "%{}[]_$^&@"; // @v11.0.10 ^& // @v11.8.2 @
 					if(c_next == '\\') {
 						St.Scan.Incr();
 						p_current_blk->Text.CatTagBrace("br", 0);
@@ -722,9 +738,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 					if(paragraph)
 						Paragraph(0, paragraph);
 				}
-				_TexEnvItem env_item;
-				env_item.P_StartBlk = p_blk;
-				env_item.P_ThEntry = p;
+				_TexEnvItem env_item(p_blk, p);
 				rEnvStack.push(env_item);
 			}
 			else if(env_tag == 2) {
@@ -1068,9 +1082,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 					line_buf.Z().CatTagBrace(p->P_HtmlTag, 0).CR();
 					WriteText(rOut, line_buf);
 				}
-				_TexEnvItem env_item;
-				env_item.P_StartBlk = p_blk;
-				env_item.P_ThEntry = p;
+				_TexEnvItem env_item(p_blk, p);
 				rEnvStack.push(env_item);
 			}
 			else if(env_tag == 2) {
@@ -1215,6 +1227,9 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				}
 				else if(p_blk->Text == "rdir") {
 					WriteText(rOut, line_buf.Z().Cat("&#8594;"));
+				}
+				else if(p_blk->Text == "textdollar") { // @v11.8.2
+					WriteText(rOut, line_buf.Z().Cat("&dollar;"));
 				}
 				else if(p_blk->Text == "symbol") {
 					if(p_first_brc_arg) {

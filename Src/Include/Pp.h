@@ -602,6 +602,7 @@ public:
 	static constexpr const char * WrKey_SysSettings = "Software\\Papyrus\\System"; // @v11.4.4 (replaced PPRegKeys)
 	static constexpr const char * WrKey_Sessions = "Software\\Papyrus\\Sessions"; // @v11.4.4 (replaced PPRegKeys)
 	static constexpr const char * WrKey_WsCtl = "Software\\Papyrus\\WsCtl"; // @v11.7.2 HKEY_LOCAL_MACHINE
+	static constexpr const char * WrKey_SlTestApp = "Software\\Papyrus\\SlTestApp"; // @v11.8.2 HKEY_LOCAL_MACHINE && HKEY_CURRENT_USER
 	static constexpr const char * WrParam_ViewQuotsAsListBox = "ViewQuotsAsListBox";
 	static constexpr const char * WrParam_BillAddFilesFolder = "BillAddFilesFolder";
 	static constexpr const char * WrParam_CalcPriceParam = "CalcPriceParam";
@@ -617,6 +618,7 @@ public:
 	static constexpr const char * WrParam_StyloQLoclMachineUuid = "StyloQLoclMachineUuid"; // @v11.2.3
 	static constexpr const char * WrParam_WsCtl_MachineUUID = "MachineUUID"; // @v11.7.2 
 	static constexpr const char * WrParam_WsCtl_Config = "Config"; // @v11.7.8
+	static constexpr const char * WrParam_SlTestApp_TestParam = "TestParam"; // @v11.8.2
 };
 
 // @v11.7.3 (все константы стали static constexpr) extern const PPConstParam _PPConst;

@@ -23,31 +23,49 @@
 		SString temp_buf;
 		SStringU temp_buf_u;
 		{
+			static const SColor color_list[] = {
+				SClrAqua, SClrBlack, SClrWhite, SClrRed, SClrCyan
+			};
+			static const uint alpha_list[] = { 2, 17, 120, 255 };
+			for(uint aidx = 0; aidx < SIZEOFARRAY(alpha_list); aidx++) {
+				for(uint cidx = 0; cidx < SIZEOFARRAY(color_list); cidx++) {
+					SColor c(color_list[cidx]);
+					c.SetAlpha(alpha_list[aidx]);
+					uint64 ued = UED::SetRaw_Color(c);
+					SColor c2;
+					SLCHECK_NZ(UED::GetRaw_Color(ued, c2));
+					SLCHECK_EQ(c, c2);
+				}
+			}
+		}
+		{
 			SGeoPosLL gp(40.67241045687091, -74.24130029528962);
-			uint64 ued_gp = UED::ConvertGeoLoc(gp);
+			uint64 ued_gp = UED::SetRaw_GeoLoc(gp);
 			SGeoPosLL gp_;
-			UED::StraightenGeoLoc(ued_gp, gp_);
+			SLCHECK_NZ(UED::GetRaw_GeoLoc(ued_gp, gp_));
+			SLCHECK_EQ_TOL(gp_.Lat, gp.Lat, 1e-4);
+			SLCHECK_EQ_TOL(gp_.Lon, gp.Lon, 1e-4);
 		}
 		{
 			const double angle_list[] = { -11.9, -45.0, -180.1, 10.5, 0.0, 30.0, 45.0, 60.0, 180.0, 10.0, 270.25, 359.9 };
 			for(uint i = 0; i < SIZEOFARRAY(angle_list); i++) {
-				uint64 ued_a = UED::ConvertPlanarAngle_Deg(angle_list[i]);
+				uint64 ued_a = UED::SetRaw_PlanarAngleDeg(angle_list[i]);
 				double angle_;
-				UED::StraightenPlanarAngle_Deg(ued_a, angle_);
+				UED::GetRaw_PlanarAngleDeg(ued_a, angle_);
 				SLCHECK_NZ(feqeps(angle_, angle_list[i], 1E-6));
 			}
 			{
 				const double src_angle = SMathConst::Pi / 4;
-				uint64 ued_a = UED::ConvertPlanarAngle_Deg(src_angle * 180.0/SMathConst::Pi);
+				uint64 ued_a = UED::SetRaw_PlanarAngleDeg(src_angle * 180.0/SMathConst::Pi);
 				double angle_;
-				UED::StraightenPlanarAngle_Deg(ued_a, angle_);
+				UED::GetRaw_PlanarAngleDeg(ued_a, angle_);
 				SLCHECK_NZ(feqeps(angle_, 45.0, 1E-6));
 			}
 			{
 				const double src_angle = SMathConst::Pi / 6;
-				uint64 ued_a = UED::ConvertPlanarAngle_Deg(src_angle * 180.0/SMathConst::Pi);
+				uint64 ued_a = UED::SetRaw_PlanarAngleDeg(src_angle * 180.0/SMathConst::Pi);
 				double angle_;
-				UED::StraightenPlanarAngle_Deg(ued_a, angle_);
+				UED::GetRaw_PlanarAngleDeg(ued_a, angle_);
 				SLCHECK_NZ(feqeps(angle_, 30.0, 1E-6));
 			}
 		}

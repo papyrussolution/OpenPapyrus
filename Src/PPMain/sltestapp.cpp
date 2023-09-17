@@ -41,10 +41,61 @@ int main(int argc, char * argv[])
 		out_buf.Z().Cat("Current Directory").CatDiv(':', 2).Cat(temp_buf).CR();
 		slfprintf_stderr(out_buf);
 	}
+	if(policypath.IsEmpty()) {
+		policypath = "\\Papyrus\\Src\\PPTEST\\DATA";
+	}
 	if(policypath.NotEmpty()) {
-		temp_buf.Z().Cat("policy path").CatDiv(':', 2).Cat(policypath).CR();
+		out_buf.Z().Cat("policy path").CatDiv(':', 2).Cat(policypath).CR();
 		slfprintf_stderr(out_buf);
 		//
+		//winpolicy.json 
+		temp_buf.Z().Cat(policypath).SetLastSlash().Cat(/*"winpolicy.json"*/"test-file-to-write");
+		SFile f_policy(temp_buf, SFile::mWrite);
+		if(f_policy.IsValid()) {
+			out_buf.Z().Cat("File").Space().Cat(temp_buf).Space().Cat("opened successfully");
+		}
+		else {
+			out_buf.Z().Cat("File").Space().Cat(temp_buf).Space().Cat("opening fault");
+		}
+		slfprintf_stderr(out_buf.CR());
+	}
+	{
+		uint8 random_buffer[32];
+		SLS.GetTLA().Rg.ObfuscateBuffer(random_buffer, sizeof(random_buffer));
+		SString random_string;
+		random_string.EncodeMime64(random_buffer, sizeof(random_buffer));
+		{
+			WinRegKey test_key(HKEY_CURRENT_USER, PPConst::WrKey_SlTestApp, 0);
+			temp_buf.Z().Cat("CURRENT_USER").SetLastSlash().Cat(PPConst::WrKey_SlTestApp);
+			if(test_key.IsValid()) {
+				slfprintf_stderr((out_buf = ":) Test register key").Space().CatParStr(temp_buf).Space().Cat("is opened for writing successfully").CR());
+				if(test_key.PutString("test-string", random_string)) {
+					slfprintf_stderr((out_buf = ":) Writing to the test register key").Space().CatParStr(temp_buf).Space().Cat("is successful").CR());
+				}
+				else {
+					slfprintf_stderr((out_buf = ":( Writing to the test register key").Space().CatParStr(temp_buf).Space().Cat("is fault").CR());
+				}
+			}
+			else {
+				slfprintf_stderr((out_buf = ":( Test register key").Space().CatParStr(temp_buf).Space().Cat("isn't opened for writing").CR());
+			}
+		}
+		{
+			WinRegKey test_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_SlTestApp, 0);
+			temp_buf.Z().Cat("MACHINE").SetLastSlash().Cat(PPConst::WrKey_SlTestApp);
+			if(test_key.IsValid()) {
+				slfprintf_stderr((out_buf = ":) Test register key").Space().CatParStr(temp_buf).Space().Cat("is opened for writing successfully").CR());
+				if(test_key.PutString("test-string", random_string)) {
+					slfprintf_stderr((out_buf = ":) Writing to the test register key").Space().CatParStr(temp_buf).Space().Cat("is successful").CR());
+				}
+				else {
+					slfprintf_stderr((out_buf = ":( Writing to the test register key").Space().CatParStr(temp_buf).Space().Cat("is fault").CR());
+				}
+			}
+			else {
+				slfprintf_stderr((out_buf = ":( Test register key").Space().CatParStr(temp_buf).Space().Cat("isn't opened for writing").CR());
+			}
+		}
 	}
 	//
 	slfprintf_stderr("Press [Enter] to finish...\n");

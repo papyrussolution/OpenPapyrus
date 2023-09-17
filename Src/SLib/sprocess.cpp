@@ -11,12 +11,27 @@
 //
 // 
 //
-SlProcess::SlProcess() : Flags(0)
+SlProcess::SlProcess() : Flags(0), P_AppC(0)
 {
 }
 
 SlProcess::~SlProcess()
 {
+	P_AppC = 0; // @notowned
+}
+
+bool SlProcess::SetAppContainer(AppContainer * pAppC)
+{
+	bool   ok = true;
+	if(pAppC) {
+		if(pAppC->IsValid())
+			P_AppC = pAppC;
+		else
+			ok = false;
+	}
+	else
+		P_AppC = 0;
+	return ok;
 }
 
 bool SlProcess::SetFlags(uint flags)
@@ -356,13 +371,33 @@ int SlProcess::Run(SlProcess::Result * pResult)
 			}
 		}
 		//
-		MEMSZERO(startup_info);
-		startup_info.StartupInfo.cb = sizeof(STARTUPINFOW);
-		creation_flags &= ~EXTENDED_STARTUPINFO_PRESENT;
-		//
-		int r = ::CreateProcessW(p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, 
-			creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
-		if(r) {
+		int create_proc_result = 0;
+		{
+			STempBuffer ptal_buf(256);
+			MEMSZERO(startup_info);
+			creation_flags &= ~EXTENDED_STARTUPINFO_PRESENT;
+			if(P_AppC && P_AppC->IsValid()) {
+				SIZE_T ptal_size = 0;
+				SECURITY_CAPABILITIES sc;
+				MEMSZERO(sc);
+				sc.AppContainerSid = P_AppC->GetSid();
+				::InitializeProcThreadAttributeList(nullptr, 1, 0, &ptal_size);
+				THROW(ptal_buf.Alloc(ptal_size+32)); // 32 - insurance
+				startup_info.lpAttributeList = static_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(ptal_buf.vptr());
+				THROW(::InitializeProcThreadAttributeList(startup_info.lpAttributeList, 1, 0, &ptal_size));
+				THROW(::UpdateProcThreadAttribute(startup_info.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_SECURITY_CAPABILITIES, &sc, sizeof(sc), nullptr, nullptr));
+				startup_info.StartupInfo.cb = sizeof(STARTUPINFOEXW);
+				creation_flags |= EXTENDED_STARTUPINFO_PRESENT;
+			}
+			else {
+				startup_info.StartupInfo.cb = sizeof(STARTUPINFOW);
+			}
+			//
+			create_proc_result = ::CreateProcessW(p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, 
+				creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+			::DeleteProcThreadAttributeList(startup_info.lpAttributeList);
+		}
+		if(create_proc_result) {
 			if(pResult) {
 				pResult->HProcess = prc_info.hProcess;
 				pResult->HThread = prc_info.hThread;
@@ -382,6 +417,11 @@ SlProcess::AppContainer::AppContainer()
 
 SlProcess::AppContainer::~AppContainer()
 {
+}
+
+bool SlProcess::AppContainer::IsValid() const
+{
+	return !!Sid;
 }
 
 bool SlProcess::AppContainer::Create(const char * pName)
@@ -463,7 +503,16 @@ bool SlProcess::AppContainer::AllowRegistry(const char * pKeyUtf8, int keyType, 
 	THROW(Sid);
 	THROW(!isempty(pKeyUtf8));
 	THROW(key_u.CopyFromUtf8Strict(pKeyUtf8, sstrlen(pKeyUtf8)));
-	THROW(AllowNamedObjectAccess(key_u, SE_FILE_OBJECT, FILE_ALL_ACCESS));
+	{
+		int   _type = 0;
+		if(keyType == WinRegKey::regkeytypWow64_64)
+			_type = SE_REGISTRY_WOW64_64KEY;
+		else if(keyType == WinRegKey::regkeytypWow64_32)
+			_type = SE_REGISTRY_WOW64_32KEY;
+		else 
+			_type = SE_REGISTRY_KEY;
+		THROW(AllowNamedObjectAccess(key_u, _type, FILE_ALL_ACCESS));
+	}
 	CATCHZOK
 	return ok;
 }

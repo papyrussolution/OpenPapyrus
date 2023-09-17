@@ -453,10 +453,14 @@ SLTEST_R(SlProcess)
 	SString temp_buf;
 	SString path;
 	SString working_dir;
+	SString policy_path;
 	SlProcess p;
+	SlProcess::AppContainer ac;
 	SlProcess::Result result;
 	WsCtl_ClientPolicy policy;
+	SString path_in = GetSuiteEntry()->InPath;
 	PPGetPath(PPPATH_BIN, path);
+	
 	path.SetLastSlash().Cat("..").SetLastSlash().Cat(PPLoadStringS("testapp_path", temp_buf).Transf(CTRANSF_INNER_TO_UTF8));
 	working_dir = path;
 	path.SetLastSlash().Cat("SlTestApp.exe");
@@ -470,12 +474,33 @@ SLTEST_R(SlProcess)
 	p.AddArg("param1");
 	p.AddArg(temp_buf.Z().CatQStr("param2 with spaces"));
 	p.AddArg(temp_buf.Z().CatQStr("параметр3 с пробелами и русскими буквами"));
+	if(pathValid(path_in, 1)) {
+		p.AddArg(temp_buf.Z().Cat("policypath"));
+		p.AddArg(temp_buf.Z().CatQStr(path_in));
+	}
+	//
+	SLCHECK_NZ(ac.Create("Test-App-Container-2"));
+	//SLCHECK_NZ(ac.AllowPath(path_in, 0));
+	{
+		/*
+			MACHINE\Software\Papyrus
+			CURRENT_USER\Software\Papyrus
+		*/
+		// "CLASSES_ROOT", "CURRENT_USER", "MACHINE", and "USERS
+		//WinRegKey test_key(HKEY_CURRENT_USER, PPConst::WrKey_SlTestApp, 0);
+		
+		temp_buf.Z().Cat("CURRENT_USER").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
+		//SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
+
+		temp_buf.Z().Cat("MACHINE").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
+		//SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
+	}
+	p.SetAppContainer(&ac);
 	SLCHECK_NZ(p.Run(&result));
 	//
-	{
-		SlProcess::AppContainer ac;
-		SLCHECK_NZ(ac.Create("Test-App-Container"));
-		SLCHECK_NZ(ac.Delete());
-	}
+	SLCHECK_NZ(ac.Delete());
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
 	return CurrentStatus;
 }

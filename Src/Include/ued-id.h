@@ -1,20 +1,20 @@
 // UED-ID.H
-// version: 2
-// sha256: 095ceb4a8d85c1b204d6d27b7bd55a0a8cfd03fcadafa7c715789fea7dfcfafb
+// version: 1
+// sha256: 9128a03ed7efde500123a223fd7c17e2ec17d542f308f0cf8c3a74f4cab9c705
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
 
 #define UED_META_META                            0x100000001ULL
-#define UED_META_PREDEFINEDVALUE                 0x100000002ULL
-	#define UED_PREDEFINEDVALUE_ZERO                 0x200000001ULL
-	#define UED_PREDEFINEDVALUE_ONE                  0x200000002ULL
-	#define UED_PREDEFINEDVALUE_UNDEFINED            0x200000003ULL
-	#define UED_PREDEFINEDVALUE_UNKNOWN              0x200000004ULL
-	#define UED_PREDEFINEDVALUE_MINUS_INFINITY       0x200000005ULL
-	#define UED_PREDEFINEDVALUE_PLUS_INFINITY        0x200000006ULL
-	#define UED_PREDEFINEDVALUE_TRUE                 0x200000007ULL
-	#define UED_PREDEFINEDVALUE_FALSE                0x200000008ULL
+#define UED_META_PREDEFVALUE                     0x100000002ULL
+	#define UED_PREDEFVALUE_ZERO                     0x200000001ULL
+	#define UED_PREDEFVALUE_ONE                      0x200000002ULL
+	#define UED_PREDEFVALUE_UNDEF                    0x200000003ULL
+	#define UED_PREDEFVALUE_UNKN                     0x200000004ULL
+	#define UED_PREDEFVALUE_MINUS_INF                0x200000005ULL
+	#define UED_PREDEFVALUE_PLUS_INF                 0x200000006ULL
+	#define UED_PREDEFVALUE_TRUE                     0x200000007ULL
+	#define UED_PREDEFVALUE_FALSE                    0x200000008ULL
 #define UED_META_METAERROR                       0x100000003ULL
 #define UED_META_CONSTANT                        0x100000004ULL
 	#define UED_CONSTANT_PI                          0x400000001ULL
@@ -160,7 +160,6 @@
 	#define UED_UOM_BASISPOINT                       0x80000006aULL
 	#define UED_UOM_FINE                             0x80000006bULL
 	#define UED_UOM_PH                               0x80000006cULL
-	#define UED_UOM_KELVIN                           0x80000006dULL
 	#define UED_UOM_DEGCELSIUS                       0x80000006eULL
 	#define UED_UOM_DEGFAHRENHEIT                    0x80000006fULL
 	#define UED_UOM_DEGRANKINE                       0x800000070ULL

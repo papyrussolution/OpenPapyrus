@@ -15701,6 +15701,7 @@ public:
 	WinRegKey();
 	WinRegKey(HKEY, const char * pSubKey, int readOnly);
 	~WinRegKey();
+	bool   IsValid() const { return !!Key; }
 	//
 	// Descr: Удаляет ветку реестра key\\pSubKey.
 	//   Ветку открывать перед удалением не следует.
@@ -16510,6 +16511,8 @@ public:
 	public:
 		AppContainer();
 		~AppContainer();
+		bool   IsValid() const;
+		SPtrHandle & GetSid() { return Sid; }
 		bool   Create(const char * pName);
 		bool   Delete();
 
@@ -16540,6 +16543,13 @@ public:
 	bool   AddEnv(const char * pKeyUtf8, const char * pValUtf8);
 	bool   AddEnv(const wchar_t * pKey, const wchar_t * pVal);
 	bool   SetFlags(uint flags);
+	//
+	// Descr: Передает экземпляру app-container, в котором должен исполняться процесс.
+	//   Этот контейнер должен быть предварительно подготовлен. 
+	//   Экземпляр классы SlProcess не владеет экземпляром AppContainer по-этому,
+	//   pAppC должен быть разрушен вызывающим модулем после отработки вызова процесса this.
+	//
+	bool   SetAppContainer(AppContainer * pAppC);
 	
 	int    Run(Result * pResult);
 private:
@@ -16554,6 +16564,7 @@ private:
 	SStringU WorkingDir; // Текущий рабочий каталог для запускаемого процесса
 	StringSet SsArgUtf8; // Аргументы командной строки без имени exe-модуля в utf8-кодировке
 	StringSet SsEnvUtf8; // Переменные среды окружения запускаемого процесса
+	AppContainer * P_AppC; // @notowned
 	Result R;
 };
 //

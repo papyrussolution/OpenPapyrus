@@ -13,6 +13,7 @@
 #endif
 #include <sartre.h>
 #include <ued.h>
+#include <ued-id.h>
 
 /*static*/uint UED::GetMetaRawDataBits(uint64 meta)
 {
@@ -131,7 +132,8 @@
 	const  uint bits = GetMetaRawDataBits(meta);
 	assert(bits < 64);
 	THROW(bits > 0);
-	THROW((64 - SBits::Clz(rawValue)) <= bits)
+	const uint _clz_ = SBits::Clz(rawValue);
+	THROW((64 - (_clz_+32)) <= bits)
 	{
 		const uint32 meta_lodw = LoDWord(meta);
 		THROW(!(meta_lodw & 0x80000000)); // @todo @err (not applicable)
@@ -151,7 +153,7 @@
 static const uint64 __ued_planarangle = 0x90ULL;
 static const uint64 __ued_geoloc      = 0x93ULL;
 
-/*static*/uint64 UED::ConvertGeoLoc(const SGeoPosLL & rGeoPos)
+/*static*/uint64 UED::SetRaw_GeoLoc(const SGeoPosLL & rGeoPos)
 {
 	uint64 result = 0;
 	if(rGeoPos.IsValid()) {
@@ -179,9 +181,9 @@ static const uint64 __ued_geoloc      = 0x93ULL;
 	return result;
 }
 
-/*static*/uint64 UED::StraightenGeoLoc(uint64 ued, SGeoPosLL & rGeoPos)
+/*static*/bool UED::GetRaw_GeoLoc(uint64 ued, SGeoPosLL & rGeoPos)
 {
-	uint64 result = 0;
+	bool   ok = false;
 	if((ued >> 56) == __ued_geoloc) {
 		const uint64 ued_width = ((1 << 28) - 1); // 28 bits
 		absl::uint128 _lat128 = ((ued >> 28) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
@@ -190,15 +192,15 @@ static const uint64 __ued_geoloc      = 0x93ULL;
 		_lon128 /= ued_width;
 		rGeoPos.Lat = (static_cast<double>(_lat128) / 1000000.0) - 90.0;
 		rGeoPos.Lon = (static_cast<double>(_lon128) / 1000000.0) - 180.0;
-		result = 1;
+		ok = true;
 	}
-	return result;
+	return ok;
 }
 
 static uint64 UedPlanarAngleMask     = 0x007fffffffffffULL;
 static uint64 UedPlanarAngleSignMask = 0x00800000000000ULL;
 
-/*static*/uint64 UED::ConvertPlanarAngle_Deg(double deg)
+/*static*/uint64 UED::SetRaw_PlanarAngleDeg(double deg)
 {
 	uint64 result = 0;
 	const uint64 _divisor = 360ULL * 3600ULL;
@@ -216,9 +218,9 @@ static uint64 UedPlanarAngleSignMask = 0x00800000000000ULL;
 	return result;
 }
 
-/*static*/uint64 UED::StraightenPlanarAngle_Deg(uint64 ued, double & rDeg)
+/*static*/bool UED::GetRaw_PlanarAngleDeg(uint64 ued, double & rDeg)
 {
-	uint64 result = 0;
+	bool   ok = false;
 	if((ued >> 56) == __ued_planarangle) {
 		const uint64 _divisor = 360ULL * 3600ULL;
 		const uint64 maxv = (UedPlanarAngleMask / _divisor) * _divisor;
@@ -226,22 +228,37 @@ static uint64 UedPlanarAngleSignMask = 0x00800000000000ULL;
 		assert(rDeg >= 0.0 && rDeg < 360.0);
 		if(ued & UedPlanarAngleSignMask)
 			rDeg = -rDeg;
-		result = 1;
+		ok = true;
 	}
-	return result;
+	return ok;
 }
 
-/*static*/uint64 UED::ConvertColor(const SColor & rC)
+/*static*/uint64 UED::SetRaw_Color(const SColor & rC)
 {
-	uint64 result = 0;
-
-	return result;
+	union {
+		uint8  Bytes[4];
+		uint32 U;
+	} rv;
+	rv.Bytes[0] = rC.B;
+	rv.Bytes[1] = rC.G;
+	rv.Bytes[2] = rC.R;
+	rv.Bytes[3] = rC.Alpha;
+	return ApplyMetaToRawValue32(UED_META_COLORRGB, rv.U);
 }
 
-/*static*/uint64 StraightenColor(uint64 ued, SColor & rC)
+/*static*/bool UED::GetRaw_Color(uint64 ued, SColor & rC)
 {
-	uint64 result = 0;
-	return result;
+	bool   ok = false;
+	union {
+		uint8  Bytes[4];
+		uint32 U;
+	} rv;
+	if(GetRawValue32(ued, &rv.U)) {
+		rC.Set(rv.Bytes[2], rv.Bytes[1], rv.Bytes[0]);
+		rC.SetAlpha(rv.Bytes[3]);
+		ok = true;
+	}
+	return ok;
 }
 // } @construction
 #endif // } (_MSC_VER >= 1900)

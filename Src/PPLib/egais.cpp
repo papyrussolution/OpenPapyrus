@@ -5558,6 +5558,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 	// нет в отчете ЕГАИС об остатках в торговом зале.
 	//
 	const LDATE _cur_date = getcurdate_();
+	PPIDArray cc_id_list_to_mark; // @v11.8.2 Список чеков, которые необходимо пометить тегом extssEgaisProcessingTag
     PPIDArray alco_goods_list;
     PPID   wos_op_id = 0;
     if((!v3markMode || use_lotxcode) && oneof3(Cfg.E.WrOffShopWay, Cfg.woswBalanceWithLots, Cfg.woswByBills, Cfg.woswByCChecks)) {
@@ -5587,11 +5588,13 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 				LogTextWithAddendum(PPTXT_EGAIS_TODAYYETWROFFR2, bill_text);
 			else if(GetAlcGoodsList(alco_goods_list) > 0) {
 				SString egais_code;
+				SString ref_a;
 				SString ref_b;
 				SString egais_code_by_mark;
 				ReceiptTbl::Rec lot_rec;
 				PPIDArray lot_id_list;
-
+				PPViewCCheck cc_view;
+				CCheckCore * p_cc = cc_view.GetCc();
 				bool do_balance_with_lots_unmarked_only = false; // @v11.7.12 Балансировать с текущими остатками только немаркированную продукцию
 				if(Cfg.E.WrOffShopWay == Cfg.woswByCChecks) {
 					// @v11.7.12 {
@@ -5627,9 +5630,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 						}
 					}
 					if(!skip) {
-						PPViewCCheck cc_view;
 						CCheckViewItem cc_item;
-						CCheckCore * p_cc = cc_view.GetCc();
 						THROW(cc_view.Init_(&cc_filt));
 						if(p_cc) {
 							CCheckPacket cc_pack;
@@ -5649,7 +5650,20 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 							for(uint ccidx = 0; ccidx < cc_list.getCount(); ccidx++) {
 								const PPID cc_id = cc_list.get(ccidx);
 								// @v10.8.7 (LoadPacket) cc_pack.Z();
+								bool  do_mark_ccheck = false; // @v11.8.2 Признак того, что на чек необходимо установить тег extssEgaisProcessingTag
+								SString processing_tag; // @v11.8.2
 								p_cc->LoadPacket(cc_id, 0, &cc_pack);
+								cc_pack.GetExtStrData(CCheckPacket::extssEgaisProcessingTag, processing_tag); // @v11.8.2
+								PPID   new_processing_wroff_bill_id = 0;
+								PPID   ex_processing_wroff_bill_id = processing_tag.ToLong();
+								BillTbl::Rec processing_wroff_bill_rec;
+								if(ex_processing_wroff_bill_id) {
+									if(P_BObj->Fetch(ex_processing_wroff_bill_id, &processing_wroff_bill_rec) > 0) {
+										;
+									}
+									else 
+										ex_processing_wroff_bill_id = 0;
+								}
 								for(uint clidx = 0; clidx < cc_pack.GetCount(); clidx++) {
 									const CCheckLineTbl::Rec & r_ccl = cc_pack.GetLineC(clidx);
 									const PPID goods_id = labs(r_ccl.GoodsID);
@@ -5772,25 +5786,54 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 											else if(egais_mark.IsEmpty()) { // no mark
 												// @v11.8.2 @construction Списание немаркированной продукции со склада по
 												// чекам вскрытия тары.
-												double wroff_qtty = 0.0;
-												if(wroff_qtty != 0.0 && false/* @construction */) {
-													uint   crpidx = 0;
-													if(pCurrentRestPack->SearchGoods(goods_id, &crpidx)) {
-														if(!p_wroff_bp) {
-															THROW_MEM(p_wroff_bp = new PPBillPacket);
-															THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
-															p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf)); // "Реализация"
-														}
-														PPTransferItem ti;
-														uint   new_pos = p_wroff_bp->GetTCount();
-														THROW(ti.Init(&p_wroff_bp->Rec, 1));
-														THROW(ti.SetupGoods(goods_id, 0));
-														ti.Quantity_ = -wroff_qtty;
-														THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
-														{
-															ObjTagList tag_list;
-															tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
-															THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
+												double wroff_qtty = ccl_qtty;
+												if(wroff_qtty > 0.0 && !ex_processing_wroff_bill_id) {
+													for(uint crpidx = 0; wroff_qtty > 0.0 && pCurrentRestPack->SearchGoods(goods_id, &crpidx); crpidx++) {
+														const PPTransferItem & r_crp_ti = pCurrentRestPack->ConstTI(crpidx);
+														double ex_wroff_qtty = 0.0;
+														pCurrentRestPack->LTagL.GetTagStr(crpidx, PPTAG_LOT_FSRARINFA, ref_a);
+														pCurrentRestPack->LTagL.GetTagStr(crpidx, PPTAG_LOT_FSRARINFB, ref_b);
+														if(ref_b.NotEmpty()) {
+															uint   last_ex_row_idx_1b = 0;
+															if(!p_wroff_bp) {
+																THROW_MEM(p_wroff_bp = new PPBillPacket);
+																THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
+																p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf)); // "Реализация"
+															}
+															else {
+																LongArray ex_row_idx_list;
+																p_wroff_bp->LTagL.SearchString(ref_b, PPTAG_LOT_FSRARINFB, 0, ex_row_idx_list);
+																for(uint i = 0; i < ex_row_idx_list.getCount(); i++) {
+																	const uint ex_row_idx = static_cast<uint>(ex_row_idx_list.get(i));
+																	const PPTransferItem & r_wroff_ti = p_wroff_bp->ConstTI(ex_row_idx);
+																	ex_wroff_qtty += abs(r_wroff_ti.Quantity_);
+																	last_ex_row_idx_1b = ex_row_idx+1;
+																}
+															}
+															const double rest_qtty = r_crp_ti.Quantity_ - ex_wroff_qtty;
+															const double qtty_to_apply = MIN(rest_qtty, wroff_qtty);
+															if(qtty_to_apply > 0.0) {
+																if(last_ex_row_idx_1b) {
+																	PPTransferItem & r_ti = p_wroff_bp->TI(last_ex_row_idx_1b-1);
+																	r_ti.Quantity_ -= qtty_to_apply;
+																}
+																else {
+																	PPTransferItem ti;
+																	uint   new_pos = p_wroff_bp->GetTCount();
+																	THROW(ti.Init(&p_wroff_bp->Rec, 1));
+																	THROW(ti.SetupGoods(goods_id, 0));
+																	ti.Quantity_ = -qtty_to_apply;
+																	THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
+																	{
+																		ObjTagList tag_list;
+																		tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+																		tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, ref_b);
+																		THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
+																	}
+																}
+																cc_id_list_to_mark.add(cc_pack.Rec.ID);
+																wroff_qtty -= qtty_to_apply;
+															}
 														}
 													}
 												}
@@ -5950,7 +5993,26 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 				}
 				if(p_wroff_bp && p_wroff_bp->GetTCount()) {
 					p_wroff_bp->InitAmounts();
-					THROW(P_BObj->TurnPacket(p_wroff_bp, 1));
+					{
+						PPTransaction tra(1);
+						THROW(tra);
+						THROW(P_BObj->TurnPacket(p_wroff_bp, 0));
+						// @v11.8.2 {
+						if(cc_id_list_to_mark.getCount()) {
+							assert(p_wroff_bp->Rec.ID); // P_BObj->TurnPacket успешно отработала: стало быть проверяемое значение не нулевое
+							assert(p_cc); // Иначе как мы cc_id_list_to_mark вычислили?
+							if(p_cc && p_wroff_bp->Rec.ID) {
+								cc_id_list_to_mark.sortAndUndup();
+								temp_buf.Z().Cat(p_wroff_bp->Rec.ID);
+								for(uint ccidx = 0; ccidx < cc_id_list_to_mark.getCount(); ccidx++) {
+									const PPID cc_id = cc_id_list_to_mark.get(ccidx);
+									p_cc->UpdateExtText(cc_id, CCheckPacket::extssEgaisProcessingTag, temp_buf, 0);
+								}
+							}
+						}
+						// } @v11.8.2 
+						THROW(tra.Commit());
+					}
 					PPObjBill::MakeCodeString(&p_wroff_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 					LogTextWithAddendum(v3markMode ? PPTXT_EGAIS_WROFFMARKSCREATED : PPTXT_EGAIS_REG2WBCREATED, bill_text);
 				}
