@@ -12288,6 +12288,7 @@ public:
 	static int  Rename(const char * pFileName, const char * pNewFileName);
 	static int  Compare(const char * pFileName1, const char * pFileName2, long flags);
 	static int  FASTCALL WildcardMatch(const char * pPattern, const char * pStr);
+	static int  GetSecurity(const char * pFileNameUtf8, uint requestFlags, SBuffer & rSecurInfo);
 	//
 	// Descr: Структура дополнительных параметров сортировки файла
 	//

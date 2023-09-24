@@ -885,6 +885,64 @@ application:wps application/vnd.ms-works
 {"x-world/x-vrml", ".xof"},
 */
 
+/*static*/int SFile::GetSecurity(const char * pFileNameUtf8, uint requestFlags, SBuffer & rSecurInfo)
+{
+	rSecurInfo.Z();
+	int    ok = 0;
+	/*
+		requestFlags:
+		#define OWNER_SECURITY_INFORMATION                  (0x00000001L)
+		#define GROUP_SECURITY_INFORMATION                  (0x00000002L)
+		#define DACL_SECURITY_INFORMATION                   (0x00000004L)
+		#define SACL_SECURITY_INFORMATION                   (0x00000008L)
+		#define LABEL_SECURITY_INFORMATION                  (0x00000010L)
+		#define ATTRIBUTE_SECURITY_INFORMATION              (0x00000020L)
+		#define SCOPE_SECURITY_INFORMATION                  (0x00000040L)
+		#define PROCESS_TRUST_LABEL_SECURITY_INFORMATION    (0x00000080L)
+		#define ACCESS_FILTER_SECURITY_INFORMATION          (0x00000100L)
+		#define BACKUP_SECURITY_INFORMATION                 (0x00010000L)
+
+		#define PROTECTED_DACL_SECURITY_INFORMATION         (0x80000000L)
+		#define PROTECTED_SACL_SECURITY_INFORMATION         (0x40000000L)
+		#define UNPROTECTED_DACL_SECURITY_INFORMATION       (0x20000000L)
+		#define UNPROTECTED_SACL_SECURITY_INFORMATION       (0x10000000L) 
+
+		errors:
+			ERROR_PRIVILEGE_NOT_HELD - 1314 (0x522) - Клиент не располагает требуемыми правами доступа.
+	*/
+	if(!isempty(pFileNameUtf8)) {
+		SECURITY_DESCRIPTOR * p_secur_descr = 0;
+		STempBuffer secur_descr_buf(512);
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+		DWORD  secur_size = 0;
+		r_temp_buf = pFileNameUtf8;
+		THROW(r_temp_buf.IsLegalUtf8());
+		THROW(r_temp_buf_u.CopyFromUtf8(r_temp_buf));
+		THROW(secur_descr_buf.IsValid());
+		BOOL res = ::GetFileSecurityW(r_temp_buf_u, requestFlags, (PSECURITY_DESCRIPTOR)secur_descr_buf, secur_descr_buf.GetSize(), &secur_size);
+		if(res) {
+			rSecurInfo.Write(secur_descr_buf.vcptr(), secur_size);
+			ok = 1;
+		}
+		else {
+			int last_err = GetLastError();
+			if(last_err == ERROR_INSUFFICIENT_BUFFER) {
+				THROW(secur_descr_buf.Alloc(secur_size));
+				res = ::GetFileSecurityW(r_temp_buf_u, requestFlags, (PSECURITY_DESCRIPTOR)secur_descr_buf, secur_descr_buf.GetSize(), &secur_size);
+				if(res) {
+					rSecurInfo.Write(secur_descr_buf.vcptr(), secur_size);
+					ok = 1;
+				}
+			}
+			else {
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 /*static*/int FASTCALL SFile::WildcardMatch(const char * pPattern, const char * pStr)
 {
 	//

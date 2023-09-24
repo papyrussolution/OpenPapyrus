@@ -1142,5 +1142,26 @@ SLTEST_R(dirent)
 			}
 		}
 	}
+	{
+		SECURITY_INFORMATION securInfo = DACL_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION|OWNER_SECURITY_INFORMATION /*| SACL_SECURITY_INFORMATION*/;
+		SString path = GetSuiteEntry()->InPath;
+		uint  ok_count = 0;
+		uint  fail_count = 0;
+		SFileEntryPool fep;
+		SFileEntryPool::Entry fep_entry;
+		SBuffer secur_info;
+		fep.Scan(path, "*.*", SFileEntryPool::scanfRecursive);
+		const uint _c = fep.GetCount();
+		for(uint i = 0; i < _c; i++) {
+			fep.Get(i, &fep_entry, &path);
+			if(SFile::GetSecurity(path, securInfo, secur_info)) {
+				ok_count++;
+			}
+			else {
+				fail_count++;
+			}
+		}
+
+	}
 	return CurrentStatus;
 }

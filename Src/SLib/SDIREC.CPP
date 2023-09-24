@@ -365,10 +365,7 @@ int SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
 	return ok;
 }
 
-uint SFileEntryPool::GetCount() const
-{
-	return L.getCount();
-}
+uint SFileEntryPool::GetCount() const { return L.getCount(); }
 
 int FASTCALL SFileEntryPool::Remove(uint pos)
 {
