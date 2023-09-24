@@ -5066,7 +5066,7 @@ static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVecto
 			SString line_buf;
 			StringSet ss;
 			while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
-				ss.clear();
+				ss.Z();
 				line_buf.Tokenize("\t", ss);
 				uint   fld_n = 0;
 				PosProtocolFileProcessedEntry new_entry;

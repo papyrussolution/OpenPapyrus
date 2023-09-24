@@ -1670,34 +1670,34 @@ COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Rsrc\UED\UED.txt">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\tools\uedp.exe -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">ued processing (..\..\tools\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">ued processing (..\..\ppy\bin\uedp.exe -cpath $(SolutionDir)..\include %(FullPath))</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(SolutionDir)..\include\ued-id.h;%(Outputs)</Outputs>
@@ -1726,6 +1726,34 @@ COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
       <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</BuildInParallel>
       <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</BuildInParallel>
       <BuildInParallel Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</BuildInParallel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</ExcludedFromBuild>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\PPY\BIN\PPSTR.BIN;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -5,6 +5,7 @@
 #pragma hdrstop
 #include <Lm.h>
 #include <strstore.h>
+#include <ued.h>
 //
 // @prototype {
 //
@@ -32,7 +33,6 @@ int PPValidateXml();
 int OpenPhonePane();
 int UniFindObj();
 int TSessionMaintenance(); // @v11.0.4
-int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pCPath, const char * pJavaPath, bool forceUpdatePlDecl, PPLogger * pLogger); // @v11.7.10
 //int ImportSartre();
 // } @prototype
 //
@@ -569,8 +569,8 @@ int PPApp::processCommand(uint cmd)
 		case cmStyloQCommands:       PPView::Execute(PPVIEW_STYLOQCOMMAND,   0, PPView::exefModeless, 0); break; // @v11.1.9
 		case cmProcessUED: // @v11.6.6
 			{
-				PPLogger logger;
-				ProcessUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt", 0, 0, 0, false, &logger);
+				//PPLogger logger;
+				//ProcessUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt", 0, 0, 0, 0, &logger);
 			}
 			break; 
 		case cmEventsForCurrentUser:

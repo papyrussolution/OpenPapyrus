@@ -134,7 +134,7 @@ void PPDesktopAssocCmdPool::Init(/*PPID desktopId*/const S_GUID & rUuid)
 	DesktopID_Obsolete = 0;
 	DesktopUuid = rUuid;
 	L.clear();
-	P.clear();
+	P.Z();
 	P.add("$"); // zero index - is empty string
 }
 

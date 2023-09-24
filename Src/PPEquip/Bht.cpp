@@ -21,15 +21,8 @@ StyloBhtIIConfig::StyloBhtIIConfig()
 	Size = sizeof(StyloBhtIIConfig);
 }
 	
-int StyloBhtIIConfig::ToHost()
-{
-	return 1;
-}
-	
-int StyloBhtIIConfig::ToDevice()
-{
-	return 1;
-}
+int StyloBhtIIConfig::ToHost() { return 1; }
+int StyloBhtIIConfig::ToDevice() { return 1; }
 	
 int StyloBhtIIConfig::Save(const char * pPath)
 {
@@ -3636,7 +3629,7 @@ int PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPat
 							goods_id += addendum;
 					}
 					if(!skip) {
-						ss.clear();
+						ss.Z();
 						ss.add(temp_buf);                     // barcode
 						ss.add(temp_buf.Z().Cat(goods_id)); // goodsid
 						p_tmp_tbl->clearDataBuf();
@@ -4997,7 +4990,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 				char   lbid[12], gid[16];
 				br_line.GetStr(0, lbid, sizeof(lbid));
 				br_line.GetStr(1, gid, sizeof(gid));
-				if(stricmp(bid, lbid) == 0) {
+				if(sstreqi_ascii(bid, lbid)) {
 					if(alt_grp_id == 0) {
 						PPID   temp_id = 0;
 						PPGoodsPacket gp;
@@ -5568,8 +5561,9 @@ static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, i
 	ZDELETE(dlg);
 	// @v9.4.9 if(valid_data && bht_obj.Search(bht_id, &bht_rec) > 0) {
 	if(valid_data && bht_obj.GetPacket(bht_id, &pack) > 0) { // @v9.4.9
-		int    is_debug = 0;
-		long   s = 1, timeout = 30000L;
+		bool   is_debug = true;
+		long   s = 1;
+		long   timeout = 30000L;
 		SString dir, path;
 		SString fn_bill;
 		SString fn_bline;
@@ -5600,7 +5594,7 @@ static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, i
 			THROW(bht_obj.InitProtocol(bht_id, &cp));
 		}
 #ifdef NDEBUG
-	is_debug = 0;
+	is_debug = false;
 #endif
 		if(is_debug) {
 			PPGetPath(PPPATH_IN, dir);

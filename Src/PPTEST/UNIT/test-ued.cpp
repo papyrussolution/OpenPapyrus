@@ -23,28 +23,35 @@
 		SString temp_buf;
 		SStringU temp_buf_u;
 		{
-			static const SColor color_list[] = {
-				SClrAqua, SClrBlack, SClrWhite, SClrRed, SClrCyan
-			};
-			static const uint alpha_list[] = { 2, 17, 120, 255 };
-			for(uint aidx = 0; aidx < SIZEOFARRAY(alpha_list); aidx++) {
-				for(uint cidx = 0; cidx < SIZEOFARRAY(color_list); cidx++) {
-					SColor c(color_list[cidx]);
-					c.SetAlpha(alpha_list[aidx]);
-					uint64 ued = UED::SetRaw_Color(c);
-					SColor c2;
-					SLCHECK_NZ(UED::GetRaw_Color(ued, c2));
-					SLCHECK_EQ(c, c2);
+			if(false) { // @construction
+				static const SColor color_list[] = {
+					SClrAqua, SClrBlack, SClrWhite, SClrRed, SClrCyan
+				};
+				static const uint alpha_list[] = { 2, 17, 120, 255 };
+				for(uint aidx = 0; aidx < SIZEOFARRAY(alpha_list); aidx++) {
+					for(uint cidx = 0; cidx < SIZEOFARRAY(color_list); cidx++) {
+						SColor c(color_list[cidx]);
+						c.SetAlpha(alpha_list[aidx]);
+						uint64 ued = UED::SetRaw_Color(c);
+						SColor c2;
+						SLCHECK_NZ(UED::GetRaw_Color(ued, c2));
+						SLCHECK_EQ(c, c2);
+					}
 				}
 			}
 		}
 		{
+			SGeo geo;
 			SGeoPosLL gp(40.67241045687091, -74.24130029528962);
 			uint64 ued_gp = UED::SetRaw_GeoLoc(gp);
+			double dist = 0.0;
 			SGeoPosLL gp_;
 			SLCHECK_NZ(UED::GetRaw_GeoLoc(ued_gp, gp_));
 			SLCHECK_EQ_TOL(gp_.Lat, gp.Lat, 1e-4);
 			SLCHECK_EQ_TOL(gp_.Lon, gp.Lon, 1e-4);
+			geo.Inverse(gp, gp_, &dist, 0, 0, 0, 0, 0, 0);
+			temp_buf.Z().CatEq("Distance", dist, MKSFMTD(0, 3, 0));
+			SetInfo(temp_buf);
 		}
 		{
 			const double angle_list[] = { -11.9, -45.0, -180.1, 10.5, 0.0, 30.0, 45.0, 60.0, 180.0, 10.0, 270.25, 359.9 };

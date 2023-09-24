@@ -1049,7 +1049,7 @@ PPObjectTransmit::PacketStat::PacketStat() : Items(sizeof(PPObjectTransmit::Inde
 	size_t act_size;
 	SFile stream(pFileName, SFile::mRead|SFile::mBinary);
 	rStat.Items.clear();
-	rStat.NameList.clear();
+	rStat.NameList.Z();
 	THROW_PP_S(stream.IsValid(), PPERR_PPOSOPENFAULT, pFileName);
 	THROW_SL(stream.Read(&rStat.Hdr, sizeof(rStat.Hdr), &act_size));
 	if(!(rStat.Hdr.Flags & PPOTF_ARC)) {

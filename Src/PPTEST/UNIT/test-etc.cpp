@@ -386,8 +386,9 @@ SLTEST_FIXTURE(SuffixArray, TestFixtureSuffixArray)
 			const char * p_pattern = "trophies";
 			LongArray pos_list_fallback;
 			LongArray pos_list;
-			SaIndex saidx(F.InBuf, F.InBufSize);
-			saidx.Text.Utf8ToLower();
+			SaIndex saidx;
+			saidx.SetText(F.InBuf, F.InBufSize);
+			saidx.Utf8ToLower();
 			THROW(SLCHECK_NZ(saidx.Build()));
 			uint cf = saidx.Search_fallback(p_pattern, &pos_list_fallback);
 			uint c = saidx.Search(p_pattern, &pos_list);
@@ -489,5 +490,147 @@ SLTEST_R(WsCtl)
 	delete p_js;
 	delete p_js2;
 #endif // } 0
+	return CurrentStatus;
+}
+//
+//
+//
+/*
+    latitude at point 1, lat1 (degrees, exact)
+    longitude at point 1, lon1 (degrees, always 0)
+    azimuth at point 1, azi1 (clockwise from north in degrees, exact)
+    latitude at point 2, lat2 (degrees, accurate to 10e-18 deg)
+    longitude at point 2, lon2 (degrees, accurate to 10e-18 deg)
+    azimuth at point 2, azi2 (degrees, accurate to 10e-18 deg)
+    geodesic distance from point 1 to point 2, s12 (meters, exact)
+    arc distance on the auxiliary sphere, a12 (degrees, accurate to 10e-18 deg)
+    reduced length of the geodesic, m12 (meters, accurate to 0.1 pm)
+    the area under the geodesic, S12 (m2, accurate to 1 mm2)
+*/
+struct GeodTestRecord {
+	GeodTestRecord()
+	{
+		Azi1 = 0.0;
+		Azi2 = 0.0;
+		GeodDistance = 0.0;
+		ArcDistance = 0.0;
+		M12 = 0.0;
+		S12 = 0.0;
+	}
+	bool   FASTCALL IsEq(const GeodTestRecord & rS) const
+	{
+		bool   ok = true;
+		THROW(P1 == rS.P1);
+		THROW(P2 == rS.P2);
+		THROW(feqeps(Azi1, rS.Azi1, 1E-7));
+		THROW(feqeps(Azi2, rS.Azi2, 1E-7));
+		THROW(feqeps(GeodDistance, rS.GeodDistance, 1E-4));
+		THROW(feqeps(ArcDistance, rS.ArcDistance, 1E-7));
+		THROW(feqeps(M12, rS.M12, 1E-4));
+		THROW(feqeps(S12, rS.S12, 6));
+		CATCHZOK
+		return ok;
+	}
+	SGeoPosLL P1;        // Point 1 (degrees, exact). Lon always 0.
+	double Azi1;         // Azimuth at point 1 (clockwise from north in degrees, exact)
+	SGeoPosLL P2;        // Point 2 (degrees, exact).
+	double Azi2;         // Azimuth at point 2 (degrees, accurate to 10e-18 deg)
+	double GeodDistance; // Geodesic distance [P1, P2] (meters, exact)
+	double ArcDistance;  // Arc distance [P1, P2] (degrees, accurate to 10e-18 deg)
+	double M12;          // reduced length of the geodesic, m12 (meters, accurate to 0.1 pm)
+	double S12;          // the area under the geodesic, S12 (m2, accurate to 1 mm2)
+};
+
+SLTEST_R(SGeo)
+{
+	SString in_file_name(MakeInputFilePath("GeodTest.dat"));
+	SGeo   sg;
+	uint   line_no = 0;
+	SString line_buf;
+	SString temp_buf;
+	{
+		StringSet ss;
+		SFile f_in(in_file_name, SFile::mRead);
+		THROW(SLCHECK_NZ(f_in.IsValid()));
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
+			line_no++;
+			volatile int  _test_result = 0; // @debug
+			GeodTestRecord rec;
+			ss.Z();
+			line_buf.Tokenize(" \t", ss);
+			uint   fld_count = 0;
+			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+				fld_count++;
+				switch(fld_count) {
+					case 1: rec.P1.Lat = temp_buf.ToReal(); break;
+					case 2: rec.P1.Lon = temp_buf.ToReal(); break;
+					case 3: rec.Azi1 = temp_buf.ToReal(); break;
+					case 4: rec.P2.Lat = temp_buf.ToReal(); break;
+					case 5: rec.P2.Lon = temp_buf.ToReal(); break;
+					case 6: rec.Azi2 = temp_buf.ToReal(); break;
+					case 7: rec.GeodDistance = temp_buf.ToReal(); break;
+					case 8: rec.ArcDistance = temp_buf.ToReal(); break;
+					case 9: rec.M12 = temp_buf.ToReal(); break;
+					case 10: rec.S12 = temp_buf.ToReal(); break;
+				}
+			}
+			SLCHECK_EQ(fld_count, 10U);
+			if(fld_count == 10) {
+				{
+					GeodTestRecord test_rec;
+					double _m12 = 0.0;
+					double _m21 = 0.0;
+					test_rec.ArcDistance = sg.Direct(rec.P1, rec.Azi1, 0, rec.GeodDistance, &test_rec.P2, &test_rec.Azi2, &test_rec.GeodDistance, &test_rec.M12, &_m12, &_m21, &test_rec.S12);
+					//test_rec.P1 = rec.P1;
+					//test_rec.Azi1 = rec.Azi1;
+					//SLCHECK_NZ(test_rec.IsEq(rec));
+
+					//SLCHECK_NZ(test_rec.P1 == rec.P1);
+					SLCHECK_NZ(test_rec.P2 == rec.P2);
+					//SLCHECK_EQ_TOL(test_rec.Azi1, rec.Azi1, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.Azi2, rec.Azi2, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.GeodDistance, rec.GeodDistance, 1E-4);
+					SLCHECK_EQ_TOL(test_rec.ArcDistance, rec.ArcDistance, 1E-7);
+					SLCHECK_EQ_TOL(test_rec.M12, rec.M12, 1E-4);
+					// SLCHECK_EQ_TOL(test_rec.S12, rec.S12, 10);
+
+					test_rec.ArcDistance = sg.Direct(rec.P1, rec.Azi1, sg.GEOD_ARCMODE, rec.ArcDistance, &test_rec.P2, &test_rec.Azi2, &test_rec.GeodDistance, &test_rec.M12, &_m12, &_m21, &test_rec.S12);
+					//test_rec.P1 = rec.P1;
+					//test_rec.Azi1 = rec.Azi1;
+					//SLCHECK_NZ(test_rec.IsEq(rec));
+
+					//SLCHECK_NZ(test_rec.P1 == rec.P1);
+					SLCHECK_NZ(test_rec.P2 == rec.P2);
+					//SLCHECK_EQ_TOL(test_rec.Azi1, rec.Azi1, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.Azi2, rec.Azi2, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.GeodDistance, rec.GeodDistance, 1E-4);
+					SLCHECK_EQ_TOL(test_rec.ArcDistance, rec.ArcDistance, 1E-7);
+					SLCHECK_EQ_TOL(test_rec.M12, rec.M12, 1E-4);
+					// SLCHECK_EQ_TOL(test_rec.S12, rec.S12, 10);
+				}
+				{
+					GeodTestRecord test_rec;
+					double _m12 = 0.0;
+					double _m21 = 0.0;
+					test_rec.ArcDistance = sg.Inverse(rec.P1, rec.P2, &test_rec.GeodDistance, &test_rec.Azi1, &test_rec.Azi2, &test_rec.M12, &_m12, &_m21, &test_rec.S12);
+					//test_rec.P1 = rec.P1;
+					//test_rec.P2 = rec.P2;
+					//SLCHECK_NZ(test_rec.IsEq(rec));
+
+					//SLCHECK_NZ(test_rec.P1 == rec.P1);
+					//SLCHECK_NZ(test_rec.P2 == rec.P2);
+					SLCHECK_EQ_TOL(test_rec.Azi1, rec.Azi1, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.Azi2, rec.Azi2, 1E-1);
+					SLCHECK_EQ_TOL(test_rec.GeodDistance, rec.GeodDistance, 1E-4);
+					SLCHECK_EQ_TOL(test_rec.ArcDistance, rec.ArcDistance, 1E-7);
+					SLCHECK_EQ_TOL(test_rec.M12, rec.M12, 1E-4);
+					// SLCHECK_EQ_TOL(test_rec.S12, rec.S12, 10);
+				}
+            }
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
 	return CurrentStatus;
 }

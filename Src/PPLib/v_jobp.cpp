@@ -257,7 +257,7 @@ int JobPoolDialog::setupList()
 	SString buf;
 	StringSet ss(SLBColumnDelim);
 	for(PPID id = 0; ok && P_Data->Enum(&id, &job, ForAllDb);) {
-		ss.clear();
+		ss.Z();
 		(ss += job.Name) += job.Descr.Symb;
 		ss += job.Dtr.Format(0, buf);
 		if(job.NextJobID) {

@@ -973,7 +973,7 @@ int LotExtCodeCore::GetContainer(PPID billID, PPLotExtCodeContainer & rC)
 
 int LotExtCodeCore::GetMarkListByLot(PPID lotID, const StringSet * pExcludeList, StringSet & rSsExtCodes, uint * pExtCodeCount)
 {
-	rSsExtCodes.clear();
+	rSsExtCodes.Z();
 	int    ok = -1;
 	uint   ext_code_count = 0;
 	if(lotID) {

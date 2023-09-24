@@ -2831,10 +2831,8 @@ int DlContext::CompleteExportDataStruc()
 		msg_buf.Cat(CurScopeID);
 		ok = (Error(PPERR_DL6_DATASTRUCIDNFOUND, msg_buf), 0);
 	}
-	//
 	// Cleaning instant members of Context
-	//
-	CurDeclList.clear();
+	CurDeclList.Z();
 	return ok;
 }
 //
@@ -2872,7 +2870,7 @@ int DlContext::RestoreUuidList()
 	int    ok = 1;
 	SString file_name = InFileName;
 	SPathStruc::ReplaceExt(file_name, "uuid", 1);
-	SyncUuidNameList.clear();
+	SyncUuidNameList.Z();
 	SyncUuidList.freeAll();
 	if(fileExists(file_name)) {
 		SFile  f_out(file_name, SFile::mRead);

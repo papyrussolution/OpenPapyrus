@@ -1,6 +1,11 @@
 // UED.H
 // Copyright (c) A.Sobolev 2023
 //
+#ifndef __UED_H
+#define __UED_H
+
+class PPLogger;
+
 class UED {
 public:
 	static bool IsMetaId(uint64 ued) { return (HiDWord(ued) == 1); }
@@ -51,7 +56,7 @@ public:
 	// Descr: Верифицирует this-контейнер на непротиворечивость и, если указан контейнер
 	//   предыдущей версии (pPrevC != 0), то проверяет инварианты.
 	//
-	int    VerifyByPreviousVersion(const SrUedContainer * pPrevC, PPLogger * pLogger);
+	int    VerifyByPreviousVersion(const SrUedContainer * pPrevC, bool tolerant, PPLogger * pLogger);
 	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
 	bool   GenerateSourceDecl_C(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
@@ -81,3 +86,11 @@ private:
 	uint   LastSymbHashId;
 };
 
+enum {
+	prcssuedfForceUpdatePlDecl = 0x0001,
+	prcssuedfTolerant          = 0x0002
+};
+
+int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pRtOutPath, const char * pCPath, const char * pJavaPath, uint flags, PPLogger * pLogger); // @v11.7.10
+
+#endif // __UED_H

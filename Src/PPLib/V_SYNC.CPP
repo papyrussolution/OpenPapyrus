@@ -79,7 +79,7 @@ public:
 		for(pos = 0; pos < Data.ObjIDList.getCount(); pos++)
 			ids_set.add(buf.Z().Cat(Data.ObjIDList.at(pos)));
 		setCtrlString(CTL_SYNCFILT_OBJIDS, buf = ids_set.getBuf());
-		ids_set.clear();
+		ids_set.Z();
 		for(pos = 0; pos < Data.CommIDList.getCount(); pos++) {
 			LAssoc  comm_id = Data.CommIDList.at(pos);
 			ids_set.add(buf.Z().Cat(comm_id.Key).CatDiv('-', 0).Cat(comm_id.Val));
@@ -936,7 +936,7 @@ int ViewObjSyncTab(PPObjID oid)
 			for(uint i = 0; i < Data.getCount(); i++) {
 				// @lbt_objsynctab        "20,L,Раздел;8,R,Общий ИД;8,R,Собственный ИД;12,L,Дата модификации"
 				const _ObjSyncEntry & r_entry = Data.at(i);
-				ss.clear();
+				ss.Z();
 				GetObjectName(PPOBJ_DBDIV, r_entry.DBDivID, temp_buf.Z());
 				ss.add(temp_buf);
 				ss.add(r_entry.CommID.ToStr(0, temp_buf.Z()));

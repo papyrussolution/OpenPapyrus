@@ -954,7 +954,7 @@ AsteriskAmiClient::Message::Message(const char * pReply) : StringSet()
 
 AsteriskAmiClient::Message & AsteriskAmiClient::Message::Z()
 {
-	StringSet::clear();
+	StringSet::Z();
 	return *this;
 }
 
@@ -1066,7 +1066,7 @@ int AsteriskAmiClient::Message::GetReplyStatus(ReplyStatus & rS) const
 int AsteriskAmiClient::Message::ParseReply(const char * pReply)
 {
 	int    ok = 1;
-	clear();
+	Z();
 	SStrScan scan(pReply);
 	SString temp_buf, left, right;
 	while(scan.Search("\xD\xA")) {

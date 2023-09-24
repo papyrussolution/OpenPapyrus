@@ -504,13 +504,13 @@ int ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 				THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_SHTRIHMFRK_EXP_FLAG, PathFlag));
 		}
 		THROW_PP(acn.ExpPaths.NotEmptyS() || acn.ImpFiles.NotEmptyS(), PPERR_INVFILESET);
-		ImpPaths.clear();
+		ImpPaths.Z();
 		ImpPaths.setDelim(";");
 		{
 			SString & r_list = (acn.ImpFiles.NotEmpty()) ? acn.ImpFiles : acn.ExpPaths;
 			ImpPaths.setBuf(r_list, r_list.Len() + 1);
 		}
-		ExpPaths.clear();
+		ExpPaths.Z();
 		ExpPaths.setDelim(";");
 		{
 			SString & r_list = (acn.ExpPaths.NotEmpty()) ? acn.ExpPaths : acn.ImpFiles;
@@ -736,7 +736,7 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 			imp_file.ReadLine(buf);
 		prev_smena_pos = imp_file.Tell();
 		while(imp_file.ReadLine(buf) > 0) {
-			ss.clear();
+			ss.Z();
 			ss.add(buf);
 			ss.get(&(pos = 0), buf);                                                      // #1 Код транзакции (не используем)
 			ss.get(&pos, buf);                                                            // #2 Дата транзакции
@@ -772,7 +772,7 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 				long   chk_no = 0;
 				long   cash_no = 0;
 				long   line_no = 0; // @debug
-				ss.clear();
+				ss.Z();
 				ss.add(buf);
 				ss.get(&(pos = 0), buf);            // #1 Код транзакции (не используем)
 				line_no = buf.ToLong();             // @v6.6.3 @debug

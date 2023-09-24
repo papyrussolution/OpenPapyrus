@@ -268,7 +268,7 @@ int StaffAmtListDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	StaffAmtEntry * p_entry;
 	for(uint i = 0; Data.enumItems(&i, (void **)&p_entry);) {
-		ss.clear();
+		ss.Z();
 		if(at_obj.Search(p_entry->AmtTypeID, &at_rec) > 0)
 			sub = at_rec.Name;
 		else

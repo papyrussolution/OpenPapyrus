@@ -11,7 +11,7 @@ int FASTCALL StringSet::Alloc(size_t sz)
 {
 	int    ok = 1;
 	if(sz == 0)
-		clear();
+		Z();
 	else if(sz > Size) {
 		size_t new_size = SnapUpSize(sz);
 		char * p = 0;
@@ -50,12 +50,12 @@ int StringSet::Init(const char * pDelim, size_t prealloc)
 	return prealloc ? Alloc(prealloc) : 1;
 }
 
-StringSet::StringSet(const char * pDelim/*, size_t prealloc*/)
+StringSet::StringSet(const char * pDelim/*, size_t prealloc*/) : P_SaIdx(0)
 {
 	Init(pDelim, 0/*prealloc*/);
 }
 
-StringSet::StringSet(char delim, const char * pBuf)
+StringSet::StringSet(char delim, const char * pBuf) : P_SaIdx(0)
 {
 	if(delim) {
 		char   delim_str[16];
@@ -69,7 +69,7 @@ StringSet::StringSet(char delim, const char * pBuf)
 		setBuf(pBuf, sstrlen(pBuf)+1);
 }
 
-StringSet::StringSet(const StringSet & rS)
+StringSet::StringSet(const StringSet & rS) : P_SaIdx(0)
 {
 	Init(0, 0);
 	copy(rS);
@@ -79,6 +79,7 @@ StringSet::~StringSet()
 {
 	if(P_Buf) // @speedcritical
 		SAlloc::F(P_Buf);
+	ZDELETE(P_SaIdx); // @v11.8.3
 }
 
 bool FASTCALL StringSet::IsEqPermutation(const StringSet & rS) const
@@ -195,7 +196,7 @@ StringSet & FASTCALL StringSet::operator = (const StringSet & rS)
 int FASTCALL StringSet::copy(const StringSet & rS)
 {
 	int    ok = 1;
-	clear();
+	Z();
 	setDelim(rS.Delim);
 	if(Alloc(rS.DataLen)) {
 		memcpy(P_Buf, rS.P_Buf, rS.DataLen);
@@ -224,7 +225,7 @@ int FASTCALL StringSet::Read(SBuffer & rBuf)
 	uint32 data_len = 0;
 	rBuf.Read(r_delim);
 	rBuf.Read(&data_len, sizeof(data_len));
-	clear();
+	Z();
 	if(Init(r_delim, data_len)) {
 		rBuf.Read(P_Buf, data_len);
 		DataLen = data_len;
@@ -272,7 +273,7 @@ int StringSet::Read(SFile & rFile, long)
 		THROW(rFile.Read(buf));
 		buf.Read(delim);
 		buf.Read(&data_len, sizeof(data_len));
-		clear();
+		Z();
 		THROW(Init(delim, data_len));
 		if(data_len)
 			THROW(rFile.Read(P_Buf, data_len));
@@ -302,7 +303,7 @@ int FASTCALL StringSet::setBuf(const SString & rBuf)
 int StringSet::setBuf(const void * b, size_t len)
 {
 	int    ok = 1;
-	clear();
+	Z();
 	if(len) {
 		assert(b);
 		assert(PTR8C(b)[len-1] == 0);
@@ -331,18 +332,22 @@ int StringSet::setBuf(const void * b, size_t len)
 void StringSet::destroy()
 {
 	ZFREE(P_Buf);
+	ZDELETE(P_SaIdx); // @v11.8.3
 	Size = 0;
 	DataLen = 0;
 }
 
-void StringSet::clear(/*int dontFreeBuf*/)
+/* @v11.8.3 
+void StringSet::clear()
 {
 	DataLen = 0;
-}
+	ZDELETE(P_SaIdx); // @v11.8.3
+}*/
 
 StringSet & StringSet::Z()
 {
 	DataLen = 0;
+	ZDELETE(P_SaIdx); // @v11.8.3
 	return *this;
 }
 
@@ -357,7 +362,7 @@ void StringSet::sort()
 		for(i = 0; get(&i, str);)
 			temp_list.AddFast(++id, str); // @v11.2.4 Add-->AddFast
 		temp_list.SortByText();
-		clear();
+		Z();
 		for(i = 0; i < temp_list.getCount(); i++)
 			add(temp_list.Get(i).Txt);
 	}
@@ -375,7 +380,7 @@ void StringSet::shuffle()
 		for(i = 0; get(&i, str);)
 			temp_list.AddFast(++id, str);
 		temp_list.Shuffle();
-		clear();
+		Z();
 		for(i = 0; i < temp_list.getCount(); i++)
 			add(temp_list.Get(i).Txt);
 	}
@@ -402,7 +407,7 @@ void StringSet::sortAndUndup()
 			temp_list.Add(++id, str);
 		}
 		temp_list.SortByText();
-		clear();
+		Z();
 		str.Z();
 		for(i = 0; i < temp_list.getCount(); i++) {
 			const char * p_item = temp_list.Get(i).Txt;
@@ -420,7 +425,7 @@ int StringSet::reverse()
 	int    ok = 1;
 	SString temp_buf;
 	StringSet temp_ss = *this;
-	temp_ss.clear();
+	temp_ss.Z();
 	LongArray pos_list;
 	uint prev_pos = 0;
 	uint pos = 0;
@@ -750,6 +755,24 @@ uint StringSet::getCount() const
 
 const char * StringSet::getBuf() const { return P_Buf; }
 size_t StringSet::getSize() const { return Size; }
+
+int StringSet::BuildSa()
+{
+	int   ok = 1;
+	const size_t sz = getDataLen();
+	if(sz) {
+		THROW(SETIFZ(P_SaIdx, new SaIndex()));
+		THROW(P_SaIdx->SetTextOuter(P_Buf, sz));
+		THROW(P_SaIdx->Build());
+	}
+	else
+		ok = -1;
+	CATCH
+		ZDELETE(P_SaIdx);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
 //
 //
 //
@@ -778,8 +801,7 @@ SStrGroup & FASTCALL SStrGroup::CopyS(const SStrGroup & rS)
 
 void SStrGroup::ClearS()
 {
-	Pool.clear();
-	Pool.add("$"); // zero index - is empty string
+	Pool.Z().add("$"); // zero index - is empty string
 }
 
 void SStrGroup::DestroyS()

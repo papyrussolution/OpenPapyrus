@@ -85,6 +85,48 @@ int PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 	return 1;
 }
 
+int PPObjGoodsGroup::GetListOfCounts(const IntRange * pRange, LAssocArray & rResult)
+{
+	rResult.clear();
+	int    ok = -1;
+	Goods2Tbl::Key1 k1;
+	PPIDArray id_list;
+	{
+		BExtQuery q(P_Tbl, 1);
+		MEMSZERO(k1);
+		k1.Kind = PPGDSK_GROUP;
+		q.select(P_Tbl->ID, P_Tbl->Flags, P_Tbl->ParentID, 0L).where(P_Tbl->Kind == PPGDSK_GROUP);
+		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
+			if(!(P_Tbl->data.Flags & (GF_FOLDER|GF_ALTGROUP))) {
+				id_list.add(P_Tbl->data.ID);
+			}
+		}
+	}
+	id_list.sortAndUndup();
+	for(uint i = 0; i < id_list.getCount(); i++) {
+		const PPID group_id = id_list.get(i);
+		BExtQuery q(P_Tbl, 1);
+		MEMSZERO(k1);
+		k1.Kind = PPGDSK_GOODS;
+		k1.ParentID = group_id;
+		q.select(P_Tbl->ID, P_Tbl->ParentID, 0L).where(P_Tbl->Kind == PPGDSK_GOODS && P_Tbl->ParentID == group_id);
+		long _c = 0;
+		if(pRange && pRange->upp > 0) {
+			bool out_of_range = false;
+			for(q.initIteration(false, &k1, spGe); !out_of_range && q.nextIteration() > 0;) {
+				out_of_range = (++_c > pRange->upp);
+			}
+			if(!out_of_range && pRange->CheckVal(_c))
+				rResult.Add(group_id, _c);
+		}
+		else { 
+			_c = q.countIterations(false, &k1, spGe);
+			rResult.Add(group_id, _c);
+		}
+	}
+	return ok;
+}
+
 /*virtual*/int PPObjGoodsGroup::MakeReserved(long flags)
 {
     int    ok = -1;
@@ -2789,7 +2831,7 @@ int SuprWareListDialog::setupList()
 	for(uint i = 0; i < P_SuprWarePack.Items.getCount(); i++) {
 		Goods2Tbl::Rec goods_rec;
 		if(goods_o.Search(P_SuprWarePack.Items.at(i).CompID, &goods_rec) > 0) {
-			ss.clear();
+			ss.Z();
 			ss.add(goods_rec.Name);
 			if(P_SuprWarePack.Items.at(i).Qtty || P_SuprWarePack.Items.at(i).UnitID) {
 				str.Z().Cat(P_SuprWarePack.Items.at(i).Qtty);

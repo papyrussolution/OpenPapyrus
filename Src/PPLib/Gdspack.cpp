@@ -204,7 +204,7 @@ int PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, const 
 	int    ok = 1;
 	int    par_open = 0;
 	SString temp_buf, cat_buf;
-	rSet.clear();
+	rSet.Z();
 	if(PPGoodsPacket::ValidateAddedMsgSign(pSign, 0) > 0) {
 		const size_t sign_len = sstrlen(pSign);
 		for(size_t i = 0; i < sign_len; i++) {

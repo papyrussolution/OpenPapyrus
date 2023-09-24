@@ -1130,5 +1130,17 @@ SLTEST_R(dirent)
 		T_Dirent(*this, base_dir.cptr());
 		T_ScanDir(*this, base_dir.cptr());
 	}
+	{
+		SString temp_buf;
+		TSCollection <SKnownFolderEntry> known_folder_list;
+		GetKnownFolderList(known_folder_list);
+		for(uint i = 0; i < known_folder_list.getCount(); i++) {
+			const SKnownFolderEntry * p_entry = known_folder_list.at(i);
+			if(p_entry) {
+				temp_buf.Z().CatHex(p_entry->UED).Space().Cat(p_entry->Guid, S_GUID::fmtIDL).Space().Cat(p_entry->Result).Space().Cat(p_entry->PathUtf8).CR();
+				SetInfo(temp_buf);
+			}
+		}
+	}
 	return CurrentStatus;
 }

@@ -107,7 +107,7 @@ int PPObjGoods::SearchUhttInteractive(const SString & rName, const SString & rBa
 			for(uint i = 0; i < R_List.getCount(); i++) {
 				UhttGoodsPacket * p_item = R_List.at(i);
 				if(p_item) {
-					ss.clear();
+					ss.Z();
 					ss.add(temp_buf = p_item->SingleBarcode);
 					ss.add(temp_buf = p_item->Name);
 					THROW(addStringToList(i+1, ss.getBuf()));
@@ -227,7 +227,7 @@ int PPObjGoods::ViewUhttGoodsRestList(PPID goodsID)
 				const UhttGoodsRestListItem * p_item = R_List.at(i);
 				if(p_item) {
 					//@lbt_uhttgrlist        "20,L,Организация;20,L,Адрес;10,R,Остаток;8,L,Дата остатка;8,R,Цена;8,L,Дата цены"
-					ss.clear();
+					ss.Z();
 					ss.add(temp_buf = p_item->Name);
 					ss.add(temp_buf = p_item->LocAddr);
 					ss.add(temp_buf.Z().Cat(p_item->Rest, MKSFMTD(0, 3, NMBF_NOZERO)));
@@ -296,7 +296,7 @@ int PPObjGoods::ViewGoodsRestByLocList(PPID goodsID)
 			StringSet ss(SLBColumnDelim);
 			for(uint i = 0; i < R_List.getCount(); i++) {
 				const GoodsRestByLocEntry & r_item = R_List.at(i);
-				ss.clear();
+				ss.Z();
 				temp_buf.Z();
 				if(LocObj.Fetch(r_item.LocID, &loc_rec) > 0) {
 					temp_buf = loc_rec.Name;
@@ -735,7 +735,7 @@ int BarcodeListDialog::setupList()
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; Data.enumItems(&i, (void **)&p_rec);) {
 			char   sub[128];
-			ss.clear();
+			ss.Z();
 			ss.add(p_rec->Code);
 			realfmt(p_rec->Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ), sub);
 			ss.add(sub);
@@ -879,7 +879,7 @@ int ArGoodsCodeListDialog::setupList()
 	SString sub;
 	ArGoodsCodeTbl::Rec * p_item;
 	for(uint i = 0; Data.enumItems(&i, (void **)&p_item);) {
-		ss.clear();
+		ss.Z();
 		GetArticleName(p_item->ArID, sub);
 		ss.add(sub);
 		ss.add(p_item->Code);
@@ -3039,7 +3039,7 @@ int GoodsAsscDialog::setupAssoc(PPID asscType, uint asscText, PPID objType)
 	PPGetSubStr(PPTXT_GOODS_ASSC_NAME, asscText, assc_name);
 	for(SEnum en = PPRef->Assc.Enum(asscType, GoodsID, 1); en.Next(&assc_rec) > 0;) {
 		const PPID assc_id = assc_rec.PrmrObjID;
-		name = 0;
+		name.Z();
 		if(asscType == PPASS_GOODSSTRUC) {
 			PPID   goods_id = 0;
 			PPGoodsStrucHeader gs_hdr;
@@ -3052,7 +3052,7 @@ int GoodsAsscDialog::setupAssoc(PPID asscType, uint asscText, PPID objType)
 		}
 		else
 			GetObjectName(objType, assc_id, name);
-		ss.clear();
+		ss.Z();
 		ss.add(assc_name);
 		ss.add(name);
 		ss.add(ltoa(assc_rec.InnerNum, temp_buf, 10));
@@ -3292,6 +3292,10 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 			SetClusterData(CTL_GFLTADVOPT_SNEXP, Data.Flags2);
 			setCtrlData(CTL_GFLTADVOPT_AHEXPD, &Data.AheadExpiryDays);
 			// } @v11.6.2 
+			// @v11.8.3 {
+			SetIntRangeInput(this, CTL_GFLTADVOPT_IDRNG, &Data.IdRange);
+			SetIntRangeInput(this, CTL_GFLTADVOPT_GRPCRNG, &Data.GrpCountRange);
+			// } @v11.8.3 
 			SetupCtrls();
 			return 1;
 		}
@@ -3327,6 +3331,10 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 				GetClusterData(CTL_GFLTADVOPT_SNEXP, &Data.Flags2);
 				getCtrlData(CTL_GFLTADVOPT_AHEXPD, &Data.AheadExpiryDays);
 				// } @v11.6.2 
+				// @v11.8.3 {
+				GetIntRangeInput(this, CTL_GFLTADVOPT_IDRNG, &Data.IdRange);
+				GetIntRangeInput(this, CTL_GFLTADVOPT_GRPCRNG, &Data.GrpCountRange);
+				// } @v11.8.3 
 				ASSIGN_PTR(pData, Data);
 				ok = 1;
 			}

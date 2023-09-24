@@ -831,7 +831,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 	// и заносим идентификатор сессии в массив ACS_ATOS::SessAry.
 	//
 	while(imp_file.ReadLine(buf) > 0) {
-		ss.clear();
+		ss.Z();
 		ss.add(buf);
 		ss.get(&(pos = 0), buf);     // Код транзакции (не используем)
 		ss.get(&pos, buf);           // Дата транзакции
@@ -867,7 +867,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 		imp_file.ReadLine(buf);
 	// } @v6.0.5 VADIM
 	while(imp_file.ReadLine(buf) > 0) {
-		ss.clear();
+		ss.Z();
 		ss.add(buf);
 		ss.get(&(pos = 0), buf);     // Код транзакции (не используем)
 		ss.get(&pos, buf);           // Дата транзакции
@@ -914,8 +914,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 	while(imp_file.ReadLine(buf) > 0) {
 		int    r;
 		long   op_type, cash_no, chk_no;
-		ss.clear();
-		ss.add(buf);
+		ss.Z().add(buf);
 		pos = 0;
 		//   № транзакции, дата транзакции, время транзакции - пропускаем, выбираем тип транзакции (операции)
 		for(field_no = 0; field_no < 4 && ss.get(&pos, buf); field_no++);
@@ -1051,12 +1050,12 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 			THROW(gfile.IsValid());
 			cntr.Init(new_goods.getCount());
 			while(gfile.ReadLine(buf) > 0) {
-				ss.clear();
+				ss.Z();
 				ss.add(buf);
 				ss.get(&(pos = 0), buf); // Артикул
 				goods_id = buf.ToLong();
 				ss.get(&pos, buf);       // Список штрихкодов
-				ss_comma.clear();
+				ss_comma.Z();
 				ss_comma.add(buf);
 				ss.get(&pos, buf);       // 1 - товар найден в Атоле
 				if(buf.ToLong()) {

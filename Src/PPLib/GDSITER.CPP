@@ -95,6 +95,7 @@ void FASTCALL GoodsIterator::InitInstance(PPIDArray * pDupDynGrpList)
 	P_ActualHash = 0;
 	P_UhttsPack = 0;
 	SfClsID = 0;
+	P_GrpCountList = 0; // @v11.8.3
 }
 
 GoodsIterator::GoodsIterator(const GoodsFilt * f, int aOrder, PPIDArray * pDupDynGrpList /*=0*/)
@@ -122,6 +123,7 @@ GoodsIterator::~GoodsIterator()
 	delete P_ActualHash;
 	delete P_IterQuery;
 	delete P_UhttsPack;
+	delete P_GrpCountList; // @v11.8.3
 }
 
 const IterCounter & GoodsIterator::GetIterCounter() const { return Counter; }
@@ -357,6 +359,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 	ZDELETE(P_List);
 	ZDELETE(P_MtxList);
 	ZDELETE(P_ActualHash);
+	ZDELETE(P_GrpCountList); // @v11.8.3
 	BExtQuery::ZDelete(&P_IterQuery);
 	SfClsID = 0;
 	ExtList.clear();
@@ -385,6 +388,13 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 		else
 			ZDELETE(P_MtxList);
 	}
+	// @v11.8.3 {
+	if(!Filt.GrpCountRange.IsZero()) {
+		PPObjGoodsGroup ggobj;
+		THROW_SL(P_GrpCountList = new LAssocArray());
+		ggobj.GetListOfCounts(&Filt.GrpCountRange, *P_GrpCountList);
+	}
+	// } @v11.8.3 
 	if(Filt.IsEmpty() || Filt.Flags & GoodsFilt::fNegation) {
 		THROW(CreateIterQuery());
 	}
@@ -435,7 +445,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 					int   skip = 0;
 					double rest = 0.0;
 					if(rest_op_id) {
-						p_bobj->CalcDraftTransitRest(rest_op_id, order_op_id, r_item.GoodsID, uhttsloc_id, 0 /* flags */, &rest, 0);
+						p_bobj->CalcDraftTransitRest(rest_op_id, order_op_id, r_item.GoodsID, uhttsloc_id, 0 /*flags*/, &rest, 0);
 						if(rest <= 0.0 && (P_UhttsPack->Rec.Flags & PPUhttStore::fDontShowZeroRestItems))
 							skip = 1;
 					}
@@ -466,7 +476,6 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 		}
 		if(Filt.GetBarcodeLenList(len_list) > 0) {
-			// @v8.1.0 (теперь это делает GetListByBarcodeLen) temp_list.clear();
 			THROW(GObj.P_Tbl->GetListByBarcodeLen(&len_list, temp_list));
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 		}

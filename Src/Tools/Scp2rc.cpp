@@ -740,7 +740,7 @@ static int ProcessFileName(SString & rFileName, const SString & rInPath, const S
 
 static int ProcessFileNameVDos(StringSet & rFileNames, StringSet & rResultFileNames, ExecVDosParam & rEvdp, const SString & rInPath, const SString & rToolsPath)
 {
-	rResultFileNames.clear();
+	rResultFileNames.Z();
 
 	int    ok = 1;
 	SString temp_buf, msg_buf;

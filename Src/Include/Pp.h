@@ -356,7 +356,6 @@ struct TagrCacheItem;
 struct GoaAddingBlock;
 struct GoaCacheItem;
 struct ProfileEntry;
-class  LogListWindow;
 class  LogListWindowSCI;
 struct PPCheckInPersonConfig;
 class  PPCheckInPersonArray;
@@ -2019,7 +2018,8 @@ class PPLogger {
 public:
 	enum {
 		fDisableOutput = 0x0001,
-		fDisableWindow = 0x0002  // @v10.6.8 Если установлен, то не отображается окно с данными вывода
+		fDisableWindow = 0x0002,  // @v10.6.8 Если установлен, то не отображается окно с данными вывода
+		fStdErr        = 0x0004   // @v11.8.3 Выводить данные в stderr. Этот флаг отменяет все остальные варианты вывода.
 	};
 	PPLogger();
 	explicit PPLogger(long flags);
@@ -12021,8 +12021,8 @@ public:
 	// ARG(pRetBlk OUT): Указатель на блок, в который записывается информация о проверке
 	//
 	int    CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, double qtty, long flags, CgrRetBlock * pRetBlk);
-	int    SearchLot(PPID lot, uint * pos) const;
-	int    SearchShLot(PPID lot, uint * pos) const;
+	int    SearchLot(PPID lotID, uint * pPos) const;
+	int    SearchShLot(PPID lotID, uint * pPos) const;
 	//
 	// Следующие две функции определяют остаток по заданному лоту и заказному лоту соответственно
 	// в контексте пакета. Вместе с идентификатором лота и указателем на остаток им необходимо
@@ -30700,6 +30700,7 @@ private:
 	BExtQuery * P_IterQuery;
 	PPIDArray * P_DupDynGrpList;
 	PPUhttStorePacket * P_UhttsPack;
+	LAssocArray * P_GrpCountList; // @v11.8.3 Список товарных групп с подсчетом количества соответствующих товаров. Для критерия GoodsFilt::GrpCountRange
 	IterCounter Counter;
 	PPObjGoods GObj;
 	PPObjTag   TagObj;
@@ -30799,6 +30800,16 @@ public:
 	//
 	int    GetLevel(PPID grpID, long * pLevel);
 	int    CalcTotal(GoodsGroupTotal * pTotal);
+	//
+	// Descr: Подсчитывает количество товаров в каждой терминальной группе.
+	// Note: Функция может работать достаточно долго!
+	// ARG(pRange IN): Если указатель не нулевой, то в результат включаются только те группы,
+	//   мощность которых не выходит за границы диапазона по этому указателю.
+	//   Этот параметр позволяет ускорить работу функции за счет прекращения перебора групп,
+	//   количество товаров в которых выходит за верхнюю границу диапазона.
+	// ARG(rResult OUT): Результат работы функции: ассоциации {group; count}
+	//
+	int    GetListOfCounts(const IntRange * pRange, LAssocArray & rResult);
 	int    Transmit();
 	//
 	// Descr: Проверяет и, возможно, корректирует товарные группы.
@@ -55428,8 +55439,6 @@ struct EmailToBlock {
 //
 //
 //
-#define USE_LOGLISTWINDOWSCI
-
 class TVMsgLog : public PPMsgLog {
 public:
 	// only for dos, for windows do nothing if winDestroy = 0
@@ -55441,12 +55450,7 @@ public:
 	virtual int  ShowLogWnd(const char * pTitle = 0);
 	void   RefreshList();
 protected:
-	friend class LogListWindow;
-#ifdef USE_LOGLISTWINDOWSCI
 	LogListWindowSCI * P_LWnd;
-#else
-	LogListWindow * P_LWnd;
-#endif
 	long   HorzRange;
 };
 //
@@ -56148,7 +56152,7 @@ protected:
 	int    MakeGroupEntryList(StrAssocArray * pTreeList, PPID parentID, uint level); // @recursion
 	int    FASTCALL F(long f) const;
 	void   SetupExt(const CCheckPacket * pPack);
-	int    FASTCALL BelongToExtCashNode(PPID goodsID) const;
+	bool   FASTCALL BelongToExtCashNode(PPID goodsID) const;
 	PPID   FASTCALL GetChargeGoodsID(PPID scardID);
 	double CalcSCardOpAmount(const CCheckLineTbl::Rec & rItem, PPID chargeGoodsID, PPID crdGoodsGrpID, double * pNonCrdAmt);
 	double CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPID bonusGoodsGrpID, double * pNonCrdAmt);

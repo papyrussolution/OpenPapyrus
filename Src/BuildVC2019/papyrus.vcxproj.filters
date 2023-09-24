@@ -58,6 +58,9 @@
     <ClInclude Include="..\Include\ppdbs.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\ued-id.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\PPMain\ppbrow-embed.rc" />

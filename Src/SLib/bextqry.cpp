@@ -1,5 +1,5 @@
 // BEXTQRY.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Интерфейс к расширенным операциям поиска Btrieve
 //
@@ -468,10 +468,7 @@ __again:
 	return r;
 }
 
-void BExtQuery::setMaxReject(uint maxRej)
-{
-	MaxReject = static_cast<uint16>(maxRej);
-}
+void BExtQuery::setMaxReject(uint maxRej) { MaxReject = static_cast<uint16>(maxRej); }
 
 BExtQuery & BExtQuery::selectAll()
 {
@@ -497,10 +494,7 @@ BExtQuery & CDECL BExtQuery::select(DBField first_arg, ...)
 	return *this;
 }
 
-int BExtQuery::addField(const DBField & rFld)
-{
-	return Fields.Add(rFld);
-}
+int BExtQuery::addField(const DBField & rFld) { return Fields.Add(rFld); }
 
 void FASTCALL BExtQuery::where(DBQ & q)
 {
@@ -510,23 +504,7 @@ void FASTCALL BExtQuery::where(DBQ & q)
 	}
 }
 
-static inline uint FASTCALL sizeofterm(const BExtTerm * term)
-{
-	return (sizeof(BExtTerm) + term->fldLen);
-}
-
-/* @v9.8.6 (inlined)
-BExtTerm * BExtQuery::get_term(int n)
-{
-	int    i;
-	BExtHeader * p_h = (BExtHeader *)P_QBuf;
-	BExtTerm * p_term = 0;
-	if(p_h && n >= 0 && n < p_h->numTerms)
-		for(p_term = (BExtTerm *)(p_h+1), i = 0; i < n; i++)
-			p_term = (BExtTerm *)(((char *)p_term) + sizeofterm(p_term));
-	return p_term;
-}
-*/
+static inline uint FASTCALL sizeofterm(const BExtTerm * term) { return (sizeof(BExtTerm) + term->fldLen); }
 
 int FASTCALL _invertComp(int cmp);
 

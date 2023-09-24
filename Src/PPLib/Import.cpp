@@ -2247,7 +2247,7 @@ int ImportBanks()
 					rec.get(fldn_region, name);
 					if(name.NotEmptyS()) {
 						char idstr[128];
-						ss.clear();
+						ss.Z();
 						ss.add(ltoa(id, idstr, 10));
 						ss.add(name);
 						region_sc.insert(newStr(ss.getBuf()));

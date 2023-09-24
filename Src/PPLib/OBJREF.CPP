@@ -3107,7 +3107,7 @@ private:
 		PPUhttStoreSelDescr::Entry entry;
 		for(uint i = 0; i < Data.Sd.GetCount(); i++) {
 			if(Data.Sd.GetEntry(i, entry)) {
-				ss.clear();
+				ss.Z();
 				switch(entry.Attr) {
 					case PPUhttStoreSelDescr::attrGroup: PPLoadString("goodsgroup", temp_buf); break;
 					case PPUhttStoreSelDescr::attrBrand: PPLoadString("brand", temp_buf); break;

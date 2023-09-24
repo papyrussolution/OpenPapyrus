@@ -599,7 +599,7 @@ int StringStore2::RestoreState(const char * pFileName)
 		{
 			SignatureList.Z();
 			P_Pb->Saved_SignatureList.Z();
-			ss.clear();
+			ss.Z();
 			ini_file.GetEntries("SignatureList", &ss, 1);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
                 if(item_buf.Divide('=', key_buf, val_buf) > 0) {
@@ -611,7 +611,7 @@ int StringStore2::RestoreState(const char * pFileName)
 		{
 			/*P_Pb->*/GrpSymbList.Z();
 			P_Pb->Saved_GrpSymbList.Z();
-			ss.clear();
+			ss.Z();
 			ini_file.GetEntries("GrpSymbList", &ss, 1);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
                 if(item_buf.Divide('=', key_buf, val_buf) > 0) {
@@ -623,7 +623,7 @@ int StringStore2::RestoreState(const char * pFileName)
 		{
 			P_Pb->StrSymbList.Z();
 			P_Pb->Saved_StrSymbList.Z();
-			ss.clear();
+			ss.Z();
 			ini_file.GetEntries("StrSymbList", &ss, 1);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
                 if(item_buf.Divide('=', key_buf, val_buf) > 0) {

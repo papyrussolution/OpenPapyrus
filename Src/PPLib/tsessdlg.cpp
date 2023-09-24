@@ -483,7 +483,7 @@ void TSessionDialog::selectFreeEntry()
 			SString sub;
 			for(uint i = 0; i < FreeList.getCount(); i++) {
 				const PrcBusy & entry = *static_cast<const PrcBusy *>(FreeList.at(i));
-				ss.clear();
+				ss.Z();
 				ss.add(entry.ToStr(sub.Z()));
 				const long dur = entry.GetDuration();
 				sub.Z();
@@ -724,7 +724,7 @@ private:
 			if(!Data.Ext.GetPlaceDescription(i, item)) {
 				item.Z().Range = "#ERROR";
 			}
-			ss.clear();
+			ss.Z();
 			ss.add(item.Range);
 			ss.add(GetGoodsName(item.GoodsID, temp_buf.Z()));
 			ss.add(item.Descr);

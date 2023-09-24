@@ -664,7 +664,7 @@ const RetailPriceExtractor::ExtQuotBlock * CPosProcessor::GetCStEqbND(bool nodis
 
 void CPosProcessor::MsgToDisp_Clear()
 {
-	MsgToDisp.clear();
+	MsgToDisp.Z();
 }
 
 int CPosProcessor::MsgToDisp_Add(const char * pMsg)
@@ -1524,16 +1524,18 @@ double CPosProcessor::CalcCurrentRest(PPID goodsID, bool checkInputBuffer)
 {
 	const CCheckItem & r_item = P.GetCur();
 	SetupState(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF) ? sLISTSEL_BUF : (P.getCount() ? sLIST_BUF : sEMPTYLIST_BUF));
-	if(calcRest)
-		P.SetRest(CalcCurrentRest(r_item.GoodsID, false/*checkInputBuffer*/));
+	if(calcRest) {
+		// @v11.8.3 Если опции кассового узла не предписывают отображение остатка, то (наверное) и расчитывать не стоит. 
+		// Расчет остатков иногда может быть долгим.
+		P.SetRest((CnFlags & CASHF_SHOWREST) ? CalcCurrentRest(r_item.GoodsID, false/*checkInputBuffer*/) : 0.0);
+	}
 	SetupInfo(0);
 }
 
-int FASTCALL CPosProcessor::BelongToExtCashNode(PPID goodsID) const
+bool FASTCALL CPosProcessor::BelongToExtCashNode(PPID goodsID) const
 {
 	PPID   assoc_id = 0;
-	return BIN(P_GTOA && P_GTOA->Get(goodsID, &assoc_id) > 0 && assoc_id &&
-		assoc_id == (DS.CheckExtFlag(ECF_CHKPAN_USEGDSLOCASSOC) ? ExtCnLocID : ExtCashNodeID));
+	return (P_GTOA && P_GTOA->Get(goodsID, &assoc_id) > 0 && assoc_id && assoc_id == (DS.CheckExtFlag(ECF_CHKPAN_USEGDSLOCASSOC) ? ExtCnLocID : ExtCashNodeID));
 }
 
 PPID FASTCALL CPosProcessor::GetChargeGoodsID(PPID scardID)
@@ -4624,7 +4626,7 @@ IMPL_HANDLE_EVENT(ComplexDinnerDialog)
 					long   focus_pos = 0;
 					for(uint i = 0; i < r_entry.GenericList.getCount(); i++) {
 						const PPID goods_id = r_entry.GenericList.at(i).Key;
-						ss.clear();
+						ss.Z();
 						GetGoodsName(goods_id, temp_buf);
 						ss.add(temp_buf);
 						ss.add(temp_buf.Z().Cat(r_entry.GenericList.at(i).Val, SFMT_MONEY));
@@ -4708,7 +4710,7 @@ int ComplexDinnerDialog::setupList()
 	for(uint i = 0; i < Data.getCount(); i++) {
 		const SaComplexEntry & r_entry = Data.at(i);
 		const PPID goods_id = NZOR(r_entry.FinalGoodsID, r_entry.GoodsID);
-		ss.clear();
+		ss.Z();
 		GetGoodsName(goods_id, temp_buf);
 		ss.add(temp_buf);
 		ss.add(temp_buf.Z().Cat(r_entry.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
@@ -5039,7 +5041,7 @@ private:
 		StringSet  ss(SLBColumnDelim);
 		for(i = 0; i < ChkList.getCount(); i++) {
 			const CCheckViewItem & r_chk_rec = ChkList.at(i);
-			ss.clear();
+			ss.Z();
 			LDATETIME dtm;
 			dtm.Set(r_chk_rec.Dt, r_chk_rec.Tm);
 			if(!(State & stTblOrders)) {
@@ -5157,7 +5159,7 @@ int SelCheckListDialog::SetupItemList()
 						memo_buf = pack.Ext.Memo;
 					StringSet ss(SLBColumnDelim);
 					for(uint i = 0; i < pack.GetCount(); i++) {
-						ss.clear();
+						ss.Z();
 						const  CCheckLineTbl::Rec & cclr = pack.GetLineC(i);
 						double price = intmnytodbl(cclr.Price);
 						double sum = R2(cclr.Quantity * (price - cclr.Dscnt));
@@ -5311,7 +5313,7 @@ private:
 		ListItem * p_item = 0;
 		pListBox->freeAll();
 		for(uint i = 0; pList->enumItems(&i, (void **)&p_item) > 0;) {
-			ss.clear();
+			ss.Z();
 			GetGoodsName(p_item->GoodsID, temp_buf);
 			ss.add(temp_buf);
 			ss.add(temp_buf.Z().Cat(p_item->Price));
@@ -5918,7 +5920,7 @@ private:
 				StringSet ss(SLBColumnDelim);
 				for(uint i = 0; i < Data.getCount(); i++) {
 					const AddrByPhoneItem & r_entry = Data.at(i);
-					ss.clear();
+					ss.Z();
 					sc_list.clear();
 					if(r_entry.ObjType == PPOBJ_LOCATION) {
 						PPLoadStringS("address", temp_buf);
@@ -8430,7 +8432,7 @@ int CheckPaneDialog::RemoveRow()
 		}
 		*/
 		for(i = 0; P.enumItems(&i, (void **)&p_item);) {
-			ss.clear();
+			ss.Z();
 			char   sub[256];
 			ss.add(itoa((int)i, sub, 10));
 			sub[0] = (p_item->Flags & cifIsPrinted) ? 'v' : ' ';
@@ -9041,7 +9043,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 							SString sub;
 							StringSet ss(SLBColumnDelim);
 							for(uint i = 0; i < List.getCount(); i++) {
-								ss.clear();
+								ss.Z();
 								const SaModifEntry & r_entry = List.at(i);
 								GetGoodsName(r_entry.GoodsID, sub);
 								ss.add(sub);
@@ -9893,7 +9895,7 @@ int SCardInfoDialog::setupList()
 			THROW(view.Init_(&flt));
 			for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
 				if(!(item.Flags & CCHKF_SKIP)) {
-					ss.clear();
+					ss.Z();
 					ss.add(temp_buf.Z().Cat(item.Dt));                                // Дата
 					ss.add(temp_buf.Z().Cat(item.Tm));                                // Время //
 					ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
@@ -9915,7 +9917,7 @@ int SCardInfoDialog::setupList()
 			THROW(view.Init_(&flt));
 			view.InitIteration();
 			for(uint i = 1; view.NextIteration(&item) > 0; i++) {
-				ss.clear();
+				ss.Z();
 				ss.add(temp_buf.Z().Cat(item.Dt)); // Дата
 				ss.add(temp_buf.Z().Cat(item.Tm)); // Время //
 				if(item.Flags & SCARDOPF_FREEZING) {
@@ -9937,7 +9939,7 @@ int SCardInfoDialog::setupList()
 		for(uint i = 0; i < OwnerList.getCount(); i++) {
 			LDATE  expiry;
 			PPID   card_id = OwnerList.Get(i, person_name, card_code, ser_name, expiry);
-			ss.clear();
+			ss.Z();
 			ss.add(person_name);
 			ss.add(card_code);
 			ss.add(ser_name);
@@ -9952,7 +9954,7 @@ int SCardInfoDialog::setupList()
 		for(uint i = 0; i < OwnerList.getCount(); i++) {
 			double rest = 0.0, amount = 0.0;
 			PPID card_id = OwnerList.Get(i, card_code, ser_name, &rest, &amount);
-			ss.clear();
+			ss.Z();
 			ss.add(card_code);
 			ss.add(ser_name);
 			ss.add(temp_buf.Z().Cat(rest, MKSFMTD(0, 2, NMBF_NOZERO)));

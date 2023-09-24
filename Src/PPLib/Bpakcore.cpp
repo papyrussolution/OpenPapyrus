@@ -1213,7 +1213,7 @@ int PPLotExtCodeContainer::MarkSet::GetByBoxID(long boxId, StringSet & rSs) cons
 {
 	int    ok = 1;
 	SString temp_buf;
-	rSs.clear();
+	rSs.Z();
 	for(uint i = 0; i < L.getCount(); i++) {
 		const InnerEntry & r_entry = L.at(i);
 		if(!(r_entry.Flags & fBox) && r_entry.BoxID == boxId) {

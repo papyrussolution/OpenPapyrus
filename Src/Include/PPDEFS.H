@@ -5707,6 +5707,8 @@
 	#define CTL_GFLTADVOPT_FLAGS         (10 + WINDOWS_ID_BIAS)
 	#define CTL_GFLTADVOPT_SNEXP         (11 + WINDOWS_ID_BIAS) // @v11.6.2 f2SoonExpiredOnly
 	#define CTL_GFLTADVOPT_AHEXPD        (12 + WINDOWS_ID_BIAS) // @v11.6.2 AheadExpiryDays
+	#define CTL_GFLTADVOPT_IDRNG         (13 + WINDOWS_ID_BIAS) // @v11.8.3 IdRange
+	#define CTL_GFLTADVOPT_GRPCRNG       (14 + WINDOWS_ID_BIAS) // @v11.8.3 GrpCountRange
 //                                516 // Occupied (DLG_BILLEXTFLT)
 #define DLG_OPRDRAFT              517 // Вид драфт-операции
 	// CTL[SEL]_OPRKIND_XXX

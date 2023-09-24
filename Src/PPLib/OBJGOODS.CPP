@@ -2537,6 +2537,9 @@ int PPObjGoods::GetManufCountry(PPID goodsID, const Goods2Tbl::Rec * pRec, PPID 
 
 int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 {
+	// @v11.8.3 по поводу pFilt->GrpCountRange: этот критерий здесь не проверить, поскольку требуется специально подготовленный список
+	// с количеством товаров в разных группах. Отбор по этому критерию осуществляется на более высоком уровне (GoodsIterator)
+	// 
 	#define CFF_RET  return negation ? 1 : 0
 
 	if(pFilt->IsEmpty())
@@ -2569,6 +2572,8 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 	if(pFilt->Flags & GoodsFilt::fUseIndepWtOnly && !(rec.Flags & GF_USEINDEPWT))
 		CFF_RET;
 	if(pFilt->ManufID && pFilt->ManufID != rec.ManufID)
+		CFF_RET;
+	if(!pFilt->IdRange.CheckVal(rec.ID)) // @v11.8.3
 		CFF_RET;
 	if(pFilt->Flags & GoodsFilt::fWoBrand) { // @v10.6.8
 		if(rec.BrandID)

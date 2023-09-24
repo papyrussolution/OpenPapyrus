@@ -180,7 +180,7 @@ int RightsDialog::setupList()
 	}
 	temp_list.SortByText();
 	for(i = 0; i < temp_list.getCount(); i++) {
-		ss.clear();
+		ss.Z();
 		StrAssocArray::Item entry = temp_list.Get(i);
 		ObjRights * p_obj_rt = Data.GetObjRights(entry.Id, 1);
 		THROW(p_obj_rt);

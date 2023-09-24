@@ -396,8 +396,7 @@ void SdRecord::Init()
 	IsDataBufOwner = 0;
 	OuterDataBufSize = 0;
 	Items.freeAll();
-	StringPool.clear();
-	StringPool.add("$."); // Zero position is invalid
+	StringPool.Z().add("$."); // Zero position is invalid
 }
 
 SdRecord::SdRecord(long flags) : Items(sizeof(F))

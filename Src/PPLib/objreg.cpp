@@ -550,7 +550,7 @@ private:
 		for(uint i = 0; i < P_Data->getCount(); i++) {
 			const RegisterTbl::Rec & r_reg_rec = P_Data->at(i);
 			if(r_reg_rec.RegTypeID != PPREGT_BANKACCOUNT) {
-				ss.clear();
+				ss.Z();
 				if(rt_obj.Fetch(r_reg_rec.RegTypeID, &rtrec) <= 0)
 					ltoa(r_reg_rec.RegTypeID, rtrec.Name, 10);
 				ss.add(rtrec.Name);
@@ -775,7 +775,7 @@ private:
 			const RegisterTbl::Rec & r_reg_rec = P_Data->at(i);
 			if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
 				PPBankAccount ba(r_reg_rec);
-				ss.clear();
+				ss.Z();
 				sub.Z();
 				GetPersonName(ba.BankID, sub);
 				ss.add(sub);

@@ -3142,7 +3142,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		//
 		IPapyrusAmountList * GetAmountList();
 		//
-		// Descr: Возвращает список документов заказов
+		// Descr: Возвращает список документов заказов, к которым привязан данный пакет
 		//
 		IStrAssocList * GetOrderList();
 		//
@@ -3169,6 +3169,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		// Descr: Устанавливает значение тега для строки
 		//
 		int    PutRowTagValue(in long tagID, in long rowIdx, in string rValue);
+		//int    GetOrderItem(in IPapyrusBillPacket * pOrderPacket, in SPpyO_TrfrItem * pItem, out SPpyO_TrfrItem * pOrderItem); // @v11.8.3
 	}
 
 	struct SDebtBlock {

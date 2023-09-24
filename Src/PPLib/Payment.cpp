@@ -1119,7 +1119,7 @@ int CfmReckoningDialog::updateList()
 		for(uint i = 0; i < Data.P_BillList->getCount(); i++) {
 			BillTbl::Rec bill_rec;
 			PPID   bill_id = Data.P_BillList->at(i);
-			ss.clear();
+			ss.Z();
 			if(P_BObj->Fetch(bill_id, &bill_rec) > 0) {
 				double amt = BR2(bill_rec.Amount);
 				double paym;

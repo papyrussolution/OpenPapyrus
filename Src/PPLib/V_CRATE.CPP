@@ -337,7 +337,7 @@ void SelCRateDialog::updateList()
 	CRV.Init_(&Filt);
 	for(CRV.InitIteration(); CRV.NextIteration(&item) > 0;) {
 		char   sub[64];
-		ss.clear();
+		ss.Z();
 		ss.add(datefmt(&item.Dt, MKSFMT(0, DATF_DMY|DATF_CENTURY), sub));
 		ss.add(realfmt(item.Rate, MKSFMTD(0, 4, 0), sub));
 		if(!P_List->addItem(item.Dt, ss.getBuf())) {

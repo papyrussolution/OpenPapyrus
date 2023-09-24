@@ -247,7 +247,7 @@ int DlFuncPool::GetByPos(uint pos, DlFunc * pF) const
 			pF->ArgNamList.setBuf(pF->Name, pF->Name.Len()+1);
 		}
 		else
-			pF->ArgNamList.clear();
+			pF->ArgNamList.Z();
 		NamePool.get(f.NamePos, pF->Name);
 		pF->TypID = f.TypID;
 		pF->Flags = f.Flags;

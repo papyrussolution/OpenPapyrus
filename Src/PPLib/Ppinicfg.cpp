@@ -175,7 +175,7 @@ int PPIniFile::UpdateFromFile(const char * pSrcFileName)
 		SString sect_buf, entry_buf, val_buf;
 		THROW_SL(src_ini.GetSections(&sect_set));
 		for(uint sp = 0; sect_set.get(&sp, sect_buf);) {
-			entry_set.clear();
+			entry_set.Z();
 			THROW(src_ini.GetEntries(sect_buf, &entry_set, 0));
 			for(uint ep = 0; entry_set.get(&ep, entry_buf);) {
 				src_ini.GetParam(sect_buf, entry_buf, val_buf);
@@ -341,7 +341,7 @@ int PPConfigDatabase::AddStringHistory(const char * pKey, const char * pTextUtf8
 
 int PPConfigDatabase::GetRecentStringHistory(const char * pKey, uint maxItems, StringSet & rList)
 {
-	rList.clear();
+	rList.Z();
 	int    ok = 0;
 	SString key;
 	StringHistoryPool * p_pool = 0;
@@ -369,7 +369,7 @@ int PPConfigDatabase::GetRecentStringHistory(const char * pKey, uint maxItems, S
 
 int PPConfigDatabase::GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList)
 {
-	rList.clear();
+	rList.Z();
 	int    ok = 0;
 	SString key;
 	StringHistoryPool * p_pool = 0;
@@ -702,7 +702,7 @@ static IMPL_CMPFUNC(StringHistoryPool_EntryIndex, p1, p2)
 int PPConfigDatabase::StringHistoryPool::GetRecent(uint maxItems, StringSet & rList) const
 {
 	int    ok = 0;
-	rList.clear();
+	rList.Z();
 	if(maxItems > 0 && L.getCount()) {
 		LongArray pos_list;
 		SString temp_buf;
@@ -724,7 +724,7 @@ int PPConfigDatabase::StringHistoryPool::GetRecent(uint maxItems, StringSet & rL
 int PPConfigDatabase::StringHistoryPool::Get(const char * pSubUtf8, long flags, StringSet & rList) const
 {
 	int   ok = 0;
-	rList.clear();
+	rList.Z();
 	LongArray pos_list;
 	SString text_buf(pSubUtf8);
 	text_buf.Strip();

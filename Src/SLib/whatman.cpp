@@ -2137,8 +2137,7 @@ TWhatmanToolArray::~TWhatmanToolArray()
 
 TWhatmanToolArray & TWhatmanToolArray::Z()
 {
-	Pool.clear();
-	Pool.add("$");
+	Pool.Z().add("$");
 	SymbP = 0;
 	TextP = 0;
 	FileP = 0;

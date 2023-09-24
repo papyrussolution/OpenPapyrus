@@ -312,7 +312,7 @@ private:
 		for(uint i = 0; i < Data.SupplSubstList.getCount(); i++) {
 			const PUGL::SupplSubstItem & r_item = Data.SupplSubstList.at(i);
 			if(r_item.Position == PuglPos) {
-				ss.clear();
+				ss.Z();
 				GetArticleName(r_item.SupplID, sub);
 				ss.add(sub);
 				ss.add(r_item.QttyToStr(sub));
@@ -535,7 +535,7 @@ int PuglDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	SString sub;
 	for(uint i = 0; Data.enumItems(&i, (void **)&p_item);) {
-		ss.clear();
+		ss.Z();
 		GetGoodsName(p_item->GoodsID, sub);
 		ss.add(sub);
 		ss.add(sub.Z().Cat(p_item->NeededQty,  fmt));

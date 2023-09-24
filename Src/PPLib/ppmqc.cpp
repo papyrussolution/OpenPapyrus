@@ -616,7 +616,7 @@ int PPMqbClient::Publish(const char * pExchangeName, const char * pRoutingKey, c
 				local_props.headers.entries = p_amqp_tbl_entries;
 				local_props.headers.num_entries = pProps->Headers.getCount();
 				for(uint pidx = 0; pidx < pProps->Headers.getCount(); pidx++) {
-					StrStrAssocArray::Item pitem = pProps->Headers.at(pidx);
+					SStrToStrAssoc pitem = pProps->Headers.at(pidx);
 					p_amqp_tbl_entries[pidx].key = amqp_cstring_bytes(pitem.Key);
 					p_amqp_tbl_entries[pidx].value.kind = AMQP_FIELD_KIND_UTF8; // AMQP_FIELD_KIND_BYTES
 					p_amqp_tbl_entries[pidx].value.value.bytes = amqp_cstring_bytes(pitem.Val);

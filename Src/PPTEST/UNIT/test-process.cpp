@@ -480,7 +480,8 @@ SLTEST_R(SlProcess)
 	}
 	//
 	SLCHECK_NZ(ac.Create("Test-App-Container-2"));
-	//SLCHECK_NZ(ac.AllowPath(path_in, 0));
+	SLCHECK_NZ(ac.AllowPath(path_in, 0));
+	SLCHECK_NZ(ac.AllowPath(working_dir, 0));
 	{
 		/*
 			MACHINE\Software\Papyrus

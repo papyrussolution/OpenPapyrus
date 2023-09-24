@@ -13917,6 +13917,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsfilt_viewoptions                    "Опции просмотра товаров" // generic
 @goodsfilt_viewoptions_ar                 "Опции просмотра артикулов" // generic
 @goodsfilt_aheadexpirydays                "Сколько дней до истечения срока годности?"
+@goodsfilt_idrange                        "Диапазон идентификаторов"
+@goodsfilt_grpcountrange                  "Диапазон мощности групп"
+
 @goodssorting                             "Сортировка товаров"
 
 @brandfilt                                "Фильтр по брендам"

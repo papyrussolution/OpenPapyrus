@@ -1133,7 +1133,7 @@ int InventoryConversion::Run(PPID billID)
 				}
 				if(is_inv_exists || (!is_asset && invOpEx.Flags & INVOPF_ZERODEFAULT)) {
 					uint j;
-					excl_serial.clear();
+					excl_serial.Z();
 					for(j = 0; j < inv_list.getCount(); j++) {
 						if(inv_list.at(j).Serial[0] != 0)
 							excl_serial.add(inv_list.at(j).Serial);

@@ -2714,7 +2714,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 				char   cshr_rights[20];
 				PPID   psn_id = 0;
 				PPPersonPacket psn_pack;
-				ss.clear();
+				ss.Z();
 				by_name_ary.clear();
 				by_num_ary.clear();
 				ss.add(buf);
@@ -4236,7 +4236,7 @@ int ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 					Options |= oSeparateReports;
 			}
 		}
-		SeparatedFileSet.clear();
+		SeparatedFileSet.Z();
 		if(Options & oSeparateReports) {
 			PPGetSubStr(PPTXT_SETRETAIL_PARAM, SETR_PARAM_SEPARATEPATH, sect_name);
 			for(uint i = 0; i < LogNumList.getCount(); i++) {

@@ -1031,8 +1031,8 @@ private:
 int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, long flags)
 {
 	int    ok = 1;
-	int    skip_passive = 0;
-	int    skip_generic = 0; // @v10.7.7
+	bool   skip_passive = false;
+	bool   skip_generic = false; // @v10.7.7
 	PPIDArray * p_list = 0;
 	StrAssocArray * p_str_list = 0;
 	SString pattern;
@@ -1043,17 +1043,17 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 		p_list = static_cast<PPIDArray *>(pList);
 	if(flags & glsfDefPassive) {
 		PPObjGoods goods_obj;
-		skip_passive = BIN(goods_obj.GetConfig().Flags & GCF_DONTSELPASSIVE);
+		skip_passive = LOGIC(goods_obj.GetConfig().Flags & GCF_DONTSELPASSIVE);
 	}
 	else if(flags & glsfSkipPassive)
-		skip_passive = 1;
+		skip_passive = true;
 	// @v10.7.7 {
 	if(flags & glsfDefGeneric) {
 		//PPObjGoods goods_obj;
 		//skip_generic = BIN(goods_obj.GetConfig().Flags & GCF_DONTSELPASSIVE);
 	}
 	else if(flags & glsfSkipGeneric)
-		skip_generic = 1;
+		skip_generic = true;
 	// } @v10.7.7 
 	const StrAssocArray * p_full_list = GetFullList();
 	if(p_full_list) {
@@ -2649,15 +2649,22 @@ private:
 	//
 	class FglArray : public StrAssocArray {
 	public:
-		FglArray(int use) : StrAssocArray(), Use(use), Inited(0)
+		FglArray(bool use) : StrAssocArray(), Use(use), Inited(false)
 		{
 		}
 		void   FASTCALL Dirty(PPID goodsID)
 		{
 			DirtyTable.Add((uint32)labs(goodsID));
 		}
-		int    Use;
-		int    Inited;
+		void   Reset()
+		{
+			DirtyTable.Clear();
+			StrAssocArray::Z();
+			Inited = false;
+		}
+
+		const  bool Use;
+		bool   Inited;
 		UintHashTable DirtyTable;
 	};
 	FglArray FullGoodsList;
@@ -2884,7 +2891,7 @@ void GoodsCache::ResetFullList()
 {
 	{
 		SRWLOCKER(FglLock, SReadWriteLocker::Write);
-		FullGoodsList.Inited = 0;
+		FullGoodsList.Inited = false;
 		FullGoodsList.DirtyTable.Clear();
 	}
 }
@@ -2946,7 +2953,7 @@ const StrAssocArray * GoodsCache::GetFullList()
 				}
 				if(!err) {
 					FullGoodsList.DirtyTable.Clear();
-					FullGoodsList.Inited = 1;
+					FullGoodsList.Inited = true;
 				}
 			}
 		}

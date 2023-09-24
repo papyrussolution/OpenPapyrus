@@ -2374,7 +2374,7 @@ int PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, 
 						if(list.GetItem(i, entry)) {
 							NGID   ngram_id = 0;
 							ngram.clear();
-							name_ss.clear();
+							name_ss.Z();
 							entry.Name.Tokenize(" ", name_ss);
 							for(uint nssp = 0; name_ss.get(&nssp, temp_buf);) {
 								LEXID  word_id = 0;
@@ -2638,7 +2638,7 @@ int PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 		}
 		f_in.Seek(0);
 		for(uint line_no = 1; f_in.ReadLine(line_buf, SFile::rlfChomp); line_no++) {
-			ss.clear();
+			ss.Z();
 			ss.setBuf(line_buf);
 			if(line_no == 1) { // Строка заголовков
 				THROW(ss.getCount() >= 31); // Проверка на то, что это - наш файл
@@ -2776,7 +2776,7 @@ int PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 				else if(_phase == phase1) {
 					if(cid_instance_of) {
 						LEXID  clex_id = 0;
-						name_ss.clear();
+						name_ss.Z();
 						name_buf.Tokenize(" ", name_ss);
 						for(uint nssp = 0; name_ss.get(&nssp, temp_buf);) {
 							LEXID  word_id = 0;
@@ -2817,7 +2817,7 @@ int PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 						else
 							parent_concept_symb_buf.Z();
 						ngram.clear();
-						name_ss.clear();
+						name_ss.Z();
 						name_buf.Tokenize(" ", name_ss);
 						for(uint nssp = 0; name_ss.get(&nssp, temp_buf);) {
 							LEXID  word_id = 0;
@@ -3764,7 +3764,7 @@ int PrcssrSartre::TestConcept()
 			if(line_buf.NotEmpty()) {
 				temp_buf = line_buf;
 				line_buf.Z().Cat(temp_buf).CR();
-				tok_list.clear();
+				tok_list.Z();
 				temp_buf.Tokenize(0, tok_list);
 				int    unkn_word = 0;
 				ng.clear();
@@ -5393,7 +5393,7 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 					for(uint ln = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); ln++) {
 						if(ln > 0) {
 							// lang;id;value
-							ss.clear();
+							ss.Z();
 							ss.setBuf(line_buf);
 							for(uint fldidx = 1, ssp = 0; ss.get(&ssp, temp_buf); fldidx++) {
 								temp_buf.Strip();
@@ -5552,7 +5552,7 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 						for(uint ln = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); ln++) {
 							if(ln > 0) {
 								// lang;id;value
-								ss.clear();
+								ss.Z();
 								ss.setBuf(line_buf);
 								lang_buf.Z();
 								id_buf.Z();

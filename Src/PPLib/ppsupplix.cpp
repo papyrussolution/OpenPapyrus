@@ -2678,7 +2678,7 @@ int iSalesPepsi::ParseResultString(const char * pText, TSCollection <iSalesPepsi
 		ss.setBuf(pText, sstrlen(pText)+1);
 		SString temp_buf, sub_buf;
 		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-			ss_sub.clear();
+			ss_sub.Z();
 			ss_sub.setBuf(temp_buf, temp_buf.Len()+1);
 			uint ssip = 0;
 			if(ss_sub.get(&ssip, temp_buf)) {

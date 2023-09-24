@@ -1171,6 +1171,7 @@ struct SJson;
 struct SDataMoveProgressInfo;
 class  SImageBuffer;
 class  SFileEntryPool;
+class  SaIndex; // @v11.8.3
 struct _finddatai64_t;
 struct _cairo;
 struct cairo_pattern_t;
@@ -2546,7 +2547,7 @@ private:
 class S_GUID_Base { // @persistent @noctr @size=16
 public:
 	S_GUID_Base & FASTCALL Init(REFIID);
-	operator GUID & ();
+	operator const GUID & () const;
 	enum {
 		fmtIDL = 0,
 		fmtC = 1,
@@ -4340,6 +4341,7 @@ public:
 	SString & PadLeft(size_t n, int pad);
 	SString & Align(size_t width, int adj);
 	SString & Chomp();
+	SString & SetLastCR(SEOLFormat eolf);
 	SString & Quot(int leftQuotChar, int rightQuotChar);
 	SString & ReplaceChar(int patternChr, int replaceChr);
 	//
@@ -4637,6 +4639,7 @@ private:
 	//
 	size_t FASTCALL CharToQp(char c);
 	bool   Helper_IsEqiAscii(const char * pS, size_t slen) const;
+	uint   Helper_Chomp(bool single);
 
 	size_t L;     // @firstmember Длина строки вместе с завершающим нулем
 	size_t Size;  // Размер распределенного буфера
@@ -4806,7 +4809,7 @@ public:
 	// Note: Следует использовать при необходимости повторного использования объекта
 	//   (распределенный ранее буфер улучшит производительность).
 	//
-	void   clear(/*int dontFreeBuf = 0*/);
+	// @v11.8.3 void   clear(/*int dontFreeBuf = 0*/);
 	//
 	// Descr: Функционально идентична clear(), семантически же, соответствует SString::Z()
 	//   (не освобождает память и возвращает *this)
@@ -4912,7 +4915,12 @@ public:
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    Write(SFile & rFile, long) const;
 	int    Read(SFile & rFile, long);
-protected:
+	//
+	// @v11.8.3 @experimental
+	// Descr: Строи суффиксный массив по набора для быстрого поиска подстроки.
+	//
+	int    BuildSa();
+private: // @v11.8.3
 	int    Init(const char * pDelim, size_t prealloc);
 	int    FASTCALL Alloc(size_t sz);
 
@@ -4920,6 +4928,7 @@ protected:
 	size_t Size;    // @#{BufLen>=DataLen} Length of buffer
 	char * P_Buf;
 	char   Delim[12];
+	SaIndex * P_SaIdx; // @v11.8.3
 };
 //
 //
@@ -5979,145 +5988,6 @@ struct ExecVDosParam {
 };
 
 int ExecVDos(const ExecVDosParam & rParam);
-//
-//
-//
-struct SDirEntry { // @flat
-	SDirEntry();
-	SDirEntry & FASTCALL operator = (const _wfinddatai64_t & rS);
-	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAA & rS);
-	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAW & rS);
-	SString & GetNameUtf8(SString & rBuf) const;
-	SString & GetNameA(SString & rBuf) const;
-	SString & GetNameUtf8(const char * pPath, SString & rBuf) const;
-	SString & GetNameA(const char * pPath, SString & rBuf) const;
-	//
-	// Descr: Возвращает !0 если является каталогом
-	//
-	bool   IsFolder() const;
-	//
-	// Descr: Возвращает !0 если является ссылкой на каталог верхнего уровня ("..")
-	//
-	bool   IsUpFolder() const;
-	//
-	// Descr: Возвращает !0 если является ссылкой на текущий каталог (".")
-	//
-	bool   IsSelf() const;
-	//
-	// Descr: Возвращает !0 если является файлом (== (!IsFolder() && !IsUpFolder() && !IsSelf()))
-	//
-	bool   IsFile() const;
-
-	enum {
-		attrRdOnly = 0x00000001, // dos/win _A_RDONLY
-		attrHidden = 0x00000002, // dos/win _A_HIDDEN
-		attrSystem = 0x00000004, // dos/win _A_SYSTEM
-		attrSubdir = 0x00000010, // dos/win _A_SUBDIR / unix attr 'd'
-		attrArch   = 0x00000020, // dos/win _A_ARCH
-		//
-		// Следующие 9 флагов имеют внутренние значения не сопоставленные с иными стандартами или канонизациями.
-		//
-		attrOwpR   = 0x00010000, // unix owner permission Read
-		attrOwpW   = 0x00020000, // unix owner permission Write
-		attrOwpX   = 0x00040000, // unix owner permission Execute
-		attrGrpR   = 0x00080000, // unix group permission Read
-		attrGrpW   = 0x00100000, // unix group permission Write
-		attrGrpX   = 0x00200000, // unix group permission Execute
-		attrUsrR   = 0x00400000, // unix user permission Read
-		attrUsrW   = 0x00800000, // unix user permission Write
-		attrUsrX   = 0x01000000, // unix user permission Execute
-	};
-
-	uint32 Attr;
-	LDATETIME CreateTime;
-	LDATETIME AccessTime;
-	LDATETIME WriteTime;
-	int64  Size;
-	//char   FileName[1024];
-	wchar_t Name[1024]; // @v11.6.0 char-->wchar_t
-};
-
-class SDirec {
-public:
-	static int GetSingle(const char * pPath, SDirEntry * pEntry);
-	SDirec();
-	explicit SDirec(const char * pathname, int enumDirs = 0);
-	~SDirec();
-	int    Init(const char * pathname, int enumDirs = 0);
-	int    FASTCALL Next(SDirEntry *);
-private:
-	int    FindFirst();
-	int    FindNext();
-	int    FindClose();
-
-	wchar_t InitPath[ALIGNSIZE(MAX_PATH, 2)]; // @v10.8.0 MAX_PATH-->ALIGNSIZE(MAX_PATH, 2) // @v11.6.0 char-->wchar_t
-	int    InitFlag;
-	int    EnumDir;
-	long   lPosData;
-	void * vPosData;
-	size_t PosDataSize;
-	SDirEntry CurEntry;
-};
-
-int    GetFileStat(const char * pFileName, SDirEntry * pEntry);
-int    RemoveDir(const char * pDir);
-
-struct SFindFileParam {
-	SFindFileParam();
-	SFindFileParam(const char * pInitPath, const char * pFileNamePattern);
-	uint   Flags;
-	SString InitPath;
-	SString FileNamePattern;
-	SString ContentPattern;
-};
-
-int    SFindFile2(const SFindFileParam & rP, SFileEntryPool & rResult);
-//
-// Descr: Класс, реализующий функцию поиска файла (каталога) по шаблону.
-//   Осуществляет рекурсивный поиск файла по шаблону P_FileName, начиная с
-//   каталога P_Path.
-//   Для определения действий над найденными файлами следует реализовать
-//   виртуальную функцию CallbackProc.
-//
-class SFindFile {
-public:
-	SFindFile(const char * pPath = 0, const char * pFileName = 0);
-	//
-	// Descr: Запускает механизм поиска. Предварительно должны быть инициализированы
-	//   необходимые поля.
-	//
-	int    Run();
-protected:
-	//
-	// Descr: вызывается на каждый найденный по заданным условиям файл, а также
-	//   для всех каталогов, вложенных в стартовый каталог P_Path.
-	//   Для каталогов поле pEntry->FileName[0] == 0.
-	// Returns:
-	//   !0 - метод Run должен продолжать работу
-	//   0 - метод Run следует остановить. В этом случае Run() вернет 0.
-	//
-	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
-	const  char * P_Path;     // @#{vptr}
-	//const  char * P_FileName; // @#{vptr0}
-	//const  char * P_SubStr;   // reserved
-	SString FileNamePattern;
-	SString SubStr;           // reserved
-	uint   Flags;
-	uint   State;
-	long   DirCount;          // Увеличивается на единицу для каждого найденного подкаталога
-	long   FileCount;         // Увеличивается на единицу для каждого найденного файла,
-		// соответствующего шаблону PFileName
-	friend int Helper_SFindFile(const SString * pPath, SFindFile * pParam);
-};
-
-class SFindFile_ToPool : public SFindFile { // @v11.8.1
-public:
-	SFindFile_ToPool(const char * pPath = 0, const char * pFileName = 0);
-	int    Run(SFileEntryPool & rResult);
-private:
-	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
-	SFileEntryPool * P_UserContainer;
-};
 //
 // Memory manipulation functions
 //
@@ -8574,14 +8444,21 @@ class SaIndex {
 	static IMPL_CMPFUNC(SaIndexEntry, pSaIdx, pPattern);
 public:
 	SaIndex();
-	SaIndex(const char * pText, size_t textLen);
 	~SaIndex();
+	bool   SetText(const char * pText, size_t textLen);
+	bool   SetTextOuter(char * pText, size_t textLen);
 	int    Build();
 	uint   Search_fallback(const char * pPattern, LongArray * pPosList) const;
 	uint   Search(const char * pPattern, LongArray * pPosList) const;
-
+	//
+	// Descr: Меняет регистр всех символов приватного члена Text на строчные 
+	//   в предположении, что кодировка Text - utf8.
+	//
+	bool   Utf8ToLower();
+private:
 	SString Text;
 	TSVector <int32> Sa; // suffix array  
+	SBaseBuffer OuterText; // @v11.8.3 
 };
 //
 // Descr: Шаблон для револьверных структур, обеспечивающих повторное использование
@@ -9089,6 +8966,13 @@ public:
 	void   SortByY();
 };
 //
+// Descr: Вспомогательная структура для построения контейнеров, хранящих ассоциации uint64-->GUID
+// 
+struct U64UUIDAssoc {
+	uint64 Key;
+	S_GUID Val;
+};
+//
 //
 //
 struct UUIDAssoc {
@@ -9361,6 +9245,11 @@ public:
 	int    FASTCALL Read(SBuffer & rBuf, long o);
 	int    Write(SFile & rFile, long) const;
 	int    Read(SFile & rFile, long);
+	//
+	// @v11.8.3 @construction
+	// Descr: Строит суффиксный массив для быстрого поиска строк.
+	//
+	int    BuildSaIndex();
 	// @v10.7.11 int    Test_Cmp(const TaggedStringArray_obsolete &, int * pNEqPos) const;
 	static int Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer); // @reallyprivate
 protected:
@@ -9374,12 +9263,17 @@ private:
 //
 //
 //
+struct SStrToStrAssoc { // @noctr
+	const  char * Key;
+	const  char * Val;
+};
+
 class StrStrAssocArray : public SStrGroup {
 public:
-	struct Item {
+	/*struct Item {
 		const  char * Key;
 		const  char * Val;
-	};
+	};*/
 	StrStrAssocArray();
 	StrStrAssocArray(const StrStrAssocArray & rS);
 	StrStrAssocArray & FASTCALL operator = (const StrStrAssocArray &);
@@ -9387,7 +9281,7 @@ public:
 	StrStrAssocArray & Z();
 	bool   FASTCALL IsEq(const StrStrAssocArray & src) const;
 	uint   getCount() const;
-	Item   FASTCALL at(uint pos) const;
+	SStrToStrAssoc FASTCALL at(uint pos) const;
 	int    Search(const char * pKey, SString * pVal, uint * pPos) const;
 	int    Add(const char * pKey, const char * pVal, int replaceDup = 1);
 	int    Remove(const char * pKey);
@@ -9525,6 +9419,158 @@ private:
 	static int Helper_CmpFunc_ByText(const void * p1, const void * p2, const StrAssocTree * pArray);
 	friend DECL_CMPFUNC(StrAssocTreeEntry_ByText);
 	bool   FASTCALL ValidateEntryHandle(const SPtrHandle h) const;
+};
+//
+//
+//
+struct SDirEntry { // @flat
+	SDirEntry();
+	SDirEntry & FASTCALL operator = (const _wfinddatai64_t & rS);
+	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAA & rS);
+	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAW & rS);
+	SString & GetNameUtf8(SString & rBuf) const;
+	SString & GetNameA(SString & rBuf) const;
+	SString & GetNameUtf8(const char * pPath, SString & rBuf) const;
+	SString & GetNameA(const char * pPath, SString & rBuf) const;
+	//
+	// Descr: Возвращает !0 если является каталогом
+	//
+	bool   IsFolder() const;
+	//
+	// Descr: Возвращает !0 если является ссылкой на каталог верхнего уровня ("..")
+	//
+	bool   IsUpFolder() const;
+	//
+	// Descr: Возвращает !0 если является ссылкой на текущий каталог (".")
+	//
+	bool   IsSelf() const;
+	//
+	// Descr: Возвращает !0 если является файлом (== (!IsFolder() && !IsUpFolder() && !IsSelf()))
+	//
+	bool   IsFile() const;
+
+	enum {
+		attrRdOnly = 0x00000001, // dos/win _A_RDONLY
+		attrHidden = 0x00000002, // dos/win _A_HIDDEN
+		attrSystem = 0x00000004, // dos/win _A_SYSTEM
+		attrSubdir = 0x00000010, // dos/win _A_SUBDIR / unix attr 'd'
+		attrArch   = 0x00000020, // dos/win _A_ARCH
+		//
+		// Следующие 9 флагов имеют внутренние значения не сопоставленные с иными стандартами или канонизациями.
+		//
+		attrOwpR   = 0x00010000, // unix owner permission Read
+		attrOwpW   = 0x00020000, // unix owner permission Write
+		attrOwpX   = 0x00040000, // unix owner permission Execute
+		attrGrpR   = 0x00080000, // unix group permission Read
+		attrGrpW   = 0x00100000, // unix group permission Write
+		attrGrpX   = 0x00200000, // unix group permission Execute
+		attrUsrR   = 0x00400000, // unix user permission Read
+		attrUsrW   = 0x00800000, // unix user permission Write
+		attrUsrX   = 0x01000000, // unix user permission Execute
+	};
+
+	uint32 Attr;
+	LDATETIME CreateTime;
+	LDATETIME AccessTime;
+	LDATETIME WriteTime;
+	int64  Size;
+	//char   FileName[1024];
+	wchar_t Name[1024]; // @v11.6.0 char-->wchar_t
+};
+
+class SDirec {
+public:
+	static int GetSingle(const char * pPath, SDirEntry * pEntry);
+	SDirec();
+	explicit SDirec(const char * pathname, int enumDirs = 0);
+	~SDirec();
+	int    Init(const char * pathname, int enumDirs = 0);
+	int    FASTCALL Next(SDirEntry *);
+private:
+	int    FindFirst();
+	int    FindNext();
+	int    FindClose();
+
+	wchar_t InitPath[ALIGNSIZE(MAX_PATH, 2)]; // @v10.8.0 MAX_PATH-->ALIGNSIZE(MAX_PATH, 2) // @v11.6.0 char-->wchar_t
+	int    InitFlag;
+	int    EnumDir;
+	long   lPosData;
+	void * vPosData;
+	size_t PosDataSize;
+	SDirEntry CurEntry;
+};
+
+int    GetFileStat(const char * pFileName, SDirEntry * pEntry);
+int    RemoveDir(const char * pDir);
+int    GetKnownFolderPath(uint64 uedFolderId, SString & rPath);
+
+struct SKnownFolderEntry {
+	uint64 UED;
+	S_GUID Guid;
+	SString PathUtf8;
+	int    Result;
+};
+//
+// Descr: Заполняет список известных путей. 
+// Note: Функция сделана в отладочных целях.
+//
+int   GetKnownFolderList(TSCollection <SKnownFolderEntry> & rList);
+
+struct SFindFileParam {
+	SFindFileParam();
+	SFindFileParam(const char * pInitPath, const char * pFileNamePattern);
+	uint   Flags;
+	SString InitPath;
+	SString FileNamePattern;
+	SString ContentPattern;
+};
+
+int    SFindFile2(const SFindFileParam & rP, SFileEntryPool & rResult);
+//
+// Descr: Класс, реализующий функцию поиска файла (каталога) по шаблону.
+//   Осуществляет рекурсивный поиск файла по шаблону P_FileName, начиная с
+//   каталога P_Path.
+//   Для определения действий над найденными файлами следует реализовать
+//   виртуальную функцию CallbackProc.
+//
+class SFindFile {
+public:
+	SFindFile(const char * pPath = 0, const char * pFileName = 0);
+	//
+	// Descr: Запускает механизм поиска. Предварительно должны быть инициализированы
+	//   необходимые поля.
+	//
+	int    Run();
+protected:
+	//
+	// Descr: вызывается на каждый найденный по заданным условиям файл, а также
+	//   для всех каталогов, вложенных в стартовый каталог P_Path.
+	//   Для каталогов поле pEntry->FileName[0] == 0.
+	// Returns:
+	//   !0 - метод Run должен продолжать работу
+	//   0 - метод Run следует остановить. В этом случае Run() вернет 0.
+	//
+	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
+	const  char * P_Path;     // @#{vptr}
+	//const  char * P_FileName; // @#{vptr0}
+	//const  char * P_SubStr;   // reserved
+	SString FileNamePattern;
+	SString SubStr;           // reserved
+	uint   Flags;
+	uint   State;
+	long   DirCount;          // Увеличивается на единицу для каждого найденного подкаталога
+	long   FileCount;         // Увеличивается на единицу для каждого найденного файла,
+		// соответствующего шаблону PFileName
+	friend int Helper_SFindFile(const SString * pPath, SFindFile * pParam);
+};
+
+class SFindFile_ToPool : public SFindFile { // @v11.8.1
+public:
+	SFindFile_ToPool(const char * pPath = 0, const char * pFileName = 0);
+	int    Run(SFileEntryPool & rResult);
+private:
+	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
+	SFileEntryPool * P_UserContainer;
 };
 //
 // Descr: Пул элементов файлового каталога.
@@ -13013,6 +13059,9 @@ public:
 	static constexpr double Sqrt1_2  = 0.707106781186547524400844362104849039; // sqrt(0.5)
 	static constexpr double MaxU31   = 2147483648.0;  // @v11.7.3
 	static constexpr double MaxU32   = 4294967296.0;  // @v11.7.3
+	static constexpr double WGS84_A          = 6378137.0; // Радиус Земли в метрах (согласно WGS84)
+	static constexpr double WGS84_Flattening = (1.0 / 298.257223563); // Фактор приплюснотости Земли: ƒ = (a − b)/a (согласно WGS84).
+		// Где a - экваториальный радиус, b - полярный радиус.
 	/*
 	static const double Pi;
 	static const double Pi2;        // pi*2
@@ -18051,23 +18100,23 @@ private:
 
 class SGeo {
 public:
-	static const double A_WGS84; // Радиус Земли в метрах (согласно WGS84)
-	static const double Flattening_WGS84; // Фактор приплюснотости Земли: ƒ = (a − b)/a (согласно WGS84).
+	//static const double A_WGS84; // Радиус Земли в метрах (согласно WGS84)
+	//static const double Flattening_WGS84; // Фактор приплюснотости Земли: ƒ = (a − b)/a (согласно WGS84).
 		// Где a - экваториальный радиус, b - полярный радиус.
 	//
 	// Descr: mask values for the \e caps argument to geod_lineinit()
 	//
 	enum /*geod_mask*/ {
-		GEOD_NONE = 0U,                     // Calculate nothing
-		GEOD_LATITUDE     = 1U<<7  | 0U,            // Calculate latitude
-		GEOD_LONGITUDE    = 1U<<8  | 1U<<3,         // Calculate longitude
-		GEOD_AZIMUTH      = 1U<<9  | 0U,            // Calculate azimuth
-		GEOD_DISTANCE     = 1U<<10 | 1U<<0,         // Calculate distance
-		GEOD_DISTANCE_IN  = 1U<<11 | 1U<<0 | 1U<<1, // Allow distance as input
-		GEOD_REDUCEDLENGTH= 1U<<12 | 1U<<0 | 1U<<2, // Calculate reduced length
-		GEOD_GEODESICSCALE= 1U<<13 | 1U<<0 | 1U<<2, // Calculate geodesic scale
-		GEOD_AREA = 1U<<14 | 1U<<4,         // Calculate reduced length
-		GEOD_ALL  = 0x7F80U| 0x1FU          // Calculate everything
+		GEOD_NONE          = 0U,                     // Calculate nothing
+		GEOD_LATITUDE      = 1U<<7  | 0U,            // Calculate latitude
+		GEOD_LONGITUDE     = 1U<<8  | 1U<<3,         // Calculate longitude
+		GEOD_AZIMUTH       = 1U<<9  | 0U,            // Calculate azimuth
+		GEOD_DISTANCE      = 1U<<10 | 1U<<0,         // Calculate distance
+		GEOD_DISTANCE_IN   = 1U<<11 | 1U<<0 | 1U<<1, // Allow distance as input
+		GEOD_REDUCEDLENGTH = 1U<<12 | 1U<<0 | 1U<<2, // Calculate reduced length
+		GEOD_GEODESICSCALE = 1U<<13 | 1U<<0 | 1U<<2, // Calculate geodesic scale
+		GEOD_AREA          = 1U<<14 | 1U<<4,         // Calculate reduced length
+		GEOD_ALL           = 0x7F80U| 0x1FU          // Calculate everything
 	};
 	//
 	// Descr: flag values for the \e flags argument to geod_gendirect() and geod_genposition()

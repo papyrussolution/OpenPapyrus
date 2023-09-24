@@ -2580,8 +2580,31 @@ SString & SString::Excise(size_t start, size_t size)
 	return *this;
 }
 
+uint SString::Helper_Chomp(bool single)
+{
+	uint   c = 0;
+	uint   prev_c = 0;
+	do {
+		prev_c = c;
+		const char _last = Last();
+		if(_last == '\x0A') {
+			TrimRight();
+			if(Last() == '\x0D')
+				TrimRight();
+			c++;
+		}
+		else if(_last == '\x0D') {
+			TrimRight();
+			c++;
+		}
+	} while(!single && prev_c < c);
+	return c;
+}
+
 SString & SString::Chomp()
 {
+	Helper_Chomp(true);
+	/*
 	const char _last = Last();
 	if(_last == '\x0A') {
 		TrimRight();
@@ -2590,6 +2613,22 @@ SString & SString::Chomp()
 	}
 	else if(_last == '\x0D')
 		TrimRight();
+	*/
+	return *this;
+}
+
+SString & SString::SetLastCR(SEOLFormat eolf)
+{
+	uint c = Helper_Chomp(false);
+	SETIFZQ(c, 1);
+	for(uint i = 0; i < c; i++) {
+		switch(eolf) {
+			case eolWindows: CatChar('\xD').CatChar('\xA'); break;
+			case eolUnix: CatChar('\xA'); break;
+			case eolMac: CatChar('\xD'); break;
+			default: CatChar('\n'); break;
+		}
+	}
 	return *this;
 }
 
@@ -3611,21 +3650,25 @@ int SString::ToIntRange(IntRange & rRange, long flags) const
 				src_pos += do_next;
 				while(p_buf[src_pos] == ' ' || p_buf[src_pos] == '\t')
 					src_pos++;
-				is_neg = 0;
-				if(p_buf[src_pos] == '-') {
-					src_pos++;
-					is_neg = 1;
-				}
-				else if(p_buf[src_pos] == '+')
-					src_pos++;
-				if(isdec(p_buf[src_pos])) {
-					do {
-						up = up * 10 + (p_buf[src_pos] - '0');
-						src_pos++;
-					} while(isdec(p_buf[src_pos]));
-					if(is_neg)
-						up = -up;
+				if(p_buf[src_pos] == 0) // @v11.8.3 @fix диапазон открыт справа
 					upp_is_done = 1;
+				else {
+					is_neg = 0;
+					if(p_buf[src_pos] == '-') {
+						src_pos++;
+						is_neg = 1;
+					}
+					else if(p_buf[src_pos] == '+')
+						src_pos++;
+					if(isdec(p_buf[src_pos])) {
+						do {
+							up = up * 10 + (p_buf[src_pos] - '0');
+							src_pos++;
+						} while(isdec(p_buf[src_pos]));
+						if(is_neg)
+							up = -up;
+						upp_is_done = 1;
+					}
 				}
 			}
 			if(upp_is_done) {

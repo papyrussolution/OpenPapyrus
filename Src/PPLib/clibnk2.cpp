@@ -1030,7 +1030,7 @@ int SetupCliBnkFormatsDialog::setupList()
 	SString section, all_fields_name, sect;
 	StringSet all_sections;
 	PPLogger logger;
-	Sections.clear();
+	Sections.Z();
 	GetCliBnkSections(&all_sections, 0, &P, BackupExecuted ? 0 : 5, &logger);
 	BackupExecuted = 1;
 	all_sections.sort();

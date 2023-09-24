@@ -415,7 +415,7 @@ int GoodsValRestrDialog::setupList()
 	const ObjRestrictArray & r_list = Data.GetBillArRestrictList();
 	for(uint i = 0; i < r_list.getCount(); i++) {
 		const ObjRestrictItem & r_item = r_list.at(i);
-		ss.clear();
+		ss.Z();
 		GetArticleName(r_item.ObjID, temp_buf.Z());
 		ss.add(temp_buf);
 		{

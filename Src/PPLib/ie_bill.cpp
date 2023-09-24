@@ -4541,7 +4541,7 @@ int PPBillImporter::Run()
 	LineIdSeq = 0;
 	PPWaitStart();
 	Period.Actualize(ZERODATE);
-	ToRemoveFiles.clear();
+	ToRemoveFiles.Z();
 	// @v11.7.7 {
 	if(!AccSheetID) {
 		if(GetOpData(OpID, &op_rec) > 0)

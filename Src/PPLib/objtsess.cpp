@@ -4896,7 +4896,7 @@ int PPObjTSession::SelectSerialByGoods(PPID goodsID, PPID locID, SerialByGoodsLi
 			dlg->setCtrlString(CTL_SELSERIAL_GOODSNAME, GetGoodsName(goodsID, goods_name));
 			SerialByGoodsListItem * p_item;
 			for(uint i = 0; list.enumItems(&i, (void **)&p_item);) {
-				ss.clear();
+				ss.Z();
 				ss.add(p_item->Serial);
 				ss.add(p_item->Text);
 				dlg->addStringToList(i, ss.getBuf());

@@ -4769,8 +4769,7 @@ PPDriveMapping::PPDriveMapping() : StringSet(";")
 int PPDriveMapping::Load(PPIniFile * pIniFile)
 {
 	if(pIniFile) {
-		clear();
-		setDelim(";");
+		Z().setDelim(";");
 		pIniFile->GetEntryList(PPINISECT_DRIVEMAPPING, this, 1);
 		return 1;
 	}
@@ -5554,7 +5553,7 @@ int PPAdviseEvent::SetupAndAppendToVector(const PPMqbClient::Envelope & rS, PPAd
 			PPAdviseEventVector::MqbExtra * p_mqb_extra = rAev.CreateNewMqbExtra(&MqbExtraIdx);
 			if(p_mqb_extra) {
 				for(uint propidx = 0; propidx < rS.Msg.Props.Headers.getCount(); propidx++) {
-					StrStrAssocArray::Item prop_item = rS.Msg.Props.Headers.at(propidx);
+					SStrToStrAssoc prop_item = rS.Msg.Props.Headers.at(propidx);
 					uint   kp = 0;
 					uint   vp = 0;
 					rAev.AddS(prop_item.Key, &kp);

@@ -988,7 +988,7 @@ void PPViewGoodsTaxAnalyze::ViewTotal()
 					THROW(SetupStrListBox(this, CTL_GTANLZTOTAL_INOUTVL));
 					THROW(p_list = static_cast<SmartListBox *>(getCtrlView(CTL_GTANLZTOTAL_INOUTVL)));
 					for(uint i = 0; p_inout_vatlist->enumItems(&i, (void **)&p_item) > 0;) {
-						ss.clear();
+						ss.Z();
 						ss.add(sub.Z().Cat(p_item->PRate, MKSFMTD(0, 1, 0)).CatChar('%'));
 						if(p_item->IsVatFree || p_item->PRate == 0.0) {
 							ss.add(sub.Z().Cat(p_item->Cost,  MKSFMTD(0, 2, NMBF_TRICOMMA|ALIGN_RIGHT)));

@@ -260,7 +260,7 @@ int SdFieldCorrListDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	SdbField fld, inner_fld;
 	for(uint i = 0; ok && Data.EnumFields(&i, &fld);) {
-		ss.clear();
+		ss.Z();
 		sub.Z();
 		if(fld.T.Flags & STypEx::fFormula)
 			sub.CatChar('F').Colon().Cat(fld.InnerFormula);
@@ -701,7 +701,7 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 
 /*virtual*/int PPImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 {
-	rList.clear();
+	rList.Z();
 	int    ok = -1;
 	SString _file_spec;
 	(_file_spec = FileName).Transf(CTRANSF_INNER_TO_OUTER);
@@ -771,7 +771,7 @@ int PPImpExpParam::PtTokenList::Get(uint pos, long * pTokenId, long * pExtID, SS
 
 int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLogger * pLogger)
 {
-	rList.clear();
+	rList.Z();
 	int    ok = -1;
 	SString temp_buf;
 	if(Direction /*import*/ /*&& InetAccID*/) {
@@ -3327,7 +3327,7 @@ int ImpExpCfgsListDialog::setupList()
 				const int r = p_param->SerializeConfig(-1, cobj_hdr, cobj_tail, &SCtx);
 				if(r) {
 					PROFILE_START
-					ss.clear();
+					ss.Z();
 					ss.add(cobj_hdr.Name);
 					ss.add(p_param->Direction ? "Import" : "Export");
 					switch(p_param->DataFormat) {
@@ -3348,7 +3348,7 @@ int ImpExpCfgsListDialog::setupList()
 			}
 		}
 		else {
-			Sections.clear();
+			Sections.Z();
 			{
 				SString ini_file_name, section;
 				StringSet all_sections;
@@ -3373,7 +3373,7 @@ int ImpExpCfgsListDialog::setupList()
 								Sections.add(section, &sect_id);
 								p_param->ProcessName(2, sect = section);
 								if(!sect.HasPrefixIAscii("DLL_")) { // @vmiller
-									ss.clear();
+									ss.Z();
 									ss.add(sect);
 									ss.add(p_param->Direction ? "Import" : "Export");
 									switch(p_param->DataFormat) {
@@ -3430,7 +3430,7 @@ int ImpExpCfgListDialog::SetParams(uint iniFileID, uint sdRecID, PPImpExpParam *
 	SDRecID    = sdRecID;
 	P_Param    = pParam;
 	P_ParamDlg = pDlg;
-	Sections.clear();
+	Sections.Z();
 	{
 		SString ini_file_name;
 		if(PPGetFilePath(PPPATH_BIN, IniFileID, ini_file_name) && fileExists(ini_file_name)) {
@@ -3448,7 +3448,7 @@ int ImpExpCfgListDialog::setupList()
 	int    ok = 1;
 	SString sect, sub;
 	StringSet ss(SLBColumnDelim);
-	Sections.clear();
+	Sections.Z();
 	{
 		SString ini_file_name, section;
 		StringSet all_sections;
@@ -3468,7 +3468,7 @@ int ImpExpCfgListDialog::setupList()
 						uint sect_id = 0;
 						Sections.add(section, &sect_id);
 						P_Param->ProcessName(2, sect = section);
-						ss.clear();
+						ss.Z();
 						ss.add(sect);
 						ss.add(P_Param->Direction ? "Import" : "Export");
 						switch(P_Param->DataFormat) {

@@ -678,7 +678,7 @@ int ExtFieldsDialog::setupList()
 	SString temp_buf;
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.getCount(); i++) {
-		ss.clear();
+		ss.Z();
 		//TaggedString item = Data.at(i);
 		StrAssocArray::Item item = Data.Get(i);
 		ss.add(temp_buf.Z().Cat(item.Id));
@@ -3839,7 +3839,7 @@ int AddrListDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; ok && Data.EnumDlvrLoc(&i, &loc_pack);) {
 		WorldTbl::Rec w_rec;
-		ss.clear();
+		ss.Z();
 		ss.add(temp_buf.Z().Cat(loc_pack.ID));
 		ss.add((w_obj.Fetch(loc_pack.CityID, &w_rec) > 0) ? w_rec.Name : 0);
 		LocationCore::GetExField(&loc_pack, LOCEXSTR_SHORTADDR, temp_buf.Z());
@@ -6117,7 +6117,7 @@ int PersonRelListDialog::setupList()
 	LAssoc * p_item;
 	for(uint i = 0; p_rel_list->enumItems(&i, (void **)&p_item);) {
 		PPPersonRelType reltyp_rec;
-		ss.clear();
+		ss.Z();
 		GetPersonName(p_item->Key, sub);
 		ss.add(sub);
 		if(SearchObject(PPOBJ_PERSONRELTYPE, p_item->Val, &reltyp_rec) > 0)
@@ -7895,7 +7895,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
                         msg_buf.Z().CatEq("PersonID", psn_id).CatDiv('-', 1).CatEq("Name", psn_rec.Name);
                         PPELinkArray ela;
 						psn_obj.P_Tbl->GetELinks(psn_id, ela);
-						ss_email.clear();
+						ss_email.Z();
 						ela.GetListByType(PPELK_EMAIL, ss_email);
 						for(uint j = 0; ss_email.get(&j, temp_buf);) {
                             msg_buf.CatDiv('-', 1).Cat(temp_buf);

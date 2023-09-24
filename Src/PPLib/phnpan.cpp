@@ -842,7 +842,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 				if(new_list.getCount()) {
 					for(uint ilidx = 0; ilidx < new_list.getCount(); ilidx++) {
 						const InfoListEntry & r_entry = new_list.at(ilidx);
-						ss.clear();
+						ss.Z();
 						ss.add(temp_buf.Z().Cat(r_entry.Dtm.d, MKSFMT(0, DATF_DMY)));
 						new_list.GetS(r_entry.CodeP, temp_buf);
 						ss.add(temp_buf);
@@ -917,7 +917,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 				if(new_list.getCount()) {
 					for(uint ilidx = 0; ilidx < new_list.getCount(); ilidx++) {
 						const InfoListEntry & r_entry = new_list.at(ilidx);
-						ss.clear();
+						ss.Z();
 						new_list.GetS(r_entry.CodeP, temp_buf);
 						ss.add(temp_buf);
 						ss.add(temp_buf.Z().Cat(r_entry.Dtm, MKSFMT(0, DATF_DMY), MKSFMT(0, TIMF_HM)));
@@ -978,7 +978,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 					PPPsnOpKind pok_rec;
 					for(uint ilidx = 0; ilidx < new_list.getCount(); ilidx++) {
 						const InfoListEntry & r_entry = new_list.at(ilidx);
-						ss.clear();
+						ss.Z();
 						ss.add(temp_buf.Z().Cat(r_entry.Dtm, DATF_DMY, TIMF_HMS));
 						if(pok_obj.Fetch(r_entry.OpID, &pok_rec) > 0)
 							temp_buf = pok_rec.Name;
@@ -1013,7 +1013,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 				if(view.Init_(&flt)) {
 					view.InitIteration();
 					for(uint i = 1; view.NextIteration(&item) > 0; i++) {
-						ss.clear();
+						ss.Z();
 						LDATETIME dtm;
 						dtm.Set(item.Dt, item.Tm);
 						ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
@@ -1054,7 +1054,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 				if(view.Init_(&flt)) {
 					for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
 						if(!(item.Flags & CCHKF_SKIP)) {
-							ss.clear();
+							ss.Z();
 							LDATETIME dtm;
 							dtm.Set(item.Dt, item.Tm);
 							ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
@@ -1083,7 +1083,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							if(view.Init_(&flt)) {
 								for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
 									if(!(item.Flags & CCHKF_SKIP)) {
-										ss.clear();
+										ss.Z();
 										LDATETIME dtm;
 										ss.add(temp_buf = sc_rec.Code); // scard code
 										dtm.Set(item.Dt, item.Tm);
@@ -1121,7 +1121,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 				if(view.Init_(&flt)) {
 					for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
 						if(!(item.Flags & CCHKF_SKIP)) {
-							ss.clear();
+							ss.Z();
 							LDATETIME dtm;
 							dtm.Set(item.Dt, item.Tm);
 							ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
@@ -1149,7 +1149,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 				for(uint ilidx = 0; ilidx < p_internal_phone_list->getCount(); ilidx++) {
 					StrAssocArray::Item entry = p_internal_phone_list->at_WithoutParent(ilidx);
 					if(entry.Id && !isempty(entry.Txt) && PsnObj.Fetch(entry.Id, &psn_rec) > 0) {
-						ss.clear();
+						ss.Z();
 						ss.add(temp_buf.Z().Cat(psn_rec.Name).Strip());
 						ss.add(temp_buf.Z().Cat(entry.Txt).Strip());
 						P_Box->addItem(/*entry.Id*/ilidx+1, ss.getBuf());

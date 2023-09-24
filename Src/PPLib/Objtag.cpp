@@ -2106,7 +2106,7 @@ int TagFiltDialog::setupList()
 		TagFilt::GetRestriction(item.Txt, restrict);
 		PPObjectTag tag;
 		THROW(ObjTag.Fetch(item.Id, &tag));
-		ss.clear();
+		ss.Z();
 		ss.add(tag.Name);
 		if(oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK)) {
 			int r = TagFilt::GetRestrictionIdList(restrict, &id_list);
@@ -2671,7 +2671,7 @@ int TagValListDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	const  ObjTagItem * p_item;
 	for(uint i = 0; (p_item = Data.EnumItems(&i)) != 0;) {
-		ss.clear();
+		ss.Z();
 		buf.Z();
 		if(objtag.Fetch(p_item->TagID, &tag) > 0)
 			buf = tag.Name;

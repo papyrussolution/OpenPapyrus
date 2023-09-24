@@ -778,7 +778,7 @@ int SCardRuleDlg::setupList()
 	TrnovrRngDis * p_item = 0;
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; Data.enumItems(&i, (void **)&p_item) > 0;) {
-		ss.clear();
+		ss.Z();
 		if(p_item->Flags & TrnovrRngDis::fZeroTurnover)
 			PPLoadString("trnovrrngdis_zerotrnovr", buf);
 		else

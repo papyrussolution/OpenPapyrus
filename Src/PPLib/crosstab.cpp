@@ -179,7 +179,7 @@ int CDECL Crosstab::SetSortIdx(const char * pFldName, ...)
 {
 	va_list arg_list;
 	va_start(arg_list, pFldName);
-	SortIdxList.clear();
+	SortIdxList.Z();
 	const char * p = pFldName;
 	while(p) {
 		SortIdxList.add(p);

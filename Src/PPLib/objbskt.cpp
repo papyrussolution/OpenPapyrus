@@ -1776,7 +1776,7 @@ int GBDialog::setupList()
 	for(uint i = 0; R_Data.Pack.Lots.enumItems(&i, (void **)&p_item);) {
 		GoodsStockExt gse;
 		goods_obj.Fetch(p_item->GoodsID, &goods_rec);
-		ss.clear();
+		ss.Z();
 		ss.add(goods_rec.Name);
 		ss.add(sub.Z().Cat(p_item->Quantity, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
 		ss.add(sub.Z().Cat(p_item->Price, SFMT_MONEY));

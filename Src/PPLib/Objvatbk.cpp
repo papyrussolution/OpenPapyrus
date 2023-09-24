@@ -831,7 +831,7 @@ int VATBCfgDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.List.getCount(); i++) {
 		const VATBCfg::Item & r_item = Data.List.at(i);
-		ss.clear();
+		ss.Z();
 		GetOpName(r_item.OpID, sub.Z());
 		ss.add(sub);
 		sub.Z();

@@ -222,14 +222,8 @@ popd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="bzip2.vcxproj">
-      <Project>{bd776450-1675-4703-bfd3-2517b5a45da8}</Project>
-    </ProjectReference>
     <ProjectReference Include="libzip.vcxproj">
       <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
-    </ProjectReference>
-    <ProjectReference Include="lz4.vcxproj">
-      <Project>{6b7325a2-a019-4fc4-9585-1dba4cadefeb}</Project>
     </ProjectReference>
     <ProjectReference Include="onig.vcxproj">
       <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>

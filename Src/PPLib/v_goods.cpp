@@ -611,6 +611,12 @@ bool GoodsFilt::IsEmpty() const
 		return false;
 	else if(P_TagF && !P_TagF->IsEmpty())
 		return false;
+	// @v11.8.3 {
+	else if(!GrpCountRange.IsZero())
+		return false;
+	else if(!IdRange.IsZero())
+		return false;
+	// } @v11.8.3 
 	else
 		return true;
 }
@@ -638,7 +644,7 @@ int FASTCALL GoodsFilt::GetBarcodeLenList(PPIDArray & rList) const
 int FASTCALL GoodsFilt::GetBarcodePrefixList(StringSet & rSet) const
 {
 	int    ok = -1;
-	rSet.clear();
+	rSet.Z();
 	return ok;
 }
 
@@ -1885,6 +1891,8 @@ int PPViewGoods::UpdateTempTable(PPID goodsID, PPViewBrowser * pBrw)
 bool PPViewGoods::IsTempTblNeeded()
 {
 	if(Filt.GrpIDList.IsExists())
+		return true;
+	else if(!Filt.GrpCountRange.IsZero()) // @v11.8.3
 		return true;
 	else if(Filt.Flags2 & GoodsFilt::f2SoonExpiredOnly) // @v11.6.2
 		return true;

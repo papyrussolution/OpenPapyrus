@@ -108,8 +108,7 @@ bool STab::Row::IsConsistent() const { return (Sign == STAB_ROW_SIGN); }
 void STab::Row::Clear()
 {
 	PosList.clear();
-	Set.clear();
-	Set.add("$."); // Zero position is invalid
+	Set.Z().add("$."); // Zero position is invalid
 }
 
 int FASTCALL STab::Row::Add(const char * pStr)

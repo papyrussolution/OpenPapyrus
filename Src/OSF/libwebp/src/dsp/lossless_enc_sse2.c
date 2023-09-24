@@ -256,7 +256,7 @@ static float CombinedShannonEntropy_SSE2(const int X[256], const int Y[256])
 		const int32_t mx = _mm_movemask_epi8(_mm_cmpgt_epi8(x4, zero));
 		int32_t my = _mm_movemask_epi8(_mm_cmpgt_epi8(y4, zero)) | mx;
 		while(my) {
-			const int32_t j = SBits::Ctz(my);
+			const int32_t j = (int32_t)SBits::Ctz((uint)my);
 			int xy;
 			if((mx >> j) & 1) {
 				const int x = X[i + j];

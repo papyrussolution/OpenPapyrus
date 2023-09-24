@@ -175,7 +175,7 @@ private:
 		Page = 0;
 		IdList.clear();
 		TagExistList.clear();
-		SrchCodeList.clear();
+		SrchCodeList.Z();
 		ZDELETEFAST(P_GoodsF);
 		ZDELETEFAST(P_PsnF);
 		ZDELETEFAST(P_PsnRelF);
@@ -1548,7 +1548,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 						THROW(ci_mgr.GetList(PPCheckInPersonItem::kTSession, tsess_id, cilist));
 						for(uint pdi = 0; pdi < pdc; pdi++) {
 							if(prc_pack.Ext.GetPlaceDescription(pdi, pd) && ppct.Parse(pd.Range)) {
-								ss_places.clear();
+								ss_places.Z();
 								ppct.Generate(ss_places);
 								for(uint pp = 0; ss_places.get(&pp, temp_buf);) {
 									PPObjTSession::PlaceStatus * p_new_item = new PPObjTSession::PlaceStatus;
@@ -1756,8 +1756,8 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								//uint   ci_count = 0;
 								//uint   cancel_count = 0;
 								PPCheckInPersonItem::Total rcount;
-								ss_places.clear();
-								ss_places_busy.clear();
+								ss_places.Z();
+								ss_places_busy.Z();
 								//
 								p_jitem->InsertString("PrcName", (temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape());
 								p_jitem->InsertString("PrcSymb", (temp_buf = prc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).Escape());

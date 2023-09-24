@@ -19,8 +19,7 @@ struct {
 	float red, green, blue;
 }
 
-svg_predefined_colors[] =
-{
+svg_predefined_colors[] = {
 	{ "aliceblue", 240, 248, 255 },
 	{ "antiquewhite", 250, 235, 215 },
 	{ "aqua", 0, 255, 255 },

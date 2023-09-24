@@ -1379,7 +1379,7 @@ int ProcessorDialog::EditExt()
 					item.Z();
 					item.Range = "#ERROR";
 				}
-				ss.clear();
+				ss.Z();
 				ss.add(item.Range);
 				ss.add(GetGoodsName(item.GoodsID, temp_buf.Z()));
 				ss.add(item.Descr);

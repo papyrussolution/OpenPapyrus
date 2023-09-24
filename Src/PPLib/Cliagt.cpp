@@ -1706,7 +1706,7 @@ private:
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; i < Data.OrderParamList.getCount(); i++) {
 			const PPSupplAgreement::OrderParamEntry & r_entry = Data.OrderParamList.at(i);
-			ss.clear();
+			ss.Z();
 			sub.Z();
 			if(r_entry.GoodsGrpID)
 				GetGoodsName(r_entry.GoodsGrpID, sub);

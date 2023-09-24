@@ -340,7 +340,7 @@ int CCheckFiltCtDialog::setupList()
 	StringSet text_list(';', CtValNames);
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0, j = 1; ok && text_list.get(&i, buf); j++) {
-		ss.clear();
+		ss.Z();
 		ss.add(buf);
 		buf.Z().CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');
 		ss.add(buf);
@@ -3796,7 +3796,7 @@ public:
 				StringSet ss(SLBColumnDelim);
 				for(uint i = 0; i < Data.AL_Const().getCount(); i++) {
 					const CcAmountEntry & r_entry = Data.AL_Const().at(i);
-					ss.clear();
+					ss.Z();
 					r_entry.GetTypeText(temp_buf);
 					ss.add(temp_buf);
 					temp_buf.Z().Cat(r_entry.Amount, SFMT_MONEY);

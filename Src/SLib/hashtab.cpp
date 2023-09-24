@@ -348,8 +348,7 @@ int SymbHashTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 void SymbHashTable::Clear()
 {
 	HashTableBase::Clear();
-	NamePool.clear();
-	NamePool.add("$");
+	NamePool.Z().add("$");
 }
 
 size_t FASTCALL SymbHashTable::Hash(const char * pSymb) const

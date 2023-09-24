@@ -1066,14 +1066,12 @@ int ACS_FRONTOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRang
 				THROW(PPGetFileName(PPFILNAM_ATOL_GOODS_FLG, PathGoodsFlag));
 		}
 		THROW_PP(Acn.ExpPaths.NotEmptyS() || Acn.ImpFiles.NotEmptyS(), PPERR_INVFILESET);
-		ImpPaths.clear();
-		ImpPaths.setDelim(";");
+		ImpPaths.Z().setDelim(";");
 		{
 			SString & r_list = Acn.ImpFiles.NotEmpty() ? Acn.ImpFiles : Acn.ExpPaths;
 			ImpPaths.setBuf(r_list, r_list.Len()+1);
 		}
-		ExpPaths.clear();
-		ExpPaths.setDelim(";");
+		ExpPaths.Z().setDelim(";");
 		{
 			SString & r_list = Acn.ExpPaths.NotEmpty() ? Acn.ExpPaths : Acn.ImpFiles;
 			ExpPaths.setBuf(r_list, r_list.Len()+1);
@@ -1125,7 +1123,7 @@ int ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 	while(imp_file.ReadLine(buf) > 0) {
 		LDATETIME dtm;
 		StringSet ss(';', 0);
-		ss.clear();
+		ss.Z();
 		ss.add(buf);
 		ss.get(&(pos = 0), buf);     // #1 Код транзакции (не используем)
 		ss.get(&pos, buf);           // #2 Дата транзакции
@@ -1228,7 +1226,7 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 		for(pos = 0; pos < 3; pos++)
 			imp_file.ReadLine(buf);
 		while(imp_file.ReadLine(buf) > 0) {
-			ss.clear();
+			ss.Z();
 			ss.add(buf);
 			ss.get(&(pos = 0), buf);     // Код транзакции (не используем)
 			ss.get(&pos, buf);           // Дата транзакции
@@ -1284,8 +1282,7 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 			long   cash_no = 0;
 			long   chk_no = 0;
 			const  long cur_zrep_n = (cur_zrep_list_pos < ZRepList.getCount()) ? ZRepList.at(cur_zrep_list_pos).ZRepN : 0;
-			ss.clear();
-			ss.add(buf);
+			ss.Z().add(buf);
 			pos = 0;
 			//   № транзакции, дата транзакции, время транзакции - пропускаем, выбираем тип транзакции (операции)
 			for(field_no = 0; field_no < 4 && ss.get(&pos, buf); field_no++);

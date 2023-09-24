@@ -8026,7 +8026,7 @@ int RecentItemsStorage::CheckIn(const char * pText)
 
 int RecentItemsStorage::GetList(StringSet & rSs)
 {
-	rSs.clear();
+	rSs.Z();
 	int    ok = -1;
 	SString key;
 	if(IdentText.NotEmpty())
@@ -8176,7 +8176,7 @@ int PPEditTextFile(const EditTextFileParam * pParam)
 						StringSet ss(SLBColumnDelim);
 						long   fid = 0;
 						for(uint ssp = 0; ss_ris.get(&ssp, temp_buf);) {
-							ss.clear();
+							ss.Z();
 							RecentItems.AddFast(++fid, temp_buf);
 							ss.add(temp_buf);
 							ss.add(temp_buf.Z());
@@ -8196,7 +8196,7 @@ int PPEditTextFile(const EditTextFileParam * pParam)
 			if(p_reserv_box) {
 				for(SEnum en = DS.EnumRFileInfo(); en.Next(&fi) > 0;) {
 					if(fi.Flags & PPRFILEF_TEXT) {
-						ss.clear();
+						ss.Z();
 						ss.add(fi.Name);
 						if(fi.PathID) {
 							PPGetPath(fi.PathID, temp_buf);

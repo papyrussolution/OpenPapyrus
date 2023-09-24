@@ -51,7 +51,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F0604A96-528F-40E6-8800-C696F03307A1}</ProjectGuid>
+    <ProjectGuid>{8F677271-FC58-4449-89B6-48A1DEFA03C7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

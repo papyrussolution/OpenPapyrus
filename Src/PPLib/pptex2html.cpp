@@ -132,6 +132,58 @@ private:
 		const  PPTex2HtmlPrcssr::TextBlock * P_StartBlk;
 		const  _TexToHtmlEntry * P_ThEntry;
 	};
+
+	class TexEnvStack : private TSStack <_TexEnvItem> {
+	public:
+		TexEnvStack(PPTex2HtmlPrcssr & rPrc) : TSStack <_TexEnvItem>(), R_Prc(rPrc)
+		{
+		}
+		void   FASTCALL Push(const _TexEnvItem & t) 
+		{ 
+			TSStack<_TexEnvItem>::push(t); 
+			DebugBuf.Z().Cat("TexEnvStack.Push").Space().CatEq("pointer", getPointer());
+			if(t.P_StartBlk) {
+				DebugBuf.Space().CatChar('(');
+				DebugBuf.CatEq("line", t.P_StartBlk->LineNo).Space();
+				DebugBuf.Cat(t.P_StartBlk->Text);
+				if(t.P_StartBlk->P_ArgBrc) {
+					DebugBuf.Space().Cat(t.P_StartBlk->P_ArgBrc->Text);
+				}
+				DebugBuf.CatChar(')');
+			}
+			if(t.P_ThEntry) {
+				;
+			}
+			R_Prc.Debug_Output_Internal(DebugBuf.CR());
+		}
+		int    FASTCALL Pop(_TexEnvItem & t) 
+		{ 
+			bool debug_mark = false;
+			const int r = TSStack<_TexEnvItem>::pop(t); 
+			DebugBuf.Z().Cat("TexEnvStack.Pop").Space().CatEq("pointer", getPointer());
+			if(t.P_StartBlk) {
+				DebugBuf.Space().CatChar('(');
+				DebugBuf.CatEq("line", t.P_StartBlk->LineNo).Space();
+				DebugBuf.Cat(t.P_StartBlk->Text);
+				if(t.P_StartBlk->P_ArgBrc) {
+					if(t.P_StartBlk->P_ArgBrc->Text == "document") {
+						debug_mark = true;
+					}
+					DebugBuf.Space().Cat(t.P_StartBlk->P_ArgBrc->Text);
+				}
+				DebugBuf.CatChar(')');
+			}
+			if(t.P_ThEntry) {
+				;
+			}
+			R_Prc.Debug_Output_Internal(DebugBuf.CR());
+			return r;
+		}
+		bool   CheckPointerBeforePop() const { return (getPointer() > 0); }
+	private:
+		SString DebugBuf;
+		PPTex2HtmlPrcssr & R_Prc;
+	};
 	//
 	// Descr: Флаги состояний вызова функции ReadText
 	//
@@ -142,14 +194,18 @@ private:
 	int    WriteText(SFile & rF, const SString & rLineBuf);
 	int    ReadCmd(TextBlock * pBlk);
 	int    Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextBlock * pBlk, SFile & rF, int noPrefix);
-	int    Helper_PreprocessOutput(const TextBlock * pBlk, long flags, TSStack <_TexEnvItem> & rEnvStack);
-	int    Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags, TSStack <_TexEnvItem> & rEnvStack);
+	int    Helper_PreprocessOutput(const TextBlock * pBlk, long flags, TexEnvStack & rEnvStack);
+	int    Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags, TexEnvStack & rEnvStack);
 	int    InitOutput(SFile * pOut, const char * pPartLabel, const char * pPartText, uint chapterNo);
 	int    OutputStyles(SFile & rOut);
 	const  _TexToHtmlEntry * SearchTexToHtmlEntry(int texType, const char * pTexSymb);
 	int    Paragraph(SFile * pOut, int & rPara);
 	const  char * OutputFormulaItem(const char * pText, SString & rOutText, int brace);
 	int    ResolvePict(const char * pOrgSymb, const char * pName, uint * pPicListPos, SString & rRef);
+	//
+	// ARG(rBuf IN): Строка для вывода. Должна быть не пустой и содержать перевод каретки (если нужно перевести строку, конечено)
+	// 
+	void   Debug_Output_Internal(const SString & rBuf);
 
 	static _TexToHtmlEntry __TexToHtmlList[];
 
@@ -158,6 +214,7 @@ private:
 	Param  P;
 	TextBlock * P_Head;
 	PPObjWorkbook WbObj;
+	SFile F_Debug;
 };
 
 PPTex2HtmlPrcssr::Param::Param() : PPBaseFilt(PPFILT_TEX2HTMLPARAM, 0, 0)
@@ -450,7 +507,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, long state, TextBlock * pText)
 				}
 				else if(c == ']') {
 					St.Scan.Incr();
-					if(mode == rtmArgBrk) {
+					if(mode == rtmArgBrk && !(inner_state & rtsVerbatim)) {
 						ok = 1;
 					}
 					else {
@@ -458,9 +515,9 @@ int PPTex2HtmlPrcssr::ReadText(long mode, long state, TextBlock * pText)
 						p_current_blk->Text.CatChar(c);
 					}
 				}
-				else if(c == '}') {
+				else if(c == '}' && !(inner_state & rtsVerbatim)) {
 					St.Scan.Incr();
-					if(mode == rtmArgBrc) {
+					if(mode == rtmArgBrc && !(inner_state & rtsVerbatim)) {
 						ok = 1;
 					}
 					else {
@@ -468,7 +525,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, long state, TextBlock * pText)
 						p_current_blk->Text.CatChar(c);
 					}
 				}
-				else if(c == '$') {
+				else if(c == '$' && !(inner_state & rtsVerbatim)) {
 					St.Scan.Incr();
 					const char c_next = St.GetCurChr();
 					if(c_next == '$')
@@ -503,8 +560,13 @@ int PPTex2HtmlPrcssr::ReadText(long mode, long state, TextBlock * pText)
 					const char c_next = St.GetCurChr();
 					const char * p_literal = "%{}[]_$^&@"; // @v11.0.10 ^& // @v11.8.2 @
 					if(c_next == '\\') {
-						St.Scan.Incr();
-						p_current_blk->Text.CatTagBrace("br", 0);
+						if(inner_state & rtsVerbatim) { // @v11.8.3
+							p_current_blk->Text.Cat("\\\\");
+						}
+						else {
+							St.Scan.Incr();
+							p_current_blk->Text.CatTagBrace("br", 0);
+						}
 					}
 					if(sstrchr(p_literal, c_next)) {
 						St.Scan.Incr();
@@ -592,6 +654,13 @@ int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextB
 	}
 	CATCHZOK
 	return ok;
+}
+
+void PPTex2HtmlPrcssr::Debug_Output_Internal(const SString & rBuf)
+{
+	if(F_Debug.IsValid() && rBuf.NotEmpty()) {
+		F_Debug.WriteLine(rBuf);
+	}
 }
 
 int PPTex2HtmlPrcssr::Debug_Output(const char * pOutputFileName)
@@ -704,7 +773,7 @@ const char * PPTex2HtmlPrcssr::OutputFormulaItem(const char * pText, SString & r
 	return p;
 }
 
-int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags, TSStack <_TexEnvItem> & rEnvStack)
+int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags, TexEnvStack & rEnvStack)
 {
 	int    ok = 1;
 	int    paragraph = 0;   // Признак того, что был начат параграф
@@ -739,12 +808,12 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 						Paragraph(0, paragraph);
 				}
 				_TexEnvItem env_item(p_blk, p);
-				rEnvStack.push(env_item);
+				rEnvStack.Push(env_item);
 			}
 			else if(env_tag == 2) {
 				_TexEnvItem env_item;
-				THROW_PP(rEnvStack.getPointer(), PPERR_TEX2H_ENVSTACKFAULT);
-				rEnvStack.pop(env_item);
+				THROW_PP(rEnvStack.CheckPointerBeforePop(), PPERR_TEX2H_ENVSTACKFAULT);
+				rEnvStack.Pop(env_item);
 				THROW_PP(p_first_brc_arg, PPERR_TEX2H_ENVWITHOUTBRCARG);
 				if(list_item) {
 					//
@@ -1045,11 +1114,11 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 	return ok;
 }
 
-int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags, TSStack <_TexEnvItem> & rEnvStack)
+int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags, TexEnvStack & rEnvStack)
 {
 	int    ok = 1;
 	int    paragraph = 0;   // Признак того, что был начат параграф
-	int    list_item = 0;   // Признак того, что был начат 'лемент списка. Если list_item == 2, то <dd>, если list_item == 1, то <li>
+	int    list_item = 0;   // Признак того, что был начат 'элемент списка. Если list_item == 2, то <dd>, если list_item == 1, то <li>
 	//int    description = 0; // Признак того, что был начат <dd>
 	SString temp_buf;
 	SString line_buf;
@@ -1083,12 +1152,12 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 					WriteText(rOut, line_buf);
 				}
 				_TexEnvItem env_item(p_blk, p);
-				rEnvStack.push(env_item);
+				rEnvStack.Push(env_item);
 			}
 			else if(env_tag == 2) {
 				_TexEnvItem env_item;
-				THROW_PP(rEnvStack.getPointer(), PPERR_TEX2H_ENVSTACKFAULT);
-				rEnvStack.pop(env_item);
+				THROW_PP(rEnvStack.CheckPointerBeforePop(), PPERR_TEX2H_ENVSTACKFAULT);
+				rEnvStack.Pop(env_item);
 				THROW_PP(p_first_brc_arg, PPERR_TEX2H_ENVWITHOUTBRCARG);
 				if(list_item) {
 					//
@@ -1230,6 +1299,12 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				}
 				else if(p_blk->Text == "textdollar") { // @v11.8.2
 					WriteText(rOut, line_buf.Z().Cat("&dollar;"));
+				}
+				else if(p_blk->Text == "textbackslash") { // @v11.8.2
+					WriteText(rOut, line_buf.Z().Cat("&bsol;"));
+				}
+				else if(p_blk->Text == "slash") { // @v11.8.2
+					WriteText(rOut, line_buf.Z().Cat("&sol;"));
 				}
 				else if(p_blk->Text == "symbol") {
 					if(p_first_brc_arg) {
@@ -1557,11 +1632,23 @@ int PPTex2HtmlPrcssr::Run()
 	ZDELETE(P_Head);
 
 	int    ok = 1;
-	SString line_buf, temp_buf;
+	SString temp_buf;
+	SString line_buf;
 	SString input_buffer;
+	SString debug_file_name;
 	P.GetExtStrData(Param::exsInputFileName, temp_buf);
 	SFile  f_in(temp_buf, SFile::mRead|SFile::mBinary);
 	THROW_SL(f_in.IsValid());
+	// @v11.8.3 {
+	{
+		P.GetExtStrData(Param::exsInputFileName, temp_buf);
+		SPathStruc ps(temp_buf);
+		ps.Nam.CatChar('-').Cat("debug");
+		ps.Ext = "out";
+		ps.Merge(temp_buf);
+		F_Debug.Open(temp_buf, SFile::mWrite);
+	}
+	// } @v11.8.3 
 	{
 		P.GetExtStrData(Param::exsOutputPictPath, temp_buf);
 		if(temp_buf.IsEmpty()) {
@@ -1604,14 +1691,14 @@ int PPTex2HtmlPrcssr::Run()
 			PPTransaction tra(BIN(P.Flags & P.fAttachToWorkbook));
 			THROW(tra);
 			{
-				TSStack <_TexEnvItem> env_stack;
+				TexEnvStack env_stack(*this);
 				THROW(InitOutput(0, 0, 0, 0));
 				THROW(Helper_PreprocessOutput(P_Head, 0, env_stack));
 				St.ResetPreprocess();
 			}
 			{
 				SFile f_out;
-				TSStack <_TexEnvItem> env_stack;
+				TexEnvStack env_stack(*this);
 				THROW(InitOutput(&f_out, 0, 0, 0));
 				THROW(Helper_Output(f_out, P_Head, 0, env_stack));
 			}

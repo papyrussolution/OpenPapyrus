@@ -3646,7 +3646,7 @@ private:
 		StringSet text_list(';', CtValNames);
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0, j = 1; ok && text_list.get(&i, buf); j++) {
-			ss.clear();
+			ss.Z();
 			ss.add(buf);
 			buf.Z().CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');
 			ss.add(buf);
@@ -4605,7 +4605,7 @@ int PrcssrAlcReport::GetCategoryNameByCodePos(uint codePos, SString & rBuf)
 	rBuf.Z();
 	int    ok = 0;
 	if(codePos > 0 && codePos <= CategoryNameList.getCount()) {
-		StrStrAssocArray::Item item = CategoryNameList.at(codePos-1);
+		SStrToStrAssoc item = CategoryNameList.at(codePos-1);
 		rBuf = item.Val;
 		ok = 1;
 	}

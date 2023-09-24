@@ -60,8 +60,7 @@ int PoClauseArray_::IsEq(const PoClauseArray_ & rS, int options) const
 PoClauseArray_ & PoClauseArray_::Z()
 {
 	L.clear();
-	Pool.clear();
-	Pool.add("$"); // zero index - is empty string
+	Pool.Z().add("$"); // zero index - is empty string
 	return *this;
 }
 

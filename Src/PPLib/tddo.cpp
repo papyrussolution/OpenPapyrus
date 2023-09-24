@@ -538,7 +538,7 @@ int Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::ExportParam 
 	int    ok = 1;
 	LineNo = 1;
 	if(!RVALUEPTR(ExtParamList, pExtParamList))
-		ExtParamList.clear();
+		ExtParamList.Z();
 	TddoProcessBlock pblk;
 	pblk.SrcDataName = pDataName;
 	pblk.P_Rtm = 0;

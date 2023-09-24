@@ -2688,6 +2688,11 @@ int StrAssocArray::AtFree(uint pos)
 		return (SLibError = SLERR_BOUNDS, 0);
 }
 
+int StrAssocArray::BuildSaIndex()
+{
+	return Pool.BuildSa();
+}
+
 int StrAssocArray::Search(long id, uint * pPos) const { return LAssocArray::Search(id, pPos); }
 int FASTCALL StrAssocArray::Search(long id) const { return LAssocArray::Search(id, 0); }
 
@@ -3743,9 +3748,9 @@ uint StrStrAssocArray::getCount() const
 	return L.getCount();
 }
 
-StrStrAssocArray::Item FASTCALL StrStrAssocArray::at(uint pos) const
+SStrToStrAssoc FASTCALL StrStrAssocArray::at(uint pos) const
 {
-	Item   item;
+	SStrToStrAssoc item;
 	MEMSZERO(item);
 	if(pos < L.getCount()) {
 		const  LAssoc & r_assc = L.at(pos);

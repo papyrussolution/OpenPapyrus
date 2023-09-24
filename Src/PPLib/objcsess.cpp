@@ -152,7 +152,7 @@ int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 			for(uint i = 0; i < SIZEOFARRAY(data_list); i++) {
 				const Entry & r_entry = data_list[i];
 				if(r_entry.Value != 0.0) {
-					ss.clear();
+					ss.Z();
 					PPLoadString(r_entry.P_TextSymb, sub);
 					ss.add(sub);
 					long fmt = (ffrac(r_entry.Value) == 0.0) ? MKSFMTD(0, 0, 0) : MKSFMTD(0, 2, 0);
@@ -2241,7 +2241,7 @@ IMPL_OBJ_DIRTY(PPObjCSession, CSessCache);
 
 int PPObjCSession::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList)
 {
-	const uint back_days = 90;
+	const uint back_days = 14; // @v11.8.3 90-->14
 	LAssocArray index;
 	LAssocArray * p_index = FetchCcDate2MaxIdIndex(index) ? &index : 0;
 	return P_Cc ? P_Cc->Helper_GetListByMark(pText, CCheckPacket::lnextEgaisMark, p_index, back_days, CCheckPacket::extssEgaisUrl, rCcList, pSentList) : 0;
@@ -2249,7 +2249,7 @@ int PPObjCSession::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, B
 
 int PPObjCSession::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
 {
-	const uint back_days = 90;
+	const uint back_days = 14; // @v11.8.3 90-->14
 	LAssocArray index;
 	LAssocArray * p_index = FetchCcDate2MaxIdIndex(index) ? &index : 0;
 	return P_Cc ? P_Cc->Helper_GetListByMark(pText, CCheckPacket::lnextChZnMark, p_index, back_days, 0, rCcList, 0) : 0;

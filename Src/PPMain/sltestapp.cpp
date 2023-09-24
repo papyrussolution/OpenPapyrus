@@ -6,14 +6,17 @@
 #include <pp.h>
 #include <wsctl.h>
 
-int main(int argc, char * argv[])
+int main(int argc, char * argv[], char * envp[])
 {
 	int    result = 0;
 	SString temp_buf;
 	SStringU temp_buf_u;
 	SString out_buf;
 	SString policypath;
+	SString report_file_name;
 	WsCtl_ClientPolicy policy;
+	PPGetFilePath(PPPATH_BIN, "sltestapp-report.txt", report_file_name);
+	SFile f_rep(report_file_name, SFile::mWrite);
 	(out_buf = "SlTestApp: тестовое приложение").Transf(CTRANSF_UTF8_TO_INNER).CR();
 	slfprintf_stderr(out_buf);
 	if(argc == 1) {
@@ -39,6 +42,10 @@ int main(int argc, char * argv[])
 		temp_buf.CopyUtf8FromUnicode(curdir_u, sstrlen(curdir_u), 0);
 		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		out_buf.Z().Cat("Current Directory").CatDiv(':', 2).Cat(temp_buf).CR();
+		slfprintf_stderr(out_buf);
+	}
+	if(!f_rep.IsValid()) {
+		out_buf.Z().Cat("Report file").Space().CatParStr(report_file_name).Space().Cat("opening fault").CR();
 		slfprintf_stderr(out_buf);
 	}
 	if(policypath.IsEmpty()) {
@@ -97,7 +104,32 @@ int main(int argc, char * argv[])
 			}
 		}
 	}
-	//
+	{
+		//GetEnvironmentStrings()
+		if(f_rep.IsValid()) {
+			{
+				f_rep.WriteLine((temp_buf = "Environment").CR());
+				if(envp) {
+					for(uint envidx = 0; envp[envidx]; envidx++) {
+						temp_buf.Z().Tab().Cat(envp[envidx]).CR();
+						f_rep.WriteLine(temp_buf);
+					}
+				}
+			}
+			{
+				f_rep.WriteLine((temp_buf = "Known folders").CR());
+				TSCollection <SKnownFolderEntry> known_folder_list;
+				GetKnownFolderList(known_folder_list);
+				for(uint i = 0; i < known_folder_list.getCount(); i++) {
+					const SKnownFolderEntry * p_entry = known_folder_list.at(i);
+					if(p_entry) {
+						temp_buf.Z().CatHex(p_entry->UED).Space().Cat(p_entry->Guid, S_GUID::fmtIDL).Space().Cat(p_entry->Result).Space().Cat(p_entry->PathUtf8).CR();
+						f_rep.WriteLine(temp_buf);
+					}
+				}
+			}
+		}
+	}
 	slfprintf_stderr("Press [Enter] to finish...\n");
 	getchar();
 	return result;

@@ -1087,7 +1087,7 @@ private:
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; i < Data.List.getCount(); i++) {
 			PPObjTimeSeries::Config::Entry & r_entry = Data.List.at(i);
-			ss.clear();
+			ss.Z();
 			temp_buf.Z();
 			if(TsObj.Search(r_entry.TsID, &rec) > 0) {
 				temp_buf.Cat(rec.Symb);
@@ -9261,7 +9261,7 @@ int PPObjTimeSeries::TsDensityMap::Import(const char * pFileName)
 	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 		uint   fld_no = 1; // ! [1..]
 		line_no++;
-		ss.clear();
+		ss.Z();
 		line_buf.Tokenize(";", ss);
 		if(line_no == 1) {
 			for(uint ssp = 0; ss.get(&ssp, temp_buf); fld_no++) {

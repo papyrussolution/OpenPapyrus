@@ -355,7 +355,7 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 				if(p_list->getCount()) {
 					msg_buf.CatDiv('-', 2);
 					for(uint i = 0; i < p_list->getCount(); i++) {
-						StrStrAssocArray::Item param = p_list->at(i);
+						SStrToStrAssoc param = p_list->at(i);
 						msg_buf.Space().CatChar('[').Cat(param.Key).CatDiv(';', 2).Cat(param.Val).CatChar(']');
 					}
 				}
@@ -2574,7 +2574,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						if(p_param_list && p_param_list->getCount()) {
 							SXml::WNode n_arglist(_doc, SXml::nst("qp", "Parameters"));
 							for(uint i = 0; i < p_param_list->getCount(); i++) {
-								const StrStrAssocArray::Item par = p_param_list->at(i);
+								const SStrToStrAssoc par = p_param_list->at(i);
 								SXml::WNode n_p(_doc, SXml::nst("qp", "Parameter"));
 								n_p.PutInner(SXml::nst("qp", "Name"), EncText(temp_buf = par.Key));
 								n_p.PutInner(SXml::nst("qp", "Value"), EncText(temp_buf = par.Val));
@@ -5553,6 +5553,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 	PPObjOprKind op_obj;
 	ObjTagItem tag_item;
 	PPBillPacket * p_wroff_bp = 0;
+	PPBillPacket * p_wroff_wo_marks_bp = 0; // @v11.8.3
 	//
 	// Формируем документ передачи в торговый зал (регистр 2) лотов, которых
 	// нет в отчете ЕГАИС об остатках в торговом зале.
@@ -5588,6 +5589,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 				LogTextWithAddendum(PPTXT_EGAIS_TODAYYETWROFFR2, bill_text);
 			else if(GetAlcGoodsList(alco_goods_list) > 0) {
 				SString egais_code;
+				SString egais_code_by_restdoc; // @v11.8.3
 				SString ref_a;
 				SString ref_b;
 				SString egais_code_by_mark;
@@ -5639,6 +5641,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 							BarcodeArray bc_list;
 							LongArray crest_row_list;
 							LongArray ex_row_list;
+							PPIDArray lot_list_by_refb; // @v11.8.3
 							PPIDArray cc_list;
 							TSVector <LotExtCodeTbl::Rec> lec_rec_list;
 							const PPID draft_rcpt_op_id = ACfg.Hdr.EgaisRcptOpID;
@@ -5791,21 +5794,22 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 													for(uint crpidx = 0; wroff_qtty > 0.0 && pCurrentRestPack->SearchGoods(goods_id, &crpidx); crpidx++) {
 														const PPTransferItem & r_crp_ti = pCurrentRestPack->ConstTI(crpidx);
 														double ex_wroff_qtty = 0.0;
+														pCurrentRestPack->LTagL.GetTagStr(crpidx, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_restdoc); // @v11.8.3
 														pCurrentRestPack->LTagL.GetTagStr(crpidx, PPTAG_LOT_FSRARINFA, ref_a);
 														pCurrentRestPack->LTagL.GetTagStr(crpidx, PPTAG_LOT_FSRARINFB, ref_b);
 														if(ref_b.NotEmpty()) {
 															uint   last_ex_row_idx_1b = 0;
-															if(!p_wroff_bp) {
-																THROW_MEM(p_wroff_bp = new PPBillPacket);
-																THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
-																p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf)); // "Реализация"
+															if(!p_wroff_wo_marks_bp) {
+																THROW_MEM(p_wroff_wo_marks_bp = new PPBillPacket);
+																THROW(p_wroff_wo_marks_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
+																p_wroff_wo_marks_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf)); // "Реализация"
 															}
 															else {
 																LongArray ex_row_idx_list;
-																p_wroff_bp->LTagL.SearchString(ref_b, PPTAG_LOT_FSRARINFB, 0, ex_row_idx_list);
+																p_wroff_wo_marks_bp->LTagL.SearchString(ref_b, PPTAG_LOT_FSRARINFB, 0, ex_row_idx_list);
 																for(uint i = 0; i < ex_row_idx_list.getCount(); i++) {
 																	const uint ex_row_idx = static_cast<uint>(ex_row_idx_list.get(i));
-																	const PPTransferItem & r_wroff_ti = p_wroff_bp->ConstTI(ex_row_idx);
+																	const PPTransferItem & r_wroff_ti = p_wroff_wo_marks_bp->ConstTI(ex_row_idx);
 																	ex_wroff_qtty += abs(r_wroff_ti.Quantity_);
 																	last_ex_row_idx_1b = ex_row_idx+1;
 																}
@@ -5814,21 +5818,39 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 															const double qtty_to_apply = MIN(rest_qtty, wroff_qtty);
 															if(qtty_to_apply > 0.0) {
 																if(last_ex_row_idx_1b) {
-																	PPTransferItem & r_ti = p_wroff_bp->TI(last_ex_row_idx_1b-1);
+																	PPTransferItem & r_ti = p_wroff_wo_marks_bp->TI(last_ex_row_idx_1b-1);
 																	r_ti.Quantity_ -= qtty_to_apply;
 																}
 																else {
+																	double cost_by_last_lot = 0.0;
+																	double price_by_last_lot = 0.0;
+																	{
+																		lot_list_by_refb.Z();
+																		p_ref->Ot.SearchObjectsByStr(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &lot_list_by_refb);
+																		lot_list_by_refb.sortAndUndup();
+																		uint lotidx = lot_list_by_refb.getCount();
+																		if(lotidx) do {
+																			const PPID last_lot_id = lot_list_by_refb.get(--lotidx);
+																			if(P_BObj->trfr->Rcpt.Search(last_lot_id, &lot_rec) > 0) {
+																				cost_by_last_lot = lot_rec.Cost;
+																				price_by_last_lot = lot_rec.Price;
+																				break;
+																			}
+																		} while(lotidx);
+																	}
 																	PPTransferItem ti;
-																	uint   new_pos = p_wroff_bp->GetTCount();
-																	THROW(ti.Init(&p_wroff_bp->Rec, 1));
+																	uint   new_pos = p_wroff_wo_marks_bp->GetTCount();
+																	THROW(ti.Init(&p_wroff_wo_marks_bp->Rec, 1));
 																	THROW(ti.SetupGoods(goods_id, 0));
 																	ti.Quantity_ = -qtty_to_apply;
-																	THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
+																	ti.Cost = cost_by_last_lot;
+																	ti.Price = price_by_last_lot;
+																	THROW(p_wroff_wo_marks_bp->LoadTItem(&ti, 0, 0));
 																	{
 																		ObjTagList tag_list;
-																		tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
+																		tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_restdoc);
 																		tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, ref_b);
-																		THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
+																		THROW(p_wroff_wo_marks_bp->LTagL.Set(new_pos, &tag_list));
 																	}
 																}
 																cc_id_list_to_mark.add(cc_pack.Rec.ID);
@@ -5941,12 +5963,10 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 										if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
 											// @v11.7.8 {
 											bool do_reckon_lot_rest = false;
-											if(v3markMode) {
+											if(v3markMode)
 												do_reckon_lot_rest = (p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_FSRARINFB, lot_ref_b) && lot_ref_b.IsEqiAscii(ref_b));
-											}
-											else {
+											else
 												do_reckon_lot_rest = true;
-											}
 											// } @v11.7.8 
 											if(do_reckon_lot_rest) { // @v11.7.7
 												double _rest = 0.0;
@@ -5991,30 +6011,37 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 						}
 					// @v11.7.2 }
 				}
-				if(p_wroff_bp && p_wroff_bp->GetTCount()) {
-					p_wroff_bp->InitAmounts();
-					{
-						PPTransaction tra(1);
-						THROW(tra);
-						THROW(P_BObj->TurnPacket(p_wroff_bp, 0));
-						// @v11.8.2 {
-						if(cc_id_list_to_mark.getCount()) {
-							assert(p_wroff_bp->Rec.ID); // P_BObj->TurnPacket успешно отработала: стало быть проверяемое значение не нулевое
-							assert(p_cc); // Иначе как мы cc_id_list_to_mark вычислили?
-							if(p_cc && p_wroff_bp->Rec.ID) {
-								cc_id_list_to_mark.sortAndUndup();
-								temp_buf.Z().Cat(p_wroff_bp->Rec.ID);
-								for(uint ccidx = 0; ccidx < cc_id_list_to_mark.getCount(); ccidx++) {
-									const PPID cc_id = cc_id_list_to_mark.get(ccidx);
-									p_cc->UpdateExtText(cc_id, CCheckPacket::extssEgaisProcessingTag, temp_buf, 0);
+				{
+					//p_wroff_wo_marks_bp
+					PPBillPacket * pp_wroff_pack_list[2] = { p_wroff_bp, p_wroff_wo_marks_bp };
+					for(uint wopidx = 0; wopidx < SIZEOFARRAY(pp_wroff_pack_list); wopidx++) {
+						PPBillPacket * p_wop = pp_wroff_pack_list[wopidx];
+						if(p_wop && p_wop->GetTCount()) {
+							p_wop->InitAmounts();
+							{
+								PPTransaction tra(1);
+								THROW(tra);
+								THROW(P_BObj->TurnPacket(p_wop, 0));
+								// @v11.8.2 {
+								if(cc_id_list_to_mark.getCount()) {
+									assert(p_wop->Rec.ID); // P_BObj->TurnPacket успешно отработала: стало быть проверяемое значение не нулевое
+									assert(p_cc); // Иначе как мы cc_id_list_to_mark вычислили?
+									if(p_cc && p_wop->Rec.ID) {
+										cc_id_list_to_mark.sortAndUndup();
+										temp_buf.Z().Cat(p_wop->Rec.ID);
+										for(uint ccidx = 0; ccidx < cc_id_list_to_mark.getCount(); ccidx++) {
+											const PPID cc_id = cc_id_list_to_mark.get(ccidx);
+											p_cc->UpdateExtText(cc_id, CCheckPacket::extssEgaisProcessingTag, temp_buf, 0);
+										}
+									}
 								}
+								// } @v11.8.2 
+								THROW(tra.Commit());
 							}
+							PPObjBill::MakeCodeString(&p_wop->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+							LogTextWithAddendum(v3markMode ? PPTXT_EGAIS_WROFFMARKSCREATED : PPTXT_EGAIS_REG2WBCREATED, bill_text);
 						}
-						// } @v11.8.2 
-						THROW(tra.Commit());
 					}
-					PPObjBill::MakeCodeString(&p_wroff_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-					LogTextWithAddendum(v3markMode ? PPTXT_EGAIS_WROFFMARKSCREATED : PPTXT_EGAIS_REG2WBCREATED, bill_text);
 				}
 			}
 		}
@@ -7264,7 +7291,7 @@ int PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgaisProce
 		PPEgaisProcessor::Reply * p_reply = rReplyList.at(i);
 		int    doc_type = 0;
 		(temp_buf = p_reply->Url).Strip().RmvLastSlash();
-		ss_url_tok.clear();
+		ss_url_tok.Z();
 		temp_buf.Tokenize("/", ss_url_tok);
 		ss_url_tok.reverse();
 		for(uint sp = 0; !doc_type && ss_url_tok.get(&sp, temp_buf);) {
@@ -7394,7 +7421,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 			int    doc_type = 0;
 			temp_buf = p_reply->Url;
 			temp_buf.Strip().RmvLastSlash();
-			ss_url_tok.clear();
+			ss_url_tok.Z();
 			temp_buf.Tokenize("/", ss_url_tok);
 			ss_url_tok.reverse();
 			{
@@ -8363,7 +8390,7 @@ int PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP,
 		GetBillListForTransmission(rP, rPattern.Flags, totransm_bill_list, 0);
 		if(totransm_bill_list.getCount()) {
 			if(rPattern.EdiOp == PPEDIOP_EGAIS_ACTCHARGEON) {
-				ExclChrgOnMarks.clear();
+				ExclChrgOnMarks.Z();
 				PPGetFilePath(PPPATH_IN, "egais-exclude-chargeon-marks.txt", file_name);
 				if(fileExists(file_name)) {
 					SFile f_in(file_name, SFile::mRead);

@@ -263,7 +263,7 @@ int DraftWrOffDialog::setupList()
 	if(Data.P_List) {
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; Data.P_List->enumItems(&i, (void **)&p_item);) {
-			ss.clear();
+			ss.Z();
 			GetOpName(p_item->OpID, sub);
 			ss.add(sub);
 			GetLocationName(p_item->LocID, sub);

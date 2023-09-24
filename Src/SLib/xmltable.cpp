@@ -486,7 +486,7 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 		for(uint fld_pos = 0; rRec.GetFieldByPos(fld_pos, &fld) > 0; fld_pos++) {
 			int    r = -1;
 			field_buf.Z();
-			fld_set.clear();
+			fld_set.Z();
 			if(fld.Name.NotEmpty()) {
 				uint   fld_count = 0; // Счетчик тегов в имени поля, разделенных слышом (\) - т.е.
 					// уровень вложенности поля.

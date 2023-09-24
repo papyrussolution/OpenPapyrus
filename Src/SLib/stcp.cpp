@@ -2263,7 +2263,7 @@ static const SIntToSymbTabEntry HttpHeaderTitles[] = {
 	rBuf.Z();
 	uint   c = 0;
 	for(uint i = 0; i < rFldList.getCount(); i++) {
-		StrStrAssocArray::Item item = rFldList.at(i);
+		SStrToStrAssoc item = rFldList.at(i);
 		if(!isempty(item.Key)) {
 			rBuf.CatDivIfNotEmpty('\n', 0); //if(rBuf.NotEmpty()) rBuf.Cat("\xD\xA");
 			rBuf.Cat(item.Key);
@@ -2688,7 +2688,7 @@ int ScURL::Execute()
 	if(pFields) {
 		SString temp_buf;
 		for(uint i = 0; i < pFields->getCount(); i++) {
-			StrStrAssocArray::Item item = pFields->at(i);
+			SStrToStrAssoc item = pFields->at(i);
             if(!isempty(item.Key)) {
 				if(flds_count)
 					rBuf.CatChar('&');
@@ -2714,7 +2714,7 @@ int ScURL::Execute()
 		SString temp_buf;
 		SString fld_buf;
 		for(uint i = 0; i < pHttpHeaderFields->getCount(); i++) {
-			StrStrAssocArray::Item item = pHttpHeaderFields->at(i);
+			SStrToStrAssoc item = pHttpHeaderFields->at(i);
 			temp_buf = item.Key;
             if(temp_buf.NotEmptyS()) {
 				fld_buf.Z().Cat(temp_buf);
@@ -3628,7 +3628,7 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg)
 			StringSet ss;
 			rMsg.GetField(SMailMessage::fldFrom, temp_buf);
 			if(temp_buf.NotEmptyS()) {
-				ss.clear();
+				ss.Z();
 				if(rMsg.PreprocessEmailAddrString(temp_buf, addr_buf, &ss)) {
 					uint ssp = 0;
 					if(ss.get(&ssp, from_buf)) {
@@ -3638,7 +3638,7 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg)
 			}
 			rMsg.GetField(SMailMessage::fldTo, temp_buf);
 			if(temp_buf.NotEmptyS()) {
-				ss.clear();
+				ss.Z();
 				if(rMsg.PreprocessEmailAddrString(temp_buf, addr_buf, &ss)) {
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);)
 						p_recipients = curl_slist_append(p_recipients, temp_buf.cptr());
@@ -3646,7 +3646,7 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg)
 			}
 			rMsg.GetField(SMailMessage::fldCc, temp_buf);
 			if(temp_buf.NotEmptyS()) {
-				ss.clear();
+				ss.Z();
 				if(rMsg.PreprocessEmailAddrString(temp_buf, addr_buf, &ss)) {
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);)
 						p_recipients = curl_slist_append(p_recipients, temp_buf.cptr());

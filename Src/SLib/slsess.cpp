@@ -172,7 +172,7 @@ void SlThreadLocalArea::RemoveTempFiles(bool dontStoreFailedItems)
 		}
 	}
 	if(dontStoreFailedItems)
-		TempFileList.clear();
+		TempFileList.Z();
 	else
 		TempFileList = temp_list;
 }

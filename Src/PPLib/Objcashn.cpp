@@ -1974,7 +1974,7 @@ int PPObjCashNode::EditSync(PPSyncCashNode * pSCN) { DIALOG_PROC_BODY(SyncCashNo
 int PPObjCashNode::DiagnoseNode(const PPGenCashNode & rNode, StringSet & rSsResult)
 {
 	int    ok = -1;
-	rSsResult.clear();
+	rSsResult.Z();
 	if(PPCashMachine::IsSyncCMT(rNode.CashType)) {
 		if(rNode.ID) {
 			PPCashMachine * p_cm = PPCashMachine::CreateInstance(rNode.ID);
@@ -2101,7 +2101,7 @@ private:
 			for(uint i = 0; i < Data.ApnCorrList.getCount(); i++) {
 				PPGenCashNode::PosIdentEntry * p_entry = Data.ApnCorrList.at(i);
 				if(p_entry) {
-					ss.clear();
+					ss.Z();
 					ss.add(buf.Z().Cat(p_entry->N_));
 					ss.add(p_entry->Name);
 					p_entry->Uuid.ToStr(S_GUID::fmtIDL, buf);

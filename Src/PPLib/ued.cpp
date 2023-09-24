@@ -11,7 +11,7 @@
 	#include <unicode\measfmt.h>
 	#include <unicode\unumberformatter.h>
 #endif
-#include <sartre.h>
+//#include <sartre.h>
 #include <ued.h>
 #include <ued-id.h>
 
@@ -53,13 +53,13 @@
 		const uint32 dw_hi = HiDWord(ued);
 		const uint8  b_hi = static_cast<uint8>(dw_hi >> 24);
 		if(b_hi & 0x80) {
-			return (0x0000000100000000ULL & static_cast<uint64>(dw_hi & 0xff000000U));
+			return (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0xff000000U));
 		}
 		else if(b_hi & 0x40) {
-			return (0x0000000100000000ULL & static_cast<uint64>(dw_hi & 0xffff0000U));
+			return (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0xffff0000U));
 		}
-		else if(b_hi) {
-			return (0x0000000100000000ULL & static_cast<uint64>(dw_hi & 0x0fffffffU));
+		else if(dw_hi) {
+			return (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0x0fffffffU));
 		}
 		else
 			return 0ULL;
@@ -805,7 +805,7 @@ bool SrUedContainer::GenerateSourceDecl_Java(const char * pFileName, uint versio
 	return ok;
 }
 
-int SrUedContainer::VerifyByPreviousVersion(const SrUedContainer * pPrevC, PPLogger * pLogger)
+int SrUedContainer::VerifyByPreviousVersion(const SrUedContainer * pPrevC, bool tolerant, PPLogger * pLogger)
 {
 	int    ok = -1;
 	//
@@ -827,14 +827,18 @@ int SrUedContainer::VerifyByPreviousVersion(const SrUedContainer * pPrevC, PPLog
 			if(SearchBaseId(r_be.Id, this_symb)) {
 				if(prev_symb != this_symb) {
 					temp_buf.Z().Cat(prev_symb).Cat("-->").Cat(this_symb);
-					ok = PPSetError(PPERR_UED_PREVVERV_PREVSYMBMODIFIED, temp_buf);
+					if(!tolerant)
+						ok = 0;
+					PPSetError(PPERR_UED_PREVVERV_PREVSYMBMODIFIED, temp_buf);
 					if(pLogger)
 						pLogger->LogLastError();
 				}
 			}
 			else if(prev_symb.NotEmpty()) {
 				//PPERR_UED_PREVVERV_SYMBREMOVED      "Символ, существовавший в предудущей версии, удален в новой версии (%s)"
-				ok = PPSetError(PPERR_UED_PREVVERV_SYMBREMOVED, prev_symb);
+				if(!tolerant)
+					ok = 0;
+				PPSetError(PPERR_UED_PREVVERV_SYMBREMOVED, prev_symb);
 				if(pLogger)
 					pLogger->LogLastError();
 			}
@@ -881,7 +885,8 @@ int SrUedContainer::Verify(const char * pPath, long ver, SBinaryChunk * pHash)
 	using namespace U_ICU_NAMESPACE;
 #endif
 
-int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pCPath, const char * pJavaPath, bool forceUpdatePlDecl, PPLogger * pLogger)
+int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pRtOutPath,
+	const char * pCPath, const char * pJavaPath, uint flags, PPLogger * pLogger)
 {
 	int    ok = 1;
 	bool   unchanged = false; // Если хэш нового результатного файла не отличается от предыдущей версии, то true.
@@ -899,11 +904,13 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pC
 	SString out_path;
 	SString c_path;
 	SString java_path;
+	bool   dont_log_last_err = false;
 	long   new_version = 0;
 	THROW(!isempty(pSrcFileName)); // @todo @err
 	{
 		SPathStruc ps(pSrcFileName);
 		SPathStruc ps_out;
+		SPathStruc ps_rt_out;
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
 		path.RmvLastSlash();
 		if(!isempty(pOutPath)) {
@@ -915,6 +922,12 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pC
 			ps_out = ps;
 			out_path = path;
 		}
+		if(!isempty(pRtOutPath)) {
+			ps_rt_out.Split(pRtOutPath);
+		}
+		else {
+			ps_rt_out = ps;
+		}
 		const long prev_version = SrUedContainer::SearchLastCanonicalFile(out_path, last_file_name);
 		if(prev_version > 0) {
 			THROW(uedc_prev.ReadSource(last_file_name, pLogger));
@@ -923,7 +936,11 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pC
 		}
 		THROW(uedc.ReadSource(pSrcFileName, pLogger));
 		if(prev_version > 0) {
-			THROW(uedc.VerifyByPreviousVersion(&uedc_prev, pLogger));
+			int vr = uedc.VerifyByPreviousVersion(&uedc_prev, LOGIC(flags & prcssuedfTolerant), pLogger);
+			if(!vr) {
+				dont_log_last_err = true;
+				CALLEXCEPT();
+			}
 		}
 		{
 			SString result_file_name;
@@ -931,6 +948,7 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pC
 			SrUedContainer::MakeUedCanonicalName(ps_out.Nam, new_version);
 			ps_out.Ext = "dat";
 			ps_out.Merge(result_file_name);
+			slfprintf_stderr((temp_buf = result_file_name).Z().CR());
 			int wsr = uedc.WriteSource(result_file_name, (prev_version > 0) ? &prev_hash : 0, &new_hash);
 			THROW(wsr);
 			if(wsr > 0) {
@@ -938,11 +956,31 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pC
 				THROW(uedc.Verify(temp_buf, new_version, 0));
 			}
 			else {
+				SrUedContainer::MakeUedCanonicalName(ps_out.Nam, prev_version);
+				ps_out.Ext = "dat";
+				ps_out.Merge(result_file_name);
 				new_version = prev_version;
 				unchanged = true;
 			}
+			{
+				// Записываем файл без номера версии (будет использоваться в run-time'е)
+				SString result_file_name_wo_sfx;
+				SrUedContainer::MakeUedCanonicalName(ps_rt_out.Nam, -1);
+				ps_rt_out.Ext = "dat";
+				ps_rt_out.Merge(temp_buf);
+				SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot|SPathStruc::npfKeepCase, result_file_name_wo_sfx);
+				if(!unchanged || SFile::Compare(result_file_name_wo_sfx, result_file_name, 0) <= 0) {
+					slfprintf_stderr(temp_buf.Z().Cat(result_file_name).Cat(" -> ").Cat(result_file_name_wo_sfx).CR());
+					THROW(copyFileByName(result_file_name, result_file_name_wo_sfx));
+					//
+					SPathStruc::ReplaceExt(result_file_name, "sha256", 1);
+					SPathStruc::ReplaceExt(result_file_name_wo_sfx, "sha256", 1);
+					slfprintf_stderr(temp_buf.Z().Cat(result_file_name).Cat(" -> ").Cat(result_file_name_wo_sfx).CR());
+					THROW(copyFileByName(result_file_name, result_file_name_wo_sfx));
+				}
+			}
 		}
-		if(!unchanged || forceUpdatePlDecl) {
+		if(!unchanged || (flags & prcssuedfForceUpdatePlDecl)) {
 			{
 				SPathStruc ps_src;
 				if(!isempty(pCPath))
@@ -968,7 +1006,9 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pC
 		}
 	}
 	CATCH
-		CALLPTRMEMB(pLogger, LogLastError());
+		if(!dont_log_last_err) {
+			CALLPTRMEMB(pLogger, LogLastError());
+		}
 		ok = 0;
 	ENDCATCH
 	return ok;

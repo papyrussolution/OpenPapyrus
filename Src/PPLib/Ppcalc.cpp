@@ -1216,7 +1216,7 @@ int PosPaymentBlock::EditDialog2()
 			for(uint i = 0; i < Data.CcPl.getCount(); i++) {
 				const CcAmountEntry & r_entry = Data.CcPl.at(i);
 				if(r_entry.Type == CCAMTTYP_CRDCARD) {
-					ss.clear();
+					ss.Z();
 					temp_buf.Z();
 					if(r_entry.AddedID) {
 						SCardTbl::Rec sc_rec;

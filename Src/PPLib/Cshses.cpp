@@ -1230,7 +1230,7 @@ int PPAsyncCashSession::GetExpPathSet(StringSet * pSs)
 	int    ok = 1;
 	PPAsyncCashNode acn;
 	PPObjCashNode cnobj(0);
-	pSs->clear();
+	pSs->Z();
 	if(cnobj.GetAsync(NodeID, &acn) > 0) {
 		if(acn.ExpPaths.NotEmpty()) {
 			StringSet ss(';', acn.ExpPaths);
@@ -2220,7 +2220,7 @@ void AsyncCashGoodsInfo::Init()
 	AsscPosNodeID = 0;
 	AllowedPriceR.Z(); // @v10.6.4
 	Uuid.Z(); // @v10.0.04
-	AddedMsgList.clear();
+	AddedMsgList.Z();
 	LabelName.Z();
 	memzero(LocPrnSymb, sizeof(LocPrnSymb));
 	memzero(AsscPosNodeSymb, sizeof(AsscPosNodeSymb));

@@ -6,51 +6,8 @@
 #pragma hdrstop
 #include <scintilla.h>
 #include <scilexer.h>
-
-#ifndef USE_LOGLISTWINDOWSCI
-
-class LogListBoxDef : public StdListBoxDef {
-public:
-	LogListBoxDef(SArray * pArray, uint aOptions, TYPEID t, TVMsgLog * pMl) : StdListBoxDef(pArray, aOptions, t), P_MsgLog(pMl)
-	{
-	}
-	~LogListBoxDef()
-	{
-		ZDELETE(P_MsgLog);
-	}
-	virtual long GetRecsCount() const { return P_MsgLog ? P_MsgLog->GetVisCount() : 0; }
-	virtual void * FASTCALL getRow_(long r) { return P_MsgLog ? P_MsgLog->GetRow(r) : 0; }
-
-	TVMsgLog * P_MsgLog; // private. Don't use !
-};
-
-class LogListWindow : public TWindow {
-public:
-	LogListWindow(TRect &, LogListBoxDef *, const char *, int);
-	~LogListWindow()
-	{
-		if(IsWindow(H()))
-			DestroyWindow(H());
-		def->P_MsgLog->P_LWnd = 0;
-		ZDELETE(def);
-		ZDeleteWinGdiObject(&hf);
-	}
-	void   Refresh(long);
-	void   Append();
-protected:
-	DECL_HANDLE_EVENT;
-	static BOOL CALLBACK LogListProc(HWND, UINT, WPARAM, LPARAM);
-	SString & GetString(int pos, SString & rBuf, int oem = 0) const;
-
-	LogListBoxDef * def;
-	HFONT  hf;
-	int    StopExec; // Признак остановки цикла исполнения //
-	WNDPROC PrevLogListProc;
-};
-
-#endif // } USE_LOGLISTWINDOWSCI
 //
-// Новый вариант окна отображения сообщений (на платформе Scintilla)
+// Окно отображения сообщений (на платформе Scintilla)
 //
 class LogListWindowSCI : public TWindow, public SScEditorBase {
 public:
@@ -783,16 +740,10 @@ int TVMsgLog::ShowLogWnd(const char * pTitle)
 	if(Valid) {
 		if(!P_LWnd) {
 			TRect rect(0, 15, 80, 23);
-#ifdef USE_LOGLISTWINDOWSCI
 			P_LWnd = new LogListWindowSCI(this); // @todo invalid size 512 (> 255)
 			APPL->P_DeskTop->Insert_(P_LWnd);
 			::ShowWindow(P_LWnd->HW, SW_SHOW);
 			//P_LWnd->Refresh(GetVisCount());
-#else
-			P_LWnd = new LogListWindow(rect, new LogListBoxDef(P_Index, 0, (TYPEID)MKSTYPE(S_ZSTRING, 255), this), pTitle, 0); // @todo invalid size 512 (> 255)
-			APPL->P_DeskTop->Insert_(P_LWnd);
-			P_LWnd->Refresh(GetVisCount());
-#endif
 		}
 	}
 	else
@@ -802,10 +753,7 @@ int TVMsgLog::ShowLogWnd(const char * pTitle)
 
 TVMsgLog::~TVMsgLog()
 {
-#ifdef USE_LOGLISTWINDOWSCI
-#else
-	delete P_LWnd;
-#endif
+	; // @todo @? Не понятно, почему не разрушается экземпляр P_LWnd. Я уже забыл. Вероятно, какие-то исключения возникают. Надо проверять.
 }
 
 long TVMsgLog::ImplPutMsg(const char * pText, long flags)
@@ -826,11 +774,7 @@ long TVMsgLog::ImplPutMsg(const char * pText, long flags)
 
 void TVMsgLog::RefreshList()
 {
-#ifdef USE_LOGLISTWINDOWSCI
 	CALLPTRMEMB(P_LWnd, Append());
-#else
-	CALLPTRMEMB(P_LWnd, Append());
-#endif
 }
 //
 //
@@ -922,13 +866,20 @@ int FASTCALL PPLogger::Log(const char * pMsg)
 	int    ok = 1;
 	if(!(Flags & fDisableOutput)) {
 		SString buf(pMsg);
-		if(!P_Log) {
-			THROW_MEM(P_Log = new TVMsgLog);
-			P_Log->Init();
-			if(!(Flags & fDisableWindow) && DS.IsThreadInteractive()) // @v10.6.8 !(Flags & fDisableWindow)
-				P_Log->ShowLogWnd();
+		// @v11.8.3 {
+		if(Flags & fStdErr) {
+			buf.Strip().SetLastCR(eolUndef);
+			slfprintf_stderr(buf);
 		}
-		P_Log->PutMessage(buf.Chomp(), LF_SHOW);
+		else /* } @v11.8.3 */ {
+			if(!P_Log) {
+				THROW_MEM(P_Log = new TVMsgLog);
+				P_Log->Init();
+				if(!(Flags & fDisableWindow) && DS.IsThreadInteractive()) // @v10.6.8 !(Flags & fDisableWindow)
+					P_Log->ShowLogWnd();
+			}
+			P_Log->PutMessage(buf.Chomp(), LF_SHOW);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1001,143 +952,6 @@ int PPLogger::Save(const char * pFileName, long options)
 	}
 	return 1;
 }
-
-#ifndef USE_LOGLISTWINDOWSCI
-
-/*static*/BOOL CALLBACK LogListWindow::LogListProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	LogListWindow * p_data = (LogListWindow *)TView::GetWindowUserData(hWnd);
-	switch(uMsg) {
-		case WM_SIZE:
-			if(!IsIconic(APPL->H_MainWnd))
-				APPL->SizeMainWnd(hWnd);
-			break;
-		case WM_GETMINMAXINFO:
-			if(!IsIconic(APPL->H_MainWnd)) {
-				LPMINMAXINFO p_min_max = (LPMINMAXINFO) lParam;
-				RECT rc_client;
-				APPL->GetClientRect(&rc_client);
-				p_min_max->ptMinTrackSize.y = 40;
-				p_min_max->ptMaxTrackSize.y = rc_client.bottom / 2;
-				return 0;
-			}
-			else
-				break;
-		case WM_SHOWWINDOW:
-			PostMessage(APPL->H_MainWnd, WM_SIZE, 0, 0);
-			break;
-		case WM_NCLBUTTONDOWN:
-			if(wParam != HTTOP)
-				SetCapture(hWnd);
-			break;
-		case WM_LBUTTONUP:
-			if(hWnd == GetCapture())
-				ReleaseCapture();
-			break;
-		case WM_SYSCOMMAND:
-			if(wParam != SC_CLOSE)
-				break;
-			else {
-				::DestroyWindow(hWnd);
-				ZDELETE(p_data);
-				return 0;
-			}
-		case WM_DESTROY:
-			p_data->StopExec = 1;
-			TView::SetWindowProp(hWnd, GWLP_WNDPROC, p_data->PrevLogListProc);
-			break;
-		case WM_KEYDOWN:
-			if(wParam == VK_ESCAPE) {
-				::DestroyWindow(hWnd);
-				return 0;
-			}
-			else if(wParam == VK_F7)
-				p_data->def->P_MsgLog->Print();
-			break;
-	}
-	return CallWindowProc(p_data->PrevLogListProc, hWnd, uMsg, wParam, lParam);
-}
-
-LogListWindow::LogListWindow(TRect & rct, LogListBoxDef * aDef, const char * pTitle, int aNum) : TWindow(rct, pTitle, aNum)
-{
-	def = aDef;
-	SString temp_buf;
-	RECT   parent, r;
-	StopExec = 0; // Признак остановки цикла исполнения //
-	PrevLogListProc = 0;
-	(temp_buf = pTitle).Transf(CTRANSF_INNER_TO_OUTER);
-	APPL->GetClientRect(&parent);
-	r.left   = parent.left;
-	r.right  = parent.right;
-	r.top    = (parent.bottom / 3) * 2 + parent.top;
-	r.bottom = parent.bottom / 3;
-	SendMessage(APPL->H_LogWnd, WM_SYSCOMMAND, SC_CLOSE, 0);
-	APPL->H_LogWnd = HW = ::CreateWindowEx(WS_EX_TOOLWINDOW, _T("LISTBOX"), temp_buf,
-		WS_CHILD|WS_CLIPSIBLINGS|WS_VSCROLL|WS_CAPTION|WS_SYSMENU|WS_THICKFRAME|LBS_DISABLENOSCROLL|LBS_NOINTEGRALHEIGHT,
-		r.left, r.top, r.right, r.bottom, APPL->H_MainWnd, 0, TProgram::GetInst(), 0);
-	TView::SetWindowProp(H(), GWLP_USERDATA, this);
-	PrevLogListProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, LogListProc);
-	hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-	::SendMessage(H(), WM_SETFONT, (WPARAM)hf, 0);
-	::ShowWindow(H(), SW_SHOW);
-	::UpdateWindow(H());
-	::PostMessage(H(), WM_SIZE, 0, 0);
-	::PostMessage(APPL->H_MainWnd, WM_SIZE, 0, 0);
-	::SetWindowPos(H(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-}
-
-SString & LogListWindow::GetString(int pos, SString & rBuf, int oem) const
-{
-	if(pos < def->GetRecsCount()) {
-		rBuf = (const char *)def->getRow_(pos)+sizeof(long);
-		if(!oem)
-			rBuf.Transf(CTRANSF_INNER_TO_OUTER);
-	}
-	else
-		rBuf.Space() = 0; // Чтобы быть уверенным в том, что буфер не будет нулевым
-	return rBuf;
-}
-
-void LogListWindow::Refresh(long item)
-{
-	SString buf;
-	for(int i = 0; i < def->GetRecsCount(); i++)
-		::SendMessage(H(), LB_ADDSTRING, 0, (LPARAM)GetString(i, buf).cptr());
-	::SendMessage(H(), LB_SETCARETINDEX, item-1, 0);
-	::UpdateWindow(H());
-}
-
-void LogListWindow::Append()
-{
-	SString buf;
-	int    i = def->GetRecsCount();
-	if(i)
-		::SendMessage(H(), LB_ADDSTRING, 0, (LPARAM)GetString(i-1, buf).cptr());
-	::SendMessage(H(), LB_SETCARETINDEX, i-1, 0);
-	::UpdateWindow(H());
-}
-
-IMPL_HANDLE_EVENT(LogListWindow)
-{
-	if(event.isCmd(cmExecute)) {
-		::ShowWindow(H(), SW_SHOW);
-		::UpdateWindow(H());
-		::PostMessage(H(), WM_SIZE, 0, 0);
-		::PostMessage(APPL->H_MainWnd, WM_SIZE, 0, 0);
-		if(APPL->PushModalWindow(this, H())) {
-			::UpdateWindow(PrevInStack);
-			::EnableWindow(PrevInStack, 0);
-			APPL->MsgLoop(this, StopExec);
-			APPL->PopModalWindow(this, 0);
-		}
-		clearEvent(event);
-		event.message.infoLong = cmCancel;
-	}
-	else
-		TWindow::handleEvent(event);
-}
-
-#endif // } USE_LOGLISTWINDOWSCI
 //
 //
 //

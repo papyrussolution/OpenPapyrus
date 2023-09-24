@@ -323,8 +323,7 @@ static int BarcodeList(BarcodeArray * pCodes, int * pSelection)
 			BarcodeTbl::Rec * p_rec = 0;
 			if(P_BCodesList && P_BCodesList->getCount()) {
 				for(uint i = 0; P_BCodesList->enumItems(&i, (void **)&p_rec);) {
-					ss.clear();
-					ss.add(buf.Z().Cat(p_rec->Code));
+					ss.Z().add(buf.Z().Cat(p_rec->Code));
 					GetGoodsName(p_rec->GoodsID, buf);
 					ss.add(buf);
 					THROW(addStringToList(i, ss.getBuf()));
@@ -1556,7 +1555,7 @@ int QuotListDialog::setupList()
 					int32  period_idx = 0;
 					Quotation2Core::PeriodToPeriodIdx(&r_q.Period, &period_idx);
 					if(!period_list.lsearch(period_idx) || !qtty_list.lsearch(r_q.MinQtty)) {
-						ss.clear();
+						ss.Z();
 						ss.add(qk_text);
 						ss.add(r_q.PutValToStr(temp_buf.Z()));
 						realfmt(price, MKSFMTD(10, 2, NMBF_NOZERO), num_buf);
@@ -1572,7 +1571,7 @@ int QuotListDialog::setupList()
 				}
 			}
 			if(!found) {
-				ss.clear();
+				ss.Z();
 				ss.add(qk_text);
 				ss.add(temp_buf.Z());
 				realfmt(price, MKSFMTD(10, 2, NMBF_NOZERO), num_buf);
@@ -2381,7 +2380,7 @@ void QuotationDialog::updatePage()
 			SString temp_buf;
 			StringSet ss(SLBColumnDelim);
 			for(uint i = 0; i < Data.getCount(); i++) {
-				ss.clear();
+				ss.Z();
 				const PPQuot & r_q = Data.at(i);
 				if(r_q.Kind == Spc.PredictCoeffID && r_q.LocID == SelLocID && !r_q.Period.IsZero()) {
 					ss.add(temp_buf.Z().Cat(r_q.Period, 1));

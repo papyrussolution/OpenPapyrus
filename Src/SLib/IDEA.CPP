@@ -1,63 +1,59 @@
-/*
-	idea.cpp - C++ source code for IDEA block cipher.
-	IDEA (International Data Encryption Algorithm), formerly known as
-	IPES (Improved Proposed Encryption Standard).
-	Algorithm developed by Xuejia Lai and James L. Massey, of ETH Zurich.
-
-	This implementation modified and derived from original C code
-	developed by Xuejia Lai.
-	Zero-based indexing added, names changed from IPES to IDEA.
-	CFB functions added.  Random number routines added.
-
-	Optimized for speed 21 Oct 92 by Colin Plumb.
-	Very minor speedup on 23 Feb 93 by Colin Plumb.
-	idearand() given a separate expanded key on 25 Feb 93, Colin Plumb.
-
-	There are two adjustments that can be made to this code to
-	speed it up.  Defaults may be used for PCs.  Only the -DIDEA32
-	pays off significantly if selectively set or not set.
-	Experiment to see what works better for you.
-
-	Multiplication: default is inline, -DAVOID_JUMPS uses a
-		different version that does not do any conditional
-		jumps (a few percent worse on a SPARC), while
-		-DSMALL_CACHE takes it out of line to stay
-		within a small on-chip code cache.
-	Variables: normally, 16-bit variables are used, but some
-		machines (notably RISCs) do not have 16-bit registers,
-		so they do a great deal of masking.  -DIDEA32 uses "int"
-		register variables and masks explicitly only where
-		necessary.  On a SPARC, for example, this boosts
-		performace by 30%.
-
-	The IDEA(tm) block cipher is covered by a patent held by ETH and a
-	Swiss company called Ascom-Tech AG.  The Swiss patent number is
-	PCT/CH91/00117.  International patents are pending. IDEA(tm) is a
-	trademark of Ascom-Tech AG.  There is no license fee required for
-	noncommercial use.  Commercial users may obtain licensing details
-	from Dieter Profos, Ascom Tech AG, Solothurn Lab, Postfach 151, 4502
-	Solothurn, Switzerland, Tel +41 65 242885, Fax +41 65 235761.
-
-	The IDEA block cipher uses a 64-bit block size, and a 128-bit key
-	size.  It breaks the 64-bit cipher block into four 16-bit words
-	because all of the primitive inner operations are done with 16-bit
-	arithmetic.  It likewise breaks the 128-bit cipher key into eight
-	16-bit words.
-
-	For further information on the IDEA cipher, see these papers:
-	1) Xuejia Lai, "Detailed Description and a Software Implementation of
-	the IPES Cipher", Institute for Signal and Information
-	Processing, ETH-Zentrum, Zurich, Switzerland, 1991
-	2) Xuejia Lai, James L. Massey, Sean Murphy, "Markov Ciphers and
-	Differential Cryptanalysis", Advances in Cryptology- EUROCRYPT'91
-
-	This code assumes that each pair of 8-bit bytes comprising a 16-bit
-	word in the key and in the cipher block are externally represented
-	with the Most Significant Byte (MSB) first, regardless of the
-	internal native byte order of the target CPU.
-
-	Modified for C++ by Anton Sobolev. (Feb 1998-2018)
-*/
+// idea.cpp - C++ source code for IDEA block cipher.
+// @codepage UTF-8
+// IDEA (International Data Encryption Algorithm), formerly known as
+// IPES (Improved Proposed Encryption Standard).
+// Algorithm developed by Xuejia Lai and James L. Massey, of ETH Zurich.
+// 
+// This implementation modified and derived from original C code
+// developed by Xuejia Lai.
+// Zero-based indexing added, names changed from IPES to IDEA.
+// CFB functions added.  Random number routines added.
+// 
+// Optimized for speed 21 Oct 92 by Colin Plumb.
+// Very minor speedup on 23 Feb 93 by Colin Plumb.
+// idearand() given a separate expanded key on 25 Feb 93, Colin Plumb.
+// 
+// There are two adjustments that can be made to this code to
+// speed it up.  Defaults may be used for PCs.  Only the -DIDEA32
+// pays off significantly if selectively set or not set.
+// Experiment to see what works better for you.
+// 
+// Multiplication: default is inline, -DAVOID_JUMPS uses a
+//   different version that does not do any conditional
+//   jumps (a few percent worse on a SPARC), while -DSMALL_CACHE takes it out of line to stay within a small on-chip code cache.
+// Variables: normally, 16-bit variables are used, but some
+//   machines (notably RISCs) do not have 16-bit registers,
+//   so they do a great deal of masking.  -DIDEA32 uses "int"
+//   register variables and masks explicitly only where necessary.  On a SPARC, for example, this boosts performace by 30%.
+// 
+// The IDEA(tm) block cipher is covered by a patent held by ETH and a
+// Swiss company called Ascom-Tech AG.  The Swiss patent number is
+// PCT/CH91/00117.  International patents are pending. IDEA(tm) is a
+// trademark of Ascom-Tech AG.  There is no license fee required for
+// noncommercial use.  Commercial users may obtain licensing details
+// from Dieter Profos, Ascom Tech AG, Solothurn Lab, Postfach 151, 4502
+// Solothurn, Switzerland, Tel +41 65 242885, Fax +41 65 235761.
+// 
+// The IDEA block cipher uses a 64-bit block size, and a 128-bit key
+// size.  It breaks the 64-bit cipher block into four 16-bit words
+// because all of the primitive inner operations are done with 16-bit
+// arithmetic.  It likewise breaks the 128-bit cipher key into eight
+// 16-bit words.
+// 
+// For further information on the IDEA cipher, see these papers:
+// 1) Xuejia Lai, "Detailed Description and a Software Implementation of
+// the IPES Cipher", Institute for Signal and Information
+// Processing, ETH-Zentrum, Zurich, Switzerland, 1991
+// 2) Xuejia Lai, James L. Massey, Sean Murphy, "Markov Ciphers and
+// Differential Cryptanalysis", Advances in Cryptology- EUROCRYPT'91
+// 
+// This code assumes that each pair of 8-bit bytes comprising a 16-bit
+// word in the key and in the cipher block are externally represented
+// with the Most Significant Byte (MSB) first, regardless of the
+// internal native byte order of the target CPU.
+// 
+// Modified for C++ by Anton Sobolev. (Feb 1998-2018)
+// 
 #include <slib-internal.h>
 #pragma hdrstop
 // @v10.9.3 #if defined(TEST) || defined(TEST2)
@@ -619,9 +615,9 @@ void IDEARAND::close()
 	memzero(randkey, sizeof(randkey));
 }
 //
-// @todo Класс S_MD5 реализует ошибочный вариант md5. Я его оставил только из-за того, что
-// некоторые варианты унаследованного шифрования используют этот вариант хэша.
-// Необходимо переработать старые варианты шифрования и избавиться от этого класса!
+// @todo РљР»Р°СЃСЃ S_MD5 СЂРµР°Р»РёР·СѓРµС‚ РѕС€РёР±РѕС‡РЅС‹Р№ РІР°СЂРёР°РЅС‚ md5. РЇ РµРіРѕ РѕСЃС‚Р°РІРёР» С‚РѕР»СЊРєРѕ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ
+// РЅРµРєРѕС‚РѕСЂС‹Рµ РІР°СЂРёР°РЅС‚С‹ СѓРЅР°СЃР»РµРґРѕРІР°РЅРЅРѕРіРѕ С€РёС„СЂРѕРІР°РЅРёСЏ РёСЃРїРѕР»СЊР·СѓСЋС‚ СЌС‚РѕС‚ РІР°СЂРёР°РЅС‚ С…СЌС€Р°.
+// РќРµРѕР±С…РѕРґРёРјРѕ РїРµСЂРµСЂР°Р±РѕС‚Р°С‚СЊ СЃС‚Р°СЂС‹Рµ РІР°СЂРёР°РЅС‚С‹ С€РёС„СЂРѕРІР°РЅРёСЏ Рё РёР·Р±Р°РІРёС‚СЊСЃСЏ РѕС‚ СЌС‚РѕРіРѕ РєР»Р°СЃСЃР°!
 //
 class S_MD5 {
 public:
@@ -769,12 +765,10 @@ void S_MD5::Final(uint8 digest[16])
 			reverse_u32(m_in, 16);
 		}
 		Transform(m_buf, (uint32 *)m_in);
-		/* Now fill the next block with 56 bytes */
-		memzero(m_in, 56);
+		memzero(m_in, 56); // Now fill the next block with 56 bytes
 	}
 	else {
-		/* Pad block to 56 bytes */
-		memzero(p, count-8);
+		memzero(p, count-8); // Pad block to 56 bytes 
 	}
 	if(m_need_byteswap) {
 		reverse_u32(m_in, 14);
@@ -782,7 +776,6 @@ void S_MD5::Final(uint8 digest[16])
 	/* Append length in bits and transform */
 	((uint32 *)m_in)[14] = m_bits[0];
 	((uint32 *)m_in)[15] = m_bits[1];
-
 	Transform(m_buf, (uint32 *)m_in);
 	if(m_need_byteswap) {
 		reverse_u32((uint8 *)m_buf, 4);
@@ -917,7 +910,7 @@ void S_MD5::Transform(uint32 buf[4], uint32 in_data[16])
 			out_buf = 0;
 			THROW(SLCHECK_NZ(tab_obj.GetRow(k, row_obj)));
 			num_of_col = row_obj.GetCount();
-			//Может быть и 3 колонки
+			//РњРѕР¶РµС‚ Р±С‹С‚СЊ Рё 3 РєРѕР»РѕРЅРєРё
 			if(num_of_col == 2) {
 				THROW(SLCHECK_NZ(row_obj.Get(0, in_buf)));
 				THROW(SLCHECK_NZ(row_obj.Get(1, out_buf)));
@@ -955,10 +948,7 @@ void S_MD5::Transform(uint32 buf[4], uint32 in_data[16])
 // keylen must be less than 1024.
 // Use the MD5 algorithm.
 //
-static void hashpass(char * keystring, int keylen, uint8 * hash)
-{
-	S_MD5::Calc((uchar *)keystring, keylen, hash);
-}
+static void hashpass(char * keystring, int keylen, uint8 * hash) { S_MD5::Calc((uchar *)keystring, keylen, hash); }
 
 static void IdeaCrypt(const char * pPw, void * pBuf, size_t bufLen, int decrypt)
 {
@@ -982,15 +972,8 @@ static void IdeaCrypt(const char * pPw, void * pBuf, size_t bufLen, int decrypt)
 	idea.run((uint8 *)pBuf, bufLen);
 }
 
-void IdeaEncrypt(const char * pw, void * buf, size_t len)
-{
-	IdeaCrypt(pw, buf, len, 0);
-}
-
-void IdeaDecrypt(const char * pw, void * buf, size_t len)
-{
-	IdeaCrypt(pw, buf, len, 1);
-}
+void IdeaEncrypt(const char * pw, void * buf, size_t len) { IdeaCrypt(pw, buf, len, 0); }
+void IdeaDecrypt(const char * pw, void * buf, size_t len) { IdeaCrypt(pw, buf, len, 1); }
 
 /* @v11.1.1 (replaced with SObfuscateBuffer()) void FASTCALL IdeaRandMem(void * buf, size_t len)
 {

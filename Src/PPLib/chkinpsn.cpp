@@ -337,8 +337,7 @@ PPCheckInPersonArray & PPCheckInPersonArray::Z()
 {
 	LastAnonymN = 0;
 	SVector::clear(); // @v9.8.6 SArray-->SVector
-	MemoPool.clear();
-	MemoPool.add("$"); // zero index - is empty string
+	MemoPool.Z().add("$"); // zero index - is empty string
 	return *this;
 }
 
@@ -599,7 +598,7 @@ int PPCheckInPersonArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 			THROW_SL(MemoPool.Serialize(dir, rBuf, pCtx));
 		}
 		else {
-			MemoPool.clear();
+			MemoPool.Z();
 		}
 	}
 	else if(dir > 0) {
@@ -1270,7 +1269,7 @@ int CheckInPersonListDialog::setupList()
 		const PPCheckInPersonItem & r_item = Data.Get(i);
 		double price = 0.0;
 		double amt = 0.0;
-		ss.clear();
+		ss.Z();
 		r_item.GetPersonName(temp_buf);
 		ss.add(temp_buf);
 		if(r_item.Flags & PPCheckInPersonItem::fCheckedIn)

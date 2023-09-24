@@ -3182,6 +3182,40 @@ int PPObjBill::ViewBillInfo(PPID billID)
 				if(P_Pack)
 					ViewObjSyncTab(PPObjID(PPOBJ_BILL, P_Pack->Rec.ID));
 			}
+			// @v11.8.3 {
+			else if(event.isKeyDown(kbCtrlF12)) {
+				if(!P_Pack->Rec.EdiOp && isCurrCtlID(CTL_BILLINFO_EDIOP)) {
+					ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify);
+					if(p_lw) {
+						long   edi_op = P_Pack->Rec.EdiOp;
+						assert(edi_op == 0); // see above
+						SString temp_buf;
+						SString id_buf;
+						SString txt_buf;
+						for(uint idx = 0; PPGetSubStr(PPTXT_EDIOP, idx, temp_buf) > 0; idx++) {
+							long   id = 0;
+							if(temp_buf.Divide(',', id_buf, txt_buf) > 0) {
+								const long _id = id_buf.ToLong();
+								if(_id > 0 && txt_buf.NotEmptyS()) {
+									p_lw->listBox()->addItem(_id, txt_buf);
+								}
+							}
+						}
+						p_lw->listBox()->TransmitData(+1, &edi_op);
+						if(ExecView(p_lw) == cmOK) {
+							p_lw->listBox()->TransmitData(-1, &edi_op);
+							if(edi_op) {
+								P_Pack->Rec.EdiOp = static_cast<int16>(edi_op);
+								PPGetSubStrById(PPTXT_EDIOP, P_Pack->Rec.EdiOp, temp_buf.Z());
+								setCtrlString(CTL_BILLINFO_EDIOP, temp_buf);
+							}
+						}
+						ZDELETE(p_lw);
+					}
+					clearEvent(event);
+				}
+			}
+			// } @v11.8.3 
 			else
 				return;
 			clearEvent(event);

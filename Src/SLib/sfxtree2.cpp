@@ -1628,18 +1628,46 @@ int TestSuffixTree()
 
 SaIndex::SaIndex()
 {
-}
-
-SaIndex::SaIndex(const char * pText, size_t textLen)
-{
-	if(pText && textLen) {
-		Text.CopyFromN(pText, textLen);
-	}
+	OuterText.Init(); // @v11.8.3
 }
 
 SaIndex::~SaIndex()
 {
 	Text.Destroy();
+	OuterText.Init(); // @v11.8.3 мы не владеем этими данными, потому никакого Destroy!
+}
+
+bool SaIndex::SetText(const char * pText, size_t textLen)
+{
+	bool   ok = true;
+	OuterText.Init(); // @v11.8.3 Если устанавливается собственный буфер, то внешний разрушаем.
+	if(isempty(pText) || !textLen)
+		Text.Z();
+	else {
+		Text.CopyFromN(pText, textLen);
+		if(Text.Len() != textLen)
+			ok = false;
+	}
+	return ok;
+}
+
+bool SaIndex::SetTextOuter(char * pText, size_t textLen)
+{
+	bool   ok = true;
+	Text.Destroy(); // Здесь именно Destroy(), а не Z() поскольку объект может потреблять слишком много памяти.
+	if(isempty(pText) || !textLen)
+		OuterText.Init();
+	else
+		OuterText.Set(pText, textLen);
+	return ok;
+}
+
+bool SaIndex::Utf8ToLower() // @v11.8.3 @construction
+{
+	// @todo Необходимо проверить символы Text на принадлежность utf8
+	// Кроме того, когда будет введен в строй внешний буфер, то эта функция должна будет вернуть false ничего не делая.
+	Text.Utf8ToLower();
+	return true;
 }
 	
 int SaIndex::Build()

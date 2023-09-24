@@ -1577,7 +1577,7 @@ int ChangeDBListDialog::setupList()
 			if(data_path.IsEmpty()) {
 				dlb.GetAttr(DbLoginBlock::attrServerUrl, data_path);
 			}
-			ss.clear();
+			ss.Z();
 			ss.add(name);
 			ss.add(entry_name);
 			ss.add(data_path);
@@ -1684,15 +1684,15 @@ private:
 	int    CtrlX;
 };
 
-int BackupDialog::getDTS(BackupDlgData * data)
+int BackupDialog::getDTS(BackupDlgData * pData)
 {
 	getScenData();
 	Data.CopyID = 0;
 	CALLPTRMEMB(P_List, getCurID(&Data.CopyID));
-	data->DBID   = Data.DBID;
-	data->Scen   = Data.Scen;
-	data->CopyID = Data.CopyID;
-	data->Cmd    = Data.Cmd;
+	pData->DBID   = Data.DBID;
+	pData->Scen   = Data.Scen;
+	pData->CopyID = Data.CopyID;
+	pData->Cmd    = Data.Cmd;
 	return 1;
 }
 
@@ -1712,9 +1712,9 @@ IMPL_HANDLE_EVENT(BackupDialog)
 				if(P_List) {
 					long   copy_id = 0;
 					P_List->getCurID(&copy_id);
-					enableCommand(cmBuRestore, BIN(copy_id));
-					enableCommand(cmBuRemove,  BIN(copy_id));
-					enableCommand(cmBuCheck,   BIN(copy_id));
+					enableCommand(cmBuRestore, LOGIC(copy_id));
+					enableCommand(cmBuRemove,  LOGIC(copy_id));
+					enableCommand(cmBuCheck,   LOGIC(copy_id));
 				}
 			}
 		}
@@ -1735,19 +1735,17 @@ IMPL_HANDLE_EVENT(BackupDialog)
 			clearEvent(event);
 		}
 	}
-	else if(TVKEYDOWN) {
-		if(TVKEY == kbCtrlX) {
-			if(CtrlX) {
-				CtrlX = 0;
-				if(IsInState(sfModal)) {
-					Data.Cmd = cmBuReleaseContinuous;
-					endModal(Data.Cmd);
-				}
+	else if(event.isKeyDown(kbCtrlX)) {
+		if(CtrlX) {
+			CtrlX = 0;
+			if(IsInState(sfModal)) {
+				Data.Cmd = cmBuReleaseContinuous;
+				endModal(Data.Cmd);
 			}
-			else
-				CtrlX = 1;
-			clearEvent(event);
 		}
+		else
+			CtrlX = 1;
+		clearEvent(event);
 	}
 }
 

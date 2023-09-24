@@ -535,7 +535,7 @@ int ObjTransmMqProps::GetFromMqbMessage(const PPMqbClient::MessageProperties & r
 	SString temp_buf;
 	if(rProps.ContentType == SFileFormat::PapyruDbDivXchg) {
 		for(uint propidx = 0; propidx < rProps.Headers.getCount(); propidx++) {
-			StrStrAssocArray::Item prop_item = rProps.Headers.at(propidx);
+			SStrToStrAssoc prop_item = rProps.Headers.at(propidx);
 			if(sstreqi_ascii(prop_item.Key, "filename"))
 				(FileName = prop_item.Val).Strip().Transf(CTRANSF_UTF8_TO_OUTER);
 			else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-source"))

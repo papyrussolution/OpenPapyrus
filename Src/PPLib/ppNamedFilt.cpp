@@ -602,7 +602,7 @@ int FiltPoolDialog::setupList()
 	PPNamedFilt  nfilt;
 	StringSet ss(SLBColumnDelim);
 	for(PPID id = 0; ok && P_Data->Enum(&id, &nfilt, 0/*1 - ForAllDb*/);) {
-		ss.clear();
+		ss.Z();
 		ss.add(temp_buf.Z().Cat(nfilt.ID));
 		ss.add(nfilt.Name);
 		ss.add(nfilt.Symb);
@@ -1117,7 +1117,7 @@ public:
 		for(uint i = 0; ok && i < Data.GetCount(); i++) {
 			const PPID id = static_cast<PPID>(i+1);
 			Data.GetEntry(i, mobTypeClmn);
-			ss.clear();
+			ss.Z();
 			((ss += mobTypeClmn.Zone) += mobTypeClmn.FieldName) += mobTypeClmn.Text;
 			if(!addStringToList(id, ss.getBuf()))
 				ok = 0;
@@ -1606,7 +1606,7 @@ int MobileClmnValListDialog::setupList()
 	for(uint i = 0; ok && i < Data.GetCount(); i++) {
 		PPID id = static_cast<PPID>(i + 1);
 		Data.GetEntry(i, entry);
-		ss.clear();
+		ss.Z();
 		ss.add(entry.Zone);
 		ss.add(entry.FieldName);
 		ss.add(entry.Text);

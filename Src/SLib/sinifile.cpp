@@ -377,7 +377,7 @@ int SIniFile::InitIniBuf()
 		SString sect_buf, par_buf, par, val;
 		GetSections(&ss);
 		for(uint i = 0; ss.get(&i, sect_buf);) {
-			se.clear();
+			se.Z();
 			THROW(P_IniBuf->AddSect(sect_buf));
 			GetEntries(sect_buf, &se, 1);
 			for(uint j = 0; se.get(&j, par_buf);) {

@@ -83,7 +83,8 @@ ACS_SETSTART::ACS_SETSTART(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(0), 
 
 int ACS_SETSTART::SetGoodsRestLoadFlag(int updOnly)
 {
-	int    ok = -1, use_replace_qtty_wosale = 0;
+	int    ok = -1;
+	int    use_replace_qtty_wosale = 0;
 	PPIniFile  ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ATOL_QTTYWOSALE, &use_replace_qtty_wosale);
 	if(use_replace_qtty_wosale && (updOnly || PPMessage(mfConf|mfYesNo, PPCFM_LOADGDSRESTWOSALES) == cmYes)) {
@@ -97,7 +98,8 @@ int ACS_SETSTART::SetGoodsRestLoadFlag(int updOnly)
 
 int ACS_SETSTART::ExportData(int updOnly)
 {
-	int    ok = 1, next_barcode = 0;
+	int    ok = 1;
+	int    next_barcode = 0;
 	uint   i;
 	//char   load_symb = '$';
 	const  char * p_load_symb = "$";
@@ -119,6 +121,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 	PPSCardSerPacket scs_pack;
 	PPObjGoods goods_obj;
 	PPObjGoodsClass gc_obj;
+	PPObjCashNode cn_obj; // @v11.8.3
 	PPAsyncCashNode cn_data;
 	LAssocArray  scard_quot_list;
 	PPIDArray retail_quot_list;
@@ -126,9 +129,9 @@ int ACS_SETSTART::ExportData(int updOnly)
 	BitArray used_retail_quot;
 	PPIniFile ini_file;
 	FILE * p_file = 0;
-	const  int check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
-
+	const  int  check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 	THROW(GetNodeData(&cn_data) > 0);
+	const  bool is_vat_free = (cn_obj.IsVatFree(NodeID) > 0); // @v11.8.3
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
 		p_load_symb = "#";
 	//
@@ -352,6 +355,41 @@ int ACS_SETSTART::ExportData(int updOnly)
 				}
 			}
 		}
+		// @v11.8.3 {
+		{
+			/*
+			$$$ADDTAXRATES
+			1;НДС 0%;;;0
+			2;НДС 10%;;;10
+			3;НДС 18%;;;18
+			4;Без НДС;;;0
+			5;Расчетная ставка 10/110;;;10
+			6;Расчетная ставка 18/110;;;18
+			*/
+			fputs((f_str = "$$$ADDTAXRATES").CR(), p_file);
+			fputs((f_str = "1;НДС 0%;;;0").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+			fputs((f_str = "2;НДС 10%;;;10").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+			fputs((f_str = "3;НДС 18%;;;18").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+			fputs((f_str = "4;НДС 20%;;;20").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+			fputs((f_str = "5;Без НДС;;;0").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+			fputs((f_str = "6;Расчетная ставка 10/110;;;10").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+			fputs((f_str = "7;Расчетная ставка 18/118;;;18").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+			fputs((f_str = "8;Расчетная ставка 20/120;;;20").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+			/*
+			$$$ADDTAXGROUPRATES
+			1;1;1
+			1;2;2
+			1;3;3
+			1;4;4
+			1;5;5
+			1;6;6
+			*/
+			fputs((f_str = "$$$ADDTAXGROUPRATES").CR(), p_file);
+			for(uint i = 1; i <= 8; i++) {
+				fputs(f_str.Z().Cat(1L).Semicol().Cat(i).Semicol().Cat(i).CR(), p_file);
+			}
+		}
+		// } @v11.8.3
 		{
 			AsyncCashGoodsInfo gds_info;
 			TSArray <AtolGoodsDiscountEntry> goods_dis_list;
@@ -447,7 +485,37 @@ int ACS_SETSTART::ExportData(int updOnly)
 						tail.Cat(level + 1).Semicol();                  // #18 - Номер уровня иерархического списка
 						tail.CatCharN(';', 3);                          // #19-#21 - Не используем
 						tail.Cat(gds_info.AsscPosNodeSymb).Semicol();   // #22 - Символ кассового аппарата, ассоциированного с товаром
-						tail.Semicol();                                 // #23 Налоговую группу не грузим
+						// @v11.8.3 {
+						{
+							//gds_info.VatRate
+							//gds_info.fDeleted
+							/*
+								fputs((f_str = "1;НДС 0%;;;0").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+								fputs((f_str = "2;НДС 10%;;;10").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+								fputs((f_str = "3;НДС 18%;;;18").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+								fputs((f_str = "4;НДС 20%;;;20").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+								fputs((f_str = "5;Без НДС;;;0").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
+							*/
+							int tax_group = 0;
+							if(is_vat_free) {
+								tax_group = 5;
+							}
+							else if(gds_info.VatRate == 20.0) {
+								tax_group = 4;
+							}
+							else if(gds_info.VatRate == 18.0) {
+								tax_group = 3;
+							}
+							else if(gds_info.VatRate == 10.0) {
+								tax_group = 2;
+							}
+							else if(gds_info.VatRate == 0.0) {
+								tax_group = 1;
+							}
+							tail.Cat(tax_group);
+							tail.Semicol();                                 // #23 Налоговая группа
+						}
+						// } @v11.8.3 
 						tail.CatCharN(';', 6);                          // #24-#29 - Не используем
 						tail.Cat(strip(gds_info.LocPrnSymb)).Semicol(); // #30 - Символ локального принтера, ассоциированного с товаром
 						tail.CatCharN(';', 22);                         // #31-#52 - Не используем
@@ -991,14 +1059,12 @@ int ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 				THROW(PPGetFileName(PPFILNAM_ATOL_GOODS_FLG, PathGoodsFlag));
 		}
 		THROW_PP(Acn.ExpPaths.NotEmptyS() || Acn.ImpFiles.NotEmptyS(), PPERR_INVFILESET);
-		ImpPaths.clear();
-		ImpPaths.setDelim(";");
+		ImpPaths.Z().setDelim(";");
 		{
 			SString & r_list = Acn.ImpFiles.NotEmpty() ? Acn.ImpFiles : Acn.ExpPaths;
 			ImpPaths.setBuf(r_list, r_list.Len()+1);
 		}
-		ExpPaths.clear();
-		ExpPaths.setDelim(";");
+		ExpPaths.Z().setDelim(";");
 		{
 			SString & r_list = Acn.ExpPaths.NotEmpty() ? Acn.ExpPaths : Acn.ImpFiles;
 			ExpPaths.setBuf(r_list, r_list.Len()+1);
@@ -1047,8 +1113,7 @@ int ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 	while(imp_file.ReadLine(buf) > 0) {
 		LDATETIME dtm;
 		StringSet ss(';', 0);
-
-		ss.clear();
+		ss.Z();
 		ss.add(buf);
 		ss.get(&(pos = 0), buf);     // #01 Код транзакции (не используем)
 		ss.get(&pos, buf);           // #02 Дата транзакции
@@ -1135,7 +1200,7 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 		for(pos = 0; pos < 3; pos++)
 			imp_file.ReadLine(buf);
 		while(imp_file.ReadLine(buf) > 0) {
-			ss.clear();
+			ss.Z();
 			ss.add(buf);
 			ss.get(&(pos = 0), buf);     // #01 Код транзакции (не используем)
 			ss.get(&pos, buf);           // #02 Дата транзакции
@@ -1189,8 +1254,7 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 			int    r;
 			long   op_type, cash_no, chk_no;
 			const  long cur_zrep_n = (cur_zrep_list_pos < ZRepList.getCount()) ? ZRepList.at(cur_zrep_list_pos).ZRepN : 0;
-			ss.clear();
-			ss.add(buf);
+			ss.Z().add(buf);
 			pos = 0;
 			//   № транзакции, дата транзакции, время транзакции - пропускаем, выбираем тип транзакции (операции)
 			for(field_no = 0; field_no < 4 && ss.get(&pos, buf); field_no++);

@@ -3261,7 +3261,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 			uint   last_identical_idx = lidx; // Индекс последнего элемента идентичного по AOGUID r_item
 			{
 				// ss_name будет хранить список имен объекта, отличающихся от name_buf
-				ss_name.clear();
+				ss_name.Z();
 				ss_name.add(name_buf);
 				(temp_buf = r_item.OFFNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
 				if(temp_buf.NotEmpty() && temp_buf != name_buf)

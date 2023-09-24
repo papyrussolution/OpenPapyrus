@@ -1631,7 +1631,7 @@ int LocationExtFieldsDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < FieldNames.getCount(); i++) {
 		StrAssocArray::Item item = FieldNames.Get(i);
-		ss.clear();
+		ss.Z();
 		temp_buf.Z().Cat(item.Id);
 		ss.add(temp_buf);
 		temp_buf = item.Txt;

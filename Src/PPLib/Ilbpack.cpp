@@ -2282,7 +2282,7 @@ int BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 			StringSet ss(SLBColumnDelim);
 			SString temp_buf;
 			for(uint i = 0; i < LocPeriodList.getCount(); i++) {
-				ss.clear();
+				ss.Z();
 				const BillTransmDeficit::LocPeriod & r_item = LocPeriodList.at(i);
 				GetLocationName(r_item.LocID, temp_buf.Z());
 				ss.add(temp_buf);

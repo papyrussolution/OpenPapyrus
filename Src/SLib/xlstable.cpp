@@ -155,7 +155,7 @@ int ExcelDbFile::GetFldNames()
 	long   col = 1 + P.ColumnsCount;
 	long   row = 1 + P.HdrLinesCount;
 	SString temp_buf;
-	FldNames.clear();
+	FldNames.Z();
 	for(int i = 1; i <= max_items; i++) {
 		if(P_Sheet->GetValue(row, col, temp_buf.Z()) > 0 && temp_buf.NotEmptyS())
 			FldNames.add(temp_buf.ToUpper1251()); // @v10.9.4 ToUpper()-->ToUpper1251

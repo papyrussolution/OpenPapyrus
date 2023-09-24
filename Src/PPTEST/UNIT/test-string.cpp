@@ -272,6 +272,24 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			}
 		}
 		{
+			// Тестирование функции Chomp
+			SString org_buf;
+			static const SStrToStrAssoc case_list[] = {
+				{ "", "" },
+				{ "\xD\xA", "" },
+				{ "\xD", "" },
+				{ "\xA", "" },
+				{ "курвуазье ", "курвуазье " },
+				{ "курвуазье \xD\xA", "курвуазье " },
+				{ "курвуазье \xD", "курвуазье " },
+				{ "курвуазье \xA", "курвуазье " }
+			};
+			for(uint i = 0; i < SIZEOFARRAY(case_list); i++) {
+				org_buf = case_list[i].Key;
+				SLCHECK_EQ(org_buf.Chomp(), case_list[i].Val);
+			}
+		}
+		{
 			//
 			// Тестирование функций Search
 			//
@@ -452,7 +470,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 						if(ss_line.get(&p, src_buf)) {
 							if(ss_line.get(&p, delim)) {
 								if(ss_line.get(&p, result_str)) {
-									ss_result.clear();
+									ss_result.Z();
 									src_buf.Tokenize(delim.NotEmpty() ? (const char *)delim : 0, ss_result);
 									SLCHECK_NZ(result_str == ss_result.getBuf());
 								}
