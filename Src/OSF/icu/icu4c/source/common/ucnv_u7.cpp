@@ -392,9 +392,7 @@ unicodeMode:
 						    bits = 0;
 						    base64Counter = 0;
 						    break;
-						default:
-						    /* will never occur */
-						    break;
+						default: break; // will never occur
 					}
 				}
 				else { /*base64Value==-2*/
@@ -672,9 +670,7 @@ unicodeMode:
 						    bits = 0;
 						    base64Counter = 0;
 						    break;
-						default:
-						    /* will never occur */
-						    break;
+						default: break; // will never occur
 					}
 				}
 			}
@@ -685,7 +681,6 @@ unicodeMode:
 			}
 		}
 	}
-
 	if(pArgs->flush && source>=sourceLimit) {
 		/* flush remaining bits to the target */
 		if(!inDirectMode) {
@@ -1063,9 +1058,7 @@ unicodeMode:
 						    bits = 0;
 						    base64Counter = 0;
 						    break;
-						default:
-						    /* will never occur */
-						    break;
+						default: break; // will never occur
 					}
 				}
 				else if(base64Value==-2) {
@@ -1393,9 +1386,7 @@ unicodeMode:
 						    bits = 0;
 						    base64Counter = 0;
 						    break;
-						default:
-						    /* will never occur */
-						    break;
+						default: break; // will never occur
 					}
 				}
 			}
@@ -1406,7 +1397,6 @@ unicodeMode:
 			}
 		}
 	}
-
 	if(pArgs->flush && source>=sourceLimit) {
 		/* flush remaining bits to the target */
 		if(!inDirectMode) {

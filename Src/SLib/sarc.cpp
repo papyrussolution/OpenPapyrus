@@ -266,6 +266,86 @@ struct SArc_Bz2_Block {
 	return ok;
 }
 
+#if 0 // {
+
+static void extract(const char *filename)
+{
+	struct archive *a;
+	struct archive *ext;
+	struct archive_entry *entry;
+	int flags;
+	int r;
+	/* Select which attributes we want to restore. */
+	flags = ARCHIVE_EXTRACT_TIME;
+	flags |= ARCHIVE_EXTRACT_PERM;
+	flags |= ARCHIVE_EXTRACT_ACL;
+	flags |= ARCHIVE_EXTRACT_FFLAGS;
+	a = archive_read_new();
+	archive_read_support_format_all(a);
+	archive_read_support_filter_all(a);
+	ext = archive_write_disk_new();
+	archive_write_disk_set_options(ext, flags);
+	archive_write_disk_set_standard_lookup(ext);
+	if((r = archive_read_open_filename(a, filename, 10240)))
+		exit(1);
+	for(;;) {
+		r = archive_read_next_header(a, &entry);
+		if(r == ARCHIVE_EOF)
+			break;
+		if(r < ARCHIVE_OK)
+			fprintf(stderr, "%s\n", archive_error_string(a));
+		if(r < ARCHIVE_WARN)
+			exit(1);
+		r = archive_write_header(ext, entry);
+		if(r < ARCHIVE_OK)
+			fprintf(stderr, "%s\n", archive_error_string(ext));
+		else if(archive_entry_size(entry) > 0) {
+			//r = copy_data(a, ext);
+			//static int copy_data(struct archive *ar, struct archive *aw)
+			{
+				r = 0;
+				const void * buff;
+				size_t size;
+				la_int64_t offset;
+				for(;;) {
+					r = archive_read_data_block(a, &buff, &size, &offset);
+					if(r == ARCHIVE_EOF) {
+						//return (ARCHIVE_OK);
+						r = ARCHIVE_OK;
+						break;
+					}
+					if(r < ARCHIVE_OK) {
+						//return (r);
+						break;
+					}
+					r = archive_write_data_block(ext, buff, size, offset);
+					if(r < ARCHIVE_OK) {
+						fprintf(stderr, "%s\n", archive_error_string(aw));
+						//return (r);
+						break;
+					}
+				}
+			}
+			if(r < ARCHIVE_OK)
+				fprintf(stderr, "%s\n", archive_error_string(ext));
+			if(r < ARCHIVE_WARN)
+				exit(1);
+		}
+		r = archive_write_finish_entry(ext);
+		if(r < ARCHIVE_OK)
+			fprintf(stderr, "%s\n", archive_error_string(ext));
+		if(r < ARCHIVE_WARN)
+			exit(1);
+	}
+	archive_read_close(a);
+	archive_read_free(a);
+	archive_write_close(ext);
+	archive_write_free(ext);
+	exit(0);
+}
+#endif // } 0
+
+
 /*static*/int SArchive::Inflate(int provider, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath)
 {
 	int    ok = 0;
@@ -307,6 +387,14 @@ struct SArc_Bz2_Block {
 					ArchiveEntry * p_entry = 0;
 					const wchar_t * p_entry_name = 0;
 					SFileEntryPool::Entry fep_entry;
+					SPathStruc ps;
+					SString base_path;
+					SString final_path;
+					if(!isempty(pDestPath)) {
+						(base_path = pDestPath).Strip().RmvLastSlash();
+					}
+					else
+						base_path.Z();
 					while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
 						p_entry_name = archive_entry_pathname_w(p_entry);
 						fep_entry.Size = archive_entry_size(p_entry);
@@ -317,6 +405,52 @@ struct SArc_Bz2_Block {
 							fep_entry.WriteTime.SetTimeT(mtm);
 						}
 						//rPool.Add(fep_entry);
+						{
+							const void * p_buf;
+							size_t buf_size;
+							la_int64_t offset;
+							int local_ok = 0;
+							int rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
+							if(rd_result == ARCHIVE_OK) {
+								ps.Split(fep_entry.Path);
+								if(ps.Dir.NotEmpty()) {
+									ps.Dir.ShiftLeftChr('\\').ShiftLeftChr('/');
+									(final_path = base_path).SetLastSlash().Cat(ps.Dir);
+									ps.Dir = final_path;
+								}
+								else {
+									ps.Dir = base_path;
+								}
+								if(!createDir(ps.Dir)) {
+									; // @todo @err
+								}
+								else {
+									ps.Merge(final_path);
+									SFile f_out(final_path, SFile::mWrite|SFile::mBinary);
+									do {
+										if(!f_out.Write(p_buf, buf_size)) {
+											rd_result = ARCHIVE_FAILED;
+											; // @todo @err
+										}
+										else
+											rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
+									} while(rd_result == ARCHIVE_OK);
+									if(rd_result == ARCHIVE_EOF)
+										local_ok = 1;
+								}
+							}
+							/*for(;;) {
+								int r = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
+								if(r == ARCHIVE_EOF) {
+									//return (ARCHIVE_OK);
+									r = ARCHIVE_OK;
+									break;
+								}
+								if(r < ARCHIVE_OK) {
+									//return (r);
+									break;
+								}*/
+						}
 					}				
 				}
 				ok = 1;

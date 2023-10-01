@@ -2592,21 +2592,20 @@ void xmlInitializeCatalog()
 				void * hmodule = GetModuleHandle(_T("libxml2.dll"));
 				SETIFZ(hmodule, GetModuleHandle(NULL));
 				if(hmodule) {
-					char buf[256];
 					SString module_file_name;
-					int    mfn_len = SSystem::SGetModuleFileName(static_cast<HMODULE>(hmodule), module_file_name);
-					STRNSCPY(buf, module_file_name);
-					ulong len = sstrlen(buf);
-					if(len != 0) {
-						char * p = &(buf[len]);
+					if(SSystem::SGetModuleFileName(static_cast<HMODULE>(hmodule), module_file_name)) {
+						char buf[1024];
+						STRNSCPY(buf, module_file_name);
+						const size_t len = sstrlen(buf);
+						assert(len); // SSystem::SGetModuleFileName == true => len > 0
+						char * p = (buf + len - 1); // @v11.8.4 @fix (+len)-->(+(len-1))
 						while(*p != '\\' && p > buf)
 							p--;
 						if(p != buf) {
-							xmlChar * uri;
-							strncpy(p, "\\..\\etc\\catalog", 255 - (p - buf));
-							uri = xmlCanonicPath((const xmlChar *)buf);
+							strnzcpy(p, "\\..\\etc\\catalog", (sizeof(buf) - (p - buf)));
+							xmlChar * uri = xmlCanonicPath((const xmlChar *)buf);
 							if(uri) {
-								strncpy(XML_XML_DEFAULT_CATALOG, (const char *)uri, 255);
+								strnzcpy(XML_XML_DEFAULT_CATALOG, (const char *)uri, sizeof(XML_XML_DEFAULT_CATALOG));
 								SAlloc::F(uri);
 							}
 						}

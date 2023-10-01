@@ -4247,6 +4247,20 @@ int FASTCALL SStringU::Alloc(size_t sz)
 	return ok;
 }
 
+void SStringU::Obfuscate() // @v11.8.4
+{
+	if(Size && P_Buf) {
+		SlThreadLocalArea & r_tla = SLS.GetTLA();
+		r_tla.Rg.ObfuscateBuffer(P_Buf, Size * sizeof(wchar_t));
+		const wchar_t * p_zero = wmemchr(P_Buf, L'\0', Size);
+		if(p_zero) {
+			L = (p_zero - P_Buf);
+		}
+		else
+			P_Buf[L-1] = 0;
+	}
+}
+
 bool SStringU::Ensure(uint sz)
 {
 	return (sz > Size) ? Alloc(sz) : true;

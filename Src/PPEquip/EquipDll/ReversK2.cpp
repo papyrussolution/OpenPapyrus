@@ -358,7 +358,7 @@ public:
 	PPDrvWicket()
 	{
 		SString file_name;
-		getExecPath(file_name);
+		GetExecPath(file_name);
 		DRVS.SetLogFileName(file_name.SetLastSlash().Cat("wicket.log"));
 	}
 	virtual int ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput)

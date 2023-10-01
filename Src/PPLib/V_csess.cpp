@@ -2064,21 +2064,6 @@ int PPViewCSess::Transmit(PPID id, int transmitKind)
 {
 	int    ok = -1;
 	if(transmitKind == 1) {
-		/* @v9.1.3
-		PPImpExpParam csess_param, ccheck_param, ccline_param;
-		THROW(LoadSdRecord(PPREC_CSESS,   &csess_param.InrRec));
-		THROW(LoadSdRecord(PPREC_CCHECKS, &ccheck_param.InrRec));
-		THROW(LoadSdRecord(PPREC_CCLINES, &ccline_param.InrRec));
-		if(SelCSessImpExpParams(&csess_param, &ccheck_param, &ccline_param, 0) > 0) {
-			PPWaitStart();
-			PPCSessExporter cses_exp;
-			PPIDArray sess_list; // @vmiller
-			THROW(cses_exp.Init(&csess_param, &ccheck_param, &ccline_param));
-			GetSessList(&sess_list); // @vmiller
-			//THROW(cses_exp.PutSess(id, 0)); // @vmiller comment
-			THROW(cses_exp.PutSess(&sess_list, 0)); // @vmiller
-		}
-		*/
 		PPID   src_pos_node_id = 0;
 		CSessionTbl::Rec cses_rec;
 		if(CsObj.Search(id, &cses_rec) > 0) {

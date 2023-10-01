@@ -138,6 +138,8 @@
 #include <db.h>
 #include <ppdbs.h>
 #include <ppdefs.h>
+#include <ued.h>
+#include <ued-id.h>
 #include <report.h>
 #include <snet.h>
 #include <stylopalm.h>
@@ -434,6 +436,7 @@ class StyloQIncomingListParam;
 class StyloQDocumentPrereqParam;
 class StyloQPersonEventParam;
 class PPObjTech;
+class PPBillImporter;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -618,6 +621,9 @@ public:
 	static constexpr const char * WrParam_WsCtl_MachineUUID = "MachineUUID"; // @v11.7.2 
 	static constexpr const char * WrParam_WsCtl_Config = "Config"; // @v11.7.8
 	static constexpr const char * WrParam_SlTestApp_TestParam = "TestParam"; // @v11.8.2
+	static constexpr const char * FnExt_PPS    = ".PPS"; // Файлы передачи данных между разделами БД
+	static constexpr const char * FnExt_CHARRY = ".CHY"; // Файлы charry
+	static constexpr const char * FnExt_ORD    = ".ord";
 };
 
 // @v11.7.3 (все константы стали static constexpr) extern const PPConstParam _PPConst;
@@ -715,6 +721,7 @@ enum PredefinedImpExpFormat { // @persistent
 	piefCokeOrder                =  9, // @v11.3.8 xml-заказы кока-кола
 	piefChicago                  = 10, // @v11.5.8 xml-заказы системы чикаго (системные технологии, калининград)
 	piefNalogR_ON_NKORSCHFDOPPR  = 11, // @v11.7.0 Корректировочная счет-фактура
+	piefCCheck_Contract01        = 12  // @v11.8.4 Заказной формат импорта внешних чеков. Фантазии на имя не хватило, потому пока называется назамысловато.
 };
 //
 // Descr: Габаритные размеры (mm).
@@ -2512,365 +2519,6 @@ private:
 	StringHistoryTbl * P_ShT; // @v10.7.6
 	TSCollection <StringHistoryPool> ShL; // @v10.7.6
 };
-//
-// @vmiller
-// Descr: Вспомогательная структура, содержащая параметры для импорта/экспорта данных через dll
-//
-struct ImpExpParamDllStruct {
-	ImpExpParamDllStruct();
-
-	long   BeerGrpID;		   // ИД группы товаров "пиво"
-	long   AlcoGrpID;		   // ИД группы товаров "алкоголь"
-	long   AlcoLicenseRegID;  // ИД регистра производителя с номером "лицензия на алкоголь"
-	long   TTNTagID;		   // ИД тега с номером ТТН
-	long   ManufTagID;		   // ИД тега импортера/производител
-	long   ManufKPPRegTagID;  // ИД регистра производителя с номером КПП
-	long   RcptTagID;		   // ИД тега для пометки о доставке заказа поставщику
-	long   ManufRegionCode;   // Код региона из адреса производителя/импортера
-	long   IsManufTagID;	   // Если 1, то персоналия-производитель, 2 - персоналия-импортер
-	long   GoodsKindTagID;    // ИД тега лота, определяющего вид товара
-	long   ManufINNID;        // ИД тега лота, содержащего ИНН производител
-	SString DllPath;
-	SString FileName;
-	SString Login;
-	SString Password;
-	SString GoodsKindSymb;	   // По какому параметру искать вид товара: x, y, z, w
-	SString XmlPrefix;
-	SString OperType;		   // Тип операции импорта/экспорта
-	SString GoodsVolSymb;      // По какому параметру смотреть объем продукции: x, y, z, w
-};
-//
-// Descr: Структура соответсвия полей и параметров импорта/экспорта данных
-// @defined(PPLIB\RFLDCORR.CPP)
-//
-class PPImpExpParam {
-public:
-	static PPImpExpParam * FASTCALL CreateInstance(const char * pIehSymb, long flags);
-	static PPImpExpParam * FASTCALL CreateInstance(uint recId, long flags);
-	explicit PPImpExpParam(uint recID = 0, long flags = 0);
-	virtual ~PPImpExpParam();
-	int    Init(int import = 0);
-	virtual int Edit();
-	virtual int Select();
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
-	//
-	// Descr: Эта функция должна выполнить одну из трех операций над именем конфигурации экспорта:
-	//   (op == 1) - [decorate name] Модифицировать имя конфигурации так, чтобы обеспечить
-	//      уникальность этого имени среди других конфигураций импорта/экспорта, относящихся к
-	//      другим классам
-	//   (op == 2) - [undecorate name] Убрать декорирующую часть из имени так, чтобы пользователь
-	//      видел то имя конфигурации, которое он задал.
-	//   (op == 3) - [check decorated name] Проверить правильность декорированного имени конфигурации
-	//   (op == 4) - [check undecorated name] Проверить правильность недекорированного имени конфигурации
-	// Returns:
-	//   >0 - функция выполнена успешно
-	//   0  - ошибка
-	//   <0 - функция не выполняла ни каких действий
-	//
-	virtual int ProcessName(int op, SString & rName) const;
-	//
-	// Descr: Функция должна сформировать имя файла экспорта на основании значения FileName и
-	//   вернуть полное имя файла по ссылке rResult.
-	// Note:
-	//   Функция принципиально константная и не может ни при каких обстоятельствах
-	//   менять внутреннее состояние экземпляра объекта - это связано с особенностями вызова данной функции.
-	// Returns:
-	//   1 - имя файла используется то же, что и было задано в FileName
-	//   100 - имя файла сформировано по шаблону, заданному в FileName
-	//   0 - error
-	//
-	virtual int MakeExportFileName(const void * extraPtr, SString & rResult) const;
-	virtual int PreprocessImportFileSpec(StringSet & rList);
-
-	class PtTokenList : public SStrGroup {
-	public:
-		PtTokenList();
-		PtTokenList & Z();
-		uint    GetCount() const;
-		int     Add(long tokenId, long extID, const char * pText);
-		int     Get(uint pos, long * pTokenId, long * pExtID, SString & rText) const;
-	private:
-		struct InnerEntry {
-			long   TokenId;
-			long   ExtID;
-			uint   StrP;
-		};
-		TSVector <InnerEntry> L;
-	};
-
-	virtual int PreprocessImportFileName(const SString & rFileName, PPImpExpParam::PtTokenList & rResultList);
-	int    GetFilesFromSource(const char * pUrl, StringSet & rList, PPLogger * pLogger);
-	int    DistributeFile(PPLogger * pLogger);
-
-	enum {
-		dfText = 0,
-		dfDbf,
-		dfXml,
-		dfSoap,
-		dfExcel
-	};
-	enum {
-		bfDLL    = 0x0001,
-		bfDeleteSrcFiles = 0x0002
-	};
-	uint   RecId;
-	long   DataFormat;     // dfXXX
-	long   Direction;      // 0 - экспорт, 1 - импорт
-	long   EDIDocType;     // Тип докумнта для импорт/экспорта с помощью EDI // @vmiller
-	long   BaseFlags;      // PPImpExpParam::bfXXX
-	PPID   InetAccID;      // Учетная запись интернет-соединения
-	TextDbFile::Param  TdfParam;
-	XmlDbFile::Param   XdfParam;
-	SoapDbFile::Param  SdfParam;
-	ExcelDbFile::Param XlsdfParam;
-	SdRecord HdrInrRec;     // Запись, определяющая заголовочный внутренний набор данных.
-	SdRecord HdrOtrRec;     // Запись, определяющая заголовочный внешний набор данных.
-	SdRecord InrRec;        // Запись, определяющая внутренний набор данных
-	SdRecord OtrRec;        // Запись, определяющая внешний (для импорта/экспорта) набор данных
-	SString Name;           // Название конфигурации
-	SString DataSymb;       // Символ наименования структуры данных
-	SString GlobalUserName; // Если конфигурация принадлежит глобальной учетной записи, то здесь задается имя аккаунта.
-	SString FileName;       // Имя файла импорта/экспорта
-	ImpExpParamDllStruct ImpExpParamDll; // @vmiller
-private:
-	int    ParseFormula(int hdr, const SString & rPar, const SString & rVal);
-};
-
-extern "C" typedef PPImpExpParam * (*FN_IMPEXPHDL_FACTORY)(long flags);
-
-#define IMPEXP_HDL_FACTORY(iehSymb)  IEHF_##iehSymb
-#define IMPLEMENT_IMPEXP_HDL_FACTORY(iehSymb, cls) \
-	extern "C" __declspec(dllexport) PPImpExpParam * IEHF_##iehSymb(long flags) { return new cls(PPREC_##iehSymb, flags); }
-//
-// ARG(fileNameId  IN): Идентификатор имени файла, из которого следует получить описание формата
-// ARG(sdRecId     IN): Идентификатор записи, в соответствии с которой должен быть получено описание формата
-// ARG(pParam     OUT): Описание формата, заполняемое функцией
-// ARG(pSectNames OUT): Функция заносит в этот список наименования секций файла, содержащих описания форматов
-// ARG(kind        IN): Параметр, определяющий фильтрацию видов описаний
-//   0 - и импорт и экспорт
-//   1 - только экспорт
-//   2 - только импорт
-//
-int GetImpExpSections(uint fileNameId, uint sdRecId, PPImpExpParam * pParam, StringSet * pSectNames, int kind);
-int GetImpExpSections(uint fileName, uint sdRecID, PPImpExpParam * pParam, StrAssocArray * pList, int kind);
-//
-// Descr: Класс, реализующий универсальный механизм импорта/экспорта данных
-// Note: Функции класса считают, что все строковые поля при экспорте
-//   поставляются в ANSI кодировке (не OEM)
-//
-class PPImpExp {
-public:
-	//
-	// Descr: Вспомогательная функция, обеспечивающая разрешение выражения,
-	//   представленного наименованием поля структуры rRec.
-	//   Используется в контекстах разбора выражений.
-	//
-	static int ResolveVarName(const char * pSymb, const SdRecord & rRec, double * pVal);
-
-	PPImpExp(const PPImpExpParam *, const void * extraPtr);
-	~PPImpExp();
-	int    IsCtrError() const;
-	int    IsOpened() const;
-	int    OpenFileForReading(const char * pFileName);
-	int    OpenFileForWriting(const char * pFileName, int truncOnWriting, StringSet * pResultFileList = 0);
-	void   CloseFile();
-	//int    GetFilesFromSource(const char * pWildcard, PPLogger * pLogger);
-	int    DistributeFile(PPLogger * pLogger);
-	int    AppendHdrRecord(void * pDataBuf, size_t dataBufLen);
-	int    AppendRecord(void * pDataBuf, size_t dataBufLen);
-	int    InitDynRec(SdRecord * pDynRec) const;
-	int    ReadRecord(void * pInnerBuf, size_t bufLen, SdRecord * pDynRec = 0);
-	int    GetNumRecs(long * pNumRecs);
-	//
-	// Descr: Устанавливает внешний контекст для разрешения формул.
-	//   Экземпляр класса PPImpExp не владеет переданным указателем.
-	//   То есть, вызывающая функция (класс) должна сама
-	//   позаботиться о разрушении объекта, на который ссылается переданный указатель.
-	// Note: Передаваемый контекст должен уметь распознавать
-	//   переменные, представленные наименованиями полей структуры импорта/экспорта.
-	//   Для этого следует использовать вспомогательную статическую функцию PPImpExp::ResolveVarName.
-	//
-	void   SetExprContext(ExprEvalContext * pCtx);
-	int    SetHeaderData(const Sdr_ImpExpHeader * pData);
-	const  PPImpExpParam & GetParamConst() const;
-	PPImpExpParam & GetParam();
-	//
-	// Descr: Сохраняет текущее состояние, позволяет считывать в буфер данные о подчиненном элементе.
-	//
-	int    Push(const PPImpExpParam * pParam);
-	//
-	// Descr: Восстанавливает текущее состояние.
-	//
-	int    Pop();
-	int    FASTCALL GetFileName(SString & rFileName) const;
-	const  SString & GetPreservedOrgFileName() const;
-	//
-	// Descr: Функция возвращает подготовленные экспортированные данные в буфере rBuf.
-	//   Может быть использована только в том случае, если при инициализации
-	//   было директивно предопределено требование выгружать данные не в файл, а в буфер памяти.
-	// Returns:
-	//   >0 - данные успешно скопированы в буфер
-	//   <0 - функция не может быть выполнена поскольку экспорт был осуществлен в файл
-	//   0  - ошибка
-	//
-    int    FASTCALL GetExportBuffer(SBuffer & rBuf);
-private:
-	enum {
-		sOpened   = 0x0001, // Файл открыт
-		sReadOnly = 0x0002, // Объект работает в режиме "Чтение"
-		sCtrError = 0x0004, // Если в контструкторе возникла ошибка, то этот флаг устанавливается //
-		sBuffer   = 0x0008  // Обмен осуществляется посредством буфера, а не файла (пока доступно только для экспорта в XML)
-	};
-	// @vmiller
-	struct StateBlock {
-		StateBlock();
-
-		int    Busy;
-		ulong  RecNo;
-		SString FileNameRoot;
-		PPImpExpParam Param;
-	};
-	int    Helper_OpenFile(const char * pFileName, int readOnly, int truncOnWriting, StringSet * pResultFileList);
-	int    ResolveFormula(const char * pFormula, const void * pInnerBuf, size_t bufLen, SString & rResult);
-	int    GetArgList(SStrScan & rScan, StringSet & rArgList);
-	int    ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen);
-	int    ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pDynRec);
-	PPImpExpParam P;
-	long   State; // PPImpExp::sXXX
-	DbfTable    * P_DbfT;
-	TextDbFile  * P_TxtT;
-	XmlDbFile   * P_XmlT;
-	SoapDbFile  * P_SoapT;
-	ExcelDbFile * P_XlsT;
-	Sdr_ImpExpHeader * P_HdrData;
-	ExprEvalContext * P_ExprContext; // @notowned
-	ulong  R_RecNo;
-	ulong  W_RecNo;
-	ulong  R_SaveRecNo;
-	int    ExtractSubChild;
-	SString PreserveOrgFileName; // @v9.3.10
-	// @v9.3.10 PPImpExpParam SaveParam;
-	TSCollection <StateBlock> StateColl; // @vmiller
-	TSStack <int> StateStack; // @vmiller
-};
-//
-//
-//
-class PPDbTableXmlExporter {
-public:
-	struct BaseParam {
-		BaseParam(uint32 sign);
-		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-
-		enum {
-			fReplaceIdsBySync = 0x0001
-		};
-		uint32 Sign;
-		long   Flags;
-		PPID   RefDbID;
-		SString FileName;
-	};
-	PPDbTableXmlExporter();
-	virtual ~PPDbTableXmlExporter();
-	virtual DBTable * Init() = 0;
-	virtual int  Next() = 0;
-	int    Run(const char * pOutFileName);
-protected:
-	IterCounter Cntr;
-};
-
-struct PPDbTableXmlExportParam_TrfrBill : public PPDbTableXmlExporter::BaseParam {
-public:
-	static int Edit(PPDbTableXmlExportParam_TrfrBill * pData);
-	PPDbTableXmlExportParam_TrfrBill();
-	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-
-	DateRange Period;
-};
-
-class PPDbTableXmlExporter_Transfer : public PPDbTableXmlExporter {
-public:
-	PPDbTableXmlExporter_Transfer(const PPDbTableXmlExportParam_TrfrBill & rParam);
-private:
-	virtual DBTable * Init();
-	virtual int  Next();
-
-	PPDbTableXmlExportParam_TrfrBill P;
-	Transfer * P_T;
-	BExtQuery * P_Q;
-};
-
-class PPDbTableXmlExporter_Bill : public PPDbTableXmlExporter {
-public:
-	PPDbTableXmlExporter_Bill(const PPDbTableXmlExportParam_TrfrBill & rParam);
-private:
-	virtual DBTable * Init();
-	virtual int  Next();
-
-	PPDbTableXmlExportParam_TrfrBill P;
-	BillCore * P_T;
-	BExtQuery * P_Q;
-};
-//
-// Descr: Общий контекст разрешения формул по записи импорта/экспорта
-//
-class ImpExpExprEvalContext : public ExprEvalContext {
-public:
-	ImpExpExprEvalContext(const SdRecord & rRec);
-	virtual int Resolve(const char * pSymb, double * pVal);
-private:
-	const SdRecord & R_Rec;
-};
-//
-// @vmiller
-// Класс для импорта/экспорта через dll
-//
-class ImpExpDll {
-public:
-	typedef int (* InitExpProc)(void * , const char * , int *);
-	typedef int (* SetExpObjProc) (uint , const char * , void *, int *, const char *);
-	typedef int (* InitExpIterProc) (uint , uint);
-	typedef int (* NextExpIterProc) (uint , uint , void *);
-	typedef int (* EnumExpReceiptProc) (void *);
-	typedef int (* InitImpProc)(void * , const char * , int *);
-	typedef int (* GetImpObjProc) (uint , const char * , void *, int *, const char *);
-	typedef int (* InitImpIterProc) (uint , uint);
-	typedef int (* NextImpIterProc) (uint , uint , void *);
-	typedef int (* ReplyImpObjStatusProc) (uint , uint , void *);
-	typedef int (* FinishImpExpProc) ();
-	typedef int (* GetErrorMessageProc) (char * , uint);
-
-	ImpExpDll();
-	~ImpExpDll();
-	int    operator !() const;
-	const  int IsInited() { return Inited; }
-	// pDllName - полный путь к dll
-	// op - операция. 1 - экспорт, 2 - импорт
-	int InitLibrary(const char * pDllName, uint op);
-	void ReleaseLibrary();
-
-	InitExpProc InitExport;
-	SetExpObjProc SetExportObj;
-	InitExpIterProc InitExportIter;
-	NextExpIterProc NextExportIter;
-	EnumExpReceiptProc EnumExpReceipt;
-	InitImpProc InitImport;
-	GetImpObjProc GetImportObj;
-	InitImpIterProc InitImportIter;
-	NextImpIterProc NextImportIter;
-	ReplyImpObjStatusProc ReplyImportObjStatus;
-	FinishImpExpProc FinishImpExp;
-	GetErrorMessageProc GetErrorMessage;
-private:
-	int    OpKind;
-	int    Inited;
-	SDynLibrary * P_Lib;
-};
-
-int InitImpExpParam(uint hdrRecType, uint recType, PPImpExpParam * pParam, const char * pFileName, int forExport, long dataFormat);
-int InitImpExpDbfParam(uint recType, PPImpExpParam * pParam, const char * pFileName, int forExport);
 //
 // Параметры подстановки объектов для получения агрегированных отчетов
 // Строки соответствующие SubstGrpGoods: PPTXT_SUBSTGOODSLIST
@@ -7954,7 +7602,8 @@ public:
 	int    Register();
 	int    Unregister();
 	int    GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessData * pData);
-	const  SrSyntaxRuleSet * GetSrSyntaxRuleSet(); // @cs @v9.8.10
+	const  SrSyntaxRuleSet * GetSrSyntaxRuleSet(); // @cs
+	const  SrUedContainer_Rt * GetUedContainer(); // @cs // @v11.8.4 @construction 
 	int    FASTCALL PushLogMsgToQueue(const PPLogMsgItem & rItem);
 	int    Log(const char * pFileName, const char * pStr, long options);
 	int    GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList);
@@ -8027,6 +7676,7 @@ private:
 		// Единственная точка прямого доступа к этому указателю - FetchAlbatrosConfig()
 	SrSyntaxRuleSet * P_SrStxSet;      // Глобально доступный скомпилированный набор синтаксических правил
 		// Единственная точка прямого доступа к этому указателю - PPSession::GetSrSyntaxRuleSet()
+	SrUedContainer_Rt * P_UedC; // @v11.8.4 @construction Глобально доступный экземпляр для работы с коллекцией объектов UED
 	Profile GPrf; // Глобальный профайлер для всей сессии. Кроме него в каждом потоке есть собственный профайлер PPThreadLocalArea::Prf
 	PPConfigDatabase * P_ExtCfgDb; // @v10.7.6 Экспериментальный вариант экземпляра дополнительной конфигурационной базы данных
 
@@ -24050,24 +23700,6 @@ public:
 	TLP_MEMB(WorkbookCore, P_Tbl);
 	void * ExtraPtr;
 };
-
-class PPWorkbookImpExpParam : public PPImpExpParam {
-public:
-	explicit PPWorkbookImpExpParam(uint recId = 0, long flags = 0);
-};
-
-class PPWorkbookExporter {
-public:
-	PPWorkbookExporter();
-	~PPWorkbookExporter();
-	int    Init(const PPWorkbookImpExpParam * pParam);
-	int    ExportPacket(const PPWorkbookPacket * pPack);
-private:
-	PPWorkbookImpExpParam Param;
-	PPImpExp * P_IEWorkbook;
-	PPObjWorkbook WbObj;
-	SString DestFilesPath; // @*PPWorkbookExporter::Init()
-};
 // } @v7.9.2 @Muxa
 //
 //
@@ -29230,7 +28862,7 @@ public:
 	PPID   GoodsLocAssocID;    // @v11.5.8 Если установлен флаг Flags2 & f2ShowWhPlace то в этом поле может быть определен id именованной ассоциации.
 	PPID   UhttStoreID;        // Магазин Universe-HTT в контексте которого извлекаются товары.
 	PPID   RestrictQuotKindID; // Вид ограничивающей котировки (извлекаются только те товары, которые имеют котировку этого вида)
-	int32  InitOrder;          //
+	int32  InitOrder;          // PPViewGoods::IterOrder::OrdByXXX
 	PPID   MtxLocID;           // Если (Flags & (fRestrictByMatrix|fOutOfMatrix)), то данное поле
 		// определяет склад, по которому проверяется принадлежность (не принадлежность) матрице.
 		// Если (Flags & (fRestrictByMatrix|fOutOfMatrix)) и MtxLocID == 0, то принадлежность (не принадлежность) матрице
@@ -31808,7 +31440,8 @@ public:
 		OrdByBarcode,      // Сортировка на выбор пользователем, включая OrdByName
 		OrdByBrand_Name,
 		OrdByBarcode_Name,
-		OrdByID            // @v11.7.12 Сортировка строго по идентификатору
+		OrdByID,           // @v11.7.12 Сортировка строго по идентификатору
+		OrdByManuf_Name,   // @v11.8.4  Сортировка по производителю и наименованию //
 	};
 	PPViewGoods();
 	~PPViewGoods();
@@ -31857,7 +31490,7 @@ private:
 	int    CreateTempTable(IterOrder ord, TempOrderTbl ** ppTbl);
 	PPViewGoods::IterOrder GetIterOrder() const;
 	bool   IsTempTblNeeded(); // not const function
-	void   MakeTempRec(const Goods2Tbl::Rec *, TempOrderTbl::Rec *);
+	void   MakeTempRec(const Goods2Tbl::Rec &, TempOrderTbl::Rec *);
 	int    InitGroupNamesList();
 	void   RemoveTempAltGroup();
 	int    NextInnerIteration(int initList, GoodsViewItem *);
@@ -32060,204 +31693,6 @@ private:
 	GoodsToObjAssoc * P_Assoc;
 	uint   IterIdx;
 	PPObject * P_AsscObj; // Ассоциированный с товаром объект (фоновый экземпляр для ускорения)
-};
-//
-//
-//
-struct GoodsImportBillIdent {
-	GoodsImportBillIdent(PPObjPerson * pPsnObj, PPID defSupplID);
-	~GoodsImportBillIdent();
-	void   GetFldSet(PPIniFile *, uint sect, DbfTable * pTbl);
-	int    Get(DbfRecord * pRec);
-	int    Get(Sdr_Goods2 * pRec, PPID supplID);
-	PPBillPacket * GetPacket(PPID opID, PPID locID);
-	int    FinishPackets();
-
-	PPID   SupplID;
-	LDATE  BillDate;
-	SString BillCode;
-private:
-	int    fldn_suppl;
-	int    fldn_supplcode;
-	int    fldn_billcode;
-	int    fldn_billdate;
-	//
-	SString SupplCodeRegSymb;
-	int    CvtCodeToHex;
-	PPID   RegTypeID;
-	PPID   AccSheetID;
-	PPID   DefSupplID;
-	//
-	SArray * P_CodeToPersonTab;
-	PPObjPerson * P_PsnObj; // Not owned by GoodsImportBillIdent
-	PPObjArticle * P_ArObj;
-	TSCollection <PPBillPacket> * P_PackList;
-};
-
-class HierArray : public SVector {
-public:
-	struct Item {
-		char   Code[24];
-		char   ParentCode[24];
-	};
-	HierArray();
-	const  HierArray::Item & at(uint i) const;
-	int    Add(const char * pCode, const char * pParentCode);
-	int    SearchParentOf(const char * pCode, char * pBuf, size_t bufLen) const;
-	int    IsThereChildOf(const char * pParentCode) const;
-};
-
-class PPGoodsImpExpParam : public PPImpExpParam {
-public:
-	enum {
-		fSkipZeroQtty     = 0x0001,
-		fAnalyzeBarcode   = 0x0002,
-		fAnalyzeName      = 0x0004,
-		fAnalyzeOnly      = 0x0008,
-		fUHTT     = 0x0010,
-		fForceSnglBarcode = 0x0020,
-		fImportImages     = 0x0040,
-		fForceUpdateManuf = 0x0080,
-		fForceUpdateBrand = 0x0100  // @v11.6.10
-	};
-	PPGoodsImpExpParam(uint recId = 0, long flags = 0);
-	void   Clear();
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
-
-	int32   AccSheetID;
-	int32   SupplID;
-	int32   DefUnitID;
-	int32   PhUnitID;
-	int32   DefParentID;
-	int32   RcptOpID;
-	int32   Flags;
-	int32   LocID;
-	int32   MatrixAction;
-	SString SubCode;
-};
-
-class PPGoodsExporter {
-public:
-	PPGoodsExporter();
-	~PPGoodsExporter();
-	int    Init(const PPGoodsImpExpParam * pParam, StringSet * pResultFileList);
-	int    ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, PPID altGrpID = 0); // realy pPack - const
-	PPGoodsImpExpParam Param;
-	PPImpExp * P_IEGoods;
-private:
-	char   WeightPrefix[12];
-	PPObjGoods * P_GObj;
-	PPObjPerson * P_PsnObj;
-	PPObjQCert * P_QcObj;
-};
-//
-//
-//
-class PPQuotImpExpParam : public PPImpExpParam {
-public:
-	explicit PPQuotImpExpParam(uint recId = 0, long flags = 0);
-	PPQuotImpExpParam & Z();
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-
-	int32   QuotCls;    // @v11.4.2 Категория котировок
-	int32   QuotKindID;
-	int32   CurrID;
-	int32   ArID;
-	int32   LocID;
-	int32   Flags;
-};
-//
-//
-//
-class PPPhoneListImpExpParam : public PPImpExpParam {
-public:
-	PPPhoneListImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-
-	SString DefCityPhonePrefix;
-};
-
-int EditPhoneListParam(const char * pIniSection);
-//
-//
-//
-class PPPersonImpExpParam : public PPImpExpParam {
-public:
-	explicit PPPersonImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-	enum {
-		f2GIS      = 0x0001, // Данные извлечены из сервиса 2GIS (импорт реализуется с некоторыми спецификами)
-		fCodeToHex = 0x0002  // Код персоналии преобразуется к строке, каждый символ кода преобразуется //
-			// в свое беззнаковое шестнадцатиричное представление (два символа). Буквы в этой строке находятся в верхнем регистре.
-	};
-	PPID   DefKindID;
-	PPID   DefCategoryID;
-	PPID   DefCityID;
-	PPID   SrchRegTypeID;
-	long   Flags;
-};
-//
-//
-//
-class PPSCardImpExpParam : public PPImpExpParam {
-public:
-	PPSCardImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-
-	SString DefSeriesSymb;
-	SString OwnerRegTypeCode;
-};
-//
-//
-//
-class PPCliBnkImpExpParam : public PPImpExpParam {
-public:
-	PPCliBnkImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-
-	int    DefPayerByAmtSign; // Если !0, то плательщик определяется по знаку суммы операции.
-	SString BnkCode;          // Код банка, с которым происходит взаимодействие.
-	SString PaymMethodTransl; // Трансляция вида платежа из Papyrus в client bank
-};
-//
-//
-//
-class PPLotImpExpParam : public PPImpExpParam {
-public:
-	PPLotImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-
-	long   Flags;
-	PPID   UhttGoodsCodeArID;
-};
-
-class PPLotExporter {
-public:
-	PPLotExporter();
-	~PPLotExporter();
-	int    Init(const PPLotImpExpParam * pParam);
-	int    Export(const LotViewItem * pItem);
-private:
-	PPLotImpExpParam Param;
-	PPObjPerson PsnObj;
-	PPObjGoods GObj;
-	PPObjArticle ArObj;
-	PPUhttClient UhttCli;
-	PPImpExp * P_IE;
 };
 //
 // Descr: Класс, управляющий информацией о загрузке данных на кассы, весы и, возможно,
@@ -33611,575 +33046,6 @@ private:
 //
 int PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr, int use_ta);
 //
-// Descr: Базовый класс для реализации механизмов экспорта/импорта в форматах, предопределенных
-//   государственными органами России.
-//
-class DocNalogRu_Base {
-public:
-	struct FileInfo {
-		FileInfo();
-		PPID   SenderPersonID;
-		PPID   ReceiverPersonID;
-		PPID   ProviderPersonID;
-		LDATETIME CurDtm; // Текущее время. Так как дебильные форматы NALOG.RU требуют текущие время и дату в самых разных
-			// и неожиданных местах в целях избежания противоречивости сформируем один раз это значение для использования везде.
-		enum {
-			fVatFree = 0x0001
-		};
-		long   Flags;
-		S_GUID Uuid;
-		SString FormatPrefix;
-		SString SenderIdent;
-		SString ReceiverIdent;
-		SString ProviderIdent;
-		SString ProviderName;
-		SString ProviderINN;
-		SString FileId;
-		SString FileName;
-		SString FileFormatVer; // ВерсФорм
-		SString ProgVer;       // ВерсПрог
-	};
-	struct Address {
-		Address();
-		int   RuRegionCode;
-		SString ZIP;
-		SString Destrict; // Район
-		SString City;
-		SString Street;
-		SString House; // Дом
-		SString HouseCorp; // Корпус
-		SString Apart; // Квартира
-	};
-	struct BankAccount {
-		SString Account;
-		SString BankName;
-		SString BIC;
-	};
-	struct FIO {
-		SString Surname;
-		SString Name;
-		SString Patronymic;
-	};
-	struct Participant {
-		Participant();
-		int   PartyQ; // EDIPARTYQ_XXX
-		PPID  PersonID; // ->Person.ID
-		PPID  LocID;    // ->Location.ID
-		SString GLN;
-		SString OKPO;
-		SString INN;
-		SString KPP;
-		SString Appellation;
-		SString Name_;
-		SString Surname;
-		SString Patronymic;
-		Address Addr;
-		BankAccount BA;
-	};
-	struct GoodsItem {
-		GoodsItem();
-		int   RowN;
-		SString GoodsName;
-		SString GTIN; // Штрихкод товара (EAN/UPC)
-		SString NonEAN_Code; // @v11.5.3 Код товара, не являющийся EAN или UPC-кодом. Пытаемся идентифицировать товар по нему как коду по статье
-		SString OKEI;
-		SString UOM;
-		double Qtty;
-		double Price;
-		double PriceWoVat;
-		double PriceSum;
-		double PriceSumWoVat;
-		double VatRate;
-		StringSet MarkList;
-	};
-	struct DocumentInfo {
-		DocumentInfo();
-		Participant * GetParticipant(int partQ, bool createIfNExists);
-		SString KND; // КНД
-		SString Function; // Функция
-		LDATE  Dt; // Дата документа (накладной)
-		SString Code; // Номер документа (накладной)
-		LDATE  InvcDate; // Дата счет-фактуры
-		SString InvcCode; // Номер счет-фактуры
-		SString Subj; // PPHSC_RU_NAMEECSUBJCOMP(НаимЭконСубСост)
-		SString SubjReason; // PPHSC_RU_REASONECSUBJCOMP(ОснДоверОргСост)
-		SString NameOfDoc;  // "НаимДокОпр"
-		SString NameOfDoc2; // "ПоФактХЖ"
-		TSCollection <Participant> ParticipantList;
-		TSCollection <GoodsItem> GoodsItemList;
-	};
-	DocNalogRu_Base();
-	const  SString & FASTCALL GetToken_Ansi(long tokId);
-	const  SString & FASTCALL GetToken_Utf8(long tokId);
-	//
-	// Descr: Возвращает токен поля с префиксом П0 и последующим номером 10-значным n, набитым слева нулями.
-	//
-	const  SString & FASTCALL GetToken_Ansi_Pe0(long n);
-	//
-	// Descr: Возвращает токен поля с префиксом П1 и последующим номером 10-значным n, набитым слева нулями.
-	//
-	const  SString & FASTCALL GetToken_Ansi_Pe1(long n);
-protected:
-	SString & FASTCALL Helper_GetToken(long tokId);
-	// @v11.7.0 (заменено на револьверную строку) SString TokBuf;
-	TokenSymbHashTable TsHt;
-};
-
-class DocNalogRu_Generator : public DocNalogRu_Base {
-public:
-	struct File {
-		File(DocNalogRu_Generator & rG, const FileInfo & rHi);
-		SXml::WNode N;
-	};
-	struct Document {
-		Document(DocNalogRu_Generator & rG, const DocumentInfo & rInfo);
-		SXml::WNode N;
-	};
-	struct Invoice {
-		//
-		// ARG(correction IN): Если true, то формирование документа будет в варианте корректирующей счет-фактуры. 
-		//   В этой схеме отличаются некоторые теги.
-		//
-		Invoice(DocNalogRu_Generator & rG, const PPBillPacket & rBp, bool correction = false);
-		SXml::WNode N;
-		const bool IsCorrection;
-	};
-	DocNalogRu_Generator();
-	~DocNalogRu_Generator();
-	int    CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo);
-	int    MakeOutFileIdent(FileInfo & rHi);
-	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
-	int    StartDocument(const char * pFileName);
-	void   EndDocument();
-	//
-	// ARG(correction IN): Если true, то формирование строк документа будет в варианте корректирующей счет-фактуры. 
-	//   В этой схеме отличаются некоторые теги.
-	//
-	int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction = false);
-	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
-	// 
-	// Descr: Флаги функции WriteOrgInfo
-	//
-	enum {
-		woifAddrLoc_KppOnly = 0x0001 // Адрес addrLocID использовать только для извлечения КПП
-	};
-	int    WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
-	int    WriteOrgInfo_VatLedger(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
-	//
-	// Descr: Записывает тип "УчастникТип"
-	//
-	int    WriteParticipant(const char * pHeaderTag, PPID psnID, PPID dlvrLocID);
-	//
-	// Descr: Разбивает строку pName на фамилию/имя/отчество и записывает их тегами либо атрибутами
-	//   в зависимости от параметра asTags внутри тега с именем, определямемым идентификатором parentTokId.
-	//   Если parentTokId == 0, то применяется тег с идентификатором PPHSC_RU_FIO.
-	//
-	int    WriteFIO(const char * pName, long parentTokId, bool asTags);
-	int    Underwriter(PPID psnID);
-	int    GetAgreementParams(/*PPID arID*/const PPBillPacket & rBillPack, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
-	const  SString & FASTCALL EncText(const SString & rS);
-//private:
-	PPObjGoods GObj;
-	PPObjPerson PsnObj;
-	PPObjArticle ArObj;
-	SXml::WDoc * P_Doc;
-	xmlTextWriter * P_X;
-private:
-	enum {
-		fExpChZnMarksGTINSER = 0x0001,
-		fExpPlainAddr        = 0x0002 // @v11.5.11 see pp.ini [config] ExpNalogRuPlainAddr
-	};
-	uint   Flags;
-	SString EncBuf;
-};
-//
-//
-//
-class PPBillImpExpParam : public PPImpExpParam {
-public:
-	enum {
-		fImpRowsFromSameFile  = 0x0001,
-		fImpExpRowsOnly       = 0x0002, // Импортировать/экспортировать только файл строк
-		//fSignBill = 0x0002
-		fRestrictByMatrix     = 0x0004, //
-		fExpOneByOne          = 0x0008, // Экспортировать документы по-одному в каждом файле
-		fCreateAbsenceGoods   = 0x0010, // @v10.4.12 Создавать отсутствующие товары (если возможно)
-		fDontIdentGoodsByName = 0x0020, // @v10.5.0  При идентификации товаров
-		fChZnMarkAsCDATA      = 0x0040, // @v11.5.0 Для xml-форматов при экспорте марок чезнак обрамлять значения в конструкцию CDATA
-		fChZnMarkGTINSER      = 0x0080, // @v11.5.0 Марки чезнак экспортировать в виде GTIN-SERIAL, в противном случае - полную марку
-		fUseExtGoodsName      = 0x0100, // @v11.7.12 При экспорте использовать расширенные наименования товаров (если определены)
-	};
-	//
-	// Descr: Предопределенный форматы импорт/экспорта документов
-	//
-	/* @v11.0.2 (replaced with PredefinedImpExpFormat::piefXXX ) enum { // @persistent
-		pfUndef = 0,
-		pfNalogR_Invoice   = 1, //
-		pfNalogR_REZRUISP  = 2, //
-		pfNalogR_SCHFDOPPR = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
-		pfExport_Marks     = 4, // @v10.7.12
-		pfNalogR           = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
-		pfNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
-	};*/
-	explicit PPBillImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-	virtual int MakeExportFileName(const void * extraPtr, SString & rResult) const;
-	virtual int PreprocessImportFileSpec(StringSet & rList);
-	virtual int PreprocessImportFileName(const SString & rFileName, /*StrAssocArray*/PPImpExpParam::PtTokenList & rResultList);
-
-	long   Flags;             // @persistent
-	PPID   ImpOpID;           // @persistent
-	long   PredefFormat;      // @persistent
-	PPID   FixTagID;          // @v11.5.6 @persistent Тег, фиксирующий факт экспорта документа. Если в документе такой тег установлен, то документ снова не экспортируется.
-	SString Object1SrchCode;  // @persistent
-	SString Object2SrchCode;  // @persistent
-	SString OuterFormatVer;   // @v11.6.5 @persistent Номер формата внешних данных. Если пусто, то применяется программно предопределенное значение.
-};
-//
-// Экспорт/импорт инвентаризации
-//
-//
-// Импорт инвентаризации
-//
-class PPInventoryImpExpParam : public PPImpExpParam {
-public:
-	explicit PPInventoryImpExpParam(uint recId = 0, long flags = 0);
-};
-//
-// Descr: Вспомогательная стурктура, используемая в специализиованных
-//   модулях экспорта документов (ЕГАИС, EDI)
-//
-struct PPBillIterchangeFilt {
-	PPBillIterchangeFilt();
-
-	PPID   LocID;
-	DateRange Period;
-	PPIDArray IdList;
-};
-
-class PPBillImpExpBaseProcessBlock {
-public:
-	enum {
-		fUhttImport     = 0x0001,  // Импорт документов из Universe-HTT
-		fSignExport     = 0x0002,  // Подписывать исходящие файлы электронной подписью
-		fEdiImpExp      = 0x0004,  // Импорт/экспорт документов через EDI
-		fCreateCc       = 0x0008,  // При создании документа одновременно создавать чек заказа
-		fDisableLogger  = 0x0010,  // Не выводить сообщения в окно журнала
-		fEgaisImpExp    = 0x0020,  // Обмен данными с ЕГАИС
-		fTestMode       = 0x0040,  //
-		fDontRemoveTags = 0x0080,  // Для EDI и ЕГАИС - не снимать теги при получении отрицательных тикетов
-		fPaymOrdersExp  = 0x0100,  // Экспорт платежных поручений
-		fEgaisVer3      = 0x0200,  // Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
-		fFullEdiProcess = 0x0400,  // Полный цикл EDI-обмена данными с контрагентами
-		fChZnImpExp     = 0x0800,  // @v10.6.4 Обмен данными с честным знаком
-		fEgaisVer4      = 0x1000,  // @v11.0.12 Передача документов в ЕГАИС в 4-й версии (возможность переопределить конфигурацию глобального обмена)
-	};
-	struct TransmitParam {
-		TransmitParam();
-		void   Reset();
-
-        PPID   InetAccID;
-		StrAssocArray AddrList;
-		SString Subject;
-	};
-	struct SearchBlock {
-		SearchBlock();
-
-		LDATE  Dt;
-		int    SurveyDays; // Количество дней назад от текущей даты для поиска документа
-		SString Code;
-		SString DlvrLocCode;
-	};
-	PPBillImpExpBaseProcessBlock();
-	PPBillImpExpBaseProcessBlock & Z();
-	int    Select(int import);
-	int    SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    SearchEdiOrder(const SearchBlock & rBlk, BillTbl::Rec * pOrderRec);
-
-	long   Flags;
-	long   DisabledOptions; // @transient
-	PPID   OpID;
-	PPID   LocID;
-	PPID   PosNodeID;
-	PPID   GuaID;        // @v10.6.5 Глобальная учетная запись
-	DateRange Period;    // Период за который следует импортировать документы
-	PPBillImpExpParam BillParam;
-	PPBillImpExpParam BRowParam;
-	SString CfgNameBill;
-	SString CfgNameBRow;
-	TransmitParam Tp;
-	PPObjBill * P_BObj;
-	PPObjLocation LocObj;
-	PPObjPerson PsnObj;
-	PPObjQCert  QcObj;
-	PPObjArticle ArObj;
-	PPObjGoods  GObj;
-	PPObjTag TagObj;
-};
-
-class PPBillExporter : public PPBillImpExpBaseProcessBlock {
-public:
-	PPBillExporter();
-	~PPBillExporter();
-	void   Destroy();
-	int    Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, const PPBillPacket * pFirstPack, StringSet * pResultFileList);
-	int    PutPacket(PPBillPacket * pPack, int sessId = 0, ImpExpDll * pImpExpDll = 0);
-	int    SignBill(); // @vmiller
-	int    CheckBillsWasExported(ImpExpDll * pExpDll); // @vmiller // Получает от dll список успешно экспортированных документов и ставит в них соответствующую пометку
-	PPImpExp * GetIEBill() const { return P_IEBill; }
-	PPImpExp * GetIEBRow() const { return P_IEBRow; }
-private:
-	int    BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill);
-	int    GetInn(PPID arID, SString & rINN);
-	int    GetReg(PPID arID, PPID regTypeID, SString & rRegNum);
-
-	PPImpExp * P_IEBill;
-	PPImpExp * P_IEBRow;
-	PPObjPersonKind PsnKObj;
-};
-
-typedef TSVector <Sdr_BRow> SdrBillRowArray;
-typedef TSVector <Sdr_Bill> SdrBillArray;
-
-class PPBillImporter : public PPBillImpExpBaseProcessBlock {
-public:
-	PPBillImporter();
-	~PPBillImporter();
-	void   Init();
-	int    Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, PPID opID, PPID locID);
-	//
-	// Descr: Функция не интерактивно инициализирует импорт с Universe-HTT
-	//
-	int    InitUhttImport(PPID opID, PPID locID, PPID posNodeID);
-	int    LoadConfig(int import);
-	int    Run();
-	// @vmiller {
-	enum {
-		statNoSuchDoc = 0,  // Такого документа нет
-		statIsSuchDoc = 1 	// Есть такой документ
-	};
-	// } @vmiller
-private:
-	int    ResolveINN(const char * pINN, PPID dlvrLocID, const char * pDlvrLocCode,
-		const char * pBillId, PPID accSheetID, PPID * pArID, int logErr = 1);
-	int	   ResolveGLN(const char * pGLN, /*const char * pLocCode,*/const char * pBillId, PPID accSheetID, PPID * pArId, int logErr = 1); // @vmiller
-	int    ResolveUnitPerPack(PPID goodsID, PPID locID, LDATE dt, double * pUpp);
-	int    CheckBill(const Sdr_Bill * pBill);
-	int    AddBillToList(Sdr_Bill * pBill, long extraBillId);
-	int    BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack);
-	int    AddBRow(Sdr_BRow & rRow, uint * pRowId);
-	const  Sdr_Bill * SearchBillForRow(const SString & rBillIdent, const Sdr_BRow & rRow) const;
-	int    SearchNextRowForBill(const Sdr_Bill & rBill, const LongArray * pSeenPosList, uint * pPos) const;
-	int    GatherRowsForSameTransferItem(const Sdr_Bill & rBill, uint thisPos, const LongArray & rSeenPosList, LongArray & rResultPosList) const;
-	//
-	// Descr: Считывает из исходного файла строки документов.
-	// ARG(pImpExp IN): Блок параметров импорта
-	// ARG(mode    IN): режим считывания
-	//   0 - обычный режим
-	//   1 - привязка строк к последнему считанному из файла заголовков документу
-	//   2 - режим считывания строк без предварителного считываения заголовков документов (вся информация о документах хранится в файле строк)
-	//
-	int    ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const /*StrAssocArray*/PPImpExpParam::PtTokenList * pFnFldList);
-	int    ReadSpecXmlData();
-	int    Helper_EnsurePersonArticle(PPID psnID, PPID accSheetID, PPID psnKindID, PPID * pArID); // @wota
-	//
-	// Descr: Вспомогательная функция акцепта импортируемых заказов по предопределенному формату piefCokeOrder
-	//
-	int    Helper_AcceptCokeData(const SCollection * pRowList, PPID opID, PPID supplArID);
-	int    ReadData();
-	int    ReadDataDll(const PPEdiProviderPacket * pEp);
-	int    Import(int useTa);
-	int    RunUhttImport();
-	int	   GetDocImpStatus(Sdr_Bill * pBill, Sdr_DllImpObjStatus & rStatus); // @vmiller
-	int    AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::PtTokenList & rFldList, Sdr_Bill * pRecHdr, Sdr_BRow * pRecRow);
-	int    ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList);
-	int    DoFullEdiProcess();
-	int    CreateAbsenceGoods(ResolveGoodsItem & rRgi, int use_ta);
-
-	PPID   AccSheetID;
-	long   LineIdSeq;
-	PPLogger Logger;
-	SdrBillArray Bills;
-	SdrBillRowArray BillsRows;
-	CCheckCore * P_Cc;
-	BillTransmDeficit * P_Btd;
-	StringSet ToRemoveFiles;
-	PPLotTagContainer TagC;
-};
-//
-//
-//
-class PPEdiProcessor {
-public:
-	struct RecadvPacket {
-		RecadvPacket();
-
-		//PPBillPacket Bp; // При чтении - RECADV, при отправке DESADV
-		PPBillPacket ABp; // Пакет оригинального DESADV
-		PPBillPacket RBp; // Собственно, пакет RECADV
-		SString DesadvBillCode;
-		LDATE   DesadvBillDate;
-		int     AllRowsAccepted;
-		PPID    WrOffBillID; // @v10.2.12 Ид документа списания (если Bp - драфт-документ, как и должно быть в большинстве случаев)
-		PPID    OrderBillID; // @v10.2.12 Ид документа заказа, на основании которого был сформирован DESADV, которому соответствует данный RECADV
-		RAssocArray DesadvQttyList; // Отгруженные количества, ассоциированные с индексом строки (1..) в документе this->Bp
-		RAssocArray RecadvQttyList; // @v10.2.12 Принятые количества, ассоциированные с индексом строки (1..) в документе this->Bp
-		//
-		// Заказанные количества, ассоциированные с индексом строки (1..) в документе DESADV.
-		// Так как при отправке RECADV однозначно сопоставить строку заказа со строкой DESADV (теоретически) можеть быть сложно,
-		// то при возникновении неоднозначностей модуль распределяет такие значения пропорционально.
-		//
-		RAssocArray OrderedQttyList; // @v10.3.0
-	};
-	struct Packet {
-		explicit Packet(int docType);
-		~Packet();
-		//
-		// PPEDIOP_ORDER:
-		//   P_Data - (PPBillPacket *)
-		//   P_ExtData - 0
-		// PPEDIOP_ORDERRSP
-		//   При отправке:
-		//     P_Data - (PPBillPacket *) пакет текущего заказа
-		//     P_ExtData - (PPBillPacket *) пакет оригинального заказа (при создании)
-		//   При получении:
-		//     P_Data - (PPBillPacket *) пакет подтвержденного заказа
-		//     P_ExtData - (PPBillPacket *) пакет оригинального заказа (отправленного поставщику)
-		//
-		void * P_Data;
-		void * P_ExtData;
-		const  int  DocType;
-		long   Flags;
-	};
-	struct DocumentInfo {
-		DocumentInfo();
-		enum {
-			statusUnkn = 0,
-			statusNew  = 1
-		};
-		int    ID;          // Идентификатор сообщения, инициализируемый дравером конкретного провайдера (не зависимо от провайдера)
-		int    EdiOp;       // Тип EDI-операции
-		LDATETIME Time;     // Время создания/модификации сообщения
-		S_GUID Uuid;        // GUID сообщения
-		long   Status;      // DocumentInfo::statusXXX
-		long   Flags;       // Флаги
-		long   PrvFlags;    // Флаги, специфичные для конкретного провайдера
-		SString Code;       // Код сообщения (номер документа)
-		SString SenderCode; // Код отправителя
-		SString RcvrCode;   // Код получателя
-		SString Box;        // Если хранение сообщений дифференцировано по боксам, то здесь может быть имя бокса для сообщения
-		SString SId;        // Символьный идентификатор (может быть именем файла)
-	};
-	class DocumentInfoList : private SStrGroup {
-	public:
-		DocumentInfoList();
-		uint   GetCount() const;
-		int    GetByIdx(uint idx, DocumentInfo & rItem) const;
-		int    Add(const DocumentInfo & rItem, uint * pIdx);
-	private:
-		struct Entry {
-			int    ID;
-			int    EdiOp;
-			LDATETIME Dtm;
-			S_GUID Uuid;
-			long   Status;
-			long   Flags;
-			long   PrvFlags;
-			uint   CodeP;
-			uint   SenderCodeP;
-			uint   RcvrCodeP;
-			uint   BoxP;
-			uint   SIdP;
-		};
-		TSVector <Entry> L;
-	};
-	class ProviderImplementation {
-	public:
-		enum {
-			ctrfTestMode = 0x0001
-		};
-		ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
-		virtual ~ProviderImplementation();
-		virtual int    GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInfoList & rList) { return -1; }
-		virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList) { return -1; }
-		virtual int    SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack) { return -1; }
-		int    GetTempOutputPath(int docType, SString & rBuf);
-		int    GetTempInputPath(int docType, SString & rBuf);
-		int    GetPersonGLN(PPID psnID, SString & rGLN);
-		int    GetArticleGLN(PPID arID, SString & rGLN);
-		int    GetMainOrgGLN(SString & rGLN);
-		int    GetLocGLN(PPID locID, SString & rGLN);
-		int    GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tbl::Rec * pRec, SString & rGtin, SString & rArCode);
-		int    ValidateGLN(const SString & rGLN);
-		int    GetOriginOrderBill(const PPBillPacket & rBp, BillTbl::Rec * pOrdBillRec);
-		int    SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec);
-		int    SearchLinkedOrder(const char * pCode, LDATE dt, PPID arID, BillTbl::Rec * pBillRec, PPBillPacket * pPack);
-		int    ResolveDlvrLoc(const char * pText, PPBillPacket * pPack);
-		int    ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack);
-
-		PPEdiProviderPacket Epp;
-		PPID   MainOrgID;
-		long   Flags;
-		PPObjBill * P_BObj; // @notowned
-		PPObjGoods GObj;
-		PPObjPerson PsnObj;
-		PPObjArticle ArObj;
-		STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
-		PPAlbatrossConfig ACfg;
-		PrcssrAlcReport Arp;
-	protected:
-		struct DeferredPositionBlock {
-			DeferredPositionBlock();
-			int    Init(const BillTbl::Rec * pBillRec);
-			bool   SetupGoods();
-
-			PPID   GoodsID_ByGTIN;
-			PPID   GoodsID_ByArCode;
-			SString ArGoodsCode;
-			SString GoodsName;
-			SString GTIN;
-			double OrdQtty;  // заказанное количество
-			double AccQtty;  // количество, принятое к исполнению
-			double DlvrQtty; // Доставленное количество (DESADV)
-			double PriceWithVat;
-			double PriceWithoutVat;
-			double Vat; // Ставка НДС в процентах
-			PPTransferItem Ti;
-		};
-		const SString & FASTCALL EncXmlText(const char * pS);
-		const SString & FASTCALL EncXmlText(const SString & rS);
-		int16  FASTCALL StringToRByBill(const SString & rS) const;
-		int    GetGTIN(const SString & rS, DeferredPositionBlock & rBlk);
-		int    GetArCode(const SString & rS, int partyQ, int whoAmI, PPID billArID, DeferredPositionBlock & rBlk);
-		SString EncBuf;
-	private:
-		int    GetIntermediatePath(const char * pSub, int docType, SString & rBuf);
-		int    Helper_GetPersonGLN(PPID psnID, SString & rGLN);
-	};
-
-	static int FASTCALL GetEdiMsgTypeByText(const char * pSymb);
-	static ProviderImplementation * CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags);
-	explicit PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger);
-	~PPEdiProcessor();
-	int    SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
-	int    SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
-	int    SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
-	int    SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
-	int    SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
-	int    ReceiveDocument(const DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
-	int    GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInfoList & rList);
-private:
-	int    CheckBillStatusForRecadvSending(const BillTbl::Rec & rBillRec);
-
-	ProviderImplementation * P_Prv; // @notowned
-	PPLogger * P_Logger; // @notowned
-	PPObjBill * P_BObj;
-	PPObjPerson PsnObj;
-	PPAlbatrossConfig ACfg;
-};
-//
 //
 //
 struct PayableBillListItem {
@@ -34271,8 +33137,6 @@ public:
 	//
 	static bool FASTCALL IsPoolOwnedByBill(PPID assocID);
 	static int  FASTCALL VerifyUniqSerialSfx(const char * pSfx);
-	//static int ParseText(const char * pText, const char * pTemplate, StrAssocArray & rResultList, SString * pFileTemplate);
-	static int ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate);
 
 	explicit PPObjBill(void * extraPtr = 0);
 	~PPObjBill();
@@ -39758,41 +38622,6 @@ struct BillTotal {
 	double OutSaldo;
 };
 
-class ClientBankExportDef {
-public:
-	//
-	// Descr: @constructor
-	// ARG(pPeriod IN): Период, которому принадлежат 'кспортируемые платежные поручения.
-	//
-	ClientBankExportDef(const DateRange * pPeriod);
-	~ClientBankExportDef();
-	PPImpExpParam & GetParam() const;
-	int    ReadDefinition(const char * pIniSection);
-	int    CreateOutputFile(StringSet * pResultFileList);
-	int    CloseOutputFile();
-	int    PutRecord(const PPBillPacket *, PPID debtBillID, PPLogger * pLogger);
-	int    GetStat(long * pAcceptedCount, long * pRejectedCount, double * pAmount);
-	int    PutHeader();
-	int    PutEnd();
-private:
-	//int    UseImpSection; // (testing purpose) Использовать описание импорта
-	void * P_Helper;
-};
-
-class ClientBankImportDef {
-public:
-	static int WriteAssocList(const SVector * pList, int use_ta); // @v9.8.8 SArray-->SVector
-	static int ReadAssocList(SVector * pList); // @v9.8.8 SArray-->SVector
-
-	ClientBankImportDef();
-	~ClientBankImportDef();
-	PPImpExpParam & GetParam() const;
-	int    ReadDefinition(const char * pIniSection);
-	int    ImportAll();
-private:
-	void * P_Helper;
-};
-
 class PPViewBill : public PPView {
 public:
 	struct BrwHdr {
@@ -42188,11 +41017,6 @@ struct PriceListViewItem {
 	SString Memo_;
 };
 
-class PPPriceListImpExpParam : public PPImpExpParam {
-public:
-	PPPriceListImpExpParam(uint recId = 0, long flags = 0);
-};
-
 typedef TSVector <Sdr_PriceList> Sdr_PriceListArray;
 
 class PPViewPriceList : public PPView {
@@ -42642,7 +41466,7 @@ struct PPDebtorStat {
 		double PaymAmount;
 		double Limit;
 	};
-	TSVector <DebtDimItem> DdList; // @v9.8.4 TSArray-->TSVect
+	TSVector <DebtDimItem> DdList;
 };
 
 class PPDebtorStatArray : public TSCollection <PPDebtorStat> {
@@ -43825,31 +42649,6 @@ public:
 	int32  Flags;          //
 	ObjIdListFilt NodeList;
 };
-
-#if 0 // @v10.4.2 {
-	class PPCSessExporter {
-	public:
-		PPCSessExporter();
-		~PPCSessExporter();
-		int    Init(const PPImpExpParam *, const PPImpExpParam *, const PPImpExpParam *);
-		int    PutSess(PPID csessID, DateRange * pPeriod);
-		int    PutSess(const PPIDArray * pSessArr, DateRange * pPeriod); // @vmiller
-	private:
-		int FillCSess(PPID csessID, Sdr_CSess * pCSessRec);
-		int FillCheck(PPID checkID, Sdr_CSess * pCSessRec, Sdr_CChecks * pCCheckRec);
-
-		PPImpExpParam  CSessParam;
-		PPImpExpParam  CCheckParam;
-		PPImpExpParam  CCLineParam;
-		// @v10.4.2 CCheckCore     CCTbl;
-		SCardCore      SCardTbl;
-		PPObjGoods     GObj;
-		PPObjCSession  CSObj;
-		PPImpExp * P_IECSess;
-		PPImpExp * P_IECCheck;
-		PPImpExp * P_IECCLine;
-	};
-#endif // } 0 @v10.4.2
 
 class PPViewCSess : public PPView {
 public:
@@ -49964,8 +48763,8 @@ private:
 // @ModuleDecl(PPMail)
 //
 #define WIN32_LEAN_AND_MEAN
-#define ORDEXT            ".ord"
-#define MAILHDREXT        ".mhd"
+// @v11.8.4 #define ORDEXT            ".ord"
+// @v11.8.4 (unused) #define MAILHDREXT        ".mhd"
 #define SUBJSIZE          96L
 // @v10.5.4 replaced-with(PPConst::P_SubjectDbDiv)  #define SUBJECTDBDIV      "$PpyDbDivTransmission$"
 // @v10.5.4 replaced-with(PPConst::P_SubjectOrder)  #define SUBJECTORDER      "$PpyOrderTransmission$"
@@ -50610,812 +49409,6 @@ private:
 //
 //
 //
-class PPEgaisProcessor : public PrcssrAlcReport, private PPEmbeddedLogger {
-public:
-	struct Packet {
-		explicit Packet(int docType);
-		~Packet();
-		enum {
-			fAcceptedBill = 0x0001, // В пакете содержится импортированный в базу данных документ
-			fDoDelete     = 0x0002, // Документ следует удалить с сервера ЕГАИС
-			fReturnBill   = 0x0004, // Пакет содержит документ возврата поставщику
-			fFaultObj     = 0x0008  // Флаг идентифицирует пакет, являющийся инвалидным.
-				// При позднем акцепте этого пакета, наличие флага сигнализирует, что акцептировать такой пакет не следует.
-		};
-		int    DocType;
-		long   Flags;
-		uint   SrcReplyPos; // Позиция документа-источника в таблице TSCollection <Reply> (+1)
-		PPID   IntrBillID;  // Только для входящих WAYBILL - идентификатор документа внутренней передачи,
-			// которому соответствует (PPBillPacket *)P_Data. Необходим для позднего акцепта, поскольку
-			// данный идентификатора вычисляется на этапе обработки входящего xml-потока.
-		void * P_Data;
-	};
-	//
-	// Descr: Подтверждение от сервера ЕГАИС о получении запроса
-	//
-	struct Ack {
-		Ack();
-		void   Clear();
-
-		enum {
-			stError = 0x0001
-		};
-		uint   Ver;        // Версия протокола
-		uint8  SignSize;   // Размер подписи
-		uint8  Sign[260];  // Подпись
-		S_GUID Id;         // Ид присвоенный запросу сервером
-		int    Status;
-		SString Url;
-		SString Message;
-	};
-	//
-	// Descr: Дескриптор ответа на запрос
-	//
-	struct Reply {
-		Reply();
-		enum {
-			stError    = 0x0001,
-			stAccepted = 0x0002,
-			stOffline  = 0x0004, // Пакет получен не на прямую от сервера, а из каталога в файловой системе
-			stDeleted  = 0x0008  // К пакету была применена операция DeleteDoc
-		};
-		long   Status;
-		S_GUID Id;         // Ид присвоенный запросу сервером (полученный ответом на запрос - см. Ack)
-        SString Url;       // Адрес сообщения с ответом
-        SString AcceptedFileName; // Имя локального файла, в который получено содержимое ответа
-	};
-	//
-	// Descr: Результат отправки данных
-	//
-	struct Ticket {
-		Ticket();
-		void   Clear();
-		struct Result {
-			Result();
-			void   Clear();
-			enum {
-				spcNone = 0,
-				spcDup  = 1  // Тикет с ошибкой о том, что накладная уже загеристрирована в ЕГАИС
-			};
-			int    Type; // 0 - undef, 1 - ticket result, 2 - operation result
-			int    Conclusion; // 0 - rejected, 1 - accepted
-			int    Special;    // Специальная собственная пометка, идентифицирующая некоторый особенности тикета (определяется Papyrus'ом; это - не от ЕГАИС).
-			LDATETIME Time;
-			SString OpName; // OperationName
-			SString Comment;
-		};
-        LDATETIME TicketTime;
-        S_GUID DocUUID;
-        S_GUID TranspUUID;
-        int    DocType;
-        SString RegIdent;
-        Result R;   // Result
-        Result OpR; // OperationResult
-	};
-
-	struct ConfirmTicket {
-		ConfirmTicket();
-		PPID   BillID;
-		int    Conclusion; // 0 - rejected, 1 - accepted
-		SString Code;
-		LDATE  Date;
-		SString RegIdent;
-		SString Comment;
-	};
-
-	struct InformAReg {
-		InformAReg();
-		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-        int    ToStr(SString & rBuf);
-        int    FromStr(const SString & rBuf);
-
-        long   Qtty;
-        LDATE  ManufDate;
-        LDATE  TTNDate;
-        SString TTNCode;
-        LDATE  EGAISDate;
-        SString EGAISCode;
-	};
-
-	struct InformBItem { // @flat
-		InformBItem();
-		void   Clear();
-
-		long   P;
-		char   OrgRowIdent[64]; // @v10.3.4
-		char   Ident[24];
-		LDATE  BottlingDate;
-	};
-
-	struct InformB {
-		InformB();
-		void   Clear();
-
-        SString Id;
-        SString WBRegId;      // ИД накладной в системе (присвоенный)
-        SString FixNumber;    // Номер фиксации накладной(отгрузки) в ЕГАИС
-        LDATE  FixDate;
-        SString OuterCode;    // Номер накладной (у отправителя)
-        LDATE  OuterDate;     // Дата накладной (у отправителя)
-        PPID   ShipperPsnID;
-        PPID   ConsigneePsnID;
-        PPID   SupplPsnID;
-        TSVector <PPEgaisProcessor::InformBItem> Items;
-	};
-
-	struct ActInformItem {
-		ActInformItem();
-		long   P;
-		char   AIdent[24];
-		TSVector <PPEgaisProcessor::InformBItem> BItems;
-	};
-
-    struct ActInform {
-        SString ActRegId;
-        SString ActNumber;
-		TSCollection <PPEgaisProcessor::ActInformItem> Items;
-    };
-	//
-	// Descr: Структура запроса на отмену проведения документа (грузополучатель - отправляет, грузоотправитель - получает и подтверждает)
-	//
-    struct RepealWb {
-    	RepealWb();
-
-        PPID   BillID;
-        LDATETIME ReqTime;
-        int    Confirm; // Только для подтверждения отмены проведения. 1 - подтверждаем, 0 - отклоняем
-        SString ContragentCode;
-        SString TTNCode;
-        SString ReqNumber;
-        SString Memo;
-    };
-    //
-    // Descr: Структура запроса и ответа по штрихкоду (QueryBarcode)
-    //
-    struct QueryBarcode {
-		QueryBarcode();
-
-    	int    RowId;
-        int    CodeType; // 103, 203
-        SString Rank;
-        SString Number;
-        SString Result;
-    };
-	//
-	// Descr: Структура ответа на запрос остатков марок по справке Б
-	//
-	struct ReplyRestBCode {
-		ReplyRestBCode();
-
-		LDATETIME RestTime;
-		SString Inform2RegId;
-		StringSet MarkSet;
-	};
-    //
-    // Descr: Дескриптор сервера УТМ
-    //
-    struct UtmEntry { // @flat
-    	UtmEntry();
-
-    	enum {
-    		fDefault = 0x0001 // Если флаг установлен, то это означает, что
-				// MainOrgID является текущей главной организацией,
-				// FSRARID получен из тега этой персоналии,
-				// Url получен из конфигурации глобального обмена
-    	};
-    	PPID   MainOrgID; // Главная организация, с которой ассоциированы параметры Url и FSRARID.
-    	long   Flags;
-    	char   Url[128];
-    	char   FSRARID[128];
-    };
-	//
-	// Descr: Параметры функции TestEGAIS()
-	//
-	struct TestParam {
-		enum {
-			fReceiveDataToTempCatalog  = 0x0001,
-			fAcceptDataFromTempCatalog = 0x0002
-		};
-		PPID   LocID;
-		long   Flags;
-	};
-	//
-	// Descr: Параметры запроса к серверу ЕГАИС
-	//
-	struct QueryParam {
-		QueryParam();
-		~QueryParam();
-		QueryParam(const QueryParam & rS);
-		QueryParam & FASTCALL operator = (const QueryParam & rS);
-		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-
-		enum {
-			_afQueryRefA = 0x0001,
-			_afQueryPerson       = 0x0002,
-			_afQueryGoods        = 0x0004,
-			_afQueryByChargeOn   = 0x0008,
-			_afClearInnerEgaisDb = 0x0010
-		};
-		long   DocType;
-		long   DbActualizeFlags;
-		long   Flags; // PPEgaisProcessor::stTestSendingMode
-		PPID   MainOrgID;
-		PPID   LocID;
-		SString ParamString;
-		SString InfoText; // @transient
-		LotFilt * P_LotFilt; // @v10.9.1 @transient
-	};
-	//
-	// Descr: Типы ТТН
-	//
-	enum {
-		wbtInvcFromMe = 1, // Инвойс от меня к контрагенту
-		wbtInvcToMe,       // Инвойс от контрагента ко мне
-		wbtRetFromMe,      // Возврат от меня к контрагенту
-		wbtRetToMe         // Возврат от контрагента ко мне
-	};
-
-	static int FASTCALL GetDocTypeTag(int docType, SString & rTag);
-    static int FASTCALL RecognizeDocTypeTag(const char * pTag);
-	static int FASTCALL GetWayBillTypeText(int wbType, SString & rBuf);
-	static int FASTCALL RecognizeWayBillTypeText(const char * pText);
-	static int EditInformAReg(InformAReg & rData);
-	//
-	// Descr: Вызывает диалог для ввода кода акцизной марки.
-	//
-	static int InputMark(const PrcssrAlcReport::GoodsItem * pAgi, SString & rMark);
-	//
-	// Descr: Флаги создания экземпляра класса
-	//
-	enum {
-		cfDebugMode = 0x0001, // Работать в тестовом режиме отправки (не передавать данные в УТМ)
-		cfDirectFileLogging = 0x0002, // Сообщения выводить на прямую в файлы журналов (без посредничества PPLogger)
-		cfVer3      = 0x0004, // Применять 3-ю версию протокола при отправке документов
-		cfUseVerByConfig    = 0x0008, // Версию протокола применять в соответствии с конфигурацией
-		cfVer4      = 0x0010, // @v11.0.12 Применять 4-ю версию протокола при отправке документов
-	};
-
-	PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve);
-	~PPEgaisProcessor();
-	int    operator !() const;
-	void   SetTestSendingMode(int set);
-	void   SetNonRvmTagMode(int set);
-	int    CheckLic() const;
-	int    GetUtmList(PPID locID, TSVector <UtmEntry> & rList);
-	void   SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod);
-	int    GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID);
-	int    GetURL(PPID locID, SString & rBuf);
-	int    EditQueryParam(PPEgaisProcessor::QueryParam * pData);
-	int    ImplementQuery(PPEgaisProcessor::QueryParam & rParam);
-	int    InteractiveQuery();
-
-	enum {
-		querybyINN = 1,
-		querybyCode
-	};
-
-    int    QueryClients(PPID locID, int queryby, const char * pQ);
-    int    QueryProducts(PPID locID, int queryby, const char * pQ);
-    int    QueryRests(PPID locID, const char * /* @unused */);
-    int    QueryRestsShop(PPID locID, const char * /* @unused */);
-    int    QueryInfA(PPID locID, const char * pInfA);
-    int    QueryInfB(PPID locID, const char * pInfB);
-    int    Write(Packet & rPack, PPID locID, const char * pFileName);
-    int    Write(Packet & rPack, PPID locID, SBuffer & rBuffer);
-    int    PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, const char * pUrlSuffix, PPEgaisProcessor::Ack & rAck);
-    int    PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisProcessor::Ack & rAck);
-    PPEgaisProcessor::Packet * GetReply(const PPEgaisProcessor::Reply & rReply);
-	int    AcceptDoc(PPEgaisProcessor::Reply & rR, const char * pFileName);
-	int    DeleteDoc(PPEgaisProcessor::Reply & rR);
-	//
-	// Descr: Флаги состояния документа в базе данных
-	//
-	enum {
-		bilstfAccepted  = 0x00000001, // Документ принят из ЕГАИС-сервера
-		bilstfWritedOff = 0x00000002, // Документ списан
-		bilstfReadyForAck       = 0x00000004, // Документ готов к отправке подтверждения
-		bilstfChargeOn  = 0x00000008, // Документы постановки на баланс начальных остатков
-		bilstfExpend    = 0x00000010, // Документы продажи товара
-		bilstfIntrExpend        = 0x00000020, // Документы внутренней передачи
-		bilstfReturnToSuppl     = 0x00000040, // Документы возврата поставщику
-		bilstfLosses    = 0x00000080, // Документы потерь (прочие расходы)
-		bilstfRepeal    = 0x00000100, // Документы с запросом на отмену проведения
-		bilstfTransferToShop    = 0x00000200, // Документы передачи в торговый зал (Регистр 2)
-		bilstfChargeOnShop      = 0x00000400, // Документы постановки на баланс начальных остатков в торговом зале (Регистр 2)
-		bilstfTransferFromShop  = 0x00000800, // Документы возврата из торговый зал (Регистр 2) на склад
-		bilstfWriteOffShop      = 0x00001000, // Документы списания с баланса торгового зала (Регистр 2)
-		bilstfWbRepealConf      = 0x00002000, // Документы, для которых получен и ожидает подтверждения запрос на отмету проведения
-		bilstfV1        = 0x00004000, // Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
-		bilstfV2        = 0x00008000, // Документы 2-й версии ЕГАИС
-		bilstfV3        = 0x00010000, // Документы 3-й версии ЕГАИС
-		bilstfFixBarcode        = 0x00020000, // @v10.9.0 Постановка маркированной продукции на баланс
-	};
-	int    GetAcceptedBillList(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
-	int    GetBillListForTransmission(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);
-	int    GetBillListForConfirmTicket(/*PPID locID, const DateRange & rPeriod*/const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
-	int    GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
-	//
-	// Descr: Флаги функции ReadInput()
-	//
-	enum {
-		rifOffline     = 0x0001,
-		rifRepairInventoryMark = 0x0002
-	};
-
-	int    ReadInput(PPID locID, const DateRange * pPeriod, long flags);
-	int    DebugReadInput(PPID locID);
-	int    RemoveOutputMessages(PPID locID, int debugMode);
-	int    SendBillActs(const PPBillIterchangeFilt & rP);
-	int    SendBillRepeals(const PPBillIterchangeFilt & rP);
-	int    SendBills(const PPBillIterchangeFilt & rP);
-	int    CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locID, LDATE restDate, const PPIDArray & rLotList, int use_ta);
-	int    CollectRefs();
-private:
-	struct BillTransmissionPattern {
-		long   Flags;
-		int    EdiOp;
-		const  char * P_UrlSuffix;
-	};
-	int    Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP, const BillTransmissionPattern & rPattern);
-    int    GetReplyList(void * pCtx, PPID locID, int direction /* +1 out, -1 - in */, TSCollection <PPEgaisProcessor::Reply> & rList);
-	int    Helper_Read(void * pCtx, const char * pFileName, long flags,
-		PPID locID, const DateRange * pPeriod, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList, PrcssrAlcReport::RefCollection * pRefC);
-	int    Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * pX);
-	const SString & FASTCALL EncText(const char * pS);
-	const SString & FASTCALL EncText(const SString & rS);
-	enum {
-		wpifPutManufInfo = 0x0001,
-		wpifVersion2     = 0x0002  // Данные о товаре записываются в формате 2-й версии протокола ЕГАИС
-	};
-	int    WriteProductInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID goodsID, PPID lotID, long flags, const ObjTagList * pLotTagList);
-	enum {
-		woifStrict         = 0x0001,
-		woifDontSendWithoutFSRARID = 0x0002,
-		woifVersion2       = 0x0004  // Данные о персоналии записываются в формате 2-й версии протокола ЕГАИС
-	};
-	int    WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
-	int    WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, const EgaisPersonCore::Item & rRefcItem, long flags);
-	int    WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode, int docType);
-	//
-	// Descr: Разбирает xml-ответ от сервера УТМ (<A></A>)
-	//
-	int    ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck);
-	int    Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int roleFlags, PPPersonPacket * pPack, PrcssrAlcReport::RefCollection * pRefC, SFile * pOutFile);
-	int    Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPack, PrcssrAlcReport::GoodsItem * pExt, PrcssrAlcReport::RefCollection * pRefC, SFile * pOutFile);
-	int    Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC);
-	int    Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Packet * pPack);
-	int    Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC);
-	int    Read_Ticket(xmlNode * pFirstNode, Packet * pPack);
-	int    Read_TicketResult(xmlNode * pFirstNode, int ticketType /* 1 or 2 */, PPEgaisProcessor::Ticket::Result & rResult);
-	int    Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack);
-	int    Read_ActInventoryInformBReg(xmlNode * pFirstNode, Packet * pPack);
-	int    Read_IformA(xmlNode * pFirstNode, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC);
-	SString & FASTCALL PreprocessGoodsName(SString & rName) const;
-	int    AssignManufTypeToPersonPacket(PPPersonPacket & rPack, int manufType);
-	int    FinishBillProcessingByTicket(const PPEgaisProcessor::Ticket * pT, int use_ta);
-	int    Helper_FinishBillProcessingByTicket(int ticketType, const BillTbl::Rec & rRec,
-		const SString & rBillText, const PPEgaisProcessor::Ticket * pT, int conclusion, int use_ta);
-	int    Helper_FinishConfirmProcessingByTicket(const BillTbl::Rec & rRec, const SString & rBillText,
-		const S_GUID & rUuid, int conclusion, int use_ta);
-	//
-	// Descr: Создает зарезервированную операцию постановки товаров на баланс ЕГАИС
-	// ARG(pID    OUT): Идентификатор созданного вида операции
-	// ARG(egaisOp IN): PPEDIOP_EGAIS_ACTCHARGEON || PPEDIOP_EGAIS_ACTCHARGEONSHOP
-	// ARG(use_ta  IN): @usingtransaction
-	//
-	int    GetActChargeOnOp(PPID * pID, int egaisOp, int use_ta);
-	int    GetDebugPath(PPID locID, SString & rPath);
-	int    Helper_ReadFilesOffline(const char * pPath, TSCollection <PPEgaisProcessor::Reply> & rList);
-	int    SearchActChargeByActInform(const PPEgaisProcessor::ActInform & rInf, PPID * pBillID);
-	int    MakeOutputFileName(const Reply * pReply, const SString & rTempPath, SString & rFileName);
-	int    DeleteSrcPacket(const Packet * pPack, TSCollection <PPEgaisProcessor::Reply> & rReplyList);
-	int    Helper_SendBills(PPID billID, int ediOp, PPID locID, const char * pUrlSuffix);
-	int    Helper_InitNewPack(const int docType, TSCollection <PPEgaisProcessor::Packet> * pPackList, PPEgaisProcessor::Packet ** ppPack);
-	int    Helper_FinalizeNewPack(PPEgaisProcessor::Packet ** ppNewPack, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList);
-	int    Helper_CollectRefs(void * pCtx, TSCollection <PPEgaisProcessor::Reply> & rReplyList, RefCollection & rRefC);
-	int    Helper_AcceptBillPacket(Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx);
-	int    Helper_AcceptTtnRefB(const Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx, LongArray & rSkipPackIdxList);
-	int    Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID);
-	int    Helper_CreateTransferToShop(const PPBillPacket * pCurrentRestPack);
-	int    Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod);
-	int    Helper_CreateWriteOff_ByCCheck(const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod); // @v11.8.2
-	// @v10.2.9 (moved to LotExtCodeCore) int    Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCodes, uint * pExtCodeCount);
-	int    Helper_ExtractGoodsCodesFromBills(PPID opID, StringSet & rSs);
-	// @v10.6.5 void   FASTCALL Log(const SString & rMsg);
-	// @v10.6.5 void   LogTextWithAddendum(int msgCode, const SString & rAddendum);
-	// @v10.6.5 void   LogLastError();
-	void   LogTicketResult(const Ticket * pTicket, const BillTbl::Rec * pBillRec);
-	//
-	// Descr: Выводит в журнал сообщение об отправке пакета rPack
-	//
-	int    LogSended(const Packet & rPack);
-	int    CheckBillForMainOrgID(const BillTbl::Rec & rRec, const PPOprKind & rOpRec);
-
-	enum {
-		stError     = 0x0001, // Во время выполнения какой-то функции произошла критическая ошибка
-		// @v10.6.5 stOuterLogger       = 0x0002, // Экземпляр PPLogger был передан из-вне (не следует разрушать P_Logger)
-		stValidLic  = 0x0004, // Присутствует лицензия на использование интерфейса с ЕГАИС
-		stTestSendingMode   = 0x0008, // Тестовый режим отправки сообщений. Фактически, сообщения в виде файлов копируются в каталог TEMP/EGAIX-XXX/OUT-TEST/
-		stDontRemoveTags    = 0x0010, // Опция, припятствующая удалению тегов с документов при получении отрицательных тикетов
-		// @v10.6.5 stDirectFileLogging = 0x0020, // Сообщения выводить непосредственно в файлы журналов (обходя P_Logger)
-		stUseEgaisVer3      = 0x0040, // Документы отправлять в 3-й версии формата
-		stUseEgaisVer4      = 0x0080, // @v11.0.12 Документы отправлять в 4-й версии формата
-	};
-	long   State;
-	const  UtmEntry * P_UtmEntry; // @notowned
-	SString EncBuf;
-	StringSet ExclChrgOnMarks; // Список марок, которые должны быть исключены при постановке лотов на баланс
-	PPLocAddrStruc * P_Las;
-	LotExtCodeCore * P_LecT; // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
-	PPTextAnalyzerWrapper * P_Taw;
-	// @v10.6.5 PPLogger * P_Logger;
-};
-//
-// Descr: Класс, реализующий высокоуровневые механизмы обмена с "честным знаком"
-//
-class PPChZnPrcssr : private PPEmbeddedLogger {
-public:
-	struct Param {
-		Param();
-		PPID   GuaID;
-		PPID   LocID;
-		DateRange Period;
-	};
-	struct QueryParam {
-		QueryParam();
-
-		enum {
-			_afQueryTicket    = 0x0001,
-			_afQueryKizInfo   = 0x0002,
-			_afSendCc         = 0x0004, // @v11.0.1 Отправка кассовых чеков
-			_afQueryDocListIn = 0x0008, // @v11.8.2 Запрос списка входящих документов
-		};
-		long   DocType;
-		long   Flags;
-		PPID   GuaID;
-		PPID   LocID;
-		PPID   ArID;  // Статья, сопоставленная с запросом (всегда, вероятно, поставщик)
-		SString ParamString;
-		SString InfoText; // @transient
-	};
-	enum {
-		ptUnkn     = GTCHZNPT_UNDEF,
-		ptFur      = GTCHZNPT_FUR,     // 00 02
-		ptTobacco  = GTCHZNPT_TOBACCO, // 00 05
-		ptShoe     = GTCHZNPT_SHOE,    // 15 20
-		ptMedicine = GTCHZNPT_MEDICINE //
-	};
-	static int FASTCALL IsChZnCode(const char * pCode);
-	//
-	// Descr: Варианты интерпретации результата функции ParseChZnCode
-	// Note: Значение больше нуля трактуется как марка, пригодная к обработке честным знаком
-	//
-	enum {
-		chznciNone = 0, // Код ни на что не похож. 
-		chznciReal = 1, // Валидный код марки честный знак
-		chznciSurrogate = -1, // Суррогатный код (не является кодом марки, но из кода можно извлечь полезную информацию: GTIN и, возможно, количество)
-		chznciPretend   = 1000 // Разбор кода закончился ошибкой, но тем не менее в нем есть GTIN и серия.
-	};
-	static int InterpretChZnCodeResult(int r)
-	{
-		if(r == 1000)
-			return chznciPretend;
-		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
-			return chznciSurrogate;
-		else if(oneof5(r, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN, SNTOK_CHZN_SSCC))
-			return chznciReal;
-		else
-			return chznciNone;
-	}
-	enum {
-		pchzncfPretendEverythingIsOk = 0x0001
-	};
-	static int ParseChZnCode(const char * pCode, GtinStruc & rS, long flags);
-	static int ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf);
-	static int Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
-	static int InputMark(SString & rMark, SString * pReconstructedOriginal, const char * pExtraInfoText);
-	explicit PPChZnPrcssr(PPLogger * pOuterLogger);
-	~PPChZnPrcssr();
-	int    EditParam(Param * pParam);
-	int    EditQueryParam(PPChZnPrcssr::QueryParam * pData);
-	int    InteractiveQuery();
-	int    Run(const Param & rP);
-	int    TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList);
-	static int Test();
-private:
-	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
-	void * P_Ib; // Блок инициализации
-};
-//
-//
-//
-enum VetisDocStatus {
-	vetisdocstCREATED            = 0,
-	vetisdocstCONFIRMED          = 1,
-	vetisdocstWITHDRAWN          = 2,
-	vetisdocstUTILIZED           = 3,
-	vetisdocstFINALIZED          = 4,
-	vetisdocstOUTGOING_PREPARING = 8, // Специальный статус, обозначающий строку внутреннего расходного документа, на которую
-		// необходимо получить исходящий сертификат
-	vetisdocstSTOCK              = 9, // Специальный статус, обозначающий строку остатков, полученных из ВЕТИС
-};
-
-class VetisEntityCore {
-public:
-	enum { // @persistent
-		kUndef          = -1,
-		kUnkn           =  0,
-		kProductItem    =  1,
-		kProduct        =  2,
-		kSubProduct     =  3,
-		kEnterprise     =  4,
-		kBusinessEntity =  5,
-		kUOM            =  6,
-		kCountry        =  7,
-		kRegion         =  8,
-		kVetDocument    =  9,
-		kPackingForm    = 10,
-		kStockEntry     = 11
-	};
-	struct Entity {
-		Entity();
-		Entity(int kind, const VetisProductItem & rS);
-		Entity(int kind, const VetisNamedGenericVersioningEntity & rS);
-		explicit Entity(const VetisVetDocument & rS);
-		explicit Entity(const VetisStockEntry & rS);
-		Entity & Z();
-		void   FASTCALL Get(VetisNamedGenericVersioningEntity & rD) const;
-		void   SetupVetDocument();
-
-		PPID   ID;
-		int    Kind;
-		S_GUID Guid;
-		S_GUID Uuid;
-		long   Flags;
-		long   Status;
-		long   GuidRef;
-		long   UuidRef;
-		SString Name;
-	};
-	//
-	// Descr: Специализированная структура для сбора данных о неразрешенных сущностях
-	// (как минимум, без имени). Используется для сбора коллекции таких элементов с
-	// целью последующего разрешения запросами к серверу Vetis.
-	//
-	struct UnresolvedEntity {
-		PPID   ID;
-		int    Kind;
-		long   GuidRef;
-		long   UuidRef;
-	};
-	enum {
-		txtprpProductItemName = (PPTRPROP_USER+1),
-		txtprpTranspVNum      = (PPTRPROP_USER+2), // Номер автомобиля
-		txtprpTranspTNum      = (PPTRPROP_USER+3), // Номер прицепа
-		txtprpTranspCNum      = (PPTRPROP_USER+4), // Номер контейнера
-		txtprpTranspWNum      = (PPTRPROP_USER+5), // Номер вагона
-		txtprpTranspSNam      = (PPTRPROP_USER+6), // Наименование коробля
-		txtprpTranspFNum      = (PPTRPROP_USER+7), // Номер самолета
-		txtprpGoodsCodeList   = (PPTRPROP_USER+8), // Список кодов (в идеале upc/ean) продукции, связанной с документом
-	};
-	VetisEntityCore();
-	static int FASTCALL ValidateEntityKind(int kind);
-	static int GetProductItemName(PPID entityID, PPID productItemID, PPID subProductID, PPID productID, SString & rBuf);
-	//
-	// Descr: Проверяет пару значений expiryFrom и expiryTo (представленные как SUniTime)
-	//   на предмет того, не истек ли на текущий день срок годности сертификата.
-	//   Функция утилитная, реализована для унификации так как эта процедура применяется в некскольких точках.
-	//
-	static int FASTCALL CheckExpiryDate(int64 expiryFrom, int64 expiryTo);
-	int    SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, PPID * pID, int use_ta);
-	int    DeleteEntity(PPID id, int use_ta);
-	int    GetEntity(PPID id, Entity & rE);
-	int    GetEntityByGuid(const S_GUID & rGuid, Entity & rE);
-	int    GetEntityListByGuid(const S_GUID & rGuid, TSCollection <Entity> & rList);
-	int    GetEntityByUuid(const S_GUID & rUuid, Entity & rE);
-	//
-	// Descr: Флаги функции Put(PPID *, const VetisVetDocument &, long flags, TSVector <UnresolvedEntity> *, int use_ta)
-	//
-	enum {
-		putvdfForceUpdateOuterFields    = 0x0001, // Заменять значения внешних по отношению к ВЕТИС атрибутов
-		putvdfEnableClearNativeBillLink = 0x0002  // @v11.1.8 Функция получает возможность обнулить ссылку на собственный документ в БД
-	};
-	int    Put(PPID * pID, const VetisVetDocument & rItem, long flags, TSVector <UnresolvedEntity> * pUreList, int use_ta);
-	int    Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & rEnterpriseGuid, const VetisStockEntry & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
-	int    Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
-	int    Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
-    int    Put(PPID * pID, int kind, const VetisProductItem & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
-	//int    RecToItem(const VetisProductTbl::Rec & rRec, VetisProductItem & rItem);
-	int    CollectUnresolvedEntityList(TSVector <UnresolvedEntity> & rList);
-	int    Get(PPID id, VetisVetDocument & rItem);
-	int    Get(PPID id, VetisEnterprise & rItem);
-	int    Get(PPID id, VetisBusinessEntity & rItem);
-	int    Get(PPID id, VetisProductItem & rItem);
-	//int    Get(PPID id, VetisProduct & rItem);
-	//int    Get(PPID id, VetisSubProduct & rItem);
-	int    SetOutgoingDocApplicationIdent(PPID id, const S_GUID & rAppId, int use_ta);
-	//
-	// Descr: Устанавливает у документа с идентификатором id флаг VetisVetDocument::fInSendingQueue
-	//
-	int    SetOutgoingDocInQueueFlag(PPID id, int use_ta);
-	int    SearchPerson(PPID id, VetisPersonTbl::Rec * pRec);
-	int    SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec);
-	int    MatchPersonInDocument(PPID docEntityID, int side /*0 - from, 1 - to*/, PPID personID, PPID dlvrLocID, int use_ta);
-	//
-	// Descr: Сопоставляет ветеринарный документ docEntityID с документом billID и (если !0) со строкой документа
-	//   {billID; rowN}.
-	//   Если параметр fromBill != 0, то считает, что лот {billID; rowN} уже сопоставлен и не модифицирует документ.
-	//
-	int    MatchDocument(PPID docEntityID, PPID billID, int rowN, int fromBill, int use_ta);
-	int    SetupEnterpriseEntry(PPID psnID, PPID locID, VetisEnterprise & rEntry);
-	int    MakeCountryList(StrAssocArray & rList, UUIDAssocArray & rGuidList);
-	int    MakeRegionList(long countryIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList);
-	int    MakeLocalityList(long regionIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList);
-	int    MakeProductList(StrAssocArray & rList, UUIDAssocArray & rGuidList);
-	int    MakeSubProductList(StrAssocArray & rList, UUIDAssocArray & rGuidList, LAssocArray * pParentProductList);
-
-	VetisEntityTbl ET;
-	VetisProductTbl PiT;
-	VetisPersonTbl  BT;
-	VetisDocumentTbl DT;
-	UuidRefCore UrT;
-private:
-	int    EntityRecToEntity(const VetisEntityTbl::Rec & rRec, Entity & rE);
-	int    ResolveEntityByID(PPID entityID, VetisNamedGenericVersioningEntity & rD);
-	long   Helper_InitMaxGuidKey(const UUIDAssocArray & rGuidList) const;
-	long   Helper_SetGuidToList(const S_GUID & rGuid, long * pMaxGuidKey, UUIDAssocArray & rGuidList) const;
-
-	PPObjPerson PsnObj;
-};
-//
-//
-//
-class VetisDocumentFilt : public PPBaseFilt {
-public:
-	VetisDocumentFilt();
-	int    FASTCALL GetStatusList(PPIDArray & rList) const;
-
-	uint8  ReserveStart[200]; // @anchor // @v10.6.3 [204]-->[200]
-	enum {
-		fkGeneral  = 0,
-		fkInterchangeParam = 1
-	};
-	enum {
-		icacnLoadUpdated     = 0x0001,
-		icacnLoadAllDocs     = 0x0002,
-		icacnLoadStock       = 0x0004,
-		icacnPrepareOutgoing = 0x0008, // @v10.7.8
-		icacnSendOutgoing    = 0x0010, // @v10.7.8
-		icacnRefsImport      = 0x0020  // @v11.0.10
-	};
-	enum {
-		refimpfCountry = 0x0001,
-		refimpfRegion  = 0x0002,
-		refimpfUOM     = 0x0004,
-		refimpfEnterprise      = 0x0008,
-		refimpfLocation        = 0x0010,
-		refimpfProductGroup    = 0x0020,
-		refimpfProductSubGroup = 0x0040,
-		refimpfProductItem     = 0x0080,
-		refimpfPurpose = 0x0100,
-	};
-	enum {
-		fAsSelector      = 0x0001
-	};
-	int16  Ft_Expiry;   // @v10.6.3 Селектор по признаку истечения срока годности. (0) ignored, (< 0) off, (> 0) on
-	int16  Ft_LotMatch; // @v10.6.3 Селектор по признаку сопоставления со строкой документа. (0) ignored, (< 0) off, (> 0) on
-	PPID   LinkVDocID;  // @v10.1.12 Ид документа, привязки к которому необходимо отобразить
-	S_GUID SelLotUuid;  // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
-		// При открытии окна текущая позиция будет установлена на записи с этим идентификатором.
-	long   FromPersonID;
-	long   FromLocID;
-	long   ToPersonID;
-	long   ToLocID;
-	long   FiltKind;
-	long   Flags;
-	long   Actions;
-	PPID   MainOrgID;
-	PPID   LocID__;
-	DateRange Period;
-	DateRange WayBillPeriod;
-	long    VDStatusFlags;
-	long    Sel;              // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
-	long    RefsImpFlags;     // @v11.0.10 Флаги импорта справочников
-	uint8   ReserveEnd[24];   // @anchor @v11.0.10 [28]-->[24]
-};
-
-struct VetisDocumentTotal {
-	VetisDocumentTotal();
-
-	long   Count;
-	long   CtCreated;
-	long   CtConfirmed;
-	long   CtWithdrawn;
-	long   CtUtilized;
-	long   CtFinalized;
-	long   CtOutgoingPrep;
-	long   CtStock;
-};
-
-typedef VetisDocumentTbl::Rec VetisDocumentViewItem;
-
-class PPViewVetisDocument : public PPView {
-public:
-	struct BrwHdr {
-		PPID   EntityID;
-		long   Flags;
-		PPID   LinkBillID;
-		int16  LinkBillRow;
-		PPID   LinkGoodsID;
-		PPID   LinkFromPsnID;
-		PPID   LinkFromDlvrLocID;
-		PPID   LinkToPsnID;
-		PPID   LinkToDlvrLocID;
-		LDATE  IssueDate;
-		PPID   OrgDocEntityID;
-		int64  ExpiryFrom;     // @v10.5.11 SUniTime
-		int64  ExpiryTo;       // @v10.5.11 SUniTime
-	};
-
-	static int FASTCALL EditInterchangeParam(VetisDocumentFilt * pFilt);
-	static int FASTCALL RunInterchangeProcess(VetisDocumentFilt * pFilt);
-
-	PPViewVetisDocument();
-	~PPViewVetisDocument();
-	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
-	virtual int EditBaseFilt(PPBaseFilt *);
-	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	int    InitIteration();
-	int    NextIteration(VetisDocumentViewItem * pItem);
-	int    FASTCALL CheckForFilt(const VetisDocumentViewItem * pItem);
-	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
-	int    CalcTotal(VetisDocumentTotal * pTotal);
-
-	VetisEntityCore EC; // public поскольку внешние модули могут захотеть иметь доступ к этому (дорогому) ресурсу
-private:
-	static int DynFuncEntityTextFld;
-	static int DynFuncBMembTextFld;
-	static int DynFuncProductItemTextFld;
-	static int DynFuncVetDStatus;
-	static int DynFuncVetDForm;
-	static int DynFuncVetDType;
-	static int DynFuncVetStockByDoc;
-	static int DynFuncVetUUID;  //@erik v10.4.11
-	static int DynFuncCheckExpiry; // @v10.6.3
-	static int DynFuncCheckLocation; // @v11.5.8
-
-	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual void ViewTotal();
-	int    LoadDocuments();
-	int    Helper_ProcessIncoming(const S_GUID & rVetDocUuid, const void * pIfcParam, PPVetisInterface & rIfc, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList);
-	int    ProcessIncoming(PPID entityID);
-	int    ProcessOutcoming(PPID entityID);
-	int    RerequestDocument(PPID id);
-	int    ViewWarehouse();
-	int    ViewGoods();
-	enum {
-		otmFrom = 1,
-		otmTo,
-		otmGoods,
-		otmBill,
-		otmLot
-	};
-	int    MatchObject(const VetisDocumentTbl::Rec & rRec, int objToMatch);
-	int    ForceResolveObject(const VetisDocumentTbl::Rec & rRec, int objToMatch);
-
-	VetisDocumentFilt Filt;
-	// @v10.9.10 PPID   FromEntityID;
-	PPIDArray FromEntityIdList; // @v10.9.10
-	PPID   FromEnterpriseID;
-	PPID   ToEntityID;
-	PPID   ToEnterpriseID;
-	PPID   LocEntityID; // @v11.5.8
-};
-//
-//
-//
 class AlcoDeclRuFilt : public PPBaseFilt {
 public:
 	AlcoDeclRuFilt();
@@ -51424,7 +49417,7 @@ public:
 		eqxShowMode = 0x0002
 	};
 	int    IsEqualExcept(const AlcoDeclRuFilt & rS, long flags) const;
-	int    SetParentView(PPViewAlcoDeclRu * pView);
+	void   SetParentView(PPViewAlcoDeclRu * pView);
 	PPViewAlcoDeclRu * GetParentView();
 
 	enum {
@@ -55507,137 +53500,6 @@ private:
 	uint   Options;
 };
 //
-// Descr: Общий диалог редактирования параметров импорта/экспорта.
-//   Другие диалоги могут наследовать упарвляющие элементы и поведение этого диалога.
-//
-class ImpExpParamDialog : public TDialog {
-public:
-	enum {
-		fDisableImport = 0x0001,
-		fDisableExport = 0x0002,
-		fDisableName   = 0x0004
-	};
-	explicit ImpExpParamDialog(uint dlgID, long options = 0);
-	int    setDTS(const PPImpExpParam *);
-	int    getDTS(PPImpExpParam *);
-protected:
-	DECL_HANDLE_EVENT;
-
-	PPImpExpParam Data;
-	long   Flags;
-	int    EnableExcelImpExp;
-};
-//
-// Descr: Общий диалог редактирования списка параметров импорта/эскпорта.
-//  Другие диалоги могут наследовать управляющие элементы и поведение этого диалога.
-//
-class ImpExpCfgListDialog : public PPListDialog {
-public:
-	ImpExpCfgListDialog();
-	ImpExpCfgListDialog(uint iniFileID, uint sdRecID, PPImpExpParam * pParam, ImpExpParamDialog * pDlg);
-	int    SetParams(uint iniFileID, uint sdRecID, PPImpExpParam * pParam, ImpExpParamDialog * pDlg);
-private:
-	virtual int  setupList();
-	virtual int  addItem(long * pPos, long * pID);
-	virtual int  editItem(long pos, long id);
-	virtual int  delItem(long pos, long id);
-	virtual int  EditParam(const char *);
-
-	uint   IniFileID;
-	uint   SDRecID;
-	StringSet Sections;
-	PPImpExpParam * P_Param;
-	ImpExpParamDialog * P_ParamDlg;
-};
-//
-//
-//
-class GoodsImpExpDialog : public ImpExpParamDialog {
-public:
-	GoodsImpExpDialog();
-	int    setDTS(const PPGoodsImpExpParam * pData);
-	int    getDTS(PPGoodsImpExpParam * pData);
-private:
-	DECL_HANDLE_EVENT;
-	void   SetupCtrls(long direction);
-
-	PPGoodsImpExpParam Data;
-};
-//
-//
-//
-class QuotImpExpDialog : public ImpExpParamDialog {
-public:
-	QuotImpExpDialog();
-	int    setDTS(const PPQuotImpExpParam * pData);
-	int    getDTS(PPQuotImpExpParam * pData);
-private:
-	DECL_HANDLE_EVENT;
-	void   SetupCtrls(long direction);
-
-	PPQuotImpExpParam Data;
-	const PPObjQuotKind::Special QkSpc; // @v11.4.2
-	PPObjQuotKind QkObj; // @v11.4.2
-};
-//
-//
-//
-class PersonImpExpDialog : public ImpExpParamDialog {
-public:
-	PersonImpExpDialog();
-	int    setDTS(const PPPersonImpExpParam * pData);
-	int    getDTS(PPPersonImpExpParam * pData);
-private:
-	PPPersonImpExpParam Data;
-};
-//
-//
-//
-class PhoneListImpExpDialog : public ImpExpParamDialog {
-public:
-	PhoneListImpExpDialog();
-	int    setDTS(const PPPhoneListImpExpParam * pData);
-	int    getDTS(PPPhoneListImpExpParam * pData);
-private:
-	PPPhoneListImpExpParam Data;
-};
-//
-//
-//
-class SCardImpExpDialog : public ImpExpParamDialog {
-public:
-	SCardImpExpDialog();
-	int    setDTS(const PPSCardImpExpParam * pData);
-	int    getDTS(PPSCardImpExpParam * pData);
-private:
-	PPSCardImpExpParam Data;
-};
-//
-//
-//
-class LotImpExpDialog : public ImpExpParamDialog {
-public:
-	LotImpExpDialog();
-	int    setDTS(const PPLotImpExpParam * pData);
-	int    getDTS(PPLotImpExpParam * pData);
-private:
-	PPLotImpExpParam Data;
-};
-//
-//
-//
-class BillHdrImpExpDialog : public ImpExpParamDialog {
-public:
-	BillHdrImpExpDialog();
-	int    setDTS(const PPBillImpExpParam * pData);
-	int    getDTS(PPBillImpExpParam * pData);
-private:
-	DECL_HANDLE_EVENT;
-	void   SetupCtrls(long direction);
-
-	PPBillImpExpParam Data;
-};
-//
 //
 //
 class PsnEventDialog : public PPListDialog {
@@ -56634,6 +54496,2169 @@ private:
 	SString IdentText;
 };
 //
+// Import/Export Block (PPImpExpParam etc)
+//
+//
+// @vmiller
+// Descr: Вспомогательная структура, содержащая параметры для импорта/экспорта данных через dll
+//
+struct ImpExpParamDllStruct {
+	ImpExpParamDllStruct();
+
+	long   BeerGrpID;		   // ИД группы товаров "пиво"
+	long   AlcoGrpID;		   // ИД группы товаров "алкоголь"
+	long   AlcoLicenseRegID;  // ИД регистра производителя с номером "лицензия на алкоголь"
+	long   TTNTagID;		   // ИД тега с номером ТТН
+	long   ManufTagID;		   // ИД тега импортера/производител
+	long   ManufKPPRegTagID;  // ИД регистра производителя с номером КПП
+	long   RcptTagID;		   // ИД тега для пометки о доставке заказа поставщику
+	long   ManufRegionCode;   // Код региона из адреса производителя/импортера
+	long   IsManufTagID;	   // Если 1, то персоналия-производитель, 2 - персоналия-импортер
+	long   GoodsKindTagID;    // ИД тега лота, определяющего вид товара
+	long   ManufINNID;        // ИД тега лота, содержащего ИНН производител
+	SString DllPath;
+	SString FileName;
+	SString Login;
+	SString Password;
+	SString GoodsKindSymb;	   // По какому параметру искать вид товара: x, y, z, w
+	SString XmlPrefix;
+	SString OperType;		   // Тип операции импорта/экспорта
+	SString GoodsVolSymb;      // По какому параметру смотреть объем продукции: x, y, z, w
+};
+//
+// Descr: Структура соответсвия полей и параметров импорта/экспорта данных
+// @defined(PPLIB\RFLDCORR.CPP)
+//
+class PPImpExpParam {
+public:
+	static PPImpExpParam * FASTCALL CreateInstance(const char * pIehSymb, long flags);
+	static PPImpExpParam * FASTCALL CreateInstance(uint recId, long flags);
+	explicit PPImpExpParam(uint recID = 0, long flags = 0);
+	virtual ~PPImpExpParam();
+	int    Init(int import = 0);
+	virtual int Edit();
+	virtual int Select();
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	//
+	// Descr: Эта функция должна выполнить одну из трех операций над именем конфигурации экспорта:
+	//   (op == 1) - [decorate name] Модифицировать имя конфигурации так, чтобы обеспечить
+	//      уникальность этого имени среди других конфигураций импорта/экспорта, относящихся к
+	//      другим классам
+	//   (op == 2) - [undecorate name] Убрать декорирующую часть из имени так, чтобы пользователь
+	//      видел то имя конфигурации, которое он задал.
+	//   (op == 3) - [check decorated name] Проверить правильность декорированного имени конфигурации
+	//   (op == 4) - [check undecorated name] Проверить правильность недекорированного имени конфигурации
+	// Returns:
+	//   >0 - функция выполнена успешно
+	//   0  - ошибка
+	//   <0 - функция не выполняла ни каких действий
+	//
+	virtual int ProcessName(int op, SString & rName) const;
+	//
+	// Descr: Функция должна сформировать имя файла экспорта на основании значения FileName и
+	//   вернуть полное имя файла по ссылке rResult.
+	// Note:
+	//   Функция принципиально константная и не может ни при каких обстоятельствах
+	//   менять внутреннее состояние экземпляра объекта - это связано с особенностями вызова данной функции.
+	// Returns:
+	//   1 - имя файла используется то же, что и было задано в FileName
+	//   100 - имя файла сформировано по шаблону, заданному в FileName
+	//   0 - error
+	//
+	virtual int MakeExportFileName(const void * extraPtr, SString & rResult) const;
+	virtual int PreprocessImportFileSpec(StringSet & rList);
+
+	class PtTokenList : public SStrGroup {
+	public:
+		PtTokenList();
+		PtTokenList & Z();
+		uint    GetCount() const;
+		int     Add(long tokenId, long extID, const char * pText);
+		int     Get(uint pos, long * pTokenId, long * pExtID, SString & rText) const;
+	private:
+		struct InnerEntry {
+			long   TokenId;
+			long   ExtID;
+			uint   StrP;
+		};
+		TSVector <InnerEntry> L;
+	};
+
+	virtual int PreprocessImportFileName(const SString & rFileName, PPImpExpParam::PtTokenList & rResultList);
+	int    GetFilesFromSource(const char * pUrl, StringSet & rList, PPLogger * pLogger);
+	int    DistributeFile(PPLogger * pLogger);
+
+	enum {
+		dfText = 0,
+		dfDbf,
+		dfXml,
+		dfSoap,
+		dfExcel
+	};
+	enum {
+		bfDLL    = 0x0001,
+		bfDeleteSrcFiles = 0x0002
+	};
+	uint   RecId;
+	long   DataFormat;     // dfXXX
+	long   Direction;      // 0 - экспорт, 1 - импорт
+	long   EDIDocType;     // Тип докумнта для импорт/экспорта с помощью EDI // @vmiller
+	long   BaseFlags;      // PPImpExpParam::bfXXX
+	PPID   InetAccID;      // Учетная запись интернет-соединения
+	TextDbFile::Param  TdfParam;
+	XmlDbFile::Param   XdfParam;
+	SoapDbFile::Param  SdfParam;
+	ExcelDbFile::Param XlsdfParam;
+	SdRecord HdrInrRec;     // Запись, определяющая заголовочный внутренний набор данных.
+	SdRecord HdrOtrRec;     // Запись, определяющая заголовочный внешний набор данных.
+	SdRecord InrRec;        // Запись, определяющая внутренний набор данных
+	SdRecord OtrRec;        // Запись, определяющая внешний (для импорта/экспорта) набор данных
+	SString Name;           // Название конфигурации
+	SString DataSymb;       // Символ наименования структуры данных
+	SString GlobalUserName; // Если конфигурация принадлежит глобальной учетной записи, то здесь задается имя аккаунта.
+	SString FileName;       // Имя файла импорта/экспорта
+	ImpExpParamDllStruct ImpExpParamDll; // @vmiller
+private:
+	int    ParseFormula(int hdr, const SString & rPar, const SString & rVal);
+};
+
+extern "C" typedef PPImpExpParam * (*FN_IMPEXPHDL_FACTORY)(long flags);
+
+#define IMPEXP_HDL_FACTORY(iehSymb)  IEHF_##iehSymb
+#define IMPLEMENT_IMPEXP_HDL_FACTORY(iehSymb, cls) \
+	extern "C" __declspec(dllexport) PPImpExpParam * IEHF_##iehSymb(long flags) { return new cls(PPREC_##iehSymb, flags); }
+//
+// ARG(fileNameId  IN): Идентификатор имени файла, из которого следует получить описание формата
+// ARG(sdRecId     IN): Идентификатор записи, в соответствии с которой должен быть получено описание формата
+// ARG(pParam     OUT): Описание формата, заполняемое функцией
+// ARG(pSectNames OUT): Функция заносит в этот список наименования секций файла, содержащих описания форматов
+// ARG(kind        IN): Параметр, определяющий фильтрацию видов описаний
+//   0 - и импорт и экспорт
+//   1 - только экспорт
+//   2 - только импорт
+//
+int GetImpExpSections(uint fileNameId, uint sdRecId, PPImpExpParam * pParam, StringSet * pSectNames, int kind);
+int GetImpExpSections(uint fileName, uint sdRecID, PPImpExpParam * pParam, StrAssocArray * pList, int kind);
+//
+// Descr: Класс, реализующий универсальный механизм импорта/экспорта данных
+// Note: Функции класса считают, что все строковые поля при экспорте
+//   поставляются в ANSI кодировке (не OEM)
+//
+class PPImpExp {
+public:
+	//
+	// Descr: Вспомогательная функция, обеспечивающая разрешение выражения,
+	//   представленного наименованием поля структуры rRec.
+	//   Используется в контекстах разбора выражений.
+	//
+	static int ResolveVarName(const char * pSymb, const SdRecord & rRec, double * pVal);
+
+	PPImpExp(const PPImpExpParam *, const void * extraPtr);
+	~PPImpExp();
+	int    IsCtrError() const;
+	int    IsOpened() const;
+	int    OpenFileForReading(const char * pFileName);
+	int    OpenFileForWriting(const char * pFileName, int truncOnWriting, StringSet * pResultFileList = 0);
+	void   CloseFile();
+	//int    GetFilesFromSource(const char * pWildcard, PPLogger * pLogger);
+	int    DistributeFile(PPLogger * pLogger);
+	int    AppendHdrRecord(void * pDataBuf, size_t dataBufLen);
+	int    AppendRecord(void * pDataBuf, size_t dataBufLen);
+	int    InitDynRec(SdRecord * pDynRec) const;
+	int    ReadRecord(void * pInnerBuf, size_t bufLen, SdRecord * pDynRec = 0);
+	int    GetNumRecs(long * pNumRecs);
+	//
+	// Descr: Устанавливает внешний контекст для разрешения формул.
+	//   Экземпляр класса PPImpExp не владеет переданным указателем.
+	//   То есть, вызывающая функция (класс) должна сама
+	//   позаботиться о разрушении объекта, на который ссылается переданный указатель.
+	// Note: Передаваемый контекст должен уметь распознавать
+	//   переменные, представленные наименованиями полей структуры импорта/экспорта.
+	//   Для этого следует использовать вспомогательную статическую функцию PPImpExp::ResolveVarName.
+	//
+	void   SetExprContext(ExprEvalContext * pCtx);
+	int    SetHeaderData(const Sdr_ImpExpHeader * pData);
+	const  PPImpExpParam & GetParamConst() const;
+	PPImpExpParam & GetParam();
+	//
+	// Descr: Сохраняет текущее состояние, позволяет считывать в буфер данные о подчиненном элементе.
+	//
+	int    Push(const PPImpExpParam * pParam);
+	//
+	// Descr: Восстанавливает текущее состояние.
+	//
+	int    Pop();
+	int    FASTCALL GetFileName(SString & rFileName) const;
+	const  SString & GetPreservedOrgFileName() const;
+	//
+	// Descr: Функция возвращает подготовленные экспортированные данные в буфере rBuf.
+	//   Может быть использована только в том случае, если при инициализации
+	//   было директивно предопределено требование выгружать данные не в файл, а в буфер памяти.
+	// Returns:
+	//   >0 - данные успешно скопированы в буфер
+	//   <0 - функция не может быть выполнена поскольку экспорт был осуществлен в файл
+	//   0  - ошибка
+	//
+    int    FASTCALL GetExportBuffer(SBuffer & rBuf);
+private:
+	enum {
+		sOpened   = 0x0001, // Файл открыт
+		sReadOnly = 0x0002, // Объект работает в режиме "Чтение"
+		sCtrError = 0x0004, // Если в контструкторе возникла ошибка, то этот флаг устанавливается //
+		sBuffer   = 0x0008  // Обмен осуществляется посредством буфера, а не файла (пока доступно только для экспорта в XML)
+	};
+	// @vmiller
+	struct StateBlock {
+		StateBlock();
+
+		int    Busy;
+		ulong  RecNo;
+		SString FileNameRoot;
+		PPImpExpParam Param;
+	};
+	int    Helper_OpenFile(const char * pFileName, int readOnly, int truncOnWriting, StringSet * pResultFileList);
+	int    ResolveFormula(const char * pFormula, const void * pInnerBuf, size_t bufLen, SString & rResult);
+	int    GetArgList(SStrScan & rScan, StringSet & rArgList);
+	int    ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen);
+	int    ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pDynRec);
+	PPImpExpParam P;
+	long   State; // PPImpExp::sXXX
+	DbfTable    * P_DbfT;
+	TextDbFile  * P_TxtT;
+	XmlDbFile   * P_XmlT;
+	SoapDbFile  * P_SoapT;
+	ExcelDbFile * P_XlsT;
+	Sdr_ImpExpHeader * P_HdrData;
+	ExprEvalContext * P_ExprContext; // @notowned
+	ulong  R_RecNo;
+	ulong  W_RecNo;
+	ulong  R_SaveRecNo;
+	int    ExtractSubChild;
+	SString PreserveOrgFileName;
+	TSCollection <StateBlock> StateColl; // @vmiller
+	TSStack <int> StateStack; // @vmiller
+};
+//
+//
+//
+class PPDbTableXmlExporter {
+public:
+	struct BaseParam {
+		BaseParam(uint32 sign);
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+		enum {
+			fReplaceIdsBySync = 0x0001
+		};
+		uint32 Sign;
+		long   Flags;
+		PPID   RefDbID;
+		SString FileName;
+	};
+	PPDbTableXmlExporter();
+	virtual ~PPDbTableXmlExporter();
+	virtual DBTable * Init() = 0;
+	virtual int  Next() = 0;
+	int    Run(const char * pOutFileName);
+protected:
+	IterCounter Cntr;
+};
+
+struct PPDbTableXmlExportParam_TrfrBill : public PPDbTableXmlExporter::BaseParam {
+public:
+	static int Edit(PPDbTableXmlExportParam_TrfrBill * pData);
+	PPDbTableXmlExportParam_TrfrBill();
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+	DateRange Period;
+};
+
+class PPDbTableXmlExporter_Transfer : public PPDbTableXmlExporter {
+public:
+	PPDbTableXmlExporter_Transfer(const PPDbTableXmlExportParam_TrfrBill & rParam);
+private:
+	virtual DBTable * Init();
+	virtual int  Next();
+
+	PPDbTableXmlExportParam_TrfrBill P;
+	Transfer * P_T;
+	BExtQuery * P_Q;
+};
+
+class PPDbTableXmlExporter_Bill : public PPDbTableXmlExporter {
+public:
+	PPDbTableXmlExporter_Bill(const PPDbTableXmlExportParam_TrfrBill & rParam);
+private:
+	virtual DBTable * Init();
+	virtual int  Next();
+
+	PPDbTableXmlExportParam_TrfrBill P;
+	BillCore * P_T;
+	BExtQuery * P_Q;
+};
+//
+// Descr: Общий контекст разрешения формул по записи импорта/экспорта
+//
+class ImpExpExprEvalContext : public ExprEvalContext {
+public:
+	ImpExpExprEvalContext(const SdRecord & rRec);
+	virtual int Resolve(const char * pSymb, double * pVal);
+private:
+	const SdRecord & R_Rec;
+};
+//
+// @vmiller
+// Класс для импорта/экспорта через dll
+//
+class ImpExpDll {
+public:
+	typedef int (* InitExpProc)(void * , const char * , int *);
+	typedef int (* SetExpObjProc) (uint , const char * , void *, int *, const char *);
+	typedef int (* InitExpIterProc) (uint , uint);
+	typedef int (* NextExpIterProc) (uint , uint , void *);
+	typedef int (* EnumExpReceiptProc) (void *);
+	typedef int (* InitImpProc)(void * , const char * , int *);
+	typedef int (* GetImpObjProc) (uint , const char * , void *, int *, const char *);
+	typedef int (* InitImpIterProc) (uint , uint);
+	typedef int (* NextImpIterProc) (uint , uint , void *);
+	typedef int (* ReplyImpObjStatusProc) (uint , uint , void *);
+	typedef int (* FinishImpExpProc) ();
+	typedef int (* GetErrorMessageProc) (char * , uint);
+
+	ImpExpDll();
+	~ImpExpDll();
+	int    operator !() const;
+	const  int IsInited() { return Inited; }
+	// pDllName - полный путь к dll
+	// op - операция. 1 - экспорт, 2 - импорт
+	int InitLibrary(const char * pDllName, uint op);
+	void ReleaseLibrary();
+
+	InitExpProc InitExport;
+	SetExpObjProc SetExportObj;
+	InitExpIterProc InitExportIter;
+	NextExpIterProc NextExportIter;
+	EnumExpReceiptProc EnumExpReceipt;
+	InitImpProc InitImport;
+	GetImpObjProc GetImportObj;
+	InitImpIterProc InitImportIter;
+	NextImpIterProc NextImportIter;
+	ReplyImpObjStatusProc ReplyImportObjStatus;
+	FinishImpExpProc FinishImpExp;
+	GetErrorMessageProc GetErrorMessage;
+private:
+	int    OpKind;
+	int    Inited;
+	SDynLibrary * P_Lib;
+};
+
+int InitImpExpParam(uint hdrRecType, uint recType, PPImpExpParam * pParam, const char * pFileName, int forExport, long dataFormat);
+int InitImpExpDbfParam(uint recType, PPImpExpParam * pParam, const char * pFileName, int forExport);
+//
+//
+//
+class PPWorkbookImpExpParam : public PPImpExpParam {
+public:
+	explicit PPWorkbookImpExpParam(uint recId = 0, long flags = 0);
+};
+
+class PPWorkbookExporter {
+public:
+	PPWorkbookExporter();
+	~PPWorkbookExporter();
+	int    Init(const PPWorkbookImpExpParam * pParam);
+	int    ExportPacket(const PPWorkbookPacket * pPack);
+private:
+	PPWorkbookImpExpParam Param;
+	PPImpExp * P_IEWorkbook;
+	PPObjWorkbook WbObj;
+	SString DestFilesPath; // @*PPWorkbookExporter::Init()
+};
+//
+//
+//
+struct GoodsImportBillIdent {
+	GoodsImportBillIdent(PPObjPerson * pPsnObj, PPID defSupplID);
+	~GoodsImportBillIdent();
+	void   GetFldSet(PPIniFile *, uint sect, DbfTable * pTbl);
+	int    Get(DbfRecord * pRec);
+	int    Get(Sdr_Goods2 * pRec, PPID supplID);
+	PPBillPacket * GetPacket(PPID opID, PPID locID);
+	int    FinishPackets();
+
+	PPID   SupplID;
+	LDATE  BillDate;
+	SString BillCode;
+private:
+	int    fldn_suppl;
+	int    fldn_supplcode;
+	int    fldn_billcode;
+	int    fldn_billdate;
+	//
+	SString SupplCodeRegSymb;
+	int    CvtCodeToHex;
+	PPID   RegTypeID;
+	PPID   AccSheetID;
+	PPID   DefSupplID;
+	//
+	SArray * P_CodeToPersonTab;
+	PPObjPerson * P_PsnObj; // Not owned by GoodsImportBillIdent
+	PPObjArticle * P_ArObj;
+	TSCollection <PPBillPacket> * P_PackList;
+};
+
+class HierArray : public SVector {
+public:
+	struct Item {
+		char   Code[24];
+		char   ParentCode[24];
+	};
+	HierArray();
+	const  HierArray::Item & at(uint i) const;
+	int    Add(const char * pCode, const char * pParentCode);
+	int    SearchParentOf(const char * pCode, char * pBuf, size_t bufLen) const;
+	int    IsThereChildOf(const char * pParentCode) const;
+};
+
+class PPGoodsImpExpParam : public PPImpExpParam {
+public:
+	enum {
+		fSkipZeroQtty     = 0x0001,
+		fAnalyzeBarcode   = 0x0002,
+		fAnalyzeName      = 0x0004,
+		fAnalyzeOnly      = 0x0008,
+		fUHTT     = 0x0010,
+		fForceSnglBarcode = 0x0020,
+		fImportImages     = 0x0040,
+		fForceUpdateManuf = 0x0080,
+		fForceUpdateBrand = 0x0100  // @v11.6.10
+	};
+	PPGoodsImpExpParam(uint recId = 0, long flags = 0);
+	void   Clear();
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+
+	int32   AccSheetID;
+	int32   SupplID;
+	int32   DefUnitID;
+	int32   PhUnitID;
+	int32   DefParentID;
+	int32   RcptOpID;
+	int32   Flags;
+	int32   LocID;
+	int32   MatrixAction;
+	SString SubCode;
+};
+
+class PPGoodsExporter {
+public:
+	PPGoodsExporter();
+	~PPGoodsExporter();
+	int    Init(const PPGoodsImpExpParam * pParam, StringSet * pResultFileList);
+	int    ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, PPID altGrpID = 0); // realy pPack - const
+	PPGoodsImpExpParam Param;
+	PPImpExp * P_IEGoods;
+private:
+	char   WeightPrefix[12];
+	PPObjGoods * P_GObj;
+	PPObjPerson * P_PsnObj;
+	PPObjQCert * P_QcObj;
+};
+//
+//
+//
+class PPQuotImpExpParam : public PPImpExpParam {
+public:
+	explicit PPQuotImpExpParam(uint recId = 0, long flags = 0);
+	PPQuotImpExpParam & Z();
+	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+
+	int32   QuotCls;    // @v11.4.2 Категория котировок
+	int32   QuotKindID;
+	int32   CurrID;
+	int32   ArID;
+	int32   LocID;
+	int32   Flags;
+};
+//
+//
+//
+class PPPriceListImpExpParam : public PPImpExpParam {
+public:
+	PPPriceListImpExpParam(uint recId = 0, long flags = 0);
+};
+//
+//
+//
+class PPPhoneListImpExpParam : public PPImpExpParam {
+public:
+	PPPhoneListImpExpParam(uint recId = 0, long flags = 0);
+	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+
+	SString DefCityPhonePrefix;
+};
+
+int EditPhoneListParam(const char * pIniSection);
+//
+//
+//
+class PPPersonImpExpParam : public PPImpExpParam {
+public:
+	explicit PPPersonImpExpParam(uint recId = 0, long flags = 0);
+	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+	enum {
+		f2GIS      = 0x0001, // Данные извлечены из сервиса 2GIS (импорт реализуется с некоторыми спецификами)
+		fCodeToHex = 0x0002  // Код персоналии преобразуется к строке, каждый символ кода преобразуется //
+			// в свое беззнаковое шестнадцатиричное представление (два символа). Буквы в этой строке находятся в верхнем регистре.
+	};
+	PPID   DefKindID;
+	PPID   DefCategoryID;
+	PPID   DefCityID;
+	PPID   SrchRegTypeID;
+	long   Flags;
+};
+//
+//
+//
+class PPSCardImpExpParam : public PPImpExpParam {
+public:
+	PPSCardImpExpParam(uint recId = 0, long flags = 0);
+	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+
+	SString DefSeriesSymb;
+	SString OwnerRegTypeCode;
+};
+//
+//
+//
+class PPCliBnkImpExpParam : public PPImpExpParam {
+public:
+	PPCliBnkImpExpParam(uint recId = 0, long flags = 0);
+	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+
+	int    DefPayerByAmtSign; // Если !0, то плательщик определяется по знаку суммы операции.
+	SString BnkCode;          // Код банка, с которым происходит взаимодействие.
+	SString PaymMethodTransl; // Трансляция вида платежа из Papyrus в client bank
+};
+//
+//
+//
+class PPLotImpExpParam : public PPImpExpParam {
+public:
+	PPLotImpExpParam(uint recId = 0, long flags = 0);
+	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+
+	long   Flags;
+	PPID   UhttGoodsCodeArID;
+};
+
+class PPLotExporter {
+public:
+	PPLotExporter();
+	~PPLotExporter();
+	int    Init(const PPLotImpExpParam * pParam);
+	int    Export(const LotViewItem * pItem);
+private:
+	PPLotImpExpParam Param;
+	PPObjPerson PsnObj;
+	PPObjGoods GObj;
+	PPObjArticle ArObj;
+	PPUhttClient UhttCli;
+	PPImpExp * P_IE;
+};
+//
+//
+// 
+class PPCCheckImpExpParam : public PPImpExpParam { // @v11.8.4
+public:
+	PPCCheckImpExpParam(uint recId = 0, long flags = 0);
+
+	long   Flags;
+	long   PredefFormat;      // @persistent PredefinedImpExpFormat
+};
+
+class PPCCheckImporter { // @v11.8.4
+public:
+	PPCCheckImporter();
+	~PPCCheckImporter();
+	int    Init(const PPCCheckImpExpParam * pParam);
+	int    Run();
+private:
+	PPCCheckImpExpParam Param;
+};
+//
+// Descr: Базовый класс для реализации механизмов экспорта/импорта в форматах, предопределенных
+//   государственными органами России.
+//
+class DocNalogRu_Base {
+public:
+	struct FileInfo {
+		FileInfo();
+		PPID   SenderPersonID;
+		PPID   ReceiverPersonID;
+		PPID   ProviderPersonID;
+		LDATETIME CurDtm; // Текущее время. Так как дебильные форматы NALOG.RU требуют текущие время и дату в самых разных
+			// и неожиданных местах в целях избежания противоречивости сформируем один раз это значение для использования везде.
+		enum {
+			fVatFree = 0x0001
+		};
+		long   Flags;
+		S_GUID Uuid;
+		SString FormatPrefix;
+		SString SenderIdent;
+		SString ReceiverIdent;
+		SString ProviderIdent;
+		SString ProviderName;
+		SString ProviderINN;
+		SString FileId;
+		SString FileName;
+		SString FileFormatVer; // ВерсФорм
+		SString ProgVer;       // ВерсПрог
+	};
+	struct Address {
+		Address();
+		int   RuRegionCode;
+		SString ZIP;
+		SString Destrict; // Район
+		SString City;
+		SString Street;
+		SString House; // Дом
+		SString HouseCorp; // Корпус
+		SString Apart; // Квартира
+	};
+	struct BankAccount {
+		SString Account;
+		SString BankName;
+		SString BIC;
+	};
+	struct FIO {
+		SString Surname;
+		SString Name;
+		SString Patronymic;
+	};
+	struct Participant {
+		Participant();
+		int   PartyQ; // EDIPARTYQ_XXX
+		PPID  PersonID; // ->Person.ID
+		PPID  LocID;    // ->Location.ID
+		SString GLN;
+		SString OKPO;
+		SString INN;
+		SString KPP;
+		SString Appellation;
+		SString Name_;
+		SString Surname;
+		SString Patronymic;
+		Address Addr;
+		BankAccount BA;
+	};
+	struct GoodsItem {
+		GoodsItem();
+		int   RowN;
+		SString GoodsName;
+		SString GTIN; // Штрихкод товара (EAN/UPC)
+		SString NonEAN_Code; // @v11.5.3 Код товара, не являющийся EAN или UPC-кодом. Пытаемся идентифицировать товар по нему как коду по статье
+		SString OKEI;
+		SString UOM;
+		double Qtty;
+		double Price;
+		double PriceWoVat;
+		double PriceSum;
+		double PriceSumWoVat;
+		double VatRate;
+		StringSet MarkList;
+	};
+	struct DocumentInfo {
+		DocumentInfo();
+		Participant * GetParticipant(int partQ, bool createIfNExists);
+		SString KND; // КНД
+		SString Function; // Функция
+		LDATE  Dt; // Дата документа (накладной)
+		SString Code; // Номер документа (накладной)
+		LDATE  InvcDate; // Дата счет-фактуры
+		SString InvcCode; // Номер счет-фактуры
+		SString Subj; // PPHSC_RU_NAMEECSUBJCOMP(НаимЭконСубСост)
+		SString SubjReason; // PPHSC_RU_REASONECSUBJCOMP(ОснДоверОргСост)
+		SString NameOfDoc;  // "НаимДокОпр"
+		SString NameOfDoc2; // "ПоФактХЖ"
+		TSCollection <Participant> ParticipantList;
+		TSCollection <GoodsItem> GoodsItemList;
+	};
+	DocNalogRu_Base();
+	const  SString & FASTCALL GetToken_Ansi(long tokId);
+	const  SString & FASTCALL GetToken_Utf8(long tokId);
+	//
+	// Descr: Возвращает токен поля с префиксом П0 и последующим номером 10-значным n, набитым слева нулями.
+	//
+	const  SString & FASTCALL GetToken_Ansi_Pe0(long n);
+	//
+	// Descr: Возвращает токен поля с префиксом П1 и последующим номером 10-значным n, набитым слева нулями.
+	//
+	const  SString & FASTCALL GetToken_Ansi_Pe1(long n);
+protected:
+	SString & FASTCALL Helper_GetToken(long tokId);
+	// @v11.7.0 (заменено на револьверную строку) SString TokBuf;
+	TokenSymbHashTable TsHt;
+};
+
+class DocNalogRu_Generator : public DocNalogRu_Base {
+public:
+	struct File {
+		File(DocNalogRu_Generator & rG, const FileInfo & rHi);
+		SXml::WNode N;
+	};
+	struct Document {
+		Document(DocNalogRu_Generator & rG, const DocumentInfo & rInfo);
+		SXml::WNode N;
+	};
+	struct Invoice {
+		//
+		// ARG(correction IN): Если true, то формирование документа будет в варианте корректирующей счет-фактуры. 
+		//   В этой схеме отличаются некоторые теги.
+		//
+		Invoice(DocNalogRu_Generator & rG, const PPBillPacket & rBp, bool correction = false);
+		SXml::WNode N;
+		const bool IsCorrection;
+	};
+	DocNalogRu_Generator();
+	~DocNalogRu_Generator();
+	int    CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo);
+	int    MakeOutFileIdent(FileInfo & rHi);
+	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
+	int    StartDocument(const char * pFileName);
+	void   EndDocument();
+	//
+	// ARG(correction IN): Если true, то формирование строк документа будет в варианте корректирующей счет-фактуры. 
+	//   В этой схеме отличаются некоторые теги.
+	//
+	int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction = false);
+	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
+	// 
+	// Descr: Флаги функции WriteOrgInfo
+	//
+	enum {
+		woifAddrLoc_KppOnly = 0x0001 // Адрес addrLocID использовать только для извлечения КПП
+	};
+	int    WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
+	int    WriteOrgInfo_VatLedger(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
+	//
+	// Descr: Записывает тип "УчастникТип"
+	//
+	int    WriteParticipant(const char * pHeaderTag, PPID psnID, PPID dlvrLocID);
+	//
+	// Descr: Разбивает строку pName на фамилию/имя/отчество и записывает их тегами либо атрибутами
+	//   в зависимости от параметра asTags внутри тега с именем, определямемым идентификатором parentTokId.
+	//   Если parentTokId == 0, то применяется тег с идентификатором PPHSC_RU_FIO.
+	//
+	int    WriteFIO(const char * pName, long parentTokId, bool asTags);
+	int    Underwriter(PPID psnID);
+	int    GetAgreementParams(/*PPID arID*/const PPBillPacket & rBillPack, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
+	const  SString & FASTCALL EncText(const SString & rS);
+//private:
+	PPObjGoods GObj;
+	PPObjPerson PsnObj;
+	PPObjArticle ArObj;
+	SXml::WDoc * P_Doc;
+	xmlTextWriter * P_X;
+private:
+	enum {
+		fExpChZnMarksGTINSER = 0x0001,
+		fExpPlainAddr        = 0x0002 // @v11.5.11 see pp.ini [config] ExpNalogRuPlainAddr
+	};
+	uint   Flags;
+	SString EncBuf;
+};
+//
+//
+//
+class PPBillImpExpParam : public PPImpExpParam {
+public:
+	enum {
+		fImpRowsFromSameFile  = 0x0001,
+		fImpExpRowsOnly       = 0x0002, // Импортировать/экспортировать только файл строк
+		//fSignBill = 0x0002
+		fRestrictByMatrix     = 0x0004, //
+		fExpOneByOne          = 0x0008, // Экспортировать документы по-одному в каждом файле
+		fCreateAbsenceGoods   = 0x0010, // @v10.4.12 Создавать отсутствующие товары (если возможно)
+		fDontIdentGoodsByName = 0x0020, // @v10.5.0  При идентификации товаров
+		fChZnMarkAsCDATA      = 0x0040, // @v11.5.0 Для xml-форматов при экспорте марок чезнак обрамлять значения в конструкцию CDATA
+		fChZnMarkGTINSER      = 0x0080, // @v11.5.0 Марки чезнак экспортировать в виде GTIN-SERIAL, в противном случае - полную марку
+		fUseExtGoodsName      = 0x0100, // @v11.7.12 При экспорте использовать расширенные наименования товаров (если определены)
+	};
+	
+	static int ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate);
+	//
+	// Descr: Предопределенный форматы импорт/экспорта документов
+	//
+	/* @v11.0.2 (replaced with PredefinedImpExpFormat::piefXXX ) enum { // @persistent
+		pfUndef = 0,
+		pfNalogR_Invoice   = 1, //
+		pfNalogR_REZRUISP  = 2, //
+		pfNalogR_SCHFDOPPR = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
+		pfExport_Marks     = 4, // @v10.7.12
+		pfNalogR           = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
+		pfNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
+	};*/
+	explicit PPBillImpExpParam(uint recId = 0, long flags = 0);
+	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+	virtual int MakeExportFileName(const void * extraPtr, SString & rResult) const;
+	virtual int PreprocessImportFileSpec(StringSet & rList);
+	virtual int PreprocessImportFileName(const SString & rFileName, /*StrAssocArray*/PPImpExpParam::PtTokenList & rResultList);
+
+	long   Flags;             // @persistent
+	PPID   ImpOpID;           // @persistent
+	long   PredefFormat;      // @persistent PredefinedImpExpFormat
+	PPID   FixTagID;          // @v11.5.6 @persistent Тег, фиксирующий факт экспорта документа. Если в документе такой тег установлен, то документ снова не экспортируется.
+	SString Object1SrchCode;  // @persistent
+	SString Object2SrchCode;  // @persistent
+	SString OuterFormatVer;   // @v11.6.5 @persistent Номер формата внешних данных. Если пусто, то применяется программно предопределенное значение.
+};
+//
+// Экспорт/импорт инвентаризации
+//
+//
+// Импорт инвентаризации
+//
+class PPInventoryImpExpParam : public PPImpExpParam {
+public:
+	explicit PPInventoryImpExpParam(uint recId = 0, long flags = 0);
+};
+//
+// Descr: Вспомогательная стурктура, используемая в специализиованных
+//   модулях экспорта документов (ЕГАИС, EDI)
+//
+struct PPBillIterchangeFilt {
+	PPBillIterchangeFilt();
+
+	PPID   LocID;
+	DateRange Period;
+	PPIDArray IdList;
+};
+
+class PPBillImpExpBaseProcessBlock {
+public:
+	enum {
+		fUhttImport     = 0x0001,  // Импорт документов из Universe-HTT
+		fSignExport     = 0x0002,  // Подписывать исходящие файлы электронной подписью
+		fEdiImpExp      = 0x0004,  // Импорт/экспорт документов через EDI
+		fCreateCc       = 0x0008,  // При создании документа одновременно создавать чек заказа
+		fDisableLogger  = 0x0010,  // Не выводить сообщения в окно журнала
+		fEgaisImpExp    = 0x0020,  // Обмен данными с ЕГАИС
+		fTestMode       = 0x0040,  //
+		fDontRemoveTags = 0x0080,  // Для EDI и ЕГАИС - не снимать теги при получении отрицательных тикетов
+		fPaymOrdersExp  = 0x0100,  // Экспорт платежных поручений
+		fEgaisVer3      = 0x0200,  // Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
+		fFullEdiProcess = 0x0400,  // Полный цикл EDI-обмена данными с контрагентами
+		fChZnImpExp     = 0x0800,  // @v10.6.4 Обмен данными с честным знаком
+		fEgaisVer4      = 0x1000,  // @v11.0.12 Передача документов в ЕГАИС в 4-й версии (возможность переопределить конфигурацию глобального обмена)
+	};
+	struct TransmitParam {
+		TransmitParam();
+		void   Reset();
+
+        PPID   InetAccID;
+		StrAssocArray AddrList;
+		SString Subject;
+	};
+	struct SearchBlock {
+		SearchBlock();
+
+		LDATE  Dt;
+		int    SurveyDays; // Количество дней назад от текущей даты для поиска документа
+		SString Code;
+		SString DlvrLocCode;
+	};
+	PPBillImpExpBaseProcessBlock();
+	PPBillImpExpBaseProcessBlock & Z();
+	int    Select(int import);
+	int    SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    SearchEdiOrder(const SearchBlock & rBlk, BillTbl::Rec * pOrderRec);
+
+	long   Flags;
+	long   DisabledOptions; // @transient
+	PPID   OpID;
+	PPID   LocID;
+	PPID   PosNodeID;
+	PPID   GuaID;        // @v10.6.5 Глобальная учетная запись
+	DateRange Period;    // Период за который следует импортировать документы
+	PPBillImpExpParam BillParam;
+	PPBillImpExpParam BRowParam;
+	SString CfgNameBill;
+	SString CfgNameBRow;
+	TransmitParam Tp;
+	PPObjBill * P_BObj;
+	PPObjLocation LocObj;
+	PPObjPerson PsnObj;
+	PPObjQCert  QcObj;
+	PPObjArticle ArObj;
+	PPObjGoods  GObj;
+	PPObjTag TagObj;
+};
+
+class PPBillExporter : public PPBillImpExpBaseProcessBlock {
+public:
+	PPBillExporter();
+	~PPBillExporter();
+	void   Destroy();
+	int    Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, const PPBillPacket * pFirstPack, StringSet * pResultFileList);
+	int    PutPacket(PPBillPacket * pPack, int sessId = 0, ImpExpDll * pImpExpDll = 0);
+	int    SignBill(); // @vmiller
+	int    CheckBillsWasExported(ImpExpDll * pExpDll); // @vmiller // Получает от dll список успешно экспортированных документов и ставит в них соответствующую пометку
+	PPImpExp * GetIEBill() const { return P_IEBill; }
+	PPImpExp * GetIEBRow() const { return P_IEBRow; }
+private:
+	int    BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill);
+	int    GetInn(PPID arID, SString & rINN);
+	int    GetReg(PPID arID, PPID regTypeID, SString & rRegNum);
+
+	PPImpExp * P_IEBill;
+	PPImpExp * P_IEBRow;
+	PPObjPersonKind PsnKObj;
+};
+
+typedef TSVector <Sdr_BRow> SdrBillRowArray;
+typedef TSVector <Sdr_Bill> SdrBillArray;
+
+class PPBillImporter : public PPBillImpExpBaseProcessBlock {
+public:
+	PPBillImporter();
+	~PPBillImporter();
+	void   Init();
+	int    Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, PPID opID, PPID locID);
+	//
+	// Descr: Функция не интерактивно инициализирует импорт с Universe-HTT
+	//
+	int    InitUhttImport(PPID opID, PPID locID, PPID posNodeID);
+	int    LoadConfig(int import);
+	int    Run();
+	// @vmiller {
+	enum {
+		statNoSuchDoc = 0,  // Такого документа нет
+		statIsSuchDoc = 1 	// Есть такой документ
+	};
+	// } @vmiller
+private:
+	int    ResolveINN(const char * pINN, PPID dlvrLocID, const char * pDlvrLocCode,
+		const char * pBillId, PPID accSheetID, PPID * pArID, int logErr = 1);
+	int	   ResolveGLN(const char * pGLN, /*const char * pLocCode,*/const char * pBillId, PPID accSheetID, PPID * pArId, int logErr = 1); // @vmiller
+	int    ResolveUnitPerPack(PPID goodsID, PPID locID, LDATE dt, double * pUpp);
+	int    CheckBill(const Sdr_Bill * pBill);
+	int    AddBillToList(Sdr_Bill * pBill, long extraBillId);
+	int    BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack);
+	int    AddBRow(Sdr_BRow & rRow, uint * pRowId);
+	const  Sdr_Bill * SearchBillForRow(const SString & rBillIdent, const Sdr_BRow & rRow) const;
+	int    SearchNextRowForBill(const Sdr_Bill & rBill, const LongArray * pSeenPosList, uint * pPos) const;
+	int    GatherRowsForSameTransferItem(const Sdr_Bill & rBill, uint thisPos, const LongArray & rSeenPosList, LongArray & rResultPosList) const;
+	//
+	// Descr: Считывает из исходного файла строки документов.
+	// ARG(pImpExp IN): Блок параметров импорта
+	// ARG(mode    IN): режим считывания
+	//   0 - обычный режим
+	//   1 - привязка строк к последнему считанному из файла заголовков документу
+	//   2 - режим считывания строк без предварителного считываения заголовков документов (вся информация о документах хранится в файле строк)
+	//
+	int    ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const /*StrAssocArray*/PPImpExpParam::PtTokenList * pFnFldList);
+	int    ReadSpecXmlData();
+	int    Helper_EnsurePersonArticle(PPID psnID, PPID accSheetID, PPID psnKindID, PPID * pArID); // @wota
+	//
+	// Descr: Вспомогательная функция акцепта импортируемых заказов по предопределенному формату piefCokeOrder
+	//
+	int    Helper_AcceptCokeData(const SCollection * pRowList, PPID opID, PPID supplArID);
+	int    ReadData();
+	int    ReadDataDll(const PPEdiProviderPacket * pEp);
+	int    Import(int useTa);
+	int    RunUhttImport();
+	int	   GetDocImpStatus(Sdr_Bill * pBill, Sdr_DllImpObjStatus & rStatus); // @vmiller
+	int    AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::PtTokenList & rFldList, Sdr_Bill * pRecHdr, Sdr_BRow * pRecRow);
+	int    ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList);
+	int    DoFullEdiProcess();
+	int    CreateAbsenceGoods(ResolveGoodsItem & rRgi, int use_ta);
+
+	PPID   AccSheetID;
+	long   LineIdSeq;
+	PPLogger Logger;
+	SdrBillArray Bills;
+	SdrBillRowArray BillsRows;
+	CCheckCore * P_Cc;
+	BillTransmDeficit * P_Btd;
+	StringSet ToRemoveFiles;
+	PPLotTagContainer TagC;
+};
+//
+//
+//
+class ClientBankExportDef {
+public:
+	//
+	// Descr: @constructor
+	// ARG(pPeriod IN): Период, которому принадлежат 'кспортируемые платежные поручения.
+	//
+	ClientBankExportDef(const DateRange * pPeriod);
+	~ClientBankExportDef();
+	PPImpExpParam & GetParam() const;
+	int    ReadDefinition(const char * pIniSection);
+	int    CreateOutputFile(StringSet * pResultFileList);
+	int    CloseOutputFile();
+	int    PutRecord(const PPBillPacket *, PPID debtBillID, PPLogger * pLogger);
+	int    GetStat(long * pAcceptedCount, long * pRejectedCount, double * pAmount);
+	int    PutHeader();
+	int    PutEnd();
+private:
+	//int    UseImpSection; // (testing purpose) Использовать описание импорта
+	void * P_Helper;
+};
+
+class ClientBankImportDef {
+public:
+	static int WriteAssocList(const SVector * pList, int use_ta); // @v9.8.8 SArray-->SVector
+	static int ReadAssocList(SVector * pList); // @v9.8.8 SArray-->SVector
+
+	ClientBankImportDef();
+	~ClientBankImportDef();
+	PPImpExpParam & GetParam() const;
+	int    ReadDefinition(const char * pIniSection);
+	int    ImportAll();
+private:
+	void * P_Helper;
+};
+//
+// Descr: Общий диалог редактирования параметров импорта/экспорта.
+//   Другие диалоги могут наследовать упарвляющие элементы и поведение этого диалога.
+//
+class ImpExpParamDialog : public TDialog {
+public:
+	enum {
+		fDisableImport = 0x0001,
+		fDisableExport = 0x0002,
+		fDisableName   = 0x0004
+	};
+	explicit ImpExpParamDialog(uint dlgID, long options = 0);
+	int    setDTS(const PPImpExpParam *);
+	int    getDTS(PPImpExpParam *);
+protected:
+	DECL_HANDLE_EVENT;
+
+	PPImpExpParam Data;
+	long   Flags;
+	int    EnableExcelImpExp;
+};
+//
+// Descr: Общий диалог редактирования списка параметров импорта/эскпорта.
+//  Другие диалоги могут наследовать управляющие элементы и поведение этого диалога.
+//
+class ImpExpCfgListDialog : public PPListDialog {
+public:
+	ImpExpCfgListDialog();
+	ImpExpCfgListDialog(uint iniFileID, uint sdRecID, PPImpExpParam * pParam, ImpExpParamDialog * pDlg);
+	int    SetParams(uint iniFileID, uint sdRecID, PPImpExpParam * pParam, ImpExpParamDialog * pDlg);
+private:
+	virtual int  setupList();
+	virtual int  addItem(long * pPos, long * pID);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
+	virtual int  EditParam(const char *);
+
+	uint   IniFileID;
+	uint   SDRecID;
+	StringSet Sections;
+	PPImpExpParam * P_Param;
+	ImpExpParamDialog * P_ParamDlg;
+};
+//
+//
+//
+class GoodsImpExpDialog : public ImpExpParamDialog {
+public:
+	GoodsImpExpDialog();
+	int    setDTS(const PPGoodsImpExpParam * pData);
+	int    getDTS(PPGoodsImpExpParam * pData);
+private:
+	DECL_HANDLE_EVENT;
+	void   SetupCtrls(long direction);
+
+	PPGoodsImpExpParam Data;
+};
+//
+//
+//
+class QuotImpExpDialog : public ImpExpParamDialog {
+public:
+	QuotImpExpDialog();
+	int    setDTS(const PPQuotImpExpParam * pData);
+	int    getDTS(PPQuotImpExpParam * pData);
+private:
+	DECL_HANDLE_EVENT;
+	void   SetupCtrls(long direction);
+
+	PPQuotImpExpParam Data;
+	const PPObjQuotKind::Special QkSpc; // @v11.4.2
+	PPObjQuotKind QkObj; // @v11.4.2
+};
+//
+//
+//
+class PersonImpExpDialog : public ImpExpParamDialog {
+public:
+	PersonImpExpDialog();
+	int    setDTS(const PPPersonImpExpParam * pData);
+	int    getDTS(PPPersonImpExpParam * pData);
+private:
+	PPPersonImpExpParam Data;
+};
+//
+//
+//
+class PhoneListImpExpDialog : public ImpExpParamDialog {
+public:
+	PhoneListImpExpDialog();
+	int    setDTS(const PPPhoneListImpExpParam * pData);
+	int    getDTS(PPPhoneListImpExpParam * pData);
+private:
+	PPPhoneListImpExpParam Data;
+};
+//
+//
+//
+class SCardImpExpDialog : public ImpExpParamDialog {
+public:
+	SCardImpExpDialog();
+	int    setDTS(const PPSCardImpExpParam * pData);
+	int    getDTS(PPSCardImpExpParam * pData);
+private:
+	PPSCardImpExpParam Data;
+};
+//
+//
+//
+class LotImpExpDialog : public ImpExpParamDialog {
+public:
+	LotImpExpDialog();
+	int    setDTS(const PPLotImpExpParam * pData);
+	int    getDTS(PPLotImpExpParam * pData);
+private:
+	PPLotImpExpParam Data;
+};
+//
+//
+//
+class BillHdrImpExpDialog : public ImpExpParamDialog {
+public:
+	BillHdrImpExpDialog();
+	int    setDTS(const PPBillImpExpParam * pData);
+	int    getDTS(PPBillImpExpParam * pData);
+private:
+	DECL_HANDLE_EVENT;
+	void   SetupCtrls(long direction);
+
+	PPBillImpExpParam Data;
+};
+
+class CCheckImpExpDialog : public ImpExpParamDialog {
+public:
+	CCheckImpExpDialog();
+	int    setDTS(const PPCCheckImpExpParam * pData);
+	int    getDTS(PPCCheckImpExpParam * pData);
+private:
+	DECL_HANDLE_EVENT;
+	void   SetupCtrls(long direction);
+
+	PPCCheckImpExpParam Data;
+};
+//
+//
+//
+class PPEdiProcessor {
+public:
+	struct RecadvPacket {
+		RecadvPacket();
+
+		//PPBillPacket Bp; // При чтении - RECADV, при отправке DESADV
+		PPBillPacket ABp; // Пакет оригинального DESADV
+		PPBillPacket RBp; // Собственно, пакет RECADV
+		SString DesadvBillCode;
+		LDATE   DesadvBillDate;
+		int     AllRowsAccepted;
+		PPID    WrOffBillID; // @v10.2.12 Ид документа списания (если Bp - драфт-документ, как и должно быть в большинстве случаев)
+		PPID    OrderBillID; // @v10.2.12 Ид документа заказа, на основании которого был сформирован DESADV, которому соответствует данный RECADV
+		RAssocArray DesadvQttyList; // Отгруженные количества, ассоциированные с индексом строки (1..) в документе this->Bp
+		RAssocArray RecadvQttyList; // @v10.2.12 Принятые количества, ассоциированные с индексом строки (1..) в документе this->Bp
+		//
+		// Заказанные количества, ассоциированные с индексом строки (1..) в документе DESADV.
+		// Так как при отправке RECADV однозначно сопоставить строку заказа со строкой DESADV (теоретически) можеть быть сложно,
+		// то при возникновении неоднозначностей модуль распределяет такие значения пропорционально.
+		//
+		RAssocArray OrderedQttyList; // @v10.3.0
+	};
+	struct Packet {
+		explicit Packet(int docType);
+		~Packet();
+		//
+		// PPEDIOP_ORDER:
+		//   P_Data - (PPBillPacket *)
+		//   P_ExtData - 0
+		// PPEDIOP_ORDERRSP
+		//   При отправке:
+		//     P_Data - (PPBillPacket *) пакет текущего заказа
+		//     P_ExtData - (PPBillPacket *) пакет оригинального заказа (при создании)
+		//   При получении:
+		//     P_Data - (PPBillPacket *) пакет подтвержденного заказа
+		//     P_ExtData - (PPBillPacket *) пакет оригинального заказа (отправленного поставщику)
+		//
+		void * P_Data;
+		void * P_ExtData;
+		const  int  DocType;
+		long   Flags;
+	};
+	struct DocumentInfo {
+		DocumentInfo();
+		enum {
+			statusUnkn = 0,
+			statusNew  = 1
+		};
+		int    ID;          // Идентификатор сообщения, инициализируемый дравером конкретного провайдера (не зависимо от провайдера)
+		int    EdiOp;       // Тип EDI-операции
+		LDATETIME Time;     // Время создания/модификации сообщения
+		S_GUID Uuid;        // GUID сообщения
+		long   Status;      // DocumentInfo::statusXXX
+		long   Flags;       // Флаги
+		long   PrvFlags;    // Флаги, специфичные для конкретного провайдера
+		SString Code;       // Код сообщения (номер документа)
+		SString SenderCode; // Код отправителя
+		SString RcvrCode;   // Код получателя
+		SString Box;        // Если хранение сообщений дифференцировано по боксам, то здесь может быть имя бокса для сообщения
+		SString SId;        // Символьный идентификатор (может быть именем файла)
+	};
+	class DocumentInfoList : private SStrGroup {
+	public:
+		DocumentInfoList();
+		uint   GetCount() const;
+		int    GetByIdx(uint idx, DocumentInfo & rItem) const;
+		int    Add(const DocumentInfo & rItem, uint * pIdx);
+	private:
+		struct Entry {
+			int    ID;
+			int    EdiOp;
+			LDATETIME Dtm;
+			S_GUID Uuid;
+			long   Status;
+			long   Flags;
+			long   PrvFlags;
+			uint   CodeP;
+			uint   SenderCodeP;
+			uint   RcvrCodeP;
+			uint   BoxP;
+			uint   SIdP;
+		};
+		TSVector <Entry> L;
+	};
+	class ProviderImplementation {
+	public:
+		enum {
+			ctrfTestMode = 0x0001
+		};
+		ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
+		virtual ~ProviderImplementation();
+		virtual int    GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInfoList & rList) { return -1; }
+		virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList) { return -1; }
+		virtual int    SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack) { return -1; }
+		int    GetTempOutputPath(int docType, SString & rBuf);
+		int    GetTempInputPath(int docType, SString & rBuf);
+		int    GetPersonGLN(PPID psnID, SString & rGLN);
+		int    GetArticleGLN(PPID arID, SString & rGLN);
+		int    GetMainOrgGLN(SString & rGLN);
+		int    GetLocGLN(PPID locID, SString & rGLN);
+		int    GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tbl::Rec * pRec, SString & rGtin, SString & rArCode);
+		int    ValidateGLN(const SString & rGLN);
+		int    GetOriginOrderBill(const PPBillPacket & rBp, BillTbl::Rec * pOrdBillRec);
+		int    SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec);
+		int    SearchLinkedOrder(const char * pCode, LDATE dt, PPID arID, BillTbl::Rec * pBillRec, PPBillPacket * pPack);
+		int    ResolveDlvrLoc(const char * pText, PPBillPacket * pPack);
+		int    ResolveContractor(const char * pText, int partyQ, PPBillPacket * pPack);
+
+		PPEdiProviderPacket Epp;
+		PPID   MainOrgID;
+		long   Flags;
+		PPObjBill * P_BObj; // @notowned
+		PPObjGoods GObj;
+		PPObjPerson PsnObj;
+		PPObjArticle ArObj;
+		STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
+		PPAlbatrossConfig ACfg;
+		PrcssrAlcReport Arp;
+	protected:
+		struct DeferredPositionBlock {
+			DeferredPositionBlock();
+			int    Init(const BillTbl::Rec * pBillRec);
+			bool   SetupGoods();
+
+			PPID   GoodsID_ByGTIN;
+			PPID   GoodsID_ByArCode;
+			SString ArGoodsCode;
+			SString GoodsName;
+			SString GTIN;
+			double OrdQtty;  // заказанное количество
+			double AccQtty;  // количество, принятое к исполнению
+			double DlvrQtty; // Доставленное количество (DESADV)
+			double PriceWithVat;
+			double PriceWithoutVat;
+			double Vat; // Ставка НДС в процентах
+			PPTransferItem Ti;
+		};
+		const SString & FASTCALL EncXmlText(const char * pS);
+		const SString & FASTCALL EncXmlText(const SString & rS);
+		int16  FASTCALL StringToRByBill(const SString & rS) const;
+		int    GetGTIN(const SString & rS, DeferredPositionBlock & rBlk);
+		int    GetArCode(const SString & rS, int partyQ, int whoAmI, PPID billArID, DeferredPositionBlock & rBlk);
+		SString EncBuf;
+	private:
+		int    GetIntermediatePath(const char * pSub, int docType, SString & rBuf);
+		int    Helper_GetPersonGLN(PPID psnID, SString & rGLN);
+	};
+
+	static int FASTCALL GetEdiMsgTypeByText(const char * pSymb);
+	static ProviderImplementation * CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags);
+	explicit PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger);
+	~PPEdiProcessor();
+	int    SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
+	int    SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
+	int    SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
+	int    SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray & rArList);
+	int    SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+	int    ReceiveDocument(const DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
+	int    GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInfoList & rList);
+private:
+	int    CheckBillStatusForRecadvSending(const BillTbl::Rec & rBillRec);
+
+	ProviderImplementation * P_Prv; // @notowned
+	PPLogger * P_Logger; // @notowned
+	PPObjBill * P_BObj;
+	PPObjPerson PsnObj;
+	PPAlbatrossConfig ACfg;
+};
+//
+//
+//
+class PPEgaisProcessor : public PrcssrAlcReport, private PPEmbeddedLogger {
+public:
+	struct Packet {
+		explicit Packet(int docType);
+		~Packet();
+		enum {
+			fAcceptedBill = 0x0001, // В пакете содержится импортированный в базу данных документ
+			fDoDelete     = 0x0002, // Документ следует удалить с сервера ЕГАИС
+			fReturnBill   = 0x0004, // Пакет содержит документ возврата поставщику
+			fFaultObj     = 0x0008  // Флаг идентифицирует пакет, являющийся инвалидным.
+				// При позднем акцепте этого пакета, наличие флага сигнализирует, что акцептировать такой пакет не следует.
+		};
+		int    DocType;
+		long   Flags;
+		uint   SrcReplyPos; // Позиция документа-источника в таблице TSCollection <Reply> (+1)
+		PPID   IntrBillID;  // Только для входящих WAYBILL - идентификатор документа внутренней передачи,
+			// которому соответствует (PPBillPacket *)P_Data. Необходим для позднего акцепта, поскольку
+			// данный идентификатора вычисляется на этапе обработки входящего xml-потока.
+		void * P_Data;
+	};
+	//
+	// Descr: Подтверждение от сервера ЕГАИС о получении запроса
+	//
+	struct Ack {
+		Ack();
+		void   Clear();
+
+		enum {
+			stError = 0x0001
+		};
+		uint   Ver;        // Версия протокола
+		uint8  SignSize;   // Размер подписи
+		uint8  Sign[260];  // Подпись
+		S_GUID Id;         // Ид присвоенный запросу сервером
+		int    Status;
+		SString Url;
+		SString Message;
+	};
+	//
+	// Descr: Дескриптор ответа на запрос
+	//
+	struct Reply {
+		Reply();
+		enum {
+			stError    = 0x0001,
+			stAccepted = 0x0002,
+			stOffline  = 0x0004, // Пакет получен не на прямую от сервера, а из каталога в файловой системе
+			stDeleted  = 0x0008  // К пакету была применена операция DeleteDoc
+		};
+		long   Status;
+		S_GUID Id;         // Ид присвоенный запросу сервером (полученный ответом на запрос - см. Ack)
+        SString Url;       // Адрес сообщения с ответом
+        SString AcceptedFileName; // Имя локального файла, в который получено содержимое ответа
+	};
+	//
+	// Descr: Результат отправки данных
+	//
+	struct Ticket {
+		Ticket();
+		void   Clear();
+		struct Result {
+			Result();
+			void   Clear();
+			enum {
+				spcNone = 0,
+				spcDup  = 1  // Тикет с ошибкой о том, что накладная уже загеристрирована в ЕГАИС
+			};
+			int    Type; // 0 - undef, 1 - ticket result, 2 - operation result
+			int    Conclusion; // 0 - rejected, 1 - accepted
+			int    Special;    // Специальная собственная пометка, идентифицирующая некоторый особенности тикета (определяется Papyrus'ом; это - не от ЕГАИС).
+			LDATETIME Time;
+			SString OpName; // OperationName
+			SString Comment;
+		};
+        LDATETIME TicketTime;
+        S_GUID DocUUID;
+        S_GUID TranspUUID;
+        int    DocType;
+        SString RegIdent;
+        Result R;   // Result
+        Result OpR; // OperationResult
+	};
+
+	struct ConfirmTicket {
+		ConfirmTicket();
+		PPID   BillID;
+		int    Conclusion; // 0 - rejected, 1 - accepted
+		SString Code;
+		LDATE  Date;
+		SString RegIdent;
+		SString Comment;
+	};
+
+	struct InformAReg {
+		InformAReg();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+        int    ToStr(SString & rBuf);
+        int    FromStr(const SString & rBuf);
+
+        long   Qtty;
+        LDATE  ManufDate;
+        LDATE  TTNDate;
+        SString TTNCode;
+        LDATE  EGAISDate;
+        SString EGAISCode;
+	};
+
+	struct InformBItem { // @flat
+		InformBItem();
+		void   Clear();
+
+		long   P;
+		char   OrgRowIdent[64]; // @v10.3.4
+		char   Ident[24];
+		LDATE  BottlingDate;
+	};
+
+	struct InformB {
+		InformB();
+		void   Clear();
+
+        SString Id;
+        SString WBRegId;      // ИД накладной в системе (присвоенный)
+        SString FixNumber;    // Номер фиксации накладной(отгрузки) в ЕГАИС
+        LDATE  FixDate;
+        SString OuterCode;    // Номер накладной (у отправителя)
+        LDATE  OuterDate;     // Дата накладной (у отправителя)
+        PPID   ShipperPsnID;
+        PPID   ConsigneePsnID;
+        PPID   SupplPsnID;
+        TSVector <PPEgaisProcessor::InformBItem> Items;
+	};
+
+	struct ActInformItem {
+		ActInformItem();
+		long   P;
+		char   AIdent[24];
+		TSVector <PPEgaisProcessor::InformBItem> BItems;
+	};
+
+    struct ActInform {
+        SString ActRegId;
+        SString ActNumber;
+		TSCollection <PPEgaisProcessor::ActInformItem> Items;
+    };
+	//
+	// Descr: Структура запроса на отмену проведения документа (грузополучатель - отправляет, грузоотправитель - получает и подтверждает)
+	//
+    struct RepealWb {
+    	RepealWb();
+
+        PPID   BillID;
+        LDATETIME ReqTime;
+        int    Confirm; // Только для подтверждения отмены проведения. 1 - подтверждаем, 0 - отклоняем
+        SString ContragentCode;
+        SString TTNCode;
+        SString ReqNumber;
+        SString Memo;
+    };
+    //
+    // Descr: Структура запроса и ответа по штрихкоду (QueryBarcode)
+    //
+    struct QueryBarcode {
+		QueryBarcode();
+
+    	int    RowId;
+        int    CodeType; // 103, 203
+        SString Rank;
+        SString Number;
+        SString Result;
+    };
+	//
+	// Descr: Структура ответа на запрос остатков марок по справке Б
+	//
+	struct ReplyRestBCode {
+		ReplyRestBCode();
+
+		LDATETIME RestTime;
+		SString Inform2RegId;
+		StringSet MarkSet;
+	};
+    //
+    // Descr: Дескриптор сервера УТМ
+    //
+    struct UtmEntry { // @flat
+    	UtmEntry();
+
+    	enum {
+    		fDefault = 0x0001 // Если флаг установлен, то это означает, что
+				// MainOrgID является текущей главной организацией,
+				// FSRARID получен из тега этой персоналии,
+				// Url получен из конфигурации глобального обмена
+    	};
+    	PPID   MainOrgID; // Главная организация, с которой ассоциированы параметры Url и FSRARID.
+    	long   Flags;
+    	char   Url[128];
+    	char   FSRARID[128];
+    };
+	//
+	// Descr: Параметры функции TestEGAIS()
+	//
+	struct TestParam {
+		enum {
+			fReceiveDataToTempCatalog  = 0x0001,
+			fAcceptDataFromTempCatalog = 0x0002
+		};
+		PPID   LocID;
+		long   Flags;
+	};
+	//
+	// Descr: Параметры запроса к серверу ЕГАИС
+	//
+	struct QueryParam {
+		QueryParam();
+		~QueryParam();
+		QueryParam(const QueryParam & rS);
+		QueryParam & FASTCALL operator = (const QueryParam & rS);
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+		enum {
+			_afQueryRefA = 0x0001,
+			_afQueryPerson       = 0x0002,
+			_afQueryGoods        = 0x0004,
+			_afQueryByChargeOn   = 0x0008,
+			_afClearInnerEgaisDb = 0x0010
+		};
+		long   DocType;
+		long   DbActualizeFlags;
+		long   Flags; // PPEgaisProcessor::stTestSendingMode
+		PPID   MainOrgID;
+		PPID   LocID;
+		SString ParamString;
+		SString InfoText; // @transient
+		LotFilt * P_LotFilt; // @v10.9.1 @transient
+	};
+	//
+	// Descr: Типы ТТН
+	//
+	enum {
+		wbtInvcFromMe = 1, // Инвойс от меня к контрагенту
+		wbtInvcToMe,       // Инвойс от контрагента ко мне
+		wbtRetFromMe,      // Возврат от меня к контрагенту
+		wbtRetToMe         // Возврат от контрагента ко мне
+	};
+
+	static int FASTCALL GetDocTypeTag(int docType, SString & rTag);
+    static int FASTCALL RecognizeDocTypeTag(const char * pTag);
+	static int FASTCALL GetWayBillTypeText(int wbType, SString & rBuf);
+	static int FASTCALL RecognizeWayBillTypeText(const char * pText);
+	static int EditInformAReg(InformAReg & rData);
+	//
+	// Descr: Вызывает диалог для ввода кода акцизной марки.
+	//
+	static int InputMark(const PrcssrAlcReport::GoodsItem * pAgi, SString & rMark);
+	//
+	// Descr: Флаги создания экземпляра класса
+	//
+	enum {
+		cfDebugMode = 0x0001, // Работать в тестовом режиме отправки (не передавать данные в УТМ)
+		cfDirectFileLogging = 0x0002, // Сообщения выводить на прямую в файлы журналов (без посредничества PPLogger)
+		cfVer3      = 0x0004, // Применять 3-ю версию протокола при отправке документов
+		cfUseVerByConfig    = 0x0008, // Версию протокола применять в соответствии с конфигурацией
+		cfVer4      = 0x0010, // @v11.0.12 Применять 4-ю версию протокола при отправке документов
+	};
+
+	PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve);
+	~PPEgaisProcessor();
+	int    operator !() const;
+	void   SetTestSendingMode(int set);
+	void   SetNonRvmTagMode(int set);
+	int    CheckLic() const;
+	int    GetUtmList(PPID locID, TSVector <UtmEntry> & rList);
+	void   SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod);
+	int    GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID);
+	int    GetURL(PPID locID, SString & rBuf);
+	int    EditQueryParam(PPEgaisProcessor::QueryParam * pData);
+	int    ImplementQuery(PPEgaisProcessor::QueryParam & rParam);
+	int    InteractiveQuery();
+
+	enum {
+		querybyINN = 1,
+		querybyCode
+	};
+
+    int    QueryClients(PPID locID, int queryby, const char * pQ);
+    int    QueryProducts(PPID locID, int queryby, const char * pQ);
+    int    QueryRests(PPID locID, const char * /* @unused */);
+    int    QueryRestsShop(PPID locID, const char * /* @unused */);
+    int    QueryInfA(PPID locID, const char * pInfA);
+    int    QueryInfB(PPID locID, const char * pInfB);
+    int    Write(Packet & rPack, PPID locID, const char * pFileName);
+    int    Write(Packet & rPack, PPID locID, SBuffer & rBuffer);
+    int    PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, const char * pUrlSuffix, PPEgaisProcessor::Ack & rAck);
+    int    PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisProcessor::Ack & rAck);
+    PPEgaisProcessor::Packet * GetReply(const PPEgaisProcessor::Reply & rReply);
+	int    AcceptDoc(PPEgaisProcessor::Reply & rR, const char * pFileName);
+	int    DeleteDoc(PPEgaisProcessor::Reply & rR);
+	//
+	// Descr: Флаги состояния документа в базе данных
+	//
+	enum {
+		bilstfAccepted  = 0x00000001, // Документ принят из ЕГАИС-сервера
+		bilstfWritedOff = 0x00000002, // Документ списан
+		bilstfReadyForAck       = 0x00000004, // Документ готов к отправке подтверждения
+		bilstfChargeOn  = 0x00000008, // Документы постановки на баланс начальных остатков
+		bilstfExpend    = 0x00000010, // Документы продажи товара
+		bilstfIntrExpend        = 0x00000020, // Документы внутренней передачи
+		bilstfReturnToSuppl     = 0x00000040, // Документы возврата поставщику
+		bilstfLosses    = 0x00000080, // Документы потерь (прочие расходы)
+		bilstfRepeal    = 0x00000100, // Документы с запросом на отмену проведения
+		bilstfTransferToShop    = 0x00000200, // Документы передачи в торговый зал (Регистр 2)
+		bilstfChargeOnShop      = 0x00000400, // Документы постановки на баланс начальных остатков в торговом зале (Регистр 2)
+		bilstfTransferFromShop  = 0x00000800, // Документы возврата из торговый зал (Регистр 2) на склад
+		bilstfWriteOffShop      = 0x00001000, // Документы списания с баланса торгового зала (Регистр 2)
+		bilstfWbRepealConf      = 0x00002000, // Документы, для которых получен и ожидает подтверждения запрос на отмету проведения
+		bilstfV1        = 0x00004000, // Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
+		bilstfV2        = 0x00008000, // Документы 2-й версии ЕГАИС
+		bilstfV3        = 0x00010000, // Документы 3-й версии ЕГАИС
+		bilstfFixBarcode        = 0x00020000, // @v10.9.0 Постановка маркированной продукции на баланс
+	};
+	int    GetAcceptedBillList(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
+	int    GetBillListForTransmission(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);
+	int    GetBillListForConfirmTicket(/*PPID locID, const DateRange & rPeriod*/const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
+	int    GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
+	//
+	// Descr: Флаги функции ReadInput()
+	//
+	enum {
+		rifOffline     = 0x0001,
+		rifRepairInventoryMark = 0x0002
+	};
+
+	int    ReadInput(PPID locID, const DateRange * pPeriod, long flags);
+	int    DebugReadInput(PPID locID);
+	int    RemoveOutputMessages(PPID locID, int debugMode);
+	int    SendBillActs(const PPBillIterchangeFilt & rP);
+	int    SendBillRepeals(const PPBillIterchangeFilt & rP);
+	int    SendBills(const PPBillIterchangeFilt & rP);
+	int    CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locID, LDATE restDate, const PPIDArray & rLotList, int use_ta);
+	int    CollectRefs();
+private:
+	struct BillTransmissionPattern {
+		long   Flags;
+		int    EdiOp;
+		const  char * P_UrlSuffix;
+	};
+	int    Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP, const BillTransmissionPattern & rPattern);
+    int    GetReplyList(void * pCtx, PPID locID, int direction /* +1 out, -1 - in */, TSCollection <PPEgaisProcessor::Reply> & rList);
+	int    Helper_Read(void * pCtx, const char * pFileName, long flags,
+		PPID locID, const DateRange * pPeriod, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList, PrcssrAlcReport::RefCollection * pRefC);
+	int    Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * pX);
+	const SString & FASTCALL EncText(const char * pS);
+	const SString & FASTCALL EncText(const SString & rS);
+	enum {
+		wpifPutManufInfo = 0x0001,
+		wpifVersion2     = 0x0002  // Данные о товаре записываются в формате 2-й версии протокола ЕГАИС
+	};
+	int    WriteProductInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID goodsID, PPID lotID, long flags, const ObjTagList * pLotTagList);
+	enum {
+		woifStrict         = 0x0001,
+		woifDontSendWithoutFSRARID = 0x0002,
+		woifVersion2       = 0x0004  // Данные о персоналии записываются в формате 2-й версии протокола ЕГАИС
+	};
+	int    WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
+	int    WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, const EgaisPersonCore::Item & rRefcItem, long flags);
+	int    WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode, int docType);
+	//
+	// Descr: Разбирает xml-ответ от сервера УТМ (<A></A>)
+	//
+	int    ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck);
+	int    Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int roleFlags, PPPersonPacket * pPack, PrcssrAlcReport::RefCollection * pRefC, SFile * pOutFile);
+	int    Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPack, PrcssrAlcReport::GoodsItem * pExt, PrcssrAlcReport::RefCollection * pRefC, SFile * pOutFile);
+	int    Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC);
+	int    Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Packet * pPack);
+	int    Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRange * pPeriod, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC);
+	int    Read_Ticket(xmlNode * pFirstNode, Packet * pPack);
+	int    Read_TicketResult(xmlNode * pFirstNode, int ticketType /* 1 or 2 */, PPEgaisProcessor::Ticket::Result & rResult);
+	int    Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack);
+	int    Read_ActInventoryInformBReg(xmlNode * pFirstNode, Packet * pPack);
+	int    Read_IformA(xmlNode * pFirstNode, Packet * pPack, PrcssrAlcReport::RefCollection * pRefC);
+	SString & FASTCALL PreprocessGoodsName(SString & rName) const;
+	int    AssignManufTypeToPersonPacket(PPPersonPacket & rPack, int manufType);
+	int    FinishBillProcessingByTicket(const PPEgaisProcessor::Ticket * pT, int use_ta);
+	int    Helper_FinishBillProcessingByTicket(int ticketType, const BillTbl::Rec & rRec,
+		const SString & rBillText, const PPEgaisProcessor::Ticket * pT, int conclusion, int use_ta);
+	int    Helper_FinishConfirmProcessingByTicket(const BillTbl::Rec & rRec, const SString & rBillText,
+		const S_GUID & rUuid, int conclusion, int use_ta);
+	//
+	// Descr: Создает зарезервированную операцию постановки товаров на баланс ЕГАИС
+	// ARG(pID    OUT): Идентификатор созданного вида операции
+	// ARG(egaisOp IN): PPEDIOP_EGAIS_ACTCHARGEON || PPEDIOP_EGAIS_ACTCHARGEONSHOP
+	// ARG(use_ta  IN): @usingtransaction
+	//
+	int    GetActChargeOnOp(PPID * pID, int egaisOp, int use_ta);
+	int    GetDebugPath(PPID locID, SString & rPath);
+	int    Helper_ReadFilesOffline(const char * pPath, TSCollection <PPEgaisProcessor::Reply> & rList);
+	int    SearchActChargeByActInform(const PPEgaisProcessor::ActInform & rInf, PPID * pBillID);
+	int    MakeOutputFileName(const Reply * pReply, const SString & rTempPath, SString & rFileName);
+	int    DeleteSrcPacket(const Packet * pPack, TSCollection <PPEgaisProcessor::Reply> & rReplyList);
+	int    Helper_SendBills(PPID billID, int ediOp, PPID locID, const char * pUrlSuffix);
+	int    Helper_InitNewPack(const int docType, TSCollection <PPEgaisProcessor::Packet> * pPackList, PPEgaisProcessor::Packet ** ppPack);
+	int    Helper_FinalizeNewPack(PPEgaisProcessor::Packet ** ppNewPack, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList);
+	int    Helper_CollectRefs(void * pCtx, TSCollection <PPEgaisProcessor::Reply> & rReplyList, RefCollection & rRefC);
+	int    Helper_AcceptBillPacket(Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx);
+	int    Helper_AcceptTtnRefB(const Packet * pPack, const TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx, LongArray & rSkipPackIdxList);
+	int    Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID);
+	int    Helper_CreateTransferToShop(const PPBillPacket * pCurrentRestPack);
+	int    Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod);
+	int    Helper_CreateWriteOff_ByCCheck(const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod); // @v11.8.2
+	// @v10.2.9 (moved to LotExtCodeCore) int    Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCodes, uint * pExtCodeCount);
+	int    Helper_ExtractGoodsCodesFromBills(PPID opID, StringSet & rSs);
+	// @v10.6.5 void   FASTCALL Log(const SString & rMsg);
+	// @v10.6.5 void   LogTextWithAddendum(int msgCode, const SString & rAddendum);
+	// @v10.6.5 void   LogLastError();
+	void   LogTicketResult(const Ticket * pTicket, const BillTbl::Rec * pBillRec);
+	//
+	// Descr: Выводит в журнал сообщение об отправке пакета rPack
+	//
+	int    LogSended(const Packet & rPack);
+	int    CheckBillForMainOrgID(const BillTbl::Rec & rRec, const PPOprKind & rOpRec);
+
+	enum {
+		stError     = 0x0001, // Во время выполнения какой-то функции произошла критическая ошибка
+		// @v10.6.5 stOuterLogger       = 0x0002, // Экземпляр PPLogger был передан из-вне (не следует разрушать P_Logger)
+		stValidLic  = 0x0004, // Присутствует лицензия на использование интерфейса с ЕГАИС
+		stTestSendingMode   = 0x0008, // Тестовый режим отправки сообщений. Фактически, сообщения в виде файлов копируются в каталог TEMP/EGAIX-XXX/OUT-TEST/
+		stDontRemoveTags    = 0x0010, // Опция, припятствующая удалению тегов с документов при получении отрицательных тикетов
+		// @v10.6.5 stDirectFileLogging = 0x0020, // Сообщения выводить непосредственно в файлы журналов (обходя P_Logger)
+		stUseEgaisVer3      = 0x0040, // Документы отправлять в 3-й версии формата
+		stUseEgaisVer4      = 0x0080, // @v11.0.12 Документы отправлять в 4-й версии формата
+	};
+	long   State;
+	const  UtmEntry * P_UtmEntry; // @notowned
+	SString EncBuf;
+	StringSet ExclChrgOnMarks; // Список марок, которые должны быть исключены при постановке лотов на баланс
+	PPLocAddrStruc * P_Las;
+	LotExtCodeCore * P_LecT; // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
+	PPTextAnalyzerWrapper * P_Taw;
+	// @v10.6.5 PPLogger * P_Logger;
+};
+//
+// Descr: Класс, реализующий высокоуровневые механизмы обмена с "честным знаком"
+//
+class PPChZnPrcssr : private PPEmbeddedLogger {
+public:
+	struct Param {
+		Param();
+		PPID   GuaID;
+		PPID   LocID;
+		DateRange Period;
+	};
+	struct QueryParam {
+		QueryParam();
+
+		enum {
+			_afQueryTicket    = 0x0001,
+			_afQueryKizInfo   = 0x0002,
+			_afSendCc         = 0x0004, // @v11.0.1 Отправка кассовых чеков
+			_afQueryDocListIn = 0x0008, // @v11.8.2 Запрос списка входящих документов
+		};
+		long   DocType;
+		long   Flags;
+		PPID   GuaID;
+		PPID   LocID;
+		PPID   ArID;  // Статья, сопоставленная с запросом (всегда, вероятно, поставщик)
+		SString ParamString;
+		SString InfoText; // @transient
+	};
+	enum {
+		ptUnkn     = GTCHZNPT_UNDEF,
+		ptFur      = GTCHZNPT_FUR,     // 00 02
+		ptTobacco  = GTCHZNPT_TOBACCO, // 00 05
+		ptShoe     = GTCHZNPT_SHOE,    // 15 20
+		ptMedicine = GTCHZNPT_MEDICINE //
+	};
+	static int FASTCALL IsChZnCode(const char * pCode);
+	//
+	// Descr: Варианты интерпретации результата функции ParseChZnCode
+	// Note: Значение больше нуля трактуется как марка, пригодная к обработке честным знаком
+	//
+	enum {
+		chznciNone = 0, // Код ни на что не похож. 
+		chznciReal = 1, // Валидный код марки честный знак
+		chznciSurrogate = -1, // Суррогатный код (не является кодом марки, но из кода можно извлечь полезную информацию: GTIN и, возможно, количество)
+		chznciPretend   = 1000 // Разбор кода закончился ошибкой, но тем не менее в нем есть GTIN и серия.
+	};
+	static int InterpretChZnCodeResult(int r)
+	{
+		if(r == 1000)
+			return chznciPretend;
+		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
+			return chznciSurrogate;
+		else if(oneof5(r, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN, SNTOK_CHZN_SSCC))
+			return chznciReal;
+		else
+			return chznciNone;
+	}
+	enum {
+		pchzncfPretendEverythingIsOk = 0x0001
+	};
+	static int ParseChZnCode(const char * pCode, GtinStruc & rS, long flags);
+	static int ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf);
+	static int Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
+	static int InputMark(SString & rMark, SString * pReconstructedOriginal, const char * pExtraInfoText);
+	explicit PPChZnPrcssr(PPLogger * pOuterLogger);
+	~PPChZnPrcssr();
+	int    EditParam(Param * pParam);
+	int    EditQueryParam(PPChZnPrcssr::QueryParam * pData);
+	int    InteractiveQuery();
+	int    Run(const Param & rP);
+	int    TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList);
+	static int Test();
+private:
+	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
+	void * P_Ib; // Блок инициализации
+};
+//
+//
+//
+enum VetisDocStatus {
+	vetisdocstCREATED            = 0,
+	vetisdocstCONFIRMED          = 1,
+	vetisdocstWITHDRAWN          = 2,
+	vetisdocstUTILIZED           = 3,
+	vetisdocstFINALIZED          = 4,
+	vetisdocstOUTGOING_PREPARING = 8, // Специальный статус, обозначающий строку внутреннего расходного документа, на которую
+		// необходимо получить исходящий сертификат
+	vetisdocstSTOCK              = 9, // Специальный статус, обозначающий строку остатков, полученных из ВЕТИС
+};
+
+class VetisEntityCore {
+public:
+	enum { // @persistent
+		kUndef          = -1,
+		kUnkn           =  0,
+		kProductItem    =  1,
+		kProduct        =  2,
+		kSubProduct     =  3,
+		kEnterprise     =  4,
+		kBusinessEntity =  5,
+		kUOM            =  6,
+		kCountry        =  7,
+		kRegion         =  8,
+		kVetDocument    =  9,
+		kPackingForm    = 10,
+		kStockEntry     = 11
+	};
+	struct Entity {
+		Entity();
+		Entity(int kind, const VetisProductItem & rS);
+		Entity(int kind, const VetisNamedGenericVersioningEntity & rS);
+		explicit Entity(const VetisVetDocument & rS);
+		explicit Entity(const VetisStockEntry & rS);
+		Entity & Z();
+		void   FASTCALL Get(VetisNamedGenericVersioningEntity & rD) const;
+		void   SetupVetDocument();
+
+		PPID   ID;
+		int    Kind;
+		S_GUID Guid;
+		S_GUID Uuid;
+		long   Flags;
+		long   Status;
+		long   GuidRef;
+		long   UuidRef;
+		SString Name;
+	};
+	//
+	// Descr: Специализированная структура для сбора данных о неразрешенных сущностях
+	// (как минимум, без имени). Используется для сбора коллекции таких элементов с
+	// целью последующего разрешения запросами к серверу Vetis.
+	//
+	struct UnresolvedEntity {
+		PPID   ID;
+		int    Kind;
+		long   GuidRef;
+		long   UuidRef;
+	};
+	enum {
+		txtprpProductItemName = (PPTRPROP_USER+1),
+		txtprpTranspVNum      = (PPTRPROP_USER+2), // Номер автомобиля
+		txtprpTranspTNum      = (PPTRPROP_USER+3), // Номер прицепа
+		txtprpTranspCNum      = (PPTRPROP_USER+4), // Номер контейнера
+		txtprpTranspWNum      = (PPTRPROP_USER+5), // Номер вагона
+		txtprpTranspSNam      = (PPTRPROP_USER+6), // Наименование коробля
+		txtprpTranspFNum      = (PPTRPROP_USER+7), // Номер самолета
+		txtprpGoodsCodeList   = (PPTRPROP_USER+8), // Список кодов (в идеале upc/ean) продукции, связанной с документом
+	};
+	VetisEntityCore();
+	static int FASTCALL ValidateEntityKind(int kind);
+	static int GetProductItemName(PPID entityID, PPID productItemID, PPID subProductID, PPID productID, SString & rBuf);
+	//
+	// Descr: Проверяет пару значений expiryFrom и expiryTo (представленные как SUniTime)
+	//   на предмет того, не истек ли на текущий день срок годности сертификата.
+	//   Функция утилитная, реализована для унификации так как эта процедура применяется в некскольких точках.
+	//
+	static int FASTCALL CheckExpiryDate(int64 expiryFrom, int64 expiryTo);
+	int    SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, PPID * pID, int use_ta);
+	int    DeleteEntity(PPID id, int use_ta);
+	int    GetEntity(PPID id, Entity & rE);
+	int    GetEntityByGuid(const S_GUID & rGuid, Entity & rE);
+	int    GetEntityListByGuid(const S_GUID & rGuid, TSCollection <Entity> & rList);
+	int    GetEntityByUuid(const S_GUID & rUuid, Entity & rE);
+	//
+	// Descr: Флаги функции Put(PPID *, const VetisVetDocument &, long flags, TSVector <UnresolvedEntity> *, int use_ta)
+	//
+	enum {
+		putvdfForceUpdateOuterFields    = 0x0001, // Заменять значения внешних по отношению к ВЕТИС атрибутов
+		putvdfEnableClearNativeBillLink = 0x0002  // @v11.1.8 Функция получает возможность обнулить ссылку на собственный документ в БД
+	};
+	int    Put(PPID * pID, const VetisVetDocument & rItem, long flags, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	int    Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & rEnterpriseGuid, const VetisStockEntry & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	int    Put(PPID * pID, const VetisEnterprise & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	int    Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+    int    Put(PPID * pID, int kind, const VetisProductItem & rItem, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	//int    RecToItem(const VetisProductTbl::Rec & rRec, VetisProductItem & rItem);
+	int    CollectUnresolvedEntityList(TSVector <UnresolvedEntity> & rList);
+	int    Get(PPID id, VetisVetDocument & rItem);
+	int    Get(PPID id, VetisEnterprise & rItem);
+	int    Get(PPID id, VetisBusinessEntity & rItem);
+	int    Get(PPID id, VetisProductItem & rItem);
+	//int    Get(PPID id, VetisProduct & rItem);
+	//int    Get(PPID id, VetisSubProduct & rItem);
+	int    SetOutgoingDocApplicationIdent(PPID id, const S_GUID & rAppId, int use_ta);
+	//
+	// Descr: Устанавливает у документа с идентификатором id флаг VetisVetDocument::fInSendingQueue
+	//
+	int    SetOutgoingDocInQueueFlag(PPID id, int use_ta);
+	int    SearchPerson(PPID id, VetisPersonTbl::Rec * pRec);
+	int    SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec);
+	int    MatchPersonInDocument(PPID docEntityID, int side /*0 - from, 1 - to*/, PPID personID, PPID dlvrLocID, int use_ta);
+	//
+	// Descr: Сопоставляет ветеринарный документ docEntityID с документом billID и (если !0) со строкой документа
+	//   {billID; rowN}.
+	//   Если параметр fromBill != 0, то считает, что лот {billID; rowN} уже сопоставлен и не модифицирует документ.
+	//
+	int    MatchDocument(PPID docEntityID, PPID billID, int rowN, int fromBill, int use_ta);
+	int    SetupEnterpriseEntry(PPID psnID, PPID locID, VetisEnterprise & rEntry);
+	int    MakeCountryList(StrAssocArray & rList, UUIDAssocArray & rGuidList);
+	int    MakeRegionList(long countryIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList);
+	int    MakeLocalityList(long regionIdent, StrAssocArray & rList, UUIDAssocArray & rGuidList);
+	int    MakeProductList(StrAssocArray & rList, UUIDAssocArray & rGuidList);
+	int    MakeSubProductList(StrAssocArray & rList, UUIDAssocArray & rGuidList, LAssocArray * pParentProductList);
+
+	VetisEntityTbl ET;
+	VetisProductTbl PiT;
+	VetisPersonTbl  BT;
+	VetisDocumentTbl DT;
+	UuidRefCore UrT;
+private:
+	int    EntityRecToEntity(const VetisEntityTbl::Rec & rRec, Entity & rE);
+	int    ResolveEntityByID(PPID entityID, VetisNamedGenericVersioningEntity & rD);
+	long   Helper_InitMaxGuidKey(const UUIDAssocArray & rGuidList) const;
+	long   Helper_SetGuidToList(const S_GUID & rGuid, long * pMaxGuidKey, UUIDAssocArray & rGuidList) const;
+
+	PPObjPerson PsnObj;
+};
+//
+//
+//
+class VetisDocumentFilt : public PPBaseFilt {
+public:
+	VetisDocumentFilt();
+	int    FASTCALL GetStatusList(PPIDArray & rList) const;
+
+	uint8  ReserveStart[200]; // @anchor // @v10.6.3 [204]-->[200]
+	enum {
+		fkGeneral  = 0,
+		fkInterchangeParam = 1
+	};
+	enum {
+		icacnLoadUpdated     = 0x0001,
+		icacnLoadAllDocs     = 0x0002,
+		icacnLoadStock       = 0x0004,
+		icacnPrepareOutgoing = 0x0008, // @v10.7.8
+		icacnSendOutgoing    = 0x0010, // @v10.7.8
+		icacnRefsImport      = 0x0020  // @v11.0.10
+	};
+	enum {
+		refimpfCountry = 0x0001,
+		refimpfRegion  = 0x0002,
+		refimpfUOM     = 0x0004,
+		refimpfEnterprise      = 0x0008,
+		refimpfLocation        = 0x0010,
+		refimpfProductGroup    = 0x0020,
+		refimpfProductSubGroup = 0x0040,
+		refimpfProductItem     = 0x0080,
+		refimpfPurpose = 0x0100,
+	};
+	enum {
+		fAsSelector      = 0x0001
+	};
+	int16  Ft_Expiry;   // @v10.6.3 Селектор по признаку истечения срока годности. (0) ignored, (< 0) off, (> 0) on
+	int16  Ft_LotMatch; // @v10.6.3 Селектор по признаку сопоставления со строкой документа. (0) ignored, (< 0) off, (> 0) on
+	PPID   LinkVDocID;  // @v10.1.12 Ид документа, привязки к которому необходимо отобразить
+	S_GUID SelLotUuid;  // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
+		// При открытии окна текущая позиция будет установлена на записи с этим идентификатором.
+	long   FromPersonID;
+	long   FromLocID;
+	long   ToPersonID;
+	long   ToLocID;
+	long   FiltKind;
+	long   Flags;
+	long   Actions;
+	PPID   MainOrgID;
+	PPID   LocID__;
+	DateRange Period;
+	DateRange WayBillPeriod;
+	long    VDStatusFlags;
+	long    Sel;              // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
+	long    RefsImpFlags;     // @v11.0.10 Флаги импорта справочников
+	uint8   ReserveEnd[24];   // @anchor @v11.0.10 [28]-->[24]
+};
+
+struct VetisDocumentTotal {
+	VetisDocumentTotal();
+
+	long   Count;
+	long   CtCreated;
+	long   CtConfirmed;
+	long   CtWithdrawn;
+	long   CtUtilized;
+	long   CtFinalized;
+	long   CtOutgoingPrep;
+	long   CtStock;
+};
+
+typedef VetisDocumentTbl::Rec VetisDocumentViewItem;
+
+class PPViewVetisDocument : public PPView {
+public:
+	struct BrwHdr {
+		PPID   EntityID;
+		long   Flags;
+		PPID   LinkBillID;
+		int16  LinkBillRow;
+		PPID   LinkGoodsID;
+		PPID   LinkFromPsnID;
+		PPID   LinkFromDlvrLocID;
+		PPID   LinkToPsnID;
+		PPID   LinkToDlvrLocID;
+		LDATE  IssueDate;
+		PPID   OrgDocEntityID;
+		int64  ExpiryFrom;     // @v10.5.11 SUniTime
+		int64  ExpiryTo;       // @v10.5.11 SUniTime
+	};
+
+	static int FASTCALL EditInterchangeParam(VetisDocumentFilt * pFilt);
+	static int FASTCALL RunInterchangeProcess(VetisDocumentFilt * pFilt);
+
+	PPViewVetisDocument();
+	~PPViewVetisDocument();
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
+	virtual int EditBaseFilt(PPBaseFilt *);
+	virtual int Init_(const PPBaseFilt * pBaseFilt);
+	int    InitIteration();
+	int    NextIteration(VetisDocumentViewItem * pItem);
+	int    FASTCALL CheckForFilt(const VetisDocumentViewItem * pItem);
+	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+	int    CalcTotal(VetisDocumentTotal * pTotal);
+
+	VetisEntityCore EC; // public поскольку внешние модули могут захотеть иметь доступ к этому (дорогому) ресурсу
+private:
+	static int DynFuncEntityTextFld;
+	static int DynFuncBMembTextFld;
+	static int DynFuncProductItemTextFld;
+	static int DynFuncVetDStatus;
+	static int DynFuncVetDForm;
+	static int DynFuncVetDType;
+	static int DynFuncVetStockByDoc;
+	static int DynFuncVetUUID;  //@erik v10.4.11
+	static int DynFuncCheckExpiry; // @v10.6.3
+	static int DynFuncCheckLocation; // @v11.5.8
+
+	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	int    LoadDocuments();
+	int    Helper_ProcessIncoming(const S_GUID & rVetDocUuid, const void * pIfcParam, PPVetisInterface & rIfc, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList);
+	int    ProcessIncoming(PPID entityID);
+	int    ProcessOutcoming(PPID entityID);
+	int    RerequestDocument(PPID id);
+	int    ViewWarehouse();
+	int    ViewGoods();
+	enum {
+		otmFrom = 1,
+		otmTo,
+		otmGoods,
+		otmBill,
+		otmLot
+	};
+	int    MatchObject(const VetisDocumentTbl::Rec & rRec, int objToMatch);
+	int    ForceResolveObject(const VetisDocumentTbl::Rec & rRec, int objToMatch);
+
+	VetisDocumentFilt Filt;
+	// @v10.9.10 PPID   FromEntityID;
+	PPIDArray FromEntityIdList; // @v10.9.10
+	PPID   FromEnterpriseID;
+	PPID   ToEntityID;
+	PPID   ToEnterpriseID;
+	PPID   LocEntityID; // @v11.5.8
+};
+//
 // PPDesktop and cmd edit
 //
 int   EditCmdItem(const PPCommandGroup * pDesktop, PPCommand * pData, /*int isDesktopCommand*/PPCommandGroupCategory kind);
@@ -57617,8 +57642,8 @@ int    PPCheckDatabaseChain();
 //
 // Некоторые файловые расширения используемые в системе
 //
-#define PPSEXT     ".PPS" // Файлы передачи данных между разделами БД
-#define CHARRYEXT  ".CHY" // Файлы charry
+// @v11.8.4 #define PPSEXT     ".PPS" // Файлы передачи данных между разделами БД
+// @v11.8.4 #define CHARRYEXT  ".CHY" // Файлы charry
 //
 // Path and file fuctions
 //

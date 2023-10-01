@@ -270,36 +270,26 @@ HRESULT ResizePointFilter(const Image& srcImage, const Image& destImage) noexcep
 HRESULT ResizeBoxFilter(const Image& srcImage, TEX_FILTER_FLAGS filter, const Image& destImage) noexcept
 {
 	using namespace DirectX::Filters;
-
 	assert(srcImage.pixels && destImage.pixels);
 	assert(srcImage.format == destImage.format);
-
 	if(((destImage.width << 1) != srcImage.width) || ((destImage.height << 1) != srcImage.height))
 		return E_FAIL;
-
 	// Allocate temporary space (3 scanlines)
 	auto scanline = make_AlignedArrayXMVECTOR(uint64_t(srcImage.width) * 2 + destImage.width);
 	if(!scanline)
 		return E_OUTOFMEMORY;
-
 	XMVECTOR* target = scanline.get();
-
 	XMVECTOR* urow0 = target + destImage.width;
 	XMVECTOR* urow1 = urow0 + srcImage.width;
-
     #ifdef _DEBUG
-	memset(urow0, 0xCD, sizeof(XMVECTOR)*srcImage.width);
-	memset(urow1, 0xDD, sizeof(XMVECTOR)*srcImage.width);
+		memset(urow0, 0xCD, sizeof(XMVECTOR)*srcImage.width);
+		memset(urow1, 0xDD, sizeof(XMVECTOR)*srcImage.width);
     #endif
-
 	const XMVECTOR* urow2 = urow0 + 1;
 	const XMVECTOR* urow3 = urow1 + 1;
-
 	const uint8_t* pSrc = srcImage.pixels;
 	uint8_t* pDest = destImage.pixels;
-
 	const size_t rowPitch = srcImage.rowPitch;
-
 	for(size_t y = 0; y < destImage.height; ++y) {
 		if(!LoadScanlineLinear(urow0, srcImage.width, pSrc, rowPitch, srcImage.format, filter))
 			return E_FAIL;

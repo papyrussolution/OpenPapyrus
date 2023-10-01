@@ -1,5 +1,5 @@
 // DECLSTRU.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -94,7 +94,7 @@ int SendCharryObject(PPID strucID, const PPIDArray & rObjIdList)
 		PPObjectTransmit::ReadConfig(&cfg);
 		long   counter = cfg.CharryOutCounter+1;
 		PPGetPath(PPPATH_OUT, path);
-		MakeTempFileName(path, 0, CHARRYEXT, &counter, fname);
+		MakeTempFileName(path, 0, PPConst::FnExt_CHARRY, &counter, fname);
 		THROW_PP(stream = fopen(fname, "w"), PPERR_EXPFOPENFAULT);
 		for(uint i = 0; i < rObjIdList.getCount(); i++) {
 			THROW(p_decl = PPDeclStruc::CreateInstance(strucID, 0, 0, 0));
@@ -278,7 +278,9 @@ int PrcssrMailCharry::Run()
 	SaveParam(&P);
 	PPGetPath(PPPATH_OUT, src_path);
 	SFileEntryPool fep;
-	THROW(fep.Scan(src_path, "*" CHARRYEXT, 0));
+	SString pattern;
+	pattern.CatChar('*').Cat(PPConst::FnExt_CHARRY);
+	THROW(fep.Scan(src_path, pattern, 0));
 	THROW(PutFilesToEmail(/*&fary*/&fep, P.MailAccID, P.DestAddr, PPConst::P_SubjectCharry, 0));
 	CATCHZOK
 	return ok;
@@ -369,13 +371,14 @@ int ReceiveCharryObjects(const RcvCharryParam * pParam)
 			}
 		}
 		else {
+			SString pattern;
+			pattern.CatChar('*').Cat(PPConst::FnExt_CHARRY);
 			PPWaitStart();
 			THROW(PPGetPath(PPPATH_IN, path));
 			if(rcp.Action == RcvCharryParam::aRcvFromMail) {
 				THROW(GetFilesFromMailServer2(rcp.MailAccID, path, SMailMessage::fPpyCharry, 0 /*don't clean*/, 1 /*dele msg*/));
 			}
-			//THROW(fary.Scan(path.SetLastSlash(), "*" CHARRYEXT));
-			THROW(fep.Scan(path.SetLastSlash(), "*" CHARRYEXT, 0));
+			THROW(fep.Scan(path.SetLastSlash(), pattern, 0));
 			//for(p = 0; fary.Enum(&p, 0, &file_path);) {
 			for(p = 0; p < fep.GetCount(); p++) {
 				if(fep.Get(p, 0, &file_path)) {

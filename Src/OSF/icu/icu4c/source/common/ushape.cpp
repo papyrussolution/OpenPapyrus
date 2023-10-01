@@ -1526,12 +1526,10 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const char16_t * source, int32_t sourceLe
 			    else {
 				    /* default Call the shaping function with tashkeel flag == 1 */
 				    destLength = shapeUnicode(tempbuffer, sourceLength, destCapacity, options, pErrorCode, 1, shapeVars);
-
 				    /*After shaping text check if user wants to remove tashkeel and replace it with
 				       tatweel*/
 				    if((options&U_SHAPE_TASHKEEL_MASK) == U_SHAPE_TASHKEEL_REPLACE_BY_TATWEEL) {
-					    destLength =
-						handleTashkeelWithTatweel(tempbuffer, destLength, destCapacity, options, pErrorCode);
+					    destLength = handleTashkeelWithTatweel(tempbuffer, destLength, destCapacity, options, pErrorCode);
 				    }
 			    }
 			    break;
@@ -1539,7 +1537,6 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const char16_t * source, int32_t sourceLe
 			    /* Call the shaping function with tashkeel flag == 0 */
 			    destLength = shapeUnicode(tempbuffer, sourceLength, destCapacity, options, pErrorCode, 0, shapeVars);
 			    break;
-
 			case U_SHAPE_LETTERS_UNSHAPE:
 			    /* Call the deshaping function */
 			    destLength = deShapeUnicode(tempbuffer, sourceLength, destCapacity, options, pErrorCode, shapeVars);
@@ -1549,7 +1546,6 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const char16_t * source, int32_t sourceLe
 			    destLength = 0;
 			    break;
 		}
-
 		/*
 		 * TODO: (markus 2002aug01)
 		 * For as long as we always preflight the outputSize above
@@ -1597,7 +1593,6 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const char16_t * source, int32_t sourceLe
 	if((options&U_SHAPE_DIGITS_MASK)!=U_SHAPE_DIGITS_NOOP) {
 		char16_t digitBase;
 		int32_t i;
-
 		/* select the requested digit group */
 		switch(options&U_SHAPE_DIGIT_TYPE_MASK) {
 			case U_SHAPE_DIGIT_TYPE_AN:
@@ -1611,7 +1606,6 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const char16_t * source, int32_t sourceLe
 			    digitBase = 0;
 			    break;
 		}
-
 		/* perform the requested operation */
 		switch(options&U_SHAPE_DIGITS_MASK) {
 			case U_SHAPE_DIGITS_EN2AN:
@@ -1632,14 +1626,12 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const char16_t * source, int32_t sourceLe
 			    }
 			    break;
 			case U_SHAPE_DIGITS_ALEN2AN_INIT_LR:
-			    _shapeToArabicDigitsWithContext(dest, destLength,
-				digitBase,
+			    _shapeToArabicDigitsWithContext(dest, destLength, digitBase,
 				(bool)((options&U_SHAPE_TEXT_DIRECTION_MASK)==U_SHAPE_TEXT_DIRECTION_LOGICAL),
 				FALSE);
 			    break;
 			case U_SHAPE_DIGITS_ALEN2AN_INIT_AL:
-			    _shapeToArabicDigitsWithContext(dest, destLength,
-				digitBase,
+			    _shapeToArabicDigitsWithContext(dest, destLength, digitBase,
 				(bool)((options&U_SHAPE_TEXT_DIRECTION_MASK)==U_SHAPE_TEXT_DIRECTION_LOGICAL),
 				TRUE);
 			    break;

@@ -1786,7 +1786,8 @@ int64_t FixedDecimal::getFractionalDigits(double n, int32_t v) {
 	}
 }
 
-void FixedDecimal::adjustForMinFractionDigits(int32_t minFractionDigits) {
+void FixedDecimal::adjustForMinFractionDigits(int32_t minFractionDigits) 
+{
 	int32_t numTrailingFractionZeros = minFractionDigits - visibleDecimalDigitCount;
 	if(numTrailingFractionZeros > 0) {
 		for(int32_t i = 0; i<numTrailingFractionZeros; i++) {

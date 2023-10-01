@@ -30,8 +30,8 @@
 U_NAMESPACE_BEGIN
 
 namespace {
-int32_t checkOverflowAndEditsError(int32_t destIndex, int32_t destCapacity,
-    Edits * edits, UErrorCode & errorCode) {
+int32_t checkOverflowAndEditsError(int32_t destIndex, int32_t destCapacity, Edits * edits, UErrorCode & errorCode) 
+{
 	if(U_SUCCESS(errorCode)) {
 		if(destIndex > destCapacity) {
 			errorCode = U_BUFFER_OVERFLOW_ERROR;

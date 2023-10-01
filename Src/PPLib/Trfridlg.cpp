@@ -495,7 +495,7 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 		//
 		if(P_Pack->Rec.Flags & BILLF_TOTALDISCOUNT || Item.Flags & PPTFR_QUOT)
 			disableCtrls(1, CTL_LOT_DISCOUNT, CTL_LOT_PRICE, 0);
-		else if(!(Item.Flags & PPTFR_ORDER)) { // @v9.2.10 Для заказа разрешается менять и цену реализации и скидку
+		else if(!(Item.Flags & PPTFR_ORDER)) { // Для заказа разрешается менять и цену реализации и скидку
 			//
 			// Флаг конфигурации CFGFLG_DISCOUNTBYSUM запрещает ввод скидки
 			// @v9.2.9 Для заказа разрешается вводить скидку

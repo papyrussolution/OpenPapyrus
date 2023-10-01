@@ -340,9 +340,9 @@ private:
 	void   calcVatSum(uint ctl);
 	void   linkBill()
 	{
-		PPID id = labs(Data.Link);
-		if(id)
-			BillObj->Edit(&id, 0);
+		PPID _id_to_edit = labs(Data.Link);
+		if(_id_to_edit)
+			BillObj->Edit(&_id_to_edit, 0);
 	}
 	PPObjVATBook  * ppobj;
 	VATBookTbl::Rec Data;
@@ -577,9 +577,9 @@ private:
 	DECL_HANDLE_EVENT;
 	void   linkBill()
 	{
-		PPID id = labs(Data.Link);
-		if(id)
-			BillObj->Edit(&id, 0);
+		PPID _id_to_edit = labs(Data.Link);
+		if(_id_to_edit)
+			BillObj->Edit(&_id_to_edit, 0);
 	}
 	void   setIncExpData(int incomeTxt);
 	void   getIncExpData(int expend);

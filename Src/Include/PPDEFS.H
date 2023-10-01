@@ -11472,6 +11472,8 @@
 	#define CTL_CCPRESCR_NUMBER             (4  + WINDOWS_ID_BIAS)
 #define DLG_STQBNDRYFLT           1432 // @v11.8.0
 	#define CTL_STQBNDRYFLT_KFLAGS          (1  + WINDOWS_ID_BIAS)
+#define DLG_IMPEXPCC              1433 // Параметры импорта/экспорта кассовых чеков
+	#define CTL_IMPEXPCC_FLAGS              (IMPEXP_CTL_BIAS+1)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

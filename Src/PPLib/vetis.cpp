@@ -1205,6 +1205,19 @@ struct VetisVetDocument : public VetisDocument {
 		enum {
 			fCargoInspected = 0x0001
 		};
+		//
+		// Descr: Варианты значения поля CargoExpertized
+		//
+		enum {
+			ceUnrecognized = 0, // Специальное значение для индикации невозможности распознать символ значения //
+			ceUnkn        = 1, // UNKNOWN   Результат неизвестен.
+			ceUndef       = 2, // UNDEFINED Результат невозможно определить (не нормируется).
+			cePositive    = 3, // POSITIVE 	Положительный результат.
+			ceNegative    = 4, // NEGATIVE 	Отрицательный результат.
+			ceUnfulfilled = 5, // UNFULFILLED 	Не проводилось.
+			ceVseRaw      = 6, // VSERAW 	ВСЭ подвергнуто сырьё, из которого произведена продукция.
+			ceVseFull     = 7  // VSEFULL 	Продукция подвергнута ВСЭ в полном объеме. 
+		};
 		long   Flags;
 		int    CargoExpertized; // ResearchResult
 		int    AnimalSpentPeriod; // AnimalSpentPeriod
@@ -3888,6 +3901,16 @@ static const SIntToSymbTabEntry VetisRegisterModificationType_SymbTab[] = {
 	{ vetisrmtFORK, "FORK" }
 };
 
+static const SIntToSymbTabEntry VetAuthCargoExpertized_SymbTab[] = {
+	{ VetisVetDocument::VeterinaryAuthentication::ceUnkn,        "UNKNOWN" },
+	{ VetisVetDocument::VeterinaryAuthentication::ceUndef,       "UNDEFINED" },
+	{ VetisVetDocument::VeterinaryAuthentication::cePositive,    "POSITIVE" },
+	{ VetisVetDocument::VeterinaryAuthentication::ceNegative,    "NEGATIVE" },
+	{ VetisVetDocument::VeterinaryAuthentication::ceUnfulfilled, "UNFULFILLED" },
+	{ VetisVetDocument::VeterinaryAuthentication::ceVseRaw,      "VSERAW" },
+	{ VetisVetDocument::VeterinaryAuthentication::ceVseFull,     "VSEFULL" },
+};
+
 int PPVetisInterface::ParseGenericVersioningEntity(const xmlNode * pParentNode, VetisGenericVersioningEntity & rResult)
 {
 	int    ok = 1;
@@ -4609,6 +4632,7 @@ int PPVetisInterface::ParseVetDocument(const xmlNode * pParentNode, VetisVetDocu
 			SETFLAG(pResult->Flags, VetisVetDocument::fCargoInspected, temp_buf.IsEqiAscii("true"));
 		}
 		else if(SXml::GetContentByName(p_a, "cargoExpertized", temp_buf)) {
+			pResult->Authentication.CargoExpertized = SIntToSymbTab_GetId(VetAuthCargoExpertized_SymbTab, SIZEOFARRAY(VetAuthCargoExpertized_SymbTab), temp_buf);
 			SETFLAG(pResult->Flags, VetisVetDocument::fCargoExpertized, temp_buf.IsEqiAscii("true"));
 		}
 		else if(SXml::GetContentByName(p_a, "lastUpdateDate", temp_buf))
@@ -5633,6 +5657,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const VetisRegisterProductionRequest * p_req = static_cast<const VetisRegisterProductionRequest *>(rAppBlk.P_AppParam);
+							const VetisVetDocument & r_inc_doc = p_req->Doc;
 							SXml::WNode n_req(srb, SXml::nst("merc", "registerProductionOperationRequest"));
 							n_req.PutInner(SXml::nst("merc", "localTransactionId"), temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
 							PutInitiator(srb, "merc", "vd", rAppBlk.User);
@@ -5669,7 +5694,6 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									}
 								}
 								{
-									const VetisVetDocument & r_inc_doc = p_req->Doc;
 									SXml::WNode n_bat(srb, _xmlnst_vd("productiveBatch"));
 									n_bat.PutInner(_xmlnst_vd("productType"), temp_buf.Z().Cat(p_req->Pi.ProductType));
 									{
@@ -5719,8 +5743,11 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 							{
 								SXml::WNode n_wd(srb, SXml::nst("merc", "vetDocument"));
 								{
+									// @v11.8.4 символ результата экспертизы теперь берется из сертификата (ранее был константой)
 									SXml::WNode n_auth(srb, _xmlnst_vd("authentication"));
-									n_auth.PutInner(_xmlnst_vd("cargoExpertized"), "VSERAW"); // @v11.6.2 VSEFULL-->VSERAW
+									const char * p_ce_symb = SIntToSymbTab_GetSymbPtr(
+										VetAuthCargoExpertized_SymbTab, SIZEOFARRAY(VetAuthCargoExpertized_SymbTab), r_inc_doc.Authentication.CargoExpertized);
+									n_auth.PutInner(_xmlnst_vd("cargoExpertized"), p_ce_symb ? p_ce_symb : "VSERAW"); // @v11.6.2 VSEFULL-->VSERAW 
 								}
 							}
 						}
@@ -6159,7 +6186,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 													n_prp.PutInner(_xmlnst_bs_guid(), temp_buf);
 												}
 												n_vc.PutInner(_xmlnst_vd("cargoInspected"), "true");
-												n_vc.PutInner(_xmlnst_vd("cargoExpertized"), /*"false"*/"VSERAW"); // @v11.6.6 VSEFULL-->VSERAW
+												n_vc.PutInner(_xmlnst_vd("cargoExpertized"), /*"false"*/"VSERAW"); // @v11.6.6 VSEFULL-->VSERAW // @v11.8.4 @construction
 												PPLoadText(PPTXT_VETISLOCATIONPROSPERITYISOK, temp_buf);
 												temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 												n_vc.PutInner(_xmlnst_vd("locationProsperity"), temp_buf);

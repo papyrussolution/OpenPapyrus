@@ -1,5 +1,5 @@
 // ALCODECL-RU.CPP
-// Copyright (c) A.Sobolev 2021, 2022
+// Copyright (c) A.Sobolev 2021, 2022, 2023
 // @codepage UTF-8
 // Алкогольная декларация (Россия)
 //
@@ -36,16 +36,8 @@ int AlcoDeclRuFilt::IsEqualExcept(const AlcoDeclRuFilt & rS, long flags) const
 	return 1;
 }
 
-int AlcoDeclRuFilt::SetParentView(PPViewAlcoDeclRu * pView)
-{
-	ParentViewPtr = reinterpret_cast<uint64>(pView);
-	return 1;
-}
-
-PPViewAlcoDeclRu * AlcoDeclRuFilt::GetParentView()
-{
-	return reinterpret_cast<PPViewAlcoDeclRu *>(ParentViewPtr);
-}
+void AlcoDeclRuFilt::SetParentView(PPViewAlcoDeclRu * pView) { ParentViewPtr = reinterpret_cast<uint64>(pView); }
+PPViewAlcoDeclRu * AlcoDeclRuFilt::GetParentView() { return reinterpret_cast<PPViewAlcoDeclRu *>(ParentViewPtr); }
 
 PPViewAlcoDeclRu::InnerRcptEntry::InnerRcptEntry() { THISZERO(); }
 PPViewAlcoDeclRu::InnerMovEntry::InnerMovEntry() { THISZERO(); }
@@ -1173,27 +1165,27 @@ void PPViewAlcoDeclRu::PreprocessBrowser(PPViewBrowser * pBrw)
 							if(Filt.Flags & AlcoDeclRuFilt::fShowAsRcpt) {
 								const InnerRcptEntry * p_item = static_cast<const InnerRcptEntry *>(pHdr);
 								if(r_col.OrgOffs == 7) { // div
-									PPID   div_id = p_item->DivID;
-									Arp.PsnObj.LocObj.Edit(&div_id, 0);
+									PPID   _id_to_edit = p_item->DivID;
+									Arp.PsnObj.LocObj.Edit(&_id_to_edit, 0);
 								}
 								else if(r_col.OrgOffs == 2) { // manuf
-									PPID   manuf_id = p_item->ManufID;
-									Arp.PsnObj.Edit(&manuf_id, 0);
+									PPID   _id_to_edit = p_item->ManufID;
+									Arp.PsnObj.Edit(&_id_to_edit, 0);
 								}
 								else if(r_col.OrgOffs == 8) { // supplier
-									PPID   suppl_id = p_item->SupplID;
-									Arp.PsnObj.Edit(&suppl_id, 0);
+									PPID   _id_to_edit = p_item->SupplID;
+									Arp.PsnObj.Edit(&_id_to_edit, 0);
 								}
 							}
 							else {
 								const InnerMovEntry * p_item = static_cast<const InnerMovEntry *>(pHdr);
 								if(r_col.OrgOffs == 16) { // div
-									PPID   div_id = p_item->DivID;
-									Arp.PsnObj.LocObj.Edit(&div_id, 0);
+									PPID   _id_to_edit = p_item->DivID;
+									Arp.PsnObj.LocObj.Edit(&_id_to_edit, 0);
 								}
 								else if(r_col.OrgOffs == 2) { // manuf
-									PPID   manuf_id = p_item->ManufID;
-									Arp.PsnObj.Edit(&manuf_id, 0);
+									PPID   _id_to_edit = p_item->ManufID;
+									Arp.PsnObj.Edit(&_id_to_edit, 0);
 								}
 							}
 						}

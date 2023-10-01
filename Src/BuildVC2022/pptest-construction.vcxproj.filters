@@ -26,5 +26,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-slui.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-process.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-ued.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-mem.cpp" />
   </ItemGroup>
 </Project>

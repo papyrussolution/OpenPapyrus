@@ -730,6 +730,16 @@ static void InitTest()
 		assert(SBits::Cpop(FFFF(U.TD.UII)) == 64);
 	}
 	// } @v11.8.1
+	{
+		assert(log10i_floor(UINT64_MAX) == 19);
+		assert(log10i_floor(UINT32_MAX) == 9);
+		assert(log10i_floor(1ULL) == 0);
+		assert(log10i_floor(1U) == 0);
+		assert(log10i_floor(1000U) == 3);
+		assert(log10i_floor(1000ULL) == 3);
+		assert(log10i_floor(998U) == 2);
+		assert(log10i_floor(998ULL) == 2);
+	}
 #endif // } NDEBUG
 }
 
@@ -1166,7 +1176,7 @@ const SGlobalSecureConfig & SlSession::GetGlobalSecureConfig()
 		}
 		if(r_cfg.IsEmpty()) {
 			SString temp_buf;
-			getExecPath(temp_buf).SetLastSlash();
+			GetExecPath(temp_buf).SetLastSlash();
 			r_cfg.CaPath = temp_buf;
 			r_cfg.CaFile = temp_buf.Cat("cacerts.pem");
 		}
@@ -1191,7 +1201,7 @@ int SlSession::LogMessage(const char * pFileName, const char * pStr, ulong maxFi
 		if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 			GetLogPath(file_name);
 			if(!file_name.NotEmptyS()) {
-				getExecPath(file_name);
+				GetExecPath(file_name);
 			}
 			file_name.SetLastSlash().Cat(ps.Nam);
 			if(ps.Ext.C(0) != '.')

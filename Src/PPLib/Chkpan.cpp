@@ -11776,7 +11776,7 @@ int CheckPaneDialog::PrintSlipDocument()
 int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 {
 	int    ok = 1;
-	int    is_print_dvc_setted = 0;
+	bool   is_print_dvc_set = false;
 	// @v9.9.9 (CnSpeciality != PPCashNode::spDelivery) Доставка требует дополнительных печатных копий предчека
 	if(!pLocPrn && Flags & fPrinted && !(Flags & fNoEdit) && !(OperRightsFlags & orfChgPrintedCheck) && (CnSpeciality != PPCashNode::spDelivery)) {
 		ok = MessageError(PPERR_NORIGHTS, 0, eomBeep | eomStatusLine);
@@ -11818,12 +11818,12 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		if(pLocPrn) {
 			if(loc_prn_port.NotEmpty()) {
 				DS.GetTLA().PrintDevice = loc_prn_port;
-				is_print_dvc_setted = 1;
+				is_print_dvc_set = true;
 			}
 		}
 		else if(RptPrnPort.NotEmpty()) {
 			DS.GetTLA().PrintDevice = RptPrnPort;
-			is_print_dvc_setted = 1;
+			is_print_dvc_set = true;
 		}
 		PPAlddPrint(rpt_id, PView(this), &env);
 		P = saved_items;
@@ -11852,8 +11852,8 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		else if(!(Flags & fNoEdit))
 			SetPrintedFlag(1);
 	}
-	if(is_print_dvc_setted)
-		DS.GetTLA().PrintDevice = 0;
+	if(is_print_dvc_set)
+		DS.GetTLA().PrintDevice.Z();
 	return ok;
 }
 //
@@ -11926,7 +11926,7 @@ int CPosProcessor::PrintToLocalPrinters(int selPrnType)
 				PPObjLocPrinter lp_obj;
 				PPLocPrinter loc_prn_rec;
 				CCheckItem * p_item = 0;
-				DS.GetTLA().PrintDevice = 0;
+				DS.GetTLA().PrintDevice.Z();
 				CCheckItemArray saved_check(P);
 				uint   i, j, first_loc_assoc_pos = 0;
 				PPID   loc_id;

@@ -240,8 +240,8 @@ pathmatched:
 static const char * get_top_domain(const char * const domain, size_t * outlen)
 {
 	size_t len = 0;
-	const char * first = NULL, * last;
-
+	const char * first = NULL;
+	const char * last;
 	if(domain) {
 		len = strlen(domain);
 		last = (const char *)memrchr(domain, '.', len);
@@ -251,10 +251,7 @@ static const char * get_top_domain(const char * const domain, size_t * outlen)
 				len -= (++first - domain);
 		}
 	}
-
-	if(outlen)
-		*outlen = len;
-
+	ASSIGN_PTR(outlen, len);
 	return first ? first : domain;
 }
 
@@ -265,12 +262,10 @@ static size_t cookie_hash_domain(const char * domain, const size_t len)
 {
 	const char * end = domain + len;
 	size_t h = 5381;
-
 	while(domain < end) {
 		h += h << 5;
 		h ^= Curl_raw_toupper(*domain++);
 	}
-
 	return (h % COOKIE_HASH_SIZE);
 }
 
@@ -585,10 +580,8 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 				}
 				else if(strcasecompare("domain", name)) {
 					bool is_ip;
-
 					/* Now, we make sure that our host is within the given domain,
 					   or the given domain is not valid and thus cannot be set. */
-
 					if('.' == whatptr[0])
 						whatptr++; /* ignore preceding dot */
 
@@ -601,29 +594,22 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 					if(bad_domain(whatptr))
 						domain = ":";
 #endif
-
 					is_ip = isip(domain ? domain : whatptr);
-
-					if(!domain
-					   || (is_ip && !strcmp(whatptr, domain))
-					   || (!is_ip && tailmatch(whatptr, domain))) {
+					if(!domain || (is_ip && !strcmp(whatptr, domain)) || (!is_ip && tailmatch(whatptr, domain))) {
 						strstore(&co->domain, whatptr);
 						if(!co->domain) {
 							badcookie = TRUE;
 							break;
 						}
 						if(!is_ip)
-							co->tailmatch = TRUE; /* we always do that if the domain name
-						                                 was
-						                                 given */
+							co->tailmatch = TRUE; /* we always do that if the domain name was given */
 					}
 					else {
 						/* we did not get a tailmatch and then the attempted set domain
 						   is not a domain to which the current host belongs. Mark as
 						   bad. */
 						badcookie = TRUE;
-						infof(data, "skipped cookie with bad tailmatch domain: %s\n",
-						    whatptr);
+						infof(data, "skipped cookie with bad tailmatch domain: %s\n", whatptr);
 					}
 				}
 				else if(strcasecompare("version", name)) {

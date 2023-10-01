@@ -609,19 +609,14 @@ uint32 ZSTD_insertBtAndGetAllMatches(ZSTD_match_t* matches,   /* store result (f
 				dmsBase + repIndex - dmsIndexDelta :
 				dictBase + repIndex;
 			    assert(curr >= windowLow);
-			    if(dictMode == ZSTD_extDict
-				&& ( ((repOffset-1) /*intentional overflow*/ < curr - windowLow) /* equivalent to `curr > repIndex >= windowLow` */
-				& (((uint32)((dictLimit-1) - repIndex) >=
-				3) ) /* intentional overflow : do not test positions overlapping 2 memory segments */)
+			    if(dictMode == ZSTD_extDict && ( ((repOffset-1) /*intentional overflow*/ < curr - windowLow) /* equivalent to `curr > repIndex >= windowLow` */
+				& (((uint32)((dictLimit-1) - repIndex) >= 3)) /* intentional overflow : do not test positions overlapping 2 memory segments */)
 				&& (ZSTD_readMINMATCH(ip, minMatch) == ZSTD_readMINMATCH(repMatch, minMatch)) ) {
-				    repLen =
-					(uint32)ZSTD_count_2segments(ip+minMatch, repMatch+minMatch, iLimit, dictEnd,
-					    prefixStart) + minMatch;
+				    repLen = (uint32)ZSTD_count_2segments(ip+minMatch, repMatch+minMatch, iLimit, dictEnd, prefixStart) + minMatch;
 			    }
 			    if(dictMode == ZSTD_dictMatchState
 				&& ( ((repOffset-1) /*intentional overflow*/ < curr - (dmsLowLimit + dmsIndexDelta)) /* equivalent to `curr > repIndex >= dmsLowLimit` */
-				& ((uint32)((dictLimit-1) - repIndex) >= 3) ) /* intentional overflow : do not test
-				                                              positions overlapping 2 memory segments */
+				& ((uint32)((dictLimit-1) - repIndex) >= 3) ) /* intentional overflow : do not test positions overlapping 2 memory segments */
 				&& (ZSTD_readMINMATCH(ip, minMatch) == ZSTD_readMINMATCH(repMatch, minMatch)) ) {
 				    repLen =
 					(uint32)ZSTD_count_2segments(ip+minMatch, repMatch+minMatch, iLimit, dmsEnd,

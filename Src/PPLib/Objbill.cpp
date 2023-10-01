@@ -9220,7 +9220,7 @@ int PPObjBill::__TurnPacket(PPBillPacket * pPack, PPIDArray * pList, int skipEmp
 	return ok;
 }
 
-/*static*/int PPObjBill::ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate)
+/*static*/int PPBillImpExpParam::ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate)
 {
 	enum {
 		billsymbmodLink   = 0x40000000,

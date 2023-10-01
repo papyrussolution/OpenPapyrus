@@ -1367,9 +1367,8 @@ public:
 	static constexpr uint16 CrcPoly_CCITT16 = 0x1021;
 	static constexpr uint32 CrcPoly_CCITT32 = 0xEDB88320U;
 };
-
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
-
+//
 template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc) // @v11.4.12
 {
 	if(pSrc) {
@@ -4767,14 +4766,15 @@ public:
 	long   ToLong() const;
 	int64  ToInt64() const;
 	int    Divide(int divChr, SStringU & rLeft, SStringU & rRight) const;
+	void   Obfuscate();
 	//
 	bool   Ensure(uint sz); // @internal
 private:
 	int    FASTCALL Alloc(size_t sz);
 	bool   Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize);
 
-	size_t L; // @firstmember
-	size_t Size;
+	size_t L; // @firstmember // Фактическая длина строки в символах wchar_t вместе с завершающим нулем.
+	size_t Size; // Распределенный размер буфера P_Buf в символах wchar_t (не в байтах!)
 	wchar_t * P_Buf;
 };
 //
@@ -5876,12 +5876,6 @@ int	   pathToUNC(const char * pPath, SString & rUncPath);
 // @v10.5.6 char * replaceExt(char * fileName, const char * newExt, int force);
 char * setLastSlash(char *);
 char * rmvLastSlash(char *);
-//
-// Descr: Returns execution file name in buffer pBuf.
-// Returns:
-//   pBuf
-//
-SString & getExecPath(SString & rBuf);
 bool   FASTCALL fileExists(const char * pFileName);
 int    driveValid(const char * path);
 int    FASTCALL IsDirectory(const char * pStr);
@@ -9502,6 +9496,12 @@ private:
 
 int    GetFileStat(const char * pFileName, SDirEntry * pEntry);
 int    RemoveDir(const char * pDir);
+//
+// Descr: Returns execution file name in buffer pBuf.
+// Returns:
+//   pBuf
+//
+SString & GetExecPath(SString & rBuf);
 int    GetKnownFolderPath(uint64 uedFolderId, SString & rPath);
 
 struct SKnownFolderEntry {
@@ -10752,7 +10752,8 @@ public:
 	};
 
 	static bool BigEndian();
-	static int  SGetModuleFileName(void * hModule, SString & rFileName);
+	static bool SGetModuleFileName(void * hModule, SString & rFileNameUtf8);
+	static bool SGetModuleFileName(void * hModule, SStringU & rFileName);
 	static uint SFormatMessage(int sysErrCode, SString & rMsg);
 	static uint SFormatMessage(SString & rMsg);
 	static char FASTCALL TranslateWmCharToAnsi(uintptr_t wparam);
@@ -10768,7 +10769,8 @@ public:
 		}
 		SStringU UserName;
 		SStringU Password;
-		HANDLE H_User;
+		//HANDLE H_User;
+		SPtrHandle H_User_;
 	};
 	//
 	// Descr: Флаги функции GetUserHandle
@@ -10779,7 +10781,48 @@ public:
 	};
 
 	static bool   GetUserHandle(/*Settings*/WinUserBlock & rSettings, uint flags, BOOL & bLoadedProfile, PROFILEINFO & rProfile, HANDLE hCmdPipe);
-	static HANDLE GetLocalSystemProcessToken();
+	//
+	// Descr: Типы вызова функции Logon().
+	// Note: Мнемоники аналогичны константам LOGON32_LOGON_XXX (see winbase.h). Значения мнемоник существенны и повторяют аналоги из winbase.h
+	//
+	enum {
+		logontypeInteractive       = 2, // This logon type is intended for users who will be interactively using the computer, such as a user 
+			// being logged on by a terminal server, remote shell, or similar process. This logon type has the additional expense of caching 
+			// logon information for disconnected operations; therefore, it is inappropriate for some client/server applications, such as a mail server. 
+			// 
+		logontypeNetwork           = 3, // This logon type is intended for high performance servers to authenticate plaintext passwords. 
+			// The LogonUser function does not cache credentials for this logon type. 
+		logontypeBatch             = 4, // This logon type is intended for batch servers, where processes may be executing on behalf of a user 
+			// without their direct intervention. This type is also for higher performance servers that process many plaintext authentication 
+			// attempts at a time, such as mail or web servers. 
+		logontypeService           = 5, // Indicates a service-type logon. The account provided must have the service privilege enabled.
+		logontypeUnlock            = 7, // GINAs are no longer supported. Windows Server 2003 and Windows XP:  This logon type is for GINA DLLs 
+			// that log on users who will be interactively using the computer. This logon type can generate a unique audit record that shows 
+			// when the workstation was unlocked.
+		logontypeNetworkClearText  = 8, // This logon type preserves the name and password in the authentication package, which allows the server 
+			// to make connections to other network servers while impersonating the client. A server can accept plaintext credentials from a client, 
+			// call LogonUser, verify that the user can access the system across the network, and still communicate with other servers. 
+		logontypeNewCredentials    = 9, // This logon type allows the caller to clone its current token and specify new credentials for outbound 
+			// connections. The new logon session has the same local identifier but uses different credentials for other network connections.
+			// This logon type is supported only by the LOGON32_PROVIDER_WINNT50 logon provider.
+			// Note: As of January 2023, it is not possible to use the LOGON32_LOGON_NEW_CREDENTIALS logon type with a Group Managed Service Account (gMSA).
+	};
+	//
+	// Descr: Провайдеры авторизации пользователя Windows.
+	// Note: Мнемоники аналогичны константам LOGON32_PROVIDER_XXX (see winbase.h). Значения мнемоник существенны и повторяют аналоги из winbase.h
+	//
+	enum {
+		logonprvDEFAULT    = 0, // Use the standard logon provider for the system. The default security provider is negotiate, unless you pass NULL 
+			// for the domain name and the user name is not in UPN format. In this case, the default provider is NTLM. 
+		logonprvWINNT35    = 1, //
+		logonprvWINNT40    = 2, // Use the NTLM logon provider. 
+		logonprvWINNT50    = 3, // Use the negotiate logon provider. 
+		logonprvVIRTUAL    = 4, // 
+	};
+
+	static SPtrHandle Logon(const char * pDomain, const char * pUserName, const char * pPw, uint logontype, uint logonprv);
+	static SPtrHandle Logon(const wchar_t * pDomain, const wchar_t * pUserName, const wchar_t * pPw, uint logontype, uint logonprv);
+	static /*HANDLE*/SPtrHandle GetLocalSystemProcessToken();
 	// } @v11.7.12
 #endif
 	//
@@ -13125,6 +13168,20 @@ float  fgetnanf();    // NAN
 double fgetposinf(); // +INF
 double fgetneginf(); // -INF
 //
+// Descr: Проверяет возможность переполнения результата умножения чисел a и b.
+// Returns:
+//   true - при умножении a * b переполнения не будет
+//   false - при умножении a * b возникнет переполнение
+//
+bool   CheckOverflowMul(int32 a, int32 b); // @v11.8.4
+//
+// Descr: Проверяет возможность переполнения результата умножения чисел a и b.
+// Returns:
+//   true - при умножении a * b переполнения не будет
+//   false - при умножении a * b возникнет переполнение
+//
+bool   CheckOverflowMul(int64 a, int64 b); // @v11.8.4
+//
 // Descr: Вычисляет наибольший общий делитель (GCD) a и b
 //
 ulong  FASTCALL Gcd(ulong a, ulong b);
@@ -13236,12 +13293,14 @@ public:
 	bool   FASTCALL IsEq(const SDecimal & rS) const; // @construction
 	double GetReal() const;
 	bool   Normalize();
+	bool   Normalize(int64 mant, int16 exp);
 	SDecimal & Z();
 	bool   IsZero() const;
 	static SDecimal Neg(const SDecimal & rV);
 	int    Add(const SDecimal & rA, const SDecimal & rB);
 	int    Sub(const SDecimal & rA, const SDecimal & rB);
 	int    Mul(const SDecimal & rA, const SDecimal & rB);
+	int    Mul(const SDecimal & rA, int64 b);
 	int    Div(const SDecimal & rA, const SDecimal & rB);
 
 	uint64 ToUed_NonConst(uint numBits);
@@ -14133,6 +14192,14 @@ float  FASTCALL fpow10fi(int n);
 uint64 FASTCALL ui64pow10(uint n);
 inline double fpow2(double x) { return x * x; }
 inline double fpow3(double x) { return x * x * x; }
+//
+// Descr: Вычисляет десятичный логарифм целого беззнакового числа с округлением в нижнюю сторону.
+// e.g.: log10i_floor(100) == 2, log10i_floor(99) == 1, log10i_floor(101) == 2
+//
+uint   FASTCALL log10i_floor(uint64 v);
+uint   FASTCALL log10i_ceil(uint64 v);
+uint   FASTCALL log10i_floor(uint32 v);
+uint   FASTCALL log10i_ceil(uint32 v);
 //
 // Descr: Возводит число x в степень n
 //
@@ -16576,6 +16643,28 @@ public:
 		SString FolderUtf8;
 		SPtrHandle Sid;
 	};
+	//
+	// Descr: Открывает токен доступа процесса, идентфицируемого манипулятором hProcess.
+	// ARG(hProcess IN): Манипулятор процесса, для которого необходимо открыть токен доступа (access token)
+	// ARG(desiredAccess IN): флаги требуемых прав доступа токена (see winnt.h TOKEN_XXX). 
+	// Returns: 
+	//   Хандлер токена доступа (access token handler). Если функция завершилась ошибкой, то
+	//   SPtrHandler operator !() == true
+	//
+	static SPtrHandle OpenAccessToken(SIntHandle hProcess, uint desiredAccess);
+	static SPtrHandle OpenCurrentAccessToken(uint desiredAccess);
+	//
+	// Descr: Результат функции CheckAccessTokenPrivilege
+	//
+	enum {
+		privrError = 0,
+		privrEnabled,
+		privrDisabled,
+		privrNotAssigned
+	};
+
+	static int  CheckAccessTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
+	static bool EnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pName, bool enable);
 	
 	SlProcess();
 	~SlProcess();
@@ -16593,6 +16682,7 @@ public:
 	bool   AddEnv(const char * pKeyUtf8, const char * pValUtf8);
 	bool   AddEnv(const wchar_t * pKey, const wchar_t * pVal);
 	bool   SetFlags(uint flags);
+	bool   SetImpersUser(const char * pUserUtf8, const char * pPasswordUtf8);
 	//
 	// Descr: Передает экземпляру app-container, в котором должен исполняться процесс.
 	//   Этот контейнер должен быть предварительно подготовлен. 
@@ -16612,6 +16702,8 @@ private:
 	SStringU AppName;
 	SStringU Path;       // Полный путь до exe-модуля //
 	SStringU WorkingDir; // Текущий рабочий каталог для запускаемого процесса
+	SStringU UserName;   // Имя пользователя для impersonate-запуска    // @todo must be ctypted
+	SStringU UserPw;     // Пароль пользователя для impersonate-запуска // @todo must be ctypted
 	StringSet SsArgUtf8; // Аргументы командной строки без имени exe-модуля в utf8-кодировке
 	StringSet SsEnvUtf8; // Переменные среды окружения запускаемого процесса
 	AppContainer * P_AppC; // @notowned

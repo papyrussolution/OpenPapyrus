@@ -4255,7 +4255,7 @@ PPTXT_VCARD_PROPATTRIBUTE    /!/  "NONE;WORK;HOME;CELL;INTERNET;VOICE;FAX"
 PPTXT_CASCL5000J_ERRCODES         "82:Номера кончились;84:Заголовок, хвост структуры или проверочная сумма введены неверно;88:Не хватает места для посылки прямого сообщения Прямое сообщение;89:Память полностью заполнена;95:Неизвестный тип данных;97:Структура данных повреждена;98:Данные не существуют;99:Конец данных"
 PPTXT_CYCLESTATLIST               "1,@{average};2,@{minimum};3,@{maximum};4,Тренд;5,Тренд (база);6,Тренд (отношение к базе)"
 PPTXT_GOODSPREFIXES_RUS           "для;без;с;вокруг;против;после;в;на;из"
-PPTXT_IMPEXPCFGNAMELIST           "@{ware_pl};@{documents};Строки документов;Инвентаризации;@{pricelist};Телефонные списки;@{scard_pl};@{lots};@{person_pl};Рабочие книги;@{quotes}"
+PPTXT_IMPEXPCFGNAMELIST           "@{ware_pl};@{documents};Строки документов;Инвентаризации;@{pricelist};Телефонные списки;@{scard_pl};@{lots};@{person_pl};Рабочие книги;@{quotes};@{poscheck_pl}"
 PPTXT_TRANSPTOTAL                 "Итоги по выборке автотранспортных средств"
 PPTXT_ERRACCEPTOBJECT                     "Ошибка акцепта объекта ('%s' ID=%ld '%s'): %s"
 PPTXT_ERRACCEPTGOODS                      "Ошибка акцепта товара (%ld %s): %s"
@@ -4458,8 +4458,10 @@ PPTXT_IMPPHONE_INVPHONE             "Минимальная длина теле�
 PPTXT_DLVRADDRMODIFIED              "Оригинальный адрес был изменен"
 PPTXT_PERSON_CREATED                "Создана запись персоналии с именем='%s', @{inn}=%s."
 PPTXT_QCERT_CONVERTED               "Данные о производителе/импортере %s успешно записаны в тег лота (товар=%s, номер документа=%s, дата документа=%s)."
-PPTXT_GOODSORDER                    "1,@{sortby_name};2,@{sortby_abbr};3,@{sortby_groupandname};4,@{sortby_groupandabbr};5,@{sortby_barcode};6,По брэнду и наименованию;7,@{sortby_barcodeandname};8,@{sortby_id}"
-PPTXT_GOODSRESTORDER                "1,@{sortby_goodsid};2,@{sortby_goodsname};3,@{sortby_groupandname};4,@{sortby_price};5,@{sortby_groupandprice};6,@{sortby_barcode};7,@{sortby_groupandcode};8,@{sortby_rest}"
+PPTXT_GOODSORDER                    "1,@{sortby_name};2,@{sortby_abbr};3,@{sortby_groupandname};4,@{sortby_groupandabbr};5,@{sortby_barcode};6,По брэнду и наименованию;\
+	7,@{sortby_barcodeandname};8,@{sortby_id};9,По производителю и наименованию"
+PPTXT_GOODSRESTORDER                "1,@{sortby_goodsid};2,@{sortby_goodsname};3,@{sortby_groupandname};4,@{sortby_price};5,@{sortby_groupandprice};6,@{sortby_barcode};\
+	7,@{sortby_groupandcode};8,@{sortby_rest}"
 PPTXT_BONUSAVAILABLE                "Доступный бонус"
 PPTXT_UNDEFIMPGOODSNAME             "Не определено имя импортируемого товара"
 PPTXT_CORINTRUN_DETECTEDLOT         "Обнаружен порожденный лот с висячей ссылкой на документ: @date @goods @real"
@@ -4858,7 +4860,8 @@ PPTXT_PREDEFIMPEXPBILLFMT           "1,Nalog.ru @{invoice} (ON_SFAKT);\
 	6,Nalog.ru R_ON_NSCHFDOPPRMARK (счет-фактура с марками);\
 	8,Nalog.ru R_ON_NSCHFDOPPR (счет-фактура);\
 	9,Coca-Cola ORDER (только импорт);\
-	11,Nalog.ru ON_NKORSCHFDOPPR (корректировочный счет-фактура)"
+	11,Nalog.ru ON_NKORSCHFDOPPR (корректировочный счет-фактура);\
+	12,Импорт чеков - заказной формат - контракт 01"
 PPTXT_NALOGRU_WORKSWERETRANSFERED   "Результаты работ переданы (услуги оказаны)"
 PPTXT_NALOGRU_SHIPPINGBILL          "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
 PPTXT_NALOGRU_UPDOPCONTENT          "Товары переданы и услуги оказаны в полном объеме"
@@ -15718,6 +15721,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @xmldbparam_roottag                       "Корневой тег"
 @xmldbparam_rectag                        "Тег записи"
 @xmldbparam_hdrtag                        "Тег заголовка"
+
+@impexpparamcc                            "Параметры импорта/экспорта кассовых чеков"
 
 @impexpparambillh                         "Параметры импорта/экспорта документов"
 @impexpparambillh_flags                   "@{flags}"

@@ -175,28 +175,24 @@ static int unhex(int chr)
 	return strchr(SlConst::P_HxDigL, (chr|32)) - SlConst::P_HxDigL;
 }
 
-static int ishex(int chr)
+/*static int ishex(int chr)
 {
 	if(chr >= '0' && chr <= '9') return 1;
 	if(chr >= 'A' && chr <= 'F') return 1;
 	if(chr >= 'a' && chr <= 'f') return 1;
 	return 0;
-}
+}*/
 
 void svg_parse_color(fz_context * ctx, svg_document * doc, const char * str, float * rgb)
 {
 	int i, l, m, r, cmp;
 	size_t n;
-
 	rgb[0] = 0.0f;
 	rgb[1] = 0.0f;
 	rgb[2] = 0.0f;
-
 	/* Crack hex-coded RGB */
-
 	if(str[0] == '#') {
 		str++;
-
 		n = strlen(str);
 		if(n == 3 || (n > 3 && !ishex(str[3]))) {
 			rgb[0] = (unhex(str[0]) * 16 + unhex(str[0])) / 255.0f;
@@ -204,29 +200,22 @@ void svg_parse_color(fz_context * ctx, svg_document * doc, const char * str, flo
 			rgb[2] = (unhex(str[2]) * 16 + unhex(str[2])) / 255.0f;
 			return;
 		}
-
 		if(n >= 6) {
 			rgb[0] = (unhex(str[0]) * 16 + unhex(str[1])) / 255.0f;
 			rgb[1] = (unhex(str[2]) * 16 + unhex(str[3])) / 255.0f;
 			rgb[2] = (unhex(str[4]) * 16 + unhex(str[5])) / 255.0f;
 			return;
 		}
-
 		return;
 	}
-
 	/* rgb(X,Y,Z) -- whitespace allowed around numbers */
-
 	else if(strstr(str, "rgb(")) {
 		int numberlen = 0;
 		char numberbuf[50];
-
 		str = str + 4;
-
 		for(i = 0; i < 3; i++) {
 			while(svg_is_whitespace_or_comma(*str))
 				str++;
-
 			if(svg_is_digit(*str)) {
 				numberlen = 0;
 				while(svg_is_digit(*str) && numberlen < (int)sizeof(numberbuf) - 1)

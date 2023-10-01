@@ -34,10 +34,10 @@
  * platform macros.
  */
 #if defined(__BORLANDC__) && __BORLANDC__ >= 0x560
-#include <stdint.h>
+	#include <stdint.h>
 #elif !defined(__WATCOMC__) && !defined(_MSC_VER) && !defined(__INTERIX) && !defined(__BORLANDC__) && !defined(_SCO_DS) && \
 	!defined(__osf__) && !defined(__CLANG_INTTYPES_H)
-#include <inttypes.h>
+	#include <inttypes.h>
 #endif
 
 /* Get appropriate definitions of 64-bit integer */
@@ -78,36 +78,31 @@ typedef int64 la_int64_t;
 		typedef ssize_t la_ssize_t;
 	#endif
 #endif
-
-/* Large file support for Android */
 #ifdef __ANDROID__
-#include "android_lf.h"
+	#include "android_lf.h" // Large file support for Android
 #endif
-
 /*
  * On Windows, define LIBARCHIVE_STATIC if you're building or using a
  * .lib.  The default here assumes you're building a DLL.  Only
  * libarchive source should ever define __LIBARCHIVE_BUILD.
  */
 #if ((defined __WIN32__) || (defined _WIN32) || defined(__CYGWIN__)) && (!defined LIBARCHIVE_STATIC)
-#ifdef __LIBARCHIVE_BUILD
-#  ifdef __GNUC__
-#   define __LA_DECL    __attribute__((dllexport)) extern
-#  else
-#   define __LA_DECL    __declspec(dllexport)
-#  endif
-# else
-#  ifdef __GNUC__
-#   define __LA_DECL
-#  else
-#   define __LA_DECL    __declspec(dllimport)
-#  endif
-#endif
+	#ifdef __LIBARCHIVE_BUILD
+		#ifdef __GNUC__
+			#define __LA_DECL    __attribute__((dllexport)) extern
+		#else
+			#define __LA_DECL    __declspec(dllexport)
+		#endif
+	#else
+		#ifdef __GNUC__
+			#define __LA_DECL
+		#else
+			#define __LA_DECL    __declspec(dllimport)
+		#endif
+	#endif
 #else
-/* Static libraries or non-Windows needs no special declaration. */
-#define __LA_DECL
+	#define __LA_DECL // Static libraries or non-Windows needs no special declaration
 #endif
-
 #if defined(__GNUC__) && __GNUC__ >= 3 && !defined(__MINGW32__)
 	#define __LA_PRINTF(fmtarg, firstvararg) __attribute__((__format__(__printf__, fmtarg, firstvararg)))
 #else
@@ -130,7 +125,6 @@ extern "C" {
  * strangeness.  Don't do that.
  */
 __LA_DECL int archive_version_number(void);
-
 /*
  * Textual name/version of the library, useful for version displays.
  */
@@ -619,7 +613,7 @@ __LA_DECL int  archive_read_finish(Archive *) __LA_DEPRECATED;
  *   5) archive_write_close to close the output
  *   6) archive_write_free to cleanup the writer and release resources
  */
-__LA_DECL Archive * archive_write_new(void);
+__LA_DECL Archive * archive_write_new();
 __LA_DECL int archive_write_set_bytes_per_block(Archive *, int bytes_per_block);
 __LA_DECL int archive_write_get_bytes_per_block(Archive *);
 /* XXX This is badly misnamed; suggestions appreciated. XXX */
@@ -662,8 +656,7 @@ __LA_DECL int archive_write_add_filter_zstd(Archive *);
 
 /* A convenience function to set the format based on the code or name. */
 __LA_DECL int archive_write_set_format(Archive *, int format_code);
-__LA_DECL int archive_write_set_format_by_name(Archive *,
-    const char * name);
+__LA_DECL int archive_write_set_format_by_name(Archive *, const char * name);
 /* To minimize link pollution, use one or more of the following. */
 __LA_DECL int archive_write_set_format_7zip(Archive *);
 __LA_DECL int archive_write_set_format_ar_bsd(Archive *);
@@ -760,13 +753,12 @@ __LA_DECL int archive_write_set_passphrase_callback(Archive *, void * client_dat
  * In particular, you can use this in conjunction with ArchiveRead()
  * to pull entries out of an archive and create them on disk.
  */
-__LA_DECL Archive * archive_write_disk_new(void);
+__LA_DECL Archive * archive_write_disk_new();
 /* This file will not be overwritten. */
 __LA_DECL int archive_write_disk_set_skip_file(Archive *, la_int64_t, la_int64_t);
 /* Set flags to control how the next item gets created.
  * This accepts a bitmask of ARCHIVE_EXTRACT_XXX flags defined above. */
-__LA_DECL int archive_write_disk_set_options(Archive *,
-    int flags);
+__LA_DECL int archive_write_disk_set_options(Archive *, int flags);
 /*
  * The lookup functions are given uname/uid (or gname/gid) pairs and
  * return a uid (gid) suitable for this system.  These are used for

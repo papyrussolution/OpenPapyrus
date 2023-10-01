@@ -457,11 +457,9 @@ template <typename T> static inline bool hb_in_ranges(T u, T lo1, T hi1, T lo2, 
 {
 	return hb_in_range(u, lo1, hi1) || hb_in_range(u, lo2, hi2) || hb_in_range(u, lo3, hi3);
 }
-
 /*
  * Overflow checking.
  */
-
 /* Consider __builtin_mul_overflow use here also */
 static inline bool hb_unsigned_mul_overflows(uint count, uint size) { return (size > 0) && (count >= ((uint)-1) / size); }
 /*

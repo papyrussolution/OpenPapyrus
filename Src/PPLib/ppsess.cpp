@@ -1689,7 +1689,7 @@ int PPSession::SetThreadSock(int32 uniqueSessID, TcpSocket & rSock, PPJobSrvRepl
 }
 
 PPSession::PPSession() : Id(1), ExtFlags_(0), P_ObjIdentBlk(0), P_LogQueue(0), P_DbCtx(0), P_AlbatrosCfg(0), P_SrStxSet(0),
-	MaxLogFileSize(32768), State(0), TlsIdx(::TlsAlloc()), P_ExtCfgDb(0)
+	MaxLogFileSize(32768), State(0), TlsIdx(::TlsAlloc()), P_ExtCfgDb(0), P_UedC(0)
 {
 	InitThread(0);
 }
@@ -1703,6 +1703,7 @@ PPSession::~PPSession()
 	delete P_AlbatrosCfg;
 	delete P_SrStxSet;
 	delete P_ExtCfgDb; // @v10.6.7
+	delete P_UedC; // @v11.8.4
 	// Don't destroy P_LogQueue (на объект может ссылаться поток PPLogMsgSession потому удалять его нельзя)
 }
 
@@ -2351,7 +2352,7 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 	}
 	{
 		ENTER_CRITICAL_SECTION
-		getExecPath(BinPath.Z()).SetLastSlash();
+		GetExecPath(BinPath.Z()).SetLastSlash();
 		LEAVE_CRITICAL_SECTION
 	}
 	RegisterSTAcct();
@@ -4345,6 +4346,29 @@ int PPSession::Unregister()
 	SString uuid_buf;
 	SLS.GetSessUuid().ToStr(S_GUID::fmtIDL, uuid_buf);
 	return reg_key.DeleteValue(HKEY_CURRENT_USER, PPConst::WrKey_Sessions, uuid_buf);
+}
+
+const SrUedContainer_Rt * PPSession::GetUedContainer() // @cs // @v11.8.4 @construction 
+{
+	if(!P_UedC) {
+		ENTER_CRITICAL_SECTION
+		if(!P_UedC) {
+			SString file_name;
+			GetExecPath(file_name);
+			file_name.SetLastSlash().Cat("ued-id.dat");
+			if(fileExists(file_name)) {
+				P_UedC = new SrUedContainer_Rt();
+				if(P_UedC) {
+					if(!P_UedC->Read(file_name)) {
+						// @todo @err (Здесь надо что-то в лог pperror.log написать)
+						ZDELETE(P_UedC);
+					}
+				}
+			}
+		}
+		LEAVE_CRITICAL_SECTION
+	}
+	return P_UedC;
 }
 
 const SrSyntaxRuleSet * PPSession::GetSrSyntaxRuleSet()

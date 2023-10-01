@@ -1932,7 +1932,6 @@ static int restore_entry(struct archive_write_disk * a)
 			archive_set_error(&a->archive, errno, "Can't stat existing object");
 			return ARCHIVE_FAILED;
 		}
-
 		/*
 		 * NO_OVERWRITE_NEWER doesn't apply to directories.
 		 */
@@ -1947,7 +1946,6 @@ static int restore_entry(struct archive_write_disk * a)
 			archive_set_error(&a->archive, 0, "Refusing to overwrite archive");
 			return ARCHIVE_FAILED;
 		}
-
 		if(!S_ISDIR(a->st.st_mode)) {
 			if(a->flags & ARCHIVE_EXTRACT_CLEAR_NOCHANGE_FFLAGS)
 				(void)clear_nochange_fflags(a);
@@ -1992,21 +1990,18 @@ static int restore_entry(struct archive_write_disk * a)
 			 * Note that we don't change perms on existing
 			 * dirs unless _EXTRACT_PERM is specified.
 			 */
-			if((a->mode != a->st.st_mode)
-			    && (a->todo & TODO_MODE_FORCE))
+			if((a->mode != a->st.st_mode) && (a->todo & TODO_MODE_FORCE))
 				a->deferred |= (a->todo & TODO_MODE);
-			/* Ownership doesn't need deferred fixup. */
-			en = 0; /* Forget the EEXIST. */
+			// Ownership doesn't need deferred fixup
+			en = 0; // Forget the EEXIST
 		}
 	}
-
 	if(en) {
-		/* Everything failed; give up here. */
+		// Everything failed; give up here
 		if((&a->archive)->error == NULL)
 			archive_set_error(&a->archive, en, "Can't create '%s'", a->name);
 		return ARCHIVE_FAILED;
 	}
-
 	a->pst = NULL; /* Cached stat data no longer valid. */
 	return ret;
 }
@@ -2166,38 +2161,31 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		    break;
 		case AE_IFCHR:
 #ifdef HAVE_MKNOD
-		    /* Note: we use AE_IFCHR for the case label, and
-		     * S_IFCHR for the mknod() call.  This is correct.  */
-		    r = mknod(a->name, mode | S_IFCHR,
-			    archive_entry_rdev(a->entry));
+		    // Note: we use AE_IFCHR for the case label, and S_IFCHR for the mknod() call.  This is correct
+		    r = mknod(a->name, mode | S_IFCHR, archive_entry_rdev(a->entry));
 		    break;
 #else
-		    /* TODO: Find a better way to warn about our inability
-		     * to restore a char device node. */
+		    // TODO: Find a better way to warn about our inability to restore a char device node
 		    return (EINVAL);
 #endif /* HAVE_MKNOD */
 		case AE_IFBLK:
 #ifdef HAVE_MKNOD
-		    r = mknod(a->name, mode | S_IFBLK,
-			    archive_entry_rdev(a->entry));
+		    r = mknod(a->name, mode | S_IFBLK, archive_entry_rdev(a->entry));
 		    break;
 #else
-		    /* TODO: Find a better way to warn about our inability
-		     * to restore a block device node. */
+		    // TODO: Find a better way to warn about our inability to restore a block device node
 		    return (EINVAL);
 #endif /* HAVE_MKNOD */
 		case AE_IFDIR:
 		    mode = (mode | MINIMUM_DIR_MODE) & MAXIMUM_DIR_MODE;
 		    r = mkdir(a->name, mode);
 		    if(!r) {
-			    /* Defer setting dir times. */
+			    // Defer setting dir times
 			    a->deferred |= (a->todo & TODO_TIMES);
 			    a->todo &= ~TODO_TIMES;
-			    /* Never use an immediate chmod(). */
-			    /* We can't avoid the chmod() entirely if EXTRACT_PERM
-			     * because of SysV SGID inheritance. */
-			    if((mode != final_mode)
-				|| (a->flags & ARCHIVE_EXTRACT_PERM))
+			    // Never use an immediate chmod()
+			    // We can't avoid the chmod() entirely if EXTRACT_PERM because of SysV SGID inheritance.
+			    if((mode != final_mode) || (a->flags & ARCHIVE_EXTRACT_PERM))
 				    a->deferred |= (a->todo & TODO_MODE);
 			    a->todo &= ~TODO_MODE;
 		    }

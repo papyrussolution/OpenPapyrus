@@ -1734,7 +1734,7 @@ public class CommonPrereqModule {
 		return result;
 	}
 	//
-	// Descr: Предпринимает необходимые общие действия в ответ на зименение текущей закладки ViewPager2
+	// Descr: Предпринимает необходимые общие действия в ответ на изменение текущей закладки ViewPager2
 	// ARG(subj IN): Integer-индекс новой текущей закладки
 	// Returns:
 	//   В случае, если параметр является допустимым индексом закладки, возвращает ее идентификатор (Tab),
@@ -1762,6 +1762,18 @@ public class CommonPrereqModule {
 					}
 				}
 			}
+		}
+		return result;
+	}
+	public Tab GetPrevTab() // @v11.8.4
+	{
+		Tab result = Tab.tabUndef;
+		if(!TabNavStack.empty()) {
+			final Tab last = TabNavStack.pop();
+			if(!TabNavStack.empty()) {
+				result = TabNavStack.peek();
+			}
+			TabNavStack.push(last);
 		}
 		return result;
 	}

@@ -1183,25 +1183,23 @@ static int __MakeGoodsStrucTreeListView(/*PPViewBrowser * pBrw*/)
 									r = 1;
 								gs.GoodsID = p_struc_entry->PrmrGoodsID;
 								if(r > 0 && GsObj.EditDialog(&gs) > 0) {
-								//if(GsObj.Edit(&temp_id, 0) > 0) {
 									PPID   struc_id = parent_struc_id ? parent_struc_id : p_entry->GStrucID;
 									r = P_Blk->Cb.GSObj.Put(&struc_id, &gs, 1);
 									if(r > 0) {
 										P_Blk->Cb.AddItem(p_struc_entry->PrmrGoodsID, struc_id, 0/*Filt.ScndGoodsGrpID*/, /*Filt.ScndGoodsID*/0, 
 											GoodsStrucProcessingBlock::addifCheckExistance);
 										P_Blk->Cb.ItemList.sort(PTR_CMPFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
-										//ok = 1;
 									}
 									else if(!r) {
-										//ok = PPErrorZ();
+										; // @err
 									}
 								}
 							}
 						}
 					}
 					else {
-						PPID temp_id = ident;
-						if(GsObj.Edit(&temp_id, 0) > 0) {
+						PPID _id_to_edit = ident;
+						if(GsObj.Edit(&_id_to_edit, 0) > 0) {
 							;
 						}
 					}
@@ -1391,8 +1389,8 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 						}
 					}
 					else {
-						PPID temp_id = ident;
-						if(GsObj.Edit(&temp_id, 0) > 0) {
+						PPID _id_to_edit = ident;
+						if(GsObj.Edit(&_id_to_edit, 0) > 0) {
 							;
 						}
 					}

@@ -265,17 +265,14 @@ float fz_matrix_expansion(fz_matrix m)
 
 float fz_matrix_max_expansion(fz_matrix m)
 {
-	float max = fabsf(m.a);
+	float max_ = fabsf(m.a);
 	float x = fabsf(m.b);
-	if(max < x)
-		max = x;
+	SETMAX(max_, x);
 	x = fabsf(m.c);
-	if(max < x)
-		max = x;
+	SETMAX(max_, x);
 	x = fabsf(m.d);
-	if(max < x)
-		max = x;
-	return max;
+	SETMAX(max_, x);
+	return max_;
 }
 
 SPoint2F fz_transform_point(SPoint2F p, fz_matrix m)

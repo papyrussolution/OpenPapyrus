@@ -179,7 +179,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 	if(i) {
 		PPIDArray id_list;
 		SString fmt_buf, msg_buf;
-		if(!DS.IsThreadInteractive())
+		if(DS.IsThreadInteractive())
 			PPLoadText(PPTXT_SELECTINGGOODSBYGROUP, fmt_buf);
 		do {
 			id_list.clear();
@@ -207,7 +207,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 					}
 					else {
 						p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, grp_id, &id_list);
-						if(!DS.IsThreadInteractive()) {
+						if(DS.IsThreadInteractive()) {
 							const long _mc = SVectorBase::GetCount(pList) + id_list.getCount();
 							(msg_buf = fmt_buf).Space().Cat(_mc);
 							PPWaitMsg(msg_buf);
@@ -231,7 +231,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 							}
 							else {
 								THROW(p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, int_grp_id, &temp_alt_list));
-								if(!DS.IsThreadInteractive()) {
+								if(DS.IsThreadInteractive()) {
 									const long _mc = SVectorBase::GetCount(pList) + temp_alt_list.getCount();
 									(msg_buf = fmt_buf).Space().Cat(_mc);
 									PPWaitMsg(msg_buf);
@@ -276,7 +276,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 								if(!(Filt.Flags & GoodsFilt::fOutOfMatrix) || !P_MtxList || !P_MtxList->bsearch(id)) {
 									if(GObj.CheckForFilt(&Filt, 0, GOCFIF_GROUP|GOCFIF_BCLEN|GOCFIF_ARCODE|GOCFIF_SYSJ|GOCFIF_TAG)) {
 										THROW(id_list.add(id));
-										if(!DS.IsThreadInteractive()) {
+										if(DS.IsThreadInteractive()) {
 											const long _mc = SVectorBase::GetCount(pList) + id_list.getCount();
 											if((_mc % 100) == 0) {
 												(msg_buf = fmt_buf).Space().Cat(_mc);
@@ -573,7 +573,30 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 				THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 			}
 		}
-		THROW(r = Helper_MakeListByGroup(&Filt.GrpIDList.Get(), Filt.GrpID, P_List, do_intersect));
+		{
+			if(P_GrpCountList) {
+				//
+				// Если задано органичение по группам, число элементов в которых входит в заданный диапазон,
+				// то придется сделать два вызова Helper_MakeListByGroup с пересечением элементов
+				// Здесь проблема в том, что общая фильтрация по группам может включать специальные группы (верхнего уровня,
+				// альтернативные и т.д.), то есть мы не может на раз-два построить пересечение групп. Точнее, можем,
+				// но это займет время и силы :(
+				//
+				PPIDArray local_grp_id_list_by_gcl;
+				assert(!Filt.GrpCountRange.IsZero()); // Если мы построили список P_GrpCountList, то условие должно выполняться!
+				for(uint i = 0; i < P_GrpCountList->getCount(); i++) {
+					const LAssoc & r_gc_item = P_GrpCountList->at(i);
+					if(Filt.GrpCountRange.CheckVal(r_gc_item.Val))
+						local_grp_id_list_by_gcl.add(r_gc_item.Key);
+				}
+				THROW(r = Helper_MakeListByGroup(&local_grp_id_list_by_gcl, 0, P_List, do_intersect));
+				do_intersect = 1; // !
+				//THROW(r = Helper_MakeListByGroup(Filt.GrpIDList.GetP(), Filt.GrpID, P_List, do_intersect));
+			}
+			else {
+				THROW(r = Helper_MakeListByGroup(Filt.GrpIDList.GetP(), Filt.GrpID, P_List, do_intersect));
+			}
+		}
 		if(r > 0) {
 			if(p_excl_list) {
 				for(uint i = 0; i < p_excl_list->getCount(); i++)

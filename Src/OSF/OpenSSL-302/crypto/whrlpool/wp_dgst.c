@@ -73,7 +73,6 @@ int WHIRLPOOL_Update(WHIRLPOOL_CTX * c, const void * _inp, size_t bytes)
 	 */
 	size_t chunk = ((size_t)1) << (sizeof(size_t) * 8 - 4);
 	const uchar * inp = (const unsigned char*)_inp;
-
 	while(bytes >= chunk) {
 		WHIRLPOOL_BitUpdate(c, inp, chunk * 8);
 		bytes -= chunk;
@@ -81,29 +80,26 @@ int WHIRLPOOL_Update(WHIRLPOOL_CTX * c, const void * _inp, size_t bytes)
 	}
 	if(bytes)
 		WHIRLPOOL_BitUpdate(c, inp, bytes * 8);
-
 	return 1;
 }
 
 void WHIRLPOOL_BitUpdate(WHIRLPOOL_CTX * c, const void * _inp, size_t bits)
 {
 	size_t n;
-	unsigned int bitoff = c->bitoff;
-	unsigned int bitrem = bitoff % 8;
-	unsigned int inpgap = (8 - (unsigned int)bits % 8) & 7;
-	const uchar * inp = (const unsigned char*)_inp;
+	uint bitoff = c->bitoff;
+	uint bitrem = bitoff % 8;
+	uint inpgap = (8 - (uint)bits % 8) & 7;
+	const uchar * inp = (const uchar *)_inp;
 	/*
 	 * This 256-bit increment procedure relies on the size_t being natural
-	 * size of CPU register, so that we don't have to mask the value in order
-	 * to detect overflows.
+	 * size of CPU register, so that we don't have to mask the value in order to detect overflows.
 	 */
 	c->bitlen[0] += bits;
 	if(c->bitlen[0] < bits) { /* overflow */
 		n = 1;
 		do {
 			c->bitlen[n]++;
-		} while(c->bitlen[n] == 0
-		    && ++n < (WHIRLPOOL_COUNTER / sizeof(size_t)));
+		} while(c->bitlen[n] == 0 && ++n < (WHIRLPOOL_COUNTER / sizeof(size_t)));
 	}
 #ifndef OPENSSL_SMALL_FOOTPRINT
 reconsider:

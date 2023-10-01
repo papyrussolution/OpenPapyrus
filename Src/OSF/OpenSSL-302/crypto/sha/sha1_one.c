@@ -50,23 +50,20 @@ uchar * SHA224(const uchar * d, size_t n, uchar * md)
 uchar * SHA256(const uchar * d, size_t n, uchar * md)
 {
 	static unsigned char m[SHA256_DIGEST_LENGTH];
-	if(!md)
-		md = m;
+	SETIFZQ(md, m);
 	return EVP_Q_digest(NULL, "SHA256", NULL, d, n, md, NULL) ? md : NULL;
 }
 
 uchar * SHA384(const uchar * d, size_t n, uchar * md)
 {
 	static unsigned char m[SHA384_DIGEST_LENGTH];
-	if(!md)
-		md = m;
+	SETIFZQ(md, m);
 	return EVP_Q_digest(NULL, "SHA384", NULL, d, n, md, NULL) ? md : NULL;
 }
 
 uchar * SHA512(const uchar * d, size_t n, uchar * md)
 {
 	static unsigned char m[SHA512_DIGEST_LENGTH];
-	if(!md)
-		md = m;
+	SETIFZQ(md, m);
 	return EVP_Q_digest(NULL, "SHA512", NULL, d, n, md, NULL) ? md : NULL;
 }

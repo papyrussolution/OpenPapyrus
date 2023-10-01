@@ -2829,9 +2829,9 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				break;
 			case PPVCMD_CURREG:
 				if(Filt.IsLocAttr()) {
-					PPID   loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
-					if(loc_id)
-						ok = (PsnObj.LocObj.Edit(&loc_id, 0) == cmOK) ? 1 : -1;
+					PPID   _id_to_edit = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
+					if(_id_to_edit)
+						ok = (PsnObj.LocObj.Edit(&_id_to_edit, 0) == cmOK) ? 1 : -1;
 				}
 				else
 					ok = EditRegs(hdr.ID, 1);

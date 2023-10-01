@@ -426,14 +426,13 @@ int FASTCALL WhatmanObjectLayoutBase::Copy(const WhatmanObjectLayoutBase & rS)
 	return ok;
 }
 
-TWhatman::Param::Param()
+TWhatman::Param::Param() : Unit(UNIT_INCH), UnitFactor(1.0), Scale(1.0), Flags(0)
 {
+	memzero(Reserve, sizeof(Reserve));
 	THISZERO();
 	//Unit = UNIT_METER;
 	//UnitFactor = 0.001;
-	Unit = UNIT_INCH;
-	UnitFactor = 1.0;
-	Scale = 1.0;
+	
 }
 
 TArrangeParam::TArrangeParam()

@@ -2254,3 +2254,146 @@ int PPObjCSession::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
 	LAssocArray * p_index = FetchCcDate2MaxIdIndex(index) ? &index : 0;
 	return P_Cc ? P_Cc->Helper_GetListByMark(pText, CCheckPacket::lnextChZnMark, p_index, back_days, 0, rCcList, 0) : 0;
 }
+//
+//
+//
+IMPLEMENT_IMPEXP_HDL_FACTORY(CCHECK2, PPCCheckImpExpParam);
+
+
+PPCCheckImpExpParam::PPCCheckImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), PredefFormat(0)
+{
+}
+
+PPCCheckImporter::PPCCheckImporter()
+{
+}
+
+PPCCheckImporter::~PPCCheckImporter()
+{
+}
+
+int PPCCheckImporter::Init(const PPCCheckImpExpParam * pParam)
+{
+	int    ok = 1;
+	if(pParam) {
+		Param = *pParam;
+	}
+	return ok;
+}
+
+int PPCCheckImporter::Run()
+{
+	int    ok = -1;
+	xmlParserCtxt * p_ctx = 0;
+	if(Param.PredefFormat == PredefinedImpExpFormat::piefCCheck_Contract01) {
+		StringSet ss_files;
+		SString filename;
+		PPImpExpParam::PtTokenList fn_fld_list;
+		THROW(Param.PreprocessImportFileSpec(ss_files));
+		THROW(p_ctx = xmlNewParserCtxt());
+		for(uint ssp = 0; ss_files.get(&ssp, filename);) {
+			Param.PreprocessImportFileName(filename, fn_fld_list); // isn't used
+			// to be continued...
+		}
+	}
+	CATCHZOK
+	xmlFreeParserCtxt(p_ctx);
+	return ok;
+}
+
+CCheckImpExpDialog::CCheckImpExpDialog() : ImpExpParamDialog(DLG_IMPEXPCC)
+{
+}
+
+IMPL_HANDLE_EVENT(CCheckImpExpDialog)
+{
+	ImpExpParamDialog::handleEvent(event);
+	if(event.isClusterClk(CTL_IMPEXP_DIR))
+		SetupCtrls(GetClusterData(CTL_IMPEXP_DIR));
+	else if(event.isClusterClk(CTL_IMPEXPBILH_FLAGS))
+		GetClusterData(CTL_IMPEXPBILH_FLAGS, &Data.Flags);
+	else if(event.isCbSelected(CTLSEL_IMPEXPBILH_PDFMT))
+		SetupCtrls(GetClusterData(CTL_IMPEXP_DIR));
+	else
+		return;
+	clearEvent(event);
+}
+
+void CCheckImpExpDialog::SetupCtrls(long direction /* 0 - import, 1 - export */)
+{
+	// @v10.7.11 disableCtrls(direction == 0, CTL_IMPEXPBILH_FLAGS, CTLSEL_IMPEXPBILH_IMPOP, 0);
+	// @v10.7.11 disableCtrl(CTL_IMPEXPBILH_FLAGS, direction == 0);
+	//disableCtrl(CTLSEL_IMPEXPBILH_IMPOP, direction == 0);
+	disableCtrl(CTL_IMPEXPBILH_OUTRFMTV, direction == 1); // @v11.6.5
+	disableCtrl(CTLSEL_IMPEXPBILH_REGTAG, direction == 1); // @v11.6.5
+	showCtrl(CTL_IMPEXPBILH_OUTRFMTV, direction == 0); // @v11.6.5
+	//showCtrl(CTLSEL_IMPEXPBILH_REGTAG, direction == 0); // @v11.6.5
+	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 0, direction == 0);
+	// @v10.7.11 DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 1, direction == 0 && !(Data.Flags & PPBillImpExpParam::fImpRowsFromSameFile));
+	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 3, direction);
+	/*{
+		long pf = getCtrlLong(CTLSEL_IMPEXPBILH_PDFMT);
+		const char * p_ssign = 0;
+		if(pf == piefCokeOrder)
+			p_ssign = "supplierinn";
+		else
+			p_ssign = "impexpparambillh_obj2srchcode";
+		if(p_ssign) {
+			SString temp_buf;
+			setLabelText(CTL_IMPEXPBILH_SRCHCODE2, PPLoadStringS(p_ssign, temp_buf));
+		}
+	}*/
+}
+
+int CCheckImpExpDialog::setDTS(const PPCCheckImpExpParam * pData)
+{
+	RVALUEPTR(Data, pData);
+	ImpExpParamDialog::setDTS(&Data);
+	SetupStringCombo(this, CTLSEL_IMPEXPBILH_PDFMT, PPTXT_PREDEFIMPEXPBILLFMT, Data.PredefFormat);
+	//AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 0, PPBillImpExpParam::fImpRowsFromSameFile);
+	//AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 1, PPBillImpExpParam::fImpExpRowsOnly);
+	//AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 2, PPBillImpExpParam::fRestrictByMatrix);
+	//AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 3, PPBillImpExpParam::fExpOneByOne);
+	//AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 4, PPBillImpExpParam::fDontIdentGoodsByName); // @v10.5.0
+	//AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 5, PPBillImpExpParam::fCreateAbsenceGoods); // @v10.4.12 @v10.5.0 4-->5
+	//AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 6, PPBillImpExpParam::fChZnMarkAsCDATA); // @v11.5.0
+	//AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 7, PPBillImpExpParam::fChZnMarkGTINSER); // @v11.5.0
+	//AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 8, PPBillImpExpParam::fUseExtGoodsName); // @v11.7.12
+	//SetClusterData(CTL_IMPEXPBILH_FLAGS, Data.Flags);
+
+	//PPIDArray op_types;
+	//op_types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_ACCTURN, PPOPT_GOODSORDER, 0L);
+	//SetupOprKindCombo(this, CTLSEL_IMPEXPBILH_IMPOP, Data.ImpOpID, 0, &op_types, 0);
+	//setCtrlString(CTL_IMPEXPBILH_SRCHCODE1, Data.Object1SrchCode);
+	//setCtrlString(CTL_IMPEXPBILH_SRCHCODE2, Data.Object2SrchCode);
+	//setCtrlString(CTL_IMPEXPBILH_OUTRFMTV, Data.OuterFormatVer); // @v11.6.5
+	//setCtrlString(CTL_IMPEX, Data.Object2SrchCode);
+	// @v11.5.6 {
+	//{
+		//ObjTagFilt ot_filt;
+		//ot_filt.ObjTypeID = PPOBJ_BILL;
+		//ot_filt.Flags |= ObjTagFilt::fOnlyTags;
+		//SetupObjTagCombo(this, CTLSEL_IMPEXPBILH_REGTAG, Data.FixTagID, 0, &ot_filt);
+	//}
+	// } @v11.5.6
+	SetupCtrls(Data.Direction);
+	return 1;
+}
+
+int CCheckImpExpDialog::getDTS(PPCCheckImpExpParam * pData)
+{
+	int    ok = 1;
+	THROW(ImpExpParamDialog::getDTS(&Data));
+	getCtrlData(CTLSEL_IMPEXPBILH_PDFMT, &Data.PredefFormat);
+	//GetClusterData(CTL_IMPEXPBILH_FLAGS, &Data.Flags);
+	//getCtrlData(CTLSEL_IMPEXPBILH_IMPOP, &Data.ImpOpID);
+	//getCtrlString(CTL_IMPEXPBILH_SRCHCODE1, Data.Object1SrchCode);
+	//getCtrlString(CTL_IMPEXPBILH_SRCHCODE2, Data.Object2SrchCode);
+	//getCtrlString(CTL_IMPEXPBILH_OUTRFMTV, Data.OuterFormatVer); // @v11.6.5
+	//getCtrlData(CTLSEL_IMPEXPBILH_REGTAG, &Data.FixTagID); // @v11.5.6
+	ASSIGN_PTR(pData, Data);
+	CATCH
+		ok = PPErrorByDialog(this, 0);
+	ENDCATCH
+	return ok;
+}

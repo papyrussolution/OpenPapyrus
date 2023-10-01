@@ -36,7 +36,7 @@ fz_matrix svg_parse_transform(fz_context *ctx, svg_document *doc, const char *st
 
 int svg_is_whitespace_or_comma(int c);
 int svg_is_whitespace(int c);
-int svg_is_alpha(int c);
+//int svg_is_alpha(int c);
 int svg_is_digit(int c);
 
 void svg_parse_document_bounds(fz_context *ctx, svg_document *doc, fz_xml *root);

@@ -24,7 +24,7 @@ public:
 	PPDrvINPASTrmnl()
 	{
 		SString file_name;
-		getExecPath(file_name);
+		GetExecPath(file_name);
 		(SlipLogFileName = file_name).SetLastSlash().Cat("INPAStrmnl_Slip.log"); // @v10.2.0
 		DRVS.SetLogFileName(file_name.SetLastSlash().Cat("INPAStrmnl.log"));
 	}

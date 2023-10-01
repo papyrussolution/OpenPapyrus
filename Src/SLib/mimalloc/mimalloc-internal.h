@@ -236,54 +236,59 @@ static inline uintptr_t _mi_align_down(uintptr_t sz, size_t alignment)
 }
 
 // Divide upwards: `s <= _mi_divide_up(s,d)*d < s+d`.
-static inline uintptr_t _mi_divide_up(uintptr_t size, size_t divider) {
+static inline uintptr_t _mi_divide_up(uintptr_t size, size_t divider) 
+{
 	mi_assert_internal(divider != 0);
 	return (divider == 0 ? size : ((size + divider - 1) / divider));
 }
 
 // Is memory zero initialized?
-static inline bool mi_mem_is_zero(void* p, size_t size) {
+static inline bool mi_mem_is_zero(void* p, size_t size) 
+{
 	for(size_t i = 0; i < size; i++) {
-		if(((uint8_t*)p)[i] != 0) return false;
+		if(((uint8_t*)p)[i] != 0) 
+			return false;
 	}
 	return true;
 }
 
 // Align a byte size to a size in _machine words_,
 // i.e. byte size == `wsize*sizeof(void*)`.
-static inline size_t _mi_wsize_from_size(size_t size) {
+static inline size_t _mi_wsize_from_size(size_t size) 
+{
 	mi_assert_internal(size <= SIZE_MAX - sizeof(uintptr_t));
 	return (size + sizeof(uintptr_t) - 1) / sizeof(uintptr_t);
 }
 
 // Overflow detecting multiply
 #if __has_builtin(__builtin_umul_overflow) || (defined(__GNUC__) && (__GNUC__ >= 5))
-#include <limits.h>      // UINT_MAX, ULONG_MAX
-#if defined(_CLOCK_T)    // for Illumos
-#undef _CLOCK_T
-#endif
-static inline bool mi_mul_overflow(size_t count, size_t size, size_t* total) {
-  #if (SIZE_MAX == ULONG_MAX)
-	return __builtin_umull_overflow(count, size, (unsigned long*)total);
-  #elif (SIZE_MAX == UINT_MAX)
-	return __builtin_umul_overflow(count, size, (unsigned int*)total);
-  #else
-	return __builtin_umulll_overflow(count, size, (unsigned long long*)total);
-  #endif
-}
-
+	#include <limits.h>      // UINT_MAX, ULONG_MAX
+	#if defined(_CLOCK_T)    // for Illumos
+		#undef _CLOCK_T
+	#endif
+	static inline bool mi_mul_overflow(size_t count, size_t size, size_t* total) 
+	{
+	  #if (SIZE_MAX == ULONG_MAX)
+		return __builtin_umull_overflow(count, size, (unsigned long*)total);
+	  #elif (SIZE_MAX == UINT_MAX)
+		return __builtin_umul_overflow(count, size, (unsigned int*)total);
+	  #else
+		return __builtin_umulll_overflow(count, size, (unsigned long long*)total);
+	  #endif
+	}
 #else /* __builtin_umul_overflow is unavailable */
-static inline bool mi_mul_overflow(size_t count, size_t size, size_t* total) {
-  #define MI_MUL_NO_OVERFLOW ((size_t)1 << (4*sizeof(size_t)))  // sqrt(SIZE_MAX)
-	*total = count * size;
-	return ((size >= MI_MUL_NO_OVERFLOW || count >= MI_MUL_NO_OVERFLOW)
-	       && size > 0 && (SIZE_MAX / size) < count);
-}
-
+	static inline bool mi_mul_overflow(size_t count, size_t size, size_t* total) 
+	{
+	#define MI_MUL_NO_OVERFLOW ((size_t)1 << (4*sizeof(size_t)))  // sqrt(SIZE_MAX)
+		*total = count * size;
+		return ((size >= MI_MUL_NO_OVERFLOW || count >= MI_MUL_NO_OVERFLOW)
+			   && size > 0 && (SIZE_MAX / size) < count);
+	}
 #endif
 
 // Safe multiply `count*size` into `total`; return `true` on overflow.
-static inline bool mi_count_size_overflow(size_t count, size_t size, size_t* total) {
+static inline bool mi_count_size_overflow(size_t count, size_t size, size_t* total) 
+{
 	if(count==1) { // quick check for the case where count is one (common for C++ allocators)
 		*total = size;
 		return false;

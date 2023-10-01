@@ -1,11 +1,12 @@
 // WINSRVC.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019, 2020, 2021, 2023
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <winsvc.h>
 //
-// Descr: Менеджер сервисов для Windows
+// Descr: РњРµРЅРµРґР¶РµСЂ СЃРµСЂРІРёСЃРѕРІ РґР»СЏ Windows
 // @used{class WinService}
 //
 class WinServiceMngr {
@@ -87,7 +88,7 @@ int WinService::Create(const char * pDisplayName, const char * pModuleName, cons
 		if(!H) {
 			H = ::CreateService(*P_ScMngr, SUcSwitch(Name), p_disp_name,
     	    	SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
-        		SUcSwitch(path), NULL, NULL, NULL, p_login, p_pw); // @unicodeproblem
+        		SUcSwitch(path), NULL, NULL, NULL, p_login, p_pw);
 			ok = BIN(H);
 		}
 		else {

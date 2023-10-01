@@ -226,12 +226,11 @@ void RBBINode::flattenSets()
 	}
 }
 //
-//   findNodes()     Locate all the nodes of the specified type, starting
-//                   at the specified root.
+// Descr: Locate all the nodes of the specified type, starting at the specified root.
 //
 void RBBINode::findNodes(UVector * dest, RBBINode::NodeType kind, UErrorCode & status) 
 {
-	/* test for buffer overflows */
+	// Test for buffer overflows
 	if(U_FAILURE(status)) {
 		return;
 	}

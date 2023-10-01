@@ -672,6 +672,7 @@
     </ClCompile>
     <ClCompile Include="..\SLib\winprofile.cpp" />
     <ClCompile Include="..\SLib\sprocess.cpp" />
+    <ClCompile Include="..\SLib\sdecimal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

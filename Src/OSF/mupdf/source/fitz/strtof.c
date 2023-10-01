@@ -45,9 +45,7 @@ static strtof_fp_t strtof_multiply(strtof_fp_t x, strtof_fp_t y)
 {
 	uint64_t tmp;
 	strtof_fp_t res;
-
 	assert(x.f & y.f & 0x80000000);
-
 	res.e = x.e + y.e + 32;
 	tmp = (uint64_t)x.f * y.f;
 	/* Normalize.  */
@@ -201,9 +199,7 @@ static float diy_to_float(strtof_fp_t x, int negative)
 	else if(x.e > -181) {
 		/* Non-zero Denormal.  */
 		int shift = -149 - x.e;         /* 9 <= shift <= 31.  */
-
 		result = x.f >> shift;
-
 		if(x.f & (1U << (shift - 1))) {
 			/* Round-bit is set.  */
 			if(x.f & ((1U << (shift - 1)) - 1))
@@ -225,10 +221,8 @@ static float diy_to_float(strtof_fp_t x, int negative)
 		errno = ERANGE;
 		result = 0;
 	}
-
 	if(negative)
 		result |= 0x80000000;
-
 	tmp.n = result;
 	return tmp.f;
 }
@@ -236,7 +230,6 @@ static float diy_to_float(strtof_fp_t x, int negative)
 static float scale_integer_to_float(uint32_t M, int N, int negative)
 {
 	strtof_fp_t result, x, power;
-
 	if(M == 0)
 		return negative ? -0.f : 0.f;
 	if(N > 38) {
@@ -260,7 +253,6 @@ static float scale_integer_to_float(uint32_t M, int N, int negative)
 		M /= 10;
 		++N;
 	}
-
 	x = uint32_to_diy(M);
 	if(N >= 0) {
 		power = strtof_cached_power(N);
@@ -299,19 +291,16 @@ static int starts_with(const char ** s, const char * string)
 float fz_strtof(const char * string, char ** tailptr)
 {
 	/* FIXME: error (1/2 + 1/256) ulp  */
-	const char * s;
 	uint32_t M = 0;
 	int N = 0;
 	/* If decimal_digits gets 9 we truncate all following digits.  */
 	int decimal_digits = 0;
 	int negative = 0;
 	const char * number_start = 0;
-
 	/* Skip leading whitespace (isspace in "C" locale).  */
-	s = string;
+	const char * s = string;
 	while(*s == ' ' || *s == '\f' || *s == '\n' || *s == '\r' || *s ==  '\t' || *s == '\v')
 		++s;
-
 	/* Parse sign.  */
 	if(*s == '+')
 		++s;
@@ -337,13 +326,11 @@ float fz_strtof(const char * string, char ** tailptr)
 		}
 		++s;
 	}
-
 	/* Parse decimal point.  */
 	if(*s == '.')
 		++s;
-
 	/* Parse digits after decimal point. */
-	while(*s >= '0' && *s <= '9') {
+	while(isdec(*s)) {
 		if(decimal_digits < 9) {
 			if(decimal_digits || *s > '0') {
 				++decimal_digits;
@@ -370,14 +357,12 @@ float fz_strtof(const char * string, char ** tailptr)
 			return 0.f;
 		}
 	}
-
 	/* Parse exponent. */
 	if(*s == 'e' || *s == 'E') {
 		int exp_negative = 0;
 		int exp = 0;
 		const char * int_start;
 		const char * exp_start = s;
-
 		++s;
 		if(*s == '+')
 			++s;
@@ -387,7 +372,7 @@ float fz_strtof(const char * string, char ** tailptr)
 		}
 		int_start = s;
 		/* Parse integer.  */
-		while(*s >= '0' && *s <= '9') {
+		while(isdec(*s)) {
 			/* Make sure exp does not get overflowed.  */
 			if(exp < 100)
 				exp = exp * 10 + *s - '0';

@@ -1,5 +1,5 @@
 // OBJTRNSM.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -429,19 +429,17 @@ int ObjTransmContext::GetPrimaryObjID(PPID objType, PPID foreignID, PPID * pPrim
 		if(p_ot) {
 			const PPID src_db_div_id = P_SrcDbDivPack->Rec.ID;
 			ObjSyncTbl::Rec rec;
+			ObjSyncQueueTbl::Rec idx_rec;
 			THROW(r = p_ot->SyncTbl.SearchSync(objType, foreignID, src_db_div_id, 1, &rec));
 			if(r > 0) {
 				prim_id = rec.ObjID;
 				ok = 1;
 			}
-			else {
-				ObjSyncQueueTbl::Rec idx_rec;
-				if(p_ot->SearchQueueItem(objType, foreignID, src_db_div_id, &idx_rec) > 0) {
-					PPCommSyncID comm_id(idx_rec);
-					if(p_ot->SyncTbl.SearchCommon(objType, comm_id, 0 /* own dbdivid */, &rec) > 0) {
-						prim_id = rec.ObjID;
-						ok = 1;
-					}
+			else if(p_ot->SearchQueueItem(objType, foreignID, src_db_div_id, &idx_rec) > 0) {
+				PPCommSyncID comm_id(idx_rec);
+				if(p_ot->SyncTbl.SearchCommon(objType, comm_id, 0 /* own dbdivid */, &rec) > 0) {
+					prim_id = rec.ObjID;
+					ok = 1;
 				}
 			}
 		}
@@ -2114,7 +2112,7 @@ int PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * pDbDivU
 		}
 		do {
 			THROW(DObj.GetCounter(db_div_id, &counter, 0));
-			file_name.Z().CatLongZ(db_div_id, 4).CatLongZ(counter, 6).Cat(PPSEXT);
+			file_name.Z().CatLongZ(db_div_id, 4).CatLongZ(counter, 6).Cat(PPConst::FnExt_PPS);
 			THROW(PPGetFilePath(PPPATH_OUT, file_name, rFileName));
 			PPWaitMsg(msg_buf.Z().Printf(fmt_buf, rFileName.cptr()));
 		} while(fileExists(rFileName));
@@ -3074,8 +3072,10 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 			}
 		}
 		else {
+			SString pattern_pps;
+			pattern_pps.CatChar('*').Cat(PPConst::FnExt_PPS);
 			THROW(PPGetPath(PPPATH_IN, file_path));
-			THROW(fep.Scan(file_path.SetLastSlash(), "*" PPSEXT, 0));
+			THROW(fep.Scan(file_path.SetLastSlash(), pattern_pps, 0));
 		}
 		do {
 			next_pass = 0;

@@ -740,157 +740,6 @@ const void * GoodsFilt::ReadObjIdListFilt(const /*char*/void * p, ObjIdListFilt 
 	return _ptr;
 }
 
-#if 0 // {
-int GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop)
-{
-	int    ok = 1;
-	__GoodsFilt * p_buf = 0;
-	SBuffer temp_ser_buf;
-	Setup();
-	if(IsEmpty())
-		ok = PPRef->RemoveProp(obj, id, prop, 0);
-	else {
-		SSerializeContext sctx;
-        THROW(Serialize(+1, temp_ser_buf, &sctx));
-		PutPropSBuffer
-
-		char * p = 0;
-		size_t rec_size = sizeof(__GoodsFilt) + 2 + sizeof(uint32) * 4;
-		rec_size += SrchStr_.Len();
-		rec_size += sizeof(PPID) * GrpIDList.GetCount();
-		rec_size += BarcodeLen.Len();
-		if(Ep.GdsClsID)
-			rec_size += sizeof(Ep);
-		else
-			rec_size += sizeof(Ep.GdsClsID);
-		// @v6.0.2 {
-		rec_size += sizeof(PPID) * LocList.GetCount();
-		rec_size += sizeof(PPID) * BrandList.GetCount();
-		// } @v6.0.2
-		// @v6.4.2 (-21) {
-		rec_size += sizeof(int32); // Версия P_SjF (если 0 то P_SjF пустой)
-		if(P_SjF && !P_SjF->IsEmpty()) {
-			rec_size += sizeof(P_SjF->Period);
-			rec_size += sizeof(P_SjF->BegTm);
-			rec_size += sizeof(P_SjF->UserID);
-			rec_size += sizeof(P_SjF->Flags);
-			rec_size += sizeof(uint16); // count of P_SjF->ActionIDList
-			rec_size += sizeof(P_SjF->ActionIDList.getCount() * sizeof(int32));
-		}
-		// } @v6.4.2 (-21)
-		// @v7.2.0 (-22) {
-		rec_size += sizeof(int32); // Версия P_TagF (если 0 то P_TagF пустой)
-		if(P_TagF && !P_TagF->IsEmpty()) {
-			rec_size += sizeof(P_TagF->Flags);
-			temp_ser_buf.Clear();
-			P_TagF->TagsRestrict.Write(temp_ser_buf, 0);
-			rec_size += sizeof(uint32); // Пространство под размер буфера
-			rec_size += temp_ser_buf.GetAvailableSize();
-		}
-		// } @v7.2.0 (-22)
-		rec_size += sizeof(PPID) * BrandOwnerList.GetCount(); // @v7.7.9
-		rec_size = MAX(rec_size, PROPRECFIXSIZE);
-		p_buf = (__GoodsFilt*)SAlloc::C(1, rec_size);
-
-		p_buf->ObjType = obj;
-		p_buf->ObjID   = id;
-		p_buf->PropID  = prop;
-		p_buf->VerTag  = -23; // @v5.6.11 // @v6.0.2 -18-->-19 // @v6.0.7 -19-->-20 // @v6.4.2 -20-->-21 @v7.3.10 -21-->-22 @v7.7.9 -22-->-23
-		p_buf->GrpID   = GrpID;
-		p_buf->ManufID = ManufID;
-		p_buf->ManufCountryID = ManufCountryID;
-		p_buf->UnitID   = UnitID;
-		p_buf->PhUnitID = PhUnitID;
-		p_buf->SupplID  = SupplID;
-		p_buf->GoodsTypeID = GoodsTypeID;
-		p_buf->TaxGrpID    = TaxGrpID;
-		p_buf->LocID     = LocID_;
-		p_buf->LotPeriod = LotPeriod;
-		p_buf->Flags     = Flags;
-		// @v4.3.9 @v-15 {
-		p_buf->VatRate = VatRate;
-		p_buf->VatDate = VatDate;
-		// }
-		p_buf->BrandID  = BrandID_;
-		p_buf->CodeArID = CodeArID;
-		p_buf->BrandOwnerID = BrandOwnerID;
-		p_buf->MtxLocID = MtxLocID;
-		p_buf->InitOrder = InitOrder;
-		p = (char *)(p_buf + 1);
-		strnzcpy(p, SrchStr_, 0);
-		p += sstrlen(p) + 1;
-		p = WriteObjIdListFilt(p, GrpIDList);
-		// @v-14 {
-		strnzcpy(p, BarcodeLen, 0);
-		p += sstrlen(p) + 1;
-		// }
-		// @v4.5.5 @v-16, @v-17 {
-		if(Ep.GdsClsID) {
-			memcpy(p, &Ep, sizeof(Ep));
-			p += sizeof(Ep);
-		}
-		else {
-			memcpy(p, &Ep.GdsClsID, sizeof(Ep.GdsClsID));
-			p += sizeof(Ep.GdsClsID);
-		}
-		// }
-		// @v6.0.2 (-19) {
-		p = WriteObjIdListFilt(p, LocList);
-		p = WriteObjIdListFilt(p, BrandList);
-		// } (-19) @v6.0.2
-		// @v6.4.2 (-21) {
-		if(P_SjF && !P_SjF->IsEmpty()) {
-			*(int32 *)p = P_SjF->GetVer();
-			p += sizeof(int32);
-#define CPY(f,t) *(t *)p = P_SjF->f; p += sizeof(t)
-			CPY(Period, DateRange);
-			CPY(BegTm, LTIME);
-			CPY(UserID, PPID);
-			CPY(Flags, long);
-#undef CPY
-			uint16 c = (uint16)P_SjF->ActionIDList.getCount();
-			PTR16(p)[0] = c;
-			p += sizeof(uint16);
-			for(uint16 i = 0; i < c; i++) {
-				*(int32 *)p = P_SjF->ActionIDList.get(i);
-				p += sizeof(int32);
-			}
-		}
-		else {
-			*(int32 *)p = 0;
-			p += sizeof(int32);
-		}
-		// } @v6.4.2 (-21)
-		// @v7.2.0 (-22) {
-		if(P_TagF && !P_TagF->IsEmpty()) {
-			size_t s = 0;
-			*(int32 *)p = P_TagF->GetVer();
-			p += sizeof(int32);
-			*(int32 *)p = P_TagF->Flags;
-			p += sizeof(int32);
-			{
-				temp_ser_buf.Clear(); // SBuffer
-				P_TagF->TagsRestrict.Write(temp_ser_buf, 0);
-				s = temp_ser_buf.GetAvailableSize();
-				*(uint32 *)p = s;
-				p += sizeof(uint32);
-				memcpy(p, temp_ser_buf, s);
-				p += s;
-			}
-		}
-		else {
-			*(int32 *)p = 0;
-			p += sizeof(int32);
-		}
-		// } @v7.2.0 (-22)
-		p = WriteObjIdListFilt(p, BrandOwnerList); // @v7.7.9
-		ok = PPRef->PutProp(obj, id, prop, p_buf, rec_size);
-		SAlloc::F(p_buf);
-	}
-	return ok;
-}
-#endif // } 0
-
 int GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop, PPID propBefore8604)
 {
 	int    ok = 1;
@@ -1181,7 +1030,7 @@ IMPL_HANDLE_EVENT(GoodsListDialog)
 	TDialog::handleEvent(event);
 	if(event.isCbSelected(CTLSEL_GDSLST_GGRP)) {
 		updateList();
-		selectCtrl(CTL_GDSLST_LIST); // @v9.1.1
+		selectCtrl(CTL_GDSLST_LIST);
 	}
 	else if(event.isCmd(cmaInsert) && IsCurrentView(P_List)) {
 		PPID   c = 0L;
@@ -1797,7 +1646,20 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempCargoFile, TempGoodsCargo);
 
-void PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderTbl::Rec * pOrdRec)
+static char GetLastAlphabetSymb()
+{
+	static SString s;
+	if(s.IsEmpty()) {
+		ENTER_CRITICAL_SECTION
+		if(s.IsEmpty()) {
+			s.Z().CatChar('я').Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		LEAVE_CRITICAL_SECTION
+	}
+	return s.C(0);
+}
+
+void PPViewGoods::MakeTempRec(const Goods2Tbl::Rec & rGoodsRec, TempOrderTbl::Rec * pOrdRec)
 {
 	if(pOrdRec) {
 		const size_t max_prefix_len = 48;
@@ -1805,55 +1667,68 @@ void PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderTbl::Re
 		IterOrder ord = static_cast<IterOrder>(Filt.InitOrder);
 		SString buf;
 		SString temp_buf;
-		SString last_alphabet_symb;
 		memzero(pOrdRec, sizeof(*pOrdRec));
-		pOrdRec->ID = pGoodsRec->ID;
+		pOrdRec->ID = rGoodsRec.ID;
 		if(ord == OrdByID) { // @v11.7.12
-			buf.CatLongZ(pGoodsRec->ID, 8);
+			buf.CatLongZ(rGoodsRec.ID, 8);
 		}
 		else if(oneof2(ord, OrdByBarcode, OrdByBarcode_Name)) {
-			GObj.FetchSingleBarcode(pGoodsRec->ID, temp_buf);
+			GObj.FetchSingleBarcode(rGoodsRec.ID, temp_buf);
 			buf.Printf("%032s", temp_buf.cptr());
 			if(ord == OrdByBarcode_Name)
-				buf.Cat(pGoodsRec->Name);
+				buf.Cat(rGoodsRec.Name);
 		}
 		else if(ord == OrdByBrand_Name) {
-			if(GObj.Fetch(pGoodsRec->BrandID, &temp_rec) > 0)
+			if(GObj.Fetch(rGoodsRec.BrandID, &temp_rec) > 0)
 				temp_buf = temp_rec.Name;
 			else
 				temp_buf.Z();
 			const size_t len = temp_buf.Trim(max_prefix_len).Len();
 			if(!len) {
-				last_alphabet_symb.Z().CatChar('я').Transf(CTRANSF_UTF8_TO_INNER);
-				temp_buf.CatCharN(last_alphabet_symb.C(0), max_prefix_len);
+				temp_buf.CatCharN(GetLastAlphabetSymb(), max_prefix_len);
 			}
 			else {
 				const size_t tail = (len >= max_prefix_len) ? 0 : max_prefix_len - len;
 				temp_buf.CatCharN((char)0, tail);
 			}
-			(buf = temp_buf).Cat(pGoodsRec->Name);
+			(buf = temp_buf).Cat(rGoodsRec.Name);
 		}
 		else if(ord == OrdByAbbr) {
-			buf = pGoodsRec->Abbr;
+			buf = rGoodsRec.Abbr;
 		}
 		else if(oneof2(ord, OrdByGrp_Name, OrdByGrp_Abbr)) {
-			if(GObj.Fetch(pGoodsRec->ParentID, &temp_rec) > 0)
+			if(GObj.Fetch(rGoodsRec.ParentID, &temp_rec) > 0)
 				temp_buf = temp_rec.Name;
 			else
 				temp_buf.Z();
 			const size_t len = temp_buf.Trim(max_prefix_len).Len();
 			if(!len) {
-				last_alphabet_symb.Z().CatChar('я').Transf(CTRANSF_UTF8_TO_INNER);
-				temp_buf.CatCharN(last_alphabet_symb.C(0), max_prefix_len);
+				temp_buf.CatCharN(GetLastAlphabetSymb(), max_prefix_len);
 			}
 			else {
 				const size_t tail = (len >= max_prefix_len) ? 0 : max_prefix_len - len;
 				temp_buf.CatCharN((char)0, tail);
 			}
-			(buf = temp_buf).Cat((ord == OrdByGrp_Abbr) ? pGoodsRec->Abbr : pGoodsRec->Name);
+			(buf = temp_buf).Cat((ord == OrdByGrp_Abbr) ? rGoodsRec.Abbr : rGoodsRec.Name);
+		}
+		else if(ord == OrdByManuf_Name) {
+			PersonTbl::Rec psn_rec;
+			if(PsnObj.Fetch(rGoodsRec.ManufID, &psn_rec) > 0)
+				temp_buf = psn_rec.Name;
+			else
+				temp_buf.Z();
+			const size_t len = temp_buf.Trim(max_prefix_len).Len();
+			if(!len) {
+				temp_buf.CatCharN(GetLastAlphabetSymb(), max_prefix_len);
+			}
+			else {
+				const size_t tail = (len >= max_prefix_len) ? 0 : max_prefix_len - len;
+				temp_buf.CatCharN((char)0, tail);
+			}
+			(buf = temp_buf).Cat(rGoodsRec.Name);
 		}
 		else
-			buf = pGoodsRec->Name;
+			buf = rGoodsRec.Name;
 		buf.CopyTo(pOrdRec->Name, sizeof(pOrdRec->Name));
 	}
 }
@@ -1866,7 +1741,7 @@ int PPViewGoods::UpdateTempTable(PPID goodsID, PPViewBrowser * pBrw)
 			Goods2Tbl::Rec goods_rec;
 			if(GObj.Search(goodsID, &goods_rec) > 0 && GObj.CheckForFilt(&Filt, goodsID, 0)) {
 				TempOrderTbl::Rec temp_rec;
-				MakeTempRec(&goods_rec, &temp_rec);
+				MakeTempRec(goods_rec, &temp_rec);
 				TempOrderTbl::Key0 k0;
 				MEMSZERO(k0);
 				k0.ID = goodsID;
@@ -4038,12 +3913,12 @@ int PPViewGoods::CreateTempTable(IterOrder ord, TempOrderTbl ** ppTbl)
 			GoodsFilt flt = Filt;
 			GoodsIterator gi;
 			Goods2Tbl::Rec goods_rec;
+			TempOrderTbl::Rec rec; // MakeTempRec обнуляет запись поэтому нет смыслы на каждой итерации вызывать конструктор
 			BExtInsert bei(p_o);
 			PPTransaction tra(ppDbDependTransaction, 1);
 			THROW(tra);
 			for(gi.Init(&flt, 0); gi.Next(&goods_rec) > 0;) {
-				TempOrderTbl::Rec rec;
-				MakeTempRec(&goods_rec, &rec);
+				MakeTempRec(goods_rec, &rec);
 				THROW_DB(bei.insert(&rec));
 				PPWaitPercent(gi.GetIterCounter());
 			}

@@ -99,12 +99,10 @@ void SplitSecondsAndNanos(StringPiece input, StringPiece* seconds,
 	}
 }
 
-Status GetNanosFromStringPiece(StringPiece s_nanos,
-    const char* parse_failure_message,
-    const char* exceeded_limit_message,
-    int32_t* nanos) {
+Status GetNanosFromStringPiece(StringPiece s_nanos, const char* parse_failure_message,
+    const char* exceeded_limit_message, int32_t* nanos) 
+{
 	*nanos = 0;
-
 	// Count the number of leading 0s and consume them.
 	int num_leading_zeros = 0;
 	while(s_nanos.Consume("0")) {
@@ -134,35 +132,16 @@ Status GetNanosFromStringPiece(StringPiece s_nanos,
 		// For efficiency, we precompute the conversion factor.
 		int32_t conversion = 0;
 		switch(scale) {
-			case 1:
-			    conversion = 100000000;
-			    break;
-			case 2:
-			    conversion = 10000000;
-			    break;
-			case 3:
-			    conversion = 1000000;
-			    break;
-			case 4:
-			    conversion = 100000;
-			    break;
-			case 5:
-			    conversion = 10000;
-			    break;
-			case 6:
-			    conversion = 1000;
-			    break;
-			case 7:
-			    conversion = 100;
-			    break;
-			case 8:
-			    conversion = 10;
-			    break;
-			case 9:
-			    conversion = 1;
-			    break;
-			default:
-			    return util::InvalidArgumentError(exceeded_limit_message);
+			case 1: conversion = 100000000; break;
+			case 2: conversion = 10000000; break;
+			case 3: conversion = 1000000; break;
+			case 4: conversion = 100000; break;
+			case 5: conversion = 10000; break;
+			case 6: conversion = 1000; break;
+			case 7: conversion = 100; break;
+			case 8: conversion = 10; break;
+			case 9: conversion = 1; break;
+			default: return util::InvalidArgumentError(exceeded_limit_message);
 		}
 		*nanos = i_nanos * conversion;
 	}

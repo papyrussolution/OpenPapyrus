@@ -965,7 +965,7 @@ double Calendar::getTimeInMillis(UErrorCode & status) const
 		return 0.0;
 	if(!fIsTimeSet)
 		((Calendar*)this)->updateTime(status);
-	/* Test for buffer overflows */
+	// Test for buffer overflows
 	if(U_FAILURE(status)) {
 		return 0.0;
 	}
@@ -1239,14 +1239,14 @@ void Calendar::complete(UErrorCode & status)
 {
 	if(!fIsTimeSet) {
 		updateTime(status);
-		/* Test for buffer overflows */
+		// Test for buffer overflows
 		if(U_FAILURE(status)) {
 			return;
 		}
 	}
 	if(!fAreFieldsSet) {
 		computeFields(status); // fills in unset fields
-		/* Test for buffer overflows */
+		// Test for buffer overflows
 		if(U_FAILURE(status)) {
 			return;
 		}
@@ -2186,7 +2186,7 @@ int32_t Calendar::fieldDifference(UDate targetMs, UCalendarDateFields field, UEr
 	// Set calendar to end point
 	setTimeInMillis(startMs, ec);
 	add(field, min, ec);
-	/* Test for buffer overflows */
+	// Test for buffer overflows
 	if(U_FAILURE(ec)) {
 		return 0;
 	}
@@ -2478,7 +2478,6 @@ int32_t Calendar::getActualMinimum(UCalendarDateFields field, UErrorCode & statu
 	// we get a value that normalizes to another value.  The last value that
 	// normalizes to itself is the actual minimum for the current date
 	int32_t result = fieldValue;
-
 	do {
 		work->set(field, fieldValue);
 		if(work->get(field, status) != fieldValue) {
@@ -2489,10 +2488,8 @@ int32_t Calendar::getActualMinimum(UCalendarDateFields field, UErrorCode & statu
 			fieldValue--;
 		}
 	} while(fieldValue >= endValue);
-
 	delete work;
-
-	/* Test for buffer overflows */
+	// Test for buffer overflows
 	if(U_FAILURE(status)) {
 		return 0;
 	}

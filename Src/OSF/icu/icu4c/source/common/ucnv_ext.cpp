@@ -694,30 +694,21 @@ static inline void ucnv_extWriteFromU(UConverter * cnv, const int32_t * cx,
 		 */
 		uint8 * p = buffer+1; /* reserve buffer[0] for shiftByte below */
 		switch(length) {
-			case 3:
-			    *p++ = (uint8)(value>>16);
-			    CXX_FALLTHROUGH;
-			case 2:
-			    *p++ = (uint8)(value>>8);
-			    CXX_FALLTHROUGH;
-			case 1:
-			    *p++ = (uint8)value;
-			    CXX_FALLTHROUGH;
-			default:
-			    break; /* will never occur */
+			case 3: *p++ = (uint8)(value>>16); CXX_FALLTHROUGH;
+			case 2: *p++ = (uint8)(value>>8); CXX_FALLTHROUGH;
+			case 1: *p++ = (uint8)value; CXX_FALLTHROUGH;
+			default: break; // will never occur
+			    
 		}
 		result = buffer+1;
 	}
 	else {
 		result = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_BYTES_INDEX, uint8)+value;
 	}
-
 	/* with correct data we have length>0 */
-
 	if((prevLength = cnv->fromUnicodeStatus)!=0) {
 		/* handle SI/SO stateful output */
 		uint8 shiftByte;
-
 		if(prevLength>1 && length==1) {
 			/* change from double-byte mode to single-byte */
 			shiftByte = (uint8)UCNV_SI;

@@ -448,6 +448,11 @@ SLTEST_R(ReadWriteLock)
 	return ok;
 }
 
+/*
+	HKEY_LOCAL_MACHINE --> MACHINE
+	HKEY_CURRENT_USER  --> CURRENT_USER
+*/
+
 SLTEST_R(SlProcess)
 {
 	SString temp_buf;
@@ -460,7 +465,6 @@ SLTEST_R(SlProcess)
 	WsCtl_ClientPolicy policy;
 	SString path_in = GetSuiteEntry()->InPath;
 	PPGetPath(PPPATH_BIN, path);
-	
 	path.SetLastSlash().Cat("..").SetLastSlash().Cat(PPLoadStringS("testapp_path", temp_buf).Transf(CTRANSF_INNER_TO_UTF8));
 	working_dir = path;
 	path.SetLastSlash().Cat("SlTestApp.exe");
@@ -479,6 +483,19 @@ SLTEST_R(SlProcess)
 		p.AddArg(temp_buf.Z().CatQStr(path_in));
 	}
 	//
+	{
+		bool policy_is_ok = false;
+		(temp_buf = path_in).SetLastSlash().Cat("wsctl-policy.json");
+		SJson * p_js = SJson::ParseFile(temp_buf);
+		if(p_js) {
+			if(policy.FromJsonObj(p_js)) {
+				policy.Resolve();
+				policy_is_ok = true;
+			}
+			ZDELETE(p_js);
+		}
+	}
+	//
 	SLCHECK_NZ(ac.Create("Test-App-Container-2"));
 	SLCHECK_NZ(ac.AllowPath(path_in, 0));
 	SLCHECK_NZ(ac.AllowPath(working_dir, 0));
@@ -491,12 +508,13 @@ SLTEST_R(SlProcess)
 		//WinRegKey test_key(HKEY_CURRENT_USER, PPConst::WrKey_SlTestApp, 0);
 		
 		temp_buf.Z().Cat("CURRENT_USER").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
-		//SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
+		SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
 
 		temp_buf.Z().Cat("MACHINE").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
-		//SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
+		SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
 	}
-	p.SetAppContainer(&ac);
+	//p.SetAppContainer(&ac);
+	p.SetImpersUser("wsctl-client", "123");
 	SLCHECK_NZ(p.Run(&result));
 	//
 	SLCHECK_NZ(ac.Delete());

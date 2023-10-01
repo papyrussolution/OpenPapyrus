@@ -164,9 +164,10 @@ RBBINode       * RBBISymbolTable::lookupNode(const UnicodeString & key) const {
 //                                    this will only occur in the case of duplicate
 //                                    variable assignments.
 //
-void RBBISymbolTable::addEntry(const UnicodeString & key, RBBINode * val, UErrorCode &err) {
+void RBBISymbolTable::addEntry(const UnicodeString & key, RBBINode * val, UErrorCode &err) 
+{
 	RBBISymbolTableEntry * e;
-	/* test for buffer overflows */
+	// Test for buffer overflows
 	if(U_FAILURE(err)) {
 		return;
 	}

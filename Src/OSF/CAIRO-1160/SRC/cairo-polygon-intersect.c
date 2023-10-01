@@ -179,31 +179,24 @@ static inline int _cairo_bo_point32_compare(cairo_bo_intersect_point_t const * a
  * the sense of the result will be exactly reversed for two edges that
  * have a common stop point.
  */
-static inline int _slope_compare(const cairo_bo_edge_t * a,
-    const cairo_bo_edge_t * b)
+static inline int _slope_compare(const cairo_bo_edge_t * a, const cairo_bo_edge_t * b)
 {
 	/* XXX: We're assuming here that dx and dy will still fit in 32
-	 * bits. That's not true in general as there could be overflow. We
-	 * should prevent that before the tessellation algorithm
-	 * begins.
+	 * bits. That's not true in general as there could be overflow. We prevent that before the tessellation algorithm begins.
 	 */
 	int32 adx = a->edge.line.p2.x - a->edge.line.p1.x;
 	int32 bdx = b->edge.line.p2.x - b->edge.line.p1.x;
-
 	/* Since the dy's are all positive by construction we can fast
 	 * path several common cases.
 	 */
-
 	/* First check for vertical lines. */
 	if(adx == 0)
 		return -bdx;
 	if(bdx == 0)
 		return adx;
-
 	/* Then where the two edges point in different directions wrt x. */
 	if((adx ^ bdx) < 0)
 		return adx;
-
 	/* Finally we actually need to do the general comparison. */
 	{
 		int32 ady = a->edge.line.p2.y - a->edge.line.p1.y;
@@ -241,14 +234,10 @@ static inline int _slope_compare(const cairo_bo_edge_t * a,
  *
  * See the similar discussion for _slope_compare().
  */
-static int edges_compare_x_for_y_general(const cairo_bo_edge_t * a,
-    const cairo_bo_edge_t * b,
-    int32 y)
+static int edges_compare_x_for_y_general(const cairo_bo_edge_t * a, const cairo_bo_edge_t * b, int32 y)
 {
 	/* XXX: We're assuming here that dx and dy will still fit in 32
-	 * bits. That's not true in general as there could be overflow. We
-	 * should prevent that before the tessellation algorithm
-	 * begins.
+	 * bits. That's not true in general as there could be overflow. We should prevent that before the tessellation algorithm begins.
 	 */
 	int32 dx;
 	int32 adx, ady;
@@ -538,12 +527,9 @@ static inline cairo_bo_intersect_ordinate_t round_to_nearest(cairo_quorem64_t d,
 static boolint intersect_lines(cairo_bo_edge_t * a, cairo_bo_edge_t * b, cairo_bo_intersect_point_t * intersection)
 {
 	int64 a_det, b_det;
-
 	/* XXX: We're assuming here that dx and dy will still fit in 32
-	 * bits. That's not true in general as there could be overflow. We
-	 * should prevent that before the tessellation algorithm begins.
-	 * What we're doing to mitigate this is to perform clamping in
-	 * cairo_bo_tessellate_polygon().
+	 * bits. That's not true in general as there could be overflow. We should prevent that before the tessellation algorithm begins.
+	 * What we're doing to mitigate this is to perform clamping in cairo_bo_tessellate_polygon().
 	 */
 	int32 dx1 = a->edge.line.p1.x - a->edge.line.p2.x;
 	int32 dy1 = a->edge.line.p1.y - a->edge.line.p2.y;

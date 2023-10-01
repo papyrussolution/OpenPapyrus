@@ -2392,11 +2392,9 @@ void * memset_large_4B_as(void * dest, const uint32_t val, size_t numbytes_div_4
 	}
 	return returnval;
 } // END MEMSET LARGE, 4B, ALIGNED, STREAMING
-
-//-----------------------------------------------------------------------------
+//
 // Main Functions:
-//-----------------------------------------------------------------------------
-
+//
 // To set values of sizes > 1 byte, call the desired memset functions directly
 // instead. A 4-byte version exists below, however.
 void * AVX_memset(void * dest, int intVal, size_t numbytes)

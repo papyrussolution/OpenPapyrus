@@ -295,7 +295,7 @@ fastSingle:
 							}
 						}
 						else {
-							/* target overflow */
+							// target overflow
 							if(offsets) {
 								*offsets++ = sourceIndex;
 							}
@@ -414,7 +414,7 @@ singleByteMode:
 							    }
 						    }
 						    else {
-							    /* target overflow */
+							    // target overflow
 							    if(offsets) {
 								    *offsets++ = sourceIndex;
 							    }
@@ -649,7 +649,7 @@ fastSingle:
 							*target++ = (char16_t)(0xdc00|(c&0x3ff));
 						}
 						else {
-							/* target overflow */
+							// target overflow
 							cnv->UCharErrorBuffer[0] = (char16_t)(0xdc00|(c&0x3ff));
 							cnv->UCharErrorBufferLength = 1;
 							*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
@@ -743,7 +743,7 @@ singleByteMode:
 							    *target++ = (char16_t)(0xdc00|(c&0x3ff));
 						    }
 						    else {
-							    /* target overflow */
+							    // target overflow
 							    cnv->UCharErrorBuffer[0] = (char16_t)(0xdc00|(c&0x3ff));
 							    cnv->UCharErrorBufferLength = 1;
 							    *pErrorCode = U_BUFFER_OVERFLOW_ERROR;
@@ -1431,28 +1431,16 @@ outputBytes:
 	/* from the first if in the loop we know that targetCapacity>0 */
 	if(length<=targetCapacity) {
 		if(!offsets) {
-			switch(length) {
-				/* each branch falls through to the next one */
-				case 4:
-				    *target++ = (uint8)(c>>24);
-				    CXX_FALLTHROUGH;
-				case 3:
-				    *target++ = (uint8)(c>>16);
-				    CXX_FALLTHROUGH;
-				case 2:
-				    *target++ = (uint8)(c>>8);
-				    CXX_FALLTHROUGH;
-				case 1:
-				    *target++ = (uint8)c;
-				    CXX_FALLTHROUGH;
-				default:
-				    /* will never occur */
-				    break;
+			switch(length) { // each branch falls through to the next one
+				case 4: *target++ = (uint8)(c>>24); CXX_FALLTHROUGH;
+				case 3: *target++ = (uint8)(c>>16); CXX_FALLTHROUGH;
+				case 2: *target++ = (uint8)(c>>8); CXX_FALLTHROUGH;
+				case 1: *target++ = (uint8)c; CXX_FALLTHROUGH;
+				default: break; // will never occur
 			}
 		}
 		else {
-			switch(length) {
-				/* each branch falls through to the next one */
+			switch(length) { // each branch falls through to the next one
 				case 4:
 				    *target++ = (uint8)(c>>24);
 				    *offsets++ = sourceIndex;
@@ -1469,13 +1457,10 @@ outputBytes:
 				    *target++ = (uint8)c;
 				    *offsets++ = sourceIndex;
 				    CXX_FALLTHROUGH;
-				default:
-				    /* will never occur */
-				    break;
+				default: break; // will never occur
 			}
 		}
 		targetCapacity -= length;
-
 		/* normal end of conversion: prepare for a new character */
 		c = 0;
 		sourceIndex = nextSourceIndex;
@@ -1494,30 +1479,18 @@ outputBytes:
 		/* targetCapacity==0 when SCU+supplementary where SCU used up targetCapacity==1 */
 		length -= targetCapacity;
 		p = (uint8 *)cnv->charErrorBuffer;
-		switch(length) {
-			/* each branch falls through to the next one */
-			case 4:
-			    *p++ = (uint8)(c>>24);
-			    CXX_FALLTHROUGH;
-			case 3:
-			    *p++ = (uint8)(c>>16);
-			    CXX_FALLTHROUGH;
-			case 2:
-			    *p++ = (uint8)(c>>8);
-			    CXX_FALLTHROUGH;
-			case 1:
-			    *p = (uint8)c;
-			    CXX_FALLTHROUGH;
-			default:
-			    /* will never occur */
-			    break;
+		switch(length) { // each branch falls through to the next one
+			case 4: *p++ = (uint8)(c>>24); CXX_FALLTHROUGH;
+			case 3: *p++ = (uint8)(c>>16); CXX_FALLTHROUGH;
+			case 2: *p++ = (uint8)(c>>8); CXX_FALLTHROUGH;
+			case 1: *p = (uint8)c; CXX_FALLTHROUGH;
+			default: break; // will never occur
 		}
 		cnv->charErrorBufferLength = (int8)length;
 
 		/* now output what fits into the regular target */
 		c >>= 8*length; /* length was reduced by targetCapacity */
-		switch(targetCapacity) {
-			/* each branch falls through to the next one */
+		switch(targetCapacity) { // each branch falls through to the next one
 			case 3:
 			    *target++ = (uint8)(c>>16);
 			    if(offsets) {
@@ -1539,8 +1512,7 @@ outputBytes:
 			default:
 			    break;
 		}
-
-		/* target overflow */
+		// target overflow
 		targetCapacity = 0;
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 		c = 0;
@@ -1859,11 +1831,8 @@ getTrailUnicode:
 					*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 					goto endloop;
 				}
-
 				/* compress supplementary character */
-				if((window = getWindow(scsu->fromUDynamicOffsets, c))>=0 &&
-				    !(source<sourceLimit && (uint32_t)(*source-0x3400)<(0xd800-0x3400))
-				    ) {
+				if((window = getWindow(scsu->fromUDynamicOffsets, c))>=0 && !(source<sourceLimit && (uint32_t)(*source-0x3400)<(0xd800-0x3400))) {
 					/*
 					 * there is a dynamic window that contains this character and
 					 * the following character is not uncompressible,
@@ -1877,12 +1846,9 @@ getTrailUnicode:
 					length = 2;
 					goto outputBytes;
 				}
-				else if(source<sourceLimit && lead==*source && /* too lazy to check trail in same window
-				                                                  as source[1] */
-				    (code = getDynamicOffset(c, &offset))>=0
-				    ) {
-					/* two supplementary characters in (probably) the same window - define an
-					   extended one */
+				else if(source<sourceLimit && lead==*source && /* too lazy to check trail in same window as source[1] */
+				    (code = getDynamicOffset(c, &offset))>=0) {
+					// two supplementary characters in (probably) the same window - define an extended one 
 					isSingleByteMode = TRUE;
 					code -= 0x200;
 					dynamicWindow = getNextDynamicWindow(scsu);
@@ -1905,55 +1871,37 @@ getTrailUnicode:
 				length = 3;
 				goto outputBytes;
 			}
-
 			/* normal end of conversion: prepare for a new character */
 			c = 0;
 		}
 	}
 endloop:
-
 	/* set the converter state back into UConverter */
 	scsu->fromUIsSingleByteMode = isSingleByteMode;
 	scsu->fromUDynamicWindow = dynamicWindow;
-
 	cnv->fromUChar32 = c;
-
 	/* write back the updated pointers */
 	pArgs->source = source;
 	pArgs->target = (char *)target;
 	return;
-
 outputBytes:
 	/* write the output character bytes from c and length [code copied from ucnvmbcs.c] */
 	/* from the first if in the loop we know that targetCapacity>0 */
 	if(length<=targetCapacity) {
-		switch(length) {
-			/* each branch falls through to the next one */
-			case 4:
-			    *target++ = (uint8)(c>>24);
-			    CXX_FALLTHROUGH;
-			case 3:
-			    *target++ = (uint8)(c>>16);
-			    CXX_FALLTHROUGH;
-			case 2:
-			    *target++ = (uint8)(c>>8);
-			    CXX_FALLTHROUGH;
-			case 1:
-			    *target++ = (uint8)c;
-			    CXX_FALLTHROUGH;
-			default:
-			    /* will never occur */
-			    break;
+		switch(length) { // each branch falls through to the next one
+			case 4: *target++ = (uint8)(c>>24); CXX_FALLTHROUGH;
+			case 3: *target++ = (uint8)(c>>16); CXX_FALLTHROUGH;
+			case 2: *target++ = (uint8)(c>>8); CXX_FALLTHROUGH;
+			case 1: *target++ = (uint8)c; CXX_FALLTHROUGH;
+			default: break; // will never occur
 		}
 		targetCapacity -= length;
-
 		/* normal end of conversion: prepare for a new character */
 		c = 0;
 		goto loop;
 	}
 	else {
 		uint8 * p;
-
 		/*
 		 * We actually do this backwards here:
 		 * In order to save an intermediate variable, we output
@@ -1964,44 +1912,23 @@ outputBytes:
 		/* targetCapacity==0 when SCU+supplementary where SCU used up targetCapacity==1 */
 		length -= targetCapacity;
 		p = (uint8 *)cnv->charErrorBuffer;
-		switch(length) {
-			/* each branch falls through to the next one */
-			case 4:
-			    *p++ = (uint8)(c>>24);
-			    CXX_FALLTHROUGH;
-			case 3:
-			    *p++ = (uint8)(c>>16);
-			    CXX_FALLTHROUGH;
-			case 2:
-			    *p++ = (uint8)(c>>8);
-			    CXX_FALLTHROUGH;
-			case 1:
-			    *p = (uint8)c;
-			    CXX_FALLTHROUGH;
-			default:
-			    /* will never occur */
-			    break;
+		switch(length) { // each branch falls through to the next one
+			case 4: *p++ = (uint8)(c>>24); CXX_FALLTHROUGH;
+			case 3: *p++ = (uint8)(c>>16); CXX_FALLTHROUGH;
+			case 2: *p++ = (uint8)(c>>8); CXX_FALLTHROUGH;
+			case 1: *p = (uint8)c; CXX_FALLTHROUGH;
+			default: break; // will never occur
 		}
 		cnv->charErrorBufferLength = (int8)length;
-
 		/* now output what fits into the regular target */
 		c >>= 8*length; /* length was reduced by targetCapacity */
-		switch(targetCapacity) {
-			/* each branch falls through to the next one */
-			case 3:
-			    *target++ = (uint8)(c>>16);
-			    CXX_FALLTHROUGH;
-			case 2:
-			    *target++ = (uint8)(c>>8);
-			    CXX_FALLTHROUGH;
-			case 1:
-			    *target++ = (uint8)c;
-			    CXX_FALLTHROUGH;
-			default:
-			    break;
+		switch(targetCapacity) { // each branch falls through to the next one
+			case 3: *target++ = (uint8)(c>>16); CXX_FALLTHROUGH;
+			case 2: *target++ = (uint8)(c>>8); CXX_FALLTHROUGH;
+			case 1: *target++ = (uint8)c; CXX_FALLTHROUGH;
+			default: break;
 		}
-
-		/* target overflow */
+		// target overflow
 		targetCapacity = 0;
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 		c = 0;
@@ -2011,14 +1938,12 @@ outputBytes:
 
 /* miscellaneous ------------------------------------------------------------ */
 
-static const char * U_CALLCONV _SCSUGetName(const UConverter * cnv) {
+static const char * U_CALLCONV _SCSUGetName(const UConverter * cnv) 
+{
 	SCSUData * scsu = (SCSUData*)cnv->extraInfo;
-
 	switch(scsu->locale) {
-		case l_ja:
-		    return "SCSU,locale=ja";
-		default:
-		    return "SCSU";
+		case l_ja: return "SCSU,locale=ja";
+		default: return "SCSU";
 	}
 }
 

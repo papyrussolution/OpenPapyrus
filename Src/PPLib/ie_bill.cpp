@@ -586,7 +586,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 			SString name = ps.Nam;
 			SString wildcard;
 			PPImpExpParam::PtTokenList result_list;
-			if(PPObjBill::ParseText(name, templ, result_list, &wildcard) > 0) {
+			if(PPBillImpExpParam::ParseText(name, templ, result_list, &wildcard) > 0) {
 				ps.Nam = wildcard;
 				ps.Merge(temp_buf);
 				if(url_prot > 0) {
@@ -635,7 +635,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	ps.Split(rFileName);
 	SString name = ps.Nam;
 	//StrAssocArray result_list;
-	ok = PPObjBill::ParseText(name, templ, rResultList, 0);
+	ok = PPBillImpExpParam::ParseText(name, templ, rResultList, 0);
 	return ok;
 }
 

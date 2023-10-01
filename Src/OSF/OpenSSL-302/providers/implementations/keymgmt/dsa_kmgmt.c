@@ -46,12 +46,10 @@ static OSSL_FUNC_keymgmt_export_types_fn dsa_export_types;
 static OSSL_FUNC_keymgmt_dup_fn dsa_dup;
 
 #define DSA_DEFAULT_MD "SHA256"
-#define DSA_POSSIBLE_SELECTIONS                                                \
-	(OSSL_KEYMGMT_SELECT_KEYPAIR | OSSL_KEYMGMT_SELECT_DOMAIN_PARAMETERS)
+#define DSA_POSSIBLE_SELECTIONS (OSSL_KEYMGMT_SELECT_KEYPAIR | OSSL_KEYMGMT_SELECT_DOMAIN_PARAMETERS)
 
 struct dsa_gen_ctx {
 	OSSL_LIB_CTX * libctx;
-
 	FFC_PARAMS * ffc_params;
 	int selection;
 	/* All these parameters are used for parameter generation only */

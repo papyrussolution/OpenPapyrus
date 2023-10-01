@@ -13,7 +13,7 @@
 //   1 - user name only
 //   2 - user name and domain
 //
-int GetUserDomain(const wchar_t * pUserIn, SStringU & rUserName, SStringU & rDomainName)
+static int GetUserDomain(const wchar_t * pUserIn, SStringU & rUserName, SStringU & rDomainName)
 {
 	rUserName.Z();
 	rDomainName.Z();
@@ -83,16 +83,88 @@ int GetTokenUserSID(HANDLE hToken, SStringU & rUserName)
 	return ok;
 }
 
-/*static*/HANDLE SSystem::GetLocalSystemProcessToken()
+/*static*/SPtrHandle SSystem::Logon(const wchar_t * pDomain, const wchar_t * pUserName, const wchar_t * pPw, uint logontype, uint logonprv)
 {
+	SPtrHandle result;
 	HANDLE h_token = 0;
+	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+	SStringU & r_domain = SLS.AcquireRvlStrU();
+	SStringU & r_user = SLS.AcquireRvlStrU();
+	SStringU & r_pw = SLS.AcquireRvlStrU();
+	r_pw = pPw;
+	//
+	r_temp_buf_u = pUserName;
+	THROW(r_temp_buf_u.NotEmpty());
+	if(isempty(pDomain)) {
+		GetUserDomain(r_temp_buf_u, r_user, r_domain);
+	}
+	else {
+		r_domain = pDomain;
+	}
+	BOOL r = LogonUserW(r_user, r_domain, r_pw, /*LOGON32_LOGON_INTERACTIVE*/logontype, /*LOGON32_PROVIDER_DEFAULT*/logonprv, &h_token);
+	if(r) {
+		result = h_token;
+	}
+	r_temp_buf_u.Obfuscate();
+	r_pw.Obfuscate();
+	r_user.Obfuscate();
+	r_pw.Obfuscate();
+	CATCH
+		;
+	ENDCATCH
+	return result;
+}
+
+/*static*/SPtrHandle SSystem::Logon(const char * pDomainUtf8, const char * pUserNameUtf8, const char * pPwUtf8, uint logontype, uint logonprv)
+{
+	SPtrHandle result;
+	HANDLE h_token = 0;
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+	SStringU & r_domain = SLS.AcquireRvlStrU();
+	SStringU & r_user = SLS.AcquireRvlStrU();
+	SStringU & r_pw = SLS.AcquireRvlStrU();
+	r_temp_buf = pDomainUtf8;
+	THROW(r_temp_buf.IsEmpty() || r_temp_buf.IsLegalUtf8());
+	r_temp_buf = pPwUtf8;
+	THROW(r_temp_buf.IsEmpty() || r_temp_buf.IsLegalUtf8());
+	r_pw.CopyFromUtf8(r_temp_buf);
+	//
+	r_temp_buf = pUserNameUtf8;
+	THROW(r_temp_buf.NotEmpty() && r_temp_buf.IsLegalUtf8());
+	if(isempty(pDomainUtf8)) {
+		r_temp_buf_u.CopyFromUtf8(r_temp_buf);
+		GetUserDomain(r_temp_buf_u, r_user, r_domain);
+	}
+	else {
+		THROW(r_domain.CopyFromUtf8R(pDomainUtf8, sstrlen(pDomainUtf8), 0));
+	}
+	BOOL r = LogonUserW(r_user, r_domain, r_pw, /*LOGON32_LOGON_INTERACTIVE*/logontype, /*LOGON32_PROVIDER_DEFAULT*/logonprv, &h_token);
+	if(r) {
+		result = h_token;
+	}
+	r_temp_buf_u.Obfuscate();
+	r_temp_buf.Obfuscate();
+	r_pw.Obfuscate();
+	r_user.Obfuscate();
+	r_pw.Obfuscate();
+	CATCH
+		;
+	ENDCATCH
+	return result;
+}
+
+/*static*/SPtrHandle SSystem::GetLocalSystemProcessToken()
+{
+	//HANDLE h_token = 0;
+	SPtrHandle result;
 	DWORD pids[1024*10] = {0};
 	DWORD cbNeeded = 0;
 	if(EnumProcesses(pids, sizeof(pids), &cbNeeded)) {
 		SStringU name;
 		// Calculate how many process identifiers were returned.
 		DWORD cProcesses = cbNeeded / sizeof(DWORD);
-		for(DWORD i = 0; !h_token && i < cProcesses; ++i) {
+		for(DWORD i = 0; !result && i < cProcesses; ++i) {
 			DWORD gle = 0;
 			DWORD dwPid = pids[i];
 			HANDLE h_process = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwPid);
@@ -103,43 +175,45 @@ int GetTokenUserSID(HANDLE hToken, SStringU & rUserName)
 					//const wchar_t arg[] = L"NT AUTHORITY\\";
 					//if(0 == _wcsnicmp(name, arg, sizeof(arg)/sizeof(arg[0])-1))
 					if(name.IsEq(L"S-1-5-18")) // Well known SID for Local System
-						h_token = h_inner_token;
+						result = h_inner_token;
 				}
 				else
 					gle = GetLastError();
-				if(!h_token)
+				if(!result)
 					CloseHandle(h_inner_token);
 			}
 			else
 				gle = GetLastError();
 			CloseHandle(h_process);
 		}
-		if(!h_token) {
+		if(!result) {
 			; //Log(L"Failed to get token for Local System.", true);
 		}
 	}
 	else {
 		; //Log(L"Can't enumProcesses - Failed to get token for Local System.", true);
 	}
-	return h_token;
+	return result;
 }
 
-void Duplicate(HANDLE & h, LPCSTR file, int line)
+static SPtrHandle DuplicateAccessToken(SPtrHandle & rH, LPCSTR file, int line)
 {
-	HANDLE hDupe = NULL;
-	if(DuplicateTokenEx(h, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &hDupe)) {
-		CloseHandle(h);
-		h = hDupe;
-		hDupe = NULL;
+	SPtrHandle result;
+	HANDLE h_dup = 0;
+	if(DuplicateTokenEx(rH, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &h_dup)) {
+		CloseHandle(rH);
+		result = h_dup;
+		h_dup = NULL;
 	}
 	else {
 		DWORD gle = GetLastError();
 		_ASSERT(0);
 		//Log(StrFormat(L"Error duplicating a user token (%S, %d)", file, line), GetLastError());
 	}
+	return result;
 }
 
-bool EnablePrivilege(LPCWSTR privilegeStr, HANDLE hToken /* = NULL */)
+bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivilegeStr/* = NULL */)
 {
 	TOKEN_PRIVILEGES tp; // token privileges
 	LUID luid;
@@ -151,7 +225,7 @@ bool EnablePrivilege(LPCWSTR privilegeStr, HANDLE hToken /* = NULL */)
 		}
 		do_close_token = true;
 	}
-	if(!LookupPrivilegeValue(NULL, privilegeStr, &luid)) {
+	if(!LookupPrivilegeValueW(NULL, pPrivilegeStr, &luid)) {
 		if(do_close_token)
 			CloseHandle(hToken);
 		_ASSERT(0);
@@ -181,12 +255,13 @@ bool EnablePrivilege(LPCWSTR privilegeStr, HANDLE hToken /* = NULL */)
 	bool   ok = true;
 	DWORD  gle = 0;
 	if(flags & guhfUseSystemAccount) {
-		if(!rSettings.H_User) { // might already have hUser from a previous call
+		if(!rSettings.H_User_) { // might already have hUser from a previous call
 			EnablePrivilege(SE_DEBUG_NAME, NULL); //helps with OpenProcess, required for GetLocalSystemProcessToken
-			rSettings.H_User = GetLocalSystemProcessToken();
-			THROW(rSettings.H_User); //Log(L"Not able to get Local System token", true);
+			rSettings.H_User_ = GetLocalSystemProcessToken();
+			THROW(rSettings.H_User_); //Log(L"Not able to get Local System token", true);
 			; //Log(L"Got Local System handle", false);
-			Duplicate(rSettings.H_User, __FILE__, __LINE__);
+			SPtrHandle h_dup = DuplicateAccessToken(rSettings.H_User_, __FILE__, __LINE__);
+			rSettings.H_User_ = h_dup;
 		}
 	}
 	else {
@@ -194,28 +269,37 @@ bool EnablePrivilege(LPCWSTR privilegeStr, HANDLE hToken /* = NULL */)
 		if(rSettings.UserName.NotEmpty()) {
 			SStringU user, domain;
 			GetUserDomain(rSettings.UserName, user, domain);
-			BOOL bLoggedIn = LogonUser(user, domain.IsEmpty() ? NULL : domain, rSettings.Password, LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_WINNT50, &rSettings.H_User);
+			HANDLE h_logon_user = 0;
+			BOOL is_logged_id = ::LogonUser(user, domain.IsEmpty() ? NULL : domain, rSettings.Password, LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_WINNT50, &h_logon_user);
+			if(is_logged_id)
+				rSettings.H_User_ = h_logon_user;
+			else
+				rSettings.H_User_ = 0;
 			gle = GetLastError();
 #ifdef _DEBUG
 			//Log(L"DEBUG: LogonUser", gle);
 #endif
-			THROW(bLoggedIn && SIntHandle::IsValid(rSettings.H_User)); //Log(StrFormat(L"Error logging in as %s.", rSettings.user), gle)
-			Duplicate(rSettings.H_User, __FILE__, __LINE__); //gives max rights
-			if(!SIntHandle::IsInvalid(rSettings.H_User) && !(flags & guhfDontLoadProfile)) {
-				EnablePrivilege(SE_RESTORE_NAME, NULL);
-				EnablePrivilege(SE_BACKUP_NAME, NULL);
-				wchar_t user_name_buf[256];
-				STRNSCPY(user_name_buf, user);
-				MEMSZERO(rProfile);
-				rProfile.dwSize = sizeof(rProfile);
-				rProfile.lpUserName = user_name_buf;
-				bLoadedProfile = LoadUserProfile(rSettings.H_User, &rProfile);
-#ifdef _DEBUG
-				gle = GetLastError();
-				//Log(L"DEBUG: LoadUserProfile", gle);
-#endif
+			THROW(is_logged_id && rSettings.H_User_); //Log(StrFormat(L"Error logging in as %s.", rSettings.user), gle)
+			{
+				SPtrHandle h_dup = DuplicateAccessToken(rSettings.H_User_, __FILE__, __LINE__); //gives max rights
+				rSettings.H_User_ = h_dup;
+				if(!!rSettings.H_User_ && !(flags & guhfDontLoadProfile)) {
+					EnablePrivilege(NULL, SE_RESTORE_NAME);
+					EnablePrivilege(NULL, SE_BACKUP_NAME);
+					EnablePrivilege(NULL, SE_ASSIGNPRIMARYTOKEN_NAME); //
+					wchar_t user_name_buf[256];
+					STRNSCPY(user_name_buf, user);
+					MEMSZERO(rProfile);
+					rProfile.dwSize = sizeof(rProfile);
+					rProfile.lpUserName = user_name_buf;
+					bLoadedProfile = LoadUserProfile(rSettings.H_User_, &rProfile);
+	#ifdef _DEBUG
+					gle = GetLastError();
+					//Log(L"DEBUG: LoadUserProfile", gle);
+	#endif
+				}
+				return true;
 			}
-			return true;
 		}
 		else {
 			//run as current user
@@ -232,18 +316,23 @@ bool EnablePrivilege(LPCWSTR privilegeStr, HANDLE hToken /* = NULL */)
 			HANDLE hThread = GetCurrentThread();
 			BOOL bDupe = DuplicateHandle(GetCurrentProcess(), hThread, GetCurrentProcess(), &hThread, 0, TRUE, DUPLICATE_SAME_ACCESS);
 			DWORD gle = GetLastError();
-			BOOL bOpen = OpenThreadToken(hThread, TOKEN_DUPLICATE | TOKEN_QUERY, TRUE, &rSettings.H_User);
+			HANDLE h_token = 0;
+			BOOL bOpen = OpenThreadToken(hThread, TOKEN_DUPLICATE|TOKEN_QUERY, TRUE, &h_token);
+			rSettings.H_User_ = bOpen ? h_token : 0;
 			gle = GetLastError();
 			if(gle == 1008) { //no thread token
-				bOpen = OpenProcessToken(GetCurrentProcess(), TOKEN_DUPLICATE | TOKEN_QUERY, &rSettings.H_User);
+				rSettings.H_User_ = SlProcess::OpenCurrentAccessToken(TOKEN_DUPLICATE | TOKEN_QUERY);
+				//bOpen = OpenProcessToken(GetCurrentProcess(), TOKEN_DUPLICATE | TOKEN_QUERY, &rSettings.H_User);
 				gle = GetLastError();
 			}
-			if(!bOpen) {
+			if(/*!bOpen*/!rSettings.H_User_) {
 				; //Log(L"Failed to open current user token", GetLastError());
 			}
-			Duplicate(rSettings.H_User, __FILE__, __LINE__); //gives max rights
+			SPtrHandle h_dup = DuplicateAccessToken(rSettings.H_User_, __FILE__, __LINE__); //gives max rights
+			rSettings.H_User_ = h_dup;
 			RevertToSelf();
-			THROW(SIntHandle::IsValid(rSettings.H_User));
+			//THROW(SIntHandle::IsValid(rSettings.H_User_));
+			THROW(rSettings.H_User_);
 		}
 	}
 	CATCHZOK

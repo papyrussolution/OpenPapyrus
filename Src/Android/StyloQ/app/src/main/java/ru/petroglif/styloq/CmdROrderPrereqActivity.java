@@ -94,33 +94,39 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RUINN, ruinn, nm);
 						String rukpp = ce.JsItem.optString("rukpp");
 						CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RUKPP, rukpp, nm);
-						// @v11.8.1 {
-						// Следующие 2 адреса (если определены) ассоциируются с идентификатором персоналии.
-						// То есть id из json-объекта адреса мы игнорируем (это ид локации в базе данных сервиса)
 						{
-							JSONObject js_item = ce.JsItem.optJSONObject("mainaddr");
-							if(js_item != null) {
-								String addr = js_item.optString("addr");
-								CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RAWMAINADDR, addr, nm);
+							boolean _addr_is_done = false;
+							JSONArray dlvr_loc_list = ce.JsItem.optJSONArray("dlvrloc_list");
+							if(dlvr_loc_list != null) {
+								for(int j = 0; j < dlvr_loc_list.length(); j++) {
+									JSONObject js_item = dlvr_loc_list.optJSONObject(j);
+									if(js_item != null) {
+										final int loc_id = js_item.optInt("id", 0);
+										if(loc_id > 0) {
+											String addr = js_item.optString("addr");
+											CPM.AddSimpleIndexEntry(SLib.PPOBJ_LOCATION, loc_id, SLib.PPOBJATTR_RAWADDR, addr, nm);
+											_addr_is_done = true;
+										}
+									}
+								}
 							}
-						}
-						{
-							JSONObject js_item = ce.JsItem.optJSONObject("raddr");
-							if(js_item != null) {
-								String addr = js_item.optString("addr");
-								CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RAWRADDR, addr, nm);
-							}
-						}
-						// } @v11.8.1
-						JSONArray dlvr_loc_list = ce.JsItem.optJSONArray("dlvrloc_list");
-						if(dlvr_loc_list != null) {
-							for(int j = 0; j < dlvr_loc_list.length(); j++) {
-								JSONObject js_item = dlvr_loc_list.optJSONObject(j);
-								if(js_item != null) {
-									final int loc_id = js_item.optInt("id", 0);
-									if(loc_id > 0) {
+							{
+								// Следующие 2 адреса (если определены) ассоциируются с идентификатором персоналии.
+								// То есть id из json-объекта адреса мы игнорируем (это ид локации в базе данных сервиса)
+								if(!_addr_is_done) {
+									JSONObject js_item = ce.JsItem.optJSONObject("mainaddr");
+									if(js_item != null) {
 										String addr = js_item.optString("addr");
-										CPM.AddSimpleIndexEntry(SLib.PPOBJ_LOCATION, loc_id, SLib.PPOBJATTR_RAWADDR, addr, nm);
+										CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RAWMAINADDR, addr, nm);
+										_addr_is_done = true;
+									}
+								}
+								if(!_addr_is_done) {
+									JSONObject js_item = ce.JsItem.optJSONObject("raddr");
+									if(js_item != null) {
+										String addr = js_item.optString("addr");
+										CPM.AddSimpleIndexEntry(SLib.PPOBJ_PERSON, id, SLib.PPOBJATTR_RAWRADDR, addr, nm);
+										_addr_is_done = true;
 									}
 								}
 							}
@@ -783,6 +789,22 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						if(te != null && te.TabView != null) {
 							View v = te.TabView.getView();
 							if(v != null && v instanceof ViewGroup) {
+								// @v11.8.4 {
+								{
+									final CommonPrereqModule.Tab prev_tab_id = CPM.GetPrevTab();
+									int   obj_to_search = -1;
+									if(prev_tab_id == CommonPrereqModule.Tab.tabClients)
+										obj_to_search = SLib.PPOBJ_PERSON;
+									else if(prev_tab_id == CommonPrereqModule.Tab.tabGoods)
+										obj_to_search = SLib.PPOBJ_GOODS;
+									else if(prev_tab_id == CommonPrereqModule.Tab.tabGoodsGroups)
+										obj_to_search = SLib.PPOBJ_GOODSGROUP;
+									else if(prev_tab_id == CommonPrereqModule.Tab.tabBrands)
+										obj_to_search = SLib.PPOBJ_BRAND;
+									//CPM.GotoSearchTab(R.id.VIEWPAGER_ORDERPREREQ, obj_to_search);
+									CPM.SelectSearchPaneObjRestriction(v, obj_to_search);
+								}
+								// } @v11.8.4
 								View ftv = ((ViewGroup)v).findViewById(R.id.searchPaneListView);
 								if(ftv != null)
 									ftv.requestFocus();

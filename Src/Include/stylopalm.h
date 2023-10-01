@@ -223,9 +223,8 @@ struct SpiiTblDelParams {
 };
 
 struct SpiiTblRecParams {
-	SpiiTblRecParams() 
+	SpiiTblRecParams() : RecID(0), Pos(0)
 	{
-		memset(this, 0, sizeof(SpiiTblRecParams));
 	}
 #ifndef __palmos__
 	void ToHostRec() {/*RecID = ntohl(RecID);*/ Pos = ntohl(Pos);}

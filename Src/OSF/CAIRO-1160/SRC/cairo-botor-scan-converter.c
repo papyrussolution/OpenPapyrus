@@ -213,9 +213,7 @@ static cairo_fixed_t line_compute_intersection_x_for_y(const cairo_line_t * line
 static int edges_compare_x_for_y_general(const cairo_edge_t * a, const cairo_edge_t * b, int32 y)
 {
 	/* XXX: We're assuming here that dx and dy will still fit in 32
-	 * bits. That's not true in general as there could be overflow. We
-	 * should prevent that before the tessellation algorithm
-	 * begins.
+	 * bits. That's not true in general as there could be overflow. We should prevent that before the tessellation algorithm begins.
 	 */
 	int32 dx;
 	int32 adx, ady;
@@ -485,10 +483,8 @@ static boolint intersect_lines(const edge_t * a, const edge_t * b, cairo_bo_inte
 {
 	int64 a_det, b_det;
 	/* XXX: We're assuming here that dx and dy will still fit in 32
-	 * bits. That's not true in general as there could be overflow. We
-	 * should prevent that before the tessellation algorithm begins.
-	 * What we're doing to mitigate this is to perform clamping in
-	 * cairo_bo_tessellate_polygon().
+	 * bits. That's not true in general as there could be overflow. We should prevent that before the tessellation algorithm begins.
+	 * What we're doing to mitigate this is to perform clamping in cairo_bo_tessellate_polygon().
 	 */
 	int32 dx1 = a->edge.line.p1.x - a->edge.line.p2.x;
 	int32 dy1 = a->edge.line.p1.y - a->edge.line.p2.y;

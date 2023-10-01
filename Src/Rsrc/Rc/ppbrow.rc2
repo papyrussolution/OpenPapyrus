@@ -7596,6 +7596,37 @@ record CSess {
 	BnkRetAmt    double       format(13.2) "@{cashlessreturns}";
 }
 
+record CCheck2 {
+	ID           long         format(8)    "@{checkid}";
+	Code         long         format(8)    "@{checkno}";
+	PosNNum      long         format(8)    "@{posnodeno}";
+	SessNum      long         format(8)    "@{sessionno}";
+	Date         date         "@{checkdate}";
+	Time         time         "@{checktime}";
+	Amount       double       format(13.2) "@{ccheck_nominalamount}";
+	Discount     double       format(13.2) "@{ccheck_discount_amp}";
+	SCardNum     zstring(32)  "@{cardno}";
+	Flags        long         "@{flags}";
+	IsRetCheck   int16        "@{checkrefundfeature}";
+	IsBanking    int16        "@{cashlesspaymentfeature}";
+	//
+	// Далее идут атрибуты строк чека
+	//
+	RByCheck       long         "Номер строки";
+	Div            long         "Номер отдела";
+	Queue          long         "Номер очереди";
+	GoodsID        long         "@{goodsid}";
+	GoodsName      zstring(128) "@{goodsname}";
+	Barcode        zstring(24)  "@{barcode}";
+	LnQtty         double       format(10.3) "@{qtty}";
+	LnPrice        double       format(10.2) "@{price}";
+	LnDiscount     double       format(10.5) "@{ccheckline_discount_amp}";
+	//
+	Serial         zstring(128) "@{serial}";
+	EgaisMark      zstring(160) "@{egaismark}";
+	ChZnMark       zstring(160) "@{chznmark}";
+}
+
 record CChecks {
 	CheckID      long         format(8)    "@{checkid}";
 	CheckNumb    long         format(8)    "@{checkno}";

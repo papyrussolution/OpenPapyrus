@@ -283,7 +283,7 @@ void U_EXPORT2 CanonicalIterator::permute(UnicodeString & source, bool skipZeros
 		// see what the permutations of the characters before and after this one are
 		//Hashtable *subpermute = permute(source.substring(0,i) + source.substring(i + UTF16.getCharCount(cp)));
 		permute(subPermuteString.remove(i, U16_LENGTH(cp)), skipZeros, &subpermute, status);
-		/* Test for buffer overflows */
+		// Test for buffer overflows
 		if(U_FAILURE(status)) {
 			return;
 		}
@@ -370,7 +370,7 @@ UnicodeString * CanonicalIterator::getEquivalents(const UnicodeString & segment,
 		ne = basic.nextElement(el);
 	}
 
-	/* Test for buffer overflows */
+	// Test for buffer overflows
 	if(U_FAILURE(status)) {
 		return 0;
 	}
@@ -448,15 +448,12 @@ Hashtable * CanonicalIterator::getEquivalents2(Hashtable * fillinResult, const c
 				}
 				*toAdd += item;
 				fillinResult->put(*toAdd, toAdd, status);
-
 				//if(PROGRESS) printf("Adding: %s\n", UToS(Tr(*toAdd)));
-
 				ne = remainder.nextElement(el);
 			}
 		}
 	}
-
-	/* Test for buffer overflows */
+	// Test for buffer overflows
 	if(U_FAILURE(status)) {
 		return NULL;
 	}

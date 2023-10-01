@@ -37,31 +37,29 @@ public:
 	static bool   GetRaw_PlanarAngleDeg(uint64 ued, double & rDeg);
 	static uint64 SetRaw_Color(const SColor & rC);
 	static bool   GetRaw_Color(uint64 ued, SColor & rC);
+
+	static uint64 SetRaw_Ru_INN(const char * pT);
+	static bool   GetRaw_Ru_INN(uint64 ued, SString & rT);
+	static uint64 SetRaw_Ru_KPP(const char * pT);
+	static bool   GetRaw_Ru_KPP(uint64 ued, SString & rT);
+	static uint64 SetRaw_Ar_DNI(const char * pT);
+	static bool   GetRaw_Ar_DNI(uint64 ued, SString & rT);
+	static uint64 SetRaw_Cl_RUT(const char * pT);
+	static bool   GetRaw_Cl_RUT(uint64 ued, SString & rT);
+	static uint64 SetRaw_EAN13(const char * pT);
+	static bool   GetRaw_EAN13(uint64 ued, SString & rT);
+	static uint64 SetRaw_EAN8(const char * pT);
+	static bool   GetRaw_EAN8(uint64 ued, SString & rT);
+	static uint64 SetRaw_UPCA(const char * pT);
+	static bool   GetRaw_UPCA(uint64 ued, SString & rT);
+	static uint64 SetRaw_GLN(const char * pT);
+	static bool   GetRaw_GLN(uint64 ued, SString & rT);
 };
 //
+// Descr: Базовый класс контейнера UED-объектов
 //
-//
-class SrUedContainer : public SStrGroup {
+class SrUedContainer_Base : public SStrGroup {
 public:
-	SrUedContainer();
-	~SrUedContainer();
-	int    ReadSource(const char * pFileName, PPLogger * pLogger);
-	int    WriteSource(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
-	//
-	// Descr: Верифицирует UED-файл версии ver и находящийся в каталоге pPath 
-	//   на предмет наличия и соответствия хэша, хранящегося в отдельном файле в том же каталоге.
-	//
-	int    Verify(const char * pPath, long ver, SBinaryChunk * pHash);
-	//
-	// Descr: Верифицирует this-контейнер на непротиворечивость и, если указан контейнер
-	//   предыдущей версии (pPrevC != 0), то проверяет инварианты.
-	//
-	int    VerifyByPreviousVersion(const SrUedContainer * pPrevC, bool tolerant, PPLogger * pLogger);
-	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
-	bool   SearchBaseId(uint64 id, SString & rSymb) const;
-	bool   GenerateSourceDecl_C(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
-	bool   GenerateSourceDecl_Java(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
-
 	struct BaseEntry {
 		uint64 Id;
 		uint32 SymbHashId;
@@ -73,17 +71,58 @@ public:
 		uint32 TextP;
 		uint32 LineNo; // @v11.7.8 Номер строки исходного файла, с которой начинается определение.
 	};
-	TSVector <BaseEntry> BL;
-	TSVector <TextEntry> TL;
-
 	static void MakeUedCanonicalName(SString & rResult, long ver);
 	static long SearchLastCanonicalFile(const char * pPath, SString & rFileName);
+	//
+	// Descr: Верифицирует UED-файл версии ver и находящийся в каталоге pPath 
+	//   на предмет наличия и соответствия хэша, хранящегося в отдельном файле в том же каталоге.
+	//
+	int    Verify(const char * pPath, long ver, SBinaryChunk * pHash) const;
+protected:
+	SrUedContainer_Base();
+	~SrUedContainer_Base();
+	int    ReadSource(const char * pFileName, PPLogger * pLogger);
+	int    WriteSource(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
+	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
+	bool   SearchBaseId(uint64 id, SString & rSymb) const;
+	bool   SearchSymbHashId(uint32 symbHashId, SString & rSymb) const;
+
+	TSVector <BaseEntry> BL;
+	TSVector <TextEntry> TL;
 private:
 	uint64 SearchBaseIdBySymbId(uint symbId, uint64 meta) const;
 	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger);
 	uint64 LinguaLocusMeta;
 	SymbHashTable Ht; // Хэш-таблица символов из списка BL
 	uint   LastSymbHashId;
+};
+//
+// Descr: Класс контейнера UED-объектов, реализующий функционал компиляции и сборки.
+//
+class SrUedContainer_Ct : public SrUedContainer_Base {
+public:
+	SrUedContainer_Ct();
+	~SrUedContainer_Ct();
+	int    Read(const char * pFileName, PPLogger * pLogger);
+	int    Write(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
+	bool   GenerateSourceDecl_C(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
+	bool   GenerateSourceDecl_Java(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
+	//
+	// Descr: Верифицирует this-контейнер на непротиворечивость и, если указан контейнер
+	//   предыдущей версии (pPrevC != 0), то проверяет инварианты.
+	//
+	int    VerifyByPreviousVersion(const SrUedContainer_Ct * pPrevC, bool tolerant, PPLogger * pLogger);
+};
+//
+// Descr: Класс контейнера UED-объектов, реализующий функционал применения в run-time'е
+//
+class SrUedContainer_Rt : public SrUedContainer_Base {
+public:
+	SrUedContainer_Rt();
+	~SrUedContainer_Rt();
+	int    Read(const char * pFileName);
+	uint64 SearchSymb(const char * pSymb, uint64 meta) const;
+	bool   GetSymb(uint64 ued, SString & rSymb) const;
 };
 
 enum {

@@ -3031,6 +3031,7 @@ private:
 	PPPersonImpExpParam     PersonParam;
 	PPWorkbookImpExpParam   WorkbookParam;
 	PPQuotImpExpParam       QuotParam;
+	PPCCheckImpExpParam     CcParam; // @v11.8.4 
 };
 
 ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_IMPEXPCFGS_LIST), CDb(0)
@@ -3046,7 +3047,8 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 		PPREC_LOT,
 		PPREC_PERSON,
 		PPREC_WORKBOOK,
-		PPREC_QUOTVAL
+		PPREC_QUOTVAL,
+		PPREC_CCHECK2 // @v11.8.4
 	};
 	SString str_cfgs, buf;
 	PPLoadText(PPTXT_IMPEXPCFGNAMELIST, str_cfgs);
@@ -3065,6 +3067,7 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 	P_ParamList[pp++] = &PersonParam;
 	P_ParamList[pp++] = &WorkbookParam;
 	P_ParamList[pp++] = &QuotParam;
+	P_ParamList[pp++] = &CcParam; // @v11.8.4
 	{
 		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_IMPEXPCFGS_CFGS));
 		if(p_box) { // @v11.4.6 @fix SmartListBox::IsValidS(p_box)-->p_box
@@ -3174,6 +3177,7 @@ ImpExpParamDialog * ImpExpCfgsListDialog::GetParamDlg(uint cfgPos)
 			case PPREC_PHONELIST: p_dlg = new PhoneListImpExpDialog; break;
 			case PPREC_SCARD: p_dlg = new SCardImpExpDialog; break;
 			case PPREC_QUOTVAL: p_dlg = new QuotImpExpDialog; break;
+			case PPREC_CCHECK2: p_dlg = new CCheckImpExpDialog; break; // @v11.8.4 @construction
 		}
 	}
 	return p_dlg;
@@ -3198,6 +3202,7 @@ int ImpExpCfgsListDialog::SetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 			case PPREC_PHONELIST: ok = static_cast<PhoneListImpExpDialog *>(pDlg)->setDTS(static_cast<PPPhoneListImpExpParam *>(pParam)); break;
 			case PPREC_SCARD: ok = static_cast<SCardImpExpDialog *>(pDlg)->setDTS(static_cast<PPSCardImpExpParam *>(pParam)); break;
 			case PPREC_QUOTVAL: ok = static_cast<QuotImpExpDialog *>(pDlg)->setDTS(static_cast<PPQuotImpExpParam *>(pParam)); break;
+			case PPREC_CCHECK2: ok = static_cast<CCheckImpExpDialog *>(pDlg)->setDTS(static_cast<PPCCheckImpExpParam *>(pParam)); break; // @v11.8.4
 		}
 	}
 	return ok;
@@ -3222,6 +3227,7 @@ int ImpExpCfgsListDialog::GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 			case PPREC_PHONELIST: ok = static_cast<PhoneListImpExpDialog *>(pDlg)->getDTS(static_cast<PPPhoneListImpExpParam *>(pParam)); break;
 			case PPREC_SCARD: ok = static_cast<SCardImpExpDialog *>(pDlg)->getDTS(static_cast<PPSCardImpExpParam *>(pParam)); break;
 			case PPREC_QUOTVAL: ok = static_cast<QuotImpExpDialog *>(pDlg)->getDTS(static_cast<PPQuotImpExpParam *>(pParam)); break;
+			case PPREC_CCHECK2: ok = static_cast<CCheckImpExpDialog *>(pDlg)->getDTS(static_cast<PPCCheckImpExpParam *>(pParam)); break; // @v11.8.4
 		}
 	}
 	return ok;
@@ -3252,7 +3258,7 @@ int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 		SetParamDlgDTS(p_param_dlg, CfgPos, p_param);
 		while(ok <= 0 && ExecView(p_param_dlg) == cmOK) {
 			if(GetParamDlgDTS(p_param_dlg, CfgPos, p_param)) {
-				int is_new = BIN(cdb_id == 0);
+				const bool is_new = (cdb_id == 0);
 				p_param->ProcessName(2, section = p_param->Name);
 				p_param->Name = section;
 				if(p_param->SerializeConfig(+1, cobj_hdr, cobj_tail, &SCtx)) {

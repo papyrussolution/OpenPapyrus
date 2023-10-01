@@ -1652,14 +1652,12 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(SSL_CTX *ctx,
 	}
 	OPENSSL_free(co_list);  /* Not needed any longer */
 	OSSL_TRACE_END(TLS_CIPHER);
-
 	if(!update_cipher_list_by_id(cipher_list_by_id, cipherstack)) {
 		sk_SSL_CIPHER_free(cipherstack);
 		return NULL;
 	}
 	sk_SSL_CIPHER_free(*cipher_list);
 	*cipher_list = cipherstack;
-
 	return cipherstack;
 }
 
@@ -1685,187 +1683,73 @@ char * SSL_CIPHER_description(const SSL_CIPHER * cipher, char * buf, int len)
 	alg_mac = cipher->algorithm_mac;
 	ver = ssl_protocol_to_string(cipher->min_tls);
 	switch(alg_mkey) {
-		case SSL_kRSA:
-		    kx = "RSA";
-		    break;
-		case SSL_kDHE:
-		    kx = "DH";
-		    break;
-		case SSL_kECDHE:
-		    kx = "ECDH";
-		    break;
-		case SSL_kPSK:
-		    kx = "PSK";
-		    break;
-		case SSL_kRSAPSK:
-		    kx = "RSAPSK";
-		    break;
-		case SSL_kECDHEPSK:
-		    kx = "ECDHEPSK";
-		    break;
-		case SSL_kDHEPSK:
-		    kx = "DHEPSK";
-		    break;
-		case SSL_kSRP:
-		    kx = "SRP";
-		    break;
-		case SSL_kGOST:
-		    kx = "GOST";
-		    break;
-		case SSL_kGOST18:
-		    kx = "GOST18";
-		    break;
-		case SSL_kANY:
-		    kx = "any";
-		    break;
-		default:
-		    kx = "unknown";
+		case SSL_kRSA: kx = "RSA"; break;
+		case SSL_kDHE: kx = "DH"; break;
+		case SSL_kECDHE: kx = "ECDH"; break;
+		case SSL_kPSK: kx = "PSK"; break;
+		case SSL_kRSAPSK: kx = "RSAPSK"; break;
+		case SSL_kECDHEPSK: kx = "ECDHEPSK"; break;
+		case SSL_kDHEPSK: kx = "DHEPSK"; break;
+		case SSL_kSRP: kx = "SRP"; break;
+		case SSL_kGOST: kx = "GOST"; break;
+		case SSL_kGOST18: kx = "GOST18"; break;
+		case SSL_kANY: kx = "any"; break;
+		default: kx = "unknown";
 	}
-
 	switch(alg_auth) {
-		case SSL_aRSA:
-		    au = "RSA";
-		    break;
-		case SSL_aDSS:
-		    au = "DSS";
-		    break;
-		case SSL_aNULL:
-		    au = "None";
-		    break;
-		case SSL_aECDSA:
-		    au = "ECDSA";
-		    break;
-		case SSL_aPSK:
-		    au = "PSK";
-		    break;
-		case SSL_aSRP:
-		    au = "SRP";
-		    break;
-		case SSL_aGOST01:
-		    au = "GOST01";
-		    break;
+		case SSL_aRSA: au = "RSA"; break;
+		case SSL_aDSS: au = "DSS"; break;
+		case SSL_aNULL: au = "None"; break;
+		case SSL_aECDSA: au = "ECDSA"; break;
+		case SSL_aPSK: au = "PSK"; break;
+		case SSL_aSRP: au = "SRP"; break;
+		case SSL_aGOST01: au = "GOST01"; break;
 		/* New GOST ciphersuites have both SSL_aGOST12 and SSL_aGOST01 bits */
-		case (SSL_aGOST12 | SSL_aGOST01):
-		    au = "GOST12";
-		    break;
-		case SSL_aANY:
-		    au = "any";
-		    break;
-		default:
-		    au = "unknown";
-		    break;
+		case (SSL_aGOST12 | SSL_aGOST01): au = "GOST12"; break;
+		case SSL_aANY: au = "any"; break;
+		default: au = "unknown"; break;
 	}
-
 	switch(alg_enc) {
-		case SSL_DES:
-		    enc = "DES(56)";
-		    break;
-		case SSL_3DES:
-		    enc = "3DES(168)";
-		    break;
-		case SSL_RC4:
-		    enc = "RC4(128)";
-		    break;
-		case SSL_RC2:
-		    enc = "RC2(128)";
-		    break;
-		case SSL_IDEA:
-		    enc = "IDEA(128)";
-		    break;
-		case SSL_eNULL:
-		    enc = "None";
-		    break;
-		case SSL_AES128:
-		    enc = "AES(128)";
-		    break;
-		case SSL_AES256:
-		    enc = "AES(256)";
-		    break;
-		case SSL_AES128GCM:
-		    enc = "AESGCM(128)";
-		    break;
-		case SSL_AES256GCM:
-		    enc = "AESGCM(256)";
-		    break;
-		case SSL_AES128CCM:
-		    enc = "AESCCM(128)";
-		    break;
-		case SSL_AES256CCM:
-		    enc = "AESCCM(256)";
-		    break;
-		case SSL_AES128CCM8:
-		    enc = "AESCCM8(128)";
-		    break;
-		case SSL_AES256CCM8:
-		    enc = "AESCCM8(256)";
-		    break;
-		case SSL_CAMELLIA128:
-		    enc = "Camellia(128)";
-		    break;
-		case SSL_CAMELLIA256:
-		    enc = "Camellia(256)";
-		    break;
-		case SSL_ARIA128GCM:
-		    enc = "ARIAGCM(128)";
-		    break;
-		case SSL_ARIA256GCM:
-		    enc = "ARIAGCM(256)";
-		    break;
-		case SSL_SEED:
-		    enc = "SEED(128)";
-		    break;
+		case SSL_DES: enc = "DES(56)"; break;
+		case SSL_3DES: enc = "3DES(168)"; break;
+		case SSL_RC4: enc = "RC4(128)"; break;
+		case SSL_RC2: enc = "RC2(128)"; break;
+		case SSL_IDEA: enc = "IDEA(128)"; break;
+		case SSL_eNULL: enc = "None"; break;
+		case SSL_AES128: enc = "AES(128)"; break;
+		case SSL_AES256: enc = "AES(256)"; break;
+		case SSL_AES128GCM: enc = "AESGCM(128)"; break;
+		case SSL_AES256GCM: enc = "AESGCM(256)"; break;
+		case SSL_AES128CCM: enc = "AESCCM(128)"; break;
+		case SSL_AES256CCM: enc = "AESCCM(256)"; break;
+		case SSL_AES128CCM8: enc = "AESCCM8(128)"; break;
+		case SSL_AES256CCM8: enc = "AESCCM8(256)"; break;
+		case SSL_CAMELLIA128: enc = "Camellia(128)"; break;
+		case SSL_CAMELLIA256: enc = "Camellia(256)"; break;
+		case SSL_ARIA128GCM: enc = "ARIAGCM(128)"; break;
+		case SSL_ARIA256GCM: enc = "ARIAGCM(256)"; break;
+		case SSL_SEED: enc = "SEED(128)"; break;
 		case SSL_eGOST2814789CNT:
-		case SSL_eGOST2814789CNT12:
-		    enc = "GOST89(256)";
-		    break;
-		case SSL_MAGMA:
-		    enc = "MAGMA";
-		    break;
-		case SSL_KUZNYECHIK:
-		    enc = "KUZNYECHIK";
-		    break;
-		case SSL_CHACHA20POLY1305:
-		    enc = "CHACHA20/POLY1305(256)";
-		    break;
-		default:
-		    enc = "unknown";
-		    break;
+		case SSL_eGOST2814789CNT12: enc = "GOST89(256)"; break;
+		case SSL_MAGMA: enc = "MAGMA"; break;
+		case SSL_KUZNYECHIK: enc = "KUZNYECHIK"; break;
+		case SSL_CHACHA20POLY1305: enc = "CHACHA20/POLY1305(256)"; break;
+		default: enc = "unknown"; break;
 	}
-
 	switch(alg_mac) {
-		case SSL_MD5:
-		    mac = "MD5";
-		    break;
-		case SSL_SHA1:
-		    mac = "SHA1";
-		    break;
-		case SSL_SHA256:
-		    mac = "SHA256";
-		    break;
-		case SSL_SHA384:
-		    mac = "SHA384";
-		    break;
-		case SSL_AEAD:
-		    mac = "AEAD";
-		    break;
+		case SSL_MD5: mac = "MD5"; break;
+		case SSL_SHA1: mac = "SHA1"; break;
+		case SSL_SHA256: mac = "SHA256"; break;
+		case SSL_SHA384: mac = "SHA384"; break;
+		case SSL_AEAD: mac = "AEAD"; break;
 		case SSL_GOST89MAC:
-		case SSL_GOST89MAC12:
-		    mac = "GOST89";
-		    break;
-		case SSL_GOST94:
-		    mac = "GOST94";
-		    break;
+		case SSL_GOST89MAC12: mac = "GOST89"; break;
+		case SSL_GOST94: mac = "GOST94"; break;
 		case SSL_GOST12_256:
-		case SSL_GOST12_512:
-		    mac = "GOST2012";
-		    break;
-		default:
-		    mac = "unknown";
-		    break;
+		case SSL_GOST12_512: mac = "GOST2012"; break;
+		default: mac = "unknown"; break;
 	}
-
 	BIO_snprintf(buf, len, format, cipher->name, ver, kx, au, enc, mac);
-
 	return buf;
 }
 

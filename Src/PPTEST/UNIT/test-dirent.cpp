@@ -1131,13 +1131,21 @@ SLTEST_R(dirent)
 		T_ScanDir(*this, base_dir.cptr());
 	}
 	{
+		const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
 		SString temp_buf;
+		SString ued_symb;
 		TSCollection <SKnownFolderEntry> known_folder_list;
 		GetKnownFolderList(known_folder_list);
 		for(uint i = 0; i < known_folder_list.getCount(); i++) {
 			const SKnownFolderEntry * p_entry = known_folder_list.at(i);
 			if(p_entry) {
-				temp_buf.Z().CatHex(p_entry->UED).Space().Cat(p_entry->Guid, S_GUID::fmtIDL).Space().Cat(p_entry->Result).Space().Cat(p_entry->PathUtf8).CR();
+				ued_symb.Z();
+				temp_buf.Z();
+				if(p_uedc && p_uedc->GetSymb(p_entry->UED, ued_symb)) {
+					assert(ued_symb.NotEmpty());
+					temp_buf.Cat(ued_symb).Space();
+				}
+				temp_buf.CatHex(p_entry->UED).Space().Cat(p_entry->Guid, S_GUID::fmtIDL).Space().Cat(p_entry->Result).Space().Cat(p_entry->PathUtf8).CR();
 				SetInfo(temp_buf);
 			}
 		}

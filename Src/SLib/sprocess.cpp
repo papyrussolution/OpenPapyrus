@@ -11,6 +11,202 @@
 //
 // 
 //
+/*static*/SPtrHandle SlProcess::OpenAccessToken(SIntHandle hProcess, uint desiredAccess)
+{
+	SPtrHandle result;
+	HANDLE h = 0;
+	if(::OpenProcessToken(hProcess, desiredAccess, &h)) {
+		assert(h != 0);
+		result = h;
+	}
+	return result;
+}
+
+/*static*/SPtrHandle SlProcess::OpenCurrentAccessToken(uint desiredAccess)
+{
+	SPtrHandle result;
+	HANDLE h = 0;
+	if(::OpenProcessToken(::GetCurrentProcess(), desiredAccess, &h)) {
+		assert(h != 0);
+		result = h;
+	}
+	return result;
+}
+//
+//
+//
+#define MAX_PRIVNAME 32
+#define MAX_PRIVSCAN 256
+
+struct PRIVILAGENAME_MAPPING {
+	WCHAR SymbolName[MAX_PRIVNAME];
+	WCHAR PrivilegeName[MAX_PRIVNAME];
+};
+
+static const PRIVILAGENAME_MAPPING PrivilegeNameMapping[] = {
+	{ L"SE_CREATE_TOKEN_NAME", SE_CREATE_TOKEN_NAME },
+	{ L"SE_ASSIGNPRIMARYTOKEN_NAME", SE_ASSIGNPRIMARYTOKEN_NAME },
+	{ L"SE_LOCK_MEMORY_NAME", SE_LOCK_MEMORY_NAME },
+	{ L"SE_INCREASE_QUOTA_NAME", SE_INCREASE_QUOTA_NAME },
+	{ L"SE_UNSOLICITED_INPUT_NAME", SE_UNSOLICITED_INPUT_NAME }, // no LUID?
+	{ L"SE_MACHINE_ACCOUNT_NAME", SE_MACHINE_ACCOUNT_NAME },
+	{ L"SE_TCB_NAME", SE_TCB_NAME },
+	{ L"SE_SECURITY_NAME", SE_SECURITY_NAME },
+	{ L"SE_TAKE_OWNERSHIP_NAME", SE_TAKE_OWNERSHIP_NAME },
+	{ L"SE_LOAD_DRIVER_NAME", SE_LOAD_DRIVER_NAME },
+	{ L"SE_SYSTEM_PROFILE_NAME", SE_SYSTEM_PROFILE_NAME },
+	{ L"SE_SYSTEMTIME_NAME", SE_SYSTEMTIME_NAME },
+	{ L"SE_PROF_SINGLE_PROCESS_NAME", SE_PROF_SINGLE_PROCESS_NAME },
+	{ L"SE_INC_BASE_PRIORITY_NAME", SE_INC_BASE_PRIORITY_NAME },
+	{ L"SE_CREATE_PAGEFILE_NAME", SE_CREATE_PAGEFILE_NAME },
+	{ L"SE_CREATE_PERMANENT_NAME", SE_CREATE_PERMANENT_NAME },
+	{ L"SE_BACKUP_NAME", SE_BACKUP_NAME },
+	{ L"SE_RESTORE_NAME", SE_RESTORE_NAME },
+	{ L"SE_SHUTDOWN_NAME", SE_SHUTDOWN_NAME },
+	{ L"SE_DEBUG_NAME", SE_DEBUG_NAME },
+	{ L"SE_AUDIT_NAME", SE_AUDIT_NAME },
+	{ L"SE_SYSTEM_ENVIRONMENT_NAME", SE_SYSTEM_ENVIRONMENT_NAME },
+	{ L"SE_CHANGE_NOTIFY_NAME", SE_CHANGE_NOTIFY_NAME },
+	{ L"SE_REMOTE_SHUTDOWN_NAME", SE_REMOTE_SHUTDOWN_NAME },
+	{ L"SE_UNDOCK_NAME", SE_UNDOCK_NAME },
+	{ L"SE_SYNC_AGENT_NAME", SE_SYNC_AGENT_NAME },
+	{ L"SE_ENABLE_DELEGATION_NAME", SE_ENABLE_DELEGATION_NAME },
+	{ L"SE_MANAGE_VOLUME_NAME", SE_MANAGE_VOLUME_NAME },
+	{ L"SE_IMPERSONATE_NAME", SE_IMPERSONATE_NAME },
+	{ L"SE_CREATE_GLOBAL_NAME", SE_CREATE_GLOBAL_NAME },
+	{ L"SE_TRUSTED_CREDMAN_ACCESS_NAME", SE_TRUSTED_CREDMAN_ACCESS_NAME },
+	{ L"SE_RELABEL_NAME", SE_RELABEL_NAME },
+	{ L"SE_INC_WORKING_SET_NAME", SE_INC_WORKING_SET_NAME },
+	{ L"SE_TIME_ZONE_NAME", SE_TIME_ZONE_NAME },
+	{ L"SE_CREATE_SYMBOLIC_LINK_NAME", SE_CREATE_SYMBOLIC_LINK_NAME },
+	{ L"", L"" }
+};
+
+static bool _LookupPrivilegeName(const wchar_t * pSystemName, const PLUID Luid, const wchar_t ** ppSymbolName,
+    wchar_t * pPrivilegeName, DWORD * pPrivilegeNameLength, wchar_t * pDisplayName, DWORD * pDisplayNameLength, BOOL noErrMsg) 
+{
+	DWORD language_id;
+	int Index = -1;
+	BOOL ret = LookupPrivilegeNameW(NULL, Luid, pPrivilegeName, pPrivilegeNameLength);
+	if(!ret) {
+		if(GetLastError()!=ERROR_INSUFFICIENT_BUFFER && !noErrMsg)
+			wprintf(L"LookupPrivilegeName failed - 0x%08x\n", GetLastError());
+		goto cleanup;
+	}
+	ret = LookupPrivilegeDisplayName(NULL, pPrivilegeName, pDisplayName, pDisplayNameLength, &language_id);
+	if(!ret) {
+		if(GetLastError()!=ERROR_INSUFFICIENT_BUFFER && !noErrMsg)
+			wprintf(L"LookupPrivilegeDisplayName failed - 0x%08x\n", GetLastError());
+		goto cleanup;
+	}
+	ret = FALSE;
+	{
+		const PRIVILAGENAME_MAPPING * p = PrivilegeNameMapping;
+		for(Index = 0; p->SymbolName[0]!=0; ++p, ++Index) {
+			if(wcscmp(pPrivilegeName, p->PrivilegeName) == 0) {
+				ret = TRUE;
+				break;
+			}
+		}
+	}
+	if(ret) {
+		if(ppSymbolName)
+			*ppSymbolName = PrivilegeNameMapping[Index].SymbolName;
+	}
+	else if(noErrMsg) {
+		wprintf(L"%s not found\n", pPrivilegeName);
+	}
+cleanup:
+	return LOGIC(ret);
+}
+
+static BOOL LookupPrivilegeValueEx(const wchar_t * pSystemName, const wchar_t * pName, PLUID Luid) 
+{
+	BOOL result = LookupPrivilegeValueW(pSystemName, pName, Luid);
+	if(!result && GetLastError() == ERROR_NO_SUCH_PRIVILEGE) {
+		const PRIVILAGENAME_MAPPING * p;
+		for(p = PrivilegeNameMapping; p->SymbolName[0]!=0; ++p) {
+			if(wcscmp(pName, p->SymbolName) == 0)
+				return LookupPrivilegeValue(pSystemName, p->PrivilegeName, Luid);
+		}
+		SetLastError(ERROR_NO_SUCH_PRIVILEGE);
+		result = FALSE;
+	}
+	return result;
+}
+
+/*static*/int SlProcess::CheckAccessTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName)
+{
+	int    result = privrError;
+	LUID   luid;
+	if(!LookupPrivilegeValueEx(NULL, pPrivilegeName, &luid) ) {
+		//wprintf(L"LookupPrivilegeValue failed - 0x%08x\n", GetLastError());
+		result = privrError;
+		//return FALSE;
+	}
+	else {
+		PRIVILEGE_SET privilege_set;
+		privilege_set.Control = 0;
+		privilege_set.PrivilegeCount = 1;
+		privilege_set.Privilege[0].Luid = luid;
+		privilege_set.Privilege[0].Attributes = 0; // not used
+		BOOL _check;
+		if(!PrivilegeCheck(token, &privilege_set, &_check) ) {
+			//wprintf(L"PrivilegeCheck failed - 0x%08x\n", GetLastError());
+			result = privrError;
+			//return FALSE;
+		}
+		else if(_check) {
+			result = privrEnabled;
+			//*Privileged = 1;
+		}
+		else {
+			TOKEN_PRIVILEGES tp;
+			tp.PrivilegeCount = 1;
+			tp.Privileges[0].Luid = luid;
+			tp.Privileges[0].Attributes = 0;
+			if(!AdjustTokenPrivileges(token, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), NULL, NULL) ) {
+				//wprintf(L"AdjustTokenPrivileges failed - 0x%08x\n", GetLastError());
+				result = privrError;
+				//return FALSE;
+			}
+			else {
+				//*Privileged = (GetLastError()==ERROR_NOT_ALL_ASSIGNED) ? -1 : 0;
+				result = (GetLastError()==ERROR_NOT_ALL_ASSIGNED) ? privrNotAssigned : privrDisabled;
+			}
+		}
+	}
+	//return TRUE;
+	return result;
+}
+
+/*static*/bool SlProcess::EnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pName, bool enable)
+{
+	bool   ok = true;
+	LUID   luid;
+	if(!LookupPrivilegeValueEx(NULL, pName, &luid)) {
+		//wprintf(L"LookupPrivilegeValue failed - 0x%08x\n", GetLastError());
+		ok = false;
+	}
+	else {
+		TOKEN_PRIVILEGES tp;
+		tp.PrivilegeCount = 1;
+		tp.Privileges[0].Luid = luid;
+		tp.Privileges[0].Attributes = enable ? SE_PRIVILEGE_ENABLED : 0; // not use SE_PRIVILEGE_REMOVED, just disable
+		if(!AdjustTokenPrivileges(token, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), NULL, NULL) ) {
+			//wprintf(L"AdjustTokenPrivileges failed - 0x%08x\n", GetLastError());
+			ok = false;
+		}
+		else if(GetLastError() == ERROR_NOT_ALL_ASSIGNED) {
+			//wprintf(L"The process token does not have %s (%I64d).\n", pName, luid);
+			ok = false;
+		}
+		//wprintf(L"%s (%I64d) is temporarily %s.\n", pName, luid, enable ? L"enabled" : L"disabled");
+	}
+	return ok;
+}
+
+
 SlProcess::SlProcess() : Flags(0), P_AppC(0)
 {
 }
@@ -40,6 +236,24 @@ bool SlProcess::SetFlags(uint flags)
 	// @todo Необходимо проверить переданные с аргументов флаги на непротиворечивость.
 	// Например, internal-флаги не должны передаваться (их надо игнорировать).
 	Flags |= flags;
+	return ok;
+}
+
+bool SlProcess::SetImpersUser(const char * pUserUtf8, const char * pPasswordUtf8)
+{
+	bool   ok = true;
+	SString temp_buf;
+	(temp_buf = pUserUtf8).Strip();
+	THROW(temp_buf.IsLegalUtf8()); // @todo @err
+	THROW(UserName.CopyFromUtf8(temp_buf));
+	(temp_buf = pPasswordUtf8).Strip();
+	THROW(temp_buf.IsLegalUtf8()); // @todo @err
+	THROW(UserPw.CopyFromUtf8(temp_buf));
+	CATCH
+		UserName.Z();
+		UserPw.Z();
+		ok = false;
+	ENDCATCH
 	return ok;
 }
 
@@ -393,8 +607,52 @@ int SlProcess::Run(SlProcess::Result * pResult)
 				startup_info.StartupInfo.cb = sizeof(STARTUPINFOW);
 			}
 			//
-			create_proc_result = ::CreateProcessW(p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, 
-				creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+			if(UserName.NotEmpty()) {
+				
+				SSystem::WinUserBlock wub;
+				wub.UserName = UserName;
+				wub.Password = UserPw;
+				uint   guhf = 0;
+				BOOL   loaded_profile = FALSE;
+				HANDLE h_cmd_pipe = 0;
+				//PROFILEINFO profile_info;
+				SPtrHandle caller_token = SlProcess::OpenCurrentAccessToken(TOKEN_ALL_ACCESS);
+				//bool guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);
+				/*
+				CheckPrivilege(CallerToken, SE_INCREASE_QUOTA_NAME, &PrivCheck);
+				if(PrivCheck<0)
+					wprintf(L"CreateProcessAsUser requires %s.  Check the user's privileges.\n", SE_INCREASE_QUOTA_NAME);
+				CheckPrivilege(CallerToken, SE_ASSIGNPRIMARYTOKEN_NAME, &PrivCheck);
+				if(PrivCheck<0)
+					wprintf(L"CreateProcessAsUser requires %s.  Check the user's privileges.\n", SE_ASSIGNPRIMARYTOKEN_NAME);
+				*/
+				int privr = SlProcess::CheckAccessTokenPrivilege(caller_token, SE_INCREASE_QUOTA_NAME);
+				if(oneof2(privr, privrNotAssigned, privrDisabled)) {
+					if(EnableAccesTokenPrivilege(caller_token, SE_INCREASE_QUOTA_NAME, true)) {
+						privr = SlProcess::CheckAccessTokenPrivilege(caller_token, SE_INCREASE_QUOTA_NAME);
+					}
+				}
+				privr = SlProcess::CheckAccessTokenPrivilege(caller_token, SE_ASSIGNPRIMARYTOKEN_NAME);
+				if(oneof2(privr, privrNotAssigned, privrDisabled)) {
+					if(EnableAccesTokenPrivilege(caller_token, SE_ASSIGNPRIMARYTOKEN_NAME, true)) {
+						privr = SlProcess::CheckAccessTokenPrivilege(caller_token, SE_ASSIGNPRIMARYTOKEN_NAME);
+					}
+				}
+				//LogonUserW(UserName, NULL, UserPw, LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT, &CalleeToken);
+				SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, SSystem::logonprvDEFAULT);
+				if(callee_token) {
+					//callee_token = wub.H_User_;
+					BOOL iplour = ImpersonateLoggedOnUser(callee_token);
+					if(iplour) {
+						create_proc_result = ::CreateProcessAsUserW(callee_token, p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, 
+							creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+					}
+				}
+			}
+			else {
+				create_proc_result = ::CreateProcessW(p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, 
+					creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+			}
 			::DeleteProcThreadAttributeList(startup_info.lpAttributeList);
 		}
 		if(create_proc_result) {
@@ -467,12 +725,13 @@ bool SlProcess::AppContainer::Delete()
 bool SlProcess::AppContainer::GetFolder()
 {
 	bool   ok = false;
+	HRESULT hr = 0;
 	if(!!Sid) {
 		wchar_t * p_sid_str = 0;
 		wchar_t * p_path = 0;
 		::ConvertSidToStringSid(Sid, &p_sid_str);
 		//((log += L"AppContainer SID:\r\n") += str) += L"\r\n";
-		HRESULT hr = ::GetAppContainerFolderPath(p_sid_str, &p_path);
+		hr = ::GetAppContainerFolderPath(p_sid_str, &p_path);
 		if(SUCCEEDED(hr)) {
 			//((log += L"AppContainer folder: ") += path) += L"\r\n";
 			FolderUtf8.CopyUtf8FromUnicode(p_path, sstrlen(p_path), 1);
@@ -480,6 +739,15 @@ bool SlProcess::AppContainer::GetFolder()
 			ok = true;
 		}
 		::LocalFree(p_sid_str);
+		//
+		{
+			REGSAM da = 0;
+			HKEY h_key = 0;
+			hr = ::GetAppContainerRegistryLocation(da, &h_key);
+			if(SUCCEEDED(hr)) {
+				ok = true;
+			}
+		}
 	}
 	return ok;	
 }
@@ -524,7 +792,7 @@ bool SlProcess::AppContainer::AllowNamedObjectAccess(const wchar_t * pName, /*SE
 	PACL   new_acl = nullptr;
 	DWORD  status = ERROR_SUCCESS;
 	THROW(Sid); // @todo @err
-	do {
+	{
 		EXPLICIT_ACCESS access;
 		access.grfAccessMode = GRANT_ACCESS;
 		access.grfAccessPermissions = accessMask;
@@ -544,14 +812,258 @@ bool SlProcess::AppContainer::AllowNamedObjectAccess(const wchar_t * pName, /*SE
 			sstrcpy(static_cast<wchar_t *>(name_buf.vptr()), pName);
 			status = SetNamedSecurityInfo(static_cast<wchar_t *>(name_buf.vptr()), static_cast<SE_OBJECT_TYPE>(type), 
 				DACL_SECURITY_INFORMATION, nullptr, nullptr, new_acl, nullptr);
-			if(status != ERROR_SUCCESS)
-				break;
+			if(status != ERROR_SUCCESS) {
+				//break;
+				; // @todo @err
+			}
 		}
-	} while(false);
-	assert(status == ERROR_SUCCESS);
+	}
+	//assert(status == ERROR_SUCCESS);
 	CATCHZOK
 	if(new_acl)
 		::LocalFree(new_acl);
 	return (status == ERROR_SUCCESS);
 }
+//
+//
+//
+#include <iostream>
+//#include <Windows.h>
+//#include <UserEnv.h>
+#include <dsgetdc.h>
+#include <Lm.h>
 
+//#pragma comment(lib, "netapi32.lib")
+//#pragma comment(lib, "userenv.lib")
+
+HANDLE g_hStopEvent = NULL;
+HANDLE g_hProcess = NULL;
+
+static void PrintWin32ErrorToString(LPCWSTR szMessage, DWORD dwErr)
+{
+	const int maxSite = 512;
+	const LPCWSTR szFormat = L"%s hex: 0x%x dec: %d message: %s\n";
+	LPCWSTR szDefaultMessage = L"<< unknown message for this error code >>";
+	WCHAR wszMsgBuff[maxSite];
+	DWORD dwChars;
+	HINSTANCE hInst = NULL;
+	dwChars = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, dwErr, NULL, wszMsgBuff, maxSite, nullptr);
+	if(!dwChars) {
+		hInst = LoadLibraryW(L"Ntdsbmsg.dll");
+		if(!hInst) {
+			wprintf(szFormat, szMessage, dwErr, dwErr, szDefaultMessage);
+		}
+		dwChars = FormatMessageW(FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, hInst, dwErr, NULL, wszMsgBuff, maxSite, nullptr);
+		if(hInst) {
+			FreeLibrary(hInst);
+			hInst = NULL;
+		}
+	}
+	wprintf(szFormat, szMessage, dwErr, dwErr, (dwChars ? wszMsgBuff : szDefaultMessage));
+}
+
+static bool WINAPI ConsoleHandler(DWORD signal)
+{
+	if(oneof5(signal, CTRL_C_EVENT, CTRL_CLOSE_EVENT, CTRL_BREAK_EVENT, CTRL_LOGOFF_EVENT, CTRL_SHUTDOWN_EVENT)) {
+		if(!TerminateProcess(g_hProcess, S_OK)) {
+			PrintWin32ErrorToString(L"ERROR: Could not terminate child process (needs to be terminated/closed manually) with error:", GetLastError());
+		}
+		SetEvent(g_hStopEvent);
+	}
+	return true;
+}
+
+int _DontRun__wmain(int argc, PWCHAR argv[])
+{
+	if(argc < 4) {
+		std::wcout << L"ERROR: Invalid number of arguments passed." << std::endl;
+		std::wcout << L"\tArg1: User Account (ex. Domain\\UserName)" << std::endl;
+		std::wcout << L"\tArg2: User Account Password" << std::endl;
+		std::wcout << L"\tArg3: Process to start" << std::endl;
+		return HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
+	}
+	DWORD status = S_OK;
+	std::wstring userAccount = argv[1];
+	std::wstring userPassword = argv[2];
+	std::wstring cmdLine = argv[3];
+
+	std::wstring userName = userAccount.substr(userAccount.find_first_of(L"\\") + 1, userAccount.length());
+	std::wstring domainName = userAccount.substr(0, userAccount.find_first_of(L"\\"));
+
+	PDOMAIN_CONTROLLER_INFOW pDomainControllerInfo = nullptr;
+	LPUSER_INFO_4 pUserInfo = nullptr;
+	PROFILEINFOW pProfileInfo;
+	HANDLE hToken = NULL;
+	TOKEN_PRIVILEGES tokenPrivileges;
+	LPVOID pEnvironmentBlock = nullptr;
+	STARTUPINFOW startupInfo;
+	PROCESS_INFORMATION processInfo;
+	PRIVILEGE_SET privileges;
+	BOOL privCheckStatus;
+	if(!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
+		status = GetLastError();
+		PrintWin32ErrorToString(L"ERROR: Cannot open current user token with error:", status);
+		goto cleanup;
+	}
+	ZeroMemory(&tokenPrivileges, sizeof(tokenPrivileges));
+	tokenPrivileges.PrivilegeCount = 1;
+	tokenPrivileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	if(!LookupPrivilegeValueW(nullptr, SE_ASSIGNPRIMARYTOKEN_NAME, &tokenPrivileges.Privileges[0].Luid)) {
+		status = GetLastError();
+		PrintWin32ErrorToString(L"ERROR: Cannot lookup privilege value (LUID) with error:", status);
+		goto cleanup;
+	}
+	ZeroMemory(&privileges, sizeof(privileges));
+	privileges.PrivilegeCount = 1;
+	privileges.Control = PRIVILEGE_SET_ALL_NECESSARY;
+	privileges.Privilege[0].Luid = tokenPrivileges.Privileges[0].Luid;
+	privileges.Privilege[0].Attributes = SE_PRIVILEGE_ENABLED;
+	if(!PrivilegeCheck(hToken, &privileges, &privCheckStatus)) {
+		status = GetLastError();
+		PrintWin32ErrorToString(L"ERROR: Cannot check user privileges with error:", status);
+		goto cleanup;
+	}
+	else {
+		if(!privCheckStatus) {
+			if(!AdjustTokenPrivileges(hToken, FALSE, &tokenPrivileges, NULL, nullptr, nullptr)) {
+				status = GetLastError();
+				PrintWin32ErrorToString(L"ERROR: Cannot adjust privileges with error:", status);
+				goto cleanup;
+			}
+			else if(GetLastError() == ERROR_NOT_ALL_ASSIGNED) {
+				status = GetLastError();
+				PrintWin32ErrorToString(L"ERROR: Cannot adjust privileges with error:", status);
+				std::wcout << L"Open secpol.msc and got to \"Security Settings\" > \"Local Policies\" > \"User Rights Assignment\"" << std::endl;
+				std::wcout << L"From there, add the user under which this process is running to the \"Replace a process level token\" policy and log off and back on again (with that user)." << std::endl;
+				goto cleanup;
+			}
+			else {
+				CloseHandle(hToken);
+				hToken = NULL;
+			}
+		}
+	}
+	if(!LogonUserW(userName.c_str(), domainName.c_str(), userPassword.c_str(), LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT, &hToken)) {
+		status = GetLastError();
+		PrintWin32ErrorToString(L"ERROR: Cannot logon user with error:", status);
+		goto cleanup;
+	}
+	status = DsGetDcNameW(nullptr, domainName.c_str(), nullptr, nullptr, NULL, &pDomainControllerInfo);
+	if(status != ERROR_SUCCESS) {
+		status = DsGetDcNameW(nullptr, domainName.c_str(), nullptr, nullptr, DS_FORCE_REDISCOVERY, &pDomainControllerInfo);
+	if(status != ERROR_SUCCESS) {
+		status = HRESULT_FROM_WIN32(status);
+		PrintWin32ErrorToString(L"ERROR: Cannot find domain controller with error:", status);
+		goto cleanup;
+	}
+	}
+	status = NetUserGetInfo(pDomainControllerInfo->DomainControllerName, userName.c_str(), 4, reinterpret_cast<LPBYTE*>(&pUserInfo));
+	if(status != ERROR_SUCCESS) {
+		status = HRESULT_FROM_WIN32(status);
+		PrintWin32ErrorToString(L"ERROR: Cannot get user info with error:", status);
+		goto cleanup;
+	}
+	ZeroMemory(&pProfileInfo, sizeof(pProfileInfo));
+	pProfileInfo.dwSize = sizeof(pProfileInfo);
+	pProfileInfo.lpUserName = const_cast<LPWSTR>(userAccount.c_str());
+	pProfileInfo.dwFlags = PI_NOUI;
+	pProfileInfo.lpProfilePath = pUserInfo->usri4_profile;
+	if(!LoadUserProfileW(hToken, &pProfileInfo)) {
+		status = GetLastError();
+		PrintWin32ErrorToString(L"ERROR: Cannot user profile with error:", status);
+		goto cleanup;
+	}
+	if(!CreateEnvironmentBlock(&pEnvironmentBlock, hToken, false)) {
+		status = GetLastError();
+		PrintWin32ErrorToString(L"ERROR: Cannot create environment block with error:", status);
+		goto cleanup;
+	}
+	ZeroMemory(&startupInfo, sizeof(startupInfo));
+	startupInfo.cb = sizeof(startupInfo);
+	startupInfo.lpDesktop = const_cast<LPWSTR>(L"");
+	ZeroMemory(&processInfo, sizeof(processInfo));
+	if(!CreateProcessAsUserW(hToken, nullptr, const_cast<LPWSTR>(cmdLine.c_str()), nullptr,
+		nullptr, false, CREATE_UNICODE_ENVIRONMENT, pEnvironmentBlock, nullptr, &startupInfo, &processInfo)){
+		status = HRESULT_FROM_WIN32(GetLastError());
+		PrintWin32ErrorToString(L"ERROR: Cannot create process with error:", status);
+		goto cleanup;
+	}
+	else {
+	std::wcout << L"!!! SUCCESS !!! => Waiting (forever) for child porcess to exit ..." << std::endl;
+	g_hProcess = processInfo.hProcess;
+	g_hStopEvent = CreateEventW(NULL, true, false, nullptr);
+	if(!g_hStopEvent) {
+		status = GetLastError();
+		PrintWin32ErrorToString(L"ERROR: Failed to create event with error:", status);
+		goto cleanup;
+	}
+	if(!SetConsoleCtrlHandler(reinterpret_cast<PHANDLER_ROUTINE>(ConsoleHandler), true)) {
+		status = GetLastError();
+		PrintWin32ErrorToString(L"ERROR: Could not set control handler with error:", status);
+		goto cleanup;
+	}
+
+	std::wcout << L"\tAlso waiting for \"CTRL+C\" to (force) terminate the child process and finish the program (just in case it has no UI or you can't see it for some reason) ..." << std::endl;
+	std::wcout << L"\tIf you are using a tool like PsExec.exe (or similar) to start this RunAs tool (program/exe), then, if you press \"CTRL+C\"," << std::endl;
+	std::wcout << L"it will terminate without being able to close the child process in some situations (non-interactive - running under gMSA for example) and so, " << std::endl;
+	std::wcout << L"it might be that you need to kill the child process manually - PID of the child process is: " << processInfo.dwProcessId << std::endl;
+
+	const int waitHandleCount = 2;
+	HANDLE hWaitForHandles[waitHandleCount];
+	hWaitForHandles[0] = processInfo.hProcess;
+	hWaitForHandles[1] = g_hStopEvent;
+	status = WaitForMultipleObjects(waitHandleCount, hWaitForHandles, false, INFINITE);
+	if(status == WAIT_OBJECT_0) {
+		if(!GetExitCodeProcess(processInfo.hProcess, &status)) {
+			status = GetLastError();
+			PrintWin32ErrorToString(L"ERROR: Failed to get exit status of child process with error:", status);
+		}
+		else {
+			PrintWin32ErrorToString(L"Child process succesfully existed with exit code:", status);
+		}
+	}
+	else if(status == (WAIT_OBJECT_0 + 1)) {
+		std::wcout << L"Cancel event (Ctrl+C) was pressed, so it \"killed\" the child process and thus the exit status is irrelevant." << std::endl;
+	}
+	else {
+		std::wcout << L"Something went wrong while waiting on the child process to finish. This can be ignored in this case though ..." << std::endl;
+	}
+	if(startupInfo.hStdError) {
+		CloseHandle(startupInfo.hStdError);
+		startupInfo.hStdError = NULL;
+	}
+	if(startupInfo.hStdInput) {
+		CloseHandle(startupInfo.hStdInput);
+		startupInfo.hStdInput = NULL;
+	}
+	if(startupInfo.hStdOutput) {
+		CloseHandle(startupInfo.hStdOutput);
+		startupInfo.hStdOutput = NULL;
+	}
+	CloseHandle(processInfo.hProcess);
+	CloseHandle(processInfo.hThread);
+	UnloadUserProfile(hToken, pProfileInfo.hProfile);
+	}
+cleanup:
+	if(hToken) {
+		CloseHandle(hToken);
+		hToken = NULL;
+	}
+	if(pDomainControllerInfo) {
+		NetApiBufferFree(pDomainControllerInfo);
+		pDomainControllerInfo = nullptr;
+	}
+	if(pUserInfo) {
+		NetApiBufferFree(pUserInfo);
+		pUserInfo = nullptr;
+	}
+	if(pEnvironmentBlock) {
+		DestroyEnvironmentBlock(pEnvironmentBlock);
+		pEnvironmentBlock = nullptr;
+	}
+	if(g_hStopEvent) {
+		CloseHandle(g_hStopEvent);
+		g_hStopEvent = NULL;
+	}
+	return status;
+}

@@ -86,9 +86,7 @@ static int FASTCALL line_compare_for_y_against_x(const cairo_line_t * a, int32 y
 static int lines_compare_x_for_y_general(const cairo_line_t * a, const cairo_line_t * b, int32 y)
 {
 	/* XXX: We're assuming here that dx and dy will still fit in 32
-	 * bits. That's not true in general as there could be overflow. We
-	 * should prevent that before the tessellation algorithm
-	 * begins.
+	 * bits. That's not true in general as there could be overflow. We should prevent that before the tessellation algorithm begins.
 	 */
 	int32 dx = 0;
 	int32 adx = 0, ady = 0;

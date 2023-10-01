@@ -9,6 +9,12 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="SandBox">
+      <UniqueIdentifier>{da765aa0-e472-4f1b-96ec-7f4c8827e1c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SandBox\Logue">
+      <UniqueIdentifier>{dff62694-a01a-4b1e-a528-3ad46fc1d693}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\PPTEST\pptest-dedicated.cpp" />
@@ -26,5 +32,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-slui.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-process.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-ued.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-mem.cpp" />
   </ItemGroup>
 </Project>

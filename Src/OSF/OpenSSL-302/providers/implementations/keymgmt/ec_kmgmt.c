@@ -69,37 +69,29 @@ static OSSL_FUNC_keymgmt_validate_fn sm2_validate;
 #endif
 
 #define EC_DEFAULT_MD "SHA256"
-#define EC_POSSIBLE_SELECTIONS                                                 \
-	(OSSL_KEYMGMT_SELECT_KEYPAIR | OSSL_KEYMGMT_SELECT_ALL_PARAMETERS)
+#define EC_POSSIBLE_SELECTIONS (OSSL_KEYMGMT_SELECT_KEYPAIR | OSSL_KEYMGMT_SELECT_ALL_PARAMETERS)
 #define SM2_DEFAULT_MD "SM3"
 
-static
-const char * ec_query_operation_name(int operation_id)
+static const char * ec_query_operation_name(int operation_id)
 {
 	switch(operation_id) {
-		case OSSL_OP_KEYEXCH:
-		    return "ECDH";
-		case OSSL_OP_SIGNATURE:
-		    return "ECDSA";
+		case OSSL_OP_KEYEXCH: return "ECDH";
+		case OSSL_OP_SIGNATURE: return "ECDSA";
 	}
 	return NULL;
 }
 
 #ifndef FIPS_MODULE
 #ifndef OPENSSL_NO_SM2
-static
-const char * sm2_query_operation_name(int operation_id)
+static const char * sm2_query_operation_name(int operation_id)
 {
 	switch(operation_id) {
-		case OSSL_OP_SIGNATURE:
-		    return "SM2";
+		case OSSL_OP_SIGNATURE: return "SM2";
 	}
 	return NULL;
 }
-
 #endif
 #endif
-
 /*
  * Callers of key_to_params MUST make sure that domparams_to_params is also
  * called!
@@ -107,10 +99,8 @@ const char * sm2_query_operation_name(int operation_id)
  * This function only exports the bare keypair, domain parameters and other
  * parameters are exported separately.
  */
-static ossl_inline
-int key_to_params(const EC_KEY * eckey, OSSL_PARAM_BLD * tmpl,
-    OSSL_PARAM params[], int include_private,
-    unsigned char ** pub_key)
+static ossl_inline int key_to_params(const EC_KEY * eckey, OSSL_PARAM_BLD * tmpl,
+    OSSL_PARAM params[], int include_private, unsigned char ** pub_key)
 {
 	BIGNUM * x = NULL, * y = NULL;
 	const BIGNUM * priv_key = NULL;
@@ -119,14 +109,10 @@ int key_to_params(const EC_KEY * eckey, OSSL_PARAM_BLD * tmpl,
 	size_t pub_key_len = 0;
 	int ret = 0;
 	BN_CTX * bnctx = NULL;
-
-	if(eckey == NULL
-	    || (ecg = EC_KEY_get0_group(eckey)) == NULL)
+	if(eckey == NULL || (ecg = EC_KEY_get0_group(eckey)) == NULL)
 		return 0;
-
 	priv_key = EC_KEY_get0_private_key(eckey);
 	pub_point = EC_KEY_get0_public_key(eckey);
-
 	if(pub_point != NULL) {
 		OSSL_PARAM * p = NULL, * px = NULL, * py = NULL;
 		/*

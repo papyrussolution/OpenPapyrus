@@ -1,5 +1,5 @@
 // BCLPRN.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1374,7 +1374,6 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 				pRgi->Expiry = temp_rgi.Expiry;
 			}
 		}
-
 		{
 			TSCollection <RetailGoodsInfo> rgi_list;
 			RetailGoodsInfo * p_rgi = rgi_list.CreateNewItem();
@@ -1401,6 +1400,7 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam & rBclpp, TSCollection <RetailGoodsInfo> & rList)
 {
 	int    ok = 1;
+	bool   is_print_dvc_set = false; // @v11.8.4
 	PPObjGoods gobj;
 	SString temp_buf;
 	{
@@ -1411,8 +1411,10 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 			PPReportEnv env;
 			if(!(rBclpp.Flags & rBclpp.fInteractive))
 				env.PrnFlags = SReport::PrintingNoAsk;
-			if(loc_prn_port.NotEmpty())
+			if(loc_prn_port.NotEmpty()) {
 				DS.GetTLA().PrintDevice = loc_prn_port;
+				is_print_dvc_set = true; // @v11.8.4
+			}
 			PPAlddPrint(rpt_id, PView(&rList), &env);
 		}
 		else {
@@ -1466,6 +1468,10 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 		}
 	}
 	CATCHZOK
+	// @v11.8.4 {
+	if(is_print_dvc_set)
+		DS.GetTLA().PrintDevice.Z();
+	// } @v11.8.4
 	return ok;
 }
 

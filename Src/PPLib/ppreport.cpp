@@ -1705,8 +1705,8 @@ int CrystalReportPrint(const char * pReportName, const char * pDir, const char *
 	PEGetReportOptions(h_job, &ro);
 	ro.morePrintEngineErrorMessages = FALSE;
 	PESetReportOptions(h_job, &ro);
-	if (!DS.GetConstTLA().PrintDevice.Len()) {
-		if (GetWindowsPrinter(0, &DS.GetTLA().PrintDevice) > 0)
+	if(!DS.GetConstTLA().PrintDevice.Len()) {
+		if(GetWindowsPrinter(0, &DS.GetTLA().PrintDevice) > 0)
 			zero_print_device = 1;
 	}
 	THROW(SetPrinterParam(h_job, p_inner_printer, options, pDevMode));
@@ -1777,7 +1777,7 @@ int CrystalReportPrint(const char * pReportName, const char * pDir, const char *
 	if(h_job)
 		PEClosePrintJob(h_job);
 	if(zero_print_device)
-		DS.GetTLA().PrintDevice = 0;
+		DS.GetTLA().PrintDevice.Z();
 	return ok;
 } // }@erik v10.4.10
 

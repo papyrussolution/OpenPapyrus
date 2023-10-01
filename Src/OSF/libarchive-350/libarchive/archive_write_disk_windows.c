@@ -56,7 +56,7 @@ static BOOL SetFilePointerEx_perso(HANDLE hFile,
 }
 
 struct fixup_entry {
-	struct fixup_entry      * next;
+	struct fixup_entry * next;
 	archive_acl acl;
 	mode_t mode;
 	int64 atime;
@@ -730,7 +730,6 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 	archive_wstrcpy(&(a->_name_data), archive_entry_pathname_w(a->entry));
 	a->name = a->_name_data.s;
 	archive_clear_error(&a->archive);
-
 	/*
 	 * Clean up the requested path.  This is necessary for correct
 	 * dir restores; the dir restore logic otherwise gets messed
@@ -739,7 +738,6 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 	ret = cleanup_pathname(a);
 	if(ret != ARCHIVE_OK)
 		return ret;
-
 	/*
 	 * Generate a full-pathname and use it from here.
 	 */
@@ -747,7 +745,6 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 		errno = EINVAL;
 		return ARCHIVE_FAILED;
 	}
-
 	/*
 	 * Query the umask so we get predictable mode settings.
 	 * This gets done on every call to _write_header in case the
@@ -755,7 +752,6 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 	 * reason.
 	 */
 	umask(a->user_umask = umask(0));
-
 	/* Figure out what we need to do for this entry. */
 	a->todo = TODO_MODE_BASE;
 	if(a->flags & ARCHIVE_EXTRACT_PERM) {
@@ -776,18 +772,12 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 		 */
 		if(a->mode & S_ISGID)
 			a->todo |= TODO_SGID | TODO_SGID_CHECK;
-		/*
-		 * Verifying the SUID is simpler, but can still be
-		 * done in multiple ways, hence the separate "check" bit.
-		 */
+		// Verifying the SUID is simpler, but can still be done in multiple ways, hence the separate "check" bit.
 		if(a->mode & S_ISUID)
 			a->todo |= TODO_SUID | TODO_SUID_CHECK;
 	}
 	else {
-		/*
-		 * User didn't request full permissions, so don't
-		 * restore SUID, SGID bits and obey umask.
-		 */
+		// User didn't request full permissions, so don't restore SUID, SGID bits and obey umask.
 		a->mode &= ~S_ISUID;
 		a->mode &= ~S_ISGID;
 		a->mode &= ~S_ISVTX;
@@ -814,9 +804,7 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 		if(ret != ARCHIVE_OK)
 			return ret;
 	}
-
 	ret = restore_entry(a);
-
 	/*
 	 * TODO: There are rumours that some extended attributes must
 	 * be restored before file data is written.  If this is true,
@@ -826,7 +814,6 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 	 * many ways people are using xattrs, this may prove to be an
 	 * intractable problem.
 	 */
-
 	/*
 	 * Fixup uses the unedited pathname from archive_entry_pathname(),
 	 * because it is relative to the base dir and the edited path
@@ -838,10 +825,7 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 		fe->fixup |= TODO_MODE_BASE;
 		fe->mode = a->mode;
 	}
-
-	if((a->deferred & TODO_TIMES)
-	    && (archive_entry_mtime_is_set(entry)
-	   || archive_entry_atime_is_set(entry))) {
+	if((a->deferred & TODO_TIMES) && (archive_entry_mtime_is_set(entry) || archive_entry_atime_is_set(entry))) {
 		fe = current_fixup(a, archive_entry_pathname_w(entry));
 		fe->mode = a->mode;
 		fe->fixup |= TODO_TIMES;
@@ -850,7 +834,7 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 			fe->atime_nanos = archive_entry_atime_nsec(entry);
 		}
 		else {
-			/* If atime is unset, use start time. */
+			// If atime is unset, use start time
 			fe->atime = a->start_time;
 			fe->atime_nanos = 0;
 		}
@@ -859,7 +843,7 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 			fe->mtime_nanos = archive_entry_mtime_nsec(entry);
 		}
 		else {
-			/* If mtime is unset, use start time. */
+			// If mtime is unset, use start time
 			fe->mtime = a->start_time;
 			fe->mtime_nanos = 0;
 		}
@@ -868,17 +852,15 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 			fe->birthtime_nanos = archive_entry_birthtime_nsec(entry);
 		}
 		else {
-			/* If birthtime is unset, use mtime. */
+			// If birthtime is unset, use mtime
 			fe->birthtime = fe->mtime;
 			fe->birthtime_nanos = fe->mtime_nanos;
 		}
 	}
-
 	if(a->deferred & TODO_ACLS) {
 		fe = current_fixup(a, archive_entry_pathname_w(entry));
 		archive_acl_copy(&fe->acl, archive_entry_acl(entry));
 	}
-
 	if(a->deferred & TODO_FFLAGS) {
 		ulong set, clear;
 		fe = current_fixup(a, archive_entry_pathname_w(entry));
@@ -888,12 +870,10 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 	/*
 	 * On Windows, A creating sparse file requires a special mark.
 	 */
-	if(a->fh != INVALID_HANDLE_VALUE &&
-	    archive_entry_sparse_count(entry) > 0) {
+	if(a->fh != INVALID_HANDLE_VALUE && archive_entry_sparse_count(entry) > 0) {
 		int64 base = 0, offset, length;
 		int i, cnt = archive_entry_sparse_reset(entry);
 		int sparse = 0;
-
 		for(i = 0; i < cnt; i++) {
 			archive_entry_sparse_next(entry, &offset, &length);
 			if(offset - base >= 4096) {
@@ -905,11 +885,9 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 		if(sparse) {
 			DWORD dmy;
 			/* Mark this file as sparse. */
-			DeviceIoControl(a->fh, FSCTL_SET_SPARSE,
-			    NULL, 0, NULL, 0, &dmy, NULL);
+			DeviceIoControl(a->fh, FSCTL_SET_SPARSE, NULL, 0, NULL, 0, &dmy, NULL);
 		}
 	}
-
 	/* We've created the object and are ready to pour data into it. */
 	if(ret >= ARCHIVE_WARN)
 		a->archive.state = ARCHIVE_STATE_DATA;
@@ -921,7 +899,6 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 		archive_entry_set_size(entry, 0);
 		a->filesize = 0;
 	}
-
 	return ret;
 }
 
@@ -1201,10 +1178,9 @@ int64 archive_write_disk_uid(Archive * _a, const char * name, la_int64_t id)
 /*
  * Create a new archive_write_disk object and initialize it with global state.
  */
-Archive * archive_write_disk_new(void)                 {
-	struct archive_write_disk * a;
-
-	a = (struct archive_write_disk *)SAlloc::C(1, sizeof(*a));
+Archive * archive_write_disk_new()
+{
+	struct archive_write_disk * a = (struct archive_write_disk *)SAlloc::C(1, sizeof(*a));
 	if(!a)
 		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_DISK_MAGIC;
@@ -1224,9 +1200,7 @@ Archive * archive_write_disk_new(void)                 {
 static int disk_unlink(const wchar_t * path)
 {
 	wchar_t * fullname;
-	int r;
-
-	r = _wunlink(path);
+	int r = _wunlink(path);
 	if(r != 0 && GetLastError() == ERROR_INVALID_NAME) {
 		fullname = __la_win_permissive_name_w(path);
 		r = _wunlink(fullname);
@@ -1238,9 +1212,7 @@ static int disk_unlink(const wchar_t * path)
 static int disk_rmdir(const wchar_t * path)
 {
 	wchar_t * fullname;
-	int r;
-
-	r = _wrmdir(path);
+	int r = _wrmdir(path);
 	if(r != 0 && GetLastError() == ERROR_INVALID_NAME) {
 		fullname = __la_win_permissive_name_w(path);
 		r = _wrmdir(fullname);
@@ -1248,14 +1220,13 @@ static int disk_rmdir(const wchar_t * path)
 	}
 	return r;
 }
-
 /*
  * The main restore function.
  */
 static int restore_entry(struct archive_write_disk * a)
 {
-	int ret = ARCHIVE_OK, en;
-
+	int ret = ARCHIVE_OK;
+	int en;
 	if(a->flags & ARCHIVE_EXTRACT_UNLINK && !S_ISDIR(a->mode)) {
 		/*
 		 * TODO: Fix this.  Apparently, there are platforms
@@ -1454,7 +1425,7 @@ static int restore_entry(struct archive_write_disk * a)
 			 */
 			if((a->mode != st_mode) && (a->todo & TODO_MODE_FORCE))
 				a->deferred |= (a->todo & TODO_MODE);
-			/* Ownership doesn't need deferred fixup. */
+			// Ownership doesn't need deferred fixup
 			en = 0; /* Forget the EEXIST. */
 		}
 	}
@@ -1821,8 +1792,7 @@ static struct fixup_entry * new_fixup(struct archive_write_disk * a, const wchar
  */
 static struct fixup_entry * current_fixup(struct archive_write_disk * a, const wchar_t * pathname)                              
 {
-	if(a->current_fixup == NULL)
-		a->current_fixup = new_fixup(a, pathname);
+	SETIFZQ(a->current_fixup, new_fixup(a, pathname));
 	return (a->current_fixup);
 }
 /*

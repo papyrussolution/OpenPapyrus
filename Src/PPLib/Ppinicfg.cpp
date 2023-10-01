@@ -15,13 +15,13 @@ PPIniFile::PPIniFile(const char * pFileName, int fcreate, int winCoding, int use
 	SIniFile(pFileName, fcreate, winCoding, useIniBuf)
 {
 	if(!pFileName) {
-		Init(getExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), fcreate, winCoding, useIniBuf);
+		Init(GetExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), fcreate, winCoding, useIniBuf);
 	}
 }
 
 PPIniFile::PPIniFile() : SIniFile(0, 0, 0, 0)
 {
-	Init(getExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), 0, 0, 0);
+	Init(GetExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), 0, 0, 0);
 }
 
 PPIniFile::~PPIniFile()

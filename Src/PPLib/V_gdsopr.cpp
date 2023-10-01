@@ -1,5 +1,5 @@
 // V_GDSOPR.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3965,21 +3965,21 @@ int PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 				ok = -1;
 				if(hdr.GoodsID) {
 					if(oneof2(Filt.Sgg, sggSuppl, sggSupplAgent)) {
-						PPID   ar_id = (hdr.GoodsID & ~GOODSSUBSTMASK);
+						PPID   _id_to_edit = (hdr.GoodsID & ~GOODSSUBSTMASK);
 						PPObjArticle ar_obj;
-						if(ar_obj.Edit(&ar_id, 0) == cmOK)
+						if(ar_obj.Edit(&_id_to_edit, 0) == cmOK)
 							ok = 1;
 					}
 					else if(Filt.Sgg == sggLocation) {
-						PPID loc_id = (hdr.GoodsID & ~GOODSSUBSTMASK);
+						PPID _id_to_edit = (hdr.GoodsID & ~GOODSSUBSTMASK);
 						PPObjLocation loc_obj;
-						if(loc_obj.Edit(&loc_id, 0) == cmOK)
+						if(loc_obj.Edit(&_id_to_edit, 0) == cmOK)
 							ok = 1;
 					}
 					else if(Filt.Sgg == sggManuf) {
-						PPID psn_id = (hdr.GoodsID & ~GOODSSUBSTMASK);
+						PPID _id_to_edit = (hdr.GoodsID & ~GOODSSUBSTMASK);
 						PPObjPerson psn_obj;
-						if(psn_obj.Edit(&psn_id, 0) == cmOK)
+						if(psn_obj.Edit(&_id_to_edit, 0) == cmOK)
 							ok = 1;
 					}
 					else {

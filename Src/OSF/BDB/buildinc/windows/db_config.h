@@ -3,6 +3,8 @@
 // #undef CONFIG_TEST  // Define to 1 if you want to build a version for running the test suite.
 // #undef DB_STACKSIZE // Defined to a size to limit the stack size of Berkeley DB threads.
 
+#include <slib.h> // @v11.8.4
+
 // We use DB_WIN32 much as one would use _WIN32 -- to specify that we're using
 // an operating system environment that supports Win32 calls and semantics. We
 // don't use _WIN32 because Cygwin/GCC also defines _WIN32, even though
@@ -64,7 +66,7 @@
 // Windows does not have the getopt function, but as Berkeley DB example
 // programs require getopt, we handle it outside of this configuration.
 // 
-#define	HAVE_GETOPT 1
+#define	HAVE_GETOPT          1
 #define HAVE_GETOPT_OPTRESET 1 // Define to 1 if getopt supports the optreset variable.
 // #undef HAVE_GETRUSAGE // Define to 1 if you have the `getrusage' function.
 // #undef HAVE_GETTIMEOFDAY // Define to 1 if you have the `gettimeofday' function.
@@ -167,7 +169,7 @@
 // #undef HAVE_SIGACTION // Define to 1 if you have the `sigaction' function.
 #define HAVE_SIMPLE_THREAD_TYPE 1 // Define to 1 if thread identifier type db_threadid_t is integral.
 #define HAVE_SNPRINTF 1 // Define to 1 if you have the `snprintf' function.
-#define HAVE_STAT 1 // Define to 1 if you have the `stat' function.
+// @v11.8.4 (defined at slport.h) #define HAVE_STAT 1 // Define to 1 if you have the `stat' function.
 #define HAVE_STATISTICS 1 // Define to 1 if building statistics support.
 // #undef HAVE_STDINT_H // Define to 1 if you have the <stdint.h> header file.
 #define HAVE_STDLIB_H 1 // Define to 1 if you have the <stdlib.h> header file.
@@ -251,4 +253,4 @@
 #endif
 // #undef socklen_t // type to use in place of socklen_t if not defined
 
-#include <slib.h>
+// @v11.8.4 (moved up) #include <slib.h>

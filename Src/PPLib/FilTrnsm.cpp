@@ -313,11 +313,11 @@ int GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDestDir, 
 	THROW(ftp.SafeGetFileList(src_dir, &file_list, 0, 0));
 	if(clean) {
 		if(filtFlags & SMailMessage::fPpyObject)
-			PPRemoveFilesByExt(pDestDir, PPSEXT, 0, 0);
+			PPRemoveFilesByExt(pDestDir, PPConst::FnExt_PPS, 0, 0);
 		if(filtFlags & SMailMessage::fPpyOrder)
-			PPRemoveFilesByExt(pDestDir, ORDEXT, 0, 0);
+			PPRemoveFilesByExt(pDestDir, PPConst::FnExt_ORD, 0, 0);
 		if(filtFlags & SMailMessage::fPpyCharry)
-			PPRemoveFilesByExt(pDestDir, CHARRYEXT, 0, 0);
+			PPRemoveFilesByExt(pDestDir, PPConst::FnExt_CHARRY, 0, 0);
 	}
 	for(uint i = 0; i < file_list.getCount(); i++) {
 		SString src_path, dest_path;
@@ -327,9 +327,9 @@ int GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDestDir, 
 		ext.Dot().Cat(sp.Ext);
 		(src_path = src_dir).Cat(file_item.Txt);
 		(dest_path = dest_dir).Cat(file_item.Txt);
-		if(((filtFlags & SMailMessage::fPpyObject) && ext.CmpNC(PPSEXT) == 0) ||
-			((filtFlags & SMailMessage::fPpyCharry) && ext.CmpNC(ORDEXT) == 0) ||
-			((filtFlags & SMailMessage::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0)) {
+		if(((filtFlags & SMailMessage::fPpyObject) && ext.IsEqiAscii(PPConst::FnExt_PPS)) ||
+			((filtFlags & SMailMessage::fPpyCharry) && ext.IsEqiAscii(PPConst::FnExt_ORD)) ||
+			((filtFlags & SMailMessage::fPpyOrder) && ext.IsEqiAscii(PPConst::FnExt_CHARRY))) {
 			THROW(ftp.SafeGet(dest_path, src_path, 0, CallbackFTPTransfer, 0));
 			{
 				bool do_accept_file = true;
@@ -569,6 +569,8 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 	PPObjDBDiv obj_dbdiv;
 	PPDBDiv db_div_rec;
 	PPID   db_div_id = 0;
+	SString pattern_pps;
+	pattern_pps.CatChar('*').Cat(PPConst::FnExt_PPS);
 	PPGetPath(PPPATH_IN, dest);
 	THROW(obj_dbdiv.Get(r_cfg.DBDiv, &dbdiv_pack) > 0);
 	if(pParam->SsOnlyFileNames.getCount()) { // @v10.6.8
@@ -600,7 +602,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 		else if(pParam->Flags & ObjReceiveParam::fGetFromOutSrcr) {
 			int    use_src = 0, use_email = 0, use_ftp = 0;
 			if(pParam->Flags & ObjReceiveParam::fClearInpBefore) {
-				PPRemoveFilesByExt(dest, PPSEXT, 0, 0);
+				PPRemoveFilesByExt(dest, PPConst::FnExt_PPS, 0, 0);
 			}
 			if(pParam->SenderDbDivList.getCount()) {
 				for(i = 0; !(use_src && use_email) && i < pParam->SenderDbDivList.getCount(); i++) {
@@ -675,16 +677,18 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 					PPSetAddedMsgString(dest);
 					THROW_SL(createDir(dest));
 				}
-				//
-				// copy files to PPPATH_IN
-				//
-				THROW(fep.Scan(src, "*" PPSEXT, 0));
-				for(i = 0; i < fep.GetCount(); i++) {
-					if(fep.Get(i, &fe, &file_path)) {
-						PPWaitMsg(fe.Name);
-						SPathStruc::ReplacePath(dest_dir = file_path, dest, 1);
-						if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
-							THROW_SL(copyFileByName(file_path, dest_dir));
+				{
+					//
+					// copy files to PPPATH_IN
+					//
+					THROW(fep.Scan(src, pattern_pps, 0));
+					for(i = 0; i < fep.GetCount(); i++) {
+						if(fep.Get(i, &fe, &file_path)) {
+							PPWaitMsg(fe.Name);
+							SPathStruc::ReplacePath(dest_dir = file_path, dest, 1);
+							if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
+								THROW_SL(copyFileByName(file_path, dest_dir));
+							}
 						}
 					}
 				}
@@ -698,7 +702,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 			}
 			assert(MemHeapTracer::Check()); // @debug
 		}
-		THROW(fep.Scan(dest, "*" PPSEXT, 0));
+		THROW(fep.Scan(dest, pattern_pps, 0));
 	}
 	{
 		// Пропускаем файлы, заголовок которых не читается {
@@ -759,7 +763,7 @@ static int PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDe
 		THROW_SL(createDir(dest_dir));
 	THROW_PP(::access(dest_dir, 2) == 0, PPERR_DIRACCESSDENIED_W);
 	if(trnsmFlags & TRNSMF_DELOUTFILES)
-		PPRemoveFilesByExt(pDestPath, PPSEXT, 0, 0);
+		PPRemoveFilesByExt(pDestPath, PPConst::FnExt_PPS, 0, 0);
 	//
 	// copy files to dest
 	//
@@ -819,12 +823,14 @@ int PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 	DBDivPack dbdiv_pack;
 	PPObjDBDiv obj_dbdiv;
 	SFileEntryPool::Entry fe;
+	SString pattern_pps;
+	pattern_pps.CatChar('*').Cat(PPConst::FnExt_PPS);
 	PPGetPath(PPPATH_OUT, src);
 	THROW(obj_dbdiv.Get(dbDivID, &dbdiv_pack) > 0);
 	dest = dbdiv_pack.Rec.Addr;
 	if(dest.NotEmptyS() || dbdiv_pack.Rec.Flags & DBDIVF_MQBEXCHANGE) {
 		SFileEntryPool fep;
-		THROW(fep.Scan(src, "*" PPSEXT, 0));
+		THROW(fep.Scan(src, pattern_pps, 0));
 		{
 			PPObjectTransmit ot(PPObjectTransmit::tmReading, 0/*ctrf*/);
 			uint i = fep.GetCount();

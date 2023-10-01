@@ -246,7 +246,7 @@ public:
 	PPDrvSberTrmnl() : LogNum(0), P_Lib(0), CardAuth(0), CloseDay(0), TestPinpad(0)
 	{
 		SString file_name;
-		getExecPath(file_name);
+		GetExecPath(file_name);
 		(SlipLogFileName = file_name).SetLastSlash().Cat("SberTrmnl_Slip.log"); // @v10.1.9
 		DRVS.SetLogFileName(file_name.SetLastSlash().Cat("SberTrmnl.log"));
 	}

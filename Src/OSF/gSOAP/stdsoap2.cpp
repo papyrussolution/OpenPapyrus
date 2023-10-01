@@ -7562,7 +7562,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_versioning(soap_init) (struct soap * soap, soap_
 		SString log_path;
 		SString temp_buf;
 		SString exe_path;
-		getExecPath(exe_path);
+		GetExecPath(exe_path);
 		(temp_buf = exe_path).SetLastSlash().Cat("PP.INI");
 		if(fileExists(temp_buf)) {
 			SIniFile ini_file(temp_buf, 0, 0, 1);

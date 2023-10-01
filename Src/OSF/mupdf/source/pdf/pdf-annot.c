@@ -1559,14 +1559,12 @@ void pdf_add_annot_ink_list(fz_context * ctx, pdf_annot * annot, int n, SPoint2F
 	ink_list = pdf_dict_get(ctx, annot->obj, PDF_NAME(InkList));
 	if(!pdf_is_array(ctx, ink_list))
 		ink_list = pdf_dict_put_array(ctx, annot->obj, PDF_NAME(InkList), 10);
-
 	stroke = pdf_array_push_array(ctx, ink_list, n * 2);
 	for(i = 0; i < n; ++i) {
 		SPoint2F tp = fz_transform_point(p[i], inv_page_ctm);
 		pdf_array_push_real(ctx, stroke, tp.x);
 		pdf_array_push_real(ctx, stroke, tp.y);
 	}
-
 	pdf_dirty_annot(ctx, annot);
 }
 

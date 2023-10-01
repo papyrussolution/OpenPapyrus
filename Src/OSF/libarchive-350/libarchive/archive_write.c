@@ -66,11 +66,10 @@ static struct archive_vtable * archive_write_vtable(void)
 /*
  * Allocate, initialize and return an archive object.
  */
-Archive * archive_write_new(void)                 {
-	struct archive_write * a;
+Archive * archive_write_new()
+{
 	uchar * nulls;
-
-	a = (struct archive_write *)SAlloc::C(1, sizeof(*a));
+	struct archive_write * a = (struct archive_write *)SAlloc::C(1, sizeof(*a));
 	if(!a)
 		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_MAGIC;
@@ -83,7 +82,6 @@ Archive * archive_write_new(void)                 {
 	 */
 	a->bytes_per_block = 10240;
 	a->bytes_in_last_block = -1; /* Default */
-
 	/* Initialize a block of nulls for padding purposes. */
 	a->null_length = 1024;
 	nulls = (uchar *)SAlloc::C(1, a->null_length);
@@ -91,8 +89,10 @@ Archive * archive_write_new(void)                 {
 		SAlloc::F(a);
 		return NULL;
 	}
-	a->nulls = nulls;
-	return (&a->archive);
+	else {
+		a->nulls = nulls;
+		return (&a->archive);
+	}
 }
 
 /*

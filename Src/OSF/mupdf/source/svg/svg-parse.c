@@ -14,15 +14,8 @@ int svg_is_whitespace(int c)
 	return (c == 0x20) || (c == 0x9) || (c == 0xD) || (c == 0xA);
 }
 
-int svg_is_alpha(int c)
-{
-	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-}
-
-int svg_is_digit(int c)
-{
-	return (c >= '0' && c <= '9') || (c == 'e') || (c == 'E') || (c == '+') || (c == '-') || (c == '.');
-}
+//int svg_is_alpha(int c) { return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); }
+int svg_is_digit(int c) { return (c >= '0' && c <= '9') || (c == 'e') || (c == 'E') || (c == '+') || (c == '-') || (c == '.'); }
 
 const char * svg_lex_number(float * fp, const char * ss)
 {
@@ -61,29 +54,21 @@ float svg_parse_number(const char * str, float min, float max, float inherit)
 float svg_parse_length(const char * str, float percent, float font_size)
 {
 	char * end;
-	float val;
-
-	val = fz_strtof(str, &end);
+	float val = fz_strtof(str, &end);
 	if(end == str)
 		return 0; /* failed */
-
 	if(sstreq(end, "px")) return val;
-
 	if(sstreq(end, "pt")) return val * 1.0f;
 	if(sstreq(end, "pc")) return val * 12.0f;
 	if(sstreq(end, "mm")) return val * 2.83464567f;
 	if(sstreq(end, "cm")) return val * 28.3464567f;
 	if(sstreq(end, "in")) return val * 72.0f;
-
 	if(sstreq(end, "em")) return val * font_size;
 	if(sstreq(end, "ex")) return val * font_size * 0.5f;
-
 	if(sstreq(end, "%"))
 		return val * percent * 0.01f;
-
 	if(end[0] == 0)
 		return val;
-
 	return 0;
 }
 
@@ -91,21 +76,15 @@ float svg_parse_length(const char * str, float percent, float font_size)
 float svg_parse_angle(const char * str)
 {
 	char * end;
-	float val;
-
-	val = fz_strtof(str, &end);
+	float val = fz_strtof(str, &end);
 	if(end == str)
 		return 0; /* failed */
-
 	if(sstreq(end, "deg"))
 		return val;
-
 	if(sstreq(end, "grad"))
 		return val * 0.9f;
-
 	if(sstreq(end, "rad"))
 		return val * FZ_RADIAN;
-
 	return val;
 }
 
@@ -131,13 +110,11 @@ fz_matrix svg_parse_transform(fz_context * ctx, svg_document * doc, const char *
 		 */
 
 		keywordlen = 0;
-		while(svg_is_alpha(*str) && keywordlen < (int)sizeof(keyword) - 1)
+		while(isasciialpha(*str) && keywordlen < (int)sizeof(keyword) - 1)
 			keyword[keywordlen++] = *str++;
 		keyword[keywordlen] = 0;
-
 		if(keywordlen == 0)
 			fz_throw(ctx, FZ_ERROR_SYNTAX, "expected keyword in transform attribute");
-
 		while(svg_is_whitespace(*str))
 			str++;
 

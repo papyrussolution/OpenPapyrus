@@ -229,9 +229,7 @@ static inline int find_changing_color(const uchar * line, int x, int w, int colo
 {
 	if(!line || x >= w)
 		return w;
-
 	x = find_changing(line, (x > 0 || !color) ? x : -1, w);
-
 	if(x < w && getbit(line, x) != color)
 		x = find_changing(line, x, w);
 

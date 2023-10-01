@@ -1001,7 +1001,7 @@
 	#define HAVE_ZLIB_H  1 // @v11.3.12 (HAVE_ZLIB_H)-->(HAVE_ZLIB_H 1) for compatibility with libarchive
 	#define HAVE_SYS_STAT_H 1
 	#define HAVE__STAT
-	#define HAVE_STAT
+	#define HAVE_STAT     1 // @v11.8.4 (HAVE_STAT)-->(HAVE_STAT 1) for compatibility with BDB
 	#define HAVE_STDLIB_H 1
 	#define HAVE_STDDEF_H 1
 	#define HAVE_TIME_H   1

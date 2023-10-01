@@ -25,7 +25,7 @@ public:
 	PPDrvReader()
 	{
 		SString file_name;
-		getExecPath(file_name);
+		GetExecPath(file_name);
 		DRVS.SetLogFileName(file_name.SetLastSlash().Cat("Reader.log"));
 		State = 0;
 		ReEmmId = 0;

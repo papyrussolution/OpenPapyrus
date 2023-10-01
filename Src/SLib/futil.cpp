@@ -124,7 +124,7 @@ char * rmvLastSlash(char * p)
 	return p;
 }
 
-SString & getExecPath(SString & rBuf)
+SString & GetExecPath(SString & rBuf)
 {
 	SPathStruc ps(SLS.GetExePath());
 	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, rBuf);
@@ -282,19 +282,26 @@ int createDir(const char * pPath)
 	int    ok = 1;
 	SString path;
 	SString temp_path;
+	SStringU temp_buf_u;
 	// @v11.2.12 (temp_path = pPath).SetLastSlash().ReplaceChar('/', '\\');
-	SPathStruc::NormalizePath(pPath, SPathStruc::npfKeepCase, temp_path).SetLastSlash(); // @v11.2.12 
+	// @v11.8.4 SPathStruc::npfCompensateDotDot
+	SPathStruc::NormalizePath(pPath, SPathStruc::npfKeepCase|SPathStruc::npfCompensateDotDot, temp_path).SetLastSlash(); // @v11.2.12 
 	const char * p = temp_path;
 	do {
 		if(*p == '\\') {
 			if(p[1] == '\\')
 				path.CatChar(*p++);
 			else if(path.NotEmpty()) {
-				int    is_root = 0;
-				if(path[0] == path[1] && path[0] == '\\' && !sstrchr(path+2, '\\'))
-					is_root = 1;
-				if(!is_root && (path[0] && ::access(path, 0) != 0))
-					if(::CreateDirectory(SUcSwitch(path), NULL) == 0) {
+				const bool is_root = (path[0] == path[1] && path[0] == '\\' && !sstrchr(path+2, '\\'));
+				if(!is_root && (path[0] && ::access(path, 0) != 0)) {
+					if(path.IsLegalUtf8()) {
+						temp_buf_u.CopyFromUtf8(path);
+					}
+					else {
+						temp_buf_u.CopyFromMb_OUTER(path, path.Len());
+					}
+					const int cdr = ::CreateDirectoryW(temp_buf_u, NULL);
+					if(cdr == 0) {
 						SLS.SetAddedMsgString(path);
 						ok = (SLibError = SLERR_MKDIRFAULT, 0);
 					}
@@ -302,15 +309,13 @@ int createDir(const char * pPath)
 						ok = 1;
 				}
 			}
+		}
 		path.CatChar(*p);
 	} while(ok && *p++ != 0);
 	return ok;
 }
 
-bool FASTCALL IsWild(const char * f)
-{
-	return (!isempty(f) && strpbrk(f, "*?") != 0);
-}
+bool FASTCALL IsWild(const char * f) { return (!isempty(f) && strpbrk(f, "*?") != 0); }
 
 SString & makeExecPathFileName(const char * pName, const char * pExt, SString & rPath)
 {
@@ -779,19 +784,28 @@ int GetKnownFolderPath(uint64 uedFolderId, SString & rPath) // @v11.8.3
 	int    ok = 0;
 	const S_GUID * p_guid = 0;
 	if(uedFolderId) {
-		for(uint i = 0; !p_guid && i < SIZEOFARRAY(FsKnownFolder_Assoc_Windows); i++) {
-			if(FsKnownFolder_Assoc_Windows[i].Key == uedFolderId) {
-				p_guid = &FsKnownFolder_Assoc_Windows[i].Val;
-			}
-		}
-		if(p_guid) {
-			wchar_t * p_path = 0;
-			HRESULT hr = SHGetKnownFolderPath(*p_guid, 0/*dwFlags*/, 0/*hToken*/, &p_path);
-			if(SUCCEEDED(hr)) {
-				rPath.CopyUtf8FromUnicode(p_path, sstrlen(p_path), 1);
+		if(uedFolderId == UED_FSKNOWNFOLDER_TEMPORARY) {
+			const char * p_temp_path = getenv("TMP");
+			if(SETIFZ(p_temp_path, getenv("TEMP"))) {
+				(rPath = p_temp_path).Strip();
 				ok = 1;
 			}
-			CoTaskMemFree(p_path);
+		}
+		else {
+			for(uint i = 0; !p_guid && i < SIZEOFARRAY(FsKnownFolder_Assoc_Windows); i++) {
+				if(FsKnownFolder_Assoc_Windows[i].Key == uedFolderId) {
+					p_guid = &FsKnownFolder_Assoc_Windows[i].Val;
+				}
+			}
+			if(p_guid) {
+				wchar_t * p_path = 0;
+				HRESULT hr = SHGetKnownFolderPath(*p_guid, 0/*dwFlags*/, 0/*hToken*/, &p_path);
+				if(SUCCEEDED(hr)) {
+					rPath.CopyUtf8FromUnicode(p_path, sstrlen(p_path), 1);
+					ok = 1;
+				}
+				CoTaskMemFree(p_path);
+			}
 		}
 	}
 	return ok;

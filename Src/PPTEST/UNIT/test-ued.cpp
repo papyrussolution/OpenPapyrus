@@ -7,6 +7,7 @@
 #pragma hdrstop
 #include <sartre.h>
 #include <ued.h>
+#include <ued-id.h>
 #if(_MSC_VER >= 1900)
 	#include <cmath>
 	#include <unicode\uclean.h>
@@ -99,6 +100,24 @@
 				//	measure_text_list_u[j].Z().CatN(reinterpret_cast<const wchar_t *>(measure_data_buf_list[j].getBuffer()), measure_data_buf_list[j].length());
 				//}
 				temp_buf_u.Z().CatN(reinterpret_cast<const wchar_t *>(udn.getBuffer()), udn.length());
+			}
+		}
+		{
+			const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+			SLCHECK_NZ(p_uedc);
+			if(p_uedc) {
+				uint64 ued;
+				SColor clr;
+				SLCHECK_NZ(UED::GetRaw_Color(p_uedc->SearchSymb("Azure", UED_META_COLORRGB), clr));
+				SLCHECK_EQ(clr, SColor(SClrAzure));
+				SLCHECK_NZ(UED::GetRaw_Color(p_uedc->SearchSymb("lightstEElblue", UED_META_COLORRGB), clr));
+				SLCHECK_EQ(clr, SColor(SClrLightsteelblue));
+				SLCHECK_NZ(UED::GetRaw_Color(p_uedc->SearchSymb("mediumvioletreD", UED_META_COLORRGB), clr));
+				SLCHECK_EQ(clr, SColor(SClrMediumvioletred));
+				//
+				ued = UED::SetRaw_Color(SClrDarkgoldenrod);
+				p_uedc->GetSymb(ued, temp_buf);
+				SLCHECK_NZ(temp_buf.IsEqiUtf8("DarkGoldenRod"));
 			}
 		}
 		return CurrentStatus;

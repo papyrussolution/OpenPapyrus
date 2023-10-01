@@ -768,7 +768,6 @@ inline static int32 find0span(uchar * bp, int32 bs, int32 be)
 {
 	int32 bits = be - bs;
 	int32 n, span;
-
 	bp += bs>>3;
 	/*
 	 * Check partial byte on lhs.
@@ -830,7 +829,6 @@ inline static int32 find1span(uchar * bp, int32 bs, int32 be)
 {
 	int32 bits = be - bs;
 	int32 n, span;
-
 	bp += bs>>3;
 	/*
 	 * Check partial byte on lhs.

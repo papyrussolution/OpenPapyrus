@@ -356,6 +356,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 			}
 		}
 		// @v11.8.3 {
+#if 0 // something went wrong {
 		{
 			/*
 			$$$ADDTAXRATES
@@ -389,6 +390,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 				fputs(f_str.Z().Cat(1L).Semicol().Cat(i).Semicol().Cat(i).CR(), p_file);
 			}
 		}
+#endif // } something went wrong
 		// } @v11.8.3
 		{
 			AsyncCashGoodsInfo gds_info;
@@ -496,6 +498,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 								fputs((f_str = "4;НДС 20%;;;20").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
 								fputs((f_str = "5;Без НДС;;;0").Transf(CTRANSF_UTF8_TO_OUTER).CR(), p_file);
 							*/
+							/* something went wrong
 							int tax_group = 0;
 							if(is_vat_free) {
 								tax_group = 5;
@@ -513,6 +516,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 								tax_group = 1;
 							}
 							tail.Cat(tax_group);
+							*/
 							tail.Semicol();                                 // #23 Налоговая группа
 						}
 						// } @v11.8.3 

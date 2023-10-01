@@ -62,21 +62,17 @@ static void rand_crng_ossl_ctx_free(void * vcrngt_glob)
 static void * rand_crng_ossl_ctx_new(OSSL_LIB_CTX * ctx)
 {
 	CRNG_TEST_GLOBAL * crngt_glob = (CRNG_TEST_GLOBAL *)OPENSSL_zalloc(sizeof(*crngt_glob));
-
 	if(crngt_glob == NULL)
 		return NULL;
-
 	if((crngt_glob->md = EVP_MD_fetch(ctx, "SHA256", "")) == NULL) {
 		OPENSSL_free(crngt_glob);
 		return NULL;
 	}
-
 	if((crngt_glob->lock = CRYPTO_THREAD_lock_new()) == NULL) {
 		EVP_MD_free(crngt_glob->md);
 		OPENSSL_free(crngt_glob);
 		return NULL;
 	}
-
 	return crngt_glob;
 }
 
@@ -86,12 +82,9 @@ static const OSSL_LIB_CTX_METHOD rand_crng_ossl_ctx_method = {
 	rand_crng_ossl_ctx_free,
 };
 
-static int prov_crngt_compare_previous(const unsigned char * prev,
-    const unsigned char * cur,
-    size_t sz)
+static int prov_crngt_compare_previous(const unsigned char * prev, const unsigned char * cur, size_t sz)
 {
 	const int res = memcmp(prev, cur, sz) != 0;
-
 	if(!res)
 		ossl_set_error_state(OSSL_SELF_TEST_TYPE_CRNG);
 	return res;

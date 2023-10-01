@@ -1884,7 +1884,7 @@ static void ucnv_MBCSSingleToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 				}
 			}
 			else {
-				/* target overflow */
+				// target overflow
 				cnv->UCharErrorBuffer[0] = c;
 				cnv->UCharErrorBufferLength = 1;
 				*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
@@ -1927,7 +1927,7 @@ static void ucnv_MBCSSingleToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
 			cnv->toULength = _extToU(cnv, cnv->sharedData, 1, &source, sourceLimit, &target, targetLimit, &offsets, sourceIndex, pArgs->flush, pErrorCode);
 			sourceIndex += 1+(int32_t)(source-(const uint8 *)pArgs->source);
 			if(U_FAILURE(*pErrorCode)) {
-				/* not mappable or buffer overflow */
+				// not mappable or buffer overflow
 				break;
 			}
 		}
@@ -2125,7 +2125,7 @@ unrolled:
 			sourceIndex += 1+(int32_t)(source-lastSource);
 
 			if(U_FAILURE(*pErrorCode)) {
-				/* not mappable or buffer overflow */
+				// not mappable or buffer overflow
 				break;
 			}
 
@@ -2491,7 +2491,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErr
 					}
 				}
 				else {
-					/* target overflow */
+					// target overflow
 					cnv->UCharErrorBuffer[0] = unicodeCodeUnits[offset];
 					cnv->UCharErrorBufferLength = 1;
 					*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
@@ -2531,7 +2531,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErr
 				}
 			}
 			else {
-				/* target overflow */
+				// target overflow
 				cnv->UCharErrorBuffer[0] = c;
 				cnv->UCharErrorBufferLength = 1;
 				*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
@@ -2633,7 +2633,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErr
 			sourceIndex = nextSourceIndex += (int32_t)(source-(const uint8 *)pArgs->source);
 
 			if(U_FAILURE(*pErrorCode)) {
-				/* not mappable or buffer overflow */
+				// not mappable or buffer overflow
 				break;
 			}
 		}
@@ -3365,7 +3365,7 @@ unassigned:
 					nextSourceIndex += (int32_t)(source-pArgs->source);
 
 					if(U_FAILURE(*pErrorCode)) {
-						/* not mappable or buffer overflow */
+						// not mappable or buffer overflow
 						break;
 					}
 					else {
@@ -3408,7 +3408,7 @@ unassigned:
 					cnv->charErrorBuffer[0] = (char)value;
 					cnv->charErrorBufferLength = 1;
 
-					/* target overflow */
+					// target overflow
 					targetCapacity = 0;
 					*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 					c = 0;
@@ -3563,24 +3563,17 @@ getTrail:
 unassigned:
 				/* try an extension mapping */
 				pArgs->source = source;
-				c = _extFromU(cnv, cnv->sharedData,
-					c, &source, sourceLimit,
-					&target, target+targetCapacity,
-					&offsets, sourceIndex,
-					pArgs->flush,
-					pErrorCode);
+				c = _extFromU(cnv, cnv->sharedData, c, &source, sourceLimit, &target, target+targetCapacity,
+					&offsets, sourceIndex, pArgs->flush, pErrorCode);
 				nextSourceIndex += (int32_t)(source-pArgs->source);
-
 				if(U_FAILURE(*pErrorCode)) {
-					/* not mappable or buffer overflow */
+					// not mappable or buffer overflow
 					break;
 				}
 				else {
 					/* a mapping was written to the target, continue */
-
 					/* recalculate the targetCapacity after an extension mapping */
 					targetCapacity = (int32_t)(pArgs->targetLimit-(char *)target);
-
 					/* normal end of conversion: prepare for a new character */
 					sourceIndex = nextSourceIndex;
 				}
@@ -3592,10 +3585,8 @@ unassigned:
 			break;
 		}
 	}
-
 	/* set the converter state back into UConverter */
 	cnv->fromUChar32 = c;
-
 	/* write back the updated pointers */
 	pArgs->source = source;
 	pArgs->target = (char *)target;
@@ -3820,7 +3811,7 @@ getTrail:
 		lastSource = source;
 
 		if(U_FAILURE(*pErrorCode)) {
-			/* not mappable or buffer overflow */
+			// not mappable or buffer overflow
 			break;
 		}
 		else {
@@ -4475,7 +4466,7 @@ unassigned:
 					prevLength = cnv->fromUnicodeStatus; /* restore SISO state */
 
 					if(U_FAILURE(*pErrorCode)) {
-						/* not mappable or buffer overflow */
+						// not mappable or buffer overflow
 						break;
 					}
 					else {
@@ -4498,28 +4489,16 @@ unassigned:
 			/* from the first if in the loop we know that targetCapacity>0 */
 			if(length<=targetCapacity) {
 				if(!offsets) {
-					switch(length) {
-						/* each branch falls through to the next one */
-						case 4:
-						    *target++ = (uint8)(value>>24);
-						    CXX_FALLTHROUGH;
-						case 3:
-						    *target++ = (uint8)(value>>16);
-						    CXX_FALLTHROUGH;
-						case 2:
-						    *target++ = (uint8)(value>>8);
-						    CXX_FALLTHROUGH;
-						case 1:
-						    *target++ = (uint8)value;
-						    CXX_FALLTHROUGH;
-						default:
-						    /* will never occur */
-						    break;
+					switch(length) { // each branch falls through to the next one
+						case 4: *target++ = (uint8)(value>>24); CXX_FALLTHROUGH;
+						case 3: *target++ = (uint8)(value>>16); CXX_FALLTHROUGH;
+						case 2: *target++ = (uint8)(value>>8); CXX_FALLTHROUGH;
+						case 1: *target++ = (uint8)value; CXX_FALLTHROUGH;
+						default: break; // will never occur
 					}
 				}
 				else {
-					switch(length) {
-						/* each branch falls through to the next one */
+					switch(length) { // each branch falls through to the next one
 						case 4:
 						    *target++ = (uint8)(value>>24);
 						    *offsets++ = sourceIndex;
@@ -4536,9 +4515,7 @@ unassigned:
 						    *target++ = (uint8)value;
 						    *offsets++ = sourceIndex;
 						    CXX_FALLTHROUGH;
-						default:
-						    /* will never occur */
-						    break;
+						default: break; // will never occur
 					}
 				}
 				targetCapacity -= length;
@@ -4555,27 +4532,16 @@ unassigned:
 				/* we know that 1<=targetCapacity<length<=4 */
 				length -= targetCapacity;
 				charErrorBuffer = (uint8 *)cnv->charErrorBuffer;
-				switch(length) {
-					/* each branch falls through to the next one */
-					case 3:
-					    *charErrorBuffer++ = (uint8)(value>>16);
-					    CXX_FALLTHROUGH;
-					case 2:
-					    *charErrorBuffer++ = (uint8)(value>>8);
-					    CXX_FALLTHROUGH;
-					case 1:
-					    *charErrorBuffer = (uint8)value;
-					    CXX_FALLTHROUGH;
-					default:
-					    /* will never occur */
-					    break;
+				switch(length) { // each branch falls through to the next one
+					case 3: *charErrorBuffer++ = (uint8)(value>>16); CXX_FALLTHROUGH;
+					case 2: *charErrorBuffer++ = (uint8)(value>>8); CXX_FALLTHROUGH;
+					case 1: *charErrorBuffer = (uint8)value; CXX_FALLTHROUGH;
+					default: break; // will never occur
 				}
 				cnv->charErrorBufferLength = (int8)length;
-
 				/* now output what fits into the regular target */
 				value >>= 8*length; /* length was reduced by targetCapacity */
-				switch(targetCapacity) {
-					/* each branch falls through to the next one */
+				switch(targetCapacity) { // each branch falls through to the next one
 					case 3:
 					    *target++ = (uint8)(value>>16);
 					    if(offsets) {
@@ -4594,12 +4560,9 @@ unassigned:
 						    *offsets++ = sourceIndex;
 					    }
 					    CXX_FALLTHROUGH;
-					default:
-					    /* will never occur */
-					    break;
+					default: break; // will never occur
 				}
-
-				/* target overflow */
+				// target overflow
 				targetCapacity = 0;
 				*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 				c = 0;
@@ -5131,15 +5094,10 @@ moreBytes:
 				 */
 				static const char16_t nul = 0;
 				const char16_t * noSource = &nul;
-				c = _extFromU(cnv, cnv->sharedData,
-					c, &noSource, noSource,
-					&target, target+targetCapacity,
-					NULL, -1,
-					pFromUArgs->flush,
-					pErrorCode);
-
+				c = _extFromU(cnv, cnv->sharedData, c, &noSource, noSource, &target, target+targetCapacity,
+					NULL, -1, pFromUArgs->flush, pErrorCode);
 				if(U_FAILURE(*pErrorCode)) {
-					/* not mappable or buffer overflow */
+					// not mappable or buffer overflow
 					cnv->fromUChar32 = c;
 					break;
 				}
@@ -5433,7 +5391,7 @@ moreBytes:
 				else {
 					cnv->charErrorBuffer[0] = (char)value;
 					cnv->charErrorBufferLength = 1;
-					/* target overflow */
+					// target overflow
 					*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 					break;
 				}
@@ -5452,7 +5410,7 @@ unassigned:
 				const char16_t * noSource = &nul;
 				c = _extFromU(cnv, cnv->sharedData, c, &noSource, noSource, &target, target+targetCapacity, NULL, -1, pFromUArgs->flush, pErrorCode);
 				if(U_FAILURE(*pErrorCode)) {
-					/* not mappable or buffer overflow */
+					// not mappable or buffer overflow
 					cnv->fromUChar32 = c;
 					break;
 				}

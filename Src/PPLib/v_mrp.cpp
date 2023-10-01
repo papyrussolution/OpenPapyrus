@@ -600,9 +600,9 @@ int PPViewMrpLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 				{
 					MrpLineViewItem item;
 					if(GetItem(line_id, &item) > 0) {
-						PPID   goods_id = Filt.DestGoodsID ? item.SrcID : item.DestID;
+						PPID   _id_to_edit = Filt.DestGoodsID ? item.SrcID : item.DestID;
 						PPObjGoods goods_obj;
-						if(goods_obj.Edit(&goods_id, 0) == cmOK)
+						if(goods_obj.Edit(&_id_to_edit, 0) == cmOK)
 							ok = 1;
 					}
 				}

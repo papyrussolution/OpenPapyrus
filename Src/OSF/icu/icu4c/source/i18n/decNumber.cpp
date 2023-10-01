@@ -1418,13 +1418,12 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberLogB(decNumber * res, const decNumber
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-U_CAPI decNumber * U_EXPORT2 uprv_decNumberLog10(decNumber * res, const decNumber * rhs,
-    decContext * set) {
+U_CAPI decNumber * U_EXPORT2 uprv_decNumberLog10(decNumber * res, const decNumber * rhs, decContext * set) 
+{
 	uInt status = 0, ignore = 0; /* status accumulators  */
 	uInt needbytes; /* for space calculations  */
 	Int p; /* working precision  */
 	Int t; /* digits in exponent of A  */
-
 	/* buffers for a and b working decimals  */
 	/* (adjustment calculator, same size)  */
 	decNumber bufa[D2N(DECBUFFER+2)];
@@ -1438,9 +1437,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberLog10(decNumber * res, const decNumbe
   #if DECSUBSET
 	decNumber * allocrhs = NULL; /* non-NULL if rounded rhs allocated  */
   #endif
-
 	decContext aset; /* working context  */
-
   #if DECCHECK
 	if(decCheckOperands(res, DECUNUSED, rhs, set)) return res;
   #endif

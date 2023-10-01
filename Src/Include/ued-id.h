@@ -1,6 +1,6 @@
 // UED-ID.H
-// version: 2
-// sha256: fd4ecdd67a98dd0ff1655ad4fdb92e0455c7d64de5fdb589937954d5350f9ab5
+// version: 5
+// sha256: 1b84c94100a8d75ab0917f57b1049abd6a4b96eeb16639228f069ab788b9ef54
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -3377,7 +3377,9 @@
 	#define UED_FSKNOWNFOLDER_VIDEOS                     0x640000047cULL
 	#define UED_FSKNOWNFOLDER_VIDEOS_LIBRARY             0x640000047dULL
 	#define UED_FSKNOWNFOLDER_WINDOWS                    0x640000047eULL
-#define UED_META_COMPARISON                          0x100000065ULL
+	#define UED_FSKNOWNFOLDER_TEMPORARY                  0x6400000490ULL
+	#define UED_FSKNOWNFOLDER_JAVA_HOME                  0x6400000491ULL
+#define UED_META_CMP                                 0x100000065ULL
 #define UED_META_MOLECULO                            0x140010000ULL
 #define UED_META_POPULUS                             0x140020000ULL
 #define UED_META_GLN                                 0x140030000ULL

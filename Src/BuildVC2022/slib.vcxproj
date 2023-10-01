@@ -1997,6 +1997,7 @@
     <ClCompile Include="..\SLib\SAIS\libsais.c" />
     <ClCompile Include="..\SLib\SAIS\libsais16.c" />
     <ClCompile Include="..\SLib\SAIS\libsais64.c" />
+    <ClCompile Include="..\SLib\sdecimal.cpp" />
     <ClCompile Include="..\SLib\sdrecord.cpp" />
     <ClCompile Include="..\SLib\sfilestorage.cpp" />
     <ClCompile Include="..\SLib\smemchr.cpp" />

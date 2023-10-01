@@ -1575,9 +1575,9 @@ int EditPPObj(PPID objType, PPID objID)
 		}
 		else {
 			PPObject * p_obj = GetPPObject(objType, 0);
-			PPID   id = objID;
+			PPID   _id_to_edit = objID;
 			if(p_obj) {
-				if(p_obj->Edit(&id, 0) == cmOK)
+				if(p_obj->Edit(&_id_to_edit, 0) == cmOK)
 					ok = 1;
 				delete p_obj;
 			}

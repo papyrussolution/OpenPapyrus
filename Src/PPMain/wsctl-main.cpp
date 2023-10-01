@@ -2068,30 +2068,43 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 	int    ok = 0;
 	int    r = 0;
 	if(pPe && pPe->FullResolvedPath.NotEmpty()) {
-		wchar_t cmd_line_[512];
-		wchar_t working_dir_[512];
 		SString temp_buf;
-		SStringU cmd_line_u;
-		SStringU working_dir_u;
-		cmd_line_u.CopyFromUtf8(pPe->FullResolvedPath);
-		STRNSCPY(cmd_line_, cmd_line_u);
-		SPathStruc ps(pPe->FullResolvedPath);
-		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-		working_dir_u.CopyFromUtf8(temp_buf.SetLastSlash());
-		STRNSCPY(working_dir_, working_dir_u);
-		SECURITY_ATTRIBUTES process_attr;
-		SECURITY_ATTRIBUTES thread_attr;
-		BOOL   inherit_handles = FALSE;
-		DWORD  creation_flags = 0;
-		void * p_env = 0;
-		STARTUPINFO si;
-		PROCESS_INFORMATION pi;
-		MEMSZERO(si);
-		si.cb = sizeof(si);
-		MEMSZERO(pi);
-		r = ::CreateProcessW(0, cmd_line_, 0, 0, inherit_handles, creation_flags, p_env, working_dir_, &si, &pi);
-		if(r)
-			ok = 1;
+		/*{
+			wchar_t cmd_line_[512];
+			wchar_t working_dir_[512];
+			SStringU cmd_line_u;
+			SStringU working_dir_u;
+			cmd_line_u.CopyFromUtf8(pPe->FullResolvedPath);
+			STRNSCPY(cmd_line_, cmd_line_u);
+			SPathStruc ps(pPe->FullResolvedPath);
+			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+			working_dir_u.CopyFromUtf8(temp_buf.SetLastSlash());
+			STRNSCPY(working_dir_, working_dir_u);
+			SECURITY_ATTRIBUTES process_attr;
+			SECURITY_ATTRIBUTES thread_attr;
+			BOOL   inherit_handles = FALSE;
+			DWORD  creation_flags = 0;
+			void * p_env = 0;
+			STARTUPINFO si;
+			PROCESS_INFORMATION pi;
+			MEMSZERO(si);
+			si.cb = sizeof(si);
+			MEMSZERO(pi);
+			r = ::CreateProcessW(0, cmd_line_, 0, 0, inherit_handles, creation_flags, p_env, working_dir_, &si, &pi);
+			if(r)
+				ok = 1;
+		}*/
+		{
+			SlProcess::Result result;
+			SlProcess proc;
+			proc.SetPath(pPe->FullResolvedPath);
+			SPathStruc ps(pPe->FullResolvedPath);
+			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+			proc.SetWorkingDir(temp_buf);
+			proc.SetFlags(0);
+			if(proc.Run(&result))
+				ok = 1;
+		}
 	}
 	return ok;
 }

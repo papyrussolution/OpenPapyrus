@@ -69,6 +69,7 @@ public:
 	bool   FASTCALL IsEq(const WsCtl_ClientPolicy & rS) const;
 	SJson * ToJsonObj() const;
 	int    FromJsonObj(const SJson * pJsObj);
+	int    Resolve();
 	int    Apply();
 
 	SString SysUser;
@@ -87,6 +88,8 @@ public:
 		}
 		uint  Flags;   // SFile::accsfXXX
 		SString Path;
+		SString ResolvedPath; // Так как path может быть задан в шаблонизированном виде, могут понадобиться дополнительные действия //
+			// по разрешению шаблонов. Окончательный результат заносится в ResolvedPath.
 	};
 	struct AllowedRegistryEntry {
 		AllowedRegistryEntry() : RegKeyType(0), Flags(0)

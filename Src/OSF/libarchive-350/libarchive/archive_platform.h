@@ -148,16 +148,15 @@
  * for compatibility's sake, close files before trying to restore metadata.
  */
 #if defined(HAVE_FCHMOD) || defined(HAVE_FUTIMES) || defined(HAVE_ACL_SET_FD) || defined(HAVE_ACL_SET_FD_NP) || defined(HAVE_FCHOWN)
-#define	CAN_RESTORE_METADATA_FD
+	#define	CAN_RESTORE_METADATA_FD
 #endif
-
 /*
  * glibc 2.24 deprecates readdir_r
  */
 #if defined(HAVE_READDIR_R) && (!defined(__GLIBC__) || !defined(__GLIBC_MINOR__) || __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 24))
-#define	USE_READDIR_R	1
+	#define	USE_READDIR_R	1
 #else
-#undef	USE_READDIR_R
+	#undef	USE_READDIR_R
 #endif
 /* Set up defaults for internal error codes. */
 #ifndef ARCHIVE_ERRNO_FILE_FORMAT

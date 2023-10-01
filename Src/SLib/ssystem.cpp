@@ -43,29 +43,28 @@ char FASTCALL SSystem::TranslateWmCharToAnsi(uintptr_t wparam)
 	return a;
 }
 
-/*static*/int SSystem::SGetModuleFileName(void * hModule, SString & rFileName)
+/*static*/bool SSystem::SGetModuleFileName(void * hModule, SStringU & rFileName)
 {
 	rFileName.Z();
 	DWORD size = 0;
-#ifdef _UNICODE
 	wchar_t buf[1024];
 	const size_t buf_size = SIZEOFARRAY(buf);
 	buf[0] = 0;
 	size = ::GetModuleFileNameW(static_cast<HMODULE>(hModule), buf, buf_size);
 	if(size >= buf_size)
 		buf[buf_size-1] = 0;
-	rFileName.CopyUtf8FromUnicode(buf, sstrlen(buf), 1);
-	rFileName.Transf(CTRANSF_UTF8_TO_OUTER);
-#else
-	char   buf[1024];
-	const size_t buf_size = SIZEOFARRAY(buf);
-	buf[0] = 0;
-	size = ::GetModuleFileNameA(static_cast<HMODULE>(hModule), buf, buf_size);
-	if(size >= buf_size)
-		buf[buf_size-1] = 0;
-	rFileName = buf;
-#endif
-	return BIN(size > 0);
+	rFileName.CopyFrom(buf);
+	return (size > 0);
+}
+
+/*static*/bool SSystem::SGetModuleFileName(void * hModule, SString & rFileNameUtf8)
+{
+	rFileNameUtf8.Z();
+	SStringU temp_buf_u;
+	if(SSystem::SGetModuleFileName(hModule, temp_buf_u))
+		return rFileNameUtf8.CopyUtf8FromUnicode(temp_buf_u, temp_buf_u.Len(), 1);
+	else
+		return false;
 }
 
 /*static*/uint SSystem::SFormatMessage(int sysErrCode, SString & rMsg)

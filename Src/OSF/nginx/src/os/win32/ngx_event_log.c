@@ -21,7 +21,7 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 	// @v10.3.11 u_char * p = text + GetModuleFileName(NULL, reinterpret_cast<char *>(text), NGX_MAX_ERROR_STR - 50);
 	// @v10.3.11 {
 	SString module_file_name;
-	int mfn_len = SSystem::SGetModuleFileName(0, module_file_name);
+	const bool gmfnr = SSystem::SGetModuleFileName(0, module_file_name);
 	module_file_name.CopyTo(reinterpret_cast<char *>(text), SIZEOFARRAY(text));
 	u_char * p = text + sstrlen(text);
 	// } @v10.3.11

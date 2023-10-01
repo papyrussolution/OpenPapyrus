@@ -348,8 +348,7 @@ U_DEPRECATED bool U_EXPORT2 unorm_isNormalizedWithOptions(const char16_t * src, 
  * boundary.
  *
  * pNeededToNormalize is an output-only parameter. Its output value is only defined
- * if normalization was requested (doNormalize) and successful (especially, no
- * buffer overflow).
+ * if normalization was requested (doNormalize) and successful (especially, no buffer overflow).
  * It is useful for operations like a normalizing transliterator, where one would
  * not want to replace a piece of text if it is not modified.
  *

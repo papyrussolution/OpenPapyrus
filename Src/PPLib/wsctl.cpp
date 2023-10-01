@@ -338,6 +338,48 @@ int WsCtl_ClientPolicy::FromJsonObj(const SJson * pJsObj)
 				}
 			}
 			// } @v11.8.1 
+			p_ac = p_c->FindChildByKey("allowance");
+			if(SJson::IsArray(p_ac)) {
+				for(const SJson * p_js_item = p_ac->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+					if(SJson::IsObject(p_js_item)) {
+						const SJson * p_js_f = p_js_item->FindChildByKey("path");
+						if(SJson::IsString(p_js_f)) {
+							AllowedPath * p_new_item = AllowedPathList.CreateNewItem();
+							THROW(p_new_item);
+							(p_new_item->Path = p_js_f->Text).Unescape();
+							p_js_f = p_js_item->FindChildByKey("accs");
+							if(SJson::IsString(p_js_f)) {
+								// parse accsess rights
+							}
+						}
+						else {
+							p_js_f = p_c->FindChildByKey("registry");
+							if(SJson::IsString(p_js_f)) {
+								AllowedRegistryEntry * p_new_item = AllowedRegList.CreateNewItem();
+								(p_new_item->Branch = p_js_f->Text).Unescape();
+
+								p_js_f = p_c->FindChildByKey("type");
+								WinRegKey wrk;
+								if(SJson::IsString(p_js_f)) {
+									(temp_buf = p_js_f->Text).Unescape().Strip();
+									if(temp_buf.IsEqiAscii("general"))
+										p_new_item->RegKeyType = WinRegKey::regkeytypGeneral;
+									else if(temp_buf.IsEqiAscii("wow64_32"))
+										p_new_item->RegKeyType = WinRegKey::regkeytypWow64_32;
+									else if(temp_buf.IsEqiAscii("wow64_64"))
+										p_new_item->RegKeyType = WinRegKey::regkeytypWow64_64;
+									else
+										p_new_item->RegKeyType = WinRegKey::regkeytypWow64_64; // @default (я не уверен, что это - правильно)
+								}
+								p_js_f = p_js_item->FindChildByKey("accs");
+								if(SJson::IsString(p_js_f)) {
+									// parse accsess rights
+								}
+							}
+						}
+					}
+				}
+			}
 			// @v11.8.2 {
 			p_ac = p_c->FindChildByKey("allowedpaths");
 			if(SJson::IsArray(p_ac)) {
@@ -403,6 +445,50 @@ int WsCtl_ClientPolicy::FromJsonObj(const SJson * pJsObj)
 		ok = 1;			
 	}
 	CATCHZOK
+	return ok;
+}
+
+int WsCtl_ClientPolicy::Resolve()
+{
+	int    ok = 1;
+	{
+		const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+		SString temp_buf;
+		SString template_buf;
+		SString tail_buf;
+		for(uint i = 0; i < AllowedPathList.getCount(); i++) {
+			AllowedPath * p_item = AllowedPathList.at(i);
+			p_item->ResolvedPath.Z();
+			if(p_item->Path.NotEmpty()) {
+				uint end_pos = 0;
+				if(p_item->Path.HasPrefix("${") && p_item->Path.SearchCharPos(2, '}', &end_pos)) {
+					temp_buf = p_item->Path;
+					temp_buf.Sub(0, end_pos+1, template_buf); // длина отрезка = end_pos+1
+					(tail_buf = temp_buf).ShiftLeft(end_pos+1); // Убираем шаблон из пути. Если там еще что-то есть, то 
+					template_buf.ShiftLeft(2).TrimRight(); // убираем служебные символы ${}
+					if(p_uedc) {
+						uint64 ued_path = p_uedc->SearchSymb(template_buf, UED_META_FSKNOWNFOLDER);
+						if(ued_path) {
+							if(GetKnownFolderPath(ued_path, temp_buf)) {
+								if(tail_buf.NotEmptyS()) {
+									tail_buf.ShiftLeftChr('\\').ShiftLeftChr('/');
+									if(tail_buf.NotEmptyS()) {
+										temp_buf.SetLastSlash().Cat(tail_buf);
+									}
+								}
+								p_item->ResolvedPath = temp_buf;
+							}
+						}
+					}
+				}
+				else {
+					p_item->ResolvedPath = p_item->Path;
+				}
+			}
+			else
+				p_item->ResolvedPath.Z();
+		}
+	}
 	return ok;
 }
 

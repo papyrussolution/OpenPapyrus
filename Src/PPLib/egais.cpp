@@ -5661,7 +5661,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 								PPID   ex_processing_wroff_bill_id = processing_tag.ToLong();
 								BillTbl::Rec processing_wroff_bill_rec;
 								if(ex_processing_wroff_bill_id) {
-									if(P_BObj->Fetch(ex_processing_wroff_bill_id, &processing_wroff_bill_rec) > 0) {
+									if(P_BObj->Fetch(ex_processing_wroff_bill_id, &processing_wroff_bill_rec) > 0 && processing_wroff_bill_rec.OpID == wos_op_id) {
 										;
 									}
 									else 

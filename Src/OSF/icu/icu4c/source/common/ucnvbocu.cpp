@@ -521,15 +521,12 @@ getTrail:
 			}
 			else {
 				int32_t length; /* will be 2..4 */
-
 				diff = packDiff(diff);
 				length = BOCU1_LENGTH_FROM_PACKED(diff);
-
 				/* write the output character bytes from diff and length */
 				/* from the first if in the loop we know that targetCapacity>0 */
 				if(length<=targetCapacity) {
-					switch(length) {
-						/* each branch falls through to the next one */
+					switch(length) { // each branch falls through to the next one
 						case 4:
 						    *target++ = (uint8)(diff>>24);
 						    *offsets++ = sourceIndex;
@@ -545,9 +542,7 @@ getTrail:
 						    *target++ = (uint8)diff;
 						    *offsets++ = sourceIndex;
 						    CXX_FALLTHROUGH;
-						default:
-						    /* will never occur */
-						    break;
+						default: break; // will never occur
 					}
 					targetCapacity -= length;
 					sourceIndex = nextSourceIndex;
@@ -564,27 +559,16 @@ getTrail:
 					/* we know that 1<=targetCapacity<length<=4 */
 					length -= targetCapacity;
 					charErrorBuffer = (uint8 *)cnv->charErrorBuffer;
-					switch(length) {
-						/* each branch falls through to the next one */
-						case 3:
-						    *charErrorBuffer++ = (uint8)(diff>>16);
-						    CXX_FALLTHROUGH;
-						case 2:
-						    *charErrorBuffer++ = (uint8)(diff>>8);
-						    CXX_FALLTHROUGH;
-						case 1:
-						    *charErrorBuffer = (uint8)diff;
-						    CXX_FALLTHROUGH;
-						default:
-						    /* will never occur */
-						    break;
+					switch(length) { // each branch falls through to the next one
+						case 3: *charErrorBuffer++ = (uint8)(diff>>16); CXX_FALLTHROUGH;
+						case 2: *charErrorBuffer++ = (uint8)(diff>>8); CXX_FALLTHROUGH;
+						case 1: *charErrorBuffer = (uint8)diff; CXX_FALLTHROUGH;
+						default: break; // will never occur
 					}
 					cnv->charErrorBufferLength = (int8)length;
-
 					/* now output what fits into the regular target */
 					diff >>= 8*length; /* length was reduced by targetCapacity */
-					switch(targetCapacity) {
-						/* each branch falls through to the next one */
+					switch(targetCapacity) { // each branch falls through to the next one
 						case 3:
 						    *target++ = (uint8)(diff>>16);
 						    *offsets++ = sourceIndex;
@@ -597,12 +581,9 @@ getTrail:
 						    *target++ = (uint8)diff;
 						    *offsets++ = sourceIndex;
 						    CXX_FALLTHROUGH;
-						default:
-						    /* will never occur */
-						    break;
+						default: break; // will never occur
 					}
-
-					/* target overflow */
+					// target overflow
 					targetCapacity = 0;
 					*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 					break;
@@ -762,18 +743,13 @@ getTrail:
 			}
 			else {
 				int32_t length; /* will be 2..4 */
-
 				diff = packDiff(diff);
 				length = BOCU1_LENGTH_FROM_PACKED(diff);
-
 				/* write the output character bytes from diff and length */
 				/* from the first if in the loop we know that targetCapacity>0 */
 				if(length<=targetCapacity) {
-					switch(length) {
-						/* each branch falls through to the next one */
-						case 4:
-						    *target++ = (uint8)(diff>>24);
-						    CXX_FALLTHROUGH;
+					switch(length) { // each branch falls through to the next one
+						case 4: *target++ = (uint8)(diff>>24); CXX_FALLTHROUGH;
 						case 3:
 						    *target++ = (uint8)(diff>>16);
 						    /* case 2: handled above */
@@ -781,15 +757,12 @@ getTrail:
 						    /* case 1: handled above */
 						    *target++ = (uint8)diff;
 						    CXX_FALLTHROUGH;
-						default:
-						    /* will never occur */
-						    break;
+						default: break; // will never occur
 					}
 					targetCapacity -= length;
 				}
 				else {
 					uint8 * charErrorBuffer;
-
 					/*
 					 * We actually do this backwards here:
 					 * In order to save an intermediate variable, we output
@@ -799,42 +772,23 @@ getTrail:
 					/* we know that 1<=targetCapacity<length<=4 */
 					length -= targetCapacity;
 					charErrorBuffer = (uint8 *)cnv->charErrorBuffer;
-					switch(length) {
-						/* each branch falls through to the next one */
-						case 3:
-						    *charErrorBuffer++ = (uint8)(diff>>16);
-						    CXX_FALLTHROUGH;
-						case 2:
-						    *charErrorBuffer++ = (uint8)(diff>>8);
-						    CXX_FALLTHROUGH;
-						case 1:
-						    *charErrorBuffer = (uint8)diff;
-						    CXX_FALLTHROUGH;
-						default:
-						    /* will never occur */
-						    break;
+					switch(length) { // each branch falls through to the next one
+						case 3: *charErrorBuffer++ = (uint8)(diff>>16); CXX_FALLTHROUGH;
+						case 2: *charErrorBuffer++ = (uint8)(diff>>8); CXX_FALLTHROUGH;
+						case 1: *charErrorBuffer = (uint8)diff; CXX_FALLTHROUGH;
+						default: break; // will never occur
 					}
 					cnv->charErrorBufferLength = (int8)length;
 
 					/* now output what fits into the regular target */
 					diff >>= 8*length; /* length was reduced by targetCapacity */
-					switch(targetCapacity) {
-						/* each branch falls through to the next one */
-						case 3:
-						    *target++ = (uint8)(diff>>16);
-						    CXX_FALLTHROUGH;
-						case 2:
-						    *target++ = (uint8)(diff>>8);
-						    CXX_FALLTHROUGH;
-						case 1:
-						    *target++ = (uint8)diff;
-						    CXX_FALLTHROUGH;
-						default:
-						    /* will never occur */
-						    break;
+					switch(targetCapacity) { // each branch falls through to the next one
+						case 3: *target++ = (uint8)(diff>>16); CXX_FALLTHROUGH;
+						case 2: *target++ = (uint8)(diff>>8); CXX_FALLTHROUGH;
+						case 1: *target++ = (uint8)diff; CXX_FALLTHROUGH;
+						default: break; // will never occur
 					}
-
-					/* target overflow */
+					// target overflow
 					targetCapacity = 0;
 					*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 					break;
@@ -1133,7 +1087,7 @@ getTrail:
 				*offsets++ = sourceIndex;
 			}
 			else {
-				/* target overflow */
+				// target overflow
 				*offsets++ = sourceIndex;
 				cnv->UCharErrorBuffer[0] = U16_TRAIL(c);
 				cnv->UCharErrorBufferLength = 1;
@@ -1338,7 +1292,7 @@ getTrail:
 				*target++ = U16_TRAIL(c);
 			}
 			else {
-				/* target overflow */
+				// target overflow
 				cnv->UCharErrorBuffer[0] = U16_TRAIL(c);
 				cnv->UCharErrorBufferLength = 1;
 				*pErrorCode = U_BUFFER_OVERFLOW_ERROR;

@@ -653,8 +653,7 @@ typedef struct _bkeydata {
 } BKEYDATA;
 
 /* Get a BKEYDATA item for a specific index. */
-#define	GET_BKEYDATA(dbp, pg, indx)					\
-	((BKEYDATA *)P_ENTRY(dbp, pg, indx))
+#define	GET_BKEYDATA(dbp, pg, indx) ((BKEYDATA *)P_ENTRY(dbp, pg, indx))
 
 /*
  * Page space required to add a new BKEYDATA item to the page, with and
@@ -663,14 +662,10 @@ typedef struct _bkeydata {
  * don't get complaints when we assign the final result to an integral type
  * smaller than uintmax_t.
  */
-#define	BKEYDATA_SIZE(len)						\
-	(uint16)DB_ALIGN((len) + SSZA(BKEYDATA, data), sizeof(uint32))
-#define	BKEYDATA_PSIZE(len)						\
-	(BKEYDATA_SIZE(len) + sizeof(db_indx_t))
-
+#define	BKEYDATA_SIZE(len)	(uint16)DB_ALIGN((len) + SSZA(BKEYDATA, data), sizeof(uint32))
+#define	BKEYDATA_PSIZE(len)	(BKEYDATA_SIZE(len) + sizeof(db_indx_t))
 /*
- * The second and third types are B_DUPLICATE and B_OVERFLOW, represented
- * by the BOVERFLOW structure.
+ * The second and third types are B_DUPLICATE and B_OVERFLOW, represented by the BOVERFLOW structure.
  */
 typedef struct _boverflow {
 	db_indx_t unused1;	/* 00-01: Padding, unused. */

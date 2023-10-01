@@ -519,12 +519,9 @@ static fz_path * svg_parse_path_data(fz_context * ctx, svg_document * doc, const
 					fz_throw(ctx, FZ_ERROR_GENERIC, "stack overflow in path data");
 				args[nargs++] = number;
 			}
-			else if(svg_is_alpha(*str)) {
+			else if(isasciialpha(*str)) {
 				if(nargs != 0)
-					fz_throw(ctx,
-					    FZ_ERROR_GENERIC,
-					    "syntax error in path data (wrong number of parameters to '%c')",
-					    cmd);
+					fz_throw(ctx, FZ_ERROR_GENERIC, "syntax error in path data (wrong number of parameters to '%c')", cmd);
 				cmd = *str++;
 			}
 			else if(*str == 0) {

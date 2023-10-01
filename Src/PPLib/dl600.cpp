@@ -33,10 +33,8 @@ bool DlFunc::IsEq(const DlFunc & rPat) const
 	return ok;
 }
 
-uint DlFunc::GetArgCount() const
-{
-	return ArgList.getCount();
-}
+uint DlFunc::GetArgCount() const { return ArgList.getCount(); }
+DLSYMBID DlFunc::GetArgType(uint argN) const { return (argN < ArgList.getCount()) ? static_cast<const Arg *>(ArgList.at(argN))->TypID : 0; }
 
 int DlFunc::GetArg(uint argN, Arg * pArg) const
 {
@@ -46,11 +44,6 @@ int DlFunc::GetArg(uint argN, Arg * pArg) const
 	}
 	else
 		return 0;
-}
-
-DLSYMBID DlFunc::GetArgType(uint argN) const
-{
-	return (argN < ArgList.getCount()) ? static_cast<const Arg *>(ArgList.at(argN))->TypID : 0;
 }
 
 void DlFunc::AddArg(uint typeId, const char * pName, uint argFlags)
@@ -1512,7 +1505,7 @@ DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID))
 {
 	F_Dot.Z();
 	F_Ref.Z();
-	getExecPath(LogFileName).SetLastSlash().Cat("dl600.log");
+	GetExecPath(LogFileName).SetLastSlash().Cat("dl600.log");
 	if(toCompile) {
 		Flags |= fCompile;
 #ifdef DL600C // {

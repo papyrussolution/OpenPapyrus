@@ -3370,7 +3370,7 @@ int PPObjLocPrinter::Browse(void * extraPtr)
 					env.PrnFlags = SReport::PrintingNoAsk;
 					if(!PPAlddPrint(rpt_id, PView(&loc_prn), &env))
 						PPError();
-					DS.GetTLA().PrintDevice = 0;
+					DS.GetTLA().PrintDevice.Z();
 				}
 				clearEvent(event);
 			}
