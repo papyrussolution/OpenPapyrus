@@ -1720,20 +1720,20 @@ COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Rsrc\UED\UED.txt">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -tol -forceupdatepldecl %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ued processing (..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath))</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">ued processing (..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath))</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">ued processing (..\..\ppy\bin\uedp.exe -rtpath $(SolutionDir)..\..\ppy\bin -cpath $(SolutionDir)..\include -forceupdatepldecl %(FullPath))</Message>
