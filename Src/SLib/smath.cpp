@@ -637,7 +637,7 @@ uint FASTCALL log10i_ceil(uint64 v)
 	uint result = 0;
 	for(uint i = 0; i < SIZEOFARRAY(_Tab_PowerOf10_uint64); i++) {
 		if(v <= _Tab_PowerOf10_uint64[i])
-			return i-1;
+			return i;
 	}
 	return 20;
 }

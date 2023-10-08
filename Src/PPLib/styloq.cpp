@@ -454,7 +454,7 @@ StyloQFace & StyloQFace::Z()
 
 static const SIntToSymbTabEntry StyloQFaceTagNameList[] = {
 	{ StyloQFace::tagModifTime,       "modtime" },
-	{ StyloQFace::tagVerifiable_Depricated, "verifialbe" },
+	{ StyloQFace::tagVerifiable_Deprecated, "verifialbe" },
 	{ StyloQFace::tagCommonName,      "cn" },
 	{ StyloQFace::tagName,            "name" },
 	{ StyloQFace::tagSurName,         "surname" },

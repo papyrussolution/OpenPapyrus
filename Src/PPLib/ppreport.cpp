@@ -1,5 +1,5 @@
 // PPREPORT.CPP
-// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1188,7 +1188,8 @@ int  SReport::getNumCopies() const { return NumCopies; }
 
 static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 {
-	SFileUtil::GetSysDir(SFileUtil::sdTemporary, rDest);
+	// @v11.8.5 SFileUtil::GetSysDir(SFileUtil::sdTemporary, rDest);
+	GetKnownFolderPath(UED_FSKNOWNFOLDER_TEMPORARY, rDest); // @v11.8.5
 	return rDest.SetLastSlash().Cat(pFileName);
 }
 

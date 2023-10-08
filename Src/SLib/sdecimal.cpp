@@ -69,6 +69,12 @@ SDecimal::SDecimal() : Mant(0), Exp(0), Flags(0)
 {
 }
 
+SDecimal::SDecimal(const char * pS) : Mant(0), Exp(0), Flags(0)
+{
+	if(!isempty(pS))
+		FromStr(pS);
+}
+
 SDecimal::SDecimal(double v) : Mant(0), Exp(0), Flags(0)
 {
 	// @construction 
@@ -95,11 +101,64 @@ SDecimal::SDecimal(double v) : Mant(0), Exp(0), Flags(0)
 	
 SDecimal::SDecimal(int64 mantissa, int16 exp) : Mant(mantissa), Exp(exp), Flags(0)
 {
+	Normalize();
+}
+
+int SDecimal::FromStr(const char * pStr)
+{
+	Z();
+	int    ok = 1;
+	SIEEE754::ParseDecimalBlock blk;
+	const char * p_end = 0;
+	uint r = blk.Run(pStr, &p_end);
+	if(r & SIEEE754::fInternalError) {
+		ok = 0;
+	}
+	else if(r & SIEEE754::fNAN)
+		Flags |= SIEEE754::fNAN;
+	else if(r & (SIEEE754::fINF|SIEEE754::fSIGN))
+		Flags |= (r & (SIEEE754::fINF|SIEEE754::fSIGN));
+	else {
+		Mant = satoi64(blk.DEC);
+		if(blk.Flags & blk.fNegMant)
+			Mant = -Mant;
+		Exp = blk.DecExpOffs + ((blk.Flags & blk.fNegExp) ? -blk.Exp : blk.Exp);
+		Normalize();
+	}
+	return ok;
+}
+
+SString & SDecimal::ToStr(long fmt, SString & rBuf) const
+{
+	rBuf.Z();
+	if(IsZero())
+		rBuf = "0";
+	else {
+		const bool sign = (Mant < 0);
+		rBuf.Cat(abs(Mant));
+		if(Exp > 0) {
+			rBuf.CatCharN('0', Exp);
+		}
+		else if(Exp < 0) {
+			if(-Exp < rBuf.Len())
+				rBuf.Insert(rBuf.Len() + Exp, ".");
+			else {
+				rBuf.PadLeft(-Exp - rBuf.Len(), '0').Insert(0, "0.");
+			}
+		}
+		if(sign)
+			rBuf.Insert(0, "-");
+	}
+	if(fmt) {
+		const int prc = SFMTPRC(fmt);
+		//
+	}
+	return rBuf;
 }
 
 bool FASTCALL SDecimal::IsEq(const SDecimal & rS) const // @construction
 {
-	return (Mant == rS.Mant && Exp == rS.Exp);
+	return (Mant == rS.Mant && Exp == rS.Exp && Flags == rS.Flags);
 }
 	
 double SDecimal::GetReal() const
@@ -233,8 +292,8 @@ static int TrimInt128(const absl::int128 & rVMant, int16 vexp, int64 & rMant, in
 	int   ok = 1;
 	int16 exp = vexp;
 	const bool sign = (rVMant < static_cast<absl::int128>(0ULL));
-	absl::int128 mant = rVMant;
-	if(!sign) {
+	absl::int128 mant(rVMant);
+	if(sign) {
 		while(ok && mant < INT64_MIN) {
 			absl::uint128 t = RoundToNearestMul10(static_cast<absl::uint128>(-mant));
 			mant = -static_cast<absl::int128>(t / 10);
@@ -672,7 +731,43 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 	else if(rA.IsZero())
 		Z();
 	else {
+		const bool a_sign = (rA.Mant < 0);
+		const bool b_sign = (rB.Mant < 0);
+		uint64 a_mant = abs(rA.Mant);
+		uint64 b_mant = abs(rB.Mant);
+		int64 a_exp = rA.Exp;
+		const uint lb_ = log10i_ceil(static_cast<uint64>(b_mant));
+		absl::int128 r_mant = 0;
+		int16 r_exp = rA.Exp - rB.Exp;
+
+		uint64 rem = a_mant;
+		do {
+			uint64 t = rem / b_mant;
+			rem = rem % b_mant;
+			r_mant += t;
+			if(rem != 0) {
+				assert(rem < b_mant);
+				uint la = log10i_floor(rem);
+				assert(la < lb_); // la >= lb is impossible!
+				uint64 p10 = ui64pow10(lb_ - la);
+				rem *= p10;
+				r_mant *= p10;
+				r_exp -= (lb_ - la);
+			}
+		} while(rem != 0 && absl::Int128High64(r_mant) == 0);
+		{
+			int64 new_mant;
+			int16 new_exp;
+			if(TrimInt128(r_mant, r_exp, new_mant, new_exp)) {
+				Mant = new_mant;
+				Exp = new_exp;
+				Normalize();
+			}
+			else
+				ok = 0;
+		}
 		// !
+		/*
 		Mant = rA.Mant / rB.Mant;
 		int denom_dec_pwr = static_cast<int>(rA.Exp) - static_cast<int>(rB.Exp);
 		if(denom_dec_pwr < 0) {
@@ -682,7 +777,7 @@ int SDecimal::Div(const SDecimal & rA, const SDecimal & rB)
 		else {
 			Exp = static_cast<uint16>(denom_dec_pwr);
 			Normalize();
-		}
+		}*/
 	}
 	return ok;
 }

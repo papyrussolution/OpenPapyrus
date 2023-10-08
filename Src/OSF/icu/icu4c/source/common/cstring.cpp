@@ -200,10 +200,10 @@ U_CAPI int U_EXPORT2 uprv_stricmp(const char * str1, const char * str2)
 	else {
 		/* compare non-NULL strings lexically with lowercase */
 		int rc;
-		unsigned char c1, c2;
+		uchar c1, c2;
 		for(;;) {
-			c1 = (unsigned char)*str1;
-			c2 = (unsigned char)*str2;
+			c1 = (uchar)*str1;
+			c2 = (uchar)*str2;
 			if(c1==0) {
 				if(c2==0) {
 					return 0;
@@ -217,7 +217,7 @@ U_CAPI int U_EXPORT2 uprv_stricmp(const char * str1, const char * str2)
 			}
 			else {
 				/* compare non-zero characters with lowercase */
-				rc = (int)(unsigned char)uprv_tolower(c1)-(int)(unsigned char)uprv_tolower(c2);
+				rc = (int)(uchar)uprv_tolower(c1)-(int)(uchar)uprv_tolower(c2);
 				if(rc!=0) {
 					return rc;
 				}
@@ -244,8 +244,8 @@ U_CAPI int U_EXPORT2 uprv_strnicmp(const char * str1, const char * str2, uint32_
 	else {
 		/* compare non-NULL strings lexically with lowercase */
 		for(; n--;) {
-			unsigned char c1 = (unsigned char)*str1;
-			unsigned char c2 = (unsigned char)*str2;
+			uchar c1 = (uchar)*str1;
+			uchar c2 = (uchar)*str2;
 			if(c1==0) {
 				if(c2==0) {
 					return 0;
@@ -259,7 +259,7 @@ U_CAPI int U_EXPORT2 uprv_strnicmp(const char * str1, const char * str2, uint32_
 			}
 			else {
 				/* compare non-zero characters with lowercase */
-				int rc = (int)(unsigned char)uprv_tolower(c1)-(int)(unsigned char)uprv_tolower(c2);
+				int rc = (int)(uchar)uprv_tolower(c1)-(int)(uchar)uprv_tolower(c2);
 				if(rc!=0) {
 					return rc;
 				}

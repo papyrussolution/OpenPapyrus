@@ -33,5 +33,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-process.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-ued.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-mem.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-inet.cpp" />
   </ItemGroup>
 </Project>

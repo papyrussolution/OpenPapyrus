@@ -1213,7 +1213,7 @@ SLTEST_R(Tddo)
 	while(in_file.ReadLine(temp_buf))
 		in_buf.Cat(temp_buf);
 	for(uint i = 0; i < id_list.getCount(); i++) {
-		ext_param_list.clear();
+		ext_param_list.Z();
 		ext_param_list.add(temp_buf.Z().Cat(id_list.get(i)));
 		ext_param_list.add("Param 02");
 		ext_param_list.add("Param 03");

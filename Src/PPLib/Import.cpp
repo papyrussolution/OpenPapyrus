@@ -7108,7 +7108,7 @@ static int Helper_ImportYYE(const char * pSrcPath, const char * pFileName) // ян
 						const uchar  c = rd_buf[p__];
 						const uint16 utf_extra = SUtfConst::TrailingBytesForUTF8[c];
 						if((p__ + utf_extra) < actual_size) {
-							if(SUnicode::IsLegalUtf8(rd_buf.ucptr()+p__, utf_extra+1)) {
+							if(SUnicode::IsLegalUtf8Char(rd_buf.ucptr()+p__, utf_extra+1)) {
 								switch(utf_extra) {
 									case 0:
 										input_text_buf.CatChar(c); 

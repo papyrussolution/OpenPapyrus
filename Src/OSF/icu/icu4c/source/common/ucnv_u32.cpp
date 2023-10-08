@@ -1,20 +1,12 @@
+// ucnv_u32.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2002-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  ucnv_u32.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2002jul01
- *   created by: Markus W. Scherer
- *
- *   UTF-32 converter implementation. Used to be in ucnv_utf.c.
- */
+// Copyright (C) 2002-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002jul01
+// created by: Markus W. Scherer
+// UTF-32 converter implementation. Used to be in ucnv_utf.c.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -41,16 +33,14 @@ enum {
 
 /* UTF-32BE ----------------------------------------------------------------- */
 U_CDECL_BEGIN
-static void U_CALLCONV T_UConverter_toUnicode_UTF32_BE(UConverterToUnicodeArgs * args,
-    UErrorCode * err)
+static void U_CALLCONV T_UConverter_toUnicode_UTF32_BE(UConverterToUnicodeArgs * args, UErrorCode * err)
 {
-	const unsigned char * mySource = (unsigned char *)args->source;
+	const uchar * mySource = (uchar *)args->source;
 	char16_t * myTarget = args->target;
-	const unsigned char * sourceLimit = (unsigned char *)args->sourceLimit;
+	const uchar * sourceLimit = (uchar *)args->sourceLimit;
 	const char16_t * targetLimit = args->targetLimit;
-	unsigned char * toUBytes = args->converter->toUBytes;
+	uchar * toUBytes = args->converter->toUBytes;
 	uint32_t ch, i;
-
 	/* Restore state of current sequence */
 	if(args->converter->toULength > 0 && myTarget < targetLimit) {
 		i = args->converter->toULength; /* restore # of bytes consumed */
@@ -121,12 +111,12 @@ donefornow:
 static void U_CALLCONV T_UConverter_toUnicode_UTF32_BE_OFFSET_LOGIC(UConverterToUnicodeArgs * args,
     UErrorCode * err)
 {
-	const unsigned char * mySource = (unsigned char *)args->source;
+	const uchar * mySource = (uchar *)args->source;
 	char16_t * myTarget = args->target;
 	int32_t * myOffsets = args->offsets;
-	const unsigned char * sourceLimit = (unsigned char *)args->sourceLimit;
+	const uchar * sourceLimit = (uchar *)args->sourceLimit;
 	const char16_t * targetLimit = args->targetLimit;
-	unsigned char * toUBytes = args->converter->toUBytes;
+	uchar * toUBytes = args->converter->toUBytes;
 	uint32_t ch, i;
 	int32_t offsetNum = 0;
 
@@ -206,12 +196,12 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_BE(UConverterFromUnicodeAr
     UErrorCode * err)
 {
 	const char16_t * mySource = args->source;
-	unsigned char * myTarget;
+	uchar * myTarget;
 	const char16_t * sourceLimit = args->sourceLimit;
-	const unsigned char * targetLimit = (unsigned char *)args->targetLimit;
+	const uchar * targetLimit = (uchar *)args->targetLimit;
 	UChar32 ch, ch2;
 	unsigned int indexToWrite;
-	unsigned char temp[sizeof(uint32_t)];
+	uchar temp[sizeof(uint32_t)];
 
 	if(mySource >= sourceLimit) {
 		/* no input, nothing to do */
@@ -224,7 +214,7 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_BE(UConverterFromUnicodeAr
 		ucnv_fromUWriteBytes(args->converter, bom, 4, &args->target, args->targetLimit, &args->offsets, -1, err);
 		args->converter->fromUnicodeStatus = 0;
 	}
-	myTarget = (unsigned char *)args->target;
+	myTarget = (uchar *)args->target;
 	temp[0] = 0;
 	if(args->converter->fromUChar32) {
 		ch = args->converter->fromUChar32;
@@ -298,14 +288,14 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_BE_OFFSET_LOGIC(UConverter
     UErrorCode * err)
 {
 	const char16_t * mySource = args->source;
-	unsigned char * myTarget;
+	uchar * myTarget;
 	int32_t * myOffsets;
 	const char16_t * sourceLimit = args->sourceLimit;
-	const unsigned char * targetLimit = (unsigned char *)args->targetLimit;
+	const uchar * targetLimit = (uchar *)args->targetLimit;
 	UChar32 ch, ch2;
 	int32_t offsetNum = 0;
-	unsigned int indexToWrite;
-	unsigned char temp[sizeof(uint32_t)];
+	uint indexToWrite;
+	uchar temp[sizeof(uint32_t)];
 	if(mySource >= sourceLimit) {
 		/* no input, nothing to do */
 		return;
@@ -316,7 +306,7 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_BE_OFFSET_LOGIC(UConverter
 		ucnv_fromUWriteBytes(args->converter, bom, 4, &args->target, args->targetLimit, &args->offsets, -1, err);
 		args->converter->fromUnicodeStatus = 0;
 	}
-	myTarget = (unsigned char *)args->target;
+	myTarget = (uchar *)args->target;
 	myOffsets = args->offsets;
 	temp[0] = 0;
 	if(args->converter->fromUChar32) {
@@ -481,11 +471,11 @@ U_CDECL_BEGIN
 static void U_CALLCONV T_UConverter_toUnicode_UTF32_LE(UConverterToUnicodeArgs * args,
     UErrorCode * err)
 {
-	const unsigned char * mySource = (unsigned char *)args->source;
+	const uchar * mySource = (uchar *)args->source;
 	char16_t * myTarget = args->target;
-	const unsigned char * sourceLimit = (unsigned char *)args->sourceLimit;
+	const uchar * sourceLimit = (uchar *)args->sourceLimit;
 	const char16_t * targetLimit = args->targetLimit;
-	unsigned char * toUBytes = args->converter->toUBytes;
+	uchar * toUBytes = args->converter->toUBytes;
 	uint32_t ch, i;
 
 	/* Restore state of current sequence */
@@ -559,12 +549,12 @@ donefornow:
 static void U_CALLCONV T_UConverter_toUnicode_UTF32_LE_OFFSET_LOGIC(UConverterToUnicodeArgs * args,
     UErrorCode * err)
 {
-	const unsigned char * mySource = (unsigned char *)args->source;
+	const uchar * mySource = (uchar *)args->source;
 	char16_t * myTarget = args->target;
 	int32_t * myOffsets = args->offsets;
-	const unsigned char * sourceLimit = (unsigned char *)args->sourceLimit;
+	const uchar * sourceLimit = (uchar *)args->sourceLimit;
 	const char16_t * targetLimit = args->targetLimit;
-	unsigned char * toUBytes = args->converter->toUBytes;
+	uchar * toUBytes = args->converter->toUBytes;
 	uint32_t ch, i;
 	int32_t offsetNum = 0;
 
@@ -641,16 +631,15 @@ donefornow:
 	args->offsets = myOffsets;
 }
 
-static void U_CALLCONV T_UConverter_fromUnicode_UTF32_LE(UConverterFromUnicodeArgs * args,
-    UErrorCode * err)
+static void U_CALLCONV T_UConverter_fromUnicode_UTF32_LE(UConverterFromUnicodeArgs * args, UErrorCode * err)
 {
 	const char16_t * mySource = args->source;
-	unsigned char * myTarget;
+	uchar * myTarget;
 	const char16_t * sourceLimit = args->sourceLimit;
-	const unsigned char * targetLimit = (unsigned char *)args->targetLimit;
+	const uchar * targetLimit = (uchar *)args->targetLimit;
 	UChar32 ch, ch2;
-	unsigned int indexToWrite;
-	unsigned char temp[sizeof(uint32_t)];
+	uint indexToWrite;
+	uchar temp[sizeof(uint32_t)];
 	if(mySource >= sourceLimit) {
 		/* no input, nothing to do */
 		return;
@@ -661,7 +650,7 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_LE(UConverterFromUnicodeAr
 		ucnv_fromUWriteBytes(args->converter, bom, 4, &args->target, args->targetLimit, &args->offsets, -1, err);
 		args->converter->fromUnicodeStatus = 0;
 	}
-	myTarget = (unsigned char *)args->target;
+	myTarget = (uchar *)args->target;
 	temp[3] = 0;
 	if(args->converter->fromUChar32) {
 		ch = args->converter->fromUChar32;
@@ -737,13 +726,13 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_LE_OFFSET_LOGIC(UConverter
     UErrorCode * err)
 {
 	const char16_t * mySource = args->source;
-	unsigned char * myTarget;
+	uchar * myTarget;
 	int32_t * myOffsets;
 	const char16_t * sourceLimit = args->sourceLimit;
-	const unsigned char * targetLimit = (unsigned char *)args->targetLimit;
+	const uchar * targetLimit = (uchar *)args->targetLimit;
 	UChar32 ch, ch2;
-	unsigned int indexToWrite;
-	unsigned char temp[sizeof(uint32_t)];
+	uint indexToWrite;
+	uchar temp[sizeof(uint32_t)];
 	int32_t offsetNum = 0;
 	if(mySource >= sourceLimit) {
 		/* no input, nothing to do */
@@ -755,7 +744,7 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_LE_OFFSET_LOGIC(UConverter
 		ucnv_fromUWriteBytes(args->converter, bom, 4, &args->target, args->targetLimit, &args->offsets, -1, err);
 		args->converter->fromUnicodeStatus = 0;
 	}
-	myTarget = (unsigned char *)args->target;
+	myTarget = (uchar *)args->target;
 	myOffsets = args->offsets;
 	temp[3] = 0;
 	if(args->converter->fromUChar32) {

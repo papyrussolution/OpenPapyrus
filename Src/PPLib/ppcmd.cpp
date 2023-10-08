@@ -273,7 +273,7 @@ struct _kf_block {
 	int16  Flags;
 };
 
-int PPCommandItem::Write_Depricated(SBuffer & rBuf, long) const
+int PPCommandItem::Write_Deprecated(SBuffer & rBuf, long) const
 {
 	int    ok = 1;
 	_kf_block _kf(this);
@@ -285,7 +285,7 @@ int PPCommandItem::Write_Depricated(SBuffer & rBuf, long) const
 	return ok;
 }
 
-int PPCommandItem::Read_Depricated(SBuffer & rBuf, long)
+int PPCommandItem::Read_Deprecated(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	_kf_block _kf(0);
@@ -405,10 +405,10 @@ PPCommandItem * PPCommand::Dup() const
 	return p_item;
 }
 
-int PPCommand::Write_Depricated(SBuffer & rBuf, long extraParam) const
+int PPCommand::Write_Deprecated(SBuffer & rBuf, long extraParam) const
 {
 	int    ok = 1;
-	THROW(PPCommandItem::Write_Depricated(rBuf, extraParam));
+	THROW(PPCommandItem::Write_Deprecated(rBuf, extraParam));
 	THROW_SL(rBuf.Write(CmdID));
 	//
 	// @v9.0.11 Поля X и Y заменены на SPoint2S
@@ -430,10 +430,10 @@ int PPCommand::Write_Depricated(SBuffer & rBuf, long extraParam) const
 	return ok;
 }
 
-int PPCommand::Read_Depricated(SBuffer & rBuf, const long extraParam)
+int PPCommand::Read_Deprecated(SBuffer & rBuf, const long extraParam)
 {
 	int    ok = 1;
-	THROW(PPCommandItem::Read_Depricated(rBuf, extraParam));
+	THROW(PPCommandItem::Read_Deprecated(rBuf, extraParam));
 	THROW(rBuf.Read(CmdID));
 	THROW(rBuf.Read(&P, sizeof(P))); // @v9.0.11 see comment in PPCommand::Write
 	THROW(rBuf.Read(Reserve, sizeof(Reserve)));
@@ -601,46 +601,46 @@ const PPCommandItem * PPCommandFolder::Next(uint * pPos) const
 		return 0;
 }
 
-int PPCommandFolder::Write_Depricated(SBuffer & rBuf, long extraParam) const
+int PPCommandFolder::Write_Deprecated(SBuffer & rBuf, long extraParam) const
 {
 	int    ok = 1;
 	uint16 c = 0, i;
-	THROW(PPCommandItem::Write_Depricated(rBuf, extraParam));
+	THROW(PPCommandItem::Write_Deprecated(rBuf, extraParam));
 	c = List.getCount();
 	THROW_SL(rBuf.Write(&c, sizeof(c)));
 	for(i = 0; i < c; i++)
-		THROW(List.at(i)->Write_Depricated(rBuf, extraParam));
+		THROW(List.at(i)->Write_Deprecated(rBuf, extraParam));
 	CATCHZOK
 	return ok;
 }
 
-int PPCommandFolder::Read_Depricated(SBuffer & rBuf, long extraParam)
+int PPCommandFolder::Read_Deprecated(SBuffer & rBuf, long extraParam)
 {
 	int    ok = 1;
 	uint16 c = 0, i;
-	THROW(PPCommandItem::Read_Depricated(rBuf, extraParam));
+	THROW(PPCommandItem::Read_Deprecated(rBuf, extraParam));
 	THROW_SL(rBuf.Read(&c, sizeof(c)));
 	for(i = 0; i < c; i++) {
 		PPCommandItem * ptr = 0;
 		size_t offs = rBuf.GetRdOffs();
 		PPCommandItem item(PPCommandItem::kUndef);
-		THROW(item.Read_Depricated(rBuf, extraParam));
+		THROW(item.Read_Deprecated(rBuf, extraParam));
 		rBuf.SetRdOffs(offs);
 		if(item.IsKind(PPCommandItem::kCommand)) {
 			ptr = new PPCommand;
-			THROW(static_cast<PPCommand *>(ptr)->Read_Depricated(rBuf, extraParam));
+			THROW(static_cast<PPCommand *>(ptr)->Read_Deprecated(rBuf, extraParam));
 		}
 		else if(item.IsKind(PPCommandItem::kFolder)) {
 			ptr = new PPCommandFolder;
-			THROW(static_cast<PPCommandFolder *>(ptr)->Read_Depricated(rBuf, extraParam));
+			THROW(static_cast<PPCommandFolder *>(ptr)->Read_Deprecated(rBuf, extraParam));
 		}
 		else if(item.IsKind(PPCommandItem::kGroup)) {
 			ptr = new PPCommandGroup;
-			THROW(static_cast<PPCommandGroup *>(ptr)->Read_Depricated(rBuf, extraParam));
+			THROW(static_cast<PPCommandGroup *>(ptr)->Read_Deprecated(rBuf, extraParam));
 		}
 		else if(item.IsKind(PPCommandItem::kSeparator)) {
 			ptr = new PPCommandItem(PPCommandItem::kUndef);
-			THROW(static_cast<PPCommandItem *>(ptr)->Read_Depricated(rBuf, extraParam));
+			THROW(static_cast<PPCommandItem *>(ptr)->Read_Deprecated(rBuf, extraParam));
 		}
 		if(ptr) { // @v11.0.4 @fix
 			THROW_SL(List.insert(ptr));
@@ -1396,10 +1396,10 @@ PPCommandItem * PPCommandGroup::Dup() const
 	return p_item;
 }
 
-int PPCommandGroup::Write_Depricated(SBuffer & rBuf, long extraParam) const
+int PPCommandGroup::Write_Deprecated(SBuffer & rBuf, long extraParam) const
 {
 	int    ok = 1;
-	THROW(PPCommandFolder::Write_Depricated(rBuf, extraParam));
+	THROW(PPCommandFolder::Write_Deprecated(rBuf, extraParam));
 	THROW_SL(rBuf.Write(DbSymb));
 	if(Flags & (fBkgndImage|fBkgndImageLoaded)) {
 		SString buf, dir;
@@ -1421,10 +1421,10 @@ int PPCommandGroup::Write_Depricated(SBuffer & rBuf, long extraParam) const
 	return ok;
 }
 
-int PPCommandGroup::Read_Depricated(SBuffer & rBuf, long extraParam)
+int PPCommandGroup::Read_Deprecated(SBuffer & rBuf, long extraParam)
 {
 	int    ok = 1;
-	THROW(PPCommandFolder::Read_Depricated(rBuf, extraParam));
+	THROW(PPCommandFolder::Read_Deprecated(rBuf, extraParam));
 	THROW_SL(rBuf.Read(DbSymb));
 	// @erik v10.6.6 {
 	if(Uuid.IsZero())
@@ -1729,7 +1729,7 @@ int PPCommandMngr::IsValid_() const
 	return (Status & stError) ? PPSetErrorSLib() : 1;
 }
 
-int PPCommandMngr::Load_Depricated(PPCommandGroup * pCmdGrp)
+int PPCommandMngr::Load_Deprecated(PPCommandGroup * pCmdGrp)
 {
 	int    ok = 1;
 	if(!(CtrFlags & ctrfSkipObsolete)) {
@@ -1747,7 +1747,7 @@ int PPCommandMngr::Load_Depricated(PPCommandGroup * pCmdGrp)
 			THROW_PP_S(hdr.Signature==PPCS_SIGNATURE, PPERR_CMDFILSIGN, F_Obsolete.GetName());
 			THROW_PP_S(hdr.Crc==crc, PPERR_CMDFILCRC, F_Obsolete.GetName());
 			THROW_SL(F_Obsolete.Read(buf));
-			THROW(pCmdGrp->Read_Depricated(buf, 0));
+			THROW(pCmdGrp->Read_Deprecated(buf, 0));
 		}
 	}
 	else
@@ -1841,7 +1841,7 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 					int64  fsz = 0;
 					if(F_Obsolete.CalcSize(&fsz)) {
 						if(fsz > 0) {
-							THROW(Load_Depricated(&cg_from_bin));
+							THROW(Load_Deprecated(&cg_from_bin));
 							const uint c = cg_from_bin.List.getCount();
 							PPCommandGroup cg_pool;
 							for(uint i = 0; i < c; i++) {
@@ -1965,7 +1965,7 @@ int PPCommandMngr::SaveFromAllTo(const long rwFlag)
 	PPCommandGroup cg_from_bin;
 	PPCommandGroup cg_final;
 	const PPCommandItem * p_item = 0;
-	THROW(Load_Depricated(&cg_from_bin));
+	THROW(Load_Deprecated(&cg_from_bin));
 	THROW(Load__2(&cg_from_xml, 0, PPCommandMngr::fRWByXml));
 	for(uint i = 0; p_item = cg_from_xml.Next(&i);) {
 		if(cg_final.Add(-1, p_item) > 0) {

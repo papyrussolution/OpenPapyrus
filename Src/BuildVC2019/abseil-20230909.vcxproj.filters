@@ -1,0 +1,695 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{c74c6ec5-894e-489b-b397-31373dbdfebc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc">
+      <UniqueIdentifier>{5dd351e8-e40f-472d-87e1-6c425315ebbb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\types\bad_any_cast.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\types\bad_optional_access.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\types\bad_variant_access.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\call_once.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\casts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\cycleclock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\low_level_scheduling.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\per_thread_tls.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\spinlock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\sysinfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\thread_identity.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\tsan_mutex_interface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\unscaledcycleclock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\hash\internal\city.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\include\cctz\civil_time.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\include\cctz\civil_time_detail.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\cord.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\cord_analysis.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cord_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_btree.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_btree_navigator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_btree_reader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_consume.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_crc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_flat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_ring.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_ring_reader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cordz_functions.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cordz_handle.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cordz_info.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\cordz_sample_token.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\internal\address_is_readable.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\internal\elf_mem_image.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\internal\vdso_support.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\internal\demangle.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\internal\examine_stack.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\profiling\internal\exponential_biased.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\failure_signal_handler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\declare.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\flag.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\commandlineflag.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\internal\commandlineflag.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\usage_config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\internal\sequence_lock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\internal\flag.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\marshalling.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\internal\parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\internal\private_handle_accessor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\internal\program_name.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\reflection.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\internal\registry.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\usage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\flags\internal\usage.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\synchronization\internal\graphcycles.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\hash\internal\hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\hash\hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\container\internal\hashtablez_sampler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\numeric\int128.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\leak_check.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\log_severity.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\hash\internal\low_level_hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\direct_mmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\low_level_alloc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\profiling\internal\periodic_sampler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\bernoulli_distribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\beta_distribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\discrete_distribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\distributions.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\exponential_distribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\gaussian_distribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\log_uniform_int_distribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\poisson_distribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\uniform_int_distribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\uniform_real_distribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\zipf_distribution.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\internal\chi_square.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\internal\distribution_test_util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\internal\platform.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\internal\randen_traits.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\internal\pool_urbg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\internal\randen.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\internal\randen_detect.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\internal\randen_hwaes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\internal\randen_slow.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\internal\seed_material.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\seed_gen_exception.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\random\seed_sequences.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\include\cctz\time_zone.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_fixed.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_if.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_info.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_libc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_posix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\tzfile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\internal\cctz\include\cctz\zone_info_source.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\container\internal\raw_hash_set.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\raw_logging.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\scoped_set_env.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\spinlock_wait.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\stacktrace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\internal\stacktrace_config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\status\status.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\status\internal\status_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\status\status_payload_printer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\status\statusor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\status\internal\statusor_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\arg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\bind.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\checker.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\extension.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\float_conversion.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\output.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\parser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\strerror.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\ascii.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\charconv.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\charconv_bigint.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\charconv_parse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\escaping.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\match.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\memutil.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\numbers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\stl_type_traits.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\str_cat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\str_join.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\str_join_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\str_replace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\str_split.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\str_split_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\string_constant.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\string_view.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\strip.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\substitute.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\char_map.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\escaping.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\ostringstream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\resize_uninitialized.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\utf8.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\symbolize.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\internal\symbolize.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\synchronization\barrier.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\synchronization\blocking_counter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\synchronization\internal\create_thread_identity.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\synchronization\internal\futex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\synchronization\mutex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\synchronization\notification.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\synchronization\internal\per_thread_sem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\synchronization\internal\waiter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\throw_delegate.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\civil_time.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\clock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\time\time.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\absl-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\pow10_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\abseil-20230909\absl\types\bad_any_cast.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\types\bad_optional_access.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\types\bad_variant_access.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\cycleclock.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\spinlock.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\sysinfo.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\thread_identity.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\unscaledcycleclock.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\hash\internal\city.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\civil_time_detail.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\cord.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\cord_analysis.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\cord_internal.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_btree.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_btree_navigator.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_btree_reader.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_consume.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\cord_rep_crc.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\cordz_functions.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\cordz_handle.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\cordz_info.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\cordz_sample_token.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\debugging\internal\address_is_readable.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\debugging\internal\elf_mem_image.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\debugging\internal\vdso_support.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\debugging\internal\demangle.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\debugging\internal\examine_stack.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\profiling\internal\exponential_biased.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\debugging\failure_signal_handler.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\flag.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\commandlineflag.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\usage_config.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\marshalling.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\parse.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\internal\private_handle_accessor.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\internal\program_name.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\reflection.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\usage.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\synchronization\internal\graphcycles.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\hash\internal\hash.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\container\internal\hashtablez_sampler.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\container\internal\hashtablez_sampler_force_weak_definition.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\numeric\int128.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\debugging\leak_check.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\log_severity.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\hash\internal\low_level_hash.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\low_level_alloc.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\profiling\internal\periodic_sampler.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\discrete_distribution.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\gaussian_distribution.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\internal\chi_square.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\internal\distribution_test_util.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\internal\randen_round_keys.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\internal\pool_urbg.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\internal\randen.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\internal\randen_detect.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\internal\randen_hwaes.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\internal\randen_slow.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\internal\seed_material.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\seed_gen_exception.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\random\seed_sequences.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_fixed.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_format.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_if.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_impl.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_info.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_libc.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_lookup.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\time_zone_posix.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\internal\cctz\src\zone_info_source.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\container\internal\raw_hash_set.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\raw_logging.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\scoped_set_env.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\spinlock_wait.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\debugging\stacktrace.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\status\status.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\status\status_payload_printer.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\status\statusor.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\arg.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\bind.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\extension.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\float_conversion.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\output.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\str_format\parser.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\strerror.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\ascii.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\charconv.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\charconv_bigint.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\charconv_parse.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\escaping.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\match.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\memutil.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\numbers.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\str_cat.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\str_replace.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\str_split.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\string_view.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\substitute.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\ostringstream.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\utf8.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\debugging\symbolize.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\synchronization\barrier.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\synchronization\blocking_counter.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\synchronization\internal\create_thread_identity.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\synchronization\mutex.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\synchronization\notification.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\synchronization\internal\per_thread_sem.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\base\internal\throw_delegate.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\civil_time.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\clock.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\duration.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\format.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\time\time.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\absl-pch.cpp" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\pow10_helper.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\synchronization\internal\win32_waiter.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\synchronization\internal\kernel_timeout.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\crc\crc32c.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\crc\internal\cpu_detect.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\crc\internal\crc.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\crc\internal\crc_cord_state.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\log\internal\log_message.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\log\internal\check_op.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\log\internal\nullguard.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\log\flags.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\log\globals.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\stringify_sink.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\strings\internal\escaping-internal.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\log\internal\globals-internal.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\log\internal\log_format.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\log\internal\log_sink_set.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\log\internal\proto.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\log\log_sink.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\synchronization\internal\waiter_base.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\crc\internal\crc_memcpy_fallback.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\crc\internal\crc_x86_arm_combined.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\internal\flag-internal.cc" />
+    <ClCompile Include="..\OSF\abseil-20230909\absl\flags\internal\commandlineflag-internal.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OSF\abseil-20230909\absl\flags\internal\flag_msvc.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\numeric\int128_have_intrinsic.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\numeric\int128_no_intrinsic.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\base\internal\spinlock_akaros.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\base\internal\spinlock_linux.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\base\internal\spinlock_posix.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\base\internal\spinlock_win32.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\internal\stacktrace_aarch64-inl.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\internal\stacktrace_arm-inl.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\internal\stacktrace_emscripten-inl.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\internal\stacktrace_generic-inl.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\internal\stacktrace_powerpc-inl.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\internal\stacktrace_riscv-inl.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\internal\stacktrace_unimplemented-inl.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\internal\stacktrace_win32-inl.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\internal\stacktrace_x86-inl.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\symbolize_darwin.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\symbolize_elf.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\symbolize_emscripten.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\symbolize_unimplemented.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\debugging\symbolize_win32.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\time\internal\get_current_time_posix.inc">
+      <Filter>Inc</Filter>
+    </None>
+    <None Include="..\OSF\abseil-20230909\absl\time\internal\get_current_time_chrono.inc">
+      <Filter>Inc</Filter>
+    </None>
+  </ItemGroup>
+</Project>

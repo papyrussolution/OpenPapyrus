@@ -3175,7 +3175,7 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 					memcpy(_sb, Utf8Prefix, Utf8PrefixLen);
 					memcpy(_sb+Utf8PrefixLen, p, MIN(sizeof(_sb) - Utf8PrefixLen, size));
 					uint16 extra = SUtfConst::TrailingBytesForUTF8[_sb[0]];
-					if(!SUnicode::IsLegalUtf8(_sb, extra+1))
+					if(!SUnicode::IsLegalUtf8Char(_sb, extra+1))
 						Flags &= ~fLegalUtf8Only;
 					else
 						next_utf8_pos = extra+1-Utf8PrefixLen;
@@ -3185,7 +3185,7 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 				else {
 					uint16 extra = SUtfConst::TrailingBytesForUTF8[c];
 					if((i+extra+1) <= size) {
-						if(!SUnicode::IsLegalUtf8(p+i, extra+1))
+						if(!SUnicode::IsLegalUtf8Char(p+i, extra+1))
 							Flags &= ~fLegalUtf8Only;
 						else
 							next_utf8_pos = i+extra+1;

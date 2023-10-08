@@ -491,7 +491,7 @@ U_CAPI int U_EXPORT2 ucnv_compareNames(const char * name1, const char * name2)
 		}
 
 		/* Case-insensitive comparison */
-		rc = (int)(unsigned char)c1 - (int)(unsigned char)c2;
+		rc = (int)(uchar)c1 - (int)(uchar)c2;
 		if(rc) {
 			return rc;
 		}

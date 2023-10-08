@@ -113,24 +113,89 @@ class WsCtl_ProgramEntry {
 public:
 	WsCtl_ProgramEntry();
 	WsCtl_ProgramEntry & Z();
+	//
+	// Descr: see descr of WsCtl_ProgramEntry::IsEq
+	//
+	bool   FASTCALL operator == (const WsCtl_ProgramEntry & rS) const { return IsEq(rS); }
+	//
+	// Descr: see descr of WsCtl_ProgramEntry::IsEq
+	//
+	bool   FASTCALL operator != (const WsCtl_ProgramEntry & rS) const { return !IsEq(rS); }
+	//
+	// Descr: Выясняет эквивалентность экземпляра this с экземпляром rS.
+	//   Эквивалентность определяется без учета члена FullResolvedPath поскольку
+	//   он вычисляется клиентом на основании контекстной информации.
+	// Returns:
+	//   true - *this и rS эквивалентны.
+	//   false - *this и rS различаются.
+	//
+	bool   FASTCALL IsEq(const WsCtl_ProgramEntry & rS) const;
 	SJson * ToJsonObj() const;
 	int    FromJsonObj(const SJson * pJsObj);
 	SString Category;         // utf8 Категория программы
 	SString Title;            // utf8 Отображаемый на экране заголовок программы
 	SString ExeFileName;      // utf8 Имя исполняемого файла (с расширением) 
-	SString FullResolvedPath; // utf8 Полный путь к исполняемому файлу.
+	SString FullResolvedPath; // @transient utf8 Полный путь к исполняемому файлу.
 	SString PicSymb;          // utf8 Символ изображения иконки //
 };
 
 class WsCtl_ProgramCollection : public TSCollection <WsCtl_ProgramEntry> {
 public:
 	WsCtl_ProgramCollection();
+	WsCtl_ProgramCollection(const WsCtl_ProgramCollection & rS);
+	WsCtl_ProgramCollection & FASTCALL Copy(const WsCtl_ProgramCollection & rS);
+	WsCtl_ProgramCollection & FASTCALL operator = (const WsCtl_ProgramCollection & rS) { return Copy(rS); }
+	bool   FASTCALL operator == (const WsCtl_ProgramCollection & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const WsCtl_ProgramCollection & rS) const { return !IsEq(rS); }
+	//
+	// Descr: Функция определяет эквивалентность экземпляра this с экземпляром rS.
+	//   Эквивалентность определяется без учета членов CatList и SelectedCatSurrogateId.
+	//   Кроме того, see desr of WsCtl_ProgramEntry::IsEq.
+	// Returns:
+	//   true - *this и rS эквивалентны.
+	//   false - *this и rS различаются.// 
+	//
+	bool   FASTCALL IsEq(const WsCtl_ProgramCollection & rS) const;
 	SJson * ToJsonObj() const;
 	int    FromJsonObj(const SJson * pJsObj);
 	int    MakeCatList();
 
-	StrAssocArray CatList;
-	long   SelectedCatSurrogateId;
+	StrAssocArray CatList; // @transient
+	long   SelectedCatSurrogateId; // @transient
+};
+//
+// Descr: Класс, отвечающий за системное сопровождение сессий:
+//   -- авторизация в операционной системе
+//   -- запуск и завершение процессов
+//   -- управление ограничениями
+//   -- отслеживание изменений в системе
+//
+class WsCtl_SessionFrame {
+public:
+	WsCtl_SessionFrame() : State(0)
+	{
+	}
+	~WsCtl_SessionFrame()
+	{
+	}
+	void   SetClientPolicy(const WsCtl_ClientPolicy & rP)
+	{
+		Policy = rP;
+	}
+	int    Start();
+	int    Finish();
+	int    LaunchProcess(const WsCtl_ProgramEntry * pPgmEntry);
+private:
+	struct Process : public SlProcess::Result {
+		SString Name;
+		SString Path;
+	};
+	enum {
+		stRunning = 0x0001
+	};
+	WsCtl_ClientPolicy Policy;
+	TSCollection <Process> RunningProcessList; // Список хандлеров запущенных процессов
+	uint   State;
 };
 //
 // Descr: Блок, отвечающий за взаимодействие серверной сессии с модулем WsCtl
@@ -192,6 +257,7 @@ public:
 	int    StartSess(StartSessBlock & rBlk);
 	int    Auth(AuthBlock & rBlk);
 	int    SendClientPolicy(SString & rResult);
+	int    SendProgramList(SString & rResult);
 
 	PPObjTSession TSesObj;
 	PPObjQuotKind QkObj;

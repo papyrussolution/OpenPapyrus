@@ -579,6 +579,16 @@ public:
 		WsCtl_ClientPolicy P;
 		bool Dirty; // Специальный флаг, индицирующий обновление данных со стороны потока обмена с сервером.
 	};
+
+	class DProgramList : public DServerError {
+	public:
+		DProgramList() : DtmActual(ZERODATETIME), Dirty(false)
+		{
+		}
+		LDATETIME DtmActual; // Момент последней актуализации данных
+		WsCtl_ProgramCollection L;
+		bool Dirty; // Специальный флаг, индицирующий обновление данных со стороны потока обмена с сервером.
+	};
 	//
 	// Descr: Информационный блок о состоянии процессора на сервере, с которым ассоциирована данная рабочая станция //
 	//
@@ -686,7 +696,8 @@ public:
 			syncdataJobSrvConnStatus, // int статус соединения с сервером
 			syncdataAuth,             // DAuth
 			syncdataAutonomousTSess,  // DTSess Поддержка актуальности автономных данных о текущей сессии
-			syncdataClientPolicy      // DPolicy Политика ограничений пользовательского сеанса
+			syncdataClientPolicy,     // DPolicy Политика ограничений пользовательского сеанса
+			syncdataProgramList       // D_PgmList Список программ, которые могут быть запущены из оболочки
 		};
 		//
 		// Descr: Элемент состояния, который получен от сервера.
@@ -734,10 +745,11 @@ public:
 		SyncEntry <DConnectionStatus> D_ConnStatus;
 		SyncEntry <DAuth>    D_Auth;
 		SyncEntry <DClientPolicy> D_Policy;
+		SyncEntry <DProgramList> D_PgmList; // @v11.8.5
 
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
 			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError),
-			D_Policy(syncdataClientPolicy)
+			D_Policy(syncdataClientPolicy), D_PgmList(syncdataProgramList)
 		{
 		}
 		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
@@ -945,6 +957,8 @@ private:
 	DServerError LastSvrErr;
 	ImDialog_WsCtlConfig * P_Dlg_Cfg;
 	SScroller::Position PgmGalleryScrollerPosition_Develop; // @v11.7.12
+	WsCtl_SessionFrame SessF; // @v11.8.5 Блок, отвечающий за системные процедуры работы сессии (политики безопасности, ограничения ресурсов,
+		// отслеживание изменений в системе etc)
 public:
 	WsCtl_ImGuiSceneBlock();
 	~WsCtl_ImGuiSceneBlock();
@@ -1732,6 +1746,12 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 								SendRequest(rCli, inner_req); // @recursion
 							}
 							// } @v11.7.12 
+							{
+								// И следом запрос на список программ для запуска
+								WsCtlReqQueue::Req inner_req(PPSCMD_WSCTL_QUERYPGMLIST);
+								inner_req.P.Uuid = rReq.P.Uuid;
+								SendRequest(rCli, inner_req); // @recursion
+							}
 						}
 						else {
 							PPSetErrorSLib();
@@ -1746,6 +1766,36 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 					st_data.SetupByLastError();
 				st_data.DtmActual = getcurdatetime_();
 				P_St->D_Prc.SetData(st_data);
+			}
+			break;
+		case PPSCMD_WSCTL_QUERYPGMLIST: // @v11.8.5
+			if(P_St) {
+				WsCtl_ImGuiSceneBlock::DProgramList st_data;
+				WsCtl_ImGuiSceneBlock::DProgramList st_data_org;
+				P_St->D_PgmList.GetData(st_data_org);
+				PPJobSrvCmd cmd;
+				cmd.StartWriting(PPSCMD_WSCTL_QUERYPGMLIST);
+				cmd.Write(&rReq.P.Uuid, sizeof(rReq.P.Uuid));
+				cmd.FinishWriting();
+				if(rCli.Exec(cmd, reply)) {
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+						SJson * p_js_obj = SJson::Parse(reply_buf);
+						if(st_data.L.FromJsonObj(p_js_obj)) {
+							if(st_data.L != st_data_org.L) {
+								st_data.DtmActual = getcurdatetime_();
+								st_data.Dirty = true;
+								P_St->D_PgmList.SetData(st_data);
+							}
+						}
+						else {
+							PPSetErrorSLib();
+							st_data.SetupByLastError();
+						}
+						ZDELETE(p_js_obj);						
+					}
+				}
 			}
 			break;
 		case PPSCMD_WSCTL_QUERYPOLICY: // @v11.7.12 @construction
@@ -2066,44 +2116,9 @@ int WsCtl_ImGuiSceneBlock::LoadProgramList()
 int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 {
 	int    ok = 0;
-	int    r = 0;
 	if(pPe && pPe->FullResolvedPath.NotEmpty()) {
-		SString temp_buf;
-		/*{
-			wchar_t cmd_line_[512];
-			wchar_t working_dir_[512];
-			SStringU cmd_line_u;
-			SStringU working_dir_u;
-			cmd_line_u.CopyFromUtf8(pPe->FullResolvedPath);
-			STRNSCPY(cmd_line_, cmd_line_u);
-			SPathStruc ps(pPe->FullResolvedPath);
-			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-			working_dir_u.CopyFromUtf8(temp_buf.SetLastSlash());
-			STRNSCPY(working_dir_, working_dir_u);
-			SECURITY_ATTRIBUTES process_attr;
-			SECURITY_ATTRIBUTES thread_attr;
-			BOOL   inherit_handles = FALSE;
-			DWORD  creation_flags = 0;
-			void * p_env = 0;
-			STARTUPINFO si;
-			PROCESS_INFORMATION pi;
-			MEMSZERO(si);
-			si.cb = sizeof(si);
-			MEMSZERO(pi);
-			r = ::CreateProcessW(0, cmd_line_, 0, 0, inherit_handles, creation_flags, p_env, working_dir_, &si, &pi);
-			if(r)
-				ok = 1;
-		}*/
-		{
-			SlProcess::Result result;
-			SlProcess proc;
-			proc.SetPath(pPe->FullResolvedPath);
-			SPathStruc ps(pPe->FullResolvedPath);
-			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-			proc.SetWorkingDir(temp_buf);
-			proc.SetFlags(0);
-			if(proc.Run(&result))
-				ok = 1;
+		if(SessF.LaunchProcess(pPe)) {
+			ok = 1;
 		}
 	}
 	return ok;
@@ -2845,9 +2860,10 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					St.D_Acc.GetData(st_data_acc);
 					St.D_TSess.GetData(st_data_tses);
 					if(st_data_acc.SCardID == 0) {
-						SetScreen(screenConstruction); // @todo Здесь надо перейти на како-то вменяемый экран, а не на отладочную панель!
+						SetScreen(screenConstruction); // @todo Здесь надо перейти на какой-то вменяемый экран, а не на отладочную панель!
 					}
 					else if(st_data_tses.TSessID == 0) {
+						SessF.Finish(); // @v11.8.5
 						SetScreen(screenAuthSelectSess);
 					}
 					else {
@@ -2905,7 +2921,12 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					DTSess st_data_tses;
 					St.D_TSess.GetData(st_data_tses);
 					if(st_data_tses.TSessID && st_data_tses._Status == 0) {
-						SetScreen(screenSession);
+						if(SessF.Start()) { // @v11.8.5
+							SetScreen(screenSession);
+						}
+						else {
+							// @todo @err
+						}
 					}
 					else {
 						{

@@ -429,159 +429,165 @@ int InetUrl::Parse(const char * pUrl)
 	SString _url(pUrl);
 	Z();
 	_url.Strip();
-	while(oneof2(_url.C(0), ' ', '\t'))
-		_url.ShiftLeft();
-	if(_url.C(0) == '\"') {
-		_url.ShiftLeft();
-		while(oneof2(_url.C(0), ' ', '\t'))
-			_url.ShiftLeft();
-		size_t qp = 0;
-		if(_url.SearchChar('\"', &qp))
-			_url.Trim(qp).Strip();
-	}
-	if(_url.NotEmptyS()) {
-		SString temp_buf;
-		SString left_buf, right_buf;
-		int    _done = 0;
-		{
-			//
-			// Сначала разберем специальные случаи, которые не обрабатываются функцией UriParseUri
-			// Note:
-			//   Этот блок требует значительных уточнений, в том числе касательно очень специальных случаев
-			//   вроде \\.\COM1
-			//
-			// @v10.9.2 {
-			STokenRecognizer tr;
-			SNaturalTokenArray nta;
-			SNaturalTokenStat nts;
-			//uint tokn = 0;
-			//tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
-			//if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 25) ok = 100000;
-			tr.Run(_url.ucptr(), _url.Len(), nta, &nts);
-			if(nta.Has(SNTOK_IP4)) {
-				Protocol = 0;
-				TermList.Add(cHost, _url);
-				_done = 1;									
-			}
-			else if(_url.IsEqiAscii("localhost")) {
-				Protocol = 0;
-				TermList.Add(cHost, _url);
-				_done = 1;					
-			}
-			else if(!_url.Search("://", 0, 0, 0) && _url.Divide(':', left_buf, right_buf) > 0) {
-				if(left_buf.Len() == 1 && isasciialpha(left_buf.C(0))) {
-					// Путь файловой системы
-					Protocol = GetSchemeId("file");
-					TermList.Add(cScheme, "file", 1);
-					TermList.Add(cPath, _url, 1);
-					State &= ~stEmpty;
-					_done = 1;
-				}
-				else if(right_buf.IsDigit()) {
-					tr.Run(left_buf.ucptr(), left_buf.Len(), nta, &nts);
-					if(nta.Has(SNTOK_IP4)) {
-						Protocol = 0;
-						TermList.Add(cHost, left_buf);
-						TermList.Add(cPort, right_buf);
-						_done = 1;					
-					}
-					else if(left_buf.IsEqiAscii("localhost")) {
-						Protocol = 0;
-						TermList.Add(cHost, left_buf);
-						TermList.Add(cPort, right_buf);
-						_done = 1;					
-					}
-				}
-			}
-			// } @v10.9.2 
-			if(!_done) {
-				if(_url[1] == ':' && isasciialpha(_url[0])) {
-					// Путь файловой системы
-					Protocol = GetSchemeId("file");
-					TermList.Add(cScheme, "file", 1);
-					TermList.Add(cPath, _url, 1);
-					State &= ~stEmpty;
-					_done = 1;
-				}
-				else if(isdirslash(_url[0]) && isdirslash(_url[1])) {
-					// Путь файловой системы
-					Protocol = GetSchemeId("file");
-					TermList.Add(cScheme, "file", 1);
-					TermList.Add(cPath, _url, 1);
-					State &= ~stEmpty;
-					_done = 1;
-				}
-				else if(isdirslash(_url[0])) { // Сомнительный случай, но пути типа "/abc/catalog/x.bin" реальность
-					// Путь файловой системы
-					Protocol = GetSchemeId("file");
-					TermList.Add(cScheme, "file", 1);
-					TermList.Add(cPath, _url, 1);
-					State &= ~stEmpty;
-					_done = 1;
-				}
-				else if(_url.HasPrefixIAscii("file:") && isdirslash(_url[5]) && isdirslash(_url[6]) && isdirslash(_url[7])) {
-					// Путь файловой системы, начиная с _url[8]
-					Protocol = GetSchemeId("file");
-					TermList.Add(cScheme, "file", 1);
-					TermList.Add(cPath, _url+8, 1);
-					State &= ~stEmpty;
-					_done = 1;
-				}
-			}
-		}
-		if(!_done) {
-			UriParserState state;
-			UriUri uri;
-			state.P_Uri = &uri;
-			if(UriParseUri(&state, pUrl)) {
-				temp_buf.CopyFromN(uri.Scheme.P_First, uri.Scheme.Len());
-				if(temp_buf.NotEmpty()) {
-					Protocol = GetSchemeId(temp_buf);
-					TermList.Add(cScheme, temp_buf, 1);
-				}
-				temp_buf.CopyFromN(uri.UserInfo.P_First, uri.UserInfo.Len());
-				if(temp_buf.NotEmpty()) {
-					temp_buf.Divide(':', left_buf, right_buf);
-					if(left_buf.NotEmptyS())
-						TermList.Add(cUserName, left_buf, 1);
-					if(right_buf.NotEmptyS())
-						TermList.Add(cPassword, right_buf, 1);
-				}
-				temp_buf.CopyFromN(uri.HostText.P_First, uri.HostText.Len());
-				if(temp_buf.NotEmpty())
-					TermList.Add(cHost, temp_buf, 1);
-				temp_buf.CopyFromN(uri.PortText.P_First, uri.PortText.Len());
-				if(temp_buf.NotEmpty())
-					TermList.Add(cPort, temp_buf, 1);
-				//temp_buf = uri.pathHead ? uri.pathHead->text.first : 0;
-				{
-					temp_buf.Z();
-					for(UriUri::PathSegment * p_pseg = uri.pathHead; p_pseg; p_pseg = p_pseg->next) {
-						if(temp_buf.NotEmpty())
-							temp_buf.Slash();
-						temp_buf.CatN(p_pseg->text.P_First, p_pseg->text.Len());
-					}
-					if(temp_buf.NotEmpty())
-						TermList.Add(cPath, temp_buf, 1);
-				}
-				temp_buf.CopyFromN(uri.query.P_First, uri.query.Len());
-				if(temp_buf.NotEmpty())
-					TermList.Add(cQuery, temp_buf, 1);
-				temp_buf.CopyFromN(uri.fragment.P_First, uri.fragment.Len());
-				if(temp_buf.NotEmpty())
-					TermList.Add(cRef, temp_buf, 1);
-				State &= ~stEmpty;
-			}
-			else {
-				State |= stError;
-				ok = 0;
-			}
-			uri.Destroy();
-		}
+	if(!_url.IsLegalUtf8()) {
+		// @todo @err
+		State |= stError;
+		ok = 0;
 	}
 	else {
-		State |= stEmpty;
-		ok = -1;
+		while(oneof2(_url.C(0), ' ', '\t'))
+			_url.ShiftLeft();
+		if(_url.C(0) == '\"') {
+			_url.ShiftLeft();
+			while(oneof2(_url.C(0), ' ', '\t'))
+				_url.ShiftLeft();
+			size_t qp = 0;
+			if(_url.SearchChar('\"', &qp))
+				_url.Trim(qp).Strip();
+		}
+		if(_url.NotEmptyS()) {
+			SString temp_buf;
+			SString left_buf, right_buf;
+			int    _done = 0;
+			{
+				//
+				// Сначала разберем специальные случаи, которые не обрабатываются функцией UriParseUri
+				// Note:
+				//   Этот блок требует значительных уточнений, в том числе касательно очень специальных случаев
+				//   вроде \\.\COM1
+				//
+				// @v10.9.2 {
+				STokenRecognizer tr;
+				SNaturalTokenArray nta;
+				SNaturalTokenStat nts;
+				//uint tokn = 0;
+				//tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
+				//if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 25) ok = 100000;
+				tr.Run(_url.ucptr(), _url.Len(), nta, &nts);
+				if(nta.Has(SNTOK_IP4)) {
+					Protocol = 0;
+					TermList.Add(cHost, _url);
+					_done = 1;									
+				}
+				else if(_url.IsEqiAscii("localhost")) {
+					Protocol = 0;
+					TermList.Add(cHost, _url);
+					_done = 1;					
+				}
+				else if(!_url.Search("://", 0, 0, 0) && _url.Divide(':', left_buf, right_buf) > 0) {
+					if(left_buf.Len() == 1 && isasciialpha(left_buf.C(0))) {
+						// Путь файловой системы
+						Protocol = GetSchemeId("file");
+						TermList.Add(cScheme, "file", 1);
+						TermList.Add(cPath, _url, 1);
+						State &= ~stEmpty;
+						_done = 1;
+					}
+					else if(right_buf.IsDigit()) {
+						tr.Run(left_buf.ucptr(), left_buf.Len(), nta, &nts);
+						if(nta.Has(SNTOK_IP4)) {
+							Protocol = 0;
+							TermList.Add(cHost, left_buf);
+							TermList.Add(cPort, right_buf);
+							_done = 1;					
+						}
+						else if(left_buf.IsEqiAscii("localhost")) {
+							Protocol = 0;
+							TermList.Add(cHost, left_buf);
+							TermList.Add(cPort, right_buf);
+							_done = 1;					
+						}
+					}
+				}
+				// } @v10.9.2 
+				if(!_done) {
+					if(_url[1] == ':' && isasciialpha(_url[0])) {
+						// Путь файловой системы
+						Protocol = GetSchemeId("file");
+						TermList.Add(cScheme, "file", 1);
+						TermList.Add(cPath, _url, 1);
+						State &= ~stEmpty;
+						_done = 1;
+					}
+					else if(isdirslash(_url[0]) && isdirslash(_url[1])) {
+						// Путь файловой системы
+						Protocol = GetSchemeId("file");
+						TermList.Add(cScheme, "file", 1);
+						TermList.Add(cPath, _url, 1);
+						State &= ~stEmpty;
+						_done = 1;
+					}
+					else if(isdirslash(_url[0])) { // Сомнительный случай, но пути типа "/abc/catalog/x.bin" реальность
+						// Путь файловой системы
+						Protocol = GetSchemeId("file");
+						TermList.Add(cScheme, "file", 1);
+						TermList.Add(cPath, _url, 1);
+						State &= ~stEmpty;
+						_done = 1;
+					}
+					else if(_url.HasPrefixIAscii("file:") && isdirslash(_url[5]) && isdirslash(_url[6]) && isdirslash(_url[7])) {
+						// Путь файловой системы, начиная с _url[8]
+						Protocol = GetSchemeId("file");
+						TermList.Add(cScheme, "file", 1);
+						TermList.Add(cPath, _url+8, 1);
+						State &= ~stEmpty;
+						_done = 1;
+					}
+				}
+			}
+			if(!_done) {
+				UriUri uri;
+				UriParserState state(&uri);
+				if(UriParseUri(&state, pUrl)) {
+					temp_buf.CopyFromN(uri.Scheme.P_First, uri.Scheme.Len());
+					if(temp_buf.NotEmpty()) {
+						Protocol = GetSchemeId(temp_buf);
+						TermList.Add(cScheme, temp_buf, 1);
+					}
+					temp_buf.CopyFromN(uri.UserInfo.P_First, uri.UserInfo.Len());
+					if(temp_buf.NotEmpty()) {
+						temp_buf.Divide(':', left_buf, right_buf);
+						if(left_buf.NotEmptyS())
+							TermList.Add(cUserName, left_buf, 1);
+						if(right_buf.NotEmptyS())
+							TermList.Add(cPassword, right_buf, 1);
+					}
+					temp_buf.CopyFromN(uri.HostText.P_First, uri.HostText.Len());
+					if(temp_buf.NotEmpty())
+						TermList.Add(cHost, temp_buf, 1);
+					temp_buf.CopyFromN(uri.PortText.P_First, uri.PortText.Len());
+					if(temp_buf.NotEmpty())
+						TermList.Add(cPort, temp_buf, 1);
+					//temp_buf = uri.pathHead ? uri.pathHead->text.first : 0;
+					{
+						temp_buf.Z();
+						for(UriUri::PathSegment * p_pseg = uri.pathHead; p_pseg; p_pseg = p_pseg->next) {
+							if(temp_buf.NotEmpty())
+								temp_buf.Slash();
+							temp_buf.CatN(p_pseg->text.P_First, p_pseg->text.Len());
+						}
+						if(temp_buf.NotEmpty())
+							TermList.Add(cPath, temp_buf, 1);
+					}
+					temp_buf.CopyFromN(uri.query.P_First, uri.query.Len());
+					if(temp_buf.NotEmpty())
+						TermList.Add(cQuery, temp_buf, 1);
+					temp_buf.CopyFromN(uri.fragment.P_First, uri.fragment.Len());
+					if(temp_buf.NotEmpty())
+						TermList.Add(cRef, temp_buf, 1);
+					State &= ~stEmpty;
+				}
+				else {
+					State |= stError;
+					ok = 0;
+				}
+				uri.Destroy();
+			}
+		}
+		else {
+			State |= stEmpty;
+			ok = -1;
+		}
 	}
 	return ok;
 }

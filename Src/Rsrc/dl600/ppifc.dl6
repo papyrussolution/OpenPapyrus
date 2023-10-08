@@ -1041,7 +1041,6 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		//   файл.
 		//
 		int    UniformFileTransm(in string srcUrl, in string destUrl, in long flags, in IFileFormat iff, in string accsName, in string accsPassw);
-		//int    UniformFileTransmW(in wstring srcUrl, in wstring destUrl, in long flags, in IFileFormat iff, in wstring accsName, in wstring accsPassw); // @v11.7.8
 		//
 		// Descr: Переводит строку в дату в соответствии с форматом, заданным параметром fmt.
 		//   Если fmt == datfDefault, то пытается распознать дату по содержимому строки (без гарантии успеха).
@@ -1067,6 +1066,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		ILongList * GetSupplInterchangeLocList(in long supplID); // @v9.9.5
 		int    IsIntrOp(in long opID); // @v11.6.8
 		int    IsExpendOp(in long opID); // @v11.6.8
+		int    UniformFileTransmW(in wstring srcUrl, in wstring destUrl, in long flags, in IFileFormat iff, in wstring accsName, in wstring accsPassw); // @v11.8.5
 	}
 	//
 	// Descr: Зарезервированные теги объектов

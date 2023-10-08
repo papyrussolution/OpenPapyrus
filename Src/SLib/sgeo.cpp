@@ -687,7 +687,7 @@ double A1m1f(double eps)
 		1, 4, 64, 0, 256,
 	};
 	int m = nA1/2;
-	double t = polyval(m, coeff, SQ(eps)) / coeff[m + 1];
+	double t = polyval(m, coeff, fpow2(eps)) / coeff[m + 1];
 	return (t + eps) / (1 - eps);
 }
 //
@@ -709,7 +709,7 @@ void C1pf(double eps, double c[])
 		/* C1p[6]/eps^6, polynomial in eps2 of order 0 */
 		38081, 61440,
 	};
-	double eps2 = SQ(eps);
+	double eps2 = fpow2(eps);
 	double d = eps;
 	int o = 0, l;
 	for(l = 1; l <= nC1p; ++l) { /* l is index of C1p[l] */
@@ -738,7 +738,7 @@ void C2f(double eps, double c[])
 		/* C2[6]/eps^6, polynomial in eps2 of order 0 */
 		77, 2048,
 	};
-	double eps2 = SQ(eps);
+	double eps2 = fpow2(eps);
 	double d = eps;
 	int o = 0, l;
 	for(l = 1; l <= nC2; ++l) { /* l is index of C2[l] */
@@ -758,7 +758,7 @@ double A2m1f(double eps)
 		-11, -28, -192, 0, 256,
 	};
 	int m = nA2/2;
-	double t = polyval(m, coeff, SQ(eps)) / coeff[m + 1];
+	double t = polyval(m, coeff, fpow2(eps)) / coeff[m + 1];
 	return (t - eps) / (1 + eps);
 }
 
@@ -817,7 +817,7 @@ void C1f(double eps, double c[])
 		/* C1[6]/eps^6, polynomial in eps2 of order 0 */
 		-7, 2048,
 	};
-	double eps2 = SQ(eps);
+	double eps2 = fpow2(eps);
 	double d = eps;
 	int o = 0, l;
 	for(l = 1; l <= nC1; ++l) { // l is index of C1p[l]
@@ -968,10 +968,10 @@ void SGeo::Geodesic::Init(double _a, double _f)
 	F = _f;
 	F1 = 1 - F;
 	E2 = F * (2 - F);
-	Ep2 = E2 / SQ(F1); //  e2 / (1 - e2)
+	Ep2 = E2 / fpow2(F1); //  e2 / (1 - e2)
 	N = F / (2.0 - F);
 	B = A * F1;
-	C2 = (SQ(A) + SQ(B) * ((E2 == 0) ? 1.0 : ((E2 > 0.0) ? atanhx(sqrt(E2)) : atan(sqrt(-E2))) / sqrt(fabs(E2)))) / 2.0; // authalic radius squared
+	C2 = (fpow2(A) + fpow2(B) * ((E2 == 0) ? 1.0 : ((E2 > 0.0) ? atanhx(sqrt(E2)) : atan(sqrt(-E2))) / sqrt(fabs(E2)))) / 2.0; // authalic radius squared
 	//
 	// The sig12 threshold for "really short".  Using the auxiliary sphere
 	// solution with dnm computed at (bet1 + bet2) / 2, the relative error in the
@@ -1118,7 +1118,7 @@ void SGeo::LineInit_Int(SGeo::GeodesicLine * pLine, const SGeoPosLL & rP1, doubl
 		// Ensure cbet1 = +epsilon at poles
 		sc_bet1.Norm2();
 		sc_bet1.C = smax(_Tiny, sc_bet1.C);
-		pLine->Dn1 = sqrt(1 + G.Ep2 * SQ(sc_bet1.S));
+		pLine->Dn1 = sqrt(1 + G.Ep2 * fpow2(sc_bet1.S));
 		// Evaluate alp0 from sin(alp1) * cos(bet1) = sin(alp0),
 		//- pLine->Alp0.S = pLine->Alp1.S * sc_bet1.C; // alp0 in [0, pi/2 - |bet1|] 
 		// Alt: calp0 = hypot(sbet1, calp1 * cbet1).  The following
@@ -1139,7 +1139,7 @@ void SGeo::LineInit_Int(SGeo::GeodesicLine * pLine, const SGeoPosLL & rP1, doubl
 		pLine->Sig1.C = pLine->Omg1.C = (sc_bet1.S != 0 || pLine->Alp1.C != 0) ? (sc_bet1.C * pLine->Alp1.C) : 1.0;
 		pLine->Sig1.Norm2(); // sig1 in (-pi, pi] 
 		// norm2(somg1, comg1); -- don't need to normalize!
-		pLine->K2 = SQ(pLine->Alp0.C) * G.Ep2;
+		pLine->K2 = fpow2(pLine->Alp0.C) * G.Ep2;
 		eps = pLine->K2 / (2 * (1 + sqrt(1 + pLine->K2)) + pLine->K2);
 		if(pLine->Caps & CAP_C1) {
 			pLine->A1m1 = A1m1f(eps);
@@ -1170,7 +1170,7 @@ void SGeo::LineInit_Int(SGeo::GeodesicLine * pLine, const SGeoPosLL & rP1, doubl
 		if(pLine->Caps & CAP_C4) {
 			G.C4f_(eps, pLine->C4a);
 			// Multiplier = a^2 * e^2 * cos(alpha0) * sin(alpha0)
-			pLine->A4 = SQ(pLine->A) * pLine->Alp0.C * pLine->Alp0.S * G.E2;
+			pLine->A4 = fpow2(pLine->A) * pLine->Alp0.C * pLine->Alp0.S * G.E2;
 			pLine->B41 = SinCosSeries(FALSE, pLine->Sig1, pLine->C4a, nC4);
 		}
 		pLine->A13 = pLine->S13 = fgetnan();
@@ -1262,7 +1262,7 @@ double SGeo::GenPosition(const SGeo::GeodesicLine * pLine, uint flags, double s1
 			sc_sig2.Sum_(pLine->Sig1, sc_sig12);
 			B12 = SinCosSeries(TRUE, sc_sig2, pLine->C1a, nC1);
 			serr = (1 + pLine->A1m1) * (sig12 + (B12 - pLine->B11)) - s12_a12 / pLine->B;
-			sig12 = sig12 - serr / sqrt(1 + pLine->K2 * SQ(sc_sig2.S));
+			sig12 = sig12 - serr / sqrt(1 + pLine->K2 * fpow2(sc_sig2.S));
 			sc_sig12.SetRad(sig12);
 			// Update B12 below
 		}
@@ -1271,7 +1271,7 @@ double SGeo::GenPosition(const SGeo::GeodesicLine * pLine, uint flags, double s1
 	//sc_sig2.S = pLine->Sig1.S * sc_sig12.C + pLine->Sig1.C * sc_sig12.S;
 	//sc_sig2.C = pLine->Sig1.C * sc_sig12.C - pLine->Sig1.S * sc_sig12.S;
 	sc_sig2.Sum_(pLine->Sig1, sc_sig12);
-	dn2 = sqrt(1 + pLine->K2 * SQ(sc_sig2.S));
+	dn2 = sqrt(1 + pLine->K2 * fpow2(sc_sig2.S));
 	if(outmask & (GEOD_DISTANCE | GEOD_REDUCEDLENGTH | GEOD_GEODESICSCALE)) {
 		if(flags & GEOD_ARCMODE || fabs(pLine->F) > 0.01)
 			B12 = SinCosSeries(TRUE, sc_sig2, pLine->C1a, nC1);
@@ -1344,7 +1344,7 @@ double SGeo::GenPosition(const SGeo::GeodesicLine * pLine, uint flags, double s1
 			// No need to normalize 
 			// 
 			sc_alp12.S = pLine->Alp0.C * pLine->Alp0.S * ((sc_sig12.C <= 0) ? (pLine->Sig1.C * (1 - sc_sig12.C) + sc_sig12.S * pLine->Sig1.S) : (sc_sig12.S * (pLine->Sig1.C * sc_sig12.S / (1 + sc_sig12.C) + pLine->Sig1.S)));
-			sc_alp12.C = SQ(pLine->Alp0.S) + SQ(pLine->Alp0.C) * pLine->Sig1.C * sc_sig2.C;
+			sc_alp12.C = fpow2(pLine->Alp0.S) + fpow2(pLine->Alp0.C) * pLine->Sig1.C * sc_sig2.C;
 		}
 		S12 = pLine->C2 * sc_alp12.ATan2() + pLine->A4 * (B42 - pLine->B41);
 	}
@@ -1443,13 +1443,13 @@ double Astroid(double x, double y)
 	// Solve k^4+2*k^3-(x^2+y^2-1)*k^2-2*y^2*k-y^2 = 0 for positive root k.
 	// This solution is adapted from Geocentric::Reverse.
 	double k;
-	double p = SQ(x);
-	double q = SQ(y);
+	double p = fpow2(x);
+	double q = fpow2(y);
 	double r = (p + q - 1) / 6;
 	if(!(q == 0 && r <= 0)) {
 		// Avoid possible division by zero when r = 0 by multiplying equations for s and t by r^3 and r, resp.
 		double S = p * q / 4; // S = r^3 * s
-		double r2 = SQ(r);
+		double r2 = fpow2(r);
 		double r3 = r * r2;
 		// The discriminant of the quadratic equation for T3.  This is zero on
 		// the evolute curve p^(1/3)+q^(1/3) = 1
@@ -1477,13 +1477,13 @@ double Astroid(double x, double y)
 			// avoids cancellation.  Note that disc < 0 implies that r < 0.
 			u += 2 * r * cos(ang / 3);
 		}
-		v = sqrt(SQ(u) + q); // guaranteed positive
+		v = sqrt(fpow2(u) + q); // guaranteed positive
 		// Avoid loss of accuracy when u < 0.
 		uv = (u < 0) ? (q / (v - u)) : (u + v); // u+v, guaranteed positive 
 		w = (uv - q) / (2 * v); // positive? 
 		// Rearrange expression for k to avoid loss of accuracy due to
 		// subtraction.  Division by 0 not possible because uv > 0, w >= 0.
-		k = uv / (sqrt(uv + SQ(w)) + w); // guaranteed positive
+		k = uv / (sqrt(uv + fpow2(w)) + w); // guaranteed positive
 	}
 	else { // q == 0 && r <= 0
 		// y = 0 with |x| <= 1.  Handle this case directly.
@@ -1525,9 +1525,9 @@ double SGeo::InverseStart(const SinCosPair & rScBet1, double dn1, const SinCosPa
 	const double sbet12a = rScBet2.S * rScBet1.C + rScBet2.C * rScBet1.S;
 #endif
 	if(shortline) {
-		double sbetm2 = SQ(rScBet1.S + rScBet2.S), omg12;
+		double sbetm2 = fpow2(rScBet1.S + rScBet2.S), omg12;
 		// sin((bet1+bet2)/2)^2 =  (sbet1 + sbet2)^2 / ((sbet1 + sbet2)^2 + (cbet1 + cbet2)^2)
-		sbetm2 /= sbetm2 + SQ(rScBet1.C + rScBet2.C);
+		sbetm2 /= sbetm2 + fpow2(rScBet1.C + rScBet2.C);
 		dnm = sqrt(1 + G.Ep2 * sbetm2);
 		omg12 = lam12 / (G.F1 * dnm);
 		somg12 = sin(omg12);
@@ -1538,18 +1538,18 @@ double SGeo::InverseStart(const SinCosPair & rScBet1, double dn1, const SinCosPa
 		comg12 = rLam12.C;
 	}
 	sc_alp1.S = rScBet2.C * somg12;
-	sc_alp1.C = (comg12 >= 0) ? (sbet12 + rScBet2.C * rScBet1.S * SQ(somg12) / (1 + comg12)) : (sbet12a - rScBet2.C * rScBet1.S * SQ(somg12) / (1 - comg12));
+	sc_alp1.C = (comg12 >= 0) ? (sbet12 + rScBet2.C * rScBet1.S * fpow2(somg12) / (1 + comg12)) : (sbet12a - rScBet2.C * rScBet1.S * fpow2(somg12) / (1 - comg12));
 	ssig12 = hypot(sc_alp1.S, sc_alp1.C);
 	csig12 = rScBet1.S * rScBet2.S + rScBet1.C * rScBet2.C * comg12;
 	if(shortline && ssig12 < G.Etol2) {
 		// really short lines
 		sc_alp2.S = rScBet1.C * somg12;
-		sc_alp2.C = sbet12 - rScBet1.C * rScBet2.S * (comg12 >= 0 ? SQ(somg12) / (1 + comg12) : 1 - comg12);
+		sc_alp2.C = sbet12 - rScBet1.C * rScBet2.S * (comg12 >= 0 ? fpow2(somg12) / (1 + comg12) : 1 - comg12);
 		sc_alp2.Norm2();
 		// Set return value
 		sig12 = atan2(ssig12, csig12);
 	}
-	else if((fabs(G.N) > 0.1) || /* No astroid calc if too eccentric */ csig12 >= 0 || ssig12 >= (6 * fabs(G.N) * SMathConst::Pi * SQ(rScBet1.C))) {
+	else if((fabs(G.N) > 0.1) || /* No astroid calc if too eccentric */ csig12 >= 0 || ssig12 >= (6 * fabs(G.N) * SMathConst::Pi * fpow2(rScBet1.C))) {
 		// Nothing to do, zeroth order spherical approximation is OK
 	}
 	else {
@@ -1564,7 +1564,7 @@ double SGeo::InverseStart(const SinCosPair & rScBet1, double dn1, const SinCosPa
 		if(G.F >= 0.0) { // In fact f == 0 does not get here
 			// x = dlong, y = dlat
 			{
-				double k2 = SQ(rScBet1.S) * G.Ep2;
+				double k2 = fpow2(rScBet1.S) * G.Ep2;
 				double eps = k2 / (2 * (1 + sqrt(1 + k2)) + k2);
 				lamscale = G.F * rScBet1.C * G.A3f_(eps) * SMathConst::Pi;
 			}
@@ -1584,7 +1584,7 @@ double SGeo::InverseStart(const SinCosPair & rScBet1, double dn1, const SinCosPa
 				Lengths(G.N, SMathConst::Pi + bet12a, temp_sc_bet1, dn1, rScBet2, dn2, rScBet1.C, rScBet2.C, 0, &m12b, &m0, 0, 0, Ca);
 			}
 			x = -1 + m12b / (rScBet1.C * rScBet2.C * m0 * SMathConst::Pi);
-			betscale = (x < -0.01) ? (sbet12a / x) : (-G.F * SQ(rScBet1.C) * SMathConst::Pi);
+			betscale = (x < -0.01) ? (sbet12a / x) : (-G.F * fpow2(rScBet1.C) * SMathConst::Pi);
 			lamscale = betscale / rScBet1.C;
 			y = lam12x / lamscale;
 		}
@@ -1592,11 +1592,11 @@ double SGeo::InverseStart(const SinCosPair & rScBet1, double dn1, const SinCosPa
 			// strip near cut
 			if(G.F >= 0.0) {
 				sc_alp1.S = smin(1.0, -x);
-				sc_alp1.C = -sqrt(1 - SQ(sc_alp1.S));
+				sc_alp1.C = -sqrt(1 - fpow2(sc_alp1.S));
 			}
 			else {
 				sc_alp1.C = smax(((x > -_Tol1) ? 0.0 : -1.0), x);
-				sc_alp1.S = sqrt(1.0 - SQ(sc_alp1.C));
+				sc_alp1.S = sqrt(1.0 - fpow2(sc_alp1.C));
 			}
 		}
 		else {
@@ -1639,7 +1639,7 @@ double SGeo::InverseStart(const SinCosPair & rScBet1, double dn1, const SinCosPa
 			somg12 = sin(omg12a); comg12 = -cos(omg12a);
 			// Update spherical estimate of alp1 using omg12 instead of lam12
 			sc_alp1.S = rScBet2.C * somg12;
-			sc_alp1.C = sbet12a - rScBet2.C * rScBet1.S * SQ(somg12) / (1 - comg12);
+			sc_alp1.C = sbet12a - rScBet2.C * rScBet1.S * fpow2(somg12) / (1 - comg12);
 		}
 	}
 	// Sanity check on starting guess.  Backwards check allows NaN through.
@@ -1700,7 +1700,7 @@ double SGeo::Lambda12(const SinCosPair & rScBet1, double dn1, const SinCosPair &
 	// calp2 = sqrt(1 - sq(salp2)) = sqrt(sq(calp0) - sq(sbet2)) / cbet2
 	// and subst for calp0 and rearrange to give (choose positive sqrt
 	// to give alp2 in [0, pi/2]).
-	calp2 = (rScBet2.C != rScBet1.C || fabs(rScBet2.S) != -rScBet1.S) ? sqrt(SQ(scAlp1.C * rScBet1.C) + ((rScBet1.C < -rScBet1.S) ? (rScBet2.C - rScBet1.C) * (rScBet1.C + rScBet2.C) : (rScBet1.S - rScBet2.S) * (rScBet1.S + rScBet2.S))) / rScBet2.C : fabs(scAlp1.C);
+	calp2 = (rScBet2.C != rScBet1.C || fabs(rScBet2.S) != -rScBet1.S) ? sqrt(fpow2(scAlp1.C * rScBet1.C) + ((rScBet1.C < -rScBet1.S) ? (rScBet2.C - rScBet1.C) * (rScBet1.C + rScBet2.C) : (rScBet1.S - rScBet2.S) * (rScBet1.S + rScBet2.S))) / rScBet2.C : fabs(scAlp1.C);
 	// tan(bet2) = tan(sig2) * cos(alp2)
 	// tan(omg2) = sin(alp0) * tan(sig2)
 	sc_sig2.S = rScBet2.S; 
@@ -1718,7 +1718,7 @@ double SGeo::Lambda12(const SinCosPair & rScBet1, double dn1, const SinCosPair &
 	// eta = omg12 - lam120
 	eta = atan2(somg12 * clam120 - comg12 * slam120,
 	comg12 * clam120 + somg12 * slam120);
-	k2 = SQ(calp0) * G.Ep2;
+	k2 = fpow2(calp0) * G.Ep2;
 	eps = k2 / (2 * (1 + sqrt(1 + k2)) + k2);
 	G.C3f_(eps, Ca);
 	B312 = (SinCosSeries(TRUE, sc_sig2, Ca, nC3-1) - SinCosSeries(TRUE, sc_sig1, Ca, nC3-1));
@@ -1845,8 +1845,8 @@ double SGeo::Inverse_Int(SGeoPosLL & rP1, SGeoPosLL & rP2, double * ps12,
 		if(fabs(sc_bet2.S) == -sc_bet1.S)
 			sc_bet2.C = sc_bet1.C;
 	}
-	dn1 = sqrt(1.0 + G.Ep2 * SQ(sc_bet1.S));
-	dn2 = sqrt(1.0 + G.Ep2 * SQ(sc_bet2.S));
+	dn1 = sqrt(1.0 + G.Ep2 * fpow2(sc_bet1.S));
+	dn2 = sqrt(1.0 + G.Ep2 * fpow2(sc_bet2.S));
 	meridian = (rP1.Lat == -90 || sc_lam12.S == 0);
 	if(meridian) {
 		// Endpoints are on a single full meridian, so the geodesic might lie on a meridian.
@@ -1902,7 +1902,7 @@ double SGeo::Inverse_Int(SGeoPosLL & rP1, SGeoPosLL & rP2, double * ps12,
 		if(sig12 >= 0) {
 			// Short lines (InverseStart sets salp2, calp2, dnm)
 			s12x = sig12 * G.B * dnm;
-			m12x = SQ(dnm) * G.B * sin(sig12 / dnm);
+			m12x = fpow2(dnm) * G.B * sin(sig12 / dnm);
 			if(outmask & GEOD_GEODESICSCALE)
 				M12 = M21 = cos(sig12 / dnm);
 			a12 = sig12 / SMathConst::PiDiv180;
@@ -2000,10 +2000,10 @@ double SGeo::Inverse_Int(SGeoPosLL & rP1, SGeoPosLL & rP2, double * ps12,
 			// From Lambda12: tan(bet) = tan(sig) * cos(alp)
 			SinCosPair sc_sig1(sc_bet1.S, sc_alp1.C * sc_bet1.C);
 			SinCosPair sc_sig2(sc_bet2.S, sc_alp2.C * sc_bet2.C);
-			double k2 = SQ(calp0) * G.Ep2;
+			double k2 = fpow2(calp0) * G.Ep2;
 			double eps = k2 / (2 * (1 + sqrt(1 + k2)) + k2);
 			// Multiplier = a^2 * e^2 * cos(alpha0) * sin(alpha0).
-			double A4 = SQ(G.A) * calp0 * salp0 * G.E2;
+			double A4 = fpow2(G.A) * calp0 * salp0 * G.E2;
 			double B41;
 			double B42;
 			sc_sig1.Norm2();

@@ -68,13 +68,20 @@ struct UriTextRange {
 	void   Clear();
 	UriTextRange & FASTCALL operator = (const UriTextRange & rS);
 	int    Len() const;
-	int    FixPercentEncodingMalloc();
 
 	const char * P_First;     // Pointer to first character 
 	const char * P_AfterLast; // Pointer to character after the last one still in 
 };
 
 struct UriUri {
+	UriUri()
+	{
+		THISZERO();
+	}
+	~UriUri()
+	{
+		Destroy();
+	}
 	void   Destroy();
 	// 
 	// Descr: Holds an IPv4 address.
@@ -113,16 +120,18 @@ struct UriUri {
 	void * reserved;           // Reserved to the parser 
 };
 
-struct UriParserState {
-	UriParserState();
+class UriParserState {
+public:
+	explicit UriParserState(UriUri * pResultData);
 	void   Clear();
 	void   Reset();
 	int    STDCALL ParseUriEx(const char * pFirst, const char * pAfterLast);
+	const  char * STDCALL ParseIPv6address2(const char * pFirst, const char * afterLast);
+private:
 	const  char * STDCALL ParseUriReference(const char * pFirst, const char * pAfterLast);
 	const  char * STDCALL ParseSegmentNzNcOrScheme2(const char * pFirst, const char * afterLast);
 	const  char * STDCALL ParseMustBeSegmentNzNc(const char * pFirst, const char * afterLast);
 	const  char * STDCALL ParseHexZero(const char * pFirst, const char * afterLast);
-	const  char * STDCALL ParseIPv6address2(const char * pFirst, const char * afterLast);
 	const  char * STDCALL ParseOwnHost(const char * pFirst, const char * afterLast);
 	const  char * STDCALL ParseOwnUserInfo(const char * pFirst, const char * afterLast);
 	const  char * STDCALL ParseOwnPortUserInfo(const char * pFirst, const char * afterLast);

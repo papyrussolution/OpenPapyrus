@@ -819,7 +819,8 @@ int EditGoodsImpExpParams()
 
 int SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	TDialog * dlg = 0;
 	uint   p = 0;
 	long   id = 0;

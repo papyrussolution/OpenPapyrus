@@ -608,7 +608,7 @@ int PPDesktop::Init__(const S_GUID & rDesktopUuid)
 			p_mgr->Load__2(&desktop_list, db_symb, PPCommandMngr::fRWByXml); // @v10.9.3 db_symb
 			p_item = desktop_list.SearchByUuid(rDesktopUuid, 0);
 			if(!p_item) {
-				THROW(p_mgr->Load_Depricated(&desktop_list_from_bin));
+				THROW(p_mgr->Load_Deprecated(&desktop_list_from_bin));
 				p_item = desktop_list_from_bin.SearchByUuid(rDesktopUuid, 0);
 			}				
 			// } @erik
@@ -1498,7 +1498,7 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 		p_mgr->Load__2(&desktop_list, db_symb, PPCommandMngr::fRWByXml); // @v10.9.3 db_symb
 		p_item = desktop_list.SearchByUuid(rDesktopUuid, 0);
 		if(!p_item) {
-			THROW(p_mgr->Load_Depricated(&desktop_list_from_bin));
+			THROW(p_mgr->Load_Deprecated(&desktop_list_from_bin));
 			p_item = desktop_list_from_bin.SearchByUuid(rDesktopUuid, 0);
 		}
 		// } @erik
@@ -1542,7 +1542,7 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 			//@erik v10.6.7 {
 			const  PPCommandItem * p_item = p_desktop_list->SearchByID(P_ActiveDesktop->GetID(), 0);
 			if(!p_item) {
-				p_mgr->Load_Depricated(p_desktop_list);
+				p_mgr->Load_Deprecated(p_desktop_list);
 				p_item = p_desktop_list->SearchByID(P_ActiveDesktop->GetID(), 0);
 			}
 			// } @erik

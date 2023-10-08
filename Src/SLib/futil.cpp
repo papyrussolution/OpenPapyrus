@@ -778,17 +778,17 @@ int GetKnownFolderList(TSCollection <SKnownFolderEntry> & rList)
 	return ok;
 }
 
-int GetKnownFolderPath(uint64 uedFolderId, SString & rPath) // @v11.8.3
+bool GetKnownFolderPath(uint64 uedFolderId, SString & rPath) // @v11.8.3
 {
 	rPath.Z();
-	int    ok = 0;
+	bool   ok = false;
 	const S_GUID * p_guid = 0;
 	if(uedFolderId) {
 		if(uedFolderId == UED_FSKNOWNFOLDER_TEMPORARY) {
 			const char * p_temp_path = getenv("TMP");
 			if(SETIFZ(p_temp_path, getenv("TEMP"))) {
 				(rPath = p_temp_path).Strip();
-				ok = 1;
+				ok = true;
 			}
 		}
 		else {
@@ -802,7 +802,7 @@ int GetKnownFolderPath(uint64 uedFolderId, SString & rPath) // @v11.8.3
 				HRESULT hr = SHGetKnownFolderPath(*p_guid, 0/*dwFlags*/, 0/*hToken*/, &p_path);
 				if(SUCCEEDED(hr)) {
 					rPath.CopyUtf8FromUnicode(p_path, sstrlen(p_path), 1);
-					ok = 1;
+					ok = true;
 				}
 				CoTaskMemFree(p_path);
 			}
@@ -2016,6 +2016,7 @@ HRESULT SHGetKnownFolderPath(
 	return ok;
 }
 
+#if 0 // @v11.8.5 Упразднено в пользу GetKnownFolderPath()
 /*static*/int SFileUtil::GetSysDir(int pathId, SString & rPath)
 {
 	/*
@@ -2053,6 +2054,7 @@ HRESULT SHGetKnownFolderPath(
 	}
 	return ok;
 }
+#endif // } 0 @v11.8.5 Упразднено в пользу GetKnownFolderPath()
 
 #if SLTEST_RUNNING // {
 /*

@@ -344,8 +344,10 @@ bool FASTCALL SStrScan::Is(const char * pS) const
 bool FASTCALL SStrScan::Is(char c) const { return (P_Buf[Offs] == c); }
 bool FASTCALL SStrScan::IsTagBrace() const { return (P_Buf[Offs] == '<'); }
 
-int SStrScan::IsLegalUtf8() const
+uint SStrScan::IsLegalUtf8() const
 {
+	return SUnicode::GetUtf8Len(reinterpret_cast<const uint8 *>(P_Buf + Offs)); // @v11.8.5
+	/* @v11.8.5
 	const uint8 * p = reinterpret_cast<const uint8 *>(P_Buf + Offs);
 	const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
 	if(extra == 0)
@@ -356,16 +358,16 @@ int SStrScan::IsLegalUtf8() const
 		// сделаем отдельные ветки алгоритма.
 		//
 		if(extra == 1) {
-			return (p[1] != 0 && SUnicode::IsLegalUtf8(p, 2)) ? 2 : 0;
+			return (p[1] != 0 && SUnicode::IsLegalUtf8Char(p, 2)) ? 2 : 0;
 		}
 		else if(extra == 2) {
-			return (p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8(p, 3)) ? 3 : 0;
+			return (p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8Char(p, 3)) ? 3 : 0;
 		}
 		else {
 			const size_t tail = sstrlen(p);
-			return ((extra+1) <= tail && SUnicode::IsLegalUtf8(p, extra+1)) ? static_cast<int>(1+extra) : 0;
+			return ((extra+1) <= tail && SUnicode::IsLegalUtf8Char(p, extra+1)) ? static_cast<int>(1+extra) : 0;
 		}
-	}
+	}*/
 }
 
 int FASTCALL SStrScan::GetUtf8(SString & rBuf)
@@ -596,15 +598,10 @@ bool SStrScan::IsDigits()
 	return ok;
 }
 
-int SStrScan::IsEnd() const
-{
-	return (!P_Buf || P_Buf[Offs] == 0);
-}
-
-bool SStrScan::IsNumber()
-{
-	return (InitReNumber() && P_ReNumber->Find(P_Buf+Offs));
-}
+int  SStrScan::IsEnd() const { return (!P_Buf || P_Buf[Offs] == 0); }
+bool SStrScan::IsNumber() { return (InitReNumber() && P_ReNumber->Find(P_Buf+Offs)); }
+bool SStrScan::IsHex() { return (InitReHex() && P_ReHex->Find(P_Buf+Offs)); }
+uint FASTCALL SStrScan::IsEol(SEOLFormat eolf) const { return implement_iseol(P_Buf+Offs, eolf); }
 
 bool SStrScan::IsDotPrefixedNumber()
 {
@@ -673,16 +670,6 @@ int FASTCALL SStrScan::GetNumber(SString & rBuf)
 	}
 	else
 		return 0;
-}
-
-bool SStrScan::IsHex()
-{
-	return (InitReHex() && P_ReHex->Find(P_Buf+Offs));
-}
-
-uint FASTCALL SStrScan::IsEol(SEOLFormat eolf) const
-{
-	return implement_iseol(P_Buf+Offs, eolf);
 }
 
 int FASTCALL SStrScan::GetEol(SEOLFormat eolf)
@@ -2112,14 +2099,24 @@ SString & SString::ToChar()
 
 SString & FASTCALL SString::Transf(int ctransf)
 {
+	// @v11.8.5 При попытке преобразования строки в utf8-формат функция теперь предварительно
+	// проверяет не пребывает ли строка this уже в utf8-формате.
 	if(Len()) {
 		switch(ctransf) {
 			case CTRANSF_INNER_TO_OUTER: OemToCharA(P_Buf, P_Buf); break; // @unicodeproblem
 			case CTRANSF_OUTER_TO_INNER: CharToOemA(P_Buf, P_Buf); break; // @unicodeproblem
 			case CTRANSF_INNER_TO_UTF8:
-				OemToCharA(P_Buf, P_Buf); // @unicodeproblem
-				return Helper_MbToMb(CP_ACP, CP_UTF8);
-			case CTRANSF_OUTER_TO_UTF8: return Helper_MbToMb(CP_ACP, CP_UTF8);
+				if(IsLegalUtf8()) // @v11.8.5
+					return *this;
+				else {
+					OemToCharA(P_Buf, P_Buf); // @unicodeproblem
+					return Helper_MbToMb(CP_ACP, CP_UTF8);
+				}
+			case CTRANSF_OUTER_TO_UTF8: 
+				if(IsLegalUtf8()) // @v11.8.5
+					return *this;
+				else
+					return Helper_MbToMb(CP_ACP, CP_UTF8);
 			case CTRANSF_UTF8_TO_INNER: return Helper_MbToMb(CP_UTF8, CP_OEMCP);
 			case CTRANSF_UTF8_TO_OUTER: return Helper_MbToMb(CP_UTF8, CP_ACP);
 		}
@@ -4616,16 +4613,8 @@ SStringU & SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 	}
 	return rBuf;
 }
-//
-// Utility routine to tell whether a sequence of bytes is legal UTF-8.
-// This must be called with the length pre-determined by the first byte.
-// If not calling this from ConvertUTF8to*, then the length can be set by:
-// length = trailingBytesForUTF8[*source]+1;
-// and the sequence is illegal right away if there aren't that many bytes available.
-// If presented with a length > 4, this returns false.
-// The Unicode definition of UTF-8 goes up to 4-byte sequences.
-//
-/*static*/bool FASTCALL SUnicode::IsLegalUtf8(const uint8 * pSource, size_t length)
+
+/*static*/bool FASTCALL SUnicode::IsLegalUtf8Char(const uint8 * pSource, size_t length)
 {
 	uint8 a;
 	const uint8 * srcptr = pSource+length;
@@ -4669,6 +4658,40 @@ SStringU & SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 				return false;
 	}
 	return (*pSource > 0xF4) ? false : true;
+}
+
+/*static*/uint FASTCALL SUnicode::GetUtf8Len(const uint8 * pSource)
+{
+	uint   result = 0;
+	if(pSource) {
+		const uint8 * p = pSource;
+		const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
+		switch(extra) {
+			case 0:
+				result = 1;
+				break;
+			case 1:
+				result = (p[1] != 0 && SUnicode::IsLegalUtf8Char(p, 2)) ? 2 : 0;
+				break;
+			case 2:
+				result = (p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8Char(p, 3)) ? 3 : 0;
+				break;
+			case 3:
+				result = (p[1] != 0 && p[2] != 0 && p[3] != 0 && SUnicode::IsLegalUtf8Char(p, 4)) ? 4 : 0;
+				break;
+			case 4:
+				result = (p[1] != 0 && p[2] != 0 && p[3] != 0 && p[4] != 0 && SUnicode::IsLegalUtf8Char(p, 5)) ? 5 : 0;
+				break;
+			case 5:
+				result = (p[1] != 0 && p[2] != 0 && p[3] != 0 && p[4] != 0 && p[5] != 0 && SUnicode::IsLegalUtf8Char(p, 6)) ? 6 : 0;
+				break;
+			default:
+				assert(0); // something went wrong (see tab SUtfConst::TrailingBytesForUTF8)
+				//const size_t tail = sstrlen(p);
+				//result = ((extra+1) <= tail && SUnicode::IsLegalUtf8Char(p, extra+1)) ? static_cast<int>(1+extra) : 0;
+		}
+	}
+	return result;
 }
 
 /*static*/uint FASTCALL SUnicode::Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf)
@@ -4757,23 +4780,23 @@ bool SString::IsLegalUtf8() const
 	for(size_t idx = 0; ok && idx < _len;) {
 		const uint8 * p = reinterpret_cast<const uint8 *>(P_Buf+idx);
 		const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
-		if(extra == 0)
+		if(extra == 0 && SUnicode::IsLegalUtf8Char(p, 1)) // @v11.8.5 @fix (condition && SUnicode::IsLegalUtf8Char(p, 1))
 			idx++;
 		else if(extra == 1) {
-			if(p[1] != 0 && SUnicode::IsLegalUtf8(p, 2))
+			if(p[1] != 0 && SUnicode::IsLegalUtf8Char(p, 2))
 				idx += 2;
 			else
 				ok = false;
 		}
 		else if(extra == 2) {
-			if(p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8(p, 3))
+			if(p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8Char(p, 3))
 				idx += 3;
 			else
 				ok = false;
 		}
 		else {
 			const size_t tail = (_len - idx);
-			if((extra+1) <= tail && SUnicode::IsLegalUtf8(p, extra+1))
+			if((extra+1) <= tail && SUnicode::IsLegalUtf8Char(p, extra+1))
 				idx += (1+extra);
 			else
 				ok = false;
@@ -4936,7 +4959,7 @@ bool SStringU::Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strict
 		uint16 target = 0;
 		uint16 extra = SUtfConst::TrailingBytesForUTF8[p_src[i]];
 		THROW_S((i + extra + 1) <= srcSize, SLERR_UTFCVT_SRCEXHAUSTED);
-		THROW_S(SUnicode::IsLegalUtf8(p_src+i, extra+1), SLERR_UTFCVT_ILLUTF8);
+		THROW_S(SUnicode::IsLegalUtf8Char(p_src+i, extra+1), SLERR_UTFCVT_ILLUTF8);
 		//
 		// The cases all fall through. See "Note A" below.
 	 	//
@@ -6966,7 +6989,7 @@ uint16 STokenizer::NextChr()
 			}
 			if(actual_size == extra) {
 				size_t i = 0;
-				if(SUnicode::IsLegalUtf8(set, extra+1)) {
+				if(SUnicode::IsLegalUtf8Char(set, extra+1)) {
 					switch(extra) {
 						case 5: ch += set[i++]; ch <<= 6; // remember, illegal UTF-8
 						case 4: ch += set[i++]; ch <<= 6; // remember, illegal UTF-8
@@ -7501,7 +7524,7 @@ STokenRecognizer::~STokenRecognizer()
 /*static*/int FASTCALL STokenRecognizer::IsUtf8(const uchar * p, size_t restLen)
 {
 	const int8 extra = SUtfConst::TrailingBytesForUTF8[*p];
-	return (extra == 0) ? 1 : ((static_cast<int>(restLen) > extra && SUnicode::IsLegalUtf8(p, 2)) ? (extra+1) : 0);
+	return (extra == 0) ? 1 : ((static_cast<int>(restLen) > extra && SUnicode::IsLegalUtf8Char(p, 2)) ? (extra+1) : 0);
 }
 
 /*

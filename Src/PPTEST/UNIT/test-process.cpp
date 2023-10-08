@@ -514,7 +514,10 @@ SLTEST_R(SlProcess)
 		SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
 	}
 	//p.SetAppContainer(&ac);
-	p.SetImpersUser("wsctl-client", "123");
+	if(policy.SysUser.NotEmpty()) {
+		p.SetImpersUser(policy.SysUser, policy.SysPassword);
+		p.SetFlags(SlProcess::fLogonWithProfile);
+	}
 	SLCHECK_NZ(p.Run(&result));
 	//
 	SLCHECK_NZ(ac.Delete());

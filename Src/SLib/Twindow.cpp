@@ -1,7 +1,7 @@
 // TWINDOW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
 // @codepage UTF-8
-// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -1124,7 +1124,7 @@ int TWindow::InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const c
 //
 //
 //
-#if 0 // @v10.9.12 (depricated) {
+#if 0 // @v10.9.12 (deprecated) {
 	void SRectLayout::Dim::Set(int v, int f)
 	{
 		Val = static_cast<int16>(v);
@@ -1340,7 +1340,7 @@ int TWindow::InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const c
 		}
 		return ok;
 	}
-#endif // } 0 @v10.9.12 (depricated)
+#endif // } 0 @v10.9.12 (deprecated)
 //
 //
 //

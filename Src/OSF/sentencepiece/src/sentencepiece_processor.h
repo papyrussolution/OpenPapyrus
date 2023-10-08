@@ -57,21 +57,13 @@ public:
 	void operator=(const Status &s);
 	bool operator==(const Status &s) const;
 	bool operator!=(const Status &s) const;
-	inline bool ok() const {
-		return rep_ == nullptr;
-	}
-
+	inline bool ok() const { return rep_ == nullptr; }
 	void set_error_message(const char * str);
 	const char *error_message() const;
-	const char *message() const {
-		return error_message();
-	}
-
+	const char *message() const { return error_message(); }
 	StatusCode code() const;
 	std::string ToString() const;
-
 	void IgnoreError();
-
 private:
 	struct Rep;
 	std::unique_ptr<Rep> rep_;
@@ -396,25 +388,16 @@ public:
 	// std::cout << spt.pieces_size() << std::endl;
 	virtual util::Status Encode(absl::string_view input,
 	    SentencePieceText * spt) const;
-
 	virtual util::Status NBestEncode(absl::string_view input, int nbest_size,
 	    NBestSentencePieceText * nbest_spt) const;
-
 	virtual util::Status SampleEncode(absl::string_view input, int nbest_size,
 	    float alpha, SentencePieceText * spt) const;
-
 	virtual util::Status SampleEncodeAndScore(absl::string_view input, int num_samples, float alpha, bool wor,
 	    bool include_best, NBestSentencePieceText * samples_spt) const;
-
 	// DEPRECATED: Remove this API and use std::vector<std::string_view>
-	virtual util::Status Decode(const std::vector<std::string> &pieces,
-	    SentencePieceText * spt) const;
-
-	virtual util::Status Decode(const std::vector<absl::string_view> &pieces,
-	    SentencePieceText * spt) const;
-
-	virtual util::Status Decode(const std::vector<int> &ids,
-	    SentencePieceText * spt) const;
+	virtual util::Status Decode(const std::vector<std::string> &pieces, SentencePieceText * spt) const;
+	virtual util::Status Decode(const std::vector<absl::string_view> &pieces, SentencePieceText * spt) const;
+	virtual util::Status Decode(const std::vector<int> &ids, SentencePieceText * spt) const;
 #ifdef SWIG
 #define SPP_SWIG_CHECK_AND_THROW \
 	if(!status.ok()) throw status;

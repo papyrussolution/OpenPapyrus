@@ -786,9 +786,9 @@ double SRng::GetGamma(double a, double b)
 			} while(v <= 0);
 			v = v * v * v;
 			u = GetUniformPos();
-			if(u < 1 - 0.0331 * SQ(x) * SQ(x))
+			if(u < 1 - 0.0331 * fpow2(x) * fpow2(x))
 				break;
-			if(log(u) < 0.5 * SQ(x) + d * (1 - v + log(v)))
+			if(log(u) < 0.5 * fpow2(x) + d * (1 - v + log(v)))
 				break;
 		}
 		return b * d * v;

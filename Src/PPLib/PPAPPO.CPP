@@ -572,7 +572,7 @@ int PPApp::processCommand(uint cmd)
 				//PPLogger logger;
 				//ProcessUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt", 0, 0, 0, 0, &logger);
 			}
-			break; 
+			break;
 		case cmEventsForCurrentUser:
 			{
 				EventFilt ev_filt;
@@ -830,6 +830,7 @@ int PPApp::processCommand(uint cmd)
 		case cmImpExpListConfig:      EditImpExpConfigs();             break;
 		case cmImportBills:           ImportBills(0, 0, 0, 0);         break;
 		case cmImportEmailAccts:      ImportEmailAccts();              break;
+		case cmImportCChecks:         ImportCChecks(0);                break; // @v11.8.5
 		case cmLoadFonts:             BarcodeLabelPrinter::LoadFonts(0, 0);  break;
 		case cmRegisterComServer:     RegisterComServer();             break;
 		case cmCreateGlobalUserAcc:   CreateBizScGlblUserAcct();       break;
@@ -996,7 +997,7 @@ static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
 	delete p_ldb; // strictly after p_ic
 	return ok;
 }
-// } @experimental 
+// } @experimental
 
 struct PPLoginDialogParam {
 	PPLoginDialogParam() : Flags(0), OnetimePassResult(0), OperDate(getcurdate_())
@@ -1010,11 +1011,11 @@ struct PPLoginDialogParam {
 		fBlindMode         = 0x0010, // @v11.3.12
 		fDisableStqQrLogin = 0x0020  // @v11.6.9 проекция параметра PPINIPARAM_DISABLESTQQRLOGIN
 	};
-	long   Flags;             // IN  
+	long   Flags;             // IN
 	PPID   OnetimePassResult; // OUT
-	SString UserName;         // OUT  
+	SString UserName;         // OUT
 	SString Passw;            // OUT
-	LDATE  OperDate;          // OUT 
+	LDATE  OperDate;          // OUT
 	PPDbEntrySet2 Dbes;       // OUT
 };
 
@@ -1038,7 +1039,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 				showCtrl(CTLSEL_LOGIN_DB, false);
 				selectCtrl(CTL_LOGIN_NAME);
 			}
-			// } @v11.3.12 
+			// } @v11.3.12
 		}
 		int    CheckSystemAccount(int getDBEntryFromDlg)
 		{
@@ -1118,7 +1119,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 							showCtrl(CTLSEL_LOGIN_DB, true);
 							selectCtrl(CTL_LOGIN_DB);
 							SetupDBEntryComboBox(this, CTLSEL_LOGIN_DB, &R_P.Dbes, &db_idx_list);
-							R_P.Flags &= ~PPLoginDialogParam::fBlindMode; // Дальше работа пойдет в обычном режиме с выбором базы - спецфлаг более не нужен 
+							R_P.Flags &= ~PPLoginDialogParam::fBlindMode; // Дальше работа пойдет в обычном режиме с выбором базы - спецфлаг более не нужен
 							clearEvent(event); // Уходим на следующий круг обработки: пользователь должен выбрать конкретную базу данных в обычном режиме
 						}
 					}
@@ -1153,7 +1154,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 							SString inv_text;
 							const PPID dbid = getCtrlLong(CTLSEL_LOGIN_DB);
 							PPStyloQInterchange::StopStyloQServer();
-							if(dbid) {				
+							if(dbid) {
 								DbLoginBlock dlb;
 								R_P.Dbes.SetSelection(dbid);
 								if(R_P.Dbes.GetByID(dbid, &dlb)) {
@@ -1202,7 +1203,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 							}
 						}
 					}
-					// } @v11.1.8 @experimental 
+					// } @v11.1.8 @experimental
 				}
 			}
 			else
@@ -1212,7 +1213,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 		//int    SystemAccountLogin;
 		bool   DoCheckOnetimePass; // @v11.1.8 @experimental
 		PPID   OnetimePassResult;  // @v11.1.8 @experimental
-		StyloQCore::SvcDbSymbMap StqSvcDbMap; // @v11.1.12 
+		StyloQCore::SvcDbSymbMap StqSvcDbMap; // @v11.1.12
 		SCycleTimer IdleTimer;     // @v11.1.8 @experimental
 		//PPDbEntrySet2 * P_Dbes;
 		PPLoginDialogParam & R_P;
@@ -1250,7 +1251,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 			//StringSet styloq_dbsymb_list;
 			StyloQCore::SvcDbSymbMap stq_svcdb_map;
 			stq_svcdb_map.Read(0, 0);
-			// } @experimental @v11.1.8 
+			// } @experimental @v11.1.8
 			if(!(rParam.Flags & rParam.fProtect)) {
 				PPLoadText(PPTXT_GREETING, title_buf);
 				PPVersionInfo vi = DS.GetVersionInfo();
@@ -1589,8 +1590,8 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 
 				LocalThread * p_thread = new LocalThread(server_name);
 				p_thread->Start();
-				// } @v11.4.2 
-				/* @v11.4.2 
+				// } @v11.4.2
+				/* @v11.4.2
 				int r = SGetTimeFromRemoteServer(server_name, &dtm);
 				if(!r) {
 					PPSetErrorSLib();
@@ -1703,8 +1704,8 @@ int PPBackupSystemFiles_Arc()
 					{
 						// Since @v11.3.3 копируются только конкретные подкаталоги и файлы из workspace
 						// @v11.3.3 PPGetPath(PPPATH_WORKSPACE, path);
-						// subdirs: desks desktop menu namedfilt nginx srvjobpool styloqcommands 
-						// files: styloq-la styloq-sidsmap 
+						// subdirs: desks desktop menu namedfilt nginx srvjobpool styloqcommands
+						// files: styloq-la styloq-sidsmap
 						static const char * pp_workspace_subdir[] = { "desks", "desktop", "menu", "namedfilt", "nginx", "srvjobpool", "styloqcommands" };
 						static const char * pp_workspace_files[] = { "styloq-la", "styloq-sidsmap" };
 						for(uint wssdidx = 0; wssdidx < SIZEOFARRAY(pp_workspace_subdir); wssdidx++) {

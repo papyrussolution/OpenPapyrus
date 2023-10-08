@@ -12555,7 +12555,7 @@ void xmlInitParser()
 	if(xmlGenericError == xmlGenericErrorDefaultFunc || !xmlGenericError)
 		initGenericErrorDefaultFunc(NULL);
 	// @v10.9.0 xmlInitMemory();
-	// @v10.9.0 (depricated) xmlInitializeDict();
+	// @v10.9.0 (deprecated) xmlInitializeDict();
 	xmlInitCharEncodingHandlers();
 	xmlDefaultSAXHandlerInit();
 	xmlRegisterDefaultInputCallbacks();

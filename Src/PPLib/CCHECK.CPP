@@ -999,6 +999,9 @@ static const int ccpack_textext_ident_list[] = {
 	CCheckPacket::extssPrescrSerial,       // @v11.7.12 Серия медицинского рецепта
 	CCheckPacket::extssPrescrNumber,       // @v11.7.12 Номер медицинского рецепта
 	CCheckPacket::extssEgaisProcessingTag, // @v11.8.2
+	CCheckPacket::extssSourceSymb,         // @v11.8.5 Символ внешнего источника происхождения чека
+	CCheckPacket::extssOuterIdent,         // @v11.8.5 Идентификатор чека во внешнем источнике
+	CCheckPacket::extssOuterExtTag,        // @v11.8.5
 };
 
 int CCheckPacket::PackTextExt(SString & rResult) const
@@ -2416,6 +2419,24 @@ void CCheckCore::WriteCCheckLogFile(const CCheckPacket * pPack, const CCheckLine
 	ENDCATCH
 }
 
+int CCheckCore::AdjustRecTime(CCheckTbl::Rec & rRec)
+{
+	int    ok = -1;
+	CCheckTbl::Key1 k1;
+	MEMSZERO(k1);
+	k1.Dt = rRec.Dt;
+	k1.Tm = rRec.Tm;
+	k1.CashID = rRec.CashID;
+	if(search(1, &k1, spEq)) {
+		ok = 1;
+		do {
+			rRec.Tm.v++;
+			k1.Tm = rRec.Tm;
+		} while(search(1, &k1, spEq));
+	}
+	return ok;
+}
+
 int CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
@@ -2439,6 +2460,8 @@ int CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 				// Чек начальных оборотов с такой картой не найден - корректируем
 				// время с тем, чтобы чек без дублирования влез в таблицу
 				//
+				AdjustRecTime(header); // @v11.8.5
+				/* @v11.8.5
 				CCheckTbl::Key1 k1;
 				MEMSZERO(k1);
 				k1.Dt = header.Dt;
@@ -2447,7 +2470,7 @@ int CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 				while(search(1, &k1, spEq)) {
 					header.Tm.v++;
 					k1.Tm = header.Tm;
-				}
+				}*/
 			}
 		}
 	}

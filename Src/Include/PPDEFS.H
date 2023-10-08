@@ -11474,6 +11474,13 @@
 	#define CTL_STQBNDRYFLT_KFLAGS          (1  + WINDOWS_ID_BIAS)
 #define DLG_IMPEXPCC              1433 // Параметры импорта/экспорта кассовых чеков
 	#define CTL_IMPEXPCC_FLAGS              (IMPEXP_CTL_BIAS+1)
+	#define CTL_IMPEXPCC_PDFMT              (IMPEXP_CTL_BIAS+2)
+	#define CTLSEL_IMPEXPCC_PDFMT           (IMPEXP_CTL_BIAS+3)
+	#define CTL_IMPEXPCC_POSNODE            (IMPEXP_CTL_BIAS+4)
+	#define CTLSEL_IMPEXPCC_POSNODE         (IMPEXP_CTL_BIAS+5)
+#define DLG_RUNIE_CC_IMP          1434 //
+	#define CTL_RUNIECC_CFG                 (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_RUNIECC_CFG              (2 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090
@@ -12035,6 +12042,10 @@
 	#define PPQUOTPAR_LOC                     3
 	#define PPQUOTPAR_FLAGS                   4
 	#define PPQUOTPAR_QUOTCAT                 5 // @v11.4.2
+#define PPTXT_IMPEXPPARAM_CC                659 // @v11.8.5 Дополнительные параметры импорта/экспорта кассовых чеков
+	#define IMPEXPPARAM_CC_PREDEFFMT          0 // Значение такое же, как и для параметров импорта/экспорта документов!
+	#define IMPEXPPARAM_CC_FLAGS              1 // 
+	#define IMPEXPPARAM_CC_POSNODE            2 // 
 // LastText
 //
 // Intrinsic calculator functions

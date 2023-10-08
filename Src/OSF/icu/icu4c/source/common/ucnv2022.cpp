@@ -1,32 +1,20 @@
+// ucnv2022.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2000-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  ucnv2022.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2000feb03
- *   created by: Markus W. Scherer
- *
- *   Change history:
- *
- *   06/29/2000  helena  Major rewrite of the callback APIs.
- *   08/08/2000  Ram     Included support for ISO-2022-JP-2
- *    Changed implementation of toUnicode
- *    function
- *   08/21/2000  Ram     Added support for ISO-2022-KR
- *   08/29/2000  Ram     Seperated implementation of EBCDIC to
- *    ucnvebdc.c
- *   09/20/2000  Ram     Added support for ISO-2022-CN
- *    Added implementations for getNextUChar()
- *    for specific 2022 country variants.
- *   10/31/2000  Ram     Implemented offsets logic functions
- */
+// Copyright (C) 2000-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2000feb03
+// created by: Markus W. Scherer
+// Change history:
+// 06/29/2000  helena  Major rewrite of the callback APIs.
+// 08/08/2000  Ram     Included support for ISO-2022-JP-2
+// Changed implementation of toUnicode function
+// 08/21/2000  Ram     Added support for ISO-2022-KR
+// 08/29/2000  Ram     Seperated implementation of EBCDIC to ucnvebdc.c
+// 09/20/2000  Ram     Added support for ISO-2022-CN
+//   Added implementations for getNextUChar() for specific 2022 country variants.
+// 10/31/2000  Ram     Implemented offsets logic functions
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -2140,7 +2128,7 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_JP_OFFSETS_LOGIC(UConverter
 		targetUniChar = missingCharMarker;
 
 		if(myTarget < args->targetLimit) {
-			mySourceChar = (unsigned char)*mySource++;
+			mySourceChar = (uchar)*mySource++;
 
 			switch(mySourceChar) {
 				case UCNV_SI:
@@ -2403,8 +2391,8 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC_IBM(UCon
 static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC(UConverterFromUnicodeArgs * args, UErrorCode * err) {
 	const char16_t * source = args->source;
 	const char16_t * sourceLimit = args->sourceLimit;
-	unsigned char * target = (unsigned char *)args->target;
-	unsigned char * targetLimit = (unsigned char *)args->targetLimit;
+	uchar * target = (uchar *)args->target;
+	uchar * targetLimit = (uchar *)args->targetLimit;
 	int32_t* offsets = args->offsets;
 	uint32_t targetByteUnit = 0x0000;
 	UChar32 sourceChar = 0x0000;
@@ -2438,7 +2426,7 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC(UConvert
 	while(source < sourceLimit) {
 		targetByteUnit = missingCharMarker;
 
-		if(target < (unsigned char *)args->targetLimit) {
+		if(target < (uchar *)args->targetLimit) {
 			sourceChar = *source++;
 
 			/* do not convert SO/SI/ESC */
@@ -2478,40 +2466,40 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC(UConvert
 				/* write the targetUniChar  to target */
 				if(targetByteUnit <= 0x00FF) {
 					if(target < targetLimit) {
-						*(target++) = (unsigned char)targetByteUnit;
+						*(target++) = (uchar)targetByteUnit;
 						if(offsets) {
 							*(offsets++) = (int32_t)(source - args->source-1);
 						}
 					}
 					else {
 						args->converter->charErrorBuffer[args->converter->charErrorBufferLength++] =
-						    (unsigned char)(targetByteUnit);
+						    (uchar)(targetByteUnit);
 						*err = U_BUFFER_OVERFLOW_ERROR;
 					}
 				}
 				else {
 					if(target < targetLimit) {
-						*(target++) = (unsigned char)((targetByteUnit>>8) -0x80);
+						*(target++) = (uchar)((targetByteUnit>>8) -0x80);
 						if(offsets) {
 							*(offsets++) = (int32_t)(source - args->source-1);
 						}
 						if(target < targetLimit) {
-							*(target++) = (unsigned char)(targetByteUnit -0x80);
+							*(target++) = (uchar)(targetByteUnit -0x80);
 							if(offsets) {
 								*(offsets++) = (int32_t)(source - args->source-1);
 							}
 						}
 						else {
 							args->converter->charErrorBuffer[args->converter->charErrorBufferLength++] =
-							    (unsigned char)(targetByteUnit -0x80);
+							    (uchar)(targetByteUnit -0x80);
 							*err = U_BUFFER_OVERFLOW_ERROR;
 						}
 					}
 					else {
 						args->converter->charErrorBuffer[args->converter->charErrorBufferLength++] =
-						    (unsigned char)((targetByteUnit>>8) -0x80);
+						    (uchar)((targetByteUnit>>8) -0x80);
 						args->converter->charErrorBuffer[args->converter->charErrorBufferLength++] =
-						    (unsigned char)(targetByteUnit-0x80);
+						    (uchar)(targetByteUnit-0x80);
 						*err = U_BUFFER_OVERFLOW_ERROR;
 					}
 				}
@@ -2758,7 +2746,7 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_KR_OFFSETS_LOGIC(UConverter
 
 	while(mySource< mySourceLimit) {
 		if(myTarget < args->targetLimit) {
-			mySourceChar = (unsigned char)*mySource++;
+			mySourceChar = (uchar)*mySource++;
 
 			if(mySourceChar==UCNV_SI) {
 				myData->toU2022State.g = 0;
@@ -3372,7 +3360,7 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_CN_OFFSETS_LOGIC(UConverter
 		targetUniChar = missingCharMarker;
 
 		if(myTarget < args->targetLimit) {
-			mySourceChar = (unsigned char)*mySource++;
+			mySourceChar = (uchar)*mySource++;
 
 			switch(mySourceChar) {
 				case UCNV_SI:

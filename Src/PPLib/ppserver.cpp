@@ -3798,6 +3798,14 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				ok = cmdretOK;				
 			}
 			break;
+		case PPSCMD_WSCTL_QUERYPGMLIST: // @v11.8.5 @construction
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			SETIFZQ(P_WsCtlBlk, new WsCtlSrvBlock());
+			if(P_WsCtlBlk->SendProgramList(temp_buf)) {
+				rReply.SetString(temp_buf);
+				ok = cmdretOK;				
+			}
+			break;
 		/*
 		case PPSCMD_GETTSESSPLACESTATUS:
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);

@@ -1,20 +1,12 @@
+// ucnvhz.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2000-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  ucnvhz.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2000oct16
- *   created by: Ram Viswanadha
- *   10/31/2000  Ram     Implemented offsets logic function
- *
- */
+// Copyright (C) 2000-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2000oct16
+// created by: Ram Viswanadha
+// 10/31/2000  Ram     Implemented offsets logic function
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -37,7 +29,7 @@
 #define CONCAT_ESCAPE_MACRO(args, targetIndex, targetLength, strToAppend, err, len, sourceIndex) UPRV_BLOCK_MACRO_BEGIN {      \
 		while(len-->0) {                                                                                                         \
 			if(targetIndex < targetLength) {                                                                                     \
-				args->target[targetIndex] = (unsigned char)*strToAppend;                                                       \
+				args->target[targetIndex] = (uchar)*strToAppend;                                                       \
 				if(args->offsets != NULL) {                                                                                        \
 					*(offsets++) = sourceIndex-1;                                                                               \
 				}                                                                                                               \
@@ -45,7 +37,7 @@
 			}                                                                                                                   \
 			else {                                                                                                               \
 				args->converter->charErrorBuffer[(int)args->converter->charErrorBufferLength++] = \
-				    (unsigned char)*strToAppend; \
+				    (uchar)*strToAppend; \
 				*err = U_BUFFER_OVERFLOW_ERROR;                                                                                  \
 			}                                                                                                                   \
 			strToAppend++;                                                                                                      \
@@ -63,7 +55,8 @@ typedef struct {
 }UConverterDataHZ;
 
 U_CDECL_BEGIN
-static void U_CALLCONV _HZOpen(UConverter * cnv, UConverterLoadArgs * pArgs, UErrorCode * errorCode) {
+static void U_CALLCONV _HZOpen(UConverter * cnv, UConverterLoadArgs * pArgs, UErrorCode * errorCode) 
+{
 	UConverter * gbConverter;
 	if(pArgs->onlyTestIsLoadable) {
 		ucnv_canCreateConverter("GBK", errorCode); /* errorCode carries result */
@@ -163,7 +156,7 @@ static void U_CALLCONV UConverter_toUnicode_HZ_OFFSETS_LOGIC(UConverterToUnicode
 
 	while(mySource< mySourceLimit) {
 		if(myTarget < args->targetLimit) {
-			mySourceChar = (unsigned char)*mySource++;
+			mySourceChar = (uchar)*mySource++;
 
 			if(args->converter->mode == UCNV_TILDE) {
 				/* second byte after ~ */

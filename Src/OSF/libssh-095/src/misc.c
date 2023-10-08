@@ -143,17 +143,15 @@ int gettimeofday(struct timeval * __p, void * __t)
 char * ssh_get_local_username() 
 {
 	DWORD size = 0;
-	char * user;
 	// get the size 
 	GetUserNameA(NULL, &size);
-	user = static_cast<char *>(SAlloc::M(size));
-	if(user == NULL) {
-		return NULL;
+	char * p_user = static_cast<char *>(SAlloc::M(size));
+	if(p_user) {
+		if(!GetUserNameA(p_user, &size)) {
+			ZDELETE(p_user);
+		}
 	}
-	if(GetUserNameA(user, &size)) {
-		return user;
-	}
-	return NULL;
+	return p_user;
 }
 
 int ssh_is_ipaddr_v4(const char * str) 

@@ -1995,11 +1995,13 @@ static int Implement_Backup(const SString & rDbSymb, PPBackup * pBu, PPBackupSce
 		if(IsDirectory(temp_buf))
 			copy_data.TempPath = temp_buf;
 		else {
+			
 			PPGetPath(PPPATH_TEMP, temp_buf);
 			drv_map.ConvertPathToUnc(temp_buf);
 			if(IsDirectory(temp_buf))
 				copy_data.TempPath = temp_buf;
-			else if(SFileUtil::GetSysDir(SFileUtil::sdTemporary, temp_buf)) {
+			// @v11.8.5 else if(SFileUtil::GetSysDir(SFileUtil::sdTemporary, temp_buf)) {
+			else if(GetKnownFolderPath(UED_FSKNOWNFOLDER_TEMPORARY, temp_buf)) { // @v11.8.5
 				drv_map.ConvertPathToUnc(temp_buf);
 				if(IsDirectory(temp_buf))
 					copy_data.TempPath = temp_buf;
@@ -2176,7 +2178,8 @@ static int _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContin
 			drv_map.ConvertPathToUnc(temp_buf);
 			if(IsDirectory(temp_buf))
 				copy_data.TempPath = temp_buf;
-			else if(SFileUtil::GetSysDir(SFileUtil::sdTemporary, temp_buf)) {
+			// @v11.8.5 else if(SFileUtil::GetSysDir(SFileUtil::sdTemporary, temp_buf)) {
+			else if(GetKnownFolderPath(UED_FSKNOWNFOLDER_TEMPORARY, temp_buf)) { // @v11.8.5
 				drv_map.ConvertPathToUnc(temp_buf);
 				if(IsDirectory(temp_buf))
 					copy_data.TempPath = temp_buf;

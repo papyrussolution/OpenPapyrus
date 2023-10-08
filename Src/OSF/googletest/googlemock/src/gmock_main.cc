@@ -1,4 +1,5 @@
-// Copyright 2008, Google Inc. All rights reserved.
+// Copyright 2008, Google Inc.
+// All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -14,14 +15,27 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #include "gmock/internal/gmock-internal.h"
 #pragma hdrstop
 //#include <iostream>
 //#include "gmock/gmock.h"
 //#include "gtest/gtest.h"
 
-#if GTEST_OS_ESP8266 || GTEST_OS_ESP32
-#if GTEST_OS_ESP8266
+#if defined(GTEST_OS_ESP8266) || defined(GTEST_OS_ESP32) || \
+	(defined(GTEST_OS_NRF52) && defined(ARDUINO))
+#ifdef GTEST_OS_ESP8266
 extern "C" {
 #endif
 void setup() {
@@ -35,7 +49,7 @@ void loop() {
 	RUN_ALL_TESTS();
 }
 
-#if GTEST_OS_ESP8266
+#ifdef GTEST_OS_ESP8266
 }
 #endif
 
@@ -47,7 +61,7 @@ void loop() {
 // Windows. See the following link to track the current status of this bug:
 // https://web.archive.org/web/20170912203238/connect.microsoft.com/VisualStudio/feedback/details/394464/wmain-link-error-in-the-static-library
 // // NOLINT
-#if GTEST_OS_WINDOWS_MOBILE
+#ifdef GTEST_OS_WINDOWS_MOBILE
 #include <tchar.h>  // NOLINT
 
 GTEST_API_ int _tmain(int argc, TCHAR** argv) {

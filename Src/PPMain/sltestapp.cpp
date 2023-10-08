@@ -37,6 +37,16 @@ int main(int argc, char * argv[], char * envp[])
 		}
 	}
 	{
+		wchar_t user_name[128];
+		DWORD user_name_buf_len = SIZEOFARRAY(user_name);
+		if(::GetUserNameW(user_name, &user_name_buf_len)) {
+			temp_buf.CopyUtf8FromUnicode(user_name, sstrlen(user_name), 0);
+			temp_buf.Transf(CTRANSF_UTF8_TO_INNER);			
+			out_buf.Z().Cat("Current User").CatDiv(':', 2).Cat(temp_buf).CR();
+			slfprintf_stderr(out_buf);
+		}
+	}
+	{
 		wchar_t curdir_u[1024];
 		::GetCurrentDirectoryW(sizeof(curdir_u), curdir_u);
 		temp_buf.CopyUtf8FromUnicode(curdir_u, sstrlen(curdir_u), 0);

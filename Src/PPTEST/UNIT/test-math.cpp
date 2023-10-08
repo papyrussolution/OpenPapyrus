@@ -174,6 +174,53 @@ SLTEST_R(smath)
 	}
 	{
 		//
+		// @v11.8.5 Тестирование некоторых целочисленных функций:
+		//   CheckOverflowMul, log10i_floor, log10i_ceil
+		//
+		auto & r_rg = SLS.GetTLA().Rg;
+		bool debug_mark = false;
+		for(uint i = 0; CurrentStatus && i < 100000; i++) {
+			const int32 r1 = static_cast<int32>(r_rg.GetUniformIntPos((i & 1) ? UINT_MAX : (UINT_MAX>>6)));
+			const int32 r2 = static_cast<int32>(r_rg.GetUniformIntPos((i & 1) ? UINT_MAX : (UINT_MAX>>5)));
+			const bool cor = CheckOverflowMul(r1, r2);
+			const int64 r64 = static_cast<int64>(r1) * static_cast<int64>(r2);
+			SLCHECK_NZ(!cor || HiDWord(r64) == 0);
+			if(!CurrentStatus)
+				debug_mark = false;
+			{
+				uint lf = log10i_floor(static_cast<uint32>(r1));
+				uint lc = log10i_ceil(static_cast<uint32>(r1));
+				SLCHECK_NZ(lf <= lc);
+				const double p = fpow10i(lc);
+				SLCHECK_NZ(lf != lc || p == static_cast<double>(r1));
+				SLCHECK_NZ(oneof2((lc-lf), 0, 1));
+				if(!CurrentStatus)
+					debug_mark = false;
+			}
+			{
+				uint lf = log10i_floor(static_cast<uint32>(r2));
+				uint lc = log10i_ceil(static_cast<uint32>(r2));
+				SLCHECK_NZ(lf <= lc);
+				const double p = fpow10i(lc);
+				SLCHECK_NZ(lf != lc || p == static_cast<double>(r2));
+				SLCHECK_NZ(oneof2((lc-lf), 0, 1));
+				if(!CurrentStatus)
+					debug_mark = false;
+			}
+			{
+				uint lf = log10i_floor(static_cast<uint64>(r64));
+				uint lc = log10i_ceil(static_cast<uint64>(r64));
+				SLCHECK_NZ(lf <= lc);
+				const double p = fpow10i(lc);
+				SLCHECK_NZ(lf != lc || p == static_cast<double>(r64));
+				SLCHECK_NZ(oneof2((lc-lf), 0, 1));
+				if(!CurrentStatus)
+					debug_mark = false;
+			}
+		}
+	}
+	{
+		//
 		// round
 		//
 		struct A {
@@ -832,5 +879,66 @@ SLTEST_R(DebtGammaProb)
 		sum += prob;
 	}
 	SLCHECK_EQ_TOL(sum, 1.0, 0.01);
+	return CurrentStatus;
+}
+
+SLTEST_R(SDecimal)
+{
+	SString temp_buf;
+	SLCHECK_EQ(SDecimal().ToStr(0, temp_buf), "0");
+	SLCHECK_NZ(SDecimal() == SDecimal("0"));
+	SLCHECK_EQ(SDecimal(1, 0).ToStr(0, temp_buf), "1");
+	SLCHECK_NZ(SDecimal(1, 0) == SDecimal("1"));
+	SLCHECK_EQ(SDecimal(7, -1).ToStr(0, temp_buf), "0.7");
+	SLCHECK_NZ(SDecimal(7, -1) == SDecimal("0.7"));
+	SLCHECK_EQ(SDecimal(127, -1).ToStr(0, temp_buf), "12.7");
+	SLCHECK_NZ(SDecimal(127, -1) == SDecimal("\t 12.7"));
+	SLCHECK_EQ(SDecimal(127, +1).ToStr(0, temp_buf), "1270");
+	SLCHECK_NZ(SDecimal(127, +1) == SDecimal("1270"));
+	SLCHECK_EQ(SDecimal(-127, +1).ToStr(0, temp_buf), "-1270");
+	SLCHECK_NZ(SDecimal(-127, +1) == SDecimal("\t\t\t\t\t\t-1270  "));
+	SLCHECK_EQ(SDecimal(-127, -5).ToStr(0, temp_buf), "-0.00127");
+	SLCHECK_NZ(SDecimal(-127, -5) == SDecimal(temp_buf.Z().CatCharN(' ', 1024).Cat("-0.00127")));
+
+	SLCHECK_NZ(SDecimal(127, -6) == SDecimal(" 000.000127"));
+	SLCHECK_NZ(SDecimal(1234567890123456789, 0) == SDecimal("1234567890123456789"));
+
+	SLCHECK_NZ(SDecimal(56, -6) == SDecimal("56e-6"));
+	SLCHECK_NZ(SDecimal(561, -6) == SDecimal("56.1E-5"));
+	{
+		SDecimal r;
+		SDecimal r2;
+		r.Div(SDecimal(1, 0), SDecimal(4, 0));
+		SLCHECK_EQ(r.ToStr(0, temp_buf), "0.25");
+		SLCHECK_NZ(r2.FromStr(temp_buf));
+		SLCHECK_NZ(r == r2);
+
+		r.Div(SDecimal(1, 0), SDecimal(3, 0));
+		r.ToStr(0, temp_buf);
+		r.Div(SDecimal(1, 0), SDecimal(6, 0));
+		r.ToStr(0, temp_buf);
+		r2.Mul(r, SDecimal(6, 0));
+		r2.ToStr(0, temp_buf);
+	}
+	{
+		SRandGenerator & r_rng = SLS.GetTLA().Rg;
+		TSStack <SDecimal> stk;
+		SDecimal sum;
+		for(uint i = 0; i < 1000; i++) {
+			uint32 m32 = r_rng.GetUniformIntPos(INT32_MAX);
+			int exp = -static_cast<int>(log10i_floor(m32));
+			int64 mant = (i & 1) ? -static_cast<int32>(m32) : static_cast<int32>(m32);
+			SDecimal r(mant, exp);
+			stk.push(r);
+			sum.Add(sum, r);
+		}
+		{
+			SDecimal decr;
+			while(stk.pop(decr)) {
+				sum.Sub(sum, decr);
+			}
+			SLCHECK_NZ(sum.IsZero());
+		}
+	}
 	return CurrentStatus;
 }

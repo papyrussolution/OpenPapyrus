@@ -666,7 +666,7 @@ int StringStore2::TranslationWanted(const uchar * pOrgText) const
 				else {
 					uint16 extra = SUtfConst::TrailingBytesForUTF8[c];
 					if(((size_t)(p - pOrgText) + extra) < len) {
-						if(SUnicode::IsLegalUtf8(p, extra+1)) {
+						if(SUnicode::IsLegalUtf8Char(p, extra+1)) {
 							yes = 1; // валидный utf8 символ - считаем что перевод нужен
 						}
 					}

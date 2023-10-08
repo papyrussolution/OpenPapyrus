@@ -7021,6 +7021,7 @@ cmd StyloQBindery         { "@{cmd_styloqbindery}"                         none 
 cmd StyloQCommands        { "@{cmd_styloqcommands}"                        none                   none cmStyloQCommands view=StyloQCommand } // @v11.1.9
 cmd ProcessUED            { "@{cmd_processued}"                            none                   none cmProcessUED } // @v11.6.6
 cmd ProcessBomEstimatedValues { "@{cmd_processbomestimatedvalues}"         none                   none cmProcessBomEstimatedValues } // @v11.8.0
+cmd ImportCChecks         { "@{cmd_importcchecks}"                         none                   none cmImportCChecks } // @v11.8.5
 //
 // -------------- Описания серверных задач
 //

@@ -46,7 +46,11 @@
 #include "gtest/gtest-message.h"
 #include "gtest/internal/gtest-port.h"
 
+GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251                                   \
+/* class A needs to have dll-interface to be used by clients of class B */)
+
 namespace testing {
+
 // A class for indicating whether an assertion was successful.  When
 // the assertion wasn't successful, the AssertionResult object
 // remembers a non-empty message that describes how it failed.
@@ -127,91 +131,93 @@ namespace testing {
 //     Actual: it's 5
 //
 class GTEST_API_ AssertionResult {
-public:
-	// Copy constructor.
-	// Used in EXPECT_TRUE/FALSE(assertion_result).
-	AssertionResult(const AssertionResult& other);
+ public:
+  // Copy constructor.
+  // Used in EXPECT_TRUE/FALSE(assertion_result).
+  AssertionResult(const AssertionResult& other);
 
 // C4800 is a level 3 warning in Visual Studio 2015 and earlier.
 // This warning is not emitted in Visual Studio 2017.
 // This warning is off by default starting in Visual Studio 2019 but can be
 // enabled with command-line options.
 #if defined(_MSC_VER) && (_MSC_VER < 1910 || _MSC_VER >= 1920)
-	GTEST_DISABLE_MSC_WARNINGS_PUSH_(4800 /* forcing value to bool */)
+  GTEST_DISABLE_MSC_WARNINGS_PUSH_(4800 /* forcing value to bool */)
 #endif
 
-	// Used in the EXPECT_TRUE/FALSE(bool_expression).
-	//
-	// T must be contextually convertible to bool.
-	//
-	// The second parameter prevents this overload from being considered if
-	// the argument is implicitly convertible to AssertionResult. In that case
-	// we want AssertionResult's copy constructor to be used.
-	template <typename T> explicit AssertionResult(const T& success,
-	    typename std::enable_if<!std::is_convertible<T, AssertionResult>::value>::type * /*enabler*/ = nullptr) : success_(success) 
-	{
-	}
+  // Used in the EXPECT_TRUE/FALSE(bool_expression).
+  //
+  // T must be contextually convertible to bool.
+  //
+  // The second parameter prevents this overload from being considered if
+  // the argument is implicitly convertible to AssertionResult. In that case
+  // we want AssertionResult's copy constructor to be used.
+  template <typename T>
+  explicit AssertionResult(
+      const T& success,
+      typename std::enable_if<
+          !std::is_convertible<T, AssertionResult>::value>::type*
+      /*enabler*/
+      = nullptr)
+      : success_(success) {}
 
 #if defined(_MSC_VER) && (_MSC_VER < 1910 || _MSC_VER >= 1920)
-	GTEST_DISABLE_MSC_WARNINGS_POP_()
+  GTEST_DISABLE_MSC_WARNINGS_POP_()
 #endif
-	// Assignment operator.
-	AssertionResult& operator=(AssertionResult other) 
-	{
-		swap(other);
-		return *this;
-	}
 
-	// Returns true if and only if the assertion succeeded.
-	operator bool() const { return success_; } // NOLINT
+  // Assignment operator.
+  AssertionResult& operator=(AssertionResult other) {
+    swap(other);
+    return *this;
+  }
 
-	// Returns the assertion's negation. Used with EXPECT/ASSERT_FALSE.
-	AssertionResult operator!() const;
+  // Returns true if and only if the assertion succeeded.
+  operator bool() const { return success_; }  // NOLINT
 
-	// Returns the text streamed into this AssertionResult. Test assertions
-	// use it when they fail (i.e., the predicate's outcome doesn't match the
-	// assertion's expectation). When nothing has been streamed into the
-	// object, returns an empty string.
-	const char* message() const {
-		return message_.get() != nullptr ? message_->c_str() : "";
-	}
+  // Returns the assertion's negation. Used with EXPECT/ASSERT_FALSE.
+  AssertionResult operator!() const;
 
-	// Deprecated; please use message() instead.
-	const char* failure_message() const {
-		return message();
-	}
+  // Returns the text streamed into this AssertionResult. Test assertions
+  // use it when they fail (i.e., the predicate's outcome doesn't match the
+  // assertion's expectation). When nothing has been streamed into the
+  // object, returns an empty string.
+  const char* message() const {
+    return message_ != nullptr ? message_->c_str() : "";
+  }
+  // Deprecated; please use message() instead.
+  const char* failure_message() const { return message(); }
 
-	// Streams a custom failure message into this object.
-	template <typename T>
-	AssertionResult& operator<<(const T& value) {
-		AppendMessage(Message() << value);
-		return *this;
-	}
+  // Streams a custom failure message into this object.
+  template <typename T>
+  AssertionResult& operator<<(const T& value) {
+    AppendMessage(Message() << value);
+    return *this;
+  }
 
-	// Allows streaming basic output manipulators such as endl or flush into
-	// this object.
-	AssertionResult& operator<<(::std::ostream& (*basic_manipulator)(::std::ostream& stream)) {
-		AppendMessage(Message() << basic_manipulator);
-		return *this;
-	}
+  // Allows streaming basic output manipulators such as endl or flush into
+  // this object.
+  AssertionResult& operator<<(
+      ::std::ostream& (*basic_manipulator)(::std::ostream& stream)) {
+    AppendMessage(Message() << basic_manipulator);
+    return *this;
+  }
 
-private:
-	// Appends the contents of message to message_.
-	void AppendMessage(const Message& a_message) {
-		if(message_.get() == nullptr) message_.reset(new ::std::string);
-		message_->append(a_message.GetString().c_str());
-	}
+ private:
+  // Appends the contents of message to message_.
+  void AppendMessage(const Message& a_message) {
+    if (message_ == nullptr) message_ = ::std::make_unique<::std::string>();
+    message_->append(a_message.GetString().c_str());
+  }
 
-	// Swap the contents of this AssertionResult with other.
-	void swap(AssertionResult& other);
+  // Swap the contents of this AssertionResult with other.
+  void swap(AssertionResult& other);
 
-	// Stores result of the assertion predicate.
-	bool success_;
-	// Stores the message describing the condition in case the expectation
-	// construct is not satisfied with the predicate's outcome.
-	// Referenced via a pointer to avoid taking too much stack frame space
-	// with test assertions.
-	std::unique_ptr< ::std::string> message_;
+  // Stores result of the assertion predicate.
+  bool success_;
+  // Stores the message describing the condition in case the expectation
+  // construct is not satisfied with the predicate's outcome.
+  // Referenced via a pointer to avoid taking too much stack frame space
+  // with test assertions.
+  std::unique_ptr< ::std::string> message_;
 };
 
 // Makes a successful assertion result.
@@ -223,6 +229,9 @@ GTEST_API_ AssertionResult AssertionFailure();
 // Makes a failed assertion result with the given failure message.
 // Deprecated; use AssertionFailure() << msg.
 GTEST_API_ AssertionResult AssertionFailure(const Message& msg);
+
 }  // namespace testing
+
+GTEST_DISABLE_MSC_WARNINGS_POP_()  // 4251
 
 #endif  // GOOGLETEST_INCLUDE_GTEST_GTEST_ASSERTION_RESULT_H_

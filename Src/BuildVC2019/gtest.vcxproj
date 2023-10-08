@@ -242,7 +242,12 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-all.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-all.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\OSF\googletest\googletest\src\gtest-assertion-result.cc" />
     <ClCompile Include="..\OSF\googletest\googletest\src\gtest-death-test.cc" />
     <ClCompile Include="..\OSF\googletest\googletest\src\gtest-filepath.cc" />

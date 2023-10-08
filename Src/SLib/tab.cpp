@@ -616,7 +616,7 @@ SLTEST_R(STab)
 			(copy_file_name2 = in_file_name).Cat("-copy2");
 			STabFile out_file2(copy_file_name2, 1);
 			THROW(SLCHECK_NZ(out_file2.IsValid()));
-			tab_list2.clear();
+			tab_list2.Z();
 			THROW(SLCHECK_NZ(out_file.GetTabList(&tab_list2)));
 			for(i = 0; tab_list2.get(&i, tab_name);) {
 				THROW(SLCHECK_NZ(out_file.LoadTab(tab_name, tab.Z())));

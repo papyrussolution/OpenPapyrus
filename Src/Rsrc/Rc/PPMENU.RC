@@ -331,6 +331,7 @@
 				MENUITEM "@cmd_importbills",				cmImportBills
 				MENUITEM "@cmd_importinventory",			cmImportInventory
 				MENUITEM "@cmd_importemailaccts",			cmImportEmailAccts
+				MENUITEM "@cmd_importccheck",               cmImportCChecks // @v11.8.5
 				MENUITEM SEPARATOR
 				MENUITEM "@cmd_importtsessuhtt",			cmImportTSessUHTT
 			}

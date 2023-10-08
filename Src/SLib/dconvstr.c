@@ -2316,6 +2316,275 @@ int STDCALL SIEEE754::Print(char ** ppOutBuf, int * pOutBufSize, double value, i
 			return 1;
 	}
 }
+
+SIEEE754::ParseDecimalBlock::ParseDecimalBlock()
+{
+	THISZERO();
+}
+
+uint64 SIEEE754::ParseDecimalBlock::UbcdCompress() const
+{
+	const uint64 d2 = bcd_compress_small(UBCD);
+	const uint64 d1 = 10000 * bcd_compress_small(UBCD + 4) + bcd_compress_small(UBCD + 8);
+	const uint64 d0 = 10000 * bcd_compress_small(UBCD + 12) + bcd_compress_small(UBCD + 16);
+	return ((d2 * (10000ULL * 10000ULL) + d1) * (10000ULL * 10000ULL)) + d0;
+}
+	
+uint SIEEE754::ParseDecimalBlock::Run(const char * pInput, const char ** ppInputEnd)
+{
+	uint    result = 0;
+	while(*pInput == ' ' || *pInput == '\t')
+		pInput++;
+	// 1. Handle special cases
+	if(sstreqni_ascii(pInput, "nan", 3)) {
+		ASSIGN_PTR(ppInputEnd, pInput + 3);
+		result |= SIEEE754::fNAN;
+	}
+	else if(sstreqni_ascii(pInput, "inf", 3)) {
+		ASSIGN_PTR(ppInputEnd, pInput + 3);
+		result |= SIEEE754::fINF;
+	}
+	else if(sstreqni_ascii(pInput, "-inf", 4)) {
+		ASSIGN_PTR(ppInputEnd, pInput + 4);
+		result |= (SIEEE754::fINF|SIEEE754::fSIGN);
+	}
+	else {
+		// 2. Parse input string
+		//    (Code from this section was adopted from http://golang.org/src/lib9/fmt/fltfmt.c)
+		//uint8  parsed_digits[20];
+		//int    n_parsed_digits = 0; // number of digits in parsed_digits[]
+		//int32  exponent = 0;
+		//int32  exponent_offset = 0;
+		//int    flag_negative_mantissa = 0;
+		//int    flag_negative_exponent = 0;
+		//int    flag_syntax_error      = 0;
+		// Double-to-string parser states
+		enum parser_state { 
+			S0, // S0: _          _S0   +S1   #S2   .S3
+			S1, // S1: _+         #S2   .S3
+			S2, // S2: _+#        #S2   .S4   eS5
+			S3, // S3: _+#.       #S4
+			S4, // S4: _+#.#      #S4   eS5
+			S5, // S5: _+#.#e     +S6   #S7
+			S6, // S6: _+#.#e+    #S7
+			S7, // S7: _+#.#e+#   #S7
+			S_END // валидное завершение числа (несмотря на то, что в строке все еще есть символы)
+		};
+		enum parser_state state = S0;
+		const char * s = pInput;
+		while(!(Flags & fStxErr) && *s && state != S_END) {
+			const char ch = *s;
+			switch(state) {
+				// State 0: skip leading whitespaces, before mantissa sign and digits
+				case S0:
+					if(oneof2(ch, ' ', '\t'))
+						++s; // remain in state S0
+					else if(ch == '-') {
+						++s;
+						state = S1;
+						Flags |= fNegMant;
+					}
+					else if(ch == '+') {
+						++s;
+						state = S1;
+					}
+					else if(isdec(ch))
+						state = S2;
+					else if(ch == '.') {
+						++s;
+						state = S3;
+					}
+					else
+						Flags |= fStxErr;
+					break;
+				// State 1: after mantissa sign, before mantissa digits
+				case S1:
+					if(isdec(ch))
+						state = S2;
+					else if(ch == '.') {
+						++s;
+						state = S3;
+					}
+					else
+						Flags |= fStxErr;
+					break;
+				// State 2: parsing mantissa digits before point
+				case S2:
+					if(isdec(ch)) {
+						++s;
+						if(UbcdCount < sizeof(UBCD)) {
+							UBCD[UbcdCount] = ch - '0';
+							if(ch != '0' || UbcdCount)
+								++UbcdCount;
+						}
+						else
+							++UbcdExpOffs;
+						if(DecCount < sizeof(DEC)) {
+							if(ch != '0' || DecCount)
+								DEC[DecCount++] = ch;
+						}
+						else
+							++DecExpOffs;
+					}
+					else if(ch == '.') {
+						++s;
+						state = S3;
+					}
+					else if(oneof2(ch, 'e', 'E')) {
+						++s;
+						state = S5;
+					}
+					else // Завершаем разбор: дальше - не наши символы
+						state = S_END;
+					/*else
+						Flags |= fStxErr;*/
+					break;
+				// State 3: parsing first mantissa digit just after the point
+				case S3:
+					if(isdec(ch))
+						state = S4;
+					else
+						Flags |= fStxErr;
+					break;
+				// State 4: parsing mantissa digits after the point
+				case S4:
+					if(isdec(ch)) {
+						++s;
+						if(UbcdCount < sizeof(UBCD)) {
+							UBCD[UbcdCount] = ch - '0';
+							if(ch != '0' || UbcdCount)
+								++UbcdCount;
+							--UbcdExpOffs;
+						}
+						if(DecCount < sizeof(DEC)) {
+							DEC[DecCount++] = ch;
+							--DecExpOffs;
+						}
+					}
+					else if(oneof2(ch, 'e', 'E')) {
+						++s;
+						state = S5;
+					}
+					else // Завершаем разбор: дальше - не наши символы
+						state = S_END;
+					/*else
+						Flags |= fStxErr;*/
+					break;
+				// State 5: parsing sign after the exponent
+				case S5:
+					if(isdec(ch))
+						state = S7;
+					else if(ch == '+') {
+						++s;
+						state = S6;
+					}
+					else if(ch == '-') {
+						++s;
+						state = S6;
+						Flags |= fNegExp;
+					}
+					else
+						Flags |= fStxErr;
+					break;
+				// State 6: parsing first digits after exponent sign
+				case S6:
+					if(isdec(ch))
+						state = S7;
+					else
+						Flags |= fStxErr;
+					break;
+				// State 7: parsing exponent digits
+				case S7:
+					if(isdec(ch)) {
+						++s;
+						if(Exp < 350) {
+							// we aim to avoid overflow/underflow of the exponent
+							// by using (exponent >= 350) condition as overflow/underflow flag
+							Exp = (Exp * 10) + (ch - '0');
+						}
+					}
+					else // Завершаем разбор: дальше - не наши символы
+						state = S_END;
+					/*else
+						Flags |= fStxErr;*/
+					break;
+			}
+		}
+		if(!(Flags & fStxErr) && oneof5(state, S0, S1, S3, S5, S6))
+			Flags |= fStxErr;
+		if(ppInputEnd) {
+			//
+			// @v10.9.10 По-моему, это - была ошибка. Установка flag_syntax_error означает, что
+			// больше нет символов для адекватного представления числа, но само число просканировано
+			// и необходимо вернуть указатель на первый недопустимый символ.
+			//
+			// @v10.9.10 *ppInputEnd = flag_syntax_error ? pInput : s;
+			*ppInputEnd = s; // @v10.9.10 
+		}
+		// 3. Zero out the tail of mantissa.
+		//    Move decimal point to the right side of mantissa (adjust exponent offset).
+		//    Get rid of last mantissa digit, set first one to zero, and compress BCD representation of mantissa.
+		if(UbcdCount < sizeof(UBCD)) {
+			const int delta = sizeof(UBCD) - UbcdCount;
+			memzero(UBCD + UbcdCount, delta);
+			UbcdCount += delta;
+			UbcdExpOffs -= delta;
+		}
+		memmove(UBCD + 1, UBCD, sizeof(UBCD) - 1);
+		UBCD[0] = 0;
+		++UbcdExpOffs;
+	}
+	if(Flags & fStxErr)
+		result |= SIEEE754::fInternalError;
+	return result;
+}
+
+int STDCALL SIEEE754::Scan2(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange)
+{
+	int    ok = 1;
+	int    output_erange = 0;
+	ParseDecimalBlock blk;
+	uint scan_result = blk.Run(pInput, ppInputEnd);
+	if(blk.Flags & ParseDecimalBlock::fStxErr) {
+		; // error
+	}
+	else if(scan_result & SIEEE754::fNAN) {
+		SIEEE754::PackDouble(1/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput);
+	}
+	else if(scan_result & SIEEE754::fINF) {
+		if(scan_result & SIEEE754::fSIGN) {
+			SIEEE754::PackDouble(0/*input_is_nan*/, 1/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
+		}
+		else {
+			SIEEE754::PackDouble(0/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
+		}
+	}
+	else {
+		uint64 mantissa = blk.UbcdCompress();
+		// 4. Compute exponent
+		blk.Exp = (mantissa == 0) ? 0 : (((blk.Exp < 350) ? blk.UbcdExpOffs : 0) + ((blk.Flags & ParseDecimalBlock::fNegExp) ? -blk.Exp : blk.Exp));
+		// 5. Check exponent for overflow and underflow
+		if(blk.Exp <= -350) {
+			SIEEE754::PackDouble(0/*input_is_nan*/, BIN(blk.Flags & ParseDecimalBlock::fNegMant)/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput);
+			output_erange = 1; // strtod(3) would set errno = ERANGE
+		}
+		else if(blk.Exp >= 350) {
+			SIEEE754::PackDouble(0/*input_is_nan*/, BIN(blk.Flags & ParseDecimalBlock::fNegMant)/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
+			output_erange = 1; // strtod(3) would set errno = ERANGE
+		}
+		else {
+			// 6. Convert to binary representation, pack bits up and exit
+			if(mantissa != 0 && !convert_extended_decimal_to_binary_and_round(mantissa, blk.Exp, &mantissa, &blk.Exp))
+				ok = 0; // internal error
+			else {
+				output_erange = (!SIEEE754::PackDouble(0/*input_is_nan*/, BIN(blk.Flags & ParseDecimalBlock::fNegMant)/*input_sign*/, mantissa/*input_binary_mantissa*/, 
+					blk.Exp/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput));
+			}
+		}
+	}
+	ASSIGN_PTR(pOutputERange, output_erange);
+	return ok;
+}
 // 
 // Convert string to IEEE 754 floating-point double precision value
 // @param  pInput        Input buffer, C-style string. Filled by caller.

@@ -2461,7 +2461,22 @@ public:
 
 class SUnicode {
 public:
-	static bool  FASTCALL IsLegalUtf8(const uint8 * pSource, size_t length);
+	//
+	// Descr: Utility routine to tell whether a sequence of bytes is legal UTF-8.
+	//   This must be called with the length pre-determined by the first byte.
+	//   If not calling this from ConvertUTF8to*, then the length can be set by:
+	//   length = trailingBytesForUTF8[*source]+1;
+	//   and the sequence is illegal right away if there aren't that many bytes available.
+	//   If presented with a length > 4, this returns false.
+	//   The Unicode definition of UTF-8 goes up to 4-byte sequences.
+	//
+	static bool  FASTCALL IsLegalUtf8Char(const uint8 * pSource, size_t length);
+	//
+	// Descr: Возвращает длину отрезка utf8, начиная с pSource.
+	//   Если с pSource не начинается легальный utf8-символ, то возвращает 0.
+	//   Обратите внимание: возвращается не количество дополнительных (extra) байт, а полная длина utf8-набора.
+	//
+	static uint  FASTCALL GetUtf8Len(const uint8 * pSource);
 	//
 	// Descr: Транслирует unicode32 в один или 2 широких символа wchar_t.
 	// Returns:
@@ -5581,6 +5596,29 @@ public:
 		fUppercase   = 0x0040  // DCONVSTR_FLAG_UPPERCASE
 	};
 	static const int DefaultPrecision; // DCONVSTR_DEFAULT_PRECISION
+
+	struct ParseDecimalBlock {
+		ParseDecimalBlock();
+		uint    Run(const char * pInput, const char ** ppInputEnd);
+		//
+		// Descr: Упаковывает поле UBCD в 64-битное целое беззнаковое число.
+		//
+		uint64  UbcdCompress() const;
+
+		uint8  UBCD[20]; // Неупакованный bcd-формат: каждый байт - десятичная цифра
+		uint   UbcdCount; // number of digits in parsed_digits[]
+		char   DEC[64];
+		uint   DecCount;
+		int32  Exp;
+		int32  UbcdExpOffs;
+		int32  DecExpOffs;
+		enum {
+			fStxErr  = 0x0001,
+			fNegMant = 0x0002,
+			fNegExp  = 0x0004,
+		};
+		uint   Flags;
+	};
 	// 
 	// Descr: Unpack floating-point double precision binary value according to IEEE 754
 	// 
@@ -5624,6 +5662,7 @@ public:
 	//   0  if there was internal error during conversion.
 	//
 	static int STDCALL Scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange);
+	static int STDCALL Scan2(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange);
 };
 
 char * STDCALL realfmt(double val, long fmt, char * pBuf);
@@ -5857,7 +5896,7 @@ public:
 	};
 	static int GetStat(const char * pFileName, Stat * pStat);
 	static int GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail);
-
+	/* @v11.8.5 Упразднено в пользу GetKnownFolderPath()
 	enum {
 		sdSystem = 1,
 		sdProgramFiles,
@@ -5869,6 +5908,7 @@ public:
 		sdTemporary // @v11.0.3
 	};
 	static int GetSysDir(int pathId, SString & rPath);
+	*/
 };
 
 int	   pathToUNC(const char * pPath, SString & rUncPath);
@@ -9502,7 +9542,14 @@ int    RemoveDir(const char * pDir);
 //   pBuf
 //
 SString & GetExecPath(SString & rBuf);
-int    GetKnownFolderPath(uint64 uedFolderId, SString & rPath);
+//
+// Descr: Находит актуальное значение "известной" (known) папки в файловой системе.
+//   Папки идентифицируются ued-сущностью UED_FSKNOWNFOLDER_XXX
+// Returns:
+//   true - путь к папке успешно определен и присвоен по ссылке rPath
+//   false - не удалось определить требуемый путь. Строка по ссылке rPath пустая.
+//
+bool   GetKnownFolderPath(uint64 uedFolderId, SString & rPath);
 
 struct SKnownFolderEntry {
 	uint64 UED;
@@ -11681,12 +11728,12 @@ private:
 };
 
 #if 0 // @v11.7.9 {
-class CRegExp_Depricated {
+class CRegExp_Deprecated {
 public:
-	CRegExp_Depricated();
-	explicit CRegExp_Depricated(const char * s);
-	CRegExp_Depricated(const CRegExp_Depricated &);
-	~CRegExp_Depricated();
+	CRegExp_Deprecated();
+	explicit CRegExp_Deprecated(const char * s);
+	CRegExp_Deprecated(const CRegExp_Deprecated &);
+	~CRegExp_Deprecated();
 	int    Compile(const char * pPattern);      // Compiles char * --> regexp
 	int    Find(const char * pText);            // TRUE if regexp in char * arg
 	int    Find(SStrScan *);
@@ -11700,9 +11747,9 @@ public:
 	// Descr: Returns index into the searched string that corresponds to the  end pointer
 	//
 	long   end() const { return static_cast<long>(endp[0] - P_Text); }
-	bool   FASTCALL operator == (const CRegExp_Depricated & r) const;
-	bool   FASTCALL operator != (const CRegExp_Depricated & r) const { return (!(*this == r)); }
-	int    FASTCALL deep_equal(const CRegExp_Depricated & r) const; // Same regexp and state?
+	bool   FASTCALL operator == (const CRegExp_Deprecated & r) const;
+	bool   FASTCALL operator != (const CRegExp_Deprecated & r) const { return (!(*this == r)); }
+	int    FASTCALL deep_equal(const CRegExp_Deprecated & r) const; // Same regexp and state?
 	void   set_invalid();
 private:
 	char * FASTCALL regatom(int * pFlag);   // @<<regpiece
@@ -12005,7 +12052,7 @@ struct SStrScan : public SRegExpSet {
 	// Descr: Проверяет, является ли текущий символ (P_Buf+Offs) вместе, возможно, со следующими
 	//   за ним правильной комбинацией, представляющей UTF8 символ.
 	//
-	int    IsLegalUtf8() const; // return type must be int (not bool)!
+	uint   IsLegalUtf8() const; // return type must be int (not bool)!
 	size_t Offs;
 	size_t Len;
 private:
@@ -13289,12 +13336,16 @@ class SDecimal {
 public:
 	SDecimal();
 	explicit SDecimal(double v);
+	explicit SDecimal(const char * pS);
 	SDecimal(int64 mantissa, int16 exp);
+	bool   FASTCALL operator == (const SDecimal & rS) { return IsEq(rS); }
+	bool   FASTCALL operator != (const SDecimal & rS) { return !IsEq(rS); }
 	bool   FASTCALL IsEq(const SDecimal & rS) const; // @construction
 	double GetReal() const;
 	bool   Normalize();
 	bool   Normalize(int64 mant, int16 exp);
 	SDecimal & Z();
+	bool   IsValid() const { return !(Flags & SIEEE754::fInternalError); }
 	bool   IsZero() const;
 	static SDecimal Neg(const SDecimal & rV);
 	int    Add(const SDecimal & rA, const SDecimal & rB);
@@ -13302,7 +13353,8 @@ public:
 	int    Mul(const SDecimal & rA, const SDecimal & rB);
 	int    Mul(const SDecimal & rA, int64 b);
 	int    Div(const SDecimal & rA, const SDecimal & rB);
-
+	SString & ToStr(long fmt, SString & rBuf) const;
+	int    FromStr(const char * pStr);
 	uint64 ToUed_NonConst(uint numBits);
 	int   FromUed(uint64 ued, uint numBits);
 
@@ -14183,15 +14235,15 @@ double feuclideandistance(uint count, const double * pV1, const double * pV2);
 FORCEINLINE float  lerp(float a, float b, float t) { return (a + ((b - a) * t)); } // @v11.7.10
 FORCEINLINE double lerp(double a, double b, double t) { return (a + ((b - a) * t)); } // @v11.7.10
 
-#define SQ(x) ((x)*(x))
+// @v11.8.5 (replaced with fpow2()) #define SQ_Removed(x) ((x)*(x))
 
 double FASTCALL fpowi(double x, int n);
 float  FASTCALL fpowfi(float x, int n);
 double FASTCALL fpow10i(int n);
 float  FASTCALL fpow10fi(int n);
 uint64 FASTCALL ui64pow10(uint n);
-inline double fpow2(double x) { return x * x; }
-inline double fpow3(double x) { return x * x * x; }
+template <typename T> constexpr T fpow2(T x) { return x * x; }
+template <typename T> constexpr T fpow3(T x) { return x * x * x; }
 //
 // Descr: Вычисляет десятичный логарифм целого беззнакового числа с округлением в нижнюю сторону.
 // e.g.: log10i_floor(100) == 2, log10i_floor(99) == 1, log10i_floor(101) == 2
@@ -16593,7 +16645,9 @@ public:
 			// the new process inherits the group-relative affinity of an arbitrary group in use by the parent.
 			// Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP: This value is not supported.
 		//
-		fInheritHandles             = 0x00020000
+		fInheritHandles             = 0x00020000,
+		fLogonWithProfile           = 0x00040000 // Если запуск приложения осуществляется от имени пользователя, то вызов соответствующей
+			// функции сопровождается флагом LOGON_WITH_PROFILE.
 	};
 
 	class StartUpBlock {
@@ -16665,6 +16719,7 @@ public:
 
 	static int  CheckAccessTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
 	static bool EnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pName, bool enable);
+	static bool AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPrivilegeName);
 	
 	SlProcess();
 	~SlProcess();

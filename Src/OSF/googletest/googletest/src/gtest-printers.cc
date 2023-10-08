@@ -1,4 +1,5 @@
-// Copyright 2007, Google Inc. All rights reserved.
+// Copyright 2007, Google Inc.
+// All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -14,6 +15,18 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 // Google Test - The Google C++ Testing and Mocking Framework
 //
 // This file implements a universal value printer that can print a
@@ -29,6 +42,18 @@
 
 #include "gtest/internal/gtest-build-internal.h"
 #pragma hdrstop
+//#include "gtest/gtest-printers.h"
+//#include <stdio.h>
+//#include <cctype>
+//#include <cstdint>
+//#include <cwchar>
+//#include <iomanip>
+//#include <ios>
+//#include <ostream>  // NOLINT
+//#include <string>
+//#include <type_traits>
+//#include "gtest/internal/gtest-port.h"
+//#include "src/gtest-internal-inl.h"
 
 namespace testing {
 namespace {
@@ -58,10 +83,11 @@ void PrintByteSegmentInObjectTo(const unsigned char* obj_bytes, size_t start,
 }
 
 // Prints the bytes in the given value to the given ostream.
-void PrintBytesInObjectToImpl(const unsigned char* obj_bytes, size_t count, ostream* os) 
-{
+void PrintBytesInObjectToImpl(const unsigned char* obj_bytes, size_t count,
+    ostream* os) {
 	// Tells the user how big the object is.
 	*os << count << "-byte object <";
+
 	const size_t kThreshold = 132;
 	const size_t kChunkSize = 64;
 	// If the object size is bigger than kThreshold, we'll have to omit
@@ -112,25 +138,47 @@ enum CharFormat { kAsIs, kHexEscape, kSpecialEscape };
 // Returns true if c is a printable ASCII character.  We test the
 // value of c directly instead of calling isprint(), which is buggy on
 // Windows Mobile.
-inline bool IsPrintableAscii(char32_t c) { return 0x20 <= c && c <= 0x7E; }
+inline bool IsPrintableAscii(char32_t c) {
+	return 0x20 <= c && c <= 0x7E;
+}
 
 // Prints c (of type char, char8_t, char16_t, char32_t, or wchar_t) as a
 // character literal without the quotes, escaping it when necessary; returns how
 // c was formatted.
-template <typename Char> static CharFormat PrintAsCharLiteralTo(Char c, ostream* os) 
-{
+template <typename Char>
+static CharFormat PrintAsCharLiteralTo(Char c, ostream* os) {
 	const char32_t u_c = ToChar32(c);
 	switch(u_c) {
-		case L'\0': *os << "\\0"; break;
-		case L'\'': *os << "\\'"; break;
-		case L'\\': *os << "\\\\"; break;
-		case L'\a': *os << "\\a"; break;
-		case L'\b': *os << "\\b"; break;
-		case L'\f': *os << "\\f"; break;
-		case L'\n': *os << "\\n"; break;
-		case L'\r': *os << "\\r"; break;
-		case L'\t': *os << "\\t"; break;
-		case L'\v': *os << "\\v"; break;
+		case L'\0':
+		    *os << "\\0";
+		    break;
+		case L'\'':
+		    *os << "\\'";
+		    break;
+		case L'\\':
+		    *os << "\\\\";
+		    break;
+		case L'\a':
+		    *os << "\\a";
+		    break;
+		case L'\b':
+		    *os << "\\b";
+		    break;
+		case L'\f':
+		    *os << "\\f";
+		    break;
+		case L'\n':
+		    *os << "\\n";
+		    break;
+		case L'\r':
+		    *os << "\\r";
+		    break;
+		case L'\t':
+		    *os << "\\t";
+		    break;
+		case L'\v':
+		    *os << "\\v";
+		    break;
 		default:
 		    if(IsPrintableAscii(u_c)) {
 			    *os << static_cast<char>(c);
@@ -148,8 +196,7 @@ template <typename Char> static CharFormat PrintAsCharLiteralTo(Char c, ostream*
 
 // Prints a char32_t c as if it's part of a string literal, escaping it when
 // necessary; returns how c was formatted.
-static CharFormat PrintAsStringLiteralTo(char32_t c, ostream* os) 
-{
+static CharFormat PrintAsStringLiteralTo(char32_t c, ostream* os) {
 	switch(c) {
 		case L'\'':
 		    *os << "'";
@@ -162,15 +209,36 @@ static CharFormat PrintAsStringLiteralTo(char32_t c, ostream* os)
 	}
 }
 
-static const char* GetCharWidthPrefix(char) { return ""; }
-static const char* GetCharWidthPrefix(signed char) { return ""; }
-static const char* GetCharWidthPrefix(unsigned char) { return ""; }
-#ifdef __cpp_char8_t
-	static const char* GetCharWidthPrefix(char8_t) { return "u8"; }
+static const char* GetCharWidthPrefix(char) {
+	return "";
+}
+
+static const char* GetCharWidthPrefix(signed char) {
+	return "";
+}
+
+static const char* GetCharWidthPrefix(unsigned char) {
+	return "";
+}
+
+#ifdef __cpp_lib_char8_t
+static const char* GetCharWidthPrefix(char8_t) {
+	return "u8";
+}
+
 #endif
-static const char* GetCharWidthPrefix(char16_t) { return "u"; }
-static const char* GetCharWidthPrefix(char32_t) { return "U"; }
-static const char* GetCharWidthPrefix(wchar_t) { return "L"; }
+
+static const char* GetCharWidthPrefix(char16_t) {
+	return "u";
+}
+
+static const char* GetCharWidthPrefix(char32_t) {
+	return "U";
+}
+
+static const char* GetCharWidthPrefix(wchar_t) {
+	return "L";
+}
 
 // Prints a char c as if it's part of a string literal, escaping it when
 // necessary; returns how c was formatted.
@@ -178,17 +246,26 @@ static CharFormat PrintAsStringLiteralTo(char c, ostream* os) {
 	return PrintAsStringLiteralTo(ToChar32(c), os);
 }
 
-#ifdef __cpp_char8_t
-	static CharFormat PrintAsStringLiteralTo(char8_t c, ostream* os) { return PrintAsStringLiteralTo(ToChar32(c), os); }
+#ifdef __cpp_lib_char8_t
+static CharFormat PrintAsStringLiteralTo(char8_t c, ostream* os) {
+	return PrintAsStringLiteralTo(ToChar32(c), os);
+}
+
 #endif
-static CharFormat PrintAsStringLiteralTo(char16_t c, ostream* os) { return PrintAsStringLiteralTo(ToChar32(c), os); }
-static CharFormat PrintAsStringLiteralTo(wchar_t c, ostream* os) { return PrintAsStringLiteralTo(ToChar32(c), os); }
+
+static CharFormat PrintAsStringLiteralTo(char16_t c, ostream* os) {
+	return PrintAsStringLiteralTo(ToChar32(c), os);
+}
+
+static CharFormat PrintAsStringLiteralTo(wchar_t c, ostream* os) {
+	return PrintAsStringLiteralTo(ToChar32(c), os);
+}
 
 // Prints a character c (of type char, char8_t, char16_t, char32_t, or wchar_t)
 // and its code. '\0' is printed as "'\\0'", other unprintable characters are
 // also properly escaped using the standard C++ escape sequence.
-template <typename Char> void PrintCharAndCodeTo(Char c, ostream* os) 
-{
+template <typename Char>
+void PrintCharAndCodeTo(Char c, ostream* os) {
 	// First, print c as a literal in the most readable form we can find.
 	*os << GetCharWidthPrefix(c) << "'";
 	const CharFormat format = PrintAsCharLiteralTo(c, os);
@@ -263,7 +340,7 @@ void PrintTo(__uint128_t v, ::std::ostream* os) {
 		low = low / 10 + high_mod * 1844674407370955161 + carry / 10;
 
 		char digit = static_cast<char>(carry % 10);
-		*--p = '0' + digit;
+		*--p = static_cast<char>('0' + digit);
 	}
 	*os << p;
 }
@@ -341,7 +418,7 @@ void UniversalPrintArray(const char* begin, size_t len, ostream* os) {
 	UniversalPrintCharArray(begin, len, os);
 }
 
-#ifdef __cpp_char8_t
+#ifdef __cpp_lib_char8_t
 // Prints a (const) char8_t array of 'len' elements, starting at address
 // 'begin'.
 void UniversalPrintArray(const char8_t* begin, size_t len, ostream* os) {
@@ -352,35 +429,55 @@ void UniversalPrintArray(const char8_t* begin, size_t len, ostream* os) {
 
 // Prints a (const) char16_t array of 'len' elements, starting at address
 // 'begin'.
-void UniversalPrintArray(const char16_t* begin, size_t len, ostream* os) { UniversalPrintCharArray(begin, len, os); }
+void UniversalPrintArray(const char16_t* begin, size_t len, ostream* os) {
+	UniversalPrintCharArray(begin, len, os);
+}
+
 // Prints a (const) char32_t array of 'len' elements, starting at address
 // 'begin'.
-void UniversalPrintArray(const char32_t* begin, size_t len, ostream* os) { UniversalPrintCharArray(begin, len, os); }
+void UniversalPrintArray(const char32_t* begin, size_t len, ostream* os) {
+	UniversalPrintCharArray(begin, len, os);
+}
 
 // Prints a (const) wchar_t array of 'len' elements, starting at address
 // 'begin'.
-void UniversalPrintArray(const wchar_t* begin, size_t len, ostream* os) { UniversalPrintCharArray(begin, len, os); }
+void UniversalPrintArray(const wchar_t* begin, size_t len, ostream* os) {
+	UniversalPrintCharArray(begin, len, os);
+}
 
 namespace {
 // Prints a null-terminated C-style string to the ostream.
-	template <typename Char> void PrintCStringTo(const Char* s, ostream* os) 
-	{
-		if(s == nullptr) {
-			*os << "NULL";
-		}
-		else {
-			*os << ImplicitCast_<const void*>(s) << " pointing to ";
-			PrintCharsAsStringTo(s, std::char_traits<Char>::length(s), os);
-		}
+template <typename Char>
+void PrintCStringTo(const Char* s, ostream* os) {
+	if(s == nullptr) {
+		*os << "NULL";
 	}
+	else {
+		*os << ImplicitCast_<const void*>(s) << " pointing to ";
+		PrintCharsAsStringTo(s, std::char_traits<Char>::length(s), os);
+	}
+}
 }  // anonymous namespace
 
-void PrintTo(const char* s, ostream* os) { PrintCStringTo(s, os); }
-#ifdef __cpp_char8_t
-	void PrintTo(const char8_t* s, ostream* os) { PrintCStringTo(s, os); }
+void PrintTo(const char* s, ostream* os) {
+	PrintCStringTo(s, os);
+}
+
+#ifdef __cpp_lib_char8_t
+void PrintTo(const char8_t* s, ostream* os) {
+	PrintCStringTo(s, os);
+}
+
 #endif
-void PrintTo(const char16_t* s, ostream* os) { PrintCStringTo(s, os); }
-void PrintTo(const char32_t* s, ostream* os) { PrintCStringTo(s, os); }
+
+void PrintTo(const char16_t* s, ostream* os) {
+	PrintCStringTo(s, os);
+}
+
+void PrintTo(const char32_t* s, ostream* os) {
+	PrintCStringTo(s, os);
+}
+
 // MSVC compiler can be configured to define whar_t as a typedef
 // of unsigned short. Defining an overload for const wchar_t* in that case
 // would cause pointers to unsigned shorts be printed as wide strings,
@@ -389,7 +486,10 @@ void PrintTo(const char32_t* s, ostream* os) { PrintCStringTo(s, os); }
 // wchar_t is implemented as a native type.
 #if !defined(_MSC_VER) || defined(_NATIVE_WCHAR_T_DEFINED)
 // Prints the given wide C string to the ostream.
-	void PrintTo(const wchar_t* s, ostream* os) { PrintCStringTo(s, os); }
+void PrintTo(const wchar_t* s, ostream* os) {
+	PrintCStringTo(s, os);
+}
+
 #endif  // wchar_t is native
 
 namespace {
@@ -469,13 +569,26 @@ void PrintStringTo(const ::std::string& s, ostream* os) {
 	}
 }
 
-#ifdef __cpp_char8_t
-	void PrintU8StringTo(const ::std::u8string& s, ostream* os) { PrintCharsAsStringTo(s.data(), s.size(), os); }
+#ifdef __cpp_lib_char8_t
+void PrintU8StringTo(const ::std::u8string& s, ostream* os) {
+	PrintCharsAsStringTo(s.data(), s.size(), os);
+}
+
 #endif
-void PrintU16StringTo(const ::std::u16string& s, ostream* os) { PrintCharsAsStringTo(s.data(), s.size(), os); }
-void PrintU32StringTo(const ::std::u32string& s, ostream* os) { PrintCharsAsStringTo(s.data(), s.size(), os); }
+
+void PrintU16StringTo(const ::std::u16string& s, ostream* os) {
+	PrintCharsAsStringTo(s.data(), s.size(), os);
+}
+
+void PrintU32StringTo(const ::std::u32string& s, ostream* os) {
+	PrintCharsAsStringTo(s.data(), s.size(), os);
+}
+
 #if GTEST_HAS_STD_WSTRING
-	void PrintWideStringTo(const ::std::wstring& s, ostream* os) { PrintCharsAsStringTo(s.data(), s.size(), os); }
+void PrintWideStringTo(const ::std::wstring& s, ostream* os) {
+	PrintCharsAsStringTo(s.data(), s.size(), os);
+}
+
 #endif  // GTEST_HAS_STD_WSTRING
 }  // namespace internal
 }  // namespace testing

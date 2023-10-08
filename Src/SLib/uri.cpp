@@ -849,8 +849,7 @@ int UriEqualsUri(const UriUri * a, const UriUri * b)
 //
 //
 //
-void UriResetUri(UriUri * pUri)
-	{ memzero(pUri, sizeof(*pUri)); }
+void UriResetUri(UriUri * pUri) { memzero(pUri, sizeof(*pUri)); }
 
 // Properly removes "." and ".." path segments 
 int UriRemoveDotSegments(UriUri * uri, int relative)
@@ -1398,40 +1397,7 @@ UriTextRange & FASTCALL UriTextRange::operator = (const UriTextRange & rS)
 	return *this;
 }
 
-int UriTextRange::Len() const
-{
-	return (int)(P_AfterLast - P_First);
-}
-
-/* @construction
-int UriTextRange::FixPercentEncodingMalloc()
-{
-	// Death checks 
-	if(!P_First || !P_AfterLast) {
-		return FALSE;
-	}
-	else {
-		// Old text length 
-		int    lenInChars = Len();
-		if(lenInChars == 0)
-			return TRUE;
-		else if(lenInChars < 0)
-			return FALSE;
-		else {
-			// New buffer 
-			char * p_buffer = (char *)SAlloc::M(lenInChars * sizeof(char));
-			if(!p_buffer)
-				return FALSE;
-			else {
-				// Fix on copy 
-				UriFixPercentEncodingEngine(*ppFirst, *ppAfterLast, p_buffer, ppAfterLast);
-				*ppFirst = p_buffer;
-				return TRUE;
-			}
-		}
-	}
-}
-*/
+int UriTextRange::Len() const { return (int)(P_AfterLast - P_First); }
 
 static int FASTCALL UriFixPercentEncodingMalloc(const char ** ppFirst, const char ** ppAfterLast)
 {
@@ -2423,7 +2389,7 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
  #define URI_SET_HEX_LETTER_UPPER 'A': case 'B': case 'C': case 'D': case 'E': case 'F'
  #define URI_SET_HEX_LETTER_LOWER 'a': case 'b': case 'c': case 'd': case 'e': case 'f'
  #define URI_SET_HEXDIG URI_SET_DIGIT: case URI_SET_HEX_LETTER_UPPER: case URI_SET_HEX_LETTER_LOWER
- #define URI_SET_ALPHA URI_SET_HEX_LETTER_UPPER: \
+ #define URI_SET_ASCII_ALPHA URI_SET_HEX_LETTER_UPPER: \
     case URI_SET_HEX_LETTER_LOWER: \
     case 'g': case 'G': case 'h': case 'H': case 'i': case 'I': case 'j': case 'J': \
     case 'k': case 'K': case 'l': case 'L': case 'm': case 'M': case 'n': case 'N': \
@@ -2431,9 +2397,10 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
     case 's': case 'S': case 't': case 'T': case 'u': case 'U': case 'v': case 'V': \
     case 'w': case 'W': case 'x': case 'X': case 'y': case 'Y': case 'z': case 'Z'
 
-UriParserState::UriParserState()
+UriParserState::UriParserState(UriUri * pResultData)
 {
 	Clear();
+	P_Uri = pResultData;
 }
 
 void UriParserState::Clear()
@@ -2525,7 +2492,7 @@ const char * STDCALL UriParserState::ParseAuthority(const char * pFirst, const c
 			case ':': case ';': case '@': case '\'': case '_':
 			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				P_Uri->UserInfo.P_First = pFirst; /* USERINFO BEGIN */
 				p_ret = ParseOwnHostUserInfoNz(pFirst, pAfterLast);
 				break;
@@ -2588,7 +2555,7 @@ const char * STDCALL UriParserState::ParseHierPart(const char * pFirst, const ch
 			case ':': case ';': case '@': case '\'': case '_':
 			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				return ParsePathRootless(pFirst, afterLast);
 			case '/':
 				return ParsePartHelperTwo(pFirst+1, afterLast);
@@ -2613,7 +2580,7 @@ const char * STDCALL UriParserState::ParseIpFutLoop(const char * pFirst, const c
 			case '-': case '*': case ',': case '.': case ':':
 			case ';': case '\'': case '_': case '~': case '+': case '=':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA: return ParseIpFutStopGo(pFirst+1, afterLast);
+			case URI_SET_ASCII_ALPHA: return ParseIpFutStopGo(pFirst+1, afterLast);
 			default: return StopSyntax(pFirst);
 		}
 	}
@@ -2633,7 +2600,7 @@ const char * STDCALL UriParserState::ParseIpFutStopGo(const char * pFirst, const
 			case ';': case '\'': case '_': case '~': case '+':
 			case '=': 
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				return ParseIpFutLoop(pFirst, afterLast);
 			default:
 				return pFirst;
@@ -2953,7 +2920,7 @@ const char * STDCALL UriParserState::ParseMustBeSegmentNzNc(const char * pFirst,
 			case ')': case '*': case ',': case ';': case '\'':
 			case '+': case '=': case '-': case '.': case '_': case '~':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				return ParseMustBeSegmentNzNc(pFirst+1, afterLast);
 			case '/':
 				{
@@ -3047,7 +3014,7 @@ const char * STDCALL UriParserState::ParseOwnHost2(const char * pFirst, const ch
 			case ')': case '-': case '*': case ',': case '.':
 			case ';': case '\'': case '_': case '~': case '+': case '=':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				{
 					const char * const afterPctSubUnres = ParsePctSubUnres(pFirst, pAfterLast);
 					p_ret = afterPctSubUnres ? ParseOwnHost2(afterPctSubUnres, pAfterLast) : 0; // @recursion
@@ -3102,7 +3069,7 @@ const char * STDCALL UriParserState::ParseOwnHostUserInfo(const char * first, co
 			case ':': case ';': case '@': case '\'': case '_':
 			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				p_ret = ParseOwnHostUserInfoNz(first, afterLast);
 				break;
 			default:
@@ -3131,7 +3098,7 @@ const char * STDCALL UriParserState::ParseOwnHostUserInfoNz(const char * first, 
 			case ')': case '-': case '*': case ',': case '.':
 			case ';': case '\'': case '_': case '~': case '+': case '=':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				{
 					const char * const afterPctSubUnres = ParsePctSubUnres(first, afterLast);
 					p_ret = afterPctSubUnres ? ParseOwnHostUserInfo(afterPctSubUnres, afterLast) : 0;
@@ -3192,7 +3159,7 @@ const char * STDCALL UriParserState::ParseOwnPortUserInfo(const char * pFirst, c
 	}
 	else {
 		switch(*pFirst) {
-			case '.': case '_': case '~': case '-': case URI_SET_ALPHA:
+			case '.': case '_': case '~': case '-': case URI_SET_ASCII_ALPHA:
 				P_Uri->HostText.P_AfterLast = NULL; // Not a host, reset 
 				P_Uri->PortText.P_First = NULL; // Not a port, reset 
 				p_ret = ParseOwnUserInfo(pFirst+1, afterLast);
@@ -3233,7 +3200,7 @@ const char * STDCALL UriParserState::ParseOwnUserInfo(const char * pFirst, const
 			case ')': case '-': case '*': case ',': case '.':
 			case ';': case '\'': case '_': case '~': case '+': case '=':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				{
 					const char * const after_pct_sub_unres = ParsePctSubUnres(pFirst, pAfterLast);
 					p_ret = after_pct_sub_unres ? ParseOwnUserInfo(after_pct_sub_unres, pAfterLast) : 0; // @recursion
@@ -3321,7 +3288,7 @@ const char * STDCALL UriParserState::ParsePathAbsNoLeadSlash(const char * pFirst
 			case ':': case ';': case '@': case '\'': case '_':
 			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				/* @v11.1.11 {
 					const char * const p_after_segment_nz = ParseSegmentNz(pFirst, pAfterLast);
 					if(p_after_segment_nz) {
@@ -3377,7 +3344,7 @@ const char * STDCALL UriParserState::ParsePchar(const char * first, const char *
 			case '\'': case '+': case '=': case '-': case '.':
 			case '_': case '~':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				p_ret = first+1;
 				break;
 			default:
@@ -3439,7 +3406,7 @@ const char * STDCALL UriParserState::ParsePctSubUnres(const char * first, const 
 			case '*': case ',': case ';': case '\'': case '+':
 			case '=': case '-': case '.': case '_': case '~':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA: return first+1;
+			case URI_SET_ASCII_ALPHA: return first+1;
 			default: return StopSyntax(first);
 		}
 	}
@@ -3476,7 +3443,7 @@ const char * STDCALL UriParserState::ParseQueryFrag(const char * first, const ch
 			case ':': case ';': case '@': case '\'': case '_':
 			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				{
 					const char * const afterPchar = ParsePchar(first, afterLast);
 					p_ret = afterPchar ? ParseQueryFrag(afterPchar, afterLast) : 0; // @recursion
@@ -3509,19 +3476,28 @@ const char * STDCALL UriParserState::ParseSegment(const char * first, const char
 			case ':': case ';': case '@': case '\'': case '_':
 			case '~': case '+': case '=':
 			case URI_SET_DIGIT:
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				{
-					const char * const afterPchar = ParsePchar(first, afterLast);
-					p_ret = afterPchar ? ParseSegment(afterPchar, afterLast) : 0; // @recursion
+					const char * after_pchar = ParsePchar(first, afterLast);
+					p_ret = after_pchar ? ParseSegment(after_pchar, afterLast) : 0; // @recursion
 				}
 				break;
 			default:
-				if(IsLetter1251(*first)) {
-					const char * const afterPchar = ParsePchar(first, afterLast);
-					p_ret = afterPchar ? ParseSegment(afterPchar, afterLast) : 0; // @recursion
+				{
+					// @v11.8.5 {
+					const uint utf8len = SUnicode::GetUtf8Len(reinterpret_cast<const uint8 *>(first));
+					if(utf8len > 0) {
+						p_ret = ParseSegment(first + utf8len, afterLast); // @recursion
+					}
+					// } @v11.8.5
+					else if(IsLetter1251(*first)) {
+						const char * after_pchar = ParsePchar(first, afterLast);
+						p_ret = after_pchar ? ParseSegment(after_pchar, afterLast) : 0; // @recursion
+					}
+					else {
+						p_ret = first;
+					}
 				}
-				else
-					p_ret = first;
 				break;
 		}
 	}
@@ -3583,7 +3559,7 @@ const char * STDCALL UriParserState::ParseSegmentNzNcOrScheme2(const char * pFir
 	    case '.':
 	    case '+':
 	    case '-':
-	    case URI_SET_ALPHA:
+	    case URI_SET_ASCII_ALPHA:
 	    case URI_SET_DIGIT:
 			return ParseSegmentNzNcOrScheme2(pFirst+1, afterLast); // @recursion
 	    case '%':
@@ -3652,7 +3628,7 @@ const char * STDCALL UriParserState::ParseUriReference(const char * first, const
 		p_ret = afterLast;
 	else {
 		switch(*first) {
-			case URI_SET_ALPHA:
+			case URI_SET_ASCII_ALPHA:
 				P_Uri->Scheme.P_First = first; // SCHEME BEGIN 
 				p_ret = ParseSegmentNzNcOrScheme2(first+1, afterLast);
 				break;
@@ -3854,14 +3830,14 @@ void UriUri::Destroy()
 
 int Uri_TESTING_ONLY_ParseIpSix(const char * pText)
 {
-	UriUri uri;
-	UriParserState parser;
 	const char * const p_after_ip_six = pText + sstrlen(pText);
 	const char * res;
+	//UriResetUri(&uri);
+	//parser.P_Uri = &uri;
+	UriUri uri;
+	uri.HostData.ip6 = static_cast<UriUri::UriIp6 *>(SAlloc::M(1*sizeof(UriUri::UriIp6)));
+	UriParserState parser(&uri);
 	parser.Reset();
-	UriResetUri(&uri);
-	parser.P_Uri = &uri;
-	parser.P_Uri->HostData.ip6 = static_cast<UriUri::UriIp6 *>(SAlloc::M(1*sizeof(UriUri::UriIp6)));
 	res = parser.ParseIPv6address2(pText, p_after_ip_six);
 	uri.Destroy();
 	return BIN(res == p_after_ip_six);
@@ -3878,4 +3854,4 @@ int Uri_TESTING_ONLY_ParseIpFour(const char * pText)
 #undef URI_SET_HEX_LETTER_UPPER
 #undef URI_SET_HEX_LETTER_LOWER
 #undef URI_SET_HEXDIG
-#undef URI_SET_ALPHA
+#undef URI_SET_ASCII_ALPHA

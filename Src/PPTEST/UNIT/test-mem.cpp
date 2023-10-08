@@ -346,3 +346,195 @@ SLTEST_R(memset)
 	}
 	return CurrentStatus;
 }
+//
+//
+//
+SLTEST_R(SBuffer)
+{
+	{
+		SString temp_buf;
+		{
+			SBuffer sbuf;
+			long   lval;
+			double rval;
+			{
+				SLCHECK_Z(sbuf.GetAvailableSize());
+				SLCHECK_Z(sbuf.GetBuf());
+				SLCHECK_Z(sbuf.GetWrOffs());
+				SLCHECK_Z(sbuf.GetRdOffs());
+			}
+			{
+				sbuf.Write(1L);
+				sbuf.Write(17.0);
+				SLCHECK_EQ(sbuf.GetWrOffs(), sizeof(1L)+sizeof(17.0));
+				SLCHECK_Z(sbuf.GetRdOffs());
+				SLCHECK_NZ(sbuf.Read(lval));
+				SLCHECK_NZ(sbuf.Read(rval));
+				SLCHECK_EQ(lval, 1L);
+				SLCHECK_EQ(rval, 17.0);
+				SLCHECK_EQ(sbuf.GetRdOffs(), sizeof(lval)+sizeof(rval));
+			}
+			{
+				sbuf.Z(); // Сбрасываем буфер - все должно быть теперь по-нулям (указатель на буфер - нет: не нулевой)
+				SLCHECK_Z(sbuf.GetAvailableSize());
+				SLCHECK_Z(sbuf.GetWrOffs());
+				SLCHECK_Z(sbuf.GetRdOffs());
+			}
+			{
+				const char * p_terminated_string = "Некоторая строка у которой есть терминатор";
+				const char * p_terminated_string_part2 = "хвост строки с внутренним терминатором";
+				const char * pp_term_list[] = { "\xD", "\xD\xA", "\xA", "перекинь копыто через забор" };
+				for(uint i = 0; i < SIZEOFARRAY(pp_term_list); i++) {
+					const char * p_term = pp_term_list[i];
+					temp_buf.Z().Cat(p_terminated_string).Cat(p_term).Cat(p_terminated_string_part2);
+					sbuf.Z();
+					sbuf.Write(temp_buf.cptr(), temp_buf.Len());
+					sbuf.ReadTermStr(p_term, temp_buf);
+					SLCHECK_EQ(sbuf.GetRdOffs(), sstrlen(p_terminated_string)+sstrlen(p_term));
+					SLCHECK_EQ(sbuf.GetAvailableSize(), sstrlen(p_terminated_string_part2));
+					SLCHECK_EQ(sbuf.GetAvailableSize(), sbuf.GetAvailableSize());
+					SLCHECK_Z(temp_buf.CmpSuffix(p_term, 0));
+					temp_buf.Trim(temp_buf.Len()-strlen(p_term));
+					SLCHECK_EQ(temp_buf, p_terminated_string);
+				}
+			}
+		}
+		{
+			SString js_file_name;
+			SString js_text;
+			js_file_name = this->GetSuiteEntry()->InPath;
+			//D:\Papyrus\Src\PPTEST\DATA\json\bigjson.json 
+			js_file_name.SetLastSlash().Cat("json").SetLastSlash().Cat("bigjson.json");
+			if(fileExists(js_file_name)) {
+				SFile f_in(js_file_name, SFile::mRead);
+				if(f_in.IsValid()) {
+					STempBuffer rb(SKILOBYTE(512));
+					size_t rs = 0;
+					while(f_in.Read(rb, rb.GetSize(), &rs)) {
+						js_text.CatN(rb.cptr(), rs);
+						if(rs < rb.GetSize())
+							break;
+					}
+					SJson * p_js = SJson::Parse(js_text);
+					if(p_js) {
+						SBinarySet set;
+						// 1, 2, 3, 4, 5, 6
+						const char * p_text_chunks[] = { "one", "two", "three", "four", "five" };
+						{
+							SBinarySet::DeflateStrategy ds(512);
+							for(uint i = 0; i < SIZEOFARRAY(p_text_chunks); i++) {
+								const char * p_text = p_text_chunks[i];
+								SLCHECK_NZ(set.Put(i+1, p_text, sstrlen(p_text)));
+							}
+							SLCHECK_NZ(set.Put(SIZEOFARRAY(p_text_chunks)+1, js_text, js_text.Len(), &ds));
+						}
+						{
+							SBinaryChunk chunk;
+							for(uint i = 0; i < SIZEOFARRAY(p_text_chunks); i++) {
+								SLCHECK_NZ(set.Get(i+1, &chunk));
+								SLCHECK_NZ(chunk.Len());
+								temp_buf.Z().CatN(static_cast<const char *>(chunk.PtrC()), chunk.Len());
+								SLCHECK_EQ(temp_buf, p_text_chunks[i]);
+							}
+							SLCHECK_NZ(set.Get(SIZEOFARRAY(p_text_chunks)+1, &chunk));
+							temp_buf.Z().CatN(static_cast<const char *>(chunk.PtrC()), chunk.Len());
+							SLCHECK_EQ(temp_buf, js_text);
+						}
+						ZDELETE(p_js); // @v11.3.11 @fix
+					}
+				}
+			}
+		}
+	}
+	{
+		//
+		// Проверено отключение блокировок в SBufferPipe - моментальное исключение по доступу к памяти
+		//
+		static const char p_eot_string[] = "end of transmission!";
+		int    ok = 1;
+		SFile file;
+		SString in_file_name(MakeInputFilePath("binfile"));
+		SString out_file_name(MakeOutputFilePath("bufferpipe-result"));
+		SBufferPipe pipe;
+
+		class ThreadReader : public SlThread {
+		public:
+			ThreadReader(SBufferPipe * pPipe, const char * pOutFileName) : SlThread(), P_Pipe(pPipe), OutFileName(pOutFileName)
+			{
+			}
+		private:
+			virtual void Run()
+			{
+				assert(SLS.GetConstTLA().Id == GetThreadID());
+				uint64 total_rd = 0;
+				uint64 total_wr = 0;
+				SFile f_out(OutFileName, SFile::mWrite|SFile::mBinary);
+				if(f_out.IsValid()) {
+					uint8  temp_buf[1024];
+					while(1) {
+						size_t actual_size = P_Pipe->Get(temp_buf, sizeof(temp_buf));
+						total_rd += actual_size;
+						if(actual_size) {
+							f_out.Write(temp_buf, actual_size);
+							total_wr += actual_size;
+						}
+						else if(P_Pipe->GetStatus() & SBufferPipe::statusEOT)
+							break;
+					};
+				}
+			}
+			SString OutFileName;
+			SBufferPipe * P_Pipe;
+		};
+		class ThreadWriter : public SlThread {
+		public:
+			ThreadWriter(SBufferPipe * pPipe, const char * pInFileName) : SlThread(), P_Pipe(pPipe), InFileName(pInFileName)
+			{
+			}
+		private:
+			virtual void Run()
+			{
+				assert(SLS.GetConstTLA().Id == GetThreadID());
+				uint64 total_rd = 0;
+				uint64 total_wr = 0;
+				SFile f_in(InFileName, SFile::mRead|SFile::mBinary);
+				if(f_in.IsValid()) {
+					uint8  temp_buf[1024];
+					size_t actual_sz = 0;
+					do {
+						size_t sz = SLS.GetTLA().Rg.GetUniformInt(sizeof(temp_buf));
+						assert(sz >= 0 && sz < sizeof(temp_buf));
+						SETIFZ(sz, 1);
+						f_in.Read(temp_buf, sz, &actual_sz);
+						total_rd += actual_sz;
+						if(actual_sz) {
+							P_Pipe->Put(temp_buf, actual_sz);
+							total_wr += actual_sz;
+						}
+					} while(actual_sz);
+					P_Pipe->SetStatus(SBufferPipe::statusEOT, 1);
+				}
+			}
+			SString InFileName;
+			SBufferPipe * P_Pipe;
+		};
+		for(uint i = 0; i < 4; i++) {
+			SFile::Remove(out_file_name);
+			pipe.Reset();
+			//
+			HANDLE objs_to_wait[8];
+			MEMSZERO(objs_to_wait);
+			size_t objs_to_wait_count = 0;
+			ThreadWriter * p_thr_wrr = new ThreadWriter(&pipe, in_file_name);
+			ThreadReader * p_thr_rdr = new ThreadReader(&pipe, out_file_name);
+			p_thr_wrr->Start();
+			objs_to_wait[objs_to_wait_count++] = *p_thr_wrr;
+			p_thr_rdr->Start();
+			objs_to_wait[objs_to_wait_count++] = *p_thr_rdr;
+			WaitForMultipleObjects(objs_to_wait_count, objs_to_wait, TRUE, INFINITE);
+			SLCHECK_LT(0, SFile::Compare(in_file_name, out_file_name, 0));
+			pipe.Reset();
+		}
+	}
+	return CurrentStatus;
+}

@@ -164,7 +164,7 @@ static int32_t u_printf_char_handler(const u_printf_stream_handler * handler, vo
 	(void)formatBundle;
 	char16_t s[U16_MAX_LENGTH+1];
 	int32_t len = 1, written;
-	unsigned char arg = (unsigned char)(args[0].int64Value);
+	uchar arg = (uchar)(args[0].int64Value);
 	/* convert from default codepage to Unicode */
 	ufmt_defaultCPToUnicode((const char *)&arg, 2, s, SIZEOFARRAYi(s));
 	/* Remember that this may be an MBCS character */

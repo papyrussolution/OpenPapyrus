@@ -765,6 +765,7 @@ library PapyrusInterfaceLib {
 		HRESULT __stdcall GetSupplInterchangeLocList([in] long supplID, [out,retval] ILongList ** pRet);
 		HRESULT __stdcall IsIntrOp([in] long opID, [out,retval] long * pRet);
 		HRESULT __stdcall IsExpendOp([in] long opID, [out,retval] long * pRet);
+		HRESULT __stdcall UniformFileTransmW([in] BSTR srcUrl, [in] BSTR destUrl, [in] long flags, [in] IFileFormat iff, [in] BSTR accsName, [in] BSTR accsPassw, [out,retval] long * pRet);
 	};
 
 	typedef [v1_enum] enum _PpyTagReserved {

@@ -8,6 +8,8 @@
 #include <sddl.h> // SlProcess
 #include <AccCtrl.h>
 #include <AclAPI.h>
+#include <NTSecAPI.h>
+#include <strsafe.h>
 //
 // 
 //
@@ -206,6 +208,159 @@ static BOOL LookupPrivilegeValueEx(const wchar_t * pSystemName, const wchar_t * 
 	return ok;
 }
 
+//
+// http://msdn.microsoft.com/en-us/library/ms722492(v=VS.85) InitLsaString
+// http://msdn.microsoft.com/en-us/library/ms721874(v=vs.85).aspx
+// http://msdn.microsoft.com/en-us/library/ms721863(v=vs.85).aspx
+//
+bool SlProcess::AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPrivilegeName) 
+{
+	NTSTATUS ret = 0;
+	LSA_OBJECT_ATTRIBUTES obj_attr;//ObjectAttributes;
+	LSA_HANDLE h_policy = NULL;
+	//PSID Sid = NULL;
+	LSA_UNICODE_STRING privilege[1];
+	size_t priv_name_len = 0;
+	TOKEN_USER * p_cur_user_sid = NULL;
+	DWORD cur_user_sid_len = 0;
+	// get current user SID from the token
+	if(!GetTokenInformation(token, TokenUser, NULL, 0, &cur_user_sid_len) && GetLastError()!=ERROR_INSUFFICIENT_BUFFER) {
+		wprintf(L"GetTokenInformation (size check) failed - 0x%08x\n", GetLastError());
+		goto cleanup;
+	}
+	p_cur_user_sid = (TOKEN_USER *)HeapAlloc(GetProcessHeap(), 0, cur_user_sid_len);
+	if(!p_cur_user_sid) {
+		wprintf(L"HeapAlloc failed - 0x%08x\n", GetLastError());
+		goto cleanup;
+	}
+	if(!GetTokenInformation(token, TokenUser, p_cur_user_sid, cur_user_sid_len, &cur_user_sid_len)) {
+		wprintf(L"GetTokenInformation failed - 0x%08x\n", GetLastError());
+		goto cleanup;
+	}
+	priv_name_len = StringCchLength(pPrivilegeName, MAX_PRIVNAME, &priv_name_len); // ??? StringCchLength возвращает HRESULT
+	privilege[0].Buffer = (PWCHAR)pPrivilegeName;
+	privilege[0].Length = static_cast<ushort>(priv_name_len * sizeof(WCHAR));
+	privilege[0].MaximumLength = static_cast<ushort>((priv_name_len+1)*sizeof(WCHAR));
+	ZeroMemory(&obj_attr, sizeof(obj_attr));
+	ret = LsaOpenPolicy(NULL, &obj_attr, POLICY_ALL_ACCESS, &h_policy);
+	/*
+		SCESTATUS_SUCCESS 	The function succeeded.
+		SCESTATUS_INVALID_PARAMETER 	One of the parameters passed to the function was not valid.
+		SCESTATUS_RECORD_NOT_FOUND 	The specified record was not found in the security database.
+		SCESTATUS_INVALID_DATA 	The function failed because some data was not valid.
+		SCESTATUS_OBJECT_EXISTS 	The object already exists.
+		SCESTATUS_BUFFER_TOO_SMALL 	The buffer passed into the function to receive data is not large enough to receive all the data.
+		SCESTATUS_PROFILE_NOT_FOUND 	The specified profile was not found.
+		SCESTATUS_BAD_FORMAT 	The format is not valid.
+		SCESTATUS_NOT_ENOUGH_RESOURCE 	There is insufficient memory.
+		SCESTATUS_ACCESS_DENIED 	The caller does not have sufficient privileges to complete this action.
+		SCESTATUS_CANT_DELETE 	The function cannot delete the specified item.
+		SCESTATUS_PREFIX_OVERFLOW 	A prefix overflow occurred.
+		SCESTATUS_OTHER_ERROR 	An unspecified error has occurred.
+		SCESTATUS_ALREADY_RUNNING 	The service is already running.
+		SCESTATUS_SERVICE_NOT_SUPPORT 	The specified service is not supported.
+		SCESTATUS_MOD_NOT_FOUND 	An attachment engine DLL listed in the registry either cannot be found or cannot be loaded.
+		SCESTATUS_EXCEPTION_IN_SERVER 	An exception occurred in the server.
+	*/
+	if(ret != 0/*STATUS_SUCCESS*/) {
+		ulong wr = LsaNtStatusToWinError(ret);
+		wprintf(L"LsaOpenPolicy failed - 0x%08x\n", LsaNtStatusToWinError(ret));
+		goto cleanup;
+	}
+	StringCchLength(pPrivilegeName, MAX_PRIVNAME, &priv_name_len);
+	privilege[0].Buffer = (PWCHAR)pPrivilegeName;
+	privilege[0].Length = static_cast<ushort>(priv_name_len * sizeof(WCHAR));
+	privilege[0].MaximumLength = static_cast<ushort>((priv_name_len + 1)*sizeof(WCHAR));
+	ret = LsaAddAccountRights(h_policy, p_cur_user_sid->User.Sid, privilege, 1);
+	if(ret != 0/*STATUS_SUCCESS*/) {
+		wprintf(L"LsaAddAccountRights failed - 0x%08x\n", LsaNtStatusToWinError(ret));
+		goto cleanup;
+	}
+	wprintf(L"Privilege '%s' was assigned successfully.\n", pPrivilegeName);
+	wprintf(L"To apply it to the token, re-log on the system.\n");
+cleanup:
+	if(h_policy) 
+		LsaClose(h_policy);
+	if(p_cur_user_sid) 
+		HeapFree(GetProcessHeap(), 0, p_cur_user_sid);
+	return (ret == 0/*STATUS_SUCCESS*/);
+}
+
+// example function
+static void EnumPrivileges(SPtrHandle token, bool all) 
+{
+	bool  ret = false;
+	DWORD token_len = 0;
+	TOKEN_PRIVILEGES * p_token_priv = NULL;
+	DWORD privilege_name_len = 256;
+	DWORD display_name_len = 256;
+	wchar_t * p_privilege_name = NULL;
+	wchar_t * p_display_name = NULL;
+	const wchar_t * p_symbol_name = NULL;
+	// LUID = Locally Unique Identifier
+	wprintf(L"-------------------------------------------------------------------------------------------------------\n");
+	wprintf(L"   LUID                Symbol                           PrivilegeName                    DisplayName\n");
+	wprintf(L"-------------------------------------------------------------------------------------------------------\n");
+	if(!all) {
+		if(!GetTokenInformation(token, TokenPrivileges, NULL, 0, &token_len) && GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+			wprintf(L"GetTokenInformation (size check) failed - 0x%08x\n", GetLastError());
+			goto cleanup;
+		}
+		p_token_priv = (TOKEN_PRIVILEGES *)HeapAlloc(GetProcessHeap(), 0, token_len);
+		if(!p_token_priv) {
+			wprintf(L"HeapAlloc failed - 0x%08x\n", GetLastError());
+			goto cleanup;
+		}
+		if(!GetTokenInformation(token, TokenPrivileges, p_token_priv, token_len, &token_len) ) {
+			wprintf(L"GetTokenInformation failed - 0x%08x\n", GetLastError());
+			goto cleanup;
+		}
+	}
+	else {
+		p_token_priv = (TOKEN_PRIVILEGES *)HeapAlloc(GetProcessHeap(), 0, sizeof(DWORD)+sizeof(LUID_AND_ATTRIBUTES)*MAX_PRIVSCAN);
+		if(!p_token_priv) {
+			wprintf(L"HeapAlloc failed - 0x%08x\n", GetLastError());
+			goto cleanup;
+		}
+		p_token_priv->PrivilegeCount = MAX_PRIVSCAN;
+		for(LONGLONG i = 0; i < MAX_PRIVSCAN; ++i) {
+			p_token_priv->Privileges[i].Luid = *(PLUID)&i;
+			p_token_priv->Privileges[i].Attributes = 0;
+		}
+	}
+	for(DWORD i = 0; i < p_token_priv->PrivilegeCount; ++i) {
+		do {
+			delete [] p_privilege_name;
+			delete [] p_display_name;
+			p_privilege_name = new wchar_t[privilege_name_len];
+			p_display_name = new wchar_t[display_name_len];
+			ret = _LookupPrivilegeName(NULL, &p_token_priv->Privileges[i].Luid, &p_symbol_name, p_privilege_name, &privilege_name_len, p_display_name, &display_name_len, all);
+		} while(!ret && GetLastError()==ERROR_INSUFFICIENT_BUFFER);
+		if(ret) {
+			wchar_t mark = 0;
+			if(all) {
+				/*
+					// >0 Enabled
+					// =0 Disabled
+					// <0 Not assigned
+				*/
+				//LONG l = 0;
+				int r = SlProcess::CheckAccessTokenPrivilege(token, p_privilege_name);
+				mark = (r == SlProcess::privrDisabled) ? (mark = 'X') : ((r == SlProcess::privrEnabled) ? (mark = 'O') : '-');
+			}
+			else {
+				mark = p_token_priv->Privileges[i].Attributes&SE_PRIVILEGE_ENABLED ? L'O' : L'X';
+			}
+			wprintf(L" %c 0x%08x`%08x %-32s %-32s %s\n", mark, p_token_priv->Privileges[i].Luid.HighPart,
+			    p_token_priv->Privileges[i].Luid.LowPart, p_symbol_name, p_privilege_name, p_display_name);
+		}
+	}
+cleanup:
+	delete [] p_privilege_name;
+	delete [] p_display_name;
+	if(p_token_priv) 
+		HeapFree(GetProcessHeap(), 0, p_token_priv);
+}
 
 SlProcess::SlProcess() : Flags(0), P_AppC(0)
 {
@@ -510,6 +665,8 @@ static const LAssoc CreateProcessFlagsAssoc[] = {
 	{ SlProcess::fInheritParentAffinity,      INHERIT_PARENT_AFFINITY },
 };
 
+int __ParseWindowsUserForDomain(const wchar_t * pUserIn, SStringU & rUserName, SStringU & rDomainName); // @prototype(winprofile.cpp)
+
 int SlProcess::Run(SlProcess::Result * pResult)
 {
 	int    ok = 0;
@@ -608,44 +765,114 @@ int SlProcess::Run(SlProcess::Result * pResult)
 			}
 			//
 			if(UserName.NotEmpty()) {
-				
-				SSystem::WinUserBlock wub;
-				wub.UserName = UserName;
-				wub.Password = UserPw;
-				uint   guhf = 0;
-				BOOL   loaded_profile = FALSE;
-				HANDLE h_cmd_pipe = 0;
-				//PROFILEINFO profile_info;
-				SPtrHandle caller_token = SlProcess::OpenCurrentAccessToken(TOKEN_ALL_ACCESS);
-				//bool guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);
-				/*
-				CheckPrivilege(CallerToken, SE_INCREASE_QUOTA_NAME, &PrivCheck);
-				if(PrivCheck<0)
-					wprintf(L"CreateProcessAsUser requires %s.  Check the user's privileges.\n", SE_INCREASE_QUOTA_NAME);
-				CheckPrivilege(CallerToken, SE_ASSIGNPRIMARYTOKEN_NAME, &PrivCheck);
-				if(PrivCheck<0)
-					wprintf(L"CreateProcessAsUser requires %s.  Check the user's privileges.\n", SE_ASSIGNPRIMARYTOKEN_NAME);
-				*/
-				int privr = SlProcess::CheckAccessTokenPrivilege(caller_token, SE_INCREASE_QUOTA_NAME);
-				if(oneof2(privr, privrNotAssigned, privrDisabled)) {
-					if(EnableAccesTokenPrivilege(caller_token, SE_INCREASE_QUOTA_NAME, true)) {
-						privr = SlProcess::CheckAccessTokenPrivilege(caller_token, SE_INCREASE_QUOTA_NAME);
+				enum {
+					runprocessmAsUser = 1,
+					runprocessmWithToken,
+					runprocessmWithLogon,
+				};
+				int method = runprocessmWithLogon;
+				if(method == runprocessmWithLogon) {
+					uint   logon_flags = 0;
+					if(Flags & fLogonWithProfile)
+						logon_flags |= LOGON_WITH_PROFILE;
+					SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+					SStringU & r_domain = SLS.AcquireRvlStrU();
+					SStringU & r_user = SLS.AcquireRvlStrU();
+					SStringU & r_pw = SLS.AcquireRvlStrU();
+					r_pw = UserPw;
+					//
+					r_temp_buf_u = UserName;
+					THROW(r_temp_buf_u.NotEmpty());
+					__ParseWindowsUserForDomain(r_temp_buf_u, r_user, r_domain);
+					create_proc_result = ::CreateProcessWithLogonW(r_user, r_domain, r_pw, logon_flags, p_app_name, p_cmd_line, 
+						/*p_prc_attr_list, p_thread_attr_list, inherit_handles,*/
+						creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+				}
+				else if(method == runprocessmWithToken) {
+					uint   logon_flags = 0;
+					if(Flags & fLogonWithProfile)
+						logon_flags |= LOGON_WITH_PROFILE;
+					SSystem::WinUserBlock wub;
+					wub.UserName = UserName;
+					wub.Password = UserPw;
+					uint   guhf = 0;
+					BOOL   loaded_profile = FALSE;
+					HANDLE h_cmd_pipe = 0;
+					//PROFILEINFO profile_info;
+					SPtrHandle caller_token = SlProcess::OpenCurrentAccessToken(TOKEN_ALL_ACCESS);
+					//bool guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);
+					int privr = 0;
+					{
+						const wchar_t * p_priv_symb = SE_IMPERSONATE_NAME;
+						privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+						if(privr == privrNotAssigned) {
+							if(SlProcess::AddPrivilegeToAccessToken(caller_token, p_priv_symb)) {
+								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+							}
+						}
+						if(privr == privrDisabled) {
+							if(EnableAccesTokenPrivilege(caller_token, p_priv_symb, true)) {
+								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+							}
+						}
+					}
+					SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, SSystem::logonprvDEFAULT);
+					if(callee_token) {
+						BOOL iplour = ImpersonateLoggedOnUser(callee_token);
+						if(iplour) {
+							create_proc_result = ::CreateProcessWithTokenW(callee_token, logon_flags, p_app_name, p_cmd_line, 
+								/*p_prc_attr_list, p_thread_attr_list, inherit_handles,*/
+								creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+						}
 					}
 				}
-				privr = SlProcess::CheckAccessTokenPrivilege(caller_token, SE_ASSIGNPRIMARYTOKEN_NAME);
-				if(oneof2(privr, privrNotAssigned, privrDisabled)) {
-					if(EnableAccesTokenPrivilege(caller_token, SE_ASSIGNPRIMARYTOKEN_NAME, true)) {
-						privr = SlProcess::CheckAccessTokenPrivilege(caller_token, SE_ASSIGNPRIMARYTOKEN_NAME);
+				else if(method == runprocessmAsUser) {
+					SSystem::WinUserBlock wub;
+					wub.UserName = UserName;
+					wub.Password = UserPw;
+					uint   guhf = 0;
+					BOOL   loaded_profile = FALSE;
+					HANDLE h_cmd_pipe = 0;
+					//PROFILEINFO profile_info;
+					SPtrHandle caller_token = SlProcess::OpenCurrentAccessToken(TOKEN_ALL_ACCESS);
+					//bool guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);
+					int privr = 0;
+					{
+						const wchar_t * p_priv_symb = SE_INCREASE_QUOTA_NAME;
+						privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+						if(privr == privrNotAssigned) {
+							if(SlProcess::AddPrivilegeToAccessToken(caller_token, p_priv_symb)) {
+								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+							}
+						}
+						if(privr == privrDisabled) {
+							if(EnableAccesTokenPrivilege(caller_token, p_priv_symb, true)) {
+								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+							}
+						}
 					}
-				}
-				//LogonUserW(UserName, NULL, UserPw, LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT, &CalleeToken);
-				SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, SSystem::logonprvDEFAULT);
-				if(callee_token) {
-					//callee_token = wub.H_User_;
-					BOOL iplour = ImpersonateLoggedOnUser(callee_token);
-					if(iplour) {
-						create_proc_result = ::CreateProcessAsUserW(callee_token, p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, 
-							creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+					{
+						const wchar_t * p_priv_symb = SE_ASSIGNPRIMARYTOKEN_NAME;
+						privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+						if(privr == privrNotAssigned) {
+							if(SlProcess::AddPrivilegeToAccessToken(caller_token, p_priv_symb)) {
+								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+							}
+						}
+						if(privr == privrDisabled) {
+							if(EnableAccesTokenPrivilege(caller_token, p_priv_symb, true)) {
+								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+							}
+						}
+					}
+					SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, SSystem::logonprvDEFAULT);
+					if(callee_token) {
+						//callee_token = wub.H_User_;
+						BOOL iplour = ImpersonateLoggedOnUser(callee_token);
+						if(iplour) {
+							create_proc_result = ::CreateProcessAsUserW(callee_token, p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, 
+								creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+						}
 					}
 				}
 			}

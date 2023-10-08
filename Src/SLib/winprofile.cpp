@@ -13,7 +13,7 @@
 //   1 - user name only
 //   2 - user name and domain
 //
-static int GetUserDomain(const wchar_t * pUserIn, SStringU & rUserName, SStringU & rDomainName)
+int __ParseWindowsUserForDomain(const wchar_t * pUserIn, SStringU & rUserName, SStringU & rDomainName)
 {
 	rUserName.Z();
 	rDomainName.Z();
@@ -96,7 +96,7 @@ int GetTokenUserSID(HANDLE hToken, SStringU & rUserName)
 	r_temp_buf_u = pUserName;
 	THROW(r_temp_buf_u.NotEmpty());
 	if(isempty(pDomain)) {
-		GetUserDomain(r_temp_buf_u, r_user, r_domain);
+		__ParseWindowsUserForDomain(r_temp_buf_u, r_user, r_domain);
 	}
 	else {
 		r_domain = pDomain;
@@ -134,7 +134,7 @@ int GetTokenUserSID(HANDLE hToken, SStringU & rUserName)
 	THROW(r_temp_buf.NotEmpty() && r_temp_buf.IsLegalUtf8());
 	if(isempty(pDomainUtf8)) {
 		r_temp_buf_u.CopyFromUtf8(r_temp_buf);
-		GetUserDomain(r_temp_buf_u, r_user, r_domain);
+		__ParseWindowsUserForDomain(r_temp_buf_u, r_user, r_domain);
 	}
 	else {
 		THROW(r_domain.CopyFromUtf8R(pDomainUtf8, sstrlen(pDomainUtf8), 0));
@@ -268,7 +268,7 @@ bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivilegeStr/* = NULL */)
 		//not Local System, so either as specified user, or as current user
 		if(rSettings.UserName.NotEmpty()) {
 			SStringU user, domain;
-			GetUserDomain(rSettings.UserName, user, domain);
+			__ParseWindowsUserForDomain(rSettings.UserName, user, domain);
 			HANDLE h_logon_user = 0;
 			BOOL is_logged_id = ::LogonUser(user, domain.IsEmpty() ? NULL : domain, rSettings.Password, LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_WINNT50, &h_logon_user);
 			if(is_logged_id)

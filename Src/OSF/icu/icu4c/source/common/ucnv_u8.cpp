@@ -1,24 +1,15 @@
+// ucnv_u8.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2002-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  ucnv_u8.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2002jul01
- *   created by: Markus W. Scherer
- *
- *   UTF-8 converter implementation. Used to be in ucnv_utf.c.
- *
- *   Also, CESU-8 implementation, see UTR 26.
- *   The CESU-8 converter uses all the same functions as the
- *   UTF-8 converter, with a branch for converting supplementary code points.
- */
+// Copyright (C) 2002-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002jul01
+// created by: Markus W. Scherer
+// UTF-8 converter implementation. Used to be in ucnv_utf.c.
+// Also, CESU-8 implementation, see UTR 26.
+// The CESU-8 converter uses all the same functions as the
+// UTF-8 converter, with a branch for converting supplementary code points.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -60,11 +51,11 @@ static void U_CALLCONV ucnv_toUnicode_UTF8(UConverterToUnicodeArgs * args,
     UErrorCode * err)
 {
 	UConverter * cnv = args->converter;
-	const unsigned char * mySource = (unsigned char *)args->source;
+	const uchar * mySource = (uchar *)args->source;
 	char16_t * myTarget = args->target;
-	const unsigned char * sourceLimit = (unsigned char *)args->sourceLimit;
+	const uchar * sourceLimit = (uchar *)args->sourceLimit;
 	const char16_t * targetLimit = args->targetLimit;
-	unsigned char * toUBytes = cnv->toUBytes;
+	uchar * toUBytes = cnv->toUBytes;
 	bool isCESU8 = hasCESU8Data(cnv);
 	uint32_t ch, ch2 = 0;
 	int32_t i, inBytes;
@@ -160,13 +151,13 @@ static void U_CALLCONV ucnv_toUnicode_UTF8_OFFSETS_LOGIC(UConverterToUnicodeArgs
     UErrorCode * err)
 {
 	UConverter * cnv = args->converter;
-	const unsigned char * mySource = (unsigned char *)args->source;
+	const uchar * mySource = (uchar *)args->source;
 	char16_t * myTarget = args->target;
 	int32_t * myOffsets = args->offsets;
 	int32_t offsetNum = 0;
-	const unsigned char * sourceLimit = (unsigned char *)args->sourceLimit;
+	const uchar * sourceLimit = (uchar *)args->sourceLimit;
 	const char16_t * targetLimit = args->targetLimit;
-	unsigned char * toUBytes = cnv->toUBytes;
+	uchar * toUBytes = cnv->toUBytes;
 	bool isCESU8 = hasCESU8Data(cnv);
 	uint32_t ch, ch2 = 0;
 	int32_t i, inBytes;

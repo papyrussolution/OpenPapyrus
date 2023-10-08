@@ -1505,6 +1505,7 @@
 #define PPCMD_STYLOQCOMMANDS                        1349
 #define PPCMD_PROCESSUED                            1350
 #define PPCMD_PROCESSBOMESTIMATEDVALUES             1351
+#define PPCMD_IMPORTCCHECKS                         1352
 //
 // PPJOB definitions
 //

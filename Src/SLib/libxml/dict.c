@@ -103,7 +103,7 @@ static int xmlDictInitialized = 0; // Whether the dictionary mutex was initializ
  * Returns 0 if initialization was already done, and 1 if that
  * call led to the initialization
  */
-// @v10.9.0 (depricated) int xmlInitializeDict() { return 0; }
+// @v10.9.0 (deprecated) int xmlInitializeDict() { return 0; }
 /**
  * __xmlInitializeDict:
  *

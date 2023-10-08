@@ -588,6 +588,8 @@ int SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 			//
 			// Проверка на отсутствие дублирования по ключу {CashID; Dt; Tm}
 			//
+			P_CsObj->P_Cc->AdjustRecTime(cc_rec); // @v11.8.5
+			/* @v11.8.5
 			CCheckTbl::Key1 cck1;
 			MEMSZERO(cck1);
 			cck1.Dt = cc_rec.Dt;
@@ -596,7 +598,7 @@ int SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 			while(P_CsObj->P_Cc->search(1, &cck1, spEq)) {
 				cc_rec.Tm.v++;
 				cck1.Tm = cc_rec.Tm;
-			}
+			}*/
 		}
 		THROW(P_CsObj->P_Cc->Add(&cc_id, &cc_rec, 0));
 		THROW(tra.Commit());

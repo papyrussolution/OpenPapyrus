@@ -1,5 +1,5 @@
 // PROJECT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1798,7 +1798,7 @@ int PPObjPrjTask::ImportFromVCal()
 				PPWaitStop();
 			}
 		}
-#if 0 // @v11.0.3 @depricated {
+#if 0 // @v11.0.3 @deprecated {
 		{
 			VCalendar vcal;
 			PPWaitStart();
@@ -1856,7 +1856,7 @@ int PPObjPrjTask::ImportFromVCal()
 			}
 			PPWaitStop();
 		}
-#endif // } 0 @v11.0.3 @depricated
+#endif // } 0 @v11.0.3 @deprecated
 	}
 	CATCHZOKPPERR
 	delete p_dlg;

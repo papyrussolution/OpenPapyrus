@@ -6186,7 +6186,13 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 													n_prp.PutInner(_xmlnst_bs_guid(), temp_buf);
 												}
 												n_vc.PutInner(_xmlnst_vd("cargoInspected"), "true");
-												n_vc.PutInner(_xmlnst_vd("cargoExpertized"), /*"false"*/"VSERAW"); // @v11.6.6 VSEFULL-->VSERAW // @v11.8.4 @construction
+												{
+													// @v11.8.5 символ результата экспертизы теперь берется из сертификата (ранее был константой)
+													SXml::WNode n_auth(srb, _xmlnst_vd("authentication"));
+													const char * p_ce_symb = SIntToSymbTab_GetSymbPtr(
+														VetAuthCargoExpertized_SymbTab, SIZEOFARRAY(VetAuthCargoExpertized_SymbTab), r_org_doc.Authentication.CargoExpertized);
+													n_vc.PutInner(_xmlnst_vd("cargoExpertized"), p_ce_symb ? p_ce_symb : "VSERAW"); // @v11.6.6 VSEFULL-->VSERAW // @v11.8.5
+												}
 												PPLoadText(PPTXT_VETISLOCATIONPROSPERITYISOK, temp_buf);
 												temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 												n_vc.PutInner(_xmlnst_vd("locationProsperity"), temp_buf);

@@ -62,39 +62,39 @@ static struct archive_vtable * archive_write_vtable(void)
 	}
 	return (&av);
 }
-
 /*
  * Allocate, initialize and return an archive object.
  */
 Archive * archive_write_new()
 {
-	uchar * nulls;
+	Archive * p_result = 0;
 	struct archive_write * a = (struct archive_write *)SAlloc::C(1, sizeof(*a));
-	if(!a)
-		return NULL;
-	a->archive.magic = ARCHIVE_WRITE_MAGIC;
-	a->archive.state = ARCHIVE_STATE_NEW;
-	a->archive.vtable = archive_write_vtable();
-	/*
-	 * The value 10240 here matches the traditional tar default,
-	 * but is otherwise arbitrary.
-	 * TODO: Set the default block size from the format selected.
-	 */
-	a->bytes_per_block = 10240;
-	a->bytes_in_last_block = -1; /* Default */
-	/* Initialize a block of nulls for padding purposes. */
-	a->null_length = 1024;
-	nulls = (uchar *)SAlloc::C(1, a->null_length);
-	if(nulls == NULL) {
-		SAlloc::F(a);
-		return NULL;
+	if(a) {
+		a->archive.magic = ARCHIVE_WRITE_MAGIC;
+		a->archive.state = ARCHIVE_STATE_NEW;
+		a->archive.vtable = archive_write_vtable();
+		/*
+		 * The value 10240 here matches the traditional tar default,
+		 * but is otherwise arbitrary.
+		 * TODO: Set the default block size from the format selected.
+		 */
+		a->bytes_per_block = 10240;
+		a->bytes_in_last_block = -1; /* Default */
+		/* Initialize a block of nulls for padding purposes. */
+		a->null_length = 1024;
+		{
+			uchar * nulls = (uchar *)SAlloc::C(1, a->null_length);
+			if(!nulls) {
+				SAlloc::F(a);
+			}
+			else {
+				a->nulls = nulls;
+				p_result = (&a->archive);
+			}
+		}
 	}
-	else {
-		a->nulls = nulls;
-		return (&a->archive);
-	}
+	return p_result;
 }
-
 /*
  * Set the block size.  Returns 0 if successful.
  */
@@ -254,7 +254,6 @@ int __archive_write_nulls(struct archive_write * a, size_t length)
 {
 	if(length == 0)
 		return ARCHIVE_OK;
-
 	while(length > 0) {
 		size_t to_write = length < a->null_length ? length : a->null_length;
 		int r = __archive_write_output(a, a->nulls, to_write);
@@ -308,11 +307,9 @@ static int archive_write_client_write(struct archive_write_filter * f,
 	struct archive_write * a = (struct archive_write *)f->archive;
 	struct archive_none * state = (struct archive_none *)f->data;
 	const char * buff = (const char *)_buff;
-	ssize_t remaining, to_copy;
+	ssize_t to_copy;
 	ssize_t bytes_written;
-
-	remaining = length;
-
+	ssize_t remaining = length;
 	/*
 	 * If there is no buffer for blocking, just pass the data
 	 * straight through to the client write callback.  In
@@ -335,8 +332,7 @@ static int archive_write_client_write(struct archive_write_filter * f,
 	if(state->avail < state->buffer_size) {
 		/* If buffer is not empty... */
 		/* ... copy data into buffer ... */
-		to_copy = ((size_t)remaining > state->avail) ?
-		    state->avail : (size_t)remaining;
+		to_copy = ((size_t)remaining > state->avail) ? state->avail : (size_t)remaining;
 		memcpy(state->next, buff, to_copy);
 		state->next += to_copy;
 		state->avail -= to_copy;
@@ -361,17 +357,14 @@ static int archive_write_client_write(struct archive_write_filter * f,
 			state->avail = state->buffer_size;
 		}
 	}
-
 	while((size_t)remaining >= state->buffer_size) {
 		/* Write out full blocks directly to client. */
-		bytes_written = (a->client_writer)(&a->archive,
-			a->client_data, buff, state->buffer_size);
+		bytes_written = (a->client_writer)(&a->archive, a->client_data, buff, state->buffer_size);
 		if(bytes_written <= 0)
 			return ARCHIVE_FATAL;
 		buff += bytes_written;
 		remaining -= bytes_written;
 	}
-
 	if(remaining > 0) {
 		/* Copy last bit into copy buffer. */
 		memcpy(state->next, buff, remaining);
@@ -404,28 +397,23 @@ static int archive_write_client_close(struct archive_write_filter * f)
 	ssize_t target_block_length;
 	ssize_t bytes_written;
 	int ret = ARCHIVE_OK;
-
 	/* If there's pending data, pad and write the last block */
 	if(state->next != state->buffer) {
 		block_length = state->buffer_size - state->avail;
-
 		/* Tricky calculation to determine size of last block */
 		if(a->bytes_in_last_block <= 0)
 			/* Default or Zero: pad to full block */
 			target_block_length = a->bytes_per_block;
 		else
 			/* Round to next multiple of bytes_in_last_block. */
-			target_block_length = a->bytes_in_last_block *
-			    ( (block_length + a->bytes_in_last_block - 1) /
-			    a->bytes_in_last_block);
+			target_block_length = a->bytes_in_last_block * ((block_length + a->bytes_in_last_block - 1) / a->bytes_in_last_block);
 		if(target_block_length > a->bytes_per_block)
 			target_block_length = a->bytes_per_block;
 		if(block_length < target_block_length) {
 			memzero(state->next, target_block_length - block_length);
 			block_length = target_block_length;
 		}
-		bytes_written = (a->client_writer)(&a->archive,
-			a->client_data, state->buffer, block_length);
+		bytes_written = (a->client_writer)(&a->archive, a->client_data, state->buffer, block_length);
 		ret = bytes_written <= 0 ? ARCHIVE_FATAL : ARCHIVE_OK;
 	}
 	if(a->client_closer)
@@ -473,13 +461,10 @@ int archive_write_open2(Archive * _a, void * client_data,
 }
 
 int archive_write_open(Archive * _a, void * client_data,
-    archive_open_callback * opener, archive_write_callback * writer,
-    archive_close_callback * closer)
+    archive_open_callback * opener, archive_write_callback * writer, archive_close_callback * closer)
 {
-	return archive_write_open2(_a, client_data, opener, writer,
-		   closer, NULL);
+	return archive_write_open2(_a, client_data, opener, writer, closer, NULL);
 }
-
 /*
  * Close out the archive.
  */
@@ -501,12 +486,10 @@ static int _archive_write_close(Archive * _a)
 		if(r1 < r)
 			r = r1;
 	}
-
 	/* Finish the compression and close the stream. */
 	r1 = __archive_write_filters_close(a);
 	if(r1 < r)
 		r = r1;
-
 	if(a->archive.state != ARCHIVE_STATE_FATAL)
 		a->archive.state = ARCHIVE_STATE_CLOSED;
 	return r;
@@ -577,7 +560,6 @@ static int _archive_write_free(Archive * _a)
 	SAlloc::F(a);
 	return r;
 }
-
 /*
  * Write the appropriate header.
  */

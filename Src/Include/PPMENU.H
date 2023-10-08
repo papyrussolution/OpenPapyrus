@@ -543,5 +543,6 @@
 #define cmStyloQCommands               649 // @v11.1.9 Список команд Stylo-Q
 #define cmProcessUED                   650 // @v11.6.6 @internal Процессинг концептций UED
 #define cmProcessBomEstimatedValues    651 // @v11.7.11 Формирование котировок, соответствующих ожидаемым ценам по производимым товарам
+#define cmImportCChecks                652 // @v11.8.5 Импорт кассовых чеков
 
 #endif /* __PPMENU_H */

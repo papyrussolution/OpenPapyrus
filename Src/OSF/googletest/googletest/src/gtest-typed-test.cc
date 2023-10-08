@@ -15,22 +15,36 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #include "gtest/internal/gtest-build-internal.h"
 #pragma hdrstop
+//#include "gtest/gtest-typed-test.h"
+//#include <set>
+//#include <string>
+//#include <vector>
+//#include "gtest/gtest.h"
 
 namespace testing {
 namespace internal {
 // Skips to the first non-space char in str. Returns an empty string if str
 // contains only whitespace characters.
-static const char* SkipSpaces(const char* str) 
-{
-	while(IsSpace(*str)) 
-		str++;
+static const char* SkipSpaces(const char* str) {
+	while(IsSpace(*str)) str++;
 	return str;
 }
 
-static std::vector<std::string> SplitIntoTestNames(const char* src) 
-{
+static std::vector<std::string> SplitIntoTestNames(const char* src) {
 	std::vector<std::string> name_vec;
 	src = SkipSpaces(src);
 	for(; src != nullptr; src = SkipComma(src)) {
@@ -42,13 +56,17 @@ static std::vector<std::string> SplitIntoTestNames(const char* src)
 // Verifies that registered_tests match the test names in
 // registered_tests_; returns registered_tests if successful, or
 // aborts the program otherwise.
-const char* TypedTestSuitePState::VerifyRegisteredTestNames(const char* test_suite_name, const char* file, int line, const char* registered_tests) 
-{
+const char* TypedTestSuitePState::VerifyRegisteredTestNames(const char* test_suite_name, const char* file, int line,
+    const char* registered_tests) {
 	RegisterTypeParameterizedTestSuite(test_suite_name, CodeLocation(file, line));
+
 	typedef RegisteredTestsMap::const_iterator RegisteredTestIter;
 	registered_ = true;
+
 	std::vector<std::string> name_vec = SplitIntoTestNames(registered_tests);
+
 	Message errors;
+
 	std::set<std::string> tests;
 	for(std::vector<std::string>::const_iterator name_it = name_vec.begin();
 	    name_it != name_vec.end(); ++name_it) {
@@ -57,25 +75,31 @@ const char* TypedTestSuitePState::VerifyRegisteredTestNames(const char* test_sui
 			errors << "Test " << name << " is listed more than once.\n";
 			continue;
 		}
+
 		if(registered_tests_.count(name) != 0) {
 			tests.insert(name);
 		}
 		else {
-			errors << "No test named " << name << " can be found in this test suite.\n";
+			errors << "No test named " << name
+			       << " can be found in this test suite.\n";
 		}
 	}
+
 	for(RegisteredTestIter it = registered_tests_.begin();
 	    it != registered_tests_.end(); ++it) {
 		if(tests.count(it->first) == 0) {
 			errors << "You forgot to list test " << it->first << ".\n";
 		}
 	}
+
 	const std::string& errors_str = errors.GetString();
-	if(errors_str != "") {
-		fprintf(stderr, "%s %s", FormatFileLocation(file, line).c_str(), errors_str.c_str());
+	if(!errors_str.empty()) {
+		fprintf(stderr, "%s %s", FormatFileLocation(file, line).c_str(),
+		    errors_str.c_str());
 		fflush(stderr);
 		posix::Abort();
 	}
+
 	return registered_tests;
 }
 }  // namespace internal

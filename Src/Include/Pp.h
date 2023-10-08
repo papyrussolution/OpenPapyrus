@@ -5568,6 +5568,7 @@ private:
 #define PPSCMD_WSCTL_TSESS           10132 // @v11.7.7  WSCTL Возвращает статус текущей сессии процессора
 #define PPSCMD_WSCTL_LOGOUT          10133 // @v11.7.7  WSCTL Выход из сеанса (без завершения текущей рабочей сессии)
 #define PPSCMD_WSCTL_QUERYPOLICY     10134 // @v11.7.12 WSCTL Запрос политики ограничений сеанса
+#define PPSCMD_WSCTL_QUERYPGMLIST    10135 // @v11.8.5  WSCTL Запрос списка программ для запуска на клиенткой машине
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -14908,6 +14909,10 @@ public:
 		extssPrescrNumber       = 13, // @v11.7.12 Номер медицинского рецепта
 		extssEgaisProcessingTag = 14, // @v11.8.2  Внутренний символ обработки для списания товаров по чеку в ЕГАИС. 
 			// Не путать с extssEgaisUrl, являющегося признаком того, что чек отправлен на-прямую в ЕГАИС.
+		extssSourceSymb         = 15, // @v11.8.5 Символ внешнего источника происхождения чека
+		extssOuterIdent         = 16, // @v11.8.5 Идентификатор чека во внешнем источнике
+		extssOuterExtTag        = 17, // @v11.8.5 Дополнительный текстовый тег, поступивший из внешнего источника.
+			// Как правило, система трактовать такой тег формальным образом не способна.
 		// @attention: После вставки очередного элемента в enum добавьте этот элемент в ccpack_textext_ident_list (ccheck.cpp). 
 		//   Иначе этот атрибут не будет сохраняться в чеке.
 	};
@@ -15171,7 +15176,7 @@ private:
 	// признаком не должен загружаться в чековую панель (нарушение синхронизации). При повторном акцепте
 	// отложенного чека, соответствующий ему JUNK-чек удаляется.
 #define CCHKF_LINEEXT      0x20000000L // По крайней мере одна строка чека имеет расширение в таблице CCheckLineExt
-#define CCHKF_ADDPAYM      0x40000000L // Чек имеет ненулевую сумму доплаты в расширении записи чека CCheckExt
+#define CCHKF_ADDPAYM      0x40000000L // @deprecated Чек имеет ненулевую сумму доплаты в расширении записи чека CCheckExt
 	// Вспомогательный флаг, используемый для быстрого определения (не обращаясь к доп записи) есть ли у чека сумма доплаты.
 #define CCHKF_HASGIFT      0x80000000L // По чеку был предоставлен подарок  (не уточняется какой именно)
 //
@@ -15346,6 +15351,12 @@ public:
 	//
 	int    GetLastCheck(CCheckTbl::Rec * pRec);
 	int    GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec);
+	//
+	// Descr: Если в базе данных присутствует чек по тому же кассовому узлу и с тем же
+	//   временем, что и rRec, то функция корректирует сотые доли секунды времени для того,
+	//   чтобы избежать ошибки дублирования индекса.
+	//
+	int    AdjustRecTime(CCheckTbl::Rec & rRec);
 	int    Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta);
 	//
 	// Descr: Кассовые чеки нельзя править. Их можно только добавлять или, в крайнем случае, удалять.
@@ -16061,8 +16072,8 @@ public:
 	int    GetKind() const { return Kind; }
 	bool   IsKind(int k) const { return (static_cast<int>(Kind) == k); }
 	virtual ~PPCommandItem();
-	virtual int    Write_Depricated(SBuffer &, long) const;
-	virtual int    Read_Depricated(SBuffer &, long);
+	virtual int    Write_Deprecated(SBuffer &, long) const;
+	virtual int    Read_Deprecated(SBuffer &, long);
 	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
@@ -16083,8 +16094,8 @@ public:
 class PPCommand : public PPCommandItem {
 public:
 	PPCommand();
-	virtual int    Write_Depricated(SBuffer &, long) const;
-	virtual int    Read_Depricated(SBuffer &, long);
+	virtual int    Write_Deprecated(SBuffer &, long) const;
+	virtual int    Read_Deprecated(SBuffer &, long);
 	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
@@ -16161,8 +16172,8 @@ public:
 	PPCommandFolder();
 	PPCommandFolder(const PPCommandFolder & rS);
 	PPCommandFolder & FASTCALL operator = (const PPCommandFolder & rS);
-	virtual int    Write_Depricated(SBuffer &, long) const;
-	virtual int    Read_Depricated(SBuffer &, long);
+	virtual int    Write_Deprecated(SBuffer &, long) const;
+	virtual int    Read_Deprecated(SBuffer &, long);
 	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
@@ -16210,8 +16221,8 @@ public:
 	PPCommandGroup(PPCommandGroupCategory cmdgrpc, const char * pDbSymb, const char * pName);
 	PPCommandGroup(const PPCommandGroup &);
 	PPCommandGroup & FASTCALL operator = (const PPCommandGroup &);
-	virtual int    Write_Depricated(SBuffer &, long) const;
-	virtual int    Read_Depricated(SBuffer &, long);
+	virtual int    Write_Deprecated(SBuffer &, long) const;
+	virtual int    Read_Deprecated(SBuffer &, long);
 	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
 	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
 	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
@@ -16281,7 +16292,7 @@ public:
 	PPCommandMngr(const char * pFileName, uint ctrFlags, PPCommandGroupCategory kind);
 	~PPCommandMngr();
 	int    IsValid_() const;
-	int    Load_Depricated(PPCommandGroup *);
+	int    Load_Deprecated(PPCommandGroup *);
 	int    Save__2(const PPCommandGroup *, const long rwFlag); // @erik v10.6.1
 	int    Load__2(PPCommandGroup *, const char * pDbSymb, const long rwFlag); // @erik v10.6.1
 	int    SaveFromAllTo(const long rwFlag); // @erik v10.7.1
@@ -46048,7 +46059,7 @@ public:
 	};
 	enum { // @persistent
 		tagUnkn    =  0, //
-		tagVerifiable_Depricated = 1, // verifiable : bool ("true" || "false")
+		tagVerifiable_Deprecated = 1, // verifiable : bool ("true" || "false")
 		tagCommonName         =  2, // cn : string with optional language shifted on 16 bits left
 		tagName               =  3, // name : string with optional language shifted on 16 bits left
 		tagSurName            =  4, // surname : string with optional language shifted on 16 bits left
@@ -55087,9 +55098,17 @@ private:
 class PPCCheckImpExpParam : public PPImpExpParam { // @v11.8.4
 public:
 	PPCCheckImpExpParam(uint recId = 0, long flags = 0);
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	virtual int PreprocessImportFileSpec(StringSet & rList);
 
+	enum {
+		fPrintAsseblyOrders = 0x0001 // При успешном импорте чека печатать заказы на изготовление
+	};
 	long   Flags;
 	long   PredefFormat;      // @persistent PredefinedImpExpFormat
+	PPID   PosNodeID;
 };
 
 class PPCCheckImporter { // @v11.8.4
@@ -55099,7 +55118,13 @@ public:
 	int    Init(const PPCCheckImpExpParam * pParam);
 	int    Run();
 private:
+	int    Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString & rFileName, CCheckPacket & rPack);
+	int    Select(PPCCheckImpExpParam * pParam, int isImport);
 	PPCCheckImpExpParam Param;
+	PPObjGoods GObj;
+	PPObjCashNode CnObj;
+	PPObjCSession CsObj;
+	PPLogger Logger;
 };
 //
 // Descr: Базовый класс для реализации механизмов экспорта/импорта в форматах, предопределенных
@@ -58828,6 +58853,7 @@ int    EditGoodsImpExpParams(const char * pIniSection);
 int    EditGoodsImpExpParams();
 int    EditImpExpConfigs();
 int    ImportBills(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowParam, PPID opID, PPID locID);
+int    ImportCChecks(PPCCheckImpExpParam * pParam);
 int    ImportEmailAccts();
 int    ExportEmailAccts(const PPIDArray * pMailAcctsList);
 int    SupplGoodsImport();

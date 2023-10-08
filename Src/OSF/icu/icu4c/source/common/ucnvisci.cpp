@@ -1,21 +1,13 @@
+// ucnvisci.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2000-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  ucnvisci.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2001JUN26
- *   created by: Ram Viswanadha
- *
- *   Date        Name        Description
- *   24/7/2001   Ram         Added support for EXT character handling
- */
+// Copyright (C) 2000-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2001JUN26
+// created by: Ram Viswanadha
+// Date        Name        Description
+// 24/7/2001   Ram         Added support for EXT character handling
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -895,8 +887,8 @@ static const uint16 nuktaSpecialCases[][2] = {
 static void U_CALLCONV UConverter_fromUnicode_ISCII_OFFSETS_LOGIC(UConverterFromUnicodeArgs * args, UErrorCode * err) {
 	const char16_t * source = args->source;
 	const char16_t * sourceLimit = args->sourceLimit;
-	unsigned char * target = (unsigned char *)args->target;
-	unsigned char * targetLimit = (unsigned char *)args->targetLimit;
+	uchar * target = (uchar *)args->target;
+	uchar * targetLimit = (uchar *)args->targetLimit;
 	int32_t* offsets = args->offsets;
 	uint32_t targetByteUnit = 0x0000;
 	UChar32 sourceChar = 0x0000;
@@ -1210,7 +1202,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 		targetUniChar = missingCharMarker;
 
 		if(target < targetLimit) {
-			sourceChar = (unsigned char)*(source)++;
+			sourceChar = (uchar)*(source)++;
 
 			/* look at the post-context perform special processing */
 			if(*contextCharToUnicode==ATR) {

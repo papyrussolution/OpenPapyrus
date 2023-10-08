@@ -1,4 +1,5 @@
-// Copyright 2008, Google Inc. All rights reserved.
+// Copyright 2008, Google Inc.
+// All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -14,8 +15,23 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #include "gmock/internal/gmock-internal.h"
 #pragma hdrstop
+//#include "gmock/gmock.h"
+//#include <string>
+//#include "gmock/internal/gmock-port.h"
 
 GMOCK_DEFINE_bool_(catch_leaked_mocks, true,
     "true if and only if Google Mock should report leaked "
@@ -93,44 +109,51 @@ static bool ParseGoogleMockFlag(const char* str, const char* flag_name,
 //
 // On success, stores the value of the flag in *value, and returns
 // true.  On failure, returns false without changing *value.
-template <typename String> static bool ParseGoogleMockFlag(const char* str, const char* flag_name, String* value) 
-{
+template <typename String>
+static bool ParseGoogleMockFlag(const char* str, const char* flag_name,
+    String* value) {
 	// Gets the value of the flag as a string.
 	const char* const value_str = ParseGoogleMockFlagValue(str, flag_name, false);
+
 	// Aborts if the parsing failed.
-	if(value_str == nullptr) 
-		return false;
+	if(value_str == nullptr) return false;
+
 	// Sets *value to the value of the flag.
 	*value = value_str;
 	return true;
 }
 
-static bool ParseGoogleMockFlag(const char* str, const char* flag_name, int32_t* value) 
-{
+static bool ParseGoogleMockFlag(const char* str, const char* flag_name,
+    int32_t* value) {
 	// Gets the value of the flag as a string.
 	const char* const value_str = ParseGoogleMockFlagValue(str, flag_name, true);
+
 	// Aborts if the parsing failed.
 	if(value_str == nullptr) return false;
+
 	// Sets *value to the value of the flag.
-	return ParseInt32(Message() << "The value of flag --" << flag_name, value_str, value);
+	return ParseInt32(Message() << "The value of flag --" << flag_name, value_str,
+		   value);
 }
 
 // The internal implementation of InitGoogleMock().
 //
 // The type parameter CharType can be instantiated to either char or
 // wchar_t.
-template <typename CharType> void InitGoogleMockImpl(int* argc, CharType** argv) 
-{
+template <typename CharType>
+void InitGoogleMockImpl(int* argc, CharType** argv) {
 	// Makes sure Google Test is initialized.  InitGoogleTest() is
 	// idempotent, so it's fine if the user has already called it.
 	InitGoogleTest(argc, argv);
-	if(*argc <= 0) 
-		return;
+	if(*argc <= 0) return;
+
 	for(int i = 1; i != *argc; i++) {
 		const std::string arg_string = StreamableToString(argv[i]);
 		const char* const arg = arg_string.c_str();
+
 		// Do we see a Google Mock flag?
 		bool found_gmock_flag = false;
+
 #define GMOCK_INTERNAL_PARSE_FLAG(flag_name)            \
 	if(!found_gmock_flag) {                              \
 		auto value = GMOCK_FLAG_GET(flag_name);             \
@@ -193,6 +216,7 @@ GTEST_API_ void InitGoogleMock() {
 	const auto arg0 = "dummy";
 	char* argv0 = const_cast<char*>(arg0);
 	char** argv = &argv0;
+
 	internal::InitGoogleMockImpl(&argc, argv);
 }
 }  // namespace testing

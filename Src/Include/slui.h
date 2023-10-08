@@ -2727,7 +2727,7 @@ private:
 //
 // @construction {
 //
-#if 0 // @v10.9.12 (depricated) {
+#if 0 // @v10.9.12 (deprecated) {
 class SRectLayout {
 public:
 	//
@@ -2810,7 +2810,7 @@ private:
 	TSVector <WItem> WinList;
 	TRect ContainerBounds;
 };
-#endif // } 0 @v10.9.12 (depricated) {
+#endif // } 0 @v10.9.12 (deprecated) {
 /*
 length-unit: % | mm | m | cm
 length-unit-optional: length-unit | ;

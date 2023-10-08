@@ -949,6 +949,25 @@ int WsCtlSrvBlock::SendClientPolicy(SString & rResult)
 	CATCHZOK
 	return ok;
 }
+
+int WsCtlSrvBlock::SendProgramList(SString & rResult)
+{
+	rResult.Z();
+	int    ok = 1;
+	SJson * p_js = 0;
+	SString temp_buf;
+	PPGetPath(PPPATH_WORKSPACE, temp_buf);
+	temp_buf.SetLastSlash().Cat("wsctl").SetLastSlash().Cat("wsctl-program.json");
+	p_js = SJson::ParseFile(temp_buf);
+	THROW(p_js);
+	{
+		WsCtl_ProgramCollection pgm_list;
+		THROW(pgm_list.FromJsonObj(p_js));
+		p_js->ToStr(rResult);
+	}
+	CATCHZOK
+	return ok;	
+}
 //
 //
 //
@@ -963,6 +982,20 @@ WsCtl_ProgramEntry & WsCtl_ProgramEntry::Z()
 	FullResolvedPath.Z();
 	PicSymb.Z();
 	return *this;
+}
+
+bool FASTCALL WsCtl_ProgramEntry::IsEq(const WsCtl_ProgramEntry & rS) const
+{
+	bool   eq = true;
+	if(Category != rS.Category)
+		eq = false;
+	else if(Title != rS.Title)
+		eq = false;
+	else if(ExeFileName != rS.ExeFileName)
+		eq = false;
+	else if(PicSymb != rS.PicSymb)
+		eq = false;
+	return eq;
 }
 
 SJson * WsCtl_ProgramEntry::ToJsonObj() const
@@ -1000,6 +1033,27 @@ int WsCtl_ProgramEntry::FromJsonObj(const SJson * pJsObj)
 
 WsCtl_ProgramCollection::WsCtl_ProgramCollection() : TSCollection <WsCtl_ProgramEntry>(), SelectedCatSurrogateId(0)
 {
+}
+
+WsCtl_ProgramCollection::WsCtl_ProgramCollection(const WsCtl_ProgramCollection & rS) : TSCollection <WsCtl_ProgramEntry>(), SelectedCatSurrogateId(0)
+{
+	Copy(rS);
+}
+
+WsCtl_ProgramCollection & FASTCALL WsCtl_ProgramCollection::Copy(const WsCtl_ProgramCollection & rS)
+{
+	TSCollection_Copy(*this, rS);
+	SelectedCatSurrogateId = rS.SelectedCatSurrogateId;
+	CatList = rS.CatList;
+	return *this;
+}
+
+bool FASTCALL WsCtl_ProgramCollection::IsEq(const WsCtl_ProgramCollection & rS) const
+{
+	bool   eq = true;
+	if(!TSCollection_IsEq(this, &rS))
+		eq = false;
+	return eq;
 }
 	
 SJson * WsCtl_ProgramCollection::ToJsonObj() const
@@ -1058,6 +1112,56 @@ int WsCtl_ProgramCollection::MakeCatList()
 					ok = 1;
 				}
 			}
+		}
+	}
+	return ok;
+}
+
+int WsCtl_SessionFrame::Start()
+{
+	int    ok = 1;
+	if(State & stRunning)
+		ok = -1;
+	else {
+		//
+		State |= stRunning;
+	}
+	return ok;
+}
+
+int WsCtl_SessionFrame::Finish()
+{
+	int    ok = 1;
+	if(State & stRunning) {
+		//
+		RunningProcessList.freeAll();
+		State &= ~stRunning;
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+int WsCtl_SessionFrame::LaunchProcess(const WsCtl_ProgramEntry * pPe)
+{
+	int    ok = 0;
+	if(Start()) { // В случае, если сессия не запущена - запускаем
+		SString temp_buf;
+		SlProcess::Result result;
+		SlProcess proc;
+		proc.SetPath(pPe->FullResolvedPath);
+		SPathStruc ps(pPe->FullResolvedPath);
+		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+		proc.SetWorkingDir(temp_buf);
+		proc.SetFlags(0);
+		if(proc.Run(&result)) {
+			Process * p_rpl_entry = RunningProcessList.CreateNewItem();
+			if(p_rpl_entry) {
+				*static_cast<SlProcess::Result *>(p_rpl_entry) = result;
+				p_rpl_entry->Name = pPe->Title;
+				p_rpl_entry->Path = pPe->FullResolvedPath;
+			}
+			ok = 1;
 		}
 	}
 	return ok;

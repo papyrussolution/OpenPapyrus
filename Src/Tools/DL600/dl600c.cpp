@@ -1550,8 +1550,9 @@ SString & GetIdlTypeString(TYPEID typ, SString & rBuf, const char * pFldName, si
 		case S_LSTRING:
 		case S_ZSTRING:
 		case S_NOTE:      type_text = "BSTR"; dim = sz; break;
+		// @v11.8.5 case S_WZSTRING:  type_text = "wchar_t"; dim = sz / 2; break;
+		case S_WZSTRING:  type_text = "BSTR"; dim = sz; break; // @v11.8.5
 		case S_WCHAR:     type_text = "wchar_t"; dim = sz / 2; break;
-		case S_WZSTRING:  type_text = "wchar_t"; dim = sz / 2; break;
 		case S_INTRANGE:  type_text = "IntRange";  break;
 		case S_REALRANGE: type_text = "RealRange"; break;
 		case S_DATERANGE: type_text = "DateRange"; break;
@@ -1609,13 +1610,21 @@ int DlContext::Format_C_Type(DLSYMBID typeID, STypEx & rTyp, const char * pFldNa
 		else if(flags & fctfIfaceImpl && GETSTYPE(td.T.Typ) == S_ZSTRING) {
 			type_buf = "SString";
 			if(!(flags & fctfInstance)) {
-				//
 				// Указатель на ссылку недопустим - будет просто указатель на SString
-				//
 				if((rTyp.Flags & STypEx::fOf) || rTyp.Mod != STypEx::modPtr)
 					type_buf.Space().CatChar('&');
 			}
 		}
+		// @v11.8.5 {
+		else if(flags & fctfIfaceImpl && GETSTYPE(td.T.Typ) == S_WZSTRING) {
+			type_buf = "SStringU";
+			if(!(flags & fctfInstance)) {
+				// Указатель на ссылку недопустим - будет просто указатель на SStringU
+				if((rTyp.Flags & STypEx::fOf) || rTyp.Mod != STypEx::modPtr)
+					type_buf.Space().CatChar('&');
+			}
+		}
+		// } @v11.8.5 
 		else
 			GetBinaryTypeString(td.T.Typ, 0, type_buf, 0, 0);
 	}
@@ -2933,7 +2942,7 @@ int DlContext::TypeDetail::IsInterfaceTypeConversionNeeded() const
 	const TYPEID st = GETSTYPE(T.Typ);
 	if(oneof3(st, S_DATE, S_TIME, S_DATETIME))
 		return 1;
-	else if(oneof4(st, S_CHAR, S_ZSTRING, S_LSTRING, S_NOTE))
+	else if(oneof5(st, S_CHAR, S_ZSTRING, S_LSTRING, S_NOTE, S_WZSTRING)) // @v11.8.5 S_WZSTRING
 		return 1;
 	else
 		return -1;
@@ -3774,7 +3783,8 @@ static void Wr_YourCodeHere(Generator_CPP & gen)
 
 int DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc, long cflags)
 {
-	int    ok = 1, is_ret = 0;
+	int    ok = 1;
+	int    is_ret = 0;
 	const  uint arg_count = rFunc.GetArgCount();
 	uint   k;
 	TypeEntry te, ret_te;
@@ -3826,7 +3836,7 @@ int DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rC
 				STypEx t_stripped = td.T;
 				if(oneof2(t_stripped.Mod, STypEx::modPtr, STypEx::modRef))
 					t_stripped.Mod = 0;
-				Format_C_Type(td.TerminalTypeID, t_stripped, arg_name, fctfInstance | fctfIfaceImpl, temp_buf);
+				Format_C_Type(td.TerminalTypeID, t_stripped, arg_name, fctfInstance|fctfIfaceImpl, temp_buf);
 				if(st == S_DATE) {
 					temp_buf.CatDiv(';', 2);
 					do_assign = 1;
@@ -3851,6 +3861,16 @@ int DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rC
 					//
 					temp_buf.Cat(arg_name).CatChar('_');
 					temp_buf.CatChar(')');
+				}
+				else if(st == S_WZSTRING) { // @v11.8.5
+					temp_buf.CatChar('(');
+					//
+					if(td.T.Mod == STypEx::modPtr)
+						temp_buf.CatChar('*');
+					temp_buf.CatCharN('*', td.PtrList.GetCount());
+					//
+					temp_buf.Cat(arg_name).CatChar('_');
+					temp_buf.CatChar(')');					
 				}
 				else if(st == S_LSTRING) {
 				}

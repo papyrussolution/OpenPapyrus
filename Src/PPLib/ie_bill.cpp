@@ -4987,11 +4987,12 @@ int PPBillImporter::Run()
 
 int ImportBills(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowParam, PPID opID, PPID locID)
 {
-	int    ok = -1, r = 1;
-	PPBillImporter b_i;
-	THROW(r = b_i.Init(pBillParam, pBRowParam, opID, locID));
+	int    ok = -1;
+	int    r = 1;
+	PPBillImporter importer;
+	THROW(r = importer.Init(pBillParam, pBRowParam, opID, locID));
 	if(r > 0) {
-		THROW(b_i.Run());
+		THROW(importer.Run());
 		ok = 1;
 	}
 	CATCHZOKPPERR
