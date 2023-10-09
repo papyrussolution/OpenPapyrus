@@ -624,6 +624,7 @@ public:
 	static constexpr const char * FnExt_PPS    = ".PPS"; // Файлы передачи данных между разделами БД
 	static constexpr const char * FnExt_CHARRY = ".CHY"; // Файлы charry
 	static constexpr const char * FnExt_ORD    = ".ord";
+	static constexpr const char * DefSrvCmdTerm = "\xD\xA"; // @v11.8.6 Терминатор неструктурированных ответов job-server'а
 };
 
 // @v11.7.3 (все константы стали static constexpr) extern const PPConstParam _PPConst;
@@ -5809,10 +5810,10 @@ public:
 	int    Connect(const char * pAddr, int port);
 	int    Disconnect();
 	int    Reconnect(const char * pAddr, int port);
-	int    Exec(const char * pCmd, PPJobSrvReply & rReply);
-	int    Exec(const char * pCmd, const char * pTerminal, PPJobSrvReply & rReply);
-	int    Exec(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
-	int    Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvReply & rReply);
+	int    ExecSrvCmd(const char * pCmd, PPJobSrvReply & rReply);
+	int    ExecSrvCmd(const char * pCmd, const char * pTerminal, PPJobSrvReply & rReply);
+	int    ExecSrvCmd(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
+	int    ExecSrvCmd(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvReply & rReply);
 	int    Login(const char * pDbSymb, const char * pUserName, const char * pPassword);
 	int    Logout();
 	int    GetLastErr(SString & rBuf);
@@ -54651,7 +54652,9 @@ extern "C" typedef PPImpExpParam * (*FN_IMPEXPHDL_FACTORY)(long flags);
 //   2 - только импорт
 //
 int GetImpExpSections(uint fileNameId, uint sdRecId, PPImpExpParam * pParam, StringSet * pSectNames, int kind);
+int GetImpExpSections(PPIniFile & rF, uint sdRecId, PPImpExpParam * pParam, StringSet * pSectNames, int kind);
 int GetImpExpSections(uint fileName, uint sdRecID, PPImpExpParam * pParam, StrAssocArray * pList, int kind);
+int GetImpExpSections(PPIniFile & rF, uint sdRecID, PPImpExpParam * pParam, StrAssocArray * pList, int kind);
 //
 // Descr: Класс, реализующий универсальный механизм импорта/экспорта данных
 // Note: Функции класса считают, что все строковые поля при экспорте
@@ -55115,11 +55118,14 @@ class PPCCheckImporter { // @v11.8.4
 public:
 	PPCCheckImporter();
 	~PPCCheckImporter();
-	int    Init(const PPCCheckImpExpParam * pParam);
+	int    Init(const PPCCheckImpExpParam * pParam, bool nonInteractive);
 	int    Run();
+	int    Select(PPCCheckImpExpParam * pParam, int isImport, bool nonInteractive);
+	int    SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    LoadConfig(int isImport);
 private:
 	int    Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString & rFileName, CCheckPacket & rPack);
-	int    Select(PPCCheckImpExpParam * pParam, int isImport);
+	SString CfgName;
 	PPCCheckImpExpParam Param;
 	PPObjGoods GObj;
 	PPObjCashNode CnObj;

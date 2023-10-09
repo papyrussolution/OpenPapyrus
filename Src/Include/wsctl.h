@@ -156,12 +156,20 @@ public:
 	//   false - *this и rS различаются.// 
 	//
 	bool   FASTCALL IsEq(const WsCtl_ProgramCollection & rS) const;
+	bool   IsResolved() const { return Resolved; }
+	long   GetSelectedCatSurrogateId() const { return SelectedCatSurrogateId; }
+	void   SetSelectedCatSurrogateId(long id) { SelectedCatSurrogateId = id; }
+	const StrAssocArray & GetCatList() const { return CatList; }
 	SJson * ToJsonObj() const;
 	int    FromJsonObj(const SJson * pJsObj);
 	int    MakeCatList();
+	int    Resolve(const WsCtl_ClientPolicy & rPolicy);
 
+	mutable SMtLock Lck; // Блокировка, используемая для асинхронного запуска процедура разрешения путей к программам.
+private:
 	StrAssocArray CatList; // @transient
 	long   SelectedCatSurrogateId; // @transient
+	bool   Resolved; // @transient
 };
 //
 // Descr: Класс, отвечающий за системное сопровождение сессий:

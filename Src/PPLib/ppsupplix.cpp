@@ -4279,7 +4279,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 {
 	int    ok = 1;
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
-	int    do_cancel = BIN(outerDocType < 0);
+	bool   do_cancel = (outerDocType < 0);
 	outerDocType = labs(outerDocType);
 	PPBillPacket pack__;
 	if(!pBp && P_BObj->ExtractPacket(billID, &pack__) > 0) {
@@ -4302,7 +4302,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 			if(bill_ack_tag_id)
 				pBp->BTagL.GetItemStr(bill_ack_tag_id, cancel_code);
 			if(cancel_code.IsEmpty())
-				do_cancel = 0;
+				do_cancel = false;
 		}
 		else {
 			for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
@@ -4321,7 +4321,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 		}
 		if(do_cancel || ti_pos_list.getCount()) {
 			int    skip = 0;
-			int    is_own_order = 0; // !0 если документ выписан по заказу, импортированному из iSales
+			bool   is_own_order = false; // !0 если документ выписан по заказу, импортированному из iSales
 			PPBillPacket order_pack;
 			cli_face_code.Z();
 			cli_addr_code.Z();
@@ -4469,7 +4469,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 					if(ord_id && P_BObj->Search(ord_id, &ord_rec) > 0 && ord_rec.EdiOp == PPEDIOP_SALESORDER) {
 						if(PPRef->Ot.GetTagStr(PPOBJ_BILL, ord_id, PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.IsEqiAscii("ISALES-PEPSI")) {
 							THROW(P_BObj->ExtractPacket(ord_id, &order_pack) > 0);
-							is_own_order = 1;
+							is_own_order = true;
 							{
 								iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 								THROW_SL(p_new_ref);

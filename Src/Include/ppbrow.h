@@ -1556,6 +1556,7 @@
 #define PPJOB_FTSINDEXING                             45
 #define PPJOB_STYLOQSENDINDEXINGCONTENT               46
 #define PPJOB_STYLOQPREPAREAHEAD                      47
+#define PPJOB_IMPORTCCHECKS                           48
 //
 // PPVIEW definitions
 //

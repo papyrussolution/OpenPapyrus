@@ -2402,12 +2402,35 @@ PPCCheckImporter::~PPCCheckImporter()
 {
 }
 
-int PPCCheckImporter::Init(const PPCCheckImpExpParam * pParam)
+int PPCCheckImporter::Init(const PPCCheckImpExpParam * pParam, bool nonInteractive)
 {
 	int    ok = 1;
 	if(!RVALUEPTR(Param, pParam)) {
 		THROW(LoadSdRecord(PPREC_CCHECK2, &Param.InrRec));
-		ok = Select(&Param, 1);
+		ok = Select(&Param, 1, nonInteractive);
+	}
+	else {
+		
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPCCheckImporter::LoadConfig(int isImport)
+{
+	int    ok = 1;
+	SString ini_file_name;
+	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
+	{
+		PPIniFile ini_file(ini_file_name, 0, 1, 1);
+		Param.Init(isImport);
+		THROW(LoadSdRecord(PPREC_CCHECK2, &Param.InrRec));
+		{
+			SString name(CfgName);
+			Param.ProcessName(2, name);
+			Param.ProcessName(1, name);
+			THROW(Param.ReadIni(&ini_file, name, 0));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -2476,6 +2499,34 @@ int PPCCheckImporter::Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString
 	PPCashNode cn_rec;
 	THROW_LXML((p_doc = xmlCtxtReadFile(pCtx, rFileName, 0, XML_PARSE_NOENT)), pCtx);
 	if(p_doc) {
+		S_GUID doc_guid;
+		{
+			//
+			// Создаем суррогатный GUID документа для того, чтобы избежать дублирования при повторном импорте
+			//
+			xmlBuffer * p_xml_buf = xmlBufferCreate();
+			if(p_xml_buf) {
+				xmlSaveCtxt * p_sv_ctx = xmlSaveToBuffer(p_xml_buf, "UTF-8"/*encoding*/, XML_SAVE_AS_XML);
+				if(p_sv_ctx) {
+					if(xmlSaveDoc(p_sv_ctx, p_doc) == 0) {
+						xmlSaveClose(p_sv_ctx);
+						const uchar * p_buf_data = xmlBufferContent(p_xml_buf);
+						if(p_buf_data) {
+							temp_buf.Z().Cat(reinterpret_cast<const char *>(p_buf_data));
+						}
+					}
+				}
+			}
+			xmlBufferFree(p_xml_buf);
+			if(temp_buf.IsEmpty()) { 
+				// Если вдруг, что невероятно, не удалось вывести xml в буфер, то используем в качестве "сырья" для GUID'а имя файла (без пути)
+				SPathStruc ps(rFileName);
+				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+			}
+			binary128 hash_md5 = SlHash::Md5(0, temp_buf.cptr(), temp_buf.Len());
+			memcpy(doc_guid.Data, &hash_md5, sizeof(doc_guid));
+			rPack.SetGuid(&doc_guid);
+		}
 		double amount_total = 0.0;
 		THROW(p_root = xmlDocGetRootElement(p_doc));
 		if(SXml::IsName(p_root, "Root")) {
@@ -2579,7 +2630,34 @@ int PPCCheckImporter::Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString
 	return ok;
 }
 
-int PPCCheckImporter::Select(PPCCheckImpExpParam * pParam, int isImport)
+int PPCCheckImporter::SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+{
+	int    ok = 1;
+	bool   is_ver_ok = false;
+	PPVersionInfo vi = DS.GetVersionInfo();
+	SVerT cur_ver = vi.GetVersion();
+	SVerT ser_ver;
+	if(dir > 0) {
+		if(Param.Name.NotEmpty())
+			CfgName = Param.Name;
+		THROW_SL(cur_ver.Serialize(dir, rBuf, pCtx));
+		is_ver_ok = true;
+	}
+	else if(dir < 0) {
+		const size_t preserve_offs = rBuf.GetRdOffs();
+		int    mj = 0, mn = 0, rz = 0;
+		THROW_SL(ser_ver.Serialize(dir, rBuf, pCtx));
+		ser_ver.Get(&mj, &mn, &rz);
+	}
+	THROW_SL(pCtx->Serialize(dir, CfgName, rBuf));
+	if(dir < 0) {
+		;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPCCheckImporter::Select(PPCCheckImpExpParam * pParam, int isImport, bool nonInteractive)
 {
 	int    ok = -1;
 	int    valid_data = 0;
@@ -2591,26 +2669,42 @@ int PPCCheckImporter::Select(PPCCheckImpExpParam * pParam, int isImport)
 	StrAssocArray list;
 	PPCCheckImpExpParam param;
 	THROW_INVARG(pParam);
-	pParam->Direction = BIN(isImport);
-	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_CCHECK2, &param, &list, isImport ? 2 : 1));
-	id = (list.SearchByTextNc(pParam->Name, &p) > 0) ? static_cast<uint>(list.Get(p).Id) : 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
-		SString sect;
-		THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_RUNIE_CC_IMP))));
-		SetupStrAssocCombo(dlg, CTLSEL_RUNIECC_CFG, list, id, 0, 0, 0);
-		//SetupPPObjCombo(dlg, CTLSEL_IEGOODS_LOC, PPOBJ_LOCATION, loc_id, 0, 0);
-		while(ok < 0 && ExecView(dlg) == cmOK) {
-			id = dlg->getCtrlLong(CTLSEL_RUNIECC_CFG);
-			if(id) {
-				list.GetText(id, sect);
-				pParam->ProcessName(1, sect);
-				pParam->ReadIni(&ini_file, sect, 0);
-				ok = 1;
+		pParam->Direction = BIN(isImport);
+		THROW(GetImpExpSections(ini_file, PPREC_CCHECK2, &param, &list, isImport ? 2 : 1));
+		if(pParam->Name.NotEmpty())
+			id = (list.SearchByTextNc(pParam->Name, &p) > 0) ? static_cast<uint>(list.Get(p).Id) : 0;
+		else if(CfgName.NotEmpty()) 
+			id = (list.SearchByTextNc(CfgName, &p) > 0) ? static_cast<uint>(list.Get(p).Id) : 0;
+		if(nonInteractive) {
+			if(id > 0) {
+				pParam->ProcessName(1, CfgName);
+				ok = pParam->ReadIni(&ini_file, CfgName, 0);
+				CfgName = pParam->Name;
+				pParam->ProcessName(2, CfgName);
+				THROW(ok);
 			}
-			else
-				PPError(PPERR_INVGOODSIMPEXPCFG);
+		}
+		else {
+			SString sect;
+			THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_RUNIE_CC_IMP))));
+			SetupStrAssocCombo(dlg, CTLSEL_RUNIECC_CFG, list, id, 0, 0, 0);
+			//SetupPPObjCombo(dlg, CTLSEL_IEGOODS_LOC, PPOBJ_LOCATION, loc_id, 0, 0);
+			while(ok < 0 && ExecView(dlg) == cmOK) {
+				id = dlg->getCtrlLong(CTLSEL_RUNIECC_CFG);
+				if(id) {
+					list.GetText(id, sect);
+					pParam->ProcessName(1, sect);
+					pParam->ReadIni(&ini_file, sect, 0);
+					CfgName = pParam->Name;
+					pParam->ProcessName(2, CfgName);
+					ok = 1;
+				}
+				else
+					PPError(PPERR_INVGOODSIMPEXPCFG);
+			}
 		}
 	}
 	CATCHZOK
@@ -2661,14 +2755,18 @@ int PPCCheckImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 int PPCCheckImporter::Run()
 {
 	int    ok = -1;
+	SString temp_buf;
 	xmlParserCtxt * p_ctx = 0;
 	PPSyncCashNode cn_rec;
 	THROW_PP(Param.PosNodeID && CnObj.GetSync(Param.PosNodeID, &cn_rec) > 0, PPERR_CCIMP_UNDEFPOSNODE);
 	if(Param.PredefFormat == PredefinedImpExpFormat::piefCCheck_Contract01) {
 		StringSet ss_files;
 		SString filename;
+		SString msg_buf;
+		SString fmt_buf;
 		PPImpExpParam::PtTokenList fn_fld_list;
 		CCheckCore * p_cc = CsObj.P_Cc;
+		PPIDArray cc_list_by_guid;
 		THROW(Param.PreprocessImportFileSpec(ss_files));
 		THROW(p_ctx = xmlNewParserCtxt());
 		for(uint ssp = 0; ss_files.get(&ssp, filename);) {
@@ -2693,13 +2791,26 @@ int PPCCheckImporter::Run()
 					cc_pack.Rec.Tm = now_dtm.t;
 					p_cc->AdjustRecTime(cc_pack.Rec);
 				}
-				// Каждый чек проводим отдельной транзакцией поскольку нам в дальнейшем понадобяться дополнительные,
-				// возможно, весьма длительные действия.
-				if(p_cc->TurnCheck(&cc_pack, 1)) {
-					ok = 1;
+				S_GUID doc_guid;
+				if(cc_pack.GetGuid(doc_guid) && p_cc->GetListByUuid(doc_guid, cc_list_by_guid) > 0) {
+					if(PPLoadText(PPTXT_CCIMP_ALREADYIMPORTED, fmt_buf)) {
+						CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
+						Logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
+					}
 				}
-				else
-					Logger.LogLastError();
+				else {
+					// Каждый чек проводим отдельной транзакцией поскольку нам в дальнейшем понадобяться дополнительные,
+					// возможно, весьма длительные действия.
+					if(p_cc->TurnCheck(&cc_pack, 1)) {
+						if(PPLoadText(PPTXT_CCIMP_ACCEPTED, fmt_buf)) {
+							CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
+							Logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
+						}
+						ok = 1;
+					}
+					else
+						Logger.LogLastError();
+				}
 			}
 			else if(r == 0) {
 				Logger.LogLastError();
@@ -2716,6 +2827,7 @@ int PPCCheckImporter::Run()
 		ok = 0;
 		Logger.LogLastError();
 	ENDCATCH
+	Logger.Save(PPGetFilePathS(PPPATH_LOG, PPFILNAM_IMPEXP_LOG, temp_buf), 0);
 	xmlFreeParserCtxt(p_ctx);
 	return ok;
 }
@@ -2725,7 +2837,7 @@ int ImportCChecks(PPCCheckImpExpParam * pParam)
 	int    ok = -1;
 	int    r = 1;
 	PPCCheckImporter importer;
-	THROW(r = importer.Init(pParam));
+	THROW(r = importer.Init(pParam, false/*interactive*/));
 	if(r > 0) {
 		THROW(importer.Run());
 		ok = 1;

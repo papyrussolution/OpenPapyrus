@@ -1159,16 +1159,31 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 	LocalFileTimeToFileTime(wt, wt); // debug
 }
 
-/*static*/int SFile::SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif)
+/*static*/int SFile::SetTime(SIntHandle hFile, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif)
 {
 #ifdef __WIN32__
 	FILETIME w_cr_ft;
+	FILETIME * p_w_cr_ft = 0;
 	FILETIME w_la_ft;
+	FILETIME * p_w_la_ft = 0;
 	FILETIME w_lm_ft;
-	ldatetime_to_wftime(pCreation,   &w_cr_ft);
-	ldatetime_to_wftime(pLastAccess, &w_la_ft);
-	ldatetime_to_wftime(pLastModif,  &w_lm_ft);
-	return BIN(::SetFileTime(reinterpret_cast<HANDLE>(fh), &w_cr_ft, &w_la_ft, &w_lm_ft));
+	FILETIME * p_w_lm_ft = 0;
+	if(pCreation) {
+		p_w_cr_ft = &w_cr_ft;
+		ldatetime_to_wftime(pCreation, p_w_cr_ft);
+	}
+	if(pLastAccess) {
+		p_w_la_ft = &w_la_ft;
+		ldatetime_to_wftime(pLastAccess, p_w_la_ft);
+	}
+	if(pLastModif) {
+		p_w_lm_ft = &w_lm_ft;
+		ldatetime_to_wftime(pLastModif,  p_w_lm_ft);
+	}
+	if(p_w_cr_ft || p_w_la_ft || p_w_lm_ft)
+		return BIN(::SetFileTime(hFile, p_w_cr_ft, p_w_la_ft, p_w_lm_ft));
+	else
+		return 0;
 #else
 	struct ftime ftm;
 	int d, m, y, h, s, hs;
@@ -1180,30 +1195,30 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 	ftm.ft_hour = h;
 	ftm.ft_min  = m;
 	ftm.ft_tsec = s / 2;
-	return BIN(setftime(fh, &ftm) == 0);
+	return BIN(setftime(SIntHandle hFile, &ftm) == 0);
 #endif
 }
 
 /*static*/int SFile::GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif)
 {
 	int    ok = 1;
-	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
-	if(handle != INVALID_HANDLE_VALUE) {
-		ok = SFile::GetTime((int)handle, pCreation, pLastAccess, pLastModif);
-		::CloseHandle(handle);
+	SIntHandle h_file = ::CreateFile(SUcSwitch(pFileName), FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0);
+	if(h_file) {
+		ok = SFile::GetTime(h_file, pCreation, pLastAccess, pLastModif);
+		::CloseHandle(h_file);
 	}
 	else
 		ok = 0;
 	return ok;
 }
 
-/*static*/int SFile::GetTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, LDATETIME * lastModif)
+/*static*/int SFile::GetTime(SIntHandle hFile, LDATETIME * creation, LDATETIME * lastAccess, LDATETIME * lastModif)
 {
 #ifdef __WIN32__
 	FILETIME w_cr_ft;
 	FILETIME w_la_ft;
 	FILETIME w_lm_ft;
-	if(::GetFileTime((HANDLE)fh, &w_cr_ft, &w_la_ft, &w_lm_ft)) {
+	if(::GetFileTime(hFile, &w_cr_ft, &w_la_ft, &w_lm_ft)) {
 		if(creation)
 			wftime_to_ldatetime(&w_cr_ft, creation);
 		if(lastAccess)
@@ -1216,7 +1231,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 		return 0;
 #else
 	struct ftime ftm;
-	if(getftime(fh, &ftm) == 0) {
+	if(getftime(hFile, &ftm) == 0) {
 		lastModif->d = encodedate(ftm.ft_day, ftm.ft_month, ftm.ft_year + 1980);
 		lastModif->t = encodetime(ftm.ft_hour, ftm.ft_min, ftm.ft_tsec * 2, 0);
 		lastAccess->d = creation->d = lastModif->d;
@@ -2168,8 +2183,36 @@ int SFile::GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME *
 {
 	if(T == tSBuffer)
 		return -1;
+	else if(IsValid()) {
+		if(F) {
+			return SFile::GetTime(SIntHandle(_get_osfhandle(fileno(F))), pCreate, pLastAccess, pModif);
+		}
+		else if(IH >= 0) {
+			return SFile::GetTime(SIntHandle(_get_osfhandle(IH)), pCreate, pLastAccess, pModif);
+		}
+		else
+			return -1;
+	}
 	else
-		return IsValid() ? SFile::GetTime(_get_osfhandle(fileno(F)), pCreate, pLastAccess, pModif) : 0;
+		return 0;
+}
+
+int SFile::SetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif)
+{
+	if(T == tSBuffer)
+		return -1;
+	else if(IsValid()) {
+		if(F) {
+			return SFile::SetTime(SIntHandle(_get_osfhandle(fileno(F))), pCreate, pLastAccess, pModif);
+		}
+		else if(IH >= 0) {
+			return SFile::SetTime(SIntHandle(_get_osfhandle(IH)), pCreate, pLastAccess, pModif);
+		}
+		else
+			return -1;
+	}
+	else
+		return 0;
 }
 
 bool SFile::CalcHash(int64 offs, int hashFuncIdent/* SHASHF_XXX */, SBinaryChunk & rHash)

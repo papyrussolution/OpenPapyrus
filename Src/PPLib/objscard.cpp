@@ -2055,7 +2055,7 @@ int PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID seriesID, v
 			}
 			q.Cat("FORMAT").DotCat("BIN").CatParStr(static_cast<const char *>(0));
 			PPJobSrvReply reply;
-			if(p_cli->Exec(q, reply)) {
+			if(p_cli->ExecSrvCmd(q, reply)) {
 				THROW(reply.StartReading(0));
 				THROW(reply.CheckRepError());
 				if(p_list) {

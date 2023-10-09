@@ -7072,6 +7072,7 @@ job ExportPrjTasks       { "@{job_exportprjtasks}" }  // @v11.3.3
 job FtsIndexing          { "@{job_ftsindexing}" } // @v11.3.4
 job StyloQSendIndexingContent { "@{job_styloqsendindexingcontent}" nologin } // @v11.3.5
 job StyloQPrepareAhead        { "@{job_styloqprepareahead}" nologin } // @v11.4.8
+job ImportCChecks        { "@{job_importcchecks}" } // @v11.8.6
 //
 // -------------- Описания объектов данных PPObject
 //

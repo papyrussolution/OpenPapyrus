@@ -847,7 +847,7 @@ int PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					PPJobSrvReply reply;
 					if(cmd.StartWriting(PPSCMD_REFRESHVIEW) && cmd.Write(GetServerInstId())) {
 						cmd.FinishWriting();
-						if(p_cli->Exec(cmd, reply)) {
+						if(p_cli->ExecSrvCmd(cmd, reply)) {
 							SString reply_buf;
 							reply.StartReading(&reply_buf);
 							if(reply.CheckRepError()) {

@@ -1,5 +1,5 @@
 // V_BBOARD.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -176,7 +176,7 @@ int PPViewServerStat::ResetCache()
 			PPJobSrvReply reply;
 			SString q;
 			q.Cat("RESETCACHE").Space().Cat("GOODS").Space().Cat("NAMEPOOL");
-			if(p_cli->Exec(q, reply)) {
+			if(p_cli->ExecSrvCmd(q, reply)) {
 				THROW(reply.StartReading(0));
 				THROW(reply.CheckRepError());
 				ok = 1;
@@ -197,7 +197,7 @@ int PPViewServerStat::LogLockStack()
 			PPJobSrvReply reply;
 			SString q;
 			q.Cat("LOGLOCKSTACK");
-			if(p_cli->Exec(q, reply)) {
+			if(p_cli->ExecSrvCmd(q, reply)) {
 				THROW(reply.StartReading(0));
 				THROW(reply.CheckRepError());
 				ok = 1;
@@ -228,7 +228,7 @@ int PPViewServerStat::StopThread(long tid)
 		THROW(blk.Serialize(+1, cmd, &ctx));
 		THROW(cmd.FinishWriting());
 		THROW(cli.Connect(Filt.ServerAddr, 0));
-		THROW(cli.Exec(cmd, reply));
+		THROW(cli.ExecSrvCmd(cmd, reply));
 		reply.StartReading(0);
 		THROW(reply.CheckRepError());
 	}
@@ -246,7 +246,7 @@ int PPViewServerStat::FetchStat()
 	SString reply_buf;
 	Data.clear();
 	THROW(cli.Connect(Filt.ServerAddr, 0));
-	THROW(cli.Exec("GetServerStat", reply));
+	THROW(cli.ExecSrvCmd("GetServerStat", reply));
 	reply.StartReading(&reply_buf);
 	THROW(reply.CheckRepError());
 	{
@@ -268,7 +268,7 @@ int PPViewServerStat::FetchStat()
 			THROW_SL(Data.insert(&item));
 		}
 	}
-	THROW(cli.Exec("QUIT", reply));
+	THROW(cli.ExecSrvCmd("QUIT", reply));
 	CATCHZOK
 	return ok;
 }

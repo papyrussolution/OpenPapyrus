@@ -3627,11 +3627,12 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, r = 1;
+		int    ok = -1;
+		int    r = 1;
 		uint   val = 0;
 		SSerializeContext sctx;
 		PPBillImpExpBaseProcessBlock blk;
-		size_t sav_offs = pParam->GetRdOffs();
+		const size_t sav_offs = pParam->GetRdOffs();
 		if(pParam->GetAvailableSize() == 0) {
 			;
 		}
@@ -3664,6 +3665,54 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(IMPORTBILLS);
+//
+// 
+//
+class JOB_HDL_CLS(IMPORTCCHECKS) : public PPJobHandler {
+public:
+	JOB_HDL_CLS(IMPORTCCHECKS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = -1, r = 1;
+		uint   val = 0;
+		SSerializeContext sctx;
+		PPCCheckImporter importer;
+		PPCCheckImpExpParam param;
+		const size_t sav_offs = pParam->GetRdOffs();
+		if(pParam->GetAvailableSize() == 0) {
+			;
+		}
+		else {
+			THROW(importer.SerializeParam(-1, *pParam, &sctx));
+		}
+		if(importer.Select(&param, 1, false/*interactive*/) > 0) {
+			THROW(importer.SerializeParam(+1, pParam->Z(), &sctx));
+			ok = 1;
+		}
+		else
+			pParam->SetRdOffs(sav_offs);
+		CATCHZOKPPERR
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = 1;
+		SSerializeContext sctx;
+		PPCCheckImporter prcssr;
+		if(pParam->GetAvailableSize()) {
+			prcssr.Init(0, true/*nonInteractive*/);
+			THROW(prcssr.SerializeParam(-1, *pParam, &sctx));
+			THROW(prcssr.LoadConfig(1));
+			THROW(prcssr.Run());
+		}
+		CATCHZOK
+		return ok;
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(IMPORTCCHECKS);
 //
 //
 //

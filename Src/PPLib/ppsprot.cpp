@@ -1,5 +1,5 @@
 // PPSPROT.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -42,7 +42,7 @@ int FASTCALL PPJobSrvReply::FinishWriting(int hdrFlags)
 			p_hdr->Flags |= hdrFlags;
 	}
 	else {
-		Write("\xD\xA", 2);
+		Write(PPConst::DefSrvCmdTerm, sstrlen(PPConst::DefSrvCmdTerm));
 	}
 	return ok;
 }
@@ -284,7 +284,7 @@ int PPJobSrvCmd::FinishWriting()
 		static_cast<Header01 *>(Ptr(GetRdOffs()))->DataLen = static_cast<int32>(GetAvailableSize());
 	}
 	else {
-		Write("\xD\xA", 2);
+		Write(PPConst::DefSrvCmdTerm, sstrlen(PPConst::DefSrvCmdTerm));
 	}
 	return ok;
 }
@@ -307,7 +307,7 @@ int FASTCALL PPJobSrvClient::Sync(int force)
 	int    ok = -1;
 	if((force || SyncTimer.Check(0)) && !(State & stLockExec)) {
 		PPJobSrvReply reply;
-		if(Exec("HELLO", reply) && reply.StartReading(0) && reply.CheckRepError())
+		if(ExecSrvCmd("HELLO", reply) && reply.StartReading(0) && reply.CheckRepError())
 			ok = 1;
 		else
 			ok = 0;
@@ -347,7 +347,7 @@ int PPJobSrvClient::Reconnect(const char * pAddr, int port)
 			PPJobSrvReply reply;
 			SString temp_buf;
 			(temp_buf = "RESUME").Space().Cat(AuthCookie);
-			if(Exec(temp_buf, reply) && reply.StartReading(&temp_buf.Z()) && reply.CheckRepError()) {
+			if(ExecSrvCmd(temp_buf, reply) && reply.StartReading(&temp_buf.Z()) && reply.CheckRepError()) {
 				if(reply.GetH().Flags & PPJobSrvReply::hfAck)
 					ok = 2;
 			}
@@ -424,7 +424,7 @@ int PPJobSrvClient::Connect(const char * pAddr, int port)
 	return ok;
 }
 
-int PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvReply & rReply)
+int PPJobSrvClient::ExecSrvCmd(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvReply & rReply)
 {
 	int    ok = 1;
 	int    do_log_error = 0;
@@ -485,32 +485,32 @@ int PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJobSrvRep
 	return ok;
 }
 
-int PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
+int PPJobSrvClient::ExecSrvCmd(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 {
-	return Exec(rCmd, 0, rReply);
+	return ExecSrvCmd(rCmd, 0, rReply);
 }
 
-int PPJobSrvClient::Exec(const char * pCmd, const char * pTerminal, PPJobSrvReply & rReply)
+int PPJobSrvClient::ExecSrvCmd(const char * pCmd, const char * pTerminal, PPJobSrvReply & rReply)
 {
 	PPJobSrvCmd cmd;
 	cmd.StartWriting(pCmd);
 	cmd.FinishWriting();
-	return Exec(cmd, pTerminal, rReply);
+	return ExecSrvCmd(cmd, pTerminal, rReply);
 }
 
-int PPJobSrvClient::Exec(const char * pCmd, PPJobSrvReply & rReply)
+int PPJobSrvClient::ExecSrvCmd(const char * pCmd, PPJobSrvReply & rReply)
 {
 	PPJobSrvCmd cmd;
 	cmd.StartWriting(pCmd);
 	cmd.FinishWriting();
-	return Exec(cmd, 0, rReply);
+	return ExecSrvCmd(cmd, 0, rReply);
 }
 
 int PPJobSrvClient::GetLastErr(SString & rBuf)
 {
 	int    ok = 1;
 	PPJobSrvReply reply;
-	THROW(Exec("GETLASTERR", reply));
+	THROW(ExecSrvCmd("GETLASTERR", reply));
 	THROW(reply.StartReading(&rBuf));
 	CATCHZOK
 	rBuf.Chomp();
@@ -526,11 +526,11 @@ int PPJobSrvClient::Login(const char * pDbSymb, const char * pUserName, const ch
 		THROW(Logout());
 	}
 	cmd.Cat("LOGIN").Space().Cat(pDbSymb).Space().Cat(pUserName).Space().Cat(pPassword);
-	THROW(Exec(cmd, reply));
+	THROW(ExecSrvCmd(cmd, reply));
 	THROW(reply.StartReading(0));
 	THROW(reply.CheckRepError());
 	{
-		THROW(Exec("HSH", reply));
+		THROW(ExecSrvCmd("HSH", reply));
 		THROW(reply.StartReading(&reply_str));
 		THROW(reply.CheckRepError());
 		AuthCookie = reply_str.Chomp();
@@ -546,7 +546,7 @@ int PPJobSrvClient::Logout()
 	if(State & stLoggedIn) {
 		SString reply_str;
 		PPJobSrvReply reply;
-		THROW(Exec("LOGOUT", reply));
+		THROW(ExecSrvCmd("LOGOUT", reply));
 		THROW(reply.StartReading(0));
 		if(reply.GetH().Flags & PPJobSrvReply::hfRepError) {
 			GetLastErr(reply_str);

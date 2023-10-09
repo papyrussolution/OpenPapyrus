@@ -865,6 +865,75 @@
     <ClInclude Include="..\Include\ued.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\libxml\encoding.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\globals.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\HTMLparser.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\HTMLtree.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\list.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\parser.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\relaxng.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\schemasInternals.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\tree.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\valid.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\win32config.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\wsockcompat.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlautomata.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlerror.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlIO.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlmemory.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlmodule.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlreader.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlsave.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlschemas.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlschemastypes.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlversion.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\libxml\xmlwriter.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">
@@ -1111,6 +1180,9 @@
     </Filter>
     <Filter Include="libxml">
       <UniqueIdentifier>{4a985cbb-928c-4899-bf85-332c39185f6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\libxml">
+      <UniqueIdentifier>{aa0ef23c-9d12-4862-9c4e-bc9519a46334}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

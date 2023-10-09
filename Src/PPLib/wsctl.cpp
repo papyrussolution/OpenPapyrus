@@ -1031,11 +1031,11 @@ int WsCtl_ProgramEntry::FromJsonObj(const SJson * pJsObj)
 	return ok;
 }
 
-WsCtl_ProgramCollection::WsCtl_ProgramCollection() : TSCollection <WsCtl_ProgramEntry>(), SelectedCatSurrogateId(0)
+WsCtl_ProgramCollection::WsCtl_ProgramCollection() : TSCollection <WsCtl_ProgramEntry>(), SelectedCatSurrogateId(0), Resolved(false)
 {
 }
 
-WsCtl_ProgramCollection::WsCtl_ProgramCollection(const WsCtl_ProgramCollection & rS) : TSCollection <WsCtl_ProgramEntry>(), SelectedCatSurrogateId(0)
+WsCtl_ProgramCollection::WsCtl_ProgramCollection(const WsCtl_ProgramCollection & rS) : TSCollection <WsCtl_ProgramEntry>(), SelectedCatSurrogateId(0), Resolved(false)
 {
 	Copy(rS);
 }
@@ -1045,6 +1045,7 @@ WsCtl_ProgramCollection & FASTCALL WsCtl_ProgramCollection::Copy(const WsCtl_Pro
 	TSCollection_Copy(*this, rS);
 	SelectedCatSurrogateId = rS.SelectedCatSurrogateId;
 	CatList = rS.CatList;
+	Resolved = rS.Resolved;
 	return *this;
 }
 
@@ -1113,6 +1114,41 @@ int WsCtl_ProgramCollection::MakeCatList()
 				}
 			}
 		}
+	}
+	return ok;
+}
+
+int WsCtl_ProgramCollection::Resolve(const WsCtl_ClientPolicy & rPolicy)
+{
+	int    ok = -1;
+	if(!IsResolved()) {
+		SString temp_buf;
+		const bool is_there_app_paths = (rPolicy.SsAppPaths.getCount() > 0);
+		if(is_there_app_paths) {
+			SFileEntryPool fep;
+			SFileEntryPool::Entry fe;
+			SString path;
+			for(uint i = 0; i < getCount(); i++) {
+				WsCtl_ProgramEntry * p_pe = at(i);
+				if(p_pe && p_pe->ExeFileName.NotEmpty() && p_pe->FullResolvedPath.IsEmpty()) {
+					if(!p_pe->ExeFileName.HasPrefixIAscii("prog")) { // С префиксом prog - фейковые отладочные наименования программ
+						bool found = false;
+						for(uint ssp = 0; !found && rPolicy.SsAppPaths.get(&ssp, temp_buf);) {
+							SFindFileParam ffp(temp_buf, p_pe->ExeFileName);
+							SFindFile2(ffp, fep);
+							if(fep.GetCount()) {
+								for(uint fepidx = 0; !found && fep.Get(fepidx, &fe, &path) > 0; fepidx++) {
+									p_pe->FullResolvedPath = path;
+									found = true;
+								}
+							}
+						}
+					}
+				}
+			}
+			Resolved = true;
+		}
+		ok = 1;
 	}
 	return ok;
 }

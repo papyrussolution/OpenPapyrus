@@ -721,7 +721,7 @@ void PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 								if(cmd_buf.NotEmpty()) {
 									cmd_buf.Space().Cat(p_job->ID);
 									PPJobSrvReply reply;
-									cli.Exec(cmd_buf, reply);
+									cli.ExecSrvCmd(cmd_buf, reply);
 									uint  msg_options = 0;
 									if(reply.CheckRepError()) {
 										PPLoadText(PPTXT_EXECJOBIMM_SUCCESS, fmt_buf);

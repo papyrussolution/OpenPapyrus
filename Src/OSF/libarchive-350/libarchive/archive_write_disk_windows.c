@@ -428,8 +428,7 @@ static int la_chmod(const wchar_t * path, mode_t mode)
 	int ret = 0;
 	wchar_t * fullname = NULL;
 	DWORD attr = GetFileAttributesW(path);
-	if(attr == (DWORD)-1 &&
-	    GetLastError() == ERROR_INVALID_NAME) {
+	if(attr == (DWORD)-1 && GetLastError() == ERROR_INVALID_NAME) {
 		fullname = __la_win_permissive_name_w(path);
 		attr = GetFileAttributesW(fullname);
 	}
@@ -1033,24 +1032,18 @@ static int _archive_write_disk_finish_entry(Archive * _a)
 		}
 	}
 	/* Restore metadata. */
-
 	/*
 	 * Look up the "real" UID only if we're going to need it.
 	 * TODO: the TODO_SGID condition can be dropped here, can't it?
 	 */
 	if(a->todo & (TODO_OWNER | TODO_SUID | TODO_SGID)) {
-		a->uid = archive_write_disk_uid(&a->archive,
-			archive_entry_uname(a->entry),
-			archive_entry_uid(a->entry));
+		a->uid = archive_write_disk_uid(&a->archive, archive_entry_uname(a->entry), archive_entry_uid(a->entry));
 	}
 	/* Look up the "real" GID only if we're going to need it. */
 	/* TODO: the TODO_SUID condition can be dropped here, can't it? */
 	if(a->todo & (TODO_OWNER | TODO_SGID | TODO_SUID)) {
-		a->gid = archive_write_disk_gid(&a->archive,
-			archive_entry_gname(a->entry),
-			archive_entry_gid(a->entry));
+		a->gid = archive_write_disk_gid(&a->archive, archive_entry_gname(a->entry), archive_entry_gid(a->entry));
 	}
-
 	/*
 	 * Restore ownership before set_mode tries to restore suid/sgid
 	 * bits.  If we set the owner, we know what it is and can skip
@@ -1058,7 +1051,6 @@ static int _archive_write_disk_finish_entry(Archive * _a)
 	 */
 	if(a->todo & TODO_OWNER)
 		ret = set_ownership(a);
-
 	/*
 	 * set_mode must precede ACLs on systems such as Solaris and
 	 * FreeBSD where setting the mode implicitly clears extended ACLs
@@ -1067,7 +1059,6 @@ static int _archive_write_disk_finish_entry(Archive * _a)
 		int r2 = set_mode(a, a->mode);
 		if(r2 < ret) ret = r2;
 	}
-
 	/*
 	 * Security-related extended attributes (such as
 	 * security.capability on Linux) have to be restored last,
@@ -1077,7 +1068,6 @@ static int _archive_write_disk_finish_entry(Archive * _a)
 		int r2 = set_xattrs(a);
 		if(r2 < ret) ret = r2;
 	}
-
 	/*
 	 * Some flags prevent file modification; they must be restored after
 	 * file contents are written.
@@ -1086,7 +1076,6 @@ static int _archive_write_disk_finish_entry(Archive * _a)
 		int r2 = set_fflags(a);
 		if(r2 < ret) ret = r2;
 	}
-
 	/*
 	 * Time must follow most other metadata;
 	 * otherwise atime will get changed.
@@ -1095,18 +1084,14 @@ static int _archive_write_disk_finish_entry(Archive * _a)
 		int r2 = set_times_from_entry(a);
 		if(r2 < ret) ret = r2;
 	}
-
 	/*
 	 * ACLs must be restored after timestamps because there are
 	 * ACLs that prevent attribute changes (including time).
 	 */
 	if(a->todo & TODO_ACLS) {
-		int r2 = set_acls(a, a->fh,
-			archive_entry_pathname_w(a->entry),
-			archive_entry_acl(a->entry));
+		int r2 = set_acls(a, a->fh, archive_entry_pathname_w(a->entry), archive_entry_acl(a->entry));
 		if(r2 < ret) ret = r2;
 	}
-
 	/* If there's an fd, we can close it now. */
 	if(a->fh != INVALID_HANDLE_VALUE) {
 		CloseHandle(a->fh);
@@ -2354,8 +2339,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 			mode &= ~S_ISGID;
 		}
 		/* While we're here, double-check the UID. */
-		if(0 != a->uid
-		    && (a->todo & TODO_SUID)) {
+		if(0 != a->uid && (a->todo & TODO_SUID)) {
 			mode &= ~S_ISUID;
 		}
 		a->todo &= ~TODO_SGID_CHECK;
@@ -2404,8 +2388,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 		}
 		else
 #endif
-		/* If this platform lacks fchmod(), then
-		 * we'll just use chmod(). */
+		// If this platform lacks fchmod(), then we'll just use chmod()
 		if(la_chmod(a->name, mode) != 0) {
 			archive_set_error(&a->archive, errno, "Can't set permissions to 0%o", (int)mode);
 			r = ARCHIVE_WARN;

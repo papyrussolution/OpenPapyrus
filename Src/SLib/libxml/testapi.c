@@ -32117,7 +32117,7 @@ static int test_xmlSaveDoc()
 	long ret_val;
 	xmlSaveCtxt * ctxt; /* a document saving context */
 	int n_ctxt;
-	xmlDocPtr doc; /* a document */
+	xmlDoc * doc; /* a document */
 	int n_doc;
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlSaveCtxtPtr; n_ctxt++) {
 		for(n_doc = 0; n_doc < gen_nb_xmlDocPtr; n_doc++) {
@@ -32131,8 +32131,7 @@ static int test_xmlSaveDoc()
 			des_xmlDocPtr(n_doc, doc, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
-				printf("Leak of %d blocks found in xmlSaveDoc",
-				    xmlMemBlocks() - mem_base);
+				printf("Leak of %d blocks found in xmlSaveDoc", xmlMemBlocks() - mem_base);
 				test_ret++;
 				printf(" %d", n_ctxt);
 				printf(" %d", n_doc);

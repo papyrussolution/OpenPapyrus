@@ -2653,13 +2653,11 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 			if(xmlout)
 				saveOpts |= XML_SAVE_AS_XML;
 #endif
-
-			if(output == NULL)
+			if(!output)
 				ctxt = xmlSaveToFd(1, encoding, saveOpts);
 			else
 				ctxt = xmlSaveToFilename(output, encoding, saveOpts);
-
-			if(ctxt != NULL) {
+			if(ctxt) {
 				if(xmlSaveDoc(ctxt, doc) < 0) {
 					fprintf(stderr, "failed save to %s\n", output ? output : "-");
 					progresult = XMLLINT_ERR_OUT;

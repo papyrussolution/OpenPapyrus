@@ -2858,49 +2858,79 @@ int Test_ImpExpParamDialog()
 //
 //
 //
-int GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pParam, StrAssocArray * pList, int kind)
+static int Helper_MakeImpExpSectionsList(PPImpExpParam * pParam, StringSet & rSs, StrAssocArray * pList)
 {
 	int    ok = 1;
 	uint   p = 0;
 	long   id = 0;
-	SString section, sect;
-	StringSet ss;
-	int direction = pParam->Direction; // @vmiller Надо запомнить и восстановить этот параметр, ибо он меняется в GetImpExpSections()
-	THROW(GetImpExpSections(fileNameId, sdRecID, pParam, &ss, kind));
-	for(p = 0, id = 1; ss.get(&p, section); id++) {
-		pParam->ProcessName(2, sect = section);
-		THROW_SL(pList->Add(id, sect));
+	SString temp_buf;
+	SString section;
+	for(p = 0, id = 1; rSs.get(&p, section); id++) {
+		pParam->ProcessName(2, temp_buf = section);
+		THROW_SL(pList->Add(id, temp_buf));
 	}
+	CATCHZOK
+	return ok;
+}
+
+int GetImpExpSections(uint fileNameId, uint sdRecId, PPImpExpParam * pParam, StrAssocArray * pList, int kind)
+{
+	int    ok = 1;
+	StringSet ss;
+	const int direction = pParam->Direction; // @vmiller Надо запомнить и восстановить этот параметр, ибо он меняется в GetImpExpSections()
+	THROW(GetImpExpSections(fileNameId, sdRecId, pParam, &ss, kind));
+	THROW(Helper_MakeImpExpSectionsList(pParam, ss, pList));
 	CATCHZOK
 	pParam->Direction = direction; // @vmiller
 	return ok;
 }
 
-int GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pParam, StringSet * pSectNames, int kind /*0 - all, 1 - export, 2 - import*/)
+int GetImpExpSections(PPIniFile & rF, uint sdRecId, PPImpExpParam * pParam, StrAssocArray * pList, int kind)
 {
 	int    ok = 1;
-	SString ini_file_name, section;
+	StringSet ss;
+	const int direction = pParam->Direction; // @vmiller Надо запомнить и восстановить этот параметр, ибо он меняется в GetImpExpSections()
+	THROW(GetImpExpSections(rF, sdRecId, pParam, &ss, kind));
+	THROW(Helper_MakeImpExpSectionsList(pParam, ss, pList));
+	CATCHZOK
+	pParam->Direction = direction; // @vmiller
+	return ok;
+}
+
+int GetImpExpSections(PPIniFile & rF, uint sdRecId, PPImpExpParam * pParam, StringSet * pSectNames, int kind)
+{
+	int    ok = 1;
+	SString section;
 	StringSet all_sections;
-	THROW(PPGetFilePath(PPPATH_BIN, fileNameId, ini_file_name));
-	THROW(LoadSdRecord(sdRecID, &pParam->InrRec));
-	{
-		int    is_exists = fileExists(ini_file_name);
-		PPIniFile ini_file(ini_file_name, is_exists ? 0 : 1, 1, 1);
-		THROW(ini_file.IsValid());
-		THROW(ini_file.GetSections(&all_sections));
-		for(uint p = 0; all_sections.get(&p, section);) {
-			if(pParam->ProcessName(3, section)) {
-				pParam->OtrRec.Clear();
-				pParam->HdrOtrRec.Clear();
-				const int r = pParam->ReadIni(&ini_file, section, 0);
-				if(r) {
-					if((kind == 1 && pParam->Direction == 0) || (kind == 2 && pParam->Direction == 1) || kind == 0)
-						pSectNames->add(section);
-				}
-				else
-					PPError();
+	THROW(rF.IsValid());
+	THROW(LoadSdRecord(sdRecId, &pParam->InrRec));
+	THROW(rF.GetSections(&all_sections));
+	for(uint p = 0; all_sections.get(&p, section);) {
+		if(pParam->ProcessName(3, section)) {
+			pParam->OtrRec.Clear();
+			pParam->HdrOtrRec.Clear();
+			const int r = pParam->ReadIni(&rF, section, 0);
+			if(r) {
+				if((kind == 1 && pParam->Direction == 0) || (kind == 2 && pParam->Direction == 1) || kind == 0)
+					pSectNames->add(section);
 			}
+			else
+				PPError();
 		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int GetImpExpSections(uint fileNameId, uint sdRecId, PPImpExpParam * pParam, StringSet * pSectNames, int kind /*0 - all, 1 - export, 2 - import*/)
+{
+	int    ok = 1;
+	SString ini_file_name;
+	THROW(PPGetFilePath(PPPATH_BIN, fileNameId, ini_file_name));
+	{
+		const bool is_exists = fileExists(ini_file_name);
+		PPIniFile ini_file(ini_file_name, is_exists ? 0 : 1, 1, 1);
+		THROW(GetImpExpSections(ini_file, sdRecId, pParam, pSectNames, kind));
 	}
 	CATCHZOK
 	return ok;

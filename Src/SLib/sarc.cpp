@@ -366,6 +366,12 @@ static void extract(const char *filename)
 	return ok;
 }
 
+/*static*/int SArchive::Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath)
+{
+	int    ok = 0;
+	return ok;
+}
+
 /*static*/int SArchive::InflateAll(int provider, const char * pName, uint flags, const char * pDestPath)
 {
 	int    ok = 0;
@@ -426,7 +432,7 @@ static void extract(const char *filename)
 								}
 								else {
 									ps.Merge(final_path);
-									SFile f_out(final_path, SFile::mWrite|SFile::mBinary);
+									SFile f_out(final_path, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
 									do {
 										if(!f_out.Write(p_buf, buf_size)) {
 											rd_result = ARCHIVE_FAILED;
@@ -435,8 +441,10 @@ static void extract(const char *filename)
 										else
 											rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
 									} while(rd_result == ARCHIVE_OK);
-									if(rd_result == ARCHIVE_EOF)
+									if(rd_result == ARCHIVE_EOF) {
+										f_out.SetDateTime(0, 0, &fep_entry.WriteTime);
 										local_ok = 1;
+									}
 								}
 							}
 							/*for(;;) {

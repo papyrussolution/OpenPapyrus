@@ -1336,6 +1336,7 @@ public:
 	static constexpr long DefaultTxtDateFormat = DATF_GERMAN;
 	static constexpr char DefaultOverflowSymb  = '#';
 	static constexpr char DefaultPasswordSymb  = '*';
+	static constexpr uint DefaultPrintfFloatPrec = 6U; // @v11.8.6 // define the default floating point precision. default: 6 digits
 	static constexpr uint VectorImageMask = 0x00008000U;
 	static constexpr uint TypeTabSize = 64U; // @v11.7.6
 	static constexpr uint64 Ssc_CompressionSignature = 0xFDB975312468ACE0ULL; // Сигнатура сжатия в буфере SBuffer
@@ -2510,6 +2511,9 @@ public:
 	{
 	}
 	SIntHandle(HANDLE h) : H(reinterpret_cast<uintptr_t>(h))
+	{
+	}
+	SIntHandle(intptr_t h) : H(static_cast<uintptr_t>(h))
 	{
 	}
 	bool operator !() const { return (H == static_cast<uintptr_t>(-1)); }
@@ -12415,8 +12419,8 @@ public:
 	//   1 - функция успешно выполнена
 	//   0 - error
 	//
-	static int GetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
-	static int SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif);
+	static int GetTime(SIntHandle hFile, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
+	static int SetTime(SIntHandle hFile, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif);
 	static int IdentifyFormat(const char * pFileName);
 	static int IsOpenedForWriting(const char * pFileName);
 	//
@@ -12621,6 +12625,7 @@ public:
 	//
 	bool   CalcHash(int64 offs, int hashFunc/* SHASHF_XXX */, SBinaryChunk & rHash);
 	int    GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif);
+	int    SetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif);
 	//
 	// Descr: Рассчитывает CRC32 файла, начиная со смещения offs.
 	//   После подсчета восстанавливает исходную текущую позицию файла.
@@ -12812,6 +12817,7 @@ public:
 	//
 	static int List(int provider, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool);
 	static int Inflate(int provider, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath);
+	static int Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath);
 	static int InflateAll(int provider, const char * pName, uint flags, const char * pDestPath);
 	static int Deflate(int provider, int format, const char * pName, uint flags, const SFileEntryPool & rPool);
 
@@ -16233,6 +16239,8 @@ public:
 	int    TryLock() { return Cs.TryEnter(); }
 	void   Unlock() { Cs.Leave(); }
 private:
+	SMtLock(const SMtLock & rS) {} // @v11.8.6 disable copying
+	SMtLock & operator == (const SMtLock & rS) {} // @v11.8.6 disable copying
 	SCriticalSection::Data Cs;
 };
 //

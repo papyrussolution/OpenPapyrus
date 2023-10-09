@@ -1444,7 +1444,7 @@ PPView::~PPView()
 				PPJobSrvReply reply;
 				if(cmd.StartWriting(PPSCMD_DESTROYVIEW) && cmd.Write(ServerInstId)) {
 					cmd.FinishWriting();
-					if(p_cli->Exec(cmd, reply)) {
+					if(p_cli->ExecSrvCmd(cmd, reply)) {
 						reply.StartReading(0);
 						if(reply.CheckRepError()) {
 							BaseState |= bsServerInstDestr;
@@ -1944,7 +1944,7 @@ int PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 			THROW_SL(cmd.Write(ServerInstId));
 			THROW(p_filt->Serialize(+1, cmd, &ctx));
 			cmd.FinishWriting();
-			if(!p_cli->Exec(cmd, reply)) {
+			if(!p_cli->ExecSrvCmd(cmd, reply)) {
 				const SlThreadLocalArea & r_sltla = SLS.GetConstTLA();
 				if(try_reconnect && PPErrCode == PPERR_SLIB && r_sltla.LastErr == SLERR_SOCK_WINSOCK && r_sltla.LastSockErr == WSAECONNRESET) {
 					if(--try_reconnect) {

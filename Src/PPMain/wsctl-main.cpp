@@ -727,10 +727,18 @@ public:
 				rData = Data;
 				Lck.Unlock();
 			}
+			const T & GetRef() const
+			{
+				const T * ptr = 0;
+				Lck.Lock();
+				ptr = &Data;
+				Lck.Unlock();
+				return *ptr;
+			}
 		private:
 			const  int SyncDataId; // syncdataXXX
 			T      Data;
-			SMtLock Lck;
+			mutable SMtLock Lck; 
 			int64  TmActual;
 			int64  TmExpiry;
 		};	
@@ -1482,7 +1490,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 		case PPSCMD_HELLO:
 			if(P_St) {
 				WsCtl_ImGuiSceneBlock::DTest st_data;
-				if(rCli.Exec("HELLO", reply) && reply.StartReading(&temp_buf)) {
+				if(rCli.ExecSrvCmd("HELLO", PPConst::DefSrvCmdTerm, reply) && reply.StartReading(&temp_buf)) {
 					if(reply.CheckRepError()) {
 						(st_data.Reply = "OK").CatDiv(':', 2).Cat(temp_buf);
 					}
@@ -1515,7 +1523,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 						cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
 					}
 					cmd.FinishWriting();
-					if(rCli.Exec(cmd, reply)) {
+					if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
 						SString reply_buf;
 						reply.StartReading(&reply_buf);
 						if(reply.CheckRepError()) {
@@ -1552,7 +1560,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 						cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
 					}
 					cmd.FinishWriting();
-					if(rCli.Exec(cmd, reply)) {
+					if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
 						SString reply_buf;
 						reply.StartReading(&reply_buf);
 						if(reply.CheckRepError()) {
@@ -1604,7 +1612,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 					cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
 				}
 				cmd.FinishWriting();
-				if(rCli.Exec(cmd, reply)) {
+				if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
 					SString reply_buf;
 					reply.StartReading(&reply_buf);
 					if(reply.CheckRepError()) {
@@ -1669,7 +1677,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				cmd.StartWriting(PPSCMD_WSCTL_GETACCOUNTSTATE);
 				cmd.Write(&rReq.P.SCardID, sizeof(rReq.P.SCardID));
 				cmd.FinishWriting();
-				if(rCli.Exec(cmd, reply)) {
+				if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
 					SString reply_buf;
 					reply.StartReading(&reply_buf);
 					if(reply.CheckRepError()) {
@@ -1719,7 +1727,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				cmd.StartWriting(PPSCMD_WSCTL_INIT);
 				cmd.Write(&rReq.P.Uuid, sizeof(rReq.P.Uuid));
 				cmd.FinishWriting();
-				if(rCli.Exec(cmd, reply)) {
+				if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
 					SString reply_buf;
 					reply.StartReading(&reply_buf);
 					if(reply.CheckRepError()) {
@@ -1777,7 +1785,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				cmd.StartWriting(PPSCMD_WSCTL_QUERYPGMLIST);
 				cmd.Write(&rReq.P.Uuid, sizeof(rReq.P.Uuid));
 				cmd.FinishWriting();
-				if(rCli.Exec(cmd, reply)) {
+				if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
 					SString reply_buf;
 					reply.StartReading(&reply_buf);
 					if(reply.CheckRepError()) {
@@ -1807,7 +1815,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				cmd.StartWriting(PPSCMD_WSCTL_QUERYPOLICY);
 				cmd.Write(&rReq.P.Uuid, sizeof(rReq.P.Uuid));
 				cmd.FinishWriting();
-				if(rCli.Exec(cmd, reply)) {
+				if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
 					SString reply_buf;
 					reply.StartReading(&reply_buf);
 					if(reply.CheckRepError()) {
@@ -1838,7 +1846,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 					cmd.StartWriting(PPSCMD_WSCTL_GETQUOTLIST);
 					cmd.Write(&st_prc_data.PrcID, sizeof(st_prc_data.PrcID));
 					cmd.FinishWriting();
-					if(rCli.Exec(cmd, reply)) {
+					if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
 						SString reply_buf;
 						reply.StartReading(&reply_buf);
 						if(reply.CheckRepError()) {
@@ -1884,7 +1892,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 						cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
 					}
 					cmd.FinishWriting();
-					if(rCli.Exec(cmd, reply)) {
+					if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
 						SString reply_buf;
 						reply.StartReading(&reply_buf);
 						if(reply.CheckRepError()) {
@@ -1927,7 +1935,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 					cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
 				}
 				cmd.FinishWriting();
-				if(rCli.Exec(cmd, reply)) {
+				if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
 					SString reply_buf;
 					reply.StartReading(&reply_buf);
 					if(reply.CheckRepError()) {
@@ -2049,10 +2057,11 @@ SUiLayout * WsCtl_ImGuiSceneBlock::MakePgmListLayout()
 		lop_entry.SetFixedSizeX(128.0f);
 		lop_entry.SetFixedSizeY(128.0f);
 	}
-	if(PgmL.SelectedCatSurrogateId) {
+	if(PgmL.GetSelectedCatSurrogateId()) {
 		uint sel_idx = 0;
-		if(PgmL.CatList.Search(PgmL.SelectedCatSurrogateId, &sel_idx)) {
-			filt_cat_text = PgmL.CatList.Get(sel_idx).Txt;
+		const StrAssocArray & r_cat_list = PgmL.GetCatList();
+		if(r_cat_list.Search(PgmL.GetSelectedCatSurrogateId(), &sel_idx)) {
+			filt_cat_text = r_cat_list.Get(sel_idx).Txt;
 		}
 	}
 	for(uint i = 0; i < PgmL.getCount(); i++) {
@@ -2103,11 +2112,11 @@ int WsCtl_ImGuiSceneBlock::LoadProgramList()
 			}
 		}
 	}
-	{
+	/*{
 		SUiLayout * p_lo_head = MakePgmListLayout();
 		if(p_lo_head)
 			Cache_Layout.Put(p_lo_head, true);
-	}
+	}*/
 	CATCHZOK
 	delete p_js;
 	return ok;
@@ -2126,37 +2135,9 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 
 int WsCtl_ImGuiSceneBlock::ResolveProgramPaths()
 {
-	int    ok = -1;
-	SString temp_buf;
 	DClientPolicy policy;
 	St.D_Policy.GetData(policy);
-	const bool is_there_app_paths = (policy.P.SsAppPaths.getCount() > 0);
-	SFileEntryPool fep;
-	SFileEntryPool::Entry fe;
-	SString path;
-	for(uint i = 0; i < PgmL.getCount(); i++) {
-		WsCtl_ProgramEntry * p_pe = PgmL.at(i);
-		if(p_pe && p_pe->ExeFileName.NotEmpty() && p_pe->FullResolvedPath.IsEmpty()) {
-			if(!p_pe->ExeFileName.HasPrefixIAscii("prog")) { // С префиксом prog - фейковые отладочные наименования программ
-				if(is_there_app_paths) {
-					bool found = false;
-					for(uint ssp = 0; !found && policy.P.SsAppPaths.get(&ssp, temp_buf);) {
-						SFindFileParam ffp(temp_buf, p_pe->ExeFileName);
-						SFindFile2(ffp, fep);
-						if(fep.GetCount()) {
-							for(uint fepidx = 0; !found && fep.Get(fepidx, &fe, &path) > 0; fepidx++) {
-								p_pe->FullResolvedPath = path;
-								found = true;
-							}
-						}
-					}
-				}
-				else {
-				}
-			}
-		}
-	}
-	return ok;
+	return PgmL.Resolve(policy.P);
 }
 
 int WsCtl_ImGuiSceneBlock::ApplyClientPolicy()
@@ -2721,18 +2702,19 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 			{
 				ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryCatSelector, "##ProgramCatSelector",
 					view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
-				if(PgmL.CatList.getCount()) {
+				const StrAssocArray & r_cat_list = PgmL.GetCatList();
+				if(r_cat_list.getCount()) {
 					const char * p_selected_text = 0;
 					uint    selected_idx = 0;
-					if(PgmL.CatList.Search(PgmL.SelectedCatSurrogateId, &selected_idx) > 0) {
-						StrAssocArray::Item item = PgmL.CatList.Get(selected_idx);
+					if(r_cat_list.Search(PgmL.GetSelectedCatSurrogateId(), &selected_idx) > 0) {
+						StrAssocArray::Item item = r_cat_list.Get(selected_idx);
 						p_selected_text = item.Txt;
 					}
 					if(ImGui::BeginCombo("##pgmcatlist", p_selected_text)) {
-						for(uint catidx = 0; catidx < PgmL.CatList.getCount(); catidx++) {
-							StrAssocArray::Item item = PgmL.CatList.Get(catidx);
-							if(ImGui::Selectable(item.Txt, item.Id == PgmL.SelectedCatSurrogateId))
-								PgmL.SelectedCatSurrogateId = item.Id;
+						for(uint catidx = 0; catidx < r_cat_list.getCount(); catidx++) {
+							StrAssocArray::Item item = r_cat_list.Get(catidx);
+							if(ImGui::Selectable(item.Txt, item.Id == PgmL.GetSelectedCatSurrogateId()))
+								PgmL.SetSelectedCatSurrogateId(item.Id);
 						}
 						ImGui::EndCombo();
 					}
@@ -2871,7 +2853,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						{
 							SUiLayout * p_tpg = tl.FindById(/*loidSessionProgramGallery*/loidTestProgramGallery);
 							if(p_tpg) {
-								const int lo_id = loidInternalProgramGallery;
+								//const int lo_id = loidInternalProgramGallery;
 								SUiLayout * p_ipg_ = MakePgmListLayout();
 								if(p_ipg_)
 									p_tpg->Insert(p_ipg_);
@@ -3060,7 +3042,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					{
 						SUiLayout * p_tpg = tl.FindById(loidTestProgramGallery);
 						if(p_tpg) {
-							const int lo_id = loidInternalProgramGallery;
+							//const int lo_id = loidInternalProgramGallery;
 							SUiLayout * p_ipg_ = MakePgmListLayout();
 							if(p_ipg_)
 								p_tpg->Insert(p_ipg_);

@@ -1290,8 +1290,7 @@ struct UrlState {
 
 	char * buffer; /* download buffer */
 	char * ulbuf; /* allocated upload buffer or NULL */
-	curl_off_t current_speed; /* the ProgressShow() function sets this,
-	                             bytes / second */
+	curl_off_t current_speed; /* the ProgressShow() function sets this, bytes / second */
 	char * first_host; /* host name of the first (not followed) request.
 	                      if set, this should be the host name that we will
 	                      sent authorization to, no else. Used to make Location:
@@ -1311,12 +1310,9 @@ struct UrlState {
 #endif
 	struct digestdata digest; /* state data for host Digest auth */
 	struct digestdata proxydigest; /* state data for proxy Digest auth */
-
 	struct auth authhost; /* auth details for host */
 	struct auth authproxy; /* auth details for proxy */
-	void * resolver; /* resolver state, if it is used in the URL state -
-	                    ares_channel f.e. */
-
+	void * resolver; /* resolver state, if it is used in the URL state - ares_channel f.e. */
 #if defined(USE_OPENSSL)
 	/* void instead of ENGINE to avoid bleeding OpenSSL into this header */
 	void * engine;
@@ -1325,13 +1321,9 @@ struct UrlState {
 	struct Curl_tree timenode; /* for the splay stuff */
 	struct Curl_llist timeoutlist; /* list of pending timeouts */
 	struct time_node expires[EXPIRE_LAST]; /* nodes for each expire type */
-
 	/* a place to store the most recently set FTP entrypath */
 	char * most_recent_ftp_entrypath;
-
-	int httpversion; /* the lowest HTTP version*10 reported by any server
-	                    involved in this request */
-
+	int httpversion; /* the lowest HTTP version*10 reported by any server involved in this request */
 #if !defined(WIN32) && !defined(MSDOS) && !defined(__EMX__)
 /* do FTP line-end conversions on most platforms */
 #define CURL_DO_LINEEND_CONV
@@ -1340,22 +1332,14 @@ struct UrlState {
 	/* for FTP downloads: how many CRLFs did we converted to LFs? */
 	curl_off_t crlf_conversions;
 #endif
-	char * range; /* range, if used. See README for detailed specification on
-	                 this syntax. */
+	char * range; /* range, if used. See README for detailed specification on this syntax. */
 	curl_off_t resume_from; /* continue [ftp] transfer from here */
-
 	/* This RTSP state information survives requests and connections */
 	long rtsp_next_client_CSeq; /* the session's next client CSeq */
 	long rtsp_next_server_CSeq; /* the session's next server CSeq */
 	long rtsp_CSeq_recv; /* most recent CSeq received */
-
-	curl_off_t infilesize; /* size of file to upload, -1 means unknown.
-	                          Copied from set.filesize at start of operation */
-
-	size_t drain; /* Increased when this stream has data to read, even if its
-	                 socket is not necessarily is readable. Decreased when
-	                 checked. */
-
+	curl_off_t infilesize; /* size of file to upload, -1 means unknown. Copied from set.filesize at start of operation */
+	size_t drain; /* Increased when this stream has data to read, even if its socket is not necessarily is readable. Decreased when checked. */
 	curl_read_callback fread_func; /* read callback/function */
 	void * in; /* CURLOPT_READDATA */
 

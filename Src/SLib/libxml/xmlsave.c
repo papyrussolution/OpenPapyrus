@@ -7,43 +7,9 @@
  */
 #include <slib-internal.h>
 #pragma hdrstop
+#include <libxml\xmlsave.h>
 
 #ifdef LIBXML_OUTPUT_ENABLED
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
-// 
-// Descr: xmlSaveOption
-//   This is the set of XML save options that can be passed down
-//   to the xmlSaveToFd() and similar calls.
-// 
-enum xmlSaveOption {
-	XML_SAVE_FORMAT     = 1<<0, /* format save output */
-	XML_SAVE_NO_DECL    = 1<<1, /* drop the xml declaration */
-	XML_SAVE_NO_EMPTY   = 1<<2, /* no empty tags */
-	XML_SAVE_NO_XHTML   = 1<<3, /* disable XHTML1 specific rules */
-	XML_SAVE_XHTML      = 1<<4, /* force XHTML1 specific rules */
-	XML_SAVE_AS_XML     = 1<<5, /* force XML serialization on HTML doc */
-	XML_SAVE_AS_HTML    = 1<<6, /* force HTML serialization on XML doc */
-	XML_SAVE_WSNONSIG   = 1<<7 /* format with non-significant whitespace */
-};
-
-struct xmlSaveCtxt;
-//typedef xmlSaveCtxt * xmlSaveCtxtPtr;
-
-XMLPUBFUN xmlSaveCtxt * xmlSaveToFd(int fd, const char * encoding, int options);
-XMLPUBFUN xmlSaveCtxt * xmlSaveToFilename(const char * filename, const char * encoding, int options);
-XMLPUBFUN xmlSaveCtxt * xmlSaveToBuffer(xmlBuffer * buffer, const char * encoding, int options);
-XMLPUBFUN xmlSaveCtxt * xmlSaveToIO(xmlOutputWriteCallback iowrite, xmlOutputCloseCallback ioclose, void * ioctx, const char * encoding, int options);
-XMLPUBFUN long xmlSaveDoc(xmlSaveCtxt * ctxt, xmlDoc * doc);
-XMLPUBFUN long xmlSaveTree(xmlSaveCtxt * ctxt, xmlNode * pNode);
-XMLPUBFUN int xmlSaveFlush(xmlSaveCtxt * ctxt);
-XMLPUBFUN int xmlSaveClose(xmlSaveCtxt * ctxt);
-XMLPUBFUN int xmlSaveSetEscape(xmlSaveCtxt * ctxt, xmlCharEncodingOutputFunc escape);
-XMLPUBFUN int xmlSaveSetAttrEscape(xmlSaveCtxt * ctxt, xmlCharEncodingOutputFunc escape);
-//#ifdef __cplusplus
-//}
-//#endif
 #endif /* LIBXML_OUTPUT_ENABLED */
 //
 #define MAX_INDENT 60
@@ -1004,15 +970,15 @@ static int xmlDocContentDumpOutput(xmlSaveCtxt * ctxt, xmlDoc * cur)
 		return -1;
 #endif
 	}
-	else if((cur->type == XML_DOCUMENT_NODE) || (ctxt->options & XML_SAVE_AS_XML) || (ctxt->options & XML_SAVE_XHTML)) {
+	else if(cur->type == XML_DOCUMENT_NODE || (ctxt->options & (XML_SAVE_AS_XML|XML_SAVE_XHTML))) {
 		enc = xmlParseCharEncoding(reinterpret_cast<const char *>(encoding));
 		if(encoding && !oldctxtenc && !buf->encoder && !buf->conv && !(ctxt->options & XML_SAVE_NO_DECL)) {
-			if((enc != XML_CHAR_ENCODING_UTF8) && (enc != XML_CHAR_ENCODING_NONE) && (enc != XML_CHAR_ENCODING_ASCII)) {
-				/*
-				 * we need to switch to this encoding but just for this
-				 * document since we output the XMLDecl the conversion
-				 * must be done to not generate not well formed documents.
-				 */
+			if(!oneof3(enc, XML_CHAR_ENCODING_UTF8, XML_CHAR_ENCODING_NONE, XML_CHAR_ENCODING_ASCII)) {
+				// 
+				// we need to switch to this encoding but just for this
+				// document since we output the XMLDecl the conversion
+				// must be done to not generate not well formed documents.
+				// 
 				if(xmlSaveSwitchEncoding(ctxt, reinterpret_cast<const char *>(encoding)) < 0) {
 					cur->encoding = oldenc;
 					return -1;
@@ -1024,9 +990,9 @@ static int xmlDocContentDumpOutput(xmlSaveCtxt * ctxt, xmlDoc * cur)
 			if(ctxt->escapeAttr == xmlEscapeEntities)
 				ctxt->escapeAttr = NULL;
 		}
-		/*
-		 * Save the XML declaration
-		 */
+		// 
+		// Save the XML declaration
+		// 
 		if(!(ctxt->options & XML_SAVE_NO_DECL)) {
 			xmlOutputBufferWrite(buf, 14, "<?xml version=");
 			if(cur->version)
@@ -1069,9 +1035,9 @@ static int xmlDocContentDumpOutput(xmlSaveCtxt * ctxt, xmlDoc * cur)
 			}
 		}
 	}
-	/*
-	 * Restore the state of the saving context at the end of the document
-	 */
+	//
+	// Restore the state of the saving context at the end of the document
+	//
 	if(switched_encoding && !oldctxtenc) {
 		xmlSaveClearEncoding(ctxt);
 		ctxt->escape = oldescape;
@@ -1592,8 +1558,7 @@ xmlSaveCtxt * xmlSaveToFd(int fd, const char * encoding, int options)
  * @options:  a set of xmlSaveOptions
  *
  * Create a document saving context serializing to a filename or possibly
- * to an URL (but this is less reliable) with the encoding and the options
- * given.
+ * to an URL (but this is less reliable) with the encoding and the options given.
  *
  * Returns a new serialization context or NULL in case of error.
  */
@@ -1603,7 +1568,7 @@ xmlSaveCtxt * xmlSaveToFilename(const char * filename, const char * encoding, in
 	xmlSaveCtxt * ret = xmlNewSaveCtxt(encoding, options);
 	if(ret) {
 		ret->buf = xmlOutputBufferCreateFilename(filename, ret->handler, compression);
-		if(ret->buf == NULL) {
+		if(!ret->buf) {
 			xmlFreeSaveCtxt(ret);
 			return 0;
 		}

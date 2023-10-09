@@ -1,5 +1,5 @@
 // SXML.H
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 //
 #ifndef __SXML_H
@@ -8,6 +8,7 @@
 #include <slib.h>
 #include <libxml\xmlwriter.h>
 #include <libxml\xmlreader.h>
+#include <libxml\xmlsave.h>
 //
 //
 //

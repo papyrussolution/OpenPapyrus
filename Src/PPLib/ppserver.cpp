@@ -2104,7 +2104,7 @@ int PPWorkerSession::SetupTxtCmdTerm(int code)
 	switch(code) {
 		case -1: P_TxtCmdTerminal = 0; break;
 		case 0: P_TxtCmdTerminal = 0; break;
-		case 1: P_TxtCmdTerminal = "\xD\xA"; break;
+		case 1: P_TxtCmdTerminal = PPConst::DefSrvCmdTerm; break;
 		case 2: P_TxtCmdTerminal = "\xD\xA\xD\xA"; break;
 		case 3: P_TxtCmdTerminal = "\xD"; break;
 		case 4: P_TxtCmdTerminal = "\xA"; break;
@@ -5067,7 +5067,7 @@ int run_client()
 					break;
 				// @v7.3.2 @debug {
 				else if(sstreqi_ascii(cmd, "pingtest")) {
-					if(cli.Exec("ping term 0A", "0A", reply)) {
+					if(cli.ExecSrvCmd("ping term 0A", "0A", reply)) {
 						int r = reply.StartReading(&reply_str);
 						if(r == 2) {
 							reply_str.ToOem();
@@ -5104,7 +5104,7 @@ int run_client()
 				}
 				else if(cli.GetState() & PPJobSrvClient::stConnected) {
 					const bool is_quit = (strnicmp(cmd, "quit", 4) == 0);
-					if(cli.Exec(cmd, reply)) {
+					if(cli.ExecSrvCmd(cmd, reply)) {
 						int r = reply.StartReading(&reply_str);
 						if(r == 2) {
 							reply_str.ToOem();

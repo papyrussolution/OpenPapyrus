@@ -758,11 +758,12 @@ int LZAri::SetFileInfo()
 #else
 		fclose(P_OutFile);
 		P_OutFile = 0;
-		HANDLE srchdl = CreateFile(SUcSwitch(P_Dest), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
-		THROW_S(srchdl, SLERR_OPENFAULT);
-		SFile::SetTime((int)srchdl, &creation_time, &last_access_time, &last_modif_time);
-		if(srchdl > 0)
-			CloseHandle(srchdl);
+		
+		SIntHandle h_file = ::CreateFile(SUcSwitch(P_Dest), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+		THROW_S(h_file, SLERR_OPENFAULT);
+		SFile::SetTime(h_file, &creation_time, &last_access_time, &last_modif_time);
+		if(h_file > 0)
+			CloseHandle(h_file);
 #endif
 		ok = 1;
 	}

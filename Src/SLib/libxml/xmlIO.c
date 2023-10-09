@@ -3509,13 +3509,13 @@ xmlParserInput * xmlLoadExternalEntity(const char * URL, const char * ID, xmlPar
 {
 	if(URL && !xmlNoNetExists(URL)) {
 		xmlParserInput * ret = 0;
-		char * canonicFilename = (char *)xmlCanonicPath((const xmlChar *)URL);
-		if(canonicFilename == NULL) {
+		char * p_canonic_filename = (char *)xmlCanonicPath((const xmlChar *)URL);
+		if(!p_canonic_filename) {
 			xmlIOErrMemory("building canonical path\n");
 		}
 		else {
-			ret = xmlCurrentExternalEntityLoader(canonicFilename, ID, ctxt);
-			SAlloc::F(canonicFilename);
+			ret = xmlCurrentExternalEntityLoader(p_canonic_filename, ID, ctxt);
+			SAlloc::F(p_canonic_filename);
 		}
 		return ret;
 	}

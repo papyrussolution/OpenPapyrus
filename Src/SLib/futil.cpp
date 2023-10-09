@@ -1968,7 +1968,8 @@ HRESULT SHGetKnownFolderPath(
 	SString _file_name(pFileName);
 	MEMSZERO(stat);
 #ifdef __WIN32__
-	HANDLE srchdl = INVALID_HANDLE_VALUE;
+	//HANDLE srchdl = INVALID_HANDLE_VALUE;
+	SIntHandle h_file;
 	THROW_V(_file_name.NotEmpty(), SLERR_OPENFAULT);
 	{
 		SStringU _file_name_u;
@@ -1982,16 +1983,16 @@ HRESULT SHGetKnownFolderPath(
 		else {
 			_file_name_u.CopyFromMb_OUTER(_file_name, _file_name.Len());
 		}
-		srchdl = ::CreateFileW(_file_name_u, FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); 
+		h_file = ::CreateFileW(_file_name_u, FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); 
 		SLS.SetAddedMsgString(pFileName);
-		THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
-		SFile::GetTime((int)srchdl, &stat.CrtTime, &stat.AccsTime, &stat.ModTime);
-		GetFileSizeEx(srchdl, &size);
+		THROW_V(h_file, SLERR_OPENFAULT);
+		SFile::GetTime(h_file, &stat.CrtTime, &stat.AccsTime, &stat.ModTime);
+		GetFileSizeEx(h_file, &size);
 		stat.Size = size.QuadPart;
 	}
 	CATCHZOK
-	if(srchdl != INVALID_HANDLE_VALUE)
-		CloseHandle(srchdl);
+	if(h_file)
+		::CloseHandle(h_file);
 #endif
 	ASSIGN_PTR(pStat, stat);
 	return ok;
