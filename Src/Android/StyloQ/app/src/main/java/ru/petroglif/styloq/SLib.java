@@ -5051,7 +5051,7 @@ public class SLib {
 		}
 	}
 	public static class RecyclerListAdapter extends RecyclerView.Adapter<RecyclerListViewHolder> {
-		private int RcId;
+		private int ItemRcId;
 		private int ListRcId;
 		private int FocusedIdx; // Если (>= 0 && < getCount()), то управляющий класс может отобразать специальным образом
 		private LinearLayout _Lo;
@@ -5063,7 +5063,7 @@ public class SLib {
 		{
 			super();
 			EventReceiver = eventReceiver;
-			RcId = rcId;
+			ItemRcId = rcId;
 			ListRcId = listRcId;
 			FocusedIdx = -1;
 			Inflater = LayoutInflater.from(ctx);
@@ -5072,7 +5072,7 @@ public class SLib {
 		{
 			super();
 			EventReceiver = eventReceiver;
-			RcId = 0;
+			ItemRcId = 0;
 			ListRcId = listRcId;
 			FocusedIdx = -1;
 			_Lo = lo;
@@ -5082,13 +5082,27 @@ public class SLib {
 		{
 			return (EventReceiver != null) ? EventReceiver : ((ctx instanceof SlActivity) ? (SlActivity)ctx : null);
 		}
-		public int GetRcId()
-		{
-			return RcId;
-		}
 		public int GetListRcId()
 		{
 			return ListRcId;
+		}
+		public int GetItemRcId() { return ItemRcId; }
+		//
+		// Descr: Изменяет идентификатор ресурса элемента списка.
+		//
+		public void ChangeItemRcId(RecyclerView listView, int newItemRcId)
+		{
+			if(newItemRcId != 0 && newItemRcId != ItemRcId && listView != null) {
+				ItemRcId = newItemRcId;
+				RecyclerView.LayoutManager lm = listView.getLayoutManager();
+				if(lm != null) {
+					listView.setAdapter(null);
+					listView.setLayoutManager(null);
+					listView.setAdapter(this);
+					listView.setLayoutManager(lm);
+				}
+				notifyDataSetChanged();
+			}
 		}
 		public final LayoutInflater GetLayoutInflater() { return Inflater; }
 		@Override @NonNull public RecyclerListViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
@@ -5098,10 +5112,10 @@ public class SLib {
 			Context ctx = Inflater.getContext();
 			if(ctx != null) {
 				EventHandler eh = GetEventHandler(ctx);
-				if(RcId > 0) {
+				if(ItemRcId > 0) {
 					View root_view = parent;//parent.getRootView();
 					if(root_view != null && root_view instanceof ViewGroup) {
-						view = Inflater.inflate(RcId, (ViewGroup) root_view, false);
+						view = Inflater.inflate(ItemRcId, (ViewGroup) root_view, false);
 						holder = new RecyclerListViewHolder(view, this);
 						if(eh != null) {
 							ListViewEvent ev_subj = new ListViewEvent();
@@ -5867,10 +5881,7 @@ public class SLib {
 		{
 			return this.getView(idx, convertView, parent);
 		}
-		@Override public int getItemViewType(int position)
-		{
-			return IGNORE_ITEM_VIEW_TYPE;
-		}
+		@Override public int getItemViewType(int position) { return IGNORE_ITEM_VIEW_TYPE; }
 		@Override public int getViewTypeCount()
 		{
 			return 1; // must be 1!

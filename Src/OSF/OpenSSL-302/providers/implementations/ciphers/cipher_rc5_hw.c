@@ -20,7 +20,7 @@ static int cipher_hw_rc5_initkey(PROV_CIPHER_CTX * ctx, const unsigned char * ke
 	return RC5_32_set_key(&rctx->ks.ks, keylen, key, rctx->rounds);
 }
 
-# define PROV_CIPHER_HW_rc5_mode(mode, UCMODE)                                 \
+#define PROV_CIPHER_HW_rc5_mode(mode, UCMODE)                                 \
 	IMPLEMENT_CIPHER_HW_ ## UCMODE(mode, rc5, PROV_RC5_CTX, RC5_32_KEY,              \
 	    RC5_32_ ## mode)                                    \
 	static const PROV_CIPHER_HW rc5_ ## mode = {                                     \

@@ -11,15 +11,15 @@ __FBSDID("$FreeBSD$");
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
-#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
+//#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
 
 __inline static void fileTimeToUtc(const FILETIME * filetime, time_t * t, long * ns)
 {
 	ULARGE_INTEGER utc;
 	utc.HighPart = filetime->dwHighDateTime;
 	utc.LowPart  = filetime->dwLowDateTime;
-	if(utc.QuadPart >= EPOC_TIME) {
-		utc.QuadPart -= EPOC_TIME;
+	if(utc.QuadPart >= SlConst::Epoch1600_1970_Offs_100Ns) {
+		utc.QuadPart -= SlConst::Epoch1600_1970_Offs_100Ns;
 		*t = (time_t)(utc.QuadPart / 10000000); // milli seconds base
 		*ns = (long)(utc.QuadPart % 10000000) * 100; // nano seconds base
 	}

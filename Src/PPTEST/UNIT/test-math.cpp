@@ -940,5 +940,88 @@ SLTEST_R(SDecimal)
 			SLCHECK_NZ(sum.IsZero());
 		}
 	}
+	{
+		struct TestEntry {
+			int64  N;
+			int16  Dp;
+			const char * P_Txt;
+		};
+		const TestEntry entries[] = {
+			{ 17171717171717LL, -7, "1717171.7171717" },
+			{ 1LL, 0, "1.0" },
+			{ 3LL, 0, "3.0" },
+			{ 1LL, -1, "0.1" },
+			{ 1LL, -2, "0.01" },
+			{ 5LL, -1, "0.5" },
+			{ 3LL, -1, "0.3" },
+			{ 71LL, -2, "0.71" },
+			{ 3333333333333LL,   -12, "3.333333333333" },
+			{ 6666666666666LL,   -12, "6.666666666666" },
+			{ 777777777777777LL, -14, "7.77777777777777" },
+			{ 1LL, +1, "10.0" },
+			{ 1LL, +2, "100.0" },
+			{ 5LL, +1, "50.0" },
+			{ 0LL, 0, "0.0" },
+			{ 314159265359LL, -11, "3.14159265359" },
+		};
+		SLCHECK_NZ(SDecimal().IsZero());
+		SLCHECK_NZ(!SDecimal(1, 1).IsZero());
+		for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
+			const TestEntry & r_te = entries[i];
+			SLCHECK_NZ(SDecimal(r_te.N, r_te.Dp).ToStr(0, temp_buf), r_te.P_Txt);
+			SLCHECK_NZ(SDecimal(r_te.P_Txt) == SDecimal(r_te.N, r_te.Dp));
+			{
+				SDecimal r(r_te.N, r_te.Dp);
+				{
+					uint64 ued = r.ToUed_NonConst(48);
+					SDecimal r2;
+					r2.FromUed(ued, 48);
+					SLCHECK_NZ(r.IsEq(r2));
+				}
+			}
+		}
+		{
+			SDecimal r;
+			SDecimal r2;
+			r.Add(SDecimal(0, 0), SDecimal(1, 0));
+			SLCHECK_EQ(r.GetReal(), 1.0);
+			r2.Sub(r, SDecimal(1, 0));
+			SLCHECK_EQ(r2.GetReal(), 0.0);
+			SLCHECK_NZ(r2.IsZero());
+			//
+			r.Add(SDecimal(0, 0), SDecimal(1, -5));
+			SLCHECK_EQ(r.GetReal(), 0.00001);
+			r2.Sub(r, SDecimal(1, -5));
+			SLCHECK_EQ(r2.GetReal(), 0.0);
+			SLCHECK_NZ(r2.IsZero());
+			//
+			r.Add(SDecimal(1, 0), SDecimal(1, -1));
+			SLCHECK_EQ(r.GetReal(), 1.1);
+			r2.Sub(r, SDecimal(1, -1));
+			SLCHECK_EQ(r2.GetReal(), 1.0);
+			//
+			r.Add(SDecimal(703, 6), SDecimal(1, -1));
+			SLCHECK_EQ(r.GetReal(), 703000000.1);
+			r2.Sub(r, SDecimal(1, -1));
+			SLCHECK_EQ(r2.GetReal(), 703000000.0);
+			//
+			r.Mul(SDecimal(1, 0), SDecimal(17, -3));
+			SLCHECK_EQ(r.GetReal(), 0.017);
+			//
+			r.Mul(SDecimal(2, 0), SDecimal(17, -3));
+			SLCHECK_EQ(r.GetReal(), 0.034);
+			//
+			r.Mul(SDecimal(1, 1), SDecimal(17, -3));
+			SLCHECK_EQ(r.GetReal(), 0.17);
+			//
+			{
+				r.Z();
+				for(uint i = 0; i < 1000; i++) {
+					r.Add(r, SDecimal(1, -6));
+				}
+				SLCHECK_EQ(r.GetReal(), 0.001);
+			}
+		}
+	}
 	return CurrentStatus;
 }

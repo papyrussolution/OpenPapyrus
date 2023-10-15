@@ -1597,8 +1597,7 @@ size_t Curl_mime_read(char * buffer, size_t size, size_t nitems, void * instream
 /* Rewind mime stream. */
 CURLcode Curl_mime_rewind(curl_mimepart * part)
 {
-	return mime_part_rewind(part) == CURL_SEEKFUNC_OK ?
-	       CURLE_OK : CURLE_SEND_FAIL_REWIND;
+	return mime_part_rewind(part) == CURL_SEEKFUNC_OK ? CURLE_OK : CURLE_SEND_FAIL_REWIND;
 }
 
 /* Compute header list size. */
@@ -1607,7 +1606,6 @@ static size_t slist_size(struct curl_slist * s,
 {
 	size_t size = 0;
 	size_t skiplen = skip ? strlen(skip) : 0;
-
 	for(; s; s = s->next)
 		if(!skip || !match_header(s, skip, skiplen))
 			size += strlen(s->data) + overhead;
@@ -1792,8 +1790,7 @@ CURLcode Curl_mime_prepare_headers(curl_mimepart * part,
 	/* Issue content-disposition header only if not already set by caller. */
 	if(!search_header(part->userheaders, "Content-Disposition")) {
 		if(!disposition)
-			if(part->filename || part->name ||
-			    (contenttype && !strncasecompare(contenttype, "multipart/", 10)))
+			if(part->filename || part->name || (contenttype && !strncasecompare(contenttype, "multipart/", 10)))
 				disposition = DISPOSITION_DEFAULT;
 		if(disposition && curl_strequal(disposition, "attachment") &&
 		    !part->name && !part->filename)
@@ -1801,7 +1798,6 @@ CURLcode Curl_mime_prepare_headers(curl_mimepart * part,
 		if(disposition) {
 			char * name = NULL;
 			char * filename = NULL;
-
 			if(part->name) {
 				name = escape_string(part->name);
 				if(!name)
@@ -1840,12 +1836,10 @@ CURLcode Curl_mime_prepare_headers(curl_mimepart * part,
 	if(!search_header(part->userheaders, "Content-Transfer-Encoding")) {
 		if(part->encoder)
 			cte = part->encoder->name;
-		else if(contenttype && strategy == MIMESTRATEGY_MAIL &&
-		    part->kind != MIMEKIND_MULTIPART)
+		else if(contenttype && strategy == MIMESTRATEGY_MAIL && part->kind != MIMEKIND_MULTIPART)
 			cte = "8bit";
 		if(cte) {
-			ret = Curl_mime_add_header(&part->curlheaders,
-				"Content-Transfer-Encoding: %s", cte);
+			ret = Curl_mime_add_header(&part->curlheaders, "Content-Transfer-Encoding: %s", cte);
 			if(ret)
 				return ret;
 		}
@@ -1859,7 +1853,6 @@ CURLcode Curl_mime_prepare_headers(curl_mimepart * part,
 	/* Process subparts. */
 	if(part->kind == MIMEKIND_MULTIPART && mime) {
 		curl_mimepart * subpart;
-
 		disposition = NULL;
 		if(content_type_match(contenttype, "multipart/form-data"))
 			disposition = "form-data";
@@ -1955,12 +1948,8 @@ CURLcode curl_mime_filedata(curl_mimepart * part, const char * filename)
 	return CURLE_NOT_BUILT_IN;
 }
 
-CURLcode curl_mime_data_cb(curl_mimepart * part,
-    curl_off_t datasize,
-    curl_read_callback readfunc,
-    curl_seek_callback seekfunc,
-    curl_free_callback freefunc,
-    void * arg)
+CURLcode curl_mime_data_cb(curl_mimepart * part, curl_off_t datasize,
+    curl_read_callback readfunc, curl_seek_callback seekfunc, curl_free_callback freefunc, void * arg)
 {
 	(void)part;
 	(void)datasize;

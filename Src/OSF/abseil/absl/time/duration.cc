@@ -645,25 +645,11 @@ std::chrono::nanoseconds ToChronoNanoseconds(Duration d) {
 	return time_internal::ToChronoDuration<std::chrono::nanoseconds>(d);
 }
 
-std::chrono::microseconds ToChronoMicroseconds(Duration d) {
-	return time_internal::ToChronoDuration<std::chrono::microseconds>(d);
-}
-
-std::chrono::milliseconds ToChronoMilliseconds(Duration d) {
-	return time_internal::ToChronoDuration<std::chrono::milliseconds>(d);
-}
-
-std::chrono::seconds ToChronoSeconds(Duration d) {
-	return time_internal::ToChronoDuration<std::chrono::seconds>(d);
-}
-
-std::chrono::minutes ToChronoMinutes(Duration d) {
-	return time_internal::ToChronoDuration<std::chrono::minutes>(d);
-}
-
-std::chrono::hours ToChronoHours(Duration d) {
-	return time_internal::ToChronoDuration<std::chrono::hours>(d);
-}
+std::chrono::microseconds ToChronoMicroseconds(Duration d) { return time_internal::ToChronoDuration<std::chrono::microseconds>(d); }
+std::chrono::milliseconds ToChronoMilliseconds(Duration d) { return time_internal::ToChronoDuration<std::chrono::milliseconds>(d); }
+std::chrono::seconds ToChronoSeconds(Duration d) { return time_internal::ToChronoDuration<std::chrono::seconds>(d); }
+std::chrono::minutes ToChronoMinutes(Duration d) { return time_internal::ToChronoDuration<std::chrono::minutes>(d); }
+std::chrono::hours ToChronoHours(Duration d) { return time_internal::ToChronoDuration<std::chrono::hours>(d); }
 
 //
 // To/From string formatting.
@@ -673,7 +659,8 @@ namespace {
 // Formats a positive 64-bit integer in the given field width.  Note that
 // it is up to the caller of Format64() to ensure that there is sufficient
 // space before ep to hold the conversion.
-char* Format64(char* ep, int width, int64_t v) {
+char* Format64(char* ep, int width, int64_t v) 
+{
 	do {
 		--width;
 		*--ep = '0' + (v % 10); // contiguous digits

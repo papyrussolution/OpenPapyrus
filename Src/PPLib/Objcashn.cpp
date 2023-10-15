@@ -2885,6 +2885,15 @@ int EquipConfigDialog::EditExtParams()
 			SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0,
 				reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp)/*INETACCT_ONLYFTP*/);
 			SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
+			// @v11.8.6 {
+			SetupOprKindCombo(this, CTLSEL_EQCFG_CPIMPOP, Data.ChkPanImpOpID, 0, 0, 0);
+			{
+				ObjTagFilt ot_filt;
+				ot_filt.ObjTypeID = PPOBJ_BILL;
+				ot_filt.Flags |= ObjTagFilt::fOnlyTags;
+				SetupObjTagCombo(this, CTLSEL_EQCFG_CPIMPTAG, Data.ChkPanImpBillTagID, 0, &ot_filt);
+			}
+			// } @v11.8.6 
 			setCtrlData(CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
 			setCtrlData(CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
 			setCtrlData(CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix);
@@ -2907,6 +2916,8 @@ int EquipConfigDialog::EditExtParams()
 			uint   sel = 0;
 			getCtrlData(CTLSEL_EQCFG_FTPACCT,     &Data.FtpAcctID);
 			getCtrlData(sel = CTLSEL_EQCFG_SALESGRP,    &Data.SalesGoodsGrp);
+			getCtrlData(sel = CTLSEL_EQCFG_CPIMPOP, &Data.ChkPanImpOpID); // @v11.8.6
+			getCtrlData(sel = CTLSEL_EQCFG_CPIMPTAG, &Data.ChkPanImpBillTagID); // @v11.8.6
 			if(Data.SalesGoodsGrp) {
 				PPObjGoodsGroup ggobj;
 				Goods2Tbl::Rec ggrec;

@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.IdRes;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -2006,15 +2008,39 @@ public class CommonPrereqModule {
 				else {
 					// @construction {
 					RecyclerView.LayoutManager lo_mgr = null;
-					/*
 					if(objType == SLib.PPOBJ_GOODS) {
 						//((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityInstance));
-						lo_mgr = new GridLayoutManager(ActivityInstance, 2);
+						//lo_mgr = new LinearLayoutManager(ActivityInstance);
+						// @v11.8.6 {
+						int column_ct = 1;
+						if(Cs.ColumnCount_Goods == 2)
+							column_ct = 2;
+						lo_mgr = new GridLayoutManager(ActivityInstance, column_ct);
+						{
+							View v_button_columns = ActivityInstance.findViewById(R.id.tbButtonColumns);
+							if(v_button_columns != null && v_button_columns instanceof ImageButton) {
+								int rc_img = 0;
+								int rc_viewitem = 0;
+								if(column_ct == 1) {
+									rc_img = R.drawable.ic_columns_two;
+									rc_viewitem = R.layout.li_orderprereq_goods;
+								}
+								else if(column_ct == 2) {
+									rc_img = R.drawable.ic_columns_one;
+									rc_viewitem = R.layout.li_orderprereq_goods_vertical;
+								}
+								if(rc_img != 0)
+									((ImageButton)v_button_columns).setImageResource(rc_img);
+								RecyclerView.Adapter a = ((RecyclerView)lv).getAdapter();
+								if(a != null && a instanceof SLib.RecyclerListAdapter)
+									((SLib.RecyclerListAdapter)a).ChangeItemRcId((RecyclerView)lv, rc_viewitem);
+							}
+						}
+						// } @v11.8.6
 					}
 					else
 						lo_mgr = new LinearLayoutManager(ActivityInstance);
-					*/
-					lo_mgr = new LinearLayoutManager(ActivityInstance);
+					//lo_mgr = new LinearLayoutManager(ActivityInstance);
 					((RecyclerView) lv).setLayoutManager(lo_mgr);
 					// } @construction
 					// @construction ((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(ActivityInstance));
@@ -3143,6 +3169,46 @@ public class CommonPrereqModule {
 			if(data instanceof Document.TransferItem)
 				Data = Document.TransferItem.Copy((Document.TransferItem)data); // @v11.6.12 Copy instead reference
 		}
+		private void SetupQttyDependencies(CommonPrereqModule.WareEntry goodsItem, Document.ValuSet set)
+		{
+			final double _qtty = (set != null) ? set.Qtty : 0.0;
+			final double _price = (set != null) ? set.Price : 0.0;
+			double _upp = 0.0;
+			double _mult = 0.0;
+			double _min = 0.0;
+			int    _pack_count = 0;  // Целое количество упаковок
+			int    _pack_modulo = 0; // Остаток от целого числа упаковок
+			int    uom_id = 0;
+			if(goodsItem != null && goodsItem.Item != null) {
+				uom_id = goodsItem.Item.UomID;
+				_upp = goodsItem.Item.UnitPerPack;
+				_mult = goodsItem.Item.OrdQtyMult;
+				_min = goodsItem.Item.OrdMinQty;
+			}
+			if(_upp > 0.0 && _qtty > 0.0) {
+				_pack_count = (int)(_qtty / _upp);
+				_pack_modulo = (int)(_qtty % _upp);
+			}
+			//SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, CPM.FormatQtty(set.Qtty, uom_id, true));
+			SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, CPM.FormatCurrency(_qtty * _price));
+			// @v11.8.6 {
+			View ctl_pack_count = findViewById(R.id.CTL_ORDRTI_PACKCOUNT);
+			if(ctl_pack_count != null) {
+				if(_pack_count > 0 && _upp > 0.0) {
+					ctl_pack_count.setVisibility(View.VISIBLE);
+					String pack_count_text;
+					if(_pack_modulo > 0)
+						pack_count_text = String.format(Locale.US, "%d x %.0f + %d", _pack_count, _upp, _pack_modulo);
+					else
+						pack_count_text = String.format(Locale.US, "%d x %.0f", _pack_count, _upp);
+					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_PACKCOUNT, pack_count_text);
+				}
+				else {
+					ctl_pack_count.setVisibility(View.GONE);
+				}
+			}
+			// } @v11.8.6
+		}
 		private void StepQuantity(int direction) // direction < 0 - decrement; > 0 - increment
 		{
 			boolean do_update = false;
@@ -3188,7 +3254,7 @@ public class CommonPrereqModule {
 				}
 				if(do_update) {
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, CPM.FormatQtty(_data.Set.Qtty, uom_id, true));
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price));
+					SetupQttyDependencies(goods_item, _data.Set);
 				}
 			}
 		}
@@ -3226,11 +3292,7 @@ public class CommonPrereqModule {
 										if(_data.Set == null)
 											_data.Set = new Document.ValuSet();
 										_data.Set.Qtty = qtty;
-										View vamt = findViewById(R.id.CTL_ORDRTI_AMOUNT);
-										if(vamt != null && vamt instanceof TextView) {
-											String amt_text = CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price);
-											((TextView)vamt).setText(amt_text);
-										}
+										SetupQttyDependencies(GoodsItem, _data.Set);
 										if(qtty == 0.0) {
 											//
 										}
@@ -3300,7 +3362,7 @@ public class CommonPrereqModule {
 										final int uom_id = (goods_item != null && goods_item.Item != null) ? goods_item.Item.UomID : 0;
 										_data.Set.Qtty = 0.0;
 										SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, CPM.FormatQtty(_data.Set.Qtty, uom_id, true));
-										SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, CPM.FormatCurrency(_data.Set.Qtty * _data.Set.Price));
+										SetupQttyDependencies(goods_item, _data.Set);
 									}
 									/*
 									try {
@@ -3412,7 +3474,7 @@ public class CommonPrereqModule {
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_GOODSNAME, text);
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_PRICE, CPM.FormatCurrency(_price));
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, CPM.FormatQtty(_qtty,  uom_id, true));
-					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, CPM.FormatCurrency(_qtty * _price));
+					SetupQttyDependencies(GoodsItem, _data.Set);
 					{
 						View bv = findViewById(R.id.STDCTL_OKBUTTON);
 						if(bv != null && bv instanceof Button)

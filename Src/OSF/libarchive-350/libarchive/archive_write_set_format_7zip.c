@@ -940,14 +940,14 @@ static int make_streamsInfo(struct archive_write * a, uint64 offset, uint64 pack
 	return ARCHIVE_OK;
 }
 
-#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
+//#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
 static uint64 utcToFiletime(time_t t, long ns)
 {
 	uint64 fileTime;
 	fileTime = t;
 	fileTime *= 10000000;
 	fileTime += ns / 100;
-	fileTime += EPOC_TIME;
+	fileTime += SlConst::Epoch1600_1970_Offs_100Ns;
 	return (fileTime);
 }
 

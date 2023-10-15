@@ -80,6 +80,8 @@
                             app:srcCompat="@drawable/ic_gear01"/>
                         <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonHelp"
                             app:srcCompat="@drawable/ic_questionmarkcircle01"/>
+                        <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonColumns"
+                            app:srcCompat="@drawable/ic_columns_two"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

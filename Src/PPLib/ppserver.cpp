@@ -1959,7 +1959,7 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 					PPID   chk_id = MAXLONG;
 					THROW(P_Prcssr->GetAuthAgentID());
 					PEOpenEngine();
-					P_Prcssr->PrintToLocalPrinters(-1);
+					P_Prcssr->PrintToLocalPrinters(-1, false/*ignoreNonZeroAgentReq*/);
 					PECloseEngine();
 					rReply.SetAck();
 					ok = 1;

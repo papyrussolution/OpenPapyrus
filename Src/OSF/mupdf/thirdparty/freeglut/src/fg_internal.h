@@ -37,21 +37,21 @@
 #if defined(_MSC_VER) || defined(__WATCOMC__) || defined(__MINGW32__) \
 	|| defined(_WIN32) || defined(_WIN32_WCE) \
 	|| ( defined(__CYGWIN__) && defined(X_DISPLAY_MISSING) )
-#   define  TARGET_HOST_MS_WINDOWS 1
+#define  TARGET_HOST_MS_WINDOWS 1
 
 #elif defined (__ANDROID__)
-#   define  TARGET_HOST_ANDROID  1
+#define  TARGET_HOST_ANDROID  1
 
 #elif defined (__QNXNTO__) || defined (__PLAYBOOK__)
-#   define  TARGET_HOST_BLACKBERRY  1
+#define  TARGET_HOST_BLACKBERRY  1
 
 #elif defined(__posix__) || defined(__unix__) || defined(__linux__) || defined(__sun)
-#   define  TARGET_HOST_POSIX_X11  1
+#define  TARGET_HOST_POSIX_X11  1
 
 #elif defined(__APPLE__)
 /* This is a placeholder until we get native OSX support ironed out -- JFF 11/18/09 */
-#   define  TARGET_HOST_POSIX_X11  1
-/* #   define  TARGET_HOST_MAC_OSX    1 */
+#define  TARGET_HOST_POSIX_X11  1
+/* #define  TARGET_HOST_MAC_OSX    1 */
 
 #else
 #   error "Unrecognized target host!"
@@ -61,31 +61,31 @@
 
 /* Detect both SunPro and gcc compilers on Sun Solaris */
 #if defined (__SVR4) && defined (__sun)
-#   define TARGET_HOST_SOLARIS 1
+#define TARGET_HOST_SOLARIS 1
 #endif
 
 #ifndef TARGET_HOST_MS_WINDOWS
-#   define  TARGET_HOST_MS_WINDOWS 0
+#define  TARGET_HOST_MS_WINDOWS 0
 #endif
 
 #ifndef TARGET_HOST_ANDROID
-#   define  TARGET_HOST_ANDROID    0
+#define  TARGET_HOST_ANDROID    0
 #endif
 
 #ifndef TARGET_HOST_BLACKBERRY
-#   define  TARGET_HOST_BLACKBERRY 0
+#define  TARGET_HOST_BLACKBERRY 0
 #endif
 
 #ifndef  TARGET_HOST_POSIX_X11
-#   define  TARGET_HOST_POSIX_X11  0
+#define  TARGET_HOST_POSIX_X11  0
 #endif
 
 #ifndef  TARGET_HOST_MAC_OSX
-#   define  TARGET_HOST_MAC_OSX    0
+#define  TARGET_HOST_MAC_OSX    0
 #endif
 
 #ifndef  TARGET_HOST_SOLARIS
-#   define  TARGET_HOST_SOLARIS    0
+#define  TARGET_HOST_SOLARIS    0
 #endif
 
 /* -- FIXED CONFIGURATION LIMITS ------------------------------------------- */
@@ -179,7 +179,7 @@ typedef unsigned long fg_time_t;
 #define __fg_unused __attribute__((unused))
 # else
 #define __fg_unused
-# endif
+#endif
 #endif
 
 /* Platform-specific includes */

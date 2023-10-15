@@ -1848,14 +1848,9 @@ static void get_current_time(struct timeval * t)
 		unsigned __int64 ul;
 		FILETIME ft;
 	} now;
-
 	GetSystemTime(&st);
 	SystemTimeToFileTime(&st, &now.ft);
-#ifdef  __MINGW32__
-	now.ul -= 116444736000000000ULL;
-#else
-	now.ul -= 116444736000000000UI64; /* re-bias to 1/1/1970 */
-#endif
+	now.ul -= SlConst::Epoch1600_1970_Offs_100Ns; /* re-bias to 1/1/1970 */
 	t->tv_sec = (long)(now.ul / 10000000);
 	t->tv_usec = ((int)(now.ul % 10000000)) / 10;
 #else

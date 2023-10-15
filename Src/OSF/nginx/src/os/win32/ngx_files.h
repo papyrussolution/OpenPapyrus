@@ -117,7 +117,7 @@ ngx_int_t ngx_file_info(u_char * filename, ngx_file_info_t * fi);
 /* 116444736000000000 is commented in src/os/win32/ngx_time.c */
 
 #define ngx_file_mtime(fi) (time_t)(((((unsigned __int64)(fi)->ftLastWriteTime.dwHighDateTime << 32) | \
-	(fi)->ftLastWriteTime.dwLowDateTime) - 116444736000000000) / 10000000)
+	(fi)->ftLastWriteTime.dwLowDateTime) - SlConst::Epoch1600_1970_Offs_100Ns) / 10000000)
 
 ngx_int_t ngx_create_file_mapping(ngx_file_mapping_t * fm);
 void ngx_close_file_mapping(ngx_file_mapping_t * fm);
@@ -171,11 +171,8 @@ ngx_int_t ngx_de_link_info(u_char * name, ngx_dir_t * dir);
 
 /* 116444736000000000 is commented in src/os/win32/ngx_time.c */
 
-#define ngx_de_mtime(dir)						     \
-	(time_t)(((((unsigned __int64)						\
-				    (dir)->finddata.ftLastWriteTime.dwHighDateTime << 32)   \
-			    | (dir)->finddata.ftLastWriteTime.dwLowDateTime)	   \
-		    - 116444736000000000) / 10000000)
+#define ngx_de_mtime(dir) (time_t)(((((unsigned __int64)(dir)->finddata.ftLastWriteTime.dwHighDateTime << 32) |\
+	(dir)->finddata.ftLastWriteTime.dwLowDateTime) - SlConst::Epoch1600_1970_Offs_100Ns) / 10000000)
 
 ngx_int_t ngx_open_glob(ngx_glob_t * gl);
 #define ngx_open_glob_n             "FindFirstFile()"

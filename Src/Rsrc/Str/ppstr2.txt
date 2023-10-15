@@ -10604,6 +10604,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgequip_fskipprintingzeroprice          "В кассовых чеках не печатать строки с нулевой суммой"
 @cfgequip_fattachbillcheckstocsess        "Привязывать чеки по документам к текущей сессии"
 @cfgequip_fdisablesellspoiledseries       "Запрет продажи бракованных серий"
+@cfgequip_chkpanimpopid                   "Вид операции документов для импорта в кассовую панель"
+@cfgequip_chkpanimpbilltagid              "Тег документа, позволяющий импортировать документ в кассовую панель"
 
 @cfgequip_id                              "@{id}"
 @cfgequip_opondfctothrloc                 "Операция покрытия дефицита для чужого склада"

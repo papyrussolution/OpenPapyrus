@@ -658,7 +658,7 @@ void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filen
 			else
 				back()->setstr(prefix + s);
 
-			if(newlines > 0 && lastLine().compare(0, 9, "# define ") == 0) {
+			if(newlines > 0 && lastLine().compare(0, 9, "#define ") == 0) {
 				multiline += newlines;
 				location.adjust(s);
 			}

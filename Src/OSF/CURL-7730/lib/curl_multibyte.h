@@ -59,7 +59,7 @@ char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w);
 #define curlx_unicodefree(ptr)                          \
   do {                                                  \
     if(ptr) {                                           \
-      (free)(ptr);                                        \
+      /*(free)*/SAlloc::F(ptr);                         \
       (ptr) = NULL;                                     \
     }                                                   \
   } while(0)

@@ -180,7 +180,7 @@ static int fghJoystickInitializeHID(struct os_specific_s * os,
 	}
 
 	size = hid_report_size(rd, hid_input, report_id);
-#   else
+#else
 	size = hid_report_size(rd, 0, hid_input);
 #endif
 	os->hid_data_buf = calloc(1, size);
@@ -189,7 +189,7 @@ static int fghJoystickInitializeHID(struct os_specific_s * os,
 	is_joystick = 0;
 #ifdef HAVE_USBHID_H
 	d = hid_start_parse(rd, 1 << hid_input, report_id);
-#   else
+#else
 	d = hid_start_parse(rd, 1 << hid_input);
 #endif
 	while(hid_get_item(d, &h)) {

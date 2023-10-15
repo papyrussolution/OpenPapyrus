@@ -1294,7 +1294,7 @@ void __ptw32_tkAssocDestroy(ThreadKeyAssoc * assoc)
 /*
  * time between jan 1, 1601 and jan 1, 1970 in units of 100 nanoseconds
  */
-#define  __PTW32_TIMESPEC_TO_FILETIME_OFFSET (((uint64_t)27111902UL << 32) + (uint64_t)3577643008UL)
+//#define  __PTW32_TIMESPEC_TO_FILETIME_OFFSET (((uint64_t)27111902UL << 32) + (uint64_t)3577643008UL)
 /*
  * -------------------------------------------------------------------
  * converts struct timespec
@@ -1305,7 +1305,7 @@ void __ptw32_tkAssocDestroy(ThreadKeyAssoc * assoc)
  */
 INLINE void __ptw32_timespec_to_filetime(const struct timespec * ts, FILETIME * ft)
 {
-	*reinterpret_cast<uint64_t *>(ft) = ts->tv_sec * 10000000UL + (ts->tv_nsec + 50) / 100 +  __PTW32_TIMESPEC_TO_FILETIME_OFFSET;
+	*reinterpret_cast<uint64_t *>(ft) = ts->tv_sec * 10000000UL + (ts->tv_nsec + 50) / 100 +  SlConst::Epoch1600_1970_Offs_100Ns;
 }
 /*
  * -------------------------------------------------------------------
@@ -1317,8 +1317,8 @@ INLINE void __ptw32_timespec_to_filetime(const struct timespec * ts, FILETIME * 
  */
 INLINE void __ptw32_filetime_to_timespec(const FILETIME * ft, struct timespec * ts)
 {
-	ts->tv_sec = (int)((*(uint64_t*)ft -  __PTW32_TIMESPEC_TO_FILETIME_OFFSET) / 10000000UL);
-	ts->tv_nsec = (int)((*(uint64_t*)ft -  __PTW32_TIMESPEC_TO_FILETIME_OFFSET - ((uint64_t)ts->tv_sec * (uint64_t)10000000UL)) * 100);
+	ts->tv_sec = (int)((*(uint64_t*)ft -  SlConst::Epoch1600_1970_Offs_100Ns) / 10000000UL);
+	ts->tv_nsec = (int)((*(uint64_t*)ft -  SlConst::Epoch1600_1970_Offs_100Ns - ((uint64_t)ts->tv_sec * (uint64_t)10000000UL)) * 100);
 }
 
 INLINE int __ptw32_rwlock_check_need_init(pthread_rwlock_t * rwlock)

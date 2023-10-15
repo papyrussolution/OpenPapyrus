@@ -1173,3 +1173,376 @@ SLTEST_R(dirent)
 	}
 	return CurrentStatus;
 }
+//
+//
+//
+SLTEST_R(SCachedFileEntity)
+{
+	static uint GloIdx = 0;
+	static ACount Counter;
+
+	class SCachedFileEntity_TestSs : public SCachedFileEntity {
+	public:
+		static SCachedFileEntity_TestSs * GetGlobalObj(const char * pFileName)
+		{
+			SCachedFileEntity_TestSs * p_result = 0;
+			if(!GloIdx) {
+				ENTER_CRITICAL_SECTION
+				if(!GloIdx) {
+					TSClassWrapper <SCachedFileEntity_TestSs> cls;
+					GloIdx = SLS.CreateGlobalObject(cls);
+					p_result = static_cast<SCachedFileEntity_TestSs *>(SLS.GetGlobalObject(GloIdx));
+					if(p_result) {
+						if(!p_result->Init(pFileName))
+							p_result = 0;
+					}
+				}
+				LEAVE_CRITICAL_SECTION
+			}
+			if(GloIdx && !p_result) {
+				p_result = static_cast<SCachedFileEntity_TestSs *>(SLS.GetGlobalObject(GloIdx));
+			}
+			return p_result;
+		}
+		SCachedFileEntity_TestSs() : SCachedFileEntity()
+		{
+		}
+		virtual ~SCachedFileEntity_TestSs()
+		{
+		}
+		virtual bool InitEntity(void * extraPtr)
+		{
+			bool   ok = true;
+			Ss.Z();
+			THROW(fileExists(GetFilePath()));
+			{
+				SFile f(GetFilePath(), SFile::mRead);
+				SString line_buf;
+				THROW(f.IsValid());
+				while(f.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+					if(line_buf.NotEmpty()) {
+						Ss.add(line_buf);
+					}
+				}
+			}
+			CATCHZOK
+			return ok;
+		}
+		virtual void DestroyEntity()
+		{
+			Ss.Z();
+		}
+		void Get(StringSet & rC) const
+		{
+			Lck.Lock();
+			rC = Ss;
+			Lck.Unlock();
+		}
+	private:
+		StringSet Ss;
+	};
+	class _ThreadWriter : public SlThread {
+		SString FilePath;
+	public:
+		_ThreadWriter(const char * pFilePath) : SlThread(), FilePath(pFilePath)
+		{
+		}
+		virtual void Run()
+		{
+			const int64 start_clock = clock();
+			SString line_buf;
+			do {
+				ENTER_CRITICAL_SECTION
+				{
+					SFile f(FilePath, SFile::mAppend);
+					assert(f.IsValid());
+					if(f.IsValid()) {
+						Counter.Incr();
+						line_buf.Z().CatLongZ(Counter, 12);
+						f.WriteLine(line_buf.CR());
+					}
+				}
+				LEAVE_CRITICAL_SECTION
+				SDelay(100);
+			} while((clock() - start_clock) < 60000);
+		}
+	};
+	class _Thread : public SlThread {
+		SString FilePath;
+	public:
+		_Thread(const char * pFilePath) : SlThread(), FilePath(pFilePath)
+		{
+		}
+		virtual void Run()
+		{
+			const int64 start_clock = clock();
+			StringSet ss;
+			SString temp_buf;
+			uint   prev_count = 0;
+			do {
+				SCachedFileEntity_TestSs * p_obj = SCachedFileEntity_TestSs::GetGlobalObj(FilePath);
+				if(p_obj && p_obj->Reload(false, 0)) {
+					p_obj->Get(ss);
+					uint c = ss.getCount();
+					assert(c > 0);
+					assert(c >= static_cast<uint>(Counter)-2);
+					long test_v = 0;
+					uint test_c = 1;
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+						test_v = temp_buf.ToLong();
+						assert(test_v == test_c);
+						test_c++;
+					}
+					assert(test_c == (c+1));
+					assert(!prev_count || c >= prev_count);
+					prev_count = c;
+				}
+				SDelay(10);
+			} while((clock() - start_clock) < 80000);
+		}
+	};
+
+	int    ok = 1;
+	SString file_path(MakeOutputFilePath("SCachedFileEntity_SsTest.txt"));
+	{
+		SFile f(file_path, SFile::mWrite);
+		assert(f.IsValid());
+		if(f.IsValid()) {
+			SString line_buf;
+			for(uint i = 0; i < 20; i++) {
+				Counter.Incr();
+				line_buf.Z().CatLongZ(Counter, 12);
+				f.WriteLine(line_buf.CR());
+			}
+		}
+	}
+	HANDLE tl[128];
+	uint   tc = 0;
+	MEMSZERO(tl);
+	{
+		for(uint i = 0; i < 40; i++) {
+			_Thread * p_thr = new _Thread(file_path);
+			p_thr->Start();
+			tl[tc++] = *p_thr;
+		}
+	}
+	{
+		for(uint i = 0; i < 4; i++) {
+			_ThreadWriter * p_thr = new _ThreadWriter(file_path);
+			p_thr->Start();
+			tl[tc++] = *p_thr;
+		}
+	}
+	::WaitForMultipleObjects(tc, tl, TRUE, INFINITE);
+	SLS.DestroyGlobalObject(GloIdx);
+	return ok;
+}
+
+SLTEST_R(SFile)
+{
+	int    ok = 1;
+	SFile file;
+	SString file_path;
+	SString file_name(MakeOutputFilePath("open_for_write_test.txt"));
+	{ // @v11.5.9
+		// Тестирование функции ReadLineCsv()
+		/*
+			field01;поле02;field03;поле 04
+			;текст;3.1415926;
+			"строка с кавычками"" еще что-то";;7000;false
+			1;female;"string with ;";true
+			some text ;male;"string with ""quotes"" and semicolon;";last field
+		*/
+		SString temp_buf;
+		(file_path = GetSuiteEntry()->OutPath).SetLastSlash().Cat("test-input-csv-semicol-utf8.csv");
+		StringSet original_line_collection;
+		original_line_collection.add("field01;поле02;field03;поле 04");
+		original_line_collection.add(";текст;3.1415926;");
+		original_line_collection.add("\"строка с кавычками\"\" еще что-то\";;7000;false");
+		original_line_collection.add("1;female;\"string with ;\";true");
+		original_line_collection.add("some text ;male;\"string with \"\"quotes\"\" and semicolon;\";last field");
+		{
+			// Сначала создадим файл
+			SFile f_out(file_path, SFile::mWrite);
+			THROW(SLCHECK_NZ(f_out.IsValid()));
+			for(uint ssp = 0; original_line_collection.get(&ssp, temp_buf);) {
+				f_out.WriteLine(temp_buf.CR());
+			}
+		}
+		{
+			uint    line_count = 0;
+			uint    field_count = 0;
+			StringSet ss;
+			SFile::ReadLineCsvContext ctx(';');
+			SFile f_in(file_path, SFile::mRead);
+			THROW(SLCHECK_NZ(f_in.IsValid()));
+			while(f_in.ReadLineCsv(ctx, ss)) {
+				line_count++;
+				field_count = ss.getCount();
+				SLCHECK_EQ(field_count, 4U);
+			}
+			SLCHECK_EQ(line_count, original_line_collection.getCount());
+		}
+	}
+	//
+	// Тестирование функции IsOpenedForWriting()
+	//
+	// Откроем файл на запись (IsOpenedForWriting должен вернуть 1)
+	//
+	THROW(SLCHECK_NZ(file.Open(file_name, SFile::mWrite)));
+	SLCHECK_NZ(SFile::IsOpenedForWriting(file_name));
+	SLCHECK_NZ(file.WriteLine("test"));
+	SLCHECK_NZ(file.Close());
+	//
+	// Откроем файл на чтение (IsOpenedForWriting должен вернуть 0)
+	//
+	THROW(SLCHECK_NZ(file.Open(file_name, SFile::mRead)));
+	SLCHECK_Z(SFile::IsOpenedForWriting(file_name));
+	SLCHECK_NZ(file.Close());
+	//
+	{
+		SLCHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 10000), 0);
+		THROW(SLCHECK_NZ(file.Open(file_name, SFile::mWrite)));
+		SLCHECK_Z(SFile::WaitForWriteSharingRelease(file_name, 1000));
+		SLCHECK_NZ(file.Close());
+		SLCHECK_LT(SFile::WaitForWriteSharingRelease(file_name, 1000), 0);
+		//
+		// @todo Не проверенным остался случай реального ожидания закрытия файла
+		// поскольку для этого надо создавать отдельный асинхронный поток.
+		//
+	}
+	{
+		SLCHECK_NZ(SFile::WildcardMatch("*.*", "abc.txt"));
+		SLCHECK_NZ(SFile::WildcardMatch("*.txt", "abc.txt"));
+		SLCHECK_Z(SFile::WildcardMatch("*.txt", "abc.tx"));
+		SLCHECK_NZ(SFile::WildcardMatch("*xyz*.t?t", "12xyz.txt"));
+		SLCHECK_Z(SFile::WildcardMatch("*xyz*.t?t", "12xyz.txxt"));
+		SLCHECK_NZ(SFile::WildcardMatch("*xyz*.t?t", "12xyz-foo.txt"));
+		SLCHECK_NZ(SFile::WildcardMatch("??xyz*.t?t", "12xyz-foo.txt"));
+		SLCHECK_Z(SFile::WildcardMatch("??xyz*.t?t", "123xyz-foo.txt"));
+		SLCHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xml"));
+		SLCHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xls"));
+		SLCHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xlsm"));
+	}
+	{
+		bool   debug_mark = false;
+		const SString root_path(GetSuiteEntry()->InPath);
+		THROW(SLCHECK_NZ(IsDirectory(root_path)));
+		{
+			// Тестирование функций распознавания типов файлов
+			SFileEntryPool fep;
+			SFileEntryPool::Entry fe;
+			STempBuffer file_buf(SMEGABYTE(1));
+			THROW(SLCHECK_NZ(file_buf.IsValid()));
+			{
+				(file_path = root_path).SetLastSlash().Cat("harfbuzz\\test\\shaping\\data\\in-house\\fonts\\DFONT.dfont");
+				SFileFormat ff;
+				int fir = ff.Identify(file_path);
+				if(oneof3(fir, 2, 3, 4)) {
+					SFile f_in(file_path, SFile::mRead|SFile::mBinary);
+					if(SLCHECK_NZ(f_in.IsValid())) {
+						size_t actual_size = 0;
+						SLCHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+						{
+							SFileFormat ff2;
+							int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
+							SLCHECK_NZ(oneof2(fir2, 2, 4));
+							if(!CurrentStatus)
+								debug_mark = true;
+						}
+					}
+				}
+			}
+			{
+				(file_path = root_path).SetLastSlash().Cat("harfbuzz\\test\\shaping\\data\\in-house\\fonts\\TRAK.ttf");
+				SFileFormat ff;
+				int fir = ff.Identify(file_path);
+				if(oneof3(fir, 2, 3, 4)) {
+					SFile f_in(file_path, SFile::mRead|SFile::mBinary);
+					if(SLCHECK_NZ(f_in.IsValid())) {
+						size_t actual_size = 0;
+						SLCHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+						{
+							SFileFormat ff2;
+							int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
+							SLCHECK_NZ(oneof2(fir2, 2, 4));
+							if(!CurrentStatus)
+								debug_mark = true;
+						}
+					}
+				}
+			}
+#if 0 // (Не удается пока успешно прогнать эти тесты) {
+			{
+				(file_path = root_path).SetLastSlash().Cat("json\\utf16le.json");
+				SFileFormat ff;
+				int fir = ff.Identify(file_path);
+				if(oneof3(fir, 2, 3, 4)) {
+					SFile f_in(file_path, SFile::mRead|SFile::mBinary);
+					if(SLCHECK_NZ(f_in.IsValid())) {
+						size_t actual_size = 0;
+						SLCHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+						{
+							SFileFormat ff2;
+							int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
+							SLCHECK_NZ(oneof2(fir2, 2, 4));
+							if(!CurrentStatus)
+								debug_mark = true;
+						}
+					}
+				}
+			}
+			fep.Scan(root_path, "*.*", SFileEntryPool::scanfRecursive);
+			for(uint p = 0; p < fep.GetCount(); p++) {
+				if(fep.Get(p, &fe, &file_path)) {
+					SFileFormat ff;
+					int fir = ff.Identify(file_path);
+					if(oneof3(fir, 2, 3, 4)) {
+						SFile f_in(file_path, SFile::mRead|SFile::mBinary);
+						if(SLCHECK_NZ(f_in.IsValid())) {
+							size_t actual_size = 0;
+							SLCHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+							{
+								SFileFormat ff2;
+								int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
+								SLCHECK_NZ(oneof2(fir2, 2, 4));
+								if(!CurrentStatus)
+									debug_mark = true;
+							}
+						}
+					}
+				}
+			}
+#endif // } 0
+		}
+		{
+			SFileEntryPool fep;
+			SFileEntryPool::Entry fe;
+			SBinaryChunk bc_hash;
+			fep.Scan(root_path, "*.*", SFileEntryPool::scanfRecursive);
+			for(uint p = 0; p < fep.GetCount(); p++) {
+				if(fep.Get(p, &fe, &file_path)) {
+					uint32 crc1 = 0;
+					uint32 crc2 = 0;
+					{
+						SFile f1(file_path, SFile::mRead|SFile::mBinary);
+						THROW(SLCHECK_NZ(f1.IsValid()));
+						THROW(SLCHECK_NZ(f1.CalcCRC(0, &crc1)));
+					}
+					{
+						SFile f2(file_path, SFile::mRead|SFile::mBinary);
+						THROW(SLCHECK_NZ(f2.IsValid()));
+						THROW(SLCHECK_NZ(f2.CalcHash(0, SHASHF_CRC32, bc_hash)));
+						SLCHECK_EQ(bc_hash.Len(), sizeof(crc2));
+						crc2 = *static_cast<const uint32 *>(bc_hash.PtrC());
+					}
+					SLCHECK_EQ(crc1, crc2);
+					if(!CurrentStatus)
+						debug_mark = true;
+				}
+			}
+		}
+	}
+	CATCHZOK;
+	return CurrentStatus;
+}

@@ -294,13 +294,13 @@ void HWAES_xts_decrypt(const uchar * inp, uchar * out, size_t len, const AES_KEY
 #ifdef HWAES_ocb_encrypt
 void HWAES_ocb_encrypt(const uchar * in, uchar * out, size_t blocks, const void * key, size_t start_block_num,
     unsigned char offset_i[16], const unsigned char L_[][16], unsigned char checksum[16]);
-#   else
+#else
 #define HWAES_ocb_encrypt ((ocb128_f)NULL)
 #endif
 #ifdef HWAES_ocb_decrypt
 void HWAES_ocb_decrypt(const uchar * in, uchar * out, size_t blocks, const void * key, size_t start_block_num,
     unsigned char offset_i[16], const unsigned char L_[][16], unsigned char checksum[16]);
-#   else
+#else
 #define HWAES_ocb_decrypt ((ocb128_f)NULL)
 #endif
 #endif /* OPENSSL_NO_OCB */

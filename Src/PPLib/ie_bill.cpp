@@ -744,6 +744,7 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	}
 	else { // export
 		// @v11.5.6 {
+		/* @v11.8.6 see comment below
 		PPObjTag tag_obj;
 		PPObjectTag tag_rec;
 		PPGetSubStr(params, IMPEXPPARAM_BILH_FIXTAG, fld_name);
@@ -756,12 +757,29 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		else
 			param_val.Z();
 		pFile->AppendParam(pSect, fld_name, param_val, 1);
+		*/
 		// } @v11.5.6 
 		// @v11.6.5 {
 		PPGetSubStr(params, IMPEXPPARAM_BILH_OUTERFORMATVER, fld_name);
 		pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(OuterFormatVer), 1);
 		// } @v11.6.5 
 	}
+	// @v11.8.6 фиксирующий тег используется терерь и при импорте и при экспорте {
+	{
+		PPObjTag tag_obj;
+		PPObjectTag tag_rec;
+		PPGetSubStr(params, IMPEXPPARAM_BILH_FIXTAG, fld_name);
+		if(FixTagID && tag_obj.Search(FixTagID, &tag_rec) > 0) {
+			if(tag_rec.Symb[0])
+				param_val = tag_rec.Symb;
+			else
+				param_val.Z().Cat(FixTagID);
+		}
+		else
+			param_val.Z();
+		pFile->AppendParam(pSect, fld_name, param_val, 1);
+	}
+	// } @v11.8.6
 	PPGetSubStr(params, IMPEXPPARAM_BILH_FLAGS, fld_name);
 	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Flags), 1);
 	PPGetSubStr(params, IMPEXPPARAM_BILH_PREDEFFMT, fld_name);
@@ -866,9 +884,9 @@ void BillHdrImpExpDialog::SetupCtrls(long direction /* 0 - import, 1 - export */
 	// @v10.7.11 disableCtrl(CTL_IMPEXPBILH_FLAGS, direction == 0);
 	disableCtrl(CTLSEL_IMPEXPBILH_IMPOP, direction == 0);
 	disableCtrl(CTL_IMPEXPBILH_OUTRFMTV, direction == 1); // @v11.6.5
-	disableCtrl(CTLSEL_IMPEXPBILH_REGTAG, direction == 1); // @v11.6.5
+	// @v11.8.6 (при импорте теперь тег тоже нужен) disableCtrl(CTLSEL_IMPEXPBILH_REGTAG, direction == 1); // @v11.6.5
 	showCtrl(CTL_IMPEXPBILH_OUTRFMTV, direction == 0); // @v11.6.5
-	showCtrl(CTLSEL_IMPEXPBILH_REGTAG, direction == 0); // @v11.6.5
+	// @v11.8.6 (при импорте теперь тег тоже нужен) showCtrl(CTLSEL_IMPEXPBILH_REGTAG, direction == 0); // @v11.6.5
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 0, direction == 0);
 	// @v10.7.11 DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 1, direction == 0 && !(Data.Flags & PPBillImpExpParam::fImpRowsFromSameFile));
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 3, direction);
@@ -3649,6 +3667,101 @@ int PPBillImporter::ResolveGLN(const char * pGLN, /*const char * pLocCode,*/cons
 	}
 	CATCHZOK
 	ASSIGN_PTR(pArID, ar_id);
+	return ok;
+}
+
+PPID PPBillImpExpBaseProcessBlock::GetFixTagID(PPObjectTag * pTagRec)
+{
+	PPID   tag_id = 0;
+	if(BillParam.FixTagID) {
+		PPObjectTag tag_rec;
+		if(TagObj.Fetch(BillParam.FixTagID, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_BILL) {
+			tag_id = tag_rec.ID;	
+			ASSIGN_PTR(pTagRec, tag_rec);
+		}
+	}
+	return tag_id;
+}
+
+bool PPBillImpExpBaseProcessBlock::SkipExportBillBecauseFixTag(PPID billID)
+{
+	bool   result = false;
+	const  PPID tag_id = GetFixTagID(0);
+	if(tag_id) {
+		ObjTagItem tag_item;
+		result = (tag_id && PPRef->Ot.GetTag(PPOBJ_BILL, billID, tag_id, &tag_item) > 0);
+	}
+	return result;
+}
+
+int PPBillImpExpBaseProcessBlock::SetFixTagOnExportedBill(const PPIDArray & rBillIdList, int use_ta)
+{
+	int    ok = 1;
+	if(rBillIdList.getCount()) {
+		PPObjectTag tag_rec;
+		const  PPID tag_id = GetFixTagID(&tag_rec);
+		if(tag_id && oneof6(tag_rec.TagDataType, OTTYP_BOOL, OTTYP_NUMBER, OTTYP_INT, OTTYP_DATE, OTTYP_TIMESTAMP, OTTYP_STRING)) {
+			//exported_bill_id_list.sortAndUndup();
+			Reference * p_ref = PPRef;
+			BillTbl::Rec bill_rec;
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			for(uint bidx = 0; bidx < rBillIdList.getCount(); bidx++) {
+				const PPID bill_id = rBillIdList.get(bidx);
+				if(P_BObj->Search(bill_id, &bill_rec) > 0) {
+					ObjTagItem tag_item;
+					switch(tag_rec.TagDataType) {
+						case OTTYP_BOOL: tag_item.SetInt(tag_id, 1); break;
+						case OTTYP_NUMBER: tag_item.SetReal(tag_id, 1.0); break;
+						case OTTYP_INT:  tag_item.SetInt(tag_id, 1); break;
+						case OTTYP_DATE: tag_item.SetDate(tag_id, getcurdate_()); break;
+						case OTTYP_TIMESTAMP: tag_item.SetTimestamp(tag_id, getcurdatetime_()); break;
+						case OTTYP_STRING: tag_item.SetStr(tag_id, "done"); break;
+					}
+					THROW(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 0));
+				}
+			}
+			THROW(tra.Commit());
+		}
+		else
+			ok = -1;
+	}
+	else 
+		ok = -1;	
+	CATCHZOK
+	return ok;
+}
+
+int PPBillImpExpBaseProcessBlock::SetFixTagOnImportedBill(PPID billID, int use_ta)
+{
+	int    ok = -1;
+	if(billID) {
+		PPObjectTag tag_rec;
+		const  PPID tag_id = GetFixTagID(&tag_rec);
+		if(tag_id && oneof7(tag_rec.TagDataType, OTTYP_BOOL, OTTYP_NUMBER, OTTYP_INT, OTTYP_DATE, OTTYP_TIMESTAMP, OTTYP_STRING, OTTYP_GUID)) {
+			BillTbl::Rec bill_rec;
+			if(P_BObj->Search(billID, &bill_rec) > 0) {
+				ObjTagItem tag_item;
+				switch(tag_rec.TagDataType) {
+					case OTTYP_BOOL: tag_item.SetInt(tag_id, 1); break;
+					case OTTYP_NUMBER: tag_item.SetReal(tag_id, 1.0); break;
+					case OTTYP_INT:  tag_item.SetInt(tag_id, 1); break;
+					case OTTYP_DATE: tag_item.SetDate(tag_id, getcurdate_()); break;
+					case OTTYP_TIMESTAMP: tag_item.SetTimestamp(tag_id, getcurdatetime_()); break;
+					case OTTYP_STRING: tag_item.SetStr(tag_id, "imported"); break;
+					case OTTYP_GUID:
+						{
+							S_GUID uuid(SCtrGenerate_);
+							THROW(tag_item.SetGuid(tag_id, &uuid));
+						}
+						break;
+				}
+				THROW(PPRef->Ot.PutTag(PPOBJ_BILL, billID, &tag_item, use_ta));
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 

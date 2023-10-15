@@ -11,15 +11,15 @@
 #define simplecppH
 
 #ifdef _WIN32
-#  ifdef SIMPLECPP_EXPORT
-#    define SIMPLECPP_LIB __declspec(dllexport)
+#ifdef SIMPLECPP_EXPORT
+#define SIMPLECPP_LIB __declspec(dllexport)
 #  elif defined(SIMPLECPP_IMPORT)
-#    define SIMPLECPP_LIB __declspec(dllimport)
-#  else
-#    define SIMPLECPP_LIB
-#  endif
+#define SIMPLECPP_LIB __declspec(dllimport)
 #else
-#  define SIMPLECPP_LIB
+#define SIMPLECPP_LIB
+#endif
+#else
+#define SIMPLECPP_LIB
 #endif
 
 #if (__cplusplus < 201103L) && !defined(__APPLE__)

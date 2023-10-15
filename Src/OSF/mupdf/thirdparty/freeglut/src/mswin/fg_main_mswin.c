@@ -256,7 +256,7 @@ static struct WM_MESSAGE_MAP allMessages[] =
 	DEFINE_MESSAGE(WM_CTLCOLORDLG),
 	DEFINE_MESSAGE(WM_CTLCOLORSCROLLBAR),
 	DEFINE_MESSAGE(WM_CTLCOLORSTATIC),
-#   define MN_GETHMENU                     0x01E1
+#define MN_GETHMENU                     0x01E1
 
 	DEFINE_MESSAGE(WM_MOUSEMOVE),
 	DEFINE_MESSAGE(WM_LBUTTONDOWN),
@@ -648,7 +648,7 @@ static LRESULT fghWindowProcKeyPress(SFG_Window * window, UINT uMsg, GLboolean k
 	fgState.Modifiers = fgPlatformGetModifiers();
 
 	/* Convert the Win32 keystroke codes to GLUTtish way */
-#   define FG_KEY(a, b) case a: keypress = b; break;
+#define FG_KEY(a, b) case a: keypress = b; break;
 
 	switch(wParam)
 	{

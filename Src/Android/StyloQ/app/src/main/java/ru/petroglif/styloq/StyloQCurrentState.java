@@ -27,10 +27,11 @@ public class StyloQCurrentState { // @v11.7.0 @construction
 		OrgCmdUuid = orgCmdUuid;
 		OpenedDocID = 0;
 		Rf = null;
+		ColumnCount_Goods = 0;
 	}
 	public boolean IsEmpty()
 	{
-		return (OpenedDocID == 0 && (Rf == null || Rf.IsEmpty()));
+		return (OpenedDocID == 0 && (Rf == null || Rf.IsEmpty()) && ColumnCount_Goods == 0);
 	}
 	public JSONObject ToJsonObj()
 	{
@@ -52,6 +53,11 @@ public class StyloQCurrentState { // @v11.7.0 @construction
 						result.put("registryfilt", js_rf);
 					}
 				}
+				// @v11.8.6 {
+				if(ColumnCount_Goods == 1 || ColumnCount_Goods == 2) {
+					result.put("columnct_goods", ColumnCount_Goods);
+				}
+				// } @v11.8.6
 			} catch(JSONException exn) {
 				result = null;
 			}
@@ -76,6 +82,7 @@ public class StyloQCurrentState { // @v11.7.0 @construction
 					if(!Rf.FromJsonObj(js_rf))
 						Rf = null;
 				}
+				ColumnCount_Goods = jsObj.optInt("columnct_goods"); // @v11.8.6
 				if(SvcIdent != null && OrgCmdUuid != null)
 					result = true;
 			}
@@ -88,4 +95,6 @@ public class StyloQCurrentState { // @v11.7.0 @construction
 		// команды, допускающей редактирование документов.
 	CommonPrereqModule.RegistryFilt Rf; // Для команд, которые предусматривают
 		// просмотр списка собственных документов - фильтр отображения этих документов.
+	int   ColumnCount_Goods; // @v11.8.6 Количество столбцов при отображении товаров
+		// Сейчас пока доступны варианты {1, 2}
 }

@@ -191,7 +191,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 					SLib.RecyclerListAdapter adapter = SLib.IsRecyclerListAdapter(srcObj) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
 					if(adapter != null) {
-						if(adapter.GetRcId() == R.layout.li_global_search && JsResultList != null)
+						if(adapter.GetItemRcId() == R.layout.li_global_search && JsResultList != null)
 							_count = JsResultList.length();
 					}
 					result = new Integer(_count);

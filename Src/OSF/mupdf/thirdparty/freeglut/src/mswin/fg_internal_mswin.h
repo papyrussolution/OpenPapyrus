@@ -39,7 +39,7 @@
 /* CYGWIN does not have tchar.h, but has TEXT(x), defined in winnt.h. */
 #ifndef __CYGWIN__
 #       include <tchar.h>
-#   else
+#else
 #define _TEXT(x) TEXT(x)
 #define _T(x)    TEXT(x)
 #endif
@@ -60,7 +60,7 @@ LONG WINAPI ChangeDisplaySettingsExA(LPCSTR, LPDEVMODEA, HWND, DWORD, LPVOID);
 LONG WINAPI ChangeDisplaySettingsExW(LPCWSTR, LPDEVMODEW, HWND, DWORD, LPVOID);
 #ifdef UNICODE
 #define ChangeDisplaySettingsEx ChangeDisplaySettingsExW
-#   else
+#else
 #define ChangeDisplaySettingsEx ChangeDisplaySettingsExA
 #endif
 #endif
@@ -106,7 +106,7 @@ struct tagSFG_PlatformWindowState {
 
 /* Joystick-Specific Definitions */
 #if !defined(_WIN32_WCE)
-#   define _JS_MAX_AXES  8
+#define _JS_MAX_AXES  8
 typedef struct tagSFG_PlatformJoystick SFG_PlatformJoystick;
 struct tagSFG_PlatformJoystick {
 	JOYCAPSA jsCaps;

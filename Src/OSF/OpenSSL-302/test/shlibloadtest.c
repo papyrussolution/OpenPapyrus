@@ -219,7 +219,7 @@ static int test_lib(void)
 	}
 
 # if defined(OPENSSL_NO_PINSHARED) && defined(__GLIBC__) && defined(__GLIBC_PREREQ) && defined(OPENSSL_SYS_LINUX)
-#  if __GLIBC_PREREQ(2, 3)
+#if __GLIBC_PREREQ(2, 3)
 	/*
 	 * If we didn't pin the so then we are hopefully on a platform that supports
 	 * running atexit() on so unload. If not we might crash. We know this is
@@ -229,7 +229,7 @@ static int test_lib(void)
 		slfprintf_stderr("atexit() handler did not run\n");
 		goto end;
 	}
-#  endif
+#endif
 # endif
 	result = 1;
 end:

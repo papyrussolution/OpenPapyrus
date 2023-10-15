@@ -24,7 +24,7 @@ void ngx_gettimeofday(struct timeval * tp)
 	 * See also MSKB Q167296.
 	 */
 	intervals = ((uint64_t)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
-	intervals -= 116444736000000000;
+	intervals -= /*116444736000000000*/SlConst::Epoch1600_1970_Offs_100Ns;
 	tp->tv_sec = (long)(intervals / 10000000);
 	tp->tv_usec = (long)((intervals % 10000000) / 10);
 }

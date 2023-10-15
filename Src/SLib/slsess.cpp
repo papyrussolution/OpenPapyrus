@@ -740,6 +740,12 @@ static void InitTest()
 		assert(log10i_floor(998U) == 2);
 		assert(log10i_floor(998ULL) == 2);
 	}
+	{
+		// Верификация константы, использующая один из вариантов представления (pthreads42 && bdb)
+		STATIC_ASSERT(SlConst::Epoch1600_1970_Offs_100Ns == (((uint64_t)27111902UL << 32) + (uint64_t)3577643008UL));
+		STATIC_ASSERT(SlConst::Epoch1600_1970_Offs_100Ns == SlConst::Epoch1600_1970_Offs_Mks * 10);
+		STATIC_ASSERT(SlConst::Epoch1600_1970_Offs_100Ns == SlConst::Epoch1600_1970_Offs_s * 10000000);
+	}
 #endif // } NDEBUG
 }
 

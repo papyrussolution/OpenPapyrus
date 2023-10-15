@@ -349,7 +349,7 @@ public class CommandListActivity extends SLib.SlActivity {
 					SLib.RecyclerListAdapter adapter = SLib.IsRecyclerListAdapter(srcObj) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
 					if(adapter != null) {
-						if(adapter.GetRcId() == R.layout.li_command && ListData != null)
+						if(adapter.GetItemRcId() == R.layout.li_command && ListData != null)
 							_count = ListData.GetViewCount();
 					}
 					result = new Integer(_count);

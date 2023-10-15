@@ -28,7 +28,7 @@ extern "C" {
 typedef unsigned int DES_LONG;
 
 #   ifdef OPENSSL_BUILD_SHLIBCRYPTO
-#    undef OPENSSL_EXTERN
+#undef OPENSSL_EXTERN
 #define OPENSSL_EXTERN OPENSSL_EXPORT
 #endif
 

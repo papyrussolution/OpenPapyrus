@@ -447,7 +447,7 @@ typedef LONG CRYPTO_ONCE;
 #define  SPT_THREAD_SIGNAL 1
 #define  SPT_THREAD_AWARE 1
 #    include <spthread.h>
-#   else
+#else
 #    include <pthread.h>
 #endif
 typedef pthread_once_t CRYPTO_ONCE;

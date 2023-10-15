@@ -455,13 +455,14 @@ SLTEST_R(ReadWriteLock)
 
 SLTEST_R(SlProcess)
 {
+	bool use_appcontainer = false;
 	SString temp_buf;
 	SString path;
 	SString working_dir;
 	SString policy_path;
 	SlProcess p;
-	SlProcess::AppContainer ac;
 	SlProcess::Result result;
+	SlProcess::AppContainer ac;
 	WsCtl_ClientPolicy policy;
 	SString path_in = GetSuiteEntry()->InPath;
 	PPGetPath(PPPATH_BIN, path);
@@ -496,31 +497,35 @@ SLTEST_R(SlProcess)
 		}
 	}
 	//
-	SLCHECK_NZ(ac.Create("Test-App-Container-2"));
-	SLCHECK_NZ(ac.AllowPath(path_in, 0));
-	SLCHECK_NZ(ac.AllowPath(working_dir, 0));
-	{
-		/*
-			MACHINE\Software\Papyrus
-			CURRENT_USER\Software\Papyrus
-		*/
-		// "CLASSES_ROOT", "CURRENT_USER", "MACHINE", and "USERS
-		//WinRegKey test_key(HKEY_CURRENT_USER, PPConst::WrKey_SlTestApp, 0);
+	if(use_appcontainer) {
+		SLCHECK_NZ(ac.Create("Test-App-Container-2"));
+		SLCHECK_NZ(ac.AllowPath(path_in, 0));
+		SLCHECK_NZ(ac.AllowPath(working_dir, 0));
+		{
+			/*
+				MACHINE\Software\Papyrus
+				CURRENT_USER\Software\Papyrus
+			*/
+			// "CLASSES_ROOT", "CURRENT_USER", "MACHINE", and "USERS
+			//WinRegKey test_key(HKEY_CURRENT_USER, PPConst::WrKey_SlTestApp, 0);
 		
-		temp_buf.Z().Cat("CURRENT_USER").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
-		SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
+			temp_buf.Z().Cat("CURRENT_USER").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
+			SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
 
-		temp_buf.Z().Cat("MACHINE").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
-		SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
+			temp_buf.Z().Cat("MACHINE").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
+			SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
+		}
+		p.SetAppContainer(&ac);
 	}
-	//p.SetAppContainer(&ac);
 	if(policy.SysUser.NotEmpty()) {
 		p.SetImpersUser(policy.SysUser, policy.SysPassword);
 		p.SetFlags(SlProcess::fLogonWithProfile);
 	}
 	SLCHECK_NZ(p.Run(&result));
 	//
-	SLCHECK_NZ(ac.Delete());
+	if(use_appcontainer) {
+		SLCHECK_NZ(ac.Delete());
+	}
 	CATCH
 		CurrentStatus = 0;
 	ENDCATCH

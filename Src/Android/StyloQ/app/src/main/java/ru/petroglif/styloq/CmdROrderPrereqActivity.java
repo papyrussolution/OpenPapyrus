@@ -27,6 +27,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.IdRes;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -783,6 +784,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					final CommonPrereqModule.Tab tab_id = CPM.OnTabSelection(subj);
 					SLib.SetCtrlVisibility(this, R.id.tbButtonLocalTabConfig, (tab_id == CommonPrereqModule.Tab.tabRegistry) ? View.VISIBLE : View.GONE);
 					SLib.SetCtrlVisibility(this, R.id.tbButtonHelp, (tab_id == CommonPrereqModule.Tab.tabRegistry) ? View.VISIBLE : View.GONE);
+					SLib.SetCtrlVisibility(this, R.id.tbButtonColumns, (tab_id == CommonPrereqModule.Tab.tabGoods) ? View.VISIBLE : View.GONE);
 					// @v11.6.3 @seva {
 					if(tab_id == CommonPrereqModule.Tab.tabSearch) {
 						CommonPrereqModule.TabEntry te = SearchTabEntry(tab_id);
@@ -1751,6 +1753,62 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					final int view_id = (srcObj != null && srcObj instanceof View) ? ((View)srcObj).getId() : 0;
 					switch(view_id) {
 						case R.id.tbButtonBack: finish(); break;
+						case R.id.tbButtonColumns: // @v11.8.6
+							{
+								final CommonPrereqModule.Tab current_tab_id = CPM.GetCurrentTabId();
+								if(current_tab_id == CommonPrereqModule.Tab.tabGoods) {
+									StyloQApp app_ctx = GetAppCtx();
+									if(app_ctx != null) {
+										CommonPrereqModule.TabEntry te = SearchTabEntry(current_tab_id);
+										if(te != null && te.TabView != null) {
+											View v = te.TabView.getView();
+											if(v != null && v instanceof ViewGroup) {
+												View lv = ((ViewGroup) v).findViewById(R.id.orderPrereqGoodsListView);
+												if(lv != null && lv instanceof RecyclerView) {
+													RecyclerView.LayoutManager lmgr = ((RecyclerView)lv).getLayoutManager();
+													if(lmgr != null && lmgr instanceof GridLayoutManager) {
+														int sct = ((GridLayoutManager)lmgr).getSpanCount();
+														int new_sct = 0;
+														if(sct == 1) {
+															new_sct = 2;
+														}
+														else if(sct == 2) {
+															new_sct = 1;
+														}
+														if(new_sct > 0) {
+															CPM.Cs.ColumnCount_Goods = new_sct;
+															CPM.RegisterCurrentStateModification(null);
+															//
+															((GridLayoutManager)lmgr).setSpanCount(new_sct);
+															{
+																View v_button_columns = findViewById(R.id.tbButtonColumns);
+																if(v_button_columns != null && v_button_columns instanceof ImageButton) {
+																	int rc_img = 0;
+																	int rc_viewitem = 0;
+																	if(new_sct == 1) {
+																		rc_img = R.drawable.ic_columns_two;
+																		rc_viewitem = R.layout.li_orderprereq_goods;
+																	}
+																	else if(new_sct == 2) {
+																		rc_img = R.drawable.ic_columns_one;
+																		rc_viewitem = R.layout.li_orderprereq_goods_vertical;
+																	}
+																	if(rc_img != 0)
+																		((ImageButton)v_button_columns).setImageResource(rc_img);
+																	RecyclerView.Adapter a = ((RecyclerView)lv).getAdapter();
+																	if(a != null && a instanceof SLib.RecyclerListAdapter)
+																		((SLib.RecyclerListAdapter)a).ChangeItemRcId((RecyclerView)lv, rc_viewitem);
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+							break;
 						case R.id.tbButtonHelp:
 							{
 								final CommonPrereqModule.Tab current_tab_id = CPM.GetCurrentTabId();

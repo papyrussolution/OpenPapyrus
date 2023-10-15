@@ -86,18 +86,14 @@ TCHAR * Curl_auth_build_spn(const char * service, const char * host,
 	if(!utf8_spn) {
 		return NULL;
 	}
-
 	/* Allocate our TCHAR based SPN */
 	tchar_spn = curlx_convert_UTF8_to_tchar(utf8_spn);
 	if(!tchar_spn) {
 		SAlloc::F(utf8_spn);
-
 		return NULL;
 	}
-
 	/* Release the UTF8 variant when operating with Unicode */
 	curlx_unicodefree(utf8_spn);
-
 	/* Return our newly allocated SPN */
 	return tchar_spn;
 }

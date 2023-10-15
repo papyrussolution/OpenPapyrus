@@ -58,22 +58,22 @@ extern "C" {
 #define OPENSSL_SYS_WIN32_CYGWIN
 #else
 #if defined(_WIN32) || defined(OPENSSL_SYS_WIN32)
-#    undef OPENSSL_SYS_UNIX
+#undef OPENSSL_SYS_UNIX
 #    if !defined(OPENSSL_SYS_WIN32)
 #define OPENSSL_SYS_WIN32
 #    endif
 #endif
 #if defined(_WIN64) || defined(OPENSSL_SYS_WIN64)
-#    undef OPENSSL_SYS_UNIX
+#undef OPENSSL_SYS_UNIX
 #    if !defined(OPENSSL_SYS_WIN64)
 #define OPENSSL_SYS_WIN64
 #    endif
 #endif
 #if defined(OPENSSL_SYS_WINNT)
-#    undef OPENSSL_SYS_UNIX
+#undef OPENSSL_SYS_UNIX
 #endif
 #if defined(OPENSSL_SYS_WINCE)
-#    undef OPENSSL_SYS_UNIX
+#undef OPENSSL_SYS_UNIX
 #endif
 #endif
 #endif

@@ -366,13 +366,7 @@ static void extract(const char *filename)
 	return ok;
 }
 
-/*static*/int SArchive::Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath)
-{
-	int    ok = 0;
-	return ok;
-}
-
-/*static*/int SArchive::InflateAll(int provider, const char * pName, uint flags, const char * pDestPath)
+/*static*/int SArchive::Implement_Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath)
 {
 	int    ok = 0;
 	Archive * p_larc = 0;
@@ -473,6 +467,17 @@ static void extract(const char *filename)
 		p_larc = 0;
 	}
 	return ok;
+}
+
+/*static*/int SArchive::Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath)
+{
+	int    ok = 0;
+	return ok;
+}
+
+/*static*/int SArchive::InflateAll(int provider, const char * pName, uint flags, const char * pDestPath)
+{
+	return SArchive::Implement_Inflate(provider, pName, flags, 0, pDestPath);
 }
 
 /*static*/int SArchive::Deflate(int provider, int format, const char * pName, uint flags, const SFileEntryPool & rPool)

@@ -2225,9 +2225,8 @@ static int set_ownership(struct archive_write_disk * a)
 static int set_times(struct archive_write_disk * a, HANDLE h, int mode, const wchar_t * name, time_t atime, long atime_nanos,
     time_t birthtime, long birthtime_nanos, time_t mtime, long mtime_nanos, time_t ctime_sec, long ctime_nanos)
 {
-#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
-#define WINTIME(sec, nsec) ((Int32x32To64(sec, 10000000) + EPOC_TIME) \
-	+ (((nsec)/1000)*10))
+//#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
+#define WINTIME(sec, nsec) ((Int32x32To64(sec, 10000000) + SlConst::Epoch1600_1970_Offs_100Ns) + (((nsec)/1000)*10))
 
 	HANDLE hw = 0;
 	ULARGE_INTEGER wintm;
@@ -2475,8 +2474,8 @@ static void fileTimeToUtc(const FILETIME * filetime, time_t * t, long * ns)
 	ULARGE_INTEGER utc;
 	utc.HighPart = filetime->dwHighDateTime;
 	utc.LowPart  = filetime->dwLowDateTime;
-	if(utc.QuadPart >= EPOC_TIME) {
-		utc.QuadPart -= EPOC_TIME;
+	if(utc.QuadPart >= SlConst::Epoch1600_1970_Offs_100Ns) {
+		utc.QuadPart -= SlConst::Epoch1600_1970_Offs_100Ns;
 		/* milli seconds base */
 		*t = (time_t)(utc.QuadPart / 10000000);
 		/* nano seconds base */

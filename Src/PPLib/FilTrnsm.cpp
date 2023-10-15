@@ -695,10 +695,18 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 			}
 			assert(MemHeapTracer::Check()); // @debug
 			if(use_email && check_email) {
-				THROW(GetFilesFromMailServer2(0, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele msg */));
+				// @v11.8.6 THROW(GetFilesFromMailServer2(0, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele msg */));
+				int mr = GetFilesFromMailServer2(0, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele msg */);
+				if(!mr) {
+					; // @todo @err
+				}
 			}
 			if(IsFtpAddr(src) && check_ftp) {  // else if -> if Так как в обратном случае, если хоть один раздел получает данные с эл. почты, то в эту ветку никогда не попадем.
-				THROW(GetFilesFromFtp(0, src, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele from ftp */, &pParam->SenderDbDivList));
+				// @v11.8.6 THROW(GetFilesFromFtp(0, src, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele from ftp */, &pParam->SenderDbDivList));
+				int fr = GetFilesFromFtp(0, src, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele from ftp */, &pParam->SenderDbDivList);
+				if(!fr) {
+					; // @todo @err
+				}
 			}
 			assert(MemHeapTracer::Check()); // @debug
 		}

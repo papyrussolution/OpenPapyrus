@@ -4907,8 +4907,8 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			//
 			const PPID inet_acc_id = b_e.Tp.InetAccID;
 			const StrAssocArray inet_addr_list = b_e.Tp.AddrList;
-			PPID  fix_tag_id = 0; // @v11.5.6
-			PPObjectTag fix_tag_rec;
+			// @v11.8.6 PPID  fix_tag_id = 0; // @v11.5.6
+			// @v11.8.6 PPObjectTag fix_tag_rec;
 			int   use_mail_addr_by_context = 0;
 			SString email_buf;
 			SString mail_subj = b_e.Tp.Subject;
@@ -4930,11 +4930,13 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			if(b_e.GetIEBRow())
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
 			// @v11.5.6 {
+			/* @v11.8.6
 			if(bill_param.FixTagID) {
 				if(tag_obj.Search(bill_param.FixTagID, &fix_tag_rec) > 0 && fix_tag_rec.ObjTypeID == PPOBJ_BILL)
 					fix_tag_id = fix_tag_rec.ID;	
-			}
+			}*/
 			// } @v11.5.6 
+			// (не надо: сервисные функции PPBillImpExpBaseProcessBlock сами все сделают) fix_tag_id = b_e.GetFixTagID(0); // @v11.8.6
 			if(b_e.BillParam.PredefFormat) {
 				if(oneof7(b_e.BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefExport_Marks, 
 					piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR, piefNalogR_ON_NKORSCHFDOPPR)) { // @v11.2.1 piefNalogR_ON_NSCHFDOPPR // @v11.7.0 piefNalogR_ON_NKORSCHFDOPPR
@@ -4942,9 +4944,10 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 					PPWaitStart();
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 						const  PPID bill_id = bill_id_list.get(_idx);
-						ObjTagItem fix_tag_item;
 						int    err = 0;
-						const  bool do_skip = (fix_tag_id && p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, fix_tag_id, &fix_tag_item) > 0);
+						// @v11.8.6 ObjTagItem fix_tag_item;
+						// @v11.8.6 const  bool do_skip = (fix_tag_id && p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, fix_tag_id, &fix_tag_item) > 0);
+						const  bool do_skip = b_e.SkipExportBillBecauseFixTag(bill_id); // @v11.8.6
 						if(!do_skip && P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
 							int    r = 0;
 							THROW(b_e.Init(&bill_param, &brow_param, &pack, 0 /*&result_file_list*/));
@@ -5273,8 +5276,9 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						StringSet local_result_file_list;
 						for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 							const  PPID bill_id = bill_id_list.get(_idx);
-							ObjTagItem fix_tag_item;
-							const  bool do_skip = (fix_tag_id && p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, fix_tag_id, &fix_tag_item) > 0); // @v11.5.6
+							// @v11.8.6 ObjTagItem fix_tag_item;
+							// @v11.8.6 const  bool do_skip = (fix_tag_id && p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, fix_tag_id, &fix_tag_item) > 0); // @v11.5.6
+							const  bool do_skip = b_e.SkipExportBillBecauseFixTag(bill_id); // @v11.8.6
 							if(!do_skip && P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
 								local_result_file_list.Z();
 								THROW(r = b_e.Init(&bill_param, &brow_param, &pack, &local_result_file_list));
@@ -5319,8 +5323,9 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						PPImpExp * p_iebrow = b_e.GetIEBRow();
 						for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 							const  PPID bill_id = bill_id_list.get(_idx);
-							ObjTagItem fix_tag_item;
-							const  bool do_skip = (fix_tag_id && p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, fix_tag_id, &fix_tag_item) > 0); // @v11.5.6
+							// @v11.8.6 ObjTagItem fix_tag_item;
+							// @v11.8.6 const  bool do_skip = (fix_tag_id && p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, fix_tag_id, &fix_tag_item) > 0); // @v11.5.6
+							const  bool do_skip = b_e.SkipExportBillBecauseFixTag(bill_id); // @v11.8.6
 							if(!do_skip) {
 								if(P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
 									if(!b_e.PutPacket(&pack, 0, 0)) {
@@ -5365,7 +5370,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 				}
 			}
 			// @v11.5.6 {
-			if(exported_bill_id_list.getCount()) {
+			/* @v11.8.6 if(exported_bill_id_list.getCount()) {
 				if(fix_tag_id && oneof6(fix_tag_rec.TagDataType, OTTYP_BOOL, OTTYP_NUMBER, OTTYP_INT, OTTYP_DATE, OTTYP_TIMESTAMP, OTTYP_STRING)) {
 					exported_bill_id_list.sortAndUndup();
 					PPTransaction tra(1);
@@ -5388,8 +5393,12 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 					}
 					THROW(tra.Commit());
 				}
-			}
+			}*/
 			// } @v11.5.6 
+			// @v11.8.6 {
+			exported_bill_id_list.sortAndUndup();
+			THROW(b_e.SetFixTagOnExportedBill(exported_bill_id_list, 1));
+			// } @v11.8.6
 		}
 	}
 	CATCH

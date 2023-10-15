@@ -158,28 +158,12 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 	/* As long as we need to keep sending some context info, and there's no  */
 	/* errors, keep sending it...                                            */
 	for(;;) {
-		TCHAR * sname;
-
-		sname = curlx_convert_UTF8_to_tchar(service_name);
+		TCHAR * sname = curlx_convert_UTF8_to_tchar(service_name);
 		if(!sname)
 			return CURLE_OUT_OF_MEMORY;
-
-		status = s_pSecFn->InitializeSecurityContext(&cred_handle,
-			context_handle,
-			sname,
-			ISC_REQ_MUTUAL_AUTH |
-			ISC_REQ_ALLOCATE_MEMORY |
-			ISC_REQ_CONFIDENTIALITY |
-			ISC_REQ_REPLAY_DETECT,
-			0,
-			SECURITY_NATIVE_DREP,
-			&input_desc,
-			0,
-			&sspi_context,
-			&output_desc,
-			&sspi_ret_flags,
-			&expiry);
-
+		status = s_pSecFn->InitializeSecurityContext(&cred_handle, context_handle,
+			sname, ISC_REQ_MUTUAL_AUTH|ISC_REQ_ALLOCATE_MEMORY|ISC_REQ_CONFIDENTIALITY|ISC_REQ_REPLAY_DETECT,
+			0, SECURITY_NATIVE_DREP, &input_desc, 0, &sspi_context, &output_desc, &sspi_ret_flags, &expiry);
 		curlx_unicodefree(sname);
 
 		if(sspi_recv_token.pvBuffer) {
@@ -187,7 +171,6 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex,
 			sspi_recv_token.pvBuffer = NULL;
 			sspi_recv_token.cbBuffer = 0;
 		}
-
 		if(check_sspi_err(conn, status, "InitializeSecurityContext")) {
 			SAlloc::F(service_name);
 			s_pSecFn->FreeCredentialsHandle(&cred_handle);

@@ -1,0 +1,728 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{83787321-cd35-4335-9c61-e03dee5e7de3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{53f13efe-5545-4fc0-8e35-1bffa510c69b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vtls">
+      <UniqueIdentifier>{c8048de8-d273-4505-9d16-a4ecfd116ed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vtls\Header Files">
+      <UniqueIdentifier>{dabdea5e-9b84-4c19-acf3-64b761ba7213}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vauth">
+      <UniqueIdentifier>{99c37c5d-e83e-4b76-81f2-1a055e853367}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vauth\Header Files">
+      <UniqueIdentifier>{64256c1f-69b8-4f27-a6a9-f4da09b3f5cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vssh">
+      <UniqueIdentifier>{a0db50c2-3b36-4faa-b022-7bb130cecc2e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vssh\libssh2.c">
+      <Filter>vssh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vssh\wolfssh.c">
+      <Filter>vssh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-8300\lib\amigaos.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\asyn-ares.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\asyn-thread.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\base64.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\conncache.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\connect.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\content_encoding.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\cookie.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_addrinfo.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_des.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_endian.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_fnmatch.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\curl_get_line.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_gethostname.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_gssapi.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_memrchr.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_multibyte.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_ntlm_core.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_ntlm_wb.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\curl_path.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\curl_range.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_rtmp.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_sasl.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_sspi.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\curl_threads.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\dict.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\easy.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\escape.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\file.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\fileinfo.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\formdata.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\ftp.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\ftplistparser.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\getenv.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\getinfo.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\gopher.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\hash.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\hmac.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\hostasyn.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\hostip.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\hostip4.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\hostip6.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\hostsyn.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\http.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\http_chunks.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\http_digest.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\http_negotiate.c" />
+    <ClCompile Include="..\Osf\CURL-8300\lib\http_ntlm.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\http_proxy.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\http2.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\if2ip.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\imap.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\inet_ntop.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\inet_pton.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\krb5.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\ldap.c" />
+    <ClCompile Include="..\Osf\CURL-8300\lib\libcurl-pch.cpp" />
+    <ClCompile Include="..\osf\CURL-8300\lib\llist.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\md4.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\md5.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\memdebug.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\mprintf.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\mqtt.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\multi.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\netrc.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\nonblock.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\openldap.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\parsedate.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\pingpong.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\pop3.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\progress.c" />
+    <ClCompile Include="..\Osf\CURL-8300\lib\rand.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\rtsp.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\select.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\sendf.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\sha256.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\share.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\slist.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\smb.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\smtp.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\socks.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\socks_gssapi.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\socks_sspi.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\speedcheck.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\splay.c" />
+    <ClCompile Include="..\Osf\CURL-8300\lib\strcase.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\strdup.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\strerror.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\strtok.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\strtoofft.c" />
+    <ClCompile Include="..\Osf\CURL-8300\lib\system_win32.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\telnet.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\tftp.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\timeval.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\transfer.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\url.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\version.c" />
+    <ClCompile Include="..\osf\CURL-8300\lib\warnless.c" />
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\cleartext.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\cram.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\digest.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\digest_sspi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\krb5_gssapi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\krb5_sspi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\ntlm.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\ntlm_sspi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\oauth2.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\spnego_gssapi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vauth\vauth.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-8300\lib\vtls\gtls.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Osf\CURL-8300\lib\vtls\mbedtls.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-8300\lib\vtls\openssl.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-8300\lib\vtls\schannel.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\osf\CURL-8300\lib\vtls\vtls.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\mime.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\dynbuf.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\urlapi.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\vtls\keylog.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\doh.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\setopt.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\version_win32.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\rename.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\socketpair.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\vtls\bearssl.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vtls\mbedtls_threadlock.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vtls\schannel_verify.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vtls\sectransp.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vtls\wolfssl.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vauth\spnego_sspi.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vssh\libssh.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\vauth\gsasl.c">
+      <Filter>vauth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\altsvc.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\bufq.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\bufref.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\cf-h1-proxy.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\cf-h2-proxy.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\cf-haproxy.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\cf-https-connect.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\cfilters.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\cf-socket.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\c-hyper.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\curl_trc.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\dynhds.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\easygetopt.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\easyoptions.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\fopen.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\headers.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\hsts.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\http_aws_sigv4.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\http1.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\idn.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\macos.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\noproxy.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\psl.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\timediff.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\ws.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\CURL-8300\lib\amigaos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\arpa_telnet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\asyn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\config-win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\conncache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\connect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\content_encoding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\cookie.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_addrinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_des.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_fnmatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_gethostname.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_gssapi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_ldap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_md4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_multibyte.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_ntlm_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_ntlm_wb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_printf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_rtmp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_sasl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_setup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_setup_once.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_sspi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curl_threads.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\curlx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\dict.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\easyif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\fileinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\formdata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\ftp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\ftplistparser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\getinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\gopher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\hostip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\http.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\http2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\http_chunks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\http_digest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\http_negotiate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\http_proxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\if2ip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\imap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\inet_ntop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\inet_pton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\llist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\memdebug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\multihandle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\multiif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\netrc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\pingpong.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\pop3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\rtsp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\sendf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\setup-vms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\share.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\sigpipe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\smb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\smtp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\socks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\splay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\strerror.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\strtok.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\telnet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\tftp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\timeval.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\transfer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\urldata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\warnless.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\vtls\gskit.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\vtls\gtls.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\vtls\nssg.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\vtls\openssl.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\vtls\schannel.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\CURL-8300\lib\vtls\vtls.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\CURL-8300\lib\vauth\digest.h">
+      <Filter>vauth\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\CURL-8300\lib\vauth\ntlm.h">
+      <Filter>vauth\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Osf\CURL-8300\lib\vauth\vauth.h">
+      <Filter>vauth\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vtls\keylog.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\rename.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\socketpair.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vtls\bearssl.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vtls\mbedtls.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vtls\mbedtls_threadlock.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vtls\mesalink.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vtls\sectransp.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vtls\wolfssl.h">
+      <Filter>vtls\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\include\curl\curl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\altsvc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\config-amigaos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\config-dos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\config-mac.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\config-os400.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\config-plan9.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\config-riscos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\config-tpf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\config-vxworks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\config-win32ce.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_base64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_ctype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_get_line.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_hmac.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_krb5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_md5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_memrchr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_path.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_range.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_sha256.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\doh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\dynbuf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\easyoptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\escape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\http_ntlm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\mime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\mqtt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\nonblock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\parsedate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\progress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\psl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\rand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\select.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\setopt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\setup-os400.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\setup-win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\slist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\sockaddr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\speedcheck.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\strcase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\strdup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\strtoofft.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\system_win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\url.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\urlapi-int.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\version_win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\bufq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\bufref.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\cf-h1-proxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\cf-h2-proxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\cf-haproxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\cf-https-connect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\cfilters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\cf-socket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\c-hyper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\curl_trc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\dynhds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\easy_lock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\fopen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\functypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\headers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\hsts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\http_aws_sigv4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\http1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\idn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\macos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\noproxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\timediff.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\ws.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\osf\CURL-8300\lib\libcurl.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

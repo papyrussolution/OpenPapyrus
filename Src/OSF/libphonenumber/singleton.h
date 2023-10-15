@@ -148,7 +148,6 @@
 					return instance_;
 				}
 			private:
-				DISALLOW_COPY_AND_ASSIGN(Singleton);
 				static void Init() 
 				{
 					instance_ = new T();

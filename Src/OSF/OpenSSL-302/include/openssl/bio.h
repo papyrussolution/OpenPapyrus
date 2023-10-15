@@ -833,7 +833,7 @@ void BIO_copy_next_retry(BIO * b);
 #define ossl_bio__attr__ __attribute__
 #if __GNUC__*10 + __GNUC_MINOR__ >= 44
 #define ossl_bio__printf__ __gnu_printf__
-#   else
+#else
 #define ossl_bio__printf__ __printf__
 #endif
 #endif

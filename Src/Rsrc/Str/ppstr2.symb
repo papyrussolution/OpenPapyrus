@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494751
+LastSignatureCode=2147494754
 LastAutoCodeList=1,12216;102,10177;103,10072;110,10000;111,12097;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10147;120,10005;1001,10000;121,10000;122,10000;123,10314;124,10279;125,10047
 
 [SignatureList]
@@ -4585,6 +4585,8 @@ cfgequip_fwritetochkopjrnl=2147487600
 cfgequip_fskipprintingzeroprice=2147487601
 cfgequip_fattachbillcheckstocsess=2147487602
 cfgequip_fdisablesellspoiledseries=2147493923
+cfgequip_chkpanimpopid=2147494753
+cfgequip_chkpanimpbilltagid=2147494754
 cfgequip_id=2147487603
 cfgequip_opondfctothrloc=2147487604
 cfgequip_opondfctthisloc=2147487605

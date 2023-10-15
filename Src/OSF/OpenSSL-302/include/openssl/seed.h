@@ -66,7 +66,7 @@ extern "C" {
 typedef struct seed_key_st {
 #   ifdef SEED_LONG
     unsigned long data[32];
-#   else
+#else
     unsigned int data[32];
 #endif
 } SEED_KEY_SCHEDULE;

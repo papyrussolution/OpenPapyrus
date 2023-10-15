@@ -516,6 +516,10 @@ public:
 		double Value;
 	};
 	struct TechEntry {
+		TechEntry() : ID(0)
+		{
+			CodeUtf8[0] = 0;
+		}
 		PPID   ID;
 		char   CodeUtf8[48];
 	};
@@ -570,7 +574,7 @@ public:
 	//
 	//
 	//
-	class DClientPolicy : public DServerError {
+	/*class DClientPolicy : public DServerError {
 	public:
 		DClientPolicy() : DtmActual(ZERODATETIME), Dirty(false)
 		{
@@ -578,8 +582,8 @@ public:
 		LDATETIME DtmActual; // Момент последней актуализации данных
 		WsCtl_ClientPolicy P;
 		bool Dirty; // Специальный флаг, индицирующий обновление данных со стороны потока обмена с сервером.
-	};
-
+	};*/
+	/*
 	class DProgramList : public DServerError {
 	public:
 		DProgramList() : DtmActual(ZERODATETIME), Dirty(false)
@@ -588,7 +592,7 @@ public:
 		LDATETIME DtmActual; // Момент последней актуализации данных
 		WsCtl_ProgramCollection L;
 		bool Dirty; // Специальный флаг, индицирующий обновление данных со стороны потока обмена с сервером.
-	};
+	};*/
 	//
 	// Descr: Информационный блок о состоянии процессора на сервере, с которым ассоциирована данная рабочая станция //
 	//
@@ -606,19 +610,8 @@ public:
 	};
 	class DAccount : public DServerError {
 	public:
-		DAccount() : SCardID(0), PersonID(0), ScRest(0.0), DtmActual(ZERODATETIME)
-		{
-		}
-		DAccount & Z()
-		{
-			DServerError::Z();
-			SCardID = 0;
-			PersonID = 0;
-			ScRest = 0.0;
-			SCardCode.Z();
-			PersonName.Z();
-			return *this;
-		}
+		DAccount();
+		DAccount & Z();
 		LDATETIME DtmActual; // Момент последней актуализации данных
 		PPID   SCardID;
 		PPID   PersonID;
@@ -628,19 +621,8 @@ public:
 	};
 	class DAuth : public DServerError {
 	public:
-		DAuth() : State(0), SCardID(0), PersonID(0), DtmActual(ZERODATETIME)
-		{
-		}
-		DAuth & Z()
-		{
-			DServerError::Z();
-			DtmActual.Z();
-			State = 0;
-			SCardID = 0;
-			PersonID = 0;
-			DServerError::Z();
-			return *this;
-		}
+		DAuth();
+		DAuth & Z();
 		enum {
 			stWaitOn = 0x0001 // Объект находится в состоянии ожидания результата авторизации
 		};
@@ -685,20 +667,6 @@ public:
 	//
 	class State {
 	public:
-		enum {
-			syncdataUndef = 0,
-			syncdataTest,             // DTest    Тестовый блок данных для отладки взаимодействия с сервером 
-			syncdataServerError,      // DServerError           
-			syncdataPrc,              // DPrc
-			syncdataAccount,          // DAccount
-			syncdataPrices,           // DPrices
-			syncdataTSess,            // DTSess
-			syncdataJobSrvConnStatus, // int статус соединения с сервером
-			syncdataAuth,             // DAuth
-			syncdataAutonomousTSess,  // DTSess Поддержка актуальности автономных данных о текущей сессии
-			syncdataClientPolicy,     // DPolicy Политика ограничений пользовательского сеанса
-			syncdataProgramList       // D_PgmList Список программ, которые могут быть запущены из оболочки
-		};
 		//
 		// Descr: Элемент состояния, который получен от сервера.
 		//   Кроме собственно данных содержит блокировку, время актуализации и время истечения срока действия.
@@ -727,13 +695,21 @@ public:
 				rData = Data;
 				Lck.Unlock();
 			}
+			//
+			// Descr: Возвращает заблокированноу ссылку на объект.
+			// Attention: После того, как ссылка использована необходимо как можно скорее вызвать UnlockRef()
+			//   в противном случае вся работа системы остановится!
+			//
 			const T & GetRef() const
 			{
 				const T * ptr = 0;
 				Lck.Lock();
 				ptr = &Data;
-				Lck.Unlock();
 				return *ptr;
+			}
+			void UnlockRef()
+			{
+				Lck.Unlock();
 			}
 		private:
 			const  int SyncDataId; // syncdataXXX
@@ -742,6 +718,20 @@ public:
 			int64  TmActual;
 			int64  TmExpiry;
 		};	
+		enum {
+			syncdataUndef = 0,
+			syncdataTest,             // DTest    Тестовый блок данных для отладки взаимодействия с сервером 
+			syncdataServerError,      // DServerError           
+			syncdataPrc,              // DPrc
+			syncdataAccount,          // DAccount
+			syncdataPrices,           // DPrices
+			syncdataTSess,            // DTSess
+			syncdataJobSrvConnStatus, // int статус соединения с сервером
+			syncdataAuth,             // DAuth
+			syncdataAutonomousTSess,  // DTSess Поддержка актуальности автономных данных о текущей сессии
+			syncdataClientPolicy,     // DPolicy Политика ограничений пользовательского сеанса
+			syncdataProgramList       // D_PgmList Список программ, которые могут быть запущены из оболочки
+		};
 
 		WsCtl_SelfIdentityBlock SidBlk;
 		SyncEntry <DServerError> D_LastErr;
@@ -752,12 +742,12 @@ public:
 		SyncEntry <DTSess>   D_TSess;
 		SyncEntry <DConnectionStatus> D_ConnStatus;
 		SyncEntry <DAuth>    D_Auth;
-		SyncEntry <DClientPolicy> D_Policy;
-		SyncEntry <DProgramList> D_PgmList; // @v11.8.5
+		// @v11.8.6 SyncEntry <DClientPolicy> D_Policy;
+		// @v11.8.6 SyncEntry <DProgramList> D_PgmList; // @v11.8.5
 
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
-			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError),
-			D_Policy(syncdataClientPolicy), D_PgmList(syncdataProgramList)
+			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError)
+			/*D_Policy(syncdataClientPolicy), D_PgmList(syncdataProgramList)*/
 		{
 		}
 		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
@@ -787,51 +777,9 @@ public:
 			// это поле обязано поддерживать информацию о сеансе для своевременной остановки и прочих рабочих функций.
 	};
 	int GetScreen() const { return Screen; }
-	int SetScreen(int scr)
-	{
-		int    ok = 0;
-		if(oneof6(scr, screenConstruction, screenHybernat, screenRegister, screenLogin, screenAuthSelectSess, 
-			screenSession)) {
-			if(Screen != scr) {
-				Screen = scr;
-				ok = 1;
-			}
-			else
-				ok = -1;
-		}
-		return ok;
-	}
-	int CreateFontEntry(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr)
-	{
-		static const ImWchar ranges[] = {
-			0x0020, 0x00FF, // Basic Latin + Latin Supplement
-			0x0400, 0x044F, // Cyrillic
-			0,
-		};
-		int    ok = 1;
-		SImFontDescription * p_fd = new SImFontDescription(rIo, pSymb, pPath, sizePx, pFontCfg, pClr);
-		if(p_fd) {
-			Cache_Font.Put(p_fd, true);
-		}
-		else
-			ok = 0;
-		return ok;
-	}
-	int PushFontEntry(ImGuiObjStack & rStk, const char * pSymb)
-	{
-		int    ok = 1;
-		SImFontDescription * p_fd = Cache_Font.Get(pSymb, sstrlen(pSymb));
-		if(p_fd && p_fd->IsValid()) {
-			rStk.PushFont(*p_fd);
-			if(p_fd->HasColor()) {
-				SColor clr = p_fd->GetColor();
-				rStk.PushStyleColor(ImGuiCol_Text, IM_COL32(clr.R, clr.G, clr.B, clr.Alpha));
-			}
-		}
-		else
-			ok = 0;
-		return ok;
-	}
+	int SetScreen(int scr);
+	int CreateFontEntry(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr);
+	int PushFontEntry(ImGuiObjStack & rStk, const char * pSymb);
 	SString & InputLabelPrefix(const char * pLabel)
 	{
 		float width = ImGui::CalcItemWidth();
@@ -887,54 +835,32 @@ private:
 
 	class Texture_CachedFileEntity : public SCachedFileEntity {
 	public:
-		Texture_CachedFileEntity() : SCachedFileEntity(), P_Texture(0)
-		{
-		}
+		Texture_CachedFileEntity();
 		void * P_Texture;
 	private:
-		virtual bool InitEntity(void * extraPtr)
-		{
-			bool   ok = false;
-			if(extraPtr) {
-				ImGuiRuntimeBlock * p_rtb = static_cast<ImGuiRuntimeBlock *>(extraPtr);
-				P_Texture = p_rtb->LoadTexture(GetFilePath());
-				if(P_Texture)
-					ok = true;
-			}
-			return ok;
-		}
-		virtual void DestroyEntity()
-		{
-			if(P_Texture) {
-				static_cast<IUnknown *>(P_Texture)->Release();
-				P_Texture = 0;
-			}
-		}
+		virtual bool InitEntity(void * extraPtr);
+		virtual void DestroyEntity();
 	};
 	//
-	class TextureCache : public TSHashCollection <Texture_CachedFileEntity> {
+	class TextureCache : private TSHashCollection <Texture_CachedFileEntity> {
 	public:
-		TextureCache(uint initCount, const void * pCtx) : TSHashCollection <Texture_CachedFileEntity>(initCount, pCtx)
-		{
-		}
-		void SetBasePath(const char * pPath)
-		{
-			SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash|SPathStruc::npfCompensateDotDot, BasePath);
-		}
-		void MakeKey(const char * pFileName, SString & rKey)
-		{
-			rKey.Z();
-			SString & r_temp_buf = SLS.AcquireRvlStr();
-			(r_temp_buf = BasePath).SetLastSlash().Cat(pFileName);
-			SPathStruc::NormalizePath(r_temp_buf, SPathStruc::npfSlash|SPathStruc::npfCompensateDotDot, rKey);
-		}
+		TextureCache(uint initCount, const void * pCtx);
+		void SetBasePath(const char * pPath);
+		void MakeKey(const char * pFileName, SString & rKey);
+		int    Put(Texture_CachedFileEntity * pEntry);
+		Texture_CachedFileEntity * Get(const char * pSymb);
 	private:
+		SMtLock Lck;
 		SString BasePath;
 	};
 
 	TextureCache Cache_Texture;
 	TSHashCollection <SUiLayout> Cache_Layout;
 	TSHashCollection <SImFontDescription> Cache_Font; // @v11.7.8
+	//
+	// Следующие 2 объекта загружаются при инициализации сеанса запросом к серверу или из кэша.
+	//
+	WsCtl_ClientPolicy PolicyL;   // @v11.8.6
 	WsCtl_ProgramCollection PgmL; // @v11.7.12 Список программ, которые клиент может запустить из нашей оболочки
 	
 	WsCtl_Config JsP;
@@ -953,7 +879,13 @@ private:
 	//
 	void   Render();
 	void   MakeLayout(SJson ** ppJsList);
-	SUiLayout * MakePgmListLayout();
+	SUiLayout * MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL);
+	void   PreprocessProgramList();
+	static bool GetLocalCachePath(SString & rPath);
+	int    QueryProgramList2(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL);
+	int    GetProgramListFromCache(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL);
+	void   LoadProgramList2();
+	static void LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache);
 	void   EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl);
 	void   ErrorPopup(bool isErr);
 	static int CbInput(ImGuiInputTextCallbackData * pInputData);
@@ -972,13 +904,76 @@ public:
 	~WsCtl_ImGuiSceneBlock();
 	int  LoadUiDescription();
 	int  Init(ImGuiIO & rIo);
-	int  ApplyClientPolicy();
-	int  LoadProgramList();
-	int  ResolveProgramPaths();
+	//int  LoadProgramList();
 	int  ExecuteProgram(const WsCtl_ProgramEntry * pPe);
 	void EmitEvents();
 	void BuildScene();
 };
+//
+//
+//
+WsCtl_ImGuiSceneBlock::Texture_CachedFileEntity::Texture_CachedFileEntity() : SCachedFileEntity(), P_Texture(0)
+{
+}
+
+/*virtual*/bool WsCtl_ImGuiSceneBlock::Texture_CachedFileEntity::InitEntity(void * extraPtr)
+{
+	bool   ok = false;
+	if(extraPtr) {
+		ImGuiRuntimeBlock * p_rtb = static_cast<ImGuiRuntimeBlock *>(extraPtr);
+		P_Texture = p_rtb->LoadTexture(GetFilePath());
+		if(P_Texture)
+			ok = true;
+	}
+	return ok;
+}
+		
+/*virtual*/void WsCtl_ImGuiSceneBlock::Texture_CachedFileEntity::DestroyEntity()
+{
+	if(P_Texture) {
+		static_cast<IUnknown *>(P_Texture)->Release();
+		P_Texture = 0;
+	}
+}
+
+WsCtl_ImGuiSceneBlock::TextureCache::TextureCache(uint initCount, const void * pCtx) : TSHashCollection <Texture_CachedFileEntity>(initCount, pCtx)
+{
+}
+		
+void WsCtl_ImGuiSceneBlock::TextureCache::SetBasePath(const char * pPath)
+{
+	SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash|SPathStruc::npfCompensateDotDot, BasePath);
+}
+		
+void WsCtl_ImGuiSceneBlock::TextureCache::MakeKey(const char * pFileName, SString & rKey)
+{
+	rKey.Z();
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	(r_temp_buf = BasePath).SetLastSlash().Cat(pFileName);
+	SPathStruc::NormalizePath(r_temp_buf, SPathStruc::npfSlash|SPathStruc::npfCompensateDotDot, rKey);
+}
+		
+int WsCtl_ImGuiSceneBlock::TextureCache::Put(Texture_CachedFileEntity * pEntry)
+{
+	int    result = 0;
+	Lck.Lock();
+	result = TSHashCollection <Texture_CachedFileEntity>::Put(pEntry, true);
+	Lck.Unlock();
+	return result;
+}
+		
+WsCtl_ImGuiSceneBlock::Texture_CachedFileEntity * WsCtl_ImGuiSceneBlock::TextureCache::Get(const char * pSymb)
+{
+	Texture_CachedFileEntity * p_result = 0;
+	if(!isempty(pSymb)) {
+		Lck.Lock();
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		MakeKey(pSymb, r_temp_buf);
+		p_result = TSHashCollection <Texture_CachedFileEntity>::Get(r_temp_buf, r_temp_buf.Len());
+		Lck.Unlock();
+	}
+	return p_result;
+}
 //
 //
 //
@@ -1135,6 +1130,36 @@ WsCtl_ImGuiSceneBlock::DServerError & WsCtl_ImGuiSceneBlock::DServerError::Setup
 	_Status = PPErrCode;
 	PPGetLastErrorMessage(1, _Message);
 	_Message.Transf(CTRANSF_INNER_TO_UTF8);
+	return *this;
+}
+
+WsCtl_ImGuiSceneBlock::DAuth::DAuth() : State(0), SCardID(0), PersonID(0), DtmActual(ZERODATETIME)
+{
+}
+		
+WsCtl_ImGuiSceneBlock::DAuth & WsCtl_ImGuiSceneBlock::DAuth::Z()
+{
+	DServerError::Z();
+	DtmActual.Z();
+	State = 0;
+	SCardID = 0;
+	PersonID = 0;
+	DServerError::Z();
+	return *this;
+}
+
+WsCtl_ImGuiSceneBlock::DAccount::DAccount() : SCardID(0), PersonID(0), ScRest(0.0), DtmActual(ZERODATETIME)
+{
+}
+		
+WsCtl_ImGuiSceneBlock::DAccount & WsCtl_ImGuiSceneBlock::DAccount::Z()
+{
+	DServerError::Z();
+	SCardID = 0;
+	PersonID = 0;
+	ScRest = 0.0;
+	SCardCode.Z();
+	PersonName.Z();
 	return *this;
 }
 
@@ -1776,6 +1801,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				P_St->D_Prc.SetData(st_data);
 			}
 			break;
+		/* @v11.8.6
 		case PPSCMD_WSCTL_QUERYPGMLIST: // @v11.8.5
 			if(P_St) {
 				WsCtl_ImGuiSceneBlock::DProgramList st_data;
@@ -1836,6 +1862,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				}
 			}
 			break;
+		*/
 		case PPSCMD_WSCTL_GETQUOTLIST:
 			if(P_St) {
 				WsCtl_ImGuiSceneBlock::DPrices st_data;
@@ -1976,6 +2003,54 @@ WsCtl_ImGuiSceneBlock::~WsCtl_ImGuiSceneBlock()
 	// Все равно этот объект живет в течении всего жизненного цикла процесса.
 }
 
+int WsCtl_ImGuiSceneBlock::SetScreen(int scr)
+{
+	int    ok = 0;
+	if(oneof6(scr, screenConstruction, screenHybernat, screenRegister, screenLogin, screenAuthSelectSess, 
+		screenSession)) {
+		if(Screen != scr) {
+			Screen = scr;
+			ok = 1;
+		}
+		else
+			ok = -1;
+	}
+	return ok;
+}
+
+int WsCtl_ImGuiSceneBlock::CreateFontEntry(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr)
+{
+	static const ImWchar ranges[] = {
+		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+		0x0400, 0x044F, // Cyrillic
+		0,
+	};
+	int    ok = 1;
+	SImFontDescription * p_fd = new SImFontDescription(rIo, pSymb, pPath, sizePx, pFontCfg, pClr);
+	if(p_fd) {
+		Cache_Font.Put(p_fd, true);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+	
+int WsCtl_ImGuiSceneBlock::PushFontEntry(ImGuiObjStack & rStk, const char * pSymb)
+{
+	int    ok = 1;
+	SImFontDescription * p_fd = Cache_Font.Get(pSymb, sstrlen(pSymb));
+	if(p_fd && p_fd->IsValid()) {
+		rStk.PushFont(*p_fd);
+		if(p_fd->HasColor()) {
+			SColor clr = p_fd->GetColor();
+			rStk.PushStyleColor(ImGuiCol_Text, IM_COL32(clr.R, clr.G, clr.B, clr.Alpha));
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 int WsCtl_ImGuiSceneBlock::LoadUiDescription()
 {
 	int    ok = 0;
@@ -2038,7 +2113,7 @@ int WsCtl_ImGuiSceneBlock::LoadUiDescription()
 	return ok;
 }
 
-SUiLayout * WsCtl_ImGuiSceneBlock::MakePgmListLayout()
+SUiLayout * WsCtl_ImGuiSceneBlock::MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL)
 {
 	const int pgm_entry_template_id = loidProgramEntryTemplate;
 	const SUiLayout * p_pe_template = Cache_Layout.Get(&pgm_entry_template_id, sizeof(pgm_entry_template_id));
@@ -2057,15 +2132,15 @@ SUiLayout * WsCtl_ImGuiSceneBlock::MakePgmListLayout()
 		lop_entry.SetFixedSizeX(128.0f);
 		lop_entry.SetFixedSizeY(128.0f);
 	}
-	if(PgmL.GetSelectedCatSurrogateId()) {
+	if(rPgmL.GetSelectedCatSurrogateId()) {
 		uint sel_idx = 0;
-		const StrAssocArray & r_cat_list = PgmL.GetCatList();
-		if(r_cat_list.Search(PgmL.GetSelectedCatSurrogateId(), &sel_idx)) {
+		const StrAssocArray & r_cat_list = rPgmL.GetCatList();
+		if(r_cat_list.Search(rPgmL.GetSelectedCatSurrogateId(), &sel_idx)) {
 			filt_cat_text = r_cat_list.Get(sel_idx).Txt;
 		}
 	}
-	for(uint i = 0; i < PgmL.getCount(); i++) {
-		const WsCtl_ProgramEntry * p_pe = PgmL.at(i);
+	for(uint i = 0; i < rPgmL.getCount(); i++) {
+		const WsCtl_ProgramEntry * p_pe = rPgmL.at(i);
 		if(p_pe) {
 			if(filt_cat_text.IsEmpty() || filt_cat_text.IsEqiUtf8(p_pe->Category))
 				p_lo_head->InsertItem(const_cast<WsCtl_ProgramEntry *>(p_pe), &lop_entry, loidStartProgramEntry+i+1);
@@ -2076,52 +2151,6 @@ SUiLayout * WsCtl_ImGuiSceneBlock::MakePgmListLayout()
 	return p_lo_head;
 }
 
-int WsCtl_ImGuiSceneBlock::LoadProgramList()
-{
-	int    ok = 1;
-	//PgmL
-	//D:\Papyrus\ppy\workspace\wsctl\wsctl-program.json 
-	SString temp_buf;
-	PPGetPath(PPPATH_WORKSPACE, temp_buf);
-	temp_buf.SetLastSlash().Cat("wsctl").SetLastSlash().Cat("wsctl-program.json"); // По этому пути находится тестовый фейковый список программ
-	SJson * p_js = SJson::ParseFile(temp_buf);
-	THROW_SL(p_js);
-	THROW(PgmL.FromJsonObj(p_js));
-	PgmL.MakeCatList();
-	{
-		SString pic_base_path;
-		PPGetPath(PPPATH_WORKSPACE, temp_buf);
-		(pic_base_path = temp_buf).SetLastSlash().Cat("cache").SetLastSlash().Cat("img").SetLastSlash();
-		if(pathValid(pic_base_path, 1)) {
-			Cache_Texture.SetBasePath(pic_base_path);
-			for(uint i = 0; i < PgmL.getCount(); i++) {
-				WsCtl_ProgramEntry * p_pe = PgmL.at(i);
-				if(p_pe) {
-					if(p_pe->PicSymb.NotEmpty()) {
-						(temp_buf = pic_base_path).Cat(p_pe->PicSymb);
-						if(fileExists(temp_buf)) {
-							Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
-							if(p_cfe && p_cfe->Init(temp_buf)) {
-								if(p_cfe->Reload(true, &ImgRtb)) {
-									Cache_Texture.Put(p_cfe, true);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	/*{
-		SUiLayout * p_lo_head = MakePgmListLayout();
-		if(p_lo_head)
-			Cache_Layout.Put(p_lo_head, true);
-	}*/
-	CATCHZOK
-	delete p_js;
-	return ok;
-}
-
 int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 {
 	int    ok = 0;
@@ -2129,50 +2158,6 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 		if(SessF.LaunchProcess(pPe)) {
 			ok = 1;
 		}
-	}
-	return ok;
-}
-
-int WsCtl_ImGuiSceneBlock::ResolveProgramPaths()
-{
-	DClientPolicy policy;
-	St.D_Policy.GetData(policy);
-	return PgmL.Resolve(policy.P);
-}
-
-int WsCtl_ImGuiSceneBlock::ApplyClientPolicy()
-{
-	int    ok = -1;
-	wchar_t win_user_name_before[256]; // @debug
-	wchar_t win_user_name_after[256]; // @debug
-	bool   guhr = false;
-	DClientPolicy policy;
-	St.D_Policy.GetData(policy);
-	if(policy.Dirty) {
-		/* @construction
-		if(policy.P.SysUser.NotEmpty()) {
-			HANDLE h = SSystem::GetLocalSystemProcessToken();
-			SSystem::WinUserBlock wub;
-			uint   guhf = 0;
-			BOOL   loaded_profile = false;
-			PROFILEINFO profile_info;
-			HANDLE h_cmd_pipe = 0;
-			wub.UserName.CopyFromUtf8(policy.P.SysUser);
-			wub.Password.CopyFromUtf8(policy.P.SysPassword);
-			//
-			DWORD win_user_name_len = SIZEOFARRAY(win_user_name_before);
-			GetUserName(win_user_name_before, &win_user_name_len);
-			//
-			guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);		
-			//
-			win_user_name_len = SIZEOFARRAY(win_user_name_after);
-			GetUserName(win_user_name_after, &win_user_name_len);
-			//
-		}*/
-		ResolveProgramPaths();
-		policy.Dirty = false;
-		St.D_Policy.SetData(policy);
-		ok = 1;
 	}
 	return ok;
 }
@@ -2310,6 +2295,7 @@ int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 			CreateFontEntry(rIo, "FontPrimary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 16.0f, 0, &primary_font_color);
 		}
 	}
+	LoadProgramList2(); // 
 	return ok;
 }
 
@@ -2356,7 +2342,6 @@ void WsCtl_ImGuiSceneBlock::EmitEvents()
 			}
 			St.SetSyncUpdateTimerLastReqTime(sync_data_id); // Отмечаем время отправки запроса
 		}
-		ApplyClientPolicy(); // @debug
 	}
 	else {
 		assert(SyncReqList.getCount() == 0);
@@ -2637,120 +2622,453 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 				total_size = p_scr->GetSize();
 				//ImGui::SetNextWindowContentSize(ImVec2(total_size, 0.0f));
 			}
-		}
-		{
-			SString temp_buf;
-			const bool is_line_content_valid = p_scr ? (p_scr->CheckLineContentIndex(-1) >= 0) : false;
-			SPoint2F offset;
-			if(p_scr) {
-				offset.x = -p_scr->GetCurrentPageTopPoint();
+			{
+				SString temp_buf;
+				const bool is_line_content_valid = p_scr ? (p_scr->CheckLineContentIndex(-1) >= 0) : false;
+				SPoint2F offset;
+				if(p_scr) {
+					offset.x = -p_scr->GetCurrentPageTopPoint();
+				}
+				const WsCtl_ProgramEntry * p_clicked_entry = 0;
+				for(uint loidx = 0; loidx < p_lo_ipg->GetChildrenCount(); loidx++) {
+					SUiLayout * p_lo_entry = p_lo_ipg->GetChild(loidx);
+					if(p_lo_entry) {
+						if(!is_line_content_valid || p_scr->CheckLineContentIndex(loidx) > 0) {
+							ImGuiWindowByLayout wbl_entry(p_lo_entry, offset, temp_buf.Z().Cat("##GALLERYENTRY").Cat(p_lo_entry->GetID()), view_flags);
+							if(wbl_entry.IsValid()) {
+								//const uint pe_idx = i-(loidStartProgramEntry+1);
+								const WsCtl_ProgramEntry * p_pe_ = static_cast<const WsCtl_ProgramEntry *>(SUiLayout::GetManagedPtr(p_lo_entry));
+								if(p_pe_) {
+									Texture_CachedFileEntity * p_te = Cache_Texture.Get(p_pe_->PicSymb);
+									if(p_te && p_te->P_Texture) {
+										if(p_pe_->Title.NotEmpty())
+											ImGui::Text(p_pe_->Title);
+										const SPoint2F __s = p_lo_entry->GetFrame().GetSize();
+										ImVec2 sz(__s.x-4.0f, __s.y-16.0f);
+										ImGui::Image(p_te->P_Texture, sz);
+									}
+									else {
+										if(p_pe_->Category.NotEmpty())
+											ImGui::Text(p_pe_->Category);
+										if(p_pe_->Title.NotEmpty())
+											ImGui::Text(p_pe_->Title);
+									}
+									if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
+										p_clicked_entry = p_pe_;
+									}
+								}
+								/*
+								assert(loidx < PgmL.getCount());
+								if(loidx < PgmL.getCount()) {
+									const WsCtl_ProgramEntry * p_pe = PgmL.at(loidx);
+									if(p_pe->Category.NotEmpty())
+										ImGui::Text(p_pe->Category);
+									if(p_pe->Title.NotEmpty())
+										ImGui::Text(p_pe->Title);
+								}*/
+							}
+							else
+								break;
+						}
+					}
+					else
+						break;
+				}
+				if(p_clicked_entry) {
+					ExecuteProgram(p_clicked_entry);
+				}
 			}
-			const WsCtl_ProgramEntry * p_clicked_entry = 0;
-			for(uint loidx = 0; loidx < p_lo_ipg->GetChildrenCount(); loidx++) {
-				SUiLayout * p_lo_entry = p_lo_ipg->GetChild(loidx);
-				if(p_lo_entry) {
-					if(!is_line_content_valid || p_scr->CheckLineContentIndex(loidx) > 0) {
-						ImGuiWindowByLayout wbl_entry(p_lo_entry, offset, temp_buf.Z().Cat("##GALLERYENTRY").Cat(p_lo_entry->GetID()), view_flags);
-						if(wbl_entry.IsValid()) {
-							//const uint pe_idx = i-(loidStartProgramEntry+1);
-							const WsCtl_ProgramEntry * p_pe_ = static_cast<const WsCtl_ProgramEntry *>(SUiLayout::GetManagedPtr(p_lo_entry));
-							if(p_pe_) {
-								Texture_CachedFileEntity * p_te = 0;
-								if(p_pe_->PicSymb.NotEmpty()) {
-									Cache_Texture.MakeKey(p_pe_->PicSymb, temp_buf);
-									p_te = Cache_Texture.Get(temp_buf, temp_buf.Len());
-								}
-								if(p_te && p_te->P_Texture) {
-									if(p_pe_->Title.NotEmpty())
-										ImGui::Text(p_pe_->Title);
-									const SPoint2F __s = p_lo_entry->GetFrame().GetSize();
-									ImVec2 sz(__s.x-4.0f, __s.y-16.0f);
-									ImGui::Image(p_te->P_Texture, sz);
-								}
-								else {
-									if(p_pe_->Category.NotEmpty())
-										ImGui::Text(p_pe_->Category);
-									if(p_pe_->Title.NotEmpty())
-										ImGui::Text(p_pe_->Title);
-								}
-								if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
-									p_clicked_entry = p_pe_;
+			if(p_lor) {
+				{
+					ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryCatSelector, "##ProgramCatSelector",
+						view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
+					const StrAssocArray & r_cat_list = PgmL.GetCatList();
+					if(r_cat_list.getCount()) {
+						const char * p_selected_text = 0;
+						uint    selected_idx = 0;
+						if(r_cat_list.Search(PgmL.GetSelectedCatSurrogateId(), &selected_idx) > 0) {
+							StrAssocArray::Item item = r_cat_list.Get(selected_idx);
+							p_selected_text = item.Txt;
+						}
+						if(ImGui::BeginCombo("##pgmcatlist", p_selected_text)) {
+							for(uint catidx = 0; catidx < r_cat_list.getCount(); catidx++) {
+								StrAssocArray::Item item = r_cat_list.Get(catidx);
+								if(ImGui::Selectable(item.Txt, item.Id == PgmL.GetSelectedCatSurrogateId()))
+									PgmL.SetSelectedCatSurrogateId(item.Id);
+							}
+							ImGui::EndCombo();
+						}
+					}
+				}
+				{
+					ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryScrollbar, "##ProgramScrollbar",
+						view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
+					int64 scroll_value = 0;
+					int64 scroll_size = p_lor->P_Scrlr ? p_lor->P_Scrlr->GetCount() : 0;
+					int64 scroll_frame = 1; // @?
+					bool debug_mark = false; // @debug
+					if(scroll_size > 0) {
+						const SUiLayout * p_lo_sb = rTl.FindByIdC(loidProgramGalleryScrollbar);
+						if(p_lo_sb) {
+							//SPoint2F s = r.GetSize();
+							//if(p_ipg->P_)
+							SScroller::Position scrp;
+							if(p_scr)
+								p_scr->GetPosition(scrp);
+							ImDrawFlags sb_flags = 0;
+							ImRect imr = FRectToImRect(p_lo_sb->GetFrameAdjustedToParent());
+							scroll_value = scrp.ItemIdxCurrent;
+							bool sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags);
+							// @v11.8.6 {
+							const ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
+							if(mouse_delta.x != 0.0f) {
+								//ScrollWhenDraggingOnVoid(ImVec2(-mouse_delta.x, /*-mouse_delta.y*/0.0f));
+								//static void ScrollWhenDraggingOnVoid(const ImVec2 & rDelta) // @v11.8.6
+								{
+									ImGuiContext & g = *ImGui::GetCurrentContext();
+									ImGuiWindow * p_window = g.CurrentWindow;
+									bool hovered = false;
+									bool held = false;
+									if(g.HoveredId == 0) // If nothing hovered so far in the frame (not same as IsAnyItemHovered()!)
+										ImGui::ButtonBehavior(p_window->Rect(), p_window->GetID("##scrolldraggingoverlay"), &hovered, &held, ImGuiButtonFlags_MouseButtonLeft);
+									if(held) {
+										p_window->Scroll.x += mouse_delta.x;
+										p_window->Scroll.y += mouse_delta.y;
+									}
 								}
 							}
-							/*
-							assert(loidx < PgmL.getCount());
-							if(loidx < PgmL.getCount()) {
-								const WsCtl_ProgramEntry * p_pe = PgmL.at(loidx);
-								if(p_pe->Category.NotEmpty())
-									ImGui::Text(p_pe->Category);
-								if(p_pe->Title.NotEmpty())
-									ImGui::Text(p_pe->Title);
-							}*/
-						}
-						else
-							break;
-					}
-				}
-				else
-					break;
-			}
-			if(p_clicked_entry) {
-				ExecuteProgram(p_clicked_entry);
-			}
-		}
-		if(p_lor) {
-			{
-				ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryCatSelector, "##ProgramCatSelector",
-					view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
-				const StrAssocArray & r_cat_list = PgmL.GetCatList();
-				if(r_cat_list.getCount()) {
-					const char * p_selected_text = 0;
-					uint    selected_idx = 0;
-					if(r_cat_list.Search(PgmL.GetSelectedCatSurrogateId(), &selected_idx) > 0) {
-						StrAssocArray::Item item = r_cat_list.Get(selected_idx);
-						p_selected_text = item.Txt;
-					}
-					if(ImGui::BeginCombo("##pgmcatlist", p_selected_text)) {
-						for(uint catidx = 0; catidx < r_cat_list.getCount(); catidx++) {
-							StrAssocArray::Item item = r_cat_list.Get(catidx);
-							if(ImGui::Selectable(item.Txt, item.Id == PgmL.GetSelectedCatSurrogateId()))
-								PgmL.SetSelectedCatSurrogateId(item.Id);
-						}
-						ImGui::EndCombo();
-					}
-				}
-			}
-			{
-				ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryScrollbar, "##ProgramScrollbar",
-					view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
-				int64 scroll_value = 0;
-				int64 scroll_size = p_lor->P_Scrlr ? p_lor->P_Scrlr->GetCount() : 0;
-				int64 scroll_frame = 1; // @?
-				bool debug_mark = false; // @debug
-				if(scroll_size > 0) {
-					const SUiLayout * p_lo_sb = rTl.FindByIdC(loidProgramGalleryScrollbar);
-					if(p_lo_sb) {
-						//SPoint2F s = r.GetSize();
-						//if(p_ipg->P_)
-						SScroller::Position scrp;
-						if(p_scr)
-							p_scr->GetPosition(scrp);
-						ImDrawFlags sb_flags = 0;
-						ImRect imr = FRectToImRect(p_lo_sb->GetFrameAdjustedToParent());
-						scroll_value = scrp.ItemIdxCurrent;
-						bool sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags);
-						if(sbr) {
-							if(scroll_value >= 0) {
-								PgmGalleryScrollerPosition_Develop.ItemIdxCurrent = static_cast<uint>(scroll_value);
+							// } @v11.8.6
+							if(sbr) {
+								if(scroll_value >= 0) {
+									PgmGalleryScrollerPosition_Develop.ItemIdxCurrent = static_cast<uint>(scroll_value);
+								}
+								debug_mark = true; // @debug
 							}
-							debug_mark = true; // @debug
 						}
 					}
+					//ImGui::Scrollbar(ImGuiAxis_X);
 				}
-				//ImGui::Scrollbar(ImGuiAxis_X);
 			}
 		}
 	}
+}
+
+#if 0 // {
+int WsCtl_ImGuiSceneBlock::LoadProgramList()
+{
+	int    ok = 1;
+	//PgmL
+	//D:\Papyrus\ppy\workspace\wsctl\wsctl-program.json 
+	SString temp_buf;
+	PPGetPath(PPPATH_WORKSPACE, temp_buf);
+	temp_buf.SetLastSlash().Cat("wsctl").SetLastSlash().Cat("wsctl-program.json"); // По этому пути находится тестовый фейковый список программ
+	SJson * p_js = SJson::ParseFile(temp_buf);
+	THROW_SL(p_js);
+	THROW(PgmL.FromJsonObj(p_js));
+	PgmL.MakeCatList();
+	{
+		SString pic_base_path;
+		PPGetPath(PPPATH_WORKSPACE, temp_buf);
+		(pic_base_path = temp_buf).SetLastSlash().Cat("cache").SetLastSlash().Cat("img").SetLastSlash();
+		if(pathValid(pic_base_path, 1)) {
+			Cache_Texture.SetBasePath(pic_base_path);
+			for(uint i = 0; i < PgmL.getCount(); i++) {
+				WsCtl_ProgramEntry * p_pe = PgmL.at(i);
+				if(p_pe) {
+					if(p_pe->PicSymb.NotEmpty()) {
+						(temp_buf = pic_base_path).Cat(p_pe->PicSymb);
+						if(fileExists(temp_buf)) {
+							Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+							if(p_cfe && p_cfe->Init(temp_buf)) {
+								if(p_cfe->Reload(true, &ImgRtb)) {
+									Cache_Texture.Put(p_cfe);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js;
+	return ok;
+}
+#endif // } 0
+
+int WsCtl_ImGuiSceneBlock::GetProgramListFromCache(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL)
+{
+	int    ok = 0;
+	SString temp_buf;
+	SString cache_path;
+	WsCtl_ImGuiSceneBlock::GetLocalCachePath(cache_path);
+	cache_path.SetLastSlash().Cat("data");
+	if(createDir(cache_path)) {
+		(temp_buf = cache_path).SetLastSlash().Cat("wsctl-program.json");
+		if(fileExists(temp_buf)) {
+			SJson * p_js_obj = SJson::ParseFile(temp_buf);
+			if(p_js_obj) {
+				WsCtl_ProgramCollection pgml_local_instance;
+				if(pgml_local_instance.FromJsonObj(p_js_obj)) {
+					rPgmL = pgml_local_instance;
+					ok |= 0x01;
+				}
+			}
+			delete p_js_obj;
+		}
+		(temp_buf = cache_path).SetLastSlash().Cat("wsctl-policy.json");
+		if(fileExists(temp_buf)) {
+			SJson * p_js_obj = SJson::ParseFile(temp_buf);
+			if(p_js_obj) {
+				WsCtl_ClientPolicy policyl_local_instance;
+				if(policyl_local_instance.FromJsonObj(p_js_obj)) {
+					rPolicyL = policyl_local_instance;
+					ok |= 0x02;
+				}
+			}
+			delete p_js_obj;			
+		}
+	}
+	return ok;
+}
+
+int WsCtl_ImGuiSceneBlock::QueryProgramList2(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL)
+{
+	int    ok = 0;
+	SString temp_buf;
+	THROW(St.SidBlk.Uuid);
+	THROW(JsP.Server.NotEmpty());
+	{
+		const S_GUID ws_uuid(St.SidBlk.Uuid);
+		//SString cache_path;
+		PPJobSrvClient cli;
+		PPJobSrvReply reply;
+		//THROW(WsCtl_ImGuiSceneBlock::GetLocalCachePath(cache_path));
+		{
+			DConnectionStatus srv_conn_status;
+			{
+				THROW(cli.Connect(JsP.Server, JsP.Port));
+				if(JsP.DbSymb.NotEmpty() && JsP.User.NotEmpty()) {
+					THROW(cli.Login(JsP.DbSymb, JsP.User, JsP.Password));
+					srv_conn_status.S = 1;
+				}
+			}
+			if(!srv_conn_status.S)
+				srv_conn_status.SetupByLastError();
+			St.D_ConnStatus.SetData(srv_conn_status);
+		}
+		{
+			PPJobSrvCmd cmd;
+			cmd.StartWriting(PPSCMD_WSCTL_QUERYPGMLIST);
+			cmd.Write(&ws_uuid, sizeof(ws_uuid));
+			cmd.FinishWriting();
+			if(cli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
+				SString reply_buf;
+				reply.StartReading(&reply_buf);
+				if(reply.CheckRepError()) {
+					SJson * p_js_obj = SJson::Parse(reply_buf);
+					WsCtl_ProgramCollection pgml_local_instance;
+					if(pgml_local_instance.FromJsonObj(p_js_obj)) {
+						rPgmL = pgml_local_instance;
+						ok |= 0x01;
+						//(temp_buf = cache_path).SetLastSlash().Cat("data").SetLastSlash().Cat("wsctl-program.json");
+					}
+					ZDELETE(p_js_obj);						
+				}
+			}
+		}
+		{
+			PPJobSrvCmd cmd;
+			cmd.StartWriting(PPSCMD_WSCTL_QUERYPOLICY);
+			cmd.Write(&ws_uuid, sizeof(ws_uuid));
+			cmd.FinishWriting();
+			if(cli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
+				SString reply_buf;
+				reply.StartReading(&reply_buf);
+				if(reply.CheckRepError()) {
+					SJson * p_js_obj = SJson::Parse(reply_buf);
+					WsCtl_ClientPolicy policyl_local_instance;
+					if(policyl_local_instance.FromJsonObj(p_js_obj)) {
+						rPolicyL = policyl_local_instance;
+						ok |= 0x02;
+					}
+					else {
+						PPSetErrorSLib();
+					}
+					ZDELETE(p_js_obj);						
+				}
+			}
+		}
+	}
+	CATCH
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+/*static*/bool WsCtl_ImGuiSceneBlock::GetLocalCachePath(SString & rPath)
+{
+	rPath.Z();
+	bool    ok = true;
+	SString temp_buf;
+	SString cache_path;
+	PPGetPath(PPPATH_WORKSPACE, temp_buf);	
+	(cache_path = temp_buf).SetLastSlash().Cat("cache");
+	if(createDir(cache_path)) {
+		rPath = cache_path;
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+void WsCtl_ImGuiSceneBlock::LoadProgramList2()
+{
+	SString temp_buf;
+	{
+		bool do_resolve = false;
+		WsCtl_ProgramCollection  _pgm_l_from_server;
+		WsCtl_ClientPolicy _policy_l_from_server;
+		WsCtl_ProgramCollection  _pgm_l_from_cache;
+		WsCtl_ClientPolicy _policy_l_from_cache;
+		int r_cache = GetProgramListFromCache(_pgm_l_from_cache, _policy_l_from_cache);
+		int r_srv = QueryProgramList2(_pgm_l_from_server, _policy_l_from_server);
+		if(r_srv & 0x02) { // WsCtl_ClientPolicy is loaded successfully
+			if(!(r_cache & 0x02) || _policy_l_from_server != _policy_l_from_cache) {
+				PolicyL = _policy_l_from_server;
+				do_resolve = true;
+			}
+			else {
+				PolicyL = _policy_l_from_cache;
+			}
+		}
+		else if(r_cache & 0x02) {
+			PolicyL = _policy_l_from_cache;
+		}
+		if(r_srv & 0x01) { // WsCtl_ProgramCollection is loaded successfully
+			if(!(r_cache & 0x01) || _pgm_l_from_server != _pgm_l_from_cache) {
+				PgmL = _pgm_l_from_server;
+				do_resolve = true;
+			}
+			else {
+				PgmL = _pgm_l_from_cache;
+			}
+		}
+		else if(r_cache & 0x01) {
+			PgmL = _pgm_l_from_cache;
+		}
+		if(do_resolve) {
+			PgmL.Resolve(PolicyL);
+			{
+				SString cache_path;
+				SString _path;
+				WsCtl_ImGuiSceneBlock::GetLocalCachePath(cache_path);
+				cache_path.SetLastSlash().Cat("data");
+				if(PgmL.getCount()) {
+					SJson * p_js_obj = PgmL.ToJsonObj(true);
+					if(p_js_obj) {
+						p_js_obj->ToStr(temp_buf);
+						(_path = cache_path).SetLastSlash().Cat("wsctl-program.json");
+						SFile f_out(_path, SFile::mWrite);
+						if(f_out.IsValid()) {
+							f_out.Write(temp_buf.cptr(), temp_buf.Len());
+						}
+					}
+					ZDELETE(p_js_obj);
+				}
+				{
+					SJson * p_js_obj = PolicyL.ToJsonObj();
+					if(p_js_obj) {
+						p_js_obj->ToStr(temp_buf);
+						(_path = cache_path).SetLastSlash().Cat("wsctl-policy.json");
+						SFile f_out(_path, SFile::mWrite);
+						if(f_out.IsValid()) {
+							f_out.Write(temp_buf.cptr(), temp_buf.Len());
+						}
+					}
+					ZDELETE(p_js_obj);
+				}
+			}
+		}
+		WsCtl_ImGuiSceneBlock::LoadProgramImages(PgmL, Cache_Texture);
+		PgmL.MakeCatList();
+	}
+}
+
+/*static*/void WsCtl_ImGuiSceneBlock::LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache)
+{
+	SString pic_base_path;
+	SString temp_buf;
+	WsCtl_ImGuiSceneBlock::GetLocalCachePath(pic_base_path);
+	pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
+	if(pathValid(pic_base_path, 1)) {
+		rTextureCache.SetBasePath(pic_base_path);
+		for(uint i = 0; i < rPgmL.getCount(); i++) {
+			WsCtl_ProgramEntry * p_pe = rPgmL.at(i);
+			if(p_pe) {
+				if(p_pe->PicSymb.NotEmpty()) {
+					(temp_buf = pic_base_path).Cat(p_pe->PicSymb);
+					if(fileExists(temp_buf)) {
+						Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+						if(p_cfe && p_cfe->Init(temp_buf)) {
+							if(p_cfe->Reload(true, &ImgRtb)) {
+								rTextureCache.Put(p_cfe);
+								p_cfe = 0; // ! prevent deletion below
+							}
+						}
+						delete p_cfe;
+					}
+				}
+			}
+		}
+	}
+}
+
+void WsCtl_ImGuiSceneBlock::PreprocessProgramList()
+{
+	class Worker_PgmListResolver : public PPThread {
+	public:
+		Worker_PgmListResolver(WsCtl_ProgramCollection & rPgmL, const WsCtl_ClientPolicy & rPolicy, TextureCache & rTextureCache) : 
+			PPThread(PPThread::kCasualJob, 0, 0), R_PgmL(rPgmL), Policy(rPolicy), R_TextureCache(rTextureCache)
+		{
+		}
+		virtual void Run()
+		{
+			R_PgmL.Lck.Lock();
+			R_PgmL.Resolve(Policy);
+			R_PgmL.MakeCatList();
+			WsCtl_ImGuiSceneBlock::LoadProgramImages(R_PgmL, R_TextureCache);
+			R_PgmL.Lck.Unlock();
+		}
+	private:
+		WsCtl_ProgramCollection & R_PgmL;
+		WsCtl_ClientPolicy Policy; // copy of the original
+		TextureCache & R_TextureCache;
+	};	
+	/*
+	if(PgmL.Lck.TryLock()) {
+		if(!PgmL.getCount()) {
+			const DProgramList & dpl = St.D_PgmList.GetRef();
+			if(dpl.L.getCount()) {
+				PgmL = dpl.L;
+			}
+			St.D_PgmList.UnlockRef(); // !
+		}
+		if(PgmL.getCount() && !PgmL.IsResolved()) {
+			PgmL.Lck.Unlock(); // ! Далее, возможно, мы запустим поток, который самостоятельно заблокирует PgmL
+			DClientPolicy policy;
+			St.D_Policy.GetData(policy);
+			const bool is_there_app_paths = (policy.P.SsAppPaths.getCount() > 0);
+			//if(is_there_app_paths) {
+				Worker_PgmListResolver * p_thread = new Worker_PgmListResolver(PgmL, policy.P, Cache_Texture);
+				if(p_thread)
+					p_thread->Start();
+			//}
+		}
+		else 
+			PgmL.Lck.Unlock(); // !
+	}
+	*/
 }
 
 void WsCtl_ImGuiSceneBlock::BuildScene()
@@ -2781,6 +3099,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			0;
 		ImGuiViewport * p_vp = ImGui::GetMainViewport();
 		if(p_vp) {
+
+			//PreprocessProgramList();
+
 			ImVec2 sz = p_vp->Size;
 			const int _screen = GetScreen();
 			SUiLayout::Param evp;
@@ -2850,14 +3171,14 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					}
 					else {
 						SUiLayout tl(*p_tl_);
-						{
-							SUiLayout * p_tpg = tl.FindById(/*loidSessionProgramGallery*/loidTestProgramGallery);
-							if(p_tpg) {
-								//const int lo_id = loidInternalProgramGallery;
-								SUiLayout * p_ipg_ = MakePgmListLayout();
+						/*if(PgmL.Lck.TryLock())*/ {
+							if(PgmL.getCount()) {
+								SUiLayout * p_tpg = tl.FindById(loidTestProgramGallery);
+								SUiLayout * p_ipg_ = p_tpg ? MakePgmListLayout(PgmL) : 0;
 								if(p_ipg_)
 									p_tpg->Insert(p_ipg_);
 							}
+							//PgmL.Lck.Unlock();
 						}
 						tl.Evaluate(&evp);
 						{
@@ -2903,6 +3224,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					DTSess st_data_tses;
 					St.D_TSess.GetData(st_data_tses);
 					if(st_data_tses.TSessID && st_data_tses._Status == 0) {
+						SessF.SetClientPolicy(PolicyL); // @v11.8.6
 						if(SessF.Start()) { // @v11.8.5
 							SetScreen(screenSession);
 						}
@@ -3039,14 +3361,14 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 				const SUiLayout * p_tl_ = Cache_Layout.Get(&_screen, sizeof(_screen));
 				if(p_tl_) {
 					SUiLayout tl(*p_tl_);
-					{
-						SUiLayout * p_tpg = tl.FindById(loidTestProgramGallery);
-						if(p_tpg) {
-							//const int lo_id = loidInternalProgramGallery;
-							SUiLayout * p_ipg_ = MakePgmListLayout();
+					/*if(PgmL.Lck.TryLock())*/{
+						if(PgmL.getCount()) {
+							SUiLayout * p_tpg = tl.FindById(loidTestProgramGallery);
+							SUiLayout * p_ipg_ = p_tpg ? MakePgmListLayout(PgmL) : 0;
 							if(p_ipg_)
 								p_tpg->Insert(p_ipg_);
 						}
+						//PgmL.Lck.Unlock();
 					}
 					tl.Evaluate(&evp);
 					ImGuiObjStack __ost;
@@ -3348,7 +3670,7 @@ int main(int, char**)
 		//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		WsCtl_ImGuiSceneBlock scene_blk;
 		scene_blk.Init(io);
-		scene_blk.LoadProgramList(); // @v11.7.12
+		//scene_blk.LoadProgramList(); // @v11.7.12
 		scene_blk.SetScreen(WsCtl_ImGuiSceneBlock::screenConstruction);
 		{
 			const char * p_img_path = "/Papyrus/Src/PPTEST/DATA/test-gif.gif";

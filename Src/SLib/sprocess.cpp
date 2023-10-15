@@ -10,6 +10,54 @@
 #include <AclAPI.h>
 #include <NTSecAPI.h>
 #include <strsafe.h>
+
+#include <iostream>
+#include <dsgetdc.h>
+#include <Lm.h>
+
+typedef HRESULT (WINAPI * FN_CREATEAPPCONTAINERPROFILE)(PCWSTR, PCWSTR, PCWSTR, PSID_AND_ATTRIBUTES, DWORD, PSID *); // Userenv.dll:CreateAppContainerProfile
+typedef HRESULT (WINAPI * FN_DERIVEAPPCONTAINERSIDFROMAPPCONTAINERNAME)(PCWSTR, PSID *); // Userenv.dll:DeriveAppContainerSidFromAppContainerName
+typedef HRESULT (WINAPI * FN_DELETEAPPCONTAINERPROFILE)(PCWSTR); // Userenv.dll:DeleteAppContainerProfile
+typedef HRESULT (WINAPI * FN_GETAPPCONTAINERFOLDERPATH)(PCWSTR, PWSTR *); // Userenv.dll:GetAppContainerFolderPath
+typedef HRESULT (WINAPI * FN_GETAPPCONTAINERREGISTRYLOCATION)(REGSAM, PHKEY); // Userenv.dll:GetAppContainerRegistryLocation
+
+class WinApi_UserEnv_ProcPool {
+public:
+	static const WinApi_UserEnv_ProcPool * GetInstance()
+	{
+		WinApi_UserEnv_ProcPool * p_result = 0;
+		const char * p_symb = "WinApi_UserEnv_ProcPool";
+		long   symbol_id = SLS.GetGlobalSymbol(p_symb, -1, 0);
+		if(symbol_id < 0) {
+			TSClassWrapper <WinApi_UserEnv_ProcPool> cls;
+			symbol_id = SLS.CreateGlobalObject(cls);
+			const long s = SLS.GetGlobalSymbol(p_symb, symbol_id, 0);
+			assert(symbol_id == s);
+			p_result = static_cast<WinApi_UserEnv_ProcPool *>(SLS.GetGlobalObject(symbol_id));
+		}
+		else {
+			p_result = static_cast<WinApi_UserEnv_ProcPool *>(SLS.GetGlobalObject(symbol_id));
+		}
+		return p_result;
+	}
+	WinApi_UserEnv_ProcPool() : Lib("Userenv.dll")
+	{
+		if(Lib.IsValid()) {
+			CreateAppContainerProfile_Func = (FN_CREATEAPPCONTAINERPROFILE)Lib.GetProcAddr("CreateAppContainerProfile");
+			DeriveAppContainerSidFromAppContainerName_Func = (FN_DERIVEAPPCONTAINERSIDFROMAPPCONTAINERNAME)Lib.GetProcAddr("DeriveAppContainerSidFromAppContainerName");
+			DeleteAppContainerProfile_Func = (FN_DELETEAPPCONTAINERPROFILE)Lib.GetProcAddr("DeleteAppContainerProfile");
+			GetAppContainerFolderPath_Func = (FN_GETAPPCONTAINERFOLDERPATH)Lib.GetProcAddr("GetAppContainerFolderPath");
+			GetAppContainerRegistryLocation_Func = (FN_GETAPPCONTAINERREGISTRYLOCATION)Lib.GetProcAddr("GetAppContainerRegistryLocation");
+		}
+	}
+	FN_CREATEAPPCONTAINERPROFILE CreateAppContainerProfile_Func;
+	FN_DERIVEAPPCONTAINERSIDFROMAPPCONTAINERNAME DeriveAppContainerSidFromAppContainerName_Func;
+	FN_DELETEAPPCONTAINERPROFILE DeleteAppContainerProfile_Func;
+	FN_GETAPPCONTAINERFOLDERPATH GetAppContainerFolderPath_Func;
+	FN_GETAPPCONTAINERREGISTRYLOCATION GetAppContainerRegistryLocation_Func;
+private:
+	SDynLibrary Lib;
+};
 //
 // 
 //
@@ -412,6 +460,13 @@ bool SlProcess::SetImpersUser(const char * pUserUtf8, const char * pPasswordUtf8
 	return ok;
 }
 
+bool SlProcess::SetImpersUserToken(SPtrHandle userToken)
+{
+	bool   ok = true;
+	UserToken = userToken;
+	return ok;
+}
+
 static void foo()
 {
 	/*
@@ -764,13 +819,50 @@ int SlProcess::Run(SlProcess::Result * pResult)
 				startup_info.StartupInfo.cb = sizeof(STARTUPINFOW);
 			}
 			//
-			if(UserName.NotEmpty()) {
-				enum {
-					runprocessmAsUser = 1,
-					runprocessmWithToken,
-					runprocessmWithLogon,
-				};
-				int method = runprocessmWithLogon;
+			enum {
+				runprocessmAsUser = 1,
+				runprocessmWithToken,
+				runprocessmWithLogon,
+			};
+			int method = runprocessmWithLogon;
+			if(UserToken) {
+				method = runprocessmWithToken;
+				uint   logon_flags = 0;
+				if(Flags & fLogonWithProfile)
+					logon_flags |= LOGON_WITH_PROFILE;
+				SSystem::WinUserBlock wub;
+				wub.UserName = UserName;
+				wub.Password = UserPw;
+				uint   guhf = 0;
+				BOOL   loaded_profile = FALSE;
+				HANDLE h_cmd_pipe = 0;
+				//PROFILEINFO profile_info;
+				SPtrHandle caller_token = SlProcess::OpenCurrentAccessToken(/*TOKEN_ALL_ACCESS*/TOKEN_READ|TOKEN_WRITE|TOKEN_EXECUTE);
+				//bool guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);
+				int privr = 0;
+				{
+					const wchar_t * p_priv_symb = SE_IMPERSONATE_NAME;
+					privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+					if(privr == privrNotAssigned) {
+						if(SlProcess::AddPrivilegeToAccessToken(caller_token, p_priv_symb)) {
+							privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+						}
+					}
+					if(privr == privrDisabled) {
+						if(EnableAccesTokenPrivilege(caller_token, p_priv_symb, true)) {
+							privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
+						}
+					}
+				}
+				//SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, 0);
+				//BOOL iplour = ImpersonateLoggedOnUser(UserToken);
+				//if(iplour) {
+					create_proc_result = ::CreateProcessWithTokenW(UserToken, logon_flags, p_app_name, p_cmd_line, 
+						/*p_prc_attr_list, p_thread_attr_list, inherit_handles,*/
+						creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+				//}
+			}
+			else if(UserName.NotEmpty()) {
 				if(method == runprocessmWithLogon) {
 					uint   logon_flags = 0;
 					if(Flags & fLogonWithProfile)
@@ -789,42 +881,7 @@ int SlProcess::Run(SlProcess::Result * pResult)
 						creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
 				}
 				else if(method == runprocessmWithToken) {
-					uint   logon_flags = 0;
-					if(Flags & fLogonWithProfile)
-						logon_flags |= LOGON_WITH_PROFILE;
-					SSystem::WinUserBlock wub;
-					wub.UserName = UserName;
-					wub.Password = UserPw;
-					uint   guhf = 0;
-					BOOL   loaded_profile = FALSE;
-					HANDLE h_cmd_pipe = 0;
-					//PROFILEINFO profile_info;
-					SPtrHandle caller_token = SlProcess::OpenCurrentAccessToken(TOKEN_ALL_ACCESS);
-					//bool guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);
-					int privr = 0;
-					{
-						const wchar_t * p_priv_symb = SE_IMPERSONATE_NAME;
-						privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-						if(privr == privrNotAssigned) {
-							if(SlProcess::AddPrivilegeToAccessToken(caller_token, p_priv_symb)) {
-								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-							}
-						}
-						if(privr == privrDisabled) {
-							if(EnableAccesTokenPrivilege(caller_token, p_priv_symb, true)) {
-								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-							}
-						}
-					}
-					SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, SSystem::logonprvDEFAULT);
-					if(callee_token) {
-						BOOL iplour = ImpersonateLoggedOnUser(callee_token);
-						if(iplour) {
-							create_proc_result = ::CreateProcessWithTokenW(callee_token, logon_flags, p_app_name, p_cmd_line, 
-								/*p_prc_attr_list, p_thread_attr_list, inherit_handles,*/
-								creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
-						}
-					}
+					;
 				}
 				else if(method == runprocessmAsUser) {
 					SSystem::WinUserBlock wub;
@@ -865,7 +922,7 @@ int SlProcess::Run(SlProcess::Result * pResult)
 							}
 						}
 					}
-					SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, SSystem::logonprvDEFAULT);
+					SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, 0);
 					if(callee_token) {
 						//callee_token = wub.H_User_;
 						BOOL iplour = ImpersonateLoggedOnUser(callee_token);
@@ -911,20 +968,29 @@ bool SlProcess::AppContainer::IsValid() const
 
 bool SlProcess::AppContainer::Create(const char * pName)
 {
+	const WinApi_UserEnv_ProcPool * p_proc_pool = WinApi_UserEnv_ProcPool::GetInstance();
+	assert(p_proc_pool);
 	bool   ok = false;
 	PSID   sid = 0;
 	SStringU container_name;
 	if(!isempty(pName)) {
-		if(container_name.CopyFromUtf8(pName, sstrlen(pName))) {
-			HRESULT hr = ::CreateAppContainerProfile(container_name, container_name, container_name, nullptr, 0, &sid);
-			if(SUCCEEDED(hr)) {
-				ok = true;
-			}
-			else {
-				// see if AppContainer SID already exists
-				hr = ::DeriveAppContainerSidFromAppContainerName(container_name, &sid);
-				if(SUCCEEDED(hr))
-					ok = true;
+		if(p_proc_pool) {
+			if(container_name.CopyFromUtf8(pName, sstrlen(pName))) {
+				HRESULT hr = -1;
+				if(p_proc_pool->CreateAppContainerProfile_Func) {
+					hr = p_proc_pool->CreateAppContainerProfile_Func(container_name, container_name, container_name, nullptr, 0, &sid);
+					if(SUCCEEDED(hr)) {
+						ok = true;
+					}
+					else {
+						// see if AppContainer SID already exists
+						if(p_proc_pool->DeriveAppContainerSidFromAppContainerName_Func) {
+							hr = p_proc_pool->DeriveAppContainerSidFromAppContainerName_Func(container_name, &sid);
+							if(SUCCEEDED(hr))
+								ok = true;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -942,9 +1008,12 @@ bool SlProcess::AppContainer::Delete()
 	if(NameUtf8.NotEmpty()) {
 		SStringU container_name;
 		container_name.CopyFromUtf8(NameUtf8);
-		HRESULT hr = DeleteAppContainerProfile(container_name);
-		if(SUCCEEDED(hr))
-			ok = true;
+		const WinApi_UserEnv_ProcPool * p_proc_pool = WinApi_UserEnv_ProcPool::GetInstance();
+		if(p_proc_pool && p_proc_pool->DeleteAppContainerProfile_Func) {
+			HRESULT hr = p_proc_pool->DeleteAppContainerProfile_Func(container_name);
+			if(SUCCEEDED(hr))
+				ok = true;
+		}
 	}
 	return ok;
 }
@@ -952,27 +1021,34 @@ bool SlProcess::AppContainer::Delete()
 bool SlProcess::AppContainer::GetFolder()
 {
 	bool   ok = false;
-	HRESULT hr = 0;
+	HRESULT hr = -1;
 	if(!!Sid) {
-		wchar_t * p_sid_str = 0;
-		wchar_t * p_path = 0;
-		::ConvertSidToStringSid(Sid, &p_sid_str);
-		//((log += L"AppContainer SID:\r\n") += str) += L"\r\n";
-		hr = ::GetAppContainerFolderPath(p_sid_str, &p_path);
-		if(SUCCEEDED(hr)) {
-			//((log += L"AppContainer folder: ") += path) += L"\r\n";
-			FolderUtf8.CopyUtf8FromUnicode(p_path, sstrlen(p_path), 1);
-			::CoTaskMemFree(p_path);
-			ok = true;
-		}
-		::LocalFree(p_sid_str);
-		//
-		{
-			REGSAM da = 0;
-			HKEY h_key = 0;
-			hr = ::GetAppContainerRegistryLocation(da, &h_key);
-			if(SUCCEEDED(hr)) {
-				ok = true;
+		const WinApi_UserEnv_ProcPool * p_proc_pool = WinApi_UserEnv_ProcPool::GetInstance();
+		if(p_proc_pool) {
+			wchar_t * p_sid_str = 0;
+			wchar_t * p_path = 0;
+			::ConvertSidToStringSid(Sid, &p_sid_str);
+			//((log += L"AppContainer SID:\r\n") += str) += L"\r\n";
+			if(p_proc_pool->GetAppContainerFolderPath_Func) {
+				hr = p_proc_pool->GetAppContainerFolderPath_Func(p_sid_str, &p_path);
+				if(SUCCEEDED(hr)) {
+					//((log += L"AppContainer folder: ") += path) += L"\r\n";
+					FolderUtf8.CopyUtf8FromUnicode(p_path, sstrlen(p_path), 1);
+					::CoTaskMemFree(p_path);
+					ok = true;
+				}
+			}
+			::LocalFree(p_sid_str);
+			//
+			{
+				REGSAM da = 0;
+				HKEY h_key = 0;
+				if(p_proc_pool && p_proc_pool->GetAppContainerRegistryLocation_Func) {
+					hr = p_proc_pool->GetAppContainerRegistryLocation_Func(da, &h_key);
+					if(SUCCEEDED(hr)) {
+						ok = true;
+					}
+				}
 			}
 		}
 	}
@@ -1054,12 +1130,6 @@ bool SlProcess::AppContainer::AllowNamedObjectAccess(const wchar_t * pName, /*SE
 //
 //
 //
-#include <iostream>
-//#include <Windows.h>
-//#include <UserEnv.h>
-#include <dsgetdc.h>
-#include <Lm.h>
-
 //#pragma comment(lib, "netapi32.lib")
 //#pragma comment(lib, "userenv.lib")
 

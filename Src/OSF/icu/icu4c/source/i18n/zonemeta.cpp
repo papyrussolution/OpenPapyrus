@@ -216,11 +216,11 @@ static void U_CALLCONV initCanonicalIDCache(UErrorCode & status) {
 	ucln_i18n_registerCleanup(UCLN_I18N_ZONEMETA, zoneMeta_cleanup);
 }
 
-const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tzid, UErrorCode & status) {
+const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tzid, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
-
 	if(tzid.isBogus() || tzid.length() > ZID_KEY_MAX) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
@@ -231,14 +231,11 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
-
 	const char16_t * canonicalID = NULL;
-
 	UErrorCode tmpStatus = U_ZERO_ERROR;
 	char16_t utzid[ZID_KEY_MAX + 1];
 	tzid.extract(utzid, ZID_KEY_MAX + 1, tmpStatus);
 	U_ASSERT(tmpStatus == U_ZERO_ERROR); // we checked the length of tzid already
-
 	if(!uprv_isInvariantUString(utzid, -1)) {
 		// All of known tz IDs are only containing ASCII invariant characters.
 		status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -251,16 +248,13 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 		canonicalID = (const char16_t *)uhash_get(gCanonicalIDCache, utzid);
 	}
 	umtx_unlock(&gZoneMetaLock);
-
 	if(canonicalID != NULL) {
 		return canonicalID;
 	}
-
 	// If not, resolve CLDR canonical ID with resource data
 	bool isInputCanonical = FALSE;
 	char id[ZID_KEY_MAX + 1];
 	tzid.extract(0, 0x7fffffff, id, SIZEOFARRAYi(id), US_INV);
-
 	// replace '/' with ':'
 	char * p = id;
 	while(*p++) {
@@ -268,7 +262,6 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 			*p = ':';
 		}
 	}
-
 	UResourceBundle * top = ures_openDirect(NULL, gKeyTypeData, &tmpStatus);
 	UResourceBundle * rb = ures_getByKey(top, gTypeMapTag, NULL, &tmpStatus);
 	ures_getByKey(rb, gTimezoneTag, rb, &tmpStatus);
@@ -279,7 +272,6 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 		canonicalID = TimeZone::findID(tzid);
 		isInputCanonical = TRUE;
 	}
-
 	if(canonicalID == NULL) {
 		// If a map element not found, then look for an alias
 		tmpStatus = U_ZERO_ERROR;
@@ -290,7 +282,6 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 			// canonical map found
 			canonicalID = canonical;
 		}
-
 		if(canonicalID == NULL) {
 			// Dereference the input ID using the tz data
 			const char16_t * derefer = TimeZone::dereferOlsonLink(tzid);
@@ -362,7 +353,8 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 	return canonicalID;
 }
 
-UnicodeString & U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tzid, UnicodeString & systemID, UErrorCode & status) {
+UnicodeString & U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tzid, UnicodeString & systemID, UErrorCode & status) 
+{
 	const char16_t * canonicalID = getCanonicalCLDRID(tzid, status);
 	if(U_FAILURE(status) || canonicalID == NULL) {
 		systemID.setToBogus();
@@ -372,7 +364,8 @@ UnicodeString & U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tzi
 	return systemID;
 }
 
-const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const TimeZone& tz) {
+const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const TimeZone& tz) 
+{
 	if(dynamic_cast<const OlsonTimeZone *>(&tz) != NULL) {
 		// short cut for OlsonTimeZone
 		const OlsonTimeZone * otz = (const OlsonTimeZone*)&tz;

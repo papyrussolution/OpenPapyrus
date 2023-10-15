@@ -48,9 +48,9 @@
  * a skipped test, in earlier versions we need to succeed on a skipped test, so:
  */
 #if PNG_LIBPNG_VER >= 10601 && defined(HAVE_CONFIG_H)
-#  define SKIP 77
+#define SKIP 77
 #else
-#  define SKIP 0
+#define SKIP 0
 #endif
 
 /* Known chunks that exist in pngtest.png must be supported or pngtest will fail
@@ -78,14 +78,14 @@
 	(defined PNG_WRITE_INTERLACING_SUPPORTED || PNG_LIBPNG_VER >= 10700)
 
 #ifdef PNG_ZLIB_HEADER
-#  include PNG_ZLIB_HEADER /* defined by pnglibconf.h from 1.7 */
+#include PNG_ZLIB_HEADER /* defined by pnglibconf.h from 1.7 */
 #else
-#  include "zlib.h"
+#include "zlib.h"
 #endif
 
 /* Copied from pngpriv.h but only used in error messages below. */
 #ifndef PNG_ZBUF_SIZE
-#  define PNG_ZBUF_SIZE 8192
+#define PNG_ZBUF_SIZE 8192
 #endif
 #define FCLOSE(file) fclose(file)
 
@@ -97,21 +97,21 @@
 	#define PNG_DEBUG 0
 #endif
 #if PNG_DEBUG > 1
-#  define pngtest_debug(m)        ((void)fprintf(stderr, m "\n"))
-#  define pngtest_debug1(m, p1)    ((void)fprintf(stderr, m "\n", p1))
-#  define pngtest_debug2(m, p1, p2) ((void)fprintf(stderr, m "\n", p1, p2))
+#define pngtest_debug(m)        ((void)fprintf(stderr, m "\n"))
+#define pngtest_debug1(m, p1)    ((void)fprintf(stderr, m "\n", p1))
+#define pngtest_debug2(m, p1, p2) ((void)fprintf(stderr, m "\n", p1, p2))
 #else
-#  define pngtest_debug(m)        ((void)0)
-#  define pngtest_debug1(m, p1)    ((void)0)
-#  define pngtest_debug2(m, p1, p2) ((void)0)
+#define pngtest_debug(m)        ((void)0)
+#define pngtest_debug1(m, p1)    ((void)0)
+#define pngtest_debug2(m, p1, p2) ((void)0)
 #endif
 
 #if !PNG_DEBUG
-#  define SINGLE_ROWBUF_ALLOC  /* Makes buffer overruns easier to nail */
+#define SINGLE_ROWBUF_ALLOC  /* Makes buffer overruns easier to nail */
 #endif
 
 #ifndef PNG_UNUSED
-#  define PNG_UNUSED(param) (void)param;
+#define PNG_UNUSED(param) (void)param;
 #endif
 
 /* Turn on CPU timing
@@ -156,15 +156,15 @@ static int warning_count = 0; /* count calls to png_warning */
 
 /* Define png_jmpbuf() in case we are using a pre-1.0.6 version of libpng */
 #ifndef png_jmpbuf
-#  define png_jmpbuf(png_ptr) png_ptr->jmpbuf
+#define png_jmpbuf(png_ptr) png_ptr->jmpbuf
 #endif
 
 /* Defines for unknown chunk handling if required. */
 #ifndef PNG_HANDLE_CHUNK_ALWAYS
-#  define PNG_HANDLE_CHUNK_ALWAYS       3
+#define PNG_HANDLE_CHUNK_ALWAYS       3
 #endif
 #ifndef PNG_HANDLE_CHUNK_IF_SAFE
-#  define PNG_HANDLE_CHUNK_IF_SAFE      2
+#define PNG_HANDLE_CHUNK_IF_SAFE      2
 #endif
 
 /* Utility to save typing/errors, the argument must be a name */
@@ -726,7 +726,7 @@ static void write_chunks(png_structp write_ptr, int location)
 
 #endif /* WRITE */
 #else /* !READ_USER_CHUNKS */
-#  define write_chunks(pp, loc) ((void)0)
+#define write_chunks(pp, loc) ((void)0)
 #endif
 /* END of code to demonstrate user chunk support */
 
@@ -886,19 +886,19 @@ static int test_one_file(const char * inname, const char * outname)
 	pngtest_debug("Initializing input and output streams");
 #ifdef PNG_STDIO_SUPPORTED
 	png_init_io(read_ptr, fpin);
-#  ifdef PNG_WRITE_SUPPORTED
+#ifdef PNG_WRITE_SUPPORTED
 	png_init_io(write_ptr, fpout);
-#  endif
+#endif
 #else
 	png_set_read_fn(read_ptr, (png_voidp)fpin, pngtest_read_data);
-#  ifdef PNG_WRITE_SUPPORTED
+#ifdef PNG_WRITE_SUPPORTED
 	png_set_write_fn(write_ptr, (png_voidp)fpout,  pngtest_write_data,
 #    ifdef PNG_WRITE_FLUSH_SUPPORTED
 	    pngtest_flush);
 #    else
 	    NULL);
 #    endif
-#  endif
+#endif
 #endif
 
 	if(status_dots_requested == 1) {
@@ -1223,7 +1223,7 @@ static int test_one_file(const char * inname, const char * outname)
 	if(png_set_interlace_handling(write_ptr) != num_passes)
 		png_error(write_ptr, "png_set_interlace_handling(write): wrong pass count ");
 #else /* png_set_interlace_handling not called on either read or write */
-#  define calc_pass_height
+#define calc_pass_height
 #endif /* not using libpng interlace handling */
 
 #ifdef PNGTEST_TIMING
@@ -1279,12 +1279,12 @@ static int test_one_file(const char * inname, const char * outname)
 	}
 
 #ifdef PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
-#  ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
+#ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
 	png_free_data(read_ptr, read_info_ptr, PNG_FREE_UNKN, -1);
-#  endif
-#  ifdef PNG_WRITE_UNKNOWN_CHUNKS_SUPPORTED
+#endif
+#ifdef PNG_WRITE_UNKNOWN_CHUNKS_SUPPORTED
 	png_free_data(write_ptr, write_info_ptr, PNG_FREE_UNKN, -1);
-#  endif
+#endif
 #endif
 	pngtest_debug("Reading and writing end_info data");
 	png_read_end(read_ptr, end_info_ptr);
@@ -1408,13 +1408,13 @@ static int test_one_file(const char * inname, const char * outname)
 			return (1);
 	}
 
-#  ifdef PNG_WRITE_SUPPORTED
+#ifdef PNG_WRITE_SUPPORTED
 	/* If there is no write support nothing was written! */
 	else if(unsupported_chunks > 0) {
 		fprintf(STDERR, "\n  %s: unsupported chunks (%d)%s",
 		    inname, unsupported_chunks, strict ? ": IGNORED --strict!" : "");
 	}
-#  endif
+#endif
 
 	else if(warning_count > 0) {
 		fprintf(STDERR, "\n  %s: %d libpng warnings found",

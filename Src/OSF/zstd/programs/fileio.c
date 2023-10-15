@@ -78,7 +78,7 @@ char const* FIO_lz4Version(void)
 #define ZSTD_LZ4_VERSION LZ4_VERSION_MAJOR.LZ4_VERSION_MINOR.LZ4_VERSION_RELEASE
 #define ZSTD_LZ4_VERSION_STRING ZSTD_EXPAND_AND_QUOTE(ZSTD_LZ4_VERSION)
 	return ZSTD_LZ4_VERSION_STRING;
-#   endif
+#endif
 #else
 	return "Unsupported";
 #endif

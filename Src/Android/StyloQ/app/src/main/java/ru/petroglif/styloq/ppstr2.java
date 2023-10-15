@@ -2218,6 +2218,19 @@ class ppstr2 {
 	public static final int PPERR_SQ_INDOCINVCLIACS = 12201;
 	public static final int PPERR_DEBUG = 12202;
 	public static final int PPERR_INVALIDCCDATE2MAXIDINDEX = 12203;
+	public static final int PPERR_WSCTL_UNABLERECOGNLOGIN = 12204;
+	public static final int PPERR_WSCTL_NAMENOTLINKEDWITHSC = 12205;
+	public static final int PPERR_WSCTL_ACCPSNKINDUNDEF = 12206;
+	public static final int PPERR_WSCTL_PRCBYUUIDNFOUND = 12207;
+	public static final int PPERR_WSCTL_DUPPRCUUID = 12208;
+	public static final int PPERR_WSCTL_PROT_UNDEFMCHNUUID = 12209;
+	public static final int PPERR_WSCTL_PRCISBUSYBYANOTHEACC = 12210;
+	public static final int PPERR_WSCTL_INVPARAM_LOGOUT = 12211;
+	public static final int PPERR_WSCTL_INVPARAM_ENDSESS = 12212;
+	public static final int PPERR_CCIMP_UNDEFPOSNODE = 12213;
+	public static final int PPERR_CCIMP_WAREBYCCLINENFOUND = 12214;
+	public static final int PPERR_CCIMP_INVQTTY = 12215;
+	public static final int PPERR_UNSUPPORTEDPREDEFFMT = 12216;
 	//
 	// .N.
 	//
@@ -4560,6 +4573,14 @@ class ppstr2 {
 	public static final int PPFILNAM_STYLOQSVC_LOG = 12087;
 	public static final int PPTXT_SUPPLIXSVCERRPARSINGFAULT = 12088;
 	public static final int PPTXT_SUPPLIXTESTMODE_STOCKSENDING = 12089;
+	public static final int PPTXT_VETIS_FAKECARNUMBER = 12090;
+	public static final int PPTXT_MOVARCOD_COPIED = 12091;
+	public static final int PPTXT_INVSCOPSIGN = 12092;
+	public static final int PPTXT_FILPAT_JSON = 12093;
+	public static final int PPTXT_SETBOMESTVALUE = 12094;
+	public static final int PPTXT_BOMESTVALUENOTSET_UNCERT = 12095;
+	public static final int PPTXT_CCIMP_ALREADYIMPORTED = 12096;
+	public static final int PPTXT_CCIMP_ACCEPTED = 12097;
 	//
 	// .N.
 	//
@@ -4713,6 +4734,9 @@ class ppstr2 {
 	public static final int DVCPARAM_PAPERLESS = 10142;
 	public static final int DVCCMD_OPENSESSION = 10143;
 	public static final int DVCPARAM_LOGGING = 10144;
+	public static final int DVCPARAM_PRESCRDATE = 10145;
+	public static final int DVCPARAM_PRESCRSERIAL = 10146;
+	public static final int DVCPARAM_PRESCRNUMB = 10147;
 	//
 	// .N.
 	//
@@ -5310,6 +5334,14 @@ class ppstr2 {
 	public static final int PPHSC_RU_EXTRA_TRACING = 10269;
 	public static final int PPHSC_RU_VALUETOTAL_INCR = 10270;
 	public static final int PPHSC_RU_VALUETOTAL_DECR = 10271;
+	public static final int PPHSC_RU_EXTRA_CONSIGNEEGLN = 10272;
+	public static final int PPHSC_RU_EXTRA_MATERIALCODE = 10273;
+	public static final int PPHSC_RU_WORKAMTWOVAT = 10274;
+	public static final int PPHSC_RU_IND_REG = 10275;
+	public static final int PPHSC_RU_WORKAMT = 10276;
+	public static final int PPHSC_RU_CORRACCDT = 10277;
+	public static final int PPHSC_RU_CORRACCCR = 10278;
+	public static final int PPHSC_RU_FILEOFINFFLDUUID = 10279;
 	//
 	// .N.
 	//

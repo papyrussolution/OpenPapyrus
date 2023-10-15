@@ -83,75 +83,148 @@ int GetTokenUserSID(HANDLE hToken, SStringU & rUserName)
 	return ok;
 }
 
-/*static*/SPtrHandle SSystem::Logon(const wchar_t * pDomain, const wchar_t * pUserName, const wchar_t * pPw, uint logontype, uint logonprv)
+struct SystemLogonParamBlock {
+	SystemLogonParamBlock() : Type(0), Provider(0), State(0)
+	{
+	}
+	SystemLogonParamBlock(const wchar_t * pDomain, const wchar_t * pUserName, const wchar_t * pPw, uint logontype, uint logonprv) : 
+		Type(logontype), Provider(logonprv), State(0)
+	{
+		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+		r_temp_buf_u = pUserName;
+		THROW(r_temp_buf_u.NotEmpty());
+		if(isempty(pDomain)) {
+			__ParseWindowsUserForDomain(r_temp_buf_u, User, Domain);
+		}
+		else {
+			Domain = pDomain;
+		}		
+		CATCH
+			State |= stError;
+		ENDCATCH
+		r_temp_buf_u.Obfuscate();
+	}
+	SystemLogonParamBlock(const char * pDomainUtf8, const char * pUserNameUtf8, const char * pPwUtf8, uint logontype, uint logonprv) : 
+		Type(logontype), Provider(logonprv), State(0)
+	{
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+		r_temp_buf = pDomainUtf8;
+		THROW(r_temp_buf.IsEmpty() || r_temp_buf.IsLegalUtf8());
+		r_temp_buf = pPwUtf8;
+		THROW(r_temp_buf.IsEmpty() || r_temp_buf.IsLegalUtf8());
+		Pw.CopyFromUtf8(r_temp_buf);
+		//
+		r_temp_buf = pUserNameUtf8;
+		THROW(r_temp_buf.NotEmpty() && r_temp_buf.IsLegalUtf8());
+		if(isempty(pDomainUtf8)) {
+			r_temp_buf_u.CopyFromUtf8(r_temp_buf);
+			__ParseWindowsUserForDomain(r_temp_buf_u, User, Domain);
+		}
+		else {
+			THROW(Domain.CopyFromUtf8R(pDomainUtf8, sstrlen(pDomainUtf8), 0));
+		}
+		CATCH
+			State |= stError;
+		ENDCATCH
+		r_temp_buf_u.Obfuscate();
+		r_temp_buf.Obfuscate();
+	}
+	~SystemLogonParamBlock()
+	{
+		Domain.Obfuscate();
+		User.Obfuscate();
+		Pw.Obfuscate();
+		Type = 0;
+		Provider = 0;
+		State = 0;
+	}
+	bool   IsValid() const { return !(State & stError); }
+	/*
+		typedef struct _PROFILEINFOW {
+			DWORD       dwSize;                 // Set to sizeof(PROFILEINFO) before calling
+			DWORD       dwFlags;                // See PI_ flags defined in userenv.h
+			MIDL_STRING LPWSTR      lpUserName;             // User name (required)
+			MIDL_STRING LPWSTR      lpProfilePath;          // Roaming profile path (optional, can be NULL)
+			MIDL_STRING LPWSTR      lpDefaultPath;          // Default user profile path (optional, can be NULL)
+			MIDL_STRING LPWSTR      lpServerName;           // Validating domain controller name in netbios format (optional, can be NULL but group NT4 style policy won't be applied)
+			MIDL_STRING LPWSTR      lpPolicyPath;           // Path to the NT4 style policy file (optional, can be NULL)
+			#ifdef __midl
+				ULONG_PTR   hProfile;               // Filled in by the function.  Registry key handle open to the root.
+			#else
+				HANDLE      hProfile;               // Filled in by the function.  Registry key handle open to the root.
+			#endif
+		} PROFILEINFOW, FAR * LPPROFILEINFOW;
+	*/
+	SPtrHandle Implement_Logon(SSystem::UserProfileInfo * pProfileInfo)
+	{
+		SPtrHandle result;
+		if(IsValid()) {
+			HANDLE h_token = 0;			
+			BOOL r = LogonUserW(User, Domain, Pw, /*LOGON32_LOGON_INTERACTIVE*/Type, /*LOGON32_PROVIDER_DEFAULT*/Provider, &h_token);
+			if(r) {
+				{
+					HANDLE h_dup = 0;
+					if(::DuplicateTokenEx(h_token, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &h_dup)) {
+						::CloseHandle(h_token);
+						h_token = h_dup;
+						h_dup = NULL;
+					}
+					else {
+						DWORD gle = ::GetLastError();
+						_ASSERT(0);
+						//Log(StrFormat(L"Error duplicating a user token (%S, %d)", file, line), GetLastError());
+					}
+				}
+				if(pProfileInfo) {
+					STempBuffer user_name_noncost(2 * (User.Len() + 1) * sizeof(wchar_t)); // 2* - insurance
+					PROFILEINFOW profile_info;
+					MEMSZERO(profile_info);
+					profile_info.dwSize = sizeof(profile_info);
+					sstrcpy(static_cast<wchar_t *>(user_name_noncost.vptr()), User);
+					profile_info.lpUserName = static_cast<wchar_t *>(user_name_noncost.vptr());
+					profile_info.dwFlags = PI_NOUI;
+					//profile_info.lpProfilePath = pUserInfo->usri4_profile;
+					BOOL lpr = LoadUserProfileW(h_token, &profile_info);
+					if(lpr) {
+						pProfileInfo->DefaultPath = profile_info.lpDefaultPath;
+						pProfileInfo->PolicyPath = profile_info.lpPolicyPath;
+						pProfileInfo->ProfilePath = profile_info.lpProfilePath;
+						pProfileInfo->ServerName = profile_info.lpServerName;
+						pProfileInfo->UserName = profile_info.lpUserName;
+						pProfileInfo->ProfileRegKey = profile_info.hProfile;
+					}
+					else { // @error
+						::CloseHandle(h_token);
+						h_token = 0;
+					}
+				}
+				result = h_token;
+			}
+		}
+		return result;
+	}
+	enum {
+		stError = 0x0001
+	};
+	uint   Type;     // SSystem::logontypeXXX
+	uint   Provider; // SSystem::logonprvXXX
+	uint   State;
+	SStringU Domain;
+	SStringU User;
+	SStringU Pw;
+};
+
+/*static*/SPtrHandle SSystem::Logon(const wchar_t * pDomain, const wchar_t * pUserName, const wchar_t * pPw, uint logontype, UserProfileInfo * pProfileInfo)
 {
-	SPtrHandle result;
-	HANDLE h_token = 0;
-	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
-	SStringU & r_domain = SLS.AcquireRvlStrU();
-	SStringU & r_user = SLS.AcquireRvlStrU();
-	SStringU & r_pw = SLS.AcquireRvlStrU();
-	r_pw = pPw;
-	//
-	r_temp_buf_u = pUserName;
-	THROW(r_temp_buf_u.NotEmpty());
-	if(isempty(pDomain)) {
-		__ParseWindowsUserForDomain(r_temp_buf_u, r_user, r_domain);
-	}
-	else {
-		r_domain = pDomain;
-	}
-	BOOL r = LogonUserW(r_user, r_domain, r_pw, /*LOGON32_LOGON_INTERACTIVE*/logontype, /*LOGON32_PROVIDER_DEFAULT*/logonprv, &h_token);
-	if(r) {
-		result = h_token;
-	}
-	r_temp_buf_u.Obfuscate();
-	r_pw.Obfuscate();
-	r_user.Obfuscate();
-	r_pw.Obfuscate();
-	CATCH
-		;
-	ENDCATCH
-	return result;
+	SystemLogonParamBlock blk(pDomain, pUserName, pPw, logontype, SSystem::logonprvDEFAULT);
+	return blk.Implement_Logon(pProfileInfo);
 }
 
-/*static*/SPtrHandle SSystem::Logon(const char * pDomainUtf8, const char * pUserNameUtf8, const char * pPwUtf8, uint logontype, uint logonprv)
+/*static*/SPtrHandle SSystem::Logon(const char * pDomainUtf8, const char * pUserNameUtf8, const char * pPwUtf8, uint logontype, UserProfileInfo * pProfileInfo)
 {
-	SPtrHandle result;
-	HANDLE h_token = 0;
-	SString & r_temp_buf = SLS.AcquireRvlStr();
-	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
-	SStringU & r_domain = SLS.AcquireRvlStrU();
-	SStringU & r_user = SLS.AcquireRvlStrU();
-	SStringU & r_pw = SLS.AcquireRvlStrU();
-	r_temp_buf = pDomainUtf8;
-	THROW(r_temp_buf.IsEmpty() || r_temp_buf.IsLegalUtf8());
-	r_temp_buf = pPwUtf8;
-	THROW(r_temp_buf.IsEmpty() || r_temp_buf.IsLegalUtf8());
-	r_pw.CopyFromUtf8(r_temp_buf);
-	//
-	r_temp_buf = pUserNameUtf8;
-	THROW(r_temp_buf.NotEmpty() && r_temp_buf.IsLegalUtf8());
-	if(isempty(pDomainUtf8)) {
-		r_temp_buf_u.CopyFromUtf8(r_temp_buf);
-		__ParseWindowsUserForDomain(r_temp_buf_u, r_user, r_domain);
-	}
-	else {
-		THROW(r_domain.CopyFromUtf8R(pDomainUtf8, sstrlen(pDomainUtf8), 0));
-	}
-	BOOL r = LogonUserW(r_user, r_domain, r_pw, /*LOGON32_LOGON_INTERACTIVE*/logontype, /*LOGON32_PROVIDER_DEFAULT*/logonprv, &h_token);
-	if(r) {
-		result = h_token;
-	}
-	r_temp_buf_u.Obfuscate();
-	r_temp_buf.Obfuscate();
-	r_pw.Obfuscate();
-	r_user.Obfuscate();
-	r_pw.Obfuscate();
-	CATCH
-		;
-	ENDCATCH
-	return result;
+	SystemLogonParamBlock blk(pDomainUtf8, pUserNameUtf8, pPwUtf8, logontype, SSystem::logonprvDEFAULT);
+	return blk.Implement_Logon(pProfileInfo);
 }
 
 /*static*/SPtrHandle SSystem::GetLocalSystemProcessToken()
@@ -200,13 +273,13 @@ static SPtrHandle DuplicateAccessToken(SPtrHandle & rH, LPCSTR file, int line)
 {
 	SPtrHandle result;
 	HANDLE h_dup = 0;
-	if(DuplicateTokenEx(rH, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &h_dup)) {
-		CloseHandle(rH);
+	if(::DuplicateTokenEx(rH, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &h_dup)) {
+		::CloseHandle(rH);
 		result = h_dup;
 		h_dup = NULL;
 	}
 	else {
-		DWORD gle = GetLastError();
+		DWORD gle = ::GetLastError();
 		_ASSERT(0);
 		//Log(StrFormat(L"Error duplicating a user token (%S, %d)", file, line), GetLastError());
 	}

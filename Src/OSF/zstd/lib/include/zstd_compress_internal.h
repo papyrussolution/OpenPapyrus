@@ -842,7 +842,7 @@ static uint64 ZSTD_rollingHash_append(uint64 hash, const void * buf, size_t size
 #define ZSTD_WINDOW_OVERFLOW_CORRECT_FREQUENTLY 1
 #else
 #define ZSTD_WINDOW_OVERFLOW_CORRECT_FREQUENTLY 0
-#  endif
+#endif
 #endif
 
 /**

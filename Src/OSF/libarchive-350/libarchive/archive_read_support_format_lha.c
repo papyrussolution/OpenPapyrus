@@ -1521,9 +1521,9 @@ static time_t lha_dos_time(const uchar * p)
 /* Convert an MS-Windows-style date/time into Unix-style time. */
 static time_t lha_win_time(uint64 wintime, long * ns)
 {
-#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
-	if(wintime >= EPOC_TIME) {
-		wintime -= EPOC_TIME; // 1970-01-01 00:00:00 (UTC) 
+//#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
+	if(wintime >= SlConst::Epoch1600_1970_Offs_100Ns) {
+		wintime -= SlConst::Epoch1600_1970_Offs_100Ns; // 1970-01-01 00:00:00 (UTC) 
 		ASSIGN_PTR(ns, static_cast<long>((wintime % 10000000) * 100));
 		return static_cast<time_t>(wintime / 10000000);
 	}

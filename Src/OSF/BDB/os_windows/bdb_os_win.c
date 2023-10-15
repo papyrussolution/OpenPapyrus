@@ -314,9 +314,9 @@ void __os_gettime(ENV * env, db_timespec * tp, int monotonic)
 		 * UTC_1970 is the number of 100-nano-second chunks from 1601 to 1970.
 		 */
  #define NS100_PER_SEC   (NS_PER_SEC/100)
- #define UTC_1970        (((LONGLONG)27111902<<32)+(LONGLONG)3577643008)
+ //#define UTC_1970        (((LONGLONG)27111902<<32)+(LONGLONG)3577643008)
 		memcpy(&large_int, &ft, sizeof(large_int));
-		utc1970 = UTC_1970;
+		utc1970 = /*UTC_1970*/SlConst::Epoch1600_1970_Offs_100Ns;
 		ns_since_epoch = (large_int.QuadPart-utc1970);
 		tp->tv_sec = (__time64_t)(ns_since_epoch/NS100_PER_SEC);
 		tp->tv_nsec = (long)(ns_since_epoch%NS100_PER_SEC);
@@ -364,7 +364,6 @@ int __os_fs_notzero()
 #else
 	static int __os_notzero = -1;
 	OSVERSIONINFO osvi;
-
 	/*
 	 * Windows/NT zero-fills pages that were never explicitly written to
 	 * the file.  Note however that this is *NOT* documented.  In fact, the

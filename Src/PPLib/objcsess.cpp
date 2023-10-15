@@ -4,6 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <crpe.h>
 //
 // PPObjCSession
 //
@@ -2758,6 +2759,8 @@ int PPCCheckImporter::Run()
 	SString temp_buf;
 	xmlParserCtxt * p_ctx = 0;
 	PPSyncCashNode cn_rec;
+	bool need_to_print = LOGIC(Param.Flags & PPCCheckImpExpParam::fPrintAsseblyOrders);
+	CPosProcessor * p_posprc = 0;
 	THROW_PP(Param.PosNodeID && CnObj.GetSync(Param.PosNodeID, &cn_rec) > 0, PPERR_CCIMP_UNDEFPOSNODE);
 	if(Param.PredefFormat == PredefinedImpExpFormat::piefCCheck_Contract01) {
 		StringSet ss_files;
@@ -2806,6 +2809,35 @@ int PPCCheckImporter::Run()
 							CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
 							Logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 						}
+						if(need_to_print) {
+							if(!p_posprc) {
+								p_posprc = new CPosProcessor(Param.PosNodeID, 0, 0, 0, 0);
+							}
+							if(p_posprc) {
+								PPID   cc_id = cc_pack.Rec.ID; // @note: non-const because func AcceptCheck will modify it
+								double cc_amt = 0.0;
+								double cc_discount = 0.0;
+								cc_pack.CalcAmount(&cc_amt, &cc_discount);
+								if(p_posprc->RestoreSuspendedCheck(cc_id, 0/*pPack*/, 0/*unfinishedForReprinting*/)) {
+									if(DS.IsThreadInteractive()) {
+										p_posprc->PrintToLocalPrinters(-1, true/*ignoreNonZeroAgentReq*/);
+									}
+									else {
+										if(PEOpenEngine()) {
+											p_posprc->PrintToLocalPrinters(-1, true/*ignoreNonZeroAgentReq*/);
+											PECloseEngine();
+										}
+										else {
+											// @todo @err
+										}
+									}
+									if(!p_posprc->AcceptCheck(&cc_id, 0, 0, cc_amt, CPosProcessor::accmSuspended))
+										Logger.LogLastError();
+								}
+								else
+									Logger.LogLastError();
+							}
+						}
 						ok = 1;
 					}
 					else
@@ -2827,6 +2859,7 @@ int PPCCheckImporter::Run()
 		ok = 0;
 		Logger.LogLastError();
 	ENDCATCH
+	ZDELETE(p_posprc);
 	Logger.Save(PPGetFilePathS(PPPATH_LOG, PPFILNAM_IMPEXP_LOG, temp_buf), 0);
 	xmlFreeParserCtxt(p_ctx);
 	return ok;

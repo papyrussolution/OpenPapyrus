@@ -69,20 +69,20 @@
 
 #if defined(OPJ_STATIC) || !defined(_WIN32)
 /* http://gcc.gnu.org/wiki/Visibility */
-#   if !defined(_WIN32) && __GNUC__ >= 4
+#if !defined(_WIN32) && __GNUC__ >= 4
 #       if defined(OPJ_STATIC) /* static library uses "hidden" */
 #           define OPJ_API    __attribute__ ((visibility("hidden")))
 #       else
 #           define OPJ_API    __attribute__ ((visibility("default")))
 #       endif
-#       define OPJ_LOCAL  __attribute__ ((visibility("hidden")))
-#   else
-#       define OPJ_API
-#       define OPJ_LOCAL
-#   endif
-#   define OPJ_CALLCONV
+#define OPJ_LOCAL  __attribute__ ((visibility("hidden")))
 #else
-#   define OPJ_CALLCONV __stdcall
+#define OPJ_API
+#define OPJ_LOCAL
+#endif
+#define OPJ_CALLCONV
+#else
+#define OPJ_CALLCONV __stdcall
 /*
    The following ifdef block is the standard way of creating macros which make exporting
    from a DLL simpler. All files within this DLL are compiled with the OPJ_EXPORTS
@@ -91,11 +91,11 @@
    OPJ_API functions as being imported from a DLL, whereas this DLL sees symbols
    defined with this macro as being exported.
  */
-#   if defined(OPJ_EXPORTS) || defined(DLL_EXPORT)
-#       define OPJ_API __declspec(dllexport)
-#   else
-#       define OPJ_API __declspec(dllimport)
-#   endif /* OPJ_EXPORTS */
+#if defined(OPJ_EXPORTS) || defined(DLL_EXPORT)
+#define OPJ_API __declspec(dllexport)
+#else
+#define OPJ_API __declspec(dllimport)
+#endif /* OPJ_EXPORTS */
 #endif /* !OPJ_STATIC || !_WIN32 */
 
 // @sobolev typedef int OPJ_BOOL_Removed;

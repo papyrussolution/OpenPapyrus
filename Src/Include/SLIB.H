@@ -1367,6 +1367,9 @@ public:
 	static constexpr uint16 CrcPoly_ANSI16  = 0xA001;
 	static constexpr uint16 CrcPoly_CCITT16 = 0x1021;
 	static constexpr uint32 CrcPoly_CCITT32 = 0xEDB88320U;
+	static constexpr uint64 Epoch1600_1970_Offs_s     = 11644473600ULL;        // Number of second units from 1/1/1601 to 1/1/1970
+	static constexpr uint64 Epoch1600_1970_Offs_Mks   = 11644473600000000ULL;  // Number of microsecond units from 1/1/1601 to 1/1/1970
+	static constexpr uint64 Epoch1600_1970_Offs_100Ns = 116444736000000000ULL; // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
 //
@@ -3144,11 +3147,12 @@ private:
 //
 //
 //
-struct SUniTime_Inner { // @internal
-	static const int Undef_TimeZone;
+struct SUniTime_Internal { // @internal
+	static constexpr int Undef_TimeZone = 1000;
 	static int ValidateTimeZone(int tz);
-	SUniTime_Inner();
-	int    FASTCALL Cmp(const SUniTime_Inner & rS) const;
+	SUniTime_Internal();
+	int    FASTCALL Cmp(const SUniTime_Internal & rS) const;
+	void   FASTCALL SetTime100ns(uint64 time100ns);
 
 	int    Y;
 	int    M;
@@ -3156,15 +3160,15 @@ struct SUniTime_Inner { // @internal
 	int    Hr;
 	int    Mn;
 	int    Sc;
-	int    MSc;  // milliseconds
+	int    MkSc;  // microseconds
 	int    Weekday;
 	int    TimeZone;
 };
 
 int    DateToDaysSinceChristmas(int y, int m, int d);
 int    DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay);
-void   FASTCALL __EpochTimeToTimeFields(uint64 epochTime, SUniTime_Inner * pTimeFields);
-int    FASTCALL __TimeFieldsToEpochTime(const SUniTime_Inner * pTimeFields, uint64 * pEpochTime);
+void   FASTCALL __EpochTimeToTimeFields(uint64 epochTime, SUniTime_Internal * pTimeFields);
+int    FASTCALL __TimeFieldsToEpochTime(const SUniTime_Internal * pTimeFields, uint64 * pEpochTime);
 //
 // Descr: Универсальное представление времени, обеспечивающее хранение любых временных
 //   отметок с (почти) любой точностью.
@@ -10823,6 +10827,14 @@ public:
 		//HANDLE H_User;
 		SPtrHandle H_User_;
 	};
+	struct UserProfileInfo {
+		SStringU UserName;
+		SStringU ProfilePath;
+		SStringU DefaultPath;
+		SStringU ServerName;
+		SStringU PolicyPath;
+		SPtrHandle ProfileRegKey;
+	};
 	//
 	// Descr: Флаги функции GetUserHandle
 	//
@@ -10870,9 +10882,8 @@ public:
 		logonprvWINNT50    = 3, // Use the negotiate logon provider. 
 		logonprvVIRTUAL    = 4, // 
 	};
-
-	static SPtrHandle Logon(const char * pDomain, const char * pUserName, const char * pPw, uint logontype, uint logonprv);
-	static SPtrHandle Logon(const wchar_t * pDomain, const wchar_t * pUserName, const wchar_t * pPw, uint logontype, uint logonprv);
+	static SPtrHandle Logon(const char * pDomain, const char * pUserName, const char * pPw, uint logontype, UserProfileInfo * pProfileInfo);
+	static SPtrHandle Logon(const wchar_t * pDomain, const wchar_t * pUserName, const wchar_t * pPw, uint logontype, UserProfileInfo * pProfileInfo);
 	static /*HANDLE*/SPtrHandle GetLocalSystemProcessToken();
 	// } @v11.7.12
 #endif
@@ -12868,6 +12879,7 @@ private:
 #endif // } 0 @construction
 	// } @v10.4.4
 	int    Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
+	static int Implement_Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath);
 
 	const  int Provider;
 	int    OpenMode;
@@ -13362,7 +13374,9 @@ public:
 	SString & ToStr(long fmt, SString & rBuf) const;
 	int    FromStr(const char * pStr);
 	uint64 ToUed_NonConst(uint numBits);
+	uint64 ToUed_(uint64 uedMeta);
 	int   FromUed(uint64 ued, uint numBits);
+	int   FromUed_(uint64 ued);
 
 	static int Test();
 private:
@@ -16400,7 +16414,7 @@ private:
 #endif
 //
 //
-//
+// 
 class SAlloc {
 public:
 	struct VcCrtMemBlockHeader { // For research only! Блок распределенной памяти, используемый в vc 2017. 
@@ -16746,6 +16760,7 @@ public:
 	bool   AddEnv(const wchar_t * pKey, const wchar_t * pVal);
 	bool   SetFlags(uint flags);
 	bool   SetImpersUser(const char * pUserUtf8, const char * pPasswordUtf8);
+	bool   SetImpersUserToken(SPtrHandle userToken);
 	//
 	// Descr: Передает экземпляру app-container, в котором должен исполняться процесс.
 	//   Этот контейнер должен быть предварительно подготовлен. 
@@ -16762,6 +16777,7 @@ private:
 	bool   Helper_SsAdd(StringSet & rInner, const wchar_t * pAddendum);
 
 	uint   Flags;
+	SPtrHandle UserToken; // Если !!UserToken, то запуск процесса осуществляется от имени пользователя, определяемого этим токеном.
 	SStringU AppName;
 	SStringU Path;       // Полный путь до exe-модуля //
 	SStringU WorkingDir; // Текущий рабочий каталог для запускаемого процесса

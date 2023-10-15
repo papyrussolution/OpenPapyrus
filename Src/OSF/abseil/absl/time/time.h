@@ -1010,17 +1010,9 @@ public:
 	}
 
 private:
-	friend bool operator == (TimeZone a, TimeZone b) {
-		return a.cz_ == b.cz_;
-	}
-
-	friend bool operator != (TimeZone a, TimeZone b) {
-		return a.cz_ != b.cz_;
-	}
-
-	friend std ::ostream& operator<<(std::ostream & os, TimeZone tz) {
-		return os << tz.name();
-	}
+	friend bool operator == (TimeZone a, TimeZone b) { return a.cz_ == b.cz_; }
+	friend bool operator != (TimeZone a, TimeZone b) { return a.cz_ != b.cz_; }
+	friend std ::ostream& operator<<(std::ostream & os, TimeZone tz) { return os << tz.name(); }
 
 	time_internal::cctz::time_zone cz_;
 };
@@ -1054,9 +1046,7 @@ inline TimeZone FixedTimeZone(int seconds) {
 // UTCTimeZone()
 //
 // Convenience method returning the UTC time zone.
-inline TimeZone UTCTimeZone() {
-	return TimeZone(time_internal::cctz::utc_time_zone());
-}
+inline TimeZone UTCTimeZone() { return TimeZone(time_internal::cctz::utc_time_zone()); }
 
 // LocalTimeZone()
 //

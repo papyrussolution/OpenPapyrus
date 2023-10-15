@@ -171,6 +171,7 @@ WsCtl_ClientPolicy & FASTCALL WsCtl_ClientPolicy::Copy(const WsCtl_ClientPolicy 
 	SysPassword = rS.SysPassword;
 	SsAppEnabled = rS.SsAppEnabled;
 	SsAppDisabled = rS.SsAppDisabled;
+	SsAppPaths = rS.SsAppPaths; // @v11.8.6
 	TSCollection_Copy(AllowedPathList, rS.AllowedPathList);
 	TSCollection_Copy(AllowedRegList, rS.AllowedRegList);
 	return *this;
@@ -199,6 +200,8 @@ bool FASTCALL WsCtl_ClientPolicy::IsEq(const WsCtl_ClientPolicy & rS) const
 		if(!SsAppEnabled.IsEqPermutation(rS.SsAppEnabled))
 			eq = false;
 		else if(!SsAppDisabled.IsEqPermutation(rS.SsAppDisabled))
+			eq = false;
+		else if(!SsAppPaths.IsEqPermutation(rS.SsAppPaths)) // @v11.8.6
 			eq = false;
 		else if(!TSCollection_IsEq(&AllowedPathList, &rS.AllowedPathList))
 			eq = false;
@@ -998,7 +1001,7 @@ bool FASTCALL WsCtl_ProgramEntry::IsEq(const WsCtl_ProgramEntry & rS) const
 	return eq;
 }
 
-SJson * WsCtl_ProgramEntry::ToJsonObj() const
+SJson * WsCtl_ProgramEntry::ToJsonObj(bool withResolvance) const
 {
 	SJson * p_result = SJson::CreateObj();
 	SString temp_buf;
@@ -1006,6 +1009,11 @@ SJson * WsCtl_ProgramEntry::ToJsonObj() const
 	p_result->InsertString("title", (temp_buf = Title).Escape());
 	p_result->InsertString("exefile", (temp_buf = ExeFileName).Escape());
 	p_result->InsertString("picsymb", (temp_buf = PicSymb).Escape());
+	if(withResolvance) {
+		if(FullResolvedPath.NotEmpty()) {
+			p_result->InsertString("resolvedpath", (temp_buf = FullResolvedPath).Escape());
+		}
+	}
 	return p_result;
 }
 
@@ -1026,7 +1034,10 @@ int WsCtl_ProgramEntry::FromJsonObj(const SJson * pJsObj)
 		p_c = pJsObj->FindChildByKey("picsymb");
 		if(SJson::IsString(p_c))
 			(PicSymb = p_c->Text).Unescape();
-	}
+		p_c = pJsObj->FindChildByKey("resolvedpath");
+		if(SJson::IsString(p_c))
+			(FullResolvedPath = p_c->Text).Unescape();
+	}		
 	CATCHZOK
 	return ok;
 }
@@ -1057,14 +1068,17 @@ bool FASTCALL WsCtl_ProgramCollection::IsEq(const WsCtl_ProgramCollection & rS) 
 	return eq;
 }
 	
-SJson * WsCtl_ProgramCollection::ToJsonObj() const
+SJson * WsCtl_ProgramCollection::ToJsonObj(bool withResolvance) const
 {
 	SJson * p_result = SJson::CreateObj();
 	SJson * p_js_list = SJson::CreateArr();
+	if(withResolvance) {
+		p_result->InsertBool("resolved", Resolved);
+	}
 	for(uint i = 0; i < getCount(); i++) {
 		const WsCtl_ProgramEntry * p_entry = at(i);
 		if(p_entry) {
-			SJson * p_js_entry = p_entry->ToJsonObj();
+			SJson * p_js_entry = p_entry->ToJsonObj(withResolvance);
 			THROW(p_js_entry);
 			p_js_list->InsertChild(p_js_entry);
 		}
@@ -1146,8 +1160,8 @@ int WsCtl_ProgramCollection::Resolve(const WsCtl_ClientPolicy & rPolicy)
 					}
 				}
 			}
-			Resolved = true;
 		}
+		Resolved = true;
 		ok = 1;
 	}
 	return ok;
@@ -1159,7 +1173,21 @@ int WsCtl_SessionFrame::Start()
 	if(State & stRunning)
 		ok = -1;
 	else {
-		//
+		if(Policy.SysUser.NotEmpty()) {
+			SSystem::UserProfileInfo profile_info;
+			SPtrHandle h_token = SSystem::Logon(0, Policy.SysUser, Policy.SysPassword, SSystem::logontypeInteractive, &profile_info);
+			if(h_token) {
+				BOOL iplour = ImpersonateLoggedOnUser(h_token);
+				if(iplour) {
+					H_UserToken = h_token;
+					/*
+					create_proc_result = ::CreateProcessWithTokenW(callee_token, logon_flags, p_app_name, p_cmd_line, 
+						//p_prc_attr_list, p_thread_attr_list, inherit_handles,
+						creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+					*/
+				}
+			}
+		}
 		State |= stRunning;
 	}
 	return ok;
@@ -1169,8 +1197,19 @@ int WsCtl_SessionFrame::Finish()
 {
 	int    ok = 1;
 	if(State & stRunning) {
-		//
+		for(uint i = 0; i < RunningProcessList.getCount(); i++) {
+			Process * p_process = RunningProcessList.at(i);
+			if(p_process) {
+				::TerminateProcess(p_process->HProcess, _FFFFU);
+			}
+		}
 		RunningProcessList.freeAll();
+		{
+			if(H_UserToken) {
+				::CloseHandle(H_UserToken);
+				H_UserToken = 0;
+			}
+		}
 		State &= ~stRunning;
 	}
 	else
@@ -1189,7 +1228,13 @@ int WsCtl_SessionFrame::LaunchProcess(const WsCtl_ProgramEntry * pPe)
 		SPathStruc ps(pPe->FullResolvedPath);
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 		proc.SetWorkingDir(temp_buf);
-		proc.SetFlags(0);
+		//proc.SetFlags(SlProcess::fLogonWithProfile);
+		if(H_UserToken) {
+			proc.SetImpersUserToken(H_UserToken);
+		}
+		else if(Policy.SysUser.NotEmpty()) {
+			proc.SetImpersUser(Policy.SysUser, Policy.SysPassword);
+		}
 		if(proc.Run(&result)) {
 			Process * p_rpl_entry = RunningProcessList.CreateNewItem();
 			if(p_rpl_entry) {

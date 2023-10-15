@@ -262,6 +262,82 @@ static uint64 UedPlanarAngleSignMask = 0x00800000000000ULL;
 }
 // } @construction
 #endif // } (_MSC_VER >= 1900)
+
+/*static*/bool  UED::_GetRaw_Time(uint64 ued, SUniTime_Internal & rT)
+{
+	bool ok = false;
+	uint64 raw;
+	SUniTime_Internal tm_intr;
+	uint64 meta = GetMeta(ued);	
+	uint   bits = GetRawDataBits(ued);
+	THROW(GetRawValue(ued, &raw));
+	switch(meta) {
+		case UED_META_TIME_MKSEC:
+			tm_intr.SetTime100ns(raw * 10);
+			break;
+		case UED_META_TIME_MSEC:
+			tm_intr.SetTime100ns(raw * 10000);
+			break;
+		case UED_META_TIME_SEC:
+			tm_intr.SetTime100ns(raw * 10000000);
+			break;
+		case UED_META_TIME_MIN:
+			tm_intr.SetTime100ns(raw * 10000000 * 60);
+			break;
+		case UED_META_TIME_HR:
+			tm_intr.SetTime100ns(raw * 10000000 * 60 * 60);
+			break;
+		case UED_META_TIME_TZMSEC:
+			{
+				int _qhr_offs = static_cast<int>(raw >> (bits - 7));
+				uint64 raw2 = raw & ~((1 << (bits-1)) | (1 << (bits-2)) | (1 << (bits-3)) |
+					(1 << (bits-4)) | (1 << (bits-5)) | (1 << (bits-6)) | (1 << (bits-7)));
+
+			}
+			break;
+		case UED_META_TIME_TZSEC:
+			break;
+		case UED_META_TIME_TZMIN:
+			break;
+		case UED_META_TIME_TZHR:
+			break;
+
+		case UED_META_DATE_DAY:
+			break;
+		case UED_META_DATE_MON:
+			break;
+		case UED_META_DATE_QUART:
+			break;
+		case UED_META_DATE_SMYR:
+			break;
+		case UED_META_DATE_YR:
+			break;
+		case UED_META_DATE_DYR:
+			break;
+		case UED_META_DATE_SMCENT:
+			break;
+		case UED_META_DATE_CENT:
+			break;
+		case UED_META_DATE_DAYBC:
+			break;
+		case UED_META_DATE_MONBC:
+			break;
+		case UED_META_DATE_YRBC:
+			break;
+		case UED_META_DATE_DYRBC:
+			break;
+		case UED_META_DATE_CENTBC:
+			break;
+		case UED_META_DATE_MILLENNIUMBC:
+			break;
+		case UED_META_DATE_MLNYRAGO:
+			break;
+		case UED_META_DATE_BLNYRAGO:
+			break;
+	}
+	CATCHZOK
+	return ok;
+}
 //
 //
 //
@@ -991,6 +1067,8 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 			}
 		}
 		if(!unchanged || (flags & prcssuedfForceUpdatePlDecl)) {
+			SString out_file_name;
+			SString temp_file_name;
 			{
 				SPathStruc ps_src;
 				if(!isempty(pCPath))
@@ -999,8 +1077,24 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 					ps_src = ps;
 				SrUedContainer_Base::MakeUedCanonicalName(ps_src.Nam, -1);
 				ps_src.Ext = "h";
-				ps_src.Merge(temp_buf);
-				THROW(uedc.GenerateSourceDecl_C(temp_buf, new_version, new_hash));
+				ps_src.Merge(out_file_name);
+				//
+				if(!fileExists(out_file_name)) {
+					THROW(uedc.GenerateSourceDecl_C(out_file_name, new_version, new_hash));
+				}
+				else {
+					ps_src.Nam.CatChar('-').Cat("temp");
+					ps_src.Merge(temp_file_name);
+					THROW(uedc.GenerateSourceDecl_C(temp_file_name, new_version, new_hash));
+					if(SFile::Compare(out_file_name, temp_file_name, 0) > 0) {
+						; // nothing-to-do
+						SFile::Remove(temp_file_name);
+					}
+					else {
+						SFile::Remove(out_file_name);
+						SFile::Rename(temp_file_name, out_file_name);
+					}
+				}
 			}
 			{
 				SPathStruc ps_src;
@@ -1010,8 +1104,23 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 					ps_src = ps;
 				SrUedContainer_Base::MakeUedCanonicalName(ps_src.Nam, -1);
 				ps_src.Ext = "java";
-				ps_src.Merge(temp_buf);
-				THROW(uedc.GenerateSourceDecl_Java(temp_buf, new_version, new_hash));
+				ps_src.Merge(out_file_name);
+				if(!fileExists(out_file_name)) {
+					THROW(uedc.GenerateSourceDecl_Java(out_file_name, new_version, new_hash));
+				}
+				else {
+					ps_src.Nam.CatChar('-').Cat("temp");
+					ps_src.Merge(temp_file_name);
+					THROW(uedc.GenerateSourceDecl_Java(temp_file_name, new_version, new_hash));
+					if(SFile::Compare(out_file_name, temp_file_name, 0) > 0) {
+						; // nothing-to-do
+						SFile::Remove(temp_file_name);
+					}
+					else {
+						SFile::Remove(out_file_name);
+						SFile::Rename(temp_file_name, out_file_name);
+					}
+				}
 			}
 		}
 	}

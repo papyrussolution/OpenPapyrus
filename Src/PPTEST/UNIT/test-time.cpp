@@ -61,7 +61,7 @@ SLTEST_R(LDATE)
 		SLCHECK_EQ(test_val, cvt_val);
 		//
 		{
-			SUniTime_Inner uti;
+			SUniTime_Internal uti;
 			__time64_t tt = test_val.GetTimeT();
 			const struct tm * p_tm = _gmtime64(&tt);
 			__EpochTimeToTimeFields(tt, &uti);

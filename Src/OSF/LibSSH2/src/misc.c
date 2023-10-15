@@ -492,8 +492,8 @@ void _libssh2_list_insert(struct list_node * after, /* insert before this */ str
  *  Danny Smith <dannysmith@users.sourceforge.net>
  */
 
-/* Offset between 1/1/1601 and 1/1/1970 in 100 nanosec units */
-#define _W32_FT_OFFSET (116444736000000000)
+// Offset between 1/1/1601 and 1/1/1970 in 100 nanosec units
+//#define _W32_FT_OFFSET (116444736000000000)
 
 int __cdecl _libssh2_gettimeofday(struct timeval * tp, void * tzp)
 {
@@ -505,7 +505,7 @@ int __cdecl _libssh2_gettimeofday(struct timeval * tp, void * tzp)
 	if(tp) {
 		GetSystemTimeAsFileTime(&_now.ft);
 		tp->tv_usec = (long)((_now.ns100 / 10) % 1000000 );
-		tp->tv_sec = (long)((_now.ns100 - _W32_FT_OFFSET) / 10000000);
+		tp->tv_sec = (long)((_now.ns100 - SlConst::Epoch1600_1970_Offs_100Ns) / 10000000);
 	}
 	// Always return 0 as per Open Group Base Specifications Issue 6. Do not set errno on error.
 	return 0;

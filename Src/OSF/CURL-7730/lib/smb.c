@@ -689,7 +689,7 @@ static CURLcode smb_connection_state(struct connectdata * conn, bool * done)
  */
 static void get_posix_time(time_t * out, curl_off_t timestamp)
 {
-	timestamp -= 116444736000000000;
+	timestamp -= /*116444736000000000*/SlConst::Epoch1600_1970_Offs_100Ns;
 	timestamp /= 10000000;
 #if SIZEOF_TIME_T < SIZEOF_CURL_OFF_T
 	if(timestamp > TIME_T_MAX)

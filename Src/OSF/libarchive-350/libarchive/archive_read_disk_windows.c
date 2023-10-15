@@ -1638,15 +1638,15 @@ static int tree_dir_next_windows(struct tree * t, const wchar_t * pattern)
 	}
 }
 
-#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
+//#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
 static void fileTimeToUtc(const FILETIME * filetime, time_t * t, long * ns)
 {
 	ULARGE_INTEGER utc;
 
 	utc.HighPart = filetime->dwHighDateTime;
 	utc.LowPart  = filetime->dwLowDateTime;
-	if(utc.QuadPart >= EPOC_TIME) {
-		utc.QuadPart -= EPOC_TIME;
+	if(utc.QuadPart >= SlConst::Epoch1600_1970_Offs_100Ns) {
+		utc.QuadPart -= SlConst::Epoch1600_1970_Offs_100Ns;
 		/* milli seconds base */
 		*t = (time_t)(utc.QuadPart / 10000000);
 		/* nano seconds base */

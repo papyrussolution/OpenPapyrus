@@ -54,6 +54,9 @@ public:
 	static bool   GetRaw_UPCA(uint64 ued, SString & rT);
 	static uint64 SetRaw_GLN(const char * pT);
 	static bool   GetRaw_GLN(uint64 ued, SString & rT);
+
+	static bool   _GetRaw_Time(uint64 ued, SUniTime_Internal & rT);
+	static uint64 _SetRaw_Time(uint64 ued, SUniTime_Internal & rT);
 };
 //
 // Descr: Базовый класс контейнера UED-объектов

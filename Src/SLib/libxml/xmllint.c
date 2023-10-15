@@ -221,9 +221,9 @@ static int oldxml10 = 0;
 ************************************************************************/
 #define MAX_PATHS 64
 #ifdef _WIN32
-# define PATH_SEPARATOR ';'
+#define PATH_SEPARATOR ';'
 #else
-# define PATH_SEPARATOR ':'
+#define PATH_SEPARATOR ':'
 #endif
 static xmlChar * paths[MAX_PATHS + 1];
 static int nbpaths = 0;

@@ -14485,8 +14485,10 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		// До v9.8.4 аналогичный параметр определялся в pp.ini ([config] AcgiPriceLookBackPeriod) и
 		// применялся только для асинхронных кассовых узлов.
 		// Начиная с v9.8.4, если указан PPEquipConfig::LookBackPricePeriod > 0, то AcgiPriceLookBackPeriod игнорируется.
-	char   SuspCcPrefix[8];   // Префикс номера отложенного чека для быстрого восстановления чека по номеру в кассовой панели
-	PPID   PhnSvcID;          // Телефонный сервис, опрашиваемый сессией
+	char   SuspCcPrefix[8];    // Префикс номера отложенного чека для быстрого восстановления чека по номеру в кассовой панели
+	PPID   PhnSvcID;           // Телефонный сервис, опрашиваемый сессией
+	PPID   ChkPanImpOpID;      // @v11.8.6 Вид операции документов, которые могут быть импортированы в кассовую панель для преобразования в кассовые чеки.
+	PPID   ChkPanImpBillTagID; // @v11.8.6 Тег документа, позволяющий импортировать документ в кассовую панель
 };
 
 int  ReadEquipConfig(PPEquipConfig * pCfg);
@@ -53906,7 +53908,7 @@ public:
 	double GetUsableBonus() const;
 	double GetBonusMaxPart() const; // @v10.9.0
 	int    GetState() const { return State_p; }
-	int    FASTCALL IsState(int s) const;
+	bool   FASTCALL IsState(int s) const;
 	PPID   GetPosNodeID() const;
 	long   GetTableCode() const;
 	int    GetGuestCount() const;
@@ -53923,15 +53925,18 @@ public:
 	int    RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int unfinishedForReprinting); // private->public
 	int    Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId);
 	//
-	// Descr: selPrnType ==  1 - предварительно вызывается диалог выбора принтера (локальные или по умолчанию)
-	//        selPrnType == -1 - печать на локальные принтеры (если они есть) |  используетс
-	//        selPrnType ==  0 - печать на принтер по умолчанию               | для TouchScreen
+	// Descr: Печатает текущий чек на локальный принтер.
+	// ARG(selPrnType IN):
+	//   1 - предварительно вызывается диалог выбора принтера (локальные или по умолчанию). Недоступно в неинтерактивном режиме
+	//  -1 - печать на локальные принтеры (если они есть)
+	//   0 - печать на принтер по умолчанию
+	// ARG(ignoreNonZeroAgentReq IN): @v11.8.6 Игнорировать требование установки агента (для неинтерактивного режима)
 	// Returns:
 	//   >0 - печать чека (чеков)
 	//   <0 - печать не призводится (не то состояние чека, нет локальных принтеров и т.п.)
 	//    0 - error
 	//
-	int    PrintToLocalPrinters(int selPrnType);
+	int    PrintToLocalPrinters(int selPrnType, bool ignoreNonZeroAgentReq);
 	int    CalculatePaymentList(PosPaymentBlock & rBlk, int interactive);
 	//
 	// Descr: Возвращает указатель на блок дополнительных котировок, ассоциированных
@@ -54021,10 +54026,10 @@ protected:
 	virtual int    NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift);
 	virtual void   SetPrintedFlag(int set);
 	int    InitCashMachine();
-	int    InitCcView();
+	bool   InitCcView();
 	int    InitGroupList(const PPTouchScreenPacket & rTsPack);
 	int    MakeGroupEntryList(StrAssocArray * pTreeList, PPID parentID, uint level); // @recursion
-	int    FASTCALL F(long f) const;
+	bool   FASTCALL F(long f) const;
 	void   SetupExt(const CCheckPacket * pPack);
 	bool   FASTCALL BelongToExtCashNode(PPID goodsID) const;
 	PPID   FASTCALL GetChargeGoodsID(PPID scardID);
@@ -55421,6 +55426,10 @@ public:
 	int    Select(int import);
 	int    SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SearchEdiOrder(const SearchBlock & rBlk, BillTbl::Rec * pOrderRec);
+	PPID   GetFixTagID(PPObjectTag * pTagRec);
+	bool   SkipExportBillBecauseFixTag(PPID billID);
+	int    SetFixTagOnExportedBill(const PPIDArray & rBillIdList, int use_ta);
+	int    SetFixTagOnImportedBill(PPID billID, int use_ta);
 
 	long   Flags;
 	long   DisabledOptions; // @transient

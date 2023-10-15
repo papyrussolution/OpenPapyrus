@@ -3484,18 +3484,24 @@ const char * STDCALL UriParserState::ParseSegment(const char * first, const char
 				break;
 			default:
 				{
-					// @v11.8.5 {
-					const uint utf8len = SUnicode::GetUtf8Len(reinterpret_cast<const uint8 *>(first));
-					if(utf8len > 0) {
-						p_ret = ParseSegment(first + utf8len, afterLast); // @recursion
-					}
-					// } @v11.8.5
-					else if(IsLetter1251(*first)) {
-						const char * after_pchar = ParsePchar(first, afterLast);
-						p_ret = after_pchar ? ParseSegment(after_pchar, afterLast) : 0; // @recursion
-					}
-					else {
+					// @v11.8.6 {
+					if(oneof2(*first, '?', '#')) {
 						p_ret = first;
+					}
+					else { // } @v11.8.6
+						// @v11.8.5 {
+						const uint utf8len = SUnicode::GetUtf8Len(reinterpret_cast<const uint8 *>(first));
+						if(utf8len > 0) {
+							p_ret = ParseSegment(first + utf8len, afterLast); // @recursion
+						}
+						// } @v11.8.5
+						else if(IsLetter1251(*first)) {
+							const char * after_pchar = ParsePchar(first, afterLast);
+							p_ret = after_pchar ? ParseSegment(after_pchar, afterLast) : 0; // @recursion
+						}
+						else {
+							p_ret = first;
+						}
 					}
 				}
 				break;

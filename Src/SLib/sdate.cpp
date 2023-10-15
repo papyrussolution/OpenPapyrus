@@ -296,25 +296,6 @@ static char * getWordForm(const char * pattern, long fmt, char * pBuf)
 	}
 	return strcpy(pBuf, temp);
 }
-
-#if 0 // @v10.4.5 {
-static char * FASTCALL getMonthText(int mon, long fmt, char * pBuf)
-{
-	if(pBuf)
-		if(mon >= 1 && mon <= 12) {
-			getWordForm(P_MonthNames[mon-1], fmt, pBuf);
-			if(mon == 5 && fmt & MONF_SHORT) {
-				pBuf[2] = 'й';
-				pBuf[3] = 0;
-			}
-			if(fmt & MONF_OEM)
-				SCharToOem(pBuf);
-		}
-		else
-			pBuf[0] = 0;
-	return pBuf;
-}
-#endif // } @v10.4.5
 //
 //
 //
@@ -698,10 +679,7 @@ LDATE FASTCALL plusdate(LDATE d, long a)
 	return d;
 }
 
-long FASTCALL diffdate(LDATE d, LDATE s)
-{
-	return (d != s) ? diffdate(&d, &s, 0) : 0; // @v10.0.02 (x)-->(d != s) ? (x) : 0
-}
+long FASTCALL diffdate(LDATE d, LDATE s) { return (d != s) ? diffdate(&d, &s, 0) : 0; }
 //
 //
 //
@@ -1168,10 +1146,7 @@ static LDATETIME FarMoment;
 //
 static const struct InitFarMoment { InitFarMoment() { FarMoment.d.v = MAXLONG; FarMoment.t.v = 0; } } IFM;
 
-bool LDATETIME::IsFar() const
-{
-	return (cmp(*this, FarMoment) == 0);
-}
+bool LDATETIME::IsFar() const { return (cmp(*this, FarMoment) == 0); }
 
 LDATETIME & LDATETIME::SetFar()
 {
@@ -1350,15 +1325,6 @@ int FASTCALL cmp(const LDATETIME & t1, LDATE dt, LTIME tm)
 	return NZOR(r, cmp_ulong(t1.t, tm));
 }
 
-#ifndef _WIN32_WCE // {
-
-/* @v10.3.4 (replaced with GetOleDate()) LDATE::operator OleDate() const
-{
-	LDATETIME dt;
-	dt.Set(*this, ZEROTIME);
-	return dt;
-}*/
-
 OleDate LDATE::GetOleDate() const
 {
 	LDATETIME dt;
@@ -1381,8 +1347,6 @@ LDATE LDATE::operator = (double od)
 	dt = _od;
 	return (*this = dt.d);
 }
-
-#endif // }
 
 time_t LDATE::GetTimeT() const
 {
@@ -1793,10 +1757,11 @@ void STimeChunk::Init(const LDATETIME & start, long cont)
 		Finish.d = ZERODATE;
 }
 
-bool FASTCALL STimeChunk::operator == (const STimeChunk & rTest) const
-	{ return (::cmp(this->Start, rTest.Start) == 0 && ::cmp(this->Finish, rTest.Finish) == 0); }
-bool FASTCALL STimeChunk::operator != (const STimeChunk & rTest) const
-	{ return (::cmp(this->Start, rTest.Start) != 0 || ::cmp(this->Finish, rTest.Finish) != 0); }
+bool FASTCALL STimeChunk::operator == (const STimeChunk & rTest) const { return (::cmp(Start, rTest.Start) == 0 && ::cmp(Finish, rTest.Finish) == 0); }
+bool FASTCALL STimeChunk::operator != (const STimeChunk & rTest) const { return (::cmp(Start, rTest.Start) != 0 || ::cmp(Finish, rTest.Finish) != 0); }
+bool FASTCALL STimeChunk::Has(const LDATETIME & rTm) const { return (::cmp(rTm, Start) >= 0 && ::cmp(rTm, Finish) <= 0); }
+long STimeChunk::GetDurationDays() const { return (Start.d && Finish.d && !Finish.IsFar()) ? (diffdate(Finish.d, Start.d)+1) : -1; }
+long STimeChunk::GetDuration() const     { return (Start.d && Finish.d && !Finish.IsFar()) ? diffdatetimesec(Finish, Start) : -1; }
 
 int FASTCALL STimeChunk::cmp(const STimeChunk & rTest) const
 {
@@ -1831,8 +1796,6 @@ bool STimeChunk::GetUnionIfIntersected(const STimeChunk & rOther, STimeChunk * p
 	}
 	return ok;
 }
-
-bool FASTCALL STimeChunk::Has(const LDATETIME & rTm) const { return (::cmp(rTm, Start) >= 0 && ::cmp(rTm, Finish) <= 0); }
 
 bool FASTCALL STimeChunk::Intersect(const STimeChunk & test, STimeChunk * pResult) const
 {
@@ -1869,11 +1832,6 @@ SString & STimeChunk::ToStr(SString & rBuf, long fmt) const
 	}
 	return rBuf;
 }
-
-long STimeChunk::GetDurationDays() const
-	{ return (Start.d && Finish.d && !Finish.IsFar()) ? (diffdate(Finish.d, Start.d)+1) : -1; }
-long STimeChunk::GetDuration() const
-	{ return (Start.d && Finish.d && !Finish.IsFar()) ? diffdatetimesec(Finish, Start) : -1; }
 
 int64 STimeChunk::GetDurationMs() const
 {
@@ -2506,24 +2464,24 @@ int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
 //
 //
 //
-/*static*/const int SUniTime_Inner::Undef_TimeZone = 1000;
+///*static*/const int SUniTime_Internal::Undef_TimeZone = 1000;
 
-/*static*/int SUniTime_Inner::ValidateTimeZone(int tz)
+/*static*/int SUniTime_Internal::ValidateTimeZone(int tz)
 {
 	assert((tz >= -12 && tz <= +14) || tz == Undef_TimeZone);
 	return BIN((tz >= -12 && tz <= +14) || tz == Undef_TimeZone);
 }
 
-SUniTime_Inner::SUniTime_Inner()
+SUniTime_Internal::SUniTime_Internal()
 {
 	THISZERO();
 	TimeZone  = Undef_TimeZone;
 }
 	
-int FASTCALL SUniTime_Inner::Cmp(const SUniTime_Inner & rS) const
+int FASTCALL SUniTime_Internal::Cmp(const SUniTime_Internal & rS) const
 {
 	int    si = 0;
-	CMPCASCADE7(si, this, &rS, Y, M, D, Hr, Mn, Sc, MSc);
+	CMPCASCADE7(si, this, &rS, Y, M, D, Hr, Mn, Sc, MkSc);
 	return si;
 }
 
@@ -2546,15 +2504,15 @@ int FASTCALL SUniTime_Inner::Cmp(const SUniTime_Inner & rS) const
 #define MONSPERYEAR        12
 #define WEEKDAY_OF_1601     1 // This is the week day that January 1st, 1601 fell on (a Monday)
 #define WEEKDAY_OF_1970     4 // 01-01-70 was a Thursday
-#define EPOCH_BIAS         116444736000000000i64 // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
+//#define EPOCH_BIAS         116444736000000000i64 // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
 
-#if defined(__GNUC__)
-	#define TICKSTO1970         0x019db1ded53e8000LL
-	#define TICKSTO1980         0x01a8e79fe1d58000LL
-#else
-	#define TICKSTO1970         0x019db1ded53e8000i64
-	#define TICKSTO1980         0x01a8e79fe1d58000i64
-#endif
+//#if defined(__GNUC__)
+	//#define TICKSTO1970         0x019db1ded53e8000LL
+	//#define TICKSTO1980         0x01a8e79fe1d58000LL
+//#else
+	//#define TICKSTO1970         0x019db1ded53e8000i64
+	//#define TICKSTO1980         0x01a8e79fe1d58000i64
+//#endif
 
 #define _IS_LEAP_EPOCH_YEAR(y) ((((y) % 4 == 0) && ((y) % 100 != 0)) || (((y) + 1900) % 400 == 0))
 #define _LEAP_YEAR_ADJUST  17 // Leap years 1900 - 1970
@@ -2674,7 +2632,8 @@ static uint32 FASTCALL ElapsedDaysToYears(uint32 elapsedDays)
 //   Time - Supplies the time value to interpret
 //   TimeFields - Receives a value corresponding to Time
 //
-static void FASTCALL __TimeToTimeFields(uint64 Time, SUniTime_Inner * pTimeFields)
+#if 0 // {
+static void FASTCALL __TimeToTimeFields(uint64 time100ns, SUniTime_Internal * pTimeFields)
 {
 	uint32 month;
 	uint32 hours;
@@ -2685,7 +2644,7 @@ static void FASTCALL __TimeToTimeFields(uint64 Time, SUniTime_Inner * pTimeField
 	//  First divide the input time 64 bit time variable into
 	//  the number of whole days and part days (in milliseconds)
 	//
-	uint32 days = __TimeToDaysAndFraction_ms(Time, &milliseconds);
+	uint32 days = __TimeToDaysAndFraction_ms(time100ns, &milliseconds);
 	//
 	//  Compute which weekday it is and save it away now in the output
 	//  variable.  We add the weekday of the base day to bias our computation
@@ -2758,7 +2717,100 @@ static void FASTCALL __TimeToTimeFields(uint64 Time, SUniTime_Inner * pTimeField
 	pTimeFields->Hr  = static_cast<int>(hours);
 	pTimeFields->Mn  = static_cast<int>(minutes);
 	pTimeFields->Sc  = static_cast<int>(seconds);
-	pTimeFields->MSc = static_cast<int>(milliseconds);
+	pTimeFields->MkSc = static_cast<int>(milliseconds * 1000);
+}
+#endif // } 0
+//
+// Descr: This routine converts an input 64-bit LARGE_INTEGER variable to its corresponding
+//   time field record.  It will tell the caller the year, month, day, hour,
+//   minute, second, millisecond, and weekday corresponding to the input time variable.
+// ARG(time100ns IN): Supplies the time value (in hundrets of nanoseconds) to interpret
+//
+void FASTCALL SUniTime_Internal::SetTime100ns(uint64 time100ns)
+{
+	uint32 month;
+	uint32 hours;
+	uint32 minutes;
+	uint32 seconds;
+	uint32 milliseconds;
+	//
+	//  First divide the input time 64 bit time variable into
+	//  the number of whole days and part days (in milliseconds)
+	//
+	uint32 days = __TimeToDaysAndFraction_ms(time100ns, &milliseconds);
+	//
+	//  Compute which weekday it is and save it away now in the output
+	//  variable.  We add the weekday of the base day to bias our computation
+	//  which means that if one day has elapsed then we the weekday we want
+	//  is the Jan 2nd, 1601.
+	//
+	Weekday = static_cast<int16>((days + WEEKDAY_OF_1601) % 7);
+	//
+	//  Calculate the number of whole years contained in the elapsed days
+	//  For example if Days = 500 then Years = 1
+	//
+	uint32 years = ElapsedDaysToYears(days);
+	//
+	//  And subtract the number of whole years from our elapsed days
+	//  For example if Days = 500, Years = 1, and the new days is equal
+	//  to 500 - 365 (normal year).
+	//
+	days = days - ElapsedYearsToDays(years);
+	//
+	//  Now test whether the year we are working on (i.e., The year
+	//  after the total number of elapsed years) is a leap year or not.
+	//
+	if(IsLeapYear_Gregorian(years + 1)) {
+		//
+		// The current year is a leap year, so figure out what month
+		// it is, and then subtract the number of days preceding the
+		// month from the days to figure out what day of the month it is
+		//
+		month = LeapYearDayToMonth[days];
+		days = days - LeapYearDaysPrecedingMonth[month];
+	}
+	else {
+		//
+		// The current year is a normal year, so figure out the month
+		// and days as described above for the leap year case
+		//
+		month = NormalYearDayToMonth[days];
+		days = days - NormalYearDaysPrecedingMonth[month];
+	}
+	//
+	// Now we need to compute the elapsed hour, minute, second, milliseconds
+	// from the millisecond variable.  This variable currently contains
+	// the number of milliseconds in our input time variable that did not
+	// fit into a whole day.  To compute the hour, minute, second part
+	// we will actually do the arithmetic backwards computing milliseconds
+	// seconds, minutes, and then hours.  We start by computing the
+	// number of whole seconds left in the day, and then computing
+	// the millisecond remainder.
+	//
+	seconds = milliseconds / 1000;
+	milliseconds = milliseconds % 1000;
+	//
+	//  Now we compute the number of whole minutes left in the day
+	//  and the number of remainder seconds
+	//
+	minutes = seconds / 60;
+	seconds = seconds % 60;
+	//
+	//  Now compute the number of whole hours left in the day
+	//  and the number of remainder minutes
+	//
+	hours = minutes / 60;
+	minutes = minutes % 60;
+	//
+	//  As our final step we put everything into the time fields output variable
+	//
+	Y   = static_cast<int>(years + 1601);
+	M   = static_cast<int>(month + 1);
+	D   = static_cast<int>(days + 1);
+	Hr  = static_cast<int>(hours);
+	Mn  = static_cast<int>(minutes);
+	Sc  = static_cast<int>(seconds);
+	MkSc = static_cast<int>(milliseconds * 1000);
 }
 //
 // Descr: This routine converts an input Time Field variable to a 64-bit NT time
@@ -2770,7 +2822,7 @@ static void FASTCALL __TimeToTimeFields(uint64 Time, SUniTime_Inner * pTimeField
 //   !0 - if the Time Fields is well formed and within the range of time expressible by LARGE_INTEGER
 //   0 - error
 //
-static int FASTCALL __TimeFieldsToTime(const SUniTime_Inner * pTimeFields, uint64 * pTime)
+static int FASTCALL __TimeFieldsToTime(const SUniTime_Internal * pTimeFields, uint64 * pTime)
 {
 	//
 	// Load the time field elements into local variables.  This should
@@ -2786,7 +2838,7 @@ static int FASTCALL __TimeFieldsToTime(const SUniTime_Inner * pTimeFields, uint6
 	uint32 hour = pTimeFields->Hr;
 	uint32 minute       = pTimeFields->Mn;
 	uint32 second       = pTimeFields->Sc;
-	uint32 milliseconds = pTimeFields->MSc;
+	uint32 milliseconds = pTimeFields->MkSc / 1000;
 	//
 	// Check that the time field input variable contains proper values.
 	//
@@ -2817,20 +2869,21 @@ static int FASTCALL __TimeFieldsToTime(const SUniTime_Inner * pTimeFields, uint6
 	}
 }
 
-void FASTCALL __EpochTimeToTimeFields(uint64 epochTime, SUniTime_Inner * pTimeFields)
+void FASTCALL __EpochTimeToTimeFields(uint64 epochTime, SUniTime_Internal * pTimeFields)
 {
-	__TimeToTimeFields(epochTime * TICKSPERSEC + EPOCH_BIAS, pTimeFields);
+	//__TimeToTimeFields(epochTime * TICKSPERSEC + SlConst::Epoch1600_1970_Offs_100Ns, pTimeFields);
+	pTimeFields->SetTime100ns(epochTime * TICKSPERSEC + SlConst::Epoch1600_1970_Offs_100Ns);
 }
 
-int FASTCALL __TimeFieldsToEpochTime(const SUniTime_Inner * pTimeFields, uint64 * pEpochTime)
+int FASTCALL __TimeFieldsToEpochTime(const SUniTime_Internal * pTimeFields, uint64 * pEpochTime)
 {
 	int    ok = 1;
 	uint64 t;
 	if(__TimeFieldsToTime(pTimeFields, &t)) {
-		if(t < EPOCH_BIAS)
+		if(t < SlConst::Epoch1600_1970_Offs_100Ns)
 			ok = 0;
 		else
-			*pEpochTime = (t - EPOCH_BIAS) / TICKSPERSEC;
+			*pEpochTime = (t - SlConst::Epoch1600_1970_Offs_100Ns) / TICKSPERSEC;
 	}
 	else
 		ok = 0;
@@ -2841,11 +2894,11 @@ int FASTCALL __TimeFieldsToEpochTime(const SUniTime_Inner * pTimeFields, uint64 
 //
 //
 //
-#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
-  #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
-#else
-  #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
-#endif
+//#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+  //#define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
+//#else
+  //#define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
+//#endif
 
 int gettimeofday(struct timeval * pTv, struct timezone * pTz)
 {
@@ -2858,7 +2911,7 @@ int gettimeofday(struct timeval * pTv, struct timezone * pTz)
 		tmpres |= ft.dwLowDateTime;
 		tmpres /= 10; // convert into microseconds
 		// converting file time to unix epoch
-		tmpres -= DELTA_EPOCH_IN_MICROSECS; 
+		tmpres -= SlConst::Epoch1600_1970_Offs_Mks;
 		pTv->tv_sec  = (long)(tmpres / 1000000UL);
 		pTv->tv_usec = (long)(tmpres % 1000000UL);
 	}
@@ -2903,7 +2956,7 @@ static inline void SUniTime_Encode(uint8 * pD, uint8 signature, uint64 value)
 int SUniTime::Implement_Set(uint8 signature, const void * pData)
 {
 	int    ok = 1;
-	const SUniTime_Inner * p_inner = static_cast<const SUniTime_Inner *>(pData);
+	const SUniTime_Internal * p_inner = static_cast<const SUniTime_Internal *>(pData);
 	uint64 value = 0;
 	switch(signature) {
 		case indMSec:
@@ -2961,31 +3014,31 @@ int SUniTime::Implement_Set(uint8 signature, const void * pData)
 			value = (((p_inner->Y-1) / 1000) * 1000) + 1;
 			break;
 		case indMSecTz:
-			if(SUniTime_Inner::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
+			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
 				value = ((value / 10000LL) << 8) | static_cast<int8>(p_inner->TimeZone);
 			else
 				ok = 0;
 			break;
 		case indCSecTz:
-			if(SUniTime_Inner::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
+			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
 				value = ((value / 100000LL) << 8) | static_cast<int8>(p_inner->TimeZone);
 			else
 				ok = 0;
 			break;
 		case indSecTz:
-			if(SUniTime_Inner::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
+			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
 				value = ((value / 10000000LL) << 8) | static_cast<int8>(p_inner->TimeZone);
 			else
 				ok = 0;
 			break;
 		case indMinTz:
-			if(SUniTime_Inner::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
+			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
 				value = ((value / (60 * 10000000LL)) << 8) | static_cast<int8>(p_inner->TimeZone);
 			else
 				ok = 0;
 			break;
 		case indHrTz:
-			if(SUniTime_Inner::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
+			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
 				value = ((value / (60 * 60 * 10000000LL)) << 8) | static_cast<int8>(p_inner->TimeZone);
 			else
 				ok = 0;
@@ -3041,7 +3094,7 @@ static int FASTCALL CmpSUniTimePrecisions(uint8 signature1, uint8 signature2)
 	return s;
 }
 
-static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signature)
+static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Internal & rT, uint8 signature)
 {
 	int    ok = 1;
 	switch(signature) {
@@ -3049,32 +3102,32 @@ static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signatur
 			break;
 		case SUniTime::indMSec:
 		case SUniTime::indSec:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			break;
 		case SUniTime::indMin:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			break;
 		case SUniTime::indHr:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;
 			break;
 		case SUniTime::indDay:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;
 			rT.Hr = 0;
 			break;
 		case SUniTime::indMon:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;
 			rT.Hr = 0;
 			rT.D = 2;
 			break;
 		case SUniTime::indQuart:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;
 			rT.Hr = 0;
@@ -3082,7 +3135,7 @@ static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signatur
 			rT.D = 2;
 			break;
 		case SUniTime::indSmYr:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;
 			rT.Hr = 0;
@@ -3090,7 +3143,7 @@ static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signatur
 			rT.D = 2;
 			break;
 		case SUniTime::indYr:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;
 			rT.Hr = 0;
@@ -3098,7 +3151,7 @@ static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signatur
 			rT.D = 2;
 			break;
 		case SUniTime::indDYr:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;
 			rT.Hr = 0;
@@ -3107,7 +3160,7 @@ static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signatur
 			rT.Y = (((rT.Y-1) / 10) * 10) + 1;
 			break;
 		case SUniTime::indSmCent:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;
 			rT.Hr = 0;
@@ -3116,7 +3169,7 @@ static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signatur
 			rT.Y = (((rT.Y-1) / 50) * 50) + 1;
 			break;
 		case SUniTime::indCent:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;
 			rT.Hr = 0;
@@ -3125,7 +3178,7 @@ static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Inner & rT, uint8 signatur
 			rT.Y = (((rT.Y-1) / 100) * 100) + 1;
 			break;
 		case SUniTime::indMillennium:
-			rT.MSc = 0;
+			rT.MkSc = 0;
 			rT.Sc = 0;
 			rT.Mn = 0;
 			rT.Hr = 0;
@@ -3171,8 +3224,8 @@ int FASTCALL SUniTime::Compare(const SUniTime & rS, int * pQualification) const
 		int cm = IsSUniTimeCompatibleWithInnerStruc(signature);
 		int cm_s = IsSUniTimeCompatibleWithInnerStruc(signature_s);
 		if(cm && cm_s) {
-			SUniTime_Inner in;
-			SUniTime_Inner in_s;
+			SUniTime_Internal in;
+			SUniTime_Internal in_s;
 			Implement_Get(&in);
 			rS.Implement_Get(&in_s);
 			int cp = CmpSUniTimePrecisions(signature, signature_s);
@@ -3215,45 +3268,65 @@ uint8  SUniTime::Implement_Get(void * pData) const
 	uint8  signature = SUniTime_Decode(D, &value);
 	int8   timezone = 0;
 	long   day_count = 0;
-	SUniTime_Inner * p_inner = static_cast<SUniTime_Inner *>(pData);
+	SUniTime_Internal * p_inner = static_cast<SUniTime_Internal *>(pData);
 	switch(signature) {
-		case indDefault: __TimeToTimeFields(value, p_inner); break;
-		case indMSec: __TimeToTimeFields(value * 10000LL, p_inner); break;
-		case indSec: __TimeToTimeFields(value * 10000000LL, p_inner); break;
-		case indMin: __TimeToTimeFields(value * 60*10000000LL, p_inner); break;
-		case indHr: __TimeToTimeFields(value * 60*60*10000000LL, p_inner); break;
+		case indDefault: 
+			//__TimeToTimeFields(value, p_inner); 
+			p_inner->SetTime100ns(value);
+			break;
+		case indMSec: 
+			//__TimeToTimeFields(value * 10000LL, p_inner); 
+			p_inner->SetTime100ns(value * 10000LL);
+			break;
+		case indSec: 
+			//__TimeToTimeFields(value * 10000000LL, p_inner); 
+			p_inner->SetTime100ns(value * 10000000LL);
+			break;
+		case indMin: 
+			//__TimeToTimeFields(value * 60*10000000LL, p_inner); 
+			p_inner->SetTime100ns(value * 60*10000000LL);
+			break;
+		case indHr: 
+			//__TimeToTimeFields(value * 60*60*10000000LL, p_inner); 
+			p_inner->SetTime100ns(value * 60*60*10000000LL);
+			break;
 		case indMSecTz:
 			timezone = static_cast<int8>(value & 0xff);
 			value >>= 8;
-			__TimeToTimeFields(value * 10000LL, p_inner);
+			//__TimeToTimeFields(value * 10000LL, p_inner);
+			p_inner->SetTime100ns(value * 10000LL);
 			p_inner->Hr += timezone;
 			p_inner->TimeZone = timezone;
 			break;
 		case indCSecTz:
 			timezone = static_cast<int8>(value & 0xff);
 			value >>= 8;
-			__TimeToTimeFields(value * 100000LL, p_inner);
+			//__TimeToTimeFields(value * 100000LL, p_inner);
+			p_inner->SetTime100ns(value * 100000LL);
 			p_inner->Hr += timezone;
 			p_inner->TimeZone = timezone;
 			break;
 		case indSecTz:
 			timezone = static_cast<int8>(value & 0xff);
 			value >>= 8;
-			__TimeToTimeFields(value * 10000000LL, p_inner);
+			//__TimeToTimeFields(value * 10000000LL, p_inner);
+			p_inner->SetTime100ns(value * 10000000LL);
 			p_inner->Hr += timezone;
 			p_inner->TimeZone = timezone;
 			break;
 		case indMinTz:
 			timezone = static_cast<int8>(value & 0xff);
 			value >>= 8;
-			__TimeToTimeFields(value * 60*10000000LL, p_inner);
+			//__TimeToTimeFields(value * 60*10000000LL, p_inner);
+			p_inner->SetTime100ns(value * 60*10000000LL);
 			p_inner->Hr += timezone;
 			p_inner->TimeZone = timezone;
 			break;
 		case indHrTz:
 			timezone = static_cast<int8>(value & 0xff);
 			value >>= 8;
-			__TimeToTimeFields(value * 60*60*10000000LL, p_inner);
+			//__TimeToTimeFields(value * 60*60*10000000LL, p_inner);
+			p_inner->SetTime100ns(value * 60*60*10000000LL);
 			p_inner->Hr += timezone;
 			p_inner->TimeZone = timezone;
 			break;
@@ -3336,10 +3409,7 @@ SUniTime::SUniTime(const LDATETIME & rD)
 	Set(rD);
 }
 
-bool SUniTime::operator !() const
-{
-	return ismemzero(D, sizeof(D));
-}
+bool SUniTime::operator !() const { return ismemzero(D, sizeof(D)); }
 
 SUniTime & SUniTime::Z()
 {
@@ -3368,14 +3438,14 @@ int    SUniTime::FromInt64(int64 v)
 
 int FASTCALL SUniTime::SetYear(int year)
 {
-	SUniTime_Inner inner;
+	SUniTime_Internal inner;
 	inner.Y = year;
 	return Implement_Set(indYr, &inner);
 }
 
 int FASTCALL SUniTime::SetMonth(int year, int month)
 {
-	SUniTime_Inner inner;
+	SUniTime_Internal inner;
 	inner.Y = year;
 	inner.M = month;
 	return Implement_Set(indMon, &inner);
@@ -3383,7 +3453,7 @@ int FASTCALL SUniTime::SetMonth(int year, int month)
 
 int FASTCALL SUniTime::Set(LDATE d)
 {
-	SUniTime_Inner inner;
+	SUniTime_Internal inner;
 	inner.D = d.day();
 	inner.M = d.month();
 	inner.Y = d.year();
@@ -3392,14 +3462,14 @@ int FASTCALL SUniTime::Set(LDATE d)
 
 int FASTCALL SUniTime::Set(const LDATETIME & rD)
 {
-	SUniTime_Inner inner;
+	SUniTime_Internal inner;
 	inner.D = rD.d.day();
 	inner.M = rD.d.month();
 	inner.Y = rD.d.year();
 	inner.Hr = rD.t.hour();
 	inner.Mn = rD.t.minut();
 	inner.Sc = rD.t.sec();
-	inner.MSc = rD.t.hs() * 10;
+	inner.MkSc = rD.t.hs() * 10 * 1000;
 	return Implement_Set(indMSec, &inner);
 }
 
@@ -3407,14 +3477,14 @@ int FASTCALL SUniTime::Set(const LDATETIME & rD, uint signature)
 {
 	assert(oneof11(signature, indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent));
 	if(oneof11(signature, indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent)) {
-		SUniTime_Inner inner;
+		SUniTime_Internal inner;
 		inner.D = rD.d.day();
 		inner.M = rD.d.month();
 		inner.Y = rD.d.year();
 		inner.Hr = rD.t.hour();
 		inner.Mn = rD.t.minut();
 		inner.Sc = rD.t.sec();
-		inner.MSc = rD.t.hs() * 10;
+		inner.MkSc = rD.t.hs() * 10 * 1000;
 		return Implement_Set(signature, &inner);
 	}
 	else
@@ -3426,14 +3496,14 @@ int FASTCALL SUniTime::Set(const LDATETIME & rD, uint signature, int timezone)
 	assert(oneof5(signature, indHrTz, indMinTz, indSecTz, indMSecTz, indCSecTz));
 	assert(timezone >= -12 && timezone <= +14);
 	if(oneof5(signature, indHrTz, indMinTz, indSecTz, indMSecTz, indCSecTz)) {
-		SUniTime_Inner inner;
+		SUniTime_Internal inner;
 		inner.D = rD.d.day();
 		inner.M = rD.d.month();
 		inner.Y = rD.d.year();
 		inner.Hr = rD.t.hour() - timezone;
 		inner.Mn = rD.t.minut();
 		inner.Sc = rD.t.sec();
-		inner.MSc = rD.t.hs() * 10;
+		inner.MkSc = rD.t.hs() * 10 * 1000;
 		inner.TimeZone = timezone;
 		return Implement_Set(signature, &inner);
 	}
@@ -3445,7 +3515,7 @@ int FASTCALL SUniTime::Set(time_t t)
 {
 	int    ok = 1;
 	if(t >= 0) {
-		SUniTime_Encode(D, indSec, t * TICKSPERSEC + EPOCH_BIAS);
+		SUniTime_Encode(D, indSec, t * TICKSPERSEC + SlConst::Epoch1600_1970_Offs_100Ns);
 	}
 	else {
 		Z();
@@ -3459,7 +3529,7 @@ int FASTCALL SUniTime::Set(time_t t, int timezone)
 	int    ok = 1;
 	assert(timezone >= -12 && timezone <= +14);
 	if(t >= 0 && timezone >= -12 && timezone <= +14) {
-		SUniTime_Encode(D, indSecTz, t * TICKSPERSEC + EPOCH_BIAS - (timezone * 3600));
+		SUniTime_Encode(D, indSecTz, t * TICKSPERSEC + SlConst::Epoch1600_1970_Offs_100Ns - (timezone * 3600));
 	}
 	else {
 		Z();
@@ -3477,7 +3547,7 @@ int FASTCALL SUniTime::Set(const FILETIME & rD)
 int FASTCALL SUniTime::Get(LDATE & rD) const
 {
 	int    ok = 1;
-	SUniTime_Inner inner;
+	SUniTime_Internal inner;
 	uint8 signature = Implement_Get(&inner);
 	if(signature != indInvalid) {
 		rD.encode(inner.D, inner.M, inner.Y);
@@ -3490,11 +3560,11 @@ int FASTCALL SUniTime::Get(LDATE & rD) const
 int FASTCALL SUniTime::Get(LDATETIME & rD) const
 {
 	int    ok = 1;
-	SUniTime_Inner inner;
+	SUniTime_Internal inner;
 	uint8 signature = Implement_Get(&inner);
 	if(signature != indInvalid) {
 		rD.d.encode(inner.D, inner.M, inner.Y);
-		rD.t.encode(inner.Hr, inner.Mn, inner.Sc, inner.MSc);
+		rD.t.encode(inner.Hr, inner.Mn, inner.Sc, inner.MkSc/1000);
 	}
 	else
 		ok = 0;
@@ -3504,7 +3574,7 @@ int FASTCALL SUniTime::Get(LDATETIME & rD) const
 int FASTCALL SUniTime::Get(time_t & rD) const
 {
 	int    ok = 1;
-	SUniTime_Inner inner;
+	SUniTime_Internal inner;
 	uint8 signature = Implement_Get(&inner);
 	if(signature != indInvalid) {
 		uint64 et = 0;
@@ -3519,7 +3589,7 @@ int FASTCALL SUniTime::Get(time_t & rD) const
 int FASTCALL SUniTime::Get(FILETIME & rD) const
 {
 	int    ok = 1;
-	SUniTime_Inner inner;
+	SUniTime_Internal inner;
 	uint8 signature = Implement_Get(&inner);
 	if(signature != indInvalid) {
 		__TimeFieldsToTime(&inner, (uint64 *)&rD);

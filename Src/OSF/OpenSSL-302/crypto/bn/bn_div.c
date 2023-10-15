@@ -167,7 +167,7 @@ static int bn_left_align(BIGNUM * num)
  * - divl doesn't only calculate quotient, but also leaves
  *   remainder in %edx which we can definitely use here:-)
  */
-#    undef bn_div_words
+#undef bn_div_words
 #define bn_div_words(n0, n1, d0)                \
 	({  asm volatile (                      \
 		    "divl   %4"                     \
@@ -181,7 +181,7 @@ static int bn_left_align(BIGNUM * num)
 /*
  * Same story here, but it's 128-bit by 64-bit division. Wow!
  */
-#    undef bn_div_words
+#undef bn_div_words
 #define bn_div_words(n0, n1, d0)                \
 	({  asm volatile (                      \
 		    "divq   %4"                     \

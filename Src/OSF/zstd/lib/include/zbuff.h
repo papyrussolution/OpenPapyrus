@@ -48,7 +48,7 @@ extern "C" {
 #else
 #    pragma message("WARNING: You need to implement ZBUFF_DEPRECATED for this compiler")
 #define ZBUFF_DEPRECATED(message) ZSTDLIB_API
-#  endif
+#endif
 #endif /* ZBUFF_DISABLE_DEPRECATE_WARNINGS */
 // 
 // Streaming functions

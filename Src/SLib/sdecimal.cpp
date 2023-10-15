@@ -6,6 +6,7 @@
 #pragma hdrstop
 #include <cmath>
 #include <..\OSF\abseil\absl\numeric\int128.h>
+#include <ued.h>
 
 void SlI128_Add(uint64 a, uint64 b, _baseuint128_le * pResult)
 {
@@ -521,6 +522,17 @@ struct UedDecIndicator {
 		return valueBitCount ? (((uint64)indicator) << (valueBitCount - 5)) : (uint64)indicator;
 	}
 };
+
+uint64 SDecimal::ToUed_(uint64 uedMeta)
+{
+	uint64 ued = 0;
+	uint bits = UED::GetMetaRawDataBits(uedMeta);
+	if(oneof2(bits, 48, 56)) {
+		ued = ToUed_NonConst(bits);
+		ued = UED::ApplyMetaToRawValue(uedMeta, ued);
+	}
+	return ued;
+}
 
 uint64 SDecimal::ToUed_NonConst(uint numBits) // @construction
 {

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/ListItemRegular"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/orderPrereqGoodsListItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <ImageView style="@style/OuterImage_Side"
+            android:id="@+id/ORDERPREREQ_GOODS_IMG"
+            android:layout_width="128dp"
+            android:layout_height="128dp">
+        </ImageView>
+        <View style="@style/FakeView"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/ORDERPREREQ_GOODS_PRICE"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:minWidth="64dp"
+                        android:layout_marginRight="8dp"
+                        android:textAlignment="viewEnd"
+                        android:textSize="13sp"
+                        android:textColor="@color/Accent"
+                        />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp">
+                        <ImageButton style="@style/ToolbarButton"
+                            android:id="@+id/buttonOrder"
+                            android:layout_height="30dp"
+                            android:layout_width="30dp"
+                            android:onClick="OnButtonClk"
+                            app:srcCompat="@drawable/ic_shoppingcart01"
+                            />
+                        <TextView style="@style/OrderedQtyText"
+                            android:id="@+id/ORDERPREREQ_GOODS_ORDEREDQTY"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:textAlignment="viewEnd"
+                            />
+                    </LinearLayout>
+                </LinearLayout>
+                <!--
+                <View style="@style/FakeView"/>
+                -->
+                <LinearLayout android:id="@+id/CTLGRP_GOODS_EXPIRY"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="4dp"
+                    >
+                    <!--
+                    android:padding="2dp"
+                    android:background="@drawable/shape_viewframe" -->
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_expiry_color_01">
+                    </ImageView>
+                    <TextView
+                        android:id="@+id/ORDERPREREQ_GOODS_EXPIRY"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:padding="2dp"
+                        android:textAlignment="viewStart"
+                        android:textSize="9sp"
+                        android:textColor="@color/TextPrimary"
+                        />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/CTLGRP_GOODS_REST"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="4dp"
+                    >
+                    <!--
+                    android:padding="2dp"
+                    android:background="@drawable/shape_viewframe" -->
+                    <ImageView android:id="@+id/CTL_GOODS_STOCKIMAGE"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_goodsstock01">
+                    </ImageView>
+                    <TextView
+                        android:id="@+id/ORDERPREREQ_GOODS_REST"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:padding="2dp"
+                        android:layout_marginRight="8dp"
+                        android:textAlignment="viewEnd"
+                        android:textSize="9sp"
+                        android:textColor="@color/TextPrimaryLight"
+                        />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <TextView style="@style/GenericListItemText"
+            android:id="@+id/LVITEM_GENERICNAME"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            />
+    </LinearLayout>
+</LinearLayout>

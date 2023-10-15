@@ -250,7 +250,7 @@ typedef union {
 } FileTimeConversion; /* This is like a ULARGE_INTEGER */
 
 /* Number of 100 nanoseconds from 1/1/1601 to 1/1/1970 */
-#define EPOCH_BIAS  INT64_C(116444736000000000)
+//#define EPOCH_BIAS  INT64_C(116444736000000000)
 #define HECTONANOSECOND_PER_MILLISECOND   10000
 
 #endif
@@ -278,7 +278,7 @@ U_CAPI UDate U_EXPORT2 uprv_getRawUTCtime()
 
 	FileTimeConversion winTime;
 	GetSystemTimeAsFileTime(&winTime.fileTime);
-	return (UDate)((winTime.int64 - EPOCH_BIAS) / HECTONANOSECOND_PER_MILLISECOND);
+	return (UDate)((winTime.int64 - SlConst::Epoch1600_1970_Offs_100Ns) / HECTONANOSECOND_PER_MILLISECOND);
 #else
 
 #if HAVE_GETTIMEOFDAY

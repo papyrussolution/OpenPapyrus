@@ -546,7 +546,7 @@ MEM_STATIC uint BIT_highbit32(uint32 val)
 	v |= v >> 16;
 	r = DeBruijnClz[ (uint32)(v * 0x07C4ACDDU) >> 27];
 	return r;
-#   endif
+#endif
 }
 
 /**********************************************************

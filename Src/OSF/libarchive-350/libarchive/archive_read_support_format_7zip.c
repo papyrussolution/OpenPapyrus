@@ -2370,11 +2370,11 @@ static int read_Header(ArchiveRead * a, struct _7z_header_info * h,
 	return 0;
 }
 
-#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
+//#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
 static void fileTimeToUtc(uint64 fileTime, time_t * timep, long * ns)
 {
-	if(fileTime >= EPOC_TIME) {
-		fileTime -= EPOC_TIME;
+	if(fileTime >= SlConst::Epoch1600_1970_Offs_100Ns) {
+		fileTime -= SlConst::Epoch1600_1970_Offs_100Ns;
 		/* milli seconds base */
 		*timep = (time_t)(fileTime / 10000000);
 		/* nano seconds base */

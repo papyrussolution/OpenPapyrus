@@ -3199,7 +3199,7 @@ int ScURL::Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList) // LI
 		// } @v11.3.8
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
-	// THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "LIST"))); // @v9.8.11
+	//THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "LIST"))); // @v9.8.11
 	{
 		SBuffer reply_buf;
 		SFile reply_stream(reply_buf, SFile::mWrite);

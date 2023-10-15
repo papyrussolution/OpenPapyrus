@@ -51,11 +51,11 @@
 typedef __int64 la_int64_t;
 # else
 #include <unistd.h>  /* ssize_t */
-#  if defined(_SCO_DS) || defined(__osf__)
+#if defined(_SCO_DS) || defined(__osf__)
 typedef long long la_int64_t;
-#  else
+#else
 typedef int64 la_int64_t;
-#  endif
+#endif
 #endif
 #endif
 // The la_ssize_t should match the type used in 'struct stat' 

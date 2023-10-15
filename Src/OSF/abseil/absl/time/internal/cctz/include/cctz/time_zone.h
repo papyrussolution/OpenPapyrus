@@ -56,12 +56,11 @@ std::pair<time_point<seconds>, seconds> split_seconds(const time_point<seconds>&
 // - https://en.wikipedia.org/wiki/Zoneinfo
 class time_zone {
 public:
-	time_zone() : time_zone(nullptr) {
-	}                              // Equivalent to UTC
-
+	time_zone() : time_zone(nullptr) 
+	{
+	} // Equivalent to UTC
 	time_zone(const time_zone&) = default;
 	time_zone& operator =(const time_zone&) = default;
-
 	std::string name() const;
 
 	// An absolute_lookup represents the civil time (cctz::civil_second) within
@@ -85,11 +84,7 @@ public:
 	};
 
 	absolute_lookup lookup(const time_point<seconds>& tp) const;
-	template <typename D>
-	absolute_lookup lookup(const time_point<D>& tp) const {
-		return lookup(detail::split_seconds(tp).first);
-	}
-
+	template <typename D> absolute_lookup lookup(const time_point<D>& tp) const { return lookup(detail::split_seconds(tp).first); }
 	// A civil_lookup represents the absolute time(s) (time_point) that
 	// correspond to the given civil time (cctz::civil_second) within this
 	// time_zone. Usually the given civil time represents a unique instant
@@ -178,20 +173,16 @@ public:
 		civil_second to; // the civil time we jump to
 	};
 
-	bool next_transition(const time_point<seconds>& tp,
-	    civil_transition* trans) const;
-	template <typename D>
-	bool next_transition(const time_point<D>& tp, civil_transition* trans) const {
+	bool next_transition(const time_point<seconds>& tp, civil_transition* trans) const;
+	template <typename D> bool next_transition(const time_point<D>& tp, civil_transition* trans) const 
+	{
 		return next_transition(detail::split_seconds(tp).first, trans);
 	}
-
-	bool prev_transition(const time_point<seconds>& tp,
-	    civil_transition* trans) const;
-	template <typename D>
-	bool prev_transition(const time_point<D>& tp, civil_transition* trans) const {
+	bool prev_transition(const time_point<seconds>& tp, civil_transition* trans) const;
+	template <typename D> bool prev_transition(const time_point<D>& tp, civil_transition* trans) const 
+	{
 		return prev_transition(detail::split_seconds(tp).first, trans);
 	}
-
 	// version() and description() provide additional information about the
 	// time zone. The content of each of the returned strings is unspecified,
 	// however, when the IANA Time Zone Database is the underlying data source
@@ -219,9 +210,9 @@ public:
 	class Impl;
 
 private:
-	explicit time_zone(const Impl* impl) : impl_(impl) {
+	explicit time_zone(const Impl* impl) : impl_(impl) 
+	{
 	}
-
 	const Impl& effective_impl() const; // handles implicit UTC
 	const Impl* impl_;
 };

@@ -897,7 +897,7 @@ static int set_timefilter_date_w(struct archive_match * a, int timetype, const w
 }
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
+//#define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
 static int set_timefilter_find_data(struct archive_match * a, int timetype, DWORD ftLastWriteTime_dwHighDateTime, DWORD ftLastWriteTime_dwLowDateTime,
     DWORD ftCreationTime_dwHighDateTime, DWORD ftCreationTime_dwLowDateTime)
 {
@@ -906,8 +906,8 @@ static int set_timefilter_find_data(struct archive_match * a, int timetype, DWOR
 	long ctime_ns, mtime_ns;
 	utc.HighPart = ftCreationTime_dwHighDateTime;
 	utc.LowPart = ftCreationTime_dwLowDateTime;
-	if(utc.QuadPart >= EPOC_TIME) {
-		utc.QuadPart -= EPOC_TIME;
+	if(utc.QuadPart >= SlConst::Epoch1600_1970_Offs_100Ns) {
+		utc.QuadPart -= SlConst::Epoch1600_1970_Offs_100Ns;
 		ctime_sec = (time_t)(utc.QuadPart / 10000000);
 		ctime_ns = (long)(utc.QuadPart % 10000000) * 100;
 	}
@@ -917,8 +917,8 @@ static int set_timefilter_find_data(struct archive_match * a, int timetype, DWOR
 	}
 	utc.HighPart = ftLastWriteTime_dwHighDateTime;
 	utc.LowPart = ftLastWriteTime_dwLowDateTime;
-	if(utc.QuadPart >= EPOC_TIME) {
-		utc.QuadPart -= EPOC_TIME;
+	if(utc.QuadPart >= SlConst::Epoch1600_1970_Offs_100Ns) {
+		utc.QuadPart -= SlConst::Epoch1600_1970_Offs_100Ns;
 		mtime_sec = (time_t)(utc.QuadPart / 10000000);
 		mtime_ns = (long)(utc.QuadPart % 10000000) * 100;
 	}

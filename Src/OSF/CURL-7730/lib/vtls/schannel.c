@@ -601,22 +601,15 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 					data->set.ssl.primary.clientcert);
 				if(!cert_path)
 					return CURLE_OUT_OF_MEMORY;
-
-				result = get_cert_location(cert_path, &cert_store_name,
-					&cert_store_path, &cert_thumbprint_str);
-
+				result = get_cert_location(cert_path, &cert_store_name, &cert_store_path, &cert_thumbprint_str);
 				if(result && (data->set.ssl.primary.clientcert[0]!='\0'))
 					fInCert = fopen(data->set.ssl.primary.clientcert, "rb");
-
 				if(result && !fInCert) {
-					failf(data, "schannel: Failed to get certificate location"
-					    " or file for %s",
-					    data->set.ssl.primary.clientcert);
+					failf(data, "schannel: Failed to get certificate location or file for %s", data->set.ssl.primary.clientcert);
 					curlx_unicodefree(cert_path);
 					return result;
 				}
 			}
-
 			if((fInCert || blob) && (data->set.ssl.cert_type) &&
 			    (!strcasecompare(data->set.ssl.cert_type, "P12"))) {
 				failf(data, "schannel: certificate format compatibility error "

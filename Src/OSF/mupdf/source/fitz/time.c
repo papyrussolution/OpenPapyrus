@@ -9,7 +9,7 @@
 #ifndef _WINRT
 #ifndef SLIBINCLUDED // @sobolev
 
-#define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
+//#define DELTA_EPOCH_IN_MICROSECS 11644473600000000Ui64
 
 int gettimeofday(struct timeval * tv, struct timezone * tz)
 {
@@ -22,7 +22,7 @@ int gettimeofday(struct timeval * tv, struct timezone * tz)
 		tmpres |= ft.dwLowDateTime;
 		tmpres /= 10; /*convert into microseconds*/
 		/*converting file time to unix epoch*/
-		tmpres -= DELTA_EPOCH_IN_MICROSECS;
+		tmpres -= SlConst::Epoch1600_1970_Offs_Mks;;
 		tv->tv_sec = (long)(tmpres / 1000000UL);
 		tv->tv_usec = (long)(tmpres % 1000000UL);
 	}

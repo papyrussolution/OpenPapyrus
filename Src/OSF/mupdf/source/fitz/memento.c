@@ -70,11 +70,11 @@ int atexit(void (*)(void));
 #ifndef va_copy
 #ifdef __va_copy
 #define va_copy(dst, src) __va_copy(dst, src)
-#   else
+#else
 #define va_copy(dst, src) memcpy(&dst, &src, sizeof(va_list))
 #endif /* __va_copy */
 #endif /* va_copy */
-# endif
+#endif
 #endif
 
 /* Hacks to portably print large sizes */

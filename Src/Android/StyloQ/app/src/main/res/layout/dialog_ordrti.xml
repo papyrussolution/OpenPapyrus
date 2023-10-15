@@ -71,6 +71,16 @@
                     android:textSize="10sp"
                     android:gravity="center_vertical"
                     />
+                <TextView style="@style/FormText"
+                    android:id="@+id/CTL_ORDRTI_PACKCOUNT"
+                    android:background="@drawable/shape_upperstroke"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginLeft="2dp"
+                    android:textSize="10sp"
+                    android:gravity="center_vertical"
+                    />
             </LinearLayout>
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/InputLine"

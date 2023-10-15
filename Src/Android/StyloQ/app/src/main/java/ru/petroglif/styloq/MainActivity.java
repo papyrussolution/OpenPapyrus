@@ -770,7 +770,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				{
 					SLib.RecyclerListAdapter adapter = SLib.IsRecyclerListAdapter(srcObj) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
-					if(adapter != null && adapter.GetRcId() == R.layout.li_service && ListData != null) {
+					if(adapter != null && adapter.GetItemRcId() == R.layout.li_service && ListData != null) {
 						_count = ListData.size();
 					}
 					result = new Integer(_count);

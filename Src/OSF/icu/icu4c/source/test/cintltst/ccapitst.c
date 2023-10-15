@@ -3154,10 +3154,10 @@ static void TestDefaultName() {
 	TestOneDefaultNameChange("ISCII,version=2", "UTF-8");
 	TestOneDefaultNameChange("ISO-8859-1", "UTF-8");
 #else
-# if !UCONFIG_NO_LEGACY_CONVERSION && !UCONFIG_ONLY_HTML_CONVERSION
+#if !UCONFIG_NO_LEGACY_CONVERSION && !UCONFIG_ONLY_HTML_CONVERSION
 	TestOneDefaultNameChange("ISCII,version=1", "ISCII,version=1");
 	TestOneDefaultNameChange("ISCII,version=2", "ISCII,version=2");
-# endif
+#endif
 	TestOneDefaultNameChange("ISO-8859-1", "ISO-8859-1");
 #endif
 

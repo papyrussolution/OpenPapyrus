@@ -187,10 +187,7 @@ public:
 	 * @stable ICU 4.8
 	 */
 	static StringEnumeration* U_EXPORT2 createTimeZoneIDEnumeration(USystemTimeZoneType zoneType,
-	    const char * region,
-	    const int32_t* rawOffset,
-	    UErrorCode& ec);
-
+	    const char * region, const int32_t* rawOffset, UErrorCode& ec);
 #ifndef U_HIDE_DEPRECATED_API
 	/**
 	 * Returns an enumeration over all recognized time zone IDs. (i.e.,
@@ -201,7 +198,6 @@ public:
 	 */
 	static StringEnumeration* U_EXPORT2 createEnumeration();
 #endif  // U_HIDE_DEPRECATED_API
-
 	/**
 	 * Returns an enumeration over all recognized time zone IDs. (i.e.,
 	 * all strings that createTimeZone() accepts)
@@ -211,7 +207,6 @@ public:
 	 * @stable ICU 70
 	 */
 	static StringEnumeration* U_EXPORT2 createEnumeration(UErrorCode & status);
-
 #ifndef U_HIDE_DEPRECATED_API
 	/**
 	 * Returns an enumeration over time zone IDs with a given raw
@@ -315,9 +310,7 @@ public:
 	 * @see #countEquivalentIDs
 	 * @stable ICU 2.0
 	 */
-	static const UnicodeString U_EXPORT2 getEquivalentID(const UnicodeString & id,
-	    int32_t index);
-
+	static const UnicodeString U_EXPORT2 getEquivalentID(const UnicodeString & id, int32_t index);
 	/**
 	 * Creates an instance of TimeZone detected from the current host
 	 * system configuration. If the host system detection routines fail,
@@ -415,9 +408,7 @@ public:
 	 * @return A reference to the result.
 	 * @stable ICU 4.0
 	 */
-	static UnicodeString & U_EXPORT2 getCanonicalID(const UnicodeString & id,
-	    UnicodeString & canonicalID, UErrorCode & status);
-
+	static UnicodeString & U_EXPORT2 getCanonicalID(const UnicodeString & id, UnicodeString & canonicalID, UErrorCode & status);
 	/**
 	 * Returns the canonical system time zone ID or the normalized
 	 * custom time zone ID for the given time zone ID.

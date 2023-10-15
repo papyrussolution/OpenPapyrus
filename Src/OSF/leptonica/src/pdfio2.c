@@ -1205,24 +1205,24 @@ l_ok pixGenerateCIData(PIX           * pixs,
 	/* Conditionally modify the encoding type if libz is
 	* available and the requested library is missing. */
 #if defined(HAVE_LIBZ)
-# if !defined(HAVE_LIBJPEG)
+#if !defined(HAVE_LIBJPEG)
 	if(type == L_JPEG_ENCODE) {
 		L_WARNING("no libjpeg; using flate encoding\n", procName);
 		type = L_FLATE_ENCODE;
 	}
-# endif /* !defined(HAVE_LIBJPEG) */
-# if !defined(HAVE_LIBJP2K)
+#endif /* !defined(HAVE_LIBJPEG) */
+#if !defined(HAVE_LIBJP2K)
 	if(type == L_JP2K_ENCODE) {
 		L_WARNING("no libjp2k; using flate encoding\n", procName);
 		type = L_FLATE_ENCODE;
 	}
-# endif /* !defined(HAVE_LIBJP2K) */
-# if !defined(HAVE_LIBTIFF)
+#endif /* !defined(HAVE_LIBJP2K) */
+#if !defined(HAVE_LIBTIFF)
 	if(type == L_G4_ENCODE) {
 		L_WARNING("no libtiff; using flate encoding\n", procName);
 		type = L_FLATE_ENCODE;
 	}
-# endif /* !defined(HAVE_LIBTIFF) */
+#endif /* !defined(HAVE_LIBTIFF) */
 #endif /* defined(HAVE_LIBZ) */
 
 	/* Sanity check on requested encoding */

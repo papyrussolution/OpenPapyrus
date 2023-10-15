@@ -590,55 +590,37 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 
 			return CURLE_OUT_OF_MEMORY;
 		}
-
 		/* Allocate our new context handle */
 		digest->http_context = SAlloc::C(1, sizeof(CtxtHandle));
 		if(!digest->http_context)
 			return CURLE_OUT_OF_MEMORY;
-
 		/* Generate our response message */
 		status = s_pSecFn->InitializeSecurityContext(&credentials, NULL,
-			spn,
-			ISC_REQ_USE_HTTP_STYLE, 0, 0,
-			&chlg_desc, 0,
-			digest->http_context,
-			&resp_desc, &attrs, &expiry);
+			spn, ISC_REQ_USE_HTTP_STYLE, 0, 0, &chlg_desc, 0, digest->http_context, &resp_desc, &attrs, &expiry);
 		curlx_unicodefree(spn);
-
-		if(status == SEC_I_COMPLETE_NEEDED ||
-		    status == SEC_I_COMPLETE_AND_CONTINUE)
+		if(status == SEC_I_COMPLETE_NEEDED || status == SEC_I_COMPLETE_AND_CONTINUE)
 			s_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
 		else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
 			s_pSecFn->FreeCredentialsHandle(&credentials);
-
 			Curl_sspi_free_identity(p_identity);
 			SAlloc::F(output_token);
-
 			ZFREE(digest->http_context);
-
 			if(status == SEC_E_INSUFFICIENT_MEMORY)
 				return CURLE_OUT_OF_MEMORY;
-
 			return CURLE_AUTH_ERROR;
 		}
-
 		output_token_len = resp_buf.cbBuffer;
-
 		s_pSecFn->FreeCredentialsHandle(&credentials);
 		Curl_sspi_free_identity(p_identity);
 	}
-
 	resp = SAlloc::M(output_token_len + 1);
 	if(!resp) {
 		SAlloc::F(output_token);
-
 		return CURLE_OUT_OF_MEMORY;
 	}
-
 	/* Copy the generated response */
 	memcpy(resp, output_token, output_token_len);
 	resp[output_token_len] = 0;
-
 	/* Return the response */
 	*outptr = resp;
 	*outlen = output_token_len;
@@ -663,10 +645,8 @@ void Curl_auth_digest_cleanup(struct digestdata * digest)
 {
 	/* Free the input token */
 	ZFREE(digest->input_token);
-
 	/* Reset any variables */
 	digest->input_token_len = 0;
-
 	/* Delete security context */
 	if(digest->http_context) {
 		s_pSecFn->DeleteSecurityContext(digest->http_context);

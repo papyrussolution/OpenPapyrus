@@ -5080,10 +5080,12 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_DOB01                           32999
 #define PPDV_ACCEPT01                        33000
 #define PPDV_REJECT01                        33001
-#define PPDV_LOGOPAPYRUS                     33002
-#define PPDV_LOGOUDS                         33003
-#define PPDV_LOGOVK                          33004
-#define PPDV_LOGOVETIS                       33005
-#define PPDV_LOGOCHZN                        33006
-#define PPDV_LOGOGOOGLEMAPS01                33007
+#define PPDV_COLUMNS_TWO                     33002
+#define PPDV_COLUMNS_ONE                     33003
+#define PPDV_LOGOPAPYRUS                     33004
+#define PPDV_LOGOUDS                         33005
+#define PPDV_LOGOVK                          33006
+#define PPDV_LOGOVETIS                       33007
+#define PPDV_LOGOCHZN                        33008
+#define PPDV_LOGOGOOGLEMAPS01                33009
 

@@ -17,7 +17,7 @@
 __FBSDID("$FreeBSD$");
 
 #ifdef HAVE_SYS_WAIT_H
-#  include <sys/wait.h>
+#include <sys/wait.h>
 #endif
 //#ifdef HAVE_SIGNAL_H
 	//#include <signal.h>

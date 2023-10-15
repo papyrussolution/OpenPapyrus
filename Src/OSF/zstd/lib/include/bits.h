@@ -81,7 +81,7 @@ MEM_STATIC uint ZSTD_countLeadingZeros32(uint32 val)
 	return (uint)__builtin_clz(val);
 #else
 	return ZSTD_countLeadingZeros32_fallback(val);
-#   endif
+#endif
 }
 
 MEM_STATIC uint ZSTD_countTrailingZeros64(uint64 val)

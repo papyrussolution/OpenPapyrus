@@ -45,7 +45,7 @@
 #define ZSTD_ADDRESS_SANITIZER 1
 #else
 #define ZSTD_ADDRESS_SANITIZER 0
-#  endif
+#endif
 #endif
 
 /* detects whether we are being compiled under dfsan */
@@ -101,7 +101,7 @@
 #endif
 #else
 #define ZSTD_ASM_SUPPORTED 0
-#  endif
+#endif
 #else
 #define ZSTD_ASM_SUPPORTED 0
 #endif

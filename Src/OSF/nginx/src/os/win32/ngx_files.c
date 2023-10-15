@@ -207,7 +207,7 @@ ngx_int_t ngx_set_file_time(u_char * name, ngx_fd_t fd, time_t s)
 	uint64_t intervals;
 	FILETIME ft;
 	/* 116444736000000000 is commented in src/os/win32/ngx_time.c */
-	intervals = s * 10000000 + 116444736000000000;
+	intervals = s * 10000000 + /*116444736000000000*/SlConst::Epoch1600_1970_Offs_100Ns;
 	ft.dwLowDateTime = (DWORD)intervals;
 	ft.dwHighDateTime = (DWORD)(intervals >> 32);
 	if(SetFileTime(fd, NULL, NULL, &ft) != 0) {
