@@ -46,7 +46,7 @@ struct Cookie {
 	bool livecookie; /* updated from a server, not a stored file */
 	bool httponly; /* true if the httponly directive is present */
 	int creationtime; /* time when the cookie was written */
-	unsigned char prefix; /* bitmap fields indicating which prefix are set */
+	uchar prefix; /* bitmap fields indicating which prefix are set */
 };
 
 /*
@@ -93,7 +93,7 @@ struct CookieInfo {
 
 /* Maximum number of Set-Cookie: lines accepted in a single response. If more
    such header lines are received, they are ignored. This value must be less
-   than 256 since an unsigned char is used to count. */
+   than 256 since an uchar is used to count. */
 #define MAX_SET_COOKIE_AMOUNT 50
 
 /** Limits for OUTGOING cookies **/

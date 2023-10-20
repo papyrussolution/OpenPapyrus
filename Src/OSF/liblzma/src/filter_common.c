@@ -181,7 +181,7 @@ lzma_ret lzma_raw_coder_init(lzma_next_coder * next, const lzma_allocator * allo
 	return ret;
 }
 
-uint64_t lzma_raw_coder_memusage(lzma_filter_find coder_find, const lzma_filter * filters)
+ uint64 lzma_raw_coder_memusage(lzma_filter_find coder_find, const lzma_filter * filters)
 {
 	// The chain has to have at least one filter.
 	{
@@ -189,7 +189,7 @@ uint64_t lzma_raw_coder_memusage(lzma_filter_find coder_find, const lzma_filter 
 		if(validate_chain(filters, &tmp) != LZMA_OK)
 			return UINT64_MAX;
 	}
-	uint64_t total = 0;
+	 uint64 total = 0;
 	size_t i = 0;
 	do {
 		const lzma_filter_coder * const fc = coder_find(filters[i].id);
@@ -207,7 +207,7 @@ uint64_t lzma_raw_coder_memusage(lzma_filter_find coder_find, const lzma_filter 
 		else {
 			// Call the filter-specific memory usage calculation
 			// function.
-			const uint64_t usage = fc->memusage(filters[i].options);
+			const  uint64 usage = fc->memusage(filters[i].options);
 			if(usage == UINT64_MAX)
 				return UINT64_MAX; // Invalid options
 			total += usage;
@@ -363,7 +363,7 @@ lzma_ret lzma_filter_flags_decode(lzma_filter *filter, const lzma_allocator *all
 // filter-encoder
 //
 struct lzma_filter_encoder {
-	lzma_filter_encoder(lzma_vli _id, lzma_init_function initFunc, uint64_t (* memUsageFunc)(const void *), uint64 (* blockSizeFunc)(const void *),
+	lzma_filter_encoder(lzma_vli _id, lzma_init_function initFunc,  uint64 (* memUsageFunc)(const void *), uint64 (* blockSizeFunc)(const void *),
 		lzma_ret (* propsSizeGetFunc)(uint32 *, const void *), uint32 propsSizeFixed, lzma_ret (* propsEncodeFunc)(const void *, uint8 *)) : 
 		id(_id), init(initFunc), memusage(memUsageFunc), block_size(blockSizeFunc), props_size_get(propsSizeGetFunc), props_size_fixed(propsSizeFixed),
 		props_encode(propsEncodeFunc)
@@ -371,12 +371,12 @@ struct lzma_filter_encoder {
 	}
 	lzma_vli id; /// Filter ID
 	lzma_init_function init; /// Initializes the filter encoder and calls lzma_next_filter_init() for filters + 1.
-	uint64_t (* memusage)(const void * options); /// Calculates memory usage of the encoder. If the options are invalid, UINT64_MAX is returned.
+	 uint64 (* memusage)(const void * options); /// Calculates memory usage of the encoder. If the options are invalid, UINT64_MAX is returned.
 	/// Calculates the recommended Uncompressed Size for .xz Blocks to
 	/// which the input data can be split to make multithreaded
 	/// encoding possible. If this is NULL, it is assumed that
 	/// the encoder is fast enough with single thread.
-	uint64_t (* block_size)(const void * options);
+	 uint64 (* block_size)(const void * options);
 	/// Tells the size of the Filter Properties field. If options are
 	/// invalid, UINT32_MAX is returned. If this is NULL, props_size_fixed
 	/// is used.
@@ -634,18 +634,18 @@ lzma_ret lzma_raw_encoder(lzma_stream *strm, const lzma_filter *options)
 	return LZMA_OK;
 }
 
-uint64_t lzma_raw_encoder_memusage(const lzma_filter *filters)
+ uint64 lzma_raw_encoder_memusage(const lzma_filter *filters)
 {
 	return lzma_raw_coder_memusage((lzma_filter_find)(&encoder_find), filters);
 }
 
-extern uint64_t lzma_mt_block_size(const lzma_filter * filters)
+extern  uint64 lzma_mt_block_size(const lzma_filter * filters)
 {
-	uint64_t max = 0;
+	 uint64 max = 0;
 	for(size_t i = 0; filters[i].id != LZMA_VLI_UNKNOWN; ++i) {
 		const lzma_filter_encoder * const fe = encoder_find(filters[i].id);
 		if(fe->block_size != NULL) {
-			const uint64_t size = fe->block_size(filters[i].options);
+			const  uint64 size = fe->block_size(filters[i].options);
 			if(!size)
 				return 0;
 			if(size > max)
@@ -686,14 +686,14 @@ lzma_ret lzma_properties_encode(const lzma_filter *filter, uint8 *props)
 // filter-decoder
 //
 struct lzma_filter_decoder {
-	lzma_filter_decoder(lzma_vli _id, lzma_init_function initFunc, uint64_t (* memUsageFunc)(const void *),
+	lzma_filter_decoder(lzma_vli _id, lzma_init_function initFunc,  uint64 (* memUsageFunc)(const void *),
 		lzma_ret (* propsDecodeFunc)(void **, const lzma_allocator *, const uint8 *, size_t)) : id(_id), init(initFunc),
 		memusage(memUsageFunc), props_decode(propsDecodeFunc)
 	{
 	}
 	lzma_vli id; /// Filter ID
 	lzma_init_function init; /// Initializes the filter encoder and calls lzma_next_filter_init() for filters + 1.
-	uint64_t (* memusage)(const void * options); /// Calculates memory usage of the encoder. If the options are invalid, UINT64_MAX is returned.
+	 uint64 (* memusage)(const void * options); /// Calculates memory usage of the encoder. If the options are invalid, UINT64_MAX is returned.
 	/// Decodes Filter Properties.
 	///
 	/// \return     - LZMA_OK: Properties decoded successfully.
@@ -884,7 +884,7 @@ lzma_ret lzma_raw_decoder(lzma_stream *strm, const lzma_filter *options)
 	return LZMA_OK;
 }
 
-uint64_t lzma_raw_decoder_memusage(const lzma_filter *filters)
+ uint64 lzma_raw_decoder_memusage(const lzma_filter *filters)
 {
 	return lzma_raw_coder_memusage((lzma_filter_find)(&decoder_find), filters);
 }

@@ -3,6 +3,8 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
+#include <ued-id.h>
+//#include <ued.h>
 #include <..\osf\libzip\lib\zip.h>
 #include <..\slib\lz4\lz4frame.h>
 #include <..\slib\lz4\lz4.h>
@@ -249,7 +251,7 @@ struct SArc_Bz2_Block {
 							//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
 							fep_entry.WriteTime.SetTimeT(mtm);
 						}
-						rPool.Add(fep_entry);
+						rPool.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 					}				
 				}
 				ok = 1;
@@ -306,7 +308,7 @@ static void extract(const char *filename)
 				r = 0;
 				const void * buff;
 				size_t size;
-				la_int64_t offset;
+				int64 offset;
 				for(;;) {
 					r = archive_read_data_block(a, &buff, &size, &offset);
 					if(r == ARCHIVE_EOF) {
@@ -358,7 +360,7 @@ static void extract(const char *filename)
 		default:
 			break;
 	}
-	CATCHZOK
+	//CATCHZOK
 	if(p_larc) {
 		archive_read_finish(p_larc);
 		p_larc = 0;
@@ -370,6 +372,7 @@ static void extract(const char *filename)
 {
 	int    ok = 0;
 	Archive * p_larc = 0;
+	SString temp_buf;
 	switch(provider) {
 		case providerLA:
 			{
@@ -399,59 +402,69 @@ static void extract(const char *filename)
 						p_entry_name = archive_entry_pathname_w(p_entry);
 						fep_entry.Size = archive_entry_size(p_entry);
 						fep_entry.Path.CopyUtf8FromUnicode(p_entry_name, sstrlen(p_entry_name), 1);
-						if(archive_entry_mtime_is_set(p_entry)) {
-							time_t mtm = archive_entry_mtime(p_entry);
-							//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
-							fep_entry.WriteTime.SetTimeT(mtm);
+						ps.Split(fep_entry.Path);
+						bool suited = false;
+						if(!isempty(pWildcard)) {
+							ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+							if(SFile::WildcardMatch(pWildcard, temp_buf))
+								suited = true;
 						}
-						//rPool.Add(fep_entry);
-						{
-							const void * p_buf;
-							size_t buf_size;
-							la_int64_t offset;
-							int local_ok = 0;
-							int rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
-							if(rd_result == ARCHIVE_OK) {
-								ps.Split(fep_entry.Path);
-								if(ps.Dir.NotEmpty()) {
-									ps.Dir.ShiftLeftChr('\\').ShiftLeftChr('/');
-									(final_path = base_path).SetLastSlash().Cat(ps.Dir);
-									ps.Dir = final_path;
-								}
-								else {
-									ps.Dir = base_path;
-								}
-								if(!createDir(ps.Dir)) {
-									; // @todo @err
-								}
-								else {
-									ps.Merge(final_path);
-									SFile f_out(final_path, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
-									do {
-										if(!f_out.Write(p_buf, buf_size)) {
-											rd_result = ARCHIVE_FAILED;
-											; // @todo @err
+						else
+							suited = true;
+						if(suited) {
+							if(archive_entry_mtime_is_set(p_entry)) {
+								time_t mtm = archive_entry_mtime(p_entry);
+								//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
+								fep_entry.WriteTime.SetTimeT(mtm);
+							}
+							//rPool.Add(fep_entry);
+							{
+								const void * p_buf;
+								size_t buf_size;
+								int64 offset;
+								int local_ok = 0;
+								int rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
+								if(rd_result == ARCHIVE_OK) {
+									if(ps.Dir.NotEmpty()) {
+										ps.Dir.ShiftLeftChr('\\').ShiftLeftChr('/');
+										(final_path = base_path).SetLastSlash().Cat(ps.Dir);
+										ps.Dir = final_path;
+									}
+									else {
+										ps.Dir = base_path;
+									}
+									if(!createDir(ps.Dir)) {
+										; // @todo @err
+									}
+									else {
+										ps.Merge(final_path);
+										SFile f_out(final_path, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
+										do {
+											if(!f_out.Write(p_buf, buf_size)) {
+												rd_result = ARCHIVE_FAILED;
+												; // @todo @err
+											}
+											else
+												rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
+										} while(rd_result == ARCHIVE_OK);
+										if(rd_result == ARCHIVE_EOF) {
+											f_out.SetDateTime(0, 0, &fep_entry.WriteTime);
+											local_ok = 1;
 										}
-										else
-											rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
-									} while(rd_result == ARCHIVE_OK);
-									if(rd_result == ARCHIVE_EOF) {
-										f_out.SetDateTime(0, 0, &fep_entry.WriteTime);
-										local_ok = 1;
 									}
 								}
+								/*for(;;) {
+									int r = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
+									if(r == ARCHIVE_EOF) {
+										//return (ARCHIVE_OK);
+										r = ARCHIVE_OK;
+										break;
+									}
+									if(r < ARCHIVE_OK) {
+										//return (r);
+										break;
+									}*/
 							}
-							/*for(;;) {
-								int r = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
-								if(r == ARCHIVE_EOF) {
-									//return (ARCHIVE_OK);
-									r = ARCHIVE_OK;
-									break;
-								}
-								if(r < ARCHIVE_OK) {
-									//return (r);
-									break;
-								}*/
 						}
 					}				
 				}
@@ -471,8 +484,7 @@ static void extract(const char *filename)
 
 /*static*/int SArchive::Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath)
 {
-	int    ok = 0;
-	return ok;
+	return SArchive::Implement_Inflate(provider, pName, flags, pWildcard, pDestPath);
 }
 
 /*static*/int SArchive::InflateAll(int provider, const char * pName, uint flags, const char * pDestPath)
@@ -480,16 +492,136 @@ static void extract(const char *filename)
 	return SArchive::Implement_Inflate(provider, pName, flags, 0, pDestPath);
 }
 
-/*static*/int SArchive::Deflate(int provider, int format, const char * pName, uint flags, const SFileEntryPool & rPool)
+/*static*/int SArchive::Deflate(int provider, int format, const char * pNameUtf8, uint64 uedArcFormat, const char * pBasePathUtf8, const SFileEntryPool & rPool)
 {
-	int    ok = 0;
+	int    ok = 1;
+	uint   fault_count_file_open = 0;
+	uint   fault_count_file_exists = 0;
+	uint   fault_count_getstat = 0;
+	SString temp_buf;
+	Archive * p_larc = 0;
+	ArchiveEntry * p_larc_entry = 0;
+	//THROW(UED::BelongToMeta(uedArcFormat, UED_META_DATAFORMAT)); // @todo @err
 	switch(provider) {
 		case providerLA:
 			{
+				p_larc_entry = archive_entry_new();
+				SString src_full_path;
+				SString arc_file_name;
+				SFileEntryPool::Entry fe;
+				STempBuffer in_buf(SKILOBYTE(512));
+				THROW(p_larc = archive_write_new());
+				THROW(in_buf.IsValid());
+				//archive_write_add_filter_gzip(p_larc);
+				//archive_write_set_format_pax_restricted(p_larc); // Note 1
+				switch(uedArcFormat) {
+					case UED_DATAFORMAT_ZIP:
+						archive_write_set_format_zip(p_larc);
+						break;
+					case UED_DATAFORMAT_SEVENZ:
+						archive_write_set_format_7zip(p_larc);
+						break;
+					case UED_DATAFORMAT_XAR:
+						archive_write_set_format_xar(p_larc);
+						break;
+					default:
+						CALLEXCEPT(); // @todo @err
+						break;
+				}
+				//archive_write_open_filename(p_larc, pNameUtf8);
+				{
+					SStringU & r_name_u = SLS.AcquireRvlStrU();
+					r_name_u.CopyFromUtf8Strict(pNameUtf8, sstrlen(pNameUtf8));
+					archive_write_open_filename_w(p_larc, r_name_u);
+				}
+				for(uint fidx = 0; fidx < rPool.GetCount(); fidx++) {
+					if(rPool.Get(fidx, &fe, &temp_buf)) {
+						SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot|SPathStruc::npfKeepCase, src_full_path);
+						if(fileExists(src_full_path)) {
+							struct _stat st;
+							bool get_stat_result = false;
+							{
+								SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+								get_stat_result = (r_temp_buf_u.CopyFromUtf8(src_full_path) && _wstat(r_temp_buf_u, &st) == 0);
+							}
+							if(get_stat_result) {
+								if(SPathStruc::GetRelativePath(pBasePathUtf8, 0, src_full_path, 0, arc_file_name)) {
+									arc_file_name.ShiftLeftChr('.').ShiftLeftChr('\\');
+									SFile f_in(src_full_path, SFile::mRead|SFile::mBinary|SFile::mNoStd);
+									if(f_in.IsValid()) {
+										size_t written_size = 0;
+										archive_entry_clear(p_larc_entry);
+										//archive_entry_set_pathname(p_larc_entry, arc_file_name);
+										archive_entry_set_pathname_utf8(p_larc_entry, arc_file_name);
+										//archive_entry_set_size(p_larc_entry, st.st_size); // Note 3
+										archive_entry_copy_stat(p_larc_entry, &st);
+										archive_entry_set_filetype(p_larc_entry, AE_IFREG);
+										archive_entry_set_perm(p_larc_entry, 0644);
+										archive_write_header(p_larc, p_larc_entry);
+										size_t actual_size = 0;
+										while(f_in.Read(in_buf, in_buf.GetSize(), &actual_size) && actual_size) {
+											la_ssize_t ws = archive_write_data(p_larc, in_buf, actual_size);
+											if(ws > 0)
+												written_size += ws;
+										}
+									}
+									else {
+										fault_count_file_open++;
+									}
+								}
+							}
+							else
+								fault_count_getstat++;
+						}
+						else {
+							fault_count_file_exists++;
+						}
+					}
+				}
+				#if 0 // @example
+				void write_archive(const char *outname, const char **filename)
+				{
+					struct archive_entry *entry;
+					struct stat st;
+					char buff[8192];
+					int len;
+					int fd;
+					struct archive * a = archive_write_new();
+					archive_write_add_filter_gzip(a);
+					archive_write_set_format_pax_restricted(a); // Note 1
+					archive_write_open_filename(a, outname);
+					while(*filename) {
+						stat(*filename, &st);
+						entry = archive_entry_new(); // Note 2
+						archive_entry_set_pathname(entry, *filename);
+						archive_entry_set_size(entry, st.st_size); // Note 3
+						archive_entry_set_filetype(entry, AE_IFREG);
+						archive_entry_set_perm(entry, 0644);
+						archive_write_header(a, entry);
+						fd = open(*filename, O_RDONLY);
+						len = read(fd, buff, sizeof(buff));
+						while(len > 0) {
+							archive_write_data(a, buff, len);
+							len = read(fd, buff, sizeof(buff));
+						}
+						close(fd);
+						archive_entry_free(entry);
+						filename++;
+					}
+					archive_write_close(a); // Note 4
+					archive_write_free(a); // Note 5
+				}
+				#endif // } @example
 			}
 			break;
 		default:
 			break;
+	}
+	CATCHZOK
+	archive_entry_free(p_larc_entry);
+	if(p_larc) {
+		archive_write_close(p_larc);
+		archive_write_free(p_larc);
 	}
 	return ok;
 }
@@ -637,7 +769,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 						fep_entry.Size = st.size;
 						fep_entry.Path = st.name;
 						fep_entry.WriteTime.SetTimeT(st.mtime);
-						Fep.Add(fep_entry);
+						Fep.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 					}
 				}
 			}
@@ -695,7 +827,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 						//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
 						fep_entry.WriteTime.SetTimeT(mtm);
 					}
-					Fep.Add(fep_entry);
+					Fep.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 				}				
 			}
 		}

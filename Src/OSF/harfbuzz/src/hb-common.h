@@ -28,7 +28,7 @@
 #ifdef __cplusplus
 #define HB_BEGIN_DECLS        extern "C" {
 #define HB_END_DECLS          }
-# else /* !__cplusplus */
+#else /* !__cplusplus */
 #define HB_BEGIN_DECLS
 #define HB_END_DECLS
 #endif /* !__cplusplus */

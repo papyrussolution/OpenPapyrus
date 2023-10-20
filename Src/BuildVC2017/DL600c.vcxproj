@@ -284,14 +284,8 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="libjpeg.vcxproj">
-      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
-    </ProjectReference>
     <ProjectReference Include="libwebp-slib.vcxproj">
       <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
-    </ProjectReference>
-    <ProjectReference Include="onig.vcxproj">
-      <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
     </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>

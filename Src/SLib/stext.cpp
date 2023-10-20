@@ -2090,6 +2090,18 @@ bool FASTCALL sisascii(const char * pS, size_t len)
 	return yes;
 }
 
+bool FASTCALL sisascii(const wchar_t * pS, size_t len/* length of pS in characters (not bytes)*/)
+{
+	bool   yes = true;
+	if(pS && len) {
+		for(uint i = 0; yes && i < len; i++) {
+			if(pS[i] < 0 || pS[i] > 127)
+				yes = false;
+		}
+	}
+	return yes;
+}
+
 char * FASTCALL newStr(const char * s)
 {
 	if(s) {

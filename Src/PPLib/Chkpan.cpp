@@ -86,17 +86,7 @@ struct SaComplexEntry {
 	{
 	}
 	bool   IsComplete() const { return (GoodsID && (!(Flags & fGeneric) || FinalGoodsID)); }
-	int    Subst(uint genListIdx)
-	{
-		int    ok = 1;
-		if(genListIdx < GenericList.getCount()) {
-			FinalGoodsID = GenericList.at(genListIdx).Key;
-			OrgPrice = GenericList.at(genListIdx).Val;
-		}
-		else
-			ok = 0;
-		return ok;
-	}
+	int    Subst(uint genListIdx);
 	enum {
 		fGeneric = 0x0001 // Товар GoodsID является обобщенным
 	};
@@ -127,6 +117,18 @@ public:
 private:
 	virtual void FASTCALL freeItem(void *);
 };
+
+int SaComplexEntry::Subst(uint genListIdx)
+{
+	int    ok = 1;
+	if(genListIdx < GenericList.getCount()) {
+		FinalGoodsID = GenericList.at(genListIdx).Key;
+		OrgPrice = GenericList.at(genListIdx).Val;
+	}
+	else
+		ok = 0;
+	return ok;
+}
 
 void SaComplex::Init(PPID goodsID, PPID strucID, double qtty)
 {
@@ -1043,7 +1045,6 @@ int CPosProcessor::ExportModifList(PPID goodsID, SString & rBuf)
 	SString temp_buf;
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
-
 	rBuf.Z();
 	THROW(p_xml_buf = xmlBufferCreate());
 	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
@@ -4718,6 +4719,11 @@ public:
 public:
 	SelCheckListDialog(uint dlgId, int selectFormat, PPCashMachine * pCm, CPosProcessor * pSrv, const AddedParam * pAddParam = 0);
 	SelCheckListDialog(uint dlgId, const TSVector <CCheckViewItem> * pChkList, int selToUnite, CPosProcessor * pSrv, const AddedParam * pAddParam = 0);
+	//
+	// Descr: Специализированный конструктор, предназначенный для формирования списка выбора документа
+	//   для превращения в чек.
+	//
+	SelCheckListDialog(uint dlgId, const PPIDArray & rBillIdList, CPosProcessor * pSrv, const AddedParam * pAddParam = 0);
 	~SelCheckListDialog();
 	int    getDTS(_SelCheck * pSelCheck);
 	void   SetList(const TSVector <CCheckViewItem> & rChkList);
@@ -4739,6 +4745,7 @@ private:
 	StrAssocArray FmtList;
 	TSVector <CCheckViewItem> ChkList;
 	TSVector <CCheckViewItem> PreserveOuterChkList;
+	TSCollection <PPBillPacket> BPackList; // @v11.8.7
 	long   LastChkNo;
 	PPID   LastChkID;
 	LDATE  LastDate;
@@ -4751,7 +4758,8 @@ private:
 		stSelectFormat     = 0x0010,
 		stSelToUnite       = 0x0020,
 		stSelectSlipFormat = 0x0040,
-		stSelectUnfinished = 0x0080 // Режим выбора неотпечатанных чеков
+		stSelectUnfinished = 0x0080, // Режим выбора неотпечатанных чеков
+		stSelectBill       = 0x0100, // @v11.8.7 Режим выбора документа 
 	};
 	long   State;
 	const  AddedParam * P_AddParam; // @notowned
@@ -4802,6 +4810,33 @@ SelCheckListDialog::SelCheckListDialog(uint dlgId, const TSVector <CCheckViewIte
 	}
 	Init(0);
 }
+
+// @v11.8.7 @construction
+SelCheckListDialog::SelCheckListDialog(uint dlgId, const PPIDArray & rBillIdList, CPosProcessor * pSrv, const AddedParam * pAddParam/*=0*/) :
+	PPListDialog(dlgId, CTL_SELCHECK_LIST)
+{
+	Helper_Constructor(pSrv, pAddParam);
+	State |= stSelectBill;
+	if(rBillIdList.getCount()) {
+		PPObjBill * p_bobj = BillObj;
+		for(uint i = 0; i < rBillIdList.getCount(); i++) {
+			const PPID bill_id = rBillIdList.get(i);
+			BillTbl::Rec bill_rec;
+			if(p_bobj->Fetch(bill_id, &bill_rec) > 0) {
+				uint   new_bpack_idx = 0;
+				PPBillPacket * p_new_bpack = BPackList.CreateNewItem(&new_bpack_idx);
+				if(p_new_bpack) {
+					if(p_bobj->ExtractPacket(bill_id, p_new_bpack) > 0) {
+						;
+					}
+					else
+						BPackList.atFree(new_bpack_idx);
+				}
+			}
+		}
+	}
+	Init(0);
+}
 	
 SelCheckListDialog::~SelCheckListDialog()
 {
@@ -4822,6 +4857,16 @@ void SelCheckListDialog::Init(PPCashMachine * pCm)
 	LastChkNo = -1;
 	LastChkID = 0;
 	State &= ~(stInputUpdated | stListUpdated);
+	if(State & stSelectBill) {
+		if(P_Box) {
+			P_Box->RemoveColumns();
+			P_Box->AddColumn(-1, "@date",       10, 0, 0);
+			P_Box->AddColumn(-1, "@code",       14, 0, 0);
+			P_Box->AddColumn(-1, "@contractor", 20, 0, 0);
+			P_Box->AddColumn(-1, "@amount",      8, ALIGN_RIGHT, 0);
+			P_Box->AddColumn(-1, "@memo",       30, 0, 0);
+		}
+	}
 	updateList(-1);
 	SetupItemList();
 	if(State & stSelectFormat) {
@@ -4943,156 +4988,186 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 /*virtual*/int SelCheckListDialog::setupList()
 {
 	int    ok = -1;
-	uint   i;
-	if(State & stTblOrders)
-		P_Srv->GetTblOrderList(LastDate, ChkList);
+	SString temp_buf;
+	StringSet ss(SLBColumnDelim);
+	if(State & stSelectBill) {
+		PPObjBill * p_bobj = BillObj;
+		for(uint i = 0; i < BPackList.getCount(); i++) {
+			const PPBillPacket * p_bpack = BPackList.at(i);
+			if(p_bpack) {
+				/*
+				P_Box->AddColumn(-1, "@date",       10, 0, 1);
+				P_Box->AddColumn(-1, "@code",       14, 0, 2);
+				P_Box->AddColumn(-1, "@contractor", 20, 0, 3);
+				P_Box->AddColumn(-1, "@amount",      8, ALIGN_RIGHT, 4);
+				P_Box->AddColumn(-1, "@memo",       30, 0, 5);				
+				*/
+				ss.Z();
+				ss.add(temp_buf.Z().Cat(p_bpack->Rec.Dt, DATF_DMY));
+				ss.add(temp_buf.Z().Cat(p_bpack->Rec.Code));
+				temp_buf.Z();
+				if(p_bpack->Rec.Object) {
+					GetArticleName(p_bpack->Rec.Object, temp_buf);
+				}
+				ss.add(temp_buf);
+				ss.add(temp_buf.Z().Cat(p_bpack->Rec.Amount, MKSFMTD(0, 2, 0)));
+				ss.add(p_bpack->SMemo);
+				//
+				THROW(addStringToList(p_bpack->Rec.ID, ss.getBuf()));
+			}
+		}
+		if((State & stListUpdated) || BPackList.getCount())
+			ok = 1;
+	}
 	else {
-		const  bool unprinted_only = LOGIC(State & stSelectUnfinished);
-		if(!(State & stOuterList) || unprinted_only) {
-			State &= ~stListUpdated;
-			long   chk_no = getCtrlLong(CTL_SELCHECK_CODE);
-			LDATE  dt = getCtrlView(CTL_SELCHECK_DATE) ? getCtrlDate(CTL_SELCHECK_DATE) : ZERODATE;
-			if(!checkdate(dt/*@v10.6.11 , 1*/))
-				dt = unprinted_only ? getcurdate_() : ZERODATE;
-			if(chk_no || dt) {
-				if(chk_no != LastChkNo || diffdate(dt, LastDate)) {
-					TSVector <CCheckTbl::Rec> temp_list;
-					CCheckTbl::Rec * p_rec;
-					THROW(P_Srv->GetCc().SearchByDateAndCode(chk_no, dt, unprinted_only, &temp_list));
-					for(i = 0; temp_list.enumItems(&i, (void **)&p_rec);) {
-						const double cc_amt = MONEYTOLDBL(p_rec->Amount);
-						int   do_remove = 0;
-						if(p_rec->Flags & CCHKF_SKIP)
-							do_remove = 1;
-						else if(P_AddParam && P_AddParam->NodeID && p_rec->CashID != P_AddParam->NodeID)
-							do_remove = 1;
-						else if(cc_amt == 0.0)
-							do_remove = 1;
-						else if(cc_amt < 0) {
-							do_remove = BIN(!(P_AddParam && P_AddParam->Flags & P_AddParam->fAllowReturns));
-						}
-						if(do_remove)
-							temp_list.atFree(--i);
-					}
-					ChkList.clear();
-					for(i = 0; temp_list.enumItems(&i, (void **)&p_rec);) {
-						CCheckViewItem item;
-						*static_cast<CCheckTbl::Rec *>(&item) = *p_rec;
-						if(item.Flags & CCHKF_EXT) {
-							CCheckExtTbl::Rec ext_rec;
-							if(P_Srv->GetCc().GetExt(p_rec->ID, &ext_rec) > 0) {
-								item.TableCode  = ext_rec.TableNo;
-								item.GuestCount = ext_rec.GuestCount;
-								item.AgentID    = ext_rec.SalerID;
-								item.LinkCheckID = ext_rec.LinkCheckID;
-								if(item.Flags & CCHKF_ORDER)
-									item.OrderTime.Init(ext_rec.StartOrdDtm, ext_rec.EndOrdDtm);
+		if(State & stTblOrders)
+			P_Srv->GetTblOrderList(LastDate, ChkList);
+		else {
+			const  bool unprinted_only = LOGIC(State & stSelectUnfinished);
+			if(!(State & stOuterList) || unprinted_only) {
+				State &= ~stListUpdated;
+				long   chk_no = getCtrlLong(CTL_SELCHECK_CODE);
+				LDATE  dt = getCtrlView(CTL_SELCHECK_DATE) ? getCtrlDate(CTL_SELCHECK_DATE) : ZERODATE;
+				if(!checkdate(dt/*@v10.6.11 , 1*/))
+					dt = unprinted_only ? getcurdate_() : ZERODATE;
+				if(chk_no || dt) {
+					if(chk_no != LastChkNo || diffdate(dt, LastDate)) {
+						TSVector <CCheckTbl::Rec> temp_list;
+						CCheckTbl::Rec * p_rec;
+						THROW(P_Srv->GetCc().SearchByDateAndCode(chk_no, dt, unprinted_only, &temp_list));
+						{
+							for(uint i = 0; temp_list.enumItems(&i, (void **)&p_rec);) {
+								const double cc_amt = MONEYTOLDBL(p_rec->Amount);
+								int   do_remove = 0;
+								if(p_rec->Flags & CCHKF_SKIP)
+									do_remove = 1;
+								else if(P_AddParam && P_AddParam->NodeID && p_rec->CashID != P_AddParam->NodeID)
+									do_remove = 1;
+								else if(cc_amt == 0.0)
+									do_remove = 1;
+								else if(cc_amt < 0) {
+									do_remove = BIN(!(P_AddParam && P_AddParam->Flags & P_AddParam->fAllowReturns));
+								}
+								if(do_remove)
+									temp_list.atFree(--i);
 							}
 						}
-						ChkList.insert(&item);
+						{
+							ChkList.clear();
+							for(uint i = 0; temp_list.enumItems(&i, (void **)&p_rec);) {
+								CCheckViewItem item;
+								*static_cast<CCheckTbl::Rec *>(&item) = *p_rec;
+								if(item.Flags & CCHKF_EXT) {
+									CCheckExtTbl::Rec ext_rec;
+									if(P_Srv->GetCc().GetExt(p_rec->ID, &ext_rec) > 0) {
+										item.TableCode  = ext_rec.TableNo;
+										item.GuestCount = ext_rec.GuestCount;
+										item.AgentID    = ext_rec.SalerID;
+										item.LinkCheckID = ext_rec.LinkCheckID;
+										if(item.Flags & CCHKF_ORDER)
+											item.OrderTime.Init(ext_rec.StartOrdDtm, ext_rec.EndOrdDtm);
+									}
+								}
+								ChkList.insert(&item);
+							}
+						}
+						State |= stListUpdated;
 					}
+				}
+				else if(ChkList.getCount()) {
+					ChkList.freeAll();
 					State |= stListUpdated;
 				}
+				LastChkNo = chk_no;
+				LastDate  = dt;
 			}
-			else if(ChkList.getCount()) {
-				ChkList.freeAll();
-				State |= stListUpdated;
-			}
-			LastChkNo = chk_no;
-			LastDate  = dt;
 		}
-	}
-	if(ChkList.getCount()) {
-		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SELCHECK_LIST));
-		SString temp_buf;
-		StringSet  ss(SLBColumnDelim);
-		for(i = 0; i < ChkList.getCount(); i++) {
-			const CCheckViewItem & r_chk_rec = ChkList.at(i);
-			ss.Z();
-			LDATETIME dtm;
-			dtm.Set(r_chk_rec.Dt, r_chk_rec.Tm);
-			if(!(State & stTblOrders)) {
-				ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS));
-				/*
-				if(p_item->Flags & cifGift)
-					p_list->def->SetItemColor(i, SClrBlack, SClrGreen);
-				*/
-				if(r_chk_rec.Flags & CCHKF_JUNK) {
-					p_list->P_Def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrOrange);
-				}
-				else if(r_chk_rec.Flags & CCHKF_IMPORTED) { // @v11.8.6
-					p_list->P_Def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrPalegreen);
-				}
-				else if(!(r_chk_rec.Flags & CCHKF_SUSPENDED)) {
-					p_list->P_Def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrYellow);
-				}
-				{
-					temp_buf.Z();
+		if(ChkList.getCount()) {
+			SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SELCHECK_LIST));
+			SString scard_psn;
+			SString scard_no;
+			for(uint i = 0; i < ChkList.getCount(); i++) {
+				const CCheckViewItem & r_chk_rec = ChkList.at(i);
+				ss.Z();
+				LDATETIME dtm;
+				dtm.Set(r_chk_rec.Dt, r_chk_rec.Tm);
+				if(!(State & stTblOrders)) {
+					ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS));
+					/*
+					if(p_item->Flags & cifGift)
+						p_list->def->SetItemColor(i, SClrBlack, SClrGreen);
+					*/
 					if(r_chk_rec.Flags & CCHKF_JUNK)
-						temp_buf.CatDiv('*', 2);
-					ss.add(temp_buf.Cat(r_chk_rec.Code));
-				}
-				ss.add(temp_buf.Z().Cat(MONEYTOLDBL(r_chk_rec.Amount), SFMT_MONEY));
-				{
-					temp_buf.Z();
-					if(r_chk_rec.TableCode)
-						temp_buf.Cat(r_chk_rec.TableCode);
-					else if(r_chk_rec.Flags & CCHKF_IMPORTED)
-						temp_buf.Cat("IMP"); // @v11.8.6 "UHTT"-->"IMP"
+						p_list->P_Def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrOrange);
+					else if(r_chk_rec.Flags & CCHKF_IMPORTED) // @v11.8.6
+						p_list->P_Def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrPalegreen);
+					else if(!(r_chk_rec.Flags & CCHKF_SUSPENDED))
+						p_list->P_Def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrYellow);
+					{
+						temp_buf.Z();
+						if(r_chk_rec.Flags & CCHKF_JUNK)
+							temp_buf.CatDiv('*', 2);
+						ss.add(temp_buf.Cat(r_chk_rec.Code));
+					}
+					ss.add(temp_buf.Z().Cat(MONEYTOLDBL(r_chk_rec.Amount), SFMT_MONEY));
+					{
+						temp_buf.Z();
+						if(r_chk_rec.TableCode)
+							temp_buf.Cat(r_chk_rec.TableCode);
+						else if(r_chk_rec.Flags & CCHKF_IMPORTED)
+							temp_buf.Cat("IMP"); // @v11.8.6 "UHTT"-->"IMP"
+						ss.add(temp_buf);
+					}
+					GetArticleName(r_chk_rec.AgentID, temp_buf);
 					ss.add(temp_buf);
 				}
-				GetArticleName(r_chk_rec.AgentID, temp_buf);
-				ss.add(temp_buf);
-			}
-			else {
-				// @lbt_tblordlist        "10,R,Стол;26,R,Время заказа;10,L,Карта;19,L,Владелец карты;14,R,Предоплата;18,L,Дата/время;10,L,№ чека"
-				// @lbt_tblordlist_l      "20,R,Стол;35,R,Время заказа;20,L,Карта;30,L,Владелец карты;25,R,Предоплата;36,L,Дата/время;20,L,№ чека"
-
-				SString scard_psn, scard_no;
-				STimeChunk tm_chunk;
-				CCheckExtTbl::Rec ext_chk_rec;
-				// @v10.6.4 MEMSZERO(ext_chk_rec);
-				P_Srv->GetCc().GetExt(r_chk_rec.ID, &ext_chk_rec);
-				{
-					temp_buf.Z();
-					if(r_chk_rec.TableCode)
-						temp_buf.Cat(r_chk_rec.TableCode);
-					else if(r_chk_rec.Flags & CCHKF_IMPORTED)
-						temp_buf.Cat("UHTT");
-					ss.add(temp_buf);
-				}
-				tm_chunk.Init(ext_chk_rec.StartOrdDtm, ext_chk_rec.EndOrdDtm);
-				ss.add(tm_chunk.ToStr(temp_buf.Z(), STimeChunk::fmtOmitSec));
-				if(r_chk_rec.SCardID) {
+				else {
+					// @lbt_tblordlist        "10,R,Стол;26,R,Время заказа;10,L,Карта;19,L,Владелец карты;14,R,Предоплата;18,L,Дата/время;10,L,№ чека"
+					// @lbt_tblordlist_l      "20,R,Стол;35,R,Время заказа;20,L,Карта;30,L,Владелец карты;25,R,Предоплата;36,L,Дата/время;20,L,№ чека"
+					STimeChunk tm_chunk;
+					CCheckExtTbl::Rec ext_chk_rec;
 					SCardTbl::Rec sc_rec;
-					if(P_Srv->GetScObj().Fetch(r_chk_rec.SCardID, &sc_rec) > 0) {
+					scard_no.Z();
+					scard_psn.Z();
+					// @v10.6.4 MEMSZERO(ext_chk_rec);
+					P_Srv->GetCc().GetExt(r_chk_rec.ID, &ext_chk_rec);
+					{
+						temp_buf.Z();
+						if(r_chk_rec.TableCode)
+							temp_buf.Cat(r_chk_rec.TableCode);
+						else if(r_chk_rec.Flags & CCHKF_IMPORTED)
+							temp_buf.Cat("IMP"); // @v11.8.7 "UHTT"-->"IMP"
+						ss.add(temp_buf);
+					}
+					tm_chunk.Init(ext_chk_rec.StartOrdDtm, ext_chk_rec.EndOrdDtm);
+					ss.add(tm_chunk.ToStr(temp_buf.Z(), STimeChunk::fmtOmitSec));
+					if(r_chk_rec.SCardID && P_Srv->GetScObj().Fetch(r_chk_rec.SCardID, &sc_rec) > 0) {
 						scard_no = sc_rec.Code;
 						if(sc_rec.PersonID)
 							GetPersonName(sc_rec.PersonID, scard_psn);
 					}
-				}
-				ss.add(scard_no);
-				ss.add(scard_psn);
-				{
-					CCheckPacket chk_pack;
-					temp_buf.Z();
-					if(P_Srv->GetCc().LoadPacket(r_chk_rec.ID, 0, &chk_pack) > 0) {
-						StringSet ss(SLBColumnDelim);
-						if(chk_pack.GetCount()) {
-							const CCheckLineTbl::Rec & cclr = chk_pack.GetLineC(0);
-							temp_buf.Cat(intmnytodbl(cclr.Price));
+					ss.add(scard_no);
+					ss.add(scard_psn);
+					{
+						CCheckPacket chk_pack;
+						temp_buf.Z();
+						if(P_Srv->GetCc().LoadPacket(r_chk_rec.ID, 0, &chk_pack) > 0) {
+							if(chk_pack.GetCount()) {
+								const CCheckLineTbl::Rec & cclr = chk_pack.GetLineC(0);
+								temp_buf.Cat(intmnytodbl(cclr.Price));
+							}
 						}
+						ss.add(temp_buf);
 					}
-					ss.add(temp_buf);
+					ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS));
+					ss.add(temp_buf.Z().Cat(r_chk_rec.Code));
 				}
-				ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS));
-				ss.add(temp_buf.Z().Cat(r_chk_rec.Code));
+				THROW(addStringToList(r_chk_rec.ID, ss.getBuf()));
 			}
-			THROW(addStringToList(r_chk_rec.ID, ss.getBuf()));
 		}
+		if((State & stListUpdated) || ChkList.getCount())
+			ok = 1;
 	}
-	if((State & stListUpdated) || ChkList.getCount())
-		ok = 1;
 	CATCHZOK
 	return ok;
 }
@@ -6572,7 +6647,10 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 								SetCtrlToolTip(CTL_CHKPAN_STARTBUTTON + idx, name);
 						}
 					}
-					if(CnSpeciality == PPCashNode::spCafe) {
+					if(CnSpeciality == PPCashNode::spApteka) { // @v11.8.7
+						SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("selection_bill", name).Transf(CTRANSF_INNER_TO_OUTER));
+					} 
+					else if(CnSpeciality == PPCashNode::spCafe) {
 						SetCtrlToolTip(CTL_CHKPAN_BYPRICE, PPLoadStringS("guestcount", name).Transf(CTRANSF_INNER_TO_OUTER));
 						SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("ftableorders", name).Transf(CTRANSF_INNER_TO_OUTER));
 					}
@@ -6888,7 +6966,11 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				break;
 			case cmGoodsDiv: /* cmChkPanF1 */
 				if(!Barrier()) {
-					if(CnSpeciality == PPCashNode::spCafe) {
+					if(CnSpeciality == PPCashNode::spApteka) { // @v11.8.7 @construction
+						PPID   bill_id = 0;
+						SelectBill(&bill_id, 0);
+					}
+					else if(CnSpeciality == PPCashNode::spCafe) {
 						if(IsState(sEMPTYLIST_EMPTYBUF)) {
 							SelCheckListDialog::AddedParam param(0, P.TableCode, P.GetAgentID(), OperRightsFlags);
 							const uint dlg_id = (DlgFlags & fLarge) ? DLG_ORDERCHECKS_L : DLG_ORDERCHECKS;
@@ -7574,6 +7656,41 @@ void CheckPaneDialog::setupHint()
 //
 //
 //
+int CheckPaneDialog::SelectBill(PPID * pBillID, const char * pTitle) // @v11.8.7
+{
+	int    ok = -1;
+	SelCheckListDialog * dlg = 0;
+	const uint dlg_id = (DlgFlags & fLarge) ? DLG_SELCHECK_L : DLG_SELCHECK;
+	const PPEquipConfig & r_cfg = CsObj.GetEqCfg();
+	if(r_cfg.ChkPanImpOpID && r_cfg.ChkPanImpBillTagID) {
+		const LDATE now_dt = getcurdate_();
+		PPViewBill v_bill;
+		BillFilt f_bill;
+		f_bill.OpID = r_cfg.ChkPanImpOpID;
+		f_bill.P_TagF = new TagFilt;
+		f_bill.P_TagF->TagsRestrict.Add(r_cfg.ChkPanImpBillTagID, PPConst::P_TagValRestrict_Exist, 0);
+		f_bill.Period.low = plusdate(now_dt, -14);
+		f_bill.SortOrder = BillFilt::ordByDate;
+		f_bill.Flags |= BillFilt::fDescOrder;
+		if(v_bill.Init_(&f_bill)) {
+			PPIDArray bill_id_list;
+			v_bill.GetBillIDList(&bill_id_list);
+			if(bill_id_list.getCount()) {
+				SelCheckListDialog::AddedParam param(CashNodeID, P.TableCode, P.GetAgentID(), OperRightsFlags);
+				SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, bill_id_list, this, &param);
+				if(CheckDialogPtrErr(&dlg)) {
+					while(ok < 0 && ExecView(dlg) == cmOK) {
+						//if(dlg->getDTS(&sch))
+							ok = 1;
+					}
+				}
+			}
+		}
+	}
+	delete dlg;
+	return ok;
+}
+
 int CheckPaneDialog::SelectCheck(PPID * pChkID, SString * pSelFormat, const char * pTitle, long flags)
 {
 	int    ok = -1;

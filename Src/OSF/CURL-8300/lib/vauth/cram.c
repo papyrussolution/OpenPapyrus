@@ -35,8 +35,8 @@
 #include "vauth/vauth.h"
 #include "curl_hmac.h"
 #include "curl_md5.h"
-#include "warnless.h"
-#include "curl_printf.h"
+//#include "warnless.h"
+//#include "curl_printf.h"
 
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -63,12 +63,12 @@ CURLcode Curl_auth_create_cram_md5_message(const struct bufref * chlg,
     struct bufref * out)
 {
 	struct HMAC_context * ctxt;
-	unsigned char digest[MD5_DIGEST_LEN];
+	uchar digest[MD5_DIGEST_LEN];
 	char * response;
 
 	/* Compute the digest using the password as the key */
 	ctxt = Curl_HMAC_init(Curl_HMAC_MD5,
-		(const unsigned char *)passwdp,
+		(const uchar *)passwdp,
 		curlx_uztoui(strlen(passwdp)));
 	if(!ctxt)
 		return CURLE_OUT_OF_MEMORY;

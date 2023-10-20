@@ -468,7 +468,7 @@ struct bz3_state {
 };
 
 int8 bz3_last_error(struct bz3_state * state) { return state->last_error; }
-const char * bz3_version(void) { return /*VERSION*/"1.3.0"; }
+const char * bz3_version() { return /*VERSION*/"1.3.0"; }
 size_t bz3_bound(size_t input_size) { return input_size + input_size / 50 + 32; }
 
 const char * bz3_strerror(struct bz3_state * state) 

@@ -43,7 +43,7 @@ static void hash_element_dtor(void * user, void * element)
 
 	e->key_len = 0;
 
-	free(e);
+	SAlloc::F(e);
 }
 
 /* Initializes a hash structure.
@@ -75,7 +75,7 @@ void Curl_hash_init(struct Curl_hash * h,
 static struct Curl_hash_element *mk_hash_element(const void * key, size_t key_len, const void * p)                                   
 {
 	/* allocate the struct plus memory after it to store the key */
-	struct Curl_hash_element * he = (Curl_hash_element *)malloc(sizeof(struct Curl_hash_element) + key_len);
+	struct Curl_hash_element * he = (Curl_hash_element *)SAlloc::M(sizeof(struct Curl_hash_element) + key_len);
 	if(he) {
 		/* copy the key */
 		memcpy(he->key, key, key_len);
@@ -104,7 +104,7 @@ void *Curl_hash_add(struct Curl_hash * h, void * key, size_t key_len, void * p)
 	DEBUGASSERT(h->slots);
 	if(!h->table) {
 		int i;
-		h->table = (Curl_llist *)malloc(h->slots * sizeof(struct Curl_llist));
+		h->table = (Curl_llist *)SAlloc::M(h->slots * sizeof(struct Curl_llist));
 		if(!h->table)
 			return NULL; /* OOM */
 		for(i = 0; i < h->slots; ++i)
@@ -214,7 +214,7 @@ void Curl_hash_destroy(struct Curl_hash * h)
 		for(i = 0; i < h->slots; ++i) {
 			Curl_llist_destroy(&h->table[i], (void *)h);
 		}
-		Curl_safefree(h->table);
+		ZFREE(h->table);
 	}
 	h->size = 0;
 	h->slots = 0;

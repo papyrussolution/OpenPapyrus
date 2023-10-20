@@ -349,7 +349,7 @@ static struct archive_vtable * archive_read_disk_vtable(void)
 	return (&av);
 }
 
-const char * archive_read_disk_gname(Archive * _a, la_int64_t gid)
+const char * archive_read_disk_gname(Archive * _a, int64 gid)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_gname"))
@@ -359,7 +359,7 @@ const char * archive_read_disk_gname(Archive * _a, la_int64_t gid)
 	return ((*a->lookup_gname)(a->lookup_gname_data, gid));
 }
 
-const char * archive_read_disk_uname(Archive * _a, la_int64_t uid)
+const char * archive_read_disk_uname(Archive * _a, int64 uid)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_uname"))
@@ -370,7 +370,7 @@ const char * archive_read_disk_uname(Archive * _a, la_int64_t uid)
 }
 
 int archive_read_disk_set_gname_lookup(Archive * _a, void * private_data,
-    const char * (*lookup_gname)(void * private, la_int64_t gid), void (*cleanup_gname)(void * private))
+    const char * (*lookup_gname)(void * private, int64 gid), void (*cleanup_gname)(void * private))
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -383,7 +383,7 @@ int archive_read_disk_set_gname_lookup(Archive * _a, void * private_data,
 }
 
 int archive_read_disk_set_uname_lookup(Archive * _a, void * private_data,
-    const char * (*lookup_uname)(void * pPrivate, la_int64_t uid), void (*cleanup_uname)(void * pPrivate))
+    const char * (*lookup_uname)(void * pPrivate, int64 uid), void (*cleanup_uname)(void * pPrivate))
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -1442,7 +1442,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 	}
 	else
 		nm = fpathconf(tree_current_dir_fd(t), _PC_NAME_MAX);
-# else
+#else
 	nm = -1;
 #endif
 	if(nm == -1)

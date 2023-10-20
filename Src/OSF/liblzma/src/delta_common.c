@@ -39,7 +39,7 @@ extern lzma_ret lzma_delta_coder_init(lzma_next_coder * next, const lzma_allocat
 	return lzma_next_filter_init(&coder->next, allocator, filters + 1);
 }
 
-extern uint64_t lzma_delta_coder_memusage(const void * options)
+extern  uint64 lzma_delta_coder_memusage(const void * options)
 {
 	const lzma_options_delta * opt = (const lzma_options_delta *)options;
 	if(opt == NULL || opt->type != LZMA_DELTA_TYPE_BYTE || opt->dist < LZMA_DELTA_DIST_MIN || opt->dist > LZMA_DELTA_DIST_MAX)

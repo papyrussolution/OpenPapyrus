@@ -23,8 +23,8 @@ struct lzma_stream_decoder_coder {
 	lzma_block block_options; /// Block options decoded by the Block Header decoder and used by the Block decoder.
 	lzma_stream_flags stream_flags; /// Stream Flags from Stream Header
 	lzma_index_hash * index_hash; /// Index is hashed so that it can be compared to the sizes of Blocks with O(1) memory usage.
-	uint64_t memlimit; /// Memory usage limit
-	uint64_t memusage; /// Amount of memory actually needed (only an estimate)
+	 uint64 memlimit; /// Memory usage limit
+	 uint64 memusage; /// Amount of memory actually needed (only an estimate)
 	bool tell_no_check; /// If true, LZMA_NO_CHECK is returned if the Stream has no integrity check.
 	bool tell_unsupported_check; /// If true, LZMA_UNSUPPORTED_CHECK is returned if the Stream has an integrity check that isn't supported by this liblzma build.
 	bool tell_any_check; /// If true, LZMA_GET_CHECK is returned after decoding Stream Header.
@@ -150,7 +150,7 @@ static lzma_ret stream_decode(void * coder_ptr, const lzma_allocator * allocator
 			    coder->block_options.ignore_check = coder->ignore_check;
 
 			    // Check the memory usage limit.
-			    const uint64_t memusage = lzma_raw_decoder_memusage(filters);
+			    const  uint64 memusage = lzma_raw_decoder_memusage(filters);
 			    lzma_ret ret;
 			    if(memusage == UINT64_MAX) {
 				    // One or more unknown Filter IDs.
@@ -290,7 +290,7 @@ static lzma_check stream_decoder_get_check(const void * coder_ptr)
 	return coder->stream_flags.check;
 }
 
-static lzma_ret stream_decoder_memconfig(void * coder_ptr, uint64_t * memusage, uint64_t * old_memlimit, uint64_t new_memlimit)
+static lzma_ret stream_decoder_memconfig(void * coder_ptr,  uint64 * memusage,  uint64 * old_memlimit,  uint64 new_memlimit)
 {
 	lzma_stream_decoder_coder * coder = (lzma_stream_decoder_coder *)coder_ptr;
 	*memusage = coder->memusage;
@@ -303,7 +303,7 @@ static lzma_ret stream_decoder_memconfig(void * coder_ptr, uint64_t * memusage, 
 	return LZMA_OK;
 }
 
-extern lzma_ret lzma_stream_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator, uint64_t memlimit, uint32_t flags)
+extern lzma_ret lzma_stream_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator,  uint64 memlimit, uint32_t flags)
 {
 	lzma_next_coder_init(&lzma_stream_decoder_init, next, allocator);
 	if(flags & ~LZMA_SUPPORTED_FLAGS)
@@ -332,7 +332,7 @@ extern lzma_ret lzma_stream_decoder_init(lzma_next_coder * next, const lzma_allo
 	return stream_decoder_reset(coder, allocator);
 }
 
-lzma_ret lzma_stream_decoder(lzma_stream *strm, uint64_t memlimit, uint32_t flags)
+lzma_ret lzma_stream_decoder(lzma_stream *strm,  uint64 memlimit, uint32_t flags)
 {
 	lzma_next_strm_init2(lzma_stream_decoder_init, strm, memlimit, flags);
 	strm->internal->supported_actions[LZMA_RUN] = true;

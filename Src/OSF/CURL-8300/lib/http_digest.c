@@ -32,7 +32,7 @@
 #include "http_digest.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -70,11 +70,11 @@ CURLcode Curl_input_digest(struct Curl_easy * data,
 
 CURLcode Curl_output_digest(struct Curl_easy * data,
     bool proxy,
-    const unsigned char * request,
-    const unsigned char * uripath)
+    const uchar * request,
+    const uchar * uripath)
 {
 	CURLcode result;
-	unsigned char * path = NULL;
+	uchar * path = NULL;
 	char * tmp = NULL;
 	char * response;
 	size_t len;
@@ -111,7 +111,7 @@ CURLcode Curl_output_digest(struct Curl_easy * data,
 		authp = &data->state.authhost;
 	}
 
-	Curl_safefree(*allocuserpwd);
+	ZFREE(*allocuserpwd);
 
 	/* not set means empty */
 	if(!userp)
@@ -149,25 +149,25 @@ CURLcode Curl_output_digest(struct Curl_easy * data,
 		if(tmp) {
 			size_t urilen = tmp - (char *)uripath;
 			/* typecast is fine here since the value is always less than 32 bits */
-			path = (unsigned char *)aprintf("%.*s", (int)urilen, uripath);
+			path = (uchar *)aprintf("%.*s", (int)urilen, uripath);
 		}
 	}
 	if(!tmp)
-		path = (unsigned char *)strdup((char *)uripath);
+		path = (uchar *)strdup((char *)uripath);
 
 	if(!path)
 		return CURLE_OUT_OF_MEMORY;
 
 	result = Curl_auth_create_digest_http_message(data, userp, passwdp, request,
 		path, digest, &response, &len);
-	free(path);
+	SAlloc::F(path);
 	if(result)
 		return result;
 
 	*allocuserpwd = aprintf("%sAuthorization: Digest %s\r\n",
 		proxy ? "Proxy-" : "",
 		response);
-	free(response);
+	SAlloc::F(response);
 	if(!*allocuserpwd)
 		return CURLE_OUT_OF_MEMORY;
 

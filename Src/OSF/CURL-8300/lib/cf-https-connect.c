@@ -38,7 +38,7 @@
 #include "vquic/vquic.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -359,14 +359,14 @@ static struct curltime cf_get_max_baller_time(struct Curl_cfilter * cf, struct C
 	struct cf_hc_ctx * ctx = (cf_hc_ctx *)cf->ctx;
 	struct Curl_cfilter * cfb;
 	struct curltime t, tmax;
-	memset(&tmax, 0, sizeof(tmax));
-	memset(&t, 0, sizeof(t));
+	memzero(&tmax, sizeof(tmax));
+	memzero(&t, sizeof(t));
 	cfb = ctx->h21_baller.enabled? ctx->h21_baller.cf : NULL;
 	if(cfb && !cfb->cft->query(cfb, data, query, NULL, &t)) {
 		if((t.tv_sec || t.tv_usec) && Curl_timediff_us(t, tmax) > 0)
 			tmax = t;
 	}
-	memset(&t, 0, sizeof(t));
+	memzero(&t, sizeof(t));
 	cfb = ctx->h3_baller.enabled? ctx->h3_baller.cf : NULL;
 	if(cfb && !cfb->cft->query(cfb, data, query, NULL, &t)) {
 		if((t.tv_sec || t.tv_usec) && Curl_timediff_us(t, tmax) > 0)
@@ -416,7 +416,7 @@ static void cf_hc_destroy(struct Curl_cfilter * cf, struct Curl_easy * data)
 	(void)data;
 	CURL_TRC_CF(data, cf, "destroy");
 	cf_hc_reset(cf, data);
-	Curl_safefree(ctx);
+	ZFREE(ctx);
 }
 
 struct Curl_cftype Curl_cft_http_connect = {
@@ -446,7 +446,7 @@ static CURLcode cf_hc_create(struct Curl_cfilter ** pcf,
 	struct cf_hc_ctx * ctx;
 	CURLcode result = CURLE_OK;
 	(void)data;
-	ctx = (cf_hc_ctx *)calloc(sizeof(*ctx), 1);
+	ctx = (cf_hc_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;
@@ -463,7 +463,7 @@ static CURLcode cf_hc_create(struct Curl_cfilter ** pcf,
 
 out:
 	*pcf = result? NULL : cf;
-	free(ctx);
+	SAlloc::F(ctx);
 	return result;
 }
 

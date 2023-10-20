@@ -46,9 +46,9 @@
 //#include <stddef.h>
 //#include "curl_addrinfo.h"
 #include "inet_pton.h"
-#include "warnless.h"
+//#include "warnless.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 /*
@@ -71,7 +71,7 @@ void Curl_freeaddrinfo(struct Curl_addrinfo * cahead)
 	struct Curl_addrinfo * ca;
 	for(ca = cahead; ca; ca = canext) {
 		canext = ca->ai_next;
-		free(ca);
+		SAlloc::F(ca);
 	}
 }
 
@@ -129,7 +129,7 @@ int Curl_getaddrinfo_ex(const char * nodename,
 		/* ignore elements with bogus address size */
 		if((size_t)ai->ai_addrlen < ss_size)
 			continue;
-		ca = (Curl_addrinfo *)malloc(sizeof(struct Curl_addrinfo) + ss_size + namelen);
+		ca = (Curl_addrinfo *)SAlloc::M(sizeof(struct Curl_addrinfo) + ss_size + namelen);
 		if(!ca) {
 			error = EAI_MEMORY;
 			break;
@@ -261,7 +261,7 @@ struct Curl_addrinfo *Curl_he2ai(const struct hostent * he, int port)           
 		ss_size = sizeof(struct sockaddr_in);
 
 		/* allocate memory to hold the struct, the address and the name */
-		ai = (Curl_addrinfo *)calloc(1, sizeof(struct Curl_addrinfo) + ss_size + namelen);
+		ai = (Curl_addrinfo *)SAlloc::C(1, sizeof(struct Curl_addrinfo) + ss_size + namelen);
 		if(!ai) {
 			result = CURLE_OUT_OF_MEMORY;
 			break;
@@ -295,7 +295,7 @@ struct Curl_addrinfo *Curl_he2ai(const struct hostent * he, int port)           
 			    addr = (sockaddr_in *)ai->ai_addr; /* storage area for this info */
 			    memcpy(&addr->sin_addr, curr, sizeof(struct in_addr));
 			    addr->sin_family = (CURL_SA_FAMILY_T)(he->h_addrtype);
-			    addr->sin_port = htons((unsigned short)port);
+			    addr->sin_port = htons((ushort)port);
 			    break;
 
 #ifdef ENABLE_IPV6
@@ -304,7 +304,7 @@ struct Curl_addrinfo *Curl_he2ai(const struct hostent * he, int port)           
 
 			    memcpy(&addr6->sin6_addr, curr, sizeof(struct in6_addr));
 			    addr6->sin6_family = (CURL_SA_FAMILY_T)(he->h_addrtype);
-			    addr6->sin6_port = htons((unsigned short)port);
+			    addr6->sin6_port = htons((ushort)port);
 			    break;
 #endif
 		}
@@ -356,12 +356,12 @@ struct Curl_addrinfo *Curl_ip2addr(int af, const void * inaddr, const char * hos
 	char  * hoststr;
 	size_t addrsize;
 	DEBUGASSERT(inaddr && hostname);
-	buf = (namebuff *)malloc(sizeof(struct namebuff));
+	buf = (namebuff *)SAlloc::M(sizeof(struct namebuff));
 	if(!buf)
 		return NULL;
 	hoststr = strdup(hostname);
 	if(!hoststr) {
-		free(buf);
+		SAlloc::F(buf);
 		return NULL;
 	}
 	switch(af) {
@@ -378,8 +378,8 @@ struct Curl_addrinfo *Curl_ip2addr(int af, const void * inaddr, const char * hos
 		    break;
 #endif
 		default:
-		    free(hoststr);
-		    free(buf);
+		    SAlloc::F(hoststr);
+		    SAlloc::F(buf);
 		    return NULL;
 	}
 
@@ -400,8 +400,8 @@ struct Curl_addrinfo *Curl_ip2addr(int af, const void * inaddr, const char * hos
 
 	ai = Curl_he2ai(h, port);
 
-	free(hoststr);
-	free(buf);
+	SAlloc::F(hoststr);
+	SAlloc::F(buf);
 
 	return ai;
 }
@@ -438,7 +438,7 @@ struct Curl_addrinfo *Curl_unix2addr(const char * path, bool * longpath, bool ab
 	struct sockaddr_un * sa_un;
 	size_t path_len;
 	*longpath = FALSE;
-	ai = (Curl_addrinfo *)calloc(1, sizeof(struct Curl_addrinfo) + sizeof(struct sockaddr_un));
+	ai = (Curl_addrinfo *)SAlloc::C(1, sizeof(struct Curl_addrinfo) + sizeof(struct sockaddr_un));
 	if(!ai)
 		return NULL;
 	ai->ai_addr = (sockaddr *)((char *)ai + sizeof(struct Curl_addrinfo));
@@ -447,7 +447,7 @@ struct Curl_addrinfo *Curl_unix2addr(const char * path, bool * longpath, bool ab
 	/* sun_path must be able to store the NUL-terminated path */
 	path_len = strlen(path) + 1;
 	if(path_len > sizeof(sa_un->sun_path)) {
-		free(ai);
+		SAlloc::F(ai);
 		*longpath = TRUE;
 		return NULL;
 	}
@@ -539,13 +539,13 @@ void Curl_addrinfo_set_port(struct Curl_addrinfo * addrinfo, int port)
 		switch(ca->ai_family) {
 			case AF_INET:
 			    addr = (void *)ca->ai_addr; /* storage area for this info */
-			    addr->sin_port = htons((unsigned short)port);
+			    addr->sin_port = htons((ushort)port);
 			    break;
 
 #ifdef ENABLE_IPV6
 			case AF_INET6:
 			    addr6 = (void *)ca->ai_addr; /* storage area for this info */
-			    addr6->sin6_port = htons((unsigned short)port);
+			    addr6->sin6_port = htons((ushort)port);
 			    break;
 #endif
 		}

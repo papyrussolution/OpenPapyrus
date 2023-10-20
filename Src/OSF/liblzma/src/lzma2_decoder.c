@@ -192,7 +192,7 @@ extern lzma_ret lzma_lzma2_decoder_init(lzma_next_coder * next, const lzma_alloc
 	return lzma_lz_decoder_init(next, allocator, filters, &lzma2_decoder_init);
 }
 
-extern uint64_t lzma_lzma2_decoder_memusage(const void * options)
+extern  uint64 lzma_lzma2_decoder_memusage(const void * options)
 {
 	return sizeof(lzma_lzma2_decoder_coder) + lzma_lzma_decoder_memusage_nocheck(options);
 }

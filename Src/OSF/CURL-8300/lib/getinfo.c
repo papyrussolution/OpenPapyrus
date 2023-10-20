@@ -30,7 +30,7 @@
 
 #include "vtls/vtls.h"
 //#include "connect.h" /* Curl_getconnectinfo() */
-#include "progress.h"
+//#include "progress.h"
 
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -69,10 +69,10 @@ CURLcode Curl_initinfo(struct Curl_easy * data)
 	info->httpauthavail = 0;
 	info->numconnects = 0;
 
-	free(info->contenttype);
+	SAlloc::F(info->contenttype);
 	info->contenttype = NULL;
 
-	free(info->wouldredirect);
+	SAlloc::F(info->wouldredirect);
 	info->wouldredirect = NULL;
 
 	info->conn_primary_ip[0] = '\0';
@@ -136,7 +136,7 @@ static CURLcode getinfo_char(struct Curl_easy * data, CURLINFO info,
 		case CURLINFO_FTP_ENTRY_PATH:
 		    /* Return the entrypath string from the most recent connection.
 		       This pointer was copied from the connectdata structure by FTP.
-		       The actual string may be free()ed by subsequent libcurl calls so
+		       The actual string may be SAlloc::F()ed by subsequent libcurl calls so
 		       it must be copied to a safer area before the next libcurl call.
 		       Callers must never free it themselves. */
 		    *param_charp = data->state.most_recent_ftp_entrypath;

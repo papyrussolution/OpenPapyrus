@@ -314,7 +314,7 @@ typedef struct ASN1_VALUE_st ASN1_VALUE;
 	DECLARE_ASN1_NDEF_FUNCTION_attr(extern, name)
 
 #define DECLARE_ASN1_ALLOC_FUNCTIONS_name_attr(attr, type, name)           \
-	attr type *name ## _new(void);                                            \
+	attr type *name ## _new();                                            \
 	attr void name ## _free(type *a);
 #define DECLARE_ASN1_ALLOC_FUNCTIONS_name(type, name)                      \
 	DECLARE_ASN1_ALLOC_FUNCTIONS_name_attr(extern, type, name)
@@ -345,7 +345,7 @@ typedef struct ASN1_VALUE_st ASN1_VALUE;
 
 #define CHECKED_D2I_OF(type, d2i) ((d2i_of_void*)(1 ? d2i : ((D2I_OF(type)) 0)))
 #define CHECKED_I2D_OF(type, i2d) ((i2d_of_void*)(1 ? i2d : ((I2D_OF(type)) 0)))
-#define CHECKED_NEW_OF(type, xnew) ((void *(*)(void))(1 ? xnew : ((type *(*)(void)) 0)))
+#define CHECKED_NEW_OF(type, xnew) ((void *(*)())(1 ? xnew : ((type *(*)()) 0)))
 #define CHECKED_PTR_OF(type, p) ((void*)(1 ? p : (type*)0))
 #define CHECKED_PPTR_OF(type, p) ((void**)(1 ? p : (type**)0))
 
@@ -395,12 +395,12 @@ typedef int i2d_of_void (const void *, uchar **);
  * Platforms that can't easily handle shared global variables are declared as
  * functions returning ASN1_ITEM pointers.
  */
-typedef const ASN1_ITEM * ASN1_ITEM_EXP(void); /* ASN1_ITEM pointer exported type */
+typedef const ASN1_ITEM * ASN1_ITEM_EXP(); /* ASN1_ITEM pointer exported type */
 
 #define ASN1_ITEM_ptr(iptr) (iptr()) /* Macro to obtain ASN1_ITEM pointer from exported type */
 #define ASN1_ITEM_ref(iptr) (iptr ## _it) /* Macro to include ASN1_ITEM pointer from base type */
 #define ASN1_ITEM_rptr(ref) (ref ## _it())
-#define DECLARE_ASN1_ITEM_attr(attr, name) attr const ASN1_ITEM * name ## _it(void);
+#define DECLARE_ASN1_ITEM_attr(attr, name) attr const ASN1_ITEM * name ## _it();
 #define DECLARE_ASN1_ITEM(name)            DECLARE_ASN1_ITEM_attr(extern, name)
 
 /* Parameters used by ASN1_STRING_print_ex() */
@@ -581,7 +581,7 @@ SKM_DEFINE_STACK_OF_INTERNAL(ASN1_OBJECT, ASN1_OBJECT, ASN1_OBJECT)
 
 DECLARE_ASN1_FUNCTIONS(ASN1_OBJECT)
 
-ASN1_STRING *ASN1_STRING_new(void);
+ASN1_STRING *ASN1_STRING_new();
 void ASN1_STRING_free(ASN1_STRING * a);
 void ASN1_STRING_clear_free(ASN1_STRING * a);
 int ASN1_STRING_copy(ASN1_STRING * dst, const ASN1_STRING * str);
@@ -874,7 +874,7 @@ int ASN1_item_verify_ex(const ASN1_ITEM * it, const X509_ALGOR * alg, const ASN1
 #define M_ASN1_free_of(x, type) ASN1_item_free((ASN1_VALUE *)CHECKED_PTR_OF(type, x), ASN1_ITEM_rptr(type))
 
 #ifndef OPENSSL_NO_STDIO
-void * ASN1_d2i_fp(void *(*xnew)(void), d2i_of_void * d2i, FILE * in, void ** x);
+void * ASN1_d2i_fp(void *(*xnew)(), d2i_of_void * d2i, FILE * in, void ** x);
 
 #define ASN1_d2i_fp_of(type, xnew, d2i, in, x) \
 	((type*)ASN1_d2i_fp(CHECKED_NEW_OF(type, xnew), \
@@ -897,7 +897,7 @@ int ASN1_STRING_print_ex_fp(FILE * fp, const ASN1_STRING * str, unsigned long fl
 
 int ASN1_STRING_to_UTF8(uchar ** out, const ASN1_STRING * in);
 
-void * ASN1_d2i_bio(void *(*xnew)(void), d2i_of_void * d2i, BIO * in, void ** x);
+void * ASN1_d2i_bio(void *(*xnew)(), d2i_of_void * d2i, BIO * in, void ** x);
 
 #define ASN1_d2i_bio_of(type, xnew, d2i, in, x) \
 	((type*)ASN1_d2i_bio(CHECKED_NEW_OF(type, xnew), \
@@ -939,13 +939,13 @@ void * ASN1_item_unpack(const ASN1_STRING * oct, const ASN1_ITEM * it);
 ASN1_STRING * ASN1_item_pack(void * obj, const ASN1_ITEM * it, ASN1_OCTET_STRING ** oct);
 void ASN1_STRING_set_default_mask(unsigned long mask);
 int ASN1_STRING_set_default_mask_asc(const char * p);
-unsigned long ASN1_STRING_get_default_mask(void);
+unsigned long ASN1_STRING_get_default_mask();
 int ASN1_mbstring_copy(ASN1_STRING ** out, const uchar * in, int len, int inform, unsigned long mask);
 int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int inform, unsigned long mask, long minsize, long maxsize);
 ASN1_STRING * ASN1_STRING_set_by_NID(ASN1_STRING ** out, const uchar * in, int inlen, int inform, int nid);
 ASN1_STRING_TABLE * ASN1_STRING_TABLE_get(int nid);
 int ASN1_STRING_TABLE_add(int, long, long, unsigned long, unsigned long);
-void ASN1_STRING_TABLE_cleanup(void);
+void ASN1_STRING_TABLE_cleanup();
 
 /* ASN1 template functions */
 
@@ -957,8 +957,8 @@ ASN1_VALUE * ASN1_item_d2i_ex(ASN1_VALUE ** val, const uchar ** in, long len, co
 ASN1_VALUE * ASN1_item_d2i(ASN1_VALUE ** val, const uchar ** in, long len, const ASN1_ITEM * it);
 int ASN1_item_i2d(const ASN1_VALUE * val, uchar ** out, const ASN1_ITEM * it);
 int ASN1_item_ndef_i2d(const ASN1_VALUE * val, uchar ** out, const ASN1_ITEM * it);
-void ASN1_add_oid_module(void);
-void ASN1_add_stable_module(void);
+void ASN1_add_oid_module();
+void ASN1_add_stable_module();
 ASN1_TYPE * ASN1_generate_nconf(const char * str, CONF * nconf);
 ASN1_TYPE * ASN1_generate_v3(const char * str, X509V3_CTX * cnf);
 int ASN1_str2mask(const char * str, unsigned long * pmask);
@@ -986,7 +986,7 @@ int ASN1_str2mask(const char * str, unsigned long * pmask);
 
 int ASN1_item_print(BIO * out, const ASN1_VALUE * ifld, int indent,
     const ASN1_ITEM * it, const ASN1_PCTX * pctx);
-ASN1_PCTX * ASN1_PCTX_new(void);
+ASN1_PCTX * ASN1_PCTX_new();
 void ASN1_PCTX_free(ASN1_PCTX * p);
 unsigned long ASN1_PCTX_get_flags(const ASN1_PCTX * p);
 void ASN1_PCTX_set_flags(ASN1_PCTX * p, unsigned long flags);
@@ -1006,9 +1006,7 @@ const ASN1_TEMPLATE * ASN1_SCTX_get_template(ASN1_SCTX * p);
 unsigned long ASN1_SCTX_get_flags(ASN1_SCTX * p);
 void ASN1_SCTX_set_app_data(ASN1_SCTX * p, void * data);
 void * ASN1_SCTX_get_app_data(ASN1_SCTX * p);
-
-const BIO_METHOD * BIO_f_asn1(void);
-
+const BIO_METHOD * BIO_f_asn1();
 /* cannot constify val because of CMS_stream() */
 BIO * BIO_new_NDEF(BIO * out, ASN1_VALUE * val, const ASN1_ITEM * it);
 int i2d_ASN1_bio_stream(BIO * out, ASN1_VALUE * val, BIO * in, int flags, const ASN1_ITEM * it);

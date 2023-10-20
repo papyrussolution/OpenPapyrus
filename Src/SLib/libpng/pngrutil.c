@@ -287,7 +287,7 @@ static int png_inflate_claim(png_structrp png_ptr, uint32 owner)
 		 * internal error, but is very useful for debugging.  i18n requirements
 		 * are minimal.
 		 */
-		(void)png_safecat(msg, (sizeof msg), 4, " using zstream");
+		png_safecat(msg, (sizeof msg), 4, " using zstream");
 #if PNG_RELEASE_BUILD
 		png_chunk_warning(png_ptr, msg);
 		png_ptr->zowner = 0;
@@ -1091,7 +1091,7 @@ void /*PRIVATE*/ png_handle_cHRM(png_structrp png_ptr, png_inforp info_ptr, uint
 		return;
 	}
 	png_ptr->colorspace.flags |= PNG_COLORSPACE_FROM_cHRM;
-	(void)png_colorspace_set_chromaticities(png_ptr, &png_ptr->colorspace, &xy, 1 /*prefer cHRM values*/);
+	png_colorspace_set_chromaticities(png_ptr, &png_ptr->colorspace, &xy, 1 /*prefer cHRM values*/);
 	png_colorspace_sync(png_ptr, info_ptr);
 }
 
@@ -1127,8 +1127,7 @@ void /*PRIVATE*/ png_handle_sRGB(png_structrp png_ptr, png_inforp info_ptr, uint
 		png_chunk_benign_error(png_ptr, "too many profiles");
 		return;
 	}
-
-	(void)png_colorspace_set_sRGB(png_ptr, &png_ptr->colorspace, intent);
+	png_colorspace_set_sRGB(png_ptr, &png_ptr->colorspace, intent);
 	png_colorspace_sync(png_ptr, info_ptr);
 }
 
@@ -1204,16 +1203,10 @@ void /*PRIVATE*/ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, uint
 
 					png_ptr->zstream.next_in = (Byte *)keyword + (keyword_length+2);
 					png_ptr->zstream.avail_in = read_length;
-					(void)png_inflate_read(png_ptr, local_buffer,
-					    (sizeof local_buffer), &length, profile_header, &size,
-					    0 /*finish: don't, because the output is too small*/);
-
+					png_inflate_read(png_ptr, local_buffer, (sizeof local_buffer), &length, profile_header, &size, 0/*finish: don't, because the output is too small*/);
 					if(!size) {
-						/* We have the ICC profile header; do the basic header checks.
-						 */
-						const uint32 profile_length =
-						    png_get_uint_32(profile_header);
-
+						/* We have the ICC profile header; do the basic header checks. */
+						const uint32 profile_length = png_get_uint_32(profile_header);
 						if(png_icc_check_length(png_ptr, &png_ptr->colorspace,
 							    keyword, profile_length) != 0) {
 							/* The length is apparently ok, so we can check the 132
@@ -1232,7 +1225,7 @@ void /*PRIVATE*/ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, uint
 								if(profile) {
 									memcpy(profile, profile_header, (sizeof profile_header));
 									size = 12 * tag_count;
-									(void)png_inflate_read(png_ptr, local_buffer, (sizeof local_buffer), &length, profile + (sizeof profile_header), &size, 0);
+									png_inflate_read(png_ptr, local_buffer, (sizeof local_buffer), &length, profile + (sizeof profile_header), &size, 0);
 									/* Still expect a buffer error because we expect
 									 * there to be some tag data!
 									 */
@@ -1242,16 +1235,10 @@ void /*PRIVATE*/ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, uint
 											 * security issues, so read the whole thing in.
 											 */
 											size = profile_length - (sizeof profile_header) - 12 * tag_count;
-
-											(void)png_inflate_read(png_ptr, local_buffer,
-											    (sizeof local_buffer), &length,
-											    profile + (sizeof profile_header) +
-											    12 * tag_count, &size, 1 /*finish*/);
-
-											if(length > 0 && !(png_ptr->flags &
-												    PNG_FLAG_BENIGN_ERRORS_WARN))
+											png_inflate_read(png_ptr, local_buffer, (sizeof local_buffer), &length,
+											    profile + (sizeof profile_header) + 12 * tag_count, &size, 1 /*finish*/);
+											if(length > 0 && !(png_ptr->flags & PNG_FLAG_BENIGN_ERRORS_WARN))
 												errmsg = "extra compressed data";
-
 											/* But otherwise allow extra data: */
 											else if(!size) {
 												if(length > 0) {
@@ -3397,7 +3384,6 @@ void /*PRIVATE*/ png_read_finish_IDAT(png_structrp png_ptr)
 		/* Always do this; the pointers otherwise point into the read buffer. */
 		png_ptr->zstream.next_in = NULL;
 		png_ptr->zstream.avail_in = 0;
-
 		/* Now we no longer own the zstream. */
 		png_ptr->zowner = 0;
 
@@ -3406,7 +3392,7 @@ void /*PRIVATE*/ png_read_finish_IDAT(png_structrp png_ptr)
 		 * crc_finish here.  If idat_size is non-zero we also need to read the
 		 * spurious bytes at the end of the chunk now.
 		 */
-		(void)png_crc_finish(png_ptr, png_ptr->idat_size);
+		png_crc_finish(png_ptr, png_ptr->idat_size);
 	}
 }
 

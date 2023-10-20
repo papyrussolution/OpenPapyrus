@@ -901,7 +901,7 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 	return ret;
 }
 
-int archive_write_disk_set_skip_file(Archive * _a, la_int64_t d, la_int64_t i)
+int archive_write_disk_set_skip_file(Archive * _a, int64 d, int64 i)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -1116,7 +1116,7 @@ static int _archive_write_disk_finish_entry(Archive * _a)
 }
 
 int archive_write_disk_set_group_lookup(Archive * _a, void * private_data,
-    la_int64_t (*lookup_gid)(void * pPrivate, const char * gname, la_int64_t gid),
+    int64 (*lookup_gid)(void * pPrivate, const char * gname, int64 gid),
     void (*cleanup_gid)(void * pPrivate))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
@@ -1142,7 +1142,7 @@ int archive_write_disk_set_user_lookup(Archive * _a, void * private_data,
 	return ARCHIVE_OK;
 }
 
-int64 archive_write_disk_gid(Archive * _a, const char * name, la_int64_t id)
+int64 archive_write_disk_gid(Archive * _a, const char * name, int64 id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -1151,7 +1151,7 @@ int64 archive_write_disk_gid(Archive * _a, const char * name, la_int64_t id)
 	return (id);
 }
 
-int64 archive_write_disk_uid(Archive * _a, const char * name, la_int64_t id)
+int64 archive_write_disk_uid(Archive * _a, const char * name, int64 id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);

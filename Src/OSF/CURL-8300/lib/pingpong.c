@@ -30,14 +30,14 @@
 //#include "cfilters.h"
 //#include "sendf.h"
 #include "select.h"
-#include "progress.h"
+//#include "progress.h"
 #include "speedcheck.h"
 #include "pingpong.h"
 //#include "multiif.h"
 #include "vtls/vtls.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -209,7 +209,7 @@ CURLcode Curl_pp_vsendf(struct Curl_easy * data,
 #ifdef HAVE_GSSAPI
 	data_sec = conn->data_prot;
 	DEBUGASSERT(data_sec > PROT_NONE && data_sec < PROT_LAST);
-	conn->data_prot = (unsigned char)data_sec;
+	conn->data_prot = (uchar)data_sec;
 #endif
 
 	Curl_debug(data, CURLINFO_HEADER_OUT, s, (size_t)bytes_written);
@@ -296,7 +296,7 @@ CURLcode Curl_pp_readresp(struct Curl_easy * data,
 			}
 			memcpy(ptr, pp->cache, pp->cache_size);
 			gotbytes = (ssize_t)pp->cache_size;
-			free(pp->cache); /* free the cache */
+			SAlloc::F(pp->cache); /* free the cache */
 			pp->cache = NULL; /* clear the pointer */
 			pp->cache_size = 0; /* zero the size just in case */
 		}
@@ -312,7 +312,7 @@ CURLcode Curl_pp_readresp(struct Curl_easy * data,
 				&gotbytes);
 #ifdef HAVE_GSSAPI
 			DEBUGASSERT(prot  > PROT_NONE && prot < PROT_LAST);
-			conn->data_prot = (unsigned char)prot;
+			conn->data_prot = (uchar)prot;
 #endif
 			if(result == CURLE_AGAIN)
 				return CURLE_OK; /* return */
@@ -337,7 +337,7 @@ CURLcode Curl_pp_readresp(struct Curl_easy * data,
 			ssize_t clipamount = 0;
 			bool restart = FALSE;
 
-			data->req.headerbytecount += (unsigned int)gotbytes;
+			data->req.headerbytecount += (uint)gotbytes;
 
 			pp->nread_resp += gotbytes;
 			for(i = 0; i < gotbytes; ptr++, i++) {
@@ -420,7 +420,7 @@ CURLcode Curl_pp_readresp(struct Curl_easy * data,
 
 			if(clipamount) {
 				pp->cache_size = clipamount;
-				pp->cache = (char *)malloc(pp->cache_size);
+				pp->cache = (char *)SAlloc::M(pp->cache_size);
 				if(pp->cache)
 					memcpy(pp->cache, pp->linestart_resp, pp->cache_size);
 				else
@@ -482,7 +482,7 @@ CURLcode Curl_pp_flushsend(struct Curl_easy * data,
 CURLcode Curl_pp_disconnect(struct pingpong * pp)
 {
 	Curl_dyn_free(&pp->sendbuf);
-	Curl_safefree(pp->cache);
+	ZFREE(pp->cache);
 	return CURLE_OK;
 }
 

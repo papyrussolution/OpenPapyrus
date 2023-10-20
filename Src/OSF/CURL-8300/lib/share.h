@@ -44,9 +44,9 @@
 
 /* this struct is libcurl-private, don't export details */
 struct Curl_share {
-	unsigned int magic; /* CURL_GOOD_SHARE */
-	unsigned int specifier;
-	CURL_VOLATILE unsigned int dirty;
+	uint magic; /* CURL_GOOD_SHARE */
+	uint specifier;
+	CURL_VOLATILE uint dirty;
 
 	curl_lock_function lockfunc;
 	curl_unlock_function unlockfunc;

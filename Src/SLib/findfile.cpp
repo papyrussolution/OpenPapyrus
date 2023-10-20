@@ -25,7 +25,7 @@ static int Helper_SFindFile2(const SFindFileParam & rP, const SString & rBasePat
 	if(rP.FileNamePattern.NotEmpty()) {
 		(inner_path = path).Cat(rP.FileNamePattern);
 		for(SDirec dir(inner_path, 0); dir.Next(&dir_entry) > 0;) {
-			THROW(rResult.Add(path, dir_entry));
+			THROW(rResult.Add(path, dir_entry, 0));
 		}
 	}
 	{
@@ -132,7 +132,7 @@ SFindFile_ToPool::SFindFile_ToPool(const char * pPath, const char * pFileName) :
 {
 	if(P_UserContainer && pEntry) {
 		//if(sstreqi_ascii(FileNamePattern.cptr(), pEntry->Name))
-			P_UserContainer->Add(pPath, *pEntry);
+			P_UserContainer->Add(pPath, *pEntry, 0);
 	}
 	return 1;
 }

@@ -37,7 +37,7 @@
 #include "curl_get_line.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -202,7 +202,7 @@ static int parsenetrc(const char * host,
 						    }
 						    else if(!login || Curl_timestrcmp(login, tok)) {
 							    if(login_alloc) {
-								    free(login);
+								    SAlloc::F(login);
 								    login_alloc = FALSE;
 							    }
 							    login = strdup(tok);
@@ -218,7 +218,7 @@ static int parsenetrc(const char * host,
 						    if((state_our_login || !specific_login)
 							&& (!password || Curl_timestrcmp(password, tok))) {
 							    if(password_alloc) {
-								    free(password);
+								    SAlloc::F(password);
 								    password_alloc = FALSE;
 							    }
 							    password = strdup(tok);
@@ -250,20 +250,20 @@ out:
 			/* success */
 			if(login_alloc) {
 				if(*loginp)
-					free(*loginp);
+					SAlloc::F(*loginp);
 				*loginp = login;
 			}
 			if(password_alloc) {
 				if(*passwordp)
-					free(*passwordp);
+					SAlloc::F(*passwordp);
 				*passwordp = password;
 			}
 		}
 		else {
 			if(login_alloc)
-				free(login);
+				SAlloc::F(login);
 			if(password_alloc)
-				free(password);
+				SAlloc::F(password);
 		}
 		fclose(file);
 	}
@@ -323,24 +323,24 @@ int Curl_parsenetrc(const char * host, char ** loginp, char ** passwordp,
 
 		filealloc = curl_maprintf("%s%s.netrc", home, DIR_CHAR);
 		if(!filealloc) {
-			free(homea);
+			SAlloc::F(homea);
 			return -1;
 		}
 		retcode = parsenetrc(host, loginp, passwordp, filealloc);
-		free(filealloc);
+		SAlloc::F(filealloc);
 #ifdef WIN32
 		if(retcode == NETRC_FILE_MISSING) {
 			/* fallback to the old-style "_netrc" file */
 			filealloc = curl_maprintf("%s%s_netrc", home, DIR_CHAR);
 			if(!filealloc) {
-				free(homea);
+				SAlloc::F(homea);
 				return -1;
 			}
 			retcode = parsenetrc(host, loginp, passwordp, filealloc);
-			free(filealloc);
+			SAlloc::F(filealloc);
 		}
 #endif
-		free(homea);
+		SAlloc::F(homea);
 	}
 	else
 		retcode = parsenetrc(host, loginp, passwordp, netrcfile);

@@ -87,7 +87,7 @@ struct multi_ssl_backend_data;
 struct Curl_multi {
 	/* First a simple identifier to easier detect if a user mix up
 	   this multi handle with an easy handle. Set this to CURL_MULTI_HANDLE. */
-	unsigned int magic;
+	uint magic;
 
 	/* We have a doubly-linked list with easy handles */
 	struct Curl_easy * easyp;
@@ -150,7 +150,7 @@ struct Curl_multi {
 	void * timer_userp;
 	struct curltime timer_lastcall; /* the fixed time for the timeout for the
 	                                   previous callback */
-	unsigned int max_concurrent_streams;
+	uint max_concurrent_streams;
 
 #ifdef USE_WINSOCK
 	WSAEVENT wsa_event; /* winsock event used for waits */
@@ -163,7 +163,7 @@ struct Curl_multi {
 #define IPV6_UNKNOWN 0
 #define IPV6_DEAD    1
 #define IPV6_WORKS   2
-	unsigned char ipv6_up; /* IPV6_* defined */
+	uchar ipv6_up; /* IPV6_* defined */
 	BIT(multiplexing);     /* multiplexing wanted */
 	BIT(recheckstate);     /* see Curl_multi_connchanged */
 	BIT(in_callback);      /* true while executing a callback */

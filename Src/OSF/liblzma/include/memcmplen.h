@@ -44,7 +44,7 @@ static inline uint32_t lzma_attribute((__always_inline__)) lzma_memcmplen(const 
 	// to __builtin_clzll().
 	#define LZMA_MEMCMPLEN_EXTRA 8
 	while(len < limit) {
-		const uint64_t x = read64ne(buf1 + len) - read64ne(buf2 + len);
+		const  uint64 x = read64ne(buf1 + len) - read64ne(buf2 + len);
 		if(x != 0) {
 #if defined(_M_X64) // MSVC or Intel C compiler on Windows
 			unsigned long tmp;

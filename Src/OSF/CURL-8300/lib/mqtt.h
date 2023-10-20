@@ -44,7 +44,7 @@ struct mqtt_conn {
 	enum mqttstate state;
 	enum mqttstate nextstate; /* switch to this after remaining length is
 	                             done */
-	unsigned int packetid;
+	uint packetid;
 };
 
 /* protocol-specific transfer-related data */
@@ -54,7 +54,7 @@ struct MQTT {
 
 	/* when receiving */
 	size_t npacket; /* byte counter */
-	unsigned char firstbyte;
+	uchar firstbyte;
 	size_t remaining_length;
 };
 

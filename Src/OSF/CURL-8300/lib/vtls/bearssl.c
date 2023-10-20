@@ -37,7 +37,7 @@
 //#include "connect.h"
 #include "select.h"
 //#include "multiif.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 //#include "strcase.h"
 
 /* The last #include files should be: */
@@ -56,7 +56,7 @@ struct x509_context {
 struct bearssl_ssl_backend_data {
 	br_ssl_client_context ctx;
 	struct x509_context x509;
-	unsigned char buf[BR_SSL_BUFSIZE_BIDI];
+	uchar buf[BR_SSL_BUFSIZE_BIDI];
 	br_x509_trust_anchor * anchors;
 	size_t anchors_len;
 	const char * protocols[ALPN_ENTRIES_MAX];
@@ -74,7 +74,7 @@ struct cafile_parser {
 	br_x509_trust_anchor * anchors;
 	size_t anchors_len;
 	/* buffer for DN data */
-	unsigned char dn[1024];
+	uchar dn[1024];
 	size_t dn_len;
 };
 
@@ -120,8 +120,8 @@ static CURLcode load_cafile(struct cafile_source * source,
 	size_t new_anchors_len;
 	br_x509_pkey * pkey;
 	FILE * fp = 0;
-	unsigned char buf[BUFSIZ];
-	const unsigned char * p;
+	uchar buf[BUFSIZ];
+	const uchar * p;
 	const char * name;
 	size_t n, i, pushed;
 
@@ -152,7 +152,7 @@ static CURLcode load_cafile(struct cafile_source * source,
 		}
 		else if(source->type == CAFILE_SOURCE_BLOB) {
 			n = source->len;
-			p = (unsigned char *)source->data;
+			p = (uchar *)source->data;
 		}
 		while(n) {
 			pushed = br_pem_decoder_push(&pc, p, n);
@@ -186,8 +186,7 @@ static CURLcode load_cafile(struct cafile_source * source,
 					    goto fail;
 				    }
 				    new_anchors_len = ca.anchors_len + 1;
-				    new_anchors = realloc(ca.anchors,
-					    new_anchors_len * sizeof(ca.anchors[0]));
+				    new_anchors = SAlloc::R(ca.anchors, new_anchors_len * sizeof(ca.anchors[0]));
 				    if(!new_anchors) {
 					    ca.err = CURLE_OUT_OF_MEMORY;
 					    goto fail;
@@ -221,7 +220,7 @@ static CURLcode load_cafile(struct cafile_source * source,
 				    }
 
 				    /* fill in trust anchor DN and public key data */
-				    ta->dn.data = malloc(ta_size);
+				    ta->dn.data = SAlloc::M(ta_size);
 				    if(!ta->dn.data) {
 					    ca.err = CURLE_OUT_OF_MEMORY;
 					    goto fail;
@@ -261,8 +260,8 @@ fail:
 	}
 	else {
 		for(i = 0; i < ca.anchors_len; ++i)
-			free(ca.anchors[i].dn.data);
-		free(ca.anchors);
+			SAlloc::F(ca.anchors[i].dn.data);
+		SAlloc::F(ca.anchors);
 	}
 
 	return ca.err;
@@ -297,7 +296,7 @@ static void x509_start_cert(const br_x509_class ** ctx, uint32_t length)
 	x509->minimal.vtable->start_cert(&x509->minimal.vtable, length);
 }
 
-static void x509_append(const br_x509_class ** ctx, const unsigned char * buf,
+static void x509_append(const br_x509_class ** ctx, const uchar * buf,
     size_t len)
 {
 	struct x509_context * x509 = (struct x509_context *)ctx;
@@ -780,7 +779,7 @@ static CURLcode bearssl_run_until(struct Curl_cfilter * cf,
 	struct bearssl_ssl_backend_data * backend =
 	    (struct bearssl_ssl_backend_data *)connssl->backend;
 	unsigned state;
-	unsigned char * buf;
+	uchar * buf;
 	size_t len;
 	ssize_t ret;
 	CURLcode result;
@@ -860,7 +859,7 @@ static CURLcode bearssl_connect_step2(struct Curl_cfilter * cf,
 	if(ret == CURLE_AGAIN)
 		return CURLE_OK;
 	if(ret == CURLE_OK) {
-		unsigned int tver;
+		uint tver;
 		if(br_ssl_engine_current_state(&backend->ctx.eng) == BR_SSL_CLOSED) {
 			failf(data, "SSL: connection closed during handshake");
 			return CURLE_SSL_CONNECT_ERROR;
@@ -895,7 +894,7 @@ static CURLcode bearssl_connect_step3(struct Curl_cfilter * cf,
 		const char * proto;
 
 		proto = br_ssl_engine_get_selected_protocol(&backend->ctx.eng);
-		Curl_alpn_set_negotiated(cf, data, (const unsigned char *)proto,
+		Curl_alpn_set_negotiated(cf, data, (const uchar *)proto,
 		    proto? strlen(proto) : 0);
 	}
 
@@ -905,7 +904,7 @@ static CURLcode bearssl_connect_step3(struct Curl_cfilter * cf,
 		void * oldsession;
 		br_ssl_session_parameters * session;
 
-		session = malloc(sizeof(*session));
+		session = SAlloc::M(sizeof(*session));
 		if(!session)
 			return CURLE_OUT_OF_MEMORY;
 		br_ssl_engine_get_session_parameters(&backend->ctx.eng, session);
@@ -916,7 +915,7 @@ static CURLcode bearssl_connect_step3(struct Curl_cfilter * cf,
 		ret = Curl_ssl_addsessionid(cf, data, session, 0, &added);
 		Curl_ssl_sessionid_unlock(data);
 		if(!added)
-			free(session);
+			SAlloc::F(session);
 		if(ret) {
 			return CURLE_OUT_OF_MEMORY;
 		}
@@ -933,7 +932,7 @@ static ssize_t bearssl_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 	struct ssl_connect_data * connssl = cf->ctx;
 	struct bearssl_ssl_backend_data * backend =
 	    (struct bearssl_ssl_backend_data *)connssl->backend;
-	unsigned char * app;
+	uchar * app;
 	size_t applen;
 
 	DEBUGASSERT(backend);
@@ -968,7 +967,7 @@ static ssize_t bearssl_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 	struct ssl_connect_data * connssl = cf->ctx;
 	struct bearssl_ssl_backend_data * backend =
 	    (struct bearssl_ssl_backend_data *)connssl->backend;
-	unsigned char * app;
+	uchar * app;
 	size_t applen;
 
 	DEBUGASSERT(backend);
@@ -1106,7 +1105,7 @@ static bool bearssl_data_pending(struct Curl_cfilter * cf,
 }
 
 static CURLcode bearssl_random(struct Curl_easy * data UNUSED_PARAM,
-    unsigned char * entropy, size_t length)
+    uchar * entropy, size_t length)
 {
 	static br_hmac_drbg_context ctx;
 	static bool seeded = FALSE;
@@ -1172,19 +1171,19 @@ static void bearssl_close(struct Curl_cfilter * cf, struct Curl_easy * data)
 	}
 	if(backend->anchors) {
 		for(i = 0; i < backend->anchors_len; ++i)
-			free(backend->anchors[i].dn.data);
-		Curl_safefree(backend->anchors);
+			SAlloc::F(backend->anchors[i].dn.data);
+		ZFREE(backend->anchors);
 	}
 }
 
 static void bearssl_session_free(void * ptr)
 {
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
-static CURLcode bearssl_sha256sum(const unsigned char * input,
+static CURLcode bearssl_sha256sum(const uchar * input,
     size_t inputlen,
-    unsigned char * sha256sum,
+    uchar * sha256sum,
     size_t sha256len UNUSED_PARAM)
 {
 	br_sha256_context ctx;

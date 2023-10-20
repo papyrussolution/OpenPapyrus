@@ -23,10 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-
+//#include "curl_setup.h"
 //#include <curl/curl.h>
-
 /**
  * A chunk of bytes for reading and writing.
  * The size is fixed a creation with read and write offset
@@ -38,7 +36,7 @@ struct buf_chunk {
   size_t r_offset;         /* first unread bytes */
   size_t w_offset;         /* one after last written byte */
   union {
-    unsigned char data[1]; /* the buffer for `dlen` bytes */
+    uchar data[1]; /* the buffer for `dlen` bytes */
     void *dummy;           /* alignment */
   } x;
 };
@@ -175,7 +173,7 @@ bool Curl_bufq_is_full(const struct bufq *q);
  * cause. An err of CURLE_AGAIN is returned if the buffer queue is full.
  */
 ssize_t Curl_bufq_write(struct bufq *q,
-                        const unsigned char *buf, size_t len,
+                        const uchar *buf, size_t len,
                         CURLcode *err);
 
 /**
@@ -184,7 +182,7 @@ ssize_t Curl_bufq_write(struct bufq *q,
  * A return code of -1 indicates an error, setting `err` to the
  * cause. An err of CURLE_AGAIN is returned if the buffer queue is empty.
  */
-ssize_t Curl_bufq_read(struct bufq *q, unsigned char *buf, size_t len,
+ssize_t Curl_bufq_read(struct bufq *q, uchar *buf, size_t len,
                         CURLcode *err);
 
 /**
@@ -197,10 +195,10 @@ ssize_t Curl_bufq_read(struct bufq *q, unsigned char *buf, size_t len,
  * is modified, see `Curl_bufq_skip()``
  */
 bool Curl_bufq_peek(struct bufq *q,
-                    const unsigned char **pbuf, size_t *plen);
+                    const uchar **pbuf, size_t *plen);
 
 bool Curl_bufq_peek_at(struct bufq *q, size_t offset,
-                       const unsigned char **pbuf, size_t *plen);
+                       const uchar **pbuf, size_t *plen);
 
 /**
  * Tell the buffer queue to discard `amount` buf bytes at the head
@@ -216,7 +214,7 @@ void Curl_bufq_skip(struct bufq *q, size_t amount);
 void Curl_bufq_skip_and_shift(struct bufq *q, size_t amount);
 
 typedef ssize_t Curl_bufq_writer(void *writer_ctx,
-                                 const unsigned char *buf, size_t len,
+                                 const uchar *buf, size_t len,
                                  CURLcode *err);
 /**
  * Passes the chunks in the buffer queue to the writer and returns
@@ -231,7 +229,7 @@ ssize_t Curl_bufq_pass(struct bufq *q, Curl_bufq_writer *writer,
                        void *writer_ctx, CURLcode *err);
 
 typedef ssize_t Curl_bufq_reader(void *reader_ctx,
-                                 unsigned char *buf, size_t len,
+                                 uchar *buf, size_t len,
                                  CURLcode *err);
 
 /**
@@ -264,7 +262,7 @@ ssize_t Curl_bufq_sipn(struct bufq *q, size_t max_len,
  * amount buffered, chunk size, etc.
  */
 ssize_t Curl_bufq_write_pass(struct bufq *q,
-                             const unsigned char *buf, size_t len,
+                             const uchar *buf, size_t len,
                              Curl_bufq_writer *writer, void *writer_ctx,
                              CURLcode *err);
 

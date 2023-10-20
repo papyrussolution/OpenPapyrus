@@ -78,8 +78,8 @@ struct imap_conn {
 	char * mailbox_uidvalidity; /* UIDVALIDITY parsed from select response */
 	imapstate state;      /* Always use imap.c:state() to change state! */
 	char resptag[5];      /* Response tag to wait for */
-	unsigned char preftype; /* Preferred authentication type */
-	unsigned char cmdid;  /* Last used command ID */
+	uchar preftype; /* Preferred authentication type */
+	uchar cmdid;  /* Last used command ID */
 	BIT(ssldone);         /* Is connect() over SSL done? */
 	BIT(preauth);         /* Is this connection PREAUTH? */
 	BIT(tls_supported);   /* StartTLS capability supported by server */

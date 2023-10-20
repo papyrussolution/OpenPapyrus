@@ -30,7 +30,7 @@
 	!defined(CURL_DISABLE_SMTP) || !defined(CURL_DISABLE_POP3) || !defined(CURL_DISABLE_IMAP) || \
 	!defined(CURL_DISABLE_DOH) || defined(USE_SSL)
 //#include <curl/curl.h>
-#include "warnless.h"
+//#include "warnless.h"
 #include "curl_base64.h"
 
 /* The last 2 #include files should be in this order */
@@ -45,7 +45,7 @@ static const char base64encdec[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 /* The Base 64 encoding with a URL and filename safe alphabet, RFC 4648 section 5 */
 static const char base64url[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-static const unsigned char decodetable[] =
+static const uchar decodetable[] =
 { 62, 255, 255, 255, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 255, 255, 255,
   255, 255, 255, 255, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
   17, 18, 19, 20, 21, 22, 23, 24, 25, 255, 255, 255, 255, 255, 255, 26, 27, 28,
@@ -66,7 +66,7 @@ static const unsigned char decodetable[] =
  * @unittest: 1302
  */
 CURLcode Curl_base64_decode(const char * src,
-    unsigned char ** outptr, size_t * outlen)
+    uchar ** outptr, size_t * outlen)
 {
 	size_t srclen = 0;
 	size_t padding = 0;
@@ -74,9 +74,9 @@ CURLcode Curl_base64_decode(const char * src,
 	size_t numQuantums;
 	size_t fullQuantums;
 	size_t rawlen = 0;
-	unsigned char * pos;
-	unsigned char * newstr;
-	unsigned char lookup[256];
+	uchar * pos;
+	uchar * newstr;
+	uchar lookup[256];
 
 	*outptr = NULL;
 	*outlen = 0;
@@ -103,18 +103,16 @@ CURLcode Curl_base64_decode(const char * src,
 	rawlen = (numQuantums * 3) - padding;
 
 	/* Allocate our buffer including room for a null-terminator */
-	newstr = (uchar *)malloc(rawlen + 1);
+	newstr = (uchar *)SAlloc::M(rawlen + 1);
 	if(!newstr)
 		return CURLE_OUT_OF_MEMORY;
-
 	pos = newstr;
-
 	memset(lookup, 0xff, sizeof(lookup));
 	memcpy(&lookup['+'], decodetable, sizeof(decodetable));
 	/* replaces
 	   {
-	   unsigned char c;
-	   const unsigned char *p = (const unsigned char *)base64encdec;
+	   uchar c;
+	   const uchar *p = (const uchar *)base64encdec;
 	   for(c = 0; *p; c++, p++)
 	    lookup[*p] = c;
 	   }
@@ -122,12 +120,11 @@ CURLcode Curl_base64_decode(const char * src,
 
 	/* Decode the complete quantums first */
 	for(i = 0; i < fullQuantums; i++) {
-		unsigned char val;
-		unsigned int x = 0;
+		uchar val;
+		uint x = 0;
 		int j;
-
 		for(j = 0; j < 4; j++) {
-			val = lookup[(unsigned char)*src++];
+			val = lookup[(uchar)*src++];
 			if(val == 0xff) /* bad symbol */
 				goto bad;
 			x = (x << 6) | val;
@@ -139,8 +136,8 @@ CURLcode Curl_base64_decode(const char * src,
 	}
 	if(padding) {
 		/* this means either 8 or 16 bits output */
-		unsigned char val;
-		unsigned int x = 0;
+		uchar val;
+		uint x = 0;
 		int j;
 		size_t padc = 0;
 		for(j = 0; j < 4; j++) {
@@ -152,7 +149,7 @@ CURLcode Curl_base64_decode(const char * src,
 					goto bad;
 			}
 			else {
-				val = lookup[(unsigned char)*src++];
+				val = lookup[(uchar)*src++];
 				if(val == 0xff) /* bad symbol */
 					goto bad;
 				x = (x << 6) | val;
@@ -163,42 +160,31 @@ CURLcode Curl_base64_decode(const char * src,
 		pos[0] = (x >> 16) & 0xff;
 		pos += 3 - padding;
 	}
-
-	/* Zero terminate */
-	*pos = '\0';
-
 	/* Return the decoded data */
 	*outptr = newstr;
 	*outlen = rawlen;
 	return CURLE_OK;
 bad:
-	free(newstr);
+	SAlloc::F(newstr);
 	return CURLE_BAD_CONTENT_ENCODING;
 }
 
-static CURLcode base64_encode(const char * table64,
-    const char * inputbuff, size_t insize,
-    char ** outptr, size_t * outlen)
+static CURLcode base64_encode(const char * table64, const char * inputbuff, size_t insize, char ** outptr, size_t * outlen)
 {
 	char * output;
 	char * base64data;
-	const unsigned char * in = (unsigned char *)inputbuff;
+	const uchar * in = (uchar *)inputbuff;
 	const char * padstr = &table64[64]; /* Point to padding string. */
-
 	*outptr = NULL;
 	*outlen = 0;
-
-	if(!insize)
-		insize = strlen(inputbuff);
-
+	SETIFZQ(insize, strlen(inputbuff));
 #if SIZEOF_SIZE_T == 4
 	if(insize > UINT_MAX/4)
 		return CURLE_OUT_OF_MEMORY;
 #endif
-	base64data = output = (char *)malloc((insize + 2) / 3 * 4 + 1);
+	base64data = output = (char *)SAlloc::M((insize + 2) / 3 * 4 + 1);
 	if(!output)
 		return CURLE_OUT_OF_MEMORY;
-
 	while(insize >= 3) {
 		*output++ = table64[ in[0] >> 2 ];
 		*output++ = table64[ ((in[0] & 0x03) << 4) | (in[1] >> 4) ];
@@ -225,19 +211,11 @@ static CURLcode base64_encode(const char * table64,
 				*output++ = *padstr;
 		}
 	}
-
-	/* Zero terminate */
-	*output = '\0';
-
-	/* Return the pointer to the new data (allocated memory) */
-	*outptr = base64data;
-
-	/* Return the length of the new data */
-	*outlen = output - base64data;
-
+	*output = '\0'; // Zero terminate 
+	*outptr = base64data; /* Return the pointer to the new data (allocated memory) */
+	*outlen = output - base64data; /* Return the length of the new data */
 	return CURLE_OK;
 }
-
 /*
  * Curl_base64_encode()
  *
@@ -253,12 +231,10 @@ static CURLcode base64_encode(const char * table64,
  *
  * @unittest: 1302
  */
-CURLcode Curl_base64_encode(const char * inputbuff, size_t insize,
-    char ** outptr, size_t * outlen)
+CURLcode Curl_base64_encode(const char * inputbuff, size_t insize, char ** outptr, size_t * outlen)
 {
 	return base64_encode(base64encdec, inputbuff, insize, outptr, outlen);
 }
-
 /*
  * Curl_base64url_encode()
  *

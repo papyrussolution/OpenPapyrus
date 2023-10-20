@@ -28,7 +28,7 @@ string serialise_double(double v)
 	memcpy(&temp, &v, sizeof(double));
 	temp = do_bswap(temp);
 	return string(reinterpret_cast<const char *>(&temp), sizeof(double));
-# else
+#else
 	return string(reinterpret_cast<const char *>(&v), sizeof(double));
 #endif
 }
@@ -45,7 +45,7 @@ double unserialise_double(const char ** p, const char * end)
 	memcpy(&temp, *p, sizeof(double));
 	temp = do_bswap(temp);
 	memcpy(&result, &temp, sizeof(double));
-# else
+#else
 	memcpy(&result, *p, sizeof(double));
 #endif
 	*p += 8;
@@ -89,7 +89,7 @@ string serialise_double(double v)
 	result |= uint64_t(exp) << 52;
 #if FLT_RADIX == 2
 	double scaled_v = scalbn(v, 52);
-# else
+#else
 	double scaled_v = ldexp(v, 52);
 #endif
 	uint64_t scaled_v_int = static_cast<uint64_t>(scaled_v);
@@ -122,7 +122,7 @@ double unserialise_double(const char ** p, const char * end)
 #if FLT_RADIX == 2
 	double result = scalbn(mantissa_bp, -52);
 	result = scalbn(result + 1.0, exp);
-# else
+#else
 	double result = ldexp(mantissa_bp, -52);
 	result = ldexp(result + 1.0, exp);
 #endif

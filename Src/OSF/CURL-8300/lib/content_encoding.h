@@ -28,7 +28,7 @@
 struct contenc_writer {
 	const struct content_encoding * handler; /* Encoding handler. */
 	struct contenc_writer * downstream; /* Downstream writer. */
-	unsigned int order; /* Ordering within writer stack. */
+	uint order; /* Ordering within writer stack. */
 };
 
 /* Content encoding writer. */

@@ -51,14 +51,14 @@
 #include <hyper.h>
 //#include "urldata.h"
 //#include "sendf.h"
-#include "transfer.h"
+//#include "transfer.h"
 //#include "multiif.h"
-#include "progress.h"
-#include "content_encoding.h"
-#include "ws.h"
+//#include "progress.h"
+//#include "content_encoding.h"
+//#include "ws.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -215,7 +215,7 @@ static int hyper_body_chunk(void * userdata, const hyper_buf * chunk)
 		    (conn->proxy_ntlm_state == NTLMSTATE_TYPE2)))) {
 			infof(data, "Connection closed while negotiating NTLM");
 			data->state.authproblem = TRUE;
-			Curl_safefree(data->req.newurl);
+			ZFREE(data->req.newurl);
 		}
 #endif
 		if(data->state.expect100header) {
@@ -564,7 +564,7 @@ static CURLcode debug_request(struct Curl_easy * data,
 	if(!req)
 		return CURLE_OUT_OF_MEMORY;
 	Curl_debug(data, CURLINFO_HEADER_OUT, req, strlen(req));
-	free(req);
+	SAlloc::F(req);
 	return CURLE_OK;
 }
 
@@ -628,7 +628,7 @@ CURLcode Curl_hyper_header(struct Curl_easy * data, hyper_headers * headers,
 				if(!ptr)
 					return CURLE_OUT_OF_MEMORY;
 				Curl_debug(data, CURLINFO_HEADER_OUT, ptr, linelen + 2);
-				free(ptr);
+				SAlloc::F(ptr);
 			}
 			else
 				Curl_debug(data, CURLINFO_HEADER_OUT, (char *)n, linelen);
@@ -912,16 +912,12 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 	   may be parts of the request that is not yet sent, since we can deal with
 	   the rest of the request in the PERFORM phase. */
 	*done = TRUE;
-
 	infof(data, "Time for the Hyper dance");
-	memset(h, 0, sizeof(struct hyptransfer));
-
+	memzero(h, sizeof(struct hyptransfer));
 	result = Curl_http_host(data, conn);
 	if(result)
 		return result;
-
 	Curl_http_method(data, conn, &method, &httpreq);
-
 	/* setup the authentication headers */
 	{
 		char * pq = NULL;
@@ -932,7 +928,7 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 		}
 		result = Curl_http_output_auth(data, conn, method, httpreq,
 			(pq ? pq : data->state.up.path), FALSE);
-		free(pq);
+		SAlloc::F(pq);
 		if(result)
 			return result;
 	}
@@ -1126,7 +1122,7 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 		result = Curl_hyper_header(data, headers, altused);
 		if(result)
 			goto error;
-		free(altused);
+		SAlloc::F(altused);
 	}
 #endif
 
@@ -1140,7 +1136,7 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 	}
 #endif
 
-	Curl_safefree(data->state.aptr.ref);
+	ZFREE(data->state.aptr.ref);
 	if(data->state.referer && !Curl_checkheaders(data, STRCONST("Referer"))) {
 		data->state.aptr.ref = aprintf("Referer: %s\r\n", data->state.referer);
 		if(!data->state.aptr.ref)
@@ -1163,7 +1159,7 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 
 	if(!Curl_checkheaders(data, STRCONST("Accept-Encoding")) &&
 	    data->set.str[STRING_ENCODING]) {
-		Curl_safefree(data->state.aptr.accept_encoding);
+		ZFREE(data->state.aptr.accept_encoding);
 		data->state.aptr.accept_encoding =
 		    aprintf("Accept-Encoding: %s\r\n", data->set.str[STRING_ENCODING]);
 		if(!data->state.aptr.accept_encoding)
@@ -1175,7 +1171,7 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 			goto error;
 	}
 	else
-		Curl_safefree(data->state.aptr.accept_encoding);
+		ZFREE(data->state.aptr.accept_encoding);
 
 	result = cookies(data, conn, headers);
 	if(result)
@@ -1235,8 +1231,8 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 
 	/* clear userpwd and proxyuserpwd to avoid reusing old credentials
 	 * from reused connections */
-	Curl_safefree(data->state.aptr.userpwd);
-	Curl_safefree(data->state.aptr.proxyuserpwd);
+	ZFREE(data->state.aptr.userpwd);
+	ZFREE(data->state.aptr.proxyuserpwd);
 	return CURLE_OK;
 error:
 	DEBUGASSERT(result);

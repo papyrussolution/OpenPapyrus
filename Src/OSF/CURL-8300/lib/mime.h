@@ -24,7 +24,7 @@
 *
 ***************************************************************************/
 
-#include "curl_setup.h"
+//#include "curl_setup.h"
 
 #define MIME_BOUNDARY_DASHES            24  /* leading boundary dashes */
 #define MIME_RAND_BOUNDARY_CHARS        16  /* Nb. of random boundary chars. */
@@ -111,7 +111,7 @@ struct curl_mimepart {
 	curl_mime * parent;        /* Parent mime structure. */
 	curl_mimepart * nextpart;  /* Forward linked list. */
 	enum mimekind kind;        /* The part kind. */
-	unsigned int flags;        /* Flags. */
+	uint flags;        /* Flags. */
 	char * data;               /* Memory data or file name. */
 	curl_read_callback readfunc; /* Read function. */
 	curl_seek_callback seekfunc; /* Seek function. */

@@ -52,7 +52,7 @@ void set_socket_timeouts(int fd, double timeout)
 #ifndef __WIN32__
 		struct timeval t;
 		RealTime::to_timeval(timeout, &t);
-# else
+#else
 		// Just to be different, it's a DWORD counting in milliseconds.
 		DWORD t;
 		if(LIKELY(timeout < numeric_limits<DWORD>::max() / 1000))
@@ -77,7 +77,7 @@ void set_socket_timeouts(int fd, double timeout)
 	{
 #ifndef __WIN32__
 		int flag = 1;
-# else
+#else
 		DWORD flag = 1;
 #endif
 		(void)setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,

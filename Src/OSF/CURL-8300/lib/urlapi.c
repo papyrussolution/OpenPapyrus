@@ -37,7 +37,7 @@
 #include "curl_memrchr.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -86,16 +86,16 @@ struct Curl_URL {
 
 static void free_urlhandle(struct Curl_URL * u)
 {
-	free(u->scheme);
-	free(u->user);
-	free(u->password);
-	free(u->options);
-	free(u->host);
-	free(u->zoneid);
-	free(u->port);
-	free(u->path);
-	free(u->query);
-	free(u->fragment);
+	SAlloc::F(u->scheme);
+	SAlloc::F(u->user);
+	SAlloc::F(u->password);
+	SAlloc::F(u->options);
+	SAlloc::F(u->host);
+	SAlloc::F(u->zoneid);
+	SAlloc::F(u->port);
+	SAlloc::F(u->path);
+	SAlloc::F(u->query);
+	SAlloc::F(u->fragment);
 }
 
 /*
@@ -144,13 +144,13 @@ static CURLUcode urlencode_str(struct dynbuf * o, const char * url,
 {
 	/* we must add this with whitespace-replacing */
 	bool left = !query;
-	const unsigned char * iptr;
-	const unsigned char * host_sep = (const unsigned char *)url;
+	const uchar * iptr;
+	const uchar * host_sep = (const uchar *)url;
 
 	if(!relative)
-		host_sep = (const unsigned char *)find_host_sep(url);
+		host_sep = (const uchar *)find_host_sep(url);
 
-	for(iptr = (unsigned char *)url; /* read from here */
+	for(iptr = (uchar *)url; /* read from here */
 	    len; iptr++, len--) {
 		if(iptr < host_sep) {
 			if(Curl_dyn_addn(o, iptr, 1))
@@ -377,7 +377,7 @@ static char *concat_url(char * base, const char * relurl)
 }
 
 /* scan for byte values <= 31, 127 and sometimes space */
-static CURLUcode junkscan(const char * url, size_t * urllen, unsigned int flags)
+static CURLUcode junkscan(const char * url, size_t * urllen, uint flags)
 {
 	static const char badbytes[] = {
 		/* */ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -412,7 +412,7 @@ static CURLUcode junkscan(const char * url, size_t * urllen, unsigned int flags)
 static CURLUcode parse_hostname_login(struct Curl_URL * u,
     const char * login,
     size_t len,
-    unsigned int flags,
+    uint flags,
     size_t * offset)                                  /* to the host name */
 {
 	CURLUcode result = CURLUE_OK;
@@ -462,17 +462,17 @@ static CURLUcode parse_hostname_login(struct Curl_URL * u,
 			result = CURLUE_USER_NOT_ALLOWED;
 			goto out;
 		}
-		free(u->user);
+		SAlloc::F(u->user);
 		u->user = userp;
 	}
 
 	if(passwdp) {
-		free(u->password);
+		SAlloc::F(u->password);
 		u->password = passwdp;
 	}
 
 	if(optionsp) {
-		free(u->options);
+		SAlloc::F(u->options);
 		u->options = optionsp;
 	}
 
@@ -482,9 +482,9 @@ static CURLUcode parse_hostname_login(struct Curl_URL * u,
 
 out:
 
-	free(userp);
-	free(passwdp);
-	free(optionsp);
+	SAlloc::F(userp);
+	SAlloc::F(passwdp);
+	SAlloc::F(optionsp);
 	u->user = NULL;
 	u->password = NULL;
 	u->options = NULL;
@@ -546,7 +546,7 @@ UNITTEST CURLUcode Curl_parse_port(struct Curl_URL * u, struct dynbuf * host,
 
 		u->portnum = port;
 		/* generate a new port number string to get rid of leading zeroes etc */
-		free(u->port);
+		SAlloc::F(u->port);
 		u->port = aprintf("%ld", port);
 		if(!u->port)
 			return CURLUE_OUT_OF_MEMORY;
@@ -760,7 +760,7 @@ static CURLUcode urldecode_host(struct dynbuf * host)
 			return CURLUE_BAD_HOSTNAME;
 		Curl_dyn_reset(host);
 		result = Curl_dyn_addn(host, decoded, dlen);
-		free(decoded);
+		SAlloc::F(decoded);
 		if(result)
 			return CURLUE_OUT_OF_MEMORY;
 	}
@@ -770,7 +770,7 @@ static CURLUcode urldecode_host(struct dynbuf * host)
 
 static CURLUcode parse_authority(struct Curl_URL * u,
     const char * auth, size_t authlen,
-    unsigned int flags,
+    uint flags,
     struct dynbuf * host,
     bool has_scheme)
 {
@@ -821,7 +821,7 @@ out:
 }
 
 CURLUcode Curl_url_set_authority(CURLU * u, const char * authority,
-    unsigned int flags)
+    uint flags)
 {
 	CURLUcode result;
 	struct dynbuf host;
@@ -834,7 +834,7 @@ CURLUcode Curl_url_set_authority(CURLU * u, const char * authority,
 	if(result)
 		Curl_dyn_free(&host);
 	else {
-		free(u->host);
+		SAlloc::F(u->host);
 		u->host = Curl_dyn_ptr(&host);
 	}
 	return result;
@@ -870,7 +870,7 @@ UNITTEST int dedotdotify(const char * input, size_t clen, char ** outp)
 	/* the path always starts with a slash, and a slash has not dot */
 	if((clen < 2) || !memchr(input, '.', clen))
 		return 0;
-	out = (char *)malloc(clen + 1);
+	out = (char *)SAlloc::M(clen + 1);
 	if(!out)
 		return 1; /* out of memory */
 
@@ -969,7 +969,7 @@ UNITTEST int dedotdotify(const char * input, size_t clen, char ** outp)
 	return 0; /* success */
 }
 
-static CURLUcode parseurl(const char * url, CURLU * u, unsigned int flags)
+static CURLUcode parseurl(const char * url, CURLU * u, uint flags)
 {
 	const char * path;
 	size_t pathlen;
@@ -1306,7 +1306,7 @@ static CURLUcode parseurl(const char * url, CURLU * u, unsigned int flags)
 				goto fail;
 			}
 			if(dedot) {
-				free(u->path);
+				SAlloc::F(u->path);
 				u->path = dedot;
 			}
 		}
@@ -1324,12 +1324,11 @@ fail:
 /*
  * Parse the URL and, if successful, replace everything in the Curl_URL struct.
  */
-static CURLUcode parseurl_and_replace(const char * url, CURLU * u,
-    unsigned int flags)
+static CURLUcode parseurl_and_replace(const char * url, CURLU * u, uint flags)
 {
 	CURLUcode result;
 	CURLU tmpurl;
-	memset(&tmpurl, 0, sizeof(tmpurl));
+	memzero(&tmpurl, sizeof(tmpurl));
 	result = parseurl(url, &tmpurl, flags);
 	if(!result) {
 		free_urlhandle(u);
@@ -1338,13 +1337,13 @@ static CURLUcode parseurl_and_replace(const char * url, CURLU * u,
 	return result;
 }
 
-CURLU * curl_url() { return static_cast<CURLU *>(calloc(sizeof(struct Curl_URL), 1)); }
+CURLU * curl_url() { return static_cast<CURLU *>(SAlloc::C(sizeof(struct Curl_URL), 1)); }
 
 void curl_url_cleanup(CURLU * u)
 {
 	if(u) {
 		free_urlhandle(u);
-		free(u);
+		SAlloc::F(u);
 	}
 }
 
@@ -1359,7 +1358,7 @@ void curl_url_cleanup(CURLU * u)
 
 CURLU *curl_url_dup(const CURLU * in)
 {
-	struct Curl_URL * u = static_cast<Curl_URL *>(calloc(sizeof(struct Curl_URL), 1));
+	struct Curl_URL * u = static_cast<Curl_URL *>(SAlloc::C(sizeof(struct Curl_URL), 1));
 	if(u) {
 		DUP(u, in, scheme);
 		DUP(u, in, user);
@@ -1380,7 +1379,7 @@ fail:
 }
 
 CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
-    char ** part, unsigned int flags)
+    char ** part, uint flags)
 {
 	const char * ptr;
 	CURLUcode ifmissing = CURLUE_UNKNOWN_PART;
@@ -1567,7 +1566,7 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 				    (u->query && u->query[0]) ? u->query : "",
 				    u->fragment? "#": "",
 				    u->fragment? u->fragment : "");
-			    free(allochost);
+			    SAlloc::F(allochost);
 		    }
 		    if(!url)
 			    return CURLUE_OUT_OF_MEMORY;
@@ -1598,7 +1597,7 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 			/* this unconditional rejection of control bytes is documented
 			   API behavior */
 			CURLcode res = Curl_urldecode(*part, 0, &decoded, &dlen, REJECT_CTRL);
-			free(*part);
+			SAlloc::F(*part);
 			if(res) {
 				*part = NULL;
 				return CURLUE_URLDECODE;
@@ -1612,7 +1611,7 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 			if(urlencode_str(&enc, *part, partlen, TRUE,
 			    what == CURLUPART_QUERY))
 				return CURLUE_OUT_OF_MEMORY;
-			free(*part);
+			SAlloc::F(*part);
 			*part = Curl_dyn_ptr(&enc);
 		}
 		else if(punycode) {
@@ -1625,7 +1624,7 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 				if(result)
 					return (result == CURLE_OUT_OF_MEMORY) ?
 					       CURLUE_OUT_OF_MEMORY : CURLUE_BAD_HOSTNAME;
-				free(*part);
+				SAlloc::F(*part);
 				*part = allochost;
 #endif
 			}
@@ -1640,7 +1639,7 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 				if(result)
 					return (result == CURLE_OUT_OF_MEMORY) ?
 					       CURLUE_OUT_OF_MEMORY : CURLUE_BAD_HOSTNAME;
-				free(*part);
+				SAlloc::F(*part);
 				*part = allochost;
 #endif
 			}
@@ -1653,7 +1652,7 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 }
 
 CURLUcode curl_url_set(CURLU * u, CURLUPart what,
-    const char * part, unsigned int flags)
+    const char * part, uint flags)
 {
 	char ** storep = NULL;
 	long port = 0;
@@ -1707,15 +1706,14 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 			    return CURLUE_UNKNOWN_PART;
 		}
 		if(storep && *storep) {
-			Curl_safefree(*storep);
+			ZFREE(*storep);
 		}
 		else if(!storep) {
 			free_urlhandle(u);
-			memset(u, 0, sizeof(struct Curl_URL));
+			memzero(u, sizeof(struct Curl_URL));
 		}
 		return CURLUE_OK;
 	}
-
 	nalloc = strlen(part);
 	if(nalloc > CURL_MAX_INPUT_LENGTH)
 		/* excessive input length */
@@ -1758,7 +1756,7 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 		    break;
 		case CURLUPART_HOST:
 		    storep = &u->host;
-		    Curl_safefree(u->zoneid);
+		    ZFREE(u->zoneid);
 		    break;
 		case CURLUPART_ZONEID:
 		    storep = &u->zoneid;
@@ -1818,12 +1816,12 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 		    /* apply the relative part to create a new URL
 		     * and replace the existing one with it. */
 		    redired_url = concat_url(oldurl, part);
-		    free(oldurl);
+		    SAlloc::F(oldurl);
 		    if(!redired_url)
 			    return CURLUE_OUT_OF_MEMORY;
 
 		    result = parseurl_and_replace(redired_url, u, flags);
-		    free(redired_url);
+		    SAlloc::F(redired_url);
 		    return result;
 	    }
 		default:
@@ -1841,9 +1839,9 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 				return CURLUE_OUT_OF_MEMORY;
 		}
 		if(urlencode) {
-			const unsigned char * i;
+			const uchar * i;
 
-			for(i = (const unsigned char *)part; *i; i++) {
+			for(i = (const uchar *)part; *i; i++) {
 				CURLcode result;
 				if((*i == ' ') && plusencode) {
 					result = Curl_dyn_addn(&enc, "+", 1);
@@ -1910,7 +1908,7 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 				if(Curl_dyn_add(&qbuf, newp))
 					goto nomem;
 				Curl_dyn_free(&enc);
-				free(*storep);
+				SAlloc::F(*storep);
 				*storep = Curl_dyn_ptr(&qbuf);
 				return CURLUE_OK;
 nomem:
@@ -1932,7 +1930,7 @@ nomem:
 			}
 		}
 
-		free(*storep);
+		SAlloc::F(*storep);
 		*storep = (char *)newp;
 	}
 	/* set after the string, to make it not assigned if the allocation above

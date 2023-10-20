@@ -171,7 +171,7 @@ static bool lz_encoder_prepare(lzma_mf * mf, const lzma_allocator * allocator, c
 	// dictionary is wanted, some extra work is needed:
 	//   - Several variables in lzma_mf have to be changed from uint32
 	//     to size_t.
-	//   - Memory usage calculation needs something too, e.g. use uint64_t
+	//   - Memory usage calculation needs something too, e.g. use  uint64
 	//     for mf->size.
 	uint32 reserve = lz_options->dict_size / 2;
 	if(reserve > (UINT32_C(1) << 30))
@@ -204,7 +204,6 @@ static bool lz_encoder_prepare(lzma_mf * mf, const lzma_allocator * allocator, c
 	// still allows pretty big dictionaries, so I don't expect these
 	// limits to change.
 	mf->cyclic_size = lz_options->dict_size + 1;
-
 	// Validate the match finder ID and setup the function pointers.
 	switch(lz_options->match_finder) {
 #ifdef HAVE_MF_HC3
@@ -388,7 +387,7 @@ extern uint64 lzma_lz_encoder_memusage(const lzma_lz_encoder_options * lz_option
 	if(lz_encoder_prepare(&mf, NULL, lz_options))
 		return UINT64_MAX;
 	// Calculate the memory usage.
-	return ((uint64_t)(mf.hash_count) + mf.sons_count) * sizeof(uint32) + mf.size + sizeof(lzma_encoder_coder);
+	return (( uint64)(mf.hash_count) + mf.sons_count) * sizeof(uint32) + mf.size + sizeof(lzma_encoder_coder);
 }
 
 static void lz_encoder_end(void * coder_ptr, const lzma_allocator * allocator)
@@ -1201,9 +1200,9 @@ extern lzma_ret lzma_lz_decoder_init(lzma_next_coder * next, const lzma_allocato
 	return lzma_next_filter_init(&coder->next, allocator, filters + 1);
 }
 
-extern uint64_t lzma_lz_decoder_memusage(size_t dictionary_size)
+extern  uint64 lzma_lz_decoder_memusage(size_t dictionary_size)
 {
-	return sizeof(lzma_decoder_coder) + (uint64_t)(dictionary_size);
+	return sizeof(lzma_decoder_coder) + ( uint64)(dictionary_size);
 }
 
 extern void lzma_lz_decoder_uncompressed(void * coder_ptr, lzma_vli uncompressed_size)

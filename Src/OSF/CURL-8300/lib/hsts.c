@@ -42,7 +42,7 @@
 #include "share.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -76,7 +76,7 @@ static time_t hsts_debugtime(void * unused)
 
 struct hsts *Curl_hsts_init(void)
 {
-	struct hsts * h = (hsts *)calloc(sizeof(struct hsts), 1);
+	struct hsts * h = (hsts *)SAlloc::C(sizeof(struct hsts), 1);
 	if(h) {
 		Curl_llist_init(&h->list, NULL);
 	}
@@ -85,8 +85,8 @@ struct hsts *Curl_hsts_init(void)
 
 static void hsts_free(struct stsentry * e)
 {
-	free((char *)e->host);
-	free(e);
+	SAlloc::F((char *)e->host);
+	SAlloc::F(e);
 }
 
 void Curl_hsts_cleanup(struct hsts ** hp)
@@ -100,15 +100,15 @@ void Curl_hsts_cleanup(struct hsts ** hp)
 			n = e->next;
 			hsts_free(sts);
 		}
-		free(h->filename);
-		free(h);
+		SAlloc::F(h->filename);
+		SAlloc::F(h);
 		*hp = NULL;
 	}
 }
 
 static struct stsentry *hsts_entry(void)
 {
-	return (stsentry *)calloc(sizeof(struct stsentry), 1);
+	return (stsentry *)SAlloc::C(sizeof(struct stsentry), 1);
 }
 
 static CURLcode hsts_create(struct hsts * h,
@@ -124,7 +124,7 @@ static CURLcode hsts_create(struct hsts * h,
 
 	duphost = strdup(hostname);
 	if(!duphost) {
-		free(sts);
+		SAlloc::F(sts);
 		return CURLE_OUT_OF_MEMORY;
 	}
 
@@ -387,7 +387,7 @@ CURLcode Curl_hsts_save(struct Curl_easy * data, struct hsts * h,
 		if(result && tempstore)
 			_unlink(tempstore);
 	}
-	free(tempstore);
+	SAlloc::F(tempstore);
 skipsave:
 	if(data->set.hsts_write) {
 		/* if there's a write callback */
@@ -507,14 +507,14 @@ static CURLcode hsts_load(struct hsts * h, const char * file)
 
 	/* we need a private copy of the file name so that the hsts cache file
 	   name survives an easy handle reset */
-	free(h->filename);
+	SAlloc::F(h->filename);
 	h->filename = strdup(file);
 	if(!h->filename)
 		return CURLE_OUT_OF_MEMORY;
 
 	fp = fopen(file, FOPEN_READTEXT);
 	if(fp) {
-		line = (char *)malloc(MAX_HSTS_LINE);
+		line = (char *)SAlloc::M(MAX_HSTS_LINE);
 		if(!line)
 			goto fail;
 		while(Curl_get_line(line, MAX_HSTS_LINE, fp)) {
@@ -527,13 +527,13 @@ static CURLcode hsts_load(struct hsts * h, const char * file)
 
 			hsts_add(h, lineptr);
 		}
-		free(line); /* free the line buffer */
+		SAlloc::F(line); /* free the line buffer */
 		fclose(fp);
 	}
 	return result;
 
 fail:
-	Curl_safefree(h->filename);
+	ZFREE(h->filename);
 	fclose(fp);
 	return CURLE_OUT_OF_MEMORY;
 }

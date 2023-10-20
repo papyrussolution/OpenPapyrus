@@ -62,7 +62,7 @@
 #include "select.h"
 //#include "strcase.h"
 #include "x509asn1.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 //#include "multiif.h"
 
 #include <wolfssl/openssl/ssl.h>
@@ -108,11 +108,11 @@ struct wolfssl_ssl_backend_data {
  * (--enable-opensslextra or --enable-all).
  */
 #if defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13)
-static int wolfssl_tls13_secret_callback(SSL * ssl, int id, const unsigned char * secret,
+static int wolfssl_tls13_secret_callback(SSL * ssl, int id, const uchar * secret,
     int secretSz, void * ctx)
 {
 	const char * label;
-	unsigned char client_random[SSL3_RANDOM_SIZE];
+	uchar client_random[SSL3_RANDOM_SIZE];
 	(void)ctx;
 
 	if(!ssl || !Curl_tls_keylog_enabled()) {
@@ -157,8 +157,8 @@ static int wolfssl_tls13_secret_callback(SSL * ssl, int id, const unsigned char 
 
 static void wolfssl_log_tls12_secret(SSL * ssl)
 {
-	unsigned char * ms, * sr, * cr;
-	unsigned int msLen, srLen, crLen, i, x = 0;
+	uchar * ms, * sr, * cr;
+	uint msLen, srLen, crLen, i, x = 0;
 
 #if LIBWOLFSSL_VERSION_HEX >= 0x0300d000 /* >= 3.13.0 */
 	/* wolfSSL_GetVersion is available since 3.13, we use it instead of
@@ -616,9 +616,7 @@ static CURLcode wolfssl_connect_step1(struct Curl_cfilter * cf, struct Curl_easy
 		    ) {
 			size_t snilen;
 			char * snihost = Curl_ssl_snihost(data, connssl->hostname, &snilen);
-			if(!snihost ||
-			    wolfSSL_CTX_UseSNI(backend->ctx, WOLFSSL_SNI_HOST_NAME, snihost,
-			    (unsigned short)snilen) != 1) {
+			if(!snihost || wolfSSL_CTX_UseSNI(backend->ctx, WOLFSSL_SNI_HOST_NAME, snihost, (ushort)snilen) != 1) {
 				failf(data, "Failed to set SNI");
 				return CURLE_SSL_CONNECT_ERROR;
 			}
@@ -865,17 +863,14 @@ static CURLcode wolfssl_connect_step2(struct Curl_cfilter * cf, struct Curl_easy
 			failf(data, "SSL: failed retrieving server certificate");
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
-
 		x509_der = (const char *)wolfSSL_X509_get_der(x509, &x509_der_len);
 		if(!x509_der) {
 			failf(data, "SSL: failed retrieving ASN.1 server certificate");
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
-
-		memset(&x509_parsed, 0, sizeof(x509_parsed));
+		memzero(&x509_parsed, sizeof(x509_parsed));
 		if(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
-
 		pubkey = &x509_parsed.subjectPublicKeyInfo;
 		if(!pubkey->header || pubkey->end <= pubkey->header) {
 			failf(data, "SSL: failed retrieving public key from server certificate");
@@ -884,7 +879,7 @@ static CURLcode wolfssl_connect_step2(struct Curl_cfilter * cf, struct Curl_easy
 
 		result = Curl_pin_peer_pubkey(data,
 			pinnedpubkey,
-			(const unsigned char *)pubkey->header,
+			(const uchar *)pubkey->header,
 			(size_t)(pubkey->end - pubkey->header));
 		if(result) {
 			failf(data, "SSL: public key does not match pinned public key");
@@ -905,7 +900,7 @@ static CURLcode wolfssl_connect_step2(struct Curl_cfilter * cf, struct Curl_easy
 		rc = wolfSSL_ALPN_GetProtocol(backend->handle, &protocol, &protocol_len);
 
 		if(rc == SSL_SUCCESS) {
-			Curl_alpn_set_negotiated(cf, data, (const unsigned char *)protocol,
+			Curl_alpn_set_negotiated(cf, data, (const uchar *)protocol,
 			    protocol_len);
 		}
 		else if(rc == SSL_ALPN_NOT_FOUND)
@@ -1310,7 +1305,7 @@ static CURLcode wolfssl_connect(struct Curl_cfilter * cf,
 }
 
 static CURLcode wolfssl_random(struct Curl_easy * data,
-    unsigned char * entropy, size_t length)
+    uchar * entropy, size_t length)
 {
 	WC_RNG rng;
 	(void)data;
@@ -1318,16 +1313,16 @@ static CURLcode wolfssl_random(struct Curl_easy * data,
 		return CURLE_FAILED_INIT;
 	if(length > UINT_MAX)
 		return CURLE_FAILED_INIT;
-	if(wc_RNG_GenerateBlock(&rng, entropy, (unsigned)length))
+	if(wc_RNG_GenerateBlock(&rng, entropy, (uint)length))
 		return CURLE_FAILED_INIT;
 	if(wc_FreeRng(&rng))
 		return CURLE_FAILED_INIT;
 	return CURLE_OK;
 }
 
-static CURLcode wolfssl_sha256sum(const unsigned char * tmp, /* input */
+static CURLcode wolfssl_sha256sum(const uchar * tmp, /* input */
     size_t tmplen,
-    unsigned char * sha256sum /* output */,
+    uchar * sha256sum /* output */,
     size_t unused)
 {
 	wc_Sha256 SHA256pw;

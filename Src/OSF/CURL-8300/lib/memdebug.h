@@ -114,10 +114,10 @@ CURL_EXTERN int curl_dbg_fclose(FILE * file, int line, const char * source);
 /* Set this symbol on the command-line, recompile all lib-sources */
 #undef strdup
 #define strdup(ptr) curl_dbg_strdup(ptr, __LINE__, __FILE__)
-#define malloc(size) curl_dbg_malloc(size, __LINE__, __FILE__)
-#define calloc(nbelem, size) curl_dbg_calloc(nbelem, size, __LINE__, __FILE__)
-#define realloc(ptr, size) curl_dbg_realloc(ptr, size, __LINE__, __FILE__)
-#define free(ptr) curl_dbg_free(ptr, __LINE__, __FILE__)
+#define malloc_Removed(size) curl_dbg_malloc(size, __LINE__, __FILE__)
+#define calloc_Removed(nbelem, size) curl_dbg_calloc(nbelem, size, __LINE__, __FILE__)
+#define realloc_Removed(ptr, size) curl_dbg_realloc(ptr, size, __LINE__, __FILE__)
+#define free_Removed(ptr) curl_dbg_free(ptr, __LINE__, __FILE__)
 #define send(a, b, c, d) curl_dbg_send(a, b, c, d, __LINE__, __FILE__)
 #define recv(a, b, c, d) curl_dbg_recv(a, b, c, d, __LINE__, __FILE__)
 
@@ -189,13 +189,10 @@ CURL_EXTERN int curl_dbg_fclose(FILE * file, int line, const char * source);
 #ifndef fake_sclose
 #define fake_sclose(x)  Curl_nop_stmt
 #endif
-
 /*
- * Curl_safefree defined as a macro to allow MemoryTracking feature
- * to log free() calls at same location where Curl_safefree is used.
+ * ZFREE defined as a macro to allow MemoryTracking feature
+ * to log SAlloc::F() calls at same location where ZFREE is used.
  * This macro also assigns NULL to given pointer when free'd.
  */
-
-#define Curl_safefree(ptr) do { free((ptr)); (ptr) = NULL;} while(0)
-
+#define Curl_safefree_Removed(ptr) do { SAlloc::F((ptr)); (ptr) = NULL;} while(0)
 #endif /* HEADER_CURL_MEMDEBUG_H */

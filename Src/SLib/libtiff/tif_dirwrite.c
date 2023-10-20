@@ -178,9 +178,9 @@ int TIFFCheckpointDirectory(TIFF * tif)
 	int rc;
 	/* Setup the strips arrays, if they haven't already been. */
 	if(tif->tif_dir.td_stripoffset == NULL)
-		(void)TIFFSetupStrips(tif);
+		TIFFSetupStrips(tif);
 	rc = TIFFWriteDirectorySec(tif, TRUE, FALSE, NULL);
-	(void)TIFFSetWriteOffset(tif, TIFFSeekFile(tif, 0, SEEK_END));
+	TIFFSetWriteOffset(tif, TIFFSeekFile(tif, 0, SEEK_END));
 	return rc;
 }
 
@@ -226,7 +226,7 @@ int TIFFRewriteDirectory(TIFF * tif)
 				}
 				if(tif->tif_flags & TIFF_SWAB)
 					TIFFSwabShort(&dircount);
-				(void)TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
+				TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
 				if(!ReadOK(tif, &nextnextdir, 4)) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory link");
 					return 0;
@@ -235,7 +235,7 @@ int TIFFRewriteDirectory(TIFF * tif)
 					TIFFSwabLong(&nextnextdir);
 				if(nextnextdir==tif->tif_diroff) {
 					uint32 m = 0;
-					(void)TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
+					TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
 					if(!WriteOK(tif, &m, 4)) {
 						TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
 						return 0;
@@ -275,7 +275,7 @@ int TIFFRewriteDirectory(TIFF * tif)
 					return 0;
 				}
 				dircount = (uint16)dircount64;
-				(void)TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
+				TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
 				if(!ReadOK(tif, &nextnextdir, 8)) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory link");
 					return 0;
@@ -284,7 +284,7 @@ int TIFFRewriteDirectory(TIFF * tif)
 					TIFFSwabLong8(&nextnextdir);
 				if(nextnextdir==tif->tif_diroff) {
 					uint64 m = 0;
-					(void)TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
+					TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
 					if(!WriteOK(tif, &m, 8)) {
 						TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
 						return 0;
@@ -2135,7 +2135,7 @@ static int TIFFLinkDirectory(TIFF * tif)
 			uint32 m = (uint32)tif->tif_diroff;
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabLong(&m);
-			(void)TIFFSeekFile(tif, tif->tif_subifdoff, SEEK_SET);
+			TIFFSeekFile(tif, tif->tif_subifdoff, SEEK_SET);
 			if(!WriteOK(tif, &m, 4)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error writing SubIFD directory link");
 				return 0;
@@ -2155,7 +2155,7 @@ static int TIFFLinkDirectory(TIFF * tif)
 			uint64 m = tif->tif_diroff;
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabLong8(&m);
-			(void)TIFFSeekFile(tif, tif->tif_subifdoff, SEEK_SET);
+			TIFFSeekFile(tif, tif->tif_subifdoff, SEEK_SET);
 			if(!WriteOK(tif, &m, 8)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error writing SubIFD directory link");
 				return 0;
@@ -2182,7 +2182,7 @@ static int TIFFLinkDirectory(TIFF * tif)
 			 * First directory, overwrite offset in header.
 			 */
 			tif->tif_header.classic.tiff_diroff = (uint32)tif->tif_diroff;
-			(void)TIFFSeekFile(tif, 4, SEEK_SET);
+			TIFFSeekFile(tif, 4, SEEK_SET);
 			if(!WriteOK(tif, &m, 4)) {
 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Error writing TIFF header");
 				return 0;
@@ -2202,7 +2202,7 @@ static int TIFFLinkDirectory(TIFF * tif)
 			}
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabShort(&dircount);
-			(void)TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
+			TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
 			if(!ReadOK(tif, &nextnextdir, 4)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory link");
 				return 0;
@@ -2210,7 +2210,7 @@ static int TIFFLinkDirectory(TIFF * tif)
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabLong(&nextnextdir);
 			if(nextnextdir==0) {
-				(void)TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
+				TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
 				if(!WriteOK(tif, &m, 4)) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
 					return 0;
@@ -2230,7 +2230,7 @@ static int TIFFLinkDirectory(TIFF * tif)
 			 * First directory, overwrite offset in header.
 			 */
 			tif->tif_header.big.tiff_diroff = tif->tif_diroff;
-			(void)TIFFSeekFile(tif, 8, SEEK_SET);
+			TIFFSeekFile(tif, 8, SEEK_SET);
 			if(!WriteOK(tif, &m, 8)) {
 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Error writing TIFF header");
 				return 0;
@@ -2256,7 +2256,7 @@ static int TIFFLinkDirectory(TIFF * tif)
 				return 0;
 			}
 			dircount = (uint16)dircount64;
-			(void)TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
+			TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
 			if(!ReadOK(tif, &nextnextdir, 8)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory link");
 				return 0;
@@ -2264,7 +2264,7 @@ static int TIFFLinkDirectory(TIFF * tif)
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabLong8(&nextnextdir);
 			if(nextnextdir==0) {
-				(void)TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
+				TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
 				if(!WriteOK(tif, &m, 8)) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
 					return 0;

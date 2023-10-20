@@ -87,7 +87,7 @@ static const BIO_METHOD methods_asn1 = {
 	asn1_bio_callback_ctrl,
 };
 
-const BIO_METHOD * BIO_f_asn1(void)
+const BIO_METHOD * BIO_f_asn1()
 {
 	return &methods_asn1;
 }

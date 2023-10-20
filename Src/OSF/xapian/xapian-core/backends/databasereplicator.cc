@@ -29,7 +29,7 @@ DatabaseReplicator * DatabaseReplicator::open(const string & path)
 	if(file_exists(path + "/iamglass")) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 		return new GlassDatabaseReplicator(path);
-# else
+#else
 		throw FeatureUnavailableError("Replication disabled");
 #endif
 	}

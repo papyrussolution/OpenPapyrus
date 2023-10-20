@@ -57,13 +57,13 @@
 //#include "urldata.h"
 //#include "sendf.h"
 //#include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
+//#include "progress.h"
+//#include "transfer.h"
 #include "escape.h"
-#include "http.h" /* for HTTP proxy tunnel stuff */
+//#include "http.h" /* for HTTP proxy tunnel stuff */
 #include "socks.h"
 #include "imap.h"
-#include "mime.h"
+//#include "mime.h"
 #include "strtoofft.h"
 //#include "strcase.h"
 #include "vtls/vtls.h"
@@ -74,11 +74,11 @@
 #include "url.h"
 #include "bufref.h"
 #include "curl_sasl.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "curl_ctype.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -524,8 +524,8 @@ static CURLcode imap_perform_login(struct Curl_easy * data,
 	result = imap_sendf(data, "LOGIN %s %s", user ? user : "",
 		passwd ? passwd : "");
 
-	free(user);
-	free(passwd);
+	SAlloc::F(user);
+	SAlloc::F(passwd);
 
 	if(!result)
 		imap_state(data, IMAP_LOGIN);
@@ -660,7 +660,7 @@ static CURLcode imap_perform_list(struct Curl_easy * data)
 		/* Send the LIST command */
 		result = imap_sendf(data, "LIST \"%s\" *", mailbox);
 
-		free(mailbox);
+		SAlloc::F(mailbox);
 	}
 
 	if(!result)
@@ -684,8 +684,8 @@ static CURLcode imap_perform_select(struct Curl_easy * data)
 	char * mailbox;
 
 	/* Invalidate old information as we are switching mailboxes */
-	Curl_safefree(imapc->mailbox);
-	Curl_safefree(imapc->mailbox_uidvalidity);
+	ZFREE(imapc->mailbox);
+	ZFREE(imapc->mailbox_uidvalidity);
 
 	/* Check we have a mailbox */
 	if(!imap->mailbox) {
@@ -701,7 +701,7 @@ static CURLcode imap_perform_select(struct Curl_easy * data)
 	/* Send the SELECT command */
 	result = imap_sendf(data, "SELECT %s", mailbox);
 
-	free(mailbox);
+	SAlloc::F(mailbox);
 
 	if(!result)
 		imap_state(data, IMAP_SELECT);
@@ -813,7 +813,7 @@ static CURLcode imap_perform_append(struct Curl_easy * data)
 		"APPEND %s (\\Seen) {%" CURL_FORMAT_CURL_OFF_T "}",
 		mailbox, data->state.infilesize);
 
-	free(mailbox);
+	SAlloc::F(mailbox);
 
 	if(!result)
 		imap_state(data, IMAP_APPEND);
@@ -1099,7 +1099,7 @@ static CURLcode imap_state_select_resp(struct Curl_easy * data, int imapcode,
 				Curl_dyn_init(&uid, 20);
 				if(Curl_dyn_addn(&uid, p, len))
 					return CURLE_OUT_OF_MEMORY;
-				Curl_safefree(imapc->mailbox_uidvalidity);
+				ZFREE(imapc->mailbox_uidvalidity);
 				imapc->mailbox_uidvalidity = Curl_dyn_ptr(&uid);
 			}
 		}
@@ -1205,7 +1205,7 @@ static CURLcode imap_state_fetch_resp(struct Curl_easy * data,
 			}
 			else {
 				/* Free the cache */
-				Curl_safefree(pp->cache);
+				ZFREE(pp->cache);
 
 				/* Reset the cache size */
 				pp->cache_size = 0;
@@ -1426,7 +1426,7 @@ static CURLcode imap_block_statemach(struct Curl_easy * data,
 static CURLcode imap_init(struct Curl_easy * data)
 {
 	CURLcode result = CURLE_OK;
-	struct IMAP * imap = data->req.p.imap = (IMAP *)calloc(sizeof(struct IMAP), 1);
+	struct IMAP * imap = data->req.p.imap = (IMAP *)SAlloc::C(sizeof(struct IMAP), 1);
 	if(!imap)
 		result = CURLE_OUT_OF_MEMORY;
 	return result;
@@ -1532,15 +1532,15 @@ static CURLcode imap_done(struct Curl_easy * data, CURLcode status,
 	}
 
 	/* Cleanup our per-request based variables */
-	Curl_safefree(imap->mailbox);
-	Curl_safefree(imap->uidvalidity);
-	Curl_safefree(imap->uid);
-	Curl_safefree(imap->mindex);
-	Curl_safefree(imap->section);
-	Curl_safefree(imap->partial);
-	Curl_safefree(imap->query);
-	Curl_safefree(imap->custom);
-	Curl_safefree(imap->custom_params);
+	ZFREE(imap->mailbox);
+	ZFREE(imap->uidvalidity);
+	ZFREE(imap->uid);
+	ZFREE(imap->mindex);
+	ZFREE(imap->section);
+	ZFREE(imap->partial);
+	ZFREE(imap->query);
+	ZFREE(imap->custom);
+	ZFREE(imap->custom_params);
 
 	/* Clear the transfer mode for the next request */
 	imap->transfer = PPTRANSFER_BODY;
@@ -1678,8 +1678,8 @@ static CURLcode imap_disconnect(struct Curl_easy * data,
 	Curl_sasl_cleanup(conn, imapc->sasl.authused);
 
 	/* Cleanup our connection based variables */
-	Curl_safefree(imapc->mailbox);
-	Curl_safefree(imapc->mailbox_uidvalidity);
+	ZFREE(imapc->mailbox);
+	ZFREE(imapc->mailbox_uidvalidity);
 
 	return CURLE_OK;
 }
@@ -1999,7 +1999,7 @@ static CURLcode imap_parse_url_path(struct Curl_easy * data)
 		result = Curl_urldecode(begin, ptr - begin, &value, &valuelen,
 			REJECT_CTRL);
 		if(result) {
-			free(name);
+			SAlloc::F(name);
 			return result;
 		}
 
@@ -2045,14 +2045,14 @@ static CURLcode imap_parse_url_path(struct Curl_easy * data)
 			value = NULL;
 		}
 		else {
-			free(name);
-			free(value);
+			SAlloc::F(name);
+			SAlloc::F(value);
 
 			return CURLE_URL_MALFORMAT;
 		}
 
-		free(name);
-		free(value);
+		SAlloc::F(name);
+		SAlloc::F(value);
 	}
 
 	/* Does the URL contain a query parameter? Only valid when we have a mailbox

@@ -29,7 +29,7 @@
 
 //#include <curl/curl.h>
 #include "version_win32.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -70,9 +70,9 @@ struct OUR_OSVERSIONINFOEXW {
  *
  * Returns TRUE if matched; otherwise FALSE.
  */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-    const unsigned int minorVersion,
-    const unsigned int buildVersion,
+bool curlx_verify_windows_version(const uint majorVersion,
+    const uint minorVersion,
+    const uint buildVersion,
     const PlatformIdentifier platform,
     const VersionCondition condition)
 {
@@ -112,13 +112,10 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
 		/* we're always running on PLATFORM_WINNT */
 		matched = FALSE;
 	}
-#elif !defined(_WIN32_WINNT) || !defined(_WIN32_WINNT_WIN2K) || \
-	(_WIN32_WINNT < _WIN32_WINNT_WIN2K)
+#elif !defined(_WIN32_WINNT) || !defined(_WIN32_WINNT_WIN2K) || (_WIN32_WINNT < _WIN32_WINNT_WIN2K)
 	OSVERSIONINFO osver;
-
-	memset(&osver, 0, sizeof(osver));
+	memzero(&osver, sizeof(osver));
 	osver.dwOSVersionInfoSize = sizeof(osver);
-
 	/* Find out Windows version */
 	if(GetVersionEx(&osver)) {
 		/* Verify the Operating System version number */
@@ -260,8 +257,7 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
 		default:
 		    return FALSE;
 	}
-
-	memset(&osver, 0, sizeof(osver));
+	memzero(&osver, sizeof(osver));
 	osver.dwOSVersionInfoSize = sizeof(osver);
 	osver.dwMajorVersion = majorVersion;
 	osver.dwMinorVersion = minorVersion;

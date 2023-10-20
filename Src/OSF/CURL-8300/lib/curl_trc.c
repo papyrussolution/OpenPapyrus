@@ -47,7 +47,7 @@
 #include "vquic/vquic.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -212,7 +212,7 @@ CURLcode Curl_trc_opt(const char * config)
 		}
 		token = strtok_r(NULL, ", ", &tok_buf);
 	}
-	free(tmp);
+	SAlloc::F(tmp);
 	return CURLE_OK;
 }
 

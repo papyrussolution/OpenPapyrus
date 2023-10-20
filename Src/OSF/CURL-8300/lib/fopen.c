@@ -36,7 +36,7 @@
 #include "rand.h"
 #include "fopen.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -51,7 +51,7 @@ CURLcode Curl_fopen(struct Curl_easy * data, const char * filename,
     FILE ** fh, char ** tempname)
 {
 	CURLcode result = CURLE_WRITE_ERROR;
-	unsigned char randsuffix[9];
+	uchar randsuffix[9];
 	char * tempstore = NULL;
 	struct_stat sb;
 	int fd = -1;
@@ -101,7 +101,7 @@ fail:
 		_close(fd);
 		_unlink(tempstore);
 	}
-	free(tempstore);
+	SAlloc::F(tempstore);
 	return result;
 }
 

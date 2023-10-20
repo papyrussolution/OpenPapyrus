@@ -5288,7 +5288,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 							const size_t fnl = sstrlen(file_name);
 							if(fnl <= done_plus_xml_suffix.Len() || !sstreqi_ascii(file_name.cptr()+fnl-done_plus_xml_suffix.Len(), done_plus_xml_suffix)) {
 								if(rPib.CheckFileForProcessedFileList(de) <= 0)
-									fep.Add(in_path, de);
+									fep.Add(in_path, de, 0);
 							}
 						}
 					}
@@ -5297,7 +5297,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 					if(rPib.CheckFileForProcessedFileList(de) <= 0) {
 						uint   remote_url_assoc_pos = 0;
 						const char * p_remote_url = remote_url_assoc.Search(prev_ssp_pos, &remote_url_assoc_pos) ? remote_url_assoc.Get(remote_url_assoc_pos).Txt : 0;
-						fep.Add(in_path, p_remote_url);
+						fep.Add(in_path, p_remote_url, 0);
 					}
 				}
 			}

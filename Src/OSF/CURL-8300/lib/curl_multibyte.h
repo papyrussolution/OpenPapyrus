@@ -74,8 +74,8 @@ typedef union {
 typedef union {
 	char                * tchar_ptr;
 	const char          * const_tchar_ptr;
-	unsigned char       * tbyte_ptr;
-	const unsigned char * const_tbyte_ptr;
+	uchar       * tbyte_ptr;
+	const uchar * const_tbyte_ptr;
 } xcharp_u;
 
 #endif /* UNICODE && WIN32 */

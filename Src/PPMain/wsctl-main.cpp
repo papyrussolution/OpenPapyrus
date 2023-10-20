@@ -3164,6 +3164,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					St.D_TSess.GetData(st_data_tses);
 					if(st_data_acc.SCardID == 0) {
 						SetScreen(screenConstruction); // @todo Здесь надо перейти на какой-то вменяемый экран, а не на отладочную панель!
+						SessF.Finish(); // @v11.8.7
 					}
 					else if(st_data_tses.TSessID == 0) {
 						SessF.Finish(); // @v11.8.5

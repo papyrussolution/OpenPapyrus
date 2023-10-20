@@ -25,8 +25,8 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#include "mime.h"
-#include "warnless.h"
+//#include "mime.h"
+//#include "warnless.h"
 //#include "urldata.h"
 //#include "sendf.h"
 
@@ -41,9 +41,9 @@
 #include "rand.h"
 #include "slist.h"
 //#include "strcase.h"
-#include "dynbuf.h"
+//#include "dynbuf.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -93,7 +93,7 @@ static const char base64enc[] =
 #define QP_SP           2       /* Space or tab. */
 #define QP_CR           3       /* Carriage return. */
 #define QP_LF           4       /* Line-feed. */
-static const unsigned char qp_class[] = {
+static const uchar qp_class[] = {
 	0,     0,     0,     0,     0,     0,     0,     0,     /* 00 - 07 */
 	0,     QP_SP, QP_LF, 0,     0,     QP_CR, 0,     0,     /* 08 - 0F */
 	0,     0,     0,     0,     0,     0,     0,     0,     /* 10 - 17 */
@@ -355,7 +355,7 @@ static char *strippath(const char * fullfile)
 		return NULL;
 	base = strdup(basename(filename));
 
-	free(filename); /* free temporary buffer */
+	SAlloc::F(filename); /* free temporary buffer */
 
 	return base; /* returns an allocated string or NULL ! */
 }
@@ -683,7 +683,7 @@ static int mime_mem_seek(void * instream, curl_off_t offset, int whence)
 
 static void mime_mem_free(void * ptr)
 {
-	Curl_safefree(((curl_mimepart *)ptr)->data);
+	ZFREE(((curl_mimepart *)ptr)->data);
 }
 
 /* Named file callbacks. */
@@ -734,7 +734,7 @@ static void mime_file_free(void * ptr)
 		fclose(part->fp);
 		part->fp = NULL;
 	}
-	Curl_safefree(part->data);
+	ZFREE(part->data);
 }
 
 /* Subparts callbacks. */
@@ -1153,9 +1153,9 @@ void Curl_mime_cleanpart(curl_mimepart * part)
 		curl_slist_free_all(part->curlheaders);
 		if(part->flags & MIME_USERHEADERS_OWNER)
 			curl_slist_free_all(part->userheaders);
-		Curl_safefree(part->mimetype);
-		Curl_safefree(part->name);
-		Curl_safefree(part->filename);
+		ZFREE(part->mimetype);
+		ZFREE(part->name);
+		ZFREE(part->filename);
 		Curl_mime_initpart(part);
 	}
 }
@@ -1171,9 +1171,9 @@ void curl_mime_free(curl_mime * mime)
 			part = mime->firstpart;
 			mime->firstpart = part->nextpart;
 			Curl_mime_cleanpart(part);
-			free(part);
+			SAlloc::F(part);
 		}
-		free(mime);
+		SAlloc::F(mime);
 	}
 }
 
@@ -1261,20 +1261,15 @@ CURLcode Curl_mime_duppart(struct Curl_easy * data,
 curl_mime *curl_mime_init(struct Curl_easy * easy)
 {
 	curl_mime * mime;
-
-	mime = (curl_mime *)malloc(sizeof(*mime));
-
+	mime = (curl_mime *)SAlloc::M(sizeof(*mime));
 	if(mime) {
 		mime->parent = NULL;
 		mime->firstpart = NULL;
 		mime->lastpart = NULL;
-
 		memset(mime->boundary, '-', MIME_BOUNDARY_DASHES);
-		if(Curl_rand_hex(easy,
-		    (unsigned char *)&mime->boundary[MIME_BOUNDARY_DASHES],
-		    MIME_RAND_BOUNDARY_CHARS + 1)) {
+		if(Curl_rand_hex(easy, (uchar *)&mime->boundary[MIME_BOUNDARY_DASHES], MIME_RAND_BOUNDARY_CHARS + 1)) {
 			/* failed to get random separator, bail out */
-			free(mime);
+			SAlloc::F(mime);
 			return NULL;
 		}
 		mimesetstate(&mime->state, MIMESTATE_BEGIN, NULL);
@@ -1286,7 +1281,7 @@ curl_mime *curl_mime_init(struct Curl_easy * easy)
 /* Initialize a mime part. */
 void Curl_mime_initpart(curl_mimepart * part)
 {
-	memset((char *)part, 0, sizeof(*part));
+	memzero(part, sizeof(*part));
 	part->lastreadstatus = 1; /* Successful read status. */
 	mimesetstate(&part->state, MIMESTATE_BEGIN, NULL);
 }
@@ -1299,7 +1294,7 @@ curl_mimepart *curl_mime_addpart(curl_mime * mime)
 	if(!mime)
 		return NULL;
 
-	part = (curl_mimepart *)malloc(sizeof(*part));
+	part = (curl_mimepart *)SAlloc::M(sizeof(*part));
 
 	if(part) {
 		Curl_mime_initpart(part);
@@ -1322,7 +1317,7 @@ CURLcode curl_mime_name(curl_mimepart * part, const char * name)
 	if(!part)
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 
-	Curl_safefree(part->name);
+	ZFREE(part->name);
 
 	if(name) {
 		part->name = strdup(name);
@@ -1339,7 +1334,7 @@ CURLcode curl_mime_filename(curl_mimepart * part, const char * filename)
 	if(!part)
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 
-	Curl_safefree(part->filename);
+	ZFREE(part->filename);
 
 	if(filename) {
 		part->filename = strdup(filename);
@@ -1359,7 +1354,7 @@ CURLcode curl_mime_data(curl_mimepart * part, const char * data, size_t datasize
 	if(data) {
 		if(datasize == CURL_ZERO_TERMINATED)
 			datasize = strlen(data);
-		part->data = (char *)malloc(datasize + 1);
+		part->data = (char *)SAlloc::M(datasize + 1);
 		if(!part->data)
 			return CURLE_OUT_OF_MEMORY;
 
@@ -1419,10 +1414,9 @@ CURLcode curl_mime_filedata(curl_mimepart * part, const char * filename)
 			result = CURLE_OUT_OF_MEMORY;
 		else {
 			CURLcode res = curl_mime_filename(part, base);
-
 			if(res)
 				result = res;
-			free(base);
+			SAlloc::F(base);
 		}
 	}
 	return result;
@@ -1434,7 +1428,7 @@ CURLcode curl_mime_type(curl_mimepart * part, const char * mimetype)
 	if(!part)
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 
-	Curl_safefree(part->mimetype);
+	ZFREE(part->mimetype);
 
 	if(mimetype) {
 		part->mimetype = strdup(mimetype);
@@ -1660,7 +1654,7 @@ CURLcode Curl_mime_add_header(struct curl_slist ** slp, const char * fmt, ...)
 		if(hdr)
 			*slp = hdr;
 		else
-			free(s);
+			SAlloc::F(s);
 	}
 
 	return hdr? CURLE_OK: CURLE_OUT_OF_MEMORY;
@@ -1702,7 +1696,7 @@ const char *Curl_mime_contenttype(const char * filename)
 	if(filename) {
 		size_t len1 = strlen(filename);
 		const char * nameend = filename + len1;
-		unsigned int i;
+		uint i;
 
 		for(i = 0; i < sizeof(ctts) / sizeof(ctts[0]); i++) {
 			size_t len2 = strlen(ctts[i].extension);
@@ -1819,8 +1813,8 @@ CURLcode Curl_mime_prepare_headers(struct Curl_easy * data,
 					filename? "; filename=\"": "",
 					filename? filename: "",
 					filename? "\"": "");
-			Curl_safefree(name);
-			Curl_safefree(filename);
+			ZFREE(name);
+			ZFREE(filename);
 			if(ret)
 				return ret;
 		}

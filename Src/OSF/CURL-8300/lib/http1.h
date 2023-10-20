@@ -27,8 +27,8 @@
 #include "curl_setup.h"
 
 #ifndef CURL_DISABLE_HTTP
-#include "bufq.h"
-#include "http.h"
+//#include "bufq.h"
+//#include "http.h"
 
 #define H1_PARSE_OPT_NONE       (0)
 #define H1_PARSE_OPT_STRICT     (1 << 0)

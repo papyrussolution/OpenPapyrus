@@ -53,7 +53,7 @@
 #endif
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -84,7 +84,7 @@ CURLcode Curl_input_ntlm(struct Curl_easy * data,
 			header++;
 
 		if(*header) {
-			unsigned char * hdr;
+			uchar * hdr;
 			size_t hdrlen;
 
 			result = Curl_base64_decode(header, &hdr, &hdrlen);
@@ -219,11 +219,11 @@ CURLcode Curl_output_ntlm(struct Curl_easy * data, bool proxy)
 			    result = Curl_base64_encode((const char *)Curl_bufref_ptr(&ntlmmsg),
 				    Curl_bufref_len(&ntlmmsg), &base64, &len);
 			    if(!result) {
-				    free(*allocuserpwd);
+				    SAlloc::F(*allocuserpwd);
 				    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 					    proxy ? "Proxy-" : "",
 					    base64);
-				    free(base64);
+				    SAlloc::F(base64);
 				    if(!*allocuserpwd)
 					    result = CURLE_OUT_OF_MEMORY;
 			    }
@@ -238,11 +238,11 @@ CURLcode Curl_output_ntlm(struct Curl_easy * data, bool proxy)
 			    result = Curl_base64_encode((const char *)Curl_bufref_ptr(&ntlmmsg),
 				    Curl_bufref_len(&ntlmmsg), &base64, &len);
 			    if(!result) {
-				    free(*allocuserpwd);
+				    SAlloc::F(*allocuserpwd);
 				    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 					    proxy ? "Proxy-" : "",
 					    base64);
-				    free(base64);
+				    SAlloc::F(base64);
 				    if(!*allocuserpwd)
 					    result = CURLE_OUT_OF_MEMORY;
 				    else {
@@ -254,7 +254,7 @@ CURLcode Curl_output_ntlm(struct Curl_easy * data, bool proxy)
 		    break;
 
 		case NTLMSTATE_LAST:
-		    Curl_safefree(*allocuserpwd);
+		    ZFREE(*allocuserpwd);
 		    authp->done = TRUE;
 		    break;
 	}

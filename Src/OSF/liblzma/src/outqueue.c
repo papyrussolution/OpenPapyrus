@@ -12,7 +12,7 @@
 /// data structures (that's the second /2).
 #define BUF_SIZE_MAX (UINT64_MAX / LZMA_THREADS_MAX / 2 / 2)
 
-static lzma_ret get_options(uint64_t * bufs_alloc_size, uint32_t * bufs_count, uint64_t buf_size_max, uint32_t threads)
+static lzma_ret get_options( uint64 * bufs_alloc_size, uint32_t * bufs_count,  uint64 buf_size_max, uint32_t threads)
 {
 	if(threads > LZMA_THREADS_MAX || buf_size_max > BUF_SIZE_MAX)
 		return LZMA_OPTIONS_ERROR;
@@ -26,18 +26,18 @@ static lzma_ret get_options(uint64_t * bufs_alloc_size, uint32_t * bufs_count, u
 	return LZMA_OK;
 }
 
-extern uint64_t lzma_outq_memusage(uint64_t buf_size_max, uint32_t threads)
+extern  uint64 lzma_outq_memusage( uint64 buf_size_max, uint32_t threads)
 {
-	uint64_t bufs_alloc_size;
+	 uint64 bufs_alloc_size;
 	uint32_t bufs_count;
 	if(get_options(&bufs_alloc_size, &bufs_count, buf_size_max, threads) != LZMA_OK)
 		return UINT64_MAX;
 	return sizeof(lzma_outq) + bufs_count * sizeof(lzma_outbuf) + bufs_alloc_size;
 }
 
-extern lzma_ret lzma_outq_init(lzma_outq * outq, const lzma_allocator * allocator, uint64_t buf_size_max, uint32_t threads)
+extern lzma_ret lzma_outq_init(lzma_outq * outq, const lzma_allocator * allocator,  uint64 buf_size_max, uint32_t threads)
 {
-	uint64_t bufs_alloc_size;
+	 uint64 bufs_alloc_size;
 	uint32_t bufs_count;
 	// Set bufs_count and bufs_alloc_size.
 	return_if_error(get_options(&bufs_alloc_size, &bufs_count, buf_size_max, threads));

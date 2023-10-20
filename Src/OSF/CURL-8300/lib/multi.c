@@ -26,20 +26,20 @@
 #pragma hdrstop
 //#include <curl/curl.h>
 //#include "urldata.h"
-#include "transfer.h"
+//#include "transfer.h"
 #include "url.h"
 //#include "cfilters.h"
 //#include "connect.h"
-#include "progress.h"
+//#include "progress.h"
 #include "easyif.h"
 #include "share.h"
 #include "psl.h"
 //#include "multiif.h"
 //#include "sendf.h"
 //#include "timeval.h"
-#include "http.h"
+//#include "http.h"
 #include "select.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "speedcheck.h"
 #include "conncache.h"
 #include "multihandle.h"
@@ -50,7 +50,7 @@
 #include "socketpair.h"
 #include "socks.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -223,12 +223,12 @@ static void mstate(struct Curl_easy * data, CURLMstate state
 
 struct Curl_sh_entry {
 	struct Curl_hash transfers; /* hash of transfers using this socket */
-	unsigned int action; /* what combined action READ/WRITE this socket waits
+	uint action; /* what combined action READ/WRITE this socket waits
 	                        for */
-	unsigned int users; /* number of transfers using this */
+	uint users; /* number of transfers using this */
 	void * socketp; /* settable by users with curl_multi_assign() */
-	unsigned int readers; /* this many transfers want to read */
-	unsigned int writers; /* this many transfers want to write */
+	uint readers; /* this many transfers want to read */
+	uint writers; /* this many transfers want to write */
 };
 
 /* bits for 'action' having no bits means this socket is not expecting any
@@ -297,14 +297,14 @@ static struct Curl_sh_entry *sh_addentry(struct Curl_hash * sh, curl_socket_t s)
 		return there;
 	}
 	/* not present, add it */
-	check = (Curl_sh_entry *)calloc(1, sizeof(struct Curl_sh_entry));
+	check = (Curl_sh_entry *)SAlloc::C(1, sizeof(struct Curl_sh_entry));
 	if(!check)
 		return NULL; /* major failure */
 	Curl_hash_init(&check->transfers, TRHASH_SIZE, trhash, trhash_compare, trhash_dtor);
 	/* make/add new hash entry */
 	if(!Curl_hash_add(sh, (char *)&s, sizeof(curl_socket_t), check)) {
 		Curl_hash_destroy(&check->transfers);
-		free(check);
+		SAlloc::F(check);
 		return NULL; /* major failure */
 	}
 	return check; /* things are good in sockhash land */
@@ -326,7 +326,7 @@ static void sh_freeentry(void * freethis)
 {
 	struct Curl_sh_entry * p = (struct Curl_sh_entry *)freethis;
 
-	free(p);
+	SAlloc::F(p);
 }
 
 static size_t fd_key_compare(void * k1, size_t k1_len, void * k2, size_t k2_len)
@@ -381,7 +381,7 @@ static void multi_addmsg(struct Curl_multi * multi, struct Curl_message * msg)
 
 struct Curl_multi *Curl_multi_handle(int hashsize/* socket hash */, int chashsize/* connection hash */, int dnssize/* dns hash */)
 {                                 
-	struct Curl_multi * multi = (Curl_multi *)calloc(1, sizeof(struct Curl_multi));
+	struct Curl_multi * multi = (Curl_multi *)SAlloc::C(1, sizeof(struct Curl_multi));
 	if(!multi)
 		return NULL;
 	multi->magic = CURL_MULTI_HANDLE;
@@ -424,7 +424,7 @@ error:
 	sockhash_destroy(&multi->sockhash);
 	Curl_hash_destroy(&multi->hostcache);
 	Curl_conncache_destroy(&multi->conn_cache);
-	free(multi);
+	SAlloc::F(multi);
 	return NULL;
 }
 
@@ -557,8 +557,7 @@ CURLMcode curl_multi_add_handle(struct Curl_multi * multi,
 	   The work-around is thus simply to clear the 'lastcall' variable to force
 	   Curl_update_timer() to always trigger a callback to the app when a new
 	   easy handle is added */
-	memset(&multi->timer_lastcall, 0, sizeof(multi->timer_lastcall));
-
+	memzero(&multi->timer_lastcall, sizeof(multi->timer_lastcall));
 	rc = Curl_update_timer(multi);
 	if(rc)
 		return rc;
@@ -641,7 +640,7 @@ static CURLcode multi_done(struct Curl_easy * data,
 {
 	CURLcode result;
 	struct connectdata * conn = data->conn;
-	unsigned int i;
+	uint i;
 
 #if defined(DEBUGBUILD) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
 	DEBUGF(infof(data, "multi_done[%s]: status: %d prem: %d done: %d",
@@ -660,8 +659,8 @@ static CURLcode multi_done(struct Curl_easy * data,
 	Curl_resolver_kill(data);
 
 	/* Cleanup possible redirect junk */
-	Curl_safefree(data->req.newurl);
-	Curl_safefree(data->req.location);
+	ZFREE(data->req.newurl);
+	ZFREE(data->req.location);
 
 	switch(status) {
 		case CURLE_ABORTED_BY_CALLBACK:
@@ -695,7 +694,7 @@ static CURLcode multi_done(struct Curl_easy * data,
 
 	process_pending_handles(data->multi); /* connection / multiplex */
 
-	Curl_safefree(data->state.ulbuf);
+	ZFREE(data->state.ulbuf);
 
 	/* if the transfer was completed in a paused state there can be buffered
 	   data left to free */
@@ -788,7 +787,7 @@ static CURLcode multi_done(struct Curl_easy * data,
 			data->state.lastconnect_id = -1;
 	}
 
-	Curl_safefree(data->state.buffer);
+	ZFREE(data->state.buffer);
 	return result;
 }
 
@@ -1078,10 +1077,9 @@ CURLMcode curl_multi_fdset(struct Curl_multi * multi,
 		int bitmap;
 #ifdef __clang_analyzer_
 		/* to prevent "The left operand of '>=' is a garbage value" warnings */
-		memset(sockbunch, 0, sizeof(sockbunch));
+		memzero(sockbunch, sizeof(sockbunch));
 #endif
 		bitmap = multi_getsock(data, sockbunch);
-
 		for(i = 0; i< MAX_SOCKSPEREASYHANDLE; i++) {
 			if((bitmap & GETSOCK_MASK_RW(i)) && VALID_SOCK((sockbunch[i]))) {
 				if(!FDSET_SOCK(sockbunch[i]))
@@ -1126,7 +1124,7 @@ static void reset_socket_fdwrite(curl_socket_t s)
 
 static CURLMcode multi_wait(struct Curl_multi * multi,
     struct curl_waitfd extra_fds[],
-    unsigned int extra_nfds,
+    uint extra_nfds,
     int timeout_ms,
     int * ret,
     bool extrawait,                         /* when no socket, wait */
@@ -1135,9 +1133,9 @@ static CURLMcode multi_wait(struct Curl_multi * multi,
 	struct Curl_easy * data;
 	curl_socket_t sockbunch[MAX_SOCKSPEREASYHANDLE];
 	int bitmap;
-	unsigned int i;
-	unsigned int nfds = 0;
-	unsigned int curlfds;
+	uint i;
+	uint nfds = 0;
+	uint curlfds;
 	long timeout_internal;
 	int retcode = 0;
 	struct pollfd a_few_on_stack[NUM_POLLS_ON_STACK];
@@ -1198,7 +1196,7 @@ static CURLMcode multi_wait(struct Curl_multi * multi,
 		   big, so at 2^29 sockets this value might wrap. When a process gets
 		   the capability to actually handle over 500 million sockets this
 		   calculation needs a integer overflow check. */
-		ufds = (pollfd *)malloc(nfds * sizeof(struct pollfd));
+		ufds = (pollfd *)SAlloc::M(nfds * sizeof(struct pollfd));
 		if(!ufds)
 			return CURLM_OUT_OF_MEMORY;
 		ufds_malloc = TRUE;
@@ -1233,7 +1231,7 @@ static CURLMcode multi_wait(struct Curl_multi * multi,
 #ifdef USE_WINSOCK
 					if(WSAEventSelect(sockbunch[i], multi->wsa_event, mask) != 0) {
 						if(ufds_malloc)
-							free(ufds);
+							SAlloc::F(ufds);
 						return CURLM_INTERNAL_ERROR;
 					}
 #endif
@@ -1259,7 +1257,7 @@ static CURLMcode multi_wait(struct Curl_multi * multi,
 		}
 		if(WSAEventSelect(extra_fds[i].fd, multi->wsa_event, mask) != 0) {
 			if(ufds_malloc)
-				free(ufds);
+				SAlloc::F(ufds);
 			return CURLM_INTERNAL_ERROR;
 		}
 #endif
@@ -1399,7 +1397,7 @@ static CURLMcode multi_wait(struct Curl_multi * multi,
 	}
 
 	if(ufds_malloc)
-		free(ufds);
+		SAlloc::F(ufds);
 	if(ret)
 		*ret = retcode;
 #if defined(ENABLE_WAKEUP) && defined(USE_WINSOCK)
@@ -1426,7 +1424,7 @@ static CURLMcode multi_wait(struct Curl_multi * multi,
 
 CURLMcode curl_multi_wait(struct Curl_multi * multi,
     struct curl_waitfd extra_fds[],
-    unsigned int extra_nfds,
+    uint extra_nfds,
     int timeout_ms,
     int * ret)
 {
@@ -1436,7 +1434,7 @@ CURLMcode curl_multi_wait(struct Curl_multi * multi,
 
 CURLMcode curl_multi_poll(struct Curl_multi * multi,
     struct curl_waitfd extra_fds[],
-    unsigned int extra_nfds,
+    uint extra_nfds,
     int timeout_ms,
     int * ret)
 {
@@ -1815,7 +1813,7 @@ static CURLcode readrewind(struct Curl_easy * data)
 CURLcode Curl_preconnect(struct Curl_easy * data)
 {
 	if(!data->state.buffer) {
-		data->state.buffer = (char *)malloc(data->set.buffer_size + 1);
+		data->state.buffer = (char *)SAlloc::M(data->set.buffer_size + 1);
 		if(!data->state.buffer)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -2236,7 +2234,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 						    /* Have error handler disconnect conn if we can't retry */
 						    stream_error = TRUE;
 					    }
-					    free(newurl);
+					    SAlloc::F(newurl);
 				    }
 				    else {
 					    /* failure detected */
@@ -2468,7 +2466,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 					    if(!retry) {
 						    /* if the URL is a follow-location and not just a retried request
 						       then figure out the URL here */
-						    free(newurl);
+						    SAlloc::F(newurl);
 						    newurl = data->req.newurl;
 						    data->req.newurl = NULL;
 						    follow = FOLLOW_REDIR;
@@ -2482,7 +2480,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 						    multistate(data, MSTATE_CONNECT);
 						    rc = CURLM_CALL_MULTI_PERFORM;
 					    }
-					    free(newurl);
+					    SAlloc::F(newurl);
 				    }
 				    else {
 					    /* after the transfer is done, go DONE */
@@ -2490,11 +2488,11 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 					    /* but first check to see if we got a location info even though we're
 					       not following redirects */
 					    if(data->req.location) {
-						    free(newurl);
+						    SAlloc::F(newurl);
 						    newurl = data->req.location;
 						    data->req.location = NULL;
 						    result = Curl_follow(data, newurl, FOLLOW_FAKE);
-						    free(newurl);
+						    SAlloc::F(newurl);
 						    if(result) {
 							    stream_error = TRUE;
 							    result = multi_done(data, result, TRUE);
@@ -2797,7 +2795,7 @@ CURLMcode curl_multi_cleanup(struct Curl_multi * multi)
 		Curl_free_multi_ssl_backend_data(multi->ssl_backend_data);
 #endif
 
-		free(multi);
+		SAlloc::F(multi);
 
 		return CURLM_OK;
 	}
@@ -2843,8 +2841,8 @@ static CURLMcode singlesocket(struct Curl_multi * multi, struct Curl_easy * data
 	struct Curl_sh_entry * entry;
 	curl_socket_t s;
 	int num;
-	unsigned int curraction;
-	unsigned char actions[MAX_SOCKSPEREASYHANDLE];
+	uint curraction;
+	uchar actions[MAX_SOCKSPEREASYHANDLE];
 	int rc;
 
 	for(i = 0; i< MAX_SOCKSPEREASYHANDLE; i++)
@@ -2862,8 +2860,8 @@ static CURLMcode singlesocket(struct Curl_multi * multi, struct Curl_easy * data
 	for(i = 0; (i< MAX_SOCKSPEREASYHANDLE) &&
 	    (curraction & GETSOCK_MASK_RW(i));
 	    i++) {
-		unsigned char action = CURL_POLL_NONE;
-		unsigned char prevaction = 0;
+		uchar action = CURL_POLL_NONE;
+		uchar prevaction = 0;
 		int comboaction;
 		bool sincebefore = FALSE;
 
@@ -2967,7 +2965,7 @@ static CURLMcode singlesocket(struct Curl_multi * multi, struct Curl_easy * data
 		/* if this is NULL here, the socket has been closed and notified so
 		   already by Curl_multi_closed() */
 		if(entry) {
-			unsigned char oldactions = data->actions[i];
+			uchar oldactions = data->actions[i];
 			/* this socket has been removed. Decrease user count */
 			entry->users--;
 			if(oldactions & CURL_POLL_OUT)
@@ -3162,7 +3160,7 @@ static CURLMcode multi_socket(struct Curl_multi * multi,
 
 				if(data->conn && !(data->conn->handler->flags & PROTOPT_DIRLOCK))
 					/* set socket event bitmask if they're not locked */
-					data->conn->cselect_bits = (unsigned char)ev_bitmask;
+					data->conn->cselect_bits = (uchar)ev_bitmask;
 
 				Curl_expire(data, 0, EXPIRE_RUN_NOW);
 			}
@@ -3183,9 +3181,8 @@ static CURLMcode multi_socket(struct Curl_multi * multi,
 		   same timeout is still the one to run after this call. That handles the
 		   case when the application asks libcurl to run the timeout
 		   prematurely. */
-		memset(&multi->timer_lastcall, 0, sizeof(multi->timer_lastcall));
+		memzero(&multi->timer_lastcall, sizeof(multi->timer_lastcall));
 	}
-
 	/*
 	 * The loop following here will go on as long as there are expire-times left
 	 * to process in the splay and 'data' will be re-assigned for every expired
@@ -3536,7 +3533,7 @@ void Curl_expire(struct Curl_easy * data, timediff_t milli, expire_id id)
 
 	set = Curl_now();
 	set.tv_sec += (time_t)(milli/1000); /* might be a 64 to 32 bit conversion */
-	set.tv_usec += (unsigned int)(milli%1000)*1000;
+	set.tv_usec += (uint)(milli%1000)*1000;
 
 	if(set.tv_usec >= 1000000) {
 		set.tv_sec++;
@@ -3744,7 +3741,7 @@ void Curl_multi_dump(struct Curl_multi * multi)
 
 #endif
 
-unsigned int Curl_multi_max_concurrent_streams(struct Curl_multi * multi)
+uint Curl_multi_max_concurrent_streams(struct Curl_multi * multi)
 {
 	DEBUGASSERT(multi);
 	return multi->max_concurrent_streams;

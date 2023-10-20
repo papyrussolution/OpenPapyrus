@@ -42,7 +42,6 @@
 #ifndef CURL_DISABLE_FTP
 
 //#include <curl/curl.h>
-
 //#include "urldata.h"
 #include "fileinfo.h"
 //#include "llist.h"
@@ -55,8 +54,7 @@
 /* The last #include file should be: */
 #include "memdebug.h"
 
-/* allocs buffer which will contain one line of LIST command response */
-#define FTP_BUFFER_ALLOCSIZE 160
+#define FTP_BUFFER_ALLOCSIZE 160 /* allocs buffer which will contain one line of LIST command response */
 
 typedef enum {
 	PL_UNIX_TOTALSIZE = 0,
@@ -169,7 +167,7 @@ struct ftp_parselist_data {
 
 	CURLcode error;
 	struct fileinfo * file_data;
-	unsigned int item_length;
+	uint item_length;
 	size_t item_offset;
 	struct {
 		size_t filename;
@@ -208,18 +206,18 @@ void Curl_wildcard_dtor(struct WildcardData ** wcp)
 	DEBUGASSERT(wc->ftpwc == NULL);
 
 	Curl_llist_destroy(&wc->filelist, NULL);
-	free(wc->path);
+	SAlloc::F(wc->path);
 	wc->path = NULL;
-	free(wc->pattern);
+	SAlloc::F(wc->pattern);
 	wc->pattern = NULL;
 	wc->state = CURLWC_INIT;
-	free(wc);
+	SAlloc::F(wc);
 	*wcp = NULL;
 }
 
 struct ftp_parselist_data *Curl_ftp_parselist_data_alloc(void)
 {
-	return (ftp_parselist_data *)calloc(1, sizeof(struct ftp_parselist_data));
+	return (ftp_parselist_data *)SAlloc::C(1, sizeof(struct ftp_parselist_data));
 }
 
 void Curl_ftp_parselist_data_free(struct ftp_parselist_data ** parserp)
@@ -227,7 +225,7 @@ void Curl_ftp_parselist_data_free(struct ftp_parselist_data ** parserp)
 	struct ftp_parselist_data * parser = *parserp;
 	if(parser)
 		Curl_fileinfo_cleanup(parser->file_data);
-	free(parser);
+	SAlloc::F(parser);
 	*parserp = NULL;
 }
 
@@ -238,9 +236,9 @@ CURLcode Curl_ftp_parselist_geterror(struct ftp_parselist_data * pl_data)
 
 #define FTP_LP_MALFORMATED_PERM 0x01000000
 
-static unsigned int ftp_pl_get_permission(const char * str)
+static uint ftp_pl_get_permission(const char * str)
 {
-	unsigned int permissions = 0;
+	uint permissions = 0;
 	/* USER */
 	if(str[0] == 'r')
 		permissions |= 1 << 8;
@@ -503,7 +501,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb,
 						}
 					}
 					else if(parser->item_length == 10) {
-						unsigned int perm;
+						uint perm;
 						if(c != ' ') {
 							parser->error = CURLE_FTP_BAD_FILE_LIST;
 							goto fail;

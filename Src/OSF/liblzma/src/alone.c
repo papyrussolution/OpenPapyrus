@@ -36,8 +36,8 @@ struct lzma_alone_decoder_coder {
 	bool picky;
 	size_t pos; /// Position in the header fields
 	lzma_vli uncompressed_size; /// Uncompressed size decoded from the header
-	uint64_t memlimit; /// Memory usage limit
-	uint64_t memusage; /// Amount of memory actually needed (only an estimate)
+	 uint64 memlimit; /// Memory usage limit
+	 uint64 memusage; /// Amount of memory actually needed (only an estimate)
 	lzma_options_lzma options; /// Options decoded from the header needed to initialize the LZMA decoder
 };
 
@@ -213,7 +213,7 @@ static void alone_decoder_end(void * coder_ptr, const lzma_allocator * allocator
 	lzma_free(coder, allocator);
 }
 
-static lzma_ret alone_decoder_memconfig(void * coder_ptr, uint64_t * memusage, uint64_t * old_memlimit, uint64_t new_memlimit)
+static lzma_ret alone_decoder_memconfig(void * coder_ptr,  uint64 * memusage,  uint64 * old_memlimit,  uint64 new_memlimit)
 {
 	lzma_alone_decoder_coder * coder = (lzma_alone_decoder_coder *)coder_ptr;
 	*memusage = coder->memusage;
@@ -226,7 +226,7 @@ static lzma_ret alone_decoder_memconfig(void * coder_ptr, uint64_t * memusage, u
 	return LZMA_OK;
 }
 
-extern lzma_ret lzma_alone_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator, uint64_t memlimit, bool picky)
+extern lzma_ret lzma_alone_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator,  uint64 memlimit, bool picky)
 {
 	lzma_next_coder_init(&lzma_alone_decoder_init, next, allocator);
 	lzma_alone_decoder_coder * coder = (lzma_alone_decoder_coder *)next->coder;
@@ -252,7 +252,7 @@ extern lzma_ret lzma_alone_decoder_init(lzma_next_coder * next, const lzma_alloc
 	return LZMA_OK;
 }
 
-lzma_ret lzma_alone_decoder(lzma_stream *strm, uint64_t memlimit)
+lzma_ret lzma_alone_decoder(lzma_stream *strm,  uint64 memlimit)
 {
 	lzma_next_strm_init2(lzma_alone_decoder_init, strm, memlimit, false);
 	strm->internal->supported_actions[LZMA_RUN] = true;

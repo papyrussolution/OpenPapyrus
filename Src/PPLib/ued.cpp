@@ -289,10 +289,19 @@ static uint64 UedPlanarAngleSignMask = 0x00800000000000ULL;
 			break;
 		case UED_META_TIME_TZMSEC:
 			{
-				int _qhr_offs = static_cast<int>(raw >> (bits - 7));
-				uint64 raw2 = raw & ~((1 << (bits-1)) | (1 << (bits-2)) | (1 << (bits-3)) |
-					(1 << (bits-4)) | (1 << (bits-5)) | (1 << (bits-6)) | (1 << (bits-7)));
-
+				int _qhr_offs = static_cast<int>(raw >> (bits - 7)); // зональное смещение в четверть-часовых интервалах
+				int  tz_offs_sc = _qhr_offs * (15 * 60);
+				if(tz_offs_sc > (26 * 3600))
+					; // @err
+				else {
+					if(tz_offs_sc > (12 * 3600))
+						tz_offs_sc = -((26 * 3600) - tz_offs_sc);
+					//if(SUniTime_Internal::ValidateTimeZone(_qhr_offs * ))
+					uint64 raw2 = raw & ~((1 << (bits-1)) | (1 << (bits-2)) | (1 << (bits-3)) |
+						(1 << (bits-4)) | (1 << (bits-5)) | (1 << (bits-6)) | (1 << (bits-7)));
+					tm_intr.SetTime100ns(raw2 * 10000);
+					tm_intr.TimeZoneSc = tz_offs_sc;
+				}
 			}
 			break;
 		case UED_META_TIME_TZSEC:

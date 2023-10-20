@@ -22,7 +22,7 @@
 #ifdef HAVE_SYS_SELECT_H
 // According to POSIX 1003.1-2001.
 #include <sys/select.h>
-# else
+#else
 // According to earlier standards.
 #include <sys/time.h>
 #include <sys/types.h>

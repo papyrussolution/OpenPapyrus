@@ -13,8 +13,8 @@
 #pragma hdrstop
 #include "./jpegdec.h"
 #ifdef WEBP_HAVE_JPEG
-#include <../osf/libjpeg/jpeglib.h>
-#include <../osf/libjpeg/jerror.h>
+#include <../slib/libjpeg/jpeglib.h>
+#include <../slib/libjpeg/jerror.h>
 #include "webp/encode.h"
 #include "./imageio_util.h"
 #include "./metadata.h"

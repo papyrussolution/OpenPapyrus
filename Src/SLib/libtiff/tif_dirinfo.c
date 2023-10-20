@@ -288,8 +288,8 @@ static const void * td_lfind(const void * key, const void * base, size_t * nmemb
 	return NULL;
 }
 
-const TIFFFieldArray * _TIFFGetFields(void) { return (&tiffFieldArray); }
-const TIFFFieldArray* _TIFFGetExifFields(void) { return (&exifFieldArray); }
+const TIFFFieldArray * _TIFFGetFields() { return (&tiffFieldArray); }
+const TIFFFieldArray* _TIFFGetExifFields() { return (&exifFieldArray); }
 
 void _TIFFSetupFields(TIFF * tif, const TIFFFieldArray* fieldarray)
 {
@@ -583,7 +583,7 @@ TIFFField* _TIFFCreateAnonField(TIFF * tif, uint32 tag, TIFFDataType field_type)
 	 * note that this name is a special sign to TIFFClose() and
 	 * _TIFFSetupFields() to free the field
 	 */
-	(void)_snprintf(fld->field_name, 32, "Tag %d", (int)tag);
+	_snprintf(fld->field_name, 32, "Tag %d", (int)tag);
 	return fld;
 }
 

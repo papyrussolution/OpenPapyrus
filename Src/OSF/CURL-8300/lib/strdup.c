@@ -44,7 +44,7 @@ char *Curl_strdup(const char * str)
 
 	len = strlen(str) + 1;
 
-	newstr = malloc(len);
+	newstr = SAlloc::M(len);
 	if(!newstr)
 		return (char *)NULL;
 
@@ -89,7 +89,7 @@ wchar_t *Curl_wcsdup(const wchar_t * src)
 ***************************************************************************/
 void * Curl_memdup(const void * src, size_t length)
 {
-	void * buffer = malloc(length);
+	void * buffer = SAlloc::M(length);
 	if(buffer)
 		memcpy(buffer, src, length);
 	return buffer;
@@ -99,7 +99,7 @@ void * Curl_memdup(const void * src, size_t length)
 *
 * Curl_saferealloc(ptr, size)
 *
-* Does a normal realloc(), but will free the data pointer if the realloc
+* Does a normal SAlloc::R(), but will free the data pointer if the realloc
 * fails. If 'size' is non-zero, it will free the data and return a failure.
 *
 * This convenience function is provided and used to help us avoid a common
@@ -111,9 +111,9 @@ void * Curl_memdup(const void * src, size_t length)
 ***************************************************************************/
 void *Curl_saferealloc(void * ptr, size_t size)
 {
-	void * datap = realloc(ptr, size);
+	void * datap = SAlloc::R(ptr, size);
 	if(size && !datap)
 		/* only free 'ptr' if size was non-zero */
-		free(ptr);
+		SAlloc::F(ptr);
 	return datap;
 }

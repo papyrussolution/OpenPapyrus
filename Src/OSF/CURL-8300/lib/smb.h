@@ -38,8 +38,8 @@ struct smb_conn {
 	char * user;
 	char * domain;
 	char * share;
-	unsigned char challenge[8];
-	unsigned int session_key;
+	uchar challenge[8];
+	uint session_key;
 	unsigned short uid;
 	char * recv_buf;
 	size_t upload_size;

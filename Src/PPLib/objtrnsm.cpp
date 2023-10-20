@@ -3067,7 +3067,7 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 		if(param.SsOnlyFileNames.getCount()) {
 			for(uint ssp = 0; param.SsOnlyFileNames.get(&ssp, temp_buf);) {
 				if(fileExists(temp_buf)) {
-					fep.Add(temp_buf);
+					fep.Add(temp_buf, 0);
 				}
 			}
 		}

@@ -31,7 +31,7 @@
 #include "vauth/vauth.h"
 //#include "urldata.h"
 #include "curl_ntlm_core.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "curl_multibyte.h"
 //#include "sendf.h"
 
@@ -115,7 +115,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
 	s_pSecFn->FreeContextBuffer(SecurityPackage);
 
 	/* Allocate our output buffer */
-	ntlm->output_token = malloc(ntlm->token_max);
+	ntlm->output_token = SAlloc::M(ntlm->token_max);
 	if(!ntlm->output_token)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -135,7 +135,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
 		ntlm->p_identity = NULL;
 
 	/* Allocate our credentials handle */
-	ntlm->credentials = calloc(1, sizeof(CredHandle));
+	ntlm->credentials = SAlloc::C(1, sizeof(CredHandle));
 	if(!ntlm->credentials)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -149,7 +149,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
 		return CURLE_LOGIN_DENIED;
 
 	/* Allocate our new context handle */
-	ntlm->context = calloc(1, sizeof(CtxtHandle));
+	ntlm->context = SAlloc::C(1, sizeof(CtxtHandle));
 	if(!ntlm->context)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -213,7 +213,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 	}
 
 	/* Store the challenge for later use */
-	ntlm->input_token = malloc(Curl_bufref_len(type2) + 1);
+	ntlm->input_token = SAlloc::M(Curl_bufref_len(type2) + 1);
 	if(!ntlm->input_token)
 		return CURLE_OUT_OF_MEMORY;
 	memcpy(ntlm->input_token, Curl_bufref_ptr(type2), Curl_bufref_len(type2));
@@ -344,14 +344,14 @@ void Curl_auth_cleanup_ntlm(struct ntlmdata * ntlm)
 	/* Free our security context */
 	if(ntlm->context) {
 		s_pSecFn->DeleteSecurityContext(ntlm->context);
-		free(ntlm->context);
+		SAlloc::F(ntlm->context);
 		ntlm->context = NULL;
 	}
 
 	/* Free our credentials handle */
 	if(ntlm->credentials) {
 		s_pSecFn->FreeCredentialsHandle(ntlm->credentials);
-		free(ntlm->credentials);
+		SAlloc::F(ntlm->credentials);
 		ntlm->credentials = NULL;
 	}
 
@@ -360,13 +360,13 @@ void Curl_auth_cleanup_ntlm(struct ntlmdata * ntlm)
 	ntlm->p_identity = NULL;
 
 	/* Free the input and output tokens */
-	Curl_safefree(ntlm->input_token);
-	Curl_safefree(ntlm->output_token);
+	ZFREE(ntlm->input_token);
+	ZFREE(ntlm->output_token);
 
 	/* Reset any variables */
 	ntlm->token_max = 0;
 
-	Curl_safefree(ntlm->spn);
+	ZFREE(ntlm->spn);
 }
 
 #endif /* USE_WINDOWS_SSPI && USE_NTLM */

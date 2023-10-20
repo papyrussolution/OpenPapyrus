@@ -32,7 +32,7 @@ struct Curl_header_store {
   char *name; /* points into 'buffer' */
   char *value; /* points into 'buffer */
   int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
+  uchar type; /* CURLH_* defines */
   char buffer[1]; /* this is the raw header blob */
 };
 
@@ -40,7 +40,7 @@ struct Curl_header_store {
  * Curl_headers_push() gets passed a full header to store.
  */
 CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           unsigned char type);
+                           uchar type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.

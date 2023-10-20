@@ -243,9 +243,6 @@
     <ProjectReference Include="ImGui.vcxproj">
       <Project>{2c51defb-2cc7-4f3b-aee7-f0943ccefa87}</Project>
     </ProjectReference>
-    <ProjectReference Include="libjpeg.vcxproj">
-      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
-    </ProjectReference>
     <ProjectReference Include="libwebp-slib.vcxproj">
       <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
     </ProjectReference>

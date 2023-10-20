@@ -243,9 +243,9 @@ extern lzma_ret lzma_lzma2_encoder_init(lzma_next_coder * next, const lzma_alloc
 	return lzma_lz_encoder_init(next, allocator, filters, &lzma2_encoder_init);
 }
 
-extern uint64_t lzma_lzma2_encoder_memusage(const void * options)
+extern  uint64 lzma_lzma2_encoder_memusage(const void * options)
 {
-	const uint64_t lzma_mem = lzma_lzma_encoder_memusage(options);
+	const  uint64 lzma_mem = lzma_lzma_encoder_memusage(options);
 	return (lzma_mem == UINT64_MAX) ? UINT64_MAX : (sizeof(lzma_lzma2_encoder_coder) + lzma_mem);
 }
 
@@ -266,9 +266,9 @@ extern lzma_ret lzma_lzma2_props_encode(const void * options, uint8 * out)
 	return LZMA_OK;
 }
 
-extern uint64_t lzma_lzma2_block_size(const void * options)
+extern  uint64 lzma_lzma2_block_size(const void * options)
 {
 	const lzma_options_lzma * const opt = (const lzma_options_lzma * const)options;
 	// Use at least 1 MiB to keep compression ratio better.
-	return MAX((uint64_t)(opt->dict_size) * 3, UINT64_C(1) << 20);
+	return MAX(( uint64)(opt->dict_size) * 3, UINT64_C(1) << 20);
 }

@@ -29,12 +29,12 @@
 
 //#include "urldata.h"
 //#include <curl/curl.h>
-#include "http.h"
+//#include "http.h"
 #include "http1.h"
 #include "urlapi-int.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -42,7 +42,7 @@
 
 void Curl_h1_req_parse_init(struct h1_req_parser * parser, size_t max_line_len)
 {
-	memset(parser, 0, sizeof(*parser));
+	memzero(parser, sizeof(*parser));
 	parser->max_line_len = max_line_len;
 	Curl_dyn_init(&parser->scratch, max_line_len);
 }
@@ -124,7 +124,7 @@ static ssize_t next_line(struct h1_req_parser * parser,
 	}
 	else if(*err == CURLE_AGAIN) {
 		/* no line end in `buf`, add it to our scratch */
-		*err = Curl_dyn_addn(&parser->scratch, (const unsigned char *)buf, buflen);
+		*err = Curl_dyn_addn(&parser->scratch, (const uchar *)buf, buflen);
 		nread = (*err)? -1 : (ssize_t)buflen;
 	}
 	return nread;

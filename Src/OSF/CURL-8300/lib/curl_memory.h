@@ -151,14 +151,14 @@ extern curl_calloc_callback Curl_ccalloc;
 
 #undef strdup
 #define strdup(ptr) Curl_cstrdup(ptr)
-#undef malloc
-#define malloc(size) Curl_cmalloc(size)
-#undef calloc
-#define calloc(nbelem,size) Curl_ccalloc(nbelem, size)
-#undef realloc
-#define realloc(ptr,size) Curl_crealloc(ptr, size)
-#undef free
-#define free(ptr) Curl_cfree(ptr)
+#undef malloc_Removed
+#define malloc_Removed(size) Curl_cmalloc(size)
+#undef calloc_Removed
+#define calloc_Removed(nbelem,size) Curl_ccalloc(nbelem, size)
+#undef realloc_Removed
+#define realloc_Removed(ptr,size) Curl_crealloc(ptr, size)
+#undef free_Removed
+#define free_Removed(ptr) Curl_cfree(ptr)
 
 #ifdef WIN32
 #ifdef UNICODE

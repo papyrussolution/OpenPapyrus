@@ -43,11 +43,11 @@
 void *Curl_memrchr(const void * s, int c, size_t n)
 {
 	if(n > 0) {
-		const unsigned char * p = (const unsigned char *)s;
-		const unsigned char * q = (const unsigned char *)s;
+		const uchar * p = (const uchar *)s;
+		const uchar * q = (const uchar *)s;
 		p += n - 1;
 		while(p >= q) {
-			if(*p == (unsigned char)c)
+			if(*p == (uchar)c)
 				return (void *)p;
 			p--;
 		}

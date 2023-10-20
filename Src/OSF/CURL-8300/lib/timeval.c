@@ -96,7 +96,7 @@ struct curltime Curl_now(void){
 #endif
 		(0 == clock_gettime(CLOCK_MONOTONIC_RAW, &tsnow))) {
 		cnow.tv_sec = tsnow.tv_sec;
-		cnow.tv_usec = (unsigned int)(tsnow.tv_nsec / 1000);
+		cnow.tv_usec = (uint)(tsnow.tv_nsec / 1000);
 	}
 	else
 #endif
@@ -108,7 +108,7 @@ struct curltime Curl_now(void){
 #endif
 		(0 == clock_gettime(CLOCK_MONOTONIC, &tsnow))) {
 		cnow.tv_sec = tsnow.tv_sec;
-		cnow.tv_usec = (unsigned int)(tsnow.tv_nsec / 1000);
+		cnow.tv_usec = (uint)(tsnow.tv_nsec / 1000);
 	}
 	/*
 	** Even when the configure process has truly detected monotonic clock
@@ -119,7 +119,7 @@ struct curltime Curl_now(void){
 	else {
 		(void)gettimeofday(&now, NULL);
 		cnow.tv_sec = now.tv_sec;
-		cnow.tv_usec = (unsigned int)now.tv_usec;
+		cnow.tv_usec = (uint)now.tv_usec;
 	}
 #else
 	else {

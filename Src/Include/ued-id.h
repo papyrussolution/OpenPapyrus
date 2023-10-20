@@ -1,9 +1,9 @@
-// UED-ID-TEMP.H
-// version: 9
-// sha256: f9c3e6945dd7e96dfb260f2410e15cc552e47155983f6fe36f1a03f75a1a1185
+// UED-ID.H
+// version: 13
+// sha256: 0a630f739eb4e96f4203b2998ce04bd6a78685bda2e619ac5897c1795605d54a
 //
-#ifndef __UED_ID_TEMP_H
-#define __UED_ID_TEMP_H
+#ifndef __UED_ID_H
+#define __UED_ID_H
 
 #define UED_META_META                                0x100000001ULL
 #define UED_META_PREDEFVALUE                         0x100000002ULL
@@ -1748,7 +1748,18 @@
 	#define UED_GENDER_TRANSSEXUAL_MASCFEM               0x3700000006ULL
 	#define UED_GENDER_TRANSSEXUAL_FEMMASC               0x3700000007ULL
 #define UED_META_TERRA_CONTINENTEM                   0x100000038ULL
+	#define UED_TERRA_CONTINENTEM_EURASIA                0x3800000001ULL
+	#define UED_TERRA_CONTINENTEM_AFRICA                 0x3800000002ULL
+	#define UED_TERRA_CONTINENTEM_NORTH_AMERICA          0x3800000003ULL
+	#define UED_TERRA_CONTINENTEM_SOUTH_AMERICA          0x3800000004ULL
+	#define UED_TERRA_CONTINENTEM_AUSTRALIA              0x3800000005ULL
+	#define UED_TERRA_CONTINENTEM_ANTARCTICA             0x3800000006ULL
 #define UED_META_TERRA_OCEANUM                       0x100000039ULL
+	#define UED_TERRA_OCEANUM_ARCTIC                     0x3900000001ULL
+	#define UED_TERRA_OCEANUM_SOUTHERN                   0x3900000002ULL
+	#define UED_TERRA_OCEANUM_INDIAN                     0x3900000003ULL
+	#define UED_TERRA_OCEANUM_ATLANTIC                   0x3900000004ULL
+	#define UED_TERRA_OCEANUM_PACIFIC                    0x3900000005ULL
 #define UED_META_TERRA_MARE                          0x10000003aULL
 #define UED_META_TERRA_FLUMEN                        0x10000003bULL
 #define UED_META_TERRA_LACUS                         0x10000003cULL
@@ -2330,7 +2341,138 @@
 	#define UED_PROGLANG_FORTH                           0x460000001dULL
 #define UED_META_DATATYPE                            0x100000047ULL
 #define UED_META_ABSTRACTDATASTRUCT                  0x100000048ULL
-#define UED_META_DATAFORMATMIME                      0x100000049ULL
+#define UED_META_DATAFORMAT                          0x100000049ULL
+	#define UED_DATAFORMAT_TXT                           0x4900000001ULL
+	#define UED_DATAFORMAT_JPEG                          0x4900000002ULL
+	#define UED_DATAFORMAT_PNG                           0x4900000003ULL
+	#define UED_DATAFORMAT_TIFF                          0x4900000004ULL
+	#define UED_DATAFORMAT_GIF                           0x4900000005ULL
+	#define UED_DATAFORMAT_BMP                           0x4900000006ULL
+	#define UED_DATAFORMAT_ICO                           0x4900000007ULL
+	#define UED_DATAFORMAT_CUR                           0x4900000008ULL
+	#define UED_DATAFORMAT_SVG                           0x4900000009ULL
+	#define UED_DATAFORMAT_HTML                          0x490000000aULL
+	#define UED_DATAFORMAT_XML                           0x490000000bULL
+	#define UED_DATAFORMAT_INI                           0x490000000cULL
+	#define UED_DATAFORMAT_TXTBOMUTF8                    0x490000000dULL
+	#define UED_DATAFORMAT_TXTBOMUTF16BE                 0x490000000eULL
+	#define UED_DATAFORMAT_TXTBOMUTF16LE                 0x490000000fULL
+	#define UED_DATAFORMAT_TXTBOMUTF32BE                 0x4900000010ULL
+	#define UED_DATAFORMAT_TXTBOMUTF32LE                 0x4900000011ULL
+	#define UED_DATAFORMAT_TXTBOMUTF7                    0x4900000012ULL
+	#define UED_DATAFORMAT_TXTBOMUTF1                    0x4900000013ULL
+	#define UED_DATAFORMAT_TXTBOMUTF_EBCDIC              0x4900000014ULL
+	#define UED_DATAFORMAT_TXTBOMSCSU                    0x4900000015ULL
+	#define UED_DATAFORMAT_TXTBOMBOCU1                   0x4900000016ULL
+	#define UED_DATAFORMAT_TXTBOMGB18030                 0x4900000017ULL
+	#define UED_DATAFORMAT_LATEX                         0x4900000018ULL
+	#define UED_DATAFORMAT_PDF                           0x4900000019ULL
+	#define UED_DATAFORMAT_RTF                           0x490000001aULL
+	#define UED_DATAFORMAT_MDB                           0x490000001bULL
+	#define UED_DATAFORMAT_ACCDB                         0x490000001cULL
+	#define UED_DATAFORMAT_WBXML                         0x490000001dULL
+	#define UED_DATAFORMAT_WMF                           0x490000001eULL
+	#define UED_DATAFORMAT_EPS                           0x490000001fULL
+	#define UED_DATAFORMAT_HLP                           0x4900000020ULL
+	#define UED_DATAFORMAT_PPD                           0x4900000021ULL
+	#define UED_DATAFORMAT_PLIST                         0x4900000022ULL
+	#define UED_DATAFORMAT_MAT                           0x4900000023ULL
+	#define UED_DATAFORMAT_PDB                           0x4900000024ULL
+	#define UED_DATAFORMAT_WCBFFOLD                      0x4900000025ULL
+	#define UED_DATAFORMAT_ZIP                           0x4900000026ULL
+	#define UED_DATAFORMAT_RAR                           0x4900000027ULL
+	#define UED_DATAFORMAT_GZ                            0x4900000028ULL
+	#define UED_DATAFORMAT_TAR                           0x4900000029ULL
+	#define UED_DATAFORMAT_BZ2                           0x490000002aULL
+	#define UED_DATAFORMAT_SEVENZ                        0x490000002bULL
+	#define UED_DATAFORMAT_XZ                            0x490000002cULL
+	#define UED_DATAFORMAT_Z                             0x490000002dULL
+	#define UED_DATAFORMAT_CAB                           0x490000002eULL
+	#define UED_DATAFORMAT_ARJ                           0x490000002fULL
+	#define UED_DATAFORMAT_LZH                           0x4900000030ULL
+	#define UED_DATAFORMAT_XAR                           0x4900000031ULL
+	#define UED_DATAFORMAT_PMD                           0x4900000032ULL
+	#define UED_DATAFORMAT_DEB                           0x4900000033ULL
+	#define UED_DATAFORMAT_RPM                           0x4900000034ULL
+	#define UED_DATAFORMAT_CHM                           0x4900000035ULL
+	#define UED_DATAFORMAT_ISO                           0x4900000036ULL
+	#define UED_DATAFORMAT_VHD                           0x4900000037ULL
+	#define UED_DATAFORMAT_WIM                           0x4900000038ULL
+	#define UED_DATAFORMAT_MDF                           0x4900000039ULL
+	#define UED_DATAFORMAT_NRI                           0x490000003aULL
+	#define UED_DATAFORMAT_SWF                           0x490000003bULL
+	#define UED_DATAFORMAT_MAR                           0x490000003cULL
+	#define UED_DATAFORMAT_MKV                           0x490000003dULL
+	#define UED_DATAFORMAT_AVI                           0x490000003eULL
+	#define UED_DATAFORMAT_MP4                           0x490000003fULL
+	#define UED_DATAFORMAT_WMV                           0x4900000040ULL
+	#define UED_DATAFORMAT_MPG                           0x4900000041ULL
+	#define UED_DATAFORMAT_FLV                           0x4900000042ULL
+	#define UED_DATAFORMAT_MOV                           0x4900000043ULL
+	#define UED_DATAFORMAT_F4F                           0x4900000044ULL
+	#define UED_DATAFORMAT_CLASS                         0x4900000045ULL
+	#define UED_DATAFORMAT_EXE                           0x4900000046ULL
+	#define UED_DATAFORMAT_DLL                           0x4900000047ULL
+	#define UED_DATAFORMAT_PCAP                          0x4900000048ULL
+	#define UED_DATAFORMAT_PYO                           0x4900000049ULL
+	#define UED_DATAFORMAT_SO                            0x490000004aULL
+	#define UED_DATAFORMAT_MO                            0x490000004bULL
+	#define UED_DATAFORMAT_MUI                           0x490000004cULL
+	#define UED_DATAFORMAT_CAT                           0x490000004dULL
+	#define UED_DATAFORMAT_XSB                           0x490000004eULL
+	#define UED_DATAFORMAT_KEY                           0x490000004fULL
+	#define UED_DATAFORMAT_SQ3                           0x4900000050ULL
+	#define UED_DATAFORMAT_QST                           0x4900000051ULL
+	#define UED_DATAFORMAT_CRX                           0x4900000052ULL
+	#define UED_DATAFORMAT_UTX                           0x4900000053ULL
+	#define UED_DATAFORMAT_RX3                           0x4900000054ULL
+	#define UED_DATAFORMAT_KDC                           0x4900000055ULL
+	#define UED_DATAFORMAT_XNB                           0x4900000056ULL
+	#define UED_DATAFORMAT_BLP                           0x4900000057ULL
+	#define UED_DATAFORMAT_BIG                           0x4900000058ULL
+	#define UED_DATAFORMAT_MDL                           0x4900000059ULL
+	#define UED_DATAFORMAT_SPR                           0x490000005aULL
+	#define UED_DATAFORMAT_SFO                           0x490000005bULL
+	#define UED_DATAFORMAT_MPQ                           0x490000005cULL
+	#define UED_DATAFORMAT_NES                           0x490000005dULL
+	#define UED_DATAFORMAT_DMP                           0x490000005eULL
+	#define UED_DATAFORMAT_DEX                           0x490000005fULL
+	#define UED_DATAFORMAT_GIM                           0x4900000060ULL
+	#define UED_DATAFORMAT_AMXX                          0x4900000061ULL
+	#define UED_DATAFORMAT_SLN                           0x4900000062ULL
+	#define UED_DATAFORMAT_VCPROJ                        0x4900000063ULL
+	#define UED_DATAFORMAT_ASM                           0x4900000064ULL
+	#define UED_DATAFORMAT_C                             0x4900000065ULL
+	#define UED_DATAFORMAT_CPP                           0x4900000066ULL
+	#define UED_DATAFORMAT_H                             0x4900000067ULL
+	#define UED_DATAFORMAT_PERL                          0x4900000068ULL
+	#define UED_DATAFORMAT_PHP                           0x4900000069ULL
+	#define UED_DATAFORMAT_JAVA                          0x490000006aULL
+	#define UED_DATAFORMAT_PY                            0x490000006bULL
+	#define UED_DATAFORMAT_UNIXSHELL                     0x490000006cULL
+	#define UED_DATAFORMAT_MSI                           0x490000006dULL
+	#define UED_DATAFORMAT_TXTUTF8                       0x490000006eULL
+	#define UED_DATAFORMAT_TXTASCII                      0x490000006fULL
+	#define UED_DATAFORMAT_LOG                           0x4900000070ULL
+	#define UED_DATAFORMAT_PROPERTIES                    0x4900000071ULL
+	#define UED_DATAFORMAT_CSS                           0x4900000072ULL
+	#define UED_DATAFORMAT_JAVASCRIPT                    0x4900000073ULL
+	#define UED_DATAFORMAT_JSON                          0x4900000074ULL
+	#define UED_DATAFORMAT_PBXPROJ                       0x4900000075ULL
+	#define UED_DATAFORMAT_CSV                           0x4900000077ULL
+	#define UED_DATAFORMAT_XSD                           0x4900000078ULL
+	#define UED_DATAFORMAT_GRAVITY                       0x4900000079ULL
+	#define UED_DATAFORMAT_VCPROJFILERS                  0x490000007aULL
+	#define UED_DATAFORMAT_VCPROJUSER                    0x490000007bULL
+	#define UED_DATAFORMAT_CODEBLOCKS_CBP                0x490000007cULL
+	#define UED_DATAFORMAT_M4                            0x490000007dULL
+	#define UED_DATAFORMAT_TSV                           0x490000007eULL
+	#define UED_DATAFORMAT_WEBP                          0x490000007fULL
+	#define UED_DATAFORMAT_OTF                           0x4900000080ULL
+	#define UED_DATAFORMAT_TTF                           0x4900000081ULL
+	#define UED_DATAFORMAT_TTC                           0x4900000082ULL
+	#define UED_DATAFORMAT_DFONT                         0x4900000083ULL
+	#define UED_DATAFORMAT_PRV_PAPYRUDBDIVXCHG           0x4900010001ULL
 #define UED_META_URISCHEME                           0x10000004aULL
 #define UED_META_BRAND                               0x10000004bULL
 #define UED_META_PACKAGE                             0x10000004cULL
@@ -2381,7 +2523,6 @@
 	#define UED_COLORRGB_MEDIUMSPRINGGREEN               0x4fff00fa9aULL
 	#define UED_COLORRGB_LIME                            0x4fff00ff00ULL
 	#define UED_COLORRGB_SPRINGGREEN                     0x4fff00ff7fULL
-	#define UED_COLORRGB_AQUA                            0x4fff00ffffULL
 	#define UED_COLORRGB_CYAN                            0x4fff00ffffULL
 	#define UED_COLORRGB_MIDNIGHTBLUE                    0x4fff191970ULL
 	#define UED_COLORRGB_DODGERBLUE                      0x4fff1e90ffULL
@@ -3453,4 +3594,4 @@
 #define UED_META_RANGE_ZERO_TO_ONE                   0x181600000ULL
 #define UED_META_RANGE_MINUSONE_TO_ONE               0x181700000ULL
 
-#endif // __UED_ID_TEMP_H
+#endif // __UED_ID_H

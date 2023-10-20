@@ -27,10 +27,10 @@ static size_t ia64_code(void * simple lzma_attribute((__unused__)), uint32_t now
 				continue;
 			const size_t byte_pos = (bit_pos >> 3);
 			const uint32_t bit_res = bit_pos & 0x7;
-			uint64_t instruction = 0;
+			 uint64 instruction = 0;
 			for(size_t j = 0; j < 6; ++j)
-				instruction += (uint64_t)(buffer[i + j + byte_pos]) << (8 * j);
-			uint64_t inst_norm = instruction >> bit_res;
+				instruction += ( uint64)(buffer[i + j + byte_pos]) << (8 * j);
+			 uint64 inst_norm = instruction >> bit_res;
 			if(((inst_norm >> 37) & 0xF) == 0x5 && ((inst_norm >> 9) & 0x7) == 0/* &&  (inst_norm & 0x3F)== 0 */) {
 				uint32_t src = (uint32_t)((inst_norm >> 13) & 0xFFFFF);
 				src |= ((inst_norm >> 36) & 1) << 20;
@@ -41,9 +41,9 @@ static size_t ia64_code(void * simple lzma_attribute((__unused__)), uint32_t now
 				else
 					dest = src - (now_pos + (uint32_t)(i));
 				dest >>= 4;
-				inst_norm &= ~((uint64_t)(0x8FFFFF) << 13);
-				inst_norm |= (uint64_t)(dest & 0xFFFFF) << 13;
-				inst_norm |= (uint64_t)(dest & 0x100000) << (36 - 20);
+				inst_norm &= ~(( uint64)(0x8FFFFF) << 13);
+				inst_norm |= ( uint64)(dest & 0xFFFFF) << 13;
+				inst_norm |= ( uint64)(dest & 0x100000) << (36 - 20);
 				instruction &= (1U << bit_res) - 1;
 				instruction |= (inst_norm << bit_res);
 				for(size_t j = 0; j < 6; j++)

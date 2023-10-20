@@ -28,7 +28,7 @@
 //#include <curl/curl.h>
 //#include "urldata.h"
 #include "url.h"
-#include "progress.h"
+//#include "progress.h"
 //#include "multiif.h"
 //#include "sendf.h"
 #include "conncache.h"
@@ -38,7 +38,7 @@
 //#include "strcase.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -47,7 +47,7 @@
 static CURLcode bundle_create(struct connectbundle ** bundlep)
 {
 	DEBUGASSERT(*bundlep == NULL);
-	*bundlep = (connectbundle *)malloc(sizeof(struct connectbundle));
+	*bundlep = (connectbundle *)SAlloc::M(sizeof(struct connectbundle));
 	if(!*bundlep)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -60,7 +60,7 @@ static CURLcode bundle_create(struct connectbundle ** bundlep)
 
 static void bundle_destroy(struct connectbundle * bundle)
 {
-	free(bundle);
+	SAlloc::F(bundle);
 }
 
 /* Add a connection to a bundle */

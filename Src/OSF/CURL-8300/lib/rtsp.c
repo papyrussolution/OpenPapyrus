@@ -28,12 +28,12 @@
 
 //#include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
+//#include "transfer.h"
 //#include "sendf.h"
 //#include "multiif.h"
-#include "http.h"
+//#include "http.h"
 #include "url.h"
-#include "progress.h"
+//#include "progress.h"
 #include "rtsp.h"
 //#include "strcase.h"
 #include "select.h"
@@ -41,12 +41,12 @@
 //#include "cfilters.h"
 #include "strdup.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
-#define RTP_PKT_LENGTH(p)  ((((int)((unsigned char)((p)[2]))) << 8) | \
-	((int)((unsigned char)((p)[3]))))
+#define RTP_PKT_LENGTH(p)  ((((int)((uchar)((p)[2]))) << 8) | \
+	((int)((uchar)((p)[3]))))
 
 /* protocol-specific functions set up to be called by the main engine */
 static CURLcode rtsp_do(struct Curl_easy * data, bool * done);
@@ -71,9 +71,9 @@ static CURLcode rtsp_rtp_readwrite(struct Curl_easy * data,
 
 static CURLcode rtsp_setup_connection(struct Curl_easy * data,
     struct connectdata * conn);
-static unsigned int rtsp_conncheck(struct Curl_easy * data,
+static uint rtsp_conncheck(struct Curl_easy * data,
     struct connectdata * check,
-    unsigned int checks_to_perform);
+    uint checks_to_perform);
 
 /* this returns the socket to wait for in the DO and DOING state for the multi
    interface and then we're always _sending_ a request and thus we wait for
@@ -124,7 +124,7 @@ static CURLcode rtsp_setup_connection(struct Curl_easy * data, struct connectdat
 {
 	struct RTSP * rtsp;
 	(void)conn;
-	data->req.p.rtsp = rtsp = static_cast<RTSP *>(calloc(1, sizeof(struct RTSP)));
+	data->req.p.rtsp = rtsp = static_cast<RTSP *>(SAlloc::C(1, sizeof(struct RTSP)));
 	if(!rtsp)
 		return CURLE_OUT_OF_MEMORY;
 	Curl_dyn_init(&conn->proto.rtspc.buf, MAX_RTP_BUFFERSIZE);
@@ -133,9 +133,9 @@ static CURLcode rtsp_setup_connection(struct Curl_easy * data, struct connectdat
 /*
  * Function to check on various aspects of a connection.
  */
-static unsigned int rtsp_conncheck(struct Curl_easy * data, struct connectdata * conn, unsigned int checks_to_perform)
+static uint rtsp_conncheck(struct Curl_easy * data, struct connectdata * conn, uint checks_to_perform)
 {
-	unsigned int ret_val = CONNRESULT_NONE;
+	uint ret_val = CONNRESULT_NONE;
 	(void)data;
 	if(checks_to_perform & CONNCHECK_ISDEAD) {
 		bool input_pending;
@@ -321,7 +321,7 @@ static CURLcode rtsp_do(struct Curl_easy * data, bool * done)
 	if(rtspreq == RTSPREQ_SETUP && !p_transport) {
 		/* New Transport: setting? */
 		if(data->set.str[STRING_RTSP_TRANSPORT]) {
-			Curl_safefree(data->state.aptr.rtsp_transport);
+			ZFREE(data->state.aptr.rtsp_transport);
 
 			data->state.aptr.rtsp_transport =
 			    aprintf("Transport: %s\r\n",
@@ -347,7 +347,7 @@ static CURLcode rtsp_do(struct Curl_easy * data, bool * done)
 		/* Accept-Encoding header */
 		if(!Curl_checkheaders(data, STRCONST("Accept-Encoding")) &&
 		    data->set.str[STRING_ENCODING]) {
-			Curl_safefree(data->state.aptr.accept_encoding);
+			ZFREE(data->state.aptr.accept_encoding);
 			data->state.aptr.accept_encoding =
 			    aprintf("Accept-Encoding: %s\r\n", data->set.str[STRING_ENCODING]);
 
@@ -364,7 +364,7 @@ static CURLcode rtsp_do(struct Curl_easy * data, bool * done)
 	   here. */
 	if(Curl_checkheaders(data, STRCONST("User-Agent")) &&
 	    data->state.aptr.uagent) {
-		Curl_safefree(data->state.aptr.uagent);
+		ZFREE(data->state.aptr.uagent);
 	}
 	else if(!Curl_checkheaders(data, STRCONST("User-Agent")) &&
 	    data->set.str[STRING_USERAGENT]) {
@@ -381,7 +381,7 @@ static CURLcode rtsp_do(struct Curl_easy * data, bool * done)
 	p_userpwd = data->state.aptr.userpwd;
 
 	/* Referrer */
-	Curl_safefree(data->state.aptr.ref);
+	ZFREE(data->state.aptr.ref);
 	if(data->state.referer && !Curl_checkheaders(data, STRCONST("Referer")))
 		data->state.aptr.ref = aprintf("Referer: %s\r\n", data->state.referer);
 
@@ -397,7 +397,7 @@ static CURLcode rtsp_do(struct Curl_easy * data, bool * done)
 	    (rtspreq  & (RTSPREQ_PLAY | RTSPREQ_PAUSE | RTSPREQ_RECORD))) {
 		/* Check to see if there is a range set in the custom headers */
 		if(!Curl_checkheaders(data, STRCONST("Range")) && data->state.range) {
-			Curl_safefree(data->state.aptr.rangeline);
+			ZFREE(data->state.aptr.rangeline);
 			data->state.aptr.rangeline = aprintf("Range: %s\r\n", data->state.range);
 			p_range = data->state.aptr.rangeline;
 		}
@@ -462,7 +462,7 @@ static CURLcode rtsp_do(struct Curl_easy * data, bool * done)
 	 * Free userpwd now --- cannot reuse this for Negotiate and possibly NTLM
 	 * with basic and digest, it will be freed anyway by the next request
 	 */
-	Curl_safefree(data->state.aptr.userpwd);
+	ZFREE(data->state.aptr.userpwd);
 
 	if(result)
 		return result;
@@ -561,7 +561,7 @@ static CURLcode rtsp_rtp_readwrite(struct Curl_easy * data,
     bool * readmore) {
 	struct SingleRequest * k = &data->req;
 	struct rtsp_conn * rtspc = &(conn->proto.rtspc);
-	unsigned char * rtp_channel_mask = data->state.rtp_channel_mask;
+	uchar * rtp_channel_mask = data->state.rtp_channel_mask;
 
 	char * rtp; /* moving pointer to rtp data */
 	ssize_t rtp_dataleft; /* how much data left to parse in this round */
@@ -585,14 +585,14 @@ static CURLcode rtsp_rtp_readwrite(struct Curl_easy * data,
 	while(rtp_dataleft > 0) {
 		if(rtp[0] == '$') {
 			if(rtp_dataleft > 4) {
-				unsigned char rtp_channel;
+				uchar rtp_channel;
 				int rtp_length;
 				int idx;
 				int off;
 
 				/* Parse the header */
 				/* The channel identifier immediately follows and is 1 byte */
-				rtp_channel = (unsigned char)rtp[1];
+				rtp_channel = (uchar)rtp[1];
 				idx = rtp_channel / 8;
 				off = rtp_channel % 8;
 				if(!(rtp_channel_mask[idx] & (1 << off))) {
@@ -800,7 +800,7 @@ CURLcode Curl_rtsp_parseheader(struct Curl_easy * data, char * header)
 			 * it.
 			 */
 			/* Copy the id substring into a new buffer */
-			data->set.str[STRING_RTSP_SESSION_ID] = (char *)malloc(idlen + 1);
+			data->set.str[STRING_RTSP_SESSION_ID] = (char *)SAlloc::M(idlen + 1);
 			if(!data->set.str[STRING_RTSP_SESSION_ID])
 				return CURLE_OUT_OF_MEMORY;
 			memcpy(data->set.str[STRING_RTSP_SESSION_ID], start, idlen);
@@ -836,7 +836,7 @@ CURLcode rtsp_parse_transport(struct Curl_easy * data, char * transport)
 			char * p = start + 12;
 			chan1 = strtol(p, &endp, 10);
 			if(p != endp && chan1 >= 0 && chan1 <= 255) {
-				unsigned char * rtp_channel_mask = data->state.rtp_channel_mask;
+				uchar * rtp_channel_mask = data->state.rtp_channel_mask;
 				chan2 = chan1;
 				if(*endp == '-') {
 					p = endp + 1;
@@ -850,7 +850,7 @@ CURLcode rtsp_parse_transport(struct Curl_easy * data, char * transport)
 				for(chan = chan1; chan <= chan2; chan++) {
 					long idx = chan / 8;
 					long off = chan % 8;
-					rtp_channel_mask[idx] |= (unsigned char)(1 << off);
+					rtp_channel_mask[idx] |= (uchar)(1 << off);
 				}
 			}
 			else {

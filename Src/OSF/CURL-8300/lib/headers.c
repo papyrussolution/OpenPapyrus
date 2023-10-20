@@ -30,7 +30,7 @@
 #include "headers.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -61,7 +61,7 @@ static void copy_header_external(struct Curl_header_store * hs,
 CURLHcode curl_easy_header(CURL * easy,
     const char * name,
     size_t nameindex,
-    unsigned int type,
+    uint type,
     int request,
     struct curl_header ** hout)
 {
@@ -120,7 +120,7 @@ CURLHcode curl_easy_header(CURL * easy,
 
 /* public API */
 struct curl_header *curl_easy_nextheader(CURL * easy,
-    unsigned int type,
+    uint type,
     int request,
     struct curl_header * prev){
 	struct Curl_easy * data = easy;
@@ -174,7 +174,7 @@ struct curl_header *curl_easy_nextheader(CURL * easy,
 	return &data->state.headerout[1];
 }
 
-static CURLcode namevalue(char * header, size_t hlen, unsigned int type,
+static CURLcode namevalue(char * header, size_t hlen, uint type,
     char ** name, char ** value)
 {
 	char * end = header + hlen - 1; /* point to the last byte */
@@ -263,7 +263,7 @@ static CURLcode unfold_value(struct Curl_easy * data, const char * value,
  * Curl_headers_push() gets passed a full HTTP header to store. It gets called
  * immediately before the header callback. The header is CRLF terminated.
  */
-CURLcode Curl_headers_push(struct Curl_easy * data, const char * header, unsigned char type)
+CURLcode Curl_headers_push(struct Curl_easy * data, const char * header, uchar type)
 {
 	char * value = NULL;
 	char * name = NULL;
@@ -298,7 +298,7 @@ CURLcode Curl_headers_push(struct Curl_easy * data, const char * header, unsigne
 				return CURLE_WEIRD_SERVER_REPLY;
 		}
 	}
-	hs = (Curl_header_store *)calloc(1, sizeof(*hs) + hlen);
+	hs = (Curl_header_store *)SAlloc::C(1, sizeof(*hs) + hlen);
 	if(!hs)
 		return CURLE_OUT_OF_MEMORY;
 	memcpy(hs->buffer, header, hlen);
@@ -317,7 +317,7 @@ CURLcode Curl_headers_push(struct Curl_easy * data, const char * header, unsigne
 	data->state.prevhead = hs;
 	return CURLE_OK;
 fail:
-	free(hs);
+	SAlloc::F(hs);
 	return result;
 }
 
@@ -340,7 +340,7 @@ CURLcode Curl_headers_cleanup(struct Curl_easy * data)
 	for(e = data->state.httphdrs.head; e; e = n) {
 		struct Curl_header_store * hs = (Curl_header_store *)e->ptr;
 		n = e->next;
-		free(hs);
+		SAlloc::F(hs);
 	}
 	headers_init(data);
 	return CURLE_OK;
@@ -351,7 +351,7 @@ CURLcode Curl_headers_cleanup(struct Curl_easy * data)
 CURLHcode curl_easy_header(CURL * easy,
     const char * name,
     size_t index,
-    unsigned int origin,
+    uint origin,
     int request,
     struct curl_header ** hout)
 {
@@ -365,7 +365,7 @@ CURLHcode curl_easy_header(CURL * easy,
 }
 
 struct curl_header *curl_easy_nextheader(CURL * easy,
-    unsigned int type,
+    uint type,
     int request,
     struct curl_header * prev){
 	(void)easy;

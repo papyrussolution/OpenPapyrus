@@ -37,12 +37,12 @@
 
 //#include "urldata.h"
 #include "url.h"
-#include "progress.h"
-#include "content_encoding.h"
+//#include "progress.h"
+//#include "content_encoding.h"
 //#include "strcase.h"
 #include "share.h"
 #include "vtls/vtls.h"
-#include "warnless.h"
+//#include "warnless.h"
 //#include "sendf.h"
 #include "http2.h"
 #include "setopt.h"
@@ -51,44 +51,33 @@
 #include "hsts.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
-CURLcode Curl_setstropt(char ** charp, const char * s)
+CURLcode FASTCALL Curl_setstropt(char ** charp, const char * s)
 {
-	/* Release the previous storage at `charp' and replace by a dynamic storage
-	   copy of `s'. Return CURLE_OK or CURLE_OUT_OF_MEMORY. */
-
-	Curl_safefree(*charp);
-
+	/* Release the previous storage at `charp' and replace by a dynamic storage copy of `s'. Return CURLE_OK or CURLE_OUT_OF_MEMORY. */
+	ZFREE(*charp);
 	if(s) {
 		if(strlen(s) > CURL_MAX_INPUT_LENGTH)
 			return CURLE_BAD_FUNCTION_ARGUMENT;
-
 		*charp = strdup(s);
 		if(!*charp)
 			return CURLE_OUT_OF_MEMORY;
 	}
-
 	return CURLE_OK;
 }
 
-CURLcode Curl_setblobopt(struct curl_blob ** blobp,
-    const struct curl_blob * blob)
+CURLcode Curl_setblobopt(struct curl_blob ** blobp, const struct curl_blob * blob)
 {
-	/* free the previous storage at `blobp' and replace by a dynamic storage
-	   copy of blob. If CURL_BLOB_COPY is set, the data is copied. */
-
-	Curl_safefree(*blobp);
-
+	/* free the previous storage at `blobp' and replace by a dynamic storage copy of blob. If CURL_BLOB_COPY is set, the data is copied. */
+	ZFREE(*blobp);
 	if(blob) {
 		struct curl_blob * nblob;
 		if(blob->len > CURL_MAX_INPUT_LENGTH)
 			return CURLE_BAD_FUNCTION_ARGUMENT;
-		nblob = (struct curl_blob *)
-		    malloc(sizeof(struct curl_blob) +
-			((blob->flags & CURL_BLOB_COPY) ? blob->len : 0));
+		nblob = (struct curl_blob *)SAlloc::M(sizeof(struct curl_blob) + ((blob->flags & CURL_BLOB_COPY) ? blob->len : 0));
 		if(!nblob)
 			return CURLE_OUT_OF_MEMORY;
 		*nblob = *blob;
@@ -97,7 +86,6 @@ CURLcode Curl_setblobopt(struct curl_blob ** blobp,
 			nblob->data = (char *)nblob + sizeof(struct curl_blob);
 			memcpy(nblob->data, blob->data, blob->len);
 		}
-
 		*blobp = nblob;
 		return CURLE_OK;
 	}
@@ -134,13 +122,13 @@ static CURLcode setstropt_userpwd(char * option, char ** userp, char ** passwdp)
 					result = CURLE_OUT_OF_MEMORY;
 			}
 
-			Curl_safefree(*userp);
+			ZFREE(*userp);
 			*userp = user;
 		}
 
 		/* Store the password part of option if required */
 		if(passwdp) {
-			Curl_safefree(*passwdp);
+			ZFREE(*passwdp);
 			*passwdp = passwd;
 		}
 	}
@@ -361,7 +349,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		     */
 		    arg = va_arg(param, long);
 		    if((arg >= 0) && (arg <= (INT_MAX/1000)))
-			    data->set.server_response_timeout = (unsigned int)arg * 1000;
+			    data->set.server_response_timeout = (uint)arg * 1000;
 		    else
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
 		    break;
@@ -391,7 +379,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < CURL_NETRC_IGNORED) || (arg >= CURL_NETRC_LAST))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.use_netrc = (unsigned char)arg;
+		    data->set.use_netrc = (uchar)arg;
 		    break;
 		case CURLOPT_NETRC_FILE:
 		    /*
@@ -418,7 +406,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < CURL_TIMECOND_NONE) || (arg >= CURL_TIMECOND_LAST))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.timecondition = (unsigned char)(curl_TimeCond)arg;
+		    data->set.timecondition = (uchar)(curl_TimeCond)arg;
 		    break;
 		case CURLOPT_TIMEVALUE:
 		    /*
@@ -466,8 +454,8 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 			version_max >= CURL_SSLVERSION_MAX_LAST)
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
 
-		    primary->version = (unsigned char)version;
-		    primary->version_max = (unsigned int)version_max;
+		    primary->version = (uchar)version;
+		    primary->version_max = (uint)version_max;
 	    }
 #else
 		    result = CURLE_NOT_BUILT_IN;
@@ -503,7 +491,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 				       to mark that postfields is used rather than read function or
 				       form data.
 				     */
-				    p = (char *)malloc((size_t)(data->set.postfieldsize ? data->set.postfieldsize : 1));
+				    p = (char *)SAlloc::M((size_t)(data->set.postfieldsize ? data->set.postfieldsize : 1));
 				    if(!p)
 					    result = CURLE_OUT_OF_MEMORY;
 				    else {
@@ -592,7 +580,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 				    result = CURLE_OUT_OF_MEMORY;
 			    else {
 				    result = Curl_setstropt(&data->set.str[STRING_ENCODING], argptr);
-				    free(argptr);
+				    SAlloc::F(argptr);
 			    }
 		    }
 		    else
@@ -670,7 +658,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    data->set.method = HTTPREQ_POST_FORM;
 		    data->set.opt_no_body = FALSE; /* this is implied */
 		    Curl_mime_cleanpart(data->state.formp);
-		    Curl_safefree(data->state.formp);
+		    ZFREE(data->state.formp);
 		    break;
 #endif
 
@@ -695,7 +683,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		     * String to set in the HTTP Referer: field.
 		     */
 		    if(data->state.referer_alloc) {
-			    Curl_safefree(data->state.referer);
+			    ZFREE(data->state.referer);
 			    data->state.referer_alloc = FALSE;
 		    }
 		    result = Curl_setstropt(&data->set.str[STRING_SET_REFERER],
@@ -857,7 +845,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 			    argptr = strdup(argptr);
 			    if(!argptr || !data->cookies) {
 				    result = CURLE_OUT_OF_MEMORY;
-				    free(argptr);
+				    SAlloc::F(argptr);
 			    }
 			    else {
 				    Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
@@ -873,7 +861,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 						NULL, TRUE);
 
 				    Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
-				    free(argptr);
+				    SAlloc::F(argptr);
 			    }
 		    }
 
@@ -928,7 +916,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 					return CURLE_BAD_FUNCTION_ARGUMENT;
 				return CURLE_UNSUPPORTED_PROTOCOL;
 		    }
-		    data->set.httpwant = (unsigned char)arg;
+		    data->set.httpwant = (uchar)arg;
 		    break;
 
 		case CURLOPT_EXPECT_100_TIMEOUT_MS:
@@ -986,13 +974,13 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 			    data->set.opt_no_body = FALSE; /* this is implied */
 #ifndef CURL_DISABLE_FORM_API
 			    Curl_mime_cleanpart(data->state.formp);
-			    Curl_safefree(data->state.formp);
+			    ZFREE(data->state.formp);
 #endif
 		    }
 		    break;
 
 		case CURLOPT_MIME_OPTIONS:
-		    data->set.mime_options = (unsigned int)va_arg(param, long);
+		    data->set.mime_options = (uint)va_arg(param, long);
 		    break;
 #endif
 #endif
@@ -1078,7 +1066,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < 0) || (arg > 65535))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.proxyport = (unsigned short)arg;
+		    data->set.proxyport = (ushort)arg;
 		    break;
 
 		case CURLOPT_PROXYAUTH:
@@ -1165,7 +1153,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < CURLPROXY_HTTP) || (arg > CURLPROXY_SOCKS5_HOSTNAME))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.proxytype = (unsigned char)(curl_proxytype)arg;
+		    data->set.proxytype = (uchar)(curl_proxytype)arg;
 		    break;
 
 		case CURLOPT_PROXY_TRANSFER_MODE:
@@ -1187,7 +1175,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    break;
 
 		case CURLOPT_SOCKS5_AUTH:
-		    data->set.socks5auth = (unsigned char)va_arg(param, unsigned long);
+		    data->set.socks5auth = (uchar)va_arg(param, unsigned long);
 		    if(data->set.socks5auth & ~(CURLAUTH_BASIC | CURLAUTH_GSSAPI))
 			    result = CURLE_NOT_BUILT_IN;
 		    break;
@@ -1265,7 +1253,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < CURLFTPMETHOD_DEFAULT) || (arg >= CURLFTPMETHOD_LAST))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.ftp_filemethod = (unsigned char)(curl_ftpfile)arg;
+		    data->set.ftp_filemethod = (uchar)(curl_ftpfile)arg;
 		    break;
 		case CURLOPT_FTPPORT:
 		    /*
@@ -1292,7 +1280,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < CURLFTPSSL_CCC_NONE) || (arg >= CURLFTPSSL_CCC_LAST))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.ftp_ccc = (unsigned char)(curl_ftpccc)arg;
+		    data->set.ftp_ccc = (uchar)(curl_ftpccc)arg;
 		    break;
 
 		case CURLOPT_FTP_SKIP_PASV_IP:
@@ -1320,7 +1308,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < CURLFTPAUTH_DEFAULT) || (arg >= CURLFTPAUTH_LAST))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.ftpsslauth = (unsigned char)(curl_ftpauth)arg;
+		    data->set.ftpsslauth = (uchar)(curl_ftpauth)arg;
 		    break;
 		case CURLOPT_KRBLEVEL:
 		    /*
@@ -1343,7 +1331,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 			(arg > CURLFTP_CREATE_DIR_RETRY))
 			    result = CURLE_BAD_FUNCTION_ARGUMENT;
 		    else
-			    data->set.ftp_create_missing_dirs = (unsigned char)arg;
+			    data->set.ftp_create_missing_dirs = (uchar)arg;
 		    break;
 
 		case CURLOPT_POSTQUOTE:
@@ -1444,7 +1432,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		     */
 		    if(data->state.url_alloc) {
 			    /* the already set URL is allocated, free it first! */
-			    Curl_safefree(data->state.url);
+			    ZFREE(data->state.url);
 			    data->state.url_alloc = FALSE;
 		    }
 		    result = Curl_setstropt(&data->set.str[STRING_SET_URL],
@@ -1458,7 +1446,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < 0) || (arg > 65535))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.use_port = (unsigned short)arg;
+		    data->set.use_port = (ushort)arg;
 		    break;
 		case CURLOPT_TIMEOUT:
 		    /*
@@ -1467,7 +1455,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		     */
 		    arg = va_arg(param, long);
 		    if((arg >= 0) && (arg <= (INT_MAX/1000)))
-			    data->set.timeout = (unsigned int)arg * 1000;
+			    data->set.timeout = (uint)arg * 1000;
 		    else
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
 		    break;
@@ -1476,7 +1464,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    uarg = va_arg(param, unsigned long);
 		    if(uarg > UINT_MAX)
 			    uarg = UINT_MAX;
-		    data->set.timeout = (unsigned int)uarg;
+		    data->set.timeout = (uint)uarg;
 		    break;
 
 		case CURLOPT_CONNECTTIMEOUT:
@@ -1485,7 +1473,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		     */
 		    arg = va_arg(param, long);
 		    if((arg >= 0) && (arg <= (INT_MAX/1000)))
-			    data->set.connecttimeout = (unsigned int)arg * 1000;
+			    data->set.connecttimeout = (uint)arg * 1000;
 		    else
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
 		    break;
@@ -1494,7 +1482,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    uarg = va_arg(param, unsigned long);
 		    if(uarg > UINT_MAX)
 			    uarg = UINT_MAX;
-		    data->set.connecttimeout = (unsigned int)uarg;
+		    data->set.connecttimeout = (uint)uarg;
 		    break;
 
 #ifndef CURL_DISABLE_FTP
@@ -1505,7 +1493,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    uarg = va_arg(param, unsigned long);
 		    if(uarg > UINT_MAX)
 			    uarg = UINT_MAX;
-		    data->set.accepttimeout = (unsigned int)uarg;
+		    data->set.accepttimeout = (uint)uarg;
 		    break;
 #endif
 
@@ -1914,7 +1902,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		     * GSS-API credential delegation bitmask
 		     */
 		    uarg = va_arg(param, unsigned long);
-		    data->set.gssapi_delegation = (unsigned char)uarg&
+		    data->set.gssapi_delegation = (uchar)uarg&
 			(CURLGSSAPI_DELEGATION_POLICY_FLAG|CURLGSSAPI_DELEGATION_FLAG);
 		    break;
 		case CURLOPT_SSL_VERIFYPEER:
@@ -2249,7 +2237,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    else if(arg < READBUFFER_MIN)
 			    arg = READBUFFER_MIN;
 
-		    data->set.buffer_size = (unsigned int)arg;
+		    data->set.buffer_size = (uint)arg;
 		    break;
 
 		case CURLOPT_UPLOAD_BUFFERSIZE:
@@ -2264,8 +2252,8 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    else if(arg < UPLOADBUFFER_MIN)
 			    arg = UPLOADBUFFER_MIN;
 
-		    data->set.upload_buffer_size = (unsigned int)arg;
-		    Curl_safefree(data->state.ulbuf); /* force a realloc next opportunity */
+		    data->set.upload_buffer_size = (uint)arg;
+		    ZFREE(data->state.ulbuf); /* force a realloc next opportunity */
 		    break;
 
 		case CURLOPT_NOSIGNAL:
@@ -2383,12 +2371,12 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < CURLUSESSL_NONE) || (arg >= CURLUSESSL_LAST))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.use_ssl = (unsigned char)arg;
+		    data->set.use_ssl = (uchar)arg;
 		    break;
 
 		case CURLOPT_SSL_OPTIONS:
 		    arg = va_arg(param, long);
-		    data->set.ssl.primary.ssl_options = (unsigned char)(arg & 0xff);
+		    data->set.ssl.primary.ssl_options = (uchar)(arg & 0xff);
 		    data->set.ssl.enable_beast = !!(arg & CURLSSLOPT_ALLOW_BEAST);
 		    data->set.ssl.no_revoke = !!(arg & CURLSSLOPT_NO_REVOKE);
 		    data->set.ssl.no_partialchain = !!(arg & CURLSSLOPT_NO_PARTIALCHAIN);
@@ -2402,7 +2390,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 #ifndef CURL_DISABLE_PROXY
 		case CURLOPT_PROXY_SSL_OPTIONS:
 		    arg = va_arg(param, long);
-		    data->set.proxy_ssl.primary.ssl_options = (unsigned char)(arg & 0xff);
+		    data->set.proxy_ssl.primary.ssl_options = (uchar)(arg & 0xff);
 		    data->set.proxy_ssl.enable_beast = !!(arg & CURLSSLOPT_ALLOW_BEAST);
 		    data->set.proxy_ssl.no_revoke = !!(arg & CURLSSLOPT_NO_REVOKE);
 		    data->set.proxy_ssl.no_partialchain = !!(arg & CURLSSLOPT_NO_PARTIALCHAIN);
@@ -2427,7 +2415,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < CURL_IPRESOLVE_WHATEVER) || (arg > CURL_IPRESOLVE_V6))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.ipver = (unsigned char)arg;
+		    data->set.ipver = (uchar)arg;
 		    break;
 
 		case CURLOPT_MAXFILESIZE_LARGE:
@@ -2461,7 +2449,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if(arg > 2)
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.connect_only = (unsigned char)arg;
+		    data->set.connect_only = (uchar)arg;
 		    break;
 
 		case CURLOPT_SOCKOPTFUNCTION:
@@ -2534,7 +2522,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 #ifdef USE_SSH
 		/* we only include SSH options if explicitly built to support SSH */
 		case CURLOPT_SSH_AUTH_TYPES:
-		    data->set.ssh_auth_types = (unsigned int)va_arg(param, long);
+		    data->set.ssh_auth_types = (uint)va_arg(param, long);
 		    break;
 
 		case CURLOPT_SSH_PUBLIC_KEYFILE:
@@ -2635,7 +2623,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < 0) || (arg > 0777))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.new_file_perms = (unsigned int)arg;
+		    data->set.new_file_perms = (uint)arg;
 		    break;
 #endif
 #ifdef USE_SSH
@@ -2646,7 +2634,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    arg = va_arg(param, long);
 		    if((arg < 0) || (arg > 0777))
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
-		    data->set.new_directory_perms = (unsigned int)arg;
+		    data->set.new_directory_perms = (uint)arg;
 		    break;
 #endif
 
@@ -2662,7 +2650,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    if(uarg > UINT_MAX)
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
 #endif
-		    data->set.scope_id = (unsigned int)uarg;
+		    data->set.scope_id = (uint)uarg;
 		    break;
 #endif
 
@@ -3012,7 +3000,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    uarg = va_arg(param, unsigned long);
 		    if(uarg > UINT_MAX)
 			    uarg = UINT_MAX;
-		    data->set.happy_eyeballs_timeout = (unsigned int)uarg;
+		    data->set.happy_eyeballs_timeout = (uint)uarg;
 		    break;
 #ifndef CURL_DISABLE_SHUFFLE_DNS
 		case CURLOPT_DNS_SHUFFLE_ADDRESSES:

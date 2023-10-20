@@ -28,15 +28,15 @@
 #include "strerror.h"
 //#include "cfilters.h"
 //#include "connect.h"
-#include "url.h" /* for Curl_safefree() */
+#include "url.h" /* for ZFREE() */
 //#include "sendf.h"
 //#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 //#include "multiif.h"
-#include "progress.h"
-#include "warnless.h"
+//#include "progress.h"
+//#include "warnless.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -142,7 +142,7 @@ void Curl_conn_cf_discard_chain(struct Curl_cfilter ** pcf,
 			 */
 			cf->next = NULL;
 			cf->cft->destroy(cf, data);
-			free(cf);
+			SAlloc::F(cf);
 			cf = cfn;
 		}
 	}
@@ -210,7 +210,7 @@ CURLcode Curl_cf_create(struct Curl_cfilter ** pcf, const struct Curl_cftype * c
 	struct Curl_cfilter * cf;
 	CURLcode result = CURLE_OUT_OF_MEMORY;
 	DEBUGASSERT(cft);
-	cf = (Curl_cfilter *)calloc(sizeof(*cf), 1);
+	cf = (Curl_cfilter *)SAlloc::C(sizeof(*cf), 1);
 	if(!cf)
 		goto out;
 	cf->cft = cft;
@@ -280,7 +280,7 @@ bool Curl_conn_cf_discard_sub(struct Curl_cfilter * cf,
 	if(found || destroy_always) {
 		discard->next = NULL;
 		discard->cft->destroy(discard, data);
-		free(discard);
+		SAlloc::F(discard);
 	}
 	return found;
 }
@@ -595,20 +595,17 @@ void Curl_conn_ev_update_info(struct Curl_easy * data,
 /**
  * Update connection statistics
  */
-static void conn_report_connect_stats(struct Curl_easy * data,
-    struct connectdata * conn)
+static void conn_report_connect_stats(struct Curl_easy * data, struct connectdata * conn)
 {
 	struct Curl_cfilter * cf = conn->cfilter[FIRSTSOCKET];
 	if(cf) {
 		struct curltime connected;
 		struct curltime appconnected;
-
-		memset(&connected, 0, sizeof(connected));
+		memzero(&connected, sizeof(connected));
 		cf->cft->query(cf, data, CF_QUERY_TIMER_CONNECT, NULL, &connected);
 		if(connected.tv_sec || connected.tv_usec)
 			Curl_pgrsTimeWas(data, TIMER_CONNECT, connected);
-
-		memset(&appconnected, 0, sizeof(appconnected));
+		memzero(&appconnected, sizeof(appconnected));
 		cf->cft->query(cf, data, CF_QUERY_TIMER_APPCONNECT, NULL, &appconnected);
 		if(appconnected.tv_sec || appconnected.tv_usec)
 			Curl_pgrsTimeWas(data, TIMER_APPCONNECT, appconnected);

@@ -87,7 +87,7 @@ const char *Curl_chunked_strerror(CHUNKcode code);
 struct Curl_chunker {
 	curl_off_t datasize;
 	ChunkyState state;
-	unsigned char hexindex;
+	uchar hexindex;
 	char hexbuffer[ CHUNK_MAXNUM_LEN + 1]; /* +1 for null-terminator */
 };
 

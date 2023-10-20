@@ -396,7 +396,7 @@ static struct archive_vtable * archive_read_disk_vtable(void)
 	return (&av);
 }
 
-const char * archive_read_disk_gname(Archive * _a, la_int64_t gid)
+const char * archive_read_disk_gname(Archive * _a, int64 gid)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_gname"))
@@ -406,7 +406,7 @@ const char * archive_read_disk_gname(Archive * _a, la_int64_t gid)
 	return ((*a->lookup_gname)(a->lookup_gname_data, gid));
 }
 
-const char * archive_read_disk_uname(Archive * _a, la_int64_t uid)
+const char * archive_read_disk_uname(Archive * _a, int64 uid)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_uname"))
@@ -417,7 +417,7 @@ const char * archive_read_disk_uname(Archive * _a, la_int64_t uid)
 }
 
 int archive_read_disk_set_gname_lookup(Archive * _a, void * private_data,
-    const char * (*lookup_gname)(void * pPrivate, la_int64_t gid), void (*cleanup_gname)(void * pPrivate))
+    const char * (*lookup_gname)(void * pPrivate, int64 gid), void (*cleanup_gname)(void * pPrivate))
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -1849,10 +1849,10 @@ static void tree_free(struct tree * t)
 		SAlloc::F(t);
 	}
 }
-/*
- * Populate the archive_entry with metadata from the disk.
- */
-int archive_read_disk_entry_from_file(Archive * _a, ArchiveEntry * entry, int fd, const struct stat * st)
+// 
+// Populate the archive_entry with metadata from the disk.
+// 
+int archive_read_disk_entry_from_file(Archive * _a, ArchiveEntry * entry, int fd, const struct _stat * st)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	const wchar_t * path;
@@ -1864,8 +1864,7 @@ int archive_read_disk_entry_from_file(Archive * _a, ArchiveEntry * entry, int fd
 	int r;
 	archive_clear_error(_a);
 	wname = archive_entry_sourcepath_w(entry);
-	if(!wname)
-		wname = archive_entry_pathname_w(entry);
+	SETIFZQ(wname, archive_entry_pathname_w(entry));
 	if(wname == NULL) {
 		archive_set_error(&a->archive, EINVAL, "Can't get a wide character version of the path");
 		return ARCHIVE_FAILED;

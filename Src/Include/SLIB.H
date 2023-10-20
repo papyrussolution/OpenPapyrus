@@ -3148,8 +3148,8 @@ private:
 //
 //
 struct SUniTime_Internal { // @internal
-	static constexpr int Undef_TimeZone = 1000;
-	static int ValidateTimeZone(int tz);
+	static constexpr int Undef_TimeZone = 1000000;
+	static bool ValidateTimeZone(int tz);
 	SUniTime_Internal();
 	int    FASTCALL Cmp(const SUniTime_Internal & rS) const;
 	void   FASTCALL SetTime100ns(uint64 time100ns);
@@ -3162,7 +3162,9 @@ struct SUniTime_Internal { // @internal
 	int    Sc;
 	int    MkSc;  // microseconds
 	int    Weekday;
-	int    TimeZone;
+	int    TimeZoneSc; // Зональное смещение времени относительно GMT в секундах (-12*3600..+14*3600)
+		// Если TimeZoneSc == Undef_TimeZone, то временная зона не определена - то есть время задано
+		// в предположении, что локаль известна из контекста либо не имеет значения.
 };
 
 int    DateToDaysSinceChristmas(int y, int m, int d);
@@ -5247,6 +5249,7 @@ bool   STDCALL  sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen
 //    0  - как минимум один символ в pS - не ascii (вне диапазона [0..0x7f])
 //
 bool   FASTCALL sisascii(const char * pS, size_t len);
+bool   FASTCALL sisascii(const wchar_t * pS, size_t len/* length of pS in characters (not bytes)*/);
 char * FASTCALL strip(char * pStr);
 char * FASTCALL chomp(char * pStr);
 // @v10.0.0 const  char * skipws(const char * pStr, size_t * pPos);
@@ -9663,7 +9666,8 @@ public:
 	// Descr: Флаги функции Scan()
 	//
 	enum {
-		scanfRecursive = 0x0001 // Рекурсивно перебирать файлы в подкаталогах
+		scanfRecursive = 0x0001, // Рекурсивно перебирать файлы в подкаталогах
+		scanfKeepCase  = 0x0002  // @v11.8.7 При нормализации имен файлов и каталогов сохранять оригинальный регистр символов
 	};
 	//
 	// Descr: Сканирует файловую систему начиная с каталога pPath по шаблону pWildcard.
@@ -9674,16 +9678,16 @@ public:
 	//   0  - ошибка
 	//
 	int    Scan(const char * pPath, const char * pWildcard, long flags);
-	int    Add(const char * pPath, const SDirEntry & rDe);
+	int    Add(const char * pPath, const SDirEntry & rDe, long flags);
 	//
 	// Descr: Вставляет в пул файл с полным путем pPath.
 	// Returns:
 	//   >0 - функция завершилась успешно
 	//    0 - error (в том числе если файл не найден)
 	//
-	int    Add(const char * pPath);
-	int    Add(const char * pPath, const char * pRemoteUrl);
-	int    Add(SFileEntryPool::Entry & rDe);
+	int    Add(const char * pPath, long flags);
+	int    Add(const char * pPath, const char * pRemoteUrl, long flags);
+	int    Add(SFileEntryPool::Entry & rDe, long flags);
     uint   GetCount() const;
     int    Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const;
 	//
@@ -9717,7 +9721,7 @@ private:
 	};
 
 	void   ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
-	int    Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl);
+	int    Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl, long flags);
 	int    Helper_Scan(const char * pPath, const char * pWildcard, long flags);
 
     TSVector <InnerEntry> L;
@@ -10844,6 +10848,7 @@ public:
 	};
 
 	static bool   GetUserHandle(/*Settings*/WinUserBlock & rSettings, uint flags, BOOL & bLoadedProfile, PROFILEINFO & rProfile, HANDLE hCmdPipe);
+	static bool   GetUserName_(SString & rBuf);
 	//
 	// Descr: Типы вызова функции Logon().
 	// Note: Мнемоники аналогичны константам LOGON32_LOGON_XXX (see winbase.h). Значения мнемоник существенны и повторяют аналоги из winbase.h
@@ -11063,7 +11068,7 @@ public:
 		Amxx     = 97,  // binary:amxx  0:58584D41
 		Sln      = 98,  // Visual Studio Solution
 		VCProj   = 99,  // Visual Studio Project
-		Asm      = 100, // Assempbler source file
+		Asm      = 100, // Assembler source file
 		C        = 101, // C source file
 		CPP      = 102, // CPP source file
 		H        = 103, // C header file
@@ -12830,7 +12835,7 @@ public:
 	static int Inflate(int provider, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath);
 	static int Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath);
 	static int InflateAll(int provider, const char * pName, uint flags, const char * pDestPath);
-	static int Deflate(int provider, int format, const char * pName, uint flags, const SFileEntryPool & rPool);
+	static int Deflate(int provider, int format, const char * pNameUtf8, uint64 uedArcFormat, const char * pBasePathUtf8, const SFileEntryPool & rPool);
 
 	explicit SArchive(int provider);
 	~SArchive();
@@ -14141,23 +14146,23 @@ uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 //float  FASTCALL smax(float a, float b);
 //float  FASTCALL smin(float a, float b);
 template <class T> T smin(T a, T b) { return MIN(a, b); }
+//
+// Descr: Возвращает минимум 3-х аргументов.
+//
+template <class T> T smin3(T a, T b, T c) { return smin(MIN(a, b), c); }
+//
+// Descr: Возвращает минимум 4-х аргументов.
+//
+template <class T> T smin4(T a, T b, T c, T d) { return smin(MIN(a, b), MIN(c, d)); }
 template <class T> T smax(T a, T b) { return MAX(a, b); }
 //
 // Descr: Возвращает максимум 3-х аргументов.
 //
-double smax3(double a1, double a2, double a3);
+template <class T> T smax3(T a, T b, T c) { return smax(MAX(a, b), c); }
 //
 // Descr: Возвращает максимум 4-х аргументов.
 //
-double smax4(double a1, double a2, double a3, double a4);
-//
-// Descr: Возвращает минимум 3-х аргументов.
-//
-double smin3(double a1, double a2, double a3);
-//
-// Descr: Возвращает минимум 4-х аргументов.
-//
-double smin4(double a1, double a2, double a3, double a4);
+template <class T> T smax4(T a, T b, T c, T d) { return smax(MAX(a, b), MAX(c, d)); }
 //
 // Descr: Функция возвращает значение v в пределах диапазона [lo..up]. If v >= lo && v <= up, то результат v, elseif (v < lo) --> lo, else --> up
 // Функции sclampx проверяют границы диапазона lo vs up: если lo < up то результат эквивалентен sclamp(v, lo, up) иначе - sclamp(v, up, lo)

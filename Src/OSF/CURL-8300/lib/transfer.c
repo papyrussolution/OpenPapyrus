@@ -63,14 +63,14 @@
 //#include <curl/curl.h>
 #include "netrc.h"
 
-#include "content_encoding.h"
+//#include "content_encoding.h"
 //#include "hostip.h"
 //#include "cfilters.h"
-#include "transfer.h"
+//#include "transfer.h"
 //#include "sendf.h"
 #include "speedcheck.h"
-#include "progress.h"
-#include "http.h"
+//#include "progress.h"
+//#include "http.h"
 #include "url.h"
 #include "getinfo.h"
 #include "vtls/vtls.h"
@@ -79,7 +79,7 @@
 //#include "multiif.h"
 //#include "connect.h"
 #include "http2.h"
-#include "mime.h"
+//#include "mime.h"
 //#include "strcase.h"
 #include "urlapi-int.h"
 #include "hsts.h"
@@ -87,7 +87,7 @@
 #include "headers.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -121,7 +121,7 @@ char *Curl_checkheaders(const struct Curl_easy * data,
 CURLcode Curl_get_upload_buffer(struct Curl_easy * data)
 {
 	if(!data->state.ulbuf) {
-		data->state.ulbuf = (char *)malloc(data->set.upload_buffer_size);
+		data->state.ulbuf = (char *)SAlloc::M(data->set.upload_buffer_size);
 		if(!data->state.ulbuf)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -906,7 +906,7 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 				    (data->set.crlf))) {
 				/* Do we need to allocate a scratch buffer? */
 				if(!data->state.scratch) {
-					data->state.scratch = (char *)malloc(2 * data->set.upload_buffer_size);
+					data->state.scratch = (char *)SAlloc::M(2 * data->set.upload_buffer_size);
 					if(!data->state.scratch) {
 						failf(data, "Failed to alloc scratch buffer");
 
@@ -1299,13 +1299,13 @@ CURLcode Curl_pretransfer(struct Curl_easy * data)
 	/* since the URL may have been redirected in a previous use of this handle */
 	if(data->state.url_alloc) {
 		/* the already set URL is allocated, free it first! */
-		Curl_safefree(data->state.url);
+		ZFREE(data->state.url);
 		data->state.url_alloc = FALSE;
 	}
 
 	if(!data->state.url && data->set.uh) {
 		CURLUcode uc;
-		free(data->set.str[STRING_SET_URL]);
+		SAlloc::F(data->set.str[STRING_SET_URL]);
 		uc = curl_url_get(data->set.uh,
 			CURLUPART_URL, &data->set.str[STRING_SET_URL], 0);
 		if(uc) {
@@ -1343,7 +1343,7 @@ CURLcode Curl_pretransfer(struct Curl_easy * data)
 	data->state.authproblem = FALSE;
 	data->state.authhost.want = data->set.httpauth;
 	data->state.authproxy.want = data->set.proxyauth;
-	Curl_safefree(data->info.wouldredirect);
+	ZFREE(data->info.wouldredirect);
 	Curl_data_priority_clear_state(data);
 
 	if(data->state.httpreq == HTTPREQ_PUT)
@@ -1396,7 +1396,7 @@ CURLcode Curl_pretransfer(struct Curl_easy * data)
 		if(data->state.wildcardmatch) {
 			struct WildcardData * wc;
 			if(!data->wildcard) {
-				data->wildcard = (WildcardData *)calloc(1, sizeof(struct WildcardData));
+				data->wildcard = (WildcardData *)SAlloc::C(1, sizeof(struct WildcardData));
 				if(!data->wildcard)
 					return CURLE_OUT_OF_MEMORY;
 			}
@@ -1405,8 +1405,8 @@ CURLcode Curl_pretransfer(struct Curl_easy * data)
 			    (wc->state >= CURLWC_CLEAN)) {
 				if(wc->ftpwc)
 					wc->dtor(wc->ftpwc);
-				Curl_safefree(wc->pattern);
-				Curl_safefree(wc->path);
+				ZFREE(wc->pattern);
+				ZFREE(wc->path);
 				result = Curl_wildcard_init(wc); /* init wildcard structures */
 				if(result)
 					return CURLE_OUT_OF_MEMORY;
@@ -1422,7 +1422,7 @@ CURLcode Curl_pretransfer(struct Curl_easy * data)
 	 * protocol.
 	 */
 	if(data->set.str[STRING_USERAGENT]) {
-		Curl_safefree(data->state.aptr.uagent);
+		ZFREE(data->state.aptr.uagent);
 		data->state.aptr.uagent =
 		    aprintf("User-Agent: %s\r\n", data->set.str[STRING_USERAGENT]);
 		if(!data->state.aptr.uagent)
@@ -1510,7 +1510,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 				   not be 100% correct */
 
 				if(data->state.referer_alloc) {
-					Curl_safefree(data->state.referer);
+					ZFREE(data->state.referer);
 					data->state.referer_alloc = FALSE;
 				}
 
@@ -1586,11 +1586,11 @@ CURLcode Curl_follow(struct Curl_easy * data,
 				uc = curl_url_get(data->state.uh, CURLUPART_PORT, &portnum,
 					CURLU_DEFAULT_PORT);
 				if(uc) {
-					free(newurl);
+					SAlloc::F(newurl);
 					return Curl_uc_to_curlcode(uc);
 				}
 				port = atoi(portnum);
-				free(portnum);
+				SAlloc::F(portnum);
 			}
 			if(port != data->info.conn_remote_port) {
 				infof(data, "Clear auth, redirects to port from %u to %u",
@@ -1602,7 +1602,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 				const struct Curl_handler * p;
 				uc = curl_url_get(data->state.uh, CURLUPART_SCHEME, &scheme, 0);
 				if(uc) {
-					free(newurl);
+					SAlloc::F(newurl);
 					return Curl_uc_to_curlcode(uc);
 				}
 
@@ -1612,11 +1612,11 @@ CURLcode Curl_follow(struct Curl_easy * data,
 					    data->info.conn_scheme, scheme);
 					clear = TRUE;
 				}
-				free(scheme);
+				SAlloc::F(scheme);
 			}
 			if(clear) {
-				Curl_safefree(data->state.aptr.user);
-				Curl_safefree(data->state.aptr.passwd);
+				ZFREE(data->state.aptr.user);
+				ZFREE(data->state.aptr.passwd);
 			}
 		}
 	}
@@ -1637,7 +1637,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 		data->state.allow_port = FALSE;
 
 	if(data->state.url_alloc)
-		Curl_safefree(data->state.url);
+		ZFREE(data->state.url);
 
 	data->state.url = newurl;
 	data->state.url_alloc = TRUE;
@@ -1755,7 +1755,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 
 /* Returns CURLE_OK *and* sets '*url' if a request retry is wanted.
 
-   NOTE: that the *url is malloc()ed. */
+   NOTE: that the *url is SAlloc::M()ed. */
 CURLcode Curl_retry_request(struct Curl_easy * data, char ** url)
 {
 	struct connectdata * conn = data->conn;

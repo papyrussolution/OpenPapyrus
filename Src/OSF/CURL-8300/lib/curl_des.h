@@ -33,7 +33,7 @@
    defined(USE_WIN32_CRYPTO))
 
 /* Applies odd parity to the given byte array */
-void Curl_des_set_odd_parity(unsigned char *bytes, size_t length);
+void Curl_des_set_odd_parity(uchar *bytes, size_t length);
 
 #endif
 

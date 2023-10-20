@@ -133,7 +133,7 @@
 #include "vtls.h"
 #include "vtls_int.h"
 #include "sectransp.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "strdup.h"
 
 #include "curl_memory.h"
@@ -799,14 +799,14 @@ static const struct st_cipher ciphertable[] = {
 
 #ifdef SECTRANSP_PINNEDPUBKEY
 /* both new and old APIs return rsa keys missing the spki header (not DER) */
-static const unsigned char rsa4096SpkiHeader[] = {
+static const uchar rsa4096SpkiHeader[] = {
 	0x30, 0x82, 0x02, 0x22, 0x30, 0x0d,
 	0x06, 0x09, 0x2a, 0x86, 0x48, 0x86,
 	0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05,
 	0x00, 0x03, 0x82, 0x02, 0x0f, 0x00
 };
 
-static const unsigned char rsa2048SpkiHeader[] = {
+static const uchar rsa2048SpkiHeader[] = {
 	0x30, 0x82, 0x01, 0x22, 0x30, 0x0d,
 	0x06, 0x09, 0x2a, 0x86, 0x48, 0x86,
 	0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05,
@@ -814,7 +814,7 @@ static const unsigned char rsa2048SpkiHeader[] = {
 };
 #ifdef SECTRANSP_PINNEDPUBKEY_V1
 /* the *new* version doesn't return DER encoded ecdsa certs like the old... */
-static const unsigned char ecDsaSecp256r1SpkiHeader[] = {
+static const uchar ecDsaSecp256r1SpkiHeader[] = {
 	0x30, 0x59, 0x30, 0x13, 0x06, 0x07,
 	0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02,
 	0x01, 0x06, 0x08, 0x2a, 0x86, 0x48,
@@ -822,7 +822,7 @@ static const unsigned char ecDsaSecp256r1SpkiHeader[] = {
 	0x42, 0x00
 };
 
-static const unsigned char ecDsaSecp384r1SpkiHeader[] = {
+static const uchar ecDsaSecp384r1SpkiHeader[] = {
 	0x30, 0x76, 0x30, 0x10, 0x06, 0x07,
 	0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02,
 	0x01, 0x06, 0x05, 0x2b, 0x81, 0x04,
@@ -941,11 +941,11 @@ CF_INLINE void GetDarwinVersionNumber(int * major, int * minor)
 	mib[1] = KERN_OSRELEASE;
 	if(sysctl(mib, 2, NULL, &os_version_len, NULL, 0) == -1)
 		return;
-	os_version = malloc(os_version_len*sizeof(char));
+	os_version = SAlloc::M(os_version_len*sizeof(char));
 	if(!os_version)
 		return;
 	if(sysctl(mib, 2, os_version, &os_version_len, NULL, 0) == -1) {
-		free(os_version);
+		SAlloc::F(os_version);
 		return;
 	}
 
@@ -954,7 +954,7 @@ CF_INLINE void GetDarwinVersionNumber(int * major, int * minor)
 	os_version_minor = strtok_r(NULL, ".", &tok_buf);
 	*major = atoi(os_version_major);
 	*minor = atoi(os_version_minor);
-	free(os_version);
+	SAlloc::F(os_version);
 }
 
 #endif /* CURL_BUILD_MAC */
@@ -1016,7 +1016,7 @@ static CURLcode CopyCertSubject(struct Curl_easy * data,
 	}
 	else {
 		size_t cbuf_size = ((size_t)CFStringGetLength(c) * 4) + 1;
-		cbuf = calloc(cbuf_size, 1);
+		cbuf = SAlloc::C(cbuf_size, 1);
 		if(cbuf) {
 			if(!CFStringGetCString(c, cbuf, cbuf_size,
 			    kCFStringEncodingUTF8)) {
@@ -1033,7 +1033,7 @@ static CURLcode CopyCertSubject(struct Curl_easy * data,
 		}
 	}
 	if(result)
-		free(cbuf);
+		SAlloc::F(cbuf);
 	CFRelease(c);
 	return result;
 }
@@ -1198,7 +1198,7 @@ static OSStatus CopyIdentityFromPKCS12File(const char * cPath,
 
 	if(blob) {
 		pkcs_data = CFDataCreate(kCFAllocatorDefault,
-			(const unsigned char *)blob->data, blob->len);
+			(const uchar *)blob->data, blob->len);
 		status = (pkcs_data != NULL) ? errSecSuccess : errSecAllocate;
 		resource_imported = (pkcs_data != NULL);
 	}
@@ -1245,13 +1245,10 @@ static OSStatus CopyIdentityFromPKCS12File(const char * cPath,
 		SecItemImportExportKeyParameters keyParams;
 		SecExternalFormat inputFormat = kSecFormatPKCS12;
 		SecExternalItemType inputType = kSecItemTypeCertificate;
-
-		memset(&keyParams, 0x00, sizeof(keyParams));
+		memzero(&keyParams, sizeof(keyParams));
 		keyParams.version    = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
 		keyParams.passphrase = password;
-
-		status = SecItemImport(pkcs_data, NULL, &inputFormat, &inputType,
-			0, &keyParams, NULL, &items);
+		status = SecItemImport(pkcs_data, NULL, &inputFormat, &inputType, 0, &keyParams, NULL, &items);
 #endif
 
 		/* Extract the SecIdentityRef */
@@ -1494,22 +1491,22 @@ static CURLcode sectransp_set_default_ciphers(struct Curl_easy * data,
 		    err);
 		return CURLE_SSL_CIPHER;
 	}
-	all_ciphers = malloc(all_ciphers_count*sizeof(SSLCipherSuite));
+	all_ciphers = SAlloc::M(all_ciphers_count*sizeof(SSLCipherSuite));
 	if(!all_ciphers) {
 		failf(data, "SSL: Failed to allocate memory for all ciphers");
 		return CURLE_OUT_OF_MEMORY;
 	}
-	allowed_ciphers = malloc(all_ciphers_count*sizeof(SSLCipherSuite));
+	allowed_ciphers = SAlloc::M(all_ciphers_count*sizeof(SSLCipherSuite));
 	if(!allowed_ciphers) {
-		Curl_safefree(all_ciphers);
+		ZFREE(all_ciphers);
 		failf(data, "SSL: Failed to allocate memory for allowed ciphers");
 		return CURLE_OUT_OF_MEMORY;
 	}
 	err = SSLGetSupportedCiphers(ssl_ctx, all_ciphers,
 		&all_ciphers_count);
 	if(err != noErr) {
-		Curl_safefree(all_ciphers);
-		Curl_safefree(allowed_ciphers);
+		ZFREE(all_ciphers);
+		ZFREE(allowed_ciphers);
 		return CURLE_SSL_CIPHER;
 	}
 	for(i = 0UL ; i < all_ciphers_count ; i++) {
@@ -1529,8 +1526,8 @@ static CURLcode sectransp_set_default_ciphers(struct Curl_easy * data,
 	}
 	err = SSLSetEnabledCiphers(ssl_ctx, allowed_ciphers,
 		allowed_ciphers_count);
-	Curl_safefree(all_ciphers);
-	Curl_safefree(allowed_ciphers);
+	ZFREE(all_ciphers);
+	ZFREE(allowed_ciphers);
 	if(err != noErr) {
 		failf(data, "SSL: SSLSetEnabledCiphers() failed: OSStatus %d", err);
 		return CURLE_SSL_CIPHER;
@@ -1885,7 +1882,7 @@ static CURLcode sectransp_connect_step1(struct Curl_cfilter * cf,
 				CURLcode result = CopyCertSubject(data, cert, &certp);
 				if(!result) {
 					infof(data, "Client certificate: %s", certp);
-					free(certp);
+					SAlloc::F(certp);
 				}
 
 				CFRelease(cert);
@@ -2119,12 +2116,12 @@ static CURLcode sectransp_connect_step1(struct Curl_cfilter * cf,
 	return CURLE_OK;
 }
 
-static long pem_to_der(const char * in, unsigned char ** out, size_t * outlen)
+static long pem_to_der(const char * in, uchar ** out, size_t * outlen)
 {
 	char * sep_start, * sep_end, * cert_start, * cert_end;
 	size_t i, j, err;
 	size_t len;
-	unsigned char * b64;
+	uchar * b64;
 
 	/* Jump through the separators at the beginning of the certificate. */
 	sep_start = strstr(in, "-----");
@@ -2147,7 +2144,7 @@ static long pem_to_der(const char * in, unsigned char ** out, size_t * outlen)
 	sep_end += 5;
 
 	len = cert_end - cert_start;
-	b64 = malloc(len + 1);
+	b64 = SAlloc::M(len + 1);
 	if(!b64)
 		return -1;
 
@@ -2159,9 +2156,9 @@ static long pem_to_der(const char * in, unsigned char ** out, size_t * outlen)
 	b64[j] = '\0';
 
 	err = Curl_base64_decode((const char *)b64, out, outlen);
-	free(b64);
+	SAlloc::F(b64);
 	if(err) {
-		free(*out);
+		SAlloc::F(*out);
 		return -1;
 	}
 
@@ -2170,11 +2167,11 @@ static long pem_to_der(const char * in, unsigned char ** out, size_t * outlen)
 
 #define MAX_CERTS_SIZE (50*1024*1024) /* arbitrary - to catch mistakes */
 
-static int read_cert(const char * file, unsigned char ** out, size_t * outlen)
+static int read_cert(const char * file, uchar ** out, size_t * outlen)
 {
 	int fd;
 	ssize_t n;
-	unsigned char buf[512];
+	uchar buf[512];
 	struct dynbuf certs;
 
 	Curl_dyn_init(&certs, MAX_CERTS_SIZE);
@@ -2206,7 +2203,7 @@ static int read_cert(const char * file, unsigned char ** out, size_t * outlen)
 }
 
 static int append_cert_to_array(struct Curl_easy * data,
-    const unsigned char * buf, size_t buflen,
+    const uchar * buf, size_t buflen,
     CFMutableArrayRef array)
 {
 	char * certp;
@@ -2238,7 +2235,7 @@ static int append_cert_to_array(struct Curl_easy * data,
 		default:
 		    return result;
 	}
-	free(certp);
+	SAlloc::F(certp);
 
 	CFArrayAppendValue(array, cacert);
 	CFRelease(cacert);
@@ -2248,12 +2245,12 @@ static int append_cert_to_array(struct Curl_easy * data,
 
 static CURLcode verify_cert_buf(struct Curl_cfilter * cf,
     struct Curl_easy * data,
-    const unsigned char * certbuf, size_t buflen,
+    const uchar * certbuf, size_t buflen,
     SSLContextRef ctx)
 {
 	int n = 0, rc;
 	long res;
-	unsigned char * der;
+	uchar * der;
 	size_t derlen, offset = 0;
 	OSStatus ret;
 	SecTrustResultType trust_eval;
@@ -2309,7 +2306,7 @@ static CURLcode verify_cert_buf(struct Curl_cfilter * cf,
 		}
 
 		rc = append_cert_to_array(data, der, derlen, array);
-		free(der);
+		SAlloc::F(der);
 		if(rc != CURLE_OK) {
 			CURL_TRC_CF(data, cf, "append_cert for CA failed");
 			result = rc;
@@ -2382,12 +2379,12 @@ static CURLcode verify_cert(struct Curl_cfilter * cf,
     SSLContextRef ctx)
 {
 	int result;
-	unsigned char * certbuf;
+	uchar * certbuf;
 	size_t buflen;
 
 	if(ca_info_blob) {
 		CURL_TRC_CF(data, cf, "verify_peer, CA from config blob");
-		certbuf = (unsigned char *)malloc(ca_info_blob->len + 1);
+		certbuf = (uchar *)SAlloc::M(ca_info_blob->len + 1);
 		if(!certbuf) {
 			return CURLE_OUT_OF_MEMORY;
 		}
@@ -2406,7 +2403,7 @@ static CURLcode verify_cert(struct Curl_cfilter * cf,
 		return CURLE_SSL_CACERT_BADFILE;
 
 	result = verify_cert_buf(cf, data, certbuf, buflen, ctx);
-	free(certbuf);
+	SAlloc::F(certbuf);
 	return result;
 }
 
@@ -2416,8 +2413,8 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
     const char * pinnedpubkey)
 {  /* Scratch */
 	size_t pubkeylen, realpubkeylen, spkiHeaderLength = 24;
-	unsigned char * pubkey = NULL, * realpubkey = NULL;
-	const unsigned char * spkiHeader = NULL;
+	uchar * pubkey = NULL, * realpubkey = NULL;
+	const uchar * spkiHeader = NULL;
 	CFDataRef publicKeyBits = NULL;
 
 	/* Result is returned to caller */
@@ -2465,7 +2462,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 #endif /* SECTRANSP_PINNEDPUBKEY_V2 */
 
 		pubkeylen = CFDataGetLength(publicKeyBits);
-		pubkey = (unsigned char *)CFDataGetBytePtr(publicKeyBits);
+		pubkey = (uchar *)CFDataGetBytePtr(publicKeyBits);
 
 		switch(pubkeylen) {
 			case 526:
@@ -2502,7 +2499,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 		}
 
 		realpubkeylen = pubkeylen + spkiHeaderLength;
-		realpubkey = malloc(realpubkeylen);
+		realpubkey = SAlloc::M(realpubkeylen);
 		if(!realpubkey)
 			break;
 
@@ -2513,7 +2510,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 			realpubkeylen);
 	} while(0);
 
-	Curl_safefree(realpubkey);
+	ZFREE(realpubkey);
 	if(publicKeyBits)
 		CFRelease(publicKeyBits);
 
@@ -2884,7 +2881,7 @@ static CURLcode collect_server_cert_single(struct Curl_cfilter * cf, struct Curl
 		result = CopyCertSubject(data, server_cert, &certp);
 		if(!result) {
 			infof(data, "Server certificate: %s", certp);
-			free(certp);
+			SAlloc::F(certp);
 		}
 	}
 #endif
@@ -3240,7 +3237,7 @@ static void sectransp_session_free(void * ptr)
 	   got your application rejected from the App Store due to the use of a
 	   private API, so the best we can do is free up our own char array that we
 	   created way back in sectransp_connect_step1... */
-	Curl_safefree(ptr);
+	ZFREE(ptr);
 }
 
 static size_t sectransp_version(char * buffer, size_t size)
@@ -3272,7 +3269,7 @@ static bool sectransp_data_pending(struct Curl_cfilter * cf,
 }
 
 static CURLcode sectransp_random(struct Curl_easy * data UNUSED_PARAM,
-    unsigned char * entropy, size_t length)
+    uchar * entropy, size_t length)
 {
 	/* arc4random_buf() isn't available on cats older than Lion, so let's
 	   do this manually for the benefit of the older cats. */
@@ -3291,9 +3288,9 @@ static CURLcode sectransp_random(struct Curl_easy * data UNUSED_PARAM,
 	return CURLE_OK;
 }
 
-static CURLcode sectransp_sha256sum(const unsigned char * tmp, /* input */
+static CURLcode sectransp_sha256sum(const uchar * tmp, /* input */
     size_t tmplen,
-    unsigned char * sha256sum,                                /* output */
+    uchar * sha256sum,                                /* output */
     size_t sha256len)
 {
 	(void)sha256len;

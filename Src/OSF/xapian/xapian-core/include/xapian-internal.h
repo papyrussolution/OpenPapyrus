@@ -50,7 +50,7 @@ inline uint16_t do_bswap(uint16_t value)
 	return __builtin_bswap16(value);
 # elif HAVE_DECL__BYTESWAP_USHORT
 	return _byteswap_ushort(value);
-# else
+#else
 	return (value << 8) | (value >> 8);
 #endif
 }
@@ -61,7 +61,7 @@ inline uint32_t do_bswap(uint32_t value)
 	return __builtin_bswap32(value);
 # elif HAVE_DECL__BYTESWAP_ULONG
 	return _byteswap_ulong(value);
-# else
+#else
 	return (value << 24) | ((value & 0xff00) << 8) | ((value >> 8) & 0xff00) | (value >> 24);
 #endif
 }
@@ -72,7 +72,7 @@ inline uint64_t do_bswap(uint64_t value)
 	return __builtin_bswap64(value);
 # elif HAVE_DECL__BYTESWAP_UINT64
 	return _byteswap_uint64(value);
-# else
+#else
 	return (value << 56) | ((value & 0xff00) << 40) | ((value & 0xff0000) << 24) |
 	       ((value & 0xff000000) << 8) | ((value >> 8) & 0xff000000) | ((value >> 24) & 0xff0000) |
 	       ((value >> 40) & 0xff00) | (value >> 56);

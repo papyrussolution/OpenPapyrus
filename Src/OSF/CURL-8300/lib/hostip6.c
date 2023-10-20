@@ -53,7 +53,7 @@
 #include "inet_pton.h"
 //#include "connect.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -111,14 +111,11 @@ struct Curl_addrinfo *Curl_getaddrinfo(struct Curl_easy * data,
 	char addrbuf[128];
 #endif
 	int pf = PF_INET;
-
 	*waitp = 0; /* synchronous response only */
-
 	if((data->conn->ip_version != CURL_IPRESOLVE_V4) && Curl_ipv6works(data))
 		/* The stack seems to be IPv6-enabled */
 		pf = PF_UNSPEC;
-
-	memset(&hints, 0, sizeof(hints));
+	memzero(&hints, sizeof(hints));
 	hints.ai_family = pf;
 	hints.ai_socktype = (data->conn->transport == TRNSPRT_TCP) ?
 	    SOCK_STREAM : SOCK_DGRAM;

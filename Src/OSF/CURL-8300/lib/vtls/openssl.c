@@ -61,7 +61,7 @@
 #include "hostcheck.h"
 //#include "multiif.h"
 #include "strerror.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 
 #include <openssl/ssl.h>
 #include <openssl/rand.h>
@@ -89,7 +89,7 @@
 #include <openssl/engine.h>
 #endif
 
-#include "warnless.h"
+//#include "warnless.h"
 
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -842,8 +842,8 @@ static void ossl_keylog_callback(const SSL * ssl, const char * line)
 static void ossl_log_tls12_secret(const SSL * ssl, bool * keylog_done)
 {
 	const SSL_SESSION * session = SSL_get_session(ssl);
-	unsigned char client_random[SSL3_RANDOM_SIZE];
-	unsigned char master_key[SSL_MAX_MASTER_KEY_LENGTH];
+	uchar client_random[SSL3_RANDOM_SIZE];
+	uchar master_key[SSL_MAX_MASTER_KEY_LENGTH];
 	int master_key_length = 0;
 
 	if(!session || *keylog_done)
@@ -1000,17 +1000,17 @@ static CURLcode ossl_seed(struct Curl_easy * data)
 	/* fallback to a custom seeding of the PRNG using a hash based on a current
 	   time */
 	do {
-		unsigned char randb[64];
+		uchar randb[64];
 		size_t len = sizeof(randb);
 		size_t i, i_max;
 		for(i = 0, i_max = len / sizeof(struct curltime); i < i_max; ++i) {
 			struct curltime tv = Curl_now();
 			Curl_wait_ms(1);
 			tv.tv_sec *= i + 1;
-			tv.tv_usec *= (unsigned int)i + 2;
+			tv.tv_usec *= (uint)i + 2;
 			tv.tv_sec ^= ((Curl_now().tv_sec + Curl_now().tv_usec) *
 			    (i + 3)) << 8;
-			tv.tv_usec ^= (unsigned int)((Curl_now().tv_sec +
+			tv.tv_usec ^= (uint)((Curl_now().tv_sec +
 			    Curl_now().tv_usec) *
 			    (i + 4)) << 16;
 			memcpy(&randb[i * sizeof(struct curltime)], &tv,
@@ -2200,7 +2200,7 @@ static CURLcode ossl_verifyhost(struct Curl_easy * data, struct connectdata * co
 		/* we have to look to the last occurrence of a commonName in the
 		   distinguished one to get the most significant one. */
 		int i = -1;
-		unsigned char * peer_CN = NULL;
+		uchar * peer_CN = NULL;
 		int peerlen = 0;
 
 		/* The following is done because of a bug in 0.9.6b */
@@ -2280,9 +2280,9 @@ static CURLcode verifystatus(struct Curl_cfilter * cf, struct Curl_easy * data)
 #if defined(OPENSSL_IS_AWSLC)
 	const uint8_t * status;
 #else
-	unsigned char * status;
+	uchar * status;
 #endif
-	const unsigned char * p;
+	const uchar * p;
 	CURLcode result = CURLE_OK;
 	OCSP_RESPONSE * rsp = NULL;
 	OCSP_BASICRESP * br = NULL;
@@ -2650,7 +2650,7 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
 			"%s (%s), %s, %s (%d):\n",
 			verstr, direction?"OUT":"IN",
 			tls_rt_name, msg_name, msg_type);
-		if(0 <= txt_len && (unsigned)txt_len < sizeof(ssl_buf)) {
+		if(0 <= txt_len && (uint)txt_len < sizeof(ssl_buf)) {
 			Curl_debug(data, CURLINFO_TEXT, ssl_buf, (size_t)txt_len);
 		}
 	}
@@ -3015,7 +3015,7 @@ static CURLcode populate_x509_store(struct Curl_cfilter * cf,
 					FILETIME now;
 					BYTE key_usage[2];
 					DWORD req_size;
-					const unsigned char * encoded_cert;
+					const uchar * encoded_cert;
 #if defined(DEBUGBUILD) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
 					char cert_name[256];
 #endif
@@ -3031,7 +3031,7 @@ static CURLcode populate_x509_store(struct Curl_cfilter * cf,
 					}
 					infof(data, "SSL: Checking cert \"%s\"", cert_name);
 #endif
-					encoded_cert = (const unsigned char *)pContext->pbCertEncoded;
+					encoded_cert = (const uchar *)pContext->pbCertEncoded;
 					if(!encoded_cert)
 						continue;
 
@@ -3060,7 +3060,7 @@ static CURLcode populate_x509_store(struct Curl_cfilter * cf,
 					 */
 					if(CertGetEnhancedKeyUsage(pContext, 0, NULL, &req_size)) {
 						if(req_size && req_size > enhkey_usage_size) {
-							void * tmp = realloc(enhkey_usage, req_size);
+							void * tmp = SAlloc::R(enhkey_usage, req_size);
 
 							if(!tmp) {
 								failf(data, "SSL: Out of memory allocating for OID list");
@@ -3118,7 +3118,7 @@ static CURLcode populate_x509_store(struct Curl_cfilter * cf,
 					X509_free(x509);
 				}
 
-				free(enhkey_usage);
+				SAlloc::F(enhkey_usage);
 				CertFreeCertificateContext(pContext);
 				CertCloseStore(hStore, 0);
 
@@ -3291,7 +3291,7 @@ static void set_cached_x509_store(struct Curl_cfilter * cf, const struct Curl_ea
 	if(!multi)
 		return;
 	if(!multi->ssl_backend_data) {
-		multi->ssl_backend_data = (multi_ssl_backend_data *)calloc(1, sizeof(struct multi_ssl_backend_data));
+		multi->ssl_backend_data = (multi_ssl_backend_data *)SAlloc::C(1, sizeof(struct multi_ssl_backend_data));
 		if(!multi->ssl_backend_data)
 			return;
 	}
@@ -3308,7 +3308,7 @@ static void set_cached_x509_store(struct Curl_cfilter * cf, const struct Curl_ea
 
 		if(mbackend->store) {
 			X509_STORE_free(mbackend->store);
-			free(mbackend->CAfile);
+			SAlloc::F(mbackend->CAfile);
 		}
 
 		mbackend->time = Curl_now();
@@ -3922,8 +3922,8 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter * cf,
 		 * negotiated
 		 */
 		if(connssl->alpn) {
-			const unsigned char * neg_protocol;
-			unsigned int len;
+			const uchar * neg_protocol;
+			uint len;
 			SSL_get0_alpn_selected(backend->handle, &neg_protocol, &len);
 
 			return Curl_alpn_set_negotiated(cf, data, neg_protocol, len);
@@ -3943,7 +3943,7 @@ static CURLcode ossl_pkp_pin_peer_pubkey(struct Curl_easy * data, X509* cert,
 {
 	/* Scratch */
 	int len1 = 0, len2 = 0;
-	unsigned char * buff1 = NULL, * temp = NULL;
+	uchar * buff1 = NULL, * temp = NULL;
 
 	/* Result is returned to caller */
 	CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
@@ -3964,7 +3964,7 @@ static CURLcode ossl_pkp_pin_peer_pubkey(struct Curl_easy * data, X509* cert,
 		len1 = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(cert), NULL);
 		if(len1 < 1)
 			break; /* failed */
-		buff1 = temp = (uchar *)malloc(len1);
+		buff1 = temp = (uchar *)SAlloc::M(len1);
 		if(!buff1)
 			break; /* failed */
 
@@ -3986,7 +3986,7 @@ static CURLcode ossl_pkp_pin_peer_pubkey(struct Curl_easy * data, X509* cert,
 	} while(0);
 
 	if(buff1)
-		free(buff1);
+		SAlloc::F(buff1);
 
 	return result;
 }
@@ -4643,7 +4643,7 @@ static size_t ossl_version(char * buffer, size_t size)
 
 /* can be called with data == NULL */
 static CURLcode ossl_random(struct Curl_easy * data,
-    unsigned char * entropy, size_t length)
+    uchar * entropy, size_t length)
 {
 	int rc;
 	if(data) {
@@ -4660,13 +4660,13 @@ static CURLcode ossl_random(struct Curl_easy * data,
 }
 
 #if (OPENSSL_VERSION_NUMBER >= 0x0090800fL) && !defined(OPENSSL_NO_SHA256)
-static CURLcode ossl_sha256sum(const unsigned char * tmp, /* input */
+static CURLcode ossl_sha256sum(const uchar * tmp, /* input */
     size_t tmplen,
-    unsigned char * sha256sum /* output */,
+    uchar * sha256sum /* output */,
     size_t unused)
 {
 	EVP_MD_CTX * mdctx;
-	unsigned int len = 0;
+	uint len = 0;
 	(void)unused;
 
 	mdctx = EVP_MD_CTX_create();
@@ -4711,8 +4711,8 @@ static void ossl_free_multi_ssl_backend_data(struct multi_ssl_backend_data * mba
 	if(mbackend->store) {
 		X509_STORE_free(mbackend->store);
 	}
-	free(mbackend->CAfile);
-	free(mbackend);
+	SAlloc::F(mbackend->CAfile);
+	SAlloc::F(mbackend);
 #else /* HAVE_SSL_X509_STORE_SHARE */
 	(void)mbackend;
 #endif /* HAVE_SSL_X509_STORE_SHARE */

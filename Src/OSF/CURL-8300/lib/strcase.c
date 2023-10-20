@@ -26,7 +26,7 @@
 //#include <curl/curl.h>
 //#include "strcase.h"
 /* Mapping table to go from lowercase to uppercase for plain ASCII.*/
-static const unsigned char touppermap[256] = {
+static const uchar touppermap[256] = {
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
 	41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
@@ -45,7 +45,7 @@ static const unsigned char touppermap[256] = {
 };
 
 /* Mapping table to go from uppercase to lowercase for plain ASCII.*/
-static const unsigned char tolowermap[256] = {
+static const uchar tolowermap[256] = {
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41,
 	42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
@@ -65,17 +65,11 @@ static const unsigned char tolowermap[256] = {
 
 /* Portable, consistent toupper. Do not use toupper() because its behavior is
    altered by the current locale. */
-char Curl_raw_toupper(char in)
-{
-	return touppermap[(unsigned char)in];
-}
+char Curl_raw_toupper(char in) { return touppermap[(uchar)in]; }
 
 /* Portable, consistent tolower. Do not use tolower() because its behavior is
    altered by the current locale. */
-char Curl_raw_tolower(char in)
-{
-	return tolowermap[(unsigned char)in];
-}
+char Curl_raw_tolower(char in) { return tolowermap[(uchar)in]; }
 
 /*
  * curl_strequal() is for doing "raw" case insensitive strings. This is meant
@@ -83,7 +77,6 @@ char Curl_raw_tolower(char in)
  * this. See https://daniel.haxx.se/blog/2008/10/15/strcasecmp-in-turkish/ for
  * further explanations as to why this function is necessary.
  */
-
 static int casecompare(const char * first, const char * second)
 {
 	while(*first && *second) {
@@ -106,7 +99,6 @@ int curl_strequal(const char * first, const char * second)
 	if(first && second)
 		/* both pointers point to something then compare them */
 		return casecompare(first, second);
-
 	/* if both pointers are NULL then treat them as equal */
 	return (NULL == first && NULL == second);
 }
@@ -146,7 +138,6 @@ void Curl_strntoupper(char * dest, const char * src, size_t n)
 {
 	if(n < 1)
 		return;
-
 	do {
 		*dest++ = Curl_raw_toupper(*src);
 	} while(*src++ && --n);
@@ -161,7 +152,6 @@ void Curl_strntolower(char * dest, const char * src, size_t n)
 {
 	if(n < 1)
 		return;
-
 	do {
 		*dest++ = Curl_raw_tolower(*src);
 	} while(*src++ && --n);
@@ -185,7 +175,6 @@ int Curl_timestrcmp(const char * a, const char * b)
 {
 	int match = 0;
 	int i = 0;
-
 	if(a && b) {
 		while(1) {
 			match |= a[i]^b[i];

@@ -31,14 +31,14 @@
 /* The last #include file should be: */
 #include "memdebug.h"
 
-struct fileinfo * Curl_fileinfo_alloc() { return static_cast<fileinfo *>(calloc(1, sizeof(struct fileinfo))); }
+struct fileinfo * Curl_fileinfo_alloc() { return static_cast<fileinfo *>(SAlloc::C(1, sizeof(struct fileinfo))); }
 
 void Curl_fileinfo_cleanup(struct fileinfo * finfo)
 {
 	if(!finfo)
 		return;
 	Curl_dyn_free(&finfo->buf);
-	free(finfo);
+	SAlloc::F(finfo);
 }
 
 #endif

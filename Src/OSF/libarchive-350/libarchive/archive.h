@@ -42,21 +42,21 @@
 
 /* Get appropriate definitions of 64-bit integer */
 #if !defined(__LA_INT64_T_DEFINED)
-/* Older code relied on the __LA_INT64_T macro; after 4.0 we'll switch to the typedef exclusively. */
-#if ARCHIVE_VERSION_NUMBER < 4000000
-#define __LA_INT64_T la_int64_t
-#endif
-#define __LA_INT64_T_DEFINED
-#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
-typedef __int64 la_int64_t;
-# else
-#include <unistd.h>  /* ssize_t */
-#if defined(_SCO_DS) || defined(__osf__)
-typedef long long la_int64_t;
-#else
-typedef int64 la_int64_t;
-#endif
-#endif
+	/* Older code relied on the __LA_INT64_T macro; after 4.0 we'll switch to the typedef exclusively. */
+	#if ARCHIVE_VERSION_NUMBER < 4000000
+		#define __LA_INT64_T la_int64_t_Removed
+	#endif
+	#define __LA_INT64_T_DEFINED
+	#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
+		typedef __int64 la_int64_t_Removed;
+	#else
+		#include <unistd.h>  /* ssize_t */
+		#if defined(_SCO_DS) || defined(__osf__)
+			typedef long long la_int64_t_Removed;
+		#else
+			typedef int64 la_int64_t_Removed;
+		#endif
+	#endif
 #endif
 // The la_ssize_t should match the type used in 'struct stat' 
 #if !defined(__LA_SSIZE_T_DEFINED)
@@ -198,13 +198,13 @@ typedef la_ssize_t archive_read_callback(Archive *, void * _client_data, const v
  * If you do skip fewer bytes than requested, libarchive will invoke your
  * read callback and discard data as necessary to make up the full skip.
  */
-typedef la_int64_t archive_skip_callback(Archive *, void * _client_data, la_int64_t request);
+typedef int64 archive_skip_callback(Archive *, void * _client_data, int64 request);
 
 /* Seeks to specified location in the file and returns the position.
  * Whence values are SEEK_SET, SEEK_CUR, SEEK_END from stdio.h.
  * Return ARCHIVE_FATAL if the seek fails for any reason.
  */
-typedef la_int64_t archive_seek_callback(Archive *, void * _client_data, la_int64_t offset, int whence);
+typedef int64 archive_seek_callback(Archive *, void * _client_data, int64 offset, int whence);
 /* Returns size actually written, zero on EOF, -1 on error. */
 typedef la_ssize_t archive_write_callback(Archive *, void * _client_data, const void * _buffer, size_t _length);
 typedef int archive_open_callback(Archive *, void * _client_data);
@@ -475,7 +475,7 @@ __LA_DECL int archive_read_next_header2(Archive *, ArchiveEntry *);
 /*
  * Retrieve the byte offset in UNCOMPRESSED data where last-read header started.
  */
-__LA_DECL la_int64_t archive_read_header_position(Archive *);
+__LA_DECL int64 archive_read_header_position(Archive *);
 /*
  * Returns 1 if the archive contains at least one encrypted entry.
  * If the archive format not support encryption at all
@@ -501,17 +501,17 @@ __LA_DECL int   archive_read_has_encrypted_entries(Archive *);
  */
 __LA_DECL int   archive_read_format_capabilities(Archive *);
 
-/* Read data from the body of an entry.  Similar to read(2). */
+// Read data from the body of an entry.  Similar to read(2)
 __LA_DECL la_ssize_t archive_read_data(Archive *, void *, size_t);
-/* Seek within the body of an entry.  Similar to lseek(2). */
-__LA_DECL la_int64_t archive_seek_data(Archive *, la_int64_t, int);
-/*
- * A zero-copy version of archive_read_data that also exposes the file offset
- * of each returned block.  Note that the client has no way to specify
- * the desired size of the block.  The API does guarantee that offsets will
- * be strictly increasing and that returned blocks will not overlap.
- */
-__LA_DECL int archive_read_data_block(Archive * a, const void ** buff, size_t * size, la_int64_t * offset);
+// Seek within the body of an entry.  Similar to lseek(2)
+__LA_DECL int64 archive_seek_data(Archive *, int64, int);
+// 
+// A zero-copy version of archive_read_data that also exposes the file offset
+// of each returned block.  Note that the client has no way to specify
+// the desired size of the block.  The API does guarantee that offsets will
+// be strictly increasing and that returned blocks will not overlap.
+// 
+__LA_DECL int archive_read_data_block(Archive * a, const void ** buff, size_t * size, int64 * offset);
 /*-
  * Some convenience functions that are built on archive_read_data:
  *  'skip': skips entire entry
@@ -586,7 +586,7 @@ __LA_DECL void archive_read_extract_set_progress_callback(Archive *, void (* _pr
 
 /* Record the dev/ino of a file that will not be written.  This is
  * generally set to the dev/ino of the archive being read. */
-__LA_DECL void archive_read_extract_set_skip_file(Archive *, la_int64_t, la_int64_t);
+__LA_DECL void archive_read_extract_set_skip_file(Archive *, int64, int64);
 
 /* Close the file and release most resources. */
 __LA_DECL int  archive_read_close(Archive *);
@@ -622,7 +622,7 @@ __LA_DECL int archive_write_get_bytes_in_last_block(Archive *);
 
 /* The dev/ino of a file that won't be archived.  This is used
  * to avoid recursively adding an archive to itself. */
-__LA_DECL int archive_write_set_skip_file(Archive *, la_int64_t, la_int64_t);
+__LA_DECL int archive_write_set_skip_file(Archive *, int64, int64);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 	__LA_DECL int archive_write_set_compression_bzip2(Archive *) __LA_DEPRECATED;
@@ -703,7 +703,7 @@ __LA_DECL int archive_write_header(Archive *, ArchiveEntry *);
 __LA_DECL la_ssize_t archive_write_data(Archive *, const void *, size_t);
 
 /* This interface is currently only available for archive_write_disk handles.  */
-__LA_DECL la_ssize_t archive_write_data_block(Archive *, const void *, size_t, la_int64_t);
+__LA_DECL la_ssize_t archive_write_data_block(Archive *, const void *, size_t, int64);
 
 __LA_DECL int archive_write_finish_entry(Archive *);
 __LA_DECL int archive_write_close(Archive *);
@@ -755,7 +755,7 @@ __LA_DECL int archive_write_set_passphrase_callback(Archive *, void * client_dat
  */
 __LA_DECL Archive * archive_write_disk_new();
 /* This file will not be overwritten. */
-__LA_DECL int archive_write_disk_set_skip_file(Archive *, la_int64_t, la_int64_t);
+__LA_DECL int archive_write_disk_set_skip_file(Archive *, int64, int64);
 /* Set flags to control how the next item gets created.
  * This accepts a bitmask of ARCHIVE_EXTRACT_XXX flags defined above. */
 __LA_DECL int archive_write_disk_set_options(Archive *, int flags);
@@ -782,10 +782,10 @@ __LA_DECL int archive_write_disk_set_standard_lookup(Archive *);
  * your needs, you can write your own and register them.  Be sure to
  * include a cleanup function if you have allocated private data.
  */
-__LA_DECL int archive_write_disk_set_group_lookup(Archive *, void * /* private_data */, la_int64_t (*)(void *, const char *, la_int64_t), void (* /* cleanup */)(void *));
-__LA_DECL int archive_write_disk_set_user_lookup(Archive *, void * /* private_data */, la_int64_t (*)(void *, const char *, la_int64_t), void (* /* cleanup */)(void *));
-__LA_DECL la_int64_t archive_write_disk_gid(Archive *, const char *, la_int64_t);
-__LA_DECL la_int64_t archive_write_disk_uid(Archive *, const char *, la_int64_t);
+__LA_DECL int archive_write_disk_set_group_lookup(Archive *, void * /* private_data */, int64 (*)(void *, const char *, int64), void (* /* cleanup */)(void *));
+__LA_DECL int archive_write_disk_set_user_lookup(Archive *, void * /* private_data */, int64 (*)(void *, const char *, int64), void (* /* cleanup */)(void *));
+__LA_DECL int64 archive_write_disk_gid(Archive *, const char *, int64);
+__LA_DECL int64 archive_write_disk_uid(Archive *, const char *, int64);
 /*
  * ARCHIVE_READ_DISK API
  *
@@ -801,17 +801,17 @@ __LA_DECL int archive_read_disk_set_symlink_physical(Archive *);
 /* Follow symlink initially, then not. */
 __LA_DECL int archive_read_disk_set_symlink_hybrid(Archive *);
 /* TODO: Handle Linux stat32/stat64 ugliness. <sigh> */
-__LA_DECL int archive_read_disk_entry_from_file(Archive *, ArchiveEntry *, int /* fd */, const struct stat *);
+__LA_DECL int archive_read_disk_entry_from_file(Archive *, ArchiveEntry *, int /* fd */, const struct _stat *);
 /* Look up gname for gid or uname for uid. */
 /* Default implementations are very, very stupid. */
-__LA_DECL const char * archive_read_disk_gname(Archive *, la_int64_t);
-__LA_DECL const char * archive_read_disk_uname(Archive *, la_int64_t);
+__LA_DECL const char * archive_read_disk_gname(Archive *, int64);
+__LA_DECL const char * archive_read_disk_uname(Archive *, int64);
 /* "Standard" implementation uses getpwuid_r, getgrgid_r and caches the
  * results for performance. */
 __LA_DECL int   archive_read_disk_set_standard_lookup(Archive *);
 /* You can install your own lookups if you like. */
-__LA_DECL int archive_read_disk_set_gname_lookup(Archive *, void * /* private_data */, const char *(* /*lookup_fn*/)(void *, la_int64_t), void (* /* cleanup_fn */)(void *));
-__LA_DECL int archive_read_disk_set_uname_lookup(Archive *, void * /* private_data */, const char *(* /*lookup_fn*/)(void *, la_int64_t), void (* /* cleanup_fn */)(void *));
+__LA_DECL int archive_read_disk_set_gname_lookup(Archive *, void * /* private_data */, const char *(* /*lookup_fn*/)(void *, int64), void (* /* cleanup_fn */)(void *));
+__LA_DECL int archive_read_disk_set_uname_lookup(Archive *, void * /* private_data */, const char *(* /*lookup_fn*/)(void *, int64), void (* /* cleanup_fn */)(void *));
 /* Start traversal. */
 __LA_DECL int   archive_read_disk_open(Archive *, const char *);
 __LA_DECL int   archive_read_disk_open_w(Archive *, const wchar_t *);
@@ -875,7 +875,7 @@ __LA_DECL int   archive_free(Archive *);
  * last filter, which is always the pseudo-filter that wraps the
  * client callbacks. */
 __LA_DECL int archive_filter_count(Archive *);
-__LA_DECL la_int64_t archive_filter_bytes(Archive *, int);
+__LA_DECL int64 archive_filter_bytes(Archive *, int);
 __LA_DECL int archive_filter_code(Archive *, int);
 __LA_DECL const char * archive_filter_name(Archive *, int);
 
@@ -883,9 +883,9 @@ __LA_DECL const char * archive_filter_name(Archive *, int);
 /* These don't properly handle multiple filters, so are deprecated and
  * will eventually be removed. */
 /* As of libarchive 3.0, this is an alias for archive_filter_bytes(a, -1); */
-__LA_DECL la_int64_t     archive_position_compressed(Archive *) __LA_DEPRECATED;
+__LA_DECL int64     archive_position_compressed(Archive *) __LA_DEPRECATED;
 /* As of libarchive 3.0, this is an alias for archive_filter_bytes(a, 0); */
-__LA_DECL la_int64_t     archive_position_uncompressed(Archive *) __LA_DEPRECATED;
+__LA_DECL int64     archive_position_uncompressed(Archive *) __LA_DEPRECATED;
 /* As of libarchive 3.0, this is an alias for archive_filter_name(a, 0); */
 __LA_DECL const char    * archive_compression_name(Archive *) __LA_DEPRECATED;
 /* As of libarchive 3.0, this is an alias for archive_filter_code(a, 0); */
@@ -948,21 +948,14 @@ __LA_DECL int   archive_match_path_unmatched_inclusions_next_w(Archive *, const 
  * The conditions are set by following functions.
  */
 __LA_DECL int   archive_match_time_excluded(Archive *, ArchiveEntry *);
-
-/*
- * Flags to tell a matching type of time stamps. These are used for
- * following functions.
- */
-/* Time flag: mtime to be tested. */
-#define ARCHIVE_MATCH_MTIME     (0x0100)
-/* Time flag: ctime to be tested. */
-#define ARCHIVE_MATCH_CTIME     (0x0200)
-/* Comparison flag: Match the time if it is newer than. */
-#define ARCHIVE_MATCH_NEWER     (0x0001)
-/* Comparison flag: Match the time if it is older than. */
-#define ARCHIVE_MATCH_OLDER     (0x0002)
-/* Comparison flag: Match the time if it is equal to. */
-#define ARCHIVE_MATCH_EQUAL     (0x0010)
+// 
+// Flags to tell a matching type of time stamps. These are used for following functions.
+// 
+#define ARCHIVE_MATCH_MTIME     (0x0100) /* Time flag: mtime to be tested. */
+#define ARCHIVE_MATCH_CTIME     (0x0200) /* Time flag: ctime to be tested. */
+#define ARCHIVE_MATCH_NEWER     (0x0001) /* Comparison flag: Match the time if it is newer than. */
+#define ARCHIVE_MATCH_OLDER     (0x0002) /* Comparison flag: Match the time if it is older than. */
+#define ARCHIVE_MATCH_EQUAL     (0x0010) /* Comparison flag: Match the time if it is equal to. */
 /* Set inclusion time. */
 __LA_DECL int   archive_match_include_time(Archive *, int _flag, time_t _sec, long _nsec);
 /* Set inclusion time by a date string. */
@@ -980,8 +973,8 @@ __LA_DECL int   archive_match_exclude_entry(Archive *, int _flag, ArchiveEntry *
  */
 __LA_DECL int   archive_match_owner_excluded(Archive *, ArchiveEntry *);
 /* Add inclusion uid, gid, uname and gname. */
-__LA_DECL int archive_match_include_uid(Archive *, la_int64_t);
-__LA_DECL int archive_match_include_gid(Archive *, la_int64_t);
+__LA_DECL int archive_match_include_uid(Archive *, int64);
+__LA_DECL int archive_match_include_gid(Archive *, int64);
 __LA_DECL int   archive_match_include_uname(Archive *, const char *);
 __LA_DECL int   archive_match_include_uname_w(Archive *, const wchar_t *);
 __LA_DECL int   archive_match_include_gname(Archive *, const char *);

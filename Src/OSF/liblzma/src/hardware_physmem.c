@@ -7,7 +7,7 @@
 #pragma hdrstop
 #include "tuklib_physmem.h"
 
-uint64_t lzma_physmem(void)
+ uint64 lzma_physmem(void)
 {
 	// It is simpler to make lzma_physmem() a wrapper for
 	// tuklib_physmem() than to hack appropriate symbol visibility

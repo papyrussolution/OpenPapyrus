@@ -256,7 +256,7 @@ void lzma_end(lzma_stream *strm)
 	}
 }
 
-void lzma_get_progress(lzma_stream *strm, uint64_t *progress_in, uint64_t *progress_out)
+void lzma_get_progress(lzma_stream *strm,  uint64 *progress_in,  uint64 *progress_out)
 {
 	if(strm->internal->next.get_progress != NULL) {
 		strm->internal->next.get_progress(strm->internal->next.coder, progress_in, progress_out);
@@ -276,29 +276,29 @@ lzma_check lzma_get_check(const lzma_stream *strm)
 	return strm->internal->next.get_check(strm->internal->next.coder);
 }
 
-uint64_t lzma_memusage(const lzma_stream *strm)
+ uint64 lzma_memusage(const lzma_stream *strm)
 {
-	uint64_t memusage;
-	uint64_t old_memlimit;
+	 uint64 memusage;
+	 uint64 old_memlimit;
 	if(!strm || !strm->internal || !strm->internal->next.memconfig || strm->internal->next.memconfig(strm->internal->next.coder, &memusage, &old_memlimit, 0) != LZMA_OK)
 		return 0;
 	return memusage;
 }
 
-uint64_t lzma_memlimit_get(const lzma_stream *strm)
+ uint64 lzma_memlimit_get(const lzma_stream *strm)
 {
-	uint64_t old_memlimit;
-	uint64_t memusage;
+	 uint64 old_memlimit;
+	 uint64 memusage;
 	if(!strm || !strm->internal || !strm->internal->next.memconfig || strm->internal->next.memconfig(strm->internal->next.coder, &memusage, &old_memlimit, 0) != LZMA_OK)
 		return 0;
 	return old_memlimit;
 }
 
-lzma_ret lzma_memlimit_set(lzma_stream *strm, uint64_t new_memlimit)
+lzma_ret lzma_memlimit_set(lzma_stream *strm,  uint64 new_memlimit)
 {
 	// Dummy variables to simplify memconfig functions
-	uint64_t old_memlimit;
-	uint64_t memusage;
+	 uint64 old_memlimit;
+	 uint64 memusage;
 	if(strm == NULL || strm->internal == NULL || strm->internal->next.memconfig == NULL)
 		return LZMA_PROG_ERROR;
 	// Zero is a special value that cannot be used as an actual limit.

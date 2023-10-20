@@ -68,8 +68,8 @@ struct pop3_conn {
 	                     non-body */
 	struct SASL sasl; /* SASL-related storage */
 	char * apoptimestamp; /* APOP timestamp from the server greeting */
-	unsigned char authtypes; /* Accepted authentication types */
-	unsigned char preftype; /* Preferred authentication type */
+	uchar authtypes; /* Accepted authentication types */
+	uchar preftype; /* Preferred authentication type */
 	BIT(ssldone);     /* Is connect() over SSL done? */
 	BIT(tls_supported); /* StartTLS capability supported by server */
 };

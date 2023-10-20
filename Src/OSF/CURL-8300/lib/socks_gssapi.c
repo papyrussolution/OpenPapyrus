@@ -34,10 +34,10 @@
 //#include "connect.h"
 //#include "timeval.h"
 #include "socks.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -123,7 +123,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 	gss_name_t gss_client_name = GSS_C_NO_NAME;
 	unsigned short us_length;
 	char             * user = NULL;
-	unsigned char socksreq[4]; /* room for GSS-API exchange header only */
+	uchar socksreq[4]; /* room for GSS-API exchange header only */
 	const char * serviceptr = data->set.str[STRING_PROXY_SERVICE_NAME] ?
 	    data->set.str[STRING_PROXY_SERVICE_NAME] : "rcmd";
 	const size_t serviceptr_length = strlen(serviceptr);
@@ -139,7 +139,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 	/* prepare service name */
 	if(strchr(serviceptr, '/')) {
 		service.length = serviceptr_length;
-		service.value = malloc(service.length);
+		service.value = SAlloc::M(service.length);
 		if(!service.value)
 			return CURLE_OUT_OF_MEMORY;
 		memcpy(service.value, serviceptr, service.length);
@@ -148,7 +148,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 			(gss_OID)GSS_C_NULL_OID, &server);
 	}
 	else {
-		service.value = malloc(serviceptr_length +
+		service.value = SAlloc::M(serviceptr_length +
 			strlen(conn->socks_proxy.host.name) + 2);
 		if(!service.value)
 			return CURLE_OUT_OF_MEMORY;
@@ -271,7 +271,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 		us_length = ntohs(us_length);
 
 		gss_recv_token.length = us_length;
-		gss_recv_token.value = malloc(us_length);
+		gss_recv_token.value = SAlloc::M(us_length);
 		if(!gss_recv_token.value) {
 			failf(data,
 			    "Could not allocate memory for GSS-API authentication "
@@ -318,7 +318,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 		failf(data, "Failed to determine user name.");
 		return CURLE_COULDNT_CONNECT;
 	}
-	user = malloc(gss_send_token.length + 1);
+	user = SAlloc::M(gss_send_token.length + 1);
 	if(!user) {
 		gss_delete_sec_context(&gss_status, &gss_context, NULL);
 		gss_release_name(&gss_status, &gss_client_name);
@@ -331,7 +331,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 	gss_release_name(&gss_status, &gss_client_name);
 	gss_release_buffer(&gss_status, &gss_send_token);
 	infof(data, "SOCKS5 server authenticated user %s with GSS-API.", user);
-	free(user);
+	SAlloc::F(user);
 	user = NULL;
 
 	/* Do encryption */
@@ -386,7 +386,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 	}
 	else {
 		gss_send_token.length = 1;
-		gss_send_token.value = malloc(1);
+		gss_send_token.value = SAlloc::M(1);
 		if(!gss_send_token.value) {
 			gss_delete_sec_context(&gss_status, &gss_context, NULL);
 			return CURLE_OUT_OF_MEMORY;
@@ -466,7 +466,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 	us_length = ntohs(us_length);
 
 	gss_recv_token.length = us_length;
-	gss_recv_token.value = malloc(gss_recv_token.length);
+	gss_recv_token.value = SAlloc::M(gss_recv_token.length);
 	if(!gss_recv_token.value) {
 		gss_delete_sec_context(&gss_status, &gss_context, NULL);
 		return CURLE_OUT_OF_MEMORY;

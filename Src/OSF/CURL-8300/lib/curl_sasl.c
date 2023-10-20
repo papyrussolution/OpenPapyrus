@@ -47,11 +47,11 @@
 #include "vtls/vtls.h"
 #include "curl_hmac.h"
 #include "curl_sasl.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "strtok.h"
 //#include "sendf.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -129,7 +129,7 @@ void Curl_sasl_cleanup(struct connectdata * conn, unsigned short authused)
 unsigned short Curl_sasl_decode_mech(const char * ptr, size_t maxlen,
     size_t * len)
 {
-	unsigned int i;
+	uint i;
 	char c;
 
 	for(i = 0; mechtable[i].name; i++) {
@@ -268,7 +268,7 @@ static CURLcode get_server_message(struct SASL * sasl, struct Curl_easy * data,
 
 	result = sasl->params->getmessage(data, out);
 	if(!result && (sasl->params->flags & SASL_FLAG_BASE64)) {
-		unsigned char * msg;
+		uchar * msg;
 		size_t msglen;
 		const char * serverdata = (const char *)Curl_bufref_ptr(out);
 

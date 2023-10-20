@@ -126,7 +126,7 @@ const char * archive_read_disk_entry_setup_path(struct archive_read_disk * a, Ar
 	return (path);
 }
 
-int archive_read_disk_entry_from_file(Archive * _a, ArchiveEntry * entry, int fd, const struct stat * st)
+int archive_read_disk_entry_from_file(Archive * _a, ArchiveEntry * entry, int fd, const struct _stat * st)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	const char * path, * name;

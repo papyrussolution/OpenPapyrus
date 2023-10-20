@@ -57,7 +57,7 @@
 //#include "strcase.h"
 #include "if2ip.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -65,12 +65,12 @@
 
 #ifdef ENABLE_IPV6
 /* Return the scope of the given address. */
-unsigned int Curl_ipv6_scope(const struct sockaddr * sa)
+uint Curl_ipv6_scope(const struct sockaddr * sa)
 {
 	if(sa->sa_family == AF_INET6) {
 		const struct sockaddr_in6 * sa6 = (const struct sockaddr_in6 *)(void *)sa;
-		const unsigned char * b = sa6->sin6_addr.s6_addr;
-		unsigned short w = (unsigned short)((b[0] << 8) | b[1]);
+		const uchar * b = sa6->sin6_addr.s6_addr;
+		unsigned short w = (ushort)((b[0] << 8) | b[1]);
 
 		if((b[0] & 0xFE) == 0xFC) /* Handle ULAs */
 			return IPV6_SCOPE_UNIQUELOCAL;
@@ -100,8 +100,8 @@ unsigned int Curl_ipv6_scope(const struct sockaddr * sa)
 
 if2ip_result_t Curl_if2ip(int af,
 #ifdef ENABLE_IPV6
-    unsigned int remote_scope,
-    unsigned int local_scope_id,
+    uint remote_scope,
+    uint local_scope_id,
 #endif
     const char * interf,
     char * buf, int buf_size)
@@ -126,9 +126,9 @@ if2ip_result_t Curl_if2ip(int af,
 #ifdef ENABLE_IPV6
 						if(af == AF_INET6) {
 #ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-							unsigned int scopeid = 0;
+							uint scopeid = 0;
 #endif
-							unsigned int ifscope = Curl_ipv6_scope(iface->ifa_addr);
+							uint ifscope = Curl_ipv6_scope(iface->ifa_addr);
 
 							if(ifscope != remote_scope) {
 								/* We are interested only in interface addresses whose scope
@@ -185,8 +185,8 @@ if2ip_result_t Curl_if2ip(int af,
 
 if2ip_result_t Curl_if2ip(int af,
 #ifdef ENABLE_IPV6
-    unsigned int remote_scope,
-    unsigned int local_scope_id,
+    uint remote_scope,
+    uint local_scope_id,
 #endif
     const char * interf,
     char * buf, int buf_size)
@@ -209,12 +209,10 @@ if2ip_result_t Curl_if2ip(int af,
 	len = strlen(interf);
 	if(len >= sizeof(req.ifr_name))
 		return IF2IP_NOT_FOUND;
-
 	dummy = socket(AF_INET, SOCK_STREAM, 0);
 	if(CURL_SOCKET_BAD == dummy)
 		return IF2IP_NOT_FOUND;
-
-	memset(&req, 0, sizeof(req));
+	memzero(&req, sizeof(req));
 	memcpy(req.ifr_name, interf, len + 1);
 	req.ifr_addr.sa_family = AF_INET;
 
@@ -240,8 +238,8 @@ if2ip_result_t Curl_if2ip(int af,
 
 if2ip_result_t Curl_if2ip(int af,
 #ifdef ENABLE_IPV6
-    unsigned int remote_scope,
-    unsigned int local_scope_id,
+    uint remote_scope,
+    uint local_scope_id,
 #endif
     const char * interf,
     char * buf, int buf_size)

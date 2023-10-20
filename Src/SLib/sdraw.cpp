@@ -2755,8 +2755,8 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 	#include <../osf/libjpeg-turbo/cdjpeg.h>
 	#include <../osf/libjpeg-turbo/jerror.h>
 #else
-	#include <../osf/libjpeg/cdjpeg.h>
-	//#include <../osf/libjpeg/jerror.h>
+	#include <..\slib\libjpeg\cdjpeg.h>
+	//#include <..\slib\libjpeg\jerror.h>
 #endif
 
 int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)

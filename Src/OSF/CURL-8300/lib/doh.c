@@ -38,9 +38,9 @@
 #include "curl_base64.h"
 //#include "connect.h"
 #include "strdup.h"
-#include "dynbuf.h"
+//#include "dynbuf.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -77,12 +77,12 @@ static const char *doh_strerror(DOHcode code)
  */
 UNITTEST DOHcode doh_encode(const char * host,
     DNStype dnstype,
-    unsigned char * dnsp,                        /* buffer */
+    uchar * dnsp,                        /* buffer */
     size_t len,                          /* buffer size */
     size_t * olen)                        /* output length */
 {
 	const size_t hostlen = strlen(host);
-	unsigned char * orig = dnsp;
+	uchar * orig = dnsp;
 	const char * hostp = host;
 
 	/* The expected output length is 16 bytes more than the length of
@@ -146,7 +146,7 @@ UNITTEST DOHcode doh_encode(const char * host,
 			return DOH_DNS_BAD_LABEL;
 		}
 		/* label is non-empty, process it */
-		*dnsp++ = (unsigned char)labellen;
+		*dnsp++ = (uchar)labellen;
 		memcpy(dnsp, hostp, labellen);
 		dnsp += labellen;
 		hostp += labellen;
@@ -158,8 +158,8 @@ UNITTEST DOHcode doh_encode(const char * host,
 	*dnsp++ = 0; /* append zero-length label for root */
 
 	/* There are assigned TYPE codes beyond 255: use range [1..65535]  */
-	*dnsp++ = (unsigned char)(255 & (dnstype>>8)); /* upper 8 bit TYPE */
-	*dnsp++ = (unsigned char)(255 & dnstype); /* lower 8 bit TYPE */
+	*dnsp++ = (uchar)(255 & (dnstype>>8)); /* upper 8 bit TYPE */
+	*dnsp++ = (uchar)(255 & dnstype); /* lower 8 bit TYPE */
 
 	*dnsp++ = '\0'; /* upper 8 bit CLASS */
 	*dnsp++ = DNS_CLASS_IN; /* IN - "the Internet" */
@@ -345,11 +345,11 @@ static CURLcode dohprobe(struct Curl_easy * data,
 	}
 	else
 		goto error;
-	free(nurl);
+	SAlloc::F(nurl);
 	return CURLE_OK;
 
 error:
-	free(nurl);
+	SAlloc::F(nurl);
 	Curl_close(&doh);
 	return result;
 }
@@ -373,7 +373,7 @@ struct Curl_addrinfo *Curl_doh(struct Curl_easy * data,
 	DEBUGASSERT(!data->req.doh);
 	DEBUGASSERT(conn);
 	/* start clean, consider allocating this struct on demand */
-	dohp = data->req.doh = static_cast<dohdata *>(calloc(sizeof(struct dohdata), 1));
+	dohp = data->req.doh = static_cast<dohdata *>(SAlloc::C(sizeof(struct dohdata), 1));
 	if(!dohp)
 		return NULL;
 
@@ -413,14 +413,14 @@ error:
 	for(slot = 0; slot < DOH_PROBE_SLOTS; slot++) {
 		Curl_close(&dohp->probe[slot].easy);
 	}
-	Curl_safefree(data->req.doh);
+	ZFREE(data->req.doh);
 	return NULL;
 }
 
-static DOHcode skipqname(const unsigned char * doh, size_t dohlen,
-    unsigned int * indexp)
+static DOHcode skipqname(const uchar * doh, size_t dohlen,
+    uint * indexp)
 {
-	unsigned char length;
+	uchar length;
 	do {
 		if(dohlen < (*indexp + 1))
 			return DOH_DNS_OUT_OF_RANGE;
@@ -441,12 +441,12 @@ static DOHcode skipqname(const unsigned char * doh, size_t dohlen,
 	return DOH_OK;
 }
 
-static unsigned short get16bit(const unsigned char * doh, int index)
+static unsigned short get16bit(const uchar * doh, int index)
 {
-	return (unsigned short)((doh[index] << 8) | doh[index + 1]);
+	return (ushort)((doh[index] << 8) | doh[index + 1]);
 }
 
-static unsigned int get32bit(const unsigned char * doh, int index)
+static uint get32bit(const uchar * doh, int index)
 {
 	/* make clang and gcc optimize this to bswap by incrementing
 	   the pointer first. */
@@ -455,10 +455,10 @@ static unsigned int get32bit(const unsigned char * doh, int index)
 	/* avoid undefined behavior by casting to unsigned before shifting
 	   24 bits, possibly into the sign bit. codegen is same, but
 	   ub sanitizer won't be upset */
-	return ( (unsigned)doh[0] << 24) | (doh[1] << 16) |(doh[2] << 8) | doh[3];
+	return ( (uint)doh[0] << 24) | (doh[1] << 16) |(doh[2] << 8) | doh[3];
 }
 
-static DOHcode store_a(const unsigned char * doh, int index, struct dohentry * d)
+static DOHcode store_a(const uchar * doh, int index, struct dohentry * d)
 {
 	/* silently ignore addresses over the limit */
 	if(d->numaddr < DOH_MAX_ADDR) {
@@ -470,7 +470,7 @@ static DOHcode store_a(const unsigned char * doh, int index, struct dohentry * d
 	return DOH_OK;
 }
 
-static DOHcode store_aaaa(const unsigned char * doh,
+static DOHcode store_aaaa(const uchar * doh,
     int index,
     struct dohentry * d)
 {
@@ -484,14 +484,14 @@ static DOHcode store_aaaa(const unsigned char * doh,
 	return DOH_OK;
 }
 
-static DOHcode store_cname(const unsigned char * doh,
+static DOHcode store_cname(const uchar * doh,
     size_t dohlen,
-    unsigned int index,
+    uint index,
     struct dohentry * d)
 {
 	struct dynbuf * c;
-	unsigned int loop = 128; /* a valid DNS name can never loop this much */
-	unsigned char length;
+	uint loop = 128; /* a valid DNS name can never loop this much */
+	uchar length;
 
 	if(d->numcname == DOH_MAX_CNAME)
 		return DOH_OK; /* skip! */
@@ -536,7 +536,7 @@ static DOHcode store_cname(const unsigned char * doh,
 	return DOH_OK;
 }
 
-static DOHcode rdata(const unsigned char * doh,
+static DOHcode rdata(const uchar * doh,
     size_t dohlen,
     unsigned short rdlength,
     unsigned short type,
@@ -582,25 +582,25 @@ static DOHcode rdata(const unsigned char * doh,
 UNITTEST void de_init(struct dohentry * de)
 {
 	int i;
-	memset(de, 0, sizeof(*de));
+	memzero(de, sizeof(*de));
 	de->ttl = INT_MAX;
 	for(i = 0; i < DOH_MAX_CNAME; i++)
 		Curl_dyn_init(&de->cname[i], DYN_DOH_CNAME);
 }
 
-UNITTEST DOHcode doh_decode(const unsigned char * doh,
+UNITTEST DOHcode doh_decode(const uchar * doh,
     size_t dohlen,
     DNStype dnstype,
     struct dohentry * d)
 {
-	unsigned char rcode;
+	uchar rcode;
 	unsigned short qdcount;
 	unsigned short ancount;
 	unsigned short type = 0;
 	unsigned short rdlength;
 	unsigned short nscount;
 	unsigned short arcount;
-	unsigned int index = 12;
+	uint index = 12;
 	DOHcode rc;
 
 	if(dohlen < 12)
@@ -625,7 +625,7 @@ UNITTEST DOHcode doh_decode(const unsigned char * doh,
 	ancount = get16bit(doh, 6);
 	while(ancount) {
 		unsigned short _clss;
-		unsigned int ttl;
+		uint ttl;
 		rc = skipqname(doh, dohlen, &index);
 		if(rc)
 			return rc; /* bad qname */
@@ -804,7 +804,7 @@ static struct Curl_addrinfo *doh2ai(const struct dohentry * de, const char * hos
 			ss_size = sizeof(struct sockaddr_in);
 			addrtype = AF_INET;
 		}
-		ai = (Curl_addrinfo *)calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen);
+		ai = (Curl_addrinfo *)SAlloc::C(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen);
 		if(!ai) {
 			result = CURLE_OUT_OF_MEMORY;
 			break;
@@ -837,7 +837,7 @@ static struct Curl_addrinfo *doh2ai(const struct dohentry * de, const char * hos
 			    DEBUGASSERT(sizeof(struct in_addr) == sizeof(de->addr[i].ip.v4));
 			    memcpy(&addr->sin_addr, &de->addr[i].ip.v4, sizeof(struct in_addr));
 			    addr->sin_family = addrtype;
-			    addr->sin_port = htons((unsigned short)port);
+			    addr->sin_port = htons((ushort)port);
 			    break;
 
 #ifdef ENABLE_IPV6
@@ -846,7 +846,7 @@ static struct Curl_addrinfo *doh2ai(const struct dohentry * de, const char * hos
 			    DEBUGASSERT(sizeof(struct in6_addr) == sizeof(de->addr[i].ip.v6));
 			    memcpy(&addr6->sin6_addr, &de->addr[i].ip.v6, sizeof(struct in6_addr));
 			    addr6->sin6_family = addrtype;
-			    addr6->sin6_port = htons((unsigned short)port);
+			    addr6->sin6_port = htons((ushort)port);
 			    break;
 #endif
 		}
@@ -960,7 +960,7 @@ CURLcode Curl_doh_is_resolved(struct Curl_easy * data,
 
 		/* All done */
 		de_cleanup(&de);
-		Curl_safefree(data->req.doh);
+		ZFREE(data->req.doh);
 		return result;
 	} /* !dohp->pending */
 

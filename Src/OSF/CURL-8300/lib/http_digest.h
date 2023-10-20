@@ -34,8 +34,8 @@ CURLcode Curl_input_digest(struct Curl_easy * data,
 /* this is for creating digest header output */
 CURLcode Curl_output_digest(struct Curl_easy * data,
     bool proxy,
-    const unsigned char * request,
-    const unsigned char * uripath);
+    const uchar * request,
+    const uchar * uripath);
 
 void Curl_http_auth_cleanup_digest(struct Curl_easy * data);
 

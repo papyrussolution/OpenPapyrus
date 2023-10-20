@@ -54,19 +54,19 @@
 #include "strtoofft.h"
 //#include "urldata.h"
 //#include <curl/curl.h>
-#include "progress.h"
+//#include "progress.h"
 //#include "sendf.h"
 #include "escape.h"
 #include "file.h"
 #include "speedcheck.h"
 #include "getinfo.h"
-#include "transfer.h"
+//#include "transfer.h"
 #include "url.h"
 #include "parsedate.h" /* for the week day and month names */
-#include "warnless.h"
+//#include "warnless.h"
 #include "curl_range.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -127,7 +127,7 @@ static CURLcode file_setup_connection(struct Curl_easy * data, struct connectdat
 {
 	(void)conn;
 	/* allocate the FILE specific struct */
-	data->req.p.file = (FILEPROTO *)calloc(1, sizeof(struct FILEPROTO));
+	data->req.p.file = (FILEPROTO *)SAlloc::C(1, sizeof(struct FILEPROTO));
 	if(!data->req.p.file)
 		return CURLE_OUT_OF_MEMORY;
 	return CURLE_OK;
@@ -192,7 +192,7 @@ static CURLcode file_connect(struct Curl_easy * data, bool * done)
 		if(actual_path[i] == '/')
 			actual_path[i] = '\\';
 		else if(!actual_path[i]) { /* binary zero */
-			Curl_safefree(real_path);
+			ZFREE(real_path);
 			return CURLE_URL_MALFORMAT;
 		}
 
@@ -201,7 +201,7 @@ static CURLcode file_connect(struct Curl_easy * data, bool * done)
 #else
 	if(memchr(real_path, 0, real_path_len)) {
 		/* binary zeroes indicate foul play */
-		Curl_safefree(real_path);
+		ZFREE(real_path);
 		return CURLE_URL_MALFORMAT;
 	}
 
@@ -233,7 +233,7 @@ static CURLcode file_connect(struct Curl_easy * data, bool * done)
 	file->path = real_path;
   #endif
 #endif
-	Curl_safefree(file->freepath);
+	ZFREE(file->freepath);
 	file->freepath = real_path; /* free this when done */
 
 	file->fd = fd;
@@ -255,7 +255,7 @@ static CURLcode file_done(struct Curl_easy * data,
 	(void)premature; /* not used */
 
 	if(file) {
-		Curl_safefree(file->freepath);
+		ZFREE(file->freepath);
 		file->path = NULL;
 		if(file->fd != -1)
 			_close(file->fd);

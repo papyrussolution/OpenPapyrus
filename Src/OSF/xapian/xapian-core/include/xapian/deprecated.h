@@ -44,7 +44,7 @@
 // __declspec(deprecated) is supported by MSVC 7.0 and later.
 #define XAPIAN_DEPRECATED(D) __declspec(deprecated) D
 #define XAPIAN_DEPRECATED_CLASS __declspec(deprecated)
-# else
+#else
 #define XAPIAN_DEPRECATED(D) D
 #endif
 #endif

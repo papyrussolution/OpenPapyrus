@@ -149,7 +149,7 @@ bool RemoteConnection::read_at_least(size_t min_len, double end_time)
 			if(errno != EINTR && errno != EAGAIN)
 				throw Xapian::NetworkError("poll failed during read",
 					  context, errno);
-# else
+#else
 			if(fdin >= FD_SETSIZE) {
 				// We can't block with a timeout, so just sleep and retry.
 				RealTime::sleep(now + min(0.001, time_diff / 4));
@@ -273,7 +273,7 @@ void RemoteConnection::send_message(char type, const string &message,
 		fds.events = POLLOUT;
 		int result = poll(&fds, 1, int(time_diff * 1000));
 #define POLLSELECT "poll"
-# else
+#else
 		if(fdout >= FD_SETSIZE) {
 			// We can't block with a timeout, so just sleep and retry.
 			RealTime::sleep(now + min(0.001, time_diff / 4));
@@ -424,7 +424,7 @@ void RemoteConnection::send_file(char type, int fd, double end_time)
 		fds.events = POLLOUT;
 		int result = poll(&fds, 1, int(time_diff * 1000));
 #define POLLSELECT "poll"
-# else
+#else
 		if(fdout >= FD_SETSIZE) {
 			// We can't block with a timeout, so just sleep and retry.
 			RealTime::sleep(now + min(0.001, time_diff / 4));
@@ -640,7 +640,7 @@ void RemoteConnection::shutdown()
 		do {
 			res = poll(&fds, 1, -1);
 		} while(res < 0 && (errno == EINTR || errno == EAGAIN));
-# else
+#else
 		if(fdin < FD_SETSIZE) {
 			fd_set fdset;
 			FD_ZERO(&fdset);

@@ -44,7 +44,7 @@ struct stsentry {
 struct hsts {
   struct Curl_llist list;
   char *filename;
-  unsigned int flags;
+  uint flags;
 };
 
 struct hsts *Curl_hsts_init(void);

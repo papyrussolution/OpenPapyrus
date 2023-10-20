@@ -32,7 +32,7 @@
 #include "vauth/vauth.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -170,15 +170,15 @@ CURLcode Curl_output_negotiate(struct Curl_easy * data,
 			base64);
 
 		if(proxy) {
-			Curl_safefree(data->state.aptr.proxyuserpwd);
+			ZFREE(data->state.aptr.proxyuserpwd);
 			data->state.aptr.proxyuserpwd = userp;
 		}
 		else {
-			Curl_safefree(data->state.aptr.userpwd);
+			ZFREE(data->state.aptr.userpwd);
 			data->state.aptr.userpwd = userp;
 		}
 
-		free(base64);
+		SAlloc::F(base64);
 
 		if(!userp) {
 			return CURLE_OUT_OF_MEMORY;

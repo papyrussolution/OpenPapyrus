@@ -16,7 +16,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_virtual.c 201098 2009-12-28 02:5
 int archive_filter_code(Archive * a, int n) { return ((a->vtable->archive_filter_code)(a, n)); }
 int archive_filter_count(Archive * a) { return ((a->vtable->archive_filter_count)(a)); }
 const char * archive_filter_name(Archive * a, int n) { return ((a->vtable->archive_filter_name)(a, n)); }
-la_int64_t archive_filter_bytes(Archive * a, int n) { return ((a->vtable->archive_filter_bytes)(a, n)); }
+int64 archive_filter_bytes(Archive * a, int n) { return ((a->vtable->archive_filter_bytes)(a, n)); }
 int archive_free(Archive * a) { return a ? ((a->vtable->archive_free)(a)) : ARCHIVE_OK; }
 int archive_write_close(Archive * a) { return ((a->vtable->archive_close)(a)); }
 int archive_read_close(Archive * a) { return ((a->vtable->archive_close)(a)); }
@@ -44,7 +44,7 @@ int archive_write_header(Archive * a, ArchiveEntry * entry)
 int archive_write_finish_entry(Archive * a) { return ((a->vtable->archive_write_finish_entry)(a)); }
 la_ssize_t archive_write_data(Archive * a, const void * buff, size_t s) { return ((a->vtable->archive_write_data)(a, buff, s)); }
 
-la_ssize_t archive_write_data_block(Archive * a, const void * buff, size_t s, la_int64_t o)
+la_ssize_t archive_write_data_block(Archive * a, const void * buff, size_t s, int64 o)
 {
 	if(a->vtable->archive_write_data_block == NULL) {
 		archive_set_error(a, ARCHIVE_ERRNO_MISC, "archive_write_data_block not supported");
@@ -56,4 +56,4 @@ la_ssize_t archive_write_data_block(Archive * a, const void * buff, size_t s, la
 
 int archive_read_next_header(Archive * a, ArchiveEntry ** entry) { return ((a->vtable->archive_read_next_header)(a, entry)); }
 int archive_read_next_header2(Archive * a, ArchiveEntry * entry) { return ((a->vtable->archive_read_next_header2)(a, entry)); }
-int archive_read_data_block(Archive * a, const void ** buff, size_t * s, la_int64_t * o) { return ((a->vtable->archive_read_data_block)(a, buff, s, o)); }
+int archive_read_data_block(Archive * a, const void ** buff, size_t * s, int64 * o) { return ((a->vtable->archive_read_data_block)(a, buff, s, o)); }

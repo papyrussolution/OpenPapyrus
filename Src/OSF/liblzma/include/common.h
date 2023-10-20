@@ -23,6 +23,13 @@
 #define HAVE_CHECK_CRC64
 #define HAVE_CHECK_SHA256
 #define HAVE_STDBOOL_H
+
+#define HAVE_MF_HC3 // @v11.8.7
+#define HAVE_MF_HC4 // @v11.8.7
+#define HAVE_MF_BT2 // @v11.8.7
+#define HAVE_MF_BT3 // @v11.8.7
+#define HAVE_MF_BT4 // @v11.8.7
+
 #if _MSC_VER < 1600
 	#define MYTHREAD_WIN95
 #else
@@ -383,7 +390,7 @@ extern lzma_ret lzma_alone_decoder_init(lzma_next_coder *next, const lzma_alloca
 //#include "block_buffer_encoder.h"
 // Single-call .xz Block encoder
 //
-/// uint64_t version of lzma_block_buffer_bound(). It is used by
+///  uint64 version of lzma_block_buffer_bound(). It is used by
 /// stream_encoder_mt.c. Probably the original lzma_block_buffer_bound()
 /// should have been 64-bit, but fixing it would break the ABI.
 extern uint64 lzma_block_buffer_bound64(uint64 uncompressed_size);

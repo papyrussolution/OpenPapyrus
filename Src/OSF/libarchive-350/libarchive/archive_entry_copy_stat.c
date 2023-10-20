@@ -9,7 +9,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_copy_stat.c 189466 2009-03-07 00:52:02Z kientzle $");
 
-void archive_entry_copy_stat(ArchiveEntry * entry, const struct stat * st)
+void archive_entry_copy_stat(ArchiveEntry * entry, const struct _stat * st)
 {
 #if HAVE_STRUCT_STAT_ST_MTIMESPEC_TV_NSEC
 	archive_entry_set_atime(entry, st->st_atime, st->st_atimespec.tv_nsec);

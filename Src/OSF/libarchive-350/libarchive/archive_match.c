@@ -1319,7 +1319,7 @@ static int time_excluded(struct archive_match * a, ArchiveEntry * entry)
  * Utility functions to manage inclusion owners
  */
 
-int archive_match_include_uid(Archive * _a, la_int64_t uid)
+int archive_match_include_uid(Archive * _a, int64 uid)
 {
 	struct archive_match * a;
 	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -1327,7 +1327,7 @@ int archive_match_include_uid(Archive * _a, la_int64_t uid)
 	return (add_owner_id(a, &(a->inclusion_uids), uid));
 }
 
-int archive_match_include_gid(Archive * _a, la_int64_t gid)
+int archive_match_include_gid(Archive * _a, int64 gid)
 {
 	struct archive_match * a;
 	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);

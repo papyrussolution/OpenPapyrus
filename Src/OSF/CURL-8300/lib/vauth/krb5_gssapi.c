@@ -36,7 +36,7 @@
 //#include "urldata.h"
 #include "curl_gssapi.h"
 //#include "sendf.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -115,12 +115,12 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 			Curl_gss_log_error(data, "gss_import_name() failed: ",
 			    major_status, minor_status);
 
-			free(spn);
+			SAlloc::F(spn);
 
 			return CURLE_AUTH_ERROR;
 		}
 
-		free(spn);
+		SAlloc::F(spn);
 	}
 
 	if(chlg) {
@@ -187,16 +187,16 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 {
 	CURLcode result = CURLE_OK;
 	size_t messagelen = 0;
-	unsigned char * message = NULL;
+	uchar * message = NULL;
 	OM_uint32 major_status;
 	OM_uint32 minor_status;
 	OM_uint32 unused_status;
 	gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
 	gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
-	unsigned char * indata;
+	uchar * indata;
 	gss_qop_t qop = GSS_C_QOP_DEFAULT;
-	unsigned int sec_layer = 0;
-	unsigned int max_size = 0;
+	uint sec_layer = 0;
+	uint max_size = 0;
 
 	/* Ensure we have a valid challenge message */
 	if(!Curl_bufref_len(chlg)) {
@@ -251,7 +251,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	messagelen = 4;
 	if(authzid)
 		messagelen += strlen(authzid);
-	message = malloc(messagelen);
+	message = SAlloc::M(messagelen);
 	if(!message)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -278,7 +278,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	if(GSS_ERROR(major_status)) {
 		Curl_gss_log_error(data, "gss_wrap() failed: ",
 		    major_status, minor_status);
-		free(message);
+		SAlloc::F(message);
 		return CURLE_AUTH_ERROR;
 	}
 
@@ -288,7 +288,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	gss_release_buffer(&unused_status, &output_token);
 
 	/* Free the message buffer */
-	free(message);
+	SAlloc::F(message);
 
 	return result;
 }

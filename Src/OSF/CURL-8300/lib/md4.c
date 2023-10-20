@@ -30,7 +30,7 @@
 //#include <string.h>
 
 #include "curl_md4.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 #ifdef USE_OPENSSL
 #include <openssl/opensslconf.h>
@@ -85,7 +85,7 @@
 #endif
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -104,7 +104,7 @@ static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
 	md4_update(ctx, size, data);
 }
 
-static void MD4_Final(unsigned char * result, MD4_CTX * ctx)
+static void MD4_Final(uchar * result, MD4_CTX * ctx)
 {
 	md4_digest(ctx, MD4_DIGEST_SIZE, result);
 }
@@ -126,7 +126,7 @@ static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
 	(void)CC_MD4_Update(ctx, data, (CC_LONG)size);
 }
 
-static void MD4_Final(unsigned char * result, MD4_CTX * ctx)
+static void MD4_Final(uchar * result, MD4_CTX * ctx)
 {
 	(void)CC_MD4_Final(result, ctx);
 }
@@ -160,10 +160,10 @@ static int MD4_Init(MD4_CTX * ctx)
 
 static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
 {
-	CryptHashData(ctx->hHash, (BYTE *)data, (unsigned int)size, 0);
+	CryptHashData(ctx->hHash, (BYTE *)data, (uint)size, 0);
 }
 
-static void MD4_Final(unsigned char * result, MD4_CTX * ctx)
+static void MD4_Final(uchar * result, MD4_CTX * ctx)
 {
 	unsigned long length = 0;
 
@@ -197,7 +197,7 @@ static int MD4_Init(MD4_CTX * ctx)
 static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
 {
 	if(!ctx->data) {
-		ctx->data = malloc(size);
+		ctx->data = SAlloc::M(size);
 		if(ctx->data) {
 			memcpy(ctx->data, data, size);
 			ctx->size = size;
@@ -205,7 +205,7 @@ static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
 	}
 }
 
-static void MD4_Final(unsigned char * result, MD4_CTX * ctx)
+static void MD4_Final(uchar * result, MD4_CTX * ctx)
 {
 	if(ctx->data) {
 #if !defined(HAS_MBEDTLS_RESULT_CODE_BASED_FUNCTIONS)
@@ -214,7 +214,7 @@ static void MD4_Final(unsigned char * result, MD4_CTX * ctx)
 		(void)mbedtls_md4_ret(ctx->data, ctx->size, result);
 #endif
 
-		Curl_safefree(ctx->data);
+		ZFREE(ctx->data);
 		ctx->size = 0;
 	}
 }
@@ -260,12 +260,12 @@ static void MD4_Final(unsigned char * result, MD4_CTX * ctx)
  */
 
 /* Any 32-bit or wider unsigned integer data type will do */
-typedef unsigned int MD4_u32plus;
+typedef uint MD4_u32plus;
 
 struct md4_ctx {
 	MD4_u32plus lo, hi;
 	MD4_u32plus a, b, c, d;
-	unsigned char buffer[64];
+	uchar buffer[64];
 	MD4_u32plus block[16];
 };
 
@@ -273,7 +273,7 @@ typedef struct md4_ctx MD4_CTX;
 
 static int MD4_Init(MD4_CTX * ctx);
 static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size);
-static void MD4_Final(unsigned char * result, MD4_CTX * ctx);
+static void MD4_Final(uchar * result, MD4_CTX * ctx);
 
 /*
  * The basic MD4 functions.
@@ -322,10 +322,10 @@ static void MD4_Final(unsigned char * result, MD4_CTX * ctx);
  */
 static const void *body(MD4_CTX * ctx, const void * data, unsigned long size)
 {
-	const unsigned char * ptr;
+	const uchar * ptr;
 	MD4_u32plus a, b, c, d;
 
-	ptr = (const unsigned char *)data;
+	ptr = (const uchar *)data;
 
 	a = ctx->a;
 	b = ctx->b;
@@ -444,20 +444,20 @@ static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
 		}
 
 		memcpy(&ctx->buffer[used], data, available);
-		data = (const unsigned char *)data + available;
+		data = (const uchar *)data + available;
 		size -= available;
 		body(ctx, ctx->buffer, 64);
 	}
 
 	if(size >= 64) {
-		data = body(ctx, data, size & ~(unsigned long)0x3f);
+		data = body(ctx, data, size & ~(ulong)0x3f);
 		size &= 0x3f;
 	}
 
 	memcpy(ctx->buffer, data, size);
 }
 
-static void MD4_Final(unsigned char * result, MD4_CTX * ctx)
+static void MD4_Final(uchar * result, MD4_CTX * ctx)
 {
 	unsigned long used, available;
 
@@ -468,13 +468,13 @@ static void MD4_Final(unsigned char * result, MD4_CTX * ctx)
 	available = 64 - used;
 
 	if(available < 8) {
-		memset(&ctx->buffer[used], 0, available);
+		memzero(&ctx->buffer[used], available);
 		body(ctx, ctx->buffer, 64);
 		used = 0;
 		available = 64;
 	}
 
-	memset(&ctx->buffer[used], 0, available - 8);
+	memzero(&ctx->buffer[used], available - 8);
 
 	ctx->lo <<= 3;
 	ctx->buffer[56] = curlx_ultouc((ctx->lo)&0xff);
@@ -505,12 +505,12 @@ static void MD4_Final(unsigned char * result, MD4_CTX * ctx)
 	result[14] = curlx_ultouc((ctx->d >> 16)&0xff);
 	result[15] = curlx_ultouc(ctx->d >> 24);
 
-	memset(ctx, 0, sizeof(*ctx));
+	memzero(ctx, sizeof(*ctx));
 }
 
 #endif /* CRYPTO LIBS */
 
-CURLcode Curl_md4it(unsigned char * output, const unsigned char * input,
+CURLcode Curl_md4it(uchar * output, const uchar * input,
     const size_t len)
 {
 	MD4_CTX ctx;

@@ -466,16 +466,16 @@ extern lzma_ret lzma_lzma_encoder_init(lzma_next_coder * next, const lzma_alloca
 	return lzma_lz_encoder_init(next, allocator, filters, &lzma_encoder_init);
 }
 
-extern uint64_t lzma_lzma_encoder_memusage(const void * options)
+extern  uint64 lzma_lzma_encoder_memusage(const void * options)
 {
 	if(!is_options_valid((const lzma_options_lzma *)options))
 		return UINT64_MAX;
 	lzma_lz_encoder_options lz_options;
 	set_lz_options(&lz_options, (const lzma_options_lzma *)options);
-	const uint64_t lz_memusage = lzma_lz_encoder_memusage(&lz_options);
+	const  uint64 lz_memusage = lzma_lz_encoder_memusage(&lz_options);
 	if(lz_memusage == UINT64_MAX)
 		return UINT64_MAX;
-	return (uint64_t)(sizeof(lzma_lzma1_encoder)) + lz_memusage;
+	return ( uint64)(sizeof(lzma_lzma1_encoder)) + lz_memusage;
 }
 
 extern bool lzma_lzma_lclppb_encode(const lzma_options_lzma * options, uint8 * byte)

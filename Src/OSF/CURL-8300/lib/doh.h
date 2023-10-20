@@ -58,7 +58,7 @@ typedef enum {
 struct dnsprobe {
 	CURL * easy;
 	DNStype dnstype;
-	unsigned char dohbuffer[512];
+	uchar dohbuffer[512];
 	size_t dohlen;
 	struct dynbuf serverdoh;
 };
@@ -66,7 +66,7 @@ struct dnsprobe {
 struct dohdata {
 	struct curl_slist * headers;
 	struct dnsprobe probe[DOH_PROBE_SLOTS];
-	unsigned int pending; /* still outstanding requests */
+	uint pending; /* still outstanding requests */
 	int port;
 	const char * host;
 };
@@ -92,8 +92,8 @@ int Curl_doh_getsock(struct connectdata * conn, curl_socket_t * socks);
 struct dohaddr {
 	int type;
 	union {
-		unsigned char v4[4]; /* network byte order */
-		unsigned char v6[16];
+		uchar v4[4]; /* network byte order */
+		uchar v6[16];
 	} ip;
 };
 
@@ -101,17 +101,17 @@ struct dohentry {
 	struct dynbuf cname[DOH_MAX_CNAME];
 	struct dohaddr addr[DOH_MAX_ADDR];
 	int numaddr;
-	unsigned int ttl;
+	uint ttl;
 	int numcname;
 };
 
 #ifdef DEBUGBUILD
 DOHcode doh_encode(const char * host,
     DNStype dnstype,
-    unsigned char * dnsp,               /* buffer */
+    uchar * dnsp,               /* buffer */
     size_t len,                 /* buffer size */
     size_t * olen);               /* output length */
-DOHcode doh_decode(const unsigned char * doh,
+DOHcode doh_decode(const uchar * doh,
     size_t dohlen,
     DNStype dnstype,
     struct dohentry * d);

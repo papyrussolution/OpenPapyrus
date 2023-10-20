@@ -34,7 +34,7 @@
 #endif
 
 #include "inet_ntop.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 
 #define IN6ADDRSZ       16
 #define INADDRSZ         4
@@ -55,9 +55,9 @@
  * Returns `dst' (as a const)
  * Note:
  *  - uses no statics
- *  - takes a unsigned char* not an in_addr as input
+ *  - takes a uchar* not an in_addr as input
  */
-static char *inet_ntop4(const unsigned char * src, char * dst, size_t size)
+static char *inet_ntop4(const uchar * src, char * dst, size_t size)
 {
 	char tmp[sizeof("255.255.255.255")];
 	size_t len;
@@ -66,10 +66,10 @@ static char *inet_ntop4(const unsigned char * src, char * dst, size_t size)
 
 	tmp[0] = '\0';
 	(void)msnprintf(tmp, sizeof(tmp), "%d.%d.%d.%d",
-	    ((int)((unsigned char)src[0])) & 0xff,
-	    ((int)((unsigned char)src[1])) & 0xff,
-	    ((int)((unsigned char)src[2])) & 0xff,
-	    ((int)((unsigned char)src[3])) & 0xff);
+	    ((int)((uchar)src[0])) & 0xff,
+	    ((int)((uchar)src[1])) & 0xff,
+	    ((int)((uchar)src[2])) & 0xff,
+	    ((int)((uchar)src[3])) & 0xff);
 
 	len = strlen(tmp);
 	if(len == 0 || len >= size) {
@@ -83,7 +83,7 @@ static char *inet_ntop4(const unsigned char * src, char * dst, size_t size)
 /*
  * Convert IPv6 binary address into presentation (printable) format.
  */
-static char *inet_ntop6(const unsigned char * src, char * dst, size_t size)
+static char *inet_ntop6(const uchar * src, char * dst, size_t size)
 {
 	/*
 	 * Note that int32_t and int16_t need only be "at least" large enough
@@ -100,15 +100,13 @@ static char *inet_ntop6(const unsigned char * src, char * dst, size_t size)
 	} best, cur;
 	unsigned long words[IN6ADDRSZ / INT16SZ];
 	int i;
-
 	/* Preprocess:
 	 *  Copy the input (bytewise) array into a wordwise array.
 	 *  Find the longest run of 0x00's in src[] for :: shorthanding.
 	 */
-	memset(words, '\0', sizeof(words));
+	memzero(words, sizeof(words));
 	for(i = 0; i < IN6ADDRSZ; i++)
 		words[i/2] |= (src[i] << ((1 - (i % 2)) << 3));
-
 	best.base = -1;
 	cur.base  = -1;
 	best.len = 0;
@@ -193,9 +191,9 @@ char *Curl_inet_ntop(int af, const void * src, char * buf, size_t size)
 {
 	switch(af) {
 		case AF_INET:
-		    return inet_ntop4((const unsigned char *)src, buf, size);
+		    return inet_ntop4((const uchar *)src, buf, size);
 		case AF_INET6:
-		    return inet_ntop6((const unsigned char *)src, buf, size);
+		    return inet_ntop6((const uchar *)src, buf, size);
 		default:
 		    errno = EAFNOSUPPORT;
 		    return NULL;

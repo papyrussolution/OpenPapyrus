@@ -57,7 +57,7 @@
 #include "inet_pton.h"
 //#include "connect.h"
 #include "select.h"
-#include "progress.h"
+//#include "progress.h"
 //#include "timediff.h"
 
 #if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) &&   \
@@ -94,7 +94,7 @@
 #endif
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -255,7 +255,7 @@ static void destroy_async_data(struct Curl_async * async)
 				Curl_freeaddrinfo(res->temp_ai);
 				res->temp_ai = NULL;
 			}
-			free(res);
+			SAlloc::F(res);
 		}
 		async->tdata = NULL;
 	}
@@ -389,9 +389,7 @@ CURLcode Curl_resolver_is_resolved(struct Curl_easy * data,
 	    >= HAPPY_EYEBALLS_DNS_TIMEOUT)) {
 		/* Remember that the EXPIRE_HAPPY_EYEBALLS_DNS timer is no longer
 		   running. */
-		memset(
-			&res->happy_eyeballs_dns_time, 0, sizeof(res->happy_eyeballs_dns_time));
-
+		memzero(&res->happy_eyeballs_dns_time, sizeof(res->happy_eyeballs_dns_time));
 		/* Cancel the raw c-ares request, which will fire query_completed_cb() with
 		   ARES_ECANCELLED synchronously for all pending responses.  This will
 		   leave us with res->num_pending == 0, which is perfect for the next
@@ -682,7 +680,7 @@ static struct Curl_addrinfo *ares2addr(struct ares_addrinfo_node * node){
 		if((size_t)ai->ai_addrlen < ss_size)
 			continue;
 
-		ca = malloc(sizeof(struct Curl_addrinfo) + ss_size);
+		ca = SAlloc::M(sizeof(struct Curl_addrinfo) + ss_size);
 		if(!ca) {
 			error = EAI_MEMORY;
 			break;
@@ -753,7 +751,7 @@ struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data,
 	size_t namelen = strlen(hostname);
 	*waitp = 0; /* default to synchronous response */
 
-	res = calloc(sizeof(struct thread_data) + namelen, 1);
+	res = SAlloc::C(sizeof(struct thread_data) + namelen, 1);
 	if(res) {
 		strcpy(res->hostname, hostname);
 		data->state.async.hostname = res->hostname;
@@ -771,7 +769,7 @@ struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data,
 			struct ares_addrinfo_hints hints;
 			char service[12];
 			int pf = PF_INET;
-			memset(&hints, 0, sizeof(hints));
+			memzero(&hints, sizeof(hints));
 #ifdef CURLRES_IPV6
 			if((data->conn->ip_version != CURL_IPRESOLVE_V4) &&
 			    Curl_ipv6works(data)) {
@@ -909,24 +907,20 @@ CURLcode Curl_set_dns_local_ip4(struct Curl_easy * data,
 #endif
 }
 
-CURLcode Curl_set_dns_local_ip6(struct Curl_easy * data,
-    const char * local_ip6)
+CURLcode Curl_set_dns_local_ip6(struct Curl_easy * data, const char * local_ip6)
 {
 #if defined(HAVE_CARES_SET_LOCAL) && defined(ENABLE_IPV6)
-	unsigned char a6[INET6_ADDRSTRLEN];
-
+	uchar a6[INET6_ADDRSTRLEN];
 	if((!local_ip6) || (local_ip6[0] == 0)) {
 		/* disabled: do not bind to a specific address */
-		memset(a6, 0, sizeof(a6));
+		memzero(a6, sizeof(a6));
 	}
 	else {
 		if(Curl_inet_pton(AF_INET6, local_ip6, a6) != 1) {
 			return CURLE_BAD_FUNCTION_ARGUMENT;
 		}
 	}
-
 	ares_set_local_ip6((ares_channel)data->state.async.resolver, a6);
-
 	return CURLE_OK;
 #else /* c-ares version too old! */
 	(void)data;

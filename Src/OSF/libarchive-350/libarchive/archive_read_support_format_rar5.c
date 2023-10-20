@@ -1198,7 +1198,7 @@ static int parse_file_extra_owner(ArchiveRead* a, ArchiveEntry* e, ssize_t* extr
 		if(ARCHIVE_OK != consume(a, (int64)value_size))
 			return ARCHIVE_EOF;
 		*extra_data_size -= value_size;
-		archive_entry_set_uid(e, (la_int64_t)id);
+		archive_entry_set_uid(e, (int64)id);
 	}
 	if((flags & OWNER_GROUP_GID) != 0) {
 		if(!read_var(a, &id, &value_size))
@@ -1206,7 +1206,7 @@ static int parse_file_extra_owner(ArchiveRead* a, ArchiveEntry* e, ssize_t* extr
 		if(ARCHIVE_OK != consume(a, (int64)value_size))
 			return ARCHIVE_EOF;
 		*extra_data_size -= value_size;
-		archive_entry_set_gid(e, (la_int64_t)id);
+		archive_entry_set_gid(e, (int64)id);
 	}
 	return ARCHIVE_OK;
 }

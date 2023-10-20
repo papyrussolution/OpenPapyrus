@@ -24,27 +24,26 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
-
-#ifdef USE_WINSOCK
+//#include "curl_setup.h"
+//#ifdef USE_WINSOCK
 //#include <curl/curl.h> /* for curl_socket_t */
-#endif
+//#endif
 
 #define CURLX_FUNCTION_CAST(target_type, func) (target_type)(void (*) (void))(func)
 
 unsigned short curlx_ultous(unsigned long ulnum);
-unsigned char curlx_ultouc(unsigned long ulnum);
+uchar curlx_ultouc(unsigned long ulnum);
 int curlx_uztosi(size_t uznum);
 curl_off_t curlx_uztoso(size_t uznum);
 unsigned long curlx_uztoul(size_t uznum);
-unsigned int curlx_uztoui(size_t uznum);
+uint curlx_uztoui(size_t uznum);
 int curlx_sltosi(long slnum);
-unsigned int curlx_sltoui(long slnum);
+uint curlx_sltoui(long slnum);
 unsigned short curlx_sltous(long slnum);
 ssize_t curlx_uztosz(size_t uznum);
 size_t curlx_sotouz(curl_off_t sonum);
 int curlx_sztosi(ssize_t sznum);
-unsigned short curlx_uitous(unsigned int uinum);
+unsigned short curlx_uitous(uint uinum);
 size_t curlx_sitouz(int sinum);
 
 #ifdef USE_WINSOCK

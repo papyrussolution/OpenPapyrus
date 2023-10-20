@@ -34,7 +34,7 @@ struct lzma_index_decoder_coder {
 		SEQ_PADDING,
 		SEQ_CRC32,
 	} sequence;
-	uint64_t memlimit; /// Memory usage limit
+	 uint64 memlimit; /// Memory usage limit
 	lzma_index * index; /// Target Index
 	lzma_index ** index_ptr; /// Pointer give by the application, which is set after successful decoding.
 	lzma_vli count; /// Number of Records left to decode.
@@ -358,7 +358,7 @@ extern void lzma_index_prealloc(lzma_index * i, lzma_vli records)
 	i->prealloc = (size_t)(records);
 }
 
-uint64_t lzma_index_memusage(lzma_vli streams, lzma_vli blocks)
+ uint64 lzma_index_memusage(lzma_vli streams, lzma_vli blocks)
 {
 	// This calculates an upper bound that is only a little bit
 	// bigger than the exact maximum memory usage with the given
@@ -378,20 +378,20 @@ uint64_t lzma_index_memusage(lzma_vli streams, lzma_vli blocks)
 	// has been taken into account in stream_base already.
 	const lzma_vli groups = (blocks + INDEX_GROUP_SIZE - 1) / INDEX_GROUP_SIZE;
 	// Memory used by index_stream and index_group structures.
-	const uint64_t streams_mem = streams * stream_base;
-	const uint64_t groups_mem = groups * group_base;
+	const  uint64 streams_mem = streams * stream_base;
+	const  uint64 groups_mem = groups * group_base;
 	// Memory used by the base structure.
-	const uint64_t index_base = sizeof(lzma_index) + alloc_overhead;
+	const  uint64 index_base = sizeof(lzma_index) + alloc_overhead;
 	// Validate the arguments and catch integer overflows.
 	// Maximum number of Streams is "only" UINT32_MAX, because
 	// that limit is used by the tree containing the Streams.
-	const uint64_t limit = UINT64_MAX - index_base;
+	const  uint64 limit = UINT64_MAX - index_base;
 	if(streams == 0 || streams > UINT32_MAX || blocks > LZMA_VLI_MAX || streams > limit / stream_base || groups > limit / group_base || limit - streams_mem < groups_mem)
 		return UINT64_MAX;
 	return index_base + streams_mem + groups_mem;
 }
 
-uint64_t lzma_index_memused(const lzma_index *i) { return lzma_index_memusage(i->streams.count, i->record_count); }
+ uint64 lzma_index_memused(const lzma_index *i) { return lzma_index_memusage(i->streams.count, i->record_count); }
 lzma_vli lzma_index_block_count(const lzma_index *i) { return i->record_count; }
 lzma_vli lzma_index_stream_count(const lzma_index *i) { return i->streams.count; }
 lzma_vli lzma_index_size(const lzma_index *i) { return index_size(i->record_count, i->index_list_size); }
@@ -1446,7 +1446,7 @@ static void index_decoder_end(void * coder_ptr, const lzma_allocator * allocator
 	lzma_free(coder, allocator);
 }
 
-static lzma_ret index_decoder_memconfig(void * coder_ptr, uint64_t * memusage, uint64_t * old_memlimit, uint64_t new_memlimit)
+static lzma_ret index_decoder_memconfig(void * coder_ptr,  uint64 * memusage,  uint64 * old_memlimit,  uint64 new_memlimit)
 {
 	lzma_index_decoder_coder * coder = (lzma_index_decoder_coder *)coder_ptr;
 	*memusage = lzma_index_memusage(1, coder->count);
@@ -1459,7 +1459,7 @@ static lzma_ret index_decoder_memconfig(void * coder_ptr, uint64_t * memusage, u
 	return LZMA_OK;
 }
 
-static lzma_ret index_decoder_reset(lzma_index_decoder_coder * coder, const lzma_allocator * allocator, lzma_index ** i, uint64_t memlimit)
+static lzma_ret index_decoder_reset(lzma_index_decoder_coder * coder, const lzma_allocator * allocator, lzma_index ** i,  uint64 memlimit)
 {
 	// Remember the pointer given by the application. We will set it
 	// to point to the decoded Index only if decoding is successful.
@@ -1480,7 +1480,7 @@ static lzma_ret index_decoder_reset(lzma_index_decoder_coder * coder, const lzma
 	return LZMA_OK;
 }
 
-extern lzma_ret lzma_index_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator, lzma_index ** i, uint64_t memlimit)
+extern lzma_ret lzma_index_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator, lzma_index ** i,  uint64 memlimit)
 {
 	lzma_next_coder_init(&lzma_index_decoder_init, next, allocator);
 	if(i == NULL)
@@ -1502,7 +1502,7 @@ extern lzma_ret lzma_index_decoder_init(lzma_next_coder * next, const lzma_alloc
 	return index_decoder_reset(coder, allocator, i, memlimit);
 }
 
-lzma_ret lzma_index_decoder(lzma_stream *strm, lzma_index **i, uint64_t memlimit)
+lzma_ret lzma_index_decoder(lzma_stream *strm, lzma_index **i,  uint64 memlimit)
 {
 	lzma_next_strm_init2(lzma_index_decoder_init, strm, i, memlimit);
 	strm->internal->supported_actions[LZMA_RUN] = true;
@@ -1510,7 +1510,7 @@ lzma_ret lzma_index_decoder(lzma_stream *strm, lzma_index **i, uint64_t memlimit
 	return LZMA_OK;
 }
 
-lzma_ret lzma_index_buffer_decode(lzma_index **i, uint64_t *memlimit, const lzma_allocator *allocator, const uint8 *in, size_t *in_pos, size_t in_size)
+lzma_ret lzma_index_buffer_decode(lzma_index **i,  uint64 *memlimit, const lzma_allocator *allocator, const uint8 *in, size_t *in_pos, size_t in_size)
 {
 	// Sanity checks
 	if(!i || !memlimit || !in || !in_pos || *in_pos > in_size)

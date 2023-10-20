@@ -42,7 +42,7 @@
 #include "curl_gethostname.h"
 #include "curl_multibyte.h"
 #include "curl_md5.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "rand.h"
 #include "vtls/vtls.h"
 
@@ -50,7 +50,7 @@
 #include "vauth/vauth.h"
 #include "vauth/ntlm.h"
 #include "curl_endian.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -139,7 +139,7 @@ static void ntlm_print_hex(FILE * handle, const char * buf, size_t len)
 
 	fprintf(stderr, "0x");
 	while(len-- > 0)
-		fprintf(stderr, "%02.2x", (unsigned int)*p++);
+		fprintf(stderr, "%02.2x", (uint)*p++);
 }
 
 #else
@@ -165,8 +165,8 @@ static CURLcode ntlm_decode_type2_target(struct Curl_easy * data,
     struct ntlmdata * ntlm)
 {
 	unsigned short target_info_len = 0;
-	unsigned int target_info_offset = 0;
-	const unsigned char * type2 = Curl_bufref_ptr(type2ref);
+	uint target_info_offset = 0;
+	const uchar * type2 = Curl_bufref_ptr(type2ref);
 	size_t type2len = Curl_bufref_len(type2ref);
 
 #if defined(CURL_DISABLE_VERBOSE_STRINGS)
@@ -185,8 +185,8 @@ static CURLcode ntlm_decode_type2_target(struct Curl_easy * data,
 				return CURLE_BAD_CONTENT_ENCODING;
 			}
 
-			free(ntlm->target_info); /* replace any previous data */
-			ntlm->target_info = malloc(target_info_len);
+			SAlloc::F(ntlm->target_info); /* replace any previous data */
+			ntlm->target_info = SAlloc::M(target_info_len);
 			if(!ntlm->target_info)
 				return CURLE_OUT_OF_MEMORY;
 
@@ -267,7 +267,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 	 */
 
 	CURLcode result = CURLE_OK;
-	const unsigned char * type2 = Curl_bufref_ptr(type2ref);
+	const uchar * type2 = Curl_bufref_ptr(type2ref);
 	size_t type2len = Curl_bufref_len(type2ref);
 
 #if defined(CURL_DISABLE_VERBOSE_STRINGS)
@@ -309,11 +309,11 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 
 /* copy the source to the destination and fill in zeroes in every
    other destination byte! */
-static void unicodecpy(unsigned char * dest, const char * src, size_t length)
+static void unicodecpy(uchar * dest, const char * src, size_t length)
 {
 	size_t i;
 	for(i = 0; i < length; i++) {
-		dest[2 * i] = (unsigned char)src[i];
+		dest[2 * i] = (uchar)src[i];
 		dest[2 * i + 1] = '\0';
 	}
 }
@@ -483,14 +483,14 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 
 	CURLcode result = CURLE_OK;
 	size_t size;
-	unsigned char ntlmbuf[NTLM_BUFSIZE];
+	uchar ntlmbuf[NTLM_BUFSIZE];
 	int lmrespoff;
-	unsigned char lmresp[24]; /* fixed-size */
+	uchar lmresp[24]; /* fixed-size */
 	int ntrespoff;
-	unsigned int ntresplen = 24;
-	unsigned char ntresp[24]; /* fixed-size */
-	unsigned char * ptr_ntresp = &ntresp[0];
-	unsigned char * ntlmv2resp = NULL;
+	uint ntresplen = 24;
+	uchar ntresp[24]; /* fixed-size */
+	uchar * ptr_ntresp = &ntresp[0];
+	uchar * ntlmv2resp = NULL;
 	bool unicode = (ntlm->flags & NTLMFLAG_NEGOTIATE_UNICODE) ? TRUE : FALSE;
 	char host[HOSTNAME_MAX + 1] = "";
 	const char * user;
@@ -501,9 +501,8 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 	size_t hostlen = 0;
 	size_t userlen = 0;
 	size_t domlen = 0;
-
-	memset(lmresp, 0, sizeof(lmresp));
-	memset(ntresp, 0, sizeof(ntresp));
+	memzero(lmresp, sizeof(lmresp));
+	memzero(ntresp, sizeof(ntresp));
 	user = strchr(userp, '\\');
 	if(!user)
 		user = strchr(userp, '/');
@@ -534,9 +533,9 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 #endif
 
 	if(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY) {
-		unsigned char ntbuffer[0x18];
-		unsigned char entropy[8];
-		unsigned char ntlmv2hash[0x18];
+		uchar ntbuffer[0x18];
+		uchar entropy[8];
+		uchar ntlmv2hash[0x18];
 
 		/* Full NTLM version 2
 		   Although this cannot be negotiated, it is used here if available, as
@@ -570,8 +569,8 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 		ptr_ntresp = ntlmv2resp;
 	}
 	else {
-		unsigned char ntbuffer[0x18];
-		unsigned char lmbuffer[0x18];
+		uchar ntbuffer[0x18];
+		uchar lmbuffer[0x18];
 
 		/* NTLM version 1 */
 
@@ -711,7 +710,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 		ntlm_print_hex(stderr, (char *)&ntlmbuf[ntrespoff], ntresplen);
 	});
 
-	free(ntlmv2resp);/* Free the dynamic buffer allocated for NTLMv2 */
+	SAlloc::F(ntlmv2resp);/* Free the dynamic buffer allocated for NTLMv2 */
 
 	DEBUG_OUT({
 		fprintf(stderr, "\n   flags=0x%02.2x%02.2x%02.2x%02.2x 0x%08.8x ",
@@ -772,7 +771,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 void Curl_auth_cleanup_ntlm(struct ntlmdata * ntlm)
 {
 	/* Free the target info */
-	Curl_safefree(ntlm->target_info);
+	ZFREE(ntlm->target_info);
 
 	/* Reset any variables */
 	ntlm->target_info_len = 0;

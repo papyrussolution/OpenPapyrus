@@ -27,7 +27,7 @@
 #include <rpc.h>
 #ifdef __WIN32__
 #include "safewinsock2.h" // For htonl() and htons().
-# else
+#else
 // Cygwin:
 #include <arpa/inet.h> // For htonl() and htons().
 #endif

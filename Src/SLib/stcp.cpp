@@ -2948,7 +2948,7 @@ int ScURL::FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool)
 					ParseFtpDirEntryLine(temp_buf, entry.Z());
 					if(url_info.Path.NotEmpty())
 						entry.Path = url_info.Path;
-					rPool.Add(entry);
+					rPool.Add(entry, 0);
 				}
 				temp_buf = ""; // @debug
 			}
@@ -3534,7 +3534,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 						SFileEntryPool::Entry fe;
 						ps.Merge(~(SPathStruc::fNam|SPathStruc::fExt), temp_buf);
 						url_src.SetComponent(InetUrl::cPath, temp_buf);
-						THROW(curl.FtpList(url_src, 0, fep));
+						THROW(curl.FtpList(url_src, ScURL::mfVerbose, fep));
 						for(uint i = 0; i < fep.GetCount(); i++) {
 							if(fep.Get(i, &fe, 0) && SFile::WildcardMatch(filt_filename, fe.Name)) {
 								ps.Nam = fe.Name;
@@ -3553,7 +3553,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 						}
 					}
 					else {
-						THROW(curl.FtpGet(url_src, 0, local_path_dest, &temp_buf, 0));
+						THROW(curl.FtpGet(url_src, ScURL::mfVerbose, local_path_dest, &temp_buf, 0));
 						AddS(temp_buf, &ri.DestPathP);
 						url_src.Composite(0, temp_buf);
 						AddS(temp_buf, &ri.SrcPathP);
@@ -3583,7 +3583,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 				// } @v11.0.9
 				SFile wr_stream(local_path_dest, SFile::mWrite|SFile::mBinary);
 				THROW(wr_stream.IsValid());
-				THROW(curl.HttpGet(url_src, ScURL::mfDontVerifySslPeer, 0, &wr_stream));
+				THROW(curl.HttpGet(url_src, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, 0, &wr_stream));
 				{
 					ResultItem ri;
 					AddS(local_path_dest, &ri.DestPathP);

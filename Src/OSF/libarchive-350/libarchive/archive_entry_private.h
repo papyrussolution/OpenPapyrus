@@ -131,22 +131,19 @@ struct ArchiveEntry {
 #define	AE_SET_SIZE	64
 #define	AE_SET_INO	128
 #define	AE_SET_DEV	256
-
 	/*
 	 * Use aes here so that we get transparent mbs<->wcs conversions.
 	 */
 	struct archive_mstring ae_fflags_text;	/* Text fflags per fflagstostr(3) */
 	ulong ae_fflags_set;		/* Bitmap fflags */
 	ulong ae_fflags_clear;
-	struct archive_mstring ae_gname;		/* Name of owning group */
-	struct archive_mstring ae_hardlink;	/* Name of target for hardlink */
-	struct archive_mstring ae_pathname;	/* Name of entry */
-	struct archive_mstring ae_symlink;		/* symlink contents */
-	struct archive_mstring ae_uname;		/* Name of owner */
-
-	/* Not used within libarchive; useful for some clients. */
-	struct archive_mstring ae_sourcepath;	/* Path this entry is sourced from. */
-
+	struct archive_mstring ae_gname;    // Name of owning group
+	struct archive_mstring ae_hardlink; // Name of target for hardlink
+	struct archive_mstring ae_pathname; // Name of entry
+	struct archive_mstring ae_symlink;  // symlink contents
+	struct archive_mstring ae_uname;    // Name of owner
+	// Not used within libarchive; useful for some clients
+	struct archive_mstring ae_sourcepath; // Path this entry is sourced from
 #define AE_ENCRYPTION_NONE 0
 #define AE_ENCRYPTION_DATA 1
 #define AE_ENCRYPTION_METADATA 2

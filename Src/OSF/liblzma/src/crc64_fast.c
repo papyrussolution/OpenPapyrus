@@ -19,7 +19,7 @@
 #endif
 
 // See the comments in crc32_fast.c. They aren't duplicated here.
-uint64_t lzma_crc64(const uint8 *buf, size_t size, uint64_t crc)
+ uint64 lzma_crc64(const uint8 *buf, size_t size,  uint64 crc)
 {
 	crc = ~crc;
 #ifdef SL_BIGENDIAN

@@ -44,7 +44,7 @@
 //#include <curl/curl.h>
 //#include "sendf.h"
 #include "vtls/vtls.h"
-#include "transfer.h"
+//#include "transfer.h"
 #include "curl_ldap.h"
 #include "curl_base64.h"
 //#include "cfilters.h"
@@ -52,7 +52,7 @@
 #include "curl_sasl.h"
 //#include "strcase.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -326,7 +326,7 @@ static CURLcode oldap_setup_connection(struct Curl_easy * data,
 	ldap_free_urldesc(lud);
 
 	if(!result) {
-		li = calloc(1, sizeof(struct ldapconninfo));
+		li = SAlloc::C(1, sizeof(struct ldapconninfo));
 		if(!li)
 			result = CURLE_OUT_OF_MEMORY;
 		else {
@@ -558,11 +558,11 @@ static CURLcode oldap_connect(struct Curl_easy * data, bool * done)
 	if(rc) {
 		failf(data, "LDAP local: Cannot connect to %s, %s",
 		    hosturl, ldap_err2string(rc));
-		free(hosturl);
+		SAlloc::F(hosturl);
 		return CURLE_COULDNT_CONNECT;
 	}
 
-	free(hosturl);
+	SAlloc::F(hosturl);
 
 #ifdef CURL_OPENLDAP_DEBUG
 	if(do_trace < 0) {
@@ -864,7 +864,7 @@ static CURLcode oldap_disconnect(struct Curl_easy * data,
 		}
 		Curl_sasl_cleanup(conn, li->sasl.authused);
 		conn->proto.ldapc = NULL;
-		free(li);
+		SAlloc::F(li);
 	}
 	return CURLE_OK;
 }
@@ -894,7 +894,7 @@ static CURLcode oldap_do(struct Curl_easy * data, bool * done)
 			result = CURLE_LDAP_SEARCH_FAILED;
 		}
 		else {
-			lr = calloc(1, sizeof(struct ldapreqinfo));
+			lr = SAlloc::C(1, sizeof(struct ldapreqinfo));
 			if(!lr) {
 				ldap_abandon_ext(li->ld, msgid, NULL, NULL);
 				result = CURLE_OUT_OF_MEMORY;
@@ -927,7 +927,7 @@ static CURLcode oldap_done(struct Curl_easy * data, CURLcode res,
 			lr->msgid = 0;
 		}
 		data->req.p.ldap = NULL;
-		free(lr);
+		SAlloc::F(lr);
 	}
 
 	return CURLE_OK;
@@ -1073,7 +1073,7 @@ static ssize_t oldap_recv(struct Curl_easy * data, int sockindex, char * buf,
 						    binval = 1;
 					    else {
 						    /* check for unprintable characters */
-						    unsigned int j;
+						    uint j;
 						    for(j = 0; j < bvals[i].bv_len; j++)
 							    if(!ISPRINT(bvals[i].bv_val[j])) {
 								    binval = 1;
@@ -1092,7 +1092,7 @@ static ssize_t oldap_recv(struct Curl_easy * data, int sockindex, char * buf,
 					    if(!result)
 						    result = client_write(data, STRCONST(": "), val_b64, val_b64_sz,
 							    STRCONST("\n"));
-					    free(val_b64);
+					    SAlloc::F(val_b64);
 				    }
 				    else
 					    result = client_write(data, STRCONST(" "),

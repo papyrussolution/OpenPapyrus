@@ -200,10 +200,10 @@ double fgetneginf() { return _fdiv(-1.0, 0.0); }
 //float  FASTCALL smin(float a, float b)   { return MIN(a, b); }
 //float  FASTCALL smax(float a, float b)   { return MAX(a, b); }
 
-double smax3(double a1, double a2, double a3) { return smax(MAX(a1, a2), a3); }
-double smax4(double a1, double a2, double a3, double a4) { return smax(MAX(a1, a2), MAX(a3, a4)); }
-double smin3(double a1, double a2, double a3) { return smin(MIN(a1, a2), a3); }
-double smin4(double a1, double a2, double a3, double a4) { return smin(MIN(a1, a2), MIN(a3, a4)); }
+//double smax3(double a1, double a2, double a3) { return smax(MAX(a1, a2), a3); }
+//double smax4(double a1, double a2, double a3, double a4) { return smax(MAX(a1, a2), MAX(a3, a4)); }
+//double smin3(double a1, double a2, double a3) { return smin(MIN(a1, a2), a3); }
+//double smin4(double a1, double a2, double a3, double a4) { return smin(MIN(a1, a2), MIN(a3, a4)); }
 
 //int    FASTCALL sclamp(int v, int lo, int up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 //uint   FASTCALL sclamp(uint v, uint lo, uint up) { return (v < lo) ? lo : ((v > up) ? up : v); }

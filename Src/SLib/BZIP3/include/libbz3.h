@@ -52,7 +52,7 @@ struct bz3_state;
 /**
  * @brief Get bzip3 version.
  */
-const char * bz3_version(void);
+const char * bz3_version();
 /**
  * @brief Get the last error number associated with a given state.
  */

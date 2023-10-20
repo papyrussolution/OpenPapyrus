@@ -28,20 +28,20 @@
 #ifdef USE_WEBSOCKETS
 
 //#include "urldata.h"
-#include "bufq.h"
-#include "dynbuf.h"
+//#include "bufq.h"
+//#include "dynbuf.h"
 #include "rand.h"
 #include "curl_base64.h"
 //#include "connect.h"
 //#include "sendf.h"
 //#include "multiif.h"
-#include "ws.h"
+//#include "ws.h"
 #include "easyif.h"
-#include "transfer.h"
+//#include "transfer.h"
 //#include "nonblock.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -75,9 +75,9 @@ static struct ws_frame_meta WS_FRAMES[] = {
 	{ WSBIT_OPCODE_PONG,  CURLWS_PONG,   "PONG" },
 };
 
-static const char *ws_frame_name_of_op(unsigned char proto_opcode)
+static const char *ws_frame_name_of_op(uchar proto_opcode)
 {
-	unsigned char opcode = proto_opcode & WSBIT_OPCODE_MASK;
+	uchar opcode = proto_opcode & WSBIT_OPCODE_MASK;
 	size_t i;
 	for(i = 0; i < sizeof(WS_FRAMES)/sizeof(WS_FRAMES[0]); ++i) {
 		if(WS_FRAMES[i].proto_opcode == opcode)
@@ -86,9 +86,9 @@ static const char *ws_frame_name_of_op(unsigned char proto_opcode)
 	return "???";
 }
 
-static int ws_frame_op2flags(unsigned char proto_opcode)
+static int ws_frame_op2flags(uchar proto_opcode)
 {
-	unsigned char opcode = proto_opcode & WSBIT_OPCODE_MASK;
+	uchar opcode = proto_opcode & WSBIT_OPCODE_MASK;
 	size_t i;
 	for(i = 0; i < sizeof(WS_FRAMES)/sizeof(WS_FRAMES[0]); ++i) {
 		if(WS_FRAMES[i].proto_opcode == opcode)
@@ -97,7 +97,7 @@ static int ws_frame_op2flags(unsigned char proto_opcode)
 	return 0;
 }
 
-static unsigned char ws_frame_flags2op(int flags)
+static uchar ws_frame_flags2op(int flags)
 {
 	size_t i;
 	for(i = 0; i < sizeof(WS_FRAMES)/sizeof(WS_FRAMES[0]); ++i) {
@@ -136,7 +136,7 @@ static void ws_dec_info(struct ws_decoder * dec, struct Curl_easy * data,
 	}
 }
 
-typedef ssize_t ws_write_payload(const unsigned char * buf, size_t buflen,
+typedef ssize_t ws_write_payload(const uchar * buf, size_t buflen,
     int frame_age, int frame_flags,
     curl_off_t payload_offset,
     curl_off_t payload_len,
@@ -162,7 +162,7 @@ static CURLcode ws_dec_read_head(struct ws_decoder * dec,
     struct Curl_easy * data,
     struct bufq * inraw)
 {
-	const unsigned char * inbuf;
+	const uchar * inbuf;
 	size_t inlen;
 
 	while(Curl_bufq_peek(inraw, &inbuf, &inlen)) {
@@ -254,7 +254,7 @@ static CURLcode ws_dec_pass_payload(struct ws_decoder * dec,
     ws_write_payload * write_payload,
     void * write_ctx)
 {
-	const unsigned char * inbuf;
+	const uchar * inbuf;
 	size_t inlen;
 	ssize_t nwritten;
 	CURLcode result;
@@ -311,7 +311,7 @@ static CURLcode ws_dec_pass(struct ws_decoder * dec,
 		    dec->state = WS_DEC_PAYLOAD;
 		    if(dec->payload_len == 0) {
 			    ssize_t nwritten;
-			    const unsigned char tmp = '\0';
+			    const uchar tmp = '\0';
 			    /* special case of a 0 length frame, need to write once */
 			    nwritten = write_payload(&tmp, 0, dec->frame_age, dec->frame_flags,
 				    0, 0, write_ctx, &result);
@@ -398,14 +398,14 @@ static void ws_enc_init(struct ws_encoder * enc)
 
 static ssize_t ws_enc_write_head(struct Curl_easy * data,
     struct ws_encoder * enc,
-    unsigned int flags,
+    uint flags,
     curl_off_t payload_len,
     struct bufq * out,
     CURLcode * err)
 {
-	unsigned char firstbyte = 0;
-	unsigned char opcode;
-	unsigned char head[14];
+	uchar firstbyte = 0;
+	uchar opcode;
+	uchar head[14];
 	size_t hlen;
 	ssize_t n;
 
@@ -448,24 +448,24 @@ static ssize_t ws_enc_write_head(struct Curl_easy * data,
 	head[0] = enc->firstbyte = firstbyte;
 	if(payload_len > 65535) {
 		head[1] = 127 | WSBIT_MASK;
-		head[2] = (unsigned char)((payload_len >> 56) & 0xff);
-		head[3] = (unsigned char)((payload_len >> 48) & 0xff);
-		head[4] = (unsigned char)((payload_len >> 40) & 0xff);
-		head[5] = (unsigned char)((payload_len >> 32) & 0xff);
-		head[6] = (unsigned char)((payload_len >> 24) & 0xff);
-		head[7] = (unsigned char)((payload_len >> 16) & 0xff);
-		head[8] = (unsigned char)((payload_len >> 8) & 0xff);
-		head[9] = (unsigned char)(payload_len & 0xff);
+		head[2] = (uchar)((payload_len >> 56) & 0xff);
+		head[3] = (uchar)((payload_len >> 48) & 0xff);
+		head[4] = (uchar)((payload_len >> 40) & 0xff);
+		head[5] = (uchar)((payload_len >> 32) & 0xff);
+		head[6] = (uchar)((payload_len >> 24) & 0xff);
+		head[7] = (uchar)((payload_len >> 16) & 0xff);
+		head[8] = (uchar)((payload_len >> 8) & 0xff);
+		head[9] = (uchar)(payload_len & 0xff);
 		hlen = 10;
 	}
 	else if(payload_len >= 126) {
 		head[1] = 126 | WSBIT_MASK;
-		head[2] = (unsigned char)((payload_len >> 8) & 0xff);
-		head[3] = (unsigned char)(payload_len & 0xff);
+		head[2] = (uchar)((payload_len >> 8) & 0xff);
+		head[3] = (uchar)(payload_len & 0xff);
 		hlen = 4;
 	}
 	else {
-		head[1] = (unsigned char)payload_len | WSBIT_MASK;
+		head[1] = (uchar)payload_len | WSBIT_MASK;
 		hlen = 2;
 	}
 
@@ -492,7 +492,7 @@ static ssize_t ws_enc_write_head(struct Curl_easy * data,
 
 static ssize_t ws_enc_write_payload(struct ws_encoder * enc,
     struct Curl_easy * data,
-    const unsigned char * buf, size_t buflen,
+    const uchar * buf, size_t buflen,
     struct bufq * out, CURLcode * err)
 {
 	ssize_t n;
@@ -509,7 +509,7 @@ static ssize_t ws_enc_write_payload(struct ws_encoder * enc,
 		len = (size_t)enc->payload_remain;
 
 	for(i = 0; i < len; ++i) {
-		unsigned char c = buf[i] ^ enc->mask[enc->xori];
+		uchar c = buf[i] ^ enc->mask[enc->xori];
 		n = Curl_bufq_write(out, &c, 1, err);
 		if(n < 0) {
 			if((*err != CURLE_AGAIN) || !i)
@@ -531,9 +531,9 @@ struct wsfield {
 
 CURLcode Curl_ws_request(struct Curl_easy * data, REQTYPE * req)
 {
-	unsigned int i;
+	uint i;
 	CURLcode result = CURLE_OK;
-	unsigned char rand[16];
+	uchar rand[16];
 	char * randstr;
 	size_t randlen;
 	char keyval[40];
@@ -567,7 +567,7 @@ CURLcode Curl_ws_request(struct Curl_easy * data, REQTYPE * req)
 	heads[3].val = &keyval[0];
 
 	/* 16 bytes random */
-	result = Curl_rand(data, (unsigned char *)rand, sizeof(rand));
+	result = Curl_rand(data, (uchar *)rand, sizeof(rand));
 	if(result)
 		return result;
 	result = Curl_base64_encode((char *)rand, sizeof(rand), &randstr, &randlen);
@@ -577,7 +577,7 @@ CURLcode Curl_ws_request(struct Curl_easy * data, REQTYPE * req)
 	if(randlen >= sizeof(keyval))
 		return CURLE_FAILED_INIT;
 	strcpy(keyval, randstr);
-	free(randstr);
+	SAlloc::F(randstr);
 	for(i = 0; !result && (i < sizeof(heads)/sizeof(heads[0])); i++) {
 		if(!Curl_checkheaders(data, STRCONST(heads[i].name))) {
 #ifdef USE_HYPER
@@ -610,7 +610,7 @@ CURLcode Curl_ws_accept(struct Curl_easy * data,
 	DEBUGASSERT(data->conn);
 	ws = data->conn->proto.ws;
 	if(!ws) {
-		ws = calloc(1, sizeof(*ws));
+		ws = SAlloc::C(1, sizeof(*ws));
 		if(!ws)
 			return CURLE_OUT_OF_MEMORY;
 		data->conn->proto.ws = ws;
@@ -646,7 +646,7 @@ CURLcode Curl_ws_accept(struct Curl_easy * data,
 
 	/* 4 bytes random */
 
-	result = Curl_rand(data, (unsigned char *)&ws->enc.mask,
+	result = Curl_rand(data, (uchar *)&ws->enc.mask,
 		sizeof(ws->enc.mask));
 	if(result)
 		return result;
@@ -658,7 +658,7 @@ CURLcode Curl_ws_accept(struct Curl_easy * data,
 		/* In CONNECT_ONLY setup, the payloads from `mem` need to be received
 		 * when using `curl_ws_recv` later on after this transfer is already
 		 * marked as DONE. */
-		nwritten = Curl_bufq_write(&ws->recvbuf, (const unsigned char *)mem,
+		nwritten = Curl_bufq_write(&ws->recvbuf, (const uchar *)mem,
 			nread, &result);
 		if(nwritten < 0)
 			return result;
@@ -669,7 +669,7 @@ CURLcode Curl_ws_accept(struct Curl_easy * data,
 	return result;
 }
 
-static ssize_t ws_client_write(const unsigned char * buf, size_t buflen,
+static ssize_t ws_client_write(const uchar * buf, size_t buflen,
     int frame_age, int frame_flags,
     curl_off_t payload_offset,
     curl_off_t payload_len,
@@ -739,7 +739,7 @@ size_t Curl_ws_writecb(char * buffer, size_t size /* 1 */,
 		if(buffer) {
 			ssize_t nwritten;
 
-			nwritten = Curl_bufq_write(&ws->recvbuf, (const unsigned char *)buffer,
+			nwritten = Curl_bufq_write(&ws->recvbuf, (const uchar *)buffer,
 				nitems, &result);
 			if(nwritten < 0) {
 				infof(data, "WS: error adding data to buffer %d", (int)result);
@@ -776,7 +776,7 @@ struct ws_collect {
 	bool written;
 };
 
-static ssize_t ws_client_collect(const unsigned char * buf, size_t buflen,
+static ssize_t ws_client_collect(const uchar * buf, size_t buflen,
     int frame_age, int frame_flags,
     curl_off_t payload_offset,
     curl_off_t payload_len,
@@ -825,7 +825,7 @@ static ssize_t ws_client_collect(const unsigned char * buf, size_t buflen,
 }
 
 static ssize_t nw_in_recv(void * reader_ctx,
-    unsigned char * buf, size_t buflen,
+    uchar * buf, size_t buflen,
     CURLcode * err)
 {
 	struct Curl_easy * data = reader_ctx;
@@ -872,8 +872,7 @@ CURL_EXTERN CURLcode curl_ws_recv(struct Curl_easy * data, void * buffer,
 	result = Curl_preconnect(data);
 	if(result)
 		return result;
-
-	memset(&ctx, 0, sizeof(ctx));
+	memzero(&ctx, sizeof(ctx));
 	ctx.data = data;
 	ctx.buffer = buffer;
 	ctx.buflen = buflen;
@@ -932,7 +931,7 @@ static CURLcode ws_flush(struct Curl_easy * data, struct websocket * ws,
 {
 	if(!Curl_bufq_is_empty(&ws->sendbuf)) {
 		CURLcode result;
-		const unsigned char * out;
+		const uchar * out;
 		size_t outlen;
 		ssize_t n;
 
@@ -970,7 +969,7 @@ static CURLcode ws_flush(struct Curl_easy * data, struct websocket * ws,
 CURL_EXTERN CURLcode curl_ws_send(CURL * data, const void * buffer,
     size_t buflen, size_t * sent,
     curl_off_t fragsize,
-    unsigned int flags)
+    uint flags)
 {
 	struct websocket * ws;
 	ssize_t nwritten, n;
@@ -1064,7 +1063,7 @@ static void ws_free(struct connectdata * conn)
 	if(conn && conn->proto.ws) {
 		Curl_bufq_free(&conn->proto.ws->recvbuf);
 		Curl_bufq_free(&conn->proto.ws->sendbuf);
-		Curl_safefree(conn->proto.ws);
+		ZFREE(conn->proto.ws);
 	}
 }
 
@@ -1109,7 +1108,7 @@ CURL_EXTERN CURLcode curl_ws_recv(CURL * curl, void * buffer, size_t buflen,
 CURL_EXTERN CURLcode curl_ws_send(CURL * curl, const void * buffer,
     size_t buflen, size_t * sent,
     curl_off_t fragsize,
-    unsigned int flags)
+    uint flags)
 {
 	(void)curl;
 	(void)buffer;

@@ -5634,7 +5634,7 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 	static const char * szPrevDirSlash = "..\\";
 	static const char * szPrevDir = "..";
 	int    ok = 1;
-	DWORD dwLen;
+	DWORD  dwLen;
 	SString from(lpszFrom);
 	SString to(lpszTo);
 	rPath.Z();
@@ -5644,7 +5644,8 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 		if(!(dwAttrFrom & FILE_ATTRIBUTE_DIRECTORY))
 			SPathRemoveFileSpec(to);
 		// Paths can only be relative if they have a common root
-		if(!(dwLen = SPathCommonPrefix(from, to, 0)))
+		dwLen = SPathCommonPrefix(from, to, 0);
+		if(!dwLen)
 			ok = 0;
 		else {
 			// Strip off lpszFrom components to the root, by adding "..\"

@@ -57,7 +57,7 @@
 #include "select.h"   /* for Curl_poll */
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -75,12 +75,10 @@ int Curl_socketpair(int domain, int type, int protocol,
 	(void)domain;
 	(void)type;
 	(void)protocol;
-
 	listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if(listener == CURL_SOCKET_BAD)
 		return -1;
-
-	memset(&a, 0, sizeof(a));
+	memzero(&a, sizeof(a));
 	a.inaddr.sin_family = AF_INET;
 	a.inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	a.inaddr.sin_port = 0;
@@ -133,7 +131,7 @@ int Curl_socketpair(int domain, int type, int protocol,
 		char * p = &check[0];
 		size_t s = sizeof(check);
 
-		if(Curl_rand(NULL, (unsigned char *)rnd, sizeof(rnd)))
+		if(Curl_rand(NULL, (uchar *)rnd, sizeof(rnd)))
 			goto error;
 
 		/* write data to the socket */

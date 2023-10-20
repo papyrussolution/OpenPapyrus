@@ -59,10 +59,10 @@
 //#include "urldata.h"
 //#include "sendf.h"
 //#include "hostip.h"
-#include "progress.h"
-#include "transfer.h"
+//#include "progress.h"
+//#include "transfer.h"
 #include "escape.h"
-#include "http.h" /* for HTTP proxy tunnel stuff */
+//#include "http.h" /* for HTTP proxy tunnel stuff */
 #include "socks.h"
 #include "pop3.h"
 #include "strtoofft.h"
@@ -76,9 +76,9 @@
 #include "bufref.h"
 #include "curl_sasl.h"
 #include "curl_md5.h"
-#include "warnless.h"
+//#include "warnless.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -434,7 +434,7 @@ static CURLcode pop3_perform_apop(struct Curl_easy * data,
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
 	size_t i;
 	struct MD5_context * ctxt;
-	unsigned char digest[MD5_DIGEST_LEN];
+	uchar digest[MD5_DIGEST_LEN];
 	char secret[2 * MD5_DIGEST_LEN + 1];
 
 	/* Check we have a username and password to authenticate with and end the
@@ -450,10 +450,10 @@ static CURLcode pop3_perform_apop(struct Curl_easy * data,
 	if(!ctxt)
 		return CURLE_OUT_OF_MEMORY;
 
-	Curl_MD5_update(ctxt, (const unsigned char *)pop3c->apoptimestamp,
+	Curl_MD5_update(ctxt, (const uchar *)pop3c->apoptimestamp,
 	    curlx_uztoui(strlen(pop3c->apoptimestamp)));
 
-	Curl_MD5_update(ctxt, (const unsigned char *)conn->passwd,
+	Curl_MD5_update(ctxt, (const uchar *)conn->passwd,
 	    curlx_uztoui(strlen(conn->passwd)));
 
 	/* Finalise the digest */
@@ -673,7 +673,7 @@ static CURLcode pop3_state_servergreet_resp(struct Curl_easy * data,
 						break;
 
 					/* Allocate some memory for the timestamp */
-					pop3c->apoptimestamp = (char *)calloc(1, timestamplen + 1);
+					pop3c->apoptimestamp = (char *)SAlloc::C(1, timestamplen + 1);
 
 					if(!pop3c->apoptimestamp)
 						break;
@@ -687,7 +687,7 @@ static CURLcode pop3_state_servergreet_resp(struct Curl_easy * data,
 					   therefore do not use APOP authentication. */
 					at = strchr(pop3c->apoptimestamp, '@');
 					if(!at)
-						Curl_safefree(pop3c->apoptimestamp);
+						ZFREE(pop3c->apoptimestamp);
 					else
 						/* Store the APOP capability */
 						pop3c->authtypes |= POP3_TYPE_APOP;
@@ -958,7 +958,7 @@ static CURLcode pop3_state_command_resp(struct Curl_easy * data,
 			}
 
 			/* Free the cache */
-			Curl_safefree(pp->cache);
+			ZFREE(pp->cache);
 
 			/* Reset the cache size */
 			pp->cache_size = 0;
@@ -1088,7 +1088,7 @@ static CURLcode pop3_block_statemach(struct Curl_easy * data,
 static CURLcode pop3_init(struct Curl_easy * data)
 {
 	CURLcode result = CURLE_OK;
-	struct POP3 * pop3 = data->req.p.pop3 = (POP3 *)calloc(sizeof(struct POP3), 1);
+	struct POP3 * pop3 = data->req.p.pop3 = (POP3 *)SAlloc::C(sizeof(struct POP3), 1);
 	if(!pop3)
 		result = CURLE_OUT_OF_MEMORY;
 	return result;
@@ -1171,8 +1171,8 @@ static CURLcode pop3_done(struct Curl_easy * data, CURLcode status,
 	}
 
 	/* Cleanup our per-request based variables */
-	Curl_safefree(pop3->id);
-	Curl_safefree(pop3->custom);
+	ZFREE(pop3->id);
+	ZFREE(pop3->custom);
 
 	/* Clear the transfer mode for the next request */
 	pop3->transfer = PPTRANSFER_BODY;
@@ -1276,7 +1276,7 @@ static CURLcode pop3_disconnect(struct Curl_easy * data,
 	Curl_sasl_cleanup(conn, pop3c->sasl.authused);
 
 	/* Cleanup our connection based variables */
-	Curl_safefree(pop3c->apoptimestamp);
+	ZFREE(pop3c->apoptimestamp);
 
 	return CURLE_OK;
 }

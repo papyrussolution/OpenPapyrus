@@ -52,7 +52,7 @@
 #if defined(USE_THREADS_POSIX) || defined(USE_THREADS_WIN32)
 
 /* !checksrc! disable SPACEBEFOREPAREN 1 */
-curl_thread_t Curl_thread_create(unsigned int(CURL_STDCALL * func) (void *), void * arg);
+curl_thread_t Curl_thread_create(uint(CURL_STDCALL * func) (void *), void * arg);
 void Curl_thread_destroy(curl_thread_t hnd);
 int Curl_thread_join(curl_thread_t * hnd);
 

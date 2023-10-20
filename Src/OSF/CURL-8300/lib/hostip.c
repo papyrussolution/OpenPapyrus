@@ -57,11 +57,11 @@
 #include "inet_pton.h"
 //#include "multiif.h"
 #include "doh.h"
-#include "warnless.h"
+//#include "warnless.h"
 //#include "strcase.h"
 #include "easy_lock.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -401,20 +401,20 @@ UNITTEST CURLcode Curl_shuffle_addr(struct Curl_easy * data,
 	if(num_addrs > 1) {
 		struct Curl_addrinfo ** nodes;
 		infof(data, "Shuffling %i addresses", num_addrs);
-		nodes = (Curl_addrinfo ** )malloc(num_addrs*sizeof(*nodes));
+		nodes = (Curl_addrinfo ** )SAlloc::M(num_addrs*sizeof(*nodes));
 		if(nodes) {
 			int i;
-			unsigned int * rnd;
+			uint * rnd;
 			const size_t rnd_size = num_addrs * sizeof(*rnd);
 			/* build a plain array of Curl_addrinfo pointers */
 			nodes[0] = *addr;
 			for(i = 1; i < num_addrs; i++) {
 				nodes[i] = nodes[i-1]->ai_next;
 			}
-			rnd = (uint *)malloc(rnd_size);
+			rnd = (uint *)SAlloc::M(rnd_size);
 			if(rnd) {
 				/* Fisher-Yates shuffle */
-				if(Curl_rand(data, (unsigned char *)rnd, rnd_size) == CURLE_OK) {
+				if(Curl_rand(data, (uchar *)rnd, rnd_size) == CURLE_OK) {
 					struct Curl_addrinfo * swap_tmp;
 					for(i = num_addrs - 1; i > 0; i--) {
 						swap_tmp = nodes[rnd[i] % (i + 1)];
@@ -430,11 +430,11 @@ UNITTEST CURLcode Curl_shuffle_addr(struct Curl_easy * data,
 					nodes[num_addrs-1]->ai_next = NULL;
 					*addr = nodes[0];
 				}
-				free(rnd);
+				SAlloc::F(rnd);
 			}
 			else
 				result = CURLE_OUT_OF_MEMORY;
-			free(nodes);
+			SAlloc::F(nodes);
 		}
 		else
 			result = CURLE_OUT_OF_MEMORY;
@@ -472,7 +472,7 @@ struct Curl_dns_entry *Curl_cache_addr(struct Curl_easy * data,
 	}
 #endif
 	/* Create a new cache entry */
-	dns = (Curl_dns_entry *)calloc(1, sizeof(struct Curl_dns_entry));
+	dns = (Curl_dns_entry *)SAlloc::C(1, sizeof(struct Curl_dns_entry));
 	if(!dns) {
 		return NULL;
 	}
@@ -487,7 +487,7 @@ struct Curl_dns_entry *Curl_cache_addr(struct Curl_easy * data,
 	/* Store the resolved data in our DNS cache. */
 	dns2 = (Curl_dns_entry *)Curl_hash_add(data->dns.hostcache, entry_id, entry_len + 1, (void *)dns);
 	if(!dns2) {
-		free(dns);
+		SAlloc::F(dns);
 		return NULL;
 	}
 
@@ -503,9 +503,9 @@ static struct Curl_addrinfo *get_localhost6(int port, const char * name){
 	const size_t ss_size = sizeof(struct sockaddr_in6);
 	const size_t hostlen = strlen(name);
 	struct sockaddr_in6 sa6;
-	unsigned char ipv6[16];
-	unsigned short port16 = (unsigned short)(port & 0xffff);
-	ca = calloc(sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1, 1);
+	uchar ipv6[16];
+	unsigned short port16 = (ushort)(port & 0xffff);
+	ca = SAlloc::C(sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1, 1);
 	if(!ca)
 		return NULL;
 
@@ -535,23 +535,23 @@ static struct Curl_addrinfo *get_localhost6(int port, const char * name){
 #endif
 
 /* return a static IPv4 127.0.0.1 for the given name */
-static struct Curl_addrinfo *get_localhost(int port, const char * name){
+static struct Curl_addrinfo *get_localhost(int port, const char * name)
+{
 	struct Curl_addrinfo * ca;
 	struct Curl_addrinfo * ca6;
 	const size_t ss_size = sizeof(struct sockaddr_in);
 	const size_t hostlen = strlen(name);
 	struct sockaddr_in sa;
-	unsigned int ipv4;
-	unsigned short port16 = (unsigned short)(port & 0xffff);
-
+	uint ipv4;
+	unsigned short port16 = (ushort)(port & 0xffff);
 	/* memset to clear the sa.sin_zero field */
-	memset(&sa, 0, sizeof(sa));
+	memzero(&sa, sizeof(sa));
 	sa.sin_family = AF_INET;
 	sa.sin_port = htons(port16);
 	if(Curl_inet_pton(AF_INET, "127.0.0.1", (char *)&ipv4) < 1)
 		return NULL;
 	memcpy(&sa.sin_addr, &ipv4, sizeof(ipv4));
-	ca = (Curl_addrinfo *)calloc(sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1, 1);
+	ca = (Curl_addrinfo *)SAlloc::C(sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1, 1);
 	if(!ca)
 		return NULL;
 	ca->ai_flags     = 0;
@@ -868,7 +868,7 @@ enum resolve_t Curl_resolv_timeout(struct Curl_easy * data,
 #endif /* HAVE_SIGNAL */
 #endif /* HAVE_SIGACTION */
 	volatile long timeout;
-	volatile unsigned int prev_alarm = 0;
+	volatile uint prev_alarm = 0;
 #endif /* USE_ALARM_TIMEOUT */
 	enum resolve_t rc;
 
@@ -983,7 +983,7 @@ clean_up:
 			data->conn->created) / 1000;
 
 		/* the alarm period is counted in even number of seconds */
-		unsigned long alarm_set = (unsigned long)(prev_alarm - elapsed_secs);
+		unsigned long alarm_set = (ulong)(prev_alarm - elapsed_secs);
 
 		if(!alarm_set ||
 		    ((alarm_set >= 0x80000000) && (prev_alarm < 0x80000000)) ) {
@@ -996,7 +996,7 @@ clean_up:
 			failf(data, "Previous alarm fired off");
 		}
 		else
-			alarm((unsigned int)alarm_set);
+			alarm((uint)alarm_set);
 	}
 #endif /* USE_ALARM_TIMEOUT */
 
@@ -1032,7 +1032,7 @@ static void freednsentry(void * freethis)
 	dns->inuse--;
 	if(dns->inuse == 0) {
 		Curl_freeaddrinfo(dns->addr);
-		free(dns);
+		SAlloc::F(dns);
 	}
 }
 

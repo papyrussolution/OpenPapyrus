@@ -2494,6 +2494,7 @@ int PPCCheckImporter::Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString
 	int    ok = 1;
 	SString temp_buf;
 	SString name_buf;
+	SString code_buf;
 	Goods2Tbl::Rec goods_rec;
 	xmlDoc * p_doc = 0;
 	const xmlNode * p_root = 0;
@@ -2564,10 +2565,14 @@ int PPCCheckImporter::Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString
 						if(SXml::IsName(p_c, "Product")) {
 							CCheckLineTbl::Rec ln_rec;
 							name_buf.Z();
+							PPID   outer_goods_id = 0;
 							double amount = 0.0;
 							for(const xmlNode * p_w = p_c->children; p_w; p_w = p_w->next) {
 								if(SXml::GetContentByName(p_w, "GoodsID", temp_buf)) {
-									ln_rec.GoodsID = temp_buf.ToLong();
+									outer_goods_id = temp_buf.ToLong();
+								}
+								else if(SXml::GetContentByName(p_w, "Barcode", temp_buf)) {
+									code_buf = temp_buf;
 								}
 								else if(SXml::GetContentByName(p_w, "Name", temp_buf)) {
 									name_buf = temp_buf;
@@ -2582,7 +2587,18 @@ int PPCCheckImporter::Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString
 									amount = temp_buf.ToReal();
 								}
 							}
-							THROW_PP_S(GObj.Fetch(ln_rec.GoodsID, &goods_rec) > 0, PPERR_CCIMP_WAREBYCCLINENFOUND, ln_rec.GoodsID);
+							PPID   goods_id = 0;
+							if(code_buf.NotEmpty()) {
+								BarcodeTbl::Rec bc_rec;
+								THROW_PP_S(GObj.SearchByBarcode(code_buf, &bc_rec, &goods_rec, 0) > 0, PPERR_CCIMP_WAREBYCCLINENFOUND, code_buf);
+								goods_id = goods_rec.ID;
+							}
+							else {
+								THROW_PP_S(GObj.Fetch(ln_rec.GoodsID, &goods_rec) > 0, PPERR_CCIMP_WAREBYCCLINENFOUND, ln_rec.GoodsID);
+								goods_id = goods_rec.ID;
+							}
+							assert(goods_id != 0); // Выше мы нашли товар, а если нет, то выскочили по ошибке.
+							ln_rec.GoodsID = goods_id;
 							THROW_PP_S(ln_rec.Quantity > 0.0, PPERR_CCIMP_INVQTTY, goods_rec.Name);
 							THROW(rPack.InsertItem_(&ln_rec, 0, 0));
 						}

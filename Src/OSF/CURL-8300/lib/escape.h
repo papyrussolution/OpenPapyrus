@@ -26,7 +26,7 @@
 /* Escape and unescape URL encoding in strings. The functions return a new
  * allocated string or NULL if an error occurred.  */
 
-bool Curl_isunreserved(unsigned char in);
+bool Curl_isunreserved(uchar in);
 
 enum urlreject {
 	REJECT_NADA = 2,

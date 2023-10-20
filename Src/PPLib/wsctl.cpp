@@ -1174,11 +1174,15 @@ int WsCtl_SessionFrame::Start()
 		ok = -1;
 	else {
 		if(Policy.SysUser.NotEmpty()) {
+			SString sys_user_name;
+			SSystem::GetUserName_(sys_user_name); // @debug
 			SSystem::UserProfileInfo profile_info;
 			SPtrHandle h_token = SSystem::Logon(0, Policy.SysUser, Policy.SysPassword, SSystem::logontypeInteractive, &profile_info);
 			if(h_token) {
-				BOOL iplour = ImpersonateLoggedOnUser(h_token);
-				if(iplour) {
+				SSystem::GetUserName_(sys_user_name); // @debug
+				//BOOL iplour = ImpersonateLoggedOnUser(h_token);
+				if(/*iplour*/true) {
+					SSystem::GetUserName_(sys_user_name); // @debug
 					H_UserToken = h_token;
 					/*
 					create_proc_result = ::CreateProcessWithTokenW(callee_token, logon_flags, p_app_name, p_cmd_line, 
@@ -1228,8 +1232,8 @@ int WsCtl_SessionFrame::LaunchProcess(const WsCtl_ProgramEntry * pPe)
 		SPathStruc ps(pPe->FullResolvedPath);
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 		proc.SetWorkingDir(temp_buf);
-		//proc.SetFlags(SlProcess::fLogonWithProfile);
-		if(H_UserToken) {
+		proc.SetFlags(SlProcess::fLogonWithProfile);
+		if(/*H_UserToken*/false) {
 			proc.SetImpersUserToken(H_UserToken);
 		}
 		else if(Policy.SysUser.NotEmpty()) {

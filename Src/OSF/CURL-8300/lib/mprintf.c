@@ -38,7 +38,7 @@
  */
 #include "curl_setup.h"
 #pragma hdrstop
-#include "dynbuf.h"
+//#include "dynbuf.h"
 #include <curl/mprintf.h>
 
 #include "curl_memory.h"
@@ -102,7 +102,7 @@ static const char upper_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 #define OUTCHAR(x)                                     \
 	do {                                                 \
-		if(stream((unsigned char)(x), (FILE *)data) != -1) \
+		if(stream((uchar)(x), (FILE *)data) != -1) \
 		done++;                                          \
 		else                                               \
 		return done; /* return immediately on failure */ \
@@ -539,7 +539,7 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 						(mp_intmax_t)va_arg(arglist, long);
 				    else if(vto[i].flags & FLAGS_UNSIGNED)
 					    vto[i].data.num.as_unsigned =
-						(mp_uintmax_t)va_arg(arglist, unsigned int);
+						(mp_uintmax_t)va_arg(arglist, uint);
 				    else
 					    vto[i].data.num.as_signed =
 						(mp_intmax_t)va_arg(arglist, int);
@@ -1008,7 +1008,7 @@ number:
 static int addbyter(int output, FILE * data)
 {
 	struct nsprintf * infop = (struct nsprintf *)data;
-	unsigned char outc = (unsigned char)output;
+	uchar outc = (uchar)output;
 
 	if(infop->length < infop->max) {
 		/* only do this if we haven't reached max length yet */
@@ -1059,7 +1059,7 @@ int curl_msnprintf(char * buffer, size_t maxlength, const char * format, ...)
 static int alloc_addbyter(int output, FILE * data)
 {
 	struct asprintf * infop = (struct asprintf *)data;
-	unsigned char outc = (unsigned char)output;
+	uchar outc = (uchar)output;
 
 	if(Curl_dyn_addn(infop->b, &outc, 1)) {
 		infop->fail = 1;
@@ -1117,7 +1117,7 @@ char *curl_maprintf(const char * format, ...)
 static int storebuffer(int output, FILE * data)
 {
 	char ** buffer = (char **)data;
-	unsigned char outc = (unsigned char)output;
+	uchar outc = (uchar)output;
 	**buffer = outc;
 	(*buffer)++;
 	return outc; /* act like fputc() ! */

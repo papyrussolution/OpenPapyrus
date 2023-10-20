@@ -32,9 +32,9 @@
 //#include "cfilters.h"
 //#include "connect.h"
 //#include "curl_trc.h"
-#include "bufq.h"
-#include "dynbuf.h"
-#include "dynhds.h"
+//#include "bufq.h"
+//#include "dynbuf.h"
+//#include "dynhds.h"
 #include "http1.h"
 #include "http2.h"
 #include "http_proxy.h"
@@ -42,18 +42,15 @@
 #include "cf-h2-proxy.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
 #define PROXY_H2_CHUNK_SIZE  (16*1024)
-
 #define PROXY_HTTP2_HUGE_WINDOW_SIZE (100 * 1024 * 1024)
 #define H2_TUNNEL_WINDOW_SIZE        (10 * 1024 * 1024)
-
 #define PROXY_H2_NW_RECV_CHUNKS  (H2_TUNNEL_WINDOW_SIZE / PROXY_H2_CHUNK_SIZE)
 #define PROXY_H2_NW_SEND_CHUNKS   1
-
 #define H2_TUNNEL_RECV_CHUNKS   (H2_TUNNEL_WINDOW_SIZE / PROXY_H2_CHUNK_SIZE)
 #define H2_TUNNEL_SEND_CHUNKS   ((128 * 1024) / PROXY_H2_CHUNK_SIZE)
 
@@ -122,8 +119,8 @@ static void tunnel_stream_clear(struct tunnel_stream * ts)
 	Curl_http_resp_free(ts->resp);
 	Curl_bufq_free(&ts->recvbuf);
 	Curl_bufq_free(&ts->sendbuf);
-	Curl_safefree(ts->authority);
-	memset(ts, 0, sizeof(*ts));
+	ZFREE(ts->authority);
+	memzero(ts, sizeof(*ts));
 	ts->state = H2_TUNNEL_INIT;
 }
 
@@ -175,7 +172,7 @@ static void h2_tunnel_go_state(struct Curl_cfilter * cf,
 		    /* If a proxy-authorization header was used for the proxy, then we should
 		       make sure that it isn't accidentally used for the document request
 		       after we've connected. So let's free and clear it here. */
-		    Curl_safefree(data->state.aptr.proxyuserpwd);
+		    ZFREE(data->state.aptr.proxyuserpwd);
 		    break;
 	}
 }
@@ -204,14 +201,13 @@ struct cf_h2_proxy_ctx {
 static void cf_h2_proxy_ctx_clear(struct cf_h2_proxy_ctx * ctx)
 {
 	struct cf_call_data save = ctx->call_data;
-
 	if(ctx->h2) {
 		nghttp2_session_del(ctx->h2);
 	}
 	Curl_bufq_free(&ctx->inbufq);
 	Curl_bufq_free(&ctx->outbufq);
 	tunnel_stream_clear(&ctx->tunnel);
-	memset(ctx, 0, sizeof(*ctx));
+	memzero(ctx, sizeof(*ctx));
 	ctx->call_data = save;
 }
 
@@ -219,7 +215,7 @@ static void cf_h2_proxy_ctx_free(struct cf_h2_proxy_ctx * ctx)
 {
 	if(ctx) {
 		cf_h2_proxy_ctx_clear(ctx);
-		free(ctx);
+		SAlloc::F(ctx);
 	}
 }
 
@@ -227,7 +223,7 @@ static void drain_tunnel(struct Curl_cfilter * cf,
     struct Curl_easy * data,
     struct tunnel_stream * tunnel)
 {
-	unsigned char bits;
+	uchar bits;
 
 	(void)cf;
 	bits = CURL_CSELECT_IN;
@@ -242,7 +238,7 @@ static void drain_tunnel(struct Curl_cfilter * cf,
 }
 
 static ssize_t proxy_nw_in_reader(void * reader_ctx,
-    unsigned char * buf, size_t buflen,
+    uchar * buf, size_t buflen,
     CURLcode * err)
 {
 	struct Curl_cfilter * cf = reader_ctx;
@@ -261,7 +257,7 @@ static ssize_t proxy_nw_in_reader(void * reader_ctx,
 }
 
 static ssize_t proxy_h2_nw_out_writer(void * writer_ctx,
-    const unsigned char * buf, size_t buflen,
+    const uchar * buf, size_t buflen,
     CURLcode * err)
 {
 	struct Curl_cfilter * cf = writer_ctx;
@@ -328,23 +324,18 @@ static int tunnel_recv_callback(nghttp2_session * session, uint8_t flags,
 /*
  * Initialize the cfilter context
  */
-static CURLcode cf_h2_proxy_ctx_init(struct Curl_cfilter * cf,
-    struct Curl_easy * data)
+static CURLcode cf_h2_proxy_ctx_init(struct Curl_cfilter * cf, struct Curl_easy * data)
 {
 	struct cf_h2_proxy_ctx * ctx = cf->ctx;
 	CURLcode result = CURLE_OUT_OF_MEMORY;
 	nghttp2_session_callbacks * cbs = NULL;
 	int rc;
-
 	DEBUGASSERT(!ctx->h2);
-	memset(&ctx->tunnel, 0, sizeof(ctx->tunnel));
-
+	memzero(&ctx->tunnel, sizeof(ctx->tunnel));
 	Curl_bufq_init(&ctx->inbufq, PROXY_H2_CHUNK_SIZE, PROXY_H2_NW_RECV_CHUNKS);
 	Curl_bufq_init(&ctx->outbufq, PROXY_H2_CHUNK_SIZE, PROXY_H2_NW_SEND_CHUNKS);
-
 	if(tunnel_stream_init(cf, &ctx->tunnel))
 		goto out;
-
 	rc = nghttp2_session_callbacks_new(&cbs);
 	if(rc) {
 		failf(data, "Couldn't initialize nghttp2 callbacks");
@@ -448,7 +439,7 @@ static int proxy_h2_process_pending_input(struct Curl_cfilter * cf,
     CURLcode * err)
 {
 	struct cf_h2_proxy_ctx * ctx = cf->ctx;
-	const unsigned char * buf;
+	const uchar * buf;
 	size_t blen;
 	ssize_t rv;
 
@@ -915,7 +906,7 @@ static CURLcode proxy_h2_submit(int32_t * pstream_id,
 {
 	struct dynhds h2_headers;
 	nghttp2_nv * nva = NULL;
-	unsigned int i;
+	uint i;
 	int32_t stream_id = -1;
 	size_t nheader;
 	CURLcode result;
@@ -927,7 +918,7 @@ static CURLcode proxy_h2_submit(int32_t * pstream_id,
 		goto out;
 
 	nheader = Curl_dynhds_count(&h2_headers);
-	nva = malloc(sizeof(nghttp2_nv) * nheader);
+	nva = SAlloc::M(sizeof(nghttp2_nv) * nheader);
 	if(!nva) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;
@@ -935,9 +926,9 @@ static CURLcode proxy_h2_submit(int32_t * pstream_id,
 
 	for(i = 0; i < nheader; ++i) {
 		struct dynhds_entry * e = Curl_dynhds_getn(&h2_headers, i);
-		nva[i].name = (unsigned char *)e->name;
+		nva[i].name = (uchar *)e->name;
 		nva[i].namelen = e->namelen;
-		nva[i].value = (unsigned char *)e->value;
+		nva[i].value = (uchar *)e->value;
 		nva[i].valuelen = e->valuelen;
 		nva[i].flags = NGHTTP2_NV_FLAG_NONE;
 	}
@@ -964,7 +955,7 @@ static CURLcode proxy_h2_submit(int32_t * pstream_id,
 	result = CURLE_OK;
 
 out:
-	free(nva);
+	SAlloc::F(nva);
 	Curl_dynhds_free(&h2_headers);
 	*pstream_id = stream_id;
 	return result;
@@ -1057,7 +1048,7 @@ static CURLcode inspect_response(struct Curl_cfilter * cf,
 			return result;
 		if(data->req.newurl) {
 			/* Inidicator that we should try again */
-			Curl_safefree(data->req.newurl);
+			ZFREE(data->req.newurl);
 			h2_tunnel_go_state(cf, ts, H2_TUNNEL_INIT, data);
 			return CURLE_OK;
 		}
@@ -1281,7 +1272,7 @@ static ssize_t tunnel_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 	*err = CURLE_AGAIN;
 	if(!Curl_bufq_is_empty(&ctx->tunnel.recvbuf)) {
 		nread = Curl_bufq_read(&ctx->tunnel.recvbuf,
-			(unsigned char *)buf, len, err);
+			(uchar *)buf, len, err);
 		if(nread < 0)
 			goto out;
 		DEBUGASSERT(nread > 0);
@@ -1590,7 +1581,7 @@ CURLcode Curl_cf_h2_proxy_insert_after(struct Curl_cfilter * cf,
 	CURLcode result = CURLE_OUT_OF_MEMORY;
 
 	(void)data;
-	ctx = calloc(sizeof(*ctx), 1);
+	ctx = SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx)
 		goto out;
 

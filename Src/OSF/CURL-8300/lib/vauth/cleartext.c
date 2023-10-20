@@ -36,10 +36,10 @@
 
 #include "vauth/vauth.h"
 #include "curl_md5.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "strtok.h"
 //#include "sendf.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -80,7 +80,7 @@ CURLcode Curl_auth_create_plain_message(const char * authzid,
 	    (plen > (SIZE_T_MAX/2 - 2)))
 		return CURLE_OUT_OF_MEMORY;
 	plainlen = zlen + clen + plen + 2;
-	plainauth = (char *)malloc(plainlen + 1);
+	plainauth = (char *)SAlloc::M(plainlen + 1);
 	if(!plainauth)
 		return CURLE_OUT_OF_MEMORY;
 

@@ -37,7 +37,7 @@
 #endif
 
 #include "mbedtls_threadlock.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
@@ -52,7 +52,7 @@ int Curl_mbedtlsthreadlock_thread_setup(void)
 {
 	int i;
 
-	mutex_buf = calloc(NUMT * sizeof(MBEDTLS_MUTEX_T), 1);
+	mutex_buf = SAlloc::C(NUMT * sizeof(MBEDTLS_MUTEX_T), 1);
 	if(!mutex_buf)
 		return 0; /* error, no number of threads defined */
 
@@ -86,7 +86,7 @@ int Curl_mbedtlsthreadlock_thread_cleanup(void)
 			return 0; /* CloseHandle failed */
 #endif /* USE_THREADS_POSIX && HAVE_PTHREAD_H */
 	}
-	free(mutex_buf);
+	SAlloc::F(mutex_buf);
 	mutex_buf = NULL;
 
 	return 1; /* OK */

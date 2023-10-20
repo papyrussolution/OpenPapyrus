@@ -248,8 +248,8 @@ typedef enum {
 extern "C" {
 #endif
 
-extern const TIFFFieldArray* _TIFFGetFields(void);
-extern const TIFFFieldArray* _TIFFGetExifFields(void);
+extern const TIFFFieldArray* _TIFFGetFields();
+extern const TIFFFieldArray* _TIFFGetExifFields();
 extern void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* infoarray);
 extern void _TIFFPrintFieldInfo(TIFF*, FILE*);
 extern int FASTCALL _TIFFFillStriles(TIFF*);        

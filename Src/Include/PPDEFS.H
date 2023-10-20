@@ -4080,6 +4080,7 @@
 	#define cmMemo                    114
 	#define cmSelModifier             115
 	#define cmSelGoods                116
+	//#define cmSelBill                 117 // @v11.8.7 Кнопка выбора документа
 	#define CTL_CHKPAN_LIST              (1 + WINDOWS_ID_BIAS)
 	#define CTL_CHKPAN_TOTAL             (2 + WINDOWS_ID_BIAS)
 	#define CTL_CHKPAN_GOODS             (3 + WINDOWS_ID_BIAS)
@@ -4151,6 +4152,7 @@
 	#define CTL_CHKPAN_BIGHINT           (77 + WINDOWS_ID_BIAS)
 	#define CTL_CHKPAN_BIGHINT_KB        (78 + WINDOWS_ID_BIAS)
 	#define CTL_CHKPAN_INITUSER          (79 + WINDOWS_ID_BIAS)
+	//#define CTL_CHKPAN_SELBILL           (80 + WINDOWS_ID_BIAS) // @v11.8.7 Кнопка выбора документа для загрузки в кассовую панель
 #define DLG_CCHECKFLT             305 // Фильтр по чекам
 	#define cmCrosstab                   101
 	#define CTL_CCHECKFLT_PERIOD         (1 + WINDOWS_ID_BIAS)

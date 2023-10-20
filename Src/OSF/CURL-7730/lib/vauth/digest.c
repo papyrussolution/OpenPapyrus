@@ -312,11 +312,10 @@ static CURLcode auth_decode_digest_md5_message(const char * chlg64,
  *
  * Returns TRUE as DIGEST as handled by libcurl.
  */
-bool Curl_auth_is_digest_supported(void)
+bool Curl_auth_is_digest_supported()
 {
 	return TRUE;
 }
-
 /*
  * Curl_auth_create_digest_md5_message()
  *

@@ -31,7 +31,7 @@
 #include "idn.h"
 //#include "sendf.h"
 #include "curl_multibyte.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 #ifdef USE_LIBIDN2
 #include <idn2.h>
@@ -46,7 +46,7 @@
 #endif  /* USE_LIBIDN2 */
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -131,7 +131,7 @@ static CURLcode win32_ascii_to_idn(const char * in, char ** output)
 bool Curl_is_ASCII_name(const char * hostname)
 {
 	/* get an UNSIGNED local version of the pointer */
-	const unsigned char * ch = (const unsigned char *)hostname;
+	const uchar * ch = (const uchar *)hostname;
 
 	if(!hostname) /* bad input, consider it ASCII! */
 		return TRUE;

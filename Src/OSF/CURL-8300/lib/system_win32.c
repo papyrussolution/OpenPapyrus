@@ -30,7 +30,7 @@
 #include "system_win32.h"
 #include "version_win32.h"
 #include "curl_sspi.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -214,7 +214,7 @@ HMODULE Curl_load_library(LPCTSTR filename)
 			/* Allocate space for the full DLL path (Room for the null terminator
 			   is included in systemdirlen) */
 			size_t filenamelen = _tcslen(filename);
-			TCHAR * path = (TCHAR *)malloc(sizeof(TCHAR) * (systemdirlen + 1 + filenamelen));
+			TCHAR * path = (TCHAR *)SAlloc::M(sizeof(TCHAR) * (systemdirlen + 1 + filenamelen));
 			if(path && GetSystemDirectory(path, systemdirlen)) {
 				/* Calculate the full DLL path */
 				_tcscpy(path + _tcslen(path), TEXT("\\"));
@@ -226,7 +226,7 @@ HMODULE Curl_load_library(LPCTSTR filename)
 				    pLoadLibraryEx(path, NULL, LOAD_WITH_ALTERED_SEARCH_PATH) :
 				    LoadLibrary(path);
 			}
-			free(path);
+			SAlloc::F(path);
 		}
 	}
 	return hModule;

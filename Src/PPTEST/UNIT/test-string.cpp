@@ -1302,7 +1302,7 @@ static int Make_STextEncodingStat_FilePool(const SString & rPath, SFileEntryPool
 	for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 		if(!de.IsSelf() && !de.IsUpFolder()) {
 			if(de.IsFile()) {
-				THROW(rFep.Add(rPath, de));
+				THROW(rFep.Add(rPath, de, 0));
 			}
 			else if(de.IsFolder()) {
 				de.GetNameA(rPath, temp_buf);

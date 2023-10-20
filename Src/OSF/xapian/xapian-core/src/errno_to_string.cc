@@ -78,7 +78,7 @@ void errno_to_string(int e, string & s)
 #ifdef STRERROR_R_CHAR_P
 	// Returns char * pointing to string describing error.
 	s += strerror_r(e, buf, sizeof(buf));
-# else
+#else
 	// XSI-compliant strerror_r returns int:  0 means success; a positive error
 	// number should be returned on error, but glibc < 2.13 returns -1 and sets
 	// errno.

@@ -24,10 +24,10 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include "bufq.h"
+//#include "bufq.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -58,9 +58,9 @@ static void chunk_reset(struct buf_chunk * chunk)
 }
 
 static size_t chunk_append(struct buf_chunk * chunk,
-    const unsigned char * buf, size_t len)
+    const uchar * buf, size_t len)
 {
-	unsigned char * p = &chunk->x.data[chunk->w_offset];
+	uchar * p = &chunk->x.data[chunk->w_offset];
 	size_t n = chunk->dlen - chunk->w_offset;
 	DEBUGASSERT(chunk->dlen >= chunk->w_offset);
 	if(n) {
@@ -72,9 +72,9 @@ static size_t chunk_append(struct buf_chunk * chunk,
 }
 
 static size_t chunk_read(struct buf_chunk * chunk,
-    unsigned char * buf, size_t len)
+    uchar * buf, size_t len)
 {
-	unsigned char * p = &chunk->x.data[chunk->r_offset];
+	uchar * p = &chunk->x.data[chunk->r_offset];
 	size_t n = chunk->w_offset - chunk->r_offset;
 	DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
 	if(!n) {
@@ -96,7 +96,7 @@ static ssize_t chunk_slurpn(struct buf_chunk * chunk, size_t max_len,
     Curl_bufq_reader * reader,
     void * reader_ctx, CURLcode * err)
 {
-	unsigned char * p = &chunk->x.data[chunk->w_offset];
+	uchar * p = &chunk->x.data[chunk->w_offset];
 	size_t n = chunk->dlen - chunk->w_offset; /* free amount */
 	ssize_t nread;
 
@@ -116,7 +116,7 @@ static ssize_t chunk_slurpn(struct buf_chunk * chunk, size_t max_len,
 }
 
 static void chunk_peek(const struct buf_chunk * chunk,
-    const unsigned char ** pbuf, size_t * plen)
+    const uchar ** pbuf, size_t * plen)
 {
 	DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
 	*pbuf = &chunk->x.data[chunk->r_offset];
@@ -124,7 +124,7 @@ static void chunk_peek(const struct buf_chunk * chunk,
 }
 
 static void chunk_peek_at(const struct buf_chunk * chunk, size_t offset,
-    const unsigned char ** pbuf, size_t * plen)
+    const uchar ** pbuf, size_t * plen)
 {
 	offset += chunk->r_offset;
 	DEBUGASSERT(chunk->w_offset >= offset);
@@ -166,16 +166,15 @@ static void chunk_list_free(struct buf_chunk ** anchor)
 	while(*anchor) {
 		chunk = *anchor;
 		*anchor = chunk->next;
-		free(chunk);
+		SAlloc::F(chunk);
 	}
 }
 
-void Curl_bufcp_init(struct bufc_pool * pool,
-    size_t chunk_size, size_t spare_max)
+void Curl_bufcp_init(struct bufc_pool * pool, size_t chunk_size, size_t spare_max)
 {
 	DEBUGASSERT(chunk_size > 0);
 	DEBUGASSERT(spare_max > 0);
-	memset(pool, 0, sizeof(*pool));
+	memzero(pool, sizeof(*pool));
 	pool->chunk_size = chunk_size;
 	pool->spare_max = spare_max;
 }
@@ -194,7 +193,7 @@ static CURLcode bufcp_take(struct bufc_pool * pool,
 		return CURLE_OK;
 	}
 
-	chunk = (buf_chunk *)calloc(1, sizeof(*chunk) + pool->chunk_size);
+	chunk = (buf_chunk *)SAlloc::C(1, sizeof(*chunk) + pool->chunk_size);
 	if(!chunk) {
 		*pchunk = NULL;
 		return CURLE_OUT_OF_MEMORY;
@@ -208,7 +207,7 @@ static void bufcp_put(struct bufc_pool * pool,
     struct buf_chunk * chunk)
 {
 	if(pool->spare_count >= pool->spare_max) {
-		free(chunk);
+		SAlloc::F(chunk);
 	}
 	else {
 		chunk_reset(chunk);
@@ -224,20 +223,18 @@ void Curl_bufcp_free(struct bufc_pool * pool)
 	pool->spare_count = 0;
 }
 
-static void bufq_init(struct bufq * q, struct bufc_pool * pool,
-    size_t chunk_size, size_t max_chunks, int opts)
+static void bufq_init(struct bufq * q, struct bufc_pool * pool, size_t chunk_size, size_t max_chunks, int opts)
 {
 	DEBUGASSERT(chunk_size > 0);
 	DEBUGASSERT(max_chunks > 0);
-	memset(q, 0, sizeof(*q));
+	memzero(q, sizeof(*q));
 	q->chunk_size = chunk_size;
 	q->max_chunks = max_chunks;
 	q->pool = pool;
 	q->opts = opts;
 }
 
-void Curl_bufq_init2(struct bufq * q, size_t chunk_size, size_t max_chunks,
-    int opts)
+void Curl_bufq_init2(struct bufq * q, size_t chunk_size, size_t max_chunks, int opts)
 {
 	bufq_init(q, NULL, chunk_size, max_chunks, opts);
 }
@@ -339,7 +336,7 @@ static struct buf_chunk *get_spare(struct bufq * q){
 		return chunk;
 	}
 	else {
-		chunk = (buf_chunk *)calloc(1, sizeof(*chunk) + q->chunk_size);
+		chunk = (buf_chunk *)SAlloc::C(1, sizeof(*chunk) + q->chunk_size);
 		if(!chunk)
 			return NULL;
 		chunk->dlen = q->chunk_size;
@@ -366,7 +363,7 @@ static void prune_head(struct bufq * q)
 			/* SOFT_LIMIT allowed us more than max. free spares until
 			 * we are at max again. Or free them if we are configured
 			 * to not use spares. */
-			free(chunk);
+			SAlloc::F(chunk);
 			--q->chunk_count;
 		}
 		else {
@@ -397,7 +394,7 @@ static struct buf_chunk *get_non_full_tail(struct bufq * q){
 }
 
 ssize_t Curl_bufq_write(struct bufq * q,
-    const unsigned char * buf, size_t len,
+    const uchar * buf, size_t len,
     CURLcode * err)
 {
 	struct buf_chunk * tail;
@@ -429,7 +426,7 @@ ssize_t Curl_bufq_write(struct bufq * q,
 	return nwritten;
 }
 
-ssize_t Curl_bufq_read(struct bufq * q, unsigned char * buf, size_t len,
+ssize_t Curl_bufq_read(struct bufq * q, uchar * buf, size_t len,
     CURLcode * err)
 {
 	ssize_t nread = 0;
@@ -453,7 +450,7 @@ ssize_t Curl_bufq_read(struct bufq * q, unsigned char * buf, size_t len,
 }
 
 bool Curl_bufq_peek(struct bufq * q,
-    const unsigned char ** pbuf, size_t * plen)
+    const uchar ** pbuf, size_t * plen)
 {
 	if(q->head && chunk_is_empty(q->head)) {
 		prune_head(q);
@@ -468,7 +465,7 @@ bool Curl_bufq_peek(struct bufq * q,
 }
 
 bool Curl_bufq_peek_at(struct bufq * q, size_t offset,
-    const unsigned char ** pbuf, size_t * plen)
+    const uchar ** pbuf, size_t * plen)
 {
 	struct buf_chunk * c = q->head;
 	size_t clen;
@@ -511,7 +508,7 @@ void Curl_bufq_skip_and_shift(struct bufq * q, size_t amount)
 ssize_t Curl_bufq_pass(struct bufq * q, Curl_bufq_writer * writer,
     void * writer_ctx, CURLcode * err)
 {
-	const unsigned char * buf;
+	const uchar * buf;
 	size_t blen;
 	ssize_t nwritten = 0;
 
@@ -541,7 +538,7 @@ ssize_t Curl_bufq_pass(struct bufq * q, Curl_bufq_writer * writer,
 }
 
 ssize_t Curl_bufq_write_pass(struct bufq * q,
-    const unsigned char * buf, size_t len,
+    const uchar * buf, size_t len,
     Curl_bufq_writer * writer, void * writer_ctx,
     CURLcode * err)
 {

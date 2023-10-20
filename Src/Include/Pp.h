@@ -54415,6 +54415,7 @@ private:
 		scfAllowReturns   = 0x0004
 	};
 	int    SelectCheck(PPID * pChkID, SString * pSelFormat, const char * pTitle, long flags);
+	int    SelectBill(PPID * pBillID, const char * pTitle); // @v11.8.7
 	int    UpdateGList(int updGoodsList, PPID selGroupID);
 	int    PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock & rBlk);
 	int    SelectSerial(PPID goodsID, SString & rSerial, double * pPriceBySerial);

@@ -29,16 +29,16 @@
 
 //#include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
+//#include "transfer.h"
 //#include "sendf.h"
-#include "progress.h"
+//#include "progress.h"
 #include "mqtt.h"
 #include "select.h"
 #include "strdup.h"
 #include "url.h"
 #include "escape.h"
-#include "warnless.h"
-#include "curl_printf.h"
+//#include "warnless.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 //#include "multiif.h"
 #include "rand.h"
@@ -103,7 +103,7 @@ static CURLcode mqtt_setup_conn(struct Curl_easy * data, struct connectdata * co
 	struct MQTT * mq;
 	(void)conn;
 	DEBUGASSERT(data->req.p.mqtt == NULL);
-	mq = static_cast<MQTT *>(calloc(1, sizeof(struct MQTT)));
+	mq = static_cast<MQTT *>(SAlloc::C(1, sizeof(struct MQTT)));
 	if(!mq)
 		return CURLE_OUT_OF_MEMORY;
 	data->req.p.mqtt = mq;
@@ -148,7 +148,7 @@ static int mqtt_getsock(struct Curl_easy * data,
 
 static int mqtt_encode_len(char * buf, size_t len)
 {
-	unsigned char encoded;
+	uchar encoded;
 	int i;
 
 	for(i = 0; (len > 0) && (i<4); i++) {
@@ -183,7 +183,7 @@ static int add_passwd(const char * passwd, const size_t plen,
 
 /* add user to the CONNECT packet */
 static int add_user(const char * username, const size_t ulen,
-    unsigned char * pkt, const size_t start, int remain_pos)
+    uchar * pkt, const size_t start, int remain_pos)
 {
 	/* magic number that need to be set properly */
 	const size_t conn_flags_pos = remain_pos + 8;
@@ -193,8 +193,8 @@ static int add_user(const char * username, const size_t ulen,
 	/* set username flag */
 	pkt[conn_flags_pos] |= 0x80;
 	/* length of username provided */
-	pkt[start] = (unsigned char)((ulen >> 8) & 0xFF);
-	pkt[start + 1] = (unsigned char)(ulen & 0xFF);
+	pkt[start] = (uchar)((ulen >> 8) & 0xFF);
+	pkt[start + 1] = (uchar)(ulen & 0xFF);
 	memcpy(&pkt[start + 2], username, ulen);
 	return 0;
 }
@@ -283,16 +283,13 @@ static CURLcode mqtt_connect(struct Curl_easy * data)
 	/* allocating packet */
 	if(packetlen > 268435455)
 		return CURLE_WEIRD_SERVER_REPLY;
-	packet = (char *)malloc(packetlen);
+	packet = (char *)SAlloc::M(packetlen);
 	if(!packet)
 		return CURLE_OUT_OF_MEMORY;
-	memset(packet, 0, packetlen);
-
+	memzero(packet, packetlen);
 	/* set initial values for the CONNECT packet */
 	pos = init_connpack(packet, remain, remain_pos);
-
-	result = Curl_rand_hex(data, (unsigned char *)&client_id[clen],
-		MQTT_CLIENTID_LEN - clen + 1);
+	result = Curl_rand_hex(data, (uchar *)&client_id[clen], MQTT_CLIENTID_LEN - clen + 1);
 	/* add client id */
 	rc = add_client_id(client_id, strlen(client_id), packet, pos + 1);
 	if(rc) {
@@ -311,7 +308,7 @@ static CURLcode mqtt_connect(struct Curl_easy * data)
 		start_pwd += 2;
 
 		rc = add_user(username, ulen,
-			(unsigned char *)packet, start_user, remain_pos);
+			(uchar *)packet, start_user, remain_pos);
 		if(rc) {
 			failf(data, "Username is too large: [%lu]", ulen);
 			result = CURLE_WEIRD_SERVER_REPLY;
@@ -334,9 +331,9 @@ static CURLcode mqtt_connect(struct Curl_easy * data)
 
 end:
 	if(packet)
-		free(packet);
-	Curl_safefree(data->state.aptr.user);
-	Curl_safefree(data->state.aptr.passwd);
+		SAlloc::F(packet);
+	ZFREE(data->state.aptr.user);
+	ZFREE(data->state.aptr.passwd);
 	return result;
 }
 
@@ -345,7 +342,7 @@ static CURLcode mqtt_disconnect(struct Curl_easy * data)
 	CURLcode result = CURLE_OK;
 	struct MQTT * mq = data->req.p.mqtt;
 	result = mqtt_send(data, (char *)"\xe0\x00", 2);
-	Curl_safefree(mq->sendleftovers);
+	ZFREE(mq->sendleftovers);
 	return result;
 }
 
@@ -354,7 +351,7 @@ static CURLcode mqtt_verify_connack(struct Curl_easy * data)
 	CURLcode result;
 	struct connectdata * conn = data->conn;
 	curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
-	unsigned char readbuf[MQTT_CONNACK_LEN];
+	uchar readbuf[MQTT_CONNACK_LEN];
 	ssize_t nread;
 
 	result = Curl_read(data, sockfd, (char *)readbuf, MQTT_CONNACK_LEN, &nread);
@@ -403,7 +400,7 @@ static CURLcode mqtt_subscribe(struct Curl_easy * data)
 	CURLcode result = CURLE_OK;
 	char * topic = NULL;
 	size_t topiclen;
-	unsigned char * packet = NULL;
+	uchar * packet = NULL;
 	size_t packetlen;
 	char encodedsize[4];
 	size_t n;
@@ -420,7 +417,7 @@ static CURLcode mqtt_subscribe(struct Curl_easy * data)
 	n = mqtt_encode_len((char *)encodedsize, packetlen);
 	packetlen += n + 1; /* add one for the control packet type byte */
 
-	packet = (uchar *)malloc(packetlen);
+	packet = (uchar *)SAlloc::M(packetlen);
 	if(!packet) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto fail;
@@ -438,8 +435,8 @@ static CURLcode mqtt_subscribe(struct Curl_easy * data)
 	result = mqtt_send(data, (char *)packet, packetlen);
 
 fail:
-	free(topic);
-	free(packet);
+	SAlloc::F(topic);
+	SAlloc::F(packet);
 	return result;
 }
 
@@ -451,7 +448,7 @@ static CURLcode mqtt_verify_suback(struct Curl_easy * data)
 	CURLcode result;
 	struct connectdata * conn = data->conn;
 	curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
-	unsigned char readbuf[MQTT_SUBACK_LEN];
+	uchar readbuf[MQTT_SUBACK_LEN];
 	ssize_t nread;
 	struct mqtt_conn * mqtt = &conn->proto.mqtt;
 
@@ -484,7 +481,7 @@ static CURLcode mqtt_publish(struct Curl_easy * data)
 	size_t payloadlen;
 	char * topic = NULL;
 	size_t topiclen;
-	unsigned char * pkt = NULL;
+	uchar * pkt = NULL;
 	size_t i = 0;
 	size_t remaininglength;
 	size_t encodelen;
@@ -506,7 +503,7 @@ static CURLcode mqtt_publish(struct Curl_easy * data)
 	encodelen = mqtt_encode_len(encodedbytes, remaininglength);
 
 	/* add the control byte and the encoded remaining length */
-	pkt = (uchar *)malloc(remaininglength + 1 + encodelen);
+	pkt = (uchar *)SAlloc::M(remaininglength + 1 + encodelen);
 	if(!pkt) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto fail;
@@ -525,18 +522,18 @@ static CURLcode mqtt_publish(struct Curl_easy * data)
 	result = mqtt_send(data, (char *)pkt, i);
 
 fail:
-	free(pkt);
-	free(topic);
+	SAlloc::F(pkt);
+	SAlloc::F(topic);
 	return result;
 }
 
-static size_t mqtt_decode_len(unsigned char * buf,
+static size_t mqtt_decode_len(uchar * buf,
     size_t buflen, size_t * lenbytes)
 {
 	size_t len = 0;
 	size_t mult = 1;
 	size_t i;
-	unsigned char encoded = 128;
+	uchar encoded = 128;
 
 	for(i = 0; (i < buflen) && (encoded & 128); i++) {
 		encoded = buf[i];
@@ -591,11 +588,11 @@ static CURLcode mqtt_read_publish(struct Curl_easy * data, bool * done)
 	struct connectdata * conn = data->conn;
 	curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
 	ssize_t nread;
-	unsigned char * pkt = (unsigned char *)data->state.buffer;
+	uchar * pkt = (uchar *)data->state.buffer;
 	size_t remlen;
 	struct mqtt_conn * mqtt = &conn->proto.mqtt;
 	struct MQTT * mq = data->req.p.mqtt;
-	unsigned char packet;
+	uchar packet;
 
 	switch(mqtt->state) {
 MQTT_SUBACK_COMING:
@@ -705,7 +702,7 @@ static CURLcode mqtt_done(struct Curl_easy * data,
 	struct MQTT * mq = data->req.p.mqtt;
 	(void)status;
 	(void)premature;
-	Curl_safefree(mq->sendleftovers);
+	ZFREE(mq->sendleftovers);
 	return CURLE_OK;
 }
 
@@ -717,8 +714,8 @@ static CURLcode mqtt_doing(struct Curl_easy * data, bool * done)
 	struct MQTT * mq = data->req.p.mqtt;
 	ssize_t nread;
 	curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
-	unsigned char * pkt = (unsigned char *)data->state.buffer;
-	unsigned char byte;
+	uchar * pkt = (uchar *)data->state.buffer;
+	uchar byte;
 
 	*done = FALSE;
 
@@ -726,7 +723,7 @@ static CURLcode mqtt_doing(struct Curl_easy * data, bool * done)
 		/* send the remainder of an outgoing packet */
 		char * ptr = mq->sendleftovers;
 		result = mqtt_send(data, mq->sendleftovers, mq->nsend);
-		free(ptr);
+		SAlloc::F(ptr);
 		if(result)
 			return result;
 	}

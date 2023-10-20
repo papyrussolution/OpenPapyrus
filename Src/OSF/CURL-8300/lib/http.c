@@ -54,11 +54,11 @@
 
 //#include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
+//#include "transfer.h"
 //#include "sendf.h"
 #include "formdata.h"
-#include "mime.h"
-#include "progress.h"
+//#include "mime.h"
+//#include "progress.h"
 #include "curl_base64.h"
 #include "cookie.h"
 #include "vauth/vauth.h"
@@ -72,28 +72,28 @@
 #include "url.h"
 #include "share.h"
 //#include "hostip.h"
-#include "dynhds.h"
-#include "http.h"
+//#include "dynhds.h"
+//#include "http.h"
 #include "select.h"
 #include "parsedate.h" /* for the week day and month names */
 #include "strtoofft.h"
 //#include "multiif.h"
 //#include "strcase.h"
-#include "content_encoding.h"
+//#include "content_encoding.h"
 #include "http_proxy.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "http2.h"
 //#include "cfilters.h"
 //#include "connect.h"
 #include "strdup.h"
 #include "altsvc.h"
 #include "hsts.h"
-#include "ws.h"
+//#include "ws.h"
 #include "c-hyper.h"
 #include "curl_ctype.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -228,7 +228,7 @@ static CURLcode http_setup_conn(struct Curl_easy * data, struct connectdata * co
 	   during this request */
 	struct HTTP * http;
 	DEBUGASSERT(data->req.p.http == NULL);
-	http = (HTTP *)calloc(1, sizeof(struct HTTP));
+	http = (HTTP *)SAlloc::C(1, sizeof(struct HTTP));
 	if(!http)
 		return CURLE_OUT_OF_MEMORY;
 	data->req.p.http = http;
@@ -325,7 +325,7 @@ char *Curl_copy_header_value(const char * header)
 		end--;
 	/* get length of the type */
 	len = end - start + 1;
-	value = (char *)malloc(len + 1);
+	value = (char *)SAlloc::M(len + 1);
 	if(!value)
 		return NULL;
 	memcpy(value, start, len);
@@ -382,18 +382,18 @@ static CURLcode http_output_basic(struct Curl_easy * data, bool proxy)
 		goto fail;
 	}
 
-	free(*userp);
+	SAlloc::F(*userp);
 	*userp = aprintf("%sAuthorization: Basic %s\r\n",
 		proxy ? "Proxy-" : "",
 		authorization);
-	free(authorization);
+	SAlloc::F(authorization);
 	if(!*userp) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto fail;
 	}
 
 fail:
-	free(out);
+	SAlloc::F(out);
 	return result;
 }
 
@@ -412,7 +412,7 @@ static CURLcode http_output_bearer(struct Curl_easy * data)
 	CURLcode result = CURLE_OK;
 
 	userp = &data->state.aptr.userpwd;
-	free(*userp);
+	SAlloc::F(*userp);
 	*userp = aprintf("Authorization: Bearer %s\r\n",
 		data->set.str[STRING_BEARER]);
 
@@ -640,7 +640,7 @@ CURLcode Curl_http_auth_act(struct Curl_easy * data)
 	unsigned long authmask = ~0ul;
 
 	if(!data->set.str[STRING_BEARER])
-		authmask &= (unsigned long)~CURLAUTH_BEARER;
+		authmask &= (ulong)~CURLAUTH_BEARER;
 
 	if(100 <= data->req.httpcode && data->req.httpcode <= 199)
 		/* this is a transient response code, ignore */
@@ -684,7 +684,7 @@ CURLcode Curl_http_auth_act(struct Curl_easy * data)
 		/* In case this is GSS auth, the newurl field is already allocated so
 		   we must make sure to free it before allocating a new one. As figured
 		   out in bug #2284386 */
-		Curl_safefree(data->req.newurl);
+		ZFREE(data->req.newurl);
 		data->req.newurl = strdup(data->state.url); /* clone URL */
 		if(!data->req.newurl)
 			return CURLE_OUT_OF_MEMORY;
@@ -774,8 +774,8 @@ static CURLcode output_auth_headers(struct Curl_easy * data,
 		auth = "Digest";
 		result = Curl_output_digest(data,
 			proxy,
-			(const unsigned char *)request,
-			(const unsigned char *)path);
+			(const uchar *)request,
+			(const uchar *)path);
 		if(result)
 			return result;
 	}
@@ -1024,7 +1024,7 @@ CURLcode Curl_http_input_auth(struct Curl_easy * data, bool proxy,
 				if(authp->picked == CURLAUTH_NEGOTIATE) {
 					CURLcode result = Curl_input_negotiate(data, conn, proxy, auth);
 					if(!result) {
-						free(data->req.newurl);
+						SAlloc::F(data->req.newurl);
 						data->req.newurl = strdup(data->state.url);
 						if(!data->req.newurl)
 							return CURLE_OUT_OF_MEMORY;
@@ -2016,7 +2016,7 @@ CURLcode Curl_add_custom_headers(struct Curl_easy * data,
 #endif
 					}
 					if(semicolonp)
-						free(semicolonp);
+						SAlloc::F(semicolonp);
 					if(result)
 						return result;
 				}
@@ -2165,7 +2165,7 @@ CURLcode Curl_http_useragent(struct Curl_easy * data)
 	   with the user-agent string specified, we erase the previously made string
 	   here. */
 	if(Curl_checkheaders(data, STRCONST("User-Agent"))) {
-		free(data->state.aptr.uagent);
+		SAlloc::F(data->state.aptr.uagent);
 		data->state.aptr.uagent = NULL;
 	}
 	return CURLE_OK;
@@ -2177,7 +2177,7 @@ CURLcode Curl_http_host(struct Curl_easy * data, struct connectdata * conn)
 	struct UrlState::dynamically_allocated_data * aptr = &data->state.aptr;
 	if(!data->state.this_is_a_follow) {
 		/* Free to avoid leaking memory on multiple requests */
-		free(data->state.first_host);
+		SAlloc::F(data->state.first_host);
 
 		data->state.first_host = strdup(conn->host.name);
 		if(!data->state.first_host)
@@ -2186,7 +2186,7 @@ CURLcode Curl_http_host(struct Curl_easy * data, struct connectdata * conn)
 		data->state.first_remote_port = conn->remote_port;
 		data->state.first_remote_protocol = conn->handler->protocol;
 	}
-	Curl_safefree(aptr->host);
+	ZFREE(aptr->host);
 
 	ptr = Curl_checkheaders(data, STRCONST("Host"));
 	if(ptr && (!data->state.this_is_a_follow ||
@@ -2202,7 +2202,7 @@ CURLcode Curl_http_host(struct Curl_easy * data, struct connectdata * conn)
 			return CURLE_OUT_OF_MEMORY;
 		if(!*cookiehost)
 			/* ignore empty data */
-			free(cookiehost);
+			SAlloc::F(cookiehost);
 		else {
 			/* If the host begins with '[', we start searching for the port after
 			   the bracket has been closed */
@@ -2221,7 +2221,7 @@ CURLcode Curl_http_host(struct Curl_easy * data, struct connectdata * conn)
 				if(colon)
 					*colon = 0; /* The host must not include an embedded port number */
 			}
-			Curl_safefree(aptr->cookiehost);
+			ZFREE(aptr->cookiehost);
 			aptr->cookiehost = cookiehost;
 		}
 #endif
@@ -2315,7 +2315,7 @@ CURLcode Curl_http_target(struct Curl_easy * data,
 			}
 		}
 		/* Extract the URL to use in the request. Store in STRING_TEMP_URL for
-		   clean-up reasons if the function returns before the free() further
+		   clean-up reasons if the function returns before the SAlloc::F() further
 		   down. */
 		uc = curl_url_get(h, CURLUPART_URL, &url, CURLU_NO_DEFAULT_PORT);
 		if(uc) {
@@ -2325,7 +2325,7 @@ CURLcode Curl_http_target(struct Curl_easy * data,
 		curl_url_cleanup(h);
 		/* target or url */
 		result = Curl_dyn_add(r, data->set.str[STRING_TARGET] ? data->set.str[STRING_TARGET]:url);
-		free(url);
+		SAlloc::F(url);
 		if(result)
 			return (result);
 		if(strcasecompare("ftp", data->state.up.scheme)) {
@@ -2384,7 +2384,7 @@ CURLcode Curl_http_body(struct Curl_easy * data, struct connectdata * conn,
 		    /* Convert the form structure into a mime structure, then keep
 		       the conversion */
 		    if(!data->state.formp) {
-			    data->state.formp = (curl_mimepart *)calloc(sizeof(curl_mimepart), 1);
+			    data->state.formp = (curl_mimepart *)SAlloc::C(sizeof(curl_mimepart), 1);
 			    if(!data->state.formp)
 				    return CURLE_OUT_OF_MEMORY;
 			    Curl_mime_cleanpart(data->state.formp);
@@ -2688,7 +2688,7 @@ CURLcode Curl_http_bodysend(struct Curl_easy * data, struct connectdata * conn,
 
 				       then append the post data to the HTTP request header. This limit
 				       is no magic limit but only set to prevent really huge POSTs to
-				       get the data duplicated with malloc() and family. */
+				       get the data duplicated with SAlloc::M() and family. */
 
 				    /* end of headers! */
 				    result = Curl_dyn_addn(r, STRCONST("\r\n"));
@@ -2901,14 +2901,14 @@ CURLcode Curl_http_range(struct Curl_easy * data,
 		if(((httpreq == HTTPREQ_GET) || (httpreq == HTTPREQ_HEAD)) &&
 		    !Curl_checkheaders(data, STRCONST("Range"))) {
 			/* if a line like this was already allocated, free the previous one */
-			free(data->state.aptr.rangeline);
+			SAlloc::F(data->state.aptr.rangeline);
 			data->state.aptr.rangeline = aprintf("Range: bytes=%s\r\n",
 				data->state.range);
 		}
 		else if((httpreq == HTTPREQ_POST || httpreq == HTTPREQ_PUT) &&
 		    !Curl_checkheaders(data, STRCONST("Content-Range"))) {
 			/* if a line like this was already allocated, free the previous one */
-			free(data->state.aptr.rangeline);
+			SAlloc::F(data->state.aptr.rangeline);
 
 			if(data->set.set_resume_from < 0) {
 				/* Upload resume was asked for, but we don't know the size of the
@@ -3098,7 +3098,7 @@ CURLcode Curl_transferencode(struct Curl_easy * data)
 		char * cptr = Curl_checkheaders(data, STRCONST("Connection"));
 #define TE_HEADER "TE: gzip\r\n"
 
-		Curl_safefree(data->state.aptr.te);
+		ZFREE(data->state.aptr.te);
 
 		if(cptr) {
 			cptr = Curl_copy_header_value(cptr);
@@ -3110,7 +3110,7 @@ CURLcode Curl_transferencode(struct Curl_easy * data)
 		data->state.aptr.te = aprintf("Connection: %s%sTE\r\n" TE_HEADER,
 			cptr ? cptr : "", (cptr && *cptr) ? ", ":"");
 
-		free(cptr);
+		SAlloc::F(cptr);
 		if(!data->state.aptr.te)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -3197,12 +3197,12 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 		}
 		result = Curl_http_output_auth(data, conn, request, httpreq,
 			(pq ? pq : data->state.up.path), FALSE);
-		free(pq);
+		SAlloc::F(pq);
 		if(result)
 			return result;
 	}
 
-	Curl_safefree(data->state.aptr.ref);
+	ZFREE(data->state.aptr.ref);
 	if(data->state.referer && !Curl_checkheaders(data, STRCONST("Referer"))) {
 		data->state.aptr.ref = aprintf("Referer: %s\r\n", data->state.referer);
 		if(!data->state.aptr.ref)
@@ -3211,14 +3211,14 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 
 	if(!Curl_checkheaders(data, STRCONST("Accept-Encoding")) &&
 	    data->set.str[STRING_ENCODING]) {
-		Curl_safefree(data->state.aptr.accept_encoding);
+		ZFREE(data->state.aptr.accept_encoding);
 		data->state.aptr.accept_encoding =
 		    aprintf("Accept-Encoding: %s\r\n", data->set.str[STRING_ENCODING]);
 		if(!data->state.aptr.accept_encoding)
 			return CURLE_OUT_OF_MEMORY;
 	}
 	else
-		Curl_safefree(data->state.aptr.accept_encoding);
+		ZFREE(data->state.aptr.accept_encoding);
 
 #ifdef HAVE_LIBZ
 	/* we only consider transfer-encoding magic if libz support is built-in */
@@ -3323,9 +3323,9 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 
 	/* clear userpwd and proxyuserpwd to avoid reusing old credentials
 	 * from reused connections */
-	Curl_safefree(data->state.aptr.userpwd);
-	Curl_safefree(data->state.aptr.proxyuserpwd);
-	free(altused);
+	ZFREE(data->state.aptr.userpwd);
+	ZFREE(data->state.aptr.proxyuserpwd);
+	SAlloc::F(altused);
 
 	if(result) {
 		Curl_dyn_free(&req);
@@ -3510,9 +3510,9 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 			return CURLE_OUT_OF_MEMORY;
 		if(!*contenttype)
 			/* ignore empty data */
-			free(contenttype);
+			SAlloc::F(contenttype);
 		else {
-			Curl_safefree(data->info.contenttype);
+			ZFREE(data->info.contenttype);
 			data->info.contenttype = contenttype;
 		}
 	}
@@ -3684,11 +3684,8 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 		char * auth = Curl_copy_header_value(headp);
 		if(!auth)
 			return CURLE_OUT_OF_MEMORY;
-
 		result = Curl_http_input_auth(data, proxy, auth);
-
-		free(auth);
-
+		SAlloc::F(auth);
 		if(result)
 			return result;
 	}
@@ -3705,7 +3702,7 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 			negdata->havenoauthpersist = TRUE;
 			infof(data, "Negotiate: noauthpersist -> %d, header part: %s",
 			    negdata->noauthpersist, persistentauth);
-			free(persistentauth);
+			SAlloc::F(persistentauth);
 		}
 	}
 #endif
@@ -3718,7 +3715,7 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 			return CURLE_OUT_OF_MEMORY;
 		if(!*location)
 			/* ignore empty data */
-			free(location);
+			SAlloc::F(location);
 		else {
 			data->req.location = location;
 
@@ -3780,7 +3777,7 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 		result = Curl_altsvc_parse(data, data->asi,
 			headp + strlen("Alt-Svc:"),
 			id, conn->host.name,
-			curlx_uitous((unsigned int)conn->remote_port));
+			curlx_uitous((uint)conn->remote_port));
 		if(result)
 			return result;
 	}
@@ -3930,8 +3927,8 @@ CURLcode Curl_bump_headersize(struct Curl_easy * data,
 	size_t bad = 0;
 	if(delta < MAX_HTTP_RESP_HEADER_SIZE) {
 		if(!connect_only)
-			data->req.headerbytecount += (unsigned int)delta;
-		data->info.header_size += (unsigned int)delta;
+			data->req.headerbytecount += (uint)delta;
+		data->info.header_size += (uint)delta;
 		if(data->info.header_size > MAX_HTTP_RESP_HEADER_SIZE)
 			bad = data->info.header_size;
 	}
@@ -4433,7 +4430,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 #ifdef ENABLE_QUIC
 						case 30:
 #endif
-						    conn->httpversion = (unsigned char)httpversion;
+						    conn->httpversion = (uchar)httpversion;
 						    break;
 						default:
 						    failf(data, "Unsupported HTTP version (%u.%d) in response",
@@ -4573,7 +4570,7 @@ out:
 /* simple implementation of strndup(), which isn't portable */
 static char *my_strndup(const char * ptr, size_t len)
 {
-	char * copy = static_cast<char *>(malloc(len + 1));
+	char * copy = static_cast<char *>(SAlloc::M(len + 1));
 	if(!copy)
 		return NULL;
 	memcpy(copy, ptr, len);
@@ -4589,7 +4586,7 @@ CURLcode Curl_http_req_make(struct httpreq ** preq, const char * method, size_t 
 	DEBUGASSERT(method);
 	if(m_len + 1 >= sizeof(req->method))
 		return CURLE_BAD_FUNCTION_ARGUMENT;
-	req = (httpreq *)calloc(1, sizeof(*req));
+	req = (httpreq *)SAlloc::C(1, sizeof(*req));
 	if(!req)
 		goto out;
 	memcpy(req->method, method, m_len);
@@ -4677,10 +4674,10 @@ static CURLcode req_assign_url_authority(struct httpreq * req, CURLU * url)
 	result = CURLE_OK;
 
 out:
-	free(user);
-	free(pass);
-	free(host);
-	free(port);
+	SAlloc::F(user);
+	SAlloc::F(pass);
+	SAlloc::F(host);
+	SAlloc::F(port);
 	Curl_dyn_free(&buf);
 	return result;
 }
@@ -4727,8 +4724,8 @@ static CURLcode req_assign_url_path(struct httpreq * req, CURLU * url)
 	result = CURLE_OK;
 
 out:
-	free(path);
-	free(query);
+	SAlloc::F(path);
+	SAlloc::F(query);
 	Curl_dyn_free(&buf);
 	return result;
 }
@@ -4741,7 +4738,7 @@ CURLcode Curl_http_req_make2(struct httpreq ** preq, const char * method, size_t
 	DEBUGASSERT(method);
 	if(m_len + 1 >= sizeof(req->method))
 		return CURLE_BAD_FUNCTION_ARGUMENT;
-	req = (httpreq *)calloc(1, sizeof(*req));
+	req = (httpreq *)SAlloc::C(1, sizeof(*req));
 	if(!req)
 		goto out;
 	memcpy(req->method, method, m_len);
@@ -4774,12 +4771,12 @@ out:
 void Curl_http_req_free(struct httpreq * req)
 {
 	if(req) {
-		free(req->scheme);
-		free(req->authority);
-		free(req->path);
+		SAlloc::F(req->scheme);
+		SAlloc::F(req->authority);
+		SAlloc::F(req->path);
 		Curl_dynhds_free(&req->headers);
 		Curl_dynhds_free(&req->trailers);
-		free(req);
+		SAlloc::F(req);
 	}
 }
 
@@ -4878,7 +4875,7 @@ CURLcode Curl_http_resp_make(struct http_resp ** presp, int status, const char *
 {
 	struct http_resp * resp;
 	CURLcode result = CURLE_OUT_OF_MEMORY;
-	resp = (http_resp *)calloc(1, sizeof(*resp));
+	resp = (http_resp *)SAlloc::C(1, sizeof(*resp));
 	if(!resp)
 		goto out;
 	resp->status = status;
@@ -4900,12 +4897,12 @@ out:
 void Curl_http_resp_free(struct http_resp * resp)
 {
 	if(resp) {
-		free(resp->description);
+		SAlloc::F(resp->description);
 		Curl_dynhds_free(&resp->headers);
 		Curl_dynhds_free(&resp->trailers);
 		if(resp->prev)
 			Curl_http_resp_free(resp->prev);
-		free(resp);
+		SAlloc::F(resp);
 	}
 }
 

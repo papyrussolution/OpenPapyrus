@@ -26,9 +26,9 @@
 //#include "urldata.h"
 //#include "sendf.h"
 //#include "multiif.h"
-#include "progress.h"
+//#include "progress.h"
 //#include "timeval.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 
 /* check rate limits within this many recent milliseconds, at minimum. */
 #define MIN_RATE_LIMIT_PERIOD 3000

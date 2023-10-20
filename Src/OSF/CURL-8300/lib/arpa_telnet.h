@@ -101,8 +101,7 @@ static const char * const telnetcmds[] =
 #define CURL_TELQUAL_INFO 2
 #define CURL_TELQUAL_NAME 3
 
-#define CURL_TELCMD_OK(x) ( ((unsigned int)(x) >= CURL_TELCMD_MINIMUM) && \
-	((unsigned int)(x) <= CURL_TELCMD_MAXIMUM) )
+#define CURL_TELCMD_OK(x) ( ((uint)(x) >= CURL_TELCMD_MINIMUM) && ((uint)(x) <= CURL_TELCMD_MAXIMUM) )
 #define CURL_TELCMD(x)    telnetcmds[(x)-CURL_TELCMD_MINIMUM]
 
 #endif /* CURL_DISABLE_TELNET */

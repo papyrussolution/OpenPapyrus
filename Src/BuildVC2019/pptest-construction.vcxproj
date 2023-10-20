@@ -214,6 +214,7 @@
     <ClCompile Include="..\PPTEST\UNIT\test-agner.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-bits.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-dirent.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-edlib.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-etc.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-hash.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-inet.cpp" />

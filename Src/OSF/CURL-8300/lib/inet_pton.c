@@ -52,8 +52,8 @@
  * sizeof(int) < 4.  sizeof(int) > 4 is fine; all the world's not a VAX.
  */
 
-static int      inet_pton4(const char * src, unsigned char * dst);
-static int      inet_pton6(const char * src, unsigned char * dst);
+static int      inet_pton4(const char * src, uchar * dst);
+static int      inet_pton6(const char * src, uchar * dst);
 
 /* int
  * inet_pton(af, src, dst)
@@ -75,9 +75,9 @@ int Curl_inet_pton(int af, const char * src, void * dst)
 {
 	switch(af) {
 		case AF_INET:
-		    return (inet_pton4(src, (unsigned char *)dst));
+		    return (inet_pton4(src, (uchar *)dst));
 		case AF_INET6:
-		    return (inet_pton6(src, (unsigned char *)dst));
+		    return (inet_pton6(src, (uchar *)dst));
 		default:
 		    errno = EAFNOSUPPORT;
 		    return (-1);
@@ -95,11 +95,11 @@ int Curl_inet_pton(int af, const char * src, void * dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char * src, unsigned char * dst)
+static int inet_pton4(const char * src, uchar * dst)
 {
 	static const char digits[] = "0123456789";
 	int saw_digit, octets, ch;
-	unsigned char tmp[INADDRSZ], * tp;
+	uchar tmp[INADDRSZ], * tp;
 
 	saw_digit = 0;
 	octets = 0;
@@ -110,13 +110,13 @@ static int inet_pton4(const char * src, unsigned char * dst)
 
 		pch = strchr(digits, ch);
 		if(pch) {
-			unsigned int val = *tp * 10 + (unsigned int)(pch - digits);
+			uint val = *tp * 10 + (uint)(pch - digits);
 
 			if(saw_digit && *tp == 0)
 				return (0);
 			if(val > 255)
 				return (0);
-			*tp = (unsigned char)val;
+			*tp = (uchar)val;
 			if(!saw_digit) {
 				if(++octets > 4)
 					return (0);
@@ -151,16 +151,15 @@ static int inet_pton4(const char * src, unsigned char * dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char * src, unsigned char * dst)
+static int inet_pton6(const char * src, uchar * dst)
 {
 	static const char xdigits_l[] = "0123456789abcdef",
 	    xdigits_u[] = "0123456789ABCDEF";
-	unsigned char tmp[IN6ADDRSZ], * tp, * endp, * colonp;
+	uchar tmp[IN6ADDRSZ], * tp, * endp, * colonp;
 	const char * curtok;
 	int ch, saw_xdigit;
 	size_t val;
-
-	memset((tp = tmp), 0, IN6ADDRSZ);
+	memzero((tp = tmp), IN6ADDRSZ);
 	endp = tp + IN6ADDRSZ;
 	colonp = NULL;
 	/* Leading :: requires some special handling. */
@@ -194,8 +193,8 @@ static int inet_pton6(const char * src, unsigned char * dst)
 			}
 			if(tp + INT16SZ > endp)
 				return (0);
-			*tp++ = (unsigned char)((val >> 8) & 0xff);
-			*tp++ = (unsigned char)(val & 0xff);
+			*tp++ = (uchar)((val >> 8) & 0xff);
+			*tp++ = (uchar)(val & 0xff);
 			saw_xdigit = 0;
 			val = 0;
 			continue;
@@ -211,8 +210,8 @@ static int inet_pton6(const char * src, unsigned char * dst)
 	if(saw_xdigit) {
 		if(tp + INT16SZ > endp)
 			return (0);
-		*tp++ = (unsigned char)((val >> 8) & 0xff);
-		*tp++ = (unsigned char)(val & 0xff);
+		*tp++ = (uchar)((val >> 8) & 0xff);
+		*tp++ = (uchar)(val & 0xff);
 	}
 	if(colonp) {
 		/*

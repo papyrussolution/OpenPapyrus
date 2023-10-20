@@ -53,9 +53,8 @@
 #include <in.h>
 #include <inet.h>
 #endif
-
 //#include "urldata.h"
-#include "bufq.h"
+//#include "bufq.h"
 //#include "sendf.h"
 #include "if2ip.h"
 #include "strerror.h"
@@ -63,13 +62,13 @@
 #include "cf-socket.h"
 //#include "connect.h"
 #include "select.h"
-#include "url.h" /* for Curl_safefree() */
+#include "url.h" /* for ZFREE() */
 //#include "multiif.h"
 //#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "inet_ntop.h"
 #include "inet_pton.h"
-#include "progress.h"
-#include "warnless.h"
+//#include "progress.h"
+//#include "warnless.h"
 #include "conncache.h"
 #include "multihandle.h"
 #include "rand.h"
@@ -77,7 +76,7 @@
 #include "version_win32.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -388,7 +387,7 @@ void Curl_sndbufset(curl_socket_t sockfd)
 
 #ifndef CURL_DISABLE_BINDLOCAL
 static CURLcode bindlocal(struct Curl_easy * data, struct connectdata * conn,
-    curl_socket_t sockfd, int af, unsigned int scope)
+    curl_socket_t sockfd, int af, uint scope)
 {
 	struct Curl_sockaddr_storage sa;
 	struct sockaddr * sock = (struct sockaddr *)&sa; /* bind to this address */
@@ -418,9 +417,7 @@ static CURLcode bindlocal(struct Curl_easy * data, struct connectdata * conn,
 	if(!dev && !port)
 		/* no local kind of binding was requested */
 		return CURLE_OK;
-
-	memset(&sa, 0, sizeof(struct Curl_sockaddr_storage));
-
+	memzero(&sa, sizeof(struct Curl_sockaddr_storage));
 	if(dev && (strlen(dev)<255) ) {
 		char myhost[256] = "";
 		int done = 0; /* -1 for error, 1 for address found */
@@ -498,7 +495,7 @@ static CURLcode bindlocal(struct Curl_easy * data, struct connectdata * conn,
 			 * of the connection. The resolve functions should really be changed
 			 * to take a type parameter instead.
 			 */
-			unsigned char ipver = conn->ip_version;
+			uchar ipver = conn->ip_version;
 			int rc;
 
 			if(af == AF_INET)
@@ -557,7 +554,7 @@ static CURLcode bindlocal(struct Curl_easy * data, struct connectdata * conn,
 						if(scope_id > UINT_MAX)
 							return CURLE_UNSUPPORTED_PROTOCOL;
 
-						si6->sin6_scope_id = (unsigned int)scope_id;
+						si6->sin6_scope_id = (uint)scope_id;
 					}
 #endif
 				}
@@ -607,12 +604,11 @@ static CURLcode bindlocal(struct Curl_easy * data, struct connectdata * conn,
 			/* we succeeded to bind */
 			struct Curl_sockaddr_storage add;
 			curl_socklen_t size = sizeof(add);
-			memset(&add, 0, sizeof(struct Curl_sockaddr_storage));
+			memzero(&add, sizeof(struct Curl_sockaddr_storage));
 			if(getsockname(sockfd, (struct sockaddr *)&add, &size) < 0) {
 				char buffer[STRERROR_LEN];
 				data->state.os_errno = error = SOCKERRNO;
-				failf(data, "getsockname() failed with errno %d: %s",
-				    error, Curl_strerror(error, buffer, sizeof(buffer)));
+				failf(data, "getsockname() failed with errno %d: %s", error, Curl_strerror(error, buffer, sizeof(buffer)));
 				return CURLE_INTERFACE_FAILED;
 			}
 			infof(data, "Local port: %hu", port);
@@ -784,11 +780,9 @@ struct cf_socket_ctx {
 	BIT(buffer_recv);
 };
 
-static void cf_socket_ctx_init(struct cf_socket_ctx * ctx,
-    const struct Curl_addrinfo * ai,
-    int transport)
+static void cf_socket_ctx_init(struct cf_socket_ctx * ctx, const struct Curl_addrinfo * ai, int transport)
 {
-	memset(ctx, 0, sizeof(*ctx));
+	memzero(ctx, sizeof(*ctx));
 	ctx->sock = CURL_SOCKET_BAD;
 	ctx->transport = transport;
 	Curl_sock_assign_addr(&ctx->addr, ai, transport);
@@ -816,7 +810,7 @@ struct reader_ctx {
 	struct Curl_easy * data;
 };
 
-static ssize_t nw_in_read(void * pReaderCtx, unsigned char * buf, size_t len, CURLcode * err)
+static ssize_t nw_in_read(void * pReaderCtx, uchar * buf, size_t len, CURLcode * err)
 {
 	struct reader_ctx * rctx = (reader_ctx *)pReaderCtx;
 	struct cf_socket_ctx * ctx = (cf_socket_ctx *)rctx->cf->ctx;
@@ -890,10 +884,9 @@ static void cf_socket_close(struct Curl_cfilter * cf, struct Curl_easy * data)
 		Curl_bufq_reset(&ctx->recvbuf);
 		ctx->active = FALSE;
 		ctx->buffer_recv = FALSE;
-		memset(&ctx->started_at, 0, sizeof(ctx->started_at));
-		memset(&ctx->connected_at, 0, sizeof(ctx->connected_at));
+		memzero(&ctx->started_at, sizeof(ctx->started_at));
+		memzero(&ctx->connected_at, sizeof(ctx->connected_at));
 	}
-
 	cf->connected = FALSE;
 }
 
@@ -903,7 +896,7 @@ static void cf_socket_destroy(struct Curl_cfilter * cf, struct Curl_easy * data)
 	cf_socket_close(cf, data);
 	CURL_TRC_CF(data, cf, "destroy");
 	Curl_bufq_free(&ctx->recvbuf);
-	free(ctx);
+	SAlloc::F(ctx);
 	cf->ctx = NULL;
 }
 
@@ -917,12 +910,10 @@ static CURLcode set_local_ip(struct Curl_cfilter * cf, struct Curl_easy * data)
 		char buffer[STRERROR_LEN];
 		struct Curl_sockaddr_storage ssloc;
 		curl_socklen_t slen = sizeof(struct Curl_sockaddr_storage);
-
-		memset(&ssloc, 0, sizeof(ssloc));
+		memzero(&ssloc, sizeof(ssloc));
 		if(getsockname(ctx->sock, (struct sockaddr*)&ssloc, &slen)) {
 			int error = SOCKERRNO;
-			failf(data, "getsockname() failed with errno %d: %s",
-			    error, Curl_strerror(error, buffer, sizeof(buffer)));
+			failf(data, "getsockname() failed with errno %d: %s", error, Curl_strerror(error, buffer, sizeof(buffer)));
 			return CURLE_FAILED_INIT;
 		}
 		if(!Curl_addr2string((struct sockaddr*)&ssloc, slen,
@@ -1259,7 +1250,7 @@ static ssize_t cf_socket_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 #ifdef DEBUGBUILD
 	/* simulate network blocking/partial writes */
 	if(ctx->wblock_percent > 0) {
-		unsigned char c;
+		uchar c;
 		Curl_rand(data, &c, 1);
 		if(c >= ((100-ctx->wblock_percent)*256/100)) {
 			CURL_TRC_CF(data, cf, "send(len=%zu) SIMULATE EWOULDBLOCK", orig_len);
@@ -1332,7 +1323,7 @@ static ssize_t cf_socket_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 	cf->conn->sock[cf->sockindex] = ctx->sock;
 	if(ctx->buffer_recv && !Curl_bufq_is_empty(&ctx->recvbuf)) {
 		CURL_TRC_CF(data, cf, "recv from buffer");
-		nread = Curl_bufq_read(&ctx->recvbuf, (unsigned char *)buf, len, err);
+		nread = Curl_bufq_read(&ctx->recvbuf, (uchar *)buf, len, err);
 	}
 	else {
 		struct reader_ctx rctx;
@@ -1349,7 +1340,7 @@ static ssize_t cf_socket_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 				/* we have a partial read with an error. need to deliver
 				 * what we got, return the error later. */
 				CURL_TRC_CF(data, cf, "partial read: empty buffer first");
-				nread = Curl_bufq_read(&ctx->recvbuf, (unsigned char *)buf, len, err);
+				nread = Curl_bufq_read(&ctx->recvbuf, (uchar *)buf, len, err);
 			}
 			else if(nwritten < 0) {
 				nread = -1;
@@ -1362,11 +1353,11 @@ static ssize_t cf_socket_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 			}
 			else {
 				CURL_TRC_CF(data, cf, "buffered %zd additional bytes", nwritten);
-				nread = Curl_bufq_read(&ctx->recvbuf, (unsigned char *)buf, len, err);
+				nread = Curl_bufq_read(&ctx->recvbuf, (uchar *)buf, len, err);
 			}
 		}
 		else {
-			nread = nw_in_read(&rctx, (unsigned char *)buf, len, err);
+			nread = nw_in_read(&rctx, (uchar *)buf, len, err);
 		}
 	}
 
@@ -1391,11 +1382,9 @@ static void conn_set_primary_ip(struct Curl_cfilter * cf, struct Curl_easy * dat
 
 		char buffer[STRERROR_LEN];
 		struct Curl_sockaddr_storage ssrem;
-		curl_socklen_t plen;
 		int port;
-
-		plen = sizeof(ssrem);
-		memset(&ssrem, 0, plen);
+		curl_socklen_t plen = sizeof(ssrem);
+		memzero(&ssrem, plen);
 		if(getpeername(ctx->sock, (struct sockaddr*)&ssrem, &plen)) {
 			int error = SOCKERRNO;
 			failf(data, "getpeername() failed with errno %d: %s",
@@ -1560,7 +1549,7 @@ CURLcode Curl_cf_tcp_create(struct Curl_cfilter ** pcf,
 	(void)data;
 	(void)conn;
 	DEBUGASSERT(transport == TRNSPRT_TCP);
-	ctx = (cf_socket_ctx *)calloc(sizeof(*ctx), 1);
+	ctx = (cf_socket_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;
@@ -1572,8 +1561,8 @@ CURLcode Curl_cf_tcp_create(struct Curl_cfilter ** pcf,
 out:
 	*pcf = (!result)? cf : NULL;
 	if(result) {
-		Curl_safefree(cf);
-		Curl_safefree(ctx);
+		ZFREE(cf);
+		ZFREE(ctx);
 	}
 
 	return result;
@@ -1685,7 +1674,7 @@ CURLcode Curl_cf_udp_create(struct Curl_cfilter ** pcf,
 	(void)data;
 	(void)conn;
 	DEBUGASSERT(transport == TRNSPRT_UDP || transport == TRNSPRT_QUIC);
-	ctx = (cf_socket_ctx *)calloc(sizeof(*ctx), 1);
+	ctx = (cf_socket_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;
@@ -1697,8 +1686,8 @@ CURLcode Curl_cf_udp_create(struct Curl_cfilter ** pcf,
 out:
 	*pcf = (!result)? cf : NULL;
 	if(result) {
-		Curl_safefree(cf);
-		Curl_safefree(ctx);
+		ZFREE(cf);
+		ZFREE(ctx);
 	}
 
 	return result;
@@ -1736,7 +1725,7 @@ CURLcode Curl_cf_unix_create(struct Curl_cfilter ** pcf,
 	(void)data;
 	(void)conn;
 	DEBUGASSERT(transport == TRNSPRT_UNIX);
-	ctx = (cf_socket_ctx *)calloc(sizeof(*ctx), 1);
+	ctx = (cf_socket_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;
@@ -1748,8 +1737,8 @@ CURLcode Curl_cf_unix_create(struct Curl_cfilter ** pcf,
 out:
 	*pcf = (!result)? cf : NULL;
 	if(result) {
-		Curl_safefree(cf);
-		Curl_safefree(ctx);
+		ZFREE(cf);
+		ZFREE(ctx);
 	}
 
 	return result;
@@ -1799,7 +1788,7 @@ CURLcode Curl_conn_tcp_listen_set(struct Curl_easy * data,
 	Curl_conn_cf_discard_all(data, conn, sockindex);
 	DEBUGASSERT(conn->sock[sockindex] == CURL_SOCKET_BAD);
 
-	ctx = (cf_socket_ctx *)calloc(sizeof(*ctx), 1);
+	ctx = (cf_socket_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;
@@ -1822,8 +1811,8 @@ CURLcode Curl_conn_tcp_listen_set(struct Curl_easy * data,
 
 out:
 	if(result) {
-		Curl_safefree(cf);
-		Curl_safefree(ctx);
+		ZFREE(cf);
+		ZFREE(ctx);
 	}
 	return result;
 }
@@ -1835,11 +1824,10 @@ static void set_accepted_remote_ip(struct Curl_cfilter * cf, struct Curl_easy * 
 	char buffer[STRERROR_LEN];
 	struct Curl_sockaddr_storage ssrem;
 	curl_socklen_t plen;
-
 	ctx->r_ip[0] = 0;
 	ctx->r_port = 0;
 	plen = sizeof(ssrem);
-	memset(&ssrem, 0, plen);
+	memzero(&ssrem, plen);
 	if(getpeername(ctx->sock, (struct sockaddr*)&ssrem, &plen)) {
 		int error = SOCKERRNO;
 		failf(data, "getpeername() failed with errno %d: %s",

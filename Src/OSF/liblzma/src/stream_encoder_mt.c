@@ -39,8 +39,8 @@ struct worker_thread_s {
 	/// pointer is kept here, the application must not change the
 	/// allocator before calling lzma_end().
 	const lzma_allocator * allocator;
-	uint64_t progress_in; /// Amount of uncompressed data that has already been compressed.
-	uint64_t progress_out; /// Amount of compressed data that is ready.
+	 uint64 progress_in; /// Amount of uncompressed data that has already been compressed.
+	 uint64 progress_out; /// Amount of compressed data that is ready.
 	lzma_next_coder block_encoder; /// Block encoder
 	lzma_block block_options; /// Compression options for this Block
 	worker_thread * next; /// Next structure in the stack of free worker threads.
@@ -74,8 +74,8 @@ struct lzma_stream_coder_s {
 	/// are created only when actually needed.
 	worker_thread * threads_free;
 	worker_thread * thr; /// The most recent worker thread to which the main thread writes the new input from the application.
-	uint64_t progress_in; /// Amount of uncompressed data in Blocks that have already been finished.
-	uint64_t progress_out; /// Amount of compressed data in Stream Header + Blocks that have already been finished.
+	 uint64 progress_in; /// Amount of uncompressed data in Blocks that have already been finished.
+	 uint64 progress_out; /// Amount of compressed data in Stream Header + Blocks that have already been finished.
 	mythread_mutex mutex;
 	mythread_cond cond;
 };
@@ -719,7 +719,7 @@ static void stream_encoder_mt_end(void * coder_ptr, const lzma_allocator * alloc
 /// Options handling for lzma_stream_encoder_mt_init() and
 /// lzma_stream_encoder_mt_memusage()
 static lzma_ret get_options(const lzma_mt * options, lzma_options_easy * opt_easy,
-    const lzma_filter ** filters, uint64_t * block_size, uint64_t * outbuf_size_max)
+    const lzma_filter ** filters,  uint64 * block_size,  uint64 * outbuf_size_max)
 {
 	// Validate some of the options.
 	if(options == NULL)
@@ -762,7 +762,7 @@ static lzma_ret get_options(const lzma_mt * options, lzma_options_easy * opt_eas
 	return LZMA_OK;
 }
 
-static void get_progress(void * coder_ptr, uint64_t * progress_in, uint64_t * progress_out)
+static void get_progress(void * coder_ptr,  uint64 * progress_in,  uint64 * progress_out)
 {
 	lzma_stream_coder * coder = (lzma_stream_coder *)coder_ptr;
 	// Lock coder->mutex to prevent finishing threads from moving their
@@ -785,8 +785,8 @@ static lzma_ret stream_encoder_mt_init(lzma_next_coder * next, const lzma_alloca
 	// Get the filter chain.
 	lzma_options_easy easy;
 	const lzma_filter * filters;
-	uint64_t block_size;
-	uint64_t outbuf_size_max;
+	 uint64 block_size;
+	 uint64 outbuf_size_max;
 	return_if_error(get_options(options, &easy, &filters, &block_size, &outbuf_size_max));
 #if SIZE_MAX < UINT64_MAX
 	if(block_size > SIZE_MAX)
@@ -913,35 +913,35 @@ lzma_ret lzma_stream_encoder_mt(lzma_stream *strm, const lzma_mt *options)
 // This function name is a monster but it's consistent with the older
 // monster names. :-( 31 chars is the max that C99 requires so in that
 // sense it's not too long. ;-)
-uint64_t lzma_stream_encoder_mt_memusage(const lzma_mt *options)
+ uint64 lzma_stream_encoder_mt_memusage(const lzma_mt *options)
 {
 	lzma_options_easy easy;
 	const lzma_filter * filters;
-	uint64_t block_size;
-	uint64_t outbuf_size_max;
+	 uint64 block_size;
+	 uint64 outbuf_size_max;
 
 	if(get_options(options, &easy, &filters, &block_size,
 	    &outbuf_size_max) != LZMA_OK)
 		return UINT64_MAX;
 
 	// Memory usage of the input buffers
-	const uint64_t inbuf_memusage = options->threads * block_size;
+	const  uint64 inbuf_memusage = options->threads * block_size;
 
 	// Memory usage of the filter encoders
-	uint64_t filters_memusage = lzma_raw_encoder_memusage(filters);
+	 uint64 filters_memusage = lzma_raw_encoder_memusage(filters);
 	if(filters_memusage == UINT64_MAX)
 		return UINT64_MAX;
 
 	filters_memusage *= options->threads;
 
 	// Memory usage of the output queue
-	const uint64_t outq_memusage = lzma_outq_memusage(
+	const  uint64 outq_memusage = lzma_outq_memusage(
 		outbuf_size_max, options->threads);
 	if(outq_memusage == UINT64_MAX)
 		return UINT64_MAX;
 
 	// Sum them with overflow checking.
-	uint64_t total_memusage = LZMA_MEMUSAGE_BASE
+	 uint64 total_memusage = LZMA_MEMUSAGE_BASE
 	    + sizeof(lzma_stream_coder)
 	    + options->threads * sizeof(worker_thread);
 

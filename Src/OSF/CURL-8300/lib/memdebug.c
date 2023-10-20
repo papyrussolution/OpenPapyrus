@@ -34,7 +34,7 @@
 #define MEMDEBUG_NODEFINES /* don't redefine the standard functions */
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -94,7 +94,7 @@ void curl_dbg_memdebug(const char * logname)
 		registered_cleanup = !atexit(curl_dbg_cleanup);
 }
 
-/* This function sets the number of malloc() calls that should return
+/* This function sets the number of SAlloc::M() calls that should return
    successfully! */
 void curl_dbg_memlimit(long limit)
 {
@@ -148,7 +148,7 @@ ALLOC_FUNC void *curl_dbg_malloc(size_t wantedsize,
 	}
 
 	if(source)
-		curl_dbg_log("MEM %s:%d malloc(%zu) = %p\n",
+		curl_dbg_log("MEM %s:%d SAlloc::M(%zu) = %p\n",
 		    source, line, wantedsize,
 		    mem ? (void *)mem->mem : (void *)0);
 
@@ -176,7 +176,7 @@ ALLOC_FUNC void *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
 		mem->size = user_size;
 
 	if(source)
-		curl_dbg_log("MEM %s:%d calloc(%zu,%zu) = %p\n",
+		curl_dbg_log("MEM %s:%d SAlloc::C(%zu,%zu) = %p\n",
 		    source, line, wanted_elements, wanted_size,
 		    mem ? (void *)mem->mem : (void *)0);
 
@@ -235,8 +235,8 @@ ALLOC_FUNC wchar_t *curl_dbg_wcsdup(const wchar_t * str,
 
 #endif
 
-/* We provide a realloc() that accepts a NULL as pointer, which then
-   performs a malloc(). In order to work with ares. */
+/* We provide a SAlloc::R() that accepts a NULL as pointer, which then
+   performs a SAlloc::M(). In order to work with ares. */
 void *curl_dbg_realloc(void * ptr, size_t wantedsize,
     int line, const char * source)
 {
@@ -264,7 +264,7 @@ void *curl_dbg_realloc(void * ptr, size_t wantedsize,
 
 	mem = (Curl_crealloc)(mem, size);
 	if(source)
-		curl_dbg_log("MEM %s:%d realloc(%p, %zu) = %p\n",
+		curl_dbg_log("MEM %s:%d SAlloc::R(%p, %zu) = %p\n",
 		    source, line, (void *)ptr, wantedsize,
 		    mem ? (void *)mem->mem : (void *)0);
 
@@ -296,13 +296,11 @@ void curl_dbg_free(void * ptr, int line, const char * source)
 		/* free for real */
 		(Curl_cfree)(mem);
 	}
-
 	if(source && ptr)
-		curl_dbg_log("MEM %s:%d free(%p)\n", source, line, (void *)ptr);
+		curl_dbg_log("MEM %s:%d SAlloc::F(%p)\n", source, line, (void *)ptr);
 }
 
-curl_socket_t curl_dbg_socket(int domain, int type, int protocol,
-    int line, const char * source)
+curl_socket_t curl_dbg_socket(int domain, int type, int protocol, int line, const char * source)
 {
 	const char * fmt = (sizeof(curl_socket_t) == sizeof(int)) ?
 	    "FD %s:%d socket() = %d\n" :
@@ -334,7 +332,7 @@ SEND_TYPE_RETV curl_dbg_send(SEND_TYPE_ARG1 sockfd,
 	rc = send(sockfd, buf, len, flags);
 	if(source)
 		curl_dbg_log("SEND %s:%d send(%lu) = %ld\n",
-		    source, line, (unsigned long)len, (long)rc);
+		    source, line, (ulong)len, (long)rc);
 	return rc;
 }
 
@@ -348,7 +346,7 @@ RECV_TYPE_RETV curl_dbg_recv(RECV_TYPE_ARG1 sockfd, RECV_TYPE_ARG2 buf,
 	rc = recv(sockfd, buf, len, flags);
 	if(source)
 		curl_dbg_log("RECV %s:%d recv(%lu) = %ld\n",
-		    source, line, (unsigned long)len, (long)rc);
+		    source, line, (ulong)len, (long)rc);
 	return rc;
 }
 

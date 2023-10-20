@@ -757,7 +757,7 @@ int PNGAPI png_reset_zstream(png_structrp png_ptr)
 #endif /* READ */
 
 /* This function was added to libpng-1.0.7 */
-uint32 PNGAPI png_access_version_number(void)
+uint32 PNGAPI png_access_version_number()
 {
 	/* Version of *.c files used when building libpng */
 	return ((uint32)PNG_LIBPNG_VER);
@@ -1562,9 +1562,7 @@ int /*PRIVATE*/ png_colorspace_set_sRGB(png_const_structrp png_ptr, png_colorspa
 	/* This check is just done for the error reporting - the routine always
 	 * returns true when the 'from' argument corresponds to sRGB (2).
 	 */
-	(void)png_colorspace_check_gamma(png_ptr, colorspace, PNG_GAMMA_sRGB_INVERSE,
-	    2 /*from sRGB*/);
-
+	png_colorspace_check_gamma(png_ptr, colorspace, PNG_GAMMA_sRGB_INVERSE, 2 /*from sRGB*/);
 	/* intent: bugs in GCC force 'int' to be used as the parameter type. */
 	colorspace->rendering_intent = (uint16)intent;
 	colorspace->flags |= PNG_COLORSPACE_HAVE_INTENT;
@@ -1656,7 +1654,7 @@ int /*PRIVATE*/ png_icc_check_header(png_const_structrp png_ptr, png_colorspacer
 		return png_icc_profile_error(png_ptr, colorspace, name, temp, "invalid rendering intent");
 	// This is just a warning because the profile may be valid in future versions.
 	if(temp >= PNG_sRGB_INTENT_LAST)
-		(void)png_icc_profile_error(png_ptr, NULL, name, temp, "intent outside defined range");
+		png_icc_profile_error(png_ptr, NULL, name, temp, "intent outside defined range");
 	/* At this point the tag table can't be checked because it hasn't necessarily
 	 * been loaded; however, various header fields can be checked.  These checks
 	 * are for values permitted by the PNG spec in an ICC profile; the PNG spec
@@ -1679,7 +1677,7 @@ int /*PRIVATE*/ png_icc_check_header(png_const_structrp png_ptr, png_colorspacer
 	 * following is just a warning.
 	 */
 	if(memcmp(profile+68, D50_nCIEXYZ, 12) != 0)
-		(void)png_icc_profile_error(png_ptr, NULL, name, 0 /*no tag value*/, "PCS illuminant is not D50");
+		png_icc_profile_error(png_ptr, NULL, name, 0 /*no tag value*/, "PCS illuminant is not D50");
 	/* The PNG spec requires this:
 	 * "If the iCCP chunk is present, the image samples conform to the colour
 	 * space represented by the embedded ICC profile as defined by the
@@ -1747,7 +1745,7 @@ int /*PRIVATE*/ png_icc_check_header(png_const_structrp png_ptr, png_colorspacer
 		 * contain an AToB0 tag that is open to misinterpretation.  Almost
 		 * certainly it will fail the tests below.
 		     */
-		    (void)png_icc_profile_error(png_ptr, NULL, name, temp, "unexpected NamedColor ICC profile class");
+		    png_icc_profile_error(png_ptr, NULL, name, temp, "unexpected NamedColor ICC profile class");
 		    break;
 		default:
 		    /* To allow for future enhancements to the profile accept unrecognized
@@ -1755,7 +1753,7 @@ int /*PRIVATE*/ png_icc_check_header(png_const_structrp png_ptr, png_colorspacer
 		 * tag content to ensure they are backward compatible with one of the
 		 * understood profiles.
 		     */
-		    (void)png_icc_profile_error(png_ptr, NULL, name, temp, "unrecognized ICC profile class");
+		    png_icc_profile_error(png_ptr, NULL, name, temp, "unrecognized ICC profile class");
 		    break;
 	}
 	/* For any profile other than a device link one the PCS must be encoded
@@ -1799,9 +1797,8 @@ int /*PRIVATE*/ png_icc_check_tag_table(png_const_structrp png_ptr, png_colorspa
 			 * only a warning here because libpng does not care about the
 			 * alignment.
 			 */
-			(void)png_icc_profile_error(png_ptr, NULL, name, tag_id, "ICC profile tag start not a multiple of 4");
+			png_icc_profile_error(png_ptr, NULL, name, tag_id, "ICC profile tag start not a multiple of 4");
 		}
-
 		/* This is a hard error; potentially it can cause read outside the
 		 * profile.
 		 */
@@ -1956,7 +1953,7 @@ void /*PRIVATE*/ png_icc_set_sRGB(png_const_structrp png_ptr, png_colorspacerp c
 #if PNG_sRGB_PROFILE_CHECKS >= 0
 	if(png_compare_ICC_profile_with_sRGB(png_ptr, profile, adler) != 0)
 #endif
-	(void)png_colorspace_set_sRGB(png_ptr, colorspace,
+	png_colorspace_set_sRGB(png_ptr, colorspace,
 	    (int)/*already checked*/ png_get_uint_32(profile+64));
 }
 
@@ -2376,7 +2373,7 @@ void /*PRIVATE*/ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, siz
 			 * C multiply would break the following for negative
 			 * exponents.
 			 */
-			(void)frexp(fp, &exp_b10); /* exponent to base 2 */
+			frexp(fp, &exp_b10); /* exponent to base 2 */
 			exp_b10 = (exp_b10 * 77) >> 8; /* <= exponent to base 10 */
 			/* Avoid underflow here. */
 			base = fpow10i(exp_b10); /* May underflow */

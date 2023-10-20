@@ -865,21 +865,25 @@ int FASTCALL PPLogger::Log(const char * pMsg)
 {
 	int    ok = 1;
 	if(!(Flags & fDisableOutput)) {
-		SString buf(pMsg);
-		// @v11.8.3 {
-		if(Flags & fStdErr) {
-			buf.Strip().SetLastCR(eolUndef);
-			slfprintf_stderr(buf);
-		}
-		else /* } @v11.8.3 */ {
-			if(!P_Log) {
-				THROW_MEM(P_Log = new TVMsgLog);
-				P_Log->Init();
-				if(!(Flags & fDisableWindow) && DS.IsThreadInteractive()) // @v10.6.8 !(Flags & fDisableWindow)
-					P_Log->ShowLogWnd();
+		PPSaveErrContext(); // @v11.8.7 
+		{
+			SString buf(pMsg);
+			// @v11.8.3 {
+			if(Flags & fStdErr) {
+				buf.Strip().SetLastCR(eolUndef);
+				slfprintf_stderr(buf);
 			}
-			P_Log->PutMessage(buf.Chomp(), LF_SHOW);
+			else /* } @v11.8.3 */ {
+				if(!P_Log) {
+					THROW_MEM(P_Log = new TVMsgLog);
+					P_Log->Init();
+					if(!(Flags & fDisableWindow) && DS.IsThreadInteractive()) // @v10.6.8 !(Flags & fDisableWindow)
+						P_Log->ShowLogWnd();
+				}
+				P_Log->PutMessage(buf.Chomp(), LF_SHOW);
+			}
 		}
+		PPRestoreErrContext(); // @v11.8.7
 	}
 	CATCHZOK
 	return ok;
@@ -922,8 +926,9 @@ int PPLogger::LogLastError()
 {
 	int    ok = -1;
 	SString buf;
-	if(PPGetLastErrorMessage(1, buf))
+	if(PPGetLastErrorMessage(1, buf)) {
 		ok = Log(buf);
+	}
 	return ok;
 }
 

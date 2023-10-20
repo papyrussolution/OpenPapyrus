@@ -116,9 +116,9 @@ static int common_setup(struct archive_write_filter * f)
 	f->FnOptions = &archive_compressor_xz_options;
 	return ARCHIVE_OK;
 }
-/*
- * Add an xz compression filter to this write handle.
- */
+//
+// Add an xz compression filter to this write handle.
+//
 int archive_write_add_filter_xz(Archive * _a)
 {
 	struct archive_write_filter * f;
@@ -132,10 +132,11 @@ int archive_write_add_filter_xz(Archive * _a)
 	}
 	return r;
 }
-
-/* LZMA is handled identically, we just need a different compression
- * code set.  (The liblzma setup looks at the code to determine
- * the one place that XZ and LZMA require different handling.) */
+//
+// LZMA is handled identically, we just need a different compression
+// code set.  (The liblzma setup looks at the code to determine
+// the one place that XZ and LZMA require different handling.)
+//
 int archive_write_add_filter_lzma(Archive * _a)
 {
 	struct archive_write_filter * f;

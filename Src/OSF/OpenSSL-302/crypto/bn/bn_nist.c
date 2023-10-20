@@ -222,35 +222,15 @@ static const BIGNUM ossl_bignum_nist_p_521 = {
 	BN_FLG_STATIC_DATA
 };
 
-const BIGNUM * BN_get0_nist_prime_192(void)
-{
-	return &ossl_bignum_nist_p_192;
-}
-
-const BIGNUM * BN_get0_nist_prime_224(void)
-{
-	return &ossl_bignum_nist_p_224;
-}
-
-const BIGNUM * BN_get0_nist_prime_256(void)
-{
-	return &ossl_bignum_nist_p_256;
-}
-
-const BIGNUM * BN_get0_nist_prime_384(void)
-{
-	return &ossl_bignum_nist_p_384;
-}
-
-const BIGNUM * BN_get0_nist_prime_521(void)
-{
-	return &ossl_bignum_nist_p_521;
-}
+const BIGNUM * BN_get0_nist_prime_192() { return &ossl_bignum_nist_p_192; }
+const BIGNUM * BN_get0_nist_prime_224() { return &ossl_bignum_nist_p_224; }
+const BIGNUM * BN_get0_nist_prime_256() { return &ossl_bignum_nist_p_256; }
+const BIGNUM * BN_get0_nist_prime_384() { return &ossl_bignum_nist_p_384; }
+const BIGNUM * BN_get0_nist_prime_521() { return &ossl_bignum_nist_p_521; }
 
 static void nist_cp_bn_0(BN_ULONG * dst, const BN_ULONG * src, int top, int max)
 {
 	int i;
-
 #ifdef BN_DEBUG
 	(void)ossl_assert(top <= max);
 #endif
@@ -262,9 +242,7 @@ static void nist_cp_bn_0(BN_ULONG * dst, const BN_ULONG * src, int top, int max)
 
 static void nist_cp_bn(BN_ULONG * dst, const BN_ULONG * src, int top)
 {
-	int i;
-
-	for(i = 0; i < top; i++)
+	for(int i = 0; i < top; i++)
 		dst[i] = src[i];
 }
 

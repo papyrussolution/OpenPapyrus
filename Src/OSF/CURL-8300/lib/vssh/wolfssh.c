@@ -34,17 +34,17 @@
 //#include "cfilters.h"
 //#include "connect.h"
 //#include "sendf.h"
-#include "progress.h"
+//#include "progress.h"
 #include "curl_path.h"
 #include "strtoofft.h"
-#include "transfer.h"
+//#include "transfer.h"
 #include "speedcheck.h"
 #include "select.h"
 //#include "multiif.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -336,7 +336,7 @@ static CURLcode wssh_setup_connection(struct Curl_easy * data,
 	struct SSHPROTO * ssh;
 	(void)conn;
 
-	data->req.p.ssh = ssh = calloc(1, sizeof(struct SSHPROTO));
+	data->req.p.ssh = ssh = SAlloc::C(1, sizeof(struct SSHPROTO));
 	if(!ssh)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -515,7 +515,7 @@ static CURLcode wssh_statemach_act(struct Curl_easy * data, bool * block)
 				    return CURLE_OK;
 			    }
 			    else if(name && (rc == WS_SUCCESS)) {
-				    sshc->homedir = malloc(name->fSz + 1);
+				    sshc->homedir = SAlloc::M(name->fSz + 1);
 				    if(!sshc->homedir) {
 					    sshc->actualcode = CURLE_OUT_OF_MEMORY;
 				    }
@@ -601,7 +601,7 @@ static CURLcode wssh_statemach_act(struct Curl_easy * data, bool * block)
 				    /* Clear file before writing (normal behavior) */
 				    flags = WOLFSSH_FXF_WRITE|WOLFSSH_FXF_CREAT|WOLFSSH_FXF_TRUNC;
 
-			    memset(&createattrs, 0, sizeof(createattrs));
+			    memzero(&createattrs, sizeof(createattrs));
 			    createattrs.per = (word32)data->set.new_file_perms;
 			    sshc->handleSz = sizeof(sshc->handle);
 			    rc = wolfSSH_SFTP_Open(sshc->ssh_session, sftp_scp->path,
@@ -875,7 +875,7 @@ static CURLcode wssh_statemach_act(struct Curl_easy * data, bool * block)
 					    }
 					    result = Curl_client_write(data, CLIENTWRITE_BODY,
 						    line, strlen(line));
-					    free(line);
+					    SAlloc::F(line);
 					    if(result) {
 						    sshc->actualcode = result;
 						    break;
@@ -890,7 +890,7 @@ static CURLcode wssh_statemach_act(struct Curl_easy * data, bool * block)
 			    return CURLE_SSH;
 
 			case SSH_SFTP_SHUTDOWN:
-			    Curl_safefree(sshc->homedir);
+			    ZFREE(sshc->homedir);
 			    wolfSSH_free(sshc->ssh_session);
 			    wolfSSH_CTX_free(sshc->ctx);
 			    state(data, SSH_STOP);
@@ -1054,7 +1054,7 @@ static CURLcode wssh_done(struct Curl_easy * data, CURLcode status)
 		result = status;
 
 	if(sftp_scp)
-		Curl_safefree(sftp_scp->path);
+		ZFREE(sftp_scp->path);
 	if(Curl_pgrsDone(data))
 		return CURLE_ABORTED_BY_CALLBACK;
 

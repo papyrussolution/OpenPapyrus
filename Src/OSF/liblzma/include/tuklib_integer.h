@@ -111,7 +111,7 @@
 	#define bswap32(n) (uint32_t)((((n) & 0x000000FFU) << 24) | (((n) & 0x0000FF00U) << 8) | (((n) & 0x00FF0000U) >> 8) | (((n) & 0xFF000000U) >> 24))
 #endif
 #ifndef bswap64
-#define bswap64(n) (uint64_t)( \
+#define bswap64(n) ( uint64)( \
 		(((n) & 0x00000000000000FFULL) << 56) \
 		| (((n) & 0x000000000000FF00ULL) << 40) \
 		| (((n) & 0x0000000000FF0000ULL) << 24) \
@@ -132,7 +132,7 @@
 		#define conv32be(num) ((uint32_t)(num))
 	#endif
 	#ifndef conv64be
-		#define conv64be(num) ((uint64_t)(num))
+		#define conv64be(num) (( uint64)(num))
 	#endif
 	#ifndef conv16le
 		#define conv16le(num) bswap16(num)
@@ -160,7 +160,7 @@
 		#define conv32le(num) ((uint32_t)(num))
 	#endif
 	#ifndef conv64le
-		#define conv64le(num) ((uint64_t)(num))
+		#define conv64le(num) (( uint64)(num))
 	#endif
 #endif
 //
@@ -203,12 +203,12 @@ static inline uint32_t read32ne(const uint8 * buf)
 #endif
 }
 
-static inline uint64_t read64ne(const uint8 * buf)
+static inline  uint64 read64ne(const uint8 * buf)
 {
 #if defined(TUKLIB_FAST_UNALIGNED_ACCESS) && defined(TUKLIB_USE_UNSAFE_TYPE_PUNNING)
-	return *(const uint64_t*)buf;
+	return *(const  uint64*)buf;
 #else
-	uint64_t num;
+	 uint64 num;
 	memcpy(&num, buf, sizeof(num));
 	return num;
 #endif
@@ -232,10 +232,10 @@ static inline void write32ne(uint8 * buf, uint32_t num)
 #endif
 }
 
-static inline void write64ne(uint8 * buf, uint64_t num)
+static inline void write64ne(uint8 * buf,  uint64 num)
 {
 #if defined(TUKLIB_FAST_UNALIGNED_ACCESS) && defined(TUKLIB_USE_UNSAFE_TYPE_PUNNING)
-	*(uint64_t*)buf = num;
+	*( uint64*)buf = num;
 #else
 	memcpy(buf, &num, sizeof(num));
 #endif
@@ -393,12 +393,12 @@ static inline uint32_t aligned_read32ne(const uint8 * buf)
 #endif
 }
 
-static inline uint64_t aligned_read64ne(const uint8 * buf)
+static inline  uint64 aligned_read64ne(const uint8 * buf)
 {
 #if defined(TUKLIB_USE_UNSAFE_TYPE_PUNNING) || defined(TUKLIB_USE_UNSAFE_ALIGNED_READS)
-	return *(const uint64_t*)buf;
+	return *(const  uint64*)buf;
 #else
-	uint64_t num;
+	 uint64 num;
 	tuklib_memcpy_aligned(&num, buf, sizeof(num));
 	return num;
 #endif
@@ -422,10 +422,10 @@ static inline void aligned_write32ne(uint8 * buf, uint32_t num)
 #endif
 }
 
-static inline void aligned_write64ne(uint8 * buf, uint64_t num)
+static inline void aligned_write64ne(uint8 * buf,  uint64 num)
 {
 #ifdef TUKLIB_USE_UNSAFE_TYPE_PUNNING
-	*(uint64_t*)buf = num;
+	*( uint64*)buf = num;
 #else
 	tuklib_memcpy_aligned(buf, &num, sizeof(num));
 #endif
@@ -455,15 +455,15 @@ static inline uint32_t aligned_read32le(const uint8 * buf)
 	return conv32le(num);
 }
 
-static inline uint64_t aligned_read64be(const uint8 * buf)
+static inline  uint64 aligned_read64be(const uint8 * buf)
 {
-	uint64_t num = aligned_read64ne(buf);
+	 uint64 num = aligned_read64ne(buf);
 	return conv64be(num);
 }
 
-static inline uint64_t aligned_read64le(const uint8 * buf)
+static inline  uint64 aligned_read64le(const uint8 * buf)
 {
-	uint64_t num = aligned_read64ne(buf);
+	 uint64 num = aligned_read64ne(buf);
 	return conv64le(num);
 }
 

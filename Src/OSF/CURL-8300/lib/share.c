@@ -32,13 +32,13 @@
 #include "hsts.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
 struct Curl_share *curl_share_init(void)                   
 {
-	struct Curl_share * share = (Curl_share *)calloc(1, sizeof(struct Curl_share));
+	struct Curl_share * share = (Curl_share *)SAlloc::C(1, sizeof(struct Curl_share));
 	if(share) {
 		share->magic = CURL_GOOD_SHARE;
 		share->specifier |= (1<<CURL_LOCK_DATA_SHARE);
@@ -101,7 +101,7 @@ CURLSHcode curl_share_setopt(struct Curl_share * share, CURLSHoption option, ...
 #ifdef USE_SSL
 				if(!share->sslsession) {
 					share->max_ssl_sessions = 8;
-					share->sslsession = (Curl_ssl_session *)calloc(share->max_ssl_sessions, sizeof(struct Curl_ssl_session));
+					share->sslsession = (Curl_ssl_session *)SAlloc::C(share->max_ssl_sessions, sizeof(struct Curl_ssl_session));
 					share->sessionage = 0;
 					if(!share->sslsession)
 						res = CURLSHE_NOMEM;
@@ -159,7 +159,7 @@ CURLSHcode curl_share_setopt(struct Curl_share * share, CURLSHoption option, ...
 
 			    case CURL_LOCK_DATA_SSL_SESSION:
 #ifdef USE_SSL
-				Curl_safefree(share->sslsession);
+				ZFREE(share->sslsession);
 #else
 				res = CURLSHE_NOT_BUILT_IN;
 #endif
@@ -231,7 +231,7 @@ CURLSHcode curl_share_cleanup(struct Curl_share * share)
 		size_t i;
 		for(i = 0; i < share->max_ssl_sessions; i++)
 			Curl_ssl_kill_session(&(share->sslsession[i]));
-		free(share->sslsession);
+		SAlloc::F(share->sslsession);
 	}
 #endif
 
@@ -240,7 +240,7 @@ CURLSHcode curl_share_cleanup(struct Curl_share * share)
 	if(share->unlockfunc)
 		share->unlockfunc(NULL, CURL_LOCK_DATA_SHARE, share->clientdata);
 	share->magic = 0;
-	free(share);
+	SAlloc::F(share);
 
 	return CURLSHE_OK;
 }

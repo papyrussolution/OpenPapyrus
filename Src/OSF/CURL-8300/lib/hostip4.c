@@ -50,7 +50,7 @@
 #include "share.h"
 #include "url.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -132,8 +132,7 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char * hostname,
 	struct addrinfo hints;
 	char sbuf[12];
 	char * sbufptr = NULL;
-
-	memset(&hints, 0, sizeof(hints));
+	memzero(&hints, sizeof(hints));
 	hints.ai_family = PF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	if(port) {
@@ -151,7 +150,7 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char * hostname,
 	 */
 	int h_errnop;
 
-	buf = calloc(1, CURL_HOSTENT_SIZE);
+	buf = SAlloc::C(1, CURL_HOSTENT_SIZE);
 	if(!buf)
 		return NULL; /* major failure */
 	/*
@@ -263,8 +262,8 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char * hostname,
 		 * Since we don't know how big buffer this particular lookup required,
 		 * we can't realloc down the huge alloc without doing closer analysis of
 		 * the returned data. Thus, we always use CURL_HOSTENT_SIZE for every
-		 * name lookup. Fixing this would require an extra malloc() and then
-		 * calling Curl_addrinfo_copy() that subsequent realloc()s down the new
+		 * name lookup. Fixing this would require an extra SAlloc::M() and then
+		 * calling Curl_addrinfo_copy() that subsequent SAlloc::R()s down the new
 		 * memory area to the actually used amount.
 		 */
 	}
@@ -272,7 +271,7 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char * hostname,
 #endif /* HAVE_...BYNAME_R_5 || HAVE_...BYNAME_R_6 || HAVE_...BYNAME_R_3 */
 	{
 		h = NULL; /* set return code to NULL */
-		free(buf);
+		SAlloc::F(buf);
 	}
 #else /* (HAVE_GETADDRINFO && HAVE_GETADDRINFO_THREADSAFE) ||
 	  HAVE_GETHOSTBYNAME_R */
@@ -289,7 +288,7 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char * hostname,
 		ai = Curl_he2ai(h, port);
 
 		if(buf) /* used a *_r() function */
-			free(buf);
+			SAlloc::F(buf);
 	}
 
 	return ai;

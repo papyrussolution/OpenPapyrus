@@ -33,9 +33,9 @@
 
 typedef CURLcode (* HMAC_hinit_func)(void * context);
 typedef void (* HMAC_hupdate_func)(void * context,
-    const unsigned char * data,
-    unsigned int len);
-typedef void (* HMAC_hfinal_func)(unsigned char * result, void * context);
+    const uchar * data,
+    uint len);
+typedef void (* HMAC_hfinal_func)(uchar * result, void * context);
 
 /* Per-hash function HMAC parameters. */
 struct HMAC_params {
@@ -43,9 +43,9 @@ struct HMAC_params {
 	    hmac_hinit; /* Initialize context procedure. */
 	HMAC_hupdate_func hmac_hupdate; /* Update context with data. */
 	HMAC_hfinal_func hmac_hfinal;   /* Get final result procedure. */
-	unsigned int hmac_ctxtsize;     /* Context structure size. */
-	unsigned int hmac_maxkeylen;    /* Maximum key length (bytes). */
-	unsigned int hmac_resultlen;    /* Result length (bytes). */
+	uint hmac_ctxtsize;     /* Context structure size. */
+	uint hmac_maxkeylen;    /* Maximum key length (bytes). */
+	uint hmac_resultlen;    /* Result length (bytes). */
 };
 
 /* HMAC computation context. */
@@ -57,17 +57,17 @@ struct HMAC_context {
 
 /* Prototypes. */
 struct HMAC_context *Curl_HMAC_init(const struct HMAC_params * hashparams,
-    const unsigned char * key,
-    unsigned int keylen);
+    const uchar * key,
+    uint keylen);
 int Curl_HMAC_update(struct HMAC_context * context,
-    const unsigned char * data,
-    unsigned int len);
-int Curl_HMAC_final(struct HMAC_context * context, unsigned char * result);
+    const uchar * data,
+    uint len);
+int Curl_HMAC_final(struct HMAC_context * context, uchar * result);
 
 CURLcode Curl_hmacit(const struct HMAC_params * hashparams,
-    const unsigned char * key, const size_t keylen,
-    const unsigned char * data, const size_t datalen,
-    unsigned char * output);
+    const uchar * key, const size_t keylen,
+    const uchar * data, const size_t datalen,
+    uchar * output);
 
 #endif
 

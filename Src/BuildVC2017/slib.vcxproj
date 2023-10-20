@@ -1464,6 +1464,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\SLib\EDLIB\edlib.cpp" />
     <ClCompile Include="..\SLib\gensql.cpp" />
     <ClCompile Include="..\SLib\Kr.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -1495,6 +1496,68 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\SLib\libjpeg\cdjpeg.c" />
+    <ClCompile Include="..\SLib\libjpeg\jaricom.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcapimin.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcapistd.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcarith.c" />
+    <ClCompile Include="..\SLib\libjpeg\jccoefct.c" />
+    <ClCompile Include="..\SLib\libjpeg\jccolor.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcdctmgr.c" />
+    <ClCompile Include="..\SLib\libjpeg\jchuff.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcinit.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcmainct.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcmarker.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcmaster.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcomapi.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcparam.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcprepct.c" />
+    <ClCompile Include="..\SLib\libjpeg\jcsample.c" />
+    <ClCompile Include="..\SLib\libjpeg\jctrans.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdapimin.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdapistd.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdarith.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdatadst.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdatasrc.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdcoefct.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdcolor.c" />
+    <ClCompile Include="..\SLib\libjpeg\jddctmgr.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdhuff.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdinput.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdmainct.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdmarker.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdmaster.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdmerge.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdpostct.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdsample.c" />
+    <ClCompile Include="..\SLib\libjpeg\jdtrans.c" />
+    <ClCompile Include="..\SLib\libjpeg\jerror.c" />
+    <ClCompile Include="..\SLib\libjpeg\jfdctflt.c" />
+    <ClCompile Include="..\SLib\libjpeg\jfdctfst.c" />
+    <ClCompile Include="..\SLib\libjpeg\jfdctint.c" />
+    <ClCompile Include="..\SLib\libjpeg\jidctflt.c" />
+    <ClCompile Include="..\SLib\libjpeg\jidctfst.c" />
+    <ClCompile Include="..\SLib\libjpeg\jidctint.c" />
+    <ClCompile Include="..\SLib\libjpeg\jmemmgr.c" />
+    <ClCompile Include="..\SLib\libjpeg\jmemnobs.c" />
+    <ClCompile Include="..\SLib\libjpeg\jpeglib-pch.c" />
+    <ClCompile Include="..\SLib\libjpeg\jpegtran.c" />
+    <ClCompile Include="..\SLib\libjpeg\jquant1.c" />
+    <ClCompile Include="..\SLib\libjpeg\jquant2.c" />
+    <ClCompile Include="..\SLib\libjpeg\jutils.c" />
+    <ClCompile Include="..\SLib\libjpeg\rdbmp.c" />
+    <ClCompile Include="..\SLib\libjpeg\rdcolmap.c" />
+    <ClCompile Include="..\SLib\libjpeg\rdgif.c" />
+    <ClCompile Include="..\SLib\libjpeg\rdppm.c" />
+    <ClCompile Include="..\SLib\libjpeg\rdrle.c" />
+    <ClCompile Include="..\SLib\libjpeg\rdswitch.c" />
+    <ClCompile Include="..\SLib\libjpeg\rdtarga.c" />
+    <ClCompile Include="..\SLib\libjpeg\transupp.c" />
+    <ClCompile Include="..\SLib\libjpeg\wrbmp.c" />
+    <ClCompile Include="..\SLib\libjpeg\wrgif.c" />
+    <ClCompile Include="..\SLib\libjpeg\wrppm.c" />
+    <ClCompile Include="..\SLib\libjpeg\wrrle.c" />
+    <ClCompile Include="..\SLib\libjpeg\wrtarga.c" />
     <ClCompile Include="..\SLib\libpng\png.c" />
     <ClCompile Include="..\SLib\libpng\pngerror.c" />
     <ClCompile Include="..\SLib\libpng\pngget.c" />
@@ -2276,7 +2339,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\SLib\Mkstring.cpp" />
     <ClCompile Include="..\SLib\Msgbox.cpp" />
     <ClCompile Include="..\SLib\punycode.cpp" />
     <ClCompile Include="..\SLib\Range.cpp" />
@@ -4419,6 +4481,7 @@
     <ClInclude Include="..\Include\xxh3.h" />
     <ClInclude Include="..\Include\xxhash.h" />
     <ClInclude Include="..\Include\zlib.h" />
+    <ClInclude Include="..\SLib\EDLIB\edlib.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo-internal.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo.h" />
     <ClInclude Include="..\SLib\gumbo\tag_enum.h" />
@@ -6459,9 +6522,6 @@
     </ProjectReference>
     <ProjectReference Include="libicu.vcxproj">
       <Project>{6d226127-c063-4702-b4b9-118233d7354c}</Project>
-    </ProjectReference>
-    <ProjectReference Include="libjpeg.vcxproj">
-      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
     </ProjectReference>
     <ProjectReference Include="liblzma.vcxproj">
       <Project>{c241e0ad-81ff-4a43-9b39-f3712e9c0d4e}</Project>

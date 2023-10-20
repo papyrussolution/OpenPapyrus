@@ -103,7 +103,7 @@
 #include "strdup.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -111,15 +111,15 @@ static void strstore(char ** str, const char * newstr, size_t len);
 
 static void freecookie(struct Cookie * co)
 {
-	free(co->expirestr);
-	free(co->domain);
-	free(co->path);
-	free(co->spath);
-	free(co->name);
-	free(co->value);
-	free(co->maxage);
-	free(co->version);
-	free(co);
+	SAlloc::F(co->expirestr);
+	SAlloc::F(co->domain);
+	SAlloc::F(co->path);
+	SAlloc::F(co->spath);
+	SAlloc::F(co->name);
+	SAlloc::F(co->value);
+	SAlloc::F(co->maxage);
+	SAlloc::F(co->version);
+	SAlloc::F(co);
 }
 
 static bool cookie_tailmatch(const char * cookie_domain,
@@ -222,7 +222,7 @@ static bool pathmatch(const char * cookie_path, const char * request_uri)
 	ret = FALSE;
 
 pathmatched:
-	free(uri_path);
+	SAlloc::F(uri_path);
 	return ret;
 }
 
@@ -364,7 +364,7 @@ static void strstore(char ** str, const char * newstr, size_t len)
 {
 	DEBUGASSERT(newstr);
 	DEBUGASSERT(str);
-	free(*str);
+	SAlloc::F(*str);
 	*str = (char *)Curl_memdup(newstr, len + 1);
 	if(*str)
 		(*str)[len] = 0;
@@ -383,7 +383,7 @@ static void remove_expired(struct CookieInfo * cookies)
 {
 	struct Cookie * co, * nx;
 	curl_off_t now = (curl_off_t)time(NULL);
-	unsigned int i;
+	uint i;
 
 	/*
 	 * If the earliest expiration timestamp in the jar is in the future we can
@@ -499,11 +499,11 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 	size_t myhash;
 
 	DEBUGASSERT(data);
-	DEBUGASSERT(MAX_SET_COOKIE_AMOUNT <= 255); /* counter is an unsigned char */
+	DEBUGASSERT(MAX_SET_COOKIE_AMOUNT <= 255); /* counter is an uchar */
 	if(data->req.setcookies >= MAX_SET_COOKIE_AMOUNT)
 		return NULL;
 	/* First, alloc and init a new struct for it */
-	co = (Cookie *)calloc(1, sizeof(struct Cookie));
+	co = (Cookie *)SAlloc::C(1, sizeof(struct Cookie));
 	if(!co)
 		return NULL; /* bail out if we're this low on memory */
 	if(httpheader) {
@@ -512,7 +512,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 		size_t linelength = strlen(lineptr);
 		if(linelength > MAX_COOKIE_LINE) {
 			/* discard overly long lines at once */
-			free(co);
+			SAlloc::F(co);
 			return NULL;
 		}
 
@@ -652,7 +652,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 						badcookie = TRUE; /* out of memory bad */
 						break;
 					}
-					free(co->spath); /* if this is set again */
+					SAlloc::F(co->spath); /* if this is set again */
 					co->spath = sanitize_cookie_path(co->path);
 					if(!co->spath) {
 						badcookie = TRUE; /* out of memory bad */
@@ -825,7 +825,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 				endslash = (const char *)memrchr(path, '/', (queryp - path));
 			if(endslash) {
 				size_t pathlen = (endslash-path + 1); /* include end slash */
-				co->path = (char *)malloc(pathlen + 1); /* one extra for the zero byte */
+				co->path = (char *)SAlloc::M(pathlen + 1); /* one extra for the zero byte */
 				if(co->path) {
 					memcpy(co->path, path, pathlen);
 					co->path[pathlen] = 0; /* null-terminate */
@@ -873,7 +873,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 
 		if(lineptr[0]=='#') {
 			/* don't even try the comments */
-			free(co);
+			SAlloc::F(co);
 			return NULL;
 		}
 		/* strip off the possible end-of-line characters */
@@ -1143,18 +1143,18 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 		co->creationtime = clist->creationtime;
 
 		/* then free all the old pointers */
-		free(clist->name);
-		free(clist->value);
-		free(clist->domain);
-		free(clist->path);
-		free(clist->spath);
-		free(clist->expirestr);
-		free(clist->version);
-		free(clist->maxage);
+		SAlloc::F(clist->name);
+		SAlloc::F(clist->value);
+		SAlloc::F(clist->domain);
+		SAlloc::F(clist->path);
+		SAlloc::F(clist->spath);
+		SAlloc::F(clist->expirestr);
+		SAlloc::F(clist->version);
+		SAlloc::F(clist->maxage);
 
 		*clist = *co; /* then store all the new data */
 
-		free(co); /* free the newly allocated memory */
+		SAlloc::F(co); /* free the newly allocated memory */
 		co = clist;
 	}
 
@@ -1205,7 +1205,7 @@ struct CookieInfo *Curl_cookie_init(struct Curl_easy * data, const char * file, 
 	FILE * handle = NULL;
 	if(!inc) {
 		/* we didn't get a struct, create one */
-		c = (CookieInfo *)calloc(1, sizeof(struct CookieInfo));
+		c = (CookieInfo *)SAlloc::C(1, sizeof(struct CookieInfo));
 		if(!c)
 			return NULL; /* failed to get memory */
 		c->filename = strdup(file?file:"none"); /* copy the name just in case */
@@ -1241,7 +1241,7 @@ struct CookieInfo *Curl_cookie_init(struct Curl_easy * data, const char * file, 
 		if(fp) {
 			char * lineptr;
 			bool headerline;
-			line = (char *)malloc(MAX_COOKIE_LINE);
+			line = (char *)SAlloc::M(MAX_COOKIE_LINE);
 			if(!line)
 				goto fail;
 			while(Curl_get_line(line, MAX_COOKIE_LINE, fp)) {
@@ -1259,7 +1259,7 @@ struct CookieInfo *Curl_cookie_init(struct Curl_easy * data, const char * file, 
 
 				Curl_cookie_add(data, c, headerline, TRUE, lineptr, NULL, NULL, TRUE);
 			}
-			free(line); /* free the line buffer */
+			SAlloc::F(line); /* free the line buffer */
 
 			/*
 			 * Remove expired cookies from the hash. We must make sure to run this
@@ -1277,7 +1277,7 @@ struct CookieInfo *Curl_cookie_init(struct Curl_easy * data, const char * file, 
 	return c;
 
 fail:
-	free(line);
+	SAlloc::F(line);
 	/*
 	 * Only clean up if we allocated it here, as the original could still be in
 	 * use by a share handle.
@@ -1352,7 +1352,7 @@ static int cookie_sort_ct(const void * p1, const void * p2)
 
 static struct Cookie *dup_cookie(struct Cookie * src)
 {
-	struct Cookie * d = (Cookie *)calloc(sizeof(struct Cookie), 1);
+	struct Cookie * d = (Cookie *)SAlloc::C(sizeof(struct Cookie), 1);
 	if(d) {
 		CLONE(expirestr);
 		CLONE(domain);
@@ -1460,7 +1460,7 @@ struct Cookie *Curl_cookie_getlist(struct Curl_easy * data,
 		 */
 		size_t i;
 		/* alloc an array and store all cookie pointers */
-		struct Cookie ** array = (Cookie **)malloc(sizeof(struct Cookie *) * matches);
+		struct Cookie ** array = (Cookie **)SAlloc::M(sizeof(struct Cookie *) * matches);
 		if(!array)
 			goto fail;
 		co = mainco;
@@ -1473,7 +1473,7 @@ struct Cookie *Curl_cookie_getlist(struct Curl_easy * data,
 		for(i = 0; i<matches-1; i++)
 			array[i]->next = array[i + 1];
 		array[matches-1]->next = NULL; /* terminate the list */
-		free(array); /* remove the temporary data again */
+		SAlloc::F(array); /* remove the temporary data again */
 	}
 	return mainco; /* return the new list */
 fail:
@@ -1490,7 +1490,7 @@ fail:
 void Curl_cookie_clearall(struct CookieInfo * cookies)
 {
 	if(cookies) {
-		unsigned int i;
+		uint i;
 		for(i = 0; i < COOKIE_HASH_SIZE; i++) {
 			Curl_cookie_freelist(cookies->cookies[i]);
 			cookies->cookies[i] = NULL;
@@ -1522,7 +1522,7 @@ void Curl_cookie_freelist(struct Cookie * co)
 void Curl_cookie_clearsess(struct CookieInfo * cookies)
 {
 	struct Cookie * first, * curr, * next, * prev = NULL;
-	unsigned int i;
+	uint i;
 
 	if(!cookies)
 		return;
@@ -1563,11 +1563,11 @@ void Curl_cookie_clearsess(struct CookieInfo * cookies)
 void Curl_cookie_cleanup(struct CookieInfo * c)
 {
 	if(c) {
-		unsigned int i;
-		free(c->filename);
+		uint i;
+		SAlloc::F(c->filename);
 		for(i = 0; i < COOKIE_HASH_SIZE; i++)
 			Curl_cookie_freelist(c->cookies[i]);
-		free(c); /* free the base struct as well */
+		SAlloc::F(c); /* free the base struct as well */
 	}
 }
 
@@ -1643,9 +1643,9 @@ static CURLcode cookie_output(struct Curl_easy * data,
 	    "# This file was generated by libcurl! Edit at your own risk.\n\n",
 	    out);
 	if(c->numcookies) {
-		unsigned int i;
+		uint i;
 		size_t nvalid = 0;
-		struct Cookie ** array = (Cookie **)calloc(1, sizeof(struct Cookie *) * c->numcookies);
+		struct Cookie ** array = (Cookie **)SAlloc::C(1, sizeof(struct Cookie *) * c->numcookies);
 		if(!array) {
 			error = CURLE_OUT_OF_MEMORY;
 			goto error;
@@ -1664,15 +1664,15 @@ static CURLcode cookie_output(struct Curl_easy * data,
 		for(i = 0; i < nvalid; i++) {
 			char * format_ptr = get_netscape_format(array[i]);
 			if(!format_ptr) {
-				free(array);
+				SAlloc::F(array);
 				error = CURLE_OUT_OF_MEMORY;
 				goto error;
 			}
 			fprintf(out, "%s\n", format_ptr);
-			free(format_ptr);
+			SAlloc::F(format_ptr);
 		}
 
-		free(array);
+		SAlloc::F(array);
 	}
 
 	if(!use_stdout) {
@@ -1690,13 +1690,13 @@ static CURLcode cookie_output(struct Curl_easy * data,
 	 * no need to inspect the error, any error case should have jumped into the
 	 * error block below.
 	 */
-	free(tempstore);
+	SAlloc::F(tempstore);
 	return CURLE_OK;
 
 error:
 	if(out && !use_stdout)
 		fclose(out);
-	free(tempstore);
+	SAlloc::F(tempstore);
 	return error;
 }
 
@@ -1705,7 +1705,7 @@ static struct curl_slist *cookie_list(struct Curl_easy * data){
 	struct curl_slist * beg;
 	struct Cookie * c;
 	char * line;
-	unsigned int i;
+	uint i;
 
 	if(!data->cookies || (data->cookies->numcookies == 0))
 		return NULL;
@@ -1721,7 +1721,7 @@ static struct curl_slist *cookie_list(struct Curl_easy * data){
 			}
 			beg = Curl_slist_append_nodup(list, line);
 			if(!beg) {
-				free(line);
+				SAlloc::F(line);
 				curl_slist_free_all(list);
 				return NULL;
 			}

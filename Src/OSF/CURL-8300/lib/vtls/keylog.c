@@ -63,7 +63,7 @@ void Curl_tls_keylog_open(void)
 					keylog_file_fp = NULL;
 				}
 			}
-			Curl_safefree(keylog_file_name);
+			ZFREE(keylog_file_name);
 		}
 	}
 }
@@ -110,8 +110,8 @@ bool Curl_tls_keylog_write_line(const char * line)
 }
 
 bool Curl_tls_keylog_write(const char * label,
-    const unsigned char client_random[CLIENT_RANDOM_SIZE],
-    const unsigned char * secret, size_t secretlen)
+    const uchar client_random[CLIENT_RANDOM_SIZE],
+    const uchar * secret, size_t secretlen)
 {
 	const char * hex = "0123456789ABCDEF";
 	size_t pos, i;

@@ -3389,7 +3389,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		ILotList * GetCurLotList(in date lowDt, in date uppDt, in long goodsGrpId, in IStrAssocList * pLocList);
 		//
 		// Descr: Находит последний лот по складу locID на дату forDate.
-		//   Результат может сожержать как открытый, так и закрытый лот.
+		//   Результат может содержать как открытый, так и закрытый лот.
 		// Returns:
 		//   >0 - лот найден
 		//   <0 - лот не найден

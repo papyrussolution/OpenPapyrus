@@ -70,13 +70,13 @@ typedef enum {
 #define SETCHARSET_OK     1
 #define SETCHARSET_FAIL   0
 
-static int parsekeyword(unsigned char ** pattern, unsigned char * charset)
+static int parsekeyword(uchar ** pattern, uchar * charset)
 {
 	parsekey_state state = CURLFNM_PKW_INIT;
 #define KEYLEN 10
 	char keyword[KEYLEN] = { 0 };
 	int i;
-	unsigned char * p = *pattern;
+	uchar * p = *pattern;
 	bool found = FALSE;
 	for(i = 0; !found; i++) {
 		char c = *p++;
@@ -127,7 +127,7 @@ static int parsekeyword(unsigned char ** pattern, unsigned char * charset)
 }
 
 /* Return the character class. */
-static char_class charclass(unsigned char c)
+static char_class charclass(uchar c)
 {
 	if(ISUPPER(c))
 		return CCLASS_UPPER;
@@ -139,15 +139,15 @@ static char_class charclass(unsigned char c)
 }
 
 /* Include a character or a range in set. */
-static void setcharorrange(unsigned char ** pp, unsigned char * charset)
+static void setcharorrange(uchar ** pp, uchar * charset)
 {
-	unsigned char * p = (*pp)++;
-	unsigned char c = *p++;
+	uchar * p = (*pp)++;
+	uchar c = *p++;
 
 	charset[c] = 1;
 	if(ISALNUM(c) && *p++ == '-') {
 		char_class cc = charclass(c);
-		unsigned char endrange = *p++;
+		uchar endrange = *p++;
 
 		if(endrange == '\\')
 			endrange = *p++;
@@ -161,13 +161,12 @@ static void setcharorrange(unsigned char ** pp, unsigned char * charset)
 }
 
 /* returns 1 (true) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(unsigned char ** p, unsigned char * charset)
+static int setcharset(uchar ** p, uchar * charset)
 {
 	setcharset_state state = CURLFNM_SCHS_DEFAULT;
 	bool something_found = FALSE;
-	unsigned char c;
-
-	memset(charset, 0, CURLFNM_CHSET_SIZE);
+	uchar c;
+	memzero(charset, CURLFNM_CHSET_SIZE);
 	for(;;) {
 		c = **p;
 		if(!c)
@@ -184,7 +183,7 @@ static int setcharset(unsigned char ** p, unsigned char * charset)
 				    (*p)++;
 			    }
 			    else if(c == '[') {
-				    unsigned char * pp = *p + 1;
+				    uchar * pp = *p + 1;
 
 				    if(*pp++ == ':' && parsekeyword(&pp, charset))
 					    *p = pp;
@@ -253,15 +252,15 @@ fail:
 	return SETCHARSET_FAIL;
 }
 
-static int loop(const unsigned char * pattern, const unsigned char * string,
+static int loop(const uchar * pattern, const uchar * string,
     int maxstars)
 {
-	unsigned char * p = (unsigned char *)pattern;
-	unsigned char * s = (unsigned char *)string;
-	unsigned char charset[CURLFNM_CHSET_SIZE] = { 0 };
+	uchar * p = (uchar *)pattern;
+	uchar * s = (uchar *)string;
+	uchar charset[CURLFNM_CHSET_SIZE] = { 0 };
 
 	for(;;) {
-		unsigned char * pp;
+		uchar * pp;
 
 		switch(*p) {
 			case '*':
@@ -305,7 +304,7 @@ static int loop(const unsigned char * pattern, const unsigned char * string,
 				    int found = FALSE;
 				    if(!*s)
 					    return CURL_FNMATCH_NOMATCH;
-				    if(charset[(unsigned int)*s])
+				    if(charset[(uint)*s])
 					    found = TRUE;
 				    else if(charset[CURLFNM_ALNUM])
 					    found = ISALNUM(*s);
@@ -358,7 +357,7 @@ int Curl_fnmatch(void * ptr, const char * pattern, const char * string)
 	if(!pattern || !string) {
 		return CURL_FNMATCH_FAIL;
 	}
-	return loop((unsigned char *)pattern, (unsigned char *)string, 2);
+	return loop((uchar *)pattern, (uchar *)string, 2);
 }
 
 #else

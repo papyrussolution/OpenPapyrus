@@ -23,37 +23,35 @@
 ***************************************************************************/
 #include "curl_setup.h"
 #pragma hdrstop
-
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+	#include <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+	#include <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
-
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
 
 //#include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
+//#include "transfer.h"
 #include "vtls/vtls.h"
 #include "url.h"
 #include "getinfo.h"
 //#include "hostip.h"
 #include "share.h"
 #include "strdup.h"
-#include "progress.h"
+//#include "progress.h"
 #include "easyif.h"
 //#include "multiif.h"
 #include "select.h"
@@ -61,29 +59,29 @@
 //#include "sendf.h" /* for failf function prototype */
 //#include "connect.h" /* for Curl_getconnectinfo */
 #include "slist.h"
-#include "mime.h"
+//#include "mime.h"
 #include "amigaos.h"
 #include "macos.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "sigpipe.h"
 #include "vssh/ssh.h"
 #include "setopt.h"
 #include "http_digest.h"
 #include "system_win32.h"
 #include "http2.h"
-#include "dynbuf.h"
+//#include "dynbuf.h"
 #include "altsvc.h"
 #include "hsts.h"
 
 #include "easy_lock.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
 /* true globals -- for curl_global_init() and curl_global_cleanup() */
-static unsigned int initialized;
+static uint initialized;
 static long easy_init_flags;
 
 #ifdef GLOBAL_INIT_IS_THREADSAFE
@@ -204,7 +202,7 @@ static CURLcode global_init(long flags, bool memoryfuncs)
 #ifdef DEBUGBUILD
 	if(getenv("CURL_GLOBAL_INIT"))
 		/* alloc data that will leak if *cleanup() is not called! */
-		leakpointer = (char *)malloc(1);
+		leakpointer = (char *)SAlloc::M(1);
 #endif
 	return CURLE_OK;
 fail:
@@ -302,7 +300,7 @@ void curl_global_cleanup(void)
 	(void)wolfSSH_Cleanup();
 #endif
 #ifdef DEBUGBUILD
-	free(leakpointer);
+	SAlloc::F(leakpointer);
 #endif
 
 	easy_init_flags = 0;
@@ -480,7 +478,7 @@ static int events_socket(struct Curl_easy * easy,      /* easy handle */
 					prev->next = nxt;
 				else
 					ev->list = nxt;
-				free(m);
+				SAlloc::F(m);
 				m = nxt;
 				infof(easy, "socket cb: socket %d REMOVED", s);
 			}
@@ -505,7 +503,7 @@ static int events_socket(struct Curl_easy * easy,      /* easy handle */
 			           __func__, s); */
 		}
 		else {
-			m = malloc(sizeof(struct socketmonitor));
+			m = SAlloc::M(sizeof(struct socketmonitor));
 			if(m) {
 				m->next = ev->list;
 				m->socket.fd = s;
@@ -832,7 +830,7 @@ static CURLcode dupset(struct Curl_easy * dst, struct Curl_easy * src)
 	dst->set = src->set;
 	Curl_mime_initpart(&dst->set.mimepost);
 	// clear all string pointers first 
-	memset(dst->set.str, 0, STRING_LAST * sizeof(char *));
+	memzero(dst->set.str, STRING_LAST * sizeof(char *));
 	{
 		// duplicate all strings 
 		for(int idx = /*(enum dupstring)*/0; idx < STRING_LASTZEROTERMINATED; idx++) {
@@ -842,7 +840,7 @@ static CURLcode dupset(struct Curl_easy * dst, struct Curl_easy * src)
 		}
 	}
 	// clear all blob pointers first 
-	memset(dst->set.blobs, 0, BLOB_LAST * sizeof(struct curl_blob *));
+	memzero(dst->set.blobs, BLOB_LAST * sizeof(struct curl_blob *));
 	{
 		// duplicate all blobs 
 		//enum dupblob j;
@@ -875,7 +873,7 @@ static CURLcode dupset(struct Curl_easy * dst, struct Curl_easy * src)
  */
 struct Curl_easy *curl_easy_duphandle(struct Curl_easy * data)
 {
-	struct Curl_easy * outcurl = static_cast<Curl_easy *>(calloc(1, sizeof(struct Curl_easy)));
+	struct Curl_easy * outcurl = static_cast<Curl_easy *>(SAlloc::C(1, sizeof(struct Curl_easy)));
 	if(!outcurl)
 		goto fail;
 	/*
@@ -1002,14 +1000,14 @@ fail:
 		curl_slist_free_all(outcurl->set.cookielist);
 		outcurl->set.cookielist = NULL;
 #endif
-		Curl_safefree(outcurl->state.buffer);
+		ZFREE(outcurl->state.buffer);
 		Curl_dyn_free(&outcurl->state.headerb);
-		Curl_safefree(outcurl->state.url);
-		Curl_safefree(outcurl->state.referer);
+		ZFREE(outcurl->state.url);
+		ZFREE(outcurl->state.referer);
 		Curl_altsvc_cleanup(&outcurl->asi);
 		Curl_hsts_cleanup(&outcurl->hsts);
 		Curl_freeset(outcurl);
-		free(outcurl);
+		SAlloc::F(outcurl);
 	}
 
 	return NULL;
@@ -1025,23 +1023,19 @@ void curl_easy_reset(struct Curl_easy * data)
 
 	/* zero out UserDefined data: */
 	Curl_freeset(data);
-	memset(&data->set, 0, sizeof(struct UserDefined));
+	memzero(&data->set, sizeof(struct UserDefined));
 	(void)Curl_init_userdefined(data);
-
 	/* zero out Progress data: */
-	memset(&data->progress, 0, sizeof(struct Progress));
-
+	memzero(&data->progress, sizeof(struct Progress));
 	/* zero out PureInfo data: */
 	Curl_initinfo(data);
 
 	data->progress.flags |= PGRS_HIDE;
 	data->state.current_speed = -1; /* init to negative == impossible */
 	data->state.retrycount = 0; /* reset the retry counter */
-
 	/* zero out authentication data: */
-	memset(&data->state.authhost, 0, sizeof(struct auth));
-	memset(&data->state.authproxy, 0, sizeof(struct auth));
-
+	memzero(&data->state.authhost, sizeof(struct auth));
+	memzero(&data->state.authproxy, sizeof(struct auth));
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 	Curl_http_auth_cleanup_digest(data);
 #endif
@@ -1098,8 +1092,8 @@ CURLcode curl_easy_pause(struct Curl_easy * data, int action)
 		if(data->state.tempcount) {
 			/* there are buffers for sending that can be delivered as the receive
 			   pausing is lifted! */
-			unsigned int i;
-			unsigned int count = data->state.tempcount;
+			uint i;
+			uint count = data->state.tempcount;
 			struct tempbuf writebuf[3]; /* there can only be three */
 
 			/* copy the structs to allow for immediate re-pausing */

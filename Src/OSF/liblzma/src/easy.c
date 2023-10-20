@@ -35,7 +35,7 @@ lzma_ret lzma_easy_encoder(lzma_stream *strm, uint32_t preset, lzma_check check)
 	return lzma_stream_encoder(strm, opt_easy.filters, check);
 }
 
-uint64_t lzma_easy_encoder_memusage(uint32_t preset)
+ uint64 lzma_easy_encoder_memusage(uint32_t preset)
 {
 	lzma_options_easy opt_easy;
 	if(lzma_easy_preset(&opt_easy, preset))
@@ -43,7 +43,7 @@ uint64_t lzma_easy_encoder_memusage(uint32_t preset)
 	return lzma_raw_encoder_memusage(opt_easy.filters);
 }
 
-uint64_t lzma_easy_decoder_memusage(uint32_t preset)
+ uint64 lzma_easy_decoder_memusage(uint32_t preset)
 {
 	lzma_options_easy opt_easy;
 	if(lzma_easy_preset(&opt_easy, preset))

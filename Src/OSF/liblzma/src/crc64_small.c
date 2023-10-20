@@ -6,13 +6,13 @@
 #include "common.h"
 #pragma hdrstop
 
-static uint64_t crc64_table[256];
+static  uint64 crc64_table[256];
 
 static void crc64_init(void)
 {
-	static const uint64_t poly64 = UINT64_C(0xC96C5795D7870F42);
+	static const  uint64 poly64 = UINT64_C(0xC96C5795D7870F42);
 	for(size_t b = 0; b < 256; ++b) {
-		uint64_t r = b;
+		 uint64 r = b;
 		for(size_t i = 0; i < 8; ++i) {
 			if(r & 1)
 				r = (r >> 1) ^ poly64;
@@ -23,7 +23,7 @@ static void crc64_init(void)
 	}
 }
 
-uint64_t lzma_crc64(const uint8 *buf, size_t size, uint64_t crc)
+ uint64 lzma_crc64(const uint8 *buf, size_t size,  uint64 crc)
 {
 	mythread_once(crc64_init);
 	crc = ~crc;

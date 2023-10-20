@@ -36,7 +36,7 @@ extern "C" {
  * In multi-threaded environments, use one context per thread for parallel executions.
  * @return the libsais context, NULL otherwise.
  */
-void * libsais_create_ctx(void);
+void * libsais_create_ctx();
 
 #if defined(LIBSAIS_OPENMP)
 	/**
@@ -201,7 +201,7 @@ int32_t libsais_bwt_aux_omp(const uint8 * T, uint8 * U, int32_t * A, int32_t n, 
  * In multi-threaded environments, use one context per thread for parallel executions.
  * @return the libsais context, NULL otherwise.
  */
-void * libsais_unbwt_create_ctx(void);
+void * libsais_unbwt_create_ctx();
 
 #if defined(LIBSAIS_OPENMP)
 /**
@@ -345,7 +345,7 @@ int32_t libsais_lcp(const int32_t * PLCP, const int32_t * SA, int32_t * LCP, int
  * In multi-threaded environments, use one context per thread for parallel executions.
  * @return the libsais16 context, NULL otherwise.
  */
-void * libsais16_create_ctx(void);
+void * libsais16_create_ctx();
 
 #if defined(LIBSAIS_OPENMP)
 	/**
@@ -483,7 +483,7 @@ int32_t libsais16_bwt_aux_ctx(const void * ctx, const uint16 * T, uint16 * U, in
  * In multi-threaded environments, use one context per thread for parallel executions.
  * @return the libsais16 context, NULL otherwise.
  */
-void * libsais16_unbwt_create_ctx(void);
+void * libsais16_unbwt_create_ctx();
 
 #if defined(LIBSAIS_OPENMP)
 	/**

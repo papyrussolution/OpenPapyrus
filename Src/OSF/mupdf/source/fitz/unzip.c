@@ -61,9 +61,9 @@ static void read_zip_dir_imp(fz_context * ctx, fz_zip_archive * zip, int64_t sta
 	if(sig != ZIP_END_OF_CENTRAL_DIRECTORY_SIG)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "wrong zip end of central directory signature (0x%x)", sig);
 
-	(void)fz_read_uint16_le(ctx, file);  /* this disk */
-	(void)fz_read_uint16_le(ctx, file);  /* start disk */
-	(void)fz_read_uint16_le(ctx, file);  /* entries in this disk */
+	fz_read_uint16_le(ctx, file);  /* this disk */
+	fz_read_uint16_le(ctx, file);  /* start disk */
+	fz_read_uint16_le(ctx, file);  /* entries in this disk */
 	count = fz_read_uint16_le(ctx, file); /* entries in central directory disk */
 	(void)fz_read_uint32_le(ctx, file);  /* size of central directory */
 	offset = fz_read_uint32_le(ctx, file); /* offset to central directory */
@@ -88,8 +88,8 @@ static void read_zip_dir_imp(fz_context * ctx, fz_zip_archive * zip, int64_t sta
 			fz_throw(ctx, FZ_ERROR_GENERIC, "wrong zip64 end of central directory signature (0x%x)", sig);
 
 		(void)fz_read_uint64_le(ctx, file);  /* size of record */
-		(void)fz_read_uint16_le(ctx, file);  /* version made by */
-		(void)fz_read_uint16_le(ctx, file);  /* version to extract */
+		fz_read_uint16_le(ctx, file);  /* version made by */
+		fz_read_uint16_le(ctx, file);  /* version to extract */
 		(void)fz_read_uint32_le(ctx, file);  /* disk number */
 		(void)fz_read_uint32_le(ctx, file);  /* disk number start */
 		count64 = fz_read_uint64_le(ctx, file); /* entries in central directory disk */
@@ -116,20 +116,20 @@ static void read_zip_dir_imp(fz_context * ctx, fz_zip_archive * zip, int64_t sta
 			if(sig != ZIP_CENTRAL_DIRECTORY_SIG)
 				fz_throw(ctx, FZ_ERROR_GENERIC, "wrong zip central directory signature (0x%x)", sig);
 
-			(void)fz_read_uint16_le(ctx, file);  /* version made by */
-			(void)fz_read_uint16_le(ctx, file);  /* version to extract */
-			(void)fz_read_uint16_le(ctx, file);  /* general */
-			(void)fz_read_uint16_le(ctx, file);  /* method */
-			(void)fz_read_uint16_le(ctx, file);  /* last mod file time */
-			(void)fz_read_uint16_le(ctx, file);  /* last mod file date */
+			fz_read_uint16_le(ctx, file);  /* version made by */
+			fz_read_uint16_le(ctx, file);  /* version to extract */
+			fz_read_uint16_le(ctx, file);  /* general */
+			fz_read_uint16_le(ctx, file);  /* method */
+			fz_read_uint16_le(ctx, file);  /* last mod file time */
+			fz_read_uint16_le(ctx, file);  /* last mod file date */
 			(void)fz_read_uint32_le(ctx, file);  /* crc-32 */
 			csize = fz_read_uint32_le(ctx, file);
 			usize = fz_read_uint32_le(ctx, file);
 			namesize = fz_read_uint16_le(ctx, file);
 			metasize = fz_read_uint16_le(ctx, file);
 			commentsize = fz_read_uint16_le(ctx, file);
-			(void)fz_read_uint16_le(ctx, file);  /* disk number start */
-			(void)fz_read_uint16_le(ctx, file);  /* int file atts */
+			fz_read_uint16_le(ctx, file);  /* disk number start */
+			fz_read_uint16_le(ctx, file);  /* int file atts */
 			(void)fz_read_uint32_le(ctx, file);  /* ext file atts */
 			offset = fz_read_uint32_le(ctx, file);
 
@@ -198,14 +198,14 @@ static int read_zip_entry_header(fz_context * ctx, fz_zip_archive * zip, zip_ent
 	if(sig != ZIP_LOCAL_FILE_SIG)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "wrong zip local file signature (0x%x)", sig);
 
-	(void)fz_read_uint16_le(ctx, file);  /* version */
+	fz_read_uint16_le(ctx, file);  /* version */
 	general = fz_read_uint16_le(ctx, file); /* general */
 	if(general & ZIP_ENCRYPTED_FLAG)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "zip content is encrypted");
 
 	method = fz_read_uint16_le(ctx, file);
-	(void)fz_read_uint16_le(ctx, file);  /* file time */
-	(void)fz_read_uint16_le(ctx, file);  /* file date */
+	fz_read_uint16_le(ctx, file);  /* file time */
+	fz_read_uint16_le(ctx, file);  /* file date */
 	(void)fz_read_uint32_le(ctx, file);  /* crc-32 */
 	(void)fz_read_uint32_le(ctx, file);  /* csize */
 	(void)fz_read_uint32_le(ctx, file);  /* usize */

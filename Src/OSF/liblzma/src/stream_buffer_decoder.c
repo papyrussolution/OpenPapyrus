@@ -6,7 +6,7 @@
 #include "common.h"
 #pragma hdrstop
 
-lzma_ret lzma_stream_buffer_decode(uint64_t *memlimit, uint32_t flags,
+lzma_ret lzma_stream_buffer_decode( uint64 *memlimit, uint32_t flags,
     const lzma_allocator *allocator, const uint8 *in, size_t *in_pos, size_t in_size, uint8 *out, size_t *out_pos, size_t out_size)
 {
 	// Sanity checks
@@ -52,7 +52,7 @@ lzma_ret lzma_stream_buffer_decode(uint64_t *memlimit, uint32_t flags,
 			else if(ret == LZMA_MEMLIMIT_ERROR) {
 				// Let the caller know how much memory would
 				// have been needed.
-				uint64_t memusage;
+				 uint64 memusage;
 				(void)stream_decoder.memconfig(stream_decoder.coder, memlimit, &memusage, 0);
 			}
 		}

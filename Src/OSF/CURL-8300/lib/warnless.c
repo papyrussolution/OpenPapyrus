@@ -36,7 +36,7 @@
 
 #endif /* __INTEL_COMPILER && __unix__ */
 
-#include "warnless.h"
+//#include "warnless.h"
 
 #ifdef WIN32
 #undef read
@@ -45,16 +45,16 @@
 
 #include <limits.h>
 
-#define CURL_MASK_UCHAR   ((unsigned char)~0)
+#define CURL_MASK_UCHAR   ((uchar)~0)
 #define CURL_MASK_SCHAR   (CURL_MASK_UCHAR >> 1)
 
-#define CURL_MASK_USHORT  ((unsigned short)~0)
+#define CURL_MASK_USHORT  ((ushort)~0)
 #define CURL_MASK_SSHORT  (CURL_MASK_USHORT >> 1)
 
-#define CURL_MASK_UINT    ((unsigned int)~0)
+#define CURL_MASK_UINT    ((uint)~0)
 #define CURL_MASK_SINT    (CURL_MASK_UINT >> 1)
 
-#define CURL_MASK_ULONG   ((unsigned long)~0)
+#define CURL_MASK_ULONG   ((ulong)~0)
 #define CURL_MASK_SLONG   (CURL_MASK_ULONG >> 1)
 
 #define CURL_MASK_UCOFFT  ((unsigned CURL_TYPEOF_CURL_OFF_T)~0)
@@ -74,8 +74,8 @@ unsigned short curlx_ultous(unsigned long ulnum)
 #  pragma warning(disable:810) /* conversion may lose significant bits */
 #endif
 
-	DEBUGASSERT(ulnum <= (unsigned long)CURL_MASK_USHORT);
-	return (unsigned short)(ulnum & (unsigned long)CURL_MASK_USHORT);
+	DEBUGASSERT(ulnum <= (ulong)CURL_MASK_USHORT);
+	return (ushort)(ulnum & (ulong)CURL_MASK_USHORT);
 
 #ifdef __INTEL_COMPILER
 #  pragma warning(pop)
@@ -83,18 +83,18 @@ unsigned short curlx_ultous(unsigned long ulnum)
 }
 
 /*
-** unsigned long to unsigned char
+** unsigned long to uchar
 */
 
-unsigned char curlx_ultouc(unsigned long ulnum)
+uchar curlx_ultouc(unsigned long ulnum)
 {
 #ifdef __INTEL_COMPILER
 #  pragma warning(push)
 #  pragma warning(disable:810) /* conversion may lose significant bits */
 #endif
 
-	DEBUGASSERT(ulnum <= (unsigned long)CURL_MASK_UCHAR);
-	return (unsigned char)(ulnum & (unsigned long)CURL_MASK_UCHAR);
+	DEBUGASSERT(ulnum <= (ulong)CURL_MASK_UCHAR);
+	return (uchar)(ulnum & (ulong)CURL_MASK_UCHAR);
 
 #ifdef __INTEL_COMPILER
 #  pragma warning(pop)
@@ -156,7 +156,7 @@ unsigned long curlx_uztoul(size_t uznum)
 #if ULONG_MAX < SIZE_T_MAX
 	DEBUGASSERT(uznum <= (size_t)CURL_MASK_ULONG);
 #endif
-	return (unsigned long)(uznum & (size_t)CURL_MASK_ULONG);
+	return (ulong)(uznum & (size_t)CURL_MASK_ULONG);
 
 #ifdef __INTEL_COMPILER
 # pragma warning(pop)
@@ -164,10 +164,10 @@ unsigned long curlx_uztoul(size_t uznum)
 }
 
 /*
-** unsigned size_t to unsigned int
+** unsigned size_t to uint
 */
 
-unsigned int curlx_uztoui(size_t uznum)
+uint curlx_uztoui(size_t uznum)
 {
 #ifdef __INTEL_COMPILER
 # pragma warning(push)
@@ -177,7 +177,7 @@ unsigned int curlx_uztoui(size_t uznum)
 #if UINT_MAX < SIZE_T_MAX
 	DEBUGASSERT(uznum <= (size_t)CURL_MASK_UINT);
 #endif
-	return (unsigned int)(uznum & (size_t)CURL_MASK_UINT);
+	return (uint)(uznum & (size_t)CURL_MASK_UINT);
 
 #ifdef __INTEL_COMPILER
 # pragma warning(pop)
@@ -197,7 +197,7 @@ int curlx_sltosi(long slnum)
 
 	DEBUGASSERT(slnum >= 0);
 #if INT_MAX < LONG_MAX
-	DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_SINT);
+	DEBUGASSERT((ulong)slnum <= (ulong)CURL_MASK_SINT);
 #endif
 	return (int)(slnum & (long)CURL_MASK_SINT);
 
@@ -207,10 +207,10 @@ int curlx_sltosi(long slnum)
 }
 
 /*
-** signed long to unsigned int
+** signed long to uint
 */
 
-unsigned int curlx_sltoui(long slnum)
+uint curlx_sltoui(long slnum)
 {
 #ifdef __INTEL_COMPILER
 #  pragma warning(push)
@@ -219,9 +219,9 @@ unsigned int curlx_sltoui(long slnum)
 
 	DEBUGASSERT(slnum >= 0);
 #if UINT_MAX < LONG_MAX
-	DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_UINT);
+	DEBUGASSERT((ulong)slnum <= (ulong)CURL_MASK_UINT);
 #endif
-	return (unsigned int)(slnum & (long)CURL_MASK_UINT);
+	return (uint)(slnum & (long)CURL_MASK_UINT);
 
 #ifdef __INTEL_COMPILER
 #  pragma warning(pop)
@@ -240,8 +240,8 @@ unsigned short curlx_sltous(long slnum)
 #endif
 
 	DEBUGASSERT(slnum >= 0);
-	DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_USHORT);
-	return (unsigned short)(slnum & (long)CURL_MASK_USHORT);
+	DEBUGASSERT((ulong)slnum <= (ulong)CURL_MASK_USHORT);
+	return (ushort)(slnum & (long)CURL_MASK_USHORT);
 
 #ifdef __INTEL_COMPILER
 #  pragma warning(pop)
@@ -309,18 +309,18 @@ int curlx_sztosi(ssize_t sznum)
 }
 
 /*
-** unsigned int to unsigned short
+** uint to unsigned short
 */
 
-unsigned short curlx_uitous(unsigned int uinum)
+unsigned short curlx_uitous(uint uinum)
 {
 #ifdef __INTEL_COMPILER
 #  pragma warning(push)
 #  pragma warning(disable:810) /* conversion may lose significant bits */
 #endif
 
-	DEBUGASSERT(uinum <= (unsigned int)CURL_MASK_USHORT);
-	return (unsigned short)(uinum & (unsigned int)CURL_MASK_USHORT);
+	DEBUGASSERT(uinum <= (uint)CURL_MASK_USHORT);
+	return (ushort)(uinum & (uint)CURL_MASK_USHORT);
 
 #ifdef __INTEL_COMPILER
 #  pragma warning(pop)
@@ -404,7 +404,7 @@ void curlx_FD_ZERO(fd_set * fdset)
 unsigned short curlx_htons(unsigned short usnum)
 {
 #if (__INTEL_COMPILER == 910) && defined(__i386__)
-	return (unsigned short)(((usnum << 8) & 0xFF00) | ((usnum >> 8) & 0x00FF));
+	return (ushort)(((usnum << 8) & 0xFF00) | ((usnum >> 8) & 0x00FF));
 #else
   #pragma warning(push)
   #pragma warning(disable:810) /* conversion may lose significant bits */
@@ -416,7 +416,7 @@ unsigned short curlx_htons(unsigned short usnum)
 unsigned short curlx_ntohs(unsigned short usnum)
 {
 #if (__INTEL_COMPILER == 910) && defined(__i386__)
-	return (unsigned short)(((usnum << 8) & 0xFF00) | ((usnum >> 8) & 0x00FF));
+	return (ushort)(((usnum << 8) & 0xFF00) | ((usnum >> 8) & 0x00FF));
 #else
   #pragma warning(push)
   #pragma warning(disable:810) /* conversion may lose significant bits */

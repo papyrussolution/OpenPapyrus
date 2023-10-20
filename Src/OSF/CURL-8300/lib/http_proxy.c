@@ -32,21 +32,21 @@
 #include <hyper.h>
 #endif
 //#include "sendf.h"
-#include "http.h"
+//#include "http.h"
 #include "url.h"
 #include "select.h"
-#include "progress.h"
+//#include "progress.h"
 //#include "cfilters.h"
 #include "cf-h1-proxy.h"
 #include "cf-h2-proxy.h"
 //#include "connect.h"
 #include "curlx.h"
 #include "vtls/vtls.h"
-#include "transfer.h"
+//#include "transfer.h"
 //#include "multiif.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -148,7 +148,7 @@ static void http_proxy_cf_destroy(struct Curl_cfilter * cf, struct Curl_easy * d
 	struct cf_proxy_ctx * ctx = static_cast<cf_proxy_ctx *>(cf->ctx);
 	(void)data;
 	CURL_TRC_CF(data, cf, "destroy");
-	free(ctx);
+	SAlloc::F(ctx);
 }
 
 static void http_proxy_cf_close(struct Curl_cfilter * cf, struct Curl_easy * data)
@@ -196,7 +196,7 @@ CURLcode Curl_cf_http_proxy_insert_after(struct Curl_cfilter * cf_at, struct Cur
 	struct Curl_cfilter * cf;
 	CURLcode result;
 	(void)data;
-	struct cf_proxy_ctx * ctx = static_cast<cf_proxy_ctx *>(calloc(1, sizeof(*ctx)));
+	struct cf_proxy_ctx * ctx = static_cast<cf_proxy_ctx *>(SAlloc::C(1, sizeof(*ctx)));
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;
@@ -207,7 +207,7 @@ CURLcode Curl_cf_http_proxy_insert_after(struct Curl_cfilter * cf_at, struct Cur
 	ctx = NULL;
 	Curl_conn_cf_insert_after(cf_at, cf);
 out:
-	free(ctx);
+	SAlloc::F(ctx);
 	return result;
 }
 

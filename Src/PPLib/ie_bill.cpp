@@ -3566,6 +3566,12 @@ int PPBillImporter::Import(int useTa)
 							P_BObj->AutoCalcPrices(&pack, 0, &is_valuation_modif);
 						}
 						THROW(P_BObj->__TurnPacket(&pack, 0, 0, 0)); // @todo init qcert
+						// @v11.8.7 {
+						int sftr = SetFixTagOnImportedBill(pack.Rec.ID, 0); 
+						if(!sftr) {
+							; // @todo @err
+						}
+						// } @v11.8.7 
 						Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 					}
 				}
@@ -5041,10 +5047,28 @@ int PPBillImporter::Run()
 									skip = 1;
 								}
 							}
-							if(P_BObj->__TurnPacket(&pack, 0, 1, 1))
-								Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
-							else
-								Logger.LogLastError();
+							{
+								int   tpr = 0; // result of PPObjBill::__TurnPacket
+								int   sftr = 0; // result of  SetFixTagOnImportedBill
+								{
+									PPTransaction tra(1);
+									THROW(tra);
+									tpr = P_BObj->__TurnPacket(&pack, 0, 1, 0);
+									if(tpr) {
+										sftr = SetFixTagOnImportedBill(pack.Rec.ID, 0);
+										if(!sftr) {
+											; // @todo @err
+										}
+									}
+									THROW(tra.Commit());
+								}
+								if(tpr) {
+									//SetFixTagOnImportedBill(PPID billID, int use_ta)
+									Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
+								}
+								else
+									Logger.LogLastError();
+							}
 						}
 					}
 				}

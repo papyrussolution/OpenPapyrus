@@ -323,6 +323,17 @@ bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivilegeStr/* = NULL */)
 	return true;
 }
 
+/*static*/bool SSystem::GetUserName_(SString & rBuf)
+{
+	bool    ok = false;
+	wchar_t _buf[256];
+	DWORD buf_len = SIZEOFARRAY(_buf);
+	if(::GetUserNameW(_buf, &buf_len)) {
+		ok = rBuf.CopyUtf8FromUnicode(_buf, sstrlen(_buf), 1);
+	}
+	return ok;
+}
+
 /*static*/bool SSystem::GetUserHandle(/*Settings*/WinUserBlock & rSettings, uint flags, BOOL & bLoadedProfile, PROFILEINFO & rProfile, HANDLE hCmdPipe)
 {
 	bool   ok = true;

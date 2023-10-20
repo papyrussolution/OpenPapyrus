@@ -63,14 +63,14 @@
 #include "cf-https-connect.h"
 #include "cf-socket.h"
 #include "select.h"
-#include "url.h" /* for Curl_safefree() */
+#include "url.h" /* for ZFREE() */
 //#include "multiif.h"
 //#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "inet_ntop.h"
 #include "inet_pton.h"
 #include "vtls/vtls.h" /* for vtsl cfilters */
-#include "progress.h"
-#include "warnless.h"
+//#include "progress.h"
+//#include "warnless.h"
 #include "conncache.h"
 #include "multihandle.h"
 #include "share.h"
@@ -80,7 +80,7 @@
 #include "socks.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -104,7 +104,7 @@ timediff_t Curl_timeleft(struct Curl_easy * data,
     struct curltime * nowp,
     bool duringconnect)
 {
-	unsigned int timeout_set = 0;
+	uint timeout_set = 0;
 	timediff_t connect_timeout_ms = 0;
 	timediff_t maxtime_timeout_ms = 0;
 	timediff_t timeout_ms = 0;
@@ -385,7 +385,7 @@ static CURLcode eyeballer_new(struct eyeballer ** pballer, cf_ip_connect_create 
 {
 	struct eyeballer * baller;
 	*pballer = NULL;
-	baller = (eyeballer *)calloc(1, sizeof(*baller) + 1000);
+	baller = (eyeballer *)SAlloc::C(1, sizeof(*baller) + 1000);
 	if(!baller)
 		return CURLE_OUT_OF_MEMORY;
 	baller->name = ((ai_family == AF_INET)? "ipv4" : (
@@ -420,7 +420,7 @@ static void baller_free(struct eyeballer * baller,
 {
 	if(baller) {
 		baller_close(baller, data);
-		free(baller);
+		SAlloc::F(baller);
 	}
 }
 
@@ -440,27 +440,21 @@ static void baller_initiate(struct Curl_cfilter * cf, struct Curl_easy * data, s
 	struct cf_he_ctx * ctx = (cf_he_ctx *)cf->ctx;
 	struct Curl_cfilter * cf_prev = baller->cf;
 	struct Curl_cfilter * wcf;
-	CURLcode result;
-
 	/* Don't close a previous cfilter yet to ensure that the next IP's
 	   socket gets a different file descriptor, which can prevent bugs when
 	   the curl_multi_socket_action interface is used with certain select()
 	   replacements such as kqueue. */
-	result = baller->cf_create(&baller->cf, data, cf->conn, baller->addr,
-		ctx->transport);
+	CURLcode result = baller->cf_create(&baller->cf, data, cf->conn, baller->addr, ctx->transport);
 	if(result)
 		goto out;
-
 	/* the new filter might have sub-filters */
 	for(wcf = baller->cf; wcf; wcf = wcf->next) {
 		wcf->conn = cf->conn;
 		wcf->sockindex = cf->sockindex;
 	}
-
 	if(addr_next_match(baller->addr, baller->ai_family)) {
 		Curl_expire(data, baller->timeoutms, baller->timeout_id);
 	}
-
 out:
 	if(result) {
 		CURL_TRC_CF(data, cf, "%s failed", baller->name);
@@ -779,16 +773,12 @@ static CURLcode start_connect(struct Curl_cfilter * cf, struct Curl_easy * data,
 	if(!addr0) {
 		return CURLE_COULDNT_CONNECT;
 	}
-
-	memset(ctx->baller, 0, sizeof(ctx->baller));
+	memzero(ctx->baller, sizeof(ctx->baller));
 	result = eyeballer_new(&ctx->baller[0], ctx->cf_create, addr0, ai_family0,
-		NULL, 0,           /* no primary/delay, start now */
-		timeout_ms,  EXPIRE_DNS_PER_NAME);
+		NULL, 0/* no primary/delay, start now */, timeout_ms,  EXPIRE_DNS_PER_NAME);
 	if(result)
 		return result;
-	CURL_TRC_CF(data, cf, "created %s (timeout %"
-	    CURL_FORMAT_TIMEDIFF_T "ms)",
-	    ctx->baller[0]->name, ctx->baller[0]->timeoutms);
+	CURL_TRC_CF(data, cf, "created %s (timeout %" CURL_FORMAT_TIMEDIFF_T "ms)", ctx->baller[0]->name, ctx->baller[0]->timeoutms);
 	if(addr1) {
 		/* second one gets a delayed start */
 		result = eyeballer_new(&ctx->baller[1], ctx->cf_create, addr1, ai_family1,
@@ -937,13 +927,11 @@ static struct curltime get_max_baller_time(struct Curl_cfilter * cf, struct Curl
 	struct cf_he_ctx * ctx = (cf_he_ctx *)cf->ctx;
 	struct curltime t, tmax;
 	size_t i;
-	memset(&tmax, 0, sizeof(tmax));
+	memzero(&tmax, sizeof(tmax));
 	for(i = 0; i < sizeof(ctx->baller)/sizeof(ctx->baller[0]); i++) {
 		struct eyeballer * baller = ctx->baller[i];
-
-		memset(&t, 0, sizeof(t));
-		if(baller && baller->cf &&
-		    !baller->cf->cft->query(baller->cf, data, query, NULL, &t)) {
+		memzero(&t, sizeof(t));
+		if(baller && baller->cf && !baller->cf->cft->query(baller->cf, data, query, NULL, &t)) {
 			if((t.tv_sec || t.tv_usec) && Curl_timediff_us(t, tmax) > 0)
 				tmax = t;
 		}
@@ -1002,7 +990,7 @@ static void cf_he_destroy(struct Curl_cfilter * cf, struct Curl_easy * data)
 		cf_he_ctx_clear(cf, data);
 	}
 	/* release any resources held in state */
-	Curl_safefree(ctx);
+	ZFREE(ctx);
 }
 
 struct Curl_cftype Curl_cft_happy_eyeballs = {
@@ -1041,7 +1029,7 @@ static CURLcode cf_happy_eyeballs_create(struct Curl_cfilter ** pcf, struct Curl
 	(void)data;
 	(void)conn;
 	*pcf = NULL;
-	ctx = (cf_he_ctx *)calloc(sizeof(*ctx), 1);
+	ctx = (cf_he_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;
@@ -1054,8 +1042,8 @@ static CURLcode cf_happy_eyeballs_create(struct Curl_cfilter ** pcf, struct Curl
 
 out:
 	if(result) {
-		Curl_safefree(*pcf);
-		Curl_safefree(ctx);
+		ZFREE(*pcf);
+		ZFREE(ctx);
 	}
 	return result;
 }
@@ -1251,7 +1239,7 @@ static void cf_setup_destroy(struct Curl_cfilter * cf, struct Curl_easy * data)
 	struct cf_setup_ctx * ctx = (cf_setup_ctx *)cf->ctx;
 	(void)data;
 	CURL_TRC_CF(data, cf, "destroy");
-	Curl_safefree(ctx);
+	ZFREE(ctx);
 }
 
 struct Curl_cftype Curl_cft_setup = {
@@ -1279,7 +1267,7 @@ static CURLcode cf_setup_create(struct Curl_cfilter ** pcf, struct Curl_easy * d
 	struct cf_setup_ctx * ctx;
 	CURLcode result = CURLE_OK;
 	(void)data;
-	ctx = (cf_setup_ctx *)calloc(sizeof(*ctx), 1);
+	ctx = (cf_setup_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;
@@ -1294,7 +1282,7 @@ static CURLcode cf_setup_create(struct Curl_cfilter ** pcf, struct Curl_easy * d
 	ctx = NULL;
 out:
 	*pcf = result? NULL : cf;
-	free(ctx);
+	SAlloc::F(ctx);
 	return result;
 }
 

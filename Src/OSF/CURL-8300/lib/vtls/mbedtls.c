@@ -68,7 +68,7 @@
 #include "mbedtls_threadlock.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -125,7 +125,7 @@ static void entropy_init_mutex(mbedtls_entropy_context * ctx)
 /* end of entropy_init_mutex() */
 
 /* start of entropy_func_mutex() */
-static int entropy_func_mutex(void * data, unsigned char * output, size_t len)
+static int entropy_func_mutex(void * data, uchar * output, size_t len)
 {
 	int ret;
 	/* lock 1 = entropy_func_mutex() */
@@ -158,7 +158,7 @@ static void mbed_debug(void * context, int level, const char * f_name,
 #else
 #endif
 
-static int bio_cf_write(void * bio, const unsigned char * buf, size_t blen)
+static int bio_cf_write(void * bio, const uchar * buf, size_t blen)
 {
 	struct Curl_cfilter * cf = bio;
 	struct Curl_easy * data = CF_DATA_CURRENT(cf);
@@ -175,7 +175,7 @@ static int bio_cf_write(void * bio, const unsigned char * buf, size_t blen)
 	return (int)nwritten;
 }
 
-static int bio_cf_read(void * bio, unsigned char * buf, size_t blen)
+static int bio_cf_read(void * bio, uchar * buf, size_t blen)
 {
 	struct Curl_cfilter * cf = bio;
 	struct Curl_easy * data = CF_DATA_CURRENT(cf);
@@ -366,14 +366,14 @@ static CURLcode mbed_connect_step1(struct Curl_cfilter * cf, struct Curl_easy * 
 		/* Unfortunately, mbedtls_x509_crt_parse() requires the data to be null
 		   terminated even when provided the exact length, forcing us to waste
 		   extra memory here. */
-		unsigned char * newblob = malloc(ca_info_blob->len + 1);
+		uchar * newblob = SAlloc::M(ca_info_blob->len + 1);
 		if(!newblob)
 			return CURLE_OUT_OF_MEMORY;
 		memcpy(newblob, ca_info_blob->data, ca_info_blob->len);
 		newblob[ca_info_blob->len] = 0; /* null terminate */
 		ret = mbedtls_x509_crt_parse(&backend->cacert, newblob,
 			ca_info_blob->len + 1);
-		free(newblob);
+		SAlloc::F(newblob);
 		if(ret<0) {
 			mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
 			failf(data, "Error importing ca cert blob - mbedTLS: (-0x%04X) %s",
@@ -440,14 +440,14 @@ static CURLcode mbed_connect_step1(struct Curl_cfilter * cf, struct Curl_easy * 
 		/* Unfortunately, mbedtls_x509_crt_parse() requires the data to be null
 		   terminated even when provided the exact length, forcing us to waste
 		   extra memory here. */
-		unsigned char * newblob = malloc(ssl_cert_blob->len + 1);
+		uchar * newblob = SAlloc::M(ssl_cert_blob->len + 1);
 		if(!newblob)
 			return CURLE_OUT_OF_MEMORY;
 		memcpy(newblob, ssl_cert_blob->data, ssl_cert_blob->len);
 		newblob[ssl_cert_blob->len] = 0; /* null terminate */
 		ret = mbedtls_x509_crt_parse(&backend->clicert, newblob,
 			ssl_cert_blob->len + 1);
-		free(newblob);
+		SAlloc::F(newblob);
 
 		if(ret) {
 			mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
@@ -486,18 +486,18 @@ static CURLcode mbed_connect_step1(struct Curl_cfilter * cf, struct Curl_easy * 
 		}
 		else {
 			const struct curl_blob * ssl_key_blob = ssl_config->key_blob;
-			const unsigned char * key_data =
-			    (const unsigned char *)ssl_key_blob->data;
+			const uchar * key_data =
+			    (const uchar *)ssl_key_blob->data;
 			const char * passwd = ssl_config->key_passwd;
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
 			ret = mbedtls_pk_parse_key(&backend->pk, key_data, ssl_key_blob->len,
-				(const unsigned char *)passwd,
+				(const uchar *)passwd,
 				passwd ? strlen(passwd) : 0,
 				mbedtls_ctr_drbg_random,
 				&backend->ctr_drbg);
 #else
 			ret = mbedtls_pk_parse_key(&backend->pk, key_data, ssl_key_blob->len,
-				(const unsigned char *)passwd,
+				(const uchar *)passwd,
 				passwd ? strlen(passwd) : 0);
 #endif
 
@@ -758,7 +758,7 @@ static CURLcode mbed_connect_step2(struct Curl_cfilter * cf, struct Curl_easy * 
 
 	if(peercert && data->set.verbose) {
 		const size_t bufsize = 16384;
-		char * buffer = malloc(bufsize);
+		char * buffer = SAlloc::M(bufsize);
 
 		if(!buffer)
 			return CURLE_OUT_OF_MEMORY;
@@ -768,14 +768,14 @@ static CURLcode mbed_connect_step2(struct Curl_cfilter * cf, struct Curl_easy * 
 		else
 			infof(data, "Unable to dump certificate information");
 
-		free(buffer);
+		SAlloc::F(buffer);
 	}
 
 	if(pinnedpubkey) {
 		int size;
 		CURLcode result;
 		mbedtls_x509_crt * p = NULL;
-		unsigned char * pubkey = NULL;
+		uchar * pubkey = NULL;
 
 #if MBEDTLS_VERSION_NUMBER == 0x03000000
 		if(!peercert || !peercert->MBEDTLS_PRIVATE(raw).MBEDTLS_PRIVATE(p) ||
@@ -787,12 +787,12 @@ static CURLcode mbed_connect_step2(struct Curl_cfilter * cf, struct Curl_easy * 
 			return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 		}
 
-		p = calloc(1, sizeof(*p));
+		p = SAlloc::C(1, sizeof(*p));
 
 		if(!p)
 			return CURLE_OUT_OF_MEMORY;
 
-		pubkey = malloc(PUB_DER_MAX_BYTES);
+		pubkey = SAlloc::M(PUB_DER_MAX_BYTES);
 
 		if(!pubkey) {
 			result = CURLE_OUT_OF_MEMORY;
@@ -835,8 +835,8 @@ static CURLcode mbed_connect_step2(struct Curl_cfilter * cf, struct Curl_easy * 
 			&pubkey[PUB_DER_MAX_BYTES - size], size);
 pinnedpubkey_error:
 		mbedtls_x509_crt_free(p);
-		free(p);
-		free(pubkey);
+		SAlloc::F(p);
+		SAlloc::F(pubkey);
 		if(result) {
 			return result;
 		}
@@ -846,7 +846,7 @@ pinnedpubkey_error:
 	if(connssl->alpn) {
 		const char * proto = mbedtls_ssl_get_alpn_protocol(&backend->ssl);
 
-		Curl_alpn_set_negotiated(cf, data, (const unsigned char *)proto,
+		Curl_alpn_set_negotiated(cf, data, (const uchar *)proto,
 		    proto? strlen(proto) : 0);
 	}
 #endif
@@ -874,7 +874,7 @@ static CURLcode mbed_connect_step3(struct Curl_cfilter * cf, struct Curl_easy * 
 		void * old_ssl_sessionid = NULL;
 		bool added = FALSE;
 
-		our_ssl_sessionid = malloc(sizeof(mbedtls_ssl_session));
+		our_ssl_sessionid = SAlloc::M(sizeof(mbedtls_ssl_session));
 		if(!our_ssl_sessionid)
 			return CURLE_OUT_OF_MEMORY;
 
@@ -884,7 +884,7 @@ static CURLcode mbed_connect_step3(struct Curl_cfilter * cf, struct Curl_easy * 
 		if(ret) {
 			if(ret != MBEDTLS_ERR_SSL_ALLOC_FAILED)
 				mbedtls_ssl_session_free(our_ssl_sessionid);
-			free(our_ssl_sessionid);
+			SAlloc::F(our_ssl_sessionid);
 			failf(data, "mbedtls_ssl_get_session returned -0x%x", -ret);
 			return CURLE_SSL_CONNECT_ERROR;
 		}
@@ -899,7 +899,7 @@ static CURLcode mbed_connect_step3(struct Curl_cfilter * cf, struct Curl_easy * 
 		Curl_ssl_sessionid_unlock(data);
 		if(!added) {
 			mbedtls_ssl_session_free(our_ssl_sessionid);
-			free(our_ssl_sessionid);
+			SAlloc::F(our_ssl_sessionid);
 		}
 		if(retcode) {
 			failf(data, "failed to store ssl session");
@@ -923,7 +923,7 @@ static ssize_t mbed_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 
 	(void)data;
 	DEBUGASSERT(backend);
-	ret = mbedtls_ssl_write(&backend->ssl, (unsigned char *)mem, len);
+	ret = mbedtls_ssl_write(&backend->ssl, (uchar *)mem, len);
 
 	if(ret < 0) {
 		*curlcode = (ret == MBEDTLS_ERR_SSL_WANT_WRITE) ?
@@ -951,7 +951,7 @@ static void mbedtls_close(struct Curl_cfilter * cf, struct Curl_easy * data)
 
 	/* Maybe the server has already sent a close notify alert.
 	   Read it to avoid an RST on the TCP connection. */
-	(void)mbedtls_ssl_read(&backend->ssl, (unsigned char *)buf, sizeof(buf));
+	(void)mbedtls_ssl_read(&backend->ssl, (uchar *)buf, sizeof(buf));
 
 	mbedtls_pk_free(&backend->pk);
 	mbedtls_x509_crt_free(&backend->clicert);
@@ -980,7 +980,7 @@ static ssize_t mbed_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 	(void)data;
 	DEBUGASSERT(backend);
 
-	ret = mbedtls_ssl_read(&backend->ssl, (unsigned char *)buf,
+	ret = mbedtls_ssl_read(&backend->ssl, (uchar *)buf,
 		buffersize);
 
 	if(ret <= 0) {
@@ -1000,14 +1000,14 @@ static ssize_t mbed_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 static void mbedtls_session_free(void * ptr)
 {
 	mbedtls_ssl_session_free(ptr);
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 static size_t mbedtls_version(char * buffer, size_t size)
 {
 #ifdef MBEDTLS_VERSION_C
 	/* if mbedtls_version_get_number() is available it is better */
-	unsigned int version = mbedtls_version_get_number();
+	uint version = mbedtls_version_get_number();
 	return msnprintf(buffer, size, "mbedTLS/%u.%u.%u", version>>24,
 		   (version>>16)&0xff, (version>>8)&0xff);
 #else
@@ -1016,7 +1016,7 @@ static size_t mbedtls_version(char * buffer, size_t size)
 }
 
 static CURLcode mbedtls_random(struct Curl_easy * data,
-    unsigned char * entropy, size_t length)
+    uchar * entropy, size_t length)
 {
 #if defined(MBEDTLS_CTR_DRBG_C)
 	int ret = -1;
@@ -1212,9 +1212,9 @@ static bool mbedtls_data_pending(struct Curl_cfilter * cf,
 	return mbedtls_ssl_get_bytes_avail(&backend->ssl) != 0;
 }
 
-static CURLcode mbedtls_sha256sum(const unsigned char * input,
+static CURLcode mbedtls_sha256sum(const uchar * input,
     size_t inputlen,
-    unsigned char * sha256sum,
+    uchar * sha256sum,
     size_t sha256len UNUSED_PARAM)
 {
 	/* TODO: explain this for different mbedtls 2.x vs 3 version */

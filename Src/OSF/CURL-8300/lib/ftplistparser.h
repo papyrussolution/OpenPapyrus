@@ -62,7 +62,7 @@ struct WildcardData {
 	struct Curl_llist filelist; /* llist with struct Curl_fileinfo */
 	struct ftp_wc * ftpwc; /* pointer to FTP wildcard data */
 	wildcard_dtor dtor;
-	unsigned char state; /* wildcard_states */
+	uchar state; /* wildcard_states */
 };
 
 CURLcode Curl_wildcard_init(struct WildcardData * wc);

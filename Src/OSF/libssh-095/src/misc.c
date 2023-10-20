@@ -144,10 +144,10 @@ char * ssh_get_local_username()
 {
 	DWORD size = 0;
 	// get the size 
-	GetUserNameA(NULL, &size);
+	::GetUserNameA(NULL, &size);
 	char * p_user = static_cast<char *>(SAlloc::M(size));
 	if(p_user) {
-		if(!GetUserNameA(p_user, &size)) {
+		if(!::GetUserNameA(p_user, &size)) {
 			ZDELETE(p_user);
 		}
 	}

@@ -190,19 +190,18 @@ static const TIFFField ojpegFields[] = {
    a conflicting typedef given the headers which are included.
  */
 #if defined(__BORLANDC__) || defined(__MINGW32__)
-#define XMD_H 1
+	#define XMD_H 1
 #endif
-
 /* Define "boolean" as uchar, not int, per Windows custom. */
 #if defined(__WIN32__) && !defined(__MINGW32__)
-#ifndef __RPCNDR_H__            /* don't conflict if rpcndr.h already read */
-typedef uchar boolean;
-#endif
-#define HAVE_BOOLEAN            /* prevent jmorecfg.h from redefining it */
+	#ifndef __RPCNDR_H__            /* don't conflict if rpcndr.h already read */
+		typedef uchar boolean;
+	#endif
+	#define HAVE_BOOLEAN            /* prevent jmorecfg.h from redefining it */
 #endif
 
-#include <../osf/libjpeg/jpeglib.h>
-#include <../osf/libjpeg/jerror.h>
+#include <..\slib\libjpeg\jpeglib.h>
+#include <..\slib\libjpeg\jerror.h>
 
 typedef struct jpeg_error_mgr jpeg_error_mgr;
 typedef struct jpeg_common_struct jpeg_common_struct;

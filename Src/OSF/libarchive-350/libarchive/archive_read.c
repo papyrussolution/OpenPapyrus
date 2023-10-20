@@ -79,7 +79,7 @@ Archive * archive_read_new(void)
 /*
  * Record the do-not-extract-to file. This belongs in archive_read_extract.c.
  */
-void archive_read_extract_set_skip_file(Archive * _a, la_int64_t d, la_int64_t i)
+void archive_read_extract_set_skip_file(Archive * _a, int64 d, int64 i)
 {
 	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	if(__archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__) != ARCHIVE_OK)
@@ -576,7 +576,7 @@ static int choose_format(ArchiveRead * a)
  * Return the file offset (within the uncompressed data stream) where
  * the last header started.
  */
-la_int64_t archive_read_header_position(Archive * _a)
+int64 archive_read_header_position(Archive * _a)
 {
 	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -741,7 +741,7 @@ int archive_read_data_skip(Archive * _a)
 	return r;
 }
 
-la_int64_t archive_seek_data(Archive * _a, int64 offset, int whence)
+int64 archive_seek_data(Archive * _a, int64 offset, int whence)
 {
 	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);

@@ -35,14 +35,14 @@
 //#include "strcase.h"
 #include "parsedate.h"
 //#include "sendf.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "fopen.h"
 #include "rename.h"
 #include "strdup.h"
 #include "inet_pton.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -83,15 +83,15 @@ const char *Curl_alpnid2str(enum alpnid id)
 
 static void altsvc_free(struct altsvc * as)
 {
-	free(as->src.host);
-	free(as->dst.host);
-	free(as);
+	SAlloc::F(as->src.host);
+	SAlloc::F(as->dst.host);
+	SAlloc::F(as);
 }
 
 static struct altsvc *altsvc_createid(const char * srchost, const char * dsthost, enum alpnid srcalpnid,
-    enum alpnid dstalpnid, unsigned int srcport, unsigned int dstport)
+    enum alpnid dstalpnid, uint srcport, uint dstport)
 {
-	struct altsvc * as = (altsvc *)calloc(sizeof(struct altsvc), 1);
+	struct altsvc * as = (altsvc *)SAlloc::C(sizeof(struct altsvc), 1);
 	size_t hlen;
 	size_t dlen;
 	if(!as)
@@ -139,7 +139,7 @@ error:
 }
 
 static struct altsvc *altsvc_create(char * srchost, char * dsthost,
-    char * srcalpn, char * dstalpn, unsigned int srcport, unsigned int dstport)
+    char * srcalpn, char * dstalpn, uint srcport, uint dstport)
 {
 	enum alpnid dstalpnid = alpn2alpnid(dstalpn);
 	enum alpnid srcalpnid = alpn2alpnid(srcalpn);
@@ -159,10 +159,10 @@ static CURLcode altsvc_add(struct altsvcinfo * asi, char * line)
 	char srcalpn[MAX_ALTSVC_ALPNLEN + 1];
 	char dstalpn[MAX_ALTSVC_ALPNLEN + 1];
 	char date[MAX_ALTSVC_DATELEN + 1];
-	unsigned int srcport;
-	unsigned int dstport;
-	unsigned int prio;
-	unsigned int persist;
+	uint srcport;
+	uint dstport;
+	uint prio;
+	uint persist;
 	int rc;
 
 	rc = sscanf(line,
@@ -203,14 +203,14 @@ static CURLcode altsvc_load(struct altsvcinfo * asi, const char * file)
 
 	/* we need a private copy of the file name so that the altsvc cache file
 	   name survives an easy handle reset */
-	free(asi->filename);
+	SAlloc::F(asi->filename);
 	asi->filename = strdup(file);
 	if(!asi->filename)
 		return CURLE_OUT_OF_MEMORY;
 
 	fp = fopen(file, FOPEN_READTEXT);
 	if(fp) {
-		line = (char *)malloc(MAX_ALTSVC_LINE);
+		line = (char *)SAlloc::M(MAX_ALTSVC_LINE);
 		if(!line)
 			goto fail;
 		while(Curl_get_line(line, MAX_ALTSVC_LINE, fp)) {
@@ -223,14 +223,14 @@ static CURLcode altsvc_load(struct altsvcinfo * asi, const char * file)
 
 			altsvc_add(asi, lineptr);
 		}
-		free(line); /* free the line buffer */
+		SAlloc::F(line); /* free the line buffer */
 		fclose(fp);
 	}
 	return result;
 
 fail:
-	Curl_safefree(asi->filename);
-	free(line);
+	ZFREE(asi->filename);
+	SAlloc::F(line);
 	fclose(fp);
 	return CURLE_OUT_OF_MEMORY;
 }
@@ -290,7 +290,7 @@ static CURLcode altsvc_out(struct altsvc * as, FILE * fp)
  */
 struct altsvcinfo *Curl_altsvc_init(void)
 {
-	struct altsvcinfo * asi = (altsvcinfo *)calloc(sizeof(struct altsvcinfo), 1);
+	struct altsvcinfo * asi = (altsvcinfo *)SAlloc::C(sizeof(struct altsvcinfo), 1);
 	if(!asi)
 		return NULL;
 	Curl_llist_init(&asi->list, NULL);
@@ -345,8 +345,8 @@ void Curl_altsvc_cleanup(struct altsvcinfo ** altsvcp)
 			n = e->next;
 			altsvc_free(as);
 		}
-		free(altsvc->filename);
-		free(altsvc);
+		SAlloc::F(altsvc->filename);
+		SAlloc::F(altsvc);
 		*altsvcp = NULL; /* clear the pointer */
 	}
 }
@@ -390,7 +390,7 @@ CURLcode Curl_altsvc_save(struct Curl_easy * data,
 		if(result && tempstore)
 			_unlink(tempstore);
 	}
-	free(tempstore);
+	SAlloc::F(tempstore);
 	return result;
 }
 

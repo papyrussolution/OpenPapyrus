@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include <..\OSF\LIBJPEG\jpeglib.h>
+#include <..\slib\libjpeg\jpeglib.h>
 
 #ifdef SHARE_JPEG
 	#define JZ_CTX_FROM_CINFO(c) (fz_context*)((c)->client_data)

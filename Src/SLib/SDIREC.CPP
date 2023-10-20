@@ -199,7 +199,21 @@ SDirec::~SDirec()
 int SDirec::Init(const char * pPathName, int enumDir)
 {
 	FindClose();
-	STRNSCPY(InitPath, SUcSwitchW(pPathName));
+	// @v11.8.7 {
+	// Модификация для адекватной трактовки utf8
+	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	r_temp_buf = pPathName;
+	if(r_temp_buf.IsLegalUtf8()) {
+		r_temp_buf_u.CopyFromUtf8(r_temp_buf);
+	}
+	else {
+		// Если исходная строка pPathName не ascii и не utf8 то сделаем сильное и рискованное предположение, что
+		// она - в ANSI-кодировке.
+		r_temp_buf_u.CopyFromMb_OUTER(r_temp_buf, r_temp_buf.Len());
+	}
+	r_temp_buf_u.CopyTo(InitPath, SIZEOFARRAY(InitPath));
+	// } @v11.8.7
 	InitFlag = 1;
 	EnumDir = enumDir;
 	SAlloc::F(vPosData);
@@ -298,12 +312,12 @@ int FASTCALL SFileEntryPool::GetInitPath(SString & rPath) const
 	return rPath.NotEmpty() ? 1 : -1;
 }
 
-int SFileEntryPool::Add(const char * pPath)
+int SFileEntryPool::Add(const char * pPath, long flags)
 {
-	return Add(pPath, 0/*pRemoteUrl*/);
+	return Add(pPath, 0/*pRemoteUrl*/, flags);
 }
 
-int SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl)
+int SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl, long flags)
 {
 	int    ok = 0;
 	SDirEntry de;
@@ -311,7 +325,7 @@ int SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl)
 		SString temp_buf;
 		const SPathStruc ps(pPath);
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-		ok = Implement_Add(temp_buf, de, pRemoteUrl);
+		ok = Implement_Add(temp_buf, de, pRemoteUrl, flags);
 	}
 	return ok;
 }
@@ -319,6 +333,7 @@ int SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl)
 int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long flags)
 {
 	int    ok = -1;
+	uint   non_ascii_count = 0; // @debug
 	assert(!isempty(pPath)); // Вызывающая функция обязана проверить это условие
 	SDirEntry fb;
 	SString temp_buf;
@@ -328,13 +343,17 @@ int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long
 	}
 	const bool do_recursive = LOGIC(flags & scanfRecursive);
 	for(SDirec sdirec(temp_buf, 0); sdirec.Next(&fb) > 0;) {
+		// @debug {
+		if(!sisascii(fb.Name, sstrlen(fb.Name)))
+			non_ascii_count++;
+		// } @debug 
 		if(fb.IsFile()) {
-			THROW(Add(pPath, fb));
+			THROW(Add(pPath, fb, flags));
 			ok = 1;
 		}
 		else if(do_recursive && fb.IsFolder() && !fb.IsSelf() && !fb.IsUpFolder()) {
 			fb.GetNameUtf8(pPath, temp_buf);
-			const int r = Helper_Scan(temp_buf, pWildcard, flags);
+			const int r = Helper_Scan(temp_buf, pWildcard, flags); // @recursion
 			THROW(r);
 			if(r > 0)
 				ok = 1;
@@ -401,7 +420,7 @@ int SFileEntryPool::Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFul
 		return 0;
 }
 
-int SFileEntryPool::Add(SFileEntryPool::Entry & rDe)
+int SFileEntryPool::Add(SFileEntryPool::Entry & rDe, long flags)
 {
 	int    ok = 1;
     InnerEntry new_entry;
@@ -413,7 +432,8 @@ int SFileEntryPool::Add(SFileEntryPool::Entry & rDe)
     new_entry.Size = rDe.Size;
     if(rDe.Path.NotEmptyS()) {
 		SString & r_temp_path = SLS.AcquireRvlStr();
-		THROW(AddS(SPathStruc::NormalizePath(rDe.Path, 0, r_temp_path), &new_entry.PathP));
+		const long npf = (flags & scanfKeepCase) ? SPathStruc::npfKeepCase : 0;
+		THROW(AddS(SPathStruc::NormalizePath(rDe.Path, npf, r_temp_path), &new_entry.PathP));
     }
     THROW(AddS(rDe.Name, &new_entry.NameP));
     THROW(L.insert(&new_entry));
@@ -421,12 +441,12 @@ int SFileEntryPool::Add(SFileEntryPool::Entry & rDe)
     return ok;
 }
 
-int SFileEntryPool::Add(const char * pPath, const SDirEntry & rDe)
+int SFileEntryPool::Add(const char * pPath, const SDirEntry & rDe, long flags)
 {
-	return Implement_Add(pPath, rDe, 0);
+	return Implement_Add(pPath, rDe, 0, flags);
 }
 
-int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl)
+int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl, long flags)
 {
 	int    ok = 1;
     InnerEntry new_entry;
@@ -438,7 +458,8 @@ int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, con
     new_entry.Size = rDe.Size;
     if(!isempty(pPath)) {
 		SString & r_temp_path = SLS.AcquireRvlStr();
-		THROW(AddS(SPathStruc::NormalizePath(pPath, 0, r_temp_path), &new_entry.PathP));
+		const long npf = (flags & scanfKeepCase) ? SPathStruc::npfKeepCase : 0;
+		THROW(AddS(SPathStruc::NormalizePath(pPath, npf, r_temp_path), &new_entry.PathP));
     }
 	if(!isempty(pRemoteUrl)) {
 		THROW(AddS(pRemoteUrl, &new_entry.RemoteUrlP));

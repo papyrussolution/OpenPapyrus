@@ -32,14 +32,14 @@
 #include "strdup.h"
 #include "http_aws_sigv4.h"
 #include "curl_sha256.h"
-#include "transfer.h"
+//#include "transfer.h"
 #include "parsedate.h"
 //#include "sendf.h"
 
 #include <time.h>
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -48,9 +48,9 @@
 #define HMAC_SHA256(k, kl, d, dl, o)           \
 	do {                                         \
 		result = Curl_hmacit(Curl_HMAC_SHA256,     \
-			(unsigned char *)k,   \
+			(uchar *)k,   \
 			kl,                   \
-			(unsigned char *)d,   \
+			(uchar *)d,   \
 			dl, o);               \
 		if(result) {                               \
 			goto fail;                               \
@@ -62,7 +62,7 @@
 /* hex-encoded with trailing null */
 #define SHA256_HEX_LENGTH (2 * SHA256_DIGEST_LENGTH + 1)
 
-static void sha256_to_hex(char * dst, unsigned char * sha)
+static void sha256_to_hex(char * dst, uchar * sha)
 {
 	int i;
 	for(i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
@@ -230,7 +230,7 @@ static CURLcode make_headers(struct Curl_easy * data,
 		dupdata[sep - l->data] = ':';
 		tmp_head = Curl_slist_append_nodup(head, dupdata);
 		if(!tmp_head) {
-			free(dupdata);
+			SAlloc::F(dupdata);
 			goto fail;
 		}
 		head = tmp_head;
@@ -342,7 +342,7 @@ static char *parse_content_sha_hdr(struct Curl_easy * data,
 	return value;
 }
 
-static CURLcode calc_payload_hash(struct Curl_easy * data, unsigned char * sha_hash, char * sha_hex)
+static CURLcode calc_payload_hash(struct Curl_easy * data, uchar * sha_hash, char * sha_hex)
 {
 	const char * post_data = (const char *)data->set.postfields;
 	size_t post_data_len = 0;
@@ -353,7 +353,7 @@ static CURLcode calc_payload_hash(struct Curl_easy * data, unsigned char * sha_h
 		else
 			post_data_len = (size_t)data->set.postfieldsize;
 	}
-	result = Curl_sha256it(sha_hash, (const unsigned char *)post_data,
+	result = Curl_sha256it(sha_hash, (const uchar *)post_data,
 		post_data_len);
 	if(!result)
 		sha256_to_hex(sha_hex, sha_hash);
@@ -364,7 +364,7 @@ static CURLcode calc_payload_hash(struct Curl_easy * data, unsigned char * sha_h
 
 static CURLcode calc_s3_payload_hash(struct Curl_easy * data,
     Curl_HttpReq httpreq, char * provider1,
-    unsigned char * sha_hash,
+    uchar * sha_hash,
     char * sha_hex, char * header)
 {
 	bool empty_method = (httpreq == HTTPREQ_GET || httpreq == HTTPREQ_HEAD);
@@ -482,7 +482,7 @@ static CURLcode canon_query(struct Curl_easy * data, const char * query, struct 
 					    /* URL encode */
 					    const char hex[] = "0123456789ABCDEF";
 					    char out[3] = {'%'};
-					    out[1] = hex[((unsigned char)*q)>>4];
+					    out[1] = hex[((uchar)*q)>>4];
 					    out[2] = hex[*q & 0xf];
 					    result = Curl_dyn_addn(dq, out, 3);
 					    break;
@@ -522,7 +522,7 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy * data, bool proxy)
 	const char * method = NULL;
 	char * payload_hash = NULL;
 	size_t payload_hash_len = 0;
-	unsigned char sha_hash[SHA256_DIGEST_LENGTH];
+	uchar sha_hash[SHA256_DIGEST_LENGTH];
 	char sha_hex[SHA256_HEX_LENGTH];
 	char content_sha256_hdr[CONTENT_SHA256_HDR_LEN + 2] = ""; /* add \r\n */
 	char * canonical_request = NULL;
@@ -531,8 +531,8 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy * data, bool proxy)
 	char * str_to_sign = NULL;
 	const char * user = data->state.aptr.user ? data->state.aptr.user : "";
 	char * secret = NULL;
-	unsigned char sign0[SHA256_DIGEST_LENGTH] = {0};
-	unsigned char sign1[SHA256_DIGEST_LENGTH] = {0};
+	uchar sign0[SHA256_DIGEST_LENGTH] = {0};
+	uchar sign1[SHA256_DIGEST_LENGTH] = {0};
 	char * auth_headers = NULL;
 
 	DEBUGASSERT(!proxy);
@@ -707,7 +707,7 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy * data, bool proxy)
 	if(!credential_scope)
 		goto fail;
 
-	if(Curl_sha256it(sha_hash, (unsigned char *)canonical_request,
+	if(Curl_sha256it(sha_hash, (uchar *)canonical_request,
 	    strlen(canonical_request)))
 		goto fail;
 
@@ -770,7 +770,7 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy * data, bool proxy)
 		goto fail;
 	}
 
-	Curl_safefree(data->state.aptr.userpwd);
+	ZFREE(data->state.aptr.userpwd);
 	data->state.aptr.userpwd = auth_headers;
 	data->state.authhost.done = TRUE;
 	result = CURLE_OK;
@@ -779,12 +779,12 @@ fail:
 	Curl_dyn_free(&canonical_query);
 	Curl_dyn_free(&canonical_headers);
 	Curl_dyn_free(&signed_headers);
-	free(canonical_request);
-	free(request_type);
-	free(credential_scope);
-	free(str_to_sign);
-	free(secret);
-	free(date_header);
+	SAlloc::F(canonical_request);
+	SAlloc::F(request_type);
+	SAlloc::F(credential_scope);
+	SAlloc::F(str_to_sign);
+	SAlloc::F(secret);
+	SAlloc::F(date_header);
 	return result;
 }
 

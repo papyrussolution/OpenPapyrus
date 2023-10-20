@@ -17,7 +17,7 @@
 TUKLIB_DECLS_BEGIN
 
 #define tuklib_physmem TUKLIB_SYMBOL(tuklib_physmem)
-extern uint64_t tuklib_physmem(void);
+extern  uint64 tuklib_physmem(void);
 ///<
 /// \brief      Get the amount of physical memory in bytes
 ///

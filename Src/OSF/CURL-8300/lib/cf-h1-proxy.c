@@ -32,24 +32,24 @@
 #include <hyper.h>
 #endif
 //#include "urldata.h"
-#include "dynbuf.h"
+//#include "dynbuf.h"
 //#include "sendf.h"
-#include "http.h"
+//#include "http.h"
 #include "http_proxy.h"
 #include "url.h"
 #include "select.h"
-#include "progress.h"
+//#include "progress.h"
 //#include "cfilters.h"
 #include "cf-h1-proxy.h"
 //#include "connect.h"
 //#include "curl_trc.h"
 #include "curlx.h"
 #include "vtls/vtls.h"
-#include "transfer.h"
+//#include "transfer.h"
 //#include "multiif.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -127,7 +127,6 @@ static CURLcode tunnel_init(struct h1_tunnel_state ** pts, struct Curl_easy * da
 {
 	struct h1_tunnel_state * ts;
 	CURLcode result;
-
 	if(conn->handler->flags & PROTOPT_NOTCPPROXY) {
 		failf(data, "%s cannot be done over CONNECT", conn->handler->scheme);
 		return CURLE_UNSUPPORTED_PROTOCOL;
@@ -136,7 +135,7 @@ static CURLcode tunnel_init(struct h1_tunnel_state ** pts, struct Curl_easy * da
 	result = Curl_get_upload_buffer(data);
 	if(result)
 		return result;
-	ts = (h1_tunnel_state *)calloc(1, sizeof(*ts));
+	ts = (h1_tunnel_state *)SAlloc::C(1, sizeof(*ts));
 	if(!ts)
 		return CURLE_OUT_OF_MEMORY;
 	ts->sockindex = sockindex;
@@ -203,7 +202,7 @@ static void h1_tunnel_go_state(struct Curl_cfilter * cf, struct h1_tunnel_state 
 		    /* If a proxy-authorization header was used for the proxy, then we should
 		       make sure that it isn't accidentally used for the document request
 		       after we've connected. So let's free and clear it here. */
-		    Curl_safefree(data->state.aptr.proxyuserpwd);
+		    ZFREE(data->state.aptr.proxyuserpwd);
 #ifdef USE_HYPER
 		    data->state.hconnect = FALSE;
 #endif
@@ -218,7 +217,7 @@ static void tunnel_free(struct Curl_cfilter * cf, struct Curl_easy * data)
 		h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, data);
 		Curl_dyn_free(&ts->rcvbuf);
 		Curl_dyn_free(&ts->req);
-		free(ts);
+		SAlloc::F(ts);
 		cf->ctx = NULL;
 	}
 }
@@ -242,7 +241,7 @@ static CURLcode CONNECT_host(struct Curl_easy * data, struct connectdata * conn,
 	if(!Curl_checkProxyheaders(data, conn, STRCONST("Host"))) {
 		host = aprintf("Host: %s\r\n", hostheader);
 		if(!host) {
-			free(hostheader);
+			SAlloc::F(hostheader);
 			return CURLE_OUT_OF_MEMORY;
 		}
 	}
@@ -261,18 +260,11 @@ static CURLcode start_CONNECT(struct Curl_cfilter * cf,
 	char * host = NULL;
 	const char * httpv;
 	CURLcode result;
-
-	infof(data, "Establish HTTP proxy tunnel to %s:%d",
-	    ts->hostname, ts->remote_port);
-
+	infof(data, "Establish HTTP proxy tunnel to %s:%d", ts->hostname, ts->remote_port);
 	/* This only happens if we've looped here due to authentication
-	   reasons, and we don't really use the newly cloned URL here
-	   then. Just free() it. */
-	Curl_safefree(data->req.newurl);
-
-	result = CONNECT_host(data, conn,
-		ts->hostname, ts->remote_port,
-		&hostheader, &host);
+	   reasons, and we don't really use the newly cloned URL here then. Just SAlloc::F() it. */
+	ZFREE(data->req.newurl);
+	result = CONNECT_host(data, conn, ts->hostname, ts->remote_port, &hostheader, &host);
 	if(result)
 		goto out;
 
@@ -328,8 +320,8 @@ static CURLcode start_CONNECT(struct Curl_cfilter * cf,
 out:
 	if(result)
 		failf(data, "Failed sending CONNECT to proxy");
-	free(host);
-	free(hostheader);
+	SAlloc::F(host);
+	SAlloc::F(hostheader);
 	return result;
 }
 
@@ -392,12 +384,9 @@ static CURLcode on_resp_header(struct Curl_cfilter * cf,
 		char * auth = Curl_copy_header_value(header);
 		if(!auth)
 			return CURLE_OUT_OF_MEMORY;
-
 		CURL_TRC_CF(data, cf, "CONNECT: fwd auth header '%s'", header);
 		result = Curl_http_input_auth(data, proxy, auth);
-
-		free(auth);
-
+		SAlloc::F(auth);
 		if(result)
 			return result;
 	}
@@ -642,9 +631,7 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter * cf,
 
 #else /* USE_HYPER */
 /* The Hyper version of CONNECT */
-static CURLcode start_CONNECT(struct Curl_cfilter * cf,
-    struct Curl_easy * data,
-    struct h1_tunnel_state * ts)
+static CURLcode start_CONNECT(struct Curl_cfilter * cf, struct Curl_easy * data, struct h1_tunnel_state * ts)
 {
 	struct connectdata * conn = cf->conn;
 	struct hyptransfer * h = &data->hyp;
@@ -737,19 +724,13 @@ static CURLcode start_CONNECT(struct Curl_cfilter * cf,
 		goto error;
 	}
 
-	infof(data, "Establish HTTP proxy tunnel to %s:%d",
-	    ts->hostname, ts->remote_port);
-
+	infof(data, "Establish HTTP proxy tunnel to %s:%d", ts->hostname, ts->remote_port);
 	/* This only happens if we've looped here due to authentication
-	   reasons, and we don't really use the newly cloned URL here
-	   then. Just free() it. */
-	Curl_safefree(data->req.newurl);
-
-	result = CONNECT_host(data, conn, ts->hostname, ts->remote_port,
-		&hostheader, &host);
+	   reasons, and we don't really use the newly cloned URL here then. Just SAlloc::F() it. */
+	ZFREE(data->req.newurl);
+	result = CONNECT_host(data, conn, ts->hostname, ts->remote_port, &hostheader, &host);
 	if(result)
 		goto error;
-
 	if(hyper_request_set_uri(req, (uint8_t *)hostheader,
 	    strlen(hostheader))) {
 		failf(data, "error setting path");
@@ -763,14 +744,14 @@ static CURLcode start_CONNECT(struct Curl_cfilter * cf,
 			goto error;
 		}
 		Curl_debug(data, CURLINFO_HEADER_OUT, se, strlen(se));
-		free(se);
+		SAlloc::F(se);
 	}
 	/* Setup the proxy-authorization header, if any */
 	result = Curl_http_output_auth(data, conn, "CONNECT", HTTPREQ_GET,
 		hostheader, TRUE);
 	if(result)
 		goto error;
-	Curl_safefree(hostheader);
+	ZFREE(hostheader);
 
 	/* default is 1.1 */
 	if((conn->http_proxy.proxytype == CURLPROXY_HTTP_1_0) &&
@@ -791,7 +772,7 @@ static CURLcode start_CONNECT(struct Curl_cfilter * cf,
 		result = Curl_hyper_header(data, headers, host);
 		if(result)
 			goto error;
-		Curl_safefree(host);
+		ZFREE(host);
 	}
 
 	if(data->state.aptr.proxyuserpwd) {
@@ -845,8 +826,8 @@ static CURLcode start_CONNECT(struct Curl_cfilter * cf,
 	client = NULL;
 
 error:
-	free(host);
-	free(hostheader);
+	SAlloc::F(host);
+	SAlloc::F(hostheader);
 	if(io)
 		hyper_io_free(io);
 	if(options)
@@ -899,18 +880,14 @@ error:
 }
 
 static CURLcode recv_CONNECT_resp(struct Curl_cfilter * cf,
-    struct Curl_easy * data,
-    struct h1_tunnel_state * ts,
-    bool * done)
+    struct Curl_easy * data, struct h1_tunnel_state * ts, bool * done)
 {
 	struct hyptransfer * h = &data->hyp;
 	CURLcode result;
 	int didwhat;
-
 	(void)ts;
 	*done = FALSE;
-	result = Curl_hyper_stream(data, cf->conn, &didwhat, done,
-		CURL_CSELECT_IN | CURL_CSELECT_OUT);
+	result = Curl_hyper_stream(data, cf->conn, &didwhat, done, CURL_CSELECT_IN | CURL_CSELECT_OUT);
 	if(result || !*done)
 		return result;
 	if(h->exec) {
@@ -1022,7 +999,7 @@ static CURLcode H1_CONNECT(struct Curl_cfilter * cf,
 	DEBUGASSERT(ts->tunnel_state == H1_TUNNEL_RESPONSE);
 	if(data->info.httpproxycode/100 != 2) {
 		/* a non-2xx response and we have no next url to try. */
-		Curl_safefree(data->req.newurl);
+		ZFREE(data->req.newurl);
 		/* failure, close this connection to avoid reuse */
 		streamclose(conn, "proxy CONNECT failure");
 		h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, data);
@@ -1067,7 +1044,7 @@ static CURLcode cf_h1_proxy_connect(struct Curl_cfilter * cf, struct Curl_easy *
 	result = H1_CONNECT(cf, data, ts);
 	if(result)
 		goto out;
-	Curl_safefree(data->state.aptr.proxyuserpwd);
+	ZFREE(data->state.aptr.proxyuserpwd);
 
 out:
 	*done = (result == CURLE_OK) && tunnel_is_established((h1_tunnel_state *)cf->ctx);

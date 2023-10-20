@@ -28,10 +28,10 @@
 #include <stdint.h>
 #include <nghttp2/nghttp2.h>
 //#include "urldata.h"
-#include "bufq.h"
+//#include "bufq.h"
 #include "http1.h"
 #include "http2.h"
-#include "http.h"
+//#include "http.h"
 //#include "sendf.h"
 #include "select.h"
 #include "curl_base64.h"
@@ -44,11 +44,11 @@
 #include "rand.h"
 #include "strtoofft.h"
 #include "strdup.h"
-#include "transfer.h"
-#include "dynbuf.h"
+//#include "transfer.h"
+//#include "dynbuf.h"
 #include "headers.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -152,7 +152,7 @@ static void cf_h2_ctx_clear(struct cf_h2_ctx * ctx)
 	Curl_bufq_free(&ctx->inbufq);
 	Curl_bufq_free(&ctx->outbufq);
 	Curl_bufcp_free(&ctx->stream_bufcp);
-	memset(ctx, 0, sizeof(*ctx));
+	memzero(ctx, sizeof(*ctx));
 	ctx->call_data = save;
 }
 
@@ -160,7 +160,7 @@ static void cf_h2_ctx_free(struct cf_h2_ctx * ctx)
 {
 	if(ctx) {
 		cf_h2_ctx_clear(ctx);
-		free(ctx);
+		SAlloc::F(ctx);
 	}
 }
 
@@ -211,7 +211,7 @@ static void drain_stream(struct Curl_cfilter * cf,
     struct Curl_easy * data,
     struct stream_ctx * stream)
 {
-	unsigned char bits;
+	uchar bits;
 
 	(void)cf;
 	bits = CURL_CSELECT_IN;
@@ -245,7 +245,7 @@ static CURLcode http2_data_setup(struct Curl_cfilter * cf,
 		return CURLE_OK;
 	}
 
-	stream = calloc(1, sizeof(*stream));
+	stream = SAlloc::C(1, sizeof(*stream));
 	if(!stream)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -320,13 +320,13 @@ static void http2_data_done(struct Curl_cfilter * cf,
 	if(stream->push_headers) {
 		/* if they weren't used and then freed before */
 		for(; stream->push_headers_used > 0; --stream->push_headers_used) {
-			free(stream->push_headers[stream->push_headers_used - 1]);
+			SAlloc::F(stream->push_headers[stream->push_headers_used - 1]);
 		}
-		free(stream->push_headers);
+		SAlloc::F(stream->push_headers);
 		stream->push_headers = NULL;
 	}
 
-	free(stream);
+	SAlloc::F(stream);
 	H2_STREAM_LCTX(data) = NULL;
 }
 
@@ -353,7 +353,7 @@ static int h2_client_new(struct Curl_cfilter * cf,
 }
 
 static ssize_t nw_in_reader(void * reader_ctx,
-    unsigned char * buf, size_t buflen,
+    uchar * buf, size_t buflen,
     CURLcode * err)
 {
 	struct Curl_cfilter * cf = reader_ctx;
@@ -363,7 +363,7 @@ static ssize_t nw_in_reader(void * reader_ctx,
 }
 
 static ssize_t nw_out_writer(void * writer_ctx,
-    const unsigned char * buf, size_t buflen,
+    const uchar * buf, size_t buflen,
     CURLcode * err)
 {
 	struct Curl_cfilter * cf = writer_ctx;
@@ -534,7 +534,7 @@ static int h2_process_pending_input(struct Curl_cfilter * cf,
     CURLcode * err)
 {
 	struct cf_h2_ctx * ctx = cf->ctx;
-	const unsigned char * buf;
+	const uchar * buf;
 	size_t blen;
 	ssize_t rv;
 
@@ -767,7 +767,7 @@ static struct Curl_easy *h2_duphandle(struct Curl_cfilter * cf,
 	struct Curl_easy * second = curl_easy_duphandle(data);
 	if(second) {
 		/* setup the request struct */
-		struct HTTP * http = calloc(1, sizeof(struct HTTP));
+		struct HTTP * http = SAlloc::C(1, sizeof(struct HTTP));
 		if(!http) {
 			(void)Curl_close(&second);
 		}
@@ -830,7 +830,7 @@ fail:
 		return rc;
 
 	if(data->state.url_alloc)
-		free(data->state.url);
+		SAlloc::F(data->state.url);
 	data->state.url_alloc = TRUE;
 	data->state.url = url;
 	return 0;
@@ -907,8 +907,8 @@ static int push_promise(struct Curl_cfilter * cf,
 
 		/* free the headers again */
 		for(i = 0; i<stream->push_headers_used; i++)
-			free(stream->push_headers[i]);
-		free(stream->push_headers);
+			SAlloc::F(stream->push_headers[i]);
+		SAlloc::F(stream->push_headers);
 		stream->push_headers = NULL;
 		stream->push_headers_used = 0;
 
@@ -962,7 +962,7 @@ static CURLcode recvbuf_write_hds(struct Curl_cfilter * cf,
 
 	(void)cf;
 	nwritten = Curl_bufq_write(&stream->recvbuf,
-		(const unsigned char *)buf, blen, &result);
+		(const uchar *)buf, blen, &result);
 	if(nwritten < 0)
 		return result;
 	stream->resp_hds_len += (size_t)nwritten;
@@ -1433,14 +1433,14 @@ static int on_header(nghttp2_session * session, const nghttp2_frame * frame,
 				    stream_id, NGHTTP2_PROTOCOL_ERROR);
 				rc = NGHTTP2_ERR_CALLBACK_FAILURE;
 			}
-			free(check);
+			SAlloc::F(check);
 			if(rc)
 				return rc;
 		}
 
 		if(!stream->push_headers) {
 			stream->push_headers_alloc = 10;
-			stream->push_headers = malloc(stream->push_headers_alloc *
+			stream->push_headers = SAlloc::M(stream->push_headers_alloc *
 				sizeof(char *));
 			if(!stream->push_headers)
 				return NGHTTP2_ERR_TEMPORAL_CALLBACK_FAILURE;
@@ -1452,7 +1452,7 @@ static int on_header(nghttp2_session * session, const nghttp2_frame * frame,
 			if(stream->push_headers_alloc > 1000) {
 				/* this is beyond crazy many headers, bail out */
 				failf(data_s, "Too many PUSH_PROMISE headers");
-				Curl_safefree(stream->push_headers);
+				ZFREE(stream->push_headers);
 				return NGHTTP2_ERR_TEMPORAL_CALLBACK_FAILURE;
 			}
 			stream->push_headers_alloc *= 2;
@@ -1640,7 +1640,7 @@ CURLcode Curl_http2_request_upgrade(struct dynbuf * req,
 		"Upgrade: %s\r\n"
 		"HTTP2-Settings: %s\r\n",
 		NGHTTP2_CLEARTEXT_PROTO_VERSION_ID, base64);
-	free(base64);
+	SAlloc::F(base64);
 
 	k->upgr101 = UPGR101_H2;
 
@@ -1832,7 +1832,7 @@ static ssize_t stream_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 	*err = CURLE_AGAIN;
 	if(!Curl_bufq_is_empty(&stream->recvbuf)) {
 		nread = Curl_bufq_read(&stream->recvbuf,
-			(unsigned char *)buf, len, err);
+			(uchar *)buf, len, err);
 		if(nread < 0)
 			goto out;
 		DEBUGASSERT(nread > 0);
@@ -2051,7 +2051,7 @@ static ssize_t h2_submit(struct stream_ctx ** pstream,
 	Curl_h1_req_parse_free(&stream->h1);
 
 	nheader = Curl_dynhds_count(&h2_headers);
-	nva = malloc(sizeof(nghttp2_nv) * nheader);
+	nva = SAlloc::M(sizeof(nghttp2_nv) * nheader);
 	if(!nva) {
 		*err = CURLE_OUT_OF_MEMORY;
 		nwritten = -1;
@@ -2060,9 +2060,9 @@ static ssize_t h2_submit(struct stream_ctx ** pstream,
 
 	for(i = 0; i < nheader; ++i) {
 		struct dynhds_entry * e = Curl_dynhds_getn(&h2_headers, i);
-		nva[i].name = (unsigned char *)e->name;
+		nva[i].name = (uchar *)e->name;
 		nva[i].namelen = e->namelen;
-		nva[i].value = (unsigned char *)e->value;
+		nva[i].value = (uchar *)e->value;
 		nva[i].valuelen = e->valuelen;
 		nva[i].flags = NGHTTP2_NV_FLAG_NONE;
 	}
@@ -2154,7 +2154,7 @@ static ssize_t h2_submit(struct stream_ctx ** pstream,
 out:
 	CURL_TRC_CF(data, cf, "[%d] submit -> %zd, %d",
 	    stream? stream->id : -1, nwritten, *err);
-	Curl_safefree(nva);
+	ZFREE(nva);
 	*pstream = stream;
 	Curl_dynhds_free(&h2_headers);
 	return nwritten;
@@ -2621,7 +2621,7 @@ static CURLcode http2_cfilter_add(struct Curl_cfilter ** pcf,
 	CURLcode result = CURLE_OUT_OF_MEMORY;
 
 	DEBUGASSERT(data->conn);
-	ctx = calloc(sizeof(*ctx), 1);
+	ctx = SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx)
 		goto out;
 
@@ -2647,7 +2647,7 @@ static CURLcode http2_cfilter_insert_after(struct Curl_cfilter * cf,
 	CURLcode result = CURLE_OUT_OF_MEMORY;
 
 	(void)data;
-	ctx = calloc(sizeof(*ctx), 1);
+	ctx = SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx)
 		goto out;
 
@@ -2791,7 +2791,7 @@ CURLcode Curl_http2_upgrade(struct Curl_easy * data,
 		ssize_t copied;
 
 		copied = Curl_bufq_write(&ctx->inbufq,
-			(const unsigned char *)mem, nread, &result);
+			(const uchar *)mem, nread, &result);
 		if(copied < 0) {
 			failf(data, "error on copying HTTP Upgrade response: %d", result);
 			return CURLE_RECV_ERROR;

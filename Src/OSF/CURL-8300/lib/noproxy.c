@@ -45,10 +45,10 @@
  */
 UNITTEST bool Curl_cidr4_match(const char * ipv4,    /* 1.2.3.4 address */
     const char * network,                           /* 1.2.3.4 address */
-    unsigned int bits)
+    uint bits)
 {
-	unsigned int address = 0;
-	unsigned int check = 0;
+	uint address = 0;
+	uint check = 0;
 
 	if(bits > 32)
 		/* strange input */
@@ -60,9 +60,9 @@ UNITTEST bool Curl_cidr4_match(const char * ipv4,    /* 1.2.3.4 address */
 		return FALSE;
 
 	if(bits && (bits != 32)) {
-		unsigned int mask = 0xffffffff << (32 - bits);
-		unsigned int haddr = htonl(address);
-		unsigned int hcheck = htonl(check);
+		uint mask = 0xffffffff << (32 - bits);
+		uint haddr = htonl(address);
+		uint hcheck = htonl(check);
 #if 0
 		fprintf(stderr, "Host %s (%x) network %s (%x) bits %u mask %x => %x\n",
 		    ipv4, haddr, network, hcheck, bits, mask,
@@ -77,13 +77,13 @@ UNITTEST bool Curl_cidr4_match(const char * ipv4,    /* 1.2.3.4 address */
 
 UNITTEST bool Curl_cidr6_match(const char * ipv6,
     const char * network,
-    unsigned int bits)
+    uint bits)
 {
 #ifdef ENABLE_IPV6
 	int bytes;
 	int rest;
-	unsigned char address[16];
-	unsigned char check[16];
+	uchar address[16];
+	uchar check[16];
 
 	if(!bits)
 		bits = 128;
@@ -160,7 +160,7 @@ bool Curl_check_noproxy(const char * name, const char * no_proxy, bool * spacese
 			type = TYPE_IPV6;
 		}
 		else {
-			unsigned int address;
+			uint address;
 			namelen = strlen(name);
 			if(1 == Curl_inet_pton(AF_INET, name, &address))
 				type = TYPE_IPV4;
@@ -217,7 +217,7 @@ bool Curl_check_noproxy(const char * name, const char * no_proxy, bool * spacese
 					case TYPE_IPV6: {
 					    const char * check = token;
 					    char * slash;
-					    unsigned int bits = 0;
+					    uint bits = 0;
 					    char checkip[128];
 					    if(tokenlen >= sizeof(checkip))
 						    /* this cannot match */

@@ -35,7 +35,7 @@
 #include "http2.h"
 #include "vssh/ssh.h"
 #include "vquic/vquic.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "easy_lock.h"
 
 #ifdef USE_ARES
@@ -90,9 +90,9 @@
 static void brotli_version(char * buf, size_t bufsz)
 {
 	uint32_t brotli_version = BrotliDecoderVersion();
-	unsigned int major = brotli_version >> 24;
-	unsigned int minor = (brotli_version & 0x00FFFFFF) >> 12;
-	unsigned int patch = brotli_version & 0x00000FFF;
+	uint major = brotli_version >> 24;
+	uint minor = (brotli_version & 0x00FFFFFF) >> 12;
+	uint patch = brotli_version & 0x00000FFF;
 	(void)msnprintf(buf, bufsz, "%u.%u.%u", major, minor, patch);
 }
 
@@ -101,11 +101,11 @@ static void brotli_version(char * buf, size_t bufsz)
 #ifdef HAVE_ZSTD
 static void zstd_version(char * buf, size_t bufsz)
 {
-	unsigned long zstd_version = (unsigned long)ZSTD_versionNumber();
-	unsigned int major = (unsigned int)(zstd_version / (100 * 100));
-	unsigned int minor = (unsigned int)((zstd_version -
+	unsigned long zstd_version = (ulong)ZSTD_versionNumber();
+	uint major = (uint)(zstd_version / (100 * 100));
+	uint minor = (uint)((zstd_version -
 	    (major * 100 * 100)) / 100);
-	unsigned int patch = (unsigned int)(zstd_version -
+	uint patch = (uint)(zstd_version -
 	    (major * 100 * 100) - (minor * 100));
 	(void)msnprintf(buf, bufsz, "%u.%u.%u", major, minor, patch);
 }
@@ -261,9 +261,9 @@ char *curl_version(void)
 		api.ldapai_info_version = LDAP_API_INFO_VERSION;
 
 		if(ldap_get_option(NULL, LDAP_OPT_API_INFO, &api) == LDAP_OPT_SUCCESS) {
-			unsigned int patch = api.ldapai_vendor_version % 100;
-			unsigned int major = api.ldapai_vendor_version / 10000;
-			unsigned int minor =
+			uint patch = api.ldapai_vendor_version % 100;
+			uint major = api.ldapai_vendor_version / 10000;
+			uint minor =
 			    ((api.ldapai_vendor_version - major * 10000) - patch) / 100;
 			msnprintf(ldap_buf, sizeof(ldap_buf), "%s/%u.%u.%u",
 			    api.ldapai_vendor_name, major, minor, patch);
@@ -626,7 +626,7 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
 #endif
 
 #ifdef HAVE_ZSTD
-	version_info.zstd_ver_num = (unsigned int)ZSTD_versionNumber();
+	version_info.zstd_ver_num = (uint)ZSTD_versionNumber();
 	zstd_version(zstd_buffer, sizeof(zstd_buffer));
 	version_info.zstd_version = zstd_buffer;
 #endif

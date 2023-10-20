@@ -308,7 +308,7 @@ struct curl_fileinfo {
 	char * filename;
 	curlfiletype filetype;
 	time_t time; /* always zero! */
-	unsigned int perm;
+	uint perm;
 	int uid;
 	int gid;
 	curl_off_t size;
@@ -323,7 +323,7 @@ struct curl_fileinfo {
 		char * target; /* pointer to the target filename of a symlink */
 	} strings;
 
-	unsigned int flags;
+	uint flags;
 
 	/* These are libcurl private struct fields. Previously used by libcurl, so
 	   they must never be interfered with. */
@@ -419,7 +419,7 @@ struct curl_sockaddr {
 	int family;
 	int socktype;
 	int protocol;
-	unsigned int addrlen; /* addrlen was a socklen_t type before 7.18.0 but it
+	uint addrlen; /* addrlen was a socklen_t type before 7.18.0 but it
 	                         turned really ugly and painful on the systems that
 	                         lack this type */
 	struct sockaddr addr;
@@ -801,20 +801,20 @@ typedef enum {
  * CURLAUTH_ANYSAFE      - All fine types except Basic
  */
 
-#define CURLAUTH_NONE         ((unsigned long)0)
-#define CURLAUTH_BASIC        (((unsigned long)1)<<0)
-#define CURLAUTH_DIGEST       (((unsigned long)1)<<1)
-#define CURLAUTH_NEGOTIATE    (((unsigned long)1)<<2)
+#define CURLAUTH_NONE         ((ulong)0)
+#define CURLAUTH_BASIC        (((ulong)1)<<0)
+#define CURLAUTH_DIGEST       (((ulong)1)<<1)
+#define CURLAUTH_NEGOTIATE    (((ulong)1)<<2)
 /* Deprecated since the advent of CURLAUTH_NEGOTIATE */
 #define CURLAUTH_GSSNEGOTIATE CURLAUTH_NEGOTIATE
 /* Used for CURLOPT_SOCKS5_AUTH to stay terminologically correct */
 #define CURLAUTH_GSSAPI CURLAUTH_NEGOTIATE
-#define CURLAUTH_NTLM         (((unsigned long)1)<<3)
-#define CURLAUTH_DIGEST_IE    (((unsigned long)1)<<4)
-#define CURLAUTH_NTLM_WB      (((unsigned long)1)<<5)
-#define CURLAUTH_BEARER       (((unsigned long)1)<<6)
-#define CURLAUTH_AWS_SIGV4    (((unsigned long)1)<<7)
-#define CURLAUTH_ONLY         (((unsigned long)1)<<31)
+#define CURLAUTH_NTLM         (((ulong)1)<<3)
+#define CURLAUTH_DIGEST_IE    (((ulong)1)<<4)
+#define CURLAUTH_NTLM_WB      (((ulong)1)<<5)
+#define CURLAUTH_BEARER       (((ulong)1)<<6)
+#define CURLAUTH_AWS_SIGV4    (((ulong)1)<<7)
+#define CURLAUTH_ONLY         (((ulong)1)<<31)
 #define CURLAUTH_ANY          (~CURLAUTH_DIGEST_IE)
 #define CURLAUTH_ANYSAFE      (~(CURLAUTH_BASIC|CURLAUTH_DIGEST_IE))
 
@@ -998,7 +998,7 @@ typedef enum {
 struct curl_hstsentry {
 	char * name;
 	size_t namelen;
-	unsigned int includeSubDomains : 1;
+	uint includeSubDomains : 1;
 	char expire[18]; /* YYYYMMDD HH:MM:SS [null-terminated] */
 };
 
@@ -2613,7 +2613,7 @@ curl_formfree(struct curl_httppost * form);
  *
  * DESCRIPTION
  *
- * Returns a malloc()'ed string that MUST be curl_free()ed after usage is
+ * Returns a SAlloc::M()'ed string that MUST be curl_free()ed after usage is
  * complete. DEPRECATED - see lib/README.curlx
  */
 CURL_EXTERN char *curl_getenv(const char * variable);
@@ -3047,7 +3047,7 @@ typedef enum {
 struct curl_version_info_data {
 	CURLversion age;    /* age of the returned struct */
 	const char * version; /* LIBCURL_VERSION */
-	unsigned int version_num; /* LIBCURL_VERSION_NUM */
+	uint version_num; /* LIBCURL_VERSION_NUM */
 	const char * host;  /* OS/host/cpu/machine when configured */
 	int features;       /* bitmask, see defines below */
 	const char * ssl_version; /* human readable string */
@@ -3071,12 +3071,12 @@ struct curl_version_info_data {
 	const char * libssh_version; /* human readable string */
 
 	/* These fields were added in CURLVERSION_FIFTH */
-	unsigned int brotli_ver_num; /* Numeric Brotli version
+	uint brotli_ver_num; /* Numeric Brotli version
 	                                (MAJOR << 24) | (MINOR << 12) | PATCH */
 	const char * brotli_version; /* human readable string. */
 
 	/* These fields were added in CURLVERSION_SIXTH */
-	unsigned int nghttp2_ver_num; /* Numeric nghttp2 version
+	uint nghttp2_ver_num; /* Numeric nghttp2 version
 	                                 (MAJOR << 16) | (MINOR << 8) | PATCH */
 	const char * nghttp2_version; /* human readable string. */
 	const char * quic_version; /* human readable quic (+ HTTP/3) library +
@@ -3089,7 +3089,7 @@ struct curl_version_info_data {
 	                          be NULL */
 
 	/* These fields were added in CURLVERSION_EIGHTH */
-	unsigned int zstd_ver_num; /* Numeric Zstd version
+	uint zstd_ver_num; /* Numeric Zstd version
 	                                (MAJOR << 24) | (MINOR << 12) | PATCH */
 	const char * zstd_version; /* human readable string. */
 

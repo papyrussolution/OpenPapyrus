@@ -45,7 +45,7 @@
 //#include "connect.h"
 #include "select.h"
 //#include "timediff.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 /*
  * Internal function used for waiting a specific amount of ms
@@ -268,7 +268,7 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
+int Curl_poll(struct pollfd ufds[], uint nfds, timediff_t timeout_ms)
 {
 #ifdef HAVE_POLL_FINE
 	int pending_ms;
@@ -279,7 +279,7 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
 	curl_socket_t maxfd;
 #endif
 	bool fds_none = TRUE;
-	unsigned int i;
+	uint i;
 	int r;
 
 	if(ufds) {

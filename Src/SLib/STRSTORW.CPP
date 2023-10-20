@@ -1,5 +1,6 @@
 // STRSTORW.CPP
-// Copyright (c) A.Sobolev 1996-1999, 2004, 2010, 2016
+// Copyright (c) A.Sobolev 1996-1999, 2004, 2010, 2016, 2023
+// @codepage UTF-8
 //
 #include <slib.h>
 #pragma hdrstop
@@ -7,7 +8,7 @@
 
 int SLAPI StringStore::addString(int group, int code, Pchar str)
 {
-	int    we = 0; // Признак ошибки записи
+	int    we = 0; // РџСЂРёР·РЅР°Рє РѕС€РёР±РєРё Р·Р°РїРёСЃРё
 	int16  len;
 	uint   tmp;
 	IdxItem item;
@@ -32,9 +33,9 @@ int SLAPI StringStore::addString(int group, int code, Pchar str)
 			if(!ordInsert(&item, &tmp, CMPF_LONG)) {
 				if(SLibError != SLERR_ARYDUPITEM)
 					error = 1;
-				else	// В случае дублирования элемента массива просто
-					// возвращаем нулевое значение. При этом дальнейшие
-					// операции не будут запрещены.
+				else	// Р’ СЃР»СѓС‡Р°Рµ РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ СЌР»РµРјРµРЅС‚Р° РјР°СЃСЃРёРІР° РїСЂРѕСЃС‚Рѕ
+					// РІРѕР·РІСЂР°С‰Р°РµРј РЅСѓР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ. РџСЂРё СЌС‚РѕРј РґР°Р»СЊРЅРµР№С€РёРµ
+					// РѕРїРµСЂР°С†РёРё РЅРµ Р±СѓРґСѓС‚ Р·Р°РїСЂРµС‰РµРЅС‹.
 					return 0;
 			}
 			else {

@@ -48,13 +48,13 @@
 #endif
 
 //#include "sendf.h"
-#include "http.h"
-#include "content_encoding.h"
+//#include "http.h"
+//#include "content_encoding.h"
 #include "strdup.h"
 //#include "strcase.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -99,17 +99,17 @@ struct zlib_writer {
 	z_stream z;          /* State structure for zlib. */
 };
 
-static voidpf zalloc_cb(voidpf opaque, unsigned int items, unsigned int size)
+static voidpf zalloc_cb(voidpf opaque, uint items, uint size)
 {
 	(void)opaque;
-	/* not a typo, keep it calloc() */
-	return (voidpf)calloc(items, size);
+	/* not a typo, keep it SAlloc::C() */
+	return (voidpf)SAlloc::C(items, size);
 }
 
 static void zfree_cb(voidpf opaque, voidpf ptr)
 {
 	(void)opaque;
-	free(ptr);
+	SAlloc::F(ptr);
 }
 
 static CURLcode process_zlib_error(struct Curl_easy * data, z_stream * z)
@@ -128,7 +128,7 @@ static CURLcode exit_zlib(struct Curl_easy * data,
     z_stream * z, zlibInitState * zlib_init, CURLcode result)
 {
 	if(*zlib_init == ZLIB_GZIP_HEADER)
-		Curl_safefree(z->next_in);
+		ZFREE(z->next_in);
 
 	if(*zlib_init != ZLIB_UNINIT) {
 		if(inflateEnd(z) != Z_OK && result == CURLE_OK)
@@ -184,7 +184,7 @@ static CURLcode inflate_stream(struct Curl_easy * data,
 
 	/* Dynamically allocate a buffer for decompression because it's uncommonly
 	   large to hold on the stack */
-	decomp = malloc(DSIZ);
+	decomp = SAlloc::M(DSIZ);
 	if(!decomp)
 		return exit_zlib(data, z, &zp->zlib_init, CURLE_OUT_OF_MEMORY);
 
@@ -254,7 +254,7 @@ static CURLcode inflate_stream(struct Curl_easy * data,
 			    break;
 		}
 	}
-	free(decomp);
+	SAlloc::F(decomp);
 
 	/* We're about to leave this call so the `nread' data bytes won't be seen
 	   again. If we are in a state that would wrongly allow restart in raw mode
@@ -360,7 +360,7 @@ static enum {
 	GZIP_OK,
 	GZIP_BAD,
 	GZIP_UNDERFLOW
-} check_gzip_header(unsigned char const * data, ssize_t len, ssize_t *headerlen)
+} check_gzip_header(uchar const * data, ssize_t len, ssize_t *headerlen)
 {
 	int method, flags;
 	const ssize_t totallen = len;
@@ -476,7 +476,7 @@ static CURLcode gzip_unencode_write(struct Curl_easy * data,
 		    /* Initial call state */
 		    ssize_t hlen;
 
-		    switch(check_gzip_header((unsigned char *)buf, nbytes, &hlen)) {
+		    switch(check_gzip_header((uchar *)buf, nbytes, &hlen)) {
 			    case GZIP_OK:
 				z->next_in = (Bytef *)buf + hlen;
 				z->avail_in = (uInt)(nbytes - hlen);
@@ -492,7 +492,7 @@ static CURLcode gzip_unencode_write(struct Curl_easy * data,
 				 * immediately afterwards, it should seldom be a problem.
 				 */
 				z->avail_in = (uInt)nbytes;
-				z->next_in = malloc(z->avail_in);
+				z->next_in = SAlloc::M(z->avail_in);
 				if(!z->next_in) {
 					return exit_zlib(data, z, &zp->zlib_init, CURLE_OUT_OF_MEMORY);
 				}
@@ -523,7 +523,7 @@ static CURLcode gzip_unencode_write(struct Curl_easy * data,
 		    switch(check_gzip_header(z->next_in, z->avail_in, &hlen)) {
 			    case GZIP_OK:
 				/* This is the zlib stream data */
-				free(z->next_in);
+				SAlloc::F(z->next_in);
 				/* Don't point into the malloced block since we just freed it */
 				z->next_in = (Bytef *)buf + hlen + nbytes - z->avail_in;
 				z->avail_in = (uInt)(z->avail_in - hlen);
@@ -657,7 +657,7 @@ static CURLcode brotli_unencode_write(struct Curl_easy * data,
 	if(!bp->br)
 		return CURLE_WRITE_ERROR; /* Stream already ended. */
 
-	decomp = malloc(DSIZ);
+	decomp = SAlloc::M(DSIZ);
 	if(!decomp)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -686,7 +686,7 @@ static CURLcode brotli_unencode_write(struct Curl_easy * data,
 			    break;
 		}
 	}
-	free(decomp);
+	SAlloc::F(decomp);
 	return result;
 }
 
@@ -747,7 +747,7 @@ static CURLcode zstd_unencode_write(struct Curl_easy * data,
 	size_t errorCode;
 
 	if(!zp->decomp) {
-		zp->decomp = malloc(DSIZ);
+		zp->decomp = SAlloc::M(DSIZ);
 		if(!zp->decomp)
 			return CURLE_OUT_OF_MEMORY;
 	}
@@ -785,7 +785,7 @@ static void zstd_close_writer(struct Curl_easy * data,
 	(void)data;
 
 	if(zp->decomp) {
-		free(zp->decomp);
+		SAlloc::F(zp->decomp);
 		zp->decomp = NULL;
 	}
 	if(zp->zds) {
@@ -865,7 +865,7 @@ char *Curl_all_content_encodings(void)
 	}
 	if(!len)
 		return strdup(CONTENT_ENCODING_DEFAULT);
-	ace = (char *)malloc(len);
+	ace = (char *)SAlloc::M(len);
 	if(ace) {
 		char * p = ace;
 		for(cep = encodings; *cep; cep++) {
@@ -943,7 +943,7 @@ static CURLcode error_unencode_write(struct Curl_easy * data,
 		return CURLE_OUT_OF_MEMORY;
 	failf(data, "Unrecognized content encoding type. "
 	    "libcurl understands %s content encodings.", all);
-	free(all);
+	SAlloc::F(all);
 	return CURLE_BAD_CONTENT_ENCODING;
 }
 
@@ -971,14 +971,14 @@ static struct contenc_writer *new_unencoding_writer(struct Curl_easy * data,
 	struct contenc_writer * writer;
 
 	DEBUGASSERT(handler->writersize >= sizeof(struct contenc_writer));
-	writer = (struct contenc_writer *)calloc(1, handler->writersize);
+	writer = (struct contenc_writer *)SAlloc::C(1, handler->writersize);
 
 	if(writer) {
 		writer->handler = handler;
 		writer->downstream = downstream;
 		writer->order = order;
 		if(handler->init_writer(data, writer)) {
-			free(writer);
+			SAlloc::F(writer);
 			writer = NULL;
 		}
 	}
@@ -1006,7 +1006,7 @@ void Curl_unencode_cleanup(struct Curl_easy * data)
 	while(writer) {
 		k->writer_stack = writer->downstream;
 		writer->handler->close_writer(data, writer);
-		free(writer);
+		SAlloc::F(writer);
 		writer = k->writer_stack;
 	}
 }
@@ -1034,7 +1034,7 @@ CURLcode Curl_build_unencoding_stack(struct Curl_easy * data,
     const char * enclist, int is_transfer)
 {
 	struct SingleRequest * k = &data->req;
-	unsigned int order = is_transfer? 2: 1;
+	uint order = is_transfer? 2: 1;
 
 	do {
 		const char * name;

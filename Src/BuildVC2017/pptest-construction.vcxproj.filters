@@ -28,5 +28,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-ued.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-mem.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-inet.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-edlib.cpp" />
   </ItemGroup>
 </Project>

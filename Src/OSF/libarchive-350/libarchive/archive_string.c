@@ -47,11 +47,10 @@ struct archive_string_conv {
 	archive_string_conv * next;
 	char * from_charset;
 	char * to_charset;
-	unsigned from_cp;
-	unsigned to_cp;
-	/* Set 1 if from_charset and to_charset are the same. */
-	int same;
-	int flag;
+	uint   from_cp;
+	uint   to_cp;
+	int    same; // Set 1 if from_charset and to_charset are the same
+	int    flag;
 #define SCONV_TO_CHARSET        1       /* MBS is being converted to specified charset. */
 #define SCONV_FROM_CHARSET      (1<<1)  /* MBS is being converted from specified charset. */
 #define SCONV_BEST_EFFORT       (1<<2)  /* Copy at least ASCII code. */
@@ -67,7 +66,6 @@ struct archive_string_conv {
 #define SCONV_FROM_UTF16LE      (1<<13) /* "from charset" side is UTF-16LE. */
 #define SCONV_TO_UTF16          (SCONV_TO_UTF16BE | SCONV_TO_UTF16LE)
 #define SCONV_FROM_UTF16        (SCONV_FROM_UTF16BE | SCONV_FROM_UTF16LE)
-
 #if HAVE_ICONV
 	iconv_t cd;
 	iconv_t cd_w; /* Use at archive_mstring on Windows. */
@@ -962,10 +960,9 @@ static archive_string_conv * create_sconv_object(const char * fc, const char * t
 	}
 	archive_string_init(&sc->utftmp);
 	if(flag & SCONV_TO_CHARSET) {
-		/*
-		 * Convert characters from the current locale charset to
-		 * a specified charset.
-		 */
+		// 
+		// Convert characters from the current locale charset to a specified charset.
+		// 
 		sc->from_cp = current_codepage;
 		sc->to_cp = make_codepage_from_charset(tc);
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -974,10 +971,9 @@ static archive_string_conv * create_sconv_object(const char * fc, const char * t
 #endif
 	}
 	else if(flag & SCONV_FROM_CHARSET) {
-		/*
-		 * Convert characters from a specified charset to
-		 * the current locale charset.
-		 */
+		// 
+		// Convert characters from a specified charset to the current locale charset.
+		// 
 		sc->to_cp = current_codepage;
 		sc->from_cp = make_codepage_from_charset(fc);
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -985,16 +981,13 @@ static archive_string_conv * create_sconv_object(const char * fc, const char * t
 			flag |= SCONV_WIN_CP;
 #endif
 	}
-	/*
-	 * Check if "from charset" and "to charset" are the same.
-	 */
-	if(sstreq(fc, tc) || (sc->from_cp != (uint)-1 && sc->from_cp == sc->to_cp))
-		sc->same = 1;
-	else
-		sc->same = 0;
-	/*
-	 * Mark if "from charset" or "to charset" are UTF-8 or UTF-16BE/LE.
-	 */
+	// 
+	// Check if "from charset" and "to charset" are the same.
+	// 
+	sc->same = (sstreq(fc, tc) || (sc->from_cp != (uint)-1 && sc->from_cp == sc->to_cp)) ? 1 : 0;
+	// 
+	// Mark if "from charset" or "to charset" are UTF-8 or UTF-16BE/LE.
+	//
 	if(sstreq(tc, "UTF-8"))
 		flag |= SCONV_TO_UTF8;
 	else if(sstreq(tc, "UTF-16BE"))
@@ -1100,9 +1093,9 @@ static archive_string_conv * create_sconv_object(const char * fc, const char * t
 	}
 #endif  /* HAVE_ICONV */
 	sc->flag = flag;
-	/*
-	 * Set up converters.
-	 */
+	// 
+	// Set up converters.
+	// 
 	setup_converter(sc);
 	return (sc);
 }
@@ -1302,14 +1295,13 @@ static unsigned make_codepage_from_charset(const char * charset)
 	}
 	return (cp);
 }
-
 /*
  * Return ANSI Code Page of current locale set by setlocale().
  */
-static unsigned get_current_codepage(void)
+static uint get_current_codepage()
 {
 	char * p;
-	unsigned cp;
+	uint   cp;
 	char * locale = setlocale(LC_CTYPE, NULL);
 	if(locale == NULL)
 		return (GetACP());
@@ -1471,7 +1463,7 @@ static archive_string_conv * get_sconv_object(Archive * a, const char * fc, cons
 
 static const char * get_current_charset(Archive * a)
 {
-	const char * cur_charset;
+	const char * cur_charset = 0;
 	if(a) {
 		cur_charset = default_iconv_charset(a->current_code);
 		if(a->current_code == NULL) {
@@ -1481,7 +1473,7 @@ static const char * get_current_charset(Archive * a)
 		}
 	}
 	else
-		cur_charset = default_iconv_charset("");
+		cur_charset = default_iconv_charset("UTF-8"); // @sobolev ""-->"UTF-8"
 	return (cur_charset);
 }
 
@@ -1639,28 +1631,24 @@ void archive_string_conversion_set_opt(archive_string_conv * sc, int opt)
 	}
 }
 /*
- *
  * Copy one archive_string to another in locale conversion.
- *
  *	archive_strncat_l();
  *	archive_strncpy_l();
  *
  */
 static size_t mbsnbytes(const void * _p, size_t n)
 {
-	size_t s;
-	const char * p, * pp;
-	if(_p == NULL)
-		return 0;
-	p = (const char *)_p;
-	/* Like strlen(p), except won't examine positions beyond p[n]. */
-	s = 0;
-	pp = p;
-	while(s < n && *pp) {
-		pp++;
-		s++;
+	size_t s = 0;
+	if(_p) {
+		const char * p = (const char *)_p;
+		// Like strlen(p), except won't examine positions beyond p[n]
+		const char * pp = p;
+		while(s < n && *pp) {
+			pp++;
+			s++;
+		}
 	}
-	return (s);
+	return s;
 }
 
 static size_t utf16nbytes(const void * _p, size_t n)
@@ -1699,8 +1687,8 @@ int archive_strncat_l(archive_string * as, const void * _p, size_t n, archive_st
 		else
 			length = mbsnbytes(_p, n);
 	}
-	/* We must allocate memory even if there is no data for conversion
-	 * or copy. This simulates archive_string_append behavior. */
+	// We must allocate memory even if there is no data for conversion
+	// or copy. This simulates archive_string_append behavior.
 	if(length == 0) {
 		int tn = 1;
 		if(sc && (sc->flag & SCONV_TO_UTF16))
@@ -1712,12 +1700,12 @@ int archive_strncat_l(archive_string * as, const void * _p, size_t n, archive_st
 			as->s[as->length+1] = 0;
 		return 0;
 	}
-	/*
-	 * If sc is NULL, we just make a copy.
-	 */
+	//
+	// If sc is NULL, we just make a copy.
+	//
 	if(!sc) {
 		if(archive_string_append(as, static_cast<const char *>(_p), length) == NULL)
-			return -1; /* No memory */
+			return -1; // No memory
 		return 0;
 	}
 	s = _p;
@@ -1740,10 +1728,9 @@ int archive_strncat_l(archive_string * as, const void * _p, size_t n, archive_st
 }
 
 #if HAVE_ICONV
-
-/*
- * Return -1 if conversion fails.
- */
+// 
+// Return -1 if conversion fails.
+//
 static int iconv_strncat_in_locale(archive_string * as, const void * _p, size_t length, archive_string_conv * sc)
 {
 	ICONV_CONST char * itp;

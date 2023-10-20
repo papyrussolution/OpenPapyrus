@@ -49,10 +49,10 @@
 #include "strdup.h"
 #include "http2.h"
 #include "headers.h"
-#include "ws.h"
+//#include "ws.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -222,7 +222,7 @@ static CURLcode pausewrite(struct Curl_easy * data,
 	   is again enabled */
 	struct SingleRequest * k = &data->req;
 	struct UrlState * s = &data->state;
-	unsigned int i;
+	uint i;
 	bool newtype = TRUE;
 
 	Curl_conn_ev_data_pause(data, TRUE);
@@ -250,7 +250,7 @@ static CURLcode pausewrite(struct Curl_easy * data,
 		s->tempcount++;
 	}
 
-	if(Curl_dyn_addn(&s->tempwrite[i].b, (unsigned char *)ptr, len))
+	if(Curl_dyn_addn(&s->tempwrite[i].b, (uchar *)ptr, len))
 		return CURLE_OUT_OF_MEMORY;
 
 	/* mark the connection as RECV paused */
@@ -338,7 +338,7 @@ static CURLcode chop_write(struct Curl_easy * data,
 	/* HTTP header, but not status-line */
 	if((conn->handler->protocol & PROTO_FAMILY_HTTP) &&
 	    (type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS) ) {
-		unsigned char htype = (unsigned char)
+		uchar htype = (uchar)
 		    (type & CLIENTWRITE_CONNECT ? CURLH_CONNECT :
 		    (type & CLIENTWRITE_1XX ? CURLH_1XX :
 		    (type & CLIENTWRITE_TRAILER ? CURLH_TRAILER :

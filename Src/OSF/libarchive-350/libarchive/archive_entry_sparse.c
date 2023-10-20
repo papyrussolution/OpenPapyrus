@@ -23,7 +23,7 @@ void archive_entry_sparse_clear(ArchiveEntry * entry)
 	entry->sparse_tail = NULL;
 }
 
-void archive_entry_sparse_add_entry(ArchiveEntry * entry, la_int64_t offset, la_int64_t length)
+void archive_entry_sparse_add_entry(ArchiveEntry * entry, int64 offset, int64 length)
 {
 	struct ae_sparse * sp;
 	if(offset < 0 || length < 0)
@@ -85,7 +85,7 @@ int archive_entry_sparse_reset(ArchiveEntry * entry)
 	return archive_entry_sparse_count(entry);
 }
 
-int archive_entry_sparse_next(ArchiveEntry * entry, la_int64_t * offset, la_int64_t * length)
+int archive_entry_sparse_next(ArchiveEntry * entry, int64 * offset, int64 * length)
 {
 	if(entry->sparse_p) {
 		*offset = entry->sparse_p->offset;

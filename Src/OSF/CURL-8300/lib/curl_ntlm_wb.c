@@ -59,7 +59,7 @@
 //#include "strcase.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -111,8 +111,8 @@ static void ntlm_wb_cleanup(struct ntlmdata * ntlm)
 		ntlm->ntlm_auth_hlpr_pid = 0;
 	}
 
-	Curl_safefree(ntlm->challenge);
-	Curl_safefree(ntlm->response);
+	ZFREE(ntlm->challenge);
+	ZFREE(ntlm->response);
 }
 
 static CURLcode ntlm_wb_init(struct Curl_easy * data, struct ntlmdata * ntlm,
@@ -248,13 +248,13 @@ static CURLcode ntlm_wb_init(struct Curl_easy * data, struct ntlmdata * ntlm,
 	sclose(sockfds[1]);
 	ntlm->ntlm_auth_hlpr_socket = sockfds[0];
 	ntlm->ntlm_auth_hlpr_pid = child_pid;
-	free(domain);
-	free(ntlm_auth_alloc);
+	SAlloc::F(domain);
+	SAlloc::F(ntlm_auth_alloc);
 	return CURLE_OK;
 
 done:
-	free(domain);
-	free(ntlm_auth_alloc);
+	SAlloc::F(domain);
+	SAlloc::F(ntlm_auth_alloc);
 	return CURLE_REMOTE_ACCESS_DENIED;
 }
 
@@ -267,7 +267,7 @@ static CURLcode ntlm_wb_response(struct Curl_easy * data, struct ntlmdata * ntlm
 	size_t len_in = strlen(input), len_out = 0;
 	struct dynbuf b;
 	char * ptr = NULL;
-	unsigned char * buf = (unsigned char *)data->state.buffer;
+	uchar * buf = (uchar *)data->state.buffer;
 	Curl_dyn_init(&b, MAX_NTLM_WB_RESPONSE);
 
 	while(len_in > 0) {
@@ -447,12 +447,12 @@ CURLcode Curl_output_ntlm_wb(struct Curl_easy * data, struct connectdata * conn,
 		    if(res)
 			    return res;
 
-		    free(*allocuserpwd);
+		    SAlloc::F(*allocuserpwd);
 		    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 			    proxy ? "Proxy-" : "",
 			    ntlm->response);
 		    DEBUG_OUT(fprintf(stderr, "**** Header %s\n ", *allocuserpwd));
-		    Curl_safefree(ntlm->response);
+		    ZFREE(ntlm->response);
 		    if(!*allocuserpwd)
 			    return CURLE_OUT_OF_MEMORY;
 		    break;
@@ -462,11 +462,11 @@ CURLcode Curl_output_ntlm_wb(struct Curl_easy * data, struct connectdata * conn,
 		    if(!input)
 			    return CURLE_OUT_OF_MEMORY;
 		    res = ntlm_wb_response(data, ntlm, input, *state);
-		    free(input);
+		    SAlloc::F(input);
 		    if(res)
 			    return res;
 
-		    free(*allocuserpwd);
+		    SAlloc::F(*allocuserpwd);
 		    *allocuserpwd = aprintf("%sAuthorization: NTLM %s\r\n",
 			    proxy ? "Proxy-" : "",
 			    ntlm->response);
@@ -484,7 +484,7 @@ CURLcode Curl_output_ntlm_wb(struct Curl_easy * data, struct connectdata * conn,
 		    *state = NTLMSTATE_LAST;
 		/* FALLTHROUGH */
 		case NTLMSTATE_LAST:
-		    Curl_safefree(*allocuserpwd);
+		    ZFREE(*allocuserpwd);
 		    authp->done = TRUE;
 		    break;
 	}

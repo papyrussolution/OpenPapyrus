@@ -28,56 +28,53 @@
 #include <stddef.h> // for wchar_t 
 // Get a suitable 64-bit integer type
 #if !defined(__LA_INT64_T_DEFINED)
-#if ARCHIVE_VERSION_NUMBER < 4000000
-#define __LA_INT64_T la_int64_t
+	#if ARCHIVE_VERSION_NUMBER < 4000000
+		#define __LA_INT64_T la_int64_t_Removed
+	#endif
+	#define __LA_INT64_T_DEFINED
+	#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
+		typedef __int64 la_int64_t_Removed;
+	#else
+		#include <unistd.h>
+		#if defined(_SCO_DS) || defined(__osf__)
+			typedef long long la_int64_t_Removed;
+		#else
+			typedef int64 la_int64_t_Removed;
+		#endif
+	#endif
 #endif
-#define __LA_INT64_T_DEFINED
-#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
-typedef __int64 la_int64_t;
-# else
-#include <unistd.h>
-#if defined(_SCO_DS) || defined(__osf__)
-typedef long long la_int64_t;
-#else
-typedef int64 la_int64_t;
-#endif
-#endif
-#endif
-
 /* The la_ssize_t should match the type used in 'struct stat' */
 #if !defined(__LA_SSIZE_T_DEFINED)
 /* Older code relied on the __LA_SSIZE_T macro; after 4.0 we'll switch to the typedef exclusively. */
-#if ARCHIVE_VERSION_NUMBER < 4000000
-#define __LA_SSIZE_T la_ssize_t
+	#if ARCHIVE_VERSION_NUMBER < 4000000
+		#define __LA_SSIZE_T la_ssize_t
+	#endif
+	#define __LA_SSIZE_T_DEFINED
+	#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
+		#if defined(_SSIZE_T_DEFINED) || defined(_SSIZE_T_)
+			typedef ssize_t la_ssize_t;
+		#elif defined(_WIN64)
+			typedef __int64 la_ssize_t;
+		#else
+			typedef long la_ssize_t;
+		#endif
+	#else
+		#include <unistd.h>  /* ssize_t */
+		typedef ssize_t la_ssize_t;
+	#endif
 #endif
-#define __LA_SSIZE_T_DEFINED
-#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
-#if defined(_SSIZE_T_DEFINED) || defined(_SSIZE_T_)
-typedef ssize_t la_ssize_t;
-#  elif defined(_WIN64)
-typedef __int64 la_ssize_t;
-#else
-typedef long la_ssize_t;
-#endif
-# else
-#include <unistd.h>  /* ssize_t */
-typedef ssize_t la_ssize_t;
-#endif
-#endif
-
 /* Get a suitable definition for mode_t */
 #if ARCHIVE_VERSION_NUMBER >= 3999000
-/* Switch to plain 'int' for libarchive 4.0.  It's less broken than 'mode_t' */
-#define	__LA_MODE_T	int
+	/* Switch to plain 'int' for libarchive 4.0.  It's less broken than 'mode_t' */
+	#define	__LA_MODE_T	int
 #elif defined(_WIN32) && !defined(__CYGWIN__) && !defined(__BORLANDC__) && !defined(__WATCOMC__)
-#define	__LA_MODE_T	unsigned short
+	#define	__LA_MODE_T	unsigned short
 #else
-#define	__LA_MODE_T	mode_t
+	#define	__LA_MODE_T	mode_t
 #endif
-
 /* Large file support for Android */
 #ifdef __ANDROID__
-#include "android_lf.h"
+	#include "android_lf.h"
 #endif
 /*
  * On Windows, define LIBARCHIVE_STATIC if you're building or using a
@@ -91,7 +88,7 @@ typedef ssize_t la_ssize_t;
 #else
 #define __LA_DECL	__declspec(dllexport)
 #endif
-# else
+#else
 #ifdef __GNUC__
 #define __LA_DECL
 #else
@@ -222,15 +219,15 @@ __LA_DECL dev_t		 FASTCALL archive_entry_devminor(const ArchiveEntry *);
 __LA_DECL __LA_MODE_T FASTCALL archive_entry_filetype(const ArchiveEntry *);
 __LA_DECL void		 archive_entry_fflags(const ArchiveEntry *, ulong * /* set */, ulong * /* clear */);
 __LA_DECL const char	* FASTCALL archive_entry_fflags_text(ArchiveEntry *);
-__LA_DECL la_int64_t	  FASTCALL archive_entry_gid(ArchiveEntry *);
+__LA_DECL int64	  FASTCALL archive_entry_gid(ArchiveEntry *);
 __LA_DECL const char	* FASTCALL archive_entry_gname(ArchiveEntry *);
 __LA_DECL const char	* FASTCALL archive_entry_gname_utf8(ArchiveEntry *);
 __LA_DECL const wchar_t	* FASTCALL archive_entry_gname_w(ArchiveEntry *);
 __LA_DECL const char	* FASTCALL archive_entry_hardlink(ArchiveEntry *);
 __LA_DECL const char	* FASTCALL archive_entry_hardlink_utf8(ArchiveEntry *);
 __LA_DECL const wchar_t	* FASTCALL archive_entry_hardlink_w(ArchiveEntry *);
-__LA_DECL la_int64_t FASTCALL archive_entry_ino(const ArchiveEntry *);
-__LA_DECL la_int64_t FASTCALL archive_entry_ino64(const ArchiveEntry *);
+__LA_DECL int64 FASTCALL archive_entry_ino(const ArchiveEntry *);
+__LA_DECL int64 FASTCALL archive_entry_ino64(const ArchiveEntry *);
 __LA_DECL int FASTCALL archive_entry_ino_is_set(const ArchiveEntry *);
 __LA_DECL __LA_MODE_T  FASTCALL archive_entry_mode(const ArchiveEntry *);
 __LA_DECL time_t FASTCALL archive_entry_mtime(const ArchiveEntry *);
@@ -246,14 +243,14 @@ __LA_DECL dev_t FASTCALL archive_entry_rdevmajor(ArchiveEntry *);
 __LA_DECL dev_t FASTCALL archive_entry_rdevminor(ArchiveEntry *);
 __LA_DECL const char	* FASTCALL archive_entry_sourcepath(ArchiveEntry *);
 __LA_DECL const wchar_t	* FASTCALL archive_entry_sourcepath_w(ArchiveEntry *);
-__LA_DECL la_int64_t FASTCALL archive_entry_size(ArchiveEntry *);
+__LA_DECL int64 FASTCALL archive_entry_size(ArchiveEntry *);
 __LA_DECL int FASTCALL archive_entry_size_is_set(ArchiveEntry *);
 __LA_DECL const char * FASTCALL archive_entry_strmode(ArchiveEntry *);
 __LA_DECL const char * FASTCALL archive_entry_symlink(ArchiveEntry *);
 __LA_DECL const char * FASTCALL archive_entry_symlink_utf8(ArchiveEntry *);
 __LA_DECL int FASTCALL archive_entry_symlink_type(ArchiveEntry *);
 __LA_DECL const wchar_t	* FASTCALL archive_entry_symlink_w(ArchiveEntry *);
-__LA_DECL la_int64_t FASTCALL archive_entry_uid(const ArchiveEntry *);
+__LA_DECL int64 FASTCALL archive_entry_uid(const ArchiveEntry *);
 __LA_DECL const char * FASTCALL archive_entry_uname(ArchiveEntry *);
 __LA_DECL const char * FASTCALL archive_entry_uname_utf8(ArchiveEntry *);
 __LA_DECL const wchar_t	* FASTCALL archive_entry_uname_w(ArchiveEntry *);
@@ -287,7 +284,7 @@ __LA_DECL void	archive_entry_set_fflags(ArchiveEntry *, ulong /* set */, ulong /
 /* Note that all recognized tokens are processed, regardless. */
 __LA_DECL const char *archive_entry_copy_fflags_text(ArchiveEntry *, const char *);
 __LA_DECL const wchar_t *archive_entry_copy_fflags_text_w(ArchiveEntry *, const wchar_t *);
-__LA_DECL void	archive_entry_set_gid(ArchiveEntry *, la_int64_t);
+__LA_DECL void	archive_entry_set_gid(ArchiveEntry *, int64);
 __LA_DECL void	archive_entry_set_gname(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_set_gname_utf8(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_gname(ArchiveEntry *, const char *);
@@ -298,8 +295,8 @@ __LA_DECL void	archive_entry_set_hardlink_utf8(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_hardlink(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_hardlink_w(ArchiveEntry *, const wchar_t *);
 __LA_DECL int	archive_entry_update_hardlink_utf8(ArchiveEntry *, const char *);
-__LA_DECL void	archive_entry_set_ino(ArchiveEntry *, la_int64_t);
-__LA_DECL void	archive_entry_set_ino64(ArchiveEntry *, la_int64_t);
+__LA_DECL void	archive_entry_set_ino(ArchiveEntry *, int64);
+__LA_DECL void	archive_entry_set_ino64(ArchiveEntry *, int64);
 __LA_DECL void	archive_entry_set_link(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_set_link_utf8(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_link(ArchiveEntry *, const char *);
@@ -318,7 +315,7 @@ __LA_DECL void	archive_entry_set_perm(ArchiveEntry *, __LA_MODE_T);
 __LA_DECL void	archive_entry_set_rdev(ArchiveEntry *, dev_t);
 __LA_DECL void	archive_entry_set_rdevmajor(ArchiveEntry *, dev_t);
 __LA_DECL void	archive_entry_set_rdevminor(ArchiveEntry *, dev_t);
-__LA_DECL void	STDCALL archive_entry_set_size(ArchiveEntry *, la_int64_t);
+__LA_DECL void	STDCALL archive_entry_set_size(ArchiveEntry *, int64);
 __LA_DECL void	FASTCALL archive_entry_unset_size(ArchiveEntry *);
 __LA_DECL void	archive_entry_copy_sourcepath(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_sourcepath_w(ArchiveEntry *, const wchar_t *);
@@ -328,7 +325,7 @@ __LA_DECL void	archive_entry_set_symlink_utf8(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_symlink(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_symlink_w(ArchiveEntry *, const wchar_t *);
 __LA_DECL int	archive_entry_update_symlink_utf8(ArchiveEntry *, const char *);
-__LA_DECL void	archive_entry_set_uid(ArchiveEntry *, la_int64_t);
+__LA_DECL void	archive_entry_set_uid(ArchiveEntry *, int64);
 __LA_DECL void	archive_entry_set_uname(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_set_uname_utf8(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_uname(ArchiveEntry *, const char *);
@@ -349,7 +346,7 @@ __LA_DECL void	archive_entry_set_is_metadata_encrypted(ArchiveEntry *, char is_e
  * archive_entry_stat32 or archive_entry_stat64 as appropriate.
  */
 __LA_DECL const struct stat	*archive_entry_stat(ArchiveEntry *);
-__LA_DECL void	archive_entry_copy_stat(ArchiveEntry *, const struct stat *);
+__LA_DECL void	archive_entry_copy_stat(ArchiveEntry *, const struct _stat *);
 
 /*
  * Storage for Mac OS-specific AppleDouble metadata information.
@@ -562,7 +559,7 @@ __LA_DECL int	archive_entry_xattr_next(ArchiveEntry *, const char ** /* name */,
  * sparse
  */
 __LA_DECL void	 archive_entry_sparse_clear(ArchiveEntry *);
-__LA_DECL void	 archive_entry_sparse_add_entry(ArchiveEntry *, la_int64_t /* offset */, la_int64_t /* length */);
+__LA_DECL void	 archive_entry_sparse_add_entry(ArchiveEntry *, int64 /* offset */, int64 /* length */);
 /*
  * To retrieve the xattr list, first "reset", then repeatedly ask for the
  * "next" entry.
@@ -570,7 +567,7 @@ __LA_DECL void	 archive_entry_sparse_add_entry(ArchiveEntry *, la_int64_t /* off
 
 __LA_DECL int	archive_entry_sparse_count(ArchiveEntry *);
 __LA_DECL int	archive_entry_sparse_reset(ArchiveEntry *);
-__LA_DECL int	archive_entry_sparse_next(ArchiveEntry *, la_int64_t * /* offset */, la_int64_t * /* length */);
+__LA_DECL int	archive_entry_sparse_next(ArchiveEntry *, int64 * /* offset */, int64 * /* length */);
 
 /*
  * Utility to match up hardlinks.

@@ -335,10 +335,10 @@ extern PSecurityFunctionTable s_pSecFn;
 
 #ifdef UNICODE
 #define SECFLAG_WINNT_AUTH_IDENTITY \
-	(unsigned long)SEC_WINNT_AUTH_IDENTITY_UNICODE
+	(ulong)SEC_WINNT_AUTH_IDENTITY_UNICODE
 #else
 #define SECFLAG_WINNT_AUTH_IDENTITY \
-	(unsigned long)SEC_WINNT_AUTH_IDENTITY_ANSI
+	(ulong)SEC_WINNT_AUTH_IDENTITY_ANSI
 #endif
 
 /*

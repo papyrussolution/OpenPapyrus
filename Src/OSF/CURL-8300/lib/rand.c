@@ -42,7 +42,7 @@ uint32_t arc4random(void);
 #include "rand.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -72,15 +72,12 @@ uint32_t arc4random(void);
 #endif
 #endif
 
-CURLcode Curl_win32_random(unsigned char * entropy, size_t length)
+CURLcode Curl_win32_random(uchar * entropy, size_t length)
 {
-	memset(entropy, 0, length);
-
+	memzero(entropy, length);
 #if defined(HAVE_WIN_BCRYPTGENRANDOM)
-	if(BCryptGenRandom(NULL, entropy, (ULONG)length,
-	    BCRYPT_USE_SYSTEM_PREFERRED_RNG) != STATUS_SUCCESS)
+	if(BCryptGenRandom(NULL, entropy, (ULONG)length, BCRYPT_USE_SYSTEM_PREFERRED_RNG) != STATUS_SUCCESS)
 		return CURLE_FAILED_INIT;
-
 	return CURLE_OK;
 #elif defined(USE_WIN32_CRYPTO)
 	{
@@ -105,18 +102,18 @@ CURLcode Curl_win32_random(unsigned char * entropy, size_t length)
 
 #endif
 
-static CURLcode randit(struct Curl_easy * data, unsigned int * rnd)
+static CURLcode randit(struct Curl_easy * data, uint * rnd)
 {
-	unsigned int r;
+	uint r;
 	CURLcode result = CURLE_OK;
-	static unsigned int randseed;
+	static uint randseed;
 	static bool seeded = FALSE;
 
 #ifdef CURLDEBUG
 	char * force_entropy = getenv("CURL_ENTROPY");
 	if(force_entropy) {
 		if(!seeded) {
-			unsigned int seed = 0;
+			uint seed = 0;
 			size_t elen = strlen(force_entropy);
 			size_t clen = sizeof(seed);
 			size_t min = elen < clen ? elen : clen;
@@ -132,7 +129,7 @@ static CURLcode randit(struct Curl_easy * data, unsigned int * rnd)
 #endif
 
 	/* data may be NULL! */
-	result = Curl_ssl_random(data, (unsigned char *)rnd, sizeof(*rnd));
+	result = Curl_ssl_random(data, (uchar *)rnd, sizeof(*rnd));
 	if(result != CURLE_NOT_BUILT_IN)
 		/* only if there is no random function in the TLS backend do the non crypto
 		   version, otherwise return result */
@@ -142,14 +139,14 @@ static CURLcode randit(struct Curl_easy * data, unsigned int * rnd)
 
 #ifdef WIN32
 	if(!seeded) {
-		result = Curl_win32_random((unsigned char *)rnd, sizeof(*rnd));
+		result = Curl_win32_random((uchar *)rnd, sizeof(*rnd));
 		if(result != CURLE_NOT_BUILT_IN)
 			return result;
 	}
 #endif
 
 #ifdef HAVE_ARC4RANDOM
-	*rnd = (unsigned int)arc4random();
+	*rnd = (uint)arc4random();
 	return CURLE_OK;
 #endif
 
@@ -170,7 +167,7 @@ static CURLcode randit(struct Curl_easy * data, unsigned int * rnd)
 	if(!seeded) {
 		struct curltime now = Curl_now();
 		infof(data, "WARNING: using weak random seed");
-		randseed += (unsigned int)now.tv_usec + (unsigned int)now.tv_sec;
+		randseed += (uint)now.tv_usec + (uint)now.tv_sec;
 		randseed = randseed * 1103515245 + 12345;
 		randseed = randseed * 1103515245 + 12345;
 		randseed = randseed * 1103515245 + 12345;
@@ -199,22 +196,22 @@ static CURLcode randit(struct Curl_easy * data, unsigned int * rnd)
  *
  */
 
-CURLcode Curl_rand(struct Curl_easy * data, unsigned char * rnd, size_t num)
+CURLcode Curl_rand(struct Curl_easy * data, uchar * rnd, size_t num)
 {
 	CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
 
 	DEBUGASSERT(num > 0);
 
 	while(num) {
-		unsigned int r;
-		size_t left = num < sizeof(unsigned int) ? num : sizeof(unsigned int);
+		uint r;
+		size_t left = num < sizeof(uint) ? num : sizeof(uint);
 
 		result = randit(data, &r);
 		if(result)
 			return result;
 
 		while(left) {
-			*rnd++ = (unsigned char)(r & 0xFF);
+			*rnd++ = (uchar)(r & 0xFF);
 			r >>= 8;
 			--num;
 			--left;
@@ -230,21 +227,19 @@ CURLcode Curl_rand(struct Curl_easy * data, unsigned char * rnd, size_t num)
  * size.
  */
 
-CURLcode Curl_rand_hex(struct Curl_easy * data, unsigned char * rnd,
+CURLcode Curl_rand_hex(struct Curl_easy * data, uchar * rnd,
     size_t num)
 {
 	CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
 	const char * hex = "0123456789abcdef";
-	unsigned char buffer[128];
-	unsigned char * bufp = buffer;
+	uchar buffer[128];
+	uchar * bufp = buffer;
 	DEBUGASSERT(num > 1);
 
 #ifdef __clang_analyzer__
-	/* This silences a scan-build warning about accessing this buffer with
-	   uninitialized memory. */
-	memset(buffer, 0, sizeof(buffer));
+	/* This silences a scan-build warning about accessing this buffer with uninitialized memory. */
+	memzero(buffer, sizeof(buffer));
 #endif
-
 	if((num/2 >= sizeof(buffer)) || !(num&1))
 		/* make sure it fits in the local buffer and that it is an odd number! */
 		return CURLE_BAD_FUNCTION_ARGUMENT;

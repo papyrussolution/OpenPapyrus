@@ -577,7 +577,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 		user_accept = 1;
 		for(uint ssp = 0; pParam->SsOnlyFileNames.get(&ssp, file_path);) {
 			if(fileExists(file_path)) {
-				fep.Add(file_path);
+				fep.Add(file_path, 0);
 			}
 		}
 	}

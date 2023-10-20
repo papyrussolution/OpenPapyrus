@@ -129,12 +129,12 @@ void Curl_ssl_kill_session(struct Curl_ssl_session *session);
 void Curl_ssl_delsessionid(struct Curl_easy *data, void *ssl_sessionid);
 
 /* get N random bytes into the buffer */
-CURLcode Curl_ssl_random(struct Curl_easy *data, unsigned char *buffer,
+CURLcode Curl_ssl_random(struct Curl_easy *data, uchar *buffer,
                          size_t length);
 /* Check pinned public key. */
 CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
                               const char *pinnedpubkey,
-                              const unsigned char *pubkey, size_t pubkeylen);
+                              const uchar *pubkey, size_t pubkeylen);
 
 bool Curl_ssl_cert_status_request(void);
 

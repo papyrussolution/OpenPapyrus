@@ -33,7 +33,7 @@
 
 #include "curl_hmac.h"
 #include "curl_memory.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 /* The last #include file should be: */
 #include "memdebug.h"
@@ -46,17 +46,17 @@
  * initialization.
  */
 
-static const unsigned char hmac_ipad = 0x36;
-static const unsigned char hmac_opad = 0x5C;
+static const uchar hmac_ipad = 0x36;
+static const uchar hmac_opad = 0x5C;
 
-struct HMAC_context *Curl_HMAC_init(const struct HMAC_params * hashparams, const unsigned char * key, unsigned int keylen)
+struct HMAC_context *Curl_HMAC_init(const struct HMAC_params * hashparams, const uchar * key, uint keylen)
 {
 	struct HMAC_context * ctxt;
-	unsigned char * hkey;
-	unsigned char b;
+	uchar * hkey;
+	uchar b;
 	/* Create HMAC context. */
 	size_t i = sizeof(*ctxt) + 2 * hashparams->hmac_ctxtsize + hashparams->hmac_resultlen;
-	ctxt = (HMAC_context *)malloc(i);
+	ctxt = (HMAC_context *)SAlloc::M(i);
 	if(!ctxt)
 		return ctxt;
 	ctxt->hmac_hash = hashparams;
@@ -68,7 +68,7 @@ struct HMAC_context *Curl_HMAC_init(const struct HMAC_params * hashparams, const
 	if(keylen > hashparams->hmac_maxkeylen) {
 		(*hashparams->hmac_hinit)(ctxt->hmac_hashctxt1);
 		(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt1, key, keylen);
-		hkey = (unsigned char *)ctxt->hmac_hashctxt2 + hashparams->hmac_ctxtsize;
+		hkey = (uchar *)ctxt->hmac_hashctxt2 + hashparams->hmac_ctxtsize;
 		(*hashparams->hmac_hfinal)(hkey, ctxt->hmac_hashctxt1);
 		key = hkey;
 		keylen = hashparams->hmac_resultlen;
@@ -79,9 +79,9 @@ struct HMAC_context *Curl_HMAC_init(const struct HMAC_params * hashparams, const
 	(*hashparams->hmac_hinit)(ctxt->hmac_hashctxt2);
 
 	for(i = 0; i < keylen; i++) {
-		b = (unsigned char)(*key ^ hmac_ipad);
+		b = (uchar)(*key ^ hmac_ipad);
 		(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt1, &b, 1);
-		b = (unsigned char)(*key++ ^ hmac_opad);
+		b = (uchar)(*key++ ^ hmac_opad);
 		(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt2, &b, 1);
 	}
 
@@ -95,15 +95,15 @@ struct HMAC_context *Curl_HMAC_init(const struct HMAC_params * hashparams, const
 }
 
 int Curl_HMAC_update(struct HMAC_context * ctxt,
-    const unsigned char * data,
-    unsigned int len)
+    const uchar * data,
+    uint len)
 {
 	/* Update first hash calculation. */
 	(*ctxt->hmac_hash->hmac_hupdate)(ctxt->hmac_hashctxt1, data, len);
 	return 0;
 }
 
-int Curl_HMAC_final(struct HMAC_context * ctxt, unsigned char * result)
+int Curl_HMAC_final(struct HMAC_context * ctxt, uchar * result)
 {
 	const struct HMAC_params * hashparams = ctxt->hmac_hash;
 
@@ -111,14 +111,12 @@ int Curl_HMAC_final(struct HMAC_context * ctxt, unsigned char * result)
 	   storage. */
 
 	if(!result)
-		result = (unsigned char *)ctxt->hmac_hashctxt2 +
-		    ctxt->hmac_hash->hmac_ctxtsize;
+		result = (uchar *)ctxt->hmac_hashctxt2 + ctxt->hmac_hash->hmac_ctxtsize;
 
 	(*hashparams->hmac_hfinal)(result, ctxt->hmac_hashctxt1);
-	(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt2,
-	    result, hashparams->hmac_resultlen);
+	(*hashparams->hmac_hupdate)(ctxt->hmac_hashctxt2, result, hashparams->hmac_resultlen);
 	(*hashparams->hmac_hfinal)(result, ctxt->hmac_hashctxt2);
-	free((char *)ctxt);
+	SAlloc::F((char *)ctxt);
 	return 0;
 }
 
@@ -140,9 +138,9 @@ int Curl_HMAC_final(struct HMAC_context * ctxt, unsigned char * result)
  * Returns CURLE_OK on success.
  */
 CURLcode Curl_hmacit(const struct HMAC_params * hashparams,
-    const unsigned char * key, const size_t keylen,
-    const unsigned char * data, const size_t datalen,
-    unsigned char * output)
+    const uchar * key, const size_t keylen,
+    const uchar * data, const size_t datalen,
+    uchar * output)
 {
 	struct HMAC_context * ctxt =
 	    Curl_HMAC_init(hashparams, key, curlx_uztoui(keylen));

@@ -81,7 +81,7 @@ enum {
 	FTP_LAST /* never used */
 };
 
-typedef unsigned char ftpstate; /* use the enum values */
+typedef uchar ftpstate; /* use the enum values */
 
 struct ftp_parselist_data; /* defined later in ftplistparser.c */
 
@@ -123,7 +123,7 @@ struct ftp_conn {
 	char * alternative_to_user;
 	char * entrypath; /* the PWD reply when we logged on */
 	char * file; /* url-decoded file name (or path) */
-	char ** dirs; /* realloc()ed array for path components */
+	char ** dirs; /* SAlloc::R()ed array for path components */
 	char * newhost;
 	char * prevpath; /* url-decoded conn->path from the previous transfer */
 	char transfertype; /* set by ftp_transfertype for use by Curl_client_write()a
@@ -144,9 +144,9 @@ struct ftp_conn {
 	ftpstate state; /* always use ftp.c:state() to change state! */
 	ftpstate state_saved; /* transfer type saved to be reloaded after data
 	                         connection is established */
-	unsigned char use_ssl; /* if AUTH TLS is to be attempted etc, for FTP or
+	uchar use_ssl; /* if AUTH TLS is to be attempted etc, for FTP or
 	                          IMAP or POP3 or others! (type: curl_usessl)*/
-	unsigned char ccc; /* ccc level for this connection */
+	uchar ccc; /* ccc level for this connection */
 	BIT(ftp_trying_alternative);
 	BIT(dont_check); /* Set to TRUE to prevent the final (post-transfer)
 	                    file size and 226/250 status check. It should still

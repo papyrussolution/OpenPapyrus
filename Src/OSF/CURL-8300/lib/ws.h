@@ -23,7 +23,7 @@
 * SPDX-License-Identifier: curl
 *
 ***************************************************************************/
-#include "curl_setup.h"
+//#include "curl_setup.h"
 
 #ifdef USE_WEBSOCKETS
 
@@ -46,7 +46,7 @@ struct ws_decoder {
 	int frame_flags; /* See the CURLWS_* defines */
 	curl_off_t payload_offset; /* the offset parsing is at */
 	curl_off_t payload_len;
-	unsigned char head[10];
+	uchar head[10];
 	int head_len, head_total;
 	enum ws_dec_state state;
 };
@@ -56,9 +56,9 @@ struct ws_decoder {
 struct ws_encoder {
 	curl_off_t payload_len; /* payload length of current frame */
 	curl_off_t payload_remain; /* remaining payload of current */
-	unsigned int xori; /* xor index */
-	unsigned char mask[4]; /* 32 bit mask for this connection */
-	unsigned char firstbyte; /* first byte of frame we encode */
+	uint xori; /* xor index */
+	uchar mask[4]; /* 32 bit mask for this connection */
+	uchar firstbyte; /* first byte of frame we encode */
 	bool contfragment; /* set TRUE if the previous fragment sent was not final */
 };
 

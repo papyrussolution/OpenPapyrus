@@ -1892,10 +1892,6 @@
     <ProjectReference Include="libicu.vcxproj">
       <Project>{6d226127-c063-4702-b4b9-118233d7354c}</Project>
     </ProjectReference>
-    <ProjectReference Include="libjpeg.vcxproj">
-      <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="libmupdf.vcxproj">
       <Project>{5f615f91-dff8-4f05-bf48-6222b7d86519}</Project>
     </ProjectReference>

@@ -2466,16 +2466,16 @@ int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
 //
 ///*static*/const int SUniTime_Internal::Undef_TimeZone = 1000;
 
-/*static*/int SUniTime_Internal::ValidateTimeZone(int tz)
+/*static*/bool SUniTime_Internal::ValidateTimeZone(int tz)
 {
-	assert((tz >= -12 && tz <= +14) || tz == Undef_TimeZone);
-	return BIN((tz >= -12 && tz <= +14) || tz == Undef_TimeZone);
+	assert((tz >= -(12 * 3600) && tz <= +(14 * 3600)) || tz == Undef_TimeZone);
+	return ((tz >= -(12 * 3600) && tz <= +(14 * 3600)) || tz == Undef_TimeZone);
 }
 
 SUniTime_Internal::SUniTime_Internal()
 {
 	THISZERO();
-	TimeZone  = Undef_TimeZone;
+	TimeZoneSc  = Undef_TimeZone;
 }
 	
 int FASTCALL SUniTime_Internal::Cmp(const SUniTime_Internal & rS) const
@@ -3014,32 +3014,32 @@ int SUniTime::Implement_Set(uint8 signature, const void * pData)
 			value = (((p_inner->Y-1) / 1000) * 1000) + 1;
 			break;
 		case indMSecTz:
-			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
-				value = ((value / 10000LL) << 8) | static_cast<int8>(p_inner->TimeZone);
+			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZoneSc) && __TimeFieldsToTime(p_inner, &value))
+				value = ((value / 10000LL) << 8) | static_cast<int8>(p_inner->TimeZoneSc);
 			else
 				ok = 0;
 			break;
 		case indCSecTz:
-			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
-				value = ((value / 100000LL) << 8) | static_cast<int8>(p_inner->TimeZone);
+			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZoneSc) && __TimeFieldsToTime(p_inner, &value))
+				value = ((value / 100000LL) << 8) | static_cast<int8>(p_inner->TimeZoneSc);
 			else
 				ok = 0;
 			break;
 		case indSecTz:
-			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
-				value = ((value / 10000000LL) << 8) | static_cast<int8>(p_inner->TimeZone);
+			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZoneSc) && __TimeFieldsToTime(p_inner, &value))
+				value = ((value / 10000000LL) << 8) | static_cast<int8>(p_inner->TimeZoneSc);
 			else
 				ok = 0;
 			break;
 		case indMinTz:
-			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
-				value = ((value / (60 * 10000000LL)) << 8) | static_cast<int8>(p_inner->TimeZone);
+			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZoneSc) && __TimeFieldsToTime(p_inner, &value))
+				value = ((value / (60 * 10000000LL)) << 8) | static_cast<int8>(p_inner->TimeZoneSc);
 			else
 				ok = 0;
 			break;
 		case indHrTz:
-			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZone) && __TimeFieldsToTime(p_inner, &value))
-				value = ((value / (60 * 60 * 10000000LL)) << 8) | static_cast<int8>(p_inner->TimeZone);
+			if(SUniTime_Internal::ValidateTimeZone(p_inner->TimeZoneSc) && __TimeFieldsToTime(p_inner, &value))
+				value = ((value / (60 * 60 * 10000000LL)) << 8) | static_cast<int8>(p_inner->TimeZoneSc);
 			else
 				ok = 0;
 			break;
@@ -3296,7 +3296,7 @@ uint8  SUniTime::Implement_Get(void * pData) const
 			//__TimeToTimeFields(value * 10000LL, p_inner);
 			p_inner->SetTime100ns(value * 10000LL);
 			p_inner->Hr += timezone;
-			p_inner->TimeZone = timezone;
+			p_inner->TimeZoneSc = timezone;
 			break;
 		case indCSecTz:
 			timezone = static_cast<int8>(value & 0xff);
@@ -3304,7 +3304,7 @@ uint8  SUniTime::Implement_Get(void * pData) const
 			//__TimeToTimeFields(value * 100000LL, p_inner);
 			p_inner->SetTime100ns(value * 100000LL);
 			p_inner->Hr += timezone;
-			p_inner->TimeZone = timezone;
+			p_inner->TimeZoneSc = timezone;
 			break;
 		case indSecTz:
 			timezone = static_cast<int8>(value & 0xff);
@@ -3312,7 +3312,7 @@ uint8  SUniTime::Implement_Get(void * pData) const
 			//__TimeToTimeFields(value * 10000000LL, p_inner);
 			p_inner->SetTime100ns(value * 10000000LL);
 			p_inner->Hr += timezone;
-			p_inner->TimeZone = timezone;
+			p_inner->TimeZoneSc = timezone;
 			break;
 		case indMinTz:
 			timezone = static_cast<int8>(value & 0xff);
@@ -3320,7 +3320,7 @@ uint8  SUniTime::Implement_Get(void * pData) const
 			//__TimeToTimeFields(value * 60*10000000LL, p_inner);
 			p_inner->SetTime100ns(value * 60*10000000LL);
 			p_inner->Hr += timezone;
-			p_inner->TimeZone = timezone;
+			p_inner->TimeZoneSc = timezone;
 			break;
 		case indHrTz:
 			timezone = static_cast<int8>(value & 0xff);
@@ -3328,7 +3328,7 @@ uint8  SUniTime::Implement_Get(void * pData) const
 			//__TimeToTimeFields(value * 60*60*10000000LL, p_inner);
 			p_inner->SetTime100ns(value * 60*60*10000000LL);
 			p_inner->Hr += timezone;
-			p_inner->TimeZone = timezone;
+			p_inner->TimeZoneSc = timezone;
 			break;
 		case indDay:
 			DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
@@ -3504,7 +3504,7 @@ int FASTCALL SUniTime::Set(const LDATETIME & rD, uint signature, int timezone)
 		inner.Mn = rD.t.minut();
 		inner.Sc = rD.t.sec();
 		inner.MkSc = rD.t.hs() * 10 * 1000;
-		inner.TimeZone = timezone;
+		inner.TimeZoneSc = timezone;
 		return Implement_Set(signature, &inner);
 	}
 	else

@@ -92,15 +92,12 @@ struct trad_enc_ctx {
 /* Bits used in flags. */
 #define LA_USED_ZIP64   (1 << 0)
 #define LA_FROM_CENTRAL_DIRECTORY (1 << 1)
-
 /*
  * See "WinZip - AES Encryption Information"
  *     http://www.winzip.com/aes_info.htm
  */
-/* Value used in compression method. */
-#define WINZIP_AES_ENCRYPTION   99
-/* Authentication code size. */
-#define AUTH_CODE_SIZE  10
+#define WINZIP_AES_ENCRYPTION   99 /* Value used in compression method. */
+#define AUTH_CODE_SIZE  10 /* Authentication code size. */
 /**/
 #define MAX_DERIVED_KEY_BUF_SIZE        (AES_MAX_KEY_SIZE * 2 + 2)
 
@@ -176,33 +173,30 @@ struct zip {
 	size_t decrypted_buffer_size;
 	size_t decrypted_bytes_remaining;
 	size_t decrypted_unconsumed_bytes;
-
-	/* Traditional PKWARE decryption. */
+	// Traditional PKWARE decryption
 	struct trad_enc_ctx tctx;
 	char tctx_valid;
-
-	/* WinZip AES decryption. */
-	/* Contexts used for AES decryption. */
+	// WinZip AES decryption
+	// Contexts used for AES decryption
 	archive_crypto_ctx cctx;
 	char cctx_valid;
 	archive_hmac_sha1_ctx hctx;
 	char hctx_valid;
-
-	/* Strong encryption's decryption header information. */
-	unsigned iv_size;
-	unsigned alg_id;
-	unsigned bit_len;
-	unsigned flags;
-	unsigned erd_size;
-	unsigned v_size;
-	unsigned v_crc32;
+	// Strong encryption's decryption header information
+	uint   iv_size;
+	uint   alg_id;
+	uint   bit_len;
+	uint   flags;
+	uint   erd_size;
+	uint   v_size;
+	uint   v_crc32;
 	uint8 * iv;
 	uint8 * erd;
 	uint8 * v_data;
 };
 
-/* Many systems define min or MIN, but not all. */
-#define zipmin(a, b) ((a) < (b) ? (a) : (b))
+// Many systems define min or MIN, but not all
+// #define zipmin_Removed(a, b) ((a) < (b) ? (a) : (b))
 
 /* This function is used by Ppmd8_DecodeSymbol during decompression of Ppmd8
  * streams inside ZIP files. It has 2 purposes: one is to fetch the next
@@ -1500,7 +1494,7 @@ static int zip_read_data_zipx_xz(ArchiveRead * a, const void ** buff, size_t * s
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated xz file body");
 		return ARCHIVE_FATAL;
 	}
-	in_bytes = static_cast<ssize_t>(zipmin(zip->entry_bytes_remaining, bytes_avail));
+	in_bytes = static_cast<ssize_t>(MIN(zip->entry_bytes_remaining, bytes_avail));
 	zip->zipx_lzma_stream.next_in = (const uint8 *)compressed_buf;
 	zip->zipx_lzma_stream.avail_in = in_bytes;
 	zip->zipx_lzma_stream.total_in = 0;
@@ -1572,7 +1566,7 @@ static int zip_read_data_zipx_lzma_alone(ArchiveRead * a, const void ** buff, si
 		return ARCHIVE_FATAL;
 	}
 	/* Set decompressor parameters. */
-	in_bytes = static_cast<ssize_t>(zipmin(zip->entry_bytes_remaining, bytes_avail));
+	in_bytes = static_cast<ssize_t>(MIN(zip->entry_bytes_remaining, bytes_avail));
 	zip->zipx_lzma_stream.next_in = (const uint8 *)compressed_buf;
 	zip->zipx_lzma_stream.avail_in = in_bytes;
 	zip->zipx_lzma_stream.total_in = 0;
@@ -1581,7 +1575,7 @@ static int zip_read_data_zipx_lzma_alone(ArchiveRead * a, const void ** buff, si
 	    /* These lzma_alone streams lack end of stream marker, so let's
 	     * make sure the unpacker won't try to unpack more than it's
 	     * supposed to. */
-	    static_cast<size_t>(zipmin((int64)zip->uncompressed_buffer_size, zip->entry->uncompressed_size - zip->entry_uncompressed_bytes_read));
+	    static_cast<size_t>(MIN((int64)zip->uncompressed_buffer_size, zip->entry->uncompressed_size - zip->entry_uncompressed_bytes_read));
 	zip->zipx_lzma_stream.total_out = 0;
 
 	/* Perform the decompression. */
@@ -1857,7 +1851,7 @@ static int zip_read_data_zipx_bzip2(ArchiveRead * a, const void ** buff, size_t 
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated bzip2 file body");
 		return ARCHIVE_FATAL;
 	}
-	in_bytes = static_cast<ssize_t>(zipmin(zip->entry_bytes_remaining, bytes_avail));
+	in_bytes = static_cast<ssize_t>(MIN(zip->entry_bytes_remaining, bytes_avail));
 	if(in_bytes < 1) {
 		/* libbz2 doesn't complain when caller feeds avail_in == 0.
 		 * It will actually return success in this case, which is
@@ -2959,19 +2953,14 @@ static int archive_read_format_zip_seekable_bid(ArchiveRead * a, int best_bid)
 	int64 file_size, current_offset;
 	const char * p;
 	int i, tail;
-
-	/* If someone has already bid more than 32, then avoid
-	   trashing the look-ahead buffers with a seek. */
+	// If someone has already bid more than 32, then avoid trashing the look-ahead buffers with a seek
 	if(best_bid > 32)
 		return -1;
-
 	file_size = __archive_read_seek(a, 0, SEEK_END);
 	if(file_size <= 0)
 		return 0;
-
-	/* Search last 16k of file for end-of-central-directory
-	 * record (which starts with PK\005\006) */
-	tail = (int)zipmin(1024 * 16, file_size);
+	// Search last 16k of file for end-of-central-directory record (which starts with PK\005\006)
+	tail = (int)MIN(1024 * 16, file_size);
 	current_offset = __archive_read_seek(a, -tail, SEEK_END);
 	if(current_offset < 0)
 		return 0;

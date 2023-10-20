@@ -51,11 +51,11 @@ const char * archive_compression_name(Archive * a) { return archive_filter_name(
 /*
  * Return a count of the number of compressed bytes processed.
  */
-la_int64_t archive_position_compressed(Archive * a) { return archive_filter_bytes(a, -1); }
+int64 archive_position_compressed(Archive * a) { return archive_filter_bytes(a, -1); }
 /*
  * Return a count of the number of uncompressed bytes processed.
  */
-la_int64_t archive_position_uncompressed(Archive * a) { return archive_filter_bytes(a, 0); }
+int64 archive_position_uncompressed(Archive * a) { return archive_filter_bytes(a, 0); }
 
 void archive_clear_error(Archive * a)
 {

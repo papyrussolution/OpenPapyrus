@@ -46,7 +46,7 @@
 #include "url.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -75,7 +75,7 @@ enum connect_t {
 struct socks_state {
 	enum connect_t state;
 	ssize_t outstanding; /* send this many bytes more */
-	unsigned char * outp; /* send from this pointer */
+	uchar * outp; /* send from this pointer */
 
 	const char * hostname;
 	int remote_port;
@@ -280,7 +280,7 @@ static CURLproxycode do_SOCKS4(struct Curl_cfilter * cf,
 	struct connectdata * conn = cf->conn;
 	const bool protocol4a =
 	    (conn->socks_proxy.proxytype == CURLPROXY_SOCKS4A) ? TRUE : FALSE;
-	unsigned char * socksreq = (unsigned char *)data->state.buffer;
+	uchar * socksreq = (uchar *)data->state.buffer;
 	CURLcode result;
 	CURLproxycode presult;
 	struct Curl_dns_entry * dns = NULL;
@@ -312,8 +312,8 @@ static CURLproxycode do_SOCKS4(struct Curl_cfilter * cf,
 
 		    socksreq[0] = 4; /* version (SOCKS4) */
 		    socksreq[1] = 1; /* connect */
-		    socksreq[2] = (unsigned char)((sx->remote_port >> 8) & 0xff); /* MSB */
-		    socksreq[3] = (unsigned char)(sx->remote_port & 0xff); /* LSB */
+		    socksreq[2] = (uchar)((sx->remote_port >> 8) & 0xff); /* MSB */
+		    socksreq[3] = (uchar)(sx->remote_port & 0xff); /* LSB */
 
 		    /* DNS resolve only for SOCKS4, not SOCKS4a */
 		    if(!protocol4a) {
@@ -376,10 +376,10 @@ CONNECT_RESOLVED:
 				    Curl_printable_address(hp, buf, sizeof(buf));
 
 				    saddr_in = (struct sockaddr_in *)(void *)hp->ai_addr;
-				    socksreq[4] = ((unsigned char *)&saddr_in->sin_addr.s_addr)[0];
-				    socksreq[5] = ((unsigned char *)&saddr_in->sin_addr.s_addr)[1];
-				    socksreq[6] = ((unsigned char *)&saddr_in->sin_addr.s_addr)[2];
-				    socksreq[7] = ((unsigned char *)&saddr_in->sin_addr.s_addr)[3];
+				    socksreq[4] = ((uchar *)&saddr_in->sin_addr.s_addr)[0];
+				    socksreq[5] = ((uchar *)&saddr_in->sin_addr.s_addr)[1];
+				    socksreq[6] = ((uchar *)&saddr_in->sin_addr.s_addr)[2];
+				    socksreq[7] = ((uchar *)&saddr_in->sin_addr.s_addr)[3];
 
 				    infof(data, "SOCKS4 connect to IPv4 %s (locally resolved)", buf);
 
@@ -509,8 +509,8 @@ CONNECT_REQ_INIT:
 			"Can't complete SOCKS4 connection to %d.%d.%d.%d:%d. (%d)"
 			", request rejected or failed.",
 			socksreq[4], socksreq[5], socksreq[6], socksreq[7],
-			(((unsigned char)socksreq[2] << 8) | (unsigned char)socksreq[3]),
-			(unsigned char)socksreq[1]);
+			(((uchar)socksreq[2] << 8) | (uchar)socksreq[3]),
+			(uchar)socksreq[1]);
 		    return CURLPX_REQUEST_FAILED;
 		case 92:
 		    failf(data,
@@ -518,8 +518,8 @@ CONNECT_REQ_INIT:
 			", request rejected because SOCKS server cannot connect to "
 			"identd on the client.",
 			socksreq[4], socksreq[5], socksreq[6], socksreq[7],
-			(((unsigned char)socksreq[2] << 8) | (unsigned char)socksreq[3]),
-			(unsigned char)socksreq[1]);
+			(((uchar)socksreq[2] << 8) | (uchar)socksreq[3]),
+			(uchar)socksreq[1]);
 		    return CURLPX_IDENTD;
 		case 93:
 		    failf(data,
@@ -527,16 +527,16 @@ CONNECT_REQ_INIT:
 			", request rejected because the client program and identd "
 			"report different user-ids.",
 			socksreq[4], socksreq[5], socksreq[6], socksreq[7],
-			(((unsigned char)socksreq[2] << 8) | (unsigned char)socksreq[3]),
-			(unsigned char)socksreq[1]);
+			(((uchar)socksreq[2] << 8) | (uchar)socksreq[3]),
+			(uchar)socksreq[1]);
 		    return CURLPX_IDENTD_DIFFER;
 		default:
 		    failf(data,
 			"Can't complete SOCKS4 connection to %d.%d.%d.%d:%d. (%d)"
 			", Unknown.",
 			socksreq[4], socksreq[5], socksreq[6], socksreq[7],
-			(((unsigned char)socksreq[2] << 8) | (unsigned char)socksreq[3]),
-			(unsigned char)socksreq[1]);
+			(((uchar)socksreq[2] << 8) | (uchar)socksreq[3]),
+			(uchar)socksreq[1]);
 		    return CURLPX_UNKNOWN_FAIL;
 	}
 
@@ -568,7 +568,7 @@ static CURLproxycode do_SOCKS5(struct Curl_cfilter * cf,
 	   o  X'00' succeeded
 	 */
 	struct connectdata * conn = cf->conn;
-	unsigned char * socksreq = (unsigned char *)data->state.buffer;
+	uchar * socksreq = (uchar *)data->state.buffer;
 	int idx;
 	CURLcode result;
 	CURLproxycode presult;
@@ -576,7 +576,7 @@ static CURLproxycode do_SOCKS5(struct Curl_cfilter * cf,
 	    (conn->socks_proxy.proxytype == CURLPROXY_SOCKS5) ? TRUE : FALSE;
 	const size_t hostname_len = strlen(sx->hostname);
 	ssize_t len = 0;
-	const unsigned char auth = data->set.socks5auth;
+	const uchar auth = data->set.socks5auth;
 	bool allow_gssapi = FALSE;
 	struct Curl_dns_entry * dns = NULL;
 
@@ -615,7 +615,7 @@ static CURLproxycode do_SOCKS5(struct Curl_cfilter * cf,
 		    if(sx->proxy_user)
 			    socksreq[idx++] = 2; /* username/password */
 		    /* write the number of authentication methods */
-		    socksreq[1] = (unsigned char)(idx - 2);
+		    socksreq[1] = (uchar)(idx - 2);
 
 		    sx->outp = socksreq;
 		    sx->outstanding = idx;
@@ -723,7 +723,7 @@ CONNECT_AUTH_INIT:
 		     */
 		    len = 0;
 		    socksreq[len++] = 1; /* username/pw subnegotiation version */
-		    socksreq[len++] = (unsigned char)proxy_user_len;
+		    socksreq[len++] = (uchar)proxy_user_len;
 		    if(sx->proxy_user && proxy_user_len) {
 			    /* the length must fit in a single byte */
 			    if(proxy_user_len > 255) {
@@ -733,7 +733,7 @@ CONNECT_AUTH_INIT:
 			    memcpy(socksreq + len, sx->proxy_user, proxy_user_len);
 		    }
 		    len += proxy_user_len;
-		    socksreq[len++] = (unsigned char)proxy_password_len;
+		    socksreq[len++] = (uchar)proxy_password_len;
 		    if(sx->proxy_password && proxy_password_len) {
 			    /* the length must fit in a single byte */
 			    if(proxy_password_len > 255) {
@@ -844,7 +844,7 @@ CONNECT_RESOLVED:
 
 			    saddr_in = (struct sockaddr_in *)(void *)hp->ai_addr;
 			    for(i = 0; i < 4; i++) {
-				    socksreq[len++] = ((unsigned char *)&saddr_in->sin_addr.s_addr)[i];
+				    socksreq[len++] = ((uchar *)&saddr_in->sin_addr.s_addr)[i];
 			    }
 
 			    infof(data, "SOCKS5 connect to %s:%d (locally resolved)", dest,
@@ -859,7 +859,7 @@ CONNECT_RESOLVED:
 			    saddr_in6 = (struct sockaddr_in6 *)(void *)hp->ai_addr;
 			    for(i = 0; i < 16; i++) {
 				    socksreq[len++] =
-					((unsigned char *)&saddr_in6->sin6_addr.s6_addr)[i];
+					((uchar *)&saddr_in6->sin6_addr.s6_addr)[i];
 			    }
 
 			    infof(data, "SOCKS5 connect to [%s]:%d (locally resolved)", dest,
@@ -886,7 +886,7 @@ CONNECT_RESOLVE_REMOTE:
 			    /* ATYP: domain name = 3,
 			       IPv6 == 4,
 			       IPv4 == 1 */
-			    unsigned char ip4[4];
+			    uchar ip4[4];
 #ifdef ENABLE_IPV6
 			    if(conn->bits.ipv6_ip) {
 				    char ip6[16];
@@ -917,9 +917,9 @@ CONNECT_RESOLVE_REMOTE:
 CONNECT_REQ_SEND:
 		case CONNECT_REQ_SEND:
 		    /* PORT MSB */
-		    socksreq[len++] = (unsigned char)((sx->remote_port >> 8) & 0xff);
+		    socksreq[len++] = (uchar)((sx->remote_port >> 8) & 0xff);
 		    /* PORT LSB */
-		    socksreq[len++] = (unsigned char)(sx->remote_port & 0xff);
+		    socksreq[len++] = (uchar)(sx->remote_port & 0xff);
 
 #if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
 		    if(conn->socks5_gssapi_enctype) {
@@ -968,7 +968,7 @@ CONNECT_REQ_SEND:
 			    CURLproxycode rc = CURLPX_REPLY_UNASSIGNED;
 			    int code = socksreq[1];
 			    failf(data, "Can't complete SOCKS5 connection to %s. (%d)",
-				sx->hostname, (unsigned char)socksreq[1]);
+				sx->hostname, (uchar)socksreq[1]);
 			    if(code < 9) {
 				    /* RFC 1928 section 6 lists: */
 				    static const CURLproxycode lookup[] = {
@@ -1090,7 +1090,7 @@ static void socks_proxy_cf_free(struct Curl_cfilter * cf)
 {
 	struct socks_state * sxstate = (socks_state *)cf->ctx;
 	if(sxstate) {
-		free(sxstate);
+		SAlloc::F(sxstate);
 		cf->ctx = NULL;
 	}
 }
@@ -1116,7 +1116,7 @@ static CURLcode socks_proxy_cf_connect(struct Curl_cfilter * cf, struct Curl_eas
 	if(result || !*done)
 		return result;
 	if(!sx) {
-		sx = (socks_state *)calloc(sizeof(*sx), 1);
+		sx = (socks_state *)SAlloc::C(sizeof(*sx), 1);
 		if(!sx)
 			return CURLE_OUT_OF_MEMORY;
 		cf->ctx = sx;

@@ -255,7 +255,7 @@ const char * FASTCALL archive_entry_fflags_text(ArchiveEntry * entry)
 	return NULL;
 }
 
-la_int64_t FASTCALL archive_entry_gid(ArchiveEntry * entry)
+int64 FASTCALL archive_entry_gid(ArchiveEntry * entry)
 {
 	return (entry->ae_stat.aest_gid);
 }
@@ -343,9 +343,9 @@ int _archive_entry_hardlink_l(ArchiveEntry * entry, const char ** p, size_t * le
 	return (archive_mstring_get_mbs_l(entry->archive, &entry->ae_hardlink, p, len, sc));
 }
 
-la_int64_t FASTCALL archive_entry_ino(const ArchiveEntry * entry) { return (entry->ae_stat.aest_ino); }
+int64 FASTCALL archive_entry_ino(const ArchiveEntry * entry) { return (entry->ae_stat.aest_ino); }
 int    FASTCALL archive_entry_ino_is_set(const ArchiveEntry * entry) { return (entry->ae_set & AE_SET_INO); }
-la_int64_t FASTCALL archive_entry_ino64(const ArchiveEntry * entry) { return (entry->ae_stat.aest_ino); }
+int64 FASTCALL archive_entry_ino64(const ArchiveEntry * entry) { return (entry->ae_stat.aest_ino); }
 __LA_MODE_T FASTCALL archive_entry_mode(const ArchiveEntry * entry) { return (entry->acl.mode); }
 time_t FASTCALL archive_entry_mtime(const ArchiveEntry * entry) { return static_cast<time_t>(entry->ae_stat.aest_mtime); }
 long   FASTCALL archive_entry_mtime_nsec(const ArchiveEntry * entry) { return (entry->ae_stat.aest_mtime_nsec); }
@@ -416,7 +416,7 @@ dev_t FASTCALL archive_entry_rdevminor(ArchiveEntry * entry)
 		return minor(entry->ae_stat.aest_rdev);
 }
 
-la_int64_t FASTCALL archive_entry_size(ArchiveEntry * entry)
+int64 FASTCALL archive_entry_size(ArchiveEntry * entry)
 {
 	return (entry->ae_stat.aest_size);
 }
@@ -496,7 +496,7 @@ int _archive_entry_symlink_l(ArchiveEntry * entry, const char ** p, size_t * len
 	return (archive_mstring_get_mbs_l(entry->archive, &entry->ae_symlink, p, len, sc));
 }
 
-la_int64_t FASTCALL archive_entry_uid(const ArchiveEntry * entry)
+int64 FASTCALL archive_entry_uid(const ArchiveEntry * entry)
 {
 	return (entry->ae_stat.aest_uid);
 }
@@ -579,7 +579,7 @@ const wchar_t * archive_entry_copy_fflags_text_w(ArchiveEntry * entry, const wch
 	return (ae_wcstofflags(flags, &entry->ae_fflags_set, &entry->ae_fflags_clear));
 }
 
-void archive_entry_set_gid(ArchiveEntry * entry, la_int64_t g)
+void archive_entry_set_gid(ArchiveEntry * entry, int64 g)
 {
 	entry->stat_valid = 0;
 	entry->ae_stat.aest_gid = g;
@@ -620,14 +620,14 @@ int _archive_entry_copy_gname_l(ArchiveEntry * entry, const char * name, size_t 
 	return (archive_mstring_copy_mbs_len_l(&entry->ae_gname, name, len, sc));
 }
 
-void archive_entry_set_ino(ArchiveEntry * entry, la_int64_t ino)
+void archive_entry_set_ino(ArchiveEntry * entry, int64 ino)
 {
 	entry->stat_valid = 0;
 	entry->ae_set |= AE_SET_INO;
 	entry->ae_stat.aest_ino = ino;
 }
 
-void archive_entry_set_ino64(ArchiveEntry * entry, la_int64_t ino)
+void archive_entry_set_ino64(ArchiveEntry * entry, int64 ino)
 {
 	entry->stat_valid = 0;
 	entry->ae_set |= AE_SET_INO;
@@ -892,7 +892,7 @@ void archive_entry_set_rdevminor(ArchiveEntry * entry, dev_t m)
 	entry->ae_stat.aest_rdevminor = m;
 }
 
-void STDCALL archive_entry_set_size(ArchiveEntry * entry, la_int64_t s)
+void STDCALL archive_entry_set_size(ArchiveEntry * entry, int64 s)
 {
 	entry->stat_valid = 0;
 	entry->ae_stat.aest_size = s;
@@ -961,7 +961,7 @@ int _archive_entry_copy_symlink_l(ArchiveEntry * entry, const char * linkname, s
 	return r;
 }
 
-void archive_entry_set_uid(ArchiveEntry * entry, la_int64_t u)
+void archive_entry_set_uid(ArchiveEntry * entry, int64 u)
 {
 	entry->stat_valid = 0;
 	entry->ae_stat.aest_uid = u;

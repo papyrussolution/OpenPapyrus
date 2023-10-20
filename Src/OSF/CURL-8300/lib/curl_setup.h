@@ -500,30 +500,25 @@ int Curl_amiga_select(int nfds, fd_set * readfds, fd_set * writefds,
  */
 
 #if defined(__LCC__) && defined(WIN32)
-#undef USE_THREADS_POSIX
-#undef USE_THREADS_WIN32
+	#undef USE_THREADS_POSIX
+	#undef USE_THREADS_WIN32
 #endif
-
 /*
  * MSVC threads support requires a multi-threaded runtime library.
  * _beginthreadex() is not available in single-threaded ones.
  */
-
 #if defined(_MSC_VER) && !defined(__POCC__) && !defined(_MT)
-#undef USE_THREADS_POSIX
-#undef USE_THREADS_WIN32
+	#undef USE_THREADS_POSIX
+	#undef USE_THREADS_WIN32
 #endif
-
 /*
  * Mutually exclusive CURLRES_* definitions.
  */
-
 #if defined(ENABLE_IPV6) && defined(HAVE_GETADDRINFO)
-#define CURLRES_IPV6
+	#define CURLRES_IPV6
 #else
-#define CURLRES_IPV4
+	#define CURLRES_IPV4
 #endif
-
 #ifdef USE_ARES
 #define CURLRES_ASYNCH
 #define CURLRES_ARES
@@ -775,7 +770,9 @@ typedef struct sockaddr_un {
 #ifdef USE_OPENSSL
 	#define OPENSSL_SUPPRESS_DEPRECATED
 #endif
-
+#if defined(USE_MSH3) && !defined(_WIN32)
+    #include <pthread.h>
+#endif
 #include <curl/curl.h>
 #include <nonblock.h>
 #include <sockaddr.h>
@@ -787,11 +784,23 @@ typedef struct sockaddr_un {
 #include <asyn.h>
 #include <hostip.h>
 #include <cfilters.h>
+#include <dynbuf.h>
+#include <bufq.h>
+#include <dynhds.h>
+#include <ws.h>
+#include <mime.h>
+#include <http.h>
 #include <urldata.h>
 #include <curl_trc.h>
 #include <sendf.h>
 #include <connect.h>
 #include <multiif.h>
 #include <strcase.h>
+#include <transfer.h>
+#include <progress.h>
+#include <curl_printf.h>
+#include <content_encoding.h>
+#include <strtoofft.h>
+#include <warnless.h>
 
 #endif /* HEADER_CURL_SETUP_H */

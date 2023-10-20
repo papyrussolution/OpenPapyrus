@@ -3017,15 +3017,18 @@ int PPSession::FetchAlbatrosConfig(PPAlbatrossConfig * pCfg)
 int PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 {
 	int    ok = -1;
-	TCHAR  domain_user[64];
-	DWORD  duser_len = sizeof(domain_user);
-	memzero(domain_user, sizeof(domain_user));
+	SString system_user_name;
+	//TCHAR  domain_user[64];
+	//DWORD  duser_len = sizeof(domain_user);
+	//memzero(domain_user, sizeof(domain_user));
 	THROW(OpenDictionary2(pDlb, odfDontInitSync));
-	if(::GetUserName(domain_user, &duser_len)) { // @unicodeproblem
+	if(SSystem::GetUserName_(system_user_name)) {
+	//if(::GetUserName(domain_user, &duser_len)) {
 		PPID   user_id = 0;
 		Reference ref;
-		SString user_name_buf(SUcSwitch(domain_user));
-		if(ref.SearchName(PPOBJ_USR, &user_id, user_name_buf) > 0) {
+		//SString user_name_buf(SUcSwitch(domain_user));
+		system_user_name.Transf(CTRANSF_UTF8_TO_INNER);
+		if(ref.SearchName(PPOBJ_USR, &user_id, system_user_name) > 0) {
 			char   pw[32];
 			SString domain;
 			memzero(pw, sizeof(pw));
@@ -3033,7 +3036,7 @@ int PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 			ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_DOMAINNAME, domain);
 			const PPSecur & r_secur = *(PPSecur*)&ref.data;
 			Reference::GetPassword(&r_secur, pw, sizeof(pw));
-			if(SCheckSystemCredentials(domain, user_name_buf, pw)) {
+			if(SCheckSystemCredentials(domain, system_user_name, pw)) {
 				ASSIGN_PTR(pSecur, r_secur);
 				ok = 1;
 			}
@@ -4274,13 +4277,11 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 			r_tla.SetupEventResponder(r_tla.eventresponderPhoneService);
 			r_tla.SetupEventResponder(r_tla.eventresponderMqb); // @v10.5.7
 			if(CConfig.Flags & CCFLG_DEBUG) { // @v10.4.0 (ранее информация о системном аккаунте выводилась всегда)
-				TCHAR  domain_user[128];
-				DWORD  duser_len = SIZEOFARRAY(domain_user);
-				memzero(domain_user, sizeof(domain_user));
-				if(!::GetUserName(domain_user, &duser_len)) // @unicodeproblem
-					STRNSCPY(domain_user, _T("!undefined"));
+				SString user_name;
+				if(!SSystem::GetUserName_(user_name))
+					user_name = "!undefined";
 				PPLoadText(PPTXT_LOGININFO, temp_buf.Z());
-				msg_buf.Printf(temp_buf, domain_user);
+				msg_buf.Printf(temp_buf, user_name.cptr());
 				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_COMP);
 				// @v10.4.0 {
 				{

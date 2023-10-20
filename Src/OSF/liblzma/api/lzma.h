@@ -37,14 +37,14 @@
  *
  * Here's what types and macros are needed and from which headers:
  *  - stddef.h: size_t, NULL
- *  - stdint.h: uint8, uint32_t, uint64_t, UINT32_C(n), uint64_C(n),
+ *  - stdint.h: uint8, uint32_t,  uint64, UINT32_C(n), uint64_C(n),
  *    UINT32_MAX, UINT64_MAX
  *
  * However, inttypes.h is a little more portable than stdint.h, although
  * inttypes.h declares some unneeded things compared to plain stdint.h.
  *
  * The hacks below aren't perfect, specifically they assume that inttypes.h
- * exists and that it typedefs at least uint8, uint32_t, and uint64_t,
+ * exists and that it typedefs at least uint8, uint32_t, and  uint64,
  * and that, in case of incomplete inttypes.h, unsigned int is 32-bit.
  * If the application already takes care of setting up all the types and
  * macros properly (for example by using gnulib's stdint.h or inttypes.h),
@@ -86,7 +86,7 @@
 		#if defined(_WIN32) && defined(_MSC_VER) && _MSC_VER < 1800
 			typedef unsigned __int8 uint8;
 			typedef unsigned __int32 uint32_t;
-			typedef unsigned __int64 uint64_t;
+			typedef unsigned __int64  uint64;
 		#else
 			/* Use the standard inttypes.h. */
 			#ifdef __cplusplus
@@ -798,10 +798,10 @@ typedef struct lzma_internal_s lzma_internal;
 typedef struct {
 	const uint8 * next_in; /**< Pointer to the next input byte. */
 	size_t avail_in; /**< Number of available input bytes in next_in. */
-	uint64_t total_in; /**< Total number of bytes read by liblzma. */
+	 uint64 total_in; /**< Total number of bytes read by liblzma. */
 	uint8 * next_out; /**< Pointer to the next output position. */
 	size_t avail_out; /**< Amount of free space in next_out. */
-	uint64_t total_out; /**< Total number of bytes written by liblzma. */
+	 uint64 total_out; /**< Total number of bytes written by liblzma. */
 	/**
 	 * \brief       Custom memory allocation functions
 	 *
@@ -833,8 +833,8 @@ typedef struct {
 	 *
 	 * In all other situations the value of this variable is undefined.
 	 */
-	uint64_t seek_pos;
-	uint64_t reserved_int2;
+	 uint64 seek_pos;
+	 uint64 reserved_int2;
 	size_t reserved_int3;
 	size_t reserved_int4;
 	lzma_reserved_enum reserved_enum1;
@@ -902,7 +902,7 @@ void lzma_end(lzma_stream *strm);
  * single-threaded mode *progress_in and *progress_out are set to
  * strm->total_in and strm->total_out, respectively.
  */
-void lzma_get_progress(lzma_stream *strm, uint64_t *progress_in, uint64_t *progress_out);
+void lzma_get_progress(lzma_stream *strm,  uint64 *progress_in,  uint64 *progress_out);
 /**
  * \brief       Get the memory usage of decoder filter chain
  *
@@ -925,7 +925,7 @@ void lzma_get_progress(lzma_stream *strm, uint64_t *progress_in, uint64_t *progr
  *        If this function isn't supported by *strm or some other error
  *        occurs, zero is returned.
  */
-uint64_t lzma_memusage(const lzma_stream *strm) lzma_attr_pure;
+ uint64 lzma_memusage(const lzma_stream *strm) lzma_attr_pure;
 /**
  * \brief       Get the current memory usage limit
  *
@@ -935,7 +935,7 @@ uint64_t lzma_memusage(const lzma_stream *strm) lzma_attr_pure;
  * \return      On success, the current memory usage limit is returned
  *        (always non-zero). On error, zero is returned.
  */
-uint64_t lzma_memlimit_get(const lzma_stream *strm) lzma_attr_pure;
+ uint64 lzma_memlimit_get(const lzma_stream *strm) lzma_attr_pure;
 /**
  * \brief       Set the memory usage limit
  *
@@ -953,7 +953,7 @@ uint64_t lzma_memlimit_get(const lzma_stream *strm) lzma_attr_pure;
  *        - LZMA_PROG_ERROR: Invalid arguments, e.g. *strm doesn't
  *          support memory usage limit.
  */
-lzma_ret lzma_memlimit_set(lzma_stream *strm, uint64_t memlimit);
+lzma_ret lzma_memlimit_set(lzma_stream *strm,  uint64 memlimit);
 //
 //#include "vli.h"
 /**
@@ -982,11 +982,11 @@ lzma_ret lzma_memlimit_set(lzma_stream *strm, uint64_t memlimit);
  * indicated with LZMA_VLI_UNKNOWN, which is the maximum value of the
  * underlying integer type.
  *
- * lzma_vli will be uint64_t for the foreseeable future. If a bigger size
+ * lzma_vli will be  uint64 for the foreseeable future. If a bigger size
  * is needed in the future, it is guaranteed that 2 * LZMA_VLI_MAX will
  * not overflow lzma_vli. This simplifies integer overflow detection.
  */
-typedef uint64_t lzma_vli;
+typedef  uint64 lzma_vli;
 /**
  * \brief       Validate a variable-length integer
  *
@@ -1152,7 +1152,7 @@ uint32_t lzma_crc32(const uint8 *buf, size_t size, uint32_t crc) lzma_attr_pure;
  *
  * This function is used similarly to lzma_crc32(). See its documentation.
  */
-uint64_t lzma_crc64(const uint8 *buf, size_t size, uint64_t crc) lzma_attr_pure;
+ uint64 lzma_crc64(const uint8 *buf, size_t size,  uint64 crc) lzma_attr_pure;
 /*
  * SHA-256 functions are currently not exported to public API.
  * Contact Lasse Collin if you think it should be.
@@ -1274,7 +1274,7 @@ lzma_ret lzma_filters_copy(const lzma_filter *src, lzma_filter *dest, const lzma
  *        for example due to unsupported filter chain,
  *        UINT64_MAX is returned.
  */
-uint64_t lzma_raw_encoder_memusage(const lzma_filter *filters) lzma_attr_pure;
+ uint64 lzma_raw_encoder_memusage(const lzma_filter *filters) lzma_attr_pure;
 /**
  * \brief       Calculate approximate memory requirements for raw decoder
  *
@@ -1290,7 +1290,7 @@ uint64_t lzma_raw_encoder_memusage(const lzma_filter *filters) lzma_attr_pure;
  *        for example due to unsupported filter chain,
  *        UINT64_MAX is returned.
  */
-uint64_t lzma_raw_decoder_memusage(const lzma_filter *filters) lzma_attr_pure;
+ uint64 lzma_raw_decoder_memusage(const lzma_filter *filters) lzma_attr_pure;
 /**
  * \brief       Initialize raw encoder
  *
@@ -2078,7 +2078,7 @@ typedef struct {
 	 * allocated. This may change in later liblzma versions. If so,
 	 * the memory usage will probably be reduced, not increased.
 	 */
-	uint64_t block_size;
+	 uint64 block_size;
 	/**
 	 * \brief       Timeout to allow lzma_code() to return early
 	 *
@@ -2149,10 +2149,10 @@ typedef struct {
 	uint32_t reserved_int2;
 	uint32_t reserved_int3;
 	uint32_t reserved_int4;
-	uint64_t reserved_int5;
-	uint64_t reserved_int6;
-	uint64_t reserved_int7;
-	uint64_t reserved_int8;
+	 uint64 reserved_int5;
+	 uint64 reserved_int6;
+	 uint64 reserved_int7;
+	 uint64 reserved_int8;
 	void * reserved_ptr1;
 	void * reserved_ptr2;
 	void * reserved_ptr3;
@@ -2170,7 +2170,7 @@ typedef struct {
  *        preset when encoding. If an error occurs, for example
  *        due to unsupported preset, UINT64_MAX is returned.
  */
-uint64_t lzma_easy_encoder_memusage(uint32_t preset) lzma_attr_pure;
+ uint64 lzma_easy_encoder_memusage(uint32_t preset) lzma_attr_pure;
 /**
  * \brief       Calculate approximate decoder memory usage of a preset
  *
@@ -2183,7 +2183,7 @@ uint64_t lzma_easy_encoder_memusage(uint32_t preset) lzma_attr_pure;
  *        occurs, for example due to unsupported preset, UINT64_MAX
  *        is returned.
  */
-uint64_t lzma_easy_decoder_memusage(uint32_t preset) lzma_attr_pure;
+ uint64 lzma_easy_decoder_memusage(uint32_t preset) lzma_attr_pure;
 /**
  * \brief       Initialize .xz Stream encoder using a preset number
  *
@@ -2285,7 +2285,7 @@ lzma_ret lzma_stream_encoder(lzma_stream *strm, const lzma_filter *filters, lzma
  *        given options. If an error occurs, for example due to
  *        unsupported preset or filter chain, UINT64_MAX is returned.
  */
-uint64_t lzma_stream_encoder_mt_memusage(const lzma_mt *options) lzma_attr_pure;
+ uint64 lzma_stream_encoder_mt_memusage(const lzma_mt *options) lzma_attr_pure;
 /**
  * \brief       Initialize multithreaded .xz Stream encoder
  *
@@ -2462,7 +2462,7 @@ lzma_ret lzma_stream_buffer_encode(lzma_filter *filters, lzma_check check, const
  *        - LZMA_OPTIONS_ERROR: Unsupported flags
  *        - LZMA_PROG_ERROR
  */
-lzma_ret lzma_stream_decoder(lzma_stream *strm, uint64_t memlimit, uint32_t flags) lzma_attr_warn_unused_result;
+lzma_ret lzma_stream_decoder(lzma_stream *strm,  uint64 memlimit, uint32_t flags) lzma_attr_warn_unused_result;
 /**
  * \brief       Decode .xz Streams and .lzma files with autodetection
  *
@@ -2483,7 +2483,7 @@ lzma_ret lzma_stream_decoder(lzma_stream *strm, uint64_t memlimit, uint32_t flag
  *        - LZMA_OPTIONS_ERROR: Unsupported flags
  *        - LZMA_PROG_ERROR
  */
-lzma_ret lzma_auto_decoder(lzma_stream *strm, uint64_t memlimit, uint32_t flags) lzma_attr_warn_unused_result;
+lzma_ret lzma_auto_decoder(lzma_stream *strm,  uint64 memlimit, uint32_t flags) lzma_attr_warn_unused_result;
 /**
  * \brief       Initialize .lzma decoder (legacy file format)
  *
@@ -2502,7 +2502,7 @@ lzma_ret lzma_auto_decoder(lzma_stream *strm, uint64_t memlimit, uint32_t flags)
  *        - LZMA_MEM_ERROR
  *        - LZMA_PROG_ERROR
  */
-lzma_ret lzma_alone_decoder(lzma_stream *strm, uint64_t memlimit) lzma_attr_warn_unused_result;
+lzma_ret lzma_alone_decoder(lzma_stream *strm,  uint64 memlimit) lzma_attr_warn_unused_result;
 /**
  * \brief       Single-call .xz Stream decoder
  *
@@ -2541,7 +2541,7 @@ lzma_ret lzma_alone_decoder(lzma_stream *strm, uint64_t memlimit) lzma_attr_warn
  *        - LZMA_BUF_ERROR: Output buffer was too small.
  *        - LZMA_PROG_ERROR
  */
-lzma_ret lzma_stream_buffer_decode(uint64_t *memlimit, uint32_t flags, const lzma_allocator *allocator,
+lzma_ret lzma_stream_buffer_decode( uint64 *memlimit, uint32_t flags, const lzma_allocator *allocator,
     const uint8 *in, size_t *in_pos, size_t in_size, uint8 *out, size_t *out_pos, size_t out_size) lzma_attr_warn_unused_result;
 //
 // Advanced features 
@@ -3473,14 +3473,14 @@ typedef enum {
  * value may vary between CPU architectures and also between liblzma versions
  * if the internal implementation is modified.
  */
-uint64_t lzma_index_memusage(lzma_vli streams, lzma_vli blocks);
+ uint64 lzma_index_memusage(lzma_vli streams, lzma_vli blocks);
 /**
  * \brief       Calculate the memory usage of an existing lzma_index
  *
  * This is a shorthand for lzma_index_memusage(lzma_index_stream_count(i),
  * lzma_index_block_count(i)).
  */
-uint64_t lzma_index_memused(const lzma_index *i);
+ uint64 lzma_index_memused(const lzma_index *i);
 /**
  * \brief       Allocate and initialize a new lzma_index structure
  *
@@ -3742,7 +3742,7 @@ lzma_ret lzma_index_encoder(lzma_stream *strm, const lzma_index *i) lzma_attr_wa
  *        but that error code has never been possible from this
  *        initialization function.
  */
-lzma_ret lzma_index_decoder(lzma_stream *strm, lzma_index **i, uint64_t memlimit) lzma_attr_warn_unused_result;
+lzma_ret lzma_index_decoder(lzma_stream *strm, lzma_index **i,  uint64 memlimit) lzma_attr_warn_unused_result;
 /**
  * \brief       Single-call .xz Index encoder
  *
@@ -3790,7 +3790,7 @@ lzma_ret lzma_index_buffer_encode(const lzma_index *i, uint8 *out, size_t *out_p
  *        - LZMA_DATA_ERROR
  *        - LZMA_PROG_ERROR
  */
-lzma_ret lzma_index_buffer_decode(lzma_index **i, uint64_t *memlimit, const lzma_allocator *allocator, const uint8 *in, size_t *in_pos, size_t in_size);
+lzma_ret lzma_index_buffer_decode(lzma_index **i,  uint64 *memlimit, const lzma_allocator *allocator, const uint8 *in, size_t *in_pos, size_t in_size);
 /**
  * \brief       Initialize a .xz file information decoder
  *
@@ -3851,7 +3851,7 @@ lzma_ret lzma_index_buffer_decode(lzma_index **i, uint64_t *memlimit, const lzma
  *        - LZMA_MEM_ERROR
  *        - LZMA_PROG_ERROR
  */
-lzma_ret lzma_file_info_decoder(lzma_stream *strm, lzma_index **dest_index, uint64_t memlimit, uint64_t file_size);
+lzma_ret lzma_file_info_decoder(lzma_stream *strm, lzma_index **dest_index,  uint64 memlimit,  uint64 file_size);
 //
 //#include "index_hash.h"
 /**
@@ -3964,7 +3964,7 @@ lzma_vli lzma_index_hash_size(const lzma_index_hash *index_hash) lzma_attr_pure;
  *        or if there is no code in liblzma to detect the amount
  *        of RAM on the specific operating system.
  */
-uint64_t lzma_physmem(void);
+ uint64 lzma_physmem(void);
 /**
  * \brief       Get the number of processor cores or threads
  *

@@ -29,11 +29,11 @@
 #pragma hdrstop
 //#include <curl/curl.h>
 //#include "urldata.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "escape.h"
 #include "strdup.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -41,7 +41,7 @@
    its behavior is altered by the current locale.
    See https://datatracker.ietf.org/doc/html/rfc3986#section-2.3
  */
-bool Curl_isunreserved(unsigned char in)
+bool Curl_isunreserved(uchar in)
 {
 	switch(in) {
 		case '0': case '1': case '2': case '3': case '4':
@@ -96,7 +96,7 @@ char *curl_easy_escape(struct Curl_easy * data, const char * string,
 		return strdup("");
 
 	while(length--) {
-		unsigned char in = *string++; /* treat the characters unsigned */
+		uchar in = *string++; /* treat the characters unsigned */
 
 		if(Curl_isunreserved(in)) {
 			/* append this */
@@ -117,7 +117,7 @@ char *curl_easy_escape(struct Curl_easy * data, const char * string,
 	return Curl_dyn_ptr(&d);
 }
 
-static const unsigned char hextable[] = {
+static const uchar hextable[] = {
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, /* 0x30 - 0x3f */
 	0, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x40 - 0x4f */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x50 - 0x5f */
@@ -152,17 +152,17 @@ CURLcode Curl_urldecode(const char * string, size_t length,
 	DEBUGASSERT(string);
 	DEBUGASSERT(ctrl >= REJECT_NADA); /* crash on TRUE/FALSE */
 	alloc = (length?length:strlen(string));
-	ns = (char *)malloc(alloc + 1);
+	ns = (char *)SAlloc::M(alloc + 1);
 	if(!ns)
 		return CURLE_OUT_OF_MEMORY;
 	/* store output string */
 	*ostring = ns;
 	while(alloc) {
-		unsigned char in = *string;
+		uchar in = *string;
 		if(('%' == in) && (alloc > 2) &&
 		    ISXDIGIT(string[1]) && ISXDIGIT(string[2])) {
 			/* this is two hexadecimal digits following a '%' */
-			in = (unsigned char)(onehex2dec(string[1]) << 4) | onehex2dec(string[2]);
+			in = (uchar)(onehex2dec(string[1]) << 4) | onehex2dec(string[2]);
 
 			string += 3;
 			alloc -= 3;
@@ -174,7 +174,7 @@ CURLcode Curl_urldecode(const char * string, size_t length,
 
 		if(((ctrl == REJECT_CTRL) && (in < 0x20)) ||
 		    ((ctrl == REJECT_ZERO) && (in == 0))) {
-			Curl_safefree(*ostring);
+			ZFREE(*ostring);
 			return CURLE_URL_MALFORMAT;
 		}
 
@@ -214,7 +214,7 @@ char *curl_easy_unescape(struct Curl_easy * data, const char * string,
 				*olen = curlx_uztosi(outputlen);
 			else
 				/* too large to return in an int, fail! */
-				Curl_safefree(str);
+				ZFREE(str);
 		}
 	}
 	return str;
@@ -225,5 +225,5 @@ char *curl_easy_unescape(struct Curl_easy * data, const char * string,
    the library's memory system */
 void curl_free(void * p)
 {
-	free(p);
+	SAlloc::F(p);
 }

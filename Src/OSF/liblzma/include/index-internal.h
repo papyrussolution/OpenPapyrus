@@ -39,6 +39,6 @@ static inline lzma_vli index_stream_size(lzma_vli blocks_size, lzma_vli count, l
 	{ return LZMA_STREAM_HEADER_SIZE + blocks_size + index_size(count, index_list_size) + LZMA_STREAM_HEADER_SIZE; }
 
 extern lzma_ret lzma_index_encoder_init(lzma_next_coder *next, const lzma_allocator *allocator, const lzma_index *i);
-extern lzma_ret lzma_index_decoder_init(lzma_next_coder *next, const lzma_allocator *allocator, lzma_index **i, uint64_t memlimit);
+extern lzma_ret lzma_index_decoder_init(lzma_next_coder *next, const lzma_allocator *allocator, lzma_index **i,  uint64 memlimit);
 
 #endif

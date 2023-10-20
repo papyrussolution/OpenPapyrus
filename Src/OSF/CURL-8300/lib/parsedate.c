@@ -79,7 +79,7 @@
 #include <limits.h>
 //#include <curl/curl.h>
 //#include "strcase.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "parsedate.h"
 
 /*
@@ -246,7 +246,7 @@ static int checkmonth(const char * check, size_t len)
 
 static int checktz(const char * check, size_t len)
 {
-	unsigned int i;
+	uint i;
 	const struct tzinfo * what = tz;
 	if(len > 4) /* longer than any valid timezone */
 		return -1;

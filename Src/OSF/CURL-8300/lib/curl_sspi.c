@@ -31,7 +31,7 @@
 #include "curl_multibyte.h"
 #include "system_win32.h"
 #include "version_win32.h"
-#include "warnless.h"
+//#include "warnless.h"
 
 /* The last #include files should be: */
 #include "curl_memory.h"
@@ -148,16 +148,12 @@ CURLcode Curl_create_sspi_identity(const char * userp, const char * passwdp,
 	xcharp_u domain, dup_domain;
 	xcharp_u passwd, dup_passwd;
 	size_t domlen = 0;
-
 	domain.const_tchar_ptr = TEXT("");
-
 	/* Initialize the identity */
-	memset(identity, 0, sizeof(*identity));
-
+	memzero(identity, sizeof(*identity));
 	useranddomain.tchar_ptr = curlx_convert_UTF8_to_tchar((char *)userp);
 	if(!useranddomain.tchar_ptr)
 		return CURLE_OUT_OF_MEMORY;
-
 	user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, TEXT('\\'));
 	if(!user.const_tchar_ptr)
 		user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, TEXT('/'));
@@ -184,7 +180,7 @@ CURLcode Curl_create_sspi_identity(const char * userp, const char * passwdp,
 	dup_user.tchar_ptr = NULL;
 
 	/* Setup the identity's domain and length */
-	dup_domain.tchar_ptr = malloc(sizeof(TCHAR) * (domlen + 1));
+	dup_domain.tchar_ptr = SAlloc::M(sizeof(TCHAR) * (domlen + 1));
 	if(!dup_domain.tchar_ptr) {
 		curlx_unicodefree(useranddomain.tchar_ptr);
 		return CURLE_OUT_OF_MEMORY;
@@ -230,9 +226,9 @@ CURLcode Curl_create_sspi_identity(const char * userp, const char * passwdp,
 void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY * identity)
 {
 	if(identity) {
-		Curl_safefree(identity->User);
-		Curl_safefree(identity->Password);
-		Curl_safefree(identity->Domain);
+		ZFREE(identity->User);
+		ZFREE(identity->Password);
+		ZFREE(identity->Domain);
 	}
 }
 

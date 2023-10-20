@@ -33,15 +33,15 @@
 #endif
 
 //#include "urldata.h" /* for struct Curl_easy */
-#include "mime.h"
+//#include "mime.h"
 #include "vtls/vtls.h"
 //#include "strcase.h"
 //#include "sendf.h"
 #include "strdup.h"
 #include "rand.h"
-#include "warnless.h"
+//#include "warnless.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -79,7 +79,7 @@ static struct curl_httppost *AddHttpPost(char * name, size_t namelength,
 	if((bufferlength > LONG_MAX) || (namelength > LONG_MAX))
 		/* avoid overflow in typecasts below */
 		return NULL;
-	post = (curl_httppost *)calloc(1, sizeof(struct curl_httppost));
+	post = (curl_httppost *)SAlloc::C(1, sizeof(struct curl_httppost));
 	if(post) {
 		post->name = name;
 		post->namelength = (long)namelength;
@@ -127,7 +127,7 @@ static struct curl_httppost *AddHttpPost(char * name, size_t namelength,
 ***************************************************************************/
 static struct FormInfo *AddFormInfo(char * value, char * contenttype, struct FormInfo * parent_form_info)
 {
-	struct FormInfo * form_info = (FormInfo *)calloc(1, sizeof(struct FormInfo));
+	struct FormInfo * form_info = (FormInfo *)SAlloc::C(1, sizeof(struct FormInfo));
 	if(!form_info)
 		return NULL;
 	if(value)
@@ -209,7 +209,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 	/*
 	 * We need to allocate the first struct to fill in.
 	 */
-	first_form = (FormInfo *)calloc(1, sizeof(struct FormInfo));
+	first_form = (FormInfo *)SAlloc::C(1, sizeof(struct FormInfo));
 	if(!first_form)
 		return CURL_FORMADD_MEMORY;
 	current_form = first_form;
@@ -345,7 +345,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 						    else {
 							    form = AddFormInfo(fname, NULL, current_form);
 							    if(!form) {
-								    free(fname);
+								    SAlloc::F(fname);
 								    return_value = CURL_FORMADD_MEMORY;
 							    }
 							    else {
@@ -434,7 +434,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 						    else {
 							    form = AddFormInfo(NULL, type, current_form);
 							    if(!form) {
-								    free(type);
+								    SAlloc::F(type);
 								    return_value = CURL_FORMADD_MEMORY;
 							    }
 							    else {
@@ -506,19 +506,19 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 		struct FormInfo * ptr;
 		for(ptr = first_form; ptr != NULL; ptr = ptr->more) {
 			if(ptr->name_alloc) {
-				Curl_safefree(ptr->name);
+				ZFREE(ptr->name);
 				ptr->name_alloc = FALSE;
 			}
 			if(ptr->value_alloc) {
-				Curl_safefree(ptr->value);
+				ZFREE(ptr->value);
 				ptr->value_alloc = FALSE;
 			}
 			if(ptr->contenttype_alloc) {
-				Curl_safefree(ptr->contenttype);
+				ZFREE(ptr->contenttype);
 				ptr->contenttype_alloc = FALSE;
 			}
 			if(ptr->showfilename_alloc) {
-				Curl_safefree(ptr->showfilename);
+				ZFREE(ptr->showfilename);
 				ptr->showfilename_alloc = FALSE;
 			}
 		}
@@ -630,19 +630,19 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 			struct FormInfo * ptr;
 			for(ptr = form; ptr != NULL; ptr = ptr->more) {
 				if(ptr->name_alloc) {
-					Curl_safefree(ptr->name);
+					ZFREE(ptr->name);
 					ptr->name_alloc = FALSE;
 				}
 				if(ptr->value_alloc) {
-					Curl_safefree(ptr->value);
+					ZFREE(ptr->value);
 					ptr->value_alloc = FALSE;
 				}
 				if(ptr->contenttype_alloc) {
-					Curl_safefree(ptr->contenttype);
+					ZFREE(ptr->contenttype);
 					ptr->contenttype_alloc = FALSE;
 				}
 				if(ptr->showfilename_alloc) {
-					Curl_safefree(ptr->showfilename);
+					ZFREE(ptr->showfilename);
 					ptr->showfilename_alloc = FALSE;
 				}
 			}
@@ -654,7 +654,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 	   now by the httppost linked list */
 	while(first_form) {
 		struct FormInfo * ptr = first_form->more;
-		free(first_form);
+		SAlloc::F(first_form);
 		first_form = ptr;
 	}
 
@@ -735,14 +735,14 @@ void curl_formfree(struct curl_httppost * form)
 		curl_formfree(form->more);
 
 		if(!(form->flags & HTTPPOST_PTRNAME))
-			free(form->name); /* free the name */
+			SAlloc::F(form->name); /* free the name */
 		if(!(form->flags &
 		    (HTTPPOST_PTRCONTENTS|HTTPPOST_BUFFER|HTTPPOST_CALLBACK))
 		    )
-			free(form->contents); /* free the contents */
-		free(form->contenttype); /* free the content type */
-		free(form->showfilename); /* free the faked file name */
-		free(form); /* free the struct */
+			SAlloc::F(form->contents); /* free the contents */
+		SAlloc::F(form->contenttype); /* free the content type */
+		SAlloc::F(form->showfilename); /* free the faked file name */
+		SAlloc::F(form); /* free the struct */
 		form = next;
 	} while(form); /* continue */
 }
@@ -754,13 +754,13 @@ static CURLcode setname(curl_mimepart * part, const char * name, size_t len)
 	CURLcode res;
 	if(!name || !len)
 		return curl_mime_name(part, name);
-	zname = (char *)malloc(len + 1);
+	zname = (char *)SAlloc::M(len + 1);
 	if(!zname)
 		return CURLE_OUT_OF_MEMORY;
 	memcpy(zname, name, len);
 	zname[len] = '\0';
 	res = curl_mime_name(part, zname);
-	free(zname);
+	SAlloc::F(zname);
 	return res;
 }
 

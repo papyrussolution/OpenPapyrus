@@ -201,10 +201,10 @@ static int compression_init_encoder_lzma2(Archive *, struct la_zstream *, int);
 static int compression_code_lzma(Archive *, struct la_zstream *, enum la_zaction);
 static int compression_end_lzma(Archive *, struct la_zstream *);
 #endif
-static int compression_init_encoder_ppmd(Archive *, struct la_zstream *, unsigned, uint32);
+static int compression_init_encoder_ppmd(Archive *, struct la_zstream *, uint, uint32);
 static int compression_code_ppmd(Archive *, struct la_zstream *, enum la_zaction);
 static int compression_end_ppmd(Archive *, struct la_zstream *);
-static int _7z_compression_init_encoder(struct archive_write *, unsigned, int);
+static int _7z_compression_init_encoder(struct archive_write *, uint, int);
 static int compression_code(Archive *, struct la_zstream *, enum la_zaction);
 static int compression_end(Archive *, struct la_zstream *);
 static int enc_uint64(struct archive_write *, uint64);
@@ -817,34 +817,28 @@ static int make_streamsInfo(struct archive_write * a, uint64 offset, uint64 pack
 	r = enc_uint64(a, kUnPackInfo);
 	if(r < 0)
 		return r;
-
-	/*
-	 * Make Folder.
-	 */
+	//
+	// Make Folder.
+	//
 	r = enc_uint64(a, kFolder);
 	if(r < 0)
 		return r;
-
-	/* Write NumFolders. */
+	// Write NumFolders
 	r = enc_uint64(a, numFolders);
 	if(r < 0)
 		return r;
-
-	/* Write External. */
+	// Write External
 	r = enc_uint64(a, 0);
 	if(r < 0)
 		return r;
-
 	for(fi = 0; fi < numFolders; fi++) {
-		/* Write NumCoders. */
+		// Write NumCoders
 		r = enc_uint64(a, num_coder);
 		if(r < 0)
 			return r;
-
 		for(i = 0; i < num_coder; i++) {
-			unsigned codec_id = coders[i].codec;
-
-			/* Write Codec flag. */
+			uint codec_id = coders[i].codec;
+			// Write Codec flag
 			archive_be64enc(codec_buff, codec_id);
 			for(codec_size = 8; codec_size > 0; codec_size--) {
 				if(codec_buff[8 - codec_size])
@@ -951,7 +945,7 @@ static uint64 utcToFiletime(time_t t, long ns)
 	return (fileTime);
 }
 
-static int make_time(struct archive_write * a, uint8 type, unsigned flg, int ti)
+static int make_time(struct archive_write * a, uint8 type, uint flg, int ti)
 {
 	uint8 filetime[8];
 	struct _7zip * zip = (struct _7zip *)a->format_data;
@@ -986,7 +980,6 @@ static int make_time(struct archive_write * a, uint8 type, unsigned flg, int ti)
 		r = enc_uint64(a, 2 + ((zip->total_number_entry + 7) >> 3) + zip->total_number_time_defined[ti] * 8);
 		if(r < 0)
 			return r;
-
 		/* All are not defined. */
 		r = enc_uint64(a, 0);
 		if(r < 0)
@@ -1035,13 +1028,11 @@ static int make_header(struct archive_write * a, uint64 offset, uint64 pack_size
 {
 	struct _7zip * zip = (struct _7zip *)a->format_data;
 	struct file * file;
-	int r;
 	uint8 b, mask;
-
 	/*
 	 * Make FilesInfo.
 	 */
-	r = enc_uint64(a, kHeader);
+	int r = enc_uint64(a, kHeader);
 	if(r < 0)
 		return r;
 
@@ -1067,23 +1058,19 @@ static int make_header(struct archive_write * a, uint64 offset, uint64 pack_size
 	r = enc_uint64(a, kFilesInfo);
 	if(r < 0)
 		return r;
-
 	/* Write numFiles. */
 	r = enc_uint64(a, zip->total_number_entry);
 	if(r < 0)
 		return r;
-
 	if(zip->total_number_empty_entry > 0) {
 		/* Make EmptyStream. */
 		r = enc_uint64(a, kEmptyStream);
 		if(r < 0)
 			return r;
-
 		/* Write EmptyStream Size. */
 		r = enc_uint64(a, (zip->total_number_entry+7)>>3);
 		if(r < 0)
 			return r;
-
 		b = 0;
 		mask = 0x80;
 		file = zip->file_list.first;
@@ -1111,12 +1098,10 @@ static int make_header(struct archive_write * a, uint64 offset, uint64 pack_size
 		r = enc_uint64(a, kEmptyFile);
 		if(r < 0)
 			return r;
-
 		/* Write EmptyFile Size. */
 		r = enc_uint64(a, (zip->total_number_empty_entry + 7) >> 3);
 		if(r < 0)
 			return r;
-
 		b = 0;
 		mask = 0x80;
 		file = zip->file_list.first;
@@ -1140,22 +1125,18 @@ static int make_header(struct archive_write * a, uint64 offset, uint64 pack_size
 				return r;
 		}
 	}
-
-	/* Make Name. */
+	// Make Name
 	r = enc_uint64(a, kName);
 	if(r < 0)
 		return r;
-
-	/* Write Name size. */
+	// Write Name size
 	r = enc_uint64(a, zip->total_bytes_entry_name+1);
 	if(r < 0)
 		return r;
-
-	/* Write dmy byte. */
+	// Write dmy byte
 	r = enc_uint64(a, 0);
 	if(r < 0)
 		return r;
-
 	file = zip->file_list.first;
 	for(; file; file = file->next) {
 		r = (int)compress_out(a, file->utf16name, file->name_len+2,
@@ -1163,48 +1144,40 @@ static int make_header(struct archive_write * a, uint64 offset, uint64 pack_size
 		if(r < 0)
 			return r;
 	}
-
-	/* Make MTime. */
+	// Make MTime
 	r = make_time(a, kMTime, MTIME_IS_SET, MTIME);
 	if(r < 0)
 		return r;
-
-	/* Make CTime. */
+	// Make CTime
 	r = make_time(a, kCTime, CTIME_IS_SET, CTIME);
 	if(r < 0)
 		return r;
-
-	/* Make ATime. */
+	// Make ATime
 	r = make_time(a, kATime, ATIME_IS_SET, ATIME);
 	if(r < 0)
 		return r;
-
-	/* Make Attributes. */
+	// Make Attributes
 	r = enc_uint64(a, kAttributes);
 	if(r < 0)
 		return r;
-
-	/* Write Attributes size. */
+	// Write Attributes size
 	r = enc_uint64(a, 2 + zip->total_number_entry * 4);
 	if(r < 0)
 		return r;
-
-	/* Write "All Are Defined". */
+	// Write "All Are Defined"
 	r = enc_uint64(a, 1);
 	if(r < 0)
 		return r;
-
-	/* Write dmy byte. */
+	// Write dmy byte
 	r = enc_uint64(a, 0);
 	if(r < 0)
 		return r;
-
 	file = zip->file_list.first;
 	for(; file; file = file->next) {
-		/*
-		 * High 16bits is unix mode.
-		 * Low 16bits is Windows attributes.
-		 */
+		//
+		// High 16bits is unix mode.
+		// Low 16bits is Windows attributes.
+		//
 		uint32 encattr, attr;
 		if(file->dir)
 			attr = 0x8010;
@@ -1218,42 +1191,34 @@ static int make_header(struct archive_write * a, uint64 offset, uint64 pack_size
 		if(r < 0)
 			return r;
 	}
-
-	/* Write End. */
+	// Write End
 	r = enc_uint64(a, kEnd);
 	if(r < 0)
 		return r;
-
-	/* Write End. */
+	// Write End
 	r = enc_uint64(a, kEnd);
 	if(r < 0)
 		return r;
-
 	return ARCHIVE_OK;
 }
 
 static int _7z_free(struct archive_write * a)
 {
 	struct _7zip * zip = (struct _7zip *)a->format_data;
-
-	/* Close the temporary file. */
+	// Close the temporary file
 	if(zip->temp_fd >= 0)
 		close(zip->temp_fd);
-
 	file_free_register(zip);
 	compression_end(&(a->archive), &(zip->stream));
 	SAlloc::F(zip->coder.props);
 	SAlloc::F(zip);
-
 	return ARCHIVE_OK;
 }
 
-static int file_cmp_node(const struct archive_rb_node * n1,
-    const struct archive_rb_node * n2)
+static int file_cmp_node(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
 	const struct file * f1 = (const struct file *)n1;
 	const struct file * f2 = (const struct file *)n2;
-
 	if(f1->name_len == f2->name_len)
 		return (memcmp(f1->utf16name, f2->utf16name, f1->name_len));
 	return (f1->name_len > f2->name_len) ? 1 : -1;
@@ -1262,18 +1227,16 @@ static int file_cmp_node(const struct archive_rb_node * n1,
 static int file_cmp_key(const struct archive_rb_node * n, const void * key)
 {
 	const struct file * f = (const struct file *)n;
-
 	return (f->name_len - *(const char *)key);
 }
 
 static int file_new(struct archive_write * a, ArchiveEntry * entry, struct file ** newfile)
 {
-	struct _7zip * zip;
 	struct file * file;
 	const char * u16;
 	size_t u16len;
 	int ret = ARCHIVE_OK;
-	zip = (struct _7zip *)a->format_data;
+	struct _7zip * zip = (struct _7zip *)a->format_data;
 	*newfile = NULL;
 	file = static_cast<struct file *>(SAlloc::C(1, sizeof(*file)));
 	if(file == NULL) {
@@ -1323,7 +1286,6 @@ static int file_new(struct archive_write * a, ArchiveEntry * entry, struct file 
 		file->times[CTIME].time = archive_entry_ctime(entry);
 		file->times[CTIME].time_ns = archive_entry_ctime_nsec(entry);
 	}
-
 	*newfile = file;
 	return ret;
 }
@@ -1628,8 +1590,7 @@ static int compression_init_encoder_lzma(Archive * a, struct la_zstream * lastrm
 		return ARCHIVE_FATAL;
 	}
 	lzmafilters = (lzma_filter*)(strm+1);
-	if(level > 9)
-		level = 9;
+	SETMIN(level, 9);
 	if(lzma_lzma_preset(&lzma_opt, level)) {
 		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
@@ -1779,7 +1740,7 @@ static void ppmd_write(void * p, Byte b)
 	}
 }
 
-static int compression_init_encoder_ppmd(Archive * a, struct la_zstream * lastrm, unsigned maxOrder, uint32 msize)
+static int compression_init_encoder_ppmd(Archive * a, struct la_zstream * lastrm, uint maxOrder, uint32 msize)
 {
 	struct ppmd_stream * strm;
 	uint8 * props;
@@ -1787,12 +1748,12 @@ static int compression_init_encoder_ppmd(Archive * a, struct la_zstream * lastrm
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	strm = static_cast<ppmd_stream *>(SAlloc::C(1, sizeof(*strm)));
-	if(strm == NULL) {
+	if(!strm) {
 		archive_set_error(a, ENOMEM, "Can't allocate memory for PPMd");
 		return ARCHIVE_FATAL;
 	}
 	strm->buff = static_cast<uint8 *>(SAlloc::M(32));
-	if(strm->buff == NULL) {
+	if(!strm->buff) {
 		SAlloc::F(strm);
 		archive_set_error(a, ENOMEM, "Can't allocate memory for PPMd");
 		return ARCHIVE_FATAL;
@@ -1800,7 +1761,7 @@ static int compression_init_encoder_ppmd(Archive * a, struct la_zstream * lastrm
 	strm->buff_ptr = strm->buff;
 	strm->buff_end = strm->buff + 32;
 	props = static_cast<uint8 *>(SAlloc::M(1+4));
-	if(props == NULL) {
+	if(!props) {
 		SAlloc::F(strm->buff);
 		SAlloc::F(strm);
 		archive_set_error(a, ENOMEM, "Coludn't allocate memory for PPMd");
@@ -1836,7 +1797,7 @@ static int compression_code_ppmd(Archive * a, struct la_zstream * lastrm, enum l
 {
 	CXX_UNUSED(a);
 	struct ppmd_stream * strm = (struct ppmd_stream *)lastrm->real_stream;
-	/* Copy encoded data if there are remaining bytes from previous call. */
+	// Copy encoded data if there are remaining bytes from previous call
 	if(strm->buff_bytes) {
 		uint8 * p = strm->buff_ptr - strm->buff_bytes;
 		while(lastrm->avail_out && strm->buff_bytes) {
@@ -1859,7 +1820,7 @@ static int compression_code_ppmd(Archive * a, struct la_zstream * lastrm, enum l
 	if(lastrm->avail_in == 0 && action == ARCHIVE_Z_FINISH) {
 		__archive_ppmd7_functions.Ppmd7z_RangeEnc_FlushData(&(strm->range_enc));
 		strm->stat = 1;
-		/* Return EOF if there are no remaining bytes. */
+		// Return EOF if there are no remaining bytes
 		if(strm->buff_bytes == 0)
 			return (ARCHIVE_EOF);
 	}
@@ -1877,33 +1838,21 @@ static int compression_end_ppmd(Archive * a, struct la_zstream * lastrm)
 	lastrm->valid = 0;
 	return ARCHIVE_OK;
 }
-/*
- * Universal compressor initializer.
- */
-static int _7z_compression_init_encoder(struct archive_write * a, unsigned compression, int compression_level)
+// 
+// Universal compressor initializer.
+// 
+static int _7z_compression_init_encoder(struct archive_write * a, uint compression, int compression_level)
 {
 	int r;
 	struct _7zip * zip = (struct _7zip *)a->format_data;
 	switch(compression) {
-		case _7Z_DEFLATE:
-		    r = compression_init_encoder_deflate(&(a->archive), &(zip->stream), compression_level, 0);
-		    break;
-		case _7Z_BZIP2:
-		    r = compression_init_encoder_bzip2(&(a->archive), &(zip->stream), compression_level);
-		    break;
-		case _7Z_LZMA1:
-		    r = compression_init_encoder_lzma1(&(a->archive), &(zip->stream), compression_level);
-		    break;
-		case _7Z_LZMA2:
-		    r = compression_init_encoder_lzma2(&(a->archive), &(zip->stream), compression_level);
-		    break;
-		case _7Z_PPMD:
-		    r = compression_init_encoder_ppmd(&(a->archive), &(zip->stream), PPMD7_DEFAULT_ORDER, PPMD7_DEFAULT_MEM_SIZE);
-		    break;
+		case _7Z_DEFLATE: r = compression_init_encoder_deflate(&(a->archive), &(zip->stream), compression_level, 0); break;
+		case _7Z_BZIP2: r = compression_init_encoder_bzip2(&(a->archive), &(zip->stream), compression_level); break;
+		case _7Z_LZMA1: r = compression_init_encoder_lzma1(&(a->archive), &(zip->stream), compression_level); break;
+		case _7Z_LZMA2: r = compression_init_encoder_lzma2(&(a->archive), &(zip->stream), compression_level); break;
+		case _7Z_PPMD: r = compression_init_encoder_ppmd(&(a->archive), &(zip->stream), PPMD7_DEFAULT_ORDER, PPMD7_DEFAULT_MEM_SIZE); break;
 		case _7Z_COPY:
-		default:
-		    r = compression_init_encoder_copy(&(a->archive), &(zip->stream));
-		    break;
+		default: r = compression_init_encoder_copy(&(a->archive), &(zip->stream)); break;
 	}
 	if(r == ARCHIVE_OK) {
 		zip->stream.total_in = 0;

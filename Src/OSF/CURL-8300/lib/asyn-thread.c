@@ -65,7 +65,7 @@
 #include "curl_threads.h"
 //#include "connect.h"
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -101,7 +101,7 @@ void Curl_resolver_global_cleanup(void)
 CURLcode Curl_resolver_init(struct Curl_easy * easy, void ** resolver)
 {
 	(void)easy;
-	*resolver = calloc(1, sizeof(struct resdata));
+	*resolver = SAlloc::C(1, sizeof(struct resdata));
 	if(!*resolver)
 		return CURLE_OUT_OF_MEMORY;
 	return CURLE_OK;
@@ -115,7 +115,7 @@ CURLcode Curl_resolver_init(struct Curl_easy * easy, void ** resolver)
  */
 void Curl_resolver_cleanup(void * resolver)
 {
-	free(resolver);
+	SAlloc::F(resolver);
 }
 
 /*
@@ -165,7 +165,7 @@ struct thread_sync_data {
 
 struct thread_data {
 	curl_thread_t thread_hnd;
-	unsigned int poll_interval;
+	uint poll_interval;
 	timediff_t interval_end;
 	struct thread_sync_data tsd;
 };
@@ -180,10 +180,10 @@ void destroy_thread_sync_data(struct thread_sync_data * tsd)
 {
 	if(tsd->mtx) {
 		Curl_mutex_destroy(tsd->mtx);
-		free(tsd->mtx);
+		SAlloc::F(tsd->mtx);
 	}
 
-	free(tsd->hostname);
+	SAlloc::F(tsd->hostname);
 
 	if(tsd->res)
 		Curl_freeaddrinfo(tsd->res);
@@ -197,20 +197,15 @@ void destroy_thread_sync_data(struct thread_sync_data * tsd)
 		sclose(tsd->sock_pair[1]);
 	}
 #endif
-	memset(tsd, 0, sizeof(*tsd));
+	memzero(tsd, sizeof(*tsd));
 }
 
 /* Initialize resolver thread synchronization data */
-static
-int init_thread_sync_data(struct thread_data * td,
-    const char * hostname,
-    int port,
-    const struct addrinfo * hints)
+static int init_thread_sync_data(struct thread_data * td, const char * hostname,
+    int port, const struct addrinfo * hints)
 {
 	struct thread_sync_data * tsd = &td->tsd;
-
-	memset(tsd, 0, sizeof(*tsd));
-
+	memzero(tsd, sizeof(*tsd));
 	tsd->td = td;
 	tsd->port = port;
 	/* Treat the request as done until the thread actually starts so any early
@@ -223,7 +218,7 @@ int init_thread_sync_data(struct thread_data * td,
 #else
 	(void)hints;
 #endif
-	tsd->mtx = (curl_mutex_t *)malloc(sizeof(curl_mutex_t));
+	tsd->mtx = (curl_mutex_t *)SAlloc::M(sizeof(curl_mutex_t));
 	if(!tsd->mtx)
 		goto err_exit;
 	Curl_mutex_init(tsd->mtx);
@@ -260,14 +255,11 @@ err_exit:
 static CURLcode getaddrinfo_complete(struct Curl_easy * data)
 {
 	struct thread_sync_data * tsd = conn_thread_sync_data(data);
-	CURLcode result;
-
-	result = Curl_addrinfo_callback(data, tsd->sock_error, tsd->res);
+	CURLcode result = Curl_addrinfo_callback(data, tsd->sock_error, tsd->res);
 	/* The tsd->res structure has been copied to async.dns and perhaps the DNS
 	   cache.  Set our copy to NULL so destroy_thread_sync_data doesn't free it.
 	 */
 	tsd->res = NULL;
-
 	return result;
 }
 
@@ -279,7 +271,7 @@ static CURLcode getaddrinfo_complete(struct Curl_easy * data)
  * For builds without ARES, but with ENABLE_IPV6, create a resolver thread
  * and wait on it.
  */
-static unsigned int CURL_STDCALL getaddrinfo_thread(void * arg)
+static uint CURL_STDCALL getaddrinfo_thread(void * arg)
 {
 	struct thread_sync_data * tsd = (struct thread_sync_data *)arg;
 	struct thread_data * td = tsd->td;
@@ -307,7 +299,7 @@ static unsigned int CURL_STDCALL getaddrinfo_thread(void * arg)
 		/* too late, gotta clean up the mess */
 		Curl_mutex_release(tsd->mtx);
 		destroy_thread_sync_data(tsd);
-		free(td);
+		SAlloc::F(td);
 	}
 	else {
 #ifndef CURL_DISABLE_SOCKETPAIR
@@ -332,7 +324,7 @@ static unsigned int CURL_STDCALL getaddrinfo_thread(void * arg)
 /*
  * gethostbyname_thread() resolves a name and then exits.
  */
-static unsigned int CURL_STDCALL gethostbyname_thread(void * arg)
+static uint CURL_STDCALL gethostbyname_thread(void * arg)
 {
 	struct thread_sync_data * tsd = (struct thread_sync_data *)arg;
 	struct thread_data * td = tsd->td;
@@ -350,7 +342,7 @@ static unsigned int CURL_STDCALL gethostbyname_thread(void * arg)
 		/* too late, gotta clean up the mess */
 		Curl_mutex_release(tsd->mtx);
 		destroy_thread_sync_data(tsd);
-		free(td);
+		SAlloc::F(td);
 	}
 	else {
 		tsd->done = 1;
@@ -393,7 +385,7 @@ static void destroy_async_data(struct Curl_async * async)
 
 			destroy_thread_sync_data(&td->tsd);
 
-			free(async->tdata);
+			SAlloc::F(async->tdata);
 		}
 #ifndef CURL_DISABLE_SOCKETPAIR
 		/*
@@ -406,7 +398,7 @@ static void destroy_async_data(struct Curl_async * async)
 	}
 	async->tdata = NULL;
 
-	free(async->hostname);
+	SAlloc::F(async->hostname);
 	async->hostname = NULL;
 }
 
@@ -418,7 +410,7 @@ static void destroy_async_data(struct Curl_async * async)
  */
 static bool init_resolve_thread(struct Curl_easy * data, const char * hostname, int port, const struct addrinfo * hints)
 {
-	struct thread_data * td = (thread_data *)calloc(1, sizeof(struct thread_data));
+	struct thread_data * td = (thread_data *)SAlloc::C(1, sizeof(struct thread_data));
 	int err = ENOMEM;
 	struct Curl_async * asp = &data->state.async;
 	data->state.async.tdata = td;
@@ -431,11 +423,11 @@ static bool init_resolve_thread(struct Curl_easy * data, const char * hostname, 
 	td->thread_hnd = curl_thread_t_null;
 	if(!init_thread_sync_data(td, hostname, port, hints)) {
 		asp->tdata = NULL;
-		free(td);
+		SAlloc::F(td);
 		goto errno_exit;
 	}
 
-	free(asp->hostname);
+	SAlloc::F(asp->hostname);
 	asp->hostname = strdup(hostname);
 	if(!asp->hostname)
 		goto err_exit;
@@ -690,12 +682,9 @@ struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data,
 			pf = PF_UNSPEC;
 	}
 #endif /* CURLRES_IPV6 */
-
-	memset(&hints, 0, sizeof(hints));
+	memzero(&hints, sizeof(hints));
 	hints.ai_family = pf;
-	hints.ai_socktype = (data->conn->transport == TRNSPRT_TCP)?
-	    SOCK_STREAM : SOCK_DGRAM;
-
+	hints.ai_socktype = (data->conn->transport == TRNSPRT_TCP) ? SOCK_STREAM : SOCK_DGRAM;
 	reslv->start = Curl_now();
 	/* fire up a new resolver thread! */
 	if(init_resolve_thread(data, hostname, port, &hints)) {

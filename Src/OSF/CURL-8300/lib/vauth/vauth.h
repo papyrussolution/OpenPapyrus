@@ -112,8 +112,8 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
 CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
                                               const char *userp,
                                               const char *passwdp,
-                                              const unsigned char *request,
-                                              const unsigned char *uri,
+                                              const uchar *request,
+                                              const uchar *uri,
                                               struct digestdata *digest,
                                               char **outptr, size_t *outlen);
 

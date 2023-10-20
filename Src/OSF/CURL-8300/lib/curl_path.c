@@ -58,7 +58,7 @@ CURLcode Curl_getworkingpath(struct Curl_easy * data,
 	    (working_path_len > 3) && (!memcmp(working_path, "/~/", 3))) {
 		/* It is referenced to the home directory, so strip the leading '/~/' */
 		if(Curl_dyn_addn(&npath, &working_path[3], working_path_len - 3)) {
-			free(working_path);
+			SAlloc::F(working_path);
 			return CURLE_OUT_OF_MEMORY;
 		}
 	}
@@ -66,7 +66,7 @@ CURLcode Curl_getworkingpath(struct Curl_easy * data,
 	    (!strcmp("/~", working_path) ||
 	    ((working_path_len > 2) && !memcmp(working_path, "/~/", 3)))) {
 		if(Curl_dyn_add(&npath, homedir)) {
-			free(working_path);
+			SAlloc::F(working_path);
 			return CURLE_OUT_OF_MEMORY;
 		}
 		if(working_path_len > 2) {
@@ -81,14 +81,14 @@ CURLcode Curl_getworkingpath(struct Curl_easy * data,
 
 			if(Curl_dyn_addn(&npath,
 			    &working_path[copyfrom], working_path_len - copyfrom)) {
-				free(working_path);
+				SAlloc::F(working_path);
 				return CURLE_OUT_OF_MEMORY;
 			}
 		}
 	}
 
 	if(Curl_dyn_len(&npath)) {
-		free(working_path);
+		SAlloc::F(working_path);
 
 		/* store the pointer for the caller to receive */
 		*path = Curl_dyn_ptr(&npath);
@@ -120,7 +120,7 @@ CURLcode Curl_get_pathname(const char ** cpp, char ** path, char * homedir)
 {
 	const char * cp = *cpp, * end;
 	char quot;
-	unsigned int i, j;
+	uint i, j;
 	size_t fullPathLength, pathLength;
 	bool relativePath = false;
 	static const char WHITESPACE[] = " \t\r\n";
@@ -135,7 +135,7 @@ CURLcode Curl_get_pathname(const char ** cpp, char ** path, char * homedir)
 	cp += strspn(cp, WHITESPACE);
 	/* Allocate enough space for home directory and filename + separator */
 	fullPathLength = strlen(cp) + strlen(homedir) + 2;
-	*path = (char *)malloc(fullPathLength);
+	*path = (char *)SAlloc::M(fullPathLength);
 	if(!*path)
 		return CURLE_OUT_OF_MEMORY;
 
@@ -193,7 +193,7 @@ CURLcode Curl_get_pathname(const char ** cpp, char ** path, char * homedir)
 	return CURLE_OK;
 
 fail:
-	Curl_safefree(*path);
+	ZFREE(*path);
 	return CURLE_QUOTE_ERROR;
 }
 

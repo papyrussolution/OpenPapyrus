@@ -219,7 +219,7 @@ typedef enum {
 typedef bool bit;
 #define BIT(x) bool x
 #else
-typedef unsigned int bit;
+typedef uint bit;
 #define BIT(x) bit x : 1
 #endif
 

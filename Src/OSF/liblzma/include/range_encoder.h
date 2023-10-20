@@ -60,8 +60,8 @@ static inline uint32_t rc_direct_price(const uint32_t bits)
 #define RC_SYMBOLS_MAX 53
 
 struct lzma_range_encoder {
-	uint64_t low;
-	uint64_t cache_size;
+	 uint64 low;
+	 uint64 cache_size;
 	uint32_t range;
 	uint8 cache;
 	size_t count; /// Number of symbols in the tables
@@ -205,7 +205,7 @@ static inline bool rc_encode(lzma_range_encoder * rc, uint8 * out, size_t * out_
 	return false;
 }
 
-static inline uint64_t rc_pending(const lzma_range_encoder * rc)
+static inline  uint64 rc_pending(const lzma_range_encoder * rc)
 {
 	return rc->cache_size + 5 - 1;
 }

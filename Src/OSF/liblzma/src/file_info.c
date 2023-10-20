@@ -22,21 +22,21 @@ struct lzma_file_info_coder {
 	/// modifies *in_pos also updates this. seek_to_pos() needs this
 	/// to determine if we need to request the application to seek for
 	/// us or if we can do the seeking internally by adjusting *in_pos.
-	uint64_t file_cur_pos;
+	 uint64 file_cur_pos;
 	/// This refers to absolute positions of interesting parts of the
 	/// input file. Sometimes it points to the *beginning* of a specific
 	/// field and sometimes to the *end* of a field. The current target
 	/// position at each moment is explained in the comments.
-	uint64_t file_target_pos;
-	uint64_t file_size; /// Size of the .xz file (from the application).
+	 uint64 file_target_pos;
+	 uint64 file_size; /// Size of the .xz file (from the application).
 	lzma_next_coder index_decoder; /// Index decoder
 	lzma_vli index_remaining; /// Number of bytes remaining in the Index field that is currently being decoded.
 	lzma_index * this_index; /// The Index decoder will store the decoded Index in this pointer.
 	lzma_vli stream_padding; /// Amount of Stream Padding in the current Stream.
 	lzma_index * combined_index; /// The final combined index is collected here.
 	lzma_index ** dest_index; /// Pointer from the application where to store the index information after successful decoding.
-	uint64_t * external_seek_pos; /// Pointer to lzma_stream.seek_pos to be used when returning LZMA_SEEK_NEEDED. This is set by seek_to_pos() when needed.
-	uint64_t memlimit; /// Memory usage limit
+	 uint64 * external_seek_pos; /// Pointer to lzma_stream.seek_pos to be used when returning LZMA_SEEK_NEEDED. This is set by seek_to_pos() when needed.
+	 uint64 memlimit; /// Memory usage limit
 	lzma_stream_flags first_header_flags; /// Stream Flags from the very beginning of the file.
 	lzma_stream_flags header_flags; /// Stream Flags from Stream Header of the current Stream.
 	lzma_stream_flags footer_flags; /// Stream Flags from Stream Footer of the current Stream.
@@ -62,13 +62,13 @@ static bool fill_temp(lzma_file_info_coder * coder, const uint8 * in, size_t * i
 ///
 /// Returns true if an external seek is needed and the caller must return LZMA_SEEK_NEEDED.
 //
-static bool seek_to_pos(lzma_file_info_coder * coder, uint64_t target_pos, size_t in_start, size_t * in_pos, size_t in_size)
+static bool seek_to_pos(lzma_file_info_coder * coder,  uint64 target_pos, size_t in_start, size_t * in_pos, size_t in_size)
 {
 	// The input buffer doesn't extend beyond the end of the file.
 	// This has been checked by file_info_decode() already.
 	assert(coder->file_size - coder->file_cur_pos >= in_size - *in_pos);
-	const uint64_t pos_min = coder->file_cur_pos - (*in_pos - in_start);
-	const uint64_t pos_max = coder->file_cur_pos + (in_size - *in_pos);
+	const  uint64 pos_min = coder->file_cur_pos - (*in_pos - in_start);
+	const  uint64 pos_max = coder->file_cur_pos + (in_size - *in_pos);
 	bool external_seek_needed;
 	if(target_pos >= pos_min && target_pos <= pos_max) {
 		// The requested position is available in the current input
@@ -351,7 +351,7 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 			    // calculated memory usage will be. This is perhaps a bit
 			    // confusing to the application, but I think it shouldn't
 			    // cause problems in practice.
-			    uint64_t memused = 0;
+			     uint64 memused = 0;
 			    if(coder->combined_index != NULL) {
 				    memused = lzma_index_memused(coder->combined_index);
 				    assert(memused <= coder->memlimit);
@@ -425,7 +425,7 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 			    // all Blocks plus the size of the Stream Header field.
 			    // No integer overflow here because lzma_index_total_size()
 			    // cannot return a value greater than LZMA_VLI_MAX.
-			    const uint64_t seek_amount
+			    const  uint64 seek_amount
 				    = lzma_index_total_size(coder->this_index)
 				+ LZMA_STREAM_HEADER_SIZE;
 
@@ -581,7 +581,7 @@ static lzma_ret file_info_decode(void * coder_ptr, const lzma_allocator * alloca
 		}
 }
 
-static lzma_ret file_info_decoder_memconfig(void * coder_ptr, uint64_t * memusage, uint64_t * old_memlimit, uint64_t new_memlimit)
+static lzma_ret file_info_decoder_memconfig(void * coder_ptr,  uint64 * memusage,  uint64 * old_memlimit,  uint64 new_memlimit)
 {
 	lzma_file_info_coder * coder = (lzma_file_info_coder *)coder_ptr;
 
@@ -600,8 +600,8 @@ static lzma_ret file_info_decoder_memconfig(void * coder_ptr, uint64_t * memusag
 	//
 	// Care has to be taken to not do both (2) and (3) when calculating
 	// the memory usage.
-	uint64_t combined_index_memusage = 0;
-	uint64_t this_index_memusage = 0;
+	 uint64 combined_index_memusage = 0;
+	 uint64 this_index_memusage = 0;
 
 	// (1) If we have already successfully decoded one or more Indexes,
 	// get their memory usage.
@@ -621,7 +621,7 @@ static lzma_ret file_info_decoder_memconfig(void * coder_ptr, uint64_t * memusag
 		//
 		// NOTE: If the Index decoder doesn't yet know how much memory
 		// it will eventually need, it will return a tiny value here.
-		uint64_t dummy;
+		 uint64 dummy;
 		if(coder->index_decoder.memconfig(coder->index_decoder.coder,
 		    &this_index_memusage, &dummy, 0)
 		    != LZMA_OK) {
@@ -646,11 +646,11 @@ static lzma_ret file_info_decoder_memconfig(void * coder_ptr, uint64_t * memusag
 		// In the condition (3) we need to tell the Index decoder
 		// its new memory usage limit.
 		if(coder->this_index == NULL && coder->sequence == lzma_file_info_coder::SEQ_INDEX_DECODE) {
-			const uint64_t idec_new_memlimit = new_memlimit - combined_index_memusage;
+			const  uint64 idec_new_memlimit = new_memlimit - combined_index_memusage;
 			assert(this_index_memusage > 0);
 			assert(idec_new_memlimit > 0);
-			uint64_t dummy1;
-			uint64_t dummy2;
+			 uint64 dummy1;
+			 uint64 dummy2;
 			if(coder->index_decoder.memconfig(coder->index_decoder.coder, &dummy1, &dummy2, idec_new_memlimit) != LZMA_OK) {
 				assert(0);
 				return LZMA_PROG_ERROR;
@@ -670,8 +670,8 @@ static void file_info_decoder_end(void * coder_ptr, const lzma_allocator * alloc
 	lzma_free(coder, allocator);
 }
 
-static lzma_ret lzma_file_info_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator, uint64_t * seek_pos,
-    lzma_index ** dest_index, uint64_t memlimit, uint64_t file_size)
+static lzma_ret lzma_file_info_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator,  uint64 * seek_pos,
+    lzma_index ** dest_index,  uint64 memlimit,  uint64 file_size)
 {
 	lzma_next_coder_init(&lzma_file_info_decoder_init, next, allocator);
 	if(dest_index == NULL)
@@ -709,7 +709,7 @@ static lzma_ret lzma_file_info_decoder_init(lzma_next_coder * next, const lzma_a
 	return LZMA_OK;
 }
 
-lzma_ret lzma_file_info_decoder(lzma_stream *strm, lzma_index **dest_index, uint64_t memlimit, uint64_t file_size)
+lzma_ret lzma_file_info_decoder(lzma_stream *strm, lzma_index **dest_index,  uint64 memlimit,  uint64 file_size)
 {
 	lzma_next_strm_init4(lzma_file_info_decoder_init, strm, &strm->seek_pos, dest_index, memlimit, file_size);
 	// We allow LZMA_FINISH in addition to LZMA_RUN for convenience.

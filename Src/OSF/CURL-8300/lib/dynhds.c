@@ -24,11 +24,11 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include "dynhds.h"
+//#include "dynhds.h"
 //#include "strcase.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -38,7 +38,7 @@ static struct dynhds_entry *entry_new(const char * name, size_t namelen, const c
 	char * p;
 	DEBUGASSERT(name);
 	DEBUGASSERT(value);
-	e = (dynhds_entry *)calloc(1, sizeof(*e) + namelen + valuelen + 2);
+	e = (dynhds_entry *)SAlloc::C(1, sizeof(*e) + namelen + valuelen + 2);
 	if(!e)
 		return NULL;
 	e->name = p = ((char *)e) + sizeof(*e);
@@ -58,7 +58,7 @@ static struct dynhds_entry *entry_append(struct dynhds_entry * e, const char * v
 	size_t valuelen2 = e->valuelen + 1 + valuelen;
 	char * p;
 	DEBUGASSERT(value);
-	e2 = (dynhds_entry *)calloc(1, sizeof(*e) + e->namelen + valuelen2 + 2);
+	e2 = (dynhds_entry *)SAlloc::C(1, sizeof(*e) + e->namelen + valuelen2 + 2);
 	if(!e2)
 		return NULL;
 	e2->name = p = ((char *)e2) + sizeof(*e2);
@@ -75,7 +75,7 @@ static struct dynhds_entry *entry_append(struct dynhds_entry * e, const char * v
 
 static void entry_free(struct dynhds_entry * e)
 {
-	free(e);
+	SAlloc::F(e);
 }
 
 void Curl_dynhds_init(struct dynhds * dynhds, size_t max_entries,
@@ -100,7 +100,7 @@ void Curl_dynhds_free(struct dynhds * dynhds)
 			entry_free(dynhds->hds[i]);
 		}
 	}
-	Curl_safefree(dynhds->hds);
+	ZFREE(dynhds->hds);
 	dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
 }
 
@@ -171,13 +171,13 @@ CURLcode Curl_dynhds_add(struct dynhds * dynhds,
 		struct dynhds_entry ** nhds;
 		if(dynhds->max_entries && nallc > dynhds->max_entries)
 			nallc = dynhds->max_entries;
-		nhds = (dynhds_entry **)calloc(nallc, sizeof(struct dynhds_entry *));
+		nhds = (dynhds_entry **)SAlloc::C(nallc, sizeof(struct dynhds_entry *));
 		if(!nhds)
 			goto out;
 		if(dynhds->hds) {
 			memcpy(nhds, dynhds->hds,
 			    dynhds->hds_len * sizeof(struct dynhds_entry *));
-			Curl_safefree(dynhds->hds);
+			ZFREE(dynhds->hds);
 		}
 		dynhds->hds = nhds;
 		dynhds->hds_allc = nallc;

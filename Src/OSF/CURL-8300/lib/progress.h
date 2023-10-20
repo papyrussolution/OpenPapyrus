@@ -61,8 +61,7 @@ timediff_t Curl_pgrsLimitWaitTime(curl_off_t cursize,
  * This allows updating timers later and is used by happy eyeballing, where
  * we only want to record the winner's times.
  */
-void Curl_pgrsTimeWas(struct Curl_easy * data, timerid timer,
-    struct curltime timestamp);
+void Curl_pgrsTimeWas(struct Curl_easy * data, timerid timer, struct curltime timestamp);
 
 #define PGRS_HIDE    (1<<4)
 #define PGRS_UL_SIZE_KNOWN (1<<5)

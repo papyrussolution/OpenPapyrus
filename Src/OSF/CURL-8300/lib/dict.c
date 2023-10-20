@@ -55,12 +55,12 @@
 
 //#include "urldata.h"
 //#include <curl/curl.h>
-#include "transfer.h"
+//#include "transfer.h"
 //#include "sendf.h"
 #include "escape.h"
-#include "progress.h"
+//#include "progress.h"
 #include "dict.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 //#include "strcase.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
@@ -161,7 +161,7 @@ static CURLcode sendf(curl_socket_t sockfd, struct Curl_easy * data,
 			break;
 	}
 
-	free(s); /* free the output string */
+	SAlloc::F(s); /* free the output string */
 
 	return result;
 }
@@ -311,8 +311,8 @@ static CURLcode dict_do(struct Curl_easy * data, bool * done)
 	}
 
 error:
-	free(eword);
-	free(path);
+	SAlloc::F(eword);
+	SAlloc::F(path);
 	return result;
 }
 

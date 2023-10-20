@@ -293,7 +293,7 @@ lzma_ret lzma_block_header_decode(lzma_block *block, const lzma_allocator *alloc
 /// into account.
 #define HEADERS_BOUND ((1 + 1 + 2 * LZMA_VLI_BYTES_MAX + 3 + 4 + LZMA_CHECK_SIZE_MAX + 3) & ~3)
 
-static uint64_t lzma2_bound(uint64_t uncompressed_size)
+static  uint64 lzma2_bound( uint64 uncompressed_size)
 {
 	// Prevent integer overflow in overhead calculation.
 	if(uncompressed_size > COMPRESSED_SIZE_MAX)
@@ -302,18 +302,18 @@ static uint64_t lzma2_bound(uint64_t uncompressed_size)
 	// uncompressed_size up to the next multiple of LZMA2_CHUNK_MAX,
 	// multiply by the size of per-chunk header, and add one byte for
 	// the end marker.
-	const uint64_t overhead = ((uncompressed_size + LZMA2_CHUNK_MAX - 1) / LZMA2_CHUNK_MAX) * LZMA2_HEADER_UNCOMPRESSED + 1;
+	const  uint64 overhead = ((uncompressed_size + LZMA2_CHUNK_MAX - 1) / LZMA2_CHUNK_MAX) * LZMA2_HEADER_UNCOMPRESSED + 1;
 	// Catch the possible integer overflow.
 	if(COMPRESSED_SIZE_MAX - overhead < uncompressed_size)
 		return 0;
 	return uncompressed_size + overhead;
 }
 
-extern uint64_t lzma_block_buffer_bound64(uint64_t uncompressed_size)
+extern  uint64 lzma_block_buffer_bound64( uint64 uncompressed_size)
 {
 	// If the data doesn't compress, we always use uncompressed
 	// LZMA2 chunks.
-	uint64_t lzma2_size = lzma2_bound(uncompressed_size);
+	 uint64 lzma2_size = lzma2_bound(uncompressed_size);
 	if(lzma2_size == 0)
 		return 0;
 	// Take Block Padding into account.
@@ -325,7 +325,7 @@ extern uint64_t lzma_block_buffer_bound64(uint64_t uncompressed_size)
 
 size_t lzma_block_buffer_bound(size_t uncompressed_size)
 {
-	uint64_t ret = lzma_block_buffer_bound64(uncompressed_size);
+	 uint64 ret = lzma_block_buffer_bound64(uncompressed_size);
 #if SIZE_MAX < UINT64_MAX
 	// Catch the possible integer overflow on 32-bit systems.
 	if(ret > SIZE_MAX)

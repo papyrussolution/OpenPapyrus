@@ -770,13 +770,13 @@ extern bool lzma_lzma_lclppb_decode(lzma_options_lzma * options, uint8 byte)
 	return options->lc + options->lp > LZMA_LCLP_MAX;
 }
 
-extern uint64_t lzma_lzma_decoder_memusage_nocheck(const void * options)
+extern  uint64 lzma_lzma_decoder_memusage_nocheck(const void * options)
 {
 	const lzma_options_lzma * const opt = (const lzma_options_lzma * const)options;
 	return sizeof(lzma_lzma1_decoder) + lzma_lz_decoder_memusage(opt->dict_size);
 }
 
-extern uint64_t lzma_lzma_decoder_memusage(const void * options)
+extern  uint64 lzma_lzma_decoder_memusage(const void * options)
 {
 	if(!is_lclppb_valid((const lzma_options_lzma *)options))
 		return UINT64_MAX;

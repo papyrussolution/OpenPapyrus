@@ -27,7 +27,7 @@
 #include "curl_setup.h"
 
 #ifdef USE_NGHTTP2
-#include "http.h"
+//#include "http.h"
 
 /* value for MAX_CONCURRENT_STREAMS we use until we get an updated setting
    from the peer */

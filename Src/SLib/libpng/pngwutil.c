@@ -255,7 +255,7 @@ static int png_deflate_claim(png_structrp png_ptr, uint32 owner, png_alloc_size_
 		 * internal error, but is very useful for debugging.  i18n requirements
 		 * are minimal.
 		 */
-		(void)png_safecat(msg, (sizeof msg), 10, " using zstream");
+		png_safecat(msg, (sizeof msg), 10, " using zstream");
 #endif
 #if PNG_RELEASE_BUILD
 		png_warning(png_ptr, msg);
@@ -1914,7 +1914,7 @@ void /*PRIVATE*/ png_write_find_filter(png_structrp png_ptr, png_row_infop row_i
 	/* Sub filter */
 	if(filter_to_do == PNG_FILTER_SUB) {
 		/* It's the only filter so no testing is needed */
-		(void)png_setup_sub_row(png_ptr, bpp, row_bytes, mins);
+		png_setup_sub_row(png_ptr, bpp, row_bytes, mins);
 		best_row = png_ptr->try_row;
 	}
 	else if((filter_to_do & PNG_FILTER_SUB) != 0) {
@@ -1931,7 +1931,7 @@ void /*PRIVATE*/ png_write_find_filter(png_structrp png_ptr, png_row_infop row_i
 	}
 	/* Up filter */
 	if(filter_to_do == PNG_FILTER_UP) {
-		(void)png_setup_up_row(png_ptr, row_bytes, mins);
+		png_setup_up_row(png_ptr, row_bytes, mins);
 		best_row = png_ptr->try_row;
 	}
 	else if((filter_to_do & PNG_FILTER_UP) != 0) {
@@ -1948,7 +1948,7 @@ void /*PRIVATE*/ png_write_find_filter(png_structrp png_ptr, png_row_infop row_i
 	}
 	/* Avg filter */
 	if(filter_to_do == PNG_FILTER_AVG) {
-		(void)png_setup_avg_row(png_ptr, bpp, row_bytes, mins);
+		png_setup_avg_row(png_ptr, bpp, row_bytes, mins);
 		best_row = png_ptr->try_row;
 	}
 	else if((filter_to_do & PNG_FILTER_AVG) != 0) {
@@ -1965,7 +1965,7 @@ void /*PRIVATE*/ png_write_find_filter(png_structrp png_ptr, png_row_infop row_i
 	}
 	/* Paeth filter */
 	if((filter_to_do == PNG_FILTER_PAETH) != 0) {
-		(void)png_setup_paeth_row(png_ptr, bpp, row_bytes, mins);
+		png_setup_paeth_row(png_ptr, bpp, row_bytes, mins);
 		best_row = png_ptr->try_row;
 	}
 	else if((filter_to_do & PNG_FILTER_PAETH) != 0) {

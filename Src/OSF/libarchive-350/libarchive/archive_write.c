@@ -142,7 +142,7 @@ int archive_write_get_bytes_in_last_block(Archive * _a)
  * dev/ino of a file to be rejected.  Used to prevent adding
  * an archive to itself recursively.
  */
-int archive_write_set_skip_file(Archive * _a, la_int64_t d, la_int64_t i)
+int archive_write_set_skip_file(Archive * _a, int64 d, int64 i)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -587,7 +587,7 @@ static int _archive_write_header(Archive * _a, ArchiveEntry * entry)
 		archive_set_error(&a->archive, 0, "Can't add archive to itself");
 		return ARCHIVE_FAILED;
 	}
-	/* Format and write header. */
+	// Format and write header
 	r2 = ((a->format_write_header)(a, entry));
 	if(r2 == ARCHIVE_FAILED) {
 		return ARCHIVE_FAILED;

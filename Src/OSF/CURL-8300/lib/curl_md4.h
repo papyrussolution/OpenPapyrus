@@ -30,7 +30,7 @@
 #if defined(USE_CURL_NTLM_CORE)
 	#define MD4_DIGEST_LENGTH 16
 
-	CURLcode Curl_md4it(unsigned char * output, const unsigned char * input, const size_t len);
+	CURLcode Curl_md4it(uchar * output, const uchar * input, const size_t len);
 #endif /* defined(USE_CURL_NTLM_CORE) */
 
 #endif /* HEADER_CURL_MD4_H */

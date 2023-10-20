@@ -44,7 +44,7 @@
 //#include "sendf.h"
 #include "strerror.h"
 #include "curl_multibyte.h"
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "hostcheck.h"
 #include "version_win32.h"
 
@@ -283,7 +283,7 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
 	}
 
 	ca_file_bufsize = (size_t)file_size.QuadPart;
-	ca_file_buffer = (char *)malloc(ca_file_bufsize + 1);
+	ca_file_buffer = (char *)SAlloc::M(ca_file_bufsize + 1);
 	if(!ca_file_buffer) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto cleanup;
@@ -324,7 +324,7 @@ cleanup:
 	if(ca_file_handle != INVALID_HANDLE_VALUE) {
 		CloseHandle(ca_file_handle);
 	}
-	Curl_safefree(ca_file_buffer);
+	ZFREE(ca_file_buffer);
 	curlx_unicodefree(ca_file_tstr);
 
 	return result;
@@ -500,7 +500,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter * cf,
 	/* CertGetNameString guarantees that the returned name will not contain
 	 * embedded null bytes. This appears to be undocumented behavior.
 	 */
-	cert_hostname_buff = (LPTSTR)malloc(len * sizeof(TCHAR));
+	cert_hostname_buff = (LPTSTR)SAlloc::M(len * sizeof(TCHAR));
 	if(!cert_hostname_buff) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto cleanup;
@@ -575,7 +575,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter * cf,
 		failf(data, "schannel: server certificate name verification failed");
 
 cleanup:
-	Curl_safefree(cert_hostname_buff);
+	ZFREE(cert_hostname_buff);
 
 	if(pCertContextServer)
 		CertFreeCertificateContext(pCertContextServer);
@@ -659,8 +659,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter * cf,
 		if(result == CURLE_OK) {
 			struct cert_chain_engine_config_win7 engine_config;
 			BOOL create_engine_result;
-
-			memset(&engine_config, 0, sizeof(engine_config));
+			memzero(&engine_config, sizeof(engine_config));
 			engine_config.cbSize = sizeof(engine_config);
 			engine_config.hExclusiveRoot = trust_store;
 
@@ -684,18 +683,11 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter * cf,
 
 	if(result == CURLE_OK) {
 		CERT_CHAIN_PARA ChainPara;
-
-		memset(&ChainPara, 0, sizeof(ChainPara));
+		memzero(&ChainPara, sizeof(ChainPara));
 		ChainPara.cbSize = sizeof(ChainPara);
-
-		if(!CertGetCertificateChain(cert_chain_engine,
-		    pCertContextServer,
-		    NULL,
-		    pCertContextServer->hCertStore,
-		    &ChainPara,
-		    (ssl_config->no_revoke ? 0 :
-		    CERT_CHAIN_REVOCATION_CHECK_CHAIN),
-		    NULL,
+		if(!CertGetCertificateChain(cert_chain_engine, pCertContextServer, NULL,
+		    pCertContextServer->hCertStore, &ChainPara,
+		    (ssl_config->no_revoke ? 0 : CERT_CHAIN_REVOCATION_CHECK_CHAIN), NULL,
 		    &pChainContext)) {
 			char buffer[STRERROR_LEN];
 			failf(data, "schannel: CertGetCertificateChain failed: %s",

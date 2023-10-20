@@ -35,7 +35,7 @@
 //#include "multiif.h"
 
 /* The last 3 #include files should be in this order */
-#include "curl_printf.h"
+//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -61,7 +61,7 @@ static void cf_haproxy_ctx_free(struct cf_haproxy_ctx * ctx)
 {
 	if(ctx) {
 		Curl_dyn_free(&ctx->data_out);
-		free(ctx);
+		SAlloc::F(ctx);
 	}
 }
 
@@ -201,7 +201,7 @@ static CURLcode cf_haproxy_create(struct Curl_cfilter ** pcf, struct Curl_easy *
 	struct cf_haproxy_ctx * ctx;
 	CURLcode result;
 	(void)data;
-	ctx = (cf_haproxy_ctx *)calloc(sizeof(*ctx), 1);
+	ctx = (cf_haproxy_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;
@@ -220,17 +220,13 @@ out:
 	return result;
 }
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter * cf_at,
-    struct Curl_easy * data)
+CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter * cf_at, struct Curl_easy * data)
 {
 	struct Curl_cfilter * cf;
-	CURLcode result;
-
-	result = cf_haproxy_create(&cf, data);
+	CURLcode result = cf_haproxy_create(&cf, data);
 	if(result)
 		goto out;
 	Curl_conn_cf_insert_after(cf_at, cf);
-
 out:
 	return result;
 }

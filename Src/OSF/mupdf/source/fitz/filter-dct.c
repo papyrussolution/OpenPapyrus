@@ -2,7 +2,7 @@
 //
 #include "mupdf/fitz.h"
 #pragma hdrstop
-#include <..\OSF\LIBJPEG\jpeglib.h>
+#include <..\slib\libjpeg\jpeglib.h>
 
 #ifndef SHARE_JPEG
 	struct backing_store_struct;

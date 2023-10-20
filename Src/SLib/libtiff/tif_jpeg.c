@@ -65,8 +65,8 @@ int TIFFJPEGIsFullStripRequired_12(TIFF * tif);
 	#endif
 	#define HAVE_BOOLEAN            /* prevent jmorecfg.h from redefining it */
 #endif
-#include <../osf/libjpeg/jpeglib.h>
-#include <../osf/libjpeg/jerror.h>
+#include <..\slib\libjpeg\jpeglib.h>
+#include <..\slib\libjpeg\jerror.h>
 /*
  * Do we want to do special processing suitable for when JSAMPLE is a
  * 16bit value?

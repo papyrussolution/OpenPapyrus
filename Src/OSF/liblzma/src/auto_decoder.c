@@ -9,7 +9,7 @@
 struct lzma_auto_coder {
 	/// Stream decoder or LZMA_Alone decoder
 	lzma_next_coder next;
-	uint64_t memlimit;
+	 uint64 memlimit;
 	uint32_t flags;
 	enum {
 		SEQ_INIT,
@@ -88,7 +88,7 @@ static lzma_check auto_decoder_get_check(const void * coder_ptr)
 	return coder->next.get_check == NULL ? LZMA_CHECK_NONE : coder->next.get_check(coder->next.coder);
 }
 
-static lzma_ret auto_decoder_memconfig(void * coder_ptr, uint64_t * memusage, uint64_t * old_memlimit, uint64_t new_memlimit)
+static lzma_ret auto_decoder_memconfig(void * coder_ptr,  uint64 * memusage,  uint64 * old_memlimit,  uint64 new_memlimit)
 {
 	lzma_auto_coder * coder = (lzma_auto_coder *)coder_ptr;
 	lzma_ret ret;
@@ -110,7 +110,7 @@ static lzma_ret auto_decoder_memconfig(void * coder_ptr, uint64_t * memusage, ui
 	return ret;
 }
 
-static lzma_ret auto_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator, uint64_t memlimit, uint32_t flags)
+static lzma_ret auto_decoder_init(lzma_next_coder * next, const lzma_allocator * allocator,  uint64 memlimit, uint32_t flags)
 {
 	lzma_next_coder_init(&auto_decoder_init, next, allocator);
 	if(flags & ~LZMA_SUPPORTED_FLAGS)
@@ -133,7 +133,7 @@ static lzma_ret auto_decoder_init(lzma_next_coder * next, const lzma_allocator *
 	return LZMA_OK;
 }
 
-lzma_ret lzma_auto_decoder(lzma_stream *strm, uint64_t memlimit, uint32_t flags)
+lzma_ret lzma_auto_decoder(lzma_stream *strm,  uint64 memlimit, uint32_t flags)
 {
 	lzma_next_strm_init2(auto_decoder_init, strm, memlimit, flags);
 	strm->internal->supported_actions[LZMA_RUN] = true;

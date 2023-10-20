@@ -61,7 +61,7 @@ inline double now()
 		return double(std::time(NULL));
 #endif
 	return tp.time + (tp.millitm * 1e-3);
-# else
+#else
 	return double(std::time(NULL));
 #endif
 #else

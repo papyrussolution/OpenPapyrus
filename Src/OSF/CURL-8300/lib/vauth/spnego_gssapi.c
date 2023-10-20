@@ -34,7 +34,7 @@
 //#include "urldata.h"
 #include "curl_base64.h"
 #include "curl_gssapi.h"
-#include "warnless.h"
+//#include "warnless.h"
 #include "curl_multibyte.h"
 //#include "sendf.h"
 
@@ -84,7 +84,7 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 {
 	CURLcode result = CURLE_OK;
 	size_t chlglen = 0;
-	unsigned char * chlg = NULL;
+	uchar * chlg = NULL;
 	OM_uint32 major_status;
 	OM_uint32 minor_status;
 	OM_uint32 unused_status;
@@ -121,12 +121,12 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 			Curl_gss_log_error(data, "gss_import_name() failed: ",
 			    major_status, minor_status);
 
-			free(spn);
+			SAlloc::F(spn);
 
 			return CURLE_AUTH_ERROR;
 		}
 
-		free(spn);
+		SAlloc::F(spn);
 	}
 
 	if(chlg64 && *chlg64) {
@@ -161,7 +161,7 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 		NULL);
 
 	/* Free the decoded challenge as it is not required anymore */
-	Curl_safefree(input_token.value);
+	ZFREE(input_token.value);
 
 	nego->status = major_status;
 	if(GSS_ERROR(major_status)) {
