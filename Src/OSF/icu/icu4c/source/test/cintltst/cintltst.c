@@ -27,7 +27,7 @@
 #endif
 
 #ifdef XP_MAC_CONSOLE
-#   include <console.h>
+#include <console.h>
 #endif
 
 #define CTST_MAX_ALLOC 8192

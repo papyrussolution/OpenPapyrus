@@ -13,7 +13,7 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 struct rpm {
 	int64 total_in;

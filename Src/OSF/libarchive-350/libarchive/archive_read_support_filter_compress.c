@@ -1,22 +1,12 @@
 /*-
  * Copyright (c) 2003-2007 Tim Kientzle
  * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
  */
 /*
  * This code borrows heavily from "compress" source code, which is
  * protected by the following copyright.  (Clause 3 dropped by request
  * of the Regents.)
  */
-
 /*-
  * Copyright (c) 1985, 1986, 1992, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -24,18 +14,6 @@
  * This code is derived from software contributed to Berkeley by
  * Diomidis Spinellis and James A. Woods, derived from original
  * work by Spencer Thomas and Joseph Orost.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 4. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -44,7 +22,7 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
 #endif
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 /*
  * Because LZW decompression is pretty simple, I've just implemented
  * the whole decompressor here (cribbing from "compress" source code,

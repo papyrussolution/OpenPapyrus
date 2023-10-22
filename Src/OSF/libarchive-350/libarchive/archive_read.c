@@ -24,7 +24,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/ArchiveRead.c 201157 2009-12-29 05:30:23
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
 #endif
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 // @sobolev #define minimum_Removed(a, b) (a < b ? a : b)
 

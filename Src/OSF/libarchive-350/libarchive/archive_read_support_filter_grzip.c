@@ -16,9 +16,9 @@
 __FBSDID("$FreeBSD$");
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 static const uchar grzip_magic[] = {
 	0x47, 0x52, 0x5a, 0x69, 0x70, 0x49, 0x49, 0x00,

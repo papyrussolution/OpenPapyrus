@@ -88,7 +88,7 @@ lzma_ret lzma_vli_decode(lzma_vli * vli, size_t * vli_pos, const uint8 * in, siz
 			*vli = 0;
 		// Validate the arguments.
 		if(*vli_pos >= LZMA_VLI_BYTES_MAX || (*vli >> (*vli_pos * 7)) != 0)
-			return LZMA_PROG_ERROR; ;
+			return LZMA_PROG_ERROR;
 		if(*in_pos >= in_size)
 			return LZMA_BUF_ERROR;
 	}

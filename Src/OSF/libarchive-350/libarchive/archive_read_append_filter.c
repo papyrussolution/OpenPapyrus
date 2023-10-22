@@ -14,7 +14,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 int archive_read_append_filter(Archive * _a, int code)
 {

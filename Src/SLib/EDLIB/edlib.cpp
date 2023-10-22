@@ -100,7 +100,7 @@ static int obtainAlignment(const uchar* query, const uchar* rQuery, int queryLen
 // Does ceiling division x / y.
 // Note: x and y must be non-negative and x + y must not overflow.
 // 
-static inline int ceilDiv(const int x, const int y) { return x % y ? x / y + 1 : x / y; }
+static inline int ceilDiv(const int x, const int y) { return (x % y) ? (x / y + 1) : (x / y); }
 // 
 // Build Peq table for given query and alphabet.
 // Peq is table of dimensions alphabetLength+1 x maxNumBlocks.
@@ -160,8 +160,8 @@ static uchar * createReverseCopy(const uchar * pSeq, uint length)
 // @param [out] targetTransformed  It will contain values in range [0, alphabet length - 1].
 // @return  Alphabet as a string of unique characters, where index of each character is its value in transformed sequences.
 // 
-static std::string TransformSequences(const char * queryOriginal, const int queryLength,
-    const char * targetOriginal, const int targetLength, uchar ** ppQueryTransformed, uchar ** ppTargetTransformed) 
+static std::string TransformSequences(const char * queryOriginal, uint queryLength,
+    const char * targetOriginal, uint targetLength, uchar ** ppQueryTransformed, uchar ** ppTargetTransformed) 
 {
 	// Alphabet is constructed from letters that are present in sequences.
 	// Each letter is assigned an ordinal number, starting from 0 up to alphabetLength - 1,
@@ -177,7 +177,7 @@ static std::string TransformSequences(const char * queryOriginal, const int quer
 	memzero(inAlphabet, sizeof(inAlphabet));
 	//for(int i = 0; i < MAX_UCHAR + 1; i++) 
 		//inAlphabet[i] = false;
-	for(int i = 0; i < queryLength; i++) {
+	for(uint i = 0; i < queryLength; i++) {
 		uchar c = static_cast<uchar>(queryOriginal[i]);
 		if(!inAlphabet[c]) {
 			inAlphabet[c] = true;
@@ -186,7 +186,7 @@ static std::string TransformSequences(const char * queryOriginal, const int quer
 		}
 		(*ppQueryTransformed)[i] = letterIdx[c];
 	}
-	for(int i = 0; i < targetLength; i++) {
+	for(uint i = 0; i < targetLength; i++) {
 		const uchar c = static_cast<uchar>(targetOriginal[i]);
 		if(!inAlphabet[c]) {
 			inAlphabet[c] = true;
@@ -200,7 +200,7 @@ static std::string TransformSequences(const char * queryOriginal, const int quer
 // 
 // Main edlib method.
 // 
-EdlibAlignResult edlibAlign(const char* const queryOriginal, const int queryLength, const char* const targetOriginal, const int targetLength, const EdlibAlignConfig config) 
+EdlibAlignResult edlibAlign(const char * pQueryOriginal, uint queryLength, const char * pTargetOriginal, uint targetLength, const EdlibAlignConfig config) 
 {
 	EdlibAlignResult result;
 	result.status = EDLIB_STATUS_OK;
@@ -213,7 +213,7 @@ EdlibAlignResult edlibAlign(const char* const queryOriginal, const int queryLeng
 	/*------------ TRANSFORM SEQUENCES AND RECOGNIZE ALPHABET -----------*/
 	uchar * query;
 	uchar * target;
-	std::string alphabet = TransformSequences(queryOriginal, queryLength, targetOriginal, targetLength, &query, &target);
+	std::string alphabet = TransformSequences(pQueryOriginal, queryLength, pTargetOriginal, targetLength, &query, &target);
 	result.alphabetLength = static_cast<int>(alphabet.size());
 	// Handle special situation when at least one of the sequences has length 0.
 	if(queryLength == 0 || targetLength == 0) {
@@ -1263,24 +1263,23 @@ static int obtainAlignmentHirschberg(const uchar * query, const uchar * rQuery, 
  * @param [out] alignmentLength  Length of alignment.
  * @return Status code.
  */
-static int obtainAlignment(const uchar * const query, const uchar * const rQuery, const int queryLength,
-    const uchar * const target, const uchar * const rTarget, const int targetLength,
-    const EqualityDefinition& equalityDefinition, const int alphabetLength, const int bestScore,
-    uchar ** const alignment, int* const alignmentLength) 
+static int obtainAlignment(const uchar * query, const uchar * rQuery, int queryLength,
+    const uchar * target, const uchar * rTarget, int targetLength,
+    const EqualityDefinition & equalityDefinition, int alphabetLength, int bestScore,
+    uchar ** alignment, int * alignmentLength) 
 {
 	// Handle special case when one of sequences has length of 0.
 	if(queryLength == 0 || targetLength == 0) {
 		*alignmentLength = targetLength + queryLength;
 		*alignment = static_cast<uchar *>(SAlloc::M((*alignmentLength) * sizeof(uchar)));
 		for(int i = 0; i < *alignmentLength; i++) {
-			(*alignment)[i] = queryLength == 0 ? EDLIB_EDOP_DELETE : EDLIB_EDOP_INSERT;
+			(*alignment)[i] = (queryLength == 0) ? EDLIB_EDOP_DELETE : EDLIB_EDOP_INSERT;
 		}
 		return EDLIB_STATUS_OK;
 	}
 	const int maxNumBlocks = ceilDiv(queryLength, WORD_SIZE);
 	const int W = maxNumBlocks * WORD_SIZE - queryLength;
 	int statusCode;
-
 	// TODO: think about reducing number of memory allocations in alignment functions, probably
 	// by sharing some memory that is allocated only once. That refers to: Peq, columns in Hirschberg,
 	// and it could also be done for alignments - we could have one big array for alignment that would be
@@ -1291,7 +1290,7 @@ static int obtainAlignment(const uchar * const query, const uchar * const rQuery
 	long long alignmentDataSize = (2ll * sizeof(uint64) + sizeof(int)) * maxNumBlocks * targetLength + 2ll * sizeof(int) * targetLength;
 	if(alignmentDataSize < 1024 * 1024) {
 		int score_, endLocation_; // Used only to call function.
-		AlignmentData* alignData = NULL;
+		AlignmentData * alignData = NULL;
 		uint64 * Peq = buildPeq(alphabetLength, query, queryLength, equalityDefinition);
 		myersCalcEditDistanceNW(Peq, W, maxNumBlocks, queryLength, target, targetLength,
 		    bestScore, &score_, &endLocation_, true, &alignData, -1);
@@ -1299,7 +1298,7 @@ static int obtainAlignment(const uchar * const query, const uchar * const rQuery
 		//assert(endLocation_ == targetLength - 1);
 		statusCode = obtainAlignmentTraceback(queryLength, targetLength, bestScore, alignData, alignment, alignmentLength);
 		delete alignData;
-		delete[] Peq;
+		delete [] Peq;
 	}
 	else {
 		statusCode = obtainAlignmentHirschberg(query, rQuery, queryLength, target, rTarget, targetLength,
@@ -1324,9 +1323,11 @@ EdlibAlignConfig edlibDefaultAlignConfig()
 	return edlibNewAlignConfig(-1, EDLIB_MODE_NW, EDLIB_TASK_DISTANCE, NULL, 0);
 }
 
-void edlibFreeAlignResult(EdlibAlignResult result) 
+void edlibFreeAlignResult(EdlibAlignResult * pResult)
 {
-	SAlloc::F(result.endLocations);
-	SAlloc::F(result.startLocations);
-	SAlloc::F(result.alignment);
+	if(pResult) {
+		ZFREE(pResult->endLocations);
+		ZFREE(pResult->startLocations);
+		ZFREE(pResult->alignment);
+	}
 }

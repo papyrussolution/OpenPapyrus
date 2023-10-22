@@ -32,9 +32,9 @@ __RCSID("$NetBSD$");
 #include <sys/sysmacros.h>
 #define HAVE_MAJOR
 #endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+//#include <unistd.h>
+//#endif
 #include "archive_pack_dev.h"
 
 static pack_t pack_netbsd;

@@ -16,8 +16,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_ar.c 201101 2009-12-28 03:06:27Z kientzle $");
-
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 struct ar {
 	int64 entry_bytes_remaining;

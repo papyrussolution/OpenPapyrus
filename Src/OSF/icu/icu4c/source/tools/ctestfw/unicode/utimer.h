@@ -11,14 +11,14 @@
 #if U_PLATFORM_USES_ONLY_WIN32_API
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
-#   include <windows.h>
+#include <windows.h>
 #else
 #if U_PLATFORM == U_PF_OS390 && !defined(__UU)
 #define __UU  /* Universal Unix - for struct timeval */
 #endif
-#   include <time.h>
-#   include <sys/time.h>
-#   include <unistd.h>
+#include <time.h>
+#include <sys/time.h>
+#include <unistd.h>
 #endif
 
 /**

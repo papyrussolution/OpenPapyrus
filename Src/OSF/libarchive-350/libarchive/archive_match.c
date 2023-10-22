@@ -1,17 +1,13 @@
 // Copyright (c) 2003-2007 Tim Kientzle
 // Copyright (c) 2012 Michihiro NAKAJIMA
 // All rights reserved.
-// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the distribution.
 // 
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-#include "archive_getdate.h"
-#include "archive_pathmatch.h"
-#include "archive_rb.h"
+//#include "archive_getdate.h"
+//#include "archive_pathmatch.h"
+//#include "archive_rb.h"
 
 struct match {
 	struct match * next;
@@ -48,7 +44,7 @@ struct entry_list {
 struct id_array {
 	size_t size; /* Allocated size */
 	size_t count;
-	int64                 * ids;
+	int64 * ids;
 };
 
 #define PATTERN_IS_SET          1

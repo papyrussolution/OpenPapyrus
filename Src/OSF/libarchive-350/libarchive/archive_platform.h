@@ -1,16 +1,6 @@
 /*-
  * Copyright (c) 2003-2007 Tim Kientzle
  * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * $FreeBSD: head/lib/libarchive/archive_platform.h 201090 2009-12-28 02:22:04Z kientzle $
  */
 /* !!ONLY FOR USE INTERNALLY TO LIBARCHIVE!! */
 /*
@@ -85,25 +75,27 @@
 #if HAVE_STDINT_H
 	#include <stdint.h>
 #endif
-
+#ifdef HAVE_UNISTD_H
+	#include <unistd.h>
+#endif
 /* Borland warns about its own constants!  */
 #if defined(__BORLANDC__)
-#if HAVE_DECL_UINT64_MAX
-#undef	UINT64_MAX
-#undef	HAVE_DECL_UINT64_MAX
-#endif
-#if HAVE_DECL_UINT64_MIN
-#undef	UINT64_MIN
-#undef	HAVE_DECL_UINT64_MIN
-#endif
-#if HAVE_DECL_INT64_MAX
-#undef	INT64_MAX
-#undef	HAVE_DECL_INT64_MAX
-#endif
-#if HAVE_DECL_INT64_MIN
-#undef	INT64_MIN
-#undef	HAVE_DECL_INT64_MIN
-#endif
+	#if HAVE_DECL_UINT64_MAX
+		#undef	UINT64_MAX
+		#undef	HAVE_DECL_UINT64_MAX
+	#endif
+	#if HAVE_DECL_UINT64_MIN
+		#undef	UINT64_MIN
+		#undef	HAVE_DECL_UINT64_MIN
+	#endif
+	#if HAVE_DECL_INT64_MAX
+		#undef	INT64_MAX
+		#undef	HAVE_DECL_INT64_MAX
+	#endif
+	#if HAVE_DECL_INT64_MIN
+		#undef	INT64_MIN
+		#undef	HAVE_DECL_INT64_MIN
+	#endif
 #endif
 //
 // Some platforms lack the standard *_MAX definitions
@@ -201,4 +193,11 @@
 #include "archive_private.h"
 #include "archive_write_private.h"
 #include "archive_endian.h"
+#include "archive_getdate.h"
+#include "archive_pathmatch.h"
+#include "archive_entry_private.h"
+#include "archive_entry_locale.h"
+#include "archive_rb.h"
+#include "archive_read_private.h"
+#include "archive_options_private.h"
 #endif /* !ARCHIVE_PLATFORM_H_INCLUDED */

@@ -14,14 +14,13 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #if HAVE_ZSTD_H
 	#include <..\osf\zstd\lib\include\zstd.h>
 #endif
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 

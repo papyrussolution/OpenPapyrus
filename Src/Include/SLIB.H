@@ -1362,11 +1362,12 @@ public:
 	static constexpr uint32 MagicMurmurC1 = 0xcc9e2d51U; // @v11.4.0 0xcc9e2d51 // Magic number C1 for 32-bit hashing from Murmur3
 	static constexpr uint32 MagicMurmurC2 = 0x1b873593U; // @v11.4.0 0x1b873593 // Magic number C2 for 32-bit hashing from Murmur3
 	static constexpr long   OneBillion = 1000000000L; // @v11.7.6
-	static constexpr const char * P_HxDigL = "0123456789abcdef";
-	static constexpr const char * P_HxDigU = "0123456789ABCDEF";
+	static constexpr const char * P_HxDigL  = "0123456789abcdef";
+	static constexpr const char * P_HxDigU  = "0123456789ABCDEF";
 	static constexpr uint16 CrcPoly_ANSI16  = 0xA001;
 	static constexpr uint16 CrcPoly_CCITT16 = 0x1021;
 	static constexpr uint32 CrcPoly_CCITT32 = 0xEDB88320U;
+	static constexpr uint64 CrcPoly_64      = 0xC96C5795D7870F42ULL;
 	static constexpr uint64 Epoch1600_1970_Offs_s     = 11644473600ULL;        // Number of second units from 1/1/1601 to 1/1/1970
 	static constexpr uint64 Epoch1600_1970_Offs_Mks   = 11644473600000000ULL;  // Number of microsecond units from 1/1/1601 to 1/1/1970
 	static constexpr uint64 Epoch1600_1970_Offs_100Ns = 116444736000000000ULL; // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
@@ -15826,7 +15827,7 @@ private:
 //
 //
 //
-class WinRegValue {
+class WinRegValue : private SBaseBuffer {
 public:
 	friend class WinRegKey;
 
@@ -15843,8 +15844,8 @@ public:
 	int    PutStringUtf8(const char * pStr);
 private:
 	uint   Type;
-	void * P_Buf;
-	size_t BufSize;
+	//void * P_Buf;
+	//size_t BufSize;
 	size_t DataSize;
 };
 

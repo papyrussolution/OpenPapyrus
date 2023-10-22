@@ -69,12 +69,11 @@ void SplitStringUsing(const string & s, const string & delimiter, vector <string
 	}
 }
 
-void StripString(string* s, const char* remove, char replacewith) {
-	const char* str_start = s->c_str();
-	const char* str = str_start;
-	for(str = strpbrk(str, remove);
-	    str != NULL;
-	    str = strpbrk(str + 1, remove)) {
+void StripString(string* s, const char* remove, char replacewith) 
+{
+	const char * str_start = s->c_str();
+	const char * str = str_start;
+	for(str = strpbrk(str, remove); str != NULL; str = strpbrk(str + 1, remove)) {
 		(*s)[str - str_start] = replacewith;
 	}
 }
@@ -148,7 +147,7 @@ StringHolder::StringHolder(const string & s) : string_(&s), cstring_(NULL), len_
 {
 }
 
-StringHolder::StringHolder(const char* s) : string_(NULL), cstring_(s), len_(std::strlen(s))
+StringHolder::StringHolder(const char* s) : string_(NULL), cstring_(s), len_(sstrlen(s))
 {
 }
 

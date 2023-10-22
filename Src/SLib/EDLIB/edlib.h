@@ -159,7 +159,7 @@ struct EdlibAlignResult {
 // Descr: Frees memory in EdlibAlignResult that was allocated by edlib.
 //   If you do not use it, make sure to free needed members manually using free().
 // 
-void edlibFreeAlignResult(EdlibAlignResult result);
+void edlibFreeAlignResult(EdlibAlignResult * pResult);
 /**
  * Aligns two sequences (query and target) using edit distance (levenshtein distance).
  * Through config parameter, this function supports different alignment methods (global, prefix, infix),
@@ -175,7 +175,7 @@ void edlibFreeAlignResult(EdlibAlignResult result);
  * @return  Result of alignment, which can contain edit distance, start and end locations and alignment path.
  *          Make sure to clean up the object using edlibFreeAlignResult() or by manually freeing needed members.
  */
-EdlibAlignResult edlibAlign(const char* query, int queryLength, const char* target, int targetLength, const EdlibAlignConfig config);
+EdlibAlignResult edlibAlign(const char * pQuery, uint queryLength, const char * pTarget, uint targetLength, const EdlibAlignConfig config);
 /**
  * Builds cigar string from given alignment sequence.
  * @param [in] alignment  Alignment sequence.

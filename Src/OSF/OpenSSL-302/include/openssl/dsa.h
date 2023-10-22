@@ -44,7 +44,7 @@ int EVP_PKEY_CTX_set_dsa_paramgen_md(EVP_PKEY_CTX * ctx, const EVP_MD * md);
 #include <openssl/crypto.h>
 #include <openssl/bn.h>
 #ifndef OPENSSL_NO_DEPRECATED_1_1_0
-#   include <openssl/dh.h>
+#include <openssl/dh.h>
 #endif
 #include <openssl/dsaerr.h>
 

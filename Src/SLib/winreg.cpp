@@ -100,18 +100,25 @@ FARPROC STDCALL SDynLibrary::GetProcAddr(const char * pProcName, int unicodeSuff
 //
 //
 //
-WinRegValue::WinRegValue(size_t bufSize) : Type(0), P_Buf(0), BufSize(0), DataSize(0)
+WinRegValue::WinRegValue(size_t bufSize) : Type(0), DataSize(0)
 {
+	SBaseBuffer::Init();
 	Alloc(bufSize);
 }
 
 WinRegValue::~WinRegValue()
 {
-	SAlloc::F(P_Buf);
+	SBaseBuffer::Destroy();
 }
 
 int WinRegValue::Alloc(size_t bufSize)
 {
+	// @v11.8.7 {
+	int    ok = SBaseBuffer::Alloc(bufSize);
+	DataSize = MIN(SBaseBuffer::Size, DataSize);
+	return ok;
+	// } @v11.8.7 
+	/* @v11.8.7
 	if(bufSize || P_Buf) {
 		P_Buf = SAlloc::R(P_Buf, bufSize);
 		if(bufSize && P_Buf == 0) {
@@ -122,13 +129,14 @@ int WinRegValue::Alloc(size_t bufSize)
 	BufSize = bufSize;
 	DataSize = MIN(BufSize, DataSize);
 	return 1;
+	*/
 }
 
 uint32 WinRegValue::GetDWord() const
 {
 	if(oneof3(Type, REG_DWORD, REG_DWORD_LITTLE_ENDIAN, REG_DWORD_BIG_ENDIAN))
 		if(P_Buf && DataSize >= sizeof(DWORD))
-			return static_cast<uint32>(*static_cast<const DWORD *>(P_Buf));
+			return static_cast<uint32>(*reinterpret_cast<const DWORD *>(P_Buf));
 	return 0;
 }
 
@@ -143,7 +151,7 @@ int WinRegValue::GetStringUtf8(SString & rBuf) const
 	int    ok = 0;
 	rBuf.Z();
 	if(Type == REG_SZ) {
-		rBuf = SUcSwitch(static_cast<const TCHAR *>(P_Buf));
+		rBuf = SUcSwitch(reinterpret_cast<const TCHAR *>(P_Buf));
 		ok = 1;
 	}
 	return ok;
@@ -153,7 +161,7 @@ int WinRegValue::PutDWord(uint32 val)
 {
 	Type = REG_DWORD;
 	if(Alloc(sizeof(DWORD))) {
-		*static_cast<DWORD *>(P_Buf) = val;
+		*reinterpret_cast<DWORD *>(P_Buf) = val;
 		DataSize = sizeof(DWORD);
 		return 1;
 	}
@@ -379,7 +387,7 @@ int WinRegKey::PutValue(const char * pParam, const WinRegValue * pVal)
 {
 	if(Key == 0 || !pVal->GetType())
 		return 0;
-	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, pVal->GetType(), static_cast<const uint8 *>(pVal->P_Buf), (DWORD)pVal->DataSize);
+	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, pVal->GetType(), reinterpret_cast<const uint8 *>(pVal->P_Buf), (DWORD)pVal->DataSize);
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 

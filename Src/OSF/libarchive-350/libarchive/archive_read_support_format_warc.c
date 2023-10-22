@@ -32,7 +32,7 @@ __FBSDID("$FreeBSD$");
  *     entries like these, at the moment care is taken to skip them.
  *
  **/
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 typedef enum {
 	WT_NONE,

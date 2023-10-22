@@ -1,30 +1,26 @@
+// archive_disk_acl_freebsd.c
 // Copyright (c) 2003-2009 Tim Kientzle
 // Copyright (c) 2010-2012 Michihiro NAKAJIMA
 // Copyright (c) 2017 Martin Matuska
 // All rights reserved.
-// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the distribution.
 // 
 #include "archive_platform.h"
 #pragma hdrstop
 #if ARCHIVE_ACL_FREEBSD
 
 #ifdef HAVE_ERRNO_H
-#include <errno.h>
+	#include <errno.h>
 #endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_ACL_H
-#define _ACL_PRIVATE /* For debugging */
-#include <sys/acl.h>
+	#define _ACL_PRIVATE /* For debugging */
+	#include <sys/acl.h>
 #endif
-
 #include "archive_read_disk_private.h"
 #include "archive_write_disk_private.h"
 

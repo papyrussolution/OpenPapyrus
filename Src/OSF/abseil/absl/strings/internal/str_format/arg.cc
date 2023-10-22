@@ -302,8 +302,8 @@ StringConvertResult FormatConvertImpl(string_view v,
 
 ArgConvertResult<FormatConversionCharSetUnion(
 	    FormatConversionCharSetInternal::s, FormatConversionCharSetInternal::p)>FormatConvertImpl(const char * v,
-    const FormatConversionSpecImpl conv,
-    FormatSinkImpl * sink) {
+    const FormatConversionSpecImpl conv, FormatSinkImpl * sink) 
+{
 	if(conv.conversion_char() == FormatConversionCharInternal::p)
 		return {FormatConvertImpl(VoidPtr(v), conv, sink).value};
 	size_t len;

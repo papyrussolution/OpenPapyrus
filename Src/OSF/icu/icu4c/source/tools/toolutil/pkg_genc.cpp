@@ -24,7 +24,7 @@
 	#define U_ELF
 #endif
 #ifdef U_ELF
-#   include <elf.h>
+#include <elf.h>
 #if defined(ELFCLASS64)
 #define U_ELF64
 #endif

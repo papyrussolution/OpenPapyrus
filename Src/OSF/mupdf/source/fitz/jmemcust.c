@@ -18,10 +18,10 @@
 
 #if !defined(SHARE_JPEG) || SHARE_JPEG==0
 
-#include "..\OSF\LIBJPEG\jinclude.h"
-#include "..\OSF\LIBJPEG\jpeglib.h"
-#include "..\OSF\LIBJPEG\jmemsys.h"
-#include "..\OSF\LIBJPEG\jerror.h"
+#include "../slib/libjpeg/jinclude.h"
+#include "../slib/libjpeg/jpeglib.h"
+#include "../slib/libjpeg/jmemsys.h"
+#include "../slib/libjpeg/jerror.h"
 //typedef void * backing_store_ptr;
 struct backing_store_struct;
 typedef struct backing_store_struct * backing_store_ptr;

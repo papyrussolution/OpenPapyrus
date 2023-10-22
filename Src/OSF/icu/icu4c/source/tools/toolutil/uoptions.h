@@ -29,7 +29,7 @@
 /*#define U_MAIN_INIT_ARGS(argc, argv) __argvtoascii_a(argc, argv)*/
 /*#elif defined(XP_MAC_CONSOLE)*/
 #if defined(XP_MAC_CONSOLE)
-#   include <console.h>
+#include <console.h>
 /* Get the arguments from the GUI, since old Macs don't have a console Window. */
 #define U_MAIN_INIT_ARGS(argc, argv) argc = ccommand((char ***)&argv)
 #else

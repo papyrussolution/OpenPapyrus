@@ -2,36 +2,24 @@
  * Copyright (c) 2003-2007 Tim Kientzle
  * Copyright (c) 2012 Michihiro NAKAJIMA
  * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
  */
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+//#include <unistd.h>
+//#endif
 #ifdef HAVE_LZO_LZOCONF_H
-#include <lzo/lzoconf.h>
+	#include <lzo/lzoconf.h>
 #endif
 #ifdef HAVE_LZO_LZO1X_H
-#include <lzo/lzo1x.h>
+	#include <lzo/lzo1x.h>
 #endif
 #if !defined(HAVE_ZLIB_H) && defined(HAVE_LZO_LZOCONF_H) && defined(HAVE_LZO_LZO1X_H)
 	#include "archive_crc32.h"
 #endif
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 #ifndef HAVE_ZLIB_H
 #define adler32 lzo_adler32

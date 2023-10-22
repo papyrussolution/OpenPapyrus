@@ -3,23 +3,13 @@
  * Copyright (c) 2011-2012 Michihiro NAKAJIMA
  * Copyright (c) 2016 Martin Matuska
  * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
  */
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_tar.c 201161 2009-12-29 05:44:39Z kientzle $");
-
 #include "archive_acl_private.h" /* For ACL parsing routines. */
-#include "archive_entry_locale.h"
-#include "archive_read_private.h"
+//#include "archive_entry_locale.h"
+//#include "archive_read_private.h"
 
 //#define tar_min(a, b) ((a) < (b) ? (a) : (b))
 

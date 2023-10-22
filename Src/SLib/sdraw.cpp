@@ -1,5 +1,5 @@
 // SDRAW.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -9,6 +9,14 @@
 #define CAIRO_WIN32_STATIC_BUILD 1
 #include <cairo-1160\cairo.h>
 #include <cairo-1160\cairo-win32.h>
+//#define USE_JPEG_TURBO
+#ifdef USE_JPEG_TURBO
+	#include <../osf/libjpeg-turbo/cdjpeg.h>
+	#include <../osf/libjpeg-turbo/jerror.h>
+#else
+	#include <../slib/libjpeg/cdjpeg.h>
+	//#include <../slib/libjpeg/jerror.h>
+#endif
 
 #define DEFAULT_UCTX_FONTSIZE 10
 //
@@ -23,30 +31,29 @@ int SDrawContext::UC::Describe(int unitId, int dir, int * pCls, double * pToBase
 	int    cls = 0;
 	double to_base = 0.0;
 	const  char * p_name = 0;
-	if(unitId == UNIT_GR_PIXEL) {
-		to_base = (dir == DIREC_VERT) ? fdivnz(2.54e-2, Dpi.y) : fdivnz(2.54e-2, Dpi.x);
-		cls = SUnit::clsLength;
-		p_name = "pixel";
+	switch(unitId) {
+		case UNIT_GR_PIXEL:
+			to_base = (dir == DIREC_VERT) ? fdivnz(2.54e-2, Dpi.y) : fdivnz(2.54e-2, Dpi.x);
+			cls = SUnit::clsLength;
+			p_name = "pixel";
+			break;
+		case UNIT_GR_PT:
+			to_base = 2.54e-2 / 72.0;
+			cls = SUnit::clsLength;
+			p_name = "pt";
+			break;
+		case UNIT_GR_EM:
+			to_base = (dir == DIREC_VERT) ? fdivnz(FontSize * 2.54e-2, Dpi.y) : fdivnz(FontSize * 2.54e-2, Dpi.x);
+			cls = SUnit::clsLength;
+			p_name = "em";
+			break;
+		case UNIT_GR_EX:
+			to_base = (dir == DIREC_VERT) ? fdivnz((FontSize / 2.0) * 2.54e-2, Dpi.y) : fdivnz((FontSize / 2.0)  * 2.54e-2, Dpi.x);
+			cls = SUnit::clsLength;
+			p_name = "ex";
+			break;
+		//case UNIT_PERCENT: break;
 	}
-	else if(unitId == UNIT_GR_PT) {
-		to_base = 2.54e-2 / 72.0;
-		cls = SUnit::clsLength;
-		p_name = "pt";
-	}
-	else if(unitId == UNIT_GR_EM) {
-		to_base = (dir == DIREC_VERT) ? fdivnz(FontSize * 2.54e-2, Dpi.y) : fdivnz(FontSize * 2.54e-2, Dpi.x);
-		cls = SUnit::clsLength;
-		p_name = "em";
-	}
-	else if(unitId == UNIT_GR_EX) {
-		to_base = (dir == DIREC_VERT) ? fdivnz((FontSize / 2.0) * 2.54e-2, Dpi.y) : fdivnz((FontSize / 2.0)  * 2.54e-2, Dpi.x);
-		cls = SUnit::clsLength;
-		p_name = "ex";
-	}
-	/*
-	else if(unitId == UNIT_PERCENT) {
-	}
-	*/
 	if(cls) {
 		ASSIGN_PTR(pCls, cls);
 		ASSIGN_PTR(pToBase, to_base);
@@ -2748,16 +2755,6 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 	SAlloc::F(p_idir);
 	return ok;
 }
-
-//#define USE_JPEG_TURBO
-
-#ifdef USE_JPEG_TURBO
-	#include <../osf/libjpeg-turbo/cdjpeg.h>
-	#include <../osf/libjpeg-turbo/jerror.h>
-#else
-	#include <..\slib\libjpeg\cdjpeg.h>
-	//#include <..\slib\libjpeg\jerror.h>
-#endif
 
 int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 {

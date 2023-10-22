@@ -14,7 +14,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 /* Maximum lookahead during bid phase */
 #define UUENCODE_BID_MAX_READ 128*1024 /* in bytes */

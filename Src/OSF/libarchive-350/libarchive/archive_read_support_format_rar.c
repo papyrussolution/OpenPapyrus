@@ -2,24 +2,15 @@
  * Copyright (c) 2003-2007 Tim Kientzle
  * Copyright (c) 2011 Andres Mejia
  * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
  */
 #include "archive_platform.h"
 #pragma hdrstop
 #ifndef HAVE_ZLIB_H
 	#include "archive_crc32.h"
 #endif
-#include "archive_entry_locale.h"
+//#include "archive_entry_locale.h"
 #include "archive_ppmd7_private.h"
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 /* RAR signature, also known as the mark header */
 #define RAR_SIGNATURE "\x52\x61\x72\x21\x1A\x07\x00"

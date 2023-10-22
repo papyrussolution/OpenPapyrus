@@ -14,8 +14,8 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-#include "archive_read_private.h"
-#include "archive_options_private.h"
+//#include "archive_read_private.h"
+//#include "archive_options_private.h"
 
 static int archive_set_format_option(Archive * a, const char * m, const char * o, const char * v);
 static int archive_set_filter_option(Archive * a, const char * m, const char * o, const char * v);

@@ -396,7 +396,7 @@ static int CONF_modules_load_file(const char * filename,
 #define des_ecb_encrypt DES_ECB_ENCRYPT
 
 #endif
-#   include <openssl/evp.h>
+#include <openssl/evp.h>
 #   ifndef OpenSSL_add_all_algorithms
 #define OpenSSL_add_all_algorithms OPENSSL_ADD_ALL_ALGORITHMS
 void OPENSSL_ADD_ALL_ALGORITHMS(void);

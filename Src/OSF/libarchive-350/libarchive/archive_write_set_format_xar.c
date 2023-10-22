@@ -13,8 +13,8 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 #include "archive_digest_private.h"
-#include "archive_entry_locale.h"
-#include "archive_rb.h"
+//#include "archive_entry_locale.h"
+//#include "archive_rb.h"
 /*
  * Differences to xar utility.
  * - Subdocument is not supported yet.

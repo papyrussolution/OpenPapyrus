@@ -141,7 +141,7 @@ extern "C" {
 /* ---------------------------- HP NonStop -------------------------------- */
 #ifdef __TANDEM
 #ifdef _STRING
-#   include <strings.h>
+#include <strings.h>
 #endif
 #define OPENSSL_USE_BUILD_DATE
 #if defined(OPENSSL_THREADS) && defined(_SPT_MODEL_)

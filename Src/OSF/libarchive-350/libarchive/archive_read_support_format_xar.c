@@ -22,8 +22,8 @@ __FBSDID("$FreeBSD$");
 	#include <expat.h>
 #endif
 #include "archive_digest_private.h"
-#include "archive_entry_locale.h"
-#include "archive_read_private.h"
+//#include "archive_entry_locale.h"
+//#include "archive_read_private.h"
 
 #if (!defined(HAVE_LIBXML_XMLREADER_H) && !defined(HAVE_BSDXML_H) && !defined(HAVE_EXPAT_H)) || !defined(HAVE_ZLIB_H) || !defined(ARCHIVE_HAS_MD5) || !defined(ARCHIVE_HAS_SHA1)
 /*

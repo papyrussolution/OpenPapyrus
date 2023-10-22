@@ -4,13 +4,11 @@
 
 #ifndef ARCHIVE_PPMD_PRIVATE_H_INCLUDED
 #define ARCHIVE_PPMD_PRIVATE_H_INCLUDED
-
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
-
-#include <stddef.h>
-#include "archive_read_private.h"
+//#include <stddef.h>
+//#include "archive_read_private.h"
 
 /*** Begin defined in Types.h ***/
 

@@ -1,20 +1,11 @@
 /*-
  * Copyright (c) 2003-2007 Tim Kientzle
  * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
  */
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_empty.c 191524 2009-04-26 18:24:14Z kientzle $");
-#include "archive_read_private.h"
+//#include "archive_read_private.h"
 
 static int archive_read_format_empty_bid(ArchiveRead *, int);
 static int archive_read_format_empty_read_data(ArchiveRead *, const void **, size_t *, int64 *);

@@ -1177,7 +1177,7 @@ int WsCtl_SessionFrame::Start()
 			SString sys_user_name;
 			SSystem::GetUserName_(sys_user_name); // @debug
 			SSystem::UserProfileInfo profile_info;
-			SPtrHandle h_token = SSystem::Logon(0, Policy.SysUser, Policy.SysPassword, SSystem::logontypeInteractive, &profile_info);
+			SPtrHandle h_token;// = SSystem::Logon(0, Policy.SysUser, Policy.SysPassword, SSystem::logontypeInteractive, /*&profile_info*/0);
 			if(h_token) {
 				SSystem::GetUserName_(sys_user_name); // @debug
 				//BOOL iplour = ImpersonateLoggedOnUser(h_token);

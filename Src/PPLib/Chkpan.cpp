@@ -4746,8 +4746,8 @@ private:
 	TSVector <CCheckViewItem> ChkList;
 	TSVector <CCheckViewItem> PreserveOuterChkList;
 	TSCollection <PPBillPacket> BPackList; // @v11.8.7
+	PPID   LastTopID/*LastChkID*/; // Последний активный идентификатор объекта (чека или документа) в основном списке
 	long   LastChkNo;
-	PPID   LastChkID;
 	LDATE  LastDate;
 
 	enum {
@@ -4855,7 +4855,7 @@ void SelCheckListDialog::Init(PPCashMachine * pCm)
 		PPError();
 	FmtList.Z();
 	LastChkNo = -1;
-	LastChkID = 0;
+	LastTopID = 0;
 	State &= ~(stInputUpdated | stListUpdated);
 	if(State & stSelectBill) {
 		if(P_Box) {
@@ -5177,15 +5177,46 @@ int SelCheckListDialog::SetupItemList()
 	int    ok = -1;
 	SString sub, memo_buf;
 	int    memo_has_addr = 0;
-	if(!(State & stTblOrders) && (ChkList.getCount() || (State & stInputUpdated))) {
-		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SELCHECK_ITEMLIST));
-		if(p_list) {
-			PPID   chk_id = 0;
-			getCurItem(0, &chk_id);
-			if(chk_id != LastChkID) {
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SELCHECK_ITEMLIST));
+	if(p_list) {
+		PPID _top_id = 0;
+		getCurItem(0, &_top_id);
+		if(_top_id != LastTopID) {
+			bool do_finish = false;
+			StringSet ss(SLBColumnDelim);
+			if(State & stSelectBill && (BPackList.getCount() || (State & stInputUpdated))) {
+				const PPBillPacket * p_bpack = 0;
+				{
+					for(uint i = 0; !p_bpack && i < BPackList.getCount(); i++) {
+						const PPBillPacket * p_bpack_local = BPackList.at(i);
+						if(p_bpack_local && p_bpack_local->Rec.ID == _top_id)
+							p_bpack = p_bpack_local;
+					}
+				}
+				if(p_bpack) {
+					p_list->freeAll();
+					for(uint i = 0; i < p_bpack->GetTCount(); i++) {
+						ss.Z();
+						const PPTransferItem & r_ti = p_bpack->ConstTI(i);
+						double price = r_ti.NetPrice();
+						double qtty = abs(r_ti.Qtty());
+						double sum = R2(qtty * r_ti.NetPrice());
+						GetGoodsName(r_ti.GoodsID, sub);
+						ss.add(sub);
+						ss.add(sub.Z().Cat(price, SFMT_MONEY));
+						ss.add(sub.Z().Cat(qtty, SFMT_QTTY));
+						ss.add(sub.Z().Cat(sum, SFMT_MONEY));
+						THROW(p_list->addItem(i, ss.getBuf()));
+					}
+					enableCommand(cmSplitCheck, false);
+					enableCommand(cmUniteChecks, false);
+					do_finish = true;
+				}
+			}
+			else if(!(State & stTblOrders) && (ChkList.getCount() || (State & stInputUpdated))) {
 				CCheckPacket pack;
 				p_list->freeAll();
-				if(chk_id && P_Srv->GetCc().LoadPacket(chk_id, 0, &pack) > 0) {
+				if(_top_id && P_Srv->GetCc().LoadPacket(_top_id, 0, &pack) > 0) {
 					memo_buf.Z();
 					if(pack.Ext.AddrID) {
 						PPObjLocation loc_obj;
@@ -5202,7 +5233,6 @@ int SelCheckListDialog::SetupItemList()
 						memo_has_addr = 1;
 					else
 						memo_buf = pack.Ext.Memo;
-					StringSet ss(SLBColumnDelim);
 					for(uint i = 0; i < pack.GetCount(); i++) {
 						ss.Z();
 						const  CCheckLineTbl::Rec & cclr = pack.GetLineC(i);
@@ -5225,9 +5255,12 @@ int SelCheckListDialog::SetupItemList()
 					setLabelText(CTL_SELCHECK_MEMO, PPLoadStringS(memo_has_addr ? "address" : "memo", sub));
 					setCtrlString(CTL_SELCHECK_MEMO, memo_buf);
 				}
+				do_finish = true;
+			}
+			if(do_finish) {
 				p_list->focusItem(0);
 				p_list->Draw_();
-				LastChkID = chk_id;
+				LastTopID = _top_id;
 			}
 		}
 	}
@@ -5541,7 +5574,7 @@ int SelCheckListDialog::UniteChecks()
 					THROW_SL(ChkList.atFree(pos + 1));
 					THROW_SL(ChkList.lsearch(&check2.CheckID, &(pos = 0), CMPF_LONG, 0));
 					THROW_SL(ChkList.atFree(pos));
-					LastChkID = 0;
+					LastTopID = 0;
 					if(P_Box) {
 						THROW_SL(ChkList.lsearch(&pack1.Rec.ID, &(pos = 0), CMPF_LONG, 0));
 						P_Box->focusItem(pos);

@@ -31,11 +31,11 @@
 
 inline bool startswith(const std::string & s, char pfx) { return !s.empty() && s[0] == pfx; }
 inline bool startswith(const std::string & s, const char * pfx, size_t len) { return s.size() >= len && (memcmp(s.data(), pfx, len) == 0); }
-inline bool startswith(const std::string & s, const char * pfx) { return startswith(s, pfx, std::strlen(pfx)); }
+inline bool startswith(const std::string & s, const char * pfx) { return startswith(s, pfx, sstrlen(pfx)); }
 inline bool startswith(const std::string & s, const std::string & pfx) { return startswith(s, pfx.data(), pfx.size()); }
 inline bool endswith(const std::string & s, char sfx) { return !s.empty() && s[s.size() - 1] == sfx; }
 inline bool endswith(const std::string & s, const char * sfx, size_t len) { return s.size() >= len && (memcmp(s.data() + s.size() - len, sfx, len) == 0); }
-inline bool endswith(const std::string & s, const char * sfx) { return endswith(s, sfx, std::strlen(sfx)); }
+inline bool endswith(const std::string & s, const char * sfx) { return endswith(s, sfx, sstrlen(sfx)); }
 inline bool endswith(const std::string & s, const std::string & sfx) { return endswith(s, sfx.data(), sfx.size()); }
 
 inline std::string::size_type common_prefix_length(const std::string &a, const std::string &b)

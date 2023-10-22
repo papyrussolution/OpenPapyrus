@@ -1255,3 +1255,147 @@ void TestSArchive()
 	}
 	CATCHZOK
 }
+//
+//
+//
+class SSystemBackup {
+public:
+	struct Param {
+		Param() : UedDataFormat(UED_DATAFORMAT_SEVENZ)
+		{
+		}
+		Param(const Param & rS) 
+		{
+			Copy(rS);
+		}
+		~Param()
+		{
+		}
+		Param & FASTCALL operator = (const Param & rS)
+		{
+			Copy(rS);
+			return *this;
+		}
+		int    Copy(const Param & rS)
+		{
+			UedDataFormat = rS.UedDataFormat;
+			BackupPath = rS.BackupPath;
+			TSCollection_Copy(L, rS.L);
+			return 1;
+		}
+		int    AddEntry(int entryType, SString & rValue)
+		{
+			int    ok = 1;
+			if(oneof3(entryType, etPath, etProfile, etReg) && rValue.NotEmpty()) {
+				Entry * p_new_entry = L.CreateNewItem();
+				if(p_new_entry) {
+					p_new_entry->Type = entryType;
+					p_new_entry->Value = rValue;
+				}
+				else
+					ok = 0;
+			}
+			else
+				ok = 0;
+			return ok;
+		}
+		enum {
+			etPath = 0,
+			etProfile = 1,
+			etReg = 2
+		};
+		struct Entry {
+			int   Type; // etXXX
+			SString Value;
+		};
+		uint64 UedDataFormat;
+		SString BackupPath;
+		TSCollection <Entry> L;
+	};
+	SSystemBackup(const Param & rP);
+	~SSystemBackup();
+	int    Backup();
+	int    Restore();
+private:
+	int    BackupPath(const SString & rPath);
+	int    BackupProfile(const SString & rProfileName);
+	int    BackupReg(const SString & rReg);
+	Param P;
+};
+//
+//
+//
+SSystemBackup::SSystemBackup(const Param & rP) : P(rP)
+{
+}
+
+SSystemBackup::~SSystemBackup()
+{
+}
+
+int SSystemBackup::BackupPath(const SString & rPath)
+{
+	int    ok = 1;
+
+	return ok;
+}
+
+int SSystemBackup::BackupProfile(const SString & rProfileName)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString sub_path;
+	(sub_path = P.BackupPath).SetLastSlash().Cat("profile");
+	THROW(createDir(sub_path));
+	//
+	CATCHZOK
+	return ok;
+}
+
+int SSystemBackup::BackupReg(const SString & rReg)
+{
+	int    ok = 1;
+	SString sub_path;
+	(sub_path = P.BackupPath).SetLastSlash().Cat("reg");
+	THROW(createDir(sub_path));
+	//
+	CATCHZOK
+	return ok;
+}
+
+int SSystemBackup::Backup()
+{
+	int    ok = 1;
+	THROW(P.BackupPath.NotEmpty());
+	THROW(createDir(P.BackupPath));
+	for(uint i = 0; i < P.L.getCount(); i++) {
+		const Param::Entry * p_entry = P.L.at(i);
+		if(p_entry) {
+			if(p_entry->Value.NotEmpty()) {
+				switch(p_entry->Type) {
+					case Param::etPath: BackupPath(p_entry->Value); break;
+					case Param::etProfile: BackupProfile(p_entry->Value); break;
+					case Param::etReg: BackupReg(p_entry->Value); break;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SSystemBackup::Restore()
+{
+	int    ok = 1;
+	return ok;
+}
+
+void Test_SSystemBackup()
+{
+	SSystemBackup::Param param;
+	SString temp_buf;
+	param.BackupPath = "d:/__temp__/ssystem_backup";
+	param.AddEntry(param.etPath, temp_buf = "C:/GOG Games");
+	SSystemBackup sb(param);
+	sb.Backup();
+}

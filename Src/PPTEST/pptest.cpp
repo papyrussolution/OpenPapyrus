@@ -1395,8 +1395,8 @@ int  TestFann2();
 int  LuaTest();
 int  CollectLldFileStat();
 int  ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
-void TestSArchive();
 int  TestLargeVlrInputOutput();
+void Test_SSystemBackup();
 //void Test_MailMsg_ReadFromFile();
 //void Test_MakeEmailMessage();
 int  PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
@@ -1521,10 +1521,10 @@ int DoConstructionTest()
 			}
 		}
 	}
+	Test_SSystemBackup();
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
-	//TestSArchive();
 	//SDecimal::Test();
 	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
 	TestGtinStruc();

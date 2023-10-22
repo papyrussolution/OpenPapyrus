@@ -9,10 +9,9 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_check_magic.c 201089 2009-12-28 02:20:23Z kientzle $");
-
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #include "archive_private.h"
 
 static void errmsg(const char * m)

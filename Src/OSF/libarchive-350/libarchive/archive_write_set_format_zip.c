@@ -3,14 +3,6 @@
  * Copyright (c) 2009 Joerg Sonnenberger
  * Copyright (c) 2011-2012,2014 Michihiro NAKAJIMA
  * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
  */
 /*
  * Development supported by Google Summer of Code 2008.
@@ -23,7 +15,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_zip.c 201168 20
 #include <langinfo.h>
 #endif
 #include "archive_cryptor_private.h"
-#include "archive_entry_locale.h"
+//#include "archive_entry_locale.h"
 #include "archive_hmac_private.h"
 #include "archive_random_private.h"
 #include "archive_write_set_format_private.h"

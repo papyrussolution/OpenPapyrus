@@ -13,13 +13,13 @@
 #include "archive_platform.h"
 #pragma hdrstop
 #ifdef HAVE_SYS_UTSNAME_H
-#include <sys/utsname.h>
+	#include <sys/utsname.h>
 #endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include "archive_entry_locale.h"
-#include "archive_rb.h"
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
+//#include "archive_entry_locale.h"
+//#include "archive_rb.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define getuid()                        0

@@ -14,8 +14,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-
-#include "archive_entry_locale.h"
+//#include "archive_entry_locale.h"
 #include "archive_random_private.h"
 #include "archive_write_set_format_private.h"
 
@@ -28,9 +27,7 @@ struct warc_s {
 	uint64 populz;
 };
 
-static const char warcinfo[] =
-    "software: libarchive/" ARCHIVE_VERSION_ONLY_STRING "\r\n"
-    "format: WARC file version 1.0\r\n";
+static const char warcinfo[] = "software: libarchive/" ARCHIVE_VERSION_ONLY_STRING "\r\nformat: WARC file version 1.0\r\n";
 
 typedef enum {
 	WT_NONE,
