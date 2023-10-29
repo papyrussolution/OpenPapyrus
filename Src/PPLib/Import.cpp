@@ -4634,11 +4634,11 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 								P_DebugOutput->WriteLine(line_buf);
 							}
 							line_buf.Z();
-							line_buf.Cat(p_data->AOID).Semicol();
-							line_buf.Cat(p_data->PREVID).Semicol();
-							line_buf.Cat(p_data->NEXTID).Semicol();
-							line_buf.Cat(p_data->AOGUID).Semicol();
-							line_buf.Cat(p_data->PARENTGUID).Semicol();
+							line_buf.Cat(p_data->AOID, S_GUID::fmtIDL).Semicol();
+							line_buf.Cat(p_data->PREVID, S_GUID::fmtIDL).Semicol();
+							line_buf.Cat(p_data->NEXTID, S_GUID::fmtIDL).Semicol();
+							line_buf.Cat(p_data->AOGUID, S_GUID::fmtIDL).Semicol();
+							line_buf.Cat(p_data->PARENTGUID, S_GUID::fmtIDL).Semicol();
 							line_buf.Cat(p_data->POSTALCODE).Semicol();
 							line_buf.Cat(p_data->SHORTNAME).Semicol();
 							line_buf.Cat(p_data->FORMALNAME).Semicol();
@@ -4808,9 +4808,9 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 							line_buf.Cat(p_data->OKTMO).Semicol();
 							line_buf.Cat(p_data->ESTSTATUS).Semicol();
 							line_buf.Cat(p_data->STRSTATUS).Semicol();
-							line_buf.Cat(p_data->HOUSEID).Semicol();
-							line_buf.Cat(p_data->HOUSEGUID).Semicol();
-							line_buf.Cat(p_data->AOGUID).Semicol();
+							line_buf.Cat(p_data->HOUSEID, S_GUID::fmtIDL).Semicol();
+							line_buf.Cat(p_data->HOUSEGUID, S_GUID::fmtIDL).Semicol();
+							line_buf.Cat(p_data->AOGUID, S_GUID::fmtIDL).Semicol();
 							line_buf.Cat(p_data->IFNSFL).Semicol();
 							line_buf.Cat(p_data->TERRIFNSFL).Semicol();
 							line_buf.Cat(p_data->IFNSUL).Semicol();
@@ -4819,7 +4819,7 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 							line_buf.Cat(p_data->STARTDATE).Semicol();
 							line_buf.Cat(p_data->ENDDATE).Semicol();
 							line_buf.Cat(p_data->STATSTATUS).Semicol();
-							line_buf.Cat(p_data->NORMDOC).Semicol();
+							line_buf.Cat(p_data->NORMDOC, S_GUID::fmtIDL).Semicol();
 							line_buf.Cat(p_data->COUNTER).Semicol();
 							line_buf.CR();
 							P_DebugOutput->WriteLine(line_buf);

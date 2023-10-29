@@ -1351,7 +1351,7 @@ void PPDesktop::Unadvise()
 			if(pEv->ObjType == PPOBJ_EVENTSUBSCRIPTION && pEv->ObjID && pEv->Action > 0) {
 				PPDesktop * p_desk = static_cast<PPDesktop *>(procExtPtr);
 				if(p_desk) {
-					const PPID cur_user_id = LConfig.UserID;
+					const  PPID cur_user_id = LConfig.UserID;
 					PPObjEventSubscription evs_obj(0);
 					PPEventSubscriptionPacket evs_pack;
 					if(evs_obj.Fetch(pEv->ObjID, &evs_pack) > 0) {

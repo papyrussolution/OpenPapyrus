@@ -18,9 +18,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_filename.c 201093 2009
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+//#include <unistd.h>
+//#endif
 #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #include <sys/disk.h>
 #elif defined(__NetBSD__) || defined(__OpenBSD__)
@@ -40,7 +40,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_filename.c 201093 2009
 struct read_file_data {
 	int fd;
 	size_t block_size;
-	void    * buffer;
+	void * buffer;
 	mode_t st_mode; /* Mode bits for opened file. */
 	char use_lseek;
 	enum fnt_e { 

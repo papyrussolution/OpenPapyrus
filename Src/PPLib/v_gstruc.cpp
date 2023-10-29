@@ -256,7 +256,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 			for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gsh) > 0;)
 				t++;
 			for(SEnum en = Cb.GSObj.Enum(0); en.Next(&gsh) > 0; p++) {
-				const PPID gs_id = gsh.ID;
+				const  PPID gs_id = gsh.ID;
 				Cb.GObj.SearchGListByStruc(gs_id, false/*expandGenerics*/, owner_list);
 				if(!owner_list.getCount() && !(gsh.Flags & GSF_CHILD)) {
 					uint   ex_spos = 0;
@@ -315,7 +315,7 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 			if(ex_goods_list.bsearch(goodsID, &p))
 				ex_goods_list.atFree(p);
 			for(p = 0; p < ex_goods_list.getCount(); p++) {
-				const PPID ex_goods_id = ex_goods_list.get(p);
+				const  PPID ex_goods_id = ex_goods_list.get(p);
 				THROW(AddItem(ex_goods_id, strucID, filtScndGroupID, filtScndID, (__flags & addifRecursive))); // @recursion
 			}
 		}
@@ -729,7 +729,7 @@ int PPViewGoodsStruc::Recover()
 						THROW(tra);
 						gs_id_list.sortAndUndup();
 						for(uint i = 0; i < gs_id_list.getCount(); i++) {
-							const PPID gs_id = gs_id_list.get(i);
+							const  PPID gs_id = gs_id_list.get(i);
 							Cb.GObj.SearchGListByStruc(gs_id, false/*expandGenerics*/, owner_list);
 							if(owner_list.getCount()) {
 								for(uint oidx = 0; oidx < owner_list.getCount(); oidx++) {
@@ -754,7 +754,7 @@ int PPViewGoodsStruc::Recover()
 					PPTransaction tra(1);
 					THROW(tra);
 					for(uint k = 0; k < nna_gs_list.getCount(); k++) {
-						const PPID gs_id = nna_gs_list.get(k);
+						const  PPID gs_id = nna_gs_list.get(k);
 						Cb.GObj.SearchGListByStruc(gs_id, false/*expandGenerics*/, owner_list);
 						if(owner_list.getCount() > 1) {
 							PPGoodsStrucHeader gsh;
@@ -862,7 +862,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					PPGoodsStruc gs;
 					const GoodsStrucProcessingBlock::StrucEntry & r_struc_entry = Cb.StrucList.at(brw_hdr.StrucEntryP);
 					if(Cb.GSObj.Get(brw_hdr.GStrucID, &gs) > 0) {
-						const PPID  goods_id = r_struc_entry.PrmrGoodsID;
+						const  PPID  goods_id = r_struc_entry.PrmrGoodsID;
 						GoodsOpAnalyzeFilt filt;
 						filt.OpGrpID = GoodsOpAnalyzeFilt::ogInOutAnalyze;
 						filt.Flags |= GoodsOpAnalyzeFilt::fLeaderInOutGoods;
@@ -1033,7 +1033,7 @@ StrAssocTree * GoodsStrucTreeListViewBlock::MakeTree()
 		for(uint sidx = 0; sidx < slc; sidx++) {
 			const GoodsStrucProcessingBlock::StrucEntry & r_se = Cb.StrucList.at(sidx);
 			if(r_se.ParentStrucID == 0) {
-				const PPID gs_id = r_se.GStrucID;
+				const  PPID gs_id = r_se.GStrucID;
 				SPtrHandle _ph = p_list->Search(gs_id);
 				if(!_ph) {
 					SPtrHandle result = p_list->Add_Unsafe(SPtrHandle(), gs_id, MakeText(r_se, temp_buf));

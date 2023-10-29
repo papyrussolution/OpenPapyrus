@@ -271,7 +271,7 @@ Sci::Position BoostRegexSearch::FindText(Document* doc, Sci::Position startPosit
 			search._endPosition = startPosition;
 			search._direction = -1;
 		}
-		else{
+		else {
 			search._startPosition = startPosition;
 			search._endPosition = endPosition;
 			search._direction = 1;
@@ -300,7 +300,7 @@ Sci::Position BoostRegexSearch::FindText(Document* doc, Sci::Position startPosit
 			_lastMatch = match;
 			return match.position();
 		}
-		else{
+		else {
 			_lastMatch = NULL;
 			return -1;
 		}

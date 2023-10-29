@@ -1422,9 +1422,9 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 			}
 		}
 		if(doc_type_str.NotEmpty()) {
-			const PPID obj_id = oneof2(item.OpID, Ep.MovInOp, Ep.MovOutOp) ? 0L : bpack.Rec.Object;
-			const PPID loc_id = bpack.Rec.LocID;
-			const PPID loc2_id = PPObjLocation::ObjToWarehouse(bpack.Rec.Object);
+			const  PPID obj_id = oneof2(item.OpID, Ep.MovInOp, Ep.MovOutOp) ? 0L : bpack.Rec.Object;
+			const  PPID loc_id = bpack.Rec.LocID;
+			const  PPID loc2_id = PPObjLocation::ObjToWarehouse(bpack.Rec.Object);
 			SString promo_label;
 			RetailPriceExtractor rtl_price_extr(bpack.Rec.LocID, 0, obj_id, ZERODATETIME, RTLPF_GETCURPRICE);
 			RetailPriceExtractor::ExtQuotBlock eqb(Ep.PriceQuotID);
@@ -1839,7 +1839,7 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 							debt_filt.Sgb.S = SubstGrpBill::sgbDlvrLoc;
 							THROW(debt_view.Init_(&debt_filt));
 							for(debt_view.InitIteration(PPViewDebtTrnovr::OrdByDefault); debt_view.NextIteration(&debt_item) > 0;) {
-								const PPID loc_id = debt_item.ID_;
+								const  PPID loc_id = debt_item.ID_;
 								PPID   person_id = 0;
 								if(LocObj.Search(loc_id, &loc_rec) > 0 && PsnObj.Search(loc_rec.OwnerID, &psn_rec) > 0) {
 									PPID   ar_id = 0;
@@ -1878,7 +1878,7 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 							n_d.PutAttrib("name", "CRMSaldoDoc");
                             processed_debt_id_list.sortAndUndup();
 							for(debt_view.InitIteration(PPViewDebtTrnovr::OrdByDefault); debt_view.NextIteration(&debt_item) > 0;) {
-								const PPID loc_id = debt_item.ID_;
+								const  PPID loc_id = debt_item.ID_;
 								PPID   person_id = 0;
 								if(processed_debt_id_list.bsearch(loc_id) && LocObj.Search(loc_id, &loc_rec) > 0 && PsnObj.Search(loc_rec.OwnerID, &psn_rec) > 0) {
 									PPID   ar_id = 0;
@@ -1886,7 +1886,7 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 									PPIDArray bill_list;
 									debt_view.GetBillSubstBlock().AsscList.GetListByKey(loc_id, bill_list);
 									for(uint i = 0; i < bill_list.getCount(); i++) {
-										const PPID bill_id = bill_list.get(i);
+										const  PPID bill_id = bill_list.get(i);
 										BillTbl::Rec bill_rec;
 										if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 											Sdr_BaltikaSaldoDoc sdr_saldo_doc;
@@ -1932,18 +1932,18 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 								const uint cli_count = p_cli_list->getCount();
 								const uint goods_count = goods_list.getCount();
 								for(uint i = 0; i < cli_count; i++) {
-									const PPID ar_id = p_cli_list->Get(i).Id;
-									const PPID person_id = ObjectToPerson(ar_id);
+									const  PPID ar_id = p_cli_list->Get(i).Id;
+									const  PPID psn_id = ObjectToPerson(ar_id);
 									ArticleTbl::Rec ar_rec;
-									if(person_id && !rExclArList.bsearch(ar_id) && ArObj.Search(ar_id, &ar_rec) > 0 && !ar_rec.Closed) {
+									if(psn_id && !rExclArList.bsearch(ar_id) && ArObj.Search(ar_id, &ar_rec) > 0 && !ar_rec.Closed) {
 										PPIDArray dlvr_loc_list;
-										PsnObj.GetDlvrLocList(person_id, &dlvr_loc_list);
+										PsnObj.GetDlvrLocList(psn_id, &dlvr_loc_list);
                                         if(dlvr_loc_list.getCount() == 0)
 											dlvr_loc_list.add(0L);
 										else
 											dlvr_loc_list.sortAndUndup();
 										for(uint j = 0; j < goods_count; j++) {
-											const PPID goods_id = goods_list.at(j);
+											const  PPID goods_id = goods_list.at(j);
 											double bc_pack = 1.0;
 											Sdr_BaltikaSaldoWare sdr_saldo_ware;
 											// @v10.8.2 @ctr MEMSZERO(sdr_saldo_ware);
@@ -1951,7 +1951,7 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 												//sdr_saldo_ware.Date = (Filt.Period.upp && Filt.Period.upp < _curdt) ? Filt.Period.upp : _curdt;
 												sdr_saldo_ware.Date = (P.ExpPeriod.upp && P.ExpPeriod.upp < _curdt) ? P.ExpPeriod.upp : _curdt;
 												for(uint locidx = 0; locidx < dlvr_loc_list.getCount(); locidx++) {
-													const PPID dlvr_loc_id = dlvr_loc_list.get(locidx);
+													const  PPID dlvr_loc_id = dlvr_loc_list.get(locidx);
 													if(P_BObj->GetGoodsSaldo(goods_id, ar_id, dlvr_loc_id, sdr_saldo_ware.Date, MAXLONG, &sdr_saldo_ware.Quantity, &sdr_saldo_ware.Summ) > 0 && sdr_saldo_ware.Quantity != 0.0) {
 														//sdr_saldo_ware.Quantity = 1.0; // @debug
 														//sdr_saldo_ware.Summ = 1.0;      // @debug
@@ -1963,7 +1963,7 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 															sdr_saldo_ware.Quantity = 0.0;
 															sdr_saldo_ware.Summ = 0.0;
 														}
-														ltoa(person_id, sdr_saldo_ware.CompanyId, 10);
+														ltoa(psn_id, sdr_saldo_ware.CompanyId, 10);
 														//memzero(sdr_saldo_ware.AddressId, sizeof(sdr_saldo_ware.AddressId)); // не указываем, так как передаем тару
 														temp_buf.Z();
 														if(dlvr_loc_id)
@@ -2055,7 +2055,7 @@ PPID PPSupplExchange_Baltika::GetSaleChannelTagID()
 	SArray * p_tags_list = obj_tag.CreateList(0, 0);
 	if(p_tags_list) {
    		for(uint i = 0; !sale_channel_tag && i < p_tags_list->getCount(); i++) {
-   			const PPID tag_id = *static_cast<const PPID *>(p_tags_list->at(i));
+   			const  PPID tag_id = *static_cast<const  PPID *>(p_tags_list->at(i));
 			PPObjectTag tag_kind;
 			if(obj_tag.Search(tag_id, &tag_kind) > 0 && sale_channel_tag_symb.CmpPrefix(tag_kind.Symb, 1) == 0)
 				sale_channel_tag = tag_id;
@@ -2234,7 +2234,7 @@ int EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 			LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 			SetupPPObjCombo(this, CTLSEL_SUPLEXPFLT_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
 			{
-				const PPID acs_id = GetSupplAccSheet();
+				const  PPID acs_id = GetSupplAccSheet();
 				SetupArCombo(this, CTLSEL_SUPLEXPFLT_SUPPL, Data.SupplID, 0, acs_id, sacfDisableIfZeroSheet|sacfNonEmptyExchageParam);
 			}
 			setCtrlData(CTL_SUPLEXPFLT_DISCOUNT1, &Data.PctDis1);
@@ -2283,7 +2283,7 @@ int EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_SUPLEXPFLT_SUPPL)) {
 				PPSupplAgreement suppl_agr;
-				const PPID suppl_id = getCtrlLong(CTLSEL_SUPLEXPFLT_SUPPL);
+				const  PPID suppl_id = getCtrlLong(CTLSEL_SUPLEXPFLT_SUPPL);
 				if(ArObj.GetSupplAgreement(suppl_id, &suppl_agr) > 0) {
 					SString temp_buf;
 					setCtrlData(CTLSEL_SUPLEXPFLT_GGRP, &suppl_agr.Ep.GoodsGrpID);
@@ -2330,7 +2330,7 @@ public:
 		SString temp_buf;
 		RVALUEPTR(Data, pData);
 		{
-			const PPID acs_id = GetSupplAccSheet();
+			const  PPID acs_id = GetSupplAccSheet();
 			SetupArCombo(this, CTLSEL_SUPPLIX_SUPPL, Data.SupplID, 0, acs_id, sacfDisableIfZeroSheet|sacfNonEmptyExchageParam);
 		}
 		setCtrlData(CTL_SUPPLIX_SPCDIS1, &Data.SpcDisPct1);
@@ -2392,7 +2392,7 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCbSelected(CTLSEL_SUPPLIX_SUPPL)) {
 			PPSupplAgreement suppl_agr;
-			const PPID suppl_id = getCtrlLong(CTLSEL_SUPPLIX_SUPPL);
+			const  PPID suppl_id = getCtrlLong(CTLSEL_SUPPLIX_SUPPL);
 			if(ArObj.GetSupplAgreement(suppl_id, &suppl_agr) > 0) {
 				Data.ExpPeriod.low = suppl_agr.Ep.LastDt;
 				SetPeriodInput(this, CTL_SUPPLIX_EXPPRD, &Data.ExpPeriod);
@@ -3004,7 +3004,7 @@ int iSalesPepsi::ReceiveReceipts()
 					PPID   loc_id = P.LocList.GetSingle();
 					if(!loc_id && P.LocList.GetCount() > 1) {
 						for(uint locidx = 0; !loc_id && locidx < P.LocList.GetCount(); locidx++) {
-							const PPID local_loc_id = P.LocList.Get(locidx);
+							const  PPID local_loc_id = P.LocList.Get(locidx);
 							if(LocObj.Search(local_loc_id, &loc_rec) > 0) {
 								loc_id = local_loc_id;
 							}
@@ -3026,7 +3026,7 @@ int iSalesPepsi::ReceiveReceipts()
 								PPTransferItem ti;
 								THROW(ti.Init(&pack.Rec));
 								{
-									const PPID _src_goods_id = p_src_item->NativeGoodsCode.ToLong();
+									const  PPID _src_goods_id = p_src_item->NativeGoodsCode.ToLong();
 									if(_src_goods_id && GObj.Fetch(_src_goods_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS) {
 										ti.GoodsID = goods_rec.ID;
 										const double src_qtty = fabs(p_src_item->Qtty);
@@ -3207,7 +3207,7 @@ int iSalesPepsi::ReceiveVDocs()
 								PPTransferItem ti;
 								THROW(ti.Init(&pack.Rec));
 								{
-									const PPID _src_goods_id = p_src_item->NativeGoodsCode.ToLong();
+									const  PPID _src_goods_id = p_src_item->NativeGoodsCode.ToLong();
 									if(_src_goods_id && GObj.Fetch(_src_goods_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS) {
 										const double src_qtty = fabs(p_src_item->Qtty);
 										double my_qtty = src_qtty;
@@ -3364,7 +3364,7 @@ int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 		PPOprKind op_rec;
 		LocationTbl::Rec loc_rec;
 		PPID   loc_id = 0;
-		const PPID  op_id = acfg.Hdr.OpID;
+		const  PPID  op_id = acfg.Hdr.OpID;
 		if(op_id && GetOpData(op_id, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 			PPBillPacket pack;
 			SString isales_ident;
@@ -3631,7 +3631,7 @@ int iSalesPepsi::ReceiveOrders()
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;
 		LocationTbl::Rec loc_rec;
-		const PPID  op_id = acfg.Hdr.OpID;
+		const  PPID  op_id = acfg.Hdr.OpID;
 		if(op_id && GetOpData(op_id, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 			for(uint i = 0; i < p_result->getCount(); i++) {
 				const iSalesBillPacket * p_src_pack = p_result->at(i);
@@ -3708,7 +3708,7 @@ int iSalesPepsi::ReceiveOrders()
 								PPTransferItem ti;
 								THROW(ti.Init(&pack.Rec));
 								{
-									const PPID _src_goods_id = p_src_item->NativeGoodsCode.ToLong();
+									const  PPID _src_goods_id = p_src_item->NativeGoodsCode.ToLong();
 									if(_src_goods_id && GObj.Fetch(_src_goods_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS) {
 										const double src_qtty = fabs(p_src_item->Qtty);
 										double my_qtty = src_qtty;
@@ -4022,7 +4022,7 @@ int iSalesPepsi::SendPrices()
         plq_list.sortAndUndup();
 		TSCollection <iSalesPriceListPacket> pl_list;
 		for(uint plq_idx = 0; plq_idx < plq_list.getCount(); plq_idx++) {
-			const PPID plq_id = plq_list.get(plq_idx);
+			const  PPID plq_id = plq_list.get(plq_idx);
 			int   is_pl_empty = 1;
 			uint  new_pl_pos = 0;
 			iSalesPriceListPacket * p_new_pl = pl_list.CreateNewItem(&new_pl_pos);
@@ -4131,7 +4131,7 @@ int iSalesPepsi::SendStocks()
     gr_filt.Flags |= GoodsRestFilt::fEachLocation;
     THROW(gr_view.Init_(&gr_filt));
     for(gr_view.InitIteration(PPViewGoodsRest::OrdByDefault); gr_view.NextIteration(&gr_item) > 0;) {
-        const PPID loc_id = gr_item.LocID;
+        const  PPID loc_id = gr_item.LocID;
         uint   _pos = 0;
         int    skip_goods = 1;
 		iSalesStockCountingWhPacket * p_loc_item = 0;
@@ -4464,7 +4464,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 				PPIDArray order_id_list;
 				pBp->GetOrderList(order_id_list);
 				for(uint ordidx = 0; ordidx < order_id_list.getCount(); ordidx++) {
-					const PPID ord_id = order_id_list.get(ordidx);
+					const  PPID ord_id = order_id_list.get(ordidx);
 					BillTbl::Rec ord_rec;
 					if(ord_id && P_BObj->Search(ord_id, &ord_rec) > 0 && ord_rec.EdiOp == PPEDIOP_SALESORDER) {
 						if(PPRef->Ot.GetTagStr(PPOBJ_BILL, ord_id, PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.IsEqiAscii("ISALES-PEPSI")) {
@@ -4750,7 +4750,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 				}
 				upd_bill_list.sortAndUndup();
 				for(uint i = 0; i < upd_bill_list.getCount(); i++) {
-					const PPID upd_bill_id = upd_bill_list.get(i);
+					const  PPID upd_bill_id = upd_bill_list.get(i);
 					//
 					// Теги PPTAG_BILL_EDIACK используются так же для обмена с ЕГАИС.
 					// Дабы отличить документ isales от ЕГАИС попытаемся преобразовать значение
@@ -4774,7 +4774,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 									int    is_my_goods = 0;
 									long   tiiterpos = 0;
 									for(uint tiidx = 0; !is_my_goods && tiidx < pack.GetTCount(); tiidx++) {
-										const PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
+										const  PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
 										if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf.Z(), 0) > 0) {
 											int   skip_goods = 0;
 											if(State & stGoodsMappingInited) {
@@ -4818,7 +4818,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 		}
 		{
 			for(uint i = 0; i < force_bill_list.getCount(); i++) {
-				const PPID force_bill_id = force_bill_list.get(i);
+				const  PPID force_bill_id = force_bill_list.get(i);
 				if(P_BObj->Search(force_bill_id, &bill_rec) > 0) {
 					if(outerDocType == 6 && !P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 						// Статус не позволяет отправку
@@ -4860,7 +4860,7 @@ int iSalesPepsi::SendInvoices()
 		for(uint i = 0; i < routs.getCount(); i++) {
 			const iSalesRoutePacket * p_rout = routs.at(i);
 			if(p_rout) {
-				const PPID native_agent_id = p_rout->NativeAgentCode.ToLong();
+				const  PPID native_agent_id = p_rout->NativeAgentCode.ToLong();
 				if(native_agent_id)
 					registered_agent_list.add(native_agent_id);
 			}
@@ -4882,7 +4882,7 @@ int iSalesPepsi::SendInvoices()
 		if(correction_op_list.getCount()) {
 			correction_op_list.sortAndUndup();
 			for(uint i = 0; i < correction_op_list.getCount(); i++) {
-				const PPID op_id = correction_op_list.get(i);
+				const  PPID op_id = correction_op_list.get(i);
 				THROW(Helper_MakeBillList(op_id, 5, &registered_agent_list, outp_packet));
 			}
 		}
@@ -5026,7 +5026,7 @@ int iSalesPepsi::SendInvoices()
 							if(p_bill_item->DocType == 1) {
 								line_buf.Cat(p_bill_item->PayerCode).Tab(); 
 								line_buf.Cat(p_bill_item->ShipTo).Tab();
-								const PPID addr_id = p_bill_item->ShipTo.ToLong();
+								const  PPID addr_id = p_bill_item->ShipTo.ToLong();
 								if(LocObj.Search(addr_id, &loc_rec) > 0 && loc_rec.OwnerID)
 									GetPersonName(loc_rec.OwnerID, temp_buf);
 								else
@@ -5036,7 +5036,7 @@ int iSalesPepsi::SendInvoices()
 							else if(p_bill_item->DocType == 5) {
 								line_buf.Cat(p_bill_item->SellerCode).Tab(); 
 								line_buf.Cat(p_bill_item->ShipFrom).Tab();
-								const PPID addr_id = p_bill_item->ShipFrom.ToLong();
+								const  PPID addr_id = p_bill_item->ShipFrom.ToLong();
 								if(LocObj.Search(addr_id, &loc_rec) > 0 && loc_rec.OwnerID)
 									GetPersonName(loc_rec.OwnerID, temp_buf);
 								else
@@ -5049,7 +5049,7 @@ int iSalesPepsi::SendInvoices()
 						}
 						line_buf.Cat(p_bill_item->AgentCode).Tab(); // 10	Код агента 1С	не заполняется для приходного документа
 						{
-							const PPID agent_id = p_bill_item->AgentCode.ToLong();
+							const  PPID agent_id = p_bill_item->AgentCode.ToLong();
 							if(agent_id)
 								GetPersonName(agent_id, temp_buf);
 							else
@@ -5300,7 +5300,7 @@ void SapEfes::Init()
 	if(Ep.Fb.LocCodeTagID) {
 		SString loc_code;
 		for(uint i = 0; i < P.LocList.GetCount(); i++) {
-			const PPID loc_id = P.LocList.Get(i);
+			const  PPID loc_id = P.LocList.Get(i);
 			if(loc_id && p_ref->Ot.GetTagStr(PPOBJ_LOCATION, loc_id, Ep.Fb.LocCodeTagID, loc_code) > 0) {
 				Wareh = loc_code;
 				break;
@@ -5349,7 +5349,7 @@ int SapEfes::ReceiveOrders()
 {
     int    ok = -1;
 	Reference * p_ref = PPRef;
-	const PPID agent_acs_id = GetAgentAccSheet();
+	const  PPID agent_acs_id = GetAgentAccSheet();
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString added_param;
@@ -5430,7 +5430,7 @@ int SapEfes::ReceiveOrders()
 						p_ref->Ot.SearchObjectsByStr(PPOBJ_LOCATION, Ep.Fb.LocCodeTagID, p_src_pack->DlvrLoc.Code, &dlvr_loc_list);
 						uint dli = dlvr_loc_list.getCount();
 						if(dli) do {
-							const PPID _loc_id = dlvr_loc_list.get(--dli);
+							const  PPID _loc_id = dlvr_loc_list.get(--dli);
 							if(LocObj.Fetch(_loc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS) {
 								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &psn_rec) > 0) {
 									ArObj.P_Tbl->PersonToArticle(psn_rec.ID, op_rec.AccSheetID, &contractor_by_loc_ar_id);
@@ -5591,8 +5591,8 @@ int SapEfes::SendSales_ByDlvrLoc()
 		ta_filt.Flags |= TrfrAnlzFilt::fDiffByDlvrAddr;
 		if(ta_view.Init_(&ta_filt)) {
 			for(ta_view.InitIteration(PPViewTrfrAnlz::OrdByDefault); ta_view.NextIteration(&ta_item) > 0;) {
-				const PPID cli_psn_id = ObjectToPerson(ta_item.ArticleID, 0);
-				const PPID dlvr_loc_id = ta_item.DlvrLocID;
+				const  PPID cli_psn_id = ObjectToPerson(ta_item.ArticleID, 0);
+				const  PPID dlvr_loc_id = ta_item.DlvrLocID;
 				cli_code = 0;
 				loc_code = 0;
                 p_ref->Ot.GetTagStr(PPOBJ_PERSON, cli_psn_id, Ep.Fb.CliCodeTagID, cli_code);
@@ -5696,7 +5696,7 @@ int SapEfes::SendStocks()
 		gr_filt.Flags |= GoodsRestFilt::fEachLocation;
 		THROW(gr_view.Init_(&gr_filt));
 		for(gr_view.InitIteration(PPViewGoodsRest::OrdByDefault); gr_view.NextIteration(&gr_item) > 0;) {
-			const PPID loc_id = gr_item.LocID;
+			const  PPID loc_id = gr_item.LocID;
 			uint   _pos = 0;
 			int    skip_goods = 0;
 			int32  ar_code_pack = 0;
@@ -5753,7 +5753,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 			PPIDArray upd_bill_list;
 			p_sj->GetObjListByEventSince(PPOBJ_BILL, &acn_list, since, upd_bill_list, 0);
 			for(uint i = 0; i < upd_bill_list.getCount(); i++) {
-				const PPID upd_bill_id = upd_bill_list.get(i);
+				const  PPID upd_bill_id = upd_bill_list.get(i);
 				if(p_ref->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, temp_buf) > 0) {
                     if(P_BObj->Search(upd_bill_id, &bill_rec) > 0) {
 						if(IsOpBelongTo(bill_rec.OpID, b_filt.OpID)) {
@@ -5761,7 +5761,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 								long   tiiterpos = 0;
 								int    is_t_goods = 0;
 								for(uint tiidx = 0; !is_t_goods && tiidx < pack.GetTCount(); tiidx++) {
-									const PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
+									const  PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
 									if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf.Z(), 0) > 0)
 										is_t_goods = 1;
 								}
@@ -5781,7 +5781,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 		//
 		THROW(b_view.Init_(&b_filt));
 		for(b_view.InitIteration(PPViewBill::OrdByDefault); b_view.NextIteration(&view_item) > 0;) {
-			const PPID bill_id = view_item.ID;
+			const  PPID bill_id = view_item.ID;
 			if(!rToCancelBillList.bsearch(bill_id)) {
 				PPBillPacket pack;
 				PPFreight freight;
@@ -5799,7 +5799,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 						}
 					}
 					if(ti_pos_list.getCount()) {
-						const PPID cli_psn_id = ObjectToPerson(pack.Rec.Object, 0);
+						const  PPID cli_psn_id = ObjectToPerson(pack.Rec.Object, 0);
 						int   skip = 0;
 						cli_code.Z();
 						loc_code.Z();
@@ -5827,7 +5827,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 							p_new_item->NativeID = bill_id;
 							pack.GetOrderList(order_id_list);
 							for(uint ordidx = 0; ordidx < order_id_list.getCount(); ordidx++) {
-								const PPID ord_id = order_id_list.get(ordidx);
+								const  PPID ord_id = order_id_list.get(ordidx);
 								if(ord_id && P_BObj->Search(ord_id, &ord_rec) > 0 && ord_rec.EdiOp == PPEDIOP_SALESORDER) {
 									if(p_ref->Ot.GetTagStr(PPOBJ_BILL, ord_id, PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.IsEqiAscii("SAP-EFES")) {
 										THROW(P_BObj->ExtractPacket(ord_id, &order_pack) > 0);
@@ -5942,7 +5942,7 @@ int SapEfes::SendInvoices()
 		THROW_SL(func = reinterpret_cast<EFESCANCELDELIVERYNOTESYNC_PROC>(P_Lib->GetProcAddr("EfesCancelDeliveryNoteSync")));
 		{
 			for(uint i = 0; i < to_cancel_bill_list.getCount(); i++) {
-				const PPID to_cancel_bill_id = to_cancel_bill_list.get(i);
+				const  PPID to_cancel_bill_id = to_cancel_bill_list.get(i);
 				if(P_BObj->Search(to_cancel_bill_id, &bill_rec) > 0) {
 					SString * p_new_code = to_cancel_code_list.CreateNewItem();
 					THROW_SL(p_new_code);
@@ -6007,14 +6007,14 @@ int SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSC
 			SString cli_code;
 			BillViewItem bill_item;
             for(bill_view.InitIteration(PPViewBill::OrdByDefault); bill_view.NextIteration(&bill_item) > 0;) {
-				const PPID bill_id = bill_item.ID;
+				const  PPID bill_id = bill_item.ID;
 				PPBillPacket pack;
 				const double org_amount = bill_item.Amount;
 				if(org_amount > 0.0 && P_BObj->ExtractPacketWithRestriction(bill_id, &pack, 0, GetGoodsList()) > 0) {
 					pack.InitAmounts(0);
 					double paym = 0.0;
 					if(pack.Rec.Amount > 0.0) {
-						const PPID ar_id = pack.Rec.Object;
+						const  PPID ar_id = pack.Rec.Object;
 						if(use_omt_paym_amt)
 							paym = bill_item.PaymAmount;
 						else
@@ -6726,7 +6726,7 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 			P_BObj->MakeCodeString(&pack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName|PPObjBill::mcsAddOpName, bill_text);
 			pack.GetOrderList(order_id_list);
 			for(uint ordidx = 0; !is_own_order && ordidx < order_id_list.getCount(); ordidx++) {
-				const PPID ord_id = order_id_list.get(ordidx);
+				const  PPID ord_id = order_id_list.get(ordidx);
 				BillTbl::Rec ord_rec;
 				if(ord_id && P_BObj->Search(ord_id, &ord_rec) > 0 && ord_rec.EdiOp == PPEDIOP_SALESORDER) {
 					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, ord_id, PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.IsEqiAscii("SFA-HEINEKEN")) {
@@ -6860,7 +6860,7 @@ int SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <
 		}
 		{
 			for(uint i = 0; i < force_bill_list.getCount(); i++) {
-				const PPID force_bill_id = force_bill_list.get(i);
+				const  PPID force_bill_id = force_bill_list.get(i);
 				if(P_BObj->Search(force_bill_id, &bill_rec) > 0) {
 					if(outerDocType == 6 && !P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 						// Статус не позволяет отправку
@@ -7065,7 +7065,7 @@ int SfaHeineken::SendStocks()
 		gr_filt.Flags |= GoodsRestFilt::fEachLocation;
 		THROW(gr_view.Init_(&gr_filt));
 		for(gr_view.InitIteration(PPViewGoodsRest::OrdByDefault); gr_view.NextIteration(&gr_item) > 0;) {
-			const PPID loc_id = gr_item.LocID;
+			const  PPID loc_id = gr_item.LocID;
 			uint   _pos = 0;
 			int    skip_goods = 0;
 			int32  ar_code_pack = 0;
@@ -7355,8 +7355,7 @@ private:
 			pBp = &pack__;
 		}
 		if(pBp && pBp->Rec.Object) {
-			PPID   acs_id = 0;
-			const  PPID   psn_id = ObjectToPerson(pBp->Rec.Object, &acs_id);
+			const  PPID   psn_id = ObjectToPerson(pBp->Rec.Object, 0);
 			SString unit_name;
 			SString added_msg_buf;
 			PPPersonPacket psn_pack;
@@ -7383,7 +7382,7 @@ private:
 					p_new_pack->Dtm.t.settotalsec(pBp->Rec.ID % SSECSPERDAY); // @v11.6.11 Устанавливаем суррогатное значение времени для обеспечения уникальности  
 					{
 						S_GUID uuid;
-						if(pBp->GetGuid(uuid) <= 0 || uuid.IsZero()) {
+						if(!pBp->GetGuid(uuid) || uuid.IsZero()) {
 							uuid.Generate();
 							THROW(P_BObj->PutGuid(pBp->Rec.ID, &uuid, 1));
 						}
@@ -7410,7 +7409,7 @@ private:
 						(p_new_pack->Client.Name = psn_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 						if(p_new_pack->Client.DlvrLocID && LocObj.GetPacket(p_new_pack->Client.DlvrLocID, &loc_pack) > 0) {
 							S_GUID uuid;
-							if(loc_pack.GetGuid(uuid) <= 0 || uuid.IsZero()) {
+							if(!loc_pack.GetGuid(uuid) || uuid.IsZero()) {
 								uuid.Generate();
 								THROW(LocObj.PutGuid(loc_pack.ID, &uuid, 1));
 							}
@@ -7421,7 +7420,7 @@ private:
 						else {
 							p_new_pack->Client.DlvrLocID = 0;
 							S_GUID uuid;
-							if(psn_pack.GetGuid(uuid) <= 0 || uuid.IsZero()) {
+							if(!psn_pack.GetGuid(uuid) || uuid.IsZero()) {
 								uuid.Generate();
 								THROW(PsnObj.PutGuid(psn_id, &uuid, 1));
 							}
@@ -8598,7 +8597,7 @@ int GazpromNeft::SendSellout()
 	{
 		//int GazpromNeft::SendSellout_ListDoc(const TSCollection <GazpromNeftBillPacket> & rList, uint startIdx, uint endIdx, const S_GUID & rWhUuid)
 		for(uint locidx = 0; locidx < loc_list.getCount(); locidx++) {
-			const PPID loc_id = loc_list.get(locidx);
+			const  PPID loc_id = loc_list.get(locidx);
 			S_GUID loc_uuid;
 			if(GetWarehouseUuid(loc_id, loc_uuid) > 0) {
 				TSCollection <GazpromNeftBillPacket> list;
@@ -8912,7 +8911,7 @@ int GazpromNeft::SendSellin()
 	THROW(loc_list.getCount());
 	{
 		for(uint locidx = 0; locidx < loc_list.getCount(); locidx++) {
-			const PPID loc_id = loc_list.get(locidx);
+			const  PPID loc_id = loc_list.get(locidx);
 			S_GUID loc_uuid;
 			if(GetWarehouseUuid(loc_id, loc_uuid) > 0) {
 				SJson js_result(SJson::tARRAY);
@@ -9018,7 +9017,7 @@ int GazpromNeft::SendRest()
 			SJson js_result(SJson::tARRAY);
 			THROW_SL(checkdate(_dt));
 			for(uint locidx = 0; locidx < loc_list.getCount(); locidx++) {
-				const PPID loc_id = loc_list.get(locidx);
+				const  PPID loc_id = loc_list.get(locidx);
 				S_GUID loc_uuid;
 				if(LocObj.Fetch(loc_id, &loc_rec) > 0 && GetWarehouseUuid(loc_id, loc_uuid) > 0) {
 					{
@@ -9468,7 +9467,7 @@ public:
 							{
 								SXml::WNode n_h(p_x, "customers");
 								for(uint i = 0; i < customer_list.getCount(); i++) {
-									const PPID cli_id = customer_list.get(i);
+									const  PPID cli_id = customer_list.get(i);
 									if(cli_id && PsnObj.GetPacket(cli_id, &psn_pack, 0) > 0) {
 										SXml::WNode n_i(p_x, "customer");
 										n_i.PutAttrib("code", temp_buf.Z().Cat(psn_pack.Rec.ID));
@@ -9531,7 +9530,7 @@ public:
 							{
 								SXml::WNode n_h(p_x, "salesreps");
 								for(uint i = 0; i < agent_list.getCount(); i++) {
-									const PPID agent_id = agent_list.at(i);
+									const  PPID agent_id = agent_list.at(i);
 									if(agent_id && PsnObj.Search(agent_id, &psn_rec) > 0) {
 										SXml::WNode n_i(p_x, "salesrep");
 										n_i.PutAttrib("code", temp_buf.Z().Cat(psn_rec.ID));
@@ -9606,14 +9605,12 @@ public:
 			SETIFZ(_filt.Period.low, encodedate(1, 1, 2022));
 			THROW(_view.Init_(&_filt));
 			for(_view.InitIteration(PPViewBill::OrdByDefault); _view.NextIteration(&view_item) > 0;) {
-				const PPID bill_id = view_item.ID;
+				const  PPID bill_id = view_item.ID;
 				if(view_item.Object) {
 					uint   new_pack_idx = 0;
 					PPBillPacket bpack;
 					if(P_BObj->ExtractPacket(bill_id, &bpack) > 0) {
-						PPID   buyer_acs_id = 0;
-						PPID   agent_acs_id = 0;
-						const  PPID   psn_id = ObjectToPerson(bpack.Rec.Object, &buyer_acs_id);
+						const  PPID   psn_id = ObjectToPerson(bpack.Rec.Object, 0);
 						SString unit_name;
 						PPPersonPacket psn_pack;
 						if(psn_id && PsnObj.GetPacket(psn_id, &psn_pack, 0) > 0) {
@@ -9637,7 +9634,7 @@ public:
 									p_new_entry->DocID = bpack.Rec.ID;
 									STRNSCPY(p_new_entry->DocCode, bpack.Rec.Code);
 									p_new_entry->DocDate = bpack.Rec.Dt;
-									p_new_entry->AgentID = ObjectToPerson(bpack.Ext.AgentID, &agent_acs_id);
+									p_new_entry->AgentID = ObjectToPerson(bpack.Ext.AgentID, 0);
 									p_new_entry->CliID = psn_pack.Rec.ID;
 									p_new_entry->DlvrLocID = GetDlvrLocID(bpack, psn_pack.Rec);
 									tiiterpos = 0;
@@ -9708,7 +9705,7 @@ public:
 					_filt.Period.low = plusdate(_filt.Period.low, -60);
 				THROW(_view.Init_(&_filt));
 				for(_view.InitIteration(PPViewBill::OrdByDefault); _view.NextIteration(&view_item) > 0;) {
-					const PPID bill_id = view_item.ID;
+					const  PPID bill_id = view_item.ID;
 					if(view_item.Object && !(view_item.Flags & BILLF_PAYOUT)) {
 						PPID   buyer_acs_id = 0;
 						const  PPID   psn_id = ObjectToPerson(view_item.Object, &buyer_acs_id);
@@ -9812,8 +9809,8 @@ public:
 	int      PrepareMovementData(const PPIDArray & rExclList, TSVector <StockEntry> & rList)
 	{
 		int    ok = 1;
-		const PPID suppl_acs_id = GetSupplAccSheet();
-		const PPID sell_acs_id = GetSellAccSheet();
+		const  PPID suppl_acs_id = GetSupplAccSheet();
+		const  PPID sell_acs_id = GetSellAccSheet();
 		GoodsGrpngArray gga;
 		GCTFilt ggf;
 		AdjGdsGrpng agg;
@@ -10102,7 +10099,7 @@ private:
 		int    ok = 1;
 		rLocList.clear();
 		for(uint i = 0; i < P.LocList.GetCount(); i++) {
-			const PPID loc_id = P.LocList.Get(i);
+			const  PPID loc_id = P.LocList.Get(i);
 			PPLocationPacket loc_pack;
 			if(loc_id && LocObj.GetPacket(loc_id, &loc_pack) > 0) {
 				uint   loc_idx = 0;
@@ -10222,7 +10219,7 @@ public:
 							else {
 								ObjEntry oe(p_item->ContractorID);
 								if(!p_item->ContractorUuid) {
-									if(psn_pack.GetGuid(oe.Uuid) <= 0 || oe.Uuid.IsZero()) {
+									if(!psn_pack.GetGuid(oe.Uuid) || oe.Uuid.IsZero()) {
 										oe.Uuid.Generate();
 										THROW(R_Eb.PsnObj.PutGuid(p_item->ContractorID, &oe.Uuid, 0));
 									}
@@ -10250,7 +10247,7 @@ public:
 							else {
 								ObjEntry oe(p_item->DlvrLocID);
 								if(!p_item->DlvrLocUuid) {
-									if(loc_pack.GetGuid(oe.Uuid) <= 0 || oe.Uuid.IsZero()) {
+									if(!loc_pack.GetGuid(oe.Uuid) || oe.Uuid.IsZero()) {
 										oe.Uuid.Generate();
 										THROW(R_Eb.LocObj.PutGuid(loc_pack.ID, &oe.Uuid, 0));
 									}
@@ -10278,7 +10275,7 @@ public:
 							else {
 								ObjEntry oe(p_item->AgentID);
 								if(!p_item->AgentUuid) {
-									if(psn_pack.GetGuid(oe.Uuid) <= 0 || oe.Uuid.IsZero()) {
+									if(!psn_pack.GetGuid(oe.Uuid) || oe.Uuid.IsZero()) {
 										oe.Uuid.Generate();
 										THROW(R_Eb.PsnObj.PutGuid(p_item->AgentID, &oe.Uuid, 0));
 									}
@@ -10558,7 +10555,7 @@ public:
 		THROW(MakeGoodsList(goods_list));
 		{
 			for(uint i = 0; i < loc_list.getCount(); i++) {
-				const PPID loc_id = loc_list.at(i).ID;
+				const  PPID loc_id = loc_list.at(i).ID;
 				THROW(Helper_MakeBillList(Ep.ExpendOp, loc_id, goods_list, bill_list));
 			}
 		}
@@ -10771,7 +10768,7 @@ private:
 		int    ok = 1;
 		rLocList.clear();
 		for(uint i = 0; i < P.LocList.GetCount(); i++) {
-			const PPID loc_id = P.LocList.Get(i);
+			const  PPID loc_id = P.LocList.Get(i);
 			PPLocationPacket loc_pack;
 			if(loc_id && LocObj.GetPacket(loc_id, &loc_pack) > 0) {
 				uint   loc_idx = 0;
@@ -10782,7 +10779,7 @@ private:
 				else {
 					ObjEntry oe;
 					oe.ID = loc_id;
-					if(loc_pack.GetGuid(oe.Uuid) <= 0 || oe.Uuid.IsZero()) {
+					if(!loc_pack.GetGuid(oe.Uuid) || oe.Uuid.IsZero()) {
 						oe.Uuid.Generate();
 						THROW(LocObj.PutGuid(loc_pack.ID, &oe.Uuid, 1));
 					}
@@ -10843,8 +10840,7 @@ private:
 			pBp = &pack__;
 		}
 		if(pBp && pBp->Rec.Object) {
-			PPID   acs_id = 0;
-			const  PPID   psn_id = ObjectToPerson(pBp->Rec.Object, &acs_id);
+			const  PPID   psn_id = ObjectToPerson(pBp->Rec.Object, 0);
 			SString unit_name;
 			PPPersonPacket psn_pack;
 			if(psn_id && PsnObj.GetPacket(psn_id, &psn_pack, 0) > 0) {
@@ -10874,14 +10870,14 @@ private:
 						p_new_pack->Dtm.Set(pBp->Rec.Dt, ZEROTIME);
 						{
 							S_GUID uuid;
-							if(pBp->GetGuid(uuid) <= 0 || uuid.IsZero()) {
+							if(!pBp->GetGuid(uuid) || uuid.IsZero()) {
 								uuid.Generate();
 								THROW(P_BObj->PutGuid(pBp->Rec.ID, &uuid, 0));
 							}
 							p_new_pack->Uuid = uuid;
 						}
 						p_new_pack->ContractorID = psn_pack.Rec.ID;
-						const PPID dlvr_loc_id = pBp->GetDlvrAddrID();
+						const  PPID dlvr_loc_id = pBp->GetDlvrAddrID();
 						{
 							PPLocationPacket loc_pack;
 							if(dlvr_loc_id && LocObj.GetPacket(dlvr_loc_id, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
@@ -10932,7 +10928,7 @@ private:
 							(p_new_pack->Client.Name = psn_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 							if(p_new_pack->Client.DlvrLocID && LocObj.GetPacket(p_new_pack->Client.DlvrLocID, &loc_pack) > 0) {
 								S_GUID uuid;
-								if(loc_pack.GetGuid(uuid) <= 0 || uuid.IsZero()) {
+								if(!loc_pack.GetGuid(uuid) || uuid.IsZero()) {
 									uuid.Generate();
 									THROW(LocObj.PutGuid(loc_pack.ID, &uuid, 1));
 								}
@@ -11119,7 +11115,7 @@ int PrcssrSupplInterchange::ExecuteBlock::InitGoodsList(long flags)
 				SString code_buf;
                 uint c = GoodsList.getCount();
                 if(c) do {
-					const PPID goods_id = GoodsList.get(--c);
+					const  PPID goods_id = GoodsList.get(--c);
 					if(GObj.P_Tbl->GetArCode(P.SupplID, goods_id, code_buf, 0) > 0 && code_buf.NotEmptyS()) {
                         ;
 					}
@@ -11467,11 +11463,11 @@ int PrcssrSupplInterchange::Run()
 					//
 					PPObjTag tag_obj;
 					PPObjectTag tag_rec;
-					const PPID suppl_psn_id = ObjectToPerson(r_eb.P.SupplID, 0);
+					const  PPID suppl_psn_id = ObjectToPerson(r_eb.P.SupplID, 0);
 					if(suppl_psn_id && tag_obj.SearchBySymb("WBD-ORD-EMAILACC", 0, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_OBJLINK && tag_rec.TagEnumID == PPOBJ_INTERNETACCOUNT) {
 						ObjTagItem tag_item;
 						if(PPRef->Ot.GetTag(PPOBJ_PERSON, suppl_psn_id, tag_rec.ID, &tag_item) > 0) {
-							const PPID email_acc_id = tag_item.Val.IntVal;
+							const  PPID email_acc_id = tag_item.Val.IntVal;
 							if(email_acc_id) {
 								PPObjInternetAccount inetacc_obj;
 								PPInternetAccount2 inetacc_pack;

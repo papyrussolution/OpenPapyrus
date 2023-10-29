@@ -57,7 +57,7 @@ GoodsIterator::Ext & GoodsIterator::Ext::Z()
 			PPObjGoods goods_obj;
 			for(uint i = 0; i < giter.P_List->getCount(); i++) {
 				const char * p_name = 0;
-				const PPID goods_id = giter.P_List->get(i);
+				const  PPID goods_id = giter.P_List->get(i);
 				if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 					if(byName || goods_rec.Flags & GF_ABBREQNAME)
 						p_name = goods_rec.Name;
@@ -142,7 +142,7 @@ int GoodsIterator::FilterList(PPIDArray * pSrcList, PPIDArray * pDestList, long 
 		CALLPTRMEMB(pDestList, sort());
 		for(uint j = 0; j < pSrcList->getCount();) {
 			PROFILE_START
-			const PPID id = pSrcList->at(j++);
+			const  PPID id = pSrcList->at(j++);
 			int    suitable = 1;
 			if(!id)
 				suitable = 0;
@@ -183,7 +183,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 			PPLoadText(PPTXT_SELECTINGGOODSBYGROUP, fmt_buf);
 		do {
 			id_list.clear();
-			const PPID grp_id = grp_list.at(--i);
+			const  PPID grp_id = grp_list.at(--i);
 			Goods2Tbl::Rec ggrec;
 			if(GObj.Fetch(grp_id, &ggrec) > 0) {
 				if(ggrec.Flags & (GF_ALTGROUP|GF_GENERIC)) {
@@ -222,7 +222,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 					THROW(p_t->GetGroupTerminalList(grp_id, &term_grp_list, 0));
 					term_grp_list.sort();
 					for(uint j = 0; j < term_grp_list.getCount(); j++) {
-						const PPID int_grp_id = term_grp_list.get(j);
+						const  PPID int_grp_id = term_grp_list.get(j);
 						temp_alt_list.clear();
 						if(is_excl_alt_fold) {
 							if(GObj.CheckFlag(int_grp_id, GF_DYNAMICALTGRP)) {
@@ -272,7 +272,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 							k.k1.Kind = PPGDSK_GOODS;
 							k.k1.ParentID = int_grp_id;
 							for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-								const PPID id = p_t->data.ID;
+								const  PPID id = p_t->data.ID;
 								if(!(Filt.Flags & GoodsFilt::fOutOfMatrix) || !P_MtxList || !P_MtxList->bsearch(id)) {
 									if(GObj.CheckForFilt(&Filt, 0, GOCFIF_GROUP|GOCFIF_BCLEN|GOCFIF_ARCODE|GOCFIF_SYSJ|GOCFIF_TAG)) {
 										THROW(id_list.add(id));
@@ -333,8 +333,8 @@ IMPL_CMPFUNC(GoodsIdListByName, p1, p2)
 {
 	int    cm = 0;
 	PPObjGoods * p_goods_obj = static_cast<PPObjGoods *>(pExtraData);
-	const PPID id1 = *static_cast<const PPID *>(p1);
-	const PPID id2 = *static_cast<const PPID *>(p2);
+	const  PPID id1 = *static_cast<const  PPID *>(p1);
+	const  PPID id2 = *static_cast<const  PPID *>(p2);
 	if(p_goods_obj) {
 		Goods2Tbl::Rec rec1, rec2;
 		const int r1 = p_goods_obj->Fetch(id1, &rec1);
@@ -431,8 +431,8 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 				else
 					ZDELETE(P_UhttsPack);
 			}
-			const PPID rest_op_id  = (do_calc_uhtt_rest && GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
-			const PPID order_op_id = (do_calc_uhtt_rest && GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
+			const  PPID rest_op_id  = (do_calc_uhtt_rest && GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
+			const  PPID order_op_id = (do_calc_uhtt_rest && GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
 			if(!qfilt.LocID)
 				qfilt.LocList = Filt.LocList;
 			qfilt.Flags |= QuotFilt::fActualOnly;
@@ -506,7 +506,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			if(r_brand_list.GetCount()) {
 				temp_list.clear();
 				for(uint i = 0; i < r_brand_list.GetCount(); i++) {
-					const PPID brand_id = r_brand_list.Get().get(i);
+					const  PPID brand_id = r_brand_list.Get().get(i);
 					Goods2Tbl::Key3 k3;
 					Goods2Tbl * t = GObj.P_Tbl;
 					MEMSZERO(k3);
@@ -663,7 +663,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 		if(P_List) {
 			temp_list.clear();
 			for(uint i = 0; i < P_List->getCount(); i++) {
-				const PPID goods_id = P_List->get(i);
+				const  PPID goods_id = P_List->get(i);
 				if(GObj.Fetch(goods_id, &goods_rec) > 0 && CheckActual(goods_rec))
 					temp_list.add(goods_id);
 			}
@@ -688,7 +688,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			if(temp_list.getCount()) {
 				PPIDArray spot_cls_list;
 				for(i = 0; i < P_List->getCount(); i++) {
-					const PPID goods_id = P_List->get(i);
+					const  PPID goods_id = P_List->get(i);
 					if(GObj.Fetch(goods_id, &goods_rec) > 0 && goods_rec.GdsClsID)
 						spot_cls_list.addUnique(goods_rec.GdsClsID);
 				}
@@ -765,7 +765,7 @@ int GoodsIterator::Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt)
 	else if(P_List) {
 		PPObjGoodsClass gc_obj;
 		for(; ok < 0 && Counter < P_List->getCount(); Counter.Increment()) {
-			const PPID goods_id = P_List->at(Counter);
+			const  PPID goods_id = P_List->at(Counter);
 			if(GObj.Search(goods_id, pRec) > 0) {
 				ok = 1;
 				if(pExt && pRec) {
@@ -1038,7 +1038,7 @@ int GoodsGroupIterator::Next(PPID * pID, SString & rBuf)
 {
 	if(IterIndex < List.getCount()) {
 		const char * ptr = static_cast<const char *>(List.at(IterIndex));
-		ASSIGN_PTR(pID, *reinterpret_cast<const PPID *>(ptr));
+		ASSIGN_PTR(pID, *reinterpret_cast<const  PPID *>(ptr));
 		if(Flags & fSortByCode)
 			(rBuf = ptr + sizeof(PPID)).ShiftLeftChr('@');
 		else

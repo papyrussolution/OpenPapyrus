@@ -675,7 +675,7 @@ int PPCheckInPersonMngr::Put(PPCheckInPersonItem & rItem, int use_ta)
 	int    ok = 1, r = 0;
 	PPCheckInPersonItem org_item;
 	ObjAssocTbl::Rec assc_rec;
-	const PPID assc_type = GetAssocType(rItem.Kind);
+	const  PPID assc_type = GetAssocType(rItem.Kind);
 	THROW(assc_type);
 	{
 		SInvariantParam invp;

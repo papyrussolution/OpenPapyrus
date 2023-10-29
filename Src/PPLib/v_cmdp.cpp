@@ -115,7 +115,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 		{
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_CMDITEM_CMD)) {
-				const PPID cmd_id = getCtrlLong(CTLSEL_CMDITEM_CMD);
+				const  PPID cmd_id = getCtrlLong(CTLSEL_CMDITEM_CMD);
 				if(cmd_id && CmdDescr.LoadResource(cmd_id) > 0) {
 					SString name = CmdDescr.Text;
 					if(P_Grp) {
@@ -408,7 +408,7 @@ private:
 		}
 		DECL_DIALOG_GETDTS()
 		{
-			const PPID surr_id = getCtrlLong(CTLSEL_DESKCMDA_DESKTOP);
+			const  PPID surr_id = getCtrlLong(CTLSEL_DESKCMDA_DESKTOP);
 			S_GUID uuid = DesktopList.GetUuidBySurrId(surr_id);
 			Data.SetDesktopUuid(uuid);
 			ASSIGN_PTR(pData, Data);

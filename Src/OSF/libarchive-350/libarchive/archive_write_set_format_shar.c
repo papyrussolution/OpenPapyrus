@@ -6,8 +6,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_shar.c 189438 2009-03-06 05:58:56Z kientzle $");
-
-#include "archive_write_set_format_private.h"
+//#include "archive_write_set_format_private.h"
 
 struct shar {
 	int dump;
@@ -15,11 +14,9 @@ struct shar {
 	ArchiveEntry    * entry;
 	int has_data;
 	char * last_dir;
-
 	/* Line buffer for uuencoded dump format */
 	char outbuff[45];
 	size_t outpos;
-
 	int wrote_header;
 	archive_string work;
 	archive_string quoted_name;

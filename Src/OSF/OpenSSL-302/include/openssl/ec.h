@@ -116,7 +116,7 @@ OSSL_DEPRECATEDIN_3_0 const EC_METHOD * EC_GFp_mont_method(void);
  */
 OSSL_DEPRECATEDIN_3_0 const EC_METHOD * EC_GFp_nist_method(void);
 
-#   ifndef OPENSSL_NO_EC_NISTP_64_GCC_128
+#ifndef OPENSSL_NO_EC_NISTP_64_GCC_128
 /** Returns 64-bit optimized methods for nistp224
  *  \return  EC_METHOD object
  */
@@ -133,7 +133,7 @@ OSSL_DEPRECATEDIN_3_0 const EC_METHOD * EC_GFp_nistp256_method(void);
 OSSL_DEPRECATEDIN_3_0 const EC_METHOD * EC_GFp_nistp521_method(void);
 #endif /* OPENSSL_NO_EC_NISTP_64_GCC_128 */
 
-#   ifndef OPENSSL_NO_EC2M
+#ifndef OPENSSL_NO_EC2M
 /********************************************************************/
 /*           EC_METHOD for curves over GF(2^m)                      */
 /********************************************************************/
@@ -342,7 +342,7 @@ OSSL_DEPRECATEDIN_3_0 int EC_GROUP_get_curve_GFp(const EC_GROUP * group,
     BIGNUM * a, BIGNUM * b,
     BN_CTX * ctx);
 
-#   ifndef OPENSSL_NO_EC2M
+#ifndef OPENSSL_NO_EC2M
 /** Sets the parameter of an ec curve. Synonym for EC_GROUP_set_curve
  *  \param  group  EC_GROUP object
  *  \param  p      BIGNUM with the prime number (GFp) or the polynomial
@@ -667,7 +667,7 @@ int EC_POINT_set_compressed_coordinates(const EC_GROUP * group, EC_POINT * p,
  */
 OSSL_DEPRECATEDIN_3_0 int EC_POINT_set_compressed_coordinates_GFp(const EC_GROUP * group, EC_POINT * p,
     const BIGNUM * x, int y_bit, BN_CTX * ctx);
-#   ifndef OPENSSL_NO_EC2M
+#ifndef OPENSSL_NO_EC2M
 /** Sets the affine coordinates of an EC_POINT. A synonym of
  *  EC_POINT_set_affine_coordinates
  *  \param  group  underlying EC_GROUP object
@@ -1218,7 +1218,7 @@ OSSL_DEPRECATEDIN_3_0 int ECParameters_print(BIO * bp, const EC_KEY * key);
  */
 OSSL_DEPRECATEDIN_3_0 int EC_KEY_print(BIO * bp, const EC_KEY * key, int off);
 
-#   ifndef OPENSSL_NO_STDIO
+#ifndef OPENSSL_NO_STDIO
 /** Prints out the ec parameters on human readable form.
  *  \param  fp   file descriptor to which the information is printed
  *  \param  key  EC_KEY object

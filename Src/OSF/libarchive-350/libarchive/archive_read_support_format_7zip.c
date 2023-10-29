@@ -76,7 +76,7 @@ __FBSDID("$FreeBSD$");
 #define kDummy                  0x19
 
 struct _7z_digests {
-	uchar   * defineds;
+	uchar * defineds;
 	uint32        * digests;
 };
 
@@ -87,7 +87,7 @@ struct _7z_folder {
 		uint64 numInStreams;
 		uint64 numOutStreams;
 		uint64 propertiesSize;
-		uchar   * properties;
+		uchar * properties;
 	} * coders;
 
 	uint64 numBindPairs;
@@ -97,10 +97,10 @@ struct _7z_folder {
 	} * bindPairs;
 
 	uint64 numPackedStreams;
-	uint64                * packedStreams;
+	uint64 * packedStreams;
 	uint64 numInStreams;
 	uint64 numOutStreams;
-	uint64                * unPackSize;
+	uint64 * unPackSize;
 	uchar digest_defined;
 	uint32 digest;
 	uint64 numUnpackStreams;
@@ -118,17 +118,17 @@ struct _7z_coders_info {
 struct _7z_pack_info {
 	uint64 pos;
 	uint64 numPackStreams;
-	uint64                * sizes;
+	uint64 * sizes;
 	struct _7z_digests digest;
 	/* Calculated from pos and numPackStreams. */
-	uint64                * positions;
+	uint64 * positions;
 };
 
 struct _7z_substream_info {
 	size_t unpack_streams;
-	uint64                * unpackSizes;
+	uint64 * unpackSizes;
 	uchar * digestsDefined;
-	uint32                * digests;
+	uint32 * digests;
 };
 
 struct _7z_stream_info {
@@ -1457,7 +1457,7 @@ static int parse_7zip_uint64(ArchiveRead * a, uint64 * val)
 static int read_Bools(ArchiveRead * a, uchar * data, size_t num)
 {
 	const uchar * p;
-	unsigned i, mask = 0, avail = 0;
+	uint i, mask = 0, avail = 0;
 
 	for(i = 0; i < num; i++) {
 		if(mask == 0) {

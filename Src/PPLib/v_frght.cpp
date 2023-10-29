@@ -319,7 +319,7 @@ int PPViewFreight::Init_(const PPBaseFilt * pFilt)
 				THROW(r);
 				if(r > 0) {
 					for(ulong uid = 0; fr_bill_list.Enum(&uid);) {
-						const PPID bill_id = static_cast<PPID>(uid);
+						const  PPID bill_id = static_cast<PPID>(uid);
 						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0 && v_bill.CheckIDForFilt(bill_id, 0)) {
 							if(FillTempTableRec(&bill_rec, &rec) > 0)
@@ -665,7 +665,7 @@ int PPViewFreight::PrintAllBills()
 
 int PPViewFreight::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   bill_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   bill_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(bill_id && P_BObj->Edit(&bill_id, 0) == cmOK) {
 		if(UpdateTempTableRec(bill_id) > 0)
 			return 1;
@@ -692,7 +692,7 @@ int PPViewFreight::Export()
 		if(r > 0) {
 			PPWaitStart();
 			for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
-				const PPID bill_id = bill_id_list.get(_idx);
+				const  PPID bill_id = bill_id_list.get(_idx);
 				THROW(P_BObj->ExtractPacket(bill_id, &pack) > 0);
 				THROW(b_e.PutPacket(&pack));
 				PPWaitPercent(_idx+1, bill_id_list.getCount());
@@ -787,7 +787,7 @@ int PPViewFreight::UpdateFeatures()
                     }
 					// @v11.2.10 {
 					if(_flags & fSetPortOfDischargeByTrunkPt && freight.DlvrAddrID) {
-						const PPID preserver_port_of_discharge = freight.PortOfDischarge;
+						const  PPID preserver_port_of_discharge = freight.PortOfDischarge;
 						if(!preserver_port_of_discharge) {
 							PPID trunk_point_id = LocObj.GetTrunkPointByDlvrAddr(freight.DlvrAddrID);
 							if(trunk_point_id) {
@@ -830,7 +830,7 @@ int PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_TOGGLE:
 				ok = -1;

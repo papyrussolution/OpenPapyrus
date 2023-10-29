@@ -324,7 +324,7 @@
 #      define HB_NO_SETLOCALE
 #      define HB_NO_ERRNO
 #endif
-#  elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #ifndef HB_NO_GETENV
 #      define HB_NO_GETENV
 #endif
@@ -353,19 +353,19 @@
 /* From atexit() manpage, it's safe with glibc 2.2.3 on Linux. */
 #      define HB_USE_ATEXIT 1
 #endif
-#  elif defined(_MSC_VER) || defined(__MINGW32__)
+#elif defined(_MSC_VER) || defined(__MINGW32__)
 /* For MSVC:
  * https://msdn.microsoft.com/en-us/library/tze57ck3.aspx
  * https://msdn.microsoft.com/en-us/library/zk17ww08.aspx
  * mingw32 headers say atexit is safe to use in shared libraries.
  */
 #define HB_USE_ATEXIT 1
-#  elif defined(__ANDROID__)
+#elif defined(__ANDROID__)
 /* This is available since Android NKD r8 or r8b:
  * https://issuetracker.google.com/code/p/android/issues/detail?id=6455
  */
 #define HB_USE_ATEXIT 1
-#  elif defined(__APPLE__)
+#elif defined(__APPLE__)
 /* For macOS and related platforms, the atexit man page indicates
  * that it will be invoked when the library is unloaded, not only
  * at application exit.

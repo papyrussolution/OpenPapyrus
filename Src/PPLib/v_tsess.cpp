@@ -318,7 +318,7 @@ int PPViewTSession::MakeDraftIdList(PPIDArray & rList)
 	rList.Z();
 	{
 		PPIDArray prc_id_list;
-		const PPID single_tec_id = TechList.GetSingle();
+		const  PPID single_tec_id = TechList.GetSingle();
 		if(PrcList.GetCount())
 			prc_id_list = PrcList.Get();
 		else
@@ -432,10 +432,10 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 				psn_list.add(store_owner_id);
 				psn_list.sortAndUndup();
 				for(uint pi = 0; pi < psn_list.getCount(); pi++) {
-					const PPID psn_id = psn_list.get(pi);
+					const  PPID psn_id = psn_list.get(pi);
 					if(gua_obj.SearchByAssociatedPersonID(psn_id, gua_list) > 0) {
 						for(uint i = 0; i < gua_list.getCount(); i++) {
-							const PPID gua_id = gua_list.get(i);
+							const  PPID gua_id = gua_list.get(i);
 							if(prc_obj.GetListByOwnerGuaID(gua_id, local_prc_list) > 0)
 								prc_list.add(&local_prc_list);
 						}
@@ -493,7 +493,7 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 							PPTransaction tra(ppDbDependTransaction, 1);
 							THROW(tra);
 							do {
-								const PPID tsess_id = draft_tsess_list.get(--i);
+								const  PPID tsess_id = draft_tsess_list.get(--i);
 								if(TSesObj.Search(tsess_id, &rec) > 0) {
 									if(!TSesObj.CheckForFilt(&Filt, tsess_id, &rec)) {
 										draft_tsess_list.atFree(i);
@@ -525,7 +525,7 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 				THROW(P_TempTbl = CreateTempOrderFile());
 				if(!(State & stEmpty)) {
 					PPIDArray prc_id_list;
-					const PPID single_tec_id = TechList.GetSingle();
+					const  PPID single_tec_id = TechList.GetSingle();
 					if(PrcList.GetCount())
 						prc_id_list = PrcList.Get();
 					else
@@ -603,7 +603,7 @@ int PPViewTSession::InitIteration(int order)
 			P_IterQuery->initIteration(false, &k1, spFirst);
 		}
 		else {
-			const PPID single_tech_id = TechList.GetSingle();
+			const  PPID single_tech_id = TechList.GetSingle();
 			union {
 				TSessionTbl::Key0 k0; // ID
 				TSessionTbl::Key2 k2; // StDt
@@ -809,7 +809,7 @@ static IMPL_DBE_PROC(dbqf_tsess_memo_ip)
 	}
 	else {
 		PTR32(buf)[0] = 0;
-		const PPID  id = params[0].lval;
+		const  PPID  id = params[0].lval;
 		PPObjTSession * p_tses_obj = static_cast<PPObjTSession *>(const_cast<void *>(params[1].ptrval));
 		if(p_tses_obj) {
 			PPProcessorPacket::ExtBlock ext;
@@ -984,7 +984,7 @@ int PPViewTSession::WriteOff(PPID sessID)
 int PPViewTSession::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	TSessionTbl::Rec rec;
 	if(id && TSesObj.Search(id, &rec) > 0)
 		if(rec.Flags & TSESF_SUPERSESS) {
@@ -1038,7 +1038,7 @@ void PPViewTSession::ViewTotal()
 
 int PPViewTSession::Print(const void * pHdr)
 {
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(id)
 		PPAlddPrint(REPORT_TSESSION, PPFilt(id), 0);
 	return -1;
@@ -1128,7 +1128,7 @@ int PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		TSessionTbl::Rec rec;
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
@@ -1274,7 +1274,7 @@ int PPViewTSession::ExportUhtt()
 		ObjLinkFiles lf(PPOBJ_TSESSION);
 		TSessionViewItem item;
 		for(InitIteration(0); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
-			const PPID _id = item.ID;
+			const  PPID _id = item.ID;
 			ProcessorTbl::Rec prc_rec;
 			TSessionPacket pack;
 			if(TSesObj.GetPacket(_id, &pack, 0) > 0) {
@@ -2027,7 +2027,7 @@ int PPViewTSessLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				break;
 			case PPVCMD_COMPLETE:
 				{
-					const PPID tses_id = (TranslateBrwHdr(pHdr, &hdr) && hdr.TSesID) ? hdr.TSesID : Filt.TSesList.GetSingle();
+					const  PPID tses_id = (TranslateBrwHdr(pHdr, &hdr) && hdr.TSesID) ? hdr.TSesID : Filt.TSesList.GetSingle();
 					if(tses_id) {
 						ok = AddCompletion(tses_id); // @v10.8.10
 						/* @v10.8.10 ok = TSesObj.CompleteSession(tses_id, 1);

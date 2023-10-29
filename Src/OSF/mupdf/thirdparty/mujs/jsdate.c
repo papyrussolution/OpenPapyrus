@@ -202,13 +202,11 @@ static double MakeDay(double y, double m, double date)
 	 * each month, where index 0 is January, and day 0 is January 1.
 	 */
 	static const double firstDayOfMonth[2][12] = {
-		{0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334},
-		{0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335}
+		{ 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 },
+		{ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 }
 	};
-
 	double yd, md;
 	int im;
-
 	y += floor(m / 12);
 	m = pmod(m, 12);
 

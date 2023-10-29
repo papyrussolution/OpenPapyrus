@@ -145,7 +145,7 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 					}
 				}
 				for(i = 0; i < cur_acc_list.getCount(); i++) {
-					const PPID acc_id = cur_acc_list.get(i);
+					const  PPID acc_id = cur_acc_list.get(i);
 					THROW_DB(deleteFrom(P_Ref, 0, (P_Ref->ObjType == Obj && P_Ref->ObjID == acc_id)));
 				}
 			}
@@ -162,7 +162,7 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 			if(acc_rec.CurID == 0) {
 				THROW(GetCurList(acc_rec.A.Ac, acc_rec.A.Sb, &cur_acc_list, 0));
 				for(i = 0; i < cur_acc_list.getCount(); i++) {
-					const PPID acc_id = cur_acc_list.get(i);
+					const  PPID acc_id = cur_acc_list.get(i);
 					THROW_DB(deleteFrom(P_Ref, 0, (P_Ref->ObjType == Obj && P_Ref->ObjID == acc_id)));
 				}
 			}

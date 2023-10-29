@@ -44,14 +44,11 @@ static int leap_year(const int year)
  */
 static void determine_days(struct tm * tm)
 {
-	static const int ydays[12] = {
-		0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
-	};
+	static const int ydays[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 	int y = tm->tm_year + 1900;
 	int m = tm->tm_mon;
 	int d = tm->tm_mday;
 	int c;
-
 	tm->tm_yday = ydays[m] + d - 1;
 	if(m >= 2) {
 		/* March and onwards can be one day further into the year */

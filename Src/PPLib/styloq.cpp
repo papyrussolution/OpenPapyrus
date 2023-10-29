@@ -1239,7 +1239,7 @@ const StyloQCommandList::Item * StyloQCommandList::GetByUuid(const S_GUID & rUui
 		}
 		if(!p_result) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
-			r_temp_buf.Cat(rUuid);
+			r_temp_buf.Cat(rUuid, S_GUID::fmtIDL);
 			PPSetError(PPERR_SQ_UNKNCMD, r_temp_buf);
 		}
 	}
@@ -1336,7 +1336,7 @@ int StyloQCommandList::Store(const char * pFileName) const
 					const Item * p_item = GetC(i);
 					if(p_item) {
 						SXml::WNode n_item(p_writer, "StyloQCommand");
-						n_item.PutInner("Uuid", temp_buf.Z().Cat(p_item->Uuid));
+						n_item.PutInner("Uuid", temp_buf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL));
 						n_item.PutInner("Name", p_item->Name);
 						n_item.PutInner("BaseCommandID", temp_buf.Z().Cat(p_item->BaseCmdId));
 						n_item.PutInner("Flags", temp_buf.Z().Cat(p_item->Flags));
@@ -1473,7 +1473,7 @@ bool StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 				const Item * p_item = pSelf->L.at(i);
 				if(p_item) {
 					SJson * p_jitem = SJson::CreateObj();
-					p_jitem->InsertString("uuid", temp_buf.Z().Cat(p_item->Uuid));
+					p_jitem->InsertString("uuid", temp_buf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL));
 					p_jitem->InsertString("basecmdid", temp_buf.Z().Cat(p_item->BaseCmdId)); // @v11.2.9
 					p_jitem->InsertString("name", (temp_buf = p_item->Name).Escape());
 					// @v11.5.9 {
@@ -5475,7 +5475,7 @@ int PPStyloQInterchange::TestDatabase()
 					SJson * p_array = SJson::CreateArr();
 					{
 						SJson * p_jitem = SJson::CreateObj();
-						p_jitem->InsertString("uuid", temp_buf.Z().Cat(S_GUID(SCtrGenerate_)));
+						p_jitem->InsertString("uuid", temp_buf.Z().Cat(S_GUID(SCtrGenerate_), S_GUID::fmtIDL));
 						p_jitem->InsertString("name", "command #1");
 						p_jitem->InsertString("descr", "command #1 description");
 						// @todo transmit image
@@ -5483,7 +5483,7 @@ int PPStyloQInterchange::TestDatabase()
 					}
 					{
 						SJson * p_jitem = SJson::CreateObj();
-						p_jitem->InsertString("uuid", temp_buf.Z().Cat(S_GUID(SCtrGenerate_)));
+						p_jitem->InsertString("uuid", temp_buf.Z().Cat(S_GUID(SCtrGenerate_), S_GUID::fmtIDL));
 						p_jitem->InsertString("name", "command #2");
 						p_jitem->InsertString("descr", "command #2 description");
 						// @todo transmit image
@@ -5491,7 +5491,7 @@ int PPStyloQInterchange::TestDatabase()
 					}
 					{
 						SJson * p_jitem = SJson::CreateObj();
-						p_jitem->InsertString("uuid", temp_buf.Z().Cat(S_GUID(SCtrGenerate_)));
+						p_jitem->InsertString("uuid", temp_buf.Z().Cat(S_GUID(SCtrGenerate_), S_GUID::fmtIDL));
 						p_jitem->InsertString("name", "command #3");
 						p_jitem->InsertString("descr", "command #3 description");
 						// @todo transmit image
@@ -7185,7 +7185,7 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 		js.Insert("service", p_js_svc);
 		Stq_CmdStat_MakeRsrv_Response::RegisterOid(pStat, PPObjID(PPOBJ_STYLOQBINDERY, pOwnPack->Rec.ID));
 	}
-	js.InsertString("uuid", temp_buf.Z().Cat(rDocUuid)); // @v11.4.5
+	js.InsertString("uuid", temp_buf.Z().Cat(rDocUuid, S_GUID::fmtIDL)); // @v11.4.5
 	{
 		PPIDArray goodsgrp_id_list;
 		PPIDArray brand_id_list;
@@ -7665,7 +7665,7 @@ int PPStyloQInterchange::MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBina
 	if(!(pPack->Flags & CASHFX_PASSIVE)) {
 		CPosProcessor cpp(pPack->ID, 0, 0, CPosProcessor::ctrfForceInitGroupList, /*pDummy*/0);
 		PPObjGoods goods_obj;
-		const PPID single_loc_id = pPack->LocID;
+		const  PPID single_loc_id = pPack->LocID;
 		{
 			PPIDArray local_goods_id_list;
 			cpp.Backend_GetGoodsList(local_goods_id_list);
@@ -7675,7 +7675,7 @@ int PPStyloQInterchange::MakeRsrvIndoorSvcPrereqResponse_ExportGoods(const SBina
 				long   ext_rgi_flags = 0;
 				SJson * p_js_goods = SJson::CreateArr();
 				for(uint i = 0; i < local_goods_id_list.getCount(); i++) {
-					const PPID goods_id = local_goods_id_list.get(i);
+					const  PPID goods_id = local_goods_id_list.get(i);
 					if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 						RetailGoodsInfo rgi;
 						if(cpp.GetRgi(goods_id, 0.0, ext_rgi_flags, rgi)) {
@@ -7781,7 +7781,7 @@ protected:
 			ProcessorTbl::Rec prc_rec;
 			P_Box->freeAll();
 			for(uint i = 0; i < P_Data->GetCount(); i++) {
-				const PPID prc_id = P_Data->Get(i);
+				const  PPID prc_id = P_Data->Get(i);
 				if(PrcObj.Fetch(prc_id, &prc_rec) > 0)
 					P_Box->addItem(prc_id, prc_rec.Name);
 			}
@@ -8295,7 +8295,7 @@ SJson * PPStyloQInterchange::MakeRsrvAttendancePrereqResponse_Prc(const SBinaryC
 				if(psn_obj.Fetch(prc_pack.Rec.LinkObjID, &psn_rec) > 0) {
 					const PPObjID oid(PPOBJ_PERSON, psn_rec.ID);
 					{
-						const PPID reg_cal_id = psn_obj.GetConfig().RegStaffCalID;
+						const  PPID reg_cal_id = psn_obj.GetConfig().RegStaffCalID;
 						if(reg_cal_id) {
 							const LDATE curdt = getcurdate_();
 							STimeChunkArray work_list;
@@ -8333,12 +8333,12 @@ SJson * PPStyloQInterchange::MakeRsrvAttendancePrereqResponse_Prc(const SBinaryC
 			{
 				SJson * p_js_prcgoodslist = SJson::CreateArr();
 				for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
-					const PPID goods_id = goods_id_list.get(gidx);
+					const  PPID goods_id = goods_id_list.get(gidx);
 					SJson * p_js_goods_item = SJson::CreateObj();
 					p_js_goods_item->InsertInt("id", goods_id);
 					uint tec_time_sec = 0;
 					for(uint tecidx = 0; tecidx < tec_id_list.getCount(); tecidx++) {
-						const PPID tec_id = tec_id_list.get(tecidx);
+						const  PPID tec_id = tec_id_list.get(tecidx);
 						if(rTSesObj.TecObj.Fetch(tec_id, &tec_rec) > 0 && tec_rec.GoodsID == goods_id) {
 							if(tec_rec.Capacity > 0.0) {
 								tec_time_sec = R0i(1.0 / tec_rec.Capacity);
@@ -8356,10 +8356,10 @@ SJson * PPStyloQInterchange::MakeRsrvAttendancePrereqResponse_Prc(const SBinaryC
 						qk_list.addnz(mainQuotKindID);
 						qk_list.add(PPQUOTK_BASE);
 						for(uint qkidx = 0; price == 0.0 && qkidx < qk_list.getCount(); qkidx++) {
-							const PPID qk_id = qk_list.get(qkidx);
+							const  PPID qk_id = qk_list.get(qkidx);
 							assert(qk_id != 0);
 							for(uint aridx = 0; price == 0.0 && aridx < ar_list_by_prc.getCount(); aridx++) {
-								const PPID ar_id = ar_list_by_prc.get(aridx);
+								const  PPID ar_id = ar_list_by_prc.get(aridx);
 								QuotIdent qi(prc_pack.Rec.LocID, qk_id, 0/*curID*/, ar_id);
 								double result = 0.0;
 								if(rTSesObj.GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &result, 1) > 0) {
@@ -9035,8 +9035,8 @@ private:
 	}
 	void    SetupOp()
 	{
-		const PPID op_id = getCtrlLong(CTLSEL_STQINLPARAM_OP);
-		const PPID op_type_id = GetOpType(op_id);
+		const  PPID op_id = getCtrlLong(CTLSEL_STQINLPARAM_OP);
+		const  PPID op_type_id = GetOpType(op_id);
 		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 1, !oneof4(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)); // StyloQIncomingListParam::actionDocAcceptance
 		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 2, !oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSRECEIPT)); // StyloQIncomingListParam::actionDocAcceptanceMarks
 		DisableClusterItem(CTL_STQINLPARAM_ACTIONS, 3, !oneof2(op_type_id, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)); // StyloQIncomingListParam::actionDocSettingMarks
@@ -9139,7 +9139,7 @@ int PPStyloQInterchange::Document::FromCCheckPacket(const CCheckPacket & rS, PPI
 	Memo = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 	for(uint i = 0; i < rS.GetCount(); i++) {
 		const CCheckLineTbl::Rec & r_line = rS.GetLineC(i);
-		const PPID goods_id = labs(r_line.GoodsID);
+		const  PPID goods_id = labs(r_line.GoodsID);
 		CCheckPacket::LineExt le;
 		PPStyloQInterchange::Document::__TransferItem * p_doc_ti = TiList.CreateNewItem();
 		THROW_SL(p_doc_ti);
@@ -9215,7 +9215,7 @@ int PPStyloQInterchange::Document::FromBillPacket(const PPBillPacket & rS, const
 			const InventoryTbl::Rec & r_inv_item = rS.InvList.at(i);
 			PPStyloQInterchange::Document::__TransferItem * p_doc_ti = TiList.CreateNewItem();
 			THROW_SL(p_doc_ti);
-			const PPID goods_id = labs(r_inv_item.GoodsID);
+			const  PPID goods_id = labs(r_inv_item.GoodsID);
 			p_doc_ti->RowIdx = r_inv_item.OprNo;
 			p_doc_ti->GoodsID = goods_id;
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
@@ -9232,7 +9232,7 @@ int PPStyloQInterchange::Document::FromBillPacket(const PPBillPacket & rS, const
 			const PPTransferItem & r_ti = rS.ConstTI(i);
 			PPStyloQInterchange::Document::__TransferItem * p_doc_ti = TiList.CreateNewItem();
 			THROW_SL(p_doc_ti);
-			const PPID goods_id = labs(r_ti.GoodsID);
+			const  PPID goods_id = labs(r_ti.GoodsID);
 			p_doc_ti->RowIdx = r_ti.RByBill;
 			p_doc_ti->GoodsID = goods_id;
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
@@ -10494,7 +10494,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				}
 			}
 			else if(locident.NotEmpty()) {
-				const PPID loc_id = locident.ToLong();
+				const  PPID loc_id = locident.ToLong();
 				PPObjLocation loc_obj;
 				PPLocationPacket loc_pack;
 				THROW(svcident.IsEmpty()); // @todo @err
@@ -11654,7 +11654,7 @@ int StyloQCore::IndexingContent()
 			PPFtsInterface fts_db(true/*forUpdate*/, 120000);
 			THROW(fts_db);
 			for(uint didx = 0; didx < doc_id_list.getCount(); didx++) {
-				const PPID doc_id = doc_id_list.get(didx);
+				const  PPID doc_id = doc_id_list.get(didx);
 				StyloQCore::StoragePacket doc_pack;
 				THROW(GetPeerEntry(doc_id, &doc_pack) > 0);
 				if(doc_pack.Rec.Flags & StyloQCore::fUnprocessedDoc_Misplaced) {

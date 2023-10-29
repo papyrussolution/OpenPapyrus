@@ -548,7 +548,7 @@ int PPViewQuot::Init_(const PPBaseFilt * pFilt)
 		else if(Filt.QkCls == PPQuot::clsGeneral && Filt.QuotKindID != 0) {
 			uint   i = QuotKindList.getCount();
 			if(i) do {
-				const PPID local_qk_id = QuotKindList.Get(--i).Id;
+				const  PPID local_qk_id = QuotKindList.Get(--i).Id;
 				if(local_qk_id != Filt.QuotKindID)
 					QuotKindList.AtFree(i);
 			} while(i);
@@ -561,7 +561,7 @@ int PPViewQuot::Init_(const PPBaseFilt * pFilt)
 		rel_list.sort();
 		{
 			for(uint i = 0; i < rel_list.getCount(); i++) {
-				const PPID rel_id = rel_list.get(i);
+				const  PPID rel_id = rel_list.get(i);
 				qlist.clear();
 				P_Qc2->Get(Filt.GoodsID, rel_id, 0, &qlist);
 				for(uint j = 0; j < qlist.getCount(); j++) {
@@ -839,7 +839,7 @@ int PPViewQuot::Helper_RemoveTempRecsByGoodsID(PPID goodsID, int use_ta)
 		THROW(tra);
         tk1.GoodsID = goodsID;
         if(P_TempTbl->search(1, &tk1, spGe) && P_TempTbl->data.GoodsID == goodsID) do {
-        	const PPID id__ = P_TempTbl->data.ID__;
+        	const  PPID id__ = P_TempTbl->data.ID__;
             THROW_DB(P_TempTbl->deleteRec());
 			THROW(RemoveByID(P_TempOrd, id__, 0));
         } while(P_TempTbl->search(1, &tk1, spNext) && P_TempTbl->data.GoodsID == goodsID);
@@ -1020,7 +1020,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 					const uint _c = last_goods_id - first_goods_id + 1;
 					const uint rc = rel_list.getCount();
 					for(uint i = 0; i < rc; i++) {
-						const PPID rel_id = rel_list.get(i);
+						const  PPID rel_id = rel_list.get(i);
 						quot.Clear();
 						P_Qc2->FetchRel(rel_id, &quot);
 						const  PPID qk_id = quot.Kind;
@@ -1035,7 +1035,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 								k2.RelID = rel_id;
 								prev_goods_id = 0;
 								for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-									const PPID goods_id = P_Qc2->data.GoodsID;
+									const  PPID goods_id = P_Qc2->data.GoodsID;
 									if(pFilt->GoodsID || !use_goods_list || goods_list.bsearch(goods_id)) {
 										if(CheckGoodsKindDiffRestriction(goods_id)) {
 											PROFILE(P_Qc2->RecToQuotRel(&P_Qc2->data, quot));
@@ -1071,7 +1071,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 								k1.RelID = rel_id;
 								prev_goods_id = 0;
 								for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
-									const PPID goods_id = P_Qc2->data.GoodsID;
+									const  PPID goods_id = P_Qc2->data.GoodsID;
 									if(pFilt->Period.CheckDate(P_Qc2->data.Dt)) {
 										if(pFilt->GoodsID || !use_goods_list || goods_list.bsearch(goods_id)) {
 											if(CheckGoodsKindDiffRestriction(goods_id)) {
@@ -1107,7 +1107,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 		}
 		else if(P_Qc) {
 			PPLoadText(PPTXT_WAIT_QUOTVIEWBUILDING, msg_buf);
-			const PPID single_goods_id = NZOR(pFilt->GoodsID, (use_goods_list && goods_list.getCount() == 1) ? goods_list.get(0) : 0);
+			const  PPID single_goods_id = NZOR(pFilt->GoodsID, (use_goods_list && goods_list.getCount() == 1) ? goods_list.get(0) : 0);
 			QuotationTbl & _t = *P_Qc;
 			QuotationTbl::Key2 k2, k2_;
 			BExtQuery q(&_t, 2, 64);
@@ -1145,7 +1145,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 					last_goods_id = _t.data.GoodsID;
 			}
 			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-				const PPID goods_id = _t.data.GoodsID;
+				const  PPID goods_id = _t.data.GoodsID;
 				if(single_goods_id || !use_goods_list || goods_list.bsearch(goods_id)) {
 					if(CheckGoodsKindDiffRestriction(goods_id)) {
 						PPQuot quot(_t.data);

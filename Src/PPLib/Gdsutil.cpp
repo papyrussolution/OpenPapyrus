@@ -784,7 +784,7 @@ int PPObjGoods::SearchGListByStruc(PPID strucID, bool expandGenerics, PPIDArray 
 			{
 				Goods2Tbl::Rec goods_rec;
 				for(uint j = 0; j < rList.getCount(); j++) {
-					const PPID _id = rList.get(j);
+					const  PPID _id = rList.get(j);
 					if(Fetch(_id, &goods_rec) > 0) {
 						if(goods_rec.Flags & GF_GENERIC)
 							GetGenericList(_id, &final_list);
@@ -978,8 +978,8 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 		PPTransaction tra(1);
 		THROW(tra);
 		for(GoodsIterator gi(&goods_filt, 0); gi.Next(&goods_rec) > 0;) {
-			const PPID goods_id = goods_rec.ID;
-			const PPID struc_id = goods_rec.StrucID;
+			const  PPID goods_id = goods_rec.ID;
+			const  PPID struc_id = goods_rec.StrucID;
 			PPGoodsStruc gs;
 			if(gs_obj.Get(struc_id, &gs) > 0) {
 				PPGoodsStruc::Ident gsi(goods_id, GSF_COMPL, GSF_PARTITIAL|GSF_PRESENT|GSF_SUBST, now_date);
@@ -2183,7 +2183,7 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_GQUOT_ACCSHEET)) {
-		const PPID acc_sheet_id = getCtrlLong(CTLSEL_GQUOT_ACCSHEET);
+		const  PPID acc_sheet_id = getCtrlLong(CTLSEL_GQUOT_ACCSHEET);
 		if(Cls != PPQuot::clsSupplDeal && acc_sheet_id != AccSheetID) {
 			AccSheetID = acc_sheet_id;
 			SelArticleID = 0;
@@ -2996,7 +2996,7 @@ int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtt
 		uint   eq_pos = 0;
 		int    eq_disabled = 0;
 		for(uint i = 0; i < EqBlk.QkList.getCount(); i++) {
-			const PPID ext_qk_id = EqBlk.QkList.get(i);
+			const  PPID ext_qk_id = EqBlk.QkList.get(i);
 			const QuotIdent qi(curdt, LocID, ext_qk_id, 0, ArID);
 			THROW(r = P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &quot, use_quot_cache));
 			if(r > 0) {
@@ -3027,7 +3027,7 @@ int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtt
 	}
 	r = (Flags & RTLPF_GETCURPRICE) ? 1 : -1;
 	for(i = 0; r < 0 && i < RetailQuotList.getCount(); i++) {
-		const PPID qk_id = RetailQuotList.get(i);
+		const  PPID qk_id = RetailQuotList.get(i);
 		if(!used_quot_list.lsearch(qk_id)) {
 			QuotIdent qi(curdt, LocID, qk_id, 0, ArID);
 			qi.Qtty_ = fabs(qtty);

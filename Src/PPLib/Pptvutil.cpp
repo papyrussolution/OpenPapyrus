@@ -1258,7 +1258,7 @@ int Lst2LstObjDialog::setupRightList()
 			const long pos = p_lb->P_Def ? p_lb->P_Def->_curItem() : 0L;
 			THROW_MEM(p_ary = new StrAssocArray);
 			for(uint i = 0; i < Data.P_List->getCount(); i++) {
-				const PPID id = Data.P_List->get(i);
+				const  PPID id = Data.P_List->get(i);
 				GetItemText(id, name_buf);
 				THROW_SL(p_ary->Add(id, name_buf));
 			}
@@ -4118,7 +4118,7 @@ int ObjTagSelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
 	PPRef->Ot.SearchObjectsByStrExactly(ObjType, TagID, pText, &obj_id_list);
 	if(obj_id_list.getCount()) {
 		for(uint i = 0; !ok && i < obj_id_list.getCount(); i++) {
-			const PPID obj_id = obj_id_list.get(i);
+			const  PPID obj_id = obj_id_list.get(i);
 			if(GetObjectName(ObjType, obj_id, rBuf) > 0) {
 				ASSIGN_PTR(pID, obj_id);
 				ok = 1;
@@ -4243,7 +4243,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 					reg_list.sortAndUndup();
 					RegisterTbl::Rec reg_rec;
 					for(uint i = 0; i < reg_list.getCount(); i++) {
-						const PPID reg_id = reg_list.get(i);
+						const  PPID reg_id = reg_list.get(i);
 						if(PsnObj.RegObj.Fetch(reg_id, &reg_rec) > 0 && reg_rec.ObjType == PPOBJ_PERSON && InhRegTypeList.bsearch(reg_rec.RegTypeID, 0)) {
 							psn_list2.clear();
 							if(PsnObj.GetRelPersonList(psn_list.at(i), PPPSNRELTYP_AFFIL, 1, &psn_list2) > 0)
@@ -4339,7 +4339,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 			if(src_ea_list.getCount()) {
 				SETIFZ(p_list, new StrAssocArray());
 				for(uint i = 0; i < src_ea_list.getCount(); i++) {
-					const PPID ea_id = src_ea_list.Get(i).Id;
+					const  PPID ea_id = src_ea_list.Get(i).Id;
 					if(p_locc->GetEAddr(ea_id, &ea_rec) > 0) {
 						if(ea_rec.LinkObjType == PPOBJ_PERSON && LocalFlags & lfPerson && PsnObj.Fetch(ea_rec.LinkObjID, &psn_rec) > 0) {
 							eac_list.add(ea_rec.ID);
@@ -4827,7 +4827,7 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 	}
 	else if(event.isCbSelected(Ctlsel)) {
 		if(Data.List.getSingle()) {
-			const PPID id = pDlg->getCtrlLong(Ctlsel);
+			const  PPID id = pDlg->getCtrlLong(Ctlsel);
 			Data.List.freeAll();
 			if(id)
 				Data.List.add(id);
@@ -4970,7 +4970,7 @@ StrAssocArray * FiasSelExtra::GetList(const char * pText)
 				if(id_list.getCount()) {
 					p_list = new StrAssocArray;
 					for(uint i = 0; i < id_list.getCount(); i++) {
-						const PPID _id = id_list.get(i);
+						const  PPID _id = id_list.get(i);
 						if(P_Fr->MakeAddressText(_id, PPFiasReference::matfTryHouse|PPFiasReference::matfZipPrefix, temp_buf) > 0)
 							p_list->Add(_id, temp_buf, 0);
 					}
@@ -4981,7 +4981,7 @@ StrAssocArray * FiasSelExtra::GetList(const char * pText)
                 if(id_list.getCount()) {
 					p_list = new StrAssocArray;
 					for(uint i = 0; i < id_list.getCount(); i++) {
-						const PPID _id = id_list.get(i);
+						const  PPID _id = id_list.get(i);
 						if(P_Fr->MakeAddressText(_id, PPFiasReference::matfZipPrefix, temp_buf) > 0)
 							p_list->Add(_id, temp_buf, 0);
 					}
@@ -5110,7 +5110,7 @@ int PosNodeCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.List.GetCount() <= 1) {
-		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
+		const  PPID temp_id = pDlg->getCtrlLong(Ctlsel);
 		Data.List.Z().Add(temp_id);
 	}
 	*p_rec = Data;
@@ -5172,7 +5172,7 @@ int QuotKindCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.List.GetCount() <= 1) {
-		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
+		const  PPID temp_id = pDlg->getCtrlLong(Ctlsel);
 		Data.List.Z().Add(temp_id);
 	}
 	*p_rec = Data;
@@ -5234,7 +5234,7 @@ int StaffCalCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.List.GetCount() <= 1) {
-		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
+		const  PPID temp_id = pDlg->getCtrlLong(Ctlsel);
 		Data.List.Z().Add(temp_id);
 	}
 	*p_rec = Data;
@@ -5261,7 +5261,7 @@ int PersonOpCtrlGroup::EditList(TDialog * pDlg)
 		if(Data.PsnOpList.IsExists())
 			ary = Data.PsnOpList.Get();
 		if(!ary.getCount()) {
-			const PPID temp_id = pDlg->getCtrlLong(CtlselPsnOp);
+			const  PPID temp_id = pDlg->getCtrlLong(CtlselPsnOp);
 			if(temp_id)
 				ary.insert(&temp_id);
 		}
@@ -5361,7 +5361,7 @@ int PersonOpCtrlGroup::getData(TDialog * pDlg, void * pData)
 	if(Data.PsnOpList.GetCount() <= 1) {
 		pDlg->getCtrlData(CtlselPsn1, &Data.PrmrID);
 		pDlg->getCtrlData(CtlselPsn2, &Data.ScndID);
-		const PPID temp_id = pDlg->getCtrlLong(CtlselPsnOp);
+		const  PPID temp_id = pDlg->getCtrlLong(CtlselPsnOp);
 		Data.PsnOpList.Z().Add(temp_id);
 	}
 	*p_rec = Data;
@@ -5501,7 +5501,7 @@ int BrandCtrlGroup::Setup(TDialog * pDlg)
 		}
 		else if(event.isCbSelected(Ctlsel)) {
 			if(Data.List.getSingle()) {
-				const PPID id = pDlg->getCtrlLong(Ctlsel);
+				const  PPID id = pDlg->getCtrlLong(Ctlsel);
 				Data.List.clear();
 				Data.List.addnz(id);
 			}

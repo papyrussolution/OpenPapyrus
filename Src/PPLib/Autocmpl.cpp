@@ -636,7 +636,7 @@ const PPGoodsStruc * PPComplBlock::GetGoodsStruc(uint idx/*0..*/) const
 {
 	const PPGoodsStruc * p_result = 0;
 	if(idx < getCount()) {
-		const PPID gs_id = at(idx).GsID;
+		const  PPID gs_id = at(idx).GsID;
 		if(gs_id) {
 			for(uint i = 0; !p_result && i < GsList.getCount(); i++) {
 				const PPGoodsStruc * p_gs = GsList.at(i);

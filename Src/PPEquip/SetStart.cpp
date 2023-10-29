@@ -265,7 +265,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 			}
 			fputs((f_str = "$$$ADDCARDS").CR(), p_file);
 			for(uint i = 0; i < scs_list.getCount(); i++) {
-				const PPID ser_id = scs_list.get(i);
+				const  PPID ser_id = scs_list.get(i);
 				PPSCardSerPacket scs_pack;
 				if(scs_obj.GetPacket(ser_id, &scs_pack) > 0) {
 					AsyncCashSCardInfo info;
@@ -637,7 +637,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 				}*/
 				int    is_first = 1;
 				for(uint scsidx = 0; scsidx < scard_series_list.getCount(); scsidx++) {
-					const PPID scs_id = scard_series_list.get(scsidx);
+					const  PPID scs_id = scard_series_list.get(scsidx);
 					if(scs_obj.GetPacket(scs_id, &scs_pack) > 0 && scs_pack.Rec.PDis != 0) {
 						//int SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <PrefixRange> & rRanges)
 						TSCollection <SCardCore::PrefixRange> prefix_ranges;
@@ -717,7 +717,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 				}
 				fputs((f_str = "$$$ADDAUTODISCSCHMS").CR(), p_file);
 				for(i = 0; i < retail_quot_list.getCount(); i++) {
-					const PPID qk_id = retail_quot_list.get(i);
+					const  PPID qk_id = retail_quot_list.get(i);
 					if(used_retail_quot.get(i) && qk_obj.Fetch(qk_id, &qk_rec) > 0) {
 						f_str.Z().Cat(qk_id).Semicol();                     // #1 - код схемы внутренней авт.скидки
 						f_str.Cat(qk_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CatCharN(';', 2);     // #2 - наименование схемы, #3 - не используется //
@@ -1192,7 +1192,7 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 	SFile     imp_file(pImpPath, SFile::mRead); // PathRpt-->imp_file_name
 
 	PPObjGoods::ReadConfig(&goods_cfg);
-	const PPID def_goods_id = (goods_cfg.DefGoodsID && goods_obj.Fetch(goods_cfg.DefGoodsID, 0) > 0) ? goods_cfg.DefGoodsID : 0;
+	const  PPID def_goods_id = (goods_cfg.DefGoodsID && goods_obj.Fetch(goods_cfg.DefGoodsID, 0) > 0) ? goods_cfg.DefGoodsID : 0;
 	THROW(imp_file.IsValid());
 	for(pos = 0; pos < 3; pos++)
 		imp_file.ReadLine(buf);

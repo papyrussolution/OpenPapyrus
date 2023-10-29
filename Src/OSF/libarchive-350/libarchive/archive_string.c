@@ -332,206 +332,199 @@ static const char * default_iconv_charset(const char * charset)
 }
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-
-/*
- * Convert MBS to WCS.
- * Note: returns -1 if conversion fails.
- */
-int archive_wstring_append_from_mbs(archive_wstring * dest, const char * p, size_t len)
-{
-	return archive_wstring_append_from_mbs_in_codepage(dest, p, len, NULL);
-}
-
-static int archive_wstring_append_from_mbs_in_codepage(archive_wstring * dest, const char * s, size_t length, archive_string_conv * sc)
-{
-	int count, ret = 0;
-	UINT from_cp = sc ? sc->from_cp : get_current_codepage();
-	if(from_cp == CP_C_LOCALE) {
-		/*
-		 * "C" locale special processing.
-		 */
-		wchar_t * ws;
-		const uchar * mp;
-		if(!archive_wstring_ensure(dest, dest->length + length + 1))
-			return -1;
-		ws = dest->s + dest->length;
-		mp = (const uchar *)s;
-		count = 0;
-		while(count < (int)length && *mp) {
-			*ws++ = (wchar_t)*mp++;
-			count++;
-		}
+	/*
+	 * Convert MBS to WCS.
+	 * Note: returns -1 if conversion fails.
+	 */
+	int archive_wstring_append_from_mbs(archive_wstring * dest, const char * p, size_t len)
+	{
+		return archive_wstring_append_from_mbs_in_codepage(dest, p, len, NULL);
 	}
-	else if(sc && (sc->flag & (SCONV_NORMALIZATION_C | SCONV_NORMALIZATION_D))) {
-		/*
-		 * Normalize UTF-8 and UTF-16BE and convert it directly
-		 * to UTF-16 as wchar_t.
-		 */
-		archive_string u16;
-		int saved_flag = sc->flag; /* save current flag. */
-		if(is_big_endian())
-			sc->flag |= SCONV_TO_UTF16BE;
-		else
-			sc->flag |= SCONV_TO_UTF16LE;
-		if(sc->flag & SCONV_FROM_UTF16) {
+
+	static int archive_wstring_append_from_mbs_in_codepage(archive_wstring * dest, const char * s, size_t length, archive_string_conv * sc)
+	{
+		int count, ret = 0;
+		UINT from_cp = sc ? sc->from_cp : get_current_codepage();
+		if(from_cp == CP_C_LOCALE) {
 			/*
-			 *  UTF-16BE/LE NFD ===> UTF-16 NFC
-			 *  UTF-16BE/LE NFC ===> UTF-16 NFD
+			 * "C" locale special processing.
 			 */
+			wchar_t * ws;
+			const uchar * mp;
+			if(!archive_wstring_ensure(dest, dest->length + length + 1))
+				return -1;
+			ws = dest->s + dest->length;
+			mp = (const uchar *)s;
+			count = 0;
+			while(count < (int)length && *mp) {
+				*ws++ = (wchar_t)*mp++;
+				count++;
+			}
+		}
+		else if(sc && (sc->flag & (SCONV_NORMALIZATION_C | SCONV_NORMALIZATION_D))) {
+			/*
+			 * Normalize UTF-8 and UTF-16BE and convert it directly
+			 * to UTF-16 as wchar_t.
+			 */
+			archive_string u16;
+			int saved_flag = sc->flag; /* save current flag. */
+			if(is_big_endian())
+				sc->flag |= SCONV_TO_UTF16BE;
+			else
+				sc->flag |= SCONV_TO_UTF16LE;
+			if(sc->flag & SCONV_FROM_UTF16) {
+				/*
+				 *  UTF-16BE/LE NFD ===> UTF-16 NFC
+				 *  UTF-16BE/LE NFC ===> UTF-16 NFD
+				 */
+				count = (int)utf16nbytes(s, length);
+			}
+			else {
+				/*
+				 *  UTF-8 NFD ===> UTF-16 NFC
+				 *  UTF-8 NFC ===> UTF-16 NFD
+				 */
+				count = (int)mbsnbytes(s, length);
+			}
+			u16.s = (char *)dest->s;
+			u16.length = dest->length << 1;;
+			u16.buffer_length = dest->buffer_length;
+			if(sc->flag & SCONV_NORMALIZATION_C)
+				ret = archive_string_normalize_C(&u16, s, count, sc);
+			else
+				ret = archive_string_normalize_D(&u16, s, count, sc);
+			dest->s = (wchar_t *)u16.s;
+			dest->length = u16.length >> 1;
+			dest->buffer_length = u16.buffer_length;
+			sc->flag = saved_flag; /* restore the saved flag. */
+			return ret;
+		}
+		else if(sc && (sc->flag & SCONV_FROM_UTF16)) {
 			count = (int)utf16nbytes(s, length);
+			count >>= 1; /* to be WCS length */
+			/* Allocate memory for WCS. */
+			if(!archive_wstring_ensure(dest, dest->length + count + 1))
+				return -1;
+			wmemcpy(dest->s + dest->length, (const wchar_t *)s, count);
+			if((sc->flag & SCONV_FROM_UTF16BE) && !is_big_endian()) {
+				uint16 * u16 = (uint16*)(dest->s + dest->length);
+				for(int b = 0; b < count; b++) {
+					uint16 val = archive_le16dec(u16+b);
+					archive_be16enc(u16+b, val);
+				}
+			}
+			else if((sc->flag & SCONV_FROM_UTF16LE) && is_big_endian()) {
+				uint16 * u16 = (uint16*)(dest->s + dest->length);
+				for(int b = 0; b < count; b++) {
+					uint16 val = archive_be16dec(u16+b);
+					archive_le16enc(u16+b, val);
+				}
+			}
 		}
 		else {
-			/*
-			 *  UTF-8 NFD ===> UTF-16 NFC
-			 *  UTF-8 NFC ===> UTF-16 NFD
-			 */
-			count = (int)mbsnbytes(s, length);
+			DWORD mbflag;
+			size_t buffsize;
+			if(!sc)
+				mbflag = 0;
+			else if(sc->flag & SCONV_FROM_CHARSET) {
+				/* Do not trust the length which comes from an archive file. */
+				length = mbsnbytes(s, length);
+				mbflag = 0;
+			}
+			else
+				mbflag = MB_PRECOMPOSED;
+			buffsize = dest->length + length + 1;
+			do {
+				/* Allocate memory for WCS. */
+				if(!archive_wstring_ensure(dest, buffsize))
+					return -1;
+				/* Convert MBS to WCS. */
+				count = MultiByteToWideChar(from_cp, mbflag, s, (int)length, dest->s + dest->length, (int)(dest->buffer_length >> 1) -1);
+				if(!count && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+					/* Expand the WCS buffer. */
+					buffsize = dest->buffer_length << 1;
+					continue;
+				}
+				if(!count && length != 0)
+					ret = -1;
+				break;
+			} while(1);
 		}
-		u16.s = (char *)dest->s;
-		u16.length = dest->length << 1;;
-		u16.buffer_length = dest->buffer_length;
-		if(sc->flag & SCONV_NORMALIZATION_C)
-			ret = archive_string_normalize_C(&u16, s, count, sc);
-		else
-			ret = archive_string_normalize_D(&u16, s, count, sc);
-		dest->s = (wchar_t *)u16.s;
-		dest->length = u16.length >> 1;
-		dest->buffer_length = u16.buffer_length;
-		sc->flag = saved_flag; /* restore the saved flag. */
+		dest->length += count;
+		dest->s[dest->length] = L'\0';
 		return ret;
 	}
-	else if(sc && (sc->flag & SCONV_FROM_UTF16)) {
-		count = (int)utf16nbytes(s, length);
-		count >>= 1; /* to be WCS length */
-		/* Allocate memory for WCS. */
-		if(!archive_wstring_ensure(dest, dest->length + count + 1))
-			return -1;
-		wmemcpy(dest->s + dest->length, (const wchar_t *)s, count);
-		if((sc->flag & SCONV_FROM_UTF16BE) && !is_big_endian()) {
-			uint16 * u16 = (uint16*)(dest->s + dest->length);
-			for(int b = 0; b < count; b++) {
-				uint16 val = archive_le16dec(u16+b);
-				archive_be16enc(u16+b, val);
-			}
-		}
-		else if((sc->flag & SCONV_FROM_UTF16LE) && is_big_endian()) {
-			uint16 * u16 = (uint16*)(dest->s + dest->length);
-			for(int b = 0; b < count; b++) {
-				uint16 val = archive_be16dec(u16+b);
-				archive_le16enc(u16+b, val);
-			}
-		}
-	}
-	else {
-		DWORD mbflag;
-		size_t buffsize;
-		if(!sc)
-			mbflag = 0;
-		else if(sc->flag & SCONV_FROM_CHARSET) {
-			/* Do not trust the length which comes from an archive file. */
-			length = mbsnbytes(s, length);
-			mbflag = 0;
-		}
-		else
-			mbflag = MB_PRECOMPOSED;
-		buffsize = dest->length + length + 1;
-		do {
-			/* Allocate memory for WCS. */
-			if(!archive_wstring_ensure(dest, buffsize))
-				return -1;
-			/* Convert MBS to WCS. */
-			count = MultiByteToWideChar(from_cp, mbflag, s, (int)length, dest->s + dest->length, (int)(dest->buffer_length >> 1) -1);
-			if(!count && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-				/* Expand the WCS buffer. */
-				buffsize = dest->buffer_length << 1;
-				continue;
-			}
-			if(!count && length != 0)
-				ret = -1;
-			break;
-		} while(1);
-	}
-	dest->length += count;
-	dest->s[dest->length] = L'\0';
-	return ret;
-}
-
 #else
-
-/*
- * Convert MBS to WCS.
- * Note: returns -1 if conversion fails.
- */
-int archive_wstring_append_from_mbs(archive_wstring * dest,
-    const char * p, size_t len)
-{
-	size_t r;
-	int ret_val = 0;
 	/*
-	 * No single byte will be more than one wide character,
-	 * so this length estimate will always be big enough.
+	 * Convert MBS to WCS.
+	 * Note: returns -1 if conversion fails.
 	 */
-	// size_t wcs_length = len;
-	size_t mbs_length = len;
-	const char * mbs = p;
-	wchar_t * wcs;
-#if HAVE_MBRTOWC
-	mbstate_t shift_state;
-	memzero(&shift_state, sizeof(shift_state));
-#endif
-	/*
-	 * As we decided to have wcs_length == mbs_length == len
-	 * we can use len here instead of wcs_length
-	 */
-	if(!archive_wstring_ensure(dest, dest->length + len + 1))
-		return -1;
-	wcs = dest->s + dest->length;
-	/*
-	 * We cannot use mbsrtowcs/mbstowcs here because those may convert
-	 * extra MBS when strlen(p) > len and one wide character consists of
-	 * multi bytes.
-	 */
-	while(*mbs && mbs_length > 0) {
+	int archive_wstring_append_from_mbs(archive_wstring * dest, const char * p, size_t len)
+	{
+		size_t r;
+		int ret_val = 0;
 		/*
-		 * The buffer we allocated is always big enough.
-		 * Keep this code path in a comment if we decide to choose
-		 * smaller wcs_length in the future
+		 * No single byte will be more than one wide character,
+		 * so this length estimate will always be big enough.
 		 */
-/*
-                if (wcs_length == 0) {
-                        dest->length = wcs - dest->s;
-                        dest->s[dest->length] = L'\0';
-                        wcs_length = mbs_length;
-                        if(!archive_wstring_ensure(dest, dest->length + wcs_length + 1))
-                                return -1;
-                        wcs = dest->s + dest->length;
-                }
- */
-#if HAVE_MBRTOWC
-		r = mbrtowc(wcs, mbs, mbs_length, &shift_state);
-#else
-		r = mbtowc(wcs, mbs, mbs_length);
-#endif
-		if(r == (size_t)-1 || r == (size_t)-2) {
-			ret_val = -1;
-			break;
+		// size_t wcs_length = len;
+		size_t mbs_length = len;
+		const char * mbs = p;
+		wchar_t * wcs;
+	#if HAVE_MBRTOWC
+		mbstate_t shift_state;
+		memzero(&shift_state, sizeof(shift_state));
+	#endif
+		/*
+		 * As we decided to have wcs_length == mbs_length == len
+		 * we can use len here instead of wcs_length
+		 */
+		if(!archive_wstring_ensure(dest, dest->length + len + 1))
+			return -1;
+		wcs = dest->s + dest->length;
+		/*
+		 * We cannot use mbsrtowcs/mbstowcs here because those may convert
+		 * extra MBS when strlen(p) > len and one wide character consists of
+		 * multi bytes.
+		 */
+		while(*mbs && mbs_length > 0) {
+			/*
+			 * The buffer we allocated is always big enough.
+			 * Keep this code path in a comment if we decide to choose
+			 * smaller wcs_length in the future
+			 */
+	/*
+					if (wcs_length == 0) {
+							dest->length = wcs - dest->s;
+							dest->s[dest->length] = L'\0';
+							wcs_length = mbs_length;
+							if(!archive_wstring_ensure(dest, dest->length + wcs_length + 1))
+									return -1;
+							wcs = dest->s + dest->length;
+					}
+	 */
+	#if HAVE_MBRTOWC
+			r = mbrtowc(wcs, mbs, mbs_length, &shift_state);
+	#else
+			r = mbtowc(wcs, mbs, mbs_length);
+	#endif
+			if(r == (size_t)-1 || r == (size_t)-2) {
+				ret_val = -1;
+				break;
+			}
+			if(r == 0 || r > mbs_length)
+				break;
+			wcs++;
+			// wcs_length--;
+			mbs += r;
+			mbs_length -= r;
 		}
-		if(r == 0 || r > mbs_length)
-			break;
-		wcs++;
-		// wcs_length--;
-		mbs += r;
-		mbs_length -= r;
+		dest->length = wcs - dest->s;
+		dest->s[dest->length] = L'\0';
+		return (ret_val);
 	}
-	dest->length = wcs - dest->s;
-	dest->s[dest->length] = L'\0';
-	return (ret_val);
-}
-
 #endif
-
 #if defined(_WIN32) && !defined(__CYGWIN__)
-
 /*
  * WCS ==> MBS.
  * Note: returns -1 if conversion fails.
@@ -557,9 +550,7 @@ static int archive_string_append_from_wcs_in_codepage(archive_string * as, const
 	else
 		to_cp = get_current_codepage();
 	if(to_cp == CP_C_LOCALE) {
-		/*
-		 * "C" locale special processing.
-		 */
+		// "C" locale special processing.
 		const wchar_t * wp = ws;
 		char * p;
 		if(!archive_string_ensure(as, as->length + wslen +1))
@@ -602,9 +593,8 @@ static int archive_string_append_from_wcs_in_codepage(archive_string * as, const
 		count <<= 1; /* to be byte size */
 	}
 	else {
-		/* Make sure the MBS buffer has plenty to set. */
-		if(NULL ==
-		    archive_string_ensure(as, as->length + len * 2 + 1))
+		// Make sure the MBS buffer has plenty to set
+		if(NULL == archive_string_ensure(as, as->length + len * 2 + 1))
 			return -1;
 		do {
 			defchar_used = 0;
@@ -612,13 +602,10 @@ static int archive_string_append_from_wcs_in_codepage(archive_string * as, const
 				dp = NULL;
 			else
 				dp = &defchar_used;
-			count = WideCharToMultiByte(to_cp, 0, ws, wslen,
-				as->s + as->length,
-				(int)as->buffer_length - as->length - 1, NULL, dp);
+			count = WideCharToMultiByte(to_cp, 0, ws, wslen, as->s + as->length, (int)as->buffer_length - as->length - 1, NULL, dp);
 			if(!count && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 				/* Expand the MBS buffer and retry. */
-				if(NULL == archive_string_ensure(as,
-				    as->buffer_length + len))
+				if(NULL == archive_string_ensure(as, as->buffer_length + len))
 					return -1;
 				continue;
 			}
@@ -633,7 +620,6 @@ static int archive_string_append_from_wcs_in_codepage(archive_string * as, const
 }
 
 #elif defined(HAVE_WCTOMB) || defined(HAVE_WCRTOMB)
-
 /*
  * Translates a wide character string into current locale character set
  * and appends to the archive_string.  Note: returns -1 if conversion
@@ -703,17 +689,14 @@ int archive_string_append_from_wcs(archive_string * as, const wchar_t * w, size_
 	as->s[as->length] = '\0';
 	return (ret_val);
 }
-
 #else /* HAVE_WCTOMB || HAVE_WCRTOMB */
-
 /*
  * TODO: Test if __STDC_ISO_10646__ is defined.
  * Non-Windows uses ISO C wcrtomb() or wctomb() to perform the conversion
  * one character at a time.  If a non-Windows platform doesn't have
  * either of these, fall back to the built-in UTF8 conversion.
  */
-int archive_string_append_from_wcs(archive_string * as,
-    const wchar_t * w, size_t len)
+int archive_string_append_from_wcs(archive_string * as, const wchar_t * w, size_t len)
 {
 	(void)as; /* UNUSED */
 	(void)w; /* UNUSED */
@@ -1119,302 +1102,288 @@ static void free_sconv_object(archive_string_conv * sc)
 }
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-static unsigned my_atoi(const char * p)
-{
-	unsigned cp = 0;
-	while(*p) {
-		if(*p >= '0' && *p <= '9')
-			cp = cp * 10 + (*p - '0');
-		else
+	static uint my_atoi(const char * p)
+	{
+		uint cp = 0;
+		while(*p) {
+			if(*p >= '0' && *p <= '9')
+				cp = cp * 10 + (*p - '0');
+			else
+				return -1;
+			p++;
+		}
+		return (cp);
+	}
+	/*
+	 * Translate Charset name (as used by iconv) into CodePage (as used by Windows)
+	 * Return -1 if failed.
+	 *
+	 * Note: This translation code may be insufficient.
+	 */
+	static struct charset {
+		const  char * name;
+		uint   cp;
+	} charsets[] = {
+		/* MUST BE SORTED! */
+		{"ASCII", 1252},
+		{"ASMO-708", 708},
+		{"BIG5", 950},
+		{"CHINESE", 936},
+		{"CP367", 1252},
+		{"CP819", 1252},
+		{"CP1025", 21025},
+		{"DOS-720", 720},
+		{"DOS-862", 862},
+		{"EUC-CN", 51936},
+		{"EUC-JP", 51932},
+		{"EUC-KR", 949},
+		{"EUCCN", 51936},
+		{"EUCJP", 51932},
+		{"EUCKR", 949},
+		{"GB18030", 54936},
+		{"GB2312", 936},
+		{"HEBREW", 1255},
+		{"HZ-GB-2312", 52936},
+		{"IBM273", 20273},
+		{"IBM277", 20277},
+		{"IBM278", 20278},
+		{"IBM280", 20280},
+		{"IBM284", 20284},
+		{"IBM285", 20285},
+		{"IBM290", 20290},
+		{"IBM297", 20297},
+		{"IBM367", 1252},
+		{"IBM420", 20420},
+		{"IBM423", 20423},
+		{"IBM424", 20424},
+		{"IBM819", 1252},
+		{"IBM871", 20871},
+		{"IBM880", 20880},
+		{"IBM905", 20905},
+		{"IBM924", 20924},
+		{"ISO-8859-1", 28591},
+		{"ISO-8859-13", 28603},
+		{"ISO-8859-15", 28605},
+		{"ISO-8859-2", 28592},
+		{"ISO-8859-3", 28593},
+		{"ISO-8859-4", 28594},
+		{"ISO-8859-5", 28595},
+		{"ISO-8859-6", 28596},
+		{"ISO-8859-7", 28597},
+		{"ISO-8859-8", 28598},
+		{"ISO-8859-9", 28599},
+		{"ISO8859-1", 28591},
+		{"ISO8859-13", 28603},
+		{"ISO8859-15", 28605},
+		{"ISO8859-2", 28592},
+		{"ISO8859-3", 28593},
+		{"ISO8859-4", 28594},
+		{"ISO8859-5", 28595},
+		{"ISO8859-6", 28596},
+		{"ISO8859-7", 28597},
+		{"ISO8859-8", 28598},
+		{"ISO8859-9", 28599},
+		{"JOHAB", 1361},
+		{"KOI8-R", 20866},
+		{"KOI8-U", 21866},
+		{"KS_C_5601-1987", 949},
+		{"LATIN1", 1252},
+		{"LATIN2", 28592},
+		{"MACINTOSH", 10000},
+		{"SHIFT-JIS", 932},
+		{"SHIFT_JIS", 932},
+		{"SJIS", 932},
+		{"US", 1252},
+		{"US-ASCII", 1252},
+		{"UTF-16", 1200},
+		{"UTF-16BE", 1201},
+		{"UTF-16LE", 1200},
+		{"UTF-8", CP_UTF8},
+		{"X-EUROPA", 29001},
+		{"X-MAC-ARABIC", 10004},
+		{"X-MAC-CE", 10029},
+		{"X-MAC-CHINESEIMP", 10008},
+		{"X-MAC-CHINESETRAD", 10002},
+		{"X-MAC-CROATIAN", 10082},
+		{"X-MAC-CYRILLIC", 10007},
+		{"X-MAC-GREEK", 10006},
+		{"X-MAC-HEBREW", 10005},
+		{"X-MAC-ICELANDIC", 10079},
+		{"X-MAC-JAPANESE", 10001},
+		{"X-MAC-KOREAN", 10003},
+		{"X-MAC-ROMANIAN", 10010},
+		{"X-MAC-THAI", 10021},
+		{"X-MAC-TURKISH", 10081},
+		{"X-MAC-UKRAINIAN", 10017},
+	};
+	static uint make_codepage_from_charset(const char * charset)
+	{
+		char cs[16];
+		char * p;
+		uint cp;
+		int a, b;
+		if(charset == NULL || strlen(charset) > 15)
 			return -1;
-		p++;
+		/* Copy name to uppercase. */
+		p = cs;
+		while(*charset) {
+			char c = *charset++;
+			if(c >= 'a' && c <= 'z')
+				c -= 'a' - 'A';
+			*p++ = c;
+		}
+		*p++ = '\0';
+		cp = -1;
+
+		/* Look it up in the table first, so that we can easily
+		 * override CP367, which we map to 1252 instead of 367. */
+		a = 0;
+		b = SIZEOFARRAY(charsets);
+		while(b > a) {
+			int c = (b + a) / 2;
+			int r = strcmp(charsets[c].name, cs);
+			if(r < 0)
+				a = c + 1;
+			else if(r > 0)
+				b = c;
+			else
+				return charsets[c].cp;
+		}
+		// If it's not in the table, try to parse it. 
+		switch(*cs) {
+			case 'C':
+				if(cs[1] == 'P' && cs[2] >= '0' && cs[2] <= '9') {
+					cp = my_atoi(cs + 2);
+				}
+				else if(sstreq(cs, "CP_ACP"))
+					cp = get_current_codepage();
+				else if(sstreq(cs, "CP_OEMCP"))
+					cp = get_current_oemcp();
+				break;
+			case 'I':
+				if(cs[1] == 'B' && cs[2] == 'M' && cs[3] >= '0' && cs[3] <= '9') {
+					cp = my_atoi(cs + 3);
+				}
+				break;
+			case 'W':
+				if(strncmp(cs, "WINDOWS-", 8) == 0) {
+					cp = my_atoi(cs + 8);
+					if(cp != 874 && (cp < 1250 || cp > 1258))
+						cp = -1; /* This may invalid code. */
+				}
+				break;
+		}
+		return (cp);
 	}
-	return (cp);
-}
-
-/*
- * Translate Charset name (as used by iconv) into CodePage (as used by Windows)
- * Return -1 if failed.
- *
- * Note: This translation code may be insufficient.
- */
-static struct charset {
-	const char * name;
-	unsigned cp;
-} charsets[] = {
-	/* MUST BE SORTED! */
-	{"ASCII", 1252},
-	{"ASMO-708", 708},
-	{"BIG5", 950},
-	{"CHINESE", 936},
-	{"CP367", 1252},
-	{"CP819", 1252},
-	{"CP1025", 21025},
-	{"DOS-720", 720},
-	{"DOS-862", 862},
-	{"EUC-CN", 51936},
-	{"EUC-JP", 51932},
-	{"EUC-KR", 949},
-	{"EUCCN", 51936},
-	{"EUCJP", 51932},
-	{"EUCKR", 949},
-	{"GB18030", 54936},
-	{"GB2312", 936},
-	{"HEBREW", 1255},
-	{"HZ-GB-2312", 52936},
-	{"IBM273", 20273},
-	{"IBM277", 20277},
-	{"IBM278", 20278},
-	{"IBM280", 20280},
-	{"IBM284", 20284},
-	{"IBM285", 20285},
-	{"IBM290", 20290},
-	{"IBM297", 20297},
-	{"IBM367", 1252},
-	{"IBM420", 20420},
-	{"IBM423", 20423},
-	{"IBM424", 20424},
-	{"IBM819", 1252},
-	{"IBM871", 20871},
-	{"IBM880", 20880},
-	{"IBM905", 20905},
-	{"IBM924", 20924},
-	{"ISO-8859-1", 28591},
-	{"ISO-8859-13", 28603},
-	{"ISO-8859-15", 28605},
-	{"ISO-8859-2", 28592},
-	{"ISO-8859-3", 28593},
-	{"ISO-8859-4", 28594},
-	{"ISO-8859-5", 28595},
-	{"ISO-8859-6", 28596},
-	{"ISO-8859-7", 28597},
-	{"ISO-8859-8", 28598},
-	{"ISO-8859-9", 28599},
-	{"ISO8859-1", 28591},
-	{"ISO8859-13", 28603},
-	{"ISO8859-15", 28605},
-	{"ISO8859-2", 28592},
-	{"ISO8859-3", 28593},
-	{"ISO8859-4", 28594},
-	{"ISO8859-5", 28595},
-	{"ISO8859-6", 28596},
-	{"ISO8859-7", 28597},
-	{"ISO8859-8", 28598},
-	{"ISO8859-9", 28599},
-	{"JOHAB", 1361},
-	{"KOI8-R", 20866},
-	{"KOI8-U", 21866},
-	{"KS_C_5601-1987", 949},
-	{"LATIN1", 1252},
-	{"LATIN2", 28592},
-	{"MACINTOSH", 10000},
-	{"SHIFT-JIS", 932},
-	{"SHIFT_JIS", 932},
-	{"SJIS", 932},
-	{"US", 1252},
-	{"US-ASCII", 1252},
-	{"UTF-16", 1200},
-	{"UTF-16BE", 1201},
-	{"UTF-16LE", 1200},
-	{"UTF-8", CP_UTF8},
-	{"X-EUROPA", 29001},
-	{"X-MAC-ARABIC", 10004},
-	{"X-MAC-CE", 10029},
-	{"X-MAC-CHINESEIMP", 10008},
-	{"X-MAC-CHINESETRAD", 10002},
-	{"X-MAC-CROATIAN", 10082},
-	{"X-MAC-CYRILLIC", 10007},
-	{"X-MAC-GREEK", 10006},
-	{"X-MAC-HEBREW", 10005},
-	{"X-MAC-ICELANDIC", 10079},
-	{"X-MAC-JAPANESE", 10001},
-	{"X-MAC-KOREAN", 10003},
-	{"X-MAC-ROMANIAN", 10010},
-	{"X-MAC-THAI", 10021},
-	{"X-MAC-TURKISH", 10081},
-	{"X-MAC-UKRAINIAN", 10017},
-};
-static unsigned make_codepage_from_charset(const char * charset)
-{
-	char cs[16];
-	char * p;
-	unsigned cp;
-	int a, b;
-
-	if(charset == NULL || strlen(charset) > 15)
-		return -1;
-
-	/* Copy name to uppercase. */
-	p = cs;
-	while(*charset) {
-		char c = *charset++;
-		if(c >= 'a' && c <= 'z')
-			c -= 'a' - 'A';
-		*p++ = c;
+	/*
+	 * Return ANSI Code Page of current locale set by setlocale().
+	 */
+	static uint get_current_codepage()
+	{
+		char * p;
+		uint   cp;
+		char * locale = setlocale(LC_CTYPE, NULL);
+		if(locale == NULL)
+			return (GetACP());
+		if(locale[0] == 'C' && locale[1] == '\0')
+			return (CP_C_LOCALE);
+		p = strrchr(locale, '.');
+		if(!p)
+			return (GetACP());
+		if(sstreq(p+1, "utf8"))
+			return CP_UTF8;
+		cp = my_atoi(p+1);
+		if((int)cp <= 0)
+			return (GetACP());
+		return (cp);
 	}
-	*p++ = '\0';
-	cp = -1;
-
-	/* Look it up in the table first, so that we can easily
-	 * override CP367, which we map to 1252 instead of 367. */
-	a = 0;
-	b = SIZEOFARRAY(charsets);
-	while(b > a) {
-		int c = (b + a) / 2;
-		int r = strcmp(charsets[c].name, cs);
-		if(r < 0)
-			a = c + 1;
-		else if(r > 0)
-			b = c;
-		else
-			return charsets[c].cp;
-	}
-	// If it's not in the table, try to parse it. 
-	switch(*cs) {
-		case 'C':
-		    if(cs[1] == 'P' && cs[2] >= '0' && cs[2] <= '9') {
-			    cp = my_atoi(cs + 2);
-		    }
-		    else if(sstreq(cs, "CP_ACP"))
-			    cp = get_current_codepage();
-		    else if(sstreq(cs, "CP_OEMCP"))
-			    cp = get_current_oemcp();
-		    break;
-		case 'I':
-		    if(cs[1] == 'B' && cs[2] == 'M' && cs[3] >= '0' && cs[3] <= '9') {
-			    cp = my_atoi(cs + 3);
-		    }
-		    break;
-		case 'W':
-		    if(strncmp(cs, "WINDOWS-", 8) == 0) {
-			    cp = my_atoi(cs + 8);
-			    if(cp != 874 && (cp < 1250 || cp > 1258))
-				    cp = -1; /* This may invalid code. */
-		    }
-		    break;
-	}
-	return (cp);
-}
-/*
- * Return ANSI Code Page of current locale set by setlocale().
- */
-static uint get_current_codepage()
-{
-	char * p;
-	uint   cp;
-	char * locale = setlocale(LC_CTYPE, NULL);
-	if(locale == NULL)
-		return (GetACP());
-	if(locale[0] == 'C' && locale[1] == '\0')
-		return (CP_C_LOCALE);
-	p = strrchr(locale, '.');
-	if(!p)
-		return (GetACP());
-	if(sstreq(p+1, "utf8"))
-		return CP_UTF8;
-	cp = my_atoi(p+1);
-	if((int)cp <= 0)
-		return (GetACP());
-	return (cp);
-}
-/*
- * Translation table between Locale Name and ACP/OEMCP.
- */
-static struct {
-	unsigned acp;
-	unsigned ocp;
-	const char * locale;
-} acp_ocp_map[] = {
-	{  950,  950, "Chinese_Taiwan" },
-	{  936,  936, "Chinese_People's Republic of China" },
-	{  950,  950, "Chinese_Taiwan" },
-	{ 1250,  852, "Czech_Czech Republic" },
-	{ 1252,  850, "Danish_Denmark" },
-	{ 1252,  850, "Dutch_Netherlands" },
-	{ 1252,  850, "Dutch_Belgium" },
-	{ 1252,  437, "English_United States" },
-	{ 1252,  850, "English_Australia" },
-	{ 1252,  850, "English_Canada" },
-	{ 1252,  850, "English_New Zealand" },
-	{ 1252,  850, "English_United Kingdom" },
-	{ 1252,  437, "English_United States" },
-	{ 1252,  850, "Finnish_Finland" },
-	{ 1252,  850, "French_France" },
-	{ 1252,  850, "French_Belgium" },
-	{ 1252,  850, "French_Canada" },
-	{ 1252,  850, "French_Switzerland" },
-	{ 1252,  850, "German_Germany" },
-	{ 1252,  850, "German_Austria" },
-	{ 1252,  850, "German_Switzerland" },
-	{ 1253,  737, "Greek_Greece" },
-	{ 1250,  852, "Hungarian_Hungary" },
-	{ 1252,  850, "Icelandic_Iceland" },
-	{ 1252,  850, "Italian_Italy" },
-	{ 1252,  850, "Italian_Switzerland" },
-	{  932,  932, "Japanese_Japan" },
-	{  949,  949, "Korean_Korea" },
-	{ 1252,  850, "Norwegian (BokmOl)_Norway" },
-	{ 1252,  850, "Norwegian (BokmOl)_Norway" },
-	{ 1252,  850, "Norwegian-Nynorsk_Norway" },
-	{ 1250,  852, "Polish_Poland" },
-	{ 1252,  850, "Portuguese_Portugal" },
-	{ 1252,  850, "Portuguese_Brazil" },
-	{ 1251,  866, "Russian_Russia" },
-	{ 1250,  852, "Slovak_Slovakia" },
-	{ 1252,  850, "Spanish_Spain" },
-	{ 1252,  850, "Spanish_Mexico" },
-	{ 1252,  850, "Spanish_Spain" },
-	{ 1252,  850, "Swedish_Sweden" },
-	{ 1254,  857, "Turkish_Turkey" },
-	{ 0, 0, NULL}
-};
-
-/*
- * Return OEM Code Page of current locale set by setlocale().
- */
-static unsigned get_current_oemcp(void)
-{
-	int i;
-	char * p;
-	size_t len;
-	char * locale = setlocale(LC_CTYPE, NULL);
-	if(locale == NULL)
+	/*
+	 * Translation table between Locale Name and ACP/OEMCP.
+	 */
+	static struct {
+		uint   acp;
+		uint   ocp;
+		const char * locale;
+	} acp_ocp_map[] = {
+		{  950,  950, "Chinese_Taiwan" },
+		{  936,  936, "Chinese_People's Republic of China" },
+		{  950,  950, "Chinese_Taiwan" },
+		{ 1250,  852, "Czech_Czech Republic" },
+		{ 1252,  850, "Danish_Denmark" },
+		{ 1252,  850, "Dutch_Netherlands" },
+		{ 1252,  850, "Dutch_Belgium" },
+		{ 1252,  437, "English_United States" },
+		{ 1252,  850, "English_Australia" },
+		{ 1252,  850, "English_Canada" },
+		{ 1252,  850, "English_New Zealand" },
+		{ 1252,  850, "English_United Kingdom" },
+		{ 1252,  437, "English_United States" },
+		{ 1252,  850, "Finnish_Finland" },
+		{ 1252,  850, "French_France" },
+		{ 1252,  850, "French_Belgium" },
+		{ 1252,  850, "French_Canada" },
+		{ 1252,  850, "French_Switzerland" },
+		{ 1252,  850, "German_Germany" },
+		{ 1252,  850, "German_Austria" },
+		{ 1252,  850, "German_Switzerland" },
+		{ 1253,  737, "Greek_Greece" },
+		{ 1250,  852, "Hungarian_Hungary" },
+		{ 1252,  850, "Icelandic_Iceland" },
+		{ 1252,  850, "Italian_Italy" },
+		{ 1252,  850, "Italian_Switzerland" },
+		{  932,  932, "Japanese_Japan" },
+		{  949,  949, "Korean_Korea" },
+		{ 1252,  850, "Norwegian (BokmOl)_Norway" },
+		{ 1252,  850, "Norwegian (BokmOl)_Norway" },
+		{ 1252,  850, "Norwegian-Nynorsk_Norway" },
+		{ 1250,  852, "Polish_Poland" },
+		{ 1252,  850, "Portuguese_Portugal" },
+		{ 1252,  850, "Portuguese_Brazil" },
+		{ 1251,  866, "Russian_Russia" },
+		{ 1250,  852, "Slovak_Slovakia" },
+		{ 1252,  850, "Spanish_Spain" },
+		{ 1252,  850, "Spanish_Mexico" },
+		{ 1252,  850, "Spanish_Spain" },
+		{ 1252,  850, "Swedish_Sweden" },
+		{ 1254,  857, "Turkish_Turkey" },
+		{ 0, 0, NULL}
+	};
+	/*
+	 * Return OEM Code Page of current locale set by setlocale().
+	 */
+	static unsigned get_current_oemcp(void)
+	{
+		int i;
+		char * p;
+		size_t len;
+		char * locale = setlocale(LC_CTYPE, NULL);
+		if(locale == NULL)
+			return (GetOEMCP());
+		if(locale[0] == 'C' && locale[1] == '\0')
+			return (CP_C_LOCALE);
+		p = strrchr(locale, '.');
+		if(!p)
+			return (GetOEMCP());
+		len = p - locale;
+		for(i = 0; acp_ocp_map[i].acp; i++) {
+			if(strncmp(acp_ocp_map[i].locale, locale, len) == 0)
+				return (acp_ocp_map[i].ocp);
+		}
 		return (GetOEMCP());
-	if(locale[0] == 'C' && locale[1] == '\0')
-		return (CP_C_LOCALE);
-	p = strrchr(locale, '.');
-	if(!p)
-		return (GetOEMCP());
-	len = p - locale;
-	for(i = 0; acp_ocp_map[i].acp; i++) {
-		if(strncmp(acp_ocp_map[i].locale, locale, len) == 0)
-			return (acp_ocp_map[i].ocp);
 	}
-	return (GetOEMCP());
-}
-
 #else
+	/*
+	 * POSIX platform does not use CodePage.
+	 */
+	static uint get_current_codepage() { return -1; /* Unknown */ }
 
-/*
- * POSIX platform does not use CodePage.
- */
+	static unsigned make_codepage_from_charset(const char * charset)
+	{
+		(void)charset; /* UNUSED */
+		return -1; /* Unknown */
+	}
 
-static unsigned get_current_codepage(void)
-{
-	return -1; /* Unknown */
-}
-
-static unsigned make_codepage_from_charset(const char * charset)
-{
-	(void)charset; /* UNUSED */
-	return -1; /* Unknown */
-}
-
-static unsigned get_current_oemcp(void)
-{
-	return -1; /* Unknown */
-}
-
+	static unsigned get_current_oemcp() { return -1; /* Unknown */ }
 #endif /* defined(_WIN32) && !defined(__CYGWIN__) */
 
 /*

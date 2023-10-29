@@ -225,7 +225,7 @@ int fgPlatformGlutGet(GLenum eWhat)
 				    fghGetClientArea(&clientRect, fgStructure.CurrentWindow, FALSE);
 				    GetWindowRect(fgStructure.CurrentWindow->Window.Handle, &winRect);
 			    }
-			    else{
+			    else {
 				    SetRect(&clientRect, 0, 0, 200, 200);
 				    CopyRect(&winRect, &clientRect);
 				    fghComputeWindowRectFromClientArea_UseStyle(&winRect, windowStyle, windowExStyle, FALSE);

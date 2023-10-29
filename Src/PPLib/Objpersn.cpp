@@ -65,14 +65,14 @@ SString & FASTCALL GetMainOrgName(SString & rBuf)
 
 int FASTCALL GetMainOrgID(PPID * pID)
 {
-	const PPID _id = CConfig.MainOrgID;
+	const  PPID _id = CConfig.MainOrgID;
 	ASSIGN_PTR(pID, _id);
 	return _id ? 1 : PPSetError(PPERR_UNDEFMAINORG);
 }
 
 PPID FASTCALL GetMainOrgID()
 {
-	const PPID _id = CConfig.MainOrgID;
+	const  PPID _id = CConfig.MainOrgID;
 	return _id ? _id : PPSetError(PPERR_UNDEFMAINORG);	
 }
 
@@ -1128,7 +1128,7 @@ int PPObjPerson::DeleteObj(PPID id) { return PutPacket(&id, 0, 0); }
 
 ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, long flags, void * extraPtr)
 {
-	const PPID kind_id = reinterpret_cast<PPID>(extraPtr);
+	const  PPID kind_id = reinterpret_cast<PPID>(extraPtr);
 	struct LbxDataPerson {
 		long   KindID;
 	} lbx_extra;
@@ -1171,7 +1171,7 @@ ListBoxDef * PPObjPerson::_Selector2(ListBoxDef * pDef, long flags, void * extra
 				BExtQuery q(t, 0, 128);
 				q.select(t->PersonID, t->Name, 0).where(t->KindID == lbx_extra.KindID);
 				for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
-					const PPID psn_id = t->data.PersonID;
+					const  PPID psn_id = t->data.PersonID;
 					if(code_reg_type_id) {
 						RegisterTbl::Rec reg_rec;
 						if(GetRegister(psn_id, code_reg_type_id, &reg_rec) > 0)
@@ -1464,7 +1464,7 @@ int PPObjPerson::GetListByKind(PPID psnKindID, PPIDArray * pList, StrAssocArray 
 				if(pNameList) {
 					if(c <= 1000) {
 						for(uint i = 0; i < c; i++) {
-							const PPID id = temp_list.get(i);
+							const  PPID id = temp_list.get(i);
 							if(Fetch(id, &psn_rec) > 0) {
 								if(pList) {
 									THROW_SL(pList->add(id));
@@ -1474,15 +1474,15 @@ int PPObjPerson::GetListByKind(PPID psnKindID, PPIDArray * pList, StrAssocArray 
 						}
 					}
 					else {
-						const PPID id_min = temp_list.get(0);
-						const PPID id_max = temp_list.get(c-1);
+						const  PPID id_min = temp_list.get(0);
+						const  PPID id_max = temp_list.get(c-1);
 						BExtQuery qp(P_Tbl, 0);
 						qp.select(P_Tbl->ID, P_Tbl->Name, 0L).where(P_Tbl->ID >= id_min && P_Tbl->ID <= id_max);
 						PersonTbl::Key0 k0;
 						MEMSZERO(k0);
 						k0.ID = id_min;
 						for(qp.initIteration(false, &k0, spGe); qp.nextIteration() > 0;) {
-							const PPID id = P_Tbl->data.ID;
+							const  PPID id = P_Tbl->data.ID;
 							if(temp_list.bsearch(id)) {
 								if(pList) {
 									THROW_SL(pList->add(id));
@@ -1516,7 +1516,7 @@ int PPObjPerson::GetListBySubstring(const char * pSubstr, PPID kindID, StrAssocA
 	}
 	MEMSZERO(k1);
 	for(pq.initIteration(false, &k1, spFirst); pq.nextIteration() > 0;) {
-		const PPID id = t->data.ID;
+		const  PPID id = t->data.ID;
 		if((!kindID || list_by_kind.bsearch(id)) && ExtStrSrch(t->data.Name, pattern, 0)) {
 			pList->AddFast(id, t->data.Name);
 		}
@@ -1605,7 +1605,7 @@ int PPObjPerson::GetRegList(PPID personID, RegisterArray * pList, int useInherit
 		for(uint i = 0; rel_list.enumItems(&i, (void **)&p_rel);) {
 			if(prt_obj.Fetch(p_rel->Val, &prt_pack) > 0) {
 				for(uint j = 0; j < prt_pack.InhRegTypeList.getCount(); j++) {
-					const PPID reg_type_id = prt_pack.InhRegTypeList.at(j);
+					const  PPID reg_type_id = prt_pack.InhRegTypeList.at(j);
 					reg_list.clear();
 					if(pList->GetRegister(reg_type_id, 0, 0) <= 0 && RegObj.P_Tbl->GetByPerson(p_rel->Key, &reg_list) > 0) {
 						for(uint k = 0; k < reg_list.getCount(); k++) {
@@ -1663,7 +1663,7 @@ int PPObjPerson::ResolveGLN(const char * pGLN, PPID * pID)
 	SString code(pGLN);
 	THROW_INVARG(pGLN);
 	if(code.NotEmptyS()) {
-		const PPID reg_type_id = PPREGT_GLN;
+		const  PPID reg_type_id = PPREGT_GLN;
 		PPIDArray psn_list;
 		THROW(GetListByRegNumber(reg_type_id, 0, code, psn_list));
 		if(psn_list.getCount()) {
@@ -1682,7 +1682,7 @@ int PPObjPerson::ResolveGLN_Article(const char * pGLN, PPID accSheetID, PPID * p
 	SString code(pGLN);
 	THROW_INVARG(pGLN);
 	if(code.NotEmptyS()) {
-		const PPID reg_type_id = PPREGT_GLN;
+		const  PPID reg_type_id = PPREGT_GLN;
 		PPIDArray psn_list, ar_list;
 		THROW(GetListByRegNumber(reg_type_id, 0, code, psn_list));
 		if(psn_list.getCount()) {
@@ -1709,7 +1709,7 @@ int PPObjPerson::SearchFirstByName(const char * pName, const PPIDArray * pKindLi
 	STRNSCPY(k.Name, pattern);
 	if(P_Tbl->search(1, &k, spEq)) {
 		do {
-			const PPID id = P_Tbl->data.ID;
+			const  PPID id = P_Tbl->data.ID;
 			if(!exclID || id != exclID) {
 				if(kind_count) {
 					for(uint i = 0; ok < 0 && i < kind_count; i++) {
@@ -1735,7 +1735,7 @@ int PPObjPerson::SearchMaxLike(const PPPersonPacket * p, PPID * pID, long flags,
 			PPIDArray list;
 			if(GetListByRegNumber(regTypeID, 0, reg_buf, list) > 0) {
 				for(uint i = 0; i < list.getCount(); i++) {
-					const PPID id = list.at(i);
+					const  PPID id = list.at(i);
 					if(id && id != p->Rec.ID) {
 						for(uint j = 0; j < p->Kinds.getCount(); j++) {
 							if(P_Tbl->IsBelongToKind(id, p->Kinds.at(j))) {
@@ -1857,7 +1857,7 @@ public:
 			RAssocArray temp_list;
 			const uint _c = getCount();
 			for(uint i = 0; i < rResult.getCount(); i++) {
-				const PPID id = rResult.get(i);
+				const  PPID id = rResult.get(i);
 				for(uint j = 0; j < _c; j++) {
 					ResolvePersonListEntry * p_entry = at(j);
 					if(p_entry && p_entry->CandidateList.lsearch(id)) {
@@ -1942,7 +1942,7 @@ int PPObjPerson::Resolve(const ResolverParam & rP, PPIDArray & rCandidateIdList,
 					PPObjIDArray obj_list;
 					if(LocObj.P_Tbl->SearchPhoneObjList(temp_buf, 0, obj_list) > 0) {
 						for(uint j = 0; j < obj_list.getCount(); j++) {
-							const PPID item_obj_id = obj_list.at(j).Id;
+							const  PPID item_obj_id = obj_list.at(j).Id;
 							switch(obj_list.at(j).Obj) {
 								case PPOBJ_PERSON:
 									temp_list.addnz(item_obj_id);
@@ -1966,7 +1966,7 @@ int PPObjPerson::Resolve(const ResolverParam & rP, PPIDArray & rCandidateIdList,
 				if(rP.EMail.NotEmpty()) {
 					if(SearchEmail(rP.EMail, 0, &temp_list, &temp_loc_list) > 0) {
 						for(uint j = 0; j < temp_loc_list.getCount(); j++) {
-							const PPID loc_id = temp_loc_list.get(j);
+							const  PPID loc_id = temp_loc_list.get(j);
 							if(LocObj.Search(loc_id, &loc_rec) > 0 && loc_rec.OwnerID && Search(loc_rec.OwnerID, &psn_rec) > 0)
 								temp_list.add(psn_rec.ID);
 						}
@@ -2289,7 +2289,7 @@ int PPObjPerson::ReplyPersonELinkDel(PPID eLinkID)
 	SString ela_buf;
 	for(P_Tbl->search(0, &k0, spFirst); P_Tbl->search(0, &k0, spNext);) {
 		PPELinkArray ela_list;
-		const PPID psn_id = P_Tbl->data.ID;
+		const  PPID psn_id = P_Tbl->data.ID;
 		THROW(P_Tbl->GetELinks(psn_id, ela_list));
 		if(ela_list.GetItem(eLinkID, ela_buf) > 0) {
 			ok = RetRefsExistsErr(Obj, psn_id);
@@ -2684,7 +2684,7 @@ public:
 		}
 		THROW_PP(Data.SrcID != 0, PPERR_REPLZEROOBJ);
 		for(uint i = 0; i < Data.DestIdList.getCount(); i++) {
-			const PPID dest_id = Data.DestIdList.get(i);
+			const  PPID dest_id = Data.DestIdList.get(i);
 			THROW_PP(dest_id != 0, PPERR_REPLZEROOBJ);
 			THROW_PP(dest_id != Data.SrcID, PPERR_REPLSAMEOBJ);
 		}
@@ -2807,7 +2807,7 @@ IMPL_HANDLE_EVENT(ReplPrsnDialog)
 			else if(!(param.Flags & param.fDontConfirm))
 				replace_obj_options |= PPObject::user_request;
 			for(uint i = 0; i < param.DestIdList.getCount(); i++) {
-				const PPID dest_id = param.DestIdList.get(i);
+				const  PPID dest_id = param.DestIdList.get(i);
 				PPLoadString("unite_persons", msg_buf.Z());
 				GetPersonName(dest_id, temp_buf);
 				msg_buf.CatDiv(':', 2).Cat(temp_buf).Space().Cat("-->");
@@ -2844,7 +2844,7 @@ IMPL_HANDLE_EVENT(ReplPrsnDialog)
 			PPError();
 		else {
 			for(uint i = 0; i < param.DestIdList.getCount(); i++) {
-				const PPID dest_id = param.DestIdList.get(i);
+				const  PPID dest_id = param.DestIdList.get(i);
 				if(!PPObject::ReplaceObj(PPOBJ_LOCATION, dest_id, param.SrcID, PPObject::not_repl_remove|PPObject::user_request))
 					PPError();
 			}
@@ -2958,7 +2958,7 @@ int PPObjPerson::GetPersonListByDlvrLoc(PPID dlvrLocID, PPIDArray & rList)
 	k1.ObjType = PPOBJ_PERSON;
 	k1.Prop = PSNPRP_DLVRLOCLIST;
 	while(p_ref->Prop.search(1, &k1, spGt) && k1.ObjType == PPOBJ_PERSON && k1.Prop == PSNPRP_DLVRLOCLIST) {
-		const PPID person_id = p_ref->Prop.data.ObjID;
+		const  PPID person_id = p_ref->Prop.data.ObjID;
 		temp_list.Z();
 		THROW(p_ref->GetPropArrayFromRecBuf(&temp_list));
 		if(temp_list.lsearch(dlvrLocID)) {
@@ -2976,7 +2976,7 @@ int PPObjPerson::GetDlvrLocList(PPID personID, PPIDArray * pList)
 	LongArray temp_list;
 	int    r = PPRef->GetPropArray(Obj, personID, PSNPRP_DLVRLOCLIST, &temp_list);
 	for(uint i = 0; i < temp_list.getCount(); i++) {
-		const PPID loc_id = temp_list.get(i);
+		const  PPID loc_id = temp_list.get(i);
 		uint pos = i+1;
 		while(temp_list.lsearch(loc_id, &pos)) {
 			temp_list.atFree(pos);
@@ -3169,7 +3169,7 @@ int PPObjPerson::UpdateAddress(PPID * pLocID, PPLocationPacket * pLocPack)
 				ar_obj.GetByPersonList(0, &psn_id_list, &ar_id_list);
 				if(ar_id_list.getCount()) {
 					for(uint aridx = 0; aridx < ar_id_list.getCount(); aridx++) {
-						const PPID ar_id = ar_id_list.get(aridx);
+						const  PPID ar_id = ar_id_list.get(aridx);
 						// pExtraParam если !0, то предназначается для PPObjPerson, но не для иных типов объектов
 						THROW(ar_obj.RemoveObjV(ar_id, pObjColl, options, 0/*pExtraParam*/));
 					}
@@ -3378,7 +3378,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 							if(sc_list.getCount()) {
 								sc_list.sortAndUndup();
 								for(uint scidx = 0; scidx < sc_list.getCount(); scidx++) {
-									const PPID sc_id = sc_list.get(scidx);
+									const  PPID sc_id = sc_list.get(scidx);
 									if(sc_id > 0) // @paranoic
 										DS.LogAction(PPACN_SCARDOWNERUPDATED, PPOBJ_SCARD, sc_id, id, 0);
 								}
@@ -3446,7 +3446,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 						pPack->LinkFiles.Save(id, 0L);
 					}
 					for(i = 0; i < pPack->Kinds.getCount(); i++) {
-						const PPID kind_id = pPack->Kinds.at(i);
+						const  PPID kind_id = pPack->Kinds.at(i);
 						THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_ARTICLE,   PPOBJ_PERSON, id, reinterpret_cast<void *>(kind_id), 0));
 						THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_PROCESSOR, PPOBJ_PERSON, id, reinterpret_cast<void *>(kind_id), 0));
 					}
@@ -4113,7 +4113,7 @@ public:
 				for(i = 0; ok && i < new_kind_list.getCount(); i++) {
 					THROW(GetExtRegListIds(new_kind_list.get(i), Data.Rec.Status, &reg_list));
 					for(uint k = 0; k < reg_list.getCount(); k++) {
-						const PPID reg_id = reg_list.get(k);
+						const  PPID reg_id = reg_list.get(k);
 						PPRegisterType rt_rec;
 						if(obj_regt.Fetch(reg_id, &rt_rec) > 0 && rt_rec.Flags & REGTF_INSERT) {
 							if(!rt_rec.PersonKindID || Data.Kinds.lsearch(rt_rec.PersonKindID)) {
@@ -4798,7 +4798,7 @@ int PPObjPerson::CheckDuplicateName(const char * pName, PPID * pID)
 				id_list.addUnique(P_Tbl->data.ID);
 			} while(P_Tbl->search(1, &k1, spNext) && name.CmpNC(P_Tbl->data.Name) == 0);
 		for(uint i = 0; i < id_list.getCount(); i++) {
-			const PPID person_id = id_list.get(i);
+			const  PPID person_id = id_list.get(i);
 			PersonTbl::Rec person_rec;
 			if(Fetch(person_id, &person_rec) > 0) {
 				(temp_buf = person_rec.Name).CatDiv(':', 2);
@@ -4807,7 +4807,7 @@ int PPObjPerson::CheckDuplicateName(const char * pName, PPID * pID)
 				for(uint j = 0; j < kind_list.getCount(); j++) {
 					if(j > 0)
 						temp_buf.CatDiv(',', 2);
-					const PPID kind_id = kind_list.get(j);
+					const  PPID kind_id = kind_list.get(j);
 					if(pk_obj.Fetch(kind_id, &pk_rec) > 0)
 						temp_buf.Cat(pk_rec.Name);
 					else
@@ -4939,7 +4939,7 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 				p_dlg->enableCommand(cmOK, 0);
 			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
 				THROW(is_new || CheckRights(PPR_MOD));
-				const PPID dup_id = p_dlg->GetDupID();
+				const  PPID dup_id = p_dlg->GetDupID();
 				if(dup_id) {
 					valid_data = 1;
 					ASSIGN_PTR(pID, dup_id);
@@ -5068,7 +5068,7 @@ void PsnSelAnalogDialog::setupList()
 			PersonTbl::Rec rec;
 			P_PsnObj->GetListByPattern(&sap, &id_list);
 			for(uint i = 0; i < id_list.getCount(); i++) {
-				const PPID psn_id = id_list.get(i);
+				const  PPID psn_id = id_list.get(i);
 				if(P_PsnObj->Search(psn_id, &rec) > 0)
 					p_list->addItem(psn_id, rec.Name);
 			}
@@ -5747,7 +5747,7 @@ int MainOrg2Dialog::getDTS()
 	memzero(buf, sizeof(buf));
 	getCtrlData(CTL_MAINORG2_PHONE, buf);
 	for(i = P_Pack->ELA.getCount(); i > 0; i--) {
-		const PPID kind_id = P_Pack->ELA.at(i-1).KindID;
+		const  PPID kind_id = P_Pack->ELA.at(i-1).KindID;
 		if(oneof2(kind_id, PPELK_HOMEPHONE, PPELK_ALTPHONE))
 			tel_pos = i-1;
 		if(kind_id == PPELK_WORKPHONE) {
@@ -6336,7 +6336,7 @@ int PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * pPsnLi
 					psn_id_list.addUnique(p_ref->Prop.data.ObjID);
 			} while(p_ref->Prop.search(1, &k1, spNext) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK);
 			for(uint j = 0; j < psn_id_list.getCount(); j++) {
-				const PPID psn_id = psn_id_list.get(j);
+				const  PPID psn_id = psn_id_list.get(j);
 				PersonTbl::Rec psn_rec;
 				P_Tbl->GetELinks(psn_id, ela);
 				for(uint i = 0; i < ela.getCount(); i++) {
@@ -6365,7 +6365,7 @@ int PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * pPsnLi
 				if(LocationCore::GetExField(&t->data, LOCEXSTR_EMAIL, temp_buf) > 0) {
 					if(temp_buf.NotEmptyS()) {
 						temp_buf.ToLower();
-						const PPID loc_id = t->data.ID;
+						const  PPID loc_id = t->data.ID;
 						if(temp_buf == email && LocObj.Fetch(loc_id, &loc_rec) > 0) {
 							result_loc_list.add(loc_id);
 						}
@@ -6860,7 +6860,7 @@ int PPNewContragentDetectionBlock::InitProcess()
 			OpList.sortAndUndup();
 			{
 				for(uint i = 0; i < OpList.getCount(); i++) {
-					const PPID op_id = OpList.get(i);
+					const  PPID op_id = OpList.get(i);
 					PPOprKind  op_rec;
 					if(GetOpData(op_id, &op_rec) > 0 && op_rec.AccSheetID)
 						AcsList.add(op_rec.AccSheetID);
@@ -6911,7 +6911,7 @@ int PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange & rPe
 			}
 			assert(ar_list.getCount()  == AcsList.getCount());
 			for(i = 0; i < OpList.getCount(); i++) {
-				const PPID op_id = OpList.get(i);
+				const  PPID op_id = OpList.get(i);
 				if(GetOpData(op_id, &op_rec) && op_rec.AccSheetID) {
 					uint acs_pos = 0;
 					if(AcsList.lsearch(op_rec.AccSheetID, &acs_pos))
@@ -6925,13 +6925,13 @@ int PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange & rPe
 			PPID   prev_ar_id = 0;
 			for(i = 0; yes != 0 && i < ar_op_list.getCount(); i++) {
 				// Object, Dt, BillNo (unique mod);                               // #3
-				const PPID ar_id = ar_op_list.at(i).Key;
+				const  PPID ar_id = ar_op_list.at(i).Key;
 				if(ar_id && (!prev_ar_id || ar_id != prev_ar_id)) {
 					BillTbl::Key3 k3;
 					MEMSZERO(k3);
 					k3.Object = ar_id;
 					if(t->search(3, &k3, spGt) && t->data.Object == ar_id && t->data.Dt <= _period.upp) do {
-						const PPID op_id = t->data.OpID;
+						const  PPID op_id = t->data.OpID;
 						if(ar_op_list.SearchPair(ar_id, op_id, 0)) {
 							yes = (t->data.Dt < _period.low) ? 0/*Не новый клиент*/ : 1/*Новый клиент*/;
 							break;
@@ -6962,14 +6962,14 @@ int PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange & rPe
 			PPIDArray sc_list;
 			PPIDArray temp_list;
 			for(i = 0; i < ScOpList.getCount(); i++) {
-				const PPID scs_id = ScOpList.get(i);
+				const  PPID scs_id = ScOpList.get(i);
 				P_ScObj->P_Tbl->GetListByPerson(psnID, scs_id, &sc_list);
 				if(scs_id == 0)
 					break;
 			}
 			sc_list.sortAndUndup();
 			for(i = 0; i < sc_list.getCount(); i++) {
-				const PPID sc_id = sc_list.get(i);
+				const  PPID sc_id = sc_list.get(i);
 				{
 					SCardOpTbl::Rec sco_rec;
 					for(LDATETIME dtm = ZERODATETIME; P_ScObj->P_Tbl->EnumOpByCard(sc_id, &dtm, &sco_rec) > 0;) {
@@ -7016,7 +7016,7 @@ int PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange & rPe
 
 int PPNewContragentDetectionBlock::IsNewArticle(PPID arID, const DateRange & rPeriod)
 {
-	const PPID psn_id = ObjectToPerson(arID, 0);
+	const  PPID psn_id = ObjectToPerson(arID, 0);
 	return IsNewPerson(ObjectToPerson(arID, 0), rPeriod);
 }
 //
@@ -7701,7 +7701,7 @@ int PPALDD_Employee::InitData(PPFilt & rFilt, long rsrv)
 		PersonPostArray post_list;
 		MEMSZERO(H);
 		H.ID = H.PersonID = rFilt.ID;
-		const PPID org_id = GetMainOrgID();
+		const  PPID org_id = GetMainOrgID();
 		if(p_obj->GetPostByPersonList(rFilt.ID, org_id, 1, &post_list) > 0)
 			H.PsnPostID = post_list.at(0).ID;
 		p_obj->PsnObj.RegObj.GetTabNumber(H.PersonID, tab_num);
@@ -7792,7 +7792,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 				staff_id = PPFIXSTF_DIRECTOR;
 			else if(kind == 2)
 				staff_id = PPFIXSTF_ACCOUNTANT;
-			const PPID   org_id = GetMainOrgID();
+			const  PPID   org_id = GetMainOrgID();
 			st_obj.GetFixedPostOnDate(org_id, staff_id, dt, &post_rec);
 			person_id = post_rec.PersonID;
 		}
@@ -7889,7 +7889,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 			if(psn_list.getCount() || loc_list.getCount()) {
 				uint    i;
 				for(i = 0; i < psn_list.getCount(); i++) {
-					const PPID psn_id = psn_list.get(i);
+					const  PPID psn_id = psn_list.get(i);
 					PersonTbl::Rec psn_rec;
 					if(psn_obj.Search(psn_id, &psn_rec) > 0) {
                         msg_buf.Z().CatEq("PersonID", psn_id).CatDiv('-', 1).CatEq("Name", psn_rec.Name);
@@ -7907,7 +7907,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 					}
 				}
 				for(i = 0; i < loc_list.getCount(); i++) {
-					const PPID loc_id = loc_list.get(i);
+					const  PPID loc_id = loc_list.get(i);
 					LocationTbl::Rec loc_rec;
 					if(psn_obj.LocObj.Search(loc_id, &loc_rec) > 0) {
                         msg_buf.Z().CatEq("LocID", loc_id);

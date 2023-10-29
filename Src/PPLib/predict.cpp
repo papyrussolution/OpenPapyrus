@@ -193,7 +193,7 @@ int Predictor::Predict_(const EvalParam & rParam, double * pVal, PredictSalesSta
 	//
 	THROW_INVARG(rParam.Period.low && rParam.Period.upp);
 	period = rParam.Period;
-	const PPID goods_id = rParam.GoodsID;
+	const  PPID goods_id = rParam.GoodsID;
 	THROW(r = T.GetStat(goods_id, inner_loc_list, &pss));
 	if(r > 0) {
 		ASSIGN_PTR(pStat, pss);
@@ -970,7 +970,7 @@ int PrcssrPrediction::Run()
 			//
 			for(GoodsIterator giter(P.GoodsGrpID, 0); giter.Next(&goods_rec) > 0;) {
 				if(!(goods_rec.Flags & GF_GENERIC)) {
-					const PPID _goods_id = goods_rec.ID;
+					const  PPID _goods_id = goods_rec.ID;
 					if(_goods_id > last_goods_id)
 						total_goods_list.add(_goods_id);
 				}
@@ -1012,7 +1012,7 @@ int PrcssrPrediction::Run()
 			}
 			for(uint gi = 0; !break_process && gi < total_goods_list.getCount(); gi++) {
 				++goods_processed;
-				const PPID _goods_id = total_goods_list.get(gi);
+				const  PPID _goods_id = total_goods_list.get(gi);
 				goods_list.add(_goods_id);
 				if(goods_list.getCount() >= goods_chunk_size) {
 					THROW(r = ProcessGoodsList(goods_list, p_rest_blk, 0, use_ta));
@@ -1249,7 +1249,7 @@ int PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, LDATE c
 		// массовую вставку.
 		//
 		for(j = 0; !break_process && j < goods_count; j++) {
-			const PPID goods_id = rGoodsList.get(j);
+			const  PPID goods_id = rGoodsList.get(j);
 			{
 				GoodsStatTbl::Key1 sk1;
 				sk1.GoodsID = goods_id;
@@ -1400,7 +1400,7 @@ int PrcssrPrediction::RecalcStat(LDATE commonLastDate, PredictSalesCore::StatSto
 			uint   prev_goods_pos = 0;
 			for(q.initIteration(false, &(k = k_init), spGe); q.nextIteration() > 0;) {
 				const int16 loc_idx = T.data.Loc;
-				const PPID  goods_id = T.data.GoodsID;
+				const  PPID  goods_id = T.data.GoodsID;
 				LDATE  item_dt;
 				const double item_qtty = T.data.Quantity;
 				const double item_amt  = T.data.Amount;
@@ -1592,8 +1592,8 @@ int PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _MassGoodsR
 			do {
 				PROFILE_START
 				if(!(trfr_rec.Flags & (PPTFR_UNLIM|PPTFR_ACK))) { // @v9.5.8 @fix не учитываемые в остатке операции надо пропускать
-					const PPID loc_id   = trfr_rec.LocID;
-					const PPID goods_id = trfr_rec.GoodsID;
+					const  PPID loc_id   = trfr_rec.LocID;
+					const  PPID goods_id = trfr_rec.GoodsID;
 					if(!loc_id) {
 						PPLoadText(PPTXT_LOG_PSALES_UNDEFLOC, msg_fmt);
 						PPObjBill::MakeCodeString(&bill_rec, 1, temp_buf);

@@ -610,7 +610,7 @@ int PPObject::CreateReservedObjects(long flags)
 					PPIDArray candid_list;
 					GetOpList(PPOPT_DRAFTRECEIPT, &temp_op_list);
 					for(uint i = 0; i < temp_op_list.getCount(); i++) {
-						const PPID temp_op_id = temp_op_list.get(i);
+						const  PPID temp_op_id = temp_op_list.get(i);
 						if(op_obj.Search(temp_op_id, &op_rec) > 0 && op_rec.AccSheetID == suppl_acs_id)
 							candid_list.add(temp_op_id);
 					}
@@ -897,7 +897,7 @@ int FASTCALL PPObject::CheckRights(long rt)
 	return ((Rt_ & rt) == rt) ? 1 : PPSetError(PPERR_NORIGHTS);
 }
 
-int FASTCALL PPObject::CheckRightsModByID(const PPID * pID)
+int FASTCALL PPObject::CheckRightsModByID(const  PPID * pID)
 {
 	return pID ? CheckRights(*pID ? PPR_MOD : PPR_INS) : PPSetErrorInvParam();
 }
@@ -1247,7 +1247,7 @@ static int FASTCALL Helper_SendObjMessage(int msg, PPID destObj, PPID obj, PPID 
 		PPGetObjTypeList(&obj_type_list, gotlfExcludeObsolete);
 	}
 	for(uint i = 0; i < obj_type_list.getCount(); i++) {
-		const PPID obj_type = obj_type_list.get(i);
+		const  PPID obj_type = obj_type_list.get(i);
 		if(!oneof5(obj_type, PPOBJ_ACCOUNT_PRE9004, PPOBJ_STAFFLIST_PRE9003, PPOBJ_COUNTRY, PPOBJ_CITY, PPOBJ_REGION)) {
 			if(obj_type == PPOBJ_BILL && BillObj) {
 				r = static_cast<PPObject *>(BillObj)->HandleMsg(msg, obj, id, msgExtraPtr);
@@ -1288,7 +1288,7 @@ int STDCALL BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * 
 	PPIDArray obj_type_list;
 	PPGetObjTypeList(&obj_type_list, gotlfExcludeObsolete);
 	for(uint i = 0; i < obj_type_list.getCount(); i++) {
-		const PPID obj_type = obj_type_list.at(i);
+		const  PPID obj_type = obj_type_list.at(i);
 		if(obj_type != srcObjType)
 			if(SendObjMessage(msg, obj_type, srcObjType, srcObjID, msgExtraPtr, 0) == DBRPL_ERROR)
 				return 0;
@@ -2209,7 +2209,7 @@ PPGlobalAccRights::Rec::Rec() : Flags(0)
 
 PPGlobalAccRights::PPGlobalAccRights(const int tagID)
 {
-	const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
+	const  PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
 	if(glob_acc_id > 0) {
 		ObjTagItem tag;
 		if(glob_acc_id == PPGUAID_UHTT_CORE) {
@@ -2542,8 +2542,8 @@ int PPALDD_UhttStoreItemArray::NextIteration(long iterId)
 		I.Value = r_item.Val;
 		if((r_item.GoodsID > 0) && (r_item.LocID > 0)) {
 			PPOprKind op_rec;
-			const PPID rest_op_id = (GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
-			const PPID order_op_id = (GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
+			const  PPID rest_op_id = (GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
+			const  PPID order_op_id = (GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
 			if(rest_op_id)
 				BillObj->CalcDraftTransitRest(rest_op_id, order_op_id, r_item.GoodsID, r_item.LocID, 0, &I.Rest, 0);
 		}

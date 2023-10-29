@@ -456,7 +456,7 @@ int PPObjAmountType::ProcessReservedItem(TVRez & rez)
 	int    ok = 1, r;
 	SString name;
 	SString symb;
-	const PPID id = static_cast<PPID>(rez.getUINT());
+	const  PPID id = static_cast<PPID>(rez.getUINT());
 	rez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.4.4
 	rez.getString(symb, 2);

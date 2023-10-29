@@ -1072,7 +1072,7 @@ int PPObjPsnOpKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 			PoClause_ clause;
 			for(i = 0; i < p_pack->ClauseList.GetCount(); i++) {
 				p_pack->ClauseList.Get(i, clause);
-				const PPID obj_type = clause.GetDirObjType();
+				const  PPID obj_type = clause.GetDirObjType();
 				ProcessObjRefInArray(obj_type, &clause.DirObj, ary, replace);
 				if(replace)
 					p_pack->ClauseList.Set(i, &clause);
@@ -1648,7 +1648,7 @@ IMPL_HANDLE_EVENT(PsnOpDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isCbSelected(CTLSEL_PSNOPK_PAIR) && !(Data.Rec.Flags & POKF_GROUP)) {
-		const PPID pair = getCtrlLong(CTLSEL_PSNOPK_PAIR);
+		const  PPID pair = getCtrlLong(CTLSEL_PSNOPK_PAIR);
 		disableCtrl(CTL_PSNOPK_PAIRTYPE, pair == 0);
 		if(pair == 0)
 			setCtrlUInt16(CTL_PSNOPK_PAIRTYPE, 0);

@@ -269,7 +269,7 @@ int crypto_hash(uchar * out, uchar * in, unsigned long long inlen)
 #endif
 
 #if defined(BLAKE2S_SELFTEST)
-#include <string.h>
+//#include <string.h>
 #include "blake2-kat.h"
 int main(void)
 {

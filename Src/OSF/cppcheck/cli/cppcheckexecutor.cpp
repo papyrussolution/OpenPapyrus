@@ -21,10 +21,10 @@
 #define USE_UNIX_SIGNAL_HANDLING
 #include <unistd.h>
 #if defined(__APPLE__)
-#   define _XOPEN_SOURCE // ucontext.h APIs can only be used on Mac OSX >= 10.7 if _XOPEN_SOURCE is defined
+#define _XOPEN_SOURCE // ucontext.h APIs can only be used on Mac OSX >= 10.7 if _XOPEN_SOURCE is defined
 #include <ucontext.h>
 
-#   undef _XOPEN_SOURCE
+#undef _XOPEN_SOURCE
 #elif !defined(__OpenBSD__) && !defined(__HAIKU__)
 #include <ucontext.h>
 #endif

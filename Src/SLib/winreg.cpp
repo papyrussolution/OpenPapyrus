@@ -201,13 +201,22 @@ int WinRegValue::PutStringUtf8(const char * pStr)
 //
 //
 //
-WinRegKey::WinRegKey() : Key(0)
+WinRegKey::WinRegKey() : Key(0), KeyIsOuter(false)
 {
 }
 
-WinRegKey::WinRegKey(HKEY key, const char * pSubKey, int readOnly) : Key(0)
+WinRegKey::WinRegKey(HKEY key, const char * pSubKey, int readOnly) : Key(0), KeyIsOuter(false)
 {
 	Open(key, pSubKey, readOnly);
+}
+
+WinRegKey::WinRegKey(const char * pKey, int readOnly) : Key(0), KeyIsOuter(false)
+{
+	Open(pKey, readOnly);
+}
+
+WinRegKey::WinRegKey(HKEY key) : Key(key), KeyIsOuter(true)
+{
 }
 
 WinRegKey::~WinRegKey()
@@ -237,11 +246,53 @@ int WinRegKey::Open(HKEY key, const char * pSubKey, int readOnly, int onlyOpen)
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pSubKey);
 }
 
+int WinRegKey::Open(const char * pKey, int readOnly, int onlyOpen)
+{
+	int    ok = 0;
+	if(!isempty(pKey)) {
+		SString temp_buf;
+		SString key_buf(pKey);
+		StringSet ss_key;
+		key_buf.Tokenize("/\\", ss_key);
+		if(ss_key.getCount()) {
+			uint ssp = 0;
+			if(ss_key.get(&ssp, temp_buf)) {
+				HKEY root_key = 0;
+				if(temp_buf.IsEqiAscii("HKEY_CLASSES_ROOT") || temp_buf.IsEqiAscii("CLASSES_ROOT")) {
+					root_key = HKEY_CLASSES_ROOT;
+				}
+				else if(temp_buf.IsEqiAscii("HKEY_CURRENT_CONFIG") || temp_buf.IsEqiAscii("CURRENT_CONFIG")) {
+					root_key = HKEY_CURRENT_CONFIG;
+				}
+				else if(temp_buf.IsEqiAscii("HKEY_CURRENT_USER") || temp_buf.IsEqiAscii("CURRENT_USER")) {
+					root_key = HKEY_CURRENT_USER;
+				}
+				else if(temp_buf.IsEqiAscii("HKEY_LOCAL_MACHINE") || temp_buf.IsEqiAscii("LOCAL_MACHINE") || temp_buf.IsEqiAscii("MACHINE")) {
+					root_key = HKEY_LOCAL_MACHINE;
+				}
+				else if(temp_buf.IsEqiAscii("HKEY_USERS") || temp_buf.IsEqiAscii("USERS")) {
+					root_key = HKEY_USERS;
+				}
+				if(root_key) {
+					key_buf.Z();
+					while(ss_key.get(&ssp, temp_buf)) {
+						key_buf.CatDivIfNotEmpty('\\', 0).Cat(temp_buf);
+					}
+					ok = Open(root_key, key_buf, readOnly, onlyOpen);
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 void WinRegKey::Close()
 {
 	if(Key) {
-		RegCloseKey(Key);
+		if(!KeyIsOuter)
+			RegCloseKey(Key);
 		Key = 0;
+		KeyIsOuter = false;
 	}
 }
 
@@ -286,16 +337,43 @@ int WinRegKey::GetString(const char * pParam, SString & rBuf)
 		DWORD type = 0;
 		STempBuffer temp_buf(1024);
 		DWORD size = static_cast<DWORD>(temp_buf.GetSize());
-		LONG  r = ERROR_MORE_DATA;
-		while(r == ERROR_MORE_DATA) {
+		for(LONG  r = ERROR_MORE_DATA; ok && r == ERROR_MORE_DATA;) {
 			temp_buf.Alloc(size);
 			size = static_cast<DWORD>(temp_buf.GetSize());
-			r = RegQueryValueEx(Key, SUcSwitch(pParam), 0, &type, static_cast<LPBYTE>(temp_buf.vptr()), &size); // @unicodeproblem
+			r = RegQueryValueEx(Key, SUcSwitch(pParam), 0, &type, static_cast<LPBYTE>(temp_buf.vptr()), &size/*bytes*/);
+			if(oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA))
+				rBuf.CatN(SUcSwitch(static_cast<const TCHAR *>(temp_buf.vcptr())), size / sizeof(TCHAR));
+			else
+				ok = SLS.SetOsError(pParam);
 		}
-		if(r == ERROR_SUCCESS)
-			rBuf.CatN(SUcSwitch(static_cast<const TCHAR *>(temp_buf.vcptr())), size / sizeof(TCHAR));
-		else
-			ok = SLS.SetOsError(pParam);
+	}
+	return ok;
+}
+
+int WinRegKey::GetStringU(const char * pParam, SStringU & rBuf)
+{
+	int    ok = 1;
+	rBuf.Z();
+	if(Key == 0)
+		ok = 0;
+	else {
+		DWORD type = 0;
+		SStringU temp_buf_u;
+		STempBuffer temp_buf(1024);
+		DWORD size = static_cast<DWORD>(temp_buf.GetSize());
+		SString & r_param_buf = SLS.AcquireRvlStr();
+		SStringU & r_param_buf_u = SLS.AcquireRvlStrU();
+		(r_param_buf = pParam).CopyToUnicode(r_param_buf_u);
+		for(LONG r = ERROR_MORE_DATA; ok && r == ERROR_MORE_DATA;) {
+			temp_buf.Alloc(size);
+			size = static_cast<DWORD>(temp_buf.GetSize());
+			r = RegQueryValueExW(Key, r_param_buf_u, 0, &type, static_cast<LPBYTE>(temp_buf.vptr()), &size/*bytes*/);
+			if(oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA)) {
+				rBuf.CatN(static_cast<const wchar_t *>(temp_buf.vcptr()), size/sizeof(wchar_t));
+			}
+			else
+				ok = SLS.SetOsError(pParam);
+		}
 	}
 	return ok;
 }
@@ -453,9 +531,9 @@ int WinRegKey::EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal)
 		return SLS.SetOsError();
 }
 
-int WinRegKey::EnumKeys(uint * pIdx, SString & rKey)
+bool WinRegKey::EnumKeys(uint * pIdx, SString & rKey)
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(Key && pIdx) {
 		const  size_t init_name_len = 256;
 		DWORD  idx = *pIdx;
@@ -467,9 +545,70 @@ int WinRegKey::EnumKeys(uint * pIdx, SString & rKey)
 		if(r == ERROR_SUCCESS) {
 			rKey.CopyFrom(SUcSwitch(name));
 			*pIdx = idx + 1;
-			ok = 1;
+			ok = true;
 		}
 	}
 	return ok;
 }
 
+int WinRegKey::Save(const char * pFileName)
+{
+	int    ok = 1;
+	/*
+		LSTATUS RegSaveKeyA([in] HKEY hKey, [in] LPCSTR lpFile, [in, optional] const LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+	*/ 
+	THROW(!isempty(pFileName)); // @todo @err
+	THROW(IsValid());
+	if(fileExists(pFileName)) {
+		// Функция RegSaveKeyW выдаст ошибку если файл с таким именем уже существует
+		SFile::Remove(pFileName);
+	}
+	{
+		SPtrHandle _token = SlProcess::OpenCurrentAccessToken(/*TOKEN_ALL_ACCESS*/TOKEN_READ|TOKEN_WRITE|TOKEN_EXECUTE);
+		const wchar_t * p_priv_symb = SE_BACKUP_NAME;
+		int   privr = SlProcess::CheckAccessTokenPrivilege(_token, p_priv_symb);
+		if(privr == SlProcess::privrNotAssigned) {
+			if(SlProcess::AddPrivilegeToAccessToken(_token, p_priv_symb)) {
+				privr = SlProcess::CheckAccessTokenPrivilege(_token, p_priv_symb);
+			}
+		}
+		if(privr == SlProcess::privrDisabled) {
+			if(SlProcess::EnableAccesTokenPrivilege(_token, p_priv_symb, true)) {
+				privr = SlProcess::CheckAccessTokenPrivilege(_token, p_priv_symb);
+			}
+		}
+	}
+	{
+		SStringU & r_file_name_u = SLS.AcquireRvlStrU();
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		THROW((r_temp_buf = pFileName).Strip().CopyToUnicode(r_file_name_u));
+		const LSTATUS r = RegSaveKeyW(Key, r_file_name_u, 0);
+		if(r != ERROR_SUCCESS) {
+			SLS.SetError(SLERR_WINDOWS);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int WinRegKey::Restore(const char * pFileName)
+{
+	int    ok = 1;
+	/*
+		LSTATUS RegRestoreKeyA([in] HKEY hKey, [in] LPCSTR lpFile, [in] DWORD  dwFlags);
+	*/
+	THROW(!isempty(pFileName)); // @todo @err
+	THROW(IsValid());
+	THROW(fileExists(pFileName));
+	{
+		SStringU & r_file_name_u = SLS.AcquireRvlStrU();
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		THROW((r_temp_buf = pFileName).Strip().CopyToUnicode(r_file_name_u));
+		const LSTATUS r = RegRestoreKeyW(Key, r_file_name_u, REG_FORCE_RESTORE);
+		if(r != ERROR_SUCCESS) {
+			SLS.SetError(SLERR_WINDOWS);
+		}
+	}
+	CATCHZOK
+	return ok;
+}

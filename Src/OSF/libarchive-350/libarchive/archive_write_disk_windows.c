@@ -2,16 +2,6 @@
  * Copyright (c) 2003-2010 Tim Kientzle
  * Copyright (c) 2011-2012 Michihiro NAKAJIMA
  * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer
- *    in this position and unchanged.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
  */
 #include "archive_platform.h"
 #pragma hdrstop
@@ -20,7 +10,7 @@ __FBSDID("$FreeBSD$");
 #if defined(_WIN32) && !defined(__CYGWIN__)
 
 #ifdef HAVE_SYS_UTIME_H
-#include <sys/utime.h>
+	#include <sys/utime.h>
 #endif
 #include <winioctl.h>
 
@@ -29,8 +19,7 @@ __FBSDID("$FreeBSD$");
  * On Mac OS, we should mark the extracted files as tainted if the
  * archive being read was tainted.  Windows has a similar feature; we
  * should investigate ways to support this generically. */
-
-#include "archive_acl_private.h"
+//#include "archive_acl_private.h"
 
 #ifndef O_BINARY
 #define O_BINARY 0
@@ -40,15 +29,11 @@ __FBSDID("$FreeBSD$");
 #define IO_REPARSE_TAG_SYMLINK 0xA000000CL
 #endif
 
-static BOOL SetFilePointerEx_perso(HANDLE hFile,
-    LARGE_INTEGER liDistanceToMove,
-    PLARGE_INTEGER lpNewFilePointer,
-    DWORD dwMoveMethod)
+static BOOL SetFilePointerEx_perso(HANDLE hFile, LARGE_INTEGER liDistanceToMove, PLARGE_INTEGER lpNewFilePointer, DWORD dwMoveMethod)
 {
 	LARGE_INTEGER li;
 	li.QuadPart = liDistanceToMove.QuadPart;
-	li.LowPart = SetFilePointer(
-		hFile, li.LowPart, &li.HighPart, dwMoveMethod);
+	li.LowPart = SetFilePointer(hFile, li.LowPart, &li.HighPart, dwMoveMethod);
 	if(lpNewFilePointer) {
 		lpNewFilePointer->QuadPart = li.QuadPart;
 	}

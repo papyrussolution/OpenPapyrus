@@ -1135,7 +1135,7 @@ int PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta) // @v10.9.0
 
 /*virtual*/StrAssocArray * PPObjOprKind::MakeStrAssocList(void * extraPtr)
 {
-	const PPID op_type_id = reinterpret_cast<const PPID>(extraPtr);
+	const  PPID op_type_id = reinterpret_cast<const  PPID>(extraPtr);
 	PPIDArray op_list;
 	op_list.add(op_type_id);
 	return MakeOprKindList(0, (op_type_id ? &op_list : 0), 0);
@@ -1554,7 +1554,7 @@ static int AddGenOpItems(ObjRestrictArray & rList)
 		{
 			i = rList.getCount();
 			if(i) do {
-				const PPID id_to_remove = rList.at(--i).ObjID;
+				const  PPID id_to_remove = rList.at(--i).ObjID;
 				if(!dd_list.bsearch(id_to_remove)) {
 					rList.atFree(i);
 					ok = 1;
@@ -2245,7 +2245,7 @@ int OpListDialog::setupList()
 {
 	SString name_buf;
 	for(uint i = 0; i < OpListData.getCount(); i++) {
-		const PPID id = OpListData.at(i);
+		const  PPID id = OpListData.at(i);
 		if(GetObjectName(PPOBJ_OPRKIND, id, name_buf = 0, 0) <= 0)
 			ideqvalstr(id, name_buf);
 		if(!addStringToList(id, name_buf))
@@ -2407,12 +2407,12 @@ IMPL_HANDLE_EVENT(DiffByLocCntrDlg)
 {
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmLBItemFocused)) {
-		const PPID loc_id = getCurrID();
+		const  PPID loc_id = getCurrID();
 		if(loc_id)
 			setupCounter(loc_id);
 	}
 	else if(event.isClusterClk(CTL_DIFFCNTR_LOCLIST)) {
-		const PPID loc_id = getCurrID();
+		const  PPID loc_id = getCurrID();
 		updateList(loc_id);
 		if(SmartListBox::IsValidS(P_Box))
 			P_Box->P_Def->top();
@@ -3216,7 +3216,7 @@ int FASTCALL GetOpData(PPID op, PPOprKind * pData)
 	PPObjOprKind op_obj;
 	ObjRestrictArray or_list;
 	for(uint i = 0; i < rBaseOpList.getCount(); i++) {
-		const PPID base_op_id = rBaseOpList.get(i);
+		const  PPID base_op_id = rBaseOpList.get(i);
 		if(base_op_id) {
 			if(IsGenericOp(base_op_id) > 0) {
 				or_list.clear();
@@ -3346,7 +3346,7 @@ PPID FASTCALL IsOpPaymOrRetn(PPID opID)
 {
 	if(opID) {
 		PPOprKind op_rec;
-		const PPID t = GetOpType(opID, &op_rec);
+		const  PPID t = GetOpType(opID, &op_rec);
 		return (oneof2(t, PPOPT_PAYMENT, PPOPT_GOODSRETURN) || (t == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM)) ? t : 0;
 	}
 	else
@@ -3404,13 +3404,13 @@ int  FASTCALL IsGenericOp(PPID opID) { return opID ? BIN(GetOpType(opID) == PPOP
 
 bool FASTCALL IsDraftOp(PPID opID)
 {
-	const PPID op_type_id = GetOpType(opID);
+	const  PPID op_type_id = GetOpType(opID);
 	return oneof4(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 }
 
 bool FASTCALL IsGoodsDetailOp(PPID opID)
 {
-	const PPID op_type_id = GetOpType(opID);
+	const  PPID op_type_id = GetOpType(opID);
 	return oneof12(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 		PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER, PPOPT_DRAFTQUOTREQ); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 }
@@ -3432,7 +3432,7 @@ int FASTCALL IsExpendOp(PPID opID)
 	int    ret = -1;
 	if(opID) {
 		PPOprKind opk;
-		const PPID t = GetOpType(opID, &opk);
+		const  PPID t = GetOpType(opID, &opk);
 		if(t == PPOPT_GOODSEXPEND)
 			ret = 1;
 		else if(oneof2(t, PPOPT_GOODSRECEIPT, PPOPT_GOODSORDER))
@@ -3531,7 +3531,7 @@ PPID GetCashRetOp()
 	if(r_ccfg.RetailRetOp)
 		op_id_ = r_ccfg.RetailRetOp;
 	else {
-		const PPID cash_op_id = GetCashOp();
+		const  PPID cash_op_id = GetCashOp();
 		PPOprKind opk;
 		for(PPID iter_op_id = 0; op_id_ < 0 && EnumOperations(PPOPT_GOODSRETURN, &iter_op_id, &opk) > 0;)
 			if(opk.LinkOpID == cash_op_id)

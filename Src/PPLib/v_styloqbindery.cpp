@@ -387,7 +387,7 @@ int PPViewStyloQBindery::Invitation()
 /*virtual*/int PPViewStyloQBindery::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	const  PPID preserve_id = id;
 	ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -623,7 +623,7 @@ int PPViewStyloQCommand::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		if(p_item) {
 			switch(pBlk->ColumnN) {
 				case 0: // uuid
-					pBlk->Set(pBlk->TempBuf.Z().Cat(p_item->Uuid));
+					pBlk->Set(pBlk->TempBuf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL));
 					break;
 				case 1: // name
 					pBlk->Set((pBlk->TempBuf = p_item->Name).Transf(CTRANSF_UTF8_TO_INNER));
@@ -693,7 +693,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 			RVALUEPTR(Data, pData);
 			setCtrlString(CTL_STQCMD_NAME, (temp_buf = Data.Name).Transf(CTRANSF_UTF8_TO_INNER));
 			setCtrlString(CTL_STQCMD_DESCR, (temp_buf = Data.Description).Transf(CTRANSF_UTF8_TO_INNER));
-			setCtrlString(CTL_STQCMD_UUID, temp_buf.Z().Cat(Data.Uuid));
+			setCtrlString(CTL_STQCMD_UUID, temp_buf.Z().Cat(Data.Uuid, S_GUID::fmtIDL));
 			setCtrlLong(CTL_STQCMD_REXPRTM, Data.ResultExpiryTimeSec); // @v11.2.5
 			{
 				LongArray base_cmd_id_list;

@@ -5,14 +5,11 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_data_into_fd.c,v 1.16 2008/05/23 05:01:29 cperciva Exp $");
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
-
-/* Maximum amount of data to write at one time. */
-#define MAX_WRITE       (1024 * 1024)
-
+#define MAX_WRITE       (1024 * 1024) // Maximum amount of data to write at one time
 /*
  * This implementation minimizes copying of data and is sparse-file aware.
  */

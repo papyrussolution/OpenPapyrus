@@ -1,6 +1,6 @@
 // UED-ID.H
-// version: 13
-// sha256: 0a630f739eb4e96f4203b2998ce04bd6a78685bda2e619ac5897c1795605d54a
+// version: 17
+// sha256: 13023f809a2d2b122c8ef00fc1e0c3d35ccadb0690a7c5a888f86384615bcaa7
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -2339,7 +2339,42 @@
 	#define UED_PROGLANG_OBJECTIVEC                      0x460000001bULL
 	#define UED_PROGLANG_GROOVY                          0x460000001cULL
 	#define UED_PROGLANG_FORTH                           0x460000001dULL
+	#define UED_PROGLANG_CLOJURE                         0x460000001eULL
+	#define UED_PROGLANG_ERLANG                          0x460000001fULL
+	#define UED_PROGLANG_POWERSHELL                      0x4600000020ULL
 #define UED_META_DATATYPE                            0x100000047ULL
+	#define UED_DATATYPE_INT8                            0x4700000001ULL
+	#define UED_DATATYPE_UINT8                           0x4700000002ULL
+	#define UED_DATATYPE_INT16                           0x4700000003ULL
+	#define UED_DATATYPE_UINT16                          0x4700000004ULL
+	#define UED_DATATYPE_LEINT16                         0x4700000005ULL
+	#define UED_DATATYPE_LEUINT16                        0x4700000006ULL
+	#define UED_DATATYPE_BEINT16                         0x4700000007ULL
+	#define UED_DATATYPE_BEUINT16                        0x4700000008ULL
+	#define UED_DATATYPE_INT32                           0x4700000009ULL
+	#define UED_DATATYPE_UINT32                          0x470000000aULL
+	#define UED_DATATYPE_LEINT32                         0x470000000bULL
+	#define UED_DATATYPE_LEUINT32                        0x470000000cULL
+	#define UED_DATATYPE_BEINT32                         0x470000000dULL
+	#define UED_DATATYPE_BEUINT32                        0x470000000eULL
+	#define UED_DATATYPE_INT64                           0x470000000fULL
+	#define UED_DATATYPE_UINT64                          0x4700000010ULL
+	#define UED_DATATYPE_LEINT64                         0x4700000011ULL
+	#define UED_DATATYPE_LEUINT64                        0x4700000012ULL
+	#define UED_DATATYPE_BEINT64                         0x4700000013ULL
+	#define UED_DATATYPE_BEUINT64                        0x4700000014ULL
+	#define UED_DATATYPE_INT128                          0x4700000015ULL
+	#define UED_DATATYPE_UINT128                         0x4700000016ULL
+	#define UED_DATATYPE_LEINT128                        0x4700000017ULL
+	#define UED_DATATYPE_LEUINT128                       0x4700000018ULL
+	#define UED_DATATYPE_BEINT128                        0x4700000019ULL
+	#define UED_DATATYPE_BEUINT128                       0x470000001aULL
+	#define UED_DATATYPE_REAL16                          0x470000001bULL
+	#define UED_DATATYPE_REAL32                          0x470000001cULL
+	#define UED_DATATYPE_REAL64                          0x470000001dULL
+	#define UED_DATATYPE_REAL80                          0x470000001eULL
+	#define UED_DATATYPE_INT                             0x470000001fULL
+	#define UED_DATATYPE_REAL                            0x4700000020ULL
 #define UED_META_ABSTRACTDATASTRUCT                  0x100000048ULL
 #define UED_META_DATAFORMAT                          0x100000049ULL
 	#define UED_DATAFORMAT_TXT                           0x4900000001ULL
@@ -2742,6 +2777,8 @@
 	#define UED_RELATIVUMDIRECTIONEM_SINISTRUM           0x5a00000002ULL
 	#define UED_RELATIVUMDIRECTIONEM_UP                  0x5a00000003ULL
 	#define UED_RELATIVUMDIRECTIONEM_DEORSUM             0x5a00000004ULL
+	#define UED_RELATIVUMDIRECTIONEM_POST                0x5a00000005ULL
+	#define UED_RELATIVUMDIRECTIONEM_FRONTE              0x5a00000006ULL
 #define UED_META_ANNITEMPORE                         0x10000005bULL
 #define UED_META_PAPERSHEETFORMAT                    0x10000005cULL
 #define UED_META_ECETRADE_PACKAGETYPE                0x10000005dULL
@@ -3529,27 +3566,18 @@
 	#define UED_CMP_NOT_EQUAL                            0x6500000006ULL
 	#define UED_CMP_LEFT_INTERSECTION                    0x6500000008ULL
 	#define UED_CMP_RIGHT_INTERSECTION                   0x6500000010ULL
-	#define UED_CMP_GENERIC_INTERSECTION                 0x6500000018ULL
 	#define UED_CMP_INNER                                0x6500000020ULL
 	#define UED_CMP_OUTER                                0x6500000040ULL
 	#define UED_CMP_EQTOL                                0x6500000080ULL
+	#define UED_CMP_TANGENT_INTERSECTION                 0x6500000100ULL
+	#define UED_CMP_GENERIC_INTERSECTION                 0x6500000118ULL
 	#define UED_CMP_INCOMPARABLE                         0x6500001000ULL
 #define UED_META_DATE_DAY                            0x100000071ULL
 #define UED_META_DATE_MON                            0x100000072ULL
 #define UED_META_DATE_QUART                          0x100000073ULL
 #define UED_META_DATE_SMYR                           0x100000074ULL
 #define UED_META_DATE_YR                             0x100000075ULL
-#define UED_META_DATE_DYR                            0x100000076ULL
-#define UED_META_DATE_SMCENT                         0x100000077ULL
-#define UED_META_DATE_CENT                           0x100000078ULL
 #define UED_META_DATE_DAYBC                          0x100000079ULL
-#define UED_META_DATE_MONBC                          0x10000007aULL
-#define UED_META_DATE_YRBC                           0x10000007bULL
-#define UED_META_DATE_DYRBC                          0x10000007cULL
-#define UED_META_DATE_CENTBC                         0x10000007dULL
-#define UED_META_DATE_MILLENNIUMBC                   0x10000007eULL
-#define UED_META_DATE_MLNYRAGO                       0x10000007fULL
-#define UED_META_DATE_BLNYRAGO                       0x100000080ULL
 #define UED_META_TIME_HR                             0x100000081ULL
 #define UED_META_TIME_TZHR                           0x100000082ULL
 #define UED_META_MOLECULO                            0x140010000ULL
@@ -3580,18 +3608,18 @@
 #define UED_META_PRV_LOCATION                        0x143f20000ULL
 #define UED_META_PRV_DOC                             0x143f30000ULL
 #define UED_META_PRV_LOT                             0x143fe0000ULL
-#define UED_META_TIME_MKSEC                          0x180a00000ULL
-#define UED_META_TIME_MSEC                           0x180b00000ULL
-#define UED_META_TIME_SEC                            0x180c00000ULL
-#define UED_META_TIME_MIN                            0x180d00000ULL
-#define UED_META_TIME_TZMSEC                         0x180e00000ULL
-#define UED_META_TIME_TZSEC                          0x180f00000ULL
-#define UED_META_TIME_TZMIN                          0x181000000ULL
-#define UED_META_PLANARANGLE                         0x181200000ULL
-#define UED_META_PLANARPOINT                         0x181300000ULL
-#define UED_META_PLANARSIZE                          0x181400000ULL
-#define UED_META_GEOLOC                              0x181500000ULL
-#define UED_META_RANGE_ZERO_TO_ONE                   0x181600000ULL
-#define UED_META_RANGE_MINUSONE_TO_ONE               0x181700000ULL
+#define UED_META_TIME_MSEC                           0x18a000000ULL
+#define UED_META_TIME_SEC                            0x18b000000ULL
+#define UED_META_TIME_MIN                            0x18c000000ULL
+#define UED_META_TIME_TZMSEC                         0x18d000000ULL
+#define UED_META_TIME_TZSEC                          0x18e000000ULL
+#define UED_META_TIME_TZMIN                          0x18f000000ULL
+#define UED_META_PLANARANGLE                         0x190000000ULL
+#define UED_META_PLANARPOINT                         0x191000000ULL
+#define UED_META_PLANARSIZE                          0x192000000ULL
+#define UED_META_GEOLOC                              0x193000000ULL
+#define UED_META_RANGE_UNIT                          0x194000000ULL
+#define UED_META_RANGE_SUNIT                         0x195000000ULL
+#define UED_META_SPHERDIR                            0x196000000ULL
 
 #endif // __UED_ID_H

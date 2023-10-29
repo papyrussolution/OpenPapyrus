@@ -892,7 +892,7 @@ int PredictSalesCore::Enumerate(PPID goodsID, const ObjIdListFilt & rLocList, co
 		if(loc_list.getSingle() == -1 || loc_list.getCount() > 1) {
 			if(loc_list.getSingle() == -1) {
 				for(uint i = 0; i < LocTab.getCount(); i++) {
-					const PPID loc_id = LocTab.at(i).LocID;
+					const  PPID loc_id = LocTab.at(i).LocID;
 					if(loc_id >= 0) {
 						const int r = Helper_Enumerate(goodsID, loc_id, pPeriod, maxItems, proc, extraPtr);
 						if(r <= 0)

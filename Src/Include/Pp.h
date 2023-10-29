@@ -3613,15 +3613,15 @@ public:
 	int    GenerateGuid(S_GUID * pGuid);
 	//
 	// Descr: Извлекает GUID объекта из пакета. Если пакет не содержит GUID, то
-	//   возвращает 0 и присваевает rGuid пустое значение.
+	//   возвращает false и присваевает rGuid пустое значение.
 	//
-	int    GetGuid(S_GUID & rGuid) const;
+	bool   GetGuid(S_GUID & rGuid) const;
 protected:
 	ObjTagContainerHelper(ObjTagList & rTagL, PPID objType, PPID guidTagID);
 
 	ObjTagList & R_TagL;
-	const PPID ObjType;
-	const PPID GuidTagID;
+	const  PPID ObjType;
+	const  PPID GuidTagID;
 };
 //
 //
@@ -4318,7 +4318,7 @@ public:
 	int    GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList);
 	int    Get(PPID goodsID, PPID relID, LDATETIME * pAfter, PPQuotArray * pList);
 	int    GetAfterDT(const LDATETIME & rAfter, PPQuotArray *pList); //v10.5.8 @erik
-	int    GetBeforeDT(const LDATETIME & rBefore, const PPID & rGoodsID, const PPID & rRelID, PPQuot *pQuot); //v10.5.8 @erik
+	int    GetBeforeDT(const LDATETIME & rBefore, const  PPID & rGoodsID, const  PPID & rRelID, PPQuot *pQuot); //v10.5.8 @erik
 	int    GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuotArray & rQuotList);
 	int    GetCurrListByRelList(PPID goodsID, const PPIDArray & rRelList, PPQuotArray & rQuotList);
 	int    GetCurr(PPID goodsID, const QuotIdent & pIdent, double cost, double price, double * pQ, int useCache);
@@ -8506,7 +8506,7 @@ public:
 	//   очень часто встречается.
 	//   Кроме того, эта функция защищает вызывающую функцию от нулевого указателя pID.
 	//
-	int    FASTCALL CheckRightsModByID(const PPID * pID);
+	int    FASTCALL CheckRightsModByID(const  PPID * pID);
 	int    GetLastModifEvent(PPID objID, LDATETIME *, int * pCr, SysJournalTbl::Rec * = 0);
 	//
 	// Descr: используя виртуальные функции Search и GetNamePtr находит и возвращает
@@ -11733,11 +11733,41 @@ public:
 	//   возвращает !0. Если размер документа приемлем, то возвращает 0.
 	//
 	int    CheckLargeBill(int genWarn) const;
+
+
+	struct ConvertToCCheckParam {
+		ConvertToCCheckParam();
+		bool SetBuyersEAddr(int addrType, const char * pAddr);
+		enum { // @v11.1.5
+			fCash      = 0x0001,
+			fBank      = 0x0002,
+			fPrepay    = 0x0004,
+			fPaperless = 0x0008 // @v11.3.7
+		};
+		PPID   PosNodeID;
+		int    PaymType;
+		PPID   LocID;
+		int    DivisionN;
+		SString Info;
+		double Amount; //@erik v10.5.9
+		long   Flags_;  //@erik v10.5.9
+		int    BuyersEAddrType; // @v11.3.7 (0|SNTOK_EMAIL|SNTOK_PHONE)
+		SString BuyersEAddr; // @v11.3.7
+	};
 	//
 	// Descr: Преобразует пакет товарного документа в пакет кассового чека.
 	//   Функция пригодна только для печати чека.
 	//
 	int    ConvertToCheck(CCheckPacket * pCheckPack) const;
+	//
+	// Descr: Расширенная процедура преобразования документа в кассовый чек.
+	//   Реализована с целью включения в функцию печати чека по документу и для импорта документов
+	//   в виде чеков в кассовой панели.
+	// Note: Не формирует номер чека, поскольку для этого требуется доступ к CCheckCore и, кроме того,
+	//   не известно время жизни созданного объекта CCheckPacket в памяти - номер последнего чека может
+	//   оказаться не актуальным.
+	//
+	int    ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPacket * pCheckPack) const;
 	int    SetCurTransit(const PPCurTransit * pTrans /* In */);
 	int    GetCurTransit(PPCurTransit * pTrans /* Out */) const;
 	int    AddPckg(LPackage *);
@@ -14916,6 +14946,7 @@ public:
 		extssOuterIdent         = 16, // @v11.8.5 Идентификатор чека во внешнем источнике
 		extssOuterExtTag        = 17, // @v11.8.5 Дополнительный текстовый тег, поступивший из внешнего источника.
 			// Как правило, система трактовать такой тег формальным образом не способна.
+		extssLinkBillUuid       = 18, // @v11.8.8 UUID документа, по которому сформирован чек 
 		// @attention: После вставки очередного элемента в enum добавьте этот элемент в ccpack_textext_ident_list (ccheck.cpp). 
 		//   Иначе этот атрибут не будет сохраняться в чеке.
 	};
@@ -15262,7 +15293,7 @@ public:
 	int    GetPaymList(PPID id, CcAmountList & rList);
 	int    GetListByExtFilt(const CCheckFilt & rFlt, ObjIdListFilt & rList);
 	int    GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList);
-	int    GetListByUuid(S_GUID & rUuid, PPIDArray & rCcList);
+	int    GetListByUuid(const S_GUID & rUuid, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, PPIDArray & rCcList);
 	//
 	// Descr: Возвращает список идентификаторов чеков, обслуживающих чек заказа orderCheckID.
 	// Note: В подавляющем большинстве случаев список  будет либо пустым, либо будет содержать
@@ -15275,9 +15306,7 @@ public:
 	int    GetOrderServersCheckList(PPID orderCheckID, PPIDArray & rList);
 
 	struct ValidateCheckParam {
-		ValidateCheckParam(double tolerance) : Tolerance(tolerance), ErrorFlags(0)
-		{
-		}
+		explicit ValidateCheckParam(double tolerance);
 		enum {
 			efInvAmount       = 0x0001,
 			efInvDiscount     = 0x0002,
@@ -15629,7 +15658,7 @@ protected:
 	// @v10.9.9 (теперь будем использовать экземпляр конфигурации из CCheckCore) PPEquipConfig EqCfg;
 private:
 	int    TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet, OptimalAmountDamper * pOad);
-	int    ConvertSign(const int sign, const PPID sessID, const PPID locID, const void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad);
+	int    ConvertSign(const int sign, const  PPID sessID, const  PPID locID, const void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad);
 	int    Convert(PPID sessID, PPID locID, const void * pData, CSessTotal * pTotal, int use_ta);
 	int    ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal);
 
@@ -34982,6 +35011,12 @@ public:
 	int    GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList);
 	int    GetListByChZnMark(const char * pText, PPIDArray & rCcList);
 	//
+	// Descr: Возвращает список чеков по UUID.
+	//   Если возможно, то использует индексированные ассоциации {date; id} для быстрого
+	//   поиска в близком диапазоне дат [getcurdate_() - backDays..].
+	//
+	int    GetListByUuid(const S_GUID & rUuid, uint backDays, PPIDArray & rCcList);
+	//
 	// Descr: Возвращает true если индекс CcDate2MaxIdIndex загружен в кэш.
 	//   Функция требуется для быстрого определения необходимости перестройки индекса.
 	//
@@ -42778,7 +42813,7 @@ private:
 	virtual void ViewTotal();
 	int    MakeTempTable(PPID sessID);
 	int    _MakeTempTable(int clearBefore);
-	int    AddItemToTempTable(const PPID, CGoodsLineTbl::Rec *, LAssocArray * pRgAssoc);
+	int    AddItemToTempTable(const  PPID, CGoodsLineTbl::Rec *, LAssocArray * pRgAssoc);
 	int    GatherGoodsLines(int sign, PPID goodsID, CSessDfctList *);
 		// @<<PPViewCSessExc::SetAltGoods
 	PPID   GetCommonLoc();
@@ -53816,6 +53851,7 @@ public:
 		LDATETIME DlvrDtm;
 		LDATETIME InitDtm; // Время создания чека.
 		S_GUID Uuid; // @v11.5.8 Uuid чека
+		S_GUID LinkBillUuid; // @v11.8.8 extssLinkBillUuid
 		LocationTbl::Rec Addr_;
 		SString Memo;
 	};
@@ -53980,6 +54016,16 @@ public:
 	//
 	int    Backend_GetCCheckList(const DateRange * pPeriod, long ctblId, TSVector <CCheckViewItem> & rList);
 	int    Backend_GetGoodsList(PPIDArray & rList); // @v11.4.5
+	long   Backend_GetCnFlags() const { return CnFlags; }
+	long   Backend_GetCnExtFlags() const { return CnExtFlags; }
+	//
+	// Descr: Устанавливает или снимает ограничение на операции с чеком при неопределенном агенте.
+	// Note: Функция нужна для программного проведения импортированных чеков.
+	// Returns:
+	//   предшествующее вызову функции значение параметра.
+	//
+	bool   Backend_SetZeroAgentRestriction(bool set);
+	//
 	int    ExportCurrentState(SString & rBuf) const;
 	int    ExportCTblList(SString & rBuf);
 	int    ExportCCheckList(long ctblId, SString & rBuf);
@@ -53995,6 +54041,7 @@ public:
 	static double Helper_CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPObjGoods & rGObj, PPID bonusGoodsGrpID, double * pNonCrdAmt);
 
 	LongArray CTblList;
+	PPObjCSession CsObj;
 protected:
 	//
 	// Descr: Узкоспециализированный блок для исполнения функции AcceptCheck().
@@ -54330,7 +54377,6 @@ protected:
 	PPObjArticle ArObj;
 	PPObjPerson PsnObj;
 	PPObjGoodsStruc GSObj;
-	PPObjCSession CsObj;
 	PPObjCashNode CnObj;
 	CardState CSt;
 	ManualDiscount ManDis; // @v11.0.9
@@ -55118,6 +55164,7 @@ public:
 	long   Flags;
 	long   PredefFormat;      // @persistent PredefinedImpExpFormat
 	PPID   PosNodeID;
+	uint   CcByUuidSearchMaxDays; // @v11.8.8 Максимальное количество дней назад от текущей даты для поиска чека по UUID. default=30
 };
 
 class PPCCheckImporter { // @v11.8.4

@@ -402,7 +402,7 @@ int LocationCore::SearchMaxLike(const LocationTbl::Rec * pRec, long flags, PPID 
 	PPIDArray bycode_list;
 	if(GetListByCode(pRec->Type, pRec->Code, &bycode_list) > 0) {
 		for(uint i = 0; ok < 0 && i < bycode_list.getCount(); i++) {
-			const PPID cid = bycode_list.get(i);
+			const  PPID cid = bycode_list.get(i);
 			if(cid != pRec->ID) {
 				LocationTbl::Rec cod_rec;
 				if(Search(cid, &cod_rec) > 0) {

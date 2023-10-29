@@ -374,7 +374,7 @@ int PPViewSpecSeries::Import()
 /*virtual*/int PPViewSpecSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:

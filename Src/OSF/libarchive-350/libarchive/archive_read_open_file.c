@@ -5,14 +5,14 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_open_file.c 201093 2009-12-28 02:28:44Z kientzle $");
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 
 struct read_FILE_data {
-	FILE    * f;
+	FILE * f;
 	size_t block_size;
-	void    * buffer;
+	void * buffer;
 	char can_skip;
 };
 

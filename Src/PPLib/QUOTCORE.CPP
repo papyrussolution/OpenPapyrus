@@ -1033,8 +1033,8 @@ int QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray 
 			if((p_quot->Flags & (PPQuot::fPctDisabled|PPQuot::fZero)) || R2(p_quot->Quot) != 0.0) {
 				if(rQuotList.CanUpdateQuot(*p_quot) > 0) {
 					p_quot->GoodsID = rQuotList.GoodsID;
-					const PPID loc_id = p_quot->LocID;
-					const PPID ar_id = p_quot->ArID;
+					const  PPID loc_id = p_quot->LocID;
+					const  PPID ar_id = p_quot->ArID;
 					QuotIdent qi(loc_id, p_quot->Kind, p_quot->CurID, p_quot->ArID);
 					if(templ.SearchQi(qi, &(pos = 0)) > 0) {
 						{
@@ -1295,13 +1295,13 @@ static int Helper_GetMatrix(int quotProviderGeneration, void * pQuotProvider, PP
 		grp_list.sortAndUndup();
 		terminal_grp_list.sortAndUndup();
 		for(i = 0; i < list.getCount(); i++) {
-			const PPID goods_id = list.get(i);
+			const  PPID goods_id = list.get(i);
 			if(grp_list.bsearch(goods_id)) {
 				if(!ignore_folder_mtx || terminal_grp_list.bsearch(goods_id)) { // @v8.3.4
 					inner_list.clear();
 					THROW(GoodsIterator::GetListByGroup(goods_id, &inner_list));
 					for(uint j = 0; j < inner_list.getCount(); j++) {
-						const PPID inner_id = inner_list.get(j);
+						const  PPID inner_id = inner_list.get(j);
 						if(!neg_list.bsearch(inner_id) && !list.bsearch(inner_id)) {
 							//
 							// Член группы, имеющей признак "Да" не является ни членом списка "Да",
@@ -1500,7 +1500,7 @@ int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPI
 		uint c = SVectorBase::GetCount(pMtxLocList);
 		if(c) {
 			do {
-				const PPID loc_id = pMtxLocList->get(--c);
+				const  PPID loc_id = pMtxLocList->get(--c);
 				if(Matrix.lsearch(&loc_id, &(pos = 0), CMPF_LONG)) {
 					Matrix.atFree(pos);
 					ok = 1;
@@ -1622,8 +1622,8 @@ int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPI
 						// определенного значения.
 						//
 						for(k = 0; k < loc_mtx_list.getCount(); k++) {
-							const PPID loc_id = loc_mtx_list.at(k).Key;
-							const PPID mtx_val = loc_mtx_list.at(k).Val;
+							const  PPID loc_id = loc_mtx_list.at(k).Key;
+							const  PPID mtx_val = loc_mtx_list.at(k).Val;
 							if(mtx_val != 0) { // ноль (неопределенное значение) не следует распространять на потомков.
 								LocationTbl::Rec loc_rec, next_rec;
 								if(loc_id == 0) {
@@ -1658,9 +1658,9 @@ int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPI
 							// Распространяем общую матрицу (для всех складов) на те локации, для которых не определено значение
 							// явно либо через родительский склад.
 							//
-							const PPID mtx_val = loc_mtx_list.at(zero_loc_pos).Val;
+							const  PPID mtx_val = loc_mtx_list.at(zero_loc_pos).Val;
 							for(k = 0; k < wh_list.getCount(); k++) {
-								const PPID loc_id = wh_list.get(k);
+								const  PPID loc_id = wh_list.get(k);
 								long   val = 0;
 								uint   pos = 0;
 								if(!loc_mtx_list.Search(loc_id, &val, &pos))
@@ -2083,7 +2083,7 @@ int QuotationCore::FetchList(PPID goodsID, PPQuotArray & rList)
 			//p_cache->Lock();
 			SRWLOCKER(p_cache->RwL, SReadWriteLocker::Write);
 			p_cache->SetTable(this);
-			const PPID qk_arg = 0;
+			const  PPID qk_arg = 0;
 			ok = p_cache->Get_(goodsID, qk_arg, 0, &rList);
 			p_cache->SetTable(0);
 			//p_cache->Unlock();
@@ -2318,7 +2318,7 @@ int Quotation2Core::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID, PPQuo
 		}
 		rel_list.sort();
 		for(uint i = 0; i < rel_list.getCount(); i++) {
-			const PPID rel_id = rel_list.get(i);
+			const  PPID rel_id = rel_list.get(i);
 			MEMSZERO(k3);
 			k3.Actual = 1;
 			k3.GoodsID = goodsID;
@@ -2368,7 +2368,7 @@ int Quotation2Core::GetCurrListByRelList(PPID goodsID, const PPIDArray & rRelLis
 	Quotation2Tbl::Key3 k3;
 	PROFILE_START
 	for(uint i = 0; i < rRelList.getCount(); i++) {
-		const PPID rel_id = rRelList.get(i);
+		const  PPID rel_id = rRelList.get(i);
 		MEMSZERO(k3);
 		k3.Actual = 1;
 		k3.GoodsID = goodsID;
@@ -2411,7 +2411,7 @@ int Quotation2Core::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray & rLi
 	{
 		Quotation2Tbl::Key2 k2;
 		for(uint i = 0; i < rel_list.getCount(); i++) {
-			const PPID rel_id = rel_list.get(i);
+			const  PPID rel_id = rel_list.get(i);
 			BExtQuery q(this, 2);
 			q.select(this->GoodsID, this->Quot, 0L).where(this->Actual == 1L && this->RelID == rel_id);
 			MEMSZERO(k2);
@@ -2492,7 +2492,7 @@ int Quotation2Core::GetAfterDT(const LDATETIME & rAfter, PPQuotArray * pList)  /
 	return ok;
 }
 
-int    Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const PPID & rGoodsID, const PPID & rRelID, PPQuot *pQuot) //v10.5.8 @erik
+int    Quotation2Core::GetBeforeDT(const LDATETIME & rBefore, const  PPID & rGoodsID, const  PPID & rRelID, PPQuot *pQuot) //v10.5.8 @erik
 {
 	int    ok = -1;
 	Quotation2Tbl::Key0 k0;
@@ -2579,7 +2579,7 @@ int Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList)
 		}
 	}
 	if(!loc_list.IsExists() || loc_list.GetCount()) {
-		const PPID single_qk_id = kind_list.getSingle();
+		const  PPID single_qk_id = kind_list.getSingle();
 		DBQ * dbq = 0;
 		const LDATE eff_date = pFilt ? pFilt->EffDate.getactual(ZERODATE) : ZERODATE;
 		dbq = ppcheckfiltid(dbq, RelT.QuotKindID, single_qk_id);
@@ -2606,7 +2606,7 @@ int Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList)
 			THROW_MEM(p_slwcb = new SellerLocWorldCritBlock(pFilt->SellerLocWorldID));
 		}
 		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
-			const PPID loc_id = RelT.data.LocID;
+			const  PPID loc_id = RelT.data.LocID;
 			if(kind_list.bsearch(RelT.data.QuotKindID) && loc_list.CheckID(loc_id) && (!p_slwcb || p_slwcb->Check(loc_id))) {
 				if(eff_date) {
 					DateRange period;
@@ -2720,8 +2720,8 @@ int Quotation2Core::Set_(const PPQuotArray & rQList, long qtaID, const PPQuotArr
 					bool skip = false;
 					bool keep_time = false;
 					r_quot.GoodsID = rQList.GoodsID;
-					const PPID loc_id = r_quot.LocID;
-					const PPID ar_id = r_quot.ArID;
+					const  PPID loc_id = r_quot.LocID;
+					const  PPID ar_id = r_quot.ArID;
 					{
 						QuotIdent qi(loc_id, r_quot.Kind, r_quot.CurID, ar_id);
 						qi.SetIdentPeriod(&r_quot.Period);
@@ -3119,7 +3119,7 @@ int Quotation2Core::RemoveAllForQuotKind(PPID quotKindID, int use_ta)
 		}
 		const uint c = rel_list.getCount();
 		for(uint i = 0; i < c; i++) {
-			const PPID rel_id = rel_list.get(i);
+			const  PPID rel_id = rel_list.get(i);
 			wait_msg_buf.Z().Cat(i+1).Slash().Cat(c);
 			THROW(RemoveAllForRel(rel_id, wait_msg_buf, 0));
 			//PPWaitPercent(i+1, c);
@@ -3142,7 +3142,7 @@ int Quotation2Core::GetAddressLocList(PPIDArray & rList)
 	q.select(RelT.LocID, RelT.QuotKindID, 0);
 	PPID   prev_loc_id = 0;
 	for(q.initIteration(false, &k2, spFirst); q.nextIteration() > 0;) {
-		const PPID loc_id = RelT.data.LocID;
+		const  PPID loc_id = RelT.data.LocID;
 		if(loc_id != prev_loc_id) {
 			if(loc_obj.Fetch(loc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS) {
 				rList.add(loc_id);
@@ -3171,7 +3171,7 @@ int Quotation2Core::Helper_ReplaceRel(PPID replacedRelID, PPID newRelID, int use
 		GetGoodsList(replacedRelID, 0, goods_list1);
 		GetGoodsList(newRelID, 0, goods_list2);
 		for(uint i = 0; i < goods_list1.getCount(); i++) {
-			const PPID goods_id = goods_list1.get(i);
+			const  PPID goods_id = goods_list1.get(i);
 			if(!goods_list2.lsearch(goods_id)) {
 				THROW_DB(updateFor(this, 0, (this->RelID == replacedRelID), set(this->RelID, dbconst(newRelID))));
 			}
@@ -3187,7 +3187,7 @@ int Quotation2Core::Helper_ReplaceRel(PPID replacedRelID, PPID newRelID, int use
 		GetGoodsList(replacedRelID, 1, goods_list1);
 		GetGoodsList(newRelID, 1, goods_list2);
 		for(uint i = 0; i < goods_list1.getCount(); i++) {
-			const PPID goods_id = goods_list1.get(i);
+			const  PPID goods_id = goods_list1.get(i);
 			Quotation2Tbl::Key2 k2;
 			MEMSZERO(k2);
 			k2.Actual = 1;
@@ -3318,7 +3318,7 @@ int Quotation2Core::Verify()
 			PPID   prev_qk_id = RelT.data.QuotKindID-1;
 			int    absence_qk = 0;
 			do {
-				const PPID qk_id = RelT.data.QuotKindID;
+				const  PPID qk_id = RelT.data.QuotKindID;
 				if(qk_id != prev_qk_id) {
 					int    r = qk_obj.Search(qk_id, &qk_rec);
 					if(r > 0) {
@@ -3414,7 +3414,7 @@ int Quotation2Core::DumpCurrent(SBuffer & rBuf, long flags, int64 * pItemsCount)
 	rel_list.sort();
 	const uint rc = rel_list.getCount();
 	for(uint i = 0; i < rc; i++) {
-		const PPID rel_id = rel_list.get(i);
+		const  PPID rel_id = rel_list.get(i);
 		quot.Clear();
 		if(FetchRel(rel_id, &quot) > 0) {
 			Quotation2Tbl::Key2 k2;
@@ -3852,7 +3852,7 @@ int Quotation2Core::FetchList(PPID goodsID, PPQuotArray & rList)
 		{
 			SRWLOCKER(p_cache->RwL, SReadWriteLocker::Write);
 			p_cache->SetTable(this);
-			const PPID qk_arg = 0;
+			const  PPID qk_arg = 0;
 			ok = p_cache->Get_(goodsID, qk_arg, 0, &rList);
 			p_cache->SetTable(0);
 		}

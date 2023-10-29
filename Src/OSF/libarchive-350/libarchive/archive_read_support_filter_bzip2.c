@@ -5,15 +5,15 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#include "archive_read_private.h"
 
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 struct private_data {
 	bz_stream stream;
-	char            * out_block;
+	char * out_block;
 	size_t out_block_size;
 	char valid; /* True = decompressor is initialized */
 	char eof; /* True = found end of compressed data. */

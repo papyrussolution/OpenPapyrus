@@ -1099,7 +1099,7 @@ int PPObjEventSubscription::Run()
 		id_list.add(evs_rec.ID);
 	}
 	for(uint i = 0; i < id_list.getCount(); i++) {
-		const PPID evs_id = id_list.get(i);
+		const  PPID evs_id = id_list.get(i);
 		int dr = Detect(evs_id, evp_list);
 		/*if(dr > 0) {
 			detected_id_list.add(evs_id);

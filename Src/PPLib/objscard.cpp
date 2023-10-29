@@ -514,7 +514,7 @@ int PPSCardSerPacket::Normalize()
 		PPQuotKind qk_rec;
 		const PPObjQuotKind::Special qk_spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 		for(uint i = 0; i < QuotKindList_.getCount(); i++) {
-			const PPID qk_id = QuotKindList_.get(i);
+			const  PPID qk_id = QuotKindList_.get(i);
 			if(qk_id && qk_obj.Fetch(qk_id, &qk_rec) > 0 && qk_spc.GetCategory(qk_id) == PPQC_PRICE)
 				temp_list.addUnique(qk_id);
 		}
@@ -1805,7 +1805,7 @@ int FASTCALL SCardSeriesView::NextIteration(PPSCardSeries * pRec)
 	if(pRec && SmartListBox::IsValidS(P_List)) {
 		const SArray * p_scs_ary = static_cast<const StdListBoxDef *>(P_List->P_Def)->P_Data;
 		if(p_scs_ary && p_scs_ary->getCount() > CurPrnPos) {
-			PPID   id = *static_cast<const PPID *>(p_scs_ary->at(CurPrnPos++));
+			PPID   id = *static_cast<const  PPID *>(p_scs_ary->at(CurPrnPos++));
 			if(P_Obj && P_Obj->Search(id, pRec) > 0)
 				ok = 1;
 		}
@@ -2275,7 +2275,7 @@ int PPObjSCard::NotifyAboutRecentOps(const LDATETIME & rSince)
 			TSVector <SCardCore::UpdateRestNotifyEntry> urne_list;
 			sc_id_list.sortAndUndup();
 			for(uint i = 0; i < sc_id_list.getCount(); i++) {
-				const PPID sc_id = sc_id_list.get(i);
+				const  PPID sc_id = sc_id_list.get(i);
 				PPSCardPacket sc_pack;
 				//
 				// Дабы не тратить время на перебор операций по карте, у которой нет телефона, сразу проверим чтобы таковой был.
@@ -2588,7 +2588,7 @@ int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, /*int prevTrnovrPrd*/const SC
 				THROW_SL(scr_list.insert(&rec));
 			}
 			const uint scrlc = scr_list.getCount();
-			const PPID bonus_charge_grp_id = pack.Rec.BonusChrgGrpID;
+			const  PPID bonus_charge_grp_id = pack.Rec.BonusChrgGrpID;
 			for(uint i = 0; i < scrlc; i++) {
 				const SCardTbl::Rec & r_sc_rec = scr_list.at(i);
 				_SCardTrnovrItem item;
@@ -3164,7 +3164,7 @@ private:
 			SetupPhoneButton(this, CTL_SCARD_PHONE, cmSCardAction1);
 		}
 		else if(event.isCmd(cmSCardAction1)) {
-			const PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
+			const  PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
 			if(def_phn_svc_id) {
 				SString temp_buf;
 				getCtrlString(CTL_SCARD_PHONE, temp_buf);
@@ -3617,7 +3617,7 @@ int PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pRec)
 			SCardTbl::Rec rec;
 			LAssocArray sc_dis_list; // Список доступных для применения карт, ассоциированных с соответствующим процентом скидки
 			for(uint i = 0; i < card_id_list.getCount(); i++) {
-				const PPID sc_id = card_id_list.get(i);
+				const  PPID sc_id = card_id_list.get(i);
 				if(Search(sc_id, &rec) > 0 && scs_obj.Fetch(rec.SeriesID, &scs_rec) > 0 && scs_rec.Flags & SCRDSF_TRANSFDISCOUNT) {
 					const int cr = CheckRestrictions(&rec, chkrfIgnoreUsageTime, getcurdatetime_());
 					if(cr == 1 && rec.PDis > 0) // Значение cr==2 не годится (карта требует активации с возможностью автоактивации)
@@ -3633,7 +3633,7 @@ int PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pRec)
 				sc_dis_list.Sort();
 				long   common_pdis = 0;
 				for(uint scdlidx = 0; scdlidx < sc_dis_list.getCount(); scdlidx++) {
-                    const PPID sc_id = sc_dis_list.at(scdlidx).Key;
+                    const  PPID sc_id = sc_dis_list.at(scdlidx).Key;
 					const long pdis = sc_dis_list.at(scdlidx).Val;
 					if(pdis != common_pdis) {
 						if(common_pdis == 0)
@@ -3649,7 +3649,7 @@ int PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pRec)
                     // Если во всех картах скидки одинаковы, просто берем ту карту, у которой больший идент
                     // (вероятно, самая новая, но это - не очень важно)
                     //
-                    const PPID sc_id = sc_dis_list.at(sc_dis_list.getCount()-1).Key;
+                    const  PPID sc_id = sc_dis_list.at(sc_dis_list.getCount()-1).Key;
 					THROW(Search(sc_id, &rec) > 0); // После всех телодвижений выше невозможность найти карту - ошибка
 					ASSIGN_PTR(pRec, rec);
 					ok = 1;
@@ -3665,7 +3665,7 @@ int PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pRec)
 						PPIDArray ev_list;
 						ev_list.addzlist(PPACN_OBJADD, PPACN_SCARDDISUPD, 0L);
 						for(uint j = 0; j < sc_dis_list.getCount(); j++) {
-							const PPID sc_id = sc_dis_list.at(j).Key;
+							const  PPID sc_id = sc_dis_list.at(j).Key;
 							LDATETIME ev_dtm;
 							if(p_sj->GetLastObjEvent(PPOBJ_SCARD, sc_id, &ev_list, &ev_dtm) > 0 && cmp(ev_dtm, last_upd_moment) > 0) {
 								last_upd_moment = ev_dtm;
@@ -3674,7 +3674,7 @@ int PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pRec)
 						}
 					}
 					{
-						const PPID sc_id = NZOR(last_upd_sc_id, sc_dis_list.at(sc_dis_list.getCount()-1).Key);
+						const  PPID sc_id = NZOR(last_upd_sc_id, sc_dis_list.at(sc_dis_list.getCount()-1).Key);
 						THROW(Search(sc_id, &rec) > 0); // После всех телодвижений выше невозможность найти карту - ошибка
 						ASSIGN_PTR(pRec, rec);
 						ok = 1;
@@ -4100,7 +4100,7 @@ int PPObjSCard::SearchCodeExt(const char * pCode, const LAssocArray * pSpcTrtScs
 		}
 		else if(pSpcTrtScsList) {
 			for(uint i = 0; i < pSpcTrtScsList->getCount(); i++) {
-				const PPID scs_id = pSpcTrtScsList->at(i).Key;
+				const  PPID scs_id = pSpcTrtScsList->at(i).Key;
 				const long spc_trt = pSpcTrtScsList->at(i).Val;
 				assert(scs_id && spc_trt);
 				SCardSpecialTreatment * p_st = SCardSpecialTreatment::CreateInstance(spc_trt);
@@ -4126,7 +4126,7 @@ int PPObjSCard::SearchCodeExt(const char * pCode, const LAssocArray * pSpcTrtScs
 			PPObjLocation loc_obj;
 			loc_obj.P_Tbl->SearchPhoneIndex(temp_buf, 0, phone_id_list);
 			for(uint i = 0; i < phone_id_list.getCount(); i++) {
-				const PPID ea_id = phone_id_list.get(i);
+				const  PPID ea_id = phone_id_list.get(i);
 				EAddrTbl::Rec ea_rec;
 				if(loc_obj.P_Tbl->GetEAddr(ea_id, &ea_rec) > 0 && ea_rec.LinkObjType == PPOBJ_SCARD) {
 					if(Search(ea_rec.LinkObjID, &sc_rec) > 0) {
@@ -5413,7 +5413,7 @@ int ConvertSCardSeries9809()
     	ok = -1; // Конвертация уже сделана
     }
     else {
-		const PPID obj_type = PPOBJ_SCARDSERIES;
+		const  PPID obj_type = PPOBJ_SCARDSERIES;
 		Reference2Tbl::Key0 k0;
         PPSCardSeries2 scs_rec;
 		THROW(p_ref = new Reference);
@@ -5425,7 +5425,7 @@ int ConvertSCardSeries9809()
 			if(p_ref->search(0, &k0, spGt)) do {
 				p_ref->copyBufTo(&scs_rec);
 				if(scs_rec.VerifTag < 2) {
-					const PPID _id = scs_rec.ID;
+					const  PPID _id = scs_rec.ID;
 					SCardSeries_Before9809 old_rec;
 					char    code_templ[20];
 					memcpy(&old_rec, &scs_rec, sizeof(old_rec));

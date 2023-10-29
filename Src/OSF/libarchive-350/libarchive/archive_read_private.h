@@ -1,19 +1,18 @@
-/*-
- * Copyright (c) 2003-2007 Tim Kientzle
- * All rights reserved.
- */
+//
+// Copyright (c) 2003-2007 Tim Kientzle All rights reserved.
+//
 #ifndef ARCHIVE_READ_PRIVATE_H_INCLUDED
 #define ARCHIVE_READ_PRIVATE_H_INCLUDED
 
 #ifndef __LIBARCHIVE_BUILD
-#ifndef __LIBARCHIVE_TEST
-#error This header is only to be used internally to libarchive.
-#endif
+	#ifndef __LIBARCHIVE_TEST
+		#error This header is only to be used internally to libarchive.
+	#endif
 #endif
 
-#include "archive.h"
-#include "archive_string.h"
-#include "archive_private.h"
+//#include "archive.h"
+//#include "archive_string.h"
+//#include "archive_private.h"
 
 struct ArchiveRead;
 struct ArchiveReadFilterBidder;

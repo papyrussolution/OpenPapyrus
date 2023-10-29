@@ -766,7 +766,7 @@ static inline int from_jfloatArray(JNIEnv * env, float * color, jint n, jfloatAr
 
 	if(!jcolor)
 		len = 0;
-	else{
+	else {
 		len = env->GetArrayLength(jcolor);
 		if(len > n)
 			len = n;

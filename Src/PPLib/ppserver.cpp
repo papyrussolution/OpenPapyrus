@@ -921,7 +921,7 @@ int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 		LongArray recur_list;
 		for(PPJob * p_job = pJob; p_job != 0;) {
 			if(recur_list.addUnique(p_job->ID) > 0) {
-				const PPID next_job_id = p_job->NextJobID;
+				const  PPID next_job_id = p_job->NextJobID;
 				if(next_job_id && P_Pool) {
 					const PPJob * p_temp_job = P_Pool->GetJobItem(next_job_id);
 					if(p_temp_job) {
@@ -977,7 +977,7 @@ int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 				SFile::Remove(tmp_log_fpath);
 			}
 			{
-				const PPID next_job_id = p_job->NextJobID;
+				const  PPID next_job_id = p_job->NextJobID;
 				if(next_job_id) {
 					if(ok) {
 						if(P_Pool) {
@@ -1476,7 +1476,7 @@ int CPosNodeBlock::Parse(uint cmd, int crit, int subcriterion, const SString & r
 						break;
 					case cAgent:
 						{
-							const PPID agent_acs_id = GetAgentAccSheet();
+							const  PPID agent_acs_id = GetAgentAccSheet();
 							THROW(ok = ResolveCrit_ArByPerson(subcriterion, rArg, agent_acs_id, &CmdBlk.U.CN.AgentID));
 						}
 						break;
@@ -1613,7 +1613,7 @@ int CPosNodeBlock::ResolveCrit_PosNode(int subcriterion, const SString & rArg, P
 int CPosNodeBlock::ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID)
 {
 	int    ok = 1;
-	const PPID acs_id = NZOR(accSheetID, GetSupplAccSheet());
+	const  PPID acs_id = NZOR(accSheetID, GetSupplAccSheet());
 	PPID   temp_id = 0;
 	switch(subcriterion) {
 		case 0:
@@ -1821,7 +1821,7 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 		switch(cmd) {
 			case PPSCMD_POS_INIT:
 				{
-					const PPID agent_id = CmdBlk.U.CN.AgentID;
+					const  PPID agent_id = CmdBlk.U.CN.AgentID;
 					ArticleTbl::Rec ar_rec;
 					THROW_PP_S(agent_id && ArObj.Search(agent_id, &ar_rec) > 0, PPERR_POSAGENTNFOUND, agent_id);
 					ZDELETE(P_Prcssr);
@@ -2172,7 +2172,7 @@ PPWorkerSession::CmdRet PPWorkerSession::Helper_QueryNaturalToken(PPServerCmd * 
 						for(i = 0; i < rel_obj_list.getCount(); i++) {
 							SXml::WNode n_obj(p_writer, "RelObj");
 							const LAssoc item = rel_obj_list.at(i);
-							const PPID obj_type = item.Key;
+							const  PPID obj_type = item.Key;
 							n_obj.PutInner("Obj", temp_buf.Z().Cat(obj_type));
 							n_obj.PutInner("Id", temp_buf.Z().Cat(item.Val));
 							if(obj_type == PPOBJ_PERSON) {
@@ -3219,8 +3219,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_GETPERSONBYARTICLE:
 			{
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
-				const PPID ar_id = temp_buf.ToLong();
-				const PPID psn_id = ar_id ? ObjectToPerson(ar_id, 0) : 0;
+				const  PPID ar_id = temp_buf.ToLong();
+				const  PPID psn_id = ar_id ? ObjectToPerson(ar_id, 0) : 0;
 				rReply.SetString(temp_buf.Z().Cat(psn_id));
 				ok = cmdretOK;
 			}
@@ -3228,7 +3228,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_GETARTICLEBYPERSON:
 			{
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
-				const PPID psn_id = temp_buf.ToLong();
+				const  PPID psn_id = temp_buf.ToLong();
 				PPID  ar_id = 0;
 				if(psn_id) {
 					PPID  acs_id = 0;
@@ -3359,7 +3359,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						{
 							tec_id_list.sortAndUndup();
 							for(uint tidx = 0; tidx < tec_id_list.getCount(); tidx++) {
-								const PPID tec_id = tec_id_list.get(tidx);
+								const  PPID tec_id = tec_id_list.get(tidx);
 								if(r_tec_obj.Fetch(tec_id, &tec_rec) > 0 && tec_rec.GoodsID && P_WsCtlBlk->GObj.Fetch(tec_rec.GoodsID, &goods_rec) > 0) {
 									goods_to_tec_list.Add(goods_rec.ID, tec_id);
 									goods_id_list.add(goods_rec.ID);
@@ -3378,7 +3378,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 							PPQuotArray qlist;
 							P_WsCtlBlk->GetRawQuotKindList(raw_qk_id_list);
 							for(uint i = 0; i < goods_id_list.getCount(); i++) {
-								const PPID goods_id = goods_id_list.get(i);
+								const  PPID goods_id = goods_id_list.get(i);
 								if(P_WsCtlBlk->GObj.Fetch(goods_id, &goods_rec) > 0 && P_WsCtlBlk->GetQuotList(goods_id, prc_rec.LocID, raw_qk_id_list, qlist) > 0) {
 									assert(qlist.getCount());
 									SJson * p_js_ware = SJson::CreateObj();
@@ -3400,7 +3400,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 										if(local_tec_id_list.getCount()) {
 											SJson * p_js_teclist = SJson::CreateArr();
 											for(uint ltidx = 0; ltidx < local_tec_id_list.getCount(); ltidx++) {
-												const PPID local_tec_id = local_tec_id_list.get(ltidx);
+												const  PPID local_tec_id = local_tec_id_list.get(ltidx);
 												if(r_tec_obj.Fetch(local_tec_id, &tec_rec) > 0) {
 													SJson * p_js_tec = SJson::CreateObj();
 													p_js_tec->InsertInt("id", local_tec_id);
@@ -3426,7 +3426,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 								if(qk_id_list.getCount()) {
 									qk_obj.ArrangeList(getcurdatetime_(), qk_id_list, RTLPF_USEQUOTWTIME);
 									for(uint qki = 0; qki < qk_id_list.getCount(); qki++) {
-										const PPID qk_id = qk_id_list.get(qki);
+										const  PPID qk_id = qk_id_list.get(qki);
 										if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
 											SJson * p_js_qk = SJson::CreateObj();
 											p_js_qk->InsertInt("id", qk_rec.ID);

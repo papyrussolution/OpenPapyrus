@@ -334,7 +334,7 @@ int EditELinks(const char * pInfo, PPELinkArray * pList)
 			SString phone_buf;
 			if(position >= 0 && position < SlotCount) {
 				const uint ctl_id = CTL_ELNKSET_ACN1 + position;
-				const PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
+				const  PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
 				if(def_phn_svc_id && IsPhoneNumber(position, phone_buf)) {
 					showCtrl(ctl_id, 1);
 					setButtonBitmap(cmELnkSetAction1+position, IDB_PHONEFORWARDED);

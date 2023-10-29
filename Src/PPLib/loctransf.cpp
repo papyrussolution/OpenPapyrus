@@ -724,7 +724,7 @@ int LocTransfDisposer::Dispose(const PPIDArray & rBillList, PPLogger * pLogger, 
 	LocTransfDisposer disposer;
 	LocTransfDisposeArray dispose_list_in, dispose_list_out;
 	for(i = 0; i < rBillList.getCount(); i++) {
-		const PPID bill_id = rBillList.get(i);
+		const  PPID bill_id = rBillList.get(i);
 		Transfer * p_tr = p_bobj->trfr;
 		BillTbl::Rec bill_rec;
 		TSVector <LocTransfTbl::Rec> disp_list;
@@ -827,7 +827,7 @@ int LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTransfDisp
 			(temp_list = assc_loc_list).intersect(&empty_cell_list, 0);
 			THROW(ArrangeCellList(rItem, temp_list));
 			for(uint i = 0; req_qtty > 0.0 && i < temp_list.getCount(); i++) {
-				const PPID cell_id = temp_list.get(i);
+				const  PPID cell_id = temp_list.get(i);
 				LocTransfDisposeItem item;
 				item = rItem;
 				item.Tag |= (item.ctInAssoc | item.ctEmpty);
@@ -845,7 +845,7 @@ int LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTransfDisp
 			temp_list.addUniqueExclusive(&empty_cell_list, &used_loc_list);
 			THROW(ArrangeCellList(rItem, temp_list));
 			for(uint i = 0; req_qtty > 0.0 && i < temp_list.getCount(); i++) {
-				const PPID cell_id = temp_list.get(i);
+				const  PPID cell_id = temp_list.get(i);
 				LocTransfDisposeItem item;
 				item = rItem;
 				item.Tag |= item.ctEmpty;
@@ -868,7 +868,7 @@ int LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTransfDisp
 			int   min_delta_idx = -1;
 			double min_delta = SMathConst::Max;
 			for(uint i = 0; i < temp_list.getCount(); i++) {
-				const PPID cell_id = temp_list.get(i);
+				const  PPID cell_id = temp_list.get(i);
 				double rest = cell_list_for_goods.Get(cell_id);
 				if(rest > 0.0) {
 					double delta = rest - req_qtty;
@@ -879,7 +879,7 @@ int LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTransfDisp
 				}
 			}
 			if(min_delta_idx >= 0) {
-				const PPID cell_id = temp_list.get(min_delta_idx);
+				const  PPID cell_id = temp_list.get(min_delta_idx);
 				double rest = cell_list_for_goods.Get(cell_id);
 				LocTransfDisposeItem item;
 				item = rItem;
@@ -984,7 +984,7 @@ int LocTransfDisposer::ArrangeCellList(const LocTransfDisposeItem & rItem, PPIDA
 	PPIDArray column_list;
 	TSArray <ArrangeCellItem> list;
 	for(i = 0; i < rLocList.getCount(); i++) {
-		const PPID cell_id = rLocList.get(i);
+		const  PPID cell_id = rLocList.get(i);
 		LocationTbl::Rec loc_rec;
 		if(LocObj.Fetch(cell_id, &loc_rec) > 0) {
 			if(loc_rec.Type == LOCTYP_WHCELL) {

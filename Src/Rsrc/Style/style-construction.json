@@ -1,0 +1,25 @@
+{
+	"colorset_list": [
+		{
+			"symb": "papyrus-style",
+			"ccheck-junk-bg": "orange",
+			"ccheck-junk-fg": "black",
+			"ccheck-imported-bg": "palegreen",
+			"ccheck-imported-fg": "black",
+			"ccheck-suspended-bg": "yellow",
+			"ccheck-suspended-fg": "black",
+			"ccheckitem-gift-bg": "green",
+			"ccheckitem-gift-fg": "black",
+			"ccheckitem-grouped-bg": "lightgrey",
+			"ccheckitem-grouped-fg": "black",
+			"ccheckitem-printed-bg": "#FCD5B4",
+			"ccheckitem-printed-fg": "black",
+			"ccheckitem-partofcomplex-bg": "#D7E4BC",
+			"ccheckitem-partofcomplex-fg": "black",
+			"ccheckitem-fixedprice-bg": "cadetblue",
+			"ccheckitem-fixedprice-fg": "black",
+			"barcode-preferred-bg": "green",
+			"barcode-preferred-fg": "white",
+		}		
+	]
+}

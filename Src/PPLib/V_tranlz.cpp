@@ -673,7 +673,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 		else {
 			const PPIDArray & r_loc_list = Filt.LocList.Get();
 			for(uint i = 0; i < r_loc_list.getCount(); i++) {
-				const PPID loc_id = r_loc_list.at(i);
+				const  PPID loc_id = r_loc_list.at(i);
 				if(ObjRts.CheckLocID(loc_id, 0))
 					LocList.add(loc_id);
 			}
@@ -799,7 +799,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 						if(Filt.PsnCatID || Filt.CityID) {
 							PersonTbl::Rec p_rec;
 							// @v10.7.8 @ctr MEMSZERO(p_rec);
-							const PPID psn_id = ObjectToPerson(bill_rec.Object);
+							const  PPID psn_id = ObjectToPerson(bill_rec.Object);
 							if(psn_id && PsnObj.Fetch(psn_id, &p_rec) > 0) {
 								if(Filt.PsnCatID)
 									skip = (p_rec.CatID != Filt.PsnCatID);
@@ -1997,7 +1997,7 @@ int PPViewTrfrAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 			}
 		}
 		else if(P_TrGrpngTbl)
-			pHdr->__ID = *static_cast<const PPID *>(pRow);
+			pHdr->__ID = *static_cast<const  PPID *>(pRow);
 	}
 	else
 		ok = 0;
@@ -2045,8 +2045,8 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getrest_iidp)
 {
 	double rest = 0.0;
 	if(option != CALC_SIZE) {
-		const PPID   goods_id = params[0].lval;
-		const PPID   loc_id = params[1].lval;
+		const  PPID   goods_id = params[0].lval;
+		const  PPID   loc_id = params[1].lval;
 		const LDATE  dt = params[2].dval;
 		const GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
         if(p_rest_list) {
@@ -2060,8 +2060,8 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getavgrest_iidp)
 {
 	double rest = 0.0;
 	if(option != CALC_SIZE) {
-		const PPID   goods_id = params[0].lval;
-		const PPID   loc_id = params[1].lval;
+		const  PPID   goods_id = params[0].lval;
+		const  PPID   loc_id = params[1].lval;
 		const LDATE  dt = params[2].dval;
 		const  GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
         if(p_rest_list) {
@@ -2082,14 +2082,14 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_extfactor_iiiii)
 		const long ext_factor_addendum = params[1].lval;
 		if(ext_factor_addendum) {
 			if(oneof2(ext_factor, TrfrAnlzFilt::extfPersonTag, TrfrAnlzFilt::extfPersonRegister)) {
-				const PPID goods_id  = params[2].lval;
-				const PPID ar_id = params[3].lval;
-				const PPID person_id = ObjectToPerson(ar_id, 0);
-				if(person_id) {
+				const  PPID goods_id  = params[2].lval;
+				const  PPID ar_id = params[3].lval;
+				const  PPID psn_id = ObjectToPerson(ar_id, 0);
+				if(psn_id) {
 					if(ext_factor == TrfrAnlzFilt::extfPersonTag) {
 						PPObjTag tag_obj;
 						ObjTagItem tag_item;
-						if(tag_obj.FetchTag(person_id, ext_factor_addendum, &tag_item) > 0) {
+						if(tag_obj.FetchTag(psn_id, ext_factor_addendum, &tag_item) > 0) {
 							SString & r_temp_buf = SLS.AcquireRvlStr();
 							tag_item.GetStr(r_temp_buf);
 							STRNSCPY(text_buf, r_temp_buf);
@@ -2098,7 +2098,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_extfactor_iiiii)
 					else if(ext_factor == TrfrAnlzFilt::extfPersonRegister) {
 						PPObjPerson psn_obj;
 						RegisterTbl::Rec reg_rec;
-						if(psn_obj.GetRegister(person_id, ext_factor_addendum, &reg_rec) > 0) {
+						if(psn_obj.GetRegister(psn_id, ext_factor_addendum, &reg_rec) > 0) {
 							SString & r_temp_buf = SLS.AcquireRvlStr();
 							if(reg_rec.Serial[0])
 								r_temp_buf.Cat(reg_rec.Serial);
@@ -2113,7 +2113,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_extfactor_iiiii)
 				}
 			}
 			else if(oneof2(ext_factor, TrfrAnlzFilt::extfLocTag, TrfrAnlzFilt::extfLocRegister)) { // @v11.1.0
-				const PPID loc_id = params[4].lval;
+				const  PPID loc_id = params[4].lval;
 				if(loc_id) {
 					if(ext_factor == TrfrAnlzFilt::extfLocTag) {
 						PPObjTag tag_obj;
@@ -3008,7 +3008,7 @@ int PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				flt.Sgp = sgpNone;
 				if(psn_id) {
 					if(Filt.Sgp == sgpBillAgent) {
-						const PPID acc_sheet_id = GetAgentAccSheet();
+						const  PPID acc_sheet_id = GetAgentAccSheet();
 						if(acc_sheet_id) {
 							PPID   agent_ar_id = 0;
 							flt.AgentList.Set(0);
@@ -3203,7 +3203,7 @@ void TrfrAnlzFiltDialog::SetupCtrls()
 	long   id = 0;
 	const  ushort v = getCtrlUInt16(CTL_GTO_GRPDATE);
 	disableCtrl(CTL_GTO_ORDER, v);
-	const PPID op_id = getCtrlLong(CTLSEL_GTO_OPR);
+	const  PPID op_id = getCtrlLong(CTLSEL_GTO_OPR);
 	const long op_anz = op_id ? GCTIterator::AnalyzeOp(op_id, 0) : 0;
 	const int  enable_cmp_wroff = BIN(op_id && (op_anz & (GCTIterator::aorfThereAreDrafts|GCTIterator::aorfThereAreOrders)));
 	DisableClusterItem(CTL_GTO_FLAGS, 4, !enable_cmp_wroff);
@@ -3900,7 +3900,7 @@ int PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 					if(cor_bill_list.getCount()) {
 						PPBillPacket cor_bp;
 						for(uint i = 0; i < cor_bill_list.getCount(); i++) {
-							const PPID cor_bill_id = cor_bill_list.get(i);
+							const  PPID cor_bill_id = cor_bill_list.get(i);
 							THROW(P_BObj->ExtractPacket(cor_bill_id, &cor_bp) > 0);
 							for(uint j = 0; j < cor_bp.GetTCount(); j++) {
 								const PPTransferItem & r_other = cor_bp.ConstTI(j);
@@ -4644,7 +4644,7 @@ int PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsnID, PP
 		p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOCATION, PPTAG_LOC_FSRARID, pCode, &loc_id_list);
 		if(loc_id_list.getCount()) {
             for(uint i = 0; i < loc_id_list.getCount(); i++) {
-                const PPID _id = loc_id_list.get(i);
+                const  PPID _id = loc_id_list.get(i);
                 LocationTbl::Rec loc_rec;
                 PersonTbl::Rec psn_rec;
                 if(PsnObj.LocObj.Fetch(_id, &loc_rec) > 0) {
@@ -4664,7 +4664,7 @@ int PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsnID, PP
 		}
 		if(_loc_ok < 0) {
 			for(uint i = 0; i < psn_id_list.getCount(); i++) {
-                const PPID _id = psn_id_list.get(i);
+                const  PPID _id = psn_id_list.get(i);
                 PersonTbl::Rec psn_rec;
                 if(PsnObj.Fetch(_id, &psn_rec) > 0) {
 					if(_psn_ok < 0) {
@@ -4680,7 +4680,7 @@ int PrcssrAlcReport::SearchPersonByRarCode(const char * pCode, PPID * pPsnID, PP
 		}
 		else if(psn_id_list.getCount()) {
 			for(uint i = 0; i < psn_id_list.getCount(); i++) {
-                const PPID _id = psn_id_list.get(i);
+                const  PPID _id = psn_id_list.get(i);
                 PersonTbl::Rec psn_rec;
                 if(PsnObj.Fetch(_id, &psn_rec) > 0) {
 					_psn_ok = 3; // Неоднозначность: по коду найден и подходящая локация и персоналия.
@@ -5363,7 +5363,7 @@ int PrcssrAlcReport::GetLotManufID(PPID lotID, PPID * pManufID, SString * pMsgBu
     if(lotID) {
 		ObjTagItem tag_item;
 		for(uint i = 0; !ok && i < Cfg.LotManufTagList.getCount(); i++) {
-			const PPID tag_id = Cfg.LotManufTagList.at(i);
+			const  PPID tag_id = Cfg.LotManufTagList.at(i);
 			if(tag_id && TagObj.FetchTag(lotID, tag_id, &tag_item) > 0) {
 				tag_item.GetInt(&manuf_id);
 				PersonTbl::Rec psn_rec;

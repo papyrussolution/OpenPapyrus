@@ -104,7 +104,7 @@ static IMPL_DBE_PROC(dbqf_tsessbilllinkto_i) // @v11.6.12
 	//PPASS_TSESSBILLPOOL PPASS_TSDBILLPOOL 
 	//IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID);
 	PPID   result_id = 0;
-	const PPID bill_id  = params[0].lval;
+	const  PPID bill_id  = params[0].lval;
 	if(bill_id) {
 		PPID   pool_owner_id = 0;
 		if(BillObj->P_Tbl->IsMemberOfPool(bill_id, PPASS_TSESSBILLPOOL, &pool_owner_id) > 0) {
@@ -119,7 +119,7 @@ static IMPL_DBE_PROC(dbqf_tsessbilllinkto_text_i) // @v11.6.12
 	char   text_buf[128];
 	if(!DbeInitSize(option, result, sizeof(text_buf))) {
 		text_buf[0] = 0;
-		const PPID bill_id  = params[0].lval;
+		const  PPID bill_id  = params[0].lval;
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		if(bill_id) {
 			PPID   pool_owner_id = 0;
@@ -240,7 +240,7 @@ static IMPL_DBE_PROC(dbqf_billfrghtissuedt_i)
 static IMPL_DBE_PROC(dbqf_billdate_i)
 {
 	BillTbl::Rec bill_rec;
-	const PPID bill_id = params[0].lval;
+	const  PPID bill_id = params[0].lval;
 	if(bill_id && BillObj->Fetch(bill_id, &bill_rec) > 0)
 		result->init(bill_rec.Dt);
 	else
@@ -337,7 +337,7 @@ static IMPL_DBE_PROC(dbqf_registertext_i)
 	const  size_t buffer_size = 64;
 	if(!DbeInitSize(option, result, buffer_size)) {
 		SString temp_buf;
-		const PPID reg_id = params[0].lval;
+		const  PPID reg_id = params[0].lval;
 		if(reg_id) {
 			PPObjRegister reg_obj;
 			RegisterTbl::Rec reg_rec;
@@ -355,7 +355,7 @@ static IMPL_DBE_PROC(dbqf_objregistertext_iii)
 	if(!DbeInitSize(option, result, buffer_size)) {
 		SString temp_buf;
 		//(registerTypeID, objtype, objid)
-		const PPID reg_type = params[0].lval;
+		const  PPID reg_type = params[0].lval;
 		PPObjID oid(params[1].lval, params[2].lval);
 		if(reg_type && oid.Obj && oid.Id) {
 			PPID   reg_id = 0;
@@ -388,8 +388,8 @@ static IMPL_DBE_PROC(dbqf_objtagtextnocache_ii)
 	const  size_t buffer_size = 128;
 	if(!DbeInitSize(option, result, buffer_size)) {
 		SString temp_buf;
-		const PPID tag_id = params[0].lval;
-		const PPID obj_id = params[1].lval;
+		const  PPID tag_id = params[0].lval;
+		const  PPID obj_id = params[1].lval;
 		if(tag_id && obj_id) {
 			Reference * p_ref = PPRef;
 			if(p_ref) {
@@ -408,8 +408,8 @@ static IMPL_DBE_PROC(dbqf_objtagtext_ii)
 	const  size_t buffer_size = 128;
 	if(!DbeInitSize(option, result, buffer_size)) {
 		SString temp_buf;
-		const PPID tag_id = params[0].lval;
-		const PPID obj_id = params[1].lval;
+		const  PPID tag_id = params[0].lval;
+		const  PPID obj_id = params[1].lval;
 		if(tag_id && obj_id) {
 			PPObjTag tag_obj;
 			ObjTagItem tag_item;
@@ -604,11 +604,11 @@ static IMPL_DBE_PROC(dbqf_istxtuuideq_ss)
 static IMPL_DBE_PROC(dbqf_ariscatperson_ii) // @v11.1.9
 {
 	long    r = 0;
-	const PPID ar_id = params[0].lval;
-	const PPID cat_id = params[1].lval;
+	const  PPID ar_id = params[0].lval;
+	const  PPID cat_id = params[1].lval;
 	if(cat_id) {
 		if(ar_id) {
-			const PPID psn_id = ObjectToPerson(ar_id, 0);
+			const  PPID psn_id = ObjectToPerson(ar_id, 0);
 			if(psn_id) {
 				PPObjPerson psn_obj;
 				PersonTbl::Rec psn_rec;
@@ -727,7 +727,7 @@ static IMPL_DBE_PROC(dbqf_objname_bizscore_i)
 {
 	PPBizScorePacket pack;
 	if(!DbeInitSize(option, result, sizeof(pack.Rec.Name))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, pack.Rec.Name);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, pack.Rec.Name);
 		if(id) {
 			PPObjBizScore obj;
 			obj.Fetch(id, &pack);
@@ -752,7 +752,7 @@ static IMPL_DBE_PROC(dbqf_objname_loc_i)
 	//dbqf_objname_i <PPObjLocation, LocationTbl::Rec> (option, result, params);
 	LocationTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(rec.Name))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
 		if(id) {
 			PPObjLocation obj;
 			int    r = obj.Fetch(id, &rec);
@@ -800,7 +800,7 @@ static IMPL_DBE_PROC(dbqf_objname_scale_i)
 { 
 	PPScalePacket pack;
 	if(!DbeInitSize(option, result, sizeof(pack.Rec.Name))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, pack.Rec.Name);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, pack.Rec.Name);
 		if(id) {
 			PPObjScale sc_obj;
 			sc_obj.Fetch(id, &pack);
@@ -815,7 +815,7 @@ static IMPL_DBE_PROC(dbqf_objcode_scard_i)
 {
 	SCardTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(rec.Code))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, rec.Code);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, rec.Code);
 		if(id) {
 			PPObjSCard sc_obj;
 			sc_obj.Fetch(id, &rec);
@@ -830,7 +830,7 @@ static IMPL_DBE_PROC(dbqf_scardownername_i)
 {
 	char   psn_name[128];
 	if(!DbeInitSize(option, result, sizeof(psn_name))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, psn_name);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, psn_name);
 		if(id) {
 			PPObjSCard sc_obj;
 			SCardTbl::Rec rec;
@@ -848,7 +848,7 @@ static IMPL_DBE_PROC(dbqf_locownername_i)
 {
 	char   psn_name[128];
 	if(!DbeInitSize(option, result, sizeof(psn_name))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, psn_name);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, psn_name);
 		if(id) {
 			PPObjLocation loc_obj;
 			LocationTbl::Rec rec;
@@ -866,7 +866,7 @@ static IMPL_DBE_PROC(dbqf_usrpersonname_i)
 {
 	char   psn_name[128];
 	if(!DbeInitSize(option, result, sizeof(psn_name))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, psn_name);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, psn_name);
 		if(id) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPSecur rec;
@@ -931,7 +931,7 @@ static IMPL_DBE_PROC(dbqf_objname_personpost_i)
 	char   name_buf[64];
 	PersonPostTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
-		const PPID  id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		const  PPID  id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			PPObjStaffList obj;
 			obj.FetchPost(id, &rec);
@@ -948,7 +948,7 @@ static IMPL_DBE_PROC(dbqf_stafforgname_i)
 	char   name_buf[128];
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
 		name_buf[0] = 0;
-		const PPID  id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		const  PPID  id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			PPObjStaffList obj;
 			PPStaffEntry se_rec;
@@ -968,7 +968,7 @@ static IMPL_DBE_PROC(dbqf_staffdivname_i)
 	char   name_buf[128];
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
 		name_buf[0] = 0;
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			PPObjStaffList obj;
 			PPStaffEntry se_rec;
@@ -988,7 +988,7 @@ static IMPL_DBE_PROC(dbqf_objcodecmplx_bill_i)
 	char   name_buf[48];
 	BillTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			PPObjBill * p_bobj = BillObj;
 			p_bobj->Fetch(id, &rec);
@@ -1005,7 +1005,7 @@ static IMPL_DBE_PROC(dbqf_objcode_bill_i)
 	char   name_buf[48]; // @v11.1.12 [24]-->[48]
 	BillTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			BillObj->Fetch(id, &rec);
 			STRNSCPY(name_buf, rec.Code);
@@ -1019,7 +1019,7 @@ static IMPL_DBE_PROC(dbqf_objmemo_bill_i)
 	char   name_buf[512];
 	// @v11.1.12 BillTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			// @v11.1.12 BillObj->Fetch(id, &rec);
 			// @v11.1.12 STRNSCPY(name_buf, rec.Memo);
@@ -1060,7 +1060,7 @@ static IMPL_DBE_PROC(dbqf_objmemo_person_i) // @v11.1.12
 {
 	char   name_buf[512];
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
-		const PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			if(id) {
@@ -1253,7 +1253,7 @@ static IMPL_DBE_PROC(dbqf_addr_city_name_i)
 	char   buf[48];
 	if(!DbeInitSize(option, result, sizeof(buf))) {
 		buf[0] = 0;
-		const PPID   id = params[0].lval;
+		const  PPID   id = params[0].lval;
 		if(id) {
 			PPObjLocation loc_obj;
 			SString city_name;

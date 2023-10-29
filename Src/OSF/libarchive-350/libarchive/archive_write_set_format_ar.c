@@ -16,16 +16,15 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_ar.c 201108 2009-12-28 03:28:21Z kientzle $");
-
-#include "archive_write_set_format_private.h"
+//#include "archive_write_set_format_private.h"
 
 struct ar_w {
 	uint64 entry_bytes_remaining;
 	uint64 entry_padding;
-	int is_strtab;
-	int has_strtab;
-	char wrote_global_header;
-	char            * strtab;
+	int    is_strtab;
+	int    has_strtab;
+	char   wrote_global_header;
+	char * strtab;
 };
 
 /*

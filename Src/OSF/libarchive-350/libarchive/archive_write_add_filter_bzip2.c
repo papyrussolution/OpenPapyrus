@@ -22,7 +22,7 @@ struct private_data {
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 	bz_stream stream;
 	int64 total_in;
-	char            * compressed;
+	char * compressed;
 	size_t compressed_buffer_size;
 #else
 	struct archive_write_program_data * pdata;
@@ -32,11 +32,8 @@ struct private_data {
 static int archive_compressor_bzip2_close(struct archive_write_filter *);
 static int archive_compressor_bzip2_free(struct archive_write_filter *);
 static int archive_compressor_bzip2_open(struct archive_write_filter *);
-static int archive_compressor_bzip2_options(struct archive_write_filter *,
-    const char *, const char *);
-static int archive_compressor_bzip2_write(struct archive_write_filter *,
-    const void *, size_t);
-
+static int archive_compressor_bzip2_options(struct archive_write_filter *, const char *, const char *);
+static int archive_compressor_bzip2_write(struct archive_write_filter *, const void *, size_t);
 /*
  * Add a bzip2 compression filter to this write handle.
  */

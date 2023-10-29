@@ -706,7 +706,7 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 					P_CC->GetPaymList(pRec->ID, cp_list);
 					int    _f = 0;
 					for(uint i = 0; !_f && i < SCardList.GetCount(); i++) {
-						const PPID sc_id = SCardList.Get().get(i);
+						const  PPID sc_id = SCardList.Get().get(i);
 						if(cp_list.SearchAddedID(sc_id, 0))
 							_f = 1;
 					}
@@ -1184,7 +1184,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 				temp_list.add(0L);
 			else {
 				for(i = 0; i < Filt.SessIDList.getCount(); i++) {
-					const PPID sess_id = Filt.SessIDList.get (i);
+					const  PPID sess_id = Filt.SessIDList.get (i);
 					THROW(r = CsObj.P_Tbl->GetSubSessList(sess_id, &temp_list));
 					if(r < 0)
 						THROW(temp_list.add(sess_id));
@@ -1197,7 +1197,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 				SessIdList.Set(&temp_list);
 				CSessionTbl::Rec cs_rec;
 				for(uint i = 0; i < temp_list.getCount(); i++) {
-					const PPID sess_id = temp_list.get(i);
+					const  PPID sess_id = temp_list.get(i);
 					if(CsObj.Search(sess_id, &cs_rec) > 0)
                         node_id_list.add(cs_rec.CashNodeID);
 				}
@@ -1233,7 +1233,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 			scs_list.add(Filt.SCardSerID);
 		SCardCore & r_ct = P_CC->Cards;
 		for(i = 0; i < scs_list.getCount(); i++) {
-			const PPID scs_id = scs_list.get(i);
+			const  PPID scs_id = scs_list.get(i);
 			SCardTbl::Key2 k2;
 			BExtQuery q(&r_ct, 2);
 			q.select(r_ct.ID, 0L).where(r_ct.SeriesID == scs_id);
@@ -1637,7 +1637,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 						uint i;
 						PPIDArray cc_id_list;
 						for(i = 0; i < SCardList.GetCount(); i++) {
-							const PPID card_id = SCardList.Get().get(i);
+							const  PPID card_id = SCardList.Get().get(i);
 							{
 								CCheckTbl::Key4 k;
 								DBQ  * dbq = 0;
@@ -1685,7 +1685,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 					}
 					else if(CcIdList.IsExists()) {
 						for(uint i = 0; i < CcIdList.GetCount(); i++) {
-							const PPID cc_id = CcIdList.Get().get(i);
+							const  PPID cc_id = CcIdList.Get().get(i);
 							if(p_cct->Search(cc_id, 0) > 0) {
 								THROW(ProcessCheckRec(&p_cct->data, &bei));
 							}
@@ -3321,7 +3321,7 @@ int PPViewCCheck::Recover()
 						PPTransaction tra(1);
 						THROW(tra);
 						for(uint tridx = 0; tridx < list_to_remove.getCount(); tridx++) {
-							const PPID id_to_remove = list_to_remove.get(tridx);
+							const  PPID id_to_remove = list_to_remove.get(tridx);
 							if(!P_CC->RemovePacket(id_to_remove, 0))
 								logger.LogLastError();
 						}
@@ -3335,7 +3335,7 @@ int PPViewCCheck::Recover()
 					THROW(tra);
 					unassigned_list.sortAndUndup();
 					for(uint i = 0; i < unassigned_list.getCount(); i++) {
-						const PPID cc_id = unassigned_list.get(i);
+						const  PPID cc_id = unassigned_list.get(i);
 						CCheckTbl::Rec cc_rec;
 						if(P_CC->Search(cc_id, &cc_rec) > 0 && cc_rec.SessID == 0) {
 							cc_rec.SessID = csess_id_for_zsess_cc_assignment;
@@ -3352,7 +3352,7 @@ int PPViewCCheck::Recover()
 				}
 				if(inv_amtordis_list.getCount()) {
 					for(uint i = 0; i < inv_amtordis_list.getCount(); i++) {
-						const PPID cc_id = inv_amtordis_list.get(i);
+						const  PPID cc_id = inv_amtordis_list.get(i);
 						CCheckPacket cc_pack;
 						if(P_CC->LoadPacket(cc_id, 0, &cc_pack) > 0) {
 							cc_pack.SetupAmount(0, 0);
@@ -3367,7 +3367,7 @@ int PPViewCCheck::Recover()
 					vcp.HangedGoodsList.sortAndUndup();
 					LAssocArray hanged_goods_replace_list;
 					for(uint i = 0; i < vcp.HangedGoodsList.getCount(); i++) {
-						const PPID h_goods_id = vcp.HangedGoodsList.get(i);
+						const  PPID h_goods_id = vcp.HangedGoodsList.get(i);
 						//
 						PPID   replace_id = 0;
 						{
@@ -3384,7 +3384,7 @@ int PPViewCCheck::Recover()
 					if(hanged_goods_replace_list.getCount()) {
 						if(vcp.CcListWithUnresolvedGoods.getCount()) {
 							for(uint ccidx = 0; ccidx < vcp.CcListWithUnresolvedGoods.getCount(); ccidx++) {
-								const PPID cc_id = vcp.CcListWithUnresolvedGoods.get(ccidx);
+								const  PPID cc_id = vcp.CcListWithUnresolvedGoods.get(ccidx);
 								SString fmt_buf, chk_text, msg_buf;
 								CCheckPacket cc_pack;
 								if(P_CC->LoadPacket(cc_id, 0, &cc_pack) > 0) {
@@ -3458,7 +3458,7 @@ int PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 {
 	int   ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITITEM:
 				ok = -1;
@@ -3659,7 +3659,7 @@ int PPViewCCheck::AddItem()
 			to_view = 1;
 		}
 		if(to_view) {
-			const PPID cn_id = NodeIdList.GetSingle();
+			const  PPID cn_id = NodeIdList.GetSingle();
 			if(Filt.Flags & CCheckFilt::fActiveSess && cn_id) {
 				int    r = cmOK;
 				PPCashMachine * p_cm = PPCashMachine::CreateInstance(cn_id), * p_cm_ext = 0;
@@ -3920,10 +3920,72 @@ private:
 
 			}
 		}
+		else if(event.isCmd(cmCcExtList)) {
+			ViewExtList();
+		}
+		else
+			return;
+		clearEvent(event);
 	}
 	int    FiscalPrintintgEnabled() const
 	{
 		return (!(Data.Rec.Flags & (CCHKF_PRINTED|CCHKF_SUSPENDED)) && (Data.Rec.Flags & CCHKF_SYNC) && Data.Rec.CashID && Data.Rec.SessID);
+	}
+	int    ViewExtList()
+	{
+		class CcExtListDialog : public PPListDialog {
+			const CCheckPacket & R_Data;
+		public:
+			CcExtListDialog(const CCheckPacket & rData) : PPListDialog(DLG_CCEXTLIST, CTL_CCEXTLIST_LIST), R_Data(rData)
+			{
+				updateList(0);
+			}
+		private:
+			virtual int  setupList()
+			{
+				StringSet ss(SLBColumnDelim);
+				static const SIntToSymbTabEntry ext_list[] = {
+					{ CCheckPacket::extssMemo,               "ccextss_memo" },
+					{ CCheckPacket::extssSign,               "ccextss_sign" },
+					{ CCheckPacket::extssEgaisUrl,           "ccextss_egaisurl" },
+					{ CCheckPacket::extssRemoteProcessingTa, "ccextss_remoteprocessingta" },
+					{ CCheckPacket::extssChZnProcessingTag,  "ccextss_chznprocessingtag" },
+					{ CCheckPacket::extssBuyerINN,           "ccextss_buyerinn" },
+					{ CCheckPacket::extssBuyerName,          "ccextss_buyername" },
+					{ CCheckPacket::extssBuyerPhone,         "ccextss_buyerphone" },
+					{ CCheckPacket::extssBuyerEMail,         "ccextss_buyeremail" },
+					{ CCheckPacket::extssUuid,               "ccextss_uuid" },
+					{ CCheckPacket::extssPrescrDate,         "ccextss_prescrdate" },
+					{ CCheckPacket::extssPrescrSerial,       "ccextss_prescrserial" },
+					{ CCheckPacket::extssPrescrNumber,       "ccextss_prescrnumber" },
+					{ CCheckPacket::extssEgaisProcessingTag, "ccextss_egaisprocessingtag" },
+					{ CCheckPacket::extssSourceSymb,         "ccextss_sourcesymb" },
+					{ CCheckPacket::extssOuterIdent,         "ccextss_outerident" },
+					{ CCheckPacket::extssOuterExtTag,        "ccextss_outerexttag" },
+					{ CCheckPacket::extssLinkBillUuid,       "ccextss_linkbilluuid" },
+				};
+				SString temp_buf;
+				SString title_buf;
+				for(uint i = 0; i < SIZEOFARRAY(ext_list); i++) {
+					const int fld_id = ext_list[i].Id;
+					if(R_Data.GetExtStrData(fld_id, temp_buf) > 0) {
+						ss.Z();
+						PPLoadString(ext_list[i].P_Symb, title_buf);
+						ss.add(title_buf);
+						ss.add(temp_buf);
+						addStringToList(fld_id, ss.getBuf());
+					}
+				}
+				return 1;
+			}
+		};
+
+		int    ok = -1;
+		CcExtListDialog * dlg = new CcExtListDialog(Data);
+		if(CheckDialogPtrErr(&dlg)) {
+			ExecViewAndDestroy(dlg);
+		}
+		return ok;
 	}
 	PPObjCSession CsObj;
 	PPObjSCard ScObj;
@@ -4091,7 +4153,7 @@ int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		}
 		else {
 			const CCheckFilt::Grouping grp = Filt.Grp;
-			PPID  temp_id = *static_cast<const PPID *>(pHdr);
+			PPID  temp_id = *static_cast<const  PPID *>(pHdr);
 			if(temp_id && P_TmpGrpTbl &&
 				oneof11(grp, CCheckFilt::gTime, CCheckFilt::gDate, CCheckFilt::gDayOfWeek, CCheckFilt::gDowNTime, CCheckFilt::gCash, CCheckFilt::gCashNode,
 					CCheckFilt::gCard, CCheckFilt::gDscntPct, CCheckFilt::gDiv, CCheckFilt::gGuestCount, CCheckFilt::gTableNo) ||

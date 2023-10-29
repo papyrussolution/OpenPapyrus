@@ -150,14 +150,12 @@
 // @construction {
 #include <..\OSF\abseil\absl\numeric\int128.h>
 
-static const uint64 __ued_planarangle = 0x90ULL;
-static const uint64 __ued_geoloc      = 0x93ULL;
-
 /*static*/uint64 UED::SetRaw_GeoLoc(const SGeoPosLL & rGeoPos)
 {
 	uint64 result = 0;
+	SGeoPosLL test_geopos; // @debug
 	if(rGeoPos.IsValid()) {
-		const uint64 ued_width = ((1 << 28) - 1); // 28 bits
+		constexpr uint64 ued_width = ((1ULL << 28) - 1); // 28 bits
 		uint64 _lat = static_cast<uint64>((rGeoPos.Lat + 90.0)  * 1000000.0);
 		uint64 _lon = static_cast<uint64>((rGeoPos.Lon + 180.0) * 1000000.0);
 		absl::uint128 _lat128 = (_lat * ued_width);
@@ -166,17 +164,19 @@ static const uint64 __ued_geoloc      = 0x93ULL;
 		absl::uint128 _lon128 = (_lon * ued_width);
 		_lon128 /= absl::uint128(360ULL * 1000000ULL);
 		assert(_lon128 <= ued_width);
-		result = (__ued_geoloc << 56) | (static_cast<uint64>(_lat128) << 28) | (static_cast<uint64>(_lon128));
+		uint64 raw = (static_cast<uint64>(_lat128) << 28) | static_cast<uint64>(_lon128);
+		result = ApplyMetaToRawValue(UED_META_GEOLOC, raw);
+		// @debug {
 		//
 		// test straighten
 		//
-		SGeoPosLL test_geopos;
 		absl::uint128 _lat128_ = ((result >> 28) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
 		absl::uint128 _lon128_ = (result & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
 		_lat128_ /= ued_width;
 		_lon128_ /= ued_width;
 		test_geopos.Lat = (static_cast<double>(_lat128_) / 1000000.0) - 90.0;
 		test_geopos.Lon = (static_cast<double>(_lon128_) / 1000000.0) - 180.0;
+		// } @debug
 	}
 	return result;
 }
@@ -184,7 +184,7 @@ static const uint64 __ued_geoloc      = 0x93ULL;
 /*static*/bool UED::GetRaw_GeoLoc(uint64 ued, SGeoPosLL & rGeoPos)
 {
 	bool   ok = false;
-	if((ued >> 56) == __ued_geoloc) {
+	if(BelongToMeta(ued, UED_META_GEOLOC)) {
 		const uint64 ued_width = ((1 << 28) - 1); // 28 bits
 		absl::uint128 _lat128 = ((ued >> 28) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
 		absl::uint128 _lon128 = (ued & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
@@ -197,40 +197,53 @@ static const uint64 __ued_geoloc      = 0x93ULL;
 	return ok;
 }
 
-static uint64 UedPlanarAngleMask     = 0x007fffffffffffULL;
-static uint64 UedPlanarAngleSignMask = 0x00800000000000ULL;
-
-/*static*/uint64 UED::SetRaw_PlanarAngleDeg(double deg)
+/*static*/uint64 UED::Helper_SetRaw_PlanarAngleDeg(uint64 meta, double deg)
 {
 	uint64 result = 0;
-	const uint64 _divisor = 360ULL * 3600ULL;
-	const bool  minus = (deg < 0);
-	const uint64 maxv = (UedPlanarAngleMask / _divisor) * _divisor;
-	assert((maxv % 360ULL) == 0ULL);
-	double _deg = fmod(deg, 360.0);
-	assert(_deg > -360.0 && _deg < 360.0);
-	_deg = fabs(_deg);
-	if(minus)
-		result = (__ued_planarangle << 56) | (uint64)(_deg * (maxv / 360ULL)) | UedPlanarAngleSignMask;
-	else
-		result = (__ued_planarangle << 56) | (uint64)(_deg * (maxv / 360ULL));
-	assert((result & ~(UedPlanarAngleMask | UedPlanarAngleSignMask)) == (__ued_planarangle << 56));
+	const uint bits = GetMetaRawDataBits(meta);
+	if(bits) {
+		constexpr uint64 _divisor = 360ULL * 3600ULL;
+		const uint64 mask = ~(~0ULL << (bits-2));
+		const uint64 sign_mask = 1ULL << (bits-1);
+		const bool  minus = (deg < 0);
+		const uint64 maxv = (mask / _divisor) * _divisor;
+		assert((maxv % 360ULL) == 0ULL);
+		double _deg = fmod(deg, 360.0);
+		assert(_deg > -360.0 && _deg < 360.0);
+		_deg = fabs(_deg);
+		uint64 raw = (uint64)(_deg * (maxv / 360ULL));
+		result = ApplyMetaToRawValue(meta, minus ? (raw | sign_mask) : raw);
+	}
 	return result;
 }
 
-/*static*/bool UED::GetRaw_PlanarAngleDeg(uint64 ued, double & rDeg)
+/*static*/bool UED::Helper_GetRaw_PlanarAngleDeg(uint64 meta, uint64 ued, double & rDeg)
 {
 	bool   ok = false;
-	if((ued >> 56) == __ued_planarangle) {
-		const uint64 _divisor = 360ULL * 3600ULL;
-		const uint64 maxv = (UedPlanarAngleMask / _divisor) * _divisor;
-		rDeg = static_cast<double>(ued & UedPlanarAngleMask) / (maxv / 360ULL);
-		assert(rDeg >= 0.0 && rDeg < 360.0);
-		if(ued & UedPlanarAngleSignMask)
+	const  uint bits = GetMetaRawDataBits(meta);
+	if(bits && BelongToMeta(ued, meta)) {
+		constexpr uint64 _divisor = 360ULL * 3600ULL;
+		const uint64 mask = ~(~0ULL << (bits-2));
+		const uint64 sign_mask = 1ULL << (bits-1);
+		const uint64 maxv = (mask / _divisor) * _divisor;
+		assert((maxv % 360ULL) == 0ULL);
+		rDeg = static_cast<double>(ued & mask) / (maxv / 360ULL);
+		assert(rDeg > -360.0 && rDeg < 360.0);
+		if(ued & sign_mask)
 			rDeg = -rDeg;
 		ok = true;
 	}
 	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_PlanarAngleDeg(double deg)
+{
+	return Helper_SetRaw_PlanarAngleDeg(UED_META_PLANARANGLE, deg);
+}
+
+/*static*/bool UED::GetRaw_PlanarAngleDeg(uint64 ued, double & rDeg)
+{
+	return Helper_GetRaw_PlanarAngleDeg(UED_META_PLANARANGLE, ued, rDeg);
 }
 
 /*static*/uint64 UED::SetRaw_Color(const SColor & rC)
@@ -263,87 +276,216 @@ static uint64 UedPlanarAngleSignMask = 0x00800000000000ULL;
 // } @construction
 #endif // } (_MSC_VER >= 1900)
 
-/*static*/bool  UED::_GetRaw_Time(uint64 ued, SUniTime_Internal & rT)
+static int SetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int offs)
 {
-	bool ok = false;
-	uint64 raw;
-	SUniTime_Internal tm_intr;
-	uint64 meta = GetMeta(ued);	
-	uint   bits = GetRawDataBits(ued);
-	THROW(GetRawValue(ued, &raw));
+	int    ok = 1;
+	const  bool sign = (offs < 0);
+	if(sign)
+		offs = -offs;
+	if(offs > (14 * 3600))
+		ok = 0;
+	else if((offs % (15 * 60)) != 0)
+		ok = 0;
+	else {
+		int _qhr_offs = offs / (15 * 60); 
+		const uint64 mask = (~(~0ULL << 7)) << (bits-7);
+		if((*pRaw & mask) != 0ULL)
+			ok = 0;
+		else {
+			assert((_qhr_offs & ~0x7f) == 0);
+			if(sign)
+				_qhr_offs |= 0x40;
+			*pRaw |= static_cast<uint64>(_qhr_offs) << (bits - 7);
+		}
+	}
+	return ok;
+}
+
+static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
+{
+	int    ok = 1;
+	int _qhr_offs = static_cast<int>(*pRaw >> (bits - 7)); // зональное смещение в четверть-часовых интервалах
+	const bool sign = LOGIC(_qhr_offs & 0x40);
+	_qhr_offs &= ~0x40;
+	int  tz_offs_sc = _qhr_offs * (15 * 60);
+	if(tz_offs_sc > (14 * 3600))
+		ok = 0; // @err
+	else {
+		if(sign)
+			tz_offs_sc = -tz_offs_sc;
+		//if(SUniTime_Internal::ValidateTimeZone(_qhr_offs * ))
+		const uint64 mask = (~(~0ULL << 7)) << (bits-7);
+		uint64 raw2 = *pRaw & ~mask;
+		*pRaw = raw2;
+		ASSIGN_PTR(pOffs, tz_offs_sc);
+	}
+	return ok;
+}
+
+/*static*/uint64 UED::_SetRaw_Time(uint64 meta, const SUniTime_Internal & rT)
+{
+	uint64   result = 0;
+	uint64   raw = 0;
+	THROW(IsMetaId(meta));
+	const uint bits = GetMetaRawDataBits(meta);
+	THROW(bits);
+	THROW(rT.IsValid());
 	switch(meta) {
-		case UED_META_TIME_MKSEC:
-			tm_intr.SetTime100ns(raw * 10);
-			break;
 		case UED_META_TIME_MSEC:
-			tm_intr.SetTime100ns(raw * 10000);
+			THROW(rT.GetTime100ns(&raw));
+			raw /= 10000ULL;
 			break;
 		case UED_META_TIME_SEC:
-			tm_intr.SetTime100ns(raw * 10000000);
+			THROW(rT.GetTime100ns(&raw));
+			raw /= 10000000ULL;
 			break;
 		case UED_META_TIME_MIN:
-			tm_intr.SetTime100ns(raw * 10000000 * 60);
+			THROW(rT.GetTime100ns(&raw));
+			raw /= (60 * 10000000ULL);
 			break;
 		case UED_META_TIME_HR:
-			tm_intr.SetTime100ns(raw * 10000000 * 60 * 60);
+			THROW(rT.GetTime100ns(&raw));
+			raw /= (60 * 60 * 10000000ULL);
 			break;
 		case UED_META_TIME_TZMSEC:
-			{
-				int _qhr_offs = static_cast<int>(raw >> (bits - 7)); // зональное смещение в четверть-часовых интервалах
-				int  tz_offs_sc = _qhr_offs * (15 * 60);
-				if(tz_offs_sc > (26 * 3600))
-					; // @err
-				else {
-					if(tz_offs_sc > (12 * 3600))
-						tz_offs_sc = -((26 * 3600) - tz_offs_sc);
-					//if(SUniTime_Internal::ValidateTimeZone(_qhr_offs * ))
-					uint64 raw2 = raw & ~((1 << (bits-1)) | (1 << (bits-2)) | (1 << (bits-3)) |
-						(1 << (bits-4)) | (1 << (bits-5)) | (1 << (bits-6)) | (1 << (bits-7)));
-					tm_intr.SetTime100ns(raw2 * 10000);
-					tm_intr.TimeZoneSc = tz_offs_sc;
-				}
+			THROW(rT.GetTime100ns(&raw));
+			raw /= 10000ULL;
+			if(rT.TimeZoneSc != SUniTime_Internal::Undef_TimeZone) {
+				THROW(SetTimeZoneOffsetSec(&raw, bits, rT.TimeZoneSc));
 			}
 			break;
 		case UED_META_TIME_TZSEC:
+			THROW(rT.GetTime100ns(&raw));
+			raw /= 10000000ULL;
+			if(rT.TimeZoneSc != SUniTime_Internal::Undef_TimeZone) {
+				THROW(SetTimeZoneOffsetSec(&raw, bits, rT.TimeZoneSc));
+			}
 			break;
 		case UED_META_TIME_TZMIN:
+			THROW(rT.GetTime100ns(&raw));
+			raw /= (60 * 10000000ULL);
+			if(rT.TimeZoneSc != SUniTime_Internal::Undef_TimeZone) {
+				THROW(SetTimeZoneOffsetSec(&raw, bits, rT.TimeZoneSc));
+			}
 			break;
 		case UED_META_TIME_TZHR:
+			THROW(rT.GetTime100ns(&raw));
+			raw /= (60 * 60 * 10000000ULL);
+			if(rT.TimeZoneSc != SUniTime_Internal::Undef_TimeZone) {
+				THROW(SetTimeZoneOffsetSec(&raw, bits, rT.TimeZoneSc));
+			}
 			break;
-
 		case UED_META_DATE_DAY:
+			raw = DateToDaysSinceChristmas(rT.Y, rT.M, rT.D);
 			break;
 		case UED_META_DATE_MON:
+			raw = DateToDaysSinceChristmas(rT.Y, rT.M, 2);
 			break;
 		case UED_META_DATE_QUART:
+			raw = DateToDaysSinceChristmas(rT.Y, (((rT.M-1) / 3) * 3) + 1, 2);
 			break;
 		case UED_META_DATE_SMYR:
+			raw = DateToDaysSinceChristmas(rT.Y, (((rT.M-1) / 6) * 6) + 1, 2);
 			break;
 		case UED_META_DATE_YR:
+			CALLEXCEPT(); // @todo @err(unsupported)
 			break;
-		case UED_META_DATE_DYR:
+		case UED_META_DATE_DAYBC:
+			CALLEXCEPT(); // @todo @err(unsupported)
 			break;
-		case UED_META_DATE_SMCENT:
+		default:
+			CALLEXCEPT(); // @todo @err
 			break;
-		case UED_META_DATE_CENT:
+	}
+	result = ApplyMetaToRawValue(meta, raw);
+	CATCH
+		result = 0;
+	ENDCATCH
+	return result;
+}
+
+/*static*/bool  UED::_GetRaw_Time(uint64 ued, SUniTime_Internal & rT)
+{
+	rT.Z();
+	bool ok = true;
+	uint64 raw = 0;
+	const  uint64 meta = GetMeta(ued);	
+	const  uint   bits = GetRawDataBits(ued);
+	THROW(GetRawValue(ued, &raw));
+	switch(meta) {
+		case UED_META_TIME_MSEC:
+			rT.SetTime100ns(raw * 10000);
+			break;
+		case UED_META_TIME_SEC:
+			rT.SetTime100ns(raw * 10000000);
+			break;
+		case UED_META_TIME_MIN:
+			rT.SetTime100ns(raw * 10000000 * 60);
+			break;
+		case UED_META_TIME_HR:
+			rT.SetTime100ns(raw * 10000000 * 60 * 60);
+			break;
+		case UED_META_TIME_TZMSEC:
+			{
+				int  tz_offs_sc = 0;
+				THROW(GetTimeZoneOffsetSec(&raw, bits, &tz_offs_sc));
+				rT.SetTime100ns(raw * 10000);
+				rT.TimeZoneSc = tz_offs_sc;
+			}
+			break;
+		case UED_META_TIME_TZSEC:
+			{
+				int  tz_offs_sc = 0;
+				THROW(GetTimeZoneOffsetSec(&raw, bits, &tz_offs_sc));
+				rT.SetTime100ns(raw * 10000000);
+				rT.TimeZoneSc = tz_offs_sc;
+			}
+			break;
+		case UED_META_TIME_TZMIN:
+			{
+				int  tz_offs_sc = 0;
+				THROW(GetTimeZoneOffsetSec(&raw, bits, &tz_offs_sc));
+				rT.SetTime100ns(raw * 10000000 * 60);
+				rT.TimeZoneSc = tz_offs_sc;
+			}
+			break;
+		case UED_META_TIME_TZHR:
+			{
+				int  tz_offs_sc = 0;
+				THROW(GetTimeZoneOffsetSec(&raw, bits, &tz_offs_sc));
+				rT.SetTime100ns(raw * 10000000 * 60 * 60);
+				rT.TimeZoneSc = tz_offs_sc;
+			}
+			break;
+		case UED_META_DATE_DAY:
+			DaysSinceChristmasToDate((int)LoDWord(raw), &rT.Y, &rT.M, &rT.D);
+			break;
+		case UED_META_DATE_MON:
+			DaysSinceChristmasToDate((int)LoDWord(raw), &rT.Y, &rT.M, &rT.D);
+			rT.D = 2;
+			break;
+		case UED_META_DATE_QUART:
+			DaysSinceChristmasToDate((int)LoDWord(raw), &rT.Y, &rT.M, &rT.D);
+			rT.M = (((rT.M-1) / 3) * 3) + 1;
+			rT.D = 2;
+			break;
+		case UED_META_DATE_SMYR:
+			DaysSinceChristmasToDate((int)LoDWord(raw), &rT.Y, &rT.M, &rT.D);
+			rT.M = (((rT.M-1) / 6) * 6) + 1;
+			rT.D = 2;
+			break;
+		case UED_META_DATE_YR:
+			DaysSinceChristmasToDate((int)LoDWord(raw), &rT.Y, &rT.M, &rT.D);
+			rT.M = 1;
+			rT.D = 2;
 			break;
 		case UED_META_DATE_DAYBC:
 			break;
-		case UED_META_DATE_MONBC:
-			break;
-		case UED_META_DATE_YRBC:
-			break;
-		case UED_META_DATE_DYRBC:
-			break;
-		case UED_META_DATE_CENTBC:
-			break;
-		case UED_META_DATE_MILLENNIUMBC:
-			break;
-		case UED_META_DATE_MLNYRAGO:
-			break;
-		case UED_META_DATE_BLNYRAGO:
+		default:
+			CALLEXCEPT(); // @todo @err
 			break;
 	}
+	THROW(rT.IsValid());
 	CATCHZOK
 	return ok;
 }

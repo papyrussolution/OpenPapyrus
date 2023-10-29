@@ -636,7 +636,7 @@ void ProcessFileList(std::wifstream& inFile, std::list<SConversion>& files)
 			if(flist.empty()) {
 				wprintf(L"WARNING: Ignoring the line '%ls' in -flist\n", fname);
 			}
-			else{
+			else {
 				std::filesystem::path path(fname + 1);
 				auto& npath = path.make_preferred();
 				if(wcspbrk(fname, L"?*") != nullptr) {
@@ -648,7 +648,7 @@ void ProcessFileList(std::wifstream& inFile, std::list<SConversion>& files)
 						excludes.insert(it.szSrc);
 					}
 				}
-				else{
+				else {
 					std::wstring name = npath.c_str();
 					std::transform(name.begin(), name.end(), name.begin(), towlower);
 					excludes.insert(name);
@@ -659,7 +659,7 @@ void ProcessFileList(std::wifstream& inFile, std::list<SConversion>& files)
 			std::filesystem::path path(fname);
 			SearchForFiles(path.make_preferred().c_str(), flist, false, nullptr);
 		}
-		else{
+		else {
 			SConversion conv = {};
 			std::filesystem::path path(fname);
 			wcscpy_s(conv.szSrc, path.make_preferred().c_str());
@@ -687,7 +687,7 @@ void ProcessFileList(std::wifstream& inFile, std::list<SConversion>& files)
 	if(flist.empty()) {
 		wprintf(L"WARNING: No file names found in -flist\n");
 	}
-	else{
+	else {
 		files.splice(files.end(), flist);
 	}
 }
@@ -737,7 +737,7 @@ void PrintInfo(const TexMetadata& info)
 		    if(info.IsCubemap()) {
 			    wprintf(L"%ls", (info.arraySize > 6) ? L" CubeArray" : L" Cube");
 		    }
-		    else{
+		    else {
 			    wprintf(L"%ls", (info.arraySize > 1) ? L" 2DArray" : L" 2D");
 		    }
 		    break;
@@ -812,7 +812,7 @@ void PrintLogo(bool versionOnly)
 	if(versionOnly) {
 		wprintf(L"texconv version %ls\n", version);
 	}
-	else{
+	else {
 		wprintf(L"Microsoft (R) DirectX Texture Converter [DirectXTex] Version %ls\n", version);
 		wprintf(L"Copyright (C) Microsoft Corp.\n");
 	#ifdef _DEBUG
@@ -1123,7 +1123,7 @@ void FitPowerOf2(size_t origx, size_t origy, _Inout_ size_t& targetx, _Inout_ si
 			}
 		}
 	}
-	else{
+	else {
 		size_t y;
 		for(y = maxsize; y > 1; y >>= 1) {
 			if(y <= targety) break;
@@ -1402,7 +1402,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 				PrintUsage();
 				return 0;
 			}
-			else{
+			else {
 				wprintf(L"Unknown option: %ls\n", pArg);
 				return 1;
 			}
@@ -1625,7 +1625,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 				    else if(wcschr(pValue, L'a')) {
 					    dwNormalMap |= CNMAP_CHANNEL_ALPHA;
 				    }
-				    else{
+				    else {
 					    wprintf(L"Invalid value specified for -nmap (%ls), missing l, r, g, b, or a\n\n", pValue);
 					    return 1;
 				    }
@@ -1633,7 +1633,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 				    if(wcschr(pValue, L'm')) {
 					    dwNormalMap |= CNMAP_MIRROR;
 				    }
-				    else{
+				    else {
 					    if(wcschr(pValue, L'u')) {
 						    dwNormalMap |= CNMAP_MIRROR_U;
 					    }
@@ -1877,7 +1877,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 				return 1;
 			}
 		}
-		else{
+		else {
 			SConversion conv = {};
 			std::filesystem::path path(pArg);
 			wcscpy_s(conv.szSrc, path.make_preferred().c_str());
@@ -1905,7 +1905,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 		wcscat_s(szSuffix, MAX_PATH, L".");
 		wcscat_s(szSuffix, MAX_PATH, fileTypeName);
 	}
-	else{
+	else {
 		wcscat_s(szSuffix, MAX_PATH, L".unknown");
 	}
 
@@ -2033,7 +2033,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 			}
 		}
     #endif
-		else{
+		else {
 			// WIC shares the same filter values for mode and dither
 			static_assert(static_cast<int>(WIC_FLAGS_DITHER) == static_cast<int>(TEX_FILTER_DITHER),
 			    "WIC_FLAGS_* & TEX_FILTER_* should match");
@@ -2153,7 +2153,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 							memcpy_s(dimg->pixels, dimg->slicePitch, simg->pixels, simg->slicePitch);
 						}
 					}
-					else{
+					else {
 						for(size_t i = 0; i < mdata.arraySize; ++i) {
 							auto simg = image->GetImage(0, i, 0);
 							auto dimg = timage->GetImage(0, i, 0);
@@ -2206,7 +2206,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 				cimage.reset(image.release());
 				image.reset(timage.release());
 			}
-			else{
+			else {
 				image.swap(timage);
 			}
 		}
@@ -2221,7 +2221,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 			else if(!info.IsPMAlpha()) {
 				printf("\nWARNING: Image is not using premultipled alpha\n");
 			}
-			else{
+			else {
 				auto img = image->GetImage(0, 0, 0);
 				assert(img);
 				const size_t nimg = image->GetImageCount();
@@ -2860,7 +2860,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 					if(XMVector3NearEqual(value, colorKeyValue, s_tolerance)) {
 						value = g_XMZero;
 					}
-					else{
+					else {
 						value = XMVectorSelect(g_XMOne, value, g_XMSelect1110);
 					}
 
@@ -2960,7 +2960,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 						x2 = XMVectorSqrt(XMVectorSubtract(g_XMOne, XMVector2Dot(x2, x2)));
 						z = XMVectorMultiplyAdd(x2, g_XMOneHalf, g_XMOneHalf);
 					}
-					else{
+					else {
 						z = XMVectorSqrt(XMVectorSubtract(g_XMOne, XMVector2Dot(value, value)));
 					}
 
@@ -3037,7 +3037,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 					}
 				}
 			}
-			else{
+			else {
 				for(size_t i = 0; i < info.arraySize; ++i) {
 					hr = CopyRectangle(*image->GetImage(0, i, 0), Rect(0, 0, info.width, info.height),
 						*timage->GetImage(0, i, 0), TEX_FILTER_DEFAULT, 0, 0);
@@ -3074,7 +3074,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 						memcpy_s(dimg->pixels, dimg->slicePitch, simg->pixels, simg->slicePitch);
 					}
 				}
-				else{
+				else {
 					for(size_t i = 0; i < mdata.arraySize; ++i) {
 						auto simg = cimage->GetImage(0, i, 0);
 						auto dimg = timage->GetImage(0, i, 0);
@@ -3085,7 +3085,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 
 				cimage.swap(timage);
 			}
-			else{
+			else {
 				cimage.reset();
 			}
 		}
@@ -3105,7 +3105,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 					tMips,
 					*timage);
 			}
-			else{
+			else {
 				hr = GenerateMipMaps(image->GetImages(),
 					image->GetImageCount(),
 					image->GetMetadata(),
@@ -3182,7 +3182,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 			if(info.IsPMAlpha()) {
 				printf("\nWARNING: Image is already using premultiplied alpha\n");
 			}
-			else{
+			else {
 				auto img = image->GetImage(0, 0, 0);
 				assert(img);
 				const size_t nimg = image->GetImageCount();
@@ -3239,7 +3239,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 				assert(info.miscFlags == tinfo.miscFlags);
 				assert(info.dimension == tinfo.dimension);
 			}
-			else{
+			else {
 				cimage.reset();
 
 				auto img = image->GetImage(0, 0, 0);
@@ -3274,7 +3274,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 									    wprintf(
 										    L"\nWARNING: DirectCompute is not available, using BC6H / BC7 CPU codec\n");
 							    }
-							    else{
+							    else {
 								    wprintf(L"\nWARNING: using BC6H / BC7 CPU codec\n");
 							    }
 						    }
@@ -3299,7 +3299,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 				if(bc6hbc7 && pDevice) {
 					hr = Compress(pDevice.Get(), img, nimg, info, tformat, dwCompress | dwSRGB, alphaWeight, *timage);
 				}
-				else{
+				else {
 					hr = Compress(img, nimg, info, tformat, cflags | dwSRGB, alphaThreshold, *timage);
 				}
 				if(FAILED(hr)) {
@@ -3322,7 +3322,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 				image.swap(timage);
 			}
 		}
-		else{
+		else {
 			cimage.reset();
 		}
 
@@ -3342,7 +3342,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
 				info.SetAlphaMode(TEX_ALPHA_MODE_STRAIGHT);
 			}
 		}
-		else{
+		else {
 			info.SetAlphaMode(TEX_ALPHA_MODE_UNKNOWN);
 		}
 

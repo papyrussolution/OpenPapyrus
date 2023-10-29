@@ -1346,7 +1346,7 @@ int UhttGoodsValueMgr::Get(UhttGoodsValueFilt * pFilt, UhttGoodsValueArray * pLi
 		UhttPriceTbl::Key1 k1;
 		if(seller_loc_list.getCount()) {
 			for(uint i = 0; i < seller_loc_list.getCount(); i++) {
-				const PPID loc_id = seller_loc_list.get(i);
+				const  PPID loc_id = seller_loc_list.get(i);
 				BExtQuery q(P_Tbl, 1);
 				DBQ * dbq = 0;
 				MEMSZERO(k1);
@@ -1381,7 +1381,7 @@ int UhttGoodsValueMgr::Get(UhttGoodsValueFilt * pFilt, UhttGoodsValueArray * pLi
 		}
 		else if(goods_list.getCount()) {
 			for(uint i = 0; i < goods_list.getCount(); i++) {
-				const PPID goods_id = goods_list.get(i);
+				const  PPID goods_id = goods_list.get(i);
 				BExtQuery q(P_Tbl, 0);
 				DBQ * dbq = 0;
 				MEMSZERO(k0);

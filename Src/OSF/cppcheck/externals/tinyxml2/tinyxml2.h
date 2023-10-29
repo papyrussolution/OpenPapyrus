@@ -54,9 +54,9 @@
  */
 
 #if defined( _DEBUG ) || defined (__DEBUG__)
-#   ifndef TINYXML2_DEBUG
-#       define TINYXML2_DEBUG
-#   endif
+#ifndef TINYXML2_DEBUG
+#define TINYXML2_DEBUG
+#endif
 #endif
 
 #ifdef _MSC_VER
@@ -66,31 +66,31 @@
 
 #ifdef _WIN32
 #   ifdef TINYXML2_EXPORT
-#       define TINYXML2_LIB __declspec(dllexport)
+#define TINYXML2_LIB __declspec(dllexport)
 #   elif defined(TINYXML2_IMPORT)
-#       define TINYXML2_LIB __declspec(dllimport)
+#define TINYXML2_LIB __declspec(dllimport)
 #   else
-#       define TINYXML2_LIB
-#   endif
+#define TINYXML2_LIB
+#endif
 #elif __GNUC__ >= 4
-#   define TINYXML2_LIB __attribute__((visibility("default")))
+#define TINYXML2_LIB __attribute__((visibility("default")))
 #else
-#   define TINYXML2_LIB
+#define TINYXML2_LIB
 #endif
 
 #if defined(TINYXML2_DEBUG)
 #   if defined(_MSC_VER)
 #       // "(void)0," is for suppressing C4127 warning in "assert(false)", "assert(true)" and the like
-#       define TIXMLASSERT(x)           if(!((void)0, (x))) { __debugbreak(); }
+#define TIXMLASSERT(x)           if(!((void)0, (x))) { __debugbreak(); }
 #   elif defined (ANDROID_NDK)
 #       include <android/log.h>
-#       define TIXMLASSERT(x)           if(!(x)) { __android_log_assert("assert", "grinliz", "ASSERT in '%s' at %d.", __FILE__, __LINE__); }
+#define TIXMLASSERT(x)           if(!(x)) { __android_log_assert("assert", "grinliz", "ASSERT in '%s' at %d.", __FILE__, __LINE__); }
 #   else
 #       include <assert.h>
-#       define TIXMLASSERT                assert
-#   endif
+#define TIXMLASSERT                assert
+#endif
 #else
-#   define TIXMLASSERT(x)               {}
+#define TIXMLASSERT(x)               {}
 #endif
 
 /* Versioning, past 1.0.14:

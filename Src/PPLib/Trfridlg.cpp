@@ -208,7 +208,7 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 {
 	const PPConfig & r_cfg = LConfig;
 	PPObjBill * p_bobj = BillObj;
-	const PPID   op_id = rPack.Rec.OpID;
+	const  PPID   op_id = rPack.Rec.OpID;
 	const long   ccfgflags = CConfig.Flags;
 	const bool   allow_suppl_sel = (CanUpdateSuppl(&rPack, itemNo) && p_bobj->CheckRights(BILLOPRT_ACCSSUPPL, 1));
 	const bool   goods_fixed = (itemNo >= 0 || (pInitData && pInitData->GoodsID));
@@ -595,7 +595,7 @@ int TrfrItemDialog::setupAllQuantity(int byLot)
 						PPIDArray lot_list;
 						P_BObj->SearchLotsBySerialExactly(source_serial, &lot_list);
 						for(uint i = 0; i < lot_list.getCount(); i++) {
-							const PPID lot_id = lot_list.get(i);
+							const  PPID lot_id = lot_list.get(i);
 							ReceiptTbl::Rec lot_rec;
 							if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && src_goods_id_list.bsearch(lot_rec.GoodsID)) {
 								if(lot_rec.Rest > 0.0) {
@@ -860,7 +860,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					break;
 				case cmQuot:
 					{
-						const PPID loc_id = GetQuotLocID();
+						const  PPID loc_id = GetQuotLocID();
 						GObj.EditQuotations(Item.GoodsID, loc_id, Item.CurID, 0 /* ArID */, PPQuot::clsGeneral);
 						setupBaseQuot();
 						setupPriceLimit();
@@ -868,7 +868,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					break;
 				case cmVetisMatch: // @v10.1.8
 					if(Item.Flags & PPTFR_RECEIPT && CConfig.Flags2 & CCFLG2_USEVETIS && checkdate(P_Pack->Rec.Dt)) {
-						const PPID suppl_person_id = ObjectToPerson(P_Pack->Rec.Object, 0);
+						const  PPID suppl_person_id = ObjectToPerson(P_Pack->Rec.Object, 0);
 						if(suppl_person_id) {
 							SString temp_buf;
 							VetisDocumentFilt vetis_filt;
@@ -1563,7 +1563,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				else if(GObj.P_Tbl->BelongToDynGen(Item.GoodsID, 0, &dyn_gen_list) > 0) {
 					alt_gen_inited = 1;
 					for(uint i = 0; i < dyn_gen_list.getCount(); i++) {
-						const PPID alt_goods_id = dyn_gen_list.get(i);
+						const  PPID alt_goods_id = dyn_gen_list.get(i);
 						if(P_Pack->SearchGoods(alt_goods_id, &(spos = 0))) {
 							const PPTransferItem & r_ti = P_Pack->ConstTI(spos);
 							Item.Cost = r_ti.Cost;
@@ -1580,7 +1580,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				if(alt_gen_inited || GObj.P_Tbl->BelongToDynGen(Item.GoodsID, 0, &dyn_gen_list) > 0) {
 					const  PPID lid = Item.LocID;
 					for(uint i = 0; i < dyn_gen_list.getCount(); i++) {
-						const PPID alt_goods_id = dyn_gen_list.get(i);
+						const  PPID alt_goods_id = dyn_gen_list.get(i);
 						if(P_Trfr->Rcpt.GetLastLot(alt_goods_id, -lid, MAXDATE, &lot_rec) > 0) {
 							Item.Cost = lot_rec.Cost;
 							Item.Price = lot_rec.Price;
@@ -1782,7 +1782,7 @@ int TrfrItemDialog::setupManuf()
 {
 	int    ok = -1;
 	if(P_Pack && Item.Flags & PPTFR_RECEIPT && getCtrlView(CTLSEL_LOT_MANUF)) {
-		const PPID mnf_lot_tag_id = P_BObj->GetConfig().MnfCountryLotTagID;
+		const  PPID mnf_lot_tag_id = P_BObj->GetConfig().MnfCountryLotTagID;
 		PPObjectTag tag_rec;
 		if(mnf_lot_tag_id && TagObj.Fetch(mnf_lot_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON) {
 			PPID   manuf_id = 0;
@@ -1802,7 +1802,7 @@ int TrfrItemDialog::getManuf()
 {
 	int    ok = -1;
 	if(P_Pack && Item.Flags & PPTFR_RECEIPT && getCtrlView(CTLSEL_LOT_MANUF)) {
-		const PPID mnf_lot_tag_id = P_BObj->GetConfig().MnfCountryLotTagID;
+		const  PPID mnf_lot_tag_id = P_BObj->GetConfig().MnfCountryLotTagID;
 		PPObjectTag tag_rec;
 		if(mnf_lot_tag_id && TagObj.Fetch(mnf_lot_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON) {
 			PPID   manuf_id = 0;
@@ -3197,7 +3197,7 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 	SelLotBrowser * p_brw = 0;
 	for(uint gidx = 0; gidx < rParam.GoodsList.getCount(); gidx++) {
 		Goods2Tbl::Rec goods_rec;
-		const PPID goods_id = rParam.GoodsList.get(gidx);
+		const  PPID goods_id = rParam.GoodsList.get(gidx);
 		if(goods_id && GObj.Fetch(labs(goods_id), &goods_rec) > 0) {
 			uint   s = 0;
 			THROW(SETIFZ(p_ary, SelLotBrowser::CreateArray()));
@@ -3235,7 +3235,7 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 	if(rParam.AddendumLotList.getCount()) {
 		THROW(SETIFZ(p_ary, SelLotBrowser::CreateArray()));
 		for(uint i = 0; i < rParam.AddendumLotList.getCount(); i++) {
-            const PPID addendum_lot_id = rParam.AddendumLotList.get(i);
+            const  PPID addendum_lot_id = rParam.AddendumLotList.get(i);
             if(trfr->Rcpt.Search(addendum_lot_id, &lot_rec) > 0 && lot_rec.ID != rParam.ExcludeLotID) {
 				THROW(r = SelLotBrowser::AddItemToArray(p_ary, &lot_rec, ZERODATE, lot_rec.Rest));
             }

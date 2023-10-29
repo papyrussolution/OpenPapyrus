@@ -90,7 +90,7 @@ void PrcTechCtrlGroup::onPrcSelection(TDialog * pDlg, int onIdleStatus)
 
 void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 {
-	const PPID prc_id = pDlg->getCtrlLong(CtlselPrc);
+	const  PPID prc_id = pDlg->getCtrlLong(CtlselPrc);
 	if(prc_id) {
 		long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
 		ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, 0, egsd_flags);
@@ -980,8 +980,8 @@ int TSessionDialog::AddCompletion() // @v10.8.12
 			ProcessorTbl::Rec prc_rec;
 			TechTbl::Rec tec_rec;
 			if(TSesObj.PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec) > 0 && TSesObj.TecObj.Fetch(Data.Rec.TechID, &tec_rec) > 0) {
-				const PPID tec_goods_id = tec_rec.GoodsID;
-				const PPID tec_struc_id = tec_rec.GStrucID;
+				const  PPID tec_goods_id = tec_rec.GoodsID;
+				const  PPID tec_struc_id = tec_rec.GStrucID;
 				const int  main_item_sign = tec_rec.Sign;
 				if(tec_goods_id && tec_struc_id) {
 					TSessionPacket temp_pack;

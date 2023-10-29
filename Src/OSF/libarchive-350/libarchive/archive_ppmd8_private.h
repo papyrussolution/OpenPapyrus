@@ -129,7 +129,7 @@ typedef struct {
 	void (* Ppmd8_Construct)(CPpmd8 * p);
 	boolint (* Ppmd8_Alloc)(CPpmd8 * p, UInt32 size);
 	void (* Ppmd8_Free)(CPpmd8 * p);
-	void (* Ppmd8_Init)(CPpmd8 * p, unsigned max_order, unsigned restore_method);
+	void (* Ppmd8_Init)(CPpmd8 * p, unsigned maxOrder, unsigned restoreMethod);
 #define Ppmd7_WasAllocated(p) ((p)->Base != NULL)
 	/* Decode Functions */
 	int (* Ppmd8_RangeDec_Init)(CPpmd8 * p);

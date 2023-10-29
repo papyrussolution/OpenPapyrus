@@ -269,7 +269,7 @@ void DBDivDialog::updateList()
 		p_list->freeAll();
 		SString text;
 		for(uint i = 0; i < data.LocList.getCount(); i++) {
-			const PPID id = data.LocList.at(i);
+			const  PPID id = data.LocList.at(i);
 			GetLocationName(id, text);
 			if(!p_list->addItem(id, text)) {
 				PPError(PPERR_SLIB, 0);

@@ -21,11 +21,11 @@ __FBSDID("$FreeBSD$");
 
 struct uudecode {
 	int64 total;
-	uchar   * in_buff;
+	uchar * in_buff;
 #define IN_BUFF_SIZE    (1024)
 	int in_cnt;
 	size_t in_allocated;
-	uchar   * out_buff;
+	uchar * out_buff;
 #define OUT_BUFF_SIZE   (64 * 1024)
 	int state;
 #define ST_FIND_HEAD    0

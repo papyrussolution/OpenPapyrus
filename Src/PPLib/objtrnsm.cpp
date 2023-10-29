@@ -427,7 +427,7 @@ int ObjTransmContext::GetPrimaryObjID(PPID objType, PPID foreignID, PPID * pPrim
 		const PPObjectTransmit::RestoreObjBlock * p_rb = static_cast<const PPObjectTransmit::RestoreObjBlock *>(P_Rb);
 		PPObjectTransmit * p_ot = p_rb->P_Ot;
 		if(p_ot) {
-			const PPID src_db_div_id = P_SrcDbDivPack->Rec.ID;
+			const  PPID src_db_div_id = P_SrcDbDivPack->Rec.ID;
 			ObjSyncTbl::Rec rec;
 			ObjSyncQueueTbl::Rec idx_rec;
 			THROW(r = p_ot->SyncTbl.SearchSync(objType, foreignID, src_db_div_id, 1, &rec));
@@ -2104,7 +2104,7 @@ int PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * pDbDivU
 	long   counter = 0;
 	PPLoadText(PPTXT_MAKETRNSMFILENAME, fmt_buf);
 	{
-		const PPID db_div_id = LConfig.DBDiv;
+		const  PPID db_div_id = LConfig.DBDiv;
 		PPTransaction tra(1);
 		THROW(tra);
 		if(pDbDivUuid) {
@@ -2365,7 +2365,7 @@ int BillTransDialog::updateList()
 		if(Data.DestDBDivList.GetCount()) {
 			const PPIDArray & rary = Data.DestDBDivList.Get();
 			for(uint i = 0; i < rary.getCount(); i++) {
-				const PPID id = rary.at(i);
+				const  PPID id = rary.at(i);
 				GetObjectName(PPOBJ_DBDIV, id, text, 0);
 				THROW_SL(p_list->addItem(id, text));
 			}
@@ -2644,7 +2644,7 @@ int ObjTranDialog::addItem(int dbDivList)
 		PPIDArray dest_list = rary;
 		PPGetObjTypeList(&obj_type_list, 0);
 		for(uint i = 0; i < obj_type_list.getCount(); i++) {
-			const PPID obj_type = obj_type_list.get(i);
+			const  PPID obj_type = obj_type_list.get(i);
 			src_list.Add(obj_type, GetObjectTitle(obj_type, obj_title));
 		}
 		src_list.SortByText();

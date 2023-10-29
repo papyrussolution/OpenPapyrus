@@ -2277,7 +2277,7 @@ int VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN, int 
 						}
 					} while(DT.search(3, &k3, spNext) && DT.data.WayBillDate == rec.WayBillDate && sstreq(rec.WayBillNumber, DT.data.WayBillNumber));
 					for(uint i = 0; i < additional_to_upd_list.getCount(); i++) {
-						const PPID additional_to_upd_id = additional_to_upd_list.get(i);
+						const  PPID additional_to_upd_id = additional_to_upd_list.get(i);
 						THROW(MatchDocument(additional_to_upd_id, billID, rowN, fromBill, 0)); // @recursion
 					}
 				}
@@ -2611,7 +2611,7 @@ int VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & 
 					rec.ToEnterpriseID = sub_entity.ID;
 					if(p_ref->Ot.SearchObjectsByGuid(PPOBJ_LOCATION, PPTAG_LOC_VETIS_GUID, sub_entity.Guid, &id_list) > 0) {
 						assert(id_list.getCount());
-						const PPID loc_id = id_list.get(0);
+						const  PPID loc_id = id_list.get(0);
 						if(PsnObj.LocObj.Fetch(loc_id, &loc_rec) > 0) {
 							rec.LinkToDlvrLocID = loc_id;
 							rec.Flags |= VetisVetDocument::fToMainOrg;
@@ -2791,7 +2791,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 				if(sub_entity.ID && !!sub_entity.Guid) {
 					if(p_ref->Ot.SearchObjectsByGuid(PPOBJ_LOCATION, PPTAG_LOC_VETIS_GUID, sub_entity.Guid, &id_list) > 0) {
 						assert(id_list.getCount());
-						const PPID loc_id = id_list.get(0);
+						const  PPID loc_id = id_list.get(0);
 						if(PsnObj.LocObj.Fetch(loc_id, &loc_rec) > 0) {
 							rec.LinkFromDlvrLocID = loc_id;
 							if(loc_rec.Type == LOCTYP_ADDRESS && loc_rec.OwnerID)
@@ -2813,7 +2813,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 					by_inn_psn_list.clear();
 					PsnObj.GetListByRegNumber(PPREGT_TPID, 0, bent.Inn, id_list);
 					for(uint i = 0; i < id_list.getCount(); i++) {
-						const PPID _id = id_list.get(i);
+						const  PPID _id = id_list.get(i);
 						if(PsnObj.Fetch(_id, &psn_rec) > 0)
 							by_inn_psn_list.add(_id);
 					}
@@ -2827,7 +2827,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 				if(sub_entity.ID && !!sub_entity.Guid) {
 					if(p_ref->Ot.SearchObjectsByGuid(PPOBJ_LOCATION, PPTAG_LOC_VETIS_GUID, sub_entity.Guid, &id_list) > 0) {
 						assert(id_list.getCount());
-						const PPID loc_id = id_list.get(0);
+						const  PPID loc_id = id_list.get(0);
 						if(PsnObj.LocObj.Fetch(loc_id, &loc_rec) > 0) {
 							rec.LinkToDlvrLocID = loc_id;
 							if(loc_rec.Type == LOCTYP_ADDRESS && loc_rec.OwnerID)
@@ -2849,7 +2849,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 					by_inn_psn_list.clear();
 					PsnObj.GetListByRegNumber(PPREGT_TPID, 0, bent.Inn, id_list);
 					for(uint i = 0; i < id_list.getCount(); i++) {
-						const PPID _id = id_list.get(i);
+						const  PPID _id = id_list.get(i);
 						if(PsnObj.Fetch(_id, &psn_rec) > 0)
 							by_inn_psn_list.add(_id);
 					}
@@ -4674,7 +4674,7 @@ int PPVetisInterface::ParseVetDocument(const xmlNode * pParentNode, VetisVetDocu
 			ReceiptTbl::Rec lot_rec;
 			TransferTbl::Rec trfr_rec;
 			for(uint i = 0; /* @v10.1.6 !rResult.NativeLotID &&*/ i < lot_list.getCount(); i++) {
-				const PPID lot_id = lot_list.get(i);
+				const  PPID lot_id = lot_list.get(i);
 				if(p_bobj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
 					DateIter di;
 					if(p_bobj->trfr->EnumByLot(lot_id, &di, &trfr_rec) > 0 && trfr_rec.Flags & PPTFR_RECEIPT) {
@@ -8004,7 +8004,7 @@ int PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray & rEx
 			app_data.Pi = *pi_reply.ProductItemList.at(0);
 	}
 	for(uint edeidx = 0; edeidx < rExpenseDocEntityList.getCount(); edeidx++) {
-		const PPID ede_id = rExpenseDocEntityList.get(edeidx);
+		const  PPID ede_id = rExpenseDocEntityList.get(edeidx);
 		VetisRegisterProductionRequest::SourceEntry * p_se = app_data.SourceList.CreateNewItem();
 		THROW_SL(p_se);
 		THROW(PeC.SearchDocument(ede_id, &p_se->Rec) > 0);
@@ -8085,7 +8085,7 @@ int PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray & rEx
 					// Создав запись сертификата, необходимо удалить записи подготовки производственного документа
 					THROW(PeC.DeleteEntity(docEntityID, 0));
 					for(uint selidx = 0; selidx < rExpenseDocEntityList.getCount(); selidx++) {
-						const PPID src_doc_entity_id = rExpenseDocEntityList.get(selidx);
+						const  PPID src_doc_entity_id = rExpenseDocEntityList.get(selidx);
 						THROW(PeC.DeleteEntity(src_doc_entity_id, 0));
 					}
 					THROW(tra.Commit());
@@ -8466,7 +8466,7 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 	int    tst_goods = -1;
 	BillTbl::Rec bill_rec;
 	if(p_bobj->Fetch(billID, &bill_rec) > 0) {
-		const PPID cli_psn_id = ObjectToPerson(bill_rec.Object, 0); // @v11.7.4
+		const  PPID cli_psn_id = ObjectToPerson(bill_rec.Object, 0); // @v11.7.4
 		if(rReq.VdRec.LinkGoodsID) {
 			ObjTagItem tag_item;
 			if(p_ref->Ot.GetTag(PPOBJ_GOODS, rReq.VdRec.LinkGoodsID, PPTAG_GOODS_TRANSPVANTYPE, &tag_item) > 0) {
@@ -8658,7 +8658,7 @@ int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, const TSColle
 static void Debug_OutputProductItem(const VetisProductItem & rItem, SString & rBuf)
 {
 	rBuf.Z();
-	rBuf.Cat(rItem.Uuid).Tab().Cat(rItem.Guid);
+	rBuf.Cat(rItem.Uuid, S_GUID::fmtIDL).Tab().Cat(rItem.Guid, S_GUID::fmtIDL);
 	rBuf.Tab().Cat(rItem.GlobalID);
 	rBuf.Tab().Cat(rItem.Code);
 	rBuf.Tab().Cat(rItem.Name);
@@ -8671,7 +8671,7 @@ static void Debug_OutputEntItem(const VetisEnterprise & rItem, SString & rBuf)
 {
 	SString temp_buf;
 	rBuf.Z();
-	rBuf.Cat(rItem.Uuid).Tab().Cat(rItem.Guid);
+	rBuf.Cat(rItem.Uuid, S_GUID::fmtIDL).Tab().Cat(rItem.Guid, S_GUID::fmtIDL);
 	rBuf.Tab().Cat(rItem.Name).Tab().Cat(rItem.EnglishName);
 	rBuf.Tab().Cat(rItem.Address.AddressView);
 	rBuf.Tab();
@@ -8824,7 +8824,7 @@ int TestVetis()
 					const VetisCountry * p_item = reply.CountryList.at(i);
 					if(p_item) {
 						temp_buf.Z();
-						temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid);
+						temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL);
 						temp_buf.Tab().Cat(p_item->Code).Tab().Cat(p_item->Code3).Tab().Cat(p_item->Name).Tab().Cat(p_item->EnglishName);
 						f_out.WriteLine(temp_buf.CR());
 					}
@@ -8841,8 +8841,8 @@ int TestVetis()
 					const VetisAddressObjectView * p_item = reply.RegionList.at(i);
 					if(p_item) {
 						temp_buf.Z();
-						temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid);
-						temp_buf.Tab().Cat(p_item->CountryGUID).Tab().Cat(p_item->RegionCode).Tab().Cat(p_item->Type).Tab().
+						temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL);
+						temp_buf.Tab().Cat(p_item->CountryGUID, S_GUID::fmtIDL).Tab().Cat(p_item->RegionCode).Tab().Cat(p_item->Type).Tab().
 							Cat(p_item->Name).Tab().Cat(p_item->EnglishName).Tab().Cat(p_item->View);
 						f_out.WriteLine(temp_buf.CR());
 					}
@@ -8869,8 +8869,8 @@ int TestVetis()
 					const VetisUnit * p_item = reply.UnitList.at(i);
 					if(p_item) {
 						temp_buf.Z();
-						temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid);
-						temp_buf.Tab().Cat(p_item->Name).Tab().Cat(p_item->CommonUnitGuid).Tab().Cat(p_item->Factor, MKSFMTD(0, 6, 0));
+						temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL);
+						temp_buf.Tab().Cat(p_item->Name).Tab().Cat(p_item->CommonUnitGuid, S_GUID::fmtIDL).Tab().Cat(p_item->Factor, MKSFMTD(0, 6, 0));
 						f_out.WriteLine(temp_buf.CR());
 						{
 							VetisEntityCore::Entity sub_entity(VetisEntityCore::kUOM, *p_item);
@@ -8989,7 +8989,7 @@ int TestVetis()
 						const VetisBusinessEntity * p_item = reply.BEntList.at(i);
 						if(p_item) {
 							temp_buf.Z();
-							temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid);
+							temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL);
 							temp_buf.Tab().Cat(p_item->Name).Tab().Cat(p_item->Fio).Tab().Cat(p_item->Inn).Tab().Cat(p_item->Kpp);
 							temp_buf.Tab().Cat(p_item->JuridicalAddress.AddressView);
 							f_out.WriteLine(temp_buf.CR());
@@ -9017,7 +9017,7 @@ int TestVetis()
 					const VetisProduct * p_item = reply.ProductList.at(i);
 					if(p_item) {
 						temp_buf.Z();
-						temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid);
+						temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL);
 						temp_buf.Tab().Cat(p_item->Name).Tab().Cat(p_item->Code).Tab().Cat(p_item->ProductType);
 						f_out.WriteLine(temp_buf.CR());
 					}
@@ -9039,7 +9039,7 @@ int TestVetis()
 					const VetisSubProduct * p_item = reply.SubProductList.at(i);
 					if(p_item) {
 						temp_buf.Z();
-						temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid);
+						temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL);
 						temp_buf.Tab().Cat(p_item->Name).Tab().Cat(p_item->Code).Tab().Cat(p_item->ProductGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
 						f_out.WriteLine(temp_buf.CR());
 					}
@@ -9630,7 +9630,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
 	for(uint i = 0; i < rOpList.getCount(); i++) {
-		const PPID op_id = rOpList.get(i);
+		const  PPID op_id = rOpList.get(i);
 		PPOprKind op_rec;
 		BillTbl::Rec bill_rec;
 		GetOpData(op_id, &op_rec);
@@ -9660,7 +9660,7 @@ int PPVetisInterface::Helper_PutOutgoingBillList(PPIDArray & rBillList, const lo
 		THROW(tra);
 		rBillList.sortAndUndup();
 		for(uint k = 0; k < rBillList.getCount(); k++) {
-			const PPID bill_id = rBillList.get(k);
+			const  PPID bill_id = rBillList.get(k);
 			if(p_bobj->Search(bill_id, &bill_rec) > 0) {
 				PPBillPacket pack;
 				if(p_bobj->ExtractPacket(bill_id, &pack) > 0) {
@@ -9726,7 +9726,7 @@ int PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & rPeriod
 		for(uint cbidx = 0; cbidx < SIZEOFARRAY(control_block_list); cbidx++) {
 			PPIDArray base_op_list;
 			for(uint opidx = 0; opidx < SIZEOFARRAY(control_block_list[cbidx].SrcOpList); opidx++) {
-				const PPID op_id = control_block_list[cbidx].SrcOpList[opidx];
+				const  PPID op_id = control_block_list[cbidx].SrcOpList[opidx];
 				base_op_list.addnz(op_id);
 			}
 			if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
@@ -10047,8 +10047,8 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_VETISENT_LOC) || event.isCbSelected(CTLSEL_VETISENT_ORG)) {
 				UI_LOCAL_LOCK_ENTER
-					const PPID   psn_id = getCtrlLong(CTLSEL_VETISENT_ORG);
-					const PPID   loc_id = getCtrlLong(CTLSEL_VETISENT_LOC);
+					const  PPID   psn_id = getCtrlLong(CTLSEL_VETISENT_ORG);
+					const  PPID   loc_id = getCtrlLong(CTLSEL_VETISENT_LOC);
 					R_Ec.SetupEnterpriseEntry(psn_id, loc_id, Data);
 					Setup();
 				UI_LOCAL_LOCK_LEAVE
@@ -10418,8 +10418,8 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 			}
 		}
 		VetisVetDocument & R_Data;
-		const PPID MainOrgID;
-		const PPID LocID;
+		const  PPID MainOrgID;
+		const  PPID LocID;
 	};
 	int    ok = -1;
 	VetVDocInfoDialog * dlg = new VetVDocInfoDialog(rData, mainOrgID, locID);
@@ -10613,8 +10613,8 @@ public:
 		SetClusterData(CTL_VETDOCFLT_STATUS, Data.VDStatusFlags);
 		SetupLocationCombo(this, CTLSEL_VETDOCFLT_WH, Data.LocID__, 0, LOCTYP_WAREHOUSE, 0);
 		{
-			const PPID acs_from_id = GetSupplAccSheet();
-			const PPID acs_to_id = GetSellAccSheet();
+			const  PPID acs_from_id = GetSupplAccSheet();
+			const  PPID acs_to_id = GetSellAccSheet();
 			PPObjAccSheet acs_obj;
 			PPAccSheet acs_rec;
 			if(acs_obj.Fetch(acs_from_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
@@ -10781,7 +10781,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 								const VetisCountry * p_item = reply.CountryList.at(i);
 								if(p_item) {
 									temp_buf.Z();
-									temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid);
+									temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL);
 									temp_buf.Tab().Cat(p_item->Code).Tab().Cat(p_item->Code3).Tab().Cat(p_item->Name).Tab().Cat(p_item->EnglishName);
 									f_out.WriteLine(temp_buf.CR());
 								}
@@ -10798,7 +10798,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 								const VetisPurpose * p_item = reply.PurposeList.at(i);
 								if(p_item) {
 									temp_buf.Z();
-									temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid).Tab().Cat(p_item->Name);
+									temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL).Tab().Cat(p_item->Name);
 									f_out.WriteLine(temp_buf.CR());
 								}
 							}
@@ -10816,8 +10816,8 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 								const VetisAddressObjectView * p_item = reply.RegionList.at(i);
 								if(p_item) {
 									temp_buf.Z();
-									temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid);
-									temp_buf.Tab().Cat(p_item->CountryGUID).Tab().Cat(p_item->RegionCode).Tab().Cat(p_item->Type).Tab().
+									temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL);
+									temp_buf.Tab().Cat(p_item->CountryGUID, S_GUID::fmtIDL).Tab().Cat(p_item->RegionCode).Tab().Cat(p_item->Type).Tab().
 										Cat(p_item->Name).Tab().Cat(p_item->EnglishName).Tab().Cat(p_item->View);
 									f_out.WriteLine(temp_buf.CR());
 								}
@@ -10836,8 +10836,8 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 							const VetisUnit * p_item = reply.UnitList.at(i);
 							if(p_item) {
 								temp_buf.Z();
-								temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid);
-								temp_buf.Tab().Cat(p_item->Name).Tab().Cat(p_item->CommonUnitGuid).Tab().Cat(p_item->Factor, MKSFMTD(0, 6, 0));
+								temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL);
+								temp_buf.Tab().Cat(p_item->Name).Tab().Cat(p_item->CommonUnitGuid, S_GUID::fmtIDL).Tab().Cat(p_item->Factor, MKSFMTD(0, 6, 0));
 								f_out.WriteLine(temp_buf.CR());
 								{
 									VetisEntityCore::Entity sub_entity(VetisEntityCore::kUOM, *p_item);
@@ -10875,7 +10875,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 									const VetisBusinessEntity * p_item = reply.BEntList.at(i);
 									if(p_item) {
 										temp_buf.Z();
-										temp_buf.Cat(p_item->Uuid).Tab().Cat(p_item->Guid);
+										temp_buf.Cat(p_item->Uuid, S_GUID::fmtIDL).Tab().Cat(p_item->Guid, S_GUID::fmtIDL);
 										temp_buf.Tab().Cat(p_item->Name).Tab().Cat(p_item->Fio).Tab().Cat(p_item->Inn).Tab().Cat(p_item->Kpp);
 										temp_buf.Tab().Cat(p_item->JuridicalAddress.AddressView);
 										f_out.WriteLine(temp_buf.CR());
@@ -11161,7 +11161,7 @@ static IMPL_DBE_PROC(dbqf_vetis_entitytextfld_ip)
 	}
 	else {
 		Reference * p_ref = PPRef;
-		const PPID entity_id = params[0].lval;
+		const  PPID entity_id = params[0].lval;
 		VetisEntityCore * p_ec = reinterpret_cast<VetisEntityCore *>(params[1].ptrv);
 		SString temp_buf;
 		SStringU temp_buf_u;
@@ -11236,7 +11236,7 @@ static IMPL_DBE_PROC(dbqf_vetis_vet_uuid_i)
 	}
 	else {
 		Reference * p_ref = PPRef;
-		const PPID entity_id = params[0].lval;
+		const  PPID entity_id = params[0].lval;
 		VetisEntityCore * p_ec = const_cast<VetisEntityCore *>(static_cast<const VetisEntityCore *>(params[1].ptrval));
 		SString temp_buf;
 		if(p_ec) {
@@ -11922,7 +11922,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 		}
 		PPLoadText(PPTXT_VETIS_OUTCERTSENDING, wait_msg);
 		for(uint i = 0; i < entity_id_list.getCount(); i++) {
-			const PPID entity_id = entity_id_list.get(i);
+			const  PPID entity_id = entity_id_list.get(i);
 			VetisDocumentTbl::Rec vd_rec;
 			if(EC.SearchDocument(entity_id, &vd_rec) > 0 && vd_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 				VetisApplicationBlock reply;
@@ -12532,8 +12532,8 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCbSelected(CTLSEL_MTCHPSN_PSN)) {
-			const PPID preserve_loc_id = Data.DlvrLocID;
-			const PPID preserve_psn_id = Data.PersonID;
+			const  PPID preserve_loc_id = Data.DlvrLocID;
+			const  PPID preserve_psn_id = Data.PersonID;
 			getCtrlData(CTLSEL_MTCHPSN_PSN, &Data.PersonID);
 			if(preserve_psn_id != Data.PersonID) {
 				if(Data.PersonID)
@@ -12630,7 +12630,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 	if(oneof2(objToMatch, otmFrom, otmTo)) {
 		const int  side = (objToMatch == otmTo) ? 1 : 0;
 		PPMatchPersonBlock mb;
-		const PPID acs_id = (objToMatch == otmTo) ? GetSellAccSheet() : GetSupplAccSheet();
+		const  PPID acs_id = (objToMatch == otmTo) ? GetSellAccSheet() : GetSupplAccSheet();
 		PPAccSheet acs_rec;
 		{
 			Reference * p_ref = PPRef;
@@ -12814,7 +12814,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 								}
 								lot_id_list.sortAndUndup();
 								for(uint i = 0; i < lot_id_list.getCount(); i++) {
-									const PPID lot_id = lot_id_list.get(i);
+									const  PPID lot_id = lot_id_list.get(i);
 									if(p_bobj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
 										DateIter di;
 										TransferTbl::Rec trfr_rec;
@@ -12953,7 +12953,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 							if(op_list_intrexpnd.getCount() && rcvr_ar_id) {
 								op_list_intrexpnd.sortAndUndup();
 								for(uint i = 0; i < op_list_intrexpnd.getCount(); i++) {
-									const PPID op_id = op_list_intrexpnd.get(i);
+									const  PPID op_id = op_list_intrexpnd.get(i);
 									for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(rcvr_ar_id, &di, &bill_rec) > 0;) {
 										if(bill_rec.OpID == op_id && (!loc_id || bill_rec.LocID == loc_id)) {
 											temp_id_list.add(bill_rec.ID);
@@ -12967,7 +12967,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 							if(op_list_intrrcpt.getCount()) {
 								op_list_intrrcpt.sortAndUndup();
 								for(uint i = 0; i < op_list_intrrcpt.getCount(); i++) {
-									const PPID op_id = op_list_intrrcpt.get(i);
+									const  PPID op_id = op_list_intrrcpt.get(i);
 									for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 										if(bill_rec.OpID == op_id && (!Filt.LocID__ || bill_rec.LocID == Filt.LocID__)) {
 											temp_id_list.add(bill_rec.ID);
@@ -13038,7 +13038,7 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITITEM:
 				ok = -1;

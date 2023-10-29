@@ -228,7 +228,7 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 						stat_list[i].at(j)->S.Finish();
 				op_list.Sort();
 				for(i = 0; i < op_list.getCount(); i++) {
-					const PPID op_id = op_list.at(i).Key;
+					const  PPID op_id = op_list.at(i).Key;
 					const int sign = op_list.at(i).Val;
 					TempOpGrpngTbl::Rec rec;
 					// @v10.6.4 MEMSZERO(rec);
@@ -550,7 +550,7 @@ public:
 		LocationCtrlGroup::Rec l_rec(&Data.LocList);
 		setGroupData(ctlgroupLoc, &l_rec);
 		SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
-		const PPID acs_id = GetSupplAccSheet();
+		const  PPID acs_id = GetSupplAccSheet();
 		SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, 0, acs_id, sacfDisableIfZeroSheet);
 		types.add(PPOPT_GENERIC);
 		SetupOprKindCombo(this, CTLSEL_GTO_OPR, Data.OpID, 0, &types, 0);
@@ -803,7 +803,7 @@ int PPViewOpGrouping::Print(const void * pHdr)
 
 int PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   __id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	TempOpGrpngTbl * p_tbl = NZOR(P_TempStatTbl, P_TempTbl);
 	if(__id && p_tbl) {
 		PPID   k = __id;
@@ -991,7 +991,7 @@ int PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 	Generator_GnuPlot::PlotParam param;
 	if(CycleList.getCount()) {
 		uint   i;
-		PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   __id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		PPID   cur_op_id = 0;
 		long   cur_sign = 0;
 		TempOpGrpngTbl * p_tbl = NZOR(P_TempStatTbl, P_TempTbl);

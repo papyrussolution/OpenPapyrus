@@ -145,7 +145,7 @@ int PPViewScale::UpdateTempTable(const PPIDArray * pIdList)
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
 		for(uint i = 0; i < pIdList->getCount(); i++) {
-			const PPID id = pIdList->at(i);
+			const  PPID id = pIdList->at(i);
 			PPScalePacket pack;
 			TempScaleTbl::Rec temp_rec;
 			if(ObjScale.GetPacket(id, &pack) > 0 && CheckForFilt(&pack)) {
@@ -287,7 +287,7 @@ int PPViewScale::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 {
 	int        ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
 	PPIDArray  id_list;
-	PPID       id = (pHdr) ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID       id = (pHdr) ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:

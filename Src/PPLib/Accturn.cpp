@@ -71,7 +71,7 @@ int AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * pAccLis
 				temp_acc_list.clear();
 				THROW(AccObj.GetSubacctList(acc_rec.A.Ac, sb, 0L, &temp_acc_list));
 				for(uint j = 0; j < temp_acc_list.getCount(); j++) {
-					const PPID acc_id = temp_acc_list.at(j);
+					const  PPID acc_id = temp_acc_list.at(j);
 					THROW(UpdateItemInExtGenAccList(acc_id, (f|ACGF_ACO2GRP), acc_id, pAccList, pCurList));
 				}
 			}
@@ -471,7 +471,7 @@ int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID person
 		AcctRelTbl::Rec acr_rec;
 		PPIDArray ar_list, temp_list;
 		THROW(AccRel.Search(*pAccID, &acr_rec) > 0);
-		const PPID acc_id = acr_rec.AccID;
+		const  PPID acc_id = acr_rec.AccID;
 		if(personRelID) {
 			PPObjArticle ar_obj;
 			ar_obj.GetRelPersonList(acr_rec.ArticleID, personRelID, 1, &temp_list);
@@ -1237,7 +1237,7 @@ int AccTurnCore::CalcComplexRest(long aco, PPID accID, PPID curID, PPID personRe
 	}
 	else {
 		for(i = 0; i < acc_list.getCount(); i++) {
-			const PPID acc_id = acc_list.at(i);
+			const  PPID acc_id = acc_list.at(i);
 			if(curID < 0) {
 				THROW(GetAcctCurID(aco, acc_id, &cur_id));
 			}

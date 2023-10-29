@@ -2349,7 +2349,7 @@ int PPViewTimeSeries::OnExecBrowser(PPViewBrowser *)
 int PPViewTimeSeries::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(id) {
 		TimSerDetailFilt filt;
 		filt.TsID = id;
@@ -2473,7 +2473,7 @@ int PPViewTimeSeries::DeleteAll()
 int PPViewTimeSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	const  PPID preserve_id = id;
 	if(ppvCmd == PPVCMD_DELETEITEM) { // Перехват обработки команды до PPView::ProcessCommand
 		ok = DeleteItem(id);
@@ -7787,11 +7787,11 @@ int PrcssrTsStrategyAnalyze::Run()
 				{
 				}
 				const LDATETIME StorageDtm;
-				const PPID   ID;
+				const  PPID   ID;
 			};
 			SVector temp_list(sizeof(TempEntry));
 			for(uint i1 = 0; i1 < id_pre_list.getCount(); i1++) {
-				const PPID id = id_pre_list.get(i1);
+				const  PPID id = id_pre_list.get(i1);
 				PPTimeSeries ts_rec;
 				if(TsObj.Search(id, &ts_rec) > 0) {
 					PPObjTimeSeries::StrategyContainer sc;
@@ -7823,7 +7823,7 @@ int PrcssrTsStrategyAnalyze::Run()
 			msg_buf.CR();
 			f_out.WriteLine(msg_buf);
 			for(uint j = 0; j < id_list.getCount(); j++) {
-				const PPID id = id_list.get(j);
+				const  PPID id = id_list.get(j);
 				if(TsObj.GetPacket(id, &ts_pack) > 0) {
 					PPObjTimeSeries::StrategyContainer sc;
 					LDATETIME strg_dtm = ZERODATETIME;
@@ -7845,7 +7845,7 @@ int PrcssrTsStrategyAnalyze::Run()
 		f_out.Flush();
 		const bool do_iterate_throw_periods = false; // @20200924 
 		for(uint i = 0; i < id_list.getCount(); i++) {
-			const PPID id = id_list.get(i);
+			const  PPID id = id_list.get(i);
 			PPTssModelPacket tss_model;
 			if(TsObj.GetPacket(id, &ts_pack) > 0 && GetTssModel(&ts_pack.Rec, &tss_model) > 0) {
 				STimeSeries ts;
@@ -8603,7 +8603,7 @@ int PrcssrTsStrategyAnalyze::OutputTryStrategyContainerResult(TryStrategyContain
 		rRc.GetTsList(result_ts_list);
 		msg_buf.Z();
 		for(uint tsidx = 0; tsidx < result_ts_list.getCount(); tsidx++) {
-			const PPID result_ts_id = result_ts_list.get(tsidx);
+			const  PPID result_ts_id = result_ts_list.get(tsidx);
 			if(TsObj.Search(result_ts_id, &ts_rec) > 0)
 				msg_buf.Cat(ts_rec.ID).Space().Cat(ts_rec.Symb).CR();
 		}
@@ -8802,13 +8802,13 @@ int PPObjTimeSeries::TryStrategies(PPID id)
 		else if(param.Action == TimeSeriesTestParam::acnAnalyzeRegression) {
 			PrcssrTsStrategyAnalyze prc;
 			for(uint i = 0; i < param.TsList.GetCount(); i++) {
-				const PPID ts_id = param.TsList.Get(i);
+				const  PPID ts_id = param.TsList.Get(i);
 				THROW(prc.AnalyzeRegression(ts_id));
 			}
 		}
 		else if(param.Action == TimeSeriesTestParam::acnEvalOptMaxDuck) {
 			for(uint i = 0; i < param.TsList.GetCount(); i++) {
-				const PPID ts_id = param.TsList.Get(i);
+				const  PPID ts_id = param.TsList.Get(i);
 				THROW(PPObjTimeSeries::EvaluateOptimalMaxDuck(ts_id));
 			}
 		}
@@ -9038,7 +9038,7 @@ int PPViewTimSerDetail::OnExecBrowser(PPViewBrowser * pBrw)
 int PPViewTimSerDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	const  PPID preserve_id = id;
 	if(ok == -2) {
 		switch(ppvCmd) {
@@ -9563,7 +9563,7 @@ int TestTsDensityMap() // @debug
 		SFile f_out(out_file_name, SFile::mWrite);
 		SFile f_out_knn(out_knn_file_name, SFile::mWrite);
 		for(uint tsidx = 0; tsidx < ts_list.getCount(); tsidx++) {
-			const PPID ts_id = ts_list.at(tsidx);
+			const  PPID ts_id = ts_list.at(tsidx);
 			PPTimeSeries ts_rec;
 			if(ts_obj.Search(ts_id, &ts_rec) > 0) {
 				CP cplist[] = {

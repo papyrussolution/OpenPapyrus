@@ -187,7 +187,7 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack, LongA
 		if(dest_unit_id && GObj.FetchTax(dest_goods_id, dt, pPack->Rec.OpID, &dest_gte) > 0) {
 			PPGoodsTaxEntry src_gte;
 			for(i = 0; i < p_spc_list->getCount(); i++) {
-				const PPID src_goods_id = p_spc_list->get(i);
+				const  PPID src_goods_id = p_spc_list->get(i);
 				PPID   src_unit_id = 0;
 				if(GObj.Fetch(src_goods_id, &src_goods_rec) > 0)
 					src_unit_id = src_goods_rec.UnitID;
@@ -250,7 +250,7 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack, LongA
 	if(do_optimize_lots)
 		THROW(OrderLots(pPack, &lots, dest_goods_id, ilti->Cost, ilti->Price, qtty));
 	for(i = 0; qtty < 0.0 && i < lots.getCount(); i++) {
-		const PPID lot_id = lots.at(i);
+		const  PPID lot_id = lots.at(i);
 		ReceiptTbl::Rec lot_rec;
 		THROW(trfr->Rcpt.Search(lot_id, &lot_rec) > 0);
 		if(!by_serial || CmpSnrWithLotSnr(lot_id, pSerial, false)) {
@@ -321,7 +321,7 @@ int PPObjBill::AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double 
 		}
 	}
 	else if(intr == INTREXPND) {
-		const PPID loc_id = PPObjLocation::ObjToWarehouse(pPack->Rec.Object);
+		const  PPID loc_id = PPObjLocation::ObjToWarehouse(pPack->Rec.Object);
 		if(loc_id && LocObj.Fetch(loc_id, &loc_rec) > 0 && loc_rec.Flags & LOCF_ADJINTRPRICE) {
 			adj_intr_price = 1;
 			adj_intr_loc = loc_id;
@@ -828,7 +828,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 				}
 				THROW(trfr->Rcpt.GetListOfOpenedLots(-1, ilti->GoodsID, pPack->Rec.LocID, pPack->Rec.Dt, &lot_list));
 				for(i = 0; i < lot_list.getCount(); i++) {
-					const PPID lot_id = lot_list.at(i).ID;
+					const  PPID lot_id = lot_list.at(i).ID;
 					if(!p_excl_serial || GetSerialNumberByLot(lot_id, temp_buf, 0) <= 0 || !p_excl_serial->search(temp_buf, 0, 0))
 						lots.add(lot_id);
 				}
@@ -855,7 +855,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 				// а затем, если можно, без учета серийного номера
 				//
 				for(i = 0; (qtty < (-_qtty_epsilon) || (flags & CILTIF_CUTRESTTOZERO)) && i < lots.getCount(); i++) { // @v11.0.4 (|| (flags & CILTIF_CUTRESTTOZERO))
-					const PPID lot_id = lots.get(i);
+					const  PPID lot_id = lots.get(i);
 					if(!by_serial || CmpSnrWithLotSnr(lot_id, serial, serial_is_refb)) {
 						THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
 						if(rest >= _qtty_epsilon || (flags & CILTIF_CUTRESTTOZERO)) { // @v10.7.4 (|| (flags & CILTIF_CUTRESTTOZERO))
@@ -1079,7 +1079,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 					LDATE  dt    = pPack->Rec.Dt;
 					long   oprno = MAXLONG;
 					while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(ilti->GoodsID, pPack->Rec.LocID, &dt, &oprno, &lot_rec) > 0) {
-						const PPID lot_id = lot_rec.ID;
+						const  PPID lot_id = lot_rec.ID;
 						if(!seen_lot_id_list.lsearch(lot_id) && CmpSnrWithLotSnr(lot_id, serial, serial_is_refb)) {
 							const long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
 							if((f1 && f2) || (!f1 && !f2)) {
@@ -1107,7 +1107,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 					LDATE  dt    = pPack->Rec.Dt;
 					long   oprno = MAXLONG;
 					while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(ilti->GoodsID, pPack->Rec.LocID, &dt, &oprno, &lot_rec) > 0) {
-						const PPID lot_id = lot_rec.ID;
+						const  PPID lot_id = lot_rec.ID;
 						if(!seen_lot_id_list.lsearch(lot_id)) {
 							const long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
 							if((f1 && f2) || (!f1 && !f2)) {
@@ -1298,7 +1298,7 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 	PPObjBill * p_bobj = BillObj;
 	PPBillPacket bpack;
 	THROW(p_bobj->P_Tbl->Extract(billID, this) > 0);
-	const PPID op_type_id = GetOpType(Rec.OpID);
+	const  PPID op_type_id = GetOpType(Rec.OpID);
 	cvt_to_opid = (cvtToOpID && (cvt_op_typeid != PPOPT_GENERIC) && cvtToOpID != Rec.OpID && oneof2(cvt_op_typeid, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT)) ? cvtToOpID : 0;
 	if(cvt_to_opid) {
 		PPID   dest_loc_id = Rec.LocID;
@@ -1317,7 +1317,7 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 				}
 			}
 			if(!main_org_ar_id) {
-				const PPID main_org_psn_id = GetMainOrgID();
+				const  PPID main_org_psn_id = GetMainOrgID();
 				if(main_org_psn_id) {
 					ar_obj.P_Tbl->PersonToArticle(main_org_psn_id, cvt_op_rec.AccSheetID, &main_org_ar_id);
 				}
@@ -1702,8 +1702,8 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 			//
 			// Трансформируем идентификаторы лотов из чужого раздела в соответствующие нашему разделу
 			//
-			const PPID preserve_frgn_lot_id = p_ilti->LotSyncID;
-			const PPID preserve_frgn_lot_mirr_id = p_ilti->LotMirrID;
+			const  PPID preserve_frgn_lot_id = p_ilti->LotSyncID;
+			const  PPID preserve_frgn_lot_mirr_id = p_ilti->LotMirrID;
 			if(ccflg_synclot) {
 				int    rl;
 				PPID   sync_primary_lot_id = 0;
@@ -2195,7 +2195,7 @@ int BillTransmDeficit::TurnDeficit(PPID locID, LDATE dt, double pctAddition, con
 	MEMSZERO(k);
 	k.Location = locID;
 	while(Tbl->search(1, &k, spGt) && Tbl->data.Location == locID) {
-		const PPID suppl_id = Tbl->data.SupplID;
+		const  PPID suppl_id = Tbl->data.SupplID;
 		if(suppl_id) {
 			if(!first_rec) {
 				if(prev_suppl_id != suppl_id) {
@@ -2351,7 +2351,7 @@ int BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNextPassNe
 					if(do_twopass_rcv || TurnDeficitDialog(&pct_add) > 0) {
 						for(uint i = 0; i < LocPeriodList_.getCount(); i++) {
 							const LDATE dt = LocPeriodList_.at(i).P.low;
-							const PPID loc_id = LocPeriodList_.at(i).LocID;
+							const  PPID loc_id = LocPeriodList_.at(i).LocID;
 							if(do_twopass_rcv) {
 								if((ok = TurnDeficit(loc_id, dt, fdiv100i(pCtx->Cfg.PctAdd), pCtx)) > 0)
 									ASSIGN_PTR(pNextPassNeeded, 1);
@@ -2749,7 +2749,7 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 					RegisterTransmitProblems(&bp, p_pack, skip, pCtx);
 					if(!skip) {
 						BillTbl::Rec bill_rec;
-						const PPID op_id = bp.Rec.OpID;
+						const  PPID op_id = bp.Rec.OpID;
 						bp.Rec.ID = *pID;
 						//
 						// Для draft-документов необходимо сохранить оригинальное значение
@@ -2933,8 +2933,8 @@ int PPObjBill::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pC
 	if(stream == 0) {
 		THROW(p_pack->Load__(id, (pCtx->Flags & ObjTransmContext::fNotTrnsmLots) ? ILBPF_LOADAMTNOTLOTS : 0, pCtx->Extra));
 		{
-			const PPID op_id = p_pack->Rec.OpID;
-			const PPID op_type_id = GetOpType(op_id);
+			const  PPID op_id = p_pack->Rec.OpID;
+			const  PPID op_type_id = GetOpType(op_id);
 			int exp = IsExpendOp(op_id);
 			if(op_type_id == PPOPT_GOODSRECEIPT)
 				p->Priority = 200;
@@ -3143,7 +3143,7 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 				if(rDestDbDivPack.ResponsibleForLoc(bill_rec.LocID, 0))
 					ok = 1;
 				else if(IsIntrExpndOp(op_id)) {
-					const PPID dest_loc_id = PPObjLocation::ObjToWarehouse(bill_rec.Object);
+					const  PPID dest_loc_id = PPObjLocation::ObjToWarehouse(bill_rec.Object);
 					if(rDestDbDivPack.ResponsibleForLoc(dest_loc_id, 0))
 						ok = 1;
 					else
@@ -3160,7 +3160,7 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 					// переносит этот межсклад в такой раздел.
 					//
 					if(IsIntrOp(op_id) == INTRRCPT && CConfig.IntrReceiptOp == op_id) {
-						const PPID dest_loc_id = PPObjLocation::ObjToWarehouse(bill_rec.Object);
+						const  PPID dest_loc_id = PPObjLocation::ObjToWarehouse(bill_rec.Object);
 						if(rDestDbDivPack.ResponsibleForLoc(dest_loc_id, 0)) {
 							msg_id = PPTXT_LOG_NTRANS_BILLINTRRC;
 							ok = -1;

@@ -274,7 +274,7 @@ int DeviceLoadingStat::GetExportedObjectsSince(PPID objType, PPID sinceDlsID, PP
 		ev_list.sortAndUndup();
     }
     for(uint i = 0; i < ev_list.getCount(); i++) {
-		const PPID _id = ev_list.get(i);
+		const  PPID _id = ev_list.get(i);
 		DlsObjTbl::Key1 k1;
 		MEMSZERO(k1);
 		k1.DlsID = rec.ID;

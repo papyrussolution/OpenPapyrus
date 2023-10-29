@@ -13,7 +13,7 @@ int UpdatePassword()
 	PPSecurPacket spack;
 	PPAccessRestriction accsr;
 	Reference * p_ref = PPRef;
-	const PPID user_id = LConfig.UserID;
+	const  PPID user_id = LConfig.UserID;
 	THROW(p_ref->LoadSecur(PPOBJ_USR, user_id, &spack));
 	if(spack.Rights.IsEmpty())
 		ObjRts.GetAccessRestriction(accsr);

@@ -164,7 +164,7 @@ int PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 			if(Filt.ObjType) {
 				if(Filt.ObjIDList.getCount()) {
 					for(uint i = 0; i < Filt.ObjIDList.getCount(); i++) {
-						const PPID obj_id = Filt.ObjIDList.get(i);
+						const  PPID obj_id = Filt.ObjIDList.get(i);
 						MEMSZERO(k1);
 						k1.ObjType = (int16)Filt.ObjType;
 						k1.ObjID = obj_id;

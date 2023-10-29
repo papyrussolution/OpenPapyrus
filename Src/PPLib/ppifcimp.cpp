@@ -4244,7 +4244,7 @@ IStrAssocList * DL6ICLS_PPObjGoodsGroup::GetGGroupsFromAltGrp(long altGrpID)
 			if(p_list) {
 				grp_list.sortAndUndup();
 				for(uint i = 0; i < grp_list.getCount(); i++) {
-					const PPID id = grp_list.at(i);
+					const  PPID id = grp_list.at(i);
 					if(p_obj->Fetch(id, &rec) > 0)
 						p_list->AddFast(id, rec.Name);
 				}

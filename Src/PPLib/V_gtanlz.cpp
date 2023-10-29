@@ -468,7 +468,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 						THROW(p_bobj->trfr->CalcBillTotal(r_bill_list.get(i), 0, &local_goods_list));
 					local_goods_list.sortAndUndup();
 					for(i = 0; i < local_goods_list.getCount(); i++) {
-						const PPID goods_id = local_goods_list.get(i);
+						const  PPID goods_id = local_goods_list.get(i);
 						if(GObj.Fetch(goods_id, &goods_rec) > 0 && !(goods_rec.Flags & GF_GENERIC) && GObj.BelongToGroup(goods_id, Filt.GoodsGrpID))
 							goods_list.add(goods_id);
 					}
@@ -481,7 +481,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 				}
 				const uint gc = goods_list.getCount();
 				for(uint j = 0; j < gc; j++) {
-					const PPID goods_id = goods_list.get(j);
+					const  PPID goods_id = goods_list.get(j);
 					THROW(PPCheckUserBreak());
 					const int gfr = GObj.Fetch(goods_id, &goods_rec);
 					//assert(gfr > 0); // @debug
@@ -572,7 +572,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								const double trnovr_p = is_exp ? p_gge->Price : -p_gge->Price;
 								const double trnovr_c = is_exp ? p_gge->Cost  : -p_gge->Cost;
 								const double discount = is_exp ? p_gge->Discount : -p_gge->Discount;
-								const PPID   lot_tax_grp_id = p_gge->LotTaxGrpID;
+								const  PPID   lot_tax_grp_id = p_gge->LotTaxGrpID;
 								long   excl_flags = 0L;
 								rec.Qtty        += (is_exp ? p_gge->Quantity : -p_gge->Quantity);
 								rec.PhQtty      += (is_exp ? p_gge->Volume   : -p_gge->Volume);
@@ -814,7 +814,7 @@ int PPViewGoodsTaxAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 {
 	int   ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   goods_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   goods_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		if(ppvCmd == PPVCMD_EDITGOODS) {
 			ok = (goods_id && GObj.Edit(&goods_id, 0) == cmOK) ? 1 : -1;
 		}

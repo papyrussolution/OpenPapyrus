@@ -1846,7 +1846,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			TimeRange tr;
 			qk_obj.GetRetailQuotList(ZERODATETIME, &temp_list, 0);
 			for(uint i = 0; i < temp_list.getCount(); i++) {
-				const PPID qk_id = temp_list.get(i);
+				const  PPID qk_id = temp_list.get(i);
 				if(!gi.QuotList.Search(qk_id, 0, 0) && qk_obj.Fetch(qk_id, &qk_rec) > 0) {
 					if(qk_rec.GetTimeRange(tr) || qk_rec.HasWeekDayRestriction()) {
 						rtl_quot_list.addUnique(qk_id);
@@ -2006,7 +2006,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 				DbfTable * p_tbl = fp.GetTable(fp.tGoodsDis);
 				THROW(p_tbl);
 				for(i = 0; i < rtl_quot_list.getCount(); i++) {
-					const PPID qk_id = rtl_quot_list.get(i);
+					const  PPID qk_id = rtl_quot_list.get(i);
 					QuotIdent qi(loc_id, qk_id, 0, 0);
 					double quot = 0.0;
 					if(goods_obj.GetQuotExt(gi.ID, qi, gi.Cost, gi.Price, &quot, 1) > 0) {
@@ -2694,7 +2694,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 		PPObjPerson   psn_obj;
 		PPObjRegister reg_obj;
 		RegisterTbl::Rec  reg_rec;
-		const PPID tabnum_reg_id = r_eq_cfg.GetCashierTabNumberRegTypeID();
+		const  PPID tabnum_reg_id = r_eq_cfg.GetCashierTabNumberRegTypeID();
 		if(tabnum_reg_id && ::fileExists(PathCshrs)) {
 			PPIDArray by_name_ary;
 			PPIDArray by_num_ary;

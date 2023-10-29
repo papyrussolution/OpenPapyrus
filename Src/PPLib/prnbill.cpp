@@ -146,7 +146,7 @@ private:
 			clearEvent(event);
 		}
 	}
-	const PPID   OprType;
+	const  PPID   OprType;
 };
 
 BillMultiPrintParam::BillMultiPrintParam() : FormBits(0), Flags(0)
@@ -327,7 +327,7 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 				}
 			}
 		}
-		const PPID OprType;
+		const  PPID OprType;
 	};
 	int    ok = 1;
 	int    v = 0;

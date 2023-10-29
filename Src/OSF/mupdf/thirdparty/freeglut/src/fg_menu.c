@@ -128,7 +128,7 @@ static GLvoid fghGetVMaxExtent(SFG_Window* window, int* x, int* y)
 {
 	if(fgStructure.GameModeWindow)
 		fgPlatformGetGameModeVMaxExtent(window, x, y);
-	else{
+	else {
 		*x = fgDisplay.ScreenWidth;
 		*y = fgDisplay.ScreenHeight;
 	}

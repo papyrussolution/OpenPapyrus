@@ -134,7 +134,7 @@ PPObjGoods::ExportToGlbSvcItem::ExportToGlbSvcItem() : GoodsID(0), LocID(0), Cos
 			// Код может быть приватным по отношению к активной глобальной учетной записи.
 			// Проверим это по префиксу.
 			//
-			const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
+			const  PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
 			if(glob_acc_id) {
 				PPObjGoods goods_obj;
 				const PPGoodsConfig & r_cfg = goods_obj.GetConfig();
@@ -1666,7 +1666,7 @@ int GoodsSubstList::GetGoodsBySubstID(PPID substID, PPIDArray * pList) const
 		if(AsscList.lsearch(&substID, &pos, CMPF_LONG)) {
 			const InnerAssocItem * p_item = AsscList.at(pos);
             for(uint i = 0; i < p_item->List.getCount(); i++) {
-            	const PPID src_goods_id = p_item->List.at(i).SrcGoodsID;
+            	const  PPID src_goods_id = p_item->List.at(i).SrcGoodsID;
 				pList->addnz(src_goods_id);
             }
             if(pList->getCount()) {
@@ -1817,7 +1817,7 @@ int PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const 
 		}
 		else if(sgg > sggTagBias) {
 			goods_id = 0;
-			const PPID tag_id = (sgg - sggTagBias);
+			const  PPID tag_id = (sgg - sggTagBias);
 			ObjTagItem tag_item;
 			if(PPRef->Ot.GetTag(PPOBJ_GOODS, goods_rec.ID, tag_id, &tag_item) > 0) {
 				GoodsSubstItem gsitem;
@@ -1875,7 +1875,7 @@ int PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const 
 		else if(sgg == sggVatRate) {
 			PPGoodsTaxEntry gtx;
 			const LDATE actual_date = (pBlk && pBlk->Dt) ? pBlk->Dt : getcurdate_();
-			const PPID  op_id = 0;
+			const  PPID  op_id = 0;
 			if(GTxObj.Fetch(goods_rec.TaxGrpID, actual_date, op_id, &gtx) > 0) {
 				goods_id = (gtx.VAT | GOODSSUBSTMASK);
 			}
@@ -1914,7 +1914,7 @@ int PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, const 
 			else {
 				SETIFZ(actual_date, getcurdate_());
 				PPID  tax_grp_id = NZOR(lot_tax_grp_id, goods_rec.TaxGrpID);
-				const PPID  op_id = 0;
+				const  PPID  op_id = 0;
 				if(GTxObj.Fetch(tax_grp_id, actual_date, op_id, &gtx) > 0)
 					goods_id = (gtx.VAT | GOODSSUBSTMASK);
 				else
@@ -2242,7 +2242,7 @@ bool PPObjGoods::IsZeroPriceAllowed(PPID goodsID)
 	if(Fetch(goodsID, &goods_rec) > 0) {
 		PPGoodsType gt_rec;
 		// @v11.7.4 Поправка на default-тип товара
-		const PPID gt_id = NZOR(goods_rec.GoodsTypeID, PPGT_DEFAULT);
+		const  PPID gt_id = NZOR(goods_rec.GoodsTypeID, PPGT_DEFAULT);
 		yes = (GtObj.Fetch(gt_id, &gt_rec) > 0 && gt_rec.Flags & GTF_ALLOWZEROPRICE); 
 	}
 	return yes;
@@ -2439,7 +2439,7 @@ int PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 		P_Tbl->GetGroupTerminalList(0, &grp_list, 0);
 		for(uint i = 0; i < grp_list.getCount(); i++) {
 			Goods2Tbl::Rec grp_rec;
-			const PPID grp_id = grp_list.get(i);
+			const  PPID grp_id = grp_list.get(i);
 			if(Fetch(grp_id, &grp_rec) > 0 && grp_rec.Flags & GF_ALTGROUP && !(grp_rec.Flags & (GF_TEMPALTGRP_|GF_DYNAMIC))) {
 				if(P_Tbl->GetGroupFilt(grp_id, &grp_filt) > 0) {
 					if(!grp_filt.IsEmpty() && CheckForFilt(&grp_filt, id)) {
@@ -2488,7 +2488,7 @@ int PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 		P_Tbl->GetGroupTerminalList(0, &grp_list, 0);
 		for(uint i = 0; i < grp_list.getCount(); i++) {
 			Goods2Tbl::Rec grp_rec;
-			const PPID grp_id = grp_list.get(i);
+			const  PPID grp_id = grp_list.get(i);
 			if(Fetch(grp_id, &grp_rec) > 0 && grp_rec.Flags & GF_ALTGROUP && !(grp_rec.Flags & (GF_TEMPALTGRP_|GF_DYNAMIC))) {
 				if(P_Tbl->GetGroupFilt(grp_id, &grp_filt) > 0) {
 					if(!grp_filt.IsEmpty() && CheckForFilt(&grp_filt, id)) {
@@ -2746,7 +2746,7 @@ int PPObjGoods::GetUuid(PPID goodsID, S_GUID & rUuid, bool generateIfAbsent, int
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
-	const PPID uuid_tag_id = PPTAG_GOODS_UUID;
+	const  PPID uuid_tag_id = PPTAG_GOODS_UUID;
 	ObjTagItem tag_item;
 	S_GUID temp_uuid;
 	if(p_ref->Ot.GetTag(PPOBJ_GOODS, goodsID, uuid_tag_id, &tag_item) > 0) {
@@ -2845,7 +2845,7 @@ int PPObjGoods::GetOpenedList(PPID locID, const PPIDArray * pOverlapList, UintHa
 		BExtQuery q(p_cr, idx, 256);
 		q.select(p_cr->GoodsID, 0).where(*dbq);
 		for(q.initIteration(false, &key, spGe); q.nextIteration() > 0;) {
-			const PPID goods_id = p_cr->data.GoodsID;
+			const  PPID goods_id = p_cr->data.GoodsID;
 			if(!pOverlapList || pOverlapList->lsearch(goods_id, 0)) {
 				THROW_SL(rHash.Add(goods_id));
 			}
@@ -3338,7 +3338,7 @@ ListBoxDef * PPObjGoods::Selector(ListBoxDef * pOrgDef, long flags, void * extra
 
 int PPObjGoods::Browse(void * extraPtr /*groupID*/)
 {
-	const PPID group_id = reinterpret_cast<PPID>(extraPtr);
+	const  PPID group_id = reinterpret_cast<PPID>(extraPtr);
 	if(group_id) {
 		GoodsFilt flt;
 		flt.GrpID = group_id;
@@ -3801,7 +3801,7 @@ int PPObjGoods::RemoveDupArCodes(PPGoodsPacket * pPack, ObjTransmContext * pCtx)
 {
 	if(pPack->Rec.Kind == PPGDSK_GOODS) {
 		SString fmt_buf, msg_buf;
-		const PPID id = pPack->Rec.ID;
+		const  PPID id = pPack->Rec.ID;
 		for(int i = pPack->ArCodes.getCount()-1; i >= 0; i--) {
 			ArGoodsCodeTbl::Rec & r_rec = pPack->ArCodes.at(i);
 			ArGoodsCodeTbl::Rec temp_rec;
@@ -4497,7 +4497,7 @@ int UhttIndexPersons(uint setSz, PPID personKindID, const SString & rOutPath)
 		uint c = addr_list.getCount();
 		if(c) {
 			do {
-				const PPID addr_id = addr_list.get(--c);
+				const  PPID addr_id = addr_list.get(--c);
 				closed = 0;
 				if(addr_n == 0) {
 					xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("Set").ucptr());
@@ -4548,7 +4548,7 @@ int UhttIndexGoods(uint setSz, const SString & rOutPath)
 		uint c = id_list.getCount();
 		if(c) {
 			do {
-				const PPID id = id_list.get(--c);
+				const  PPID id = id_list.get(--c);
 				closed = 0;
 				if(goods_n == 0) {
 					xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("Set").ucptr());
@@ -4598,7 +4598,7 @@ int UhttIndexRandomGoods(uint setSz, const SString & rOutPath)
 			set_size = (iter_total > setSz) ? setSz : iter_total;
 			while(id_ary.getCount() < set_size) {
 				// @v11.7.10 PPID id = GetRandom(1, last_id);
-				const PPID id = SLS.GetTLA().Rg.GetUniformIntPos(last_id+1); // @v11.7.10 
+				const  PPID id = SLS.GetTLA().Rg.GetUniformIntPos(last_id+1); // @v11.7.10 
 				if(goods_obj.Fetch(id, &goods_rec) > 0) {
 					if(goods_rec.Kind == PPGDSK_GOODS)
 						id_ary.addUnique(goods_rec.ID);
@@ -4687,7 +4687,7 @@ int UhttIndexBrands(const SString & rOutPath)
 		MEMSZERO(k_);
 		k_.k2.Kind = PPGDSK_BRAND;
 		for(q.initIteration(false, &k_, spGe); q.nextIteration() > 0;) {
-			const PPID brand_id = goods_obj.P_Tbl->data.ID;
+			const  PPID brand_id = goods_obj.P_Tbl->data.ID;
 			if(brand_obj.Fetch(brand_id, &brand_rec) > 0) {
 				assert(brand_id == brand_rec.ID);
 				id_list.add(brand_id);
@@ -4708,7 +4708,7 @@ int UhttIndexBrands(const SString & rOutPath)
 			{
 				xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("BrandsIndex").ucptr());
 				for(uint i = 0, n = id_list.getCount(); i < n; i++) {
-					const PPID id = id_list.get(i);
+					const  PPID id = id_list.get(i);
 					xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
 				}
 				xmlTextWriterEndElement(p_writer);
@@ -4716,7 +4716,7 @@ int UhttIndexBrands(const SString & rOutPath)
 			if(id_image_list.getCount()) {
 				xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("BrandImageIndex").ucptr());
 				for(uint i = 0, n = id_image_list.getCount(); i < n; i++) {
-					const PPID id = id_image_list.get(i);
+					const  PPID id = id_image_list.get(i);
 					xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
 				}
 				xmlTextWriterEndElement(p_writer);
@@ -4752,7 +4752,7 @@ int UhttIndexStores(const SString & rOutPath)
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("StoresIndex").ucptr());
 		for(uint i = 0, n = id_list.getCount(); i < n; i++) {
-			const PPID id = id_list.get(i);
+			const  PPID id = id_list.get(i);
 			xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
 		}
 		xmlTextWriterEndElement(p_writer);

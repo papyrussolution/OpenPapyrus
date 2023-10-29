@@ -372,7 +372,7 @@ int ViewBillDetails(PPBillPacket * pack, long options, PPObjBill * pBObj)
 
 static int test_lot(const ReceiptTbl::Rec * pLotRec, void * extraPtr)
 {
-	const PPID loc_id = reinterpret_cast<const PPID>(extraPtr);
+	const  PPID loc_id = reinterpret_cast<const  PPID>(extraPtr);
 	return (pLotRec->LocID == loc_id && !pLotRec->Closed);
 }
 //
@@ -502,7 +502,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 						const TagFilt & r_tag_filt = p_brw->GObj.GetConfig().TagIndFilt;
 						if(!r_tag_filt.IsEmpty()) {
 							const PPTransferItem & r_ti = p_pack->ConstTI(pos);
-							const PPID goods_id = labs(r_ti.GoodsID);
+							const  PPID goods_id = labs(r_ti.GoodsID);
 							SColor clr;
 							if(r_tag_filt.SelectIndicator(goods_id, clr) > 0)
 								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
@@ -949,7 +949,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		if(P_Pack->Rec.LinkBillID) {
 			BillTbl::Rec link_rec;
 			if(P_BObj->Search(P_Pack->Rec.LinkBillID, &link_rec) > 0) {
-				const PPID op_type_id = GetOpType(link_rec.OpID);
+				const  PPID op_type_id = GetOpType(link_rec.OpID);
 				if(P_Pack->OpTypeID == PPOPT_GOODSACK || oneof2(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT)) {
 					THROW_MEM(P_LinkPack = new PPBillPacket);
 					THROW(P_BObj->ExtractPacket(P_Pack->Rec.LinkBillID, P_LinkPack));
@@ -1706,7 +1706,7 @@ double FASTCALL BillItemBrowser::GetLinkQtty(const PPTransferItem & rTi) const
 {
 	double result = 0.0;
 	if(P_LinkPack) {
-		const PPID goods_id = labs(rTi.GoodsID);
+		const  PPID goods_id = labs(rTi.GoodsID);
 		for(uint pos = 0; P_LinkPack->SearchGoods(goods_id, &pos); pos++)
 			result += fabs(P_LinkPack->ConstTI(pos).Qtty());
 	}
@@ -2090,7 +2090,7 @@ int BillItemBrowser::PostprocessModifItemAdding(const PPTransferItem & rTi, uint
 					LongArray potential_gs_pos_list;
 					P_BObj->SearchLotsBySerialExactly(source_serial, &src_lot_list);
 					for(uint llidx = 0; llidx < src_lot_list.getCount(); llidx++) {
-						const PPID src_lot_id = src_lot_list.get(llidx);
+						const  PPID src_lot_id = src_lot_list.get(llidx);
 						ReceiptTbl::Rec src_lot_rec;
 						if(P_BObj->trfr->Rcpt.Search(src_lot_id, &src_lot_rec) > 0 && src_lot_rec.Rest > 0.0) {
 							for(uint sidx = 0; sidx < gs_list.getCount(); sidx++) {
@@ -2943,8 +2943,8 @@ public:
 		const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= static_cast<int>(P_Pack->GetTCount())) ? &P_Pack->ConstTI(RowIdx-1) : 0;
 		const int  dont_veryfy_mark = BIN(BillObj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
 		const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT))) ? 0 : 1;
-		const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
-		const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
+		const  PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
+		const  PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
 		SStringU buf_from_copy;
 		SClipboard::Past_Text(buf_from_copy);
 		buf_from_copy.CopyToUtf8(temp_buf, 0);
@@ -3692,8 +3692,8 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 			const int dont_veryfy_mark = BIN(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
 			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= static_cast<int>(P_Pack->GetTCount())) ? &P_Pack->ConstTI(RowIdx-1) : 0;
 			const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT))) ? 0 : 1;
-			const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
-			const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
+			const  PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
+			const  PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
 			THROW(CheckDialogPtr(&dlg));
 			if(r_rcpt.Search(rRec.LotID, &lot_rec) <= 0)
 				MEMSZERO(lot_rec);
@@ -4121,7 +4121,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 							if(c >= 0 && c < (int)P_Pack->GetTCount()) {
 								const PPTransferItem & r_ti = P_Pack->ConstTI(static_cast<uint>(c));
 								Goods2Tbl::Rec goods_rec;
-								const PPID goods_id = labs(r_ti.GoodsID);
+								const  PPID goods_id = labs(r_ti.GoodsID);
 								if(GObj.Fetch(goods_id, &goods_rec) > 0) {
 									PPObjGoods::ExtUniteBlock eub;
 									PrcssrAlcReport::Config alcr_cfg;
@@ -4288,8 +4288,8 @@ int BillItemBrowser::isAllGoodsInPckg(PPID goodsID)
 
 void BillItemBrowser::addItemBySerial()
 {
-	const PPID op_id = P_Pack->Rec.OpID;
-	const PPID op_type_id = GetOpType(op_id);
+	const  PPID op_id = P_Pack->Rec.OpID;
+	const  PPID op_type_id = GetOpType(op_id);
 	const int opened_only = BIN(IsExpendOp(op_id) > 0 || op_type_id == PPOPT_GOODSREVAL || (op_type_id == PPOPT_GOODSORDER && CheckOpFlags(op_id, OPKF_ORDEXSTONLY)));
 	SString serial;
 	PPInputStringDialogParam isd_param;

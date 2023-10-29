@@ -212,7 +212,7 @@ private:
 				SetupCtrls();
 			}
 			else if(event.isCbSelected(CTLSEL_SELOBJBYPHN_EXT)) {
-				const PPID preserve_ext = Data.ExtSelector;
+				const  PPID preserve_ext = Data.ExtSelector;
 				Data.ExtSelector = getCtrlLong(CTLSEL_SELOBJBYPHN_EXT);
 				if(Data.ExtSelector != preserve_ext && oneof2(Data.Oid.Obj, PPOBJ_PERSON, PPOBJ_SCARD))
 					SetupCtrls();
@@ -223,7 +223,7 @@ private:
 		}
 		void   SetupCtrls()
 		{
-			const PPID preserve_obj_type = Data.Oid.Obj;
+			const  PPID preserve_obj_type = Data.Oid.Obj;
 			GetClusterData(CTL_SELOBJBYPHN_WHAT, &Data.Oid.Obj);
 			if(Data.Oid.Obj != preserve_obj_type)
 				Data.ExtSelector = 0;
@@ -822,7 +822,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 					DateRange period;
 					period.Set(plusdate(getcurdate_(), -365), ZERODATE);
 					for(uint i = 0; i < ar_id_list.getCount(); i++) {
-						const PPID ar_id = ar_id_list.get(i);
+						const  PPID ar_id = ar_id_list.get(i);
 						BillTbl::Rec bill_rec;
 						for(DateIter di(&period); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 							InfoListEntry new_entry;
@@ -1076,7 +1076,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 					CCheckViewItem item;
 					PPViewCCheck view;
 					for(uint i = 0; i < sc_list.getCount(); i++) {
-						const PPID sc_id = sc_list.get(i);
+						const  PPID sc_id = sc_list.get(i);
 						SCardTbl::Rec sc_rec;
 						if(ScObj.Fetch(sc_id, &sc_rec) > 0) {
 							flt.SCardID = sc_id;

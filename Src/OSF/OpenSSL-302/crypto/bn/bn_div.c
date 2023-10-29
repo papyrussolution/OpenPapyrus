@@ -92,7 +92,7 @@ BN_ULONG bn_div_3_words(const BN_ULONG * m, BN_ULONG d1, BN_ULONG d0);
  * just replace 0 with 1.
  */
 #if BN_BITS2 == 64 && defined(__SIZEOF_INT128__) && __SIZEOF_INT128__==16
-#   undef BN_ULLONG
+#undef BN_ULLONG
 #define BN_ULLONG uint128_t
 #define BN_LLONG
 #endif
@@ -355,7 +355,7 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 			q = bn_div_words(n0, n1, d0);
 #endif
 
-#   ifndef REMAINDER_IS_ALREADY_CALCULATED
+#ifndef REMAINDER_IS_ALREADY_CALCULATED
 			/*
 			 * rem doesn't have to be BN_ULLONG. The least we
 			 * know it's less that d0, isn't it?
@@ -377,7 +377,7 @@ int bn_div_fixed_top(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num,
 			BN_ULONG t2l, t2h;
 
 			q = bn_div_words(n0, n1, d0);
-#   ifndef REMAINDER_IS_ALREADY_CALCULATED
+#ifndef REMAINDER_IS_ALREADY_CALCULATED
 			rem = (n1 - q * d0) & BN_MASK2;
 #endif
 

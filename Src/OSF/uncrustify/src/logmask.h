@@ -60,7 +60,7 @@ static inline void logmask_set_all(log_mask_t &mask, bool value)
 	if(value) {
 		mask.set();
 	}
-	else{
+	else {
 		mask.reset();
 	}
 }

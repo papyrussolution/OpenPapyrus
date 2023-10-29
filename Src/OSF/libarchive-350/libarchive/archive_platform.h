@@ -195,9 +195,13 @@
 #include "archive_endian.h"
 #include "archive_getdate.h"
 #include "archive_pathmatch.h"
+#include "archive_acl_private.h"
 #include "archive_entry_private.h"
 #include "archive_entry_locale.h"
 #include "archive_rb.h"
 #include "archive_read_private.h"
 #include "archive_options_private.h"
+#include "archive_write_set_format_private.h"
+#include "archive_digest_private.h"
+#include "filter_fork.h"
 #endif /* !ARCHIVE_PLATFORM_H_INCLUDED */

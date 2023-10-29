@@ -527,7 +527,7 @@ int PPViewLinkedBill::Print(const void * pHdr)
 	int    ok = -1;
 	if(pHdr) {
 		PPBillPacket pack;
-		PPID   bill_id = *static_cast<const PPID *>(pHdr);
+		PPID   bill_id = *static_cast<const  PPID *>(pHdr);
 		if(bill_id) {
 			if(P_BObj->ExtractPacket(bill_id, &pack))
 				if(Filt.Kind__ == LinkedBillFilt::lkWrOffDraft || pack.Rec.Flags & BILLF_BANKING || CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_INVOICE))
@@ -905,7 +905,7 @@ int PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx & rRcknData, PPID a
 		GetOpData(paym_op_id, &opk);
 		if(opk.LinkOpID) {
 			GetOpData(opk.LinkOpID, &opk);
-			const PPID op_id     = opk.ID;
+			const  PPID op_id     = opk.ID;
 			const long opk_flags = opk.Flags;
 			PPID   acc_sheet_id = opk.AccSheetID;
 			PPID   article_id = 0;
@@ -959,7 +959,7 @@ int PPObjBill::GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOpArList
 	THROW(GetReckonOpList(&op_list));
 	THROW(P_OpObj->GetPaymentOpList(debtOpID, &paym_op_list));
 	for(i = 0; i < op_list.getCount(); i++) { // Цикл по списку зачетных операций
-		const PPID op_id = op_list.at(i); // Зачетная операция //
+		const  PPID op_id = op_list.at(i); // Зачетная операция //
 		PPReckonOpEx reckon_data;
 		if(GetOpData(op_id, &op_rec) > 0 && op_rec.Flags & OPKF_RECKON) {
 			PPID   acc_sheet_id = op_rec.AccSheetID;
@@ -1024,7 +1024,7 @@ int PPObjBill::GatherPayableBills(ReckonOpArItem * pItem, PPID curID, PPID locID
 	q.where(*dbq);
 	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		if(!check_payout_flag || !(P_Tbl->data.Flags & BILLF_PAYOUT)) {
-			const PPID   bill_id = P_Tbl->data.ID;
+			const  PPID   bill_id = P_Tbl->data.ID;
 			double payment = 0.0;
 			double amount  = BR2(P_Tbl->data.Amount);
 			THROW(P_Tbl->GetAmount(bill_id, PPAMT_PAYMENT, curID, &payment));
@@ -1298,7 +1298,7 @@ int PPObjBill::Helper_Reckon(PPID billID, const ReckonOpArList & rOpList, CfmRec
 		if(dontConfirm || (r = ConfirmReckoning(this, &rParam)) > 0) {
 			if(r == 1) {
 				for(uint i = 0; i < rParam.P_BillList->getCount(); i++) {
-					const PPID bill_id = rParam.P_BillList->get(i);
+					const  PPID bill_id = rParam.P_BillList->get(i);
 					op_id = rOpList.GetPaymOpIDByBillID(bill_id);
 					if(op_id) {
 						debt_id = rParam.DebtOrPaym ? billID : bill_id;
@@ -1363,7 +1363,7 @@ static int SelectAltObject(PPID * pArID)
 		{
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_REQALTOBJ_SHEET)) {
-				const PPID acs_id = getCtrlLong(CTLSEL_REQALTOBJ_SHEET);
+				const  PPID acs_id = getCtrlLong(CTLSEL_REQALTOBJ_SHEET);
 				SetupArCombo(this, CTLSEL_REQALTOBJ_CLIENT, 0L, OLW_LOADDEFONOPEN, acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 				clearEvent(event);
 			}
@@ -1399,7 +1399,7 @@ void PPObjBill::Helper_PopupReckonInfo(PPIDArray & rResultBillList)
 	if(rResultBillList.getCount()) {
 		rResultBillList.sortAndUndup();
 		for(uint i = 0; i < rResultBillList.getCount(); i++) {
-			const PPID result_bill_id = rResultBillList.get(i);
+			const  PPID result_bill_id = rResultBillList.get(i);
 			BillTbl::Rec result_rec;
 			if(Search(result_bill_id, &result_rec) > 0) {
 				result_count++;

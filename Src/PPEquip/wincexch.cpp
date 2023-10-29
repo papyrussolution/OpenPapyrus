@@ -804,7 +804,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
 					{
 						const long goods_id = *static_cast<const long *>(in_buf.constptr());
-						const PPID loc_id = BhtPack.Rec.LocID;
+						const  PPID loc_id = BhtPack.Rec.LocID;
 						//SBIIGoodsStateInfo sbii_gsi;
 						if(GObj.GetRetailGoodsInfo(goods_id, loc_id, &rgi) > 0) {
 							ret_blk.ID = rgi.ID;
@@ -832,7 +832,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
 					{
-						const PPID goods_id = *static_cast<const long *>(in_buf.constptr());
+						const  PPID goods_id = *static_cast<const long *>(in_buf.constptr());
 						SBIIGoodsRec sbii_grec;
 						if(FindGoods(goods_id, 0, &sbii_grec) > 0) {
 							THROW_SL(ret_buf.Write(&sbii_grec, sizeof(sbii_grec)));

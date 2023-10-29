@@ -812,7 +812,7 @@ int PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		SalaryTbl::Rec rec;
 		PersonPostTbl::Rec post_rec;
 		if(ppvCmd == PPVCMD_ADDITEM) {
@@ -1092,7 +1092,7 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 		THROW(tra);
 		Tbl.GetObjectList(PPOBJ_SALCHARGE, P.NominalPeriod, pIdList, &charge_list);
 		for(uint i = 0; i < charge_list.getCount(); i++) {
-			const PPID sc_id = charge_list.get(i);
+			const  PPID sc_id = charge_list.get(i);
 			PPSalChargePacket sc_pack;
 			THROW(ScObj.Fetch(sc_id, &sc_pack) > 0);
 			PPGetWord(PPWORD_CHARGE, 0, memo_buf).CatDiv('-', 1).Cat(sc_pack.Rec.Name);
@@ -1577,7 +1577,7 @@ int PrcssrSalary::Helper_CalcShipment(PPID opID, const DateRange & rPeriod,
 	filt.OpID = opID;
 	filt.Period = rPeriod;
 	for(uint i = 0; i < rArList.getCount(); i++) {
-		const PPID ar_id = rArList.get(i);
+		const  PPID ar_id = rArList.get(i);
 		if(kind == 0)
 			filt.ObjectID = ar_id;
 		else if(kind == 1)
@@ -1611,7 +1611,7 @@ int PrcssrSalary::Helper_CalcPayment(PPID opID, const DateRange & rPeriod, int k
 	double result = 0.0;
 	SString fmt_buf, msg_buf;
 	for(uint i = 0; i < rArList.getCount(); i++) {
-		const PPID ar_id = rArList.get(i);
+		const  PPID ar_id = rArList.get(i);
 		BillTbl::Rec bill_rec, paym_rec;
 		for(DateIter di(&rPeriod); BillObj->P_Tbl->EnumByOpr(opID, &di, &paym_rec) > 0;) {
 			int    r = -1;
@@ -2051,7 +2051,7 @@ int PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pArgList,
 					else
 						op_list.add(op_id);
 					for(i = 0; i < op_list.getCount(); i++) {
-						const PPID op2_id = op_list.get(i);
+						const  PPID op2_id = op_list.get(i);
 						PPOprKind op2_rec;
 						if(GetOpData(op2_id, &op2_rec) > 0) {
 							if(op2_rec.Flags & OPKF_NEEDPAYMENT) {
@@ -2124,7 +2124,7 @@ int PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
 			}
 			THROW(ScObj.GetPacket(charge_grp_id, &sc_grp_pack) > 0);
 			for(uint i = 0; i < sc_grp_pack.GrpList.getCount(); i++) {
-				const PPID charge_id = sc_grp_pack.GrpList.at(i);
+				const  PPID charge_id = sc_grp_pack.GrpList.at(i);
 				THROW(ScObj.Fetch(charge_id, &sc_pack) > 0);
 				if(sc_pack.Formula.NotEmptyS()) {
 					if(sc_pack.Rec.EnumObjType == PPOBJ_PERSONEVENT) {

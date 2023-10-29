@@ -1172,6 +1172,7 @@ struct SDataMoveProgressInfo;
 class  SImageBuffer;
 class  SFileEntryPool;
 class  SaIndex; // @v11.8.3
+class  SStringU; // @v11.8.8
 struct _finddatai64_t;
 struct _cairo;
 struct cairo_pattern_t;
@@ -1180,6 +1181,8 @@ typedef struct _cairo cairo_t;
 typedef struct _cairo_font_face cairo_font_face_t;
 typedef struct _cairo_scaled_font cairo_scaled_font_t;
 struct Archive; // @v10.4.4 libarchive
+class  S_GUID_Base;
+class  S_GUID;
 //
 // Formats for date binary representation
 //
@@ -2564,49 +2567,6 @@ private:
 	T * P;
 };
 //
-//
-//
-class S_GUID_Base { // @persistent @noctr @size=16
-public:
-	S_GUID_Base & FASTCALL Init(REFIID);
-	operator const GUID & () const;
-	enum {
-		fmtIDL = 0,
-		fmtC = 1,
-		fmtPlain,    // "плоский" формат. то есть, без ограничителей и разделителей в 16-ричном формате
-		// @construction fmtSUID27,   // @v10.9.0 Специальный внутренний формат (base32), умещающийся в 28 байт (с нулем в конце)
-		fmtLower = 0x8000 // Флаг, предписывающий использовать буквы [a-f] в строчном регистре
-	};
-	bool   operator !() const { return IsZero(); }
-	bool   FASTCALL operator == (const S_GUID_Base &) const;
-	bool   FASTCALL operator != (const S_GUID_Base &) const;
-	bool   IsZero() const;
-	S_GUID_Base & Z();
-	SString & ToStr(long fmt, SString &) const;
-	//
-	// Descr: Преобразует строку pStr в GUID.
-	// Note: Если в преобразовать строку в GUID не удалось, то this обнуляется (SetZero())
-	// Returns:
-	//   !0 - преобразование осуществлено успешно
-	//   0  - ошибка
-	//
-	int    FASTCALL FromStr(const char * pStr);
-	int    Generate();
-
-	uint32 Data[4];
-};
-
-class S_GUID : public S_GUID_Base {
-public:
-	S_GUID();
-	explicit S_GUID(SCtrGenerate g);
-	S_GUID(const S_GUID_Base & rS);
-	S_GUID(const S_GUID & rS);
-	S_GUID(const GUID & /*REFIID*/ rS); // @v11.7.4
-	explicit S_GUID(const char * pStr);
-	S_GUID & FASTCALL operator = (const S_GUID_Base & rS);
-};
-//
 // Descr: Константы, идентифицирующие значения, ассоциированные со временем и датой
 // @v11.2.10 @construction
 //
@@ -2929,7 +2889,6 @@ extern const LTIME MAXDAYTIME; // 23:59:59.99
 extern const LTIME MAXDAYTIMESEC; // 23:59:59.00
 extern const LDATETIME ZERODATETIME;
 extern const LDATETIME MAXDATETIME;
-extern const S_GUID    ZEROGUID; // @v10.9.3
 //
 // Descr: Отрезок времени. Используется для планирования, расчетов занятости и т.д.
 //   Обеспечивает базовые примитивы для работы с временными отрезками.
@@ -3152,24 +3111,37 @@ struct SUniTime_Internal { // @internal
 	static constexpr int Undef_TimeZone = 1000000;
 	static bool ValidateTimeZone(int tz);
 	SUniTime_Internal();
+	SUniTime_Internal(SCtrGenerate); // for-testing-only
+	SUniTime_Internal & Z();
+	bool   IsValid() const;
 	int    FASTCALL Cmp(const SUniTime_Internal & rS) const;
 	void   FASTCALL SetTime100ns(uint64 time100ns);
+	int    FASTCALL GetTime100ns(uint64 * pTime100ns) const;
 
-	int    Y;
-	int    M;
-	int    D;
-	int    Hr;
-	int    Mn;
-	int    Sc;
-	int    MkSc;  // microseconds
-	int    Weekday;
+	uint   Y;
+	uint   M;
+	uint   D; // В случае детализации большей, чем день (месяц, квартал, полугодие и т.д.) 
+		// значение дня устанавливается в 2 с целью избежать путаницы при смене часового пояса.
+		// Скажем, если при месячной градации мы будем использовать 1, то при достаточном удалении
+		// временных зон друг от друга можем столкнуться с тем, что одновременно на Земле будет и середина марта и 
+		// середина апреля.
+	uint   Hr;
+	uint   Mn;
+	uint   Sc;
+	uint   MSc;   // milliseconds
+	uint   Weekday;
 	int    TimeZoneSc; // Зональное смещение времени относительно GMT в секундах (-12*3600..+14*3600)
 		// Если TimeZoneSc == Undef_TimeZone, то временная зона не определена - то есть время задано
 		// в предположении, что локаль известна из контекста либо не имеет значения.
+		// Если зональное смещение определено, то время, определяемое полями Hr, Mn, Sc - локальное.
+		// то есть, нормализованное время (UTC) определяется как {Hr, Mn, Sc} - TmZoneSc (! - знак минус,
+		// поскольку смещение задано как разница между локальным и UTC-временем:
+		// Цитата из wikipedia:
+		// Указания времени с часовым поясом, представляющие один и тот же момент времени: "18:30Z", "22:30+04", "1130−0700".
 };
 
-int    DateToDaysSinceChristmas(int y, int m, int d);
-int    DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay);
+int    DateToDaysSinceChristmas(uint y, uint m, uint d);
+int    DaysSinceChristmasToDate(uint g, uint * pYear, uint * pMon, uint * pDay);
 void   FASTCALL __EpochTimeToTimeFields(uint64 epochTime, SUniTime_Internal * pTimeFields);
 int    FASTCALL __TimeFieldsToEpochTime(const SUniTime_Internal * pTimeFields, uint64 * pEpochTime);
 //
@@ -4437,6 +4409,18 @@ public:
 	bool   IsLegalUtf8() const;
 	bool   CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
 	//
+	// Descr: Функция пытается идентифицировать кодировку строки this и соответствующим 
+	//   образом преобразует ее в unicode-строку rBuf.
+	// Note: На текущий момент функция проверяет является ли строка utf8. Если да, то
+	//   преобразует ее в unicode, в противном случае полагает, что строка в кодировке ANSI (что
+	//   совсем не гарантирована :(  ).
+	// Returns:
+	//   1 - исходная строка (this) представлена либо ascii либо utf8-символами. Успешно преобразована в rBuf.
+	//   2 - кодировка исходной строки (this) не определена, либо определена приблизительно. Успешно преобразована в rBuf.
+	//   0 - ошибка
+	//
+	int    CopyToUnicode(SStringU & rBuf) const;
+	//
 	// Descr: Копирует в нашу строку не более maxLen символов из строки pSrc.
 	//   Если завершающий ноль в строке pStr встретится раньше, чем будут скопированы
 	//   maxLen символов, то копирование прекращается.
@@ -4552,7 +4536,7 @@ public:
 	//
 	SString & CatCurDateTime(long datFmt = DATF_DMY, long timFmt = TIMF_HMS);
 	SString & Cat(const DateRange &, bool ext = false);
-	SString & Cat(const S_GUID &, int fmt = S_GUID::fmtIDL);
+	SString & Cat(const S_GUID &, int fmt /*= S_GUID::fmtIDL*/);
 	//
 	// Descr: Конкатенация конструкции <text> с вариантами
 	// ARG(kind IN):
@@ -4574,7 +4558,7 @@ public:
 	SString & CatEq(const char * pKey, int64 val);
 	SString & CatEq(const char * pKey, uint64 val);
 	SString & CatEq(const char * pKey, double val, long fmt = SFMT_QTTY);
-	SString & CatEq(const char * pKey, const S_GUID_Base & rVal, long fmt = S_GUID_Base::fmtIDL);
+	SString & CatEq(const char * pKey, const S_GUID_Base & rVal, long fmt /*= S_GUID_Base::fmtIDL*/);
 	SString & CatEq(const char * pKey, LDATE val, long fmt = DATF_DMY|DATF_CENTURY);
 	SString & CatEq(const char * pKey, LTIME val, long fmt = TIMF_HMS);
 	SString & CatEq(const char * pKey, LDATETIME val, long dtFmt = DATF_DMY|DATF_CENTURY, long tmFmt = TIMF_HMS);
@@ -5421,7 +5405,7 @@ inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; 
 #define PRD_PRECDAYSMASK  0x7000
 #define NUM_MONTHES        12
 
-extern const char   daysPerMonth[NUM_MONTHES];
+extern const uchar  daysPerMonth[NUM_MONTHES];
 // @v10.2.3 (static now) extern const char * monthNames[NUM_MONTHES];
 //
 // Functions for date formats convertion
@@ -5536,7 +5520,7 @@ int    FASTCALL dayofweek(const void * pDate, int sundayIsSeventh = 0); // 0..6 
 //   номер последнего дня в месяце month года year
 //   Если month < 1 || month > 12, то возвращает 0
 //
-int    FASTCALL dayspermonth(int month, int year);
+uint   FASTCALL dayspermonth(uint month, uint year);
 //
 // Descr: Возвращает текст, соответствующий дню недели dayOfWeek.
 // ARG(options    IN): формат представления текста (dowtXXX see below).
@@ -6073,8 +6057,8 @@ static constexpr ulong  _FFFFUL  = static_cast<ulong>(0xffffffffUL);
 static constexpr uint64 _FFFF64  = static_cast<uint64>(0xffffffffffffffffULL);
 static constexpr size_t _FFFFST  = static_cast<size_t>(-1);
 
-constexpr uint8  FFFF(uint8 & rV) { rV = static_cast<uint8>(0xff); return rV; }
-constexpr int8   FFFF(int8 & rV) { rV = static_cast<int8>(0xff); return rV; }
+constexpr uint8  FFFF(uint8 & rV) { rV = static_cast<uint8>('\xff'); return rV; }
+constexpr int8   FFFF(int8 & rV) { rV = static_cast<int8>('\xff'); return rV; }
 constexpr uint16 FFFF(uint16 & rV) { rV = static_cast<uint16>(0xffff); return rV; }
 constexpr int16  FFFF(int16 & rV) { rV = static_cast<int16>(0xffff); return rV; }
 constexpr uint   FFFF(uint & rV) { rV = 0xffffffffU; return rV; }
@@ -6463,33 +6447,6 @@ struct SBaseBuffer {
 	size_t Size;
 };
 //
-// Descr: Простой буфер с минимальной защитой. Все, что он умеет - распределить
-//   память и разрушить распределенную память в деструкторе.
-//   Обращение к внутреннему указателю никак не защищено.
-//
-class STempBuffer : private SBaseBuffer {
-public:
-	explicit STempBuffer(size_t sz);
-	STempBuffer(const STempBuffer & rS);
-	~STempBuffer();
-	STempBuffer & FASTCALL operator = (const STempBuffer & rS);
-	bool   IsValid() const { return (P_Buf != 0); }
-	size_t GetSize() const { return Size; }
-	operator char * () { return P_Buf; }
-	operator const char * () const { return P_Buf; }
-	const  uchar * ucptr() const { return reinterpret_cast<const uchar *>(P_Buf); }
-	const  char * cptr() const { return P_Buf; }
-	const  void * vcptr() const { return P_Buf; }
-	void * vptr() { return P_Buf; }
-	void * vptr(size_t offs) { return (PTR8(P_Buf)+offs); }
-	int    FASTCALL Alloc(size_t sz);
-	//
-	// Descr: Если текущий размер буфера больше или равен sz, то ничего не делает, в противном
-	//   случае перераспределяет размер до sz байт.
-	//
-	int    FASTCALL AllocIncr(size_t sz);
-};
-//
 // Descr: Буфер, хранящий бинарные данные определенной длины. Унаследован от SBaseBuffer, содержит
 //   конструктор, деструктор и фактическую длину данных, которая меньше или равна распределенному
 //   объему буфера.
@@ -6604,6 +6561,33 @@ public:
 private:
 	int    CheckInvariants() const;
 	size_t L;
+};
+//
+// Descr: Простой буфер с минимальной защитой. Все, что он умеет - распределить
+//   память и разрушить распределенную память в деструкторе.
+//   Обращение к внутреннему указателю никак не защищено.
+//
+class STempBuffer : private SBaseBuffer {
+public:
+	explicit STempBuffer(size_t sz);
+	STempBuffer(const STempBuffer & rS);
+	~STempBuffer();
+	STempBuffer & FASTCALL operator = (const STempBuffer & rS);
+	bool   IsValid() const { return (P_Buf != 0); }
+	size_t GetSize() const { return Size; }
+	operator char * () { return P_Buf; }
+	operator const char * () const { return P_Buf; }
+	const  uchar * ucptr() const { return reinterpret_cast<const uchar *>(P_Buf); }
+	const  char * cptr() const { return P_Buf; }
+	const  void * vcptr() const { return P_Buf; }
+	void * vptr() { return P_Buf; }
+	void * vptr(size_t offs) { return (PTR8(P_Buf)+offs); }
+	int    FASTCALL Alloc(size_t sz);
+	//
+	// Descr: Если текущий размер буфера больше или равен sz, то ничего не делает, в противном
+	//   случае перераспределяет размер до sz байт.
+	//
+	int    FASTCALL AllocIncr(size_t sz);
 };
 //
 // Descr: Класс, управляющий буфером записи-чтения.
@@ -6933,6 +6917,64 @@ public:
 	}
 	uint8  D[BYTESIZE];
 };
+//
+//
+//
+class S_GUID_Base { // @persistent @noctr @size=16
+public:
+	S_GUID_Base & FASTCALL Init(REFIID);
+	operator const GUID & () const;
+	enum {
+		fmtIDL = 0,
+		fmtC = 1,
+		fmtPlain,    // "плоский" формат. то есть, без ограничителей и разделителей в 16-ричном формате
+		// @construction fmtSUID27,   // @v10.9.0 Специальный внутренний формат (base32), умещающийся в 28 байт (с нулем в конце)
+		fmtLower = 0x8000 // Флаг, предписывающий использовать буквы [a-f] в строчном регистре
+	};
+	bool   operator !() const { return IsZero(); }
+	bool   FASTCALL operator == (const S_GUID_Base &) const;
+	bool   FASTCALL operator != (const S_GUID_Base &) const;
+	bool   IsZero() const;
+	S_GUID_Base & Z();
+	SString & ToStr(long fmt, SString &) const;
+	//
+	// Descr: Преобразует строку pStr в GUID.
+	// Note: Если в преобразовать строку в GUID не удалось, то this обнуляется (SetZero())
+	// Returns:
+	//   !0 - преобразование осуществлено успешно
+	//   0  - ошибка
+	//
+	int    FASTCALL FromStr(const char * pStr);
+	int    Generate();
+
+	uint32 Data[4];
+};
+
+class S_GUID : public S_GUID_Base {
+public:
+	S_GUID();
+	explicit S_GUID(SCtrGenerate g);
+	S_GUID(const S_GUID_Base & rS);
+	S_GUID(const S_GUID & rS);
+	S_GUID(const GUID & /*REFIID*/ rS); // @v11.7.4
+	explicit S_GUID(const char * pStr);
+	S_GUID & FASTCALL operator = (const S_GUID_Base & rS);
+};
+//
+// Descr: Инкапсуляция для Security IS (SID) Windows
+//
+class S_WinSID : private SBinaryChunk {
+public:
+	S_WinSID();
+	explicit S_WinSID(const void * pSid);
+	bool   FromPSID(const void * pSid);
+	SString & ToStr(SString & rBuf) const;
+	bool FromStr(const char * pText);
+};
+//
+//
+//
+extern const S_GUID    ZEROGUID; // @v10.9.3
 //
 // Descr: Идентификация алгоритмов хэширования.
 // @persistent
@@ -10840,6 +10882,16 @@ public:
 		SStringU PolicyPath;
 		SPtrHandle ProfileRegKey;
 	};
+	struct AccountInfo {
+		AccountInfo() : SidNameUse(0)
+		{
+		}
+		SStringU AccName;
+		S_WinSID Sid;
+		SStringU RefDomainName;
+		int    SidNameUse; // SID_NAME_USE
+		SStringU ProfilePath;
+	};
 	//
 	// Descr: Флаги функции GetUserHandle
 	//
@@ -10850,6 +10902,7 @@ public:
 
 	static bool   GetUserHandle(/*Settings*/WinUserBlock & rSettings, uint flags, BOOL & bLoadedProfile, PROFILEINFO & rProfile, HANDLE hCmdPipe);
 	static bool   GetUserName_(SString & rBuf);
+	static bool   GetAccountNameInfo(const char * pAccName, AccountInfo & rInfo);
 	//
 	// Descr: Типы вызова функции Logon().
 	// Note: Мнемоники аналогичны константам LOGON32_LOGON_XXX (see winbase.h). Значения мнемоник существенны и повторяют аналоги из winbase.h
@@ -15875,26 +15928,26 @@ public:
 		accsfWow64_32         = 0x0200,
 		accsfWow64_Res        = 0x0300,
 	};
-
 	/*
-#define KEY_QUERY_VALUE         (0x0001)
-#define KEY_SET_VALUE           (0x0002)
-#define KEY_CREATE_SUB_KEY      (0x0004)
-#define KEY_ENUMERATE_SUB_KEYS  (0x0008)
-#define KEY_NOTIFY              (0x0010)
-#define KEY_CREATE_LINK         (0x0020)
-#define KEY_WOW64_32KEY         (0x0200)
-#define KEY_WOW64_64KEY         (0x0100)
-#define KEY_WOW64_RES           (0x0300)
+		#define KEY_QUERY_VALUE         (0x0001)
+		#define KEY_SET_VALUE           (0x0002)
+		#define KEY_CREATE_SUB_KEY      (0x0004)
+		#define KEY_ENUMERATE_SUB_KEYS  (0x0008)
+		#define KEY_NOTIFY              (0x0010)
+		#define KEY_CREATE_LINK         (0x0020)
+		#define KEY_WOW64_32KEY         (0x0200)
+		#define KEY_WOW64_64KEY         (0x0100)
+		#define KEY_WOW64_RES           (0x0300)
 
-#define KEY_READ                ((STANDARD_RIGHTS_READ|KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS|KEY_NOTIFY)&(~SYNCHRONIZE))
-#define KEY_WRITE               ((STANDARD_RIGHTS_WRITE|KEY_SET_VALUE|KEY_CREATE_SUB_KEY)&(~SYNCHRONIZE))
-#define KEY_EXECUTE             ((KEY_READ)&(~SYNCHRONIZE))
-#define KEY_ALL_ACCESS          ((STANDARD_RIGHTS_ALL|KEY_QUERY_VALUE|KEY_SET_VALUE|KEY_CREATE_SUB_KEY|KEY_ENUMERATE_SUB_KEYS|KEY_NOTIFY|KEY_CREATE_LINK)&(~SYNCHRONIZE))
+		#define KEY_READ                ((STANDARD_RIGHTS_READ|KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS|KEY_NOTIFY)&(~SYNCHRONIZE))
+		#define KEY_WRITE               ((STANDARD_RIGHTS_WRITE|KEY_SET_VALUE|KEY_CREATE_SUB_KEY)&(~SYNCHRONIZE))
+		#define KEY_EXECUTE             ((KEY_READ)&(~SYNCHRONIZE))
+		#define KEY_ALL_ACCESS          ((STANDARD_RIGHTS_ALL|KEY_QUERY_VALUE|KEY_SET_VALUE|KEY_CREATE_SUB_KEY|KEY_ENUMERATE_SUB_KEYS|KEY_NOTIFY|KEY_CREATE_LINK)&(~SYNCHRONIZE))
 	*/ 
-
 	WinRegKey();
+	explicit WinRegKey(HKEY outerKey);
 	WinRegKey(HKEY, const char * pSubKey, int readOnly);
+	WinRegKey(const char * pSubKey, int readOnly);
 	~WinRegKey();
 	bool   IsValid() const { return !!Key; }
 	//
@@ -15908,15 +15961,17 @@ public:
 	//
 	int    DeleteValue(HKEY key, const char * pSubKey, const char * pValue);
 	int    Open(HKEY, const char * pSubKey, int readOnly, int onlyOpen = 0);
+	int    Open(const char * pKey, int readOnly, int onlyOpen = 0);
 	void   Close();
 	int    GetDWord(const char * pParam, uint32 * pVal);
 	//int    GetString(const char * pParam, char * pBuf, size_t bufLen);
 	int    GetString(const char * pParam, SString & rBuf);
+	int    GetStringU(const char * pParam, SStringU & rBuf);
 	int    GetBinary(const char * pParam, void * pBuf, size_t bufLen);
 	int    GetRecSize(const char * pParam, size_t * pRecSize);
 	int    GetBinary(const char * pParam, SBuffer & rBuf);
 	int    EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal);
-	int    EnumKeys(uint * pIdx, SString & rKey);
+	bool   EnumKeys(uint * pIdx, SString & rKey);
 	int    PutDWord(const char * pParam, uint32 val);
 	int    PutString(const char * pParam, const char *);
 	int    PutBinary(const char * pParam, const void * pBuf, size_t bufLen);
@@ -15941,8 +15996,11 @@ public:
 	//    0 - error
 	//
 	int    PutEnumeratedStrings(const StringSet & rSs, StrAssocArray * pResult);
+	int    Save(const char * pFileName);
+	int    Restore(const char * pFileName);
 private:
 	HKEY   Key;
+	bool   KeyIsOuter; // Если true, то деструктор не должен разрушать ключ.
 };
 //
 // Descr: Реализует управление сервисами Windows
@@ -18792,7 +18850,10 @@ public:
 		int64  SysTiming; // Системное время исполнения //
 		SArray BmrList;   // @#{BmrList.getCount() == BenchmarkList.getCount()} Результаты бенчмарков
 	};
-	STestSuite();
+	enum {
+		fConsole = 0x0001 // @v11.8.8 Тест запускается в консоле
+	};
+	explicit STestSuite(uint flags);
 	~STestSuite();
 	int    Run(const char * pIniFileName);
 	void   PutCaseInfo(const char *);
@@ -18803,6 +18864,7 @@ private:
 	int    ReportTestEntry(int title, const Entry * pEntry);
 	void * P_List; // Список тестов. Тип этого списка определен в реализации класса
 	uint   CurIdx;
+	uint   Flags; // @v11.8.8
 	//
 	// Формат хранения параметров теста:
 	// [Common]

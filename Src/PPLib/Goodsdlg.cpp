@@ -666,8 +666,8 @@ private:
 	virtual int  delItem(long pos, long id);
 	virtual int  moveItem(long pos, long id, int up);
 
-	const PPID GoodsID;
-	const PPID GoodsGrpID;
+	const  PPID GoodsID;
+	const  PPID GoodsGrpID;
 };
 
 int BarcodeListDialog::moveItem(long pos, long id, int up)
@@ -1299,7 +1299,7 @@ int PPObjGoods::__Helper_GetPriceRestrictions_ByFormula(SString & rFormula, cons
 void GoodsDialog::SetupAddedInfo()
 {
 	SString title_buf, temp_buf;
-	const PPID goods_id = Data.Rec.ID;
+	const  PPID goods_id = Data.Rec.ID;
 	if(goods_id) {
 		PPObjGoods::ReadGoodsExTitles(Data.Rec.ParentID, title_buf);
 		PPGetExtStrData(GDSEXSTR_INFOSYMB, title_buf, temp_buf);
@@ -2232,7 +2232,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 			setCtrlLong(CTLSEL_GOODS_CLS, 0);
 	}
 	else if(event.isCbSelected(CTLSEL_GOODS_BRAND)) {
-		const PPID prev_brand_id = Data.Rec.BrandID;
+		const  PPID prev_brand_id = Data.Rec.BrandID;
 		Data.Rec.BrandID = getCtrlLong(CTLSEL_GOODS_BRAND);
 		if(Data.Rec.BrandID != prev_brand_id)
 			completeByClass();
@@ -2504,7 +2504,7 @@ int GoodsCtrlGroup::setFilt(TDialog * pDlg, const GoodsFilt * pFilt)
 
 int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 {
-	const PPID save_loc_id = LConfig.Location;
+	const  PPID save_loc_id = LConfig.Location;
 	Rec  * p_rec = static_cast<Rec *>(pData);
 	PPID   grp_id = 0;
 	PPID   prev_grp_level = 0;
@@ -2551,7 +2551,7 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 	if(disable_group_selection)
 		dlg->disableCtrl(CtlselGrp, 1);
 	{
-		const PPID ext_id = (Flags & existsGoodsOnly) ? (p_rec->GrpID ? -labs(p_rec->GrpID) : LONG_MIN) : labs(p_rec->GrpID);
+		const  PPID ext_id = (Flags & existsGoodsOnly) ? (p_rec->GrpID ? -labs(p_rec->GrpID) : LONG_MIN) : labs(p_rec->GrpID);
 		fl = OLW_LOADDEFONOPEN;
 		if(Flags & enableInsertGoods)
 			fl |= OLW_CANINSERT;
@@ -3038,7 +3038,7 @@ int GoodsAsscDialog::setupAssoc(PPID asscType, uint asscText, PPID objType)
 	ObjAssocTbl::Rec assc_rec;
 	PPGetSubStr(PPTXT_GOODS_ASSC_NAME, asscText, assc_name);
 	for(SEnum en = PPRef->Assc.Enum(asscType, GoodsID, 1); en.Next(&assc_rec) > 0;) {
-		const PPID assc_id = assc_rec.PrmrObjID;
+		const  PPID assc_id = assc_rec.PrmrObjID;
 		name.Z();
 		if(asscType == PPASS_GOODSSTRUC) {
 			PPID   goods_id = 0;
@@ -3901,8 +3901,8 @@ private:
 				{
 					uint ref_count = 0;
 					for(uint i = 0; i < list.getCount(); i++) {
-						const PPID goods_id = list.at(i).Key;
-						const PPID uhtt_id = list.at(i).Val;
+						const  PPID goods_id = list.at(i).Key;
+						const  PPID uhtt_id = list.at(i).Val;
 						if(uhtt_id && (!i || list.at(i-1).Key != goods_id))
 							ref_count++;
 					}

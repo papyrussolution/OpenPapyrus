@@ -1768,7 +1768,7 @@ int CrystalReportPrint(const char * pReportName, const char * pDir, const char *
 		// @debug {
 		{
 			PPLoadString("err_crpe", msg_buf);
-			msg_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			// @v11.8.8 msg_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			msg_buf.CatDiv(':', 2).Cat(CrwError);
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		}
@@ -2333,7 +2333,8 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 	int    inherited_tbl_names = 0;
 	int    diffidbyscope = 0;
 	DlRtm   * p_rtm = 0;
-	SString data_name, fn, printer_name;
+	SString data_name, fn;
+	SString printer_name;
 	SString temp_buf;
 	long   fl = 0;
 	const  uint sur_key_last_count = DS.GetTLA().SurIdList.getCount(); // См. коммент в конце функции
@@ -2377,16 +2378,22 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				p_sel_entry = pans.Entries.at(pans.Selection);
 				// @v11.2.8 fn = p_sel_entry->ReportPath_;
 				SPathStruc::NormalizePath(p_sel_entry->ReportPath_, SPathStruc::npfCompensateDotDot, fn); // @v11.2.8 
-				data_name   = p_sel_entry->DataName_;
+				data_name     = p_sel_entry->DataName_;
 				inherited_tbl_names = BIN(p_sel_entry->Flags & ReportDescrEntry::fInheritedTblNames);
-				diffidbyscope       = BIN(p_sel_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
-				rpt.PrnDest = pans.Dest;
-				printer_name        = pans.Printer;
+				diffidbyscope = BIN(p_sel_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
+				rpt.PrnDest   = pans.Dest;
+				printer_name  = pans.Printer;
 				SETFLAG(rpt.PrnOptions, SPRN_USEDUPLEXPRINTING, BIN(pans.Flags & PrnDlgAns::fUseDuplexPrinting));
 			}
 			else
 				ok = -1;
 		}
+		// @v11.8.8 {
+		else if(rpt.PrnDest == PrnDlgAns::aPrint) {
+			if(pEnv)
+				printer_name = pEnv->PrnPort;
+		}
+		// } @v11.8.8 
 		if(ok > 0) {
 			data_name.SetIfEmpty(rpt.getDataName());
 			SString out_file_name;
@@ -2496,7 +2503,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					ok = CrystalReportPrint(fn, ep.Path, printer_name, pans.NumCopies, rpt.PrnOptions, pans.P_DevMode);//@erik v10.4.10
 					break;
 				case PrnDlgAns::aPreview:
-					ok = CrystalReportPrint(fn, ep.Path, printer_name, 1, rpt.PrnOptions | SPRN_PREVIEW, pans.P_DevMode); //@erik v10.4.10
+					ok = CrystalReportPrint(fn, ep.Path, printer_name, 1, rpt.PrnOptions|SPRN_PREVIEW, pans.P_DevMode); //@erik v10.4.10
 					break;
 				case PrnDlgAns::aExport:
 					{

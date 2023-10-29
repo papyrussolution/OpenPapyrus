@@ -301,7 +301,7 @@ int PPPhoneServicePacket::SetPassword(const char * pPassword)
 		SString channel_from;
 		PPObjPhoneService ps_obj(0);
 		PPPhoneServicePacket ps_pack;
-		const PPID phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
+		const  PPID phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
 		if(phn_svc_id && ps_obj.GetPacket(phn_svc_id, &ps_pack) > 0) {
 			if(ps_pack.GetPrimaryOriginateSymb(channel_from)) {
 				AsteriskAmiClient * p_phnsvccli = ps_obj.InitAsteriskAmiClient(phn_svc_id);

@@ -898,7 +898,7 @@ int Reference::GetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
 	int    r = GetProperty(obj, id, cfgID, b, s);
 	if(r < 0 && oneof2(obj, PPOBJ_USRGRP, PPOBJ_USR)) {
 		if(GetItem(obj, id, &rec) > 0) {
-			const PPID prev_level_id = (obj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
+			const  PPID prev_level_id = (obj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
 			r = GetConfig(prev_level_id, reinterpret_cast<const PPSecur *>(&rec)->ParentID, cfgID, b, s); // @recursion
 		}
 		else {
@@ -1014,7 +1014,7 @@ int Reference::RemoveSecur(PPID obj, PPID id, int use_ta)
 			}
 			usr_list.sortAndUndup(); // @paranoic
 			for(uint i = 0; i < usr_list.getCount(); i++) {
-				const PPID usr_id = usr_list.get(i);
+				const  PPID usr_id = usr_list.get(i);
 				THROW(RemoveSecur(PPOBJ_USR, usr_id, 0)); // @recursion for users
 			}
 			THROW(RemoveItem(obj, id, 0));

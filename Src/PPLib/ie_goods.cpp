@@ -659,7 +659,7 @@ int GoodsImpExpDialog::setDTS(const PPGoodsImpExpParam * pData)
 	{
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
-		const PPID acs_id = (acs_obj.Fetch(Data.AccSheetID, &acs_rec) > 0) ? Data.AccSheetID : GetSupplAccSheet();
+		const  PPID acs_id = (acs_obj.Fetch(Data.AccSheetID, &acs_rec) > 0) ? Data.AccSheetID : GetSupplAccSheet();
 		setCtrlString(CTL_IMPEXPGOODS_SUBCODE, Data.SubCode);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPGOODS_ACS, PPOBJ_ACCSHEET, acs_id, 0, 0);
 		SetupArCombo(this, CTLSEL_IMPEXPGOODS_SUPPL, Data.SupplID, 0, acs_id, sacfDisableIfZeroSheet);
@@ -2318,7 +2318,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 				bill_ident_negop.GetFldSet(&ini_file, sect, 0);
 				PPEquipConfig eq_cfg;
 				ReadEquipConfig(&eq_cfg);
-				const PPID op_for_neg_rest_id = NZOR(eq_cfg.OpOnDfctThisLoc, eq_cfg.OpOnTempSess); // @v10.7.9
+				const  PPID op_for_neg_rest_id = NZOR(eq_cfg.OpOnDfctThisLoc, eq_cfg.OpOnTempSess); // @v10.7.9
 				// } @v10.7.9 
 				PPTransaction tra(use_ta);
 				THROW(tra);
@@ -2700,7 +2700,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								{
 									temp_buf2 = sdr_rec.Brand;
 									if(temp_buf2.NotEmptyS()) {
-										const PPID org_brand_id = pack.Rec.BrandID;
+										const  PPID org_brand_id = pack.Rec.BrandID;
 										if(!pack.Rec.BrandID || Param.Flags & PPGoodsImpExpParam::fForceUpdateBrand) {
 											THROW(BrObj.AddSimple(&pack.Rec.BrandID, temp_buf2, 0, 0));
 											if(pack.Rec.BrandID != org_brand_id)
@@ -2710,7 +2710,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								}
 								// } @v11.6.10 
 								{
-									const PPID org_manuf_id = pack.Rec.ManufID;
+									const  PPID org_manuf_id = pack.Rec.ManufID;
 									if(!pack.Rec.ManufID || Param.Flags & PPGoodsImpExpParam::fForceUpdateManuf) {
 										THROW(Resolve_Manuf(sdr_rec, &pack.Rec.ManufID));
 										if(pack.Rec.ManufID != org_manuf_id)
@@ -3107,7 +3107,7 @@ int ExportUhttForGitHub()
 		line_buf.Z().Cat("BrandID").Tab().Cat("BrandName").Tab().Cat("Count").CR();
 		f_out_brand.WriteLine(line_buf);
 		for(uint i = 0; i < brand_concord.getCount(); i++) {
-			const PPID brand_id = brand_concord.at(i).Key;
+			const  PPID brand_id = brand_concord.at(i).Key;
 			if(brand_id && brand_obj.Fetch(brand_id, &brand_rec) > 0) {
 				(brand_name = brand_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 				brand_name.ReplaceChar('\t', ' ');
@@ -3125,7 +3125,7 @@ int ExportUhttForGitHub()
 		line_buf.Z().Cat("CategoryID").Tab().Cat("CategoryName").Tab().Cat("Count").CR();
 		f_out_categ.WriteLine(line_buf);
 		for(uint i = 0; i < categ_concord.getCount(); i++) {
-			const PPID categ_id = categ_concord.at(i).Key;
+			const  PPID categ_id = categ_concord.at(i).Key;
 			Goods2Tbl::Rec group_rec;
 			if(categ_id && goods_obj.Fetch(categ_id, &group_rec) > 0) {
 				(group_name = group_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);

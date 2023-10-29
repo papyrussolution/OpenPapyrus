@@ -867,8 +867,8 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 						PPID   cc_id = 0;
 						CPosProcessor cpp(pos_node_id, 0, 0, 0, 0);
 						PPIDArray ex_cc_list;
-						CCheckCore & r_cc = cpp.GetCc();
-						if(r_cc.GetListByUuid(doc.Uuid, ex_cc_list) > 0) {
+						//CCheckCore & r_cc = cpp.GetCc();
+						if(cpp.CsObj.GetListByUuid(doc.Uuid, 14, ex_cc_list) > 0) {
 							assert(ex_cc_list.getCount());
 							if(ex_cc_list.getCount()) {
 								ex_cc_list.sort();
@@ -961,7 +961,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					THROW(tec_candidate_list.getCount()); // @err no tech for such a ware
 					tec_candidate_list.sortAndUndup();
 					for(uint j = 0; j < tec_candidate_list.getCount(); j++) {
-						const PPID tec_id = tec_candidate_list.get(j);
+						const  PPID tec_id = tec_candidate_list.get(j);
 						if(tses_obj.GetTech(tec_id, &tec_rec) > 0) {
 							
 						}
@@ -1066,7 +1066,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 		}
 		else { // —обственно, документы
 			// CALLEXCEPT_PP(PPERR_DEBUG); // @debug
-			const PPID  svc_op_id = doc.SvcOpID;
+			const  PPID  svc_op_id = doc.SvcOpID;
 			PPID   _op_id = 0; // ‘инальный вид операции создаваемого или модифицируемого документа 
 			PPID   loc_id = 0;
 			PPID   stylopalm_id = 0;
@@ -1199,7 +1199,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 						}
 						// } @v11.5.1 
 						{
-							const PPID agent_acs_id = GetAgentAccSheet();
+							const  PPID agent_acs_id = GetAgentAccSheet();
 							PPID  person_id = 0;
 							ArticleTbl::Rec ar_rec;
 							if(is_new_pack || !ddecl.ActionFlags) {
@@ -1224,7 +1224,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 										CatChar('[').CatEq("ClientID", doc.ClientID).Space().CatEq("AcsID", ar_rec.AccSheetID).CatChar(']'));
 									p_bpack->Rec.Object = ar_rec.ID;
 									if(doc.DlvrLocID) {
-										const PPID cli_psn_id = ObjectToPerson(ar_rec.ID, 0);
+										const  PPID cli_psn_id = ObjectToPerson(ar_rec.ID, 0);
 										if(cli_psn_id) {
 											PPIDArray dlvr_loc_list;
 											psn_obj.GetDlvrLocList(cli_psn_id, &dlvr_loc_list);
@@ -1526,7 +1526,7 @@ int PPStyloQInterchange::MakePrcJsList(const MakePrcJsListParam & rParam, SJson 
 		PrcBusyArray busy_list;
 		SJson * p_js_prc_list = SJson::CreateArr();
 		for(uint prcidx = 0; prcidx < rPrcList.getCount(); prcidx++) {
-			const PPID prc_id = rPrcList.get(prcidx);
+			const  PPID prc_id = rPrcList.get(prcidx);
 			SJson * p_js_prc = MakeRsrvAttendancePrereqResponse_Prc(rParam.R_BcOwnIdent, prc_id, rParam.QuotKindID, rTSesObj, rParam.MaxScheduleDays, &goods_to_prc_list, pStat);
 			if(p_js_prc)
 				p_js_prc_list->InsertChild(p_js_prc);
@@ -1544,7 +1544,7 @@ int PPStyloQInterchange::MakePrcJsList(const MakePrcJsListParam & rParam, SJson 
 			{
 				Goods2Tbl::Rec goods_rec;
 				for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
-					const PPID goods_id = goods_id_list.get(gidx);
+					const  PPID goods_id = goods_id_list.get(gidx);
 					if(rTSesObj.GObj.Search(goods_id, &goods_rec) > 0) {
 						if(goods_rec.ParentID > 0 && rTSesObj.GObj.Fetch(goods_rec.ParentID, &goodsgroup_rec) > 0 && goodsgroup_rec.Kind == PPGDSK_GROUP) {
 							goodsgrp_id_list.add(goods_rec.ParentID);
@@ -1566,7 +1566,7 @@ int PPStyloQInterchange::MakePrcJsList(const MakePrcJsListParam & rParam, SJson 
 				qk_list.addnz(rParam.QuotKindID);
 				qk_list.add(PPQUOTK_BASE);
 				for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
-					const PPID goods_id = goods_id_list.get(gidx);
+					const  PPID goods_id = goods_id_list.get(gidx);
 					if(rTSesObj.GObj.GetPacket(goods_id, &goods_pack, 0) > 0) {
 						SJson * p_js_ware = MakeObjJson_Goods(rParam.R_BcOwnIdent, goods_pack, 0, 0, 0, pStat);
 						THROW(p_js_ware);
@@ -1574,9 +1574,9 @@ int PPStyloQInterchange::MakePrcJsList(const MakePrcJsListParam & rParam, SJson 
 							// "price"
 							double price = 0.0;
 							for(uint qkidx = 0; price == 0.0 && qkidx < qk_list.getCount(); qkidx++) {
-								const PPID qk_id = qk_list.get(qkidx);
+								const  PPID qk_id = qk_list.get(qkidx);
 								assert(qk_id != 0);
-								const PPID ar_id = 0L;
+								const  PPID ar_id = 0L;
 								const QuotIdent qi(rParam.LocID, qk_id, 0/*curID*/, ar_id);
 								double result = 0.0;
 								if(rTSesObj.GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &result, 1) > 0) {
@@ -1797,7 +1797,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 	}
 	if(!rParam.PalmID || !(palm_pack.Rec.Flags & PLMF_BLOCKED)) {
 		PPIDArray final_loc_list; // @v11.6.2 ‘инальный список складов, с которыми работает агент. may be empty!
-		const PPID single_loc_id = rParam.PalmID ? palm_pack.LocList.GetSingle() : rParam.LocID;
+		const  PPID single_loc_id = rParam.PalmID ? palm_pack.LocList.GetSingle() : rParam.LocID;
 		PPID   single_qk_id = 0; // Ќаиболее приоритетный вид котировки из списка таковых
 		PPIDArray qk_id_list;
 		TSVector <PPQuotKind2> qk_rec_list; // @v11.7.1
@@ -1817,7 +1817,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			single_qk_id = qk_id_list.get(0);
 			SJson * p_js_list = 0;
 			for(uint i = 0; i < qk_id_list.getCount(); i++) {
-				const PPID qk_id = qk_id_list.get(i);
+				const  PPID qk_id = qk_id_list.get(i);
 				PPQuotKind2 qk_rec;
 				if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
 					if(export_zstock) {
@@ -1845,7 +1845,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 				if(palm_pack.Rec.ID && palm_pack.Rec.GoodsGrpID) {
 					uint j = goods_list_by_qk.getCount();
 					if(j) do {
-						const PPID goods_id = goods_list_by_qk.get(--j);
+						const  PPID goods_id = goods_list_by_qk.get(--j);
 						if(mige_blk.GObj.BelongToGroup(goods_id, palm_pack.Rec.GoodsGrpID, 0) > 0) {
 							;
 						}
@@ -1901,13 +1901,13 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			}
 			{
 				for(uint i = 0; i < goods_list_by_qk.getCount(); i++) {
-					const PPID   goods_id = goods_list_by_qk.get(i);
+					const  PPID   goods_id = goods_list_by_qk.get(i);
 					double cost = 0.0;
 					double price = 0.0;
 					double rest = 0.0;
 					double unitperpack = 0.0;
 					for(uint qkidx = 0; qkidx < qk_id_list.getCount(); qkidx++) {
-						const PPID qk_id = qk_id_list.get(qkidx);
+						const  PPID qk_id = qk_id_list.get(qkidx);
 						double quot = 0.0;
 						QuotIdent qi(QIDATE(now_dtm.d), single_loc_id, qk_id);
 						if(mige_blk.GObj.GetQuotExt(goods_id, qi, 0.0, 0.0, &quot, 1) > 0) {
@@ -1937,7 +1937,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			LocationTbl::Rec loc_rec;
 			loc_obj.GetWarehouseList(&loc_list, 0);
 			for(uint i = 0; i < loc_list.getCount(); i++) {
-				const PPID loc_id = loc_list.get(i);
+				const  PPID loc_id = loc_list.get(i);
 				if(rParam.PalmID && final_loc_list.lsearch(loc_id) && loc_obj.Fetch(loc_id, &loc_rec) > 0) {
 					SETIFZ(p_js_list, SJson::CreateArr());
 					SJson * p_jsobj = SJson::CreateObj();
@@ -1971,7 +1971,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 						PPID   critical_lot_id = 0;
 						LDATE  critical_expiry = ZERODATE;
 						for(uint locidx = 0; locidx < final_loc_list.getCount(); locidx++) {
-							const PPID _loc_id = final_loc_list.get(locidx);
+							const  PPID _loc_id = final_loc_list.get(locidx);
 							PPID   local_critical_lot_id = 0;
 							LDATE  local_critical_expiry = ZERODATE;
 							if(p_bobj->trfr->Rcpt.GetMostCriticalExpiryDate(r_goods_entry.GoodsID, _loc_id, &local_critical_lot_id, &local_critical_expiry) > 0) {
@@ -2000,7 +2000,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 						SJson * p_js_quot_list = 0;
 						Transfer * p_trfr = p_bobj->trfr;
 						for(uint i = 0; i < qk_id_list.getCount(); i++) {
-							const PPID qk_id = qk_id_list.get(i);
+							const  PPID qk_id = qk_id_list.get(i);
 							double quot = 0.0;
 							QuotIdent qi(QIDATE(now_dtm.d), single_loc_id, qk_id);
 							if(mige_blk.GObj.GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
@@ -2025,7 +2025,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 									}
 								}
 								{
-									const PPID target_loc_id = temp_loc_list.getCount() ? temp_loc_list.get(0) : palm_pack.LocList.Get(0);
+									const  PPID target_loc_id = temp_loc_list.getCount() ? temp_loc_list.get(0) : palm_pack.LocList.Get(0);
 									QuotIdent qi(QIDATE(now_dtm.d), target_loc_id, qk_id);
 									if(mige_blk.GObj.GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
 										SJson * p_js_quot = SJson::CreateObj();
@@ -2477,7 +2477,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 			Goods2Tbl::Rec goods_rec;
 			CPosProcessor cpp(cn_sync_pack.ID, 0, 0, CPosProcessor::ctrfForceInitGroupList, /*pDummy*/0);
 			//PPObjGoods goods_obj;
-			const PPID single_loc_id = cn_sync_pack.LocID;
+			const  PPID single_loc_id = cn_sync_pack.LocID;
 			DateRange period;
 			TSVector <CCheckViewItem> cclist;
 			CCheckCore & r_cc = cpp.GetCc();
@@ -2548,7 +2548,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 					SVector goods_list(sizeof(InnerGoodsEntry)); // ###
 					{
 						for(uint i = 0; i < goods_id_list.getCount(); i++) {
-							const PPID goods_id = goods_id_list.get(i);
+							const  PPID goods_id = goods_id_list.get(i);
 							assert(goods_id > 0);
 							if(mige_blk.GObj.Fetch(goods_id, &goods_rec) > 0) {
 								InnerGoodsEntry goods_entry(goods_id);
@@ -2927,7 +2927,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 							bool is_there_wanted_goods = false;
 							for(uint i = 0; !is_there_wanted_goods && i < bpack.GetTCount(); i++) {
 								const PPTransferItem & r_ti = bpack.ConstTI(i);
-								const PPID goods_id = labs(r_ti.GoodsID);
+								const  PPID goods_id = labs(r_ti.GoodsID);
 								PPGoodsType2 gt_rec;
 								if(mige_blk.GObj.Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID && mige_blk.GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
 									if(gt_rec.Flags & GTF_GMARKED)
@@ -2958,7 +2958,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 					SVector goods_list(sizeof(InnerGoodsEntry)); // ###
 					{
 						for(uint i = 0; i < goods_id_list.getCount(); i++) {
-							const PPID goods_id = goods_id_list.get(i);
+							const  PPID goods_id = goods_id_list.get(i);
 							assert(goods_id > 0);
 							if(mige_blk.GObj.Fetch(goods_id, &goods_rec) > 0) {
 								InnerGoodsEntry goods_entry(goods_id);
@@ -3010,10 +3010,9 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 					SString addr;
 					PPIDArray dlvr_loc_list;
 					for(uint i = 0; i < cli_id_list.getCount(); i++) {
-						const PPID ar_id = cli_id_list.get(i);
+						const  PPID ar_id = cli_id_list.get(i);
 						if(ar_obj.Search(ar_id, &ar_rec) > 0) {
-							PPID   acs_id = 0;
-							PPID   psn_id = ObjectToPerson(ar_id, &acs_id);
+							const  PPID psn_id = ObjectToPerson(ar_id, 0);
 							if(psn_id && psn_obj.Fetch(psn_id, &psn_rec) > 0) {
 								name = psn_rec.Name;
 								psn_obj.GetRegNumber(psn_id, PPREGT_TPID, inn_buf);
@@ -3036,7 +3035,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 							if(dlvr_loc_list.getCount()) {
 								SJson * p_js_dlvrloc_list = 0;
 								for(uint locidx = 0; locidx < dlvr_loc_list.getCount(); locidx++) {
-									const PPID dlvr_loc_id = dlvr_loc_list.at(locidx);
+									const  PPID dlvr_loc_id = dlvr_loc_list.at(locidx);
 									psn_obj.LocObj.GetAddress(dlvr_loc_id, 0, addr);
 									if(addr.NotEmptyS()) {
 										SJson * p_js_adr = SJson::CreateObj();

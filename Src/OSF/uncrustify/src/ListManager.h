@@ -67,7 +67,7 @@ public:
 				Remove(obj2);
 				AddBefore(obj2, obj1);
 			}
-			else{
+			else {
 				Chunk * m_prev1 = obj1->m_prev;
 				Remove(obj1);
 				Chunk * m_prev2 = obj2->m_prev;
@@ -91,7 +91,7 @@ public:
 			if(ref->m_next != Chunk::NullChunkPtr) {
 				ref->m_next->m_prev = obj;
 			}
-			else{
+			else {
 				m_tail = obj;
 			}
 			ref->m_next = obj;
@@ -113,7 +113,7 @@ public:
 			if(ref->m_prev != Chunk::NullChunkPtr) {
 				ref->m_prev->m_next = obj;
 			}
-			else{
+			else {
 				m_head = obj;
 			}
 			ref->m_prev = obj;
@@ -133,7 +133,7 @@ public:
 			m_tail = obj;
 			m_head = obj;
 		}
-		else{
+		else {
 			m_tail->m_next = obj;
 		}
 		m_tail = obj;
@@ -152,7 +152,7 @@ public:
 			m_tail = obj;
 			m_head = obj;
 		}
-		else{
+		else {
 			m_head->m_prev = obj;
 		}
 		m_head = obj;

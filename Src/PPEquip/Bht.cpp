@@ -3197,7 +3197,7 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 		double prf_measure = 0.0;
 		for(i = 0; i < pPack->P_SBIICfg->P_OpList->getCount(); i++) {
 			const SBIIOpInfo & r_item = pPack->P_SBIICfg->P_OpList->at(i);
-			const PPID op_id = r_item.OpID;
+			const  PPID op_id = r_item.OpID;
 			if(op_id > 0) {
 				BHT_BillOpEntry new_entry;
 				new_entry.OpID = op_id;
@@ -3607,7 +3607,7 @@ int PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPat
 		//while(giter.Next(&goods_rec) > 0) {
 		for(uint j = 0; j < goods_id_list.getCount(); j++) {
 			prf_measure += 1.0; // @v9.4.11
-			const PPID _goods_id = goods_id_list.get(j);
+			const  PPID _goods_id = goods_id_list.get(j);
 			uint   i;
 			BarcodeTbl::Rec * p_barcode = 0;
 			THROW(goods_obj.ReadBarcodes(_goods_id, barcode_list));
@@ -5807,7 +5807,7 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 		}
 		void   DisableCtrls()
 		{
-			const PPID bht_id = getCtrlLong(CTLSEL_BHTSEND_BHT);
+			const  PPID bht_id = getCtrlLong(CTLSEL_BHTSEND_BHT);
 			PPBhtTerminalPacket pack;
 			if(P_BhtObj && bht_id && P_BhtObj->GetPacket(bht_id, &pack) > 0) {
 				DisableClusterItem(CTL_BHTSEND_WHAT, 3, pack.Rec.BhtTypeID != PPObjBHT::btPalm);

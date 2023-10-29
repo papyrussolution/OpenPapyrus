@@ -5937,6 +5937,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_dblist                          "30,L,@appellation;20,L,@symbol;50,L,@dbloginentry_dbpath;25,L,@dbloginentry_dictpath"
 @lbt_stqstatuslist                   "30,L,@styloqdocstatus_status;20,L,@styloqdocstatus_reservedcase;20,L, ;30,L,@appellation"
 @lbt_goodsrestbyloclist              "30,L,@warehouse;10,R,@rest;10,R,@cost;10,R,@price"
+@lbt_ccextlist                       "30,L,@datafield;30,L,@value"
 
 @entmanagementsys                    "Система управления предприятием"
 @pgmcopylic_owner                    "Владелец лицензии"
@@ -6243,6 +6244,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @selection_file                      "Выбор файла"
 @selection_symb                      "Выбор символа"
 @selection_bill                      "Выбор документа"
+@selection_bill_forimport            "Выбор документа для импорта"
 
 @selection_linkbillrmv               "Удаление связи с документом"
 @selection_linkbillrmv_break         "Разорвать связь"
@@ -8459,6 +8461,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_person_transportto                  "Транспорт для доставки клиенту по умолчанию" // @v11.6.9
 @rtag_lotacceptance                       "Результат приемки строки документа" // @v11.7.0
 @rtag_prcuuid                             "UUID процессора" // @v11.7.2
+@rtag_billlinkccheckuuid                  "UUID связанного кассового чека" // @v11.8.8
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -9856,6 +9859,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billrunie_gua                            "@{globaluseracc}"
 
 @ccheckrunie                              "Импорт кассовых чеков"
+@ccextlist                                "Поля расширения кассового чека"
+@ccextlist_s                              "Поля расширения"
 
 @bizscore_bounds                          "Контрольные границы значения"
 @bizscore_descr                           "@{description}"
@@ -10168,6 +10173,25 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheck_buyerseaddr                       "Электронный адрес (телефон или электронная почта)"
 @ccheckline_discount_amp                  "Скидка на строку чека"
 @ccheckline_id                            "ИД строки чека"
+
+@ccextss_memo                              "@{memo}"
+@ccextss_sign                              "Сигнатура чека"
+@ccextss_egaisurl                          "URL ЕГАИС"
+@ccextss_remoteprocessingta                "@{remotetransactionid}"
+@ccextss_chznprocessingtag                 "Тег процессинга честный знак"
+@ccextss_buyerinn                          "ИНН покупателя"
+@ccextss_buyername                         "Имя покупателя"
+@ccextss_buyerphone                        "Телефон покупателя"
+@ccextss_buyeremail                        "Электронная почта покупателя"
+@ccextss_uuid                              "UUID кассового чека"
+@ccextss_prescrdate                        "Медицинский рецепт - дата"
+@ccextss_prescrserial                      "Медицинский рецепт - серия"
+@ccextss_prescrnumber                      "Медицинский рецепт - номер"
+@ccextss_egaisprocessingtag                "Тег процессинга ЕГАИС"
+@ccextss_sourcesymb                        "Символ источника импортированного чека"
+@ccextss_outerident                        "Внешний идентификатор импортированного чека"
+@ccextss_outerexttag                       "Дополнительный внешний тег импортированного чека"
+@ccextss_linkbilluuid                      "UUID связанного документа"
 
 @pospan                                   "Кассовая панель"
 @pospanlocking                            "Блокировка кассовой панели"

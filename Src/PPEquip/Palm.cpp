@@ -2374,7 +2374,7 @@ int PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * pLogge
 	THROW(GetPacket(id, &palm_pack) > 0);
 	THROW(GetChildList(id, palm_id_list));
 	for(i = 0; i < palm_id_list.getCount(); i++) {
-		const PPID child_id = palm_id_list.at(i);
+		const  PPID child_id = palm_id_list.at(i);
 		if(ReadInput(child_id, &input_param, 0, pLogger, &ord_count) == 0)
 			r = 0;
 	}
@@ -2388,7 +2388,7 @@ int PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * pLogge
 			for(i = 0; i < gtc; i++) {
 				PPGeoTrackItem & r_item = gt_list.at(i);
 				if(r_item.ExtOid.Obj == PPOBJ_BILL) {
-					const PPID inner_id = bill_queue.GetInnerIdByOuter(r_item.Oid.Id, r_item.ExtOid.Id);
+					const  PPID inner_id = bill_queue.GetInnerIdByOuter(r_item.Oid.Id, r_item.ExtOid.Id);
                     r_item.ExtOid.Id = inner_id;
 				}
 			}
@@ -3302,11 +3302,11 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 		THROW(p_ie_quots->OpenFileForWriting(0, 1));
 	}
 	if(!(pPack->Rec.Flags & PLMF_BLOCKED)) {
-		const PPID single_loc_id = pPack->LocList.GetSingle();
+		const  PPID single_loc_id = pPack->LocList.GetSingle();
 		{
 			PPSetAddedMsgString(p_qk_tbl->getName());
 			for(i = 0; i < pPack->QkList__.GetCount(); i++) {
-				const PPID qk_id = pPack->QkList__.Get(i);
+				const  PPID qk_id = pPack->QkList__.Get(i);
 				PPQuotKind qk_rec;
 				if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
 					DbfRecord drec_qk(p_qk_tbl);
@@ -3384,7 +3384,7 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 					{
 						const LDATE now_date = getcurdate_();
 						for(i = 0; i < PALM_MAX_QUOT && i < pPack->QkList__.GetCount(); i++) {
-							const PPID qk_id = pPack->QkList__.Get(i);
+							const  PPID qk_id = pPack->QkList__.Get(i);
 							double quot = 0.0;
 							QuotIdent qi(QIDATE(now_date), single_loc_id, qk_id);
 							if(rBlk.P_GObj->GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
@@ -3415,7 +3415,7 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 									}
 								}
 								{
-									const PPID target_loc_id = temp_loc_list.getCount() ? temp_loc_list.get(0) : pPack->LocList.Get(0);
+									const  PPID target_loc_id = temp_loc_list.getCount() ? temp_loc_list.get(0) : pPack->LocList.Get(0);
 									QuotIdent qi(QIDATE(now_date), target_loc_id, qk_id);
 									if(rBlk.P_GObj->GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
 										drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
@@ -3604,7 +3604,7 @@ struct PalmExpStruc {
 		}
 		return yes;
 	}
-	const PPID   GoodsGrpID;
+	const  PPID   GoodsGrpID;
 	long   Flags;
 	PPIDArray LocList;
 	PPIDArray QkList; // @v10.8.6
@@ -3685,7 +3685,7 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 					dlvr_loc_list.clear();
 					THROW(rBlk.P_PsnObj->GetDlvrLocList(ar_item.ObjID, &dlvr_loc_list));
 					for(i = 0; i < dlvr_loc_list.getCount(); i++) {
-						const PPID dlvr_loc_id = dlvr_loc_list.at(i);
+						const  PPID dlvr_loc_id = dlvr_loc_list.at(i);
 						rBlk.P_LocObj->GetAddress(dlvr_loc_id, 0, addr);
 						if(addr.NotEmptyS()) {
 							DbfRecord drec_addr(p_addr_tbl);
@@ -3981,7 +3981,7 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 				if(lc) {
 					LongArray * p_inner_list = palm_pack.LocList.GetP();
 					do {
-						const PPID loc_id = p_inner_list->get(--lc);
+						const  PPID loc_id = p_inner_list->get(--lc);
 						LocationTbl::Rec loc_rec;
 						if(_blk.P_LocObj->Search(loc_id, &loc_rec) <= 0 || loc_rec.Type != LOCTYP_WAREHOUSE)
 							p_inner_list->atFree(lc);
@@ -4054,7 +4054,7 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 			// В этом же цикле разносим подготовленные файлы по каталогам назначения.
 			//
 			for(j = 0; j < p_item->PalmList.getCount(); j++) {
-				const PPID palm_id = p_item->PalmList.get(j);
+				const  PPID palm_id = p_item->PalmList.get(j);
 				PPStyloPalmPacket child_pack;
 				if(GetPacket(palm_id, &child_pack) > 0) {
 					PalmCfgItem * p_cfg_item = GetPalmConfigItem(cfg_list, palm_id);
@@ -4625,7 +4625,7 @@ int PPALDD_UhttStyloDevice::Set(long iterId, int commit)
 	int    ok = 1;
 	SString temp_buf;
 	UhttStyloDeviceBlock & r_blk = *static_cast<UhttStyloDeviceBlock *>(Extra[0].Ptr);
-	const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
+	const  PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
 	if(r_blk.State != r_blk.stSet) {
 		r_blk.Clear();
 		r_blk.State = r_blk.stSet;

@@ -96,113 +96,59 @@ SLTEST_R(LDATE)
 		}
 	}
 	{
-		int y2, m2, d2;
+		struct t_YMD {
+			t_YMD(uint y, uint m, uint d) : Y(y), M(m), D(d)
+			{
+			}
+			bool FASTCALL operator == (const t_YMD & rS) const { return (Y == rS.Y && M == rS.M && D == rS.D); }
+			uint   Y;
+			uint   M;
+			uint   D;
+		};
 		{
-			int y = 2008, m = 12, d = 30;
-			int dc = DateToDaysSinceChristmas(y, m, d);
-			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)y);
-			SLCHECK_EQ((long)m2, (long)m);
-			SLCHECK_EQ((long)d2, (long)d);
+			static const t_YMD _ymd_list[] = {
+				t_YMD(2008, 12, 30),
+				t_YMD(2008, 12, 31),
+				t_YMD(1600, 12, 30),
+				t_YMD(1600, 12, 31),
+				t_YMD(2001, 1, 1),
+				t_YMD(2004, 2, 29),
+				t_YMD(1991, 3, 1),
+				t_YMD(1879, 12, 31),
+				t_YMD(1, 1, 1),
+				t_YMD(1582, 10, 15),
+			};
+			for(uint i = 0; i < SIZEOFARRAY(_ymd_list); i++) {
+				const uint dc = DateToDaysSinceChristmas(_ymd_list[i].Y, _ymd_list[i].M, _ymd_list[i].D);
+				t_YMD ymd2(0, 0, 0);
+				DaysSinceChristmasToDate(dc, &ymd2.Y, &ymd2.M, &ymd2.D);
+				SLCHECK_NZ(ymd2 == _ymd_list[i]);
+			}
 		}
+
+		struct t_YMD_pair {
+			t_YMD   D1;
+			t_YMD   D2;
+			int     Diff;
+		};
+
+		static const t_YMD_pair _ymd_pair_list[] = {
+			{ t_YMD(1, 3, 1), t_YMD(1970, 3, 1), /*719527*/719162 }, // /*719527*/719162 days were between March 1, 1 BC and March 1, 1970,
+			{ t_YMD(1996, 12, 31), t_YMD(1997, 1, 1), 1 },
+			{ t_YMD(2000, 2, 28), t_YMD(2000, 3, 1), 2 },
+		};
 		{
-			int y = 2008, m = 12, d = 31;
-			int dc = DateToDaysSinceChristmas(y, m, d);
-			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)y);
-			SLCHECK_EQ((long)m2, (long)m);
-			SLCHECK_EQ((long)d2, (long)d);
-		}
-		{
-			int y = 1600, m = 12, d = 30;
-			int dc = DateToDaysSinceChristmas(y, m, d);
-			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)y);
-			SLCHECK_EQ((long)m2, (long)m);
-			SLCHECK_EQ((long)d2, (long)d);
-		}
-		{
-			int y = 1600, m = 12, d = 31;
-			int dc = DateToDaysSinceChristmas(y, m, d);
-			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)y);
-			SLCHECK_EQ((long)m2, (long)m);
-			SLCHECK_EQ((long)d2, (long)d);
-		}
-		{
-			int y = 2001, m = 1, d = 1;
-			int dc = DateToDaysSinceChristmas(y, m, d);
-			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)y);
-			SLCHECK_EQ((long)m2, (long)m);
-			SLCHECK_EQ((long)d2, (long)d);
-		}
-		{
-			int y = 2004, m = 2, d = 29;
-			int dc = DateToDaysSinceChristmas(y, m, d);
-			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)y);
-			SLCHECK_EQ((long)m2, (long)m);
-			SLCHECK_EQ((long)d2, (long)d);
-		}
-		{
-			int y = 1991, m = 3, d = 1;
-			int dc = DateToDaysSinceChristmas(y, m, d);
-			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)y);
-			SLCHECK_EQ((long)m2, (long)m);
-			SLCHECK_EQ((long)d2, (long)d);
-		}
-		{
-			int y = 1879, m = 12, d = 31;
-			int dc = DateToDaysSinceChristmas(y, m, d);
-			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)y);
-			SLCHECK_EQ((long)m2, (long)m);
-			SLCHECK_EQ((long)d2, (long)d);
-		}
-		{
-			int y = 1, m = 1, d = 1;
-			int dc = DateToDaysSinceChristmas(y, m, d);
-			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)y);
-			SLCHECK_EQ((long)m2, (long)m);
-			SLCHECK_EQ((long)d2, (long)d);
-		}
-		{
-			int y = 1582, m = 10, d = 15;
-			int dc = DateToDaysSinceChristmas(y, m, d);
-			DaysSinceChristmasToDate(dc, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)y);
-			SLCHECK_EQ((long)m2, (long)m);
-			SLCHECK_EQ((long)d2, (long)d);
-		}
-		{
-			// /*719527*/719162 days were between March 1, 1 BC and March 1, 1970,
-			int dc1 = DateToDaysSinceChristmas(1, 3, 1);
-			int dc2 = DateToDaysSinceChristmas(1970, 3, 1);
-			SLCHECK_EQ((dc2-dc1), /*719527*/719162);
-			DaysSinceChristmasToDate(dc1, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)1);
-			SLCHECK_EQ((long)m2, (long)3);
-			SLCHECK_EQ((long)d2, (long)1);
-			DaysSinceChristmasToDate(dc2, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)1970);
-			SLCHECK_EQ((long)m2, (long)3);
-			SLCHECK_EQ((long)d2, (long)1);
-		}
-		{
-			int dc1 = DateToDaysSinceChristmas(1996, 12, 31);
-			int dc2 = DateToDaysSinceChristmas(1997, 1, 1);
-			SLCHECK_EQ((dc2-dc1), 1);
-			DaysSinceChristmasToDate(dc1, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)1996);
-			SLCHECK_EQ((long)m2, (long)12);
-			SLCHECK_EQ((long)d2, (long)31);
-			DaysSinceChristmasToDate(dc2, &y2, &m2, &d2);
-			SLCHECK_EQ((long)y2, (long)1997);
-			SLCHECK_EQ((long)m2, (long)1);
-			SLCHECK_EQ((long)d2, (long)1);
+			for(uint i = 0; i < SIZEOFARRAY(_ymd_pair_list); i++) {
+				uint dc1 = DateToDaysSinceChristmas(_ymd_pair_list[i].D1.Y, _ymd_pair_list[i].D1.M, _ymd_pair_list[i].D1.D);
+				uint dc2 = DateToDaysSinceChristmas(_ymd_pair_list[i].D2.Y, _ymd_pair_list[i].D2.M, _ymd_pair_list[i].D2.D);
+				SLCHECK_EQ((dc2-dc1), (uint)_ymd_pair_list[i].Diff);
+
+				t_YMD ymd2(0, 0, 0);
+				DaysSinceChristmasToDate(dc1, &ymd2.Y, &ymd2.M, &ymd2.D);
+				SLCHECK_NZ(ymd2 == _ymd_pair_list[i].D1);
+				DaysSinceChristmasToDate(dc2, &ymd2.Y, &ymd2.M, &ymd2.D);
+				SLCHECK_NZ(ymd2 == _ymd_pair_list[i].D2);
+			}
 		}
 	}
 	{

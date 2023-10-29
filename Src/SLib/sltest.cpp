@@ -562,7 +562,7 @@ STestSuite::Entry::Entry() : BmrList(sizeof(Benchmark)), MaxCount(0), SuccCount(
 //
 //
 //
-STestSuite::STestSuite() : CurIdx(0), P_List(new TSCollection <Entry>)
+STestSuite::STestSuite(uint flags) : Flags(flags), CurIdx(0), P_List(new TSCollection <Entry>)
 {
 }
 
@@ -747,6 +747,7 @@ const STestSuite::Entry * STestSuite::GetCurEntry() const
 int STestSuite::Run(const char * pIniFileName)
 {
 	int    ok = 1;
+	SString temp_buf(8192);
 	// @v10.8.1 @linkage {
 	{
 		SString temp_sbuf;
@@ -754,6 +755,9 @@ int STestSuite::Run(const char * pIniFileName)
 	}
 	// }
 	if(LoadTestList(pIniFileName)) {
+		if(Flags & fConsole) {
+			slfprintf_stderr((temp_buf = "Test Suite").CatDiv(':', 2).Cat(pIniFileName).CR());
+		}	
 		const HANDLE thr_id = GetCurrentThread();
 		if(LogFileName.NotEmpty() && !fileExists(LogFileName))
 			ReportTestEntry(1, 0);
@@ -762,7 +766,6 @@ int STestSuite::Run(const char * pIniFileName)
 		// не было увеличения этого буфера (иначе будем видеть искажение результатов замера используемой тестами памяти)
 		// @v11.7.11 CaseBuffer.CatCharN(' ', 8192);
 		CaseBuffer.Ensure(SKILOBYTE(64)); // @v11.7.11 
-		SString temp_buf(8192);
 		SString ffn;
 		for(CurIdx = 0; CurIdx < static_cast<TSCollection <Entry> *>(P_List)->getCount(); CurIdx++) {
 			STestCase * p_case = 0;
@@ -788,10 +791,19 @@ int STestSuite::Run(const char * pIniFileName)
 						tm_start = getprofiletime(thr_id);
 						if(c) do {
 							p_case->SetInfo(0, 1); // Предварительная установка статуса завершения (OK=1)
-							if(p_case->Run(0))
+							if(Flags & fConsole) {
+								slfprintf_stderr(temp_buf.Z().Tab().Cat("Test Case").CatDiv(':', 2).Cat(p_entry->TestName).CR());
+							}	
+							if(p_case->Run(0)) {
 								++succ;
-							else
+								if(Flags & fConsole)
+									slfprintf_stderr(temp_buf.Z().Tab(2).Cat("[OK]").CR());
+							}
+							else {
 								++fail;
+								if(Flags & fConsole)
+									slfprintf_stderr(temp_buf.Z().Tab(2).Cat("[FAIL]").CR());
+							}
 						} while(--c);
 						tm_finish = getprofiletime(thr_id);
 						tmsys_finish = getprofilesystime();

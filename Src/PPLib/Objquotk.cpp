@@ -326,7 +326,7 @@ int PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 	P_Ref->LoadItems(Obj, list);
 	for(uint qkidx = 0; qkidx < list.getCount(); qkidx++) {
 		const PPQuotKind * p_item = static_cast<const PPQuotKind *>(list.at(qkidx));
-		const PPID id = p_item->ID;
+		const  PPID id = p_item->ID;
 		if(ObjRts.CheckQuotKindID(id, 0)) {
 			//
 			// Если котировка не матричная И ("не для документов" либо нам это безразлично)
@@ -390,7 +390,7 @@ int PPObjQuotKind::ArrangeList(const LDATETIME & rDtm, PPIDArray & rQkList, long
 		SArray qk_list(sizeof(PPQuotKind));
 		for(i = 0; i < c; i++) {
 			PPQuotKind qk_rec;
-			const PPID qk_id = rQkList.get(i);
+			const  PPID qk_id = rQkList.get(i);
 			if(Fetch(qk_id, &qk_rec) > 0) {
 				int    suited = 1;
 				TimeRange tmr;
@@ -429,7 +429,7 @@ int PPObjQuotKind::Helper_GetRtlList(const LDATETIME & rDtm, PPIDArray * pList, 
 	if(pList || pTmList) {
 		SArray qk_list(sizeof(PPQuotKind));
 		PPIDArray tm_list;
-		const PPID sell_acc_sheet = GetSellAccSheet();
+		const  PPID sell_acc_sheet = GetSellAccSheet();
 		PPQuotKind  qkr;
 		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&qkr) > 0;) {
 			int    suited = 0;
@@ -729,7 +729,7 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 	SVector rec_list(sizeof(PPQuotKind)); // @v10.6.8 SArray-->SVector
 	const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 	if(pFilt->Flags & QuotKindFilt::fSupplDeal) {
-		const PPID spc_qk_list[] = { spc.SupplDealID, spc.SupplDevUpID, spc.SupplDevDnID };
+		const  PPID spc_qk_list[] = { spc.SupplDealID, spc.SupplDevUpID, spc.SupplDevDnID };
 		for(i = 0; i < SIZEOFARRAY(spc_qk_list); i++) {
 			if(Search(spc_qk_list[i], &qk_rec) > 0) {
 				THROW_SL(rec_list.insert(&qk_rec));
@@ -753,7 +753,7 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 		int    intrexpnd = pFilt->OpID ? IsIntrExpndOp(pFilt->OpID) : 0;
 		THROW(P_Ref->LoadItems(Obj, rec_list));
 		if(pFilt->Flags & QuotKindFilt::fAddBase || intrexpnd) {
-			const PPID base_id = PPQUOTK_BASE;
+			const  PPID base_id = PPQUOTK_BASE;
 			if(!rec_list.lsearch(&base_id, 0, CMPF_LONG, offsetof(PPQuotKind, ID))) {
 				MEMSZERO(qk_rec);
 				qk_rec.ID = PPQUOTK_BASE;
@@ -785,7 +785,7 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 	if(pFilt && !(pFilt->Flags & QuotKindFilt::fIgnoreRights)) {
 		uint   c = rec_list.getCount();
         if(c) do {
-			const PPID qk_id = ((PPQuotKind *)rec_list.at(--c))->ID;
+			const  PPID qk_id = ((PPQuotKind *)rec_list.at(--c))->ID;
 			if(!ObjRts.CheckQuotKindID(qk_id, 0))
 				rec_list.atFree(c);
         } while(c);
@@ -979,7 +979,7 @@ private:
 	{
 		int   not_retailed = 0;
 		getDTS(0);
-		const PPID  acs_id = Data.Rec.AccSheetID;
+		const  PPID  acs_id = Data.Rec.AccSheetID;
 		const int   not_sell_accsheet = BIN(acs_id && acs_id != GetSellAccSheet() && acs_id != GetAgentAccSheet());
 		if(not_sell_accsheet) {
 			Data.Rec.Flags &= ~QUOTKF_RETAILED;

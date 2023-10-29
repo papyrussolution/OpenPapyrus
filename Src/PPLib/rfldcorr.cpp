@@ -875,6 +875,10 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 						url.SetComponent(InetUrl::cHost, temp_buf);
 						_temp_host_url.GetComponent(InetUrl::cPort, 0, temp_buf);
 						url.SetComponent(InetUrl::cPort, temp_buf);
+						// @v11.8.8 {
+						_temp_host_url.GetComponent(InetUrl::cPath, 0, temp_buf);
+						url.SetComponent(InetUrl::cPath, temp_buf);
+						// } @v11.8.8
 					}
 					{
 						// Порт, указанный явно в параметрах соединения имеет приоритет перед портом, указанным в адресе
@@ -894,7 +898,17 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 						uftp.AccsPassword = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
 					}
 					url.SetComponent(InetUrl::cPassword, temp_buf.EncodeUrl(pw_buf, 0));
-					url.SetComponent(InetUrl::cPath, wildcard);
+					{
+						// @v11.8.8 Корректировка с целью учесть путь ftp-сервера, указанный в конфигурации
+						url.GetComponent(InetUrl::cPath, 0, temp_buf);
+						if(wildcard.NotEmpty()) {
+							if(temp_buf.NotEmpty())
+								temp_buf.SetLastDSlash().Cat(wildcard);
+							else
+								temp_buf = wildcard;
+						}
+						url.SetComponent(InetUrl::cPath, temp_buf);
+					}
 					url.Composite(0, uni_url_buf);
 				}
 				else
@@ -2437,12 +2451,12 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 								uint arg_p = 0;
 								if(arg_list.get(&arg_p, reg_type_symb) && arg_list.get(&arg_p, temp_buf)) {
 									const  PPID ar_id = temp_buf.ToLong();
-									const  PPID person_id = ObjectToPerson(ar_id, 0);
+									const  PPID psn_id = ObjectToPerson(ar_id, 0);
 									PPID   reg_type_id = 0;
-									if(person_id && PPObjRegisterType::GetByCode(reg_type_symb, &reg_type_id) > 0) {
+									if(psn_id && PPObjRegisterType::GetByCode(reg_type_symb, &reg_type_id) > 0) {
 										PPObjPerson psn_obj;
 										RegisterTbl::Rec reg_rec;
-										if(psn_obj.GetRegister(person_id, reg_type_id, &reg_rec) > 0)
+										if(psn_obj.GetRegister(psn_id, reg_type_id, &reg_rec) > 0)
 											rResult.Cat(reg_rec.Dt, DATF_DMY|DATF_CENTURY);
 									}
 								}

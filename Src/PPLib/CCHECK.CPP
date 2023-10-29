@@ -1002,6 +1002,7 @@ static const int ccpack_textext_ident_list[] = {
 	CCheckPacket::extssSourceSymb,         // @v11.8.5 Символ внешнего источника происхождения чека
 	CCheckPacket::extssOuterIdent,         // @v11.8.5 Идентификатор чека во внешнем источнике
 	CCheckPacket::extssOuterExtTag,        // @v11.8.5
+	CCheckPacket::extssLinkBillUuid,       // @v11.8.8
 };
 
 int CCheckPacket::PackTextExt(SString & rResult) const
@@ -1554,7 +1555,7 @@ int CCheckPacket::HasNonFiscalAmount(double * pFiscal, double * pNonFiscal) cons
 				nonfiscal = amt;
 			//
 			PPObjSCard sc_obj;
-			const PPID charge_goods_id = sc_obj.GetChargeGoodsID(Rec.SCardID);
+			const  PPID charge_goods_id = sc_obj.GetChargeGoodsID(Rec.SCardID);
 			if(charge_goods_id) {
 				CCheckLineTbl::Rec item;
 				for(uint i = 0; EnumLines(&i, &item);) {
@@ -1592,7 +1593,7 @@ double CCheckPacket::GetFiscalAmount() const
 			amt = 0.0;
 		*/
 		PPObjSCard sc_obj;
-		const PPID charge_goods_id = sc_obj.GetChargeGoodsID(Rec.SCardID);
+		const  PPID charge_goods_id = sc_obj.GetChargeGoodsID(Rec.SCardID);
 		if(charge_goods_id) {
 			CCheckLineTbl::Rec item;
 			for(uint i = 0; EnumLines(&i, &item);)
@@ -1976,6 +1977,10 @@ int CCheckCore::GetOrderServersCheckList(PPID orderCheckID, PPIDArray & rList)
 	return ok;
 }
 
+CCheckCore::ValidateCheckParam::ValidateCheckParam(double tolerance) : Tolerance(tolerance), ErrorFlags(0)
+{
+}
+
 int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & rLogger)
 {
 	int    ok = 1;
@@ -2144,7 +2149,7 @@ int CCheckCore::LoadChecksByList(const ObjIdListFilt * pSessList, const PPIDArra
 	if(pSessList && pCheckList && pSessList->GetCount()) {
 		const PPIDArray & sess_list = pSessList->Get();
 		for(uint i = 0; i < sess_list.getCount(); i++) {
-			const PPID  sess_id = sess_list.at(i);
+			const  PPID  sess_id = sess_list.at(i);
 			DBQ * dbq = 0;
 			CCheckTbl::Key3 k3;
 			BExtQuery q(this, 3);
@@ -2190,7 +2195,7 @@ int CCheckCore::LoadLinesByList(PPID goodsID, const ObjIdListFilt * pCheckList, 
 		dbq = ppcheckfiltid(dbq, Lines.GoodsID, goodsID);
 		q.where(*dbq);
 		for(q.initIteration(false, &k0, spGt); q.nextIteration();) {
-			const PPID check_id = Lines.data.CheckID;
+			const  PPID check_id = Lines.data.CheckID;
 			if(check_id == prev_ok_id || check_list.bsearch(check_id)) {
 				prev_ok_id = check_id;
 				pLinesList->insert(&Lines.data);
@@ -2558,7 +2563,7 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 		}
 		if(do_turn_sc_op && pPack->Rec.SCardID && Cards.Search(pPack->Rec.SCardID, &sc_rec) > 0) {
 			if(scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0 && scs_rec.GetType() == scstCredit) {
-				const PPID crd_goods_grp_id = scs_rec.CrdGoodsGrpID;
+				const  PPID crd_goods_grp_id = scs_rec.CrdGoodsGrpID;
 				PPID charge_goods_id = 0;
 				if(scs_rec.ChargeGoodsID)
 					charge_goods_id = scs_rec.ChargeGoodsID;
@@ -2601,7 +2606,7 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 			int16  rbc = 0;
 			for(i = 0; i < plc; i++) {
 				const CcAmountEntry & r_entry = temp_al.at(i);
-				const PPID sc_id = r_entry.AddedID;
+				const  PPID sc_id = r_entry.AddedID;
 				if(!(flags & tscpfCorrection) && r_entry.Type != CCAMTTYP_CSCCHARGE) {
 					CCheckPaymTbl::Rec cp_rec;
 					// @v10.6.4 MEMSZERO(cp_rec);
@@ -3478,7 +3483,7 @@ int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, co
 	return ok;
 }
 
-int CCheckCore::GetListByUuid(S_GUID & rUuid, PPIDArray & rCcList)
+int CCheckCore::GetListByUuid(const S_GUID & rUuid, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, PPIDArray & rCcList)
 {
 	int    ok = -1;
 	rCcList.clear();
@@ -3487,7 +3492,22 @@ int CCheckCore::GetListByUuid(S_GUID & rUuid, PPIDArray & rCcList)
 		UnxTextRefCore & r_utrc = PPRef->UtrC;
 		TextRefEnumItem iter_item;
 		PPExtStrContainer sc;
-		for(SEnum en = r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT); en.Next(&iter_item) > 0;) {
+		// @v11.8.8 {
+		PPID   min_id = 0;
+		if(pCcDate2MaxIdIndex) {
+			const LDATE first_date = plusdate(getcurdate_(), -static_cast<int>(backDays));
+			uint i = pCcDate2MaxIdIndex->getCount();
+			if(i) do {
+				const LAssoc & r_entry = pCcDate2MaxIdIndex->at(--i);
+				LDATE iter_dt;
+				iter_dt.v = static_cast<ulong>(r_entry.Key);
+				if(iter_dt <= first_date)
+					min_id = r_entry.Val;
+			} while(!min_id && i);
+		}
+		// } @v11.8.8 
+		SEnum en = (min_id > 0) ? r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT, min_id) : r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT);
+		while(en.Next(&iter_item) > 0) {
 			CCheckPacket::Helper_UnpackTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), &sc, 0);
 			sc.GetExtStrData(CCheckPacket::extssUuid, temp_buf);
 			if(temp_buf.NotEmptyS()) {
@@ -3523,7 +3543,7 @@ int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * p
 				uint   pos = lines_list.getCount();
 				if(pos) do {
 					CCheckLineTbl::Rec & r_line_rec = lines_list.at(--pos);
-					const PPID cc_id = r_line_rec.CheckID;
+					const  PPID cc_id = r_line_rec.CheckID;
 					if(Search(cc_id, &cc_rec) > 0) {
 						int    skip = 0;
 						if(cc_rec.Flags & CCHKF_SKIP)
@@ -3752,7 +3772,7 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 			StrAssocArray cc_ln_text_ext;
 			for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 				uint pos = 0;
-				const PPID cc_id = Lines.data.CheckID;
+				const  PPID cc_id = Lines.data.CheckID;
 				if(chk_list.bsearch(&cc_id, &pos, CMPF_LONG)) {
 					if(cc_id != prev_cc_id) {
 						THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf));
@@ -3789,7 +3809,7 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 									for(uint i = 0; ref_b.IsEmpty() && i < rec_list.getCount(); i++) {
 										const LotExtCodeTbl::Rec & r_rec = rec_list.at(i);
 										if(r_rec.BillID && p_bobj->Fetch(r_rec.BillID, &bill_rec) > 0) {
-											const PPID op_type_id = GetOpType(bill_rec.OpID);
+											const  PPID op_type_id = GetOpType(bill_rec.OpID);
 											if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
 												if(r_rec.RByBill) {
 													int16 row_idx = 0;
@@ -3837,7 +3857,7 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 			}
 			if(flags & gglfUpdChecks) {
 				for(i = 0; i < chk_list.getCount(); i++) {
-					const PPID chk_id = static_cast<const ChkItem *>(chk_list.at(i))->ID;
+					const  PPID chk_id = static_cast<const ChkItem *>(chk_list.at(i))->ID;
 					THROW_DB(updateFor(this, 0, (this->ID == chk_id), set(this->Flags, this->Flags & ~CCHKF_NOTUSED)));
 				}
 			}
@@ -4038,7 +4058,7 @@ int CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, 
 		for(q.initIteration(false, &pk1, spGe); q.nextIteration() > 0;) {
 			const long p = PaymT.data.Amount;
 			const double amt = intmnytodbl(p);
-			const PPID cc_id = PaymT.data.CheckID;
+			const  PPID cc_id = PaymT.data.CheckID;
 			if(Search(cc_id, &cc_rec) > 0 && (!pPeriod || pPeriod->CheckDate(cc_rec.Dt))) { // @v11.4.10 @fix
 				if(restrGoodsGrpID) {
 					cc_amt_list.Add(cc_id, amt);
@@ -4164,7 +4184,7 @@ int CCheckCore::RemoveZeroLinkLines(int use_ta)
 		}
 		rmv_id_list.sortAndUndup();
 		for(i = 0; i < rmv_id_list.getCount(); i++) {
-			const PPID rmv_cc_id = rmv_id_list.get(i);
+			const  PPID rmv_cc_id = rmv_id_list.get(i);
 			THROW_DB(deleteFrom(&Lines, 0, Lines.CheckID == rmv_cc_id));
 			id_msg.Z().CatEq("ID", rmv_cc_id);
 			msg_buf.Printf(msg_templ, id_msg.cptr());
@@ -4728,7 +4748,7 @@ int CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet
 	return ok;
 }
 
-int CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PPID locID, const void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad)
+int CSessGrouping::ConvertSign(const int sign, const  PPID sessID, const  PPID locID, const void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad)
 {
 	int    ok = 1, r;
 	const  PPID  op_id = (sign < 0) ? RetOpID : SellOpID;
@@ -4763,7 +4783,7 @@ int CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PPID loc
 		};
 		Stage  stage = stgMain; // Тег этапа обработки
 		const CgBillCvtList * p_list = static_cast<const CgBillCvtList *>(pData);
-		const PPID autocompl_op_id = CConfig.AutoComplOp;
+		const  PPID autocompl_op_id = CConfig.AutoComplOp;
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		PPObjGoods goods_obj;
 		SString fmt_buf, msg_buf;
@@ -5059,7 +5079,7 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
 	const PPConfig & r_cfg = LConfig;
-	const PPID   save_loc  = r_cfg.Location;
+	const  PPID   save_loc  = r_cfg.Location;
 	const LDATE  save_date = r_cfg.OperDate; // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg(); // @v10.9.9
 	DS.SetLocation(locID);
@@ -5283,7 +5303,7 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 			CS.GetSubSessList(sessID, &sub_list);
 			sub_list.add(sessID);
 			for(uint i = 0; i < sub_list.getCount(); i++) {
-				const PPID sess_id = sub_list.at(i);
+				const  PPID sess_id = sub_list.at(i);
 				CSessTotal sub_total;
 				long _f = CS.GetCcGroupingFlags(sess_rec, sess_id);
 				THROW(CC.GetSessTotal(sess_id, _f, &sub_total, do_calc_vat ? &bva_list : 0));
@@ -5504,7 +5524,7 @@ int CSessGrouping::AttachSessToSupersess(PPID nodeID, PPID sessID, PPID * pSuper
 	PPCashNode main_cn_rec, cn_rec;
 	THROW(cn_obj.Search(nodeID, &main_cn_rec) > 0);
 	if(main_cn_rec.ParentID && cn_obj.Search(main_cn_rec.ParentID, &cn_rec) > 0 && cn_rec.ExtFlags & CASHFX_UNITEGRPWROFF) {
-		const PPID parent_node_id = cn_rec.ID;
+		const  PPID parent_node_id = cn_rec.ID;
 		CSessionTbl::Rec csess_rec;
 		CCheckTbl::Rec last_check_rec;
 		THROW(CS.Search(sessID, &csess_rec) > 0);
@@ -5524,14 +5544,14 @@ int CSessGrouping::AttachSessToSupersess(PPID nodeID, PPID sessID, PPID * pSuper
 				if(c) {
 					PPIDArray child_list;
 					do {
-						const PPID sess_id = super_candidate_list.get(--c);
+						const  PPID sess_id = super_candidate_list.get(--c);
 						if(GL.HasAnyLineForSess(sess_id) > 0)
 							super_candidate_list.atFree(c);
 						else {
 							child_list.clear();
 							THROW(CS.GetSubSessList(sess_id, &child_list));
 							for(uint i = 0; i < child_list.getCount(); i++) {
-								const PPID child_id = child_list.get(i);
+								const  PPID child_id = child_list.get(i);
 								CSessionTbl::Rec child_rec;
 								if(CS.Search(child_id, &child_rec) > 0) {
 									CCheckTbl::Rec temp_cc_rec;
@@ -5732,7 +5752,7 @@ int CSessGrouping::ConvertSessListToBills(const PPIDArray * pSessList, PPID locI
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		for(uint i = 0; i < _count; i++) {
-			const PPID sess_id = pSessList->get(i);
+			const  PPID sess_id = pSessList->get(i);
 			THROW(ConvertToBills(sess_id, locID, msg_buf, i, _count, 0));
 		}
 		THROW(tra.Commit());
@@ -5753,7 +5773,7 @@ int CSessGrouping::CompleteSession(PPID sessID)
 		{
 			PPObjCashNode cn_obj;
 			PPCashNode cn_rec;
-			const PPID node_id = sess_rec.CashNodeID;
+			const  PPID node_id = sess_rec.CashNodeID;
 			PPID   loc_id = 0;
 			THROW(cn_obj.Search(node_id, &cn_rec) > 0);
 			THROW(loc_id = cn_rec.LocID);
@@ -6118,7 +6138,7 @@ int CCheckCore::CorrectCCLineProblem01()
 			CCheckTbl::Key0 k0;
 			if(search(0, &k0, spFirst)) do {
 				DBRowId c_pos;
-				const PPID cc_id = data.ID;
+				const  PPID cc_id = data.ID;
 				// @v10.8.7 (LoadPacket) cc_pack.Z();
 				THROW_DB(getPosition(&c_pos));
 				if(LoadPacket(cc_id, 0, &cc_pack) > 0) {

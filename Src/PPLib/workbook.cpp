@@ -28,7 +28,7 @@ int WorkbookCore::Helper_GetChildList(PPID id, int recursive, PPIDArray & rList,
 		local_list.sortAndUndup();
 		if(recursive) {
 			for(uint i = 0; i < local_list.getCount(); i++) {
-				const PPID next_level_id = local_list.get(i);
+				const  PPID next_level_id = local_list.get(i);
 				if(!pRecurTrace->lsearch(next_level_id)) {
 					THROW(Helper_GetChildList(next_level_id, recursive, rList, pRecurTrace)); // @recursion
 				}
@@ -246,8 +246,8 @@ static IMPL_CMPFUNC(WorkbookIdByRank_Name, p1, p2)
 	int    si = 0;
 	PPObjWorkbook * p_obj = static_cast<PPObjWorkbook *>(pExtraData);
 	if(p_obj) {
-		const PPID * p_id1 = static_cast<const PPID *>(p1);
-		const PPID * p_id2 = static_cast<const PPID *>(p2);
+		const  PPID * p_id1 = static_cast<const  PPID *>(p1);
+		const  PPID * p_id2 = static_cast<const  PPID *>(p2);
 		WorkbookTbl::Rec rec1;
 		WorkbookTbl::Rec rec2;
 		if(p_obj->Fetch(*p_id1, &rec1) > 0 && p_obj->Fetch(*p_id2, &rec2) > 0) {
@@ -452,7 +452,7 @@ int PPObjWorkbook::SerializePacket(int dir, PPWorkbookPacket * pPack, SBuffer & 
 			child_list.sortAndUndup();
 			const uint clc = child_list.getCount();
 			for(uint i = 0; i < clc; i++) {
-				const PPID child_id = child_list.get(i);
+				const  PPID child_id = child_list.get(i);
 				if(Search(child_id, 0) > 0) {
 					THROW(PPObjWorkbook::RemoveObjV(child_id, pObjColl, PPObject::no_wait_indicator, pExtraParam));  // @recursion
 				}
@@ -504,7 +504,7 @@ int PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 	tag_type_list.add(PPTAG_WORKBOOK_KEYWORDS);
 	tag_type_list.add(PPTAG_BILL_KEYWORDS);
 	for(uint i = 0; i < tag_type_list.getCount(); i++) {
-		const PPID tag_id = tag_type_list.get(i);
+		const  PPID tag_id = tag_type_list.get(i);
 		ObjTagTbl::Key1 k1;
 		MEMSZERO(k1);
 		k1.TagID = tag_id;
@@ -1756,7 +1756,7 @@ int PPObjWorkbook::Helper_MakeStrAssocList(PPID parentID, StrAssocArray * pList,
 		}
 	}
 	for(uint i = 0; i < added_id_list.getCount(); i++) {
-		const PPID _id = added_id_list.get(i);
+		const  PPID _id = added_id_list.get(i);
 		THROW(Helper_MakeStrAssocList(_id, pList, rRecurTrace)); // @recursion
 	}
 	CATCHZOK
@@ -2344,7 +2344,7 @@ int PPObjWorkbook::InterchangeUhtt()
 					SString native_symb;
 					THROW(Helper_Transmit(0, native_list, 0));
 					for(uint j = 0; j < native_list.getCount(); j++) {
-						const PPID native_id = native_list.get(j);
+						const  PPID native_id = native_list.get(j);
 						if(!updated_list.bsearch(native_id) && Fetch(native_id, &rec) > 0) {
 							native_symb = rec.Symb;
 							if(native_symb.NotEmpty()) {
@@ -2381,7 +2381,7 @@ int PPObjWorkbook::InterchangeUhtt()
 					}
 					to_transmit_list.sortAndUndup();
 					for(uint tidx = 0; tidx < to_transmit_list.getCount(); tidx++) {
-						const PPID to_transmit_id = to_transmit_list.get(tidx);
+						const  PPID to_transmit_id = to_transmit_list.get(tidx);
 						const int  er = Helper_ExportToUhtt(uhtt_cli, to_transmit_id, &result, &logger);
 						if(!er)
 							logger.LogLastError();
@@ -3156,7 +3156,7 @@ int PPALDD_UhttWorkbook::Set(long iterId, int commit)
 	SString temp_buf;
 	WorkbookTbl::Rec temp_rec;
 	UhttWorkbookBlock & r_blk = *static_cast<UhttWorkbookBlock *>(Extra[0].Ptr);
-	const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
+	const  PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
 	if(r_blk.State != UhttWorkbookBlock::stSet) {
 		r_blk.Clear();
 		r_blk.State = UhttWorkbookBlock::stSet;

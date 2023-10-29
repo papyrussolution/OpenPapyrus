@@ -2204,7 +2204,7 @@ PPID PPVer2HtmlPrcssr::AttachEntryToWorkbook(const VersionEntry * pEntry, const 
 	else {
 		wb_symb.Cat("ALL");
 	}
-	const PPID parent_wb_id = NZOR(parentWbID, P.ParentWbID);
+	const  PPID parent_wb_id = NZOR(parentWbID, P.ParentWbID);
 	WorkbookTbl::Rec wb_rec, parent_wb_rec;
 	PPWorkbookPacket wb_pack;
 	if(!isempty(pFileName)) {

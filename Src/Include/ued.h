@@ -56,7 +56,10 @@ public:
 	static bool   GetRaw_GLN(uint64 ued, SString & rT);
 
 	static bool   _GetRaw_Time(uint64 ued, SUniTime_Internal & rT);
-	static uint64 _SetRaw_Time(uint64 ued, SUniTime_Internal & rT);
+	static uint64 _SetRaw_Time(uint64 meta, const SUniTime_Internal & rT);
+private:
+	static uint64 Helper_SetRaw_PlanarAngleDeg(uint64 meta, double deg);
+	static bool   Helper_GetRaw_PlanarAngleDeg(uint64 meta, uint64 ued, double & rDeg);
 };
 //
 // Descr: Базовый класс контейнера UED-объектов

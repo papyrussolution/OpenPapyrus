@@ -1463,9 +1463,9 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				{
 					const double cost  = P_Ti ? P_Ti->Cost  : 0.0;
 					const double price = P_Ti ? P_Ti->Price : (P_Ci ? P_Ci->Price : 0.0);
-					const PPID   loc_id = P_BillPack ? P_BillPack->Rec.LocID : P.LocID;
-					const PPID   cur_id = P_BillPack ? P_BillPack->Rec.CurID : P.CurID;
-					const PPID   ar_id  = P_BillPack ? P_BillPack->Rec.Object : P.ArID;
+					const  PPID   loc_id = P_BillPack ? P_BillPack->Rec.LocID : P.LocID;
+					const  PPID   cur_id = P_BillPack ? P_BillPack->Rec.CurID : P.CurID;
+					const  PPID   ar_id  = P_BillPack ? P_BillPack->Rec.Object : P.ArID;
 					const LDATE  _dt = P_BillPack ? P_BillPack->Rec.Dt : getcurdate_();
 					GObj.GetQuotExt(P.GoodsID, QuotIdent(QIDATE(_dt), loc_id, qk_id, cur_id, ar_id), cost, price, &v, 0);
 				}

@@ -51,12 +51,12 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_COPYFILE_H
 #include <copyfile.h>
 #endif
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
+//#ifdef HAVE_ERRNO_H
+//#include <errno.h>
+//#endif
+//#ifdef HAVE_FCNTL_H
+//#include <fcntl.h>
+//#endif
 #ifdef HAVE_GRP_H
 #include <grp.h>
 #endif
@@ -79,9 +79,9 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_PWD_H
 #include <pwd.h>
 #endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+//#include <unistd.h>
+//#endif
 #ifdef HAVE_UTIME_H
 #include <utime.h>
 #endif
@@ -113,28 +113,26 @@ __FBSDID("$FreeBSD$");
  * archive being read was tainted.  Windows has a similar feature; we
  * should investigate ways to support this generically. */
 
-#include "archive_acl_private.h"
+//#include "archive_acl_private.h"
 #include "archive_write_disk_private.h"
 
 #ifndef O_BINARY
-#define O_BINARY 0
+	#define O_BINARY 0
 #endif
 #ifndef O_CLOEXEC
-#define O_CLOEXEC 0
+	#define O_CLOEXEC 0
 #endif
 
 /* Ignore non-int O_NOFOLLOW constant. */
 /* gnulib's fcntl.h does this on AIX, but it seems practical everywhere */
 #if defined O_NOFOLLOW && !(INT_MIN <= O_NOFOLLOW && O_NOFOLLOW <= INT_MAX)
-#undef O_NOFOLLOW
+	#undef O_NOFOLLOW
 #endif
-
 #ifndef O_NOFOLLOW
-#define O_NOFOLLOW 0
+	#define O_NOFOLLOW 0
 #endif
-
 #ifndef AT_FDCWD
-#define AT_FDCWD -100
+	#define AT_FDCWD -100
 #endif
 
 struct fixup_entry {
@@ -199,24 +197,21 @@ struct archive_write_disk {
 
 	int64 (* lookup_gid)(void * private, const char * gname, int64 gid);
 	void (* cleanup_gid)(void * private);
-	void                    * lookup_gid_data;
+	void * lookup_gid_data;
 	int64 (* lookup_uid)(void * private, const char * uname, int64 uid);
 	void (* cleanup_uid)(void * private);
-	void                    * lookup_uid_data;
-
+	void * lookup_uid_data;
 	/*
 	 * Full path of last file to satisfy symlink checks.
 	 */
 	archive_string path_safe;
-
 	/*
 	 * Cached stat data from disk for the current entry.
 	 * If this is valid, pst points to st.  Otherwise,
 	 * pst is null.
 	 */
 	struct stat st;
-	struct stat             * pst;
-
+	struct stat * pst;
 	/* Information about the object being restored right now. */
 	ArchiveEntry    * entry; /* Entry being extracted. */
 	char * name; /* Name of entry, possibly edited. */
@@ -258,7 +253,7 @@ struct archive_write_disk {
 	uchar * resource_fork;
 	size_t resource_fork_allocated_size;
 	uint decmpfs_block_count;
-	uint32                * decmpfs_block_info;
+	uint32 * decmpfs_block_info;
 	/* Buffer for compressed data. */
 	uchar * compressed_buffer;
 	size_t compressed_buffer_size;
@@ -2912,10 +2907,9 @@ static int cleanup_pathname(struct archive_write_disk * a)
  */
 static int create_parent_dir(struct archive_write_disk * a, char * path)
 {
-	char * slash;
 	int r;
 	/* Remove tail element to obtain parent name. */
-	slash = strrchr(path, '/');
+	char * slash = strrchr(path, '/');
 	if(slash == NULL)
 		return ARCHIVE_OK;
 	*slash = '\0';
@@ -2938,7 +2932,6 @@ static int create_dir(struct archive_write_disk * a, char * path)
 	char * slash, * base;
 	mode_t mode_final, mode;
 	int r;
-
 	/* Check for special names and just skip them. */
 	slash = strrchr(path, '/');
 	if(slash == NULL)
@@ -3080,9 +3073,7 @@ static int set_ownership(struct archive_write_disk * a)
 /*
  * Note: Returns 0 on success, non-zero on failure.
  */
-static int set_time(int fd, int mode, const char * name,
-    time_t atime, long atime_nsec,
-    time_t mtime, long mtime_nsec)
+static int set_time(int fd, int mode, const char * name, time_t atime, long atime_nsec, time_t mtime, long mtime_nsec)
 {
 	/* Select the best implementation for this platform. */
 #if defined(HAVE_UTIMENSAT) && defined(HAVE_FUTIMENS)
@@ -3160,10 +3151,8 @@ static int set_time(int fd, int mode, const char * name,
 }
 
 #ifdef F_SETTIMES
-static int set_time_tru64(int fd, int mode, const char * name,
-    time_t atime, long atime_nsec,
-    time_t mtime, long mtime_nsec,
-    time_t ctime, long ctime_nsec)
+static int set_time_tru64(int fd, int mode, const char * name, time_t atime, long atime_nsec,
+    time_t mtime, long mtime_nsec, time_t ctime, long ctime_nsec)
 {
 	struct attr_timbuf tstamp;
 	tstamp.atime.tv_sec = atime;
@@ -4159,7 +4148,6 @@ static int set_xattrs(struct archive_write_disk * a)
 static int set_xattrs(struct archive_write_disk * a)
 {
 	static int warning_done = 0;
-
 	/* If there aren't any extended attributes, then it's okay not
 	 * to extract them, otherwise, issue a single warning. */
 	if(archive_entry_xattr_count(a->entry) != 0 && !warning_done) {
@@ -4214,8 +4202,7 @@ static int older(struct stat * st, ArchiveEntry * entry)
 }
 
 #ifndef ARCHIVE_ACL_SUPPORT
-int archive_write_disk_set_acls(Archive * a, int fd, const char * name,
-    archive_acl * abstract_acl, __LA_MODE_T mode)
+int archive_write_disk_set_acls(Archive * a, int fd, const char * name, archive_acl * abstract_acl, __LA_MODE_T mode)
 {
 	CXX_UNUSED(a);
 	CXX_UNUSED(fd);

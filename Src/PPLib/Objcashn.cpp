@@ -485,7 +485,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 		{
 			SString name_buf;
 			for(uint i = 0; i < parent_list.getCount(); i++) {
-				const PPID parent_id = parent_list.get(i);
+				const  PPID parent_id = parent_list.get(i);
 				if(!p_ary->Search(parent_id)) {
 					PPCashNode cn_rec;
 					if(Fetch(parent_id, &cn_rec) > 0)
@@ -932,7 +932,7 @@ int PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 		}
 	}
 	if(ok < 0) {
-        const PPID main_org_id = GetMainOrgID();
+        const  PPID main_org_id = GetMainOrgID();
         if(main_org_id && psn_obj.GetRegister(main_org_id, PPREGT_TAXSYSTEM, actual_date, &reg_rec) > 0 && reg_rec.ExtID > 0) {
 			tax_sys_id = reg_rec.ExtID;
 			ok = 1;
@@ -956,7 +956,7 @@ int PPObjCashNode::IsVatFree(PPID id)
 		}
 	}
 	if(result < 0) {
-        const PPID main_org_id = GetMainOrgID();
+        const  PPID main_org_id = GetMainOrgID();
         if(main_org_id && psn_obj.Fetch(main_org_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX)
 			result = 1;
 	}
@@ -2256,7 +2256,7 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 		EditApnCorrList();
 	}
 	else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_CASHN_DEVICE)) {
-		const PPID cash_type = getCtrlLong(CTLSEL_CASHN_DEVICE);
+		const  PPID cash_type = getCtrlLong(CTLSEL_CASHN_DEVICE);
 		showCtrl(CTL_CASHN_IMPPARAM, BIN(cash_type == PPCMT_CRCSHSRV && UseAltImport));
 	}
 	else if(event.isCmd(cmCtlColor)) { // @v10.9.11
@@ -2969,7 +2969,7 @@ int EquipConfigDialog::EditExtParams()
 
 void EquipConfigDialog::SetupCtrls()
 {
-	const PPID quotk = getCtrlLong(CTLSEL_EQCFG_QUOT);
+	const  PPID quotk = getCtrlLong(CTLSEL_EQCFG_QUOT);
 	DisableClusterItem(CTL_EQCFG_FLAGS, 6, quotk);
 	if(quotk) {
 		const long flags = GetClusterData(CTL_EQCFG_FLAGS);

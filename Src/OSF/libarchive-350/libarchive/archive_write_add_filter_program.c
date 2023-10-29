@@ -15,19 +15,17 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_program.c 201104 2009-12-28 03:14:30Z kientzle $");
-
 #ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
+	#include <sys/wait.h>
 #endif
-#include "filter_fork.h"
+//#include "filter_fork.h"
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-int archive_write_set_compression_program(Archive * a, const char * cmd)
-{
-	__archive_write_filters_free(a);
-	return (archive_write_add_filter_program(a, cmd));
-}
-
+	int archive_write_set_compression_program(Archive * a, const char * cmd)
+	{
+		__archive_write_filters_free(a);
+		return (archive_write_add_filter_program(a, cmd));
+	}
 #endif
 
 struct archive_write_program_data {
@@ -38,15 +36,15 @@ struct archive_write_program_data {
 #endif
 	int child_stdin, child_stdout;
 
-	char            * child_buf;
+	char * child_buf;
 	size_t child_buf_len, child_buf_avail;
-	char            * program_name;
+	char * program_name;
 };
 
 struct private_data {
 	struct archive_write_program_data * pdata;
 	archive_string description;
-	char            * cmd;
+	char * cmd;
 };
 
 static int archive_compressor_program_open(struct archive_write_filter *);

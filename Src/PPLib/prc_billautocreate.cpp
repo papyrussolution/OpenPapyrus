@@ -129,7 +129,7 @@ int PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
 								PPIDArray ex_bill_list;
                                 PPRef->Ot.SearchObjectsByStr(PPOBJ_BILL, PPTAG_BILL_AUTOCREATION, temp_buf, &ex_bill_list);
                                 for(uint j = 0; !skip && j < ex_bill_list.getCount(); j++) {
-                                	const PPID ex_bill_id = ex_bill_list.get(j);
+                                	const  PPID ex_bill_id = ex_bill_list.get(j);
                                 	BillTbl::Rec ex_bill_rec;
 									if(p_bobj->Search(ex_bill_id, &ex_bill_rec) > 0) {
 										// PPTXT_SUPPLORDEXISTS         "Документ заказа поставщику '%s' был создан ранее"
@@ -270,7 +270,7 @@ int PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 							}
 							suppl_list.sortAndUndup();
 							for(i = 0; i < suppl_list.getCount(); i++) {
-								const PPID suppl_id = suppl_list.get(i);
+								const  PPID suppl_id = suppl_list.get(i);
 								PPBillPacket::SetupObjectBlock sob;
                                 PPBillPacket bp;
 								int    skip = 0;
@@ -278,7 +278,7 @@ int PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 								ex_bill_list.clear();
                                 PPRef->Ot.SearchObjectsByStr(PPOBJ_BILL, PPTAG_BILL_AUTOCREATION, bill_tag_buf, &ex_bill_list);
                                 for(uint j = 0; !skip && j < ex_bill_list.getCount(); j++) {
-                                	const PPID ex_bill_id = ex_bill_list.get(j);
+                                	const  PPID ex_bill_id = ex_bill_list.get(j);
                                 	BillTbl::Rec ex_bill_rec;
 									if(p_bobj->Search(ex_bill_id, &ex_bill_rec) > 0) {
 										PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);

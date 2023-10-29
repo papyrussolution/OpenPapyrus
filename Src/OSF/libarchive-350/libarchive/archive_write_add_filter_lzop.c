@@ -32,10 +32,10 @@ enum lzo_method {
 struct write_lzop {
 	int compression_level;
 #if defined(HAVE_LZO_LZOCONF_H) && defined(HAVE_LZO_LZO1X_H)
-	uchar   * uncompressed;
+	uchar * uncompressed;
 	size_t uncompressed_buffer_size;
 	size_t uncompressed_avail_bytes;
-	uchar   * compressed;
+	uchar * compressed;
 	size_t compressed_buffer_size;
 	enum lzo_method method;
 	uchar level;

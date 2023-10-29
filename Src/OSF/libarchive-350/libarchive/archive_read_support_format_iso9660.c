@@ -182,13 +182,13 @@ struct zisofs {
 	int pz_log2_bs; /* Log2 of block size */
 	uint64 pz_uncompressed_size;
 	int initialized;
-	uchar   * uncompressed_buffer;
+	uchar * uncompressed_buffer;
 	size_t uncompressed_buffer_size;
 	uint32 pz_offset;
 	uchar header[16];
 	size_t header_avail;
 	int header_passed;
-	uchar   * block_pointers;
+	uchar * block_pointers;
 	size_t block_pointers_alloc;
 	size_t block_pointers_size;
 	size_t block_pointers_avail;
@@ -241,7 +241,7 @@ struct file_info {
 	int64 number;
 	int nlinks;
 	archive_string name; /* Pathname */
-	uchar   * utf16be_name;
+	uchar * utf16be_name;
 	size_t utf16be_bytes;
 	char name_continues; /* Non-zero if name continues */
 	archive_string symlink;

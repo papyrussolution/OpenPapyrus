@@ -167,7 +167,7 @@ int PPBasketPacket::DelItem(long pos)
 
 int PPBasketPacket::SearchGoodsID(PPID goodsID, uint * pPos) const
 {
-	const PPID goods_id = labs(goodsID);
+	const  PPID goods_id = labs(goodsID);
 	return Lots.lsearch(&goods_id, pPos, CMPF_LONG, offsetof(ILTI, GoodsID));
 }
 
@@ -476,7 +476,7 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 
 StrAssocArray * PPObjGoodsBasket::MakeStrAssocList(void * extraPtr)
 {
-	const PPID cur_user_id = LConfig.UserID;
+	const  PPID cur_user_id = LConfig.UserID;
 	SelFilt f;
 	if(!RVALUEPTR(f, static_cast<const SelFilt *>(extraPtr)))
 		MEMSZERO(f);
@@ -513,7 +513,7 @@ StrAssocArray * PPObjGoodsBasket::MakeStrAssocList(void * extraPtr)
 	}
 	else if(msg == DBMSG_OBJREPLACE) {
 		if(_obj == PPOBJ_GOODS) {
-			const PPID replacer_id = reinterpret_cast<long>(extraPtr);
+			const  PPID replacer_id = reinterpret_cast<long>(extraPtr);
 			THROW_PP(replacer_id != _id, PPERR_REPLSAMEOBJ);
 			{
 				LAssocArray b2g_list;
@@ -1496,7 +1496,7 @@ IMPL_HANDLE_EVENT(GBItemDialog)
 	TDialog::handleEvent(event);
 	if(event.isKeyDown(kbF2)) {
 		if(isCurrCtlID(CTL_GBITEM_VALUE)) {
-			const PPID goods_id = getCtrlLong(CTLSEL_GBITEM_GOODS);
+			const  PPID goods_id = getCtrlLong(CTLSEL_GBITEM_GOODS);
 			GoodsStockExt gse;
 			if(GObj.GetStockExt(goods_id, &gse, 1) > 0 && gse.Package) {
 				double ipart;
@@ -1515,7 +1515,7 @@ IMPL_HANDLE_EVENT(GBItemDialog)
 			setupAmount(0);
 	}
 	else if(event.isCmd(cmQuot)) {
-		const PPID goods_id = getCtrlLong(CTLSEL_GBITEM_GOODS);
+		const  PPID goods_id = getCtrlLong(CTLSEL_GBITEM_GOODS);
 		if(goods_id > 0)
 			GObj.EditQuotations(goods_id, 0L, -1L/*@curID*/, 0, PPQuot::clsGeneral);
 	}
@@ -1532,7 +1532,7 @@ IMPL_HANDLE_EVENT(GBItemDialog)
 	}
 	else if(event.isCbSelected(CTLSEL_GBITEM_GOODS)) {
 		ReceiptTbl::Rec lot_rec;
-		const PPID goods_id = getCtrlLong(CTLSEL_GBITEM_GOODS);
+		const  PPID goods_id = getCtrlLong(CTLSEL_GBITEM_GOODS);
 		getLotInfo(goods_id, &lot_rec);
 		setCtrlReal(CTL_GBITEM_VALUE,  0.0);
 		setCtrlReal(CTL_GBITEM_PRICE,  R5(lot_rec.Cost));

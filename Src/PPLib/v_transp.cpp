@@ -328,7 +328,7 @@ int FASTCALL PPViewTransport::NextIteration(TransportViewItem * pItem)
 	int    ok = -1;
 	if(P_IterQuery) {
 		if(P_IterQuery->nextIteration() > 0) {
-		   	const PPID transp_id = P_TempTbl->data.ID;
+		   	const  PPID transp_id = P_TempTbl->data.ID;
 			PPTransportPacket temp_pack;
 		   	ok = TObj.Get(transp_id, &temp_pack);
 			if(pItem) {
@@ -388,7 +388,7 @@ int PPViewTransport::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 				break;
 			case PPVCMD_EDITITEM:

@@ -78,7 +78,6 @@ struct tzinfo {
 	char   name[5];
 	int    offset; /* +/- in minutes */
 };
-
 /*
  * parsedate()
  *
@@ -102,6 +101,7 @@ struct tzinfo {
 #define tDAYZONE -60       /* offset for daylight savings time */
 static const struct tzinfo tz[] = {
 	{"GMT", 0},        /* Greenwich Mean */
+	{"UT",  0},        /* Universal Time */
 	{"UTC", 0},        /* Universal (Coordinated) */
 	{"WET", 0},        /* Western European */
 	{"BST", 0 tDAYZONE}, /* British Summer */
@@ -257,7 +257,7 @@ struct my_tm {
 // 
 static time_t FASTCALL my_timegm(const struct my_tm * tm)
 {
-	static const int month_days_cumulative [12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
+	static const int month_days_cumulative[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 	int month, year, leap_days;
 	if(tm->tm_year < 70)
 		return -1; // we don't support years before 1970 as they will cause this function to return a negative value 

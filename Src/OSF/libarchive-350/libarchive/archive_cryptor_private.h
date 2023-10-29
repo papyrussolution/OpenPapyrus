@@ -147,7 +147,7 @@ typedef int archive_crypto_ctx;
  * libarchive */
 struct archive_cryptor {
 	/* PKCS5 PBKDF2 HMAC-SHA1 */
-	int (* pbkdf2sha1)(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len);
+	int (* pbkdf2sha1)(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, uint rounds, uint8 * derived_key, size_t derived_key_len);
 	/* AES CTR mode(little endian version) */
 	int (* decrypto_aes_ctr_init)(archive_crypto_ctx *, const uint8 *, size_t);
 	int (* decrypto_aes_ctr_update)(archive_crypto_ctx *, const uint8 *, size_t, uint8 *, size_t *);

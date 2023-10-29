@@ -12,7 +12,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_check_magic.c 201089 2009-12-28 
 //#ifdef HAVE_UNISTD_H
 	//#include <unistd.h>
 //#endif
-#include "archive_private.h"
+//#include "archive_private.h"
 
 static void errmsg(const char * m)
 {

@@ -230,7 +230,7 @@ int PrcssrGoodsSaldo::EditParam(Param * pPar)
 			rec.Flags   = GoodsCtrlGroup::enableSelUpLevel;
 			setGroupData(ctlgroupGoods, &rec);
 			{
-				const PPID acs_id = GetSellAccSheet();
+				const  PPID acs_id = GetSellAccSheet();
 				SetupArCombo(this, CTLSEL_GDSSALDO_CNTRAGNT, Data.ArID, 0, acs_id, sacfDisableIfZeroSheet);
 				if(!acs_id && isCurrCtlID(CTLSEL_GDSSALDO_CNTRAGNT))
 					selectNext();
@@ -423,7 +423,7 @@ int PrcssrGoodsSaldo::Run()
 	else
 		goods_list.add(Par.GoodsID);
 	for(uint i = 0; i < goods_list.getCount(); i++) {
-		const PPID goods_id = labs(goods_list.get(i));
+		const  PPID goods_id = labs(goods_list.get(i));
 		GetGoodsName(goods_id, goods_name);
 		PPWaitMsg(goods_name);
 		LDATE  last_date = ZERODATE;
@@ -436,7 +436,7 @@ int PrcssrGoodsSaldo::Run()
 		GCTIterator gctiter(&gct_filt, &gct_filt.Period);
 		if(gctiter.First(&trfr_rec, &bill_rec) > 0) {
 			do {
-				const PPID  ar_id = bill_rec.Object;
+				const  PPID  ar_id = bill_rec.Object;
 				const LDATE dt = trfr_rec.Dt;
 				PPWaitMsg((temp_buf = goods_name).CatDiv('-', 1).Cat(dt));
 				if(ar_id != 0 && GetOpType(bill_rec.OpID) != PPOPT_GOODSREVAL) {
@@ -458,7 +458,7 @@ int PrcssrGoodsSaldo::Run()
 					//
 					if(dt <= end_date) {
 						PPFreight freight;
-						const PPID   dlvr_loc_id = (BillObj->P_Tbl->GetFreight(bill_rec.ID, &freight) > 0) ? freight.DlvrAddrID : 0;
+						const  PPID   dlvr_loc_id = (BillObj->P_Tbl->GetFreight(bill_rec.ID, &freight) > 0) ? freight.DlvrAddrID : 0;
 						THROW(SetupItem(goods_id, ar_id, dlvr_loc_id, dt, qtty, amount, list));
 						if(dlvr_loc_id) {
 							THROW(SetupItem(goods_id, ar_id, 0, dt, qtty, amount, list));
@@ -485,7 +485,7 @@ int PrcssrGoodsSaldo::Run()
 		{
 			actual_goods_list.sortAndUndup();
 			for(uint i = 0; i < actual_goods_list.getCount(); i++) {
-				const PPID goods_id = actual_goods_list.get(i);
+				const  PPID goods_id = actual_goods_list.get(i);
 				THROW_DB(deleteFrom(&GSCore, 0, (GSCore.GoodsID == goods_id)));
 			}
 		}

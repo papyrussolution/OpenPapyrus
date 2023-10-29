@@ -4864,6 +4864,23 @@ void SString::Cat_Unsafe(const uint8 * pChr, size_t numChr)
 	}
 }
 
+int SString::CopyToUnicode(SStringU & rBuf) const
+{
+	int    ok = 0;
+	rBuf.Z();
+	if(IsLegalUtf8()) {
+		if(rBuf.CopyFromUtf8(*this))
+			ok = 1;
+	}
+	else {
+		// Если исходная строка pPathName не ascii и не utf8 то сделаем сильное и рискованное предположение, что
+		// она - в ANSI-кодировке.
+		rBuf.CopyFromMb_OUTER(*this, Len());
+		ok = 2;
+	}	
+	return ok;
+}
+
 bool SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion)
 {
 	CopyFrom(0); // Обрезаем строку до пустой

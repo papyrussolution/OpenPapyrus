@@ -22,8 +22,7 @@ int archive_read_support_compression_none(Archive * a)
 }
 #endif
 /*
- * Uncompressed streams are handled implicitly by the read core,
- * so this is now a no-op.
+ * Uncompressed streams are handled implicitly by the read core, so this is now a no-op.
  */
 int archive_read_support_filter_none(Archive * a)
 {

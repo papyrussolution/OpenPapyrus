@@ -576,13 +576,13 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 					//
 					const PPIDArray * p_unit_list = acgi.GetRefList(PPOBJ_UNIT);
                     if(SVectorBase::GetCount(p_unit_list)) {
-						const PPID def_unit_id = GObj.GetConfig().DefUnitID;
+						const  PPID def_unit_id = GObj.GetConfig().DefUnitID;
 						PPIDArray unit_list(*p_unit_list);
 						uint i;
 						PPUnit unit_rec;
 						i = unit_list.getCount();
 						do {
-							const PPID unit_id = unit_list.get(--i);
+							const  PPID unit_id = unit_list.get(--i);
                             if(goods_obj.FetchUnit(unit_id, &unit_rec) > 0) {
 								PPUnit base_unit_rec;
                             	if(unit_rec.BaseUnitID && goods_obj.FetchUnit(unit_rec.BaseUnitID, &base_unit_rec) > 0)
@@ -597,7 +597,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 							unit_list.add(PPUNT_LITER);
 						unit_list.sortAndUndup();
 						for(i = 0; i < unit_list.getCount(); i++) {
-							const PPID unit_id = unit_list.get(i);
+							const  PPID unit_id = unit_list.get(i);
                             if(goods_obj.FetchUnit(unit_id, &unit_rec) > 0) {
 								SXml::WNode w_s(wb.P_Xw, "unit");
 								w_s.PutInner("id", temp_buf.Z().Cat(unit_rec.ID));
@@ -631,7 +631,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 							goods_obj.GetQuotList(acggi_info.ID, /*cn_data.LocID*/0, qlist);
 							// @v10.0.0 {
 							for(uint qkidx = 0; qkidx < qk_list.getCount(); qkidx++) {
-								const PPID qk_id = qk_list.get(qkidx);
+								const  PPID qk_id = qk_list.get(qkidx);
 								uint   ql_pos = 0;
 								if(qlist.SearchNearest(QuotIdent(cn_data.LocID, qk_id, 0, 0), &ql_pos) > 0) {
 									qlist_result.insert(&qlist.at(ql_pos));
@@ -663,7 +663,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 						goods_obj.GetQuotList(acgi_item.ID, cn_data.LocID, qlist);
 						// @v10.0.0 {
 						for(uint qkidx = 0; qkidx < qk_list.getCount(); qkidx++) {
-							const PPID qk_id = qk_list.get(qkidx);
+							const  PPID qk_id = qk_list.get(qkidx);
 							uint   ql_pos = 0;
 							if(qlist.SearchNearest(QuotIdent(cn_data.LocID, qk_id, 0, 0), &ql_pos) > 0) {
 								qlist_result.insert(&qlist.at(ql_pos));
@@ -1530,7 +1530,7 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 				SCardTbl::Rec sc_rec;
                 THROW(p_cc->GetListBySess(rInfo.ID, glbs_flags, cc_list)); // @v10.1.5 glbs_flags
 				for(uint i = 0; i < cc_list.getCount(); i++) {
-					const PPID cc_id = cc_list.get(i);
+					const  PPID cc_id = cc_list.get(i);
 					// @v10.8.7 (LoadPacket) cc_pack.Z();
 					if(p_cc->LoadPacket(cc_id, 0, &cc_pack) > 0) {
 						const double cc_amount = MONEYTOLDBL(cc_pack.Rec.Amount);
@@ -5509,7 +5509,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 					const QueryProcessBlock * p_qpb = rPib.QpBlkList.at(bidx);
 					if(p_qpb) {
 						csess_list.clear();
-						const PPID cn_id = p_qpb->PosNodeID;
+						const  PPID cn_id = p_qpb->PosNodeID;
 						PPID  sync_cn_id = 0;
 						PPID  async_cn_id = 0;
 						PPCashNode cn_rec;
@@ -5759,7 +5759,7 @@ int PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcPosNode
 			PPObjCSession cs_obj;
 			CSessionTbl::Rec cs_rec;
 			for(uint i = 0; i < rSessList.getCount(); i++) {
-				const PPID sess_id = rSessList.get(i);
+				const  PPID sess_id = rSessList.get(i);
 				if(cs_obj.Search(sess_id, &cs_rec) > 0) {
 					if(!WriteCSession(wb, "csession", cs_rec)) {
 						; // @todo logerror

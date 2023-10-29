@@ -7,12 +7,11 @@
 #define ARCHIVE_DIGEST_PRIVATE_H_INCLUDED
 
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
 #ifndef __LIBARCHIVE_CONFIG_H_INCLUDED
-#error "Should have include config.h first!"
+	#error "Should have include config.h first!"
 #endif
-
 /*
  * Crypto support in various Operating Systems:
  *
@@ -40,13 +39,13 @@
 
 /* libc crypto headers */
 #if defined(ARCHIVE_CRYPTO_MD5_LIBC)
-#include <md5.h>
+	#include <md5.h>
 #endif
 #if defined(ARCHIVE_CRYPTO_RMD160_LIBC)
-#include <rmd160.h>
+	#include <rmd160.h>
 #endif
 #if defined(ARCHIVE_CRYPTO_SHA1_LIBC)
-#include <sha1.h>
+	#include <sha1.h>
 #endif
 #if defined(ARCHIVE_CRYPTO_SHA256_LIBC) || \
 	defined(ARCHIVE_CRYPTO_SHA256_LIBC2) || \
@@ -65,21 +64,20 @@
 	defined(ARCHIVE_CRYPTO_SHA256_LIBMD) || defined(ARCHIVE_CRYPTO_SHA512_LIBMD)
 #define ARCHIVE_CRYPTO_LIBMD 1
 #endif
-
 #if defined(ARCHIVE_CRYPTO_MD5_LIBMD)
-#include <md5.h>
+	#include <md5.h>
 #endif
 #if defined(ARCHIVE_CRYPTO_RMD160_LIBMD)
-#include <ripemd.h>
+	#include <ripemd.h>
 #endif
 #if defined(ARCHIVE_CRYPTO_SHA1_LIBMD)
-#include <sha.h>
+	#include <sha.h>
 #endif
 #if defined(ARCHIVE_CRYPTO_SHA256_LIBMD)
-#include <sha256.h>
+	#include <sha256.h>
 #endif
 #if defined(ARCHIVE_CRYPTO_SHA512_LIBMD)
-#include <sha512.h>
+	#include <sha512.h>
 #endif
 
 /* libSystem crypto headers */
@@ -122,13 +120,13 @@
 #endif
 /* Windows crypto headers */
 #if defined(ARCHIVE_CRYPTO_MD5_WIN) || defined(ARCHIVE_CRYPTO_SHA1_WIN) || defined(ARCHIVE_CRYPTO_SHA256_WIN) || defined(ARCHIVE_CRYPTO_SHA384_WIN) || defined(ARCHIVE_CRYPTO_SHA512_WIN)
-#include <windows.h>
-#include <wincrypt.h>
-typedef struct {
-	int valid;
-	HCRYPTPROV cryptProv;
-	HCRYPTHASH hash;
-} Digest_CTX;
+	//#include <windows.h>
+	#include <wincrypt.h>
+	typedef struct {
+		int valid;
+		HCRYPTPROV cryptProv;
+		HCRYPTHASH hash;
+	} Digest_CTX;
 #endif
 
 /* typedefs */

@@ -66,7 +66,7 @@ struct private_data {
 	lzma_filter lzmafilters[2];
 	lzma_options_lzma lzma_opt;
 	int64 total_in;
-	uchar   * compressed;
+	uchar * compressed;
 	size_t compressed_buffer_size;
 	int64 total_out;
 	/* the CRC32 value of uncompressed data for lzip */

@@ -76,16 +76,16 @@
 #if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
 
 #if defined(_LIBC)
-#   undef  TERMIOS
+#undef  TERMIOS
 #define TERMIO
-#   undef  SGTTY
+#undef  SGTTY
 /*
  * We know that VMS, MSDOS, VXWORKS, use entirely other mechanisms.
  */
 #elif !defined(OPENSSL_SYS_VMS) && !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VXWORKS)
 #define TERMIOS
-#   undef  TERMIO
-#   undef  SGTTY
+#undef  TERMIO
+#undef  SGTTY
 #endif
 #endif
 #if defined(OPENSSL_SYS_VXWORKS)

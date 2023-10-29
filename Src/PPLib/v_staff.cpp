@@ -292,7 +292,7 @@ SArray * PPViewStaffList::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 
 int PPViewStaffList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	const  PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	const  PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		if(ppvCmd == PPVCMD_STAFFPOST) {
@@ -705,7 +705,7 @@ int PPViewStaffPost::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		if(ppvCmd == PPVCMD_EDITITEM) {
 			ok = -1;
 			PPPsnPostPacket pack;

@@ -4290,6 +4290,40 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
 				}
 				// } @v10.4.0
+				// @v11.8.8 {
+				{
+					// Информация о доступных принтерах
+					TSVector <SPrinting::PrnInfo> prn_list;
+					SPrinting::GetListOfPrinters(&prn_list);
+					for(uint i = 0; i < prn_list.getCount(); i++) {
+						const SPrinting::PrnInfo & r_prn_info = prn_list.at(i);
+						temp_buf.Z().Cat("Printer").CatDiv(':', 2).Cat(r_prn_info.PrinterName).Space().
+							Cat(r_prn_info.ServerName).Space().Cat(r_prn_info.ShareName);
+						temp_buf.Space().CatChar('[');
+						bool add_space = false;
+						if(r_prn_info.Flags & SPrinting::PrnInfo::fDefault) {
+							if(add_space)
+								temp_buf.Space();
+							temp_buf.Cat("default");
+							add_space = true;
+						}
+						if(r_prn_info.Flags & SPrinting::PrnInfo::fLocal) {
+							if(add_space)
+								temp_buf.Space();
+							temp_buf.Cat("local");
+							add_space = true;
+						}
+						if(r_prn_info.Flags & SPrinting::PrnInfo::fNetwork) {
+							if(add_space)
+								temp_buf.Space();
+							temp_buf.Cat("network");
+							add_space = true;
+						}
+						temp_buf.CatChar(']');
+						PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_COMP|LOGMSGF_USER|LOGMSGF_TIME);
+					}
+				}
+				// } @v11.8.8 
 			}
 			r_tla.State |= PPThreadLocalArea::stAuth;
 			ufp.Commit();
@@ -5199,7 +5233,7 @@ PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/ : P_ShT(0)
 	PPGetObjTypeList(&obj_type_list, gotlfExcludeDyn);
 	SString name_buf;
 	for(uint i = 0; i < obj_type_list.getCount(); i++) {
-		const PPID obj_type = obj_type_list.get(i);
+		const  PPID obj_type = obj_type_list.get(i);
 		if(PPLoadString(PPSTR_OBJNAMES, (uint)obj_type, name_buf))
 			TitleList.AddFast(obj_type, name_buf);
 	}

@@ -42,6 +42,27 @@
 			}
 		}
 		{
+			for(uint i = 0; i < 1000; i++) {
+				// @todo На некоторых значениях тест не проходит: разобраться на каких
+				SUniTime_Internal ut(SCtrGenerate_);
+				/*
+				SUniTime_Internal ut;
+				ut.D = 10;
+				ut.M = 3;
+				ut.Y = 2999;
+				ut.Hr = 15;
+				ut.Mn = 30;
+				ut.Sc = 1;
+				ut.MSc = 10;
+				*/
+				uint64 ued = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+				SLCHECK_NZ(ued);
+				SUniTime_Internal ut2;
+				UED::_GetRaw_Time(ued, ut2);
+				SLCHECK_Z(ut2.Cmp(ut));
+			}
+		}
+		{
 			SGeo geo;
 			SGeoPosLL gp(40.67241045687091, -74.24130029528962);
 			uint64 ued_gp = UED::SetRaw_GeoLoc(gp);

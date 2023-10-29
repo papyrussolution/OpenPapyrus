@@ -8,7 +8,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_cpio_newc.c 201160 2009-12-29 05:41:57Z kientzle $");
 //#include "archive_entry_locale.h"
-#include "archive_write_set_format_private.h"
+//#include "archive_write_set_format_private.h"
 
 static ssize_t  archive_write_newc_data(struct archive_write *, const void * buff, size_t s);
 static int archive_write_newc_close(struct archive_write *);
@@ -153,20 +153,18 @@ static int archive_write_newc_header(struct archive_write * a, ArchiveEntry * en
 static int write_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	int64 ino;
-	struct cpio * cpio;
 	const char * p, * path;
-	int pathlength, ret, ret_final;
+	int pathlength, ret;
 	char h[c_header_size];
-	archive_string_conv * sconv;
 	ArchiveEntry * entry_main;
 	size_t len;
 	int pad;
-	cpio = (struct cpio *)a->format_data;
-	ret_final = ARCHIVE_OK;
-	sconv = get_sconv(a);
+	struct cpio * cpio = (struct cpio *)a->format_data;
+	int ret_final = ARCHIVE_OK;
+	archive_string_conv * sconv = get_sconv(a);
 #if defined(_WIN32) && !defined(__CYGWIN__)
-	/* Make sure the path separators in pathname, hardlink and symlink
-	 * are all slash '/', not the Windows path separator '\'. */
+	// Make sure the path separators in pathname, hardlink and symlink
+	// are all slash '/', not the Windows path separator '\'
 	entry_main = __la_win_entry_in_posix_pathseparator(entry);
 	if(entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
@@ -179,7 +177,6 @@ static int write_header(struct archive_write * a, ArchiveEntry * entry)
 #else
 	entry_main = NULL;
 #endif
-
 	ret = archive_entry_pathname_l(entry, &path, &len, sconv);
 	if(ret) {
 		if(errno == ENOMEM) {
@@ -218,11 +215,9 @@ static int write_header(struct archive_write * a, ArchiveEntry * entry)
 	format_hex(archive_entry_mtime(entry), h + c_mtime_offset, c_mtime_size);
 	format_hex(pathlength, h + c_namesize_offset, c_namesize_size);
 	format_hex(0, h + c_checksum_offset, c_checksum_size);
-
 	/* Non-regular files don't store bodies. */
 	if(archive_entry_filetype(entry) != AE_IFREG)
 		archive_entry_set_size(entry, 0);
-
 	/* Symlinks get the link written as the body of the entry. */
 	ret = archive_entry_symlink_l(entry, &p, &len, sconv);
 	if(ret) {
@@ -265,7 +260,7 @@ static int write_header(struct archive_write * a, ArchiveEntry * entry)
 	cpio->entry_bytes_remaining = archive_entry_size(entry);
 	cpio->padding = (int)PAD4(cpio->entry_bytes_remaining);
 	/* Write the symlink now. */
-	if(p && *p != '\0') {
+	if(!isempty(p)) {
 		ret = __archive_write_output(a, p, strlen(p));
 		if(ret != ARCHIVE_OK) {
 			ret_final = ARCHIVE_FATAL;
@@ -285,30 +280,21 @@ exit_write_header:
 
 static ssize_t archive_write_newc_data(struct archive_write * a, const void * buff, size_t s)
 {
-	struct cpio * cpio;
 	int ret;
-
-	cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = (struct cpio *)a->format_data;
 	if(s > cpio->entry_bytes_remaining)
 		s = (size_t)cpio->entry_bytes_remaining;
-
 	ret = __archive_write_output(a, buff, s);
 	cpio->entry_bytes_remaining -= s;
-	if(ret >= 0)
-		return (s);
-	else
-		return ret;
+	return (ret >= 0) ? s : ret;
 }
-
-/*
- * Format a number into the specified field.
- */
+// 
+// Format a number into the specified field.
+// 
 static int format_hex(int64 v, void * p, int digits)
 {
-	int64 max;
 	int ret;
-
-	max = (((int64)1) << (digits * 4)) - 1;
+	int64 max = (((int64)1) << (digits * 4)) - 1;
 	if(v >= 0 && v <= max) {
 		format_hex_recursive(v, (char *)p, digits);
 		ret = 0;
@@ -332,13 +318,11 @@ static int64 format_hex_recursive(int64 v, char * p, int s)
 static int archive_write_newc_close(struct archive_write * a)
 {
 	int er;
-	ArchiveEntry * trailer;
-
-	trailer = archive_entry_new();
+	ArchiveEntry * trailer = archive_entry_new();
 	archive_entry_set_nlink(trailer, 1);
 	archive_entry_set_size(trailer, 0);
 	archive_entry_set_pathname(trailer, "TRAILER!!!");
-	/* Bypass the required data checks. */
+	// Bypass the required data checks
 	er = write_header(a, trailer);
 	archive_entry_free(trailer);
 	return (er);
@@ -346,19 +330,16 @@ static int archive_write_newc_close(struct archive_write * a)
 
 static int archive_write_newc_free(struct archive_write * a)
 {
-	struct cpio * cpio;
-
-	cpio = (struct cpio *)a->format_data;
-	SAlloc::F(cpio);
-	a->format_data = NULL;
+	if(a) {
+		struct cpio * cpio = (struct cpio *)a->format_data;
+		SAlloc::F(cpio);
+		a->format_data = NULL;
+	}
 	return ARCHIVE_OK;
 }
 
 static int archive_write_newc_finish_entry(struct archive_write * a)
 {
-	struct cpio * cpio;
-
-	cpio = (struct cpio *)a->format_data;
-	return (__archive_write_nulls(a,
-	       (size_t)cpio->entry_bytes_remaining + cpio->padding));
+	struct cpio * cpio = (struct cpio *)a->format_data;
+	return (__archive_write_nulls(a, (size_t)cpio->entry_bytes_remaining + cpio->padding));
 }

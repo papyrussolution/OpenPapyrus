@@ -232,7 +232,7 @@ int PPObjGoodsClass::PutPacket(PPID * pID, PPGdsClsPacket * pPack, int use_ta)
 			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 		}
 		{
-			const PPID id = *pID;
+			const  PPID id = *pID;
 			SString line_buf, form_buf;
 			if(pPack) {
 				THROW(PutPropsToLine(line_buf, pPack));

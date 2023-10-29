@@ -240,7 +240,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else{
+		else {
 			Render();
 		}
 	}
@@ -477,7 +477,7 @@ HRESULT InitDevice(const TexMetadata& mdata)
 			    pshader = g_PS_1DArray;
 			    pshader_size = sizeof(g_PS_1DArray);
 		    }
-		    else{
+		    else {
 			    pshader = g_PS_1D;
 			    pshader_size = sizeof(g_PS_1D);
 		    }
@@ -494,7 +494,7 @@ HRESULT InitDevice(const TexMetadata& mdata)
 			    pshader = g_PS_2DArray;
 			    pshader_size = sizeof(g_PS_2DArray);
 		    }
-		    else{
+		    else {
 			    pshader = g_PS_2D;
 			    pshader_size = sizeof(g_PS_2D);
 		    }
@@ -585,7 +585,7 @@ HRESULT InitDevice(const TexMetadata& mdata)
 		nverts = static_cast<UINT>(std::size(vertices1D));
 		InitData.pSysMem = vertices1D;
 	}
-	else{
+	else {
 		nverts = static_cast<UINT>(std::size(vertices));
 		InitData.pSysMem = vertices;
 	}
@@ -631,7 +631,7 @@ HRESULT InitDevice(const TexMetadata& mdata)
 		g_iIndices = static_cast<UINT>(std::size(indicesCube));
 		InitData.pSysMem = indicesCube;
 	}
-	else{
+	else {
 		g_iIndices = static_cast<UINT>(std::size(indices));
 		InitData.pSysMem = indices;
 	}

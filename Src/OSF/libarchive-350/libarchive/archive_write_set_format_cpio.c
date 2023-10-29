@@ -7,7 +7,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_cpio.c 201170 2009-12-29 06:34:23Z kientzle $");
 //#include "archive_entry_locale.h"
-#include "archive_write_set_format_private.h"
+//#include "archive_write_set_format_private.h"
 
 static ssize_t  archive_write_cpio_data(struct archive_write *, const void * buff, size_t s);
 static int archive_write_cpio_close(struct archive_write *);

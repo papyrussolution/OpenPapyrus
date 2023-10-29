@@ -5,7 +5,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format.c 201168 2009-12-29 06:15:32Z kientzle $");
-#include "archive_write_set_format_private.h"
+//#include "archive_write_set_format_private.h"
 
 /* A table that maps format codes to functions. */
 static const struct { int code; int (* setter)(Archive *); } codes[] = {

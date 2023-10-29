@@ -629,7 +629,7 @@ OSSL_DEPRECATEDIN_3_0 RSA * d2i_RSA_PUBKEY_fp(FILE * fp, RSA ** rsa);
 OSSL_DEPRECATEDIN_3_0 int i2d_RSA_PUBKEY_fp(FILE * fp, const RSA * rsa);
 #endif
 #ifndef OPENSSL_NO_DEPRECATED_3_0
-#   ifndef OPENSSL_NO_DSA
+#ifndef OPENSSL_NO_DSA
 OSSL_DEPRECATEDIN_3_0 DSA * d2i_DSA_PUBKEY_fp(FILE * fp, DSA ** dsa);
 OSSL_DEPRECATEDIN_3_0 int i2d_DSA_PUBKEY_fp(FILE * fp, const DSA * dsa);
 OSSL_DEPRECATEDIN_3_0 DSA * d2i_DSAPrivateKey_fp(FILE * fp, DSA ** dsa);
@@ -637,7 +637,7 @@ OSSL_DEPRECATEDIN_3_0 int i2d_DSAPrivateKey_fp(FILE * fp, const DSA * dsa);
 #endif
 #endif
 #ifndef OPENSSL_NO_DEPRECATED_3_0
-#   ifndef OPENSSL_NO_EC
+#ifndef OPENSSL_NO_EC
 OSSL_DEPRECATEDIN_3_0 EC_KEY * d2i_EC_PUBKEY_fp(FILE * fp, EC_KEY ** eckey);
 OSSL_DEPRECATEDIN_3_0 int i2d_EC_PUBKEY_fp(FILE * fp, const EC_KEY * eckey);
 OSSL_DEPRECATEDIN_3_0 EC_KEY * d2i_ECPrivateKey_fp(FILE * fp, EC_KEY ** eckey);
@@ -675,7 +675,7 @@ OSSL_DEPRECATEDIN_3_0 RSA * d2i_RSA_PUBKEY_bio(BIO * bp, RSA ** rsa);
 OSSL_DEPRECATEDIN_3_0 int i2d_RSA_PUBKEY_bio(BIO * bp, const RSA * rsa);
 #endif
 #ifndef OPENSSL_NO_DEPRECATED_3_0
-#   ifndef OPENSSL_NO_DSA
+#ifndef OPENSSL_NO_DSA
 OSSL_DEPRECATEDIN_3_0 DSA * d2i_DSA_PUBKEY_bio(BIO * bp, DSA ** dsa);
 OSSL_DEPRECATEDIN_3_0 int i2d_DSA_PUBKEY_bio(BIO * bp, const DSA * dsa);
 OSSL_DEPRECATEDIN_3_0 DSA * d2i_DSAPrivateKey_bio(BIO * bp, DSA ** dsa);
@@ -684,7 +684,7 @@ OSSL_DEPRECATEDIN_3_0 int i2d_DSAPrivateKey_bio(BIO * bp, const DSA * dsa);
 #endif
 
 #ifndef OPENSSL_NO_DEPRECATED_3_0
-#   ifndef OPENSSL_NO_EC
+#ifndef OPENSSL_NO_EC
 OSSL_DEPRECATEDIN_3_0 EC_KEY * d2i_EC_PUBKEY_bio(BIO * bp, EC_KEY ** eckey);
 OSSL_DEPRECATEDIN_3_0 int i2d_EC_PUBKEY_bio(BIO * bp, const EC_KEY * eckey);
 OSSL_DEPRECATEDIN_3_0 EC_KEY * d2i_ECPrivateKey_bio(BIO * bp, EC_KEY ** eckey);

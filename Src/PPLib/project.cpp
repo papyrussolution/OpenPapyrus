@@ -791,7 +791,7 @@ int PPViewProject::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_VIEWPRJPHASE:
 				ok = -1;
@@ -825,7 +825,7 @@ void * PPViewProject::GetEditExtraParam()
 
 int PPViewProject::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(id) {
 		PrjTaskFilt filt;
 		filt.Init(1, 0);
@@ -1094,7 +1094,7 @@ int PrjTaskCore::ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			for(uint i = 0; i < id_list.getCount(); i++) {
-				const PPID id = id_list.get(i);
+				const  PPID id = id_list.get(i);
 				PrjTaskTbl::Rec rec;
 				if(Search(id, &rec) > 0) {
 					int do_update = 0;
@@ -1806,7 +1806,7 @@ int PPObjPrjTask::ImportFromVCal()
 				VCalendar::Todo vcal_rec;
 				PPObjPerson  psn_obj;
 				PersonTbl::Rec psn_rec;
-				const PPID cli_pk_id = PPPRK_CLIENT;
+				const  PPID cli_pk_id = PPPRK_CLIENT;
 				PPIDArray cli_kind_list;
 				cli_kind_list.add(cli_pk_id);
 				{
@@ -3210,7 +3210,7 @@ int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, const LostPrjTPersonItem * pIte
 		p_q = new BExtQuery(p_t, idx);
 		p_q->select(p_t->ID, /*p_t->Descr,*/ 0).where(*dbq);
 		for(p_q->initIteration(false, &k_); p_q->nextIteration() > 0;) {
-			const PPID id = p_t->data.ID;
+			const  PPID id = p_t->data.ID;
 			todo_obj.GetItemDescr(id, temp_buf);
 			list.Add(id, temp_buf);
 		}

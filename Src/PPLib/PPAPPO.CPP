@@ -1044,7 +1044,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 		int    CheckSystemAccount(int getDBEntryFromDlg)
 		{
 			int    ok = 0;
-			const PPID dbid = getDBEntryFromDlg ? getCtrlLong(CTLSEL_LOGIN_DB) : R_P.Dbes.GetSelection();
+			const  PPID dbid = getDBEntryFromDlg ? getCtrlLong(CTLSEL_LOGIN_DB) : R_P.Dbes.GetSelection();
 			if(dbid) {
 				PPID   dbentry_id = 0;
 				DbLoginBlock dlb;
@@ -1132,7 +1132,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 			}
 			else if(TVBROADCAST && TVCMD == cmIdle) {
 				if(DoCheckOnetimePass && IdleTimer.Check(0)) {
-					const PPID one_time_pass_usr_id = OnetimePass(0);
+					const  PPID one_time_pass_usr_id = OnetimePass(0);
 					if(one_time_pass_usr_id > 0) {
 						OnetimePassResult = one_time_pass_usr_id;
 						endModal(cmOK);
@@ -1152,7 +1152,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 						TImageView * p_iv = static_cast<TImageView *>(getCtrlView(CTL_LOGIN_QR));
 						if(p_iv && p_iv->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
 							SString inv_text;
-							const PPID dbid = getCtrlLong(CTLSEL_LOGIN_DB);
+							const  PPID dbid = getCtrlLong(CTLSEL_LOGIN_DB);
 							PPStyloQInterchange::StopStyloQServer();
 							if(dbid) {
 								DbLoginBlock dlb;

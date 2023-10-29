@@ -359,7 +359,7 @@ Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray * pLocL
 		{
 			Transfer * t = p_bobj->trfr;
 			for(ulong bill_id_ = 0; bill_list.Enum(&bill_id_);) {
-				const PPID bill_id = (long)bill_id_;
+				const  PPID bill_id = (long)bill_id_;
 				BExtQuery q(t, 0, 128);
 				TransferTbl::Key0 k0;
 				MEMSZERO(k0);
@@ -697,7 +697,7 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 				if(!orgLotDate)
 					pTrfr->Rcpt.GetOriginDate(pLotRec, &orgLotDate);
 				if(setcostwovat) {
-					const PPID in_tax_grp_id = NZOR(pLotRec->InTaxGrpID, GoodsTaxGrpID);
+					const  PPID in_tax_grp_id = NZOR(pLotRec->InTaxGrpID, GoodsTaxGrpID);
 					if(vat_free < 0)
 						vat_free = IsLotVATFree(*pLotRec);
 					if(gobj.GTxObj.Fetch(in_tax_grp_id, orgLotDate, 0L, &gt) > 0) {
@@ -735,7 +735,7 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 				}
 			}
 		}
-		const PPID diff_tag_id = DiffByTag();
+		const  PPID diff_tag_id = DiffByTag();
 		if(diff_tag_id) {
 			ObjTagItem tag_item;
 			PPObjTag tag_obj;
@@ -1217,7 +1217,7 @@ int Transfer::UpdateForward(const TransferTbl::Rec & rRec, double addendum, doub
 				THROW(r = UpdateForward(rRec.LotID, dt, o, 0, &addendum, &phAddend));
 				if(r != 1) // r == 1 означает, что не было обнаружено ни одной операции > {dt; o}
 					last_op_date = data.Dt; // Дата последней операции
-				const PPID goods_id = (rRec.Flags & PPTFR_SHADOW) ? -labs(rRec.GoodsID) : rRec.GoodsID;
+				const  PPID goods_id = (rRec.Flags & PPTFR_SHADOW) ? -labs(rRec.GoodsID) : rRec.GoodsID;
 				THROW(UpdateCurRest(goods_id, rRec.LocID, addendum));
 				upd_lot_rest = 1;
 			}
@@ -1286,7 +1286,7 @@ int Transfer::GetLocGoodsList(PPID locID, UintHashTable & rList)
 		q.select(CRest.GoodsID, 0L).where(CRest.GoodsID > 0L);
 		PPID   prev_goods_id = 0;
 		for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
-			const PPID goods_id = CRest.data.GoodsID;
+			const  PPID goods_id = CRest.data.GoodsID;
 			if(goods_id != prev_goods_id) {
 				THROW_SL(rList.Add((ulong)goods_id));
 			}
@@ -1438,7 +1438,7 @@ int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 					ti->Flags |= PPTFR_RECEIPT;
 			}
 			if(ti->Flags & PPTFR_RECEIPT) {
-				const PPID force_lot_id = (ti->TFlags & PPTransferItem::tfForceLotID && ti->LotID) ? ti->LotID : 0;
+				const  PPID force_lot_id = (ti->TFlags & PPTransferItem::tfForceLotID && ti->LotID) ? ti->LotID : 0;
 				THROW(AddLotItem(ti, force_lot_id));
 			}
 			THROW(GetRest(ti->LotID, ti->Date, &rest, &ph_rest));
@@ -1490,7 +1490,7 @@ int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 			THROW_DB(insertRecBuf(&rec));
 			THROW(UpdateForward(rec, rec.Quantity, rec.WtQtty));
 			if((ti->Flags & PPTFR_UNITEINTR) && !rec.Reverse) {
-				const PPID   save_lot = ti->LotID;
+				const  PPID   save_lot = ti->LotID;
 				const double save_dis = ti->Discount;
 				THROW_PP(!(ti->Flags & PPTFR_UNLIM), PPERR_UNLIMINTROP);
 				ti->Price   -= ti->Discount;
@@ -2492,7 +2492,7 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 		THROW(tra);
 		if(reverse == 0) {
 			THROW(SearchByBill(ti->BillID, 0, _rbb, &rec) > 0);
-			const PPID   org_lot_id  = rec.LotID;
+			const  PPID   org_lot_id  = rec.LotID;
 			const LDATE  org_dt      = rec.Dt;
 			const long   org_oprno   = rec.OprNo;
 			const double org_qtty    = rec.Quantity;
@@ -2679,7 +2679,7 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 					THROW_DB(deleteRec());
 					THROW_PP(!(ti->Flags & PPTFR_UNLIM), PPERR_UNLIMINTROP);
 					{
-						const PPID   save_lot     = ti->LotID;
+						const  PPID   save_lot     = ti->LotID;
 						const double save_dis     = ti->Discount;
 						const double save_qtty    = ti->Quantity_;
 						const double save_ph_qtty = ti->WtQtty;
@@ -3001,7 +3001,7 @@ int Transfer::MoveLotOps(PPID srcLotID, PPID destLotID, long flags, int use_ta)
 			const long f = param.TrRec.Flags;
 			if(f & (PPTFR_REVAL|PPTFR_RECEIPT)) {
 				if(flags & TMLOF_RMVSRCLOT || (f & PPTFR_REVAL && flags & TMLOF_RMVREVAL)) {
-					const PPID bill_id = param.TrRec.BillID;
+					const  PPID bill_id = param.TrRec.BillID;
 					THROW(RemoveItem(bill_id, param.TrRec.RByBill, 0, 0));
 					THROW(p_bobj->RecalcTurns(bill_id, 0, 0));
 				}

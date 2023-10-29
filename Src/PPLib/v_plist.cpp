@@ -343,7 +343,7 @@ int PPViewPriceList::GetPriceByQuot(RecalcParamBlock * pRPB, PPID quotKindID, do
 		if(pRPB->GoodsPriceWoTaxes) {
 			PPQuotKind qk_rec;
 			PPGoodsTaxEntry gtx;
-			const PPID op_id = (pRPB->QkObj.Fetch(quotKindID, &qk_rec) > 0) ? qk_rec.OpID : 0;
+			const  PPID op_id = (pRPB->QkObj.Fetch(quotKindID, &qk_rec) > 0) ? qk_rec.OpID : 0;
 			if(GObj.FetchTax(pRPB->GoodsID, LConfig.OperDate, op_id, &gtx) > 0)
 				GObj.AdjPriceToTaxes(gtx.TaxGrpID, pRPB->TaxFactor, &price, 1);
 		}
@@ -1222,7 +1222,7 @@ int PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		PriceLineIdent ident;
 		if(pHdr) {
 			const struct _H {
@@ -1523,7 +1523,7 @@ IMPL_HANDLE_EVENT(PListFiltDialog)
 		setupList();
 	}
 	else if(event.isCbSelected(CTLSEL_PLIST_ACCSHEET)) {
-		const PPID acs_id = getCtrlLong(CTLSEL_PLIST_ACCSHEET);
+		const  PPID acs_id = getCtrlLong(CTLSEL_PLIST_ACCSHEET);
 		SetupArCombo(this, CTLSEL_PLIST_ARTICLE, (Data.ArticleID = 0), OLW_LOADDEFONOPEN, acs_id, sacfDisableIfZeroSheet);
 		setupList();
 	}
@@ -1792,7 +1792,7 @@ int PLineDialog::replyGoodsSelection(int enforce)
 			P_PLV->InitRPB(&rpb, &goods_rec, BIN(lot_rec.Flags & LOTF_PRICEWOTAXES), R5(lot_rec.Cost), price, lot_rec.Expiry);
 			if(r > 0)
 				uppack = lot_rec.UnitPerPack;
-			const PPID qk_id = static_cast<const PriceListFilt *>(P_PLV->GetBaseFilt())->QuotKindID;
+			const  PPID qk_id = static_cast<const PriceListFilt *>(P_PLV->GetBaseFilt())->QuotKindID;
 			if(qk_id >= 0) {
 				price = rpb.BasePrice;
 				if(P_PLV->GetPriceByQuot(&rpb, qk_id, &price) > 0)

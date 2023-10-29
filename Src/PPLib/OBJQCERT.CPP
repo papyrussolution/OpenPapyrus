@@ -102,7 +102,7 @@ ListBoxDef * PPObjQCert::Selector(ListBoxDef * pOrgDef, long flags, void * extra
 	DBQuery   * q = 0;
 	QualityCertTbl * t = 0;
 	if(extraPtr) {
-		const PPID goods_id = reinterpret_cast<PPID>(extraPtr);
+		const  PPID goods_id = reinterpret_cast<PPID>(extraPtr);
 		struct {
 			PPID   QCertID;
 			char   Code[26];

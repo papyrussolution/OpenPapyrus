@@ -249,36 +249,28 @@ int blake2sp(void * out, size_t outlen, const void * in, size_t inlen, const voi
 			const size_t len = left <= BLAKE2S_BLOCKBYTES ? left : BLAKE2S_BLOCKBYTES;
 			blake2s_update(S[i], in__, len);
 		}
-
 		blake2s_final(S[i], hash[i], BLAKE2S_OUTBYTES);
 	}
-
 	if(blake2sp_init_root(FS, outlen, keylen) < 0)
 		return -1;
-
 	FS->last_node = 1;
-
 	for(i = 0; i < PARALLELISM_DEGREE; ++i)
 		blake2s_update(FS, hash[i], BLAKE2S_OUTBYTES);
-
 	return blake2s_final(FS, out, outlen);
 }
 
 #if defined(BLAKE2SP_SELFTEST)
-#include <string.h>
+//#include <string.h>
 #include "blake2-kat.h"
 int main(void)
 {
 	uint8 key[BLAKE2S_KEYBYTES];
 	uint8 buf[BLAKE2_KAT_LENGTH];
 	size_t i, step;
-
 	for(i = 0; i < BLAKE2S_KEYBYTES; ++i)
 		key[i] = (uint8)i;
-
 	for(i = 0; i < BLAKE2_KAT_LENGTH; ++i)
 		buf[i] = (uint8)i;
-
 	/* Test simple API */
 	for(i = 0; i < BLAKE2_KAT_LENGTH; ++i) {
 		uint8 hash[BLAKE2S_OUTBYTES];

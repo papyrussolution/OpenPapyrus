@@ -2097,7 +2097,7 @@ static ssize_t schannel_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 	else if(sspi_status == SEC_E_INSUFFICIENT_MEMORY) {
 		*err = CURLE_OUT_OF_MEMORY;
 	}
-	else{
+	else {
 		*err = CURLE_SEND_ERROR;
 	}
 

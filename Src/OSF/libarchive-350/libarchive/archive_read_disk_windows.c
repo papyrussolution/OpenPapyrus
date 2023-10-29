@@ -151,7 +151,7 @@ struct tree {
 	struct la_overlapped {
 		OVERLAPPED ol;
 		Archive * _a;
-		uchar   * buff;
+		uchar * buff;
 		size_t buff_size;
 		int64 offset;
 		size_t bytes_expected;

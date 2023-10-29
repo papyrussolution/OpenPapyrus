@@ -104,7 +104,7 @@ int PPObjGoodsGroup::GetListOfCounts(const IntRange * pRange, LAssocArray & rRes
 	}
 	id_list.sortAndUndup();
 	for(uint i = 0; i < id_list.getCount(); i++) {
-		const PPID group_id = id_list.get(i);
+		const  PPID group_id = id_list.get(i);
 		BExtQuery q(P_Tbl, 1);
 		MEMSZERO(k1);
 		k1.Kind = PPGDSK_GOODS;
@@ -322,7 +322,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 			br_obj.GetListByFilt(0, &brand_list);
 			brand_list.sortAndUndup();
 			for(uint bridx = 0; bridx < brand_list.getCount(); bridx++) {
-				const PPID brand_id = brand_list.get(bridx);
+				const  PPID brand_id = brand_list.get(bridx);
 				PPBrandPacket br_pack;
 				if(br_obj.Get(brand_id, &br_pack) > 0) {
 					Goods2Tbl::Key3 k3;
@@ -362,7 +362,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 			k.ParentID = 0;
 			q.select(ggrp_tbl.ID, ggrp_tbl.Name, 0L).where(ggrp_tbl.Kind == PPGDSK_GROUP);
 			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-				const PPID  grp_id = ggrp_tbl.data.ID;
+				const  PPID  grp_id = ggrp_tbl.data.ID;
 				grp_name = ggrp_tbl.data.Name;
 				if(IsTempAlt(grp_id) > 0) {
 					temp_list.addUnique(grp_id);
@@ -379,14 +379,14 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 				const  uint tdlc = temp_dyn_list.getCount();
 				PPLoadText(PPTXT_TEMPALTGRPREMOVING, msg_buf);
 				for(i = 0; i < tlc; i++) {
-					const PPID grp_id = temp_list.get(i);
+					const  PPID grp_id = temp_list.get(i);
 					if(grp_id && PPObjGoodsGroup::IsTempAlt(grp_id) > 0) {
 						THROW(RemoveObjV(grp_id, &obj_coll, PPObject::not_checkrights|PPObject::not_addtolog|PPObject::no_wait_indicator, 0));
 					}
 					PPWaitPercent(i+1, tlc+tdlc, msg_buf);
 				}
 				for(i = 0; i < tdlc; i++) {
-					const PPID grp_id = temp_dyn_list.get(i);
+					const  PPID grp_id = temp_dyn_list.get(i);
 					if(grp_id && CheckFlag(grp_id, GF_DYNAMICTEMPALTGRP)) {
 						THROW(RemoveObjV(grp_id, &obj_coll, PPObject::not_checkrights|PPObject::not_addtolog|PPObject::not_objnotify|PPObject::no_wait_indicator, 0));
 					}
@@ -584,7 +584,7 @@ int PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 			Goods2Tbl::Rec ggrec;
 			// @v10.9.4 @ctr MEMSZERO(ggrec);
 			for(uint i = 0; i < list.getCount(); i++) {
-				const PPID id = list.at(i);
+				const  PPID id = list.at(i);
 				long img_id = ICON_GGROUP;
 				if(Fetch(id, &ggrec) > 0) {
 					if(ggrec.Flags & GF_FOLDER)
@@ -647,7 +647,7 @@ StrAssocArray * PPObjGoodsGroup::Implement_MakeStrAssocList(long parentID, const
 			PPIDArray id_list_to_remove; // Если идентификатор из списка не будет найден, то его в следующем цикле удалим
 			const uint flc = finish_id_list.getCount();
 			for(uint i = 0; i < flc; i++) {
-				const PPID _id = finish_id_list.get(i);
+				const  PPID _id = finish_id_list.get(i);
 				if(Fetch(_id, &rec) > 0) {
 					for(PPID _parent_id = rec.ParentID; _parent_id; _parent_id = rec.ParentID) {
 						if(Fetch(_parent_id, &rec) > 0) {
@@ -1011,7 +1011,7 @@ int PPObjGoodsGroup::ReadGoodsFilt(PPID id, GoodsFilt * flt)
 
 int PPObjGoodsGroup::Edit(PPID * pID, void * extraPtr /*parentID*/)
 {
-	const PPID extra_parent_id = reinterpret_cast<PPID>(extraPtr);
+	const  PPID extra_parent_id = reinterpret_cast<PPID>(extraPtr);
 	return PPObjGoods::Edit(pID, gpkndUndef, NZOR(extra_parent_id, reinterpret_cast<PPID>(ExtraPtr)), 0, 0);
 }
 
@@ -2089,7 +2089,7 @@ int PPObjBrand::GetListByFilt(const BrandFilt * pFilt, PPIDArray * pList)
 	int    ok = -1;
 	PPIDArray result_list;
 	Goods2Tbl::Key2 k2;
-	const PPID single_owner_id = pFilt ? pFilt->OwnerList.GetSingle() : 0;
+	const  PPID single_owner_id = pFilt ? pFilt->OwnerList.GetSingle() : 0;
 	BExtQuery q(P_Tbl, 2);
 	DBQ * dbq = &(P_Tbl->Kind == Kind);
 	dbq = ppcheckfiltid(dbq, P_Tbl->ManufID, single_owner_id);
@@ -3030,7 +3030,7 @@ int FASTCALL PPViewBrand::NextIteration(BrandViewItem * pItem)
 {
 	int    ok = -1;
 	while(ok < 0 && P_DsList && P_DsList->getPointer() < P_DsList->getCount()) {
-		const PPID id = static_cast<const BrwItem *>(P_DsList->at(P_DsList->getPointer()))->ID;
+		const  PPID id = static_cast<const BrwItem *>(P_DsList->at(P_DsList->getPointer()))->ID;
 		PPBrandPacket brand;
 		if(Obj.Get(id, &brand) > 0) {
 			ASSIGN_PTR(pItem, brand.Rec);
@@ -3048,7 +3048,7 @@ int PPViewBrand::MakeList()
 	GoodsCore * p_tbl = Obj.P_Tbl;
 	PPIDArray result_list;
 	Goods2Tbl::Key2 k2;
-	const PPID single_owner_id = Filt.OwnerList.GetSingle();
+	const  PPID single_owner_id = Filt.OwnerList.GetSingle();
 	PPObjGoods goods_obj;
 	PPIDArray single_brand_list;
 	PPIDArray goods_list;
@@ -3168,7 +3168,7 @@ int PPViewBrand::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	PPID   preserve_id = 0;
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		preserve_id = id;
 		switch(ppvCmd) {
 			case PPVCMD_VIEWGOODS:

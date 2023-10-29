@@ -359,7 +359,7 @@ int MrpTabCore::Helper_GetDeficit(const MrpLineTbl::Rec & rRec, int terminal, in
 				RAssocArray alt_goods_list;
 				THROW(goods_obj.GetSubstList(goods_id, 0, alt_goods_list));
 				for(uint i = 0; i < alt_goods_list.getCount(); i++) {
-					const PPID alt_goods_id = alt_goods_list.at(i).Key;
+					const  PPID alt_goods_id = alt_goods_list.at(i).Key;
 					if(goods_obj.Fetch(alt_goods_id, &goods_rec) > 0 && !(goods_rec.Flags & (GF_PASSIV|GF_GENERIC))) {
 						ratio = alt_goods_list.at(i).Val;
 						goods_id = alt_goods_id;
@@ -409,7 +409,7 @@ int MrpTabCore::GetDeficitList_(PPID tabID, PPID srcID, int terminal, int replac
 				dest_list.add(rec.DestID);
 			}
 			for(uint i = 0; i < dest_list.getCount(); i++) {
-				const PPID goods_id = dest_list.get(i);
+				const  PPID goods_id = dest_list.get(i);
 				if(GetTotalLine(tabID, goods_id, &rec) > 0) {
 					int    gdr = 0;
 					THROW(gdr = Helper_GetDeficit(rec, terminal, replacePassiveGoods, pList));
@@ -454,7 +454,7 @@ int MrpTabCore::GetSubst(PPID tabID, GoodsReplacementArray * pGra)
 			MrpLineTbl::Rec rec;
 			Lines.copyBufTo(&rec);
 			if(rec.Flags & MRPLF_TERMINAL && rec.Flags & MRPLF_REPLACED) {
-				const PPID dest_id = rec.DestID;
+				const  PPID dest_id = rec.DestID;
 				MrpLineTbl::Key1 k1;
 				BExtQuery q2(&Lines, 1);
 				q2.select(Lines.SrcID, Lines.SrcReqQtty, Lines.Flags, 0L).where(Lines.TabID == tabID && Lines.DestID == dest_id);
@@ -462,7 +462,7 @@ int MrpTabCore::GetSubst(PPID tabID, GoodsReplacementArray * pGra)
 				k1.TabID = tabID;
 				k1.DestID = dest_id;
 				for(q2.initIteration(false, &k1, spGe); q2.nextIteration() > 0;) {
-					const PPID src_id = Lines.data.SrcID;
+					const  PPID src_id = Lines.data.SrcID;
 					double ratio = 0.0;
 					if(src_id > 0 && Lines.data.Flags & MRPLF_SUBST && goods_obj.IsGoodsCompatibleByUnit(src_id, dest_id, &ratio) > 0) {
 						THROW(pGra->Add(dest_id, src_id, Lines.data.SrcReqQtty, ratio));
@@ -1001,7 +1001,7 @@ IMPL_HANDLE_EVENT(MrpTabDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmaMore)) {
-		const PPID id = Data.LinkObjID;
+		const  PPID id = Data.LinkObjID;
 		if(Data.LinkObjType && id) {
 			if(EditPPObj(Data.LinkObjType, id) > 0) {
 				SString name_buf;

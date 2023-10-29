@@ -1578,7 +1578,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 		int    is_there_acceptable_gua = 0;
 		{
 			for(uint dgidx = 0; !is_there_acceptable_gua && dgidx < pNf->DestGuaList.GetCount(); dgidx++) {
-				const PPID gua_id = pNf->DestGuaList.Get(dgidx);
+				const  PPID gua_id = pNf->DestGuaList.Get(dgidx);
 				S_GUID gua_guid;
 				if(gua_id && p_ref->Ot.GetTagGuid(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_GUID, gua_guid) > 0)
 					is_there_acceptable_gua = 1;
@@ -1598,7 +1598,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 					THROW_SL(data_buf.IsValid());
 					THROW_SL(f_in.Read(data_buf, data_buf.GetSize(), &actual_rd_size));
 					for(uint dgidx = 0; dgidx < pNf->DestGuaList.GetCount(); dgidx++) {
-						const PPID gua_id = pNf->DestGuaList.Get(dgidx);
+						const  PPID gua_id = pNf->DestGuaList.Get(dgidx);
 						S_GUID gua_guid;
 						if(gua_id && p_ref->Ot.GetTagGuid(PPOBJ_GLOBALUSERACC, gua_id, PPTAG_GUA_GUID, gua_guid) > 0) {
 							PPMqbClient::MessageProperties props;
@@ -2318,7 +2318,7 @@ int PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 	else if(ppvCmd == PPVCMD_CHANGEFILT)
 		ok = (ImplementFlags & implChangeFilt || !P_F) ? -2 : ChangeFilt(0, pBrw);
 	else if(P_Obj) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				ok = (P_Obj->Edit(&(id = 0), GetEditExtraParam()) == cmOK) ? 1 : -1;
@@ -2414,7 +2414,7 @@ PPViewBrowser::~PPViewBrowser()
 	ZDELETE(P_ComboBox);
 	ZDELETE(P_InputLine);
 	for(uint i = 0; i < TempGoodsGrpList.getCount(); i++) {
-		const PPID grp_id = TempGoodsGrpList.at(i);
+		const  PPID grp_id = TempGoodsGrpList.at(i);
 		PPObjGoodsGroup::RemoveDynamicAlt(grp_id, (long)this);
 	}
 	Unadvise();
@@ -2785,7 +2785,7 @@ int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, v
 			if(p_list) {
 				SString name_buf;
 				for(uint i = 0; i < pObjList->getCount(); i++) {
-					const PPID obj_id = pObjList->get(i);
+					const  PPID obj_id = pObjList->get(i);
 					if(obj_id) {
 						switch(objType) {
 							case PPOBJ_PERSON: GetPersonName(obj_id, name_buf); break;
@@ -2837,7 +2837,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 				const void * p_row = getCurItem();
 				if(p_row) { // Если текущий элемент не выделен то нечего и редактировать будет - пропускаем
 					PPObject * p_obj = P_View->GetObj();
-					const PPID obj_type = p_obj ? p_obj->Obj : 0;
+					const  PPID obj_type = p_obj ? p_obj->Obj : 0;
 					PPObjTag tag_obj;
 					LongArray tag_list;
 					KeyDownCommand kc;

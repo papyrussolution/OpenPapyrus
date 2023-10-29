@@ -20,7 +20,7 @@ int SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int use_t
 {
 	int    ok = -1;
 	const LDATETIME dtm = getcurdatetime_();
-	const PPID user_id = LConfig.UserID;
+	const  PPID user_id = LConfig.UserID;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -280,7 +280,7 @@ int SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray * pAct
 	k.ObjID = objID;
 	k.Dt    = MAXDATE;
 	k.Tm    = MAXTIME;
-	const PPID single_acn = pActAry ? pActAry->getSingle() : 0;
+	const  PPID single_acn = pActAry ? pActAry->getSingle() : 0;
 	if(single_acn) {
 		BExtQuery q(this, 1);
 		q.selectAll().where(this->ObjType == objType && this->ObjID == objID && this->Action == single_acn);
@@ -674,7 +674,7 @@ int PPObjBill::InitGta(PPGta & rGta)
 	GetGtaGuaAssoc(rGta, gua_assoc);
 	rGta.SCardID = gua_assoc.SCardID;
 	if(gua_assoc.SCardID) {
-		const PPID goods_id = GetGtaGoodsID(rGta);
+		const  PPID goods_id = GetGtaGoodsID(rGta);
 		Goods2Tbl::Rec goods_rec;
 		if(goods_id && GObj.Fetch(goods_id, &goods_rec) > 0) {
 			QuotIdent qi(0, PPQUOTK_BASE, 0, gua_assoc.ArID);
@@ -700,7 +700,7 @@ int PPObjBill::CheckInGta(const PPGta & rGta, int use_ta)
 	GtaBlock::GuaAssocItem gua_assoc;
 	GetGtaGuaAssoc(rGta, gua_assoc);
 	if(gua_assoc.SCardID) {
-		const PPID goods_id = GetGtaGoodsID(rGta);
+		const  PPID goods_id = GetGtaGoodsID(rGta);
 		Goods2Tbl::Rec goods_rec;
 		if(goods_id && GObj.Fetch(goods_id, &goods_rec) > 0) {
 			QuotIdent qi(0, PPQUOTK_BASE, 0, gua_assoc.ArID);

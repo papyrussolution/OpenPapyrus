@@ -24,10 +24,10 @@ int Transfer::CorrectIntrUnite()
 		PPTransaction tra(1);
 		THROW(tra);
 		for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
-			const PPID prev_lot_id = Rcpt.data.PrevLotID;
+			const  PPID prev_lot_id = Rcpt.data.PrevLotID;
 			if(prev_lot_id) {
-				const PPID lot_id = Rcpt.data.ID;
-				const PPID bill_id = Rcpt.data.BillID;
+				const  PPID lot_id = Rcpt.data.ID;
+				const  PPID bill_id = Rcpt.data.BillID;
 				int r = p_bill_obj->Search(bill_id, 0);
 				THROW(r);
 				if(r < 0) {
@@ -605,7 +605,7 @@ int CorrectLotsCloseTags()
 
 static int test_taxgrp(const ReceiptTbl::Rec * pRec, void * extraPtr)
 {
-	const PPID parent_tax_grp_id = reinterpret_cast<PPID>(extraPtr);
+	const  PPID parent_tax_grp_id = reinterpret_cast<PPID>(extraPtr);
 	return BIN(pRec->InTaxGrpID != parent_tax_grp_id);
 }
 
@@ -1063,7 +1063,7 @@ int Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPL
 			THROW(Rcpt.Search(lotID, &rec) > 0);
 		}
 		if(rec.GoodsID) {
-			const PPID goods_id = labs(rec.GoodsID);
+			const  PPID goods_id = labs(rec.GoodsID);
             if(goods_obj.Search(goods_id, &goods_rec) > 0) {
 				if(flags & TLRF_SETALCCODETOGOODS) {
 					if(p_ref->Ot.GetTagStr(PPOBJ_LOT, rec.ID, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code) > 0) {
@@ -1421,7 +1421,7 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 			if(pFaultList->HasFault(PPLotFault::NoEgaisCode, &fault, &fault_pos)) {
 				SString ex_egais_code;
 				if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARLOTGOODSCODE, ex_egais_code) <= 0) {
-					const PPID goods_id = labs(lot_rec.GoodsID);
+					const  PPID goods_id = labs(lot_rec.GoodsID);
 					BarcodeArray bc_list;
 					goods_obj.P_Tbl->ReadBarcodes(goods_id, bc_list);
 					uint bcc = bc_list.getCount();

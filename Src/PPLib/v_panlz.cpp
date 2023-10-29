@@ -172,7 +172,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 		PPIDArray suppl_list;
 		SArray cost_ary(sizeof(_E));
 		SString ar_name;
-		const PPID suppl_deal_qk_id = DS.GetTLA().SupplDealQuotKindID;
+		const  PPID suppl_deal_qk_id = DS.GetTLA().SupplDealQuotKindID;
 		// @v10.6.4 MEMSZERO(goods_rec);
 		ZDELETE(P_TempTbl);
 		THROW(P_TempTbl = CreateTempFile());
@@ -260,7 +260,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					if(Filt.CostAlg == PriceAnlzFilt::caByMinLoc) {
 						for(i = 0; i < suppl_list.getCount(); i++) {
 							double extr = SMathConst::Max;
-							const PPID suppl_id = suppl_list.get(i);
+							const  PPID suppl_id = suppl_list.get(i);
 							for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);)
 								if(p_e->SupplID == suppl_id && p_e->Cost > 0.0 && p_e->Cost < extr)
 									extr = p_e->Cost;
@@ -276,7 +276,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					}
 					if(Filt.BaseCost == PriceAnlzFilt::bcByContract) {
 						for(i = 0; i < suppl_list.getCount(); i++) {
-							const PPID suppl_id = suppl_list.get(i);
+							const  PPID suppl_id = suppl_list.get(i);
 							for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);) {
 								if(p_e->SupplID == suppl_id) {
 									const QuotIdent qi(p_e->LocID, suppl_deal_qk_id, 0, suppl_id);
@@ -294,7 +294,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					else {
 						if(Filt.Flags & PriceAnlzFilt::fExclWOCntrCost) {
 							for(i = 0; i < suppl_list.getCount(); i++) {
-								const PPID suppl_id = suppl_list.get(i);
+								const  PPID suppl_id = suppl_list.get(i);
 								for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);) {
 									if(p_e->SupplID == suppl_id) {
 										const QuotIdent qi(p_e->LocID, suppl_deal_qk_id, 0, suppl_id);
@@ -309,7 +309,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 						}
 						if(Filt.BaseCost == PriceAnlzFilt::bcByLoc) {
 							for(i = 0; i < suppl_list.getCount(); i++) {
-								const PPID suppl_id = suppl_list.get(i);
+								const  PPID suppl_id = suppl_list.get(i);
 								for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);)
 									if(p_e->SupplID == suppl_id && p_e->LocID == Filt.BaseLoc && p_e->Base > 0.0) {
 										double base = p_e->Base;
@@ -322,7 +322,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 						}
 						else if(Filt.BaseCost == PriceAnlzFilt::bcByAvgLocs) {
 							for(i = 0; i < suppl_list.getCount(); i++) {
-								const PPID suppl_id = suppl_list.get(i);
+								const  PPID suppl_id = suppl_list.get(i);
 								double base = 0.0;
 								uint   base_count = 0;
 								for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);)

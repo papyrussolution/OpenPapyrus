@@ -530,7 +530,7 @@ StrAssocArray * PPObjReference::MakeStrAssocList(void * extraPtr)
 				if(*strip(rec.ObjName) == 0)
 					ideqvalstr(rec.ObjID, rec.ObjName, sizeof(rec.ObjName));
 				if(is_hier) {
-					const PPID parent_id = (rec.Val2 != rec.ObjID) ? rec.Val2 : 0;
+					const  PPID parent_id = (rec.Val2 != rec.ObjID) ? rec.Val2 : 0;
 					THROW_SL(p_list->Add(rec.ObjID, parent_id, rec.ObjName));
 				}
 				else {
@@ -2662,7 +2662,7 @@ int PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char * pPa
 		}
 	}
 	else if(msg == DBMSG_OBJREPLACE) { // @v11.0.10
-		const PPID new_id = reinterpret_cast<long>(extraPtr);
+		const  PPID new_id = reinterpret_cast<long>(extraPtr);
 		if(_obj == PPOBJ_PERSON) {
 			PPIDArray id_to_upd_list;
 			for(SEnum en = P_Ref->Enum(Obj, 0); ok && en.Next(&rec) > 0;) {
@@ -2672,7 +2672,7 @@ int PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char * pPa
 			}
 			id_to_upd_list.sortAndUndup();
 			for(uint i = 0; i < id_to_upd_list.getCount(); i++) {
-				const PPID gua_id = id_to_upd_list.get(i);
+				const  PPID gua_id = id_to_upd_list.get(i);
 				if(Search(gua_id, &rec) > 0 && rec.PersonID == _id) {
 					rec.PersonID = new_id;
 					THROW(P_Ref->UpdateItem(Obj, gua_id, &rec, 1, 0));				

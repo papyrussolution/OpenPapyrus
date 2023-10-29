@@ -50,7 +50,7 @@
 	#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
 		typedef __int64 la_int64_t_Removed;
 	#else
-		#include <unistd.h>  /* ssize_t */
+		//#include <unistd.h>  /* ssize_t */
 		#if defined(_SCO_DS) || defined(__osf__)
 			typedef long long la_int64_t_Removed;
 		#else
@@ -74,7 +74,7 @@
 			typedef long la_ssize_t;
 		#endif
 	#else
-		#include <unistd.h>  /* ssize_t */
+		//#include <unistd.h>  /* ssize_t */
 		typedef ssize_t la_ssize_t;
 	#endif
 #endif

@@ -239,7 +239,7 @@ static int CallbackBuLog(int event, const char * pInfo, void * extraPtr) // Back
 {
 	PPBackup * ppb = 0;
 	if(pDbes) {
-		const PPID db_id = pDbes->GetSelection();
+		const  PPID db_id = pDbes->GetSelection();
 		DbLoginBlock dlb;
 		if(pDbes->GetByID(db_id, &dlb)) {
 			SString db_name;

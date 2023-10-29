@@ -623,7 +623,7 @@ int PPViewPersonEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 			if(ppvCmd == PPVCMD_EDITPSNOPKIND) {
 				ok = -1;
 				PersonEventTbl::Rec rec;
-				PPID id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+				PPID id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 				if(id && PsnEvObj.Search(id, &rec) > 0) {
 					if(PokObj.Edit(&rec.OpID, 0) == cmOK)
 						ok = 1;
@@ -645,8 +645,8 @@ int PPViewPersonEvent::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(Filt.Sgpe != sgpeNone || Filt.Sgd != sgdNone) {
-		PPID   id  = pHdr ? static_cast<const PPID *>(pHdr)[0] : 0;
-		PPID   id2 = pHdr ? static_cast<const PPID *>(pHdr)[1] : 0;
+		PPID   id  = pHdr ? static_cast<const  PPID *>(pHdr)[0] : 0;
+		PPID   id2 = pHdr ? static_cast<const  PPID *>(pHdr)[1] : 0;
 		int    r = 1;
 		PersonEventFilt filt = Filt;
 		filt.Sgd  = sgdNone;

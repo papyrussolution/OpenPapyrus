@@ -44,12 +44,12 @@ int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char
 				Reference * p_ref = PPRef;
 				PPObjBill * p_bobj = BillObj;
 				{
-					const PPID secur_obj_list[] = { PPOBJ_CONFIG, PPOBJ_USRGRP, PPOBJ_USR };
+					const  PPID secur_obj_list[] = { PPOBJ_CONFIG, PPOBJ_USRGRP, PPOBJ_USR };
 					PPTransaction tra(1);
 					THROW(tra);
 					THROW(PPReEncryptDatabaseChain(p_bobj, p_ref, ppb_src.DefPassword, ppb_dest.DefPassword, 0)); // Собсвенная транзакция
 					for(uint si = 0; si < SIZEOFARRAY(secur_obj_list); si++) {
-						const PPID sec_obj_type = secur_obj_list[si];
+						const  PPID sec_obj_type = secur_obj_list[si];
 						for(PPID sec_id = 0; p_ref->EnumItems(sec_obj_type, &sec_id, &sec_rec) > 0;) {
 							if(sstrlen(sec_rec.Password)) {
 								THROW(Reference::Helper_Decrypt_(Reference::crymRef2, ppb_src.DefPassword, sec_rec.Password, sizeof(sec_rec.Password), temp_buf));
@@ -7353,7 +7353,7 @@ public:
 		SString code_buf;
 		SString descr_buf;
 		SString memo_buf;
-		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		const  PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
 		Reference * p_ref = GetReferenceInstance(&P_Ref);
 		if(Before6202) {
 			PrjTask_Before6202 * p_old_rec = static_cast<PrjTask_Before6202 *>(pOldRec);
@@ -7525,7 +7525,7 @@ public:
 		SString code_buf;
 		SString descr_buf;
 		SString memo_buf;
-		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		const  PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
 		Reference * p_ref = GetReferenceInstance(&P_Ref);
 		if(Before6202) {
 			const Project_Before6202 * p_old_rec = static_cast<const Project_Before6202 *>(pOldRec);
@@ -7657,7 +7657,7 @@ int Convert10903()
 						PPSecur2 sec_rec;
 						PPObjIDArray oid_list;
 						StrAssocArray obj_name_list; // Для вывода в журнал: сопоставление наименований объектов с инексом (1..) в списке oid_list
-						const PPID obj_type_list[] = { PPOBJ_CONFIG, PPOBJ_USRGRP, PPOBJ_USR };
+						const  PPID obj_type_list[] = { PPOBJ_CONFIG, PPOBJ_USRGRP, PPOBJ_USR };
 						for(uint objtypeidx = 0; objtypeidx < SIZEOFARRAY(obj_type_list); objtypeidx++) {
 							for(SEnum en = p_ref->Enum(obj_type_list[objtypeidx], 0); en.Next(&sec_rec) > 0;) {
 								oid_list.Add(sec_rec.Tag, sec_rec.ID);
@@ -7900,7 +7900,7 @@ public:
 		PPProcessorPacket::ExtBlock ext;
 		TSessionTbl::Rec * p_data = static_cast<TSessionTbl::Rec *>(pNewTbl->getDataBuf());
 		TSessionTblRec_Before11004 * p_old_rec = static_cast<TSessionTblRec_Before11004 *>(pOldRec);
-		const PPID id = p_old_rec->ID;
+		const  PPID id = p_old_rec->ID;
 		Reference * p_ref = GetReferenceInstance(&P_Ref);
 		PPObjTSession::Implement_GetExtention(p_ref, id, &ext);
 		memzero(p_data, sizeof(*p_data));
@@ -8134,7 +8134,7 @@ public:
 		Reference * p_ref = GetReferenceInstance(&P_Ref);
 		THROW(p_ref);
 		THROW(oneof3(RecFmt, billrecfmtBefore4108, billrecfmtBefore4911, billrecfmtBefore11112));
-		const PPID id = *static_cast<const long *>(rec); // Идент записи в любом случае - самое первое поле 
+		const  PPID id = *static_cast<const long *>(rec); // Идент записи в любом случае - самое первое поле 
 		if(RecFmt == billrecfmtBefore4108) {
 			const BillRec_Before4108 * p_old_rec = static_cast<const BillRec_Before4108 *>(rec);
 			CF(ID);
@@ -8341,7 +8341,7 @@ public:
 		THROW(p_ref);
 		assert(oneof2(RecFmt, recfmtBefore7506, recfmtBefore11112));
 		THROW(oneof2(RecFmt, recfmtBefore7506, recfmtBefore11112));
-		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		const  PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
 		{
 			CF(ID);
 			CF(PrcID);
@@ -8450,7 +8450,7 @@ public:
 		THROW(p_ref);
 		assert(oneof2(RecFmt, recfmtBefore6202, recfmtBefore11112));
 		THROW(oneof2(RecFmt, recfmtBefore6202, recfmtBefore11112));
-		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		const  PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
 		if(RecFmt == recfmtBefore6202) {
 			const Person_Before6202 * p_old_rec = static_cast<const Person_Before6202 *>(pOldRec);
 			CF(ID);
@@ -8537,7 +8537,7 @@ public:
 		PersonEventTbl::Rec * p_data = static_cast<PersonEventTbl::Rec *>(pNewTbl->getDataBuf());
 		Reference * p_ref = GetReferenceInstance(&P_Ref);
 		THROW(p_ref);
-		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		const  PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
 		{
 			const PersonEvent_Before11112 * p_old_rec = static_cast<const PersonEvent_Before11112 *>(pOldRec);
 			CF(ID);

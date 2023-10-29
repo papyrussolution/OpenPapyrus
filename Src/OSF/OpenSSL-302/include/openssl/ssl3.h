@@ -153,7 +153,7 @@ extern "C" {
 #else
 #if (SSL3_ALIGN_PAYLOAD&(SSL3_ALIGN_PAYLOAD-1))!=0
 #   error "insane SSL3_ALIGN_PAYLOAD"
-#   undef SSL3_ALIGN_PAYLOAD
+#undef SSL3_ALIGN_PAYLOAD
 #endif
 #endif
 

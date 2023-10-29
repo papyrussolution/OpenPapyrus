@@ -796,7 +796,7 @@ int PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_ta)
 		if(*pID) {
 			if(pPack) {
 				for(i = 0; i < idlist.getCount(); i++) {
-					const PPID staff_id = idlist.get(i);
+					const  PPID staff_id = idlist.get(i);
 					if(staff_id != *pID && Search(staff_id, &rec) > 0) {
 						rec.FixedStaff = 0;
 						THROW(UpdateItem(staff_id, &rec, 0));
@@ -819,7 +819,7 @@ int PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_ta)
 		}
 		else {
 			for(i = 0; i < idlist.getCount(); i++) {
-				const PPID staff_id = idlist.get(i);
+				const  PPID staff_id = idlist.get(i);
 				if(Search(staff_id, &rec) > 0) {
 					rec.FixedStaff = 0;
 					THROW(UpdateItem(staff_id, &rec, 0));
@@ -1139,7 +1139,7 @@ int PPObjStaffList::GetFixedPostList(PPID orgID, PPID fixID, PersonPostArray * p
 	PPIDArray idlist;
 	GetFixedStaffList(orgID, fixID, &idlist);
 	if(idlist.getCount()) {
-		const PPID staff_id = idlist.get(0);
+		const  PPID staff_id = idlist.get(0);
 		if(staff_id)
 			ok = GetPostList(staff_id, pList);
 	}

@@ -1,5 +1,6 @@
 // SARC.CPP
 // Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -12,6 +13,7 @@
 #include <..\slib\bzip2\bzlib.h>
 #include <..\osf\libarchive-350\libarchive\archive.h> // @v10.4.4
 #include <..\osf\libarchive-350\libarchive\archive_entry.h> // @v11.6.9
+#include <UserEnv.h> // UnloadUserProfile
 //
 //
 //
@@ -1283,14 +1285,47 @@ public:
 			TSCollection_Copy(L, rS.L);
 			return 1;
 		}
-		int    AddEntry(int entryType, SString & rValue)
+		int    AddPathEntry(const SString & rValue)
 		{
 			int    ok = 1;
-			if(oneof3(entryType, etPath, etProfile, etReg) && rValue.NotEmpty()) {
+			if(rValue.NotEmpty()) {
 				Entry * p_new_entry = L.CreateNewItem();
 				if(p_new_entry) {
-					p_new_entry->Type = entryType;
+					p_new_entry->Type = etPath;
 					p_new_entry->Value = rValue;
+				}
+				else
+					ok = 0;
+			}
+			else
+				ok = 0;
+			return ok;
+		}
+		int    AddRegEntry(const SString & rValue)
+		{
+			int    ok = 1;
+			if(rValue.NotEmpty()) {
+				Entry * p_new_entry = L.CreateNewItem();
+				if(p_new_entry) {
+					p_new_entry->Type = etReg;
+					p_new_entry->Value = rValue;
+				}
+				else
+					ok = 0;
+			}
+			else
+				ok = 0;
+			return ok;
+		}
+		int    AddProfileEntry(const SString & rUser, const SString & rPassword)
+		{
+			int    ok = 1;
+			if(rUser.NotEmpty()) {
+				Entry * p_new_entry = L.CreateNewItem();
+				if(p_new_entry) {
+					p_new_entry->Type = etProfile;
+					p_new_entry->Value = rUser;
+					p_new_entry->Password = rPassword;
 				}
 				else
 					ok = 0;
@@ -1306,7 +1341,10 @@ public:
 		};
 		struct Entry {
 			int   Type; // etXXX
-			SString Value;
+			SString Value;    // Если Type == etProfile, то - системное имя пользователя //
+				// Если Type == etPath, то путь к каталогу, который нужно архивировать //
+				// Если Type == etReg, то ветка реестра.
+			SString Password; // Системный пароль пользователя для архивации профиля //
 		};
 		uint64 UedDataFormat;
 		SString BackupPath;
@@ -1317,9 +1355,10 @@ public:
 	int    Backup();
 	int    Restore();
 private:
-	int    BackupPath(const SString & rPath);
-	int    BackupProfile(const SString & rProfileName);
+	int    Helper_BackupPath(const SString & rBasePath, const SString & rPath, void * extraPtr);
+	int    BackupProfile(const SString & rProfileName, const SString & rPw);
 	int    BackupReg(const SString & rReg);
+	int    BackupReg(HKEY regKey);
 	Param P;
 };
 //
@@ -1327,27 +1366,102 @@ private:
 //
 SSystemBackup::SSystemBackup(const Param & rP) : P(rP)
 {
+	if(P.BackupPath.NotEmptyS()) {
+		SString temp_buf;
+		SPathStruc::NormalizePath(P.BackupPath, SPathStruc::npfCompensateDotDot|SPathStruc::npfKeepCase, temp_buf);
+		P.BackupPath = temp_buf;
+	}
+
 }
 
 SSystemBackup::~SSystemBackup()
 {
 }
 
-int SSystemBackup::BackupPath(const SString & rPath)
+int SSystemBackup::Helper_BackupPath(const SString & rBasePath, const SString & rPath, void * extraPtr)
 {
 	int    ok = 1;
-
+	bool   dest_path_created = false;
+	SString temp_buf;
+	SString base_path;
+	SString src_file_name;
+	SString dest_file_name;
+	SDirEntry de;
+	SPathStruc ps;
+	(base_path = rPath).SetLastSlash();
+	(temp_buf = base_path).Cat("*.*");
+	/*
+		_A_ARCH 0x20
+			Archive. Set whenever the file is changed and cleared by the BACKUP command. Value: 0x20.
+		_A_HIDDEN 0x02
+			Hidden file. Not often seen with the DIR command, unless you use the /AH option. Returns information about normal files and files that have this attribute. Value: 0x02.
+		_A_NORMAL 0x00
+			Normal. File has no other attributes set and can be read or written to without restriction. Value: 0x00.
+		_A_RDONLY 0x01
+			Read-only. File can't be opened for writing and a file that has the same name can't be created. Value: 0x01.
+		_A_SUBDIR 0x10
+			Subdirectory. Value: 0x10.
+		_A_SYSTEM 0x04
+			System file. Not ordinarily seen with the DIR command, unless the /A or /A:S option is used. Value: 0x04.
+	*/
+	for(SDirec direc(temp_buf); direc.Next(&de) > 0;) {
+		if(de.IsFolder()) {
+			if(!de.IsSelf() && !de.IsUpFolder()) {
+				de.GetNameUtf8(base_path, src_file_name);
+				Helper_BackupPath(rBasePath, src_file_name, extraPtr); // @recursion
+			}
+		}
+		else {
+			de.GetNameUtf8(base_path, src_file_name);
+			if(SPathStruc::GetRelativePath(rBasePath, 0, rPath, 0, temp_buf)) {
+				temp_buf.ShiftLeftChr('.').ShiftLeftChr('\\');
+				(dest_file_name = P.BackupPath).SetLastSlash().Cat(temp_buf).SetLastSlash();
+				de.GetNameUtf8(dest_file_name, temp_buf);
+				dest_file_name = temp_buf;
+				if(!dest_path_created) {
+					ps.Split(dest_file_name);
+					ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+					if(createDir(temp_buf)) {
+						dest_path_created = true;
+					}
+				}
+				if(dest_path_created) {
+					SCopyFile(src_file_name, dest_file_name, 0, FILE_SHARE_READ, 0);
+				}
+			}
+		}
+	}
 	return ok;
 }
 
-int SSystemBackup::BackupProfile(const SString & rProfileName)
+int SSystemBackup::BackupProfile(const SString & rProfileName, const SString & rPw)
 {
 	int    ok = 1;
 	SString temp_buf;
 	SString sub_path;
 	(sub_path = P.BackupPath).SetLastSlash().Cat("profile");
 	THROW(createDir(sub_path));
-	//
+	{
+		SSystem::AccountInfo acc_info;
+		THROW(SSystem::GetAccountNameInfo(rProfileName, acc_info));
+		acc_info.Sid.ToStr(temp_buf);
+
+		SSystem::UserProfileInfo profile_info;
+		SPtrHandle h_token = SSystem::Logon(0, rProfileName, rPw, SSystem::logontypeInteractive, &profile_info);
+		if(h_token) {
+			//
+			if(profile_info.ProfileRegKey) {
+				SString fn;
+				WinRegKey key(reinterpret_cast<HKEY>(static_cast<void *>(profile_info.ProfileRegKey)));
+				THROW(key.IsValid());
+				sub_path.SetLastSlash().Cat("reg");
+				THROW(key.Save(sub_path));
+			}
+			//
+			::UnloadUserProfile(h_token, profile_info.ProfileRegKey);
+			::CloseHandle(h_token);
+		}
+	}
 	CATCHZOK
 	return ok;
 }
@@ -1359,6 +1473,14 @@ int SSystemBackup::BackupReg(const SString & rReg)
 	(sub_path = P.BackupPath).SetLastSlash().Cat("reg");
 	THROW(createDir(sub_path));
 	//
+	{
+		SString fn;
+		WinRegKey key(rReg, 1);
+		THROW(key.IsValid());
+		fn.EncodeMime64(rReg.cptr(), rReg.Len());
+		sub_path.SetLastSlash().Cat(fn);
+		THROW(key.Save(sub_path));
+	}
 	CATCHZOK
 	return ok;
 }
@@ -1366,15 +1488,23 @@ int SSystemBackup::BackupReg(const SString & rReg)
 int SSystemBackup::Backup()
 {
 	int    ok = 1;
+	SString temp_buf;
 	THROW(P.BackupPath.NotEmpty());
 	THROW(createDir(P.BackupPath));
+	{
+	}
 	for(uint i = 0; i < P.L.getCount(); i++) {
 		const Param::Entry * p_entry = P.L.at(i);
 		if(p_entry) {
 			if(p_entry->Value.NotEmpty()) {
 				switch(p_entry->Type) {
-					case Param::etPath: BackupPath(p_entry->Value); break;
-					case Param::etProfile: BackupProfile(p_entry->Value); break;
+					case Param::etPath: 
+						{
+							SPathStruc::NormalizePath(p_entry->Value, SPathStruc::npfCompensateDotDot|SPathStruc::npfKeepCase, temp_buf);
+							Helper_BackupPath(temp_buf, temp_buf, 0); 
+						}
+						break;
+					case Param::etProfile: BackupProfile(p_entry->Value, p_entry->Password); break;
 					case Param::etReg: BackupReg(p_entry->Value); break;
 				}
 			}
@@ -1394,8 +1524,21 @@ void Test_SSystemBackup()
 {
 	SSystemBackup::Param param;
 	SString temp_buf;
+	SSystem::AccountInfo acc_info;
+	bool ganir = SSystem::GetAccountNameInfo(/*"wsctl-client"*/"sobolev", acc_info);
+	{
+		SString u("wsctl-client");
+		SString p("123");
+		param.AddProfileEntry(u, p);
+	}
 	param.BackupPath = "d:/__temp__/ssystem_backup";
-	param.AddEntry(param.etPath, temp_buf = "C:/GOG Games");
+	param.AddPathEntry(temp_buf = /*"C:/Python38"*/"C:/Documents and Settings/Администратор");
+	{
+		acc_info.Sid.ToStr(temp_buf);
+		SString reg_key_buf;
+		//(reg_key_buf = "HKEY_USERS").SetLastSlash().Cat(temp_buf);
+		param.AddRegEntry((reg_key_buf = "HKEY_LOCAL_MACHINE").SetLastSlash().Cat("software"));
+	}
 	SSystemBackup sb(param);
 	sb.Backup();
 }

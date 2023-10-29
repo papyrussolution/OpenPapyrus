@@ -164,7 +164,7 @@ PPID SCardFilt::GetOwnerPersonKind() const
 		PPObjSCardSeries scs_obj;
 		PPSCardSeries scs_rec;
 		for(uint i = 0; i < ScsList.GetCount(); i++) {
-			const PPID scs_id = ScsList.Get(i);
+			const  PPID scs_id = ScsList.Get(i);
 			if(scs_obj.Fetch(scs_id, &scs_rec) > 0 && scs_rec.PersonKindID) {
 				if(pk_id && scs_rec.PersonKindID != pk_id) { // @ambiguity
 					pk_id = 0;
@@ -353,7 +353,7 @@ int PPViewSCard::Init_(const PPBaseFilt * pFilt)
 		temp_series_list.sortAndUndup();
 		for(i = 0; i < temp_series_list.getCount(); i++) {
 			PPSCardSeries scs_rec;
-			const PPID scs_id = temp_series_list.get(i);
+			const  PPID scs_id = temp_series_list.get(i);
 			scs_obj.GetChildList(scs_id, finish_series_list);
 		}
 		if(finish_series_list.getCount()) {
@@ -455,7 +455,7 @@ int PPViewSCard::CreateTempTable()
 		}
 		if(use_list) {
 			for(uint i = 0; i < incl_list.getCount(); i++) {
-				const PPID sc_id = incl_list.get(i);
+				const  PPID sc_id = incl_list.get(i);
 				if(SCObj.Search(sc_id, &rec_) > 0) {
 					TempSCardTbl::Rec rec;
 					if(PreprocessTempRec(&rec_, &rec, (use_ct_list ? &ct_list : 0))) {
@@ -1545,7 +1545,7 @@ int PPViewSCard::ChangeDiscount()
 			PPTransaction tra(1);
 			THROW(tra);
 			for(uint i = 0; i < id_list.getCount(); i++) {
-				const PPID sc_id = id_list.get(i);
+				const  PPID sc_id = id_list.get(i);
 				THROW(SCObj.P_Tbl->UpdateDiscount(sc_id, pct, 0));
 				PPWaitPercent(i+1, id_list.getCount());
 			}
@@ -1629,7 +1629,7 @@ int PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAction, B
 {
 	int    ok = -1;
 	if(pData && pCellStyle && col >= 0) {
-		const PPID sc_id = *static_cast<const PPID *>(pData);
+		const  PPID sc_id = *static_cast<const  PPID *>(pData);
 		SCardTbl::Rec sc_rec;
 		if(col == 0) { // card number
 			if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_CLOSED) {
@@ -2898,8 +2898,8 @@ int PPViewSCardOp::Recover()
 		t.copyBufTo(&rec);
 		// @todo 20230317 Скорректировать знак суммы в соответствии с чеком (иногда проскакивают такие проблемы)
 		if(rec.LinkObjType == PPOBJ_CCHECK) {
-			const PPID sc_id = rec.SCardID;
-			const PPID cc_id = rec.LinkObjID;
+			const  PPID sc_id = rec.SCardID;
+			const  PPID cc_id = rec.LinkObjID;
 			CCheckPacket cc_pack;
 			if(r_cc.LoadPacket(cc_id, 0, &cc_pack) > 0) {
 				if(cc_pack.Rec.SCardID != sc_id && !cc_pack.AL_Const().SearchAddedID(sc_id, 0)) {

@@ -894,7 +894,7 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			SetupPPObjCombo(this, CTLSEL_CLIAGT_QUOTKIND, PPOBJ_QUOTKIND, Data.DefQuotKindID, 0, 0);
 			if(Data.ClientID) {
 				PPClientAgreement agt;
-				const PPID acs_id = (ArObj.GetClientAgreement(0, agt) > 0) ? agt.ExtObjectID : 0;
+				const  PPID acs_id = (ArObj.GetClientAgreement(0, agt) > 0) ? agt.ExtObjectID : 0;
 				SString  ext_obj;
 				PPLoadString("bill_object2", ext_obj);
 				setLabelText(CTL_CLIAGT_EXTOBJECT, ext_obj);
@@ -1566,7 +1566,7 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 						PPObjArticle ar_obj;
 						if(ar_obj.GetRelPersonList(id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
 							for(uint i = 0; r < 0 && i < rel_list.getCount(); i++) {
-								const PPID rel_ar_id = ObjectToPerson(rel_list.get(i), 0);
+								const  PPID rel_ar_id = ObjectToPerson(rel_list.get(i), 0);
 								if(GetSupplAgreement(rel_ar_id, pAgt, 0) > 0) { // @recursion не зависимо от версии хранения результат будет верным
 									pAgt->SupplID = id;
 									ok = 2;
@@ -1824,7 +1824,7 @@ int SupplAgtDialog::EditOrdParamEntry(PPID arID, PPSupplAgreement::OrderParamEnt
 				return;
 			clearEvent(event);
 		}
-		const PPID   ArID;
+		const  PPID   ArID;
     };
     DIALOG_PROC_BODY_P1(SOrdParamEntryDialog, arID, pEntry);
 }
@@ -1983,7 +1983,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 			int    ok = 1;
 			PPDebtDim dd_rec;
 			for(uint i = 0; i < Data.DebtDimList.GetCount(); i++) {
-				const PPID dd_id = Data.DebtDimList.Get(i);
+				const  PPID dd_id = Data.DebtDimList.Get(i);
 				if(dd_id && DdObj.Search(dd_id, &dd_rec) > 0) {
 					THROW(addStringToList(dd_id, dd_rec.Name));
 				}

@@ -359,7 +359,7 @@ inline void pack_string_empty(std::string & s)
 inline void pack_string(std::string & s, const char * ptr)
 {
 	Assert(ptr);
-	size_t len = sstrlen(ptr);
+	const size_t len = sstrlen(ptr);
 	pack_uint(s, len);
 	s.append(ptr, len);
 }

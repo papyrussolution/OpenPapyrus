@@ -64,7 +64,7 @@ InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		showCtrl(CTL_BILL_OBJ2NAME, !dsbl_object2);
 	}
 	{
-		const PPID strg_loc_id = P_Data->P_Freight ? P_Data->P_Freight->StorageLocID : 0;
+		const  PPID strg_loc_id = P_Data->P_Freight ? P_Data->P_Freight->StorageLocID : 0;
 		LocationFilt loc_filt(LOCTYP_WAREPLACE, 0, P_Data->Rec.LocID);
 		SetupLocationCombo(this, CTLSEL_BILL_STRGLOC, strg_loc_id, OLW_CANSELUPLEVEL, &loc_filt);
 	}
@@ -293,7 +293,7 @@ private:
 void InventoryOptionsDialog::setupAccSheet(uint opSelCtl, uint objSelCtl, PPID arID)
 {
 	PPOprKind op_rec;
-	const PPID op_id = getCtrlLong(opSelCtl);
+	const  PPID op_id = getCtrlLong(opSelCtl);
 	GetOpData(op_id, &op_rec);
 	SetupArCombo(this, objSelCtl, arID, OLW_LOADDEFONOPEN | OLW_CANINSERT, op_rec.AccSheetID, sacfDisableIfZeroSheet);
 }
@@ -491,7 +491,7 @@ int PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pItem, Goo
 			undef_item = 0;
 	}
 	if(undef_item) {
-		const PPID loc_id = (rBlk.Ioe.Flags & INVOPF_USEANOTERLOCLOTS) ? -rBlk.BillRec.LocID : rBlk.BillRec.LocID;
+		const  PPID loc_id = (rBlk.Ioe.Flags & INVOPF_USEANOTERLOCLOTS) ? -rBlk.BillRec.LocID : rBlk.BillRec.LocID;
 		if(trfr->Rcpt.GetLastLot(pItem->GoodsID, loc_id, rBlk.BillRec.Dt, &lot_rec) > 0)
 			pRestParam->Total.Init(&lot_rec, rest);
 		else
@@ -554,7 +554,7 @@ int PPObjBill::RollbackInventoryWrOff(PPID id)
 		PPObjSecur::Exclusion ose(PPEXCLRT_INVWROFFROLLBACK);
 		PPTransaction tra(1);
 		for(DateIter diter; (r = P_Tbl->EnumLinks(id, &diter, BLNK_ALL)) > 0;) {
-			const PPID link_id = P_Tbl->data.ID;
+			const  PPID link_id = P_Tbl->data.ID;
 			THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 			lock_list.add(link_id);
 			for(i = 0; link_pack.EnumTItems(&i, &p_ti);) {
@@ -669,7 +669,7 @@ int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long f
 	InvBlock blk;
 	InvItem inv_item;
 	PPBillPacket link_pack;
-	const PPID bill_id = billID;
+	const  PPID bill_id = billID;
 	struct WrOffPriceBlock { // @flat
 		WrOffPriceBlock() : InvR(0), Dt(ZERODATE), OprNo(0), Qtty(0.0), Sum(0.0)
 		{
@@ -695,7 +695,7 @@ int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long f
 		if(flags & rifAverage) {
 			SString serial;
 			for(DateIter diter; (r = P_Tbl->EnumLinks(bill_id, &diter, BLNK_ALL)) > 0;) {
-				const PPID link_id = P_Tbl->data.ID;
+				const  PPID link_id = P_Tbl->data.ID;
 				PPTransferItem * p_ti;
 				THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 				for(uint i = 0; link_pack.EnumTItems(&i, &p_ti);) {
@@ -965,7 +965,7 @@ int PPObjBill::AutoFillInventory(const AutoFillInvFilt * pFilt)
 		PPTransaction tra(BIN(!ta_per_line));
 		THROW(tra);
 		for(uint i = 0; i < gc; i++) {
-			const PPID goods_id = goods_list.get(i);
+			const  PPID goods_id = goods_list.get(i);
 			THROW(PPCheckUserBreak());
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 				if(blk.Ioe.Flags & INVOPF_USESERIAL) {
@@ -1117,7 +1117,7 @@ int InventoryConversion::Run(PPID billID)
 			THROW(InitPackets());
 			const uint c = goods_id_list.getCount();
 			for(uint i = 0; i < c; i++) {
-				const PPID goods_id = goods_id_list.get(i);
+				const  PPID goods_id = goods_id_list.get(i);
 				int    r;
 				int    is_inv_exists = 0;
 				int    is_asset = 0;

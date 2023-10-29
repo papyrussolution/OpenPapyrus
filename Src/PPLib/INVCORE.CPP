@@ -195,11 +195,11 @@ int InventoryCore::CalcTotal(const InventoryFilt * pFilt, InventoryTotal * pTota
 		}
 	}
 	for(uint i = 0; i < bcount; i++) {
-		const PPID bill_id = bill_list.get(i);
+		const  PPID bill_id = bill_list.get(i);
 		int   do_skip = 0;
 		if(pFilt->StorageLocID) {
 			PPFreight freight;
-			const PPID storage_loc_id = (BillObj->FetchFreight(bill_id, &freight) > 0) ? freight.StorageLocID : 0;
+			const  PPID storage_loc_id = (BillObj->FetchFreight(bill_id, &freight) > 0) ? freight.StorageLocID : 0;
 			if(storage_loc_id != pFilt->StorageLocID)
 				do_skip = 1;
 		}

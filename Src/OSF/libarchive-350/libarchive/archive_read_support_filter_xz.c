@@ -24,7 +24,7 @@ __FBSDID("$FreeBSD$");
 
 struct private_data {
 	lzma_stream stream;
-	uchar   * out_block;
+	uchar * out_block;
 	size_t out_block_size;
 	int64 total_out;
 	char eof; /* True = found end of compressed data. */

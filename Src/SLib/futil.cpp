@@ -293,13 +293,13 @@ int createDir(const char * pPath)
 				path.CatChar(*p++);
 			else if(path.NotEmpty()) {
 				const bool is_root = (path[0] == path[1] && path[0] == '\\' && !sstrchr(path+2, '\\'));
-				if(!is_root && (path[0] && ::access(path, 0) != 0)) {
-					if(path.IsLegalUtf8()) {
-						temp_buf_u.CopyFromUtf8(path);
-					}
-					else {
-						temp_buf_u.CopyFromMb_OUTER(path, path.Len());
-					}
+				if(path.IsLegalUtf8()) {
+					temp_buf_u.CopyFromUtf8(path);
+				}
+				else {
+					temp_buf_u.CopyFromMb_OUTER(path, path.Len());
+				}
+				if(!is_root && (temp_buf_u[0] && ::_waccess(temp_buf_u, 0) != 0)) {
 					const int cdr = ::CreateDirectoryW(temp_buf_u, NULL);
 					if(cdr == 0) {
 						SLS.SetAddedMsgString(path);
@@ -422,10 +422,15 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 	uint32 len;
 	DWORD  bytes_read_write;
 	SDataMoveProgressInfo scfd;
+	SString temp_buf;
 	SString added_msg;
 	SString sys_err_buf; // @v10.3.11
+	SStringU src_file_name_u; // @v11.8.8
+	SStringU dest_file_name_u; // @v11.8.8
 	FILETIME creation_time, last_access_time, last_modif_time;
-	HANDLE srchdl = ::CreateFile(SUcSwitch(pSrcFileName), GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0);
+	(temp_buf = pSrcFileName).CopyToUnicode(src_file_name_u);
+	(temp_buf = pDestFileName).CopyToUnicode(dest_file_name_u);
+	HANDLE srchdl = ::CreateFileW(src_file_name_u, GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0);
 	if(srchdl == INVALID_HANDLE_VALUE) {
 		added_msg = pSrcFileName;
 		//char   tmp_msg_buf[256];
@@ -442,7 +447,7 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 	//SLS.SetAddedMsgString(pSrcFileName);
 	//THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
 	GetFileTime(srchdl, &creation_time, &last_access_time, &last_modif_time);
-	desthdl = ::CreateFile(SUcSwitch(pDestFileName), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	desthdl = ::CreateFileW(dest_file_name_u, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if(desthdl == INVALID_HANDLE_VALUE) {
 		added_msg = pDestFileName;
 		//char   tmp_msg_buf[256];
@@ -1974,15 +1979,7 @@ HRESULT SHGetKnownFolderPath(
 	{
 		SStringU _file_name_u;
 		LARGE_INTEGER size = {0, 0};
-		if(_file_name.IsAscii()) {
-			_file_name_u.CopyFromMb_OUTER(_file_name, _file_name.Len());
-		}
-		else if(_file_name.IsLegalUtf8()) {
-			_file_name_u.CopyFromUtf8R(_file_name, 0);
-		}
-		else {
-			_file_name_u.CopyFromMb_OUTER(_file_name, _file_name.Len());
-		}
+		_file_name.CopyToUnicode(_file_name_u);
 		h_file = ::CreateFileW(_file_name_u, FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); 
 		SLS.SetAddedMsgString(pFileName);
 		THROW_V(h_file, SLERR_OPENFAULT);

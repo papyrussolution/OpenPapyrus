@@ -4,7 +4,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_stat.c 201100 2009-12-28 03:05:31Z kientzle $");
-#include "archive_entry_private.h"
+//#include "archive_entry_private.h"
 
 const struct stat * archive_entry_stat(ArchiveEntry * entry)                     
 {

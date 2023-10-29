@@ -59,7 +59,7 @@
 			typedef long la_ssize_t;
 		#endif
 	#else
-		#include <unistd.h>  /* ssize_t */
+		//#include <unistd.h>  /* ssize_t */
 		typedef ssize_t la_ssize_t;
 	#endif
 #endif

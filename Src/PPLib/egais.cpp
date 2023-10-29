@@ -638,7 +638,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 		PPObjCashNode cn_obj;
 		PPSyncCashNode cn_pack;
         THROW(cn_obj.GetSync(rPack.Rec.CashID, &cn_pack) > 0);
-        const PPID loc_id = NZOR(locID, cn_pack.LocID); // Переданный параметром locID имеет приоритет перед cn_pack.LocID
+        const  PPID loc_id = NZOR(locID, cn_pack.LocID); // Переданный параметром locID имеет приоритет перед cn_pack.LocID
 		THROW(GetURL(loc_id, url));
 		THROW(GetDebugPath(loc_id, temp_path));
 		THROW(GetTemporaryFileName(temp_path, "cc", "EGH", file_name));
@@ -1874,7 +1874,7 @@ int PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * pScope
 						long   temp_id = 0;
 						PersonTbl::Rec psn_rec;
 						for(uint i = 0; !temp_id && i < Cfg.LotManufTagList.getCount(); i++) {
-							const PPID tag_id = Cfg.LotManufTagList.get(i);
+							const  PPID tag_id = Cfg.LotManufTagList.get(i);
 							if(PPRef->Ot.GetTag(PPOBJ_LOT, lotID, tag_id, &tag_item) > 0)
 								tag_item.GetInt(&temp_id);
 						}
@@ -2015,14 +2015,14 @@ int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList)
 			BExtQuery q(t, 0, 128);
 			q.select(t->PersonID, 0).where(t->KindID == PPPRK_MAIN);
 			for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
-				const PPID psn_id = t->data.PersonID;
+				const  PPID psn_id = t->data.PersonID;
 				if(PsnObj.Search(psn_id, &psn_rec) > 0)
 					main_psn_list.add(psn_id);
 			}
 			main_psn_list.sortAndUndup();
 			//
 			for(uint i = 0; i < main_psn_list.getCount(); i++) {
-				const PPID psn_id = main_psn_list.get(i);
+				const  PPID psn_id = main_psn_list.get(i);
 				p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, fsrar_id);
 				p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_EGAISSRVURL, url);
 				if(fsrar_id.NotEmptyS() && url.NotEmptyS()) {
@@ -2733,7 +2733,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 												//
 												int    is_other_alc = 0;
 												for(uint opi = 0; !is_other_alc && opi < p_diff_item->OtherPList.getCount(); opi++) {
-													const PPID op_goods_id = labs(p_link_bp->ConstTI(p_diff_item->OtherPList.get(opi)).GoodsID);
+													const  PPID op_goods_id = labs(p_link_bp->ConstTI(p_diff_item->OtherPList.get(opi)).GoodsID);
 													if(IsAlcGoods(op_goods_id))
 														is_other_alc = 1;
 												}
@@ -3039,7 +3039,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 							StringSet ss_ext_codes;
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
-								const PPID lot_id = static_cast<PPID>(r_ti.QuotPrice);
+								const  PPID lot_id = static_cast<PPID>(r_ti.QuotPrice);
 								if(lot_id && IsAlcGoods(r_ti.GoodsID)) {
 									ObjTagList tag_list;
 									p_ref->Ot.GetList(PPOBJ_LOT, lot_id, &tag_list);
@@ -3116,7 +3116,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 							StringSet ss_ext_codes;
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
-								const PPID lot_id = static_cast<PPID>(r_ti.QuotPrice);
+								const  PPID lot_id = static_cast<PPID>(r_ti.QuotPrice);
 								if(lot_id && IsAlcGoods(r_ti.GoodsID)) {
 									ObjTagList tag_list;
 									p_ref->Ot.GetList(PPOBJ_LOT, lot_id, &tag_list);
@@ -3515,7 +3515,7 @@ int PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPa
 	SString full_name, short_name;
 	//SString rar_ident;
 	//SString ap_code; // Код алкогольной продукции (не путать с rar_ident - кодом конкретного наименования)
-	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
+	const  PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
 	PPID   manuf_psn_kind_id = PPPRK_MANUF;
 	int    manuf_refc_pos = -1;
 	int    imp_refc_pos = -1;
@@ -3958,7 +3958,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 					PPIDArray id_list;
 					PsnObj.GetListByRegNumber(PPREGT_TPID, 0, inn, id_list);
 					for(uint i = 0; i < id_list.getCount(); i++) {
-						const PPID _id = id_list.get(i);
+						const  PPID _id = id_list.get(i);
 						if(PsnObj.Fetch(_id, &psn_rec) > 0)
 							by_inn_psn_list.add(_id);
 					}
@@ -3968,7 +3968,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 					LAssocArray by_kpp_loc_list;
 					RegisterArray kpp_reg_list;
 					for(uint i = 0; i < by_inn_psn_list.getCount(); i++) {
-						const PPID _id = by_inn_psn_list.get(i);
+						const  PPID _id = by_inn_psn_list.get(i);
 						PPPersonPacket _pack;
 						if(PsnObj.GetPacket(_id, &_pack, 0) > 0) {
 							if(_pack.Regs.GetListByType(PPREGT_KPP, ZERODATE, &kpp_reg_list) > 0) {
@@ -4001,7 +4001,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 							// Прежде всего рассматриваем те локации, у которых не определен ФСРАР-ИД
 							PPIDArray wo_rarid_loc_list;
 							for(uint i = 0; i < by_kpp_loc_list.getCount(); i++) {
-								const PPID loc_id = by_kpp_loc_list.at(i).Val;
+								const  PPID loc_id = by_kpp_loc_list.at(i).Val;
 								if(loc_id && p_ref->Ot.GetTagStr(PPOBJ_LOCATION, loc_id, PPTAG_LOC_FSRARID, temp_buf) <= 0)
 									wo_rarid_loc_list.add(loc_id);
 							}
@@ -4009,7 +4009,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 								wo_rarid_loc_list.sortAndUndup();
 								uint j = by_kpp_loc_list.getCount();
 								do {
-									const PPID loc_id = by_kpp_loc_list.at(--j).Val;
+									const  PPID loc_id = by_kpp_loc_list.at(--j).Val;
 									if(!wo_rarid_loc_list.bsearch(loc_id))
 										by_kpp_loc_list.atFree(j);
 								} while(j);
@@ -4031,7 +4031,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 							// @todo log Неоднозначность в разрешении персоналии по КПП
 							// Прежде всего рассматриваем те персоналии, у которых не определен ФСРАР-ИД
 							for(uint i = 0; i < by_kpp_psn_list.getCount(); i++) {
-								const PPID psn_id = by_kpp_psn_list.get(i);
+								const  PPID psn_id = by_kpp_psn_list.get(i);
 								if(p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, temp_buf) <= 0)
 									wo_rarid_psn_list.add(psn_id);
 							}
@@ -4052,7 +4052,7 @@ int PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID, int 
 						// Прежде всего рассматриваем те персоналии, у которых не определен ФСРАР-ИД
 						PPIDArray wo_rarid_psn_list;
 						for(uint i = 0; i < by_inn_psn_list.getCount(); i++) {
-							const PPID psn_id = by_inn_psn_list.get(i);
+							const  PPID psn_id = by_inn_psn_list.get(i);
 							if(p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, temp_buf) <= 0)
 								wo_rarid_psn_list.add(psn_id);
 						}
@@ -4473,7 +4473,7 @@ int PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Packet *
 			PPIDArray ex_bill_id_list;
 			PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, bill_ident, &ex_bill_id_list);
 			for(uint i = 0; !do_skip && i < ex_bill_id_list.getCount(); i++) {
-				const PPID ex_bill_id = ex_bill_id_list.get(i);
+				const  PPID ex_bill_id = ex_bill_id_list.get(i);
 				BillTbl::Rec ex_bill_rec;
 				if(P_BObj->Fetch(ex_bill_id, &ex_bill_rec) > 0) {
                     PPBillPacket bp;
@@ -4630,7 +4630,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 	SString bill_code;
 	LDATE  bill_date = ZERODATE;
 	TSVector <EgaisWayBillRowTags> row_tags;
-	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
+	const  PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
 	TSCollection <ExtCodeSetEntry> ext_code_set_list;
 	if(pPack)
 		pPack->Flags |= Packet::fFaultObj; // @v9.2.8 Иницилизируем флаг. Когда убедимся, что документ OK, флаг снимим.
@@ -4709,7 +4709,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 					PPIDArray private_id_list;
 					if(p_osc && p_osc->GetPrivateObjectsByForeignID(PPOBJ_BILL, intr_expend_bill_id, &private_id_list) > 0) {
 						for(uint i = 0; !pPack->IntrBillID && i < private_id_list.getCount(); i++) {
-							const PPID test_bill_id = private_id_list.get(i);
+							const  PPID test_bill_id = private_id_list.get(i);
 							if(P_BObj->Fetch(test_bill_id, &intr_bill_rec) > 0) {
 								const int intr = IsIntrOp(intr_bill_rec.OpID);
 								if(oneof2(intr, INTREXPND, INTRRCPT)) {
@@ -4736,7 +4736,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 			}
 			if(wb_type == wbtInvcFromMe) { // От поставщика ко мне
 				if(p_bp) {
-					const PPID op_id = ACfg.Hdr.EgaisRcptOpID;
+					const  PPID op_id = ACfg.Hdr.EgaisRcptOpID;
 					THROW_PP(op_id, PPERR_EGAIS_RCPTOPUNDEF);
 					GetOpData(op_id, &op_rec);
 					THROW(p_bp->CreateBlank_WithoutCode(op_id, 0, loc_id, 1));
@@ -4772,7 +4772,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 			}
 			else if(wb_type == wbtRetFromMe) { // Возврат от покупателя ко мне
 				if(p_bp && ACfg.Hdr.EgaisRetOpID) {
-					const PPID op_id = ACfg.Hdr.EgaisRetOpID;
+					const  PPID op_id = ACfg.Hdr.EgaisRetOpID;
 					THROW_PP(op_id, PPERR_EGAIS_RCPTOPUNDEF);
 					GetOpData(op_id, &op_rec);
 					THROW(p_bp->CreateBlank_WithoutCode(op_id, 0, loc_id, 1));
@@ -5085,8 +5085,8 @@ int PPEgaisProcessor::Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID)
 	if(ar1ID == ar2ID)
 		yes = 1;
 	else if(ar1ID && ar2ID) {
-		const PPID psn1_id = ObjectToPerson(ar1ID);
-		const PPID psn2_id = ObjectToPerson(ar2ID);
+		const  PPID psn1_id = ObjectToPerson(ar1ID);
+		const  PPID psn2_id = ObjectToPerson(ar2ID);
 		Reference * p_ref = PPRef;
 		if(psn1_id && psn2_id) {
 			SString code1, code2;
@@ -5149,7 +5149,7 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 				PPIDArray ex_bill_id_list;
 				PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_OUTERCODE, bill_ident, &ex_bill_id_list);
 				for(uint i = 0; !do_skip && i < ex_bill_id_list.getCount(); i++) {
-					const PPID ex_bill_id = ex_bill_id_list.get(i);
+					const  PPID ex_bill_id = ex_bill_id_list.get(i);
 					BillTbl::Rec ex_bill_rec;
 					if(P_BObj->Fetch(ex_bill_id, &ex_bill_rec) > 0 && ex_bill_rec.OpID == p_bp->Rec.OpID) {
 						if(!use_dt_in_bill_analog || ex_bill_rec.Dt == p_bp->Rec.Dt) {
@@ -5347,7 +5347,7 @@ int PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSCollect
 		int    _bill_found = 0;
 		int    _err = 0; // Признак того, что произошла ошибка. Если !0, то удалять документ из УТМ нельзя
 		for(uint j = 0; !_bill_found && j < bill_id_list.getCount(); j++) {
-			const PPID bill_id = bill_id_list.get(j);
+			const  PPID bill_id = bill_id_list.get(j);
 			BillTbl::Rec ex_bill_rec;
 			PPBillPacket bp, _link_bp;
 			PPBillPacket * p_intr_link_bp = 0;
@@ -5644,14 +5644,14 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 							PPIDArray lot_list_by_refb; // @v11.8.3
 							PPIDArray cc_list;
 							TSVector <LotExtCodeTbl::Rec> lec_rec_list;
-							const PPID draft_rcpt_op_id = ACfg.Hdr.EgaisRcptOpID;
+							const  PPID draft_rcpt_op_id = ACfg.Hdr.EgaisRcptOpID;
 							THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.3.6
 							for(cc_view.InitIteration(0); cc_view.NextIteration(&cc_item) > 0;) {
 								cc_list.add(cc_item.ID);
 							}
 							cc_list.sortAndUndup();
 							for(uint ccidx = 0; ccidx < cc_list.getCount(); ccidx++) {
-								const PPID cc_id = cc_list.get(ccidx);
+								const  PPID cc_id = cc_list.get(ccidx);
 								// @v10.8.7 (LoadPacket) cc_pack.Z();
 								bool  do_mark_ccheck = false; // @v11.8.2 Признак того, что на чек необходимо установить тег extssEgaisProcessingTag
 								SString processing_tag; // @v11.8.2
@@ -5669,7 +5669,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 								}
 								for(uint clidx = 0; clidx < cc_pack.GetCount(); clidx++) {
 									const CCheckLineTbl::Rec & r_ccl = cc_pack.GetLineC(clidx);
-									const PPID goods_id = labs(r_ccl.GoodsID);
+									const  PPID goods_id = labs(r_ccl.GoodsID);
 									if(alco_goods_list.bsearch(goods_id)) {
 										cc_pack.GetLineTextExt(clidx+1, CCheckPacket::lnextEgaisMark, /*temp_buf*/egais_mark);
 										bc_list.clear();
@@ -5830,7 +5830,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 																		lot_list_by_refb.sortAndUndup();
 																		uint lotidx = lot_list_by_refb.getCount();
 																		if(lotidx) do {
-																			const PPID last_lot_id = lot_list_by_refb.get(--lotidx);
+																			const  PPID last_lot_id = lot_list_by_refb.get(--lotidx);
 																			if(P_BObj->trfr->Rcpt.Search(last_lot_id, &lot_rec) > 0) {
 																				cost_by_last_lot = lot_rec.Cost;
 																				price_by_last_lot = lot_rec.Price;
@@ -5959,7 +5959,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 									double _last_cost = 0.0; // @v11.7.4
 									double _last_price = 0.0; // @v11.7.4
 									for(uint j = 0; j < lot_id_list.getCount(); j++) {
-										const PPID lot_id = lot_id_list.get(j);
+										const  PPID lot_id = lot_id_list.get(j);
 										if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
 											// @v11.7.8 {
 											bool do_reckon_lot_rest = false;
@@ -6030,7 +6030,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 										cc_id_list_to_mark.sortAndUndup();
 										temp_buf.Z().Cat(p_wop->Rec.ID);
 										for(uint ccidx = 0; ccidx < cc_id_list_to_mark.getCount(); ccidx++) {
-											const PPID cc_id = cc_id_list_to_mark.get(ccidx);
+											const  PPID cc_id = cc_id_list_to_mark.get(ccidx);
 											p_cc->UpdateExtText(cc_id, CCheckPacket::extssEgaisProcessingTag, temp_buf, 0);
 										}
 									}
@@ -6200,7 +6200,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 									if(p_trfr->Rcpt.SearchOrigin(lot_rec.ID, &org_lot_id, 0, 0) && PreprocessGoodsItem(lot_rec.GoodsID, org_lot_id, 0, 0, agi) > 0) {
 										is_beer = LOGIC(PrcssrAlcReport::IsBeerCategoryCode(agi.CategoryCode)); // @v11.2.0
 										// @v10.2.6 {
-										const PPID lot_bill_id = lot_rec.BillID;
+										const  PPID lot_bill_id = lot_rec.BillID;
 										TransferTbl::Rec trfr_rec;
 										for(DateIter di; p_trfr->EnumByLot(temp_lot_id, &di, &trfr_rec) > 0;) {
 											if(trfr_rec.BillID == lot_bill_id) {
@@ -6377,7 +6377,7 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
     BillTbl::Rec bhdr;
     // @v10.6.4 MEMSZERO(bhdr);
     TSVector <EgaisRestItem> items;
-	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
+	const  PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
     for(const xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
         if(SXml::GetContentByName(p_n, "RestsDate", temp_buf)) {
 			strtodatetime(temp_buf, &rest_dtm, DATF_ISO8601, TIMF_HMS);
@@ -6722,7 +6722,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 						THROW(Helper_FinalizeNewPack(&p_new_pack, srcReplyPos, pPackList));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_REPLYCLIENT) {
-						const PPID sell_pk_id = GetSellPersonKind();
+						const  PPID sell_pk_id = GetSellPersonKind();
 						if(sell_pk_id) {
 							THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 							{
@@ -7009,7 +7009,7 @@ int PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, const 
 			THROW(P_BObj->P_Tbl->SetRecFlag2(bill_id, BILLF2_ACKPENDING, 0, 0));
 			if(!(State & stDontRemoveTags)) {
 				if(!!pT->TranspUUID) {
-					const PPID uuid_tag_id = selfreject_ticket ? PPTAG_BILL_EDIREJECTACK : PPTAG_BILL_EDIACK;
+					const  PPID uuid_tag_id = selfreject_ticket ? PPTAG_BILL_EDIREJECTACK : PPTAG_BILL_EDIACK;
 					ObjTagItem uuid_tag;
 					if(p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, uuid_tag_id, &uuid_tag) > 0) {
 						S_GUID ex_uuid;
@@ -7141,7 +7141,7 @@ int PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor::Ticke
 			p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, temp_buf, &bill_id_list);
 			bill_id_list.sortAndUndup();
 			for(uint j = 0; j < bill_id_list.getCount(); j++) {
-				const PPID bill_id = bill_id_list.get(j);
+				const  PPID bill_id = bill_id_list.get(j);
 				BillTbl::Rec bill_rec;
 				if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 					PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
@@ -7189,7 +7189,7 @@ int PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor::Ticke
 			}
 			bill_id_list.sortAndUndup();
 			for(uint j = 0; j < bill_id_list.getCount(); j++) {
-				const PPID bill_id = bill_id_list.get(j);
+				const  PPID bill_id = bill_id_list.get(j);
 				BillTbl::Rec bill_rec;
 				if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 					PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
@@ -7539,12 +7539,12 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 					PPIDArray candid_bill_list;
 					BillTbl::Rec bill_rec;
 					for(uint i = 0; i < bill_id_list.getCount(); i++) {
-						const PPID bill_id = bill_id_list.get(i);
+						const  PPID bill_id = bill_id_list.get(i);
 						PPOprKind op_rec;
 						PPFreight freight;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
                             if(bill_rec.Object && GetOpData(bill_rec.OpID, &op_rec) > 0) {
-                                const PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
+                                const  PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
 								if(psn_id) {
 									if(p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0)
 										candid_bill_list.add(bill_id);
@@ -7557,7 +7557,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 						}
 					}
 					if(candid_bill_list.getCount() == 1) {
-						const PPID bill_id = candid_bill_list.get(0);
+						const  PPID bill_id = candid_bill_list.get(0);
 						ObjTagItem tag_item;
 						THROW(P_BObj->Search(bill_id, &bill_rec) > 0);
 						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIREPEALREQ, temp_buf) > 0) {
@@ -7663,7 +7663,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 									p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFA, p_item->AIdent, &lot_A_list);
 									p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &lot_B_list);
 									if(lot_A_list.getCount() == 0 && lot_B_list.getCount() == 1) {
-										const PPID lot_id = lot_B_list.get(0);
+										const  PPID lot_id = lot_B_list.get(0);
 										ObjTagItem tag_item;
 										THROW(tag_item.SetStr(PPTAG_LOT_FSRARINFA, p_item->AIdent));
 										THROW(p_ref->Ot.PutTag(PPOBJ_LOT, lot_id, &tag_item, 0));
@@ -7685,7 +7685,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 									const ActInformItem * p_item = p_inf->Items.at(j);
 									if(p_item && p_item->P == row_id) {
 										const PPTransferItem & r_ti = bp.ConstTI(i);
-										const PPID lot_id = static_cast<PPID>(r_ti.QuotPrice);
+										const  PPID lot_id = static_cast<PPID>(r_ti.QuotPrice);
 										if(lot_id) {
 											ObjTagItem tag_item;
 											if(p_item->AIdent[0]) {
@@ -7841,11 +7841,11 @@ int PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locI
 		THROW(tra);
 		THROW(pack.CreateBlank2(op_id, rest_date, locID, 0));
         for(uint i = 0; i < rLotList.getCount(); i++) {
-			const PPID lot_id = rLotList.get(i);
+			const  PPID lot_id = rLotList.get(i);
 			if(!ex_lot_list.bsearch(lot_id)) {
 				ReceiptTbl::Rec lot_rec;
 				if(P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
-					const PPID goods_id = lot_rec.GoodsID;
+					const  PPID goods_id = lot_rec.GoodsID;
 					if(goods_id > 0 && IsAlcGoods(goods_id) && PreprocessGoodsItem(goods_id, 0, 0, 0, agi) > 0) { // Исключаем попадание лота заказа
 						PPTransferItem ti;
 						int   skip = 0;
@@ -7931,13 +7931,13 @@ int PPEgaisProcessor::GetAcceptedBillList(const PPBillIterchangeFilt & rP, long 
 		base_op_list.add(ACfg.Hdr.EgaisRetOpID);
 	PPObjOprKind::ExpandOpList(base_op_list, op_list);
 	for(i = 0; i < op_list.getCount(); i++) {
-		const PPID op_id = op_list.get(i);
+		const  PPID op_id = op_list.get(i);
 		if(op_id) {
 			PPOprKind op_rec;
 			GetOpData(op_id, &op_rec);
 			if(rP.IdList.getCount()) {
 				for(uint j = 0; j < rP.IdList.getCount(); j++) {
-					const PPID bill_id = rP.IdList.get(j);
+					const  PPID bill_id = rP.IdList.get(j);
                     if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == op_id) {
 						if(oneof4(bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4) && (!rP.LocID || bill_rec.LocID == rP.LocID)) {
 							if(!(flags & bilstfWritedOff) || (bill_rec.Flags & BILLF_WRITEDOFF)) {
@@ -7963,7 +7963,7 @@ int PPEgaisProcessor::GetAcceptedBillList(const PPBillIterchangeFilt & rP, long 
 	}
 	temp_bill_list.sortAndUndup();
 	for(uint k = 0; k < temp_bill_list.getCount(); k++) {
-		const PPID bill_id = temp_bill_list.get(k);
+		const  PPID bill_id = temp_bill_list.get(k);
 		if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 			int    suited = 1;
 			if(flags & bilstfReadyForAck) {
@@ -8014,7 +8014,7 @@ int PPEgaisProcessor::SendBillActs(const PPBillIterchangeFilt & rP)
 	PPIDArray accepted_bill_list;
 	GetAcceptedBillList(rP, PPEgaisProcessor::bilstfReadyForAck, accepted_bill_list);
 	for(uint i = 0; i < accepted_bill_list.getCount(); i++) {
-		const PPID bill_id = accepted_bill_list.get(i);
+		const  PPID bill_id = accepted_bill_list.get(i);
 		PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_WAYBILLACT);
 		PPBillPacket * p_bp = static_cast<PPBillPacket *>(pack.P_Data);
 		if(P_BObj->ExtractPacket(bill_id, p_bp) > 0) {
@@ -8053,7 +8053,7 @@ int PPEgaisProcessor::SendBillRepeals(const PPBillIterchangeFilt & rP)
 	PPIDArray accepted_bill_list;
 	GetAcceptedBillList(rP, PPEgaisProcessor::bilstfReadyForAck|PPEgaisProcessor::bilstfRepeal, accepted_bill_list);
 	for(uint i = 0; i < accepted_bill_list.getCount(); i++) {
-		const PPID bill_id = accepted_bill_list.get(i);
+		const  PPID bill_id = accepted_bill_list.get(i);
 		PPBillPacket bp;
 		if(P_BObj->ExtractPacket(bill_id, &bp) > 0) {
 			// @v11.0.7 PPEDIOP_EGAIS_REQUESTREPEALAWO
@@ -8129,12 +8129,12 @@ int PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFilt & rP
 		PPObjOprKind::ExpandOpList(base_op_list, op_list);
 	}
 	for(i = 0; i < op_list.getCount(); i++) {
-		const PPID op_id = op_list.get(i);
+		const  PPID op_id = op_list.get(i);
 		PPOprKind op_rec;
 		GetOpData(op_id, &op_rec);
 		if(rP.IdList.getCount()) {
 			for(uint j = 0; j < rP.IdList.getCount(); j++) {
-				const PPID bill_id = rP.IdList.get(j);
+				const  PPID bill_id = rP.IdList.get(j);
 				if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == op_id) {
 					if(!rP.LocID || bill_rec.LocID == rP.LocID) {
 						int    suited = 1;
@@ -8160,7 +8160,7 @@ int PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFilt & rP
 	}
 	temp_bill_list.sortAndUndup();
 	for(uint k = 0; k < temp_bill_list.getCount(); k++) {
-		const PPID bill_id = temp_bill_list.get(k);
+		const  PPID bill_id = temp_bill_list.get(k);
 		if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 			int    suited = 1;
 			int    for_reject = 0;
@@ -8246,12 +8246,12 @@ int PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillIterchangeFilt & r
 		PPObjOprKind::ExpandOpList(base_op_list, op_list);
 	}
     for(i = 0; i < op_list.getCount(); i++) {
-		const PPID op_id = op_list.get(i);
+		const  PPID op_id = op_list.get(i);
 		PPOprKind op_rec;
 		GetOpData(op_id, &op_rec);
 		if(rP.IdList.getCount()) {
 			for(uint j = 0; j < rP.IdList.getCount(); j++) {
-				const PPID bill_id = rP.IdList.get(j);
+				const  PPID bill_id = rP.IdList.get(j);
 				if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == op_id) {
 					if(!rP.LocID || bill_rec.LocID == rP.LocID) {
 						int    suited = 1;
@@ -8345,7 +8345,7 @@ int PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP,
             StrAssocArray::Item item = repealreq_bill_list.at_WithoutParent(i);
 			(repeal_tag = item.Txt).Strip();
             if(repeal_tag.NotEmpty() && oneof2(repeal_tag.C(0), '!', '-')) {
-				const PPID bill_id = item.Id;
+				const  PPID bill_id = item.Id;
                 if(P_BObj->Search(bill_id, &bill_rec) > 0 && p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, edi_ident) > 0) {
 					GetOpData(bill_rec.OpID, &op_rec);
 					if((!rP.LocID || bill_rec.LocID == rP.LocID) && CheckBillForMainOrgID(bill_rec, op_rec)) {
@@ -8466,7 +8466,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 		}
 		{
 			for(uint i = 0; i < reject_bill_list.getCount(); i++) {
-				const PPID bill_id = reject_bill_list.get(i);
+				const  PPID bill_id = reject_bill_list.get(i);
 				PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_WAYBILLACT);
 				PPBillPacket * p_bp = static_cast<PPBillPacket *>(pack.P_Data);
 				if(P_BObj->ExtractPacketWithFlags(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
@@ -8507,7 +8507,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 		GetBillListForTransmission(/*locID, period*/rP, bilstfReadyForAck|bilstfReturnToSuppl, totransm_bill_list, &reject_bill_list);
 		{
 			for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
-				const PPID bill_id = totransm_bill_list.get(i);
+				const  PPID bill_id = totransm_bill_list.get(i);
 				const int edi_op = __v4 ? PPEDIOP_EGAIS_WAYBILL_V4 : (__v3 ? PPEDIOP_EGAIS_WAYBILL_V3 : (__v2 ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL));
 				const char * p_url_sfx = __v4 ? "WayBill_v4" : (__v3 ? "WayBill_v3" : (__v2 ? "WayBill_v2" : "WayBill"));
 				PPEgaisProcessor::Packet pack(edi_op);
@@ -8525,7 +8525,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 		}
 		{
 			for(uint i = 0; i < reject_bill_list.getCount(); i++) {
-				const PPID bill_id = reject_bill_list.get(i);
+				const  PPID bill_id = reject_bill_list.get(i);
 				const int edi_op = __v4 ? PPEDIOP_EGAIS_WAYBILLACT_V4 : (__v3 ? PPEDIOP_EGAIS_WAYBILLACT_V3 : (__v2 ? PPEDIOP_EGAIS_WAYBILLACT_V2 : PPEDIOP_EGAIS_WAYBILLACT));
 				PPEgaisProcessor::Packet pack(edi_op);
 				pack.Flags |= PPEgaisProcessor::Packet::fReturnBill;
@@ -8554,7 +8554,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 		ObjTagItem tag_item;
 		SString reg_ident;
 		for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
-			const PPID bill_id = totransm_bill_list.get(i);
+			const  PPID bill_id = totransm_bill_list.get(i);
 			BillTbl::Rec bill_rec;
 			if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 				if(PPRef->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIIDENT, reg_ident) > 0) {
@@ -8841,7 +8841,7 @@ int PPEgaisProcessor::Helper_ExtractGoodsCodesFromBills(PPID opID, StringSet & r
 	DateRange coperiod;
 	coperiod.Set(encodedate(1, 9, 2016), ZERODATE);
 	for(SEnum en = P_BObj->P_Tbl->EnumByOp(opID, &coperiod, 0); en.Next(&cobill_rec) > 0;) {
-		const PPID sobill_id = cobill_rec.ID;
+		const  PPID sobill_id = cobill_rec.ID;
 		PPBillPacket sobill_pack;
 		if(P_BObj->ExtractPacketWithFlags(sobill_id, &sobill_pack, BPLD_FORCESERIALS) > 0) {
 			for(uint k = 0; k < sobill_pack.GetTCount(); k++) {
@@ -9769,7 +9769,7 @@ int EgaisPersonCore::Clear(int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(search(0, &k0, spFirst)) do {
-			const PPID id = data.ID;
+			const  PPID id = data.ID;
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(deleteRec());
 			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPERSON, id, PPTRPROP_NAME), static_cast<const wchar_t *>(0), 0));
@@ -10142,7 +10142,7 @@ int EgaisProductCore::Clear(int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(search(0, &k0, spFirst)) do {
-			const PPID id = data.ID;
+			const  PPID id = data.ID;
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(deleteRec());
 			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_EGAISPRODUCT, id, PPTRPROP_NAME), static_cast<const wchar_t *>(0), 0));
@@ -10461,7 +10461,7 @@ int EgaisRefACore::Clear(int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(search(0, &k0, spFirst)) do {
-			const PPID id = data.ID;
+			const  PPID id = data.ID;
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(deleteRec());
 			PPWaitPercent(cntr.Increment(), msg_buf);

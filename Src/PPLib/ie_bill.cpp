@@ -2221,7 +2221,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 	if(BillParam.Object2SrchCode.NotEmpty()) {
 		PPID   reg_type_id = PPREGT_TPID;
 		SString code = BillParam.Object2SrchCode;
-		const PPID suppl_acs_id = GetSupplAccSheet();
+		const  PPID suppl_acs_id = GetSupplAccSheet();
 		if(PPObjArticle::GetSearchingRegTypeID(suppl_acs_id, 0, 1, &reg_type_id) > 0) {
 			PPIDArray psn_list, ar_list;
 			PsnObj.GetListByRegNumber(reg_type_id, 0, code, psn_list);
@@ -2296,7 +2296,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 						if(articles.SearchByText(inn, &pos) > 0)
 							ar_id = articles.Get(pos).Id;
 						else {
-							const PPID local_dlvr_loc_id = p_bill ? p_bill->DlvrAddrID : brow_.DlvrAddrID; // @v11.7.7 (: 0)-->(: brow_.DlvrAddrID)
+							const  PPID local_dlvr_loc_id = p_bill ? p_bill->DlvrAddrID : brow_.DlvrAddrID; // @v11.7.7 (: 0)-->(: brow_.DlvrAddrID)
 							const char * p_local_dlvr_loc_code = p_bill ? p_bill->DlvrAddrCode : brow_.DlvrAddrCode; // @v11.7.7 (: 0)-->(: brow_.DlvrAddrCode)
 							if(ResolveINN(inn, local_dlvr_loc_id, p_local_dlvr_loc_code, bill_ident, AccSheetID, &ar_id, 0) > 0 && ar_id > 0) {
 								THROW_SL(articles.Add(ar_id, inn, 0));
@@ -3094,7 +3094,7 @@ int PPBillImporter::Import(int useTa)
 					for(uint i = 0; i < goods_list.getCount(); i++) {
 						ResolveGoodsItem & r_rgi = goods_list.at(i);
 						if(!r_rgi.ResolvedGoodsID && CreateAbsenceGoods(r_rgi, 0) > 0) {
-							const PPID goods_id = r_rgi.ResolvedGoodsID;
+							const  PPID goods_id = r_rgi.ResolvedGoodsID;
 							assert(goods_id);
 							BillsRows.at(unres_pos_list.get(i)).GoodsID = goods_id;
 							//
@@ -3237,7 +3237,7 @@ int PPBillImporter::Import(int useTa)
 											if(psn_list.getCount()) {
 												if(r_row.ManufKPP[0]) {
 													for(uint k = 0; !manuf_id && k < psn_list.getCount(); k++) {
-														const PPID psn_id = psn_list.get(k);
+														const  PPID psn_id = psn_list.get(k);
 														if(PsnObj.GetRegNumber(psn_id, PPREGT_KPP, ZERODATE, temp_buf.Z()) > 0 && temp_buf.IsEqNC(r_row.ManufKPP))
 															manuf_id = psn_id;
 													}
@@ -3619,7 +3619,7 @@ int PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const char * p
                     PPIDArray loc_list;
                     PsnObj.LocObj.P_Tbl->GetListByCode(LOCTYP_ADDRESS, pDlvrLocCode, &loc_list);
                     for(uint loc_idx = 0; !ar_id && loc_idx < loc_list.getCount(); loc_idx++) {
-						const PPID loc_id = loc_list.get(loc_idx);
+						const  PPID loc_id = loc_list.get(loc_idx);
 						uint   _ppos = 0;
                         if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0 && loc_rec.OwnerID && psn_list.lsearch(loc_rec.OwnerID, &_ppos))
 							ArObj.P_Tbl->PersonToArticle(loc_rec.OwnerID, accSheetID, &ar_id);
@@ -3713,7 +3713,7 @@ int PPBillImpExpBaseProcessBlock::SetFixTagOnExportedBill(const PPIDArray & rBil
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			for(uint bidx = 0; bidx < rBillIdList.getCount(); bidx++) {
-				const PPID bill_id = rBillIdList.get(bidx);
+				const  PPID bill_id = rBillIdList.get(bidx);
 				if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 					ObjTagItem tag_item;
 					switch(tag_rec.TagDataType) {
@@ -3910,7 +3910,7 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
 		THROW(GetOpData(OpID, &op_rec) > 0);
-		const PPID acs_id = op_rec.AccSheetID;
+		const  PPID acs_id = op_rec.AccSheetID;
 		if(acs_id && acs_obj.Fetch(acs_id, &acs_rec) > 0) {
 			if(pBill->CntragID && ArObj.Search(pBill->CntragID, &ar_rec) > 0 && ar_rec.AccSheetID == acs_id)
 				ar_id = pBill->CntragID;
@@ -3962,7 +3962,7 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 					PsnObj.SearchEmail(pBill->CntragEMail, 0, &psn_by_em_list, /*&loc_by_em_list*/0);
 					if(psn_by_em_list.getCount()) {
 						for(uint i = 0; !ar_id && i < psn_by_em_list.getCount(); i++) {
-							const PPID psn_by_em_id = psn_by_em_list.get(i);
+							const  PPID psn_by_em_id = psn_by_em_list.get(i);
 							if(PsnObj.Fetch(psn_by_em_id, &psn_rec) > 0) {
 								PPID temp_ar_id = 0;
 								if(ArObj.P_Tbl->PersonToArticle(psn_by_em_id, acs_id, &temp_ar_id) > 0)
@@ -3978,7 +3978,7 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 		}
 		if(ar_id || !acs_id) {
 			pPack->Rec.Object = ar_id;
-			const PPID psn_id = ObjectToPerson(ar_id, 0);
+			const  PPID psn_id = ObjectToPerson(ar_id, 0);
 			if(op_rec.AccSheet2ID) {
 				ArticleTbl::Rec ar_rec;
 				PPID   obj2id = 0;
@@ -3998,7 +3998,7 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 					pPack->Rec.LocID = loc_id;
 			}
 			if(!isempty(pBill->OrderBillID)) {
-				const PPID link_bill_id = atol(pBill->OrderBillID);
+				const  PPID link_bill_id = atol(pBill->OrderBillID);
 				BillTbl::Rec link_bill_rec;
 				if(P_BObj->Search(link_bill_id, &link_bill_rec) > 0 && GetOpType(link_bill_rec.OpID) == PPOPT_DRAFTRECEIPT)
 					pPack->Rec.LinkBillID = link_bill_id;
@@ -4132,7 +4132,7 @@ int PPBillImporter::DoFullEdiProcess()
 								assert(p_bp);
 								assert(p_bp_org);
 								if(p_bp && p_bp_org && p_bp_org->Rec.ID) {
-									const PPID order_bill_id = p_bp_org->Rec.ID;
+									const  PPID order_bill_id = p_bp_org->Rec.ID;
 									if(p_ref->Ot.GetTagStr(PPOBJ_BILL, order_bill_id, PPTAG_BILL_EDIORDRSPRCV, temp_buf) > 0) {
 									}
 									else {
@@ -4245,7 +4245,7 @@ int PPBillImporter::DoFullEdiProcess()
 				}
 				temp_id_list.clear();
 				for(uint i = 0; i < suppl_list.GetCount(); i++) {
-					const PPID ar_id = suppl_list.Get(i);
+					const  PPID ar_id = suppl_list.Get(i);
 					if(ArObj.GetSupplAgreement(ar_id, &suppl_agt, 0) > 0 &&
 						suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf) && temp_buf.IsEqiAscii(ediprv_rec.Symb)) {
 						temp_id_list.add(ar_id);
@@ -4265,7 +4265,7 @@ int PPBillImporter::DoFullEdiProcess()
 				}
 				temp_id_list.clear();
 				for(uint i = 0; i < cli_list.GetCount(); i++) {
-					const PPID ar_id = cli_list.Get(i);
+					const  PPID ar_id = cli_list.Get(i);
 					if(ArObj.GetClientAgreement(ar_id, cli_agt, 0) > 0 && cli_agt.EdiPrvID == ediprv_rec.ID)
 						temp_id_list.add(ar_id);
 				}
@@ -4519,7 +4519,7 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 						if(p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, agent_tag_id, p_item->DTC, &agent_psn_list) > 0) {
 							assert(agent_psn_list.getCount());
 							for(uint apidx = 0; apidx < agent_psn_list.getCount(); apidx++) {
-								const PPID apid = agent_psn_list.get(apidx);
+								const  PPID apid = agent_psn_list.get(apidx);
 								PPID  agent_ar_id = 0;
 								if(ArObj.P_Tbl->PersonToArticle(apid, GetAgentAccSheet(), &agent_ar_id) > 0) {
 									assert(agent_ar_id > 0);
@@ -4782,8 +4782,8 @@ int PPBillImporter::Run()
 			}
 		}
 		{
-			const PPID  contragent_acs_id = op_rec.AccSheetID;
-			const PPID  main_org_id = GetMainOrgID();
+			const  PPID  contragent_acs_id = op_rec.AccSheetID;
+			const  PPID  main_org_id = GetMainOrgID();
 			if(!contragent_acs_id) {
 
 			}
@@ -5024,7 +5024,7 @@ int PPBillImporter::Run()
 									}
 									// @v11.5.11 {
 									{
-										const PPID op_type_id = GetOpType(pack.Rec.OpID);
+										const  PPID op_type_id = GetOpType(pack.Rec.OpID);
 										if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) { // @v11.6.0 PPOPT_DRAFTRECEIPT
 											PPID   last_qcert_id = 0;
 											PPID   last_qcert_lot_id = 0;
@@ -5390,7 +5390,7 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 			}
 		}
 		for(uint i = 0; pPack->EnumTItems(&i, &p_ti) > 0;) {
-			const PPID goods_id = labs(p_ti->GoodsID);
+			const  PPID goods_id = labs(p_ti->GoodsID);
 			Goods2Tbl::Rec goods_rec;
 			Goods2Tbl::Rec gg_rec; // @v10.5.0
 			Goods2Tbl::Rec brand_rec; // @v10.5.3
@@ -5860,7 +5860,7 @@ int PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
 		{
 			PPIDArray ord_bill_list;
 			BillTbl::Rec ord_bill_rec;
-			const PPID org_link_bill_id = pPack->Rec.LinkBillID;
+			const  PPID org_link_bill_id = pPack->Rec.LinkBillID;
 			if(pPack->Rec.EdiOp == PPEDIOP_RECADV) {
 				BillTbl::Rec desadv_bill_rec;
 				PPID   desadv_bill_id = 0;
@@ -6358,7 +6358,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 		double excise_sum = 0.0;
 		const PPTransferItem & r_ti = rBp.ConstTI(item_idx);
 		const double qtty_local = fabs(r_ti.Qtty());
-		const PPID   goods_id = labs(r_ti.GoodsID);
+		const  PPID   goods_id = labs(r_ti.GoodsID);
 		int   chzn_prod_type = 0; // @v11.4.10
 		double org_qtty = 0.0;
 		double org_price = 0.0;
@@ -7187,7 +7187,7 @@ int DocNalogRu_Generator::GetAgreementParams(/*PPID arID*/const PPBillPacket & r
 	rAgtExpiry = ZERODATE;
 	int    ok = -1;
 	ArticleTbl::Rec ar_rec;
-	const PPID ar_id = rBillPack.Rec.Object;
+	const  PPID ar_id = rBillPack.Rec.Object;
 	// @v11.5.8 {
 	BillTbl::Rec agt_bill_rec;
 	if(rBillPack.Rec.AgtBillID && BillObj->Search(rBillPack.Rec.AgtBillID, &agt_bill_rec) > 0) {

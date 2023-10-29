@@ -1535,7 +1535,7 @@ private:
 		check("int f(int * ptr) {\n"
 		    "  if(ptr)\n"
 		    "  { return 0;}\n"
-		    "  else{\n"
+		    "  else {\n"
 		    "    int *p1 = ptr;\n"
 		    "    return *p1;\n"
 		    "  }\n"

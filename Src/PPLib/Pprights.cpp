@@ -174,7 +174,7 @@ int RightsDialog::setupList()
 	PPGetObjTypeList(&obj_type_list, 0);
 	const  int inh = Data.IsInherited();
 	for(i = 0; i < obj_type_list.getCount(); i++) {
-		const PPID obj_type = obj_type_list.get(i);
+		const  PPID obj_type = obj_type_list.get(i);
 		if(!IS_DYN_OBJTYPE(obj_type))
 			temp_list.Add(obj_type, GetObjectTitle(obj_type, obj_title));
 	}

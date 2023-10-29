@@ -123,7 +123,7 @@ int SDecimal::FromStr(const char * pStr)
 		Mant = satoi64(blk.DEC);
 		if(blk.Flags & blk.fNegMant)
 			Mant = -Mant;
-		Exp = blk.DecExpOffs + ((blk.Flags & blk.fNegExp) ? -blk.Exp : blk.Exp);
+		Exp = static_cast<int16>(blk.DecExpOffs + ((blk.Flags & blk.fNegExp) ? -blk.Exp : blk.Exp)); // @todo check-overflow
 		Normalize();
 	}
 	return ok;
@@ -141,7 +141,7 @@ SString & SDecimal::ToStr(long fmt, SString & rBuf) const
 			rBuf.CatCharN('0', Exp);
 		}
 		else if(Exp < 0) {
-			if(-Exp < rBuf.Len())
+			if((uint)(-Exp) < rBuf.Len())
 				rBuf.Insert(rBuf.Len() + Exp, ".");
 			else {
 				rBuf.PadLeft(-Exp - rBuf.Len(), '0').Insert(0, "0.");

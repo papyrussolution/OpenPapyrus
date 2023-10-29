@@ -976,7 +976,7 @@ int PPObjBill::Helper_WriteOffTurnResultItem(const WrOffDraftBlock & rBlk, uint 
 		if(p_bp && p_bp->Rec.ID == 0) {
 			if(CheckOpFlags(p_bp->Rec.OpID, OPKF_ONORDER)) {
 				BillTbl::Rec link_rec;
-				const PPID link_bill_id = rBlk.SrcDraftPack.Rec.LinkBillID;
+				const  PPID link_bill_id = rBlk.SrcDraftPack.Rec.LinkBillID;
 				if(Search(link_bill_id, &link_rec) > 0 && GetOpType(link_rec.OpID) == PPOPT_GOODSORDER) {
 					PPBillPacket ord_pack;
 					THROW(ExtractPacket(link_bill_id, &ord_pack) > 0);
@@ -1018,7 +1018,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 			processed = 1;
 		}
 		else {
-			const PPID wroff_op_type_id = GetOpType(blk.P_WrOffParam->WrOffOpID);
+			const  PPID wroff_op_type_id = GetOpType(blk.P_WrOffParam->WrOffOpID);
 			if(blk.SrcDraftPack.OpTypeID == PPOPT_DRAFTEXPEND) {
 				switch(wroff_op_type_id) {
 					case PPOPT_ACCTURN:
@@ -1244,7 +1244,7 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 						if(p_bp) {
 							if(CheckOpFlags(p_bp->Rec.OpID, OPKF_ONORDER)) {
 								BillTbl::Rec link_rec;
-								const PPID link_bill_id = blk.SrcDraftPack.Rec.LinkBillID;
+								const  PPID link_bill_id = blk.SrcDraftPack.Rec.LinkBillID;
 								if(Search(link_bill_id, &link_rec) > 0 && GetOpType(link_rec.OpID) == PPOPT_GOODSORDER) {
 									PPBillPacket ord_pack;
 									THROW(ExtractPacket(link_bill_id, &ord_pack) > 0);

@@ -1105,7 +1105,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 	THROW(GetNodeData(&acn));
 	if(acn.CashType != PPCMT_PAPYRUS)
 		PPWaitStart();
-	const PPID loc_id = acn.LocID;
+	const  PPID loc_id = acn.LocID;
 	THROW_PP_S(loc_id, PPERR_UNDEFCASHNODELOC, acn.Name);
 	SETFLAG(Flags, PPACSF_TEMPSESS, asTempSess);
 	//
@@ -1668,7 +1668,7 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 		if(AcnPack.GoodsGrpID) {
 			uint c = IterGoodsList.getCount();
 			if(c) do {
-				const PPID goods_id = IterGoodsList.get(--c);
+				const  PPID goods_id = IterGoodsList.get(--c);
 				if(!GObj.BelongToGroup(goods_id, AcnPack.GoodsGrpID))
 					IterGoodsList.atFree(c);
 			} while(c);
@@ -1755,14 +1755,14 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 			Goods2Tbl::Rec gb_goods_rec;
 			if(gb_obj.GetPacket(PPGDSBSK_ACNUPD, &gb_pack) > 0) {
 				for(uint gbidx = 0; gbidx < gb_pack.Lots.getCount(); gbidx++) {
-					const PPID gb_goods_id = labs(gb_pack.Lots.at(gbidx).GoodsID);
+					const  PPID gb_goods_id = labs(gb_pack.Lots.at(gbidx).GoodsID);
 					if(gb_goods_id && GObj.Fetch(gb_goods_id, &gb_goods_rec) > 0)
 						UpdGoods.add(gb_goods_id);
 				}
 			}
 			if(gb_obj.GetPacket(PPGDSBSK_ACNRMV, &gb_pack) > 0) {
 				for(uint gbidx = 0; gbidx < gb_pack.Lots.getCount(); gbidx++) {
-					const PPID gb_goods_id = labs(gb_pack.Lots.at(gbidx).GoodsID);
+					const  PPID gb_goods_id = labs(gb_pack.Lots.at(gbidx).GoodsID);
 					if(gb_goods_id && GObj.Fetch(gb_goods_id, &gb_goods_rec) > 0)
 						RmvGoods.add(gb_goods_id);
 				}
@@ -1780,7 +1780,7 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 			if(AcnPack.GoodsGrpID) {
 				uint c = IterGoodsList.getCount();
 				if(c) do {
-					const PPID goods_id = IterGoodsList.get(--c);
+					const  PPID goods_id = IterGoodsList.get(--c);
 					if(!GObj.BelongToGroup(goods_id, AcnPack.GoodsGrpID))
 						IterGoodsList.atFree(c);
 				} while(c);
@@ -2137,7 +2137,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					if(Flags & ACGIF_ENSUREUUID) {
 						THROW(GObj.GetUuid(Rec.ID, Rec.Uuid, true, -1)); // @v10.9.4
 						/* @v10.9.4
-						const PPID uuid_tag_id = PPTAG_GOODS_UUID;
+						const  PPID uuid_tag_id = PPTAG_GOODS_UUID;
 						ObjTagItem tag_item;
 						S_GUID temp_uuid;
 						if(p_ref->Ot.GetTag(PPOBJ_GOODS, Rec.ID, uuid_tag_id, &tag_item) > 0) {
@@ -2360,7 +2360,7 @@ int AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 		PPELinkArray ela;
 		while(ok < 0 && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 			Counter.Increment();
-			const PPID sc_id = SCObj.P_Tbl->data.ID;
+			const  PPID sc_id = SCObj.P_Tbl->data.ID;
 			if(SCObj.GetPacket(sc_id, &sc_pack) > 0) {
 				Rec = sc_pack.Rec;
 				if(NodeRec.Flags & CASHF_EXPCHECKD) {
@@ -2626,7 +2626,7 @@ int AsyncCashGoodsGroupIterator::Init(PPID cashNodeID, long flags, DeviceLoading
 		grp_id_list.sortAndUndup();
 		for(uint p = 0; p < grp_id_list.getCount(); p++) {
 			if(GObj.Fetch(grp_id_list.at(p), &goods_rec) > 0) {
-				const PPID par_id = goods_rec.ParentID;
+				const  PPID par_id = goods_rec.ParentID;
 				temp_list.AddFast(goods_rec.ID, (par_id && grp_id_list.bsearch(par_id)) ? par_id : 0, goods_rec.Name);
 			}
 		}

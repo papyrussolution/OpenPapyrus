@@ -1026,8 +1026,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 				</withdrawal>
 			*/
 			// Далее все не верно (по ошибке сделано в соответствии с doctGisMt_LpShipReceipt)
-			const PPID   rcvr_ar_id = p_bp->Rec.Object;
-			const PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
+			const  PPID   rcvr_ar_id = p_bp->Rec.Object;
+			const  PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
 			SString sender_inn;
 			SString receiver_inn;
 			SString doc_date_text;
@@ -1124,8 +1124,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					</products_list>
 				</shipment>
 			*/
-			const PPID   rcvr_ar_id = p_bp->Rec.Object;
-			const PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
+			const  PPID   rcvr_ar_id = p_bp->Rec.Object;
+			const  PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
 			SString sender_inn;
 			SString receiver_inn;
 			PPID   subj_psn_id = main_org_id;
@@ -1194,9 +1194,9 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			if(pPack->DocType == doctypMdlpMovePlace) {
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
-					const PPID   rcvr_ar_id = p_bp->Rec.Object;
-					const PPID   rcvr_loc_id = PPObjLocation::ObjToWarehouse(rcvr_ar_id);
-					const PPID   subj_loc_id = p_bp->Rec.LocID;
+					const  PPID   rcvr_ar_id = p_bp->Rec.Object;
+					const  PPID   rcvr_loc_id = PPObjLocation::ObjToWarehouse(rcvr_ar_id);
+					const  PPID   subj_loc_id = p_bp->Rec.LocID;
 					PPID   subj_psn_id = main_org_id;
 					GetTransactionPartyCode(0, rcvr_loc_id, receiver_ident);
 					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
@@ -1256,7 +1256,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					PPCashNode cn_rec;
 					if(cnobj.Fetch(p_ccp->Rec.CashID, &cn_rec) > 0 && cn_rec.LocID) {
 						//p_ccp->Rec.CashID
-						const PPID   subj_loc_id = cn_rec.LocID;
+						const  PPID   subj_loc_id = cn_rec.LocID;
 						PPID  subj_psn_id = main_org_id;
 						GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
 						wd.PutInner("subject_id", subj_ident);
@@ -1307,10 +1307,10 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			else if(pPack->DocType == doctypMdlpMoveOrder) { // @v10.9.2
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
-					const PPID   rcvr_ar_id = p_bp->Rec.Object;
-					const PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
-					const PPID   rcvr_loc_id = p_bp->GetDlvrAddrID();
-					const PPID   subj_loc_id = p_bp->Rec.LocID;
+					const  PPID   rcvr_ar_id = p_bp->Rec.Object;
+					const  PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
+					const  PPID   rcvr_loc_id = p_bp->GetDlvrAddrID();
+					const  PPID   subj_loc_id = p_bp->Rec.LocID;
 					//
 					PPID   subj_psn_id = main_org_id;
 					GetTransactionPartyCode(rcvr_psn_id, rcvr_loc_id, receiver_ident);
@@ -1359,10 +1359,10 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			else if(oneof2(pPack->DocType, doctypMdlpReceiveOrder, doctypMdlpPosting)) {
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
-					const PPID   dlvr_ar_id = p_bp->Rec.Object;
-					const PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
-					const PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
-					const PPID   subj_loc_id = p_bp->Rec.LocID;
+					const  PPID   dlvr_ar_id = p_bp->Rec.Object;
+					const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
+					const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
+					const  PPID   subj_loc_id = p_bp->Rec.LocID;
 					PPID   subj_psn_id = main_org_id;
 					GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
 					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
@@ -1425,10 +1425,10 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			else if(pPack->DocType == doctypMdlpRefusalReceiver) { // @v10.9.1
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
-					const PPID   dlvr_ar_id = p_bp->Rec.Object;
-					const PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
-					const PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
-					const PPID   subj_loc_id = p_bp->Rec.LocID;
+					const  PPID   dlvr_ar_id = p_bp->Rec.Object;
+					const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
+					const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
+					const  PPID   subj_loc_id = p_bp->Rec.LocID;
 					PPID   subj_psn_id = main_org_id;
 					GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
 					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
@@ -2133,7 +2133,7 @@ int ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const c
 			PPIDArray bill_id_list;
 			p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, pIdent, &bill_id_list);
 			for(uint i = 0; i < bill_id_list.getCount(); i++) {
-				const PPID bill_id = bill_id_list.get(i);
+				const  PPID bill_id = bill_id_list.get(i);
 				if(p_opr->Status < 0) {
 					int   do_update_memos = 0;
 					SString memo_msg;
@@ -3197,7 +3197,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		if(base_op_list.Z().addnz(alcr_cfg.RcptOpID) > 0) {
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
-				const PPID op_id = op_list.get(i);
+				const  PPID op_id = op_list.get(i);
 				if(!op_assoc_list.Search(op_id, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidMdlp)
 						op_assoc_list.Add(op_id, ChZnInterface::doctypMdlpReceiveOrder);
@@ -3207,7 +3207,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		if(base_op_list.Z().addnz(alcr_cfg.IntrExpndOpID) > 0) {
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
-				const PPID op_id = op_list.get(i);
+				const  PPID op_id = op_list.get(i);
 				if(IsIntrExpndOp(op_id) && !op_assoc_list.Search(op_id, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidMdlp)
 						op_assoc_list.Add(op_id, ChZnInterface::doctypMdlpMovePlace);
@@ -3217,7 +3217,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		if(base_op_list.Z().addnz(alcr_cfg.SupplRetOpID) > 0) {
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
-				const PPID op_id = op_list.get(i);
+				const  PPID op_id = op_list.get(i);
 				if(!op_assoc_list.Search(op_id, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidMdlp)
 						op_assoc_list.Add(op_id, ChZnInterface::doctypMdlpMoveOrder);
@@ -3228,7 +3228,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		if(base_op_list.Z().addnz(alcr_cfg.ExpndEtcOpID) > 0) {
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
-				const PPID op_id = op_list.get(i);
+				const  PPID op_id = op_list.get(i);
 				if(!op_assoc_list.Search(op_id, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidGisMt)
 						op_assoc_list.Add(op_id, ChZnInterface::doctGisMt_LkReceipt);
@@ -3238,7 +3238,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		if(base_op_list.Z().addnz(alcr_cfg.ExpndOpID) > 0) {
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
-				const PPID op_id = op_list.get(i);
+				const  PPID op_id = op_list.get(i);
 				if(!op_assoc_list.Search(op_id, 0)) {
 					if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidGisMt)
 						op_assoc_list.Add(op_id, ChZnInterface::doctGisMt_LpShipReceipt);
@@ -3266,8 +3266,8 @@ int PPChZnPrcssr::Run(const Param & rP)
 	// } @v10.9.1
 	if(op_assoc_list.getCount()) {
 		for(uint opidx = 0; opidx < op_assoc_list.getCount(); opidx++) {
-			const PPID op_id = op_assoc_list.at(opidx).Key;
-			const PPID chzn_op_id = op_assoc_list.at(opidx).Val;
+			const  PPID op_id = op_assoc_list.at(opidx).Key;
+			const  PPID chzn_op_id = op_assoc_list.at(opidx).Val;
 			PPOprKind op_rec;
 			BillTbl::Rec bill_rec;
 			GetOpData(op_id, &op_rec);
@@ -3284,7 +3284,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 						else if(chzn_op_id == ChZnInterface::doctypMdlpMovePlace) {
 							assert(bill_rec.OpID == op_id);
 							assert(IsIntrExpndOp(bill_rec.OpID));
-							const PPID dest_loc_id = bill_rec.Object ? PPObjLocation::ObjToWarehouse(bill_rec.Object) : 0;
+							const  PPID dest_loc_id = bill_rec.Object ? PPObjLocation::ObjToWarehouse(bill_rec.Object) : 0;
 							if(dest_loc_id && p_ref->Ot.GetTagStr(PPOBJ_LOCATION, dest_loc_id, PPTAG_LOC_CHZNCODE, temp_buf) > 0) {
 								THROW_SL(p_pack = new ChZnInterface::Packet(chzn_op_id));
 								if(PrepareBillPacketForSending(bill_rec.ID, p_pack) > 0)
@@ -3293,13 +3293,13 @@ int PPChZnPrcssr::Run(const Param & rP)
 						}
 						else if(chzn_op_id == ChZnInterface::doctypMdlpMoveUnregisteredOrder) { // @v11.2.0 @construction
 							assert(bill_rec.OpID == op_id);
-							const PPID dest_psn_id = bill_rec.Object ? ObjectToPerson(bill_rec.Object, 0) : 0;
+							const  PPID dest_psn_id = bill_rec.Object ? ObjectToPerson(bill_rec.Object, 0) : 0;
 							if(dest_psn_id) {
 								; // @todo	
 							}
 						}
 						if(oneof3(chzn_op_id, ChZnInterface::doctypMdlpReceiveOrder, ChZnInterface::doctypMdlpRefusalReceiver, ChZnInterface::doctypMdlpMoveOrder)) {
-							const PPID psn_id = bill_rec.Object ? ObjectToPerson(bill_rec.Object, 0) : 0;
+							const  PPID psn_id = bill_rec.Object ? ObjectToPerson(bill_rec.Object, 0) : 0;
 							if(psn_id && p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_CHZNCODE, temp_buf) > 0) {
 								PPID   local_chzn_op_id = chzn_op_id;
 								// @v10.9.7 {

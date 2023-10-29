@@ -21,9 +21,9 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/ArchiveRead.c 201157 2009-12-29 05:30:23Z kientzle $");
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 //#include "archive_read_private.h"
 
 // @sobolev #define minimum_Removed(a, b) (a < b ? a : b)

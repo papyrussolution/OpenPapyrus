@@ -492,7 +492,7 @@ int PPObjRegister::Edit(PPID * pID, PPID objType, PPID objID, PPID regTypeID)
 
 int PPObjRegister::Edit(PPID * pID, void * extraPtr /*personID*/)
 {
-	const PPID extra_person_id = reinterpret_cast<PPID>(extraPtr);
+	const  PPID extra_person_id = reinterpret_cast<PPID>(extraPtr);
 	return Edit(pID, PPOBJ_PERSON, extra_person_id, 0);
 }
 

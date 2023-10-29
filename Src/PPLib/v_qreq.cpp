@@ -153,10 +153,10 @@ int PPViewQuoteReqAnalyze::CreateList(PPID leadBillID, int leadRbb)
 		if(op_list.getCount()) {
 			PPBillPacket bpack;
 			for(uint opidx = 0; opidx < op_list.getCount(); opidx++) {
-				const PPID op_id = op_list.get(opidx);
+				const  PPID op_id = op_list.get(opidx);
 				BillTbl::Rec bill_rec;
 				for(SEnum en = P_BObj->P_Tbl->EnumByOp(op_id, &Filt.Period, 0); en.Next(&bill_rec) > 0;) {
-					const PPID bill_id = bill_rec.ID;
+					const  PPID bill_id = bill_rec.ID;
 					if(P_BObj->ExtractPacket(bill_id, &bpack) > 0) {
 						for(uint tiidx = 0; tiidx < bpack.GetTCount(); tiidx++) {
 							const PPTransferItem & r_ti = bpack.ConstTI(tiidx);

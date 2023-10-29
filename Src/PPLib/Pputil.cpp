@@ -24,8 +24,8 @@ IMPL_CMPFUNC(PPLBItem, i1, i2) { return stricmp866(static_cast<const char *>(i1)
 
 IMPL_CMPFUNC(PPTLBItem, i1, i2)
 {
-	const PPID parent_id1 = *static_cast<const long *>(i1);
-	const PPID parent_id2 = *static_cast<const long *>(i2);
+	const  PPID parent_id1 = *static_cast<const long *>(i1);
+	const  PPID parent_id2 = *static_cast<const long *>(i2);
 	if(parent_id1 > parent_id2)
 		return 1;
 	else if(parent_id1 < parent_id2)
@@ -2957,7 +2957,7 @@ int PPUhttClient::GetUhttGoodsRefList(LAssocArray & rList, StrAssocArray * pByCo
 	{
 		for(uint i = 0; i < rList.getCount(); i++) {
 			rList.at(i).Val = 0;
-			const PPID goods_id = labs(rList.at(i).Key);
+			const  PPID goods_id = labs(rList.at(i).Key);
 			goods_obj.ReadBarcodes(goods_id, bc_list);
 			if(bc_list.getCount()) {
 				for(uint j = 0; j < bc_list.getCount(); j++) {

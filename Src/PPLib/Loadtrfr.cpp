@@ -160,7 +160,7 @@ int Transfer::GetOriginalValuesForCorrection(const TransferTbl::Rec & rRec, cons
 	double org_price = 0.0;
 	if(PPTransferItem::IsCorrectionExp(rRec.Flags)) {
 		if(rBillChain.getCount()) {
-			const PPID org_corr_bill_id = rBillChain.get(0);
+			const  PPID org_corr_bill_id = rBillChain.get(0);
 			TransferTbl::Rec _rec;
 			if(SearchByBill(org_corr_bill_id, 0, rRec.RByBill, &_rec) > 0) {
 				if(!(options & govcoVerifyGoods) || _rec.GoodsID == rRec.GoodsID) {
@@ -169,7 +169,7 @@ int Transfer::GetOriginalValuesForCorrection(const TransferTbl::Rec & rRec, cons
 					ok = 1;
 				}
 				for(uint j = 1; j < rBillChain.getCount(); j++) {
-					const PPID chain_bill_id = rBillChain.get(j);
+					const  PPID chain_bill_id = rBillChain.get(j);
 					if(SearchByBill(chain_bill_id, 0, rRec.RByBill, &_rec) > 0) {
 						org_qtty += _rec.Quantity;
 						org_price = _rec.Price - _rec.Discount;
@@ -191,7 +191,7 @@ int Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, const P
 	double org_price = 0.0;
 	if(rTi.IsCorrectionExp()) {
 		if(rBillChain.getCount()) {
-			const PPID org_corr_bill_id = rBillChain.get(0);
+			const  PPID org_corr_bill_id = rBillChain.get(0);
 			TransferTbl::Rec _rec;
 			if(SearchByBill(org_corr_bill_id, 0, rTi.RByBill, &_rec) > 0) {
 				if(!(options & govcoVerifyGoods) || _rec.GoodsID == rTi.GoodsID) {
@@ -200,7 +200,7 @@ int Transfer::GetOriginalValuesForCorrection(const PPTransferItem & rTi, const P
 					ok = 1;
 				}
 				for(uint j = 1; j < rBillChain.getCount(); j++) {
-					const PPID chain_bill_id = rBillChain.get(j);
+					const  PPID chain_bill_id = rBillChain.get(j);
 					if(SearchByBill(chain_bill_id, 0, rTi.RByBill, &_rec) > 0) {
 						org_qtty += _rec.Quantity;
 						org_price = _rec.Price - _rec.Discount;
@@ -383,7 +383,7 @@ int Transfer::GetOrderFulfillmentStatus(PPID billID, int * pStatus)
 			ReceiptTbl::Rec lot_rec;
 			for(uint i = 0; i < ord_lot_list.getCount(); i++) {
 				double rest = 0.0;
-				const PPID lot_id = ord_lot_list.get(i);
+				const  PPID lot_id = ord_lot_list.get(i);
 				if(Rcpt.Search(lot_id, &lot_rec) > 0 && lot_rec.Quantity > 0.0) {
 					is_there_anybody = true;
 					if(lot_rec.Rest >= lot_rec.Quantity)

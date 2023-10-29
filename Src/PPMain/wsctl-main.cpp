@@ -1215,7 +1215,7 @@ bool WsCtl_ImGuiSceneBlock::DPrices::GetGoodsPrice(PPID goodsID, double * pPrice
 		const uint gqlc_ = p_goods_entry->QuotList.getCount();
 		if(gqlc_) {
 			for(uint i = 0; !ok && i < QkList.getCount(); i++) {
-				const PPID qk_id = QkList.at(i)->ID;
+				const  PPID qk_id = QkList.at(i)->ID;
 				for(uint j = 0; !ok && j < gqlc_; j++) {
 					const QuotEntry & r_qe = p_goods_entry->QuotList.at(j);
 					if(r_qe.QkID == qk_id && r_qe.Value > 0.0) {
@@ -3286,7 +3286,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								ImGuiWindowByLayout wbl(p_tl, loidSessionSelection, "##SESSIONSELECTION", view_flags);
 								if(wbl.IsValid()) {
 									if(st_data_prices.GoodsList.getCount()) {
-										const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
+										const  PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
 										//PPID   new_selected_tec_goods_id = 0;
 										if(ImGui::BeginTable("Prices", 1)) {
 											for(uint i = 0; i < st_data_prices.GoodsList.getCount(); i++) {
@@ -3308,7 +3308,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 										}
 									}
 									{
-										const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
+										const  PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
 										const GoodsEntry * p_ge = st_data_prices.GetGoodsEntryByID(selected_tec_goods_id);
 										SString & r_text_buf = SLS.AcquireRvlStr();
 										r_text_buf.Cat("Selected Tec Goods ID").CatDiv(':', 2).Cat(p_ge ? p_ge->NameUtf8 : "undefined");
@@ -3476,7 +3476,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								DPrices st_data_prices;
 								St.D_Prices.GetData(st_data_prices);
 								if(st_data_prices.GoodsList.getCount()) {
-									const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
+									const  PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
 									//PPID   new_selected_tec_goods_id = 0;
 									if(ImGui::BeginTable("Prices", 1)) {
 										for(uint i = 0; i < st_data_prices.GoodsList.getCount(); i++) {
@@ -3494,7 +3494,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									}
 								}
 								{
-									const PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
+									const  PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
 									const GoodsEntry * p_ge = st_data_prices.GetGoodsEntryByID(selected_tec_goods_id);
 									SString & r_text_buf = SLS.AcquireRvlStr();
 									r_text_buf.Cat("Selected Tec Goods ID").CatDiv(':', 2).Cat(p_ge ? p_ge->NameUtf8 : "undefined");

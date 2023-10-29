@@ -638,7 +638,7 @@ int PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
 		k1.ObjType = Obj;
 		k1.Prop = PRCPRP_EXT2;
 		if(p_ref->Prop.search(1, &k1, spGt) && k1.ObjType == Obj && k1.Prop == PRCPRP_EXT2) do {
-			const PPID prc_id = p_ref->Prop.data.ObjID;
+			const  PPID prc_id = p_ref->Prop.data.ObjID;
 			buffer.Z();
 			if(p_ref->GetPropSBuffer_Current(buffer) > 0) {
 				ext.Z();
@@ -1136,8 +1136,8 @@ int PPObjProcessor::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			ok = RetRefsExistsErr(Obj, prc_id);
 	}
 	else if(msg == DBMSG_PERSONACQUIREKIND) {
-		const PPID person_id = _id;
-		const PPID kind_id = reinterpret_cast<long>(extraPtr);
+		const  PPID person_id = _id;
+		const  PPID kind_id = reinterpret_cast<long>(extraPtr);
 		SString name_buf;
 		PPIDArray grp_id_list;
 		ProcessorTbl::Rec grp_rec;
@@ -1492,7 +1492,7 @@ IMPL_HANDLE_EVENT(ProcessorDialog)
 	}
 	else if(event.isCbSelected(CTLSEL_PRC_LINKOBJ)) {
 		if(Data.Rec.Kind == PPPRCK_PROCESSOR) {
-			const PPID prev_link_id = Data.Rec.LinkObjID;
+			const  PPID prev_link_id = Data.Rec.LinkObjID;
 			Data.Rec.LinkObjID = getCtrlLong(CTLSEL_PRC_LINKOBJ);
 			setupLinkName(prev_link_id != Data.Rec.LinkObjID);
 		}
@@ -1848,7 +1848,7 @@ int PPObjProcessor::AddListItem(StrAssocArray * pList, ProcessorTbl::Rec * pRec,
 
 StrAssocArray * PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentID*/)
 {
-	const PPID outer_parent_id = reinterpret_cast<PPID>(extraPtr);
+	const  PPID outer_parent_id = reinterpret_cast<PPID>(extraPtr);
 	union {
 		ProcessorTbl::Key1 k1;
 		ProcessorTbl::Key2 k2;
@@ -2085,7 +2085,7 @@ void * PPViewProcessor::GetEditExtraParam()
 int PPViewProcessor::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	ProcessorTbl::Rec rec;
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(PrcObj.Search(id, &rec) > 0 && rec.Kind == PPPRCK_GROUP) {
 		ProcessorFilt filt;
 		filt.Kind = 0; //PPPRCK_PROCESSOR;
@@ -2161,7 +2161,7 @@ int PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   prc_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   prc_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDBYSAMPLE:
 				{
@@ -2223,7 +2223,7 @@ int PPViewProcessor::ExportUhtt()
 	{
 		ProcessorViewItem item;
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
-			const PPID _id = item.ID;
+			const  PPID _id = item.ID;
 			PPProcessorPacket pack;
 			if(PrcObj.GetPacket(_id, &pack) > 0) {
 				long    uhtt_prc_id = 0;
@@ -2493,7 +2493,7 @@ int PPALDD_UhttProcessor::Set(long iterId, int commit)
 			if(H.ParentID && r_blk.PrcObj.Fetch(H.ParentID, &parent_rec) > 0 && parent_rec.Kind == PPPRCK_GROUP)
 				r_blk.Pack.Rec.ParentID = parent_rec.ID;
 			else if(H.Kind == PPPRCK_PROCESSOR) {
-				const PPID def_time_tech_id = r_blk.GetTSessConfig().DefTimeTechID;
+				const  PPID def_time_tech_id = r_blk.GetTSessConfig().DefTimeTechID;
                 if(def_time_tech_id) {
                     PPObjTech tec_obj;
 					TechTbl::Rec tech_rec;

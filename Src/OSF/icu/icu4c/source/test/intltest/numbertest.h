@@ -18,7 +18,7 @@
 
 // ICU-20241 Solaris #defines ESP in sys/regset.h
 #ifdef ESP
-#   undef ESP
+#undef ESP
 #endif
 
 using namespace icu::number;

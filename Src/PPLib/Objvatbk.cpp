@@ -769,7 +769,7 @@ int PPObjVATBook::AddBySample(PPID * pID, PPID sampleID)
 
 int PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 {
-	const  PPID extra_kind = reinterpret_cast<const PPID>(extraPtr);
+	const  PPID extra_kind = reinterpret_cast<const  PPID>(extraPtr);
 	int    ok = -1, valid_data = 0;
 	PPID   _kind = 0;
 	uint   res_id = 0;
@@ -1484,9 +1484,9 @@ void VATBFiltDialog::SetupObj()
 {
 	ushort v = getCtrlUInt16(CTL_VATBFLT_WHAT);
 	// @v10.7.9 Data.ArticleID = 0;
-	// @v11.4.5 const PPID acs_id = (v == 0) ? P_VBObj->GetConfig(PPVTB_SELL).AccSheetID : P_VBObj->GetConfig(PPVTB_BUY).AccSheetID;
-	const PPID ledger_kind = (v == 0) ? PPVTB_SELL : ((v == 2) ? PPVTB_SIMPLELEDGER : PPVTB_BUY); // @v11.4.5
-	const PPID acs_id = P_VBObj->GetConfig(ledger_kind).AccSheetID; // @v11.4.5
+	// @v11.4.5 const  PPID acs_id = (v == 0) ? P_VBObj->GetConfig(PPVTB_SELL).AccSheetID : P_VBObj->GetConfig(PPVTB_BUY).AccSheetID;
+	const  PPID ledger_kind = (v == 0) ? PPVTB_SELL : ((v == 2) ? PPVTB_SIMPLELEDGER : PPVTB_BUY); // @v11.4.5
+	const  PPID acs_id = P_VBObj->GetConfig(ledger_kind).AccSheetID; // @v11.4.5
 	// @v10.7.9 {
 	if(Data.ArticleID) {
 		PPID   prev_ar_acs_id = 0;
@@ -1630,7 +1630,7 @@ int PPViewVatBook::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		PPID   temp_id;
 		int    r;
 		switch(ppvCmd) {
@@ -1930,7 +1930,7 @@ private:
 			DisableClusterItem(CTL_VATBABFLT_FLAGS, 0, 1);
 		}
 	}
-	const PPID Kind;
+	const  PPID Kind;
 };
 
 int PPViewVatBook::EditAutoBuildFilt(AutoBuildFilt * pFilt)
@@ -2549,7 +2549,7 @@ int PPViewVatBook::OpEntryVector::AddOpList(const LongArray & rOpList, PPID amtT
 {
 	int    ok = -1;
 	for(uint i = 0; i < rOpList.getCount(); i++) {
-		const PPID op_id = rOpList.get(i);
+		const  PPID op_id = rOpList.get(i);
 		if(AddEntry(op_id, amtTypeID, signFilt) > 0)
 			ok = 1;
 	}
@@ -2634,13 +2634,13 @@ int PPViewVatBook::AutoBuild()
 			PPIDArray inner_op_list;
 			for(i = 0; i < r_cfg.List.getCount(); i++) {
 				const VATBCfg::Item & r_item = r_cfg.List.at(i);
-				const PPID base_op_id = r_item.OpID;
+				const  PPID base_op_id = r_item.OpID;
 				if(!(r_item.Flags & VATBCfg::fExclude)) {
 					inner_op_list.clear();
 					op_obj.GetCorrectionOpList(base_op_id, &inner_op_list);
 					inner_op_list.atInsert(0, &base_op_id);
 					for(uint inneropidx = 0; inneropidx < inner_op_list.getCount(); inneropidx++) {
-						const PPID op_id = inner_op_list.get(inneropidx);
+						const  PPID op_id = inner_op_list.get(inneropidx);
 						if(Filt.Kind == PPVTB_SIMPLELEDGER && r_item.Flags & VATBCfg::fExpendByFact) {
 							ebf_blk.AddOp(op_id);
 							if(r_item.Flags & VATBCfg::fNegative) {
@@ -2670,14 +2670,14 @@ int PPViewVatBook::AutoBuild()
 			PPIDArray inner_op_list;
 			for(i = 0; i < r_cfg.List.getCount(); i++) {
 				const VATBCfg::Item & r_item = r_cfg.List.at(i);
-				const PPID base_op_id = r_item.OpID;
-				const PPID local_amt_type_id = (Filt.Kind == PPVTB_SIMPLELEDGER) ? r_item.MainAmtTypeID : 0;
+				const  PPID base_op_id = r_item.OpID;
+				const  PPID local_amt_type_id = (Filt.Kind == PPVTB_SIMPLELEDGER) ? r_item.MainAmtTypeID : 0;
 				if(!(r_item.Flags & VATBCfg::fExclude)) {
 					inner_op_list.clear();
 					op_obj.GetCorrectionOpList(base_op_id, &inner_op_list);
 					inner_op_list.atInsert(0, &base_op_id);
 					for(uint inneropidx = 0; inneropidx < inner_op_list.getCount(); inneropidx++) {
-						const PPID op_id = inner_op_list.get(inneropidx);
+						const  PPID op_id = inner_op_list.get(inneropidx);
 						if(CheckOpFlags(base_op_id, OPKF_NEEDPAYMENT)) {
 							PPIDArray temp_op_list;
 							THROW(op_obj.GetPaymentOpList(op_id, &temp_op_list));

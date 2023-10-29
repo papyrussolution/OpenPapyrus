@@ -1130,7 +1130,7 @@ int PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, B
 		const DBQBrowserDef * p_def = static_cast<const DBQBrowserDef *>(pBrw->getDef());
 		if(p_def && col >= 0 && col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
-			const PPID goods_id = P_Ct ? static_cast<const PPID *>(pData)[1] : static_cast<const PPID *>(pData)[0];
+			const  PPID goods_id = P_Ct ? static_cast<const  PPID *>(pData)[1] : static_cast<const  PPID *>(pData)[0];
 			if(col == 0) { // Наименование товара
 				const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
 				SColor clr;
@@ -1196,7 +1196,7 @@ void PPViewSStat::PreprocessBrowser(PPViewBrowser * pBrw)
 int PPViewSStat::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   goods_id = pHdr ? (P_Ct ? static_cast<const PPID *>(pHdr)[1] : static_cast<const PPID *>(pHdr)[0]) : 0;
+	PPID   goods_id = pHdr ? (P_Ct ? static_cast<const  PPID *>(pHdr)[1] : static_cast<const  PPID *>(pHdr)[0]) : 0;
 	if(goods_id) {
 		PredictSalesFilt ps_filt;
 		ps_filt.Period = Filt.Period;
@@ -1225,7 +1225,7 @@ int PPViewSStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   goods_id = pHdr ? (P_Ct ? static_cast<const PPID *>(pHdr)[1] : static_cast<const PPID *>(pHdr)[0]) : 0;
+		PPID   goods_id = pHdr ? (P_Ct ? static_cast<const  PPID *>(pHdr)[1] : static_cast<const  PPID *>(pHdr)[0]) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
 				ok = -1;
@@ -1270,7 +1270,7 @@ int PPViewSStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 			case PPVCMD_EDITVAL:
 				ok = -1;
 				{
-					PPID ct_id = (pHdr && P_Ct) ? *static_cast<const PPID *>(pHdr) : 0;
+					PPID ct_id = (pHdr && P_Ct) ? *static_cast<const  PPID *>(pHdr) : 0;
 					if(EditOrder(ct_id, goods_id) > 0)
 						ok = 1;
 				}
@@ -1360,10 +1360,10 @@ int PPViewSStat::ConvertLinesToBasket()
 	if(Filt.Sgg == sggNone && (r = GetBasketByDialog(&param, GetSymb())) > 0) {
 		SStatViewItem ss_item;
 		PPIDArray goods_id_list;
-		const PPID loc_id = Filt.LocList.GetSingle();
+		const  PPID loc_id = Filt.LocList.GetSingle();
 		PPWaitStart();
 		for(InitIteration(); NextIteration(&ss_item) > 0;) {
-			const PPID goods_id = ss_item.GoodsID;
+			const  PPID goods_id = ss_item.GoodsID;
 			if(!goods_id_list.lsearch(goods_id) && ss_item.SupplOrder != 0.0 && GObj.CheckSpecQuot(Filt.SupplID, goods_id, loc_id, 0)) {
 				ILTI   i_i;
 				ReceiptTbl::Rec lot_rec;
@@ -1420,7 +1420,7 @@ int PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPacket * p
 		flt.ObjectID   = Filt.SupplID;
 		flt.Period.upp = docDt;
 		PPOprKind op_rec;
-		const PPID suppl_deal_qk_id = (GetOpData(op_id, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL) ? DS.GetConstTLA().SupplDealQuotKindID : 0;
+		const  PPID suppl_deal_qk_id = (GetOpData(op_id, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL) ? DS.GetConstTLA().SupplDealQuotKindID : 0;
 		THROW(BillObj->CheckRights(PPR_INS));
 		THROW(pPack->CreateBlankByFilt(op_id, &flt, -1));
 		if(autoOrder) {
@@ -1431,7 +1431,7 @@ int PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPacket * p
 			pPack->SMemo = memo_buf; // @v11.1.12
 		}
 		for(InitIteration(); NextIteration(&ss_item) > 0;) {
-			const PPID goods_id = ss_item.GoodsID;
+			const  PPID goods_id = ss_item.GoodsID;
 			if(!goods_id_list.lsearch(goods_id) && ss_item.SupplOrder != 0.0 && GObj.CheckSpecQuot(Filt.SupplID, goods_id, loc_id, 0)) {
 				int    accept = 1;
 				if(autoOrder) {

@@ -170,7 +170,7 @@ OSSL_DEPRECATEDIN_3_0 int DSA_generate_key(DSA * a);
 
 OSSL_DEPRECATEDIN_3_0 int DSAparams_print(BIO * bp, const DSA * x);
 OSSL_DEPRECATEDIN_3_0 int DSA_print(BIO * bp, const DSA * x, int off);
-#   ifndef OPENSSL_NO_STDIO
+#ifndef OPENSSL_NO_STDIO
 OSSL_DEPRECATEDIN_3_0 int DSAparams_print_fp(FILE * fp, const DSA * x);
 OSSL_DEPRECATEDIN_3_0 int DSA_print_fp(FILE * bp, const DSA * x, int off);
 #endif
@@ -185,7 +185,7 @@ OSSL_DEPRECATEDIN_3_0 int DSA_print_fp(FILE * bp, const DSA * x, int off);
 #define DSA_is_prime(n, callback, cb_arg) \
 	BN_is_prime(n, DSS_prime_checks, callback, NULL, cb_arg)
 
-#   ifndef OPENSSL_NO_DH
+#ifndef OPENSSL_NO_DH
 /*
  * Convert DSA structure (key or just parameters) into DH structure (be
  * careful to avoid small subgroup attacks when using this!)

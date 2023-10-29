@@ -30,7 +30,7 @@ struct private_data {
 #ifdef HAVE_ZLIB_H
 	z_stream stream;
 	int64 total_in;
-	uchar   * compressed;
+	uchar * compressed;
 	size_t compressed_buffer_size;
 	ulong crc;
 #else

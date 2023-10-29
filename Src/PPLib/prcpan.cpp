@@ -930,7 +930,7 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 		LDATETIME curdtm = getcurdatetime_();
 		const long dif = diffdatetimesec(curdtm, LastPrcStatusCheckTime);
 		if(forceUpdate || dif > 3) {
-			const PPID prev_sess_id = H.SessID;
+			const  PPID prev_sess_id = H.SessID;
 			TSessionTbl::Rec ses_rec;
 			SString temp_buf;
 			H.SessID = 0;

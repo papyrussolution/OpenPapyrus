@@ -4,6 +4,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
+#include <sddl.h>
 
 //uuid(52D5E7CA-F613-4333-A04E-125DE29D715F)
 //uuid(52D5E7CAF6134333A04E125DE29D715F)
@@ -280,6 +281,48 @@ S_GUID & FASTCALL S_GUID::operator = (const S_GUID_Base & rS)
 {
 	memcpy(Data, rS.Data, sizeof(Data));
 	return *this;
+}
+//
+//
+//
+S_WinSID::S_WinSID() : SBinaryChunk()
+{
+}
+
+S_WinSID::S_WinSID(const void * pSid) : SBinaryChunk()
+{
+	FromPSID(pSid);
+}
+
+bool S_WinSID::FromPSID(const void * pSid)
+{
+	bool    ok = false;
+	if(pSid) {
+		if(IsValidSid(const_cast<void *>(pSid))) {
+			Put(pSid, GetLengthSid(const_cast<void *>(pSid)));
+			ok = true;
+		}
+	}
+	return ok;
+}
+
+SString & S_WinSID::ToStr(SString & rBuf) const
+{
+	rBuf.Z();
+	if(Len()) {
+		char * p_text = 0;
+		if(::ConvertSidToStringSidA(const_cast<void *>(SBinaryChunk::PtrC()), &p_text)) {
+			rBuf = p_text;
+			::LocalFree(p_text);
+		}
+	}
+	return rBuf;
+}
+
+bool S_WinSID::FromStr(const char * pText)
+{
+	bool   ok = false;
+	return ok;
 }
 //
 //

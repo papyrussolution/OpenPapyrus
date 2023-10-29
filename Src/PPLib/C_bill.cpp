@@ -183,7 +183,7 @@ int PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 		pack.Rec.Flags |= BILLF_NOLOADTRFR;
 		THROW(pack.SumAmounts(&al, 1));
 		for(uint i = 0; i < al.getCount(); i++) {
-			const PPID t = al.at(i).AmtTypeID;
+			const  PPID t = al.at(i).AmtTypeID;
 			bamt = R2(pack.Amounts.Get(t, 0L/*@curID*/));
 			ramt = R2(al.at(i).Amt);
 			if(bamt != ramt) {

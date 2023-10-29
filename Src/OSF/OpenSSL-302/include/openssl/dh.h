@@ -195,7 +195,7 @@ OSSL_DEPRECATEDIN_3_0 int DH_compute_key_padded(uchar * key, const BIGNUM * pub_
 DECLARE_ASN1_ENCODE_FUNCTIONS_only_attr(OSSL_DEPRECATEDIN_3_0, DH, DHparams)
 DECLARE_ASN1_ENCODE_FUNCTIONS_only_attr(OSSL_DEPRECATEDIN_3_0, DH, DHxparams)
 
-#   ifndef OPENSSL_NO_STDIO
+#ifndef OPENSSL_NO_STDIO
 OSSL_DEPRECATEDIN_3_0 int DHparams_print_fp(FILE * fp, const DH * x);
 #endif
 OSSL_DEPRECATEDIN_3_0 int DHparams_print(BIO * bp, const DH * x);

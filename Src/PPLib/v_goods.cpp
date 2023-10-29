@@ -732,7 +732,7 @@ const void * GoodsFilt::ReadObjIdListFilt(const /*char*/void * p, ObjIdListFilt 
 	_ptr += sizeof(uint32);
 	rList.Set(0);
 	for(uint i = 0; i < list_count; i++) {
-		PPID   id = *reinterpret_cast<const PPID *>(_ptr);
+		PPID   id = *reinterpret_cast<const  PPID *>(_ptr);
 		if(id > 0)
 			rList.Add(id);
 		_ptr += sizeof(PPID);
@@ -830,7 +830,7 @@ int GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				p += sstrlen(p) + 1;
 			}
 			if(p_buf->VerTag <= -17) {
-				const PPID gds_cls_id = *reinterpret_cast<const PPID *>(p);
+				const  PPID gds_cls_id = *reinterpret_cast<const  PPID *>(p);
 				Ep.Z();
 				if(gds_cls_id) {
 					ExtParams_Before24 _ep;
@@ -851,7 +851,7 @@ int GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				}
 			}
 			else if(p_buf->VerTag <= -16) {
-				const PPID gds_cls_id = *reinterpret_cast<const PPID *>(p);
+				const  PPID gds_cls_id = *reinterpret_cast<const  PPID *>(p);
 				Ep.Z();
 				if(gds_cls_id) {
 					//
@@ -945,7 +945,7 @@ int GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 			GrpIDList.Set(0);
    	    	c = (uint)(reinterpret_cast<const PropertyTbl::Rec *>(p_buf)->Val2);
 			for(i = 0; i < c; i++)
-				GrpIDList.Add(*reinterpret_cast<const PPID *>(PTR8C(p_buf) + PROPRECFIXSIZE + i * sizeof(PPID)));
+				GrpIDList.Add(*reinterpret_cast<const  PPID *>(PTR8C(p_buf) + PROPRECFIXSIZE + i * sizeof(PPID)));
 		}
 	   	Setup();
 	}
@@ -1370,7 +1370,7 @@ static IMPL_DBE_PROC(dbqf_goodsassocloc_pi)
 	char   text_buf[256];
 	if(!DbeInitSize(option, result, sizeof(text_buf))) {
 		const GoodsToObjAssoc * p_goa = static_cast<const GoodsToObjAssoc *>(params[0].ptrval);
-		const PPID goods_id = params[1].lval;
+		const  PPID goods_id = params[1].lval;
 		if(p_goa && goods_id) {
 			PPID loc_id = 0;
 			if(p_goa->Get(goods_id, &loc_id) > 0) {
@@ -1832,7 +1832,7 @@ int PPViewGoods::Init_(const PPBaseFilt * pFilt)
 	if(Filt.P_SjF)
 		Filt.P_SjF->Period.Actualize(ZERODATE);
 	if(Filt.Flags2 & GoodsFilt::f2ShowWhPlace) {
-		const PPID assoc_type = NZOR(Filt.GoodsLocAssocID, PPASS_GOODS2WAREPLACE);
+		const  PPID assoc_type = NZOR(Filt.GoodsLocAssocID, PPASS_GOODS2WAREPLACE);
 		delete P_G2OAssoc;
 		P_G2OAssoc = new GoodsToObjAssoc(assoc_type, PPOBJ_LOCATION);
 		if(P_G2OAssoc)
@@ -2462,7 +2462,7 @@ int PPViewGoods::RemoveAll()
 				}
 				if(assc_type && assc_owner_id) {
 					for(uint i = 0; i < id_list.getCount(); i++) {
-						const PPID goods_id = id_list.get(i);
+						const  PPID goods_id = id_list.get(i);
 						THROW(PPRef->Assc.Remove(assc_type, assc_owner_id, goods_id, 0));
 						if(P_TempTbl)
 							deleteFrom(P_TempTbl, 0, P_TempTbl->ID == goods_id);
@@ -2493,7 +2493,7 @@ int PPViewGoods::RemoveAll()
 						PPTransaction tra(1);
 						THROW(tra);
 						for(uint i = 0; i < id_list.getCount(); i++) {
-							const PPID goods_id = id_list.get(i);
+							const  PPID goods_id = id_list.get(i);
 							if(GObj.GetPacket(goods_id, &pack, 0) > 0) {
 								if(GObj.GetBarcodeByTemplate(pack.Rec.ParentID, bcs_rec.Templ, &pack.Codes, temp_buf) > 0) {
 									BarcodeTbl::Rec new_code_rec;
@@ -2528,7 +2528,7 @@ int PPViewGoods::RemoveAll()
                     k2.Kind = PPGDSK_GOODS;
                     STRNSCPY(k2.Name, temp_buf);
                     if(GObj.P_Tbl->search(2, &k2, spEq)) {
-						const PPID src_id = GObj.P_Tbl->data.ID;
+						const  PPID src_id = GObj.P_Tbl->data.ID;
 						if(!to_process_list.SearchPair(src_id, item.ID, 0))
 							to_process_list.Add(src_id, item.ID, 0);
                     }
@@ -2542,7 +2542,7 @@ int PPViewGoods::RemoveAll()
 						if(PPObjGoods::HasUndupNameSuffix(temp_buf, &undup_pos)) {
 							temp_buf.Trim(undup_pos).Strip();
 							if(temp_buf.CmpNC(item.Name) == 0) {
-								const PPID dest_id = GObj.P_Tbl->data.ID;
+								const  PPID dest_id = GObj.P_Tbl->data.ID;
 								if(!to_process_list.SearchPair(item.ID, dest_id, 0))
 									to_process_list.Add(item.ID, dest_id, 0);
 							}
@@ -2603,7 +2603,7 @@ int PPViewGoods::RemoveAll()
 				THROW(tra);
 				id_list.sortAndUndup();
 				for(uint idlidx = 0; idlidx < id_list.getCount(); idlidx++) {
-					const PPID goods_id = id_list.get(idlidx);
+					const  PPID goods_id = id_list.get(idlidx);
 					if(GObj.GetPacket(goods_id, &org_pack, 0) > 0) {
 						valid_bc_pos_list.clear();
 						bc_list = org_pack.Codes;
@@ -2904,7 +2904,7 @@ int PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw, PPID
 							PPTransaction tra(1);
 							THROW(tra);
 							for(uint i = 0; i < gen_member_list.getCount(); i++) {
-								const PPID member_goods_id = gen_member_list.get(i);
+								const  PPID member_goods_id = gen_member_list.get(i);
 								if(GObj.AssignGoodsToAltGrp(member_goods_id, Filt.GrpID, 0, 0) > 0)
 									to_update_list.add(member_goods_id);
 							}
@@ -2958,7 +2958,7 @@ void PPViewGoods::ViewGenMembers(PPID id)
 
 int PPViewGoods::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	ViewGenMembers(pHdr ? *static_cast<const PPID *>(pHdr) : 0);
+	ViewGenMembers(pHdr ? *static_cast<const  PPID *>(pHdr) : 0);
 	return -1;
 }
 
@@ -3616,7 +3616,7 @@ int PPViewGoods::ExportUhtt()
 		if(oneof2(param.GlobalService, PPGLS_VK, PPGLS_UDS)) {
 			TSVector <PPObjGoods::ExportToGlbSvcItem> src_list;
 			GoodsViewItem item;
-			const PPID single_loc_id = Filt.LocList.GetSingle();
+			const  PPID single_loc_id = Filt.LocList.GetSingle();
 			GoodsRestParam grp;
 			Filt.LocList.Get(grp.LocList);
 			grp.CalcMethod = GoodsRestParam::pcmMostRecent;
@@ -3684,7 +3684,7 @@ int PPViewGoods::ExportUhtt()
 				THROW(uc.Auth());
 				THROW(uc.GetUhttGoodsRefList(ref_list, &code_ref_list));
 				for(i = 0; i < uniq_id_list.getCount(); i++) {
-					const PPID goods_id = uniq_id_list.get(i);
+					const  PPID goods_id = uniq_id_list.get(i);
 					PPID   uhtt_goods_id = 0;
 					int    is_private_code = 0;
 					uint   private_code_pos = 0;
@@ -3722,7 +3722,7 @@ int PPViewGoods::ExportUhtt()
 						uhtt_id_list.clear();
 						ref_list.GetListByKey(goods_id, uhtt_id_list);
 						for(uint j = 0; j < uhtt_id_list.getCount(); j++) {
-							const PPID temp_uhtt_id = uhtt_id_list.get(j);
+							const  PPID temp_uhtt_id = uhtt_id_list.get(j);
 							if(temp_uhtt_id) {
 								if(code_ref_list.GetText(temp_uhtt_id, code_buf) > 0) {
 									if(code_buf[0] > '9') {
@@ -3977,7 +3977,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 	int    ok = is_overrode ? -2 : PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		const  PPConfig & r_cfg = LConfig;
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		PPID   temp_id;
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
@@ -4062,7 +4062,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
 				//
 				{
-					const PPID * p_id = static_cast<const PPID *>(pBrw->getCurItem());
+					const  PPID * p_id = static_cast<const  PPID *>(pBrw->getCurItem());
 					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_GOODS, DEREFPTRORZ(p_id)), pHdr/*(LongArray *)*/);
 				}
 				break;
@@ -4072,7 +4072,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 			case PPVCMD_TAGSALL:
 				ok = -1;
 				{
-					const PPID obj_type = PPOBJ_GOODS;
+					const  PPID obj_type = PPOBJ_GOODS;
 					int    update_mode = ObjTagList::mumAdd;
 					ObjTagList common_tag_list;
 					common_tag_list.ObjType = obj_type;
@@ -4177,7 +4177,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 					PPID   obj_type = 0;
 					LocationFilt * p_locf = 0;
 					void * p_extra_ptr = 0;
-					const PPID assoc_type = NZOR(Filt.GoodsLocAssocID, PPASS_GOODS2WAREPLACE);
+					const  PPID assoc_type = NZOR(Filt.GoodsLocAssocID, PPASS_GOODS2WAREPLACE);
 					switch(assoc_type) {
 						case PPASS_GOODS2WAREPLACE:
 							obj_type = PPOBJ_LOCATION;
@@ -4280,7 +4280,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 						PPID   grp_id = NZOR(Filt.GrpID, Filt.GrpIDList.GetSingle());
 						PPObjArticle ar_obj;
 						ArticleTbl::Rec ar_rec;
-						const PPID acs_id = (ar_obj.Fetch(src_ar_id, &ar_rec) > 0) ? ar_rec.AccSheetID : GetSupplAccSheet();
+						const  PPID acs_id = (ar_obj.Fetch(src_ar_id, &ar_rec) > 0) ? ar_rec.AccSheetID : GetSupplAccSheet();
 						if(acs_id) {
 							TDialog * dlg = new TDialog(DLG_MOVARCODE);
 							if(CheckDialogPtrErr(&dlg)) {
@@ -5009,7 +5009,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 	}
 	else if(pF->Name == "?GetMinStock") {
 		double val = 0.0;
-		const PPID loc_id = _ARG_LONG(1);
+		const  PPID loc_id = _ARG_LONG(1);
 		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(p_blk && p_blk->Pack.Rec.ID) {
 			val = p_blk->Pack.Stock.GetMinStock(loc_id, 1);
@@ -5433,7 +5433,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 	Reference * p_ref = PPRef;
 	SString temp_buf;
 	UhttGoodsBlock & r_blk = *static_cast<UhttGoodsBlock *>(Extra[0].Ptr);
-	const PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
+	const  PPID glob_acc_id = DS.GetConstTLA().GlobAccID;
 	if(r_blk.State != UhttGoodsBlock::stSet) {
 		r_blk.Z();
 		r_blk.State = r_blk.stSet;

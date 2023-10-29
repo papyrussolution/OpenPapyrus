@@ -622,7 +622,7 @@ int WsCtlSrvBlock::SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID
 		THROW_PP_S(prc_list.getCount(), PPERR_WSCTL_PRCBYUUIDNFOUND, SLS.AcquireRvlStr().Cat(rWsCtlUuid, S_GUID::fmtIDL));
 		THROW_PP_S(prc_list.getCount() == 1, PPERR_WSCTL_DUPPRCUUID, SLS.AcquireRvlStr().Cat(rWsCtlUuid, S_GUID::fmtIDL));
 		{
-			const PPID prc_id = prc_list.get(0);
+			const  PPID prc_id = prc_list.get(0);
 			ProcessorTbl::Rec prc_rec;
 			THROW(TSesObj.PrcObj.Fetch(prc_id, &prc_rec) > 0);
 			ASSIGN_PTR(pPrcID, prc_id);

@@ -2890,17 +2890,11 @@ int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rIn
 			rUrl.SetProtocol(prot);
 			rUrl.SetComponent(InetUrl::cScheme, InetUrl::GetSchemeMnem(prot));
 		}
-		if(defaultProt == InetUrl::protFtp) {
-			THROW(oneof3(prot, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp));
-		}
-		else if(defaultProt == InetUrl::protHttp) {
-			THROW(oneof2(prot, InetUrl::protHttp, InetUrl::protHttps));
-		}
-		else if(defaultProt == InetUrl::protPOP3) {
-			THROW(oneof2(prot, InetUrl::protPOP3, InetUrl::protPOP3S));
-		}
-		else if(defaultProt == InetUrl::protSMTP) {
-			THROW(oneof2(prot, InetUrl::protSMTP, InetUrl::protSMTPS));
+		switch(defaultProt) {
+			case InetUrl::protFtp: THROW(oneof3(prot, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp)); break;
+			case InetUrl::protHttp: THROW(oneof2(prot, InetUrl::protHttp, InetUrl::protHttps)); break;
+			case InetUrl::protPOP3: THROW(oneof2(prot, InetUrl::protPOP3, InetUrl::protPOP3S)); break;
+			case InetUrl::protSMTP: THROW(oneof2(prot, InetUrl::protSMTP, InetUrl::protSMTPS)); break;
 		}
 	}
 	{

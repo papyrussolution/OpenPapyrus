@@ -15,8 +15,8 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_mtree.c 201171 2009-12-29 06:39:07Z kientzle $");
 
-#include "archive_digest_private.h"
-#include "archive_entry_private.h"
+//#include "archive_digest_private.h"
+//#include "archive_entry_private.h"
 //#include "archive_rb.h"
 
 #define INDENTNAMELEN   15

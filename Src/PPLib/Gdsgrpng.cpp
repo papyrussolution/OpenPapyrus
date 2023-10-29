@@ -66,7 +66,7 @@ PPID FASTCALL GoodsGrpngEntry::IsProfitable(int incomeCalcMethod /*=-1*/) const
 
 double FASTCALL GoodsGrpngEntry::Income(int incomeCalcMethod /*=-1*/) const
 {
-	const PPID op_id = IsProfitable(incomeCalcMethod);
+	const  PPID op_id = IsProfitable(incomeCalcMethod);
 	return op_id ? IncomeByOpr(op_id) : 0L;
 }
 
@@ -348,12 +348,12 @@ int AdjGdsGrpng::CorrectionList(const GCTFilt & rF)
 		}
 	}
 	for(uint opidx = 0; opidx < op_list.getCount(); opidx++) {
-		const PPID correction_op_id = op_list.get(opidx);
+		const  PPID correction_op_id = op_list.get(opidx);
 		DateRange dr;
 		dr.low = rF.Period.low;
 		dr.upp = ZERODATE;
 		for(SEnum en = p_bc->EnumByOp(correction_op_id, &dr, 0); en.Next(&bill_rec) > 0;) {
-			const PPID correction_bill_id = bill_rec.ID;
+			const  PPID correction_bill_id = bill_rec.ID;
 			if(bill_rec.LinkBillID) {
 				if(p_bobj->Fetch(bill_rec.LinkBillID, &bill_rec) > 0 && rF.Period.CheckDate(bill_rec.Dt)) {
 					CorrectionBillList.Add(bill_rec.ID, correction_bill_id);
@@ -422,7 +422,7 @@ int AdjGdsGrpng::PrevPaymentList(const GCTFilt & rF)
 	if(rF.BillList.IsExists()) {
 		uint i = BillList.getCount();
 		if(i) do {
-			const PPID _id = BillList.get(--i);
+			const  PPID _id = BillList.get(--i);
 			if(!rF.BillList.CheckID(_id))
 				BillList.atFree(i);
 		} while(i);
@@ -806,7 +806,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 						if(cor_bill_list.getCount()) {
 							PPBillPacket cor_bp;
 							for(uint i = 0; i < cor_bill_list.getCount(); i++) {
-								const PPID cor_bill_id = cor_bill_list.get(i);
+								const  PPID cor_bill_id = cor_bill_list.get(i);
 								THROW(P_BObj->ExtractPacket(cor_bill_id, &cor_bp) > 0);
 								for(uint j = 0; j < cor_bp.GetTCount(); j++) {
 									const PPTransferItem & r_other = cor_bp.ConstTI(j);
@@ -850,8 +850,8 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 					}
 				}
 				if(blk.OpRec.Flags & OPKF_NEEDPAYMENT && amount != 0.0) {
-					const PPID link_op = blk.OpRec.ID;
-					const PPID bill_id = pTrfrRec->BillID;
+					const  PPID link_op = blk.OpRec.ID;
+					const  PPID bill_id = pTrfrRec->BillID;
 					for(DateIter di(&rF.Period); p_bc->EnumLinks(bill_id, &di, BLNK_PAYMENT, &bill_rec) > 0;) {
 						GetOpData(bill_rec.OpID, &blk.OpRec);
 						if(blk.OpRec.OpTypeID != PPOPT_PAYMENT || !IsLockPaymStatus(bill_rec.StatusID)) {
@@ -878,7 +878,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 								GetOpData(bill_rec.OpID, &blk.OpRec);
 								blk.Part = round(BR2(bill_rec.Amount) / amount, 12);
 								// Искусственно устанавливаем связанную операцию, указывающую на зачетную операцию (отгрузка)
-								const PPID save_link_op = blk.OpRec.LinkOpID;
+								const  PPID save_link_op = blk.OpRec.LinkOpID;
 								const long save_blk_fl = blk.Flags;
 								blk.OpRec.LinkOpID = link_op;
 								blk.Flags |= GGEF_RECKONING;
@@ -1029,7 +1029,7 @@ int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		BillTbl::Key1 k1;
 		BillTbl::Key3 k3;
 	} k, k_;
-	const PPID single_ar_id = pFilt->ArList.GetSingle();
+	const  PPID single_ar_id = pFilt->ArList.GetSingle();
 	if(single_ar_id) {
 		//
 		// Начиная с v1.9.2 при фильтрации по объекту эта функция возможно
@@ -1313,8 +1313,8 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 		else // filt.SupplID || filt.SupplAgentID // по поставщику ИЛИ по агенту поставщика
 			goods_list.add(0L);
 		for(i = 0; i < goods_list.getCount(); i++) {
-			const PPID goods_id = goods_list.get(i);
-			const PPID save_filt_goods_id = filt.GoodsID;
+			const  PPID goods_id = goods_list.get(i);
+			const  PPID save_filt_goods_id = filt.GoodsID;
 			filt.GoodsID = goods_id;
 			PPID   tax_grp_id = 0;
 			double phuperu = 0.0;

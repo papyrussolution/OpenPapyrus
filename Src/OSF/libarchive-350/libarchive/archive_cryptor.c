@@ -23,7 +23,7 @@ int __libarchive_cryptor_build_hack(void) {
 
 #ifdef ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len)
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, uint rounds, uint8 * derived_key, size_t derived_key_len)
 {
 	CCKeyDerivationPBKDF(kCCPBKDF2, (const char *)pw, pw_len, salt, salt_len, kCCPRFHmacAlgSHA1, rounds, derived_key, derived_key_len);
 	return 0;
@@ -31,10 +31,10 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_
 
 #elif defined(_WIN32) && !defined(__CYGWIN__) && defined(HAVE_BCRYPT_H)
 #ifdef _MSC_VER
-#pragma comment(lib, "Bcrypt.lib")
+	#pragma comment(lib, "Bcrypt.lib")
 #endif
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len)
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, uint rounds, uint8 * derived_key, size_t derived_key_len)
 {
 	NTSTATUS status;
 	BCRYPT_ALG_HANDLE hAlg;
@@ -48,7 +48,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_
 
 #elif defined(HAVE_LIBMBEDCRYPTO) && defined(HAVE_MBEDTLS_PKCS5_H)
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len)
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, uint rounds, uint8 * derived_key, size_t derived_key_len)
 {
 	mbedtls_md_context_t ctx;
 	const mbedtls_md_info_t * info;
@@ -72,7 +72,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_
 #elif defined(HAVE_LIBNETTLE) && defined(HAVE_NETTLE_PBKDF2_H)
 
 static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
-    size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len) 
+    size_t salt_len, uint rounds, uint8 * derived_key, size_t derived_key_len) 
 {
 	pbkdf2_hmac_sha1((uint)pw_len, (const uint8 *)pw, rounds, salt_len, salt, derived_key_len, derived_key);
 	return 0;
@@ -80,7 +80,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
 
 #elif defined(HAVE_LIBCRYPTO) && defined(HAVE_PKCS5_PBKDF2_HMAC_SHA1)
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len) 
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, uint rounds, uint8 * derived_key, size_t derived_key_len) 
 {
 	PKCS5_PBKDF2_HMAC_SHA1(pw, pw_len, salt, salt_len, rounds, derived_key_len, derived_key);
 	return 0;
@@ -88,7 +88,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_
 #else
 
 /* Stub */
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len) 
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, uint rounds, uint8 * derived_key, size_t derived_key_len) 
 {
 	CXX_UNUSED(pw);
 	CXX_UNUSED(pw_len);

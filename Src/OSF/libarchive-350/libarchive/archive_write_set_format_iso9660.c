@@ -94,9 +94,9 @@ struct extr_rec {
 
 struct ctl_extr_rec {
 	int use_extr;
-	uchar   * bp;
+	uchar * bp;
 	struct isoent   * isoent;
-	uchar   * ce_ptr;
+	uchar * ce_ptr;
 	int cur_len;
 	int dr_len;
 	int limit;
@@ -7057,7 +7057,7 @@ struct zisofs_extract {
 	signed int initialized : 1;
 	signed int header_passed : 1;
 	uint32 pz_offset;
-	uchar   * block_pointers;
+	uchar * block_pointers;
 	size_t block_pointers_size;
 	size_t block_pointers_avail;
 	size_t block_off;

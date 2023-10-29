@@ -632,7 +632,7 @@ int ClientBankImportDef::ImportAll()
 					ar_list.add(0L);
 			}
 			for(i = 0; i < ar_list.getCount(); i++) {
-				const PPID ar_id = ar_list.get(i);
+				const  PPID ar_id = ar_list.get(i);
 				ArticleTbl::Rec ar_rec;
 				// @v10.6.4 MEMSZERO(ar_rec);
 				if(ar_id)
@@ -654,7 +654,7 @@ int ClientBankImportDef::ImportAll()
 			}
 			if(best_assoc.getCount() == 0)
 				for(i = 0; i < ar_list.getCount(); i++) {
-					const PPID ar_id = ar_list.get(i);
+					const  PPID ar_id = ar_list.get(i);
 					ArticleTbl::Rec ar_rec;
 					// @v10.6.4 MEMSZERO(ar_rec);
 					if(ar_id)

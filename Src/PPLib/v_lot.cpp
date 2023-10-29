@@ -373,7 +373,7 @@ public:
 		RVALUEPTR(Data, pData);
 		SetPeriodInput(this, CTL_FLTLOT_PERIOD, &Data.Period);
 		SetPeriodInput(this, CTL_FLTLOT_OPERAT, &Data.Operation);
-		const PPID suppl_acs_id = (Data.Flags & LotFilt::fOrders) ? GetSellAccSheet() : GetSupplAccSheet();
+		const  PPID suppl_acs_id = (Data.Flags & LotFilt::fOrders) ? GetSellAccSheet() : GetSupplAccSheet();
 		setCtrlData(CTL_FLTLOT_CLOSED, &Data.ClosedTag);
 		{
 			// @v10.6.8 SetupPPObjCombo(this, CTLSEL_FLTLOT_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
@@ -844,7 +844,7 @@ int PPViewLot::RecoverLots()
 				}
 			}
 			for(uint ididx = 0; ididx < lot_id_list.getCount(); ididx++) {
-				const PPID _lot_id = lot_id_list.get(ididx);
+				const  PPID _lot_id = lot_id_list.get(ididx);
 				ReceiptTbl::Rec lot_rec;
 				if(p_trfr->Rcpt.Search(_lot_id, &lot_rec) > 0) {
 					PPLotFaultArray ary(_lot_id, logger);
@@ -1195,7 +1195,7 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 	}
 	else {
 		for(uint locidx = 0; locidx < Filt.LocList.GetCount(); locidx++) {
-			const PPID loc_id = Filt.LocList.Get(locidx);
+			const  PPID loc_id = Filt.LocList.Get(locidx);
 			if(loc_id && ObjRts.CheckLocID(loc_id, 0))
 				LocList.add(loc_id);
 		}
@@ -1409,7 +1409,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		Reference * p_ref = PPRef;
-		PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   lot_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
 				ok = -1;
@@ -1535,7 +1535,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 			case PPVCMD_TAGSALL:
 				ok = -1;
 				{
-					const PPID obj_type = PPOBJ_LOT;
+					const  PPID obj_type = PPOBJ_LOT;
 					ObjTagList common_tag_list;
 					common_tag_list.ObjType = obj_type;
 					int   update_mode = ObjTagList::mumAdd;
@@ -1600,14 +1600,14 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 						LotViewItem item;
 						PPIDArray lot_list;
 						RAssocArray ret_bill_lot_list;
-						// @v10.6.8 const PPID loc_id = NZOR(Filt.LocID, LConfig.Location);
-						const PPID loc_id = NZOR(LocList.getSingle(), LConfig.Location); // @v10.6.8
+						// @v10.6.8 const  PPID loc_id = NZOR(Filt.LocID, LConfig.Location);
+						const  PPID loc_id = NZOR(LocList.getSingle(), LConfig.Location); // @v10.6.8
 						THROW(ep);
 						PPWaitStart();
 						if(selection == (PPEDIOP_EGAIS_ACTCHARGEONSHOP+1000)) {
 							// @v10.3.0 Защита на случай если ep.GetConfig().SupplRetOpID == ep.GetConfig().IntrExpndOpID
-							const PPID suppl_ret_op_id = ep.GetConfig().SupplRetOpID;
-							const PPID intr_expnd_op_id = ep.GetConfig().IntrExpndOpID;
+							const  PPID suppl_ret_op_id = ep.GetConfig().SupplRetOpID;
+							const  PPID intr_expnd_op_id = ep.GetConfig().IntrExpndOpID;
 							if(suppl_ret_op_id)
 								MakeLotListForEgaisRetReg2ToWh(ep, suppl_ret_op_id,  loc_id, ret_bill_lot_list);
 							if(intr_expnd_op_id && intr_expnd_op_id != suppl_ret_op_id)
@@ -2128,7 +2128,7 @@ int PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pIt
 	// @v11.4.4 {
 	else if(Filt.SupplPsnCategoryID) {
 		if(rLotRec.SupplID) {
-			const PPID psn_id = ObjectToPerson(rLotRec.SupplID, 0);
+			const  PPID psn_id = ObjectToPerson(rLotRec.SupplID, 0);
 			PersonTbl::Rec psn_rec;
 			if(!(psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0 && psn_rec.CatID == Filt.SupplPsnCategoryID))
 				return -1;
@@ -2686,7 +2686,7 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 //
 int PPViewLot::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	const PPID lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	const  PPID lot_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	return lot_id ? ::ViewOpersByLot(lot_id, 0) : -1;
 }
 
@@ -3315,7 +3315,7 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 		if(p_lec && Param.OtrRec.GetFieldByName_Fast("EgaisMark", &_f)) {
 			p_lec->GetMarkListByLot(pItem->ID, 0, ss_ext_codes, &ext_code_count);
 			assert(ext_code_count == ss_ext_codes.getCount());
-			const PPID lot_bill_id = pItem->BillID;
+			const  PPID lot_bill_id = pItem->BillID;
 			TransferTbl::Rec trfr_rec;
 			for(DateIter di; p_bobj->trfr->EnumByLot(pItem->ID, &di, &trfr_rec) > 0;) {
 				if(trfr_rec.BillID == lot_bill_id) {
@@ -3589,7 +3589,7 @@ int PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   lot_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				if(Filt.LotID) {

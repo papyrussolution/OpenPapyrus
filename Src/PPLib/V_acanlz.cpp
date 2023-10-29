@@ -1206,7 +1206,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 			// @v9.5.9 {
 			else if(IsGenAr) {
 				for(uint i = 0; i < gen_ar_list.getCount(); i++) {
-					const PPID ar_id = gen_ar_list.get(i);
+					const  PPID ar_id = gen_ar_list.get(i);
 					if(ArObj.Fetch(ar_id, &ar_rec) > 0 && P_ATC->GetAcctRel(acc_rec.ID, ar_id, &acr_rec, 0, 0) > 0) {
 						THROW_SL(acr_list.insert(&acr_rec));
 					}
@@ -1379,7 +1379,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 			LAssocArray aco_list;
 			if(IsGenAcc) {
 				for(uint i = 0; ok > 0 && i < ExtGenAccList.getCount(); i++) {
-					const PPID acc_id = ExtGenAccList.at(i).ObjID;
+					const  PPID acc_id = ExtGenAccList.at(i).ObjID;
 					const int  aco    = GetAcoByGenFlags(ExtGenAccList.at(i).Flags);
 					if(Filt.SingleArID && abs(aco) == ACO_2) {
 						if(GetAcctRel(acc_id, Filt.SingleArID, &acr_rec, 1) > 0) {
@@ -1469,7 +1469,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 			param.InRest.GetCurList(0L, &cur_list);
 			for(i = 0; i < CycleList.getCount(); i++)
 				for(uint j = 0; j < cur_list.getCount(); j++) {
-					const PPID c = cur_list.get(j);
+					const  PPID c = cur_list.get(j);
 					param.P_CycleOutRests->Add(i, c, param.InRest.Get(0L, c));
 				}
 			for(MEMSZERO(k); P_TmpATTbl->search(0, &k, spGt);)
@@ -1829,17 +1829,17 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 	if(pRow) {
 		const  char * p_hdr = static_cast<const char *>(pRow);
 		if((Filt.Flags & (AccAnlzFilt::fGroupByCorAcc |	AccAnlzFilt::fTrnovrBySheet)) || Filt.Cycl.Cycle) {
-			hdr.AccRelID = *reinterpret_cast<const PPID *>(p_hdr);
+			hdr.AccRelID = *reinterpret_cast<const  PPID *>(p_hdr);
 			hdr.Dt = *reinterpret_cast<const LDATE *>(p_hdr + sizeof(PPID));
 			hdr.A = *reinterpret_cast<const Acct *>(p_hdr + sizeof(PPID) + sizeof(LDATE));
-			hdr.CurID = *reinterpret_cast<const PPID *>(p_hdr + sizeof(PPID) + sizeof(LDATE) + sizeof(Acct));
+			hdr.CurID = *reinterpret_cast<const  PPID *>(p_hdr + sizeof(PPID) + sizeof(LDATE) + sizeof(Acct));
 		}
 		else {
 			hdr.Dt = *reinterpret_cast<const LDATE *>(p_hdr);
 			hdr.OprNo = *reinterpret_cast<const long *>(p_hdr+sizeof(LDATE));
-			hdr.BillID = *reinterpret_cast<const PPID *>(p_hdr+sizeof(long)+sizeof(LDATE));
-			hdr.AccRelID = *reinterpret_cast<const PPID *>(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID));
-			hdr.CorAccID = *reinterpret_cast<const PPID *>(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID)*2);
+			hdr.BillID = *reinterpret_cast<const  PPID *>(p_hdr+sizeof(long)+sizeof(LDATE));
+			hdr.AccRelID = *reinterpret_cast<const  PPID *>(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID));
+			hdr.CorAccID = *reinterpret_cast<const  PPID *>(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID)*2);
 		}
 		ok = 1;
 	}
@@ -1942,7 +1942,7 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 				ok = -1;
 				if(Filt.Flags & AccAnlzFilt::fTrnovrBySuppl && GetBrwHdr(pHdr, &hdr)) {
 					if(P_ATC->AccRel.SearchNum(0, &hdr.A, hdr.CurID) > 0) {
-						const PPID suppl_id = P_ATC->AccRel.data.ArticleID;
+						const  PPID suppl_id = P_ATC->AccRel.data.ArticleID;
 						if(suppl_id)
 							ViewLots(0, 0, suppl_id, 0, 1);
 					}
@@ -1952,7 +1952,7 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 				ok = -1;
 				if(Filt.Flags & AccAnlzFilt::fTrnovrBySuppl && GetBrwHdr(pHdr, &hdr)) {
 					if(P_ATC->AccRel.SearchNum(0, &hdr.A, hdr.CurID) > 0) {
-						const PPID suppl_id = P_ATC->AccRel.data.ArticleID;
+						const  PPID suppl_id = P_ATC->AccRel.data.ArticleID;
 						if(suppl_id) {
 							BillFilt flt;
 							flt.Period = Filt.Period;
@@ -1966,7 +1966,7 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 				ok = -1;
 				if(Filt.Flags & AccAnlzFilt::fTrnovrBySuppl && GetBrwHdr(pHdr, &hdr)) {
    					if(P_ATC->AccRel.SearchNum(0, &hdr.A, hdr.CurID) > 0) {
-						const PPID suppl_id = P_ATC->AccRel.data.ArticleID;
+						const  PPID suppl_id = P_ATC->AccRel.data.ArticleID;
 						if(suppl_id) {
 							GoodsRestFilt flt;
 							flt.Init(1, 0);

@@ -58,7 +58,7 @@ struct private_data {
 	int cur_fcode;
 	int bit_offset;
 	uchar bit_buf;
-	uchar   * compressed;
+	uchar * compressed;
 	size_t compressed_buffer_size;
 	size_t compressed_offset;
 };

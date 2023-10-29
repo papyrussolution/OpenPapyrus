@@ -651,7 +651,7 @@ int GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, uint flags, 
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		for(uint i = 0; i < goods_list.getCount(); i++) {
-			const PPID goods_id = goods_list.get(i);
+			const  PPID goods_id = goods_list.get(i);
 			int r = ReadArCodesByAr(goods_id, destArID, &code_list);
 			THROW(r);
 			if(r > 0) {
@@ -1187,7 +1187,7 @@ int GoodsCore::GetListByBrandList(const PPIDArray & rBrandList, PPIDArray & rGoo
 		Goods2Tbl::Key2 k2;
 		Goods2Tbl::Key3 k3;
 	} k;
-	const PPID single_brand_id = (rBrandList.getCount() == 1) ? rBrandList.get(0) : 0;
+	const  PPID single_brand_id = (rBrandList.getCount() == 1) ? rBrandList.get(0) : 0;
 	DBQ * dbq = &(this->Kind == PPGDSK_GOODS);
 	MEMSZERO(k);
 	if(single_brand_id) {
@@ -1307,7 +1307,7 @@ int GoodsCore::ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, long new
 		if(goods_list.getCount()) {
 			goods_list.sortAndUndup();
 			for(uint i = 0; i < goods_list.getCount(); i++) {
-				const PPID goods_id = goods_list.get(i);
+				const  PPID goods_id = goods_list.get(i);
 				GoodsExtTbl::Key0 k0;
 				MEMSZERO(k0);
 				k0.GoodsID = goods_id;
@@ -2331,22 +2331,22 @@ int GoodsCore::SetAltGrpList(PPID grpID, const PPIDArray & rList, int use_ta)
 		rmv_member_list.sortAndUndup();
 		uint   i = rmv_member_list.getCount();
 		if(i) do {
-			const PPID item_id = rmv_member_list.get(--i);
+			const  PPID item_id = rmv_member_list.get(--i);
 			if(rList.lsearch(item_id))
 				rmv_member_list.atFree(i);
 		} while(i);
 		for(i = 0; i < rList.getCount(); i++) {
-			const PPID item_id = rList.get(i);
+			const  PPID item_id = rList.get(i);
 			if(!rmv_member_list.bsearch(item_id)) {
 				new_member_list.add(item_id);
 			}
 		}
 		for(i = 0; i < rmv_member_list.getCount(); i++) {
-			const PPID item_id = rmv_member_list.get(i);
+			const  PPID item_id = rmv_member_list.get(i);
 			THROW(P_Ref->Assc.Remove(PPASS_ALTGOODSGRP, grpID, item_id, 0));
 		}
 		for(i = 0; i < new_member_list.getCount(); i++) {
-			const PPID item_id = new_member_list.get(i);
+			const  PPID item_id = new_member_list.get(i);
 			THROW(AssignGoodsToAltGrp(item_id, grpID, 0, 0));
 		}
 		THROW(tra.Commit());
@@ -2437,7 +2437,7 @@ int GoodsCore::Helper_BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID, PPIDArr
 			PPIDArray term_list;
 			GetGroupTerminalList(grp, &term_list, 0);
 			for(uint i = 0; r == 0 && i < term_list.getCount(); i++) {
-				const PPID term_id = term_list.get(i);
+				const  PPID term_id = term_list.get(i);
 				if(id == term_id || Helper_BelongToGroup(id, term_id, 0, pDynGrpList)) { // @recursion
 			   		sub_grp_id = term_id;
 			   		r = 1;
@@ -3584,7 +3584,7 @@ int GoodsCore::GetListByQuotKind(PPID qkID, PPID locID, PPIDArray & rList)
 				qfilt.Flags |= QuotFilt::fAllLocations;
 			P_Qc2->GetRelListByFilt(&qfilt, rel_list);
 			for(uint i = 0; i < rel_list.getCount(); i++) {
-				const PPID rel_id = rel_list.get(i);
+				const  PPID rel_id = rel_list.get(i);
 				P_Qc2->GetGoodsList(rel_id, 1, temp_list.Z());
 				rList.add(&temp_list);
 			}
@@ -3791,7 +3791,7 @@ int GoodsCore::GetMatrix(const ObjIdListFilt & rLocList, int orRule, PPIDArray *
 	if(pResult) {
 		InitQc();
 		if(rLocList.IsEmpty() || rLocList.GetSingle()) {
-			const PPID loc_id = rLocList.GetSingle();
+			const  PPID loc_id = rLocList.GetSingle();
 			THROW(Helper_GetMtxByLoc(loc_id, *pResult));
 		}
 		else {
@@ -3799,7 +3799,7 @@ int GoodsCore::GetMatrix(const ObjIdListFilt & rLocList, int orRule, PPIDArray *
 			PPIDArray temp_list;
 			const PPIDArray & r_loc_list = rLocList.Get();
 			for(uint i = 0; i < r_loc_list.getCount(); i++) {
-				const PPID loc_id = r_loc_list.get(i);
+				const  PPID loc_id = r_loc_list.get(i);
 				THROW(Helper_GetMtxByLoc(loc_id, temp_list));
 				if(orRule || i == 0) {
 					THROW_SL(pResult->add(&temp_list));
@@ -3843,8 +3843,8 @@ int GoodsCore::LoadNameList(const PPIDArray * pIdList, long flags, StrAssocArray
 	temp_src_list.sortAndUndup();
 	if(temp_src_list.getCount()) {
 		SString temp_buf;
-		const PPID min_id = temp_src_list.at(0);
-		const PPID max_id = temp_src_list.getLast();
+		const  PPID min_id = temp_src_list.at(0);
+		const  PPID max_id = temp_src_list.getLast();
 		if(min_id == max_id) {
 			if(Search(min_id, 0) > 0) {
 				temp_buf.Z();

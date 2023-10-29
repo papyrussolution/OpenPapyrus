@@ -68,7 +68,7 @@ struct lzx_dec {
 	struct huffman {
 		int len_size;
 		int freq[17];
-		uchar   * bitlen;
+		uchar * bitlen;
 		/*
 		 * Use a index table. It's faster than searching a huffman
 		 * coding tree, which is a binary tree. But a use of a large

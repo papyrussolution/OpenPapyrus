@@ -151,7 +151,7 @@ void PPViewAlcoDeclRu::ProcessStock(int startOrEnd, PPID divID, const ObjIdListF
 	SString wait_msg_buf;
 	PPBillExt billext;
 	PPLoadText(PPTXT_WAIT_GOODSREST, wait_msg_buf);
-	const PPID _suppl_agent_id = Arp.GetConfig().E.SupplAgentID; // @v11.0.8
+	const  PPID _suppl_agent_id = Arp.GetConfig().E.SupplAgentID; // @v11.0.8
 	for(uint i = 0; i < _gc; i++) {
 		PPID   goods_id = rGoodsList.get(i);
 		GoodsRestParam gp;
@@ -321,7 +321,7 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 			PPIDArray sales_op_list;
 			PPObjOprKind op_obj;
 			const PrcssrAlcReport::Config & r_alcrep_cfg = Arp.GetConfig();
-			const PPID _suppl_agent_id = r_alcrep_cfg.E.SupplAgentID; // @v11.0.8
+			const  PPID _suppl_agent_id = r_alcrep_cfg.E.SupplAgentID; // @v11.0.8
 			if(r_alcrep_cfg.ExpndOpID) {
 				PPObjOprKind::ExpandOp(r_alcrep_cfg.ExpndOpID, sales_op_list);
 			}
@@ -336,7 +336,7 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 			else
 				div_list.add(0L);
 			for(uint dividx = 0; dividx < div_list.getCount(); dividx++) {
-				const PPID div_id = div_list.get(dividx);
+				const  PPID div_id = div_list.get(dividx);
 				PPViewTrfrAnlz ta_view;
 				TrfrAnlzFilt ta_filt;
 				TrfrAnlzViewItem_AlcRep ta_item;
@@ -362,7 +362,7 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 					goods_list.Z();
 					PPWaitStart();
 					for(ta_view.InitIteration(PPViewTrfrAnlz::OrdByDate); ta_view.NextIteration_AlcRep(&ta_item) > 0;) {
-						const PPID goods_id = ta_item.Item.GoodsID;
+						const  PPID goods_id = ta_item.Item.GoodsID;
 						if(Arp.IsAlcGoods(goods_id) > 0 && Arp.PreprocessGoodsItem(goods_id, ta_item.OrgLotRec.ID, 0, 0, alc_goods_ext) > 0) {
 							//const bool is_rcpt = (ta_item.OrgLotRec.ID == ta_item.Item.LotID && GetOpType(ta_item.Item.OpID, 0) == PPOPT_GOODSRECEIPT);
 							if(!alc_goods_ext.MnfOrImpPsnID) {
@@ -381,7 +381,7 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 								const  long alco_code_ident = GetAlcoCodeIdent(alc_goods_ext.CategoryCode);
 								if(alco_code_ident && alc_goods_ext.Volume > 0.0) {
 									const double qtty_dal = fabs((ta_item.Item.Qtty * alc_goods_ext.Volume) / 10.0);
-									const PPID op_id = ta_item.Item.OpID;
+									const  PPID op_id = ta_item.Item.OpID;
 									bool  is_rcpt = false;
 									bool  is_rcpt_ret = false;
 									PPOprKind op_rec;
@@ -393,10 +393,10 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 										DetailEntry detail_item;
 										if(oneof2(introp, INTREXPND, INTRRCPT)) {
 											if(ta_filt.LocList.GetCount() && P_BObj->Fetch(ta_item.Item.BillID, &bill_rec) > 0) {
-												const PPID ar_loc_id = PPObjLocation::ObjToWarehouse_IgnoreRights(bill_rec.Object);
+												const  PPID ar_loc_id = PPObjLocation::ObjToWarehouse_IgnoreRights(bill_rec.Object);
 												if(ar_loc_id) {
-													const PPID slid = (introp == INTREXPND) ? bill_rec.LocID : ar_loc_id;
-													const PPID dlid = (introp == INTREXPND) ? ar_loc_id : bill_rec.LocID;
+													const  PPID slid = (introp == INTREXPND) ? bill_rec.LocID : ar_loc_id;
+													const  PPID dlid = (introp == INTREXPND) ? ar_loc_id : bill_rec.LocID;
 													const int src_loc_in_list  = BIN(ta_filt.LocList.CheckID(slid));
 													const int dest_loc_in_list = BIN(ta_filt.LocList.CheckID(dlid));
 													if(src_loc_in_list && !dest_loc_in_list) {
@@ -595,7 +595,7 @@ int PPViewAlcoDeclRu::Diagnose()
 	{
 		GetSupplList(0, 0, 0, temp_list);
 		for(uint si = 0; si < temp_list.getCount(); si++) {
-			const PPID suppl_id = temp_list.get(si);
+			const  PPID suppl_id = temp_list.get(si);
 			long   status = 0;
 			if(Arp.PsnObj.Search(suppl_id, &psn_rec) > 0) {
 				Arp.PsnObj.GetRegNumber(suppl_id, PPREGT_TPID, Filt.Period.low, _inn);
@@ -625,7 +625,7 @@ int PPViewAlcoDeclRu::Diagnose()
 	{
 		GetManufList(0, 0, temp_list);
 		for(uint mi = 0; mi < temp_list.getCount(); mi++) {
-			const PPID manuf_id = temp_list.get(mi);
+			const  PPID manuf_id = temp_list.get(mi);
 			long   status = 0;
 			if(Arp.PsnObj.Search(manuf_id, &psn_rec) > 0) {
 				Arp.PsnObj.GetRegNumber(manuf_id, PPREGT_TPID, Filt.Period.low, _inn);
@@ -674,7 +674,7 @@ public:
 		SetPeriodInput(this, CTL_ALCODECL_PERIOD, &Data.Period);
 		SetupPersonCombo(this, CTLSEL_ALCODECL_MAINORG, Data.MainOrgID, 0, PPPRK_MAIN, 1);
 		{
-			const PPID main_org_id = NZOR(Data.MainOrgID, GetMainOrgID());
+			const  PPID main_org_id = NZOR(Data.MainOrgID, GetMainOrgID());
 			LocationCtrlGroup::Rec l_rec(&Data.DivList, 0, main_org_id);
 			setGroupData(ctlgroupLoc, &l_rec);
 		}
@@ -1305,7 +1305,7 @@ int PPViewAlcoDeclRu::Export()
 				GetSupplList(0, 0, 0, suppl_list);
 				SXml::WNode n_(g.P_X, g.GetToken_Ansi(PPHSC_RU_REFERENCES));
 				for(uint midx = 0; midx < manuf_list.getCount(); midx++) {
-					const PPID manuf_id = manuf_list.get(midx);
+					const  PPID manuf_id = manuf_list.get(midx);
 					ca_inn.Z();
 					ca_kpp.Z();
 					if(Arp.PsnObj.Search(manuf_id, &_psn_rec) > 0) {
@@ -1337,7 +1337,7 @@ int PPViewAlcoDeclRu::Export()
 					}
 				}
 				for(uint sidx = 0; sidx < suppl_list.getCount(); sidx++) {
-					const PPID suppl_id = suppl_list.get(sidx);
+					const  PPID suppl_id = suppl_list.get(sidx);
 					ca_inn.Z();
 					ca_kpp.Z();
 					if(Arp.PsnObj.Search(suppl_id, &_psn_rec) > 0) {
@@ -1503,14 +1503,14 @@ int PPViewAlcoDeclRu::Export()
 							GetAlcoCode(alco_code_id, temp_buf);
 							n3.PutAttrib(g.GetToken_Ansi_Pe0(3), temp_buf);
 							for(uint manufidx = 0; manufidx < manuf_list.getCount(); manufidx++) {
-								const PPID manuf_id = manuf_list.get(manufidx);
+								const  PPID manuf_id = manuf_list.get(manufidx);
 								SXml::WNode n4(g.P_X, g.GetToken_Ansi(PPHSC_RU_MANUFORIMPORTERINFO));
 								n4.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SEQUENCE), temp_buf.Z().Cat(manufidx+1));
 								n4.PutAttrib(g.GetToken_Ansi(PPHSC_RU_MANUFORIMPORTERID_), temp_buf.Z().Cat(manuf_id)); // ИдПроизвИмп (не PPHSC_RU_MANUFORIMPORTERID "ИДПроизвИмп")
 								{
 									GetSupplList(div_id, alco_code_id, manuf_id, suppl_list);
 									for(uint supplidx = 0; supplidx < suppl_list.getCount(); supplidx++) {
-										const PPID suppl_id = suppl_list.get(supplidx);
+										const  PPID suppl_id = suppl_list.get(supplidx);
 										SXml::WNode n5(g.P_X, g.GetToken_Ansi(PPHSC_RU_SUPPLIER));
 										n5.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SEQUENCE), temp_buf.Z().Cat(supplidx+1));
 										n4.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SUPPLIERID_), temp_buf.Z().Cat(suppl_id));

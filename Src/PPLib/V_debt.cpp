@@ -722,7 +722,7 @@ int PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 						else {
 							bblk.ResetIter();
 							for(j = 0; j < tmp_op_list.getCount(); j++) {
-								const PPID op_id = tmp_op_list.get(j);
+								const  PPID op_id = tmp_op_list.get(j);
 								if(op_id && NextProcessIteration(op_id, bblk) > 0) {
 									while(NextProcessStep(bill_rec, bblk) > 0) {
 										THROW(PPCheckUserBreak());
@@ -855,7 +855,7 @@ PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSColl
 	if(rF.CliIDList.getCount()) {
 		PPIDArray temp_list;
 		for(uint i = 0; i < rF.CliIDList.getCount(); i++) {
-			const PPID ar_id = rF.CliIDList.at(i);
+			const  PPID ar_id = rF.CliIDList.at(i);
 			if(ar_obj.Fetch(ar_id, &ar_rec) > 0 && ar_rec.AccSheetID == rF.AccSheetID) {
 				if(ar_rec.Flags & ARTRF_GROUP)
 					ar_obj.P_Tbl->GetListByGroup(ar_id, &ArList);
@@ -872,7 +872,7 @@ PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSColl
 	}
 	else {
 		for(uint i = 0; i < full_ar_list.getCount(); i++) {
-			const PPID ar_id = full_ar_list.get(i);
+			const  PPID ar_id = full_ar_list.get(i);
 			if(ar_obj.Fetch(ar_id, &ar_rec) > 0) {
 				if(!(rF.Flags & DebtTrnovrFilt::fSkipPassive) || !ar_rec.Closed)
 					ArList.add(ar_id); 
@@ -1127,7 +1127,7 @@ int PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlo
 	}
 	if(Filt.DebtDimList.GetCount()) {
 		THROW(P_BObj->FetchExt(rRec.ID, &bill_ext) > 0);
-		const PPID agent_id = bill_ext.AgentID;
+		const  PPID agent_id = bill_ext.AgentID;
 		if(!P_DebtDimAgentList) {
 			THROW_MEM(P_DebtDimAgentList = new LAssocArray);
 			{
@@ -1300,7 +1300,7 @@ int PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk)
 			else {
 				rBlk.IterPath = ProcessBlock::ipOp;
 				for(uint i = 0; i < PayableOpList.getCount(); i++) {
-					const PPID op_id = PayableOpList.get(i);
+					const  PPID op_id = PayableOpList.get(i);
 					LDATE beg = Filt.Period.low;
 					LDATE end = Filt.Period.upp;
 					if(!beg) {
@@ -1321,7 +1321,7 @@ int PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk)
 		}
 		if(rBlk.IterPath == ProcessBlock::ipOp) {
 			if(rBlk.IterN < PayableOpList.getCount()) {
-				const PPID  op_id = PayableOpList.get(rBlk.IterN++);
+				const  PPID  op_id = PayableOpList.get(rBlk.IterN++);
 				DBQ * dbq = 0;
 				BillTbl::Key2 k2;
 				THROW_MEM(rBlk.P_Q = new BExtQuery(t, 2, 1024)); // @v10.0.02 256-->1024
@@ -1340,7 +1340,7 @@ int PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk)
 		}
 		else if(rBlk.IterPath == ProcessBlock::ipArticle) {
 			if(rBlk.IterN < rBlk.ArList.getCount()) {
-				const PPID  ar_id = rBlk.ArList.get(rBlk.IterN++);
+				const  PPID  ar_id = rBlk.ArList.get(rBlk.IterN++);
 				DBQ * dbq = 0;
 				BillTbl::Key3 k3;
 				THROW_MEM(rBlk.P_Q = new BExtQuery(t, 3, 256));
@@ -1755,7 +1755,7 @@ int DebtTrnovrFiltDialog::editMore()
 			int    ok = 1;
 			PPDebtDim dd_rec;
 			for(uint i = 0; i < Data.DebtDimList.GetCount(); i++) {
-				const PPID dd_id = Data.DebtDimList.Get(i);
+				const  PPID dd_id = Data.DebtDimList.Get(i);
 				if(dd_id && DdObj.Search(dd_id, &dd_rec) > 0) {
 					THROW(addStringToList(dd_id, dd_rec.Name));
 				}
@@ -3470,7 +3470,7 @@ int PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 	// } @v6.0.11
 	dd_obj.FetchAgentList(&dd_agent_list);
 	for(i = 0; i < op_list.getCount(); i++) {
-		const PPID op_id = op_list.get(i);
+		const  PPID op_id = op_list.get(i);
 		GetOpName(op_id, op_name);
 		for(SEnum en = p_bobj->P_Tbl->EnumByOp(op_id, &period, 0); en.Next(&bill_rec) > 0;) {
 			if(bill_rec.Flags & BILLF_PAYOUT) {
@@ -3518,7 +3518,7 @@ int PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 	//
 	op_obj.GetProfitableOpList(P.AccSheetID, &inc_op_list);
 	for(i = 0; i < inc_op_list.getCount(); i++) {
-		const PPID op_id = inc_op_list.get(i);
+		const  PPID op_id = inc_op_list.get(i);
 		GetOpName(op_id, op_name);
 		const int need_paym = op_list.lsearch(op_id);
 		for(SEnum en = p_bobj->P_Tbl->EnumByOp(op_id, 0, 0); en.Next(&bill_rec) > 0;) {
@@ -3566,7 +3566,7 @@ int PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 					pool_memb_list.clear();
 					THROW(p_bobj->P_Tbl->GetPoolMembersList(PPASS_PAYMBILLPOOL, bill_rec.ID, &pool_memb_list));
 					for(uint j = 0; j < pool_memb_list.getCount(); j++) {
-						const PPID reckon_id = pool_memb_list.get(j);
+						const  PPID reckon_id = pool_memb_list.get(j);
 						if(!paym_id_list.lsearch(reckon_id) && p_bobj->Search(reckon_id, &last_paym_rec) > 0 /*&& last_paym_rec.CurID == curID*/) {
 							if(period.CheckDate(last_paym_rec.Dt)) {
 								paym_id_list.add(last_paym_rec.ID);
@@ -3664,7 +3664,7 @@ int PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 								if(p_item->DdList.getCount()) {
 									for(uint j = 0; j < p_item->DdList.getCount(); j++) {
 										const PPDebtorStat::DebtDimItem & r_dd_item = p_item->DdList.at(j);
-										const PPID dd_id = r_dd_item.DebtDimID;
+										const  PPID dd_id = r_dd_item.DebtDimID;
 										const double new_lim = MAX(r_dd_item.Limit, 0.0);
 										PPClientAgreement::DebtLimit * p_dd_entry = agt.GetDebtDimEntry(dd_id);
 										if(p_dd_entry) {
@@ -3812,7 +3812,7 @@ int PrcssrDebtRate::Run()
 			THROW(op_obj.GetPayableOpList(P.AccSheetID, &op_list));
 			THROW(ArObj.P_Tbl->GetListBySheet(P.AccSheetID, &ar_list, 0));
 			for(i = 0; i < ar_list.getCount(); i++) {
-				const PPID ar_id = ar_list.get(i);
+				const  PPID ar_id = ar_list.get(i);
 				int   do_set_stop = -1;
 				PPClientAgreement agt_rec;
 				MEMSZERO(ar_rec);
@@ -3914,7 +3914,7 @@ int PrcssrDebtRate::Run()
 					PPTransaction tra(BIN(!(P.Flags & Param::fReportOnly)));
 					THROW(tra);
 					for(i = 0; i < ar_list.getCount(); i++) {
-						const PPID ar_id = ar_list.get(i);
+						const  PPID ar_id = ar_list.get(i);
 						LAssoc p(ar_id, 0);
 						uint   set_pos = 0, reset_pos = 0;
 						const bool _set = set_stop_list.bsearch(&p, &set_pos, PTR_CMPFUNC(_2long));
@@ -4689,7 +4689,7 @@ int PPViewDebtorStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   ar_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   ar_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITARTICLE:
 				ok = -1;

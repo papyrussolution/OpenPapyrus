@@ -1843,7 +1843,7 @@ public:
 			{
 				p_ref->Ot.SearchObjectsByGuid(PPOBJ_PERSON, PPTAG_PERSON_UUID, cust.Uid, &ex_psn_list);
 				for(uint i = 0; !ex_psn_id && i < ex_psn_list.getCount(); i++) {
-					const PPID temp_id = ex_psn_list.get(i);
+					const  PPID temp_id = ex_psn_list.get(i);
 					if(temp_id && (!scs_pack.Rec.PersonKindID || psn_obj.P_Tbl->IsBelongToKind(temp_id, scs_pack.Rec.PersonKindID)))
 						ex_psn_id = temp_id;
 				}
@@ -1861,7 +1861,7 @@ public:
 			}
 			if(!found_sc_id && sc_obj.P_Tbl->GetListByText(PPSCardPacket::extssOuterId, temp_buf, &ex_sc_list) > 0) {
 				for(uint i = 0; !found_sc_id && i < ex_sc_list.getCount(); i++) {
-					const PPID ex_sc_id = ex_sc_list.get(i);
+					const  PPID ex_sc_id = ex_sc_list.get(i);
 					if(sc_obj.Search(ex_sc_id, &sc_rec) > 0 && (!seriesID || sc_rec.SeriesID == seriesID))
 						found_sc_id = ex_sc_id;
 				}

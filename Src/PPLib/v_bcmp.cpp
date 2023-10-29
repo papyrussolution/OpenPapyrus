@@ -362,7 +362,7 @@ int PPViewGoodsBillCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		int    r = 0;
-		PPID   goods_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   goods_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
 				ok = -1;
@@ -409,7 +409,7 @@ int PPViewGoodsBillCmp::AddToBasketAll(int diffSign)
 			}
 		}
 	}
-	const PPID lh_bill_id = Filt.LhBillList.getCount() ? Filt.LhBillList.get(0) : 0;
+	const  PPID lh_bill_id = Filt.LhBillList.getCount() ? Filt.LhBillList.get(0) : 0;
 	if(list.getCount() && lh_bill_id) {
 		SelBasketParam param;
 		BillTbl::Rec bill_rec;

@@ -411,7 +411,7 @@ static int EditArList(TDialog * pDlg, uint ctlID, PPID accSheetID, ObjIdListFilt
 void ArticleCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(CtlselAcs && event.isCbSelected(CtlselAcs)) {
-		const PPID preserve_acs_id = Data.AcsID;
+		const  PPID preserve_acs_id = Data.AcsID;
 		pDlg->getCtrlData(CtlselAcs, &Data.AcsID);
 		if(Data.AcsID != preserve_acs_id) {
 			Data.ArList.Set(0);
@@ -419,7 +419,7 @@ void ArticleCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		}
 	}
 	else if(CtlselOp && event.isCbSelected(CtlselOp)) {
-		const PPID preserve_op_id = Data.OpID;
+		const  PPID preserve_op_id = Data.OpID;
 		pDlg->getCtrlData(CtlselOp, &Data.OpID);
 		if(Data.OpID != preserve_op_id) {
 			Data.ArList.Set(0);

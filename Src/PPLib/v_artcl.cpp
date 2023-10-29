@@ -176,7 +176,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 						PPTransaction tra(ppDbDependTransaction, 1);
 						THROW(tra);
 						for(uint i = 0; i < _id_list.getCount(); i++) {
-							const PPID _id = _id_list.get(i);
+							const  PPID _id = _id_list.get(i);
 							PPClientAgreement cli_agt;
 							if(ArObj.GetClientAgreement(_id, cli_agt) > 0) {
 								TempArAgtTbl::Rec rec;
@@ -265,7 +265,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 						ar_agt_list.sortAndUndup();
 						PPSupplAgreement suppl_agt;
 						for(uint i = 0; i < ar_agt_list.getCount(); i++) {
-							const PPID ar_id = ar_agt_list.get(i);
+							const  PPID ar_id = ar_agt_list.get(i);
 							if(ArObj.GetSupplAgreement(ar_id, &suppl_agt, 0) > 0) {
 								TempArAgtTbl::Rec rec;
 								// @v10.7.9 @ctr MEMSZERO(rec);
@@ -296,7 +296,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 					PPTransaction tra(ppDbDependTransaction, 1);
 					THROW(tra);
 					for(uint i = 0; i < id_list.getCount(); i++) {
-						const PPID ar_id = id_list.get(i);
+						const  PPID ar_id = id_list.get(i);
 						ArticleTbl::Rec ar_rec;
 						if(ArObj.Search(ar_id, &ar_rec) > 0 && !ArObj.CheckObject(&ar_rec, &msg)) {
 							TempArAgtTbl::Rec rec;
@@ -679,7 +679,7 @@ int PPViewArticle::UpdateAll()
 						PPTransaction tra(1);
 						THROW(tra);
 						for(uint i = 0; i < cnt; i++) {
-							const PPID _id = id_list.get(i);
+							const  PPID _id = id_list.get(i);
 							PPArticlePacket pack;
 							if(_id && ArObj.GetPacket(_id, &pack) > 0) {
 								int    do_update = 0;
@@ -750,7 +750,7 @@ int PPViewArticle::UpdateAll()
 					PPTransaction tra(1);
 					THROW(tra);
 					for(uint i = 0; i < cnt; i++) {
-						const PPID _id = id_list.get(i);
+						const  PPID _id = id_list.get(i);
 						if(_id) {
 							if(!ArObj.RemoveObjV(_id, 0, 0, 0)) {
 								logger.LogLastError();
@@ -773,7 +773,7 @@ int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_DELETEALL:
 				ok = UpdateAll();
@@ -854,8 +854,8 @@ int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 				break;
 		}
 	}
-	else if(ok > 0 && pHdr && *static_cast<const PPID *>(pHdr)) {
-		UpdateTempTable(*static_cast<const PPID *>(pHdr));
+	else if(ok > 0 && pHdr && *static_cast<const  PPID *>(pHdr)) {
+		UpdateTempTable(*static_cast<const  PPID *>(pHdr));
 	}
 	return ok;
 }

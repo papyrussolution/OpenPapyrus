@@ -1372,11 +1372,11 @@ struct LocalSelectorDescr {
 					parent_id_list.sortAndUndup();
 					named_id_list.sortAndUndup();
 					for(uint k = 0; k < parent_id_list.getCount(); k++) {
-						const PPID parent_id = parent_id_list.get(k);
+						const  PPID parent_id = parent_id_list.get(k);
 						if(named_id_list.addUnique(parent_id) > 0) {
 							ReferenceTbl::Rec tag_item_rec;
 							if(p_ref->GetItem(tag_rec.TagEnumID, parent_id, &tag_item_rec) > 0) {
-								const PPID next_parent_id = tag_item_rec.Val2;
+								const  PPID next_parent_id = tag_item_rec.Val2;
 								assert(tag_item_rec.ObjID == parent_id);
 								SJson * p_jsel_val = SJson::CreateObj();
 								p_jsel_val->Insert("ID", json_new_string(temp_buf.Z().Cat(parent_id)));
@@ -1476,7 +1476,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 	SString tses_text, temp_buf, o_buf, txt_buf;
 	PPObjUhttStore store_obj;
 	PPUhttStore store_rec;
-	const PPID store_id = (P_TSesF && P_TSesF->UhttStoreID && store_obj.Search(P_TSesF->UhttStoreID, &store_rec) > 0) ? store_rec.ID : 0;
+	const  PPID store_id = (P_TSesF && P_TSesF->UhttStoreID && store_obj.Search(P_TSesF->UhttStoreID, &store_rec) > 0) ? store_rec.ID : 0;
 	THROW_MEM(SETIFZ(P_TSesObj, new PPObjTSession));
 	if(IdList.getCount()) {
 		for(uint i = 0; i < IdList.getCount(); i++) {
@@ -1517,13 +1517,13 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 	//
 	//
 	if(_Op == oGetTSessPlaceStatus) {
-		const PPID qk_id = (P_TSesF && P_TSesF->QuotKindID) ? P_TSesF->QuotKindID : PPQUOTK_BASE;
+		const  PPID qk_id = (P_TSesF && P_TSesF->QuotKindID) ? P_TSesF->QuotKindID : PPQUOTK_BASE;
 		assert(qk_id); // @paranoic
 		PPObjTSession::PlaceStatus status_item;
 		TSCollection <PPObjTSession::PlaceStatus> status_list;
 		if(P_LocTspF && P_LocTspF->PlaceCode[0] && !sstreqi_ascii(P_LocTspF->PlaceCode, "all")) {
             for(uint j = 0; j < ResultList.getCount(); j++) {
-                const PPID tsess_id = ResultList.Get(j).Id;
+                const  PPID tsess_id = ResultList.Get(j).Id;
                 THROW(P_TSesObj->GetPlaceStatus(tsess_id, P_LocTspF->PlaceCode, qk_id, (store_id ? store_rec.LocID : 0), status_item));
                 {
 					PPObjTSession::PlaceStatus * p_new_item = new PPObjTSession::PlaceStatus(status_item);
@@ -1539,7 +1539,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 			PPProcessorPacket prc_pack;
 			StringSet ss_places;
 			for(uint j = 0; j < ResultList.getCount(); j++) {
-				const PPID tsess_id = ResultList.Get(j).Id;
+				const  PPID tsess_id = ResultList.Get(j).Id;
 				if(P_TSesObj->Search(tsess_id, &tses_rec) > 0 && P_TSesObj->PrcObj.GetPacket(tses_rec.PrcID, &prc_pack) > 0) {
 					const uint pdc = prc_pack.Ext.GetPlaceDescriptionCount();
 					if(pdc) {
@@ -1588,7 +1588,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 							goods_list.sortAndUndup();
 							const QuotIdent qi(getcurdate_(), (store_id ? store_rec.LocID : prc_pack.Rec.LocID), qk_id, 0, 0);
 							for(uint gi = 0; gi < goods_list.getCount(); gi++) {
-								const PPID goods_id = goods_list.get(gi);
+								const  PPID goods_id = goods_list.get(gi);
 								double quot = 0.0;
 								if(GObj.GetQuotExt(goods_id, qi, &quot, 1) > 0) {
 									for(uint si = 0; si < place_pos_list.getCount(); si++) {
@@ -1672,7 +1672,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 						uint pos = 0;
 						PPViewTSession::UhttStoreExt iter_ext;
 						for(uint j = 0; j < ResultList.getCount(); j++) {
-							const PPID tsess_id = ResultList.Get(j).Id;
+							const  PPID tsess_id = ResultList.Get(j).Id;
 							if(P_TSesObj->Search(tsess_id, &tses_rec) > 0) {
 								if(p_view && p_view->GetUhttStoreExtension(tses_rec, iter_ext) > 0 && iter_ext.SfList.getCount()) {
 									int sel_idx = 0;
@@ -1707,7 +1707,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 						PPCheckInPersonArray ci_list;
 						const LDATETIME _cdtm = getcurdatetime_();
 						for(uint j = 0; j < ResultList.getCount(); j++) {
-							const PPID tsess_id = ResultList.Get(j).Id;
+							const  PPID tsess_id = ResultList.Get(j).Id;
 							if(P_TSesObj->Search(tsess_id, &tses_rec) > 0 && prc_obj.Fetch(tses_rec.PrcID, &prc_rec) > 0) {
 								tses_ext.Z();
 								P_TSesObj->GetExtention(tsess_id, &tses_ext);
@@ -1856,7 +1856,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 	if(TagExistList.getCount()) {
 		UintHashTable id_list;
 		for(uint i = 0; i < TagExistList.getCount(); i++) {
-			const PPID tag_id = TagExistList.get(i);
+			const  PPID tag_id = TagExistList.get(i);
 			p_ref->Ot.GetObjectList(PPOBJ_GOODS, tag_id, id_list);
 		}
 		for(ulong lp = 0; id_list.Enum(&lp);) {
@@ -2446,7 +2446,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						PPTransaction tra(1);
 						THROW(tra);
 						for(uint i = 0; i < IdList.getCount(); i++) {
-							const PPID obj_id = IdList.get(i);
+							const  PPID obj_id = IdList.get(i);
 							if(obj_id) {
 								if(Operator == oSetObjectTag) {
 									if(P_TagBlk->Value.NotEmptyS()) {
@@ -2477,7 +2477,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				}
 				else if(Operator == oGetObjectTag) {
 					for(uint i = 0; i < IdList.getCount(); i++) {
-						const PPID obj_id = IdList.get(i);
+						const  PPID obj_id = IdList.get(i);
 						if(obj_id && p_ref->Ot.GetTag(P_TagBlk->ObjType, obj_id, P_TagBlk->TagID, &tag) > 0) {
 							tag.GetStr(temp_buf);
 							THROW_SL(ResultList.Add(obj_id, 0, temp_buf));
@@ -2519,8 +2519,8 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					if(P_QF->LocalFlags & P_QF->lfNonZeroDraftRestOnly) {
 						if(c && p_bobj) {
 							PPOprKind op_rec;
-							const PPID rest_op_id = (GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
-							const PPID order_op_id = (GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
+							const  PPID rest_op_id = (GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
+							const  PPID order_op_id = (GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
 							if(rest_op_id) {
 								do {
 									PPQuotItem_ & r_item = temp_list.at(--c);
@@ -2996,7 +2996,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				if(use_filt) {
 					if(P_GaF && P_GaF->OwnerList.getCount()) {
 						for(uint i = 0; i < P_GaF->OwnerList.getCount(); i++) {
-							const PPID owner_id = P_GaF->OwnerList.get(i);
+							const  PPID owner_id = P_GaF->OwnerList.get(i);
 							for(SEnum en = gua_obj.P_Ref->EnumByIdxVal(ObjType, 2, owner_id); en.Next(&gua_rec) > 0;) {
 								THROW_SL(ResultList.Add(gua_rec.ID, 0, gua_rec.Name));
 							}
@@ -3142,7 +3142,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						ProcessorPlaceCodeTemplate::NormalizeCode(crit_place_code);
 						PPObjUhttStore store_obj;
 						PPUhttStore store_rec;
-						const PPID store_id = (P_SetBlk->U.TS.UhttStoreID && store_obj.Search(P_SetBlk->U.TS.UhttStoreID, &store_rec) > 0) ? store_rec.ID : 0;
+						const  PPID store_id = (P_SetBlk->U.TS.UhttStoreID && store_obj.Search(P_SetBlk->U.TS.UhttStoreID, &store_rec) > 0) ? store_rec.ID : 0;
 						THROW_PP(P_SetBlk->U.TS.CipID || crit_place_code.NotEmpty(), PPERR_TSESSCIPOP_NOITEMCRIT);
 						THROW(P_TSesObj->GetPacket(tses_id, &pack, PPObjTSession::gpoLoadLines) > 0);
 						{
@@ -4460,7 +4460,7 @@ int Backend_SelectObjectBlock::ResolveCrit_Article(int subcriterion, const SStri
 
 int Backend_SelectObjectBlock::ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID)
 {
-	const PPID acs_id = GetSupplAccSheet();
+	const  PPID acs_id = GetSupplAccSheet();
 	PPID   temp_id = 0;
 	switch(subcriterion) {
 		case 0:

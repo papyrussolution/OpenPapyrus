@@ -1246,7 +1246,7 @@ int PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 	else {
 		uint count = rIdList.getCount();
 		for(uint i = 0; i < count; i++) {
-			const PPID id = rIdList.at(i);
+			const  PPID id = rIdList.at(i);
 			BudgetItemTbl::Rec rec;
 			TempBudgItemTbl::Rec  temp_rec;
 			TempBudgItemTbl::Key0 k0;

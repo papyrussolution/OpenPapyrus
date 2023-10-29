@@ -232,7 +232,7 @@ private:
 	}
 	void   SetupCtrls()
 	{
-		const PPID grp_id = getCtrlLong(CTLSEL_PREGTYP_GGRP);
+		const  PPID grp_id = getCtrlLong(CTLSEL_PREGTYP_GGRP);
 		disableCtrl(CTL_PREGTYP_GGRPALLOW, BIN(!grp_id));
 	}
 };

@@ -656,7 +656,7 @@ int PPObjTSession::SearchByGuid(const S_GUID_Base & rUuid, TSessionTbl::Rec * pR
 		//
 		for(uint i = 0; i < id_list.getCount(); i++) {
 			TSessionTbl::Rec temp_rec;
-			const PPID temp_id = id_list.get(i);
+			const  PPID temp_id = id_list.get(i);
 			if(Search(temp_id, &temp_rec) > 0) {
 				LDATETIME _dtm;
 				_dtm.Set(temp_rec.StDt, temp_rec.StTm);
@@ -794,7 +794,7 @@ int PPObjTSession::GetListByGoodsInLines(const PPIDArray & rGoodsIdList, const P
 				q.selectAll().where(r_t.TSessID >= low_id && r_t.TSessID <= upp_id);
 				for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 					if(pDraftTSessIdList->bsearch(r_t.data.TSessID)) {
-						const PPID goods_id = r_t.data.GoodsID;
+						const  PPID goods_id = r_t.data.GoodsID;
 						if(is_goods_list_sorted ? rGoodsIdList.bsearch(goods_id) : rGoodsIdList.lsearch(goods_id)) {
 							rList.add(r_t.data.TSessID);
 						}
@@ -807,7 +807,7 @@ int PPObjTSession::GetListByGoodsInLines(const PPIDArray & rGoodsIdList, const P
 		}
 		else {
 			for(uint i = 0; i < rGoodsIdList.getCount(); i++) {
-				const PPID goods_id = rGoodsIdList.get(i);
+				const  PPID goods_id = rGoodsIdList.get(i);
 				TSessLineTbl::Key2 k2;
 				MEMSZERO(k2);
 				k2.GoodsID = goods_id;
@@ -1485,7 +1485,7 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 				MEMSZERO(tec_rec);
 			if(TecObj.GetChildList(tses_rec.TechID, tec_child_list) > 0) {
 				for(uint i = 0; i < tec_child_list.getCount(); i++) {
-					const PPID tec_child_id = tec_child_list.get(i);
+					const  PPID tec_child_id = tec_child_list.get(i);
 					if(TecObj.Fetch(tec_child_id, &tec_rec2) > 0) {
 						TSessionTbl::Rec sub_ses_rec;
 						THROW(InitRec(&sub_ses_rec, TSESK_SUBSESS, tec_rec2.PrcID, sessID, TSESST_PLANNED));
@@ -2291,7 +2291,7 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 		if(prc_group_list.getCount()) {
 			prc_group_list.sortAndUndup();
 			for(uint gidx = 0; gidx < prc_group_list.getCount(); gidx++) {
-				const PPID prc_group_id = prc_group_list.get(gidx);
+				const  PPID prc_group_id = prc_group_list.get(gidx);
 				for(SEnum en = PrcObj.P_Tbl->Enum(PPPRCK_PROCESSOR, prc_group_id); en.Next(&prc_rec) > 0;) {
 					if(prc_rec.Flags & PRCF_ALLOWREPEATING) {
 						if(prc_rec.Kind == PPPRCK_PROCESSOR)
@@ -2303,7 +2303,7 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 		if(prc_list.getCount()) {
 			prc_list.sortAndUndup();
 			for(uint prcidx = 0; prcidx < prc_list.getCount(); prcidx++) {
-				const PPID prc_id = prc_list.get(prcidx);
+				const  PPID prc_id = prc_list.get(prcidx);
 				TSessionTbl::Key4 k4;
 				MEMSZERO(k4);
 				k4.PrcID = prc_id;
@@ -2323,7 +2323,7 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 	if(src_sess_list.getCount()) {
 		src_sess_list.sortAndUndup();
 		for(uint i = 0; i < src_sess_list.getCount(); i++) {
-			const PPID src_sess_id = src_sess_list.get(i);
+			const  PPID src_sess_id = src_sess_list.get(i);
 			TSessionPacket src_sess_pack;
 			if(GetPacket(src_sess_id, &src_sess_pack, 0) > 0) {
 				DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&src_sess_pack.Rec.Repeating);
@@ -2999,7 +2999,7 @@ int PPObjTSession::GetGoodsPrice(PPID goodsID, PPID locID, PPID scardID, PPObjTS
 	int    ok = -1;
 	double price = 0.0;
 	double discount = 0.0;
-	const PPID agent_ar_id = pWrOffAttr ? pWrOffAttr->AgentID : 0;
+	const  PPID agent_ar_id = pWrOffAttr ? pWrOffAttr->AgentID : 0;
 	RetailExtrItem rpi;
 	RetailPriceExtractor rpe(locID, 0, agent_ar_id, ZERODATETIME, (outerPrice > 0.0) ? RTLPF_USEOUTERPRICE : 0);
 	if(outerPrice > 0.0) {
@@ -3070,7 +3070,7 @@ int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const 
 			PPObjTSession::WrOffAttrib * p_attrib = (GetWrOffAttrib(&tses_rec, &attrib) > 0) ? &attrib : 0; // @v11.7.6
 			GetGoodsPrice(goodsID, prc_rec.LocID, tses_rec.SCardID, p_attrib, 0.0/*outerPrice*/, &pRec->Price, &pRec->Discount); // @v11.7.6
 			/* @v11.7.6
-			const PPID agent_ar_id = (GetWrOffAttrib(&tses_rec, &attrib) > 0) ? attrib.AgentID : 0;
+			const  PPID agent_ar_id = (GetWrOffAttrib(&tses_rec, &attrib) > 0) ? attrib.AgentID : 0;
 			RetailExtrItem rpi;
 			RetailPriceExtractor rpe(prc_rec.LocID, 0, agent_ar_id, ZERODATETIME, 0);
 			rpe.GetPrice(goodsID, 0, 0.0, &rpi);
@@ -3700,7 +3700,7 @@ int PPObjTSession::CalcBalance(PPID sessID, double * pDebt, double * pBillPaym, 
 		PPIDArray bill_list;
 		p_bobj->P_Tbl->GetPoolMembersList(PPASS_TSESSBILLPOOL, sessID, &bill_list);
 		for(uint i = 0; i < bill_list.getCount(); i++) {
-			const PPID bill_id = bill_list.get(i);
+			const  PPID bill_id = bill_list.get(i);
 			BillTbl::Rec bill_rec;
 			if(p_bobj->Fetch(bill_id, &bill_rec) > 0) {
 				if(bill_rec.Flags2 & BILLF2_TSESSPAYM) {
@@ -3739,7 +3739,7 @@ int PPObjTSession::WriteOff(const PPIDArray * pSessList, PUGL * pDfctList, int u
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		for(i = 0; i < pSessList->getCount(); i++) {
-			const PPID sess_id = pSessList->at(i);
+			const  PPID sess_id = pSessList->at(i);
 			if(Search(sess_id, &tses_rec) > 0) {
 				ProcessorTbl::Rec prc_rec;
 				if(tses_rec.Flags & TSESF_SUPERSESS) {
@@ -3912,7 +3912,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 				THROW(P_Tbl->GetChildIDList(sessID, TSessionCore::gclfSubSess|TSessionCore::gclfRecursive, &sess_id_list));
 				sess_id_list.addUnique(sessID);
 				for(uint sc = 0; sc < sess_id_list.getCount(); sc++) {
-					const PPID sess_id = sess_id_list.get(sc);
+					const  PPID sess_id = sess_id_list.get(sc);
 					long   oprno = 0;
 					for(P_Tbl->InitLineEnum(sess_id, &hdl_ln_enum); P_Tbl->NextLineEnum(hdl_ln_enum, &line_rec) > 0;) {
 						LongArray rows;

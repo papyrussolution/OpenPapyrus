@@ -143,7 +143,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					THROW(p_sj->GetObjListByEventPeriod(PPOBJ_LOCATION, Filt.P_SjF->UserID,
 						&Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, sj_id_list));
 					for(uint i = 0; i < sj_id_list.getCount(); i++) {
-						const PPID loc_id = sj_id_list.get(i);
+						const  PPID loc_id = sj_id_list.get(i);
 						if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0 && loc_rec.Flags & LOCF_STANDALONE) {
 							PsnAttrViewItem vi;
 							// @v10.7.5 @ctr MEMSZERO(vi);
@@ -238,7 +238,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					if(Filt.Category || Filt.Status || srch_buf.NotEmptyS()) {
 						local_list.clear();
 						for(uint i = 0; i < id_list.getCount(); i++) {
-							const PPID id = id_list.get(i);
+							const  PPID id = id_list.get(i);
 							PersonTbl::Rec rec;
 							if(PsnObj.Fetch(id, &rec) > 0) {
 								if((!Filt.Category || rec.CatID == Filt.Category) && (!Filt.Status || rec.Status == Filt.Status)) {
@@ -309,7 +309,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					id_list.sortAndUndup();
 					cntr.Init(id_list.getCount());
 					for(uint i = 0; i < id_list.getCount(); i++) {
-						const PPID person_id = id_list.get(i);
+						const  PPID person_id = id_list.get(i);
 						int   skip = 0;
 						if(Filt.NewCliPeriod.low) {
 							if(ncd_blk.IsNewPerson(person_id, Filt.NewCliPeriod))
@@ -688,7 +688,7 @@ int PPViewPerson::UpdateList()
 							PPTransaction tra(1);
 							THROW(tra);
 							for(uint i = 0; i < cnt; i++) {
-								const PPID _id = id_list.get(i);
+								const  PPID _id = id_list.get(i);
 								if(!PsnObj.P_Tbl->AddKind(_id, param.ExtObj, 0)) {
 									logger.LogLastError();
 								}
@@ -702,7 +702,7 @@ int PPViewPerson::UpdateList()
 							PPTransaction tra(1);
 							THROW(tra);
 							for(uint i = 0; i < cnt; i++) {
-								const PPID _id = id_list.get(i);
+								const  PPID _id = id_list.get(i);
 								if(!PsnObj.P_Tbl->RemoveKind(_id, param.ExtObj, 0)) {
 									logger.LogLastError();
 								}
@@ -714,12 +714,12 @@ int PPViewPerson::UpdateList()
 					case UpdPersonListParam::acnGenerateUUID: // @v10.5.8
 						{
 							Reference * p_ref = PPRef;
-							const PPID obj_type = PPOBJ_PERSON;
-							const PPID tag_id = PPTAG_PERSON_UUID;
+							const  PPID obj_type = PPOBJ_PERSON;
+							const  PPID tag_id = PPTAG_PERSON_UUID;
 							PPTransaction tra(1);
 							THROW(tra);
 							for(uint i = 0; i < cnt; i++) {
-								const PPID _id = id_list.get(i);
+								const  PPID _id = id_list.get(i);
 								S_GUID uuid;
 								if(p_ref->Ot.GetTagGuid(obj_type, _id, tag_id, uuid) < 0) {
 									uuid.Generate();
@@ -740,7 +740,7 @@ int PPViewPerson::UpdateList()
 							PPTransaction tra(1);
 							THROW(tra);
 							for(uint i = 0; i < cnt; i++) {
-								const PPID _id = id_list.get(i);
+								const  PPID _id = id_list.get(i);
 								if(!PsnObj.RemoveObjV(_id, 0, 0, 0)) {
 									logger.LogLastError();
 								}
@@ -785,7 +785,7 @@ int PPViewPerson::DeleteItem(PPID id)
 					PPTransaction tra(1);
 					THROW(tra);
 					for(uint i = 0; i < cnt; i++) {
-						const PPID _id = id_list.get(i);
+						const  PPID _id = id_list.get(i);
 						if(!PsnObj.RemoveObjV(_id, 0, PPObject::no_wait_indicator, 0)) {
 							logger.LogLastError();
 						}
@@ -1476,7 +1476,7 @@ int FASTCALL PPViewPerson::NextIteration(PersonViewItem * pItem)
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {// AHTOXA
 			if(P_TempPsn) {
 				if(oneof2(Filt.AttribType, PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
-					const PPID loc_id = P_TempPsn->data.TabID;
+					const  PPID loc_id = P_TempPsn->data.TabID;
 					LocationTbl::Rec loc_rec;
 					if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0) {
 						item.AttrItem = P_TempPsn->data;
@@ -1965,7 +1965,7 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			}
 			else if(event.isCmd(cmTags)) {
 				GetClusterData(CTL_PSNFLT_FLAGS, &Data.Flags);
-				const PPID tag_obj_type = (Data.Flags & PersonFilt::fLocTagF) ? PPOBJ_LOCATION : PPOBJ_PERSON;
+				const  PPID tag_obj_type = (Data.Flags & PersonFilt::fLocTagF) ? PPOBJ_LOCATION : PPOBJ_PERSON;
 				if(!SETIFZ(Data.P_TagF, new TagFilt()))
 					PPError(PPERR_NOMEM);
 				else if(!EditTagFilt(tag_obj_type, Data.P_TagF))
@@ -2083,7 +2083,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 				pCellStyle->Color2 = GetColorRef(SClrGreen);
 				ok = 1;
 			}
-			else if(col == 1 && p_view->IsNewCliPerson(*static_cast<const PPID *>(pData))) {
+			else if(col == 1 && p_view->IsNewCliPerson(*static_cast<const  PPID *>(pData))) {
 				pCellStyle->Flags = 0;
 				pCellStyle->Color = GetColorRef(SClrOrange);
 				ok = 1;
@@ -2447,8 +2447,8 @@ int PPViewPerson::Recover()
 		p_bobj->P_Tbl->GetDlvrAddrList(&bill_dlvr_addr_list);
 		// @v10.5.7 {
 		for(uint bdaidx = 0; bdaidx < bill_dlvr_addr_list.getCount(); bdaidx++) {
-			const PPID bill_id = bill_dlvr_addr_list.at(bdaidx).Key;
-			const PPID addr_id = bill_dlvr_addr_list.at(bdaidx).Val;
+			const  PPID bill_id = bill_dlvr_addr_list.at(bdaidx).Key;
+			const  PPID addr_id = bill_dlvr_addr_list.at(bdaidx).Val;
 			if(addr_id && !hanged_addr_list.lsearch(addr_id)) {
 				if(PsnObj.LocObj.Search(addr_id, &loc_rec) < 0) {
 					if(p_bobj->Search(bill_id, &bill_rec) > 0) {
@@ -2480,7 +2480,7 @@ int PPViewPerson::Recover()
 					bill_dlvr_addr_list.GetListByVal(r_assc.Key, bill_list);
 					ar_list.clear();
 					for(uint j = 0; j < bill_list.getCount(); j++) {
-						const PPID bill_id = bill_list.get(j);
+						const  PPID bill_id = bill_list.get(j);
 						if(p_bobj->Search(bill_id, &bill_rec) > 0)
 							ar_list.add(bill_rec.Object);
 					}
@@ -2524,7 +2524,7 @@ int PPViewPerson::Recover()
 					temp_buf.Z().CatChar('#').Cat(loc_pack.ID).Space().Cat(addr_buf);
 					addr_buf = temp_buf;
 				}
-				const PPID inv_owner_id = loc_pack.OwnerID;
+				const  PPID inv_owner_id = loc_pack.OwnerID;
 				if(!conflict_owner_addr_list.bsearch(addr_id)) {
 					if(inv_owner_id != valid_owner_id) {
 						// PPTXT_LOG_DLVRADDINVOWNER       "Адрес доставки '@zstr' ссылается не на того владельца (@person), которому принадлежит (@person)"
@@ -2862,7 +2862,7 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				break;
 			case PPVCMD_VIEWSCARDS:
 				if(oneof2(Filt.AttribType, PPPSNATTR_STANDALONEADDR, PPPSNATTR_HANGEDADDR)) {
-					const PPID loc_id = pHdr ? static_cast<const long *>(pHdr)[1] : 0;
+					const  PPID loc_id = pHdr ? static_cast<const long *>(pHdr)[1] : 0;
 					if(loc_id) {
 						SCardFilt sc_flt;
 						sc_flt.LocID = loc_id;
@@ -2878,7 +2878,7 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				break;
 			case PPVCMD_SYSJ:
 				if(oneof2(Filt.AttribType, PPPSNATTR_STANDALONEADDR, PPPSNATTR_HANGEDADDR)) {
-					const PPID loc_id = pHdr ? static_cast<const long *>(pHdr)[1] : 0;
+					const  PPID loc_id = pHdr ? static_cast<const long *>(pHdr)[1] : 0;
 					if(loc_id) {
 						ok = ViewSysJournal(PPOBJ_LOCATION, loc_id, 0);
 					}

@@ -1702,7 +1702,7 @@ int CTableOrder::MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack)
 	pPack->Memo.CopyTo(pCcPack->Ext.Memo, sizeof(pCcPack->Ext.Memo));
 	getcurdatetime(&pCcPack->Rec.Dt, &pCcPack->Rec.Tm);
 	if(pPack->PrepayAmount > 0.0 && pPack->SCardID) {
-		const PPID chg_goods_id = P_ScObj->GetConfig().ChargeGoodsID;
+		const  PPID chg_goods_id = P_ScObj->GetConfig().ChargeGoodsID;
 		THROW_PP(chg_goods_id, PPERR_UNDEFSCCHGGOODS);
 		THROW(pCcPack->InsertItem(chg_goods_id, 1.0, pPack->PrepayAmount, 0.0));
 		pCcPack->SetupAmount(0, 0);
@@ -2255,13 +2255,20 @@ int PPObjCSession::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
 	LAssocArray * p_index = FetchCcDate2MaxIdIndex(index) ? &index : 0;
 	return P_Cc ? P_Cc->Helper_GetListByMark(pText, CCheckPacket::lnextChZnMark, p_index, back_days, 0, rCcList, 0) : 0;
 }
+
+int PPObjCSession::GetListByUuid(const S_GUID & rUuid, uint backDays, PPIDArray & rCcList)
+{
+	LAssocArray index;
+	LAssocArray * p_index = (backDays && FetchCcDate2MaxIdIndex(index)) ? &index : 0;
+	return P_Cc ? P_Cc->GetListByUuid(rUuid, p_index, backDays, rCcList) : 0;
+}
 //
 //
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(CCHECK2, PPCCheckImpExpParam);
 
 
-PPCCheckImpExpParam::PPCCheckImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), PredefFormat(0)
+PPCCheckImpExpParam::PPCCheckImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), PredefFormat(0), CcByUuidSearchMaxDays(0)
 {
 }
 
@@ -2811,7 +2818,8 @@ int PPCCheckImporter::Run()
 					p_cc->AdjustRecTime(cc_pack.Rec);
 				}
 				S_GUID doc_guid;
-				if(cc_pack.GetGuid(doc_guid) && p_cc->GetListByUuid(doc_guid, cc_list_by_guid) > 0) {
+				const uint back_days = (Param.CcByUuidSearchMaxDays > 0) ? Param.CcByUuidSearchMaxDays : 30;
+				if(cc_pack.GetGuid(doc_guid) && CsObj.GetListByUuid(doc_guid, back_days, cc_list_by_guid) > 0) {
 					if(PPLoadText(PPTXT_CCIMP_ALREADYIMPORTED, fmt_buf)) {
 						CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
 						Logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
@@ -2830,6 +2838,7 @@ int PPCCheckImporter::Run()
 								p_posprc = new CPosProcessor(Param.PosNodeID, 0, 0, 0, 0);
 							}
 							if(p_posprc) {
+								const  bool zero_agent_restriction = p_posprc->Backend_SetZeroAgentRestriction(false);
 								PPID   cc_id = cc_pack.Rec.ID; // @note: non-const because func AcceptCheck will modify it
 								double cc_amt = 0.0;
 								double cc_discount = 0.0;
@@ -2852,6 +2861,7 @@ int PPCCheckImporter::Run()
 								}
 								else
 									Logger.LogLastError();
+								p_posprc->Backend_SetZeroAgentRestriction(zero_agent_restriction);
 							}
 						}
 						ok = 1;

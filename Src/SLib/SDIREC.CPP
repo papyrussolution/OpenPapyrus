@@ -204,14 +204,7 @@ int SDirec::Init(const char * pPathName, int enumDir)
 	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	r_temp_buf = pPathName;
-	if(r_temp_buf.IsLegalUtf8()) {
-		r_temp_buf_u.CopyFromUtf8(r_temp_buf);
-	}
-	else {
-		// ≈сли исходна€ строка pPathName не ascii и не utf8 то сделаем сильное и рискованное предположение, что
-		// она - в ANSI-кодировке.
-		r_temp_buf_u.CopyFromMb_OUTER(r_temp_buf, r_temp_buf.Len());
-	}
+	r_temp_buf.CopyToUnicode(r_temp_buf_u);
 	r_temp_buf_u.CopyTo(InitPath, SIZEOFARRAY(InitPath));
 	// } @v11.8.7
 	InitFlag = 1;

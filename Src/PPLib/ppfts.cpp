@@ -830,7 +830,7 @@ static int Test_Fts2()
 				LongArray current_word_id_list;
 				entity.Scope = PPFtsInterface::scopePPDb;
 				if(!!db_uuid)
-					entity.ScopeIdent.Z().Cat(db_uuid);
+					entity.ScopeIdent.Z().Cat(db_uuid, S_GUID::fmtIDL);
 				else
 					entity.ScopeIdent = db_symb;
 				entity.ObjType = PPOBJ_GOODS;
@@ -1005,7 +1005,7 @@ int  Test_Fts()
 						if(tbl.IsValid()) {
 							for(uint i = 0; i < 1000000; i++) {
 								S_GUID uuid(SCtrGenerate_);
-								temp_buf.Z().Cat(uuid);
+								temp_buf.Z().Cat(uuid, S_GUID::fmtIDL);
 								uuidlist.insert(&uuid);
 								if(!tbl.Put(&uuid, sizeof(uuid), temp_buf.cptr(), temp_buf.Len(), 0))
 									put_err++;
@@ -1021,7 +1021,7 @@ int  Test_Fts()
 							uuidlist.shuffle();
 							for(uint i = 0; i < uuidlist.getCount(); i++) {
 								S_GUID uuid = uuidlist.at(i);
-								temp_buf.Z().Cat(uuid);
+								temp_buf.Z().Cat(uuid, S_GUID::fmtIDL);
 								SBaseBuffer val_buf;
 								int r = tbl.Get(&uuid, sizeof(uuid), val_buf);
 								if(r > 0) {

@@ -564,7 +564,7 @@ int PPFreight::SetupDlvrAddr(PPID dlvrAddrID)
 			ok = 1;
 		}
 		if(!PortOfDischarge) {
-			const PPID trunk_point_id = loc_obj.GetTrunkPointByDlvrAddr(dlvrAddrID);
+			const  PPID trunk_point_id = loc_obj.GetTrunkPointByDlvrAddr(dlvrAddrID);
 			if(trunk_point_id) {
 				PortOfDischarge = trunk_point_id;
 				ok = 2;
@@ -2769,13 +2769,13 @@ int PPBillPacket::SerializeLots(int dir, SBuffer & rBuf, SSerializeContext * pSC
 
 bool PPBillPacket::IsDraft() const
 {
-	const PPID op_type_id = OpTypeID;
+	const  PPID op_type_id = OpTypeID;
 	return oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ);
 }
 
 bool PPBillPacket::IsGoodsDetail() const
 {
-	const PPID op_type_id = OpTypeID;
+	const  PPID op_type_id = OpTypeID;
 	return oneof12(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GOODSRECEIPT, 
 		PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER);
 }
@@ -2971,7 +2971,7 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 			//
 			const bool check_dup_code = LOGIC(CConfig.Flags & CCFLG_CHECKUNIQBILLCODE);
 			PPObjOpCounter opc_obj;
-			const PPID loc_id = NZOR(locID, r_cfg.Location);
+			const  PPID loc_id = NZOR(locID, r_cfg.Location);
 			if(check_dup_code) {
 				PPObjBill * p_bobj = BillObj;
 				//
@@ -3479,7 +3479,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 	else if((flags & cgrfGoodsGrpRestrict) && P_GoodsGrpRestrict) {
 		for(uint i = 0; ok && i < P_GoodsGrpRestrict->getCount(); i++) {
 			const LAssoc & r_item = P_GoodsGrpRestrict->at(i);
-			const PPID grp_id = r_item.Key;
+			const  PPID grp_id = r_item.Key;
 			if(r_item.Val > 0) {
 				if(!goods_obj.BelongToGroup(goodsID, grp_id)) {
 					msg_buf.Z().Cat(goods_rec.Name).Space().Cat(">>").Space();
@@ -3506,7 +3506,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 				uint   i;
 				for(i = 0; i < GetTCount(); i++) {
 					const PPTransferItem & r_ti = ConstTI(i);
-					const PPID goods_id = labs((rowIdx == (int)i) ? goodsID : r_ti.GoodsID);
+					const  PPID goods_id = labs((rowIdx == (int)i) ? goodsID : r_ti.GoodsID);
 					const double _q = (rowIdx == (int)i) ? qtty : r_ti.Quantity_;
 					THROW(AddModifGoodsListItem(mg_list, (int)i, goods_id, r_ti.GetSign(Rec.OpID), _q));
 				}
@@ -3546,7 +3546,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 							Reference * p_ref = PPRef;
 							{
 								for(SEnum en = p_ref->Assc.Enum(PPASS_GOODSSTRUC, _id1, 1); !local_ok && en.Next(&assc_rec) > 0;) {
-									const PPID gs_id = assc_rec.PrmrObjID;
+									const  PPID gs_id = assc_rec.PrmrObjID;
 									if(gs_obj.Fetch(gs_id, &gs_hdr) > 0 && gs_hdr.Flags & GSF_SUBST) {
 										aggr_list1.add(gs_id);
 										PPID   owner_goods_id = 0;
@@ -3558,7 +3558,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 							}
 							if(!local_ok) {
 								for(SEnum en = p_ref->Assc.Enum(PPASS_GOODSSTRUC, _id2, 1); !local_ok && en.Next(&assc_rec) > 0;) {
-									const PPID gs_id = assc_rec.PrmrObjID;
+									const  PPID gs_id = assc_rec.PrmrObjID;
 									if(gs_obj.Fetch(gs_id, &gs_hdr) > 0 && gs_hdr.Flags & GSF_SUBST) {
 										aggr_list2.add(gs_id);
 										PPID   owner_goods_id = 0;
@@ -3625,7 +3625,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
                         for(SEnum en = r_billc.EnumByOp(gvr_pack.Rec.ScpShipmLimitOpID, &plan_bill_period, 0); en.Next(&plan_bill_rec) > 0;) {
                             if(Rec.Dt >= plan_bill_rec.Dt && (!plan_bill_rec.DueDate || Rec.Dt < plan_bill_rec.DueDate)) {
 								if(!plan_bill_rec.Object || plan_bill_rec.Object == Rec.Object) {
-									const PPID plan_bill_id = plan_bill_rec.ID;
+									const  PPID plan_bill_id = plan_bill_rec.ID;
 									PPBillPacket plan_bill_pack;
 									P_BObj->P_CpTrfr->LoadItems(plan_bill_id, &plan_bill_pack, &_goods_list); // @v9.5.1 &_goods_list
 									int   has_goods = 0;
@@ -3672,7 +3672,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 										lim += limits.at(limidx).Val;
 								if(lim > 0.0) {
 									for(uint bidx = 0; ok && bidx < p_target_bill_list->getCount(); bidx++) {
-										const PPID target_bill_id = p_target_bill_list->get(bidx);
+										const  PPID target_bill_id = p_target_bill_list->get(bidx);
 										const double lim_by_plan = limits.Get(target_bill_id);
 										if(lim_by_plan > 0.0 && r_billc.Search(target_bill_id, &plan_bill_rec) > 0) {
 											DateRange observe_period;
@@ -4229,7 +4229,7 @@ int PPBillPacket::Helper_DistributeExtCost(double extCostSum, int alg)
 		PPObjGoods goods_obj;
 		Goods2Tbl::Rec goods_rec;
 		for(i = 0; EnumTItems(&i, &p_ti);) {
-			const PPID goods_id = labs(p_ti->GoodsID);
+			const  PPID goods_id = labs(p_ti->GoodsID);
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0 && !(goods_rec.Flags & GF_UNLIM)) {
 				const double qtty = fabs(p_ti->Quantity_);
 				const double p    = (p_ti->Cost + p_ti->ExtCost);
@@ -4310,7 +4310,7 @@ int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 		const int subop = GetOpSubType(Rec.OpID);
 		PPObjAmountType amtt_obj;
 		for(int i = Amounts.getCount() - 1; i >= 0; i--) {
-			const PPID atyp = Amounts.at(i).AmtTypeID;
+			const  PPID atyp = Amounts.at(i).AmtTypeID;
 			// Вычищаем все рассчитываемые суммы
 			int   skip_amt = 0;
 			if(oneof4(atyp, PPAMT_PAYMENT, PPAMT_PCTDIS, PPAMT_MANDIS, PPAMT_CRATE))
@@ -4385,7 +4385,7 @@ int PPBillPacket::HasOneOfGoods(const ObjIdListFilt & rList) const
 	int    yes = 0;
 	if(rList.GetCount()) {
 		for(uint i = 0; !yes && i < rList.GetCount(); i++) {
-			const PPID goods_id = rList.Get(i);
+			const  PPID goods_id = rList.Get(i);
 			if(goods_id && Lots.lsearch(&goods_id, 0, CMPF_LONG, offsetof(PPTransferItem, GoodsID)))
 				yes = 1;
 		}
@@ -4951,7 +4951,7 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 							Goods2Tbl::Rec grp_rec;
 							ObjAssocTbl::Rec assc_rec;
 							for(SEnum en = PPRef->Assc.Enum(PPASS_ALTGOODSGRP, goods_rec.ID, 1); en.Next(&assc_rec) > 0;) {
-								const PPID grp_id = assc_rec.PrmrObjID;
+								const  PPID grp_id = assc_rec.PrmrObjID;
 								if(scale_alt_grp_list.lsearch(grp_id) && goods_obj.Fetch(grp_id, &grp_rec) > 0) {
 									ord_list.Add(++uniq_counter, temp_buf.Z().Cat(grp_rec.Name).Cat(goods_name), 1);
 									ext.Uc = uniq_counter;
@@ -4991,7 +4991,7 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 							LocationTbl::Rec wp_rec;
 							if(p_loc_obj && p_gto_assc && p_gto_assc->GetListByGoods(goods_rec.ID, loc_list) > 0) {
 								for(uint j = 0; to_add_entry && j < loc_list.getCount(); j++) {
-									const PPID _loc_id = loc_list.get(j);
+									const  PPID _loc_id = loc_list.get(j);
 									PPID  _wh_id = 0;
 									if(p_loc_obj->Fetch(_loc_id, &wp_rec) > 0 && p_loc_obj->GetParentWarehouse(_loc_id, &_wh_id) > 0 && _wh_id == pPack->Rec.LocID) {
 										goods_obj.P_Tbl->MakeFullName(goods_rec.ParentID, 0, grp_name);
@@ -5072,11 +5072,11 @@ int TiIter::Init(const PPBillPacket * pPack, long flags, long filtGrpID, Order o
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
 	if(FiltGrpID && Flags & ETIEF_SALDOFILTGRP) {
-		const PPID dlvr_loc_id = pPack->GetDlvrAddrID();
+		const  PPID dlvr_loc_id = pPack->GetDlvrAddrID();
 		PPIDArray temp_list;
 		GoodsIterator::GetListByGroup(FiltGrpID, &temp_list);
 		for(uint i = 0; i < temp_list.getCount(); i++) {
-			const PPID goods_id = temp_list.get(i);
+			const  PPID goods_id = temp_list.get(i);
 			double saldo = 0.0;
 			int    is_present = 0;
 			double qtty = 0.0;
@@ -5320,7 +5320,7 @@ int PPBillPacket::CompareTIByCorrection(long tidFlags, long filtGrpID, TSCollect
 	if(cor_bill_list.getCount()) {
 		PPBillPacket cor_bp;
 		for(uint i = 0; i < cor_bill_list.getCount(); i++) {
-			const PPID cor_bill_id = cor_bill_list.get(i);
+			const  PPID cor_bill_id = cor_bill_list.get(i);
 			THROW(P_BObj->ExtractPacket(cor_bill_id, &cor_bp) > 0);
 			for(uint j = 0; j < cor_bp.GetTCount(); j++) {
 				const PPTransferItem & r_other = cor_bp.ConstTI(j);

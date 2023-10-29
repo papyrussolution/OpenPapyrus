@@ -948,7 +948,7 @@ int PPObjStaffCal::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		}
 	}
 	else if(msg == DBMSG_OBJREPLACE) { // @v11.0.10
-		const PPID new_id = reinterpret_cast<long>(extraPtr);
+		const  PPID new_id = reinterpret_cast<long>(extraPtr);
 		if(_obj == PPOBJ_PERSON) {
 			PPIDArray id_to_upd_list;
 			for(SEnum  en = P_Ref->EnumByIdxVal(Obj, 2, _id); en.Next(&rec) > 0;) {
@@ -958,7 +958,7 @@ int PPObjStaffCal::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			}
 			id_to_upd_list.sortAndUndup();
 			for(uint i = 0; i < id_to_upd_list.getCount(); i++) {
-				const PPID cal_id = id_to_upd_list.get(i);
+				const  PPID cal_id = id_to_upd_list.get(i);
 				if(Search(cal_id, &rec) > 0 && rec.LinkObjType == PPOBJ_PERSON && rec.LinkObjID == _id) {
 					rec.LinkObjID = new_id;
 					THROW(P_Ref->UpdateItem(Obj, cal_id, &rec, 1, 0));
@@ -1263,15 +1263,15 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		if(P_Pack) {
-			const PPID cal_id = P_Pack->Rec.ID;
-			const PPID main_cal_id = NZOR(P_Pack->Rec.LinkCalID, cal_id);
+			const  PPID cal_id = P_Pack->Rec.ID;
+			const  PPID main_cal_id = NZOR(P_Pack->Rec.LinkCalID, cal_id);
 			SString temp_buf;
 			PPObjStaffCal sc_obj;
 			PPStaffCal sc_rec;
 			if(sc_obj.Fetch(main_cal_id, &sc_rec) > 0) {
 				setStaticText(CTL_STAFFCALD_ST_CAL, sc_rec.Name);
 			}
-			const PPID link_obj_type = P_Pack->Rec.LinkObjType;
+			const  PPID link_obj_type = P_Pack->Rec.LinkObjType;
 			if(link_obj_type) {
 				GetObjectTitle(link_obj_type, temp_buf);
 				if(P_Pack->Rec.LinkObjID) {
@@ -2151,7 +2151,7 @@ int PPObjStaffCal::CalcPeriodByPersonEvent(const ScObjAssoc & rAssc, const PPIDA
 	TSVector <StaffCalendarTbl::Rec> cal_list;
 	TSVector <StaffCalendarTbl::Rec> proj_cal_list;
 	for(uint i = 0; i < rEvList.getCount(); i++) {
-		const PPID ev_id = rEvList.get(i);
+		const  PPID ev_id = rEvList.get(i);
 		StaffCalendarTbl::Key2 k2;
 		MEMSZERO(k2);
 		k2.ObjID = ev_id;
@@ -2163,7 +2163,7 @@ int PPObjStaffCal::CalcPeriodByPersonEvent(const ScObjAssoc & rAssc, const PPIDA
 				cd.v = P_ScT->data.DtVal;
 				if(cd.GetKind() == CALDATE::kDate) {
 					const LDATE dt = (LDATE)cd;
-					const PPID  cal_id = P_ScT->data.CalID;
+					const  PPID  cal_id = P_ScT->data.CalID;
 					int    proj_r = -1;
 					cal_list.clear();
 					proj_cal_list.clear();
@@ -2172,7 +2172,7 @@ int PPObjStaffCal::CalcPeriodByPersonEvent(const ScObjAssoc & rAssc, const PPIDA
 						proj_r = 0;
 					else {
 						for(i = 0; proj_r < 0 && i < ScObjAssoc::scCount; i++) {
-							const PPID proj_cal_id = rAssc.List[i].ProjCalID;
+							const  PPID proj_cal_id = rAssc.List[i].ProjCalID;
 							if(proj_cal_id)
 								THROW(proj_r = SearchDate(proj_cal_id, dt, proj_cal_list));
 						}
@@ -2204,13 +2204,13 @@ int PPObjStaffCal::CalcPeriod(const ScObjAssoc & rAssc, const DateRange & rPerio
 			proj_r = 0;
 		else {
 			for(i = 0; proj_r < 0 && i < ScObjAssoc::scCount; i++) {
-				const PPID cal_id = rAssc.List[i].ProjCalID;
+				const  PPID cal_id = rAssc.List[i].ProjCalID;
 				if(cal_id)
 					THROW(proj_r = SearchDate(cal_id, dt, proj_cal_list));
 			}
 		}
 		for(i = 0; r < 0 && i < ScObjAssoc::scCount; i++) {
-			const PPID cal_id = rAssc.List[i].CalID;
+			const  PPID cal_id = rAssc.List[i].CalID;
 			if(cal_id) {
 				cal_list.clear();
 				THROW(r = SearchDate(cal_id, dt, cal_list));
@@ -2262,7 +2262,7 @@ int PPObjStaffCal::Browse(void * extraPtr)
 			SString temp_buf, obj_name;
 			if(filt.LinkObjType) {
 				GetObjectTitle(filt.LinkObjType, temp_buf);
-				const PPID obj_id = filt.LinkObjList.GetSingle();
+				const  PPID obj_id = filt.LinkObjList.GetSingle();
 				if(obj_id && GetObjectName(filt.LinkObjType, obj_id, obj_name) > 0)
 					temp_buf.CatDiv('-', 1).Cat(obj_name);
 			}

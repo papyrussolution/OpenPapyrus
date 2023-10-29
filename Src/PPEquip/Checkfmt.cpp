@@ -639,8 +639,8 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				//@erik v10.4.11 {
 				case symbClientExtName:
 					if(Src == srcGoodsBill) {
-						const PPID person_id = ObjectToPerson(p_bp->Rec.Object);
-						if(person_id && P_Od->PsnObj.GetExtName(person_id, temp_buf) > 0) {
+						const  PPID psn_id = ObjectToPerson(p_bp->Rec.Object);
+						if(psn_id && P_Od->PsnObj.GetExtName(psn_id, temp_buf) > 0) {
 							rResult.Cat(temp_buf);
 						}
 						else {

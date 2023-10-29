@@ -1295,7 +1295,7 @@ int SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <PrefixR
 	dbq = ppcheckfiltid(dbq, this->SeriesID, seriesID);
 	q.select(this->ID, this->Code, 0L).where(*dbq);
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-		const PPID sc_id = data.ID;
+		const  PPID sc_id = data.ID;
 		temp_buf = data.Code;
         const uint len = temp_buf.Len();
         if(len) {

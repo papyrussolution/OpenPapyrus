@@ -2538,7 +2538,7 @@ int PPEdiProcessor::ProviderImplementation::GetOriginOrderBill(const PPBillPacke
 	PPID   any_order_bill_id = 0;
 	rBp.GetOrderList(order_list);
 	for(uint i = 0; !order_bill_id && i < order_list.getCount(); i++) {
-		const PPID temp_order_bill_id = order_list.get(i);
+		const  PPID temp_order_bill_id = order_list.get(i);
 		if(P_BObj->Search(temp_order_bill_id, &order_bill_rec) > 0) {
 			if(order_bill_rec.EdiOp == PPEDIOP_ORDER)
 				order_bill_id = order_bill_rec.ID;
@@ -3726,7 +3726,7 @@ void PPEanComDocument::SetupPartyAddedMsg(const PartyValue * pVal, SString & rBu
 int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValue * pV, PartyResolveBlock * pResult)
 {
 	int    ok = 1;
-	const PPID reg_type_id = PPREGT_GLN;
+	const  PPID reg_type_id = PPREGT_GLN;
 	SString temp_buf;
 	PPIDArray psn_list;
 	PPIDArray ar_list;
@@ -4344,7 +4344,7 @@ int PPEanComDocument::Write_DESADV(xmlTextWriter * pX, const PPBillPacket & rPac
 				PPIDArray order_id_list;
 				rPack.GetOrderList(order_id_list);
 				for(uint ordidx = 0; ordidx < order_id_list.getCount(); ordidx++) {
-					const PPID ord_id = order_id_list.get(ordidx);
+					const  PPID ord_id = order_id_list.get(ordidx);
 					BillTbl::Rec ord_rec;
 					if(ord_id && BillObj->Search(ord_id, &ord_rec) > 0 && ord_rec.EdiOp == PPEDIOP_SALESORDER) {
 						// @v11.1.12 BillCore::GetCode(temp_buf = ord_rec.Code);
@@ -4884,12 +4884,11 @@ int  EdiProviderImplementation_Kontur::ResolveDlvrLoc(const OwnFormatContractor 
 		PsnObj.LocObj.ResolveGLN(LOCTYP_ADDRESS, rC.GLN, loc_list_by_gln);
 		THROW_PP_S(loc_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLDLVRLOC, rC.GLN);
 		for(uint i = 0; !final_dlvr_loc_id && i < loc_list_by_gln.getCount(); i++) {
-			const PPID loc_id = loc_list_by_gln.get(i);
+			const  PPID loc_id = loc_list_by_gln.get(i);
 			LocationTbl::Rec loc_rec;
 			if(PsnObj.LocObj.Fetch(loc_id, &loc_rec) > 0) {
 				if(loc_rec.OwnerID) {
-					PPID   acs_id = 0;
-					PPID   psn_id = ObjectToPerson(pPack->Rec.Object, &acs_id);
+					const  PPID psn_id = ObjectToPerson(pPack->Rec.Object, 0);
 					if(psn_id) {
 						if(loc_rec.OwnerID == psn_id) {
 							final_dlvr_loc_id = loc_id;
@@ -4919,7 +4918,7 @@ int EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const OwnFormat
 	int    ok = 1;
 	if(pPack) {
 		SString msg_buf;
-		const PPID reg_type_id = PPREGT_GLN;
+		const  PPID reg_type_id = PPREGT_GLN;
 		PPIDArray psn_list_by_gln;
 		PPIDArray ar_list;
 		if(rC.GLN.NotEmpty()) {
@@ -4947,7 +4946,7 @@ int EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const OwnFormat
 			else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
 				PPID   main_org_id = 0;
 				for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
-					const PPID _id = psn_list_by_gln.get(i);
+					const  PPID _id = psn_list_by_gln.get(i);
 					if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
 						main_org_id = _id;
 				}
@@ -4958,7 +4957,7 @@ int EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const OwnFormat
 			if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDERRSP, PPEDIOP_DESADV)) {
 				PPID   main_org_id = 0;
 				for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
-					const PPID _id = psn_list_by_gln.get(i);
+					const  PPID _id = psn_list_by_gln.get(i);
 					if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
 						main_org_id = _id;
 				}
@@ -5165,7 +5164,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter * pX,
 			for(uint i = 0; i < rBp.GetTCount(); i++) {
 				const PPTransferItem & r_ti = rBp.ConstTI(i);
 				SXml::WNode n_item(_doc, "lineItem");
-				const PPID goods_id = labs(r_ti.GoodsID);
+				const  PPID goods_id = labs(r_ti.GoodsID);
 				double qtty = fabs(r_ti.Quantity_);
 				double cost = r_ti.Cost;
 				double amount = cost * qtty;
@@ -6173,12 +6172,12 @@ int PPEdiProcessor::SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray 
 		op_list.sortAndUndup();
 	}
 	for(uint i = 0; i < op_list.getCount(); i++) {
-		const PPID op_id = op_list.get(i);
+		const  PPID op_id = op_list.get(i);
 		PPOprKind op_rec;
 		GetOpData(op_id, &op_rec);
 		if(rP.IdList.getCount()) {
 			for(uint j = 0; j < rP.IdList.getCount(); j++) {
-				const PPID bill_id = rP.IdList.get(j);
+				const  PPID bill_id = rP.IdList.get(j);
 				if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == op_id) {
 					if((!rP.LocID || bill_rec.LocID == rP.LocID) && rArList.lsearch(bill_rec.Object))
 						temp_bill_list.add(bill_rec.ID);
@@ -6265,7 +6264,7 @@ int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray 
 	op_list.add(ACfg.Hdr.EdiDesadvOpID);
 	if(rP.IdList.getCount()) {
 		for(uint j = 0; j < rP.IdList.getCount(); j++) {
-			const PPID bill_id = rP.IdList.get(j);
+			const  PPID bill_id = rP.IdList.get(j);
 			if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.EdiOp == PPEDIOP_DESADV && op_list.bsearch(bill_rec.OpID)) {
 				if((!rP.LocID || bill_rec.LocID == rP.LocID) && rArList.lsearch(bill_rec.Object)) {
 					if(CheckBillStatusForRecadvSending(bill_rec) > 0)
@@ -6276,7 +6275,7 @@ int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray 
 	}
 	else {
 		for(uint i = 0; i < rArList.getCount(); i++) {
-			const PPID ar_id = rArList.get(i);
+			const  PPID ar_id = rArList.get(i);
 			for(DateIter di(&rP.Period); P_BObj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 				if(bill_rec.EdiOp == PPEDIOP_DESADV && (!rP.LocID || bill_rec.LocID == rP.LocID) && op_list.bsearch(bill_rec.OpID)) {
 					if(CheckBillStatusForRecadvSending(bill_rec) > 0)
@@ -6287,7 +6286,7 @@ int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray 
 	}
 	temp_bill_list.sortAndUndup();
 	for(uint k = 0; k < temp_bill_list.getCount(); k++) {
-		const PPID bill_id = temp_bill_list.get(k);
+		const  PPID bill_id = temp_bill_list.get(k);
 		if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 			if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIACK, edi_ack) > 0) {
 				;
@@ -6408,7 +6407,7 @@ int PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArra
 	}
 	if(rP.IdList.getCount()) {
 		for(uint j = 0; j < rP.IdList.getCount(); j++) {
-			const PPID bill_id = rP.IdList.get(j);
+			const  PPID bill_id = rP.IdList.get(j);
 			if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.EdiOp == PPEDIOP_ORDER && op_list.bsearch(bill_rec.OpID)) {
 				if((!rP.LocID || bill_rec.LocID == rP.LocID) && P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 					if(rArList.lsearch(bill_rec.Object)) {
@@ -6420,7 +6419,7 @@ int PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArra
 	}
 	else {
 		for(uint i = 0; i < rArList.getCount(); i++) {
-			const PPID ar_id = rArList.get(i);
+			const  PPID ar_id = rArList.get(i);
 			for(DateIter di(&rP.Period); P_BObj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 				if(bill_rec.EdiOp == PPEDIOP_ORDER && (!rP.LocID || bill_rec.LocID == rP.LocID) && op_list.bsearch(bill_rec.OpID) &&
 					P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
@@ -6431,7 +6430,7 @@ int PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PPIDArra
 	}
 	temp_bill_list.sortAndUndup();
 	for(uint k = 0; k < temp_bill_list.getCount(); k++) {
-		const PPID bill_id = temp_bill_list.get(k);
+		const  PPID bill_id = temp_bill_list.get(k);
 		if(P_BObj->Search(bill_id, &bill_rec) > 0 && P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 			PPEdiProcessor::Packet pack(PPEDIOP_ORDERRSP);
 			if(P_BObj->ExtractPacket(bill_id, static_cast<PPBillPacket *>(pack.P_Data)) > 0) {
@@ -6466,7 +6465,7 @@ int PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const
 	THROW(oneof3(ediOp, PPEDIOP_DESADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC));
 	if(rP.IdList.getCount()) {
 		for(uint j = 0; j < rP.IdList.getCount(); j++) {
-			const PPID bill_id = rP.IdList.get(j);
+			const  PPID bill_id = rP.IdList.get(j);
 			if(P_BObj->Search(bill_id, &bill_rec) > 0 && GetOpType(bill_rec.OpID) == PPOPT_GOODSEXPEND) {
 				if((!rP.LocID || bill_rec.LocID == rP.LocID) && rArList.lsearch(bill_rec.Object)) {
 					temp_bill_list.add(bill_rec.ID);
@@ -6476,7 +6475,7 @@ int PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const
 	}
 	else {
 		for(uint i = 0; i < rArList.getCount(); i++) {
-			const PPID ar_id = rArList.get(i);
+			const  PPID ar_id = rArList.get(i);
 			for(DateIter di(&rP.Period); P_BObj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 				if((!rP.LocID || bill_rec.LocID == rP.LocID) && GetOpType(bill_rec.OpID) == PPOPT_GOODSEXPEND) {
 					temp_bill_list.add(bill_rec.ID);
@@ -7757,7 +7756,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveDlvrLoc(const char * pText, P
 			PsnObj.LocObj.ResolveGLN(loc_type, pText, loc_list_by_gln);
 			THROW_PP_S(loc_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLDLVRLOC, pText);
 			for(uint i = 0; !final_dlvr_loc_id && i < loc_list_by_gln.getCount(); i++) {
-				const PPID loc_id = loc_list_by_gln.get(i);
+				const  PPID loc_id = loc_list_by_gln.get(i);
 				LocationTbl::Rec loc_rec;
 				if(PsnObj.LocObj.Fetch(loc_id, &loc_rec) > 0 && loc_rec.Type == loc_type) {
 					if(loc_type == LOCTYP_WAREHOUSE) {
@@ -7766,8 +7765,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveDlvrLoc(const char * pText, P
 					}
 					else if(loc_type == LOCTYP_ADDRESS) {
 						if(loc_rec.OwnerID) {
-							PPID   acs_id = 0;
-							PPID   psn_id = ObjectToPerson(pPack->Rec.Object, &acs_id);
+							const  PPID   psn_id = ObjectToPerson(pPack->Rec.Object, 0);
 							if(psn_id) {
 								if(loc_rec.OwnerID == psn_id) {
 									final_dlvr_loc_id = loc_id;
@@ -7809,7 +7807,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveContractor(const char * pText
 		else if(partyQ == EDIPARTYQ_CONSIGNOR) {
 		}
 		else {
-			const PPID reg_type_id = PPREGT_GLN;
+			const  PPID reg_type_id = PPREGT_GLN;
 			PPIDArray psn_list_by_gln;
 			//PPIDArray loc_list_by_gln;
 			PPIDArray ar_list;
@@ -7828,7 +7826,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveContractor(const char * pText
 				else if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDER, PPEDIOP_RECADV)) {
 					PPID   main_org_id = 0;
 					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
-						const PPID _id = psn_list_by_gln.get(i);
+						const  PPID _id = psn_list_by_gln.get(i);
 						if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
 							main_org_id = _id;
 					}
@@ -7839,7 +7837,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveContractor(const char * pText
 				if(oneof4(pPack->Rec.EdiOp, PPEDIOP_DESADV, PPEDIOP_ORDERRSP, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
 					PPID   main_org_id = 0;
 					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
-						const PPID _id = psn_list_by_gln.get(i);
+						const  PPID _id = psn_list_by_gln.get(i);
 						if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
 							main_org_id = _id;
 					}
@@ -7911,7 +7909,7 @@ int PPEdiProcessor::ProviderImplementation::SearchLinkedBill(const char * pCode,
 		temp_buf = p_bt->data.Code;
 		// @v11.1.12 BillCore::GetCode(temp_buf);
 		if(temp_buf.NotEmptyS() && stricmp866(temp_buf, scode) == 0) {
-			const PPID bill_id = p_bt->data.ID;
+			const  PPID bill_id = p_bt->data.ID;
 			S_GUID sent_guid;
 			sent_guid.Z();
 			bool   is_suited = false;
@@ -8886,7 +8884,7 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter * pX, 
 					const PPTransferItem & r_ti = rBp.ConstTI(i);
 					SXml::WNode n_inner2(_doc, "POSITION");
 					{
-						const PPID goods_id = labs(r_ti.GoodsID);
+						const  PPID goods_id = labs(r_ti.GoodsID);
 						double qtty = fabs(r_ti.Quantity_);
 						double cost = r_ti.Cost;
 						double amount = cost * qtty;
@@ -9182,7 +9180,7 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 	SXml::WNode n_docs(_doc, "RECADV");
 	// @v10.6.4 MEMSZERO(order_bill_rec);
 	// @v10.6.4 MEMSZERO(wroff_bill_rec);
-	const PPID contractor_psn_id = ObjectToPerson(rRaPack.ABp.Rec.Object, 0);
+	const  PPID contractor_psn_id = ObjectToPerson(rRaPack.ABp.Rec.Object, 0);
 	THROW(PsnObj.Search(contractor_psn_id, &contractor_psn_rec) > 0);
 	THROW(GetMainOrgGLN(main_org_gln));
 	THROW(GetArticleGLN(rRaPack.ABp.Rec.Object, contractor_gln));
@@ -9282,7 +9280,7 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 						const PPTransferItem & r_ti = rRaPack.ABp.ConstTI(i);
 						SXml::WNode n_inner2(_doc, "POSITION");
 						{
-							const PPID goods_id = labs(r_ti.GoodsID);
+							const  PPID goods_id = labs(r_ti.GoodsID);
 							const double dlvr_qtty = fabs(fabs(r_ti.Quantity_));
 							assert(dlvr_qtty == rRaPack.DesadvQttyList.Get(i+1));
 							const double ord_qtty = fabs(rRaPack.OrderedQttyList.Get(i+1));

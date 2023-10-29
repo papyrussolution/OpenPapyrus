@@ -1511,6 +1511,7 @@ struct PPReportEnv {
 		// В файле report.ini этот символ приписывается в определении зоны после наименования формы отчета через ':'
 		// Например:
 		// [Ccheckdetailview:CN001]
+	SString PrnPort; // @v11.8.8 Явное указание имени принтера, на которые следует отправлять печать
 };
 
 int  FASTCALL PPAlddPrint(int RptId, PPFilt & rF, const PPReportEnv * pEnv);

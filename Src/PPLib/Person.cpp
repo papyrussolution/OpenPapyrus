@@ -1329,7 +1329,7 @@ int PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 	}
 	else {
 		for(uint i = 0; i < MAXSAMEPSNREL; i++) {
-			const PPID scnd_id = id | (i << 24);
+			const  PPID scnd_id = id | (i << 24);
 			for(SEnum en = p_ref->Assc.Enum(PPASS_PERSONREL, scnd_id, 1); en.Next(&rel_rec) > 0;) {
 				if(!pList->SearchPair(rel_rec.PrmrObjID, rel_rec.RelTypeID, 0))
 					pList->Add(rel_rec.PrmrObjID, rel_rec.RelTypeID, 0, 0);
@@ -1346,7 +1346,7 @@ int PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 		for(size_t i = PROPRECFIXSIZE; i < recLen;) {
 			PPELink entry;
 			// @v10.6.12 @ctr MEMSZERO(entry);
-			entry.KindID = *reinterpret_cast<const PPID *>((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE);
+			entry.KindID = *reinterpret_cast<const  PPID *>((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE);
 			i += sizeof(entry.KindID);
 			STRNSCPY(entry.Addr, reinterpret_cast<const char *>((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE));
 			i += (sstrlen(entry.Addr) + 1);
@@ -1381,7 +1381,7 @@ int PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rLis
 	k1.Prop = PSNPRP_ELINK;
 	THROW_MEM(p_buf = static_cast<PropertyTbl::Rec *>(SAlloc::M(buf_sz)));
 	if(p_ref->Prop.search(1, &k1, spGe) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK) do {
-		const PPID psn_id = p_ref->Prop.data.ObjID;
+		const  PPID psn_id = p_ref->Prop.data.ObjID;
 		if(!personKindID || list_by_kind.bsearch(psn_id)) {
 			const size_t rec_sz = (size_t)p_ref->Prop.data.Val2 + PROPRECFIXSIZE;
 			if(buf_sz < rec_sz) {
@@ -1407,7 +1407,7 @@ int PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rLis
 		buf_sz = max_req_buf_size;
 		THROW_MEM(p_buf = static_cast<PropertyTbl::Rec *>(SAlloc::R(p_buf, buf_sz)));
 		for(uint i = 0; i < additional_psn_list.getCount(); i++) {
-			const PPID psn_id = additional_psn_list.get(i);
+			const  PPID psn_id = additional_psn_list.get(i);
 			THROW(p_ref->GetProperty(PPOBJ_PERSON, psn_id, PSNPRP_ELINK, p_buf, buf_sz) > 0);
 			const size_t rec_sz = (size_t)p_ref->Prop.data.Val2 + PROPRECFIXSIZE;
 			//

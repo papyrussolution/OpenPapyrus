@@ -83,7 +83,7 @@ IMPL_HANDLE_EVENT(AccSheetDialog)
 {
 	TDialog::handleEvent(event);
 	/* @v11.3.12 if(event.isClusterClk(CTL_ACCSHEET_ASSOC)) {
-		const PPID old_assoc = Data.Assoc;
+		const  PPID old_assoc = Data.Assoc;
 		GetClusterData(CTL_ACCSHEET_ASSOC, &Data.Assoc);
 		if(Data.Assoc != old_assoc) {
 			SETFLAG(Data.Flags, ACSHF_AUTOCREATART, oneof2(Data.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION));
@@ -94,7 +94,7 @@ IMPL_HANDLE_EVENT(AccSheetDialog)
 	}*/
 	// @v11.3.12 {
 	if(event.isCbSelected(CTLSEL_ACCSHEET_ASSCOBJ)) {
-		const PPID preserve_assoc = Data.Assoc;
+		const  PPID preserve_assoc = Data.Assoc;
 		Data.Assoc = getCtrlLong(CTLSEL_ACCSHEET_ASSCOBJ);
 		if(Data.Assoc != preserve_assoc) {
 			SETFLAG(Data.Flags, ACSHF_AUTOCREATART, oneof2(Data.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION));
@@ -170,7 +170,7 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 		}
         if(_count == 0) {
 			SString temp_buf;
-			const PPID zero_id = 0;
+			const  PPID zero_id = 0;
 			{
 				acs_rec.Z();
 				PPLoadString("warehouse_pl", temp_buf);

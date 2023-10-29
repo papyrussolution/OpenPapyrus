@@ -25,22 +25,19 @@ __FBSDID("$FreeBSD$");
 	//#include <unistd.h>
 //#endif
 //#include "archive_read_private.h"
-#include "filter_fork.h"
+//#include "filter_fork.h"
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-/* Deprecated; remove in libarchive 4.0 */
-int archive_read_support_compression_program(Archive * a, const char * cmd)
-{
-	return archive_read_support_filter_program(a, cmd);
-}
+	/* Deprecated; remove in libarchive 4.0 */
+	int archive_read_support_compression_program(Archive * a, const char * cmd)
+	{
+		return archive_read_support_filter_program(a, cmd);
+	}
 
-int archive_read_support_compression_program_signature(Archive * a,
-    const char * cmd, const void * signature, size_t signature_len)
-{
-	return archive_read_support_filter_program_signature(a,
-		   cmd, signature, signature_len);
-}
-
+	int archive_read_support_compression_program_signature(Archive * a, const char * cmd, const void * signature, size_t signature_len)
+	{
+		return archive_read_support_filter_program_signature(a, cmd, signature, signature_len);
+	}
 #endif
 
 int archive_read_support_filter_program(Archive * a, const char * cmd)
@@ -80,7 +77,7 @@ struct program_filter {
 	int waitpid_return;
 	int child_stdin, child_stdout;
 
-	char            * out_buf;
+	char * out_buf;
 	size_t out_buf_len;
 };
 

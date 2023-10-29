@@ -45,7 +45,7 @@ int FASTCALL GCTFilt::AcceptIntr3(const BillTbl::Rec & rRec) const
 			ok = 1;
 			const PPIDArray & r_loc_list = LocList.Get();
 			for(uint i = 0; i < r_loc_list.getCount(); i++) {
-				const PPID loc_id = r_loc_list.get(i);
+				const  PPID loc_id = r_loc_list.get(i);
 				if(rRec.Object == PPObjLocation::WarehouseToObj(loc_id)) {
 					ok = 2;
 					break;
@@ -55,7 +55,7 @@ int FASTCALL GCTFilt::AcceptIntr3(const BillTbl::Rec & rRec) const
 		else {
 			const PPIDArray & r_loc_list = LocList.Get();
 			for(uint i = 0; i < r_loc_list.getCount(); i++) {
-				const PPID loc_id = r_loc_list.get(i);
+				const  PPID loc_id = r_loc_list.get(i);
 				if(rRec.Object == PPObjLocation::WarehouseToObj(loc_id)) {
 					ok = 3;
 					break;
@@ -118,7 +118,7 @@ int GCTIterator::GCT_BillCache::SetupFilt(const GCTFilt * pFilt, const ObjIdList
 		PPIDArray temp_list;
 		BillCore * p_billc = P_BObj->P_Tbl;
 		for(uint i = 0; i < r_agent_list.getCount(); i++) {
-			const PPID agent_id = r_agent_list.get(i);
+			const  PPID agent_id = r_agent_list.get(i);
 			THROW(p_billc->GetBillListByExt(agent_id, 0, temp_list));
 			THROW_SL(ExtIdList.add(&temp_list));
 		}
@@ -260,8 +260,8 @@ void GCTIterator::GoodsRestArray::Finish()
 			double current_rest = 0.0;
 			for(uint i = 0; i < getCount(); i++) {
 				GoodsRestEntry & r_entry = at(i);
-				const PPID loc_id = r_entry.LocID;
-				const PPID goods_id = r_entry.GoodsID;
+				const  PPID loc_id = r_entry.LocID;
+				const  PPID goods_id = r_entry.GoodsID;
 				LocList.add(loc_id);
 				if(loc_id != current_loc_id || goods_id != current_goods_id) {
 					current_goods_id = goods_id;
@@ -308,7 +308,7 @@ double GCTIterator::GoodsRestArray::GetRest(PPID goodsID, LDATE dt) const
 {
 	double result = 0.0;
 	for(uint i = 0; i < LocList.getCount(); i++) {
-		const PPID loc_id = LocList.get(i);
+		const  PPID loc_id = LocList.get(i);
 		const double lrest = GetRest(goodsID, loc_id, dt);
 		result += lrest;
 	}
@@ -365,8 +365,8 @@ int GCTIterator::GoodsRestArray::Serialize(int dir, SBuffer & rBuf, SSerializeCo
 			result |= aorfOnlyDrafts;
 			result |= aorfOnlyOrders;
 			for(uint i = 0; i < oc; i++) {
-				const PPID op_id = op_list.get(i);
-				const PPID op_type_id = GetOpType(op_id);
+				const  PPID op_id = op_list.get(i);
+				const  PPID op_type_id = GetOpType(op_id);
 				if(oneof3(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
 					result |= stThereAreDrafts;
 					result &= ~stOnlyOrders;
@@ -409,7 +409,7 @@ GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange) : Sta
 			PPObjPerson psn_obj;
 			PPIDArray temp_list;
 			for(uint j = 0; j < r_ar_list.getCount(); j++) {
-				const PPID ar_id = r_ar_list.get(j);
+				const  PPID ar_id = r_ar_list.get(j);
 				temp_list.clear();
 				for(uint i = 0; i < grp_prt_list.getCount(); i++)
 					ar_obj.GetRelPersonList(ar_id, grp_prt_list.get(i), 1, &temp_list);
@@ -478,7 +478,7 @@ int FASTCALL GCTIterator::CheckBillForFilt(const BillTbl::Rec & rBillRec) const
 			const PPIDArray & r_agent_list = Filt.AgentList.Get();
 			int    f = 0;
 			for(uint i = 0; !f && i < r_agent_list.getCount(); i++) {
-				const PPID agent_id = r_agent_list.get(i);
+				const  PPID agent_id = r_agent_list.get(i);
 				if(p_bobj->FetchExt(rBillRec.ID, &ext_rec) > 0 && ext_rec.AgentID == agent_id)
 					f = 1;
 			}
@@ -607,7 +607,7 @@ int GCTIterator::InitQuery(int cpMode)
 			}
 			else if(OpList.GetCount()) {
 				for(uint i = 0; i < OpList.GetCount(); i++) {
-					const PPID op_id = OpList.Get().get(i);
+					const  PPID op_id = OpList.Get().get(i);
 					if(!cpMode || IsDraftOp(op_id)) {
 						BillTbl::Key2 k2;
 						MEMSZERO(k2);
@@ -627,7 +627,7 @@ int GCTIterator::InitQuery(int cpMode)
 			}
 			else { // ArList.GetCount() && !soft_restr
 				for(uint i = 0; i < ArList.GetCount(); i++) {
-					const PPID ar_id = ArList.Get().get(i);
+					const  PPID ar_id = ArList.Get().get(i);
 					BillTbl::Key3 k3;
 					MEMSZERO(k3);
 					k3.Object = ar_id;
@@ -693,7 +693,7 @@ int GCTIterator::NextOuter()
 			break;
 		case bwBill:
 			while(ok < 0 && BillList.getPointer() < BillList.getCount()) {
-				const PPID next_id = BillList.get(BillList.incPointer());
+				const  PPID next_id = BillList.get(BillList.incPointer());
 				if(next_id != CurrID) {
 					CurrID = next_id;
 					ok = 1;
@@ -714,8 +714,8 @@ int GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 	int    ok = -1;
 	const  int    soft_restr = BIN(Filt.SoftRestrict);
 	TransferTbl::Rec & rec = Trfr->data;
-	const PPID goods_id = rec.GoodsID;
-	const PPID bill_id = rec.BillID;
+	const  PPID goods_id = rec.GoodsID;
+	const  PPID bill_id = rec.BillID;
 	int  goods_found = 0;
 	if(State & stUseGoodsList) {
 		PROFILE(goods_found = GoodsArray.bsearch(goods_id));
@@ -731,7 +731,7 @@ int GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 				PPIDArray lot_id_list; // Storage for cycle safe code
 				ReceiptTbl::Rec lot_rec;
 				while(lot_id && Trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
-					const PPID prev_id = lot_rec.PrevLotID;
+					const  PPID prev_id = lot_rec.PrevLotID;
 					lot_id_list.add(lot_id);
 					if(prev_id && !lot_id_list.lsearch(prev_id))
 						lot_id = prev_id;
@@ -771,7 +771,7 @@ int GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 						const PPIDArray & r_agent_list = Filt.AgentList.Get();
 						int    f = 0;
 						for(uint i = 0; !f && i < r_agent_list.getCount(); i++) {
-							const PPID agent_id = r_agent_list.get(i);
+							const  PPID agent_id = r_agent_list.get(i);
 							if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID == agent_id)
 								f = 1;
 						}
@@ -822,8 +822,8 @@ int GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 	int    ok = -1;
 	const  int    soft_restr = BIN(Filt.SoftRestrict);
 	CpTransfTbl::Rec & r_cprec = CpTrfr->data;
-	const PPID goods_id = r_cprec.GoodsID;
-	const PPID bill_id = r_cprec.BillID;
+	const  PPID goods_id = r_cprec.GoodsID;
+	const  PPID bill_id = r_cprec.BillID;
 	int  goods_found = 0;
 	if(State & stUseGoodsList) {
 		PROFILE(goods_found = GoodsArray.bsearch(goods_id));
@@ -865,7 +865,7 @@ int GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 					const PPIDArray & r_agent_list = Filt.AgentList.Get();
 					int    f = 0;
 					for(uint i = 0; !f && i < r_agent_list.getCount(); i++) {
-						const PPID agent_id = r_agent_list.get(i);
+						const  PPID agent_id = r_agent_list.get(i);
 						if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID == agent_id)
 							f = 1;
 					}
@@ -1049,7 +1049,7 @@ int GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRe
         if(BCache && BCache->Get(CurrID, &bill_rec) > 0) {
 			PPOprKind op_rec;
 			GetOpData(bill_rec.OpID, &op_rec);
-			const PPID opt_id = op_rec.OpTypeID;
+			const  PPID opt_id = op_rec.OpTypeID;
 			if(oneof3(opt_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT) || (opt_id == PPOPT_GOODSORDER && op_rec.ExtFlags & OPKFX_WROFFTODRAFTORD)) {
 				PPObjBill * p_bobj = BillObj;
 				PPTransferItem ti;
@@ -1103,7 +1103,7 @@ int GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRe
 		}
 		else if(ByWhat_ == bwGoods) {
 			idx = 3;
-			const PPID goods_id = GoodsArray.get(GoodsArray.getPointer());
+			const  PPID goods_id = GoodsArray.get(GoodsArray.getPointer());
 			cpk.k1.GoodsID = goods_id;
 			dbq = & (p_cpt->GoodsID == goods_id);
 		}
@@ -1147,7 +1147,7 @@ int GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec
 		PPTransferItem ti;
 		const  int soft_restr = BIN(Filt.SoftRestrict);
 		while(ok < 0 && Cbb.P_Pack->EnumTItemsExt(0, &ti) > 0) {
-			const PPID goods_id = labs(ti.GoodsID);
+			const  PPID goods_id = labs(ti.GoodsID);
 			int  goods_found = 0;
 			if(State & stUseGoodsList) {
 				PROFILE(goods_found = GoodsArray.bsearch(goods_id));
@@ -1155,7 +1155,7 @@ int GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec
 			else
 				goods_found = 1;
 			if(goods_found || soft_restr) {
-				const PPID bill_id = Cbb.P_Pack->Rec.ID;
+				const  PPID bill_id = Cbb.P_Pack->Rec.ID;
 				ASSIGN_PTR(pBillRec, Cbb.P_Pack->Rec);
 				memzero(pTrfrRec, sizeof(*pTrfrRec));
 				pTrfrRec->BillID = bill_id;
@@ -1190,7 +1190,7 @@ int GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec
 							const PPIDArray & r_agent_list = Filt.AgentList.Get();
 							int    f = 0;
 							for(uint i = 0; !f && i < r_agent_list.getCount(); i++) {
-								const PPID agent_id = r_agent_list.get(i);
+								const  PPID agent_id = r_agent_list.get(i);
 								if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID == agent_id)
 									f = 1;
 							}

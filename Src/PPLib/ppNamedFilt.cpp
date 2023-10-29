@@ -1115,7 +1115,7 @@ public:
 			P_Dl600Scope = Dl600Ctx.GetScopeByName_Const(DlScope::kExpData, Data.GetStrucSymb());
 		}
 		for(uint i = 0; ok && i < Data.GetCount(); i++) {
-			const PPID id = static_cast<PPID>(i+1);
+			const  PPID id = static_cast<PPID>(i+1);
 			Data.GetEntry(i, mobTypeClmn);
 			ss.Z();
 			((ss += mobTypeClmn.Zone) += mobTypeClmn.FieldName) += mobTypeClmn.Text;

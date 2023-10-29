@@ -8,12 +8,12 @@
 #pragma hdrstop
 #if ARCHIVE_ACL_LIBACL || ARCHIVE_ACL_LIBRICHACL
 
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
+//#ifdef HAVE_ERRNO_H
+//#include <errno.h>
+//#endif
+//#ifdef HAVE_FCNTL_H
+//#include <fcntl.h>
+//#endif
 #if HAVE_ACL_LIBACL_H
 #include <acl/libacl.h>
 #endif

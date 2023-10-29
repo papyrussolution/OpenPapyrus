@@ -15,7 +15,6 @@
 /*
  * Header comment from original getdate.y:
  */
-
 /*
 **  Originally written by Steven M. Bellovin <smb@research.att.com> while
 **  at the University of North Carolina at Chapel Hill.  Later tweaked by
@@ -876,7 +875,7 @@ static int nexttoken(const char ** in, time_t * value)
 		{
 			const char * src = *in;
 			const struct LEXICON * tp;
-			unsigned i = 0;
+			uint i = 0;
 			/* Force to lowercase and strip '.' characters. */
 			while(*src != '\0' && (isalnum((uchar)*src) || *src == '.') && i < sizeof(buff)-1) {
 				if(*src != '.') {

@@ -63,7 +63,7 @@
 		restrict.ShiftLeft(sstrlen(PPConst::P_TagValRestrict_List)).Strip().ShiftLeftChr(':').Strip();
 		StringSet ss(';', restrict);
 		for(uint ssp = 0; ss.get(&ssp, restrict);) {
-			const PPID restrict_val = restrict.ToLong();
+			const  PPID restrict_val = restrict.ToLong();
 			if(restrict_val > 0) {
 				CALLPTRMEMB(pList, add(restrict_val));
 				ok = 2;
@@ -71,7 +71,7 @@
 		}
 	}
 	else {
-		const PPID restrict_val = rRestrictionBuf.ToLong();
+		const  PPID restrict_val = rRestrictionBuf.ToLong();
         if(restrict_val > 0) {
 			CALLPTRMEMB(pList, add(restrict_val));
 			ok = 1;
@@ -266,12 +266,12 @@ int TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & r
 					StringSet ss(';', restrict);
 					check_ok = 0;
 					for(uint ssp = 0; !check_ok && ss.get(&ssp, restrict);) {
-						const PPID restrict_val = restrict.ToLong();
+						const  PPID restrict_val = restrict.ToLong();
 						check_ok = Helper_CheckTagItemForRestrict_EnumID(pItem, restrict_val);
 					}
 				}
 				else {
-					const PPID restrict_val = rRestrict.ToLong();
+					const  PPID restrict_val = rRestrict.ToLong();
 					check_ok = Helper_CheckTagItemForRestrict_EnumID(pItem, restrict_val);
 				}
 			}
@@ -815,7 +815,7 @@ int SelfbuildStaffForManual_ReservedObjTagList()
 		line_buf.Z().BSlash().Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
 		doc_file.WriteLine(line_buf);
 		for(uint i = 0; i < num_recs; i++) {
-			const PPID id = p_rez->getUINT();
+			const  PPID id = p_rez->getUINT();
 			p_rez->getString(tag_name.Z(), 2); // Name
 			PPExpandString(tag_name, CTRANSF_UTF8_TO_OUTER);
 			p_rez->getString(tag_symb.Z(), 2); // Symb
@@ -859,7 +859,7 @@ int PPObjTag::MakeReserved(long flags)
 	for(uint i = 0; i < num_recs; i++) {
 		PPObjectTag temp_rec;
 		PPObjTagPacket pack;
-		const PPID id = p_rez->getUINT();
+		const  PPID id = p_rez->getUINT();
 		p_rez->getString(temp_buf.Z(), 2); // Name
 		PPExpandString(temp_buf, CTRANSF_UTF8_TO_INNER);
 		temp_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
@@ -1027,7 +1027,7 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 			setCtrlData(CTL_OBJTAG_NAME, Data.Rec.Name);
 			setCtrlData(CTL_OBJTAG_ID,   &Data.Rec.ID);
 			setCtrlData(CTL_OBJTAG_SYMB, Data.Rec.Symb);
-			const PPID typ = Data.Rec.TagDataType;
+			const  PPID typ = Data.Rec.TagDataType;
 			AddClusterAssoc(CTL_OBJTAG_FLAGS, 0, OTF_WARNZERO);
 			AddClusterAssoc(CTL_OBJTAG_FLAGS, 1, OTF_INHERITABLE);
 			AddClusterAssoc(CTL_OBJTAG_FLAGS, 2, OTF_NOTICEINCASHPANE);
@@ -1586,7 +1586,7 @@ int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Obj
 			THROW(tra);
 			for(uint i = 0; i < count; i++) {
 				PPObjectTag tag;
-				const PPID tag_id = p_tags_list->Get(i).Id;
+				const  PPID tag_id = p_tags_list->Get(i).Id;
 				if(tag_obj.Fetch(tag_id, &tag) > 0 && oneof2(tag.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM) && tag.TagEnumID) {
 					ObjTagTbl::Key1 k1;
 					k1.TagID = tag_id;
@@ -1682,7 +1682,7 @@ int PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			if(p_tags_list) {
 				uint count = p_tags_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
-					const PPID tag_id = p_tags_list->Get(i).Id;
+					const  PPID tag_id = p_tags_list->Get(i).Id;
 					PPObjectTag tag;
 					if(Fetch(tag_id, &tag) > 0) {
 						if(tag.TagEnumID == _obj) {
@@ -1739,7 +1739,7 @@ int PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			if(p_tags_list) {
 				uint count = p_tags_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
-					const PPID tag_id = p_tags_list->Get(i).Id;
+					const  PPID tag_id = p_tags_list->Get(i).Id;
 					PPObjectTag tag;
 					if(Fetch(tag_id, &tag) > 0) {
 						if(tag.TagEnumID == _obj) {
@@ -2480,7 +2480,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 				return;
 			clearEvent(event);
 		}
-		const PPID ObjID;
+		const  PPID ObjID;
 		ObjTagItem Item;
 	};
 	int    ok = -1, r, valid_data = 0;

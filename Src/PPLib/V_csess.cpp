@@ -117,7 +117,7 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCbSelected(CTLSEL_DFRULESEL_RULEGRP)) {
-			const PPID rule_grp = getCtrlLong(CTLSEL_DFRULESEL_RULEGRP);
+			const  PPID rule_grp = getCtrlLong(CTLSEL_DFRULESEL_RULEGRP);
 			SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULE, PPOBJ_DFCREATERULE, 0, 0, reinterpret_cast<void *>(rule_grp));
 			clearEvent(event);
 		}
@@ -259,12 +259,12 @@ int PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 			PPCashNode cn_rec;
 			PPIDArray temp_list;
 			for(uint i = 0; i < temp_node_list.GetCount(); i++) {
-				const PPID cn_id = temp_node_list.Get().get(i);
+				const  PPID cn_id = temp_node_list.Get().get(i);
 				if(cn_obj.Fetch(cn_id, &cn_rec) > 0 && r_rt.CheckPosNodeID(cn_id, 0)) {
 					if(cn_rec.CashType == PPCMT_CASHNGROUP) {
 						cn_obj.GetListByGroup(cn_id, temp_list.Z());
 						for(uint j = 0; j < temp_list.getCount(); j++) {
-							const PPID inner_cn_id = temp_list.get(j);
+							const  PPID inner_cn_id = temp_list.get(j);
 							PPCashNode inner_cn_rec;
 							if(inner_cn_id && cn_obj.Fetch(inner_cn_id, &inner_cn_rec) > 0 && r_rt.CheckPosNodeID(inner_cn_id, 0))
 								NodeList.Add(inner_cn_id);
@@ -658,7 +658,7 @@ int PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM: ok = AddItem(); break;
 			case PPVCMD_EDITITEMSPC: ok = EditItem(id); break;
@@ -743,7 +743,7 @@ int PPViewCSess::InitCSessIteration()
 		CSessionTbl::Key3 k3;
 	} k, ck;
 	MEMSZERO(k);
-	const PPID cn_id = NodeList.GetSingle();
+	const  PPID cn_id = NodeList.GetSingle();
 	if(Filt.SuperSessID) {
 		idx = 3;
 		k.k3.SuperSessID = Filt.SuperSessID;
@@ -878,7 +878,7 @@ int PPViewCSess::Add(BExtInsert * pBei, const CSessionTbl::Rec * pRec)
 		PPIDArray bill_list;
 		BillObj->P_Tbl->GetPoolMembersList(PPASS_CSESSBILLPOOL, csch_rec.ID, &bill_list);
 		for(uint i = 0; i < bill_list.getCount(); i++) {
-			const PPID member_id = bill_list.get(i);
+			const  PPID member_id = bill_list.get(i);
 			BillTbl::Rec bill_rec;
 			if(BillObj->Fetch(member_id, &bill_rec) > 0) {
 				double amt = BR2(bill_rec.Amount);
@@ -1752,7 +1752,7 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 int PPViewCSess::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(id) {
 		PPIDArray sub_sess_list;
 		if(CsObj.P_Tbl->GetSubSessList(id, &sub_sess_list) > 0) {
@@ -1902,7 +1902,7 @@ int PPViewCSess::CloseSession()
 	PPCashMachine * p_cm = 0;
 	PPSyncCashSession  * p_scs = 0;
 	PPAsyncCashSession * p_acs = 0;
-	const PPID single_cn_id = Filt.NodeList_.GetSingle();
+	const  PPID single_cn_id = Filt.NodeList_.GetSingle();
 	THROW_PP(single_cn_id, PPERR_UNDEFCASHNODE);
 	THROW(p_cm = PPCashMachine::CreateInstance(single_cn_id));
 	p_scs = p_cm->SyncInterface();
@@ -2006,7 +2006,7 @@ int PPViewCSess::RecalcSession(PPID sessID)
 					{
 						PPWaitStart();
 						for(uint i = 0; i < sess_list.getCount(); i++) {
-							const PPID sess_id = sess_list.get(i);
+							const  PPID sess_id = sess_list.get(i);
 							if(csg.GetSess(sessID, &sess_rec) > 0) {
 								if(cn_obj.Search(sess_rec.CashNodeID, &cn_rec) > 0) {
 									csg.TurnAccBill(sess_id, cn_rec.LocID, 1/*use_ta*/);
@@ -2340,7 +2340,7 @@ int PPViewCSessExc::SetRecValues(TempCSessExcTbl::Rec & trec, const CGoodsLineTb
 	return 1;
 }
 
-int PPViewCSessExc::AddItemToTempTable(const PPID orgGoodsID, CGoodsLineTbl::Rec * pRec, LAssocArray * pRgAssoc)
+int PPViewCSessExc::AddItemToTempTable(const  PPID orgGoodsID, CGoodsLineTbl::Rec * pRec, LAssocArray * pRgAssoc)
 {
 	int    ok  = 1;
 	uint   pos = 0;

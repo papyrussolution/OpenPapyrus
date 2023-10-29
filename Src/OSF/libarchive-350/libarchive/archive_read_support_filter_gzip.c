@@ -14,12 +14,12 @@ __FBSDID("$FreeBSD$");
 struct private_data {
 	z_stream stream;
 	char in_stream;
-	uchar   * out_block;
+	uchar * out_block;
 	size_t out_block_size;
 	int64 total_out;
 	ulong crc;
 	uint32 mtime;
-	char            * name;
+	char * name;
 	char eof; /* True = found end of compressed data. */
 };
 

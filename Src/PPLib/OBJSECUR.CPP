@@ -128,7 +128,7 @@ bool PPObjSecur::ExtraParam::IsConsistent() const { return (Signature == SECUREX
 
 static int UsrListFilt(void * rec, void * extraPtr/*grp*/)
 {
-	const PPID parent_id = reinterpret_cast<PPID>(extraPtr);
+	const  PPID parent_id = reinterpret_cast<PPID>(extraPtr);
 	return (!parent_id || (rec && static_cast<const PPSecur *>(rec)->ParentID == parent_id));
 }
 
@@ -232,7 +232,7 @@ StrAssocArray * PPObjSecur::MakeStrAssocList(void * extraPtr)
 		if(!(param.Flags & ExtraParam::fShowAll)) {
 			PPObjSecur grp_obj(PPOBJ_USRGRP, 0);
 			for(uint i = 0; i < parent_list.getCount(); i++) {
-				const PPID id = (parent_list.get(i) & ~PPObjSecur::maskUserGroup);
+				const  PPID id = (parent_list.get(i) & ~PPObjSecur::maskUserGroup);
 				if(grp_obj.Search(id, &rec) > 0) {
 					temp_buf = rec.Name;
 				}

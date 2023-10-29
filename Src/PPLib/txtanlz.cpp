@@ -1834,7 +1834,7 @@ int PPTextAnalyzer::ProcessGoodsNN()
 									//output_log_buf.Z().Tab();
 									for(uint oi = 0; oi < output_count; oi++) {
 										if(p_nn_test_output[oi] != 0.0f) {
-											const PPID _rid = group_list.get(oi);
+											const  PPID _rid = group_list.get(oi);
 											const float _rv = p_nn_test_output[oi];
 											temp_result_list.Add(_rid, _rv, 0);
 											//output_log_buf.Cat(_rid).CatChar('=').Cat(p_nn_test_output[oi], MKSFMTD(0, 6, NMBF_NOTRAILZ)).Space();
@@ -2690,14 +2690,14 @@ int PPObjectTokenizer::SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SStri
 					}
 					component_list.sortAndUndup();
 					for(i = 0; i < component_list.getCount(); i++) {
-						const PPID c_id = component_list.get(i);
+						const  PPID c_id = component_list.get(i);
 						by_component_list.clear();
 						if(sw_obj.GetListByComponent(c_id, by_component_list) > 0 && by_component_list.getCount()) {
 							_AnalogByComponentEntry * p_ace = sw_by_component_list.CreateNewItem();
 							p_ace->ComponentID = c_id;
 							p_ace->SuprWareList = by_component_list;
 							for(uint j = 0; j < by_component_list.getCount(); j++) {
-								const PPID by_component_id = by_component_list.get(j);
+								const  PPID by_component_id = by_component_list.get(j);
 								final_by_component_list.Add(by_component_id, 1.0);
 								target_to_component_list.Add(by_component_id, c_id, 0);
 							}
@@ -3139,7 +3139,7 @@ int PPKeywordListGenerator::Run(const char * pContext, SString & rResult, RunSta
 						}
 					}
 					else if(left.IsEqiAscii("goods")) {
-						const PPID goods_id = right.ToLong();
+						const  PPID goods_id = right.ToLong();
 						PPObjGoods goods_obj;
 						Goods2Tbl::Rec goods_rec;
 						if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {

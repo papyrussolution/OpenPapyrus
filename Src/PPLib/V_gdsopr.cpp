@@ -1959,7 +1959,7 @@ int PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, 
 		ok = -1;
 		if(pPack->HasOneOfGoods(Filt.GoodsIdList)) {
 			for(uint i = 0; ok < 0 && i < Filt.GoodsIdList.GetCount(); i++) {
-				const PPID goods_id = Filt.GoodsIdList.Get(i);
+				const  PPID goods_id = Filt.GoodsIdList.Get(i);
 				uint gp = 0;
 				if(goods_id && pPack->SearchGoods(goods_id, &gp)) {
 					const PPTransferItem & r_ti = pPack->ConstTI(gp);
@@ -2180,7 +2180,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				ObjRestrictItem * p_or_item;
 				op_obj.GetGenericList(Filt.OpID, &or_list);
 				for(i = 0; or_list.enumItems(&i, (void **)&p_or_item);) {
-					const PPID op_id = p_or_item->ObjID;
+					const  PPID op_id = p_or_item->ObjID;
 					op_list.add(op_id);
 					if(p_or_item->Flags & GOIF_NEGATIVE)
 						neg_op_list.add(op_id);
@@ -3057,8 +3057,8 @@ int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArr
 		(Filt.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat))) {
 		double tax_factor = 1.0;
 		GObj.MultTaxFactor(pTi->GoodsID, &tax_factor);
-		const PPID   lot_tg_id   = pTi->LotTaxGrpID;
-		const PPID   goods_tg_id = pBlk->GoodsRec.TaxGrpID;
+		const  PPID   lot_tg_id   = pTi->LotTaxGrpID;
+		const  PPID   goods_tg_id = pBlk->GoodsRec.TaxGrpID;
 		if(!(Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) && pTi->Flags & PPTFR_COSTWOVAT) {
 			if(pBlk->Cost != 0.0)
 				GObj.AdjCostToVat(lot_tg_id, goods_tg_id, pTi->LotDate, tax_factor, &pBlk->Cost, 1);
@@ -3858,7 +3858,7 @@ int PPViewGoodsOpAnalyze::ConvertLinesToBasket()
 			GoodsOpAnalyzeViewItem item;
 			PPWaitStart();
 			for(InitIteration(PPViewGoodsOpAnalyze::OrdByGoodsName); NextIteration(&item) > 0;) {
-				const PPID goods_id = labs(item.GoodsID);
+				const  PPID goods_id = labs(item.GoodsID);
 				if(!(goods_id & GOODSSUBSTMASK)) {
 					double qtty = 0.0;
 					ILTI   i_i;

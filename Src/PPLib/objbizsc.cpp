@@ -859,7 +859,7 @@ int PPViewBizScore::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDBYSAMPLE:
 				{
@@ -1837,7 +1837,7 @@ int PrcssrBizScore::Helper_Calc(LDATE actualDate, PPLogger & rLogger, int use_ta
 		}
 	}
 	for(i = 0; i < bzs_list.getCount(); i++) {
-		const PPID bzs_id = bzs_list.get(i);
+		const  PPID bzs_id = bzs_list.get(i);
 		PPBizScorePacket bs_pack;
 		THROW(PPCheckUserBreak());
 		if(bs_obj.GetPacket(bzs_id, &bs_pack) > 0 && bs_pack.Formula.NotEmpty()) {

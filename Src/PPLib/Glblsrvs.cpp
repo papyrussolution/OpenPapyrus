@@ -1290,8 +1290,8 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 					CALLPTRMEMB(pLogger, LogLastError());
 				}
 				else {
-					const PPID native_goods_id = r_src_item.GoodsID;
-					const PPID native_loc_id = r_src_item.LocID;
+					const  PPID native_goods_id = r_src_item.GoodsID;
+					const  PPID native_loc_id = r_src_item.LocID;
 					if(goods_obj.GetPacket(native_goods_id, &pack, 0) > 0) {
 						SString link_file_path;
 						int   link_file_type = 0;
@@ -1413,8 +1413,8 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 		{
 			for(uint i = 0; i < rSrcList.getCount(); i++) {
 				const PPObjGoods::ExportToGlbSvcItem & r_src_item = rSrcList.at(i);
-				const PPID native_goods_id = r_src_item.GoodsID;
-				const PPID native_loc_id = r_src_item.LocID;
+				const  PPID native_goods_id = r_src_item.GoodsID;
+				const  PPID native_loc_id = r_src_item.LocID;
 				if(goods_obj.Search(native_goods_id, &goods_rec) > 0) {
 					//GoodsRestViewItem view_item;
 					//GetItem(native_goods_id, native_loc_id, &view_item);

@@ -790,8 +790,8 @@ static int SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goodsID, PP
 			if(rFilt.QuotVal) {
 				for(i = 0; pList->enumItems(&i, (void **)&p_quot);) {
 					for(uint j = 0; j < ar_list.getCount(); j++) {
-						const PPID ar_id = ar_list.get(j);
-						const PPID qk_id = p_quot->Kind;
+						const  PPID ar_id = ar_list.get(j);
+						const  PPID qk_id = p_quot->Kind;
 						if((!rFilt.QuotKindID || qk_id == rFilt.QuotKindID) && p_quot->LocID == locID &&
 							p_quot->ArID == ar_id && !p_quot->IsRelative() && rFilt.IsQuotSuitesToAdvOpt(*p_quot)) {
 							if(!(rFilt.Flags & QuotUpdFilt::fSkipDatedQuot) || p_quot->Period.IsZero()) {
@@ -940,7 +940,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 						PPTransaction tra(1);
 						THROW(tra);
 						for(uint i = 0; pack.EnumTItems(&i, &p_ti);) {
-							const PPID goods_id = labs(p_ti->GoodsID);
+							const  PPID goods_id = labs(p_ti->GoodsID);
 							if(!flt.GoodsID || (goods_id == flt.GoodsID) && goods_obj.BelongToGroup(goods_id, flt.GoodsGrpID)) {
 								if(flt.GoodsID || !(flt.Flags & flt.fSkipNoDisGoods) || !goods_obj.CheckFlag(goods_id, GF_NODISCOUNT)) {
 									double price = 0.0;
@@ -1008,7 +1008,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 					THROW(tra);
 					for(q_view.InitIteration(); q_view.NextIteration(&q_item) > 0;) {
 						PROFILE_START
-						const PPID goods_id = q_item.GoodsID;
+						const  PPID goods_id = q_item.GoodsID;
 						if(!flt.GoodsID || goods_id == flt.GoodsID) {
 							if(flt.GoodsID || !(flt.Flags & flt.fSkipNoDisGoods) || !goods_obj.CheckFlag(goods_id, GF_NODISCOUNT)) {
 
@@ -1061,7 +1061,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 										}
 										PPQuotArray upd_list(goods_id);
 										for(uint loc_idx = 0; loc_idx < loc_list.getCount(); loc_idx++) {
-											const PPID dest_loc_id = loc_list.get(loc_idx);
+											const  PPID dest_loc_id = loc_list.get(loc_idx);
 											THROW(r = SetupQuotList(temp_filt, dest_loc_id, goods_id, &kind_list, &qary, &upd_list, &for_all));
 											if(r > 0)
 												upd = 1;
@@ -1146,7 +1146,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 				PPTransaction tra(1);
 				THROW(tra);
 				for(uint m = 0; m < goods_list.getCount(); m++) {
-					const PPID goods_id = goods_list.get(m);
+					const  PPID goods_id = goods_list.get(m);
 					if(flt.GoodsID || !(flt.Flags & flt.fSkipNoDisGoods) || !goods_obj.CheckFlag(goods_id, GF_NODISCOUNT)) {
 						int    upd = 0;
 						PPQuotArray qary(goods_id);
@@ -1279,7 +1279,7 @@ int RollbackQuots(const LDATETIME * pDateTime)
 			PPTransaction tra(1);
 			THROW(tra);
 			for(uint goodsidx = 0; goodsidx < goods_id_array.getCount(); goodsidx++) {
-				const PPID goods_id = goods_id_array.get(goodsidx);
+				const  PPID goods_id = goods_id_array.get(goodsidx);
 				org_qlist_by_goods.clear();
 				p_qc2->GetCurrList(goods_id, 0, 0, org_qlist_by_goods); //берем список котировок по товару
 				tmp_qlist = org_qlist_by_goods; //работаем с копией

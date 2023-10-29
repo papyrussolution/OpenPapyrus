@@ -216,7 +216,7 @@ private:
 	void   setupDfctSelectors(PPID arID);
 	void   SetupManufTimeCtrls()
 	{
-		const PPID dfct_compens_op_id = getCtrlLong(CTLSEL_DRAFTWROFF_DFCTOP);
+		const  PPID dfct_compens_op_id = getCtrlLong(CTLSEL_DRAFTWROFF_DFCTOP);
 		DisableClusterItem(CTL_DRAFTWROFF_SETMT, 0, dfct_compens_op_id ? 0 : 1);
 		if(dfct_compens_op_id) {
 			PUGL::SetLotManufTimeParam slmtp;
@@ -531,7 +531,7 @@ private:
 		int    setmt_param_enabled = 0;
 		PPDraftWrOff local_dwo_rec;
 		if(!pDwoRec) {
-			const PPID dwo_id = getCtrlLong(CTLSEL_DWOFILT_DWO);
+			const  PPID dwo_id = getCtrlLong(CTLSEL_DWOFILT_DWO);
 			if(dwo_id && DwoObj.Search(dwo_id, &local_dwo_rec) > 0)
 				pDwoRec = &local_dwo_rec;
 		}
@@ -606,7 +606,7 @@ int PrcssrWrOffDraft::ArrangeBillList(PPIDArray * pList)
 	uint   i;
 	SVector temp_list(sizeof(DwoBillEntry));
 	for(i = 0; i < pList->getCount(); i++) {
-		const PPID bill_id = pList->get(i);
+		const  PPID bill_id = pList->get(i);
 		BillTbl::Rec bill_rec;
 		if(P_BObj->Fetch(bill_id, &bill_rec) > 0) {
 			DwoBillEntry entry;
@@ -628,18 +628,18 @@ int PrcssrWrOffDraft::ArrangeBillList(PPIDArray * pList)
 int PrcssrWrOffDraft::GetWrOffBillList(const PPDraftWrOffEntry * pDwoEntry, PPIDArray * pDfctList, PPIDArray * pList)
 {
 	int    ok = 1;
-	const PPID op_id = pDwoEntry->OpID;
+	const  PPID op_id = pDwoEntry->OpID;
 	if(op_id) {
 		BillTbl::Rec bill_rec;
 		PPIDArray local_list;
 		const uint cs_c = P.CSessList.getCount();
 		if(cs_c) {
 			for(uint i = 0; i < cs_c; i++) {
-				const PPID csess_id = P.CSessList.get(i);
+				const  PPID csess_id = P.CSessList.get(i);
 				PPIDArray temp_bill_list;
 				THROW(P_BObj->P_Tbl->GetPoolMembersList(PPASS_CSDBILLPOOL, csess_id, &temp_bill_list));
 				for(uint j = 0; j < temp_bill_list.getCount(); j++) {
-					const PPID bill_id = temp_bill_list.get(j);
+					const  PPID bill_id = temp_bill_list.get(j);
 					if(P_BObj->Fetch(bill_id, &bill_rec) > 0 && TestBillRec(pDwoEntry, bill_rec, pDfctList))
 						THROW_SL(local_list.addUnique(bill_id));
 				}
@@ -683,7 +683,7 @@ int PrcssrWrOffDraft::WriteOff(const PPDraftWrOffPacket * pPack,
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		for(uint i = 0; i < bill_list.getCount(); i++) {
-			const PPID bill_id = bill_list.get(i);
+			const  PPID bill_id = bill_list.get(i);
 			BillTbl::Rec bill_rec;
 			if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 				PPWaitPercent(cntr.Increment(), PPObjBill::MakeCodeString(&bill_rec, 1, msg_buf));
@@ -807,7 +807,7 @@ int PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL * pPugl
 									P.GetLotManufTimeParam(&slmt); // @v10.5.12
 									THROW(MrpObj.CreateModif(p_leaf, mrp_src_id, wroff_compl_op_id, &slmt, &wroff_bill_list, &Logger, 0));
 									for(uint k = 0; k < bill_list.getCount(); k++) {
-										const PPID bill_id = bill_list.at(k);
+										const  PPID bill_id = bill_list.at(k);
 										BillTbl::Rec bill_rec;
 										if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.LocID == p_leaf->LocID && bill_rec.Dt == p_leaf->Dt) {
 											PUGL local_pugl;
@@ -885,7 +885,7 @@ int PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillList, in
 				pool_pack.Rec.LocID = P.PoolLocID;
 			pool_pack.Rec.Dt = ZERODATE;
 			for(uint i = 0; i < bcount; i++) {
-				const PPID bill_id = pBillList->get(i);
+				const  PPID bill_id = pBillList->get(i);
 				BillTbl::Rec bill_rec;
 				if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 					ObjAssocTbl::Rec assc_rec;
@@ -898,7 +898,7 @@ int PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillList, in
 			}
 			THROW(P_BObj->TurnPacket(&pool_pack, 0));
 			{
-				const PPID pool_id = pool_pack.Rec.ID;
+				const  PPID pool_id = pool_pack.Rec.ID;
 				THROW(PPRef->Assc.AddArray(PPASS_OPBILLPOOL, pool_id, &pool_list, 1, 0));
 				THROW(P_BObj->UpdatePool(pool_id, 0));
 			}

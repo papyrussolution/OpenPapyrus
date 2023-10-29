@@ -334,7 +334,7 @@ int PPObjBill::AutoCharge()
 		memcpy(&rc, p_ref->Prop.data.Text, sizeof(PPRentCondition));
 		PPID   id = p_ref->Prop.data.ObjID;
 		if(rc.Cycle && !(rc.Flags & PPRentCondition::fClosed) && Search(id) > 0 && (!filt.CntrgntID || P_Tbl->data.Object == filt.CntrgntID)) {
-			const PPID op = P_Tbl->data.OpID;
+			const  PPID op = P_Tbl->data.OpID;
 			if(op) {
 				if(parent_op != op) {
 					PPOprKind opk;

@@ -294,7 +294,7 @@ int PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 			case PPVCMD_OPPANEL:
 				ok = -1;
 				{
-					id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+					id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 					if(id) {
 						PalmPaneData param;
 						param.PalmID = id;
@@ -319,7 +319,7 @@ int PPViewPalm::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 		PPStyloPalm rec;
 		MEMSZERO(rec);
 		if(ppvCmd != PPVCMD_ADDITEM)
-			id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+			id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		if(ObjPalm.Search(id, &rec) > 0 && (rec.Flags & PLMF_GENERIC))
 			for(PPID child_id = 0; ObjPalm.EnumItems(&child_id, &rec) > 0;)
 				if(rec.GroupID == id)
@@ -342,7 +342,7 @@ int PPViewPalm::ExportUhtt()
 	{
 		PalmViewItem item;
 		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
-			const PPID _id = item.ID;
+			const  PPID _id = item.ID;
 			PPStyloPalm rec, parent_rec;
 			if(ObjPalm.Search(_id, &rec) > 0) {
 				long    uhtt_stylo_id = 0;

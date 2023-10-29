@@ -8,12 +8,12 @@
 #pragma hdrstop
 #if ARCHIVE_ACL_FREEBSD
 
-#ifdef HAVE_ERRNO_H
-	#include <errno.h>
-#endif
-#ifdef HAVE_FCNTL_H
-	#include <fcntl.h>
-#endif
+//#ifdef HAVE_ERRNO_H
+	//#include <errno.h>
+//#endif
+//#ifdef HAVE_FCNTL_H
+	//#include <fcntl.h>
+//#endif
 #ifdef HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif

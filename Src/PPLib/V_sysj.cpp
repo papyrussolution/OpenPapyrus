@@ -1055,8 +1055,8 @@ int PPViewSysJournal::RefreshTempTable(LDATETIME since)
 					// @v9.9.0 @todo заменить следующий блок
 					/* @v9.9.0 if(P_NamesTbl) {
 						TempDoubleIDTbl::Key1 k1;
-						const PPID obj_type = rec.ObjType;
-						const PPID obj_id = rec.ObjID;
+						const  PPID obj_type = rec.ObjType;
+						const  PPID obj_id = rec.ObjID;
 						k1.ScndID = obj_id;
 						k1.PrmrID = obj_type;
 						{

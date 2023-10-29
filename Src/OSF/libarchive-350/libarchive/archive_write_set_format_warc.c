@@ -16,7 +16,7 @@
 __FBSDID("$FreeBSD$");
 //#include "archive_entry_locale.h"
 #include "archive_random_private.h"
-#include "archive_write_set_format_private.h"
+//#include "archive_write_set_format_private.h"
 
 struct warc_s {
 	uint omit_warcinfo : 1;

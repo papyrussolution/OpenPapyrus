@@ -1,14 +1,14 @@
-/*-
- * Copyright (c) 2003-2007 Tim Kientzle
- * Copyright (c) 2010-2012 Michihiro NAKAJIMA
- * Copyright (c) 2016 Martin Matuska
- * All rights reserved.
- */
+// archive_write_set_format_pax.c
+// Copyright (c) 2003-2007 Tim Kientzle
+// Copyright (c) 2010-2012 Michihiro NAKAJIMA
+// Copyright (c) 2016 Martin Matuska
+// All rights reserved.
+// 
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_pax.c 201162 2009-12-29 05:47:46Z kientzle $");
 //#include "archive_entry_locale.h"
-#include "archive_write_set_format_private.h"
+//#include "archive_write_set_format_private.h"
 
 struct sparse_block {
 	struct sparse_block     * next;

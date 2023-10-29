@@ -1392,6 +1392,7 @@
 #define PPTAG_PERSON_TRANSPORTTO   104L // @v11.6.9  Транспорт, используемый для доставки товара клиенту по-умолчанию (используется для интеграции с VETIS)
 #define PPTAG_LOT_ACCEPTANCE       105L // @v11.7.0  Результат "физической" приемки документа. Структурированная информация сжата в строку.
 #define PPTAG_PRC_UUID             106L // @v11.7.2  UUID процессора
+#define PPTAG_BILL_LINKCCHECKUUID  107L // @v11.8.8  UUID кассового чека, сформированного по документу
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -6548,6 +6549,7 @@
 	#define CTL_REPLCARD_SRCCARD         (1 + WINDOWS_ID_BIAS)
 	#define CTL_REPLCARD_DESTCARD        (2 + WINDOWS_ID_BIAS)
 #define DLG_CCHECKINFO            637 // Системная информация по чеку
+	#define cmCcExtList                  101 // @v11.8.8
 	#define CTL_CCHECKINFO_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_CODE          (2 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_CASHCODE      (3 + WINDOWS_ID_BIAS)
@@ -11487,6 +11489,8 @@
 #define DLG_RUNIE_CC_IMP          1434 //
 	#define CTL_RUNIECC_CFG                 (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RUNIECC_CFG              (2 + WINDOWS_ID_BIAS)
+#define DLG_CCEXTLIST             1435 // @v11.8.8 Список полей расширения кассового чека
+	#define CTL_CCEXTLIST_LIST              (1 + WINDOWS_ID_BIAS) 
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090
@@ -12050,8 +12054,8 @@
 	#define PPQUOTPAR_QUOTCAT                 5 // @v11.4.2
 #define PPTXT_IMPEXPPARAM_CC                659 // @v11.8.5 Дополнительные параметры импорта/экспорта кассовых чеков
 	#define IMPEXPPARAM_CC_PREDEFFMT          0 // Значение такое же, как и для параметров импорта/экспорта документов!
-	#define IMPEXPPARAM_CC_FLAGS              1 // 
-	#define IMPEXPPARAM_CC_POSNODE            2 // 
+	#define IMPEXPPARAM_CC_FLAGS              1 //
+	#define IMPEXPPARAM_CC_POSNODE            2 //
 // LastText
 //
 // Intrinsic calculator functions

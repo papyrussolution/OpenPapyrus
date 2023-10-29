@@ -22,15 +22,14 @@ __FBSDID("$FreeBSD$");
 //#include "archive_read_private.h"
 
 #ifndef HAVE_ZLIB_H
-#define adler32 lzo_adler32
+	#define adler32 lzo_adler32
 #endif
-
 #define LZOP_HEADER_MAGIC "\x89\x4c\x5a\x4f\x00\x0d\x0a\x1a\x0a"
 #define LZOP_HEADER_MAGIC_LEN 9
 
 #if defined(HAVE_LZO_LZOCONF_H) && defined(HAVE_LZO_LZO1X_H)
 struct read_lzop {
-	uchar   * out_block;
+	uchar * out_block;
 	size_t out_block_size;
 	int64 total_out;
 	int flags;

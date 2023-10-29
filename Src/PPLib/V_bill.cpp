@@ -516,7 +516,7 @@ IMPL_HANDLE_EVENT(BillFiltDialog)
 			ZDELETE(Data.P_TagF);
 	}
 	else if(event.isCbSelected(CTLSEL_BILLFLT_OPRKIND)) {
-		const PPID prev_op_id = Data.OpID;
+		const  PPID prev_op_id = Data.OpID;
 		getCtrlData(CTLSEL_BILLFLT_OPRKIND, &Data.OpID);
 		if(getCtrlView(CTLSEL_BILLFLT_OBJECT)) {
 			PPID   acc_sheet_id = 0;
@@ -525,7 +525,7 @@ IMPL_HANDLE_EVENT(BillFiltDialog)
 			setupAccSheet(acc_sheet_id, acc_sheet2_id);
 		}
 		if(Data.OpID != prev_op_id) {
-			const PPID op_type_id = GetOpType(Data.OpID, 0);
+			const  PPID op_type_id = GetOpType(Data.OpID, 0);
 			if(op_type_id == PPOPT_DRAFTTRANSIT)
                 SetupLocationCombo();
 		}
@@ -578,7 +578,7 @@ void BillFiltDialog::extraFilt()
 		if(getCtrlView(CTL_BILLFLT_DUEPERIOD)) {
 			GetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
 		}
-		const PPID cur_user_id = LConfig.UserID;
+		const  PPID cur_user_id = LConfig.UserID;
 		PPBillExt ext;
 		ext.PayerID = Data.PayerID;
 		ext.AgentID = Data.AgentID;
@@ -1551,7 +1551,7 @@ int PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, void * pExtraPtr)
 			pool_list.clear();
 			t->GetPoolMembersList(PPASS_PAYMBILLPOOL, bill_id, &pool_list);
 			for(uint j = 0; j < pool_list.getCount(); j++) {
-				const PPID member_id = pool_list.get(j);
+				const  PPID member_id = pool_list.get(j);
 				if(!bill_id_list.bsearch(member_id) && !lookup_list.lsearch(bill_rec.ID))
 					if(P_BObj->Search(member_id, &bill_rec) > 0 && Filt.Period.CheckDate(bill_rec.Dt)) {
 						memcpy(&item, &bill_rec, sizeof(bill_rec));
@@ -1724,7 +1724,7 @@ int PPViewBill::Enumerator(uint flags, BillViewEnumProc proc, void * pExtraPtr)
 					if(!bill_rec.Object)
 						continue;
 					else {
-						const PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
+						const  PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
 						if(!(psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0 && psn_rec.CatID == Filt.CliPsnCategoryID))
 							continue;
 					}
@@ -1775,7 +1775,7 @@ struct IterProcParam_Total {
 static int IterProc_Total(const BillViewItem * pItem, void * pExtraPtr)
 {
 	IterProcParam_Total * p_param = static_cast<IterProcParam_Total *>(pExtraPtr);
-	const PPID id = pItem->ID;
+	const  PPID id = pItem->ID;
 	if(p_param) {
 		double amt  = BR2(pItem->Amount);
 		double paym = 0.0;
@@ -1970,7 +1970,7 @@ int FASTCALL PPViewBill::NextIteration(BillViewItem * pItem)
 			BillTbl::Rec br;
 			Counter.Increment();
 			const TempBillTbl * p_temp_tbl = P_TempTbl;
-			const PPID id = p_temp_tbl ? p_temp_tbl->data.BillID : P_TempOrd->data.ID;
+			const  PPID id = p_temp_tbl ? p_temp_tbl->data.BillID : P_TempOrd->data.ID;
 			if(P_BObj->Search(id, &br) > 0) {
 				_IterC++;
 				if(pItem) {
@@ -2033,7 +2033,7 @@ int PPViewBill::WriteOffDraft(PPID id)
 		}
 		else if(GetOpSubType(bill_rec.OpID) == OPSUBT_TRADEPLAN) {
 			s = 0;
-			const PPID op_id = bill_rec.OpID;
+			const  PPID op_id = bill_rec.OpID;
 			PPID ar_id = bill_rec.Object;
 			if(Filt.OpID != op_id || SelectorDialog(DLG_SELTRPLANCMP, CTL_SELTRPLANCMP_SEL, &s) > 0) {
 				SArray bill_rec_list(sizeof(BillTbl::Rec));
@@ -2112,7 +2112,7 @@ int PPViewBill::WriteOffDraft(PPID id)
 					PPTransaction tra(1);
 					THROW(tra);
 					for(uint i = 0; i < idlist.getCount(); i++) {
-						const PPID bill_id = idlist.at(i);
+						const  PPID bill_id = idlist.at(i);
 						if(P_BObj->Search(bill_id, &bill_rec) > 0 && !(bill_rec.Flags & BILLF_CLOSEDORDER)) {
 							THROW(ok = P_BObj->WriteOffDraft(bill_id, 0, &deficit_list, 0));
 							if(ok == -2) {
@@ -2138,7 +2138,7 @@ int PPViewBill::WriteOffDraft(PPID id)
 				PPWaitStart();
 				THROW(GetBillIDList(&idlist));
 				for(uint i = 0; i < idlist.getCount(); i++) {
-					const PPID bill_id = idlist.at(i);
+					const  PPID bill_id = idlist.at(i);
 					P_BObj->MoveLotTagsFromDraftBillToWrOffBill(bill_id, 0, 1);
 				}
 				PPWaitStop();
@@ -2365,7 +2365,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 				}
 				else if(r_col.OrgOffs == 10) { // Status
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
-						const PPID op_type_id = GetOpType(bill_rec.OpID);
+						const  PPID op_type_id = GetOpType(bill_rec.OpID);
 						if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
 							if(bill_rec.Flags2 & BILLF2_DECLINED)
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGrey));
@@ -2425,7 +2425,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 	SString title, sub_title, temp_buf;
 	if(pBrw) {
 		const BrowserDef * p_def = pBrw->getDef();
-		const PPID single_loc_id = LocList_.getSingle();
+		const  PPID single_loc_id = LocList_.getSingle();
 		const int  show_debt = (Filt.Flags & BillFilt::fOrderOnly) ? BIN(Filt.Flags & BillFilt::fShowDebt) : BIN(Filt.Flags & (BillFilt::fShowDebt|BillFilt::fDebtOnly));
 		pBrw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(Filt.Flags & BillFilt::fCashOnly) {
@@ -3221,7 +3221,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 	BillTbl::Rec bill_rec;
 	if(sampleBillID && P_BObj->Search(sampleBillID, &bill_rec) > 0) {
 		PPID   bill_id = 0;
-		const PPID op_type_id = GetOpType(bill_rec.OpID);
+		const  PPID op_type_id = GetOpType(bill_rec.OpID);
 		if(Filt.DenyFlags & BillFilt::fDenyAdd)
 			ok = -1;
 		else if(Filt.Flags & BillFilt::fAccturnOnly && op_type_id != PPOPT_AGREEMENT) // @v10.2.2 (&& op_type_id != PPOPT_AGREEMENT)
@@ -3285,7 +3285,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 								PPLogger logger;
 								PPWaitStart();
 								for(uint i = 0; i < bill_id_list.getCount(); i++) {
-									const PPID sample_bill_id = bill_id_list.get(i);
+									const  PPID sample_bill_id = bill_id_list.get(i);
 									const int  local_result = P_BObj->AddExpendByOrder(&bill_id, sample_bill_id, &param); // @v10.4.12 sampleBillID-->sample_bill_id
 									if(!local_result)
 										logger.LogLastError();
@@ -3320,7 +3320,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 								PPLogger logger;
 								PPWaitStart();
 								for(uint i = 0; i < bill_id_list.getCount(); i++) {
-									const PPID sample_bill_id = bill_id_list.get(i);
+									const  PPID sample_bill_id = bill_id_list.get(i);
 									const int  local_result = P_BObj->AddDraftBySample(&bill_id, sample_bill_id, &param);
 									if(!local_result)
 										logger.LogLastError();
@@ -3421,7 +3421,7 @@ int PPViewBill::DeleteBillFromPool(PPID billID)
 			uint i = bill_list.getCount();
 			if(i)
 				do {
-					const PPID bill_id = bill_list.get(--i);
+					const  PPID bill_id = bill_list.get(--i);
 					THROW(RemoveFromPool(bill_id, 0));
 					if(v == 0)
 						if(P_BObj->Search(bill_id) > 0)
@@ -3886,7 +3886,7 @@ int PPViewBill::UniteSellBills()
 			uint   i;
 			PPBill last_bill;
 			PPTransaction tra(1);
-			const PPID src_bill_id = src_ids.at(src_ids.getCount()-1);
+			const  PPID src_bill_id = src_ids.at(src_ids.getCount()-1);
 			THROW(tra);
 			THROW(P_BObj->P_Tbl->Extract(src_bill_id, &last_bill) > 0);
 			THROW(pack.CreateBlank2(Filt.OpID, last_bill.Rec.Dt, last_bill.Rec.LocID, 0));
@@ -3918,7 +3918,7 @@ int PPViewBill::UniteSellBills()
 				THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // @v10.9.7 Здесь надо сохранить расширенные коды лотов для pack
 			}
 			for(i = 0; i < dest_ids.getCount(); i++) {
-				const PPID dest_id = dest_ids.get(i);
+				const  PPID dest_id = dest_ids.get(i);
 				THROW(P_BObj->RecalcPayment(dest_id, 0));
 				THROW(P_BObj->RecalcTurns(dest_id, 0, 0));
 			}
@@ -3965,7 +3965,7 @@ int PPViewBill::ChangeFlags()
 			PPTransaction tra(1);
 			THROW(tra);
 			for(uint ididx = 0; ididx < ary.getCount(); ididx++) {
-				const PPID bill_id = ary.get(ididx);
+				const  PPID bill_id = ary.get(ididx);
 				PPBillPacket pack;
 				if(P_BObj->ExtractPacket(bill_id, &pack) > 0) {
 					const long preserve_flags = pack.Rec.Flags;
@@ -4905,7 +4905,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 		THROW(r = b_e.Init(pBillParam, pBRowParam, &pack, &result_file_list));
 		if(r > 0) {
 			//
-			const PPID inet_acc_id = b_e.Tp.InetAccID;
+			const  PPID inet_acc_id = b_e.Tp.InetAccID;
 			const StrAssocArray inet_addr_list = b_e.Tp.AddrList;
 			// @v11.8.6 PPID  fix_tag_id = 0; // @v11.5.6
 			// @v11.8.6 PPObjectTag fix_tag_rec;
@@ -4964,7 +4964,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 									SString norm_code; // @v11.8.3
 									for(uint tiidx = 0; !pack_has_marks && tiidx < pack.GetTCount(); tiidx++) {
 										const PPTransferItem & r_ti = pack.ConstTI(tiidx);
-										const PPID goods_id = r_ti.GoodsID;
+										const  PPID goods_id = r_ti.GoodsID;
 										if(pack.XcL.Get(tiidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
 											ext_codes_set.GetByBoxID(0, ss);
 											for(uint ecsp = 0; !pack_has_marks && ss.get(&ecsp, temp_buf);) {
@@ -5046,7 +5046,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 					for(uint ai = 0; ai < inet_addr_list.getCount(); ai++) {
 						(temp_buf = inet_addr_list.Get(ai).Txt).Strip();
 						if(IsByEmailAddrByContext(temp_buf)) {
-							const PPID user_id = LConfig.UserID;
+							const  PPID user_id = LConfig.UserID;
 							PPSecur sec_rec;
 							if(user_id && sec_obj.Fetch(user_id, &sec_rec) > 0 && sec_rec.PersonID) {
 								StringSet ss_elink;
@@ -5376,7 +5376,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 					PPTransaction tra(1);
 					THROW(tra);
 					for(uint bidx = 0; bidx < exported_bill_id_list.getCount(); bidx++) {
-						const PPID bill_id = exported_bill_id_list.get(bidx);
+						const  PPID bill_id = exported_bill_id_list.get(bidx);
 						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 							ObjTagItem tag_item;
@@ -5458,7 +5458,7 @@ int PPViewBill::Helper_ExportBnkOrder(const char * pSection, StringSet * pResult
 			THROW(cbed.PutHeader());
 			for(uint i = 0; i < cnt; i++) {
 				PPBillPacket pack;
-				const PPID id = id_list.get(i);
+				const  PPID id = id_list.get(i);
 				THROW(P_BObj->ExtractPacket(id, &pack) > 0);
 				THROW(cbed.PutRecord(&pack, 0, &rLogger));
 				PPWaitPercent(i+1, cnt);
@@ -6002,7 +6002,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 		UpdateBillList.sortAndUndup();
 		if(IsTempTblNeeded()) {
 			for(uint i = 0; i < UpdateBillList.getCount(); i++) {
-				const PPID bill_id = UpdateBillList.get(i);
+				const  PPID bill_id = UpdateBillList.get(i);
 				UpdateTempTable(bill_id);
 			}
 			pBrw->Refresh();
@@ -6288,7 +6288,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 				break;
 			case PPVCMD_RECEIVEDFOCUS:
 				if(!pHdr) {
-					const PPID single_loc_id = LocList_.getSingle();
+					const  PPID single_loc_id = LocList_.getSingle();
 					if(single_loc_id)
 						DS.SetLocation(single_loc_id);
 					StatusWinChange();
@@ -6319,7 +6319,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 				// @v11.1.9 {
 				ok = -1;
 				{
-					const PPID obj_type = PPOBJ_BILL;
+					const  PPID obj_type = PPOBJ_BILL;
 					int    update_mode = ObjTagList::mumAdd;
 					ObjTagList common_tag_list;
 					common_tag_list.ObjType = obj_type;
@@ -6681,11 +6681,11 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	int    exclude_vat = 0;
 	GetOpData(p_pack->Rec.OpID, &op_rec);
 	const  PPID object_id = (op_rec.PrnFlags & OPKF_PRT_EXTOBJ2OBJ) ? p_pack->Rec.Object2 : p_pack->Rec.Object;
-	const  PPID person_id = ObjectToPerson(object_id);
+	const  PPID psn_id = ObjectToPerson(object_id);
 	PPID   parent_person_id = 0;
 	{
 		PPIDArray rel_list;
-		if(person_id && psn_obj.GetRelPersonList(person_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0)
+		if(psn_id && psn_obj.GetRelPersonList(psn_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0)
 			parent_person_id = rel_list.at(0);
 	}
 	BillObj->LoadClbList(p_pack, 1);
@@ -6733,10 +6733,10 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 				H.RcvrLocID = (bill_f & BILLF_FREIGHT && p_pack->P_Freight) ? p_pack->P_Freight->DlvrAddrID : 0;
 				if(parent_person_id) {
 					H.RcvrID = parent_person_id;
-					H.ConsigneeReq = person_id;
+					H.ConsigneeReq = psn_id;
 				}
 				else {
-					H.RcvrID = person_id;
+					H.RcvrID = psn_id;
 					H.ConsigneeReq = H.RcvrID;
 				}
 				H.RcvrReq = H.RcvrID;
@@ -6756,10 +6756,10 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 			}
 			else if(parent_person_id) {
 				H.DlvrID = parent_person_id;
-				H.ConsignorReq = person_id;
+				H.ConsignorReq = psn_id;
 			}
 			else {
-				H.DlvrID = person_id;
+				H.DlvrID = psn_id;
 				H.ConsignorReq = H.DlvrID;
 			}
 			H.DlvrReq = H.DlvrID;
@@ -6770,7 +6770,7 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	p_pack->GetLastPayDate(&H.PayDt);
 	{
 		PersonTbl::Rec psn_rec;
-		const PPID suppl_person_id = (optype == PPOPT_GOODSRETURN) ? H.RcvrID : H.DlvrID;
+		const  PPID suppl_person_id = (optype == PPOPT_GOODSRETURN) ? H.RcvrID : H.DlvrID;
 		if(psn_obj.Fetch(suppl_person_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX) {
 			H.fSupplIsVatExempt = 1;
 			exclude_vat = 1;
@@ -6958,7 +6958,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 		temp_buf.Z();
 		if(gto_assc.GetListByGoods(goods_rec.ID, loc_list) > 0)
 			for(uint j = 0; temp_buf.IsEmpty() && j < loc_list.getCount(); j++) {
-				const PPID loc_id = loc_list.get(j);
+				const  PPID loc_id = loc_list.get(j);
 				if(loc_obj.BelongTo(loc_id, p_pack->Rec.LocID, &temp_buf))
 					break;
 			}
@@ -7117,7 +7117,7 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 		double saldo = 0.0;
 		// @v10.3.6 const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
 		if(p_pack) {
-			const PPID goods_id = _ARG_INT(1);
+			const  PPID goods_id = _ARG_INT(1);
 			if(H.ObjectID && goods_id) {
 				PPObjBill * p_bobj = BillObj;
 				PPTransferItem * p_ti;
@@ -7133,7 +7133,7 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 						qtty += p_ti->SQtty(p_pack->Rec.OpID);
 					}
 				}
-				const PPID dlvr_loc_id = p_pack->GetDlvrAddrID();
+				const  PPID dlvr_loc_id = p_pack->GetDlvrAddrID();
 				p_bobj->GetGoodsSaldo(goods_id, H.ObjectID, dlvr_loc_id, H.Dt, oprno, &saldo, 0);
 			}
 		}
@@ -7186,12 +7186,12 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 	PPObjPerson psn_obj;
 	int    exclude_vat = 0;
 	GetOpData(p_pack->Rec.OpID, &op_rec);
-	const  PPID object_id = (op_rec.PrnFlags & OPKF_PRT_EXTOBJ2OBJ) ? p_pack->Rec.Object2 : p_pack->Rec.Object;
-	const  PPID person_id = ObjectToPerson(object_id);
+	const  PPID ar_id = (op_rec.PrnFlags & OPKF_PRT_EXTOBJ2OBJ) ? p_pack->Rec.Object2 : p_pack->Rec.Object;
+	const  PPID psn_id = ObjectToPerson(ar_id);
 	PPID   parent_person_id = 0;
 	{
 		PPIDArray rel_list;
-		if(person_id && psn_obj.GetRelPersonList(person_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0)
+		if(psn_id && psn_obj.GetRelPersonList(psn_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0)
 			parent_person_id = rel_list.at(0);
 	}
 	BillObj->LoadClbList(p_pack, 1);
@@ -7206,7 +7206,7 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 	strip(STRNSCPY(H.Memo, p_pack->SMemo)); // @v11.1.12
 	H.Dt = (bill_f & BILLF_PRINTINVOICE && p_pack->Ext.InvoiceDate) ? p_pack->Ext.InvoiceDate : p_pack->Rec.Dt;
 	H.OprKindID  = p_pack->Rec.OpID;
-	H.ObjectID   = object_id;
+	H.ObjectID   = ar_id;
 	H.PayerID    = p_pack->Ext.PayerID;
 	H.AgentID    = p_pack->Ext.AgentID;
 	H.LocID      = p_pack->Rec.LocID;
@@ -7228,21 +7228,21 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 		H.DlvrReq    = main_org_id;
 		H.DlvrLocID  = p_pack->Rec.LocID;
 		H.ConsignorReq = main_org_id;
-		if(object_id)
-			if(PPObjLocation::ObjToWarehouse(object_id)) {
+		if(ar_id)
+			if(PPObjLocation::ObjToWarehouse(ar_id)) {
 				H.RcvrID    = main_org_id;
 				H.RcvrReq   = main_org_id;
-				H.RcvrLocID = PPObjLocation::ObjToWarehouse(object_id);
+				H.RcvrLocID = PPObjLocation::ObjToWarehouse(ar_id);
 				H.ConsigneeReq = main_org_id;
 			}
 			else {
 				H.RcvrLocID = (bill_f & BILLF_FREIGHT && p_pack->P_Freight) ? p_pack->P_Freight->DlvrAddrID : 0;
 				if(parent_person_id) {
 					H.RcvrID = parent_person_id;
-					H.ConsigneeReq = person_id;
+					H.ConsigneeReq = psn_id;
 				}
 				else {
-					H.RcvrID = person_id;
+					H.RcvrID = psn_id;
 					H.ConsigneeReq = H.RcvrID;
 				}
 				H.RcvrReq = H.RcvrID;
@@ -7255,23 +7255,23 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 		H.RcvrReq   = main_org_id;
 		H.RcvrLocID = p_pack->Rec.LocID;
 		H.ConsigneeReq = main_org_id;
-		if(object_id) {
+		if(ar_id) {
 			if(IsIntrOp(p_pack->Rec.OpID) == INTRRCPT) {
 				H.DlvrID = main_org_id;
 				H.ConsignorReq = H.DlvrID;
 			}
 			else if(parent_person_id) {
 				H.DlvrID = parent_person_id;
-				H.ConsignorReq = person_id;
+				H.ConsignorReq = psn_id;
 			}
 			else {
-				H.DlvrID = person_id;
+				H.DlvrID = psn_id;
 				H.ConsignorReq = H.DlvrID;
 			}
 			H.DlvrReq = H.DlvrID;
 		}
 		if(H.DlvrID == main_org_id)
-			H.DlvrLocID = PPObjLocation::ObjToWarehouse(object_id);
+			H.DlvrLocID = PPObjLocation::ObjToWarehouse(ar_id);
 	}
 	p_pack->GetLastPayDate(&H.PayDt);
 	{
@@ -7992,12 +7992,12 @@ int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 	PPOprKind op_rec;
 	GetOpData(rec.OpID, &op_rec);
 	PPID   main_org_id = 0;
-	const  PPID object_id = (op_rec.PrnFlags & OPKF_PRT_EXTOBJ2OBJ) ? rec.Object2 : rec.Object;
-	const  PPID person_id = ObjectToPerson(object_id);
+	const  PPID ar_id = (op_rec.PrnFlags & OPKF_PRT_EXTOBJ2OBJ) ? rec.Object2 : rec.Object;
+	const  PPID psn_id = ObjectToPerson(ar_id);
 	PPID   parent_person_id = 0;
 	{
 		PPIDArray rel_list;
-		if(person_id && psn_obj.GetRelPersonList(person_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0)
+		if(psn_id && psn_obj.GetRelPersonList(psn_id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0)
 			parent_person_id = rel_list.at(0);
 	}
 	p_pack->GetMainOrgID_(&main_org_id);
@@ -8006,7 +8006,7 @@ int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 	H.BillID     = rec.ID;
 	H.LinkBillID = rec.LinkBillID;
 	H.Dt = rec.Dt;
-	H.ArticleID  = object_id;
+	H.ArticleID  = ar_id;
 	H.LocID      = rec.LocID;
 	H.ExpendFlag = 0; // Приход (под вопросом, но переоценка и корректировка в большинстве случаев трактуются как приход)
 	STRNSCPY(H.Code, rec.Code);
@@ -8017,27 +8017,27 @@ int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 		H.RcvrReq   = main_org_id;
 		H.RcvrLocID = rec.LocID;
 		H.ConsigneeReq = main_org_id;
-		if(object_id) {
+		if(ar_id) {
 			if(IsIntrOp(rec.OpID) == INTRRCPT) {
 				H.DlvrID = main_org_id;
 				H.ConsignorReq = H.DlvrID;
 			}
 			else if(parent_person_id) {
 				H.DlvrID = parent_person_id;
-				H.ConsignorReq = person_id;
+				H.ConsignorReq = psn_id;
 			}
 			else {
-				H.DlvrID = person_id;
+				H.DlvrID = psn_id;
 				H.ConsignorReq = H.DlvrID;
 			}
 			H.DlvrReq = H.DlvrID;
 		}
 		if(H.DlvrID == main_org_id)
-			H.DlvrLocID = PPObjLocation::ObjToWarehouse(object_id);
+			H.DlvrLocID = PPObjLocation::ObjToWarehouse(ar_id);
 	}
 	{
 		PersonTbl::Rec psn_rec;
-		const PPID suppl_person_id = H.DlvrID;
+		const  PPID suppl_person_id = H.DlvrID;
 		if(psn_obj.Fetch(suppl_person_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX) {
 			H.fSupplIsVatExempt = 1;
 			exclude_vat = 1;

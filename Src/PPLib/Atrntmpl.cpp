@@ -251,7 +251,7 @@ int PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects * pAtso
 	int    is_prim_list_present = 0;
 	int    is_foreign_list_present = 0;
 	pAtso->destroy();
-	for(const PPID * p = Subst; *p != 0; p++, count++) {
+	for(const  PPID * p = Subst; *p != 0; p++, count++) {
 		THROW_PP(count < SIZEOFARRAY(Subst), PPERR_UNTERMATTSUBST);
 		if(*p == -1L) {
 			ord = 1;
@@ -452,7 +452,7 @@ int PPAccTurnTempl::ResolveAlias(int side, AcctID * pAcct, const ATSubstObjects 
 		assert(p_atso_list);
 		int    found = 0;
 		for(uint i = 0; !found && i < p_atso_list->getCount(); i++) {
-			const PPID ar_id = p_atso_list->at(0).Aid.ar;
+			const  PPID ar_id = p_atso_list->at(0).Aid.ar;
 			long  acc_id = 0;
 			alias_subst.clear();
 			if(PPObjArticle::GetAliasSubst(ar_id, &alias_subst) > 0 && alias_subst.Search(pAcct->ac, &acc_id, 0)) {
@@ -756,7 +756,7 @@ int PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 	PPIDArray cur_list;
 	BillObj->atobj->P_Tbl->AccObj.GetIntersectCurList(DbtID.ac, CrdID.ac, &cur_list);
 	for(uint j = 0; j < cur_list.getCount(); j++) {
-		const PPID cur_id = cur_list.at(j);
+		const  PPID cur_id = cur_list.at(j);
 		PPAccTurn pattern_at;
 		pPack->CreateAccTurn(pattern_at);
 		if(Period.CheckDate(pattern_at.Date)) {

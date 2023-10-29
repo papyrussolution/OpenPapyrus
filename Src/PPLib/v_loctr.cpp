@@ -669,7 +669,7 @@ int FASTCALL PPViewLocTransf::NextIteration(LocTransfViewItem * pItem)
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {
 			Counter.Increment();
 			if(Filt.Mode != Filt.modeDisposition) {
-				const PPID cell_id = P_TempTbl ? P_TempTbl->data.LocID : Tbl.data.LocID;
+				const  PPID cell_id = P_TempTbl ? P_TempTbl->data.LocID : Tbl.data.LocID;
 				if(Domain.CheckID(cell_id)) {
 					ok = 1;
 				}
@@ -790,7 +790,7 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 					CellList.clear();
 					PPIDArray temp_cell_list;
 					for(uint i = 0; i < Filt.LocList.GetCount(); i++) {
-						const PPID loc_id = Filt.LocList.Get().get(i);
+						const  PPID loc_id = Filt.LocList.Get().get(i);
 						LocObj.ResolveWhCell(loc_id, temp_cell_list, 0, 1);
 						CellList.addUnique(&temp_cell_list);
 					}

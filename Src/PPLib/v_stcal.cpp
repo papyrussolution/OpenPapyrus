@@ -203,8 +203,8 @@ int PPViewStaffCal::CreateEntryByObj(PPID objType, PPID objID, StrAssocArray * p
 	}
 	for(uint i = 0; i < CalList.getCount(); i++) {
 		int    r = 1;
-		const PPID cal_id = CalList.get(i);
-		const PPID proj_cal_id = Filt.ProjCalID;
+		const  PPID cal_id = CalList.get(i);
+		const  PPID proj_cal_id = Filt.ProjCalID;
 		STimeChunkArray list;
 		MEMSZERO(post_rec);
 		if(objType == PPOBJ_PERSON)
@@ -618,7 +618,7 @@ int PPViewStaffCal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 int PPViewStaffCal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   rec_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   rec_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(rec_id) {
 		TempStaffCalTbl::Rec rec;
 		if(SearchByID(P_TempTbl, 0, rec_id, &rec) > 0) {

@@ -629,7 +629,7 @@ int PPDS_CrrBillItem::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransmC
 			SString ar_code;
 			PPID   ar_id = 0;
 			PPGoodsPacket * p_data = &static_cast<PPDS_CrrGoods *>(pData)->Data;
-			const PPID orig_goods_id = static_cast<const PPDS_CrrGoods *>(pData)->OrigID;
+			const  PPID orig_goods_id = static_cast<const PPDS_CrrGoods *>(pData)->OrigID;
 			if(P_Outer && P_Outer->GetId() == PPDS_CRRBILL) {
 				const PPDS_CrrBill * p_outer = static_cast<const PPDS_CrrBill *>(P_Outer);
 				if(p_outer->DbxCfg.Flags & DBDXF_CHARRY_GIDASARCODE && p_outer->SellerArID && orig_goods_id) {

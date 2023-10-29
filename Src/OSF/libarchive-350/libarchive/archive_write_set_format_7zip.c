@@ -20,7 +20,7 @@ __FBSDID("$FreeBSD$");
 //#include "archive_entry_locale.h"
 #include "archive_ppmd7_private.h"
 //#include "archive_rb.h"
-#include "archive_write_set_format_private.h"
+//#include "archive_write_set_format_private.h"
 /*
  * Codec ID
  */

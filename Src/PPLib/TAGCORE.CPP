@@ -1061,15 +1061,15 @@ int ObjTagContainerHelper::GenerateGuid(S_GUID * pGuid)
 	return ok;
 }
 
-int ObjTagContainerHelper::GetGuid(S_GUID & rGuid) const
+bool ObjTagContainerHelper::GetGuid(S_GUID & rGuid) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	const  ObjTagItem * p_tag_item = GuidTagID ? R_TagL.GetItem(GuidTagID) : 0;
 	if(p_tag_item && p_tag_item->GetGuid(&rGuid))
-		ok = 1;
+		ok = true;
 	else {
 		rGuid.Z();
-		ok = 0;
+		ok = false;
 	}
 	return ok;
 }
@@ -1153,7 +1153,7 @@ int ObjTagCore::RemoveTag(PPID objType, PPID objID, PPID tagID, int use_ta)
 		THROW(tra);
 		if(search(0, &k, spGt) && data.ObjType == objType && data.ObjID == objID) {
 			do {
-				const PPID _tag_id = data.TagID;
+				const  PPID _tag_id = data.TagID;
 				if(!tagID || _tag_id == tagID) {
 					THROW_DB(rereadForUpdate(0, 0));
 					THROW_DB(deleteRec()); // @sfu

@@ -7,7 +7,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_ustar.c 191579 2009-04-27 18:35:03Z kientzle $");
 //#include "archive_entry_locale.h"
-#include "archive_write_set_format_private.h"
+//#include "archive_write_set_format_private.h"
 
 struct ustar {
 	uint64 entry_bytes_remaining;

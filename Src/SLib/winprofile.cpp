@@ -334,6 +334,54 @@ bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivilegeStr/* = NULL */)
 	return ok;
 }
 
+/*static*/bool SSystem::GetAccountNameInfo(const char * pAccName, AccountInfo & rInfo)
+{
+	bool    ok = false;
+	SString temp_buf;
+	SStringU acc_name_u;
+	{
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		(r_temp_buf = pAccName).CopyToUnicode(acc_name_u);
+	}
+	{
+		uint8 sid_buf[512];
+		wchar_t ref_domain_name[256];
+		DWORD sid_size = sizeof(sid_buf);
+		DWORD ref_domain_name_count = SIZEOFARRAY(ref_domain_name);
+		SID_NAME_USE sid_name_use;
+		memzero(sid_buf, sizeof(sid_buf));
+		if(LookupAccountNameW(0, acc_name_u, sid_buf, &sid_size, ref_domain_name, &ref_domain_name_count, &sid_name_use)) {
+			SString sid_text;
+			rInfo.AccName = acc_name_u;
+			rInfo.Sid.FromPSID(sid_buf);
+			rInfo.Sid.ToStr(sid_text);
+			rInfo.RefDomainName = ref_domain_name;
+			rInfo.SidNameUse = sid_name_use;
+			if(sid_name_use == 1) { // user
+				//SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList
+				const char * p_key_symb = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList";
+				WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_key_symb, 1);
+				if(reg_key.IsValid()) {
+					SString subkey_symb;
+					for(uint ki = 0; reg_key.EnumKeys(&ki, subkey_symb);) {
+						//ProfileImagePath
+						if(subkey_symb.IsEqiAscii(sid_text)) {
+							(temp_buf = p_key_symb).SetLastSlash().Cat(subkey_symb);
+							WinRegKey _local_reg_key(HKEY_LOCAL_MACHINE, temp_buf, 1);
+							if(_local_reg_key.IsValid()) {
+								_local_reg_key.GetStringU("ProfileImagePath", rInfo.ProfilePath);
+							}
+							break;
+						}
+					}
+				}
+			}
+			ok = true;
+		}
+	}
+	return ok;
+}
+
 /*static*/bool SSystem::GetUserHandle(/*Settings*/WinUserBlock & rSettings, uint flags, BOOL & bLoadedProfile, PROFILEINFO & rProfile, HANDLE hCmdPipe)
 {
 	bool   ok = true;

@@ -60,12 +60,12 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_DIRENT_H
 #include <dirent.h>
 #endif
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+//#ifdef HAVE_FCNTL_H
+//#include <fcntl.h>
+//#endif
+//#ifdef HAVE_UNISTD_H
+//#include <unistd.h>
+//#endif
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
@@ -149,9 +149,9 @@ struct filesystem {
 	 * Buffer used for reading file contents.
 	 */
 	/* Exactly allocated memory pointer. */
-	uchar   * allocation_ptr;
+	uchar * allocation_ptr;
 	/* Pointer adjusted to the filesystem alignment . */
-	uchar   * buff;
+	uchar * buff;
 	size_t buff_size;
 };
 

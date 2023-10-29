@@ -386,7 +386,7 @@ int PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 			Filt.Flags |= GoodsRestFilt::fCalcOrder;
 		// @v10.3.2 {
 		if(Filt.Flags2 & GoodsRestFilt::f2RetailPrice && (Filt.GetQuotUsage() != 1 || !Filt.QuotKindID)) {
-			const PPID loc_id = Filt.LocList.GetSingle();
+			const  PPID loc_id = Filt.LocList.GetSingle();
 			if(loc_id) {
 				RetailPriceExtractor::ExtQuotBlock eqb(Filt.QuotKindID);
 				long   rtlpf = 0;
@@ -444,8 +444,8 @@ int PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLots)
 	int    ok = -1;
 	GoodsRestViewItem item;
 	if(pHdr || GetItem(__id, &item) > 0) {
-		const PPID goods_id = pHdr ? pHdr->GoodsID : item.GoodsID;
-		const PPID loc_id = pHdr ? pHdr->LocID : item.LocID;
+		const  PPID goods_id = pHdr ? pHdr->GoodsID : item.GoodsID;
+		const  PPID loc_id = pHdr ? pHdr->LocID : item.LocID;
 		SString serial(pHdr ? 0 : item.Serial);
 		serial.Strip();
 		GoodsRestFilt filt = Filt;
@@ -1105,7 +1105,7 @@ int PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRest::Cac
 			CacheStat.UpdateCount++;
 		}
 		else {
-			const PPID goods_id = rItem.GoodsID;
+			const  PPID goods_id = rItem.GoodsID;
 			SString temp_buf;
 			Goods2Tbl::Rec goods_rec;
 			TempGoodsRestTbl::Rec rec;
@@ -1719,7 +1719,7 @@ int PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const PPIDArr
 					uint   i;
 					if(each_loc && (order != 0.0 || draft_rcpt)) {
 						for(i = 0; DraftRcptList.lsearch(&goodsID, &i, CMPF_LONG); i++) {
-							const PPID loc_id = DraftRcptList.at(i).LocID;
+							const  PPID loc_id = DraftRcptList.at(i).LocID;
 							if(loc_id)
 								ord_loc_list.add(loc_id);
 						}
@@ -1752,7 +1752,7 @@ int PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const PPIDArr
 					}
 					if(each_loc && (order != 0.0 || draft_rcpt)) {
 						for(i = 0; i < ord_loc_list.getCount(); i++) {
-							const PPID loc_id = ord_loc_list.get(i);
+							const  PPID loc_id = ord_loc_list.get(i);
 							GoodsRestVal temp_val;
 							temp_val.LocID = loc_id;
 							temp_val.DraftRcpt = GetDraftReceipt(goodsID, loc_id);
@@ -1877,7 +1877,7 @@ int PPViewGoodsRest::ProcessGroup(const PPIDArray * pGrpGoodsList)
 				THROW(P_BObj->P_Tbl->GetBillListByExt(Filt.AgentID, 0L, *p_agent_bill_list));
 			}
 			for(uint i = 0; i < gc; i++) {
-				const PPID goods_id = p_goods_list->get(i);
+				const  PPID goods_id = p_goods_list->get(i);
 				THROW(PPCheckUserBreak());
 				if(Filt.GoodsGrpID || !GObj.IsAsset(goods_id))
 					THROW(ProcessGoods(goods_id, p_bei, p_agent_bill_list));
@@ -2409,7 +2409,7 @@ int PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 				const uint lc = lot_list.getCount();
 				for(uint i = 0; i < lc; i++) {
 					const ReceiptTbl::Rec * p_lot_rec = static_cast<const ReceiptTbl::Rec *>(lot_list.at(i));
-					const PPID goods_id = p_lot_rec->GoodsID;
+					const  PPID goods_id = p_lot_rec->GoodsID;
 					if(goods_id > 0 && p_lot_rec->Rest > 0.0)
 						full_goods_list.Remove(static_cast<ulong>(goods_id));
 				}
@@ -3184,7 +3184,7 @@ int PPViewGoodsRest::CalcTotal(GoodsRestTotal * pTotal)
 			pTotal->SumDraftCost  += (Flags & fAccsCost) ? (r_rec.Cost * r_rec.DraftRcpt) : 0.0;
 			pTotal->SumDraftPrice += r_rec.Price * r_rec.DraftRcpt;
 			if(GObj.Fetch(r_rec.GoodsID, &goods_rec) > 0) {
-				const PPID goods_type_id = goods_rec.GoodsTypeID;
+				const  PPID goods_type_id = goods_rec.GoodsTypeID;
 				if(goods_type_id && goods_type_id != PPGT_DEFAULT) {
 					PPGoodsType gt;
 					if(gtobj.Fetch(goods_type_id, &gt) > 0) {
@@ -3865,7 +3865,7 @@ int PPViewGoodsRest::ExportUhtt(int silent)
 			uhtt_src_loc_id = uhtt_loc_pack.ID;
 			if(/*exp_options & GoodsRestFilt::uefRest*/param.Flags & param.fExportRest) {
 				if(suppl_id) {
-					const PPID suppl_psn_id = ObjectToPerson(suppl_id);
+					const  PPID suppl_psn_id = ObjectToPerson(suppl_id);
 					if(suppl_psn_id) {
 						PPObjPerson psn_obj;
 						PPPersonPacket psn_pack;

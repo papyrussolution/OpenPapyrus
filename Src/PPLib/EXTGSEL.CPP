@@ -621,7 +621,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 			selectGoods(grp_id, new_goods_id);
 	}
 	else if(event.isCmd(cmSearchUHTT) || event.isKeyDown(kbCtrlF6)) {
-		const PPID goods_id = getSelectedItem();
+		const  PPID goods_id = getSelectedItem();
 		if(goods_id)
 			GObj.ViewUhttGoodsRestList(goods_id);
 	}
@@ -642,7 +642,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 			return;
 	}
 	else if(event.isKeyDown(kbCtrlF8)) {
-		const PPID goods_id = getSelectedItem();
+		const  PPID goods_id = getSelectedItem();
 		Goods2Tbl::Rec goods_rec;
 		if(goods_id && GObj.Fetch(goods_id, &goods_rec) > 0) {
 			PPIDArray analog_list;
@@ -724,7 +724,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 			selectGoods(getCtrlLong(CTLSEL_EXTGSEL_GGRP), n);
 	}
 	else if(event.isKeyDown(kbF9)) {
-		const PPID goods_id = getSelectedItem();
+		const  PPID goods_id = getSelectedItem();
 		if(goods_id)
 			PPGoodsCalculator(goods_id, 0, 0, 0, 0);
 	}

@@ -829,7 +829,7 @@ void BIO_copy_next_retry(BIO * b);
  * we can't use __attribute__ with pre C99 dialects.
  */
 #if __STDC_VERSION__ >= 199901L
-#   undef ossl_bio__attr__
+#undef ossl_bio__attr__
 #define ossl_bio__attr__ __attribute__
 #if __GNUC__*10 + __GNUC_MINOR__ >= 44
 #define ossl_bio__printf__ __gnu_printf__

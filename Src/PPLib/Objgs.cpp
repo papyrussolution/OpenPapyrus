@@ -324,7 +324,7 @@ int PPGoodsStruc::GetEstimationPrice(uint itemIdx, PPID locID, double * pPrice, 
 	// @v10.7.5 @ctr MEMSZERO(rec);
 	if(itemIdx < Items.getCount()) {
 		const PPGoodsStrucItem & r_item = Items.at(itemIdx);
-		const PPID loc_id = LConfig.Location;
+		const  PPID loc_id = LConfig.Location;
 		if(r_item.GoodsID) {
 			int    r = 0;
 			PPObjGoods goods_obj;
@@ -346,7 +346,7 @@ int PPGoodsStruc::GetEstimationPrice(uint itemIdx, PPID locID, double * pPrice, 
 				RAssocArray subst_list;
 				if(goods_obj.GetSubstList(r_item.GoodsID, 0, subst_list) > 0) {
 					for(uint i = 0; !r && i < subst_list.getCount(); i++) {
-						const PPID alt_goods_id = subst_list.at(i).Key;
+						const  PPID alt_goods_id = subst_list.at(i).Key;
 						if(::GetCurGoodsPrice(alt_goods_id, loc_id, GPRET_MOSTRECENT, &p, &rec) > 0) {
 							const double ratio = subst_list.at(i).Val;
 							const double temp_p = (r_cfg.Flags & GCF_SHOWGSTRUCPRICE) ? rec.Price : rec.Cost;
@@ -1760,7 +1760,7 @@ int GSDialog::addItemBySample()
 		{
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_GSCOPY_GOODS)) {
-				const PPID prev_goods_id = Data.GoodsID;
+				const  PPID prev_goods_id = Data.GoodsID;
 				getCtrlData(CTLSEL_GSCOPY_GOODS, &Data.GoodsID);
 				if(Data.GoodsID != prev_goods_id) {
 					Data.GStrucID = 0;
@@ -3034,7 +3034,7 @@ int SaGiftArray::SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAsso
 	RAssocArray check_list;
 	for(i = 0; i < rSaleList.getCount(); i++) {
 		temp_list.clear();
-		const PPID sale_goods_id = rSaleList.at(i).GoodsID;
+		const  PPID sale_goods_id = rSaleList.at(i).GoodsID;
 		if(Index.GetListByVal(sale_goods_id, temp_list) > 0) {
 			THROW_SL(struc_list.addUnique(&temp_list));
 			if(r_ccfg.Flags & CCFLG_DEBUG) {
@@ -3329,7 +3329,7 @@ int PPObjGoodsStruc::LoadSubstBlock(SaSubstBlock & rBlk) // @v11.6.6
 		PPGoodsStruc gs;
 		PPIDArray owner_list; // Список идентификаторов товаров-владельцев структуры
 		for(uint i = 0; i < struc_id_list.getCount(); i++) {
-			const PPID struc_id = struc_id_list.get(i);
+			const  PPID struc_id = struc_id_list.get(i);
 			if(Get(struc_id, &gs) > 0) {
 				goods_obj.SearchGListByStruc(struc_id, true/*expandGenerics*/, owner_list);
 				if(owner_list.getCount()) {
@@ -3337,7 +3337,7 @@ int PPObjGoodsStruc::LoadSubstBlock(SaSubstBlock & rBlk) // @v11.6.6
 					PPID   single_owner_id = 0;
 					{
 						for(uint owneridx = 0; owneridx < owner_list.getCount(); owneridx++) {
-							const PPID owner_id = owner_list.get(owneridx);
+							const  PPID owner_id = owner_list.get(owneridx);
 							// @attention Следующий вызов устанавливает ранг позиции в 0. То есть,
 							// компоненты обобщения будут иметь больший приоритет использования нежели любой из элементов структуры!
 							rBlk.AddItem(p_subst_entry, owner_id, 0, 1.0); 
@@ -3383,12 +3383,12 @@ int PPObjGoodsStruc::LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList) /
 		PPGoodsStruc gs;
 		PPIDArray owner_list; // Список идентификаторов товаров-владельцев структуры
 		for(uint i = 0; i < struc_id_list.getCount(); i++) {
-			const PPID struc_id = struc_id_list.get(i);
+			const  PPID struc_id = struc_id_list.get(i);
 			if(Get(struc_id, &gs) > 0) {
 				goods_obj.SearchGListByStruc(struc_id, true/*expandGenerics*/, owner_list);
 				if(owner_list.getCount()) {
 					for(uint j = 0; j < owner_list.getCount(); j++) {
-						const PPID owner_id = owner_list.get(j);
+						const  PPID owner_id = owner_list.get(j);
 						PPGoodsStrucItem gs_item;
 						double gsi_qtty = 0.0;
 						for(uint cidx = 0; gs.EnumItemsExt(&cidx, &gs_item, owner_id, 1.0, &gsi_qtty) > 0;) {

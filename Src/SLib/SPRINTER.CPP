@@ -140,15 +140,14 @@ int SPrinting::PrintImage(const char * pImgPath)
 	DWORD  def_prn_name_size = SIZEOFARRAY(def_prn_name);
 	DWORD  wr_bytes = 0;
 	DWORD  count = 0;
-	if(pInfoList)
-		pInfoList->freeAll();
+	CALLPTRMEMB(pInfoList, freeAll());
 	GetDefaultPrinter(def_prn_name, &def_prn_name_size); // @unicodeproblem
-	BOOL   r = EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, 0, 2, static_cast<LPBYTE>(info_buf.vptr()), info_buf.GetSize(), &wr_bytes, &count);
+	BOOL   r = EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS, 0, 2, static_cast<LPBYTE>(info_buf.vptr()), info_buf.GetSize(), &wr_bytes, &count);
 	if(!r && wr_bytes > info_buf.GetSize()) {
 		info_buf.Alloc(wr_bytes);
 		wr_bytes = 0;
 		count = 0;
-		r = EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, 0, 2, static_cast<LPBYTE>(info_buf.vptr()), info_buf.GetSize(), &wr_bytes, &count);
+		r = EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS, 0, 2, static_cast<LPBYTE>(info_buf.vptr()), info_buf.GetSize(), &wr_bytes, &count);
 	}
 	if(r) {
 		ok = -1;

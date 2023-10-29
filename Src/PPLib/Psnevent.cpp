@@ -350,7 +350,7 @@ int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		}
 	}
 	else if(msg == DBMSG_OBJREPLACE) { // @v11.0.10
-		const PPID new_id = reinterpret_cast<long>(extraPtr);
+		const  PPID new_id = reinterpret_cast<long>(extraPtr);
 		if(_obj == PPOBJ_PERSON) {
 			PPIDArray id_to_upd_list;
 			PersonEventTbl::Key3 k3;
@@ -371,7 +371,7 @@ int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			}			
 			id_to_upd_list.sortAndUndup();
 			for(uint i = 0; i < id_to_upd_list.getCount(); i++) {
-				const PPID ev_id = id_to_upd_list.get(i);
+				const  PPID ev_id = id_to_upd_list.get(i);
 				PersonEventTbl::Rec rec;
 				if(SearchByID_ForUpdate(P_Tbl, Obj, ev_id, &rec) > 0) {
 					bool do_update = false;
@@ -391,7 +391,7 @@ int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		}
 		else if(_obj == PPOBJ_LOCATION) {
 			PPIDArray id_to_upd_list;
-			const PPID new_id = reinterpret_cast<long>(extraPtr);
+			const  PPID new_id = reinterpret_cast<long>(extraPtr);
 			BExtQuery q(P_Tbl, 0);
 			q.select(P_Tbl->ID, P_Tbl->LocationID, 0).where(P_Tbl->LocationID == _id);
 			k0.ID = 0;
@@ -402,7 +402,7 @@ int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			}
 			id_to_upd_list.sortAndUndup();
 			for(uint i = 0; i < id_to_upd_list.getCount(); i++) {
-				const PPID ev_id = id_to_upd_list.get(i);
+				const  PPID ev_id = id_to_upd_list.get(i);
 				PersonEventTbl::Rec rec;
 				if(SearchByID_ForUpdate(P_Tbl, Obj, ev_id, &rec) > 0) {
 					if(rec.LocationID == _id) {

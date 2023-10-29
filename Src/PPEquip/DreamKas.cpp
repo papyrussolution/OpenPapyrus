@@ -518,7 +518,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 			//
 			if(rmv_goods_list.getCount()) {
 				for(i = 0; i < rmv_goods_list.getCount(); i++) {
-					const PPID goods_id_to_remove = rmv_goods_list.get(i);
+					const  PPID goods_id_to_remove = rmv_goods_list.get(i);
 				}
 			}
 			//

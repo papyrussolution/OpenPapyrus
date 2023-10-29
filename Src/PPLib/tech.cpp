@@ -172,7 +172,7 @@ int PPObjTech::SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID)
 		PPObjProcessor prc_obj;
 		prc_obj.GetParentsList(prcID, &prc_list);
 		for(uint i = 0; ok < 0 && i < prc_list.getCount(); i++) {
-			const PPID prc_id = prc_list.get(i);
+			const  PPID prc_id = prc_list.get(i);
 			TechTbl::Key2 k2;
 			MEMSZERO(k2);
 			k2.PrcID = prc_id;
@@ -1454,7 +1454,7 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 			recur_list.Z();
 			THROW(Helper_AddItemToList(pList, tec_rec.ID, tec_rec.ParentID, tec_rec.Code, recur_list));
 			if(pGoodsIdList && tec_rec.GoodsID) {
-				const PPID goods_id = tec_rec.GoodsID;
+				const  PPID goods_id = tec_rec.GoodsID;
 				Goods2Tbl::Rec goods_rec;
 				if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 					if(goods_rec.Flags & GF_GENERIC) {
@@ -2006,7 +2006,7 @@ int PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		TechTbl::Rec tec_rec;
 		switch(ppvCmd) {
 			case PPVCMD_ADDBYSAMPLE:

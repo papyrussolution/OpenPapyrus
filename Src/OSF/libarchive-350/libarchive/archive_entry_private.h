@@ -6,15 +6,13 @@
 #define ARCHIVE_ENTRY_PRIVATE_H_INCLUDED
 
 #ifndef __LIBARCHIVE_BUILD
-#error This header is only to be used internally to libarchive.
+	#error This header is only to be used internally to libarchive.
 #endif
-
-#include "archive_acl_private.h"
-#include "archive_string.h"
+//#include "archive_acl_private.h"
+//#include "archive_string.h"
 
 struct ae_xattr {
 	struct ae_xattr *next;
-
 	char	*name;
 	void	*value;
 	size_t	size;
@@ -22,7 +20,6 @@ struct ae_xattr {
 
 struct ae_sparse {
 	struct ae_sparse *next;
-
 	int64	 offset;
 	int64	 length;
 };

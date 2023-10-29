@@ -79,7 +79,7 @@ public:
 			setGroupData(ctlgroupGoods, &rec);
 		}
 		{
-			const PPID strg_loc_id = Data.StorageLocID;
+			const  PPID strg_loc_id = Data.StorageLocID;
 			LocationFilt loc_filt(LOCTYP_WAREPLACE, 0, 0);
 			SetupLocationCombo(this, CTLSEL_INVDIFFLT_STRGLOC, strg_loc_id, OLW_CANSELUPLEVEL, &loc_filt);
 		}
@@ -294,7 +294,7 @@ int PPViewInventory::UpdateTempTable(PPID billID, long oprno)
 		InventoryTbl::Rec rec;
 		PPTransaction tra(ppDbDependTransaction, BIN(P_TempTbl || P_TempOrd));
 		THROW(tra);
-		const PPID bill_id = billID;
+		const  PPID bill_id = billID;
 		if(InvTbl.Search(bill_id, oprno, &rec) > 0) {
 			{
 				int    is_extra_entry_found = 0;
@@ -418,9 +418,9 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 	}
 	Gsl.Init(1, 0);
 	if(P_OuterPack) {
-		const PPID bill_id = P_OuterPack->Rec.ID;
+		const  PPID bill_id = P_OuterPack->Rec.ID;
 		const long subst_bill_val = bill_id;
-		const PPID storage_loc_id = P_OuterPack->P_Freight ? P_OuterPack->P_Freight->StorageLocID : 0;
+		const  PPID storage_loc_id = P_OuterPack->P_Freight ? P_OuterPack->P_Freight->StorageLocID : 0;
 		THROW(P_TempTbl = CreateTempFile());
 		if(Filt.SortOrder != InventoryFilt::ordByDefault)
 			THROW(P_TempOrd = CreateTempOrder2IDFile());
@@ -431,7 +431,7 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 			THROW(tra);
 			for(uint i = 0; i < P_OuterPack->InvList.getCount(); i++) {
 				InventoryTbl::Rec & r_inv_rec = P_OuterPack->InvList.at(i);
-				const PPID org_goods_id = r_inv_rec.GoodsID;
+				const  PPID org_goods_id = r_inv_rec.GoodsID;
 				int    do_skip = 0;
 				if(Filt.GoodsList.IsExists()) {
 					if(!Filt.GoodsList.CheckID(org_goods_id))
@@ -543,12 +543,12 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 				THROW(P_TempOrd = CreateTempOrder2IDFile());
 		}
 		for(uint i = 0; i < bill_count; i++) {
-			const PPID bill_id = Filt.BillList.Get().get(i);
+			const  PPID bill_id = Filt.BillList.Get().get(i);
 			BillTbl::Rec bill_rec;
 			PPInventoryOpEx ioe;
 			if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 				PPFreight freight;
-				const PPID storage_loc_id = (P_BObj->FetchFreight(bill_id, &freight) > 0) ? freight.StorageLocID : 0;
+				const  PPID storage_loc_id = (P_BObj->FetchFreight(bill_id, &freight) > 0) ? freight.StorageLocID : 0;
 				if(!Filt.StorageLocID || storage_loc_id == Filt.StorageLocID) {
 					long   subst_bill_val = bill_rec.ID;
 					if(!!Filt.Sgb) {
@@ -579,7 +579,7 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 						{
 							for(SEnum en = InvTbl.Enum(bill_id); en.Next(&inv_rec) > 0;) {
 								int    do_skip = 0;
-								const PPID org_goods_id = inv_rec.GoodsID;
+								const  PPID org_goods_id = inv_rec.GoodsID;
 								if(Filt.GoodsList.IsExists()) {
 									if(!Filt.GoodsList.CheckID(org_goods_id))
 										do_skip = 1;
@@ -731,7 +731,7 @@ int PPViewInventory::InitIteration()
 		Counter.Init(P_GIter->GetIterCounter().GetTotal());
 	}
 	else {
-		const PPID bill_id = Filt.GetSingleBillID();
+		const  PPID bill_id = Filt.GetSingleBillID();
 		THROW_MEM(P_IterQuery = new BExtQuery(&InvTbl, 0));
 		P_IterQuery->selectAll();
 		dbq = & (InvTbl.BillID == bill_id);
@@ -789,7 +789,7 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 				IterByGoods.clear();
 				InventoryArray local_inv_list;
 				for(uint i = 0; i < Filt.BillList.GetCount(); i++) {
-					const PPID bill_id = Filt.BillList.Get().get(i);
+					const  PPID bill_id = Filt.BillList.Get().get(i);
 					if(InvTbl.SearchByGoods(bill_id, goods_rec.ID, &local_inv_list) > 0) {
 						for(uint j = 0; j < local_inv_list.getCount(); j++) {
 							THROW_SL(IterByGoods.insert(&local_inv_list.at(j)));
@@ -1158,7 +1158,7 @@ int InventoryItemDialog::replyGoodsSelection()
 void InventoryItemDialog::recalcUnitsToPhUnits()
 {
 	Goods2Tbl::Rec goods_rec;
-	const PPID goods_id = getCtrlLong(CTLSEL_INVITEM_GOODS);
+	const  PPID goods_id = getCtrlLong(CTLSEL_INVITEM_GOODS);
 	if(goods_id && GObj.Fetch(goods_id, &goods_rec) > 0) {
 		const double qtty = getCtrlReal(CTL_INVITEM_QUANTITY);
 		if(goods_rec.PhUPerU > 0.0) {
@@ -1430,7 +1430,7 @@ int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 {
 	const int  skip_dlg = BIN(P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE);
 	//const int  is_accel = BIN(CommonIoeFlags & INVOPF_ACCELADDITEMS);
-	const PPID loc_id = NZOR(CommonLocID, LConfig.Location);
+	const  PPID loc_id = NZOR(CommonLocID, LConfig.Location);
 	const int  accel_mode = PPInventoryOpEx::Helper_GetAccelInputMode(CommonIoeFlags);
 
 	int    ok = -1;
@@ -1795,7 +1795,7 @@ int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 			case PPVCMD_ADDITEMEXT:
 				ok = -1;
 				{
-					const PPID bill_id = Filt.GetSingleBillID();
+					const  PPID bill_id = Filt.GetSingleBillID();
 					if(bill_id) {
 						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
@@ -1887,7 +1887,7 @@ int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 			case PPVCMD_RECALCDFCT:
 				if(Filt.BillList.GetCount() && CONFIRM(PPCFM_INVRECALCCSESSDFCT)) {
 					for(uint i = 0; ok && i < Filt.BillList.GetCount(); i++) {
-						const PPID bill_id = Filt.BillList.Get().get(i);
+						const  PPID bill_id = Filt.BillList.Get().get(i);
 						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 							if(P_BObj->RecalcInventoryDeficit(&bill_rec, 1)) {
@@ -1920,7 +1920,7 @@ int PPViewInventory::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
     int    ok = -1;
 	if(Filt.HasSubst()) {
-		const PPID subst_id = pHdr ? *static_cast<const long *>(pHdr) : 0;
+		const  PPID subst_id = pHdr ? *static_cast<const long *>(pHdr) : 0;
 		if(subst_id) {
 			InventoryFilt detail_filt;
 			detail_filt = Filt;

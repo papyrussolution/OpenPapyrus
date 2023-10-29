@@ -82,7 +82,7 @@ SArray * PPViewDialog::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 
 int PPViewDialog::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(id) {
 		EditDialogSpec(&Ctx, id);
 	}
@@ -94,7 +94,7 @@ int PPViewDialog::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	/*
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 		}
 	}

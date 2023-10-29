@@ -375,8 +375,8 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 		dlg_id = DLG_BILLEXTFLT;
 	else if(asFilt == 2)
 		dlg_id = DLG_BILLEXTFLT2;
-	const PPID agent_acs_id = GetAgentAccSheet();
-	const PPID payer_acs_id = GetSellAccSheet();
+	const  PPID agent_acs_id = GetAgentAccSheet();
+	const  PPID payer_acs_id = GetSellAccSheet();
 	BillExtDialog * dlg = new BillExtDialog(dlg_id, pTagList);
 	if(CheckDialogPtrErr(&dlg)) {
 		ushort v;
@@ -398,7 +398,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 						SString temp_buf;
 						StrAssocArray * p_list = new StrAssocArray;
 						for(uint i = 0; i < agt_list.getCount(); i++) {
-							const PPID agt_bill_id = agt_list.get(i);
+							const  PPID agt_bill_id = agt_list.get(i);
 							BillTbl::Rec agt_bill_rec;
 							if(p_bobj->Fetch(agt_bill_id, &agt_bill_rec) > 0) {
 								PPObjBill::MakeCodeString(&agt_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
@@ -871,7 +871,7 @@ void BillDialog::SetupAgreementButton()
 {
 	int    do_enable = 0;
 	ArticleTbl::Rec ar_rec;
-	const PPID ar_id = getCtrlLong(CTLSEL_BILL_OBJECT);
+	const  PPID ar_id = getCtrlLong(CTLSEL_BILL_OBJECT);
 	if(ar_id && ArObj.Fetch(ar_id, &ar_rec) > 0) {
 		int agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 		if(agt_kind == 1) {
@@ -893,7 +893,7 @@ void BillDialog::SetupAgreementButton()
 int BillDialog::EditAgreement()
 {
 	ArticleTbl::Rec ar_rec;
-	const PPID ar_id = getCtrlLong(CTLSEL_BILL_OBJECT);
+	const  PPID ar_id = getCtrlLong(CTLSEL_BILL_OBJECT);
 	return (ar_id && ArObj.Fetch(ar_id, &ar_rec) > 0) ? ArObj.EditAgreement(ar_id) : -1;
 }
 
@@ -1849,7 +1849,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 	}
 	else if(event.isCbSelected(CTLSEL_BILL_CUR)) { // @v10.5.8 @construction
 		if(P_Pack->GetTCount()) {
-			const PPID cur_id = getCtrlLong(CTLSEL_BILL_CUR);
+			const  PPID cur_id = getCtrlLong(CTLSEL_BILL_CUR);
 			for(uint tiidx = 0; tiidx < P_Pack->GetTCount(); tiidx++) {
 				PPTransferItem & r_ti = P_Pack->TI(tiidx);
 				r_ti.CurID = cur_id;
@@ -1983,7 +1983,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 				break;
 			case cmBillExtra:
 				{
-					const PPID prev_agent_id = P_Pack->Ext.AgentID;
+					const  PPID prev_agent_id = P_Pack->Ext.AgentID;
 					P_Pack->Ext.IsShipped = BIN(P_Pack->Rec.Flags & BILLF_SHIPPED);
 					P_Pack->Ext.SCardID = P_Pack->Rec.SCardID;
 					P_Pack->Ext.AgtBillID = P_Pack->Rec.AgtBillID; // @v10.1.12
@@ -2213,7 +2213,7 @@ void BillDialog::setupDebtText()
 		}
 		// @v10.9.9 {
 		{
-			const PPID ar_id = P_Pack->Rec.Object;
+			const  PPID ar_id = P_Pack->Rec.Object;
 			if(ar_id) {
 				PPID psn_id = ObjectToPerson(ar_id, 0);
 				if(psn_id) {
@@ -2242,7 +2242,7 @@ void BillDialog::setupDebtText()
 
 void BillDialog::setupByCntragnt()
 {
-	const PPID ar_id = P_Pack->Rec.Object;
+	const  PPID ar_id = P_Pack->Rec.Object;
 	PaymTerm = -1;
 	PayDateBase = 0;
 	CurrDebt = 0.0;
@@ -3041,7 +3041,7 @@ int BillDialog::getDTS(int onCancel)
 		PPID   foreign_sheet_id = P_Pack->AccSheetID;
 		THROW_PP(P_Pack->Rec.Object || intr != INTREXPND, PPERR_INTRDESTNEEDED);
 		if(prim_sheet_id && prim_sheet_id == foreign_sheet_id) {
-			const PPID prim_obj_id = PPObjLocation::WarehouseToObj(P_Pack->Rec.LocID);
+			const  PPID prim_obj_id = PPObjLocation::WarehouseToObj(P_Pack->Rec.LocID);
 			THROW_PP(!prim_obj_id || prim_obj_id != P_Pack->Rec.Object, PPERR_PRIMEQFOREIN);
 		}
 	}
@@ -3360,9 +3360,9 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 					SetupPPObjCombo(this, CTLSEL_FREIGHT_DLVRLOC, PPOBJ_LOCATION, Data.DlvrAddrID, 0);
 				}
 				else {
-					PPID   person_id = ObjectToPerson(R_Pack.Rec.Object);
-					if(person_id || Data.DlvrAddrID)
-						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, Data.DlvrAddrID);
+					const  PPID psn_id = ObjectToPerson(R_Pack.Rec.Object);
+					if(psn_id || Data.DlvrAddrID)
+						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, Data.DlvrAddrID);
 					//
 					// Для внутренней передачи необходимо обеспечить возможность в качестве адреса доставки
 					// выбрать склад-получатель.
@@ -3473,17 +3473,17 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			}
 			else if(event.isCmd(cmFreightEditDlvrLocList)) {
 				PPID   loc_id = getCtrlLong(CTLSEL_FREIGHT_DLVRLOC);
-				PPID   person_id = ObjectToPerson(R_Pack.Rec.Object);
-				if(person_id) {
-					if(PersonObj.EditDlvrLocList(person_id) > 0) {
-						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, loc_id);
+				const  PPID psn_id = ObjectToPerson(R_Pack.Rec.Object);
+				if(psn_id) {
+					if(PersonObj.EditDlvrLocList(psn_id) > 0) {
+						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, loc_id);
 					}
 				}
 				else if(loc_id) {
 					PPID   temp_loc_id = loc_id;
 					if(PersonObj.LocObj.Edit(&loc_id, 0) == cmOK) {
 						assert(temp_loc_id == loc_id);
-						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, person_id, loc_id);
+						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, loc_id);
 					}
 				}
 			}
@@ -4136,7 +4136,7 @@ int LotInfoDialog::setDTS(const ReceiptTbl::Rec * pRec)
 	setCtrlLong(CTLSEL_LOTINFO_LOC, Data.LocID);
 	SetupPPObjCombo(this, CTLSEL_LOTINFO_GOODS, PPOBJ_GOODS, Data.GoodsID, OLW_LOADDEFONOPEN);
 	if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1)) {
-		const PPID temp_id = getCtrlLong(CTLSEL_LOTINFO_SUPPL);
+		const  PPID temp_id = getCtrlLong(CTLSEL_LOTINFO_SUPPL);
 		if(temp_id != Data.SupplID)
 			setCtrlLong(CTLSEL_LOTINFO_SUPPL, Data.SupplID);
 	}

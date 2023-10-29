@@ -144,7 +144,7 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 			PPIDArray child_list;
 			cn_obj.GetListByGroup(cashID, child_list);
 			for(uint i = 0; i < child_list.getCount(); i++) {
-				const PPID child_id = child_list.get(i);
+				const  PPID child_id = child_list.get(i);
 				PPCashNode child_cn_rec;
 				if(cn_obj.Fetch(child_id, &child_cn_rec) > 0) {
 					if(!_cn_type)
@@ -1324,7 +1324,7 @@ int PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 		PPIDArray child_list;
 		cn_obj.GetListByGroup(posNodeID, child_list);
 		for(uint i = 0; i < child_list.getCount(); i++) {
-			const PPID child_cn_id = child_list.get(i);
+			const  PPID child_cn_id = child_list.get(i);
 			PPCashNode child_node;
 			if(cn_obj.Fetch(child_cn_id, &child_node) > 0) {
 				// @v10.1.1 THROW_PP_S(PPCashMachine::IsAsyncCMT(child_node.CashType), PPERR_FUNCNACCEPTEDFORPOSNODE, cn_rec.Name);
@@ -1344,7 +1344,7 @@ int PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 		TSCollection <PPCashMachine> cm_list;
 		cn_list.sortAndUndup();
 		for(uint i = 0; i < cn_list.getCount(); i++) {
-			const PPID cn_id = cn_list.get(i);
+			const  PPID cn_id = cn_list.get(i);
 			PPCashMachine * p_cm = 0;
 			THROW(p_cm = PPCashMachine::CreateInstance(cn_id));
 			cm_list.insert(p_cm);
@@ -1550,7 +1550,7 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 		if(is_group) {
 			cn_obj.GetListByGroup(cn_id, child_list);
 			for(uint i = 0; i < child_list.getCount(); i++) {
-				const PPID child_cn_id = child_list.get(i);
+				const  PPID child_cn_id = child_list.get(i);
 				PPCashNode child_node;
 				if(cn_obj.Fetch(child_cn_id, &child_node) > 0) {
 					loc_list.add(child_node.LocID);
@@ -1576,7 +1576,7 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 			if(is_loc_restictions) {
 				SString  loc_name;
 				for(uint i = 0; i < loc_list.getCount(); i++) {
-					const PPID loc_id = loc_list.get(i);
+					const  PPID loc_id = loc_list.get(i);
 					GetLocationName(loc_id, loc_name);
 					THROW_PP_S(rt_loc_list.lsearch(loc_id), PPERR_NORTTOLOC, loc_name);
 				}

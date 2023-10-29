@@ -496,7 +496,7 @@ int BillCore::SetRecFlag(PPID billID, long flag, int set, int use_ta)
 			THROW_DB(rereadForUpdate(0, 0));
 			THROW_DB(updateRecBuf(&rec)); // @sfu
 			if(flag == BILLF_WRITEDOFF && IsDraftOp(rec.OpID)) {
-				const PPID acn = set ? PPACN_BILLWROFF : PPACN_BILLWROFFUNDO;
+				const  PPID acn = set ? PPACN_BILLWROFF : PPACN_BILLWROFFUNDO;
 				DS.LogAction(acn, PPOBJ_BILL, billID, 0, 0);
 			}
 			ok = 1;
@@ -1051,7 +1051,7 @@ int BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec * pRe
 		BillTbl::Rec bill_rec;
 		if(blnk == BLNK_ALL)                                    break;
 		if(blnk & BLNK_SHADOW && data.OpID == 0)                break;
-		const PPID op_type = GetOpType(data.OpID, &op_rec);
+		const  PPID op_type = GetOpType(data.OpID, &op_rec);
 		if(blnk & BLNK_PAYMENT && op_type == PPOPT_PAYMENT)     break;
 		if(blnk & BLNK_RETURN  && op_type == PPOPT_GOODSRETURN) break;
 		if(blnk & BLNK_CHARGE  && op_type == PPOPT_CHARGE)      break;
@@ -1219,7 +1219,7 @@ int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID,
 		if(search(idx, &k, spGe) && stricmp866(data.Code, scode) == 0) do {
 			if(((flags & safIgnoreOp) || data.OpID == pSample->OpID) && (!(flags & safCheckEdiOp) || data.EdiOp == pSample->EdiOp)) {
 				if(((flags & safIgnoreDate) || data.Dt == pSample->Dt) && (!pSample->Object || data.Object == pSample->Object)) {
-					const PPID bill_id = data.ID;
+					const  PPID bill_id = data.ID;
 					if(!pRec || Search(bill_id, pRec) > 0) {
 						ASSIGN_PTR(pID, bill_id);
 						ok = 1;
@@ -1235,7 +1235,7 @@ int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID,
 			if(!(flags & safCheckEdiOp) || data.EdiOp == pSample->EdiOp) {
 				// @v11.1.12 GetCode(data.Code);
 				if(*strip(data.Code) && stricmp866(data.Code, scode) == 0) {
-					const PPID bill_id = data.ID;
+					const  PPID bill_id = data.ID;
 					if(!pRec || Search(bill_id, pRec) > 0) {
 						ASSIGN_PTR(pID, bill_id);
 						ok = 1;
@@ -1424,7 +1424,7 @@ int BillCore::ScanHolidays(PPID locID, PPID opID, const DateRange * pPeriod, PPH
 		PPIDArray wh_list;
 		loc_obj.GetWarehouseList(&wh_list, 0);
 		for(uint i = 0; i < wh_list.getCount(); i++) {
-			const PPID loc_id = wh_list.at(i);
+			const  PPID loc_id = wh_list.at(i);
 			if(loc_id)
 				THROW(ScanHolidays(loc_id, opID, pPeriod, pHld)); // @recursion
 		}
@@ -1669,7 +1669,7 @@ int BillCore::GetLocListByOp(PPID opID, PPIDArray & rList)
 	BExtQuery q(this, 2);
 	q.select(this->LocID, 0).where(this->OpID == opID);
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-		const PPID loc_id = data.LocID;
+		const  PPID loc_id = data.LocID;
 		if(loc_id != 0) {
 			if(rList.getCount() > 1024)
 				rList.sortAndUndup();

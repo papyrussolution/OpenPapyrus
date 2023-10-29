@@ -495,7 +495,7 @@ int PPObjLocation::Search(PPID id, void * b)
 				ar_obj.GetByLocationList(0, &loc_id_list, &ar_id_list);
 				if(ar_id_list.getCount()) {
 					for(uint aridx = 0; aridx < ar_id_list.getCount(); aridx++) {
-						const PPID ar_id = ar_id_list.get(aridx);
+						const  PPID ar_id = ar_id_list.get(aridx);
 						// pExtraParam если !0, то предназначается для PPObjLocation, но не для иных типов объектов
 						THROW(ar_obj.RemoveObjV(ar_id, pObjColl, options, 0/*pExtraParam*/));
 					}
@@ -750,7 +750,7 @@ int PPObjLocation::Validate(LocationTbl::Rec * pRec, int /*chkRefs*/)
 			LocationTbl::Rec cod_rec;
 			if(P_Tbl->GetListByCode(t, pRec->Code, &bycode_list) > 0) {
 				for(uint i = 0; i < bycode_list.getCount(); i++) {
-					const PPID cid = bycode_list.get(i);
+					const  PPID cid = bycode_list.get(i);
 					if(cid != pRec->ID && Search(cid, &cod_rec) > 0) {
 						msg_buf.Z().CatEq("id", cod_rec.ID).CatDiv(':', 2).Cat(cod_rec.Name);
 						if(cod_rec.OwnerID) {
@@ -852,7 +852,7 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 		}
 		p_filt = P_CurrFilt;
 	}
-	const PPID parent_id = (p_filt->Parent || !p_filt->Owner) ? p_filt->Parent : p_filt->Owner;
+	const  PPID parent_id = (p_filt->Parent || !p_filt->Owner) ? p_filt->Parent : p_filt->Owner;
 	if(oneof2(p_filt->LocType, LOCTYP_WAREHOUSE, LOCTYP_WAREHOUSEGROUP) || (p_filt->LocType == LOCTYP_WHZONE && !parent_id))
 		f |= LocationCore::eoIgnoreParent;
 	else if(p_filt->Owner)
@@ -890,7 +890,7 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 				if(elc) {
 					LocationTbl::Rec loc_rec;
 					for(uint i = 0; i < elc; i++) {
-						const PPID ext_loc_id = p_filt->ExtLocList.Get(i);
+						const  PPID ext_loc_id = p_filt->ExtLocList.Get(i);
 						if(Fetch(ext_loc_id, &loc_rec) > 0) {
 							if(loc_rec.Type == LOCTYP_ADDRESS) {
 								if(loc_rec.OwnerID) {
@@ -1085,7 +1085,7 @@ int PPObjLocation::GetListByRegNumber(PPID regTypeID, PPID locTyp, const char * 
 		PPID   single_id = rList.getSingle();
 		uint   c = rList.getCount();
 		if(c) do {
-			const PPID loc_id = rList.get(--c);
+			const  PPID loc_id = rList.get(--c);
 			if(Fetch(loc_id, &loc_rec) <= 0 || loc_rec.Type != locTyp)
 				rList.atFree(c);
 		} while(c);
@@ -1130,7 +1130,7 @@ int PPObjLocation::ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & rList)
 	assert(pGLN);
 	THROW_INVARG(pGLN);
 	if(code.NotEmptyS()) {
-		const PPID reg_type_id = PPREGT_GLN;
+		const  PPID reg_type_id = PPREGT_GLN;
 		THROW(GetListByRegNumber(reg_type_id, locTyp, 0, code, rList));
 		ok = rList.getCount() ? ((rList.getCount() > 1) ? 2 : 1) : -1;
 	}
@@ -1712,7 +1712,7 @@ void LocationDialog::UpdateWarehouseList(long pos, int byPos /*= 1*/)
 		const long sav_pos = p_box->P_Def ? p_box->P_Def->_curItem() : 0;
 		p_box->freeAll();
 		for(uint i = 0; i < Data.WarehouseList.GetCount(); i++) {
-			const PPID loc_id = Data.WarehouseList.Get(i);
+			const  PPID loc_id = Data.WarehouseList.Get(i);
 			LocationTbl::Rec loc_rec;
 			if(LocObj.Fetch(loc_id, &loc_rec) > 0)
 				temp_buf = loc_rec.Name;
@@ -1799,7 +1799,7 @@ IMPL_HANDLE_EVENT(LocationDialog)
 		SetupPhoneButton(this, CTL_LOCATION_PHONE, cmLocAction1);
 	}
 	else if(event.isCmd(cmLocAction1)) {
-		const PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
+		const  PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
 		if(def_phn_svc_id) {
 			getCtrlString(CTL_LOCATION_PHONE, temp_buf);
 			if(temp_buf.Len() >= 5) {
@@ -1817,7 +1817,7 @@ IMPL_HANDLE_EVENT(LocationDialog)
 		// поле ParentID в записи поскольку диалог редактирования очень
 		// строго проверяет корректность полей записи.
 		//
-		const PPID save_par_id = Data.ParentID;
+		const  PPID save_par_id = Data.ParentID;
 		getDTS(0);
 		Data.ParentID = 0;
 		if(LocObj.EditDialog(LOCTYP_ADDRESS, &Data, 0) == cmOK) {
@@ -3258,7 +3258,7 @@ int LocationCache::DirtyCellList(PPID locID)
 			PPIDArray par_list;
 			loc_obj.GetDirtyCellParentsList(locID, par_list);
 			for(uint i = 0; i < par_list.getCount(); i++) {
-				const PPID _id = par_list.get(i);
+				const  PPID _id = par_list.get(i);
 				uint pos = 0;
 				if(WhCellList.lsearch(&_id, &pos, CMPF_LONG))
 					WhCellList.atFree(pos);
@@ -3293,7 +3293,7 @@ int FASTCALL LocationCache::Dirty(PPID locID)
 			LocationTbl::Rec loc_rec;
 			uint pos = 0;
 			if(loc_obj.Search(locID, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE) {
-				const PPID acs_id = LConfig.LocAccSheetID;
+				const  PPID acs_id = LConfig.LocAccSheetID;
 				AddWarehouseEntry(&loc_rec, acs_id);
 			}
 			else if(WhObjList.lsearch(&locID, &pos, CMPF_LONG))
@@ -3344,7 +3344,7 @@ int LocationCache::LoadWarehouseTab()
 				long   c = 0;
 				LocationTbl::Rec loc_rec;
 				PPObjAccTurn * p_atobj = BillObj->atobj;
-				const PPID acs_id = LConfig.LocAccSheetID;
+				const  PPID acs_id = LConfig.LocAccSheetID;
 				WhObjList.clear();
 				// @v10.7.2 {
 				for(SEnum en = lobj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, LocationCore::eoIgnoreParent); en.Next(&loc_rec) > 0;) {
@@ -4516,7 +4516,7 @@ int PPLocAddrStruc::DetectStreetName(DetectBlock & rDb)
 		PPIDArray fao_list;
         if(P_Fr->SearchObjByText(rDb.OrgText, PPFiasReference::stfAnsiInput, rDb.FiasUpperID, fao_list) > 0) {
 			for(uint i = 0; i < fao_list.getCount(); i++) {
-                const PPID fao_id = fao_list.get(i);
+                const  PPID fao_id = fao_list.get(i);
                 FiasAddrObjTbl::Rec fao_rec;
                 if(P_Fr->SearchObjByID(fao_id, &fao_rec, 1 /*use_cache*/) > 0) {
 					if(fao_rec.LevelStatus == 7) {
@@ -4542,7 +4542,7 @@ int PPLocAddrStruc::DetectCityName(DetectBlock & rDb)
 		PPIDArray fao_list;
         if(P_Fr->SearchObjByText(rDb.OrgText, PPFiasReference::stfAnsiInput, 0, fao_list) > 0) {
 			for(uint i = 0; i < fao_list.getCount(); i++) {
-                const PPID fao_id = fao_list.get(i);
+                const  PPID fao_id = fao_list.get(i);
                 FiasAddrObjTbl::Rec fao_rec;
                 if(P_Fr->SearchObjByID(fao_id, &fao_rec, 1 /*use_cache*/) > 0) {
 					if(fao_rec.LevelStatus < 7) {
@@ -5199,7 +5199,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 						if(P_Fr->SearchObjByText(temp_buf, PPFiasReference::stfAnsiInput, 0, fao_list) > 0) {
 							uint _p = fao_list.getCount();
 							if(_p) do {
-								const PPID fao_id = fao_list.get(--_p);
+								const  PPID fao_id = fao_list.get(--_p);
 								if(P_Fr->SearchObjByID(fao_id, &fao_rec, 1 /*use_cache*/) > 0 && fao_rec.LevelStatus >= 7) {
 									fao_list.atFree(_p);
 								}
@@ -5210,7 +5210,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 							}
 							else if(GetText(tCityKind, temp_buf2) > 0 && temp_buf2.NotEmpty()) {
 								for(i = 0; !FiasCityID && i < fao_list.getCount(); i++) {
-									const PPID fao_id = fao_list.get(i);
+									const  PPID fao_id = fao_list.get(i);
 									if(GetFiasAddrObjKind(fao_id, temp_buf) > 0 && temp_buf.CmpNC(temp_buf2) == 0) {
 										FiasCityID = fao_id;
 									}
@@ -5228,7 +5228,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 								for(uint ci = 0; ci < fias_city_list.getCount(); ci++) {
 									DetectBlock * p_dtb = new DetectBlock;
 									THROW_MEM(p_dtb);
-									const PPID fias_city_id = fias_city_list.get(ci);
+									const  PPID fias_city_id = fias_city_list.get(ci);
 									int cr = DetectStreetName(p_dtb->Init(tStreet, i, p_tok->S, fias_city_id));
 									if(cr) {
 										dtb_list.insert(p_dtb);
@@ -5245,12 +5245,12 @@ int PPLocAddrStruc::Recognize(const char * pText)
 						FiasAddrObjTbl::Rec fao_rec;
 						fao_list.clear();
 						for(uint ci = 0; ci < fias_city_list.getCount(); ci++) {
-							const PPID fias_city_id = fias_city_list.get(ci);
+							const  PPID fias_city_id = fias_city_list.get(ci);
 							local_fao_list.clear();
 							if(P_Fr->SearchObjByText(temp_buf, PPFiasReference::stfAnsiInput, fias_city_id, local_fao_list) > 0) {
 								uint _p = local_fao_list.getCount();
 								if(_p) do {
-									const PPID fao_id = local_fao_list.get(--_p);
+									const  PPID fao_id = local_fao_list.get(--_p);
 									if(P_Fr->SearchObjByID(fao_id, &fao_rec, 1 /*use_cache*/) > 0 && fao_rec.LevelStatus != 7) {
 										local_fao_list.atFree(_p);
 									}
@@ -5264,7 +5264,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 						}
 						else if(GetText(tStreetKind, temp_buf2) > 0 && temp_buf2.NotEmpty()) {
 							for(i = 0; !FiasStreetID && i < fao_list.getCount(); i++) {
-								const PPID fao_id = fao_list.get(i);
+								const  PPID fao_id = fao_list.get(i);
 								if(GetFiasAddrObjKind(fao_id, temp_buf) > 0 && temp_buf.CmpNC(temp_buf2) == 0)
 									FiasStreetID = fao_id;
 							}
@@ -5287,8 +5287,8 @@ int PPLocAddrStruc::Recognize(const char * pText)
 								if(p1->T == tStreet && p2->T == tCity) {
 									for(uint sp = 0; sp < p1->FiasCandidList.getCount(); sp++) {
 										for(uint cp = 0; cp < p2->FiasCandidList.getCount(); cp++) {
-                                            const PPID sobj = p1->FiasCandidList.at(sp);
-                                            const PPID cobj = p2->FiasCandidList.at(cp);
+                                            const  PPID sobj = p1->FiasCandidList.at(sp);
+                                            const  PPID cobj = p2->FiasCandidList.at(cp);
                                             if(P_Fr->Match(sobj, cobj, -1) > 0) {
 												if(!p_mentry_reverse) {
 													THROW_MEM(p_mentry_reverse = new PPLocAddrStruc_MatchEntry(p1->P, p2->P, 1));
@@ -5308,8 +5308,8 @@ int PPLocAddrStruc::Recognize(const char * pText)
 								else if(p1->T == tCity && p2->T == tStreet) {
 									for(uint sp = 0; sp < p2->FiasCandidList.getCount(); sp++) {
 										for(uint cp = 0; cp < p1->FiasCandidList.getCount(); cp++) {
-                                            const PPID sobj = p2->FiasCandidList.at(sp);
-                                            const PPID cobj = p1->FiasCandidList.at(cp);
+                                            const  PPID sobj = p2->FiasCandidList.at(sp);
+                                            const  PPID cobj = p1->FiasCandidList.at(cp);
                                             if(P_Fr->Match(sobj, cobj, -1) > 0) {
 												if(!p_mentry) {
 													THROW_MEM(p_mentry = new PPLocAddrStruc_MatchEntry(p1->P, p2->P, 0));
@@ -6497,7 +6497,7 @@ int PPFiasReference::SearchObjByText(const char * pText, long flags, PPID upperI
 			PPIDArray result_list;
 			uint _p = rList.getCount();
 			for(uint i = 0; i < _p; i++) {
-				const PPID _id = rList.get(i);
+				const  PPID _id = rList.get(i);
 				if(Match(_id, upperID, -1) == 1) // 1 - obj1ID belong to obj2ID
 					result_list.add(_id);
 			}

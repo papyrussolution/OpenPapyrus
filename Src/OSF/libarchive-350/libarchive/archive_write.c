@@ -22,9 +22,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write.c 201099 2009-12-28 03:03:
 #ifdef HAVE_SYS_WAIT_H
 	#include <sys/wait.h>
 #endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 
 static struct archive_vtable * archive_write_vtable(void);
 static int _archive_filter_code(Archive *, int);

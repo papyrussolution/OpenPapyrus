@@ -182,8 +182,8 @@ int PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, int for
 		if(zeroRByBill)
 			RByBill = 0;
 		PPOprKind op_rec;
-		const PPID op_id  = pBillRec->OpID;
-		const PPID op_type_id = GetOpType(op_id, &op_rec);
+		const  PPID op_id  = pBillRec->OpID;
+		const  PPID op_type_id = GetOpType(op_id, &op_rec);
 		Date     = pBillRec->Dt;
 		BillID   = pBillRec->ID;
 		LocID    = pBillRec->LocID;
@@ -604,7 +604,7 @@ int PPTransferItem::Valuation(const PPBillConfig & rCfg, int calcOnly, double * 
 		double _cost = Cost;
 		const QuotIdent qi(QIDATE(Date), LocID, rCfg.ValuationQuotKindID, 0, Suppl);
 		PPObjGoods goods_obj;
-		const PPID goods_id = labs(GoodsID);
+		const  PPID goods_id = labs(GoodsID);
 		if(rCfg.Flags & BCF_VALUATION_BYCONTRACT && DS.GetConstTLA().SupplDealQuotKindID) {
 			const QuotIdent qic(QIDATE(Date), LocID, DS.GetConstTLA().SupplDealQuotKindID, 0, Suppl);
 			double c = 0.0;

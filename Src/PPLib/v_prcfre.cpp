@@ -235,7 +235,7 @@ int PPViewPrcBusy::Update(const PPIDArray & rPrcList)
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
 		for(uint i = 0; i < rPrcList.getCount(); i++) {
-			const PPID prc_id = rPrcList.at(i);
+			const  PPID prc_id = rPrcList.at(i);
 			if(prc_obj.Fetch(prc_id, &prc_rec) > 0 && prc_rec.Kind == PPPRCK_PROCESSOR && !(prc_rec.Flags & PRCF_PASSIVE)) {
 				PPWaitMsg(prc_rec.Name);
 				THROW(ProcessPrc(prc_id, &bei));
@@ -365,7 +365,7 @@ int PPViewPrcBusy::ViewTSessLines(PPID sessID)
 
 int PPViewPrcBusy::Print(const void * pHdr)
 {
-	PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   __id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	PrcBusyViewItem item;
 	if(GetItem(__id, &item) > 0 && item.TSessID)
 		PPAlddPrint(REPORT_TSESSION, PPFilt(item.TSessID), 0);
@@ -402,7 +402,7 @@ int PPViewPrcBusy::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPView
 					if(PrcList.lsearch(tses_rec.PrcID))
 						UpdatePrcList.addUnique(tses_rec.PrcID);
 					if(pEv->Action == PPACN_UPDTSESSPRC) {
-						const PPID prev_prc_id = pEv->ExtInt_;
+						const  PPID prev_prc_id = pEv->ExtInt_;
 						if(prev_prc_id && PrcList.lsearch(prev_prc_id))
 							UpdatePrcList.addUnique(prev_prc_id);
 					}
@@ -488,7 +488,7 @@ int PPViewPrcBusy::GetItem(PPID id, PrcBusyViewItem * pItem)
 int PPViewPrcBusy::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	PrcBusyViewItem item;
 	if(GetItem(id, &item) > 0 && item.TSessID) {
 		if(TSesObj.Edit(&item.TSessID, 0) == cmOK) {
@@ -606,7 +606,7 @@ int PPViewPrcBusy::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		PPID   __id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		PrcBusyViewItem item;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
@@ -895,7 +895,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 					temp_buf.Z();
 				if(temp_buf.NotEmptyS()) {
 					rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
-					const PPID psn_id = ObjectToPerson(ar_rec.ID, 0);
+					const  PPID psn_id = ObjectToPerson(ar_rec.ID, 0);
 					if(psn_id) {
 						PPELinkArray elnk_list;
 						PersonCore::GetELinks(psn_id, elnk_list);
@@ -1019,7 +1019,7 @@ int PPViewPrcBusy::TimeChunkBrowser()
 	{
 		long   tcbquant = TSesObj.GetConfig().TimeChunkBrowserQuant;
 		for(uint i = 0; i < PrcList.getCount(); i++) {
-			const PPID prc_id = PrcList.get(i);
+			const  PPID prc_id = PrcList.get(i);
 			ProcessorTbl::Rec prc_rec;
 			if(TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0) {
 				if(prc_rec.TcbQuant > 0) {
@@ -1056,7 +1056,7 @@ int PPViewPrcBusy::TimeChunkBrowser()
 		p.ViewType = STimeChunkBrowser::Param::vHourDay;
 	p_brw->SetParam(&p);
 	{
-		const PPID reg_cal_id = SlObj.PsnObj.GetConfig().RegStaffCalID;
+		const  PPID reg_cal_id = SlObj.PsnObj.GetConfig().RegStaffCalID;
 		if(reg_cal_id) {
 			STimeChunkArray work_list;
 			STimeChunkArray collapse_list;

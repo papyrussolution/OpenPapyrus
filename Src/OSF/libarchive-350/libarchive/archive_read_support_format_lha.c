@@ -63,7 +63,7 @@ struct lzh_dec {
 		int len_avail;
 		int len_bits;
 		int freq[17];
-		uchar   * bitlen;
+		uchar * bitlen;
 		/*
 		 * Use a index table. It's faster than searching a huffman
 		 * coding tree, which is a binary tree. But a use of a large
@@ -76,7 +76,7 @@ struct lzh_dec {
 		int tree_used;
 		int tree_avail;
 		/* Direct access table. */
-		uint16        * tbl;
+		uint16 * tbl;
 		/* Binary tree table for extra bits over the direct access. */
 		struct htree_t {
 			uint16 left;

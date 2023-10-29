@@ -1,5 +1,5 @@
 // OBJARTCL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -332,7 +332,7 @@ int ArticleAutoAddDialog::extractFromQuery()
 {
 	int    ok = 1;
 	STRNSCPY(Rec.Name, P_Buf + sizeof(PPID));
-	Rec.ObjID = *reinterpret_cast<const PPID *>(P_Buf);
+	Rec.ObjID = *reinterpret_cast<const  PPID *>(P_Buf);
 	int    r = ArObj.P_Tbl->SearchObjRef(Rec.AccSheetID, Rec.ObjID);
 	THROW(r);
 	if(r < 0) {
@@ -1440,7 +1440,7 @@ StrAssocArray * PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetID-->(A
 	MEMSZERO(k2);
 	k2.AccSheetID = acs_id;
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-		const PPID ar_id = p_tbl->data.ID;
+		const  PPID ar_id = p_tbl->data.ID;
 		p_tbl->copyBufTo(&ar_rec);
 		int   do_skip = 0;
 		if(p_filt) {
@@ -1522,7 +1522,7 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 						Reference * p_ref = PPRef;
 						PropertyTbl::Key1 k1;
 						{
-							const PPID prop_id = ARTPRP_DEBTLIMLIST2;
+							const  PPID prop_id = ARTPRP_DEBTLIMLIST2;
 							PPIDArray ar_list;
 							TSVector <PPClientAgreement::DebtLimit> debt_lim_list;
 							MEMSZERO(k1);
@@ -1542,7 +1542,7 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 							}
 						}
 						{
-							const PPID prop_id = ARTPRP_SUPPLAGT2;
+							const  PPID prop_id = ARTPRP_SUPPLAGT2;
 							PPIDArray ar_list;
 							SBuffer _buf;
 							MEMSZERO(k1);
@@ -1577,8 +1577,8 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			break;
 		case DBMSG_PERSONACQUIREKIND:
 			{
-				const PPID person_id = _id;
-				const PPID kind_id = reinterpret_cast<long>(extraPtr);
+				const  PPID person_id = _id;
+				const  PPID kind_id = reinterpret_cast<long>(extraPtr);
 
 				PPID   sheet_id = 0;
 				PPAccSheet acs_rec;
@@ -1957,14 +1957,14 @@ int PPObjArticle::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 int PPObjArticle::GetRelPersonList(PPID arID, PPID relTypeID, int reverse, PPIDArray * pList)
 {
 	int    ok = -1;
-	PPID   acc_sheet_id = 0;
-	PPID   person_id = ObjectToPerson(arID, &acc_sheet_id);
-	if(person_id) {
+	PPID   acs_id = 0;
+	PPID   psn_id = ObjectToPerson(arID, &acs_id);
+	if(psn_id) {
 		PPIDArray rel_list;
 		PPObjPerson psn_obj;
-		if(psn_obj.GetRelPersonList(person_id, relTypeID, reverse, &rel_list) > 0) {
+		if(psn_obj.GetRelPersonList(psn_id, relTypeID, reverse, &rel_list) > 0) {
 			if(pList) {
-				GetByPersonList(acc_sheet_id, &rel_list, pList);
+				GetByPersonList(acs_id, &rel_list, pList);
 				if(pList->getCount())
 					ok = 1;
 			}
@@ -2012,7 +2012,7 @@ int PPObjArticle::CheckPersonPacket(const PPPersonPacket * pPack, PPIDArray * pA
 			PPAccSheet acs_rec;
 			for(uint i = 0; i < ar_id_list.getCount(); i++) {
 				ArticleTbl::Rec ar_rec;
-				const PPID id = ar_id_list.get(i);
+				const  PPID id = ar_id_list.get(i);
 				if(Search(id, &ar_rec) > 0) {
 					THROW(acs_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0);
 					const int exists = pPack->Kinds.lsearch(acs_rec.ObjGroup);
@@ -2559,7 +2559,7 @@ int CorrectZeroDebtDimRefs()
 		PPDebtDim dd_rec;
 		PropertyTbl::Key1 k1;
 		{
-			const PPID prop_id = ARTPRP_DEBTLIMLIST2;
+			const  PPID prop_id = ARTPRP_DEBTLIMLIST2;
 			PPIDArray ar_list;
 			TSVector <PPClientAgreement::DebtLimit> debt_lim_list;
 			MEMSZERO(k1);
@@ -2570,13 +2570,13 @@ int CorrectZeroDebtDimRefs()
 			} while(p_ref->Prop.search(1, &k1, spNext) && k1.ObjType == PPOBJ_ARTICLE && k1.Prop == prop_id);
 			ar_list.sortAndUndup();
 			for(uint i = 0; i < ar_list.getCount(); i++) {
-				const PPID ar_id = ar_list.get(i);
+				const  PPID ar_id = ar_list.get(i);
 				debt_lim_list.clear();
 				if(p_ref->GetPropArray(PPOBJ_ARTICLE, ar_id, prop_id, &debt_lim_list) > 0) {
 					int    do_update = 0;
 					uint   ri = debt_lim_list.getCount();
 					if(ri) do {
-						const PPID dd_id = debt_lim_list.at(--ri).DebtDimID;
+						const  PPID dd_id = debt_lim_list.at(--ri).DebtDimID;
 						if(dd_obj.Search(dd_id, &dd_rec) > 0) {
 							;
 						}
@@ -2592,7 +2592,7 @@ int CorrectZeroDebtDimRefs()
 			}
 		}
 		{
-			const PPID prop_id = ARTPRP_SUPPLAGT2;
+			const  PPID prop_id = ARTPRP_SUPPLAGT2;
 			PPIDArray ar_list;
 			SBuffer _buf;
 			MEMSZERO(k1);
@@ -2603,7 +2603,7 @@ int CorrectZeroDebtDimRefs()
 			} while(p_ref->Prop.search(1, &k1, spNext) && k1.ObjType == PPOBJ_ARTICLE && k1.Prop == prop_id);
 			ar_list.sortAndUndup();
 			for(uint i = 0; i < ar_list.getCount(); i++) {
-				const PPID ar_id = ar_list.get(i);
+				const  PPID ar_id = ar_list.get(i);
 				if(p_ref->GetPropSBuffer(PPOBJ_ARTICLE, ar_id, prop_id, _buf) > 0) {
 					SSerializeContext ctx;
 					PPSupplAgreement agt;
@@ -2611,7 +2611,7 @@ int CorrectZeroDebtDimRefs()
 						int    do_update = 0;
 						uint   ri = agt.Ep.DebtDimList.GetCount();
 						if(ri) do {
-							const PPID dd_id = agt.Ep.DebtDimList.Get(--ri);
+							const  PPID dd_id = agt.Ep.DebtDimList.Get(--ri);
 							if(dd_obj.Search(dd_id, &dd_rec) > 0) {
 								;
 							}

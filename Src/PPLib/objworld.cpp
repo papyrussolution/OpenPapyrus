@@ -981,7 +981,7 @@ int PPObjWorld::PutPacket(PPID * pID, PPWorldPacket * pPack, int useTa)
 					THROW(CheckRights(PPR_DEL));
 					THROW(GetChildList(*pID, &list, 0));
 					for(uint i = 0; i < list.getCount(); i++) {
-						const PPID id = list.at(i);
+						const  PPID id = list.at(i);
 						if(Search(id, 0) > 0) {
 							THROW(RemoveObjV(id, 0, PPObject::not_addtolog | PPObject::not_checkrights, 0));
 						}
@@ -1783,7 +1783,7 @@ int FiasObjCore::Helper_GetChildList(PPID parentID, int level, PPIDArray & rList
 	BExtQuery q(&AdrT, 2);
 	q.selectAll().where(*dbq);
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-		const PPID _id = AdrT.data.IdUuRef;
+		const  PPID _id = AdrT.data.IdUuRef;
 		if(level) {
 			const int _lvl = AdrT.data.LevelStatus;
 			if(_lvl == level) {
@@ -1800,7 +1800,7 @@ int FiasObjCore::Helper_GetChildList(PPID parentID, int level, PPIDArray & rList
 	if(level) {
 		if(other_level_list.getCount()) {
 			for(uint i = 0; i < other_level_list.getCount(); i++) {
-				const PPID _parent_id = other_level_list.get(i);
+				const  PPID _parent_id = other_level_list.get(i);
 				THROW(ok = Helper_GetChildList(_parent_id, level, rList)); // @recursion
 			}
 		}
