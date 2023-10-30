@@ -2567,46 +2567,6 @@ private:
 	T * P;
 };
 //
-// Descr: Константы, идентифицирующие значения, ассоциированные со временем и датой
-// @v11.2.10 @construction
-//
-enum {
-	timeconstMONTHSHIFT      = 20,
-	timeconstDAYOFWEEKSHIFT  = 40,
-
-	timeconstYear        =  1,
-	timeconstMonth       =  2,
-	timeconstDayOfMonth  =  3,
-	timeconstDayOfWeek   =  4,
-	timeconstHour        =  5,
-	timeconstMinute      =  6,
-	timeconstSecond      =  7,
-	timeconstMillisecond =  8,
-	timeconstZoneOffset  =  9,
-	timeconstDstOffset   = 10,
-
-	timeconstMonthJan    = 1+timeconstMONTHSHIFT,
-	timeconstMonthFeb    = 2+timeconstMONTHSHIFT,
-	timeconstMonthMar    = 3+timeconstMONTHSHIFT,
-	timeconstMonthApr    = 4+timeconstMONTHSHIFT,
-	timeconstMonthMay    = 5+timeconstMONTHSHIFT,
-	timeconstMonthJun    = 6+timeconstMONTHSHIFT,
-	timeconstMonthJul    = 7+timeconstMONTHSHIFT,
-	timeconstMonthAug    = 8+timeconstMONTHSHIFT,
-	timeconstMonthSep    = 9+timeconstMONTHSHIFT,
-	timeconstMonthOct    = 10+timeconstMONTHSHIFT,
-	timeconstMonthNov    = 11+timeconstMONTHSHIFT,
-	timeconstMonthDec    = 12+timeconstMONTHSHIFT,
-
-	timeconstDowMon      = 1+timeconstDAYOFWEEKSHIFT,
-	timeconstDowTue      = 2+timeconstDAYOFWEEKSHIFT,
-	timeconstDowWed      = 3+timeconstDAYOFWEEKSHIFT,
-	timeconstDowThu      = 4+timeconstDAYOFWEEKSHIFT,
-	timeconstDowFri      = 5+timeconstDAYOFWEEKSHIFT,
-	timeconstDowSat      = 6+timeconstDAYOFWEEKSHIFT,
-	timeconstDowSun      = 7+timeconstDAYOFWEEKSHIFT,
-};
-//
 // Descr: Представление даты в формате MS-DOS.
 // Note: obsolete (практически не используется)
 //
@@ -3115,6 +3075,16 @@ struct SUniTime_Internal { // @internal
 	SUniTime_Internal & Z();
 	bool   IsValid() const;
 	int    FASTCALL Cmp(const SUniTime_Internal & rS) const;
+	//
+	// Descr: Функция сравнивает два экземпляра (this and rS) с точностью,
+	//   определяемой по мета-величине UED (UED_META_TIME_MSEC, UED_META_TIME_SEC,
+	//   UED_META_TIME_MIN, UED_META_TIME_HR, UED_META_DATE_DAY, UED_META_DATE_MON, UED_META_DATE_YR)
+	// Returns:
+	//   Одно из значений UED_CMP_XXX
+	// Note: Функция имеет экспериментальную семантику, завязанную на UED. Реализована
+	//   пока с целью тестирования.
+	//
+	uint64 Cmp(const SUniTime_Internal & rS, uint64 uedTimedMeta) const;
 	void   FASTCALL SetTime100ns(uint64 time100ns);
 	int    FASTCALL GetTime100ns(uint64 * pTime100ns) const;
 

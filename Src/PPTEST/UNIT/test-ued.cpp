@@ -42,24 +42,25 @@
 			}
 		}
 		{
-			for(uint i = 0; i < 1000; i++) {
-				// @todo На некоторых значениях тест не проходит: разобраться на каких
-				SUniTime_Internal ut(SCtrGenerate_);
-				/*
-				SUniTime_Internal ut;
-				ut.D = 10;
-				ut.M = 3;
-				ut.Y = 2999;
-				ut.Hr = 15;
-				ut.Mn = 30;
-				ut.Sc = 1;
-				ut.MSc = 10;
-				*/
-				uint64 ued = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
-				SLCHECK_NZ(ued);
-				SUniTime_Internal ut2;
-				UED::_GetRaw_Time(ued, ut2);
-				SLCHECK_Z(ut2.Cmp(ut));
+			static const uint64 ued_time_meta_list[] = {
+				UED_META_TIME_MSEC, UED_META_TIME_SEC, UED_META_TIME_MIN, 
+				UED_META_TIME_HR, UED_META_DATE_DAY, UED_META_DATE_MON, UED_META_DATE_YR
+			};
+			bool debug_mark = false;
+			for(uint mi = 0; mi < SIZEOFARRAY(ued_time_meta_list); mi++) {
+				const uint64 meta = ued_time_meta_list[mi];
+				for(uint i = 0; i < 10000; i++) {
+					SUniTime_Internal ut(SCtrGenerate_);
+					uint64 ued = UED::_SetRaw_Time(meta, ut);
+					SLCHECK_NZ(ued);
+					SLCHECK_NZ(UED::BelongToMeta(ued, meta));
+					SUniTime_Internal ut2;
+					UED::_GetRaw_Time(ued, ut2);
+					if(ut2.Cmp(ut, meta) != UED_CMP_EQUAL) {
+						debug_mark = true;
+					}
+					SLCHECK_NZ(ut2.Cmp(ut, meta) == UED_CMP_EQUAL);
+				}
 			}
 		}
 		{

@@ -388,7 +388,7 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 			raw = DateToDaysSinceChristmas(rT.Y, (((rT.M-1) / 6) * 6) + 1, 2);
 			break;
 		case UED_META_DATE_YR:
-			CALLEXCEPT(); // @todo @err(unsupported)
+			raw = rT.Y;
 			break;
 		case UED_META_DATE_DAYBC:
 			CALLEXCEPT(); // @todo @err(unsupported)
@@ -475,7 +475,7 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 			rT.D = 2;
 			break;
 		case UED_META_DATE_YR:
-			DaysSinceChristmasToDate((int)LoDWord(raw), &rT.Y, &rT.M, &rT.D);
+			rT.Y = static_cast<uint>(raw);
 			rT.M = 1;
 			rT.D = 2;
 			break;

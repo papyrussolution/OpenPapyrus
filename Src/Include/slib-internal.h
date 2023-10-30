@@ -7,6 +7,7 @@
 	#define LIBXML_STATIC
 	#define ZLIB_INTERNAL
 	#include <slib.h>
+	#include <ued-id.h> // @v11.8.9
 	#include <..\slib\libxml\libxml.h> // @v11.7.9
 	#include <slui.h>
 	#include <snet.h> // @v11.7.0

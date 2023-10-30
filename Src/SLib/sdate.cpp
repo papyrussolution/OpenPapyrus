@@ -2494,7 +2494,7 @@ SUniTime_Internal::SUniTime_Internal(SCtrGenerate)
 	ulong _ry = 0;
 	do {
 		_ry = r_rg.GetUniformInt(10000000) % 3000U;
-	} while(_ry < 1600 || _ry > 3000);
+	} while(_ry < 1601 || _ry > 3000);
 	Y = _ry;
 	ulong _rm = 0;
 	do {
@@ -2527,6 +2527,47 @@ int FASTCALL SUniTime_Internal::Cmp(const SUniTime_Internal & rS) const
 	int    si = 0;
 	CMPCASCADE7(si, this, &rS, Y, M, D, Hr, Mn, Sc, MSc);
 	return si;
+}
+
+uint64 SUniTime_Internal::Cmp(const SUniTime_Internal & rS, uint64 uedTimedMeta) const
+{
+	int    si = 0;
+	uint64 result = UED_CMP_EQUAL;
+	switch(uedTimedMeta) {
+		case UED_META_TIME_MSEC:
+			CMPCASCADE7(si, this, &rS, Y, M, D, Hr, Mn, Sc, MSc);
+			break;
+		case UED_META_TIME_SEC:
+			CMPCASCADE6(si, this, &rS, Y, M, D, Hr, Mn, Sc);
+			break;
+		case UED_META_TIME_MIN:
+			CMPCASCADE5(si, this, &rS, Y, M, D, Hr, Mn);
+			break;
+		case UED_META_TIME_HR:
+			CMPCASCADE4(si, this, &rS, Y, M, D, Hr);
+			break;
+		case UED_META_DATE_DAY:
+			CMPCASCADE3(si, this, &rS, Y, M, D);
+			break;
+		case UED_META_DATE_MON:
+			CMPCASCADE2(si, this, &rS, Y, M);
+			break;
+		case UED_META_DATE_YR:
+			si = CMPSIGN(this->Y, rS.Y);
+			break;
+		default:
+			result = UED_CMP_INCOMPARABLE;
+			break;
+	}
+	if(result != UED_CMP_INCOMPARABLE) {
+		if(si == 0)
+			result = UED_CMP_EQUAL;
+		else if(si < 0)
+			result = UED_CMP_LESS;
+		else
+			result = UED_CMP_GREATER;
+	}
+	return result;
 }
 
 #if 1 // {
