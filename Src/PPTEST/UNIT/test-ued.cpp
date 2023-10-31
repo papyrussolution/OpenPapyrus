@@ -65,16 +65,60 @@
 		}
 		{
 			SGeo geo;
-			SGeoPosLL gp(40.67241045687091, -74.24130029528962);
-			uint64 ued_gp = UED::SetRaw_GeoLoc(gp);
-			double dist = 0.0;
-			SGeoPosLL gp_;
-			SLCHECK_NZ(UED::GetRaw_GeoLoc(ued_gp, gp_));
-			SLCHECK_EQ_TOL(gp_.Lat, gp.Lat, 1e-4);
-			SLCHECK_EQ_TOL(gp_.Lon, gp.Lon, 1e-4);
-			geo.Inverse(gp, gp_, &dist, 0, 0, 0, 0, 0, 0);
-			temp_buf.Z().CatEq("Distance", dist, MKSFMTD(0, 3, 0));
-			SetInfo(temp_buf);
+			{
+				SGeoPosLL gp(40.67241045687091, -74.24130029528962);
+				uint64 ued_gp = UED::SetRaw_GeoLoc(gp);
+				double dist = 0.0;
+				SGeoPosLL gp_;
+				SLCHECK_NZ(UED::GetRaw_GeoLoc(ued_gp, gp_));
+				SLCHECK_EQ_TOL(gp_.Lat, gp.Lat, 1e-4);
+				SLCHECK_EQ_TOL(gp_.Lon, gp.Lon, 1e-4);
+				geo.Inverse(gp, gp_, &dist, 0, 0, 0, 0, 0, 0);
+				temp_buf.Z().CatEq("Distance", dist, MKSFMTD(0, 3, 0));
+				SetInfo(temp_buf);
+			}
+			{
+				//C:\Papyrus\Src\PPTEST\DATA\cities\cities.csv 
+				SString in_file_name;
+				SString line_buf;
+				SLS.QueryPath("testroot", temp_buf);
+				(in_file_name = temp_buf).SetLastSlash().Cat("data").SetLastSlash().Cat("cities").SetLastSlash().Cat("cities.csv");
+				SFile f_in(in_file_name, SFile::mRead);
+				SFile::ReadLineCsvContext csv_ctx(',');
+				StringSet ss_rec;
+				if(f_in.IsValid()) {
+					uint rec_no = 0;
+					while(f_in.ReadLineCsv(csv_ctx, ss_rec)) {
+						rec_no++;
+						if(rec_no > 1) {
+							uint fld_no = 0;
+							// id,name,state_id,state_code,state_name,country_id,country_code,country_name,latitude,longitude,wikiDataId
+							double lat = 0.0;
+							double lon = 0.0;
+							for(uint ssp = 0; ss_rec.get(&ssp, temp_buf);) {
+								fld_no++;
+								if(fld_no == 9) {
+									lat = temp_buf.ToReal_Plain();
+								}
+								else if(fld_no == 10) {
+									lon = temp_buf.ToReal_Plain();
+								}
+							}
+							SGeoPosLL gp(lat, lon);
+							if(gp.IsValid()) {
+								uint64 ued_gp = UED::SetRaw_GeoLoc(gp);
+								double dist = 0.0;
+								SGeoPosLL gp_;
+								SLCHECK_NZ(UED::GetRaw_GeoLoc(ued_gp, gp_));
+								SLCHECK_EQ_TOL(gp_.Lat, gp.Lat, 1e-5);
+								SLCHECK_EQ_TOL(gp_.Lon, gp.Lon, 1e-5);
+								geo.Inverse(gp, gp_, &dist, 0, 0, 0, 0, 0, 0);
+								temp_buf.Z().CatEq("Distance", dist, MKSFMTD(0, 3, 0));								
+							}
+						}
+					}
+				}
+			}
 		}
 		{
 			const double angle_list[] = { -11.9, -45.0, -180.1, 10.5, 0.0, 30.0, 45.0, 60.0, 180.0, 10.0, 270.25, 359.9 };

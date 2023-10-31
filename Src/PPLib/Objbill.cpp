@@ -958,8 +958,10 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 				StringSet ss;
 				PPLotExtCodeContainer::MarkSet lotxcode_set;
 				GtinStruc gts;
+				SString serial;
 				for(uint i = 0; i < GetTCount(); i++) {
 					const PPTransferItem & r_ti = ConstTI(i);
+					LTagL.GetNumber(PPTAG_LOT_SN, i, serial); // @v11.8.9
 					const double org_qtty = fabs(r_ti.Quantity_);
 					double qtty_ = org_qtty;
 					const double n_pr = r_ti.NetPrice();
@@ -975,10 +977,13 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 								dscnt += R2(r_ti.Discount * _one);
 								qtty_ -= _one;
 								cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnMark, temp_buf);
+								cp.SetLineTextExt(cp_idx, CCheckPacket::lnextSerial, serial); // @v11.8.9
 							}
 						}
 						if(qtty_ > 0.0) {
 							THROW(cp.InsertItem(r_ti.GoodsID, qtty_, n_pr, 0.0, rParam.DivisionN));
+							const int cp_idx = static_cast<int>(cp.GetCount());
+							cp.SetLineTextExt(cp_idx, CCheckPacket::lnextSerial, serial); // @v11.8.9
 							cc_amount += R2(n_pr * qtty_);
 							dscnt += R2(r_ti.Discount * qtty_);
 						}

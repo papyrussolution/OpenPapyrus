@@ -14,6 +14,7 @@
 //#include <sartre.h>
 #include <ued.h>
 #include <ued-id.h>
+#include <..\OSF\abseil\absl\numeric\int128.h>
 
 /*static*/uint UED::GetMetaRawDataBits(uint64 meta)
 {
@@ -147,8 +148,6 @@
 }
 
 #if(_MSC_VER >= 1900) // {
-// @construction {
-#include <..\OSF\abseil\absl\numeric\int128.h>
 
 /*static*/uint64 UED::SetRaw_GeoLoc(const SGeoPosLL & rGeoPos)
 {
@@ -236,15 +235,8 @@
 	return ok;
 }
 
-/*static*/uint64 UED::SetRaw_PlanarAngleDeg(double deg)
-{
-	return Helper_SetRaw_PlanarAngleDeg(UED_META_PLANARANGLE, deg);
-}
-
-/*static*/bool UED::GetRaw_PlanarAngleDeg(uint64 ued, double & rDeg)
-{
-	return Helper_GetRaw_PlanarAngleDeg(UED_META_PLANARANGLE, ued, rDeg);
-}
+/*static*/uint64 UED::SetRaw_PlanarAngleDeg(double deg) { return Helper_SetRaw_PlanarAngleDeg(UED_META_PLANARANGLE, deg); }
+/*static*/bool UED::GetRaw_PlanarAngleDeg(uint64 ued, double & rDeg) { return Helper_GetRaw_PlanarAngleDeg(UED_META_PLANARANGLE, ued, rDeg); }
 
 /*static*/uint64 UED::SetRaw_Color(const SColor & rC)
 {

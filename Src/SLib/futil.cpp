@@ -176,32 +176,43 @@ int driveValid(const char * pPath)
 
 #pragma warn .asc
 
-int FASTCALL IsDirectory(const char * pStr)
+bool FASTCALL IsDirectory(const wchar_t * pStr)
 {
-	int    yes = 0;
+	bool yes = false;
 	if(!isempty(pStr)) {
-#ifdef __WIN32__
-		WIN32_FIND_DATA fd;
+		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+		r_temp_buf_u = pStr;
+		WIN32_FIND_DATAW fd;
 		MEMSZERO(fd);
-		HANDLE h = FindFirstFile(SUcSwitch(pStr), &fd);
+		HANDLE h = FindFirstFileW(r_temp_buf_u, &fd);
 		if(h != INVALID_HANDLE_VALUE) {
 			if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				yes = 1;
+				yes = true;
 			FindClose(h);
 		}
 		else {
 			//SString temp_buf;
 			//(temp_buf = pStr).Strip().SetLastSlash().CatChar('*');
-			h = FindFirstFile(SUcSwitch(/*temp_buf*/SString(pStr).Strip().SetLastSlash().CatChar('*')), &fd);
+			
+			//h = FindFirstFileW(SUcSwitch(/*temp_buf*/SString(pStr).Strip().SetLastSlash().CatChar('*')), &fd);
+			r_temp_buf_u.SetLastSlash().CatChar(L'*');
+			h = FindFirstFileW(r_temp_buf_u, &fd);
 			if(h != INVALID_HANDLE_VALUE) {
-				yes = 1;
+				yes = true;
 				FindClose(h);
 			}
 		}
-#else
-		struct ffblk ff;
-		yes = BIN(findfirst(pStr, &ff, FA_DIREC) == 0 && (ff.ff_attrib & FA_DIREC));
-#endif
+	}
+	return yes;
+}
+
+bool FASTCALL IsDirectory(const char * pStr)
+{
+	bool   yes = false;
+	if(!isempty(pStr)) {
+		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+		(SLS.AcquireRvlStr() = pStr).Strip().CopyToUnicode(r_temp_buf_u);
+		yes = IsDirectory(r_temp_buf_u);
 	}
 	return yes;
 }

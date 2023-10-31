@@ -4498,6 +4498,16 @@ SStringU & SStringU::Cat(const wchar_t * pS) // @v11.8.2
 
 SStringU & SStringU::CatEq(const wchar_t * pKey, const wchar_t * pVal) { return Cat(pKey).CatChar(L'=').Cat(pVal); } // @v11.8.2
 SStringU & SStringU::Space() { return CatChar(L' '); }
+SStringU & SStringU::Slash()  { return CatChar(L'/');  } 
+SStringU & SStringU::BSlash() { return CatChar(L'\\'); } 
+
+SStringU & SStringU::SetLastSlash()
+{
+	const wchar_t last = Last();
+	if(last && !isdirslash(last))
+		BSlash();
+	return *this;
+}
 
 SStringU & FASTCALL SStringU::CopyFrom(const SStringU & rS)
 {

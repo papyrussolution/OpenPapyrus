@@ -1439,27 +1439,36 @@ int SSystemBackup::BackupProfile(const SString & rProfileName, const SString & r
 	int    ok = 1;
 	SString temp_buf;
 	SString sub_path;
-	(sub_path = P.BackupPath).SetLastSlash().Cat("profile");
+	temp_buf = rProfileName;
+	THROW(temp_buf.NotEmptyS()); // @todo @err
+	(sub_path = P.BackupPath).SetLastSlash().Cat("profile").SetLastSlash().Cat(temp_buf);
 	THROW(createDir(sub_path));
 	{
 		SSystem::AccountInfo acc_info;
 		THROW(SSystem::GetAccountNameInfo(rProfileName, acc_info));
 		acc_info.Sid.ToStr(temp_buf);
-
-		SSystem::UserProfileInfo profile_info;
-		SPtrHandle h_token = SSystem::Logon(0, rProfileName, rPw, SSystem::logontypeInteractive, &profile_info);
-		if(h_token) {
-			//
-			if(profile_info.ProfileRegKey) {
-				SString fn;
-				WinRegKey key(reinterpret_cast<HKEY>(static_cast<void *>(profile_info.ProfileRegKey)));
-				THROW(key.IsValid());
-				sub_path.SetLastSlash().Cat("reg");
-				THROW(key.Save(sub_path));
+		if(IsDirectory(acc_info.ProfilePath)) {
+			SString & r_profile_path = SLS.AcquireRvlStr();
+			r_profile_path.CopyUtf8FromUnicode(acc_info.ProfilePath, acc_info.ProfilePath.Len(), 1);
+			(temp_buf = sub_path).SetLastSlash().Cat("path");
+			THROW(Helper_BackupPath(temp_buf, r_profile_path, 0));
+		}
+		{
+			SSystem::UserProfileInfo profile_info;
+			SPtrHandle h_token = SSystem::Logon(0, rProfileName, rPw, SSystem::logontypeInteractive, &profile_info);
+			if(h_token) {
+				//
+				if(profile_info.ProfileRegKey) {
+					SString fn;
+					WinRegKey key(reinterpret_cast<HKEY>(static_cast<void *>(profile_info.ProfileRegKey)));
+					THROW(key.IsValid());
+					(temp_buf = sub_path).SetLastSlash().Cat("reg");
+					THROW(key.Save(temp_buf));
+				}
+				//
+				::UnloadUserProfile(h_token, profile_info.ProfileRegKey);
+				::CloseHandle(h_token);
 			}
-			//
-			::UnloadUserProfile(h_token, profile_info.ProfileRegKey);
-			::CloseHandle(h_token);
 		}
 	}
 	CATCHZOK

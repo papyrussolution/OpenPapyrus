@@ -1628,7 +1628,7 @@ static int SetPrinterParam(short hJob, const char * pPrinter, long options, cons
 	memzero(port_name, sizeof(port_name));
 	memzero(drv_name, sizeof(drv_name));
 	// @erik v10.4.10 {
-	if(pDevMode){
+	if(pDevMode) {
 		RVALUEPTR(dm, pDevMode);
 		THROW_PP(PESelectPrinter(hJob, drv_name, device_name, port_name, &dm), PPERR_CRYSTAL_REPORT); // @unicodeproblem
 	}

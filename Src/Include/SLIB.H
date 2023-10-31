@@ -4701,6 +4701,9 @@ public:
 	SStringU & CatN(const wchar_t * pS, size_t maxLen);
 	SStringU & CatEq(const wchar_t * pKey, const wchar_t * pVal);
 	SStringU & Space();   // @>>CatChar(' ')
+	SStringU & Slash();
+	SStringU & BSlash();
+	SStringU & SetLastSlash();
 	SStringU & FASTCALL CopyFrom(const SStringU & rS);
 	SStringU & FASTCALL CopyFrom(const wchar_t * pS);
 	SStringU & CopyFromN(const wchar_t * pS, size_t maxLen);
@@ -5884,7 +5887,8 @@ char * setLastSlash(char *);
 char * rmvLastSlash(char *);
 bool   FASTCALL fileExists(const char * pFileName);
 int    driveValid(const char * path);
-int    FASTCALL IsDirectory(const char * pStr);
+bool   FASTCALL IsDirectory(const char * pStr);
+bool   FASTCALL IsDirectory(const wchar_t * pStr);
 int    pathValid(const char * pPath, int existOnly);
 // @v10.8.2 (unused) int    validFileName(const char * pFileName);
 //
