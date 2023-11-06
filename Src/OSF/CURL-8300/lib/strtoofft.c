@@ -189,7 +189,7 @@ static int get_char(char c, int base)
 	const char * cp;
 	int value;
 
-	cp = memchr(valchars, c, 10 + 26 + 26);
+	cp = smemchr(valchars, c, 10 + 26 + 26);
 
 	if(!cp)
 		return -1;

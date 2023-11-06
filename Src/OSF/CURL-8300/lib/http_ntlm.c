@@ -42,7 +42,7 @@
 #include "http_ntlm.h"
 #include "curl_ntlm_core.h"
 #include "curl_ntlm_wb.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "vauth/vauth.h"
 #include "url.h"
 

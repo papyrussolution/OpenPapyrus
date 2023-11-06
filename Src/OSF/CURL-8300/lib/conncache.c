@@ -165,7 +165,7 @@ size_t Curl_conncache_size(struct Curl_easy * data)
  **NOTE**: When it returns, it holds the connection cache lock! */
 struct connectbundle *Curl_conncache_find_bundle(struct Curl_easy * data,
     struct connectdata * conn,
-    struct conncache * connc){
+    struct conncache * connc) {
 	struct connectbundle * bundle = NULL;
 	CONNCACHE_LOCK(data);
 	if(connc) {
@@ -394,7 +394,7 @@ bool Curl_conncache_return_conn(struct Curl_easy * data,
  * found.
  */
 struct connectdata *Curl_conncache_extract_bundle(struct Curl_easy * data,
-    struct connectbundle * bundle){
+    struct connectbundle * bundle) {
 	struct Curl_llist_element * curr;
 	timediff_t highscore = -1;
 	timediff_t score;

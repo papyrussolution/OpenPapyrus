@@ -376,7 +376,7 @@ PPBaseFilt * FASTCALL PPBillAutoCreateParam::GetInnerFilt(int a) const
 		a = A;
 	switch(a) {
 		case aDraftByTrfrAnlz: return P_TaF;
-		case aDraftBySuspCc:   return P_CcF;
+		case aDraftBySuspCc: return P_CcF;
 		case aDraftBySupplOrders: return P_SsF;
 		case aDraftByCcRule: return P_CsF;
 		default: return 0;

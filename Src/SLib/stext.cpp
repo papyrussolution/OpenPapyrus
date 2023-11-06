@@ -1823,6 +1823,95 @@ wchar_t * FASTCALL sstrchr(wchar_t * pStr, wchar_t c)
 		return (pStr+len);
 }
 
+#if 1 // @v11.8.9 @construction 
+//
+// Замечания по реализации sstrrch:
+// наиболее очевидный вариант реализации - сканирование строки с конца в начало с проверкой каждого символа.
+// Но этому подходу есть возражение: современные архитектуры "заточены" на сканирование памяти с меньших адресов
+// к большим. В результате, может оказаться, что прямое сканирование, хоть и потребляет больше итераций в номинальном
+// выражении, в реальности окажется быстрее.
+// Для варианта с однобайтовыми строками strrchr(char *, char)  у меня есть очень быстрая реализация smemchr
+// из-за чего я не задумываясь применяю прямое сканирование.
+// Для unicode-же (strrchr(wchar_t *, wchar_t)) я реализовал и прямой и обратный подходы с целью 
+// сравнить производительность того и другого экспериментально.
+// 
+// Обращу внимание на то, что поиск нулевого символа (strrchr(text, '0')) трактуется как валидный вызов
+// и возвращает указатель на '\0'-терминатор строки (хотя смысла в таком вызове и не много).
+//
+static FORCEINLINE const char * FASTCALL implement_sstrrchr(const char * pStr, char c)
+{
+	const char * p_result = 0;
+	const size_t len = implement_sstrlen(pStr);
+	if(c) {
+		if(len) {
+			const char * p = pStr;
+			do {
+				assert(p && static_cast<ssize_t>(len) >= (p - pStr)); // @paranoic
+				p = static_cast<const char *>(smemchr(p, c, len - (p - pStr)));
+				if(p)
+					p_result = p++;
+			} while(p && *p);
+		}
+	}
+	else if(pStr)
+		p_result = (pStr+len);
+	return p_result;
+}
+
+const char  * FASTCALL sstrrchr(const char * pStr, char c) { return implement_sstrrchr(pStr, c); }
+char  * FASTCALL sstrrchr(char * pStr, char c) { return const_cast<char *>(implement_sstrrchr(pStr, c)); }
+//
+//
+//
+FORCEINLINE const wchar_t * FASTCALL implement_sstrrchr_reverse(const wchar_t * pStr, wchar_t c)
+{
+	const wchar_t * p_result = 0;
+	const size_t len = implement_sstrlen(pStr);
+	if(c) {
+		if(len) {
+			for(const wchar_t * p_last = pStr+len-1; !p_result && p_last >= pStr;) {
+				if(*p_last == c)
+					p_result = p_last;
+				else
+					--p_last;
+			}
+		}
+	}
+	else if(pStr)
+		p_result = (pStr+len);
+	return p_result;
+}
+
+FORCEINLINE const wchar_t * FASTCALL implement_sstrrchr_direct(const wchar_t * pStr, wchar_t c)
+{
+	const wchar_t * p_result = 0;
+	const size_t len = implement_sstrlen(pStr);
+	if(c) {
+		if(len) {
+			const wchar_t * p_end = (pStr + len);
+			for(const wchar_t * p_cur = pStr; p_cur < p_end; p_cur++) {
+				if(*p_cur == c)
+					p_result = p_cur;
+			}
+		}
+	}
+	else if(pStr)
+		p_result = (pStr+len);
+	return p_result;
+}
+
+const wchar_t * FASTCALL sstrrchr(const wchar_t * pStr, wchar_t c)
+{
+	return implement_sstrrchr_reverse(pStr, c);
+}
+
+wchar_t * FASTCALL sstrrchr(wchar_t * pStr, wchar_t c)
+{
+	return const_cast<wchar_t *>(implement_sstrrchr_reverse(pStr, c));
+}
+
+#endif // } 0 @v11.8.9 @construction 
+
 char * FASTCALL sstrdup(const char * pStr)
 {
 	if(pStr) {

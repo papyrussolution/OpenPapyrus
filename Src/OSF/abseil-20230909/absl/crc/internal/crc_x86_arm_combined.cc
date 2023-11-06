@@ -45,18 +45,17 @@ namespace {
 // We can do a faster version of Extend() on such machines.
 class CRC32AcceleratedX86ARMCombined : public CRC32 {
 public:
-	CRC32AcceleratedX86ARMCombined() {
+	CRC32AcceleratedX86ARMCombined() 
+	{
 	}
-
-	~CRC32AcceleratedX86ARMCombined() override {
+	~CRC32AcceleratedX86ARMCombined() override 
+	{
 	}
-
 	void ExtendByZeroes(uint32_t* crc, size_t length) const override;
 	uint32_t ComputeZeroConstant(size_t length) const;
 
 private:
-	CRC32AcceleratedX86ARMCombined(const CRC32AcceleratedX86ARMCombined&) =
-	    delete;
+	CRC32AcceleratedX86ARMCombined(const CRC32AcceleratedX86ARMCombined&) = delete;
 	CRC32AcceleratedX86ARMCombined& operator=(const CRC32AcceleratedX86ARMCombined&) = delete;
 };
 
@@ -132,14 +131,13 @@ constexpr uint32_t kCRC32CPowers[] = {
 
 // Compute a magic constant, so that multiplying by it is the same as
 // extending crc by length zeros.
-uint32_t CRC32AcceleratedX86ARMCombined::ComputeZeroConstant(size_t length) const {
+uint32_t CRC32AcceleratedX86ARMCombined::ComputeZeroConstant(size_t length) const 
+{
 	// Lowest 2 bits are handled separately in ExtendByZeroes
 	length >>= 2;
-
 	int index = absl::countr_zero(length);
 	uint32_t prev = kCRC32CPowers[index];
 	length &= length - 1;
-
 	while(length) {
 		// For each bit of length, extend by 2**n zeros.
 		index = absl::countr_zero(length);
@@ -149,8 +147,8 @@ uint32_t CRC32AcceleratedX86ARMCombined::ComputeZeroConstant(size_t length) cons
 	return prev;
 }
 
-void CRC32AcceleratedX86ARMCombined::ExtendByZeroes(uint32_t* crc,
-    size_t length) const {
+void CRC32AcceleratedX86ARMCombined::ExtendByZeroes(uint32_t* crc, size_t length) const 
+{
 	uint32_t val = *crc;
 	// Don't bother with multiplication for small length.
 	switch(length & 3) {
@@ -654,57 +652,33 @@ CRCImpl* TryNewCRC32AcceleratedX86ARMCombined() {
 	}
 }
 
-std::vector<std::unique_ptr<CRCImpl> > NewCRC32AcceleratedX86ARMCombinedAll() {
+std::vector<std::unique_ptr<CRCImpl> > NewCRC32AcceleratedX86ARMCombinedAll() 
+{
 	auto ret = std::vector<std::unique_ptr<CRCImpl> >();
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    1, 0, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    1, 1, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    1, 2, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    1, 3, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    2, 0, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    2, 1, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    2, 2, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    2, 3, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    3, 0, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    3, 1, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    3, 2, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    3, 3, CutoffStrategy::Fold3> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    1, 0, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    1, 1, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    1, 2, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    1, 3, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    2, 0, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    2, 1, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    2, 2, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    2, 3, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    3, 0, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    3, 1, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    3, 2, CutoffStrategy::Unroll64CRC> >());
-	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<
-		    3, 3, CutoffStrategy::Unroll64CRC> >());
-
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<1, 0, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<1, 1, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<1, 2, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<1, 3, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<2, 0, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<2, 1, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<2, 2, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<2, 3, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<3, 0, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<3, 1, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<3, 2, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<3, 3, CutoffStrategy::Fold3> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<1, 0, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<1, 1, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<1, 2, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<1, 3, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<2, 0, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<2, 1, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<2, 2, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<2, 3, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<3, 0, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<3, 1, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<3, 2, CutoffStrategy::Unroll64CRC> >());
+	ret.push_back(absl::make_unique<CRC32AcceleratedX86ARMCombinedMultipleStreams<3, 3, CutoffStrategy::Unroll64CRC> >());
 	return ret;
 }
 

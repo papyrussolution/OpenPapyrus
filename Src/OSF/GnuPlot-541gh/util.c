@@ -346,7 +346,7 @@ void GnuPlot::MantExp(double log10_base, double x, bool scientific/* round to po
 			case 2:  mantissa *= 100; break;
 			case -2: power -= 3;
 			case 1:  mantissa *= 10; break;
-			case 0:  break;
+			case 0: break;
 			default: IntError(NO_CARET, "Internal error in scientific number formatting");
 		}
 		power -= (power % 3);

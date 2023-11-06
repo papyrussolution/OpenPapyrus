@@ -101,15 +101,15 @@ void ean_reset(ean_decoder_t * ean)
 uint ean_get_config(ean_decoder_t * ean, zbar_symbol_type_t sym)
 {
 	switch(sym) {
-		case ZBAR_EAN2:   return (ean->ean2_config);
-		case ZBAR_EAN5:   return (ean->ean5_config);
-		case ZBAR_EAN8:   return (ean->ean8_config);
-		case ZBAR_UPCE:   return (ean->upce_config);
+		case ZBAR_EAN2: return (ean->ean2_config);
+		case ZBAR_EAN5: return (ean->ean5_config);
+		case ZBAR_EAN8: return (ean->ean8_config);
+		case ZBAR_UPCE: return (ean->upce_config);
 		case ZBAR_ISBN10: return (ean->isbn10_config);
-		case ZBAR_UPCA:   return (ean->upca_config);
-		case ZBAR_EAN13:  return (ean->ean13_config);
+		case ZBAR_UPCA: return (ean->upca_config);
+		case ZBAR_EAN13: return (ean->ean13_config);
 		case ZBAR_ISBN13: return (ean->isbn13_config);
-		default:          return 0;
+		default: return 0;
 	}
 }
 

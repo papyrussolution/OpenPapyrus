@@ -148,8 +148,7 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 	if(setjmp(jerr->env)) {
 		/* FIXME TBD save error to src->src->err */
 		(*cinfo->err->output_message)(reinterpret_cast<j_common_ptr>(cinfo));
-		SAlloc::F((void *)dst->P_Data);
-		dst->P_Data = NULL;
+		ZFREE_const(dst->P_Data);
 		dst->datalen = 0;
 		goto error;
 	}

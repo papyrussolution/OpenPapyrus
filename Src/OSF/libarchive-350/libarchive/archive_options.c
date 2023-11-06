@@ -7,7 +7,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-#include "archive_options_private.h"
+//#include "archive_options_private.h"
 
 static const char * parse_option(const char ** str, const char ** mod, const char ** opt, const char ** val);
 
@@ -27,7 +27,7 @@ int _archive_set_option(Archive * a, const char * m, const char * o, const char 
 		return ARCHIVE_FAILED;
 	}
 	r = use_option(a, mp, op, vp);
-	if(r == ARCHIVE_WARN - 1) {
+	if(r == (ARCHIVE_WARN - 1)) {
 		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Unknown module name: `%s'", mp);
 		return ARCHIVE_FAILED;
 	}
@@ -52,7 +52,7 @@ int _archive_set_either_option(Archive * a, const char * m, const char * o, cons
 	r2 = use_filter_option(a, m, o, v);
 	if(r2 == ARCHIVE_FATAL)
 		return ARCHIVE_FATAL;
-	if(r2 == ARCHIVE_WARN - 1)
+	if(r2 == (ARCHIVE_WARN - 1))
 		return r1;
 	return r1 > r2 ? r1 : r2;
 }
@@ -90,7 +90,7 @@ int _archive_set_options(Archive * a, const char * options, int magic, const cha
 			SAlloc::F(data);
 			return ARCHIVE_FAILED;
 		}
-		if(r == ARCHIVE_WARN - 1) {
+		if(r == (ARCHIVE_WARN - 1)) {
 			if(ignore_mod_err)
 				continue;
 			/* The module name is wrong. */

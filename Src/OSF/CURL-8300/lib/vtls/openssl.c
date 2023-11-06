@@ -268,25 +268,23 @@
 #endif
 
 #if defined(OPENSSL_IS_BORINGSSL) || defined(OPENSSL_IS_AWSLC)
-typedef uint32_t sslerr_t;
+	typedef uint32_t sslerr_t;
 #else
-typedef unsigned long sslerr_t;
+	typedef unsigned long sslerr_t;
 #endif
-
 /*
  * Whether the OpenSSL version has the API needed to support sharing an
  * X509_STORE between connections. The API is:
  * * `X509_STORE_up_ref`       -- Introduced: OpenSSL 1.1.0.
  */
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L) /* OpenSSL >= 1.1.0 */
-#define HAVE_SSL_X509_STORE_SHARE
+	#define HAVE_SSL_X509_STORE_SHARE
 #endif
-
 /* What API version do we use? */
 #if defined(LIBRESSL_VERSION_NUMBER)
-#define USE_PRE_1_1_API (LIBRESSL_VERSION_NUMBER < 0x2070000f)
+	#define USE_PRE_1_1_API (LIBRESSL_VERSION_NUMBER < 0x2070000f)
 #else /* !LIBRESSL_VERSION_NUMBER */
-#define USE_PRE_1_1_API (OPENSSL_VERSION_NUMBER < 0x10100000L)
+	#define USE_PRE_1_1_API (OPENSSL_VERSION_NUMBER < 0x10100000L)
 #endif /* !LIBRESSL_VERSION_NUMBER */
 
 struct ossl_ssl_backend_data {
@@ -920,12 +918,11 @@ static size_t ossl_version(char * buffer, size_t size);
 
 /* Return error string for last OpenSSL error
  */
-static char *ossl_strerror(unsigned long error, char * buf, size_t size)
+static char *ossl_strerror(ulong error, char * buf, size_t size)
 {
 	size_t len;
 	DEBUGASSERT(size);
 	*buf = '\0';
-
 	len = ossl_version(buf, size);
 	DEBUGASSERT(len < (size - 2));
 	if(len < (size - 2)) {
@@ -1820,7 +1817,7 @@ static CURLcode ossl_set_engine_default(struct Curl_easy * data)
 
 /* Return list of OpenSSL crypto engine names.
  */
-static struct curl_slist *ossl_engines_list(struct Curl_easy * data){
+static struct curl_slist *ossl_engines_list(struct Curl_easy * data) {
 	struct curl_slist * list = NULL;
 #ifdef USE_OPENSSL_ENGINE
 	struct curl_slist * beg;
@@ -1875,29 +1872,23 @@ static void ossl_close(struct Curl_cfilter * cf, struct Curl_easy * data)
 		backend->bio_method = NULL;
 	}
 }
-
 /*
  * This function is called to shut down the SSL layer but keep the
  * socket open (CCC - Clear Command Channel)
  */
-static int ossl_shutdown(struct Curl_cfilter * cf,
-    struct Curl_easy * data)
+static int ossl_shutdown(struct Curl_cfilter * cf, struct Curl_easy * data)
 {
 	int retval = 0;
 	struct ssl_connect_data * connssl = (ssl_connect_data *)cf->ctx;
-	char buf[256]; /* We will use this for the OpenSSL error buffer, so it has
-	                  to be at least 256 bytes long. */
-	unsigned long sslerror;
+	char buf[256]; /* We will use this for the OpenSSL error buffer, so it has to be at least 256 bytes long. */
+	ulong sslerror;
 	int nread;
 	int buffsize;
 	int err;
 	bool done = FALSE;
-	struct ossl_ssl_backend_data * backend =
-	    (struct ossl_ssl_backend_data *)connssl->backend;
+	struct ossl_ssl_backend_data * backend = (struct ossl_ssl_backend_data *)connssl->backend;
 	int loop = 10;
-
 	DEBUGASSERT(backend);
-
 #ifndef CURL_DISABLE_FTP
 	/* This has only been tested on the proftpd server, and the mod_tls code
 	   sends a close notify alert without waiting for a close notify alert in
@@ -4458,14 +4449,11 @@ out:
 	return (ssize_t)rc; /* number of bytes */
 }
 
-static ssize_t ossl_recv(struct Curl_cfilter * cf,
-    struct Curl_easy * data,                       /* transfer */
-    char * buf,                                    /* store read data here */
-    size_t buffersize,                             /* max amount to read */
-    CURLcode * curlcode)
+static ssize_t ossl_recv(struct Curl_cfilter * cf, struct Curl_easy * data/* transfer */,
+    char * buf/* store read data here */, size_t buffersize/* max amount to read */, CURLcode * curlcode)
 {
 	char error_buffer[256];
-	unsigned long sslerror;
+	ulong sslerror;
 	ssize_t nread;
 	int buffsize;
 	struct connectdata * conn = cf->conn;
@@ -4604,7 +4592,7 @@ static size_t ossl_version(char * buffer, size_t size)
 	/* not LibreSSL, BoringSSL and not using OpenSSL_version */
 
 	char sub[3];
-	unsigned long ssleay_value;
+	ulong ssleay_value;
 	sub[2] = '\0';
 	sub[1] = '\0';
 	ssleay_value = OpenSSL_version_num();

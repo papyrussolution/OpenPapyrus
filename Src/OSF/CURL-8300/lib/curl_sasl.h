@@ -110,8 +110,8 @@ struct SASLproto {
 	                      This has to be zero for non-base64 protocols. */
 	int contcode;      /* Code to receive when continuation is expected */
 	int finalcode;     /* Code to receive upon authentication success */
-	unsigned short defmechs; /* Mechanisms enabled by default */
-	unsigned short flags; /* Configuration flags. */
+	ushort defmechs; /* Mechanisms enabled by default */
+	ushort flags; /* Configuration flags. */
 };
 
 /* Per-connection parameters */
@@ -119,24 +119,22 @@ struct SASL {
 	const struct SASLproto * params; /* Protocol dependent parameters */
 	saslstate state;     /* Current machine state */
 	const char * curmech; /* Current mechanism id. */
-	unsigned short authmechs; /* Accepted authentication mechanisms */
-	unsigned short prefmech; /* Preferred authentication mechanism */
-	unsigned short authused; /* Auth mechanism used for the connection */
+	ushort authmechs; /* Accepted authentication mechanisms */
+	ushort prefmech; /* Preferred authentication mechanism */
+	ushort authused; /* Auth mechanism used for the connection */
 	BIT(resetprefs);     /* For URL auth option parsing. */
 	BIT(mutual_auth);    /* Mutual authentication enabled (GSSAPI only) */
 	BIT(force_ir);       /* Protocol always supports initial response */
 };
 
 /* This is used to test whether the line starts with the given mechanism */
-#define sasl_mech_equal(line, wordlen, mech) \
-	(wordlen == (sizeof(mech) - 1) / sizeof(char) && \
-	!memcmp(line, mech, wordlen))
+#define sasl_mech_equal(line, wordlen, mech) (wordlen == (sizeof(mech) - 1) / sizeof(char) && !memcmp(line, mech, wordlen))
 
 /* This is used to cleanup any libraries or curl modules used by the sasl
    functions */
-void Curl_sasl_cleanup(struct connectdata * conn, unsigned short authused);
+void Curl_sasl_cleanup(struct connectdata * conn, ushort authused);
 /* Convert a mechanism name to a token */
-unsigned short Curl_sasl_decode_mech(const char * ptr, size_t maxlen, size_t * len);
+ushort Curl_sasl_decode_mech(const char * ptr, size_t maxlen, size_t * len);
 /* Parse the URL login options */
 CURLcode Curl_sasl_parse_url_auth_option(struct SASL * sasl, const char * value, size_t len);
 /* Initializes an SASL structure */

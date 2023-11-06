@@ -18,7 +18,7 @@
 	#include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_ACL_H
-	#define _ACL_PRIVATE /* For debugging */
+	#define _ACL_PRIVATE // @debug
 	#include <sys/acl.h>
 #endif
 #include "archive_read_disk_private.h"

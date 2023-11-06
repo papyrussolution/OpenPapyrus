@@ -90,8 +90,7 @@ CURLcode Curl_initinfo(struct Curl_easy * data)
 	return CURLE_OK;
 }
 
-static CURLcode getinfo_char(struct Curl_easy * data, CURLINFO info,
-    const char ** param_charp)
+static CURLcode getinfo_char(struct Curl_easy * data, CURLINFO info, const char ** param_charp)
 {
 	switch(info) {
 		case CURLINFO_EFFECTIVE_URL:
@@ -187,11 +186,9 @@ static CURLcode getinfo_char(struct Curl_easy * data, CURLINFO info,
 	return CURLE_OK;
 }
 
-static CURLcode getinfo_long(struct Curl_easy * data, CURLINFO info,
-    long * param_longp)
+static CURLcode getinfo_long(struct Curl_easy * data, CURLINFO info, long * param_longp)
 {
 	curl_socket_t sockfd;
-
 	union {
 		unsigned long * to_ulong;
 		long          * to_long;
@@ -200,7 +197,7 @@ static CURLcode getinfo_long(struct Curl_easy * data, CURLINFO info,
 #ifdef DEBUGBUILD
 	char * timestr = getenv("CURL_TIME");
 	if(timestr) {
-		unsigned long val = strtol(timestr, NULL, 10);
+		ulong val = strtol(timestr, NULL, 10);
 		switch(info) {
 			case CURLINFO_LOCAL_PORT:
 			    *param_longp = (long)val;
@@ -212,7 +209,7 @@ static CURLcode getinfo_long(struct Curl_easy * data, CURLINFO info,
 	/* use another variable for this to allow different values */
 	timestr = getenv("CURL_DEBUG_SIZE");
 	if(timestr) {
-		unsigned long val = strtol(timestr, NULL, 10);
+		ulong val = strtol(timestr, NULL, 10);
 		switch(info) {
 			case CURLINFO_HEADER_SIZE:
 			case CURLINFO_REQUEST_SIZE:
@@ -348,7 +345,7 @@ static CURLcode getinfo_offt(struct Curl_easy * data, CURLINFO info,
 #ifdef DEBUGBUILD
 	char * timestr = getenv("CURL_TIME");
 	if(timestr) {
-		unsigned long val = strtol(timestr, NULL, 10);
+		ulong val = strtol(timestr, NULL, 10);
 		switch(info) {
 			case CURLINFO_TOTAL_TIME_T:
 			case CURLINFO_NAMELOOKUP_TIME_T:
@@ -434,7 +431,7 @@ static CURLcode getinfo_double(struct Curl_easy * data, CURLINFO info,
 #ifdef DEBUGBUILD
 	char * timestr = getenv("CURL_TIME");
 	if(timestr) {
-		unsigned long val = strtol(timestr, NULL, 10);
+		ulong val = strtol(timestr, NULL, 10);
 		switch(info) {
 			case CURLINFO_TOTAL_TIME:
 			case CURLINFO_NAMELOOKUP_TIME:

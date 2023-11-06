@@ -54,7 +54,7 @@
 //#include "hostip.h"
 //#include "progress.h"
 //#include "transfer.h"
-#include "escape.h"
+//#include "escape.h"
 //#include "http.h" /* for HTTP proxy tunnel stuff */
 #include "ssh.h"
 #include "url.h"
@@ -72,7 +72,7 @@
 //#include "multiif.h"
 #include "select.h"
 //#include "warnless.h"
-#include "curl_path.h"
+//#include "curl_path.h"
 
 #include <curl_base64.h> /* for base64 encoding/decoding */
 #include <curl_sha256.h>

@@ -342,10 +342,10 @@ bool DoubleToStringConverter::ToPrecision(double value,
 
 static BignumDtoaMode DtoaToBignumDtoaMode(DoubleToStringConverter::DtoaMode dtoa_mode) {
 	switch(dtoa_mode) {
-		case DoubleToStringConverter::SHORTEST:  return BIGNUM_DTOA_SHORTEST;
+		case DoubleToStringConverter::SHORTEST: return BIGNUM_DTOA_SHORTEST;
 		case DoubleToStringConverter::SHORTEST_SINGLE:
 		    return BIGNUM_DTOA_SHORTEST_SINGLE;
-		case DoubleToStringConverter::FIXED:     return BIGNUM_DTOA_FIXED;
+		case DoubleToStringConverter::FIXED: return BIGNUM_DTOA_FIXED;
 		case DoubleToStringConverter::PRECISION: return BIGNUM_DTOA_PRECISION;
 		default:
 		    DOUBLE_CONVERSION_UNREACHABLE();

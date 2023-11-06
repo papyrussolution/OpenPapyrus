@@ -91,12 +91,10 @@ static int bzip2_reader_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * 
 	if(memcmp(buffer, "BZh", 3) != 0)
 		return 0;
 	bits_checked += 24;
-
 	/* Next follows a compression flag which must be an ASCII digit. */
 	if(buffer[3] < '1' || buffer[3] > '9')
 		return 0;
 	bits_checked += 5;
-
 	/* After BZh[1-9], there must be either a data block
 	 * which begins with 0x314159265359 or an end-of-data
 	 * marker of 0x177245385090. */
@@ -106,30 +104,25 @@ static int bzip2_reader_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * 
 		bits_checked += 48;
 	else
 		return 0;
-
 	return (bits_checked);
 }
 
 #if !defined(HAVE_BZLIB_H) || !defined(BZ_CONFIG_ERROR)
-
-/*
- * If we don't have the library on this system, we can't actually do the
- * decompression.  We can, however, still detect compressed archives
- * and emit a useful message.
- */
-static int bzip2_reader_init(ArchiveReadFilter * self)
-{
-	int r;
-
-	r = __archive_read_program(self, "bzip2 -d");
-	/* Note: We set the format here even if __archive_read_program()
-	 * above fails.  We do, after all, know what the format is
-	 * even if we weren't able to read it. */
-	self->code = ARCHIVE_FILTER_BZIP2;
-	self->name = "bzip2";
-	return r;
-}
-
+	/*
+	 * If we don't have the library on this system, we can't actually do the
+	 * decompression.  We can, however, still detect compressed archives
+	 * and emit a useful message.
+	 */
+	static int bzip2_reader_init(ArchiveReadFilter * self)
+	{
+		int r = __archive_read_program(self, "bzip2 -d");
+		/* Note: We set the format here even if __archive_read_program()
+		 * above fails.  We do, after all, know what the format is
+		 * even if we weren't able to read it. */
+		self->code = ARCHIVE_FILTER_BZIP2;
+		self->name = "bzip2";
+		return r;
+	}
 #else
 
 /*
@@ -231,7 +224,7 @@ static ssize_t bzip2_filter_read(ArchiveReadFilter * self, const void ** p)
 			    }
 			    state->valid = 0;
 			// @fallthrough
-			case BZ_OK: /* Decompressor made some progress. */
+			case BZ_OK: // Decompressor made some progress
 			    /* If we filled our buffer, update stats and return. */
 			    if(state->stream.avail_out == 0) {
 				    *p = state->out_block;

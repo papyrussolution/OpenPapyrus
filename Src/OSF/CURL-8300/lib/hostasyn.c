@@ -29,9 +29,9 @@
  **********************************************************************/
 #ifdef CURLRES_ASYNCH
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -100,22 +100,18 @@ CURLcode Curl_addrinfo_callback(struct Curl_easy * data,
 	   threaded and once this is TRUE the other thread may read fields from the
 	   async struct */
 	data->state.async.done = TRUE;
-
 	/* IPv4: The input hostent struct will be freed by ares when we return from
 	   this function */
 	return result;
 }
-
 /*
  * Curl_getaddrinfo() is the generic low-level name resolve API within this
  * source file. There are several versions of this function - for different
  * name resolve layers (selected at build-time). They all take this same set
  * of arguments
  */
-struct Curl_addrinfo *Curl_getaddrinfo(struct Curl_easy * data,
-    const char * hostname,
-    int port,
-    int * waitp){
+struct Curl_addrinfo *Curl_getaddrinfo(struct Curl_easy * data, const char * hostname, int port, int * waitp) 
+{
 	return Curl_resolver_getaddrinfo(data, hostname, port, waitp);
 }
 

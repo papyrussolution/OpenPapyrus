@@ -782,8 +782,8 @@ cairo_region_overlap_t cairo_region_contains_rectangle(const cairo_region_t * re
 	poverlap = pixman_region32_contains_rectangle(CONST_CAST &region->rgn, &pbox);
 	switch(poverlap) {
 		default:
-		case PIXMAN_REGION_OUT:  return CAIRO_REGION_OVERLAP_OUT;
-		case PIXMAN_REGION_IN:   return CAIRO_REGION_OVERLAP_IN;
+		case PIXMAN_REGION_OUT: return CAIRO_REGION_OVERLAP_OUT;
+		case PIXMAN_REGION_IN: return CAIRO_REGION_OVERLAP_IN;
 		case PIXMAN_REGION_PART: return CAIRO_REGION_OVERLAP_PART;
 	}
 }

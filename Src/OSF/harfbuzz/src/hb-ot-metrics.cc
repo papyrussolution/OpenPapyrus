@@ -41,9 +41,9 @@ bool _hb_ot_metrics_get_position_common(hb_font_t * font, hb_ot_metrics_tag_t me
 		    return (face->table.OS2->use_typo_metrics() && GET_METRIC_Y(OS2, sTypoDescender)) || GET_METRIC_Y(hhea, descender);
 		case HB_OT_METRICS_TAG_HORIZONTAL_LINE_GAP:
 		    return (face->table.OS2->use_typo_metrics() && GET_METRIC_Y(OS2, sTypoLineGap)) || GET_METRIC_Y(hhea, lineGap);
-		case HB_OT_METRICS_TAG_VERTICAL_ASCENDER:  return GET_METRIC_X(vhea, ascender);
+		case HB_OT_METRICS_TAG_VERTICAL_ASCENDER: return GET_METRIC_X(vhea, ascender);
 		case HB_OT_METRICS_TAG_VERTICAL_DESCENDER: return GET_METRIC_X(vhea, descender);
-		case HB_OT_METRICS_TAG_VERTICAL_LINE_GAP:  return GET_METRIC_X(vhea, lineGap);
+		case HB_OT_METRICS_TAG_VERTICAL_LINE_GAP: return GET_METRIC_X(vhea, lineGap);
 #undef GET_METRIC_Y
 #undef GET_METRIC_X
 #undef GET_VAR
@@ -91,7 +91,7 @@ hb_bool_t hb_ot_metrics_get_position(hb_font_t * font, hb_ot_metrics_tag_t metri
 		case HB_OT_METRICS_TAG_HORIZONTAL_LINE_GAP:
 		case HB_OT_METRICS_TAG_VERTICAL_ASCENDER:
 		case HB_OT_METRICS_TAG_VERTICAL_DESCENDER:
-		case HB_OT_METRICS_TAG_VERTICAL_LINE_GAP:           return _hb_ot_metrics_get_position_common(font, metrics_tag, position);
+		case HB_OT_METRICS_TAG_VERTICAL_LINE_GAP: return _hb_ot_metrics_get_position_common(font, metrics_tag, position);
 #ifndef HB_NO_VAR
 #define GET_VAR hb_ot_metrics_get_variation(font, metrics_tag)
 #else
@@ -99,36 +99,36 @@ hb_bool_t hb_ot_metrics_get_position(hb_font_t * font, hb_ot_metrics_tag_t metri
 #endif
 #define GET_METRIC_X(TABLE, ATTR) (face->table.TABLE->has_data() && (position && (*position = font->em_scalef_x(face->table.TABLE->ATTR + GET_VAR)), true))
 #define GET_METRIC_Y(TABLE, ATTR) (face->table.TABLE->has_data() && (position && (*position = font->em_scalef_y(face->table.TABLE->ATTR + GET_VAR)), true))
-		case HB_OT_METRICS_TAG_HORIZONTAL_CLIPPING_ASCENT:  return GET_METRIC_Y(OS2, usWinAscent);
+		case HB_OT_METRICS_TAG_HORIZONTAL_CLIPPING_ASCENT: return GET_METRIC_Y(OS2, usWinAscent);
 		case HB_OT_METRICS_TAG_HORIZONTAL_CLIPPING_DESCENT: return GET_METRIC_Y(OS2, usWinDescent);
-		case HB_OT_METRICS_TAG_HORIZONTAL_CARET_RISE:       return GET_METRIC_Y(hhea, caretSlopeRise);
-		case HB_OT_METRICS_TAG_HORIZONTAL_CARET_RUN:        return GET_METRIC_X(hhea, caretSlopeRun);
-		case HB_OT_METRICS_TAG_HORIZONTAL_CARET_OFFSET:     return GET_METRIC_X(hhea, caretOffset);
-		case HB_OT_METRICS_TAG_VERTICAL_CARET_RISE:         return GET_METRIC_X(vhea, caretSlopeRise);
-		case HB_OT_METRICS_TAG_VERTICAL_CARET_RUN:          return GET_METRIC_Y(vhea, caretSlopeRun);
-		case HB_OT_METRICS_TAG_VERTICAL_CARET_OFFSET:       return GET_METRIC_Y(vhea, caretOffset);
+		case HB_OT_METRICS_TAG_HORIZONTAL_CARET_RISE: return GET_METRIC_Y(hhea, caretSlopeRise);
+		case HB_OT_METRICS_TAG_HORIZONTAL_CARET_RUN: return GET_METRIC_X(hhea, caretSlopeRun);
+		case HB_OT_METRICS_TAG_HORIZONTAL_CARET_OFFSET: return GET_METRIC_X(hhea, caretOffset);
+		case HB_OT_METRICS_TAG_VERTICAL_CARET_RISE: return GET_METRIC_X(vhea, caretSlopeRise);
+		case HB_OT_METRICS_TAG_VERTICAL_CARET_RUN: return GET_METRIC_Y(vhea, caretSlopeRun);
+		case HB_OT_METRICS_TAG_VERTICAL_CARET_OFFSET: return GET_METRIC_Y(vhea, caretOffset);
 		case HB_OT_METRICS_TAG_X_HEIGHT:                    return GET_METRIC_Y(OS2->v2(), sxHeight);
 		case HB_OT_METRICS_TAG_CAP_HEIGHT:                  return GET_METRIC_Y(OS2->v2(), sCapHeight);
-		case HB_OT_METRICS_TAG_SUBSCRIPT_EM_X_SIZE:         return GET_METRIC_X(OS2, ySubscriptXSize);
-		case HB_OT_METRICS_TAG_SUBSCRIPT_EM_Y_SIZE:         return GET_METRIC_Y(OS2, ySubscriptYSize);
-		case HB_OT_METRICS_TAG_SUBSCRIPT_EM_X_OFFSET:       return GET_METRIC_X(OS2, ySubscriptXOffset);
-		case HB_OT_METRICS_TAG_SUBSCRIPT_EM_Y_OFFSET:       return GET_METRIC_Y(OS2, ySubscriptYOffset);
-		case HB_OT_METRICS_TAG_SUPERSCRIPT_EM_X_SIZE:       return GET_METRIC_X(OS2, ySuperscriptXSize);
-		case HB_OT_METRICS_TAG_SUPERSCRIPT_EM_Y_SIZE:       return GET_METRIC_Y(OS2, ySuperscriptYSize);
-		case HB_OT_METRICS_TAG_SUPERSCRIPT_EM_X_OFFSET:     return GET_METRIC_X(OS2, ySuperscriptXOffset);
-		case HB_OT_METRICS_TAG_SUPERSCRIPT_EM_Y_OFFSET:     return GET_METRIC_Y(OS2, ySuperscriptYOffset);
+		case HB_OT_METRICS_TAG_SUBSCRIPT_EM_X_SIZE: return GET_METRIC_X(OS2, ySubscriptXSize);
+		case HB_OT_METRICS_TAG_SUBSCRIPT_EM_Y_SIZE: return GET_METRIC_Y(OS2, ySubscriptYSize);
+		case HB_OT_METRICS_TAG_SUBSCRIPT_EM_X_OFFSET: return GET_METRIC_X(OS2, ySubscriptXOffset);
+		case HB_OT_METRICS_TAG_SUBSCRIPT_EM_Y_OFFSET: return GET_METRIC_Y(OS2, ySubscriptYOffset);
+		case HB_OT_METRICS_TAG_SUPERSCRIPT_EM_X_SIZE: return GET_METRIC_X(OS2, ySuperscriptXSize);
+		case HB_OT_METRICS_TAG_SUPERSCRIPT_EM_Y_SIZE: return GET_METRIC_Y(OS2, ySuperscriptYSize);
+		case HB_OT_METRICS_TAG_SUPERSCRIPT_EM_X_OFFSET: return GET_METRIC_X(OS2, ySuperscriptXOffset);
+		case HB_OT_METRICS_TAG_SUPERSCRIPT_EM_Y_OFFSET: return GET_METRIC_Y(OS2, ySuperscriptYOffset);
 		case HB_OT_METRICS_TAG_STRIKEOUT_SIZE:              return GET_METRIC_Y(OS2, yStrikeoutSize);
-		case HB_OT_METRICS_TAG_STRIKEOUT_OFFSET:            return GET_METRIC_Y(OS2, yStrikeoutPosition);
+		case HB_OT_METRICS_TAG_STRIKEOUT_OFFSET: return GET_METRIC_Y(OS2, yStrikeoutPosition);
 		case HB_OT_METRICS_TAG_UNDERLINE_SIZE:              return GET_METRIC_Y(post->table, underlineThickness);
-		case HB_OT_METRICS_TAG_UNDERLINE_OFFSET:            return GET_METRIC_Y(post->table, underlinePosition);
+		case HB_OT_METRICS_TAG_UNDERLINE_OFFSET: return GET_METRIC_Y(post->table, underlinePosition);
 
 		/* Private tags */
-		case _HB_OT_METRICS_TAG_HORIZONTAL_ASCENDER_OS2:    return GET_METRIC_Y(OS2, sTypoAscender);
-		case _HB_OT_METRICS_TAG_HORIZONTAL_ASCENDER_HHEA:   return GET_METRIC_Y(hhea, ascender);
-		case _HB_OT_METRICS_TAG_HORIZONTAL_DESCENDER_OS2:   return GET_METRIC_Y(OS2, sTypoDescender);
-		case _HB_OT_METRICS_TAG_HORIZONTAL_DESCENDER_HHEA:  return GET_METRIC_Y(hhea, descender);
-		case _HB_OT_METRICS_TAG_HORIZONTAL_LINE_GAP_OS2:    return GET_METRIC_Y(OS2, sTypoLineGap);
-		case _HB_OT_METRICS_TAG_HORIZONTAL_LINE_GAP_HHEA:   return GET_METRIC_Y(hhea, lineGap);
+		case _HB_OT_METRICS_TAG_HORIZONTAL_ASCENDER_OS2: return GET_METRIC_Y(OS2, sTypoAscender);
+		case _HB_OT_METRICS_TAG_HORIZONTAL_ASCENDER_HHEA: return GET_METRIC_Y(hhea, ascender);
+		case _HB_OT_METRICS_TAG_HORIZONTAL_DESCENDER_OS2: return GET_METRIC_Y(OS2, sTypoDescender);
+		case _HB_OT_METRICS_TAG_HORIZONTAL_DESCENDER_HHEA: return GET_METRIC_Y(hhea, descender);
+		case _HB_OT_METRICS_TAG_HORIZONTAL_LINE_GAP_OS2: return GET_METRIC_Y(OS2, sTypoLineGap);
+		case _HB_OT_METRICS_TAG_HORIZONTAL_LINE_GAP_HHEA: return GET_METRIC_Y(hhea, lineGap);
 #undef GET_METRIC_Y
 #undef GET_METRIC_X
 #undef GET_VAR

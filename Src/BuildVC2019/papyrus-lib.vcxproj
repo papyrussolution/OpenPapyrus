@@ -1685,9 +1685,6 @@
     <ProjectReference Include="lcms2.vcxproj">
       <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
     </ProjectReference>
-    <ProjectReference Include="libcurl-7730.vcxproj">
-      <Project>{fd47df9e-fd33-443d-9048-d802d3364469}</Project>
-    </ProjectReference>
     <ProjectReference Include="libphonenumber.vcxproj">
       <Project>{8614d47b-23e6-4a77-9618-db89c420be35}</Project>
     </ProjectReference>

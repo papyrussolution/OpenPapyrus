@@ -947,11 +947,8 @@ static CURLcode error_unencode_write(struct Curl_easy * data,
 	return CURLE_BAD_CONTENT_ENCODING;
 }
 
-static void error_close_writer(struct Curl_easy * data,
-    struct contenc_writer * writer)
+static void error_close_writer(struct Curl_easy * /*data*/, struct contenc_writer * /*writer*/)
 {
-	(void)data;
-	(void)writer;
 }
 
 static const struct content_encoding error_encoding = {
@@ -964,15 +961,11 @@ static const struct content_encoding error_encoding = {
 };
 
 /* Create an unencoding writer stage using the given handler. */
-static struct contenc_writer *new_unencoding_writer(struct Curl_easy * data,
-    const struct content_encoding * handler,
-    struct contenc_writer * downstream,
-    int order){
+static struct contenc_writer *new_unencoding_writer(struct Curl_easy * data, const struct content_encoding * handler, struct contenc_writer * downstream, int order) 
+{
 	struct contenc_writer * writer;
-
 	DEBUGASSERT(handler->writersize >= sizeof(struct contenc_writer));
 	writer = (struct contenc_writer *)SAlloc::C(1, handler->writersize);
-
 	if(writer) {
 		writer->handler = handler;
 		writer->downstream = downstream;
@@ -982,7 +975,6 @@ static struct contenc_writer *new_unencoding_writer(struct Curl_easy * data,
 			writer = NULL;
 		}
 	}
-
 	return writer;
 }
 
@@ -1013,7 +1005,7 @@ void Curl_unencode_cleanup(struct Curl_easy * data)
 
 /* Find the content encoding by name. */
 static const struct content_encoding *find_encoding(const char * name,
-    size_t len){
+    size_t len) {
 	const struct content_encoding * const * cep;
 
 	for(cep = encodings; *cep; cep++) {

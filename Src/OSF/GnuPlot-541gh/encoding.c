@@ -93,16 +93,16 @@ const char * GnuPlot::EncodingMicro()
 	static const char micro_latin1[2]  = { '\xB5', '\x00' };
 	static const char micro_default[2] = { 'u',  '\x00' };
 	switch(GPT._Encoding) {
-		case S_ENC_UTF8:        return micro_utf8;
+		case S_ENC_UTF8: return micro_utf8;
 		case S_ENC_CP1250:
 		case S_ENC_CP1251:
 		case S_ENC_CP1252:
 		case S_ENC_CP1254:
 		case S_ENC_ISO8859_1:
 		case S_ENC_ISO8859_9:
-		case S_ENC_ISO8859_15:  return micro_latin1;
+		case S_ENC_ISO8859_15: return micro_latin1;
 		case S_ENC_CP437:
-		case S_ENC_CP850:       return micro_437;
+		case S_ENC_CP850: return micro_437;
 		default:                return micro_default;
 	}
 }
@@ -117,8 +117,8 @@ const char * GnuPlot::EncodingMinus()
 	// NB: This SJIS character is correct, but produces bad spacing if used
 	//  static const char minus_sjis[4] = {0x81, 0x7c, 0x0, 0x0};
 	switch(GPT._Encoding) {
-		case S_ENC_UTF8:        return minus_utf8;
-		case S_ENC_CP1252:      return minus_1252;
+		case S_ENC_UTF8: return minus_utf8;
+		case S_ENC_CP1252: return minus_1252;
 		case S_ENC_SJIS:
 		default:                return NULL;
 	}

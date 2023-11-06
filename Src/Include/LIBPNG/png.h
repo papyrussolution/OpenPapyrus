@@ -884,7 +884,7 @@ typedef PNG_CALLBACK (void, * png_free_ptr, (png_structp, void *));
  *        relevant when preprocessing png.h with
  *        the *.dfn files for building symbol table
  *        entries, and are removed by pngconf.h.
- *  type:       return type of the function
+ *  type: return type of the function
  *  name:       function name
  *  args:       function arguments, with types
  *

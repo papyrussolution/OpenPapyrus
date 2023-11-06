@@ -1,5 +1,5 @@
 // PPINICFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 203
 // @Kernel
 //
 #include <pp.h>
@@ -135,10 +135,10 @@ int PPIniFile::Backup(uint maxCopies)
 		(ps.Nam = nam).CatChar('-').CatLongZ(++c, 3);
 		ps.Merge(temp_name);
 		if(fileExists(temp_name)) {
-			SFileUtil::Stat st;
-			SFileUtil::GetStat(temp_name, &st);
+			SFile::Stat fs;
+			SFile::GetStat(temp_name, 0, &fs, 0);
 			FE fe;
-			fe.Dtm = st.ModTime;
+			fe.Dtm = fs.ModTime;
 			fe.C = c;
 			fe_list.insert(&fe);
 		}

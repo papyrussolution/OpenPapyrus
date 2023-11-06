@@ -54,7 +54,7 @@ static void FASTCALL RemoveInOutFiles(long diff_dt, PPID pathID)
 		(src_path = base_path).SetLastSlash();
 		(src_file_name = src_path).Cat("*.pps");
 		for(SDirec sd(src_file_name); sd.Next(&sde) > 0;)
-			if(diffdate(cur_dt, sde.WriteTime.d) >= diff_dt) {
+			if(diffdate(cur_dt, sde.ModTime.d) >= diff_dt) {
 				sde.GetNameA(src_path, src_file_name);
 				SFile::Remove(src_file_name);
 			}
@@ -65,7 +65,7 @@ static void FASTCALL RemoveInOutFiles(long diff_dt, PPID pathID)
 		(src_path = base_path).SetLastSlash().Cat("ppos-backup").SetLastSlash();
 		(src_file_name = src_path).Cat("*.pps");
 		for(SDirec sd(src_file_name); sd.Next(&sde) > 0;)
-			if(diffdate(cur_dt, sde.WriteTime.d) >= diff_dt) {
+			if(diffdate(cur_dt, sde.ModTime.d) >= diff_dt) {
 				sde.GetNameA(src_path, src_file_name);
 				SFile::Remove(src_file_name);
 			}
@@ -147,7 +147,7 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				//
 				(tmp_sub_dir = _temp_path).Cat("oimg????.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3)) {
+					if(sde.IsFile() && diffdatetimesec(ct, sde.ModTime) > (3600*24*3)) {
 						sde.GetNameA(_temp_path, tmp_path);
 						etc_to_rmv_files.add(tmp_path);
 					}
@@ -160,7 +160,7 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				(tmp_dir = _temp_path).Cat("img").SetLastSlash();
 				(tmp_sub_dir = tmp_dir).Cat("pst?????.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3)) {
+					if(sde.IsFile() && diffdatetimesec(ct, sde.ModTime) > (3600*24*3)) {
 						sde.GetNameA(tmp_dir, tmp_path);
 						etc_to_rmv_files.add(tmp_path);
 					}
@@ -172,7 +172,7 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				//
 				(tmp_sub_dir = _temp_path).Cat("*.xml");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3)) {
+					if(sde.IsFile() && diffdatetimesec(ct, sde.ModTime) > (3600*24*3)) {
 						sde.GetNameA(_temp_path, tmp_path);
 						etc_to_rmv_files.add(tmp_path);
 					}
@@ -184,7 +184,7 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				//
 				(tmp_sub_dir = _temp_path).Cat("wb*.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(sde.IsFile() && diffdatetimesec(ct, sde.WriteTime) > (3600*24*3)) {
+					if(sde.IsFile() && diffdatetimesec(ct, sde.ModTime) > (3600*24*3)) {
 						sde.GetNameA(_temp_path, tmp_path);
 						etc_to_rmv_files.add(tmp_path);
 					}

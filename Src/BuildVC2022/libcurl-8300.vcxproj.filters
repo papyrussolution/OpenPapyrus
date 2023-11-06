@@ -22,6 +22,9 @@
     <Filter Include="vssh">
       <UniqueIdentifier>{a0db50c2-3b36-4faa-b022-7bb130cecc2e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vquic">
+      <UniqueIdentifier>{ccd4d28b-7bdf-4ab6-ad6a-32aa1710b516}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\OSF\CURL-8300\lib\vssh\libssh2.c">
@@ -234,6 +237,21 @@
     <ClCompile Include="..\OSF\CURL-8300\lib\psl.c" />
     <ClCompile Include="..\OSF\CURL-8300\lib\timediff.c" />
     <ClCompile Include="..\OSF\CURL-8300\lib\ws.c" />
+    <ClCompile Include="..\OSF\CURL-8300\lib\vquic\curl_msh3.c">
+      <Filter>vquic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vquic\curl_ngtcp2.c">
+      <Filter>vquic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vquic\curl_quiche.c">
+      <Filter>vquic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vquic\vquic.c">
+      <Filter>vquic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\CURL-8300\lib\vtls\hostcheck.c">
+      <Filter>vtls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\CURL-8300\lib\amigaos.h">
@@ -717,6 +735,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\CURL-8300\lib\ws.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vquic\curl_msh3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vquic\curl_ngtcp2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vquic\curl_quiche.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vquic\vquic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CURL-8300\lib\vquic\vquic_int.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

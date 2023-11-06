@@ -136,7 +136,7 @@ static char * vms_getenv(const char * envvar)
 
 static struct passwd vms_passwd_cache;
 
-static struct passwd * vms_getpwuid(uid_t uid){
+static struct passwd * vms_getpwuid(uid_t uid) {
 	struct passwd * my_passwd;
 
 /* Hack needed to support 64 bit builds, decc_getpwnam is 32 bit only */

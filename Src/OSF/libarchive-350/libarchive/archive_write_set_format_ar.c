@@ -392,25 +392,19 @@ static int archive_write_ar_finish_entry(struct archive_write * a)
  */
 static int format_octal(int64 v, char * p, int s)
 {
-	int len;
-	char * h;
-
-	len = s;
-	h = p;
-
+	int len = s;
+	char * h = p;
 	/* Octal values can't be negative, so use 0. */
 	if(v < 0) {
 		while(len-- > 0)
 			*p++ = '0';
 		return -1;
 	}
-
 	p += s; /* Start at the end and work backwards. */
 	do {
 		*--p = (char)('0' + (v & 7));
 		v >>= 3;
 	} while(--s > 0 && v > 0);
-
 	if(v == 0) {
 		memmove(h, p, len - s);
 		p = h + len - s;
@@ -421,10 +415,8 @@ static int format_octal(int64 v, char * p, int s)
 	/* If it overflowed, fill field with max value. */
 	while(len-- > 0)
 		*p++ = '7';
-
 	return -1;
 }
-
 /*
  * Format a number into the specified field using base-10.
  */

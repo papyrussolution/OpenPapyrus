@@ -85,8 +85,10 @@ struct hsts *Curl_hsts_init(void)
 
 static void hsts_free(struct stsentry * e)
 {
-	SAlloc::F((char *)e->host);
-	SAlloc::F(e);
+	if(e) {
+		SAlloc::F((char *)e->host);
+		SAlloc::F(e);
+	}
 }
 
 void Curl_hsts_cleanup(struct hsts ** hp)
@@ -246,8 +248,8 @@ CURLcode Curl_hsts_parse(struct hsts * h, const char * hostname,
  * The 'subdomain' argument tells the function if subdomain matching should be
  * attempted.
  */
-struct stsentry *Curl_hsts(struct hsts * h, const char * hostname,
-    bool subdomain){
+struct stsentry *Curl_hsts(struct hsts * h, const char * hostname, bool subdomain) 
+{
 	if(h) {
 		char buffer[MAX_HSTS_HOSTLEN + 1];
 		time_t now = time(NULL);

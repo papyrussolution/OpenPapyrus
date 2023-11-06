@@ -1325,6 +1325,9 @@ PPERR_BILLSTCHECKFLD_DUEDATE       "@{billstatusfieldreq} '@{bill_duedate}'"
 PPERR_BILLSTCHECKFLD_CONTRACT      "Статус документа требует договора с контрагентом (в соглашении либо в виде привязанного контрактного документа)"
 PPERR_BILLSTCHECKFLD_FREIGHT       "Статус документа требует заполнения одного или нескольких полей фрахта"
 PPERR_BILLSTCHECKFLD_CODE          "Статус документа требует не пустого номера документа"
+PPERR_BILLSTCHECKFLD_LNEXPLVATRATE "Статус документа требует чтобы для всех включенных товаров была определена ставка НДС"
+PPERR_BILLSTCHECKFLD_LNCHZNMARKS   "Статус документа требует чтобы для включенных товаров маркированных типов были установлены марки"
+
 PPERR_INITBILLSTATUSRESTRICTOP     "Статус документа '%s', определенный для новых документов, не разрешено устанавливать для этого вида операции"
 PPERR_BILLSTATUSRESTRICTOP         "Статус '%s' не разрешено устанавливать для документов с этим видом операции"
 PPERR_NBILLSTATUS                  "Не настроено ни одного статуса документа"
@@ -9797,6 +9800,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billstatus_bilcheckf_ship                "Транспортное средство"
 @billstatus_bilcheckf_trbroker            "@{freightagent}"
 @billstatus_bilcheckf_contract            "Договор на поставку"
+@billstatus_bilcheckf_lnexplvatrate       "Ставка НДС явно определена для каждого товара" // @v11.8.9
+@billstatus_bilcheckf_lnchznmarks         "Марки @{brand_chzn} установлены для всех позиций (где необходимо)" // @v11.8.9
 
 @billstatus_bilstf_deny_changelink        "Связанные документы нельзя изменять"
 @billstatus_bilstf_deny_del               "Документы нельзя удалять"
@@ -10632,6 +10637,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgequip_fdisablesellspoiledseries       "Запрет продажи бракованных серий"
 @cfgequip_chkpanimpopid                   "Вид операции документов для импорта в кассовую панель"
 @cfgequip_chkpanimpbilltagid              "Тег документа, позволяющий импортировать документ в кассовую панель"
+@cfgequip_lookbackbillperiod              "Период выбора документов для импорта, @{days}"
 
 @cfgequip_id                              "@{id}"
 @cfgequip_opondfctothrloc                 "Операция покрытия дефицита для чужого склада"

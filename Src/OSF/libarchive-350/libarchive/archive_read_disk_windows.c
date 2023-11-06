@@ -99,7 +99,7 @@ struct filesystem {
 #define READ_BUFFER_SIZE        (1024 * 64) /* Default to 64KB per
 	                                       https://technet.microsoft.com/en-us/library/cc938632.aspx */
 #define DIRECT_IO       0/* Disabled */
-#define ASYNC_IO        1/* Enabled */
+#define ASYNC_IO        1// enabled
 /*
  * Local data for this package.
  */
@@ -283,7 +283,6 @@ typedef struct _REPARSE_DATA_BUFFER {
 		} GenericReparseBuffer;
 	} DUMMYUNIONNAME;
 } REPARSE_DATA_BUFFER, * PREPARSE_DATA_BUFFER;
-
 /*
  * Reads the target of a symbolic link
  *
@@ -296,12 +295,10 @@ static int la_linkname_from_handle(HANDLE h, wchar_t ** linkname, int * linktype
 	REPARSE_DATA_BUFFER * buf;
 	BY_HANDLE_FILE_INFORMATION st;
 	size_t len;
-	BOOL ret;
 	BYTE * indata;
 	wchar_t * tbuf;
-	ret = GetFileInformationByHandle(h, &st);
-	if(ret == 0 ||
-	    (st.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
+	BOOL ret = GetFileInformationByHandle(h, &st);
+	if(ret == 0 || (st.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
 		return -1;
 	}
 	indata = static_cast<BYTE *>(SAlloc::M(MAXIMUM_REPARSE_DATA_BUFFER_SIZE));
@@ -314,7 +311,7 @@ static int la_linkname_from_handle(HANDLE h, wchar_t ** linkname, int * linktype
 	buf = (REPARSE_DATA_BUFFER*)indata;
 	if(buf->ReparseTag != IO_REPARSE_TAG_SYMLINK) {
 		SAlloc::F(indata);
-		/* File is not a symbolic link */
+		// File is not a symbolic link
 		errno = EINVAL;
 		return -1;
 	}
@@ -332,20 +329,15 @@ static int la_linkname_from_handle(HANDLE h, wchar_t ** linkname, int * linktype
 	SAlloc::F(indata);
 	tbuf[len / sizeof(wchar_t)] = L'\0';
 	*linkname = tbuf;
-	/*
-	 * Translate backslashes to slashes for libarchive internal use
-	 */
+	// 
+	// Translate backslashes to slashes for libarchive internal use
+	// 
 	while(*tbuf != L'\0') {
 		if(*tbuf == L'\\')
 			*tbuf = L'/';
 		tbuf++;
 	}
-
-	if((st.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
-		*linktype = AE_SYMLINK_TYPE_FILE;
-	else
-		*linktype = AE_SYMLINK_TYPE_DIRECTORY;
-
+	*linktype = (st.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? AE_SYMLINK_TYPE_DIRECTORY : AE_SYMLINK_TYPE_FILE;
 	return 0;
 }
 

@@ -94,7 +94,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CONSOLE;_LIB;_TIMESPEC_DEFINED;SQLITE_ENABLE_FTS5;CURL_STATICLIB;SPDLOG_WCHAR_FILENAMES;__PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\CURL-7730\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\curl-8300\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <PrecompiledHeaderFile />
@@ -124,7 +124,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CONSOLE;_LIB;_TIMESPEC_DEFINED;SQLITE_ENABLE_FTS5;CURL_STATICLIB;SPDLOG_WCHAR_FILENAMES;__PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\CURL-7730\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\curl-8300\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <PrecompiledHeaderFile>
@@ -158,7 +158,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;_TIMESPEC_DEFINED;SQLITE_ENABLE_FTS5;CURL_STATICLIB;SPDLOG_WCHAR_FILENAMES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\CURL-7730\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\curl-8300\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StringPooling>true</StringPooling>
@@ -195,7 +195,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;_TIMESPEC_DEFINED;SQLITE_ENABLE_FTS5;CURL_STATICLIB;SPDLOG_WCHAR_FILENAMES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\CURL-7730\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\osf\Mailspring-Sync\icalendarlib;..\osf\Mailspring-Sync\MailSync\Models;..\osf\Mailspring-Sync\MailSync;..\osf\Mailspring-Sync\mailcore2\src\include;..\osf\Mailspring-Sync\mailcore2\Externals\include;..\osf\Mailspring-Sync\StanfordCPPLib;..\osf\Mailspring-Sync;..\osf\Mailspring-Sync\SQLiteCpp\include;..\osf\Mailspring-Sync\mailcore2\build-windows\include;..\include;..\osf\curl-8300\include;..\osf\pthreads4w;..\osf\Mailspring-Sync\libetpan\build-windows\include;..\osf\Mailspring-Sync\libetpan\third-party\include;..\osf\Mailspring-Sync\libetpan\include;..\osf\icu\icu4c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -306,7 +306,7 @@
     <ProjectReference Include="libctemplate.vcxproj">
       <Project>{fb27fbdb-e6c0-4d00-a7f8-1eeef1b48abc}</Project>
     </ProjectReference>
-    <ProjectReference Include="libcurl-7730.vcxproj">
+    <ProjectReference Include="libcurl-8300.vcxproj">
       <Project>{fd47df9e-fd33-443d-9048-d802d3364469}</Project>
     </ProjectReference>
     <ProjectReference Include="libetpan.vcxproj">

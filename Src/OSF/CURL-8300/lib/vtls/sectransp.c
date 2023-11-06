@@ -30,7 +30,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include "urldata.h" /* for the Curl_easy definition */
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "strtok.h"
 //#include "multiif.h"
 //#include "strcase.h"

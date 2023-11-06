@@ -227,66 +227,18 @@ void CRYPTO_clear_free(void * str, size_t num, const char * file, int line)
 }
 
 #if !defined(OPENSSL_NO_CRYPTO_MDEBUG)
-
-#ifndef OPENSSL_NO_DEPRECATED_3_0
-int CRYPTO_mem_ctrl(int mode)
-{
-	(void)mode;
-	return -1;
-}
-
-int CRYPTO_set_mem_debug(int flag)
-{
-	(void)flag;
-	return -1;
-}
-
-int CRYPTO_mem_debug_push(const char * info, const char * file, int line)
-{
-	(void)info; (void)file; (void)line;
-	return -1;
-}
-
-int CRYPTO_mem_debug_pop(void)
-{
-	return -1;
-}
-
-void CRYPTO_mem_debug_malloc(void * addr, size_t num, int flag, const char * file, int line)
-{
-	(void)addr; (void)num; (void)flag; (void)file; (void)line;
-}
-
-void CRYPTO_mem_debug_realloc(void * addr1, void * addr2, size_t num, int flag, const char * file, int line)
-{
-	(void)addr1; (void)addr2; (void)num; (void)flag; (void)file; (void)line;
-}
-
-void CRYPTO_mem_debug_free(void * addr, int flag, const char * file, int line)
-{
-	(void)addr; (void)flag; (void)file; (void)line;
-}
-
-int CRYPTO_mem_leaks(BIO * b)
-{
-	(void)b;
-	return -1;
-}
-
-#ifndef OPENSSL_NO_STDIO
-int CRYPTO_mem_leaks_fp(FILE * fp)
-{
-	(void)fp;
-	return -1;
-}
-
-#endif
-
-int CRYPTO_mem_leaks_cb(int (* cb)(const char * str, size_t len, void * u), void * u)
-{
-	(void)cb; (void)u;
-	return -1;
-}
-
-#endif
+	#ifndef OPENSSL_NO_DEPRECATED_3_0
+		int CRYPTO_mem_ctrl(int /*mode*/) { return -1; }
+		int CRYPTO_set_mem_debug(int /*flag*/) { return -1; }
+		int CRYPTO_mem_debug_push(const char * /*info*/, const char * /*file*/, int /*line*/) { return -1; }
+		int CRYPTO_mem_debug_pop() { return -1; }
+		void CRYPTO_mem_debug_malloc(void * /*addr*/, size_t /*num*/, int /*flag*/, const char * /*file*/, int /*line*/) {}
+		void CRYPTO_mem_debug_realloc(void * /*addr1*/, void * /*addr2*/, size_t /*num*/, int /*flag*/, const char * /*file*/, int /*line*/) {}
+		void CRYPTO_mem_debug_free(void * /*addr*/, int /*flag*/, const char * /*file*/, int /*line*/) {}
+		int CRYPTO_mem_leaks(BIO * /*b*/) { return -1; }
+		#ifndef OPENSSL_NO_STDIO
+			int CRYPTO_mem_leaks_fp(FILE * /*fp*/) { return -1; }
+		#endif
+		int CRYPTO_mem_leaks_cb(int (* /*cb*/)(const char * str, size_t len, void * u), void * /*u*/) { return -1; }
+	#endif
 #endif

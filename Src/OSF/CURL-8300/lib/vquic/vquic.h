@@ -35,7 +35,7 @@ struct Curl_addrinfo;
 void Curl_quic_ver(char *p, size_t len);
 
 CURLcode Curl_qlogdir(struct Curl_easy *data,
-                      unsigned char *scid,
+                      uchar *scid,
                       size_t scidlen,
                       int *qlogfdp);
 

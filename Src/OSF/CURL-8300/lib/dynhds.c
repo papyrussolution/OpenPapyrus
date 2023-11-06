@@ -128,13 +128,13 @@ void Curl_dynhds_set_opts(struct dynhds * dynhds, int opts)
 	dynhds->opts = opts;
 }
 
-struct dynhds_entry *Curl_dynhds_getn(struct dynhds * dynhds, size_t n){
+struct dynhds_entry *Curl_dynhds_getn(struct dynhds * dynhds, size_t n) {
 	DEBUGASSERT(dynhds);
 	return (n < dynhds->hds_len)? dynhds->hds[n] : NULL;
 }
 
 struct dynhds_entry *Curl_dynhds_get(struct dynhds * dynhds, const char * name,
-    size_t namelen){
+    size_t namelen) {
 	size_t i;
 	for(i = 0; i < dynhds->hds_len; ++i) {
 		if(dynhds->hds[i]->namelen == namelen &&
@@ -145,7 +145,7 @@ struct dynhds_entry *Curl_dynhds_get(struct dynhds * dynhds, const char * name,
 	return NULL;
 }
 
-struct dynhds_entry *Curl_dynhds_cget(struct dynhds * dynhds, const char * name){
+struct dynhds_entry *Curl_dynhds_cget(struct dynhds * dynhds, const char * name) {
 	return Curl_dynhds_get(dynhds, name, strlen(name));
 }
 
@@ -232,7 +232,7 @@ CURLcode Curl_dynhds_h1_add_line(struct dynhds * dynhds,
 		return CURLE_OK;
 	}
 	else {
-		p = (const char *)memchr(line, ':', line_len);
+		p = (const char *)smemchr(line, ':', line_len);
 		if(!p)
 			return CURLE_BAD_FUNCTION_ARGUMENT;
 		name = line;
@@ -244,9 +244,9 @@ CURLcode Curl_dynhds_h1_add_line(struct dynhds * dynhds,
 		}
 		value = p;
 		valuelen = line_len - i;
-		p = (const char *)memchr(value, '\r', valuelen);
+		p = (const char *)smemchr(value, '\r', valuelen);
 		if(!p)
-			p = (const char *)memchr(value, '\n', valuelen);
+			p = (const char *)smemchr(value, '\n', valuelen);
 		if(p)
 			valuelen = (size_t)(p - value);
 

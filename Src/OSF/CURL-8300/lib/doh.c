@@ -35,7 +35,7 @@
 //#include "multiif.h"
 #include "url.h"
 #include "share.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 //#include "connect.h"
 #include "strdup.h"
 //#include "dynbuf.h"
@@ -353,16 +353,12 @@ error:
 	Curl_close(&doh);
 	return result;
 }
-
 /*
  * Curl_doh() resolves a name using DoH. It resolves a name and returns a
  * 'Curl_addrinfo *' with the address information.
  */
-
-struct Curl_addrinfo *Curl_doh(struct Curl_easy * data,
-    const char * hostname,
-    int port,
-    int * waitp){
+struct Curl_addrinfo *Curl_doh(struct Curl_easy * data, const char * hostname, int port, int * waitp) 
+{
 	CURLcode result = CURLE_OK;
 	int slot;
 	struct dohdata * dohp;
@@ -376,16 +372,12 @@ struct Curl_addrinfo *Curl_doh(struct Curl_easy * data,
 	dohp = data->req.doh = static_cast<dohdata *>(SAlloc::C(sizeof(struct dohdata), 1));
 	if(!dohp)
 		return NULL;
-
 	conn->bits.doh = TRUE;
 	dohp->host = hostname;
 	dohp->port = port;
-	dohp->headers =
-	    curl_slist_append(NULL,
-		"Content-Type: application/dns-message");
+	dohp->headers = curl_slist_append(NULL, "Content-Type: application/dns-message");
 	if(!dohp->headers)
 		goto error;
-
 	/* create IPv4 DoH request */
 	result = dohprobe(data, &dohp->probe[DOH_PROBE_SLOT_IPADDR_V4],
 		DNS_TYPE_A, hostname, data->set.str[STRING_DOH],
@@ -772,7 +764,7 @@ static void showdoh(struct Curl_easy * data,
  * must be an associated call later to Curl_freeaddrinfo().
  */
 
-static struct Curl_addrinfo *doh2ai(const struct dohentry * de, const char * hostname, int port)                               {
+static struct Curl_addrinfo *doh2ai(const struct dohentry * de, const char * hostname, int port) {
 	struct Curl_addrinfo * ai;
 	struct Curl_addrinfo * prevai = NULL;
 	struct Curl_addrinfo * firstai = NULL;

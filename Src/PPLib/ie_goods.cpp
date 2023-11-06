@@ -1937,14 +1937,8 @@ PPGoodsImporter::ImageFileBlock::ImageFileBlock(const char * pSetPath) : SetPath
 int PPGoodsImporter::ImageFileBlock::SetFile(const char * pFileName, PPID goodsID)
 {
 	int    ok = 1;
-	struct Stat {
-		LDATETIME CrtTime;
-		LDATETIME AccsTime;
-		LDATETIME ModTime;
-		int64  Size;
-	};
-	SFileUtil::Stat fs;
-	if(SFileUtil::GetStat(pFileName, &fs)) {
+	SFile::Stat fs;
+	if(SFile::GetStat(pFileName, 0, &fs, 0)) {
 		{
 			long   c = 0;
 			Ps.Split(pFileName);

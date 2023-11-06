@@ -336,7 +336,7 @@ state2: // close value
 		case SJson::tSTRING: break;
 		case SJson::tNUMBER: break;
 		case SJson::tTRUE:   break;
-		case SJson::tFALSE:  break;
+		case SJson::tFALSE: break;
 		case SJson::tNULL:   break;
 		default: CALLEXCEPT_S(SLERR_JSON_UNKNOWN_PROBLEM); break;
 	}
@@ -706,7 +706,7 @@ state2: // close value
 		case SJson::tSTRING: break;
 		case SJson::tNUMBER: break;
 		case SJson::tTRUE:   break;
-		case SJson::tFALSE:  break;
+		case SJson::tFALSE: break;
 		case SJson::tNULL:   break;
 		default: CALLEXCEPT_S(SLERR_JSON_UNKNOWN_PROBLEM); break;
 	}
@@ -810,7 +810,7 @@ state2: // close value
 		case SJson::tSTRING: break;
 		case SJson::tNUMBER: break;
 		case SJson::tTRUE:   break;
-		case SJson::tFALSE:  break;
+		case SJson::tFALSE: break;
 		case SJson::tNULL:   break;
 		default:          goto error;
 	}

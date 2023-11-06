@@ -148,7 +148,7 @@ static archive_string_conv * get_sconv(struct archive_write *, struct zip *);
 static int trad_enc_init(struct trad_enc_ctx *, const char *, size_t);
 static unsigned trad_enc_encrypt_update(struct trad_enc_ctx *, const uint8 *, size_t, uint8 *, size_t);
 static int init_traditional_pkware_encryption(struct archive_write *);
-static int is_traditional_pkware_encryption_supported(void);
+static int is_traditional_pkware_encryption_supported();
 static int init_winzip_aes_encryption(struct archive_write *);
 static int is_winzip_aes_encryption_supported(int encryption);
 
@@ -223,7 +223,6 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		if(val == NULL || !(val[0] >= '0' && val[0] <= '9') || val[1] != '\0') {
 			return ARCHIVE_WARN;
 		}
-
 		if(val[0] == '0') {
 			zip->requested_compression = COMPRESSION_STORE;
 			return ARCHIVE_OK;
@@ -253,8 +252,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			}
 		}
 		else if(sstreq(val, "aes128")) {
-			if(is_winzip_aes_encryption_supported(
-				    ENCRYPTION_WINZIP_AES128)) {
+			if(is_winzip_aes_encryption_supported(ENCRYPTION_WINZIP_AES128)) {
 				zip->encryption_type = ENCRYPTION_WINZIP_AES128;
 				ret = ARCHIVE_OK;
 			}
@@ -263,8 +261,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			}
 		}
 		else if(sstreq(val, "aes256")) {
-			if(is_winzip_aes_encryption_supported(
-				    ENCRYPTION_WINZIP_AES256)) {
+			if(is_winzip_aes_encryption_supported(ENCRYPTION_WINZIP_AES256)) {
 				zip->encryption_type = ENCRYPTION_WINZIP_AES256;
 				ret = ARCHIVE_OK;
 			}
@@ -287,10 +284,9 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		return ARCHIVE_OK;
 	}
 	else if(sstreq(key, "fakecrc32")) {
-		/*
-		 * FOR TESTING ONLY:  disable CRC calculation to speed up
-		 * certain complex tests.
-		 */
+		//
+		// FOR TESTING ONLY:  disable CRC calculation to speed up certain complex tests.
+		//
 		if(isempty(val)) {
 			zip->crc32func = real_crc32;
 		}
@@ -332,9 +328,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		}
 		return ARCHIVE_OK;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -725,7 +719,7 @@ static int archive_write_zip_header(struct archive_write * a, ArchiveEntry * ent
 		e += 4;
 	}
 	/* ux Unix extra data, length 11, version 1 */
-	/* TODO: If uid < 64k, use 2 bytes, ditto for gid. */
+	/* @todo If uid < 64k, use 2 bytes, ditto for gid. */
 	memcpy(e, "ux\013\000\001", 5);
 	e += 5;
 	*e++ = 4; /* Length of following UID */
@@ -1194,7 +1188,7 @@ static int archive_write_zip_free(struct archive_write * a)
 		archive_encrypto_aes_ctr_release(&zip->cctx);
 	if(zip->hctx_valid)
 		archive_hmac_sha1_cleanup(&zip->hctx);
-	/* TODO: Free opt_sconv, sconv_default */
+	/* @todo Free opt_sconv, sconv_default */
 
 	SAlloc::F(zip);
 	a->format_data = NULL;

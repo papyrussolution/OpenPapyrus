@@ -1143,8 +1143,8 @@ private:
 			SString stat_buf;
 			const ReportDescrEntry * p_entry = Data.Entries.at(id-1);
 			setStaticText(CTL_PRINT2_ST_FILENAME, p_entry->ReportPath_);
-			SFileUtil::Stat fs;
-			SFileUtil::GetStat(p_entry->ReportPath_, &fs);
+			SFile::Stat fs;
+			SFile::GetStat(p_entry->ReportPath_, 0, &fs, 0);
 			stat_buf.Cat(fs.ModTime);
 			setStaticText(CTL_PRINT2_ST_FILEDTTM, stat_buf);
 			setStaticText(CTL_PRINT2_ST_DATANAME, p_entry->DataName_);

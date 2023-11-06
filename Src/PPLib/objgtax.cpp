@@ -26,10 +26,7 @@ int FASTCALL PPGoodsTaxEntry::IsEq(const PPGoodsTaxEntry & rS) const
 #undef CMP_FLD
 }
 
-double PPGoodsTaxEntry::GetVatRate() const
-{
-	return fdiv100i(VAT);
-}
+double PPGoodsTaxEntry::GetVatRate() const { return fdiv100i(VAT); }
 
 char * PPGoodsTaxEntry::FormatVAT(char * pBuf, size_t bufLen) const
 {

@@ -158,9 +158,7 @@ static int archive_compressor_zstd_options(struct archive_write_filter * f, cons
 		data->compression_level = level;
 		return ARCHIVE_OK;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 

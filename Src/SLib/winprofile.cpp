@@ -286,7 +286,7 @@ static SPtrHandle DuplicateAccessToken(SPtrHandle & rH, LPCSTR file, int line)
 	return result;
 }
 
-bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivilegeStr/* = NULL */)
+static bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb)
 {
 	TOKEN_PRIVILEGES tp; // token privileges
 	LUID luid;
@@ -298,7 +298,7 @@ bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivilegeStr/* = NULL */)
 		}
 		do_close_token = true;
 	}
-	if(!LookupPrivilegeValueW(NULL, pPrivilegeStr, &luid)) {
+	if(!LookupPrivilegeValueW(NULL, pPrivSymb, &luid)) {
 		if(do_close_token)
 			CloseHandle(hToken);
 		_ASSERT(0);

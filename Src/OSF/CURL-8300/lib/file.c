@@ -26,37 +26,33 @@
 #pragma hdrstop
 
 #ifndef CURL_DISABLE_FILE
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+	//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+	#include <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
-
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
-
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
-
 #include "strtoofft.h"
 //#include "urldata.h"
 //#include <curl/curl.h>
 //#include "progress.h"
 //#include "sendf.h"
-#include "escape.h"
+//#include "escape.h"
 #include "file.h"
 #include "speedcheck.h"
 #include "getinfo.h"
@@ -71,15 +67,14 @@
 #include "memdebug.h"
 
 #if defined(WIN32) || defined(MSDOS) || defined(__EMX__)
-#define DOS_FILESYSTEM 1
+	#define DOS_FILESYSTEM 1
 #elif defined(__amigaos4__)
-#define AMIGA_FILESYSTEM 1
+	#define AMIGA_FILESYSTEM 1
 #endif
-
 #ifdef OPEN_NEEDS_ARG3
-#define open_readonly(p, f) open((p), (f), (0))
+	#define open_readonly(p, f) open((p), (f), (0))
 #else
-#define open_readonly(p, f) open((p), (f))
+	#define open_readonly(p, f) open((p), (f))
 #endif
 
 /*
@@ -87,14 +82,10 @@
  */
 
 static CURLcode file_do(struct Curl_easy * data, bool * done);
-static CURLcode file_done(struct Curl_easy * data,
-    CURLcode status, bool premature);
+static CURLcode file_done(struct Curl_easy * data, CURLcode status, bool premature);
 static CURLcode file_connect(struct Curl_easy * data, bool * done);
-static CURLcode file_disconnect(struct Curl_easy * data,
-    struct connectdata * conn,
-    bool dead_connection);
-static CURLcode file_setup_connection(struct Curl_easy * data,
-    struct connectdata * conn);
+static CURLcode file_disconnect(struct Curl_easy * data, struct connectdata * conn, bool dead_connection);
+static CURLcode file_setup_connection(struct Curl_easy * data, struct connectdata * conn);
 
 /*
  * FILE scheme handler.
@@ -148,7 +139,6 @@ static CURLcode file_connect(struct Curl_easy * data, bool * done)
 #endif
 	size_t real_path_len;
 	CURLcode result;
-
 	if(file->path) {
 		/* already connected.
 		 * the handler->connect_it() is normally only called once, but
@@ -157,9 +147,7 @@ static CURLcode file_connect(struct Curl_easy * data, bool * done)
 		*done = TRUE;
 		return CURLE_OK;
 	}
-
-	result = Curl_urldecode(data->state.up.path, 0, &real_path,
-		&real_path_len, REJECT_ZERO);
+	result = Curl_urldecode(data->state.up.path, 0, &real_path, &real_path_len, REJECT_ZERO);
 	if(result)
 		return result;
 
@@ -179,9 +167,7 @@ static CURLcode file_connect(struct Curl_easy * data, bool * done)
 	   with a drive letter.
 	 */
 	actual_path = real_path;
-	if((actual_path[0] == '/') &&
-	    actual_path[1] &&
-	    (actual_path[2] == ':' || actual_path[2] == '|')) {
+	if((actual_path[0] == '/') && actual_path[1] && (actual_path[2] == ':' || actual_path[2] == '|')) {
 		actual_path[2] = ':';
 		actual_path++;
 		real_path_len--;
@@ -199,7 +185,7 @@ static CURLcode file_connect(struct Curl_easy * data, bool * done)
 	fd = open_readonly(actual_path, O_RDONLY|O_BINARY);
 	file->path = actual_path;
 #else
-	if(memchr(real_path, 0, real_path_len)) {
+	if(smemchr(real_path, 0, real_path_len)) {
 		/* binary zeroes indicate foul play */
 		ZFREE(real_path);
 		return CURLE_URL_MALFORMAT;
@@ -235,7 +221,6 @@ static CURLcode file_connect(struct Curl_easy * data, bool * done)
 #endif
 	ZFREE(file->freepath);
 	file->freepath = real_path; /* free this when done */
-
 	file->fd = fd;
 	if(!data->state.upload && (fd == -1)) {
 		failf(data, "Couldn't open file %s", data->state.up.path);
@@ -243,17 +228,14 @@ static CURLcode file_connect(struct Curl_easy * data, bool * done)
 		return CURLE_FILE_COULDNT_READ_FILE;
 	}
 	*done = TRUE;
-
 	return CURLE_OK;
 }
 
-static CURLcode file_done(struct Curl_easy * data,
-    CURLcode status, bool premature)
+static CURLcode file_done(struct Curl_easy * data, CURLcode status, bool premature)
 {
 	struct FILEPROTO * file = data->req.p.file;
 	(void)status; /* not used */
 	(void)premature; /* not used */
-
 	if(file) {
 		ZFREE(file->freepath);
 		file->path = NULL;
@@ -272,9 +254,9 @@ static CURLcode file_disconnect(struct Curl_easy * data, struct connectdata * co
 }
 
 #ifdef DOS_FILESYSTEM
-#define DIRSEP '\\'
+	#define DIRSEP '\\'
 #else
-#define DIRSEP '/'
+	#define DIRSEP '/'
 #endif
 
 static CURLcode file_upload(struct Curl_easy * data)

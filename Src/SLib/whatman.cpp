@@ -1346,15 +1346,15 @@ int TWhatman::SetTool(int toolId, int paintObjIdent)
 int TWhatman::GetTool(int toolId) const
 {
 	switch(toolId) {
-		case toolPenObjBorder:    return TidPenObjBorder;
+		case toolPenObjBorder: return TidPenObjBorder;
 		case toolPenObjBorderSel: return TidPenObjBorderSel;
 		case toolPenObjBorderCur: return TidPenObjBorderCur;
-		case toolPenObjRszSq:     return TidPenObjRszSq;
-		case toolBrushObjRszSq:   return TidBrushObjRszSq;
+		case toolPenObjRszSq: return TidPenObjRszSq;
+		case toolBrushObjRszSq: return TidBrushObjRszSq;
 		case toolPenObjNonmovBorder: return TidPenObjNonmovBorder;
-		case toolPenRule:    return TidPenRule;
-		case toolBrushRule:  return TidBrushRule;
-		case toolPenGrid:    return TidPenGrid;
+		case toolPenRule: return TidPenRule;
+		case toolBrushRule: return TidBrushRule;
+		case toolPenGrid: return TidPenGrid;
 		case toolPenSubGrid: return TidPenSubGrid;
 		case toolPenLayoutBorder: return TidPenLayoutBorder; // @v10.4.8
 		case toolPenLayoutEvenBorder: return TidPenLayoutEvenBorder; // @v11.2.2

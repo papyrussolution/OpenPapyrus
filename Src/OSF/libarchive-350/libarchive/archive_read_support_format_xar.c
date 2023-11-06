@@ -1457,7 +1457,7 @@ static int decompress(ArchiveRead * a, const void ** buff, size_t * outbytes, co
 				}
 				xar->bzstream_valid = 0;
 			    // @fallthrough
-			    case BZ_OK: /* Decompressor made some progress. */
+			    case BZ_OK: // Decompressor made some progress
 				break;
 			    default:
 				archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "bzip decompression failed");
@@ -1480,7 +1480,7 @@ static int decompress(ArchiveRead * a, const void ** buff, size_t * outbytes, co
 				lzma_end(&(xar->lzstream));
 				xar->lzstream_valid = 0;
 			    // @fallthrough
-			    case LZMA_OK: /* Decompressor made some progress. */
+			    case LZMA_OK: // Decompressor made some progress
 				break;
 			    default:
 				archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "%s decompression failed(%d)", (xar->entry_encoding == XZ) ? "xz" : "lzma", r);

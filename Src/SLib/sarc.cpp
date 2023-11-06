@@ -251,7 +251,7 @@ struct SArc_Bz2_Block {
 						if(archive_entry_mtime_is_set(p_entry)) {
 							time_t mtm = archive_entry_mtime(p_entry);
 							//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
-							fep_entry.WriteTime.SetTimeT(mtm);
+							fep_entry.ModTime.SetTimeT(mtm);
 						}
 						rPool.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 					}				
@@ -417,7 +417,7 @@ static void extract(const char *filename)
 							if(archive_entry_mtime_is_set(p_entry)) {
 								time_t mtm = archive_entry_mtime(p_entry);
 								//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
-								fep_entry.WriteTime.SetTimeT(mtm);
+								fep_entry.ModTime.SetTimeT(mtm);
 							}
 							//rPool.Add(fep_entry);
 							{
@@ -450,7 +450,7 @@ static void extract(const char *filename)
 												rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
 										} while(rd_result == ARCHIVE_OK);
 										if(rd_result == ARCHIVE_EOF) {
-											f_out.SetDateTime(0, 0, &fep_entry.WriteTime);
+											f_out.SetDateTime(0, 0, &fep_entry.ModTime);
 											local_ok = 1;
 										}
 									}
@@ -770,7 +770,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 					if(zip_stat_index(static_cast<zip_t *>(H), i, ZIP_FL_UNCHANGED, &st) == 0) {
 						fep_entry.Size = st.size;
 						fep_entry.Path = st.name;
-						fep_entry.WriteTime.SetTimeT(st.mtime);
+						fep_entry.ModTime.SetTimeT(st.mtime);
 						Fep.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 					}
 				}
@@ -827,7 +827,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 					if(archive_entry_mtime_is_set(p_entry)) {
 						time_t mtm = archive_entry_mtime(p_entry);
 						//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
-						fep_entry.WriteTime.SetTimeT(mtm);
+						fep_entry.ModTime.SetTimeT(mtm);
 					}
 					Fep.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 				}				
@@ -1355,7 +1355,8 @@ public:
 	int    Backup();
 	int    Restore();
 private:
-	int    Helper_BackupPath(const SString & rBasePath, const SString & rPath, void * extraPtr);
+	int    Helper_BackupPath(const SString & rDestinationPath, const SString & rPathToBackupBase, const SString & rPathToBackup, 
+		StringSet & rRecurList, void * extraPtr);
 	int    BackupProfile(const SString & rProfileName, const SString & rPw);
 	int    BackupReg(const SString & rReg);
 	int    BackupReg(HKEY regKey);
@@ -1378,55 +1379,132 @@ SSystemBackup::~SSystemBackup()
 {
 }
 
-int SSystemBackup::Helper_BackupPath(const SString & rBasePath, const SString & rPath, void * extraPtr)
+//int SSystemBackup::Helper_BackupPath(const SString & rBasePath, const SString & rPath, void * extraPtr)
+int SSystemBackup::Helper_BackupPath(const SString & rDestinationPath, const SString & rPathToBackupBase, const SString & rPathToBackup, StringSet & rRecurList, void * extraPtr)
 {
 	int    ok = 1;
-	bool   dest_path_created = false;
-	SString temp_buf;
-	SString base_path;
-	SString src_file_name;
-	SString dest_file_name;
-	SDirEntry de;
-	SPathStruc ps;
-	(base_path = rPath).SetLastSlash();
-	(temp_buf = base_path).Cat("*.*");
-	/*
-		_A_ARCH 0x20
-			Archive. Set whenever the file is changed and cleared by the BACKUP command. Value: 0x20.
-		_A_HIDDEN 0x02
-			Hidden file. Not often seen with the DIR command, unless you use the /AH option. Returns information about normal files and files that have this attribute. Value: 0x02.
-		_A_NORMAL 0x00
-			Normal. File has no other attributes set and can be read or written to without restriction. Value: 0x00.
-		_A_RDONLY 0x01
-			Read-only. File can't be opened for writing and a file that has the same name can't be created. Value: 0x01.
-		_A_SUBDIR 0x10
-			Subdirectory. Value: 0x10.
-		_A_SYSTEM 0x04
-			System file. Not ordinarily seen with the DIR command, unless the /A or /A:S option is used. Value: 0x04.
-	*/
-	for(SDirec direc(temp_buf); direc.Next(&de) > 0;) {
-		if(de.IsFolder()) {
-			if(!de.IsSelf() && !de.IsUpFolder()) {
-				de.GetNameUtf8(base_path, src_file_name);
-				Helper_BackupPath(rBasePath, src_file_name, extraPtr); // @recursion
+	if(rRecurList.searchNcUtf8(rPathToBackup, 0, 0)) {
+		ok = -1;
+	}
+	else {
+		rRecurList.add(rPathToBackup);
+
+		bool   debug_mark = false;
+		bool   dest_path_created = false;
+		SString temp_buf;
+		SString base_path;
+		SString src_dir_utf8;
+		SString src_file_name;
+		SString dest_file_name;
+		SDirEntry de;
+		SPathStruc ps;
+		(base_path = rPathToBackup).SetLastSlash();
+		(temp_buf = base_path).Cat("*.*");
+		/*
+			_A_ARCH 0x20
+				Archive. Set whenever the file is changed and cleared by the BACKUP command. Value: 0x20.
+			_A_HIDDEN 0x02
+				Hidden file. Not often seen with the DIR command, unless you use the /AH option. Returns information about normal files and files that have this attribute. Value: 0x02.
+			_A_NORMAL 0x00
+				Normal. File has no other attributes set and can be read or written to without restriction. Value: 0x00.
+			_A_RDONLY 0x01
+				Read-only. File can't be opened for writing and a file that has the same name can't be created. Value: 0x01.
+			_A_SUBDIR 0x10
+				Subdirectory. Value: 0x10.
+			_A_SYSTEM 0x04
+				System file. Not ordinarily seen with the DIR command, unless the /A or /A:S option is used. Value: 0x04.
+		*/
+		for(SDirec direc(temp_buf); direc.Next(&de) > 0;) {
+			/*if(de.IsSymLink()) {
+				; // symbolic-link
+				debug_mark = true;
 			}
-		}
-		else {
-			de.GetNameUtf8(base_path, src_file_name);
-			if(SPathStruc::GetRelativePath(rBasePath, 0, rPath, 0, temp_buf)) {
-				temp_buf.ShiftLeftChr('.').ShiftLeftChr('\\');
-				(dest_file_name = P.BackupPath).SetLastSlash().Cat(temp_buf).SetLastSlash();
-				de.GetNameUtf8(dest_file_name, temp_buf);
-				dest_file_name = temp_buf;
-				if(!dest_path_created) {
-					ps.Split(dest_file_name);
-					ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-					if(createDir(temp_buf)) {
-						dest_path_created = true;
+			else*/
+			if(de.Attr & SFile::attrReparsePoint && de.ReparsePointTag) {
+				bool copy_reparse_point_file_result = false;
+				de.GetNameUtf8(base_path, src_file_name);
+				SFile::Stat st;
+				SBinarySet ext_set;
+				if(SFile::GetStat(src_file_name, 0, &st, &ext_set)) {
+					SBinaryChunk reparse_buf;
+					if(ext_set.Get(SFile::Stat::sbiRaparseTag, &reparse_buf)) {
+						if(SPathStruc::GetRelativePath(rPathToBackupBase, FILE_ATTRIBUTE_DIRECTORY, rPathToBackup, 0, temp_buf)) {
+							temp_buf.ShiftLeftChr('.').ShiftLeftChr('\\');
+							(dest_file_name = /*P.BackupPath*/rDestinationPath).SetLastSlash().Cat(temp_buf).SetLastSlash();
+							de.GetNameUtf8(dest_file_name, temp_buf);
+							dest_file_name = temp_buf;
+							if(!dest_path_created) {
+								ps.Split(dest_file_name);
+								ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+								if(createDir(temp_buf)) {
+									dest_path_created = true;
+								}
+							}
+							if(dest_path_created) {
+								SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+								dest_file_name.CopyToUnicode(r_temp_buf_u);
+								SIntHandle h_dest;
+								if(st.Attr & SFile::attrSubdir) {
+									if(CreateDirectoryW(r_temp_buf_u, 0)) {
+										h_dest = SFile::ForceCreateFile(r_temp_buf_u, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, 0/*secur_attr*/, 
+											OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT, SFile::fileforcefEmptyRetry);
+									}
+								}
+								else {
+									h_dest = SFile::ForceCreateFile(r_temp_buf_u, GENERIC_WRITE, 0/*share*/, 0/*secur_attr*/, 
+										CREATE_ALWAYS, FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT, SFile::fileforcefEmptyRetry);
+								}
+								if(!!h_dest) {
+									if(SFile::SetReparsePoint(h_dest, reparse_buf)) {
+										copy_reparse_point_file_result = true;
+									}
+									CloseHandle(h_dest);
+								}
+							}
+						}
 					}
 				}
-				if(dest_path_created) {
-					SCopyFile(src_file_name, dest_file_name, 0, FILE_SHARE_READ, 0);
+			}
+			else if(de.IsFolder()) {
+				if(!de.IsSelf() && !de.IsUpFolder()) {
+					src_dir_utf8.CopyUtf8FromUnicode(de.Name, sstrlen(de.Name), 1);
+					if(SPathStruc::GetRelativePath(rPathToBackupBase, FILE_ATTRIBUTE_DIRECTORY, rPathToBackup, 0, temp_buf)) {
+						temp_buf.ShiftLeftChr('.').ShiftLeftChr('\\');
+						(dest_file_name = /*P.BackupPath*/rDestinationPath).SetLastSlash().Cat(temp_buf);
+						de.GetNameUtf8(dest_file_name, temp_buf);
+						if(createDir(temp_buf)) {
+							;
+						}
+						else {
+							; // @todo @err
+						}
+					}
+					//
+					de.GetNameUtf8(base_path, src_file_name);
+					Helper_BackupPath(rDestinationPath, rPathToBackupBase, src_file_name, rRecurList, extraPtr); // @recursion
+				}
+			}
+			else {
+				de.GetNameUtf8(base_path, src_file_name);
+				if(SPathStruc::GetRelativePath(rPathToBackupBase, FILE_ATTRIBUTE_DIRECTORY, rPathToBackup, 0, temp_buf)) {
+					temp_buf.ShiftLeftChr('.').ShiftLeftChr('\\');
+					(dest_file_name = /*P.BackupPath*/rDestinationPath).SetLastSlash().Cat(temp_buf).SetLastSlash();
+					de.GetNameUtf8(dest_file_name, temp_buf);
+					dest_file_name = temp_buf;
+					if(!dest_path_created) {
+						ps.Split(dest_file_name);
+						ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+						if(createDir(temp_buf)) {
+							dest_path_created = true;
+						}
+					}
+					if(dest_path_created) {
+						const int cr = SCopyFile(src_file_name, dest_file_name, 0, FILE_SHARE_READ, 0);
+						if(!cr) {
+							debug_mark = true;
+							; // @todo @err
+						}
+					}
 				}
 			}
 		}
@@ -1447,17 +1525,17 @@ int SSystemBackup::BackupProfile(const SString & rProfileName, const SString & r
 		SSystem::AccountInfo acc_info;
 		THROW(SSystem::GetAccountNameInfo(rProfileName, acc_info));
 		acc_info.Sid.ToStr(temp_buf);
-		if(IsDirectory(acc_info.ProfilePath)) {
-			SString & r_profile_path = SLS.AcquireRvlStr();
-			r_profile_path.CopyUtf8FromUnicode(acc_info.ProfilePath, acc_info.ProfilePath.Len(), 1);
-			(temp_buf = sub_path).SetLastSlash().Cat("path");
-			THROW(Helper_BackupPath(temp_buf, r_profile_path, 0));
-		}
 		{
 			SSystem::UserProfileInfo profile_info;
 			SPtrHandle h_token = SSystem::Logon(0, rProfileName, rPw, SSystem::logontypeInteractive, &profile_info);
 			if(h_token) {
-				//
+				if(IsDirectory(acc_info.ProfilePath)) {
+					SString & r_profile_path = SLS.AcquireRvlStr();
+					r_profile_path.CopyUtf8FromUnicode(acc_info.ProfilePath, acc_info.ProfilePath.Len(), 1);
+					(temp_buf = sub_path).SetLastSlash().Cat("path");
+					StringSet recur_list;
+					THROW(Helper_BackupPath(temp_buf, r_profile_path, r_profile_path, recur_list, 0));
+				}
 				if(profile_info.ProfileRegKey) {
 					SString fn;
 					WinRegKey key(reinterpret_cast<HKEY>(static_cast<void *>(profile_info.ProfileRegKey)));
@@ -1498,6 +1576,7 @@ int SSystemBackup::Backup()
 {
 	int    ok = 1;
 	SString temp_buf;
+	SString sub_path;
 	THROW(P.BackupPath.NotEmpty());
 	THROW(createDir(P.BackupPath));
 	{
@@ -1510,7 +1589,13 @@ int SSystemBackup::Backup()
 					case Param::etPath: 
 						{
 							SPathStruc::NormalizePath(p_entry->Value, SPathStruc::npfCompensateDotDot|SPathStruc::npfKeepCase, temp_buf);
-							Helper_BackupPath(temp_buf, temp_buf, 0); 
+							{
+								SString fn;
+								fn.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
+								(sub_path = P.BackupPath).SetLastSlash().Cat(fn);
+							}
+							StringSet recur_list;
+							Helper_BackupPath(sub_path, temp_buf, temp_buf, recur_list, 0); 
 						}
 						break;
 					case Param::etProfile: BackupProfile(p_entry->Value, p_entry->Password); break;
@@ -1534,14 +1619,31 @@ void Test_SSystemBackup()
 	SSystemBackup::Param param;
 	SString temp_buf;
 	SSystem::AccountInfo acc_info;
+	{
+		SFile::Stat stat;
+		SBinarySet bs_stat;
+		SFile::GetStat("D:\\Papyrus\\Src\\PPTEST\\DATA\\symlink-to-Имя файла, состоящее из символов в кодировке 1251", 0, &stat, &bs_stat);
+		SFile::GetStat("d:\\papyrus", 0, &stat, &bs_stat);
+		SFile::GetStat("C:\\Users\\Administrator\\Application Data", 0, &stat, &bs_stat);
+	}
+
 	bool ganir = SSystem::GetAccountNameInfo(/*"wsctl-client"*/"sobolev", acc_info);
+	param.BackupPath = "d:/__temp__/ssystem_backup";
+	int cfr = 0;
+	/*{
+		SStringU src_name_u;
+		SStringU dest_name_u;
+		param.BackupPath.CopyToUnicode(dest_name_u);
+		(temp_buf = "C:/Documents and Settings/Администратор").CopyToUnicode(src_name_u);
+		cfr = ::CopyFileW(src_name_u, dest_name_u, false);
+	}*/
+	param.BackupPath = "d:/__temp__/ssystem_backup";
+	param.AddPathEntry(temp_buf = /*"C:/Python38"*/"C:/Documents and Settings/Администратор");
 	{
 		SString u("wsctl-client");
 		SString p("123");
 		param.AddProfileEntry(u, p);
 	}
-	param.BackupPath = "d:/__temp__/ssystem_backup";
-	param.AddPathEntry(temp_buf = /*"C:/Python38"*/"C:/Documents and Settings/Администратор");
 	{
 		acc_info.Sid.ToStr(temp_buf);
 		SString reg_key_buf;

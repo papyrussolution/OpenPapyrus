@@ -706,9 +706,9 @@ double FASTCALL STimeSeries::ValuVec::ConvertInnerToDouble(const void * pInner) 
 {
 	switch(Typ) {
 		case T_DOUBLE: return *static_cast<const double *>(pInner);
-		case T_FLOAT:  return *static_cast<const float *>(pInner);
-		case T_INT32:  return FxPrec ? (((double)(*(int32 *)pInner)) / fpow10i(FxPrec)) : (double)*static_cast<const int32 *>(pInner);
-		case T_INT64:  return FxPrec ? (((double)(*(int64 *)pInner)) / fpow10i(FxPrec)) : (double)*static_cast<const int64 *>(pInner);
+		case T_FLOAT: return *static_cast<const float *>(pInner);
+		case T_INT32: return FxPrec ? (((double)(*(int32 *)pInner)) / fpow10i(FxPrec)) : (double)*static_cast<const int32 *>(pInner);
+		case T_INT64: return FxPrec ? (((double)(*(int64 *)pInner)) / fpow10i(FxPrec)) : (double)*static_cast<const int64 *>(pInner);
 		default: assert(0); return 0.0;
 	}
 }
@@ -717,9 +717,9 @@ float FASTCALL STimeSeries::ValuVec::ConvertInnerToFloat(const void * pInner) co
 {
 	switch(Typ) {
 		case T_DOUBLE: return (float)*static_cast<const double *>(pInner);
-		case T_FLOAT:  return *static_cast<const float *>(pInner);
-		case T_INT32:  return FxPrec ? (((float)(*static_cast<const int32 *>(pInner))) / fpow10fi(FxPrec)) : (float)*static_cast<const int32 *>(pInner);
-		case T_INT64:  return FxPrec ? (((float)(*static_cast<const int64 *>(pInner))) / fpow10fi(FxPrec)) : (float)*static_cast<const int64 *>(pInner);
+		case T_FLOAT: return *static_cast<const float *>(pInner);
+		case T_INT32: return FxPrec ? (((float)(*static_cast<const int32 *>(pInner))) / fpow10fi(FxPrec)) : (float)*static_cast<const int32 *>(pInner);
+		case T_INT64: return FxPrec ? (((float)(*static_cast<const int64 *>(pInner))) / fpow10fi(FxPrec)) : (float)*static_cast<const int64 *>(pInner);
 		default: assert(0); return 0.0f;
 	}
 }
@@ -728,9 +728,9 @@ int32 FASTCALL STimeSeries::ValuVec::ConvertInnerToInt32(const void * pInner) co
 {
 	switch(Typ) {
 		case T_DOUBLE: return (int32)*static_cast<const double *>(pInner);
-		case T_FLOAT:  return (int32)*static_cast<const float *>(pInner);
-		case T_INT32:  return FxPrec ? (int32)(((double)(*static_cast<const int32 *>(pInner))) / fpow10i(FxPrec)) : *static_cast<const int32 *>(pInner);
-		case T_INT64:  return FxPrec ? (int32)(((double)(*static_cast<const int64 *>(pInner))) / fpow10i(FxPrec)) : (int32)*static_cast<const int64 *>(pInner);
+		case T_FLOAT: return (int32)*static_cast<const float *>(pInner);
+		case T_INT32: return FxPrec ? (int32)(((double)(*static_cast<const int32 *>(pInner))) / fpow10i(FxPrec)) : *static_cast<const int32 *>(pInner);
+		case T_INT64: return FxPrec ? (int32)(((double)(*static_cast<const int64 *>(pInner))) / fpow10i(FxPrec)) : (int32)*static_cast<const int64 *>(pInner);
 		default: assert(0); return 0;
 	}
 }
@@ -739,9 +739,9 @@ int64 FASTCALL STimeSeries::ValuVec::ConvertInnerToInt64(const void * pInner) co
 {
 	switch(Typ) {
 		case T_DOUBLE: return (int64)*static_cast<const double *>(pInner);
-		case T_FLOAT:  return (int64)*static_cast<const float *>(pInner);
-		case T_INT32:  return FxPrec ? (int64)(((double)(*static_cast<const int32 *>(pInner))) / fpow10i(FxPrec)) : (int64)*static_cast<const int32 *>(pInner);
-		case T_INT64:  return FxPrec ? (int64)(((double)(*static_cast<const int64 *>(pInner))) / fpow10i(FxPrec)) : *static_cast<const int64 *>(pInner);
+		case T_FLOAT: return (int64)*static_cast<const float *>(pInner);
+		case T_INT32: return FxPrec ? (int64)(((double)(*static_cast<const int32 *>(pInner))) / fpow10i(FxPrec)) : (int64)*static_cast<const int32 *>(pInner);
+		case T_INT64: return FxPrec ? (int64)(((double)(*static_cast<const int64 *>(pInner))) / fpow10i(FxPrec)) : *static_cast<const int64 *>(pInner);
 		default: assert(0); return 0;
 	}
 }

@@ -1,5 +1,5 @@
 // PPDBUTIL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -121,9 +121,9 @@ static int _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecoverInfo
 	{
 		PPRecoverInfo r_info;
 		MEMSZERO(r_info);
-		SFileUtil::Stat st;
-		SFileUtil::GetStat(path, &st);
-		SFileUtil::GetDiskSpace(path, &disk_total, &disk_avail);
+		SFile::Stat st;
+		SFile::GetStat(path, 0, &st, 0);
+		SFile::GetDiskSpace(path, &disk_total, &disk_avail);
 		r = BIN(disk_avail > (st.Size * 2)); // *2 - коэффициент запаса
 		DBErrCode = SDBERR_BU_NOFREESPACE;
 		THROW_DB(r);
@@ -2533,15 +2533,15 @@ int CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
 		THROW_PP(pPB->GetCopyData(pBDD->CopyID, &copy_data), PPERR_DBLIB);
 		(copy_dir = copy_data.CopyPath).SetLastSlash().Cat(copy_data.SubDir);
 		PPSetAddedMsgString(copy_dir);
-		THROW_PP_S(IsDirectory(copy_dir) > 0, PPERR_DIRNOTEXISTS, copy_dir);
+		THROW_PP_S(IsDirectory(copy_dir), PPERR_DIRNOTEXISTS, copy_dir);
 		(wildcard = copy_dir).SetLastSlash().Cat("*.*");
 		SDirec file_enum(wildcard);
 		SDirEntry f_data;
 		LDATETIME last_modif = ZERODATETIME;
 		while(file_enum.Next(&f_data) > 0) {
 			copy_size += f_data.Size;
-			if(cmp(f_data.AccessTime, last_modif) == 1)
-				last_modif = f_data.AccessTime;
+			if(cmp(f_data.AccsTime, last_modif) == 1)
+				last_modif = f_data.AccsTime;
 		}
 		copy_dt = last_modif.d;
 		if(copy_size == 0 || copy_size != copy_data.DestSize)

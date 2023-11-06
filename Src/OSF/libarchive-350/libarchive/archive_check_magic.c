@@ -38,25 +38,25 @@ static __LA_DEAD void diediedie(void)
 static const char * FASTCALL state_name(uint s)
 {
 	switch(s) {
-		case ARCHIVE_STATE_NEW:         return ("new");
-		case ARCHIVE_STATE_HEADER:      return ("header");
-		case ARCHIVE_STATE_DATA:        return ("data");
-		case ARCHIVE_STATE_EOF:         return ("eof");
-		case ARCHIVE_STATE_CLOSED:      return ("closed");
-		case ARCHIVE_STATE_FATAL:       return ("fatal");
-		default:                        return ("??");
+		case ARCHIVE_STATE_NEW: return ("new");
+		case ARCHIVE_STATE_HEADER: return ("header");
+		case ARCHIVE_STATE_DATA: return ("data");
+		case ARCHIVE_STATE_EOF: return ("eof");
+		case ARCHIVE_STATE_CLOSED: return ("closed");
+		case ARCHIVE_STATE_FATAL: return ("fatal");
+		default: return ("??");
 	}
 }
 
 static const char * FASTCALL archive_handle_type_name(uint m)
 {
 	switch(m) {
-		case ARCHIVE_WRITE_MAGIC:       return ("archive_write");
-		case ARCHIVE_READ_MAGIC:        return ("ArchiveRead");
-		case ARCHIVE_WRITE_DISK_MAGIC:  return ("archive_write_disk");
-		case ARCHIVE_READ_DISK_MAGIC:   return ("archive_read_disk");
-		case ARCHIVE_MATCH_MAGIC:       return ("archive_match");
-		default:                        return NULL;
+		case ARCHIVE_WRITE_MAGIC: return ("archive_write");
+		case ARCHIVE_READ_MAGIC: return ("ArchiveRead");
+		case ARCHIVE_WRITE_DISK_MAGIC: return ("archive_write_disk");
+		case ARCHIVE_READ_DISK_MAGIC: return ("archive_read_disk");
+		case ARCHIVE_MATCH_MAGIC: return ("archive_match");
+		default: return NULL;
 	}
 }
 

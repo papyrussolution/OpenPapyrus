@@ -279,11 +279,7 @@ private:
 	//   This method is deprecated. It exists here because it is called by
 	//   Template::GetTemplate. Also this is used in tests.
 	const Template* GetTemplate(const TemplateString& key, Strip strip);
-
-	bool ResolveTemplateFilename(const std::string& unresolved,
-	    std::string* resolved,
-	    FileStat* statbuf) const;
-
+	bool ResolveTemplateFilename(const std::string& unresolved, std::string* resolved, FileStat* statbuf) const;
 	// This is used only for internal (recursive) calls to Expand due
 	// to internal template-includes.  It doesn't try to acquire the
 	// global template_lock again, in template.cc.
@@ -311,18 +307,14 @@ private:
 
 	// ValidTemplateFilename
 	//   Validates the user provided filename before constructing the template
-	bool IsValidTemplateFilename(const std::string& filename,
-	    std::string* resolved_filename,
-	    FileStat* statbuf) const;
+	bool IsValidTemplateFilename(const std::string& filename, std::string* resolved_filename, FileStat* statbuf) const;
 
 	// GetTemplateLocked
 	//   Internal version of GetTemplate. It's used when the function already
 	//   has a write-lock on mutex_.  It returns a pointer to a refcounted
 	//   template (in the cache), or NULL if the template is not found.
 	//   Its used by GetTemplate & ForceReloadAllIfChanged.
-	RefcountedTemplate* GetTemplateLocked(const TemplateString& filename,
-	    Strip strip,
-	    const TemplateCacheKey& key);
+	RefcountedTemplate* GetTemplateLocked(const TemplateString& filename, Strip strip, const TemplateCacheKey& key);
 
 	// Refcount
 	//  Testing only. Returns the refcount of a template, given its cache key.

@@ -98,32 +98,32 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_cpio.c 20116
 #define afiol_magic_offset 0
 #define afiol_magic_size 6
 #define afiol_dev_offset 6
-#define afiol_dev_size 8        /* hex */
+#define afiol_dev_size 8        // hex
 #define afiol_ino_offset 14
-#define afiol_ino_size 16       /* hex */
+#define afiol_ino_size 16       // hex
 #define afiol_ino_m_offset 30   /* 'm' */
 #define afiol_mode_offset 31
-#define afiol_mode_size 6       /* oct */
+#define afiol_mode_size 6       // oct
 #define afiol_uid_offset 37
-#define afiol_uid_size 8        /* hex */
+#define afiol_uid_size 8        // hex
 #define afiol_gid_offset 45
-#define afiol_gid_size 8        /* hex */
+#define afiol_gid_size 8        // hex
 #define afiol_nlink_offset 53
-#define afiol_nlink_size 8      /* hex */
+#define afiol_nlink_size 8      // hex
 #define afiol_rdev_offset 61
-#define afiol_rdev_size 8       /* hex */
+#define afiol_rdev_size 8       // hex
 #define afiol_mtime_offset 69
-#define afiol_mtime_size 16     /* hex */
+#define afiol_mtime_size 16     // hex
 #define afiol_mtime_n_offset 85 /* 'n' */
 #define afiol_namesize_offset 86
-#define afiol_namesize_size 4   /* hex */
+#define afiol_namesize_size 4   // hex
 #define afiol_flag_offset 90
-#define afiol_flag_size 4       /* hex */
+#define afiol_flag_size 4       // hex
 #define afiol_xsize_offset 94
-#define afiol_xsize_size 4      /* hex */
+#define afiol_xsize_size 4      // hex
 #define afiol_xsize_s_offset 98 /* 's' */
 #define afiol_filesize_offset 99
-#define afiol_filesize_size 16  /* hex */
+#define afiol_filesize_size 16  // hex
 #define afiol_filesize_c_offset 115     /* ':' */
 #define afiol_header_size 116
 
@@ -278,9 +278,7 @@ static int archive_read_format_cpio_options(ArchiveRead * a, const char * key, c
 		}
 		return ret;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -342,7 +340,7 @@ static int archive_read_format_cpio_read_header(ArchiveRead * a, ArchiveEntry * 
 	 * header.  XXX */
 	/* Compare name to "TRAILER!!!" to test for end-of-archive. */
 	if(namelength == 11 && strncmp((const char *)h, "TRAILER!!!", 11) == 0) {
-		/* TODO: Store file location of start of block. */
+		/* @todo Store file location of start of block. */
 		archive_clear_error(&a->archive);
 		return (ARCHIVE_EOF);
 	}
@@ -485,7 +483,7 @@ static int header_newc(ArchiveRead * a, struct cpio * cpio, ArchiveEntry * entry
 		a->archive.archive_format_name = "ASCII cpio (SVR4 with CRC)";
 	}
 	else {
-		/* TODO: Abort here? */
+		/* @todo Abort here? */
 	}
 	archive_entry_set_devmajor(entry, (dev_t)atol16(header + newc_devmajor_offset, newc_devmajor_size));
 	archive_entry_set_devminor(entry, (dev_t)atol16(header + newc_devminor_offset, newc_devminor_size));

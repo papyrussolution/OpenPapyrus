@@ -42,7 +42,7 @@
 //#include "transfer.h"
 #include "vtls/vtls.h"
 #include "curl_ntlm_core.h"
-#include "escape.h"
+//#include "escape.h"
 #include "curl_endian.h"
 
 /* The last #include files should be: */
@@ -97,66 +97,66 @@
 struct smb_header {
 	uchar nbt_type;
 	uchar nbt_flags;
-	unsigned short nbt_length;
+	ushort nbt_length;
 	uchar magic[4];
 	uchar command;
 	uint status;
 	uchar flags;
-	unsigned short flags2;
-	unsigned short pid_high;
+	ushort flags2;
+	ushort pid_high;
 	uchar signature[8];
-	unsigned short pad;
-	unsigned short tid;
-	unsigned short pid;
-	unsigned short uid;
-	unsigned short mid;
+	ushort pad;
+	ushort tid;
+	ushort pid;
+	ushort uid;
+	ushort mid;
 } PACK;
 
 struct smb_negotiate_response {
 	struct smb_header h;
 	uchar word_count;
-	unsigned short dialect_index;
+	ushort dialect_index;
 	uchar security_mode;
-	unsigned short max_mpx_count;
-	unsigned short max_number_vcs;
+	ushort max_mpx_count;
+	ushort max_number_vcs;
 	uint max_buffer_size;
 	uint max_raw_size;
 	uint session_key;
 	uint capabilities;
 	uint system_time_low;
 	uint system_time_high;
-	unsigned short server_time_zone;
+	ushort server_time_zone;
 	uchar encryption_key_length;
-	unsigned short byte_count;
+	ushort byte_count;
 	char bytes[1];
 } PACK;
 
 struct andx {
 	uchar command;
 	uchar pad;
-	unsigned short offset;
+	ushort offset;
 } PACK;
 
 struct smb_setup {
 	uchar word_count;
 	struct andx andx;
-	unsigned short max_buffer_size;
-	unsigned short max_mpx_count;
-	unsigned short vc_number;
+	ushort max_buffer_size;
+	ushort max_mpx_count;
+	ushort vc_number;
 	uint session_key;
-	unsigned short lengths[2];
+	ushort lengths[2];
 	uint pad;
 	uint capabilities;
-	unsigned short byte_count;
+	ushort byte_count;
 	char bytes[1024];
 } PACK;
 
 struct smb_tree_connect {
 	uchar word_count;
 	struct andx andx;
-	unsigned short flags;
-	unsigned short pw_len;
-	unsigned short byte_count;
+	ushort flags;
+	ushort pw_len;
+	ushort byte_count;
 	char bytes[1024];
 } PACK;
 
@@ -164,7 +164,7 @@ struct smb_nt_create {
 	uchar word_count;
 	struct andx andx;
 	uchar pad;
-	unsigned short name_length;
+	ushort name_length;
 	uint flags;
 	uint root_fid;
 	uint access;
@@ -175,7 +175,7 @@ struct smb_nt_create {
 	uint create_options;
 	uint impersonation_level;
 	uchar security_flags;
-	unsigned short byte_count;
+	ushort byte_count;
 	char bytes[1024];
 } PACK;
 
@@ -184,7 +184,7 @@ struct smb_nt_create_response {
 	uchar word_count;
 	struct andx andx;
 	uchar op_lock_level;
-	unsigned short fid;
+	ushort fid;
 	uint create_disposition;
 
 	curl_off_t create_time;
@@ -199,43 +199,43 @@ struct smb_nt_create_response {
 struct smb_read {
 	uchar word_count;
 	struct andx andx;
-	unsigned short fid;
+	ushort fid;
 	uint offset;
-	unsigned short max_bytes;
-	unsigned short min_bytes;
+	ushort max_bytes;
+	ushort min_bytes;
 	uint timeout;
-	unsigned short remaining;
+	ushort remaining;
 	uint offset_high;
-	unsigned short byte_count;
+	ushort byte_count;
 } PACK;
 
 struct smb_write {
 	struct smb_header h;
 	uchar word_count;
 	struct andx andx;
-	unsigned short fid;
+	ushort fid;
 	uint offset;
 	uint timeout;
-	unsigned short write_mode;
-	unsigned short remaining;
-	unsigned short pad;
-	unsigned short data_length;
-	unsigned short data_offset;
+	ushort write_mode;
+	ushort remaining;
+	ushort pad;
+	ushort data_length;
+	ushort data_offset;
 	uint offset_high;
-	unsigned short byte_count;
+	ushort byte_count;
 	uchar pad2;
 } PACK;
 
 struct smb_close {
 	uchar word_count;
-	unsigned short fid;
+	ushort fid;
 	uint last_mtime;
-	unsigned short byte_count;
+	ushort byte_count;
 } PACK;
 
 struct smb_tree_disconnect {
 	uchar word_count;
-	unsigned short byte_count;
+	ushort byte_count;
 } PACK;
 
 #if defined(_MSC_VER) || defined(__ILEC400__)
@@ -243,18 +243,14 @@ struct smb_tree_disconnect {
 #endif
 
 /* Local API functions */
-static CURLcode smb_setup_connection(struct Curl_easy * data,
-    struct connectdata * conn);
+static CURLcode smb_setup_connection(struct Curl_easy * data, struct connectdata * conn);
 static CURLcode smb_connect(struct Curl_easy * data, bool * done);
 static CURLcode smb_connection_state(struct Curl_easy * data, bool * done);
 static CURLcode smb_do(struct Curl_easy * data, bool * done);
 static CURLcode smb_request_state(struct Curl_easy * data, bool * done);
-static CURLcode smb_disconnect(struct Curl_easy * data,
-    struct connectdata * conn, bool dead);
-static int smb_getsock(struct Curl_easy * data, struct connectdata * conn,
-    curl_socket_t * socks);
-static CURLcode smb_parse_url_path(struct Curl_easy * data,
-    struct connectdata * conn);
+static CURLcode smb_disconnect(struct Curl_easy * data, struct connectdata * conn, bool dead);
+static int smb_getsock(struct Curl_easy * data, struct connectdata * conn, curl_socket_t * socks);
+static CURLcode smb_parse_url_path(struct Curl_easy * data, struct connectdata * conn);
 
 /*
  * SMB handler interface
@@ -332,21 +328,12 @@ const struct Curl_handler Curl_handler_smbs = {
 /* SMB is mostly little endian */
 #if (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) || \
 	defined(__OS400__)
-static unsigned short smb_swap16(unsigned short x)
-{
-	return (ushort)((x << 8) | ((x >> 8) & 0xff));
-}
-
-static uint smb_swap32(uint x)
-{
-	return (x << 24) | ((x << 8) & 0xff0000) | ((x >> 8) & 0xff00) |
-	       ((x >> 24) & 0xff);
-}
+static ushort smb_swap16(ushort x) { return (ushort)((x << 8) | ((x >> 8) & 0xff)); }
+static uint smb_swap32(uint x) { return (x << 24) | ((x << 8) & 0xff0000) | ((x >> 8) & 0xff00) | ((x >> 24) & 0xff); }
 
 static curl_off_t smb_swap64(curl_off_t x)
 {
-	return ((curl_off_t)smb_swap32((uint)x) << 32) |
-	       smb_swap32((uint)(x >> 32));
+	return ((curl_off_t)smb_swap32((uint)x) << 32) | smb_swap32((uint)(x >> 32));
 }
 
 #else
@@ -371,8 +358,8 @@ enum smb_req_state {
 struct smb_request {
 	enum smb_req_state state;
 	char * path;
-	unsigned short tid; /* Even if we connect to the same tree as another */
-	unsigned short fid; /* request, the tid will be different */
+	ushort tid; /* Even if we connect to the same tree as another */
+	ushort fid; /* request, the tid will be different */
 	CURLcode result;
 };
 
@@ -923,8 +910,8 @@ static CURLcode smb_request_state(struct Curl_easy * data, bool * done)
 	struct smb_header * h;
 	struct smb_conn * smbc = &conn->proto.smbc;
 	enum smb_req_state next_state = SMB_DONE;
-	unsigned short len;
-	unsigned short off;
+	ushort len;
+	ushort off;
 	CURLcode result;
 	void * msg = NULL;
 	const struct smb_nt_create_response * smb_m;

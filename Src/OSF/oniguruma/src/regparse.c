@@ -793,7 +793,7 @@ int onig_names_free(regex_t* reg)
 	if(r) 
 		return r;
 	t = (NameTable*)reg->name_table;
-	if(IS_NOT_NULL(t)) SAlloc::F(t);
+	SAlloc::F(t);
 	reg->name_table = NULL;
 	return 0;
 }
@@ -803,7 +803,7 @@ static NameEntry* name_find(regex_t* reg, uchar * name, uchar * name_end)
 	int i, len;
 	NameEntry* e;
 	NameTable* t = (NameTable*)reg->name_table;
-	if(IS_NOT_NULL(t)) {
+	if(t) {
 		len = name_end - name;
 		for(i = 0; i < t->num; i++) {
 			e = &(t->e[i]);
@@ -1054,16 +1054,14 @@ static int make_callout_func_list(CalloutNameListType** rs, int init_size)
 
 static void free_callout_func_list(CalloutNameListType* s)
 {
-	if(IS_NOT_NULL(s)) {
-		if(IS_NOT_NULL(s->v)) {
-			int i, j;
-
-			for(i = 0; i < s->n; i++) {
+	if(s) {
+		if(s->v) {
+			for(int i = 0; i < s->n; i++) {
 				CalloutNameListEntry* e = s->v + i;
-				for(j = e->arg_num - e->opt_arg_num; j < e->arg_num; j++) {
+				for(int j = e->arg_num - e->opt_arg_num; j < e->arg_num; j++) {
 					if(e->arg_types[j] == ONIG_TYPE_STRING) {
 						uchar * p = e->opt_defaults[j].s.start;
-						if(IS_NOT_NULL(p)) SAlloc::F(p);
+						SAlloc::F(p);
 					}
 				}
 			}
@@ -4046,9 +4044,9 @@ static int fetch_token(PToken* tok, uchar ** src, uchar * end, ScanEnv* env);
 static OnigCodePoint get_name_end_code_point(OnigCodePoint start)
 {
 	switch(start) {
-		case '<':  return (OnigCodePoint)'>';  break;
+		case '<': return (OnigCodePoint)'>';  break;
 		case '\'': return (OnigCodePoint)'\''; break;
-		case '(':  return (OnigCodePoint)')';  break;
+		case '(': return (OnigCodePoint)')';  break;
 		default:
 		    break;
 	}

@@ -3280,7 +3280,7 @@ uint WithExtends(uint iMessage)
 		case SCI_LINEENDDISPLAY: return SCI_LINEENDDISPLAYEXTEND;
 		case SCI_LINEENDWRAP: return SCI_LINEENDWRAPEXTEND;
 
-		default:        return iMessage;
+		default: return iMessage;
 	}
 }
 
@@ -6114,9 +6114,9 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    vs.whitespaceSize = static_cast<int>(wParam);
 		    Redraw();
 		    break;
-		case SCI_POSITIONFROMPOINT:          return PositionFromLocation(SciPoint::FromInts(static_cast<int>(wParam) - vs.ExternalMarginWidth(), static_cast<int>(lParam)), false, false);
-		case SCI_POSITIONFROMPOINTCLOSE:     return PositionFromLocation(SciPoint::FromInts(static_cast<int>(wParam) - vs.ExternalMarginWidth(), static_cast<int>(lParam)), true, false);
-		case SCI_CHARPOSITIONFROMPOINT:      return PositionFromLocation(SciPoint::FromInts(static_cast<int>(wParam) - vs.ExternalMarginWidth(), static_cast<int>(lParam)), false, true);
+		case SCI_POSITIONFROMPOINT: return PositionFromLocation(SciPoint::FromInts(static_cast<int>(wParam) - vs.ExternalMarginWidth(), static_cast<int>(lParam)), false, false);
+		case SCI_POSITIONFROMPOINTCLOSE: return PositionFromLocation(SciPoint::FromInts(static_cast<int>(wParam) - vs.ExternalMarginWidth(), static_cast<int>(lParam)), true, false);
+		case SCI_CHARPOSITIONFROMPOINT: return PositionFromLocation(SciPoint::FromInts(static_cast<int>(wParam) - vs.ExternalMarginWidth(), static_cast<int>(lParam)), false, true);
 		case SCI_CHARPOSITIONFROMPOINTCLOSE: return PositionFromLocation(SciPoint::FromInts(static_cast<int>(wParam) - vs.ExternalMarginWidth(), static_cast<int>(lParam)), true, true);
 		case SCI_GOTOLINE: GoToLine(static_cast<int>(wParam)); break;
 		case SCI_GOTOPOS:
@@ -6768,15 +6768,15 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    break;
 		case SCI_INDICGETOUTLINEALPHA: return (wParam <= INDIC_MAX) ? vs.indicators[wParam].outlineAlpha : 0;
 		case SCI_SETINDICATORCURRENT:  pdoc->decorations.SetCurrentIndicator(static_cast<int>(wParam)); break;
-		case SCI_GETINDICATORCURRENT:  return pdoc->decorations.GetCurrentIndicator();
+		case SCI_GETINDICATORCURRENT: return pdoc->decorations.GetCurrentIndicator();
 		case SCI_SETINDICATORVALUE:    pdoc->decorations.SetCurrentValue(static_cast<int>(wParam)); break;
-		case SCI_GETINDICATORVALUE:    return pdoc->decorations.GetCurrentValue();
+		case SCI_GETINDICATORVALUE: return pdoc->decorations.GetCurrentValue();
 		case SCI_INDICATORFILLRANGE:   pdoc->DecorationFillRange(static_cast<int>(wParam), pdoc->decorations.GetCurrentValue(), static_cast<int>(lParam)); break;
 		case SCI_INDICATORCLEARRANGE:  pdoc->DecorationFillRange(static_cast<int>(wParam), 0, static_cast<int>(lParam)); break;
-		case SCI_INDICATORALLONFOR:    return pdoc->decorations.AllOnFor(static_cast<int>(wParam));
-		case SCI_INDICATORVALUEAT:     return pdoc->decorations.ValueAt(static_cast<int>(wParam), static_cast<int>(lParam));
-		case SCI_INDICATORSTART:       return pdoc->decorations.Start(static_cast<int>(wParam), static_cast<int>(lParam));
-		case SCI_INDICATOREND:         return pdoc->decorations.End(static_cast<int>(wParam), static_cast<int>(lParam));
+		case SCI_INDICATORALLONFOR: return pdoc->decorations.AllOnFor(static_cast<int>(wParam));
+		case SCI_INDICATORVALUEAT: return pdoc->decorations.ValueAt(static_cast<int>(wParam), static_cast<int>(lParam));
+		case SCI_INDICATORSTART: return pdoc->decorations.Start(static_cast<int>(wParam), static_cast<int>(lParam));
+		case SCI_INDICATOREND: return pdoc->decorations.End(static_cast<int>(wParam), static_cast<int>(lParam));
 		case SCI_LINEDOWN:
 		case SCI_LINEDOWNEXTEND:
 		case SCI_PARADOWN:
@@ -7224,37 +7224,37 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_GETOVERTYPE:               return BIN(EditModelFlags & fInOverstrike);
 		case SCI_GETFOCUS:                  return BIN(Flags & fHasFocus);
 		case SCI_GETSTATUS:                 return errorStatus;
-		case SCI_GETMOUSEDOWNCAPTURES:      return BIN(Flags & fMouseDownCaptures);
-		case SCI_GETMOUSEWHEELCAPTURES:     return BIN(Flags & fMouseWheelCaptures);
+		case SCI_GETMOUSEDOWNCAPTURES: return BIN(Flags & fMouseDownCaptures);
+		case SCI_GETMOUSEWHEELCAPTURES: return BIN(Flags & fMouseWheelCaptures);
 		case SCI_GETCURSOR:                 return cursorMode;
-		case SCI_GETCONTROLCHARSYMBOL:      return vs.controlCharSymbol;
+		case SCI_GETCONTROLCHARSYMBOL: return vs.controlCharSymbol;
 		case SCI_GETHOTSPOTACTIVEUNDERLINE: return BIN(vs.hotspotUnderline);
-		case SCI_GETHOTSPOTSINGLELINE:      return BIN(vs.hotspotSingleLine);
-		case SCI_GETPASTECONVERTENDINGS:    return BIN(Flags & fConvertPastes);
+		case SCI_GETHOTSPOTSINGLELINE: return BIN(vs.hotspotSingleLine);
+		case SCI_GETPASTECONVERTENDINGS: return BIN(Flags & fConvertPastes);
 		case SCI_GETCHARACTERPOINTER: return reinterpret_cast<sptr_t>(pdoc->BufferPointer());
 		case SCI_GETRANGEPOINTER: return reinterpret_cast<sptr_t>(pdoc->RangePointer(static_cast<int>(wParam), static_cast<int>(lParam)));
-		case SCI_GETGAPPOSITION:  return pdoc->GapPosition();
-		case SCI_GETEXTRAASCENT:  return vs.extraAscent;
+		case SCI_GETGAPPOSITION: return pdoc->GapPosition();
+		case SCI_GETEXTRAASCENT: return vs.extraAscent;
 		case SCI_GETEXTRADESCENT: return vs.extraDescent;
-		case SCI_ANNOTATIONGETSTYLEOFFSET:        return vs.annotationStyleOffset;
-		case SCI_ALLOCATEEXTENDEDSTYLES:          return vs.AllocateExtendedStyles(static_cast<int>(wParam));
+		case SCI_ANNOTATIONGETSTYLEOFFSET: return vs.annotationStyleOffset;
+		case SCI_ALLOCATEEXTENDEDSTYLES: return vs.AllocateExtendedStyles(static_cast<int>(wParam));
 		case SCI_GETMOUSESELECTIONRECTANGULARSWITCH: return BIN(Flags & fMouseSelectionRectangularSwitch);
-		case SCI_GETMULTIPLESELECTION:            return BIN(Flags & fMultipleSelection);
-		case SCI_GETADDITIONALSELECTIONTYPING:    return BIN(Flags & fAdditionalSelectionTyping);
+		case SCI_GETMULTIPLESELECTION: return BIN(Flags & fMultipleSelection);
+		case SCI_GETADDITIONALSELECTIONTYPING: return BIN(Flags & fAdditionalSelectionTyping);
 		case SCI_GETMULTIPASTE:                   return multiPasteMode;
-		case SCI_GETADDITIONALCARETSBLINK:        return BIN(view.EditViewFlags & EditView::fAdditionalCaretsBlink); // view.additionalCaretsBlink;
-		case SCI_GETADDITIONALCARETSVISIBLE:      return BIN(view.EditViewFlags & EditView::fAdditionalCaretsVisible); // view.additionalCaretsVisible;
+		case SCI_GETADDITIONALCARETSBLINK: return BIN(view.EditViewFlags & EditView::fAdditionalCaretsBlink); // view.additionalCaretsBlink;
+		case SCI_GETADDITIONALCARETSVISIBLE: return BIN(view.EditViewFlags & EditView::fAdditionalCaretsVisible); // view.additionalCaretsVisible;
 		case SCI_GETSELECTIONS:                   return Sel.Count();
 		case SCI_GETSELECTIONEMPTY:               return Sel.Empty();
 		case SCI_GETMAINSELECTION:                return Sel.Main();
 		case SCI_GETSELECTIONNCARET:              return Sel.Range(wParam).caret.Position();
-		case SCI_GETSELECTIONNANCHOR:             return Sel.Range(wParam).anchor.Position();
-		case SCI_GETSELECTIONNCARETVIRTUALSPACE:  return Sel.Range(wParam).caret.VirtualSpace();
+		case SCI_GETSELECTIONNANCHOR: return Sel.Range(wParam).anchor.Position();
+		case SCI_GETSELECTIONNCARETVIRTUALSPACE: return Sel.Range(wParam).caret.VirtualSpace();
 		case SCI_GETSELECTIONNANCHORVIRTUALSPACE: return Sel.Range(wParam).anchor.VirtualSpace();
 		case SCI_GETSELECTIONNSTART:              return Sel.Range(wParam).Start().Position();
 		case SCI_GETSELECTIONNEND:                return Sel.Range(wParam).End().Position();
-		case SCI_GETRECTANGULARSELECTIONCARET:    return Sel.Rectangular().caret.Position();
-		case SCI_GETRECTANGULARSELECTIONANCHOR:   return Sel.Rectangular().anchor.Position();
+		case SCI_GETRECTANGULARSELECTIONCARET: return Sel.Rectangular().caret.Position();
+		case SCI_GETRECTANGULARSELECTIONANCHOR: return Sel.Rectangular().anchor.Position();
 		case SCI_GETRECTANGULARSELECTIONCARETVIRTUALSPACE: return Sel.Rectangular().caret.VirtualSpace();
 		case SCI_GETRECTANGULARSELECTIONANCHORVIRTUALSPACE: return Sel.Rectangular().anchor.VirtualSpace();
 		case SCI_GETVIRTUALSPACEOPTIONS: return virtualSpaceOptions;

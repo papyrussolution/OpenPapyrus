@@ -37,7 +37,7 @@
 
 #else /* HAVE_MEMRCHR */
 
-void *Curl_memrchr(const void *s, int c, size_t n);
+void * Curl_memrchr(const void *s, int c, size_t n);
 
 #define memrchr(x,y,z) Curl_memrchr((x),(y),(z))
 

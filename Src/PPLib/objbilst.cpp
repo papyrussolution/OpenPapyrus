@@ -1,5 +1,5 @@
 // OBJBILST.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // PPObjBillStatus - Статусы документов
 //
@@ -71,6 +71,8 @@ int PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	dlg->SetClusterData(CTL_BILLSTATUS_CHECKFLDS, rec.CheckFields);
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKF2, 0, BILCHECKF_CODE);
 	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKF2, 1, BILCHECKF_CONTRACT); // @v11.5.11
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKF2, 2, BILCHECKF_LNEXPLVATRATE); // @v11.8.9
+	dlg->AddClusterAssoc(CTL_BILLSTATUS_CHECKF2, 3, BILCHECKF_LNCHZNMARKS);   // @v11.8.9
 	dlg->SetClusterData(CTL_BILLSTATUS_CHECKF2, rec.CheckFields);
 	SetupPPObjCombo(dlg, CTLSEL_BILLSTATUS_OPCNTR, PPOBJ_OPCOUNTER, rec.CounterID, OLW_CANINSERT, 0);
 	SetupOprKindCombo(dlg, CTLSEL_BILLSTATUS_OP, rec.RestrictOpID, 0, 0, 0);

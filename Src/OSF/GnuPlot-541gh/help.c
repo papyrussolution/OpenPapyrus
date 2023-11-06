@@ -328,8 +328,7 @@ void FreeHelp()
 				}
 			}
 		}
-		SAlloc::F((char *)keys);
-		keys = NULL;
+		ZFREE(keys);
 		keycount = 0;
 	}
 }

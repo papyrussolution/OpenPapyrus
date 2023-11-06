@@ -33,9 +33,9 @@
 #ifdef CURLRES_ARES
 
 #include <limits.h>
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -651,7 +651,7 @@ static void query_completed_cb(void * arg,  /* (struct connectdata *) */
  * ares2addr() converts an address list provided by c-ares to an internal
  * libcurl compatible list
  */
-static struct Curl_addrinfo *ares2addr(struct ares_addrinfo_node * node){
+static struct Curl_addrinfo *ares2addr(struct ares_addrinfo_node * node) {
 	/* traverse the ares_addrinfo_node list */
 	struct ares_addrinfo_node * ai;
 	struct Curl_addrinfo * cafirst = NULL;
@@ -743,14 +743,11 @@ static void addrinfo_cb(void * arg, int status, int timeouts,
  * memory we need to free after use. That memory *MUST* be freed with
  * Curl_freeaddrinfo(), nothing else.
  */
-struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data,
-    const char * hostname,
-    int port,
-    int * waitp){
+struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data, const char * hostname, int port, int * waitp) 
+{
 	struct thread_data * res = NULL;
 	size_t namelen = strlen(hostname);
 	*waitp = 0; /* default to synchronous response */
-
 	res = SAlloc::C(sizeof(struct thread_data) + namelen, 1);
 	if(res) {
 		strcpy(res->hostname, hostname);

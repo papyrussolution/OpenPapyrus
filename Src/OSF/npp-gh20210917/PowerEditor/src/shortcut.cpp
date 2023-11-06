@@ -272,27 +272,27 @@ static size_t FASTCALL keyTranslate(size_t keyIn)
 {
 	switch(keyIn) {
 		case VK_DOWN: return SCK_DOWN;
-		case VK_UP:   return SCK_UP;
-		case VK_LEFT:     return SCK_LEFT;
-		case VK_RIGHT:    return SCK_RIGHT;
-		case VK_HOME:     return SCK_HOME;
-		case VK_END:      return SCK_END;
-		case VK_PRIOR:    return SCK_PRIOR;
-		case VK_NEXT:     return SCK_NEXT;
-		case VK_DELETE:   return SCK_DELETE;
-		case VK_INSERT:   return SCK_INSERT;
-		case VK_ESCAPE:   return SCK_ESCAPE;
-		case VK_BACK:     return SCK_BACK;
-		case VK_TAB:      return SCK_TAB;
-		case VK_RETURN:   return SCK_RETURN;
-		case VK_ADD:      return SCK_ADD;
+		case VK_UP: return SCK_UP;
+		case VK_LEFT: return SCK_LEFT;
+		case VK_RIGHT: return SCK_RIGHT;
+		case VK_HOME: return SCK_HOME;
+		case VK_END: return SCK_END;
+		case VK_PRIOR: return SCK_PRIOR;
+		case VK_NEXT: return SCK_NEXT;
+		case VK_DELETE: return SCK_DELETE;
+		case VK_INSERT: return SCK_INSERT;
+		case VK_ESCAPE: return SCK_ESCAPE;
+		case VK_BACK: return SCK_BACK;
+		case VK_TAB: return SCK_TAB;
+		case VK_RETURN: return SCK_RETURN;
+		case VK_ADD: return SCK_ADD;
 		case VK_SUBTRACT: return SCK_SUBTRACT;
-		case VK_DIVIDE:   return SCK_DIVIDE;
-		case VK_OEM_2:    return '/';
-		case VK_OEM_3:    return '`';
-		case VK_OEM_4:    return '[';
-		case VK_OEM_5:    return '\\';
-		case VK_OEM_6:    return ']';
+		case VK_DIVIDE: return SCK_DIVIDE;
+		case VK_OEM_2: return '/';
+		case VK_OEM_3: return '`';
+		case VK_OEM_4: return '[';
+		case VK_OEM_5: return '\\';
+		case VK_OEM_6: return ']';
 		default: return keyIn;
 	}
 }

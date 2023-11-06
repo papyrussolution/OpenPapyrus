@@ -627,52 +627,38 @@ int Curl_amiga_select(int nfds, fd_set * readfds, fd_set * writefds,
 #define UNUSED_PARAM /* NOTHING */
 #define WARN_UNUSED_RESULT
 #endif
-
 /*
  * Include macros and defines that should only be processed once.
  */
-
 #ifndef HEADER_CURL_SETUP_ONCE_H
 #include "curl_setup_once.h"
 #endif
-
 /*
  * Definition of our NOP statement Object-like macro
  */
-
 #ifndef Curl_nop_stmt
-#define Curl_nop_stmt do { } while(0)
+	#define Curl_nop_stmt do { } while(0)
 #endif
-
 /*
  * Ensure that Winsock and lwIP TCP/IP stacks are not mixed.
  */
-
 #if defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H)
-#if defined(SOCKET) || \
-	defined(USE_WINSOCK) || \
-	defined(HAVE_WINSOCK2_H) || \
-	defined(HAVE_WS2TCPIP_H)
-#    error "WinSock and lwIP TCP/IP stack definitions shall not coexist!"
+	#if defined(SOCKET) || defined(USE_WINSOCK) || defined(HAVE_WINSOCK2_H) || defined(HAVE_WS2TCPIP_H)
+		#error "WinSock and lwIP TCP/IP stack definitions shall not coexist!"
+	#endif
 #endif
-#endif
-
 /*
  * shutdown() flags for systems that don't define them
  */
-
 #ifndef SHUT_RD
-#define SHUT_RD 0x00
+	#define SHUT_RD 0x00
 #endif
-
 #ifndef SHUT_WR
-#define SHUT_WR 0x01
+	#define SHUT_WR 0x01
 #endif
-
 #ifndef SHUT_RDWR
-#define SHUT_RDWR 0x02
+	#define SHUT_RDWR 0x02
 #endif
-
 /* Define S_ISREG if not defined by system headers, e.g. MSVC */
 #if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
 #define S_ISREG(m) (((m)&S_IFMT) == S_IFREG)
@@ -773,6 +759,27 @@ typedef struct sockaddr_un {
 #if defined(USE_MSH3) && !defined(_WIN32)
     #include <pthread.h>
 #endif
+#ifdef HAVE_NETINET_IN_H
+	#include <netinet/in.h>
+#endif
+#ifdef HAVE_NETDB_H
+	#include <netdb.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
+	#include <arpa/inet.h>
+#endif
+#ifdef HAVE_NET_IF_H
+	#include <net/if.h>
+#endif
+#ifdef HAVE_SYS_IOCTL_H
+	#include <sys/ioctl.h>
+#endif
+#ifdef HAVE_SYS_PARAM_H
+	#include <sys/param.h>
+#endif
+#ifdef USE_HYPER
+	#include <hyper.h>
+#endif
 #include <curl/curl.h>
 #include <nonblock.h>
 #include <sockaddr.h>
@@ -802,5 +809,8 @@ typedef struct sockaddr_un {
 #include <content_encoding.h>
 #include <strtoofft.h>
 #include <warnless.h>
+#include <curl_path.h>
+#include <escape.h>
+#include <curl_base64.h>
 
 #endif /* HEADER_CURL_SETUP_H */

@@ -775,12 +775,12 @@ uint32_t WebPDemuxGetI(const WebPDemuxer* dmux, WebPFormatFeature feature) {
 	if(dmux == NULL) return 0;
 
 	switch(feature) {
-		case WEBP_FF_FORMAT_FLAGS:     return dmux->feature_flags_;
-		case WEBP_FF_CANVAS_WIDTH:     return (uint32_t)dmux->canvas_width_;
-		case WEBP_FF_CANVAS_HEIGHT:    return (uint32_t)dmux->canvas_height_;
-		case WEBP_FF_LOOP_COUNT:       return (uint32_t)dmux->loop_count_;
+		case WEBP_FF_FORMAT_FLAGS: return dmux->feature_flags_;
+		case WEBP_FF_CANVAS_WIDTH: return (uint32_t)dmux->canvas_width_;
+		case WEBP_FF_CANVAS_HEIGHT: return (uint32_t)dmux->canvas_height_;
+		case WEBP_FF_LOOP_COUNT: return (uint32_t)dmux->loop_count_;
 		case WEBP_FF_BACKGROUND_COLOR: return dmux->bgcolor_;
-		case WEBP_FF_FRAME_COUNT:      return (uint32_t)dmux->num_frames_;
+		case WEBP_FF_FRAME_COUNT: return (uint32_t)dmux->num_frames_;
 	}
 	return 0;
 }

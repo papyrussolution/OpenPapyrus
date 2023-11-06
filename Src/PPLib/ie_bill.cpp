@@ -793,6 +793,10 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 	ImpOpID = 0;
 	Flags = 0;
 	PredefFormat = piefUndef;
+	FixTagID = 0; // @v11.8.9 @fix
+	Object1SrchCode.Z(); // @v11.8.9 
+	Object2SrchCode.Z(); // @v11.8.9 
+	OuterFormatVer.Z(); // @v11.8.9 
 	int    ok = 1;
 	SString params;
 	SString fld_name;

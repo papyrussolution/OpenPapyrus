@@ -7043,17 +7043,17 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 					// в локальном каталоге скопированного до этого актуального файла.
 					//
 					SString local_path;
-					// @v11.8.5 if(SFileUtil::GetSysDir(SFileUtil::sdAppDataLocal, local_path)) {
+					// @v11.8.5 if(SFile::GetSysDir(SFile::sdAppDataLocal, local_path)) {
 					if(GetKnownFolderPath(UED_FSKNOWNFOLDER_LOCAL_APP_DATA, local_path)) { // @v11.8.5
 						int    do_copy = 0;
-						SFileUtil::Stat st_local, st;
+						SFile::Stat st_local, st;
 						local_path.SetLastSlash().Cat(SLS.GetAppName());
 						if(!fileExists(local_path))
 							createDir(local_path);
 						local_path.SetLastSlash().Cat(p_file_name);
 						if(!fileExists(local_path))
 							do_copy = 1;
-						else if(SFileUtil::GetStat(local_path, &st_local) && SFileUtil::GetStat(path, &st))
+						else if(SFile::GetStat(local_path, 0, &st_local, 0) && SFile::GetStat(path, 0, &st, 0))
 							if(cmp(st_local.ModTime, st.ModTime) < 0)
 								do_copy = 1;
 							else

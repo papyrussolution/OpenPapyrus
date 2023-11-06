@@ -56,7 +56,7 @@
 
 #define H3VERSION "h3"
 
-static enum alpnid alpn2alpnid(char * name){
+static enum alpnid alpn2alpnid(char * name) {
 	if(strcasecompare(name, "h1"))
 		return ALPN_h1;
 	if(strcasecompare(name, "h2"))
@@ -457,7 +457,7 @@ static time_t altsvc_debugtime(void * unused)
 	char * timestr = getenv("CURL_TIME");
 	(void)unused;
 	if(timestr) {
-		unsigned long val = strtol(timestr, NULL, 10);
+		ulong val = strtol(timestr, NULL, 10);
 		return (time_t)val;
 	}
 	return time(NULL);

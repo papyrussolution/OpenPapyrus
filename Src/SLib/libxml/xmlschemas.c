@@ -996,7 +996,7 @@ static xmlNode * xmlSchemaGetComponentNode(xmlSchemaBasicItem * item)
 		case XML_SCHEMA_TYPE_SIMPLE: return (((xmlSchemaType *)item)->P_Node);
 		case XML_SCHEMA_TYPE_ANY:
 		case XML_SCHEMA_TYPE_ANY_ATTRIBUTE: return (((xmlSchemaWildcard *)item)->P_Node);
-		case XML_SCHEMA_TYPE_PARTICLE:      return (((xmlSchemaParticlePtr)item)->P_Node);
+		case XML_SCHEMA_TYPE_PARTICLE: return (((xmlSchemaParticlePtr)item)->P_Node);
 		case XML_SCHEMA_TYPE_SEQUENCE:
 		case XML_SCHEMA_TYPE_CHOICE:
 		case XML_SCHEMA_TYPE_ALL: return (((xmlSchemaModelGroupPtr)item)->P_Node);
@@ -1102,7 +1102,7 @@ static const xmlChar * xmlSchemaGetComponentName(const xmlSchemaBasicItem * item
 		    else
 			    return 0;
 		case XML_SCHEMA_EXTRA_QNAMEREF: return (((xmlSchemaQNameRef *)item)->name);
-		case XML_SCHEMA_TYPE_NOTATION:  return (((xmlSchemaNotation *)item)->name);
+		case XML_SCHEMA_TYPE_NOTATION: return (((xmlSchemaNotation *)item)->name);
 		default:
 		    /*
 		 * Other components cannot have names.
@@ -1499,10 +1499,7 @@ static const xmlChar * xmlSchemaFormatFacetEnumSet(xmlSchemaAbstractCtxt * actxt
 					*buf = *buf ? xmlStrcat(*buf, reinterpret_cast<const xmlChar *>(", '")) : sstrdup(reinterpret_cast<const xmlChar *>("'"));
 					*buf = xmlStrcat(*buf, BAD_CAST value);
 					*buf = xmlStrcat(*buf, reinterpret_cast<const xmlChar *>("'"));
-					if(value) {
-						SAlloc::F((xmlChar *)value);
-						value = NULL;
-					}
+					ZFREE(value);
 				}
 			}
 		}
@@ -19932,18 +19929,15 @@ static void xmlSchemaClearElemInfo(xmlSchemaValidCtxt * vctxt, xmlSchemaNodeInfo
 	ielem->hasKeyrefs = 0;
 	ielem->appliedXPath = 0;
 	if(ielem->flags & XML_SCHEMA_NODE_INFO_FLAG_OWNED_NAMES) {
-		SAlloc::F((void *)ielem->localName); // @badcast
-		ielem->localName = 0;
-		SAlloc::F((void *)ielem->nsName); // @badcast
-		ielem->nsName = 0;
+		ZFREE_const(ielem->localName); // @badcast
+		ZFREE_const(ielem->nsName); // @badcast
 	}
 	else {
 		ielem->localName = NULL;
 		ielem->nsName = NULL;
 	}
 	if(ielem->flags & XML_SCHEMA_NODE_INFO_FLAG_OWNED_VALUES) {
-		SAlloc::F((void *)ielem->value); // @badcast
-		ielem->value = 0;
+		ZFREE_const(ielem->value); // @badcast
 	}
 	else {
 		ielem->value = NULL;

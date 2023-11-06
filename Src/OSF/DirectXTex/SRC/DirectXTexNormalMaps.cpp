@@ -19,10 +19,10 @@ inline float EvaluateColor(_In_ FXMVECTOR val, _In_ CNMAP_FLAGS flags) noexcept
 	static_assert(CNMAP_CHANNEL_RED == 0x1, "CNMAP_CHANNEL_ flag values don't match mask");
 	switch(flags & 0xf) {
 		case 0:
-		case CNMAP_CHANNEL_RED:     return XMVectorGetX(val);
-		case CNMAP_CHANNEL_GREEN:   return XMVectorGetY(val);
-		case CNMAP_CHANNEL_BLUE:    return XMVectorGetZ(val);
-		case CNMAP_CHANNEL_ALPHA:   return XMVectorGetW(val);
+		case CNMAP_CHANNEL_RED: return XMVectorGetX(val);
+		case CNMAP_CHANNEL_GREEN: return XMVectorGetY(val);
+		case CNMAP_CHANNEL_BLUE: return XMVectorGetZ(val);
+		case CNMAP_CHANNEL_ALPHA: return XMVectorGetW(val);
 		case CNMAP_CHANNEL_LUMINANCE:
 	    {
 		    const XMVECTOR v = XMVectorMultiply(val, lScale);

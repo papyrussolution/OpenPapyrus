@@ -1377,19 +1377,68 @@ SLTEST_R(STextEncodingStat)
 
 SLTEST_R(sstrchr)
 {
+	SLCHECK_Z(sstrchr((const char *)0, 'z'));
+	SLCHECK_Z(sstrrchr((const char *)0, 'z'));
+	SLCHECK_Z(sstrchr((const char *)0, '\0'));
+	SLCHECK_Z(sstrrchr((const char *)0, '\0'));
+	SLCHECK_Z(sstrchr((char *)0, 'z'));
+	SLCHECK_Z(sstrrchr((char *)0, 'z'));
+	SLCHECK_Z(sstrchr((char *)0, '\0'));
+	SLCHECK_Z(sstrrchr((const wchar_t *)0, L'\0'));
+	SLCHECK_Z(sstrchr((const wchar_t *)0, L'z'));
+	SLCHECK_Z(sstrrchr((const wchar_t *)0, L'z'));
+	SLCHECK_Z(sstrchr((const wchar_t *)0, L'\0'));
+	SLCHECK_Z(sstrrchr((const wchar_t *)0, L'\0'));
+	SLCHECK_Z(sstrrchr((wchar_t *)0, L'\0'));
+	SLCHECK_Z(sstrchr((wchar_t *)0, L'z'));
+	SLCHECK_Z(sstrrchr((wchar_t *)0, L'z'));
+	SLCHECK_Z(sstrchr((wchar_t *)0, L'\0'));
+	SLCHECK_Z(sstrrchr((wchar_t *)0, L'\0'));
 	{
-		char   one[128];
 		SLCHECK_Z(sstrchr("abcd", 'z'));
-		strcpy(one, "abcd");
-		SLCHECK_EQ(sstrchr(one, 'c'), one+2);
-		SLCHECK_EQ(sstrchr(one, 'd'), one+3);
-		SLCHECK_EQ(sstrchr(one, 'a'), one);
-		SLCHECK_EQ(sstrchr(one, '\0'), one+4);
-		strcpy(one, "ababa");
-		SLCHECK_EQ(sstrchr(one, 'b'), one+1);
-		strcpy(one, "");
-		SLCHECK_Z(sstrchr(one, 'b'));
-		SLCHECK_EQ(sstrchr(one, '\0'), one);
+		SLCHECK_Z(sstrrchr("abcd", 'z'));
+		SLCHECK_Z(sstrchr(L"abcd", L'z'));
+		SLCHECK_Z(sstrrchr(L"abcd", L'z'));
+		{
+			char   one[128];
+			strcpy(one, "abcd");
+			SLCHECK_EQ(sstrchr(one, 'c'), one+2);
+			SLCHECK_EQ(sstrrchr(one, 'c'), one+2);
+			SLCHECK_EQ(sstrchr(one, 'd'), one+3);
+			SLCHECK_EQ(sstrrchr(one, 'd'), one+3);
+			SLCHECK_EQ(sstrchr(one, 'a'), one);
+			SLCHECK_EQ(sstrrchr(one, 'a'), one);
+			SLCHECK_EQ(sstrchr(one, '\0'), one+4);
+			SLCHECK_EQ(sstrrchr(one, '\0'), one+4);
+			strcpy(one, "ababa");
+			SLCHECK_EQ(sstrchr(one, 'b'), one+1);
+			SLCHECK_EQ(sstrrchr(one, 'b'), one+3);
+			strcpy(one, "");
+			SLCHECK_Z(sstrchr(one, 'b'));
+			SLCHECK_Z(sstrrchr(one, 'b'));
+			SLCHECK_EQ(sstrchr(one, '\0'), one);
+			SLCHECK_EQ(sstrrchr(one, '\0'), one);
+		}
+		{
+			wchar_t one[128];
+			wcscpy(one, L"abcd");
+			SLCHECK_EQ(sstrchr(one, L'c'), one+2);
+			SLCHECK_EQ(sstrrchr(one, L'c'), one+2);
+			SLCHECK_EQ(sstrchr(one, L'd'), one+3);
+			SLCHECK_EQ(sstrrchr(one, L'd'), one+3);
+			SLCHECK_EQ(sstrchr(one, L'a'), one);
+			SLCHECK_EQ(sstrrchr(one, L'a'), one);
+			SLCHECK_EQ(sstrchr(one, L'\0'), one+4);
+			SLCHECK_EQ(sstrrchr(one, L'\0'), one+4);
+			wcscpy(one, L"ababa");
+			SLCHECK_EQ(sstrchr(one, L'b'), one+1);
+			SLCHECK_EQ(sstrrchr(one, L'b'), one+3);
+			wcscpy(one, L"");
+			SLCHECK_Z(sstrchr(one, L'b'));
+			SLCHECK_Z(sstrrchr(one, L'b'));
+			SLCHECK_EQ(sstrchr(one, L'\0'), one);
+			SLCHECK_EQ(sstrrchr(one, L'\0'), one);
+		}
 	}
 	{
 		char buf[4096];
@@ -1407,11 +1456,15 @@ SLTEST_R(sstrchr)
 		memset(buf, 'x', buf.GetSize());
 		buf[buf.GetSize()-1] = 0;
 		SLCHECK_Z(sstrchr(buf, 'a'));
+		SLCHECK_Z(sstrrchr(buf, 'a'));
 		SLCHECK_EQ(sstrchr(buf, '\0'), buf+buf.GetSize()-1);
+		SLCHECK_EQ(sstrrchr(buf, '\0'), buf+buf.GetSize()-1);
 		SLCHECK_EQ(sstrchr(buf, 'x'), buf);
+		SLCHECK_EQ(sstrrchr(buf, 'x'), buf+buf.GetSize()-2);
 		for(size_t i = 0; i < buf.GetSize()-1; i += 1021) {
 			buf[i] = 'y';
 			SLCHECK_EQ(sstrchr(buf, 'y'), buf+i);
+			SLCHECK_EQ(sstrrchr(buf, 'y'), buf+i);
 			buf[i] = 'x';
 		}
 	}

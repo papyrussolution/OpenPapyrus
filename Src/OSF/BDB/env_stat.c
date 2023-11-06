@@ -625,12 +625,12 @@ void __db_print_reginfo(ENV * env, REGINFO * infop, const char * s, uint32 flags
 static const char * __reg_type(reg_type_t t)
 {
 	switch(t) {
-	    case REGION_TYPE_ENV:     return "Environment";
-	    case REGION_TYPE_LOCK:    return "Lock";
-	    case REGION_TYPE_LOG:     return "Log";
-	    case REGION_TYPE_MPOOL:   return "Mpool";
-	    case REGION_TYPE_MUTEX:   return "Mutex";
-	    case REGION_TYPE_TXN:     return "Transaction";
+	    case REGION_TYPE_ENV: return "Environment";
+	    case REGION_TYPE_LOCK: return "Lock";
+	    case REGION_TYPE_LOG: return "Log";
+	    case REGION_TYPE_MPOOL: return "Mpool";
+	    case REGION_TYPE_MUTEX: return "Mutex";
+	    case REGION_TYPE_TXN: return "Transaction";
 	    case INVALID_REGION_TYPE: return "Invalid";
 	}
 	return "Unknown";

@@ -6,24 +6,32 @@
 
 IMPL_CMPFUNC(SDirEntry_Time, i1, i2)
 {
-	return cmp(static_cast<const SDirEntry *>(i1)->WriteTime, static_cast<const SDirEntry *>(i2)->WriteTime);
+	return cmp(static_cast<const SDirEntry *>(i1)->ModTime, static_cast<const SDirEntry *>(i2)->ModTime);
 }
 
-SDirec::SDirec() : InitFlag(0), lPosData(-1), vPosData(0), PosDataSize(0)
+SDirec::SDirec() : InitFlag(0), /*lPosData(-1),*/vPosData(0), PosDataSize(0)
 {
 	memzero(InitPath, sizeof(InitPath));
 }
 
-SDirec::SDirec(const char * pPath, int enumDir) : InitFlag(0), lPosData(-1), vPosData(0)
+SDirec::SDirec(const char * pPath, int enumDir) : InitFlag(0), /*lPosData(-1),*/vPosData(0)
 {
 	Init(pPath, enumDir);
 }
 
-#define FFIND_DATA struct _wfinddatai64_t // @v11.6.0 _finddatai64_t-->_wfinddatai64_t
+//#define FFIND_DATA struct _wfinddatai64_t // @v11.6.0 _finddatai64_t-->_wfinddatai64_t
 
-SDirEntry::SDirEntry()
+SDirEntry::SDirEntry() : SFile::Stat()
 {
-	THISZERO();
+	//THISZERO();
+	Name[0] = 0;
+}
+
+SDirEntry & SDirEntry::Z()
+{
+	SFile::Stat::Z();
+	Name[0] = 0;
+	return *this;
 }
 
 SString & SDirEntry::GetNameUtf8(SString & rBuf) const
@@ -58,7 +66,6 @@ SString & SDirEntry::GetNameA(const char * pPath, SString & rBuf) const
 	return rBuf.Cat(temp_buf);
 }
 
-bool   SDirEntry::IsFolder() const { return LOGIC(Attr & 0x10); }
 bool   SDirEntry::IsUpFolder() const { return (Name[0] == L'.' && Name[1] == L'.' && Name[2] == 0); }
 bool   SDirEntry::IsSelf() const { return (Name[0] == L'.' && Name[1] == 0); }
 bool   SDirEntry::IsFile() const { return !(IsSelf() || IsUpFolder() || IsFolder()); }
@@ -91,7 +98,7 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _wfinddatai64_t & rS)
 			modify_tb = *p_modify_tb;
 			p_modify_tb = &modify_tb;
 		}
-		WriteTime = _tm_to_ldatetime(p_tb);
+		ModTime = _tm_to_ldatetime(p_tb);
 	}
 	{
 		//
@@ -106,7 +113,7 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _wfinddatai64_t & rS)
 				p_tb = &tb;
 			}
 		}
-		CreateTime = _tm_to_ldatetime(p_tb);
+		CrtTime = _tm_to_ldatetime(p_tb);
 	}
 	{
 		//
@@ -121,7 +128,13 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _wfinddatai64_t & rS)
 				p_tb = &tb;
 			}
 		}
-		AccessTime = _tm_to_ldatetime(p_tb);
+		AccsTime = _tm_to_ldatetime(p_tb);
+	}
+	if(Attr & SFile::attrReparsePoint) {
+		//ReparsePointTag = rS
+	}
+	else {
+		ReparsePointTag = 0;
 	}
 	return *this;
 }
@@ -135,9 +148,10 @@ SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAA & rS)
 		const int64 _mult = static_cast<int64>(MAXDWORD)+1;
 		Size = (static_cast<int64>(rS.nFileSizeHigh) * _mult) + rS.nFileSizeLow;
 	}
-	WriteTime = rS.ftLastWriteTime;
-	CreateTime = rS.ftCreationTime;
-	AccessTime = rS.ftLastAccessTime;
+	ModTime = rS.ftLastWriteTime;
+	CrtTime = rS.ftCreationTime;
+	AccsTime = rS.ftLastAccessTime;
+	ReparsePointTag = (Attr & SFile::attrReparsePoint) ? rS.dwReserved0 : 0; // @v11.8.9
 	return *this;
 }
 
@@ -150,55 +164,92 @@ SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAW & rS)
 		const int64 _mult = static_cast<int64>(MAXDWORD)+1;
 		Size = (static_cast<int64>(rS.nFileSizeHigh) * _mult) + rS.nFileSizeLow;
 	}
-	WriteTime = rS.ftLastWriteTime;
-	CreateTime = rS.ftCreationTime;
-	AccessTime = rS.ftLastAccessTime;
+	ModTime = rS.ftLastWriteTime;
+	CrtTime = rS.ftCreationTime;
+	AccsTime = rS.ftLastAccessTime;
+	ReparsePointTag = (Attr & SFile::attrReparsePoint) ? rS.dwReserved0 : 0; // @v11.8.9
 	return *this;
 }
 
 int SDirec::FindFirst()
 {
-	lPosData = _wfindfirsti64(InitPath, static_cast<FFIND_DATA *>(vPosData));
-	return (lPosData >= 0) ? 1 : -1;
+	// @v11.8.9 lPosData = _wfindfirsti64(InitPath, static_cast<FFIND_DATA *>(vPosData));
+	// @v11.8.9 return (lPosData >= 0) ? 1 : -1;
+	// @v11.8.9 {
+	if(vPosData) {
+		H = ::FindFirstFileExW(InitPath, FindExInfoBasic, static_cast<WIN32_FIND_DATAW *>(vPosData),
+			FindExSearchNameMatch, 0, FIND_FIRST_EX_LARGE_FETCH);
+	}
+	else
+		H.Z();
+	return !H ? -1 : 1;
+	// } @v11.8.9 
 }
 
 int SDirec::FindNext()
 {
-	return (_wfindnexti64(lPosData, static_cast<FFIND_DATA *>(vPosData)) == 0) ? 1 : -1;
+	// @v11.8.9 return (_wfindnexti64(lPosData, static_cast<FFIND_DATA *>(vPosData)) == 0) ? 1 : -1;
+	if(vPosData) {
+		return ::FindNextFileW(H, static_cast<WIN32_FIND_DATAW *>(vPosData)) ? 1 : -1;
+	}
+	else
+		return -1;
 }
 
 /*static*/int SDirec::GetSingle(const char * pPath, SDirEntry * pEntry)
 {
 	int    ok = 0;
 	if(!isempty(pPath)) {
+		/* @v11.8.9 
 		FFIND_DATA ff;
 		intptr_t ffr = _wfindfirsti64(SUcSwitchW(pPath), &ff);
 		if(ffr >= 0) {
 			ASSIGN_PTR(pEntry, ff);
 			_findclose(ffr);
 			ok = 1;
+		}*/
+		// @v11.8.9 {
+		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		(r_temp_buf = pPath).Strip().CopyToUnicode(r_temp_buf_u);
+		WIN32_FIND_DATAW ff;
+		HANDLE h = ::FindFirstFileExW(r_temp_buf_u, FindExInfoBasic, &ff, FindExSearchNameMatch, 0, FIND_FIRST_EX_LARGE_FETCH);
+		if(!!h) {
+			::FindClose(h);
+			ASSIGN_PTR(pEntry, ff);
+			ok = 1;
 		}
+		// } @v11.8.9 
 	}
 	return ok;
 }
 
-int SDirec::FindClose()
+void SDirec::Close()
 {
+	/* @v11.8.9
 	if(lPosData >= 0) {
 		_findclose(lPosData);
 		lPosData = -1;
 	}
-	return 1;
+	*/
+	// @v11.8.9 {
+	if(!!H) {
+		::FindClose(H);
+		H.Z();
+	}
+	ZFREE(vPosData);
+	InitFlag = 0;
+	// } @v11.8.9
 }
 
 SDirec::~SDirec()
 {
-	SAlloc::F(vPosData);
+	Close();
 }
 
 int SDirec::Init(const char * pPathName, int enumDir)
 {
-	FindClose();
+	Close();
 	// @v11.8.7 {
 	// Модификация для адекватной трактовки utf8
 	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
@@ -209,8 +260,10 @@ int SDirec::Init(const char * pPathName, int enumDir)
 	// } @v11.8.7
 	InitFlag = 1;
 	EnumDir = enumDir;
-	SAlloc::F(vPosData);
-	vPosData = SAlloc::M(PosDataSize = sizeof(FFIND_DATA));
+	// @v11.8.9 (Close()) SAlloc::F(vPosData);
+	// @v11.8.9 vPosData = SAlloc::M(PosDataSize = sizeof(FFIND_DATA));
+	PosDataSize = sizeof(WIN32_FIND_DATAW); // @v11.8.9 
+	vPosData = SAlloc::M(PosDataSize); // @v11.8.9 
 	return 1;
 }
 
@@ -225,7 +278,7 @@ int FASTCALL SDirec::Next(SDirEntry * pEntry)
 		else
 			ok = 0;
 		if(ok > 0) {
-			CurEntry = *static_cast<const FFIND_DATA *>(vPosData);
+			CurEntry = *static_cast<const WIN32_FIND_DATAW *>(vPosData);
 			InitFlag = -1;
 		}
 	} while(ok > 0 && (EnumDir && (CurEntry.Attr & 0x10L) == 0));
@@ -234,24 +287,25 @@ int FASTCALL SDirec::Next(SDirEntry * pEntry)
 	}
 	else {
 		InitFlag = 0;
-		FindClose();
+		Close();
 	}
 	return ok;
 }
 //
 //
 //
-SFileEntryPool::Entry::Entry() : Attr(0), CreateTime(ZERODATETIME), AccessTime(ZERODATETIME), WriteTime(ZERODATETIME), Size(0)
+SFileEntryPool::Entry::Entry() : SFile::Stat()
 {
 }
 
 SFileEntryPool::Entry & SFileEntryPool::Entry::Z()
 {
-	Attr = 0;
-	CreateTime.Z();
-	AccessTime.Z();
-	WriteTime.Z();
-	Size = 0;
+	SFile::Stat::Z();
+	//Attr = 0;
+	//CrtTime.Z();
+	//AccsTime.Z();
+	//ModTime.Z();
+	//Size = 0;
 	Name.Z();
 	Path.Z();
 	RemoteUrl.Z(); // @v10.8.2
@@ -419,9 +473,9 @@ int SFileEntryPool::Add(SFileEntryPool::Entry & rDe, long flags)
     InnerEntry new_entry;
     MEMSZERO(new_entry);
     new_entry.Attr = rDe.Attr;
-    new_entry.CreateTime = rDe.CreateTime;
-    new_entry.AccessTime = rDe.AccessTime;
-    new_entry.WriteTime = rDe.WriteTime;
+    new_entry.CrtTime = rDe.CrtTime;
+    new_entry.AccsTime = rDe.AccsTime;
+    new_entry.ModTime = rDe.ModTime;
     new_entry.Size = rDe.Size;
     if(rDe.Path.NotEmptyS()) {
 		SString & r_temp_path = SLS.AcquireRvlStr();
@@ -445,9 +499,9 @@ int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, con
     InnerEntry new_entry;
     MEMSZERO(new_entry);
     new_entry.Attr = rDe.Attr;
-    new_entry.CreateTime = rDe.CreateTime;
-    new_entry.AccessTime = rDe.AccessTime;
-    new_entry.WriteTime = rDe.WriteTime;
+    new_entry.CrtTime = rDe.CrtTime;
+    new_entry.AccsTime = rDe.AccsTime;
+    new_entry.ModTime = rDe.ModTime;
     new_entry.Size = rDe.Size;
     if(!isempty(pPath)) {
 		SString & r_temp_path = SLS.AcquireRvlStr();
@@ -470,9 +524,9 @@ int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, con
 void SFileEntryPool::ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const
 {
 	rEntry.Attr = rIEntry.Attr;
-	rEntry.CreateTime = rIEntry.CreateTime;
-	rEntry.AccessTime = rIEntry.AccessTime;
-	rEntry.WriteTime = rIEntry.WriteTime;
+	rEntry.CrtTime = rIEntry.CrtTime;
+	rEntry.AccsTime = rIEntry.AccsTime;
+	rEntry.ModTime = rIEntry.ModTime;
 	rEntry.Size = rIEntry.Size;
     GetS(rIEntry.PathP, rEntry.Path);
     GetS(rIEntry.NameP, rEntry.Name);
@@ -524,9 +578,9 @@ IMPL_CMPFUNC(SFileEntryPool_Entry, p1, p2)
 				si = fp1.CmpNC(fp2);
     		}
     		break;
-    	case SFileEntryPool::scByCrTime: si = cmp(p_entry1->CreateTime, p_entry2->CreateTime); break;
-    	case SFileEntryPool::scByAccsTime: si = cmp(p_entry1->AccessTime, p_entry2->AccessTime); break;
-    	case SFileEntryPool::scByWrTime: si = cmp(p_entry1->WriteTime, p_entry2->WriteTime); break;
+    	case SFileEntryPool::scByCrTime: si = cmp(p_entry1->CrtTime, p_entry2->CrtTime); break;
+    	case SFileEntryPool::scByAccsTime: si = cmp(p_entry1->AccsTime, p_entry2->AccsTime); break;
+    	case SFileEntryPool::scByWrTime: si = cmp(p_entry1->ModTime, p_entry2->ModTime); break;
     	case SFileEntryPool::scBySize: si = CMPSIGN(p_entry1->Size, p_entry2->Size); break;
     }
     return (si && _desc) ? -si : si;

@@ -26,7 +26,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write.c 201099 2009-12-28 03:03:
 	//#include <unistd.h>
 //#endif
 
-static struct archive_vtable * archive_write_vtable(void);
+static struct archive_vtable * archive_write_vtable();
 static int _archive_filter_code(Archive *, int);
 static const char * _archive_filter_name(Archive *, int);
 static int64  _archive_filter_bytes(Archive *, int);
@@ -480,7 +480,7 @@ static int _archive_write_close(Archive * _a)
 	if(a->archive.state == ARCHIVE_STATE_DATA && a->format_finish_entry)
 		r = ((a->format_finish_entry)(a));
 	/* Finish off the archive. */
-	/* TODO: have format closers invoke compression close. */
+	/* @todo have format closers invoke compression close. */
 	if(a->format_close) {
 		r1 = (a->format_close)(a);
 		if(r1 < r)

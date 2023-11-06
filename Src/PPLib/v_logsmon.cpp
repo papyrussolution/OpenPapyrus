@@ -1,5 +1,5 @@
 // V_LOGSMON.CPP
-// A. Kurilov 2008, 2009, 2015, 2016, 2018, 2019, 2020
+// A. Kurilov 2008, 2009, 2015, 2016, 2018, 2019, 2020, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -283,11 +283,11 @@ int PPViewLogsMonitor::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PP
 		LogsArray expired_logs;
 		SString log_fname;
 		SString logs_fpath;	PPGetPath(PPPATH_LOG, logs_fpath);
-		SFileUtil::Stat log_file_stat;
+		SFile::Stat log_file_stat;
 		// из тех журналов, что отмечены в фильтре получить список измененных в ExpiredLogs
 		for(uint i = 0; i < Filt.Selected.getCount(); i++) {
 			(log_fname = logs_fpath).Cat(Filt.Selected.at(i).FileName);
-			SFileUtil::GetStat(log_fname, &log_file_stat);
+			SFile::GetStat(log_fname, 0, &log_file_stat, 0);
 			if(cmp(log_file_stat.ModTime, this->LastUpdated)>0) {
 				expired_logs.insert(&Filt.Selected.at(i));
 				update = 1;

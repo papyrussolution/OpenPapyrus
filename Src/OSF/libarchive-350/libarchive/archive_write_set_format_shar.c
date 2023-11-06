@@ -457,7 +457,7 @@ static int archive_write_shar_finish_entry(struct archive_write * a)
 			shar_quote(&shar->work, archive_entry_pathname(shar->entry), 1);
 			archive_strcat(&shar->work, "\n");
 		}
-		/* TODO: restore ACLs */
+		/* @todo restore ACLs */
 	}
 	else {
 		if(shar->has_data) {

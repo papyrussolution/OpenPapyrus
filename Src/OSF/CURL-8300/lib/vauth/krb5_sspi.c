@@ -106,7 +106,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 	SecBufferDesc chlg_desc;
 	SecBufferDesc resp_desc;
 	SECURITY_STATUS status;
-	unsigned long attrs;
+	ulong attrs;
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 	if(!krb5->spn) {

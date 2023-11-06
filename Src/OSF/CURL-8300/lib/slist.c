@@ -31,7 +31,7 @@
 #include "memdebug.h"
 
 /* returns last node in linked list */
-static struct curl_slist *slist_get_last(struct curl_slist * list){
+static struct curl_slist *slist_get_last(struct curl_slist * list) {
 	struct curl_slist     * item;
 
 	/* if caller passed us a NULL, return now */

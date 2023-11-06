@@ -95,9 +95,7 @@ static int archive_filter_b64encode_options(struct archive_write_filter * f, con
 		archive_strcpy(&state->name, value);
 		return ARCHIVE_OK;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 

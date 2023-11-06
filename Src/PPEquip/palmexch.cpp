@@ -845,8 +845,8 @@ static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize, uint8 
 			{
 				long   recv_size = (pCtx->PalmCfg.RecvBufSize) ? pCtx->PalmCfg.RecvBufSize : InitBlockSize/*PALMARCBUFSIZE*/;
 				long   tail_len = 0;
-				SFileUtil::Stat fs;
-				SFileUtil::GetStat(out_file_name, &fs);
+				SFile::Stat fs;
+				SFile::GetStat(out_file_name, 0, &fs, 0);
 				THROW_S_S(f_out = fopen(out_file_name, "rb"), SLERR_OPENFAULT, out_file_name);
 				numrecs = (long)(fs.Size / (int64)recv_size);
 				tail_len = (long)(fs.Size % (int64)recv_size);

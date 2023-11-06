@@ -26,9 +26,9 @@
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif

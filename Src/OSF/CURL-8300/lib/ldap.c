@@ -79,14 +79,14 @@
 //#include "urldata.h"
 //#include <curl/curl.h>
 //#include "sendf.h"
-#include "escape.h"
+//#include "escape.h"
 //#include "progress.h"
 //#include "transfer.h"
 //#include "strcase.h"
 #include "strtok.h"
 #include "curl_ldap.h"
 #include "curl_multibyte.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 //#include "connect.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"

@@ -532,8 +532,8 @@ int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, const char * lead, PAG
 
 	switch(TYPE(h)) {
 	    case P_BTREEMETA: return __db_bmeta(env, dbp, (BTMETA *)h, flags);
-	    case P_HASHMETA:  return __db_hmeta(env, dbp, (HMETA *)h, flags);
-	    case P_QAMMETA:   return __db_qmeta(env, dbp, (QMETA *)h, flags);
+	    case P_HASHMETA: return __db_hmeta(env, dbp, (HMETA *)h, flags);
+	    case P_QAMMETA: return __db_qmeta(env, dbp, (QMETA *)h, flags);
 	    case P_QAMDATA:                     /* Should be meta->start. */
 			if(!LF_ISSET(DB_PR_PAGE) || dbp == NULL)
 				return 0;

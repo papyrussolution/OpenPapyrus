@@ -95,7 +95,7 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy * data,
 	SecBuffer type_1_buf;
 	SecBufferDesc type_1_desc;
 	SECURITY_STATUS status;
-	unsigned long attrs;
+	ulong attrs;
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 	/* Clean up any former leftovers and initialise to defaults */
@@ -252,7 +252,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 	SecBufferDesc type_2_desc;
 	SecBufferDesc type_3_desc;
 	SECURITY_STATUS status;
-	unsigned long attrs;
+	ulong attrs;
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 #if defined(CURL_DISABLE_VERBOSE_STRINGS)

@@ -53,8 +53,7 @@ ASN1_SEQUENCE(NAME_CONSTRAINTS) = {
 IMPLEMENT_ASN1_ALLOC_FUNCTIONS(GENERAL_SUBTREE)
 IMPLEMENT_ASN1_ALLOC_FUNCTIONS(NAME_CONSTRAINTS)
 
-#define IA5_OFFSET_LEN(ia5base, offset) \
-	((ia5base)->length - ((uchar *)(offset) - (ia5base)->data))
+#define IA5_OFFSET_LEN(ia5base, offset) ((ia5base)->length - ((uchar *)(offset) - (ia5base)->data))
 
 /* Like memchr but for ASN1_IA5STRING. Additionally you can specify the
  * starting point to search from
@@ -65,15 +64,12 @@ IMPLEMENT_ASN1_ALLOC_FUNCTIONS(NAME_CONSTRAINTS)
 static char * ia5memrchr(ASN1_IA5STRING *str, int c)
 {
 	int i;
-
-	for(i = str->length; i > 0 && str->data[i - 1] != c; i--);
-
+	for(i = str->length; i > 0 && str->data[i-1] != c; i--)
+		;
 	if(i == 0)
 		return NULL;
-
 	return (char*)&str->data[i - 1];
 }
-
 /*
  * We cannot use strncasecmp here because that applies locale specific rules. It
  * also doesn't work with ASN1_STRINGs that may have embedded NUL characters.

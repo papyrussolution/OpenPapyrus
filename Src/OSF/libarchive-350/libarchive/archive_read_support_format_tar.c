@@ -412,9 +412,7 @@ static int archive_read_format_tar_options(ArchiveRead * a, const char * key, co
 		tar->read_concatenated_archives = !isempty(val);
 		return ARCHIVE_OK;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -859,7 +857,7 @@ static int header_Solaris_ACL(ArchiveRead * a, struct tar * tar, ArchiveEntry * 
 	err = tar_read_header(a, tar, entry, unconsumed);
 	if((err != ARCHIVE_OK) && (err != ARCHIVE_WARN))
 		return (err);
-	/* TODO: Examine the first characters to see if this
+	/* @todo Examine the first characters to see if this
 	 * is an AIX ACL descriptor.  We'll likely never support
 	 * them, but it would be polite to recognize and warn when
 	 * we do see them. */
@@ -1695,7 +1693,7 @@ static int pax_attribute(ArchiveRead * a, struct tar * tar, ArchiveEntry * entry
 		    break;
 		case 'L':
 		    /* Our extensions */
-/* TODO: Handle arbitrary extended attributes... */
+/* @todo Handle arbitrary extended attributes... */
 /*
                 if (sstreq(key, "LIBARCHIVE.xxxxxxx"))
                         archive_entry_set_xxxxxx(entry, value);
@@ -1794,10 +1792,10 @@ static int pax_attribute(ArchiveRead * a, struct tar * tar, ArchiveEntry * entry
 			    archive_entry_set_ctime(entry, s, n);
 		    }
 		    else if(sstreq(key, "charset")) {
-			    /* TODO: Publish charset information in entry. */
+			    /* @todo Publish charset information in entry. */
 		    }
 		    else if(sstreq(key, "comment")) {
-			    /* TODO: Publish comment in entry. */
+			    /* @todo Publish comment in entry. */
 		    }
 		    break;
 		case 'g':
@@ -2194,7 +2192,7 @@ static int64 gnu_sparse_10_atol(ArchiveRead * a, struct tar * tar, int64 * remai
 		p++;
 		bytes_read--;
 	}
-	/* TODO: Error message. */
+	/* @todo Error message. */
 	return ARCHIVE_WARN;
 }
 

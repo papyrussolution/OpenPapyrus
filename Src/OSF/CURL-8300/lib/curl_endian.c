@@ -37,7 +37,7 @@
  *
  * Returns the integer.
  */
-unsigned short Curl_read16_le(const uchar * buf)
+ushort Curl_read16_le(const uchar * buf)
 {
 	return (ushort)(((ushort)buf[0]) | ((ushort)buf[1] << 8));
 }
@@ -73,7 +73,7 @@ uint Curl_read32_le(const uchar * buf)
  *
  * Returns the integer.
  */
-unsigned short Curl_read16_be(const uchar * buf)
+ushort Curl_read16_be(const uchar * buf)
 {
 	return (ushort)(((ushort)buf[0] << 8) | ((ushort)buf[1]));
 }

@@ -35,7 +35,7 @@
 {
 	switch(s) {
 		case _AND___: return linkAnd;
-		case _OR___:  return linkOr;
+		case _OR___: return linkOr;
 		case _END___: return linkEnd;
 	}
 	assert(0);

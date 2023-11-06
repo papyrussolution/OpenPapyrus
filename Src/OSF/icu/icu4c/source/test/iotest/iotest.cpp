@@ -1,13 +1,11 @@
 // iotest.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2002-2016, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- *   indentation:4
- *   created on: 2002feb21
- *   created by: George Rhoten
- */
+// Copyright (C) 2002-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002feb21
+// created by: George Rhoten
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ucnv.h"

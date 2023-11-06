@@ -27,10 +27,9 @@
 
 #if !defined(CURL_DISABLE_HTTP) && defined(USE_HYPER)
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif

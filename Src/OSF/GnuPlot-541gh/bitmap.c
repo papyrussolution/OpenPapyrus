@@ -622,8 +622,7 @@ void GnuPlot::BmpFreeBitmap()
 	for(uint j = 0; j < rows; j++) {
 		SAlloc::F((char *)(*_Bmp.b_p)[j]);
 	}
-	SAlloc::F((char *)_Bmp.b_p);
-	_Bmp.b_p = 0;
+	ZFREE(_Bmp.b_p);
 }
 //
 // set pixel at (x,y) with color b_value and dotted mask b_linemask.

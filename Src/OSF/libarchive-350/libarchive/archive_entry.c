@@ -127,7 +127,7 @@ ArchiveEntry * archive_entry_clone(ArchiveEntry * entry)
 	size_t s;
 	const void * p;
 	/* Allocate new structure and copy over all of the fields. */
-	/* TODO: Should we copy the archive over?  Or require a new archive
+	/* @todo Should we copy the archive over?  Or require a new archive
 	 * as an argument? */
 	ArchiveEntry * entry2 = archive_entry_new2(entry->archive);
 	if(entry2) {

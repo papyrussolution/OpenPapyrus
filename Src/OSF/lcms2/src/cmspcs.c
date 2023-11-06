@@ -601,21 +601,21 @@ cmsColorSpaceSignature CMSEXPORT _cmsICCcolorSpace(int OurNotation)
 		case PT_GRAY: return cmsSigGrayData;
 
 		case 2:
-		case PT_RGB:  return cmsSigRgbData;
+		case PT_RGB: return cmsSigRgbData;
 
-		case PT_CMY:  return cmsSigCmyData;
+		case PT_CMY: return cmsSigCmyData;
 		case PT_CMYK: return cmsSigCmykData;
 		case PT_YCbCr: return cmsSigYCbCrData;
-		case PT_YUV:  return cmsSigLuvData;
-		case PT_XYZ:  return cmsSigXYZData;
+		case PT_YUV: return cmsSigLuvData;
+		case PT_XYZ: return cmsSigXYZData;
 
 		case PT_LabV2:
-		case PT_Lab:  return cmsSigLabData;
+		case PT_Lab: return cmsSigLabData;
 
 		case PT_YUVK: return cmsSigLuvKData;
-		case PT_HSV:  return cmsSigHsvData;
-		case PT_HLS:  return cmsSigHlsData;
-		case PT_Yxy:  return cmsSigYxyData;
+		case PT_HSV: return cmsSigHsvData;
+		case PT_HLS: return cmsSigHlsData;
+		case PT_Yxy: return cmsSigYxyData;
 
 		case PT_MCH1: return cmsSigMCH1Data;
 		case PT_MCH2: return cmsSigMCH2Data;
@@ -626,7 +626,7 @@ cmsColorSpaceSignature CMSEXPORT _cmsICCcolorSpace(int OurNotation)
 		case PT_MCH7: return cmsSigMCH7Data;
 		case PT_MCH8: return cmsSigMCH8Data;
 
-		case PT_MCH9:  return cmsSigMCH9Data;
+		case PT_MCH9: return cmsSigMCH9Data;
 		case PT_MCH10: return cmsSigMCHAData;
 		case PT_MCH11: return cmsSigMCHBData;
 		case PT_MCH12: return cmsSigMCHCData;
@@ -634,7 +634,7 @@ cmsColorSpaceSignature CMSEXPORT _cmsICCcolorSpace(int OurNotation)
 		case PT_MCH14: return cmsSigMCHEData;
 		case PT_MCH15: return cmsSigMCHFData;
 
-		default:  return (cmsColorSpaceSignature)0;
+		default: return (cmsColorSpaceSignature)0;
 	}
 }
 
@@ -642,17 +642,17 @@ int CMSEXPORT _cmsLCMScolorSpace(cmsColorSpaceSignature ProfileSpace)
 {
 	switch(ProfileSpace) {
 		case cmsSigGrayData: return PT_GRAY;
-		case cmsSigRgbData:  return PT_RGB;
-		case cmsSigCmyData:  return PT_CMY;
+		case cmsSigRgbData: return PT_RGB;
+		case cmsSigCmyData: return PT_CMY;
 		case cmsSigCmykData: return PT_CMYK;
 		case cmsSigYCbCrData: return PT_YCbCr;
-		case cmsSigLuvData:  return PT_YUV;
-		case cmsSigXYZData:  return PT_XYZ;
-		case cmsSigLabData:  return PT_Lab;
+		case cmsSigLuvData: return PT_YUV;
+		case cmsSigXYZData: return PT_XYZ;
+		case cmsSigLabData: return PT_Lab;
 		case cmsSigLuvKData: return PT_YUVK;
-		case cmsSigHsvData:  return PT_HSV;
-		case cmsSigHlsData:  return PT_HLS;
-		case cmsSigYxyData:  return PT_Yxy;
+		case cmsSigHsvData: return PT_HSV;
+		case cmsSigHlsData: return PT_HLS;
+		case cmsSigYxyData: return PT_Yxy;
 		case cmsSig1colorData:
 		case cmsSigMCH1Data: return PT_MCH1;
 		case cmsSig2colorData:
@@ -683,7 +683,7 @@ int CMSEXPORT _cmsLCMScolorSpace(cmsColorSpaceSignature ProfileSpace)
 		case cmsSig14colorData: return PT_MCH14;
 		case cmsSigMCHFData:
 		case cmsSig15colorData: return PT_MCH15;
-		default:  return (cmsColorSpaceSignature)0;
+		default: return (cmsColorSpaceSignature)0;
 	}
 }
 
@@ -694,7 +694,7 @@ uint32 CMSEXPORT cmsChannelsOf(cmsColorSpaceSignature ColorSpace)
 		case cmsSig1colorData:
 		case cmsSigGrayData: return 1;
 		case cmsSigMCH2Data:
-		case cmsSig2colorData:  return 2;
+		case cmsSig2colorData: return 2;
 		case cmsSigXYZData:
 		case cmsSigLabData:
 		case cmsSigLuvData:
@@ -705,21 +705,21 @@ uint32 CMSEXPORT cmsChannelsOf(cmsColorSpaceSignature ColorSpace)
 		case cmsSigHlsData:
 		case cmsSigCmyData:
 		case cmsSigMCH3Data:
-		case cmsSig3colorData:  return 3;
+		case cmsSig3colorData: return 3;
 		case cmsSigLuvKData:
 		case cmsSigCmykData:
 		case cmsSigMCH4Data:
-		case cmsSig4colorData:  return 4;
+		case cmsSig4colorData: return 4;
 		case cmsSigMCH5Data:
-		case cmsSig5colorData:  return 5;
+		case cmsSig5colorData: return 5;
 		case cmsSigMCH6Data:
-		case cmsSig6colorData:  return 6;
+		case cmsSig6colorData: return 6;
 		case cmsSigMCH7Data:
-		case cmsSig7colorData:  return 7;
+		case cmsSig7colorData: return 7;
 		case cmsSigMCH8Data:
-		case cmsSig8colorData:  return 8;
+		case cmsSig8colorData: return 8;
 		case cmsSigMCH9Data:
-		case cmsSig9colorData:  return 9;
+		case cmsSig9colorData: return 9;
 		case cmsSigMCHAData:
 		case cmsSig10colorData: return 10;
 		case cmsSigMCHBData:

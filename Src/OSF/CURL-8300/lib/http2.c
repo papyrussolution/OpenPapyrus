@@ -34,7 +34,7 @@
 //#include "http.h"
 //#include "sendf.h"
 #include "select.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 //#include "strcase.h"
 //#include "multiif.h"
 #include "url.h"
@@ -763,7 +763,7 @@ char *curl_pushheader_byname(struct curl_pushheaders * h, const char * header)
 }
 
 static struct Curl_easy *h2_duphandle(struct Curl_cfilter * cf,
-    struct Curl_easy * data){
+    struct Curl_easy * data) {
 	struct Curl_easy * second = curl_easy_duphandle(data);
 	if(second) {
 		/* setup the request struct */

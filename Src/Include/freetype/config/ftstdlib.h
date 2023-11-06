@@ -78,12 +78,9 @@
 #define ft_strncpy  strncpy
 #define ft_strrchr  strrchr
 #define ft_strstr   strstr
-
-/**************************************************************************
- *
- *                    file handling
- *
- */
+//
+// file handling
+//
 //#include <stdio.h>
 
 #define FT_FILE     FILE

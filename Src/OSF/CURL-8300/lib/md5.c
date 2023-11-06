@@ -296,8 +296,7 @@ struct md5_ctx {
 typedef struct md5_ctx my_md5_ctx;
 
 static CURLcode my_md5_init(my_md5_ctx * ctx);
-static void my_md5_update(my_md5_ctx * ctx, const void * data,
-    unsigned long size);
+static void my_md5_update(my_md5_ctx * ctx, const void * data, ulong size);
 static void my_md5_final(uchar * result, my_md5_ctx * ctx);
 
 /*
@@ -349,7 +348,7 @@ static void my_md5_final(uchar * result, my_md5_ctx * ctx);
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters.  There are no alignment requirements.
  */
-static const void *body(my_md5_ctx * ctx, const void * data, unsigned long size)
+static const void *body(my_md5_ctx * ctx, const void * data, ulong size)
 {
 	const uchar * ptr;
 	MD5_u32plus a, b, c, d;
@@ -463,35 +462,27 @@ static CURLcode my_md5_init(my_md5_ctx * ctx)
 	ctx->b = 0xefcdab89;
 	ctx->c = 0x98badcfe;
 	ctx->d = 0x10325476;
-
 	ctx->lo = 0;
 	ctx->hi = 0;
-
 	return CURLE_OK;
 }
 
-static void my_md5_update(my_md5_ctx * ctx, const void * data,
-    unsigned long size)
+static void my_md5_update(my_md5_ctx * ctx, const void * data, ulong size)
 {
 	MD5_u32plus saved_lo;
 	unsigned long used;
-
 	saved_lo = ctx->lo;
 	ctx->lo = (saved_lo + size) & 0x1fffffff;
 	if(ctx->lo < saved_lo)
 		ctx->hi++;
 	ctx->hi += (MD5_u32plus)size >> 29;
-
 	used = saved_lo & 0x3f;
-
 	if(used) {
 		unsigned long available = 64 - used;
-
 		if(size < available) {
 			memcpy(&ctx->buffer[used], data, size);
 			return;
 		}
-
 		memcpy(&ctx->buffer[used], data, available);
 		data = (const uchar *)data + available;
 		size -= available;

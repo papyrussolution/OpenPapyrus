@@ -404,7 +404,7 @@ static int find_cab_magic(const char * p)
 		case 'C': return 2;
 		case 'S': return 3;
 		case 'M': return 4;
-		default:  return 5;
+		default: return 5;
 	}
 }
 
@@ -431,7 +431,7 @@ static int archive_read_format_cab_bid(ArchiveRead * a, int best_bid)
 		while(offset < (1024 * 128)) {
 			const char * h = static_cast<const char *>(__archive_read_ahead(a, offset + window, &bytes_avail));
 			if(!h) {
-				/* Remaining bytes are less than window. */
+				// Remaining bytes are less than window
 				window >>= 1;
 				if(window < 128)
 					return 0;
@@ -466,9 +466,7 @@ static int archive_read_format_cab_options(ArchiveRead * a, const char * key, co
 		}
 		return ret;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -1463,7 +1461,7 @@ static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * ava
 	return NULL;
 }
 
-#endif /* HAVE_ZLIB_H */
+#endif // HAVE_ZLIB_H
 
 static const void * cab_read_ahead_cfdata_lzx(ArchiveRead * a, ssize_t * avail)
 {

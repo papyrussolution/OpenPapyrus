@@ -1165,11 +1165,11 @@ bool FASTCALL SString::HasChr(int c) const
 		const char * p_buf = P_Buf;
 		switch(L) {
 			case 0:
-			case 1:  return false;
-			case 2:  return (p_buf[0] == c);
-			case 3:  return (p_buf[0] == c || p_buf[1] == c);
-			case 4:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c);
-			case 5:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c || p_buf[3] == c);
+			case 1: return false;
+			case 2: return (p_buf[0] == c);
+			case 3: return (p_buf[0] == c || p_buf[1] == c);
+			case 4: return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c);
+			case 5: return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c || p_buf[3] == c);
 			default: return (smemchr(p_buf, static_cast<uchar>(c), L-1) != 0); // @v11.7.0 memchr-->smemchr
 		}
 	}
@@ -4366,11 +4366,11 @@ bool FASTCALL SStringU::HasChr(wchar_t c) const
 		const wchar_t * p_buf = P_Buf;
 		switch(L) {
 			case 0:
-			case 1:  return false;
-			case 2:  return (p_buf[0] == c);
-			case 3:  return (p_buf[0] == c || p_buf[1] == c);
-			case 4:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c);
-			case 5:  return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c || p_buf[3] == c);
+			case 1: return false;
+			case 2: return (p_buf[0] == c);
+			case 3: return (p_buf[0] == c || p_buf[1] == c);
+			case 4: return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c);
+			case 5: return (p_buf[0] == c || p_buf[1] == c || p_buf[2] == c || p_buf[3] == c);
 			default: return LOGIC(wmemchr(p_buf, c, L-1));
 		}
 	}

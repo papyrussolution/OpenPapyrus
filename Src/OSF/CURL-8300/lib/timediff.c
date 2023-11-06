@@ -35,7 +35,7 @@
  *    tv with 0 in both fields IF ms == 0 (eg. 0ms timeout -> polling select)
  *    tv with converted fields IF ms > 0 (eg. >0ms timeout -> waiting select)
  */
-struct timeval *curlx_mstotv(struct timeval * tv, timediff_t ms){
+struct timeval *curlx_mstotv(struct timeval * tv, timediff_t ms) {
 	if(!tv)
 		return NULL;
 

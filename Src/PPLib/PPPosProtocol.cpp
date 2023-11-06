@@ -1409,7 +1409,7 @@ int FASTCALL PPPosProtocol::ProcessInputBlock::CheckFileForProcessedFileList(con
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		SString & r_file_name = SLS.AcquireRvlStr();;
 		rDe.GetNameA(r_file_name);
-		ok = P_ProcessedFiles->Search(MakeProcessedFileEntryHashString(r_file_name, rDe.WriteTime, rDe.Size, r_temp_buf), 0, 0);
+		ok = P_ProcessedFiles->Search(MakeProcessedFileEntryHashString(r_file_name, rDe.ModTime, rDe.Size, r_temp_buf), 0, 0);
 	}
 	return ok;
 }
@@ -1419,7 +1419,7 @@ int FASTCALL PPPosProtocol::ProcessInputBlock::RegisterProcessedFile(const SFile
 	int    ok = -1;
 	if(P_ProcessedFiles) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
-		MakeProcessedFileEntryHashString(rFe.Name, rFe.WriteTime, rFe.Size, r_temp_buf);
+		MakeProcessedFileEntryHashString(rFe.Name, rFe.ModTime, rFe.Size, r_temp_buf);
 		if(!P_ProcessedFiles->Search(r_temp_buf, 0, 0)) {
 			P_ProcessedFiles->Add(r_temp_buf, 1);
 			ok = 1;
@@ -5196,8 +5196,8 @@ int PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet
 						}
 						{
 							if(c.FtpGet(single_file_url, ScURL::mfTcpKeepAlive|ScURL::mfVerbose, dest_file_name, &temp_buf, 0)) {
-								SFileUtil::Stat dest_file_stat;
-								if(SFileUtil::GetStat(dest_file_name, &dest_file_stat)) {
+								SFile::Stat dest_file_stat;
+								if(SFile::GetStat(dest_file_name, 0, &dest_file_stat, 0)) {
 									if(dest_file_stat.Size == fe.Size) {
 										//c.FtpChangeDir(url, ScURL::mfVerbose);
 										//c.FtpDelete(single_file_url, ScURL::mfTcpKeepAlive|ScURL::mfVerbose);

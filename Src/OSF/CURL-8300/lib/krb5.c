@@ -48,7 +48,7 @@
 //#include "urldata.h"
 //#include "cfilters.h"
 #include "cf-socket.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "ftp.h"
 #include "curl_gssapi.h"
 //#include "sendf.h"

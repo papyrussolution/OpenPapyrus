@@ -27,31 +27,27 @@
 
 #ifndef CURL_DISABLE_HTTP
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
+//#ifdef HAVE_NETINET_IN_H
+	//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+	#include <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
-
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
-
 #ifdef USE_HYPER
-#include <hyper.h>
+	#include <hyper.h>
 #endif
-
 //#include "urldata.h"
 //#include <curl/curl.h>
 //#include "transfer.h"
@@ -59,7 +55,7 @@
 #include "formdata.h"
 //#include "mime.h"
 //#include "progress.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "cookie.h"
 #include "vauth/vauth.h"
 #include "vtls/vtls.h"
@@ -3897,7 +3893,7 @@ static CURLcode verify_header(struct Curl_easy * data)
 	struct SingleRequest * k = &data->req;
 	const char * header = Curl_dyn_ptr(&data->state.headerb);
 	size_t hlen = Curl_dyn_len(&data->state.headerb);
-	const char * ptr = (const char *)memchr(header, 0x00, hlen);
+	const char * ptr = (const char *)smemchr(header, 0x00, hlen);
 	if(ptr) {
 		/* this is bad, bail out */
 		failf(data, "Nul byte in header");
@@ -3910,7 +3906,7 @@ static CURLcode verify_header(struct Curl_easy * data)
 		/* line folding, can't happen on line 2 */
 		;
 	else {
-		ptr = (const char *)memchr(header, ':', hlen);
+		ptr = (const char *)smemchr(header, ':', hlen);
 		if(!ptr) {
 			/* this is bad, bail out */
 			failf(data, "Header without colon");
@@ -3966,7 +3962,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 		/* str_start is start of line within buf */
 		str_start = k->str;
 		/* data is in network encoding so use 0x0a instead of '\n' */
-		end_ptr = (char *)memchr(str_start, 0x0a, *nread);
+		end_ptr = (char *)smemchr(str_start, 0x0a, *nread);
 		if(!end_ptr) {
 			/* Not a complete header line within buffer, append the data to
 			   the end of the headerbuff. */

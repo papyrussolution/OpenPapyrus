@@ -73,9 +73,7 @@ static int archive_write_lrzip_options(struct archive_write_filter * f, const ch
 		data->compression_level = value[0] - '0';
 		return ARCHIVE_OK;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 

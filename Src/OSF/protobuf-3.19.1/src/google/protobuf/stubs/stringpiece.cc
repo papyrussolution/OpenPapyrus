@@ -98,14 +98,17 @@ StringPiece::size_type StringPiece::rfind(StringPiece s, size_type pos) const
 }
 
 // Search range is [0..pos] inclusive.  If pos == npos, search everything.
-StringPiece::size_type StringPiece::rfind(char c, size_type pos) const {
+StringPiece::size_type StringPiece::rfind(char c, size_type pos) const 
+{
 	// Note: memrchr() is not available on Windows.
-	if(empty()) return npos;
+	if(empty()) 
+		return npos;
 	for(size_type i = std::min(pos, length_ - 1);; --i) {
 		if(ptr_[i] == c) {
 			return i;
 		}
-		if(i == 0) break;
+		if(i == 0) 
+			break;
 	}
 	return npos;
 }

@@ -847,15 +847,15 @@ int FASTCALL SMailMessage::IsField(int fldId) const
 {
 	switch(fldId) {
 		/*case fldFrom: return From.NotEmpty();
-		case fldTo:   return To.NotEmpty();
-		case fldCc:   return Cc.NotEmpty();
+		case fldTo: return To.NotEmpty();
+		case fldCc: return Cc.NotEmpty();
 		case fldSubj: return Subj.NotEmpty();
 		case fldMailer: return Mailer.NotEmpty();
 		case fldBoundary: return Boundary.NotEmpty();
 		case fldText: return Text.NotEmpty();*/
 		case fldFrom: return BIN(HFP.FromP);
-		case fldTo:   return BIN(HFP.ToP);
-		case fldCc:   return BIN(HFP.CcP);
+		case fldTo: return BIN(HFP.ToP);
+		case fldCc: return BIN(HFP.CcP);
 		case fldSubj: return BIN(HFP.SubjP);
 		case fldMailer: return BIN(HFP.MailerP);
 		case fldBoundary: return BIN(B.Ct.BoundaryP);
@@ -870,8 +870,8 @@ SString & SMailMessage::GetField(int fldId, SString & rBuf) const
 	switch(fldId) {
 		/*
 		case fldFrom: return From.NotEmpty() ? From.cptr() : Zero;
-		case fldTo:   return To.NotEmpty() ? To.cptr() : Zero;
-		case fldCc:   return Cc.NotEmpty() ? Cc.cptr() : Zero;
+		case fldTo: return To.NotEmpty() ? To.cptr() : Zero;
+		case fldCc: return Cc.NotEmpty() ? Cc.cptr() : Zero;
 		case fldSubj: return Subj.NotEmpty() ? Subj.cptr() : Zero;
 		case fldMailer: return Mailer.NotEmpty() ? Mailer.cptr() : Zero;
 		case fldBoundary: return Boundary.NotEmpty() ? Boundary.cptr() : Zero;
@@ -1407,8 +1407,8 @@ SMailMessage::Boundary * SMailMessage::AttachFile(Boundary * pB, int format, con
 		SPathStruc::NormalizePath(pFilePath, SPathStruc::npfSlash, temp_buf);
 		AddS(temp_buf, &p_result->OuterFileNameP);
 		{
-			SFileUtil::Stat fs;
-			SFileUtil::GetStat(pFilePath, &fs);
+			SFile::Stat fs;
+			SFile::GetStat(pFilePath, 0, &fs, 0);
 			p_result->Cd.CrDtm = fs.CrtTime;
 			p_result->Cd.ModifDtm = fs.ModTime;
 			p_result->Cd.Size = fs.Size;
@@ -2793,25 +2793,25 @@ int ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rEntry)
 		scan.Skip().GetWord(" \t", temp_buf.Z());
 		THROW(temp_buf.Len() == 10);
 		if(temp_buf[0] == 'd')
-			rEntry.Attr |= SDirEntry::attrSubdir;
+			rEntry.Attr |= SFile::attrSubdir;
 		if(temp_buf[1] == 'r')
-			rEntry.Attr |= SDirEntry::attrOwpR;
+			rEntry.Attr |= SFile::attrOwpR;
 		if(temp_buf[2] == 'w')
-			rEntry.Attr |= SDirEntry::attrOwpW;
+			rEntry.Attr |= SFile::attrOwpW;
 		if(temp_buf[3] == 'x')
-			rEntry.Attr |= SDirEntry::attrOwpX;
+			rEntry.Attr |= SFile::attrOwpX;
 		if(temp_buf[4] == 'r')
-			rEntry.Attr |= SDirEntry::attrGrpR;
+			rEntry.Attr |= SFile::attrGrpR;
 		if(temp_buf[5] == 'w')
-			rEntry.Attr |= SDirEntry::attrGrpW;
+			rEntry.Attr |= SFile::attrGrpW;
 		if(temp_buf[6] == 'x')
-			rEntry.Attr |= SDirEntry::attrGrpX;
+			rEntry.Attr |= SFile::attrGrpX;
 		if(temp_buf[7] == 'r')
-			rEntry.Attr |= SDirEntry::attrUsrR;
+			rEntry.Attr |= SFile::attrUsrR;
 		if(temp_buf[8] == 'w')
-			rEntry.Attr |= SDirEntry::attrUsrW;
+			rEntry.Attr |= SFile::attrUsrW;
 		if(temp_buf[9] == 'x')
-			rEntry.Attr |= SDirEntry::attrUsrX;
+			rEntry.Attr |= SFile::attrUsrX;
 	}
 	// ? number
 	scan.Skip().GetWord(" \t", temp_buf.Z());
@@ -2854,8 +2854,8 @@ int ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rEntry)
 		SETIFZ(day, curdt.day());
 		SETIFZ(mon, curdt.month());
 		SETIFZ(year, curdt.year());
-		rEntry.WriteTime.d = encodedate(day, mon, year);
-		rEntry.WriteTime.t = t;
+		rEntry.ModTime.d = encodedate(day, mon, year);
+		rEntry.ModTime.t = t;
 	}
 	{ // name
 		scan.Skip().GetWord("" /*unitl EOL*/, temp_buf.Z());
@@ -3436,8 +3436,8 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 			ResultItem ri;
             THROW(fileExists(local_path_src));
 			{
-				SFileUtil::Stat fs;
-				SFileUtil::GetStat(local_path_src, &fs);
+				SFile::Stat fs;
+				SFile::GetStat(local_path_src, 0, &fs, 0);
 				ri.Size = fs.Size;
 				AddS(local_path_src, &ri.SrcPathP);
 				AddS(local_path_src, &ri.RmvSrcCookieP);
@@ -3706,8 +3706,8 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 													}
 													if(msg.SaveAttachmentTo(ai, result_file_name, &temp_buf)) {
 														result_file_name = temp_buf;
-														SFileUtil::Stat fs;
-														SFileUtil::GetStat(result_file_name, &fs);
+														SFile::Stat fs;
+														SFile::GetStat(result_file_name, 0, &fs, 0);
 														ri.Size = fs.Size;
 														AddS(result_file_name, &ri.DestPathP);
 														temp_buf.Z().Cat(msg_idx);

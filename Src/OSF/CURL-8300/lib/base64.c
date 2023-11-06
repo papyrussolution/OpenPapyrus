@@ -31,7 +31,7 @@
 	!defined(CURL_DISABLE_DOH) || defined(USE_SSL)
 //#include <curl/curl.h>
 //#include "warnless.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 
 /* The last 2 #include files should be in this order */
 #ifdef BUILDING_LIBCURL

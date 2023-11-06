@@ -483,7 +483,7 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 		    return sizeof(ctx->st);
 	    }
 		case ZIP_SOURCE_SUPPORTS: return ctx->supports;
-		case ZIP_SOURCE_TELL:     return (int64)ctx->current;
+		case ZIP_SOURCE_TELL: return (int64)ctx->current;
 		case ZIP_SOURCE_TELL_WRITE:
 	    {
 		    LARGE_INTEGER zero;

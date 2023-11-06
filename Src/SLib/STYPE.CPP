@@ -106,12 +106,12 @@ TYPEID FASTCALL bt2st(int baseType)
 {
 	switch(baseType) {
 		case BTS_STRING: return MKSTYPE(S_ZSTRING, 0);
-		case BTS_INT:    return MKSTYPE(S_INT, 4);
-		case BTS_REAL:   return MKSTYPE(S_FLOAT, 8);
-		case BTS_DATE:   return MKSTYPE(S_DATE, 4);
-		case BTS_TIME:   return MKSTYPE(S_TIME, 4);
-		case BTS_BOOL:   return MKSTYPE(S_BOOL, 4);
-		default:         return 0;
+		case BTS_INT: return MKSTYPE(S_INT, 4);
+		case BTS_REAL: return MKSTYPE(S_FLOAT, 8);
+		case BTS_DATE: return MKSTYPE(S_DATE, 4);
+		case BTS_TIME: return MKSTYPE(S_TIME, 4);
+		case BTS_BOOL: return MKSTYPE(S_BOOL, 4);
+		default: return 0;
 	}
 }
 

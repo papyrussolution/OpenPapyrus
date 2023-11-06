@@ -3351,15 +3351,15 @@ void FASTCALL PPBillPacket::SetQuantitySign(int minus)
 /*static*/PPBillPacket::PoolKind PPBillPacket::ObjAssocToPoolKind(PPID assocID)
 {
 	switch(assocID) {
-		case PPASS_PAYMBILLPOOL:      return bpkReckon;
-		case PPASS_OPBILLPOOL:        return bpkOpBill;
-		case PPASS_CSESSBILLPOOL:     return bpkCSess;
-		case PPASS_TSESSBILLPOOL:     return bpkTSess;
-		case PPASS_CSDBILLPOOL:       return bpkCSessDfct;
-		case PPASS_TODOBILLPOOL:      return bpkTodo;
-		case PPASS_PRJBILLPOOL:       return bpkPrj;
-		case PPASS_PRJPHASEBILLPOOL:  return bpkPrjPhase;
-		case PPASS_TSDBILLPOOL:       return bpkTSessDfct;
+		case PPASS_PAYMBILLPOOL: return bpkReckon;
+		case PPASS_OPBILLPOOL: return bpkOpBill;
+		case PPASS_CSESSBILLPOOL: return bpkCSess;
+		case PPASS_TSESSBILLPOOL: return bpkTSess;
+		case PPASS_CSDBILLPOOL: return bpkCSessDfct;
+		case PPASS_TODOBILLPOOL: return bpkTodo;
+		case PPASS_PRJBILLPOOL: return bpkPrj;
+		case PPASS_PRJPHASEBILLPOOL: return bpkPrjPhase;
+		case PPASS_TSDBILLPOOL: return bpkTSessDfct;
 	}
 	return bpkNone;
 }
@@ -3367,14 +3367,14 @@ void FASTCALL PPBillPacket::SetQuantitySign(int minus)
 /*static*/PPID PPBillPacket::PoolKindToObjAssoc(PPBillPacket::PoolKind kind)
 {
 	switch(kind) {
-		case bpkReckon:    return PPASS_PAYMBILLPOOL;
-		case bpkOpBill:    return PPASS_OPBILLPOOL;
-		case bpkCSess:     return PPASS_CSESSBILLPOOL;
-		case bpkTSess:     return PPASS_TSESSBILLPOOL;
+		case bpkReckon: return PPASS_PAYMBILLPOOL;
+		case bpkOpBill: return PPASS_OPBILLPOOL;
+		case bpkCSess: return PPASS_CSESSBILLPOOL;
+		case bpkTSess: return PPASS_TSESSBILLPOOL;
 		case bpkCSessDfct: return PPASS_CSDBILLPOOL;
-		case bpkTodo:      return PPASS_TODOBILLPOOL;
-		case bpkPrj:       return PPASS_PRJBILLPOOL;
-		case bpkPrjPhase:  return PPASS_PRJPHASEBILLPOOL;
+		case bpkTodo: return PPASS_TODOBILLPOOL;
+		case bpkPrj: return PPASS_PRJBILLPOOL;
+		case bpkPrjPhase: return PPASS_PRJPHASEBILLPOOL;
 		case bpkTSessDfct: return PPASS_TSDBILLPOOL;
 	}
 	return 0;

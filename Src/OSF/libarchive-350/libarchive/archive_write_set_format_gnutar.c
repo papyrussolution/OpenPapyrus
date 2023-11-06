@@ -34,7 +34,6 @@ struct gnutar {
 	archive_string_conv * sconv_default;
 	int init_default_conversion;
 };
-
 /*
  * Define structure of GNU tar header.
  */
@@ -75,10 +74,9 @@ struct gnutar {
 #define GNUTAR_rdevminor_offset 337
 #define GNUTAR_rdevminor_size 6
 #define GNUTAR_rdevminor_max_size 8
-
-/*
- * A filled-in copy of the header for initialization.
- */
+// 
+// A filled-in copy of the header for initialization.
+// 
 static const char template_header[] = {
 	/* name: 100 bytes */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -133,7 +131,6 @@ static int archive_write_gnutar_finish_entry(struct archive_write *);
 static int format_256(int64, char *, int);
 static int format_number(int64, char *, int size, int maxsize);
 static int format_octal(int64, char *, int);
-
 /*
  * Set output format to 'GNU tar' format.
  */
@@ -174,9 +171,7 @@ static int archive_write_gnutar_options(struct archive_write * a, const char * k
 		}
 		return ret;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -187,9 +182,7 @@ static int archive_write_gnutar_close(struct archive_write * a)
 
 static int archive_write_gnutar_free(struct archive_write * a)
 {
-	struct gnutar * gnutar;
-
-	gnutar = (struct gnutar *)a->format_data;
+	struct gnutar * gnutar = (struct gnutar *)a->format_data;
 	SAlloc::F(gnutar);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
@@ -197,22 +190,16 @@ static int archive_write_gnutar_free(struct archive_write * a)
 
 static int archive_write_gnutar_finish_entry(struct archive_write * a)
 {
-	struct gnutar * gnutar;
-	int ret;
-
-	gnutar = (struct gnutar *)a->format_data;
-	ret = __archive_write_nulls(a, (size_t)
-		(gnutar->entry_bytes_remaining + gnutar->entry_padding));
+	struct gnutar * gnutar = (struct gnutar *)a->format_data;
+	int ret = __archive_write_nulls(a, (size_t)(gnutar->entry_bytes_remaining + gnutar->entry_padding));
 	gnutar->entry_bytes_remaining = gnutar->entry_padding = 0;
 	return ret;
 }
 
 static ssize_t archive_write_gnutar_data(struct archive_write * a, const void * buff, size_t s)
 {
-	struct gnutar * gnutar;
 	int ret;
-
-	gnutar = (struct gnutar *)a->format_data;
+	struct gnutar * gnutar = (struct gnutar *)a->format_data;
 	if(s > gnutar->entry_bytes_remaining)
 		s = (size_t)gnutar->entry_bytes_remaining;
 	ret = __archive_write_output(a, buff, s);
@@ -465,32 +452,25 @@ exit_write_header:
 	return ret;
 }
 
-static int archive_format_gnutar_header(struct archive_write * a, char h[512],
-    ArchiveEntry * entry, int tartype)
+static int archive_format_gnutar_header(struct archive_write * a, char h[512], ArchiveEntry * entry, int tartype)
 {
 	uint checksum;
-	int i, ret;
+	int i;
 	size_t copy_length;
 	const char * p;
-	struct gnutar * gnutar;
-
-	gnutar = (struct gnutar *)a->format_data;
-
-	ret = 0;
-
+	struct gnutar * gnutar = (struct gnutar *)a->format_data;
+	int ret = 0;
 	/*
 	 * The "template header" already includes the signature,
 	 * various end-of-field markers, and other required elements.
 	 */
 	memcpy(h, &template_header, 512);
-
 	/*
 	 * Because the block is already null-filled, and strings
 	 * are allowed to exactly fill their destination (without null),
 	 * I use memcpy(dest, src, strlen()) here a lot to copy strings.
 	 */
-
-	if(tartype == 'K' || tartype == 'L') {
+	if(oneof2(tartype, 'K', 'L')) {
 		p = archive_entry_pathname(entry);
 		copy_length = strlen(p);
 	}
@@ -501,16 +481,13 @@ static int archive_format_gnutar_header(struct archive_write * a, char h[512],
 	if(copy_length > GNUTAR_name_size)
 		copy_length = GNUTAR_name_size;
 	memcpy(h + GNUTAR_name_offset, p, copy_length);
-
 	if((copy_length = gnutar->linkname_length) > 0) {
 		if(copy_length > GNUTAR_linkname_size)
 			copy_length = GNUTAR_linkname_size;
-		memcpy(h + GNUTAR_linkname_offset, gnutar->linkname,
-		    copy_length);
+		memcpy(h + GNUTAR_linkname_offset, gnutar->linkname, copy_length);
 	}
-
-	/* TODO: How does GNU tar handle unames longer than GNUTAR_uname_size? */
-	if(tartype == 'K' || tartype == 'L') {
+	// @todo How does GNU tar handle unames longer than GNUTAR_uname_size?
+	if(oneof2(tartype, 'K', 'L')) {
 		p = archive_entry_uname(entry);
 		copy_length = strlen(p);
 	}
@@ -523,9 +500,8 @@ static int archive_format_gnutar_header(struct archive_write * a, char h[512],
 			copy_length = GNUTAR_uname_size;
 		memcpy(h + GNUTAR_uname_offset, p, copy_length);
 	}
-
-	/* TODO: How does GNU tar handle gnames longer than GNUTAR_gname_size? */
-	if(tartype == 'K' || tartype == 'L') {
+	// @todo How does GNU tar handle gnames longer than GNUTAR_gname_size?
+	if(oneof2(tartype, 'K', 'L')) {
 		p = archive_entry_gname(entry);
 		copy_length = strlen(p);
 	}
@@ -538,36 +514,28 @@ static int archive_format_gnutar_header(struct archive_write * a, char h[512],
 			copy_length = GNUTAR_gname_size;
 		memcpy(h + GNUTAR_gname_offset, p, copy_length);
 	}
-
 	/* By truncating the mode here, we ensure it always fits. */
-	format_octal(archive_entry_mode(entry) & 07777,
-	    h + GNUTAR_mode_offset, GNUTAR_mode_size);
-
+	format_octal(archive_entry_mode(entry) & 07777, h + GNUTAR_mode_offset, GNUTAR_mode_size);
 	/* GNU tar supports base-256 here, so should never overflow. */
 	if(format_number(archive_entry_uid(entry), h + GNUTAR_uid_offset,
 	    GNUTAR_uid_size, GNUTAR_uid_max_size)) {
 		archive_set_error(&a->archive, ERANGE, "Numeric user ID %jd too large", (intmax_t)archive_entry_uid(entry));
 		ret = ARCHIVE_FAILED;
 	}
-
 	/* GNU tar supports base-256 here, so should never overflow. */
 	if(format_number(archive_entry_gid(entry), h + GNUTAR_gid_offset,
 	    GNUTAR_gid_size, GNUTAR_gid_max_size)) {
 		archive_set_error(&a->archive, ERANGE, "Numeric group ID %jd too large", (intmax_t)archive_entry_gid(entry));
 		ret = ARCHIVE_FAILED;
 	}
-
 	/* GNU tar supports base-256 here, so should never overflow. */
 	if(format_number(archive_entry_size(entry), h + GNUTAR_size_offset,
 	    GNUTAR_size_size, GNUTAR_size_max_size)) {
 		archive_set_error(&a->archive, ERANGE, "File size out of range");
 		ret = ARCHIVE_FAILED;
 	}
-
 	/* Shouldn't overflow before 2106, since mtime field is 33 bits. */
-	format_octal(archive_entry_mtime(entry),
-	    h + GNUTAR_mtime_offset, GNUTAR_mtime_size);
-
+	format_octal(archive_entry_mtime(entry), h + GNUTAR_mtime_offset, GNUTAR_mtime_size);
 	if(archive_entry_filetype(entry) == AE_IFBLK || archive_entry_filetype(entry) == AE_IFCHR) {
 		if(format_octal(archive_entry_rdevmajor(entry), h + GNUTAR_rdevmajor_offset, GNUTAR_rdevmajor_size)) {
 			archive_set_error(&a->archive, ERANGE, "Major device number too large");
@@ -587,19 +555,14 @@ static int archive_format_gnutar_header(struct archive_write * a, char h[512],
 	format_octal(checksum, h + GNUTAR_checksum_offset, 6);
 	return ret;
 }
-
 /*
  * Format a number into a field, falling back to base-256 if necessary.
  */
 static int format_number(int64 v, char * p, int s, int maxsize)
 {
-	int64 limit = ((int64)1 << (s*3));
-
-	if(v < limit)
-		return (format_octal(v, p, s));
-	return (format_256(v, p, maxsize));
+	const int64 limit = ((int64)1 << (s*3));
+	return (v < limit) ? (format_octal(v, p, s)) : (format_256(v, p, maxsize));
 }
-
 /*
  * Format a number into the specified field using base-256.
  */

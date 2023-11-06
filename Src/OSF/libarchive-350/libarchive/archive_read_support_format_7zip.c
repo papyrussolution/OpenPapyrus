@@ -406,7 +406,7 @@ static int archive_read_format_7zip_bid(ArchiveRead * a, int best_bid)
 		while(offset + window <= (SFX_MAX_ADDR)) {
 			const char * buff = static_cast<const char *>(__archive_read_ahead(a, offset + window, &bytes_avail));
 			if(buff == NULL) {
-				/* Remaining bytes are less than window. */
+				// Remaining bytes are less than window
 				window >>= 1;
 				if(window < 0x40)
 					return 0;
@@ -472,7 +472,7 @@ static int skip_sfx(ArchiveRead * a, ssize_t bytes_avail)
 	while(offset + window <= SFX_MAX_ADDR - SFX_MIN_ADDR) {
 		h = __archive_read_ahead(a, window, &bytes);
 		if(!h) {
-			/* Remaining bytes are less than window. */
+			// Remaining bytes are less than window
 			window >>= 1;
 			if(window < 0x40)
 				goto fatal;
@@ -798,7 +798,7 @@ static void set_error(ArchiveRead * a, int ret)
 {
 	switch(ret) {
 		case LZMA_STREAM_END: /* Found end of stream. */
-		case LZMA_OK: /* Decompressor made some progress. */
+		case LZMA_OK: // Decompressor made some progress
 		    break;
 		case LZMA_MEM_ERROR:
 		    archive_set_error(&a->archive, ENOMEM, "Lzma library error: Cannot allocate memory");
@@ -1219,7 +1219,7 @@ static int decompress(ArchiveRead * a, struct _7zip * zip,
 				zip->lzstream_valid = 0;
 				ret = ARCHIVE_EOF;
 				break;
-			    case LZMA_OK: /* Decompressor made some progress. */
+			    case LZMA_OK: // Decompressor made some progress
 				break;
 			    default:
 				archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Decompression failed(%d)", r);
@@ -1248,7 +1248,7 @@ static int decompress(ArchiveRead * a, struct _7zip * zip,
 				zip->bzstream_valid = 0;
 				ret = ARCHIVE_EOF;
 				break;
-			    case BZ_OK: /* Decompressor made some progress. */
+			    case BZ_OK: // Decompressor made some progress
 				break;
 			    default:
 				archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "bzip decompression failed");

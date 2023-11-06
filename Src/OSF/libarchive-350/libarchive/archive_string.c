@@ -92,14 +92,14 @@ static void add_sconv_object(Archive *, archive_string_conv *);
 static archive_string_conv * create_sconv_object(const char *, const char *, unsigned, int);
 static archive_string_conv * get_sconv_object(Archive *, const char *, const char *, int);
 static unsigned make_codepage_from_charset(const char *);
-static unsigned get_current_codepage(void);
-static unsigned get_current_oemcp(void);
+static unsigned get_current_codepage();
+static unsigned get_current_oemcp();
 static size_t mbsnbytes(const void *, size_t);
 static size_t utf16nbytes(const void *, size_t);
 #if defined(_WIN32) && !defined(__CYGWIN__)
 static int archive_wstring_append_from_mbs_in_codepage(archive_wstring *, const char *, size_t, archive_string_conv *);
 static int archive_string_append_from_wcs_in_codepage(archive_string *, const wchar_t *, size_t, archive_string_conv *);
-static int is_big_endian(void);
+static int is_big_endian();
 static int strncat_in_codepage(archive_string *, const void *, size_t, archive_string_conv *);
 static int win_strncat_from_utf16be(archive_string *, const void *, size_t, archive_string_conv *);
 static int win_strncat_from_utf16le(archive_string *, const void *, size_t, archive_string_conv *);
@@ -1984,7 +1984,7 @@ static int _utf8_to_unicode(uint32 * pwc, const char * s, size_t n)
 	 */
 	ch = (uchar)*s;
 	if(ch == 0)
-		return 0; /* Standard:  return 0 for end-of-string. */
+		return 0; /* Standard: return 0 for end-of-string. */
 	cnt = utf8_count[ch];
 	// Invalid sequence or there are not plenty bytes
 	if((int)n < cnt) {

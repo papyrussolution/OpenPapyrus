@@ -4,6 +4,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <share.h>
+#include <AclAPI.h>
 // @v11.7.1 #include <sys/locking.h>
 
 #if 0 // @construction {
@@ -885,6 +886,352 @@ application:wps application/vnd.ms-works
 {"x-world/x-vrml", ".xof"},
 */
 
+static void FASTCALL wftime_to_ldatetime(FILETIME * wt, LDATETIME * st)
+{
+	uint16 d, t;
+	FileTimeToLocalFileTime(wt, wt); // debug
+	FileTimeToDosDateTime(wt, &d, &t);
+	decode_fat_datetime(d, t, st);
+}
+
+static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
+{
+	uint16 d, t;
+	encode_fat_datetime(&d, &t, st);
+	DosDateTimeToFileTime(d, t, wt);
+	LocalFileTimeToFileTime(wt, wt); // debug
+}
+
+SFile::Stat::Stat()
+{
+	THISZERO();
+}
+
+SFile::Stat & SFile::Stat::Z()
+{
+	THISZERO();
+	return *this;
+}
+
+bool SFile::Stat::IsFolder() const { return LOGIC(Attr & 0x10); }
+bool SFile::Stat::IsSymLink() const { return ((Attr & attrReparsePoint) && ReparsePointTag == IO_REPARSE_TAG_SYMLINK); }
+
+/*static*/bool SFile::GetReparsePoint(SIntHandle h, SBinaryChunk & rC)
+{
+	bool   ok = false;
+	rC.Z();
+	DWORD size = MAXIMUM_REPARSE_DATA_BUFFER_SIZE;
+	if(rC.Ensure(size)) {
+		if(::DeviceIoControl(h, FSCTL_GET_REPARSE_POINT, NULL, 0, rC.Ptr(), size, &size, NULL)) {
+			assert(size <= rC.GetAllocatedSize());
+			if(rC.Put(rC.PtrC(), size)) {
+				ok = true;
+			}
+		}
+	}
+	return ok;
+}
+
+/*static*/bool SFile::SetReparsePoint(SIntHandle h, const SBinaryChunk & rC)
+{
+	bool   ok = false;
+	void * p_data = const_cast<void *>(rC.PtrC());
+	DWORD size = rC.Len();
+	if(::DeviceIoControl(h, FSCTL_SET_REPARSE_POINT, p_data, size, 0, 0, &size, 0)) {
+		ok = true;
+	}
+	return ok;
+}
+
+/*static*/bool SFile::DeleteReparsePoint(SIntHandle h, const SBinaryChunk & rC)
+{
+	bool ok = false;
+	if(!!h && rC.Len()) {
+		const DWORD _reparse_data_buffer_header_size = FIELD_OFFSET(ReparseDataBuffer, GenericReparseBuffer);
+		// /*REPARSE_DATA_BUFFER*/ReparseDataBuffer rdbuf;
+		const ReparseDataBuffer * p_rdb_src = static_cast<const ReparseDataBuffer *>(rC.PtrC());
+		if(p_rdb_src->ReparseTag & 0xB0000000) { // (0x80000000|0x20000000|0x10000000)
+			DWORD size = IsReparseTagMicrosoft(static_cast<const ReparseDataBuffer *>(rC.PtrC())->ReparseTag) ? _reparse_data_buffer_header_size : REPARSE_GUID_DATA_BUFFER_HEADER_SIZE;
+			SBinaryChunk rdbuf;
+			rdbuf.Put(rC.PtrC(), size);
+			ReparseDataBuffer * p_rdb_temp = static_cast<ReparseDataBuffer *>(rdbuf.Ptr());
+			//memcpy(&rdbuf, pBuf, size);
+			p_rdb_temp->ReparseDataLength = 0;
+			ok = ::DeviceIoControl(h, FSCTL_DELETE_REPARSE_POINT, p_rdb_temp, size, 0, 0, &size, NULL);
+		}
+	}
+	return ok;
+}
+	
+/*static*/int SFile::GetStat__(SIntHandle h, uint flags, Stat * pStat, SBinarySet * pExtSet) // @v11.8.9
+{
+	int    ok = 0;
+	if(!!h) {
+		FILE_BASIC_INFO fi_basic;
+		FILE_ATTRIBUTE_TAG_INFO fi_attr;
+		enum {
+			okfFileBasicInfo = 0x0001,
+			okfFileAttributeTagInfo = 0x0002,
+			okfGetFileSizeEx = 0x0004
+		};
+		uint okf = 0;
+		if(GetFileInformationByHandleEx(h, FileBasicInfo, &fi_basic, sizeof(fi_basic))) {
+			okf |= okfFileBasicInfo;
+			FILETIME ft;
+			{
+				ft.dwHighDateTime = fi_basic.CreationTime.HighPart;
+				ft.dwLowDateTime = fi_basic.CreationTime.LowPart;
+				wftime_to_ldatetime(&ft, &pStat->CrtTime);
+			}
+			{
+				ft.dwHighDateTime = fi_basic.LastAccessTime.HighPart;
+				ft.dwLowDateTime = fi_basic.LastAccessTime.LowPart;
+				wftime_to_ldatetime(&ft, &pStat->AccsTime);
+			}
+			{
+				ft.dwHighDateTime = fi_basic.LastWriteTime.HighPart;
+				ft.dwLowDateTime = fi_basic.LastWriteTime.LowPart;
+				wftime_to_ldatetime(&ft, &pStat->ModTime);
+			}
+			pStat->Attr = fi_basic.FileAttributes;
+		}
+		if(GetFileInformationByHandleEx(h, FileAttributeTagInfo, &fi_attr, sizeof(fi_attr))) {
+			okf |= okfFileAttributeTagInfo;
+			if(okf & okfFileBasicInfo) {
+				assert(fi_attr.FileAttributes == fi_basic.FileAttributes);
+			}
+			pStat->ReparsePointTag = fi_attr.ReparseTag;
+		}
+		{
+			LARGE_INTEGER size;
+			if(GetFileSizeEx(h, &size)) {
+				okf |= okfGetFileSizeEx;
+				pStat->Size = size.QuadPart;
+			}
+		}
+		/*
+			BOOL GetFileInformationByHandleEx([in]  HANDLE hFile, [in]  FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+				[out] LPVOID lpFileInformation, [in]  DWORD dwBufferSize);
+
+
+			FileBasicInfo
+			Minimal information for the file should be retrieved or set. Used for file handles. See
+			FILE_BASIC_INFO.
+
+			FileStandardInfo
+			Extended information for the file should be retrieved. Used for file handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_STANDARD_INFO.
+
+			FileNameInfo
+			The file name should be retrieved. Used for any handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_NAME_INFO.
+
+			FileRenameInfo
+			The file name should be changed. Used for file handles. Use only when calling
+			SetFileInformationByHandle. See
+			FILE_RENAME_INFO.
+
+			FileDispositionInfo
+			The file should be deleted. Used for any handles. Use only when calling
+			SetFileInformationByHandle. See
+			FILE_DISPOSITION_INFO.
+
+			FileAllocationInfo
+			The file allocation information should be changed. Used for file handles. Use only when calling
+			SetFileInformationByHandle. See
+			FILE ALLOCATION INFO.
+
+			FileEndOfFileInfo
+			The end of the file should be set. Use only when calling
+			SetFileInformationByHandle. See
+			FILE_END_OF_FILE_INFO.
+
+			FileStreamInfo
+			File stream information for the specified file should be retrieved. Used for any handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_STREAM_INFO.
+
+			FileCompressionInfo
+			File compression information should be retrieved. Used for any handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_COMPRESSION_INFO.
+
+			FileAttributeTagInfo
+			File attribute information should be retrieved. Used for any handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_ATTRIBUTE_TAG_INFO.
+
+			FileIdBothDirectoryInfo
+			Files in the specified directory should be retrieved. Used for directory handles. Use only when calling
+			GetFileInformationByHandleEx. The number
+			of files returned for each call to
+			GetFileInformationByHandleEx depends on
+			the size of the buffer that is passed to the function. Any subsequent calls to
+			GetFileInformationByHandleEx on the same
+			handle will resume the enumeration operation after the last file is returned. See
+			FILE_ID_BOTH_DIR_INFO.
+
+			FileIdBothDirectoryRestartInfo
+			Identical to FileIdBothDirectoryInfo, but forces the enumeration operation to
+			start again from the beginning. See
+			FILE_ID_BOTH_DIR_INFO.
+
+			FileIoPriorityHintInfo
+			Priority hint information should be set. Use only when calling
+			SetFileInformationByHandle. See
+			FILE_IO_PRIORITY_HINT_INFO.
+
+			FileRemoteProtocolInfo
+			File remote protocol information should be retrieved. Use for any handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_REMOTE_PROTOCOL_INFO.
+
+			FileFullDirectoryInfo
+			Files in the specified directory should be retrieved. Used for directory handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_FULL_DIR_INFO.
+			Windows Server 2008 R2, Windows 7, Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP:  This value is not supported before Windows 8 and Windows Server 2012
+
+			FileFullDirectoryRestartInfo
+			Identical to FileFullDirectoryInfo, but forces the enumeration operation to
+			start again from the beginning. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_FULL_DIR_INFO.
+			Windows Server 2008 R2, Windows 7, Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP:  This value is not supported before Windows 8 and Windows Server 2012
+
+			FileStorageInfo
+			File storage information should be retrieved. Use for any handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_STORAGE_INFO.
+			Windows Server 2008 R2, Windows 7, Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP:  This value is not supported before Windows 8 and Windows Server 2012
+
+			FileAlignmentInfo
+			File alignment information should be retrieved. Use for any handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_ALIGNMENT_INFO.
+			Windows Server 2008 R2, Windows 7, Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP:  This value is not supported before Windows 8 and Windows Server 2012
+
+			FileIdInfo
+			File information should be retrieved. Use for any handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_ID_INFO.
+			Windows Server 2008 R2, Windows 7, Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP:  This value is not supported before Windows 8 and Windows Server 2012
+
+			FileIdExtdDirectoryInfo
+			Files in the specified directory should be retrieved. Used for directory handles. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_ID_EXTD_DIR_INFO.
+			Windows Server 2008 R2, Windows 7, Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP:  This value is not supported before Windows 8 and Windows Server 2012
+
+			FileIdExtdDirectoryRestartInfo
+			Identical to FileIdExtdDirectoryInfo, but forces the enumeration operation to
+			start again from the beginning. Use only when calling
+			GetFileInformationByHandleEx. See
+			FILE_ID_EXTD_DIR_INFO.
+			Windows Server 2008 R2, Windows 7, Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP:  This value is not supported before Windows 8 and Windows Server 2012
+
+			FileDispositionInfoEx
+			FileRenameInfoEx
+			MaximumFileInfoByHandleClass
+			This value is used for validation. Supported values are less than this value.
+		*/
+	}
+	return ok;
+}
+
+/*static*/int SFile::GetStat(const char * pFileName, uint flags, Stat * pStat, SBinarySet * pExtSet)
+{
+	EXCEPTVAR(SLibError);
+	int    ok = 1; // @v11.2.0 @fix (-1)-->(1)
+	//Stat   stat;
+	//SString _file_name(pFileName);
+	//MEMSZERO(stat);
+#ifdef __WIN32__
+	//HANDLE srchdl = INVALID_HANDLE_VALUE;
+	//SIntHandle h_file;
+	//THROW_V(_file_name.NotEmpty(), SLERR_OPENFAULT);
+	{
+		//SStringU _file_name_u;
+		//LARGE_INTEGER size = {0, 0};
+		//_file_name.CopyToUnicode(_file_name_u);
+		SDirEntry de;
+		if(SDirec::GetSingle(pFileName, &de)) {
+			if(de.Attr & SFile::attrSubdir) {
+			}
+			else {
+			}
+			if(de.Attr & SFile::attrReparsePoint) {
+				if(pExtSet) {
+					if(oneof2(de.ReparsePointTag, IO_REPARSE_TAG_SYMLINK, IO_REPARSE_TAG_MOUNT_POINT)) {
+						SBinaryChunk rp;
+						SString _file_name(pFileName);
+						SStringU _file_name_u;
+						_file_name.CopyToUnicode(_file_name_u);
+						SIntHandle h = ::CreateFileW(_file_name_u, 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT, NULL);
+						if(!!h) {
+							if(SFile::GetReparsePoint(h, rp)) {
+								const ReparseDataBuffer * p_rdb = static_cast<const ReparseDataBuffer *>(rp.PtrC());
+								pExtSet->Put(Stat::sbiRaparseTag, rp);
+							}
+							::CloseHandle(h);
+						}
+					}
+				}
+			}
+			ASSIGN_PTR(pStat, *static_cast<const Stat *>(&de));
+		}
+		else {
+			ok = 0;
+		}
+		/* @v11.8.9 @mustbe
+		WIN32_FILE_ATTRIBUTE_DATA fa;
+		if(::GetFileAttributesEx(_file_name_u, GetFileExInfoStandard, &fa)) {
+			//
+		}
+		or
+		GetFileInformationByHandleEx
+		*/
+#if 0 // {
+		h_file = ::CreateFileW(_file_name_u, FILE_READ_ATTRIBUTES|FILE_READ_EA/*|STANDARD_RIGHTS_READ*/, 
+			0/*FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE*/, 0, OPEN_EXISTING, 
+			FILE_ATTRIBUTE_NORMAL|FILE_ATTRIBUTE_DIRECTORY|FILE_FLAG_OPEN_REPARSE_POINT, 0); 
+		SLS.SetAddedMsgString(pFileName);
+		THROW_V(h_file, SLERR_OPENFAULT);
+		THROW(GetStat(h_file, flags, pStat, pExtSet));
+		//SFile::GetTime(h_file, &stat.CrtTime, &stat.AccsTime, &stat.ModTime);
+		//GetFileSizeEx(h_file, &size);
+		//stat.Size = size.QuadPart;
+#endif // } 0
+	}
+	//CATCHZOK
+	//if(!!h_file)
+		//::CloseHandle(h_file);
+#endif
+	//ASSIGN_PTR(pStat, stat);
+	return ok;
+}
+
+/*static*/int SFile::GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail)
+{
+	int    ok = 1;
+	ULARGE_INTEGER avail, total, total_free;
+	SString path;
+	SPathStruc ps(pPath);
+	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
+	if(GetDiskFreeSpaceEx(SUcSwitch(path), &avail, &total, &total_free)) {
+		ASSIGN_PTR(pTotal, total.QuadPart);
+		ASSIGN_PTR(pAvail, avail.QuadPart);
+	}
+	else {
+		ASSIGN_PTR(pTotal, 0);
+		ASSIGN_PTR(pAvail, 0);
+		ok = SLS.SetOsError();
+	}
+	return ok;
+}
+
 /*static*/int SFile::GetSecurity(const char * pFileNameUtf8, uint requestFlags, SBuffer & rSecurInfo)
 {
 	rSecurInfo.Z();
@@ -1141,22 +1488,6 @@ static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
 	} while(actual_size1 && actual_size2 && r1 > 0 && r2 > 0);
 	CATCHZOK
 	return ok;
-}
-
-static void FASTCALL wftime_to_ldatetime(FILETIME * wt, LDATETIME * st)
-{
-	uint16 d, t;
-	FileTimeToLocalFileTime(wt, wt); // debug
-	FileTimeToDosDateTime(wt, &d, &t);
-	decode_fat_datetime(d, t, st);
-}
-
-static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
-{
-	uint16 d, t;
-	encode_fat_datetime(&d, &t, st);
-	DosDateTimeToFileTime(d, t, wt);
-	LocalFileTimeToFileTime(wt, wt); // debug
 }
 
 /*static*/int SFile::SetTime(SIntHandle hFile, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif)
@@ -3526,3 +3857,74 @@ public:
 	{
 	}
 };
+//
+//
+//
+static bool GetSelfSid(SID * pSid, DWORD * pSidSize)
+{
+	wchar_t user[128] = {};
+	wchar_t sys[128] = {};
+	wchar_t domain[128] = {};
+	DWORD user_size = SIZEOFARRAY(user);
+	DWORD domain_size = SIZEOFARRAY(domain);
+	if(!::GetUserNameW(user, &user_size)) {
+		return false;
+	}
+	else {
+		SID_NAME_USE snu = SidTypeUser;
+		return ::LookupAccountNameW(sys, user, pSid, pSidSize, domain, &domain_size, &snu);
+	}
+}
+
+static ACL * MyselfAcl()
+{
+	ACL * p_acl = 0;
+	BYTE sid_buf[512];
+	SID * p_sid = (SID *)sid_buf;
+	DWORD size = sizeof(sid_buf);
+	if(GetSelfSid(p_sid, &size)) {
+		DWORD acl_size = 512;
+		p_acl = (ACL *)SAlloc::M(acl_size);
+		::InitializeAcl(p_acl, acl_size, ACL_REVISION);
+		::AddAccessAllowedAce(p_acl, ACL_REVISION, GENERIC_ALL, p_sid);
+	}
+	return p_acl;
+}
+
+bool ResetAcl(const wchar_t * pPath, bool myselfAcl)
+{
+	static ACL default_acl;
+	static BOOL once_result = ::InitializeAcl(&default_acl, sizeof(default_acl), ACL_REVISION);
+	ACL * p_acl = once_result ? &default_acl : NULL;
+	if(myselfAcl) {
+		static ACL * local_acl = MyselfAcl();
+		if(local_acl)  
+			p_acl = local_acl;
+	}
+	return p_acl ? (::SetNamedSecurityInfoW(const_cast<wchar_t *>(pPath), SE_FILE_OBJECT, 
+		DACL_SECURITY_INFORMATION|UNPROTECTED_DACL_SECURITY_INFORMATION, 0, 0, p_acl, 0) == ERROR_SUCCESS) : false;
+}
+
+SIntHandle SFile::ForceCreateFile(const wchar_t * pPath, uint mode, uint share, /*SECURITY_ATTRIBUTES*/void * pSa, uint crMode, uint crFlg, /*HANDLE hTempl,*/uint flags)
+{
+	SIntHandle fh = ::CreateFileW(pPath, mode, share, (SECURITY_ATTRIBUTES *)pSa, crMode, crFlg, 0/*template*/);
+	if(!fh && ::GetLastError() == ERROR_ACCESS_DENIED && flags & (fileforcefACL|fileforcefMyACL|fileforcefAttr)) {
+		if(flags & fileforcefACL) {
+			ResetAcl(pPath, false);
+			fh = ::CreateFileW(pPath, mode, share, (SECURITY_ATTRIBUTES *)pSa, crMode, crFlg, 0/*template*/);
+		}
+		if(!fh && ::GetLastError() == ERROR_ACCESS_DENIED && flags & (fileforcefMyACL|fileforcefAttr)) {
+			if(flags & fileforcefMyACL) {
+				ResetAcl(pPath, true);
+				fh = ::CreateFileW(pPath, mode, share, (SECURITY_ATTRIBUTES *)pSa, crMode, crFlg, 0/*template*/);
+			}
+			if(!fh && ::GetLastError() == ERROR_ACCESS_DENIED && flags & (fileforcefAttr)) {
+				if(flags & fileforcefAttr) {
+					::SetFileAttributesW(pPath, FILE_ATTRIBUTE_NORMAL);
+					fh = ::CreateFileW(pPath, mode, share, (SECURITY_ATTRIBUTES *)pSa, crMode, crFlg, 0/*template*/);
+				}
+			}
+		}
+	}
+	return fh;
+}

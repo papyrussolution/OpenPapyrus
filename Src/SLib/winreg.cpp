@@ -565,18 +565,7 @@ int WinRegKey::Save(const char * pFileName)
 	}
 	{
 		SPtrHandle _token = SlProcess::OpenCurrentAccessToken(/*TOKEN_ALL_ACCESS*/TOKEN_READ|TOKEN_WRITE|TOKEN_EXECUTE);
-		const wchar_t * p_priv_symb = SE_BACKUP_NAME;
-		int   privr = SlProcess::CheckAccessTokenPrivilege(_token, p_priv_symb);
-		if(privr == SlProcess::privrNotAssigned) {
-			if(SlProcess::AddPrivilegeToAccessToken(_token, p_priv_symb)) {
-				privr = SlProcess::CheckAccessTokenPrivilege(_token, p_priv_symb);
-			}
-		}
-		if(privr == SlProcess::privrDisabled) {
-			if(SlProcess::EnableAccesTokenPrivilege(_token, p_priv_symb, true)) {
-				privr = SlProcess::CheckAccessTokenPrivilege(_token, p_priv_symb);
-			}
-		}
+		SlProcess::CheckAndEnableAccesTokenPrivilege(_token, SE_BACKUP_NAME);
 	}
 	{
 		SStringU & r_file_name_u = SLS.AcquireRvlStrU();

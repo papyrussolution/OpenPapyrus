@@ -409,14 +409,12 @@ private:
 			return false;
 		bool transformed = false;
 		// Replace a forward-slash with a backslash.
-		std::replace_if(fileName.begin(), fileName.end(),
-		    [&transformed](generic_string::value_type c)
+		std::replace_if(fileName.begin(), fileName.end(), [&transformed](generic_string::value_type c)
 		{
 			const bool eq = (c == '/');
 			transformed |= eq;
 			return eq;
-		},
-		    '\\');
+		}, '\\');
 		return transformed;
 	}
 
@@ -427,7 +425,6 @@ private:
 		const int bufferLen = MAX_PATH;
 		static TCHAR buffer[bufferLen];
 		static bool isRTL = false;
-
 		auto* inst = reinterpret_cast<FileDialogEventHandler*>(param);
 		if(!inst)
 			return FALSE;

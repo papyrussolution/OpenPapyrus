@@ -169,17 +169,13 @@ static void ColouriseTADSHTMLString(StyleContext &sc, int &lineState)
 			sc.SetState(SCE_T3_DEFAULT);
 			return;
 		}
-
 		if(sc.Match('<', '<')) {
 			lineState |= T3_INT_EXPRESSION | T3_INT_EXPRESSION_IN_TAG;
 			sc.SetState(SCE_T3_X_DEFAULT);
 			sc.Forward(2);
 			return;
 		}
-
-		if(sc.Match('\\', static_cast<char>(chQuote))
-		   || sc.Match('\\', static_cast<char>(chString))
-		   || sc.Match('\\', '\\')) {
+		if(sc.Match('\\', static_cast<char>(chQuote)) || sc.Match('\\', static_cast<char>(chString)) || sc.Match('\\', '\\')) {
 			sc.Forward(2);
 		}
 		else {
@@ -446,8 +442,7 @@ static void ColouriseTADS3String(StyleContext &sc, int &lineState)
 			sc.Forward(2);
 			return;
 		}
-		if(sc.Match('\\', static_cast<char>(chQuote))
-		   || sc.Match('\\', '\\')) {
+		if(sc.Match('\\', static_cast<char>(chQuote)) || sc.Match('\\', '\\')) {
 			sc.Forward(2);
 		}
 		else if(sc.ch == '{') {

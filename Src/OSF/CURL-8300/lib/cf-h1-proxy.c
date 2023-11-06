@@ -83,19 +83,10 @@ struct h1_tunnel_state {
 	BIT(close_connection);
 };
 
-static bool tunnel_is_established(struct h1_tunnel_state * ts)
-{
-	return ts && (ts->tunnel_state == H1_TUNNEL_ESTABLISHED);
-}
+static bool tunnel_is_established(const struct h1_tunnel_state * ts) { return ts && (ts->tunnel_state == H1_TUNNEL_ESTABLISHED); }
+static bool tunnel_is_failed(const struct h1_tunnel_state * ts) { return ts && (ts->tunnel_state == H1_TUNNEL_FAILED); }
 
-static bool tunnel_is_failed(struct h1_tunnel_state * ts)
-{
-	return ts && (ts->tunnel_state == H1_TUNNEL_FAILED);
-}
-
-static CURLcode tunnel_reinit(struct h1_tunnel_state * ts,
-    struct connectdata * conn,
-    struct Curl_easy * data)
+static CURLcode tunnel_reinit(struct h1_tunnel_state * ts, struct connectdata * conn, struct Curl_easy * data)
 {
 	(void)data;
 	DEBUGASSERT(ts);
@@ -105,7 +96,6 @@ static CURLcode tunnel_reinit(struct h1_tunnel_state * ts,
 	ts->keepon = h1_tunnel_state::KEEPON_CONNECT;
 	ts->cl = 0;
 	ts->close_connection = FALSE;
-
 	if(conn->bits.conn_to_host)
 		ts->hostname = conn->conn_to_host.name;
 	else if(ts->sockindex == SECONDARYSOCKET)
@@ -166,24 +156,20 @@ static void h1_tunnel_go_state(struct Curl_cfilter * cf, struct h1_tunnel_state 
 		    CURL_TRC_CF(data, cf, "new tunnel state 'init'");
 		    tunnel_reinit(ts, cf->conn, data);
 		    break;
-
 		case H1_TUNNEL_CONNECT:
 		    CURL_TRC_CF(data, cf, "new tunnel state 'connect'");
 		    ts->tunnel_state = H1_TUNNEL_CONNECT;
 		    ts->keepon = h1_tunnel_state::KEEPON_CONNECT;
 		    Curl_dyn_reset(&ts->rcvbuf);
 		    break;
-
 		case H1_TUNNEL_RECEIVE:
 		    CURL_TRC_CF(data, cf, "new tunnel state 'receive'");
 		    ts->tunnel_state = H1_TUNNEL_RECEIVE;
 		    break;
-
 		case H1_TUNNEL_RESPONSE:
 		    CURL_TRC_CF(data, cf, "new tunnel state 'response'");
 		    ts->tunnel_state = H1_TUNNEL_RESPONSE;
 		    break;
-
 		case H1_TUNNEL_ESTABLISHED:
 		    CURL_TRC_CF(data, cf, "new tunnel state 'established'");
 		    infof(data, "CONNECT phase completed");
@@ -197,8 +183,7 @@ static void h1_tunnel_go_state(struct Curl_cfilter * cf, struct h1_tunnel_state 
 		    Curl_dyn_reset(&ts->rcvbuf);
 		    Curl_dyn_reset(&ts->req);
 		    /* restore the protocol pointer */
-		    data->info.httpcode = 0; /* clear it as it might've been used for the
-		                                proxy */
+		    data->info.httpcode = 0; /* clear it as it might've been used for the proxy */
 		    /* If a proxy-authorization header was used for the proxy, then we should
 		       make sure that it isn't accidentally used for the document request
 		       after we've connected. So let's free and clear it here. */
@@ -233,11 +218,9 @@ static CURLcode CONNECT_host(struct Curl_easy * data, struct connectdata * conn,
 	if(hostname != conn->host.name)
 		ipv6_ip = (strchr(hostname, ':') != NULL);
 	hostheader = /* host:port with IPv6 support */
-	    aprintf("%s%s%s:%d", ipv6_ip?"[":"", hostname, ipv6_ip?"]":"",
-		remote_port);
+	    aprintf("%s%s%s:%d", ipv6_ip?"[":"", hostname, ipv6_ip?"]":"", remote_port);
 	if(!hostheader)
 		return CURLE_OUT_OF_MEMORY;
-
 	if(!Curl_checkProxyheaders(data, conn, STRCONST("Host"))) {
 		host = aprintf("Host: %s\r\n", hostheader);
 		if(!host) {
@@ -251,9 +234,7 @@ static CURLcode CONNECT_host(struct Curl_easy * data, struct connectdata * conn,
 }
 
 #ifndef USE_HYPER
-static CURLcode start_CONNECT(struct Curl_cfilter * cf,
-    struct Curl_easy * data,
-    struct h1_tunnel_state * ts)
+static CURLcode start_CONNECT(struct Curl_cfilter * cf, struct Curl_easy * data, struct h1_tunnel_state * ts)
 {
 	struct connectdata * conn = cf->conn;
 	char * hostheader = NULL;
@@ -273,22 +254,13 @@ static CURLcode start_CONNECT(struct Curl_cfilter * cf,
 		hostheader, TRUE);
 	if(result)
 		goto out;
-
 	httpv = (conn->http_proxy.proxytype == CURLPROXY_HTTP_1_0) ? "1.0" : "1.1";
-
-	result =
-	    Curl_dyn_addf(&ts->req,
-		"CONNECT %s HTTP/%s\r\n"
+	result = Curl_dyn_addf(&ts->req, "CONNECT %s HTTP/%s\r\n"
 		"%s"      /* Host: */
 		"%s",     /* Proxy-Authorization */
-		hostheader,
-		httpv,
-		host?host:"",
-		data->state.aptr.proxyuserpwd?
-		data->state.aptr.proxyuserpwd:"");
+		hostheader, httpv, host?host:"", data->state.aptr.proxyuserpwd ? data->state.aptr.proxyuserpwd:"");
 	if(result)
 		goto out;
-
 	if(!Curl_checkProxyheaders(data, conn, STRCONST("User-Agent"))
 	    && data->set.str[STRING_USERAGENT])
 		result = Curl_dyn_addf(&ts->req, "User-Agent: %s\r\n",
@@ -1114,12 +1086,10 @@ struct Curl_cftype Curl_cft_h1_proxy = {
 	Curl_cf_def_query,
 };
 
-CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter * cf_at,
-    struct Curl_easy * data)
+CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter * cf_at, struct Curl_easy * data)
 {
 	struct Curl_cfilter * cf;
 	CURLcode result;
-
 	(void)data;
 	result = Curl_cf_create(&cf, &Curl_cft_h1_proxy, NULL);
 	if(!result)

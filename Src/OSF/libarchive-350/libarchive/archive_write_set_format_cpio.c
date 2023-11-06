@@ -100,9 +100,7 @@ static int archive_write_cpio_options(struct archive_write * a, const char * key
 		}
 		return ret;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -257,7 +255,7 @@ static int write_header(struct archive_write * a, ArchiveEntry * entry)
 	}
 	format_octal(ino & 0777777, h + c_ino_offset, c_ino_size);
 
-	/* TODO: Set ret_final to ARCHIVE_WARN if any of these overflow. */
+	/* @todo Set ret_final to ARCHIVE_WARN if any of these overflow. */
 	format_octal(archive_entry_mode(entry), h + c_mode_offset, c_mode_size);
 	format_octal(archive_entry_uid(entry), h + c_uid_offset, c_uid_size);
 	format_octal(archive_entry_gid(entry), h + c_gid_offset, c_gid_size);

@@ -38,7 +38,7 @@
 #include "strdup.h"
 #include "vtls/vtls.h"
 #include "url.h"
-#include "escape.h"
+//#include "escape.h"
 //#include "warnless.h"
 //#include "curl_printf.h"
 #include "curl_memory.h"

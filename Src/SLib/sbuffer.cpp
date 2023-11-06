@@ -840,7 +840,8 @@ bool SBinaryChunk::Put(const void * pData, size_t len)
 	if(len == 0 || !pData)
 		L = 0;
 	else if(len <= Size || Alloc(len)) {
-		memcpy(P_Buf, pData, len);
+		if(P_Buf != pData) // @v11.8.9
+			memcpy(P_Buf, pData, len);
 		L = len;
 	}
 	else

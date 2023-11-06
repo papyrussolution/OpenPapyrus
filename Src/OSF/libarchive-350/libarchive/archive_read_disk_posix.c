@@ -1337,7 +1337,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 	struct tree * t = a->tree;
 	struct statfs sfs;
 #if defined(HAVE_GETVFSBYNAME) && defined(VFCF_SYNTHETIC)
-/* TODO: configure should set GETVFSBYNAME_ARG_TYPE to make
+/* @todo configure should set GETVFSBYNAME_ARG_TYPE to make
  * this accurate; some platforms have both and we need the one that's
  * used by getvfsbyname()
  *

@@ -31,7 +31,7 @@
 //#include "bufq.h"
 //#include "dynbuf.h"
 #include "rand.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 //#include "connect.h"
 //#include "sendf.h"
 //#include "multiif.h"
@@ -1067,14 +1067,9 @@ static void ws_free(struct connectdata * conn)
 	}
 }
 
-void Curl_ws_done(struct Curl_easy * data)
-{
-	(void)data;
-}
+void Curl_ws_done(struct Curl_easy * /*data*/) {}
 
-CURLcode Curl_ws_disconnect(struct Curl_easy * data,
-    struct connectdata * conn,
-    bool dead_connection)
+CURLcode Curl_ws_disconnect(struct Curl_easy * data, struct connectdata * conn, bool dead_connection)
 {
 	(void)data;
 	(void)dead_connection;
@@ -1082,20 +1077,17 @@ CURLcode Curl_ws_disconnect(struct Curl_easy * data,
 	return CURLE_OK;
 }
 
-CURL_EXTERN const struct curl_ws_frame *curl_ws_meta(struct Curl_easy * data){
-	/* we only return something for websocket, called from within the callback
-	   when not using raw mode */
-	if(GOOD_EASY_HANDLE(data) && Curl_is_in_callback(data) && data->conn &&
-	    data->conn->proto.ws && !data->set.ws_raw_mode)
+CURL_EXTERN const struct curl_ws_frame *curl_ws_meta(struct Curl_easy * data) 
+{
+	/* we only return something for websocket, called from within the callback when not using raw mode */
+	if(GOOD_EASY_HANDLE(data) && Curl_is_in_callback(data) && data->conn && data->conn->proto.ws && !data->set.ws_raw_mode)
 		return &data->conn->proto.ws->frame;
 	return NULL;
 }
 
 #else
 
-CURL_EXTERN CURLcode curl_ws_recv(CURL * curl, void * buffer, size_t buflen,
-    size_t * nread,
-    const struct curl_ws_frame ** metap)
+CURL_EXTERN CURLcode curl_ws_recv(CURL * curl, void * buffer, size_t buflen, size_t * nread, const struct curl_ws_frame ** metap)
 {
 	(void)curl;
 	(void)buffer;
@@ -1105,10 +1097,7 @@ CURL_EXTERN CURLcode curl_ws_recv(CURL * curl, void * buffer, size_t buflen,
 	return CURLE_NOT_BUILT_IN;
 }
 
-CURL_EXTERN CURLcode curl_ws_send(CURL * curl, const void * buffer,
-    size_t buflen, size_t * sent,
-    curl_off_t fragsize,
-    uint flags)
+CURL_EXTERN CURLcode curl_ws_send(CURL * curl, const void * buffer, size_t buflen, size_t * sent, curl_off_t fragsize, uint flags)
 {
 	(void)curl;
 	(void)buffer;
@@ -1119,9 +1108,6 @@ CURL_EXTERN CURLcode curl_ws_send(CURL * curl, const void * buffer,
 	return CURLE_NOT_BUILT_IN;
 }
 
-CURL_EXTERN const struct curl_ws_frame *curl_ws_meta(struct Curl_easy * data){
-	(void)data;
-	return NULL;
-}
+CURL_EXTERN const struct curl_ws_frame *curl_ws_meta(struct Curl_easy * /*data*/) { return NULL; }
 
 #endif /* USE_WEBSOCKETS */

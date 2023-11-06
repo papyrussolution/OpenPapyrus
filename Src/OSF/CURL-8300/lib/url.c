@@ -25,9 +25,9 @@
 #include "curl_setup.h"
 #pragma hdrstop
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -75,7 +75,7 @@
 #include "cookie.h"
 //#include "strcase.h"
 #include "strerror.h"
-#include "escape.h"
+//#include "escape.h"
 #include "strtok.h"
 #include "share.h"
 //#include "content_encoding.h"
@@ -1494,7 +1494,7 @@ void Curl_verboseconnect(struct Curl_easy * data, struct connectdata * conn)
 /*
  * Allocate and initialize a new connectdata object.
  */
-static struct connectdata *allocate_conn(struct Curl_easy * data){
+static struct connectdata *allocate_conn(struct Curl_easy * data) {
 	struct connectdata * conn = static_cast<connectdata *>(SAlloc::C(1, sizeof(struct connectdata)));
 	if(!conn)
 		return NULL;
@@ -1602,7 +1602,7 @@ error:
 
 /* returns the handler if the given scheme is built-in */
 const struct Curl_handler *Curl_builtin_scheme(const char * scheme,
-    size_t schemelen){
+    size_t schemelen) {
 	const struct Curl_handler * const * pp;
 	const struct Curl_handler * p;
 	/* Scan protocol handler table and match against 'scheme'. The handler may
@@ -2550,10 +2550,10 @@ CURLcode Curl_parse_login_details(const char * login, const size_t len,
 	size_t olen;
 	/* Attempt to find the password separator */
 	if(passwdp)
-		psep = (const char *)memchr(login, ':', len);
+		psep = (const char *)smemchr(login, ':', len);
 	/* Attempt to find the options separator */
 	if(optionsp)
-		osep = (const char *)memchr(login, ';', len);
+		osep = (const char *)smemchr(login, ';', len);
 
 	/* Calculate the portion lengths */
 	ulen = (psep ?

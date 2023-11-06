@@ -33,13 +33,13 @@
  * - Sun WorkShop C (SunPro) before 5.9
  */
 #if defined(__WATCOMC__) || defined(__sgi) || defined(__hpux) || defined(__BORLANDC__)
-#define	inline
+	#define	inline
 #elif defined(__IBMC__) && __IBMC__ < 700
-#define	inline
+	#define	inline
 #elif defined(__SUNPRO_C) && __SUNPRO_C < 0x590
-#define inline
+	#define inline
 #elif defined(_MSC_VER) || defined(__osf__)
-#define inline __inline
+	#define inline __inline
 #endif
 
 /* Alignment-agnostic encode/decode bytestream to/from little/big endian. */

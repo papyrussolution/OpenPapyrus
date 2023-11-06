@@ -907,44 +907,44 @@ void __mutex_print_debug_stats(ENV * env, DB_MSGBUF * mbp, db_mutex_t mutex, uin
 static const char * __mutex_print_id(int alloc_id)
 {
 	switch(alloc_id) {
-	    case MTX_APPLICATION:           return "application allocated";
-	    case MTX_ATOMIC_EMULATION:      return "atomic emulation";
-	    case MTX_DB_HANDLE:             return "db handle";
-	    case MTX_ENV_DBLIST:            return "env dblist";
-	    case MTX_ENV_HANDLE:            return "env handle";
-	    case MTX_ENV_REGION:            return "env region";
-	    case MTX_LOCK_REGION:           return "lock region";
-	    case MTX_LOGICAL_LOCK:          return "logical lock";
-	    case MTX_LOG_FILENAME:          return "log filename";
-	    case MTX_LOG_FLUSH:             return "log flush";
-	    case MTX_LOG_HANDLE:            return "log handle";
-	    case MTX_LOG_REGION:            return "log region";
-	    case MTX_MPOOLFILE_HANDLE:      return "mpoolfile handle";
+	    case MTX_APPLICATION: return "application allocated";
+	    case MTX_ATOMIC_EMULATION: return "atomic emulation";
+	    case MTX_DB_HANDLE: return "db handle";
+	    case MTX_ENV_DBLIST: return "env dblist";
+	    case MTX_ENV_HANDLE: return "env handle";
+	    case MTX_ENV_REGION: return "env region";
+	    case MTX_LOCK_REGION: return "lock region";
+	    case MTX_LOGICAL_LOCK: return "logical lock";
+	    case MTX_LOG_FILENAME: return "log filename";
+	    case MTX_LOG_FLUSH: return "log flush";
+	    case MTX_LOG_HANDLE: return "log handle";
+	    case MTX_LOG_REGION: return "log region";
+	    case MTX_MPOOLFILE_HANDLE: return "mpoolfile handle";
 	    case MTX_MPOOL_BH:              return "mpool buffer";
 	    case MTX_MPOOL_FH:              return "mpool filehandle";
-	    case MTX_MPOOL_FILE_BUCKET:     return "mpool file bucket";
-	    case MTX_MPOOL_HANDLE:          return "mpool handle";
-	    case MTX_MPOOL_HASH_BUCKET:     return "mpool hash bucket";
-	    case MTX_MPOOL_REGION:          return "mpool region";
-	    case MTX_MUTEX_REGION:          return "mutex region";
-	    case MTX_MUTEX_TEST:            return "mutex test";
+	    case MTX_MPOOL_FILE_BUCKET: return "mpool file bucket";
+	    case MTX_MPOOL_HANDLE: return "mpool handle";
+	    case MTX_MPOOL_HASH_BUCKET: return "mpool hash bucket";
+	    case MTX_MPOOL_REGION: return "mpool region";
+	    case MTX_MUTEX_REGION: return "mutex region";
+	    case MTX_MUTEX_TEST: return "mutex test";
 	    case MTX_REPMGR:                return "replication manager";
-	    case MTX_REP_CHKPT:             return "replication checkpoint";
-	    case MTX_REP_DATABASE:          return "replication database";
+	    case MTX_REP_CHKPT: return "replication checkpoint";
+	    case MTX_REP_DATABASE: return "replication database";
 	    case MTX_REP_DIAG:              return "replication diagnostics";
-	    case MTX_REP_EVENT:             return "replication event";
-	    case MTX_REP_REGION:            return "replication region";
-	    case MTX_REP_START:             return "replication role config";
-	    case MTX_REP_WAITER:            return "replication txn apply";
+	    case MTX_REP_EVENT: return "replication event";
+	    case MTX_REP_REGION: return "replication region";
+	    case MTX_REP_START: return "replication role config";
+	    case MTX_REP_WAITER: return "replication txn apply";
 	    case MTX_SEQUENCE:              return "sequence";
 	    case MTX_TWISTER:               return "twister";
-	    case MTX_TCL_EVENTS:            return "Tcl events";
-	    case MTX_TXN_ACTIVE:            return "txn active list";
-	    case MTX_TXN_CHKPT:             return "transaction checkpoint";
-	    case MTX_TXN_COMMIT:            return "txn commit";
+	    case MTX_TCL_EVENTS: return "Tcl events";
+	    case MTX_TXN_ACTIVE: return "txn active list";
+	    case MTX_TXN_CHKPT: return "transaction checkpoint";
+	    case MTX_TXN_COMMIT: return "txn commit";
 	    case MTX_TXN_MVCC:              return "txn mvcc";
-	    case MTX_TXN_REGION:            return "txn region";
-	    default:                        return "unknown mutex type";
+	    case MTX_TXN_REGION: return "txn region";
+	    default: return "unknown mutex type";
 		/* NOTREACHED */
 	}
 }

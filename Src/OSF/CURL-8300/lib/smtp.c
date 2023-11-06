@@ -44,9 +44,9 @@
 
 #ifndef CURL_DISABLE_SMTP
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
@@ -64,7 +64,7 @@
 //#include "hostip.h"
 //#include "progress.h"
 //#include "transfer.h"
-#include "escape.h"
+//#include "escape.h"
 //#include "http.h" /* for HTTP proxy tunnel stuff */
 //#include "mime.h"
 #include "socks.h"

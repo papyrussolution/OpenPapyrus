@@ -4406,7 +4406,7 @@ match2:
 			onig_region_clear(set->rs[i].region);
 		}
 	}
-	if(IS_NOT_NULL(msas)) SAlloc::F(msas);
+	SAlloc::F(msas);
 	return r; /* regex index */
 }
 

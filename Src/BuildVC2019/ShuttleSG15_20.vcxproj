@@ -794,8 +794,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="libcurl-7730.vcxproj">
-      <Project>{fd47df9e-fd33-443d-9048-d802d3364469}</Project>
+    <ProjectReference Include="libcurl-8300.vcxproj">
+      <Project>{76b7da95-5556-4f51-8c77-b1d882a7de84}</Project>
     </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>

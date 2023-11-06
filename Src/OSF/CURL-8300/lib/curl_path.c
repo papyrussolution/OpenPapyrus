@@ -29,30 +29,23 @@
 
 //#include <curl/curl.h>
 #include "curl_memory.h"
-#include "curl_path.h"
-#include "escape.h"
+//#include "curl_path.h"
+//#include "escape.h"
 #include "memdebug.h"
 
 #define MAX_SSHPATH_LEN 100000 /* arbitrary */
 
 /* figure out the path to work with in this particular request */
-CURLcode Curl_getworkingpath(struct Curl_easy * data,
-    char * homedir,                          /* when SFTP is used */
-    char ** path)                         /* returns the  allocated
-                                             real path to work with */
+CURLcode Curl_getworkingpath(struct Curl_easy * data, char * homedir/* when SFTP is used */, char ** path/* returns the  allocated real path to work with */)
 {
 	char * working_path;
 	size_t working_path_len;
 	struct dynbuf npath;
-	CURLcode result =
-	    Curl_urldecode(data->state.up.path, 0, &working_path,
-		&working_path_len, REJECT_ZERO);
+	CURLcode result = Curl_urldecode(data->state.up.path, 0, &working_path, &working_path_len, REJECT_ZERO);
 	if(result)
 		return result;
-
 	/* new path to switch to in case we need to */
 	Curl_dyn_init(&npath, MAX_SSHPATH_LEN);
-
 	/* Check for /~/, indicating relative to the user's home directory */
 	if((data->conn->handler->protocol & CURLPROTO_SCP) &&
 	    (working_path_len > 3) && (!memcmp(working_path, "/~/", 3))) {

@@ -27,7 +27,7 @@ struct archive_cmdline {
 	int argc;
 };
 
-struct archive_cmdline * __archive_cmdline_allocate(void);
+struct archive_cmdline * __archive_cmdline_allocate();
 int __archive_cmdline_parse(struct archive_cmdline *, const char *);
 int __archive_cmdline_free(struct archive_cmdline *);
 

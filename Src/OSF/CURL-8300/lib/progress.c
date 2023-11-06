@@ -231,7 +231,7 @@ void Curl_pgrsTimeWas(struct Curl_easy * data, timerid timer,
  *
  * @unittest: 1399
  */
-struct curltime Curl_pgrsTime(struct Curl_easy * data, timerid timer){
+struct curltime Curl_pgrsTime(struct Curl_easy * data, timerid timer) {
 	struct curltime now = Curl_now();
 
 	Curl_pgrsTimeWas(data, timer, now);

@@ -7814,7 +7814,13 @@ int CheckPaneDialog::SelectBill(PPID * pBillID, const char * pTitle) // @v11.8.7
 		f_bill.OpID = r_cfg.ChkPanImpOpID;
 		f_bill.P_TagF = new TagFilt;
 		f_bill.P_TagF->TagsRestrict.Add(r_cfg.ChkPanImpBillTagID, PPConst::P_TagValRestrict_Exist, 0);
-		f_bill.Period.low = plusdate(now_dt, -30);
+		{
+			// @v11.8.9 Настраиваемый параметр количества дней для обзора документов
+			int lbbp = r_cfg.LookBackBillPeriod;
+			if(lbbp <= 0)
+				lbbp = 30;
+			f_bill.Period.low = plusdate(now_dt, -lbbp);
+		}
 		f_bill.SortOrder = BillFilt::ordByDate;
 		f_bill.Flags |= BillFilt::fDescOrder;
 		if(v_bill.Init_(&f_bill)) {

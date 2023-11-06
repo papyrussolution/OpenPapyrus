@@ -737,8 +737,8 @@ static uint GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 		case PPOPT_GOODSREVAL: return DLG_REVALBILL;
 		case PPOPT_GOODSORDER: return DLG_ORDERBILL;
 		case PPOPT_GOODSMODIF: return DLG_MODIFBILL;
-		case PPOPT_GOODSACK:   return DLG_ACKBILL;
-		case PPOPT_POOL:       return DLG_BILLPOOL;
+		case PPOPT_GOODSACK: return DLG_ACKBILL;
+		case PPOPT_POOL: return DLG_BILLPOOL;
 	}
 	return (uint)PPSetError(PPERR_INVOPRKIND);
 }

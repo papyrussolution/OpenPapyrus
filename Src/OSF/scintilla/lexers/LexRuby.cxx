@@ -1118,14 +1118,9 @@ static void ColouriseRbDoc(Sci_PositionU startPos, Sci_Position length, int init
 					++brace_counts;
 					preferRE = true;
 				}
-				else if(ch == '}' && --brace_counts < 0
-				 && inner_string_count > 0) {
+				else if(ch == '}' && --brace_counts < 0 && inner_string_count > 0) {
 					styler.ColourTo(i, SCE_RB_OPERATOR);
-					exitInnerExpression(inner_string_types,
-					    inner_expn_brace_counts,
-					    inner_quotes,
-					    inner_string_count,
-					    state, brace_counts, Quote);
+					exitInnerExpression(inner_string_types, inner_expn_brace_counts, inner_quotes, inner_string_count, state, brace_counts, Quote);
 				}
 				else {
 					preferRE = (sstrchr(")}].", ch) == NULL);
@@ -1134,8 +1129,7 @@ static void ColouriseRbDoc(Sci_PositionU startPos, Sci_Position length, int init
 			}
 			else if(isEOLChar(ch)) {
 				// Make sure it's a true line-end, with no backslash
-				if((ch == '\r' || (ch == '\n' && chPrev != '\r'))
-				 && chPrev != '\\') {
+				if((ch == '\r' || (ch == '\n' && chPrev != '\r')) && chPrev != '\\') {
 					// Assume we've hit the end of the statement.
 					preferRE = true;
 				}

@@ -27,11 +27,9 @@
 //#include <curl/curl.h>
 #include "formdata.h"
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
-
 #if defined(HAVE_LIBGEN_H) && defined(HAVE_BASENAME)
-#include <libgen.h>
+	#include <libgen.h>
 #endif
-
 //#include "urldata.h" /* for struct Curl_easy */
 //#include "mime.h"
 #include "vtls/vtls.h"
@@ -72,7 +70,7 @@ static struct curl_httppost *AddHttpPost(char * name, size_t namelength,
     char * showfilename, char * userp,
     struct curl_httppost * parent_post,
     struct curl_httppost ** httppost,
-    struct curl_httppost ** last_post){
+    struct curl_httppost ** last_post) {
 	struct curl_httppost * post;
 	if(!namelength && name)
 		namelength = strlen(name);
@@ -666,10 +664,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
  *
  * @unittest: 1308
  */
-
-CURLFORMcode curl_formadd(struct curl_httppost ** httppost,
-    struct curl_httppost ** last_post,
-    ...)
+CURLFORMcode curl_formadd(struct curl_httppost ** httppost, struct curl_httppost ** last_post, ...)
 {
 	va_list arg;
 	CURLFORMcode result;
@@ -886,18 +881,14 @@ CURLcode Curl_getformdata(struct Curl_easy * data,
 					result = curl_mime_filename(part, post->showfilename);
 		}
 	}
-
 	if(result)
 		Curl_mime_cleanpart(finalform);
-
 	return result;
 }
 
 #else
 /* if disabled */
-CURLFORMcode curl_formadd(struct curl_httppost ** httppost,
-    struct curl_httppost ** last_post,
-    ...)
+CURLFORMcode curl_formadd(struct curl_httppost ** httppost, struct curl_httppost ** last_post, ...)
 {
 	(void)httppost;
 	(void)last_post;

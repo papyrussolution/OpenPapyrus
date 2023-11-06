@@ -465,26 +465,48 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 				}
 			}
 			// @v10.2.5 {
-			if(bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS) {
+			if(bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS || (bs_rec.CheckFields & (BILCHECKF_LNEXPLVATRATE|BILCHECKF_LNCHZNMARKS))) { // @v11.8.9 (BILCHECKF_LNEXPLVATRATE|BILCHECKF_LNCHZNMARKS)
 				RealRange restr_bounds;
+				PPLotExtCodeContainer::MarkSet lotxcode_set; // @v11.8.9
 				for(uint tidx = 0; tidx < pPack->GetTCount(); tidx++) {
 					const PPTransferItem & r_ti = pPack->ConstTI(tidx);
-					if(GetPriceRestrictions(*pPack, r_ti, tidx, &restr_bounds) > 0) {
-						const double validated_price = r_ti.NetPrice();
-						if(!restr_bounds.CheckValEps(validated_price, 1E-7)) { // @v10.2.12
-							//THROW(restr_bounds.CheckVal(validated_price));
-							if(restr_bounds.low > 0.0) {
-								SString & r_nam_buf = SLS.AcquireRvlStr();
-								temp_buf.Z().Cat(restr_bounds.low, SFMT_MONEY).Space().Cat(GetGoodsName(r_ti.GoodsID, r_nam_buf));
-								THROW_PP_S(validated_price >= restr_bounds.low, PPERR_PRICERESTRLOW, temp_buf);
-							}
-							if(restr_bounds.upp > 0.0) {
-								SString & r_nam_buf = SLS.AcquireRvlStr();
-								temp_buf.Z().Cat(restr_bounds.upp, SFMT_MONEY).Space().Cat(GetGoodsName(r_ti.GoodsID, r_nam_buf));
-								THROW_PP_S(validated_price <= restr_bounds.upp, PPERR_PRICERESTRUPP, temp_buf);
+					if(bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS) {
+						if(GetPriceRestrictions(*pPack, r_ti, tidx, &restr_bounds) > 0) {
+							const double validated_price = r_ti.NetPrice();
+							if(!restr_bounds.CheckValEps(validated_price, 1E-7)) { // @v10.2.12
+								//THROW(restr_bounds.CheckVal(validated_price));
+								if(restr_bounds.low > 0.0) {
+									SString & r_nam_buf = SLS.AcquireRvlStr();
+									temp_buf.Z().Cat(restr_bounds.low, SFMT_MONEY).Space().Cat(GetGoodsName(r_ti.GoodsID, r_nam_buf));
+									THROW_PP_S(validated_price >= restr_bounds.low, PPERR_PRICERESTRLOW, temp_buf);
+								}
+								if(restr_bounds.upp > 0.0) {
+									SString & r_nam_buf = SLS.AcquireRvlStr();
+									temp_buf.Z().Cat(restr_bounds.upp, SFMT_MONEY).Space().Cat(GetGoodsName(r_ti.GoodsID, r_nam_buf));
+									THROW_PP_S(validated_price <= restr_bounds.upp, PPERR_PRICERESTRUPP, temp_buf);
+								}
 							}
 						}
 					}
+					// @v11.8.9 {
+					if(bs_rec.CheckFields & (BILCHECKF_LNEXPLVATRATE|BILCHECKF_LNCHZNMARKS)) {
+						Goods2Tbl::Rec goods_rec;
+						PPGoodsTaxEntry gte;
+						PPGoodsType2 gt_rec;
+						if(GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0) {
+							if(bs_rec.CheckFields & BILCHECKF_LNEXPLVATRATE) {
+								THROW_PP(GObj.FetchTax(r_ti.GoodsID, pPack->Rec.Dt, pPack->Rec.OpID, &gte) > 0 && gte.GetVatRate() > 0.0, PPERR_BILLSTCHECKFLD_LNEXPLVATRATE);
+							}
+							if(bs_rec.CheckFields & BILCHECKF_LNCHZNMARKS) {
+								if(goods_rec.GoodsTypeID && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+									if(gt_rec.Flags & GTF_GMARKED) {
+										THROW_PP(pPack->XcL.Get(tidx+1, 0, lotxcode_set) > 0, PPERR_BILLSTCHECKFLD_LNCHZNMARKS);
+									}
+								}
+							}
+						}
+					}
+					// } @v11.8.9 
 				}
 			}
 			// } @v10.2.5

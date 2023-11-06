@@ -659,8 +659,8 @@ public:
 			{
 				switch(type) {
 					case COMPOSITE: return CompositeGlyph(*header, bytes).trim_padding();
-					case SIMPLE:    return SimpleGlyph(*header, bytes).trim_padding();
-					default:        return bytes;
+					case SIMPLE: return SimpleGlyph(*header, bytes).trim_padding();
+					default: return bytes;
 				}
 			}
 
@@ -669,7 +669,7 @@ public:
 				switch(type) {
 					case COMPOSITE: CompositeGlyph(*header, bytes).drop_hints(); return;
 					case SIMPLE:    SimpleGlyph(*header, bytes).drop_hints(); return;
-					default:        return;
+					default: return;
 				}
 			}
 
@@ -678,7 +678,7 @@ public:
 				switch(type) {
 					case COMPOSITE: CompositeGlyph(*header, bytes).drop_hints_bytes(dest_start); return;
 					case SIMPLE:    SimpleGlyph(*header, bytes).drop_hints_bytes(dest_start, dest_end); return;
-					default:        return;
+					default: return;
 				}
 			}
 

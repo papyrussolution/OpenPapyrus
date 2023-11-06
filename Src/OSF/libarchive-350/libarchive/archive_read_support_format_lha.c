@@ -179,7 +179,7 @@ static uchar    lha_calcsum(uchar, const void *, int, size_t);
 static int lha_parse_linkname(archive_wstring *, archive_wstring *);
 static int lha_read_data_none(ArchiveRead *, const void **, size_t *, int64 *);
 static int lha_read_data_lzh(ArchiveRead *, const void **, size_t *, int64 *);
-static void     lha_crc16_init(void);
+static void     lha_crc16_init();
 static uint16 lha_crc16(uint16, const void *, size_t);
 static int lzh_decode_init(struct lzh_stream *, const char *);
 static void     lzh_decode_free(struct lzh_stream *);
@@ -296,7 +296,7 @@ static int archive_read_format_lha_bid(ArchiveRead * a, int best_bid)
 			buff = __archive_read_ahead(a, offset + window,
 				&bytes_avail);
 			if(buff == NULL) {
-				/* Remaining bytes are less than window. */
+				// Remaining bytes are less than window
 				window >>= 1;
 				if(window < (H_SIZE + 3))
 					return 0;
@@ -330,10 +330,7 @@ static int archive_read_format_lha_options(ArchiveRead * a, const char * key, co
 		}
 		return ret;
 	}
-
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -342,13 +339,12 @@ static int lha_skip_sfx(ArchiveRead * a)
 	const void * h;
 	const char * p, * q;
 	size_t next, skip;
-	ssize_t bytes, window;
-
-	window = 4096;
+	ssize_t bytes;
+	ssize_t window = 4096;
 	for(;;) {
 		h = __archive_read_ahead(a, window, &bytes);
 		if(!h) {
-			/* Remaining bytes are less than window. */
+			// Remaining bytes are less than window
 			window >>= 1;
 			if(window < (H_SIZE + 3))
 				goto fatal;

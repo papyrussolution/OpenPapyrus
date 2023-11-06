@@ -1,19 +1,11 @@
+// CALLCOLL.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2008, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-/********************************************************************************
- *
- * File CALLCOLL.H
- *
- * Modification History:
- *        Name                     Description
- *     Madhu Katragadda              Ported to C
- *********************************************************************************
- */
+// Copyright (c) 1997-2008, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Name                     Description
+// Madhu Katragadda              Ported to C
+// 
 /**
  * CollationDummyTest is a third level test class.  This tests creation of
  * a customized collator object.  For example, number 1 to be sorted

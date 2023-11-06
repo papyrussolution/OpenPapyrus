@@ -125,7 +125,7 @@ void Curl_amiga_cleanup(void)
  */
 
 struct Curl_addrinfo *Curl_ipv4_resolve_r(const char * hostname,
-    int port){
+    int port) {
 	struct Curl_addrinfo * ai = NULL;
 	struct hostent * h;
 	struct SocketIFace * ISocket = __CurlISocket;

@@ -331,7 +331,7 @@ static uint32 XXH32_finalize(uint32 h32, const void * ptr, size_t len, XXH_align
 			case 3:       PROCESS1; // @fallthrough
 			case 2:       PROCESS1; // @fallthrough
 			case 1:       PROCESS1; // @fallthrough
-			case 0:       return XXH32_avalanche(h32);
+			case 0: return XXH32_avalanche(h32);
 		}
 		assert(0);
 		return h32; /* reaching this point is deemed impossible */

@@ -1340,25 +1340,25 @@ bool SImageBuffer::PixF::IsValid() const { return (GetBpp() != 0); }
 uint SImageBuffer::PixF::GetBpp() const
 {
 	switch(S) {
-		case s32ARGB:      return 32;
-		case s16ARGB1555:  return 16;
+		case s32ARGB: return 32;
+		case s16ARGB1555: return 16;
 		case s16GrayScale: return 16;
-		case s16RGB555:    return 16;
-		case s16RGB565:    return 16;
-		case s1A:          return 1;
-		case s24RGB:       return 24;
-		case s32PARGB:     return 32;
-		case s32RGB:       return 32;
-		case s48RGB:       return 48;
-		case s64ARGB:      return 64;
-		case s64PARGB:     return 64;
-		case s8GrayScale:  return 8;
-		case s8A:          return 8;
-		case s1Idx:        return 1;
-		case s2Idx:        return 2;
-		case s4Idx:        return 4;
-		case s8Idx:        return 8;
-		case s16Idx:       return 16;
+		case s16RGB555: return 16;
+		case s16RGB565: return 16;
+		case s1A: return 1;
+		case s24RGB: return 24;
+		case s32PARGB: return 32;
+		case s32RGB: return 32;
+		case s48RGB: return 48;
+		case s64ARGB: return 64;
+		case s64PARGB: return 64;
+		case s8GrayScale: return 8;
+		case s8A: return 8;
+		case s1Idx: return 1;
+		case s2Idx: return 2;
+		case s4Idx: return 4;
+		case s8Idx: return 8;
+		case s16Idx: return 16;
 	}
 	return 0;
 }

@@ -151,16 +151,13 @@ static void xps_load_links_in_element(fz_context * ctx,
 
 static void xps_load_links_in_fixed_page(fz_context * ctx, xps_document * doc, fz_matrix ctm, xps_page * page, fz_link ** link)
 {
-	fz_xml * root, * node, * resource_tag;
+	fz_xml * node, * resource_tag;
 	xps_resource * dict = NULL;
 	char base_uri[1024];
 	char * s;
-
-	root = fz_xml_root(page->xml);
-
+	fz_xml * root = fz_xml_root(page->xml);
 	if(!root)
 		return;
-
 	fz_strlcpy(base_uri, page->fix->name, sizeof base_uri);
 	s = strrchr(base_uri, '/');
 	if(s)

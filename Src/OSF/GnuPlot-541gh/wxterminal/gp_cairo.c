@@ -1863,12 +1863,12 @@ const char* gp_cairo_get_encoding(PlotCairoStruct * plot)
 		case S_ENC_ISO8859_2: return "ISO-8859-2";
 		case S_ENC_ISO8859_15: return "ISO-8859-15";
 		case S_ENC_CP437: return "cp437";
-		case S_ENC_CP850:  return "cp850";
-		case S_ENC_CP852:  return "cp852";
+		case S_ENC_CP850: return "cp850";
+		case S_ENC_CP852: return "cp852";
 		case S_ENC_CP1250: return "windows-1250";
 		case S_ENC_CP1252: return "windows-1252";
 		case S_ENC_KOI8_R: return "KOI8-R";
-		case S_ENC_KOI8_U:  return "KOI8-U";
+		case S_ENC_KOI8_U: return "KOI8-U";
 		case S_ENC_ISO8859_1: return "ISO-8859-1";
 		case S_ENC_UTF8: return "UTF-8";
 		case S_ENC_DEFAULT:

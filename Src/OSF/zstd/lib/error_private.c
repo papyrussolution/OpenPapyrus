@@ -20,7 +20,7 @@ const char* ERR_getErrorString(ERR_enum code)
 	static const char* const notErrorCode = "Unspecified error code";
 	switch(code) {
 		case PREFIX(no_error): return "No error detected";
-		case PREFIX(GENERIC):  return "Error (generic)";
+		case PREFIX(GENERIC): return "Error (generic)";
 		case PREFIX(prefix_unknown): return "Unknown frame descriptor";
 		case PREFIX(version_unsupported): return "Version not supported";
 		case PREFIX(frameParameter_unsupported): return "Unsupported frame parameter";

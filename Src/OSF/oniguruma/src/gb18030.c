@@ -493,35 +493,35 @@ static uchar * gb18030_left_adjust_char_head(const uchar * start, const uchar * 
 
 	DEBUG_OUT(("state %-19s\n", StateNames[state]));
 	switch(state) {
-		case S_START:             return (uchar *)(s - 0);
-		case S_one_C2:            return (uchar *)(s - 0);
-		case S_one_C4:            return (uchar *)(s - 0);
-		case S_one_CM:            return (uchar *)(s - 0);
+		case S_START: return (uchar *)(s - 0);
+		case S_one_C2: return (uchar *)(s - 0);
+		case S_one_C4: return (uchar *)(s - 0);
+		case S_one_CM: return (uchar *)(s - 0);
 
-		case S_odd_CM_one_CX:     return (uchar *)(s - 1);
-		case S_even_CM_one_CX:    return (uchar *)(s - 0);
+		case S_odd_CM_one_CX: return (uchar *)(s - 1);
+		case S_even_CM_one_CX: return (uchar *)(s - 0);
 
-		case S_one_CMC4:          return (uchar *)(s - 1);
-		case S_odd_CMC4:          return (uchar *)(s - 1);
-		case S_one_C4_odd_CMC4:   return (uchar *)(s - 1);
-		case S_even_CMC4:         return (uchar *)(s - 3);
-		case S_one_C4_even_CMC4:  return (uchar *)(s - 3);
+		case S_one_CMC4: return (uchar *)(s - 1);
+		case S_odd_CMC4: return (uchar *)(s - 1);
+		case S_one_C4_odd_CMC4: return (uchar *)(s - 1);
+		case S_even_CMC4: return (uchar *)(s - 3);
+		case S_one_C4_even_CMC4: return (uchar *)(s - 3);
 
-		case S_odd_CM_odd_CMC4:   return (uchar *)(s - 3);
-		case S_even_CM_odd_CMC4:  return (uchar *)(s - 1);
+		case S_odd_CM_odd_CMC4: return (uchar *)(s - 3);
+		case S_even_CM_odd_CMC4: return (uchar *)(s - 1);
 
-		case S_odd_CM_even_CMC4:  return (uchar *)(s - 1);
+		case S_odd_CM_even_CMC4: return (uchar *)(s - 1);
 		case S_even_CM_even_CMC4: return (uchar *)(s - 3);
 
-		case S_odd_C4CM:          return (uchar *)(s - 0);
-		case S_one_CM_odd_C4CM:   return (uchar *)(s - 2);
-		case S_even_C4CM:         return (uchar *)(s - 2);
-		case S_one_CM_even_C4CM:  return (uchar *)(s - 0);
+		case S_odd_C4CM: return (uchar *)(s - 0);
+		case S_one_CM_odd_C4CM: return (uchar *)(s - 2);
+		case S_even_C4CM: return (uchar *)(s - 2);
+		case S_one_CM_even_C4CM: return (uchar *)(s - 0);
 
-		case S_even_CM_odd_C4CM:  return (uchar *)(s - 0);
-		case S_odd_CM_odd_C4CM:   return (uchar *)(s - 2);
+		case S_even_CM_odd_C4CM: return (uchar *)(s - 0);
+		case S_odd_CM_odd_C4CM: return (uchar *)(s - 2);
 		case S_even_CM_even_C4CM: return (uchar *)(s - 2);
-		case S_odd_CM_even_C4CM:  return (uchar *)(s - 0);
+		case S_odd_CM_even_C4CM: return (uchar *)(s - 0);
 	}
 
 	return (uchar *)s; /* never come here. (escape warning) */

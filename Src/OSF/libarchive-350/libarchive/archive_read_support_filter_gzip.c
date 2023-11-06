@@ -42,11 +42,8 @@ static int gzip_bidder_bid(ArchiveReadFilterBidder *, ArchiveReadFilter *);
 static int gzip_bidder_init(ArchiveReadFilter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-// Deprecated; remove in libarchive 4.0
-int archive_read_support_compression_gzip(Archive * a)
-{
-	return archive_read_support_filter_gzip(a);
-}
+	// Deprecated; remove in libarchive 4.0
+	int archive_read_support_compression_gzip(Archive * a) { return archive_read_support_filter_gzip(a); }
 #endif
 
 int archive_read_support_filter_gzip(Archive * _a)
@@ -184,25 +181,21 @@ static int gzip_bidder_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * f
 }
 
 #ifndef HAVE_ZLIB_H
-
-/*
- * If we don't have the library on this system, we can't do the
- * decompression directly.  We can, however, try to run "gzip -d"
- * in case that's available.
- */
-static int gzip_bidder_init(ArchiveReadFilter * self)
-{
-	int r;
-
-	r = __archive_read_program(self, "gzip -d");
-	/* Note: We set the format here even if __archive_read_program()
-	 * above fails.  We do, after all, know what the format is
-	 * even if we weren't able to read it. */
-	self->code = ARCHIVE_FILTER_GZIP;
-	self->name = "gzip";
-	return r;
-}
-
+	/*
+	 * If we don't have the library on this system, we can't do the
+	 * decompression directly.  We can, however, try to run "gzip -d"
+	 * in case that's available.
+	 */
+	static int gzip_bidder_init(ArchiveReadFilter * self)
+	{
+		int r = __archive_read_program(self, "gzip -d");
+		/* Note: We set the format here even if __archive_read_program()
+		 * above fails.  We do, after all, know what the format is
+		 * even if we weren't able to read it. */
+		self->code = ARCHIVE_FILTER_GZIP;
+		self->name = "gzip";
+		return r;
+	}
 #else
 
 static int gzip_read_header(ArchiveReadFilter * self, ArchiveEntry * entry)
@@ -263,8 +256,7 @@ static int consume_header(ArchiveReadFilter * self)
 	state->stream.next_in = (uchar *)(uintptr_t)__archive_read_filter_ahead(self->upstream, 1, &avail);
 	state->stream.avail_in = (uInt)avail;
 	ret = inflateInit2(&(state->stream), -15 /* Don't check for zlib header */);
-
-	/* Decipher the error code. */
+	// Decipher the error code
 	switch(ret) {
 		case Z_OK:
 		    state->in_stream = 1;
@@ -298,13 +290,12 @@ static int consume_trailer(ArchiveReadFilter * self)
 		    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up gzip decompressor");
 		    return ARCHIVE_FATAL;
 	}
-
-	/* GZip trailer is a fixed 8 byte structure. */
+	// GZip trailer is a fixed 8 byte structure
 	p = static_cast<const uchar *>(__archive_read_filter_ahead(self->upstream, 8, &avail));
 	if(p == NULL || avail == 0)
 		return ARCHIVE_FATAL;
-	/* XXX TODO: Verify the length and CRC. */
-	/* We've verified the trailer, so consume it now. */
+	// XXX TODO: Verify the length and CRC.
+	// We've verified the trailer, so consume it now.
 	__archive_read_filter_consume(self->upstream, 8);
 	return ARCHIVE_OK;
 }
@@ -318,7 +309,7 @@ static ssize_t gzip_filter_read(ArchiveReadFilter * self, const void ** p)
 	// Empty our output buffer. 
 	state->stream.next_out = state->out_block;
 	state->stream.avail_out = (uInt)state->out_block_size;
-	/* Try to fill the output buffer. */
+	// Try to fill the output buffer
 	while(state->stream.avail_out > 0 && !state->eof) {
 		// If we're not in a stream, read a header and initialize the decompression library.
 		if(!state->in_stream) {
@@ -338,31 +329,27 @@ static ssize_t gzip_filter_read(ArchiveReadFilter * self, const void ** p)
 			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated gzip input");
 			return ARCHIVE_FATAL;
 		}
-		if(UINT_MAX >= SSIZE_MAX)
-			max_in = SSIZE_MAX;
-		else
-			max_in = UINT_MAX;
+		max_in = (UINT_MAX >= SSIZE_MAX) ? SSIZE_MAX : UINT_MAX;
 		if(avail_in > max_in)
 			avail_in = max_in;
 		state->stream.avail_in = (uInt)avail_in;
-		/* Decompress and consume some of that data. */
+		// Decompress and consume some of that data
 		ret = inflate(&(state->stream), 0);
 		switch(ret) {
-			case Z_OK: /* Decompressor made some progress. */
+			case Z_OK: // Decompressor made some progress
 			    __archive_read_filter_consume(self->upstream,
 				avail_in - state->stream.avail_in);
 			    break;
 			case Z_STREAM_END: /* Found end of stream. */
 			    __archive_read_filter_consume(self->upstream,
 				avail_in - state->stream.avail_in);
-			    /* Consume the stream trailer; release the
-			     * decompression library. */
+			    // Consume the stream trailer; release the decompression library
 			    ret = consume_trailer(self);
 			    if(ret < ARCHIVE_OK)
 				    return ret;
 			    break;
 			default:
-			    /* Return an error. */
+			    // Return an error
 			    archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "gzip decompression failed");
 			    return ARCHIVE_FATAL;
 		}
@@ -378,21 +365,25 @@ static ssize_t gzip_filter_read(ArchiveReadFilter * self, const void ** p)
  */
 static int gzip_filter_close(ArchiveReadFilter * self)
 {
-	struct private_data * state = (struct private_data *)self->data;
 	int ret = ARCHIVE_OK;
-	if(state->in_stream) {
-		switch(inflateEnd(&(state->stream))) {
-			case Z_OK:
-			    break;
-			default:
-			    archive_set_error(&(self->archive->archive), ARCHIVE_ERRNO_MISC, "Failed to clean up gzip compressor"); 
-				ret = ARCHIVE_FATAL;
+	if(self) {
+		struct private_data * state = (struct private_data *)self->data;
+		if(state) {
+			if(state->in_stream) {
+				switch(inflateEnd(&(state->stream))) {
+					case Z_OK:
+						break;
+					default:
+						archive_set_error(&(self->archive->archive), ARCHIVE_ERRNO_MISC, "Failed to clean up gzip compressor"); 
+						ret = ARCHIVE_FATAL;
+				}
+			}
+			SAlloc::F(state->name);
+			SAlloc::F(state->out_block);
+			SAlloc::F(state);
 		}
 	}
-	SAlloc::F(state->name);
-	SAlloc::F(state->out_block);
-	SAlloc::F(state);
 	return ret;
 }
 
-#endif /* HAVE_ZLIB_H */
+#endif // HAVE_ZLIB_H

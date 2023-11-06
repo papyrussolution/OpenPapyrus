@@ -893,9 +893,7 @@ const char *Curl_strerror(int err, char * buf, size_t buflen)
 #endif
 
 #endif /* end of not Windows */
-
 	buf[max] = '\0'; /* make sure the string is null-terminated */
-
 	/* strip trailing '\r\n' or '\n'. */
 	p = strrchr(buf, '\n');
 	if(p && (p - buf) >= 2)
@@ -903,10 +901,8 @@ const char *Curl_strerror(int err, char * buf, size_t buflen)
 	p = strrchr(buf, '\r');
 	if(p && (p - buf) >= 1)
 		*p = '\0';
-
 	if(errno != old_errno)
 		errno = old_errno;
-
 #ifdef PRESERVE_WINDOWS_ERROR_CODE
 	if(old_win_err != GetLastError())
 		SetLastError(old_win_err);

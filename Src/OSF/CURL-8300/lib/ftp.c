@@ -24,9 +24,9 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifndef CURL_DISABLE_FTP
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
@@ -45,7 +45,7 @@
 //#include "hostip.h"
 //#include "progress.h"
 //#include "transfer.h"
-#include "escape.h"
+//#include "escape.h"
 //#include "http.h" /* for HTTP proxy tunnel stuff */
 #include "ftp.h"
 #include "fileinfo.h"
@@ -911,9 +911,9 @@ static CURLcode ftp_state_use_port(struct Curl_easy * data, /*ftpport*/int fcmd/
 	char * host = NULL;
 	char * string_ftpport = data->set.str[STRING_FTPPORT];
 	struct Curl_dns_entry * h = NULL;
-	unsigned short port_min = 0;
-	unsigned short port_max = 0;
-	unsigned short port;
+	ushort port_min = 0;
+	ushort port_max = 0;
+	ushort port;
 	bool possibly_non_local = TRUE;
 	char buffer[STRERROR_LEN];
 	char * addr = NULL;
@@ -1761,12 +1761,10 @@ static char *control_address(struct connectdata * conn)
 	return conn->primary_ip;
 }
 
-static bool match_pasv_6nums(const char * p,
-    uint * array)                         /* 6 numbers */
+static bool match_pasv_6nums(const char * p, uint * array/* 6 numbers */)
 {
-	int i;
-	for(i = 0; i < 6; i++) {
-		unsigned long num;
+	for(int i = 0; i < 6; i++) {
+		ulong num;
 		char * endp;
 		if(i) {
 			if(*p != ',')
@@ -1784,22 +1782,18 @@ static bool match_pasv_6nums(const char * p,
 	return TRUE;
 }
 
-static CURLcode ftp_state_pasv_resp(struct Curl_easy * data,
-    int ftpcode)
+static CURLcode ftp_state_pasv_resp(struct Curl_easy * data, int ftpcode)
 {
 	struct connectdata * conn = data->conn;
 	struct ftp_conn * ftpc = &conn->proto.ftpc;
 	CURLcode result;
 	struct Curl_dns_entry * addr = NULL;
 	enum resolve_t rc;
-	unsigned short connectport; /* the local port connect() should use! */
+	ushort connectport; /* the local port connect() should use! */
 	char * str = &data->state.buffer[4]; /* start on the first letter */
-
 	/* if we come here again, make sure the former name is cleared */
 	ZFREE(ftpc->newhost);
-
-	if((ftpc->count1 == 0) &&
-	    (ftpcode == 229)) {
+	if((ftpc->count1 == 0) && (ftpcode == 229)) {
 		/* positive EPSV response */
 		char * ptr = strchr(str, '(');
 		if(ptr) {
@@ -1811,7 +1805,7 @@ static CURLcode ftp_state_pasv_resp(struct Curl_easy * data,
 			   etc */
 			if((ptr[1] == sep) && (ptr[2] == sep) && ISDIGIT(ptr[3])) {
 				char * endp;
-				unsigned long num = strtoul(&ptr[3], &endp, 10);
+				ulong num = strtoul(&ptr[3], &endp, 10);
 				if(*endp != sep)
 					ptr = NULL;
 				else if(num > 0xffff) {

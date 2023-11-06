@@ -26,7 +26,7 @@
  * be removed someday if this file gains another always-present
  * symbol definition.
  */
-int __libarchive_cryptor_build_hack(void);
+int __libarchive_cryptor_build_hack();
 
 #ifdef __APPLE__
 #include <AvailabilityMacros.h>

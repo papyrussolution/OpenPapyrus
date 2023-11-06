@@ -32,7 +32,7 @@
 
 #include "vauth/vauth.h"
 //#include "urldata.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 //#include "warnless.h"
 #include "curl_multibyte.h"
 //#include "sendf.h"
@@ -103,7 +103,7 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 	SecBuffer resp_buf;
 	SecBufferDesc chlg_desc;
 	SecBufferDesc resp_desc;
-	unsigned long attrs;
+	ulong attrs;
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 #if defined(CURL_DISABLE_VERBOSE_STRINGS)

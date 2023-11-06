@@ -1,10 +1,9 @@
 // strtst.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2005-2016, International Business Machines Corporation and others.  All Rights Reserved.
- *   created by: George Rhoten
- */
+// Copyright (C) 2005-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// created by: George Rhoten
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ustdio.h"

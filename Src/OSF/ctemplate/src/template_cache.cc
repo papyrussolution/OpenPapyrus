@@ -234,10 +234,8 @@ TemplateCache::RefcountedTemplate* TemplateCache::GetTemplateLocked(const Templa
 		FileStat statbuf;
 		if(it->template_type == CachedTemplate::FILE_BASED &&
 		    (resolved != it->refcounted_tpl->tpl()->template_file() ||
-		    HasTemplateChangedOnDisk(
-			    it->refcounted_tpl->tpl()->template_file(),
-			    it->refcounted_tpl->tpl()->mtime(),
-			    &statbuf))) {
+		    HasTemplateChangedOnDisk(it->refcounted_tpl->tpl()->template_file(),
+			    it->refcounted_tpl->tpl()->mtime(), &statbuf))) {
 			// Create a new template, insert it into the cache under
 			// template_cache_key, and DecRef() the old one to indicate
 			// the cache no longer has a reference to it.
@@ -467,9 +465,8 @@ string TemplateCache::template_root_directory() const {
 // resolved filename, statbuf contains the stat structure for the file
 // (to avoid double-statting the file), and the function returns
 // true. Otherwise, the function returns false.
-bool TemplateCache::ResolveTemplateFilename(const string& unresolved,
-    string* resolved,
-    FileStat* statbuf) const {
+bool TemplateCache::ResolveTemplateFilename(const string& unresolved, string* resolved, FileStat* statbuf) const 
+{
 	ReaderMutexLock ml(search_path_mutex_);
 	if(search_path_.empty() || IsAbspath(unresolved)) {
 		*resolved = unresolved;
@@ -479,9 +476,7 @@ bool TemplateCache::ResolveTemplateFilename(const string& unresolved,
 		}
 	}
 	else {
-		for(TemplateSearchPath::const_iterator path = search_path_.begin();
-		    path != search_path_.end();
-		    ++path) {
+		for(TemplateSearchPath::const_iterator path = search_path_.begin(); path != search_path_.end(); ++path) {
 			*resolved = PathJoin(*path, unresolved);
 			if(File::Stat(*resolved, statbuf)) {
 				VLOG(1) << "Resolved " << unresolved << " to " << *resolved << endl;
@@ -494,22 +489,21 @@ bool TemplateCache::ResolveTemplateFilename(const string& unresolved,
 	return false;
 }
 
-string TemplateCache::FindTemplateFilename(const string& unresolved)
-const {
+string TemplateCache::FindTemplateFilename(const string& unresolved) const 
+{
 	string resolved;
 	FileStat statbuf;
 	if(!ResolveTemplateFilename(unresolved, &resolved, &statbuf))
 		resolved.clear();
 	return resolved;
 }
-
-// ----------------------------------------------------------------------
+//
 // TemplateCache::Delete()
 // TemplateCache::ClearCache()
 //    Delete deletes one entry from the cache.
-// ----------------------------------------------------------------------
-
-bool TemplateCache::Delete(const TemplateString& key) {
+//
+bool TemplateCache::Delete(const TemplateString& key) 
+{
 	WriterMutexLock ml(mutex_);
 	if(is_frozen_) { // Cannot delete from a frozen cache.
 		return false;
@@ -532,7 +526,8 @@ bool TemplateCache::Delete(const TemplateString& key) {
 	return !to_erase.empty();
 }
 
-void TemplateCache::ClearCache() {
+void TemplateCache::ClearCache() 
+{
 	// NOTE: We allow a frozen cache to be cleared with this method, although
 	// no other changes can be made to the cache.
 	// We clear the cache by swapping it with an empty cache.  This lets

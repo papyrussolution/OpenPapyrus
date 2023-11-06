@@ -30,9 +30,9 @@
  **********************************************************************/
 #ifdef CURLRES_THREADED
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -170,7 +170,7 @@ struct thread_data {
 	struct thread_sync_data tsd;
 };
 
-static struct thread_sync_data *conn_thread_sync_data(struct Curl_easy * data){
+static struct thread_sync_data *conn_thread_sync_data(struct Curl_easy * data) {
 	return &(data->state.async.tdata->tsd);
 }
 
@@ -637,24 +637,17 @@ int Curl_resolver_getsock(struct Curl_easy * data, curl_socket_t * socks)
 /*
  * Curl_getaddrinfo() - for platforms without getaddrinfo
  */
-struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data,
-    const char * hostname,
-    int port,
-    int * waitp){
+struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data, const char * hostname, int port, int * waitp) 
+{
 	struct resdata * reslv = (struct resdata *)data->state.async.resolver;
-
 	*waitp = 0; /* default to synchronous response */
-
 	reslv->start = Curl_now();
-
 	/* fire up a new resolver thread! */
 	if(init_resolve_thread(data, hostname, port, NULL)) {
 		*waitp = 1; /* expect asynchronous response */
 		return NULL;
 	}
-
 	failf(data, "getaddrinfo() thread failed");
-
 	return NULL;
 }
 
@@ -663,16 +656,12 @@ struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data,
 /*
  * Curl_resolver_getaddrinfo() - for getaddrinfo
  */
-struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data,
-    const char * hostname,
-    int port,
-    int * waitp){
+struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data, const char * hostname, int port, int * waitp) 
+{
 	struct addrinfo hints;
 	int pf = PF_INET;
 	struct resdata * reslv = (struct resdata *)data->state.async.resolver;
-
 	*waitp = 0; /* default to synchronous response */
-
 #ifdef CURLRES_IPV6
 	if((data->conn->ip_version != CURL_IPRESOLVE_V4) && Curl_ipv6works(data)) {
 		/* The stack seems to be IPv6-enabled */

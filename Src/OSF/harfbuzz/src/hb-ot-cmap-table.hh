@@ -1347,8 +1347,8 @@ public:
 			bool get_variation_glyph(hb_codepoint_t unicode, hb_codepoint_t variation_selector, hb_codepoint_t * glyph) const
 			{
 				switch(this->subtable_uvs->get_glyph_variant(unicode, variation_selector, glyph)) {
-					case GLYPH_VARIANT_NOT_FOUND:   return false;
-					case GLYPH_VARIANT_FOUND:       return true;
+					case GLYPH_VARIANT_NOT_FOUND: return false;
+					case GLYPH_VARIANT_FOUND: return true;
 					case GLYPH_VARIANT_USE_DEFAULT: break;
 				}
 				return get_nominal_glyph(unicode, glyph);

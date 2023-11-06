@@ -124,13 +124,13 @@ extern "C" {
  * header and library are very different, you should expect some
  * strangeness.  Don't do that.
  */
-__LA_DECL int archive_version_number(void);
+__LA_DECL int archive_version_number();
 /*
  * Textual name/version of the library, useful for version displays.
  */
 #define ARCHIVE_VERSION_ONLY_STRING "3.5.0"
 #define ARCHIVE_VERSION_STRING "libarchive " ARCHIVE_VERSION_ONLY_STRING
-__LA_DECL const char * archive_version_string(void);
+__LA_DECL const char * archive_version_string();
 
 /*
  * Detailed textual name/version of the library and its dependencies.
@@ -139,18 +139,18 @@ __LA_DECL const char * archive_version_string(void);
  * the list of libraries described here will vary depending on how
  * libarchive was compiled.
  */
-__LA_DECL const char * archive_version_details(void);
+__LA_DECL const char * archive_version_details();
 
 /*
  * Returns NULL if libarchive was compiled without the associated library.
  * Otherwise, returns the version number that libarchive was compiled
  * against.
  */
-__LA_DECL const char * archive_zlib_version(void);
-__LA_DECL const char * archive_liblzma_version(void);
-__LA_DECL const char * archive_bzlib_version(void);
-__LA_DECL const char * archive_liblz4_version(void);
-__LA_DECL const char * archive_libzstd_version(void);
+__LA_DECL const char * archive_zlib_version();
+__LA_DECL const char * archive_liblzma_version();
+__LA_DECL const char * archive_bzlib_version();
+__LA_DECL const char * archive_liblz4_version();
+__LA_DECL const char * archive_libzstd_version();
 
 /* Declare our basic types. */
 struct Archive;
@@ -238,21 +238,19 @@ typedef const char * archive_passphrase_callback(Archive *, void * _client_data)
 #define ARCHIVE_FILTER_GRZIP    12
 #define ARCHIVE_FILTER_LZ4      13
 #define ARCHIVE_FILTER_ZSTD     14
-
 #if ARCHIVE_VERSION_NUMBER < 4000000
-#define ARCHIVE_COMPRESSION_NONE        ARCHIVE_FILTER_NONE
-#define ARCHIVE_COMPRESSION_GZIP        ARCHIVE_FILTER_GZIP
-#define ARCHIVE_COMPRESSION_BZIP2       ARCHIVE_FILTER_BZIP2
-#define ARCHIVE_COMPRESSION_COMPRESS    ARCHIVE_FILTER_COMPRESS
-#define ARCHIVE_COMPRESSION_PROGRAM     ARCHIVE_FILTER_PROGRAM
-#define ARCHIVE_COMPRESSION_LZMA        ARCHIVE_FILTER_LZMA
-#define ARCHIVE_COMPRESSION_XZ          ARCHIVE_FILTER_XZ
-#define ARCHIVE_COMPRESSION_UU          ARCHIVE_FILTER_UU
-#define ARCHIVE_COMPRESSION_RPM         ARCHIVE_FILTER_RPM
-#define ARCHIVE_COMPRESSION_LZIP        ARCHIVE_FILTER_LZIP
-#define ARCHIVE_COMPRESSION_LRZIP       ARCHIVE_FILTER_LRZIP
+	#define ARCHIVE_COMPRESSION_NONE        ARCHIVE_FILTER_NONE
+	#define ARCHIVE_COMPRESSION_GZIP        ARCHIVE_FILTER_GZIP
+	#define ARCHIVE_COMPRESSION_BZIP2       ARCHIVE_FILTER_BZIP2
+	#define ARCHIVE_COMPRESSION_COMPRESS    ARCHIVE_FILTER_COMPRESS
+	#define ARCHIVE_COMPRESSION_PROGRAM     ARCHIVE_FILTER_PROGRAM
+	#define ARCHIVE_COMPRESSION_LZMA        ARCHIVE_FILTER_LZMA
+	#define ARCHIVE_COMPRESSION_XZ          ARCHIVE_FILTER_XZ
+	#define ARCHIVE_COMPRESSION_UU          ARCHIVE_FILTER_UU
+	#define ARCHIVE_COMPRESSION_RPM         ARCHIVE_FILTER_RPM
+	#define ARCHIVE_COMPRESSION_LZIP        ARCHIVE_FILTER_LZIP
+	#define ARCHIVE_COMPRESSION_LRZIP       ARCHIVE_FILTER_LRZIP
 #endif
-
 /*
  * Codes returned by archive_format.
  *
@@ -337,7 +335,7 @@ typedef const char * archive_passphrase_callback(Archive *, void * _client_data)
  *      data for entries of interest.
  *   5) Call archive_read_free to end processing.
  */
-__LA_DECL Archive * archive_read_new(void);
+__LA_DECL Archive * archive_read_new();
 
 /*
  * The archive_read_support_XXX calls enable auto-detect for this
@@ -667,7 +665,7 @@ __LA_DECL int archive_write_set_format_gnutar(Archive *);
 __LA_DECL int archive_write_set_format_iso9660(Archive *);
 __LA_DECL int archive_write_set_format_mtree(Archive *);
 __LA_DECL int archive_write_set_format_mtree_classic(Archive *);
-/* TODO: int archive_write_set_format_old_tar(Archive *); */
+/* @todo int archive_write_set_format_old_tar(Archive *); */
 __LA_DECL int archive_write_set_format_pax(Archive *);
 __LA_DECL int archive_write_set_format_pax_restricted(Archive *);
 __LA_DECL int archive_write_set_format_raw(Archive *);
@@ -791,7 +789,7 @@ __LA_DECL int64 archive_write_disk_uid(Archive *, const char *, int64);
  *
  * This is still evolving and somewhat experimental.
  */
-__LA_DECL Archive * archive_read_disk_new(void);
+__LA_DECL Archive * archive_read_disk_new();
 /* The names for symlink modes here correspond to an old BSD
  * command-line argument convention: -L, -P, -H */
 /* Follow all symlinks. */
@@ -800,7 +798,7 @@ __LA_DECL int archive_read_disk_set_symlink_logical(Archive *);
 __LA_DECL int archive_read_disk_set_symlink_physical(Archive *);
 /* Follow symlink initially, then not. */
 __LA_DECL int archive_read_disk_set_symlink_hybrid(Archive *);
-/* TODO: Handle Linux stat32/stat64 ugliness. <sigh> */
+/* @todo Handle Linux stat32/stat64 ugliness. <sigh> */
 __LA_DECL int archive_read_disk_entry_from_file(Archive *, ArchiveEntry *, int /* fd */, const struct _stat *);
 /* Look up gname for gid or uname for uid. */
 /* Default implementations are very, very stupid. */
@@ -904,7 +902,7 @@ __LA_DECL int  archive_file_count(Archive *);
 /*
  * ARCHIVE_MATCH API
  */
-__LA_DECL Archive * archive_match_new(void);
+__LA_DECL Archive * archive_match_new();
 __LA_DECL int   archive_match_free(Archive *);
 
 /*

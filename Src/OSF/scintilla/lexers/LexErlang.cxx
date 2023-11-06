@@ -489,8 +489,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 					parse_state = ATOM_UNQUOTED;
 					sc.SetState(SCE_ERLANG_UNKNOWN);
 				}
-				else if(isoperator(static_cast<char>(sc.ch))
-				   || sc.ch == '\\') {
+				else if(isoperator(static_cast<char>(sc.ch)) || sc.ch == '\\') {
 					sc.SetState(SCE_ERLANG_OPERATOR);
 				}
 			}

@@ -585,6 +585,7 @@
 #define ZDELETEARRAY(p)             ((delete [] (p)), (p) = 0)
 #define FREEANDASSIGN(p, n)         (SAlloc::F(p), (p) = (n))
 #define ZFREE(p)                    FREEANDASSIGN((p), 0)
+#define ZFREE_const(p)              (SAlloc::F((void *)p), (p) = 0)
 //
 // Exception handling
 //
@@ -2523,6 +2524,12 @@ public:
 	SIntHandle(intptr_t h) : H(static_cast<uintptr_t>(h))
 	{
 	}
+	SIntHandle & Z()
+	{
+		H = static_cast<uintptr_t>(-1);
+		return *this;
+	}
+	bool IsValid() const { return (H != static_cast<uintptr_t>(-1)); }
 	bool operator !() const { return (H == static_cast<uintptr_t>(-1)); }
 	operator HANDLE() const { return reinterpret_cast<HANDLE>(H); }
 private:
@@ -5132,10 +5139,17 @@ FORCEINLINE int    sstrleni(const wchar_t * pStr) { return static_cast<int>(sstr
 uint   FASTCALL iseol(const char * pStr, SEOLFormat eolf);
 size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen);
 FORCEINLINE size_t FASTCALL sstrnlen(const uchar * pStr, size_t maxLen) { return sstrnlen(reinterpret_cast<const char *>(pStr), maxLen); }
+
 const char * FASTCALL sstrchr(const char * pStr, char c);
 char  * FASTCALL sstrchr(char * pStr, char c);
 const wchar_t * FASTCALL sstrchr(const wchar_t * pStr, wchar_t c);
 wchar_t  * FASTCALL sstrchr(wchar_t * pStr, wchar_t c);
+
+const char * FASTCALL sstrrchr(const char * pStr, char c);
+char  * FASTCALL sstrrchr(char * pStr, char c);
+const wchar_t * FASTCALL sstrrchr(const wchar_t * pStr, wchar_t c);
+wchar_t  * FASTCALL sstrrchr(wchar_t * pStr, wchar_t c);
+
 char  * FASTCALL sstrdup(const char * pStr);
 uchar * FASTCALL sstrdup(const uchar * pStr);
 wchar_t * FASTCALL sstrdup(const wchar_t * pStr);
@@ -5852,33 +5866,6 @@ public:
 private:
 	Imp * P_E;
 };
-//
-// File utilities
-//
-class SFileUtil {
-public:
-	struct Stat {
-		LDATETIME CrtTime;
-		LDATETIME AccsTime;
-		LDATETIME ModTime;
-		int64  Size;
-	};
-	static int GetStat(const char * pFileName, Stat * pStat);
-	static int GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail);
-	/* @v11.8.5 Упразднено в пользу GetKnownFolderPath()
-	enum {
-		sdSystem = 1,
-		sdProgramFiles,
-		sdProgramFilesCommon,
-		sdWindows,
-		sdAppData,
-		sdAppDataLocal,
-		sdCommonDocuments,
-		sdTemporary // @v11.0.3
-	};
-	static int GetSysDir(int pathId, SString & rPath);
-	*/
-};
 
 int	   pathToUNC(const char * pPath, SString & rUncPath);
 // @v10.5.6 char * replacePath(char * fileName, const char * newPath, int force);
@@ -6033,8 +6020,10 @@ static constexpr size_t _FFFFST  = static_cast<size_t>(-1);
 
 constexpr uint8  FFFF(uint8 & rV) { rV = static_cast<uint8>('\xff'); return rV; }
 constexpr int8   FFFF(int8 & rV) { rV = static_cast<int8>('\xff'); return rV; }
+#pragma warning(disable: 4309)
 constexpr uint16 FFFF(uint16 & rV) { rV = static_cast<uint16>(0xffff); return rV; }
 constexpr int16  FFFF(int16 & rV) { rV = static_cast<int16>(0xffff); return rV; }
+#pragma warning(default: 4309)
 constexpr uint   FFFF(uint & rV) { rV = 0xffffffffU; return rV; }
 constexpr int    FFFF(int & rV) { rV = 0xffffffff; return rV; }
 constexpr ulong  FFFF(ulong & rV) { rV = 0xffffffffUL; return rV; }
@@ -6445,6 +6434,7 @@ public:
 	bool   FASTCALL operator != (const SBinaryChunk & rS) const;
 	SBinaryChunk & Z();
 	bool   operator !() const { return Len() == 0; }
+	size_t GetAllocatedSize() const { return SBaseBuffer::Size; } // @v11.8.9
 	size_t Len() const;
 	const void * PtrC() const;
 	const void * PtrC(size_t offs) const;
@@ -6508,6 +6498,21 @@ public:
 	//
 	// Descr: Формирует отрезок длиной len и копирует в него данные из указателя pData.
 	//   Если pData == 0 и len == 0 то буфер становится пустым (память не освобождается, то есть вызов Put(0, 0) эквивалентен Z()).
+	// 
+	//   Если pData == SBaseBuffer::P_Buf, то копирования данных не происходит - устанавливается лишь
+	//   фактический размер данных L. 
+	//   Это сделано ради трюка запроса данных из внешного компонента, когда точный размер данных не известен до
+	//   получения данных.
+	//   Например:
+	//   
+	//   SBinaryChunk c;
+	//   size_t size = SOME_MAXIMUM_SIZE;
+	//   c.Ensure(size);
+	//   if(QuerySomeData(c.Ptr(), &size)) {
+	//     assert(size <= SOME_MAXIMUM_SIZE);
+	//     c.Put(c.PtrC(), size); 
+	//   }
+	// 
 	// Returns:
 	//   true - функция выполнена успешно
 	//   false - ошибка
@@ -9483,271 +9488,6 @@ private:
 	bool   FASTCALL ValidateEntryHandle(const SPtrHandle h) const;
 };
 //
-//
-//
-struct SDirEntry { // @flat
-	SDirEntry();
-	SDirEntry & FASTCALL operator = (const _wfinddatai64_t & rS);
-	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAA & rS);
-	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAW & rS);
-	SString & GetNameUtf8(SString & rBuf) const;
-	SString & GetNameA(SString & rBuf) const;
-	SString & GetNameUtf8(const char * pPath, SString & rBuf) const;
-	SString & GetNameA(const char * pPath, SString & rBuf) const;
-	//
-	// Descr: Возвращает !0 если является каталогом
-	//
-	bool   IsFolder() const;
-	//
-	// Descr: Возвращает !0 если является ссылкой на каталог верхнего уровня ("..")
-	//
-	bool   IsUpFolder() const;
-	//
-	// Descr: Возвращает !0 если является ссылкой на текущий каталог (".")
-	//
-	bool   IsSelf() const;
-	//
-	// Descr: Возвращает !0 если является файлом (== (!IsFolder() && !IsUpFolder() && !IsSelf()))
-	//
-	bool   IsFile() const;
-
-	enum {
-		attrRdOnly = 0x00000001, // dos/win _A_RDONLY
-		attrHidden = 0x00000002, // dos/win _A_HIDDEN
-		attrSystem = 0x00000004, // dos/win _A_SYSTEM
-		attrSubdir = 0x00000010, // dos/win _A_SUBDIR / unix attr 'd'
-		attrArch   = 0x00000020, // dos/win _A_ARCH
-		//
-		// Следующие 9 флагов имеют внутренние значения не сопоставленные с иными стандартами или канонизациями.
-		//
-		attrOwpR   = 0x00010000, // unix owner permission Read
-		attrOwpW   = 0x00020000, // unix owner permission Write
-		attrOwpX   = 0x00040000, // unix owner permission Execute
-		attrGrpR   = 0x00080000, // unix group permission Read
-		attrGrpW   = 0x00100000, // unix group permission Write
-		attrGrpX   = 0x00200000, // unix group permission Execute
-		attrUsrR   = 0x00400000, // unix user permission Read
-		attrUsrW   = 0x00800000, // unix user permission Write
-		attrUsrX   = 0x01000000, // unix user permission Execute
-	};
-
-	uint32 Attr;
-	LDATETIME CreateTime;
-	LDATETIME AccessTime;
-	LDATETIME WriteTime;
-	int64  Size;
-	//char   FileName[1024];
-	wchar_t Name[1024]; // @v11.6.0 char-->wchar_t
-};
-
-class SDirec {
-public:
-	static int GetSingle(const char * pPath, SDirEntry * pEntry);
-	SDirec();
-	explicit SDirec(const char * pathname, int enumDirs = 0);
-	~SDirec();
-	int    Init(const char * pathname, int enumDirs = 0);
-	int    FASTCALL Next(SDirEntry *);
-private:
-	int    FindFirst();
-	int    FindNext();
-	int    FindClose();
-
-	wchar_t InitPath[ALIGNSIZE(MAX_PATH, 2)]; // @v10.8.0 MAX_PATH-->ALIGNSIZE(MAX_PATH, 2) // @v11.6.0 char-->wchar_t
-	int    InitFlag;
-	int    EnumDir;
-	long   lPosData;
-	void * vPosData;
-	size_t PosDataSize;
-	SDirEntry CurEntry;
-};
-
-int    GetFileStat(const char * pFileName, SDirEntry * pEntry);
-int    RemoveDir(const char * pDir);
-//
-// Descr: Returns execution file name in buffer pBuf.
-// Returns:
-//   pBuf
-//
-SString & GetExecPath(SString & rBuf);
-//
-// Descr: Находит актуальное значение "известной" (known) папки в файловой системе.
-//   Папки идентифицируются ued-сущностью UED_FSKNOWNFOLDER_XXX
-// Returns:
-//   true - путь к папке успешно определен и присвоен по ссылке rPath
-//   false - не удалось определить требуемый путь. Строка по ссылке rPath пустая.
-//
-bool   GetKnownFolderPath(uint64 uedFolderId, SString & rPath);
-
-struct SKnownFolderEntry {
-	uint64 UED;
-	S_GUID Guid;
-	SString PathUtf8;
-	int    Result;
-};
-//
-// Descr: Заполняет список известных путей. 
-// Note: Функция сделана в отладочных целях.
-//
-int   GetKnownFolderList(TSCollection <SKnownFolderEntry> & rList);
-
-struct SFindFileParam {
-	SFindFileParam();
-	SFindFileParam(const char * pInitPath, const char * pFileNamePattern);
-	uint   Flags;
-	SString InitPath;
-	SString FileNamePattern;
-	SString ContentPattern;
-};
-
-int    SFindFile2(const SFindFileParam & rP, SFileEntryPool & rResult);
-//
-// Descr: Класс, реализующий функцию поиска файла (каталога) по шаблону.
-//   Осуществляет рекурсивный поиск файла по шаблону P_FileName, начиная с
-//   каталога P_Path.
-//   Для определения действий над найденными файлами следует реализовать
-//   виртуальную функцию CallbackProc.
-//
-class SFindFile {
-public:
-	SFindFile(const char * pPath = 0, const char * pFileName = 0);
-	//
-	// Descr: Запускает механизм поиска. Предварительно должны быть инициализированы
-	//   необходимые поля.
-	//
-	int    Run();
-protected:
-	//
-	// Descr: вызывается на каждый найденный по заданным условиям файл, а также
-	//   для всех каталогов, вложенных в стартовый каталог P_Path.
-	//   Для каталогов поле pEntry->FileName[0] == 0.
-	// Returns:
-	//   !0 - метод Run должен продолжать работу
-	//   0 - метод Run следует остановить. В этом случае Run() вернет 0.
-	//
-	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
-	const  char * P_Path;     // @#{vptr}
-	//const  char * P_FileName; // @#{vptr0}
-	//const  char * P_SubStr;   // reserved
-	SString FileNamePattern;
-	SString SubStr;           // reserved
-	uint   Flags;
-	uint   State;
-	long   DirCount;          // Увеличивается на единицу для каждого найденного подкаталога
-	long   FileCount;         // Увеличивается на единицу для каждого найденного файла,
-		// соответствующего шаблону PFileName
-	friend int Helper_SFindFile(const SString * pPath, SFindFile * pParam);
-};
-
-class SFindFile_ToPool : public SFindFile { // @v11.8.1
-public:
-	SFindFile_ToPool(const char * pPath = 0, const char * pFileName = 0);
-	int    Run(SFileEntryPool & rResult);
-private:
-	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
-	SFileEntryPool * P_UserContainer;
-};
-//
-// Descr: Пул элементов файлового каталога.
-// Note: since v11.6.0 наименования файлов хранятся в кодировке utf8
-//
-class SFileEntryPool : public SStrGroup {
-public:
-	friend DECL_CMPFUNC(SFileEntryPool_Entry);
-	struct Entry {
-		Entry();
-		Entry & Z();
-
-		uint32 Attr; // SDirEntry::attrXXX
-		LDATETIME CreateTime;
-		LDATETIME AccessTime;
-		LDATETIME WriteTime;
-		int64  Size;
-		SString Name;
-		SString Path;
-		SString RemoteUrl; // @v10.8.2 Специальный "хвост" позволяющий сопоставить элемент пула с каким-либо серверным url-ом
-	};
-	SFileEntryPool();
-	SFileEntryPool & Z();
-	//
-	// Descr: Ищет в коллекции имя файла (без пути) pFileName. Если такое имя найдено,
-	//   то возвращает >0 и, если pEntry != 0, то присваивает по этому указателю полную структуру найденного элемента.
-	// Returns:
-	//   >0 - искомое имя найдено
-	//    0 - имя не найдено (по указателю pEntry ничего не присваивается)
-	//
-	int    STDCALL  SearchName(const char * pFileName, Entry * pEntry) const;
-	void   FASTCALL SetInitPath(const char * pPath);
-	int    FASTCALL GetInitPath(SString & rPath) const;
-	//
-	// Descr: Флаги функции Scan()
-	//
-	enum {
-		scanfRecursive = 0x0001, // Рекурсивно перебирать файлы в подкаталогах
-		scanfKeepCase  = 0x0002  // @v11.8.7 При нормализации имен файлов и каталогов сохранять оригинальный регистр символов
-	};
-	//
-	// Descr: Сканирует файловую систему начиная с каталога pPath по шаблону pWildcard.
-	// Note: Если !isempty(pPath), то он сохраняется во внутреннем представленнии головного каталога.
-	// Returns:
-	//   >0 - найден по крайней мере один файл, удовлетворяющий условиям
-	//   <0 - не найдено ни одного файла
-	//   0  - ошибка
-	//
-	int    Scan(const char * pPath, const char * pWildcard, long flags);
-	int    Add(const char * pPath, const SDirEntry & rDe, long flags);
-	//
-	// Descr: Вставляет в пул файл с полным путем pPath.
-	// Returns:
-	//   >0 - функция завершилась успешно
-	//    0 - error (в том числе если файл не найден)
-	//
-	int    Add(const char * pPath, long flags);
-	int    Add(const char * pPath, const char * pRemoteUrl, long flags);
-	int    Add(SFileEntryPool::Entry & rDe, long flags);
-    uint   GetCount() const;
-    int    Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const;
-	//
-	// Descr: Удаляет элемент по индексу pos.
-	// Note: Само-собой разумеется, что сам файл не удаляется.
-	//
-	int    FASTCALL Remove(uint pos);
-
-    enum {
-    	scByName = 1,
-    	scByExt,
-    	scByFullName,
-    	scByCrTime,
-    	scByAccsTime,
-    	scByWrTime,
-    	scBySize,
-
-    	scDesc = 0x8000 // Флаг обратного порядка сортировки
-    };
-    void   Sort(int criteria);
-private:
-	struct InnerEntry {
-		uint   Attr;
-		LDATETIME CreateTime;
-		LDATETIME AccessTime;
-		LDATETIME WriteTime;
-		int64  Size;
-		uint   NameP;
-		uint   PathP;
-		uint   RemoteUrlP; // @v10.8.2
-	};
-
-	void   ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
-	int    Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl, long flags);
-	int    Helper_Scan(const char * pPath, const char * pWildcard, long flags);
-
-    TSVector <InnerEntry> L;
-    long   State;
-	uint   InitPathP; // Опциональная позиция начального каталога. В общем случае
-		// это поле не важно, но иногда функции "хотят" передавать друг другу
-		// головной каталог вместе с набором файлов.
-};
-//
 // Descr: Список временных отрезков.
 // Remark: Класс спроектирован с учетом того, что порожденные классы могут использовать
 //   элементы списка, отличные от STimeChunk, но при этом, такие элементы должны в начале
@@ -12442,6 +12182,59 @@ public:
 
 	static int Sort(const char * pSrcFileName, const char * pOutFileName, CompFunc fcmp, SortParam * pExtraParam);
 	//
+	// Descr: Атрибутуты файлов
+	//
+	enum {
+		attrRdOnly       = 0x00000001, // dos/win _A_RDONLY
+		attrHidden       = 0x00000002, // dos/win _A_HIDDEN
+		attrSystem       = 0x00000004, // dos/win _A_SYSTEM
+		attrSubdir       = 0x00000010, // dos/win _A_SUBDIR / unix attr 'd'
+		attrArch         = 0x00000020, // dos/win _A_ARCH
+		attrReparsePoint = 0x00000400, // @v11.8.9 FILE_ATTRIBUTE_REPARSE_POINT        
+		//
+		// Следующие 9 флагов имеют внутренние значения не сопоставленные с иными стандартами или канонизациями.
+		//
+		attrOwpR   = 0x00010000, // unix owner permission Read
+		attrOwpW   = 0x00020000, // unix owner permission Write
+		attrOwpX   = 0x00040000, // unix owner permission Execute
+		attrGrpR   = 0x00080000, // unix group permission Read
+		attrGrpW   = 0x00100000, // unix group permission Write
+		attrGrpX   = 0x00200000, // unix group permission Execute
+		attrUsrR   = 0x00400000, // unix user permission Read
+		attrUsrW   = 0x00800000, // unix user permission Write
+		attrUsrX   = 0x01000000, // unix user permission Execute
+	};
+
+	struct Stat { // @flat
+		//
+		// Descr: Идентификаторы полей параметров файла в SBinarySet
+		//
+		enum {
+			sbiRaparseTag = 1,
+		};
+		Stat();
+		Stat & Z();
+		//
+		// Descr: Возвращает !0 если является каталогом
+		//
+		bool   IsFolder() const;
+		bool   IsSymLink() const;
+
+		enum {
+			fError = 0x0001 // При извлечении данных структуры возникла ошибка
+		};
+		uint32 Flags; // @v11.8.9 Внутренние флаги 
+		uint32 Attr;  // @v11.8.9
+		int64  Size;
+		uint32 ReparsePointTag; // @v11.8.9 if(Attr & attrReparsePoint) then this is additional tag of reparse point (wintn.h: IO_REPARSE_TAG_XXX).
+		LDATETIME CrtTime;
+		LDATETIME AccsTime;
+		LDATETIME ModTime;
+	};
+	static int GetStat(const char * pFileName, uint flags, Stat * pStat, SBinarySet * pExtSet);
+	static int GetStat__(SIntHandle h, uint flags, Stat * pStat, SBinarySet * pExtSet); // @v11.8.9
+	static int GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail);
+	//
 	// Descr: возвращает меточные даты файла с именем pFileName
 	// ARG(pFileName    IN): полное имя файла
 	// ARG(pCreation   OUT): дата и время создания файла
@@ -12679,6 +12472,58 @@ public:
 	//   0  - ошибка
 	//
 	int    CalcCRC(long offs, uint32 * pCrc);
+	//
+	//
+	//
+	enum {
+		fileforcefNone       = 0,        //FMF_NONE=0, 
+		fileforcefACL        = 0x0001,   //FMF_ACL=1, 
+		fileforcefMyACL      = 0x0002,   //FMF_MYACL=2, 
+		fileforcefEmptyRetry = 0x0004,   //FMF_EMPTY_RETRY=4, 
+		fileforcefAttr       = 0x0100,   //FMF_ATTR=0x100 
+	};
+
+	static SIntHandle ForceCreateFile(const wchar_t * pPath, uint mode, uint share, /*SECURITY_ATTRIBUTES*/void * pSa, uint crMode, uint crFlg, /*HANDLE hTempl,*/uint flags);
+	//
+	// @v11.8.9 
+	// Descr: Структура, ассоциированная с ReparsePoint Windows.
+	//   Извлекается и устанавливается вызовом DeviceIoControl с аргументом
+	//   dwIoControlCode соответственно, FSCTL_GET_REPARSE_POINT и FSCTL_SET_REPARSE_POINT.
+	// Note: Почему-то определения этой структуры нет в штатных заголовочных файлах Windows SDK.
+	//   Более того, она не описана в официальной документации Microsoft по Win API (возможно, где-то есть, но я не нашел).
+	//   Я взял ее из библиотеки libarchive. Одновременно, сравнил с аналогичным определением в far manager - 
+	//   там то же самое. То есть, предполагаю, что приведенное ниже определение надежно.
+	//   Я лишь заменил традиционные для Win API типы данных на те, что применяются в SLIB.
+	//
+	struct ReparseDataBuffer /*_REPARSE_DATA_BUFFER*/ {
+		ulong  ReparseTag;
+		ushort ReparseDataLength;
+		ushort Reserved;
+		union {
+			struct {
+				ushort SubstituteNameOffset;
+				ushort SubstituteNameLength;
+				ushort PrintNameOffset;
+				ushort PrintNameLength;
+				ulong  Flags;
+				wchar_t PathBuffer[1];
+			} SymbolicLinkReparseBuffer;
+			struct {
+				ushort SubstituteNameOffset;
+				ushort SubstituteNameLength;
+				ushort PrintNameOffset;
+				ushort PrintNameLength;
+				wchar_t PathBuffer[1];
+			} MountPointReparseBuffer;
+			struct {
+				uchar  DataBuffer[1];
+			} GenericReparseBuffer;
+		};
+	};
+	
+	static bool GetReparsePoint(SIntHandle h, SBinaryChunk & rC);
+	static bool SetReparsePoint(SIntHandle h, const SBinaryChunk & rC);
+	static bool DeleteReparsePoint(SIntHandle h, const SBinaryChunk & rC);
 private:
 	struct LckChunk {
 		int32  Size;
@@ -12714,6 +12559,280 @@ private:
 	// для использования другой блокировкой.
 	//
 	TSVector <SFile::LckChunk> LckList;
+};
+//
+// File utilities
+//
+#if 0 // @v11.8.9 (moved to SFile) {
+class SFileUtil {
+public:
+	struct Stat {
+		uint32 Attr; // @v11.8.9
+		LDATETIME CrtTime;
+		LDATETIME AccsTime;
+		LDATETIME ModTime;
+		int64  Size;
+	};
+	static int GetStat(const char * pFileName, Stat * pStat);
+	static int GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail);
+	/* @v11.8.5 Упразднено в пользу GetKnownFolderPath()
+	enum {
+		sdSystem = 1,
+		sdProgramFiles,
+		sdProgramFilesCommon,
+		sdWindows,
+		sdAppData,
+		sdAppDataLocal,
+		sdCommonDocuments,
+		sdTemporary // @v11.0.3
+	};
+	static int GetSysDir(int pathId, SString & rPath);
+	*/
+};
+#endif // } 0 @v11.8.9 (moved to SFile)
+//
+//
+//
+struct SDirEntry : public SFile::Stat { // @flat
+	SDirEntry();
+	SDirEntry & Z();
+	SDirEntry & FASTCALL operator = (const _wfinddatai64_t & rS);
+	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAA & rS);
+	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAW & rS);
+	SString & GetNameUtf8(SString & rBuf) const;
+	SString & GetNameA(SString & rBuf) const;
+	SString & GetNameUtf8(const char * pPath, SString & rBuf) const;
+	SString & GetNameA(const char * pPath, SString & rBuf) const;
+	//
+	// Descr: Возвращает !0 если является ссылкой на каталог верхнего уровня ("..")
+	//
+	bool   IsUpFolder() const;
+	//
+	// Descr: Возвращает !0 если является ссылкой на текущий каталог (".")
+	//
+	bool   IsSelf() const;
+	//
+	// Descr: Возвращает !0 если является файлом (== (!IsFolder() && !IsUpFolder() && !IsSelf()))
+	//
+	bool   IsFile() const;
+
+	//uint32 Attr;
+	//LDATETIME CreateTime;
+	//LDATETIME AccessTime;
+	//LDATETIME WriteTime;
+	//int64  Size;
+	//uint32 ReparsePointTag; // @v11.8.9 if(Attr & attrReparsePoint) then this is additional tag of reparse point (wintn.h: IO_REPARSE_TAG_XXX).
+	//char   FileName[1024];
+	wchar_t Name[1024]; // @v11.6.0 char-->wchar_t
+};
+
+class SDirec {
+public:
+	static int GetSingle(const char * pPath, SDirEntry * pEntry);
+	SDirec();
+	explicit SDirec(const char * pathname, int enumDirs = 0);
+	~SDirec();
+	int    Init(const char * pathname, int enumDirs = 0);
+	int    FASTCALL Next(SDirEntry *);
+private:
+	int    FindFirst();
+	int    FindNext();
+	void   Close();
+
+	wchar_t InitPath[ALIGNSIZE(MAX_PATH, 2)]; // @v10.8.0 MAX_PATH-->ALIGNSIZE(MAX_PATH, 2) // @v11.6.0 char-->wchar_t
+	int    InitFlag;
+	int    EnumDir;
+	SIntHandle H; // @v11.8.9
+	// @v11.8.9 long   lPosData;
+	void * vPosData;
+	size_t PosDataSize;
+	SDirEntry CurEntry;
+};
+
+int    GetFileStat(const char * pFileName, SDirEntry * pEntry);
+int    RemoveDir(const char * pDir);
+//
+// Descr: Returns execution file name in buffer pBuf.
+// Returns:
+//   pBuf
+//
+SString & GetExecPath(SString & rBuf);
+//
+// Descr: Находит актуальное значение "известной" (known) папки в файловой системе.
+//   Папки идентифицируются ued-сущностью UED_FSKNOWNFOLDER_XXX
+// Returns:
+//   true - путь к папке успешно определен и присвоен по ссылке rPath
+//   false - не удалось определить требуемый путь. Строка по ссылке rPath пустая.
+//
+bool   GetKnownFolderPath(uint64 uedFolderId, SString & rPath);
+
+struct SKnownFolderEntry {
+	uint64 UED;
+	S_GUID Guid;
+	SString PathUtf8;
+	int    Result;
+};
+//
+// Descr: Заполняет список известных путей. 
+// Note: Функция сделана в отладочных целях.
+//
+int   GetKnownFolderList(TSCollection <SKnownFolderEntry> & rList);
+
+struct SFindFileParam {
+	SFindFileParam();
+	SFindFileParam(const char * pInitPath, const char * pFileNamePattern);
+	uint   Flags;
+	SString InitPath;
+	SString FileNamePattern;
+	SString ContentPattern;
+};
+
+int    SFindFile2(const SFindFileParam & rP, SFileEntryPool & rResult);
+//
+// Descr: Класс, реализующий функцию поиска файла (каталога) по шаблону.
+//   Осуществляет рекурсивный поиск файла по шаблону P_FileName, начиная с
+//   каталога P_Path.
+//   Для определения действий над найденными файлами следует реализовать
+//   виртуальную функцию CallbackProc.
+//
+class SFindFile {
+public:
+	SFindFile(const char * pPath = 0, const char * pFileName = 0);
+	//
+	// Descr: Запускает механизм поиска. Предварительно должны быть инициализированы
+	//   необходимые поля.
+	//
+	int    Run();
+protected:
+	//
+	// Descr: вызывается на каждый найденный по заданным условиям файл, а также
+	//   для всех каталогов, вложенных в стартовый каталог P_Path.
+	//   Для каталогов поле pEntry->FileName[0] == 0.
+	// Returns:
+	//   !0 - метод Run должен продолжать работу
+	//   0 - метод Run следует остановить. В этом случае Run() вернет 0.
+	//
+	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
+	const  char * P_Path;     // @#{vptr}
+	//const  char * P_FileName; // @#{vptr0}
+	//const  char * P_SubStr;   // reserved
+	SString FileNamePattern;
+	SString SubStr;           // reserved
+	uint   Flags;
+	uint   State;
+	long   DirCount;          // Увеличивается на единицу для каждого найденного подкаталога
+	long   FileCount;         // Увеличивается на единицу для каждого найденного файла,
+		// соответствующего шаблону PFileName
+	friend int Helper_SFindFile(const SString * pPath, SFindFile * pParam);
+};
+
+class SFindFile_ToPool : public SFindFile { // @v11.8.1
+public:
+	SFindFile_ToPool(const char * pPath = 0, const char * pFileName = 0);
+	int    Run(SFileEntryPool & rResult);
+private:
+	virtual int CallbackProc(const char * pPath, SDirEntry * pEntry);
+	SFileEntryPool * P_UserContainer;
+};
+//
+// Descr: Пул элементов файлового каталога.
+// Note: since v11.6.0 наименования файлов хранятся в кодировке utf8
+//
+class SFileEntryPool : public SStrGroup {
+public:
+	friend DECL_CMPFUNC(SFileEntryPool_Entry);
+	struct Entry : public SFile::Stat {
+		Entry();
+		Entry & Z();
+
+		//uint32 Attr; // SDirEntry::attrXXX
+		//LDATETIME CreateTime;
+		//LDATETIME AccessTime;
+		//LDATETIME WriteTime;
+		//int64  Size;
+		SString Name;
+		SString Path;
+		SString RemoteUrl; // @v10.8.2 Специальный "хвост" позволяющий сопоставить элемент пула с каким-либо серверным url-ом
+	};
+	SFileEntryPool();
+	SFileEntryPool & Z();
+	//
+	// Descr: Ищет в коллекции имя файла (без пути) pFileName. Если такое имя найдено,
+	//   то возвращает >0 и, если pEntry != 0, то присваивает по этому указателю полную структуру найденного элемента.
+	// Returns:
+	//   >0 - искомое имя найдено
+	//    0 - имя не найдено (по указателю pEntry ничего не присваивается)
+	//
+	int    STDCALL  SearchName(const char * pFileName, Entry * pEntry) const;
+	void   FASTCALL SetInitPath(const char * pPath);
+	int    FASTCALL GetInitPath(SString & rPath) const;
+	//
+	// Descr: Флаги функции Scan()
+	//
+	enum {
+		scanfRecursive = 0x0001, // Рекурсивно перебирать файлы в подкаталогах
+		scanfKeepCase  = 0x0002  // @v11.8.7 При нормализации имен файлов и каталогов сохранять оригинальный регистр символов
+	};
+	//
+	// Descr: Сканирует файловую систему начиная с каталога pPath по шаблону pWildcard.
+	// Note: Если !isempty(pPath), то он сохраняется во внутреннем представленнии головного каталога.
+	// Returns:
+	//   >0 - найден по крайней мере один файл, удовлетворяющий условиям
+	//   <0 - не найдено ни одного файла
+	//   0  - ошибка
+	//
+	int    Scan(const char * pPath, const char * pWildcard, long flags);
+	int    Add(const char * pPath, const SDirEntry & rDe, long flags);
+	//
+	// Descr: Вставляет в пул файл с полным путем pPath.
+	// Returns:
+	//   >0 - функция завершилась успешно
+	//    0 - error (в том числе если файл не найден)
+	//
+	int    Add(const char * pPath, long flags);
+	int    Add(const char * pPath, const char * pRemoteUrl, long flags);
+	int    Add(SFileEntryPool::Entry & rDe, long flags);
+    uint   GetCount() const;
+    int    Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const;
+	//
+	// Descr: Удаляет элемент по индексу pos.
+	// Note: Само-собой разумеется, что сам файл не удаляется.
+	//
+	int    FASTCALL Remove(uint pos);
+
+    enum {
+    	scByName = 1,
+    	scByExt,
+    	scByFullName,
+    	scByCrTime,
+    	scByAccsTime,
+    	scByWrTime,
+    	scBySize,
+
+    	scDesc = 0x8000 // Флаг обратного порядка сортировки
+    };
+    void   Sort(int criteria);
+private:
+	struct InnerEntry : public SFile::Stat {
+		//uint   Attr;
+		//LDATETIME CreateTime;
+		//LDATETIME AccessTime;
+		//LDATETIME WriteTime;
+		//int64  Size;
+		uint   NameP;
+		uint   PathP;
+		uint   RemoteUrlP; // @v10.8.2
+	};
+
+	void   ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
+	int    Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl, long flags);
+	int    Helper_Scan(const char * pPath, const char * pWildcard, long flags);
+
+    TSVector <InnerEntry> L;
+    long   State;
+	uint   InitPathP; // Опциональная позиция начального каталога. В общем случае
+		// это поле не важно, но иногда функции "хотят" передавать друг другу
+		// головной каталог вместе с набором файлов.
 };
 //
 // Descr: Незамысловатый класс, управляющий хранением большого числа файлов с жестко определенными наименованиями.
@@ -16291,8 +16410,8 @@ public:
 	int    TryLock() { return Cs.TryEnter(); }
 	void   Unlock() { Cs.Leave(); }
 private:
-	SMtLock(const SMtLock & rS) {} // @v11.8.6 disable copying
-	SMtLock & operator == (const SMtLock & rS) {} // @v11.8.6 disable copying
+	SMtLock(const SMtLock & /*rS*/) {} // @v11.8.6 disable copying
+	SMtLock & operator == (const SMtLock & /*rS*/) {} // @v11.8.6 disable copying
 	SCriticalSection::Data Cs;
 };
 //
@@ -16780,6 +16899,8 @@ public:
 	static int  CheckAccessTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
 	static bool EnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pName, bool enable);
 	static bool AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPrivilegeName);
+
+	static bool CheckAndEnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
 	
 	SlProcess();
 	~SlProcess();

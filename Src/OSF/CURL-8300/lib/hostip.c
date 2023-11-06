@@ -24,9 +24,9 @@
 #include "curl_setup.h"
 #pragma hdrstop
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETINET_IN6_H
 #include <netinet/in6.h>
 #endif
@@ -269,7 +269,7 @@ static curl_simple_lock curl_jmpenv_lock;
 /* lookup address, returns entry if found and not stale */
 static struct Curl_dns_entry *fetch_addr(struct Curl_easy * data,
     const char * hostname,
-    int port){
+    int port) {
 	struct Curl_dns_entry * dns = NULL;
 	char entry_id[MAX_HOSTCACHE_LEN];
 
@@ -347,7 +347,7 @@ static struct Curl_dns_entry *fetch_addr(struct Curl_easy * data,
  */
 struct Curl_dns_entry *Curl_fetch_addr(struct Curl_easy * data,
     const char * hostname,
-    int port){
+    int port) {
 	struct Curl_dns_entry * dns = NULL;
 
 	if(data->share)
@@ -457,7 +457,7 @@ struct Curl_dns_entry *Curl_cache_addr(struct Curl_easy * data,
     struct Curl_addrinfo * addr,
     const char * hostname,
     size_t hostlen,             /* length or zero */
-    int port){
+    int port) {
 	char entry_id[MAX_HOSTCACHE_LEN];
 	size_t entry_len;
 	struct Curl_dns_entry * dns;
@@ -498,7 +498,7 @@ struct Curl_dns_entry *Curl_cache_addr(struct Curl_easy * data,
 
 #ifdef ENABLE_IPV6
 /* return a static IPv6 ::1 for the name */
-static struct Curl_addrinfo *get_localhost6(int port, const char * name){
+static struct Curl_addrinfo *get_localhost6(int port, const char * name) {
 	struct Curl_addrinfo * ca;
 	const size_t ss_size = sizeof(struct sockaddr_in6);
 	const size_t hostlen = strlen(name);
@@ -656,7 +656,7 @@ enum resolve_t Curl_resolv(struct Curl_easy * data,
     const char * hostname,
     int port,
     bool allowDOH,
-    struct Curl_dns_entry ** entry){
+    struct Curl_dns_entry ** entry) {
 	struct Curl_dns_entry * dns = NULL;
 	CURLcode result;
 	enum resolve_t rc = CURLRESOLV_ERROR; /* default to failure */
@@ -856,7 +856,7 @@ enum resolve_t Curl_resolv_timeout(struct Curl_easy * data,
     const char * hostname,
     int port,
     struct Curl_dns_entry ** entry,
-    timediff_t timeoutms){
+    timediff_t timeoutms) {
 #ifdef USE_ALARM_TIMEOUT
 #ifdef HAVE_SIGACTION
 	struct sigaction keep_sigact; /* store the old struct here */

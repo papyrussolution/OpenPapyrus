@@ -93,39 +93,29 @@ typedef uint curl_prot_t;
 /* Convenience defines for checking protocols or their SSL based version. Each
    protocol handler should only ever have a single CURLPROTO_ in its protocol
    field. */
-#define PROTO_FAMILY_HTTP (CURLPROTO_HTTP|CURLPROTO_HTTPS|CURLPROTO_WS| \
-	CURLPROTO_WSS)
+#define PROTO_FAMILY_HTTP (CURLPROTO_HTTP|CURLPROTO_HTTPS|CURLPROTO_WS|CURLPROTO_WSS)
 #define PROTO_FAMILY_FTP  (CURLPROTO_FTP|CURLPROTO_FTPS)
 #define PROTO_FAMILY_POP3 (CURLPROTO_POP3|CURLPROTO_POP3S)
 #define PROTO_FAMILY_SMB  (CURLPROTO_SMB|CURLPROTO_SMBS)
 #define PROTO_FAMILY_SMTP (CURLPROTO_SMTP|CURLPROTO_SMTPS)
 #define PROTO_FAMILY_SSH  (CURLPROTO_SCP|CURLPROTO_SFTP)
 
-#if !defined(CURL_DISABLE_FTP) || defined(USE_SSH) ||   \
-	!defined(CURL_DISABLE_POP3)
+#if !defined(CURL_DISABLE_FTP) || defined(USE_SSH) || !defined(CURL_DISABLE_POP3)
 /* these protocols support CURLOPT_DIRLISTONLY */
 #define CURL_LIST_ONLY_PROTOCOL 1
 #endif
-
 #define DEFAULT_CONNCACHE_SIZE 5
-
-/* length of longest IPv6 address string including the trailing null */
-#define MAX_IPADR_LEN sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")
-
-/* Default FTP/IMAP etc response timeout in milliseconds */
-#define RESP_TIMEOUT (120*1000)
-
-/* Max string input length is a precaution against abuse and to detect junk
-   input easier and better. */
-#define CURL_MAX_INPUT_LENGTH 8000000
+#define MAX_IPADR_LEN sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255") /* length of longest IPv6 address string including the trailing null */
+#define RESP_TIMEOUT (120*1000) /* Default FTP/IMAP etc response timeout in milliseconds */
+#define CURL_MAX_INPUT_LENGTH 8000000 /* Max string input length is a precaution against abuse and to detect junk input easier and better. */
 
 #include "cookie.h"
 #include "psl.h"
 #include "formdata.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETINET_IN6_H
 #include <netinet/in6.h>
 #endif
@@ -1066,7 +1056,7 @@ struct connectdata {
 	   that subsequent bound-requested connections aren't accidentally reusing
 	   wrong connections. */
 	char * localdev;
-	unsigned short localportrange;
+	ushort localportrange;
 	int waitfor; /* current READ/WRITE bits to wait for */
 #if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
 	int socks5_gssapi_enctype;
@@ -1079,9 +1069,8 @@ struct connectdata {
 #ifdef ENABLE_IPV6
 	uint scope_id; /* Scope id for IPv6 */
 #endif
-	unsigned short localport;
-	unsigned short secondary_port; /* secondary socket remote port to connect to
-	                                  (ftp) */
+	ushort localport;
+	ushort secondary_port; /* secondary socket remote port to connect to (ftp) */
 	uchar cselect_bits; /* bitmask of socket events */
 	uchar alpn; /* APLN TLS negotiated protocol, a CURL_HTTP_VERSION*
 	                       value */
@@ -1117,11 +1106,10 @@ struct PureInfo {
 	int httpcode; /* Recent HTTP, FTP, RTSP or SMTP response code */
 	int httpproxycode; /* response code from proxy when received separate */
 	int httpversion; /* the http version number X.Y = X*10+Y */
-	time_t filetime; /* If requested, this is might get set. Set to -1 if the
-	                    time was unretrievable. */
+	time_t filetime; /* If requested, this is might get set. Set to -1 if the time was unretrievable. */
 	curl_off_t request_size; /* the amount of bytes sent in the request(s) */
-	unsigned long proxyauthavail; /* what proxy auth types were announced */
-	unsigned long httpauthavail; /* what host auth types were announced */
+	ulong proxyauthavail; /* what proxy auth types were announced */
+	ulong httpauthavail; /* what host auth types were announced */
 	long numconnects; /* how many new connection did libcurl created */
 	char * contenttype; /* the content type of the object */
 	char * wouldredirect; /* URL this would've been redirected to if asked to */
@@ -1137,47 +1125,35 @@ struct PureInfo {
 	   reused, in the connection cache. */
 
 	char conn_primary_ip[MAX_IPADR_LEN];
-	int conn_primary_port; /* this is the destination port to the connection,
-	                          which might have been a proxy */
-	int conn_remote_port; /* this is the "remote port", which is the port
-	                         number of the used URL, independent of proxy or
-	                         not */
+	int conn_primary_port; /* this is the destination port to the connection, which might have been a proxy */
+	int conn_remote_port; /* this is the "remote port", which is the port number of the used URL, independent of proxy or not */
 	char conn_local_ip[MAX_IPADR_LEN];
 	int conn_local_port;
 	const char * conn_scheme;
 	uint conn_protocol;
-	struct curl_certinfo certs; /* info about the certs. Asked for with
-	                               CURLOPT_CERTINFO / CURLINFO_CERTINFO */
+	struct curl_certinfo certs; /* info about the certs. Asked for with CURLOPT_CERTINFO / CURLINFO_CERTINFO */
 	CURLproxycode pxcode;
-	BIT(timecond); /* set to TRUE if the time condition didn't match, which
-	                  thus made the document NOT get fetched */
+	BIT(timecond); /* set to TRUE if the time condition didn't match, which thus made the document NOT get fetched */
 };
 
 struct Progress {
-	time_t lastshow; /* time() of the last displayed progress meter or NULL to
-	                    force redraw at next call */
+	time_t lastshow; /* time() of the last displayed progress meter or NULL to force redraw at next call */
 	curl_off_t size_dl; /* total expected size */
 	curl_off_t size_ul; /* total expected size */
 	curl_off_t downloaded; /* transferred so far */
 	curl_off_t uploaded; /* transferred so far */
-
 	curl_off_t current_speed; /* uses the currently fastest transfer */
-
 	int width; /* screen width at download start */
 	int flags; /* see progress.h */
-
 	timediff_t timespent;
-
 	curl_off_t dlspeed;
 	curl_off_t ulspeed;
-
 	timediff_t t_nslookup;
 	timediff_t t_connect;
 	timediff_t t_appconnect;
 	timediff_t t_pretransfer;
 	timediff_t t_starttransfer;
 	timediff_t t_redirect;
-
 	struct curltime start;
 	struct curltime t_startsingle;
 	struct curltime t_startop;
@@ -1216,17 +1192,12 @@ typedef enum {
 } Curl_RtspReq;
 
 struct auth {
-	unsigned long want; /* Bitmask set to the authentication methods wanted by
-	                       app (with CURLOPT_HTTPAUTH or CURLOPT_PROXYAUTH). */
-	unsigned long picked;
-	unsigned long avail; /* Bitmask for what the server reports to support for
-	                        this resource */
-	BIT(done); /* TRUE when the auth phase is done and ready to do the
-	              actual request */
-	BIT(multipass); /* TRUE if this is not yet authenticated but within the
-	                   auth multipass negotiation */
-	BIT(iestyle); /* TRUE if digest should be done IE-style or FALSE if it
-	                 should be RFC compliant */
+	ulong want; /* Bitmask set to the authentication methods wanted by app (with CURLOPT_HTTPAUTH or CURLOPT_PROXYAUTH). */
+	ulong picked;
+	ulong avail; /* Bitmask for what the server reports to support for this resource */
+	BIT(done); /* TRUE when the auth phase is done and ready to do the actual request */
+	BIT(multipass); /* TRUE if this is not yet authenticated but within the auth multipass negotiation */
+	BIT(iestyle); /* TRUE if digest should be done IE-style or FALSE if it should be RFC compliant */
 };
 
 #ifdef USE_NGHTTP2
@@ -1446,12 +1417,9 @@ struct UrlState {
 		char * proxypasswd;
 	} aptr;
 
-	uchar httpwant; /* when non-zero, a specific HTTP version requested
-	                           to be used in the library's request(s) */
-	uchar httpversion; /* the lowest HTTP version*10 reported by any
-	                              server involved in this request */
-	uchar httpreq; /* Curl_HttpReq; what kind of HTTP request (if any)
-	                          is this */
+	uchar httpwant; /* when non-zero, a specific HTTP version requested to be used in the library's request(s) */
+	uchar httpversion; /* the lowest HTTP version*10 reported by any server involved in this request */
+	uchar httpreq; /* Curl_HttpReq; what kind of HTTP request (if any) is this */
 	uchar dselect_bits; /* != 0 -> bitmask of socket events for this
 	                               transfer overriding anything the socket may
 	                               report */
@@ -1634,22 +1602,16 @@ struct UserDefined {
 	void * out;  /* CURLOPT_WRITEDATA */
 	void * in_set; /* CURLOPT_READDATA */
 	void * writeheader; /* write the header to this if non-NULL */
-	unsigned short use_port; /* which port to use (when not using default) */
-	unsigned long httpauth; /* kind of HTTP authentication to use (bitmask) */
-	unsigned long proxyauth; /* kind of proxy authentication to use (bitmask) */
-	long maxredirs; /* maximum no. of http(s) redirects to follow, set to -1
-	                   for infinity */
-
+	ushort use_port; /* which port to use (when not using default) */
+	ulong httpauth; /* kind of HTTP authentication to use (bitmask) */
+	ulong proxyauth; /* kind of proxy authentication to use (bitmask) */
+	long maxredirs; /* maximum no. of http(s) redirects to follow, set to -1 for infinity */
 	void * postfields; /* if POST, set the fields' values here */
 	curl_seek_callback seek_func; /* function that seeks the input */
-	curl_off_t postfieldsize; /* if POST, this might have a size to use instead
-	                             of strlen(), and then the data *may* be binary
-	                             (contain zero bytes) */
+	curl_off_t postfieldsize; /* if POST, this might have a size to use instead of strlen(), and then the data *may* be binary (contain zero bytes) */
 #ifndef CURL_DISABLE_BINDLOCAL
-	unsigned short localport; /* local port number to bind to */
-	unsigned short localportrange; /* number of additional port numbers to test
-	                                  in case the 'localport' one can't be
-	                                  bind()ed */
+	ushort localport; /* local port number to bind to */
+	ushort localportrange; /* number of additional port numbers to test in case the 'localport' one can't be bind()ed */
 #endif
 	curl_write_callback fwrite_func; /* function that stores the output */
 	curl_write_callback fwrite_header; /* function that stores headers */
@@ -1710,22 +1672,17 @@ struct UserDefined {
 #ifndef CURL_DISABLE_TELNET
 	struct curl_slist * telnet_options; /* linked list of telnet options */
 #endif
-	struct curl_slist * resolve; /* list of names to add/remove from
-	                                DNS cache */
-	struct curl_slist * connect_to; /* list of host:port mappings to override
-	                                   the hostname and port to connect to */
+	struct curl_slist * resolve; /* list of names to add/remove from DNS cache */
+	struct curl_slist * connect_to; /* list of host:port mappings to override the hostname and port to connect to */
 	time_t timevalue; /* what time to compare with */
 	uchar timecondition; /* kind of time comparison: curl_TimeCond */
 	uchar method; /* what kind of HTTP request: Curl_HttpReq */
-	uchar httpwant; /* when non-zero, a specific HTTP version requested
-	                           to be used in the library's request(s) */
+	uchar httpwant; /* when non-zero, a specific HTTP version requested to be used in the library's request(s) */
 	struct ssl_config_data ssl; /* user defined SSL stuff */
 #ifndef CURL_DISABLE_PROXY
 	struct ssl_config_data proxy_ssl; /* user defined SSL stuff for proxy */
 	struct curl_slist * proxyheaders; /* linked list of extra CONNECT headers */
-	unsigned short proxyport; /* If non-zero, use this port number by
-	                             default. If the proxy string features a
-	                             ":[port]" that one will override this. */
+	ushort proxyport; /* If non-zero, use this port number by default. If the proxy string features a ":[port]" that one will override this. */
 	uchar proxytype; /* what kind of proxy: curl_proxytype */
 	uchar socks5auth;/* kind of SOCKS5 authentication to use (bitmask) */
 #endif

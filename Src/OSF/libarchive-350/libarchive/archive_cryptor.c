@@ -17,9 +17,7 @@
  * be removed someday if this file gains another always-present
  * symbol definition.
  */
-int __libarchive_cryptor_build_hack(void) {
-	return 0;
-}
+int __libarchive_cryptor_build_hack() { return 0; }
 
 #ifdef ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto
 

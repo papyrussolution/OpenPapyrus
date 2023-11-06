@@ -754,7 +754,7 @@ int WinInetFTP::SafeGetFileList(const char * pDir, StrAssocArray * pFileList, co
 int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int send, int checkDtTm, PercentFunc pf)
 {
 	int    ok = 1;
-	int    valid_dttm = 0;
+	bool   valid_dttm = false;
 	int    lfile_exists = 0;
 	BOOL   r = 0;
 	SString file_name;
@@ -791,20 +791,20 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 		encodedate(st_time.wDay, st_time.wMonth, st_time.wYear, &ftpfile_dttm.d);
 		ftpfile_dttm.t = encodetime(st_time.wHour, st_time.wMinute, st_time.wSecond, st_time.wMilliseconds / 10);
 		if(send) {
-			if(lf_info.WriteTime.d == ftpfile_dttm.d)
-				valid_dttm = BIN(lf_info.WriteTime.t > ftpfile_dttm.t);
+			if(lf_info.ModTime.d == ftpfile_dttm.d)
+				valid_dttm = (lf_info.ModTime.t > ftpfile_dttm.t);
 			else
-				valid_dttm = BIN(lf_info.WriteTime.d > ftpfile_dttm.d);
+				valid_dttm = (lf_info.ModTime.d > ftpfile_dttm.d);
 		}
 		else {
-			if(ftpfile_dttm.d == lf_info.WriteTime.d)
-				valid_dttm = BIN(ftpfile_dttm.t > lf_info.WriteTime.t);
+			if(ftpfile_dttm.d == lf_info.ModTime.d)
+				valid_dttm = (ftpfile_dttm.t > lf_info.ModTime.t);
 			else
-				valid_dttm = BIN(ftpfile_dttm.d > lf_info.WriteTime.d);
+				valid_dttm = (ftpfile_dttm.d > lf_info.ModTime.d);
 		}
 	}
 	else
-		valid_dttm = 1;
+		valid_dttm = true;
 	if(ftp_dir) {
 		InternetCloseHandle(ftp_dir);
 		ftp_dir = NULL;

@@ -26,7 +26,7 @@
 #pragma hdrstop
 
 #if defined(USE_MBEDTLS) &&                                     \
-	((defined(USE_THREADS_POSIX) && defined(HAVE_PTHREAD_H)) ||   \
+	((defined(USE_THREADS_POSIX) && defined(HAVE_PTHREAD_H)) || \
 	defined(USE_THREADS_WIN32))
 
 #if defined(USE_THREADS_POSIX) && defined(HAVE_PTHREAD_H)

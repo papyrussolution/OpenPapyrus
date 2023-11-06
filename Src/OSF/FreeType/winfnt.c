@@ -240,8 +240,7 @@ Exit:
 	return error;
 }
 
-static FT_Error fnt_face_get_dll_font(FNT_Face face,
-    FT_Int face_instance_index)
+static FT_Error fnt_face_get_dll_font(FNT_Face face, FT_Int face_instance_index)
 {
 	FT_Error error;
 	FT_Stream stream = FT_FACE(face)->stream;
@@ -363,10 +362,8 @@ static FT_Error fnt_face_get_dll_font(FNT_Face face,
 			if(FT_STREAM_SEEK(mz_header.lfanew) || FT_STREAM_READ_FIELDS(winpe32_header_fields, &pe32_header))
 				goto Exit;
 
-			FT_TRACE2(( "magic %04lx, machine %02x, number_of_sections %u, "
-			    "size_of_optional_header %02x\n"
-			    "magic32 %02x, rsrc_virtual_address %04lx, "
-			    "rsrc_size %04lx\n",
+			FT_TRACE2(( "magic %04lx, machine %02x, number_of_sections %u, size_of_optional_header %02x\n"
+			    "magic32 %02x, rsrc_virtual_address %04lx, rsrc_size %04lx\n",
 			    pe32_header.magic, pe32_header.machine,
 			    pe32_header.number_of_sections,
 			    pe32_header.size_of_optional_header,

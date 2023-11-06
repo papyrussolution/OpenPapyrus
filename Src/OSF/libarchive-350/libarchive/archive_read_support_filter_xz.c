@@ -335,7 +335,7 @@ static void set_error(ArchiveReadFilter * self, int ret)
 {
 	switch(ret) {
 		case LZMA_STREAM_END: /* Found end of stream. */
-		case LZMA_OK: /* Decompressor made some progress. */
+		case LZMA_OK: // Decompressor made some progress
 		    break;
 		case LZMA_MEM_ERROR:
 		    archive_set_error(&self->archive->archive, ENOMEM, "Lzma library error: Cannot allocate memory");
@@ -544,7 +544,7 @@ static ssize_t xz_filter_read(ArchiveReadFilter * self, const void ** p)
 			case LZMA_STREAM_END: /* Found end of stream. */
 			    state->eof = 1;
 			// @fallthrough
-			case LZMA_OK: /* Decompressor made some progress. */
+			case LZMA_OK: // Decompressor made some progress
 			    __archive_read_filter_consume(self->upstream, avail_in - state->stream.avail_in);
 			    state->member_in +=
 				avail_in - state->stream.avail_in;
@@ -596,9 +596,7 @@ static int xz_filter_close(ArchiveReadFilter * self)
  */
 static int lzma_bidder_init(ArchiveReadFilter * self)
 {
-	int r;
-
-	r = __archive_read_program(self, "lzma -d -qq");
+	int r = __archive_read_program(self, "lzma -d -qq");
 	/* Note: We set the format here even if __archive_read_program()
 	 * above fails.  We do, after all, know what the format is
 	 * even if we weren't able to read it. */

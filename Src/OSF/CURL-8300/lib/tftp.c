@@ -27,9 +27,9 @@
 
 #ifndef CURL_DISABLE_TFTP
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -62,7 +62,7 @@
 //#include "strcase.h"
 #include "speedcheck.h"
 #include "select.h"
-#include "escape.h"
+//#include "escape.h"
 
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
@@ -141,7 +141,7 @@ struct tftp_state_data {
 	int sbytes;
 	int blksize;
 	int requested_blksize;
-	unsigned short block;
+	ushort block;
 	struct tftp_packet rpacket;
 	struct tftp_packet spacket;
 };
@@ -258,31 +258,31 @@ static CURLcode tftp_set_timeouts(struct tftp_state_data * state)
 *
 **********************************************************/
 
-static void setpacketevent(struct tftp_packet * packet, unsigned short num)
+static void setpacketevent(struct tftp_packet * packet, ushort num)
 {
 	packet->data[0] = (uchar)(num >> 8);
 	packet->data[1] = (uchar)(num & 0xff);
 }
 
-static void setpacketblock(struct tftp_packet * packet, unsigned short num)
+static void setpacketblock(struct tftp_packet * packet, ushort num)
 {
 	packet->data[2] = (uchar)(num >> 8);
 	packet->data[3] = (uchar)(num & 0xff);
 }
 
-static unsigned short getrpacketevent(const struct tftp_packet * packet)
+static ushort getrpacketevent(const struct tftp_packet * packet)
 {
 	return (ushort)((packet->data[0] << 8) | packet->data[1]);
 }
 
-static unsigned short getrpacketblock(const struct tftp_packet * packet)
+static ushort getrpacketblock(const struct tftp_packet * packet)
 {
 	return (ushort)((packet->data[2] << 8) | packet->data[3]);
 }
 
 static size_t tftp_strnlen(const char * string, size_t maxlen)
 {
-	const char * end = (const char *)memchr(string, '\0', maxlen);
+	const char * end = (const char *)smemchr(string, '\0', maxlen);
 	return end ? (size_t)(end - string) : maxlen;
 }
 
@@ -530,7 +530,6 @@ static CURLcode tftp_send_first(struct tftp_state_data * state,
 		    }
 		    SAlloc::F(filename);
 		    break;
-
 		case TFTP_EVENT_OACK:
 		    if(data->state.upload) {
 			    result = tftp_connect_for_tx(state, event);
@@ -539,30 +538,23 @@ static CURLcode tftp_send_first(struct tftp_state_data * state,
 			    result = tftp_connect_for_rx(state, event);
 		    }
 		    break;
-
 		case TFTP_EVENT_ACK: /* Connected for transmit */
 		    result = tftp_connect_for_tx(state, event);
 		    break;
-
 		case TFTP_EVENT_DATA: /* Connected for receive */
 		    result = tftp_connect_for_rx(state, event);
 		    break;
-
 		case TFTP_EVENT_ERROR:
 		    state->state = TFTP_STATE_FIN;
 		    break;
-
 		default:
 		    failf(state->data, "tftp_send_first: internal error");
 		    break;
 	}
-
 	return result;
 }
 
-/* the next blocknum is x + 1 but it needs to wrap at an unsigned 16bit
-   boundary */
-#define NEXT_BLOCKNUM(x) (((x) + 1)&0xffff)
+#define NEXT_BLOCKNUM(x) (((x) + 1)&0xffff) /* the next blocknum is x + 1 but it needs to wrap at an unsigned 16bit boundary */
 
 /**********************************************************
 *
@@ -1068,9 +1060,8 @@ static CURLcode tftp_receive_packet(struct Curl_easy * data)
 	}
 	else {
 		/* The event is given by the TFTP packet time */
-		unsigned short event = getrpacketevent(&state->rpacket);
+		ushort event = getrpacketevent(&state->rpacket);
 		state->event = (tftp_event_t)event;
-
 		switch(state->event) {
 			case TFTP_EVENT_DATA:
 			    /* Don't pass to the client empty or retransmitted packets */
@@ -1089,7 +1080,7 @@ static CURLcode tftp_receive_packet(struct Curl_easy * data)
 			    break;
 			case TFTP_EVENT_ERROR:
 		    {
-			    unsigned short error = getrpacketblock(&state->rpacket);
+			    ushort error = getrpacketblock(&state->rpacket);
 			    char * str = (char *)state->rpacket.data + 4;
 			    size_t strn = state->rbytes - 4;
 			    state->error = (tftp_error_t)error;

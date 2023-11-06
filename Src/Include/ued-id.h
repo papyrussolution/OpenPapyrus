@@ -1,6 +1,6 @@
 // UED-ID.H
-// version: 17
-// sha256: 13023f809a2d2b122c8ef00fc1e0c3d35ccadb0690a7c5a888f86384615bcaa7
+// version: 19
+// sha256: 203f5d901987de661b93f6b326e96b0e914f95a8efca111b55efa5369736a5a8
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -164,6 +164,21 @@
 	#define UED_UOM_DEGFAHRENHEIT                        0x80000006fULL
 	#define UED_UOM_DEGRANKINE                           0x800000070ULL
 	#define UED_UOM_DEGREAUMUR                           0x800000071ULL
+#define UED_META_PROP                                0x100000009ULL
+	#define UED_PROP_TYPE                                0x900000001ULL
+	#define UED_PROP_GROUP                               0x900000002ULL
+	#define UED_PROP_XGROUP                              0x900000003ULL
+	#define UED_PROP_FIELD                               0x900000004ULL
+	#define UED_PROP_COMPOUND                            0x900000005ULL
+	#define UED_PROP_DOMAIN                              0x900000006ULL
+	#define UED_PROP_XDOMAIN                             0x900000007ULL
+	#define UED_PROP_TYPEOF                              0x900000008ULL
+	#define UED_PROP_SUBOF                               0x900000009ULL
+	#define UED_PROP_INSTOF                              0x90000000aULL
+	#define UED_PROP_PARTOF                              0x90000000bULL
+	#define UED_PROP_EXTDATA                             0x90000000cULL
+	#define UED_PROP_FIXDATASIZE                         0x90000000dULL
+	#define UED_PROP_BELONGTO                            0x90000000eULL
 #define UED_META_UTF32CHAR                           0x100000026ULL
 #define UED_META_MBSTRINGENCODING                    0x100000027ULL
 #define UED_META_PARTICULAEELEMENTARIAE              0x100000028ULL
@@ -3580,6 +3595,41 @@
 #define UED_META_DATE_DAYBC                          0x100000079ULL
 #define UED_META_TIME_HR                             0x100000081ULL
 #define UED_META_TIME_TZHR                           0x100000082ULL
+#define UED_META_NLWCLS                              0x100000101ULL
+	#define UED_NLWCLS_ALPHA                             0x10100000001ULL
+	#define UED_NLWCLS_DIGIT                             0x10100000002ULL
+	#define UED_NLWCLS_NOUN                              0x10100000003ULL
+	#define UED_NLWCLS_NUMERAL                           0x10100000004ULL
+	#define UED_NLWCLS_NUMERALORD                        0x10100000005ULL
+	#define UED_NLWCLS_ADJECTIVE                         0x10100000006ULL
+	#define UED_NLWCLS_VERB                              0x10100000007ULL
+	#define UED_NLWCLS_PRONOUN                           0x10100000008ULL
+	#define UED_NLWCLS_PRONOUNPOSS                       0x10100000009ULL
+	#define UED_NLWCLS_PRAEDICPRO                        0x1010000000aULL
+	#define UED_NLWCLS_PRAEDIC                           0x1010000000bULL
+	#define UED_NLWCLS_ADVERB                            0x1010000000cULL
+	#define UED_NLWCLS_PREPOSITION                       0x1010000000dULL
+	#define UED_NLWCLS_POSTPOSITION                      0x1010000000eULL
+	#define UED_NLWCLS_CONJUNCTION                       0x1010000000fULL
+	#define UED_NLWCLS_INTERJECTION                      0x10100000010ULL
+	#define UED_NLWCLS_PARENTH                           0x10100000011ULL
+	#define UED_NLWCLS_ARTICLE                           0x10100000012ULL
+	#define UED_NLWCLS_PARTICLE                          0x10100000013ULL
+	#define UED_NLWCLS_PARTICIPLE                        0x10100000014ULL
+	#define UED_NLWCLS_GERUND                            0x10100000015ULL
+	#define UED_NLWCLS_GPARTICIPLE                       0x10100000016ULL
+	#define UED_NLWCLS_PHRAS                             0x10100000017ULL
+	#define UED_NLWCLS_PREFIX                            0x10100000018ULL
+	#define UED_NLWCLS_AFFIX                             0x10100000019ULL
+	#define UED_NLWCLS_SKELETON                          0x1010000001aULL
+	#define UED_NLWCLS_PRONOUNNOUN                       0x1010000001bULL
+	#define UED_NLWCLS_POSSESSIVEGROUP                   0x1010000001cULL
+#define UED_META_NLABBR                              0x100000102ULL
+#define UED_META_NLPROPERNAME                        0x100000103ULL
+#define UED_META_NLANIMATE                           0x100000104ULL
+#define UED_META_NLUSAGE                             0x100000105ULL
+#define UED_META_NLGENDER                            0x100000106ULL
+#define UED_META_NLTANTUM                            0x100000107ULL
 #define UED_META_MOLECULO                            0x140010000ULL
 #define UED_META_POPULUS                             0x140020000ULL
 #define UED_META_GLN                                 0x140030000ULL

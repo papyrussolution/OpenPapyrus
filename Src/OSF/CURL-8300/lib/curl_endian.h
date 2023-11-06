@@ -25,10 +25,10 @@
  ***************************************************************************/
 
 /* Converts a 16-bit integer from little endian */
-unsigned short Curl_read16_le(const uchar *buf);
+ushort Curl_read16_le(const uchar *buf);
 /* Converts a 32-bit integer from little endian */
 uint Curl_read32_le(const uchar *buf);
 /* Converts a 16-bit integer from big endian */
-unsigned short Curl_read16_be(const uchar *buf);
+ushort Curl_read16_be(const uchar *buf);
 
 #endif /* HEADER_CURL_ENDIAN_H */

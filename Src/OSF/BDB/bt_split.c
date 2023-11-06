@@ -547,7 +547,7 @@ int __bam_broot(DBC*dbc, PAGE * rootp, uint32 split, PAGE * lp, PAGE * rp)
 		}
 		break;
 	    default:
-pgfmt:          return __db_pgfmt(dbp->env, rp->pgno);
+pgfmt: return __db_pgfmt(dbp->env, rp->pgno);
 	}
 	/*
 	 * If the root page was a leaf page, change it into an internal page.
@@ -837,7 +837,7 @@ noprefix:
 		}
 		break;
 	    default:
-pgfmt:          return __db_pgfmt(dbp->env, PGNO(child->page));
+pgfmt: return __db_pgfmt(dbp->env, PGNO(child->page));
 	}
 	if(LF_ISSET(BPI_REPLACE)) {
 		DB_ASSERT(dbp->env, !LF_ISSET(BPI_NOLOGGING));

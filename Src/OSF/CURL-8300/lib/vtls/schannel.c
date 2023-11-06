@@ -189,16 +189,14 @@ static CURLcode schannel_pkp_pin_peer_pubkey(struct Curl_cfilter * cf,
     struct Curl_easy * data,
     const char * pinnedpubkey);
 
-static void InitSecBuffer(SecBuffer * buffer, unsigned long BufType,
-    void * BufDataPtr, unsigned long BufByteSize)
+static void InitSecBuffer(SecBuffer * buffer, ulong BufType, void * BufDataPtr, ulong BufByteSize)
 {
 	buffer->cbBuffer = BufByteSize;
 	buffer->BufferType = BufType;
 	buffer->pvBuffer = BufDataPtr;
 }
 
-static void InitSecBufferDesc(SecBufferDesc * desc, SecBuffer * BufArr,
-    unsigned long NumArrElem)
+static void InitSecBufferDesc(SecBufferDesc * desc, SecBuffer * BufArr, ulong NumArrElem)
 {
 	desc->ulVersion = SECBUFFER_VERSION;
 	desc->pBuffers = BufArr;
@@ -1211,7 +1209,7 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter * cf, struct Curl_eas
 		int cur = 0;
 		int list_start_index = 0;
 		uint * extension_len = NULL;
-		unsigned short* list_len = NULL;
+		ushort* list_len = NULL;
 		struct alpn_proto_buf proto;
 
 		/* The first four bytes will be an uint indicating number
@@ -1226,7 +1224,7 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter * cf, struct Curl_eas
 		cur += (int)sizeof(uint);
 		/* The next two bytes will be an unsigned short indicating the number
 		   of bytes used to list the preferred protocols. */
-		list_len = (unsigned short*)(void *)(&alpn_buffer[cur]);
+		list_len = (ushort*)(void *)(&alpn_buffer[cur]);
 		cur += (int)sizeof(ushort);
 
 		list_start_index = cur;

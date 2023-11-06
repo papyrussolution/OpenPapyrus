@@ -847,20 +847,20 @@ static const char * _cairo_operator_to_pdf_blend_mode(cairo_operator_t op)
 {
 	switch(op) {
 		/* The extend blend mode operators */
-		case CAIRO_OPERATOR_MULTIPLY:       return "Multiply";
-		case CAIRO_OPERATOR_SCREEN:         return "Screen";
-		case CAIRO_OPERATOR_OVERLAY:        return "Overlay";
-		case CAIRO_OPERATOR_DARKEN:         return "Darken";
-		case CAIRO_OPERATOR_LIGHTEN:        return "Lighten";
-		case CAIRO_OPERATOR_COLOR_DODGE:    return "ColorDodge";
-		case CAIRO_OPERATOR_COLOR_BURN:     return "ColorBurn";
-		case CAIRO_OPERATOR_HARD_LIGHT:     return "HardLight";
-		case CAIRO_OPERATOR_SOFT_LIGHT:     return "SoftLight";
-		case CAIRO_OPERATOR_DIFFERENCE:     return "Difference";
-		case CAIRO_OPERATOR_EXCLUSION:      return "Exclusion";
-		case CAIRO_OPERATOR_HSL_HUE:        return "Hue";
+		case CAIRO_OPERATOR_MULTIPLY: return "Multiply";
+		case CAIRO_OPERATOR_SCREEN: return "Screen";
+		case CAIRO_OPERATOR_OVERLAY: return "Overlay";
+		case CAIRO_OPERATOR_DARKEN: return "Darken";
+		case CAIRO_OPERATOR_LIGHTEN: return "Lighten";
+		case CAIRO_OPERATOR_COLOR_DODGE: return "ColorDodge";
+		case CAIRO_OPERATOR_COLOR_BURN: return "ColorBurn";
+		case CAIRO_OPERATOR_HARD_LIGHT: return "HardLight";
+		case CAIRO_OPERATOR_SOFT_LIGHT: return "SoftLight";
+		case CAIRO_OPERATOR_DIFFERENCE: return "Difference";
+		case CAIRO_OPERATOR_EXCLUSION: return "Exclusion";
+		case CAIRO_OPERATOR_HSL_HUE: return "Hue";
 		case CAIRO_OPERATOR_HSL_SATURATION: return "Saturation";
-		case CAIRO_OPERATOR_HSL_COLOR:      return "Color";
+		case CAIRO_OPERATOR_HSL_COLOR: return "Color";
 		case CAIRO_OPERATOR_HSL_LUMINOSITY: return "Luminosity";
 
 		default:

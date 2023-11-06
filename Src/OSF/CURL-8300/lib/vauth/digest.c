@@ -34,7 +34,7 @@
 #include "vauth/vauth.h"
 #include "vauth/digest.h"
 //#include "urldata.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "curl_hmac.h"
 #include "curl_md5.h"
 #include "curl_sha256.h"

@@ -109,7 +109,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	SecBufferDesc chlg_desc;
 	SecBufferDesc resp_desc;
 	SECURITY_STATUS status;
-	unsigned long attrs;
+	ulong attrs;
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 	/* Ensure we have a valid challenge message */
@@ -477,7 +477,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		SEC_WINNT_AUTH_IDENTITY * p_identity;
 		SecBuffer resp_buf;
 		SecBufferDesc resp_desc;
-		unsigned long attrs;
+		ulong attrs;
 		TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 		TCHAR * spn;
 

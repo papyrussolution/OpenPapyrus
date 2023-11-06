@@ -2122,9 +2122,9 @@ int DateRepeating::Format(int fmt, SString & rBuf) const
 long DateRepeating::DtlToLong()
 {
 	switch(Prd) {
-		case PRD_DAY:    return *reinterpret_cast<const long *>(&Dtl.D);
-		case PRD_WEEK:   return *reinterpret_cast<const long *>(&Dtl.W);
-		case PRD_MONTH:  return (RepeatKind == 1) ? *reinterpret_cast<const long *>(&Dtl.ME) : *reinterpret_cast<const long *>(&Dtl.MY);
+		case PRD_DAY: return *reinterpret_cast<const long *>(&Dtl.D);
+		case PRD_WEEK: return *reinterpret_cast<const long *>(&Dtl.W);
+		case PRD_MONTH: return (RepeatKind == 1) ? *reinterpret_cast<const long *>(&Dtl.ME) : *reinterpret_cast<const long *>(&Dtl.MY);
 		case PRD_ANNUAL: return (RepeatKind == 1) ? *reinterpret_cast<const long *>(&Dtl.AE) : *reinterpret_cast<const long *>(&Dtl.AY);
 		case PRD_REPEATAFTERPRD: return *reinterpret_cast<const long *>(&Dtl.RA);
 	}

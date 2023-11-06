@@ -6213,7 +6213,7 @@ static int xmlExpGetStartInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xmlCha
 tail:
 	switch(exp->type) {
 		case XML_EXP_FORBID: return 0;
-		case XML_EXP_EMPTY:  return 0;
+		case XML_EXP_EMPTY: return 0;
 		case XML_EXP_ATOM:
 		    for(tmp = 0; tmp < nb; tmp++)
 			    if(list[tmp] == exp->exp_str)

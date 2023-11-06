@@ -334,6 +334,26 @@ cleanup:
 	return (ret == 0/*STATUS_SUCCESS*/);
 }
 
+/*static*/bool SlProcess::CheckAndEnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName)
+{
+	//const wchar_t * p_priv_symb = SE_ASSIGNPRIMARYTOKEN_NAME;
+	int privr = 0;
+	if(!isempty(pPrivilegeName)) {
+		privr = SlProcess::CheckAccessTokenPrivilege(token, pPrivilegeName);
+		if(privr == privrNotAssigned) {
+			if(SlProcess::AddPrivilegeToAccessToken(token, pPrivilegeName)) {
+				privr = SlProcess::CheckAccessTokenPrivilege(token, pPrivilegeName);
+			}
+		}
+		if(privr == privrDisabled) {
+			if(EnableAccesTokenPrivilege(token, pPrivilegeName, true)) {
+				privr = SlProcess::CheckAccessTokenPrivilege(token, pPrivilegeName);
+			}
+		}
+	}
+	return (privr == privrEnabled);
+}
+
 // example function
 static void EnumPrivileges(SPtrHandle token, bool all) 
 {
@@ -839,21 +859,7 @@ int SlProcess::Run(SlProcess::Result * pResult)
 				//PROFILEINFO profile_info;
 				SPtrHandle caller_token = SlProcess::OpenCurrentAccessToken(/*TOKEN_ALL_ACCESS*/TOKEN_READ|TOKEN_WRITE|TOKEN_EXECUTE);
 				//bool guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);
-				int privr = 0;
-				{
-					const wchar_t * p_priv_symb = SE_IMPERSONATE_NAME;
-					privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-					if(privr == privrNotAssigned) {
-						if(SlProcess::AddPrivilegeToAccessToken(caller_token, p_priv_symb)) {
-							privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-						}
-					}
-					if(privr == privrDisabled) {
-						if(EnableAccesTokenPrivilege(caller_token, p_priv_symb, true)) {
-							privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-						}
-					}
-				}
+				SlProcess::CheckAndEnableAccesTokenPrivilege(caller_token, SE_IMPERSONATE_NAME);
 				//SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, 0);
 				//BOOL iplour = ImpersonateLoggedOnUser(UserToken);
 				//if(iplour) {
@@ -893,35 +899,9 @@ int SlProcess::Run(SlProcess::Result * pResult)
 					//PROFILEINFO profile_info;
 					SPtrHandle caller_token = SlProcess::OpenCurrentAccessToken(TOKEN_ALL_ACCESS);
 					//bool guhr = SSystem::GetUserHandle(wub, guhf, loaded_profile, profile_info, h_cmd_pipe);
-					int privr = 0;
-					{
-						const wchar_t * p_priv_symb = SE_INCREASE_QUOTA_NAME;
-						privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-						if(privr == privrNotAssigned) {
-							if(SlProcess::AddPrivilegeToAccessToken(caller_token, p_priv_symb)) {
-								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-							}
-						}
-						if(privr == privrDisabled) {
-							if(EnableAccesTokenPrivilege(caller_token, p_priv_symb, true)) {
-								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-							}
-						}
-					}
-					{
-						const wchar_t * p_priv_symb = SE_ASSIGNPRIMARYTOKEN_NAME;
-						privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-						if(privr == privrNotAssigned) {
-							if(SlProcess::AddPrivilegeToAccessToken(caller_token, p_priv_symb)) {
-								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-							}
-						}
-						if(privr == privrDisabled) {
-							if(EnableAccesTokenPrivilege(caller_token, p_priv_symb, true)) {
-								privr = SlProcess::CheckAccessTokenPrivilege(caller_token, p_priv_symb);
-							}
-						}
-					}
+					//int privr = 0;
+					SlProcess::CheckAndEnableAccesTokenPrivilege(caller_token, SE_INCREASE_QUOTA_NAME);
+					SlProcess::CheckAndEnableAccesTokenPrivilege(caller_token, SE_ASSIGNPRIMARYTOKEN_NAME);
 					SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, 0);
 					if(callee_token) {
 						//callee_token = wub.H_User_;

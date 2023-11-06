@@ -64,26 +64,20 @@ static struct hb_shapers_lazy_loader_t : hb_lazy_loader_t<const hb_shaper_entry_
 #if HB_USE_ATEXIT
 		atexit(free_static_shapers);
 #endif
-
 		return shapers;
 	}
-
-	static void destroy(const hb_shaper_entry_t * p) {
+	static void destroy(const hb_shaper_entry_t * p) 
+	{
 		SAlloc::F((void *)p);
 	}
-
-	static const hb_shaper_entry_t * get_null()      {
-		return all_shapers;
-	}
+	static const hb_shaper_entry_t * get_null() { return all_shapers; }
 } static_shapers;
 
 #if HB_USE_ATEXIT
-static
-void free_static_shapers()
+static void free_static_shapers()
 {
 	static_shapers.free_instance();
 }
-
 #endif
 
 const hb_shaper_entry_t * _hb_shapers_get()

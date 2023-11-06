@@ -850,10 +850,7 @@ error:
 		closesocket(csock->socket);
 		csock->socket = INVALID_SOCKET;
 	}
-	if(pvio->data) {
-		SAlloc::F((gptr)pvio->data);
-		pvio->data = NULL;
-	}
+	ZFREE(pvio->data);
 	return 1;
 }
 
@@ -870,8 +867,7 @@ bool pvio_socket_close(MARIADB_PVIO * pvio)
 			r = closesocket(csock->socket);
 			csock->socket = INVALID_SOCKET;
 		}
-		SAlloc::F((gptr)pvio->data);
-		pvio->data = NULL;
+		ZFREE(pvio->data);
 	}
 	return r;
 }

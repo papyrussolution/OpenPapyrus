@@ -24,10 +24,9 @@
 #include "curl_setup.h"
 #pragma hdrstop
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_LINUX_TCP_H
 #include <linux/tcp.h>
 #elif defined(HAVE_NETINET_TCP_H)
@@ -88,7 +87,7 @@ static size_t convert_lineends(struct Curl_easy * data,
 	}
 
 	/* find 1st CR, if any */
-	inPtr = outPtr = memchr(startPtr, '\r', size);
+	inPtr = outPtr = smemchr(startPtr, '\r', size);
 	if(inPtr) {
 		/* at least one CR, now look for CRLF */
 		while(inPtr < (startPtr + size-1)) {

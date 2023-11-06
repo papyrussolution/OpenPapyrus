@@ -23,9 +23,9 @@
 ***************************************************************************/
 #include "curl_setup.h"
 #pragma hdrstop
-#ifdef HAVE_NETINET_IN_H
-	#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+	//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
 	#include <netdb.h>
 #endif
@@ -349,7 +349,7 @@ CURLsslset curl_global_sslset(curl_sslbackend id, const char * name,
  * curl_easy_init() is the external interface to alloc, setup and init an
  * easy handle that is returned. If anything goes wrong, NULL is returned.
  */
-struct Curl_easy *curl_easy_init(void){
+struct Curl_easy *curl_easy_init(void) {
 	CURLcode result;
 	struct Curl_easy * data;
 

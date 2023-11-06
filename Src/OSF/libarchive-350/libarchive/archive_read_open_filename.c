@@ -279,7 +279,7 @@ static int file_open(Archive * a, void * client_data)
 		is_disk_like = 1;
 	}
 #endif
-	/* TODO: Add an "is_tape_like" variable and appropriate tests. */
+	/* @todo Add an "is_tape_like" variable and appropriate tests. */
 
 	/* Disk-like devices prefer power-of-two block sizes.  */
 	/* Use provided block_size as a guide so users have some control. */
@@ -317,15 +317,15 @@ fail:
 static ssize_t file_read(Archive * a, void * client_data, const void ** buff)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
-	/* TODO: If a recent lseek() operation has left us
+	/* @todo If a recent lseek() operation has left us
 	 * mis-aligned, read and return a short block to try to get
 	 * us back in alignment. */
 
-	/* TODO: Someday, try mmap() here; if that succeeds, give
+	/* @todo Someday, try mmap() here; if that succeeds, give
 	 * the entire file to libarchive as a single block.  That
 	 * could be a lot faster than block-by-block manual I/O. */
 
-	/* TODO: We might be able to improve performance on pipes and
+	/* @todo We might be able to improve performance on pipes and
 	 * sockets by setting non-blocking I/O and just accepting
 	 * whatever we get here instead of waiting for a full block
 	 * worth of data. */
@@ -376,7 +376,7 @@ static int64 file_skip_lseek(Archive * a, void * client_data, int64 request)
 #endif
 	/* We use off_t here because lseek() is declared that way. */
 
-	/* TODO: Deal with case where off_t isn't 64 bits.
+	/* @todo Deal with case where off_t isn't 64 bits.
 	 * This shouldn't be a problem on Linux or other POSIX
 	 * systems, since the configuration logic for libarchive
 	 * tries to obtain a 64-bit off_t.

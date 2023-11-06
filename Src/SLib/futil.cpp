@@ -1976,55 +1976,6 @@ HRESULT SHGetKnownFolderPath(
 	//FOLDERID_AccountPictures;
 }
 
-/*static*/int SFileUtil::GetStat(const char * pFileName, Stat * pStat)
-{
-	EXCEPTVAR(SLibError);
-	int    ok = 1; // @v11.2.0 @fix (-1)-->(1)
-	Stat   stat;
-	SString _file_name(pFileName);
-	MEMSZERO(stat);
-#ifdef __WIN32__
-	//HANDLE srchdl = INVALID_HANDLE_VALUE;
-	SIntHandle h_file;
-	THROW_V(_file_name.NotEmpty(), SLERR_OPENFAULT);
-	{
-		SStringU _file_name_u;
-		LARGE_INTEGER size = {0, 0};
-		_file_name.CopyToUnicode(_file_name_u);
-		h_file = ::CreateFileW(_file_name_u, FILE_READ_ATTRIBUTES|FILE_READ_EA|STANDARD_RIGHTS_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); 
-		SLS.SetAddedMsgString(pFileName);
-		THROW_V(h_file, SLERR_OPENFAULT);
-		SFile::GetTime(h_file, &stat.CrtTime, &stat.AccsTime, &stat.ModTime);
-		GetFileSizeEx(h_file, &size);
-		stat.Size = size.QuadPart;
-	}
-	CATCHZOK
-	if(h_file)
-		::CloseHandle(h_file);
-#endif
-	ASSIGN_PTR(pStat, stat);
-	return ok;
-}
-
-/*static*/int SFileUtil::GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail)
-{
-	int    ok = 1;
-	ULARGE_INTEGER avail, total, total_free;
-	SString path;
-	SPathStruc ps(pPath);
-	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
-	if(GetDiskFreeSpaceEx(SUcSwitch(path), &avail, &total, &total_free)) {
-		ASSIGN_PTR(pTotal, total.QuadPart);
-		ASSIGN_PTR(pAvail, avail.QuadPart);
-	}
-	else {
-		ASSIGN_PTR(pTotal, 0);
-		ASSIGN_PTR(pAvail, 0);
-		ok = SLS.SetOsError();
-	}
-	return ok;
-}
-
 #if 0 // @v11.8.5 Упразднено в пользу GetKnownFolderPath()
 /*static*/int SFileUtil::GetSysDir(int pathId, SString & rPath)
 {
@@ -2181,8 +2132,8 @@ SLTEST_R(Directory)
 			}
 		}
 		{
-			SFileUtil::Stat stat;
-			THROW(SLCHECK_NZ(SFileUtil::GetStat(temp_buf, &stat)));
+			SFile::Stat stat;
+			THROW(SLCHECK_NZ(SFile::GetStat(temp_buf, 0, &stat, 0)));
 			SLCHECK_EQ(stat.Size, test_file_size);
 		}
 	}

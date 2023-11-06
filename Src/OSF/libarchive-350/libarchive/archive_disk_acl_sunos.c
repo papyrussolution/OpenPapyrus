@@ -13,13 +13,12 @@
 //#include <fcntl.h>
 //#endif
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_ACL_H
-#define _ACL_PRIVATE /* For debugging */
-#include <sys/acl.h>
+	#define _ACL_PRIVATE // @debug
+	#include <sys/acl.h>
 #endif
-
 #include "archive_read_disk_private.h"
 #include "archive_write_disk_private.h"
 

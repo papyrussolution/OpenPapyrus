@@ -1,28 +1,28 @@
 #ifndef HEADER_CURL_CF_SOCKET_H
 #define HEADER_CURL_CF_SOCKET_H
 /***************************************************************************
- *                                  _   _ ____  _
- *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
- *
- * Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
- *
- * This software is licensed as described in the file COPYING, which
- * you should have received as part of this distribution. The terms
- * are also available at https://curl.se/docs/copyright.html.
- *
- * You may opt to use, copy, modify, merge, publish, distribute and/or sell
- * copies of the Software, and permit persons to whom the Software is
- * furnished to do so, under the terms of the COPYING file.
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
- * KIND, either express or implied.
- *
- * SPDX-License-Identifier: curl
- *
- ***************************************************************************/
+*                                  _   _ ____  _
+*  Project                     ___| | | |  _ \| |
+*                             / __| | | | |_) | |
+*                            | (__| |_| |  _ <| |___
+*                             \___|\___/|_| \_\_____|
+*
+* Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
+*
+* This software is licensed as described in the file COPYING, which
+* you should have received as part of this distribution. The terms
+* are also available at https://curl.se/docs/copyright.html.
+*
+* You may opt to use, copy, modify, merge, publish, distribute and/or sell
+* copies of the Software, and permit persons to whom the Software is
+* furnished to do so, under the terms of the COPYING file.
+*
+* This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+* KIND, either express or implied.
+*
+* SPDX-License-Identifier: curl
+*
+***************************************************************************/
 #include "curl_setup.h"
 
 //#include "nonblock.h" /* for curlx_nonblock(), formerly Curl_nonblock() */
@@ -50,7 +50,6 @@ struct Curl_sockaddr_ex;
 # define CURL_FORMAT_SOCKET_T "qd"
 #endif
 
-
 /*
  * The Curl_sockaddr_ex structure is basically libcurl's external API
  * curl_sockaddr structure with enough space available to directly hold any
@@ -59,17 +58,17 @@ struct Curl_sockaddr_ex;
  * been set, before that, it is initialized from parameters.
  */
 struct Curl_sockaddr_ex {
-  int family;
-  int socktype;
-  int protocol;
-  uint addrlen;
-  union {
-    struct sockaddr addr;
-    struct Curl_sockaddr_storage buff;
-  } _sa_ex_u;
+	int family;
+	int socktype;
+	int protocol;
+	uint addrlen;
+	union {
+		struct sockaddr addr;
+		struct Curl_sockaddr_storage buff;
+	} _sa_ex_u;
 };
-#define sa_addr _sa_ex_u.addr
 
+#define sa_addr _sa_ex_u.addr
 
 /*
  * Create a socket based on info from 'conn' and 'ai'.
@@ -78,14 +77,14 @@ struct Curl_sockaddr_ex {
  * socket callback is set, used that!
  *
  */
-CURLcode Curl_socket_open(struct Curl_easy *data,
-                            const struct Curl_addrinfo *ai,
-                            struct Curl_sockaddr_ex *addr,
-                            int transport,
-                            curl_socket_t *sockfd);
+CURLcode Curl_socket_open(struct Curl_easy * data,
+    const struct Curl_addrinfo * ai,
+    struct Curl_sockaddr_ex * addr,
+    int transport,
+    curl_socket_t * sockfd);
 
-int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
-                      curl_socket_t sock);
+int Curl_socket_close(struct Curl_easy * data, struct connectdata * conn,
+    curl_socket_t sock);
 
 #ifdef USE_WINSOCK
 /* When you run a program that uses the Windows Sockets API, you may
@@ -96,7 +95,7 @@ int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
    Work-around: Make the Socket Send Buffer Size Larger Than the Program Send
    Buffer Size
 
-*/
+ */
 void Curl_sndbufset(curl_socket_t sockfd);
 #else
 #define Curl_sndbufset(y) Curl_nop_stmt
@@ -106,9 +105,9 @@ void Curl_sndbufset(curl_socket_t sockfd);
  * Assign the address `ai` to the Curl_sockaddr_ex `dest` and
  * set the transport used.
  */
-void Curl_sock_assign_addr(struct Curl_sockaddr_ex *dest,
-                           const struct Curl_addrinfo *ai,
-                           int transport);
+void Curl_sock_assign_addr(struct Curl_sockaddr_ex * dest,
+    const struct Curl_addrinfo * ai,
+    int transport);
 
 /**
  * Creates a cfilter that opens a TCP socket to the given address
@@ -117,11 +116,11 @@ void Curl_sock_assign_addr(struct Curl_sockaddr_ex *dest,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_tcp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct connectdata *conn,
-                            const struct Curl_addrinfo *ai,
-                            int transport);
+CURLcode Curl_cf_tcp_create(struct Curl_cfilter ** pcf,
+    struct Curl_easy * data,
+    struct connectdata * conn,
+    const struct Curl_addrinfo * ai,
+    int transport);
 
 /**
  * Creates a cfilter that opens a UDP socket to the given address
@@ -130,11 +129,11 @@ CURLcode Curl_cf_tcp_create(struct Curl_cfilter **pcf,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_udp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct connectdata *conn,
-                            const struct Curl_addrinfo *ai,
-                            int transport);
+CURLcode Curl_cf_udp_create(struct Curl_cfilter ** pcf,
+    struct Curl_easy * data,
+    struct connectdata * conn,
+    const struct Curl_addrinfo * ai,
+    int transport);
 
 /**
  * Creates a cfilter that opens a UNIX socket to the given address
@@ -143,27 +142,27 @@ CURLcode Curl_cf_udp_create(struct Curl_cfilter **pcf,
  * used in happy eyeballing. Once selected for use, its `_active()`
  * method needs to be called.
  */
-CURLcode Curl_cf_unix_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct connectdata *conn,
-                             const struct Curl_addrinfo *ai,
-                             int transport);
+CURLcode Curl_cf_unix_create(struct Curl_cfilter ** pcf,
+    struct Curl_easy * data,
+    struct connectdata * conn,
+    const struct Curl_addrinfo * ai,
+    int transport);
 
 /**
  * Creates a cfilter that keeps a listening socket.
  */
-CURLcode Curl_conn_tcp_listen_set(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  int sockindex,
-                                  curl_socket_t *s);
+CURLcode Curl_conn_tcp_listen_set(struct Curl_easy * data,
+    struct connectdata * conn,
+    int sockindex,
+    curl_socket_t * s);
 
 /**
  * Replace the listen socket with the accept()ed one.
  */
-CURLcode Curl_conn_tcp_accepted_set(struct Curl_easy *data,
-                                    struct connectdata *conn,
-                                    int sockindex,
-                                    curl_socket_t *s);
+CURLcode Curl_conn_tcp_accepted_set(struct Curl_easy * data,
+    struct connectdata * conn,
+    int sockindex,
+    curl_socket_t * s);
 
 /**
  * Peek at the socket and remote ip/port the socket filter is using.
@@ -176,12 +175,12 @@ CURLcode Curl_conn_tcp_accepted_set(struct Curl_easy *data,
  * @param pl_port           pointer to hold local port number or NULL
  * Returns error if the filter is of invalid type.
  */
-CURLcode Curl_cf_socket_peek(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             curl_socket_t *psock,
-                             const struct Curl_sockaddr_ex **paddr,
-                             const char **pr_ip_str, int *pr_port,
-                             const char **pl_ip_str, int *pl_port);
+CURLcode Curl_cf_socket_peek(struct Curl_cfilter * cf,
+    struct Curl_easy * data,
+    curl_socket_t * psock,
+    const struct Curl_sockaddr_ex ** paddr,
+    const char ** pr_ip_str, int * pr_port,
+    const char ** pl_ip_str, int * pl_port);
 
 extern struct Curl_cftype Curl_cft_tcp;
 extern struct Curl_cftype Curl_cft_udp;

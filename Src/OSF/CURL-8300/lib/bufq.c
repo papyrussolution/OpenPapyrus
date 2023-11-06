@@ -316,7 +316,7 @@ bool Curl_bufq_is_full(const struct bufq * q)
 	return chunk_is_full(q->tail);
 }
 
-static struct buf_chunk *get_spare(struct bufq * q){
+static struct buf_chunk *get_spare(struct bufq * q) {
 	struct buf_chunk * chunk = NULL;
 
 	if(q->spare) {
@@ -373,7 +373,7 @@ static void prune_head(struct bufq * q)
 	}
 }
 
-static struct buf_chunk *get_non_full_tail(struct bufq * q){
+static struct buf_chunk *get_non_full_tail(struct bufq * q) {
 	struct buf_chunk * chunk;
 
 	if(q->tail && !chunk_is_full(q->tail))

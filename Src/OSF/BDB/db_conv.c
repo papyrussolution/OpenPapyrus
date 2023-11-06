@@ -587,8 +587,8 @@ int __db_pageswap(ENV * env, DB * dbp, void * pp, size_t len, DBT * pdata, int p
 	uint16 hoffset;
 	switch(TYPE(pp)) {
 	    case P_BTREEMETA: return __bam_mswap(env, (PAGE *)pp);
-	    case P_HASHMETA:  return __ham_mswap(env, pp);
-	    case P_QAMMETA:   return __qam_mswap(env, (PAGE *)pp);
+	    case P_HASHMETA: return __ham_mswap(env, pp);
+	    case P_QAMMETA: return __qam_mswap(env, (PAGE *)pp);
 	    case P_INVALID:
 	    case P_OVERFLOW:
 	    case P_QAMDATA:

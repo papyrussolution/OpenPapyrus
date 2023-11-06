@@ -1,5 +1,5 @@
 // SINIFILE.CPP
-// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -259,8 +259,8 @@ SIniFile::SIniFile(const char * pFileName, int fcreate, int winCoding, int useIn
 
 int SIniFile::WasModified() const
 {
-	SFileUtil::Stat fs;
-	if(!SFileUtil::GetStat(FileName, &fs))
+	SFile::Stat fs;
+	if(!SFile::GetStat(FileName, 0, &fs, 0))
 		return 2;
 	else if(cmp(fs.ModTime, LoadingTime) > 0)
 		return 1;

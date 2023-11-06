@@ -1,5 +1,5 @@
 // PPDBMAKE.CPP
-// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019, 2020, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -79,9 +79,9 @@ static int64 calcNeededSize(int isEmpty)
 				file_name = (isEmpty || !isNeededFile(tbl_name)) ? empty_path : base_path;
 				file_name.Cat(ps.Nam).Cat(ps.Ext);
 				if(::access(file_name, 0) == 0) {
-					SFileUtil::Stat st;
-					SFileUtil::GetStat(file_name, &st);
-					size += st.Size;
+					SFile::Stat fs;
+					SFile::GetStat(file_name, 0, &fs, 0);
+					size += fs.Size;
 				}
 				else
 					size += 2048;
@@ -124,7 +124,7 @@ int CreateByExample(const char * pPath)
 	//
 	int64  disk_total = 0;
 	int64  disk_avail = 0;
-	SFileUtil::GetDiskSpace(pPath, &disk_total, &disk_avail);
+	SFile::GetDiskSpace(pPath, &disk_total, &disk_avail);
 	// *2 - коэффициент запаса
 	if((calcNeededSize(0) * 2) > disk_avail) {
 		DBErrCode = SDBERR_BU_NOFREESPACE;
@@ -556,7 +556,7 @@ int MakeDatabase()
 					// Вычисляем необходимый размер дискового пространства и сравниваем его с доступным
 					//
 					int64  disk_total = 0, disk_avail = 0;
-					SFileUtil::GetDiskSpace(param.Path, &disk_total, &disk_avail);
+					SFile::GetDiskSpace(param.Path, &disk_total, &disk_avail);
 					// *3/2 - коэффициент запаса
 					if((calcNeededSize(1) * 3 / 2) > disk_avail) {
 						DBErrCode = SDBERR_BU_NOFREESPACE;
@@ -626,7 +626,7 @@ int MakeDatabase()
 					// Вычисляем необходимый размер дискового пространства и сравниваем его с доступным
 					//
 					int64  disk_total = 0, disk_avail = 0;
-					SFileUtil::GetDiskSpace(param.Path, &disk_total, &disk_avail);
+					SFile::GetDiskSpace(param.Path, &disk_total, &disk_avail);
 					// *3/2 - коэффициент запаса
 					if((calcNeededSize(1) * 3 / 2) > disk_avail) {
 						DBErrCode = SDBERR_BU_NOFREESPACE;

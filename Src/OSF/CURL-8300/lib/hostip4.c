@@ -29,9 +29,9 @@
  **********************************************************************/
 #ifdef CURLRES_IPV4 /* plain IPv4 code coming up */
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -86,31 +86,23 @@ bool Curl_ipvalid(struct Curl_easy * data, struct connectdata * conn)
  * flavours have thread-safe versions of the plain gethostbyname() etc.
  *
  */
-struct Curl_addrinfo *Curl_getaddrinfo(struct Curl_easy * data,
-    const char * hostname,
-    int port,
-    int * waitp){
+struct Curl_addrinfo *Curl_getaddrinfo(struct Curl_easy * data, const char * hostname, int port, int * waitp) 
+{
 	struct Curl_addrinfo * ai = NULL;
-
 #ifdef CURL_DISABLE_VERBOSE_STRINGS
 	(void)data;
 #endif
-
 	*waitp = 0; /* synchronous response only */
-
 	ai = Curl_ipv4_resolve_r(hostname, port);
 	if(!ai)
 		infof(data, "Curl_ipv4_resolve_r failed for %s", hostname);
-
 	return ai;
 }
 
 #endif /* CURLRES_SYNCH */
 #endif /* CURLRES_IPV4 */
 
-#if defined(CURLRES_IPV4) && \
-	!defined(CURLRES_ARES) && !defined(CURLRES_AMIGA)
-
+#if defined(CURLRES_IPV4) && !defined(CURLRES_ARES) && !defined(CURLRES_AMIGA)
 /*
  * Curl_ipv4_resolve_r() - ipv4 threadsafe resolver function.
  *
@@ -119,7 +111,7 @@ struct Curl_addrinfo *Curl_getaddrinfo(struct Curl_easy * data,
  *
  */
 struct Curl_addrinfo *Curl_ipv4_resolve_r(const char * hostname,
-    int port){
+    int port) {
 #if !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE)) && \
 	defined(HAVE_GETHOSTBYNAME_R_3)
 	int res;

@@ -22,20 +22,16 @@
 //#include "archive_rb.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-#define getuid()                        0
-#define getgid()                        0
+	#define getuid() 0
+	#define getgid() 0
 #endif
-
 /*#define DEBUG 1*/
 #ifdef DEBUG
-/* To compare to the ISO image file made by mkisofs. */
-#define COMPAT_MKISOFS          1
+	#define COMPAT_MKISOFS 1 // To compare to the ISO image file made by mkisofs
 #endif
-
 #define LOGICAL_BLOCK_BITS                      11
 #define LOGICAL_BLOCK_SIZE                      2048
 #define PATH_TABLE_BLOCK_SIZE                   4096
-
 #define SYSTEM_AREA_BLOCK                       16
 #define PRIMARY_VOLUME_DESCRIPTOR_BLOCK         1
 #define SUPPLEMENTARY_VOLUME_DESCRIPTOR_BLOCK   1
@@ -59,29 +55,19 @@
 #define FILE_FLAG_PROTECTION    0x10
 #define FILE_FLAG_MULTI_EXTENT  0x80
 
-static const char rrip_identifier[] =
-    "RRIP_1991A";
-static const char rrip_descriptor[] =
-    "THE ROCK RIDGE INTERCHANGE PROTOCOL PROVIDES SUPPORT FOR "
-    "POSIX FILE SYSTEM SEMANTICS";
-static const char rrip_source[] =
-    "PLEASE CONTACT DISC PUBLISHER FOR SPECIFICATION SOURCE.  "
-    "SEE PUBLISHER IDENTIFIER IN PRIMARY VOLUME DESCRIPTOR FOR "
-    "CONTACT INFORMATION.";
+static const char rrip_identifier[] = "RRIP_1991A";
+static const char rrip_descriptor[] = "THE ROCK RIDGE INTERCHANGE PROTOCOL PROVIDES SUPPORT FOR POSIX FILE SYSTEM SEMANTICS";
+static const char rrip_source[] = "PLEASE CONTACT DISC PUBLISHER FOR SPECIFICATION SOURCE.  SEE PUBLISHER IDENTIFIER IN PRIMARY VOLUME DESCRIPTOR FOR CONTACT INFORMATION.";
 #define RRIP_ER_ID_SIZE         (sizeof(rrip_identifier)-1)
 #define RRIP_ER_DSC_SIZE        (sizeof(rrip_descriptor)-1)
 #define RRIP_ER_SRC_SIZE        (sizeof(rrip_source)-1)
-#define RRIP_ER_SIZE            (8 + RRIP_ER_ID_SIZE + \
-	RRIP_ER_DSC_SIZE + RRIP_ER_SRC_SIZE)
+#define RRIP_ER_SIZE            (8 + RRIP_ER_ID_SIZE + RRIP_ER_DSC_SIZE + RRIP_ER_SRC_SIZE)
 
-static const uchar zisofs_magic[8] = {
-	0x37, 0xE4, 0x53, 0x96, 0xC9, 0xDB, 0xD6, 0x07
-};
+static const uchar zisofs_magic[8] = { 0x37, 0xE4, 0x53, 0x96, 0xC9, 0xDB, 0xD6, 0x07 };
 
 #define ZF_HEADER_SIZE  16      /* zisofs header size. */
 #define ZF_LOG2_BS      15      /* log2 block size; 32K bytes. */
 #define ZF_BLOCK_SIZE   (1UL << ZF_LOG2_BS)
-
 /*
  * Manage extra records.
  */
@@ -272,9 +258,8 @@ struct iso_option {
 	 * and containing a abstract statement.
 	 */
 	uint abstract_file : 1;
-#define OPT_ABSTRACT_FILE_DEFAULT       0       /* Not specified */
+#define OPT_ABSTRACT_FILE_DEFAULT       0 // Not specified
 #define ABSTRACT_FILE_SIZE              37
-
 	/*
 	 * Usage  : application-id=<value>
 	 * Type   : string, max 128 bytes
@@ -302,7 +287,7 @@ struct iso_option {
 	 * Allow filenames to use version numbers.
 	 */
 	uint allow_vernum : 1;
-#define OPT_ALLOW_VERNUM_DEFAULT        1       /* Enabled */
+#define OPT_ALLOW_VERNUM_DEFAULT        1 // enabled
 
 	/*
 	 * Usage  : biblio-file=<value>
@@ -315,7 +300,7 @@ struct iso_option {
 	 * and containing bibliographic records.
 	 */
 	uint biblio_file : 1;
-#define OPT_BIBLIO_FILE_DEFAULT         0       /* Not specified */
+#define OPT_BIBLIO_FILE_DEFAULT         0 // Not specified
 #define BIBLIO_FILE_SIZE                37
 
 	/*
@@ -328,7 +313,7 @@ struct iso_option {
 	 * a bootable CD.
 	 */
 	uint boot : 1;
-#define OPT_BOOT_DEFAULT                0       /* Not specified */
+#define OPT_BOOT_DEFAULT                0 // Not specified
 
 	/*
 	 * Usage  : boot-catalog=<value>
@@ -339,7 +324,7 @@ struct iso_option {
 	 * Specifies a fullpath of El Torito boot catalog.
 	 */
 	uint boot_catalog : 1;
-#define OPT_BOOT_CATALOG_DEFAULT        0       /* Not specified */
+#define OPT_BOOT_CATALOG_DEFAULT        0 // Not specified
 
 	/*
 	 * Usage  : boot-info-table
@@ -365,7 +350,7 @@ struct iso_option {
 	 * This is used with no-emulation mode.
 	 */
 	uint boot_load_seg : 1;
-#define OPT_BOOT_LOAD_SEG_DEFAULT       0       /* Not specified */
+#define OPT_BOOT_LOAD_SEG_DEFAULT       0 // Not specified
 
 	/*
 	 * Usage  : boot-load-size=<value>
@@ -377,7 +362,7 @@ struct iso_option {
 	 * This is used with no-emulation mode.
 	 */
 	uint boot_load_size : 1;
-#define OPT_BOOT_LOAD_SIZE_DEFAULT      0       /* Not specified */
+#define OPT_BOOT_LOAD_SIZE_DEFAULT      0 // Not specified
 
 	/*
 	 * Usage  : boot-type=<boot-media-type>
@@ -416,7 +401,7 @@ struct iso_option {
 	 * Specifies compression level for option zisofs=direct.
 	 */
 	uint compression_level : 1;
-#define OPT_COMPRESSION_LEVEL_DEFAULT   0       /* Not specified */
+#define OPT_COMPRESSION_LEVEL_DEFAULT   0 // Not specified
 
 	/*
 	 * Usage  : copyright-file=<value>
@@ -429,7 +414,7 @@ struct iso_option {
 	 * and containing a copyright statement.
 	 */
 	uint copyright_file : 1;
-#define OPT_COPYRIGHT_FILE_DEFAULT      0       /* Not specified */
+#define OPT_COPYRIGHT_FILE_DEFAULT      0 // Not specified
 #define COPYRIGHT_FILE_SIZE             37
 
 	/*
@@ -441,7 +426,7 @@ struct iso_option {
 	 * Specifies a group id to rewrite the group id of all files.
 	 */
 	uint gid : 1;
-#define OPT_GID_DEFAULT                 0       /* Not specified */
+#define OPT_GID_DEFAULT                 0 // Not specified
 
 	/*
 	 * Usage  : iso-level=[1234]
@@ -519,8 +504,7 @@ struct iso_option {
 	 * The number of levels in hierarchy cannot exceed eight.
 	 */
 	uint limit_depth : 1;
-#define OPT_LIMIT_DEPTH_DEFAULT         1       /* Enabled */
-
+#define OPT_LIMIT_DEPTH_DEFAULT         1 // enabled
 	/*
 	 * Usage  : !limit-dirs
 	 * Type   : boolean
@@ -533,8 +517,7 @@ struct iso_option {
 	 * Table.
 	 */
 	uint limit_dirs : 1;
-#define OPT_LIMIT_DIRS_DEFAULT          1       /* Enabled */
-
+#define OPT_LIMIT_DIRS_DEFAULT          1 // enabled
 	/*
 	 * Usage  : !pad
 	 * Type   : boolean
@@ -544,8 +527,7 @@ struct iso_option {
 	 * Pads the end of the ISO image by null of 300Ki bytes.
 	 */
 	uint pad : 1;
-#define OPT_PAD_DEFAULT                 1       /* Enabled */
-
+#define OPT_PAD_DEFAULT                 1 // enabled
 	/*
 	 * Usage  : publisher=<value>
 	 * Type   : string, max 128 bytes
@@ -559,7 +541,7 @@ struct iso_option {
 	 * This file shall be described in the Root Directory.
 	 */
 	uint publisher : 1;
-#define OPT_PUBLISHER_DEFAULT           0       /* Not specified */
+#define OPT_PUBLISHER_DEFAULT           0 // Not specified
 #define PUBLISHER_IDENTIFIER_SIZE       128
 
 	/*
@@ -1368,9 +1350,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    }
 		    break;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 invalid_value:
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid value for option ``%s''", key);
@@ -2344,8 +2324,8 @@ static int set_SUSP_CE(uchar * p, int location, int offset, int size)
 
 	bp[1] = 'C';
 	bp[2] = 'E';
-	bp[3] = RR_CE_SIZE; /* length	*/
-	bp[4] = 1; /* version	*/
+	bp[3] = RR_CE_SIZE; // length
+	bp[4] = 1; // version
 	set_num_733(bp+5, location);
 	set_num_733(bp+13, offset);
 	set_num_733(bp+21, size);
@@ -2581,15 +2561,14 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'S';
 			bp[2] = 'P';
 			bp[3] = length;
-			bp[4] = 1; /* version	*/
-			bp[5] = 0xBE; /* Check Byte	*/
-			bp[6] = 0xEF; /* Check Byte	*/
+			bp[4] = 1; // version
+			bp[5] = 0xBE; // Check Byte
+			bp[6] = 0xEF; // Check Byte
 			bp[7] = 0;
 			bp += length;
 		}
 		extra_tell_used_size(&ctl, length);
 	}
-
 	/* Write "RR" System Use Entry. */
 	length = 5;
 	if(extra_space(&ctl) < length)
@@ -2598,12 +2577,11 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		bp[1] = 'R';
 		bp[2] = 'R';
 		bp[3] = length;
-		bp[4] = 1; /* version */
+		bp[4] = 1; // version
 		bp[5] = rr_flag;
 		bp += length;
 	}
 	extra_tell_used_size(&ctl, length);
-
 	/* Write "NM" System Use Entry. */
 	if(rr_flag & RR_USE_NM) {
 		/*
@@ -2618,13 +2596,12 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		size_t nmlen = file->basename.length;
 		const char * nm = file->basename.s;
 		size_t nmmax;
-
 		if(extra_space(&ctl) < 6)
 			bp = extra_next_record(&ctl, 6);
 		if(bp) {
 			bp[1] = 'N';
 			bp[2] = 'M';
-			bp[4] = 1; /* version	*/
+			bp[4] = 1; // version
 		}
 		nmmax = extra_space(&ctl);
 		if(nmmax > 0xff)
@@ -2650,7 +2627,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			if(bp) {
 				bp[1] = 'N';
 				bp[2] = 'M';
-				bp[4] = 1; /* version */
+				bp[4] = 1; // version
 			}
 		}
 		length = 5 + (int)nmlen;
@@ -2710,7 +2687,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'P';
 			bp[2] = 'X';
 			bp[3] = length;
-			bp[4] = 1; /* version	*/
+			bp[4] = 1; // version
 			/* file mode */
 			set_num_733(bp+5, mode);
 			/* file links (stat.st_nlink) */
@@ -2766,7 +2743,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		if(bp) {
 			bp[1] = 'S';
 			bp[2] = 'L';
-			bp[4] = 1; /* version	*/
+			bp[4] = 1; // version
 		}
 		for(;;) {
 			uchar * nc, * cf,  * cl, cldmy = 0;
@@ -2901,7 +2878,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 					/* Next 'SL' */
 					bp[1] = 'S';
 					bp[2] = 'L';
-					bp[4] = 1; /* version */
+					bp[4] = 1; // version
 				}
 			}
 			else {
@@ -2968,7 +2945,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'T';
 			bp[2] = 'F';
 			bp[3] = length;
-			bp[4] = 1; /* version	*/
+			bp[4] = 1; // version
 			bp[5] = tf_flags;
 			bp += 5;
 			/* Creation time */
@@ -3016,7 +2993,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'R';
 			bp[2] = 'E';
 			bp[3] = length;
-			bp[4] = 1; /* version	*/
+			bp[4] = 1; // version
 			bp += length;
 		}
 		extra_tell_used_size(&ctl, length);
@@ -3040,7 +3017,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'P';
 			bp[2] = 'L';
 			bp[3] = length;
-			bp[4] = 1; /* version	*/
+			bp[4] = 1; // version
 			set_num_733(bp + 5,
 			    rr_parent->dir_location);
 			bp += length;
@@ -3066,7 +3043,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'C';
 			bp[2] = 'L';
 			bp[3] = length;
-			bp[4] = 1; /* version	*/
+			bp[4] = 1; // version
 			set_num_733(bp + 5, isoent->rr_child->dir_location);
 			bp += length;
 		}
@@ -3090,7 +3067,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'P';
 			bp[2] = 'N';
 			bp[3] = length;
-			bp[4] = 1; /* version	*/
+			bp[4] = 1; // version
 			dev = (uint64)archive_entry_rdev(file->entry);
 			set_num_733(bp + 5, (uint32)(dev >> 32));
 			set_num_733(bp + 13, (uint32)(dev & 0xFFFFFFFF));
@@ -3120,7 +3097,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp[1] = 'Z';
 			bp[2] = 'F';
 			bp[3] = length;
-			bp[4] = 1; /* version	*/
+			bp[4] = 1; // version
 			bp[5] = 'p';
 			bp[6] = 'z';
 			bp[7] = file->zisofs.header_size;
@@ -3414,7 +3391,7 @@ static int wb_set_offset(struct archive_write * a, int64 off)
 	return ARCHIVE_OK;
 }
 
-#endif /* HAVE_ZLIB_H */
+#endif // HAVE_ZLIB_H
 
 static int write_null(struct archive_write * a, size_t size)
 {
@@ -3557,7 +3534,7 @@ static int write_VD(struct archive_write * a, struct iso9660::vdd * vdd)
 	bp = wb_buffptr(a) -1;
 	/* Volume Descriptor Type */
 	set_VD_bp(bp, vdt, vd_ver);
-	/* Unused Field */
+	// Unused Field
 	set_unused_field_bp(bp, 8, 8);
 	/* System Identifier */
 	get_system_identitier(identifier, sizeof(identifier));
@@ -3569,7 +3546,7 @@ static int write_VD(struct archive_write * a, struct iso9660::vdd * vdd)
 		iso9660->volume_identifier.s, vdc);
 	if(r != ARCHIVE_OK)
 		return r;
-	/* Unused Field */
+	// Unused Field
 	set_unused_field_bp(bp, 73, 80);
 	/* Volume Space Size */
 	set_num_733(bp+81, iso9660->volume_space_size);
@@ -3581,7 +3558,7 @@ static int write_VD(struct archive_write * a, struct iso9660::vdd * vdd)
 		memzero(bp + 92, 120 - 92 + 1);
 	}
 	else {
-		/* Unused Field */
+		// Unused Field
 		set_unused_field_bp(bp, 89, 120);
 	}
 	/* Volume Set Size */
@@ -6716,7 +6693,7 @@ static int zisofs_init_zstream(struct archive_write * a)
 	return ARCHIVE_OK;
 }
 
-#endif /* HAVE_ZLIB_H */
+#endif // HAVE_ZLIB_H
 
 static int zisofs_init(struct archive_write * a,  struct isofile * file)
 {
@@ -6811,14 +6788,10 @@ static void zisofs_detect_magic(struct archive_write * a, const void * buff, siz
 		magic_buff = (const uchar *)buff; /* It's unnecessary we copy buffer. */
 	else {
 		if(iso9660->zisofs.magic_cnt < magic_max) {
-			size_t l;
-
-			l = sizeof(iso9660->zisofs.magic_buffer)
-			    - iso9660->zisofs.magic_cnt;
+			size_t l = sizeof(iso9660->zisofs.magic_buffer) - iso9660->zisofs.magic_cnt;
 			if(l > s)
 				l = s;
-			memcpy(iso9660->zisofs.magic_buffer
-			    + iso9660->zisofs.magic_cnt, buff, l);
+			memcpy(iso9660->zisofs.magic_buffer + iso9660->zisofs.magic_cnt, buff, l);
 			iso9660->zisofs.magic_cnt += (int)l;
 			if(iso9660->zisofs.magic_cnt < magic_max)
 				return;
@@ -6866,7 +6839,6 @@ static void zisofs_detect_magic(struct archive_write * a, const void * buff, siz
 }
 
 #ifdef HAVE_ZLIB_H
-
 /*
  * Compress data and write it to a temporary file.
  */
@@ -6897,14 +6869,12 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 
 		zstrm->next_in = (Byte *)(uintptr_t)(const void*)b;
 		zstrm->avail_in = (uInt)avail;
-
 		/*
 		 * Check if current data block are all zero.
 		 */
 		if(iso9660->zisofs.allzero) {
 			const uchar * nonzero = b;
 			const uchar * nonzeroend = b + avail;
-
 			while(nonzero < nonzeroend)
 				if(*nonzero++) {
 					iso9660->zisofs.allzero = 0;
@@ -6913,30 +6883,23 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 		}
 		b += avail;
 		s -= avail;
-
 		/*
-		 * If current data block are all zero, we do not use
-		 * compressed data.
+		 * If current data block are all zero, we do not use compressed data.
 		 */
 		if(flush == Z_FINISH && iso9660->zisofs.allzero &&
 		    avail + zstrm->total_in == ZF_BLOCK_SIZE) {
 			if(iso9660->zisofs.block_offset !=
 			    file->cur_content->size) {
 				int64 diff;
-
-				r = wb_set_offset(a,
-					file->cur_content->offset_of_temp +
-					iso9660->zisofs.block_offset);
+				r = wb_set_offset(a, file->cur_content->offset_of_temp + iso9660->zisofs.block_offset);
 				if(r != ARCHIVE_OK)
 					return r;
-				diff = file->cur_content->size -
-				    iso9660->zisofs.block_offset;
+				diff = file->cur_content->size - iso9660->zisofs.block_offset;
 				file->cur_content->size -= diff;
 				iso9660->zisofs.total_size -= diff;
 			}
 			zstrm->avail_in = 0;
 		}
-
 		/*
 		 * Compress file data.
 		 */
@@ -7351,4 +7314,4 @@ static int zisofs_free(struct archive_write * a)
 	return ARCHIVE_OK;
 }
 
-#endif /* HAVE_ZLIB_H */
+#endif // HAVE_ZLIB_H

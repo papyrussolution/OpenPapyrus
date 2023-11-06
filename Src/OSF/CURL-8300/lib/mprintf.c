@@ -73,32 +73,24 @@
 	(defined(_MSC_VER) && (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64))
 #define MP_HAVE_INT_EXTENSIONS
 #endif
-
 /*
  * Max integer data types that mprintf.c is capable
  */
-
 #ifdef HAVE_LONG_LONG_TYPE
-#define mp_intmax_t LONG_LONG_TYPE
-#define mp_uintmax_t unsigned LONG_LONG_TYPE
+	#define mp_intmax_t LONG_LONG_TYPE
+	#define mp_uintmax_t unsigned LONG_LONG_TYPE
 #else
-#define mp_intmax_t long
-#define mp_uintmax_t unsigned long
+	#define mp_intmax_t long
+	#define mp_uintmax_t unsigned long
 #endif
-
-#define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
-	                fit negative DBL_MAX (317 letters) */
+#define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should fit negative DBL_MAX (317 letters) */
 #define MAX_PARAMETERS 128 /* lame static limit */
-
 #ifdef __AMIGA__
-#undef FORMAT_INT
+	#undef FORMAT_INT
 #endif
 
-/* Lower-case digits.  */
-static const char lower_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-
-/* Upper-case digits.  */
-static const char upper_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const char lower_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz"; /* Lower-case digits.  */
+static const char upper_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; /* Upper-case digits.  */
 
 #define OUTCHAR(x)                                     \
 	do {                                                 \
@@ -171,8 +163,7 @@ struct nsprintf {
 
 struct asprintf {
 	struct dynbuf * b;
-	bool fail; /* if an alloc has failed and thus the output is not the complete
-	              data */
+	bool fail; /* if an alloc has failed and thus the output is not the complete data */
 };
 
 static long dprintf_DollarString(char * input, char ** end)
@@ -282,21 +273,14 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 				}
 				else
 #endif
-
 				switch(*fmt++) {
-					case ' ':
-					    flags |= FLAGS_SPACE;
-					    break;
-					case '+':
-					    flags |= FLAGS_SHOWSIGN;
-					    break;
-					case '-':
-					    flags |= FLAGS_LEFT;
+					case ' ': flags |= FLAGS_SPACE; break;
+					case '+': flags |= FLAGS_SHOWSIGN; break;
+					case '-': 
+						flags |= FLAGS_LEFT;
 					    flags &= ~FLAGS_PAD_NIL;
 					    break;
-					case '#':
-					    flags |= FLAGS_ALT;
-					    break;
+					case '#': flags |= FLAGS_ALT; break;
 					case '.':
 					    if('*' == *fmt) {
 						    /* The precision is picked from a specified parameter */
@@ -304,13 +288,11 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 						    flags |= FLAGS_PRECPARAM;
 						    fmt++;
 						    param_num++;
-
 						    i = dprintf_DollarString(fmt, &fmt);
 						    if(i)
 							    precision = i;
 						    else
 							    precision = param_num;
-
 						    if(precision > max_param)
 							    max_param = precision;
 					    }
@@ -565,31 +547,22 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 	return 0;
 }
 
-static int dprintf_formatf(void * data, /* untouched by format(), just sent to the stream() function in
-                                           the second argument */
+static int dprintf_formatf(void * data, /* untouched by format(), just sent to the stream() function in the second argument */
     /* function pointer called for each output character */
     int (*stream)(int, FILE *),
     const char * format, /* %-formatted string */
     va_list ap_save) /* list of parameters */
 {
-	/* Base-36 digits for numbers.  */
-	const char * digits = lower_digits;
-
-	/* Pointer into the format string.  */
-	char * f;
-
-	/* Number of characters written.  */
-	int done = 0;
-
+	const char * digits = lower_digits; /* Base-36 digits for numbers.  */
+	char * f; /* Pointer into the format string.  */
+	int done = 0; /* Number of characters written.  */
 	long param; /* current parameter to read */
 	long param_num = 0; /* parameter counter */
-
 	struct va_stack vto[MAX_PARAMETERS];
 	char * endpos[MAX_PARAMETERS];
 	char ** end;
 	char work[BUFFSIZE];
 	struct va_stack * p;
-
 	/* 'workend' points to the final buffer byte position, but with an extra
 	   byte as margin to avoid the (false?) warning Coverity gives us
 	   otherwise */
@@ -598,35 +571,17 @@ static int dprintf_formatf(void * data, /* untouched by format(), just sent to t
 	/* Do the actual %-code parsing */
 	if(dprintf_Pass1(format, vto, endpos, ap_save))
 		return 0;
-
-	end = &endpos[0]; /* the initial end-position from the list dprintf_Pass1()
-	                     created for us */
-
+	end = &endpos[0]; /* the initial end-position from the list dprintf_Pass1() created for us */
 	f = (char *)format;
 	while(*f != '\0') {
-		/* Format spec modifiers.  */
-		int is_alt;
-
-		/* Width of a field.  */
-		long width;
-
-		/* Precision of a field.  */
-		long prec;
-
-		/* Decimal integer is negative.  */
-		int is_neg;
-
-		/* Base of a number to be written.  */
-		unsigned long base;
-
-		/* Integral values to be written.  */
-		mp_uintmax_t num;
-
-		/* Used to convert negative in positive.  */
-		mp_intmax_t signed_num;
-
+		int is_alt; /* Format spec modifiers.  */
+		long width; /* Width of a field.  */
+		long prec; /* Precision of a field.  */
+		int is_neg; /* Decimal integer is negative.  */
+		ulong base; /* Base of a number to be written.  */
+		mp_uintmax_t num; /* Integral values to be written.  */
+		mp_intmax_t signed_num; /* Used to convert negative in positive.  */
 		char * w;
-
 		if(*f != '%') {
 			/* This isn't a format spec, so write everything out until the next one
 			   OR end of string is reached.  */
@@ -1009,7 +964,6 @@ static int addbyter(int output, FILE * data)
 {
 	struct nsprintf * infop = (struct nsprintf *)data;
 	uchar outc = (uchar)output;
-
 	if(infop->length < infop->max) {
 		/* only do this if we haven't reached max length yet */
 		infop->buffer[0] = outc; /* store */
@@ -1020,16 +974,13 @@ static int addbyter(int output, FILE * data)
 	return -1;
 }
 
-int curl_mvsnprintf(char * buffer, size_t maxlength, const char * format,
-    va_list ap_save)
+int curl_mvsnprintf(char * buffer, size_t maxlength, const char * format, va_list ap_save)
 {
 	int retcode;
 	struct nsprintf info;
-
 	info.buffer = buffer;
 	info.length = 0;
 	info.max = maxlength;
-
 	retcode = dprintf_formatf(&info, addbyter, format, ap_save);
 	if(info.max) {
 		/* we terminate this with a zero byte */
@@ -1060,7 +1011,6 @@ static int alloc_addbyter(int output, FILE * data)
 {
 	struct asprintf * infop = (struct asprintf *)data;
 	uchar outc = (uchar)output;
-
 	if(Curl_dyn_addn(infop->b, &outc, 1)) {
 		infop->fail = 1;
 		return -1; /* fail */
@@ -1068,8 +1018,7 @@ static int alloc_addbyter(int output, FILE * data)
 	return outc; /* fputc() returns like this on success */
 }
 
-extern int Curl_dyn_vprintf(struct dynbuf * dyn,
-    const char * format, va_list ap_save);
+extern int Curl_dyn_vprintf(struct dynbuf * dyn, const char * format, va_list ap_save);
 
 /* appends the formatted string, returns 0 on success, 1 on error */
 int Curl_dyn_vprintf(struct dynbuf * dyn, const char * format, va_list ap_save)
@@ -1139,7 +1088,6 @@ int curl_mprintf(const char * format, ...)
 	int retcode;
 	va_list ap_save; /* argument pointer */
 	va_start(ap_save, format);
-
 	retcode = dprintf_formatf(stdout, fputc, format, ap_save);
 	va_end(ap_save);
 	return retcode;
@@ -1157,8 +1105,7 @@ int curl_mfprintf(FILE * whereto, const char * format, ...)
 
 int curl_mvsprintf(char * buffer, const char * format, va_list ap_save)
 {
-	int retcode;
-	retcode = dprintf_formatf(&buffer, storebuffer, format, ap_save);
+	int retcode = dprintf_formatf(&buffer, storebuffer, format, ap_save);
 	*buffer = 0; /* we terminate this with a zero byte */
 	return retcode;
 }

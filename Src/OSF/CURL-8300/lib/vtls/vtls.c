@@ -64,7 +64,7 @@
 //#include "timeval.h"
 #include "curl_md5.h"
 //#include "warnless.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 //#include "curl_printf.h"
 #include "strdup.h"
 
@@ -139,7 +139,7 @@ static const struct alpn_spec ALPN_SPEC_H2_H11 = {
 };
 #endif
 
-static const struct alpn_spec *alpn_get_spec(int httpwant, bool use_alpn){
+static const struct alpn_spec *alpn_get_spec(int httpwant, bool use_alpn) {
 	if(!use_alpn)
 		return NULL;
 	if(httpwant == CURL_HTTP_VERSION_1_0)
@@ -641,7 +641,7 @@ CURLcode Curl_ssl_set_engine_default(struct Curl_easy * data)
 }
 
 /* Return list of OpenSSL crypto engine names. */
-struct curl_slist *Curl_ssl_engines_list(struct Curl_easy * data){
+struct curl_slist *Curl_ssl_engines_list(struct Curl_easy * data) {
 	return Curl_ssl->engines_list(data);
 }
 
@@ -1075,7 +1075,7 @@ CURLcode Curl_none_set_engine_default(struct Curl_easy * data UNUSED_PARAM)
 	return CURLE_NOT_BUILT_IN;
 }
 
-struct curl_slist *Curl_none_engines_list(struct Curl_easy * data UNUSED_PARAM){
+struct curl_slist *Curl_none_engines_list(struct Curl_easy * data UNUSED_PARAM) {
 	(void)data;
 	return (struct curl_slist *)NULL;
 }
@@ -1814,7 +1814,7 @@ CURLcode Curl_ssl_cfilter_remove(struct Curl_easy * data,
 }
 
 static struct Curl_cfilter *get_ssl_cf_engaged(struct connectdata * conn,
-    int sockindex){
+    int sockindex) {
 	struct Curl_cfilter * cf, * lowest_ssl_cf = NULL;
 
 	for(cf = conn->cfilter[sockindex]; cf; cf = cf->next) {
@@ -1861,7 +1861,7 @@ struct ssl_primary_config *Curl_ssl_cf_get_primary_config(struct Curl_cfilter * 
 #endif
 }
 
-struct Curl_cfilter *Curl_ssl_cf_get_ssl(struct Curl_cfilter * cf){
+struct Curl_cfilter *Curl_ssl_cf_get_ssl(struct Curl_cfilter * cf) {
 	for(; cf; cf = cf->next) {
 		if(cf->cft == &Curl_cft_ssl || cf->cft == &Curl_cft_ssl_proxy)
 			return cf;

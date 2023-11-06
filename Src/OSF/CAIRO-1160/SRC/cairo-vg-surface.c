@@ -600,8 +600,8 @@ static VGRenderingQuality _vg_rendering_quality_from_cairo(cairo_antialias_t aa)
 static VGCapStyle _vg_line_cap_from_cairo(cairo_line_cap_t cap)
 {
 	switch(cap) {
-		case CAIRO_LINE_CAP_BUTT:   return VG_CAP_BUTT;
-		case CAIRO_LINE_CAP_ROUND:  return VG_CAP_ROUND;
+		case CAIRO_LINE_CAP_BUTT: return VG_CAP_BUTT;
+		case CAIRO_LINE_CAP_ROUND: return VG_CAP_ROUND;
 		case CAIRO_LINE_CAP_SQUARE: return VG_CAP_SQUARE;
 	}
 	ASSERT_NOT_REACHED;

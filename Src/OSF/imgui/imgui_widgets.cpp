@@ -375,7 +375,7 @@ void ImGui::BulletTextV(const char* fmt, va_list args)
 // By far the most common path is interacting with the Mouse using the default ImGuiButtonFlags_PressedOnClickRelease button behavior.
 // See the series of events below and the corresponding state reported by dear imgui:
 //------------------------------------------------------------------------------------------------------------------------------------------------
-// with PressedOnClickRelease:             return-value  IsItemHovered()  IsItemActive()  IsItemActivated()  IsItemDeactivated()  IsItemClicked()
+// with PressedOnClickRelease: return-value  IsItemHovered()  IsItemActive()  IsItemActivated()  IsItemDeactivated()  IsItemClicked()
 //   Frame N+0 (mouse is outside bb)        -             -                -               -                  -                    -
 //   Frame N+1 (mouse moves inside bb)      -             true             -               -                  -                    -
 //   Frame N+2 (mouse button is down)       -             true             true            true               -                    true
@@ -1915,8 +1915,7 @@ bool ImGui::DataTypeApplyFromText(const char* buf, ImGuiDataType data_type, void
 	return memcmp(&data_backup, p_data, type_info->Size) != 0;
 }
 
-template <typename T>
-static int DataTypeCompareT(const T* lhs, const T* rhs)
+template <typename T> static int DataTypeCompareT(const T* lhs, const T* rhs)
 {
 	if(*lhs < *rhs)  return -1;
 	if(*lhs > *rhs)  return +1;
@@ -1926,17 +1925,17 @@ static int DataTypeCompareT(const T* lhs, const T* rhs)
 int ImGui::DataTypeCompare(ImGuiDataType data_type, const void* arg_1, const void* arg_2)
 {
 	switch(data_type) {
-		case ImGuiDataType_S8:     return DataTypeCompareT<int8  >((const int8*)arg_1, (const int8*)arg_2);
-		case ImGuiDataType_U8:     return DataTypeCompareT<uint8  >((const uint8*)arg_1, (const uint8*)arg_2);
-		case ImGuiDataType_S16:    return DataTypeCompareT<int16 >((const int16*)arg_1, (const int16*)arg_2);
-		case ImGuiDataType_U16:    return DataTypeCompareT<uint16 >((const uint16*)arg_1, (const uint16*)arg_2);
-		case ImGuiDataType_S32:    return DataTypeCompareT<ImS32 >((const ImS32*)arg_1, (const ImS32*)arg_2);
-		case ImGuiDataType_U32:    return DataTypeCompareT<ImU32 >((const ImU32*)arg_1, (const ImU32*)arg_2);
-		case ImGuiDataType_S64:    return DataTypeCompareT<int64 >((const int64*)arg_1, (const int64*)arg_2);
-		case ImGuiDataType_U64:    return DataTypeCompareT<uint64 >((const uint64*)arg_1, (const uint64*)arg_2);
-		case ImGuiDataType_Float:  return DataTypeCompareT<float >((const float*)arg_1, (const float*)arg_2);
+		case ImGuiDataType_S8: return DataTypeCompareT<int8  >((const int8*)arg_1, (const int8*)arg_2);
+		case ImGuiDataType_U8: return DataTypeCompareT<uint8  >((const uint8*)arg_1, (const uint8*)arg_2);
+		case ImGuiDataType_S16: return DataTypeCompareT<int16 >((const int16*)arg_1, (const int16*)arg_2);
+		case ImGuiDataType_U16: return DataTypeCompareT<uint16 >((const uint16*)arg_1, (const uint16*)arg_2);
+		case ImGuiDataType_S32: return DataTypeCompareT<ImS32 >((const ImS32*)arg_1, (const ImS32*)arg_2);
+		case ImGuiDataType_U32: return DataTypeCompareT<ImU32 >((const ImU32*)arg_1, (const ImU32*)arg_2);
+		case ImGuiDataType_S64: return DataTypeCompareT<int64 >((const int64*)arg_1, (const int64*)arg_2);
+		case ImGuiDataType_U64: return DataTypeCompareT<uint64 >((const uint64*)arg_1, (const uint64*)arg_2);
+		case ImGuiDataType_Float: return DataTypeCompareT<float >((const float*)arg_1, (const float*)arg_2);
 		case ImGuiDataType_Double: return DataTypeCompareT<double>((const double*)arg_1, (const double*)arg_2);
-		case ImGuiDataType_COUNT:  break;
+		case ImGuiDataType_COUNT: break;
 	}
 	assert(0);
 	return 0;
@@ -1959,17 +1958,17 @@ template <typename T> static bool DataTypeClampT(T* v, const T* v_min, const T* 
 bool ImGui::DataTypeClamp(ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max)
 {
 	switch(data_type) {
-		case ImGuiDataType_S8:     return DataTypeClampT<int8  >((int8*)p_data, (const int8*)p_min, (const int8*)p_max);
-		case ImGuiDataType_U8:     return DataTypeClampT<uint8  >((uint8*)p_data, (const uint8*)p_min, (const uint8*)p_max);
-		case ImGuiDataType_S16:    return DataTypeClampT<int16 >((int16*)p_data, (const int16*)p_min, (const int16*)p_max);
-		case ImGuiDataType_U16:    return DataTypeClampT<uint16 >((uint16*)p_data, (const uint16*)p_min, (const uint16*)p_max);
-		case ImGuiDataType_S32:    return DataTypeClampT<ImS32 >((ImS32*)p_data, (const ImS32*)p_min, (const ImS32*)p_max);
-		case ImGuiDataType_U32:    return DataTypeClampT<ImU32 >((ImU32*)p_data, (const ImU32*)p_min, (const ImU32*)p_max);
-		case ImGuiDataType_S64:    return DataTypeClampT<int64 >((int64*)p_data, (const int64*)p_min, (const int64*)p_max);
-		case ImGuiDataType_U64:    return DataTypeClampT<uint64 >((uint64*)p_data, (const uint64*)p_min, (const uint64*)p_max);
-		case ImGuiDataType_Float:  return DataTypeClampT<float >((float*)p_data, (const float*)p_min, (const float*)p_max);
+		case ImGuiDataType_S8: return DataTypeClampT<int8  >((int8*)p_data, (const int8*)p_min, (const int8*)p_max);
+		case ImGuiDataType_U8: return DataTypeClampT<uint8  >((uint8*)p_data, (const uint8*)p_min, (const uint8*)p_max);
+		case ImGuiDataType_S16: return DataTypeClampT<int16 >((int16*)p_data, (const int16*)p_min, (const int16*)p_max);
+		case ImGuiDataType_U16: return DataTypeClampT<uint16 >((uint16*)p_data, (const uint16*)p_min, (const uint16*)p_max);
+		case ImGuiDataType_S32: return DataTypeClampT<ImS32 >((ImS32*)p_data, (const ImS32*)p_min, (const ImS32*)p_max);
+		case ImGuiDataType_U32: return DataTypeClampT<ImU32 >((ImU32*)p_data, (const ImU32*)p_min, (const ImU32*)p_max);
+		case ImGuiDataType_S64: return DataTypeClampT<int64 >((int64*)p_data, (const int64*)p_min, (const int64*)p_max);
+		case ImGuiDataType_U64: return DataTypeClampT<uint64 >((uint64*)p_data, (const uint64*)p_min, (const uint64*)p_max);
+		case ImGuiDataType_Float: return DataTypeClampT<float >((float*)p_data, (const float*)p_min, (const float*)p_max);
 		case ImGuiDataType_Double: return DataTypeClampT<double>((double*)p_data, (const double*)p_min, (const double*)p_max);
-		case ImGuiDataType_COUNT:  break;
+		case ImGuiDataType_COUNT: break;
 	}
 	assert(0);
 	return false;
@@ -2186,7 +2185,7 @@ bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* p_v, float v
 		case ImGuiDataType_U64: return DragBehaviorT<uint64, int64, double>(data_type, (uint64*)p_v,  v_speed, p_min ? *(const uint64*)p_min : IM_U64_MIN, p_max ? *(const uint64*)p_max : IM_U64_MAX, format, flags);
 		case ImGuiDataType_Float: return DragBehaviorT<float, float, float >(data_type, (float*)p_v,  v_speed, p_min ? *(const float*)p_min : -FLT_MAX, p_max ? *(const float*)p_max : FLT_MAX,    format, flags);
 		case ImGuiDataType_Double: return DragBehaviorT<double, double, double>(data_type, (double*)p_v, v_speed, p_min ? *(const double*)p_min : -DBL_MAX, p_max ? *(const double*)p_max : DBL_MAX,    format, flags);
-		case ImGuiDataType_COUNT:  break;
+		case ImGuiDataType_COUNT: break;
 	}
 	assert(0);
 	return false;

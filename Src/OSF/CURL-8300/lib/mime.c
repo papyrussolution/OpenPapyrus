@@ -141,18 +141,14 @@ static const char aschex[] =
  * and CD/DVD images should be either a STREAM_LF format or a fixed format.
  *
  */
-curl_off_t VmsRealFileSize(const char * name,
-    const struct_stat * stat_buf)
+curl_off_t VmsRealFileSize(const char * name, const struct_stat * stat_buf)
 {
 	char buffer[8192];
 	curl_off_t count;
 	int ret_stat;
-	FILE * file;
-
-	file = fopen(name, FOPEN_READTEXT); /* VMS */
+	FILE * file = fopen(name, FOPEN_READTEXT); /* VMS */
 	if(!file)
 		return 0;
-
 	count = 0;
 	ret_stat = 1;
 	while(ret_stat > 0) {
@@ -244,12 +240,8 @@ static char *Curl_basename(char * path)
 {
 	/* Ignore all the details above for now and make a quick and simple
 	   implementation here */
-	char * s1;
-	char * s2;
-
-	s1 = strrchr(path, '/');
-	s2 = strrchr(path, '\\');
-
+	char * s1 = strrchr(path, '/');
+	char * s2 = strrchr(path, '\\');
 	if(s1 && s2) {
 		path = (s1 > s2? s1 : s2) + 1;
 	}
@@ -257,7 +249,6 @@ static char *Curl_basename(char * path)
 		path = s1 + 1;
 	else if(s2)
 		path = s2 + 1;
-
 	return path;
 }
 

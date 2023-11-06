@@ -312,25 +312,18 @@ void xps_parse_fixed_page(fz_context * ctx, xps_document * doc, fz_matrix ctm, x
 	char base_uri[1024];
 	fz_rect area;
 	char * s;
-
 	fz_strlcpy(base_uri, page->fix->name, sizeof base_uri);
 	s = strrchr(base_uri, '/');
 	if(s)
 		s[1] = 0;
-
 	dict = NULL;
-
 	doc->opacity_top = 0;
 	doc->opacity[0] = 1;
-
 	root = fz_xml_root(page->xml);
 	if(!root)
 		return;
-
 	area = fz_transform_rect(fz_unit_rect, fz_scale(page->fix->width, page->fix->height));
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		for(node = fz_xml_down(root); node; node = fz_xml_next(node)) {
 			if(fz_xml_is_tag(node, "FixedPage.Resources") && fz_xml_down(node)) {
 				if(dict)

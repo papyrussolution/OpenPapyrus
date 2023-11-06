@@ -69,7 +69,7 @@ CURLcode vquic_flush(struct Curl_cfilter *cf, struct Curl_easy *data,
                      struct cf_quic_ctx *qctx);
 
 
-typedef CURLcode vquic_recv_pkt_cb(const unsigned char *pkt, size_t pktlen,
+typedef CURLcode vquic_recv_pkt_cb(const uchar *pkt, size_t pktlen,
                                    struct sockaddr_storage *remote_addr,
                                    socklen_t remote_addrlen, int ecn,
                                    void *userp);

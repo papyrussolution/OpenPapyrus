@@ -7407,12 +7407,17 @@ private:
 							STRNSCPY(p_new_pack->Client.KPP, reg_rec.Num);
 						}
 						(p_new_pack->Client.Name = psn_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+						bool debug_mark = false; // @debug
 						if(p_new_pack->Client.DlvrLocID && LocObj.GetPacket(p_new_pack->Client.DlvrLocID, &loc_pack) > 0) {
 							S_GUID uuid;
 							if(!loc_pack.GetGuid(uuid) || uuid.IsZero()) {
 								uuid.Generate();
 								THROW(LocObj.PutGuid(loc_pack.ID, &uuid, 1));
 							}
+							// @debug {
+							if(!uuid)
+								debug_mark = true;
+							// } @debug 
 							p_new_pack->Client.Uuid = uuid;
 							LocationCore::GetAddress(loc_pack, 0, temp_buf);
 							p_new_pack->Client.Address = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
@@ -7424,6 +7429,10 @@ private:
 								uuid.Generate();
 								THROW(PsnObj.PutGuid(psn_id, &uuid, 1));
 							}
+							// @debug {
+							if(!uuid)
+								debug_mark = true;
+							// } @debug 
 							p_new_pack->Client.Uuid = uuid;
 							if(psn_pack.Rec.RLoc && LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0) {
 								LocationCore::GetAddress(loc_pack, 0, temp_buf);

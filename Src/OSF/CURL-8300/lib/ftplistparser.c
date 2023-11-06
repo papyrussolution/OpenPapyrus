@@ -195,24 +195,20 @@ CURLcode Curl_wildcard_init(struct WildcardData * wc)
 void Curl_wildcard_dtor(struct WildcardData ** wcp)
 {
 	struct WildcardData * wc = *wcp;
-	if(!wc)
-		return;
-
-	if(wc->dtor) {
-		wc->dtor(wc->ftpwc);
-		wc->dtor = ZERO_NULL;
-		wc->ftpwc = NULL;
+	if(wc) {
+		if(wc->dtor) {
+			wc->dtor(wc->ftpwc);
+			wc->dtor = ZERO_NULL;
+			wc->ftpwc = NULL;
+		}
+		DEBUGASSERT(wc->ftpwc == NULL);
+		Curl_llist_destroy(&wc->filelist, NULL);
+		ZFREE(wc->path);
+		ZFREE(wc->pattern);
+		wc->state = CURLWC_INIT;
+		SAlloc::F(wc);
+		*wcp = NULL;
 	}
-	DEBUGASSERT(wc->ftpwc == NULL);
-
-	Curl_llist_destroy(&wc->filelist, NULL);
-	SAlloc::F(wc->path);
-	wc->path = NULL;
-	SAlloc::F(wc->pattern);
-	wc->pattern = NULL;
-	wc->state = CURLWC_INIT;
-	SAlloc::F(wc);
-	*wcp = NULL;
 }
 
 struct ftp_parselist_data *Curl_ftp_parselist_data_alloc(void)
@@ -229,10 +225,7 @@ void Curl_ftp_parselist_data_free(struct ftp_parselist_data ** parserp)
 	*parserp = NULL;
 }
 
-CURLcode Curl_ftp_parselist_geterror(struct ftp_parselist_data * pl_data)
-{
-	return pl_data->error;
-}
+CURLcode Curl_ftp_parselist_geterror(struct ftp_parselist_data * pl_data) { return pl_data->error; }
 
 #define FTP_LP_MALFORMATED_PERM 0x01000000
 
@@ -297,12 +290,10 @@ static uint ftp_pl_get_permission(const char * str)
 		permissions |= 1 << 9;
 	else if(str[8] != '-')
 		permissions |= FTP_LP_MALFORMATED_PERM;
-
 	return permissions;
 }
 
-static CURLcode ftp_pl_insert_finfo(struct Curl_easy * data,
-    struct fileinfo * infop)
+static CURLcode ftp_pl_insert_finfo(struct Curl_easy * data, struct fileinfo * infop)
 {
 	curl_fnmatch_callback compare;
 	struct WildcardData * wc = data->wildcard;
@@ -315,28 +306,19 @@ static CURLcode ftp_pl_insert_finfo(struct Curl_easy * data,
 	/* set the finfo pointers */
 	char * str = Curl_dyn_ptr(&infop->buf);
 	finfo->filename       = str + parser->offsets.filename;
-	finfo->strings.group  = parser->offsets.group ?
-	    str + parser->offsets.group : NULL;
-	finfo->strings.perm   = parser->offsets.perm ?
-	    str + parser->offsets.perm : NULL;
-	finfo->strings.target = parser->offsets.symlink_target ?
-	    str + parser->offsets.symlink_target : NULL;
+	finfo->strings.group  = parser->offsets.group ? str + parser->offsets.group : NULL;
+	finfo->strings.perm   = parser->offsets.perm ? str + parser->offsets.perm : NULL;
+	finfo->strings.target = parser->offsets.symlink_target ? str + parser->offsets.symlink_target : NULL;
 	finfo->strings.time   = str + parser->offsets.time;
-	finfo->strings.user   = parser->offsets.user ?
-	    str + parser->offsets.user : NULL;
-
+	finfo->strings.user   = parser->offsets.user ? str + parser->offsets.user : NULL;
 	/* get correct fnmatch callback */
 	compare = data->set.fnmatch;
-	if(!compare)
-		compare = Curl_fnmatch;
-
+	SETIFZQ(compare, Curl_fnmatch);
 	/* filter pattern-corresponding filenames */
 	Curl_set_in_callback(data, true);
-	if(compare(data->set.fnmatch_data, wc->pattern,
-	    finfo->filename) == 0) {
+	if(compare(data->set.fnmatch_data, wc->pattern, finfo->filename) == 0) {
 		/* discard symlink which is containing multiple " -> " */
-		if((finfo->filetype == CURLFILETYPE_SYMLINK) && finfo->strings.target &&
-		    (strstr(finfo->strings.target, " -> "))) {
+		if((finfo->filetype == CURLFILETYPE_SYMLINK) && finfo->strings.target && (strstr(finfo->strings.target, " -> "))) {
 			add = FALSE;
 		}
 	}
@@ -344,22 +326,19 @@ static CURLcode ftp_pl_insert_finfo(struct Curl_easy * data,
 		add = FALSE;
 	}
 	Curl_set_in_callback(data, false);
-
 	if(add) {
 		Curl_llist_insert_next(llist, llist->tail, finfo, &infop->list);
 	}
 	else {
 		Curl_fileinfo_cleanup(infop);
 	}
-
 	ftpwc->parser->file_data = NULL;
 	return CURLE_OK;
 }
 
 #define MAX_FTPLIST_BUFFER 10000 /* arbitrarily set */
 
-size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb,
-    void * connptr)
+size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connptr)
 {
 	size_t bufflen = size*nmemb;
 	struct Curl_easy * data = (struct Curl_easy *)connptr;
@@ -368,7 +347,6 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb,
 	size_t i = 0;
 	CURLcode result;
 	size_t retsize = bufflen;
-
 	if(parser->error) { /* error in previous call */
 		/* scenario:
 		 * 1. call => OK..
@@ -382,7 +360,6 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb,
 		/* considering info about FILE response format */
 		parser->os_type = ISDIGIT(buffer[0]) ? ftp_parselist_data::OS_TYPE_WIN_NT : ftp_parselist_data::OS_TYPE_UNIX;
 	}
-
 	while(i < bufflen) { /* FSM */
 		char * mem;
 		size_t len; /* number of bytes of data in the dynbuf */
@@ -460,33 +437,15 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb,
 					break;
 				    case PL_UNIX_FILETYPE:
 					switch(c) {
-						case '-':
-						    finfo->filetype = CURLFILETYPE_FILE;
-						    break;
-						case 'd':
-						    finfo->filetype = CURLFILETYPE_DIRECTORY;
-						    break;
-						case 'l':
-						    finfo->filetype = CURLFILETYPE_SYMLINK;
-						    break;
-						case 'p':
-						    finfo->filetype = CURLFILETYPE_NAMEDPIPE;
-						    break;
-						case 's':
-						    finfo->filetype = CURLFILETYPE_SOCKET;
-						    break;
-						case 'c':
-						    finfo->filetype = CURLFILETYPE_DEVICE_CHAR;
-						    break;
-						case 'b':
-						    finfo->filetype = CURLFILETYPE_DEVICE_BLOCK;
-						    break;
-						case 'D':
-						    finfo->filetype = CURLFILETYPE_DOOR;
-						    break;
-						default:
-						    parser->error = CURLE_FTP_BAD_FILE_LIST;
-						    goto fail;
+						case '-': finfo->filetype = CURLFILETYPE_FILE; break;
+						case 'd': finfo->filetype = CURLFILETYPE_DIRECTORY; break;
+						case 'l': finfo->filetype = CURLFILETYPE_SYMLINK; break;
+						case 'p': finfo->filetype = CURLFILETYPE_NAMEDPIPE; break;
+						case 's': finfo->filetype = CURLFILETYPE_SOCKET; break;
+						case 'c': finfo->filetype = CURLFILETYPE_DEVICE_CHAR; break;
+						case 'b': finfo->filetype = CURLFILETYPE_DEVICE_BLOCK; break;
+						case 'D': finfo->filetype = CURLFILETYPE_DOOR; break;
+						default: parser->error = CURLE_FTP_BAD_FILE_LIST; goto fail;
 					}
 					parser->state.UNIX.main = PL_UNIX_PERMISSION;
 					parser->item_length = 0;
@@ -948,9 +907,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb,
 							    }
 							    else {
 								    char * endptr;
-								    if(curlx_strtoofft(mem +
-									parser->item_offset,
-									&endptr, 10, &finfo->size)) {
+								    if(curlx_strtoofft(mem + parser->item_offset, &endptr, 10, &finfo->size)) {
 									    parser->error = CURLE_FTP_BAD_FILE_LIST;
 									    goto fail;
 								    }
@@ -1020,15 +977,12 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb,
 		i++;
 	}
 	return retsize;
-
 fail:
-
 	/* Clean up any allocated memory. */
 	if(parser->file_data) {
 		Curl_fileinfo_cleanup(parser->file_data);
 		parser->file_data = NULL;
 	}
-
 	return retsize;
 }
 

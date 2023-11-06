@@ -1252,9 +1252,7 @@ static int archive_write_mtree_options(struct archive_write * a, const char * ke
 		return ARCHIVE_OK;
 	}
 
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -1969,9 +1967,7 @@ static int mtree_entry_tree_add(struct archive_write * a, struct mtree_entry ** 
 			}
 			dent = np;
 		}
-
-		/* Found out the parent directory where `file' can be
-		 * inserted. */
+		// Found out the parent directory where `file' can be inserted
 		mtree->cur_dirent = dent;
 		archive_string_empty(&(mtree->cur_dirstr));
 		archive_string_ensure(&(mtree->cur_dirstr), archive_strlen(&(dent->parentdir)) + archive_strlen(&(dent->basename)) + 2);
@@ -1993,10 +1989,7 @@ static int mtree_entry_tree_add(struct archive_write * a, struct mtree_entry ** 
 		return ARCHIVE_OK;
 	}
 same_entry:
-	/*
-	 * We have already has the entry the filename of which is
-	 * the same.
-	 */
+	// We have already has the entry the filename of which is the same.
 	r = mtree_entry_exchange_same_entry(a, np, file);
 	if(r < ARCHIVE_WARN)
 		return r;
@@ -2013,29 +2006,31 @@ static int mtree_entry_exchange_same_entry(struct archive_write * a, struct mtre
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Found duplicate entries `%s' and its file type is different", np->pathname.s);
 		return ARCHIVE_FAILED;
 	}
-	/* Update the existent mtree entry's attributes by the new one's. */
-	archive_string_empty(&np->symlink);
-	archive_string_concat(&np->symlink, &file->symlink);
-	archive_string_empty(&np->uname);
-	archive_string_concat(&np->uname, &file->uname);
-	archive_string_empty(&np->gname);
-	archive_string_concat(&np->gname, &file->gname);
-	archive_string_empty(&np->fflags_text);
-	archive_string_concat(&np->fflags_text, &file->fflags_text);
-	np->nlink = file->nlink;
-	np->filetype = file->filetype;
-	np->mode = file->mode;
-	np->size = file->size;
-	np->uid = file->uid;
-	np->gid = file->gid;
-	np->fflags_set = file->fflags_set;
-	np->fflags_clear = file->fflags_clear;
-	np->mtime = file->mtime;
-	np->mtime_nsec = file->mtime_nsec;
-	np->rdevmajor = file->rdevmajor;
-	np->rdevminor = file->rdevminor;
-	np->devmajor = file->devmajor;
-	np->devminor = file->devminor;
-	np->ino = file->ino;
-	return ARCHIVE_WARN;
+	else {
+		// Update the existent mtree entry's attributes by the new one's
+		archive_string_empty(&np->symlink);
+		archive_string_concat(&np->symlink, &file->symlink);
+		archive_string_empty(&np->uname);
+		archive_string_concat(&np->uname, &file->uname);
+		archive_string_empty(&np->gname);
+		archive_string_concat(&np->gname, &file->gname);
+		archive_string_empty(&np->fflags_text);
+		archive_string_concat(&np->fflags_text, &file->fflags_text);
+		np->nlink = file->nlink;
+		np->filetype = file->filetype;
+		np->mode = file->mode;
+		np->size = file->size;
+		np->uid = file->uid;
+		np->gid = file->gid;
+		np->fflags_set = file->fflags_set;
+		np->fflags_clear = file->fflags_clear;
+		np->mtime = file->mtime;
+		np->mtime_nsec = file->mtime_nsec;
+		np->rdevmajor = file->rdevmajor;
+		np->rdevminor = file->rdevminor;
+		np->devmajor = file->devmajor;
+		np->devminor = file->devminor;
+		np->ino = file->ino;
+		return ARCHIVE_WARN;
+	}
 }

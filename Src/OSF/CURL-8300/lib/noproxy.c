@@ -30,11 +30,9 @@
 #include "inet_pton.h"
 //#include "strcase.h"
 #include "noproxy.h"
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
@@ -43,13 +41,10 @@
  * Curl_cidr4_match() returns TRUE if the given IPv4 address is within the
  * specified CIDR address range.
  */
-UNITTEST bool Curl_cidr4_match(const char * ipv4,    /* 1.2.3.4 address */
-    const char * network,                           /* 1.2.3.4 address */
-    uint bits)
+UNITTEST bool Curl_cidr4_match(const char * ipv4/* 1.2.3.4 address */, const char * network/* 1.2.3.4 address */, uint bits)
 {
 	uint address = 0;
 	uint check = 0;
-
 	if(bits > 32)
 		/* strange input */
 		return FALSE;

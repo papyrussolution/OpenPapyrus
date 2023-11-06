@@ -2242,7 +2242,7 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, int contentType 
 		rReply.SetDataType(rReply.htFile, "FILE");
 		if(contentType == tfctBuffer) {
 			const SBaseBuffer * p_inbuf = static_cast<const SBaseBuffer *>(pParam);
-			//SFileUtil::Stat fs;
+			//SFile::Stat fs;
 			SFileFormat ff(SFileFormat::Unkn);
 			THROW(p_inbuf && p_inbuf->P_Buf && p_inbuf->Size > 0 && p_inbuf->Size <= SMEGABYTE(1024)); // @err
 			//SPathStruc ps(_file_name);
@@ -2252,7 +2252,7 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, int contentType 
 			const binary256 hash = SlHash::Sha256(0, p_inbuf->P_Buf, p_inbuf->Size);
 			Base32_Encode(reinterpret_cast<const uint8 *>(&hash), sizeof(hash), temp_buf);
 			temp_buf.CopyTo(blk.Name, sizeof(blk.Name));
-			//THROW(SFileUtil::GetStat(_file_name, &fs));
+			//THROW(SFile::GetStat(_file_name, &fs));
 			const LDATETIME now_dtm = getcurdatetime_();
 			blk.CrtTime = now_dtm;
 			blk.AccsTime = now_dtm;
@@ -2303,12 +2303,12 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, int contentType 
 			const SString _file_name(static_cast<const char *>(pParam));
 			THROW_SL(fileExists(_file_name));
 			{
-				SFileUtil::Stat fs;
+				SFile::Stat fs;
 				SFileFormat ff;
 				SPathStruc ps(_file_name);
 				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 				temp_buf.CopyTo(blk.Name, sizeof(blk.Name));
-				THROW(SFileUtil::GetStat(_file_name, &fs));
+				THROW(SFile::GetStat(_file_name, 0, &fs, 0));
 				blk.CrtTime = fs.CrtTime;
 				blk.AccsTime = fs.AccsTime;
 				blk.ModTime = fs.ModTime;

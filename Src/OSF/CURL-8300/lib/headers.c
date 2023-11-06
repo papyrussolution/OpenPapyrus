@@ -122,7 +122,7 @@ CURLHcode curl_easy_header(CURL * easy,
 struct curl_header *curl_easy_nextheader(CURL * easy,
     uint type,
     int request,
-    struct curl_header * prev){
+    struct curl_header * prev) {
 	struct Curl_easy * data = easy;
 	struct Curl_llist_element * pick;
 	struct Curl_llist_element * e;
@@ -367,7 +367,7 @@ CURLHcode curl_easy_header(CURL * easy,
 struct curl_header *curl_easy_nextheader(CURL * easy,
     uint type,
     int request,
-    struct curl_header * prev){
+    struct curl_header * prev) {
 	(void)easy;
 	(void)type;
 	(void)request;

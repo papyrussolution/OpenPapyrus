@@ -61,7 +61,7 @@ int archive_random(void * buf, size_t nbytes)
 		if(success)
 			return ARCHIVE_OK;
 	}
-	/* TODO: Does this case really happen? */
+	/* @todo Does this case really happen? */
 	return ARCHIVE_FAILED;
 #else
 	arc4random_buf(buf, nbytes);
@@ -129,8 +129,8 @@ static struct arc4_stream rs;
 static pid_t arc4_stir_pid;
 static int arc4_count;
 
-static inline uint8 arc4_getbyte(void);
-static void arc4_stir(void);
+static inline uint8 arc4_getbyte();
+static void arc4_stir();
 
 static inline void arc4_init(void)
 {

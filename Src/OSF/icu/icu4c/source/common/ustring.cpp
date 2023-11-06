@@ -363,7 +363,8 @@ U_CAPI char16_t * U_EXPORT2 u_strrstr(const char16_t * s, const char16_t * subst
 	return u_strFindLast(s, -1, substring, -1);
 }
 
-U_CAPI char16_t * U_EXPORT2 u_strrchr(const char16_t * s, char16_t c) {
+U_CAPI char16_t * U_EXPORT2 u_strrchr(const char16_t * s, char16_t c) 
+{
 	if(U16_IS_SURROGATE(c)) {
 		/* make sure to not find half of a surrogate pair */
 		return u_strFindLast(s, -1, &c, 1);
@@ -371,7 +372,6 @@ U_CAPI char16_t * U_EXPORT2 u_strrchr(const char16_t * s, char16_t c) {
 	else {
 		const char16_t * result = NULL;
 		char16_t cs;
-
 		/* trivial search for a BMP code point */
 		for(;;) {
 			if((cs = *s)==c) {
@@ -385,7 +385,8 @@ U_CAPI char16_t * U_EXPORT2 u_strrchr(const char16_t * s, char16_t c) {
 	}
 }
 
-U_CAPI char16_t * U_EXPORT2 u_strrchr32(const char16_t * s, UChar32 c) {
+U_CAPI char16_t * U_EXPORT2 u_strrchr32(const char16_t * s, UChar32 c) 
+{
 	if((uint32_t)c<=U_BMP_MAX) {
 		/* find BMP code point */
 		return u_strrchr(s, (char16_t)c);
@@ -408,7 +409,8 @@ U_CAPI char16_t * U_EXPORT2 u_strrchr32(const char16_t * s, UChar32 c) {
 	}
 }
 
-U_CAPI char16_t * U_EXPORT2 u_memrchr(const char16_t * s, char16_t c, int32_t count) {
+U_CAPI char16_t * U_EXPORT2 u_memrchr(const char16_t * s, char16_t c, int32_t count) 
+{
 	if(count<=0) {
 		return NULL; /* no string */
 	}
@@ -428,7 +430,8 @@ U_CAPI char16_t * U_EXPORT2 u_memrchr(const char16_t * s, char16_t c, int32_t co
 	}
 }
 
-U_CAPI char16_t * U_EXPORT2 u_memrchr32(const char16_t * s, UChar32 c, int32_t count) {
+U_CAPI char16_t * U_EXPORT2 u_memrchr32(const char16_t * s, UChar32 c, int32_t count) 
+{
 	if((uint32_t)c<=U_BMP_MAX) {
 		/* find BMP code point */
 		return u_memrchr(s, (char16_t)c, count);
@@ -441,7 +444,6 @@ U_CAPI char16_t * U_EXPORT2 u_memrchr32(const char16_t * s, UChar32 c, int32_t c
 		/* find supplementary code point as surrogate pair */
 		const char16_t * limit = s+count-1;
 		char16_t lead = U16_LEAD(c), trail = U16_TRAIL(c);
-
 		do {
 			if(*limit==trail && *(limit-1)==lead) {
 				return (char16_t *)(limit-1);

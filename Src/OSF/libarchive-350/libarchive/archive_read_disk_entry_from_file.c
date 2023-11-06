@@ -19,7 +19,6 @@ __FBSDID("$FreeBSD");
 
 /* This is the tree-walking code for POSIX systems. */
 #if !defined(_WIN32) || defined(__CYGWIN__)
-
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -83,17 +82,17 @@ __FBSDID("$FreeBSD");
 #include "archive_read_disk_private.h"
 
 #ifndef O_CLOEXEC
-#define O_CLOEXEC       0
+	#define O_CLOEXEC       0
 #endif
 
 static int setup_mac_metadata(struct archive_read_disk *, ArchiveEntry *, int * fd);
 #ifdef ARCHIVE_XATTR_FREEBSD
-static int setup_xattrs_namespace(struct archive_read_disk *, ArchiveEntry *, int *, int);
+	static int setup_xattrs_namespace(struct archive_read_disk *, ArchiveEntry *, int *, int);
 #endif
 static int setup_xattrs(struct archive_read_disk *, ArchiveEntry *, int * fd);
 static int setup_sparse(struct archive_read_disk *, ArchiveEntry *, int * fd);
 #if defined(HAVE_LINUX_FIEMAP_H)
-static int setup_sparse_fiemap(struct archive_read_disk *, ArchiveEntry *, int * fd);
+	static int setup_sparse_fiemap(struct archive_read_disk *, ArchiveEntry *, int * fd);
 #endif
 
 #if !ARCHIVE_ACL_SUPPORT
@@ -177,7 +176,7 @@ int archive_read_disk_entry_from_file(Archive * _a, ArchiveEntry * entry, int fd
 
 #ifdef HAVE_STRUCT_STAT_ST_FLAGS
 	/* On FreeBSD, we get flags for free with the stat. */
-	/* TODO: Does this belong in copy_stat()? */
+	/* @todo Does this belong in copy_stat()? */
 	if((a->flags & ARCHIVE_READDISK_NO_FFLAGS) == 0 && st->st_flags != 0)
 		archive_entry_set_fflags(entry, st->st_flags, 0);
 #endif
@@ -576,7 +575,7 @@ static int setup_xattrs(struct archive_read_disk * a, ArchiveEntry * entry, int 
  * FreeBSD extattr interface.
  */
 
-/* TODO: Implement this.  Follow the Linux model above, but
+/* @todo Implement this.  Follow the Linux model above, but
  * with FreeBSD-specific system calls, of course.  Be careful
  * to not include the system extattrs that hold ACLs; we handle
  * those separately.

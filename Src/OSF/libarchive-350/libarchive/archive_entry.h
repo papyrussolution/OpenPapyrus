@@ -174,7 +174,7 @@ __LA_DECL ArchiveEntry * archive_entry_clear(ArchiveEntry *);
 /* The 'clone' function does a deep copy; all of the strings are copied too. */
 __LA_DECL ArchiveEntry * archive_entry_clone(ArchiveEntry *);
 __LA_DECL void FASTCALL archive_entry_free(ArchiveEntry *);
-__LA_DECL ArchiveEntry * archive_entry_new(void);
+__LA_DECL ArchiveEntry * archive_entry_new();
 
 /*
  * This form of archive_entry_new2() will pull character-set
@@ -638,7 +638,7 @@ struct archive_entry_linkresolver;
  *    correctly extract an arbitrary link.
  */
 
-__LA_DECL struct archive_entry_linkresolver *archive_entry_linkresolver_new(void);
+__LA_DECL struct archive_entry_linkresolver *archive_entry_linkresolver_new();
 __LA_DECL void archive_entry_linkresolver_set_strategy(struct archive_entry_linkresolver *, int /* format_code */);
 __LA_DECL void archive_entry_linkresolver_free(struct archive_entry_linkresolver *);
 __LA_DECL void archive_entry_linkify(struct archive_entry_linkresolver *, ArchiveEntry **, ArchiveEntry **);

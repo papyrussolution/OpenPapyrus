@@ -802,9 +802,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 		}
 
   #endif
-
 		CMyComPtr<ISequentialOutStream> outStreamLoc;
-
 		if(askExtractMode == NArchive::NExtractArc::NAskMode::kExtract && !_testMode) {
 			if(_stdOutMode) {
 				outStreamLoc = new CStdOutFileStream;
@@ -869,16 +867,13 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 							SetDirTime(fullPathNew,
 							    (WriteCTime && _fi.CTimeDefined) ? &_fi.CTime : NULL,
 							    (WriteATime && _fi.ATimeDefined) ? &_fi.ATime : NULL,
-							    (WriteMTime &&
-								    _fi.MTimeDefined) ? &_fi.MTime : (_arc->MTimeDefined ? &_arc->MTime :
-								    NULL));
+							    (WriteMTime && _fi.MTimeDefined) ? &_fi.MTime : (_arc->MTimeDefined ? &_arc->MTime : NULL));
 						}
 					}
 				}
 
 				FString fullProcessedPath(us2fs(processedPath));
-				if(_pathMode != NExtract::NPathMode::kAbsPaths
-				   || !NName::IsAbsolutePath(processedPath)) {
+				if(_pathMode != NExtract::NPathMode::kAbsPaths || !NName::IsAbsolutePath(processedPath)) {
 					fullProcessedPath = MakePath_from_2_Parts(_dirPathPrefix, fullProcessedPath);
 				}
 
@@ -1000,18 +995,15 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 					// ----- END of code for    Is file (not split) -----
 				}
 				_diskFilePath = fullProcessedPath;
-
 				if(!isAnti) {
       #ifdef SUPPORT_LINKS
 
 					if(!linkPath.IsEmpty()) {
 	#ifndef UNDER_CE
-
 						UString relatPath;
 						if(isRelative)
 							relatPath = GetDirPrefixOf(_item.Path);
 						relatPath += linkPath;
-
 						if(!IsSafePath(relatPath)) {
 							RINOK(SendMessageError("Dangerous link path was ignored", us2fs(relatPath)));
 						}
@@ -1025,38 +1017,29 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 							else {
 								existPath = us2fs(linkPath);
 							}
-
 							if(!existPath.IsEmpty()) {
 								if(isHardLink /* || isCopyLink */) {
 									// if(isHardLink)
 									{
 										if(!MyCreateHardLink(fullProcessedPath, existPath)) {
-											RINOK(SendMessageError2(kCantCreateHardLink,
-												    fullProcessedPath, existPath));
+											RINOK(SendMessageError2(kCantCreateHardLink, fullProcessedPath, existPath));
 											// return S_OK;
 										}
 									}
 									/*
-									   else
-									   {
+									   else {
 									   NFind::CFileInfo fi;
-									   if(!fi.Find(existPath))
-									   {
+									   if(!fi.Find(existPath)) {
 									    RINOK(SendMessageError2("Can not find the
 									       file for copying", existPath,
 									       fullProcessedPath));
 									   }
-									   else
-									   {
+									   else {
 									    if(_curSizeDefined && _curSize == fi.Size)
 									      _CopyFile_Path = existPath;
-									    else
-									    {
-									      RINOK(SendMessageError2("File size
-									         collision for file copying", existPath,
-									         fullProcessedPath));
+									    else {
+									      RINOK(SendMessageError2("File size collision for file copying", existPath, fullProcessedPath));
 									    }
-
 									    // RINOK(MyCopyFile(existPath,
 									       fullProcessedPath));
 									   }
@@ -1077,15 +1060,11 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 									if(FillLinkData(data, fs2us(existPath), !isJunction)) {
 										CReparseAttr attr;
 										if(!attr.Parse(data, data.Size())) {
-											RINOK(SendMessageError(
-												    "Internal error for symbolic link file",
-												    us2fs(_item.Path)));
+											RINOK(SendMessageError("Internal error for symbolic link file", us2fs(_item.Path)));
 											// return E_FAIL;
 										}
-										else if(!NFile::NIO::SetReparseData(fullProcessedPath,
-											    _item.IsDir, data, (DWORD)data.Size()))      {
-											RINOK(SendMessageError_with_LastError(
-												    kCantCreateSymLink, fullProcessedPath));
+										else if(!NFile::NIO::SetReparseData(fullProcessedPath, _item.IsDir, data, (DWORD)data.Size())) {
+											RINOK(SendMessageError_with_LastError(kCantCreateSymLink, fullProcessedPath));
 										}
 									}
 								}

@@ -33,7 +33,7 @@ extern LARGE_INTEGER Curl_freq;
 extern bool Curl_isVistaOrGreater;
 
 /* In case of bug fix this function has a counterpart in tool_util.c */
-struct curltime Curl_now(void){
+struct curltime Curl_now(void) {
 	struct curltime now;
 	if(Curl_isVistaOrGreater) { /* QPC timer might have issues pre-Vista */
 		LARGE_INTEGER count;
@@ -62,7 +62,7 @@ struct curltime Curl_now(void){
 #elif defined(HAVE_CLOCK_GETTIME_MONOTONIC) ||  \
 	defined(HAVE_CLOCK_GETTIME_MONOTONIC_RAW)
 
-struct curltime Curl_now(void){
+struct curltime Curl_now(void) {
 	/*
 	** clock_gettime() is granted to be increased monotonically when the
 	** monotonic clock is queried. Time starting point is unspecified, it
@@ -135,7 +135,7 @@ struct curltime Curl_now(void){
 #include <stdint.h>
 #include <mach/mach_time.h>
 
-struct curltime Curl_now(void){
+struct curltime Curl_now(void) {
 	/*
 	** Monotonic timer on Mac OS is provided by mach_absolute_time(), which
 	** returns time in Mach "absolute time units," which are platform-dependent.
@@ -162,7 +162,7 @@ struct curltime Curl_now(void){
 
 #elif defined(HAVE_GETTIMEOFDAY)
 
-struct curltime Curl_now(void){
+struct curltime Curl_now(void) {
 	/*
 	** gettimeofday() is not granted to be increased monotonically, due to
 	** clock drifting and external source time synchronization it can jump
@@ -178,7 +178,7 @@ struct curltime Curl_now(void){
 
 #else
 
-struct curltime Curl_now(void){
+struct curltime Curl_now(void) {
 	/*
 	** time() returns the value of time in seconds since the Epoch.
 	*/

@@ -24,9 +24,9 @@
 #include "curl_setup.h"
 #pragma hdrstop
 //#include <curl/curl.h>
-#ifdef HAVE_NETINET_IN_H
-	#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+	//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETINET_IN6_H
 	#include <netinet/in6.h>
 #endif
@@ -410,7 +410,7 @@ struct Curl_addrinfo *Curl_ip2addr(int af, const void * inaddr, const char * hos
  * Given an IPv4 or IPv6 dotted string address, this converts it to a proper
  * allocated Curl_addrinfo struct and returns it.
  */
-struct Curl_addrinfo *Curl_str2addr(char * address, int port){
+struct Curl_addrinfo *Curl_str2addr(char * address, int port) {
 	struct in_addr in;
 	if(Curl_inet_pton(AF_INET, address, &in) > 0)
 		/* This is a dotted IP address 123.123.123.123-style */

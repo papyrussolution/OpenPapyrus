@@ -38,7 +38,7 @@
  * root is t.
  */
 struct Curl_tree *Curl_splay(struct curltime i,
-    struct Curl_tree * t){
+    struct Curl_tree * t) {
 	struct Curl_tree N, * l, * r, * y;
 
 	if(!t)
@@ -97,7 +97,7 @@ struct Curl_tree *Curl_splay(struct curltime i,
  */
 struct Curl_tree *Curl_splayinsert(struct curltime i,
     struct Curl_tree * t,
-    struct Curl_tree * node){
+    struct Curl_tree * node) {
 	static const struct curltime KEY_NOTUSED = {
 		~0, -1
 	}; /* will *NEVER* appear */
@@ -149,7 +149,7 @@ struct Curl_tree *Curl_splayinsert(struct curltime i,
    the key */
 struct Curl_tree *Curl_splaygetbest(struct curltime i,
     struct Curl_tree * t,
-    struct Curl_tree ** removed){
+    struct Curl_tree ** removed) {
 	static const struct curltime tv_zero = {0, 0};
 	struct Curl_tree * x;
 

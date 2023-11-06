@@ -27,13 +27,12 @@
 
 #if !defined(CURL_DISABLE_PROXY)
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
 //#include "urldata.h"
 //#include "sendf.h"
 #include "select.h"

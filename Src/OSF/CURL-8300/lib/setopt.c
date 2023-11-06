@@ -23,12 +23,10 @@
 ***************************************************************************/
 #include "curl_setup.h"
 #pragma hdrstop
-#include <limits.h>
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
+//#include <limits.h>
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_LINUX_TCP_H
 #include <linux/tcp.h>
 #elif defined(HAVE_NETINET_TCP_H)
@@ -931,7 +929,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    break;
 
 		case CURLOPT_HTTP09_ALLOWED:
-		    arg = va_arg(param, unsigned long);
+		    arg = va_arg(param, ulong);
 		    if(arg > 1L)
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
 #ifdef USE_HYPER
@@ -992,7 +990,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 	    {
 		    int bitcheck;
 		    bool authbits;
-		    unsigned long auth = va_arg(param, unsigned long);
+		    unsigned long auth = va_arg(param, ulong);
 
 		    if(auth == CURLAUTH_NONE) {
 			    data->set.httpauth = auth;
@@ -1076,7 +1074,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 	    {
 		    int bitcheck;
 		    bool authbits;
-		    unsigned long auth = va_arg(param, unsigned long);
+		    unsigned long auth = va_arg(param, ulong);
 
 		    if(auth == CURLAUTH_NONE) {
 			    data->set.proxyauth = auth;
@@ -1175,7 +1173,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    break;
 
 		case CURLOPT_SOCKS5_AUTH:
-		    data->set.socks5auth = (uchar)va_arg(param, unsigned long);
+		    data->set.socks5auth = (uchar)va_arg(param, ulong);
 		    if(data->set.socks5auth & ~(CURLAUTH_BASIC | CURLAUTH_GSSAPI))
 			    result = CURLE_NOT_BUILT_IN;
 		    break;
@@ -1461,7 +1459,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    break;
 
 		case CURLOPT_TIMEOUT_MS:
-		    uarg = va_arg(param, unsigned long);
+		    uarg = va_arg(param, ulong);
 		    if(uarg > UINT_MAX)
 			    uarg = UINT_MAX;
 		    data->set.timeout = (uint)uarg;
@@ -1479,7 +1477,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    break;
 
 		case CURLOPT_CONNECTTIMEOUT_MS:
-		    uarg = va_arg(param, unsigned long);
+		    uarg = va_arg(param, ulong);
 		    if(uarg > UINT_MAX)
 			    uarg = UINT_MAX;
 		    data->set.connecttimeout = (uint)uarg;
@@ -1490,7 +1488,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    /*
 		     * The maximum time for curl to wait for FTP server connect
 		     */
-		    uarg = va_arg(param, unsigned long);
+		    uarg = va_arg(param, ulong);
 		    if(uarg > UINT_MAX)
 			    uarg = UINT_MAX;
 		    data->set.accepttimeout = (uint)uarg;
@@ -1901,7 +1899,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    /*
 		     * GSS-API credential delegation bitmask
 		     */
-		    uarg = va_arg(param, unsigned long);
+		    uarg = va_arg(param, ulong);
 		    data->set.gssapi_delegation = (uchar)uarg&
 			(CURLGSSAPI_DELEGATION_POLICY_FLAG|CURLGSSAPI_DELEGATION_FLAG);
 		    break;
@@ -2645,7 +2643,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		     * We always get longs when passed plain numericals so we should check
 		     * that the value fits into an unsigned 32 bit integer.
 		     */
-		    uarg = va_arg(param, unsigned long);
+		    uarg = va_arg(param, ulong);
 #if SIZEOF_LONG > 4
 		    if(uarg > UINT_MAX)
 			    return CURLE_BAD_FUNCTION_ARGUMENT;
@@ -2997,7 +2995,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    data->set.suppress_connect_headers = (0 != va_arg(param, long))?TRUE:FALSE;
 		    break;
 		case CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS:
-		    uarg = va_arg(param, unsigned long);
+		    uarg = va_arg(param, ulong);
 		    if(uarg > UINT_MAX)
 			    uarg = UINT_MAX;
 		    data->set.happy_eyeballs_timeout = (uint)uarg;

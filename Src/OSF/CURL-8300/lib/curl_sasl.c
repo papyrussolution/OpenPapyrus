@@ -40,7 +40,7 @@
 //#include <curl/curl.h>
 //#include "urldata.h"
 
-#include "curl_base64.h"
+//#include "curl_base64.h"
 #include "curl_md5.h"
 #include "vauth/vauth.h"
 //#include "cfilters.h"
@@ -59,7 +59,7 @@
 static const struct {
 	const char    * name;/* Name */
 	size_t len;     /* Name length */
-	unsigned short bit; /* Flag bit */
+	ushort bit; /* Flag bit */
 } mechtable[] = {
 	{ "LOGIN",        5,  SASL_MECH_LOGIN },
 	{ "PLAIN",        5,  SASL_MECH_PLAIN },
@@ -86,7 +86,7 @@ static const struct {
  * conn     [in]     - The connection data.
  * authused [in]     - The authentication mechanism used.
  */
-void Curl_sasl_cleanup(struct connectdata * conn, unsigned short authused)
+void Curl_sasl_cleanup(struct connectdata * conn, ushort authused)
 {
 	(void)conn;
 	(void)authused;
@@ -126,12 +126,10 @@ void Curl_sasl_cleanup(struct connectdata * conn, unsigned short authused)
  *
  * Returns the SASL mechanism token or 0 if no match.
  */
-unsigned short Curl_sasl_decode_mech(const char * ptr, size_t maxlen,
-    size_t * len)
+ushort Curl_sasl_decode_mech(const char * ptr, size_t maxlen, size_t * len)
 {
 	uint i;
 	char c;
-
 	for(i = 0; mechtable[i].name; i++) {
 		if(maxlen >= mechtable[i].len &&
 		    !memcmp(ptr, mechtable[i].name, mechtable[i].len)) {
@@ -172,7 +170,7 @@ CURLcode Curl_sasl_parse_url_auth_option(struct SASL * sasl,
 	if(!strncmp(value, "*", len))
 		sasl->prefmech = SASL_AUTH_DEFAULT;
 	else {
-		unsigned short mechbit = Curl_sasl_decode_mech(value, len, &mechlen);
+		ushort mechbit = Curl_sasl_decode_mech(value, len, &mechlen);
 		if(mechbit && mechlen == len)
 			sasl->prefmech |= mechbit;
 		else
@@ -321,21 +319,18 @@ bool Curl_sasl_can_authenticate(struct SASL * sasl, struct Curl_easy * data)
 	/* EXTERNAL can authenticate without a user name and/or password */
 	if(sasl->authmechs & sasl->prefmech & SASL_MECH_EXTERNAL)
 		return TRUE;
-
 	return FALSE;
 }
-
 /*
  * Curl_sasl_start()
  *
  * Calculate the required login details for SASL authentication.
  */
-CURLcode Curl_sasl_start(struct SASL * sasl, struct Curl_easy * data,
-    bool force_ir, saslprogress * progress)
+CURLcode Curl_sasl_start(struct SASL * sasl, struct Curl_easy * data, bool force_ir, saslprogress * progress)
 {
 	CURLcode result = CURLE_OK;
 	struct connectdata * conn = data->conn;
-	unsigned short enabledmechs;
+	ushort enabledmechs;
 	const char * mech = NULL;
 	struct bufref resp;
 	saslstate state1 = SASL_STOP;
@@ -343,13 +338,10 @@ CURLcode Curl_sasl_start(struct SASL * sasl, struct Curl_easy * data,
 	const char * hostname, * disp_hostname;
 	int port;
 #if defined(USE_KERBEROS5) || defined(USE_NTLM)
-	const char * service = data->set.str[STRING_SERVICE_NAME] ?
-	    data->set.str[STRING_SERVICE_NAME] :
-	    sasl->params->service;
+	const char * service = data->set.str[STRING_SERVICE_NAME] ? data->set.str[STRING_SERVICE_NAME] : sasl->params->service;
 #endif
 	const char * oauth_bearer = data->set.str[STRING_BEARER];
 	struct bufref nullmsg;
-
 	Curl_conn_get_host(data, FIRSTSOCKET, &hostname, &disp_hostname, &port);
 	Curl_bufref_init(&nullmsg);
 	Curl_bufref_init(&resp);

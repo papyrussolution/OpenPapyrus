@@ -107,7 +107,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_iso9660.c 20
 #define PVD_reserved5_offset (PVD_application_data_offset + PVD_application_data_size)
 #define PVD_reserved5_size (2048 - PVD_reserved5_offset)
 
-/* TODO: It would make future maintenance easier to just hardcode the
+/* @todo It would make future maintenance easier to just hardcode the
  * above values.  In particular, ECMA119 states the offsets as part of
  * the standard.  That would eliminate the need for the following check.*/
 #if PVD_reserved5_offset != 1395
@@ -287,11 +287,10 @@ struct iso9660 {
 		struct read_ce_req {
 			uint64 offset; /* Offset of CE on disk. */
 			struct file_info * file;
-		}               * reqs;
-
+		} * reqs;
 		int cnt;
 		int allocated;
-	}       read_ce_req;
+	} read_ce_req;
 
 	int64 previous_number;
 	archive_string previous_pathname;
@@ -299,14 +298,14 @@ struct iso9660 {
 	struct file_info                * use_files;
 	struct heap_queue pending_files;
 	struct {
-		struct file_info        * first;
-		struct file_info        ** last;
-	}       cache_files;
+		struct file_info * first;
+		struct file_info ** last;
+	} cache_files;
 
 	struct {
 		struct file_info        * first;
 		struct file_info        ** last;
-	}       re_files;
+	} re_files;
 
 	uint64 current_position;
 	ssize_t logical_block_size;
@@ -499,9 +498,7 @@ static int archive_read_format_iso9660_options(ArchiveRead * a, const char * key
 		iso9660->opt_support_rockridge = val != NULL;
 		return ARCHIVE_OK;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -522,11 +519,10 @@ static int isNull(struct iso9660 * iso9660, const uchar * h, unsigned offset, un
 static int isBootRecord(struct iso9660 * iso9660, const uchar * h)
 {
 	CXX_UNUSED(iso9660);
-	/* Type of the Volume Descriptor Boot Record must be 0. */
+	// Type of the Volume Descriptor Boot Record must be 0
 	if(h[0] != 0)
 		return 0;
-
-	/* Volume Descriptor Version must be 1. */
+	// Volume Descriptor Version must be 1
 	if(h[6] != 1)
 		return 0;
 	return 1;
@@ -535,13 +531,13 @@ static int isBootRecord(struct iso9660 * iso9660, const uchar * h)
 static int isVolumePartition(struct iso9660 * iso9660, const uchar * h)
 {
 	int32_t location;
-	/* Type of the Volume Partition Descriptor must be 3. */
+	// Type of the Volume Partition Descriptor must be 3
 	if(h[0] != 3)
 		return 0;
-	/* Volume Descriptor Version must be 1. */
+	// Volume Descriptor Version must be 1
 	if(h[6] != 1)
 		return 0;
-	/* Unused Field */
+	// Unused Field
 	if(h[7] != 0)
 		return 0;
 	location = archive_le32dec(h + 72);
@@ -555,13 +551,13 @@ static int isVolumePartition(struct iso9660 * iso9660, const uchar * h)
 static int isVDSetTerminator(struct iso9660 * iso9660, const uchar * h)
 {
 	CXX_UNUSED(iso9660);
-	/* Type of the Volume Descriptor Set Terminator must be 255. */
+	// Type of the Volume Descriptor Set Terminator must be 255
 	if(h[0] != 255)
 		return 0;
-	/* Volume Descriptor Version must be 1. */
+	// Volume Descriptor Version must be 1
 	if(h[6] != 1)
 		return 0;
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(!isNull(iso9660, h, 7, 2048-7))
 		return 0;
 	return 1;
@@ -619,7 +615,7 @@ static int isSVD(struct iso9660 * iso9660, const uchar * h)
 	if(h[SVD_type_offset] != 2)
 		return 0;
 
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(!isNull(iso9660, h, SVD_reserved1_offset, SVD_reserved1_size))
 		return 0;
 	if(!isNull(iso9660, h, SVD_reserved2_offset, SVD_reserved2_size))
@@ -681,15 +677,15 @@ static int isEVD(struct iso9660 * iso9660, const uchar * h)
 	if(h[PVD_version_offset] != 2)
 		return 0;
 
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(h[PVD_reserved1_offset] != 0)
 		return 0;
 
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(!isNull(iso9660, h, PVD_reserved2_offset, PVD_reserved2_size))
 		return 0;
 
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(!isNull(iso9660, h, PVD_reserved3_offset, PVD_reserved3_size))
 		return 0;
 
@@ -725,11 +721,11 @@ static int isEVD(struct iso9660 * iso9660, const uchar * h)
 	   || location >= volume_block)
 		return 0;
 
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(!isNull(iso9660, h, PVD_reserved4_offset, PVD_reserved4_size))
 		return 0;
 
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(!isNull(iso9660, h, PVD_reserved5_offset, PVD_reserved5_size))
 		return 0;
 
@@ -757,15 +753,15 @@ static int isPVD(struct iso9660 * iso9660, const uchar * h)
 	if(h[PVD_version_offset] != 1)
 		return 0;
 
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(h[PVD_reserved1_offset] != 0)
 		return 0;
 
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(!isNull(iso9660, h, PVD_reserved2_offset, PVD_reserved2_size))
 		return 0;
 
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(!isNull(iso9660, h, PVD_reserved3_offset, PVD_reserved3_size))
 		return 0;
 
@@ -802,35 +798,27 @@ static int isPVD(struct iso9660 * iso9660, const uchar * h)
 	   || location >= volume_block)
 		return 0;
 
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	/* But accept NetBSD/FreeBSD "makefs" images with 0x20 here. */
 	for(i = 0; i < PVD_reserved4_size; ++i)
-		if(h[PVD_reserved4_offset + i] != 0
-		    && h[PVD_reserved4_offset + i] != 0x20)
+		if(h[PVD_reserved4_offset + i] != 0 && h[PVD_reserved4_offset + i] != 0x20)
 			return 0;
-
-	/* Reserved field must be 0. */
+	// Reserved field must be 0
 	if(!isNull(iso9660, h, PVD_reserved5_offset, PVD_reserved5_size))
 		return 0;
-
 	/* XXX TODO: Check other values for sanity; reject more
 	 * malformed PVDs. XXX */
-
 	/* Read Root Directory Record in Volume Descriptor. */
 	p = h + PVD_root_directory_record_offset;
 	if(p[DR_length_offset] != 34)
 		return 0;
-
 	if(!iso9660->primary.location) {
 		iso9660->logical_block_size = logical_block_size;
 		iso9660->volume_block = volume_block;
-		iso9660->volume_size =
-		    logical_block_size * (uint64)volume_block;
-		iso9660->primary.location =
-		    archive_le32dec(p + DR_extent_offset);
+		iso9660->volume_size = logical_block_size * (uint64)volume_block;
+		iso9660->primary.location = archive_le32dec(p + DR_extent_offset);
 		iso9660->primary.size = archive_le32dec(p + DR_size_offset);
 	}
-
 	return (48);
 }
 
@@ -1340,7 +1328,7 @@ static int zisofs_read_data(ArchiveRead * a,
 		bst = archive_le32dec(
 			zisofs->block_pointers + zisofs->block_off);
 		if(bst != zisofs->pz_offset + (bytes_read - avail)) {
-			/* TODO: Should we seek offset of current file by bst ? */
+			/* @todo Should we seek offset of current file by bst ? */
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Illegal zisofs block pointers(cannot seek)");
 			return ARCHIVE_FATAL;
 		}
@@ -1422,7 +1410,7 @@ static int zisofs_read_data(ArchiveRead * a, const void ** buff, size_t * size, 
 	return ARCHIVE_FAILED;
 }
 
-#endif /* HAVE_ZLIB_H */
+#endif // HAVE_ZLIB_H
 
 static int archive_read_format_iso9660_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
@@ -2327,7 +2315,7 @@ static void parse_rockridge_SL1(struct file_info * file, const uchar * data, int
 			    archive_strcat(&file->symlink, "hostname");
 			    break;
 			default:
-			    /* TODO: issue a warning ? */
+			    /* @todo issue a warning ? */
 			    return;
 		}
 		data += nlen;

@@ -123,12 +123,12 @@ public:
 			switch(usWidthClass) {
 				case FWIDTH_ULTRA_CONDENSED: return 50.f;
 				case FWIDTH_EXTRA_CONDENSED: return 62.5f;
-				case FWIDTH_CONDENSED:      return 75.f;
+				case FWIDTH_CONDENSED: return 75.f;
 				case FWIDTH_SEMI_CONDENSED: return 87.5f;
 				default:
-				case FWIDTH_NORMAL:         return 100.f;
-				case FWIDTH_SEMI_EXPANDED:  return 112.5f;
-				case FWIDTH_EXPANDED:       return 125.f;
+				case FWIDTH_NORMAL: return 100.f;
+				case FWIDTH_SEMI_EXPANDED: return 112.5f;
+				case FWIDTH_EXPANDED: return 125.f;
 				case FWIDTH_EXTRA_EXPANDED: return 150.f;
 				case FWIDTH_ULTRA_EXPANDED: return 200.f;
 			}

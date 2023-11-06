@@ -148,15 +148,13 @@ void zbar_video_destroy(zbar_video_t * vdo)
 	while(vdo->shadow_image) {
 		zbar_image_t * img = vdo->shadow_image;
 		vdo->shadow_image = img->next;
-		SAlloc::F((void *)img->P_Data);
-		img->P_Data = NULL;
+		ZFREE_const(img->P_Data);
 		SAlloc::F(img);
 	}
 	SAlloc::F(vdo->buf);
 	SAlloc::F(vdo->formats);
 	err_cleanup(&vdo->err);
 	_zbar_mutex_destroy(&vdo->qlock);
-
 #ifdef HAVE_LIBJPEG
 	if(vdo->jpeg_img) {
 		zbar_image_destroy(vdo->jpeg_img);

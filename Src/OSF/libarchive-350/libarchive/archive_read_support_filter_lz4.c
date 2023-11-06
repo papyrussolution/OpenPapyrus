@@ -171,23 +171,21 @@ static int lz4_reader_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * fi
 }
 
 #if !defined(HAVE_LIBLZ4)
-/*
- * If we don't have the library on this system, we can't actually do the
- * decompression.  We can, however, still detect compressed archives
- * and emit a useful message.
- */
-static int lz4_reader_init(ArchiveReadFilter * self)
-{
-	int r;
-	r = __archive_read_program(self, "lz4 -d -q");
-	/* Note: We set the format here even if __archive_read_program()
-	 * above fails.  We do, after all, know what the format is
-	 * even if we weren't able to read it. */
-	self->code = ARCHIVE_FILTER_LZ4;
-	self->name = "lz4";
-	return r;
-}
-
+	/*
+	 * If we don't have the library on this system, we can't actually do the
+	 * decompression.  We can, however, still detect compressed archives
+	 * and emit a useful message.
+	 */
+	static int lz4_reader_init(ArchiveReadFilter * self)
+	{
+		int r = __archive_read_program(self, "lz4 -d -q");
+		/* Note: We set the format here even if __archive_read_program()
+		 * above fails.  We do, after all, know what the format is
+		 * even if we weren't able to read it. */
+		self->code = ARCHIVE_FILTER_LZ4;
+		self->name = "lz4";
+		return r;
+	}
 #else
 /*
  * Setup the callbacks.

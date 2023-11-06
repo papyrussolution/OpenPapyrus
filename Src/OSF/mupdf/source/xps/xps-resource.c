@@ -23,10 +23,8 @@ static fz_xml * xps_parse_resource_reference(fz_context * ctx, xps_document * do
 {
 	char name[1024];
 	char * s;
-
 	if(strstr(att, "{StaticResource ") != att)
 		return NULL;
-
 	fz_strlcpy(name, att + 16, sizeof name);
 	s = strrchr(name, '}');
 	if(s)

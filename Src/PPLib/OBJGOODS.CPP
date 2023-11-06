@@ -2230,10 +2230,7 @@ bool PPObjGoods::IsAssetType(PPID goodsTypeID)
 	return (goodsTypeID && GtObj.Fetch(goodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ASSETS);
 }
 
-int PPObjGoods::FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec)
-{
-	return GtObj.Fetch(goodsTypeID, pGtRec);
-}
+int PPObjGoods::FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec) { return GtObj.Fetch(goodsTypeID, pGtRec); }
 
 bool PPObjGoods::IsZeroPriceAllowed(PPID goodsID)
 {

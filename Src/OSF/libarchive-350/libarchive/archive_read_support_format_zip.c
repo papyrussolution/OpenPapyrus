@@ -696,7 +696,7 @@ static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
 		    {
 			    /* Info-Zip Unix Extra Field (type 3) "ux". */
 			    int uidsize = 0, gidsize = 0;
-			    /* TODO: support arbitrary uidsize/gidsize. */
+			    /* @todo support arbitrary uidsize/gidsize. */
 			    if(datasize >= 1 && p[offset] == 1) {/* version=1 */
 				    if(datasize >= 4) {
 					    /* get a uid size. */
@@ -2596,9 +2596,7 @@ static int archive_read_format_zip_options(ArchiveRead * a, const char * key, co
 		zip->process_mac_extensions = !isempty(val);
 		return ARCHIVE_OK;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -2642,7 +2640,7 @@ static int archive_read_format_zip_streamable_bid(ArchiveRead * a, int best_bid)
 			return (29);
 	}
 
-	/* TODO: It's worth looking ahead a little bit for a valid
+	/* @todo It's worth looking ahead a little bit for a valid
 	 * PK signature.  In particular, that would make it possible
 	 * to read some UUEncoded SFX files or SFX files coming from
 	 * a network socket. */

@@ -368,26 +368,19 @@ mem_error:
 
 void STDCALL mariadb_rpl_close(MARIADB_RPL * rpl)
 {
-	if(!rpl)
-		return;
-	if(rpl->filename)
+	if(rpl) {
 		SAlloc::F((void *)rpl->filename);
-	SAlloc::F(rpl);
-	return;
+		SAlloc::F(rpl);
+	}
 }
 
-int mariadb_rpl_optionsv(MARIADB_RPL * rpl,
-    enum mariadb_rpl_option option,
-    ...)
+int mariadb_rpl_optionsv(MARIADB_RPL * rpl, enum mariadb_rpl_option option, ...)
 {
 	va_list ap;
 	int rc = 0;
-
 	if(!rpl)
 		return 1;
-
 	va_start(ap, option);
-
 	switch(option) {
 		case MARIADB_RPL_FILENAME:
 	    {

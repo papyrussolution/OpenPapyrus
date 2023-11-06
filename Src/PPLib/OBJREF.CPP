@@ -165,7 +165,7 @@ IMPL_HANDLE_EVENT(ObjViewDialog)
 				if(getCurrID())
 					ViewSysJournal(P_Obj->Obj, getCurrID(), 0);
 				break;
-			default:           return;
+			default: return;
 		}
 	else if(TVKEYDOWN) {
 		switch(TVKEY) {

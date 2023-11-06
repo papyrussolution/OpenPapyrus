@@ -245,7 +245,7 @@ static WebPChunk** GetChunkListFromId(const WebPMuxImage* const wpi,
     WebPChunkId id) {
 	assert(wpi != NULL);
 	switch(id) {
-		case WEBP_CHUNK_ANMF:  return (WebPChunk**)&wpi->header_;
+		case WEBP_CHUNK_ANMF: return (WebPChunk**)&wpi->header_;
 		case WEBP_CHUNK_ALPHA: return (WebPChunk**)&wpi->alpha_;
 		case WEBP_CHUNK_IMAGE: return (WebPChunk**)&wpi->img_;
 		default: return NULL;
@@ -419,11 +419,11 @@ uint8* MuxEmitRiffHeader(uint8* const data, size_t size) {
 WebPChunk** MuxGetChunkListFromId(const WebPMux* mux, WebPChunkId id) {
 	assert(mux != NULL);
 	switch(id) {
-		case WEBP_CHUNK_VP8X:    return (WebPChunk**)&mux->vp8x_;
-		case WEBP_CHUNK_ICCP:    return (WebPChunk**)&mux->iccp_;
-		case WEBP_CHUNK_ANIM:    return (WebPChunk**)&mux->anim_;
-		case WEBP_CHUNK_EXIF:    return (WebPChunk**)&mux->exif_;
-		case WEBP_CHUNK_XMP:     return (WebPChunk**)&mux->xmp_;
+		case WEBP_CHUNK_VP8X: return (WebPChunk**)&mux->vp8x_;
+		case WEBP_CHUNK_ICCP: return (WebPChunk**)&mux->iccp_;
+		case WEBP_CHUNK_ANIM: return (WebPChunk**)&mux->anim_;
+		case WEBP_CHUNK_EXIF: return (WebPChunk**)&mux->exif_;
+		case WEBP_CHUNK_XMP: return (WebPChunk**)&mux->xmp_;
 		default:                 return (WebPChunk**)&mux->unknown_;
 	}
 }

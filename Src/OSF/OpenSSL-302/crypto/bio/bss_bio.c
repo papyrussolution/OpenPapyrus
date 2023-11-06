@@ -167,7 +167,7 @@ static int bio_read(BIO * bio, char * buf, int size_)
 
 /*-
  * non-copying interface: provide pointer to available data in buffer
- *    bio_nread0:  return number of available bytes
+ *    bio_nread0: return number of available bytes
  *    bio_nread:   also advance index
  * (example usage:  bio_nread0(), read from buffer, bio_nread()
  *  or just         bio_nread(), read from buffer)

@@ -35,15 +35,15 @@
 //#include <string.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <windows.h>
+//#include <windows.h>
 #include <io.h>
 #else
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h> /* IPPROTO_TCP */
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h> /* IPPROTO_TCP */
+//#endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif

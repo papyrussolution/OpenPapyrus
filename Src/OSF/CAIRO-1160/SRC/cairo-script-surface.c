@@ -630,12 +630,12 @@ static cairo_status_t _emit_stroke_style(cairo_script_surface_t * surface, const
 static const char * _format_to_string(cairo_format_t format)
 {
 	switch(format) {
-		case CAIRO_FORMAT_ARGB32:  return "ARGB32";
-		case CAIRO_FORMAT_RGB30:   return "RGB30";
-		case CAIRO_FORMAT_RGB24:   return "RGB24";
+		case CAIRO_FORMAT_ARGB32: return "ARGB32";
+		case CAIRO_FORMAT_RGB30: return "RGB30";
+		case CAIRO_FORMAT_RGB24: return "RGB24";
 		case CAIRO_FORMAT_RGB16_565: return "RGB16_565";
-		case CAIRO_FORMAT_A8:      return "A8";
-		case CAIRO_FORMAT_A1:      return "A1";
+		case CAIRO_FORMAT_A8: return "A8";
+		case CAIRO_FORMAT_A1: return "A1";
 		case CAIRO_FORMAT_INVALID: return "INVALID";
 	}
 	ASSERT_NOT_REACHED;

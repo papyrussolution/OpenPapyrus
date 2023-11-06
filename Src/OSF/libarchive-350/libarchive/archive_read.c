@@ -31,7 +31,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/ArchiveRead.c 201157 2009-12-29 05:30:23
 static int choose_filters(ArchiveRead *);
 static int choose_format(ArchiveRead *);
 static int close_filters(ArchiveRead *);
-static struct archive_vtable * archive_read_vtable(void);
+static struct archive_vtable * archive_read_vtable();
 static int64  _archive_filter_bytes(Archive *, int);
 static int _archive_filter_code(Archive *, int);
 static const char * _archive_filter_name(Archive *, int);
@@ -825,7 +825,7 @@ static int _archive_read_close(Archive * _a)
 		return ARCHIVE_OK;
 	archive_clear_error(&a->archive);
 	a->archive.state = ARCHIVE_STATE_CLOSED;
-	/* TODO: Clean up the formatters. */
+	/* @todo Clean up the formatters. */
 	/* Release the filter objects. */
 	r1 = close_filters(a);
 	if(r1 < r)

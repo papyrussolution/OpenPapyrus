@@ -24,9 +24,9 @@
 #include "curl_setup.h"
 #pragma hdrstop
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h> /* <netinet/tcp.h> may need it */
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h> /* <netinet/tcp.h> may need it */
+//#endif
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h> /* for sockaddr_un */
 #endif
@@ -210,7 +210,7 @@ bool Curl_addr2string(struct sockaddr * sa, curl_socklen_t salen,
 		    si = (struct sockaddr_in *)(void *)sa;
 		    if(Curl_inet_ntop(sa->sa_family, &si->sin_addr,
 			addr, MAX_IPADR_LEN)) {
-			    unsigned short us_port = ntohs(si->sin_port);
+			    ushort us_port = ntohs(si->sin_port);
 			    *port = us_port;
 			    return TRUE;
 		    }
@@ -220,7 +220,7 @@ bool Curl_addr2string(struct sockaddr * sa, curl_socklen_t salen,
 		    si6 = (struct sockaddr_in6 *)(void *)sa;
 		    if(Curl_inet_ntop(sa->sa_family, &si6->sin6_addr,
 			addr, MAX_IPADR_LEN)) {
-			    unsigned short us_port = ntohs(si6->sin6_port);
+			    ushort us_port = ntohs(si6->sin6_port);
 			    *port = us_port;
 			    return TRUE;
 		    }

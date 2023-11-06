@@ -430,10 +430,10 @@ public:
 				case CFFTag: /* All the non-collection tags */
 				case TrueTag:
 				case Typ1Tag:
-				case TrueTypeTag:   return 1;
-				case TTCTag:        return u.ttcHeader.get_face_count();
-				case DFontTag:      return u.rfHeader.get_face_count();
-				default:            return 0;
+				case TrueTypeTag: return 1;
+				case TTCTag: return u.ttcHeader.get_face_count();
+				case DFontTag: return u.rfHeader.get_face_count();
+				default: return 0;
 			}
 		}
 
@@ -448,10 +448,10 @@ public:
 				case CFFTag: /* All the non-collection tags */
 				case TrueTag:
 				case Typ1Tag:
-				case TrueTypeTag:   return u.fontFace;
-				case TTCTag:        return u.ttcHeader.get_face(i);
-				case DFontTag:      return u.rfHeader.get_face(i, base_offset);
-				default:            return Null(OpenTypeFontFace);
+				case TrueTypeTag: return u.fontFace;
+				case TTCTag: return u.ttcHeader.get_face(i);
+				case DFontTag: return u.rfHeader.get_face(i, base_offset);
+				default: return Null(OpenTypeFontFace);
 			}
 		}
 

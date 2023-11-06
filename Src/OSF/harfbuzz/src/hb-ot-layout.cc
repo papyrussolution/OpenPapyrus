@@ -307,7 +307,7 @@ static const OT::GSUBGPOS&get_gsubgpos_table(hb_face_t * face, hb_tag_t table_ta
 	switch(table_tag) {
 		case HB_OT_TAG_GSUB: return *face->table.GSUB->table;
 		case HB_OT_TAG_GPOS: return *face->table.GPOS->table;
-		default:             return Null(OT::GSUBGPOS);
+		default: return Null(OT::GSUBGPOS);
 	}
 }
 

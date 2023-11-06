@@ -93,7 +93,6 @@ int archive_write_add_filter_gzip(Archive * _a)
 static int archive_compressor_gzip_free(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-
 #ifdef HAVE_ZLIB_H
 	SAlloc::F(data->compressed);
 #else
@@ -119,9 +118,7 @@ static int archive_compressor_gzip_options(struct archive_write_filter * f, cons
 		data->timestamp = (value == NULL) ? -1 : 1;
 		return ARCHIVE_OK;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -133,7 +130,6 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
 	int ret;
-
 	if(data->compressed == NULL) {
 		size_t bs = 65536, bpb;
 		if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
@@ -269,30 +265,21 @@ static int archive_compressor_gzip_close(struct archive_write_filter * f)
  * Note that this handles both the regular write case (finishing ==
  * false) and the end-of-archive case (finishing == true).
  */
-static int drive_compressor(struct archive_write_filter * f,
-    struct private_data * data, int finishing)
+static int drive_compressor(struct archive_write_filter * f, struct private_data * data, int finishing)
 {
 	int ret;
-
 	for(;;) {
 		if(data->stream.avail_out == 0) {
-			ret = __archive_write_filter(f->next_filter,
-				data->compressed,
-				data->compressed_buffer_size);
+			ret = __archive_write_filter(f->next_filter, data->compressed, data->compressed_buffer_size);
 			if(ret != ARCHIVE_OK)
 				return ARCHIVE_FATAL;
 			data->stream.next_out = data->compressed;
-			data->stream.avail_out =
-			    (uInt)data->compressed_buffer_size;
+			data->stream.avail_out = (uInt)data->compressed_buffer_size;
 		}
-
 		/* If there's nothing to do, we're done. */
 		if(!finishing && data->stream.avail_in == 0)
 			return ARCHIVE_OK;
-
-		ret = deflate(&(data->stream),
-			finishing ? Z_FINISH : Z_NO_FLUSH);
-
+		ret = deflate(&(data->stream), finishing ? Z_FINISH : Z_NO_FLUSH);
 		switch(ret) {
 			case Z_OK:
 			    /* In non-finishing case, check if compressor
@@ -342,11 +329,9 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 	return r;
 }
 
-static int archive_compressor_gzip_write(struct archive_write_filter * f, const void * buff,
-    size_t length)
+static int archive_compressor_gzip_write(struct archive_write_filter * f, const void * buff, size_t length)
 {
 	struct private_data * data = (struct private_data *)f->data;
-
 	return __archive_write_program_write(f, data->pdata, buff, length);
 }
 
@@ -356,4 +341,4 @@ static int archive_compressor_gzip_close(struct archive_write_filter * f)
 	return __archive_write_program_close(f, data->pdata);
 }
 
-#endif /* HAVE_ZLIB_H */
+#endif // HAVE_ZLIB_H

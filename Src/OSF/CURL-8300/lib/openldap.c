@@ -46,7 +46,7 @@
 #include "vtls/vtls.h"
 //#include "transfer.h"
 #include "curl_ldap.h"
-#include "curl_base64.h"
+//#include "curl_base64.h"
 //#include "cfilters.h"
 //#include "connect.h"
 #include "curl_sasl.h"

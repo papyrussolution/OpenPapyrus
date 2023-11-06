@@ -55,10 +55,9 @@ void ASN1_add_oid_module(void)
 static int do_create(const char * value, const char * name)
 {
 	int nid;
-	const char * ln, * ostr, * p;
+	const char * ln, * ostr;
 	char * lntmp = NULL;
-
-	p = strrchr(value, ',');
+	const char * p = strrchr(value, ',');
 	if(!p) {
 		ln = name;
 		ostr = value;

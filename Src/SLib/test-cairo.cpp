@@ -177,8 +177,7 @@ void cairo_test_fini(cairo_test_context_t * ctx)
 	SAlloc::F(ctx->ref_name);
 	cairo_surface_destroy(ctx->ref_image);
 	cairo_surface_destroy(ctx->ref_image_flattened);
-	if(ctx->test_name)
-		SAlloc::F((char *)ctx->test_name);
+	SAlloc::F((char *)ctx->test_name);
 	if(ctx->own_targets)
 		cairo_boilerplate_free_targets(ctx->targets_to_test);
 	cairo_boilerplate_fini();

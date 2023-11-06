@@ -28,7 +28,7 @@
 #include "urlapi-int.h"
 //#include "strcase.h"
 #include "url.h"
-#include "escape.h"
+//#include "escape.h"
 #include "curl_ctype.h"
 #include "inet_pton.h"
 #include "inet_ntop.h"
@@ -432,7 +432,7 @@ static CURLUcode parse_hostname_login(struct Curl_URL * u,
 	const char * ptr;
 	DEBUGASSERT(login);
 	*offset = 0;
-	ptr = (const char *)memchr(login, '@', len);
+	ptr = (const char *)smemchr(login, '@', len);
 	if(!ptr)
 		goto out;
 
@@ -868,7 +868,7 @@ UNITTEST int dedotdotify(const char * input, size_t clen, char ** outp)
 	char * out;
 	*outp = NULL;
 	/* the path always starts with a slash, and a slash has not dot */
-	if((clen < 2) || !memchr(input, '.', clen))
+	if((clen < 2) || !smemchr(input, '.', clen))
 		return 0;
 	out = (char *)SAlloc::M(clen + 1);
 	if(!out)
@@ -1233,7 +1233,7 @@ static CURLUcode parseurl(const char * url, CURLU * u, uint flags)
 		pathlen -= fraglen;
 	}
 	DEBUGASSERT(pathlen < urllen);
-	query = (const char *)memchr(path, '?', pathlen);
+	query = (const char *)smemchr(path, '?', pathlen);
 	if(query) {
 		size_t qlen = fragment ? (size_t)(fragment - query) :
 		    pathlen - (query - path);

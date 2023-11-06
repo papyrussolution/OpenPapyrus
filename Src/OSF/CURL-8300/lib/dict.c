@@ -27,9 +27,9 @@
 
 #ifndef CURL_DISABLE_DICT
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -57,7 +57,7 @@
 //#include <curl/curl.h>
 //#include "transfer.h"
 //#include "sendf.h"
-#include "escape.h"
+//#include "escape.h"
 //#include "progress.h"
 #include "dict.h"
 //#include "curl_printf.h"

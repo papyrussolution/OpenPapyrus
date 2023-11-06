@@ -1460,10 +1460,8 @@ static void xmlRelaxNGValidErrorPop(xmlRelaxNGValidCtxtPtr ctxt)
 		ctxt->err = (ctxt->errNr > 0) ? &ctxt->errTab[ctxt->errNr-1] : 0;
 		cur = &ctxt->errTab[ctxt->errNr];
 		if(cur->flags & ERROR_IS_DUP) {
-			SAlloc::F((xmlChar *)cur->arg1);
-			cur->arg1 = NULL;
-			SAlloc::F((xmlChar *)cur->arg2);
-			cur->arg2 = NULL;
+			ZFREE_const(cur->arg1);
+			ZFREE_const(cur->arg2);
 			cur->flags = 0;
 		}
 	}
@@ -1737,10 +1735,8 @@ static void FASTCALL xmlRelaxNGPopErrors(xmlRelaxNGValidCtxt * ctxt, int level)
 	for(i = level; i < ctxt->errNr; i++) {
 		err = &ctxt->errTab[i];
 		if(err->flags & ERROR_IS_DUP) {
-			SAlloc::F((xmlChar *)err->arg1);
-			err->arg1 = NULL;
-			SAlloc::F((xmlChar *)err->arg2);
-			err->arg2 = NULL;
+			ZFREE_const(err->arg1);
+			ZFREE_const(err->arg2);
 			err->flags = 0;
 		}
 	}

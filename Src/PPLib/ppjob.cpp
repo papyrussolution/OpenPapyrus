@@ -341,8 +341,8 @@ int PPJobMngr::IsPoolChanged() const
 {
 	int    ok = 0;
 	if(LastLoading.d) {
-		SFileUtil::Stat fs;
-		if(!SFileUtil::GetStat(FilePath, &fs) ||!SFileUtil::GetStat(XmlFilePath, &fs) || cmp(fs.ModTime, LastLoading) > 0) { // @erik v10.7.4 add ||!SFileUtil::GetStat(XmlFilePath, &fs)
+		SFile::Stat fs;
+		if(!SFile::GetStat(FilePath, 0, &fs, 0) ||!SFile::GetStat(XmlFilePath, 0, &fs, 0) || cmp(fs.ModTime, LastLoading) > 0) { // @erik v10.7.4 add ||!SFile::GetStat(XmlFilePath, &fs)
 			//
 			// Файл был удален, либо не появился, либо был модифирован.
 			//

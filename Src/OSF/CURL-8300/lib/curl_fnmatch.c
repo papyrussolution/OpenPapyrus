@@ -99,7 +99,6 @@ static int parsekeyword(uchar ** pattern, uchar * charset)
 		}
 	}
 #undef KEYLEN
-
 	*pattern = p; /* move caller's pattern pointer */
 	if(strcmp(keyword, "digit") == 0)
 		charset[CURLFNM_DIGIT] = 1;
@@ -143,12 +142,10 @@ static void setcharorrange(uchar ** pp, uchar * charset)
 {
 	uchar * p = (*pp)++;
 	uchar c = *p++;
-
 	charset[c] = 1;
 	if(ISALNUM(c) && *p++ == '-') {
 		char_class cc = charclass(c);
 		uchar endrange = *p++;
-
 		if(endrange == '\\')
 			endrange = *p++;
 		if(endrange >= c && charclass(endrange) == cc) {
@@ -352,8 +349,7 @@ static int loop(const uchar * pattern, const uchar * string,
  */
 int Curl_fnmatch(void * ptr, const char * pattern, const char * string)
 {
-	(void)ptr; /* the argument is specified by the curl_fnmatch_callback
-	              prototype, but not used by Curl_fnmatch() */
+	(void)ptr; /* the argument is specified by the curl_fnmatch_callback prototype, but not used by Curl_fnmatch() */
 	if(!pattern || !string) {
 		return CURL_FNMATCH_FAIL;
 	}

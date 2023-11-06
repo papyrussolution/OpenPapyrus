@@ -35,12 +35,12 @@ NUserAnswerMode::EEnum ScanUserYesNoAllQuit(CStdOutStream * outStream)
 				return NUserAnswerMode::kEof;
 			else if(scannedString.Len() == 1) {
 				switch(::MyCharLower_Ascii(scannedString[0])) {
-					case kYes:    return NUserAnswerMode::kYes;
-					case kNo:     return NUserAnswerMode::kNo;
+					case kYes: return NUserAnswerMode::kYes;
+					case kNo: return NUserAnswerMode::kNo;
 					case kYesAll: return NUserAnswerMode::kYesAll;
-					case kNoAll:  return NUserAnswerMode::kNoAll;
+					case kNoAll: return NUserAnswerMode::kNoAll;
 					case kAutoRenameAll: return NUserAnswerMode::kAutoRenameAll;
-					case kQuit:   return NUserAnswerMode::kQuit;
+					case kQuit: return NUserAnswerMode::kQuit;
 				}
 			}
 		}

@@ -24,11 +24,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 
-#if defined(USE_CURL_NTLM_CORE) && !defined(USE_WOLFSSL) &&     \
-	(defined(USE_GNUTLS) ||                                       \
-	defined(USE_SECTRANSP) ||                                    \
-	defined(USE_OS400CRYPTO) ||                                  \
-	defined(USE_WIN32_CRYPTO))
+#if defined(USE_CURL_NTLM_CORE) && !defined(USE_WOLFSSL) && (defined(USE_GNUTLS) || defined(USE_SECTRANSP) || defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO))
 
 #include "curl_des.h"
 
@@ -50,13 +46,9 @@
  */
 void Curl_des_set_odd_parity(uchar * bytes, size_t len)
 {
-	size_t i;
-	for(i = 0; i < len; i++) {
+	for(size_t i = 0; i < len; i++) {
 		uchar b = bytes[i];
-		bool needs_parity = (((b >> 7) ^ (b >> 6) ^ (b >> 5) ^
-		    (b >> 4) ^ (b >> 3) ^ (b >> 2) ^
-		    (b >> 1)) & 0x01) == 0;
-
+		bool needs_parity = (((b >> 7) ^ (b >> 6) ^ (b >> 5) ^ (b >> 4) ^ (b >> 3) ^ (b >> 2) ^ (b >> 1)) & 0x01) == 0;
 		if(needs_parity)
 			bytes[i] |= 0x01;
 		else

@@ -336,7 +336,7 @@ int DBBackup::GetCopyData(long copyID, BCopyData * pData)
 int DBBackup::CheckAvailableDiskSpace(const char * pPath, int64 size)
 {
 	int64 total, free_space;
-	SFileUtil::GetDiskSpace(pPath, &total, &free_space);
+	SFile::GetDiskSpace(pPath, &total, &free_space);
 	if(free_space > ((size * SpaceSafetyFactor) / 1000L)) {
 		return 1;
 	}
@@ -375,8 +375,8 @@ int DBBackup::CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupL
 			ulong  sz = 0;
 			for(tpe.Init(P_Db->MakeFileName_(ts.TblName, path)); tpe.Next(spart) > 0;) {
 				if(fileExists(spart)) {
-					SFileUtil::Stat stat;
-					if(SFileUtil::GetStat(spart, &stat)) {
+					SFile::Stat stat;
+					if(SFile::GetStat(spart, 0, &stat, 0)) {
 						cp.TotalSize += stat.Size;
 						THROW_V(cp.SsFiles.add(spart), SDBERR_SLIB);
 					}
@@ -425,8 +425,8 @@ int DBBackup::ReleaseContinuousMode(BackupLogFunc fnLog, void * extraPtr)
 			if(tpe.Init(P_Db->MakeFileName_(ts.TblName, path))) {
 				for(int is_first = 1; tpe.Next(spart) > 0; is_first = 0) {
 					if(fileExists(spart)) {
-						SFileUtil::Stat stat;
-						if(SFileUtil::GetStat(spart, &stat)) {
+						SFile::Stat stat;
+						if(SFile::GetStat(spart, 0, &stat, 0)) {
 							//cp.TotalSize += stat.Size;
 							//THROW_V(cp.SsFiles.add(spart), SDBERR_SLIB);
 							if(is_first) {
@@ -491,8 +491,8 @@ int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 				if(tpe.Init(P_Db->MakeFileName_(ts.TblName, path))) {
 					for(int is_first = 1; tpe.Next(spart) > 0; is_first = 0) {
 						if(fileExists(spart)) {
-							SFileUtil::Stat stat;
-							if(SFileUtil::GetStat(spart, &stat)) {
+							SFile::Stat stat;
+							if(SFile::GetStat(spart, 0, &stat, 0)) {
 								cp.TotalSize += stat.Size;
 								THROW_V(cp.SsFiles.add(spart), SDBERR_SLIB);
 								if(is_first) {
@@ -522,8 +522,8 @@ int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 				if(tpe.Init(P_Db->MakeFileName_(ts.TblName, path))) {
 					for(int is_first = 1; tpe.Next(spart) > 0; is_first = 0) {
 						if(fileExists(spart)) {
-							SFileUtil::Stat stat;
-							if(SFileUtil::GetStat(spart, &stat)) {
+							SFile::Stat stat;
+							if(SFile::GetStat(spart, 0, &stat, 0)) {
 								cp.TotalSize += stat.Size;
 								THROW_V(cp.SsFiles.add(spart), SDBERR_SLIB);
 								if(is_first) {
@@ -608,8 +608,8 @@ int DBBackup::GetCopyParams(const BCopyData * data, DBBackup::CopyParams * param
 	for(; direc->Next(&dir_entry) > 0;)
 		if(!(dir_entry.Attr & 0x10)) {
 			dir_entry.GetNameA(copy_path, file_name);
-			SFileUtil::Stat stat;
-			if(SFileUtil::GetStat(file_name, &stat)) {
+			SFile::Stat stat;
+			if(SFile::GetStat(file_name, 0, &stat, 0)) {
 				params->TotalSize += stat.Size;
 				THROW_V(params->SsFiles.add(file_name), SDBERR_SLIB);
 			}
@@ -873,10 +873,10 @@ int DBBackup::DoCopy(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * 
 	TotalCopySize  = pParam->TotalSize;
 	TotalCopyReady = 0;
 	for(uint ssp = 0; pParam->SsFiles.get(&ssp, src_file_name);) {
-		SFileUtil::Stat stat;
+		SFile::Stat stat;
 		ps_inner.Split(src_file_name);
 		ps_inner.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, dest_file);
-		if(!SFileUtil::GetStat(src_file_name, &stat))
+		if(!SFile::GetStat(src_file_name, 0, &stat, 0))
 			LogMessage(fnLog, BACKUPLOG_ERR_GETFILEPARAM, src_file_name, extraPtr);
 		{
 			const int64 sz = stat.Size;
@@ -912,10 +912,10 @@ int DBBackup::DoRestore(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void
 	TotalCopyReady = 0;
 	for(uint ssp = 0; pParam->SsFiles.get(&ssp, src_file_name);) {
 		int64 sz = 0;
-		SFileUtil::Stat stat;
+		SFile::Stat fs;
 		ps_inner.Split(src_file_name);
 		ps_inner.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, dest_file);
-		if(!SFileUtil::GetStat(src_file_name, &stat))
+		if(!SFile::GetStat(src_file_name, 0, &fs, 0))
 			LogMessage(fnLog, BACKUPLOG_ERR_GETFILEPARAM, src_file_name, extraPtr);
 		{
 			SPathStruc::ReplaceExt(dest_file, "btr", 1);

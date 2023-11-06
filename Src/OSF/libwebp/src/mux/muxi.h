@@ -182,8 +182,8 @@ static FORCEINLINE int IsWPI(WebPChunkId id) {
 	switch(id) {
 		case WEBP_CHUNK_ANMF:
 		case WEBP_CHUNK_ALPHA:
-		case WEBP_CHUNK_IMAGE:  return 1;
-		default:        return 0;
+		case WEBP_CHUNK_IMAGE: return 1;
+		default: return 0;
 	}
 }
 

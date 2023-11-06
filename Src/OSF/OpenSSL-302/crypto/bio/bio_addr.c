@@ -196,16 +196,12 @@ static int addr_strings(const BIO_ADDR * ap, int numeric, char ** hostname, char
 	if(1) {
 #ifdef AI_PASSIVE
 		int ret = 0;
-		char host[NI_MAXHOST] = "", serv[NI_MAXSERV] = "";
+		char host[NI_MAXHOST] = "";
+		char serv[NI_MAXSERV] = "";
 		int flags = 0;
-
 		if(numeric)
 			flags |= NI_NUMERICHOST | NI_NUMERICSERV;
-
-		if((ret = getnameinfo(BIO_ADDR_sockaddr(ap),
-		    BIO_ADDR_sockaddr_size(ap),
-		    host, sizeof(host), serv, sizeof(serv),
-		    flags)) != 0) {
+		if((ret = getnameinfo(BIO_ADDR_sockaddr(ap), BIO_ADDR_sockaddr_size(ap), host, sizeof(host), serv, sizeof(serv), flags)) != 0) {
 #ifdef EAI_SYSTEM
 			if(ret == EAI_SYSTEM) {
 				ERR_raise_data(ERR_LIB_SYS, get_last_socket_error(), "calling getnameinfo()");
@@ -226,15 +222,12 @@ static int addr_strings(const BIO_ADDR * ap, int numeric, char ** hostname, char
 		if(serv[0] == '\0') {
 			BIO_snprintf(serv, sizeof(serv), "%d", ntohs(BIO_ADDR_rawport(ap)));
 		}
-		if(hostname)
-			*hostname = OPENSSL_strdup(host);
-		if(service)
-			*service = OPENSSL_strdup(serv);
+		ASSIGN_PTR(hostname, OPENSSL_strdup(host));
+		ASSIGN_PTR(service, OPENSSL_strdup(serv));
 	}
 	else {
 #endif
-		if(hostname)
-			*hostname = OPENSSL_strdup(inet_ntoa(ap->s_in.sin_addr));
+		ASSIGN_PTR(hostname, OPENSSL_strdup(inet_ntoa(ap->s_in.sin_addr)));
 		if(service) {
 			char serv[6]; /* port is 16 bits => max 5 decimal digits */
 			BIO_snprintf(serv, sizeof(serv), "%d", ntohs(ap->s_in.sin_port));
@@ -259,17 +252,13 @@ static int addr_strings(const BIO_ADDR * ap, int numeric, char ** hostname, char
 char * BIO_ADDR_hostname_string(const BIO_ADDR * ap, int numeric)
 {
 	char * hostname = NULL;
-	if(addr_strings(ap, numeric, &hostname, NULL))
-		return hostname;
-	return NULL;
+	return addr_strings(ap, numeric, &hostname, NULL) ? hostname : NULL;
 }
 
 char * BIO_ADDR_service_string(const BIO_ADDR * ap, int numeric)
 {
 	char * service = NULL;
-	if(addr_strings(ap, numeric, NULL, &service))
-		return service;
-	return NULL;
+	return addr_strings(ap, numeric, NULL, &service) ? service : NULL;
 }
 
 char * BIO_ADDR_path_string(const BIO_ADDR * ap)
@@ -280,27 +269,19 @@ char * BIO_ADDR_path_string(const BIO_ADDR * ap)
 #endif
 	return NULL;
 }
-
 /*
  * BIO_ADDR_sockaddr - non-public routine to return the struct sockaddr
  * for a given BIO_ADDR.  In reality, this is simply a type safe cast.
  * The returned struct sockaddr is const, so it can't be tampered with.
  */
-const struct sockaddr * BIO_ADDR_sockaddr(const BIO_ADDR * ap)
-{
-	return &(ap->sa);
-}
+const struct sockaddr * BIO_ADDR_sockaddr(const BIO_ADDR * ap) { return &(ap->sa); }
 /*
  * BIO_ADDR_sockaddr_noconst - non-public function that does the same
  * as BIO_ADDR_sockaddr, but returns a non-const.  USE WITH CARE, as
  * it allows you to tamper with the data (and thereby the contents
  * of the input BIO_ADDR).
  */
-struct sockaddr * BIO_ADDR_sockaddr_noconst(BIO_ADDR * ap)
-{
-	return &(ap->sa);
-}
-
+struct sockaddr * BIO_ADDR_sockaddr_noconst(BIO_ADDR * ap) { return &(ap->sa); }
 /*
  * BIO_ADDR_sockaddr_size - non-public function that returns the size
  * of the struct sockaddr the BIO_ADDR is using.  If the protocol family
@@ -327,27 +308,9 @@ socklen_t BIO_ADDR_sockaddr_size(const BIO_ADDR * ap)
  * Address info database
  *
  */
-
-const BIO_ADDRINFO * BIO_ADDRINFO_next(const BIO_ADDRINFO * bai)
-{
-	if(bai)
-		return bai->bai_next;
-	return NULL;
-}
-
-int BIO_ADDRINFO_family(const BIO_ADDRINFO * bai)
-{
-	if(bai)
-		return bai->bai_family;
-	return 0;
-}
-
-int BIO_ADDRINFO_socktype(const BIO_ADDRINFO * bai)
-{
-	if(bai)
-		return bai->bai_socktype;
-	return 0;
-}
+const BIO_ADDRINFO * BIO_ADDRINFO_next(const BIO_ADDRINFO * bai) { return bai ? bai->bai_next : NULL; }
+int BIO_ADDRINFO_family(const BIO_ADDRINFO * bai) { return bai ? bai->bai_family : 0; }
+int BIO_ADDRINFO_socktype(const BIO_ADDRINFO * bai) { return bai ? bai->bai_socktype : 0; }
 
 int BIO_ADDRINFO_protocol(const BIO_ADDRINFO * bai)
 {
@@ -370,30 +333,13 @@ int BIO_ADDRINFO_protocol(const BIO_ADDRINFO * bai)
  * BIO_ADDRINFO_sockaddr_size - non-public function that returns the size
  * of the struct sockaddr inside the BIO_ADDRINFO.
  */
-socklen_t BIO_ADDRINFO_sockaddr_size(const BIO_ADDRINFO * bai)
-{
-	if(bai)
-		return bai->bai_addrlen;
-	return 0;
-}
-
+socklen_t BIO_ADDRINFO_sockaddr_size(const BIO_ADDRINFO * bai) { return bai ? bai->bai_addrlen : 0; }
 /*
  * BIO_ADDRINFO_sockaddr - non-public function that returns bai_addr
  * as the struct sockaddr it is.
  */
-const struct sockaddr * BIO_ADDRINFO_sockaddr(const BIO_ADDRINFO * bai)
-{
-	if(bai)
-		return bai->bai_addr;
-	return NULL;
-}
-
-const BIO_ADDR * BIO_ADDRINFO_address(const BIO_ADDRINFO * bai)
-{
-	if(bai)
-		return (BIO_ADDR*)bai->bai_addr;
-	return NULL;
-}
+const struct sockaddr * BIO_ADDRINFO_sockaddr(const BIO_ADDRINFO * bai) { return bai ? bai->bai_addr : NULL; }
+const BIO_ADDR * BIO_ADDRINFO_address(const BIO_ADDRINFO * bai) { return bai ? (BIO_ADDR*)bai->bai_addr : NULL; }
 
 void BIO_ADDRINFO_free(BIO_ADDRINFO * bai)
 {
@@ -610,11 +556,9 @@ int BIO_lookup(const char * host, const char * service, enum BIO_lookup_type loo
  *
  * The return value is 1 on success or 0 in case of error.
  */
-int BIO_lookup_ex(const char * host, const char * service, int lookup_type,
-    int family, int socktype, int protocol, BIO_ADDRINFO ** res)
+int BIO_lookup_ex(const char * host, const char * service, int lookup_type, int family, int socktype, int protocol, BIO_ADDRINFO ** res)
 {
 	int ret = 0;             /* Assume failure */
-
 	switch(family) {
 		case AF_INET:
 #ifdef AF_INET6
@@ -867,13 +811,11 @@ addrinfo_malloc_err:
 				ret = 0;
 				goto err;
 			}
-
 			ret = 1;
 		}
 err:
 		CRYPTO_THREAD_unlock(bio_lookup_lock);
 	}
-
 	return ret;
 }
 

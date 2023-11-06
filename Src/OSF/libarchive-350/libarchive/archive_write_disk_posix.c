@@ -107,7 +107,7 @@ __FBSDID("$FreeBSD$");
 #define HAVE_QUARANTINE 1
 #endif
 #endif
-/* TODO: Support Mac OS 'quarantine' feature.  This is really just a
+/* @todo Support Mac OS 'quarantine' feature.  This is really just a
  * standard tag to mark files that have been downloaded as "tainted".
  * On Mac OS, we should mark the extracted files as tainted if the
  * archive being read was tainted.  Windows has a similar feature; we
@@ -347,7 +347,7 @@ static int set_times(struct archive_write_disk *, int, int, const char *, time_t
 static int set_times_from_entry(struct archive_write_disk *);
 static struct fixup_entry * sort_dir_list(struct fixup_entry * p);
 static ssize_t  write_data_block(struct archive_write_disk *, const char *, size_t);
-static struct archive_vtable * archive_write_disk_vtable(void);
+static struct archive_vtable * archive_write_disk_vtable();
 static int _archive_write_disk_close(Archive *);
 static int _archive_write_disk_free(Archive *);
 static int _archive_write_disk_header(Archive *, ArchiveEntry *);
@@ -635,9 +635,8 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 		a->decmpfs_block_count = (uint)-1;
 	}
 	{
-		const char * p;
 		// Check if the current file name is a type of the resource fork file.
-		p = strrchr(a->name, '/');
+		const char * p = strrchr(a->name, '/');
 		if(!p)
 			p = a->name;
 		else
@@ -786,7 +785,7 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 		if(fe == NULL)
 			return ARCHIVE_FATAL;
 		fe->fixup |= TODO_FFLAGS;
-		/* TODO: Complete this.. defer fflags from below. */
+		/* @todo Complete this.. defer fflags from below. */
 	}
 
 	/* We've created the object and are ready to pour data into it. */
@@ -1584,7 +1583,7 @@ static int _archive_write_disk_finish_entry(Archive * _a)
 			archive_entry_uid(a->entry));
 	}
 	/* Look up the "real" GID only if we're going to need it. */
-	/* TODO: the TODO_SUID condition can be dropped here, can't it? */
+	/* @todo the TODO_SUID condition can be dropped here, can't it? */
 	if(a->todo & (TODO_OWNER | TODO_SGID | TODO_SUID)) {
 		a->gid = archive_write_disk_gid(&a->archive,
 			archive_entry_gname(a->entry),
@@ -1745,14 +1744,12 @@ int64 archive_write_disk_uid(Archive * _a, const char * name, int64 id)
 		return (a->lookup_uid)(a->lookup_uid_data, name, id);
 	return (id);
 }
-
 /*
  * Create a new archive_write_disk object and initialize it with global state.
  */
-Archive * archive_write_disk_new(void)                 {
-	struct archive_write_disk * a;
-
-	a = (struct archive_write_disk *)SAlloc::C(1, sizeof(*a));
+Archive * archive_write_disk_new()
+{
+	struct archive_write_disk * a = (struct archive_write_disk *)SAlloc::C(1, sizeof(*a));
 	if(!a)
 		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_DISK_MAGIC;
@@ -1774,7 +1771,6 @@ Archive * archive_write_disk_new(void)                 {
 #endif
 	return (&a->archive);
 }
-
 /*
  * If pathname is longer than PATH_MAX, chdir to a suitable
  * intermediate dir and edit the path down to a shorter suffix.  Note
@@ -1788,11 +1784,9 @@ static void edit_deep_directories(struct archive_write_disk * a)
 {
 	int ret;
 	char * tail = a->name;
-
 	/* If path is short, avoid the open() below. */
 	if(strlen(tail) < PATH_MAX)
 		return;
-
 	/* Try to record our starting dir. */
 	a->restore_pwd = la_opendirat(AT_FDCWD, ".");
 	__archive_ensure_cloexec_flag(a->restore_pwd);
@@ -2190,7 +2184,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		    r = mkfifo(a->name, mode);
 		    break;
 #else
-		    /* TODO: Find a better way to warn about our inability
+		    /* @todo Find a better way to warn about our inability
 		     * to restore a fifo. */
 		    return (EINVAL);
 #endif /* HAVE_MKFIFO */
@@ -2474,7 +2468,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, archive_string * a_est
 	head = path;
 	tail = path;
 	last = 0;
-	/* TODO: reintroduce a safe cache here? */
+	/* @todo reintroduce a safe cache here? */
 	/* Skip the root directory if the path is absolute. */
 	if(tail == path && tail[0] == '/')
 		++tail;
@@ -2709,7 +2703,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, archive_string * a_est
 		}
 	}
 #endif
-	/* TODO: reintroduce a safe cache here? */
+	/* @todo reintroduce a safe cache here? */
 	return res;
 #endif
 }

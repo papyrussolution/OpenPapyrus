@@ -4093,7 +4093,7 @@ namespace NArchive {
 				case 0x01C2:  filterId = k_ARM; break; // WinCE new
 				case 0x01C4:  filterId = k_ARMT; break; // WinRT
 				case 0x0200:  filterId = k_IA64; break;
-				default:  return 0;
+				default: return 0;
 			}
 			optHeaderSize = GetUi16(p + 16);
 			if(optHeaderSize > (1 << 10))

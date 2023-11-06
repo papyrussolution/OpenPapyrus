@@ -2894,6 +2894,7 @@ int EquipConfigDialog::EditExtParams()
 				SetupObjTagCombo(this, CTLSEL_EQCFG_CPIMPTAG, Data.ChkPanImpBillTagID, 0, &ot_filt);
 			}
 			// } @v11.8.6 
+			setCtrlLong(CTL_EQCFG_LOOKBKBILPRD, Data.LookBackBillPeriod); // @v11.8.9
 			setCtrlData(CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
 			setCtrlData(CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
 			setCtrlData(CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix);
@@ -2908,6 +2909,7 @@ int EquipConfigDialog::EditExtParams()
 				setCtrlData(CTL_EQCFG_RNGLIMPRICEBHT, &rng_lim);
 			}
 			setCtrlLong(CTL_EQCFG_LOOKBKPRCPRD, Data.LookBackPricePeriod);
+			SetupCtrls();
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
@@ -2951,6 +2953,12 @@ int EquipConfigDialog::EditExtParams()
 				THROW_PP(rng_lim >= 0 && rng_lim <= 100, PPERR_PERCENTINPUT);
 				Data.BHTRngLimPrice = (long)(rng_lim * 100.0);
 			}
+			// @v11.8.9 {
+			{
+				Data.LookBackBillPeriod = getCtrlLong(CTL_EQCFG_LOOKBKBILPRD);
+				THROW_PP(checkirange(Data.LookBackBillPeriod, 0L, 365L), PPERR_USERINPUT); 
+			}
+			// } @v11.8.9 
 			{
 				Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD);
 				THROW_PP(checkirange(Data.LookBackPricePeriod, 0L, (365L * 2)), PPERR_USERINPUT); // @v10.8.1 365-->(365*2)
@@ -2962,6 +2970,20 @@ int EquipConfigDialog::EditExtParams()
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_EQCFG_CPIMPOP)) {
+				getCtrlData(CTLSEL_EQCFG_CPIMPOP, &Data.ChkPanImpOpID);
+				SetupCtrls();
+			}
+		}
+		void SetupCtrls()
+		{
+			disableCtrl(CTLSEL_EQCFG_CPIMPTAG, !Data.ChkPanImpOpID);
+			disableCtrl(CTL_EQCFG_LOOKBKBILPRD, !Data.ChkPanImpOpID);
 		}
 	};
 	DIALOG_PROC_BODY(ExtEquipConfigDialog, &Data);

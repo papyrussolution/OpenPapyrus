@@ -99,7 +99,7 @@ static int MD4_Init(MD4_CTX * ctx)
 	return 1;
 }
 
-static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
+static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
 {
 	md4_update(ctx, size, data);
 }
@@ -121,7 +121,7 @@ static int MD4_Init(MD4_CTX * ctx)
 	return CC_MD4_Init(ctx);
 }
 
-static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
+static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
 {
 	(void)CC_MD4_Update(ctx, data, (CC_LONG)size);
 }
@@ -158,22 +158,19 @@ static int MD4_Init(MD4_CTX * ctx)
 	return 1;
 }
 
-static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
+static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
 {
 	CryptHashData(ctx->hHash, (BYTE *)data, (uint)size, 0);
 }
 
 static void MD4_Final(uchar * result, MD4_CTX * ctx)
 {
-	unsigned long length = 0;
-
+	ulong length = 0;
 	CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
 	if(length == MD4_DIGEST_LENGTH)
 		CryptGetHashParam(ctx->hHash, HP_HASHVAL, result, &length, 0);
-
 	if(ctx->hHash)
 		CryptDestroyHash(ctx->hHash);
-
 	if(ctx->hCryptProv)
 		CryptReleaseContext(ctx->hCryptProv, 0);
 }
@@ -182,7 +179,7 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx)
 
 struct md4_ctx {
 	void * data;
-	unsigned long size;
+	ulong size;
 };
 
 typedef struct md4_ctx MD4_CTX;
@@ -194,7 +191,7 @@ static int MD4_Init(MD4_CTX * ctx)
 	return 1;
 }
 
-static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
+static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
 {
 	if(!ctx->data) {
 		ctx->data = SAlloc::M(size);
@@ -272,7 +269,7 @@ struct md4_ctx {
 typedef struct md4_ctx MD4_CTX;
 
 static int MD4_Init(MD4_CTX * ctx);
-static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size);
+static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size);
 static void MD4_Final(uchar * result, MD4_CTX * ctx);
 
 /*
@@ -320,7 +317,7 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx);
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters.  There are no alignment requirements.
  */
-static const void *body(MD4_CTX * ctx, const void * data, unsigned long size)
+static const void *body(MD4_CTX * ctx, const void * data, ulong size)
 {
 	const uchar * ptr;
 	MD4_u32plus a, b, c, d;
@@ -422,22 +419,18 @@ static int MD4_Init(MD4_CTX * ctx)
 	return 1;
 }
 
-static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
+static void MD4_Update(MD4_CTX * ctx, const void * data, ulong size)
 {
 	MD4_u32plus saved_lo;
-	unsigned long used;
-
+	ulong used;
 	saved_lo = ctx->lo;
 	ctx->lo = (saved_lo + size) & 0x1fffffff;
 	if(ctx->lo < saved_lo)
 		ctx->hi++;
 	ctx->hi += (MD4_u32plus)size >> 29;
-
 	used = saved_lo & 0x3f;
-
 	if(used) {
-		unsigned long available = 64 - used;
-
+		ulong available = 64 - used;
 		if(size < available) {
 			memcpy(&ctx->buffer[used], data, size);
 			return;
@@ -459,23 +452,17 @@ static void MD4_Update(MD4_CTX * ctx, const void * data, unsigned long size)
 
 static void MD4_Final(uchar * result, MD4_CTX * ctx)
 {
-	unsigned long used, available;
-
+	ulong used, available;
 	used = ctx->lo & 0x3f;
-
 	ctx->buffer[used++] = 0x80;
-
 	available = 64 - used;
-
 	if(available < 8) {
 		memzero(&ctx->buffer[used], available);
 		body(ctx, ctx->buffer, 64);
 		used = 0;
 		available = 64;
 	}
-
 	memzero(&ctx->buffer[used], available - 8);
-
 	ctx->lo <<= 3;
 	ctx->buffer[56] = curlx_ultouc((ctx->lo)&0xff);
 	ctx->buffer[57] = curlx_ultouc((ctx->lo >> 8)&0xff);

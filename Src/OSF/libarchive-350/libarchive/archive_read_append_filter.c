@@ -18,18 +18,16 @@ __FBSDID("$FreeBSD$");
 
 int archive_read_append_filter(Archive * _a, int code)
 {
-	int r1, r2, number_bidders, i;
+	int r1, number_bidders, i;
 	char str[20];
 	ArchiveReadFilterBidder * bidder;
 	ArchiveReadFilter * filter;
 	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
-	r2 = (ARCHIVE_OK);
+	int r2 = (ARCHIVE_OK);
 	switch(code) {
 		case ARCHIVE_FILTER_NONE:
-		    /* No filter to add, so do nothing.
-		     * NOTE: An initial "NONE" type filter is always set at the end of the
-		     * filter chain.
-		     */
+		    // No filter to add, so do nothing.
+		    // NOTE: An initial "NONE" type filter is always set at the end of the filter chain.
 		    r1 = (ARCHIVE_OK);
 		    break;
 		case ARCHIVE_FILTER_GZIP:

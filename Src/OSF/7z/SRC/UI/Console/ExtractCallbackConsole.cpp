@@ -195,14 +195,14 @@ STDMETHODIMP CExtractCallbackConsole::AskOverwrite(const wchar_t * existName, co
 	}
 	NUserAnswerMode::EEnum overwriteAnswer = ScanUserYesNoAllQuit(_so);
 	switch(overwriteAnswer) {
-		case NUserAnswerMode::kQuit:  return E_ABORT;
+		case NUserAnswerMode::kQuit: return E_ABORT;
 		case NUserAnswerMode::kNo:     *answer = NOverwriteAnswer::kNo; break;
 		case NUserAnswerMode::kNoAll:  *answer = NOverwriteAnswer::kNoToAll; break;
 		case NUserAnswerMode::kYesAll: *answer = NOverwriteAnswer::kYesToAll; break;
 		case NUserAnswerMode::kYes:    *answer = NOverwriteAnswer::kYes; break;
 		case NUserAnswerMode::kAutoRenameAll: *answer = NOverwriteAnswer::kAutoRename; break;
-		case NUserAnswerMode::kEof:  return E_ABORT;
-		case NUserAnswerMode::kError:  return E_FAIL;
+		case NUserAnswerMode::kEof: return E_ABORT;
+		case NUserAnswerMode::kError: return E_FAIL;
 		default: return E_FAIL;
 	}
 	if(_so) {

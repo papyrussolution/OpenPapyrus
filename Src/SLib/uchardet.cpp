@@ -4385,7 +4385,7 @@ float nsMBCSGroupProber::GetConfidence() const
 	float bestConf = 0.0;
 	switch(mState) {
 		case eFoundIt: return 0.99f;
-		case eNotMe:   return 0.01f;
+		case eNotMe: return 0.01f;
 		default:
 			{
 				for(uint32 i = 0; i < NUM_OF_PROBERS; i++) {

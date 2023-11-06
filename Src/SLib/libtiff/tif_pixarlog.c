@@ -501,25 +501,16 @@ static int PixarLogMakeTables(PixarLogState * sp)
 	ToLinearF = static_cast<float *>(SAlloc::M(TSIZEP1 * sizeof(float)));
 	ToLinear16 = static_cast<uint16 *>(SAlloc::M(TSIZEP1 * sizeof(uint16)));
 	ToLinear8 = (uchar *)SAlloc::M(TSIZEP1 * sizeof(uchar));
-	if(FromLT2 == NULL || From14  == NULL || From8   == NULL ||
-	    ToLinearF == NULL || ToLinear16 == NULL || ToLinear8 == NULL) {
-		if(FromLT2) SAlloc::F(FromLT2);
-		if(From14) SAlloc::F(From14);
-		if(From8) SAlloc::F(From8);
-		if(ToLinearF) SAlloc::F(ToLinearF);
-		if(ToLinear16) SAlloc::F(ToLinear16);
-		if(ToLinear8) SAlloc::F(ToLinear8);
-		sp->FromLT2 = NULL;
-		sp->From14 = NULL;
-		sp->From8 = NULL;
-		sp->ToLinearF = NULL;
-		sp->ToLinear16 = NULL;
-		sp->ToLinear8 = NULL;
+	if(FromLT2 == NULL || From14  == NULL || From8   == NULL || ToLinearF == NULL || ToLinear16 == NULL || ToLinear8 == NULL) {
+		ZFREE(FromLT2);
+		ZFREE(From14);
+		ZFREE(From8);
+		ZFREE(ToLinearF);
+		ZFREE(ToLinear16);
+		ZFREE(ToLinear8);
 		return 0;
 	}
-
 	j = 0;
-
 	for(i = 0; i < nlin; i++) {
 		v = i * linstep;
 		ToLinearF[j++] = (float)v;
@@ -1182,33 +1173,31 @@ static void PixarLogClose(TIFF * tif)
 
 static void PixarLogCleanup(TIFF * tif)
 {
-	PixarLogState* sp = (PixarLogState*)tif->tif_data;
-
-	assert(sp != 0);
-
-	(void)TIFFPredictorCleanup(tif);
-
-	tif->tif_tagmethods.vgetfield = sp->vgetparent;
-	tif->tif_tagmethods.vsetfield = sp->vsetparent;
-
-	if(sp->FromLT2) SAlloc::F(sp->FromLT2);
-	if(sp->From14) SAlloc::F(sp->From14);
-	if(sp->From8) SAlloc::F(sp->From8);
-	if(sp->ToLinearF) SAlloc::F(sp->ToLinearF);
-	if(sp->ToLinear16) SAlloc::F(sp->ToLinear16);
-	if(sp->ToLinear8) SAlloc::F(sp->ToLinear8);
-	if(sp->state&PLSTATE_INIT) {
-		if(tif->tif_mode == O_RDONLY)
-			inflateEnd(&sp->stream);
-		else
-			deflateEnd(&sp->stream);
+	if(tif) {
+		PixarLogState* sp = (PixarLogState*)tif->tif_data;
+		assert(sp != 0);
+		if(sp) {
+			(void)TIFFPredictorCleanup(tif);
+			tif->tif_tagmethods.vgetfield = sp->vgetparent;
+			tif->tif_tagmethods.vsetfield = sp->vsetparent;
+			SAlloc::F(sp->FromLT2);
+			SAlloc::F(sp->From14);
+			SAlloc::F(sp->From8);
+			SAlloc::F(sp->ToLinearF);
+			SAlloc::F(sp->ToLinear16);
+			SAlloc::F(sp->ToLinear8);
+			if(sp->state&PLSTATE_INIT) {
+				if(tif->tif_mode == O_RDONLY)
+					inflateEnd(&sp->stream);
+				else
+					deflateEnd(&sp->stream);
+			}
+			SAlloc::F(sp->tbuf);
+			SAlloc::F(sp);
+			tif->tif_data = NULL;
+		}
+		_TIFFSetDefaultCompressionState(tif);
 	}
-	if(sp->tbuf)
-		SAlloc::F(sp->tbuf);
-	SAlloc::F(sp);
-	tif->tif_data = NULL;
-
-	_TIFFSetDefaultCompressionState(tif);
 }
 
 static int PixarLogVSetField(TIFF * tif, uint32 tag, va_list ap)

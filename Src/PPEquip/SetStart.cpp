@@ -975,8 +975,8 @@ int ACS_SETSTART::ImportFiles()
 					// @v9.4.10 dtm.t = MAXLONG;
 					(temp_path = temp_dir.SetLastSlash()).Cat(p_prefix).Cat("?????.txt");
 					for(SDirec sd(temp_path); sd.Next(&sde) > 0;) {
-						if(dtm.IsFar() || cmp(sde.WriteTime, dtm) < 0) {
-							dtm = sde.WriteTime;
+						if(dtm.IsFar() || cmp(sde.ModTime, dtm) < 0) {
+							dtm = sde.ModTime;
 							sde.GetNameA(temp_dir, firstf_path);
 						}
 						files_count++;

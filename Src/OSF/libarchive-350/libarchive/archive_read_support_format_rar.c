@@ -581,7 +581,7 @@ static int archive_read_format_rar_bid(ArchiveRead * a, int best_bid)
 		while(offset + window <= (1024 * 128)) {
 			const char * buff = static_cast<const char *>(__archive_read_ahead(a, offset + window, &bytes_avail));
 			if(buff == NULL) {
-				/* Remaining bytes are less than window. */
+				// Remaining bytes are less than window
 				window >>= 1;
 				if(window < 0x40)
 					return 0;
@@ -610,7 +610,7 @@ static int skip_sfx(ArchiveRead * a)
 	while(total + window <= (1024 * 128)) {
 		h = __archive_read_ahead(a, window, &bytes);
 		if(!h) {
-			/* Remaining bytes are less than window. */
+			// Remaining bytes are less than window
 			window >>= 1;
 			if(window < 0x40)
 				goto fatal;
@@ -657,9 +657,7 @@ static int archive_read_format_rar_options(ArchiveRead * a, const char * key, co
 		}
 		return ret;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
 
@@ -1160,7 +1158,7 @@ static int read_header(ArchiveRead * a, ArchiveEntry * entry, char head_type)
 		return ARCHIVE_FATAL;
 	}
 	rar->bytes_remaining = rar->packed_size;
-	/* TODO: RARv3 subblocks contain comments. For now the complete block is
+	/* @todo RARv3 subblocks contain comments. For now the complete block is
 	 * consumed at the end.
 	 */
 	if(head_type == NEWSUB_HEAD) {

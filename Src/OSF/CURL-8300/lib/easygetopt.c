@@ -30,7 +30,7 @@
 #ifndef CURL_DISABLE_GETOPTIONS
 
 /* Lookups easy options at runtime */
-static struct curl_easyoption *lookup(const char * name, CURLoption id){
+static struct curl_easyoption *lookup(const char * name, CURLoption id) {
 	DEBUGASSERT(name || id);
 	DEBUGASSERT(!Curl_easyopts_check());
 	if(name || id) {
@@ -51,17 +51,12 @@ static struct curl_easyoption *lookup(const char * name, CURLoption id){
 	return NULL;
 }
 
-const struct curl_easyoption *curl_easy_option_by_name(const char * name){
-	/* when name is used, the id argument is ignored */
-	return lookup(name, CURLOPT_LASTENTRY);
-}
-
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id){
-	return lookup(NULL, id);
-}
+const struct curl_easyoption *curl_easy_option_by_name(const char * name) { return lookup(name, CURLOPT_LASTENTRY); /* when name is used, the id argument is ignored */ }
+const struct curl_easyoption *curl_easy_option_by_id(CURLoption id) { return lookup(NULL, id); }
 
 /* Iterates over available options */
-const struct curl_easyoption *curl_easy_option_next(const struct curl_easyoption * prev)                               {
+const struct curl_easyoption *curl_easy_option_next(const struct curl_easyoption * prev) 
+{
 	if(prev && prev->name) {
 		prev++;
 		if(prev->name)
@@ -73,19 +68,7 @@ const struct curl_easyoption *curl_easy_option_next(const struct curl_easyoption
 }
 
 #else
-const struct curl_easyoption *curl_easy_option_by_name(const char * name){
-	(void)name;
-	return NULL;
-}
-
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id){
-	(void)id;
-	return NULL;
-}
-
-const struct curl_easyoption *curl_easy_option_next(const struct curl_easyoption * prev)                               {
-	(void)prev;
-	return NULL;
-}
-
+	const struct curl_easyoption *curl_easy_option_by_name(const char */*name*/) { return NULL; }
+	const struct curl_easyoption *curl_easy_option_by_id(CURLoption /*id*/) { return NULL; }
+	const struct curl_easyoption *curl_easy_option_next(const struct curl_easyoption * /*prev*/) { return NULL; }
 #endif

@@ -14519,6 +14519,7 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 	PPID   PhnSvcID;           // Телефонный сервис, опрашиваемый сессией
 	PPID   ChkPanImpOpID;      // @v11.8.6 Вид операции документов, которые могут быть импортированы в кассовую панель для преобразования в кассовые чеки.
 	PPID   ChkPanImpBillTagID; // @v11.8.6 Тег документа, позволяющий импортировать документ в кассовую панель
+	long   LookBackBillPeriod; // @v11.8.9 Количество дней обзора назад для выбора документов импорта
 };
 
 int  ReadEquipConfig(PPEquipConfig * pCfg);
@@ -19655,6 +19656,9 @@ private:
 #define BILCHECKF_CONTRACT        0x00008000 // @v11.5.11 Проверка на валидный договор (номер и дата в соглашении или привязка к документу договора)
 #define BILCHECKF_FREIGHT         (BILCHECKF_DLVRADDR|BILCHECKF_PORTOFLOADING|BILCHECKF_PORTOFDISCHARGE|\
 	BILCHECKF_ARRIVALDT|BILCHECKF_SHIP|BILCHECKF_FREIGHTCOST|BILCHECKF_CAPTAIN|BILCHECKF_TRBROKER)
+#define BILCHECKF_LNEXPLVATRATE   0x00010000 // @v11.8.9 Проверка по строкам документа: каждый товар должен иметь явно установленную ставку НДС
+#define BILCHECKF_LNCHZNMARKS     0x00020000 // @v11.8.9 Проверка по строкам документа: строки документа, соответствующие товарам, для которых
+	// необходима маркировка, должны содержать марки.
 
 struct PPBillStatus2 {     // @persistent @store(Reference2Tbl+)
 	PPBillStatus2();

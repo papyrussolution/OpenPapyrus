@@ -14,7 +14,7 @@ __FBSDID("$FreeBSD$");
 #endif
 #include <winioctl.h>
 
-/* TODO: Support Mac OS 'quarantine' feature.  This is really just a
+/* @todo Support Mac OS 'quarantine' feature.  This is really just a
  * standard tag to mark files that have been downloaded as "tainted".
  * On Mac OS, we should mark the extracted files as tainted if the
  * archive being read was tainted.  Windows has a similar feature; we
@@ -185,7 +185,7 @@ static int set_times_from_entry(struct archive_write_disk *);
 static struct fixup_entry * sort_dir_list(struct fixup_entry * p);
 static ssize_t  write_data_block(struct archive_write_disk *, const char *, size_t);
 
-static struct archive_vtable * archive_write_disk_vtable(void);
+static struct archive_vtable * archive_write_disk_vtable();
 
 static int _archive_write_disk_close(Archive *);
 static int _archive_write_disk_free(Archive *);
@@ -332,8 +332,7 @@ static int permissive_name_w(struct archive_write_disk * a)
 			while(*p != L'\\' && *p != L'\0')
 				++p;
 			if(*p == L'\\' && p != rp) {
-				/* Now, match patterns such as
-				 * "\\server-name\share-name\" */
+				/* Now, match patterns such as "\\server-name\share-name\" */
 				wn = _wcsdup(wnp);
 				if(wn == NULL)
 					return -1;
@@ -443,16 +442,13 @@ static int la_mktemp(struct archive_write_disk * a)
 {
 	int fd;
 	mode_t mode;
-
 	archive_wstring_empty(&(a->_tmpname_data));
 	archive_wstrcpy(&(a->_tmpname_data), a->name);
 	archive_wstrcat(&(a->_tmpname_data), L".XXXXXX");
 	a->tmpname = a->_tmpname_data.s;
-
 	fd = __archive_mkstemp(a->tmpname);
 	if(fd == -1)
 		return -1;
-
 	mode = a->mode & 0777 & ~a->user_umask;
 	if(la_chmod(a->tmpname, mode) == -1) {
 		la_dosmaperr(GetLastError());
@@ -525,7 +521,6 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 	DWORD flags = 0;
 	DWORD newflags = 0;
 	BOOL ret = 0;
-
 	if(!set) {
 		set = 1;
 		f = static_cast<BOOLEAN (WINAPI *)(LPCWSTR, LPCWSTR, DWORD)>(la_GetFunctionKernel32("CreateSymbolicLinkW"));
@@ -537,10 +532,9 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 		errno = EINVAL;
 		return 0;
 	}
-	/*
-	 * When writing path targets, we need to translate slashes
-	 * to backslashes
-	 */
+	//
+	// When writing path targets, we need to translate slashes to backslashes
+	//
 	ttarget = static_cast<wchar_t *>(SAlloc::M((len + 1) * sizeof(wchar_t)));
 	if(ttarget == NULL)
 		return 0;
@@ -573,9 +567,9 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 #else
 	newflags = flags | 0x2;
 #endif
-	/*
-	 * Windows won't overwrite existing links
-	 */
+	//
+	// Windows won't overwrite existing links
+	//
 	attrs = GetFileAttributesW(linkname);
 	if(attrs != INVALID_FILE_ATTRIBUTES) {
 		if(attrs & FILE_ATTRIBUTE_DIRECTORY)
@@ -583,12 +577,10 @@ static int la_CreateSymbolicLinkW(const wchar_t * linkname, const wchar_t * targ
 		else
 			disk_unlink(linkname);
 	}
-
 	ret = (*f)(linkname, ttarget, newflags);
-	/*
-	 * Prior to Windows 10 calling CreateSymbolicLinkW() will fail
-	 * if SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE is set
-	 */
+	//
+	// Prior to Windows 10 calling CreateSymbolicLinkW() will fail if SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE is set
+	//
 	if(!ret) {
 		ret = (*f)(linkname, ttarget, flags);
 	}
@@ -1025,7 +1017,7 @@ static int _archive_write_disk_finish_entry(Archive * _a)
 		a->uid = archive_write_disk_uid(&a->archive, archive_entry_uname(a->entry), archive_entry_uid(a->entry));
 	}
 	/* Look up the "real" GID only if we're going to need it. */
-	/* TODO: the TODO_SUID condition can be dropped here, can't it? */
+	/* @todo the TODO_SUID condition can be dropped here, can't it? */
 	if(a->todo & (TODO_OWNER | TODO_SGID | TODO_SUID)) {
 		a->gid = archive_write_disk_gid(&a->archive, archive_entry_gname(a->entry), archive_entry_gid(a->entry));
 	}
@@ -1561,7 +1553,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		    break;
 		case AE_IFCHR:
 		case AE_IFBLK:
-		    /* TODO: Find a better way to warn about our inability
+		    /* @todo Find a better way to warn about our inability
 		     * to restore a block device node. */
 		    return (EINVAL);
 		case AE_IFDIR:
@@ -1592,7 +1584,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			    SAlloc::F(fullname);
 		    break;
 		case AE_IFIFO:
-		    /* TODO: Find a better way to warn about our inability
+		    /* @todo Find a better way to warn about our inability
 		     * to restore a fifo. */
 		    return (EINVAL);
 	}

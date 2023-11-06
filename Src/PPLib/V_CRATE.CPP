@@ -413,7 +413,7 @@ IMPL_HANDLE_EVENT(SelCRateDialog)
 				case cmLBDblClk:
 				case cmaEdit:   editRate(); break;
 				case cmCBSelected: updateList(); break;
-				default:        return;
+				default: return;
 			}
 		else if(event.isKeyDown(KB_CTRLENTER)) {
 			if(IsInState(sfModal)) {

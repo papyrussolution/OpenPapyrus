@@ -160,12 +160,9 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: invalid xattr header name");
 		return ret;
 	}
-	/* Note: The "warn" return is just to inform the options
-	 * supervisor that we didn't handle it.  It will generate
-	 * a suitable error if no one used this option. */
+	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
-
 /*
  * Note: This code assumes that 'nanos' has the same sign as 'sec',
  * which implies that sec=-1, nanos=200000000 represents -1.2 seconds
@@ -177,10 +174,9 @@ static void add_pax_attr_time(archive_string * as, const char * key, int64 sec, 
 {
 	int digit, i;
 	char * t;
-	/*
-	 * Note that each byte contributes fewer than 3 base-10
-	 * digits, so this will always be big enough.
-	 */
+	//
+	// Note that each byte contributes fewer than 3 base-10 digits, so this will always be big enough.
+	//
 	char tmp[1 + 3*sizeof(sec) + 1 + 3*sizeof(nanos)];
 	tmp[sizeof(tmp) - 1] = 0;
 	t = tmp + sizeof(tmp) - 1;

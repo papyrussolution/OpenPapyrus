@@ -229,7 +229,7 @@ pathmatched:
 /*
  * Return the top-level domain, for optimal hashing.
  */
-static const char *get_top_domain(const char * const domain, size_t * outlen)
+static const char * get_top_domain(const char * const domain, size_t * outlen)
 {
 	size_t len = 0;
 	const char * first = NULL;
@@ -243,9 +243,8 @@ static const char *get_top_domain(const char * const domain, size_t * outlen)
 				len -= (++first - domain);
 		}
 	}
-	if(outlen)
-		*outlen = len;
-	return first? first: domain;
+	ASSIGN_PTR(outlen, len);
+	return first ? first : domain;
 }
 
 /* Avoid C1001, an "internal error" with MSVC14 */
@@ -435,7 +434,7 @@ static bool bad_domain(const char * domain, size_t len)
 		return FALSE;
 	else {
 		/* there must be a dot present, but that dot must not be a trailing dot */
-		const char * dot = (const char *)memchr(domain, '.', len);
+		const char * dot = (const char *)smemchr(domain, '.', len);
 		if(dot) {
 			size_t i = dot - domain;
 			if((len - i) > 1)
@@ -555,7 +554,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 					}
 
 					/* Reject cookies with a TAB inside the value */
-					if(memchr(valuep, '\t', vlen)) {
+					if(smemchr(valuep, '\t', vlen)) {
 						freecookie(co);
 						infof(data, "cookie contains TAB, dropping");
 						return NULL;
@@ -1385,28 +1384,21 @@ fail:
  *
  * It shall only return cookies that haven't expired.
  */
-struct Cookie *Curl_cookie_getlist(struct Curl_easy * data,
-    struct CookieInfo * c,
-    const char * host, const char * path,
-    bool secure){
+struct Cookie *Curl_cookie_getlist(struct Curl_easy * data, struct CookieInfo * c, const char * host, const char * path, bool secure) 
+{
 	struct Cookie * newco;
 	struct Cookie * co;
 	struct Cookie * mainco = NULL;
 	size_t matches = 0;
 	bool is_ip;
 	const size_t myhash = cookiehash(host);
-
 	if(!c || !c->cookies[myhash])
 		return NULL; /* no cookie struct or no cookies in the struct */
-
 	/* at first, remove expired cookies */
 	remove_expired(c);
-
 	/* check if host is an IP(v4|v6) address */
 	is_ip = Curl_host_is_ipnum(host);
-
 	co = c->cookies[myhash];
-
 	while(co) {
 		/* if the cookie requires we're secure we must only continue if we are! */
 		if(co->secure?secure:TRUE) {
@@ -1700,7 +1692,7 @@ error:
 	return error;
 }
 
-static struct curl_slist *cookie_list(struct Curl_easy * data){
+static struct curl_slist *cookie_list(struct Curl_easy * data) {
 	struct curl_slist * list = NULL;
 	struct curl_slist * beg;
 	struct Cookie * c;
@@ -1732,7 +1724,7 @@ static struct curl_slist *cookie_list(struct Curl_easy * data){
 	return list;
 }
 
-struct curl_slist *Curl_cookie_list(struct Curl_easy * data){
+struct curl_slist *Curl_cookie_list(struct Curl_easy * data) {
 	struct curl_slist * list;
 	Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
 	list = cookie_list(data);

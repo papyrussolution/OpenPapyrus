@@ -530,8 +530,8 @@ public:
 			static_assert(((uint)HB_OT_LAYOUT_GLYPH_PROPS_MARK == (uint)LookupFlag::IgnoreMarks), "");
 			switch(klass) {
 				default:                    return 0;
-				case BaseGlyph:             return HB_OT_LAYOUT_GLYPH_PROPS_BASE_GLYPH;
-				case LigatureGlyph:         return HB_OT_LAYOUT_GLYPH_PROPS_LIGATURE;
+				case BaseGlyph: return HB_OT_LAYOUT_GLYPH_PROPS_BASE_GLYPH;
+				case LigatureGlyph: return HB_OT_LAYOUT_GLYPH_PROPS_LIGATURE;
 				case MarkGlyph:
 				    klass = get_mark_attachment_type(glyph);
 				    return HB_OT_LAYOUT_GLYPH_PROPS_MARK | (klass << 8);

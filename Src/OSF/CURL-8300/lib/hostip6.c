@@ -30,9 +30,9 @@
  **********************************************************************/
 #ifdef CURLRES_IPV6
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+//#ifdef HAVE_NETINET_IN_H
+//#include <netinet/in.h>
+//#endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -98,10 +98,8 @@ static void dump_addrinfo(struct connectdata * conn,
  * to memory we need to free after use. That memory *MUST* be freed with
  * Curl_freeaddrinfo(), nothing else.
  */
-struct Curl_addrinfo *Curl_getaddrinfo(struct Curl_easy * data,
-    const char * hostname,
-    int port,
-    int * waitp){
+struct Curl_addrinfo *Curl_getaddrinfo(struct Curl_easy * data, const char * hostname, int port, int * waitp) 
+{
 	struct addrinfo hints;
 	struct Curl_addrinfo * res;
 	int error;

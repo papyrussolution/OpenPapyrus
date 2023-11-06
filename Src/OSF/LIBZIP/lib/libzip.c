@@ -1635,7 +1635,7 @@ static int64 read_data(void * state, void * data, uint64 len, zip_source_cmd_t c
 		    buffer_free(ctx->out);
 		    ctx->out = NULL;
 		    return 0;
-		case ZIP_SOURCE_SEEK:       return buffer_seek(ctx->in, data, len, &ctx->error);
+		case ZIP_SOURCE_SEEK: return buffer_seek(ctx->in, data, len, &ctx->error);
 		case ZIP_SOURCE_SEEK_WRITE: return buffer_seek(ctx->out, data, len, &ctx->error);
 		case ZIP_SOURCE_STAT:
 		    if(len < sizeof(zip_stat_t))

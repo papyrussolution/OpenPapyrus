@@ -17,41 +17,17 @@ __FBSDID("$FreeBSD$");
 //#include "archive_read_private.h"
 //#include "archive_options_private.h"
 
-static int archive_set_format_option(Archive * a, const char * m, const char * o, const char * v);
-static int archive_set_filter_option(Archive * a, const char * m, const char * o, const char * v);
-static int archive_set_option(Archive * a, const char * m, const char * o, const char * v);
-
-int archive_read_set_format_option(Archive * a, const char * m, const char * o, const char * v)
-{
-	return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, __FUNCTION__, archive_set_format_option);
-}
-
-int archive_read_set_filter_option(Archive * a, const char * m, const char * o, const char * v)
-{
-	return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, __FUNCTION__, archive_set_filter_option);
-}
-
-int archive_read_set_option(Archive * a, const char * m, const char * o, const char * v)
-{
-	return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, __FUNCTION__, archive_set_option);
-}
-
-int archive_read_set_options(Archive * a, const char * options)
-{
-	return _archive_set_options(a, options, ARCHIVE_READ_MAGIC, __FUNCTION__, archive_set_option);
-}
-
 static int archive_set_format_option(Archive * _a, const char * m, const char * o, const char * v)
 {
 	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
-	size_t i;
-	int r, rv = ARCHIVE_WARN, matched_modules = 0;
-	for(i = 0; i < SIZEOFARRAY(a->formats); i++) {
+	int r;
+	int rv = ARCHIVE_WARN;
+	int matched_modules = 0;
+	for(size_t i = 0; i < SIZEOFARRAY(a->formats); i++) {
 		ArchiveRead::archive_format_descriptor * format = &a->formats[i];
 		if(format->options == NULL || format->name == NULL)
-			/* This format does not support option. */
-			continue;
-		if(m != NULL) {
+			continue; // This format does not support option
+		if(m) {
 			if(strcmp(format->name, m) != 0)
 				continue;
 			++matched_modules;
@@ -64,10 +40,9 @@ static int archive_set_format_option(Archive * _a, const char * m, const char * 
 		if(r == ARCHIVE_OK)
 			rv = ARCHIVE_OK;
 	}
-	/* If the format name didn't match, return a special code for
-	 * _archive_set_option[s]. */
-	if(m != NULL && matched_modules == 0)
-		return ARCHIVE_WARN - 1;
+	// If the format name didn't match, return a special code for _archive_set_option[s]
+	if(m && matched_modules == 0)
+		return (ARCHIVE_WARN - 1);
 	return (rv);
 }
 
@@ -76,14 +51,16 @@ static int archive_set_filter_option(Archive * _a, const char * m, const char * 
 	ArchiveRead * a = reinterpret_cast<ArchiveRead *>(_a);
 	ArchiveReadFilter * filter;
 	ArchiveReadFilterBidder * bidder;
-	int r, rv = ARCHIVE_WARN, matched_modules = 0;
-	for(filter = a->filter; filter != NULL; filter = filter->upstream) {
+	int r;
+	int rv = ARCHIVE_WARN;
+	int matched_modules = 0;
+	for(filter = a->filter; filter; filter = filter->upstream) {
 		bidder = filter->bidder;
 		if(bidder == NULL)
 			continue;
 		if(!bidder->FnOptions)
 			continue; // This bidder does not support option
-		if(m != NULL) {
+		if(m) {
 			if(strcmp(filter->name, m) != 0)
 				continue;
 			++matched_modules;
@@ -96,7 +73,7 @@ static int archive_set_filter_option(Archive * _a, const char * m, const char * 
 	}
 	// If the filter name didn't match, return a special code for _archive_set_option[s]
 	if(m && matched_modules == 0)
-		return ARCHIVE_WARN - 1;
+		return (ARCHIVE_WARN - 1);
 	return (rv);
 }
 
@@ -104,3 +81,12 @@ static int archive_set_option(Archive * a, const char * m, const char * o, const
 {
 	return _archive_set_either_option(a, m, o, v, archive_set_format_option, archive_set_filter_option);
 }
+
+int archive_read_set_format_option(Archive * a, const char * m, const char * o, const char * v)
+	{ return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, __FUNCTION__, archive_set_format_option); }
+int archive_read_set_filter_option(Archive * a, const char * m, const char * o, const char * v)
+	{ return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, __FUNCTION__, archive_set_filter_option); }
+int archive_read_set_option(Archive * a, const char * m, const char * o, const char * v)
+	{ return _archive_set_option(a, m, o, v, ARCHIVE_READ_MAGIC, __FUNCTION__, archive_set_option); }
+int archive_read_set_options(Archive * a, const char * options)
+	{ return _archive_set_options(a, options, ARCHIVE_READ_MAGIC, __FUNCTION__, archive_set_option); }
