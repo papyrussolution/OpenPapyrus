@@ -31,6 +31,7 @@ public:
 	static bool   GetRawValue32(uint64 ued, uint32 * pRawValue);
 	static uint64 ApplyMetaToRawValue(uint64 meta, uint64 rawValue);
 	static uint64 ApplyMetaToRawValue32(uint64 meta, uint32 rawValue);
+	
 	static uint64 SetRaw_GeoLoc(const SGeoPosLL & rGeoPos);
 	static bool   GetRaw_GeoLoc(uint64 ued, SGeoPosLL & rGeoPos);
 	static uint64 SetRaw_PlanarAngleDeg(double deg);
@@ -129,6 +130,7 @@ public:
 	int    Read(const char * pFileName);
 	uint64 SearchSymb(const char * pSymb, uint64 meta) const;
 	bool   GetSymb(uint64 ued, SString & rSymb) const;
+	uint64 Recognize(SStrScan & rScan, uint64 implicitMeta, uint flags) const;
 };
 
 enum {

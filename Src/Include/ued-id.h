@@ -1,6 +1,6 @@
 // UED-ID.H
-// version: 19
-// sha256: 203f5d901987de661b93f6b326e96b0e914f95a8efca111b55efa5369736a5a8
+// version: 20
+// sha256: 3b8d6622b479f645c378b9669083b8527fadff03693a3b448ed79acc9e5bf396
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -179,6 +179,7 @@
 	#define UED_PROP_EXTDATA                             0x90000000cULL
 	#define UED_PROP_FIXDATASIZE                         0x90000000dULL
 	#define UED_PROP_BELONGTO                            0x90000000eULL
+	#define UED_PROP_ARGLIST                             0x90000000fULL
 #define UED_META_UTF32CHAR                           0x100000026ULL
 #define UED_META_MBSTRINGENCODING                    0x100000027ULL
 #define UED_META_PARTICULAEELEMENTARIAE              0x100000028ULL
@@ -3638,8 +3639,6 @@
 #define UED_META_BARCODE_UPC                         0x140060000ULL
 #define UED_META_RU_INN                              0x140070000ULL
 #define UED_META_RU_KPP                              0x140080000ULL
-#define UED_META_INTEGER                             0x140090000ULL
-#define UED_META_DECIMAL                             0x1400a0000ULL
 #define UED_META_FIXEDPOINT8                         0x1400b0000ULL
 #define UED_META_FIXEDPOINT16                        0x1400c0000ULL
 #define UED_META_DATASIZE                            0x1400d0000ULL
@@ -3671,5 +3670,7 @@
 #define UED_META_RANGE_UNIT                          0x194000000ULL
 #define UED_META_RANGE_SUNIT                         0x195000000ULL
 #define UED_META_SPHERDIR                            0x196000000ULL
+#define UED_META_INTEGER                             0x197000000ULL
+#define UED_META_DECIMAL                             0x198000000ULL
 
 #endif // __UED_ID_H

@@ -186,6 +186,33 @@
 				SLCHECK_NZ(temp_buf.IsEqiUtf8("DarkGoldenRod"));
 			}
 		}
+		{
+			struct TextToUedAssoc {
+				const char * P_Text;
+				uint64 UED;
+				uint64 ImplicitMeta;
+			};
+			static const TextToUedAssoc test_true_list[] = {
+				{ "#statu.ru", UED_STATU_RU, 0ULL },
+				{ "  #lingua.fr", UED_LINGUA_FR, UED_META_LINGUA },
+				{ "#fr", UED_LINGUA_FR, UED_META_LINGUA },
+				{ "\t#meta.uom  ", UED_META_UOM, 0ULL },
+				{ "#uom.candela", UED_UOM_CANDELA, 0ULL },
+				{ "#fermi", UED_UOM_FERMI, UED_META_UOM },
+				{ "#local_app_data", UED_FSKNOWNFOLDER_LOCAL_APP_DATA, UED_META_FSKNOWNFOLDER },
+			};
+			const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+			SLCHECK_NZ(p_uedc);
+			if(p_uedc) {
+				SStrScan scan;
+				for(uint i = 0; i < SIZEOFARRAY(test_true_list); i++) {
+					const TextToUedAssoc & r_item = test_true_list[i];
+					scan.Set(r_item.P_Text, 0);
+					uint64 ued = p_uedc->Recognize(scan, r_item.ImplicitMeta, 0);
+					SLCHECK_EQ(ued, r_item.UED);
+				}
+			}
+		}
 		return CurrentStatus;
 	}
 

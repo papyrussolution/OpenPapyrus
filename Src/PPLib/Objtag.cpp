@@ -2634,7 +2634,8 @@ public:
 			if(P_AllowedTags) {
 				const ObjTagItem * p_item = 0;
 				for(uint i = 0; (p_item = Data.EnumItems(&i)) != 0;) {
-					THROW_PP(P_AllowedTags->lsearch(p_item->TagID), PPERR_INVTAGID); // @v11.6.4 @fix (P_AllowedTags->lsearch(p_item->TagID) <= 0)-->P_AllowedTags->lsearch(p_item->TagID)
+					THROW_PP_S(P_AllowedTags->lsearch(p_item->TagID), PPERR_INVTAGID, p_item->TagID); // @v11.6.4 @fix (P_AllowedTags->lsearch(p_item->TagID) <= 0)-->P_AllowedTags->lsearch(p_item->TagID)
+						// @v11.8.9 added-item(AddedMsgInt)
 				}
 			}
 			if(getCtrlView(CTL_TAGVALVIEW_UPD)) {

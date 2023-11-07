@@ -7099,7 +7099,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 												bill_uuid_tag_settled = true;
 											}
 											else {
-												; // @todo @logerr
+												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
 											}
 										}
 										ccpack.SetGuid(&cc_uuid);

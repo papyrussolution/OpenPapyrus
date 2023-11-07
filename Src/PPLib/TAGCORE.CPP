@@ -62,7 +62,7 @@ int FASTCALL ObjTagItem::Init(PPID tagID)
 			TagEnumID   = tag_rec.TagEnumID;
 		}
 		else
-			return PPSetError(PPERR_INVTAGID);
+			return PPSetError(PPERR_INVTAGID, tagID); // @v11.8.9 added-item(AddedMsgInt)
 	}
 	return 1;
 }

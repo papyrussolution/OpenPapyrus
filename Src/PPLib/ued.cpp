@@ -16,6 +16,51 @@
 #include <ued-id.h>
 #include <..\OSF\abseil\absl\numeric\int128.h>
 
+uint64 SrUedContainer_Rt::Recognize(SStrScan & rScan, uint64 implicitMeta, uint flags) const
+{
+	uint64 result = 0;
+	SString temp_buf;
+	uint   preserve_offs = 0;
+	rScan.Push(&preserve_offs);
+	rScan.Skip();
+	if(rScan.Is('#')) {
+		rScan.Incr();
+		if(rScan.GetIdent(temp_buf)) {
+			if(rScan.Is('.')) {
+				rScan.Incr();
+				uint64 meta = SearchSymb(temp_buf, UED_META_META);
+				if(meta && (!implicitMeta || implicitMeta == meta)) {
+					if(rScan.GetIdent(temp_buf)) {
+						result = SearchSymb(temp_buf, meta);
+					}
+				}
+			}
+			else if(implicitMeta) {
+				result = SearchSymb(temp_buf, implicitMeta);
+			}
+		}
+	}
+	else if(rScan.GetXDigits(temp_buf)) {
+		uint64 ued = sxtou64(temp_buf);
+		if(ued) {
+			if(implicitMeta) {
+				if(UED::BelongToMeta(ued, implicitMeta)) {
+					result = ued;
+				}
+			}
+			else {
+				uint64 meta = UED::GetMeta(ued);
+				if(meta && SearchBaseId(ued, temp_buf)) {
+					result = ued;
+				}
+			}
+		}
+	}
+	if(!result)
+		rScan.Pop(preserve_offs);
+	return result;
+}
+
 /*static*/uint UED::GetMetaRawDataBits(uint64 meta)
 {
 	uint   result = 0;
@@ -49,7 +94,7 @@
 /*static*/uint64 UED::GetMeta(uint64 ued)
 {
 	if(IsMetaId(ued))
-		return  0x0000000100000001ULL; // meta
+		return  UED_META_META; // meta
 	else {
 		const uint32 dw_hi = HiDWord(ued);
 		const uint8  b_hi = static_cast<uint8>(dw_hi >> 24);
