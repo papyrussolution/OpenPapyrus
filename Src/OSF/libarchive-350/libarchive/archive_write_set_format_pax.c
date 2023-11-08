@@ -28,8 +28,7 @@ struct pax {
 	struct sparse_block     * sparse_tail;
 	archive_string_conv * sconv_utf8;
 	int opt_binary;
-
-	unsigned flags;
+	uint flags;
 #define WRITE_SCHILY_XATTR       (1 << 0)
 #define WRITE_LIBARCHIVE_XATTR   (1 << 1)
 };

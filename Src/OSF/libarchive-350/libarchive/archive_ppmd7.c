@@ -76,8 +76,7 @@ static void Ppmd7_Update1(CPpmd7 * p);
 static void Ppmd7_Update1_0(CPpmd7 * p);
 static void Ppmd7_Update2(CPpmd7 * p);
 static void Ppmd7_UpdateBin(CPpmd7 * p);
-static CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked,
-    UInt32 * scale);
+static CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, uint numMasked, UInt32 * scale);
 
 /* ----------- Base ----------- */
 
@@ -86,7 +85,7 @@ static void Ppmd7_Construct(CPpmd7 * p)
 	uint i, k, m;
 	p->Base = 0;
 	for(i = 0, k = 0; i < PPMD_NUM_INDEXES; i++) {
-		unsigned step = (i >= 12 ? 4 : (i >> 2) + 1);
+		uint step = (i >= 12 ? 4 : (i >> 2) + 1);
 		do {
 			p->Units2Indx[k++] = (Byte)i;
 		} while(--step);
@@ -155,7 +154,7 @@ static void * RemoveNode(CPpmd7 * p, uint indx)
 	return node;
 }
 
-static void SplitBlock(CPpmd7 * p, void * ptr, unsigned oldIndx, unsigned newIndx)
+static void SplitBlock(CPpmd7 * p, void * ptr, uint oldIndx, uint newIndx)
 {
 	uint i, nu = I2U(oldIndx) - I2U(newIndx);
 	ptr = (Byte*)ptr + U2B(I2U(newIndx));
@@ -219,7 +218,7 @@ static void GlueFreeBlocks(CPpmd7 * p)
 	/* Fill lists of free blocks */
 	for(n = NODE(head)->Next; n != head;) {
 		CPpmd7_Node * node = NODE(n);
-		unsigned nu;
+		uint nu;
 		CPpmd7_Node_Ref next = node->Next;
 		for(nu = node->NU; nu > 128; nu -= 128, node += 128)
 			InsertNode(p, node, PPMD_NUM_INDEXES - 1);
@@ -273,7 +272,7 @@ static void * AllocUnits(CPpmd7 * p, uint indx)
 	{ UInt32 * d = (UInt32*)dest; const UInt32 * s = (const UInt32*)src; UInt32 n = num; \
 	  do { d[0] = s[0]; d[1] = s[1]; d[2] = s[2]; s += 3; d += 3; } while(--n); }
 
-static void * ShrinkUnits(CPpmd7 * p, void * oldPtr, unsigned oldNU, unsigned newNU)
+static void * ShrinkUnits(CPpmd7 * p, void * oldPtr, uint oldNU, uint newNU)
 {
 	uint i0 = U2I(oldNU);
 	uint i1 = U2I(newNU);
@@ -340,7 +339,7 @@ static void RestartModel(CPpmd7 * p)
 		}
 }
 
-static void Ppmd7_Init(CPpmd7 * p, unsigned maxOrder)
+static void Ppmd7_Init(CPpmd7 * p, uint maxOrder)
 {
 	p->MaxOrder = maxOrder;
 	RestartModel(p);
@@ -355,7 +354,7 @@ static CTX_PTR CreateSuccessors(CPpmd7 * p, boolint skip)
 	CTX_PTR c = p->MinContext;
 	CPpmd_Byte_Ref upBranch = (CPpmd_Byte_Ref)SUCCESSOR(p->FoundState);
 	CPpmd_State * ps[PPMD7_MAX_ORDER];
-	unsigned numPs = 0;
+	uint numPs = 0;
 	if(!skip)
 		ps[numPs++] = p->FoundState;
 	while(c->Suffix) {
@@ -422,11 +421,9 @@ static void UpdateModel(CPpmd7 * p)
 {
 	CPpmd_Void_Ref successor, fSuccessor = SUCCESSOR(p->FoundState);
 	CTX_PTR c;
-	unsigned s0, ns;
-
+	uint s0, ns;
 	if(p->FoundState->Freq < MAX_FREQ / 4 && p->MinContext->Suffix != 0) {
 		c = SUFFIX(p->MinContext);
-
 		if(c->NumStats == 1) {
 			CPpmd_State * s = ONE_STATE(c);
 			if(s->Freq < 32)
@@ -485,12 +482,12 @@ static void UpdateModel(CPpmd7 * p)
 	}
 	s0 = p->MinContext->SummFreq - (ns = p->MinContext->NumStats) - (p->FoundState->Freq - 1);
 	for(c = p->MaxContext; c != p->MinContext; c = SUFFIX(c)) {
-		unsigned ns1;
+		uint ns1;
 		UInt32 cf, sf;
 		if((ns1 = c->NumStats) != 1) {
 			if((ns1 & 1) == 0) {
 				/* Expand for one UNIT */
-				unsigned oldNU = ns1 >> 1;
+				uint oldNU = ns1 >> 1;
 				uint i = U2I(oldNU);
 				if(i != U2I(oldNU + 1)) {
 					void * ptr = AllocUnits(p, i + 1);
@@ -576,8 +573,8 @@ static void Rescale(CPpmd7 * p)
 	while(--i);
 
 	if(s->Freq == 0) {
-		unsigned numStats = p->MinContext->NumStats;
-		unsigned n0, n1;
+		uint numStats = p->MinContext->NumStats;
+		uint n0, n1;
 		do {
 			i++;
 		} while((--s)->Freq == 0);
@@ -603,10 +600,10 @@ static void Rescale(CPpmd7 * p)
 	p->FoundState = STATS(p->MinContext);
 }
 
-static CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked, UInt32 * escFreq)
+static CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, uint numMasked, UInt32 * escFreq)
 {
 	CPpmd_See * see;
-	unsigned nonMasked = p->MinContext->NumStats - numMasked;
+	uint nonMasked = p->MinContext->NumStats - numMasked;
 	if(p->MinContext->NumStats != 256) {
 		see = p->See[p->NS2Indx[nonMasked - 1]] +
 		    (nonMasked < (uint)SUFFIX(p->MinContext)->NumStats - p->MinContext->NumStats) +
@@ -614,7 +611,7 @@ static CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked, UInt32 * es
 		    4 * (numMasked > nonMasked) +
 		    p->HiBitsFlag;
 		{
-			unsigned r = (see->Summ >> see->Shift);
+			uint r = (see->Summ >> see->Shift);
 			see->Summ = (UInt16)(see->Summ - r);
 			*escFreq = r + (r == 0);
 		}

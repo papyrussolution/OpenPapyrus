@@ -633,7 +633,7 @@ int SrUedContainer_Base::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPL
 	CATCHZOK
 	return ok;
 }
-	
+
 int SrUedContainer_Base::ReadSource(const char * pFileName, PPLogger * pLogger)
 {
 	int    ok = 1;
@@ -667,6 +667,7 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, PPLogger * pLogger)
 			if(line_buf.NotEmpty()) {
 				//line_buf.Tokenize(" \t", ss.Z());
 				ss.Z();
+				bool curly_bracket_left = false;
 				bool scan_ok = true;
 				{
 					scan.Set(line_buf, 0);
@@ -676,9 +677,16 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, PPLogger * pLogger)
 						if(scan.GetQuotedString(temp_buf) || scan.GetIdent(temp_buf)) {
 							ss.add(temp_buf);
 							scan.Skip();
-							if(!scan.IsEnd()) {
+							if(scan.Is('{')) {
+								curly_bracket_left = true;
+							}
+							else if(!scan.IsEnd()) {
 								if(scan.GetQuotedString(temp_buf)) {
 									ss.add(temp_buf);
+									scan.Skip();
+									if(scan.Is('{')) {
+										curly_bracket_left = true;
+									}
 								}
 								else
 									scan_ok = false;

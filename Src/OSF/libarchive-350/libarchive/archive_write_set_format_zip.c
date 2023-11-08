@@ -96,7 +96,7 @@ struct zip {
 	struct trad_enc_ctx tctx;
 	char tctx_valid;
 	uchar trad_chkdat;
-	unsigned aes_vendor;
+	uint  aes_vendor;
 	archive_crypto_ctx cctx;
 	char cctx_valid;
 	archive_hmac_sha1_ctx hctx;
@@ -146,7 +146,7 @@ static int write_path(ArchiveEntry *, struct archive_write *);
 static void copy_path(ArchiveEntry *, uchar *);
 static archive_string_conv * get_sconv(struct archive_write *, struct zip *);
 static int trad_enc_init(struct trad_enc_ctx *, const char *, size_t);
-static unsigned trad_enc_encrypt_update(struct trad_enc_ctx *, const uint8 *, size_t, uint8 *, size_t);
+static uint trad_enc_encrypt_update(struct trad_enc_ctx *, const uint8 *, size_t, uint8 *, size_t);
 static int init_traditional_pkware_encryption(struct archive_write *);
 static int is_traditional_pkware_encryption_supported();
 static int init_winzip_aes_encryption(struct archive_write *);
@@ -1319,7 +1319,7 @@ static uint8 trad_enc_decrypt_byte(struct trad_enc_ctx * ctx)
 	return (uint8)((temp * (temp ^ 1)) >> 8) & 0xff;
 }
 
-static unsigned trad_enc_encrypt_update(struct trad_enc_ctx * ctx, const uint8 * in, size_t in_len, uint8 * out, size_t out_len)
+static uint trad_enc_encrypt_update(struct trad_enc_ctx * ctx, const uint8 * in, size_t in_len, uint8 * out, size_t out_len)
 {
 	uint i;
 	const uint max = (uint)((in_len < out_len) ? in_len : out_len);

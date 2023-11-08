@@ -77,7 +77,7 @@ void archive_string_conversion_set_opt(archive_string_conv *, int);
 
 /* Copy one archive_string to another in locale conversion.
  * Return -1 if conversion fails. */
-int archive_strncpy_l(archive_string *, const void *, size_t, archive_string_conv *);
+int STDCALL archive_strncpy_l(archive_string *, const void *, size_t, archive_string_conv *);
 /* Copy one archive_string to another in locale conversion.
  * Return -1 if conversion fails. */
 int archive_strncat_l(archive_string *, const void *, size_t, archive_string_conv *);
@@ -87,8 +87,8 @@ int archive_strncat_l(archive_string *, const void *, size_t, archive_string_con
 #define	archive_wstring_copy(dest, src) ((dest)->length = 0, archive_wstring_concat((dest), (src)))
 
 /* Concatenate one archive_string to another */
-void FASTCALL archive_string_concat(archive_string *dest, archive_string *src);
-void FASTCALL archive_wstring_concat(archive_wstring *dest, archive_wstring *src);
+void FASTCALL archive_string_concat(archive_string *dest, const archive_string *src);
+void FASTCALL archive_wstring_concat(archive_wstring *dest, const archive_wstring *src);
 
 /* Ensure that the underlying buffer is at least as large as the request. */
 archive_string * FASTCALL archive_string_ensure(archive_string *, size_t);
@@ -155,12 +155,12 @@ struct archive_mstring {
 };
 
 void   FASTCALL archive_mstring_clean(struct archive_mstring *);
-void   FASTCALL archive_mstring_copy(struct archive_mstring *dest, struct archive_mstring *src);
+void   FASTCALL archive_mstring_copy(struct archive_mstring *dest, const struct archive_mstring *src);
 int    STDCALL archive_mstring_get_mbs(Archive *, struct archive_mstring *, const char **);
 int    archive_mstring_get_utf8(Archive *, struct archive_mstring *, const char **);
 int    STDCALL archive_mstring_get_wcs(Archive *, struct archive_mstring *, const wchar_t **);
 int    archive_mstring_get_mbs_l(Archive *, struct archive_mstring *, const char **, size_t *, archive_string_conv *);
-int    archive_mstring_copy_mbs(struct archive_mstring *, const char *mbs);
+int    FASTCALL archive_mstring_copy_mbs(struct archive_mstring *, const char *mbs);
 int    archive_mstring_copy_mbs_len(struct archive_mstring *, const char *mbs, size_t);
 int    archive_mstring_copy_utf8(struct archive_mstring *, const char *utf8);
 int    archive_mstring_copy_wcs(struct archive_mstring *, const wchar_t *wcs);

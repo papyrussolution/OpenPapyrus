@@ -12597,7 +12597,7 @@ struct SDirEntry : public SFile::Stat { // @flat
 	SDirEntry();
 	SDirEntry & Z();
 	SDirEntry & FASTCALL operator = (const _wfinddatai64_t & rS);
-	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAA & rS);
+	//SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAA & rS);
 	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAW & rS);
 	SString & GetNameUtf8(SString & rBuf) const;
 	SString & GetNameA(SString & rBuf) const;
@@ -12770,8 +12770,9 @@ public:
 	// Descr: Флаги функции Scan()
 	//
 	enum {
-		scanfRecursive = 0x0001, // Рекурсивно перебирать файлы в подкаталогах
-		scanfKeepCase  = 0x0002  // @v11.8.7 При нормализации имен файлов и каталогов сохранять оригинальный регистр символов
+		scanfRecursive  = 0x0001, // Рекурсивно перебирать файлы в подкаталогах
+		scanfKeepCase   = 0x0002, // @v11.8.7 При нормализации имен файлов и каталогов сохранять оригинальный регистр символов
+		scanfReckonDirs = 0x0004  // @v11.8.10 сохранять в списке элементов каталоги (актуально, если не установлен scanfRecursive)
 	};
 	//
 	// Descr: Сканирует файловую систему начиная с каталога pPath по шаблону pWildcard.
@@ -12799,6 +12800,7 @@ public:
 	// Note: Само-собой разумеется, что сам файл не удаляется.
 	//
 	int    FASTCALL Remove(uint pos);
+	bool   Search(const wchar_t * pName, uint * pIdx) const;
 
     enum {
     	scByName = 1,
@@ -12833,6 +12835,53 @@ private:
 	uint   InitPathP; // Опциональная позиция начального каталога. В общем случае
 		// это поле не важно, но иногда функции "хотят" передавать друг другу
 		// головной каталог вместе с набором файлов.
+};
+//
+//
+//
+class SDirecDiffPool {
+public:
+	
+	enum {
+		kEqual         =      0,
+		kAbsenceLeft   =      1,
+		kAbsenceRight  =      2,
+		kDiffType      =      3, // Элементы каталогов отличаются принципиалными атрубутами (а именно, SFile::attrSubdir || SFile::attrRepasePoint)
+		kDiffAttr      = 0x0100, // Элементы каталогов отличаются любыми атрубутами кроме SFile::attrSubdir и SFile::attrRepasePoint
+		kDiffSize      = 0x0200, // Элементы каталогов отличаются размером (только для файлов)
+		kDiffModTime   = 0x0400, // Элементы каталогов отличаются временем последней модификации
+		kDiffSubDir    = 0x0800  // Элементы каталогов являются подкаталогами и они отличаются //
+	};
+	class Entry {
+	public:
+		Entry();
+		Entry(const Entry & rS);
+		~Entry();
+		Entry & FASTCALL operator = (const Entry & rS);
+		int    FASTCALL Copy(const Entry & rS);
+
+		int    Kind;
+		SFile::Stat StatLeft;
+		SFile::Stat StatRight;
+		SString Name; // if Kind == kAbsenceLeft then RightFileName; else if Kind == kAbsenceRight then LeftFileName, else equal both
+		TSCollection <Entry> * P_RecurDir;
+	};	
+	
+	SDirecDiffPool();
+	~SDirecDiffPool();
+	SDirecDiffPool & Z();
+	int    Run(const char * pDirLeftUtf8, const char * pDirRightUtf8);
+
+	TSCollection <Entry> L;
+private:
+	//
+	// Returns:
+	//   0 - error
+	//   1 - directories are equal
+	//   2 - arguments pDirLeftUtf8 && pDirRightUtf8 are equal (nothing to do)
+	//  -1 - directories are different
+	//
+	int    Helper_Compare(const char * pDirLeftUtf8, const char * pDirRightUtf8);
 };
 //
 // Descr: Незамысловатый класс, управляющий хранением большого числа файлов с жестко определенными наименованиями.

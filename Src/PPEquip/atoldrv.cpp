@@ -1791,9 +1791,12 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 											}
 										}
 										temp_buf.CatChar('&').ToUtf8();
+
+										SJson * p_js_industry_info_list = SJson::CreateArr(); // @v11.8.10
 										SJson * p_js_industry_info = SJson::CreateObj();
 										p_js_industry_info->InsertString("industryAttribute", temp_buf.Escape());
-										p_js_item->Insert("industryInfo", p_js_industry_info);
+										p_js_industry_info_list->InsertChild(p_js_industry_info); // @v11.8.10
+										p_js_item->Insert("industryInfo", /*p_js_industry_info*/p_js_industry_info_list); // @v11.8.10 p_js_industry_info-->p_js_industry_info_list
 									}
 									// } @v11.8.1 
 								}

@@ -913,7 +913,7 @@ SFile::Stat & SFile::Stat::Z()
 	return *this;
 }
 
-bool SFile::Stat::IsFolder() const { return LOGIC(Attr & 0x10); }
+bool SFile::Stat::IsFolder() const { return LOGIC(Attr & SFile::attrSubdir); }
 bool SFile::Stat::IsSymLink() const { return ((Attr & attrReparsePoint) && ReparsePointTag == IO_REPARSE_TAG_SYMLINK); }
 
 /*static*/bool SFile::GetReparsePoint(SIntHandle h, SBinaryChunk & rC)

@@ -31,28 +31,26 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 //#include "archive_entry_private.h"
 
 #if !defined(HAVE_MAJOR) && !defined(major)
-/* Replacement for major/minor/makedev. */
-#define major(x) ((int)(0x00ff & ((x) >> 8)))
-#define minor(x) ((int)(0xffff00ff & (x)))
-#define makedev(maj, min) ((0xff00 & ((maj)<<8)) | (0xffff00ff & (min)))
+	/* Replacement for major/minor/makedev. */
+	#define major(x) ((int)(0x00ff & ((x) >> 8)))
+	#define minor(x) ((int)(0xffff00ff & (x)))
+	#define makedev(maj, min) ((0xff00 & ((maj)<<8)) | (0xffff00ff & (min)))
 #endif
-
 /* Play games to come up with a suitable makedev() definition. */
 #ifdef __QNXNTO__
 /* QNX.  <sigh> */
-#include <sys/netmgr.h>
-#define ae_makedev(maj, min) makedev(ND_LOCAL_NODE, (maj), (min))
+	#include <sys/netmgr.h>
+	#define ae_makedev(maj, min) makedev(ND_LOCAL_NODE, (maj), (min))
 #elif defined makedev
-/* There's a "makedev" macro. */
-#define ae_makedev(maj, min) makedev((maj), (min))
+	/* There's a "makedev" macro. */
+	#define ae_makedev(maj, min) makedev((maj), (min))
 #elif defined mkdev || ((defined _WIN32 || defined __WIN32__) && !defined(__CYGWIN__))
-/* Windows. <sigh> */
-#define ae_makedev(maj, min) mkdev((maj), (min))
+	/* Windows. <sigh> */
+	#define ae_makedev(maj, min) mkdev((maj), (min))
 #else
-/* There's a "makedev" function. */
-#define ae_makedev(maj, min) makedev((maj), (min))
+	/* There's a "makedev" function. */
+	#define ae_makedev(maj, min) makedev((maj), (min))
 #endif
-
 /*
  * This adjustment is needed to support the following idiom for adding
  * 1000ns to the stored time:
@@ -68,33 +66,12 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 		if(ns < 0) { --t; ns += SlConst::OneBillion; } \
 	} while(0)
 
-static char *    ae_fflagstostr(ulong bitset, ulong bitclear);
-static const wchar_t    * ae_wcstofflags(const wchar_t * stringp, ulong * setp, ulong * clrp);
-static const char       * ae_strtofflags(const char * stringp, ulong * setp, ulong * clrp);
+static char * ae_fflagstostr(ulong bitset, ulong bitclear);
+static const wchar_t * ae_wcstofflags(const wchar_t * stringp, ulong * setp, ulong * clrp);
+static const char    * ae_strtofflags(const char * stringp, ulong * setp, ulong * clrp);
 
-#ifndef HAVE_WCSCPY
-static wchar_t * wcscpy(wchar_t * s1, const wchar_t * s2)
-{
-	wchar_t * dest = s1;
-	while((*s1 = *s2) != L'\0')
-		++s1, ++s2;
-	return dest;
-}
-
-#endif
-#ifndef HAVE_WCSLEN
-static size_t wcslen(const wchar_t * s)
-{
-	const wchar_t * p = s;
-	while(*p != L'\0')
-		++p;
-	return p - s;
-}
-
-#endif
 #ifndef HAVE_WMEMCMP
-/* Good enough for simple equality testing, but not for sorting. */
-#define wmemcmp(a, b, i)  memcmp((a), (b), (i) * sizeof(wchar_t))
+	#define wmemcmp(a, b, i)  memcmp((a), (b), (i) * sizeof(wchar_t)) // Good enough for simple equality testing, but not for sorting
 #endif
 // 
 // Public Interface
@@ -120,10 +97,10 @@ ArchiveEntry * archive_entry_clear(ArchiveEntry * entry)
 	return entry;
 }
 
-ArchiveEntry * archive_entry_clone(ArchiveEntry * entry)                        
+ArchiveEntry * archive_entry_clone(const ArchiveEntry * entry)                        
 {
-	struct ae_xattr * xp;
-	struct ae_sparse * sp;
+	const struct ae_xattr * xp;
+	const struct ae_sparse * sp;
 	size_t s;
 	const void * p;
 	/* Allocate new structure and copy over all of the fields. */
@@ -581,25 +558,10 @@ void archive_entry_set_gid(ArchiveEntry * entry, int64 g)
 	entry->ae_stat.aest_gid = g;
 }
 
-void archive_entry_set_gname(ArchiveEntry * entry, const char * name)
-{
-	archive_mstring_copy_mbs(&entry->ae_gname, name);
-}
-
-void archive_entry_set_gname_utf8(ArchiveEntry * entry, const char * name)
-{
-	archive_mstring_copy_utf8(&entry->ae_gname, name);
-}
-
-void archive_entry_copy_gname(ArchiveEntry * entry, const char * name)
-{
-	archive_mstring_copy_mbs(&entry->ae_gname, name);
-}
-
-void archive_entry_copy_gname_w(ArchiveEntry * entry, const wchar_t * name)
-{
-	archive_mstring_copy_wcs(&entry->ae_gname, name);
-}
+void archive_entry_set_gname(ArchiveEntry * entry, const char * name) { archive_mstring_copy_mbs(&entry->ae_gname, name); }
+void archive_entry_set_gname_utf8(ArchiveEntry * entry, const char * name) { archive_mstring_copy_utf8(&entry->ae_gname, name); }
+void archive_entry_copy_gname(ArchiveEntry * entry, const char * name) { archive_mstring_copy_mbs(&entry->ae_gname, name); }
+void archive_entry_copy_gname_w(ArchiveEntry * entry, const wchar_t * name) { archive_mstring_copy_wcs(&entry->ae_gname, name); }
 
 int archive_entry_update_gname_utf8(ArchiveEntry * entry, const char * name)
 {
@@ -826,25 +788,10 @@ void FASTCALL archive_entry_set_nlink(ArchiveEntry * entry, uint nlink)
 	entry->ae_stat.aest_nlink = nlink;
 }
 
-void FASTCALL archive_entry_set_pathname(ArchiveEntry * entry, const char * name)
-{
-	archive_mstring_copy_mbs(&entry->ae_pathname, name);
-}
-
-void archive_entry_set_pathname_utf8(ArchiveEntry * entry, const char * name)
-{
-	archive_mstring_copy_utf8(&entry->ae_pathname, name);
-}
-
-void archive_entry_copy_pathname(ArchiveEntry * entry, const char * name)
-{
-	archive_mstring_copy_mbs(&entry->ae_pathname, name);
-}
-
-void archive_entry_copy_pathname_w(ArchiveEntry * entry, const wchar_t * name)
-{
-	archive_mstring_copy_wcs(&entry->ae_pathname, name);
-}
+void FASTCALL archive_entry_set_pathname(ArchiveEntry * entry, const char * name) { archive_mstring_copy_mbs(&entry->ae_pathname, name); }
+void archive_entry_set_pathname_utf8(ArchiveEntry * entry, const char * name) { archive_mstring_copy_utf8(&entry->ae_pathname, name); }
+void archive_entry_copy_pathname(ArchiveEntry * entry, const char * name) { archive_mstring_copy_mbs(&entry->ae_pathname, name); }
+void archive_entry_copy_pathname_w(ArchiveEntry * entry, const wchar_t * name) { archive_mstring_copy_wcs(&entry->ae_pathname, name); }
 
 int archive_entry_update_pathname_utf8(ArchiveEntry * entry, const char * name)
 {
@@ -963,25 +910,10 @@ void archive_entry_set_uid(ArchiveEntry * entry, int64 u)
 	entry->ae_stat.aest_uid = u;
 }
 
-void archive_entry_set_uname(ArchiveEntry * entry, const char * name)
-{
-	archive_mstring_copy_mbs(&entry->ae_uname, name);
-}
-
-void archive_entry_set_uname_utf8(ArchiveEntry * entry, const char * name)
-{
-	archive_mstring_copy_utf8(&entry->ae_uname, name);
-}
-
-void archive_entry_copy_uname(ArchiveEntry * entry, const char * name)
-{
-	archive_mstring_copy_mbs(&entry->ae_uname, name);
-}
-
-void archive_entry_copy_uname_w(ArchiveEntry * entry, const wchar_t * name)
-{
-	archive_mstring_copy_wcs(&entry->ae_uname, name);
-}
+void archive_entry_set_uname(ArchiveEntry * entry, const char * name) { archive_mstring_copy_mbs(&entry->ae_uname, name); }
+void archive_entry_set_uname_utf8(ArchiveEntry * entry, const char * name) { archive_mstring_copy_utf8(&entry->ae_uname, name); }
+void archive_entry_copy_uname(ArchiveEntry * entry, const char * name) { archive_mstring_copy_mbs(&entry->ae_uname, name); }
+void archive_entry_copy_uname_w(ArchiveEntry * entry, const wchar_t * name) { archive_mstring_copy_wcs(&entry->ae_uname, name); }
 
 int archive_entry_update_uname_utf8(ArchiveEntry * entry, const char * name)
 {
@@ -1007,7 +939,7 @@ int _archive_entry_copy_uname_l(ArchiveEntry * entry, const char * name, size_t 
 	return (archive_mstring_copy_mbs_len_l(&entry->ae_uname, name, len, sc));
 }
 
-const void * archive_entry_mac_metadata(ArchiveEntry * entry, size_t * s)
+const void * archive_entry_mac_metadata(const ArchiveEntry * entry, size_t * s)
 {
 	*s = entry->mac_metadata_size;
 	return entry->mac_metadata;
@@ -1066,15 +998,8 @@ int archive_entry_set_digest(ArchiveEntry * entry, int type, const uchar * diges
  * following is a lot more complex than might seem necessary to the
  * uninitiated.
  */
-archive_acl * archive_entry_acl(ArchiveEntry * entry)                      
-{
-	return &entry->acl;
-}
-
-void archive_entry_acl_clear(ArchiveEntry * entry)
-{
-	archive_acl_clear(&entry->acl);
-}
+archive_acl * archive_entry_acl(ArchiveEntry * entry) { return &entry->acl; }
+void archive_entry_acl_clear(ArchiveEntry * entry) { archive_acl_clear(&entry->acl); }
 /*
  * Add a single ACL entry to the internal list of ACL data.
  */
@@ -1092,17 +1017,11 @@ int archive_entry_acl_add_entry_w(ArchiveEntry * entry, int type, int permset, i
 /*
  * Return a bitmask of ACL types in an archive entry ACL list
  */
-int archive_entry_acl_types(ArchiveEntry * entry)
-{
-	return (archive_acl_types(&entry->acl));
-}
+int archive_entry_acl_types(const ArchiveEntry * entry) { return (archive_acl_types(&entry->acl)); }
 /*
  * Return a count of entries matching "want_type".
  */
-int archive_entry_acl_count(ArchiveEntry * entry, int want_type)
-{
-	return archive_acl_count(&entry->acl, want_type);
-}
+int archive_entry_acl_count(ArchiveEntry * entry, int want_type) { return archive_acl_count(&entry->acl, want_type); }
 /*
  * Prepare for reading entries from the ACL data.  Returns a count
  * of entries matching "want_type", or zero if there are no

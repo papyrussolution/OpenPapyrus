@@ -90,11 +90,11 @@ void archive_acl_clear(archive_acl * acl)
 	acl->acl_state = 0; /* Not counting. */
 }
 
-void archive_acl_copy(archive_acl * dest, archive_acl * src)
+void archive_acl_copy(archive_acl * dest, const archive_acl * src)
 {
 	archive_acl_clear(dest);
 	dest->mode = src->mode;
-	for(archive_acl_entry * ap = src->acl_head; ap; ap = ap->next) {
+	for(const archive_acl_entry * ap = src->acl_head; ap; ap = ap->next) {
 		archive_acl_entry * ap2 = acl_new_entry(dest, ap->type, ap->permset, ap->tag, ap->id);
 		if(ap2)
 			archive_mstring_copy(&ap2->name, &ap->name);
@@ -611,7 +611,7 @@ static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type, int 
 {
 	int i;
 	if(prefix) {
-		wcscpy(*wp, prefix);
+		sstrcpy(*wp, prefix);
 		*wp += wcslen(*wp);
 	}
 	switch(tag) {
@@ -619,36 +619,36 @@ static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type, int 
 		    wname = NULL;
 		    id = -1;
 		    if((type & ARCHIVE_ENTRY_ACL_TYPE_NFS4) != 0) {
-			    wcscpy(*wp, L"owner@");
+			    sstrcpy(*wp, L"owner@");
 			    break;
 		    }
 		// @fallthrough
 		case ARCHIVE_ENTRY_ACL_USER:
-		    wcscpy(*wp, L"user");
+		    sstrcpy(*wp, L"user");
 		    break;
 		case ARCHIVE_ENTRY_ACL_GROUP_OBJ:
 		    wname = NULL;
 		    id = -1;
 		    if((type & ARCHIVE_ENTRY_ACL_TYPE_NFS4) != 0) {
-			    wcscpy(*wp, L"group@");
+			    sstrcpy(*wp, L"group@");
 			    break;
 		    }
 		// @fallthrough
 		case ARCHIVE_ENTRY_ACL_GROUP:
-		    wcscpy(*wp, L"group");
+		    sstrcpy(*wp, L"group");
 		    break;
 		case ARCHIVE_ENTRY_ACL_MASK:
-		    wcscpy(*wp, L"mask");
+		    sstrcpy(*wp, L"mask");
 		    wname = NULL;
 		    id = -1;
 		    break;
 		case ARCHIVE_ENTRY_ACL_OTHER:
-		    wcscpy(*wp, L"other");
+		    sstrcpy(*wp, L"other");
 		    wname = NULL;
 		    id = -1;
 		    break;
 		case ARCHIVE_ENTRY_ACL_EVERYONE:
-		    wcscpy(*wp, L"everyone@");
+		    sstrcpy(*wp, L"everyone@");
 		    wname = NULL;
 		    id = -1;
 		    break;
@@ -657,7 +657,7 @@ static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type, int 
 	*(*wp)++ = L':';
 	if((type & ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) || oneof2(tag, ARCHIVE_ENTRY_ACL_USER, ARCHIVE_ENTRY_ACL_GROUP)) {
 		if(wname) {
-			wcscpy(*wp, wname);
+			sstrcpy(*wp, wname);
 			*wp += wcslen(*wp);
 		}
 		else if(oneof2(tag, ARCHIVE_ENTRY_ACL_USER, ARCHIVE_ENTRY_ACL_GROUP)) {
@@ -692,10 +692,10 @@ static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type, int 
 		}
 		*(*wp)++ = L':';
 		switch(type) {
-			case ARCHIVE_ENTRY_ACL_TYPE_ALLOW: wcscpy(*wp, L"allow"); break;
-			case ARCHIVE_ENTRY_ACL_TYPE_DENY: wcscpy(*wp, L"deny"); break;
-			case ARCHIVE_ENTRY_ACL_TYPE_AUDIT: wcscpy(*wp, L"audit"); break;
-			case ARCHIVE_ENTRY_ACL_TYPE_ALARM: wcscpy(*wp, L"alarm"); break;
+			case ARCHIVE_ENTRY_ACL_TYPE_ALLOW: sstrcpy(*wp, L"allow"); break;
+			case ARCHIVE_ENTRY_ACL_TYPE_DENY: sstrcpy(*wp, L"deny"); break;
+			case ARCHIVE_ENTRY_ACL_TYPE_AUDIT: sstrcpy(*wp, L"audit"); break;
+			case ARCHIVE_ENTRY_ACL_TYPE_ALARM: sstrcpy(*wp, L"alarm"); break;
 			default: break; 
 		}
 		*wp += wcslen(*wp);

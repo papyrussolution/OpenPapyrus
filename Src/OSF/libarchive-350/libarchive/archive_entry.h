@@ -172,7 +172,7 @@ struct ArchiveEntry;
  */
 __LA_DECL ArchiveEntry * archive_entry_clear(ArchiveEntry *);
 /* The 'clone' function does a deep copy; all of the strings are copied too. */
-__LA_DECL ArchiveEntry * archive_entry_clone(ArchiveEntry *);
+__LA_DECL ArchiveEntry * archive_entry_clone(const ArchiveEntry *);
 __LA_DECL void FASTCALL archive_entry_free(ArchiveEntry *);
 __LA_DECL ArchiveEntry * archive_entry_new();
 
@@ -355,7 +355,7 @@ __LA_DECL void	archive_entry_copy_stat(ArchiveEntry *, const struct _stat *);
  * This provides a place to store that blob.
  */
 
-__LA_DECL const void * archive_entry_mac_metadata(ArchiveEntry *, size_t *);
+__LA_DECL const void * archive_entry_mac_metadata(const ArchiveEntry *, size_t *);
 __LA_DECL void archive_entry_copy_mac_metadata(ArchiveEntry *, const void *, size_t);
 
 /*
@@ -532,7 +532,7 @@ __LA_DECL const wchar_t	*archive_entry_acl_text_w(ArchiveEntry *, int /* flags *
 __LA_DECL const char *archive_entry_acl_text(ArchiveEntry *, int /* flags */) __LA_DEPRECATED;
 
 /* Return bitmask of ACL types in an archive entry */
-__LA_DECL int	 archive_entry_acl_types(ArchiveEntry *);
+__LA_DECL int	 archive_entry_acl_types(const ArchiveEntry *);
 
 /* Return a count of entries matching 'want_type' */
 __LA_DECL int	 archive_entry_acl_count(ArchiveEntry *, int /* want_type */);

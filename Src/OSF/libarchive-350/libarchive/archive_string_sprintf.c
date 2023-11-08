@@ -29,7 +29,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_string_sprintf.c 189435 2009-03-
  * Utility functions to format signed/unsigned integers and append
  * them to an archive_string.
  */
-static void append_uint(archive_string * as, uintmax_t d, unsigned base)
+static void append_uint(archive_string * as, uintmax_t d, uint base)
 {
 	// @sobolev static const char digits[] = "0123456789abcdef";
 	if(d >= base)
@@ -37,7 +37,7 @@ static void append_uint(archive_string * as, uintmax_t d, unsigned base)
 	archive_strappend_char(as, SlConst::P_HxDigL[d % base]);
 }
 
-static void append_int(archive_string * as, intmax_t d, unsigned base)
+static void append_int(archive_string * as, intmax_t d, uint base)
 {
 	uintmax_t ud;
 	if(d < 0) {

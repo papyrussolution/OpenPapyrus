@@ -262,10 +262,7 @@ int blake2s(void * out, size_t outlen, const void * in, size_t inlen, const void
 }
 
 #if defined(SUPERCOP)
-int crypto_hash(uchar * out, uchar * in, unsigned long long inlen)
-{
-	return blake2s(out, BLAKE2S_OUTBYTES, in, inlen, NULL, 0);
-}
+	int crypto_hash(uchar * out, uchar * in, unsigned long long inlen) { return blake2s(out, BLAKE2S_OUTBYTES, in, inlen, NULL, 0); }
 #endif
 
 #if defined(BLAKE2S_SELFTEST)

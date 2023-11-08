@@ -127,7 +127,7 @@ int archive_read_open_filename_w(Archive * a, const wchar_t * wfilename, size_t 
 	else {
 #if defined(_WIN32) && !defined(__CYGWIN__)
 		mine->filename_type = read_file_data::FNT_WCS;
-		wcscpy(mine->filename.w, wfilename);
+		sstrcpy(mine->filename.w, wfilename);
 #else
 		/*
 		 * POSIX system does not support a wchar_t interface for

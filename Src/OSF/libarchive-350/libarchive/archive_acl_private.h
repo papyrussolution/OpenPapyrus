@@ -29,7 +29,7 @@ struct archive_acl {
 };
 
 void archive_acl_clear(archive_acl *);
-void archive_acl_copy(archive_acl *, archive_acl *);
+void archive_acl_copy(archive_acl *, const archive_acl *);
 int archive_acl_count(archive_acl *, int);
 int FASTCALL archive_acl_types(const archive_acl *);
 int archive_acl_reset(archive_acl *, int);

@@ -153,18 +153,18 @@ void SendMacro(TW * lptw, UINT m)
 							str[i] = *s++; /* temporary copy of filter */
 						str[i++] = '\0';
 						MultiByteToWideChar(CP_ACP, 0, str, MAXSTR + 1, szFile, MAXSTR + 1);
-						wcscpy(szFilter, L"Default (");
+						sstrcpy(szFilter, L"Default (");
 						wcscat(szFilter, szFile);
 						wcscat(szFilter, L")");
 						i = wcslen(szFilter);
 						i++; /* move past NUL */
-						wcscpy(szFilter + i, szFile);
+						sstrcpy(szFilter + i, szFile);
 						i += wcslen(szFilter + i);
 						i++; /* move past NUL */
-						wcscpy(szFilter + i, L"All Files (*.*)");
+						sstrcpy(szFilter + i, L"All Files (*.*)");
 						i += wcslen(szFilter + i);
 						i++; /* move past NUL */
-						wcscpy(szFilter + i, L"*.*");
+						sstrcpy(szFilter + i, L"*.*");
 						i += wcslen(szFilter + i);
 						i++; /* move past NUL */
 						szFilter[i++] = '\0'; /* add a second NUL */
@@ -262,7 +262,7 @@ void SendMacro(TW * lptw, UINT m)
 							}
 						}
 						else {
-							wcscpy(lpmw->szPrompt, szTitle);
+							sstrcpy(lpmw->szPrompt, szTitle);
 							flag = DialogBox(hdllInstance, TEXT("InputDlgBox"), lptw->hWndParent, InputBoxDlgProc);
 							if(flag) {
 								for(i = 0; i < lpmw->nChar; i++)

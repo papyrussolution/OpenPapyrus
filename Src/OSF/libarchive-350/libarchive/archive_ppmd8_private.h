@@ -83,7 +83,7 @@ typedef struct {
 void   Ppmd8_Construct(CPpmd8 * p);
 boolint Ppmd8_Alloc(CPpmd8 * p, UInt32 size);
 void   Ppmd8_Free(CPpmd8 * p);
-void   Ppmd8_Init(CPpmd8 * p, unsigned maxOrder, unsigned restoreMethod);
+void   Ppmd8_Init(CPpmd8 * p, uint maxOrder, uint restoreMethod);
 #define Ppmd8_WasAllocated(p) ((p)->Base != NULL)
 
 /* ---------- Internal Functions ---------- */
@@ -110,7 +110,7 @@ void Ppmd8_UpdateBin(CPpmd8 * p);
 		p->NS2BSIndx[Ppmd8_GetContext(p, p->MinContext->Suffix)->NumStats] + \
 		p->PrevSuccess + p->MinContext->Flags + ((p->RunLength >> 26) & 0x20)]
 
-CPpmd_See * Ppmd8_MakeEscFreq(CPpmd8 * p, unsigned numMasked, UInt32 * scale);
+CPpmd_See * Ppmd8_MakeEscFreq(CPpmd8 * p, uint numMasked, UInt32 * scale);
 
 /* ---------- Decode ---------- */
 
@@ -129,7 +129,7 @@ typedef struct {
 	void (* Ppmd8_Construct)(CPpmd8 * p);
 	boolint (* Ppmd8_Alloc)(CPpmd8 * p, UInt32 size);
 	void (* Ppmd8_Free)(CPpmd8 * p);
-	void (* Ppmd8_Init)(CPpmd8 * p, unsigned maxOrder, unsigned restoreMethod);
+	void (* Ppmd8_Init)(CPpmd8 * p, uint maxOrder, uint restoreMethod);
 #define Ppmd7_WasAllocated(p) ((p)->Base != NULL)
 	/* Decode Functions */
 	int (* Ppmd8_RangeDec_Init)(CPpmd8 * p);

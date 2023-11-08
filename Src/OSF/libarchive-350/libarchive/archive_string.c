@@ -40,8 +40,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_string.c 201095 2009-12-28 02:33
 	#define wmemmove(a, b, i)  (wchar_t *)memmove((a), (b), (i) * sizeof(wchar_t))
 #endif
 
-#undef max
-#define max(a, b)       ((a)>(b) ? (a) : (b))
+//#undef max
+//#define max(a, b)       ((a)>(b) ? (a) : (b))
 
 struct archive_string_conv {
 	archive_string_conv * next;
@@ -89,11 +89,11 @@ struct archive_string_conv {
 static const char utf8_replacement_char[] = { (char)0xef, (char)0xbf, (char)0xbd };
 static archive_string_conv * find_sconv_object(Archive *, const char *, const char *);
 static void add_sconv_object(Archive *, archive_string_conv *);
-static archive_string_conv * create_sconv_object(const char *, const char *, unsigned, int);
+static archive_string_conv * create_sconv_object(const char *, const char *, uint, int);
 static archive_string_conv * get_sconv_object(Archive *, const char *, const char *, int);
-static unsigned make_codepage_from_charset(const char *);
-static unsigned get_current_codepage();
-static unsigned get_current_oemcp();
+static uint    make_codepage_from_charset(const char *);
+static uint    get_current_codepage();
+static uint    get_current_oemcp();
 static size_t mbsnbytes(const void *, size_t);
 static size_t utf16nbytes(const void *, size_t);
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -155,13 +155,13 @@ archive_string * archive_array_append(archive_string * as, const char * p, size_
 	return archive_string_append(as, p, s);
 }
 
-void FASTCALL archive_string_concat(archive_string * dest, archive_string * src)
+void FASTCALL archive_string_concat(archive_string * dest, const archive_string * src)
 {
 	if(archive_string_append(dest, src->s, src->length) == NULL)
 		__archive_errx(1, SlTxtOutOfMem);
 }
 
-void FASTCALL archive_wstring_concat(archive_wstring * dest, archive_wstring * src)
+void FASTCALL archive_wstring_concat(archive_wstring * dest, const archive_wstring * src)
 {
 	if(archive_wstring_append(dest, src->s, src->length) == NULL)
 		__archive_errx(1, SlTxtOutOfMem);
@@ -658,9 +658,7 @@ int archive_string_append_from_wcs(archive_string * as, const wchar_t * w, size_
 			as->length = p - as->s;
 			as->s[as->length] = '\0';
 			/* Re-allocate buffer for MBS. */
-			if(archive_string_ensure(as,
-			    as->length + max(len * 2,
-			    (size_t)MB_CUR_MAX) + 1) == NULL)
+			if(archive_string_ensure(as, as->length + MAX(len * 2, (size_t)MB_CUR_MAX) + 1) == NULL)
 				return -1;
 			p = as->s + as->length;
 			end = as->s + as->buffer_length - MB_CUR_MAX -1;
@@ -924,7 +922,7 @@ static const char * canonical_charset_name(const char * charset)
 /*
  * Create a string conversion object.
  */
-static archive_string_conv * create_sconv_object(const char * fc, const char * tc, unsigned current_codepage, int flag)
+static archive_string_conv * create_sconv_object(const char * fc, const char * tc, uint current_codepage, int flag)
 {
 	archive_string_conv * sc = static_cast<archive_string_conv *>(SAlloc::C(1, sizeof(*sc)));
 	if(!sc)
@@ -1252,7 +1250,7 @@ static void free_sconv_object(archive_string_conv * sc)
 		// If it's not in the table, try to parse it. 
 		switch(*cs) {
 			case 'C':
-				if(cs[1] == 'P' && cs[2] >= '0' && cs[2] <= '9') {
+				if(cs[1] == 'P' && isdec(cs[2])) {
 					cp = my_atoi(cs + 2);
 				}
 				else if(sstreq(cs, "CP_ACP"))
@@ -1261,7 +1259,7 @@ static void free_sconv_object(archive_string_conv * sc)
 					cp = get_current_oemcp();
 				break;
 			case 'I':
-				if(cs[1] == 'B' && cs[2] == 'M' && cs[3] >= '0' && cs[3] <= '9') {
+				if(cs[1] == 'B' && cs[2] == 'M' && isdec(cs[3])) {
 					cp = my_atoi(cs + 3);
 				}
 				break;
@@ -1269,7 +1267,7 @@ static void free_sconv_object(archive_string_conv * sc)
 				if(strncmp(cs, "WINDOWS-", 8) == 0) {
 					cp = my_atoi(cs + 8);
 					if(cp != 874 && (cp < 1250 || cp > 1258))
-						cp = -1; /* This may invalid code. */
+						cp = -1; // This may invalid code
 				}
 				break;
 		}
@@ -1351,7 +1349,7 @@ static void free_sconv_object(archive_string_conv * sc)
 	/*
 	 * Return OEM Code Page of current locale set by setlocale().
 	 */
-	static unsigned get_current_oemcp(void)
+	static uint get_current_oemcp(void)
 	{
 		int i;
 		char * p;
@@ -1377,13 +1375,13 @@ static void free_sconv_object(archive_string_conv * sc)
 	 */
 	static uint get_current_codepage() { return -1; /* Unknown */ }
 
-	static unsigned make_codepage_from_charset(const char * charset)
+	static uint make_codepage_from_charset(const char * charset)
 	{
 		(void)charset; /* UNUSED */
 		return -1; /* Unknown */
 	}
 
-	static unsigned get_current_oemcp() { return -1; /* Unknown */ }
+	static uint get_current_oemcp() { return -1; /* Unknown */ }
 #endif /* defined(_WIN32) && !defined(__CYGWIN__) */
 
 /*
@@ -1396,20 +1394,16 @@ static archive_string_conv * get_sconv_object(Archive * a, const char * fc, cons
 	archive_string_conv * sc = find_sconv_object(a, fc, tc);
 	if(sc)
 		return (sc);
-	if(!a)
-		current_codepage = get_current_codepage();
-	else
-		current_codepage = a->current_codepage;
+	current_codepage = a ? a->current_codepage : get_current_codepage();
 	sc = create_sconv_object(canonical_charset_name(fc), canonical_charset_name(tc), current_codepage, flag);
 	if(!sc) {
 		if(a)
 			archive_set_error(a, ENOMEM, "Could not allocate memory for a string conversion object");
 		return NULL;
 	}
-	/*
-	 * If there is no converter for current string conversion object,
-	 * we cannot handle this conversion.
-	 */
+	// 
+	// If there is no converter for current string conversion object, we cannot handle this conversion.
+	// 
 	if(sc->nconverter == 0) {
 		if(a) {
 #if HAVE_ICONV
@@ -1557,14 +1551,14 @@ void archive_string_conversion_set_opt(archive_string_conv * sc, int opt)
 		 */
 		case SCONV_SET_OPT_UTF8_LIBARCHIVE2X:
 #if (defined(_WIN32) && !defined(__CYGWIN__)) || defined(__STDC_ISO_10646__) || defined(__APPLE__)
-		    /*
-		     * Nothing to do for it since wchar_t on these platforms is really Unicode.
-		     */
+		    //
+		    // Nothing to do for it since wchar_t on these platforms is really Unicode.
+		    //
 		    CXX_UNUSED(sc);
 #else
 		    if((sc->flag & SCONV_UTF8_LIBARCHIVE_2) == 0) {
 			    sc->flag |= SCONV_UTF8_LIBARCHIVE_2;
-			    /* Set up string converters. */
+			    // Set up string converters
 			    setup_converter(sc);
 		    }
 #endif
@@ -1573,19 +1567,17 @@ void archive_string_conversion_set_opt(archive_string_conv * sc, int opt)
 		    if((sc->flag & SCONV_NORMALIZATION_C) == 0) {
 			    sc->flag |= SCONV_NORMALIZATION_C;
 			    sc->flag &= ~SCONV_NORMALIZATION_D;
-			    /* Set up string converters. */
+			    // Set up string converters
 			    setup_converter(sc);
 		    }
 		    break;
 		case SCONV_SET_OPT_NORMALIZATION_D:
 #if defined(HAVE_ICONV)
-		    /*
-		     * If iconv will take the string, do not change the
-		     * setting of the normalization.
-		     */
-		    if(!(sc->flag & SCONV_WIN_CP) &&
-			(sc->flag & (SCONV_FROM_UTF16 | SCONV_FROM_UTF8)) &&
-			!(sc->flag & (SCONV_TO_UTF16 | SCONV_TO_UTF8)))
+		    // 
+		    // If iconv will take the string, do not change the
+		    // setting of the normalization.
+		    // 
+		    if(!(sc->flag & SCONV_WIN_CP) && (sc->flag & (SCONV_FROM_UTF16 | SCONV_FROM_UTF8)) && !(sc->flag & (SCONV_TO_UTF16 | SCONV_TO_UTF8)))
 			    break;
 #endif
 		    if((sc->flag & SCONV_NORMALIZATION_D) == 0) {
@@ -1627,7 +1619,6 @@ static size_t utf16nbytes(const void * _p, size_t n)
 	if(_p == NULL)
 		return 0;
 	p = (const char *)_p;
-
 	/* Like strlen(p), except won't examine positions beyond p[n]. */
 	s = 0;
 	pp = p;
@@ -1639,7 +1630,7 @@ static size_t utf16nbytes(const void * _p, size_t n)
 	return (s<<1);
 }
 
-int archive_strncpy_l(archive_string * as, const void * _p, size_t n, archive_string_conv * sc)
+int STDCALL archive_strncpy_l(archive_string * as, const void * _p, size_t n, archive_string_conv * sc)
 {
 	as->length = 0;
 	return (archive_strncat_l(as, _p, n, sc));
@@ -1832,19 +1823,16 @@ static int strncat_in_codepage(archive_string * as, const void * _p, size_t leng
 static int invalid_mbs(const void * _p, size_t n, archive_string_conv * sc)
 {
 	const char * p = (const char *)_p;
-	unsigned codepage;
+	uint codepage;
 	DWORD mbflag = MB_ERR_INVALID_CHARS;
-
 	if(sc->flag & SCONV_FROM_CHARSET)
 		codepage = sc->to_cp;
 	else
 		codepage = sc->from_cp;
-
 	if(codepage == CP_C_LOCALE)
 		return 0;
 	if(codepage != CP_UTF8)
 		mbflag |= MB_PRECOMPOSED;
-
 	if(MultiByteToWideChar(codepage, mbflag, p, (int)n, NULL, 0) == 0)
 		return -1; /* Invalid */
 	return 0; /* Okay */
@@ -2185,7 +2173,7 @@ static int utf16le_to_unicode(uint32 * pwc, const char * s, size_t n)
 static int utf16_to_unicode(uint32 * pwc, const char * s, size_t n, int be)
 {
 	const char * utf16 = s;
-	unsigned uc;
+	uint uc;
 	if(n == 0)
 		return 0;
 	if(n == 1) {
@@ -2200,7 +2188,7 @@ static int utf16_to_unicode(uint32 * pwc, const char * s, size_t n, int be)
 	utf16 += 2;
 	/* If this is a surrogate pair, assemble the full code point.*/
 	if(IS_HIGH_SURROGATE_LA(uc)) {
-		unsigned uc2;
+		uint uc2;
 		if(n >= 4) {
 			if(be)
 				uc2 = archive_be16dec(utf16);
@@ -3050,8 +3038,8 @@ static int strncat_from_utf8_libarchive2(archive_string * as, const void * _p, s
 		wchar_t wc;
 		if(p >= end) {
 			as->length = p - as->s;
-			/* Re-allocate buffer for MBS. */
-			if(archive_string_ensure(as, as->length + max(len * 2, (size_t)MB_CUR_MAX) + 1) == NULL)
+			// Re-allocate buffer for MBS
+			if(archive_string_ensure(as, as->length + MAX(len * 2, (size_t)MB_CUR_MAX) + 1) == NULL)
 				return -1;
 			p = as->s + as->length;
 			end = as->s + as->buffer_length - MB_CUR_MAX -1;
@@ -3066,7 +3054,6 @@ static int strncat_from_utf8_libarchive2(archive_string * as, const void * _p, s
 		}
 		else
 			wc = (wchar_t)unicode;
-
 		s += n;
 		len -= n;
 		/*
@@ -3377,7 +3364,7 @@ static int best_effort_strncat_to_utf16(archive_string * as16, const void * _p, 
 		return -1;
 	utf16 = as16->s + as16->length;
 	while(remaining--) {
-		unsigned c = *s++;
+		uint c = *s++;
 		if(c > 127) {
 			/* We cannot handle it. */
 			c = UNICODE_R_CHAR;
@@ -3418,7 +3405,7 @@ void FASTCALL archive_mstring_clean(struct archive_mstring * aes)
 	}
 }
 
-void FASTCALL archive_mstring_copy(struct archive_mstring * dest, struct archive_mstring * src)
+void FASTCALL archive_mstring_copy(struct archive_mstring * dest, const struct archive_mstring * src)
 {
 	dest->aes_set = src->aes_set;
 	archive_string_copy(&(dest->aes_mbs), &(src->aes_mbs));
@@ -3581,7 +3568,7 @@ int archive_mstring_get_mbs_l(Archive * a, struct archive_mstring * aes, const c
 	return ret;
 }
 
-int archive_mstring_copy_mbs(struct archive_mstring * aes, const char * mbs)
+int FASTCALL archive_mstring_copy_mbs(struct archive_mstring * aes, const char * mbs)
 {
 	if(!mbs) {
 		aes->aes_set = 0;
@@ -3670,7 +3657,7 @@ int archive_mstring_copy_mbs_len_l(struct archive_mstring * aes, const char * mb
 		 * translate character-set to wchar_t,UTF-16.
 		 */
 		iconv_t cd = sc->cd;
-		unsigned from_cp;
+		uint from_cp;
 		int flag;
 		/*
 		 * Translate multi-bytes from some character-set to UTF-8.

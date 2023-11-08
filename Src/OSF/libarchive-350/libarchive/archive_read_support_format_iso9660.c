@@ -368,7 +368,7 @@ static void     parse_rockridge_TF1(struct file_info *, const uchar *, int);
 static void     parse_rockridge_ZF1(struct file_info *, const uchar *, int);
 static void     register_file(struct iso9660 *, struct file_info *);
 static void     release_files(struct iso9660 *);
-static unsigned toi(const void * p, int n);
+static uint    toi(const void * p, int n);
 static inline void re_add_entry(struct iso9660 *, struct file_info *);
 static inline struct file_info * re_get_entry(struct iso9660 *);
 static inline int rede_add_entry(struct file_info *);
@@ -502,7 +502,7 @@ static int archive_read_format_iso9660_options(ArchiveRead * a, const char * key
 	return ARCHIVE_WARN;
 }
 
-static int isNull(struct iso9660 * iso9660, const uchar * h, unsigned offset, unsigned bytes)
+static int isNull(struct iso9660 * iso9660, const uchar * h, uint offset, uint bytes)
 {
 	while(bytes >= sizeof(iso9660->null)) {
 		if(!memcmp(iso9660->null, h + offset, sizeof(iso9660->null)))

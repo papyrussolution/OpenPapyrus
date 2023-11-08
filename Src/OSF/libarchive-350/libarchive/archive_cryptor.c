@@ -396,8 +396,8 @@ static void aes_ctr_increase_counter(archive_crypto_ctx * ctx)
 static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8 * const in, size_t in_len, uint8 * const out, size_t * out_len)
 {
 	uint8 * const ebuf = ctx->encr_buf;
-	unsigned pos = ctx->encr_pos;
-	unsigned max = (uint)((in_len < *out_len) ? in_len : *out_len);
+	uint pos = ctx->encr_pos;
+	uint max = (uint)((in_len < *out_len) ? in_len : *out_len);
 	uint i;
 	for(i = 0; i < max;) {
 		if(pos == AES_BLOCK_SIZE) {

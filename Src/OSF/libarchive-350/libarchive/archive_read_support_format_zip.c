@@ -65,12 +65,12 @@ struct zip_entry {
 	 * when compression is 99. */
 	struct {
 		/* Vendor version: AE-1 - 0x0001, AE-2 - 0x0002 */
-		unsigned vendor;
+		uint vendor;
 #define AES_VENDOR_AE_1 0x0001
 #define AES_VENDOR_AE_2 0x0002
 		/* AES encryption strength:
 		 * 1 - 128 bits, 2 - 192 bits, 2 - 256 bits. */
-		unsigned strength;
+		uint strength;
 		/* Actual compression method. */
 		uchar compression;
 	}                       aes_extra;
@@ -390,16 +390,13 @@ static time_t zip_time(const char * p)
  *	id1+size1+data1 + id2+size2+data2 ...
  *  triplets.  id and size are 2 bytes each.
  */
-static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
-    const char * p, size_t extra_length, struct zip_entry* zip_entry)
+static int process_extra(ArchiveRead * a, ArchiveEntry * entry, const char * p, size_t extra_length, struct zip_entry* zip_entry)
 {
-	unsigned offset = 0;
+	uint offset = 0;
 	struct zip * zip = (struct zip *)(a->format->data);
-
 	if(extra_length == 0) {
 		return ARCHIVE_OK;
 	}
-
 	if(extra_length < 4) {
 		size_t i = 0;
 		/* Some ZIP files may have trailing 0 bytes. Let's check they
@@ -418,8 +415,8 @@ static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
 		return ARCHIVE_OK;
 	}
 	while(offset <= extra_length - 4) {
-		unsigned short headerid = archive_le16dec(p + offset);
-		unsigned short datasize = archive_le16dec(p + offset + 2);
+		ushort headerid = archive_le16dec(p + offset);
+		ushort datasize = archive_le16dec(p + offset + 2);
 		offset += 4;
 		if(offset + datasize > extra_length) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Extra data overflow: Need %d bytes but only found %d bytes", (int)datasize, (int)(extra_length - offset));
@@ -472,8 +469,8 @@ static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
 		    {
 			    /* Strong encryption field. */
 			    if(archive_le16dec(p + offset) == 2) {
-				    unsigned algId = archive_le16dec(p + offset + 2);
-				    unsigned bitLen = archive_le16dec(p + offset + 4);
+				    uint algId = archive_le16dec(p + offset + 2);
+				    uint bitLen = archive_le16dec(p + offset + 4);
 				    int flags = archive_le16dec(p + offset + 6);
 				    slfprintf_stderr("algId=0x%04x, bitLen=%u, flgas=%d\n", algId, bitLen, flags);
 			    }
@@ -3078,7 +3075,7 @@ static int slurp_central_directory(ArchiveRead * a, ArchiveEntry* entry,
     struct zip * zip)
 {
 	ssize_t i;
-	unsigned found;
+	uint found;
 	int64 correction;
 	ssize_t bytes_avail;
 	const char * p;

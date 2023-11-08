@@ -1619,6 +1619,12 @@ void Test_SSystemBackup()
 	SSystemBackup::Param param;
 	SString temp_buf;
 	SSystem::AccountInfo acc_info;
+
+	// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\"
+	// "D:\Papyrus\Src\PPTEST\DATA\Test Directory 2\"
+
+	SDirecDiffPool dp;
+	dp.Run("D:\\Papyrus\\Src\\PPTEST\\DATA\\Test Directory", "D:\\Papyrus\\Src\\PPTEST\\DATA\\Test Directory 2");
 	{
 		SFile::Stat stat;
 		SBinarySet bs_stat;

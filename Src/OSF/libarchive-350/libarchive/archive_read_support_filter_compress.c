@@ -242,7 +242,7 @@ static int next_code(ArchiveReadFilter * self)
 	struct private_data * state = (struct private_data *)self->data;
 	int code, newcode;
 	static int debug_buff[1024];
-	static unsigned debug_index;
+	static uint debug_index;
 	code = newcode = getbits(self, state->bits);
 	if(code < 0)
 		return (code);

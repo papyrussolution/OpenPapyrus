@@ -538,8 +538,8 @@ TERM_PUBLIC void WIN_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 	if(set_font) {
 		//LPWSTR wfontname = UnicodeText(fontname, encoding);
 		const wchar_t * p_u_fontname = SUcSwitch(fontname);
-		wcscpy(r_winm.P_GraphWin->fontname, p_u_fontname);
-		wcscpy(r_winm.P_GraphWin->deffontname, p_u_fontname);
+		sstrcpy(r_winm.P_GraphWin->fontname, p_u_fontname);
+		sstrcpy(r_winm.P_GraphWin->deffontname, p_u_fontname);
 		//SAlloc::F(wfontname);
 	}
 	// font initialization 

@@ -139,7 +139,7 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _wfinddatai64_t & rS)
 	return *this;
 }
 
-SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAA & rS)
+/*SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAA & rS)
 {
 	THISZERO();
 	STRNSCPY(Name, SUcSwitchW(rS.cFileName));
@@ -153,7 +153,7 @@ SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAA & rS)
 	AccsTime = rS.ftLastAccessTime;
 	ReparsePointTag = (Attr & SFile::attrReparsePoint) ? rS.dwReserved0 : 0; // @v11.8.9
 	return *this;
-}
+}*/
 
 SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAW & rS)
 {
@@ -389,21 +389,31 @@ int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long
 		temp_buf.SetLastSlash().Cat(pWildcard);
 	}
 	const bool do_recursive = LOGIC(flags & scanfRecursive);
+	const bool reckon_dirs = LOGIC(flags & scanfReckonDirs); // @v11.8.10
+	//scanfReckonDirs
 	for(SDirec sdirec(temp_buf, 0); sdirec.Next(&fb) > 0;) {
 		// @debug {
 		if(!sisascii(fb.Name, sstrlen(fb.Name)))
 			non_ascii_count++;
 		// } @debug 
-		if(fb.IsFile()) {
-			THROW(Add(pPath, fb, flags));
-			ok = 1;
-		}
-		else if(do_recursive && fb.IsFolder() && !fb.IsSelf() && !fb.IsUpFolder()) {
-			fb.GetNameUtf8(pPath, temp_buf);
-			const int r = Helper_Scan(temp_buf, pWildcard, flags); // @recursion
-			THROW(r);
-			if(r > 0)
+		if(!fb.IsSelf() && !fb.IsUpFolder()) {
+			if(fb.IsFile()) {
+				THROW(Add(pPath, fb, flags));
 				ok = 1;
+			}
+			else if(fb.IsFolder()) {
+				if(do_recursive) {
+					fb.GetNameUtf8(pPath, temp_buf);
+					const int r = Helper_Scan(temp_buf, pWildcard, flags); // @recursion
+					THROW(r);
+					if(r > 0)
+						ok = 1;
+				}
+				else if(reckon_dirs) {
+					THROW(Add(pPath, fb, flags));
+					ok = 1;
+				}
+			}
 		}
 	}
 	CATCHZOK
@@ -425,6 +435,7 @@ int SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
 			const SPathStruc ps(pPath);
 			ps.Merge(~(SPathStruc::fNam|SPathStruc::fExt), r_temp_buf);
 			SetInitPath(r_temp_buf.SetLastSlash());
+			pWildcard = "*.*"; // @v11.8.10
 		}
 		ok = Helper_Scan(pPath, pWildcard, flags);
 	}
@@ -503,6 +514,7 @@ int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, con
     new_entry.AccsTime = rDe.AccsTime;
     new_entry.ModTime = rDe.ModTime;
     new_entry.Size = rDe.Size;
+	new_entry.ReparsePointTag = (rDe.Attr & SFile::attrReparsePoint) ? rDe.ReparsePointTag : 0; // @v11.8.10
     if(!isempty(pPath)) {
 		SString & r_temp_path = SLS.AcquireRvlStr();
 		const long npf = (flags & scanfKeepCase) ? SPathStruc::npfKeepCase : 0;
@@ -552,7 +564,7 @@ IMPL_CMPFUNC(SFileEntryPool_Entry, p1, p2)
     		{
 				p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
 				p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
-                si = p_blk->TempBuf1.CmpNC(p_blk->TempBuf2);
+                si = p_blk->TempBuf1.CmpNC(p_blk->TempBuf2); // @todo @fixme Здесь должно быть сравнение utf8
     		}
 			break;
     	case SFileEntryPool::scByExt:
@@ -563,7 +575,7 @@ IMPL_CMPFUNC(SFileEntryPool_Entry, p1, p2)
 				SPathStruc::GetExt(p_blk->TempBuf1, &ext1);
 				SPathStruc::GetExt(p_blk->TempBuf2, &ext2);
 				si = ext1.CmpNC(ext2);
-				SETIFZ(si, p_blk->TempBuf1.CmpNC(p_blk->TempBuf2));
+				SETIFZ(si, p_blk->TempBuf1.CmpNC(p_blk->TempBuf2)); // @todo @fixme Здесь должно быть сравнение utf8
     		}
     		break;
     	case SFileEntryPool::scByFullName:
@@ -575,7 +587,7 @@ IMPL_CMPFUNC(SFileEntryPool_Entry, p1, p2)
 				p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
 				fp1.SetLastSlash().Cat(p_blk->TempBuf1);
 				fp2.SetLastSlash().Cat(p_blk->TempBuf2);
-				si = fp1.CmpNC(fp2);
+				si = fp1.CmpNC(fp2); // @todo @fixme Здесь должно быть сравнение utf8
     		}
     		break;
     	case SFileEntryPool::scByCrTime: si = cmp(p_entry1->CrtTime, p_entry2->CrtTime); break;
@@ -592,4 +604,220 @@ void SFileEntryPool::Sort(int criteria)
 	blk.Order = criteria;
 	blk.P_Pool = this;
 	L.sort(PTR_CMPFUNC(SFileEntryPool_Entry), &blk);
+}
+
+bool SFileEntryPool::Search(const wchar_t * pName, uint * pIdx) const
+{
+	bool    ok = false;
+	uint    idx = 0;
+	SString temp_buf;
+	SStringU temp_buf_u;
+	for(uint i = 0; !ok && i < L.getCount(); i++) {
+		const SFileEntryPool::InnerEntry & r_entry = L.at(i);
+		GetS(r_entry.NameP, temp_buf);
+		if(temp_buf_u.CopyFromUtf8(temp_buf)) {
+			if(_wcsicmp(temp_buf_u, pName) == 0) {
+				idx = i;
+				ok = true;
+			}
+		}
+	}
+	ASSIGN_PTR(pIdx, idx);
+	return ok;
+}
+//
+//
+//
+SDirecDiffPool::Entry::Entry() : Kind(kEqual), P_RecurDir(0)
+{
+}
+		
+SDirecDiffPool::Entry::Entry(const Entry & rS) : Kind(kEqual), P_RecurDir(0)
+{
+	Copy(rS);
+}
+		
+SDirecDiffPool::Entry::~Entry()
+{
+	delete P_RecurDir;
+}
+		
+SDirecDiffPool::Entry & FASTCALL SDirecDiffPool::Entry::operator = (const Entry & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+int FASTCALL SDirecDiffPool::Entry::Copy(const Entry & rS)
+{
+	int    ok = 1;
+	Kind = rS.Kind;
+	StatLeft = rS.StatLeft;
+	StatRight = rS.StatRight;
+	Name = rS.Name;
+	if(rS.P_RecurDir) {
+		SETIFZQ(P_RecurDir, new TSCollection <Entry>);
+		if(!TSCollection_Copy(*P_RecurDir, *rS.P_RecurDir)) 
+			ok = 0;
+	}
+	else {
+		ZDELETE(P_RecurDir);
+	}
+	return ok;
+}
+
+SDirecDiffPool::SDirecDiffPool()
+{
+}
+	
+SDirecDiffPool::~SDirecDiffPool()
+{
+}
+
+SDirecDiffPool & SDirecDiffPool::Z()
+{
+	L.freeAll();
+	return *this;
+}
+
+int SDirecDiffPool::Run(const char * pDirLeftUtf8, const char * pDirRightUtf8)
+{
+	return Helper_Compare(pDirLeftUtf8, pDirRightUtf8);
+}
+	
+int SDirecDiffPool::Helper_Compare(const char * pDirLeftUtf8, const char * pDirRightUtf8)
+{
+	int    ok = 1;
+	Entry * p_new_entry = 0;
+	THROW(!isempty(pDirLeftUtf8));
+	THROW(!isempty(pDirRightUtf8));
+	{
+		SString temp_buf;
+		SStringU temp_buf_u;
+		SString dir_left;
+		SString dir_right;
+		SPathStruc::NormalizePath(pDirLeftUtf8, SPathStruc::npfCompensateDotDot, dir_left);
+		SPathStruc::NormalizePath(pDirRightUtf8, SPathStruc::npfCompensateDotDot, dir_right);
+		if(dir_left.IsEqiUtf8(dir_right)) {
+			ok = 2;
+		}
+		else {
+			SFileEntryPool pool_left;
+			SFileEntryPool pool_right;
+			if(pool_left.Scan(dir_left, 0, SFileEntryPool::scanfReckonDirs) > 0) {
+				if(pool_right.Scan(dir_right, 0, SFileEntryPool::scanfReckonDirs) > 0) {
+					pool_left.Sort(SFileEntryPool::scByName);
+					pool_right.Sort(SFileEntryPool::scByName);
+
+					SFileEntryPool::Entry entry_left;
+					SFileEntryPool::Entry entry_right;
+					SString full_path_left;
+					SString full_path_right;
+					LongArray seen_ridx_list; // Список позиций в правом наборе, которые мы проверили на итерации по левому набору
+					{
+						for(uint lidx = 0; lidx < pool_left.GetCount(); lidx++) {
+							const int lgr = pool_left.Get(lidx, &entry_left, &full_path_left);
+							assert(lgr);
+							uint ridx = 0;
+							int  _k = kEqual;
+							ZDELETE(p_new_entry);
+							if(temp_buf_u.CopyFromUtf8(entry_left.Name) && pool_right.Search(temp_buf_u, &ridx)) {
+								seen_ridx_list.add(static_cast<long>(ridx));
+								const int rgr = pool_right.Get(ridx, &entry_right, &full_path_right);
+								assert(rgr);
+								const uint tattr_mask = (SFile::attrSubdir|SFile::attrReparsePoint);
+								if((entry_left.Attr & tattr_mask) != (entry_right.Attr & tattr_mask)) {
+									_k = kDiffType;
+								}
+								else {
+									if(entry_left.Attr != entry_right.Attr) {
+										_k |= kDiffAttr;
+									}
+									if(entry_left.IsFolder()) {
+										; // @todo Helper_Compare recursion
+										SDirecDiffPool inner;
+										int inner_result = inner.Helper_Compare(full_path_left, full_path_right); // @recursion
+										assert(inner_result != 2);
+										THROW(inner_result);
+										if(inner_result > 0) {
+											;
+										}
+										else {
+											SETIFZQ(p_new_entry, new Entry);
+											p_new_entry->P_RecurDir = new TSCollection <Entry>();
+											TSCollection_Copy(*p_new_entry->P_RecurDir, inner.L);
+											_k |= kDiffSubDir;
+										}
+									}
+									else {
+										// Для каталогов время модификации и размер не сравниваем
+										if(entry_left.ModTime != entry_right.ModTime) {
+											_k |= kDiffModTime;
+										}
+										if(entry_left.Size != entry_right.Size) {
+											_k |= kDiffSize;
+										}
+									}
+								}
+							}
+							else {
+								entry_right.Z();
+								_k = kAbsenceRight;
+							}
+							if(_k != kEqual) {
+								SETIFZQ(p_new_entry, new Entry);
+								p_new_entry->Kind = _k;
+								p_new_entry->StatLeft = entry_left;
+								p_new_entry->StatRight = entry_right;
+								p_new_entry->Name = entry_left.Name;
+								L.insert(p_new_entry);
+								p_new_entry = 0; // @mandatory
+								ok = -1;
+							}
+							else {
+								assert(p_new_entry == 0); // Экземпляр создавался только если были различия. Тем менее, ниже, так я - параноик, разрушаю объект по указателю.
+								ZDELETE(p_new_entry);
+							}
+						}
+					}
+					{
+						seen_ridx_list.sortAndUndup();
+						for(uint ridx = 0; ridx < pool_right.GetCount(); ridx++) {
+							if(!seen_ridx_list.bsearch(ridx)) {
+								const int rgr = pool_right.Get(ridx, &entry_right, &full_path_right);
+								assert(rgr);
+								uint lidx = 0;
+								int  _k = kEqual;
+								ZDELETE(p_new_entry);
+								if(temp_buf_u.CopyFromUtf8(entry_right.Name) && pool_left.Search(temp_buf_u, &lidx)) {
+									; // Если слева существует элемент с таким именем, то nothing-to-do: в цикле по левому дереву выше я проработал этот случай.
+								}
+								else {
+									entry_left.Z();
+									_k = kAbsenceLeft;
+								}
+								if(_k != kEqual) {
+									SETIFZQ(p_new_entry, new Entry);
+									p_new_entry->Kind = _k;
+									p_new_entry->StatLeft = entry_left;
+									p_new_entry->StatRight = entry_right;
+									p_new_entry->Name = entry_right.Name;
+									L.insert(p_new_entry);
+									p_new_entry = 0; // @mandatory
+									ok = -1;
+								}
+								else {
+									assert(p_new_entry == 0); // Экземпляр создавался только если были различия. Тем менее, ниже, так я - параноик, разрушаю объект по указателю.
+									ZDELETE(p_new_entry);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	ZDELETE(p_new_entry);
+	return ok;
 }

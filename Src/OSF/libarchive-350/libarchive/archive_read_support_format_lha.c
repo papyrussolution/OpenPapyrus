@@ -190,8 +190,8 @@ static void     lzh_huffman_free(struct lzh_dec::huffman *);
 static int lzh_read_pt_bitlen(struct lzh_stream *, int start, int end);
 static int lzh_make_fake_table(struct lzh_dec::huffman *, uint16);
 static int lzh_make_huffman_table(struct lzh_dec::huffman *);
-static inline int lzh_decode_huffman(struct lzh_dec::huffman *, unsigned);
-static int lzh_decode_huffman_tree(struct lzh_dec::huffman *, unsigned, int);
+static inline int lzh_decode_huffman(struct lzh_dec::huffman *, uint);
+static int lzh_decode_huffman_tree(struct lzh_dec::huffman *, uint, int);
 
 int archive_read_support_format_lha(Archive * _a)
 {
@@ -1876,7 +1876,7 @@ static int lzh_read_blocks(struct lzh_stream * strm, int last)
 	struct lzh_dec * ds = strm->ds;
 	struct lzh_dec::lzh_br * br = &(ds->br);
 	int c = 0, i;
-	unsigned rbits;
+	uint rbits;
 	for(;;) {
 		switch(ds->state) {
 			case ST_RD_BLOCK:
@@ -2487,7 +2487,7 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 		}
 	}
 	if(maxbits > HTBL_BITS) {
-		unsigned htbl_max;
+		uint htbl_max;
 		uint16 * p;
 		diffbits = maxbits - HTBL_BITS;
 		for(i = 1; i <= HTBL_BITS; i++) {
@@ -2630,7 +2630,7 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman * hf)
 	return 1;
 }
 
-static int lzh_decode_huffman_tree(struct lzh_dec::huffman * hf, unsigned rbits, int c)
+static int lzh_decode_huffman_tree(struct lzh_dec::huffman * hf, uint rbits, int c)
 {
 	struct lzh_dec::huffman::htree_t * ht = hf->tree;
 	int extlen = hf->shift_bits;
@@ -2646,7 +2646,7 @@ static int lzh_decode_huffman_tree(struct lzh_dec::huffman * hf, unsigned rbits,
 	return (c);
 }
 
-static inline int lzh_decode_huffman(struct lzh_dec::huffman * hf, unsigned rbits)
+static inline int lzh_decode_huffman(struct lzh_dec::huffman * hf, uint rbits)
 {
 	/*
 	 * At first search an index table for a bit pattern.

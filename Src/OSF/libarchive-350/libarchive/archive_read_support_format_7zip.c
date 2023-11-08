@@ -154,7 +154,7 @@ struct _7zip_entry {
 #endif
 	uint32 folderIndex;
 	uint32 ssIndex;
-	unsigned flg;
+	uint   flg;
 #define MTIME_IS_SET    (1<<0)
 #define ATIME_IS_SET    (1<<1)
 #define CTIME_IS_SET    (1<<2)
@@ -208,10 +208,10 @@ struct _7zip {
 	/*
 	 * Decompressing control data.
 	 */
-	unsigned folder_index;
+	uint   folder_index;
 	uint64 folder_outbytes_remaining;
-	unsigned pack_stream_index;
-	unsigned pack_stream_remaining;
+	uint   pack_stream_index;
+	uint   pack_stream_remaining;
 	uint64 pack_stream_inbytes_remaining;
 	size_t pack_stream_bytes_unconsumed;
 	/* The codec information of a folder. */
@@ -1056,15 +1056,12 @@ static int init_decompression(ArchiveRead * a, struct _7zip * zip, const struct 
 #endif
 		case _7Z_PPMD:
 	    {
-		    unsigned order;
+		    uint   order;
 		    uint32 msize;
-
 		    if(zip->ppmd7_valid) {
-			    __archive_ppmd7_functions.Ppmd7_Free(
-				    &zip->ppmd7_context);
+			    __archive_ppmd7_functions.Ppmd7_Free(&zip->ppmd7_context);
 			    zip->ppmd7_valid = 0;
 		    }
-
 		    if(coder1->propertiesSize < 5) {
 			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Malformed PPMd parameter");
 			    return ARCHIVE_FAILED;
@@ -1704,7 +1701,7 @@ static int read_Folder(ArchiveRead * a, struct _7z_folder * f)
 		return -1;
 	if(f->numPackedStreams == 1) {
 		for(i = 0; i < numInStreamsTotal; i++) {
-			unsigned j;
+			uint j;
 			for(j = 0; j < f->numBindPairs; j++) {
 				if(f->bindPairs[j].inIndex == i)
 					break;
@@ -1795,7 +1792,7 @@ static int read_CodersInfo(ArchiveRead * a, struct _7z_coders_info * ci)
 		goto failed;
 	for(i = 0; i < ci->numFolders; i++) {
 		struct _7z_folder * folder = &(ci->folders[i]);
-		unsigned j;
+		uint j;
 		folder->unPackSize = static_cast<uint64 *>(SAlloc::C((size_t)folder->numOutStreams, sizeof(*folder->unPackSize)));
 		if(folder->unPackSize == NULL)
 			goto failed;
@@ -1837,8 +1834,7 @@ failed:
 static uint64 folder_uncompressed_size(struct _7z_folder * f)
 {
 	int n = (int)f->numOutStreams;
-	unsigned pairs = (uint)f->numBindPairs;
-
+	uint pairs = (uint)f->numBindPairs;
 	while(--n >= 0) {
 		uint i;
 		for(i = 0; i < pairs; i++) {
@@ -1902,7 +1898,7 @@ static int read_SubStreamsInfo(ArchiveRead * a, struct _7z_substream_info * ss,
 	}
 	usizes = ss->unpackSizes;
 	for(i = 0; i < numFolders; i++) {
-		unsigned pack;
+		uint pack;
 		uint64 sum;
 		if(f[i].numUnpackStreams == 0)
 			continue;
@@ -1950,8 +1946,7 @@ static int read_SubStreamsInfo(ArchiveRead * a, struct _7z_substream_info * ss,
 				*digests++ = f[i].digest;
 			}
 			else {
-				unsigned j;
-
+				uint j;
 				for(j = 0; j < f[i].numUnpackStreams;
 				    j++, di++) {
 					*digestsDefined++ =

@@ -93,9 +93,40 @@ protected:
 	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
 	bool   SearchSymbHashId(uint32 symbHashId, SString & rSymb) const;
-
+	//
+	// Descr: ќпределитель свойства сущности, сохран€емый в препроцессинговом виде
+	//   так как финишна€ обработка требует знаний о всем массиве сущностей.
+	//
+	struct ProtoProp {
+		ProtoProp() : Ued(0), LinguaLocus(0), LineNo(0)
+		{
+		}
+		uint64 Ued;
+		uint64 LinguaLocus; // ≈сли свойство задано дл€ €зыкового определени€ сущности, то здесь - 
+			// идентификатор соответствующего локуса.
+		uint32 LineNo; // Ќомер строки, на которой начинаетс€ определение свойства.
+		StringSet Prop; // The first item - property symb, other - arguments
+	};
+	class ProtoPropList_SingleUed : public TSCollection <ProtoProp> {
+	public:
+		ProtoPropList_SingleUed(uint64 ued, uint64 linguaLocus) : Ued(ued), LinguaLocus(LinguaLocus)
+		{
+		}
+		ProtoProp * Create()
+		{
+			ProtoProp * p_new_entry = CreateNewItem();
+			if(p_new_entry) {
+				p_new_entry->Ued = Ued;
+				p_new_entry->LinguaLocus = LinguaLocus;
+			}
+			return p_new_entry;
+		}
+		uint64 Ued;
+		uint64 LinguaLocus;
+	};
 	TSVector <BaseEntry> BL;
 	TSVector <TextEntry> TL;
+	TSCollection <ProtoProp> ProtoPropList; // compile-time
 private:
 	uint64 SearchBaseIdBySymbId(uint symbId, uint64 meta) const;
 	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger);

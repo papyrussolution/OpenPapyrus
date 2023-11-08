@@ -137,7 +137,7 @@ static int consume_header(ArchiveReadFilter * self)
 {
 	struct read_lzop * state = (struct read_lzop *)self->data;
 	const uchar * p, * _p;
-	unsigned checksum, flags, len, method, version;
+	uint checksum, flags, len, method, version;
 	/*
 	 * Check LZOP magic code.
 	 */
@@ -154,7 +154,7 @@ static int consume_header(ArchiveReadFilter * self)
 	version = archive_be16dec(p);
 	p += 4; /* version(2 bytes) + library version(2 bytes) */
 	if(version >= 0x940) {
-		unsigned reqversion = archive_be16dec(p); p += 2;
+		uint reqversion = archive_be16dec(p); p += 2;
 		if(reqversion < 0x900) {
 			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Invalid required version");
 			return ARCHIVE_FAILED;
@@ -166,9 +166,9 @@ static int consume_header(ArchiveReadFilter * self)
 		return ARCHIVE_FAILED;
 	}
 	if(version >= 0x940) {
-		unsigned level = *p++;
+		uint level = *p++;
 #if 0
-		unsigned default_level[] = {0, 3, 1, 9};
+		uint default_level[] = {0, 3, 1, 9};
 #endif
 		if(level == 0)
 		/* Method is 1..3 here due to check above. */
@@ -227,8 +227,7 @@ static int consume_block_info(ArchiveReadFilter * self)
 {
 	struct read_lzop * state = (struct read_lzop *)self->data;
 	const uchar * p;
-	unsigned flags = state->flags;
-
+	uint flags = state->flags;
 	p = __archive_read_filter_ahead(self->upstream, 4, NULL);
 	if(!p)
 		goto truncated;

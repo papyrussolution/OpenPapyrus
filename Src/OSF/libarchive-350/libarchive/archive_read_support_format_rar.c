@@ -1060,7 +1060,7 @@ static int read_header(ArchiveRead * a, ArchiveEntry * entry, char head_type)
 	struct rar_header rar_header;
 	struct rar_file_header file_header;
 	int64 header_size;
-	unsigned filename_size, end;
+	uint filename_size, end;
 	char * filename;
 	char * strp;
 	char packed_size[8];
@@ -1192,7 +1192,7 @@ static int read_header(ArchiveRead * a, ArchiveEntry * entry, char head_type)
 	if(rar->file_flags & FHD_UNICODE) {
 		if(filename_size != strlen(filename)) {
 			uchar highbyte, flagbits, flagbyte;
-			unsigned fn_end, offset;
+			uint fn_end, offset;
 			end = filename_size;
 			fn_end = filename_size * 2;
 			filename_size = 0;
@@ -1234,7 +1234,7 @@ static int read_header(ArchiveRead * a, ArchiveEntry * entry, char head_type)
 						    extra = high = 0;
 					    length = (length & 0x7f) + 2;
 					    while(length && filename_size < fn_end) {
-						    unsigned cp = filename_size >> 1;
+						    uint cp = filename_size >> 1;
 						    filename[filename_size++] = high;
 						    filename[filename_size++] = p[cp] + extra;
 						    length--;
@@ -1448,7 +1448,7 @@ static time_t get_time(int ttime)
 
 static int read_exttime(const char * p, struct rar * rar, const char * endp)
 {
-	unsigned rmode, flags, rem, j, count;
+	uint rmode, flags, rem, j, count;
 	int ttime, i;
 	struct tm * tm;
 	time_t t;

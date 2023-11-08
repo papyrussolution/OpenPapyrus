@@ -151,8 +151,8 @@ struct cpio {
 	int init_default_conversion;
 };
 
-static int64  atol16(const char *, unsigned);
-static int64  atol8(const char *, unsigned);
+static int64  atol16(const char *, uint);
+static int64  atol8(const char *, uint);
 static int archive_read_format_cpio_bid(ArchiveRead *, int);
 static int archive_read_format_cpio_options(ArchiveRead *, const char *, const char *);
 static int archive_read_format_cpio_cleanup(ArchiveRead *);
@@ -724,8 +724,7 @@ static int header_bin_le(ArchiveRead * a, struct cpio * cpio, ArchiveEntry * ent
 	return ARCHIVE_OK;
 }
 
-static int header_bin_be(ArchiveRead * a, struct cpio * cpio,
-    ArchiveEntry * entry, size_t * namelength, size_t * name_pad)
+static int header_bin_be(ArchiveRead * a, struct cpio * cpio, ArchiveEntry * entry, size_t * namelength, size_t * name_pad)
 {
 	const void * h;
 	const uchar * header;
@@ -829,20 +828,18 @@ static int record_hardlink(ArchiveRead * a, struct cpio * cpio, ArchiveEntry * e
 			archive_entry_copy_hardlink(entry, le->name);
 
 			if(--le->links <= 0) {
-				if(le->previous != NULL)
+				if(le->previous)
 					le->previous->next = le->next;
-				if(le->next != NULL)
+				if(le->next)
 					le->next->previous = le->previous;
 				if(cpio->links_head == le)
 					cpio->links_head = le->next;
 				SAlloc::F(le->name);
 				SAlloc::F(le);
 			}
-
 			return ARCHIVE_OK;
 		}
 	}
-
 	le = (struct links_entry *)SAlloc::M(sizeof(struct links_entry));
 	if(le == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory adding file to list");
