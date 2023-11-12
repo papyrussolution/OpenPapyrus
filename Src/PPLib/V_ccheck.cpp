@@ -2994,7 +2994,7 @@ int PPViewCCheck::ToggleDlvrTag(PPID checkID)
 			SString temp_buf;
 			dlg->SetupCalDate(CTLCAL_TOGGLECCDLVR_DT, CTL_TOGGLECCDLVR_DT);
 			SetupTimePicker(dlg, CTL_TOGGLECCDLVR_TM, CTLTM_TOGGLECCDLVR_TM);
-			CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
+			CCheckCore::MakeCodeString(&cc_pack.Rec, 0, temp_buf);
 			dlg->setStaticText(CTL_TOGGLECCDLVR_INFO, temp_buf);
 			dlg->setCtrlUInt16(CTL_TOGGLECCDLVR_FLAG, BIN(cc_pack.Rec.Flags & CCHKF_CLOSEDORDER));
 			dlg->setCtrlDatetime(CTL_TOGGLECCDLVR_DT, CTL_TOGGLECCDLVR_TM, cc_pack.Ext.EndOrdDtm);
@@ -4168,31 +4168,7 @@ int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 					CCheckFilt tmp_filt = Filt;
 					tmp_filt.Grp = CCheckFilt::gNone;
 					tmp_filt.CorrGoodsList.InitEmpty();
-					if(Filt.Grp == CCheckFilt::gTime)
-						tmp_filt.HourBefore = cur_rec.Tm.hour() + 1;
-					else if(Filt.Grp == CCheckFilt::gDate)
-						tmp_filt.Period.SetDate(cur_rec.Dt);
-					else if(Filt.Grp == CCheckFilt::gDayOfWeek)
-						tmp_filt.WeekDays = 1 << (cur_rec.Dt.day() % 7);
-					else if(Filt.Grp == CCheckFilt::gDowNTime) {
-						tmp_filt.WeekDays = 1 << (cur_rec.Dt.day() % 7);
-						tmp_filt.HourBefore = cur_rec.Tm.hour() + 1;
-					}
-					else if(Filt.Grp == CCheckFilt::gCash)
-						tmp_filt.CashNumber = cur_rec.CashID;
-					else if(Filt.Grp == CCheckFilt::gCashNode)
-						tmp_filt.NodeList.Add(cur_rec.CashID);
-					else if(Filt.Grp == CCheckFilt::gCard)
-						tmp_filt.SCardID = cur_rec.SCardID;
-					else if(Filt.Grp == CCheckFilt::gDscntPct) {
-						tmp_filt.PcntR.SetDelta(R2((cur_rec.CashID - 1) * 0.25), 0.25);
-						tmp_filt.PcntR.low += 0.00001;
-					}
-					else if(Filt.Grp == CCheckFilt::gAmount)
-						tmp_filt.AmtR.SetDelta(R2(cur_rec.CashID * Filt.AmountQuant), Filt.AmountQuant-0.01);
-					else if(Filt.Grp == CCheckFilt::gQtty)
-						tmp_filt.QttyR.SetDelta(R3(cur_rec.CashID * Filt.AmountQuant), Filt.AmountQuant-0.001);
-					else if(Filt.HasGoodsGrouping()) {
+					if(Filt.HasGoodsGrouping()) {
 						if(Filt.Sgg != sggNone) {
 							PPIDArray goods_list;
 							Gsl.GetGoodsBySubstID(cur_rec.GoodsID, &goods_list);
@@ -4221,30 +4197,44 @@ int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 						else if(Filt.Grp == CCheckFilt::gGoodsCard) // @erik v10.5.1
 							tmp_filt.SCardID = cur_rec.SCardID;
 					}
-					else if(Filt.Grp == CCheckFilt::gGuestCount)
-						tmp_filt.GuestCount = (int16)cur_rec.CashID;
-					else if(Filt.Grp == CCheckFilt::gTableNo)
-						tmp_filt.TableCode = (int16)cur_rec.CashID;
-					else if(Filt.Grp == CCheckFilt::gDiv)
-						tmp_filt.Div = (int16)cur_rec.CashID;
-					else if(Filt.Grp == CCheckFilt::gCashiers)
-						tmp_filt.CashierID = cur_rec.CashID;
-					else if(Filt.Grp == CCheckFilt::gAgents)
-						tmp_filt.AgentID = cur_rec.CashID;
-					else if(Filt.Grp == CCheckFilt::gLinesCount)
-						tmp_filt.LowLinesCount = tmp_filt.UppLinesCount = (uint16)cur_rec.CashID;
-					else if(Filt.Grp == CCheckFilt::gAgentsNHour) {
-						tmp_filt.AgentID = cur_rec.CashID;
-						tmp_filt.HourBefore = cur_rec.Tm.hour() + 1;
-					}
-					else if(Filt.Grp == CCheckFilt::gDlvrAddr) {
-						if(cur_rec.CashID) {
-							tmp_filt.DlvrAddrID = cur_rec.CashID;
-							tmp_filt.Flags &= ~CCheckFilt::fZeroDlvrAddr;
-						}
-						else {
-							tmp_filt.DlvrAddrID = 0;
-							tmp_filt.Flags |= CCheckFilt::fZeroDlvrAddr;
+					else {
+						switch(Filt.Grp) {
+							case CCheckFilt::gTime: tmp_filt.HourBefore = cur_rec.Tm.hour() + 1; break;
+							case CCheckFilt::gDate: tmp_filt.Period.SetDate(cur_rec.Dt); break;
+							case CCheckFilt::gDayOfWeek: tmp_filt.WeekDays = 1 << (cur_rec.Dt.day() % 7); break;
+							case CCheckFilt::gDowNTime:
+								tmp_filt.WeekDays = 1 << (cur_rec.Dt.day() % 7);
+								tmp_filt.HourBefore = cur_rec.Tm.hour() + 1;
+								break;
+							case CCheckFilt::gCash: tmp_filt.CashNumber = cur_rec.CashID; break;
+							case CCheckFilt::gCashNode: tmp_filt.NodeList.Add(cur_rec.CashID); break;
+							case CCheckFilt::gCard: tmp_filt.SCardID = cur_rec.SCardID; break;
+							case CCheckFilt::gDscntPct:
+								tmp_filt.PcntR.SetDelta(R2((cur_rec.CashID - 1) * 0.25), 0.25);
+								tmp_filt.PcntR.low += 0.00001;
+								break;
+							case CCheckFilt::gAmount: tmp_filt.AmtR.SetDelta(R2(cur_rec.CashID * Filt.AmountQuant), Filt.AmountQuant-0.01); break;
+							case CCheckFilt::gQtty: tmp_filt.QttyR.SetDelta(R3(cur_rec.CashID * Filt.AmountQuant), Filt.AmountQuant-0.001); break;
+							case CCheckFilt::gGuestCount: tmp_filt.GuestCount = (int16)cur_rec.CashID; break;
+							case CCheckFilt::gTableNo: tmp_filt.TableCode = (int16)cur_rec.CashID; break;
+							case CCheckFilt::gDiv: tmp_filt.Div = (int16)cur_rec.CashID; break;
+							case CCheckFilt::gCashiers: tmp_filt.CashierID = cur_rec.CashID; break;
+							case CCheckFilt::gAgents: tmp_filt.AgentID = cur_rec.CashID; break;
+							case CCheckFilt::gLinesCount: tmp_filt.LowLinesCount = tmp_filt.UppLinesCount = (uint16)cur_rec.CashID; break;
+							case CCheckFilt::gAgentsNHour:
+								tmp_filt.AgentID = cur_rec.CashID;
+								tmp_filt.HourBefore = cur_rec.Tm.hour() + 1;
+								break;
+							case CCheckFilt::gDlvrAddr:
+								if(cur_rec.CashID) {
+									tmp_filt.DlvrAddrID = cur_rec.CashID;
+									tmp_filt.Flags &= ~CCheckFilt::fZeroDlvrAddr;
+								}
+								else {
+									tmp_filt.DlvrAddrID = 0;
+									tmp_filt.Flags |= CCheckFilt::fZeroDlvrAddr;
+								}
+								break;
 						}
 					}
 					if(to_view && !ViewCCheck(&tmp_filt, 0))
@@ -4323,7 +4313,7 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 						}
 					}
 				}
-				pV->P_CC->MakeCodeString(&chk_rec, bill_memo);
+				pV->P_CC->MakeCodeString(&chk_rec, 0, bill_memo);
 			}
 			b_filt.LocList.Add(loc_id);
 			THROW(pack.CreateBlankByFilt(op_id, &b_filt, 1));

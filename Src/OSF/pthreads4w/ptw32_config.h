@@ -1,11 +1,11 @@
 /* config.h  */
 
 #ifndef  __PTW32_CONFIG_H
-#define  __PTW32_CONFIG_H
+#define __PTW32_CONFIG_H
 // 
 // Defaults: see target specific redefinitions below.
 // 
-#define  __PTW32_BUILD /* We're building the pthreads-win32 library */
+#define __PTW32_BUILD /* We're building the pthreads-win32 library */
 #define HAVE_CPU_AFFINITY /* CPU affinity */
 #undef HAVE_SIGSET_T /* Do we know about the C type sigset_t? */
 #undef HAVE_SIGNAL_H /* Define if you have the <signal.h> header file.  */
@@ -61,7 +61,7 @@
  # (i.e. will wrap sooner). This might be useful to emulate some embedded
  # systems.
  #
- #define  __PTW32_THREAD_ID_REUSE_INCREMENT 0
+ #define __PTW32_THREAD_ID_REUSE_INCREMENT 0
  #
  # ----------------------------------------------------------------------
  */
@@ -89,9 +89,9 @@
 	#if _MSC_VER >= 1900
 		#define HAVE_STRUCT_TIMESPEC
 	#elif _MSC_VER < 1300
-		#define  __PTW32_CONFIG_MSVC6
+		#define __PTW32_CONFIG_MSVC6
 	#elif _MSC_VER < 1400
-		#define  __PTW32_CONFIG_MSVC7
+		#define __PTW32_CONFIG_MSVC7
 	#endif
 #endif
 #if defined(_UWIN)

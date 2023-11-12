@@ -89,7 +89,7 @@ static const int slots[] = { 30, 32, 34, 36, 38, 42, 50, 66, 98, 162, 290 };
 #define SLOT_MAX        21/*->25*/
 
 struct lzx_stream {
-	const uchar     * next_in;
+	const uchar * next_in;
 	int64 avail_in;
 	int64 total_in;
 	uchar * next_out;
@@ -134,12 +134,7 @@ struct lzx_stream {
 #define CFDATA_cbData           4
 #define CFDATA_cbUncomp         6
 
-static const char * const compression_name[] = {
-	"NONE",
-	"MSZIP",
-	"Quantum",
-	"LZX",
-};
+static const char * const compression_name[] = { "NONE", "MSZIP", "Quantum", "LZX", };
 
 struct cfdata {
 	/* Sum value of this CFDATA. */
@@ -211,10 +206,8 @@ struct cfheader {
 	uchar minor;
 	uchar cffolder;
 	uchar cfdata;
-	/* All folders in a cabinet. */
-	struct cffolder         * folder_array;
-	/* All files in a cabinet. */
-	struct cffile           * file_array;
+	struct cffolder * folder_array; /* All folders in a cabinet. */
+	struct cffile   * file_array; /* All files in a cabinet. */
 	int file_index;
 };
 
@@ -459,10 +452,7 @@ static int archive_read_format_cab_options(ArchiveRead * a, const char * key, co
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "cab: hdrcharset option needs a character-set name");
 		else {
 			cab->sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
-			if(cab->sconv)
-				ret = ARCHIVE_OK;
-			else
-				ret = ARCHIVE_FATAL;
+			ret = (cab->sconv) ? ARCHIVE_OK : ARCHIVE_FATAL;
 		}
 		return ret;
 	}
@@ -559,9 +549,7 @@ static int cab_convert_path_separator_1(archive_string * fn, uchar attr)
 		else
 			mb = 0;
 	}
-	if(i == archive_strlen(fn))
-		return 0;
-	return -1;
+	return (i == archive_strlen(fn)) ? 0 : -1;
 }
 /*
  * Replace a character '\' with '/' in wide character.
@@ -569,11 +557,10 @@ static int cab_convert_path_separator_1(archive_string * fn, uchar attr)
 static void cab_convert_path_separator_2(struct cab * cab, ArchiveEntry * entry)
 {
 	const wchar_t * wp;
-	size_t i;
-	/* If a conversion to wide character failed, force the replacement. */
+	// If a conversion to wide character failed, force the replacement
 	if((wp = archive_entry_pathname_w(entry)) != NULL) {
 		archive_wstrcpy(&(cab->ws), wp);
-		for(i = 0; i < archive_strlen(&(cab->ws)); i++) {
+		for(size_t i = 0; i < archive_strlen(&(cab->ws)); i++) {
 			if(cab->ws.s[i] == L'\\')
 				cab->ws.s[i] = L'/';
 		}
@@ -1942,12 +1929,13 @@ static void lzx_decode_free(struct lzx_stream * strm)
 static void lzx_translation(struct lzx_stream * strm, void * p, size_t size, uint32 offset)
 {
 	struct lzx_dec * ds = strm->ds;
-	uchar * b, * end;
+	uchar * b;
+	uchar * end;
 	if(!ds->translation || size <= 10)
 		return;
 	b = static_cast<uchar *>(p);
 	end = b + size - 10;
-	while(b < end && (b = static_cast<uchar *>(memchr(b, 0xE8, end - b))) != NULL) {
+	while(b < end && (b = (uchar *)(smemchr(b, 0xE8, end - b))) != NULL) {
 		size_t i = b - (uchar *)p;
 		int32_t cp = (int32_t)(offset + (uint32)i);
 		const int32_t value = archive_le32dec(&b[1]);
@@ -1962,31 +1950,24 @@ static void lzx_translation(struct lzx_stream * strm, void * p, size_t size, uin
  * Bit stream reader.
  */
 /* Check that the cache buffer has enough bits. */
-#define lzx_br_has(br, n)       ((br)->cache_avail >= n)
+#define lzx_br_has(br, n) ((br)->cache_avail >= n)
 /* Get compressed data by bit. */
-#define lzx_br_bits(br, n)                              \
-	(((uint32)((br)->cache_buffer >>              \
-	((br)->cache_avail - (n)))) & cache_masks[n])
-#define lzx_br_bits_forced(br, n)                       \
-	(((uint32)((br)->cache_buffer <<              \
-	((n) - (br)->cache_avail))) & cache_masks[n])
+#define lzx_br_bits(br, n) (((uint32)((br)->cache_buffer >> ((br)->cache_avail - (n)))) & cache_masks[n])
+#define lzx_br_bits_forced(br, n) (((uint32)((br)->cache_buffer << ((n) - (br)->cache_avail))) & cache_masks[n])
 /* Read ahead to make sure the cache buffer has enough compressed data we
  * will use.
  *  True  : completed, there is enough data in the cache buffer.
  *  False : we met that strm->next_in is empty, we have to get following
  *    bytes. */
-#define lzx_br_read_ahead_0(strm, br, n)        \
-	(lzx_br_has((br), (n)) || lzx_br_fillup(strm, br))
+#define lzx_br_read_ahead_0(strm, br, n) (lzx_br_has((br), (n)) || lzx_br_fillup(strm, br))
 /* True  : the cache buffer has some bits as much as we need.
  *  False : there are no enough bits in the cache buffer to be used,
  *    we have to get following bytes if we could. */
-#define lzx_br_read_ahead(strm, br, n)  \
-	(lzx_br_read_ahead_0((strm), (br), (n)) || lzx_br_has((br), (n)))
+#define lzx_br_read_ahead(strm, br, n)  (lzx_br_read_ahead_0((strm), (br), (n)) || lzx_br_has((br), (n)))
 
 /* Notify how many bits we consumed. */
 #define lzx_br_consume(br, n)   ((br)->cache_avail -= (n))
 #define lzx_br_consume_unaligned_bits(br) ((br)->cache_avail &= ~0x0f)
-
 #define lzx_br_is_unaligned(br) ((br)->cache_avail & 0x0f)
 
 static const uint32 cache_masks[] = {
@@ -2000,7 +1981,6 @@ static const uint32 cache_masks[] = {
 	0x0FFFFFFF, 0x1FFFFFFF, 0x3FFFFFFF, 0x7FFFFFFF,
 	0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
 };
-
 /*
  * Shift away used bits in the cache data and fill it up with following bits.
  * Call this when cache buffer does not have enough bits you need.
@@ -2010,9 +1990,9 @@ static const uint32 cache_masks[] = {
  */
 static int lzx_br_fillup(struct lzx_stream * strm, struct lzx_dec::lzx_br * br)
 {
-/*
- * x86 processor family can read misaligned data without an access error.
- */
+	//
+	// x86 processor family can read misaligned data without an access error.
+	//
 	int n = CACHE_BITS - br->cache_avail;
 	for(;;) {
 		switch(n >> 4) {
@@ -2132,10 +2112,8 @@ static int lzx_decode(struct lzx_stream * strm, int last)
 	struct lzx_dec * ds = strm->ds;
 	int64 avail_in;
 	int r;
-
 	if(ds->error)
 		return (ds->error);
-
 	avail_in = strm->avail_in;
 	lzx_br_fixup(strm, &(ds->br));
 	do {
@@ -2220,10 +2198,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 				    goto failed;
 			    ds->block_bytes_avail = ds->block_size;
 			    if(ds->block_type != UNCOMPRESSED_BLOCK) {
-				    if(ds->block_type == VERBATIM_BLOCK)
-					    ds->state = ST_RD_VERBATIM;
-				    else
-					    ds->state = ST_RD_ALIGNED_OFFSET;
+				    ds->state = (ds->block_type == VERBATIM_BLOCK) ? ST_RD_VERBATIM : ST_RD_ALIGNED_OFFSET;
 				    break;
 			    }
 			// @fallthrough
@@ -2282,8 +2257,7 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 							    goto failed;
 						    return ARCHIVE_OK;
 					    }
-					    ds->rbytes[ds->rbytes_avail++] =
-						*strm->next_in++;
+					    ds->rbytes[ds->rbytes_avail++] = *strm->next_in++;
 					    strm->avail_in--;
 				    }
 				    ds->rbytes_avail = 0;
@@ -2314,7 +2288,6 @@ static int lzx_read_blocks(struct lzx_stream * strm, int last)
 			     */
 			    while(ds->block_bytes_avail) {
 				    int l;
-
 				    if(strm->avail_out <= 0)
 					    /* Output buffer is empty. */
 					    return ARCHIVE_OK;

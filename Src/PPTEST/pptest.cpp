@@ -1508,6 +1508,7 @@ int DoConstructionTest()
 #if(_MSC_VER >= 1900)
 	//Test_Fts();
 #endif
+#if 0 // {
 	{
 		SString get_vs_inst_msg;
 		//get_vs_installations(/*instance_callback callback,*/&get_vs_inst_msg);
@@ -1521,13 +1522,14 @@ int DoConstructionTest()
 			}
 		}
 	}
+#endif // } 0
+	TestGtinStruc();
 	Test_SSystemBackup();
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	//SDecimal::Test();
 	//ReformatRazoomnick("D:/Papyrus/Universe-HTT/DATA/Razoomnick-barcodes.csv");	
-	TestGtinStruc();
 	//PPStyloQInterchange::PrepareAhed(true);
 	//TestCRC();
 	//PPStyloQInterchange::ExecuteIndexingRequest(true/*useCurrentSession*/);

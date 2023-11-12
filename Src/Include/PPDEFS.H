@@ -5323,7 +5323,7 @@
 	#define CTL_CVTAT2AB_OBJ             (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CVTAT2AB_OBJ          (9 + WINDOWS_ID_BIAS)
 #define DLG_TAGRPNG               476 // Опции группировки анализа товарных операций
-	#define  cmEditCtParam               101 // @>>DLG_TAC
+	#define cmEditCtParam               101 // @>>DLG_TAC
 	#define CTL_TAGRPNG_FRAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_TAGRPNG_GOODS            (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TAGRPNG_GOODS         (3 + WINDOWS_ID_BIAS)

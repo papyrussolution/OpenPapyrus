@@ -392,7 +392,7 @@ static char* xmemmem(const char * hay, const size_t haysize,
 	if(needlesize == 0UL) {
 		return static_cast<char *>(deconst(hay));
 	}
-	else if((hay = static_cast<const char *>(memchr(hay, *needle, haysize))) == NULL) {
+	else if((hay = static_cast<const char *>(smemchr(hay, *needle, haysize))) == NULL) {
 		/* trivial */
 		return NULL;
 	}

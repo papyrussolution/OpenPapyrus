@@ -1481,14 +1481,12 @@ size_t HUFv05_decompress1X4_usingDTable(void* dst, size_t maxDstSize, const void
 /* **************************************************************
 *  Constants
 ****************************************************************/
-#define HUFv05_ABSOLUTEMAX_TABLELOG  16   /* absolute limit of HUFv05_MAX_TABLELOG. Beyond that value, code does not
-	                                     work */
-#define HUFv05_MAX_TABLELOG  12           /* max configured tableLog (for static allocation); can be modified up to
-	                                     HUFv05_ABSOLUTEMAX_TABLELOG */
+#define HUFv05_ABSOLUTEMAX_TABLELOG  16   /* absolute limit of HUFv05_MAX_TABLELOG. Beyond that value, code does not work */
+#define HUFv05_MAX_TABLELOG  12           /* max configured tableLog (for static allocation); can be modified up to HUFv05_ABSOLUTEMAX_TABLELOG */
 #define HUFv05_DEFAULT_TABLELOG  HUFv05_MAX_TABLELOG   /* tableLog by default, when not specified */
 #define HUFv05_MAX_SYMBOL_VALUE 255
 #if (HUFv05_MAX_TABLELOG > HUFv05_ABSOLUTEMAX_TABLELOG)
-#error "HUFv05_MAX_TABLELOG is too large !"
+	#error "HUFv05_MAX_TABLELOG is too large !"
 #endif
 //
 // Error Management

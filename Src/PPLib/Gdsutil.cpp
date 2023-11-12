@@ -5,6 +5,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <../osf/zbar/include/zbar.h>
 //
 //
 //
@@ -3277,18 +3278,17 @@ PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputForm
 			}
 			else
 				file_name = rParam.OutputFileName;
-			if(rParam.OutputFormat == SFileFormat::Png)
-				SPathStruc::ReplaceExt(file_name, "png", 1);
-			else if(rParam.OutputFormat == SFileFormat::Svg)
-				SPathStruc::ReplaceExt(file_name, "svg", 1);
-			else if(rParam.OutputFormat == SFileFormat::Txt)
-				SPathStruc::ReplaceExt(file_name, "txt", 1);
-			else if(rParam.OutputFormat == SFileFormat::Gif)
-				SPathStruc::ReplaceExt(file_name, "gif", 1);
-			else if(rParam.OutputFormat == SFileFormat::Bmp)
-				SPathStruc::ReplaceExt(file_name, "bmp", 1);
-			else
-				SPathStruc::ReplaceExt(file_name, "png", 1);
+			const char * p_ext = 0;
+			switch(rParam.OutputFormat) {
+				case SFileFormat::Png: p_ext = "png"; break;
+				case SFileFormat::Svg: p_ext = "svg"; break;
+				case SFileFormat::Txt: p_ext = "txt"; break;
+				case SFileFormat::Gif: p_ext = "gif"; break;
+				case SFileFormat::Bmp: p_ext = "bmp"; break;
+				default: p_ext = "png"; break;
+			}
+			if(p_ext)
+				SPathStruc::ReplaceExt(file_name, p_ext, 1);
 			STRNSCPY(p_zs->outfile, file_name);
 			THROW(ZBarcode_Print(p_zs, rot_angle) == 0);
 			rParam.OutputFileName = file_name;
@@ -3298,8 +3298,6 @@ PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputForm
     ZBarcode_Delete(p_zs);
     return ok;
 }
-
-#include <../osf/zbar/include/zbar.h>
 
 struct ZBarToPpBarcStd {
 	ushort ZBarCode;
@@ -3430,138 +3428,3 @@ static int FASTCALL ZBarStdToPp(zbar_symbol_type_t zbarstd)
 	delete p_fig;
     return ok;
 }
-
-#if SLTEST_RUNNING // {
-
-static const SIntToSymbTabEntry TestBcStdSymbList[] = {
-	{  BARCSTD_CODE11,      "code11"  },
-	{  BARCSTD_CODE11,      "code-11" },
-	{  BARCSTD_CODE11,      "code 11" },
-	{  BARCSTD_CODE39,      "code39"  },
-	{  BARCSTD_CODE39,      "code-39" },
-	{  BARCSTD_CODE39,      "code 39" },
-	{  BARCSTD_CODE49,      "code49"  },
-	{  BARCSTD_CODE49,      "code-49" },
-	{  BARCSTD_CODE49,      "code 49" },
-	{  BARCSTD_CODE93,      "code93"  },
-	{  BARCSTD_CODE93,      "code-93" },
-	{  BARCSTD_CODE93,      "code 93" },
-	{  BARCSTD_CODE128,     "code128" },
-	{  BARCSTD_CODE128,     "code-128" },
-	{  BARCSTD_CODE128,     "code 128" },
-	{  BARCSTD_PDF417,      "pdf417"   },
-	{  BARCSTD_PDF417,      "pdf-417"  },
-	{  BARCSTD_PDF417,      "pdf 417"  },
-	{  BARCSTD_PDF417,      "pdf"      },
-	{  BARCSTD_EAN13,       "ean13"    },
-	{  BARCSTD_EAN13,       "ean-13"   },
-	{  BARCSTD_EAN13,       "ean 13"   },
-	{  BARCSTD_EAN8,        "ean8"     },
-	{  BARCSTD_EAN8,        "ean-8" },
-	{  BARCSTD_EAN8,        "ean 8" },
-	{  BARCSTD_UPCA,        "upca"  },
-	{  BARCSTD_UPCA,        "upc-a" },
-	{  BARCSTD_UPCA,        "upc a" },
-	{  BARCSTD_UPCE,        "upce"  },
-	{  BARCSTD_UPCE,        "upc-e" },
-	{  BARCSTD_UPCE,        "upc e" },
-	{  BARCSTD_QR,          "qr"    },
-	{  BARCSTD_QR,          "qr-code"  },
-	{  BARCSTD_QR,          "qr code"  },
-	{  BARCSTD_QR,          "qrcode"   },
-	{  BARCSTD_INTRLVD2OF5, "interleaved2of5" },
-	{  BARCSTD_IND2OF5,     "industial2of5"   },
-	{  BARCSTD_STD2OF5,     "standard2of5"    },
-	{  BARCSTD_ANSI,        "codabar"         },
-	{  BARCSTD_MSI,         "msi"             },
-	{  BARCSTD_PLESSEY,     "plessey"    },
-	{  BARCSTD_POSTNET,     "postnet"    },
-	{  BARCSTD_LOGMARS,     "logmars"    },
-	{  BARCSTD_DATAMATRIX,  "datamatrix" } // @v10.9.10
-};
-
-SLTEST_R(BarcodeOutputAndRecognition)
-{
-	SString temp_buf;
-	{
-		for(uint i = 0; i < SIZEOFARRAY(TestBcStdSymbList); i++) {
-			const SIntToSymbTabEntry & r_entry = TestBcStdSymbList[i];
-			(temp_buf = r_entry.P_Symb).ToUpper();
-			int std = PPBarcode::RecognizeStdName(temp_buf);
-			SLCHECK_EQ((long)std, (long)r_entry.Id);
-			SLCHECK_NZ(PPBarcode::GetStdName(std, temp_buf));
-			int _found = 0;
-			for(uint j = 0; !_found && j < SIZEOFARRAY(TestBcStdSymbList); j++) {
-				const SIntToSymbTabEntry & r_entry2 = TestBcStdSymbList[j];
-				if(r_entry2.Id == std && temp_buf.CmpNC(r_entry2.P_Symb) == 0)
-					_found = 1;
-			}
-			SLCHECK_NZ(_found);
-		}
-	}
-	SString line_buf;
-	SString code_buf;
-	SString input_file_path;
-	//SString img_path;
-	(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("barcode.txt");
-    SFile f_in(input_file_path, SFile::mRead);
-    while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-		if(line_buf.Divide(':', temp_buf, code_buf) > 0) {
-			PPBarcode::BarcodeImageParam bip;
-			bip.Std = PPBarcode::RecognizeStdName(temp_buf.Strip());
-			if(bip.Std) {
-				code_buf.Strip();
-				{
-					temp_buf = code_buf;
-					if(oneof2(bip.Std, BARCSTD_EAN13, BARCSTD_EAN8))
-						temp_buf.TrimRight();
-					if(bip.Std == BARCSTD_UPCE) {
-						while(temp_buf.C(0) == '0')
-							temp_buf.ShiftLeft();
-						temp_buf.TrimRight();
-					}
-					bip.Code = temp_buf;
-				}
-				{
-					//
-					// PNG
-					//
-					bip.OutputFormat = SFileFormat::Png;
-					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).DotCat("png");
-					if(SLCHECK_NZ(PPBarcode::CreateImage(bip))) {
-						TSCollection <PPBarcode::Entry> bc_list;
-						if(SLCHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
-							SLCHECK_EQ(bc_list.getCount(), 1U);
-							if(bc_list.getCount() > 0) {
-								const PPBarcode::Entry * p_entry = bc_list.at(0);
-								SLCHECK_EQ(p_entry->BcStd, bip.Std);
-								SLCHECK_EQ(p_entry->Code, code_buf);
-							}
-						}
-					}
-				}
-				{
-					//
-					// SVG
-					//
-					bip.OutputFormat = SFileFormat::Svg;
-					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).DotCat("svg");
-					if(SLCHECK_NZ(PPBarcode::CreateImage(bip))) {
-						TSCollection <PPBarcode::Entry> bc_list;
-						if(SLCHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
-							SLCHECK_EQ(bc_list.getCount(), 1U);
-							if(bc_list.getCount() > 0) {
-								const PPBarcode::Entry * p_entry = bc_list.at(0);
-								SLCHECK_EQ(p_entry->BcStd, bip.Std);
-								SLCHECK_EQ(p_entry->Code, code_buf);
-							}
-						}
-					}
-				}
-			}
-		}
-    }
-	return CurrentStatus;
-}
-
-#endif // SLTEST_RUNNING

@@ -11,7 +11,7 @@
  * understand and accept it fully.
  *
  */
-#define  FT_MAKE_OPTION_SINGLE_OBJECT
+#define FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
 #pragma hdrstop
 #include <freetype/internal/ftdebug.h>
@@ -31,8 +31,8 @@
  * declarations and definitions.
  */
 #include "pstables.h"
-#define  DEFINE_PS_TABLES
-#define  DEFINE_PS_TABLES_DATA
+#define DEFINE_PS_TABLES
+#define DEFINE_PS_TABLES_DATA
 #include "pstables.h"
 #include "psnamerr.h"
 

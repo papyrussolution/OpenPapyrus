@@ -35,5 +35,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-mem.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-inet.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-edlib.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-image.cpp" />
   </ItemGroup>
 </Project>

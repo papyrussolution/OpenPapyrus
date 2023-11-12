@@ -451,7 +451,7 @@ _Dcomplex GnuPlot::__Igamma(_Dcomplex a, _Dcomplex z)
 			pn3 = pn5;
 			pn4 = pn6;
 			/* Re-scale terms in continued fraction if they are large */
-#define     IGAMMA_OVERFLOW  FLT_MAX
+#define IGAMMA_OVERFLOW  FLT_MAX
 			if(cabs(pn5) >= IGAMMA_OVERFLOW) {
 				pn1 /= IGAMMA_OVERFLOW;
 				pn2 /= IGAMMA_OVERFLOW;

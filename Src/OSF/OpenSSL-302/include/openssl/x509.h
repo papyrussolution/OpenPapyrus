@@ -540,9 +540,9 @@ extern "C" {
 #define X509_EXT_PACK_UNKNOWN   1
 #define X509_EXT_PACK_STRING    2
 
-#define         X509_extract_key(x)     X509_get_pubkey(x)/*****/
-#define         X509_REQ_extract_key(a) X509_REQ_get_pubkey(a)
-#define         X509_name_cmp(a, b)      X509_NAME_cmp((a), (b))
+#define X509_extract_key(x)     X509_get_pubkey(x)/*****/
+#define X509_REQ_extract_key(a) X509_REQ_get_pubkey(a)
+#define X509_name_cmp(a, b)      X509_NAME_cmp((a), (b))
 
 void X509_CRL_set_default_method(const X509_CRL_METHOD * meth);
 X509_CRL_METHOD * X509_CRL_METHOD_new(int (* crl_init)(X509_CRL * crl),

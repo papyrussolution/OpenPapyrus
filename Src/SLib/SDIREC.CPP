@@ -666,7 +666,7 @@ int FASTCALL SDirecDiffPool::Entry::Copy(const Entry & rS)
 	return ok;
 }
 
-SDirecDiffPool::SDirecDiffPool()
+SDirecDiffPool::SDirecDiffPool() : Result(0)
 {
 }
 	
@@ -676,100 +676,194 @@ SDirecDiffPool::~SDirecDiffPool()
 
 SDirecDiffPool & SDirecDiffPool::Z()
 {
+	Result = 0;
+	DirLeft.Z();
+	DirRight.Z();
 	L.freeAll();
 	return *this;
 }
 
-int SDirecDiffPool::Run(const char * pDirLeftUtf8, const char * pDirRightUtf8)
+int SDirecDiffPool::MakeReport(StringSet & rSs) const
 {
-	return Helper_Compare(pDirLeftUtf8, pDirRightUtf8);
+	rSs.Z();
+	return Helper_MakeReport(L, 0, rSs);
 }
-	
-int SDirecDiffPool::Helper_Compare(const char * pDirLeftUtf8, const char * pDirRightUtf8)
+
+int SDirecDiffPool::Helper_MakeReport(const TSCollection <Entry> & rL, uint indent, StringSet & rSs) const
 {
 	int    ok = 1;
-	Entry * p_new_entry = 0;
+	SString line_buf;
+	SString temp_buf;
+	if(indent == 0) {
+		rSs.add(line_buf.Z().Tab(indent).Cat("left").CatDiv(':', 2).Cat(DirLeft));
+		rSs.add(line_buf.Z().Tab(indent).Cat("right").CatDiv(':', 2).Cat(DirRight));
+		rSs.add(line_buf.Z().Tab(indent).Cat("result").CatDiv(':', 2).Cat(Result));
+		if(Result == 0) {
+			; // @todo report error
+		}
+	}
+	for(uint i = 0; i < rL.getCount(); i++) {
+		const Entry * p_entry = rL.at(i);
+		if(p_entry) {
+			switch(p_entry->Kind) {
+				case kEqual: temp_buf = "equal(unexpected-value)"; break;
+				case kAbsenceLeft: temp_buf = "left-is-missing"; break;
+				case kAbsenceRight: temp_buf = "right-is-missing"; break;
+				case kDiffType: temp_buf = "element-types-are-different"; break;
+			}
+			temp_buf.Z();
+			if(p_entry->Kind & kDiffAttr) {
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("attributes-are-different").CatDiv(':', 2).
+					CatHex(p_entry->StatLeft.Attr).Space().CatHex(p_entry->StatRight.Attr);
+			}
+			if(p_entry->Kind & kDiffSize) {
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("sizes-are-different").CatDiv(':', 2).Cat(p_entry->StatLeft.Size).Space().Cat(p_entry->StatRight.Size);
+			}
+			if(p_entry->Kind & kDiffModTime) {
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("modtimestamps-are-different").CatDiv(':', 2).
+					Cat(p_entry->StatLeft.ModTime, DATF_ISO8601CENT, 0).Space().Cat(p_entry->StatRight.ModTime, DATF_ISO8601CENT, 0);
+			}
+			if(p_entry->Kind & kDiffSubDir) {
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("subdirs-are-different");
+			}
+			rSs.add(line_buf.Z().Tab(indent).Cat(p_entry->Name).CatDiv(':', 2).Cat(temp_buf));
+			if(p_entry->P_RecurDir && p_entry->P_RecurDir->getCount()) {
+				Helper_MakeReport(*p_entry->P_RecurDir, indent+1, rSs);
+			}
+		}
+	}
+	return ok;
+}
+
+int SDirecDiffPool::Run(const char * pDirLeftUtf8, const char * pDirRightUtf8)
+{
+	Z();
+	int    ok = 1;
 	THROW(!isempty(pDirLeftUtf8));
 	THROW(!isempty(pDirRightUtf8));
 	{
+		SPathStruc::NormalizePath(pDirLeftUtf8, SPathStruc::npfCompensateDotDot, DirLeft);
+		SPathStruc::NormalizePath(pDirRightUtf8, SPathStruc::npfCompensateDotDot, DirRight);
+		if(DirLeft.IsEqiUtf8(DirRight))
+			ok = 2;
+		else
+			ok = Helper_Compare(DirLeft, DirRight);
+	}
+	CATCHZOK
+	Result = ok;
+	return ok;
+}
+
+int SDirecDiffPool::Helper_Compare(const SString & rDirLeftUtf8, const SString & rDirRightUtf8)
+{
+	int    ok = 1;
+	Entry * p_new_entry = 0;
+	assert(!rDirLeftUtf8.IsEmpty());
+	assert(!rDirRightUtf8.IsEmpty());
+	assert(!rDirLeftUtf8.IsEqiUtf8(rDirRightUtf8));
+	{
 		SString temp_buf;
 		SStringU temp_buf_u;
-		SString dir_left;
-		SString dir_right;
-		SPathStruc::NormalizePath(pDirLeftUtf8, SPathStruc::npfCompensateDotDot, dir_left);
-		SPathStruc::NormalizePath(pDirRightUtf8, SPathStruc::npfCompensateDotDot, dir_right);
-		if(dir_left.IsEqiUtf8(dir_right)) {
-			ok = 2;
-		}
-		else {
-			SFileEntryPool pool_left;
-			SFileEntryPool pool_right;
-			if(pool_left.Scan(dir_left, 0, SFileEntryPool::scanfReckonDirs) > 0) {
-				if(pool_right.Scan(dir_right, 0, SFileEntryPool::scanfReckonDirs) > 0) {
-					pool_left.Sort(SFileEntryPool::scByName);
-					pool_right.Sort(SFileEntryPool::scByName);
+		SFileEntryPool pool_left;
+		SFileEntryPool pool_right;
+		if(pool_left.Scan(rDirLeftUtf8, 0, SFileEntryPool::scanfReckonDirs) > 0) {
+			if(pool_right.Scan(rDirRightUtf8, 0, SFileEntryPool::scanfReckonDirs) > 0) {
+				pool_left.Sort(SFileEntryPool::scByName);
+				pool_right.Sort(SFileEntryPool::scByName);
 
-					SFileEntryPool::Entry entry_left;
-					SFileEntryPool::Entry entry_right;
-					SString full_path_left;
-					SString full_path_right;
-					LongArray seen_ridx_list; // Список позиций в правом наборе, которые мы проверили на итерации по левому набору
-					{
-						for(uint lidx = 0; lidx < pool_left.GetCount(); lidx++) {
-							const int lgr = pool_left.Get(lidx, &entry_left, &full_path_left);
-							assert(lgr);
-							uint ridx = 0;
-							int  _k = kEqual;
-							ZDELETE(p_new_entry);
-							if(temp_buf_u.CopyFromUtf8(entry_left.Name) && pool_right.Search(temp_buf_u, &ridx)) {
-								seen_ridx_list.add(static_cast<long>(ridx));
-								const int rgr = pool_right.Get(ridx, &entry_right, &full_path_right);
-								assert(rgr);
-								const uint tattr_mask = (SFile::attrSubdir|SFile::attrReparsePoint);
-								if((entry_left.Attr & tattr_mask) != (entry_right.Attr & tattr_mask)) {
-									_k = kDiffType;
+				SFileEntryPool::Entry entry_left;
+				SFileEntryPool::Entry entry_right;
+				SString full_path_left;
+				SString full_path_right;
+				LongArray seen_ridx_list; // Список позиций в правом наборе, которые мы проверили на итерации по левому набору
+				{
+					for(uint lidx = 0; lidx < pool_left.GetCount(); lidx++) {
+						const int lgr = pool_left.Get(lidx, &entry_left, &full_path_left);
+						assert(lgr);
+						uint ridx = 0;
+						int  _k = kEqual;
+						ZDELETE(p_new_entry);
+						if(temp_buf_u.CopyFromUtf8(entry_left.Name) && pool_right.Search(temp_buf_u, &ridx)) {
+							seen_ridx_list.add(static_cast<long>(ridx));
+							const int rgr = pool_right.Get(ridx, &entry_right, &full_path_right);
+							assert(rgr);
+							const uint tattr_mask = (SFile::attrSubdir|SFile::attrReparsePoint); // Атрибуты, определяющие тип элемента
+							const uint iattr_mask = (SFile::attrNotContentIndexed); // Игнорируемые при сравнении атрибуты
+							if((entry_left.Attr & tattr_mask) != (entry_right.Attr & tattr_mask)) {
+								_k = kDiffType;
+							}
+							else {
+								if((entry_left.Attr & ~iattr_mask) != (entry_right.Attr & ~iattr_mask)) {
+									_k |= kDiffAttr;
 								}
-								else {
-									if(entry_left.Attr != entry_right.Attr) {
-										_k |= kDiffAttr;
-									}
-									if(entry_left.IsFolder()) {
-										; // @todo Helper_Compare recursion
-										SDirecDiffPool inner;
-										int inner_result = inner.Helper_Compare(full_path_left, full_path_right); // @recursion
-										assert(inner_result != 2);
-										THROW(inner_result);
-										if(inner_result > 0) {
-											;
-										}
-										else {
-											SETIFZQ(p_new_entry, new Entry);
-											p_new_entry->P_RecurDir = new TSCollection <Entry>();
-											TSCollection_Copy(*p_new_entry->P_RecurDir, inner.L);
-											_k |= kDiffSubDir;
-										}
+								if(entry_left.IsFolder()) {
+									SDirecDiffPool inner;
+									int inner_result = inner.Helper_Compare(full_path_left, full_path_right); // @recursion
+									assert(inner_result != 2);
+									THROW(inner_result);
+									if(inner_result > 0) {
+										;
 									}
 									else {
-										// Для каталогов время модификации и размер не сравниваем
-										if(entry_left.ModTime != entry_right.ModTime) {
-											_k |= kDiffModTime;
-										}
-										if(entry_left.Size != entry_right.Size) {
-											_k |= kDiffSize;
-										}
+										SETIFZQ(p_new_entry, new Entry);
+										p_new_entry->P_RecurDir = new TSCollection <Entry>();
+										TSCollection_Copy(*p_new_entry->P_RecurDir, inner.L);
+										_k |= kDiffSubDir;
+									}
+								}
+								else {
+									// Для каталогов время модификации и размер не сравниваем
+									if(entry_left.ModTime != entry_right.ModTime) {
+										_k |= kDiffModTime;
+									}
+									if(entry_left.Size != entry_right.Size) {
+										_k |= kDiffSize;
 									}
 								}
 							}
+						}
+						else {
+							entry_right.Z();
+							_k = kAbsenceRight;
+						}
+						if(_k != kEqual) {
+							SETIFZQ(p_new_entry, new Entry);
+							p_new_entry->Kind = _k;
+							p_new_entry->StatLeft = entry_left;
+							p_new_entry->StatRight = entry_right;
+							p_new_entry->Name = entry_left.Name;
+							L.insert(p_new_entry);
+							p_new_entry = 0; // @mandatory
+							ok = -1;
+						}
+						else {
+							assert(p_new_entry == 0); // Экземпляр создавался только если были различия. Тем менее, ниже, так я - параноик, разрушаю объект по указателю.
+							ZDELETE(p_new_entry);
+						}
+					}
+				}
+				{
+					seen_ridx_list.sortAndUndup();
+					for(uint ridx = 0; ridx < pool_right.GetCount(); ridx++) {
+						if(!seen_ridx_list.bsearch(ridx)) {
+							const int rgr = pool_right.Get(ridx, &entry_right, &full_path_right);
+							assert(rgr);
+							uint lidx = 0;
+							int  _k = kEqual;
+							ZDELETE(p_new_entry);
+							if(temp_buf_u.CopyFromUtf8(entry_right.Name) && pool_left.Search(temp_buf_u, &lidx)) {
+								; // Если слева существует элемент с таким именем, то nothing-to-do: в цикле по левому дереву выше я проработал этот случай.
+							}
 							else {
-								entry_right.Z();
-								_k = kAbsenceRight;
+								entry_left.Z();
+								_k = kAbsenceLeft;
 							}
 							if(_k != kEqual) {
 								SETIFZQ(p_new_entry, new Entry);
 								p_new_entry->Kind = _k;
 								p_new_entry->StatLeft = entry_left;
 								p_new_entry->StatRight = entry_right;
-								p_new_entry->Name = entry_left.Name;
+								p_new_entry->Name = entry_right.Name;
 								L.insert(p_new_entry);
 								p_new_entry = 0; // @mandatory
 								ok = -1;
@@ -777,39 +871,6 @@ int SDirecDiffPool::Helper_Compare(const char * pDirLeftUtf8, const char * pDirR
 							else {
 								assert(p_new_entry == 0); // Экземпляр создавался только если были различия. Тем менее, ниже, так я - параноик, разрушаю объект по указателю.
 								ZDELETE(p_new_entry);
-							}
-						}
-					}
-					{
-						seen_ridx_list.sortAndUndup();
-						for(uint ridx = 0; ridx < pool_right.GetCount(); ridx++) {
-							if(!seen_ridx_list.bsearch(ridx)) {
-								const int rgr = pool_right.Get(ridx, &entry_right, &full_path_right);
-								assert(rgr);
-								uint lidx = 0;
-								int  _k = kEqual;
-								ZDELETE(p_new_entry);
-								if(temp_buf_u.CopyFromUtf8(entry_right.Name) && pool_left.Search(temp_buf_u, &lidx)) {
-									; // Если слева существует элемент с таким именем, то nothing-to-do: в цикле по левому дереву выше я проработал этот случай.
-								}
-								else {
-									entry_left.Z();
-									_k = kAbsenceLeft;
-								}
-								if(_k != kEqual) {
-									SETIFZQ(p_new_entry, new Entry);
-									p_new_entry->Kind = _k;
-									p_new_entry->StatLeft = entry_left;
-									p_new_entry->StatRight = entry_right;
-									p_new_entry->Name = entry_right.Name;
-									L.insert(p_new_entry);
-									p_new_entry = 0; // @mandatory
-									ok = -1;
-								}
-								else {
-									assert(p_new_entry == 0); // Экземпляр создавался только если были различия. Тем менее, ниже, так я - параноик, разрушаю объект по указателю.
-									ZDELETE(p_new_entry);
-								}
 							}
 						}
 					}

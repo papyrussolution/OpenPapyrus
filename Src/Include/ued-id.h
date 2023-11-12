@@ -1,6 +1,6 @@
 // UED-ID-TEMP.H
-// version: 20
-// sha256: 3b8d6622b479f645c378b9669083b8527fadff03693a3b448ed79acc9e5bf396
+// version: 22
+// sha256: c45bd5ff06204ee6354c24f86d664062afd2d7c0fcfe40d3c5f1c8599a0fa72c
 //
 #ifndef __UED_ID_TEMP_H
 #define __UED_ID_TEMP_H
@@ -3596,6 +3596,7 @@
 #define UED_META_DATE_DAYBC                          0x100000079ULL
 #define UED_META_TIME_HR                             0x100000081ULL
 #define UED_META_TIME_TZHR                           0x100000082ULL
+#define UED_META_DATESDN_DAY                         0x100000083ULL
 #define UED_META_NLWCLS                              0x100000101ULL
 	#define UED_NLWCLS_ALPHA                             0x10100000001ULL
 	#define UED_NLWCLS_DIGIT                             0x10100000002ULL
@@ -3644,6 +3645,7 @@
 #define UED_META_DATASIZE                            0x1400d0000ULL
 #define UED_META_IP4                                 0x1400e0000ULL
 #define UED_META_PHONENUMBER                         0x140100000ULL
+#define UED_META_STRINGREF                           0x140110000ULL
 #define UED_META_AR_DNI                              0x1409a0000ULL
 #define UED_META_CL_RUT                              0x1409b0000ULL
 #define UED_META_QTTY                                0x1409c0000ULL

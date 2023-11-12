@@ -3029,9 +3029,9 @@ private:
 #define EXCLUSIVE_MODE      3
 // }
 //
-#define  P_MAX_NAME_SIZE         64    /* maximum size of common names */
-#define  P_MAX_PATH_SIZE         1024  /* maximum size of a full path */
-#define  P_MAX_COMM_PROTOCOLS    8     /* maximum communication protocols */
+#define P_MAX_NAME_SIZE         64    /* maximum size of common names */
+#define P_MAX_PATH_SIZE         1024  /* maximum size of a full path */
+#define P_MAX_COMM_PROTOCOLS    8     /* maximum communication protocols */
 
 typedef int (*PT_PvConnectServer)(char * serverName, char * userName, char * password, long * phConnection);
 typedef int (*PT_PvDisconnect)(long hConnection);

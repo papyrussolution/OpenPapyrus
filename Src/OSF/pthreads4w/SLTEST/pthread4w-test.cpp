@@ -7,12 +7,12 @@
 // This is used inside ../implement.h to control
 // what these test apps see and don't see.
 // 
-#define  __PTW32_TEST_SNEAK_PEEK
+#define __PTW32_TEST_SNEAK_PEEK
 
 #include <sys/timeb.h>
 //#include <errno.h> // FIXME: May not be available on all platforms.
 
-#define  __PTW32_THREAD_NULL_ID {NULL,0}
+#define __PTW32_THREAD_NULL_ID {NULL,0}
 /*
  * Some non-thread POSIX API substitutes
  */
@@ -27,14 +27,14 @@
 	#define int64_t _int64
 #endif
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-	#define  __PTW32_FTIME(x) _ftime64_s(x)
-	#define  __PTW32_STRUCT_TIMEB struct __timeb64
+	#define __PTW32_FTIME(x) _ftime64_s(x)
+	#define __PTW32_STRUCT_TIMEB struct __timeb64
 #elif ( defined(_MSC_VER) && _MSC_VER >= 1300 ) || ( defined(__MINGW32__) && __MSVCRT_VERSION__ >= 0x0601 )
-	#define  __PTW32_FTIME(x) _ftime64(x)
-	#define  __PTW32_STRUCT_TIMEB struct __timeb64
+	#define __PTW32_FTIME(x) _ftime64(x)
+	#define __PTW32_STRUCT_TIMEB struct __timeb64
 #else
-	#define  __PTW32_FTIME(x) _ftime(x)
-	#define  __PTW32_STRUCT_TIMEB struct _timeb
+	#define __PTW32_FTIME(x) _ftime(x)
+	#define __PTW32_STRUCT_TIMEB struct _timeb
 #endif
 
 struct cvthing_t {
@@ -9140,7 +9140,7 @@ static int PThr4wTest_Exception30()
 //
 //
 //
-// @sobolev (yet defined at implement.h) #define  __PTW32_OBJECT_AUTO_INIT ((void *)-1)
+// @sobolev (yet defined at implement.h) #define __PTW32_OBJECT_AUTO_INIT ((void *)-1)
 // 
 // Dummy use of j, otherwise the loop may be removed by the optimiser
 // when doing the overhead timing with an empty loop.
@@ -9153,7 +9153,7 @@ static HINSTANCE __ptw32_h_kernel32;
 //
 //
 //
-#define  __PTW32_MUTEX_TYPES
+#define __PTW32_MUTEX_TYPES
 
 class BenchTestBlock {
 public:

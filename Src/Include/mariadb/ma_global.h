@@ -32,7 +32,7 @@
 #include <ma_config.h>
 //#include <assert.h>
 #ifndef __GNUC__
-	#define  __attribute(A)
+	#define __attribute(A)
 #endif
 /* Fix problem with S_ISLNK() on Linux */
 #if defined(HAVE_LINUXTHREADS)

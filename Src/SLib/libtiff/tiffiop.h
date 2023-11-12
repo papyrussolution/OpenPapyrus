@@ -111,7 +111,7 @@
 #ifndef STRIP_SIZE_DEFAULT
 	#define STRIP_SIZE_DEFAULT 8192
 #endif
-// @sobolev #define    streq(a,b)      (strcmp(a,b) == 0)
+// @sobolev #define streq(a,b)      (strcmp(a,b) == 0)
 // @sobolev #ifndef TRUE
 	// @sobolev #define	TRUE	1
 	// @sobolev #define	FALSE	0

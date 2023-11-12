@@ -88,7 +88,14 @@ public:
 protected:
 	SrUedContainer_Base();
 	~SrUedContainer_Base();
-	int    ReadSource(const char * pFileName, PPLogger * pLogger);
+	//
+	// Descr: Флаги функции ReadSource
+	//
+	enum {
+		rfDebug = 0x0001
+	};
+
+	int    ReadSource(const char * pFileName, uint flags, PPLogger * pLogger);
 	int    WriteSource(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
 	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
@@ -98,31 +105,42 @@ protected:
 	//   так как финишная обработка требует знаний о всем массиве сущностей.
 	//
 	struct ProtoProp {
-		ProtoProp() : Ued(0), LinguaLocus(0), LineNo(0)
+		ProtoProp() : Ued(0), LocaleId(0), LineNo(0)
 		{
 		}
 		uint64 Ued;
-		uint64 LinguaLocus; // Если свойство задано для языкового определения сущности, то здесь - 
+		int    LocaleId; // Если свойство задано для языкового определения сущности, то здесь - 
 			// идентификатор соответствующего локуса.
 		uint32 LineNo; // Номер строки, на которой начинается определение свойства.
 		StringSet Prop; // The first item - property symb, other - arguments
 	};
 	class ProtoPropList_SingleUed : public TSCollection <ProtoProp> {
 	public:
-		ProtoPropList_SingleUed(uint64 ued, uint64 linguaLocus) : Ued(ued), LinguaLocus(LinguaLocus)
-		{
-		}
-		ProtoProp * Create()
-		{
-			ProtoProp * p_new_entry = CreateNewItem();
-			if(p_new_entry) {
-				p_new_entry->Ued = Ued;
-				p_new_entry->LinguaLocus = LinguaLocus;
-			}
-			return p_new_entry;
-		}
+		ProtoPropList_SingleUed(uint64 ued, int localeId);
+		void Init(uint64 ued, int localeId);
+		ProtoProp * Create();
 		uint64 Ued;
-		uint64 LinguaLocus;
+		int    LocaleId;
+	};
+	class PropertyListParsingBlock {
+	public:
+		PropertyListParsingBlock();
+		bool    IsStarted() const { return (Status > 0); }
+		bool    Start(uint64 ued, int localeId);
+		//
+		// Returns:
+		//   >0 - разбор завершен (встретился завершающий символ '}')
+		//   <0 - разбор не завершен
+		//    0 - error
+		//
+		int    Do(SStrScan & rScan);
+		const ProtoPropList_SingleUed GetResult() const { return PL; }
+	private:
+		int    ScanProp(SStrScan & rScan);
+		int    ScanArg(SStrScan & rScan, bool isFirst/*@debug*/);
+		int    Status; // 0 - idle, 1 - started, 2 - in work (the first '{' was occured and processed)
+		int    State;  // Внутренний идентификатор состояния разбора.
+		ProtoPropList_SingleUed PL;
 	};
 	TSVector <BaseEntry> BL;
 	TSVector <TextEntry> TL;
@@ -130,6 +148,7 @@ protected:
 private:
 	uint64 SearchBaseIdBySymbId(uint symbId, uint64 meta) const;
 	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger);
+	int    RegisterProtoPropList(const ProtoPropList_SingleUed & rList);
 	uint64 LinguaLocusMeta;
 	SymbHashTable Ht; // Хэш-таблица символов из списка BL
 	uint   LastSymbHashId;
@@ -166,7 +185,8 @@ public:
 
 enum {
 	prcssuedfForceUpdatePlDecl = 0x0001,
-	prcssuedfTolerant          = 0x0002
+	prcssuedfTolerant          = 0x0002,
+	prcssuedfDebug             = 0x0004, // @v11.8.10
 };
 
 int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pRtOutPath, const char * pCPath, const char * pJavaPath, uint flags, PPLogger * pLogger); // @v11.7.10

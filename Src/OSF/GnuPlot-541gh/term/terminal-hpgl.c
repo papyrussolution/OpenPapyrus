@@ -173,8 +173,8 @@ TERM_PUBLIC void HPGL2_enh_flush(GpTermEntry_Static * pThis);
  * Number of available point types for HPGL/2
  */
 
-#define  HPGL2_NUM_NOPSPOINTS 6; /* for nopspoints option */
-#define  HPGL2_NUM_PSPOINTS 75; /* for pspoints option */
+#define HPGL2_NUM_NOPSPOINTS 6; /* for nopspoints option */
+#define HPGL2_NUM_PSPOINTS 75; /* for pspoints option */
 
 /*
  * Control constants

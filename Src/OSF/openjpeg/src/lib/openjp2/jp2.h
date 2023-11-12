@@ -32,19 +32,19 @@
 
 /*#define JPIP_JPIP 0x6a706970*/
 
-#define     JP2_JP   0x6a502020    /**< JPEG 2000 signature box */
-#define     JP2_FTYP 0x66747970    /**< File type box */
-#define     JP2_JP2H 0x6a703268    /**< JP2 header box (super-box) */
-#define     JP2_IHDR 0x69686472    /**< Image header box */
-#define     JP2_COLR 0x636f6c72    /**< Colour specification box */
-#define     JP2_JP2C 0x6a703263    /**< Contiguous codestream box */
-#define     JP2_URL  0x75726c20    /**< Data entry URL box */
-#define     JP2_PCLR 0x70636c72    /**< Palette box */
-#define     JP2_CMAP 0x636d6170    /**< Component Mapping box */
-#define     JP2_CDEF 0x63646566    /**< Channel Definition box */
-#define     JP2_DTBL 0x6474626c    /**< Data Reference box */
-#define     JP2_BPCC 0x62706363    /**< Bits per component box */
-#define     JP2_JP2  0x6a703220    /**< File type fields */
+#define JP2_JP   0x6a502020    /**< JPEG 2000 signature box */
+#define JP2_FTYP 0x66747970    /**< File type box */
+#define JP2_JP2H 0x6a703268    /**< JP2 header box (super-box) */
+#define JP2_IHDR 0x69686472    /**< Image header box */
+#define JP2_COLR 0x636f6c72    /**< Colour specification box */
+#define JP2_JP2C 0x6a703263    /**< Contiguous codestream box */
+#define JP2_URL  0x75726c20    /**< Data entry URL box */
+#define JP2_PCLR 0x70636c72    /**< Palette box */
+#define JP2_CMAP 0x636d6170    /**< Component Mapping box */
+#define JP2_CDEF 0x63646566    /**< Channel Definition box */
+#define JP2_DTBL 0x6474626c    /**< Data Reference box */
+#define JP2_BPCC 0x62706363    /**< Bits per component box */
+#define JP2_JP2  0x6a703220    /**< File type fields */
 /* For the future */
 /* #define JP2_RES 0x72657320 */  /**< Resolution box (super-box) */
 /* #define JP2_JP2I 0x6a703269 */  /**< Intellectual property box */

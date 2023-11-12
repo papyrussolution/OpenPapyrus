@@ -23,6 +23,8 @@
 		int    ok = 1;
 		SString temp_buf;
 		SStringU temp_buf_u;
+		SString path_test_root;
+		SLS.QueryPath("testroot", path_test_root);
 		{
 			if(false) { // @construction
 				static const SColor color_list[] = {
@@ -81,8 +83,7 @@
 				//C:\Papyrus\Src\PPTEST\DATA\cities\cities.csv 
 				SString in_file_name;
 				SString line_buf;
-				SLS.QueryPath("testroot", temp_buf);
-				(in_file_name = temp_buf).SetLastSlash().Cat("data").SetLastSlash().Cat("cities").SetLastSlash().Cat("cities.csv");
+				(in_file_name = path_test_root).SetLastSlash().Cat("data").SetLastSlash().Cat("cities").SetLastSlash().Cat("cities.csv");
 				SFile f_in(in_file_name, SFile::mRead);
 				SFile::ReadLineCsvContext csv_ctx(',');
 				StringSet ss_rec;
@@ -212,6 +213,22 @@
 					SLCHECK_EQ(ued, r_item.UED);
 				}
 			}
+		}
+		{
+			SString src_file_name;
+			SString out_path;
+			SString c_path;
+			SString java_path;
+			SString rt_out_path;
+			uint   flags = 0; // prcssuedfForceUpdatePlDecl, prcssuedfTolerant
+
+			(src_file_name = path_test_root).SetLastSlash().Cat("data").SetLastSlash().Cat("ued").SetLastSlash().Cat("ued-test.txt");
+			(out_path = path_test_root).SetLastSlash().Cat("out").SetLastSlash().Cat("ued");
+			createDir(out_path);
+			c_path = out_path;
+			java_path = out_path;
+			PPLogger logger(PPLogger::fStdErr);
+			int    r = ProcessUed(src_file_name, out_path, rt_out_path, c_path, java_path, flags, &logger);
 		}
 		return CurrentStatus;
 	}

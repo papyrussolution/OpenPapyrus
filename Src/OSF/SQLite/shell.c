@@ -15975,7 +15975,8 @@ static void resolve_backslashes(char * z){
 ** Interpret zArg as either an integer or a boolean value.  Return 1 or 0
 ** for TRUE and FALSE.  Return the integer value if appropriate.
 */
-static int booleanValue(const char * zArg){
+static int booleanValue(const char * zArg)
+{
 	int i;
 	if(zArg[0]=='0' && zArg[1]=='x') {
 		for(i = 2; hexDigitValue(zArg[i])>=0; i++) {
@@ -15985,7 +15986,8 @@ static int booleanValue(const char * zArg){
 		for(i = 0; zArg[i]>='0' && zArg[i]<='9'; i++) {
 		}
 	}
-	if(i>0 && zArg[i]==0) return (int)(integerValue(zArg) & 0xffffffff);
+	if(i>0 && zArg[i]==0) 
+		return (int)(integerValue(zArg) & 0xffffffff);
 	if(sqlite3_stricmp(zArg, "on")==0 || sqlite3_stricmp(zArg, "yes")==0) {
 		return 1;
 	}

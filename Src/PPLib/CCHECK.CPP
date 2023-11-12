@@ -1385,7 +1385,7 @@ int CCheckPacket::SetupPaymList(const CcAmountList * pList)
 		// @v10.3.4 const double epsilon = 1E-6;
 		// @v10.3.4 if(fabs(_amt - _total) > epsilon) {
 		if(!feqeps(_amt, _total, 1E-6)) { // @v10.3.4 
-			CCheckCore::MakeCodeString(&Rec, temp_buf);
+			CCheckCore::MakeCodeString(&Rec, 0, temp_buf);
 			ok = PPSetError(PPERR_CCPAYMLISTDIFFAMT, temp_buf);
 		}
 		else if(pList->getCount() == 1) {
@@ -1688,11 +1688,14 @@ void FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 //
 // CCheckCore
 //
-/*static*/SString & FASTCALL CCheckCore::MakeCodeString(const CCheckTbl::Rec * pRec, SString & rBuf)
+/*static*/SString & FASTCALL CCheckCore::MakeCodeString(const CCheckTbl::Rec * pRec, uint options, SString & rBuf)
 {
-	rBuf.Z().Cat(pRec->Dt).CatDiv(':', 1);
+	rBuf.Z();
+	if(options & mcsID)
+		rBuf.CatChar('#').Cat(pRec->ID).Space();
+	rBuf.Cat(pRec->Dt).CatDiv(':', 1);
 	if(pRec->Tm)
-		rBuf.Cat(pRec->Tm, MKSFMT(0, TIMF_HMS | TIMF_MSEC)).CatDiv(':', 1);
+		rBuf.Cat(pRec->Tm, MKSFMT(0, TIMF_HMS|TIMF_MSEC)).CatDiv(':', 1);
 	return rBuf.CatLongZ(pRec->CashID, 4).CatDiv(':', 1).Cat(pRec->Code);
 }
 
@@ -1961,7 +1964,7 @@ int CCheckCore::GetOrderServersCheckList(PPID orderCheckID, PPIDArray & rList)
 	SString cc_text;
 	CCheckTbl::Rec rec;
 	THROW(Search(orderCheckID, &rec) > 0);
-	CCheckCore::MakeCodeString(&rec, cc_text);
+	CCheckCore::MakeCodeString(&rec, 0, cc_text);
 	THROW_PP_S(rec.Flags & CCHKF_ORDER, PPERR_CCHKNORDER, cc_text);
 	if(P_Ext) {
 		CCheckExtTbl::Key1 k1;
@@ -1988,7 +1991,7 @@ int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & r
 	SString fmt_buf, chk_text, msg_buf;
 	if(LoadPacket(id, 0, &cc_pack) > 0) {
 		double amt = 0.0, dscnt = 0.0;
-		CCheckCore::MakeCodeString(&cc_pack.Rec, chk_text);
+		CCheckCore::MakeCodeString(&cc_pack.Rec, 0, chk_text);
 		cc_pack.CalcAmount(&amt, &dscnt);
 		const double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
 		const double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
@@ -2368,7 +2371,7 @@ int CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
 			THROW(r);
 			if(r < 0) {
 				SString fmt_buf, msg_buf, cchk_code;
-				CCheckCore::MakeCodeString(&pPack->Rec, cchk_code);
+				CCheckCore::MakeCodeString(&pPack->Rec, 0, cchk_code);
 				msg_buf.Printf(PPLoadTextS(PPTXT_LOG_CCHKEXTNFOUND, fmt_buf), cchk_code.cptr());
 				PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 			}
@@ -2398,7 +2401,7 @@ void CCheckCore::WriteCCheckLogFile(const CCheckPacket * pPack, const CCheckLine
 		SString  msg, temp_buf, saler_name;
 		if(PPGetSubStr(PPTXT_CCHKLOG, action, msg) > 0) {
 			GetArticleName(pPack->Ext.SalerID, saler_name);
-			msg.Align(15, ADJ_LEFT).CatDiv('-', 1).Cat(MakeCodeString(&pPack->Rec, temp_buf));
+			msg.Align(15, ADJ_LEFT).CatDiv('-', 1).Cat(MakeCodeString(&pPack->Rec, 0, temp_buf));
 			msg.CatDiv('-', 1).Cat(MONEYTOLDBL(pPack->Rec.Amount), SFMT_MONEY);
 			msg.CatDiv('-', 1).Cat(MONEYTOLDBL(pPack->Rec.Discount), SFMT_MONEY);
 			if(pPack->Rec.SCardID) {
@@ -2888,7 +2891,7 @@ int CCheckCore::PreprocessPacket(CCheckPacket * pPack)
 		if(pPack->UpdFlags & CCheckPacket::ufCheckInvariant) {
 			if(!r) {
 				SString ccheck_code;
-				CCheckCore::MakeCodeString(&pPack->Rec, ccheck_code);
+				CCheckCore::MakeCodeString(&pPack->Rec, 0, ccheck_code);
 				PPSetError(PPERR_INVAR_CCHECKPACKET, ccheck_code);
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 			}
@@ -2952,7 +2955,13 @@ int CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 			SString text_buf;
 			// @v10.3.9 pPack->PackLineTextExt(text_buf);
 			pPack->PackTextExt(text_buf); // @v10.3.9
-			if(text_buf.NotEmptyS()) {
+			//
+			// @v11.8.10 Проявляются какие-то странные явления: в некоторых чеках возникают текстовые поля из других чеков.
+			// Я не понимаю точно в чем дело, но на всякий случай сделаю контрольное удаление записи текстового расширения //
+			// если добавляемый пакет не имеет такого расширения (условие if(text_buf.NotEmptyS()) убираю).
+			//
+			text_buf.Strip(); // @v11.8.10 
+			if(/*text_buf.NotEmptyS()*/true) {  // @v11.8.10 text_buf.NotEmptyS()-->true
 				THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			}
 		}
@@ -3291,7 +3300,7 @@ int CCheckCore::ToggleDeliveryCloseTag(PPID checkID, const LDATETIME & rDtm, int
 		THROW(tra);
 		if(SearchByID_ForUpdate(this, PPOBJ_CCHECK, checkID, &cc_rec) > 0) {
 			SString msg_buf;
-			THROW_PP_S(cc_rec.Flags & CCHKF_DELIVERY, PPERR_CCHKNDELIVERY, CCheckCore::MakeCodeString(&cc_rec, msg_buf));
+			THROW_PP_S(cc_rec.Flags & CCHKF_DELIVERY, PPERR_CCHKNDELIVERY, CCheckCore::MakeCodeString(&cc_rec, 0, msg_buf));
 			if(set) {
 				THROW_SL(checkdate(rDtm.d, 1));
 				THROW_SL(checktime(rDtm.t));

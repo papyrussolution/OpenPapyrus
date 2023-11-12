@@ -77,9 +77,9 @@ static inline uint64 archive_be64dec(const void *pp)
 static inline uint16 archive_le16dec(const void *pp)
 {
 	uchar const * p = (uchar const *)pp;
-	/* Store into unsigned temporaries before left shifting, to avoid
-	promotion to signed int and then left shifting into the sign bit,
-	which is undefined behaviour. */
+	// Store into unsigned temporaries before left shifting, to avoid
+	// promotion to signed int and then left shifting into the sign bit,
+	// which is undefined behaviour
 	uint p1 = p[1];
 	uint p0 = p[0];
 	return ((p1 << 8) | p0);
@@ -88,9 +88,9 @@ static inline uint16 archive_le16dec(const void *pp)
 static inline uint32 archive_le32dec(const void *pp)
 {
 	uchar const * p = (uchar const *)pp;
-	/* Store into unsigned temporaries before left shifting, to avoid
-	promotion to signed int and then left shifting into the sign bit,
-	which is undefined behaviour. */
+	// Store into unsigned temporaries before left shifting, to avoid
+	// promotion to signed int and then left shifting into the sign bit,
+	// which is undefined behaviour
 	uint p3 = p[3];
 	uint p2 = p[2];
 	uint p1 = p[1];

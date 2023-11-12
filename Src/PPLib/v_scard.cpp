@@ -2785,7 +2785,7 @@ static IMPL_DBE_PROC(dbqf_scardop_extobj_ii)
 				PPObjSCard sc_obj;
 				CCheckTbl::Rec cc_rec;
 				if(sc_obj.P_CcTbl->Search(obj_id, &cc_rec) > 0) {
-					CCheckCore::MakeCodeString(&cc_rec, text_buf);
+					CCheckCore::MakeCodeString(&cc_rec, 0, text_buf);
 				}
 			}
 		}
@@ -2906,7 +2906,7 @@ int PPViewSCardOp::Recover()
 					{
 						// PPTXT_INVSCOPCHECKLINK      "Чек '@zstr', на который ссылается операция по карте '@scard' не содержит ссылку на эту карту"
 						PPLoadText(PPTXT_INVSCOPCHECKLINK, fmt_buf);
-						CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
+						CCheckCore::MakeCodeString(&cc_pack.Rec, 0, temp_buf);
 						PPFormat(fmt_buf, &msg_buf, temp_buf.cptr(), sc_id);
 						logger.Log(msg_buf);
 					}
@@ -2933,7 +2933,7 @@ int PPViewSCardOp::Recover()
 								{
 									//PPTXT_INVSCOPSIGN                   "Неверный знак операции, ссылающейся на чек '@zstr', по карте '@scard'"
 									PPLoadText(PPTXT_INVSCOPSIGN, fmt_buf);
-									CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
+									CCheckCore::MakeCodeString(&cc_pack.Rec, 0, temp_buf);
 									PPFormat(fmt_buf, &msg_buf, temp_buf.cptr(), sc_id);
 									logger.Log(msg_buf);
 								}

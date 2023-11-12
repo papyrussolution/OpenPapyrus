@@ -304,6 +304,11 @@ void GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
 	}
 }
 
+void GtinStruc::RemoveSpecialFixedToken(int token) // @v11.8.10
+{
+	SpecialFixedTokens.Remove(token, 0);
+}
+
 void GtinStruc::SetSpecialMinLenToken(int token, int minLen)
 {
 	if(minLen > 0)
@@ -554,7 +559,16 @@ int GtinStruc::Parse(const char * pCode)
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
 		uint tokn = 0;
-		tr.Run(code_buf.ucptr(), code_buf.Len(), nta, 0);
+		{
+			temp_buf.Z();
+			for(uint i = 0; i < code_buf.Len(); i++) {
+				if(!IsSpecialStopChar(code_buf.cptr() + i)) {
+					temp_buf.CatChar(code_buf.C(i));
+				}
+			}
+			tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta, 0);
+			//tr.Run(code_buf.ucptr(), code_buf.Len(), nta, 0);
+		}
 		if(nta.Has(SNTOK_CHZN_CIGITEM)) {
 			assert(code_buf.Len() == 29);
 			size_t offs = 0; 
@@ -590,7 +604,17 @@ int GtinStruc::Parse(const char * pCode)
 		else if(nta.Has(SNTOK_CHZN_CIGBLOCK)) {
 			// 0104600818007879 21t"XzgHU 8005095000 930p2J24014518552
 			//assert(oneof2(code_buf.Len(), 52, 35));
-			uint prefix_len = code_buf.HasPrefix("01") ? 2 : (code_buf.HasPrefix("(01)") ? 4 : 0);
+			// @v11.9.10 новые данные о маркировке сигаретных блоков {
+			// @construction RemoveSpecialFixedToken(GtinStruc::fldInner2); 
+			// @construction AddOnlyToken(GtinStruc::fldInner2);
+			// }
+			uint prefix_len = 0;
+			if(code_buf.HasPrefix("01"))
+				prefix_len = 2;
+			else if(code_buf.HasPrefix("\x1D" "01"))
+				prefix_len = 3;
+			else if(code_buf.HasPrefix("(01)"))
+				prefix_len = 4;
 			if(prefix_len) {
 				code_buf.ShiftLeft(prefix_len);
 				temp_buf.Z().CatN(code_buf, 14);

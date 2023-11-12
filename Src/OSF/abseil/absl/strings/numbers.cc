@@ -1041,29 +1041,12 @@ ABSL_CONST_INIT ABSL_DLL const char two_ASCII_digits[100][2] = {
 	{'9', '6'}, {'9', '7'}, {'9', '8'}, {'9', '9'}
 };
 
-bool safe_strto32_base(absl::string_view text, int32_t* value, int base) {
-	return safe_int_internal<int32_t>(text, value, base);
-}
-
-bool safe_strto64_base(absl::string_view text, int64_t* value, int base) {
-	return safe_int_internal<int64_t>(text, value, base);
-}
-
-bool safe_strto128_base(absl::string_view text, int128* value, int base) {
-	return safe_int_internal<absl::int128>(text, value, base);
-}
-
-bool safe_strtou32_base(absl::string_view text, uint32_t* value, int base) {
-	return safe_uint_internal<uint32_t>(text, value, base);
-}
-
-bool safe_strtou64_base(absl::string_view text, uint64_t* value, int base) {
-	return safe_uint_internal<uint64_t>(text, value, base);
-}
-
-bool safe_strtou128_base(absl::string_view text, uint128* value, int base) {
-	return safe_uint_internal<absl::uint128>(text, value, base);
-}
+bool safe_strto32_base(absl::string_view text, int32_t* value, int base) { return safe_int_internal<int32_t>(text, value, base); }
+bool safe_strto64_base(absl::string_view text, int64_t* value, int base) { return safe_int_internal<int64_t>(text, value, base); }
+bool safe_strto128_base(absl::string_view text, int128* value, int base) { return safe_int_internal<absl::int128>(text, value, base); }
+bool safe_strtou32_base(absl::string_view text, uint32_t* value, int base) { return safe_uint_internal<uint32_t>(text, value, base); }
+bool safe_strtou64_base(absl::string_view text, uint64_t* value, int base) { return safe_uint_internal<uint64_t>(text, value, base); }
+bool safe_strtou128_base(absl::string_view text, uint128* value, int base) { return safe_uint_internal<absl::uint128>(text, value, base); }
 }  // namespace numbers_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

@@ -5372,6 +5372,13 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 576  "URI: given base is not absolute"
 577  "URI: given base is not absolute"
 578  "URI: given base is not absolute"
+579  "Строка url не соответствует кодировке utf-8 (%s)" // @v11.8.10
+580  "Строка url пустая"// @v11.8.10
+581  "SUniformFileTransmParam: строка определения источника пустая" // @v11.8.10
+582  "SUniformFileTransmParam: строка определения получателя пустая" // @v11.8.10
+583  "SUniformFileTransmParam: либо источник, либо получатель должен быть файлом" // @v11.8.10
+584  "SUniformFileTransmParam: недопустимый протокол источника" // @v11.8.10
+585  "SUniformFileTransmParam: недопустимый протокол получателя" // @v11.8.10
 591  "Multi-disk zip archives not supported"
 592  "Renaming temporary file failed"
 593  "Closing zip archive failed"

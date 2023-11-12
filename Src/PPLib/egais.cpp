@@ -632,7 +632,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 	if(marked_pos_list.getCount() || (!omit_nonmarked_goods && nonmarked_pos_list.getCount())) {
 		SString cc_text;
 		SString result_barcode;
-		CCheckCore::MakeCodeString(&rPack.Rec, cc_text);
+		CCheckCore::MakeCodeString(&rPack.Rec, 0, cc_text);
 		PPID   main_org_id = 0;
 		SString fsrar_ident;
 		PPObjCashNode cn_obj;

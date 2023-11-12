@@ -45,11 +45,11 @@ extern "C" {
 	#define __PTW32_STATIC_TLSLIB
 #endif
 #if defined (__PTW32_STATIC_LIB) || defined (__PTW32_STATIC_TLSLIB)
-	#define  __PTW32_DLLPORT
+	#define __PTW32_DLLPORT
 #elif defined (__PTW32_BUILD)
-	#define  __PTW32_DLLPORT __declspec(dllexport)
+	#define __PTW32_DLLPORT __declspec(dllexport)
 #else
-	#define  __PTW32_DLLPORT __declspec(dllimport)
+	#define __PTW32_DLLPORT __declspec(dllimport)
 #endif
 // declare reference to errno 
 #if(defined(_MT) || defined(_MD) || defined(_DLL)) && !defined(_MAC)

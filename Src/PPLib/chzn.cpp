@@ -24,6 +24,9 @@ Data Matrix для табачной продукции и фармацевтик
 0104601669010315 21unXxjJoRse3rl 91EE0692ZIMgcIl2oboNlVDMuI9DYM3bLWSLQ20IZ0FWTTYug6M=
 0104601669010315217m2CUceKxx41w91EE0692rUIIFK4Vds1rR0GLNvvo43aAM7CwwSh1twdFV8Y0heQ=
 
+Сигаретный блок:
+010460043993816321>n>!3E?8005173000938SSf24015063283
+
 Оборудование по сериализации формирует специальные коды:
 	AI 01 (GTIN) 14 симв. + идентификатор применения 2 симв. = 16 символов (обяз.)
 	AI 21 (S/N) 13 симв.+ идентификатор применения 2 симв + FNC1 (29hASCII) 1 симв = 16 символов (обяз.)
@@ -3151,7 +3154,7 @@ int PPChZnPrcssr::TransmitCcList(const Param & rP, const TSCollection <CCheckPac
 					cc_core.UpdateExtText(p_cc_pack->Rec.ID, CCheckPacket::extssChZnProcessingTag, result_doc_ident, 1);
 				}
 				//
-				CCheckCore::MakeCodeString(&p_cc_pack->Rec, temp_buf);
+				CCheckCore::MakeCodeString(&p_cc_pack->Rec, 0, temp_buf);
 				//p_cc_pack
 				//PPTXT_CCPACKSENTTOCHZN              "Кассовый чек %s успешно отправлен на сервер честный знак. Тикет: %s" 
 				PPLoadText(PPTXT_CCPACKSENTTOCHZN, fmt_buf);

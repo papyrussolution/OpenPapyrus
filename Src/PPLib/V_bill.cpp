@@ -927,7 +927,7 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 	LastSelID = 0;
 	TempOrder = OrdByDefault;
 	Counter.Init();
-	SETFLAG(State, stNoTempTbl, BIN(Filt.Flags & LotFilt::fNoTempTable)); // @v10.9.0
+	SETFLAG(State, stNoTempTbl, BIN(Filt.Flags & BillFilt::fNoTempTable)); // @v10.9.0 // @v11.8.10 @fix LotFilt::fNoTempTable-->BillFilt::BillFilt
 	IdList = Filt.List;
 	GetOpList(&Filt, &OpList, &SingleOpID);
 	THROW_PP(OpList.getCount(), PPERR_VIEWBYFILTISEMPTY);

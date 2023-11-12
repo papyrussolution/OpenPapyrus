@@ -465,14 +465,14 @@ typedef enum {
 } cmsPlatformSignature;
 
 // Reference gamut
-#define  cmsSigPerceptualReferenceMediumGamut         0x70726d67  //'prmg'
+#define cmsSigPerceptualReferenceMediumGamut         0x70726d67  //'prmg'
 
 // For cmsSigColorimetricIntentImageStateTag
-#define  cmsSigSceneColorimetryEstimates              0x73636F65  //'scoe'
-#define  cmsSigSceneAppearanceEstimates               0x73617065  //'sape'
-#define  cmsSigFocalPlaneColorimetryEstimates         0x66706365  //'fpce'
-#define  cmsSigReflectionHardcopyOriginalColorimetry  0x72686F63  //'rhoc'
-#define  cmsSigReflectionPrintOutputColorimetry       0x72706F63  //'rpoc'
+#define cmsSigSceneColorimetryEstimates              0x73636F65  //'scoe'
+#define cmsSigSceneAppearanceEstimates               0x73617065  //'sape'
+#define cmsSigFocalPlaneColorimetryEstimates         0x66706365  //'fpce'
+#define cmsSigReflectionHardcopyOriginalColorimetry  0x72686F63  //'rhoc'
+#define cmsSigReflectionPrintOutputColorimetry       0x72706F63  //'rpoc'
 
 // Multi process elements types
 typedef enum {
@@ -509,15 +509,15 @@ typedef enum {
 } cmsCurveSegSignature;
 
 // Used in ResponseCurveType
-#define  cmsSigStatusA                    0x53746141 //'StaA'
-#define  cmsSigStatusE                    0x53746145 //'StaE'
-#define  cmsSigStatusI                    0x53746149 //'StaI'
-#define  cmsSigStatusT                    0x53746154 //'StaT'
-#define  cmsSigStatusM                    0x5374614D //'StaM'
-#define  cmsSigDN                         0x444E2020 //'DN  '
-#define  cmsSigDNP                        0x444E2050 //'DN P'
-#define  cmsSigDNN                        0x444E4E20 //'DNN '
-#define  cmsSigDNNP                       0x444E4E50 //'DNNP'
+#define cmsSigStatusA                    0x53746141 //'StaA'
+#define cmsSigStatusE                    0x53746145 //'StaE'
+#define cmsSigStatusI                    0x53746149 //'StaI'
+#define cmsSigStatusT                    0x53746154 //'StaT'
+#define cmsSigStatusM                    0x5374614D //'StaM'
+#define cmsSigDN                         0x444E2020 //'DN  '
+#define cmsSigDNP                        0x444E2050 //'DN P'
+#define cmsSigDNN                        0x444E4E20 //'DNN '
+#define cmsSigDNNP                       0x444E4E50 //'DNNP'
 
 // Device attributes, currently defined values correspond to the low 4 bytes
 // of the 8 byte attribute quantity
@@ -1205,8 +1205,8 @@ CMSAPI boolint CMSEXPORT cmsSliceSpaceFloat(uint32 nInputs, const uint32 clutPoi
 
 typedef struct _cms_MLU_struct cmsMLU;
 
-#define  cmsNoLanguage "\0\0"
-#define  cmsNoCountry  "\0\0"
+#define cmsNoLanguage "\0\0"
+#define cmsNoCountry  "\0\0"
 
 CMSAPI cmsMLU * CMSEXPORT cmsMLUalloc(cmsContext ContextID, uint32 nItems);
 CMSAPI void    /*CMSEXPORT*/FASTCALL cmsMLUfree(cmsMLU* mlu);

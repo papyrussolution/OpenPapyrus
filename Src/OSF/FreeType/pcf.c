@@ -15,7 +15,7 @@
    The above copyright notice and this permission notice shall be included in
    all copies or substantial portions of the Software.
  */
-#define  FT_MAKE_OPTION_SINGLE_OBJECT
+#define FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
 #pragma hdrstop
 #include "pcfdrivr.c"

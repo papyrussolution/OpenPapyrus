@@ -430,9 +430,8 @@ int InetUrl::Parse(const char * pUrl)
 	Z();
 	_url.Strip();
 	if(!_url.IsLegalUtf8()) {
-		// @todo @err
 		State |= stError;
-		ok = 0;
+		ok = SLS.SetError(SLERR_URL_NOTUTF8, _url.Trim(64)); // @v11.8.10
 	}
 	else {
 		while(oneof2(_url.C(0), ' ', '\t'))
@@ -586,6 +585,7 @@ int InetUrl::Parse(const char * pUrl)
 		}
 		else {
 			State |= stEmpty;
+			SLS.SetError(SLERR_URL_EMPTY); // @v11.8.10
 			ok = -1;
 		}
 	}

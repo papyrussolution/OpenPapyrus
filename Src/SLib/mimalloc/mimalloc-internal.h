@@ -44,7 +44,7 @@
 #endif
 
 #if !defined(_WIN32) && !defined(__wasi__)
-#define  MI_USE_PTHREADS
+#define MI_USE_PTHREADS
 #include <pthread.h>
 #endif
 

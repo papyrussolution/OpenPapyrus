@@ -75,9 +75,9 @@ U_CDECL_BEGIN
 #define UCNV_MAX_FULL_FILE_NAME_LENGTH (600+UCNV_MAX_CONVERTER_NAME_LENGTH)
 
 /** Shift in for EBDCDIC_STATEFUL and iso2022 states @stable ICU 2.0 */
-#define  UCNV_SI 0x0F
+#define UCNV_SI 0x0F
 /** Shift out for EBDCDIC_STATEFUL and iso2022 states @stable ICU 2.0 */
-#define  UCNV_SO 0x0E
+#define UCNV_SO 0x0E
 
 /**
  * Enum for specifying basic types of converters

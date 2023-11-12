@@ -10,8 +10,8 @@
  * X, X.X, X.X.X, and X.X.X.X.  The maximum values of each format may be
  * 4000, 4000.99, 4000.99.99, and 4000.99.99.99.
  */
-#define  NGX_HTTP_MODERN_BROWSER   0
-#define  NGX_HTTP_ANCIENT_BROWSER  1
+#define NGX_HTTP_MODERN_BROWSER   0
+#define NGX_HTTP_ANCIENT_BROWSER  1
 
 struct ngx_http_modern_browser_mask_t {
 	u_char browser[12];

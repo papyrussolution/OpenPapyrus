@@ -956,7 +956,7 @@ public:
 		if(Data.CCheckID) {
 			CCheckTbl::Rec cc_rec;
 			if(ScObj.P_CcTbl->Search(Data.CCheckID, &cc_rec) > 0)
-				CCheckCore::MakeCodeString(&cc_rec, temp_buf);
+				CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
 		}
 		setStaticText(CTL_CHKINP_ST_CCINFO, temp_buf);
 		setCtrlString(CTL_CHKINP_MEMO, R_MemoBuf);

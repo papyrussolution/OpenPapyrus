@@ -1776,7 +1776,7 @@ static ssize_t readline(ArchiveRead * a, struct mtree * mtree, char ** start,
 			return 0;
 		if(bytes_read < 0)
 			return ARCHIVE_FATAL;
-		nl = memchr(t, '\n', bytes_read);
+		nl = smemchr(t, '\n', bytes_read);
 		/* If we found '\n', trim the read to end exactly there. */
 		if(nl) {
 			bytes_read = ((const char *)nl) - ((const char *)t) + 1;

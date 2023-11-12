@@ -1989,20 +1989,12 @@ int SImageBuffer::Store(const StoreParam & rP, SFile & rF) const
 {
 	int    ok = 1;
 	THROW(rF.IsValid());
-	if(rP.Fmt == SFileFormat::Png) {
-		THROW(StorePng(rP, rF));
-	}
-	else if(rP.Fmt == SFileFormat::Jpeg) {
-		THROW(StoreJpeg(rP, rF));
-	}
-	else if(rP.Fmt == SFileFormat::Webp) { // @v11.3.4
-		THROW(StoreWebp(rP, rF));
-	}
-	else if(rP.Fmt == SFileFormat::Bmp) { // @v11.3.4
-		THROW(StoreBmp(rP, rF));
-	}
-	else {
-		CALLEXCEPT_S(SLERR_UNSUPPIMGFILEFORMAT);
+	switch(rP.Fmt) {
+		case SFileFormat::Png: THROW(StorePng(rP, rF)); break;
+		case SFileFormat::Jpeg: THROW(StoreJpeg(rP, rF)); break;
+		case SFileFormat::Webp: THROW(StoreWebp(rP, rF)); break; // @v11.3.4
+		case SFileFormat::Bmp: THROW(StoreBmp(rP, rF)); break; // @v11.3.4
+		default: CALLEXCEPT_S(SLERR_UNSUPPIMGFILEFORMAT); break;
 	}
 	CATCHZOK
 	return ok;

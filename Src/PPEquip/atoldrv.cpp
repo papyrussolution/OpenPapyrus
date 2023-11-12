@@ -2468,7 +2468,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				SString no_print_txt;
 				PPLoadText(PPTXT_CHECK_NOT_PRINTED, no_print_txt);
 				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
-				PPLogMessage(PPFILNAM_ATOLDRV_LOG, pPack ? CCheckCore::MakeCodeString(&pPack->Rec, no_print_txt) : "", LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, pPack ? CCheckCore::MakeCodeString(&pPack->Rec, 0, no_print_txt) : "", LOGMSGF_TIME|LOGMSGF_USER);
 				ok = 0;
 			}
 		}

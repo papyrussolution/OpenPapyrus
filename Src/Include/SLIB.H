@@ -898,6 +898,13 @@
 // Errors specific to RemoveBaseUri
 #define SLERR_URI_REMOVEBASE_REL_BASE          577 // Given base is not absolute
 #define SLERR_URI_REMOVEBASE_REL_SOURCE        578 // Given base is not absolute
+#define SLERR_URL_NOTUTF8                      579 // @v11.8.10 Строка url не соответствует кодировке utf-8
+#define SLERR_URL_EMPTY                        580 // @v11.8.10 Строка url пустая //
+#define SLERR_UFT_SRCISEMPTY                   581 // @v11.8.10 SUniformFileTransmParam: src is empty 
+#define SLERR_UFT_DESTISEMPTY                  582 // @v11.8.10 SUniformFileTransmParam: dest is empty
+#define SLERR_UFT_SRCORDESTMUSTBEFILE          583 // @v11.8.10 SUniformFileTransmParam: src or dest must be file
+#define SLERR_UFT_INVSRCPROT                   584 // @v11.8.10 SUniformFileTransmParam: invalid src protocol
+#define SLERR_UFT_INVDESTPROT                  585 // @v11.8.10 SUniformFileTransmParam: invalid dest protocol
 
 //#define SLERR_ZIP_OK             0  // N No error
 #define SLERR_ZIP_FIRSTERROR                   591  // @anchor
@@ -12185,12 +12192,15 @@ public:
 	// Descr: Атрибутуты файлов
 	//
 	enum {
-		attrRdOnly       = 0x00000001, // dos/win _A_RDONLY
-		attrHidden       = 0x00000002, // dos/win _A_HIDDEN
-		attrSystem       = 0x00000004, // dos/win _A_SYSTEM
-		attrSubdir       = 0x00000010, // dos/win _A_SUBDIR / unix attr 'd'
-		attrArch         = 0x00000020, // dos/win _A_ARCH
-		attrReparsePoint = 0x00000400, // @v11.8.9 FILE_ATTRIBUTE_REPARSE_POINT        
+		attrRdOnly            = 0x00000001, // dos/win _A_RDONLY
+		attrHidden            = 0x00000002, // dos/win _A_HIDDEN
+		attrSystem            = 0x00000004, // dos/win _A_SYSTEM
+		attrSubdir            = 0x00000010, // dos/win _A_SUBDIR / unix attr 'd'
+		attrArch              = 0x00000020, // dos/win _A_ARCH
+		attrReparsePoint      = 0x00000400, // @v11.8.9 FILE_ATTRIBUTE_REPARSE_POINT        
+		attrCompressed        = 0x00000800, // @v11.8.10 FILE_ATTRIBUTE_COMPRESSED
+		attrNotContentIndexed = 0x00002000, // @v11.8.10 FILE_ATTRIBUTE_NOT_CONTENT_INDEXED (The file or directory is not to be indexed by the content indexing service)
+		attrEncrypted         = 0x00004000, // @v11.8.10 FILE_ATTRIBUTE_ENCRYPTED (A file or directory that is encrypted. For a file, all data streams in the file are encrypted. For a directory, encryption is the default for newly created files and subdirectories)
 		//
 		// Следующие 9 флагов имеют внутренние значения не сопоставленные с иными стандартами или канонизациями.
 		//
@@ -12841,7 +12851,6 @@ private:
 //
 class SDirecDiffPool {
 public:
-	
 	enum {
 		kEqual         =      0,
 		kAbsenceLeft   =      1,
@@ -12871,6 +12880,7 @@ public:
 	~SDirecDiffPool();
 	SDirecDiffPool & Z();
 	int    Run(const char * pDirLeftUtf8, const char * pDirRightUtf8);
+	int    MakeReport(StringSet & rSs) const;
 
 	TSCollection <Entry> L;
 private:
@@ -12881,7 +12891,11 @@ private:
 	//   2 - arguments pDirLeftUtf8 && pDirRightUtf8 are equal (nothing to do)
 	//  -1 - directories are different
 	//
-	int    Helper_Compare(const char * pDirLeftUtf8, const char * pDirRightUtf8);
+	int    Helper_Compare(const SString & rDirLeftUtf8, const SString & rDirRightUtf8);
+	int    Helper_MakeReport(const TSCollection <Entry> & rL, uint indent, StringSet & rSs) const;
+	int    Result;
+	SString DirLeft;
+	SString DirRight;
 };
 //
 // Descr: Незамысловатый класс, управляющий хранением большого числа файлов с жестко определенными наименованиями.

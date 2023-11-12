@@ -634,7 +634,214 @@ int SrUedContainer_Base::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPL
 	return ok;
 }
 
-int SrUedContainer_Base::ReadSource(const char * pFileName, PPLogger * pLogger)
+SrUedContainer_Base::ProtoPropList_SingleUed::ProtoPropList_SingleUed(uint64 ued, int localeId) : Ued(ued), LocaleId(localeId)
+{
+}
+		
+void SrUedContainer_Base::ProtoPropList_SingleUed::Init(uint64 ued, int localeId)
+{
+	Ued = ued;
+	LocaleId = localeId;
+	freeAll();
+}
+
+SrUedContainer_Base::ProtoProp * SrUedContainer_Base::ProtoPropList_SingleUed::Create()
+{
+	ProtoProp * p_new_entry = CreateNewItem();
+	if(p_new_entry) {
+		p_new_entry->Ued = Ued;
+		p_new_entry->LocaleId = LocaleId;
+	}
+	return p_new_entry;
+}
+
+SrUedContainer_Base::PropertyListParsingBlock::PropertyListParsingBlock() : Status(0), State(0), PL(0, 0)
+{
+}
+	
+bool SrUedContainer_Base::PropertyListParsingBlock::Start(uint64 ued, int localeId)
+{
+	bool ok = true;
+	if(Status)
+		ok = false;
+	else if(ued != 0) {
+		Status = 1;
+		State = 0;
+		PL.Init(ued, localeId);
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+enum { 
+	stUndef = 0,
+	stLeftBrace,
+	stPropIdent,
+	stColonAfterPropIdent,
+	stPropValue,
+	stEndOfProp, // ';'
+	stEndOfPropList // '}'
+};
+
+int SrUedContainer_Base::PropertyListParsingBlock::ScanProp(SStrScan & rScan)
+{
+	int    ok = 0;
+	SString temp_buf;
+	if(rScan.GetIdent(temp_buf)) {
+		ProtoProp * p_new_prop = PL.Create();
+		THROW(p_new_prop);
+		p_new_prop->Prop.add(temp_buf);
+		State = stPropIdent;
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SrUedContainer_Base::PropertyListParsingBlock::ScanArg(SStrScan & rScan, bool isFirst/*@debug*/)
+{
+	int    ok = 0;
+	SString temp_buf;
+	if(rScan.GetIdent(temp_buf)) {
+		State = stPropValue;
+		THROW(PL.getCount());
+		{
+			ProtoProp * p_prop = PL.at(PL.getCount()-1);
+			THROW(p_prop);
+			if(isFirst) {
+				assert(p_prop->Prop.getCount() == 1);
+			}
+			else {
+				assert(p_prop->Prop.getCount() > 1);
+			}
+			p_prop->Prop.add(temp_buf);
+		}
+		ok = 1;
+	}
+	else if(rScan.GetNumber(temp_buf)) {
+		State = stPropValue;
+		THROW(PL.getCount());
+		{
+			ProtoProp * p_prop = PL.at(PL.getCount()-1);
+			THROW(p_prop);
+			if(isFirst) {
+				assert(p_prop->Prop.getCount() == 1);
+			}
+			else {
+				assert(p_prop->Prop.getCount() > 1);
+			}
+			p_prop->Prop.add(temp_buf);
+		}
+		ok = 1;
+	}
+	else if(rScan.GetQuotedString(SFileFormat::Json, temp_buf)) {
+		State = stPropValue;
+		THROW(PL.getCount());
+		{
+			ProtoProp * p_prop = PL.at(PL.getCount()-1);
+			THROW(p_prop);
+			if(isFirst) {
+				assert(p_prop->Prop.getCount() == 1);
+			}
+			else {
+				assert(p_prop->Prop.getCount() > 1);
+			}
+			p_prop->Prop.add(temp_buf.Quot('\"', '\"'));
+		}
+		ok = 1;
+	}
+	/*
+		@todo «десь еще нужно распознавать дату/врем€, но это сделаю позже
+	*/
+	CATCHZOK
+	return ok;
+}
+//
+// Returns:
+//   >0 - разбор завершен (встретилс€ завершающий символ '}')
+//   <0 - разбор не завершен
+//    0 - error
+//
+int SrUedContainer_Base::PropertyListParsingBlock::Do(SStrScan & rScan)
+{
+	int    ok = -1;
+	SString temp_buf;
+	if(Status == 1) {
+		THROW(rScan.Is('{'));
+		State = stLeftBrace;
+		Status = 2;
+		rScan.Incr();
+	}
+	THROW(Status == 2);
+	while(Status == 2 && !rScan.Skip().IsEnd()) {
+		switch(State) {
+			case stLeftBrace:
+				THROW(ScanProp(rScan));
+				break;
+			case stEndOfProp:
+				if(rScan.Is('}')) {
+					rScan.Incr();
+					State = stEndOfPropList;
+					Status = 0;
+					ok = 1;
+				}
+				else {
+					THROW(ScanProp(rScan));
+				}
+				break;
+			case stPropIdent:
+				if(rScan.Is(':')) {
+					rScan.Incr();
+					State = stColonAfterPropIdent;
+				}
+				else if(rScan.Is(';')) {
+					rScan.Incr();
+					State = stEndOfProp;
+				}
+				else if(ScanArg(rScan, true)) {
+					;
+				}
+				else {
+					CALLEXCEPT();
+				}
+				break;
+			case stPropValue:
+				if(rScan.Is(';')) {
+					rScan.Incr();
+					State = stEndOfProp;
+				}
+				else if(ScanArg(rScan, false)) {
+					;
+				}
+				else {
+					CALLEXCEPT();
+				}
+				break;
+			default:
+				ok = 0;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SrUedContainer_Base::RegisterProtoPropList(const ProtoPropList_SingleUed & rList)
+{
+	int    ok = 1;
+	for(uint i = 0; i < rList.getCount(); i++) {
+		const ProtoProp * p_item = rList.at(i);
+		if(p_item && p_item->Ued) {
+			ProtoProp * p_dup = new ProtoProp(*p_item);
+			if(p_dup) {
+				ProtoPropList.insert(p_dup);
+			}
+		}
+	}
+	return ok;
+}
+
+int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger * pLogger)
 {
 	int    ok = 1;
 	uint   line_no = 0;
@@ -647,6 +854,21 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, PPLogger * pLogger)
 	uint   last_linglocus_temp_id = 0;
 	SymbHashTable temporary_linglocus_tab(512);
 	SStrScan scan;
+	struct UedLinguaPair {
+		UedLinguaPair() : Ued(0), LocaleId(0)
+		{
+		}
+		UedLinguaPair & Set(uint64 ued, int localeId)
+		{
+			Ued = ued;
+			LocaleId = localeId;
+			return *this;
+		}
+		uint64 Ued;
+		int   LocaleId;
+	};
+	UedLinguaPair last_key;
+	PropertyListParsingBlock plp_blk;
 	SFile f_in(pFileName, SFile::mRead);
 	THROW(f_in.IsValid());
 	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
@@ -667,10 +889,18 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, PPLogger * pLogger)
 			if(line_buf.NotEmpty()) {
 				//line_buf.Tokenize(" \t", ss.Z());
 				ss.Z();
-				bool curly_bracket_left = false;
-				bool scan_ok = true;
-				{
-					scan.Set(line_buf, 0);
+				scan.Set(line_buf, 0);
+				if(plp_blk.IsStarted()) {
+					// ≈сли строка включает описание свойств, то нова€ сущность на этой строке
+					// начинатьс€ не может, потому и else после этого блока.
+					int plpr = plp_blk.Do(scan);
+					if(plpr > 0) {
+						RegisterProtoPropList(plp_blk.GetResult());
+					}
+				}
+				else {
+					bool curly_bracket_left = false;
+					bool scan_ok = true;
 					if(scan.GetXDigits(temp_buf.Z())) {
 						ss.add(temp_buf);
 						scan.Skip();
@@ -695,82 +925,108 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, PPLogger * pLogger)
 						else
 							scan_ok = false;
 					}
+					else if(scan.Is('{')) {
+						curly_bracket_left = true;
+					}
 					else
 						scan_ok = false;
-				}
-				uint ssc = ss.getCount();
-				if(scan_ok && oneof2(ssc, 2, 3)) {
-					uint64 id = 0;
-					int   lang_id = 0;
-					text_buf.Z();
-					lang_buf.Z();
-					uint   token_n = 0;
-					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						token_n++;
-						temp_buf.Utf8ToLower();
-						if(token_n == 1) {
-							id = sxtou64(temp_buf);
+					if(scan_ok) {
+						uint ssc = ss.getCount();
+						if(oneof2(ssc, 2, 3)) {
+							uint64 id = 0;
+							int   lang_id = 0;
+							text_buf.Z();
+							lang_buf.Z();
+							uint   token_n = 0;
+							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+								token_n++;
+								temp_buf.Utf8ToLower();
+								if(token_n == 1) {
+									id = sxtou64(temp_buf);
+								}
+								else if(token_n == 2) {
+									if(ssc == 2) {
+										text_buf = temp_buf.StripQuotes();
+									}
+									else {
+										assert(ssc == 3);
+										lang_buf = temp_buf;
+										uint llid = 0;
+										if(!temporary_linglocus_tab.Search(lang_buf, &llid, 0)) {
+											llid = ++last_linglocus_temp_id;
+											temporary_linglocus_tab.Add(lang_buf, llid, 0);
+										}
+										lang_id = llid;
+										//lang_id = RecognizeLinguaSymb(lang_buf, 1);
+									}
+								}
+								else if(token_n == 3) {
+									assert(ssc == 3);
+									text_buf = temp_buf.StripQuotes();
+								}
+							}
+							{
+								log_buf.Z().Cat(id).Tab().Cat(lang_buf).Tab().Cat(text_buf);
+								//PPLogMessage("ued-import.log", log_buf, LOGMSGF_TIME);
+							}
+							if(id) {
+								if(ssc == 2) {
+									if(text_buf.IsEqiAscii("lingualocus")) {
+										if(!LinguaLocusMeta) {
+											LinguaLocusMeta = id;
+	#ifdef UED_META_LINGUALOCUS
+											assert(LinguaLocusMeta == UED_META_LINGUALOCUS);
+	#endif
+										}
+										else {
+											; // @error
+										}
+									}
+									BaseEntry new_entry;
+									new_entry.LineNo = line_no; // @v11.7.8
+									new_entry.Id = id;
+									uint   symb_hash_id = 0;
+									if(!Ht.Search(text_buf, &symb_hash_id, 0)) {
+										symb_hash_id = ++LastSymbHashId;
+										Ht.Add(text_buf, symb_hash_id);
+									}
+									new_entry.SymbHashId = symb_hash_id;
+									//AddS(text_buf, &new_entry.SymbP);
+									BL.insert(&new_entry);
+									last_key.Set(new_entry.Id, 0);
+								}
+								else if(ssc == 3) {
+									if(lang_id) {
+										TextEntry new_entry;
+										new_entry.LineNo = line_no; // @v11.7.8
+										new_entry.Id = id;
+										new_entry.Locale = lang_id;
+										AddS(text_buf, &new_entry.TextP);
+										TL.insert(&new_entry);
+										last_key.Set(new_entry.Id, new_entry.Locale);
+									}
+								}
+							}
 						}
-						else if(token_n == 2) {
-							if(ssc == 2) {
-								text_buf = temp_buf.StripQuotes();
+						else if(!curly_bracket_left) {
+							// @todo @err
+						}
+						if(curly_bracket_left) {
+							if(plp_blk.Start(last_key.Ued, last_key.LocaleId)) {
+								int plpr = plp_blk.Do(scan);
+								if(plpr > 0) {
+									RegisterProtoPropList(plp_blk.GetResult());
+								}
 							}
 							else {
-								assert(ssc == 3);
-								lang_buf = temp_buf;
-								uint llid = 0;
-								if(!temporary_linglocus_tab.Search(lang_buf, &llid, 0)) {
-									llid = ++last_linglocus_temp_id;
-									temporary_linglocus_tab.Add(lang_buf, llid, 0);
-								}
-								lang_id = llid;
-								//lang_id = RecognizeLinguaSymb(lang_buf, 1);
-							}
-						}
-						else if(token_n == 3) {
-							assert(ssc == 3);
-							text_buf = temp_buf.StripQuotes();
-						}
-					}
-					{
-						log_buf.Z().Cat(id).Tab().Cat(lang_buf).Tab().Cat(text_buf);
-						//PPLogMessage("ued-import.log", log_buf, LOGMSGF_TIME);
-					}
-					if(id) {
-						if(ssc == 2) {
-							if(text_buf.IsEqiAscii("lingualocus")) {
-								if(!LinguaLocusMeta)
-									LinguaLocusMeta = id;
-								else {
-									; // @error
-								}
-							}
-							BaseEntry new_entry;
-							new_entry.LineNo = line_no; // @v11.7.8
-							new_entry.Id = id;
-							uint   symb_hash_id = 0;
-							if(!Ht.Search(text_buf, &symb_hash_id, 0)) {
-								symb_hash_id = ++LastSymbHashId;
-								Ht.Add(text_buf, symb_hash_id);
-							}
-							new_entry.SymbHashId = symb_hash_id;
-							//AddS(text_buf, &new_entry.SymbP);
-							BL.insert(&new_entry);
-						}
-						else if(ssc == 3) {
-							if(lang_id) {
-								TextEntry new_entry;
-								new_entry.LineNo = line_no; // @v11.7.8
-								new_entry.Id = id;
-								new_entry.Locale = lang_id;
-								AddS(text_buf, &new_entry.TextP);
-								TL.insert(&new_entry);
+								; // @todo @err
 							}
 						}
 					}
-				}
-				else {
-					// invalid line
+					else {
+						// invalid line
+						last_key.Set(0ULL, 0);
+					}
 				}
 			}
 		}
@@ -1341,7 +1597,7 @@ SrUedContainer_Ct::~SrUedContainer_Ct()
 
 int SrUedContainer_Ct::Read(const char * pFileName, PPLogger * pLogger)
 {
-	return SrUedContainer_Base::ReadSource(pFileName, pLogger);
+	return SrUedContainer_Base::ReadSource(pFileName, 0, pLogger);
 }
 
 int SrUedContainer_Ct::Write(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash)
@@ -1361,7 +1617,7 @@ SrUedContainer_Rt::~SrUedContainer_Rt()
 	
 int SrUedContainer_Rt::Read(const char * pFileName)
 {
-	return SrUedContainer_Base::ReadSource(pFileName, 0);
+	return SrUedContainer_Base::ReadSource(pFileName, 0, 0);
 }
 
 uint64 SrUedContainer_Rt::SearchSymb(const char * pSymb, uint64 meta) const

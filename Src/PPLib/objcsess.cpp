@@ -919,7 +919,7 @@ int CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 				pack.UpdFlags |= CCheckPacket::ufSkipScSpcTrt;
 				if(!SessObj.P_Cc->TurnCheck(&pack, 0)) {
 					PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
-					CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
+					CCheckCore::MakeCodeString(&pack.Rec, CCheckCore::mcsID, ccheck_code);
 					PPGetLastErrorMessage(1, err_msg_text);
 					msg_buf.Printf(err_msg_fmt, ccheck_code.cptr(), err_msg_text.cptr());
 					pCtx->Output(msg_buf);
@@ -996,7 +996,7 @@ int CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 															//
 															// PPTXT_CCPAYMSCARDCORRECTED  "Скорректирована карта оплаты в чеке %s"
 															PPLoadText(PPTXT_CCPAYMSCARDCORRECTED, err_msg_fmt);
-															CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
+															CCheckCore::MakeCodeString(&pack.Rec, CCheckCore::mcsID, ccheck_code);
 															pCtx->Output(msg_buf.Printf(err_msg_fmt, ccheck_code.cptr()));
 														}
 													}
@@ -1009,7 +1009,7 @@ int CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 							}
 							else {
 								pack.UpdFlags |= (CCheckPacket::ufCheckInvariant|CCheckPacket::ufSkipScSpcTrt);
-								CCheckCore::MakeCodeString(&pack.Rec, ccheck_code);
+								CCheckCore::MakeCodeString(&pack.Rec, CCheckCore::mcsID, ccheck_code);
 								if(!p_cc->TurnCheck(&pack, 0)) {
 									PPLoadText(PPTXT_LOG_ERRACCEPTCCHECK, err_msg_fmt);
 									PPGetLastErrorMessage(1, err_msg_text);
@@ -1649,7 +1649,7 @@ int CTableOrder::Update(const Packet * pPack, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(P_ScObj->P_CcTbl->Search(pPack->ChkID, &cc_rec) > 0);
-		CCheckCore::MakeCodeString(&cc_rec, cc_text);
+		CCheckCore::MakeCodeString(&cc_rec, CCheckCore::mcsDefault, cc_text);
 		THROW_PP_S(!(cc_rec.Flags & CCHKF_SKIP), PPERR_CCHKORDCANCELED, cc_text);
 		THROW_PP_S(!(cc_rec.Flags & CCHKF_CLOSEDORDER), PPERR_CCHKORDCLOSED, cc_text);
 		THROW_PP_S(P_ScObj->P_CcTbl->GetExt(pPack->ChkID, &ccext_rec) > 0, PPERR_CTBLORDCHKHASNTEXT, cc_text);
@@ -1788,7 +1788,7 @@ int CTableOrder::Cancel(PPID ordCheckID)
 	CCheckTbl::Rec rec;
 	THROW(HasRight(PPR_DEL));
 	THROW(P_ScObj->P_CcTbl->Search(ordCheckID, &rec) > 0);
-	CCheckCore::MakeCodeString(&rec, cc_text);
+	CCheckCore::MakeCodeString(&rec, CCheckCore::mcsDefault, cc_text);
 	THROW_PP_S(rec.Flags & CCHKF_ORDER, PPERR_CCHKNORDER, cc_text);
 	THROW_PP_S(!(rec.Flags & CCHKF_SKIP), PPERR_CCHKORDCANCELED, cc_text);
 	THROW(P_ScObj->P_CcTbl->UpdateFlags(ordCheckID, rec.Flags | CCHKF_SKIP, 1));
@@ -2819,18 +2819,31 @@ int PPCCheckImporter::Run()
 				}
 				S_GUID doc_guid;
 				const uint back_days = (Param.CcByUuidSearchMaxDays > 0) ? Param.CcByUuidSearchMaxDays : 30;
+				PPID   last_found_cc_id = 0;
 				if(cc_pack.GetGuid(doc_guid) && CsObj.GetListByUuid(doc_guid, back_days, cc_list_by_guid) > 0) {
-					if(PPLoadText(PPTXT_CCIMP_ALREADYIMPORTED, fmt_buf)) {
-						CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
-						Logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
+					cc_list_by_guid.sort();
+					CCheckTbl::Rec last_founc_cc_rec;
+					uint   fccidx = cc_list_by_guid.getCount();
+					if(fccidx) do {
+						const PPID fcc_id = cc_list_by_guid.get(--fccidx);
+						if(p_cc->Search(fcc_id, &last_founc_cc_rec) > 0) {
+							last_found_cc_id = fcc_id;
+							break;
+						}
+					} while(fccidx);
+					if(last_found_cc_id) {
+						if(PPLoadText(PPTXT_CCIMP_ALREADYIMPORTED, fmt_buf)) {
+							CCheckCore::MakeCodeString(&last_founc_cc_rec, CCheckCore::mcsID, temp_buf);
+							Logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
+						}
 					}
 				}
-				else {
+				if(!last_found_cc_id) {
 					// Каждый чек проводим отдельной транзакцией поскольку нам в дальнейшем понадобяться дополнительные,
 					// возможно, весьма длительные действия.
 					if(p_cc->TurnCheck(&cc_pack, 1)) {
 						if(PPLoadText(PPTXT_CCIMP_ACCEPTED, fmt_buf)) {
-							CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
+							CCheckCore::MakeCodeString(&cc_pack.Rec, CCheckCore::mcsID, temp_buf);
 							Logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 						}
 						if(need_to_print) {

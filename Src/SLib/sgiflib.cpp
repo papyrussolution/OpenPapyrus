@@ -95,7 +95,7 @@ int _ExistsHashTable(GifHashTableType *HashTable, uint32 Key);
 static const GifPixelType CodeMask[] = { 0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff };
 static int SortRGBAxis; // @global
 // @-charint@
-// #define  DEBUG_HIT_RATE    Debug number of misses per hash Insert/Exists. */
+// #define DEBUG_HIT_RATE    Debug number of misses per hash Insert/Exists. */
 #ifdef  DEBUG_HIT_RATE
 	static long NumberOfTests = 0; // @global
 	static long NumberOfMisses = 0; // @global

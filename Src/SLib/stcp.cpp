@@ -3412,24 +3412,34 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 {
 	Reply.Z();
 
+	/*
+#define SLERR_UFT_SRCISEMPTY                   581 // @v11.8.10 SUniformFileTransmParam: src is empty 
+#define SLERR_UFT_DESTISEMPTY                  582 // @v11.8.10 SUniformFileTransmParam: dest is empty
+#define SLERR_UFT_SRCORDESTMUSTBEFILE          583 // @v11.8.10 SUniformFileTransmParam: src or dest must be file
+
+#define SLERR_UFT_INVSRCPROT                   584 // @v11.8.10 SUniformFileTransmParam: invalid src protocol
+#define SLERR_UFT_INVDESTPROT                  585 // @v11.8.10 SUniformFileTransmParam: invalid dest protocol
+	*/
 	int    ok = -1;
     SString path_src = SrcPath;
     SString path_dest = DestPath;
-    THROW(path_src.NotEmptyS());
-    THROW(path_dest.NotEmptyS());
+    THROW_S(path_src.NotEmptyS(), SLERR_UFT_SRCISEMPTY);
+    THROW_S(path_dest.NotEmptyS(), SLERR_UFT_DESTISEMPTY);
     {
 		SString temp_buf;
 		SString temp_fname;
 		SPathStruc ps;
-		InetUrl url_src(path_src);
-		InetUrl url_dest(path_dest);
-		THROW(!(url_src.GetState() & (InetUrl::stEmpty|InetUrl::stError)));
-		THROW(!(url_dest.GetState() & (InetUrl::stEmpty|InetUrl::stError)));
+		InetUrl url_src;
+		InetUrl url_dest;
+		THROW(url_src.Parse(path_src) > 0);
+		THROW(url_dest.Parse(path_dest) > 0);
         const int prot_src = url_src.GetProtocol();
         const int prot_dest = url_dest.GetProtocol();
-        THROW(oneof8(prot_src, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protPOP3, InetUrl::protPOP3S));
-        THROW(oneof8(prot_dest, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protSMTP, InetUrl::protSMTPS));
-		THROW(prot_src == InetUrl::protFile || prot_dest == InetUrl::protFile);
+        THROW_S(oneof8(prot_src, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, 
+			InetUrl::protTFtp, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protPOP3, InetUrl::protPOP3S), SLERR_UFT_INVSRCPROT);
+        THROW_S(oneof8(prot_dest, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, 
+			InetUrl::protTFtp, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protSMTP, InetUrl::protSMTPS), SLERR_UFT_INVDESTPROT);
+		THROW_S(prot_src == InetUrl::protFile || prot_dest == InetUrl::protFile, SLERR_UFT_SRCORDESTMUSTBEFILE);
 		if(prot_src == InetUrl::protFile) { // Отправка локального файла
 			SString local_path_src;
 			url_src.GetComponent(InetUrl::cPath, 0, local_path_src);

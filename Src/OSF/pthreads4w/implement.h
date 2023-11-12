@@ -92,20 +92,20 @@
 	#endif
 #endif
 #if defined (__PTW32_CONFIG_MSVC6)
-	#define  __PTW32_INTERLOCKED_VOLATILE
+	#define __PTW32_INTERLOCKED_VOLATILE
 #else
-	#define  __PTW32_INTERLOCKED_VOLATILE volatile
+	#define __PTW32_INTERLOCKED_VOLATILE volatile
 #endif
-#define  __PTW32_INTERLOCKED_LONG long
-#define  __PTW32_INTERLOCKED_PVOID PVOID
-#define  __PTW32_INTERLOCKED_LONGPTR  __PTW32_INTERLOCKED_VOLATILE long*
-#define  __PTW32_INTERLOCKED_PVOID_PTR  __PTW32_INTERLOCKED_VOLATILE PVOID*
+#define __PTW32_INTERLOCKED_LONG long
+#define __PTW32_INTERLOCKED_PVOID PVOID
+#define __PTW32_INTERLOCKED_LONGPTR  __PTW32_INTERLOCKED_VOLATILE long*
+#define __PTW32_INTERLOCKED_PVOID_PTR  __PTW32_INTERLOCKED_VOLATILE PVOID*
 #if defined(_WIN64)
-	#define  __PTW32_INTERLOCKED_SIZE LONGLONG
-	#define  __PTW32_INTERLOCKED_SIZEPTR  __PTW32_INTERLOCKED_VOLATILE LONGLONG*
+	#define __PTW32_INTERLOCKED_SIZE LONGLONG
+	#define __PTW32_INTERLOCKED_SIZEPTR  __PTW32_INTERLOCKED_VOLATILE LONGLONG*
 #else
-	#define  __PTW32_INTERLOCKED_SIZE long
-	#define  __PTW32_INTERLOCKED_SIZEPTR  __PTW32_INTERLOCKED_VOLATILE long*
+	#define __PTW32_INTERLOCKED_SIZE long
+	#define __PTW32_INTERLOCKED_SIZEPTR  __PTW32_INTERLOCKED_VOLATILE long*
 #endif
 /*
  * Don't allow the linker to optimize away dll.obj (dll.o) in static builds.
@@ -181,7 +181,7 @@ struct __ptw32_thread_t_ {
 /*
  * Special value to mark attribute objects as valid.
  */
-#define  __PTW32_ATTR_VALID ((ulong)0xC4C0FFEE)
+#define __PTW32_ATTR_VALID ((ulong)0xC4C0FFEE)
 
 struct pthread_attr_t_ {
 	unsigned long valid;
@@ -215,8 +215,8 @@ struct sem_t_ {
 #endif
 };
 
-#define  __PTW32_OBJECT_AUTO_INIT ((void *)(size_t)-1)
-#define  __PTW32_OBJECT_INVALID   NULL
+#define __PTW32_OBJECT_AUTO_INIT ((void *)(size_t)-1)
+#define __PTW32_OBJECT_INVALID   NULL
 
 struct pthread_mutex_t_ {
 	LONG lock_idx; // Provides exclusive access to mutex state via the Interlocked* mechanism.
@@ -269,10 +269,10 @@ struct pthread_mutexattr_t_ {
  * "u.cpus" isn't used for anything yet, but could be used at
  * some point to optimise spinlock behaviour.
  */
-#define  __PTW32_SPIN_INVALID     (0)
-#define  __PTW32_SPIN_UNLOCKED    (1)
-#define  __PTW32_SPIN_LOCKED      (2)
-#define  __PTW32_SPIN_USE_MUTEX   (3)
+#define __PTW32_SPIN_INVALID     (0)
+#define __PTW32_SPIN_UNLOCKED    (1)
+#define __PTW32_SPIN_LOCKED      (2)
+#define __PTW32_SPIN_USE_MUTEX   (3)
 
 struct pthread_spinlock_t_ {
 	long interlock; /* Locking element for multi-cpus. */
@@ -342,7 +342,7 @@ struct pthread_condattr_t_ {
 	int pshared;
 };
 
-#define  __PTW32_RWLOCK_MAGIC 0xfacade2
+#define __PTW32_RWLOCK_MAGIC 0xfacade2
 
 struct pthread_rwlock_t_ {
 	pthread_mutex_t mtxExclusiveAccess;
@@ -506,8 +506,8 @@ struct ThreadKeyAssoc {
  * the optional information array.
  */
 #define EXCEPTION_PTW32_SERVICES  MAKE_SOFTWARE_EXCEPTION(SE_ERROR, __PTW32_SERVICES_FACILITY, __PTW32_SERVICES_ERROR)
-#define  __PTW32_SERVICES_FACILITY         0xBAD
-#define  __PTW32_SERVICES_ERROR            0xDEED
+#define __PTW32_SERVICES_FACILITY         0xBAD
+#define __PTW32_SERVICES_ERROR            0xDEED
 
 #endif /* __PTW32_CLEANUP_SEH */
 
@@ -517,18 +517,18 @@ struct ThreadKeyAssoc {
  * generic exception selectors.
  */
 
-#define  __PTW32_EPS_EXIT                  (1)
-#define  __PTW32_EPS_CANCEL                (2)
+#define __PTW32_EPS_EXIT                  (1)
+#define __PTW32_EPS_CANCEL                (2)
 
 /* Useful macros */
-#define  __PTW32_MAX(a, b)  ((a)<(b) ? (b) : (a))
-#define  __PTW32_MIN(a, b)  ((a)>(b) ? (b) : (a))
+#define __PTW32_MAX(a, b)  ((a)<(b) ? (b) : (a))
+#define __PTW32_MIN(a, b)  ((a)>(b) ? (b) : (a))
 
 /* Declared in pthread_cancel.c */
 extern DWORD (* __ptw32_register_cancellation)(PAPCFUNC, HANDLE, DWORD);
 
 /* Thread Reuse stack bottom marker. Must not be NULL or any valid pointer to memory. */
-#define  __PTW32_THREAD_REUSE_EMPTY (reinterpret_cast<__ptw32_thread_t *>(static_cast<size_t>(1)))
+#define __PTW32_THREAD_REUSE_EMPTY (reinterpret_cast<__ptw32_thread_t *>(static_cast<size_t>(1)))
 
 extern int __ptw32_processInitialized;
 extern __ptw32_thread_t * __ptw32_threadReuseTop;
@@ -650,14 +650,14 @@ __PTW32_END_C_DECLS
  * The above aren't available in Mingw32 as of gcc 4.5.2 so define our own.
  */
 #if defined(__cplusplus)
-#define  __PTW32_TO_VLONG64PTR(ptr) reinterpret_cast<volatile LONG64 *>(ptr)
+#define __PTW32_TO_VLONG64PTR(ptr) reinterpret_cast<volatile LONG64 *>(ptr)
 #else
-#define  __PTW32_TO_VLONG64PTR(ptr) (ptr)
+#define __PTW32_TO_VLONG64PTR(ptr) (ptr)
 #endif
 
 #if defined(__GNUC__)
 #if defined(_WIN64)
-#define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_64(location, value, comparand) \
+#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_64(location, value, comparand) \
 	({                                                                     \
 		__typeof(value) _result;                                            \
 		__asm__ __volatile__                                                 \
@@ -669,7 +669,7 @@ __PTW32_END_C_DECLS
 			: "memory", "cc");                                                  \
 		_result;                                                             \
 	})
-#define  __PTW32_INTERLOCKED_EXCHANGE_64(location, value)                    \
+#define __PTW32_INTERLOCKED_EXCHANGE_64(location, value)                    \
 	({                                                                     \
 		__typeof(value) _result;                                            \
 		__asm__ __volatile__                                                 \
@@ -680,7 +680,7 @@ __PTW32_END_C_DECLS
 			: "memory", "cc");                                                  \
 		_result;                                                             \
 	})
-#define  __PTW32_INTERLOCKED_EXCHANGE_ADD_64(location, value)                \
+#define __PTW32_INTERLOCKED_EXCHANGE_ADD_64(location, value)                \
 	({                                                                     \
 		__typeof(value) _result;                                            \
 		__asm__ __volatile__                                                 \
@@ -692,7 +692,7 @@ __PTW32_END_C_DECLS
 			: "memory", "cc");                                                  \
 		_result;                                                             \
 	})
-#define  __PTW32_INTERLOCKED_INCREMENT_64(location)                          \
+#define __PTW32_INTERLOCKED_INCREMENT_64(location)                          \
 	({                                                                     \
 		__PTW32_INTERLOCKED_LONG _temp = 1;                                    \
 		__asm__ __volatile__                                                 \
@@ -704,7 +704,7 @@ __PTW32_END_C_DECLS
 			: "memory", "cc");                                                  \
 		++_temp;                                                             \
 	})
-#define  __PTW32_INTERLOCKED_DECREMENT_64(location)                          \
+#define __PTW32_INTERLOCKED_DECREMENT_64(location)                          \
 	({                                                                     \
 		__PTW32_INTERLOCKED_LONG _temp = -1;                                   \
 		__asm__ __volatile__                                                 \
@@ -717,7 +717,7 @@ __PTW32_END_C_DECLS
 		--_temp;                                                             \
 	})
 #endif
-#define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG(location, value, comparand) \
+#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG(location, value, comparand) \
 	({                                                                     \
 		__typeof(value) _result;                                            \
 		__asm__ __volatile__                                                 \
@@ -729,7 +729,7 @@ __PTW32_END_C_DECLS
 			: "memory", "cc");                                                  \
 		_result;                                                             \
 	})
-#define  __PTW32_INTERLOCKED_EXCHANGE_LONG(location, value)                  \
+#define __PTW32_INTERLOCKED_EXCHANGE_LONG(location, value)                  \
 	({                                                                     \
 		__typeof(value) _result;                                            \
 		__asm__ __volatile__                                                 \
@@ -740,7 +740,7 @@ __PTW32_END_C_DECLS
 			: "memory", "cc");                                                  \
 		_result;                                                             \
 	})
-#define  __PTW32_INTERLOCKED_EXCHANGE_ADD_LONG(location, value)              \
+#define __PTW32_INTERLOCKED_EXCHANGE_ADD_LONG(location, value)              \
 	({                                                                     \
 		__typeof(value) _result;                                            \
 		__asm__ __volatile__                                                 \
@@ -752,7 +752,7 @@ __PTW32_END_C_DECLS
 			: "memory", "cc");                                                  \
 		_result;                                                             \
 	})
-#define  __PTW32_INTERLOCKED_INCREMENT_LONG(location)                        \
+#define __PTW32_INTERLOCKED_INCREMENT_LONG(location)                        \
 	({                                                                     \
 		__PTW32_INTERLOCKED_LONG _temp = 1;                                    \
 		__asm__ __volatile__                                                 \
@@ -764,7 +764,7 @@ __PTW32_END_C_DECLS
 			: "memory", "cc");                                                  \
 		++_temp;                                                             \
 	})
-#define  __PTW32_INTERLOCKED_DECREMENT_LONG(location)                        \
+#define __PTW32_INTERLOCKED_DECREMENT_LONG(location)                        \
 	({                                                                     \
 		__PTW32_INTERLOCKED_LONG _temp = -1;                                   \
 		__asm__ __volatile__                                                 \
@@ -776,52 +776,52 @@ __PTW32_END_C_DECLS
 			: "memory", "cc");                                                  \
 		--_temp;                                                             \
 	})
-#define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR(location, value, comparand) \
+#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR(location, value, comparand) \
 	__PTW32_INTERLOCKED_COMPARE_EXCHANGE_SIZE((__PTW32_INTERLOCKED_SIZEPTR)location, \
 	    (__PTW32_INTERLOCKED_SIZE)value, \
 	    (__PTW32_INTERLOCKED_SIZE)comparand)
-#define  __PTW32_INTERLOCKED_EXCHANGE_PTR(location, value) \
+#define __PTW32_INTERLOCKED_EXCHANGE_PTR(location, value) \
 	__PTW32_INTERLOCKED_EXCHANGE_SIZE((__PTW32_INTERLOCKED_SIZEPTR)location, \
 	    (__PTW32_INTERLOCKED_SIZE)value)
 #else
 #if defined(_WIN64)
-#define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_64(p, v, c) InterlockedCompareExchange64(__PTW32_TO_VLONG64PTR(p), (v), (c))
-#define  __PTW32_INTERLOCKED_EXCHANGE_64(p, v) InterlockedExchange64(__PTW32_TO_VLONG64PTR(p), (v))
-#define  __PTW32_INTERLOCKED_EXCHANGE_ADD_64(p, v) InterlockedExchangeAdd64(__PTW32_TO_VLONG64PTR(p), (v))
-#define  __PTW32_INTERLOCKED_INCREMENT_64(p) InterlockedIncrement64(__PTW32_TO_VLONG64PTR(p))
-#define  __PTW32_INTERLOCKED_DECREMENT_64(p) InterlockedDecrement64(__PTW32_TO_VLONG64PTR(p))
+#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_64(p, v, c) InterlockedCompareExchange64(__PTW32_TO_VLONG64PTR(p), (v), (c))
+#define __PTW32_INTERLOCKED_EXCHANGE_64(p, v) InterlockedExchange64(__PTW32_TO_VLONG64PTR(p), (v))
+#define __PTW32_INTERLOCKED_EXCHANGE_ADD_64(p, v) InterlockedExchangeAdd64(__PTW32_TO_VLONG64PTR(p), (v))
+#define __PTW32_INTERLOCKED_INCREMENT_64(p) InterlockedIncrement64(__PTW32_TO_VLONG64PTR(p))
+#define __PTW32_INTERLOCKED_DECREMENT_64(p) InterlockedDecrement64(__PTW32_TO_VLONG64PTR(p))
 #endif
 #if defined (__PTW32_CONFIG_MSVC6) && !defined(_WIN64)
-#define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG(location, value, comparand) \
+#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG(location, value, comparand) \
 	((LONG)InterlockedCompareExchange((PVOID*)(location), (PVOID)(value), (PVOID)(comparand)))
 #else
-#define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG InterlockedCompareExchange
+#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG InterlockedCompareExchange
 #endif
-#define  __PTW32_INTERLOCKED_EXCHANGE_LONG(p, v) InterlockedExchange((p), (v))
-#define  __PTW32_INTERLOCKED_EXCHANGE_ADD_LONG(p, v) InterlockedExchangeAdd((p), (v))
-#define  __PTW32_INTERLOCKED_INCREMENT_LONG(p) InterlockedIncrement((p))
-#define  __PTW32_INTERLOCKED_DECREMENT_LONG(p) InterlockedDecrement((p))
+#define __PTW32_INTERLOCKED_EXCHANGE_LONG(p, v) InterlockedExchange((p), (v))
+#define __PTW32_INTERLOCKED_EXCHANGE_ADD_LONG(p, v) InterlockedExchangeAdd((p), (v))
+#define __PTW32_INTERLOCKED_INCREMENT_LONG(p) InterlockedIncrement((p))
+#define __PTW32_INTERLOCKED_DECREMENT_LONG(p) InterlockedDecrement((p))
 #if defined (__PTW32_CONFIG_MSVC6) && !defined(_WIN64)
-#define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR InterlockedCompareExchange
-#define  __PTW32_INTERLOCKED_EXCHANGE_PTR(location, value) \
+#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR InterlockedCompareExchange
+#define __PTW32_INTERLOCKED_EXCHANGE_PTR(location, value) \
 	((PVOID)InterlockedExchange((LPLONG)(location), (LONG)(value)))
 #else
-#define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR(p, v, c) InterlockedCompareExchangePointer((p), (v), (c))
-#define  __PTW32_INTERLOCKED_EXCHANGE_PTR(p, v) InterlockedExchangePointer((p), (v))
+#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR(p, v, c) InterlockedCompareExchangePointer((p), (v), (c))
+#define __PTW32_INTERLOCKED_EXCHANGE_PTR(p, v) InterlockedExchangePointer((p), (v))
 #endif
 #endif
 #if defined(_WIN64)
-#define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_SIZE(p, v, c)  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_64(__PTW32_TO_VLONG64PTR(p), (v), (c))
-#define  __PTW32_INTERLOCKED_EXCHANGE_SIZE(p, v)  __PTW32_INTERLOCKED_EXCHANGE_64(__PTW32_TO_VLONG64PTR(p), (v))
-#define  __PTW32_INTERLOCKED_EXCHANGE_ADD_SIZE(p, v)  __PTW32_INTERLOCKED_EXCHANGE_ADD_64(__PTW32_TO_VLONG64PTR(p), (v))
-#define  __PTW32_INTERLOCKED_INCREMENT_SIZE(p)  __PTW32_INTERLOCKED_INCREMENT_64(__PTW32_TO_VLONG64PTR(p))
-#define  __PTW32_INTERLOCKED_DECREMENT_SIZE(p)  __PTW32_INTERLOCKED_DECREMENT_64(__PTW32_TO_VLONG64PTR(p))
+#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_SIZE(p, v, c)  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_64(__PTW32_TO_VLONG64PTR(p), (v), (c))
+#define __PTW32_INTERLOCKED_EXCHANGE_SIZE(p, v)  __PTW32_INTERLOCKED_EXCHANGE_64(__PTW32_TO_VLONG64PTR(p), (v))
+#define __PTW32_INTERLOCKED_EXCHANGE_ADD_SIZE(p, v)  __PTW32_INTERLOCKED_EXCHANGE_ADD_64(__PTW32_TO_VLONG64PTR(p), (v))
+#define __PTW32_INTERLOCKED_INCREMENT_SIZE(p)  __PTW32_INTERLOCKED_INCREMENT_64(__PTW32_TO_VLONG64PTR(p))
+#define __PTW32_INTERLOCKED_DECREMENT_SIZE(p)  __PTW32_INTERLOCKED_DECREMENT_64(__PTW32_TO_VLONG64PTR(p))
 #else
-#define  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_SIZE(p, v, c)  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG((p), (v), (c))
-#define  __PTW32_INTERLOCKED_EXCHANGE_SIZE(p, v)  __PTW32_INTERLOCKED_EXCHANGE_LONG((p), (v))
-#define  __PTW32_INTERLOCKED_EXCHANGE_ADD_SIZE(p, v)  __PTW32_INTERLOCKED_EXCHANGE_ADD_LONG((p), (v))
-#define  __PTW32_INTERLOCKED_INCREMENT_SIZE(p)  __PTW32_INTERLOCKED_INCREMENT_LONG((p))
-#define  __PTW32_INTERLOCKED_DECREMENT_SIZE(p)  __PTW32_INTERLOCKED_DECREMENT_LONG((p))
+#define __PTW32_INTERLOCKED_COMPARE_EXCHANGE_SIZE(p, v, c)  __PTW32_INTERLOCKED_COMPARE_EXCHANGE_LONG((p), (v), (c))
+#define __PTW32_INTERLOCKED_EXCHANGE_SIZE(p, v)  __PTW32_INTERLOCKED_EXCHANGE_LONG((p), (v))
+#define __PTW32_INTERLOCKED_EXCHANGE_ADD_SIZE(p, v)  __PTW32_INTERLOCKED_EXCHANGE_ADD_LONG((p), (v))
+#define __PTW32_INTERLOCKED_INCREMENT_SIZE(p)  __PTW32_INTERLOCKED_INCREMENT_LONG((p))
+#define __PTW32_INTERLOCKED_DECREMENT_SIZE(p)  __PTW32_INTERLOCKED_DECREMENT_LONG((p))
 #endif
 #if defined(NEED_CREATETHREAD)
 	/*

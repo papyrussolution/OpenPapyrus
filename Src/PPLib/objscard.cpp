@@ -4287,7 +4287,7 @@ int PPObjSCard::PutTransmitPacket(PPID * pID, SCardTransmitPacket * pPack, int u
 				p_chk_rec->SCardID = *pID;
 				p_chk_rec->ID = 0;
 				if(!P_CcTbl->Add(&chk_id, p_chk_rec, 0)) {
-					CCheckCore::MakeCodeString(p_chk_rec, chk_code);
+					CCheckCore::MakeCodeString(p_chk_rec, 0, chk_code);
 					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTCCHECK, org_chk_id, chk_code);
 				}
 			}

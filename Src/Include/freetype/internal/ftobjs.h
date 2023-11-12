@@ -93,14 +93,14 @@ FT_BEGIN_HEADER
  * character classification functions -- since these are used to parse font
  * files, we must not use those in <ctypes.h> which are locale-dependent
  */
-#define  ft_isdigit(x)   (((uint)(x) - '0' ) < 10U )
-#define  ft_isxdigit(x)  (((uint)(x) - '0' ) < 10U || ((uint)(x) - 'a' ) < 6U || ((uint)(x) - 'A' ) < 6U)
+#define ft_isdigit(x)   (((uint)(x) - '0' ) < 10U )
+#define ft_isxdigit(x)  (((uint)(x) - '0' ) < 10U || ((uint)(x) - 'a' ) < 6U || ((uint)(x) - 'A' ) < 6U)
 
 /* the next two macros assume ASCII representation */
-#define  ft_isupper(x)  (((uint)(x) - 'A' ) < 26U )
-#define  ft_islower(x)  (((uint)(x) - 'a' ) < 26U )
-#define  ft_isalpha(x)  ( ft_isupper(x) || ft_islower(x))
-#define  ft_isalnum(x)  ( ft_isdigit(x) || ft_isalpha(x))
+#define ft_isupper(x)  (((uint)(x) - 'A' ) < 26U )
+#define ft_islower(x)  (((uint)(x) - 'a' ) < 26U )
+#define ft_isalpha(x)  ( ft_isupper(x) || ft_islower(x))
+#define ft_isalnum(x)  ( ft_isdigit(x) || ft_isalpha(x))
 
 // 
 /****                       C H A R M A P S                           ****/

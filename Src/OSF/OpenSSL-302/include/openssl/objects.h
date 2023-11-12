@@ -46,7 +46,7 @@ typedef struct obj_name_st {
 	const char * data;
 } OBJ_NAME;
 
-#define         OBJ_create_and_add_object(a, b, c) OBJ_create(a, b, c)
+#define OBJ_create_and_add_object(a, b, c) OBJ_create(a, b, c)
 
 int OBJ_NAME_init(void);
 int OBJ_NAME_new_index(unsigned long (* hash_func)(const char *), int (* cmp_func)(const char *, const char *), void (* free_func)(const char *, int, const char *));

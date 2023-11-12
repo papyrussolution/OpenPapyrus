@@ -1047,7 +1047,8 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 		PPInternetAccount2 ia_pack;
 		if(ia_obj.Get(InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
 			// @v11.1.10 if(fileExists(FileName)) {
-			SString ftp_path, naked_file_name;
+			SString ftp_path;
+			SString naked_file_name;
 			{
 				SPathStruc ps(FileName);
 				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, naked_file_name);
@@ -1065,10 +1066,8 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 				SUniformFileTransmParam param;
 				SString accs_name;
 				char   pwd[256];
-				param.SrcPath = FileName;
+				(param.SrcPath = FileName).Transf(CTRANSF_OUTER_TO_UTF8); // @v11.8.10 Transf(CTRANSF_OUTER_TO_UTF8)
 				SPathStruc::NormalizePath(ftp_path, SPathStruc::npfSlash|SPathStruc::npfKeepCase, param.DestPath);
-				// @v10.3.10 param.SrcPath.Transf(CTRANSF_INNER_TO_OUTER);
-				// @v10.3.10 param.DestPath.Transf(CTRANSF_INNER_TO_OUTER);
 				param.Flags = 0;
 				param.Format = SFileFormat::Unkn;
 				ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
@@ -1084,6 +1083,7 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 		}
 	}
 	CATCH
+		const int slserr = SLibError; // @debug
 		CALLPTRMEMB(pLogger, LogLastError());
 		ok = 0;
 	ENDCATCH

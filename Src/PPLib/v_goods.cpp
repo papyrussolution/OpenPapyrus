@@ -5463,12 +5463,17 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 			(temp_buf = H.Name).Strip().RevertSpecSymb(SFileFormat::Html);
 			STRNSCPY(r_pack.Rec.Name, temp_buf);
 			STRNSCPY(r_pack.Rec.Abbr, temp_buf);
-			r_pack.PutExtStrData(GDSEXSTR_STORAGE,  (temp_buf = H.Storage).Strip().RevertSpecSymb(SFileFormat::Html));
-			r_pack.PutExtStrData(GDSEXSTR_STANDARD, (temp_buf = H.Standard).Strip().RevertSpecSymb(SFileFormat::Html));
-			r_pack.PutExtStrData(GDSEXSTR_INGRED,   (temp_buf = H.Ingred).Strip().RevertSpecSymb(SFileFormat::Html));
-			r_pack.PutExtStrData(GDSEXSTR_ENERGY,   (temp_buf = H.Energy).Strip().RevertSpecSymb(SFileFormat::Html));
-			r_pack.PutExtStrData(GDSEXSTR_USAGE,    (temp_buf = H.Usage).Strip().RevertSpecSymb(SFileFormat::Html));
-			r_pack.PutExtStrData(GDSEXSTR_OKOF,     (temp_buf = H.OKOF).Strip().RevertSpecSymb(SFileFormat::Html));
+			/* non static! */const SIntToSymbTabEntry _assoc_tab[] = {
+				{ GDSEXSTR_STORAGE,  H.Storage },
+				{ GDSEXSTR_STANDARD, H.Standard },
+				{ GDSEXSTR_INGRED,   H.Ingred },
+				{ GDSEXSTR_ENERGY,   H.Energy },
+				{ GDSEXSTR_USAGE,    H.Usage },
+				{ GDSEXSTR_OKOF,     H.OKOF },
+			};
+			for(uint i = 0; i < SIZEOFARRAY(_assoc_tab); i++) {
+				r_pack.PutExtStrData(_assoc_tab->Id,  (temp_buf = _assoc_tab[i].P_Symb).Strip().RevertSpecSymb(SFileFormat::Html));
+			}
 			{
 				PPObjUnit u_obj;
 				PPUnit u_rec;

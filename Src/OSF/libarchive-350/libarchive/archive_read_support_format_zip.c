@@ -3038,7 +3038,7 @@ static const char * rsrc_basename(const char * name, size_t name_length)
 	const char * s, * r;
 	r = s = name;
 	for(;;) {
-		s = static_cast<const char *>(memchr(s, '/', name_length - (s - name)));
+		s = static_cast<const char *>(smemchr(s, '/', name_length - (s - name)));
 		if(!s)
 			break;
 		r = ++s;

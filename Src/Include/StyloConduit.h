@@ -7,7 +7,7 @@
 
 #ifndef _PAPYRUS
 	#ifndef  __GENERIC_MAIN_CONDUIT__
-		#define  __GENERIC_MAIN_CONDUIT__
+		#define __GENERIC_MAIN_CONDUIT__
 	#endif
 	#define GENERIC_CONDUIT_VERSION 0x00000100
 	#include <crtdbg.h>

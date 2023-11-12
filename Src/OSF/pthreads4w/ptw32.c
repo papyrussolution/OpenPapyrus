@@ -1294,7 +1294,7 @@ void __ptw32_tkAssocDestroy(ThreadKeyAssoc * assoc)
 /*
  * time between jan 1, 1601 and jan 1, 1970 in units of 100 nanoseconds
  */
-//#define  __PTW32_TIMESPEC_TO_FILETIME_OFFSET (((uint64_t)27111902UL << 32) + (uint64_t)3577643008UL)
+//#define __PTW32_TIMESPEC_TO_FILETIME_OFFSET (((uint64_t)27111902UL << 32) + (uint64_t)3577643008UL)
 /*
  * -------------------------------------------------------------------
  * converts struct timespec

@@ -55,7 +55,7 @@ void _cairo_mutex_initialize(void)
 		return;
 	_cairo_mutex_initialized = TRUE;
 
-#define  CAIRO_MUTEX_DECLARE(mutex) CAIRO_MUTEX_INIT(mutex);
+#define CAIRO_MUTEX_DECLARE(mutex) CAIRO_MUTEX_INIT(mutex);
 #include "cairo-mutex-list-private.h"
 #undef   CAIRO_MUTEX_DECLARE
 }
@@ -70,7 +70,7 @@ void _cairo_mutex_finalize(void)
 
 	_cairo_mutex_initialized = FALSE;
 
-#define  CAIRO_MUTEX_DECLARE(mutex) CAIRO_MUTEX_FINI(mutex);
+#define CAIRO_MUTEX_DECLARE(mutex) CAIRO_MUTEX_FINI(mutex);
 #include "cairo-mutex-list-private.h"
 #undef   CAIRO_MUTEX_DECLARE
 }

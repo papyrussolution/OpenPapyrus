@@ -18,9 +18,9 @@
 #if defined(__cplusplus)
 // Use C++ atomics
 #include <atomic>
-#define  _Atomic(tp)            std::atomic<tp>
-#define  mi_atomic(name)        std::atomic_ ## name
-#define  mi_memory_order(name)  std::memory_order_ ## name
+#define _Atomic(tp)            std::atomic<tp>
+#define mi_atomic(name)        std::atomic_ ## name
+#define mi_memory_order(name)  std::memory_order_ ## name
 #if !defined(ATOMIC_VAR_INIT) || (__cplusplus >= 202002L) // c++20, see issue #571
  #define MI_ATOMIC_VAR_INIT(x)  x
 #else
@@ -28,16 +28,16 @@
 #endif
 #elif defined(_MSC_VER)
 // Use MSVC C wrapper for C11 atomics
-#define  _Atomic(tp)            tp
-#define  MI_ATOMIC_VAR_INIT(x)  x
-#define  mi_atomic(name)        mi_atomic_ ## name
-#define  mi_memory_order(name)  mi_memory_order_ ## name
+#define _Atomic(tp)            tp
+#define MI_ATOMIC_VAR_INIT(x)  x
+#define mi_atomic(name)        mi_atomic_ ## name
+#define mi_memory_order(name)  mi_memory_order_ ## name
 #else
 // Use C11 atomics
 #include <stdatomic.h>
-#define  mi_atomic(name)        atomic_ ## name
-#define  mi_memory_order(name)  memory_order_ ## name
-#define  MI_ATOMIC_VAR_INIT(x)  ATOMIC_VAR_INIT(x)
+#define mi_atomic(name)        atomic_ ## name
+#define mi_memory_order(name)  memory_order_ ## name
+#define MI_ATOMIC_VAR_INIT(x)  ATOMIC_VAR_INIT(x)
 #endif
 
 // Various defines for all used memory orders in mimalloc

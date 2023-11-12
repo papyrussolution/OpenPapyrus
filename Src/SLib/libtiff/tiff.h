@@ -196,14 +196,14 @@ typedef enum {
 #define	    COMPRESSION_NONE		1	/* dump mode */
 #define	    COMPRESSION_CCITTRLE	2	/* CCITT modified Huffman RLE */
 #define	    COMPRESSION_CCITTFAX3	3	/* CCITT Group 3 fax encoding */
-#define     COMPRESSION_CCITT_T4        3       /* CCITT T.4 (TIFF 6 name) */
+#define COMPRESSION_CCITT_T4        3       /* CCITT T.4 (TIFF 6 name) */
 #define	    COMPRESSION_CCITTFAX4	4	/* CCITT Group 4 fax encoding */
-#define     COMPRESSION_CCITT_T6        4       /* CCITT T.6 (TIFF 6 name) */
+#define COMPRESSION_CCITT_T6        4       /* CCITT T.6 (TIFF 6 name) */
 #define	    COMPRESSION_LZW		5       /* Lempel-Ziv  & Welch */
 #define	    COMPRESSION_OJPEG		6	/* !6.0 JPEG */
 #define	    COMPRESSION_JPEG		7	/* %JPEG DCT compression */
-#define     COMPRESSION_T85			9	/* !TIFF/FX T.85 JBIG compression */
-#define     COMPRESSION_T43			10	/* !TIFF/FX T.43 colour by layered JBIG compression */
+#define COMPRESSION_T85			9	/* !TIFF/FX T.85 JBIG compression */
+#define COMPRESSION_T43			10	/* !TIFF/FX T.43 colour by layered JBIG compression */
 #define	    COMPRESSION_NEXT		32766	/* NeXT 2-bit RLE */
 #define	    COMPRESSION_CCITTRLEW	32771	/* #1 w/ word alignment */
 #define	    COMPRESSION_PACKBITS	32773	/* Macintosh RLE */
@@ -214,17 +214,17 @@ typedef enum {
 #define	    COMPRESSION_IT8MP		32897   /* IT8 Monochrome picture */
 #define	    COMPRESSION_IT8BL		32898   /* IT8 Binary line art */
 /* compression codes 32908-32911 are reserved for Pixar */
-#define     COMPRESSION_PIXARFILM	32908   /* Pixar companded 10bit LZW */
+#define COMPRESSION_PIXARFILM	32908   /* Pixar companded 10bit LZW */
 #define	    COMPRESSION_PIXARLOG	32909   /* Pixar companded 11bit ZIP */
 #define	    COMPRESSION_DEFLATE		32946	/* Deflate compression */
-#define     COMPRESSION_ADOBE_DEFLATE   8       /* Deflate compression,
+#define COMPRESSION_ADOBE_DEFLATE   8       /* Deflate compression,
 						   as recognized by Adobe */
 /* compression code 32947 is reserved for Oceana Matrix <dev@oceana.com> */
-#define     COMPRESSION_DCS             32947   /* Kodak DCS encoding */
+#define COMPRESSION_DCS             32947   /* Kodak DCS encoding */
 #define	    COMPRESSION_JBIG		34661	/* ISO JBIG */
-#define     COMPRESSION_SGILOG		34676	/* SGI Log Luminance RLE */
-#define     COMPRESSION_SGILOG24	34677	/* SGI Log 24-bit packed */
-#define     COMPRESSION_JP2000          34712   /* Leadtools JPEG2000 */
+#define COMPRESSION_SGILOG		34676	/* SGI Log Luminance RLE */
+#define COMPRESSION_SGILOG24	34677	/* SGI Log 24-bit packed */
+#define COMPRESSION_JP2000          34712   /* Leadtools JPEG2000 */
 #define	    COMPRESSION_LZMA		34925	/* LZMA2 */
 #define	TIFFTAG_PHOTOMETRIC		262	/* photometric interpretation */
 #define	    PHOTOMETRIC_MINISWHITE	0	/* min value is white */
@@ -238,8 +238,8 @@ typedef enum {
 #define	    PHOTOMETRIC_ICCLAB		9	/* ICC L*a*b* [Adobe TIFF Technote 4] */
 #define	    PHOTOMETRIC_ITULAB		10	/* ITU L*a*b* */
 #define	    PHOTOMETRIC_CFA		32803	/* color filter array */
-#define     PHOTOMETRIC_LOGL		32844	/* CIE Log2(L) */
-#define     PHOTOMETRIC_LOGLUV		32845	/* CIE Log2(L) (u',v') */
+#define PHOTOMETRIC_LOGL		32844	/* CIE Log2(L) */
+#define PHOTOMETRIC_LOGLUV		32845	/* CIE Log2(L) (u',v') */
 #define	TIFFTAG_THRESHHOLDING		263	/* +thresholding used on data */
 #define	    THRESHHOLD_BILEVEL		1	/* b&w art scan */
 #define	    THRESHHOLD_HALFTONE		2	/* or dithered scan */
@@ -310,9 +310,9 @@ typedef enum {
 #define	TIFFTAG_ARTIST			315	/* creator of image */
 #define	TIFFTAG_HOSTCOMPUTER		316	/* machine where created */
 #define	TIFFTAG_PREDICTOR		317	/* prediction scheme w/ LZW */
-#define     PREDICTOR_NONE		1	/* no prediction scheme used */
-#define     PREDICTOR_HORIZONTAL	2	/* horizontal differencing */
-#define     PREDICTOR_FLOATINGPOINT	3	/* floating point predictor */
+#define PREDICTOR_NONE		1	/* no prediction scheme used */
+#define PREDICTOR_HORIZONTAL	2	/* horizontal differencing */
+#define PREDICTOR_FLOATINGPOINT	3	/* floating point predictor */
 #define	TIFFTAG_WHITEPOINT		318	/* image white point */
 #define	TIFFTAG_PRIMARYCHROMATICITIES	319	/* !primary chromaticities */
 #define	TIFFTAG_COLORMAP		320	/* RGB map for palette image */
@@ -357,22 +357,22 @@ typedef enum {
 /* Tags 400-435 are from the TIFF/FX spec */
 #define TIFFTAG_GLOBALPARAMETERSIFD	400	/* ! */
 #define TIFFTAG_PROFILETYPE			401	/* ! */
-#define     PROFILETYPE_UNSPECIFIED	0	/* ! */
-#define     PROFILETYPE_G3_FAX		1	/* ! */
+#define PROFILETYPE_UNSPECIFIED	0	/* ! */
+#define PROFILETYPE_G3_FAX		1	/* ! */
 #define TIFFTAG_FAXPROFILE			402	/* ! */
-#define     FAXPROFILE_S			1	/* !TIFF/FX FAX profile S */
-#define     FAXPROFILE_F			2	/* !TIFF/FX FAX profile F */
-#define     FAXPROFILE_J			3	/* !TIFF/FX FAX profile J */
-#define     FAXPROFILE_C			4	/* !TIFF/FX FAX profile C */
-#define     FAXPROFILE_L			5	/* !TIFF/FX FAX profile L */
-#define     FAXPROFILE_M			6	/* !TIFF/FX FAX profile LM */
+#define FAXPROFILE_S			1	/* !TIFF/FX FAX profile S */
+#define FAXPROFILE_F			2	/* !TIFF/FX FAX profile F */
+#define FAXPROFILE_J			3	/* !TIFF/FX FAX profile J */
+#define FAXPROFILE_C			4	/* !TIFF/FX FAX profile C */
+#define FAXPROFILE_L			5	/* !TIFF/FX FAX profile L */
+#define FAXPROFILE_M			6	/* !TIFF/FX FAX profile LM */
 #define TIFFTAG_CODINGMETHODS		403	/* !TIFF/FX coding methods */
-#define     CODINGMETHODS_T4_1D		(1 << 1)	/* !T.4 1D */
-#define     CODINGMETHODS_T4_2D		(1 << 2)	/* !T.4 2D */
-#define     CODINGMETHODS_T6		(1 << 3)	/* !T.6 */
-#define     CODINGMETHODS_T85 		(1 << 4)	/* !T.85 JBIG */
-#define     CODINGMETHODS_T42 		(1 << 5)	/* !T.42 JPEG */
-#define     CODINGMETHODS_T43		(1 << 6)	/* !T.43 colour by layered JBIG */
+#define CODINGMETHODS_T4_1D		(1 << 1)	/* !T.4 1D */
+#define CODINGMETHODS_T4_2D		(1 << 2)	/* !T.4 2D */
+#define CODINGMETHODS_T6		(1 << 3)	/* !T.6 */
+#define CODINGMETHODS_T85 		(1 << 4)	/* !T.85 JBIG */
+#define CODINGMETHODS_T42 		(1 << 5)	/* !T.42 JPEG */
+#define CODINGMETHODS_T43		(1 << 6)	/* !T.43 colour by layered JBIG */
 #define TIFFTAG_VERSIONYEAR			404	/* !TIFF/FX version year */
 #define TIFFTAG_MODENUMBER			405	/* !TIFF/FX mode number */
 #define TIFFTAG_DECODE				433	/* !TIFF/FX decode */
@@ -574,16 +574,16 @@ typedef enum {
 #define	    PIXARLOGDATAFMT_FLOAT	5	/* IEEE float samples */
 /* 65550-65556 are allocated to Oceana Matrix <dev@oceana.com> */
 #define TIFFTAG_DCSIMAGERTYPE           65550   /* imager model & filter */
-#define     DCSIMAGERMODEL_M3           0       /* M3 chip (1280 x 1024) */
-#define     DCSIMAGERMODEL_M5           1       /* M5 chip (1536 x 1024) */
-#define     DCSIMAGERMODEL_M6           2       /* M6 chip (3072 x 2048) */
-#define     DCSIMAGERFILTER_IR          0       /* infrared filter */
-#define     DCSIMAGERFILTER_MONO        1       /* monochrome filter */
-#define     DCSIMAGERFILTER_CFA         2       /* color filter array */
-#define     DCSIMAGERFILTER_OTHER       3       /* other filter */
+#define DCSIMAGERMODEL_M3           0       /* M3 chip (1280 x 1024) */
+#define DCSIMAGERMODEL_M5           1       /* M5 chip (1536 x 1024) */
+#define DCSIMAGERMODEL_M6           2       /* M6 chip (3072 x 2048) */
+#define DCSIMAGERFILTER_IR          0       /* infrared filter */
+#define DCSIMAGERFILTER_MONO        1       /* monochrome filter */
+#define DCSIMAGERFILTER_CFA         2       /* color filter array */
+#define DCSIMAGERFILTER_OTHER       3       /* other filter */
 #define TIFFTAG_DCSINTERPMODE           65551   /* interpolation mode */
-#define     DCSINTERPMODE_NORMAL        0x0     /* whole image, default */
-#define     DCSINTERPMODE_PREVIEW       0x1     /* preview of image (384x256) */
+#define DCSINTERPMODE_NORMAL        0x0     /* whole image, default */
+#define DCSINTERPMODE_PREVIEW       0x1     /* preview of image (384x256) */
 #define TIFFTAG_DCSBALANCEARRAY         65552   /* color balance values */
 #define TIFFTAG_DCSCORRECTMATRIX        65553   /* color correction values */
 #define TIFFTAG_DCSGAMMA                65554   /* gamma value */
@@ -595,17 +595,17 @@ typedef enum {
 /* 65559 is allocated to Oceana Matrix <dev@oceana.com> */
 #define TIFFTAG_DCSCLIPRECTANGLE	65559	/* area of image to acquire */
 #define TIFFTAG_SGILOGDATAFMT		65560	/* SGILog user data format */
-#define     SGILOGDATAFMT_FLOAT		0	/* IEEE float samples */
-#define     SGILOGDATAFMT_16BIT		1	/* 16-bit samples */
-#define     SGILOGDATAFMT_RAW		2	/* uninterpreted data */
-#define     SGILOGDATAFMT_8BIT		3	/* 8-bit RGB monitor values */
+#define SGILOGDATAFMT_FLOAT		0	/* IEEE float samples */
+#define SGILOGDATAFMT_16BIT		1	/* 16-bit samples */
+#define SGILOGDATAFMT_RAW		2	/* uninterpreted data */
+#define SGILOGDATAFMT_8BIT		3	/* 8-bit RGB monitor values */
 #define TIFFTAG_SGILOGENCODE		65561 /* SGILog data encoding control*/
-#define     SGILOGENCODE_NODITHER	0     /* do not dither encoded values*/
-#define     SGILOGENCODE_RANDITHER	1     /* randomly dither encd values */
+#define SGILOGENCODE_NODITHER	0     /* do not dither encoded values*/
+#define SGILOGENCODE_RANDITHER	1     /* randomly dither encd values */
 #define	TIFFTAG_LZMAPRESET		65562	/* LZMA2 preset (compression level) */
 #define TIFFTAG_PERSAMPLE       65563	/* interface for per sample tags */
-#define     PERSAMPLE_MERGED        0	/* present as a single value */
-#define     PERSAMPLE_MULTI         1	/* present as multiple values */
+#define PERSAMPLE_MERGED        0	/* present as a single value */
+#define PERSAMPLE_MULTI         1	/* present as multiple values */
 
 /*
  * EXIF tags

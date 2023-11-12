@@ -33,7 +33,6 @@
 static inline int lex_byte(fz_context * ctx, fz_stream * stm)
 {
 	int c = fz_read_byte(ctx, stm);
-
 	if(c == EOF)
 		fz_write_printf(ctx, fz_stdout(ctx), "<EOF>");
 	else if(c >= 32 && c < 128)

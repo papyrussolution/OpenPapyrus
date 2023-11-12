@@ -14,7 +14,7 @@
  * understand and accept it fully.
  *
  */
-#define  FT_MAKE_OPTION_SINGLE_OBJECT
+#define FT_MAKE_OPTION_SINGLE_OBJECT
 #include <ft2build.h>
 #pragma hdrstop
 #include <freetype/ftstroke.h>
@@ -263,7 +263,7 @@ typedef enum  FT_StrokeTags_ {
 	FT_STROKE_TAG_END = 8/* sub-path end    */
 } FT_StrokeTags;
 
-#define  FT_STROKE_TAG_BEGIN_END  ( FT_STROKE_TAG_BEGIN | FT_STROKE_TAG_END )
+#define FT_STROKE_TAG_BEGIN_END  ( FT_STROKE_TAG_BEGIN | FT_STROKE_TAG_END )
 
 typedef struct  FT_StrokeBorderRec_ {
 	FT_UInt num_points;

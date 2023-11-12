@@ -36,9 +36,9 @@
 /* code values */
 #define THUNDER_RUN             0x00    /* run of pixels w/ encoded count */
 #define THUNDER_2BITDELTAS      0x40    /* 3 pixels w/ encoded 2-bit deltas */
-#define     DELTA2_SKIP         2       /* skip code for 2-bit deltas */
+#define DELTA2_SKIP         2       /* skip code for 2-bit deltas */
 #define THUNDER_3BITDELTAS      0x80    /* 2 pixels w/ encoded 3-bit deltas */
-#define     DELTA3_SKIP         4       /* skip code for 3-bit deltas */
+#define DELTA3_SKIP         4       /* skip code for 3-bit deltas */
 #define THUNDER_RAW             0xc0    /* raw data encoded */
 
 static const int twobitdeltas[4] = { 0, 1, 0, -1 };

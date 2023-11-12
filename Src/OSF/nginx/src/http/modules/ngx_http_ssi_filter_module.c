@@ -175,25 +175,25 @@ static ngx_str_t ngx_http_ssi_none = ngx_string("(none)");
 static ngx_str_t ngx_http_ssi_timefmt = ngx_string("%A, %d-%b-%Y %H:%M:%S %Z");
 static ngx_str_t ngx_http_ssi_null_string = ngx_null_string;
 
-#define  NGX_HTTP_SSI_INCLUDE_VIRTUAL  0
-#define  NGX_HTTP_SSI_INCLUDE_FILE     1
-#define  NGX_HTTP_SSI_INCLUDE_WAIT     2
-#define  NGX_HTTP_SSI_INCLUDE_SET      3
-#define  NGX_HTTP_SSI_INCLUDE_STUB     4
+#define NGX_HTTP_SSI_INCLUDE_VIRTUAL  0
+#define NGX_HTTP_SSI_INCLUDE_FILE     1
+#define NGX_HTTP_SSI_INCLUDE_WAIT     2
+#define NGX_HTTP_SSI_INCLUDE_SET      3
+#define NGX_HTTP_SSI_INCLUDE_STUB     4
 
-#define  NGX_HTTP_SSI_ECHO_VAR         0
-#define  NGX_HTTP_SSI_ECHO_DEFAULT     1
-#define  NGX_HTTP_SSI_ECHO_ENCODING    2
+#define NGX_HTTP_SSI_ECHO_VAR         0
+#define NGX_HTTP_SSI_ECHO_DEFAULT     1
+#define NGX_HTTP_SSI_ECHO_ENCODING    2
 
-#define  NGX_HTTP_SSI_CONFIG_ERRMSG    0
-#define  NGX_HTTP_SSI_CONFIG_TIMEFMT   1
+#define NGX_HTTP_SSI_CONFIG_ERRMSG    0
+#define NGX_HTTP_SSI_CONFIG_TIMEFMT   1
 
-#define  NGX_HTTP_SSI_SET_VAR          0
-#define  NGX_HTTP_SSI_SET_VALUE        1
+#define NGX_HTTP_SSI_SET_VAR          0
+#define NGX_HTTP_SSI_SET_VALUE        1
 
-#define  NGX_HTTP_SSI_IF_EXPR          0
+#define NGX_HTTP_SSI_IF_EXPR          0
 
-#define  NGX_HTTP_SSI_BLOCK_NAME       0
+#define NGX_HTTP_SSI_BLOCK_NAME       0
 
 static ngx_http_ssi_param_t ngx_http_ssi_include_params[] = {
 	{ ngx_string("virtual"), NGX_HTTP_SSI_INCLUDE_VIRTUAL, 0, 0 },

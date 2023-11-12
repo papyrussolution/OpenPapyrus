@@ -15269,7 +15269,14 @@ struct CTableStatus { // @flat
 //
 class CCheckCore : public CCheckTbl {
 public:
-	static SString & FASTCALL MakeCodeString(const CCheckTbl::Rec *, SString &);
+	//
+	// Descr: Опции функции CCheckCore::MakeCodeString
+	//
+	enum {
+		mcsDefault      = 0x0000,
+		mcsID           = 0x0001,
+	};
+	static SString & FASTCALL MakeCodeString(const CCheckTbl::Rec *, uint options, SString &);
 	static int FASTCALL FetchCTableStatus(long tableNo, CTableStatus * pStatus);
 	static int FASTCALL FetchCTableOrderList(TSVector <CTableStatus> & rList);
 	// @v10.3.4 @useless static int RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID);
@@ -20322,6 +20329,7 @@ public:
 	};
 	GtinStruc();
 	void   SetSpecialFixedToken(int token, int fixedLen /* 1000 - UNTIL EOL */);
+	void   RemoveSpecialFixedToken(int token); // @v11.8.10
 	void   SetSpecialMinLenToken(int token, int minLen);
 	void   AddSpecialStopChar(uchar stopChar);
 	void   AddOnlyToken(int token);
@@ -25789,9 +25797,9 @@ public:
 	enum {
 		mcsDefault      = 0x0000,
 		mcsWhCodePrefix = 0x0001, // Добавлять в качестве префикса код склада (LOCTYP_WHZONE, LOCTYP_WHCOLUMN, LOCTYP_WHCELL)
-		mcsName = 0x0002,
-		mcsCode = 0x0004,
-		mcsAddr = 0x0008,
+		mcsName         = 0x0002,
+		mcsCode         = 0x0004,
+		mcsAddr         = 0x0008,
 		mcsShortAddr    = 0x0010,
 		mcsPhone        = 0x0020,
 		mcsContact      = 0x0040,

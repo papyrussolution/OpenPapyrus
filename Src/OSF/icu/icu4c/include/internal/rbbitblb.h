@@ -135,11 +135,11 @@ public:
 	void   printRuleStatusTable();
 	void   printReverseTable();
 #else
-    #define  printSet(s)
-    #define  printPosSets(n)
-    #define  printStates()
-    #define  printRuleStatusTable()
-    #define  printReverseTable()
+    #define printSet(s)
+    #define printPosSets(n)
+    #define printStates()
+    #define printRuleStatusTable()
+    #define printReverseTable()
 #endif
 
 private:

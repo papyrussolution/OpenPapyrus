@@ -337,7 +337,7 @@ int PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDATETIME
 		CSessionTbl::Rec cses_rec;
 		if(a == 0.0 && CS.Search(CC.data.SessID, &cses_rec) > 0 && cses_rec.Temporary) {
 			SString msg_buf, fmt_buf, cc_text_buf;
-			CCheckCore::MakeCodeString(&CC.data, cc_text_buf);
+			CCheckCore::MakeCodeString(&CC.data, 0, cc_text_buf);
 			// PPTXT_DUPNEWCCHECKCODEZAMT        "В существующей временной кассовой сессии обнаружен чек-дублер принимаемого чека с нулевой суммой (%s)"
 			msg_buf.Printf(PPLoadTextS(PPTXT_DUPNEWCCHECKCODEZAMT, fmt_buf), cc_text_buf.cptr());
 			PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
@@ -365,7 +365,7 @@ int PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDATETIME
 			const long diffsec = diffdatetimesec(*pDT, ccdtm);
 			if(checkirange(diffsec, 1L, (10L*60L))) {
 				SString msg_buf, fmt_buf, cc_text_buf, time_buf;
-				CCheckCore::MakeCodeString(&CC.data, cc_text_buf);
+				CCheckCore::MakeCodeString(&CC.data, 0, cc_text_buf);
 				time_buf.Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC);
 				// PPTXT_DUPNEWCCHECKCODE            "В существующей кассовой сессии обнаружен чек-дублер '%s' принимаемого, время нового чека = '%s'"
 				msg_buf.Printf(PPLoadTextS(PPTXT_DUPNEWCCHECKCODE, fmt_buf), cc_text_buf.cptr(), time_buf.cptr());

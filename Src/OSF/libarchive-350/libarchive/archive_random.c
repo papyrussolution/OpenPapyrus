@@ -100,11 +100,10 @@ int archive_random(void * buf, size_t nbytes)
  *
  * RC4 is a registered trademark of RSA Laboratories.
  */
-
 #ifdef __GNUC__
-#define inline __inline
+	#define inline __inline
 #else                           /* !__GNUC__ */
-#define inline
+	#define inline
 #endif /* !__GNUC__ */
 
 struct arc4_stream {

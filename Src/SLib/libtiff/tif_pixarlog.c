@@ -90,10 +90,10 @@
 
 /* Tables for converting to/from 11 bit coded values */
 
-#define  TSIZE   2048           /* decode table size (11-bit tokens) */
-#define  TSIZEP1 2049           /* Plus one for slop */
-#define  ONE     1250           /* token value of 1.0 exactly */
-#define  RATIO   1.004          /* nominal ratio for log part */
+#define TSIZE   2048           /* decode table size (11-bit tokens) */
+#define TSIZEP1 2049           /* Plus one for slop */
+#define ONE     1250           /* token value of 1.0 exactly */
+#define RATIO   1.004          /* nominal ratio for log part */
 
 #define CODE_MASK 0x7ff         /* 11 bits. */
 
@@ -883,7 +883,7 @@ static void horizontalDifferenceF(float * ip, int n, int stride, uint16 * wp, ui
 	int32 r1, g1, b1, a1, r2, g2, b2, a2, mask;
 	float fltsize = Fltsize;
 
-#define  CLAMP(v) ((v<0.0f) ? 0 : (v<2.0f)   ? FromLT2[(int)(v*fltsize)] : (v>24.2f) ? 2047 : LogK1*log(v*LogK2) + 0.5)
+#define CLAMP(v) ((v<0.0f) ? 0 : (v<2.0f)   ? FromLT2[(int)(v*fltsize)] : (v>24.2f) ? 2047 : LogK1*log(v*LogK2) + 0.5)
 
 	mask = CODE_MASK;
 	if(n >= stride) {
@@ -935,7 +935,7 @@ static void horizontalDifference16(ushort * ip, int n, int stride, ushort * wp, 
 	int r1, g1, b1, a1, r2, g2, b2, a2, mask;
 /* assumption is unsigned pixel values */
 #undef   CLAMP
-#define  CLAMP(v) From14[(v) >> 2]
+#define CLAMP(v) From14[(v) >> 2]
 	mask = CODE_MASK;
 	if(n >= stride) {
 		if(stride == 3) {
@@ -982,7 +982,7 @@ static void horizontalDifference8(uchar * ip, int n, int stride, ushort * wp, ui
 {
 	int r1, g1, b1, a1, r2, g2, b2, a2, mask;
 #undef   CLAMP
-#define  CLAMP(v) (From8[(v)])
+#define CLAMP(v) (From8[(v)])
 	mask = CODE_MASK;
 	if(n >= stride) {
 		if(stride == 3) {

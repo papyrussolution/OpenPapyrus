@@ -1390,8 +1390,8 @@ struct MDB_env {
 	int ovs;                                        /**< Count of OVERLAPPEDs */
 #endif
 #ifdef MDB_USE_POSIX_MUTEX      /* Posix mutexes reside in shared mem */
-#define          me_rmutex       me_txns->mti_rmutex /**< Shared reader lock */
-#define          me_wmutex       me_txns->mti_wmutex /**< Shared writer lock */
+#define me_rmutex       me_txns->mti_rmutex /**< Shared reader lock */
+#define me_wmutex       me_txns->mti_wmutex /**< Shared writer lock */
 #else
 	mdb_mutex_t me_rmutex;
 	mdb_mutex_t me_wmutex;

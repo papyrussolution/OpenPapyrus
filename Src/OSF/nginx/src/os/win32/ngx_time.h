@@ -29,7 +29,7 @@ typedef FILETIME              ngx_mtime_t;
 #define ngx_tm_wday_t         u_short
 #define ngx_msleep            Sleep
 #define NGX_HAVE_GETTIMEZONE  1
-#define  ngx_timezone_update()
+#define ngx_timezone_update()
 
 ngx_int_t ngx_gettimezone(void);
 void ngx_libc_localtime(time_t s, struct tm *tm);

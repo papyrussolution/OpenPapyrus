@@ -26,7 +26,7 @@
 #include "common.h"
 #pragma hdrstop
 
-#define   GL_CONST  2.8346f
+#define GL_CONST  2.8346f
 
 struct zint_render_line * render_plot_create_line(float x, float y, float width, float length);
 int render_plot_add_line(struct ZintSymbol * symbol, struct zint_render_line * line, struct zint_render_line ** last_line);

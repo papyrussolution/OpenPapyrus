@@ -1335,7 +1335,7 @@ void GnuPlot::F_TmWeek(union argument * /*arg*/)
 
 // 
 
-#define         SQR(a)          ((a)*(a))
+#define SQR(a)          ((a)*(a))
 
 #define C1 0.3
 #define C2 (1.0/7.0)

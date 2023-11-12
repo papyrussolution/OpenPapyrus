@@ -444,8 +444,8 @@ typedef LONG CRYPTO_ONCE;
 #endif
 #else
 #if defined(__TANDEM) && defined(_SPT_MODEL_)
-#define  SPT_THREAD_SIGNAL 1
-#define  SPT_THREAD_AWARE 1
+#define SPT_THREAD_SIGNAL 1
+#define SPT_THREAD_AWARE 1
 #include <spthread.h>
 #else
 #include <pthread.h>

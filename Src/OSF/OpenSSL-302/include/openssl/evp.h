@@ -294,146 +294,146 @@ OSSL_DEPRECATEDIN_3_0 int
 
 /* Modes for ciphers */
 
-#define         EVP_CIPH_STREAM_CIPHER          0x0
-#define         EVP_CIPH_ECB_MODE               0x1
-#define         EVP_CIPH_CBC_MODE               0x2
-#define         EVP_CIPH_CFB_MODE               0x3
-#define         EVP_CIPH_OFB_MODE               0x4
-#define         EVP_CIPH_CTR_MODE               0x5
-#define         EVP_CIPH_GCM_MODE               0x6
-#define         EVP_CIPH_CCM_MODE               0x7
-#define         EVP_CIPH_XTS_MODE               0x10001
-#define         EVP_CIPH_WRAP_MODE              0x10002
-#define         EVP_CIPH_OCB_MODE               0x10003
-#define         EVP_CIPH_SIV_MODE               0x10004
-#define         EVP_CIPH_MODE                   0xF0007
+#define EVP_CIPH_STREAM_CIPHER          0x0
+#define EVP_CIPH_ECB_MODE               0x1
+#define EVP_CIPH_CBC_MODE               0x2
+#define EVP_CIPH_CFB_MODE               0x3
+#define EVP_CIPH_OFB_MODE               0x4
+#define EVP_CIPH_CTR_MODE               0x5
+#define EVP_CIPH_GCM_MODE               0x6
+#define EVP_CIPH_CCM_MODE               0x7
+#define EVP_CIPH_XTS_MODE               0x10001
+#define EVP_CIPH_WRAP_MODE              0x10002
+#define EVP_CIPH_OCB_MODE               0x10003
+#define EVP_CIPH_SIV_MODE               0x10004
+#define EVP_CIPH_MODE                   0xF0007
 /* Set if variable length cipher */
-#define         EVP_CIPH_VARIABLE_LENGTH        0x8
+#define EVP_CIPH_VARIABLE_LENGTH        0x8
 /* Set if the iv handling should be done by the cipher itself */
-#define         EVP_CIPH_CUSTOM_IV              0x10
+#define EVP_CIPH_CUSTOM_IV              0x10
 /* Set if the cipher's init() function should be called if key is NULL */
-#define         EVP_CIPH_ALWAYS_CALL_INIT       0x20
+#define EVP_CIPH_ALWAYS_CALL_INIT       0x20
 /* Call ctrl() to init cipher parameters */
-#define         EVP_CIPH_CTRL_INIT              0x40
+#define EVP_CIPH_CTRL_INIT              0x40
 /* Don't use standard key length function */
-#define         EVP_CIPH_CUSTOM_KEY_LENGTH      0x80
+#define EVP_CIPH_CUSTOM_KEY_LENGTH      0x80
 /* Don't use standard block padding */
-#define         EVP_CIPH_NO_PADDING             0x100
+#define EVP_CIPH_NO_PADDING             0x100
 /* cipher handles random key generation */
-#define         EVP_CIPH_RAND_KEY               0x200
+#define EVP_CIPH_RAND_KEY               0x200
 /* cipher has its own additional copying logic */
-#define         EVP_CIPH_CUSTOM_COPY            0x400
+#define EVP_CIPH_CUSTOM_COPY            0x400
 /* Don't use standard iv length function */
-#define         EVP_CIPH_CUSTOM_IV_LENGTH       0x800
+#define EVP_CIPH_CUSTOM_IV_LENGTH       0x800
 /* Legacy and no longer relevant: Allow use default ASN1 get/set iv */
-#define         EVP_CIPH_FLAG_DEFAULT_ASN1      0
+#define EVP_CIPH_FLAG_DEFAULT_ASN1      0
 /* Free:                                         0x1000 */
 /* Buffer length in bits not bytes: CFB1 mode only */
-#define         EVP_CIPH_FLAG_LENGTH_BITS       0x2000
+#define EVP_CIPH_FLAG_LENGTH_BITS       0x2000
 /* Deprecated FIPS flag: was 0x4000 */
-#define         EVP_CIPH_FLAG_FIPS              0
+#define EVP_CIPH_FLAG_FIPS              0
 /* Deprecated FIPS flag: was 0x8000 */
-#define         EVP_CIPH_FLAG_NON_FIPS_ALLOW    0
+#define EVP_CIPH_FLAG_NON_FIPS_ALLOW    0
 
 /*
  * Cipher handles any and all padding logic as well as finalisation.
  */
-#define         EVP_CIPH_FLAG_CTS               0x4000
-#define         EVP_CIPH_FLAG_CUSTOM_CIPHER     0x100000
-#define         EVP_CIPH_FLAG_AEAD_CIPHER       0x200000
-#define         EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK 0x400000
+#define EVP_CIPH_FLAG_CTS               0x4000
+#define EVP_CIPH_FLAG_CUSTOM_CIPHER     0x100000
+#define EVP_CIPH_FLAG_AEAD_CIPHER       0x200000
+#define EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK 0x400000
 /* Cipher can handle pipeline operations */
-#define         EVP_CIPH_FLAG_PIPELINE          0X800000
+#define EVP_CIPH_FLAG_PIPELINE          0X800000
 /* For provider implementations that handle  ASN1 get/set param themselves */
-#define         EVP_CIPH_FLAG_CUSTOM_ASN1       0x1000000
+#define EVP_CIPH_FLAG_CUSTOM_ASN1       0x1000000
 /* For ciphers generating unprotected CMS attributes */
-#define         EVP_CIPH_FLAG_CIPHER_WITH_MAC   0x2000000
+#define EVP_CIPH_FLAG_CIPHER_WITH_MAC   0x2000000
 /* For supplementary wrap cipher support */
-#define         EVP_CIPH_FLAG_GET_WRAP_CIPHER   0x4000000
-#define         EVP_CIPH_FLAG_INVERSE_CIPHER    0x8000000
+#define EVP_CIPH_FLAG_GET_WRAP_CIPHER   0x4000000
+#define EVP_CIPH_FLAG_INVERSE_CIPHER    0x8000000
 
 /*
  * Cipher context flag to indicate we can handle wrap mode: if allowed in
  * older applications it could overflow buffers.
  */
 
-#define         EVP_CIPHER_CTX_FLAG_WRAP_ALLOW  0x1
+#define EVP_CIPHER_CTX_FLAG_WRAP_ALLOW  0x1
 
 /* ctrl() values */
 
-#define         EVP_CTRL_INIT                   0x0
-#define         EVP_CTRL_SET_KEY_LENGTH         0x1
-#define         EVP_CTRL_GET_RC2_KEY_BITS       0x2
-#define         EVP_CTRL_SET_RC2_KEY_BITS       0x3
-#define         EVP_CTRL_GET_RC5_ROUNDS         0x4
-#define         EVP_CTRL_SET_RC5_ROUNDS         0x5
-#define         EVP_CTRL_RAND_KEY               0x6
-#define         EVP_CTRL_PBE_PRF_NID            0x7
-#define         EVP_CTRL_COPY                   0x8
-#define         EVP_CTRL_AEAD_SET_IVLEN         0x9
-#define         EVP_CTRL_AEAD_GET_TAG           0x10
-#define         EVP_CTRL_AEAD_SET_TAG           0x11
-#define         EVP_CTRL_AEAD_SET_IV_FIXED      0x12
-#define         EVP_CTRL_GCM_SET_IVLEN          EVP_CTRL_AEAD_SET_IVLEN
-#define         EVP_CTRL_GCM_GET_TAG            EVP_CTRL_AEAD_GET_TAG
-#define         EVP_CTRL_GCM_SET_TAG            EVP_CTRL_AEAD_SET_TAG
-#define         EVP_CTRL_GCM_SET_IV_FIXED       EVP_CTRL_AEAD_SET_IV_FIXED
-#define         EVP_CTRL_GCM_IV_GEN             0x13
-#define         EVP_CTRL_CCM_SET_IVLEN          EVP_CTRL_AEAD_SET_IVLEN
-#define         EVP_CTRL_CCM_GET_TAG            EVP_CTRL_AEAD_GET_TAG
-#define         EVP_CTRL_CCM_SET_TAG            EVP_CTRL_AEAD_SET_TAG
-#define         EVP_CTRL_CCM_SET_IV_FIXED       EVP_CTRL_AEAD_SET_IV_FIXED
-#define         EVP_CTRL_CCM_SET_L              0x14
-#define         EVP_CTRL_CCM_SET_MSGLEN         0x15
+#define EVP_CTRL_INIT                   0x0
+#define EVP_CTRL_SET_KEY_LENGTH         0x1
+#define EVP_CTRL_GET_RC2_KEY_BITS       0x2
+#define EVP_CTRL_SET_RC2_KEY_BITS       0x3
+#define EVP_CTRL_GET_RC5_ROUNDS         0x4
+#define EVP_CTRL_SET_RC5_ROUNDS         0x5
+#define EVP_CTRL_RAND_KEY               0x6
+#define EVP_CTRL_PBE_PRF_NID            0x7
+#define EVP_CTRL_COPY                   0x8
+#define EVP_CTRL_AEAD_SET_IVLEN         0x9
+#define EVP_CTRL_AEAD_GET_TAG           0x10
+#define EVP_CTRL_AEAD_SET_TAG           0x11
+#define EVP_CTRL_AEAD_SET_IV_FIXED      0x12
+#define EVP_CTRL_GCM_SET_IVLEN          EVP_CTRL_AEAD_SET_IVLEN
+#define EVP_CTRL_GCM_GET_TAG            EVP_CTRL_AEAD_GET_TAG
+#define EVP_CTRL_GCM_SET_TAG            EVP_CTRL_AEAD_SET_TAG
+#define EVP_CTRL_GCM_SET_IV_FIXED       EVP_CTRL_AEAD_SET_IV_FIXED
+#define EVP_CTRL_GCM_IV_GEN             0x13
+#define EVP_CTRL_CCM_SET_IVLEN          EVP_CTRL_AEAD_SET_IVLEN
+#define EVP_CTRL_CCM_GET_TAG            EVP_CTRL_AEAD_GET_TAG
+#define EVP_CTRL_CCM_SET_TAG            EVP_CTRL_AEAD_SET_TAG
+#define EVP_CTRL_CCM_SET_IV_FIXED       EVP_CTRL_AEAD_SET_IV_FIXED
+#define EVP_CTRL_CCM_SET_L              0x14
+#define EVP_CTRL_CCM_SET_MSGLEN         0x15
 /*
  * AEAD cipher deduces payload length and returns number of bytes required to
  * store MAC and eventual padding. Subsequent call to EVP_Cipher even
  * appends/verifies MAC.
  */
-#define         EVP_CTRL_AEAD_TLS1_AAD          0x16
+#define EVP_CTRL_AEAD_TLS1_AAD          0x16
 /* Used by composite AEAD ciphers, no-op in GCM, CCM... */
-#define         EVP_CTRL_AEAD_SET_MAC_KEY       0x17
+#define EVP_CTRL_AEAD_SET_MAC_KEY       0x17
 /* Set the GCM invocation field, decrypt only */
-#define         EVP_CTRL_GCM_SET_IV_INV         0x18
+#define EVP_CTRL_GCM_SET_IV_INV         0x18
 
-#define         EVP_CTRL_TLS1_1_MULTIBLOCK_AAD  0x19
-#define         EVP_CTRL_TLS1_1_MULTIBLOCK_ENCRYPT      0x1a
-#define         EVP_CTRL_TLS1_1_MULTIBLOCK_DECRYPT      0x1b
-#define         EVP_CTRL_TLS1_1_MULTIBLOCK_MAX_BUFSIZE  0x1c
+#define EVP_CTRL_TLS1_1_MULTIBLOCK_AAD  0x19
+#define EVP_CTRL_TLS1_1_MULTIBLOCK_ENCRYPT      0x1a
+#define EVP_CTRL_TLS1_1_MULTIBLOCK_DECRYPT      0x1b
+#define EVP_CTRL_TLS1_1_MULTIBLOCK_MAX_BUFSIZE  0x1c
 
-#define         EVP_CTRL_SSL3_MASTER_SECRET             0x1d
+#define EVP_CTRL_SSL3_MASTER_SECRET             0x1d
 
 /* EVP_CTRL_SET_SBOX takes the char * specifying S-boxes */
-#define         EVP_CTRL_SET_SBOX                       0x1e
+#define EVP_CTRL_SET_SBOX                       0x1e
 /*
  * EVP_CTRL_SBOX_USED takes a 'size_t' and 'char *', pointing at a
  * pre-allocated buffer with specified size
  */
-#define         EVP_CTRL_SBOX_USED                      0x1f
+#define EVP_CTRL_SBOX_USED                      0x1f
 /* EVP_CTRL_KEY_MESH takes 'size_t' number of bytes to mesh the key after,
  * 0 switches meshing off
  */
-#define         EVP_CTRL_KEY_MESH                       0x20
+#define EVP_CTRL_KEY_MESH                       0x20
 /* EVP_CTRL_BLOCK_PADDING_MODE takes the padding mode */
-#define         EVP_CTRL_BLOCK_PADDING_MODE             0x21
+#define EVP_CTRL_BLOCK_PADDING_MODE             0x21
 
 /* Set the output buffers to use for a pipelined operation */
-#define         EVP_CTRL_SET_PIPELINE_OUTPUT_BUFS       0x22
+#define EVP_CTRL_SET_PIPELINE_OUTPUT_BUFS       0x22
 /* Set the input buffers to use for a pipelined operation */
-#define         EVP_CTRL_SET_PIPELINE_INPUT_BUFS        0x23
+#define EVP_CTRL_SET_PIPELINE_INPUT_BUFS        0x23
 /* Set the input buffer lengths to use for a pipelined operation */
-#define         EVP_CTRL_SET_PIPELINE_INPUT_LENS        0x24
+#define EVP_CTRL_SET_PIPELINE_INPUT_LENS        0x24
 /* Get the IV length used by the cipher */
-#define         EVP_CTRL_GET_IVLEN                      0x25
+#define EVP_CTRL_GET_IVLEN                      0x25
 /* 0x26 is unused */
 /* Tell the cipher it's doing a speed test (SIV disallows multiple ops) */
-#define         EVP_CTRL_SET_SPEED                      0x27
+#define EVP_CTRL_SET_SPEED                      0x27
 /* Get the unprotectedAttrs from cipher ctx */
-#define         EVP_CTRL_PROCESS_UNPROTECTED            0x28
+#define EVP_CTRL_PROCESS_UNPROTECTED            0x28
 /* Get the supplementary wrap cipher */
-#define          EVP_CTRL_GET_WRAP_CIPHER                0x29
+#define EVP_CTRL_GET_WRAP_CIPHER                0x29
 /* TLSTREE key diversification */
-#define          EVP_CTRL_TLSTREE                        0x2A
+#define EVP_CTRL_TLSTREE                        0x2A
 
 /* Padding modes */
 #define EVP_PADDING_PKCS7       1
@@ -443,7 +443,7 @@ OSSL_DEPRECATEDIN_3_0 int
 #define EVP_PADDING_ZERO        5
 
 /* RFC 5246 defines additional data to be 13 bytes in length */
-#define         EVP_AEAD_TLS1_AAD_LEN           13
+#define EVP_AEAD_TLS1_AAD_LEN           13
 
 typedef struct {
 	uchar * out;

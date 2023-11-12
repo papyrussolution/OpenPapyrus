@@ -2415,7 +2415,7 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 		cct = CalcTotal();
 	}
 	else {
-		int   to_fill_ext_pack = BIN(!(pPack->Rec.Flags & CCHKF_SUSPENDED) && pExtPack && ExtCashNodeID);
+		const bool to_fill_ext_pack = (!(pPack->Rec.Flags & CCHKF_SUSPENDED) && pExtPack && ExtCashNodeID);
 		int   has_gift = 0;
 		uint  i;
 		CCheckItem * p_item = 0;
@@ -2565,7 +2565,7 @@ int CPosProcessor::AutosaveCheck()
 			if(SuspCheckID && GetCc().Search(SuspCheckID, &epb.LastChkRec) > 0) {
 				// @debug {
 				if((epb.LastChkRec.Flags & (CCHKF_JUNK|CCHKF_SUSPENDED)) != (CCHKF_JUNK|CCHKF_SUSPENDED) && !reprint_regular) { // @v10.7.3 (!reprint_regular)
-					PPSetError(PPERR_CCHKMUSTBEJUNK, CCheckCore::MakeCodeString(&epb.LastChkRec, msg_buf));
+					PPSetError(PPERR_CCHKMUSTBEJUNK, CCheckCore::MakeCodeString(&epb.LastChkRec, 0, msg_buf));
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
 				}
 				// } @debug
@@ -2668,7 +2668,7 @@ int CPosProcessor::AutosaveCheck()
 						//
 						if(turn_check_before_printing && !was_turned_before_printing && (mode != accmAveragePrinting || reprint_regular)) {
 							THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
-							CCheckCore::MakeCodeString(&epb.Pack.Rec, before_printing_check_text);
+							CCheckCore::MakeCodeString(&epb.Pack.Rec, 0, before_printing_check_text);
 							was_turned_before_printing = 1;
 						}
 						{
@@ -2702,7 +2702,7 @@ int CPosProcessor::AutosaveCheck()
 			}
 			if(turn_check_before_printing && !was_turned_before_printing && (mode != accmAveragePrinting || reprint_regular)) {
 				THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
-				CCheckCore::MakeCodeString(&epb.Pack.Rec, before_printing_check_text);
+				CCheckCore::MakeCodeString(&epb.Pack.Rec, 0, before_printing_check_text);
 				was_turned_before_printing = 1;
 			}
 			if(mode != accmSuspended) {
@@ -3811,7 +3811,7 @@ int CheckPaneDialog::SetupOrder(PPID ordCheckID)
 		SString cc_text;
 		CCheckPacket cc_pack;
 		THROW(GetCc().LoadPacket(ordCheckID, 0, &cc_pack) > 0);
-		CCheckCore::MakeCodeString(&cc_pack.Rec, cc_text);
+		CCheckCore::MakeCodeString(&cc_pack.Rec, 0, cc_text);
 		THROW_PP_S(cc_pack.Rec.Flags & CCHKF_ORDER, PPERR_CCHKNORDER, cc_text);
 		THROW_PP_S(!(cc_pack.Rec.Flags & CCHKF_SKIP), PPERR_CCHKORDCANCELED, cc_text);
 		THROW_PP_S(!(cc_pack.Rec.Flags & CCHKF_CLOSEDORDER), PPERR_CCHKORDCLOSED, cc_text);
@@ -5082,7 +5082,13 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 					GetArticleName(p_bpack->Rec.Object, temp_buf);
 				}
 				ss.add(temp_buf);
-				ss.add(temp_buf.Z().Cat(p_bpack->Rec.Amount, MKSFMTD(0, 2, 0)));
+				{
+					// @v11.8.10 Сумму в списке лучше видеть в ценах реализации, нежели номинал (который может оказаться, например, суммой в ценах поступления)
+					const double _ap = p_bpack->Amounts.Get(PPAMT_SELLING, p_bpack->Rec.CurID);
+					const double _ad = p_bpack->Amounts.Get(PPAMT_DISCOUNT, p_bpack->Rec.CurID);
+					const double _apd = (_ap - _ad);
+					ss.add(temp_buf.Z().Cat((_apd > 0.0) ? _apd : p_bpack->Rec.Amount, MKSFMTD(0, 2, 0)));
+				}
 				ss.add(p_bpack->SMemo);
 				//
 				THROW(addStringToList(p_bpack->Rec.ID, ss.getBuf()));
@@ -7812,6 +7818,7 @@ int CheckPaneDialog::SelectBill(PPID * pBillID, const char * pTitle) // @v11.8.7
 		PPViewBill v_bill;
 		BillFilt f_bill;
 		f_bill.OpID = r_cfg.ChkPanImpOpID;
+		f_bill.LocList.Add(CnLocID); // @v11.8.10
 		f_bill.P_TagF = new TagFilt;
 		f_bill.P_TagF->TagsRestrict.Add(r_cfg.ChkPanImpBillTagID, PPConst::P_TagValRestrict_Exist, 0);
 		{
@@ -7822,7 +7829,7 @@ int CheckPaneDialog::SelectBill(PPID * pBillID, const char * pTitle) // @v11.8.7
 			f_bill.Period.low = plusdate(now_dt, -lbbp);
 		}
 		f_bill.SortOrder = BillFilt::ordByDate;
-		f_bill.Flags |= BillFilt::fDescOrder;
+		f_bill.Flags |= (BillFilt::fDescOrder|BillFilt::fNoTempTable); // @v11.8.10 BillFilt::fNoTempTable
 		if(v_bill.Init_(&f_bill)) {
 			PPIDArray bill_id_list;
 			v_bill.GetBillIDList(&bill_id_list);
@@ -7905,7 +7912,7 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int un
 		PPTransaction tra(1);
 		THROW(tra);
 		THROW(r_cc.LoadPacket(ccID, 0, &cc_pack) > 0);
-		CCheckCore::MakeCodeString(&cc_pack.Rec, msg_buf);
+		CCheckCore::MakeCodeString(&cc_pack.Rec, 0, msg_buf);
 		const long _ccf = cc_pack.Rec.Flags;
 		long  _ccf_to_update = _ccf;
 		if(unfinishedForReprinting) {
@@ -8057,7 +8064,7 @@ int CheckPaneDialog::SelectSuspendedCheck()
 							ok = 1;
 						}
 						else if(!(cc_rec.Flags & CCHKF_SPFINISHED)) {
-							CCheckCore::MakeCodeString(&cc_rec, msg_buf);
+							CCheckCore::MakeCodeString(&cc_rec, 0, msg_buf);
 							if(CONFIRM_S(PPCFM_SETCCASSPFINISHED, msg_buf)) {
 								CCheckTbl::Rec cc_rec_to_upd;
 								if(GetCc().Search(cc_rec.ID, &cc_rec_to_upd) > 0) {
@@ -8073,7 +8080,7 @@ int CheckPaneDialog::SelectSuspendedCheck()
 								ok = 2;
 						}
 						else {
-							CCheckCore::MakeCodeString(&cc_rec, msg_buf);
+							CCheckCore::MakeCodeString(&cc_rec, 0, msg_buf);
 							ok = (MessageError(PPERR_CCHKNOMORESUSPENDED, msg_buf, eomMsgWindow), 2);
 						}
 					}
@@ -8432,7 +8439,7 @@ int CPosProcessor::Helper_PrintRemovedRow(const CCheckItem & rItem)
 			PPLoadText(PPTXT_LOG_CHKPAN_ERRPRINTING, buf_errprn);
 			CCheckPacket cc_pack;
 			GetCheckInfo(&cc_pack);
-			CCheckCore::MakeCodeString(&cc_pack.Rec, chk_code);
+			CCheckCore::MakeCodeString(&cc_pack.Rec, 0, chk_code);
 		}
 		PPObjLocPrinter lp_obj;
 		PPLocPrinter loc_prn_rec;
@@ -9116,7 +9123,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 																}
 																// } @v10.4.5
 																if(take_in_attention) {
-																	CCheckCore::MakeCodeString(&cc_rec, temp_buf);
+																	CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
 																	if(cc_rec.Flags & CCHKF_RETURN)
 																		cc_even--;
 																	else
@@ -9169,7 +9176,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 													const  PPID cc_id = cc_list.get(j);
 													CCheckTbl::Rec cc_rec;
 													if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) {
-														CCheckCore::MakeCodeString(&cc_rec, temp_buf);
+														CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
 														if(cc_rec.Flags & CCHKF_RETURN)
 															cc_even--;
 														else
@@ -12169,7 +12176,7 @@ int CPosProcessor::PrintToLocalPrinters(int selPrnType, bool ignoreNonZeroAgentR
 					PPLoadText(PPTXT_LOG_CHKPAN_ERRPRINTING, buf_errprn);
 					CCheckPacket cc_pack;
 					GetCheckInfo(&cc_pack);
-					CCheckCore::MakeCodeString(&cc_pack.Rec, chk_code);
+					CCheckCore::MakeCodeString(&cc_pack.Rec, 0, chk_code);
 				}
 				PPObjLocPrinter lp_obj;
 				PPLocPrinter loc_prn_rec;
@@ -12507,7 +12514,7 @@ int CheckPaneDialog::LoadTSession(PPID tsessID)
 		//
 		CCheckTbl::Rec cc_rec;
 		if(GetCc().Search(tses_rec.CCheckID_, &cc_rec) > 0)
-			CCheckCore::MakeCodeString(&cc_rec, temp_buf);
+			CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
 		else
 			temp_buf.Z();
 		CALLEXCEPT_PP_S(PPERR_TSESSALREADYCCHECKED, temp_buf);
@@ -12557,7 +12564,7 @@ int CheckPaneDialog::LoadChkInP(PPID chkinpID, PPID goodsID, double qtty)
 		//
 		CCheckTbl::Rec cc_rec;
 		if(GetCc().Search(cip_item.CCheckID, &cc_rec) > 0)
-			CCheckCore::MakeCodeString(&cc_rec, temp_buf);
+			CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
 		else
 			temp_buf.Z();
 		CALLEXCEPT_PP_S(PPERR_CHKINPALREADYCCHECKED, temp_buf);
