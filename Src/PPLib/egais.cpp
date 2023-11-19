@@ -476,7 +476,7 @@ int PPEgaisProcessor::GetTemporaryFileName(const char * pPath, const char * pSub
 	if(!is_cc && !isempty(pSubPath))
 		temp_path.SetLastSlash().Cat(pSubPath);
 	temp_path.RmvLastSlash();
-	THROW_SL(::createDir(temp_path));
+	THROW_SL(SFile::CreateDir(temp_path));
 	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", 0, rFn);
 	CATCHZOK
 	return ok;
@@ -6616,7 +6616,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 {
 	long   file_no = 0;
 	{
-		SPathStruc ps(pFileName);
+		SFsPath ps(pFileName);
 		file_no = ps.Nam.ToLong();
 	}
 	int    ok = -1;
@@ -6867,7 +6867,7 @@ int PPEgaisProcessor::GetDebugPath(PPID locID, SString & rPath)
 	THROW(GetFSRARID(locID, temp_buf, 0));
     PPGetPath(PPPATH_TEMP, temp_path);
     temp_path.SetLastSlash().Cat("EGAIS").CatChar('-').Cat(temp_buf);
-    THROW_SL(::createDir(temp_path));
+    THROW_SL(SFile::CreateDir(temp_path));
 	rPath = temp_path;
     CATCHZOK
     return ok;
@@ -6883,10 +6883,10 @@ int PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SString & r
 		_up.GetComponent(InetUrl::cPath, 0, temp_buf);
 	}
 	(rFileName = rTempPath).SetLastSlash().Cat(temp_buf);
-	SPathStruc ps(rFileName);
+	SFsPath ps(rFileName);
 	(temp_buf = ps.Nam).DotCat("xml");
-	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rFileName);
-	THROW_SL(::createDir(rFileName));
+	ps.Merge(SFsPath::fDrv|SFsPath::fDir, rFileName);
+	THROW_SL(SFile::CreateDir(rFileName));
 	rFileName.SetLastSlash().Cat(temp_buf);
 	CATCHZOK
 	return ok;
@@ -7215,7 +7215,7 @@ int PPEgaisProcessor::Helper_ReadFilesOffline(const char * pPath, TSCollection <
 	SString temp_buf;
 	SString code_buf;
 	SString file_name;
-	SPathStruc ps;
+	SFsPath ps;
 	(temp_buf = pPath).SetLastSlash().Cat("*.*");
 	SDirEntry de;
 	for(SDirec direc(temp_buf); direc.Next(&de) > 0;) {
@@ -7234,7 +7234,7 @@ int PPEgaisProcessor::Helper_ReadFilesOffline(const char * pPath, TSCollection <
 				THROW_SL(p_new_reply);
 				p_new_reply->Status |= Reply::stOffline;
 				p_new_reply->AcceptedFileName = temp_buf;
-				SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash, p_new_reply->Url);
+				SFsPath::NormalizePath(pPath, SFsPath::npfSlash, p_new_reply->Url);
 			}
 		}
 	}
@@ -7324,7 +7324,7 @@ int PPEgaisProcessor::CollectRefs()
 		SString url;
 		StringSet ss_egais_paths;
 		PPGetPath(PPPATH_TEMP, temp_path);
-		SPathStruc ps;
+		SFsPath ps;
 		(temp_buf = temp_path).SetLastSlash().Cat("*.*");
 		SDirEntry de;
 		for(SDirec direc(temp_buf, 1); direc.Next(&de) > 0;) {
@@ -9189,7 +9189,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 					*p_qb = qb;
 				}
 				else {
-					SPathStruc ps(rParam.ParamString);
+					SFsPath ps(rParam.ParamString);
 					if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty())
 						PPGetFilePath(PPPATH_IN, rParam.ParamString, temp_buf);
 					else

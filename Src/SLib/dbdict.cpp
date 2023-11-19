@@ -118,7 +118,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDic
 
 /*virtual*/SString & BDictionary::MakeFileName_(const char * pTblName, SString & rFileName)
 {
-	SPathStruc ps(rFileName);
+	SFsPath ps(rFileName);
 	if(ps.Dir.IsEmpty()) {
 		int    path_from_redirect = 0;
 		SString data_path;
@@ -135,8 +135,8 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDic
 					tbl_name.Strip();
 					if(ps.Nam.CmpNC(tbl_name) == 0) {
 						tbl_path.TrimRightChr('\x0A').TrimRightChr('\x0D').Strip().SetLastSlash();
-						SPathStruc rps(tbl_path);
-						rps.Merge(&ps, SPathStruc::fNam|SPathStruc::fExt, rFileName);
+						SFsPath rps(tbl_path);
+						rps.Merge(&ps, SFsPath::fNam|SFsPath::fExt, rFileName);
 						path_from_redirect = 1;
 						break;
 					}
@@ -471,7 +471,7 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 		newtbl.close();
 		if(pParam->P_BakPath) {
 			for(tpe.Init(path); ok && tpe.Next(spart, &first) > 0;) {
-				SPathStruc::ReplacePath(temp_buf = spart, pParam->P_BakPath, 1);
+				SFsPath::ReplacePath(temp_buf = spart, pParam->P_BakPath, 1);
 				if(!SFile::Rename(spart, temp_buf)) {
 					pParam->callbackProc(BREV_ERRRENAME, dest.cptr());
 					ok = 0;
@@ -479,8 +479,8 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 			}
 			if(ok) {
 				for(tpe.Init(dest); tpe.Next(spart, &first) > 0;) {
-					const SPathStruc sp(spart);
-					SPathStruc::ReplaceExt(temp_buf = path, sp.Ext, 1);
+					const SFsPath sp(spart);
+					SFsPath::ReplaceExt(temp_buf = path, sp.Ext, 1);
 					SFile::Rename(spart, temp_buf);
 				}
 			}
@@ -488,7 +488,7 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 		else {
 			int    renm = 1;
 			STRNSCPY(buf, path);
-			SPathStruc::ReplaceExt(path, p_bak_ext, 1);
+			SFsPath::ReplaceExt(path, p_bak_ext, 1);
 			for(tpe.Init(path); tpe.Next(spart, &first) > 0;) {
 				tpe.ReplaceExt(first, spart, temp_buf);
 				if(fileExists(spart)) {
@@ -504,8 +504,8 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 				if(first)
 					temp_buf = buf;
 				else {
-					SPathStruc sp(buf);
-					sp.Merge(~SPathStruc::fExt, temp_buf);
+					SFsPath sp(buf);
+					sp.Merge(~SFsPath::fExt, temp_buf);
 					sp.Split(spart);
 					temp_buf.Dot().Cat(sp.Ext);
 				}
@@ -528,10 +528,10 @@ int TablePartsEnum::Init(const char * pPath)
 	int    ok = -1;
 	if(pPath) {
 		SString path;
-		SPathStruc sp(pPath);
+		SFsPath sp(pPath);
 		sp.Ext = (sp.Ext.Cmp("___", 0) == 0) ? "_??" : "^??";
 		sp.Merge(path);
-		sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, Dir);
+		sp.Merge(0, SFsPath::fNam|SFsPath::fExt, Dir);
 		//
 		SDirec direc(path);
 		MainPart = pPath;
@@ -567,7 +567,7 @@ int TablePartsEnum::Next(SString & rPath, int * pFirst /*=0*/)
 int TablePartsEnum::ReplaceExt(int first, const SString & rIn, SString & rOut)
 {
 	SString ext;
-	SPathStruc sp(rIn);
+	SFsPath sp(rIn);
 	const bool to_save = (sp.Ext.C(0) != '_');
 	ext = sp.Ext;
 	sp.Ext.Z();
@@ -604,15 +604,15 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 		SString temp_buf;
 		SString path;
 		SString name; // Имя файла без расширения //
-		SPathStruc sp_p(pPath);
-		SPathStruc sp_n(pFileName);
+		SFsPath sp_p(pPath);
+		SFsPath sp_n(pFileName);
 		if(sp_n.Nam.NotEmpty())
 			name = sp_n.Nam;
 		else if(sp_p.Nam.NotEmpty())
 			name = sp_p.Nam;
 		if(name.NotEmpty()) {
 			Entry test_entry;
-			sp_p.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
+			sp_p.Merge(SFsPath::fDrv|SFsPath::fDir, path);
 			Pool.add(path, &InitPathP);
 			Pool.add(name, &InitNameP);
 

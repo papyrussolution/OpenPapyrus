@@ -1646,7 +1646,7 @@ int PPBackupSystemFiles_Arc()
 	(backup_dir = bin_dir).SetLastSlash().Cat("backup").SetLastSlash();
 	PPGetFileName(PPFILNAM_BULOCK, fname);
 	(lock_path = backup_dir).SetLastSlash().Cat(fname);
-	createDir(backup_dir);
+	SFile::CreateDir(backup_dir);
 	const int  is_locked = BIN(fileExists(lock_path) && SFile::IsOpenedForWriting(lock_path)); // @v10.7.5 дополнительная проверка на то, чтоб файл был открыт для записи
 	if(!is_locked) {
 		const LDATETIME cur_dtm = getcurdatetime_();
@@ -1989,7 +1989,7 @@ void PPApp::login(int processCmdLine)
 		SString cmdline_dbsymb; // @v11.0.3 Символ базы данных, указанный в командной строке
 		PPID   dbentry_id = 0;
 		if(_argc > 1 && *_argv[1] != '/' && *_argv[1] != '-') {
-			SPathStruc ps(_argv[1]);
+			SFsPath ps(_argv[1]);
 			if(ps.Nam.NotEmpty() && ps.Ext.NotEmpty() && ps.Ext.IsEqiAscii("lua")) {
 				lua_script = _argv[1];
 			}

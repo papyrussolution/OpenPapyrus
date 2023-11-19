@@ -6233,7 +6233,7 @@ static int re_match(ReCompiled * pRe, const unsigned char * zIn, int nIn){
 			    }
 				case RE_OP_CC_EXC: {
 				    if(c==0) break;
-				    /* fall-through */
+				    // @fallthrough
 			    }
 				case RE_OP_CC_INC: {
 				    int j = 1;

@@ -183,7 +183,7 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, const Config & rCfg)
 		if(rCfg.LogSubDir.NotEmpty()) {
 			const char * p_log_dir = 0;
 			(temp_buf = pHomeDir).SetLastSlash().Cat(rCfg.LogSubDir);
-			THROW(::createDir(temp_buf));
+			THROW(SFile::CreateDir(temp_buf));
 			THROW(ProcessError(E->set_lg_dir(E, temp_buf)));
 		}
 		if(rCfg.Flags & (rCfg.fLogNoSync | rCfg.fLogAutoRemove | rCfg.fLogInMemory)) {
@@ -204,7 +204,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options) : S
 	if(temp_buf.NotEmptyS())
 		StrPool.add(temp_buf, &HomePathPos);
 	THROW(ProcessError(db_env_create(&E, 0), 0, pHomeDir));
-	THROW(::createDir(pHomeDir));
+	THROW(SFile::CreateDir(pHomeDir));
 	if(pCfg) {
 		THROW(Helper_SetConfig(pHomeDir, *pCfg));
 	}
@@ -1661,7 +1661,7 @@ SLTEST_R(BerkeleyDB)
 	(home_dir = GetSuiteEntry()->OutPath).SetLastSlash().Cat("BDB");
 	(test_file = GetSuiteEntry()->InPath).SetLastSlash().Cat("city-enru-pair.csv");
 	::RemoveDir(home_dir);
-	THROW(SLCHECK_NZ(createDir(home_dir)));
+	THROW(SLCHECK_NZ(SFile::CreateDir(home_dir)));
 	{
 		SFile f_in(test_file, SFile::mRead);
 		SString line_buf, en_buf, ru_buf, test_buf;

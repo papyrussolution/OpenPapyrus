@@ -234,6 +234,7 @@ static const SIntToSymbTabEntry GtinPrefix[] = {
 	{ GtinStruc::fldCouponCode1,           "8100" },
 	{ GtinStruc::fldCouponCode2,           "8101" },
 	{ GtinStruc::fldCouponCode3,           "8102" },
+	{ GtinStruc::fldControlRuTobacco,      "93"   }, // @v11.8.3 Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
 };
 
 int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen) const
@@ -366,9 +367,13 @@ int GtinStruc::Debug_Output(SString & rBuf) const
 	rBuf.Z();
 	if(StrAssocArray::getCount()) {
 		SString temp_buf;
+		bool debug_mark = false; // @debug
 		for(uint i = 0; i < StrAssocArray::getCount(); i++) {
 			StrAssocArray::Item item = StrAssocArray::Get(i);
 			SIntToSymbTab_GetSymb(GtinPrefix, SIZEOFARRAY(GtinPrefix), item.Id, temp_buf);
+			if(temp_buf.IsEmpty()) {
+				debug_mark = true;
+			}
 			if(rBuf.NotEmpty())
 				rBuf.CR();
 			rBuf.Cat(item.Id).Space().CatChar('[').Cat(temp_buf).CatChar(']').Space().Cat(item.Txt).Space().CatEq("len", sstrlen(item.Txt));
@@ -602,6 +607,9 @@ int GtinStruc::Parse(const char * pCode)
 			SpecialNaturalToken = SNTOK_CHZN_CIGITEM;
 		}
 		else if(nta.Has(SNTOK_CHZN_CIGBLOCK)) {
+			// 010460043993816321>n>!3E?8005173000938SSf24015063283
+			//  010460043993816321>n>!3E? 8005173000 938SSf 24015063283
+			// 
 			// 0104600818007879 21t"XzgHU 8005095000 930p2J24014518552
 			//assert(oneof2(code_buf.Len(), 52, 35));
 			// @v11.9.10 новые данные о маркировке сигаретных блоков {
@@ -645,16 +653,33 @@ int GtinStruc::Parse(const char * pCode)
 						temp_buf.Z().CatN(code_buf, 6);
 						StrAssocArray::Add(fldPrice, temp_buf);
 						code_buf.ShiftLeft(6);
+						prefix_len = 0;
 						if(spcchr_cigblock_prefix && code_buf.HasPrefix("\x1D" "93")) {
-							code_buf.ShiftLeft(3);
-							temp_buf.Z().Cat(code_buf);
-							StrAssocArray::Add(fldControlRuTobacco, temp_buf);
-							SpecialNaturalToken = SNTOK_CHZN_CIGBLOCK;
+							prefix_len = 3;
 						}
 						else if(code_buf.HasPrefix("93")) {
-							code_buf.ShiftLeft(2);
+							prefix_len = 2;
+						}
+						if(prefix_len) {
+							// fldAddendumId (240)
+							code_buf.ShiftLeft(prefix_len);
 							temp_buf.Z().Cat(code_buf);
-							StrAssocArray::Add(fldControlRuTobacco, temp_buf);
+							uint _240_pos = 0;
+							if(temp_buf.Search("240", 0, 0, &_240_pos) && _240_pos > 1) {
+								SString _93_val;
+								if(temp_buf.C(_240_pos-1) == '\x1D') {
+									_240_pos--;
+									prefix_len = 4;
+								}
+								else
+									prefix_len = 3;
+								temp_buf.Sub(0, _240_pos, _93_val);
+								StrAssocArray::Add(fldControlRuTobacco, _93_val);
+								StrAssocArray::Add(fldAddendumId, temp_buf.ShiftLeft(_240_pos+prefix_len));
+							}
+							else {
+								StrAssocArray::Add(fldControlRuTobacco, temp_buf);
+							}
 							SpecialNaturalToken = SNTOK_CHZN_CIGBLOCK;
 						}
 					}
@@ -2726,7 +2751,7 @@ int PPEdiProcessor::ProviderImplementation::GetIntermediatePath(const char * pSu
 			rBuf.SetLastSlash().Cat(temp_buf);
 	}
 	rBuf.SetLastSlash();
-	::createDir(rBuf);
+	SFile::CreateDir(rBuf);
 	return 1;
 }
 
@@ -6584,7 +6609,7 @@ int EdiProviderImplementation_Kontur::GetDocumentList(const PPBillIterchangeFilt
 	int    ok = -1;
 	SString temp_buf;
 	SString left, right;
-	SPathStruc ps;
+	SFsPath ps;
 	InetUrl url;
 	THROW(Epp.MakeUrl(0, url));
 	const int prot = url.GetProtocol();
@@ -7360,7 +7385,7 @@ int EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor::Docu
 		if(!pIdent->Uuid.IsZero())
 			pIdent->Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 		else {
-			SPathStruc ps(pIdent->SId);
+			SFsPath ps(pIdent->SId);
 			temp_buf = ps.Nam;
 		}
 		const SString edi_ident_buf(temp_buf);
@@ -7428,7 +7453,7 @@ int EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo 
 		SString temp_buf;
 		SString edi_format_symb;
 		GetTempOutputPath(rPack.DocType, path);
-		THROW_SL(::createDir(path.RmvLastSlash()));
+		THROW_SL(SFile::CreateDir(path.RmvLastSlash()));
 		//
 		//MakeTempFileName(path.SetLastSlash(), "export_", "xml", 0, temp_buf);
 		PPEanComDocument::GetMsgSymbByType(rPack.DocType, temp_buf);
@@ -7511,7 +7536,7 @@ int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt 
 	SString log_buf;
 	SString reply_message;
 	int    reply_code = 0;
-	SPathStruc ps;
+	SFsPath ps;
 	InetUrl url;
 	THROW(Epp.MakeUrl(0, url));
 	THROW(Auth());
@@ -8772,7 +8797,7 @@ int EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::DocumentInfo *
 		SString doc_buf_mime;
 		//SString edi_format_symb;
 		GetTempOutputPath(rPack.DocType, path);
-		THROW_SL(::createDir(path.RmvLastSlash()));
+		THROW_SL(SFile::CreateDir(path.RmvLastSlash()));
 		//
 		PPEanComDocument::GetMsgSymbByType(rPack.DocType, temp_buf);
 		path.SetLastSlash().Cat(temp_buf);

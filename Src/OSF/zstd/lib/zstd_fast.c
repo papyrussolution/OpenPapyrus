@@ -98,7 +98,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_fast_noDict_generic(ZSTD_matchSt
 	/* support stepSize of 0 */
 	const size_t stepSize = hasStep ? (cParams->targetLength + !(cParams->targetLength) + 1) : 2;
 	const BYTE * const base = ms->window.base;
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const uint32 endIndex = (uint32)((size_t)(istart - base) + srcSize);
 	const uint32 prefixStartIndex = ZSTD_getLowestPrefixIndex(ms, endIndex, cParams->windowLog);
 	const BYTE * const prefixStart = base + prefixStartIndex;
@@ -350,7 +350,7 @@ size_t ZSTD_compressBlock_fast_dictMatchState_generic(ZSTD_matchState_t* ms, seq
 	/* support stepSize of 0 */
 	const uint32 stepSize = cParams->targetLength + !(cParams->targetLength);
 	const BYTE * const base = ms->window.base;
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * ip0 = istart;
 	const BYTE * ip1 = ip0 + stepSize; /* we assert below that stepSize >= 1 */
 	const BYTE * anchor = istart;
@@ -545,7 +545,7 @@ static size_t ZSTD_compressBlock_fast_extDict_generic(ZSTD_matchState_t* ms, seq
 	const uint32 stepSize = cParams->targetLength + !(cParams->targetLength);
 	const BYTE * const base = ms->window.base;
 	const BYTE * const dictBase = ms->window.dictBase;
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * ip = istart;
 	const BYTE * anchor = istart;
 	const uint32 endIndex = (uint32)((size_t)(istart - base) + srcSize);

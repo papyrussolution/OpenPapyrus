@@ -450,81 +450,17 @@ typedef LongArray PPIDArray;
 //
 class PPConst { // @v11.7.3 PPConstParam-->PPConst
 public:
-	//PPConst) //: 
-		//UseAdvEvQueue(1), 
-		//Flags(/*fDoSeparateNonFiscalCcItems*/),
-		//EgaisInRowIdentDivider(27277), // @v10.8.3
-		//ReserveU16(0), // @v10.8.3
-		//CommonCmdAssocDesktopID(100000L), // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
-		//TechSurrogateGoodsIdStart(-524288L) // @v11.6.4
-
-		//Signature_PPObjSCard_Filt(0xfbefffffU),
-		//Signature_DbDump(0x44445050UL),
-		//Signature_VerHist(0x48565050UL), // 'PPVH'
-		//Signature_PhoneServiceEventResponder(0x5A6B7C8E),
-		//Signature_MqbEventResponder(0xB4C7E6F1),
-		//Signature_SysMaintenanceEventResponder(0x35079E8D),
-		//Signature_Quotation2_DumpHeader(0x7654321098fedcbaULL),
-		//Signature_PPView(0x099A099BUL),
-		//Signature_PPThreadLocalArea(0x7D08E311UL), // @v10.9.12
-		//Signature_StqDbSymbToSvcIdMap(0xBCA10DD9UL), // @v11.1.12
-		//Signature_BillMultiPrintParam(0xA4183530UL), // @v11.2.0 Сигнатура класса BillMultiPrintParam
-		//Signature_StyloQStoragePacket(0x11A52FB6UL), // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
-		//Signature_StyloQPersonEventParam(0x230759EAUL), // @v11.6.1 Сигнатура класса StyloQPersonEventParam
-		//Signature_LaunchAppParam(0x4c484150L), // 'LHAP'
-
-		//P_SubjectDbDiv("$PpyDbDivTransmission$"),
-		//P_SubjectOrder("$PpyOrderTransmission$"),
-		//P_SubjectCharry("$PpyCharryTransmission$"),
-		//P_BillNotePrefix_IntrExpnd("$INTREXPND"),
-		//P_MagicFileTransmit("$#FILETRANSMITMAGIC#$"), // @v11.2.9
-		//P_ObjMemoDelim("=^%"),
-		//P_ObjMemo_UtmRejPfx("UTM Rej"),
-		//P_ObjMemo_EgaisRejPfx("EGAIS Rej"),
-		//P_ObjMemo_ChznRejPfx("ChZn Rej"),
-		//P_TagValRestrict_Empty("#EMPTY"), // @v11.3.6
-		//P_TagValRestrict_Exist("#EXIST"), // @v11.3.6
-		//P_TagValRestrict_List("#LIST") // @v11.3.6
-		//WrKey_PrefSettings("Software\\Papyrus\\Pref"), // @v11.4.4 (replaced PPRegKeys)
-		//WrKey_PrefBasketSelSettings("Software\\Papyrus\\Pref\\BasketSel"), // @v11.4.4 (replaced PPRegKeys)
-		//WrKey_SysSettings("Software\\Papyrus\\System"), // @v11.4.4 (replaced PPRegKeys)
-		//WrKey_Sessions("Software\\Papyrus\\Sessions"), // @v11.4.4 (replaced PPRegKeys)
-		//WrKey_WsCtl("Software\\Papyrus\\WsCtl"), // @v11.7.2 HKEY_LOCAL_MACHINE
-		//WrParam_ViewQuotsAsListBox("ViewQuotsAsListBox"),
-		//WrParam_BillAddFilesFolder("BillAddFilesFolder"),
-		//WrParam_CalcPriceParam("CalcPriceParam"),
-		//WrParam_BinPath("BinPath"),
-		//WrParam_PhnSvcLocalUpChannelSymbol("PhnSvcLocalChannelSymbol"),
-		//WrParam_PhnSvcLocalScanChannelSymbol("PhnSvcLocalScanChannelSymbol"),
-		//WrParam_DefaultWindowsPrinter("DefaultWindowsPrinter"),
-		//WrParam_PersonAddImageFolder("PersonAddImageFolder"),
-		//WrParam_UseDuplexPrinting("UseDuplexPrinting"),
-		//WrParam_StoreLastSelectedPrinter("StoreLastSelectedPrinter"),
-		//WrParam_LastSelectedPrinter("LastSelectedPrinter"),
-		//WrParam_BillMultiplePrintCfg2("BillMultiplePrintCfg2"), // @v11.2.0
-		//WrParam_StyloQLoclMachineUuid("StyloQLoclMachineUuid") // @v11.2.3
-		//WrParam_WsCtl_MachineUUID("MachineUUID") // @v11.7.2 
-	//{
-	//}
 	enum {
 		fDoSeparateNonFiscalCcItems = 0x0001
 	};
 
-	static constexpr int    UseAdvEvQueue = 1;
+	static constexpr int    UseAdvEvQueue = 1; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
 	static constexpr uint32 Flags = 0/*fDoSeparateNonFiscalCcItems*/;
-	static constexpr int16  EgaisInRowIdentDivider = 27277; // @v10.8.3
-	static constexpr long   CommonCmdAssocDesktopID = 100000L; // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
-	static constexpr long   TechSurrogateGoodsIdStart = -524288L; // @v11.6.4
-
-	//const int    UseAdvEvQueue; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
-	//const uint32 Flags;
-	//const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
+	static constexpr int16  EgaisInRowIdentDivider = 27277; // @v10.8.3 // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
-	//const uint16 ReserveU16;                 // @alignment @v10.8.3
-	//const long   CommonCmdAssocDesktopID;    // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
-	//const long   TechSurrogateGoodsIdStart;  // @v11.6.4 (-524288L) Верхнее значение специального поля фейковых идентификаторов товаров, используемых для предотвращения дублирования //
-		// индексов в таблице Tech при создании трехнологий верхнего уровня (folders).
-
+	static constexpr long   CommonCmdAssocDesktopID = 100000L; // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
+	static constexpr long   TechSurrogateGoodsIdStart = -524288L; // @v11.6.4 (-524288L) Верхнее значение специального поля фейковых идентификаторов товаров, 
+		// используемых для предотвращения дублирования индексов в таблице Tech при создании трехнологий верхнего уровня (folders).
 	static constexpr uint32 Signature_PPObjSCard_Filt              = 0xfbefffffU; // Специальная сигнатура объекта PPObjSCard::Filt
 	static constexpr uint32 Signature_DbDump                       = 0x44445050U;
 	static constexpr uint32 Signature_VerHist                      = 0x48565050U; // 'PPVH' Сигнатура файла истории обновления версий
@@ -539,7 +475,6 @@ public:
 	static constexpr uint32 Signature_StyloQStoragePacket          = 0x11A52FB6U; // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
 	static constexpr uint32 Signature_StyloQPersonEventParam       = 0x230759EAU; // @v11.6.1 Сигнатура класса StyloQPersonEventParam
 	static constexpr long   Signature_LaunchAppParam               = 0x4c484150L; // 'LHAP'
-
 	//const uint32 Signature_DbDump;
 	//const uint32 Signature_VerHist;                      // Сигнатура файла истории обновления версий
 	//const uint32 Signature_PPObjSCard_Filt;              // Специальная сигнатура объекта PPObjSCard::Filt
@@ -625,8 +560,14 @@ public:
 	static constexpr const char * FnExt_CHARRY = ".CHY"; // Файлы charry
 	static constexpr const char * FnExt_ORD    = ".ord";
 	static constexpr const char * DefSrvCmdTerm = "\xD\xA"; // @v11.8.6 Терминатор неструктурированных ответов job-server'а
+	// @v11.8.11 {
+	static constexpr uint PwSize_PHNSVC           = 64; // @v9.8.11 20-->64 // @attention изменение значения требует конвертации хранимого пароля
+	static constexpr uint PwSize_POP3_BEFORE11509 = 20; // @attention изменение значения требует конвертации хранимого пароля
+	static constexpr uint PwSize_POP3_2           = 32; // @attention изменение значения требует конвертации хранимого пароля
+	static constexpr uint PwSize_UHTT             = 20; // @attention изменение значения требует конвертации хранимого пароля
+	// } @v11.8.11 
 };
-
+//
 // @v11.7.3 (все константы стали static constexpr) extern const PPConstParam _PPConst;
 //
 // Output message functions
@@ -9864,6 +9805,546 @@ public:
 	int    Put(uint pos, const StaffAmtEntry *);
 };
 //
+// CCheckPacket
+//
+typedef TSVector <CCheckLineTbl::Rec> CCheckLineArray;
+
+class CTableOrder {
+public:
+	struct Packet {
+		Packet();
+		void   Init(PPID posNodeID, LDATETIME initDtm, long initDuration);
+		//
+		PPID   PosNodeID;     // Ид кассового узла
+		PPID   ChkID;         // Ид чека заказа
+		long   CcNo;          // Номер чека заказа
+		LDATETIME CcDtm;      // Дата/время чека заказа
+		int16  TableNo;       // Номер стола
+		int16  Status;        // 0 - открытый заказ, -1 - отмененный заказ, 1 - закрытый заказ
+		PPID   SCardID;       // Ид кредитной карты, на которую начисляется сумма предоплаты
+		double PrepayAmount;  // Сумма предоплаты
+		STimeChunk Chunk;     // Период начала и завершения заказанного посещения.
+		SString Memo;         // @memo
+	};
+	struct Param { // @persistent
+		Param();
+		int    Serialize(int dit, SBuffer & rBuf, SSerializeContext * pCtx);
+
+		enum {
+			fShowTimeGraph = 0x0001
+		};
+
+		long   Ver;
+		PPID   PosNodeID;
+		LDATETIME StartTime;
+		long   InitDuration;
+		long   Flags;
+		long   TableNo;
+		uint8  Reserve[32];
+	};
+
+	static int ShowTimeGraph(PPID posNodeID, int modeless);
+
+	CTableOrder();
+	~CTableOrder();
+	int    HasRight(long rt);
+	int    Edit(Packet * pPack);
+	int    EditParam(Param * pParam);
+	int    Create(const Param * pParam);
+	int    Update(const Packet * pPack, int use_ta);
+	int    Cancel(PPID ordCheckID);
+	int    Print(const Packet * pPack);
+	int    CheckTableBusyStatus(long tableNo, const STimeChunk & rChunk);
+	int    GetCheck(PPID chkID, Packet * pPack);
+	int    GetCheck(const CCheckTbl::Rec * pCcRec, const CCheckExtTbl::Rec * pCcExtRec, Packet * pPack);
+	int    GetSCard(PPID scardID, SCardTbl::Rec * pScRec);
+	int    SetupGrid(PPID posNodeID);
+	int    UpdateGridItem(long tableNo, PPID checkID, const STimeChunk & rNewChunk);
+private:
+	int    MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack);
+	enum {
+		stRtUndef = 0x0001,
+		stRtAll   = 0x0002
+	};
+	Packet P;
+	long   State;
+	PPObjSCard * P_ScObj;
+	PPObjCashNode * P_CnObj;
+	STimeChunkGrid * P_Grid;
+};
+//
+// Descr: Смещение значения CCheckLineTbl::Rec::DivID, индицирующее признак того, что строка
+//   была уже отправлена на кухонный принтер.
+//
+#define CHECK_LINE_IS_PRINTED_BIAS   10000
+//
+// Descr: Флаги элемента CCheckItem
+//
+enum {
+	cifIsPrinted     = 0x0001, // Строка напечатана
+	cifGift  = 0x0002, // Товар в строке является подарком
+	cifUsedByGift    = 0x0004, // По строке был предоставлен подарок
+	cifQuotedByGift  = 0x0008, // Подарок по строке был предоставлен в виде котировочной цены
+		// @#{!cifQuotedByGift || cifUsedByGift}
+	cifGrouped       = 0x0010, // Строка сгруппирована с предыдущей в списке
+	cifPartOfComplex = 0x0020, // Строка является частью комплексного товара
+	cifBySCard       = 0x0040, // Строка сгенерирована автоматически по факту установки карты.
+		// (Карта имеет ненулевое значение SCardTbl::Rec::AutoGoodsID)
+	cifPriceBySerial = 0x0080, // Цена на строку установлена по серийному номеру.
+	cifGiftDiscount  = 0x0100, // Строка предоставляет подарочную суммовую скидку (по котировке PPQUOTK_GIFT).
+		// При формировании окончательного чека сумма по этой строке полностью обнуляется а скидка разносится на весь чек.
+	cifMainGiftItem  = 0x0200, // @#{!cifMainGiftItem || cifUsedByGift} Строка соответствует основному
+		// компоненту подарочной структуры
+	cifModifier      = 0x0400,  // Элемент является модификатором предшествующего элемента, не имеющего
+		// такого признака (элемент может иметь несколько модификаторов, следующих один за другим).
+	cifManualGift    = 0x0800, // @#{!cifManualGift || cifGift} Подарочная позиция была выбрана в ручную.
+		// Позиции с таким признаком обрабатываются специальным образом, дабы не заставлять пользователя по-новой
+		// выбирать один и тот же подарок много раз.
+	cifHasModifier   = 0x1000, // Специальный избыточный флаг, идентифицирующий позицию, к которой привязан модификатор
+		// Устанавливается при печати во временную структуру.
+	cifFixedPrice    = 0x2000, // Цена по строке не должна пересчитываться при общем пересчете чека
+		// Флаг введен в ответ на новую технику обработки чеков при которой все цены по строкам пересчитываются
+		// по текущим ценам при внесении каких-либо изменений в чек.
+	cifCzMarkCode    = 0x4000  // @v10.4.12 Товар идентифицирован по марке ЧестныйЗнак
+};
+//
+// Descr: Специализированная структура, используемая для унифицированного
+//   представления строки чека в коде системы.
+//
+struct CCheckItem { // @transient
+	CCheckItem();
+	CCheckItem & Z();
+	CCheckItem & FASTCALL operator = (const CCheckItem & rS);
+	CCheckItem & FASTCALL operator = (const CCheckLineTbl::Rec & rS);
+	CCheckItem & FASTCALL operator = (const CCheckLineExtTbl::Rec & rS);
+	void   GetRec(CCheckLineTbl::Rec & rRec, int ret) const;
+	int    GetRec(CCheckLineExtTbl::Rec & rRec) const;
+	int    SplitByQtty(double restQtty, CCheckItem & rNewItem);
+	double NetPrice() const;
+	double GetAmount() const;
+	int    SetupGiftQuot(double quot, int forceZero);
+	int    ResetGiftQuot();
+	int    CanMerge(const CCheckPacket * pPack, const CCheckItem & rItem) const;
+
+	PPID   GoodsID;         //
+	double Quantity;        //
+	double PhQtty;          //
+	double Price;           //
+	double Discount;        //
+	double BeforeGiftPrice; // Цена строки, до того как к ней была применена подарочная котировка.
+		// Поле имеет значение только в том случае, если Flags & cifQuotedByGift.
+	PPID   GiftID;          // Если строка - подарочная, то это - идентификатор структуры, по которой подарок предоставлен.
+	long   Flags;           // cifXXX
+	int16  Division;        // Номер отдела
+	int16  LineGrpN;        // Номер группы строк (используется только для печати и инициируется функцией CheckPaneDialog::InitIteration
+	int8   Queue;           // Очередность подачи
+	int8   Reserve[1];      // @alignment // @v11.5.8 [3]-->[1]
+	int16  RByCheck;        // @v11.5.8 Проекция поля CCheckLineTbl::Rec::RByCheck
+	char   BarCode[24];     //
+	char   GoodsName[128];  //
+	char   Serial[32];      // @v10.2.10 [24]-->[32]
+	char   ChZnGtin[16];    // @v10.4.12 Gtin код товара, считанный из марки 'честный знак'
+	char   ChZnSerial[24];  // @v10.4.11 Серийный номер маркировки 'честный знак'.
+	char   ChZnMark[156];   // @v10.6.9 Марка 'честный знак'
+	char   EgaisMark[156];  // Марка алкогольной продукции ЕГАИС // @v10.1.6 [80]-->[156]
+	char   RemoteProcessingTa[64]; // @v10.1.6 Идентификатор, подтверджающий удаленную обработку строки
+};
+
+typedef TSVector <CCheckItem> CCheckItemArray;
+//
+// Типы сумм кассовых чеков
+//
+#define CCAMTTYP_AMOUNT      1 // Общая сумма чека
+#define CCAMTTYP_DISCOUNT    2 // Сумма скидки
+#define CCAMTTYP_FISCAL      3 // Фискальная сумма
+#define CCAMTTYP_NONFISCAL   4 // Нефискальная сумма
+#define CCAMTTYP_CASH        5 // Сумма наличными
+#define CCAMTTYP_BANK        6 // Сумма, уплаченная через банк
+#define CCAMTTYP_CRDCARD     7 // Сумма, зачтенная по корпоративной кредитной карте
+#define CCAMTTYP_ADDCRDCARD  8 // Сумма, зачтенная по дополнительной корпоративной кредитной карте
+#define CCAMTTYP_COUNT       9 // Количество чеков (используется для итогового суммирования выборки чеков)
+#define CCAMTTYP_BANKDSCNT  11 // Скидка по безналичному чеку (используется для итогового суммирования выборки чеков)
+#define CCAMTTYP_CSCCHARGE  12 // Специальная сумма, идентифицирующая начисление на кредитную карту по строкам
+	// чека, содержащим товар для начисления. Такая сумма не включается в список оплат чека, сохраняемый вместе с чеком
+#define CCAMTTYP_NOTE       13 // Сумма, полученная от покупателя (без учета сдачи)
+#define CCAMTTYP_DELIVERY   14 // Сумма сдачи, возвращенная покупателю
+#define CCAMTTYP_MANDIS     15 // @v11.0.9 Скидка на чек в абсолютном выражении, предоставленная вручную
+#define CCAMTTYP_MANPCTDIS  16 // @v11.0.9 Скидка на чек в процентах, предоставленная вручную
+	// @#{Один чек не может одновременно иметь ненулевые значения CCAMTTYP_MANDIS и CCAMTTYP_MANPCTDIS}
+//
+// Invariants:
+// CCAMTTYP_FISCAL+CCAMTTYP_NONFISCAL=CCAMTTYP_AMOUNT
+// CCAMTTYP_CASH+CCAMTTYP_BANK+CCAMTTYP_CRDCARD=CCAMTTYP_AMOUNT
+// CCAMTTYP_ADDCRDCARD < CCAMTTYP_CRDCARD
+//
+
+//
+// Descr: Сумма по чеку
+//
+struct CcAmountEntry {
+	CcAmountEntry();
+	bool   FASTCALL IsEq(const CcAmountEntry & rS) const;
+	int    GetTypeText(SString & rBuf) const;
+
+	PPID   CheckID;    // Идентификатор чека. Важен, если собираются однотипные суммы по выборке чеков
+	int32  Type;       // CCAMTTYP_XXX
+	int32  AddedID;    // Дополнительный идент. Для PaymType == CCAMTTYP_CRDCARD - ид карты
+	PPID   CurID;      // Валюта платежа
+	double CurAmount;  // Сумма в валюте CurID. Если CurID == 0, то CurAmount == 0.0
+	double Amount;     // Величина суммы
+};
+//
+//
+//
+class CcAmountList : public TSVector <CcAmountEntry> {
+public:
+	CcAmountList();
+	CcAmountList & Z();
+	int    GetSign() const;
+	int    Search(int type, int32 addedID, uint * pPos) const;
+	int    SearchAddedID(int32 addedID, uint * pPos) const;
+	int    Set(int type, double amt, int32 addedID = 0);
+	int    Add(int type, double amt, int32 addedID = 0);
+	int    Normalize();
+	int    InvertSign();
+	double ScaleTo(double targetAmount);
+	double Replace(int type, double amt, int32 addedID, int r1, int r2);
+	double ReplaceDontRemove(int type, double amt, int32 addedID, int r1, int r2);
+	double FASTCALL Get(int type) const;
+	double Get(int type, LongArray * pAddedIdList) const;
+	double Get(int type, int32 addedID) const;
+	//
+	// Descr: Возвращает сумму оплат по бонусным картам.
+	// ARG(pScObj IN): Указатель на 'кземпляр объекта PPObjSCard, используемый
+	//   для получения информации о приндалежности платежных карт бонусным сериям.
+	//   Если pScObj == 0, то функция создаст собственный 'кземпляр PPObjSCard, однако такой
+	//   вариант скажется на производительности (создание объекта PPObjSCard может быть дорогим).
+	//
+	double GetBonusAmount(PPObjSCard * pScObj) const;
+	double GetTotal() const;
+private:
+	int    Implement_Set(int type, double amt, int32 addedID, int replace, int dontRemove);
+	double Implement_Replace(int type, double amt, int32 addedID, int dontRemove, int r1, int r2);
+};
+//
+// Descr: Идентификатор текстовых свойств чека, по которому хранятся текстовые расширения строк чека.
+// <101>......<202>......<1001>.....<1003>..<1302>
+// 1-я строка 2-я строка 10-я строка        13-я строка
+// Значение, деленное на 100 - номер свойства строки
+//
+#define PPTRPROP_CC_LNEXT (PPTRPROP_USER+1)
+
+class CCheckPacket : public PPExtStrContainer {
+public:
+	struct LineExt { // @transient
+		enum {
+			fGroup         = 0x01,
+			fModifier      = 0x02,
+			fPartOfComplex = 0x04,
+			fQuotedByGift  = 0x08,
+			fFixedPrice    = 0x10
+		};
+		LineExt();
+		bool   IsEmpty() const;
+
+		uint32 ItemIdx;    // Индекс позиции (+1) в Items_
+		int8   Queue;
+		uint8  Flags;      // @flags
+		uint8  Reserve[2]; // @alignment
+	};
+	struct BueryEAddr_ { // @v11.8.11
+		BueryEAddr_();
+		BueryEAddr_ & Z();
+		bool   IsEmpty() const;
+		int    SetEMail(const char * pEAddr);
+		int    SetPhone(const char * pEAddr);
+		int    GetEMail(SString & rBuf) const;
+		int    GetPhone(SString & rBuf) const;
+
+		int    AddrType;  // Тип электронного адреса покупателя BuyersEAddr (0 || SNTOK_PHONE || SNTOK_EMAIL)
+		SString EAddr;    // Электронный адрес покупателя (email or phone)
+	};
+	//
+	// Признаки способа расчета. Используются для печати чека, собственно в Papyrus'е не применяются.
+	// Тупость классификации полностью обусловленна тупостью российских органов власти.
+	// Числовая идентификация признаков совпадает с таковой для кассовых аппаратов ДримКас (Пирит, Viki-Print)
+	// и для драйвера торгового оборудования АТОЛ на 12 апреля 2019 года.
+	//
+	enum PaymentTermTag {
+		pttUndef          = 0, // PTT_UNDEF
+		pttFullPrepay     = 1, // PTT_FULL_PREPAY    Предоплата 100% (Полная предварительная оплата до момента передачи предмета расчета)
+		pttPrepay         = 2, // PTT_PREPAY         Предоплата (Частичная предварительная оплата до момента передачи предмета расчета)
+		pttAdvance        = 3, // PTT_ADVANCE        Аванс
+		pttFullPayment    = 4, // PTT_FULLPAYMENT    Полный расчет (Полная оплата, в том числе с учетом аванса (предварительной оплаты) в момент передачи предмета расчета)
+		pttPartial        = 5, // PTT_PARTIAL        Частичный расчет и кредит (Частичная оплата предмета расчета в момент его передачи с последующей оплатой в кредит)
+		pttCreditHandOver = 6, // PTT_CREDITHANDOVER Передача в кредит (Передача предмета расчета без его оплаты в момент его передачи с последующей оплатой в кредит)
+		pttCredit         = 7  // PTT_CREDIT         Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
+	};
+
+	//@erik v10.4.12{
+	enum SubjTermTag {
+		sttUndef                  = 0, // STT_UNDEF
+		sttGood                   = 1, // STT_GOOD    о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
+		sttExcisableGood          = 2, // STT_EXCISABLEGOOD    о реализуемом подакцизном товаре(наименование и иные сведения, описывающие товар)
+		sttExecutableWork         = 3, // STT_EXECUTABLEWORK   о выполняемой работе(наименование и иные сведения, описывающие работу)
+		sttService                = 4, // STT_SERVICE   об оказываемой услуге(наименование и иные сведения, описывающие услугу)
+		sttBetting                = 5, // STT_BETTING   о приеме ставок при осуществлении деятельности по проведению азартных игр
+		sttPaymentGambling        = 6, // STT_PAYMENTGAMBLING   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению азартных игр
+		sttBettingLottery         = 7, // STT_BETTINGLOTTERY   о приеме денежных средств при реализации лотерейных билетов, электронных лотерейных билетов, приеме лотерейных ставок при осуществлении деятельности по проведению лотерей
+		sttPaymentLottery         = 8, // STT_PAYMENTLOTTERY   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению лотерей
+		sttGrantRightsUseIntellectualActivity = 9,	// STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY   о предоставлении прав на использование результатов интеллектуальной деятельности или средств индивидуализации
+		sttAdvance                = 10, // STT_ADVANCE   об авансе, задатке, предоплате, кредите, взносе в счет оплаты, пени, штрафе, вознаграждении, бонусе и ином аналогичном предмете расчета
+		sttPaymentsPayingAgent    = 11, // STT_PAYMENTSPAYINGAGENT   о вознаграждении пользователя, являющегося платежным агентом(субагентом), банковским платежным агентом(субагентом), комиссионером, поверенным или иным агентом
+		sttSubjTerm               = 12, // STT_SUBJTERM   о предмете расчета, состоящем из предметов, каждому из которых может быть присвоено значение от «0» до «11»
+		sttNotSubjTerm            = 13, // STT_NOTSUBJTERM   о предмете расчета, не относящемуся к предметам расчета, которым может быть присвоено значение от «0» до «12»
+		sttTransferPropertyRights = 14, // STT_TRANSFERPROPERTYRIGHTS   о передаче имущественных прав
+		sttNonOperatingIncome     = 15, // STT_NONOPERATINGINCOME    о внереализационном доходе(Название товара может принимать значения 1 - 25)
+		sttExpensesReduceTax      = 16, // STT_EXPENSESREDUCETAX    о суммах расходов, уменьшающих сумму налога(авансовых платежей) в соответствии с пунктом 3.1 статьи 346.21 Налогового кодекса Российской Федерации(Название товара может принимать значения 26 - 31)
+		sttAmountMerchantFee      = 17, // STT_AMOUNTMERCHANTFEE   о суммах уплаченного торгового сбора
+		sttResortFee              = 18, // STT_RESORTFEE       о курортном сборе
+		sttDeposit                = 19, // STT_DEPOSIT  Залог
+	};
+    //  } @erik v10.4.12
+	//
+	//
+	enum { // @persistent
+		extssMemo               =  1, // @reserved Примечание
+		extssSign               =  2, // Строка подписи чека (ЕГАИС)
+		extssEgaisUrl           =  3, // Текст URL информации о чеке ЕГАИС
+		extssRemoteProcessingTa =  4, // @v10.9.0 Символ транзакции удаленной обработки чека
+		extssChZnProcessingTag  =  5, // @v11.0.1 Символ признака передачи чека на сервер честный знак
+		extssBuyerINN           =  6, // @v11.0.4 ИНН покупателя (при формировании чека по документу)
+		extssBuyerName          =  7, // @v11.0.4 Наименование покупателя (при формировании чека по документу)
+		extssBuyerPhone         =  8, // @v11.0.4 Телефон покупателя //
+		extssBuyerEMail         =  9, // @v11.3.6 Адрес электронной почты покупателя //
+		extssUuid               = 10, // @v11.5.2 UUID чека. Применяется в ограниченном наборе сценариев. Введен ради взаимодействия со Stylo-Q.
+		extssPrescrDate         = 11, // @v11.7.12 Дата медицинского рецепта. Сохраняется в формате DATF_ISO8601 без разделителей, eg 20230821
+		extssPrescrSerial       = 12, // @v11.7.12 Серия медицинского рецепта
+		extssPrescrNumber       = 13, // @v11.7.12 Номер медицинского рецепта
+		extssEgaisProcessingTag = 14, // @v11.8.2  Внутренний символ обработки для списания товаров по чеку в ЕГАИС. 
+			// Не путать с extssEgaisUrl, являющегося признаком того, что чек отправлен на-прямую в ЕГАИС.
+		extssSourceSymb         = 15, // @v11.8.5 Символ внешнего источника происхождения чека
+		extssOuterIdent         = 16, // @v11.8.5 Идентификатор чека во внешнем источнике
+		extssOuterExtTag        = 17, // @v11.8.5 Дополнительный текстовый тег, поступивший из внешнего источника.
+			// Как правило, система трактовать такой тег формальным образом не способна.
+		extssLinkBillUuid       = 18, // @v11.8.8 UUID документа, по которому сформирован чек 
+		// @attention: После вставки очередного элемента в enum добавьте этот элемент в ccpack_textext_ident_list (ccheck.cpp). 
+		//   Иначе этот атрибут не будет сохраняться в чеке.
+	};
+	//
+	// Descr: Идентификаторы текстовых расширений строк чека
+	//
+	enum { // @persistent
+		lnextSerial     = 1, // Серийный номер
+		lnextEgaisMark  = 2, // Марка ЕГАИС
+		lnextRemoteProcessingTa = 3, // @v10.1.4 Символ транзакции удаленной обработки строки. Имеет специальное назначение,
+			// сопряженное с предварительной обработкой чека перед проведением через удаленный сервис.
+		lnextChZnSerial = 4, // @v10.4.12 Серийный номер 'честный знак'
+		lnextChZnGtin   = 5, // @v10.4.12 GTIN считанный из кода 'честный знак'
+		lnextChZnMark   = 6, // @v10.6.9 Марка 'честный знак'
+	};
+	struct PreprocessChZnCodeResult { // @flat
+		PreprocessChZnCodeResult();
+		PreprocessChZnCodeResult & Z();
+		uint   LineIdx;          // [1..] Индекс строки в чеке
+		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (ofdtag-2106)
+			// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
+			// 0 "0" - код маркировки не был проверен ФН и (или) ОИСМ
+			//   "1" - код маркировки проверен
+			// 1 "0" - результат проверки КП КМ отрицательный или код маркировки не был проверен
+			//   "1" - результат проверки КП КМ положительный
+			// 2 "0" - сведения о статусе товара от ОИСМ не получены
+			//   "1" - проверка статуса ОИСМ выполнена
+			// 3 "0" - от ОИСМ получены сведения, что планируемый статус товара некорректен или сведения о статусе товара от ОИСМ не получены
+			//   "1" - от ОИСМ получены сведения, что планируемый статус товара корректен
+			// 4 "0" - результат проверки КП КМ и статуса товара сформирован ККТ, работающей в режиме передачи данных
+			//   "1" - результат проверки КП КМ сформирован ККТ, работающей в автономном режиме
+			//
+		int    Reason;           // Причина того, что КМ не проверен в ФН
+			// 0 - КМ проверен в ФН;
+			// 1 - КМ данного типа не подлежит проверке в ФН;
+			// 2 - ФН не содержит ключ проверки кода проверки этого КМ;
+			// 3 - переданный код маркировки не соответствует заданному формату (проверка невозможна, так как отсутствуют теги 91 и/или 92 или их формат неверный, согласно GS1)
+			// 4 - внутренняя ошибка в ФН при проверке этого КМ.
+		int    ProcessingResult; // tag 2005 Результаты обработки запроса (ofdtag-2005)
+			// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
+			// 1 "0" - результат проверки КП КМ отрицательный
+			//   "1" - результат проверки КП КМ положительный
+			// 3 "0" - статус товара некорректен (если реквизит "ответ ОИСМ о статусе товара" (ofdtag-2109) принимает значение "2" или "3")
+			//   "1" - статус товара корректен (если реквизит "ответ ОИСМ о статусе товара" (ofdtag-2109) принимает значение "1")
+			// 0, 2    Заполняются единицами
+			// 4 - 7   Заполняются нулями
+		int    ProcessingCode;   // tag 2105 Код обработки запроса (ofdtag-2105)
+			// 0 Запрос имеет корректный формат, в том числе корректный формат кода маркировки
+			// 1 Запрос имеет некорректный формат
+			// 2 Указанный в запросе код маркировки имеет некорректный формат (не распознан)
+		int    Status;           // tag 2109 Сведения о статусе товара (ofdtag-2109)
+			// 1 Планируемый статус товара корректен
+			// 2 Планируемый статус товара некорректен
+			// 3 Оборот товара приостановлен
+	};
+	//
+	// Descr: Структура интерфейсного представления параметром фармацевтического рецепта
+	//
+	struct Prescription { // @v11.7.12
+		Prescription();
+		Prescription & Z();
+		bool   IsValid() const;
+
+		LDATE Dt;
+		SString Serial;
+		SString Number;
+	};
+	//
+	// Двум следующим классам необходим открытый доступ к полям Items_ и SerialList
+	// для сериализации объекта CCheckPacket
+	//
+	friend class CCheckCore;
+	friend class CSessTransmitPacket;
+	//
+	DECL_INVARIANT_C();
+	//
+	// Descr: Функция, обеспечивающая централизованный механиз распаковки текстовых расширений строк чека.
+	//
+	// @v10.3.9 (replaced with Helper_UnpackTextExt) static int Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList);
+	//
+	// Descr: Функция, обеспечивающая централизованный механиз распаковки текстовых расширений чека и его строк.
+	//
+	static int Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList);
+	static int Helper_SetLineTextExt(int pos /*[1..]*/, int lnextId, StrAssocArray & rList, const char * pText);
+	static int Helper_GetLineTextExt(int pos /*[1..]*/, int lnextId, const StrAssocArray & rList, SString & rBuf);
+	static int CopyExtStrContainer(PPExtStrContainer & rDest, const PPExtStrContainer & rSrc, uint flags);
+	static int GetPrescription(const PPExtStrContainer & rEss, Prescription & rP);
+	static int SetPrescription(PPExtStrContainer & rEss, const Prescription & rP);
+
+	CCheckPacket();
+	CCheckPacket(const CCheckPacket & rS);
+	~CCheckPacket();
+	CCheckPacket & FASTCALL operator = (const CCheckPacket & rS);
+	CCheckPacket & Z();
+	int    IsEq(const CCheckPacket & rS, long options) const;
+	int    Copy(const CCheckPacket & rS);
+	//
+	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
+	//
+	int    HasExt() const;
+	uint   GetCount() const;
+	int    GetGuid(S_GUID & rUuid) const; 
+	int    SetGuid(const S_GUID * pUuid);
+	int    GenerateGuid(S_GUID & rUuid);
+	//
+	// Descr: Возвращает параметры рецепта, хранящиеся в чеке.
+	// Returns:
+	//   > - чек содержит по крайней мере номер рецепта.
+	//   0 - чек не содержит параметро рецепта (rP обнуляется вызвом rP.Z())
+	//
+	int    GetPrescription(Prescription & rP) const;
+	int    SetPrescription(const Prescription & rP);
+	//
+	// Descr: Упаковывает все строки расширения чека и его строк в общую строку для сохранения в базе данных.
+	//
+	int    PackTextExt(SString & rResult) const;
+	CCheckLineTbl::Rec & FASTCALL GetLine(uint pos);
+	const  CCheckLineTbl::Rec & FASTCALL GetLineC(uint pos) const;
+	int    EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial = 0) const;
+	int    EnumLines(uint * pPos, CCheckItem * pItem) const;
+	void   InitLineIteration();
+	int    NextLineIteration(CCheckLineTbl::Rec * pItem, SString * pSerial = 0);
+	int    RemoveLine_(uint pos);
+	int    CopyLines(const CCheckPacket & rS);
+	bool   SearchLine(int rByCheck, uint * pPos) const;
+	int    SetLineTextExt(int pos /*[1..]*/, int lnextId, const char *);
+	int    GetLineTextExt(int pos /*[1..]*/, int lnextId, SString & rBuf) const;
+	int    SetLineExt(int pos /*[1..]*/, const LineExt & pExt);
+	int    GetLineExt(int pos /*[1..]*/, LineExt & rExt) const;
+	int    SetLineChZnPreprocessResult(int pos /*[1..]*/, const PreprocessChZnCodeResult * pResult); // @v11.1.11
+	const  PreprocessChZnCodeResult * GetLineChZnPreprocessResult(int pos /*[1..]*/) const; // @v11.1.11
+	//
+	// Descr: Объединяет позиции, у которых одинаковые идентификаторы товаров
+	// Note: В дальнейшем критерии объединения будут усложнены.
+	//
+	int    MergeLines(long /*options*/);
+	void   ClearLines();
+	int    InsertItem_(const CCheckLineTbl::Rec *, const char * pSerial = 0, const char * pEgaisMark = 0);
+	int    InsertItem(PPID goodsID, double qtty, double price, double dscnt, short div = 0, int isPrinted = 0);
+	int    InsertItem(const CCheckItem & rItem);
+	double FASTCALL GetItemAmount(const CCheckLineTbl::Rec & rItem) const;
+	double FASTCALL GetItemDiscount(const CCheckLineTbl::Rec & rItem) const;
+	int    SetupPaymList(const CcAmountList * pList);
+	//
+	// Descr: Флаги функции SetTotalDiscount
+	//
+	enum {
+		stdfPctDis      = 0x0001, // Параметр dis задает размер скидки в процентах. Иначе - абсолютное значение.
+		stdfPlus        = 0x0002  // Скидка увеличивает сумму чека
+	};
+	void   SetTotalDiscount__(double dis, long flags);
+	void   CalcAmount(double * pAmt, double * pDscnt) const;
+	//
+	// Descr: Расчитывает суммы чека по строкам и устанавливает их в поля Rec.Amount и Rec.Discount.
+	//   Если вызывающая функция нуждается в значениях рассчитанных сумм, то она
+	//   может передать указатели pAmt и (или) pDscnt.
+	//
+	void   SetupAmount(double * pAmt, double * pDscnt);
+	double GetFiscalAmount() const;
+	int    HasNonFiscalAmount(double * pFiscal, double * pNonFiscal) const;
+	int    SetDlvrAddr(const LocationTbl::Rec * pRec);
+	const  LocationTbl::Rec * GetDlvrAddr() const;
+
+	struct BarcodeIdentStruc {
+		int    Prefix;
+		long   PosId;
+		long   CcCode;
+	};
+
+	SString & MakeBarcodeIdent(SString & rBuf) const;
+	static int ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult);
+	CcAmountList & AL() { return CcAl; }
+	const CcAmountList & AL_Const() const { return CcAl; }
+	//
+	// Descr: Специальный метод, обходящий приватность строк с целью корректировки идентификатора товара в записи строки.
+	//
+	int    _SetLineGoodsID(uint lineIdx/*[0..]*/, PPID goodsID);
+	int    SetSCardSpecialTreatmentIdentifyReplyBlock(const void * pStirb);
+	int    GetSCardSpecialTreatmentIdentifyReplyBlock(void * pStirb) const;
+
+	enum {
+		ufCheckInvariant = 0x0001, // Функция CCheckCore::TurnCheck не допускает проведение пакета,
+			// если он не проходит тест CCheckPacket::InvariantC.
+			// @v8.4.2 Начиная с релиза 8.4.2 блокировка на проведение чека снимается, но в журнале pperror.log
+			// отмечается информация об ошибке в чеке.
+		//ufSkipUhtt       = 0x0002  // Функция CCheckCore::TurnCheck не проводит операции по картам через сервер Universe-HTT
+		ufSkipScSpcTrt   = 0x0002, // Функция CCheckCore::TurnCheck не проводит операции по картам через внешние сервисы
+	};
+	long   UpdFlags;       // @transient ufXXX Флаги, определяющие правила изменения пакета
+	int    PrintPtt;       // @transient pttXXX Признак способа расчета, применяемый при печати чека (отдельные строки могут переопределять это значение).
+	int    PctDis;         // @transient if !0 - then Discount in percent
+	double Discount;       // @transient
+	double _Cash;          // @transient Сумма, уплаченная наличными
+	double _OrdPrepay;     // @transient @!CheckPaneDialog::GetCheckInfo() Сумма предоплаты по заказу. Заполняется для чека заказа и для чека, связанного с заказом.
+	CCheckExtTbl::Rec Ext; // @transient Расширение записи чека
+	CCheckTbl::Rec Rec;    //
+	// @v10.9.0 SString UhttScHash;    // @transient Код доступа к информации о карте, синхронизированной с Universe-HTT
+private:
+	int    Helper_PackLineTextExt(SString & rResult) const;
+	// @v10.3.9 int    PackLineTextExt(SString & rResult) const;
+	// @v10.3.9 int    UnpackLineTextExt(const SString & rBuf);
+	int    UnpackTextExt(const SString & rBuf);
+
+	CCheckLineArray Items_; //
+	TSVector <LineExt> ExtList;
+	CcAmountList CcAl;      // Список оплат по чеку. Используется только, если по чеку было более одного типа оплаты. Например: безналичная оплата + доплата наличными.
+	//
+	// Серийные номера храняться в виде ассоциаций {position, serial}.
+	// position - позиция соответствующей строки в Items_ плюс 1.
+	// То есть, серия для первой строки (индекс 0) хранится с номером 1.
+	//
+	StrAssocArray LnTextList;
+	LocationTbl::Rec * P_DlvrAddr; // @transient
+	void * P_Stirb; // @v10.9.0 @transient (SCardSpecialTreatment::IdentifyReplyBlock *)
+	TSVector <PreprocessChZnCodeResult> * P_PpChZnCodeResultList; // @v11.1.11 @transient
+};
+//
 // Package Declarations
 //
 #define PCKGF_UNIQUECODE 0x0001 // Код пакета, в соответствии с типом пакета, должен быть уникальным
@@ -11751,8 +12232,9 @@ public:
 		SString Info;
 		double Amount; //@erik v10.5.9
 		long   Flags_;  //@erik v10.5.9
-		int    BuyersEAddrType; // @v11.3.7 (0|SNTOK_EMAIL|SNTOK_PHONE)
-		SString BuyersEAddr; // @v11.3.7
+		// @v11.8.11 int    BuyersEAddrType; // @v11.3.7 (0|SNTOK_EMAIL|SNTOK_PHONE)
+		// @v11.8.11 SString BuyersEAddr; // @v11.3.7
+		CCheckPacket::BueryEAddr_ EAddr;  // @v11.8.11 Электронный адрес покупателя (email or phone)
 	};
 	//
 	// Descr: Преобразует пакет товарного документа в пакет кассового чека.
@@ -14639,531 +15121,9 @@ public:
 //
 // @ModuleDecl(CCheckCore)
 //
-typedef TSVector <CCheckLineTbl::Rec> CCheckLineArray;
-
-class CTableOrder {
-public:
-	struct Packet {
-		Packet();
-		void   Init(PPID posNodeID, LDATETIME initDtm, long initDuration);
-		//
-		PPID   PosNodeID;     // Ид кассового узла
-		PPID   ChkID;         // Ид чека заказа
-		long   CcNo;          // Номер чека заказа
-		LDATETIME CcDtm;      // Дата/время чека заказа
-		int16  TableNo;       // Номер стола
-		int16  Status;        // 0 - открытый заказ, -1 - отмененный заказ, 1 - закрытый заказ
-		PPID   SCardID;       // Ид кредитной карты, на которую начисляется сумма предоплаты
-		double PrepayAmount;  // Сумма предоплаты
-		STimeChunk Chunk;     // Период начала и завершения заказанного посещения.
-		SString Memo;         // @memo
-	};
-	struct Param { // @persistent
-		Param();
-		int    Serialize(int dit, SBuffer & rBuf, SSerializeContext * pCtx);
-
-		enum {
-			fShowTimeGraph = 0x0001
-		};
-
-		long   Ver;
-		PPID   PosNodeID;
-		LDATETIME StartTime;
-		long   InitDuration;
-		long   Flags;
-		long   TableNo;
-		uint8  Reserve[32];
-	};
-
-	static int ShowTimeGraph(PPID posNodeID, int modeless);
-
-	CTableOrder();
-	~CTableOrder();
-	int    HasRight(long rt);
-	int    Edit(Packet * pPack);
-	int    EditParam(Param * pParam);
-	int    Create(const Param * pParam);
-	int    Update(const Packet * pPack, int use_ta);
-	int    Cancel(PPID ordCheckID);
-	int    Print(const Packet * pPack);
-	int    CheckTableBusyStatus(long tableNo, const STimeChunk & rChunk);
-	int    GetCheck(PPID chkID, Packet * pPack);
-	int    GetCheck(const CCheckTbl::Rec * pCcRec, const CCheckExtTbl::Rec * pCcExtRec, Packet * pPack);
-	int    GetSCard(PPID scardID, SCardTbl::Rec * pScRec);
-	int    SetupGrid(PPID posNodeID);
-	int    UpdateGridItem(long tableNo, PPID checkID, const STimeChunk & rNewChunk);
-private:
-	int    MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack);
-	enum {
-		stRtUndef = 0x0001,
-		stRtAll   = 0x0002
-	};
-	Packet P;
-	long   State;
-	PPObjSCard * P_ScObj;
-	PPObjCashNode * P_CnObj;
-	STimeChunkGrid * P_Grid;
-};
-//
-// Descr: Смещение значения CCheckLineTbl::Rec::DivID, индицирующее признак того, что строка
-//   была уже отправлена на кухонный принтер.
-//
-#define CHECK_LINE_IS_PRINTED_BIAS   10000
-//
-// Descr: Флаги элемента CCheckItem
-//
-enum {
-	cifIsPrinted     = 0x0001, // Строка напечатана
-	cifGift  = 0x0002, // Товар в строке является подарком
-	cifUsedByGift    = 0x0004, // По строке был предоставлен подарок
-	cifQuotedByGift  = 0x0008, // Подарок по строке был предоставлен в виде котировочной цены
-		// @#{!cifQuotedByGift || cifUsedByGift}
-	cifGrouped       = 0x0010, // Строка сгруппирована с предыдущей в списке
-	cifPartOfComplex = 0x0020, // Строка является частью комплексного товара
-	cifBySCard       = 0x0040, // Строка сгенерирована автоматически по факту установки карты.
-		// (Карта имеет ненулевое значение SCardTbl::Rec::AutoGoodsID)
-	cifPriceBySerial = 0x0080, // Цена на строку установлена по серийному номеру.
-	cifGiftDiscount  = 0x0100, // Строка предоставляет подарочную суммовую скидку (по котировке PPQUOTK_GIFT).
-		// При формировании окончательного чека сумма по этой строке полностью обнуляется а скидка разносится на весь чек.
-	cifMainGiftItem  = 0x0200, // @#{!cifMainGiftItem || cifUsedByGift} Строка соответствует основному
-		// компоненту подарочной структуры
-	cifModifier      = 0x0400,  // Элемент является модификатором предшествующего элемента, не имеющего
-		// такого признака (элемент может иметь несколько модификаторов, следующих один за другим).
-	cifManualGift    = 0x0800, // @#{!cifManualGift || cifGift} Подарочная позиция была выбрана в ручную.
-		// Позиции с таким признаком обрабатываются специальным образом, дабы не заставлять пользователя по-новой
-		// выбирать один и тот же подарок много раз.
-	cifHasModifier   = 0x1000, // Специальный избыточный флаг, идентифицирующий позицию, к которой привязан модификатор
-		// Устанавливается при печати во временную структуру.
-	cifFixedPrice    = 0x2000, // Цена по строке не должна пересчитываться при общем пересчете чека
-		// Флаг введен в ответ на новую технику обработки чеков при которой все цены по строкам пересчитываются
-		// по текущим ценам при внесении каких-либо изменений в чек.
-	cifCzMarkCode    = 0x4000  // @v10.4.12 Товар идентифицирован по марке ЧестныйЗнак
-};
-//
-// Descr: Специализированная структура, используемая для унифицированного
-//   представления строки чека в коде системы.
-//
-struct CCheckItem { // @transient
-	CCheckItem();
-	CCheckItem & Z();
-	CCheckItem & FASTCALL operator = (const CCheckItem & rS);
-	CCheckItem & FASTCALL operator = (const CCheckLineTbl::Rec & rS);
-	CCheckItem & FASTCALL operator = (const CCheckLineExtTbl::Rec & rS);
-	void   GetRec(CCheckLineTbl::Rec & rRec, int ret) const;
-	int    GetRec(CCheckLineExtTbl::Rec & rRec) const;
-	int    SplitByQtty(double restQtty, CCheckItem & rNewItem);
-	double NetPrice() const;
-	double GetAmount() const;
-	int    SetupGiftQuot(double quot, int forceZero);
-	int    ResetGiftQuot();
-	int    CanMerge(const CCheckPacket * pPack, const CCheckItem & rItem) const;
-
-	PPID   GoodsID;         //
-	double Quantity;        //
-	double PhQtty;          //
-	double Price;           //
-	double Discount;        //
-	double BeforeGiftPrice; // Цена строки, до того как к ней была применена подарочная котировка.
-		// Поле имеет значение только в том случае, если Flags & cifQuotedByGift.
-	PPID   GiftID;          // Если строка - подарочная, то это - идентификатор структуры, по которой подарок предоставлен.
-	long   Flags;           // cifXXX
-	int16  Division;        // Номер отдела
-	int16  LineGrpN;        // Номер группы строк (используется только для печати и инициируется функцией CheckPaneDialog::InitIteration
-	int8   Queue;           // Очередность подачи
-	int8   Reserve[1];      // @alignment // @v11.5.8 [3]-->[1]
-	int16  RByCheck;        // @v11.5.8 Проекция поля CCheckLineTbl::Rec::RByCheck
-	char   BarCode[24];     //
-	char   GoodsName[128];  //
-	char   Serial[32];      // @v10.2.10 [24]-->[32]
-	char   ChZnGtin[16];    // @v10.4.12 Gtin код товара, считанный из марки 'честный знак'
-	char   ChZnSerial[24];  // @v10.4.11 Серийный номер маркировки 'честный знак'.
-	char   ChZnMark[156];   // @v10.6.9 Марка 'честный знак'
-	char   EgaisMark[156];  // Марка алкогольной продукции ЕГАИС // @v10.1.6 [80]-->[156]
-	char   RemoteProcessingTa[64]; // @v10.1.6 Идентификатор, подтверджающий удаленную обработку строки
-};
-
-typedef TSVector <CCheckItem> CCheckItemArray;
-//
-// Типы сумм кассовых чеков
-//
-#define CCAMTTYP_AMOUNT      1 // Общая сумма чека
-#define CCAMTTYP_DISCOUNT    2 // Сумма скидки
-#define CCAMTTYP_FISCAL      3 // Фискальная сумма
-#define CCAMTTYP_NONFISCAL   4 // Нефискальная сумма
-#define CCAMTTYP_CASH        5 // Сумма наличными
-#define CCAMTTYP_BANK        6 // Сумма, уплаченная через банк
-#define CCAMTTYP_CRDCARD     7 // Сумма, зачтенная по корпоративной кредитной карте
-#define CCAMTTYP_ADDCRDCARD  8 // Сумма, зачтенная по дополнительной корпоративной кредитной карте
-#define CCAMTTYP_COUNT       9 // Количество чеков (используется для итогового суммирования выборки чеков)
-#define CCAMTTYP_BANKDSCNT  11 // Скидка по безналичному чеку (используется для итогового суммирования выборки чеков)
-#define CCAMTTYP_CSCCHARGE  12 // Специальная сумма, идентифицирующая начисление на кредитную карту по строкам
-	// чека, содержащим товар для начисления. Такая сумма не включается в список оплат чека, сохраняемый вместе с чеком
-#define CCAMTTYP_NOTE       13 // Сумма, полученная от покупателя (без учета сдачи)
-#define CCAMTTYP_DELIVERY   14 // Сумма сдачи, возвращенная покупателю
-#define CCAMTTYP_MANDIS     15 // @v11.0.9 Скидка на чек в абсолютном выражении, предоставленная вручную
-#define CCAMTTYP_MANPCTDIS  16 // @v11.0.9 Скидка на чек в процентах, предоставленная вручную
-	// @#{Один чек не может одновременно иметь ненулевые значения CCAMTTYP_MANDIS и CCAMTTYP_MANPCTDIS}
-//
-// Invariants:
-// CCAMTTYP_FISCAL+CCAMTTYP_NONFISCAL=CCAMTTYP_AMOUNT
-// CCAMTTYP_CASH+CCAMTTYP_BANK+CCAMTTYP_CRDCARD=CCAMTTYP_AMOUNT
-// CCAMTTYP_ADDCRDCARD < CCAMTTYP_CRDCARD
-//
-
-//
-// Descr: Сумма по чеку
-//
-struct CcAmountEntry {
-	CcAmountEntry();
-	bool   FASTCALL IsEq(const CcAmountEntry & rS) const;
-	int    GetTypeText(SString & rBuf) const;
-
-	PPID   CheckID;    // Идентификатор чека. Важен, если собираются однотипные суммы по выборке чеков
-	int32  Type;       // CCAMTTYP_XXX
-	int32  AddedID;    // Дополнительный идент. Для PaymType == CCAMTTYP_CRDCARD - ид карты
-	PPID   CurID;      // Валюта платежа
-	double CurAmount;  // Сумма в валюте CurID. Если CurID == 0, то CurAmount == 0.0
-	double Amount;     // Величина суммы
-};
-//
-//
-//
-class CcAmountList : public TSVector <CcAmountEntry> {
-public:
-	CcAmountList();
-	CcAmountList & Z();
-	int    GetSign() const;
-	int    Search(int type, int32 addedID, uint * pPos) const;
-	int    SearchAddedID(int32 addedID, uint * pPos) const;
-	int    Set(int type, double amt, int32 addedID = 0);
-	int    Add(int type, double amt, int32 addedID = 0);
-	int    Normalize();
-	int    InvertSign();
-	double ScaleTo(double targetAmount);
-	double Replace(int type, double amt, int32 addedID, int r1, int r2);
-	double ReplaceDontRemove(int type, double amt, int32 addedID, int r1, int r2);
-	double FASTCALL Get(int type) const;
-	double Get(int type, LongArray * pAddedIdList) const;
-	double Get(int type, int32 addedID) const;
-	//
-	// Descr: Возвращает сумму оплат по бонусным картам.
-	// ARG(pScObj IN): Указатель на 'кземпляр объекта PPObjSCard, используемый
-	//   для получения информации о приндалежности платежных карт бонусным сериям.
-	//   Если pScObj == 0, то функция создаст собственный 'кземпляр PPObjSCard, однако такой
-	//   вариант скажется на производительности (создание объекта PPObjSCard может быть дорогим).
-	//
-	double GetBonusAmount(PPObjSCard * pScObj) const;
-	double GetTotal() const;
-private:
-	int    Implement_Set(int type, double amt, int32 addedID, int replace, int dontRemove);
-	double Implement_Replace(int type, double amt, int32 addedID, int dontRemove, int r1, int r2);
-};
-//
-// Descr: Идентификатор текстовых свойств чека, по которому хранятся текстовые расширения строк чека.
-// <101>......<202>......<1001>.....<1003>..<1302>
-// 1-я строка 2-я строка 10-я строка        13-я строка
-// Значение, деленное на 100 - номер свойства строки
-//
-#define PPTRPROP_CC_LNEXT (PPTRPROP_USER+1)
-
-class CCheckPacket : public PPExtStrContainer {
-public:
-	struct LineExt { // @transient
-		enum {
-			fGroup         = 0x01,
-			fModifier      = 0x02,
-			fPartOfComplex = 0x04,
-			fQuotedByGift  = 0x08,
-			fFixedPrice    = 0x10
-		};
-		LineExt();
-		bool   IsEmpty() const;
-
-		uint32 ItemIdx;    // Индекс позиции (+1) в Items_
-		int8   Queue;
-		uint8  Flags;      // @flags
-		uint8  Reserve[2]; // @alignment
-	};
-	//
-	// Признаки способа расчета. Используются для печати чека, собственно в Papyrus'е не применяются.
-	// Тупость классификации полностью обусловленна тупостью российских органов власти.
-	// Числовая идентификация признаков совпадает с таковой для кассовых аппаратов ДримКас (Пирит, Viki-Print)
-	// и для драйвера торгового оборудования АТОЛ на 12 апреля 2019 года.
-	//
-	enum PaymentTermTag {
-		pttUndef          = 0, // PTT_UNDEF
-		pttFullPrepay     = 1, // PTT_FULL_PREPAY    Предоплата 100% (Полная предварительная оплата до момента передачи предмета расчета)
-		pttPrepay         = 2, // PTT_PREPAY         Предоплата (Частичная предварительная оплата до момента передачи предмета расчета)
-		pttAdvance        = 3, // PTT_ADVANCE        Аванс
-		pttFullPayment    = 4, // PTT_FULLPAYMENT    Полный расчет (Полная оплата, в том числе с учетом аванса (предварительной оплаты) в момент передачи предмета расчета)
-		pttPartial        = 5, // PTT_PARTIAL        Частичный расчет и кредит (Частичная оплата предмета расчета в момент его передачи с последующей оплатой в кредит)
-		pttCreditHandOver = 6, // PTT_CREDITHANDOVER Передача в кредит (Передача предмета расчета без его оплаты в момент его передачи с последующей оплатой в кредит)
-		pttCredit         = 7  // PTT_CREDIT         Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
-	};
-
-	//@erik v10.4.12{
-	enum SubjTermTag {
-		sttUndef                  = 0, // STT_UNDEF
-		sttGood                   = 1, // STT_GOOD    о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
-		sttExcisableGood          = 2, // STT_EXCISABLEGOOD    о реализуемом подакцизном товаре(наименование и иные сведения, описывающие товар)
-		sttExecutableWork         = 3, // STT_EXECUTABLEWORK   о выполняемой работе(наименование и иные сведения, описывающие работу)
-		sttService                = 4, // STT_SERVICE   об оказываемой услуге(наименование и иные сведения, описывающие услугу)
-		sttBetting                = 5, // STT_BETTING   о приеме ставок при осуществлении деятельности по проведению азартных игр
-		sttPaymentGambling        = 6, // STT_PAYMENTGAMBLING   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению азартных игр
-		sttBettingLottery         = 7, // STT_BETTINGLOTTERY   о приеме денежных средств при реализации лотерейных билетов, электронных лотерейных билетов, приеме лотерейных ставок при осуществлении деятельности по проведению лотерей
-		sttPaymentLottery         = 8, // STT_PAYMENTLOTTERY   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению лотерей
-		sttGrantRightsUseIntellectualActivity = 9,	// STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY   о предоставлении прав на использование результатов интеллектуальной деятельности или средств индивидуализации
-		sttAdvance                = 10, // STT_ADVANCE   об авансе, задатке, предоплате, кредите, взносе в счет оплаты, пени, штрафе, вознаграждении, бонусе и ином аналогичном предмете расчета
-		sttPaymentsPayingAgent    = 11, // STT_PAYMENTSPAYINGAGENT   о вознаграждении пользователя, являющегося платежным агентом(субагентом), банковским платежным агентом(субагентом), комиссионером, поверенным или иным агентом
-		sttSubjTerm               = 12, // STT_SUBJTERM   о предмете расчета, состоящем из предметов, каждому из которых может быть присвоено значение от «0» до «11»
-		sttNotSubjTerm            = 13, // STT_NOTSUBJTERM   о предмете расчета, не относящемуся к предметам расчета, которым может быть присвоено значение от «0» до «12»
-		sttTransferPropertyRights = 14, // STT_TRANSFERPROPERTYRIGHTS   о передаче имущественных прав
-		sttNonOperatingIncome     = 15, // STT_NONOPERATINGINCOME    о внереализационном доходе(Название товара может принимать значения 1 - 25)
-		sttExpensesReduceTax      = 16, // STT_EXPENSESREDUCETAX    о суммах расходов, уменьшающих сумму налога(авансовых платежей) в соответствии с пунктом 3.1 статьи 346.21 Налогового кодекса Российской Федерации(Название товара может принимать значения 26 - 31)
-		sttAmountMerchantFee      = 17, // STT_AMOUNTMERCHANTFEE   о суммах уплаченного торгового сбора
-		sttResortFee              = 18, // STT_RESORTFEE       о курортном сборе
-		sttDeposit                = 19, // STT_DEPOSIT  Залог
-	};
-    //  } @erik v10.4.12
-	//
-	//
-	enum { // @persistent
-		extssMemo               =  1, // @reserved Примечание
-		extssSign               =  2, // Строка подписи чека (ЕГАИС)
-		extssEgaisUrl           =  3, // Текст URL информации о чеке ЕГАИС
-		extssRemoteProcessingTa =  4, // @v10.9.0 Символ транзакции удаленной обработки чека
-		extssChZnProcessingTag  =  5, // @v11.0.1 Символ признака передачи чека на сервер честный знак
-		extssBuyerINN           =  6, // @v11.0.4 ИНН покупателя (при формировании чека по документу)
-		extssBuyerName          =  7, // @v11.0.4 Наименование покупателя (при формировании чека по документу)
-		extssBuyerPhone         =  8, // @v11.0.4 Телефон покупателя //
-		extssBuyerEMail         =  9, // @v11.3.6 Адрес электронной почты покупателя //
-		extssUuid               = 10, // @v11.5.2 UUID чека. Применяется в ограниченном наборе сценариев. Введен ради взаимодействия со Stylo-Q.
-		extssPrescrDate         = 11, // @v11.7.12 Дата медицинского рецепта. Сохраняется в формате DATF_ISO8601 без разделителей, eg 20230821
-		extssPrescrSerial       = 12, // @v11.7.12 Серия медицинского рецепта
-		extssPrescrNumber       = 13, // @v11.7.12 Номер медицинского рецепта
-		extssEgaisProcessingTag = 14, // @v11.8.2  Внутренний символ обработки для списания товаров по чеку в ЕГАИС. 
-			// Не путать с extssEgaisUrl, являющегося признаком того, что чек отправлен на-прямую в ЕГАИС.
-		extssSourceSymb         = 15, // @v11.8.5 Символ внешнего источника происхождения чека
-		extssOuterIdent         = 16, // @v11.8.5 Идентификатор чека во внешнем источнике
-		extssOuterExtTag        = 17, // @v11.8.5 Дополнительный текстовый тег, поступивший из внешнего источника.
-			// Как правило, система трактовать такой тег формальным образом не способна.
-		extssLinkBillUuid       = 18, // @v11.8.8 UUID документа, по которому сформирован чек 
-		// @attention: После вставки очередного элемента в enum добавьте этот элемент в ccpack_textext_ident_list (ccheck.cpp). 
-		//   Иначе этот атрибут не будет сохраняться в чеке.
-	};
-	//
-	// Descr: Идентификаторы текстовых расширений строк чека
-	//
-	enum { // @persistent
-		lnextSerial     = 1, // Серийный номер
-		lnextEgaisMark  = 2, // Марка ЕГАИС
-		lnextRemoteProcessingTa = 3, // @v10.1.4 Символ транзакции удаленной обработки строки. Имеет специальное назначение,
-			// сопряженное с предварительной обработкой чека перед проведением через удаленный сервис.
-		lnextChZnSerial = 4, // @v10.4.12 Серийный номер 'честный знак'
-		lnextChZnGtin   = 5, // @v10.4.12 GTIN считанный из кода 'честный знак'
-		lnextChZnMark   = 6, // @v10.6.9 Марка 'честный знак'
-	};
-	struct PreprocessChZnCodeResult { // @flat
-		PreprocessChZnCodeResult();
-		PreprocessChZnCodeResult & Z();
-		uint   LineIdx;          // [1..] Индекс строки в чеке
-		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (ofdtag-2106)
-			// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
-			// 0 "0" - код маркировки не был проверен ФН и (или) ОИСМ
-			//   "1" - код маркировки проверен
-			// 1 "0" - результат проверки КП КМ отрицательный или код маркировки не был проверен
-			//   "1" - результат проверки КП КМ положительный
-			// 2 "0" - сведения о статусе товара от ОИСМ не получены
-			//   "1" - проверка статуса ОИСМ выполнена
-			// 3 "0" - от ОИСМ получены сведения, что планируемый статус товара некорректен или сведения о статусе товара от ОИСМ не получены
-			//   "1" - от ОИСМ получены сведения, что планируемый статус товара корректен
-			// 4 "0" - результат проверки КП КМ и статуса товара сформирован ККТ, работающей в режиме передачи данных
-			//   "1" - результат проверки КП КМ сформирован ККТ, работающей в автономном режиме
-			//
-		int    Reason;           // Причина того, что КМ не проверен в ФН
-			// 0 - КМ проверен в ФН;
-			// 1 - КМ данного типа не подлежит проверке в ФН;
-			// 2 - ФН не содержит ключ проверки кода проверки этого КМ;
-			// 3 - переданный код маркировки не соответствует заданному формату (проверка невозможна, так как отсутствуют теги 91 и/или 92 или их формат неверный, согласно GS1)
-			// 4 - внутренняя ошибка в ФН при проверке этого КМ.
-		int    ProcessingResult; // tag 2005 Результаты обработки запроса (ofdtag-2005)
-			// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
-			// 1 "0" - результат проверки КП КМ отрицательный
-			//   "1" - результат проверки КП КМ положительный
-			// 3 "0" - статус товара некорректен (если реквизит "ответ ОИСМ о статусе товара" (ofdtag-2109) принимает значение "2" или "3")
-			//   "1" - статус товара корректен (если реквизит "ответ ОИСМ о статусе товара" (ofdtag-2109) принимает значение "1")
-			// 0, 2    Заполняются единицами
-			// 4 - 7   Заполняются нулями
-		int    ProcessingCode;   // tag 2105 Код обработки запроса (ofdtag-2105)
-			// 0 Запрос имеет корректный формат, в том числе корректный формат кода маркировки
-			// 1 Запрос имеет некорректный формат
-			// 2 Указанный в запросе код маркировки имеет некорректный формат (не распознан)
-		int    Status;           // tag 2109 Сведения о статусе товара (ofdtag-2109)
-			// 1 Планируемый статус товара корректен
-			// 2 Планируемый статус товара некорректен
-			// 3 Оборот товара приостановлен
-	};
-	//
-	// Descr: Структура интерфейсного представления параметром фармацевтического рецепта
-	//
-	struct Prescription { // @v11.7.12
-		Prescription();
-		Prescription & Z();
-		bool   IsValid() const;
-
-		LDATE Dt;
-		SString Serial;
-		SString Number;
-	};
-	//
-	// Двум следующим классам необходим открытый доступ к полям Items_ и SerialList
-	// для сериализации объекта CCheckPacket
-	//
-	friend class CCheckCore;
-	friend class CSessTransmitPacket;
-	//
-	DECL_INVARIANT_C();
-	//
-	// Descr: Функция, обеспечивающая централизованный механиз распаковки текстовых расширений строк чека.
-	//
-	// @v10.3.9 (replaced with Helper_UnpackTextExt) static int Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList);
-	//
-	// Descr: Функция, обеспечивающая централизованный механиз распаковки текстовых расширений чека и его строк.
-	//
-	static int Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList);
-	static int Helper_SetLineTextExt(int pos /*[1..]*/, int lnextId, StrAssocArray & rList, const char * pText);
-	static int Helper_GetLineTextExt(int pos /*[1..]*/, int lnextId, const StrAssocArray & rList, SString & rBuf);
-
-	CCheckPacket();
-	CCheckPacket(const CCheckPacket & rS);
-	~CCheckPacket();
-	CCheckPacket & FASTCALL operator = (const CCheckPacket & rS);
-	CCheckPacket & Z();
-	int    IsEq(const CCheckPacket & rS, long options) const;
-	int    Copy(const CCheckPacket & rS);
-	//
-	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
-	//
-	int    HasExt() const;
-	uint   GetCount() const;
-	int    GetGuid(S_GUID & rUuid) const; 
-	int    SetGuid(const S_GUID * pUuid);
-	int    GenerateGuid(S_GUID & rUuid);
-	//
-	// Descr: Возвращает параметры рецепта, хранящиеся в чеке.
-	// Returns:
-	//   > - чек содержит по крайней мере номер рецепта.
-	//   0 - чек не содержит параметро рецепта (rP обнуляется вызвом rP.Z())
-	//
-	int    GetPrescription(Prescription & rP) const;
-	//
-	// Descr: Упаковывает все строки расширения чека и его строк в общую строку для сохранения в базе данных.
-	//
-	int    PackTextExt(SString & rResult) const;
-	CCheckLineTbl::Rec & FASTCALL GetLine(uint pos);
-	const  CCheckLineTbl::Rec & FASTCALL GetLineC(uint pos) const;
-	int    EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial = 0) const;
-	int    EnumLines(uint * pPos, CCheckItem * pItem) const;
-	void   InitLineIteration();
-	int    NextLineIteration(CCheckLineTbl::Rec * pItem, SString * pSerial = 0);
-	int    RemoveLine_(uint pos);
-	int    CopyLines(const CCheckPacket & rS);
-	bool   SearchLine(int rByCheck, uint * pPos) const;
-	int    SetLineTextExt(int pos /*[1..]*/, int lnextId, const char *);
-	int    GetLineTextExt(int pos /*[1..]*/, int lnextId, SString & rBuf) const;
-	int    SetLineExt(int pos /*[1..]*/, const LineExt & pExt);
-	int    GetLineExt(int pos /*[1..]*/, LineExt & rExt) const;
-	int    SetLineChZnPreprocessResult(int pos /*[1..]*/, const PreprocessChZnCodeResult * pResult); // @v11.1.11
-	const  PreprocessChZnCodeResult * GetLineChZnPreprocessResult(int pos /*[1..]*/) const; // @v11.1.11
-	//
-	// Descr: Объединяет позиции, у которых одинаковые идентификаторы товаров
-	// Note: В дальнейшем критерии объединения будут усложнены.
-	//
-	int    MergeLines(long /*options*/);
-	void   ClearLines();
-	int    InsertItem_(const CCheckLineTbl::Rec *, const char * pSerial = 0, const char * pEgaisMark = 0);
-	int    InsertItem(PPID goodsID, double qtty, double price, double dscnt, short div = 0, int isPrinted = 0);
-	int    InsertItem(const CCheckItem & rItem);
-	double FASTCALL GetItemAmount(const CCheckLineTbl::Rec & rItem) const;
-	double FASTCALL GetItemDiscount(const CCheckLineTbl::Rec & rItem) const;
-	int    SetupPaymList(const CcAmountList * pList);
-	//
-	// Descr: Флаги функции SetTotalDiscount
-	//
-	enum {
-		stdfPctDis      = 0x0001, // Параметр dis задает размер скидки в процентах. Иначе - абсолютное значение.
-		stdfPlus        = 0x0002  // Скидка увеличивает сумму чека
-	};
-	void   SetTotalDiscount__(double dis, long flags);
-	void   CalcAmount(double * pAmt, double * pDscnt) const;
-	//
-	// Descr: Расчитывает суммы чека по строкам и устанавливает их в поля Rec.Amount и Rec.Discount.
-	//   Если вызывающая функция нуждается в значениях рассчитанных сумм, то она
-	//   может передать указатели pAmt и (или) pDscnt.
-	//
-	void   SetupAmount(double * pAmt, double * pDscnt);
-	double GetFiscalAmount() const;
-	int    HasNonFiscalAmount(double * pFiscal, double * pNonFiscal) const;
-	int    SetDlvrAddr(const LocationTbl::Rec * pRec);
-	const  LocationTbl::Rec * GetDlvrAddr() const;
-
-	struct BarcodeIdentStruc {
-		int    Prefix;
-		long   PosId;
-		long   CcCode;
-	};
-
-	SString & MakeBarcodeIdent(SString & rBuf) const;
-	static int ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult);
-	CcAmountList & AL() { return CcAl; }
-	const CcAmountList & AL_Const() const { return CcAl; }
-	//
-	// Descr: Специальный метод, обходящий приватность строк с целью корректировки идентификатора товара в записи строки.
-	//
-	int    _SetLineGoodsID(uint lineIdx/*[0..]*/, PPID goodsID);
-	int    SetSCardSpecialTreatmentIdentifyReplyBlock(const void * pStirb);
-	int    GetSCardSpecialTreatmentIdentifyReplyBlock(void * pStirb) const;
-
-	enum {
-		ufCheckInvariant = 0x0001, // Функция CCheckCore::TurnCheck не допускает проведение пакета,
-			// если он не проходит тест CCheckPacket::InvariantC.
-			// @v8.4.2 Начиная с релиза 8.4.2 блокировка на проведение чека снимается, но в журнале pperror.log
-			// отмечается информация об ошибке в чеке.
-		//ufSkipUhtt       = 0x0002  // Функция CCheckCore::TurnCheck не проводит операции по картам через сервер Universe-HTT
-		ufSkipScSpcTrt   = 0x0002, // Функция CCheckCore::TurnCheck не проводит операции по картам через внешние сервисы
-	};
-	long   UpdFlags;       // @transient ufXXX Флаги, определяющие правила изменения пакета
-	int    PrintPtt;       // @transient pttXXX Признак способа расчета, применяемый при печати чека (отдельные строки могут переопределять это значение).
-	int    PctDis;         // @transient if !0 - then Discount in percent
-	double Discount;       // @transient
-	double _Cash;          // @transient Сумма, уплаченная наличными
-	double _OrdPrepay;     // @transient @!CheckPaneDialog::GetCheckInfo() Сумма предоплаты по заказу. Заполняется для чека заказа и для чека, связанного с заказом.
-	CCheckExtTbl::Rec Ext; // @transient Расширение записи чека
-	CCheckTbl::Rec Rec;    //
-	// @v10.9.0 SString UhttScHash;    // @transient Код доступа к информации о карте, синхронизированной с Universe-HTT
-private:
-	int    Helper_PackLineTextExt(SString & rResult) const;
-	// @v10.3.9 int    PackLineTextExt(SString & rResult) const;
-	// @v10.3.9 int    UnpackLineTextExt(const SString & rBuf);
-	int    UnpackTextExt(const SString & rBuf);
-
-	CCheckLineArray Items_; //
-	TSVector <LineExt> ExtList;
-	CcAmountList CcAl;      // Список оплат по чеку. Используется только, если по чеку было более одного типа оплаты. Например: безналичная оплата + доплата наличными.
-	//
-	// Серийные номера храняться в виде ассоциаций {position, serial}.
-	// position - позиция соответствующей строки в Items_ плюс 1.
-	// То есть, серия для первой строки (индекс 0) хранится с номером 1.
-	//
-	StrAssocArray LnTextList;
-	LocationTbl::Rec * P_DlvrAddr; // @transient
-	void * P_Stirb; // @v10.9.0 @transient (SCardSpecialTreatment::IdentifyReplyBlock *)
-	TSVector <PreprocessChZnCodeResult> * P_PpChZnCodeResultList; // @v11.1.11 @transient
-};
 //
 // Классы, управляющие кассовыми чеками
 //
-
 //
 // Флаги записей CCheckTbl
 //
@@ -20325,7 +20285,7 @@ public:
 		fldInner7,                // 98 Внутренние коды компании 1?30 буквенно-цифровой
 		fldInner8,                // 99 Внутренние коды компании 1?30 буквенно-цифровой
 		fldPriceRuTobacco,        // Собственный идентификатор - МРЦ сигарет (кодируется)
-		fldControlRuTobacco       // Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
+		fldControlRuTobacco       // 93 Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
 	};
 	GtinStruc();
 	void   SetSpecialFixedToken(int token, int fixedLen /* 1000 - UNTIL EOL */);
@@ -53779,8 +53739,9 @@ struct PosPaymentBlock {
 		fAltCashRegUse     = 0x0004  // Если (Flags & fAltCashRegEnabled) и (Flags & fAltCashRegUse) то печатать чека на альтернативном регистраторе
 	};
 	long   Flags;        // @v11.3.6
-	int    BuyersEAddrType; // @v11.3.6 (0|SNTOK_EMAIL|SNTOK_PHONE)
-	SString BuyersEAddr; // @v11.3.6
+	// @v11.8.11 int    BuyersEAddrType; // @v11.3.6 (0|SNTOK_EMAIL|SNTOK_PHONE)
+	// @v11.8.11 SString BuyersEAddr; // @v11.3.6
+	CCheckPacket::BueryEAddr_ EAddr;  // @v11.8.11 Электронный адрес покупателя (email or phone)
 	CcAmountList CcPl;
 private:
 	double Total;          // Итоговая сумма чека     @*CPosProcessor::GetTotal())
@@ -53849,8 +53810,9 @@ public:
 			fDelivery           = 0x0001,
 			fFixedPrice         = 0x0002, // Проекция флага CCHKF_FIXEDPRICE
 			fAttachPhoneToSCard = 0x0004, // @transient Привязать номер телефона к выбранной карте
-			fSpFinished         = 0x0008, // CCHKF_SPFINISHED
-			fCreateCardByPhone  = 0x0010  // @v10.2.7 @transient Создать новую карту, привязанную к телефону
+			fSpFinished         = 0x0008, // Проекция флага CCHKF_SPFINISHED
+			fCreateCardByPhone  = 0x0010, // @v10.2.7 @transient Создать новую карту, привязанную к телефону
+			fImported           = 0x0020, // @v11.8.11 Проекция флага CCHKF_IMPORTED
 		};
 		ExtCcData();
 		ExtCcData & Z();
@@ -53862,8 +53824,8 @@ public:
 		PPID   InitUserID; // @v10.6.8 Пользователь, создавший чек
 		LDATETIME DlvrDtm;
 		LDATETIME InitDtm; // Время создания чека.
-		S_GUID Uuid; // @v11.5.8 Uuid чека
-		S_GUID LinkBillUuid; // @v11.8.8 extssLinkBillUuid
+		// @v11.8.11 (moved to ExtStr) S_GUID Uuid; // @v11.5.8 Uuid чека
+		// @v11.8.11 (moved to ExtStr) S_GUID LinkBillUuid; // @v11.8.8 extssLinkBillUuid
 		LocationTbl::Rec Addr_;
 		SString Memo;
 	};
@@ -54179,11 +54141,11 @@ protected:
 	struct CardState {
 		enum {
 			fUseDscntIfNQuot  = 0x0001, // Проекция флага SCRDSF_USEDSCNTIFNQUOT из серии карт
-			fNoGift   = 0x0002, // Проекция флага SCRDF_NOGIFT из записи карты
+			fNoGift           = 0x0002, // Проекция флага SCRDF_NOGIFT из записи карты
 			fAmtDiscountGrade = 0x0004, // Для карты применяется скидка с градацией по сумме чека (наследуемой из серии карт)
-			fUhtt     = 0x0008, // Выбранная карта синхронизирована с системой Universe-HTT
+			fUhtt             = 0x0008, // Выбранная карта синхронизирована с системой Universe-HTT
 			fUseMinQuotVal    = 0x0010, // Проекция флага SCRDSF_MINQUOTVAL из серии карт
-			fBirthday = 0x0020  // @v10.2.4 У владельца карты день рождения
+			fBirthday         = 0x0020  // @v10.2.4 У владельца карты день рождения
 		};
 		CardState();
 		~CardState();
@@ -54232,7 +54194,8 @@ protected:
 		double Discount;
 		double SettledAbsolutDiscount;
 	};
-	struct Packet : public CCheckItemArray {
+
+	struct Packet : public CCheckItemArray, public PPExtStrContainer { // @v11.8.11 (public PPExtStrContainer)
 	public:
 		friend int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent);
 
@@ -54244,7 +54207,11 @@ protected:
 		int    HasCur() const;
 		PPID   FASTCALL GetAgentID(int actual = 0) const;
 		double GetGoodsQtty(PPID goodsID) const;
-		void   FASTCALL SetupCCheckPacket(CCheckPacket * pPack, const CardState & rCSt) const;
+		//
+		// ARG(isExtCc IN): Если true, то функция применяется к части чека, отправляемой на спаренный кассовый узел.
+		//   Некоторые параметры при этом устанавливаются по-иному.
+		//
+		void   FASTCALL SetupCCheckPacket(CCheckPacket * pPack, const CardState & rCSt, bool isExtCc) const;
 		void   SetupInfo(SString & rBuf);
 		CCheckItem & GetCur() { return Cur; }
 		const  CCheckItem & GetCurC() const { return Cur; }
@@ -54270,7 +54237,7 @@ protected:
 		uint16 GuestCount;       // Количество гостей за столом
 		uint8  Reserve;          // @alignment
 		bool   Paperless;        // @v11.3.6 Признак того, что регистрация должна осуществляться без печати бумажного чека
-		int    BuyersEAddrType;  // @v11.3.6 Тип электронного адреса покупателя BuyersEAddr (0 || SNTOK_PHONE || SNTOK_EMAIL)
+		// @v11.8.11 int    BuyersEAddrType;  // @v11.3.6 Тип электронного адреса покупателя BuyersEAddr (0 || SNTOK_PHONE || SNTOK_EMAIL)
 		PPID   OrderCheckID;     // Чек заказа, к которому привязан данный чек
 		PPID   OrgUserID;        // Пользователь, создавший оригинальный чек (до первого отложения/восстановления)
 		LAssocArray GiftAssoc;   // Список ассоциаций {gift_pos; used_by_gift_pos}
@@ -54279,8 +54246,9 @@ protected:
 		ExtCcData Eccd;          //
 		SaModif CurModifList;    // Список выбранных модификаторов для текущей позиции
 		CcAmountList AmL;        // Список оплат по чеку
-		SString BuyersEAddr;     // @v11.3.6 Электронный адрес покупателя (email or phone)
-		CCheckPacket::Prescription Prescr; // @v11.7.12
+		// @v11.8.11 SString BuyersEAddr;  // @v11.3.6 Электронный адрес покупателя (email or phone)
+		CCheckPacket::BueryEAddr_ EAddr;   // @v11.8.11 Электронный адрес покупателя (email or phone)
+		// @v11.8.11 CCheckPacket::Prescription Prescr; // @v11.7.12
 	};
 	struct RetBlock {
 		RetBlock();

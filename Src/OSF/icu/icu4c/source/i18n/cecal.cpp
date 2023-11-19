@@ -115,7 +115,7 @@ void CECalendar::jdToCE(int32_t julianDay, int32_t jdEpochOffset, int32_t& year,
 {
 	int32_t c4; // number of 4 year cycle (1461 days)
 	int32_t r4; // remainder of 4 year cycle, always positive
-	c4 = ClockMath::floorDivide(julianDay - jdEpochOffset, 1461, r4);
+	c4 = ClockMath::floorDivide(julianDay - jdEpochOffset, SlConst::DaysPer4Years, r4);
 	year = 4 * c4 + (r4/365 - r4/1460); // 4 * <number of 4year cycle> + <years within the last cycle>
 	int32_t doy = (r4 == 1460) ? 365 : (r4 % 365); // days in present year
 	month = doy / 30;   // 30 -> Coptic/Ethiopic month length up to 12th month

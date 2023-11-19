@@ -37,22 +37,18 @@ static void testRegexpFile(const char * filename)
 		states[i] = NULL;
 	input = fopen(filename, "r");
 	if(input == NULL) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "Cannot open %s for reading\n", filename);
+		xmlGenericError(xmlGenericErrorContext, "Cannot open %s for reading\n", filename);
 		return;
 	}
-
 	am = xmlNewAutomata();
 	if(am == NULL) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "Cannot create automata\n");
+		xmlGenericError(xmlGenericErrorContext, "Cannot create automata\n");
 		fclose(input);
 		return;
 	}
 	states[0] = xmlAutomataGetInitState(am);
 	if(states[0] == NULL) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "Cannot get start state\n");
+		xmlGenericError(xmlGenericErrorContext, "Cannot get start state\n");
 		xmlFreeAutomata(am);
 		fclose(input);
 		return;

@@ -441,7 +441,7 @@ int UhttDocumentPacket::SetFile(const char * pFileName)
 			}
 			rest_size -= temp_sz;
 		}
-		Name = SPathStruc(pFileName).Nam;
+		Name = SFsPath(pFileName).Nam;
 	}
 	CATCHZOK
 	return ok;

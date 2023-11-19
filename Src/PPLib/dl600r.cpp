@@ -895,7 +895,7 @@ int DlRtm::Export(ExportParam & rParam)
 	path.CatLongZ(NZOR(DS.GetConstTLA().PrnDirId, LConfig.SessionID), 8);
 	rParam.Path = path;
 	if(::access(path, 0) != 0) {
-		THROW_PP_S(createDir(path), PPERR_SLIB, path);
+		THROW_PP_S(SFile::CreateDir(path), PPERR_SLIB, path);
 	}
 	if(use_ddf) {
 		SString packpath;
@@ -911,7 +911,7 @@ int DlRtm::Export(ExportParam & rParam)
 	THROW_DB(p_dict->IsValid());
 	data_name = (rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name;
 	if(rParam.DestPath.NotEmpty() && ::access(rParam.DestPath, 0) != 0) {
-		THROW_SL(createDir(rParam.DestPath));
+		THROW_SL(SFile::CreateDir(rParam.DestPath));
 	}
 	{
 		SString suffix, fname, left;
@@ -1946,7 +1946,7 @@ int Test_DL6_Rtm()
 			TextDbFile out;
 			const DlScope * p_scope = r_list.at(i);
 			(ext = p_scope->Name).Cat(".txt");
-			SPathStruc::ReplaceExt(out_file_name = file_name, ext, 1);
+			SFsPath::ReplaceExt(out_file_name = file_name, ext, 1);
 			THROW(out.Open(out_file_name, &p, 0));
 			THROW(out.AppendRecord(*p_scope, p_scope->GetDataC()));
 		}

@@ -2978,7 +2978,7 @@ SLTEST_R(JSON)
 				}
 				SLCHECK_NZ(JsonToXmlDOM(json_buf, xml_buf));
 				{
-					SPathStruc ps(in_file_name);
+					SFsPath ps(in_file_name);
 					ps.Nam.CatChar('-').Cat("result");
 					ps.Ext = "xml";
 					ps.Drv.Z();

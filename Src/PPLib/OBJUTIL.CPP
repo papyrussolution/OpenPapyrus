@@ -1902,7 +1902,7 @@ void ObjLinkFiles::Fns::Reset()
 	bool   ok = false;
 	if(pFileName) {
 		pS->Reset();
-		SPathStruc ps(pFileName);
+		SFsPath ps(pFileName);
 		STRNSCPY(pS->Ext, ps.Ext);
 		SString temp_buf;
 		StringSet ss('@', ps.Nam);
@@ -1946,7 +1946,7 @@ int ObjLinkFiles::Load(PPID objID, const char * pAddedStr)
 		uint   i = 0;
 		SString path;
 		SDirEntry e;
-		SPathStruc  struc;
+		SFsPath  struc;
 		SDirec sdir;
 		FilesNums = 0;
 		MakeFilePath(objID, pAddedStr, path);
@@ -2005,9 +2005,9 @@ int ObjLinkFiles::Helper_Save(PPID objID, const char * pAddedStr, uint idx, SStr
 		THROW(GetFreeNum(&num) > 0);
 		{
 			SString path;
-			SPathStruc ps(orig_path);
+			SFsPath ps(orig_path);
 			(path = StoreDir).RmvLastSlash();
-			if(createDir(path)) {
+			if(SFile::CreateDir(path)) {
 				MakeFilePath(objID, pAddedStr, path);
 				path.Cat(num).Dot().Cat(ps.Ext);
 				// @v9.3.9 ::CopyFile(orig_path, path, FALSE); // @unicodeproblem
@@ -2149,7 +2149,7 @@ int ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer & rBu
 				THROW_SL(pSCtx->Serialize(dir, org_file_name, rBuf));
 				THROW_SL(pSCtx->Serialize(dir, fs, rBuf));
 				{
-					SPathStruc ps(org_file_name);
+					SFsPath ps(org_file_name);
 					MakeTempFileName(temp_path, "olf", ps.Ext, 0, file_path);
 					SFile f(file_path, SFile::mWrite|SFile::mBinary);
 					THROW_SL(f.IsValid());

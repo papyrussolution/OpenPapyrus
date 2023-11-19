@@ -225,7 +225,7 @@ int StyloBhtIIExchanger::GetConfig(StyloBhtIIConfig * pCfg)
 	MEMSZERO(cfg);
 	THROW_PP(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid(), PPERR_SBII_UNDEFDEVICE);
 	PPGetFileName(PPFILNAM_BHT_CONFIG, fname);
- 	SPathStruc::ReplaceExt(fname, "dat", 1);
+ 	SFsPath::ReplaceExt(fname, "dat", 1);
 	(path = DeviceDir).Cat(fname);
 	/* Не будем трогать файл конфигурации из папки обмена
 	if(fileExists(path)) {
@@ -260,7 +260,7 @@ int StyloBhtIIExchanger::GetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode,
 	THROW_PP(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid(), PPERR_SBII_UNDEFDEVICE);
 	THROW_INVARG(pRec);
 	PPGetFileName(fileNameCode, fname);
-	SPathStruc::ReplaceExt(fname, "dbf", 1);
+	SFsPath::ReplaceExt(fname, "dbf", 1);
 	(path = DeviceDir).Cat(fname);
 	THROW_MEM(p_tbl = new DbfTable(path));
 	{
@@ -382,7 +382,7 @@ int StyloBhtIIExchanger::PrepareBills(int uniteGoods)
 	THROW(bht_obj.PrepareBillData2(&BhtPack, 0, uniteGoods));
 	if(GetConfig(&cfg) > 0) {
 		PPGetFileName(PPFILNAM_BHT_CONFIG, fname);
- 		SPathStruc::ReplaceExt(fname, "dat", 1);
+ 		SFsPath::ReplaceExt(fname, "dat", 1);
 		(path = DeviceDir).Cat(fname);
 		getcurdatetime(&cfg.BillLastExch);
 		THROW_SL(file.Open(path, SFile::mWrite|SFile::mBinary));
@@ -405,7 +405,7 @@ int StyloBhtIIExchanger::SetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode,
 	if(count > 0) {
 		size_t pack_buf_size = pRec->GetSize() * MAXRECS_IN_PACKBUF;
 		PPGetFileName(fileNameCode, fname);
-		SPathStruc::ReplaceExt(fname, "dbf", 1);
+		SFsPath::ReplaceExt(fname, "dbf", 1);
 		(path = DeviceDir).Cat(fname);
 		THROW_MEM(p_tbl = pRec->CreateDbfTbl(path));
 		THROW_MEM(p_pack_buf = new char[pack_buf_size]);

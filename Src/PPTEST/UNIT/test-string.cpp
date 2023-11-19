@@ -1094,14 +1094,14 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	return CurrentStatus;
 }
 
-SLTEST_R(SPathStruc)
+SLTEST_R(SFsPath)
 {
 	int    ok = 1;
 	SFile file(MakeInputFilePath("path.txt"), SFile::mRead | SFile::mBinary);
 	if(file.IsValid()) {
 		SString line_buf;
 		SFile out_file(MakeOutputFilePath("path.out"), SFile::mWrite);
-		SPathStruc ps;
+		SFsPath ps;
 		while(file.ReadLine(line_buf, SFile::rlfChomp)) {
 			SInvariantParam ip;
 			ps.Split(line_buf);
@@ -1322,7 +1322,7 @@ SLTEST_R(STextEncodingStat)
 	SString temp_buf;
 	SFileEntryPool fep;
 	//SFileEntryPool::Entry fep_entry;
-	SPathStruc ps;
+	SFsPath ps;
 	{
 		STextEncodingStat tes_icu(STextEncodingStat::fUseIcuCharDet);
 		THROW(Make_STextEncodingStat_FilePool(test_data_path, fep));
@@ -1630,7 +1630,7 @@ SLTEST_R(CRegExp)
 	SFile file(MakeInputFilePath(file_name), SFile::mRead);
 	if(file.IsValid()) {
 		SString line_buf, re_buf, text_buf, temp_buf, out_line;
-		SPathStruc::ReplaceExt(file_name, "out", 1);
+		SFsPath::ReplaceExt(file_name, "out", 1);
 		SFile out_file(MakeOutputFilePath(file_name), SFile::mWrite);
 		while(file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 			if(line_buf.NotEmpty()) {
@@ -1683,7 +1683,7 @@ SLTEST_R(SRegExp)
 	SFile file(MakeInputFilePath(file_name), SFile::mRead);
 	if(file.IsValid()) {
 		SString line_buf, re_buf, text_buf, temp_buf, out_line;
-		SPathStruc::ReplaceExt(file_name, "out", 1);
+		SFsPath::ReplaceExt(file_name, "out", 1);
 		SFile out_file(MakeOutputFilePath(file_name), SFile::mWrite);
 		while(file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 			if(line_buf.NotEmpty()) {
@@ -2704,7 +2704,9 @@ SLTEST_R(slprintf)
 			static struct unslong_st ul_test[ULONG_TESTS_ARRSZ];
 			static struct siglong_st sl_test[SLONG_TESTS_ARRSZ];
 			static struct curloff_st co_test[COFFT_TESTS_ARRSZ];
-
+#pragma warning(push)
+#pragma warning(disable: 4305)
+#pragma warning(disable: 4309)
 			class InnerBlock {
 			public:
 				static int test_unsigned_short_formatting()
@@ -3965,6 +3967,7 @@ SLTEST_R(slprintf)
 					return errors;
 				}
 			};
+#pragma warning(pop)
 			SLCHECK_Z(InnerBlock::test_unsigned_short_formatting());
 			SLCHECK_Z(InnerBlock::test_signed_short_formatting());
 			SLCHECK_Z(InnerBlock::test_unsigned_int_formatting());
@@ -4017,6 +4020,86 @@ SLTEST_R(slprintf)
 				double rn = 0.8e9;
 				v += rn;
 			}
+		}
+	}
+	return CurrentStatus;
+}
+
+SLTEST_R(FormatInt)
+{
+	SString result_buf;
+	char  proof_buf[128];
+	{
+		for(int i = -10000000; i < 10000000; i++) {
+			FormatInt(i, result_buf);
+			_itoa(i, proof_buf, 10);
+			SLCHECK_NZ(result_buf == proof_buf);
+			assert(result_buf == proof_buf);
+		}
+	}
+	{
+		for(uint i = 0; i < 20000000; i++) {
+			FormatUInt(i, result_buf);
+			_ultoa(i, proof_buf, 10);
+			SLCHECK_NZ(result_buf == proof_buf);
+			assert(result_buf == proof_buf);
+		}
+	}
+	{
+		for(int64 i = -10000000; i < 10000000; i++) {
+			FormatInt64(i, result_buf);
+			_i64toa(i, proof_buf, 10);
+			SLCHECK_NZ(result_buf == proof_buf);
+			assert(result_buf == proof_buf);
+		}
+	}
+	{
+		for(uint64 i = 0; i < 20000000; i++) {
+			FormatUInt64(i, result_buf);
+			_ui64toa(i, proof_buf, 10);
+			SLCHECK_NZ(result_buf == proof_buf);
+			assert(result_buf == proof_buf);
+		}
+	}
+	//benchmark=formatint;itoa;formatuint;ultoa;formatint64;i64toa;formatuint64;ui64toa
+	if(sstreqi_ascii(pBenchmark, "formatint")) {
+		for(int i = -10000000; i < 10000000; i++) {
+			FormatInt(i, result_buf);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "itoa")) {
+		for(int i = -10000000; i < 10000000; i++) {
+			_itoa(i, proof_buf, 10);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "formatuint")) {
+		for(uint i = 0; i < 20000000; i++) {
+			FormatUInt(i, result_buf);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "ultoa")) {
+		for(uint i = 0; i < 20000000; i++) {
+			_ultoa(i, proof_buf, 10);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "formatint64")) {
+		for(int64 i = -10000000; i < 10000000; i++) {
+			FormatInt64(i, result_buf);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "i64toa")) {
+		for(int64 i = -10000000; i < 10000000; i++) {
+			_i64toa(i, proof_buf, 10);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "formatuint64")) {
+		for(uint64 i = 0; i < 20000000; i++) {
+			FormatUInt64(i, result_buf);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "ui64toa")) {
+		for(uint64 i = 0; i < 20000000; i++) {
+			_ui64toa(i, proof_buf, 10);
 		}
 	}
 	return CurrentStatus;

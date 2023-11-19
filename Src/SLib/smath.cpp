@@ -6,40 +6,6 @@
 #pragma hdrstop
 //#include <cmath>
 //#include <..\OSF\abseil\absl\numeric\int128.h>
-/*
-#define PI__  3.1415926535897932384626433832795
-#define PI__f 3.14159265358979323846f
-
-const double SMathConst::Pi       = PI__;
-const double SMathConst::Pi2      = (PI__ * 2.0);
-const float  SMathConst::Pi2_f    = (PI__f * 2.0f);
-const float  SMathConst::Pi_f     = PI__f;
-const double SMathConst::PiDiv180 = (PI__ / 180.0);
-const float  SMathConst::PiDiv180_f = (PI__f / 180.0f);
-const double SMathConst::PiDiv4   = (PI__ / 4.0);
-const float  SMathConst::PiDiv4_f = (PI__f / 4.0f);
-const double SMathConst::PiDiv2   = (PI__ / 2.0);
-const double SMathConst::E        = 2.71828182845904523536;
-const double SMathConst::LnPi     = 1.14472988584940017414342735135; // ln(pi)
-const double SMathConst::Ln2      = 0.69314718055994530941723212146; // ln(2)
-const double SMathConst::Epsilon  = 2.2204460492503131e-16;          // smallest such that 1.0+DBL_EPSILON != 1.0
-const double SMathConst::Root4Epsilon = 1.2207031250000000e-04;
-const double SMathConst::Root5Epsilon = 7.4009597974140505e-04;
-const double SMathConst::SqrtMin  = 1.4916681462400413e-154;
-const double SMathConst::SqrtMax  = 1.3407807929942596e+154;
-const double SMathConst::LogMin   = -7.0839641853226408e+02;
-const double SMathConst::LogMax   = 7.0978271289338397e+02;
-const double SMathConst::Min      = 2.2250738585072014e-308;         // min value
-const double SMathConst::Max      = 1.7976931348623158e+308;         // max value
-const float  SMathConst::Min_f    = 1.175494351e-38f;         // min normalized positive value
-const float  SMathConst::Max_f    = 3.402823466e+38f;         // max float value
-const double SMathConst::Euler    = 0.57721566490153286060651209008; // Euler constant
-const double SMathConst::Sqrt2    = 1.41421356237309504880168872421; // sqrt(2)
-const double SMathConst::SqrtPi   = 1.77245385090551602729816748334; // sqrt(pi)
-const double SMathConst::Sqrt1_2  = 0.707106781186547524400844362104849039; // sqrt(0.5)
-const double SMathConst::MaxU31   = 2147483648.0;  // @v11.7.3
-const double SMathConst::MaxU32   = 4294967296.0;  // @v11.7.3
-*/
 
 /* @experimental
 static double FASTCALL MakePositiveDouble(uint64 mantissa, int32 order)
@@ -91,7 +57,7 @@ void ExploreIEEE754()
 
 //int IsValidIEEE(double v) { return _finite(v) ? 1 : 0; }
 
-bool IsValidIEEE(double v)
+/*static*/bool SIEEE754::IsValid(double v) // @v11.8.11
 {
 	// _FPCLASS_SNAN	Signaling NaN
 	// _FPCLASS_QNAN	Quiet NaN
@@ -106,6 +72,22 @@ bool IsValidIEEE(double v)
 	const int c = _fpclass(v);
 	return oneof6(c, _FPCLASS_NN, _FPCLASS_ND, _FPCLASS_NZ, _FPCLASS_PZ, _FPCLASS_PD, _FPCLASS_PN);
 }
+
+/* v11.8.11 bool IsValidIEEE(double v)
+{
+	// _FPCLASS_SNAN	Signaling NaN
+	// _FPCLASS_QNAN	Quiet NaN
+	// _FPCLASS_NINF	Negative infinity ( –INF)
+	// _FPCLASS_NN		Negative normalized non-zero
+	// _FPCLASS_ND		Negative denormalized
+	// _FPCLASS_NZ		Negative zero ( – 0)
+	// _FPCLASS_PZ		Positive 0 (+0)
+	// _FPCLASS_PD		Positive denormalized
+	// _FPCLASS_PN		Positive normalized non-zero
+	// _FPCLASS_PINF	Positive infinity (+INF)
+	const int c = _fpclass(v);
+	return oneof6(c, _FPCLASS_NN, _FPCLASS_ND, _FPCLASS_NZ, _FPCLASS_PZ, _FPCLASS_PD, _FPCLASS_PN);
+}*/
 
 int FASTCALL fisnan(double v) { return _isnan(v); }
 int fisnanf(float v) { return _isnan(v); }
@@ -186,37 +168,6 @@ double fgetnan()    { return _fdiv(0.0, 0.0); }
 float  fgetnanf()   { return ((float)(INFINITY * 0.0f)); }
 double fgetposinf() { return _fdiv(+1.0, 0.0); }
 double fgetneginf() { return _fdiv(-1.0, 0.0); }
-
-//int    FASTCALL smin(int a, int b) { return MIN(a, b); }
-//int    FASTCALL smax(int a, int b) { return MAX(a, b); }
-//int64  FASTCALL smin(int64 a, int64 b)   { return MIN(a, b); }
-//int64  FASTCALL smax(int64 a, int64 b)   { return MAX(a, b); }
-//uint   FASTCALL smin(uint a, uint b)     { return MIN(a, b); }
-//uint   FASTCALL smax(uint a, uint b)     { return MAX(a, b); }
-//uint64 FASTCALL smin(uint64 a, uint64 b) { return MIN(a, b); }
-//uint64 FASTCALL smax(uint64 a, uint64 b) { return MAX(a, b); }
-//double FASTCALL smin(double a, double b) { return MIN(a, b); }
-//double FASTCALL smax(double a, double b) { return MAX(a, b); }
-//float  FASTCALL smin(float a, float b)   { return MIN(a, b); }
-//float  FASTCALL smax(float a, float b)   { return MAX(a, b); }
-
-//double smax3(double a1, double a2, double a3) { return smax(MAX(a1, a2), a3); }
-//double smax4(double a1, double a2, double a3, double a4) { return smax(MAX(a1, a2), MAX(a3, a4)); }
-//double smin3(double a1, double a2, double a3) { return smin(MIN(a1, a2), a3); }
-//double smin4(double a1, double a2, double a3, double a4) { return smin(MIN(a1, a2), MIN(a3, a4)); }
-
-//int    FASTCALL sclamp(int v, int lo, int up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-//uint   FASTCALL sclamp(uint v, uint lo, uint up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-//int64  FASTCALL sclamp(int64 v, int64 lo, int64 up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-//uint64 FASTCALL sclamp(uint64 v, uint64 lo, uint64 up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-//double FASTCALL sclamp(double v, double lo, double up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-//float  FASTCALL sclamp(float v, float lo, float up)    { return (v < lo) ? lo : ((v > up) ? up : v); }
-//int    FASTCALL sclampx(int v, int lo, int up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-//uint   FASTCALL sclampx(uint v, uint lo, uint up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-//int64  FASTCALL sclampx(int64 v, int64 lo, int64 up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-//uint64 FASTCALL sclampx(uint64 v, uint64 lo, uint64 up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-//double FASTCALL sclampx(double v, double lo, double up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-//float  FASTCALL sclampx(float v, float lo, float up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
 
 double FASTCALL fdiv100r(double v)    { return v / 100.0; }
 double FASTCALL fdiv100i(long v)      { return (static_cast<double>(v)) / 100.0; }
@@ -1470,7 +1421,7 @@ static const ushort FirstPrimeNumbers[] = {
     17707, 17713, 17729, 17737, 17747, 17749, 17761, 17783, 17789, 17791, 17807, 17827, 17837, 17839, 17851, 17863,
 };
 
-static int FASTCALL SearchPrimeTab(ulong u)
+static bool FASTCALL SearchPrimeTab(ulong u)
 {
 	const ushort * p_org = FirstPrimeNumbers;
 	const uint count = SIZEOFARRAY(FirstPrimeNumbers);
@@ -1483,38 +1434,31 @@ static int FASTCALL SearchPrimeTab(ulong u)
 			if(i)
 				up = i - 1;
 			else
-				return 0;
+				return false;
 		}
 		else
-			return 1;
+			return true;
 	}
-	return 0;
+	return false;
 }
 
-/*static*/int FASTCALL Helper_IsPrime(ulong val, int test) // really private. used externally only for testing purposes.
+/*static*/bool FASTCALL Helper_IsPrime(ulong val, int test) // really private. used externally only for testing purposes.
 {
 	static const ushort last_tabbed_value = FirstPrimeNumbers[SIZEOFARRAY(FirstPrimeNumbers)-1];
-	int    yes = 1;
+	bool   yes = true;
 	if(val < 2)
-		yes = 0;
+		yes = false;
 	else if(val == 2)
-		yes = 1;
+		yes = true;
 	else if((val & 1) == 0)
-		yes = 0;
+		yes = false;
 	else if(val > last_tabbed_value || test) {
 		ulong n = static_cast<ulong>(sqrt(static_cast<double>(val)));
 		for(ulong j = 2; j <= n; j++)
 			if((val % j) == 0)
-				yes = 0;
+				yes = false;
 	}
 	else {
-		/*
-		yes = 0;
-		for(uint i = 0; !yes && i < SIZEOFARRAY(FirstPrimeNumbers); i++) {
-            if((ulong)FirstPrimeNumbers[i] == val)
-                yes = 1;
-		}
-		*/
 		yes = SearchPrimeTab(val);
 	}
 	return yes;
@@ -1526,10 +1470,7 @@ const ushort * FASTCALL GetPrimeTab(size_t * pCount)
 	return FirstPrimeNumbers;
 }
 
-int FASTCALL IsPrime(ulong val)
-{
-	return Helper_IsPrime(val, 0);
-}
+bool FASTCALL IsPrime(ulong val) { return Helper_IsPrime(val, 0); }
 
 ulong FASTCALL GetPrimeGreaterThan(ulong val)
 {
@@ -1581,12 +1522,14 @@ int Factorize(ulong val, UlongArray * pList)
 		else {
 			ulong v = val;
 			ulong n = (ulong)sqrt((double)v);
-			for(ulong i = 2; i <= n && i <= v; i++)
-				if(IsPrime(i))
+			for(ulong i = 2; i <= n && i <= v; i++) {
+				if(IsPrime(i)) {
 					while((v % i) == 0) {
 						pList->insert(&i);
 						v = v / i;
 					}
+				}
+			}
 			if(IsPrime(v))
 				pList->insert(&v);
 		}
@@ -1660,8 +1603,8 @@ void RationalBestApproximation(ulong givenNumerator, ulong givenDenominator, ulo
 		d0 = d1;
 		d1 = d2;
 	}
-	*pBestNumerator = n1;
-	*pBestDenominator = d1;
+	ASSIGN_PTR(pBestNumerator, n1);
+	ASSIGN_PTR(pBestDenominator, d1);
 }
 //
 //

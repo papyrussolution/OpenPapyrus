@@ -537,7 +537,7 @@ int main(int argc, char * argv[])
 	// @v10.5.6 STRNSCPY(outfilename, infilename);
 	// @v10.5.6 replaceExt(outfilename, "bin", 1);
 	outfilename = infilename; // @v10.5.6 
-	SPathStruc::ReplaceExt(outfilename, "bin", 1); // @v10.5.6 	
+	SFsPath::ReplaceExt(outfilename, "bin", 1); // @v10.5.6 	
 	yyin = fopen(infilename, "r");
 	if(yyin == 0) {
 		printf("Error: Could not open file %s\n", infilename);

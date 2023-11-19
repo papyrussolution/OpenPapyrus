@@ -153,8 +153,8 @@ CCheckViewItem::CCheckViewItem() : CCheckTbl::Rec(), TableCode(0), Div(0), Guest
 	G_PctPart(0.0), G_Qtty(0.0), G_SkuCount(0), G_LinesCount(0), CashNodeID(0), LinesCount(0), LinkCheckID(0),
 	RByCheck(0), LineFlags(0), LineQueue(0), CreationDtm(ZERODATETIME), CreationUserID(0)
 {
-	PTR32(G_Text_)[0] = 0;
-	PTR32(Serial)[0] = 0;
+	G_Text_[0] = 0;
+	Serial[0] = 0;
 }
 //
 //
@@ -2034,7 +2034,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 									if(CCheckPacket::Helper_GetLineTextExt(ln_rec.RByCheck, CCheckPacket::lnextSerial, text_by_row_list, temp_buf) > 0)
 										STRNSCPY(pItem->Serial, temp_buf);
 									else
-										PTR32(pItem->Serial)[0] = 0;
+										pItem->Serial[0] = 0;
 									// } @v10.2.6
 									ok = 1;
 									break;
@@ -3759,7 +3759,7 @@ public:
 		if(ScObj.Search(Data.Rec.SCardID, &sc_rec) > 0)
 			STRNSCPY(scard_no, sc_rec.Code);
 		else
-			PTR32(scard_no)[0] = 0;
+			scard_no[0] = 0;
 		setCtrlData(CTL_CCHECKINFO_CARDNO, scard_no);
 		disableCtrl(CTL_CCHECKINFO_CARDNO, !ScObj.CheckRights(SCRDRT_BINDING));
 		SetupArCombo(this, CTLSEL_CCHECKINFO_AGENT, Data.Ext.SalerID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
@@ -3789,6 +3789,7 @@ public:
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 4, CCHKF_SPFINISHED);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 5, CCHKF_ALTREG);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 6, CCHKF_PAPERLESS); // @v11.3.6
+		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 7, CCHKF_IMPORTED); // @v11.8.11
 		SetClusterData(CTL_CCHECKINFO_FLAGS2, Data.Rec.Flags);
 		if(Data.AL_Const().getCount()) {
 			SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_CCHECKINFO_PAYMLIST));

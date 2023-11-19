@@ -669,7 +669,7 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, bool
 								THROW_SL(MakeTempFileName(dir = buf, "exp", ext, 0, buf));
 							}
 							else {
-								SPathStruc::ReplaceExt(buf, ext, 1);
+								SFsPath::ReplaceExt(buf, ext, 1);
 							}
 						}
 						else {
@@ -759,7 +759,7 @@ int ReportDescrEntry::SetReportFileName(const char * pFileName)
 	SString file_name(pFileName);
 	const uint16 cr_eng_ver = PEGetVersion(PE_GV_ENGINE);
 	if(HiByte(cr_eng_ver) >= 10) {
-		SPathStruc ps(file_name);
+		SFsPath ps(file_name);
 		if(ps.Nam.CmpSuffix("-c10", 1) != 0) {
 			ps.Nam.Cat("-c10");
 			SString temp_buf;
@@ -771,7 +771,7 @@ int ReportDescrEntry::SetReportFileName(const char * pFileName)
 		}
 	}
 	{
-		SPathStruc ps(file_name);
+		SFsPath ps(file_name);
 		SETFLAG(Flags, fTddoResource, ps.Ext.ToLower() == "tddo");
 	}
 	ReportPath_ = file_name;
@@ -798,15 +798,15 @@ int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 		if(buf2.IsEmpty())
 			(buf2 = "RPT").SetLastSlash().Cat("LOCAL");
 		ifile.GetInt(PPINISECT_CONFIG, PPINIPARAM_REPORT_FORCE_DDF, &force_ddf);
-		SPathStruc::ReplaceExt((fname = ReportName), "RPT", 1);
-		SPathStruc::ReplacePath(fname, buf2, 1);
+		SFsPath::ReplaceExt((fname = ReportName), "RPT", 1);
+		SFsPath::ReplacePath(fname, buf2, 1);
 		PPGetFilePath(PPPATH_BIN, fname, temp_buf);
 		if(!fileExists(temp_buf)) {
 			ifile.Get(PPINISECT_PATH, PPINIPARAM_WINDEFAULTRPT, buf2 = 0);
 			buf2.SetIfEmpty("RPT");
 			fname = ReportName;
-			SPathStruc::ReplaceExt(fname, "RPT", 1);
-			SPathStruc::ReplacePath(fname, buf2, 1);
+			SFsPath::ReplaceExt(fname, "RPT", 1);
+			SFsPath::ReplacePath(fname, buf2, 1);
 			PPGetFilePath(PPPATH_BIN, fname, temp_buf);
 		}
 		{
@@ -1007,7 +1007,7 @@ public:
 			// Если задано имя формы по умолчанию и в списке форм есть файл с именем, совпадающем 
 			// с именем формы по умолчанию, то перемещаем эту форму на самый верх списка. 
 			// 
-			SPathStruc ps;
+			SFsPath ps;
 			for(uint i = 0; i < Data.Entries.getCount(); i++) {
 				ps.Split(Data.Entries.at(i)->ReportPath_);
 				if(ps.Nam.IsEqNC(Data.DefPrnForm)) {
@@ -1497,7 +1497,7 @@ static void GetDataFilePath(int locN, const char * pPath, int isPrint, SString &
 		const  char * p_fname = (locN == 0) ? "head" : "iter";
 		const  char * p_ext = "btr";
 		SString path;
-		SPathStruc::ReplaceExt((path = pPath).SetLastSlash().Cat(p_fname), p_ext, 1);
+		SFsPath::ReplaceExt((path = pPath).SetLastSlash().Cat(p_fname), p_ext, 1);
 		if(isPrint) {
 			long   cnt = 0;
 			MakeTempFileName(pPath, p_fname, p_ext, &cnt, rBuf);
@@ -2168,7 +2168,7 @@ int SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRe
 			if(p_ssda->SvDt) {
 				path = p_ssda->SvDtPath_;
 				if(!fileExists(path))
-					THROW_SL(::createDir(path));
+					THROW_SL(SFile::CreateDir(path));
 				CopyDataStruct(pTempPath, path, BDictionary::DdfTableFileName);
 				CopyDataStruct(pTempPath, path, BDictionary::DdfFieldFileName);
 				CopyDataStruct(pTempPath, path, BDictionary::DdfIndexFileName);
@@ -2377,7 +2377,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				pans.Flags &= ~pans.fForceDDF;
 				p_sel_entry = pans.Entries.at(pans.Selection);
 				// @v11.2.8 fn = p_sel_entry->ReportPath_;
-				SPathStruc::NormalizePath(p_sel_entry->ReportPath_, SPathStruc::npfCompensateDotDot, fn); // @v11.2.8 
+				SFsPath::NormalizePath(p_sel_entry->ReportPath_, SFsPath::npfCompensateDotDot, fn); // @v11.2.8 
 				data_name     = p_sel_entry->DataName_;
 				inherited_tbl_names = BIN(p_sel_entry->Flags & ReportDescrEntry::fInheritedTblNames);
 				diffidbyscope = BIN(p_sel_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
@@ -2418,7 +2418,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				t.SetInputFileName(fn);
 				{
 					SString inner_fn;
-                	SPathStruc ps(fn);
+                	SFsPath ps(fn);
                 	ps.Drv.Z();
                 	ps.Dir.Z();
 					const SString nam = ps.Nam;
@@ -2427,7 +2427,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
                 		ps.Merge(inner_fn);
 						PPGetFilePath(PPPATH_OUT, inner_fn, out_file_name);
 						SFile::Remove(out_file_name);
-						THROW_SL(::createDir(out_file_name));
+						THROW_SL(SFile::CreateDir(out_file_name));
 						ep.DestPath = out_file_name;
 						ep.OutputFormat = SFileFormat(SFileFormat::Html);
 						out_file_name.SetLastSlash().Cat("index.html");
@@ -2437,7 +2437,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
                 		ps.Merge(inner_fn);
 						PPGetFilePath(PPPATH_OUT, inner_fn, out_file_name);
 						SFile::Remove(out_file_name);
-						THROW_SL(::createDir(out_file_name));
+						THROW_SL(SFile::CreateDir(out_file_name));
 						ep.DestPath = out_file_name;
 						ep.OutputFormat = SFileFormat(SFileFormat::Latex);
 						out_file_name.SetLastSlash().Cat(nam).DotCat("tex");

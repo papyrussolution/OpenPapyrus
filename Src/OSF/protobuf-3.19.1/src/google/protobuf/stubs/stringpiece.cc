@@ -165,10 +165,10 @@ StringPiece::size_type StringPiece::find_first_not_of(StringPiece s,
 	return npos;
 }
 
-StringPiece::size_type StringPiece::find_first_not_of(char c,
-    size_type pos) const {
-	if(empty()) return npos;
-
+StringPiece::size_type StringPiece::find_first_not_of(char c, size_type pos) const 
+{
+	if(empty()) 
+		return npos;
 	for(; pos < static_cast<size_type>(length_); ++pos) {
 		if(ptr_[pos] != c) {
 			return pos;

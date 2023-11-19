@@ -42,17 +42,9 @@ const std::int_least16_t kMonthOffsets[2][1 + 12 + 1] = {
 	{-1, 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366},
 };
 
-// We reject leap-second encoded zoneinfo and so assume 60-second minutes.
-const std::int_least32_t kSecsPerDay = SSECSPERDAY;
-
-// 400-year chunks always have 146097 days (20871 weeks).
-const std::int_least64_t kSecsPer400Years = 146097LL * kSecsPerDay;
-
-// Like kDaysPerYear[] but scaled up by a factor of kSecsPerDay.
-const std::int_least32_t kSecsPerYear[2] = {
-	365 * kSecsPerDay,
-	366 * kSecsPerDay,
-};
+const std::int_least32_t kSecsPerDay = SSECSPERDAY; // We reject leap-second encoded zoneinfo and so assume 60-second minutes.
+const std::int_least64_t kSecsPer400Years = 146097LL * kSecsPerDay; // 400-year chunks always have 146097 days (20871 weeks).
+const std::int_least32_t kSecsPerYear[2] = { 365 * kSecsPerDay, 366 * kSecsPerDay, }; // Like kDaysPerYear[] but scaled up by a factor of kSecsPerDay.
 
 // Convert a cctz::weekday to a POSIX TZ weekday number (0==Sun, ..., 6=Sat).
 inline int ToPosixWeekday(weekday wd) 
@@ -778,8 +770,8 @@ time_zone::absolute_lookup TimeZoneInfo::LocalTime(std::int_fast64_t unix_time, 
 }
 
 // BreakTime() translation for a particular transition.
-time_zone::absolute_lookup TimeZoneInfo::LocalTime(std::int_fast64_t unix_time,
-    const Transition& tr) const {
+time_zone::absolute_lookup TimeZoneInfo::LocalTime(std::int_fast64_t unix_time, const Transition& tr) const 
+{
 	const TransitionType& tt = transition_types_[tr.type_index];
 	// Note: (unix_time - tr.unix_time) will never overflow as we
 	// have ensured that there is always a "nearby" transition.
@@ -788,8 +780,8 @@ time_zone::absolute_lookup TimeZoneInfo::LocalTime(std::int_fast64_t unix_time,
 }
 
 // MakeTime() translation with a conversion-preserving +N * 400-year shift.
-time_zone::civil_lookup TimeZoneInfo::TimeLocal(const civil_second& cs,
-    year_t c4_shift) const {
+time_zone::civil_lookup TimeZoneInfo::TimeLocal(const civil_second& cs, year_t c4_shift) const 
+{
 	assert(last_year_ - 400 < cs.year() && cs.year() <= last_year_);
 	time_zone::civil_lookup cl = MakeTime(cs);
 	if(c4_shift > seconds::max().count() / kSecsPer400Years) {

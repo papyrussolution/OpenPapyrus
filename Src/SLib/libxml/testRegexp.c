@@ -85,16 +85,14 @@ static void testRegexpFile(const char * filename)
 }
 
 #ifdef LIBXML_EXPR_ENABLED
-static void runFileTest(xmlExpCtxtPtr ctxt, const char * filename) {
+static void runFileTest(xmlExpCtxtPtr ctxt, const char * filename) 
+{
 	xmlExpNodePtr expr = NULL, sub;
-	FILE * input;
 	char expression[5000];
 	int len;
-
-	input = fopen(filename, "r");
+	FILE * input = fopen(filename, "r");
 	if(input == NULL) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "Cannot open %s for reading\n", filename);
+		xmlGenericError(xmlGenericErrorContext, "Cannot open %s for reading\n", filename);
 		return;
 	}
 	while(fgets(expression, 4500, input) != NULL) {

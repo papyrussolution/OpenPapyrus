@@ -289,14 +289,14 @@ private:
 
 int RcProcessor::Init(const char * pRcwPath, const char * pRcPath)
 {
-	SPathStruc sp;
+	SFsPath sp;
 	Path.CopyFrom(pRcwPath);
 	sp.Split(Path);
 	InRcw.Close();
 	InRcw.Open(pRcwPath, SFile::mRead);
 	InRc.Close();
 	InRc.Open(pRcPath, SFile::mRead);
-	sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, Path);
+	sp.Merge(0, SFsPath::fNam|SFsPath::fExt, Path);
 	return InRcw.IsValid() && InRc.IsValid();
 }
 

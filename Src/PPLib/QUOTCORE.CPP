@@ -1,5 +1,5 @@
 // QUOTCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 // @Kernel
 //
@@ -3294,7 +3294,7 @@ int Quotation2Core::VerifyRecord(Quotation2Tbl::Rec & rRec)
 		THROW_PP(popc == 0 || popc == 1, PPERR_QII_AMBIGFLAGS);
 	}
 	THROW_PP(!(rRec.Flags & PPQuot::fZero) || rRec.Quot == 0.0, PPERR_QII_NZEROVAL);
-	THROW_PP(IsValidIEEE(rRec.Quot), PPERR_QII_INVVAL);
+	THROW_PP(SIEEE754::IsValid(rRec.Quot), PPERR_QII_INVVAL);
 	CATCHZOK
 	return ok;
 }

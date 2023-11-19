@@ -558,7 +558,7 @@ public:
 	SString ExpFileName;
 	xmlTextWriter * P_XmlWriter;
 	Iterator Itr;
-	SPathStruc PathStruct;
+	SFsPath PathStruct;
 	Sdr_Bill Bill;
 	// Состоит из типов Sdr_DllImpExpReceipt
 	TSCollection <Sdr_DllImpExpReceipt> ReceiptList; // Список квитанций об отправленных документах
@@ -1161,7 +1161,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 {
 	int    ok = 1;
 	SFile  log_file;
-	SPathStruc log_path;
+	SFsPath log_path;
 	SString str;
 	SETIFZ(P_ExportCls, new ExportCls);
 	if(P_ExportCls && !P_ExportCls->Inited) {
@@ -1180,7 +1180,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 			P_ExportCls->PathStruct.Nam = "edisoft_export_";
 			P_ExportCls->PathStruct.Ext = "xml";
 		}
-		log_path.Copy(&P_ExportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
+		log_path.Copy(&P_ExportCls->PathStruct, SFsPath::fDrv | SFsPath::fDir | SFsPath::fNam | SFsPath::fExt);
 		log_path.Nam = "export_log";
 		log_path.Ext = "txt";
 		log_path.Merge(LogName);
@@ -1390,7 +1390,7 @@ public:
 	SString ImpFileName;
 	SString LastTrackId;		// GUID последнего прочитанного документа в системе EDI
 	Iterator Itr;
-	SPathStruc PathStruct;
+	SFsPath PathStruct;
 	AperakInfoSt AperakInfo;
 	StrAssocArray TrackIds;		// Массив GUID прочитанных документов в системе EDI, статусы которых надо поменять (то есть предназначены для другого магазина)
 private:
@@ -1419,7 +1419,7 @@ void ImportCls::CreateFileName(uint num)
 EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 {
 	int    ok = 1;
-	SPathStruc log_path;
+	SFsPath log_path;
 	SString str;
 	SETIFZ(P_ImportCls, new ImportCls);
 	if(P_ImportCls && !P_ImportCls->Inited) {
@@ -1441,7 +1441,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 			(P_ImportCls->PathStruct.Nam = "edisoft_import_").Cat(P_ImportCls->ObjId);
 			P_ImportCls->PathStruct.Ext = "xml";
 		}
-		log_path.Copy(&P_ImportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
+		log_path.Copy(&P_ImportCls->PathStruct, SFsPath::fDrv | SFsPath::fDir | SFsPath::fNam | SFsPath::fExt);
 		log_path.Nam = "import_log";
 		log_path.Ext = "txt";
 		log_path.Merge(LogName);

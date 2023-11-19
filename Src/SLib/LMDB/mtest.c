@@ -22,7 +22,7 @@ static void Lmdb_CreateTestDirectory(SString & rPath)
 {
 	SLS.QueryPath("testroot", rPath);
 	rPath.SetLastSlash().Cat("out").SetLastSlash().Cat("lmdb-test");
-	::createDir(rPath);
+	SFile::CreateDir(rPath);
 }
 
 static int Lmdb_Random(ulong _lim)

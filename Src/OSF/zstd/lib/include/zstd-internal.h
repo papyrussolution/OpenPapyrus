@@ -42,6 +42,32 @@ FORCEINLINE constexpr uint MEM_isLittleEndian()
 	return one.c[0];
 #endif
 }
+
+#define HUF_MAX_SYMBOL_VALUE     255
+#define HUF_MAX_TABLELOG          12 // max configured tableLog (for static allocation); can be modified up to HUF_ABSOLUTEMAX_TABLELOG
+#define HUF_DEFAULT_TABLELOG  HUF_MAX_TABLELOG // tableLog by default, when not specified
+#define HUF_ABSOLUTEMAX_TABLELOG  16 // absolute limit of HUF_MAX_TABLELOG. Beyond that value, code does not work
+#if (HUF_MAX_TABLELOG > HUF_ABSOLUTEMAX_TABLELOG)
+	#error "HUF_MAX_TABLELOG is too large !"
+#endif
+
+typedef enum { 
+	BIT_DStream_unfinished = 0,
+	BIT_DStream_endOfBuffer = 1,
+	BIT_DStream_completed = 2,
+	BIT_DStream_overflow = 3 
+} BIT_DStream_status;  // result of BIT_reloadDStream()
+// 1,2,4,8 would be better for bitmap combinations, but slows down performance a bit ... :( 
+// 
+// HEAPMODE :
+// Select how default decompression function ZSTD_decompress() allocates its context,
+// on stack (0), or into heap (1, default; requires SAlloc::M()).
+// Note that functions with explicit context such as ZSTD_decompressDCtx() are unaffected.
+// 
+#ifndef ZSTD_HEAPMODE
+	#define ZSTD_HEAPMODE 1
+#endif
+
 // } @sobolev
 
 #endif // !__ZSTD_INTERNAL_H

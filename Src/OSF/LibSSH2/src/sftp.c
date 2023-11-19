@@ -237,7 +237,7 @@ static int sftp_packet_read(LIBSSH2_SFTP * sftp)
 		    packet = sftp->partial_packet;
 		    _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "partial read cont, len: %lu", sftp->partial_len);
 		    _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "partial read cont, already recvd: %lu", sftp->partial_received);
-		/* fall-through */
+		// @fallthrough
 		default:
 		    if(!packet) {
 			    // only do this if there's not already a packet buffer allocated to use 
@@ -1561,7 +1561,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char * buffer,
 			    chunk = (struct sftp_pipeline_chunk *)_libssh2_list_next(&chunk->node);
 		    }
 
-		/* fall-through */
+		// @fallthrough
 		case libssh2_NB_state_sent:
 		    sftp->write_state = libssh2_NB_state_idle;
 		    /*

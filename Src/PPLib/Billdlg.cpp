@@ -1050,7 +1050,7 @@ int PPLinkFile::Init(const char * pPath)
 	Description.Z();
 	if(!isempty(pPath)) {
 		pathToUNC(pPath, Path);
-		SPathStruc ps(Path);
+		SFsPath ps(Path);
 		Ext = ps.Ext;
 		ok = 1;
 	}
@@ -1134,7 +1134,7 @@ int PPLinkFilesArray::Init(const char * pStoreDir)
 	}
 	if(StoreDir.NotEmpty()) {
 		pathToUNC(temp_buf = StoreDir, StoreDir);
-		createDir(StoreDir);
+		SFile::CreateDir(StoreDir);
 	}
 	return 1;
 }
@@ -1319,8 +1319,8 @@ int PPLinkFilesArray::EditDescr(uint pos)
 		SString title, fname;
 		PPLinkFile * p_flink = at(pos);
 		SString descr = p_flink->Description;
-		SPathStruc ps(p_flink->Path);
-		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
+		SFsPath ps(p_flink->Path);
+		ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, fname);
 		PPInputStringDialogParam isd_param(PPLoadTextS(PPTXT_INPUTDESCR, title), fname);
 		if(InputStringDialog(&isd_param, descr) > 0 && descr.Len()) {
 			p_flink->Description = descr;
@@ -1346,7 +1346,7 @@ int PPLinkFilesArray::GetFilePath(PPID id, const char * pExt, SString & rFilePat
 	SString data_path, fname;
 	fname.CatLongZ(id, 8);
 	(data_path = StoreDir).SetLastSlash();
-	createDir(data_path);
+	SFile::CreateDir(data_path);
 	data_path.Cat(fname);
 	if(pExt && sstrlen(pExt))
 		data_path.Dot().Cat(pExt);
@@ -1527,8 +1527,8 @@ int LinkFilesDialog::LinkFile(const char * pPath, uint * pPos)
 	if(pPath && sstrlen(pPath)) {
 		SString title, fname;
 		PPLinkFile flink;
-		SPathStruc ps(pPath);
-		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
+		SFsPath ps(pPath);
+		ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, fname);
 		flink.Init(pPath);
 		PPInputStringDialogParam isd_param(PPLoadTextS(PPTXT_INPUTDESCR, title), fname.ToOem());
 		if(InputStringDialog(&isd_param, flink.Description) > 0)

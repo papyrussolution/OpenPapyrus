@@ -658,7 +658,7 @@ int PPMsgLog::SaveLogFile(const char * pFileName, long options)
 		int16  r, h;
 		SString path;
 		{
-			SPathStruc ps(pFileName);
+			SFsPath ps(pFileName);
 			if(!ps.Dir.NotEmptyS() && !ps.Drv.NotEmptyS() && PPGetPath(PPPATH_LOG, path) > 0)
 				path.SetLastSlash().Cat(pFileName);
 			else
@@ -1154,7 +1154,7 @@ PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kL
 				if(counter >= (((int)fpow10i(num_dig))-1)) {
 					num_dig++;
 				}
-				SPathStruc::ReplaceExt(rLb.NewFileName = rMsgItem.FileName, rLb.TempBuf.Z().CatLongZ(++counter, num_dig), 1);
+				SFsPath::ReplaceExt(rLb.NewFileName = rMsgItem.FileName, rLb.TempBuf.Z().CatLongZ(++counter, num_dig), 1);
 			} while(fileExists(rLb.NewFileName));
 			SFile::Rename(rMsgItem.FileName, rLb.NewFileName);
 		}

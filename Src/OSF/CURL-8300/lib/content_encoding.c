@@ -736,16 +736,13 @@ static CURLcode zstd_init_writer(struct Curl_easy * data,
 	return zp->zds ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
 
-static CURLcode zstd_unencode_write(struct Curl_easy * data,
-    struct contenc_writer * writer,
-    const char * buf, size_t nbytes)
+static CURLcode zstd_unencode_write(struct Curl_easy * data, struct contenc_writer * writer, const char * buf, size_t nbytes)
 {
 	CURLcode result = CURLE_OK;
 	struct zstd_writer * zp = (struct zstd_writer *)writer;
 	ZSTD_inBuffer in;
 	ZSTD_outBuffer out;
 	size_t errorCode;
-
 	if(!zp->decomp) {
 		zp->decomp = SAlloc::M(DSIZ);
 		if(!zp->decomp)

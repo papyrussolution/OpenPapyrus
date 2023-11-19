@@ -1822,8 +1822,8 @@ int TimeSeries_OptEntryList_Graph(TimeSeries_OptEntryList_Graph_Param * pParam)
 	//optentrylist-gbpjpy.c-7200-1680-40-40-short.csv 
 	(temp_buf = path).SetLastSlash().Cat("optentrylist-*.csv");
 	if(param_.FileName.NotEmpty()) {
-		SPathStruc ps(param_.FileName);
-		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, selected_file_name);
+		SFsPath ps(param_.FileName);
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, selected_file_name);
 	}
 	SDirEntry sde;
 	long fid = 0;
@@ -2642,7 +2642,7 @@ int PPObjTimeSeries::Test() // @experimental
 	SFile f_in(src_file_name, SFile::mRead);
 	if(f_in.IsValid()) {
 		test_file_name = src_file_name;
-		SPathStruc::ReplaceExt(test_file_name, "out", 1);
+		SFsPath::ReplaceExt(test_file_name, "out", 1);
 		SString line_buf;
 		StringSet ss_in(",");
 		STimeSeries ts;

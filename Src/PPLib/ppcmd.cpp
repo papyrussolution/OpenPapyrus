@@ -1915,10 +1915,10 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_DBINFO);
 							// @v11.3.1 {
 							{
-								const SPathStruc ps(src_file_name);
+								const SFsPath ps(src_file_name);
 								SString malformed_files_storage_path;
 								(malformed_files_storage_path = XmlDirPath).SetLastSlash().Cat("malformed");
-								if(::createDir(malformed_files_storage_path)) {
+								if(SFile::CreateDir(malformed_files_storage_path)) {
 									SString malformed_file_name;
 									(malformed_file_name = malformed_files_storage_path).SetLastSlash().Cat(ps.Nam).Dot().Cat(ps.Ext);
 									long undup_serial = 0;
@@ -2047,14 +2047,14 @@ int PPCommandMngr::DeleteGroupByUuid(PPCommandGroupCategory kind, const S_GUID &
 int PPCommandMngr::GetDesksDir(SString & rPath)
 {
 	PPGetFilePath(PPPATH_WORKSPACE, "desktop", rPath);  // получаем путь к workspace
-	::createDir(rPath);
+	SFile::CreateDir(rPath);
 	return 1;
 }
 
 int PPCommandMngr::GetMenuDir(SString & rPath)
 {
 	PPGetFilePath(PPPATH_WORKSPACE, "menu", rPath);  // получаем путь к workspace
-	::createDir(rPath);
+	SFile::CreateDir(rPath);
 	return 1;
 }
 
@@ -4553,9 +4553,9 @@ int Helper_ExecuteNF_WithSerializedParam(SBuffer * pParam)
 	THROW(param.Read(*pParam, 0));
 	THROW(PPView::ExecuteNF(param.NfSymb, param.Dl600_Name, result_fname));
 	if(param.FileName.NotEmpty()) {
-		SPathStruc dest_ps(param.FileName);
+		SFsPath dest_ps(param.FileName);
 		if(dest_ps.Nam.IsEmpty()) {
-			SPathStruc src_ps(result_fname);
+			SFsPath src_ps(result_fname);
 			dest_ps.Nam = src_ps.Nam;
 			dest_ps.Ext = src_ps.Ext;
 		}

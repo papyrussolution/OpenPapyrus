@@ -2137,7 +2137,7 @@ path_processing:
 		return 0;
 	}
 	len = sstrlen(path);
-	if(len > 2 && SPathStruc::IsWindowsPathPrefix((char *)path)) {
+	if(len > 2 && SFsPath::IsWindowsPathPrefix((char *)path)) {
 		uri->scheme = sstrdup("file"); // make the scheme 'file' 
 		uri->path = static_cast<char *>(SAlloc::M(len + 2)); // allocate space for leading '/' + path + string terminator 
 		if(uri->path == NULL) {

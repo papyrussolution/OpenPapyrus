@@ -1714,7 +1714,7 @@ int PPSession::EnsureExtCfgDb()
 	PPGetPath(PPPATH_WORKSPACE, dbpath_buf);
 	dbpath_buf.SetLastSlash().Cat("bdbconfig");
 	if(!IsDirectory(dbpath_buf)) {
-		createDir(dbpath_buf);
+		SFile::CreateDir(dbpath_buf);
 		//
 		SString lock_path;
 		(lock_path = dbpath_buf).SetLastSlash().Cat("ppcfgdbcrlock");
@@ -1757,7 +1757,7 @@ int PPSession::InitExtCfgDb()
 			PPGetPath(PPPATH_WORKSPACE, temp_buf);
 			temp_buf.SetLastSlash().Cat("bdbconfig");
 			if(!IsDirectory(temp_buf))
-				createDir(temp_buf);
+				SFile::CreateDir(temp_buf);
 			if(IsDirectory(temp_buf))
 				P_ExtCfgDb = new PPConfigDatabase(temp_buf);
 			ok = BIN(P_ExtCfgDb);
@@ -2442,7 +2442,7 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 						PPIniFile::GetParamSymb(PPINIPARAM_LOG, temp_buf.Z());
 						(path = root_path).SetLastSlash().Cat(temp_buf);
 					}
-					if(!IsDirectory(path) && !createDir(path))
+					if(!IsDirectory(path) && !SFile::CreateDir(path))
 						path = root_path.RmvLastSlash();
 					if(Helper_SetPath(PPPATH_LOG, path))
 						SLS.SetLogPath(path);
@@ -3687,7 +3687,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						}
 						void   Create()
 						{
-							::createEmptyFile((IsDirectory(Direc) || createDir(Direc)) ? FileName2 : FileName);
+							::createEmptyFile((IsDirectory(Direc) || SFile::CreateDir(Direc)) ? FileName2 : FileName);
 						}
 					private:
 						SString Direc;
@@ -4895,9 +4895,9 @@ int PPSession::GetPath(PPID pathID, SString & rBuf)
 				//
 				SString temp_buf;
 				GetPath(PPPATH_BIN, temp_buf); // @recursion
-                SPathStruc ps(temp_buf);
+                SFsPath ps(temp_buf);
                 ps.Dir.SetLastSlash().Cat("..\\..\\src\\pptest");
-				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rBuf);
+				ps.Merge(SFsPath::fDrv|SFsPath::fDir, rBuf);
 			}
 			break;
 		case PPPATH_SYSROOT:

@@ -939,8 +939,8 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 								SFileFormat::GetExt(ff, ext_buf);
 							}
 							SString dest_fname;
-							SPathStruc src_ps(img_path);
-							SPathStruc dest_ps(Param.FileName);
+							SFsPath src_ps(img_path);
+							SFsPath dest_ps(Param.FileName);
 							for(uint i = 0; i < count; i++) {
 								dest_ps.Nam = pPack->Codes.at(i).Code;
                                 dest_ps.Ext = ext_buf;
@@ -1243,7 +1243,7 @@ private:
 		TSVector <Entry> List;
 		const SString SetPath;
 	private:
-		SPathStruc Ps;
+		SFsPath Ps;
 		SString TempBuf; // @allocreuse
 	};
 	int    Helper_ImportHier(PPID defUnitID, HierArray * pHierList);
@@ -1976,7 +1976,7 @@ int PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageFileBlo
 	SString temp_buf;
 	SString code_buf;
 	SString file_name;
-	SPathStruc ps;
+	SFsPath ps;
 	(temp_buf = pPath).SetLastSlash().Cat("*.*");
 	SDirEntry de;
 	for(SDirec direc(temp_buf); direc.Next(&de) > 0;) {
@@ -2184,12 +2184,12 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 			if(Param.Flags & PPGoodsImpExpParam::fImportImages) {
 				file_name = Param.FileName;
 				SString set_path, line_buf;
-				SPathStruc ps(Param.FileName);
-				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, file_name);
+				SFsPath ps(Param.FileName);
+				ps.Merge(SFsPath::fDrv|SFsPath::fDir, file_name);
 				THROW_SL(IsDirectory(file_name.RmvLastSlash()));
 				(set_path = file_name).SetLastSlash().Cat("__SET__");
 				if(!fileExists(set_path)) {
-					THROW_SL(createDir(set_path));
+					THROW_SL(SFile::CreateDir(set_path));
 				}
 				{
 					ImageFileBlock blk(set_path);
@@ -2229,16 +2229,16 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 					PPGoodsImpExpParam exp_param; // PPImpExpParam
 					exp_param = Param;
 					exp_param.Direction = 0; // export
-					SPathStruc::ReplaceExt((temp_buf2 = Param.FileName), "out", 1);
+					SFsPath::ReplaceExt((temp_buf2 = Param.FileName), "out", 1);
 					exp_param.FileName = temp_buf2;
 					PPImpExp exp_blk(&exp_param, 0);
 					exp_blk.OpenFileForWriting(0, 1);
 
-					SPathStruc::ReplaceExt((temp_buf2 = Param.FileName), "bcd", 1);
+					SFsPath::ReplaceExt((temp_buf2 = Param.FileName), "bcd", 1);
 					SFile f_out_bcd(temp_buf2, SFile::mWrite);
-					SPathStruc::ReplaceExt((temp_buf2 = Param.FileName), "word", 1);
+					SFsPath::ReplaceExt((temp_buf2 = Param.FileName), "word", 1);
 					SFile f_out_word(temp_buf2, SFile::mWrite);
-					SPathStruc::ReplaceExt((temp_buf2 = Param.FileName), "name", 1);
+					SFsPath::ReplaceExt((temp_buf2 = Param.FileName), "name", 1);
 					SFile f_out_name(temp_buf2, SFile::mWrite);
 
 					PPTextAnalyzer text_analyzer2;
@@ -3203,7 +3203,7 @@ int ReformatIceCat(const char * pFileName)
 	SString temp_buf;
 	SFile f_in(pFileName, SFile::mRead);
 	if(f_in.IsValid()) {
-		SPathStruc ps(pFileName);
+		SFsPath ps(pFileName);
 		ps.Nam.CatChar('-').Cat("out");
 		ps.Merge(temp_buf);
 		StringSet ss("\t\t\t");
@@ -3789,13 +3789,13 @@ int ReformatRazoomnick(const char * pFileName)
 		list.FinalizeImport();
 		{
 			{
-				SPathStruc ps(pFileName);
+				SFsPath ps(pFileName);
 				ps.Nam.CatChar('-').Cat("out-01");
 				ps.Merge(temp_buf);
 			}
 			SFile f_out_01(temp_buf, SFile::mWrite);
 			{
-				SPathStruc ps(pFileName);
+				SFsPath ps(pFileName);
 				ps.Nam.CatChar('-').Cat("out-02");
 				ps.Merge(temp_buf);
 			}
@@ -3814,7 +3814,7 @@ int ReformatRazoomnick(const char * pFileName)
 			}
 		}
 		{
-			SPathStruc ps(pFileName);
+			SFsPath ps(pFileName);
 			ps.Nam.CatChar('-').Cat("category");
 			ps.Merge(temp_buf);
 			SFile f_out(temp_buf, SFile::mWrite);			
@@ -3826,7 +3826,7 @@ int ReformatRazoomnick(const char * pFileName)
 			}
 		}
 		{
-			SPathStruc ps(pFileName);
+			SFsPath ps(pFileName);
 			ps.Nam.CatChar('-').Cat("brand");
 			ps.Merge(temp_buf);
 			SFile f_out(temp_buf, SFile::mWrite);			

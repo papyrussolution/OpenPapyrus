@@ -93,8 +93,8 @@ int DBBackup::InfoFile::MakeFileName(const char * pPath, const char * pFileName,
 	if(pPath)
 		(temp = pPath).SetLastSlash();
 	else {
-		SPathStruc ps(FileName);
-		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp);
+		SFsPath ps(FileName);
+		ps.Merge(0, SFsPath::fNam|SFsPath::fExt, temp);
 		temp.SetLastSlash();
 	}
 	temp.Cat(pFileName).CopyTo(pBuf, bufLen);
@@ -673,7 +673,7 @@ int DBBackup::RestoreRemovedDB(int restoreFiles)
 			int    first = 0;
 			TablePartsEnum tpe(0);
 			SString saved_file = P_Db->MakeFileName_(ts.TblName, path);
-			SPathStruc::ReplaceExt(saved_file, "___", 1);
+			SFsPath::ReplaceExt(saved_file, "___", 1);
 			for(tpe.Init(saved_file); tpe.Next(spart_saved, &first) > 0;) {
 				tpe.ReplaceExt(first, spart_saved, spart);
 				if(restoreFiles) {
@@ -705,7 +705,7 @@ int DBBackup::CopyLinkFiles(const char * pSrcPath, const char * pDestPath, Backu
 		SDirec direc;
 		SDirEntry fb;
 		RemoveDir(dest_dir);
-		createDir(dest_dir);
+		SFile::CreateDir(dest_dir);
 		src_dir.SetLastSlash();
 		dest_dir.SetLastSlash();
 		(buf = src_dir).Cat("*.*");
@@ -733,19 +733,19 @@ int DBBackup::CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * e
 			while(f.ReadLine(buf) > 0) {
 				uint j = 0;
 				SString spart;
-				SPathStruc ps;
+				SFsPath ps;
 				SString tbl_name, dest_path, src_path;
 				TablePartsEnum tpe(0);
 				buf.Divide('=', tbl_name, dest_path);
 				dest_path.TrimRightChr('\x0A');
 				dest_path.TrimRightChr('\x0D');
-				SPathStruc::ReplaceExt(tbl_name, ".btr", 1);
+				SFsPath::ReplaceExt(tbl_name, ".btr", 1);
 				dest_path.SetLastSlash().Cat(tbl_name);
 				src_path.CopyFrom(pDBPath).SetLastSlash().Cat(tbl_name);
 				for(tpe.Init(src_path); tpe.Next(spart) > 0;) {
 					if(fileExists(spart)) {
-						const SPathStruc sp(spart);
-						SPathStruc::ReplaceExt(dest_path, sp.Ext, 1);
+						const SFsPath sp(spart);
+						SFsPath::ReplaceExt(dest_path, sp.Ext, 1);
 						if(SCopyFile(spart, dest_path, DBBackup::CopyProgressProc, FILE_SHARE_READ, this) <= 0)
 							LogMessage(fnLog, BACKUPLOG_ERR_COPY, src_path, extraPtr);
 						else
@@ -796,7 +796,7 @@ int DBBackup::RemoveCopy(const BCopyData * pData, BackupLogFunc fnLog, void * ex
 			for(uint ssp = 0; cp.SsFiles.get(&ssp, src_file_name);) {
 				SFile::Remove(src_file_name);
 				if(pData->DestSize != pData->SrcSize) {
-					SPathStruc::ReplaceExt(src_file_name, "BT_", 1);
+					SFsPath::ReplaceExt(src_file_name, "BT_", 1);
 					SFile::Remove(src_file_name);
 				}
 			}
@@ -823,7 +823,7 @@ int DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 	rDestPath.Z();
 	(path = data->CopyPath).RmvLastSlash();
 	if(::access(path, 0) != 0) {
-		if(!createDir(path))
+		if(!SFile::CreateDir(path))
 			ok = (DBErrCode = SDBERR_SLIB, 0);
 	}
 	if(ok) {
@@ -837,7 +837,7 @@ int DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 			(path = data->CopyPath).SetLastSlash().Cat(subdir);
 		} while(::access(path, 0) == 0);
 		path.SetLastSlash();
-		if(!createDir(path))
+		if(!SFile::CreateDir(path))
 			ok = (DBErrCode = SDBERR_SLIB, 0);
 		else {
 			rDestPath = path;
@@ -865,7 +865,7 @@ int DBBackup::DoCopy(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * 
 	int    ok = 1;
 	SString src_file_name;
 	SString dest_file;
-	SPathStruc ps, ps_inner;
+	SFsPath ps, ps_inner;
 	StringSet temp_ss_files;
 	LogMessage(fnLog, BACKUPLOG_BEGIN, pParam->Path, extraPtr);
 	SString dest = pParam->Path;
@@ -875,7 +875,7 @@ int DBBackup::DoCopy(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * 
 	for(uint ssp = 0; pParam->SsFiles.get(&ssp, src_file_name);) {
 		SFile::Stat stat;
 		ps_inner.Split(src_file_name);
-		ps_inner.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, dest_file);
+		ps_inner.Merge(&ps, SFsPath::fDrv|SFsPath::fDir, dest_file);
 		if(!SFile::GetStat(src_file_name, 0, &stat, 0))
 			LogMessage(fnLog, BACKUPLOG_ERR_GETFILEPARAM, src_file_name, extraPtr);
 		{
@@ -903,7 +903,7 @@ int DBBackup::DoRestore(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void
 	uint   i = 0;
 	SString src_file_name;
 	SString dest_file;
-	SPathStruc ps, ps_inner;
+	SFsPath ps, ps_inner;
 	StringSet temp_ss_files;
 	SString dest = pParam->Path;
 	LogMessage(fnLog, BACKUPLOG_BEGIN, pParam->Path, extraPtr);
@@ -914,11 +914,11 @@ int DBBackup::DoRestore(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void
 		int64 sz = 0;
 		SFile::Stat fs;
 		ps_inner.Split(src_file_name);
-		ps_inner.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, dest_file);
+		ps_inner.Merge(&ps, SFsPath::fDrv|SFsPath::fDir, dest_file);
 		if(!SFile::GetStat(src_file_name, 0, &fs, 0))
 			LogMessage(fnLog, BACKUPLOG_ERR_GETFILEPARAM, src_file_name, extraPtr);
 		{
-			SPathStruc::ReplaceExt(dest_file, "btr", 1);
+			SFsPath::ReplaceExt(dest_file, "btr", 1);
 			if(SCopyFile(src_file_name, dest_file, DBBackup::CopyProgressProc, FILE_SHARE_READ, this) <= 0)
 				LogMessage(fnLog, BACKUPLOG_ERR_COPY, src_file_name, extraPtr);
 		}

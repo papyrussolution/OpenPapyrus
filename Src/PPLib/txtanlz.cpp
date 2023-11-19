@@ -2030,7 +2030,7 @@ int PPTextAnalyzer::Test()
 			input_file_name.SetLastSlash().Cat("data\\replacer-rule.txt");
 			THROW(ParseReplacerFile(input_file_name, rpl));
 			{
-				SPathStruc::ReplaceExt(file_name = input_file_name, "out", 1);
+				SFsPath::ReplaceExt(file_name = input_file_name, "out", 1);
 				SFile outf(file_name, SFile::mWrite);
 				if(outf.IsValid()) {
 					for(uint i = 0; i < rpl.SrcList.getCount(); i++) {
@@ -2048,11 +2048,11 @@ int PPTextAnalyzer::Test()
 			SFile inf(input_file_name, SFile::mRead);
 			if(inf.IsValid()) {
 				FindBlock fb(rpl);
-				SPathStruc::ReplaceExt(file_name = inf.GetName(), "out", 1);
-				SPathStruc::ReplaceExt(file_name = inf.GetName(), "csv", 1);
+				SFsPath::ReplaceExt(file_name = inf.GetName(), "out", 1);
+				SFsPath::ReplaceExt(file_name = inf.GetName(), "csv", 1);
 				SFile csvf(file_name, SFile::mWrite);
 				{
-					SPathStruc::ReplaceExt(file_name = inf.GetName(), "signal", 1);
+					SFsPath::ReplaceExt(file_name = inf.GetName(), "signal", 1);
 					if(spe.OutF.Open(file_name, SFile::mWrite)) {
 						SetSignalProc(TestSignalProc, &spe);
 					}
@@ -2301,7 +2301,7 @@ int PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 		THROW_MEM(P_Rpl = new PPTextAnalyzer::Replacer);
 		THROW(Ta.ParseReplacerFile(P.RuleFileName, *P_Rpl));
 		if(P.Flags & P.fDebug) {
-			SPathStruc::ReplaceExt(temp_buf = P.RuleFileName, "sr-debug", 1);
+			SFsPath::ReplaceExt(temp_buf = P.RuleFileName, "sr-debug", 1);
 			SFile outf(temp_buf, SFile::mWrite);
 			if(outf.IsValid()) {
 				for(uint i = 0; i < P_Rpl->SrcList.getCount(); i++) {
@@ -2312,7 +2312,7 @@ int PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 			}
 		}
 		{
-			SPathStruc::ReplaceExt(temp_buf = P.RuleFileName, "sr-log", 1);
+			SFsPath::ReplaceExt(temp_buf = P.RuleFileName, "sr-log", 1);
 			LogF.Close();
 			LogF.Open(temp_buf, SFile::mWrite);
 			if(LogF.IsValid()) {
@@ -2970,7 +2970,7 @@ int PPKeywordListGenerator::GetRandomWord(SString & rBuf)
 	if(!Rwb.GetCount()) {
 		if(DataFileName.NotEmpty()) {
 			SString rw_file_name;
-			SPathStruc ps(DataFileName);
+			SFsPath ps(DataFileName);
             ps.Nam.CatChar('-').Cat("random");
             ps.Merge(rw_file_name);
 			if(fileExists(rw_file_name)) {
@@ -3508,9 +3508,9 @@ int Test_KeywordListGenerator()
 {
 	PPKeywordListGenerator::RunStat stat;
 	SString temp_buf, word_buf, context_buf;
-	SPathStruc ps;
+	SFsPath ps;
 	if(GetKeywordListGeneratorInputFileName(temp_buf)) {
-		SPathStruc::ReplaceExt(temp_buf, "log", 1);
+		SFsPath::ReplaceExt(temp_buf, "log", 1);
 		SFile f_out(temp_buf, SFile::mWrite);
 		{
 			RandomGenTest rgt(0.01, 1.0);
@@ -3829,8 +3829,8 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 	SString src_path(pPath);
 	SLldAlphabetAnalyzer aa;
 	RAssocArray freq_list;
-	SPathStruc ps;
-	SPathStruc::NormalizePath(pPath, 0, src_path);
+	SFsPath ps;
+	SFsPath::NormalizePath(pPath, 0, src_path);
 	(wildcard = src_path).SetLastSlash().CatChar('*').Dot().CatChar('*');
 	SDirEntry de;
 	for(SDirec sd(wildcard); sd.Next(&de) > 0;) {
@@ -3842,7 +3842,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 		}
 		else {
 			de.GetNameA(src_path, temp_buf);
-			SPathStruc::NormalizePath(temp_buf, 0, dest_path);
+			SFsPath::NormalizePath(temp_buf, 0, dest_path);
 			SFileFormat ff;
 			int ffr = 0;
 			file_type_symb.Z();

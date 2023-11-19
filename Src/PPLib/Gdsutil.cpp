@@ -3288,7 +3288,7 @@ PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputForm
 				default: p_ext = "png"; break;
 			}
 			if(p_ext)
-				SPathStruc::ReplaceExt(file_name, p_ext, 1);
+				SFsPath::ReplaceExt(file_name, p_ext, 1);
 			STRNSCPY(p_zs->outfile, file_name);
 			THROW(ZBarcode_Print(p_zs, rot_angle) == 0);
 			rParam.OutputFileName = file_name;
@@ -3377,7 +3377,7 @@ static int FASTCALL ZBarStdToPp(zbar_symbol_type_t zbarstd)
 			//
 			// @debug
 			//
-			SPathStruc ps(pInpFileName);
+			SFsPath ps(pInpFileName);
 			ps.Nam.Cat("-debug1");
 			ps.Ext = "png";
 			ps.Merge(debug_file_name);

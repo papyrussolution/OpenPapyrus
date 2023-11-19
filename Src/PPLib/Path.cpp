@@ -103,8 +103,8 @@ bool FASTCALL PPPaths::IsEq(const PPPaths & rS) const
 						const PathItem * p2 = reinterpret_cast<const PathItem *>(PTR8(rS.P + 1) + s2);
 						if(p2->ID == p->ID) {
 							found = true;
-							SPathStruc::NormalizePath(p->Path(), SPathStruc::npfCompensateDotDot|SPathStruc::npfOEM, temp_buf1);
-							SPathStruc::NormalizePath(p2->Path(), SPathStruc::npfCompensateDotDot|SPathStruc::npfOEM, temp_buf2);
+							SFsPath::NormalizePath(p->Path(), SFsPath::npfCompensateDotDot|SFsPath::npfOEM, temp_buf1);
+							SFsPath::NormalizePath(p2->Path(), SFsPath::npfCompensateDotDot|SFsPath::npfOEM, temp_buf2);
 							if(temp_buf1 != temp_buf2)
 								eq = false;
 						}
@@ -264,7 +264,7 @@ int PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int replace)
 int PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 {
 	int    ok = 1;
-	SPathStruc ps;
+	SFsPath ps;
 	if(obj && id)
 		THROW(Get(obj, id));
    	GetPath(pathID, 0, rBuf);
@@ -279,7 +279,7 @@ int PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 	}
 	else {
 		ps.Split(rBuf.SetLastSlash());
-		if(!(ps.Flags & SPathStruc::fDrv)) {
+		if(!(ps.Flags & SFsPath::fDrv)) {
 			//
 			// Обработка неполного каталога
 			//
@@ -289,7 +289,7 @@ int PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 				//
 				THROW(Get(0, 0, PPPATH_DRIVE, ps.Drv)); // @recursion
 				if(ps.Drv.NotEmpty()) {
-					ps.Flags |= SPathStruc::fDrv;
+					ps.Flags |= SFsPath::fDrv;
 					if(!oneof2(ps.Dir.C(0), '/', '\\'))
 						ps.Dir.PadLeft(1, '\\');
 				}
@@ -300,7 +300,7 @@ int PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 				// Если извлекаем что-то кроме корня или драйвера, то
 				// два случая:
 				//
-				if(ps.Flags & SPathStruc::fDir && oneof2(ps.Dir.C(0), '/', '\\')) {
+				if(ps.Flags & SFsPath::fDir && oneof2(ps.Dir.C(0), '/', '\\')) {
 					//
 					// 1. Если путь rBuf содержит каталог и начинается с '\', то
 					//    добавляем к имени спереди только драйвер

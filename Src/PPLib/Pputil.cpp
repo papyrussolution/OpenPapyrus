@@ -980,7 +980,7 @@ DbfTable * FASTCALL CreateDbfTable(uint rezID, const char * fName, int forceRepl
 	SString file_name(fName);
 	if(::fileExists(file_name)) {
 		if(forceReplace) {
-			SPathStruc::ReplaceExt(file_name, "DBK", 1);
+			SFsPath::ReplaceExt(file_name, "DBK", 1);
 			SFile::Remove(file_name);
 			SFile::Rename(fName, file_name);
 		}
@@ -2363,12 +2363,12 @@ int WaitForExists(const char * pPath, int whileExists /* = 1 */, int notifyTimeo
 		if((exists && whileExists) || (!exists && !whileExists)) {
 			DirChangeNotification * p_dc_notify = 0;
 			SString path(pPath);
-			SPathStruc paths(path);
+			SFsPath paths(path);
 			if(paths.Nam.Len() == 0) {
 				path.RmvLastSlash().Dot();
 				paths.Split(path);
 			}
-			paths.Merge(0, SPathStruc::fNam|SPathStruc::fExt, (path = 0));
+			paths.Merge(0, SFsPath::fNam|SFsPath::fExt, (path = 0));
 			path.SetLastSlash();
 			p_dc_notify = new DirChangeNotification(path, 0, FILE_NOTIFY_CHANGE_FILE_NAME);
 			while(!stop) {
@@ -2706,7 +2706,7 @@ extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, lon
 	SString file_name, temp_file_name, line_buf, msg_buf;
 	SString test_line_buf;
 	SDirEntry entry;
-	SPathStruc ps(pWildcard);
+	SFsPath ps(pWildcard);
 	for(SDirec dir(pWildcard, 0); dir.Next(&entry) > 0;) {
 		ps.Nam = entry.FileName;
 		ps.Ext.Z();
@@ -3607,14 +3607,14 @@ int PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey,
 			THROW_SL(f.IsValid());
 			THROW_SL(f.CalcSize(&file_size));
 			{
-				SPathStruc ps;
+				SFsPath ps;
 				const size_t chunk_size = (size_t)MIN((3*64*1024), file_size);
 				const size_t tail_size = (size_t)(file_size % chunk_size);
 				const size_t chunk_count = (size_t)(file_size / chunk_size); // Количество отрезков одинакового размера (без хвоста)
 				STempBuffer buffer(chunk_size);
 				THROW_SL(buffer.IsValid());
 				ps.Split(pFileName);
-				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+				ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 				temp_buf.ToUtf8();
 				THROW(StartTransferData(temp_buf, file_size, (int32)(chunk_count + BIN(tail_size)), &transfer_id));
 				assert(tail_size < chunk_size);

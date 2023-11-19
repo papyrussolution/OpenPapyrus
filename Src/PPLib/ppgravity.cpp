@@ -141,7 +141,7 @@ int PPGravityModule::LoadFile(const char * pFileName, SBuffer & rBuffer)
 	int    ok = 1;
 	SString file_name;
 	rBuffer.Z();
-	SPathStruc ps(pFileName);
+	SFsPath ps(pFileName);
 	THROW(ps.Nam.NotEmpty() && ps.Ext.NotEmpty());
 	ps.Merge(file_name);
 	THROW_SL(fileExists(file_name));

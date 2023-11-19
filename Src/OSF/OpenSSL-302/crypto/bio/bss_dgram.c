@@ -689,7 +689,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 	    break;
 #endif
 		case BIO_CTRL_DGRAM_GET_SEND_TIMER_EXP:
-		/* fall-through */
+		// @fallthrough
 		case BIO_CTRL_DGRAM_GET_RECV_TIMER_EXP:
 #ifdef OPENSSL_SYS_WINDOWS
 		    d_errno = (data->_errno == WSAETIMEDOUT);
@@ -1419,7 +1419,7 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 		     * we need to deactivate an old key
 		     */
 		    data->ccs_sent = 1;
-		/* fall-through */
+		// @fallthrough
 
 		case BIO_CTRL_DGRAM_SCTP_AUTH_CCS_RCVD:
 		    /* Returns 0 on success, -1 otherwise. */

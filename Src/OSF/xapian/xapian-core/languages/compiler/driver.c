@@ -558,12 +558,12 @@ extern int main(int argc, char * argv[])
 		StringSet ss_filename;
 		(temp_buf = argv[1]).Strip();
 		if(fileExists(temp_buf)) {
-			SPathStruc ps(temp_buf);
-			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, base_dir);
+			SFsPath ps(temp_buf);
+			ps.Merge(SFsPath::fDrv|SFsPath::fDir, base_dir);
 			base_dir.SetLastSlash();
 			file_name_to_process = temp_buf;
 			{
-				SPathStruc ps2(file_name_to_process);
+				SFsPath ps2(file_name_to_process);
 				lang_buf = ps2.Nam;
 			}
 			output_file_name = file_name_to_process;
@@ -583,15 +583,15 @@ extern int main(int argc, char * argv[])
 		}
 		else if(IsWild(temp_buf)) {
 			SDirEntry de;
-			SPathStruc ps(temp_buf);
-			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, base_dir);
+			SFsPath ps(temp_buf);
+			ps.Merge(SFsPath::fDrv|SFsPath::fDir, base_dir);
 			base_dir.SetLastSlash();
 			for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {
 				if(!de.IsFolder()) {
 					de.GetNameA(base_dir, file_name_to_process);
 					if(fileExists(file_name_to_process)) {
 						{
-							SPathStruc ps2(file_name_to_process);
+							SFsPath ps2(file_name_to_process);
 							lang_buf = ps2.Nam;
 						}
 						output_file_name = file_name_to_process;

@@ -17,7 +17,7 @@ int RunNginxServer()
 	SLS.QueryPath("workspace", temp_buf);
 	if(temp_buf.NotEmpty()) {
 		temp_buf.SetLastDSlash().Cat("nginx").SetLastDSlash();
-		SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, o.Prefix);
+		SFsPath::NormalizePath(temp_buf, SFsPath::npfSlash, o.Prefix);
 	}
 	return BIN(NgxStartUp(o) == 0);
 }

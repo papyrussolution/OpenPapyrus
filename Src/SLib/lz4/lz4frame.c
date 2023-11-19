@@ -1218,7 +1218,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
             if(srcEnd-srcPtr == 0) return minFHSize; /* 0-size input */
             dctx->tmpInTarget = minFHSize; /* minimum size to decode header */
             dctx->dStage = dstage_storeFrameHeader;
-            /* fall-through */
+            // @fallthrough
 
         case dstage_storeFrameHeader:
             {   
@@ -1262,7 +1262,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
             dctx->tmpOutSize = 0;
 
             dctx->dStage = dstage_getBlockHeader;
-            /* fall-through */
+            // @fallthrough
 
         case dstage_getBlockHeader:
             if((size_t)(srcEnd - srcPtr) >= BHSize) {
@@ -1492,7 +1492,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
                 dctx->tmpOutStart = 0;
                 dctx->dStage = dstage_flushOut;
             }
-            /* fall-through */
+            // @fallthrough
 
         case dstage_flushOut:  /* flush decoded data from tmpOut to dstBuffer */
             {   

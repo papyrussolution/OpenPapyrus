@@ -1022,28 +1022,21 @@ done:
 	xmlFreeDoc(doc);
 	return(ret);
 }
-
-/************************************************************************
-*									*
-*		The driver for the tests				*
-*									*
-************************************************************************/
-
-int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) {
+// 
+// The driver for the tests
+// 
+int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
+{
 	int ret = 0;
 	int old_errors, old_tests, old_leaks;
-
 	logfile = fopen(LOGFILE, "w");
 	if(logfile == NULL) {
-		fprintf(stderr,
-		    "Could not open the log file, running in verbose mode\n");
+		fprintf(stderr, "Could not open the log file, running in verbose mode\n");
 		verbose = 1;
 	}
 	initializeLibxml2();
-
 	if((argc >= 2) && (!strcmp(argv[1], "-v")))
 		verbose = 1;
-
 	old_errors = nb_errors;
 	old_tests = nb_tests;
 	old_leaks = nb_leaks;
@@ -1051,10 +1044,7 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) {
 	if((nb_errors == old_errors) && (nb_leaks == old_leaks))
 		printf("Ran %d tests, no errors\n", nb_tests - old_tests);
 	else
-		printf("Ran %d tests, %d errors, %d leaks\n",
-		    nb_tests - old_tests,
-		    nb_errors - old_errors,
-		    nb_leaks - old_leaks);
+		printf("Ran %d tests, %d errors, %d leaks\n", nb_tests - old_tests, nb_errors - old_errors, nb_leaks - old_leaks);
 	old_errors = nb_errors;
 	old_tests = nb_tests;
 	old_leaks = nb_leaks;
@@ -1062,10 +1052,7 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) {
 	if((nb_errors == old_errors) && (nb_leaks == old_leaks))
 		printf("Ran %d tests, no errors\n", nb_tests - old_tests);
 	else
-		printf("Ran %d tests, %d errors, %d leaks\n",
-		    nb_tests - old_tests,
-		    nb_errors - old_errors,
-		    nb_leaks - old_leaks);
+		printf("Ran %d tests, %d errors, %d leaks\n", nb_tests - old_tests, nb_errors - old_errors, nb_leaks - old_leaks);
 	old_errors = nb_errors;
 	old_tests = nb_tests;
 	old_leaks = nb_leaks;
@@ -1073,10 +1060,7 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) {
 	if((nb_errors == old_errors) && (nb_leaks == old_leaks))
 		printf("Ran %d tests, no errors\n", nb_tests - old_tests);
 	else
-		printf("Ran %d tests, %d errors, %d leaks\n",
-		    nb_tests - old_tests,
-		    nb_errors - old_errors,
-		    nb_leaks - old_leaks);
+		printf("Ran %d tests, %d errors, %d leaks\n", nb_tests - old_tests, nb_errors - old_errors, nb_leaks - old_leaks);
 	old_errors = nb_errors;
 	old_tests = nb_tests;
 	old_leaks = nb_leaks;

@@ -4279,8 +4279,8 @@ int FiasImporter::ProcessState::SearchItem(const char * pPath, int phase, uint *
 {
 	int    ok = 0;
 	uint   pos = 0;
-	SPathStruc ps(pPath);
-	SPathStruc::NormalizePath(ps.Nam, 0, rNormalizedName);
+	SFsPath ps(pPath);
+	SFsPath::NormalizePath(ps.Nam, 0, rNormalizedName);
 	for(uint i = 0; !ok && i < L.getCount(); i++) {
 		const Item & r_item = L.at(i);
 		if(r_item.Phase == phase && rNormalizedName == r_item.InputFileName) {
@@ -4370,7 +4370,7 @@ void FiasImporter::SaxStop()
 	rObjName.Z();
 	rDt = ZERODATE;
 	rUuid.Z();
-	SPathStruc ps(pFileName);
+	SFsPath ps(pFileName);
 	if(ps.Ext.IsEqiAscii("xml")) {
 		StringSet ss('_', ps.Nam);
 		SString temp_buf;
@@ -5279,7 +5279,7 @@ int PoBlock::Import(const char * pFileName, const char * pSrcIdent, uint * pSrcI
 	SString line_buf;
 	SString last_msgid_buf;
 	SString last_msgstr_buf;
-	SPathStruc ps(pFileName);
+	SFsPath ps(pFileName);
 	{
 		int _fn_lang = RecognizeLinguaSymb(ps.Nam, 1);
 		if(_fn_lang)
@@ -5891,7 +5891,7 @@ int PrcssrOsm::WriteRoadStone(RoadStone & rRs)
 	SString temp_buf;
 	SString line_buf;
 	SString file_name;
-	SPathStruc ps(rRs.SrcFileName);
+	SFsPath ps(rRs.SrcFileName);
 	ps.Nam.CatChar('-');
 	THROW(GetPhaseSymb(rRs.Phase, temp_buf));
     ps.Nam.Cat(temp_buf);
@@ -5916,7 +5916,7 @@ int PrcssrOsm::ReadRoadStone(long phase, RoadStone & rRs)
 	int    ok = 1;
 	SString temp_buf;
 	SString file_name;
-	SPathStruc ps(P.SrcFileName);
+	SFsPath ps(P.SrcFileName);
 	ps.Nam.CatChar('-');
 	THROW(GetPhaseSymb(phase, temp_buf));
     ps.Nam.Cat(temp_buf);
@@ -6151,7 +6151,7 @@ int PrcssrOsm::ProcessWaySizes()
 		long   prev_file_no = -1;
 		int    skip_this_file_no = 0;
 		SString preserve_filnam;
-		SPathStruc ps_out_filename(P_SizeOutF->GetName());
+		SFsPath ps_out_filename(P_SizeOutF->GetName());
 		preserve_filnam = ps_out_filename.Nam;
 
 		if(curs.Search(key_buf, data_buf, spFirst)) do {
@@ -6358,7 +6358,7 @@ int PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint upp
 	SString lat_file_name;
 	SString lon_file_name;
 	{
-		SPathStruc ps(pSrcFileName);
+		SFsPath ps(pSrcFileName);
 		{
 			ps.Split(pSrcFileName);
 			ps.Nam.CatChar('-').Cat("lat").CatChar('-').Cat("sorted");
@@ -6554,8 +6554,8 @@ int PrcssrOsm::SortCbProc(const SFileSortProgressData * pInfo)
 		const PrcssrOsm * p_prcr = (const PrcssrOsm *)pInfo->ExtraPtr;
 		if(p_prcr) {
 			SString file_name;
-			SPathStruc ps(pInfo->P_SrcFileName);
-			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+			SFsPath ps(pInfo->P_SrcFileName);
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
 			if(pInfo->Phase == 1) {
 				msg_buf.Printf(p_prcr->FmtMsg_SortSplit, file_name.cptr());
 				msg_buf.Space().CatParStr(pInfo->SplitThreadCount);
@@ -6570,7 +6570,7 @@ int PrcssrOsm::SortCbProc(const SFileSortProgressData * pInfo)
 	return 1;
 }
 
-static SString & MakeSuffixedTxtFileName(const SString & rSrcFileName, const char * pSuffix, SPathStruc & rPs, SString & rResult)
+static SString & MakeSuffixedTxtFileName(const SString & rSrcFileName, const char * pSuffix, SFsPath & rPs, SString & rResult)
 {
 	rPs.Split(rSrcFileName);
 	rPs.Nam.CatChar('-').Cat(pSuffix);
@@ -6593,7 +6593,7 @@ int PrcssrOsm::SortFile(const char * pSrcFileName, const char * pSuffix, CompFun
 
 	SString in_file_name;
 	SString out_file_name;
-	SPathStruc ps;
+	SFsPath ps;
 	{
 		ps.Split(pSrcFileName);
 		ps.Nam.CatChar('-').Cat(pSuffix);
@@ -6626,7 +6626,7 @@ int PrcssrOsm::Run()
 	SString in_file_name;
 	SString out_file_name;
 	SString temp_buf;
-	SPathStruc ps;
+	SFsPath ps;
 	const  char * p_db_path = 0;
 	PPWaitStart();
 	RestoredStat.Clear();
@@ -7073,7 +7073,7 @@ static int Helper_ImportYYE(const char * pSrcPath, const char * pFileName) // ян
 			SString out_file_name;
 			SString supplemental_out_file_name;
 			{
-				SPathStruc ps(f_in.GetName());
+				SFsPath ps(f_in.GetName());
 				const SString org_file_name = ps.Nam;
 				(ps.Nam = org_file_name).CatChar('-').Cat("out");
 				ps.Ext = "csv";
@@ -7351,7 +7351,7 @@ int ImportSpecial(const char * pPath_)
 			for(SDirec dir(temp_buf, 0); dir.Next(&de) > 0;) {
 				if(!de.IsSelf() && !de.IsUpFolder()) {
 					de.GetNameUtf8(local_path, filename);
-					SPathStruc ps(filename);
+					SFsPath ps(filename);
 					if(ps.Ext.IsEqiAscii("csv")) {
 						SFile f_in(filename, SFile::mRead);
 						for(uint line_no = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); line_no++) {

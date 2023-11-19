@@ -764,7 +764,7 @@ void SLockStack::Push(uint lockType, const char * pSrcFileName, uint lineNo)
 	Entry new_entry;
 	MEMSZERO(new_entry);
 	if(!isempty(pSrcFileName)) {
-		// SPathStruc::NormalizePath(pSrcFileName, SPathStruc::npfSlash, TempBuf);
+		// SFsPath::NormalizePath(pSrcFileName, SFsPath::npfSlash, TempBuf);
 		//if(TempBuf.NotEmpty()) {
 		new_entry.SrcFileSymbId = SLS.GetGlobalSymbol(pSrcFileName, 0, 0);
 		//}

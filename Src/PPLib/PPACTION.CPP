@@ -508,8 +508,8 @@ int SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 			THROW_DB(BTROKORNFOUND);
 		}
 		if(toDt) {
-			SPathStruc ps(DBTable::GetName());
-			ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+			SFsPath ps(DBTable::GetName());
+			ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, temp_buf);
 			msg_buf.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, fmt_buf), temp_buf.cptr());
 			{
 				MEMSZERO(k);

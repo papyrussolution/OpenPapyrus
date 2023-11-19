@@ -1303,7 +1303,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 		WinInetFTP ftp;
 		// @v10.8.4 {
 		if(!isempty(pEndFileName)) {
-			SPathStruc efn_ps(pEndFileName);
+			SFsPath efn_ps(pEndFileName);
 			dest_nam = efn_ps.Nam;
 			dest_ext = efn_ps.Ext;
 		}
@@ -1320,7 +1320,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 		ok = -1;
 		for(uint i = 0; ss.get(&i, path);) {
 			if(!isempty(pSubDir)) {
-				SPathStruc sp(path);
+				SFsPath sp(path);
 				sp.Dir.RmvLastSlash();
 				if(!oneof2(pSubDir[0], '\\', '/'))
 					sp.Dir.SetLastSlash();
@@ -1335,7 +1335,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 			*/
 			if(path.HasPrefixIAscii(p_ftp_flag)) {
 				SString ftp_path, file_name;
-				SPathStruc sp;
+				SFsPath sp;
 				path.ShiftLeft(sstrlen(p_ftp_flag));
 				path.ShiftLeftChr('\\').ShiftLeftChr('\\').ShiftLeftChr('/').ShiftLeftChr('/');
 				ftp_path.CatCharN('\\', 2).Cat(path);
@@ -1345,7 +1345,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 					ftp_connected = 1;
 				}
 				sp.Split(pFileName);
-				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, file_name);
+				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir, file_name);
 				if(action == dfactCheckDestPaths) {
 					SString local_path;
 					PPGetPath(PPPATH_OUT, local_path);
@@ -1413,8 +1413,8 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 				else {
 					// @v10.5.6 replacePath(buf, path, 1);
 					// @v10.5.6 {
-					SPathStruc sp(dest_file_name);
-					SPathStruc sp_path(path);
+					SFsPath sp(dest_file_name);
+					SFsPath sp_path(path);
 					SETFLAGBYSAMPLE(sp.Flags, sp.fUNC, sp_path.Flags); // @v10.5.7
 					sp.Drv = sp_path.Drv;
 					sp.Dir = sp_path.Dir;

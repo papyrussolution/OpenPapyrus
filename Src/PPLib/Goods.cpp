@@ -772,7 +772,7 @@ int GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
 			pData->Brutto   = p_strg->Brutto;
 			pData->PckgDim  = p_strg->PckgDim;
 			pData->NettBruttCoeff = p_strg->NettBruttCoeff; // @v9.8.12
-			pData->Package  = (IsValidIEEE(p_strg->Package) && p_strg->Package > 0) ? R6(p_strg->Package) : 0;
+			pData->Package  = (SIEEE754::IsValid(p_strg->Package) && p_strg->Package > 0) ? R6(p_strg->Package) : 0;
 			pData->ExpiryPeriod = p_strg->ExpiryPeriod;
 			pData->GseFlags      = p_strg->GseFlags;
 			pData->MinShippmQtty = p_strg->MinShippmQtty;
@@ -783,11 +783,11 @@ int GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
 				uint min_stock_count = pData->MinStockList.getCount();
 				for(uint i = 0; i < min_stock_count; i++) {
 					double min_stock = pData->MinStockList.at(i).Val;
-					pData->MinStockList.at(i).Val = (IsValidIEEE(min_stock) && min_stock > 0) ? R6(min_stock) : 0;
+					pData->MinStockList.at(i).Val = (SIEEE754::IsValid(min_stock) && min_stock > 0) ? R6(min_stock) : 0;
 				}
 			}
 			/* @v9.5.10
-			double zero_loc_min_stock = (IsValidIEEE(p_strg->MinStock) && p_strg->MinStock > 0) ? R6(p_strg->MinStock) : 0;
+			double zero_loc_min_stock = (SIEEE754::IsValid(p_strg->MinStock) && p_strg->MinStock > 0) ? R6(p_strg->MinStock) : 0;
 			if(zero_loc_min_stock)
 				pData->SetMinStock(0, zero_loc_min_stock);
 			*/

@@ -503,7 +503,7 @@ int PPDrvSberTrmnl::Init(const char * pLibPath)
 			SString slip_file_name;
 			SIniFile ini_file("pinpad.ini");
 			if(ini_file.GetParam(0, "printerfile", slip_file_name) > 0) {
-				SPathStruc ps(slip_file_name);
+				SFsPath ps(slip_file_name);
 				if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 					(SlipFileName = pLibPath).SetLastSlash().Cat(slip_file_name);
 				}

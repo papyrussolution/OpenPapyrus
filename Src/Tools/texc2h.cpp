@@ -1,5 +1,5 @@
 // TEXC2H.CPP
-// Copyright (c) M.Kazakov, 2010, 2017, 2020
+// Copyright (c) M.Kazakov, 2010, 2017, 2020, 2023
 //
 #include <slib.h>
 //
@@ -45,7 +45,7 @@ Texc2h::~Texc2h()
 	delete P_ContnrsStack;
 }
 
-static int LoadTagsList(Texc2h *const pTexc2h)
+static int LoadTagsList(Texc2h * pTexc2h)
 {
 	uint	pos = 0;
 	SString	fname = SLS.GetExePath();
@@ -63,7 +63,7 @@ static int LoadTagsList(Texc2h *const pTexc2h)
 	return 0;
 }
 
-static int LineIsComment(SString *const pLine)
+static int LineIsComment(const SString * pLine)
 {
 	int i = 0, ch = 0, result = FALSE;
 	while((ch = pLine->C(i++))) {
@@ -78,7 +78,7 @@ static int LineIsComment(SString *const pLine)
 	return result;
 }
 
-static void LinePrepare(SString *const pLine, int npos)
+static void LinePrepare(SString * pLine, int npos)
 {
 	while(true) {
 		switch(pLine->C(npos)) {
@@ -106,7 +106,7 @@ static void LinePrepare(SString *const pLine, int npos)
 	}
 }
 
-int AddProjectResource(Texc2h * const pTexc2h, SString const * ss_buf)
+int AddProjectResource(const Texc2h * pTexc2h, const SString * ss_buf)
 {
 	int		is_exist = 0;
 	int		search_up = 0;
@@ -129,7 +129,7 @@ int AddProjectResource(Texc2h * const pTexc2h, SString const * ss_buf)
 		if(!is_exist) {
 			ss_buf->CopyTo(cbuf, ss_buf->Len() + 1);
 			cbuf[ss_buf->Len() + 1] = 0;
-			WritePrivateProfileSection(_T("FILES"), SUcSwitch(cbuf), SUcSwitch(pTexc2h->PrjFileName));
+			WritePrivateProfileSectionA("FILES", cbuf, pTexc2h->PrjFileName);
 			printf("Added into project: %s\n", cbuf);
 		}
 	}
@@ -140,7 +140,7 @@ int AddProjectResource(Texc2h * const pTexc2h, SString const * ss_buf)
 	return 0;
 }
 
-static int Translate(Texc2h *const pTexc2h, SString *const pLine)
+static int Translate(Texc2h * pTexc2h, SString * pLine)
 {
 	int    ok = 0;
 	int    ch = 0, brk = 0, brc_i = 0, type = 0;
@@ -432,7 +432,6 @@ static int Translate(Texc2h *const pTexc2h, SString *const pLine)
 									default:
 										break;
 								}
-								
 								if(brc_i) {
 									if(type == TTYPE_WITHENDING) {
 										pTexc2h->P_TagsStack->push(t_pos);
@@ -448,7 +447,6 @@ static int Translate(Texc2h *const pTexc2h, SString *const pLine)
 						t_pos++;
 				}
 			}
-			
 			if(pTexc2h->InclLvl != 0) {
 				pos = 0;
 				while((ch = pLine->C(pos))) {
@@ -479,7 +477,6 @@ static int Translate(Texc2h *const pTexc2h, SString *const pLine)
 			}
 		}
 	}
-
 	return ok;
 }
 

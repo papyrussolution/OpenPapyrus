@@ -1199,7 +1199,7 @@ int SlSession::LogMessage(const char * pFileName, const char * pStr, ulong maxFi
 	FILE * f = 0;
 	SString file_name(pFileName);
 	{
-		SPathStruc ps;
+		SFsPath ps;
 		if(file_name.NotEmptyS())
 			ps.Split(file_name);
 		ps.Nam.SetIfEmpty("slib");
@@ -1241,7 +1241,7 @@ int SlSession::LogMessage(const char * pFileName, const char * pStr, ulong maxFi
 				SString ext;
 				SString b(file_name);
 				do {
-					SPathStruc::ReplaceExt(b, ext.Z().CatLongZ(++counter, 3), 1);
+					SFsPath::ReplaceExt(b, ext.Z().CatLongZ(++counter, 3), 1);
 				} while(fileExists(b));
 				copyFileByName(file_name, b);
 				SFile::Remove(file_name);

@@ -632,7 +632,7 @@ int PPDesktop::Init__(const S_GUID & rDesktopUuid)
 		if(P_ActiveDesktop->GetLogo().NotEmpty()) {
 			SString path, buf;
 			Logotype.Init();
-			SPathStruc ps(P_ActiveDesktop->GetLogo());
+			SFsPath ps(P_ActiveDesktop->GetLogo());
 			PPGetPath(PPPATH_BIN, path);
 			PPLoadText(PPTXT_DESKIMGDIR, buf);
 			path.SetLastSlash().Cat(buf);

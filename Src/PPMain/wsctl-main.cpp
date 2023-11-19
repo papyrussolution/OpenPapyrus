@@ -942,7 +942,7 @@ WsCtl_ImGuiSceneBlock::TextureCache::TextureCache(uint initCount, const void * p
 		
 void WsCtl_ImGuiSceneBlock::TextureCache::SetBasePath(const char * pPath)
 {
-	SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash|SPathStruc::npfCompensateDotDot, BasePath);
+	SFsPath::NormalizePath(pPath, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, BasePath);
 }
 		
 void WsCtl_ImGuiSceneBlock::TextureCache::MakeKey(const char * pFileName, SString & rKey)
@@ -950,7 +950,7 @@ void WsCtl_ImGuiSceneBlock::TextureCache::MakeKey(const char * pFileName, SStrin
 	rKey.Z();
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	(r_temp_buf = BasePath).SetLastSlash().Cat(pFileName);
-	SPathStruc::NormalizePath(r_temp_buf, SPathStruc::npfSlash|SPathStruc::npfCompensateDotDot, rKey);
+	SFsPath::NormalizePath(r_temp_buf, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, rKey);
 }
 		
 int WsCtl_ImGuiSceneBlock::TextureCache::Put(Texture_CachedFileEntity * pEntry)
@@ -2803,7 +2803,7 @@ int WsCtl_ImGuiSceneBlock::GetProgramListFromCache(WsCtl_ProgramCollection & rPg
 	SString cache_path;
 	WsCtl_ImGuiSceneBlock::GetLocalCachePath(cache_path);
 	cache_path.SetLastSlash().Cat("data");
-	if(createDir(cache_path)) {
+	if(SFile::CreateDir(cache_path)) {
 		(temp_buf = cache_path).SetLastSlash().Cat("wsctl-program.json");
 		if(fileExists(temp_buf)) {
 			SJson * p_js_obj = SJson::ParseFile(temp_buf);
@@ -2914,7 +2914,7 @@ int WsCtl_ImGuiSceneBlock::QueryProgramList2(WsCtl_ProgramCollection & rPgmL, Ws
 	SString cache_path;
 	PPGetPath(PPPATH_WORKSPACE, temp_buf);	
 	(cache_path = temp_buf).SetLastSlash().Cat("cache");
-	if(createDir(cache_path)) {
+	if(SFile::CreateDir(cache_path)) {
 		rPath = cache_path;
 	}
 	else

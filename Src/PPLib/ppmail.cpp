@@ -1,5 +1,5 @@
 // PPMAIL.CPP
-// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -215,8 +215,8 @@ int PPInternetAccount::NotEmpty()
 int PPInternetAccount::GetExtField(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtStr, rBuf); }
 int PPInternetAccount::SetExtField(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtStr, pBuf); }
 
-#define POP3_PW_SIZE_BEFORE11509 20 // @attention изменение значения требует конвертации хранимого пароля
-#define POP3_PW_SIZE_2           32 // @attention изменение значения требует конвертации хранимого пароля
+// @v11.8.11 (moved to PPConst) #define POP3_PW_SIZE_BEFORE11509 20 // @attention изменение значения требует конвертации хранимого пароля
+// @v11.8.11 (moved to PPConst) #define POP3_PW_SIZE_2           32 // @attention изменение значения требует конвертации хранимого пароля
 
 int PPInternetAccount::SetPassword_(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
@@ -225,7 +225,7 @@ int PPInternetAccount::SetPassword_(const char * pPassword, int fldID /* = MAEXS
 	if(fldID == MAEXSTR_RCVPASSWORD)
 		fldID = MAEXSTR_RCVPASSWORD2;
 	// } @v11.5.9 
-	Reference::Helper_EncodeOtherPw(0, pPassword, POP3_PW_SIZE_2, temp_buf);
+	Reference::Helper_EncodeOtherPw(0, pPassword, PPConst::PwSize_POP3_2, temp_buf);
 	return SetExtField(fldID, temp_buf);
 }
 
@@ -237,16 +237,16 @@ int PPInternetAccount::GetPassword_(char * pBuf, size_t bufLen, int fldID /* = M
 	if(oneof2(fldID, MAEXSTR_RCVPASSWORD, MAEXSTR_RCVPASSWORD2)) {
 		GetExtField(MAEXSTR_RCVPASSWORD2, temp_buf);
 		if(temp_buf.NotEmpty()) {
-			pw_buf_size = POP3_PW_SIZE_2;
+			pw_buf_size = PPConst::PwSize_POP3_2;
 		}
 		else {
 			GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
-			pw_buf_size = POP3_PW_SIZE_BEFORE11509;
+			pw_buf_size = PPConst::PwSize_POP3_BEFORE11509;
 		}
 	}
 	else {
 		GetExtField(fldID, temp_buf);
-		pw_buf_size = POP3_PW_SIZE_BEFORE11509;
+		pw_buf_size = PPConst::PwSize_POP3_BEFORE11509;
 	}
 	// } @v11.5.9 
 	//GetExtField(fldID, temp_buf);
@@ -287,16 +287,16 @@ int PPInternetAccount::GetMimedPassword_(char * pBuf, size_t bufLen, int fldID /
 		if(oneof2(fldID, MAEXSTR_RCVPASSWORD, MAEXSTR_RCVPASSWORD2)) {
 			GetExtField(MAEXSTR_RCVPASSWORD2, temp_buf);
 			if(temp_buf.NotEmpty()) {
-				pw_buf_size = POP3_PW_SIZE_2;
+				pw_buf_size = PPConst::PwSize_POP3_2;
 			}
 			else {
 				GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
-				pw_buf_size = POP3_PW_SIZE_BEFORE11509;
+				pw_buf_size = PPConst::PwSize_POP3_BEFORE11509;
 			}
 		}
 		else {
 			GetExtField(fldID, temp_buf);
-			pw_buf_size = POP3_PW_SIZE_BEFORE11509;
+			pw_buf_size = PPConst::PwSize_POP3_BEFORE11509;
 		}
 		// } @v11.5.9 
 		if(temp_buf.Len() == (pw_buf_size * 3)) {
@@ -1003,7 +1003,7 @@ int PPMailFile::SaveAttachment(const char * pAttachName, const char * pDestPath)
 					else if(this_attachment && start_file) {
 						if(*strip(P_LineBuf)) {
 							char   mime_buf[1024];
-							THROW_PP_S(decode64(P_LineBuf, sstrlen(P_LineBuf), mime_buf, &out_buf_len) > 0, PPERR_GETATTACHS, file_name);
+							THROW_PP_S(Base64_Decode(P_LineBuf, sstrlen(P_LineBuf), mime_buf, &out_buf_len) > 0, PPERR_GETATTACHS, file_name);
 							SLibError = SLERR_WRITEFAULT;
 							THROW_SL(fwrite(mime_buf, out_buf_len, 1, p_out) == 1);
 						}
@@ -1566,7 +1566,7 @@ int PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
 			fn.Quot('\"', '\"');
 			_PUTS(pMsg->GetBoundary(1, boundary), out);
 			{
-				SPathStruc sp(path);
+				SFsPath sp(path);
 				if(img_exts.Search(sp.Ext, 0, 1, 0) > 0) {
 					is_img = 1;
 					ext = sp.Ext;
@@ -1593,7 +1593,7 @@ int PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
 				char   mime_buf[256];
 				while((in_len = fread(mime_buf, 1, 57, f2)) > 0) {
 					char enc_buf[256];
-					encode64(mime_buf, in_len, enc_buf, sizeof(enc_buf), 0);
+					Base64_Encode(mime_buf, in_len, enc_buf, sizeof(enc_buf), 0);
 					_PUTS(enc_buf, out);
 				}
 			}

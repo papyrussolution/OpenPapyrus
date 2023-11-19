@@ -1625,10 +1625,7 @@ static int ZSTD_indexTooCloseToMax(ZSTD_window_t w)
  * one go generically. So we ensure that in that case we reset the tables to zero,
  * so that we can load as much of the dictionary as possible.
  */
-static int ZSTD_dictTooBig(const size_t loadedDictSize)
-{
-	return loadedDictSize > ZSTD_CHUNKSIZE_MAX;
-}
+static int ZSTD_dictTooBig(const size_t loadedDictSize) { return loadedDictSize > ZSTD_CHUNKSIZE_MAX; }
 
 /*! ZSTD_resetCCtx_internal() :
  * @param loadedDictSize The size of the dictionary to be loaded
@@ -2591,7 +2588,7 @@ static size_t ZSTD_buildSeqStore(ZSTD_CCtx* zc, const void * src, size_t srcSize
 	/* limited update after a very long match */
 	{   
 		const BYTE * const base = ms->window.base;
-	    const BYTE * const istart = (const BYTE *)src;
+	    const BYTE * const istart = PTR8C(src);
 	    const uint32 curr = (uint32)(istart-base);
 	    if(sizeof(ptrdiff_t)==8) 
 			assert(istart - base < (ptrdiff_t)(uint32)(-1)); /* ensure no overflow */
@@ -2840,9 +2837,9 @@ static size_t ZSTD_buildBlockEntropyStats_literals(void * const src, size_t srcS
 		    return 0;
 	    }
 	}
-
 	/* Scan input and build symbol stats */
-	{   const size_t largest = HIST_count_wksp(countWksp, &maxSymbolValue, (const BYTE *)src, srcSize, workspace, wkspSize);
+	{   
+		const size_t largest = HIST_count_wksp(countWksp, &maxSymbolValue, (const BYTE *)src, srcSize, workspace, wkspSize);
 	    FORWARD_IF_ERROR(largest, "HIST_count_wksp failed");
 	    if(largest == srcSize) {
 		    DEBUGLOG(5, "set_rle");
@@ -2863,9 +2860,8 @@ static size_t ZSTD_buildBlockEntropyStats_literals(void * const src, size_t srcS
 	memzero(nextHuf->CTable, sizeof(nextHuf->CTable));
 	huffLog = HUF_optimalTableLog(huffLog, srcSize, maxSymbolValue);
 	assert(huffLog <= LitHufLog);
-	{   const size_t maxBits = HUF_buildCTable_wksp((HUF_CElt*)nextHuf->CTable, countWksp,
-		    maxSymbolValue, huffLog,
-		    nodeWksp, nodeWkspSize);
+	{   
+		const size_t maxBits = HUF_buildCTable_wksp((HUF_CElt*)nextHuf->CTable, countWksp, maxSymbolValue, huffLog, nodeWksp, nodeWkspSize);
 	    FORWARD_IF_ERROR(maxBits, "HUF_buildCTable_wksp");
 	    huffLog = (uint32)maxBits;
 	    { /* Build and write the CTable */
@@ -3210,7 +3206,7 @@ static size_t ZSTD_compressSeqStore_singleBlock(ZSTD_CCtx* zc, seqStore_t* const
 {
 	const uint32 rleMaxLength = 25;
 	BYTE * op = (BYTE *)dst;
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	size_t cSize;
 	size_t cSeqsSize;
 
@@ -3358,7 +3354,7 @@ static size_t ZSTD_compressBlock_splitBlock_internal(ZSTD_CCtx* zc, void * dst, 
     const void * src, size_t blockSize, uint32 lastBlock, uint32 nbSeq)
 {
 	size_t cSize = 0;
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	BYTE * op = (BYTE *)dst;
 	size_t i = 0;
 	size_t srcBytesTotal = 0;
@@ -3442,7 +3438,7 @@ static size_t ZSTD_compressBlock_splitBlock(ZSTD_CCtx* zc,
     void * dst, size_t dstCapacity,
     const void * src, size_t srcSize, uint32 lastBlock)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	BYTE * op = (BYTE *)dst;
 	uint32 nbSeq;
 	size_t cSize;
@@ -3477,7 +3473,7 @@ static size_t ZSTD_compressBlock_internal(ZSTD_CCtx* zc,
 	 */
 	const uint32 rleMaxLength = 25;
 	size_t cSize;
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	BYTE * op = (BYTE *)dst;
 	DEBUGLOG(5, "ZSTD_compressBlock_internal (dstCapacity=%u, dictLimit=%u, nextToUpdate=%u)",
 	    (uint)dstCapacity, (uint)zc->blockState.matchState.window.dictLimit,
@@ -3647,7 +3643,7 @@ static size_t ZSTD_compress_frameChunk(ZSTD_CCtx* cctx,
 {
 	size_t blockSize = cctx->blockSize;
 	size_t remaining = srcSize;
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	BYTE * const ostart = (BYTE *)dst;
 	BYTE * op = ostart;
 	const uint32 maxDist = (uint32)1 << cctx->appliedParams.cParams.windowLog;
@@ -3904,7 +3900,7 @@ size_t ZSTD_compressBlock(ZSTD_CCtx* cctx, void * dst, size_t dstCapacity, const
 static size_t ZSTD_loadDictionaryContent(ZSTD_matchState_t* ms, ldmState_t* ls, ZSTD_cwksp* ws,
     ZSTD_CCtx_params const* params, const void * src, size_t srcSize, ZSTD_dictTableLoadMethod_e dtlm)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	const BYTE * const iend = ip + srcSize;
 	int const loadLdmDict = params->ldmParams.enableLdm == ZSTD_ps_enable && ls != NULL;
 	/* Assert that the ms params match the params we're being given */

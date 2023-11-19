@@ -410,7 +410,7 @@ int Test_Hash_And_Search(const char * pInputFileName)
 			{
 				SString fn(pInputFileName);
 				//replaceExt(fn, "OUT", 1);
-				SPathStruc::ReplaceExt(fn, "out", 1);
+				SFsPath::ReplaceExt(fn, "out", 1);
 				SFile out_file(fn, SFile::mWrite);
 				if(out_file.IsValid()) {
 					SymbHashTable::Iter iter;
@@ -503,7 +503,7 @@ int TestSPathStruc(const char * pInputFileName)
 		STRNSCPY(fn, pInputFileName);
 		replaceExt(fn, "OUT", 1);
 		SFile out_file(fn, SFile::mWrite);
-		SPathStruc ps;
+		SFsPath ps;
 		while(file.ReadLine(line_buf, SFile::rlfChomp)) {
 			SInvariantParam ip;
 			ps.Split(line_buf);
@@ -1523,8 +1523,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	TestGtinStruc();
 	Test_SSystemBackup();
+	TestGtinStruc();
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");

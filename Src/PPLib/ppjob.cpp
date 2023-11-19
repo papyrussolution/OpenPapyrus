@@ -50,7 +50,7 @@ int PPJobMngr::GetXmlPoolDir(SString &rXmlPoolPath)
 {
 	int    ok = 1;
 	THROW(PPGetFilePath(PPPATH_WORKSPACE, "srvjobpool", rXmlPoolPath));  // получаем путь к workspace
-	THROW(::createDir(rXmlPoolPath));
+	THROW(SFile::CreateDir(rXmlPoolPath));
 	CATCHZOK
 	return ok;
 }

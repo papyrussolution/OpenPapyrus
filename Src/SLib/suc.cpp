@@ -2379,7 +2379,7 @@ int SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoolFileN
 		{
 			const SString test_src_1251_file_name("D:/Papyrus/Src/PPTEST/DATA/rustext.txt");
 			SString test_dest_file_name;
-			SPathStruc ps;
+			SFsPath ps;
 			{
 				for(uint i = 0; i < test_tidx_list.getCount(); i++) {
 					_TestTranslIndexEntry * p_tti = test_tidx_list.at(i);

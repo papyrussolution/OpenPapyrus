@@ -430,11 +430,11 @@ int PPFtsDatabase::GetDatabasePath(int dbd, SString & rBuf) const
 	base_path.SetLastSlash().Cat("supplementaldata");
 	if(dbd == PPFtsDatabase::dbdMain) {
 		(rBuf = base_path).SetLastSlash().Cat("fti");
-		THROW_SL(createDir(rBuf));
+		THROW_SL(SFile::CreateDir(rBuf));
 	}
 	else if(dbd == PPFtsDatabase::dbdSupplemental) {
 		(rBuf = base_path).SetLastSlash().Cat("lmdb");
-		THROW_SL(createDir(rBuf));
+		THROW_SL(SFile::CreateDir(rBuf));
 	}
 	else
 		ok = 0;
@@ -989,7 +989,7 @@ int  Test_Fts()
 			SString lmdb_path;
 			PPGetPath(PPPATH_WORKSPACE, lmdb_path);
 			lmdb_path.SetLastSlash().Cat("lmdb");
-			createDir(lmdb_path);
+			SFile::CreateDir(lmdb_path);
 			LmdbDatabase * p_db = LmdbDatabase::GetInstance(lmdb_path, 0, 0);
 			if(p_db) {
 				LmdbDatabase * p_db2 = LmdbDatabase::GetInstance(lmdb_path, 0, 0);

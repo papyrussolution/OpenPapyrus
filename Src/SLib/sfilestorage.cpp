@@ -29,7 +29,7 @@ bool SFileStorage::Init(const char * pBasePath)
 	State = 0;
 	bool    ok = true;
 	THROW(!isempty(pBasePath));
-	THROW(createDir(pBasePath));
+	THROW(SFile::CreateDir(pBasePath));
 	BasePath = pBasePath;
 	State |= stInited;
 	CATCH
@@ -73,7 +73,7 @@ int SFileStorage::MakeFileEntry(const char * pName, SString & rEntryName, bool w
 		//ultoa(bucket_no, subdir, 16);
 		(rEntryName = BasePath).SetLastDSlash().Cat(r_subdir);
 		if(writing) {
-			THROW(createDir(rEntryName));
+			THROW(SFile::CreateDir(rEntryName));
 		}
 		rEntryName.SetLastDSlash().Cat(pName);
 		if(!writing) {

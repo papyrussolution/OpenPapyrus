@@ -8,7 +8,7 @@
 
 static void FASTCALL GetAveragePath(const char * pName, SString & rBuf)
 {
-	SPathStruc ps(SLS.GetExePath());
+	SFsPath ps(SLS.GetExePath());
 	size_t p = ps.Dir.Len();
 	if(p) {
 		p--;
@@ -18,7 +18,7 @@ static void FASTCALL GetAveragePath(const char * pName, SString & rBuf)
 			p--;
 	}
 	ps.Dir.Trim(p).SetLastSlash().Cat(pName).SetLastSlash();
-	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rBuf);
+	ps.Merge(SFsPath::fDrv|SFsPath::fDir, rBuf);
 }
 //
 //
@@ -325,7 +325,7 @@ int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 
 	PPIniFile * p_ini_file = NZOR(pIniFile, new PPIniFile);
 	THROW_MEM(p_ini_file);
 	THROW_SL(p_ini_file->IsValid());
-	// @construction (see comments below) SPathStruc ps;
+	// @construction (see comments below) SFsPath ps;
 	p_ini_file->Get(PPINISECT_PATH, PPINIPARAM_SYS, def_dict);
 	p_ini_file->Get(PPINISECT_PATH, PPINIPARAM_DAT, def_data);
 	p_ini_file->GetEntries(P_DbNameSect, &entries);
@@ -395,7 +395,7 @@ int PPDbEntrySet2::RegisterEntry(PPIniFile * pIniFile, const DbLoginBlock * pBlk
 			SString server_name, pack_path;
 			if(p_ini_file->Get(PPINISECT_PATH, PPINIPARAM_PACK, pack_path) > 0) {
 				if(::access(data_path, 0))
-					THROW_SL(createDir(data_path));
+					THROW_SL(SFile::CreateDir(data_path));
 				CopyDataStruct(pack_path, data_path, BDictionary::DdfTableFileName);
 				CopyDataStruct(pack_path, data_path, BDictionary::DdfFieldFileName);
 				CopyDataStruct(pack_path, data_path, BDictionary::DdfIndexFileName);

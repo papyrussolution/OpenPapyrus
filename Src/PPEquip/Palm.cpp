@@ -238,7 +238,7 @@ int PPStyloPalmPacket::MakePath(const char * pSuffix, SString & rBuf) const
 	if(rBuf.NotEmptyS()) {
 		if(pSuffix)
 			rBuf.SetLastSlash().Cat(pSuffix);
-		::createDir(rBuf);
+		SFile::CreateDir(rBuf);
 		return 1;
 	}
 	else
@@ -1303,7 +1303,7 @@ static int GetImportFileList(int isAndr, const char * pPath, WinInetFTP * pFtp, 
 		if(isAndr) {
 			SString mask;
 			PPGetFileName(PPFILNAM_PALM_OUTXML, fname);
-			SPathStruc sp(fname);
+			SFsPath sp(fname);
 			mask.CatChar('*').Cat(sp.Nam).CatChar('*').Dot().Cat(sp.Ext);
 			if(pFtp) {
 				ok = pFtp->SafeGetFileList(pPath, pList, mask.cptr(), pLogger);
@@ -1347,7 +1347,7 @@ int PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, PalmIn
 		if(pRec->Flags & PLMF_ANDROID) {
 			SString path, mask, fname;
 			StrAssocArray file_list;
-			SPathStruc sp;
+			SFsPath sp;
 			if(GetImportFileList(1, pPath, 0, &file_list, 0) > 0) {
 				for(uint i = 0; i < file_list.getCount(); i++) {
 					AndroidReader reader((path = pPath).SetLastSlash().Cat(file_list.Get(i).Txt), pRec);

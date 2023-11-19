@@ -143,7 +143,7 @@ static int _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecoverInfo
 		r_info.ActNumRecs = pParam->ActNumRecs;
 		r_info.NotRcvrdNumRecs = r_info.OrgNumRecs - r_info.ActNumRecs;
 		{
-			SPathStruc ps(path);
+			SFsPath ps(path);
 			ps.Nam.CopyTo(r_info.TableName, sizeof(r_info.TableName));
 		}
 		pRecoverInfoAry->insert(&r_info);
@@ -934,7 +934,7 @@ int PrcssrDbDump::EditParam(Param * pData)
 				}
 				else {
 					getCtrlString(CTL_DBDUMP_FILE, Data.FileName);
-					SPathStruc::ReplaceExt(Data.FileName, "ppdump", 0);
+					SFsPath::ReplaceExt(Data.FileName, "ppdump", 0);
 					setCtrlString(CTL_DBDUMP_FILE, Data.FileName);
 				}
 			}
@@ -1878,8 +1878,8 @@ static int UseCopyContinouos(PPIniFile * pIniFile, PPDbEntrySet2 * pDbes)
 			PPID   dbentry_id = NZOR(pDbes->GetSelection(), pDbes->SetDefaultSelection());
 			SString data_path, disk;
 			pDbes->GetAttr(dbentry_id, DbLoginBlock::attrDbPath, data_path);
-			SPathStruc ps(data_path);
-			if(ps.Flags & SPathStruc::fUNC) {
+			SFsPath ps(data_path);
+			if(ps.Flags & SFsPath::fUNC) {
 				(disk = ps.Drv).RmvLastSlash();
 				SString lcn; // local machine name
 				if(SGetComputerName(lcn) && disk.CmpNC(lcn) == 0)
@@ -2399,7 +2399,7 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				if(IsDirectory(path))
 					ret = CONFIRM(PPCFM_EXISTDIR);
 				else if((ret = CONFIRM(PPCFM_MAKENEWDIR)) != 0) {
-					if(!createDir(path))
+					if(!SFile::CreateDir(path))
 						ret = PPErrorZ();
 				}
 			}
@@ -2412,7 +2412,7 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 					PPGetFilePath(PPPATH_LOG, PPFILNAM_BACKUP_LOG, param.LogFileName);
 				else {
 					PPGetPath(PPPATH_LOG, temp_buf);
-					SPathStruc::ReplacePath(param.LogFileName, temp_buf, 0);
+					SFsPath::ReplacePath(param.LogFileName, temp_buf, 0);
 				}
 				//
 				// Создаем подкаталог, в который будут сбрасываться версии файлов "до ремонта"
@@ -2420,7 +2420,7 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				for(long k = 1; k < 1000000L; k++) {
 					if(!::IsDirectory((bak_path = data_path).SetLastSlash().Cat("RB").CatLongZ(k, 6))) {
 						bak_path.SetLastSlash(); // @v11.2.12
-						THROW_SL(::createDir(bak_path));
+						THROW_SL(SFile::CreateDir(bak_path));
 						param.P_BakPath = bak_path;
 						break;
 					}

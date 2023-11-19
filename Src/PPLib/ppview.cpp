@@ -1606,8 +1606,8 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 							props.Encoding = SEncodingFormat::Unkn;
 							props.Priority = 5;
 							props.TimeStamp = getcurdatetime_();
-							SPathStruc ps(pFileName);
-							ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+							SFsPath ps(pFileName);
+							ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 							props.Headers.Add("filename", temp_buf.Transf(CTRANSF_OUTER_TO_UTF8));
 							props.Headers.Add("namedfilt-name", (temp_buf = pNf->Name).Transf(CTRANSF_INNER_TO_UTF8));
 							props.Headers.Add("namedfilt-symb", (temp_buf = pNf->Symb).Transf(CTRANSF_INNER_TO_UTF8));
@@ -2638,7 +2638,7 @@ int PPViewBrowser::Export()
 	if(p_wkbook) {
 		PPGetPath(PPPATH_LOCAL, path);
 		path.SetLastSlash();
-		createDir(path);
+		SFile::CreateDir(path);
 		path.Cat(name.ReplaceChar('/', ' ')).Cat(".xls");
 		SFile::Remove(path);
 		p_wkbook->_SaveAs(path);
@@ -3161,7 +3161,7 @@ PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
 		}
 		SLS.QueryPath("local", path);
 		path.SetLastSlash();
-		createDir(path);
+		SFile::CreateDir(path);
 		path.Cat(name.ReplaceChar('/', ' '));//.Cat(".xls");
 		SFile::Remove(path);
 		p_wkbook->_SaveAs(path);

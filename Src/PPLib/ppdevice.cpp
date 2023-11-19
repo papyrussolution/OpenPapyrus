@@ -1,5 +1,5 @@
 // PPDEVICE.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -9,8 +9,8 @@
 //
 PPGenericDevice::PPGenericDevice() : Tag(PPOBJ_GENERICDEVICE), ID(0), Flags(0), DeviceClass(0), Reserve2(0)
 {
-	PTR32(Name)[0] = 0;
-	PTR32(Symb)[0] = 0;
+	Name[0] = 0;
+	Symb[0] = 0;
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -294,7 +294,6 @@ int GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int nu
 	rSymbol.Z();
 	rDrvName.Z();
 	rDrvPath.Z();
-
 	int    ok = 0, r = 2;
 	int    drv_impl = 0;
 	const char * p_eq = sstrchr(pLine, '=');
@@ -346,7 +345,7 @@ int PPAbstractDevice::GetDllName(int dvcClass, long devTypeId, SString & rDllPat
 	{
 		SString symbol, drv_name;
 		int    drv_impl = 0;
-		SPathStruc ps;
+		SFsPath ps;
 		THROW(ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl));
 		ps.Split(path);
 		if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
@@ -373,7 +372,7 @@ int PPAbstractDevice::GetDllName(int dvcClass, const char * pName, SString & rDl
 	{
 		SString symbol, drv_name, drv_path;
 		int    drv_impl = 0;
-		SPathStruc ps;
+		SFsPath ps;
 		PPGetFilePath(PPPATH_BIN, "ppdrv.ini", line_buf);
 		PPIniFile ini_file(line_buf);
 		THROW_PP_S(ini_file.Get(sect_id, pName, line_buf) > 0, PPERR_DVC_UNDEFDRVSYMB, pName);
@@ -615,7 +614,7 @@ private:
 	uint8   CalcCheckCode(const uint8 * pBuf, size_t dataLen) const;
 	ConnectionParam ConnP;
 	SCommPort * P_Cp;
-	MIME64  M64;
+	// @v11.8.11 MIME64  M64;
 };
 
 IMPLEMENT_PPDEVICE_FACTORY(PPDevice_Leader);

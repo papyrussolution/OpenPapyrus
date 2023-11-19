@@ -1025,7 +1025,7 @@ public:
 		else if(Data.Rec.BhtTypeID != PPObjBHT::btCom) {
 			getCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
 			if(Data.ImpExpPath_.NotEmptyS()) {
-				SPathStruc ps(Data.ImpExpPath_);
+				SFsPath ps(Data.ImpExpPath_);
 				if(ps.Drv.IsEmpty())
 					ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
 			}
@@ -2324,8 +2324,8 @@ int BhtProtocol::SendPrgmFile(const char * pFileName)
    	THROW(SetConnection());
 	{
 		SString fname_;
-		SPathStruc ps(pFileName);
-		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, fname_);
+		SFsPath ps(pFileName);
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, fname_);
 		THROW(SendPrgmHeadingText(fname_.ToUpper(), numrecs) > 0);
 	}
 	rewind(stream);
@@ -2359,8 +2359,8 @@ int BhtProtocol::SendDataFile(const char * pFileName, const BhtRecord * pStruc)
 	THROW(SetConnection());
 	{
 		SString fname_;
-		SPathStruc ps(pFileName);
-		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, fname_);
+		SFsPath ps(pFileName);
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, fname_);
 		THROW(SendDataHeadingText(fname_.ToUpper(), numrecs, pStruc) > 0);
 	}
 	rewind(stream);
@@ -2492,8 +2492,8 @@ int CipherProtocol::SendDataFile(const char * pFileName, const BhtRecord * pStru
    	THROW(SetConnection());
 	{
 		SString fname_;
-		SPathStruc ps(pFileName);
-		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, fname_);
+		SFsPath ps(pFileName);
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, fname_);
 		THROW(SendDataHeadingText(fname_.ToUpper(), numrecs, pStruc) > 0);
 	}
 	rewind(stream);
@@ -3467,7 +3467,7 @@ int PPObjBHT::PrepareSupplData(const char * pPath, PPBhtTerminalPacket * pPack /
 			SString gname, temp_path;
 
 			PPGetPath(PPPATH_OUT, temp_path);
-			SPathStruc::ReplacePath((out_path = pPath), temp_path, 1);
+			SFsPath::ReplacePath((out_path = pPath), temp_path, 1);
 
 			THROW_MEM(p_dbf_tbl = new DbfTable(out_path));
 			fld_list[num_flds++].Init("ID",   'N', 10, 0);
@@ -3575,7 +3575,7 @@ int PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPat
 			SString temp_path;
 			DBFCreateFld fld_list[32];
 			PPGetPath(PPPATH_OUT, temp_path);
-			SPathStruc::ReplacePath((out_path = pPath), temp_path, 1);
+			SFsPath::ReplacePath((out_path = pPath), temp_path, 1);
 			THROW(p_dbf_tbl = new DbfTable(out_path));
 			fld_list[num_flds++].Init("ID",   'N', 10, 0);
 			fld_list[num_flds++].Init("CODE", 'C', 16, 0);
@@ -3804,7 +3804,7 @@ int PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 		// Формирование имени дополнительного файла товаров на случай,
 		// если количество записей превышает 32K
 		//
-		SPathStruc ps(path);
+		SFsPath ps(path);
 		ps.Nam.Cat("2");
 		ps.Merge(path2);
 	}
@@ -5419,15 +5419,15 @@ static int SaveFile(PPID fileID, const char * pDir, int removeSrc, int isWinCe =
 			src_path.SetLastSlash().Cat("out");
 		src_path.SetLastSlash().Cat(name);
 		if(isWinCe) {
-			SPathStruc::ReplaceExt(src_path, "dbf", 1);
+			SFsPath::ReplaceExt(src_path, "dbf", 1);
 			src_path.Transf(CTRANSF_INNER_TO_OUTER);
 		}
 		if(fileExists(src_path)) {
 			SString save_path;
-			SPathStruc sps;
+			SFsPath sps;
 			PPGetPath(PPPATH_ROOT, save_path);
 			save_path.SetLastSlash().Cat("Save").SetLastSlash();
-			createDir(save_path);
+			SFile::CreateDir(save_path);
 			sps.Split(src_path);
 			save_path.Cat(sps.Nam).Dot().Cat(sps.Ext);
 			SCopyFile(src_path, save_path, 0, FILE_SHARE_READ, 0);
@@ -5449,7 +5449,7 @@ static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, i
 		path.SetLastSlash().Cat("out");
 	path.SetLastSlash().Cat(name);
 	if(bhtTypeID == PPObjBHT::btWinCe)
-		SPathStruc::ReplaceExt(path.Transf(CTRANSF_INNER_TO_OUTER), "dbf", 1);
+		SFsPath::ReplaceExt(path.Transf(CTRANSF_INNER_TO_OUTER), "dbf", 1);
 	if(fileExists(path)) {
 		int    descr = pFiles->getCount();
 		if(bhtTypeID == PPObjBHT::btWinCe) {
@@ -5486,7 +5486,7 @@ static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, i
 				path.SetLastSlash().Cat("out");
 			path.SetLastSlash().Cat(name);
 			if(bhtTypeID == PPObjBHT::btWinCe)
-				SPathStruc::ReplaceExt(path.Transf(CTRANSF_INNER_TO_OUTER), "dbf", 1);
+				SFsPath::ReplaceExt(path.Transf(CTRANSF_INNER_TO_OUTER), "dbf", 1);
 			if(fileExists(path)) {
 				int    descr = R_Files.getCount();
 				if(bhtTypeID == PPObjBHT::btWinCe) {
@@ -5514,15 +5514,15 @@ static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, i
 					src_path.SetLastSlash().Cat("out");
 				src_path.SetLastSlash().Cat(name);
 				if(isWinCe) {
-					SPathStruc::ReplaceExt(src_path, "dbf", 1);
+					SFsPath::ReplaceExt(src_path, "dbf", 1);
 					src_path.Transf(CTRANSF_INNER_TO_OUTER);
 				}
 				if(fileExists(src_path)) {
 					SString save_path;
-					SPathStruc sps;
+					SFsPath sps;
 					PPGetPath(PPPATH_ROOT, save_path);
 					save_path.SetLastSlash().Cat("Save").SetLastSlash();
-					createDir(save_path);
+					SFile::CreateDir(save_path);
 					sps.Split(src_path);
 					save_path.Cat(sps.Nam).Dot().Cat(sps.Ext);
 					SCopyFile(src_path, save_path, 0, FILE_SHARE_READ, 0);
@@ -5738,7 +5738,7 @@ static int MakeDBFFilePath(const char * pDir, uint fnameID, SString & aPath)
 {
 	SString fname;
 	PPGetFileName(fnameID, fname);
-	SPathStruc::ReplaceExt(fname, "dbf", 1);
+	SFsPath::ReplaceExt(fname, "dbf", 1);
 	(aPath = pDir).SetLastSlash().Cat(fname).Transf(CTRANSF_INNER_TO_OUTER);
 	return 1;
 }

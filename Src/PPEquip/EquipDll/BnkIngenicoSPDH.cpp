@@ -384,7 +384,7 @@ int PPDrvIngenicoTrmnl::ProcessCommand(const SString & rCmd, const char * pInput
 int PPDrvIngenicoTrmnl::Init(const char * pLibName, SString & rOutput)
 {
 	int    ok = 1;
-	SPathStruc path_struct;
+	SFsPath path_struct;
 	THROWERR_ADD(!isempty(pLibName), INGVTB_NODLLPATH);
 	P_Lib = new SDynLibrary(pLibName);
 	THROWERR_ADD(P_Lib && P_Lib->IsValid(), INGVTB_DLLFILENOTFOUND);

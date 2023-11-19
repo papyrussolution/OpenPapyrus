@@ -28,7 +28,8 @@ static mi_decl_noinline void* mi_heap_malloc_zero_aligned_at_fallback(mi_heap_t*
 	}
 	// otherwise over-allocate
 	void* p = _mi_heap_malloc_zero(heap, size + alignment - 1, zero);
-	if(p == NULL) return NULL;
+	if(p == NULL) 
+		return NULL;
 	// .. and align within the allocation
 	uintptr_t adjust = alignment - (((uintptr_t)p + offset) & align_mask);
 	mi_assert_internal(adjust <= alignment);
@@ -54,8 +55,7 @@ static void* mi_heap_malloc_zero_aligned_at(mi_heap_t* const heap,
     #if MI_DEBUG > 0
 		_mi_error_message(EOVERFLOW,
 		    "aligned allocation requires the alignment to be a power-of-two (size %zu, alignment %zu)\n",
-		    size,
-		    alignment);
+		    size, alignment);
     #endif
 		return NULL;
 	}
@@ -142,7 +142,8 @@ mi_decl_restrict void* mi_heap_zalloc_aligned(mi_heap_t* heap, size_t size, size
 mi_decl_restrict void* mi_heap_calloc_aligned_at(mi_heap_t* heap, size_t count, size_t size, size_t alignment, size_t offset) mi_attr_noexcept 
 {
 	size_t total;
-	if(mi_count_size_overflow(count, size, &total)) return NULL;
+	if(mi_count_size_overflow(count, size, &total)) 
+		return NULL;
 	return mi_heap_zalloc_aligned_at(heap, total, alignment, offset);
 }
 

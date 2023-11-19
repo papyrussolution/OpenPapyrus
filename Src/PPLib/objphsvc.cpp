@@ -252,14 +252,14 @@ int PPPhoneServicePacket::SetExField(int fldId, const char * pBuf)
 	return ok;
 }
 
-#define PHNSVC_PW_SIZE 64 // @v9.8.11 20-->64 // @attention изменение значения требует конвертации хранимого пароля
+// @v11.8.11 (moved to PPConst) #define PHNSVC_PW_SIZE 64 // @v9.8.11 20-->64 // @attention изменение значения требует конвертации хранимого пароля
 
 int PPPhoneServicePacket::GetPassword(SString & rBuf) const
 {
 	int    ok = 1;
 	SString temp_buf;
 	GetExField(PHNSVCEXSTR_PASSWORD, temp_buf);
-	Reference::Helper_DecodeOtherPw(0, temp_buf, PHNSVC_PW_SIZE, rBuf);
+	Reference::Helper_DecodeOtherPw(0, temp_buf, PPConst::PwSize_PHNSVC, rBuf);
 	return ok;
 }
 
@@ -267,7 +267,7 @@ int PPPhoneServicePacket::SetPassword(const char * pPassword)
 {
 	int    ok = 1;
 	SString temp_buf;
-	Reference::Helper_EncodeOtherPw(0, pPassword, PHNSVC_PW_SIZE, temp_buf);
+	Reference::Helper_EncodeOtherPw(0, pPassword, PPConst::PwSize_PHNSVC, temp_buf);
 	SetExField(PHNSVCEXSTR_PASSWORD, temp_buf);
 	return ok;
 }

@@ -1009,7 +1009,7 @@ int StyloQFace::GetRepresentation(int lang, SString & rBuf) const
 	rFileName.Z();
 	int    ok = 1;
 	PPGetFilePath(PPPATH_WORKSPACE, "styloqcommands", rFileName);
-	if(::IsDirectory(rFileName) || ::createDir(rFileName)) {
+	if(::IsDirectory(rFileName) || SFile::CreateDir(rFileName)) {
 		rFileName.SetLastSlash().Cat("stqc").DotCat("xml");
 	}
 	else
@@ -2001,9 +2001,13 @@ int StyloQCore::ReadCurrentPacket(StoragePacket * pPack)
 		copyBufTo(&pPack->Rec);
 		readLobData(VT, sbuf);
 		destroyLobData(VT);
-		THROW_SL(pPack->Pool.Serialize(-1, sbuf, &sctx));
+		if(!pPack->Pool.Serialize(-1, sbuf, &sctx)) {
+			SString temp_buf;
+			temp_buf.CatEq("ID", pPack->Rec.ID).Space().CatEq("Kind", pPack->Rec.Kind).Space().CatEq("CorrespondID", pPack->Rec.CorrespondID);
+			PPSetError(PPERR_STQ_BINDERYPCKDSRLZFAULT, temp_buf);
+			ok = 0;
+		}
 	}
-	CATCHZOK
 	return ok;
 }
 
@@ -9845,7 +9849,7 @@ bool PPStyloQInterchange::GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oi
 					atr = olf.At(idx, temp_buf);
 			}
 			if(atr > 0) {
-				SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot, rInfo.SrcPath);
+				SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, rInfo.SrcPath);
 				const int fir = rInfo.Ff.Identify(rInfo.SrcPath, 0);
 				if(oneof2(fir, 2, 3) && SImageBuffer::IsSupportedFormat(rInfo.Ff)) { // Принимаем только идентификацию по сигнатуре
 					SFile f_in(rInfo.SrcPath, SFile::mRead|SFile::mBinary);

@@ -63,14 +63,22 @@ Data Matrix для табачной продукции и фармацевтик
 			Вода
 			[GS]0104603460000786215VWR:rP--ZfL;[GS]93bBmO
 			[29, 48, 49, 48, 52, 54, 48, 51, 52, 54, 48, 48, 48, 48, 55, 56, 54, 50, 49, 53, 86, 87, 82, 58, 114, 80, 45, 45, 90, 102, 76, 59, 29, 57, 51, 98, 66, 109, 79]
+			Сигаретные блоки
+			010460043993816321>n>!3E?8005173000938SSf24015063283
 			*/
 			SString _01;
 			SString _21;
 			SString _91;
 			SString _92;
 			SString _93;
+			SString _240; // @v11.8.11
+			SString _8005; // @v11.8.11
 			if(rS.GetToken(GtinStruc::fldGTIN14, &_01) && rS.GetToken(GtinStruc::fldSerial, &_21) && _01.Len() == 14) {
-				if(rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
+				if(rS.GetToken(GtinStruc::fldPrice, &_8005) && rS.GetToken(GtinStruc::fldControlRuTobacco, &_93) && rS.GetToken(GtinStruc::fldAddendumId, &_240)) { // @v11.8.11 блок сигарет
+					rBuf.CatChar('\x1D').Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
+						CatChar('\x1D').Cat("93").Cat(_93).CatChar('\x1D').Cat("240").Cat(_240);
+				}
+				else if(rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
 					if(_21.Len() == 13 && _91.Len() == 4/*&& _92.Len() == 44*/) {
 						rBuf./*CatChar(232).*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("91").Cat(_91).CatChar('\x1D').Cat("92").Cat(_92);
 						ok = 2;
@@ -2018,7 +2026,7 @@ int ChZnInterface::GetDebugPath(const InitBlock & rIb, SString & rPath)
     SString temp_path;
     PPGetPath(PPPATH_TEMP, temp_path);
     temp_path.SetLastSlash().Cat("CHZN").CatChar('-').Cat(rIb.CliIdent);
-    THROW_SL(::createDir(temp_path));
+    THROW_SL(SFile::CreateDir(temp_path));
 	rPath = temp_path;
     CATCHZOK
     return ok;
@@ -2036,7 +2044,7 @@ int ChZnInterface::GetTemporaryFileName(const char * pPath, const char * pSubPat
 	if(!isempty(pSubPath))
 		temp_path.SetLastSlash().Cat(pSubPath);
 	temp_path.RmvLastSlash();
-	THROW_SL(::createDir(temp_path));
+	THROW_SL(SFile::CreateDir(temp_path));
 	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", 0, rFn);
 	CATCHZOK
 	return ok;
@@ -2051,7 +2059,7 @@ int ChZnInterface::CreatePendingFile(const char * pPath, const char * pIdent)
 	else
 		PPGetPath(PPPATH_TEMP, temp_path);
 	temp_path.SetLastSlash().Cat("pending");
-	THROW_SL(::createDir(temp_path));
+	THROW_SL(SFile::CreateDir(temp_path));
 	{
 		temp_path.SetLastSlash().Cat(pIdent);
 		SFile f(temp_path, SFile::mWrite|SFile::mBinary);
@@ -2195,8 +2203,8 @@ int ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const c
 		PPGetPath(PPPATH_TEMP, temp_path);
 	(pending_path = temp_path).SetLastSlash().Cat("pending");
 	(ticket_path = temp_path).SetLastSlash().Cat("ticket");
-	THROW_SL(::createDir(pending_path));
-	THROW_SL(::createDir(ticket_path));
+	THROW_SL(SFile::CreateDir(pending_path));
+	THROW_SL(SFile::CreateDir(ticket_path));
 	{
 		ticket_path.SetLastSlash().Cat(pIdent);
 		SFile f(ticket_path, SFile::mWrite);

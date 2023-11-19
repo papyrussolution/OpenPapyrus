@@ -2892,15 +2892,3 @@ void STimeChunkBrowser::Paint()
 	}
 	::EndPaint(H(), &ps);
 }
-//
-//
-//
-#if SLTEST_RUNNING // {
-
-/*
-SLTEST_R()
-{
-	return 1;
-}*/
-
-#endif // } SLTEST_RUNNING

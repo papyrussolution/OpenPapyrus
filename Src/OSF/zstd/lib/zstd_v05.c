@@ -410,7 +410,7 @@ static void ZSTDv05_copy8(void* dst, const void* src) {
  *   custom version of memcpy(), can copy up to 7 bytes too many (8 bytes if length==0) */
 MEM_STATIC void ZSTDv05_wildcopy(void* dst, const void* src, ptrdiff_t length)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	BYTE * op = (BYTE *)dst;
 	BYTE * const oend = op + length;
 	do
@@ -662,12 +662,12 @@ MEM_STATIC size_t BITv05_initDStream(BITv05_DStream_t* bitD, const void* srcBuff
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize) {
-			case 7: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[6]) << (sizeof(size_t)*8 - 16); /* fall-through */
-			case 6: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[5]) << (sizeof(size_t)*8 - 24); /* fall-through */
-			case 5: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[4]) << (sizeof(size_t)*8 - 32); /* fall-through */
-			case 4: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[3]) << 24; /* fall-through */
-			case 3: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[2]) << 16; /* fall-through */
-			case 2: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[1]) <<  8; /* fall-through */
+			case 7: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[6]) << (sizeof(size_t)*8 - 16); // @fallthrough
+			case 6: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[5]) << (sizeof(size_t)*8 - 24); // @fallthrough
+			case 5: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[4]) << (sizeof(size_t)*8 - 32); // @fallthrough
+			case 4: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[3]) << 24; // @fallthrough
+			case 3: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[2]) << 16; // @fallthrough
+			case 2: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[1]) <<  8; // @fallthrough
 			default: break;
 		}
 		contain32 = ((const BYTE *)srcBuffer)[srcSize-1];
@@ -1293,7 +1293,7 @@ size_t FSEv05_decompress_usingDTable(void* dst, size_t originalSize,
 
 size_t FSEv05_decompress(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize)
 {
-	const BYTE * const istart = (const BYTE *)cSrc;
+	const BYTE * const istart = PTR8C(cSrc);
 	const BYTE * ip = istart;
 	short counting[FSEv05_MAX_SYMBOL_VALUE+1];
 	DTable_max_t dt; /* Static analyzer seems unable to understand this table will be properly initialized later */
@@ -1521,17 +1521,16 @@ typedef struct {
     @return : size read from `src`
  */
 static size_t HUFv05_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats,
-    uint32 * nbSymbolsPtr, uint32 * tableLogPtr,
-    const void* src, size_t srcSize)
+    uint32 * nbSymbolsPtr, uint32 * tableLogPtr, const void* src, size_t srcSize)
 {
 	uint32 weightTotal;
 	uint32 tableLog;
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	size_t iSize;
 	size_t oSize;
 	uint32 n;
-
-	if(!srcSize) return ERROR(srcSize_wrong);
+	if(!srcSize) 
+		return ERROR(srcSize_wrong);
 	iSize = ip[0];
 	/* memset(huffWeight, 0, hwSize); */   /* is not necessary, even though some analyzer complain ... */
 	if(iSize >= 128) { /* special header */
@@ -1544,8 +1543,10 @@ static size_t HUFv05_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankSt
 		else { /* Incompressible */
 			oSize = iSize - 127;
 			iSize = ((oSize+1)/2);
-			if(iSize+1 > srcSize) return ERROR(srcSize_wrong);
-			if(oSize >= hwSize) return ERROR(corruption_detected);
+			if(iSize+1 > srcSize) 
+				return ERROR(srcSize_wrong);
+			if(oSize >= hwSize) 
+				return ERROR(corruption_detected);
 			ip += 1;
 			for(n = 0; n<oSize; n += 2) {
 				huffWeight[n]   = ip[n/2] >> 4;
@@ -1555,29 +1556,32 @@ static size_t HUFv05_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankSt
 	}
 	else { /* header compressed with FSEv05 (normal case) */
 		if(iSize+1 > srcSize) return ERROR(srcSize_wrong);
-		oSize = FSEv05_decompress(huffWeight, hwSize-1, ip+1, iSize); /* max (hwSize-1) values decoded, as last
-		                                                                 one is implied */
-		if(FSEv05_isError(oSize)) return oSize;
+		oSize = FSEv05_decompress(huffWeight, hwSize-1, ip+1, iSize); // max (hwSize-1) values decoded, as last one is implied
+		if(FSEv05_isError(oSize)) 
+			return oSize;
 	}
 	/* collect weight stats */
 	memzero(rankStats, (HUFv05_ABSOLUTEMAX_TABLELOG + 1) * sizeof(uint32));
 	weightTotal = 0;
 	for(n = 0; n<oSize; n++) {
-		if(huffWeight[n] >= HUFv05_ABSOLUTEMAX_TABLELOG) return ERROR(corruption_detected);
+		if(huffWeight[n] >= HUFv05_ABSOLUTEMAX_TABLELOG) 
+			return ERROR(corruption_detected);
 		rankStats[huffWeight[n]]++;
 		weightTotal += (1 << huffWeight[n]) >> 1;
 	}
-	if(weightTotal == 0) return ERROR(corruption_detected);
-
+	if(weightTotal == 0) 
+		return ERROR(corruption_detected);
 	/* get last non-null symbol weight (implied, total must be 2^n) */
 	tableLog = BITv05_highbit32(weightTotal) + 1;
-	if(tableLog > HUFv05_ABSOLUTEMAX_TABLELOG) return ERROR(corruption_detected);
+	if(tableLog > HUFv05_ABSOLUTEMAX_TABLELOG) 
+		return ERROR(corruption_detected);
 	{ /* determine last weight */
 		uint32 total = 1 << tableLog;
 		uint32 rest = total - weightTotal;
 		uint32 verif = 1 << BITv05_highbit32(rest);
 		uint32 lastWeight = BITv05_highbit32(rest) + 1;
-		if(verif != rest) return ERROR(corruption_detected); /* last value must be a clean power of 2 */
+		if(verif != rest) 
+			return ERROR(corruption_detected); /* last value must be a clean power of 2 */
 		huffWeight[oSize] = (BYTE)lastWeight;
 		rankStats[lastWeight]++;
 	}
@@ -1709,7 +1713,7 @@ size_t HUFv05_decompress1X2_usingDTable(void* dst,  size_t dstSize,
 size_t HUFv05_decompress1X2(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize)
 {
 	HUFv05_CREATE_STATIC_DTABLEX2(DTable, HUFv05_MAX_TABLELOG);
-	const BYTE * ip = (const BYTE *)cSrc;
+	const BYTE * ip = PTR8C(cSrc);
 	size_t errorCode;
 
 	errorCode = HUFv05_readDTableX2(DTable, cSrc, cSrcSize);
@@ -1728,7 +1732,7 @@ size_t HUFv05_decompress4X2_usingDTable(void* dst,  size_t dstSize,
 	/* Check */
 	if(cSrcSize < 10) return ERROR(corruption_detected); /* strict minimum : jump table + 1 byte per stream */
 	{
-		const BYTE * const istart = (const BYTE *)cSrc;
+		const BYTE * const istart = PTR8C(cSrc);
 		BYTE * const ostart = (BYTE *)dst;
 		BYTE * const oend = ostart + dstSize;
 		const void* const dtPtr = DTable;
@@ -1819,7 +1823,7 @@ size_t HUFv05_decompress4X2_usingDTable(void* dst,  size_t dstSize,
 size_t HUFv05_decompress4X2(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize)
 {
 	HUFv05_CREATE_STATIC_DTABLEX2(DTable, HUFv05_MAX_TABLELOG);
-	const BYTE * ip = (const BYTE *)cSrc;
+	const BYTE * ip = PTR8C(cSrc);
 	size_t errorCode;
 
 	errorCode = HUFv05_readDTableX2(DTable, cSrc, cSrcSize);
@@ -2066,7 +2070,7 @@ static inline size_t HUFv05_decodeStreamX4(BYTE * p,
 
 size_t HUFv05_decompress1X4_usingDTable(void* dst,  size_t dstSize, const void* cSrc, size_t cSrcSize, const uint * DTable)
 {
-	const BYTE * const istart = (const BYTE *)cSrc;
+	const BYTE * const istart = PTR8C(cSrc);
 	BYTE * const ostart = (BYTE *)dst;
 	BYTE * const oend = ostart + dstSize;
 	const uint32 dtLog = DTable[0];
@@ -2090,7 +2094,7 @@ size_t HUFv05_decompress1X4_usingDTable(void* dst,  size_t dstSize, const void* 
 size_t HUFv05_decompress1X4(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize)
 {
 	HUFv05_CREATE_STATIC_DTABLEX4(DTable, HUFv05_MAX_TABLELOG);
-	const BYTE * ip = (const BYTE *)cSrc;
+	const BYTE * ip = PTR8C(cSrc);
 
 	size_t hSize = HUFv05_readDTableX4(DTable, cSrc, cSrcSize);
 	if(HUFv05_isError(hSize)) return hSize;
@@ -2106,7 +2110,7 @@ size_t HUFv05_decompress4X4_usingDTable(void* dst,  size_t dstSize, const void* 
 	if(cSrcSize < 10) 
 		return ERROR(corruption_detected); /* strict minimum : jump table + 1 byte per stream */
 	{
-		const BYTE * const istart = (const BYTE *)cSrc;
+		const BYTE * const istart = PTR8C(cSrc);
 		BYTE * const ostart = (BYTE *)dst;
 		BYTE * const oend = ostart + dstSize;
 		const void* const dtPtr = DTable;
@@ -2198,7 +2202,7 @@ size_t HUFv05_decompress4X4_usingDTable(void* dst,  size_t dstSize, const void* 
 size_t HUFv05_decompress4X4(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize)
 {
 	HUFv05_CREATE_STATIC_DTABLEX4(DTable, HUFv05_MAX_TABLELOG);
-	const BYTE * ip = (const BYTE *)cSrc;
+	const BYTE * ip = PTR8C(cSrc);
 
 	size_t hSize = HUFv05_readDTableX4(DTable, cSrc, cSrcSize);
 	if(HUFv05_isError(hSize)) return hSize;
@@ -2252,7 +2256,7 @@ size_t HUFv05_decompress(void* dst, size_t dstSize, const void* cSrc, size_t cSr
 	if(cSrcSize >= dstSize) return ERROR(corruption_detected); /* invalid, or not compressed, but not compressed
 	                                                              already dealt with */
 	if(cSrcSize == 1) {
-		memset(dst, *(const BYTE *)cSrc, dstSize); return dstSize;
+		memset(dst, *PTR8C(cSrc), dstSize); return dstSize;
 	}                                                                              /* RLE */
 
 	/* decoder timing evaluation */
@@ -2523,7 +2527,7 @@ static size_t ZSTDv05_decodeFrameHeader_Part2(ZSTDv05_DCtx* zc, const void* src,
 
 static size_t ZSTDv05_getcBlockSize(const void* src, size_t srcSize, blockProperties_t* bpPtr)
 {
-	const BYTE * const in = (const BYTE *)src;
+	const BYTE * const in = PTR8C(src);
 	BYTE headerFlags;
 	uint32 cSize;
 
@@ -2554,7 +2558,7 @@ static size_t ZSTDv05_copyRawBlock(void* dst, size_t maxDstSize, const void* src
     @return : nb of bytes read from src (< srcSize ) */
 static size_t ZSTDv05_decodeLiteralsBlock(ZSTDv05_DCtx* dctx, const void* src, size_t srcSize) /* note : srcSize < BLOCKSIZE */
 {
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	/* any compressed block with literals segment must be at least this size */
 	if(srcSize < MIN_CBLOCK_SIZE) 
 		return ERROR(corruption_detected);
@@ -2683,7 +2687,7 @@ static size_t ZSTDv05_decodeLiteralsBlock(ZSTDv05_DCtx* dctx, const void* src, s
 static size_t ZSTDv05_decodeSeqHeaders(int* nbSeq, const BYTE ** dumpsPtr, size_t* dumpsLengthPtr,
     FSEv05_DTable* DTableLL, FSEv05_DTable* DTableML, FSEv05_DTable* DTableOffb, const void* src, size_t srcSize, uint32 flagStaticTable)
 {
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * ip = istart;
 	const BYTE * const iend = istart + srcSize;
 	uint32 LLtype, Offtype, MLtype;
@@ -3080,7 +3084,7 @@ static size_t ZSTDv05_decompressBlock_internal(ZSTDv05_DCtx* dctx,
     void* dst, size_t dstCapacity,
     const void* src, size_t srcSize)
 {   /* blockType == blockCompressed */
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	size_t litCSize;
 
 	if(srcSize >= BLOCKSIZE) return ERROR(srcSize_wrong);
@@ -3108,7 +3112,7 @@ static size_t ZSTDv05_decompress_continueDCtx(ZSTDv05_DCtx* dctx,
     void* dst, size_t maxDstSize,
     const void* src, size_t srcSize)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	const BYTE * iend = ip + srcSize;
 	BYTE * const ostart = (BYTE *)dst;
 	BYTE * op = ostart;
@@ -3216,7 +3220,7 @@ static void ZSTD_errorFrameSizeInfoLegacy(size_t* cSize, uint64* dBound, size_t 
 
 void ZSTDv05_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, uint64* dBound)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	size_t remainingSize = srcSize;
 	size_t nbBlocks = 0;
 	blockProperties_t blockProperties;
@@ -3574,7 +3578,7 @@ size_t ZBUFFv05_decompressContinue(ZBUFFv05_DCtx* zbc, void* dst, size_t* maxDst
 			    zbc->stage = ZBUFFv05ds_decodeHeader;
 			    break;
 		    }
-			/* fall-through */
+			// @fallthrough
 			case ZBUFFv05ds_loadHeader:
 			    /* complete header from src */
 		    {
@@ -3591,7 +3595,7 @@ size_t ZBUFFv05_decompressContinue(ZBUFFv05_DCtx* zbc, void* dst, size_t* maxDst
 			    }
 			    /* zbc->stage = ZBUFFv05ds_decodeHeader; break; */   /* useless : stage follows */
 		    }
-			/* fall-through */
+			// @fallthrough
 			case ZBUFFv05ds_decodeHeader:
 			    /* apply header to create / resize buffers */
 		    {
@@ -3621,7 +3625,7 @@ size_t ZBUFFv05_decompressContinue(ZBUFFv05_DCtx* zbc, void* dst, size_t* maxDst
 				    break;
 			    }
 			    zbc->stage = ZBUFFv05ds_read;
-			/* fall-through */
+			// @fallthrough
 			case ZBUFFv05ds_read:
 		    {
 			    size_t neededInSize = ZSTDv05_nextSrcSizeToDecompress(zbc->zc);
@@ -3647,7 +3651,7 @@ size_t ZBUFFv05_decompressContinue(ZBUFFv05_DCtx* zbc, void* dst, size_t* maxDst
 			    }                           /* no more input */
 			    zbc->stage = ZBUFFv05ds_load;
 		    }
-			/* fall-through */
+			// @fallthrough
 			case ZBUFFv05ds_load:
 		    {
 			    size_t neededInSize = ZSTDv05_nextSrcSizeToDecompress(zbc->zc);
@@ -3676,7 +3680,7 @@ size_t ZBUFFv05_decompressContinue(ZBUFFv05_DCtx* zbc, void* dst, size_t* maxDst
 				    /* break; */  /* ZBUFFv05ds_flush follows */
 			    }
 		    }
-			/* fall-through */
+			// @fallthrough
 			case ZBUFFv05ds_flush:
 		    {
 			    size_t toFlushSize = zbc->outEnd - zbc->outStart;

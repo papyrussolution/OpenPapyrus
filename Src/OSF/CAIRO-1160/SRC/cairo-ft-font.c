@@ -706,7 +706,7 @@ static int _compute_xrender_bitmap_size(FT_Bitmap * target, FT_GlyphSlot slot, F
 			    pitch = (((width + 31) & ~31) >> 3);
 			    break;
 		    }
-		/* fall-through */
+		// @fallthrough
 		case FT_PIXEL_MODE_GRAY:
 		    if(mode == FT_RENDER_MODE_LCD || mode == FT_RENDER_MODE_LCD_V) {
 			    /* each pixel is replicated into a 32-bit ARGB value */

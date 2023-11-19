@@ -450,8 +450,8 @@ int STabFile::WriteTab(const char * pTabName, const STab * pTab)
 	SString temp_file_name, path;
 	THROW(IsValid());
 	{
-		SPathStruc ps(F.GetName());
-		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
+		SFsPath ps(F.GetName());
+		ps.Merge(0, SFsPath::fNam|SFsPath::fExt, path);
 		MakeTempFileName(path, "STB", "TMP", 0, temp_file_name);
 		THROW(temp_file.Open(temp_file_name, SFile::mWrite));
 		{

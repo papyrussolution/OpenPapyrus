@@ -503,7 +503,7 @@ static void _swap_ximage_to_native(XImage * ximage)
 		    break;
 		case 4:
 		    _swap_ximage_nibbles(ximage);
-		/* fall-through */
+		// @fallthrough
 		case 8:
 		case 16:
 		case 20:

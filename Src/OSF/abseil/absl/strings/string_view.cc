@@ -97,8 +97,8 @@ string_view::size_type string_view::rfind(string_view s,
 }
 
 // Search range is [0..pos] inclusive.  If pos == npos, search everything.
-string_view::size_type string_view::rfind(char c,
-    size_type pos) const noexcept {
+string_view::size_type string_view::rfind(char c, size_type pos) const noexcept 
+{
 	// Note: memrchr() is not available on Windows.
 	if(empty()) return npos;
 	for(size_type i = std::min(pos, length_ - 1);; --i) {

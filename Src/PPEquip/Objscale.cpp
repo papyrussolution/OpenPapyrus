@@ -534,7 +534,7 @@ int PPScaleDevice::DistributeFile(const char * pFileName, int rmv)
 		SString buf(pFileName);
 		StringSet ss(';', temp_buf);
 		for(uint i = 0; ss.get(&i, temp_buf);) {
-			SPathStruc::ReplacePath(buf, temp_buf, 1);
+			SFsPath::ReplacePath(buf, temp_buf, 1);
 			if(fileExists(buf))
 				SFile::Remove(buf);
 			if(!rmv && !copyFileByName(pFileName, buf))
@@ -5309,7 +5309,7 @@ int PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 					}
 				}
 				THROW(SendPlu(&pack, fname, BIN(flags & fTrUpdateOnly), pLogger));
-				SPathStruc::ReplaceExt(nname = fname, reinterpret_cast<const char *>(&sPL_), 1);
+				SFsPath::ReplaceExt(nname = fname, reinterpret_cast<const char *>(&sPL_), 1);
 				SFile::Remove(nname);
 				SFile::Rename(fname, nname);
 				PPWaitStop();

@@ -110,7 +110,7 @@ int Rc2Data::Init(const char * pInputFileName, const char * pRcName, const char 
 	else {
 		// @v11.1.8 {
 		SString temp_buf(pRcName);
-		SPathStruc::ReplaceExt(temp_buf, "tsv", 1);
+		SFsPath::ReplaceExt(temp_buf, "tsv", 1);
 		F_RuText.Open(temp_buf, SFile::mWrite);
 		// } @v11.1.8
 		EmbedFileName = pEmbedRcName;
@@ -172,7 +172,7 @@ int Rc2Data::AddDrawVector(const char * pSymbol, SColor replacedColor, SString &
 				SString prefix_buf, body_buf, file_name;
 				file_name = (symbol.Divide('_', prefix_buf, body_buf) > 0) ? body_buf : symbol;
 				file_name.ToLower();
-				SPathStruc::ReplaceExt(file_name, "svg", 0);
+				SFsPath::ReplaceExt(file_name, "svg", 0);
 				if(p_group->Path.NotEmpty()) {
 					(body_buf = p_group->Path).Cat(file_name);
 					file_name = body_buf;
@@ -223,7 +223,7 @@ int Rc2Data::AddBitmap(const char * pSymbol, SString & rErrMsg)
 				SString prefix_buf, body_buf, file_name;
 				file_name = (symbol.Divide('_', prefix_buf, body_buf) > 0) ? body_buf : symbol;
 				file_name.ToLower();
-				SPathStruc::ReplaceExt(file_name, "bmp", 0);
+				SFsPath::ReplaceExt(file_name, "bmp", 0);
 				if(p_group->Path.NotEmpty()) {
 					(body_buf = p_group->Path).Cat(file_name);
 					file_name = body_buf;
@@ -1204,7 +1204,7 @@ void main(int argc, char ** argv)
 		// @v10.5.6 STRNSCPY(rc2_name, argv[1]);
 		// @v10.5.6 replaceExt(rc2_name, "rc2", 0);
 		rc2_name = argv[1]; // @v10.5.6 
-		SPathStruc::ReplaceExt(rc2_name, "rc2", 0); // @v10.5.6 
+		SFsPath::ReplaceExt(rc2_name, "rc2", 0); // @v10.5.6 
 		/* @v10.5.6 
 		if(argc >= 3)
 			STRNSCPY(rc_name,  argv[2]);
@@ -1224,20 +1224,20 @@ void main(int argc, char ** argv)
 			rc_name = argv[2];
 		else {
 			rc_name = argv[1];
-			SPathStruc::ReplaceExt(rc_name, "rc", 1);
+			SFsPath::ReplaceExt(rc_name, "rc", 1);
 		}
 		if(argc >= 4)
 			h_name = argv[3];
 		else {
 			h_name = argv[1];
-			SPathStruc::ReplaceExt(h_name, "h", 1);
+			SFsPath::ReplaceExt(h_name, "h", 1);
 		}
 		// } @v10.5.6 
 		if(argc >= 5) {
 			STRNSCPY(embed_rc_name, argv[4]);
 		}
 		else {
-			SPathStruc ps;
+			SFsPath ps;
 			ps.Split(rc_name);
 			ps.Nam.Cat("-embed");
 			ps.Merge(temp_buf);
@@ -1245,7 +1245,7 @@ void main(int argc, char ** argv)
 		}
 		//
 		{
-			SPathStruc ps;
+			SFsPath ps;
 			ps.Split(rc_name);
 			ps.Nam.Cat("-dv");
 			ps.Ext = "wta";

@@ -186,3 +186,14 @@ const void * /*fast_memchr_sse2*/smemchr(const void * haystack, int n, size_t le
 		}
 	}
 }
+
+const void * smemrchr(const void * haystack, int c, size_t len) // @v11.8.11
+{
+	if(haystack && len) do {
+		--len;
+		if(PTR8C(haystack)[len] == static_cast<uint8>(c)) {
+			return PTR8C(haystack) + len;
+		}
+	} while(len);
+	return 0;
+}

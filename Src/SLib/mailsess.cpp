@@ -217,9 +217,9 @@ int SMailClient::Auth(int authtype, const char * pName, const char * pPassword)
 					md5.Update((uchar *)pPassword, strlen(pPassword));
 					md5.Final(digest);
 					sprintf(param, "%s %s", user, digest);
-					encode64(param, strlen(param), param_64, sizeof(param_64), 0);
+					Base64_Encode(param, strlen(param), param_64, sizeof(param_64), 0);
 					THROW(SendCmd(SMTPCMD_AUTH, "CRAM-MD5", reply_buf));
-					decode64(sstrchr(reply_buf, ' '), strlen(sstrchr(reply_buf, ' ')), time_stamp, 0);
+					Base64_Decode(sstrchr(reply_buf, ' '), strlen(sstrchr(reply_buf, ' ')), time_stamp, 0);
 					THROW(SendCmd(SMTPCMD_STRING, (const char *)param_64, reply_buf));
 				}
 				break;

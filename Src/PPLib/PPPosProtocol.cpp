@@ -901,7 +901,7 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 					}
 					else {
 						path.RmvLastSlash();
-						if(IsDirectory(path) || createDir(path)) {
+						if(IsDirectory(path) || SFile::CreateDir(path)) {
 							long   _seq = 0;
 							do {
 								temp_buf = p_base_name;
@@ -4942,7 +4942,7 @@ int PPPosProtocol::BackupInputFile(const char * pFileName)
 	long   n = 0;
 	SString src_file_name;
 	SString src_file_ext;
-	SPathStruc ps(pFileName);
+	SFsPath ps(pFileName);
 	src_file_name = ps.Nam;
 	src_file_ext = ps.Ext;
 	if(!use_arc) {
@@ -4950,7 +4950,7 @@ int PPPosProtocol::BackupInputFile(const char * pFileName)
 		ps.Nam = "backup";
 		ps.Ext.Z();
 		ps.Merge(backup_path);
-		THROW_SL(createDir(backup_path));
+		THROW_SL(SFile::CreateDir(backup_path));
 		{
 			int   _found = 0;
 			SString to_backup_name;
@@ -5027,7 +5027,7 @@ struct PosProtocolFileProcessedEntry {
 static int FASTCALL MakePosProtocolFileProcessedListName(const char * pPath, SString & rFileName)
 {
 	rFileName.Z();
-	SPathStruc ps(pPath);
+	SFsPath ps(pPath);
 	ps.Nam = "ppfplist";
 	ps.Ext.Z();
 	ps.Merge(rFileName);
@@ -5169,7 +5169,7 @@ int PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet
 		}
 		url.Composite(InetUrl::stAll, url_buf);
 		if(c.FtpList(url, ScURL::mfTcpKeepAlive|ScURL::mfVerbose, ftp_file_list)) {
-			SPathStruc ps;
+			SFsPath ps;
 			SString dest_file_name;
 			SString filt_filename;
 			(filt_filename = "*").DotCat("ppyp");
@@ -5186,7 +5186,7 @@ int PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet
 						//
 						// Если файл с таким именем уже существует, то приклеиваем к наименованию цифровой суффикс
 						if(fileExists(dest_file_name)) {
-							SPathStruc ps(dest_file_name);
+							SFsPath ps(dest_file_name);
 							const SString org_ps_nam = ps.Nam;
 							long  fsn = 0;
 							do {
@@ -5708,7 +5708,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		}
 		else {
 			path.RmvLastSlash();
-			if(IsDirectory(path) || createDir(path)) {
+			if(IsDirectory(path) || SFile::CreateDir(path)) {
 				long   _seq = 0;
 				do {
 					temp_buf = p_base_name;

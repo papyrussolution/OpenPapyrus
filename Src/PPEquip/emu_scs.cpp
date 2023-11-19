@@ -97,7 +97,7 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	int    text_output = 0;
 	THROW_INVARG(pPrnLines);
 	if(PrinterPort.Len()) {
-		SPathStruc ps(PrinterPort);
+		SFsPath ps(PrinterPort);
 		if(ps.Drv.NotEmpty() && ps.Dir.NotEmpty() && ps.Nam.NotEmpty() && ps.Ext.NotEmpty()) { // @v11.1.1
 			SFile f_out(PrinterPort, SFile::mAppend);
 			for(uint i = 0; i < pPrnLines->getCount(); i++) {

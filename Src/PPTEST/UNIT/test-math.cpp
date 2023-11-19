@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-int FASTCALL Helper_IsPrime(ulong val, int test);
+bool FASTCALL Helper_IsPrime(ulong val, int test);
 
 SLTEST_R(smath)
 {
@@ -285,15 +285,15 @@ SLTEST_R(smath)
 		const ushort * p_first_prime_numbers = GetPrimeTab(&prime_tab_count);
 		ulong last_tabbed_prime = p_first_prime_numbers[prime_tab_count-1];
 		for(ulong i = 0; i < last_tabbed_prime; i++) {
-			const int isp = Helper_IsPrime(i, 1);
-			int is_tabbed_prime = 0;
+			const bool isp = Helper_IsPrime(i, 1);
+			bool is_tabbed_prime = false;
 			if(i && i < prime_tab_count) {
 				SLCHECK_LT((long)p_first_prime_numbers[i-1], (long)p_first_prime_numbers[i]);
 			}
 			for(uint j = 0; !is_tabbed_prime && j < prime_tab_count; j++) {
 				const ushort tv = p_first_prime_numbers[j];
 				if(tv == i)
-					is_tabbed_prime = 1;
+					is_tabbed_prime = true;
 				else if(tv > i)
 					break;
 			}
@@ -409,15 +409,15 @@ SLTEST_R(Prime)
 {
 	ulong last_tabbed_prime = FirstPrimeNumbers[SIZEOFARRAY(FirstPrimeNumbers)-1];
 	for(ulong i = 0; i < last_tabbed_prime; i++) {
-		const long isp = Helper_IsPrime(i, 1);
-		long is_tabbed_prime = 0;
+		const bool isp = Helper_IsPrime(i, 1);
+		bool is_tabbed_prime = false;
 		if(i && i < SIZEOFARRAY(FirstPrimeNumbers)) {
 			SLCHECK_LT((long)FirstPrimeNumbers[i-1], (long)FirstPrimeNumbers[i]);
 		}
 		for(uint j = 0; !is_tabbed_prime && j < SIZEOFARRAY(FirstPrimeNumbers); j++) {
 			const ushort tv = FirstPrimeNumbers[j];
 			if(tv == i)
-				is_tabbed_prime = 1;
+				is_tabbed_prime = true;
 			else if(tv > i)
 				break;
 		}
@@ -968,7 +968,7 @@ SLTEST_R(SDecimal)
 		SLCHECK_NZ(!SDecimal(1, 1).IsZero());
 		for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
 			const TestEntry & r_te = entries[i];
-			SLCHECK_NZ(SDecimal(r_te.N, r_te.Dp).ToStr(0, temp_buf), r_te.P_Txt);
+			SLCHECK_EQ(SDecimal(r_te.N, r_te.Dp).ToStr(0, temp_buf), r_te.P_Txt);
 			SLCHECK_NZ(SDecimal(r_te.P_Txt) == SDecimal(r_te.N, r_te.Dp));
 			{
 				SDecimal r(r_te.N, r_te.Dp);
@@ -1024,4 +1024,129 @@ SLTEST_R(SDecimal)
 		}
 	}
 	return CurrentStatus;
+}
+
+SLTEST_R(STimeSeries)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString src_file_name;
+	SString test_file_name;
+	SLS.QueryPath("testroot", src_file_name);
+	src_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("ts-eurusd.csv");
+	SLS.QueryPath("testroot", test_file_name);
+	test_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat("ts-eurusd.out");
+	SFile f_in(src_file_name, SFile::mRead);
+	if(f_in.IsValid()) {
+		SString line_buf;
+		StringSet ss_in(",");
+		STimeSeries ts;
+
+		LDATETIME dtm;
+		double open = 0.0;
+		double close = 0.0;
+		long   tick_vol = 0;
+		long   real_vol = 0;
+		long   spread = 0;
+
+		uint   vecidx_open = 0;
+		uint   vecidx_close = 0;
+		uint   vecidx_ticvol = 0;
+		uint   vecidx_realvol = 0;
+		uint   vecidx_spread = 0;
+		//THROW(ts.AddValueVec("open", T_DOUBLE, 0, &vecidx_open));
+		THROW(SLCHECK_NZ(ts.AddValueVec("open", T_INT32, 5, &vecidx_open)));
+		//THROW(ts.AddValueVec("close", T_DOUBLE, 0, &vecidx_close));
+		THROW(SLCHECK_NZ(ts.AddValueVec("close", T_INT32, 5, &vecidx_close)));
+		THROW(SLCHECK_NZ(ts.AddValueVec("tick_volume", T_INT32, 0, &vecidx_ticvol)));
+		THROW(SLCHECK_NZ(ts.AddValueVec("real_volume", T_INT32, 0, &vecidx_realvol)));
+		THROW(SLCHECK_NZ(ts.AddValueVec("spread", T_INT32, 0, &vecidx_spread)));
+		{
+			uint8 sign[8];
+			size_t actual_size = 0;
+			if(f_in.Read(sign, 4, &actual_size) && actual_size == 4) {
+				if(sign[0] == 0xEF && sign[1] == 0xBB && sign[2] == 0xBF)
+					f_in.Seek(3);
+				else
+					f_in.Seek(0);
+			}
+		}
+		while(f_in.ReadLine(line_buf)) {
+			line_buf.Chomp().Strip();
+			if(line_buf.NotEmpty()) {
+				ss_in.setBuf(line_buf);
+				dtm.Z();
+				open = 0.0;
+				close = 0.0;
+				tick_vol = 0;
+				real_vol = 0;
+				spread = 0;
+				for(uint ssp = 0, fldn = 0; ss_in.get(&ssp, temp_buf); fldn++) {
+					switch(fldn) {
+						case 0: strtodate(temp_buf, DATF_YMD, &dtm.d); break;
+						case 1: strtotime(temp_buf, TIMF_HMS, &dtm.t); break;
+						case 2: open = temp_buf.ToReal(); break;
+						case 3: close = temp_buf.ToReal(); break;
+						case 4: tick_vol = temp_buf.ToLong(); break;
+						case 5: real_vol = temp_buf.ToLong(); break;
+						case 6: spread = temp_buf.ToLong(); break;
+					}
+				}
+				if(checkdate(&dtm) && close > 0.0) {
+					SUniTime ut;
+					ut.Set(dtm, SUniTime::indMin);
+					uint   item_idx = 0;
+					THROW(SLCHECK_NZ(ts.AddItem(ut, &item_idx)));
+					THROW(SLCHECK_NZ(ts.SetValue(item_idx, vecidx_open, open)));
+					THROW(SLCHECK_NZ(ts.SetValue(item_idx, vecidx_close, close)));
+					THROW(SLCHECK_NZ(ts.SetValue(item_idx, vecidx_ticvol, tick_vol)));
+					THROW(SLCHECK_NZ(ts.SetValue(item_idx, vecidx_realvol, real_vol)));
+					THROW(SLCHECK_NZ(ts.SetValue(item_idx, vecidx_spread, spread)));
+				}
+			}
+		}
+		{
+			//
+			STimeSeries dts;
+			SBuffer sbuf; // serialize buf
+			SBuffer cbuf; // compress buf
+			SBuffer dbuf; // decompress buf
+			SSerializeContext sctx;
+			THROW(SLCHECK_NZ(ts.Serialize(+1, sbuf, &sctx)));
+			{
+				{
+					SCompressor c(SCompressor::tZLib);
+					THROW(SLCHECK_NZ(c.CompressBlock(sbuf.GetBuf(sbuf.GetRdOffs()), sbuf.GetAvailableSize(), cbuf, 0, 0)));
+				}
+				{
+					SCompressor c(SCompressor::tZLib);
+					THROW(SLCHECK_NZ(c.DecompressBlock(cbuf.GetBuf(cbuf.GetRdOffs()), cbuf.GetAvailableSize(), dbuf)));
+				}
+				SLCHECK_EQ(sbuf.GetAvailableSize(), dbuf.GetAvailableSize());
+				SLCHECK_Z(memcmp(sbuf.GetBuf(sbuf.GetRdOffs()), dbuf.GetBuf(dbuf.GetRdOffs()), sbuf.GetAvailableSize()));
+				THROW(SLCHECK_NZ(dts.Serialize(-1, dbuf, &sctx)));
+			}
+			{
+				SFile f_out(test_file_name, SFile::mWrite);
+				THROW(SLCHECK_NZ(f_out.IsValid()));
+				for(uint i = 0; i < dts.GetCount(); i++) {
+					SUniTime ut;
+					dts.GetTime(i, &ut);
+					ut.Get(dtm);
+					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_open, &open)));
+					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_close, &close)));
+					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_ticvol, &tick_vol)));
+					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_realvol, &real_vol)));
+					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_spread, &spread)));
+					line_buf.Z().Cat(dtm.d, DATF_ANSI|DATF_CENTURY).Comma().Cat(dtm.t, TIMF_HM).Comma().
+						Cat(open, MKSFMTD(0, 5, 0)).Comma().Cat(close, MKSFMTD(0, 5, 0)).Comma().Cat(tick_vol).Comma().Cat(real_vol).Comma().Cat(spread).CR();
+					THROW(SLCHECK_NZ(f_out.WriteLine(line_buf)));
+				}
+				f_out.Close();
+				SLCHECK_LT(0, SFile::Compare(src_file_name, test_file_name, 0));
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }

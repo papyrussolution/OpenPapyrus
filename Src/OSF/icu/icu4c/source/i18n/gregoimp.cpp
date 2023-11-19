@@ -1,15 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- * Copyright (c) 2003-2008, International Business Machines
- * Corporation and others.  All Rights Reserved.
- **********************************************************************
- * Author: Alan Liu
- * Created: September 2 2003
- * Since: ICU 2.8
- **********************************************************************
- */
+// Copyright (c) 2003-2008, International Business Machines Corporation and others.  All Rights Reserved.
+// Author: Alan Liu
+// Created: September 2 2003
+// Since: ICU 2.8
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "gregoimp.h"
@@ -21,25 +16,22 @@
 U_NAMESPACE_BEGIN
 
 int32_t ClockMath::floorDivide(int32_t numerator, int32_t denominator) {
-	return (numerator >= 0) ?
-	       numerator / denominator : ((numerator + 1) / denominator) - 1;
+	return (numerator >= 0) ? numerator / denominator : ((numerator + 1) / denominator) - 1;
 }
 
 int64_t ClockMath::floorDivide(int64_t numerator, int64_t denominator) {
-	return (numerator >= 0) ?
-	       numerator / denominator : ((numerator + 1) / denominator) - 1;
+	return (numerator >= 0) ? numerator / denominator : ((numerator + 1) / denominator) - 1;
 }
 
-int32_t ClockMath::floorDivide(double numerator, int32_t denominator,
-    int32_t& remainder) {
-	double quotient;
-	quotient = uprv_floor(numerator / denominator);
+int32_t ClockMath::floorDivide(double numerator, int32_t denominator, int32_t& remainder) 
+{
+	double quotient = uprv_floor(numerator / denominator);
 	remainder = (int32_t)(numerator - (quotient * denominator));
 	return (int32_t)quotient;
 }
 
-double ClockMath::floorDivide(double dividend, double divisor,
-    double& remainder) {
+double ClockMath::floorDivide(double dividend, double divisor, double& remainder) 
+{
 	// Only designed to work for positive divisors
 	U_ASSERT(divisor > 0);
 	double quotient = floorDivide(dividend, divisor);
@@ -88,8 +80,8 @@ double Grego::fieldsToDay(int32_t year, int32_t month, int32_t dom)
 	return julian - JULIAN_1970_CE; // JD => epoch day
 }
 
-void Grego::dayToFields(double day, int32_t& year, int32_t& month,
-    int32_t& dom, int32_t& dow, int32_t& doy) {
+void Grego::dayToFields(double day, int32_t& year, int32_t& month, int32_t& dom, int32_t& dow, int32_t& doy) 
+{
 	// Convert from 1970 CE epoch to 1 CE epoch (Gregorian calendar)
 	day += JULIAN_1970_CE - JULIAN_1_CE;
 
@@ -97,9 +89,9 @@ void Grego::dayToFields(double day, int32_t& year, int32_t& month,
 	// representation.  We use 400-year, 100-year, and 4-year cycles.
 	// For example, the 4-year cycle has 4 years + 1 leap day; giving
 	// 1461 == 365*4 + 1 days.
-	int32_t n400 = ClockMath::floorDivide(day, 146097, doy); // 400-year cycle length
+	int32_t n400 = ClockMath::floorDivide(day, SlConst::DaysPer400Years, doy); // 400-year cycle length
 	int32_t n100 = ClockMath::floorDivide(doy, 36524, doy); // 100-year cycle length
-	int32_t n4   = ClockMath::floorDivide(doy, 1461, doy);// 4-year cycle length
+	int32_t n4   = ClockMath::floorDivide(doy, SlConst::DaysPer4Years, doy);// 4-year cycle length
 	int32_t n1   = ClockMath::floorDivide(doy, 365, doy);
 	year = 400*n400 + 100*n100 + 4*n4 + n1;
 	if(n100 == 4 || n1 == 4) {

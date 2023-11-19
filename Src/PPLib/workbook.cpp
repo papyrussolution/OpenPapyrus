@@ -987,7 +987,7 @@ int PPObjWorkbook::Helper_Edit(PPID * pID, AddBlock * pAb)
 			if(pAb->FileName.NotEmpty() && fileExists(pAb->FileName)) {
 				pack.F.Replace(0, pAb->FileName);
 				if(pack.Rec.Name[0] == 0) {
-					SPathStruc ps(pAb->FileName);
+					SFsPath ps(pAb->FileName);
 					ps.Nam.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
 				}
 			}
@@ -1993,7 +1993,7 @@ int PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpParam &
 {
 	int    ok = 1;
 	SString wildcard, name_buf, file_name;
-	SPathStruc ps;
+	SFsPath ps;
 	SDirEntry de;
 	(wildcard = rBasePath).SetLastSlash().Cat(rNakedWc);
 	{
@@ -2526,7 +2526,7 @@ int PPObjWorkbook::TestImportFromUhtt()
 		temp_path_name.SetLastSlash().Cat("test-workbook");
 		int    r;
 		int    gcr = 0;
-		THROW_SL(createDir(temp_path_name));
+		THROW_SL(SFile::CreateDir(temp_path_name));
 		THROW(r = uhtt_cli.GetWorkbookListByParentCode(0, result));
 		for(uint i = 0; i < result.getCount(); i++) {
             const UhttWorkbookItemPacket * p_item = result.at(i);
@@ -2564,12 +2564,12 @@ int PPObjWorkbook::ImportFiles(PPID rootID, PPObjWorkbook::ImpExpParam * pParam)
 		THROW(Search(pParam->RootID, &root_rec) > 0);
 		THROW(oneof2(root_rec.Type, PPWBTYP_SITE, PPWBTYP_FOLDER));
 		{
-			SPathStruc ps_;
+			SFsPath ps_;
 			PPWaitStart();
-			SPathStruc ps(pParam->Wildcard);
+			SFsPath ps(pParam->Wildcard);
 			SString base_path, naked_wildcard;
-			ps_.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, base_path);
-			ps_.Z().Merge(&ps, SPathStruc::fNam|SPathStruc::fExt, naked_wildcard);
+			ps_.Merge(&ps, SFsPath::fDrv|SFsPath::fDir, base_path);
+			ps_.Z().Merge(&ps, SFsPath::fNam|SFsPath::fExt, naked_wildcard);
 			if(!naked_wildcard.NotEmptyS())
 				naked_wildcard = "*.*";
 			{
@@ -2885,7 +2885,7 @@ int PPWorkbookExporter::Init(const PPWorkbookImpExpParam * pParam)
 		THROW_MEM(P_IEWorkbook = new PPImpExp(&Param, 0));
 		THROW(P_IEWorkbook->OpenFileForWriting(0, 1));
 		{
-			SPathStruc ps(P_IEWorkbook->GetParamConst().FileName);
+			SFsPath ps(P_IEWorkbook->GetParamConst().FileName);
 			ps.Ext = "files";
 			ps.Merge(DestFilesPath);
 		}
@@ -2939,10 +2939,10 @@ int PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 		_lf.Load(pPack->Rec.ID, 0L);
 		if(_lf.At(0, temp_buf.Z())) {
 			if(DestFilesPath.NotEmpty() && !fileExists(DestFilesPath)) {
-				THROW_SL(::createDir(DestFilesPath));
+				THROW_SL(SFile::CreateDir(DestFilesPath));
 			}
 			SString dest_filename;
-			SPathStruc ps(temp_buf);
+			SFsPath ps(temp_buf);
 			MakeTempFileName(DestFilesPath, "wbf", ps.Ext, 0, dest_filename);
 			THROW_SL(SCopyFile(temp_buf, dest_filename, 0, FILE_SHARE_READ, 0));
 			dest_filename.CopyTo(sdr_rec.Content, sizeof(sdr_rec.Content));

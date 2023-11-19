@@ -215,7 +215,7 @@ public:
 		{
 			SString exe_file_name = SLS.GetExePath();
 			if(exe_file_name.NotEmptyS()) {
-				SPathStruc ps;
+				SFsPath ps;
 				ps.Split(exe_file_name);
 				ps.Nam = "pirit";
 				ps.Ext = "log";

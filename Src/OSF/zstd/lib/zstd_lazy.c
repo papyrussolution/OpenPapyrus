@@ -1402,7 +1402,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_lazy_generic(ZSTD_matchState_t* 
     const searchMethod_e searchMethod, const uint32 depth,
     ZSTD_dictMode_e const dictMode)
 {
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * ip = istart;
 	const BYTE * anchor = istart;
 	const BYTE * const iend = istart + srcSize;
@@ -1768,7 +1768,7 @@ size_t ZSTD_compressBlock_lazy_extDict_generic(ZSTD_matchState_t* ms, seqStore_t
     const void * src, size_t srcSize,
     const searchMethod_e searchMethod, const uint32 depth)
 {
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * ip = istart;
 	const BYTE * anchor = istart;
 	const BYTE * const iend = istart + srcSize;

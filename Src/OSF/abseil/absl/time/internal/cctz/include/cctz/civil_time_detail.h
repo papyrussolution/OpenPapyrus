@@ -82,18 +82,18 @@ CONSTEXPR_F fields n_day(year_t y, month_t m, diff_t d, diff_t cd, hour_t hh, mi
 {
 	year_t ey = y % 400;
 	const year_t oey = ey;
-	ey += (cd / 146097) * 400;
-	cd %= 146097;
+	ey += (cd / SlConst::DaysPer400Years) * 400;
+	cd %= SlConst::DaysPer400Years;
 	if(cd < 0) {
 		ey -= 400;
-		cd += 146097;
+		cd += SlConst::DaysPer400Years;
 	}
-	ey += (d / 146097) * 400;
-	d = d % 146097 + cd;
+	ey += (d / SlConst::DaysPer400Years) * 400;
+	d = d % SlConst::DaysPer400Years + cd;
 	if(d > 0) {
-		if(d > 146097) {
+		if(d > SlConst::DaysPer400Years) {
 			ey += 400;
-			d -= 146097;
+			d -= SlConst::DaysPer400Years;
 		}
 	}
 	else {
@@ -105,7 +105,7 @@ CONSTEXPR_F fields n_day(year_t y, month_t m, diff_t d, diff_t cd, hour_t hh, mi
 		}
 		else {
 			ey -= 400;
-			d += 146097;
+			d += SlConst::DaysPer400Years;
 		}
 	}
 	if(d > 365) {
@@ -234,14 +234,15 @@ CONSTEXPR_F diff_t ymd_ord(year_t y, month_t m, day_t d) noexcept
 	const diff_t yoe = eyear - era * 400;
 	const diff_t doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + d - 1;
 	const diff_t doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
-	return era * 146097 + doe - 719468;
+	return era * SlConst::DaysPer400Years + doe - 719468;
 }
-
+//
 // Returns the difference in days between two normalized Y-M-D tuples.
 // ymd_ord() will encounter integer overflow given extreme year values,
 // yet the difference between two such extreme values may actually be
 // small, so we take a little care to avoid overflow when possible by
-// exploiting the 146097-day cycle.
+// exploiting the SlConst::DaysPer400Years-day cycle.
+//
 CONSTEXPR_F diff_t day_difference(year_t y1, month_t m1, day_t d1, year_t y2, month_t m2, day_t d2) noexcept 
 {
 	const diff_t a_c4_off = y1 % 400;
@@ -249,14 +250,14 @@ CONSTEXPR_F diff_t day_difference(year_t y1, month_t m1, day_t d1, year_t y2, mo
 	diff_t c4_diff = (y1 - a_c4_off) - (y2 - b_c4_off);
 	diff_t delta = ymd_ord(a_c4_off, m1, d1) - ymd_ord(b_c4_off, m2, d2);
 	if(c4_diff > 0 && delta < 0) {
-		delta += 2 * 146097;
+		delta += 2 * SlConst::DaysPer400Years;
 		c4_diff -= 2 * 400;
 	}
 	else if(c4_diff < 0 && delta > 0) {
-		delta -= 2 * 146097;
+		delta -= 2 * SlConst::DaysPer400Years;
 		c4_diff += 2 * 400;
 	}
-	return (c4_diff / 400 * 146097) + delta;
+	return (c4_diff / 400 * SlConst::DaysPer400Years) + delta;
 }
 }  // namespace impl
 

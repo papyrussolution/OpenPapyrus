@@ -184,7 +184,7 @@ PriceChecker::~PriceChecker()
 
 int PriceChecker::FillStIniParam()
 {
-	SPathStruc ps;
+	SFsPath ps;
 	SString temp_buf, storage_str;
 	TCHAR ret_buf[BUF_SIZE];
 	//char fname[MAX_PATH];
@@ -232,7 +232,7 @@ int PriceChecker::FillStIniParam()
 
 int PriceChecker::InitLogFile()
 {
-	SPathStruc ps;
+	SFsPath ps;
 	SString temp_buf;
 	//char fname[MAX_PATH];
 	//GetModuleFileName(NULL, fname, MAX_PATH);
@@ -312,7 +312,7 @@ int PriceChecker::Login()
 	int  ok = 0;
 	long ret = 0;
 	BSTR db_name = 0, user_name = 0, passw = 0;
-	SPathStruc ps;
+	SFsPath ps;
 	if(P_Session) {
 		IniParam.DataBaseName.CopyToOleStr(&db_name);
 		IniParam.UserName.CopyToOleStr(&user_name);

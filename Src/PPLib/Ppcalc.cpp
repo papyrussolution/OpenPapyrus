@@ -848,10 +848,10 @@ IMPL_INVARIANT_C(PosPaymentBlock)
 	S_ASSERT_P(BonusAmt >= 0.0, pInvP);
 	S_ASSERT_P(BonusAmt <= BonusRest, pInvP);
 	S_ASSERT_P(DeliveryAmt == (NoteAmt - CashAmt), pInvP);
-	S_ASSERT_P(oneof3(BuyersEAddrType, 0, SNTOK_EMAIL, SNTOK_PHONE), pInvP); // @v11.3.6
-	S_ASSERT_P(BuyersEAddr.IsEmpty() || oneof2(BuyersEAddrType, SNTOK_EMAIL, SNTOK_PHONE), pInvP); // @v11.3.6
-	S_ASSERT_P(BuyersEAddrType == 0 || BuyersEAddr.NotEmpty(), pInvP); // @v11.3.6
-	S_ASSERT_P(!(Flags & fPaperless) || BuyersEAddr.NotEmpty(), pInvP); // @v11.3.6
+	S_ASSERT_P(oneof3(EAddr.AddrType, 0, SNTOK_EMAIL, SNTOK_PHONE), pInvP); // @v11.3.6
+	S_ASSERT_P(EAddr.EAddr.IsEmpty() || oneof2(EAddr.AddrType, SNTOK_EMAIL, SNTOK_PHONE), pInvP); // @v11.3.6
+	S_ASSERT_P(EAddr.AddrType == 0 || EAddr.EAddr.NotEmpty(), pInvP); // @v11.3.6
+	S_ASSERT_P(!(Flags & fPaperless) || !EAddr.IsEmpty(), pInvP); // @v11.3.6
 	S_INVARIANT_EPILOG(pInvP);
 }
 
@@ -899,8 +899,8 @@ bool PosPaymentBlock::SetBuyersEAddr(int addrType, const char * pAddr)
 	THROW(oneof3(addrType, 0, SNTOK_EMAIL, SNTOK_PHONE));
 	THROW(isempty(pAddr) || oneof2(addrType, SNTOK_EMAIL, SNTOK_PHONE));
 	THROW(addrType == 0 || !isempty(pAddr));
-	BuyersEAddrType = addrType;
-	(BuyersEAddr = pAddr).Strip();
+	EAddr.AddrType = addrType;
+	(EAddr.EAddr = pAddr).Strip();
 	CATCHZOK
 	return ok;
 }
@@ -980,8 +980,10 @@ int PosPaymentBlock::EditDialog2()
 			if(Data.Flags & PosPaymentBlock::fAltCashRegEnabled)
 				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.Flags & PosPaymentBlock::fAltCashRegUse));
 			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { // @v11.3.7
-				Data.BuyersEAddr.SetIfEmpty(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
-				setCtrlString(CTL_CPPAYM_EADDR, Data.BuyersEAddr);
+				//Data.BuyersEAddr.SetIfEmpty(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
+				if(Data.EAddr.IsEmpty())
+					Data.EAddr.SetEMail(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
+				setCtrlString(CTL_CPPAYM_EADDR, Data.EAddr.EAddr);
 				setCtrlUInt16(CTL_CPPAYM_PAPERLESS, BIN(Data.Flags & PosPaymentBlock::fPaperless));
 			}
 			// } @v11.3.6

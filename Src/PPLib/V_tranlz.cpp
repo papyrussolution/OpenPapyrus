@@ -1832,7 +1832,7 @@ int PPViewTrfrAnlz::InitIteration(IterOrder ord)
 		/*if(0) {
 			SString temp_buf;
 			temp_buf = P_TrAnlzTbl->GetFileName();
-			SPathStruc::ReplaceExt(temp_buf, "dump", 1);
+			SFsPath::ReplaceExt(temp_buf, "dump", 1);
 			SFile f_out(temp_buf, SFile::mWrite);
 			char   k0[MAXKEYLEN];
 			BExtQuery debug_q(P_TrAnlzTbl, 0);
@@ -1908,7 +1908,7 @@ int PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
 				/*if(0) {
 					SString temp_buf;
 					temp_buf = P_TrAnlzTbl->GetFileName();
-					SPathStruc::ReplaceExt(temp_buf, "dump", 1);
+					SFsPath::ReplaceExt(temp_buf, "dump", 1);
 					SFile f_out(temp_buf, SFile::mWrite|SFile::mAppend);
 					const BNFieldList & r_debug_fl = P_TrAnlzTbl->GetFields();
 					r_debug_fl.RecordToStr(&P_TrAnlzTbl->data, temp_buf);

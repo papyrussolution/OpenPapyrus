@@ -1702,7 +1702,7 @@ void DlContext::InitFileNames(const char * pInFileName)
 {
 	if(Flags & fCompile) {
 		InFileName = pInFileName;
-		SPathStruc ps(InFileName);
+		SFsPath ps(InFileName);
 		ps.Ext = "h";
 		ps.Merge(CDeclFileName);
 		ps.Ext = "cpp";

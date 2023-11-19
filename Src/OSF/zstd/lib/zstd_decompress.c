@@ -11,15 +11,16 @@
 // 
 // Tuning parameters
 // 
-/*!
- * HEAPMODE :
- * Select how default decompression function ZSTD_decompress() allocates its context,
- * on stack (0), or into heap (1, default; requires SAlloc::M()).
- * Note that functions with explicit context such as ZSTD_decompressDCtx() are unaffected.
- */
+/* @sobolev (moved to zstd-internal.h) 
+// 
+// HEAPMODE :
+// Select how default decompression function ZSTD_decompress() allocates its context,
+// on stack (0), or into heap (1, default; requires SAlloc::M()).
+// Note that functions with explicit context such as ZSTD_decompressDCtx() are unaffected.
+// 
 #ifndef ZSTD_HEAPMODE
 	#define ZSTD_HEAPMODE 1
-#endif
+#endif*/
 /*!
  *  LEGACY_SUPPORT :
  *  if set to 1+, ZSTD_decompress() can decode older formats (v0.1+)
@@ -439,7 +440,7 @@ size_t ZSTD_frameHeaderSize(const void * src, size_t srcSize)
  *           or an error code, which can be tested using ZSTD_isError() */
 size_t ZSTD_getFrameHeader_advanced(ZSTD_frameHeader* zfhPtr, const void * src, size_t srcSize, ZSTD_format_e format)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	const size_t minInputSize = ZSTD_startingInputLength(format);
 	memzero(zfhPtr, sizeof(*zfhPtr)); /* not strictly necessary, but static analyzer do not understand that
 		zfhPtr is only going to be read only if return value is zero, since they are 2 different signals */
@@ -701,7 +702,7 @@ static ZSTD_frameSizeInfo ZSTD_findFrameSizeInfo(const void * src, size_t srcSiz
 		return frameSizeInfo;
 	}
 	else {
-		const BYTE * ip = (const BYTE *)src;
+		const BYTE * ip = PTR8C(src);
 		const BYTE * const ipstart = ip;
 		size_t remainingSize = srcSize;
 		size_t nbBlocks = 0;
@@ -1046,15 +1047,11 @@ size_t ZSTD_decompress(void * dst, size_t dstCapacity, const void * src, size_t 
 	return ZSTD_decompressDCtx(&dctx, dst, dstCapacity, src, srcSize);
 #endif
 }
-
-/*-**************************************
-*   Advanced Streaming Decompression API
-*   Bufferless and synchronous
-****************************************/
-size_t ZSTD_nextSrcSizeToDecompress(ZSTD_DCtx* dctx) {
-	return dctx->expected;
-}
-
+// 
+// Advanced Streaming Decompression API
+// Bufferless and synchronous
+// 
+size_t ZSTD_nextSrcSizeToDecompress(ZSTD_DCtx* dctx) { return dctx->expected; }
 /**
  * Similar to ZSTD_nextSrcSizeToDecompress(), but when a block input can be streamed, we
  * allow taking a partial block as the input. Currently only raw uncompressed blocks can

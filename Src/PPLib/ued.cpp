@@ -16,15 +16,112 @@
 #include <ued-id.h>
 #include <..\OSF\abseil\absl\numeric\int128.h>
 
-uint64 SrUedContainer_Rt::Recognize(SStrScan & rScan, uint64 implicitMeta, uint flags) const
+UedSetBase::UedSetBase() : LimbCount(0)
+{
+	SBaseBuffer::Init();
+}
+	
+UedSetBase::UedSetBase(const UedSetBase & rS) : LimbCount(0)
+{
+	SBaseBuffer::Init();
+	Copy(rS);
+	assert(LimbCount * sizeof(uint64) <= SBaseBuffer::Size);
+}
+
+UedSetBase::~UedSetBase()
+{
+	assert(LimbCount * sizeof(uint64) <= SBaseBuffer::Size);
+	SBaseBuffer::Destroy();
+	LimbCount = 0;
+}
+
+UedSetBase & FASTCALL UedSetBase::operator = (const UedSetBase & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+bool FASTCALL UedSetBase::operator == (const UedSetBase & rS) const { return IsEq(rS); }
+	
+int FASTCALL UedSetBase::Copy(const UedSetBase & rS)
+{
+	int    ok = 1;
+	if(SBaseBuffer::CopyPrefix(rS, rS.LimbCount * sizeof(uint64))) {
+		LimbCount = rS.LimbCount;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+bool FASTCALL UedSetBase::IsEq(const UedSetBase & rS) const
+{
+	bool    eq = true;
+	if(LimbCount != rS.LimbCount)
+		eq = false;
+	else if(!SBaseBuffer::IsEqPrefix(rS, LimbCount * sizeof(uint64)))
+		eq = false;
+	return eq;
+}
+
+bool UedSetBase::Add(const uint64 * pUed, uint count, uint * pIdx)
+{
+	bool    ok = true;
+	const   uint current_end_idx = LimbCount;
+	if(pUed && count) {
+		if(SBaseBuffer::Put(current_end_idx, pUed, count * sizeof(uint64))) {
+			LimbCount += count;
+		}
+		else
+			ok = false;
+	}
+	ASSIGN_PTR(pIdx, current_end_idx);
+	return ok;
+}
+
+bool UedSetBase::Add(uint64 ued, uint * pIdx)
+{
+	return Add(&ued, 1, pIdx);
+}
+
+int  SrUedContainer_Base::Helper_RecognizeSymb(SStrScan & rScan, uint flags, SString & rMeta, SString & rSymb) const
+{
+	rMeta.Z();
+	rSymb.Z();
+	int    ok = 0;
+	SString temp_buf;
+	if(rScan.GetIdent(temp_buf)) {
+		if(rScan.Is('.')) {
+			rScan.Incr();
+			rMeta = temp_buf;
+			if(rScan.GetIdent(temp_buf)) {
+				rSymb = temp_buf;
+				ok = 2;
+			}
+			else
+				rMeta.Z();
+		}
+		else {
+			rSymb = temp_buf;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uint flags) const
 {
 	uint64 result = 0;
 	SString temp_buf;
+	SString _meta_symb;
+	SString _symb;
 	uint   preserve_offs = 0;
 	rScan.Push(&preserve_offs);
 	rScan.Skip();
-	if(rScan.Is('#')) {
+	int    hr = -1;
+	if(flags & rfPrefixSharp && rScan.Is('#')) {
 		rScan.Incr();
+		hr = Helper_RecognizeSymb(rScan, flags, _meta_symb, _symb);
 		if(rScan.GetIdent(temp_buf)) {
 			if(rScan.Is('.')) {
 				rScan.Incr();
@@ -40,18 +137,40 @@ uint64 SrUedContainer_Rt::Recognize(SStrScan & rScan, uint64 implicitMeta, uint 
 			}
 		}
 	}
+	else {
+		hr = Helper_RecognizeSymb(rScan, flags, _meta_symb, _symb);
+	}
+	if(hr > 0) {
+		if(flags & rfDraft)
+			result = UED_PREDEFVALUE_MAYBE;
+		else if(hr == 2) {
+			uint64 meta = SearchSymb(_meta_symb, UED_META_META);
+			if(meta && (!implicitMeta || implicitMeta == meta)) {
+				result = SearchSymb(_symb, meta);
+			}
+		}
+		else if(hr == 1) {
+			if(implicitMeta) {
+				result = SearchSymb(temp_buf, implicitMeta);
+			}
+		}
+	}
 	else if(rScan.GetXDigits(temp_buf)) {
 		uint64 ued = sxtou64(temp_buf);
 		if(ued) {
-			if(implicitMeta) {
-				if(UED::BelongToMeta(ued, implicitMeta)) {
-					result = ued;
-				}
-			}
+			if(flags & rfDraft)
+				result = UED_PREDEFVALUE_MAYBE;
 			else {
-				uint64 meta = UED::GetMeta(ued);
-				if(meta && SearchBaseId(ued, temp_buf)) {
-					result = ued;
+				if(implicitMeta) {
+					if(UED::BelongToMeta(ued, implicitMeta)) {
+						result = ued;
+					}
+				}
+				else {
+					uint64 meta = UED::GetMeta(ued);
+					if(meta && SearchBaseId(ued, temp_buf)) {
+						result = ued;
+					}
 				}
 			}
 		}
@@ -569,6 +688,17 @@ uint64 SrUedContainer_Base::SearchBaseSymb(const char * pSymb, uint64 meta) cons
 	return id;
 }
 
+uint64 SrUedContainer_Base::SearchSymb(const char * pSymb, uint64 meta) const
+{
+	uint64 result = 0;
+	if(!isempty(pSymb)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		(r_temp_buf = pSymb).Strip().Utf8ToLower();
+		result = SearchBaseSymb(r_temp_buf, meta);
+	}
+	return result;
+}
+
 bool   SrUedContainer_Base::SearchBaseId(uint64 id, SString & rSymb) const
 {
 	rSymb.Z();
@@ -587,44 +717,98 @@ bool SrUedContainer_Base::SearchSymbHashId(uint32 symbHashId, SString & rSymb) c
 	return Ht.GetByAssoc(symbHashId, rSymb);
 }
 
-int SrUedContainer_Base::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger)
+int SrUedContainer_Base::ReplaceSurrogateLocaleId(const SymbHashTable & rT, uint32 surrLocaleId, uint32 * pRealLocaleId, uint lineNo, PPLogger * pLogger)
 {
 	int    ok = 1;
-	SString temp_buf;
-	SString locale_buf;
-	THROW(LinguaLocusMeta);
-	for(uint i = 0; i < TL.getCount(); i++) {
-		TextEntry & r_e = TL.at(i);
-		if(r_e.Locale) {
-			THROW(rT.GetByAssoc(r_e.Locale, locale_buf));
-			{
-				uint64 locale_id = SearchBaseSymb(locale_buf, LinguaLocusMeta);
-				if(!locale_id) {
-					ok = PPSetError(PPERR_UED_SYMBFORMETANOTFOUND, 
-						temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(r_e.LineNo).Space().
-						Cat(locale_buf).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
+	assert(pRealLocaleId);
+	THROW(pRealLocaleId); // @todo @err
+	if(surrLocaleId) {
+		SString temp_buf;
+		SString locale_buf;
+		THROW(rT.GetByAssoc(surrLocaleId, locale_buf));
+		{
+			uint64 locale_id = SearchBaseSymb(locale_buf, LinguaLocusMeta);
+			if(!locale_id) {
+				ok = PPSetError(PPERR_UED_SYMBFORMETANOTFOUND, 
+					temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(lineNo).Space().
+					Cat(locale_buf).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
+				if(pLogger)
+					pLogger->LogLastError();
+				else
+					CALLEXCEPT();
+			}
+			else {
+				const bool btm_result = UED::BelongToMeta(locale_id, LinguaLocusMeta);
+				if(!btm_result) {
+					ok = PPSetError(PPERR_UED_VALUENOTBELONGTOMETA, 
+						temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(lineNo).Space().
+						CatHex(locale_id).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
 					if(pLogger)
 						pLogger->LogLastError();
 					else
 						CALLEXCEPT();
 				}
+				{
+					//r_e.Locale = UED::MakeShort(locale_id, LinguaLocusMeta);
+					assert(UED::GetMeta(locale_id) == LinguaLocusMeta);
+					bool grvr = UED::GetRawValue32(locale_id, pRealLocaleId);
+					assert(grvr);
+					assert(*pRealLocaleId);
+					ok = 1;
+				}
+			}
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+int SrUedContainer_Base::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger)
+{
+	int    ok = 1;
+	THROW(LinguaLocusMeta);
+	{
+		for(uint teidx = 0; teidx < TL.getCount(); teidx++) {
+			TextEntry & r_e = TL.at(teidx);
+			uint32 real_locale_id = 0;
+			const int rslr = ReplaceSurrogateLocaleId(rT, r_e.Locale, &real_locale_id, r_e.LineNo, pLogger);
+			if(rslr > 0) {
+				assert(real_locale_id);
+				r_e.Locale = real_locale_id;
+			}
+			else if(rslr < 0) {
+				assert(real_locale_id == 0);
+				r_e.Locale = real_locale_id;
+			}
+			else {
+				ok = 0;
+				if(!pLogger) {
+					CALLEXCEPT();
+				}
+			}
+		}
+	}
+	{
+		for(uint ppidx = 0; ppidx < ProtoPropList.getCount(); ppidx++) {
+			ProtoProp * p_pp = ProtoPropList.at(ppidx);
+			assert(p_pp);
+			if(p_pp) {
+				uint32 real_locale_id = 0;
+				const int rslr = ReplaceSurrogateLocaleId(rT, p_pp->LocaleId, &real_locale_id, p_pp->LineNo, pLogger);
+				if(rslr > 0) {
+					assert(real_locale_id);
+					p_pp->LocaleId = real_locale_id;
+				}
+				else if(rslr < 0) {
+					assert(real_locale_id == 0);
+					p_pp->LocaleId = real_locale_id;
+				}
 				else {
-					const bool btm_result = UED::BelongToMeta(locale_id, LinguaLocusMeta);
-					if(!btm_result) {
-						ok = PPSetError(PPERR_UED_VALUENOTBELONGTOMETA, 
-							temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(r_e.LineNo).Space().
-							CatHex(locale_id).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
-						if(pLogger)
-							pLogger->LogLastError();
-						else
-							CALLEXCEPT();
-					}
-					{
-						//r_e.Locale = UED::MakeShort(locale_id, LinguaLocusMeta);
-						assert(UED::GetMeta(locale_id) == LinguaLocusMeta);
-						bool grvr = UED::GetRawValue32(locale_id, &r_e.Locale);
-						assert(grvr);
-						assert(r_e.Locale);
+					ok = 0;
+					if(!pLogger) {
+						CALLEXCEPT();
 					}
 				}
 			}
@@ -634,7 +818,24 @@ int SrUedContainer_Base::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPL
 	return ok;
 }
 
-SrUedContainer_Base::ProtoPropList_SingleUed::ProtoPropList_SingleUed(uint64 ued, int localeId) : Ued(ued), LocaleId(localeId)
+SrUedContainer_Base::PropertySet::PropertySet() : UedSetBase()
+{
+}
+		
+int SrUedContainer_Base::PropertySet::Add(const uint64 * pPropChunk, uint count, uint * pPos)
+{
+	int    ok = -1;
+	if(pPropChunk && count) {
+		uint   pos = 0;
+		ok = UedSetBase::Add(pPropChunk, count, &pos);
+		if(ok) {
+			PosIdx.Add(static_cast<long>(pos), static_cast<long>(count));
+		}
+	}
+	return ok;
+}
+
+SrUedContainer_Base::ProtoPropList_SingleUed::ProtoPropList_SingleUed(uint64 ued, int localeId) : TSCollection <ProtoProp>(), Ued(ued), LocaleId(localeId)
 {
 }
 		
@@ -684,7 +885,7 @@ enum {
 	stEndOfPropList // '}'
 };
 
-int SrUedContainer_Base::PropertyListParsingBlock::ScanProp(SStrScan & rScan)
+int SrUedContainer_Base::PropertyListParsingBlock::ScanProp(SrUedContainer_Base & rC, SStrScan & rScan)
 {
 	int    ok = 0;
 	SString temp_buf;
@@ -699,11 +900,13 @@ int SrUedContainer_Base::PropertyListParsingBlock::ScanProp(SStrScan & rScan)
 	return ok;
 }
 
-int SrUedContainer_Base::PropertyListParsingBlock::ScanArg(SStrScan & rScan, bool isFirst/*@debug*/)
+int SrUedContainer_Base::PropertyListParsingBlock::ScanArg(SrUedContainer_Base & rC, SStrScan & rScan, bool isFirst/*@debug*/)
 {
 	int    ok = 0;
 	SString temp_buf;
-	if(rScan.GetIdent(temp_buf)) {
+	uint64 rued = rC.Recognize(rScan, 0, rfDraft);
+	if(rued == UED_PREDEFVALUE_MAYBE) {
+	//if(rScan.GetIdent(temp_buf)) {
 		State = stPropValue;
 		THROW(PL.getCount());
 		{
@@ -763,7 +966,7 @@ int SrUedContainer_Base::PropertyListParsingBlock::ScanArg(SStrScan & rScan, boo
 //   <0 - разбор не завершен
 //    0 - error
 //
-int SrUedContainer_Base::PropertyListParsingBlock::Do(SStrScan & rScan)
+int SrUedContainer_Base::PropertyListParsingBlock::Do(SrUedContainer_Base & rC, SStrScan & rScan)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -777,7 +980,7 @@ int SrUedContainer_Base::PropertyListParsingBlock::Do(SStrScan & rScan)
 	while(Status == 2 && !rScan.Skip().IsEnd()) {
 		switch(State) {
 			case stLeftBrace:
-				THROW(ScanProp(rScan));
+				THROW(ScanProp(rC, rScan));
 				break;
 			case stEndOfProp:
 				if(rScan.Is('}')) {
@@ -787,7 +990,7 @@ int SrUedContainer_Base::PropertyListParsingBlock::Do(SStrScan & rScan)
 					ok = 1;
 				}
 				else {
-					THROW(ScanProp(rScan));
+					THROW(ScanProp(rC, rScan));
 				}
 				break;
 			case stPropIdent:
@@ -799,7 +1002,7 @@ int SrUedContainer_Base::PropertyListParsingBlock::Do(SStrScan & rScan)
 					rScan.Incr();
 					State = stEndOfProp;
 				}
-				else if(ScanArg(rScan, true)) {
+				else if(ScanArg(rC, rScan, true)) {
 					;
 				}
 				else {
@@ -811,7 +1014,7 @@ int SrUedContainer_Base::PropertyListParsingBlock::Do(SStrScan & rScan)
 					rScan.Incr();
 					State = stEndOfProp;
 				}
-				else if(ScanArg(rScan, false)) {
+				else if(ScanArg(rC, rScan, false)) {
 					;
 				}
 				else {
@@ -893,7 +1096,7 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 				if(plp_blk.IsStarted()) {
 					// ≈сли строка включает описание свойств, то нова€ сущность на этой строке
 					// начинатьс€ не может, потому и else после этого блока.
-					int plpr = plp_blk.Do(scan);
+					int plpr = plp_blk.Do(*this, scan);
 					if(plpr > 0) {
 						RegisterProtoPropList(plp_blk.GetResult());
 					}
@@ -1013,7 +1216,7 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 						}
 						if(curly_bracket_left) {
 							if(plp_blk.Start(last_key.Ued, last_key.LocaleId)) {
-								int plpr = plp_blk.Do(scan);
+								int plpr = plp_blk.Do(*this, scan);
 								if(plpr > 0) {
 									RegisterProtoPropList(plp_blk.GetResult());
 								}
@@ -1034,7 +1237,34 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 	Ht.BuildAssoc();
 	THROW_SL(temporary_linglocus_tab.BuildAssoc());
 	THROW(ReplaceSurrogateLocaleIds(temporary_linglocus_tab, pLogger));
+	THROW(ProcessProperties());
 	CATCHZOK
+	return ok;
+}
+
+int SrUedContainer_Base::ProcessProperties()
+{
+	int    ok = 1;
+	SString temp_buf;
+	SStrScan scan;
+	for(uint i = 0; i < ProtoPropList.getCount(); i++) {
+		const ProtoProp * p_pp = ProtoPropList.at(i);
+		if(p_pp) {
+			//UedSetBase line;
+			uint   ssidx = 0;
+			for(uint ssp = 0; p_pp->Prop.get(ssp, temp_buf); ssidx++) {
+				if(ssidx == 0) { // property
+					scan.Set(temp_buf, 0);
+					uint64 ued_prop = Recognize(scan, UED_META_PROP, 0);
+					if(ued_prop && ued_prop != UED_PREDEFVALUE_MAYBE) {
+						
+					}
+				}
+				else { // args
+				}
+			}
+		}
+	}
 	return ok;
 }
 
@@ -1062,7 +1292,7 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 	SString fn_wc;
 	StringSet ss;
 	SDirEntry de;
-	SPathStruc ps;
+	SFsPath ps;
 	MakeUedCanonicalName(fn_wc, 0);
 	(temp_buf = pPath).Strip().SetLastSlash().Cat(fn_wc).Dot().Cat("dat");
 	for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
@@ -1149,7 +1379,7 @@ int SrUedContainer_Base::WriteSource(const char * pFileName, const SBinaryChunk 
 			ok = -1;
 		}
 		else {
-			SPathStruc ps(pFileName);
+			SFsPath ps(pFileName);
 			SlHash::GetAlgorithmSymb(SHASHF_SHA256, ps.Ext);
 			ps.Merge(temp_buf);
 			SFile f_hash(temp_buf, SFile::mWrite);
@@ -1171,10 +1401,10 @@ bool SrUedContainer_Ct::GenerateSourceDecl_C(const char * pFileName, uint versio
 	SString meta_symb;
 	SString h_sentinel_def;
 	Generator_CPP gen(pFileName);
-	const  SPathStruc ps(pFileName);
+	const  SFsPath ps(pFileName);
 	uint   max_symb_len = 0;
 	{
-		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 		gen.Wr_Comment(temp_buf.ToUpper());
 		temp_buf.Z().Cat("version").CatDiv(':', 2).Cat(versionN);
 		gen.Wr_Comment(temp_buf);
@@ -1260,10 +1490,10 @@ bool SrUedContainer_Ct::GenerateSourceDecl_Java(const char * pFileName, uint ver
 	SString meta_symb;
 	SString h_sentinel_def;
 	SFile  genf(pFileName, SFile::mWrite);
-	const  SPathStruc ps(pFileName);
+	const  SFsPath ps(pFileName);
 	uint   max_symb_len = 0;
 	{
-		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 		genf.WriteLine(meta_symb.Z().Cat("//").Space().Cat(temp_buf.ToUpper()).CR());
 		temp_buf.Z().Cat("version").CatDiv(':', 2).Cat(versionN);
 		genf.WriteLine(meta_symb.Z().Cat("//").Space().Cat(temp_buf).CR());
@@ -1445,14 +1675,14 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 	long   new_version = 0;
 	THROW(!isempty(pSrcFileName)); // @todo @err
 	{
-		SPathStruc ps(pSrcFileName);
-		SPathStruc ps_out;
-		SPathStruc ps_rt_out;
-		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
+		SFsPath ps(pSrcFileName);
+		SFsPath ps_out;
+		SFsPath ps_rt_out;
+		ps.Merge(SFsPath::fDrv|SFsPath::fDir, path);
 		path.RmvLastSlash();
 		if(!isempty(pOutPath)) {
 			ps_out.Split(pOutPath);
-			ps_out.Merge(SPathStruc::fDrv|SPathStruc::fDir, out_path);
+			ps_out.Merge(SFsPath::fDrv|SFsPath::fDir, out_path);
 			out_path.RmvLastSlash();
 		}
 		else {
@@ -1489,7 +1719,7 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 			int wsr = uedc.Write(result_file_name, (prev_version > 0) ? &prev_hash : 0, &new_hash);
 			THROW(wsr);
 			if(wsr > 0) {
-				ps_out.Merge(SPathStruc::fDir|SPathStruc::fDrv, temp_buf);
+				ps_out.Merge(SFsPath::fDir|SFsPath::fDrv, temp_buf);
 				THROW(uedc.Verify(temp_buf, new_version, 0));
 			}
 			else {
@@ -1505,14 +1735,14 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 				SrUedContainer_Base::MakeUedCanonicalName(ps_rt_out.Nam, -1);
 				ps_rt_out.Ext = "dat";
 				ps_rt_out.Merge(temp_buf);
-				SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot|SPathStruc::npfKeepCase, result_file_name_wo_sfx);
+				SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, result_file_name_wo_sfx);
 				if(!unchanged || SFile::Compare(result_file_name_wo_sfx, result_file_name, 0) <= 0) {
 					slfprintf_stderr(temp_buf.Z().Cat(result_file_name).Cat(" -> ").Cat(result_file_name_wo_sfx).CR());
 					THROW_SL(copyFileByName(result_file_name, result_file_name_wo_sfx));
 					//
 					SlHash::GetAlgorithmSymb(SHASHF_SHA256, temp_buf);
-					SPathStruc::ReplaceExt(result_file_name, temp_buf, 1);
-					SPathStruc::ReplaceExt(result_file_name_wo_sfx, temp_buf, 1);
+					SFsPath::ReplaceExt(result_file_name, temp_buf, 1);
+					SFsPath::ReplaceExt(result_file_name_wo_sfx, temp_buf, 1);
 					slfprintf_stderr(temp_buf.Z().Cat(result_file_name).Cat(" -> ").Cat(result_file_name_wo_sfx).CR());
 					THROW_SL(copyFileByName(result_file_name, result_file_name_wo_sfx));
 				}
@@ -1522,7 +1752,7 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 			SString out_file_name;
 			SString temp_file_name;
 			{
-				SPathStruc ps_src;
+				SFsPath ps_src;
 				if(!isempty(pCPath))
 					ps_src.Split(pCPath);
 				else
@@ -1549,7 +1779,7 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 				}
 			}
 			{
-				SPathStruc ps_src;
+				SFsPath ps_src;
 				if(!isempty(pJavaPath))
 					ps_src.Split(pJavaPath);
 				else
@@ -1618,17 +1848,6 @@ SrUedContainer_Rt::~SrUedContainer_Rt()
 int SrUedContainer_Rt::Read(const char * pFileName)
 {
 	return SrUedContainer_Base::ReadSource(pFileName, 0, 0);
-}
-
-uint64 SrUedContainer_Rt::SearchSymb(const char * pSymb, uint64 meta) const
-{
-	uint64 result = 0;
-	if(!isempty(pSymb)) {
-		SString & r_temp_buf = SLS.AcquireRvlStr();
-		(r_temp_buf = pSymb).Strip().Utf8ToLower();
-		result = SearchBaseSymb(r_temp_buf, meta);
-	}
-	return result;
 }
 
 bool SrUedContainer_Rt::GetSymb(uint64 ued, SString & rSymb) const

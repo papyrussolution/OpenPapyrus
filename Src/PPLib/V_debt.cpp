@@ -2950,7 +2950,7 @@ int PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <
 				}
 				if(p_item->PaymDensity) {
 					double s = GetSigmFactor(sigm_a, p_item->PaymPeriod, total.PaymPeriodMean) * p_item->PaymDensity;
-					if(IsValidIEEE(s) && s > 0.0)
+					if(SIEEE754::IsValid(s) && s > 0.0)
 						THROW(sh_paym.PreparePut(PreprocessRatingVal(s)));
 				}
 			}
@@ -2995,7 +2995,7 @@ int PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <
 						if(ds_cfg.LimitRoundPrec > 0.0)
 							p_item->Limit = PPRound(p_item->Limit, fdiv100i(ds_cfg.LimitRoundPrec), ds_cfg.LimitRoundDir);
 						paym_val = sigm * p_item->PaymDensity; // log
-						if(IsValidIEEE(paym_val) && paym_val > 0.0) {
+						if(SIEEE754::IsValid(paym_val) && paym_val > 0.0) {
 							THROW(idx_paym = sh_paym.Put(PreprocessRatingVal(paym_val)));
 							if(!p_stat_paym && (p_stat_paym = sh_paym.GetDeviationStat()) != 0) {
 								double m = 0.0, w = 0.0;

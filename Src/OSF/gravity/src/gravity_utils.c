@@ -534,7 +534,7 @@ bool utf8_reverse(char * p)
 			    SWP(*(q-0), *(q-2));
 			    q -= 2;
 			    break;
-			case 0xC: /* fall-through */
+			case 0xC: // @fallthrough
 			case 0xD: /* U+000080-U+0007FF: two bytes. */
 			    if(q-p < 1) return false;
 			    SWP(*(q-0), *(q-1));

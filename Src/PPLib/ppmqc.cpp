@@ -1220,7 +1220,7 @@ int MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd) const
 											binary160 hash = SlHash::Sha1(0, temp_buf, temp_buf.Len());
 											temp_buf.Z().Cat(cmd.Hash);
 											hash_len = 0;
-											decode64(temp_buf, temp_buf.Len(), cmd_hash, &hash_len);
+											Base64_Decode(temp_buf, temp_buf.Len(), cmd_hash, &hash_len);
 											if(!memcmp(cmd_hash, &hash, hash_len)){												
 												temp_buf.Z();
 												if(gua_pack.TagL.GetItemStr(PPTAG_GUA_GUID, temp_buf)>0) {

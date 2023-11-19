@@ -323,9 +323,9 @@ int main(int argc, char * argv[])
 	else {
 		if(argc >= 2) {
 			(in_file_name = argv[1]).Strip();
-			SPathStruc::ReplaceExt(in_file_name, "ini", 0);
+			SFsPath::ReplaceExt(in_file_name, "ini", 0);
 			{
-				SPathStruc ps(in_file_name);
+				SFsPath ps(in_file_name);
 				ps.Nam.Cat("-open");
 				ps.Merge(in_file_name_open);
 				if(!fileExists(in_file_name_open))
@@ -340,11 +340,11 @@ int main(int argc, char * argv[])
 		rc_file_name = "stdout";
 		if(argc >= 3) {
 			(out_file_name = argv[2]).Strip();
-			SPathStruc::ReplaceExt(out_file_name, "c", 0);
+			SFsPath::ReplaceExt(out_file_name, "c", 0);
 		}
 		if(argc >= 4) {
 			(rc_file_name = argv[3]).Strip();
-			SPathStruc::ReplaceExt(rc_file_name, "rc", 0);
+			SFsPath::ReplaceExt(rc_file_name, "rc", 0);
 		}
 		CreateVerRcFile2(in_file_name, rc_file_name, in_file_name_open);
 		CreateVerSrcFile2(in_file_name, out_file_name);

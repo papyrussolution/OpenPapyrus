@@ -818,7 +818,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 	PPObjGoods    goods_obj;
 
 	SString   imp_file_name = PathRpt;
-	SPathStruc::ReplacePath(imp_file_name, pImpPath, 1);
+	SFsPath::ReplacePath(imp_file_name, pImpPath, 1);
 	SFile     imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
 	THROW(imp_file.IsValid());
 	for(pos = 0; pos < 3; pos++)
@@ -1026,15 +1026,15 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 		PPWaitMsg(PPLoadTextS(PPTXT_IMPGOODS, wait_msg));
 		SString path_goodsflag = PathGoodsFlag;
 		SString path_goods = PathGoods;
-		SPathStruc::ReplacePath(path_goodsflag, pExpPath, 1);
-		SPathStruc::ReplacePath(path_goods, pImpPath, 1);
+		SFsPath::ReplacePath(path_goodsflag, pExpPath, 1);
+		SFsPath::ReplacePath(path_goods, pImpPath, 1);
 		THROW_PP(ok = WaitForExists(path_goodsflag, 1, NZOR(ImpExpTimeout, 5000)), PPERR_ATOL_IMPCHECKS);
 		if(ok > 0) {
 			SFile  gfile;
 			StringSet ss_comma(',', 0);
 			SFile::Remove(path_goods);
 			buf = path_goodsflag;
-			SPathStruc::ReplaceExt(buf, "tmp", 1);
+			SFsPath::ReplaceExt(buf, "tmp", 1);
 			gfile.Open(buf, SFile::mWrite);
 			THROW(gfile.IsValid());
 			for(pos = 0; pos < new_goods.getCount(); pos++) {
@@ -1116,8 +1116,8 @@ int ACS_ATOL::ImportSession(int)
 		if(::access(imp_path, 0) == 0) {
 			path_rpt = PathRpt;
 			path_flag = PathFlag;
-			SPathStruc::ReplacePath(path_rpt,  imp_path, 1);
-			SPathStruc::ReplacePath(path_flag,  exp_path, 1);
+			SFsPath::ReplacePath(path_rpt,  imp_path, 1);
+			SFsPath::ReplacePath(path_flag,  exp_path, 1);
 			THROW_PP(ok = WaitForExists(path_flag, 1, notify_timeout), PPERR_ATOL_IMPCHECKS);
 			if(ok > 0) {
 				int     y, m, d;
@@ -1125,7 +1125,7 @@ int ACS_ATOL::ImportSession(int)
 				SString date_mask("%02d.%02d.%04d");
 				SFile::Remove(path_rpt);
 				tmp_name = path_flag;
-				SPathStruc::ReplaceExt(tmp_name, "tmp", 1);
+				SFsPath::ReplaceExt(tmp_name, "tmp", 1);
 				SFile  query_file(tmp_name, SFile::mWrite);
 				THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_TRANSBYDTTM, buf));
 				query_file.WriteLine(buf.CR());

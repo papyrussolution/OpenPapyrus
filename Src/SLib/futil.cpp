@@ -65,45 +65,31 @@ bool FASTCALL fileExists(const char * pFileName)
 }
 
 #ifdef __WIN32__
-
-static int getdisk()
-{
-	wchar_t buf[MAX_PATH];
-	::GetCurrentDirectoryW(SIZEOFARRAY(buf), buf);
-	return *buf-L'A';
-}
-
-int pathToUNC(const char * pPath, SString & rUncPath)
-{
-	int    ok = 1;
-	char   disk[4] = "X:\\";
-	*disk = *pPath;
-	rUncPath = pPath;
-	if(GetDriveType(SUcSwitch(disk)) == DRIVE_REMOTE) {
-		char   namebuf[MAX_PATH + sizeof(UNIVERSAL_NAME_INFO)];
-		namebuf[0] = 0;
-		DWORD  len = MAX_PATH;
-		DWORD  wstat = WNetGetUniversalName(SUcSwitch(pPath), UNIVERSAL_NAME_INFO_LEVEL, &namebuf, &len);
-		if(wstat != NO_ERROR)
-			ok = (SLibError = SLERR_INVPATH, 0);
-		else
-			rUncPath = SUcSwitch(reinterpret_cast<UNIVERSAL_NAME_INFO *>(&namebuf)->lpUniversalName);
+	static int getdisk()
+	{
+		wchar_t buf[MAX_PATH];
+		::GetCurrentDirectoryW(SIZEOFARRAY(buf), buf);
+		return *buf-L'A';
 	}
-	return ok;
-}
 
-static int Win_IsFileExists(const char * pFileName)
-{
-	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), 0/* query access only */, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE/* share mode */,
-		NULL/*security attributes*/, OPEN_EXISTING/*disposition*/, FILE_FLAG_NO_BUFFERING|FILE_FLAG_SEQUENTIAL_SCAN/* flags & attributes */, NULL/* template file */);
-	if(handle != INVALID_HANDLE_VALUE) {
-		::CloseHandle(handle);
-		return 1;
+	int pathToUNC(const char * pPath, SString & rUncPath)
+	{
+		int    ok = 1;
+		char   disk[4] = "X:\\";
+		*disk = *pPath;
+		rUncPath = pPath;
+		if(GetDriveType(SUcSwitch(disk)) == DRIVE_REMOTE) {
+			char   namebuf[MAX_PATH + sizeof(UNIVERSAL_NAME_INFO)];
+			namebuf[0] = 0;
+			DWORD  len = MAX_PATH;
+			DWORD  wstat = WNetGetUniversalName(SUcSwitch(pPath), UNIVERSAL_NAME_INFO_LEVEL, &namebuf, &len);
+			if(wstat != NO_ERROR)
+				ok = (SLibError = SLERR_INVPATH, 0);
+			else
+				rUncPath = SUcSwitch(reinterpret_cast<UNIVERSAL_NAME_INFO *>(&namebuf)->lpUniversalName);
+		}
+		return ok;
 	}
-	else
-		return 0;
-}
-
 #endif
 
 char * setLastSlash(char * p)
@@ -126,8 +112,8 @@ char * rmvLastSlash(char * p)
 
 SString & GetExecPath(SString & rBuf)
 {
-	SPathStruc ps(SLS.GetExePath());
-	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, rBuf);
+	SFsPath ps(SLS.GetExePath());
+	ps.Merge(0, SFsPath::fNam|SFsPath::fExt, rBuf);
 	return rBuf;
 }
 
@@ -138,10 +124,10 @@ int driveValid(const char * pPath)
 	int    ok = 0;
 	if(!isempty(pPath)) {
 		// @v11.7.10 {
-		SPathStruc ps(pPath);
+		SFsPath ps(pPath);
 		if(ps.Drv.NotEmpty()) {
 			SString temp_buf;
-			if(ps.Flags & SPathStruc::fUNC) {
+			if(ps.Flags & SFsPath::fUNC) {
 				(temp_buf = "\\\\").Cat(ps.Drv).SetLastSlash();
 				ok = GetVolumeInformation(SUcSwitch(temp_buf), 0, 0, 0, 0, 0, 0, 0);
 			}
@@ -288,15 +274,15 @@ SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, cons
 	return rBuf;
 }
 
-int createDir(const char * pPath)
+/* @v11.8.11 (replaced with SFile::CreateDir) int createDir_Removed(const char * pPath)
 {
 	int    ok = 1;
 	SString path;
 	SString temp_path;
 	SStringU temp_buf_u;
 	// @v11.2.12 (temp_path = pPath).SetLastSlash().ReplaceChar('/', '\\');
-	// @v11.8.4 SPathStruc::npfCompensateDotDot
-	SPathStruc::NormalizePath(pPath, SPathStruc::npfKeepCase|SPathStruc::npfCompensateDotDot, temp_path).SetLastSlash(); // @v11.2.12 
+	// @v11.8.4 SFsPath::npfCompensateDotDot
+	SFsPath::NormalizePath(pPath, SFsPath::npfKeepCase|SFsPath::npfCompensateDotDot, temp_path).SetLastSlash(); // @v11.2.12 
 	const char * p = temp_path;
 	do {
 		if(*p == '\\') {
@@ -324,7 +310,7 @@ int createDir(const char * pPath)
 		path.CatChar(*p);
 	} while(ok && *p++ != 0);
 	return ok;
-}
+}*/
 
 bool FASTCALL IsWild(const char * f) { return (!isempty(f) && strpbrk(f, "*?") != 0); }
 
@@ -333,7 +319,7 @@ SString & makeExecPathFileName(const char * pName, const char * pExt, SString & 
 	HMODULE h_inst = SLS.GetHInst();
 	SString path;
 	SSystem::SGetModuleFileName(h_inst, path);
-	SPathStruc ps(path);
+	SFsPath ps(path);
 	ps.Nam = pName;
 	ps.Ext = pExt;
 	ps.Merge(rPath);
@@ -425,8 +411,8 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 {
 	EXCEPTVAR(SLibError);
 	int   ok = 1, reply;
-	int   quite = 0, cancel = 0;
-	HANDLE desthdl = 0;
+	int   quite = 0;
+	int   cancel = 0;
 	void * p_buf  = 0;
 	uint32 flen;
 	uint32 buflen = SMEGABYTE(4);
@@ -438,11 +424,13 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 	SString sys_err_buf; // @v10.3.11
 	SStringU src_file_name_u; // @v11.8.8
 	SStringU dest_file_name_u; // @v11.8.8
-	FILETIME creation_time, last_access_time, last_modif_time;
+	SIntHandle desthdl;
+	//FILETIME creation_time, last_access_time, last_modif_time;
+	FILE_BASIC_INFO src_file_basic_info; // @v11.8.11
 	(temp_buf = pSrcFileName).CopyToUnicode(src_file_name_u);
 	(temp_buf = pDestFileName).CopyToUnicode(dest_file_name_u);
-	HANDLE srchdl = ::CreateFileW(src_file_name_u, GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0);
-	if(srchdl == INVALID_HANDLE_VALUE) {
+	SIntHandle srchdl = ::CreateFileW(src_file_name_u, GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0);
+	if(!srchdl) {
 		added_msg = pSrcFileName;
 		//char   tmp_msg_buf[256];
 		//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)tmp_msg_buf, sizeof(tmp_msg_buf), 0);
@@ -457,9 +445,10 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 	}
 	//SLS.SetAddedMsgString(pSrcFileName);
 	//THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
-	GetFileTime(srchdl, &creation_time, &last_access_time, &last_modif_time);
+	// @v11.8.11 GetFileTime(srchdl, &creation_time, &last_access_time, &last_modif_time);
+	GetFileInformationByHandleEx(srchdl, FileBasicInfo, &src_file_basic_info, sizeof(src_file_basic_info)); // @v11.8.11 // @todo @checkerr
 	desthdl = ::CreateFileW(dest_file_name_u, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-	if(desthdl == INVALID_HANDLE_VALUE) {
+	if(!desthdl) {
 		added_msg = pDestFileName;
 		//char   tmp_msg_buf[256];
 		//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)tmp_msg_buf, sizeof(tmp_msg_buf), 0);
@@ -523,11 +512,21 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 		ok = -1;
 	CATCHZOK
 	SAlloc::F(p_buf);
-	if(desthdl > 0) {
-		SetFileTime(desthdl, &creation_time, &last_access_time, &last_modif_time);
+	if(!!desthdl) {
+		// @v11.8.11 SetFileTime(desthdl, &creation_time, &last_access_time, &last_modif_time);
+		// @v11.8.11 {
+		{
+			FILE_BASIC_INFO dest_file_basic_info;
+			dest_file_basic_info.CreationTime = src_file_basic_info.CreationTime;
+			dest_file_basic_info.LastAccessTime = src_file_basic_info.LastAccessTime;
+			dest_file_basic_info.LastWriteTime = src_file_basic_info.LastWriteTime;
+			dest_file_basic_info.FileAttributes = src_file_basic_info.FileAttributes;
+			SetFileInformationByHandle(desthdl, FileBasicInfo, &dest_file_basic_info, sizeof(dest_file_basic_info)); // @todo @checkerr
+		}
+		// } @v11.8.11 
 		CloseHandle(desthdl);
 	}
-	if(srchdl > 0) {
+	if(!!srchdl) {
 		CloseHandle(srchdl);
 	}
 	if(cancel || !ok)
@@ -2015,130 +2014,3 @@ HRESULT SHGetKnownFolderPath(
 	return ok;
 }
 #endif // } 0 @v11.8.5 Упразднено в пользу GetKnownFolderPath()
-
-#if SLTEST_RUNNING // {
-/*
-;
-; Аргументы:
-; 0 - тестовый подкаталог каталога IN
-; 1 - подкаталог тестового каталого, в котором находится большое количество файлов
-; 2 - количество файлов, находящихся в каталоге, описанном параметром 1
-; 3 - суммарный размер файлов, находящихся в каталоге, описанном параметром 1
-;
-arglist=Test Directory;Test Directory Level 2\Directory With Many Files;1858;470075
-benchmark=access;winfileexists
-*/
-
-SLTEST_R(Directory)
-{
-	int    ok = 1;
-	SString path = GetSuiteEntry()->InPath;
-	SString out_path = GetSuiteEntry()->OutPath;
-	SString test_dir, test_dir_with_files;
-	SString temp_buf;
-	uint   files_count = 0;
-	int64  files_size = 0;
-	SStrCollection file_list;
-	// @v11.3.1 {
-	{
-		const char * p_path_to_normalize = "D:\\Papyrus\\Src\\BuildVC2017\\..\\..\\ppy\\bin\\..\\..\\src\\pptest\\out\\lmdb-test";
-		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfCompensateDotDot, temp_buf);
-		SLCHECK_EQ(temp_buf, "d:\\papyrus\\src\\pptest\\out\\lmdb-test");
-		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfCompensateDotDot|SPathStruc::npfKeepCase, temp_buf);
-		SLCHECK_EQ(temp_buf, "D:\\Papyrus\\src\\pptest\\out\\lmdb-test");
-		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfSlash, temp_buf);
-		SLCHECK_EQ(temp_buf, "d:/papyrus/src/buildvc2017/../../ppy/bin/../../src/pptest/out/lmdb-test");
-		SPathStruc::NormalizePath(p_path_to_normalize, SPathStruc::npfCompensateDotDot|SPathStruc::npfUpper, temp_buf);
-		SLCHECK_EQ(temp_buf, "D:\\PAPYRUS\\SRC\\PPTEST\\OUT\\LMDB-TEST");
-	}
-	// } @v11.3.1 
-	{
-		uint   arg_no = 0;
-		for(uint ap = 0, arg_no = 0; EnumArg(&ap, temp_buf); arg_no++) {
-			switch(arg_no) {
-				case 0: test_dir = temp_buf; break;
-				case 1: test_dir_with_files = temp_buf; break;
-				case 2: files_count = temp_buf.ToLong(); break;
-				case 3: files_size = temp_buf.ToLong(); break;
-			}
-		}
-	}
-	(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir);
-	THROW(SLCHECK_NZ(pathValid(path, 1)));
-	(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat(test_dir_with_files);
-	test_dir_with_files = path;
-	THROW(SLCHECK_NZ(pathValid(test_dir_with_files, 1)));
-	{
-		int64  sz = 0;
-		SDirEntry de;
-		(temp_buf = test_dir_with_files).SetLastSlash().CatChar('*').Dot().CatChar('*');
-		for(SDirec dir(temp_buf, 0); dir.Next(&de) > 0;) {
-			if(!de.IsFolder()) {
-				sz += de.Size;
-				de.GetNameA(test_dir_with_files, temp_buf);
-				THROW(SLCHECK_Z(::access(temp_buf, 0)));
-				THROW(SLCHECK_NZ(Win_IsFileExists(temp_buf)));
-				file_list.insert(newStr(temp_buf));
-			}
-		}
-		THROW(SLCHECK_EQ(file_list.getCount(), files_count));
-		THROW(SLCHECK_EQ((long)sz, (long)files_size));
-		// @v11.6.5 {
-		{
-			// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\TDR\Тестовый каталог в кодировке cp1251\"
-			// Проверяем наличие каталога с именем русскими буквами (он есть). Проверка и в кодировках utf8 и 1251 (ANSI)
-			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251");
-			SLCHECK_NZ(fileExists(path));
-			path.Transf(CTRANSF_UTF8_TO_OUTER);
-			SLCHECK_NZ(fileExists(path));
-			// Проверяем наличие файла с именем русскими буквами (он есть). Проверка и в кодировках utf8 и 1251 (ANSI)
-			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251\\тестовый файл в кодировке 1251.txt");
-			SLCHECK_NZ(fileExists(path));
-			path.Transf(CTRANSF_UTF8_TO_OUTER);
-			SLCHECK_NZ(fileExists(path));
-			// Вставляем дефисы вместо пробелов - такого файла нет!
-			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251\\тестовый-файл-в-кодировке-1251.txt");
-			SLCHECK_Z(fileExists(path));
-			path.Transf(CTRANSF_UTF8_TO_OUTER);
-			SLCHECK_Z(fileExists(path));
-		}
-		// } @v11.6.5
-		//
-		if(pBenchmark) {
-			if(sstreqi_ascii(pBenchmark, "access")) {
-				for(uint i = 0; i < file_list.getCount(); i++) {
-					::access(file_list.at(i), 0);
-				}
-			}
-			else if(sstreqi_ascii(pBenchmark, "winfileexists")) {
-				for(uint i = 0; i < file_list.getCount(); i++) {
-					Win_IsFileExists(file_list.at(i));
-				}
-			}
-		}
-	}
-	{
-		const int64 test_file_size = 1024 * 1024;
-		(temp_buf = out_path).SetLastSlash().Cat("тестовый файл с не ansi-символами.txt"); // source-file in utf-8!
-		{
-			SFile f_out(temp_buf, SFile::mWrite|SFile::mBinary);
-			THROW(SLCHECK_NZ(f_out.IsValid()));
-			{
-				uint8 bin_buf[256];
-				for(uint i = 0; i < test_file_size/sizeof(bin_buf); i++) {
-					SObfuscateBuffer(bin_buf, sizeof(bin_buf));
-					THROW(SLCHECK_NZ(f_out.Write(bin_buf, sizeof(bin_buf))));
-				}
-			}
-		}
-		{
-			SFile::Stat stat;
-			THROW(SLCHECK_NZ(SFile::GetStat(temp_buf, 0, &stat, 0)));
-			SLCHECK_EQ(stat.Size, test_file_size);
-		}
-	}
-	CATCHZOK
-	return CurrentStatus;
-}
-
-#endif // }

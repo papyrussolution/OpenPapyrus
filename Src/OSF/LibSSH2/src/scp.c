@@ -562,7 +562,7 @@ scp_recv_empty_channel:
 		_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Unexpected channel close");
 	else
 		return session->scpRecv_channel;
-	/* fall-through */
+	// @fallthrough
 scp_recv_error:
 	tmp_err_code = session->err_code;
 	tmp_err_msg = session->err_msg;

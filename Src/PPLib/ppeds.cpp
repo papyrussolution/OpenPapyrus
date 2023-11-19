@@ -2005,7 +2005,7 @@ int PPEds::GetSignFilesForDoc(const char * pFileName, StrAssocArray & rFilesLis)
 	SFile file;
 	// @v11.2.0 SFindFile find_file;
 	SString path;
-	SPathStruc spath(pFileName);
+	SFsPath spath(pFileName);
 	spath.Nam.CatChar('*');
 	spath.Ext.Z().Cat("p7s");
 	spath.Merge(path);

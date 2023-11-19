@@ -224,7 +224,7 @@
 
 			(src_file_name = path_test_root).SetLastSlash().Cat("data").SetLastSlash().Cat("ued").SetLastSlash().Cat("ued-test.txt");
 			(out_path = path_test_root).SetLastSlash().Cat("out").SetLastSlash().Cat("ued");
-			createDir(out_path);
+			SFile::CreateDir(out_path);
 			c_path = out_path;
 			java_path = out_path;
 			PPLogger logger(PPLogger::fStdErr);

@@ -230,5 +230,86 @@ SLTEST_R(LDATE)
 		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(-24*3600), datf, timf), "31/12/2008 01:17:02");
 		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(0), datf, timf), "31/12/2008 01:17:02");
 	}
+	{
+		//
+		// SDN date
+		//
+		struct SdnCalendarCvtCase {
+			long   Sdn;
+			int    Y;
+			int    M;
+			int    D;
+		};
+		{
+			static const SdnCalendarCvtCase TestSet_Julian[] = {
+				{ 2298884,  1582, 1, 1 },
+				{ 2299161,  1582, 10, 5, },
+				{ 2440601,  1970, 1, 1 },
+				{ 2816443,  2999 , 1, 1 },
+				{ 1,		  -4713, 1, 2 },
+				{ 2298874,	  1581, 12, 22 },
+				{ 2299151,	  1582, 9, 25 },
+				{ 2440588,	  1969, 12, 19 },
+				{ 2816423,	  2998, 12, 12 },
+				{ 0,          -4713, 1, 1 },
+				{ 0,        0, 0, 0 },  
+			};
+			for(uint i = 0; i < SIZEOFARRAY(TestSet_Julian); i++) {
+				int y;
+				int m;
+				int d;
+				SLCHECK_Z(SdnToJulian(0, &y, &m, &d));
+				if(TestSet_Julian[i].Sdn) {
+					SLCHECK_NZ(SdnToJulian(TestSet_Julian[i].Sdn, &y, &m, &d));
+					SLCHECK_NZ(y = TestSet_Julian[i].Y && m == TestSet_Julian[i].M && d == TestSet_Julian[i].D);
+				}
+				long sdn = JulianToSdn(TestSet_Julian[i].Y, TestSet_Julian[i].M, TestSet_Julian[i].D);
+				SLCHECK_EQ(sdn, TestSet_Julian[i].Sdn);
+			}
+		}
+		{
+			static const SdnCalendarCvtCase TestSet_Gregorian[] = {
+				{ 2298874,	  1582, 1, 1 },
+				{ 2299151,	  1582, 10, 5 },
+				{ 2440588,	  1970, 1, 1 },
+				{ 2816423,	  2999, 1, 1 },
+				{ 1,		  -4714, 11,25 },
+				{ 0,          0, 0,    0 },
+				{ 0,		  -4714, 1, 1 },
+				{ 0,		  -4714, 11, 24 },
+			};
+			for(uint i = 0; i < SIZEOFARRAY(TestSet_Gregorian); i++) {
+				int y;
+				int m;
+				int d;
+				SLCHECK_Z(SdnToGregorian(0, &y, &m, &d));
+				if(TestSet_Gregorian[i].Sdn) {
+					SLCHECK_NZ(SdnToGregorian(TestSet_Gregorian[i].Sdn, &y, &m, &d));
+					SLCHECK_NZ(y = TestSet_Gregorian[i].Y && m == TestSet_Gregorian[i].M && d == TestSet_Gregorian[i].D);
+				}
+				long sdn = GregorianToSdn(TestSet_Gregorian[i].Y, TestSet_Gregorian[i].M, TestSet_Gregorian[i].D);
+				SLCHECK_EQ(sdn, TestSet_Gregorian[i].Sdn);
+			}
+		}
+		{
+			struct SdnCalendarDowCase {
+				long    Sdn;
+				int     Dow[8];
+			};
+
+			static const SdnCalendarDowCase TestSet_SdnDayOfWeek[] = {
+				{ 2440588, { 4, 5, 6, 0, 1, 2, 3, 4 } },
+				{ 2452162, { 0, 1, 2, 3, 4, 5, 6, 0 } }, 
+				{ 2453926, { 0, 1, 2, 3, 4, 5, 6, 0 } },
+				{ -1000, { 2, 3, 4, 5, 6, 0, 1, 2 } }
+			};
+			for(uint i = 0; i < SIZEOFARRAY(TestSet_SdnDayOfWeek); i++) {
+				for(uint j = 0; j < SIZEOFARRAY(TestSet_SdnDayOfWeek[i].Dow); j++) {
+					SLCHECK_EQ(SdnDayOfWeek(TestSet_SdnDayOfWeek[i].Sdn + j), TestSet_SdnDayOfWeek[i].Dow[j]);
+				}
+			}
+		}
+
+	}
 	return CurrentStatus;
 }

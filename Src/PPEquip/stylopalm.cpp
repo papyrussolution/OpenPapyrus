@@ -142,7 +142,7 @@ int PalmConfig::Write(const char * pPath)
 	int    ok = 1;
 #if !defined(__palmos__) && !defined(_WIN32_WCE) // {
 	SString fname;
-	SPathStruc ps(pPath);
+	SFsPath ps(pPath);
 	if(ps.Ext.Len())
 		fname = pPath;
 	else {
@@ -166,7 +166,7 @@ int PalmConfig::Read(const char * pPath)
 	int    ok = 1;
 #if !defined(__palmos__) &&  !defined(_WIN32_WCE) // {
 	SString fname;
-	SPathStruc ps(pPath);
+	SFsPath ps(pPath);
 	if(ps.Ext.Len())
 		fname = pPath;
 	else

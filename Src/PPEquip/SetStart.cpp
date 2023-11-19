@@ -876,7 +876,7 @@ int ACS_SETSTART::ImportFiles()
 	for(uint i = 0, set_no = 0; ImpPaths.get(&i, imp_path); set_no++) {
 		if(imp_path.HasPrefixIAscii(p_ftp_flag)) {
 			SString ftp_path, ftp_path_flag, ftp_dir, file_name;
-			SPathStruc sp;
+			SFsPath sp;
 			imp_path.ShiftLeft(sstrlen(p_ftp_flag));
 			if(!ftp_connected) {
 				THROW(ftp.Init());
@@ -884,13 +884,13 @@ int ACS_SETSTART::ImportFiles()
 				ftp_connected = 1;
 			}
 			{
-				SPathStruc sp(imp_path);
-				sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, ftp_dir);
+				SFsPath sp(imp_path);
+				sp.Merge(0, SFsPath::fNam|SFsPath::fExt, ftp_dir);
 				sp.Split(PathRpt);
-				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, file_name);
+				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir, file_name);
 				(ftp_path = ftp_dir).SetLastSlash().Cat(file_name);
 				sp.Split(PathFlag);
-				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir|SPathStruc::fExt, file_name);
+				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir|SFsPath::fExt, file_name);
 				(ftp_path_flag = ftp_dir).SetLastSlash().Cat(file_name);
 			}
 			MakeTempFileName(dir_in, "front", "txt", 0, path_rpt.Z());
@@ -962,8 +962,8 @@ int ACS_SETSTART::ImportFiles()
 		SString temp_dir = dir_in;
 		for(uint file_no = 0; path.GetSubFrom(ImportedFiles, ';', file_no) > 0; file_no++) {
 			if(fileExists(path)) {
-				SPathStruc sp(path);
-				// sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp_dir);
+				SFsPath sp(path);
+				// sp.Merge(0, SFsPath::fNam|SFsPath::fExt, temp_dir);
 				// удаление временных файлов, если их кол-во стало больше 30 {
 				{
 					uint   files_count = 0;
@@ -1188,7 +1188,7 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 		// во входном файле дублируются чеки.
 	FrontolCcPayment cc_payment;
 	SString   imp_file_name = PathRpt;
-	// SPathStruc::ReplacePath(imp_file_name, pImpPath, 1);
+	// SFsPath::ReplacePath(imp_file_name, pImpPath, 1);
 	SFile     imp_file(pImpPath, SFile::mRead); // PathRpt-->imp_file_name
 
 	PPObjGoods::ReadConfig(&goods_cfg);
@@ -1539,9 +1539,9 @@ int ACS_SETSTART::QueryFile(uint setNo, const char * pImpPath)
 		if(fileExists(imp_path)) {
 			SString path_rpt = PathRpt;
 			SString path_flag = PathFlag;
-			SPathStruc::ReplacePath(path_rpt,  imp_path, 1);
+			SFsPath::ReplacePath(path_rpt,  imp_path, 1);
 			if(path_flag.NotEmpty()) {
-				SPathStruc::ReplacePath(path_flag, exp_path, 1);
+				SFsPath::ReplacePath(path_flag, exp_path, 1);
 				THROW_PP(ok = WaitForExists(path_flag, 1, notify_timeout), PPERR_ATOL_IMPCHECKS);
 				if(ok > 0) {
 					int     y, m, d;
@@ -1549,7 +1549,7 @@ int ACS_SETSTART::QueryFile(uint setNo, const char * pImpPath)
 					const SString date_mask("%02d.%02d.%04d");
 					SFile::Remove(path_rpt);
 					tmp_name = path_flag;
-					SPathStruc::ReplaceExt(tmp_name, "tmp", 1);
+					SFsPath::ReplaceExt(tmp_name, "tmp", 1);
 					SFile  query_file(tmp_name, SFile::mWrite);
 					buf = "$$$TRANSACTIONSBYDATETIMERANGE";
 					query_file.WriteLine(buf.CR());
@@ -1617,7 +1617,7 @@ int ACS_SETSTART::FinishImportSession(PPIDArray * pSessList)
 	//
 	StringSet ss(';', ImportedFiles);
 	SString path, backup_path, backup_file_name;
-	SPathStruc ps;
+	SFsPath ps;
 	for(uint i = 0; ss.get(&i, path);) {
 		if(fileExists(path)) {
 			ps.Split(path);
@@ -1625,7 +1625,7 @@ int ACS_SETSTART::FinishImportSession(PPIDArray * pSessList)
 			ps.Ext.Z();
 			ps.Merge(backup_path);
 			backup_path.SetLastSlash().Cat("backup");
-			if(::createDir(backup_path)) {
+			if(SFile::CreateDir(backup_path)) {
 				MakeTempFileName(backup_path, "ssr", "txt", 0, backup_file_name);
 				SCopyFile(path, backup_file_name, 0, FILE_SHARE_READ, 0);
 			}

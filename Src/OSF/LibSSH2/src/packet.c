@@ -455,7 +455,7 @@ libssh2_packet_add_jump_point5:
 			    /* streamid(4) */
 			    data_head += 4;
 
-			/* fall-through */
+			// @fallthrough
 
 			/*
 			   byte      SSH_MSG_CHANNEL_DATA

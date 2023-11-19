@@ -550,7 +550,7 @@ int ACS_SHTRIHMFRK::ImportFiles()
 	for(uint i = 0; ImpPaths.get(&i, imp_path);) {
 		if(imp_path.HasPrefixIAscii(p_ftp_flag)) {
 			SString ftp_path, ftp_path_flag, ftp_dir, file_name;
-			SPathStruc sp;
+			SFsPath sp;
 			imp_path.ShiftLeft(sstrlen(p_ftp_flag));
 			if(!ftp_connected) {
 				THROW(ftp.Init());
@@ -558,13 +558,13 @@ int ACS_SHTRIHMFRK::ImportFiles()
 				ftp_connected = 1;
 			}
 			{
-				SPathStruc sp(imp_path);
-				sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, ftp_dir);
+				SFsPath sp(imp_path);
+				sp.Merge(0, SFsPath::fNam|SFsPath::fExt, ftp_dir);
 				sp.Split(PathRpt);
-				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, file_name);
+				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir, file_name);
 				(ftp_path = ftp_dir).SetLastSlash().Cat(file_name);
 				sp.Split(PathFlag);
-				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir|SPathStruc::fExt, file_name);
+				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir|SFsPath::fExt, file_name);
 				(ftp_path_flag = ftp_dir).SetLastSlash().Cat(file_name);
 			}
 			/* Сессии будут выгружаться при закрытии Z отчета
@@ -608,8 +608,8 @@ int ACS_SHTRIHMFRK::ImportFiles()
 		if(::access(imp_path, 0) == 0) {
 			path_rpt  = PathRpt;
 			path_flag = PathFlag;
-			SPathStruc::ReplacePath(path_rpt,   imp_path, 1);
-			SPathStruc::ReplacePath(path_flag,  exp_path, 1);
+			SFsPath::ReplacePath(path_rpt,   imp_path, 1);
+			SFsPath::ReplacePath(path_flag,  exp_path, 1);
 			if(ok > 0) {
 				for(double j = 0; j < timeouts_c; j++) {
 					if(fileExists(path_rpt)) {
@@ -634,8 +634,8 @@ int ACS_SHTRIHMFRK::ImportFiles()
 		SString temp_dir;
 		for(uint file_no = 0; path.GetSubFrom(ImportedFiles, ';', file_no) > 0; file_no++) {
 			if(fileExists(path)) {
-				SPathStruc sp(path);
-				sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp_dir);
+				SFsPath sp(path);
+				sp.Merge(0, SFsPath::fNam|SFsPath::fExt, temp_dir);
 				// AHTOXA удаление временных файлов, если их кол-во стало больше 30 {
 				{
 					uint   files_count = 0;

@@ -689,7 +689,7 @@ static int ProcessFileName(SString & rFileName, const SString & rInPath, const S
 	SString org_ext;
 	SString file_name = rFileName;
 	SString temp_file_name;
-	SPathStruc ps, ps_path;
+	SFsPath ps, ps_path;
 	ps.Split(file_name);
 	ps_path.Split(rInPath);
 	if(ps.Drv.IsEmpty() && ps_path.Drv.NotEmpty())
@@ -749,7 +749,7 @@ static int ProcessFileNameVDos(StringSet & rFileNames, StringSet & rResultFileNa
 	SString file_name;
 	SString temp_file_name;
 	SString temp_file_path;
-	SPathStruc ps, ps_path;
+	SFsPath ps, ps_path;
 	for(uint fnp = 0; ok && rFileNames.get(&fnp, org_file_name);) {
 		ps.Split(org_file_name);
 		ps_path.Split(rInPath);
@@ -822,7 +822,7 @@ int main(int argc, char ** argv)
 		SString dlgdsn_exec_path;
 		SString perl_cmd;
 		SString arg_line, arg_val, temp_buf, msg_buf;
-		SPathStruc ps;
+		SFsPath ps;
 		for(i = 1; i < argc; i++) {
 			(arg_line = argv[i]).Strip();
 			arg_val = 0;
@@ -914,7 +914,7 @@ int main(int argc, char ** argv)
 				LDATETIME finalf_dtm = ZERODATETIME;
 				SFile finalf(final_file_name, SFile::mRead);
 				if(finalf.IsValid() && finalf.GetDateTime(0, 0, &finalf_dtm)) {
-					SPathStruc ps_path;
+					SFsPath ps_path;
 					while(!do_process && rspf.ReadLine(temp_buf)) {
 						if(temp_buf.Chomp().NotEmptyS()) {
 							if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) { // @v10.5.3 comments
@@ -1010,7 +1010,7 @@ int main(int argc, char ** argv)
 					//
 					SString temp_file_name;
 					temp_file_name = out_file_name;
-					SPathStruc::ReplaceExt(temp_file_name = out_file_name, "tmp", 1);
+					SFsPath::ReplaceExt(temp_file_name = out_file_name, "tmp", 1);
 					{
 						SFile tempf(temp_file_name, SFile::mWrite);
 						if(!tempf.IsValid()) {

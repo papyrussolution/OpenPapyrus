@@ -105,15 +105,13 @@ static void testXPath(const char * str)
 	xmlXPathFreeContext(ctxt);
 }
 
-static void testXPathFile(const char * filename) {
-	FILE * input;
+static void testXPathFile(const char * filename) 
+{
 	char expression[5000];
 	int len;
-
-	input = fopen(filename, "r");
+	FILE * input = fopen(filename, "r");
 	if(input == NULL) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "Cannot open %s for reading\n", filename);
+		xmlGenericError(xmlGenericErrorContext, "Cannot open %s for reading\n", filename);
 		return;
 	}
 	while(fgets(expression, 4500, input) != NULL) {

@@ -32,10 +32,10 @@ IMPL_CMPFUNC(FilePathUtf8, i1, i2)
 	SStringU & r_su1 = SLS.AcquireRvlStrU();
 	SString & r_s2 = SLS.AcquireRvlStr();
 	SStringU & r_su2 = SLS.AcquireRvlStrU();
-	SPathStruc::NormalizePath(p1, SPathStruc::npfKeepCase, r_s1);
+	SFsPath::NormalizePath(p1, SFsPath::npfKeepCase, r_s1);
 	r_su1.CopyFromUtf8Strict(r_s1, r_s1.Len());
 	r_su1.ToLower();
-	SPathStruc::NormalizePath(p2, SPathStruc::npfKeepCase, r_s2);
+	SFsPath::NormalizePath(p2, SFsPath::npfKeepCase, r_s2);
 	r_su2.CopyFromUtf8Strict(r_s2, r_s2.Len());
 	r_su2.ToLower();
 	return r_su1.Cmp(r_su2);

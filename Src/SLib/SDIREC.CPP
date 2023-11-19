@@ -370,8 +370,8 @@ int SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl, long flags)
 	SDirEntry de;
 	if(SDirec::GetSingle(pPath, &de) > 0) {
 		SString temp_buf;
-		const SPathStruc ps(pPath);
-		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+		const SFsPath ps(pPath);
+		ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
 		ok = Implement_Add(temp_buf, de, pRemoteUrl, flags);
 	}
 	return ok;
@@ -432,8 +432,8 @@ int SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
 			SetInitPath(r_temp_buf);
 		}
 		else {
-			const SPathStruc ps(pPath);
-			ps.Merge(~(SPathStruc::fNam|SPathStruc::fExt), r_temp_buf);
+			const SFsPath ps(pPath);
+			ps.Merge(~(SFsPath::fNam|SFsPath::fExt), r_temp_buf);
 			SetInitPath(r_temp_buf.SetLastSlash());
 			pWildcard = "*.*"; // @v11.8.10
 		}
@@ -490,8 +490,8 @@ int SFileEntryPool::Add(SFileEntryPool::Entry & rDe, long flags)
     new_entry.Size = rDe.Size;
     if(rDe.Path.NotEmptyS()) {
 		SString & r_temp_path = SLS.AcquireRvlStr();
-		const long npf = (flags & scanfKeepCase) ? SPathStruc::npfKeepCase : 0;
-		THROW(AddS(SPathStruc::NormalizePath(rDe.Path, npf, r_temp_path), &new_entry.PathP));
+		const long npf = (flags & scanfKeepCase) ? SFsPath::npfKeepCase : 0;
+		THROW(AddS(SFsPath::NormalizePath(rDe.Path, npf, r_temp_path), &new_entry.PathP));
     }
     THROW(AddS(rDe.Name, &new_entry.NameP));
     THROW(L.insert(&new_entry));
@@ -517,8 +517,8 @@ int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, con
 	new_entry.ReparsePointTag = (rDe.Attr & SFile::attrReparsePoint) ? rDe.ReparsePointTag : 0; // @v11.8.10
     if(!isempty(pPath)) {
 		SString & r_temp_path = SLS.AcquireRvlStr();
-		const long npf = (flags & scanfKeepCase) ? SPathStruc::npfKeepCase : 0;
-		THROW(AddS(SPathStruc::NormalizePath(pPath, npf, r_temp_path), &new_entry.PathP));
+		const long npf = (flags & scanfKeepCase) ? SFsPath::npfKeepCase : 0;
+		THROW(AddS(SFsPath::NormalizePath(pPath, npf, r_temp_path), &new_entry.PathP));
     }
 	if(!isempty(pRemoteUrl)) {
 		THROW(AddS(pRemoteUrl, &new_entry.RemoteUrlP));
@@ -572,8 +572,8 @@ IMPL_CMPFUNC(SFileEntryPool_Entry, p1, p2)
     			SString ext1, ext2;
 				p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
 				p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
-				SPathStruc::GetExt(p_blk->TempBuf1, &ext1);
-				SPathStruc::GetExt(p_blk->TempBuf2, &ext2);
+				SFsPath::GetExt(p_blk->TempBuf1, &ext1);
+				SFsPath::GetExt(p_blk->TempBuf2, &ext2);
 				si = ext1.CmpNC(ext2);
 				SETIFZ(si, p_blk->TempBuf1.CmpNC(p_blk->TempBuf2)); // @todo @fixme «десь должно быть сравнение utf8
     		}
@@ -710,8 +710,9 @@ int SDirecDiffPool::Helper_MakeReport(const TSCollection <Entry> & rL, uint inde
 				case kAbsenceLeft: temp_buf = "left-is-missing"; break;
 				case kAbsenceRight: temp_buf = "right-is-missing"; break;
 				case kDiffType: temp_buf = "element-types-are-different"; break;
+				default: temp_buf.Z(); break;
 			}
-			temp_buf.Z();
+			//temp_buf.Z();
 			if(p_entry->Kind & kDiffAttr) {
 				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("attributes-are-different").CatDiv(':', 2).
 					CatHex(p_entry->StatLeft.Attr).Space().CatHex(p_entry->StatRight.Attr);
@@ -728,7 +729,7 @@ int SDirecDiffPool::Helper_MakeReport(const TSCollection <Entry> & rL, uint inde
 			}
 			rSs.add(line_buf.Z().Tab(indent).Cat(p_entry->Name).CatDiv(':', 2).Cat(temp_buf));
 			if(p_entry->P_RecurDir && p_entry->P_RecurDir->getCount()) {
-				Helper_MakeReport(*p_entry->P_RecurDir, indent+1, rSs);
+				Helper_MakeReport(*p_entry->P_RecurDir, indent+1, rSs); // @recursion
 			}
 		}
 	}
@@ -742,8 +743,8 @@ int SDirecDiffPool::Run(const char * pDirLeftUtf8, const char * pDirRightUtf8)
 	THROW(!isempty(pDirLeftUtf8));
 	THROW(!isempty(pDirRightUtf8));
 	{
-		SPathStruc::NormalizePath(pDirLeftUtf8, SPathStruc::npfCompensateDotDot, DirLeft);
-		SPathStruc::NormalizePath(pDirRightUtf8, SPathStruc::npfCompensateDotDot, DirRight);
+		SFsPath::NormalizePath(pDirLeftUtf8, SFsPath::npfCompensateDotDot, DirLeft);
+		SFsPath::NormalizePath(pDirRightUtf8, SFsPath::npfCompensateDotDot, DirRight);
 		if(DirLeft.IsEqiUtf8(DirRight))
 			ok = 2;
 		else
@@ -788,7 +789,7 @@ int SDirecDiffPool::Helper_Compare(const SString & rDirLeftUtf8, const SString &
 							const int rgr = pool_right.Get(ridx, &entry_right, &full_path_right);
 							assert(rgr);
 							const uint tattr_mask = (SFile::attrSubdir|SFile::attrReparsePoint); // јтрибуты, определ€ющие тип элемента
-							const uint iattr_mask = (SFile::attrNotContentIndexed); // »гнорируемые при сравнении атрибуты
+							const uint iattr_mask = (SFile::attrNotContentIndexed|SFile::attrOffline|SFile::attrNoScrubData); // »гнорируемые при сравнении атрибуты
 							if((entry_left.Attr & tattr_mask) != (entry_right.Attr & tattr_mask)) {
 								_k = kDiffType;
 							}

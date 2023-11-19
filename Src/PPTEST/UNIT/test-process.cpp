@@ -470,7 +470,7 @@ SLTEST_R(SlProcess)
 	working_dir = path;
 	path.SetLastSlash().Cat("SlTestApp.exe");
 	temp_buf = path;
-	SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot, path);
+	SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, path);
 	SLCHECK_NZ(p.SetPath(path));
 	p.SetFlags(SlProcess::fNewConsole);
 

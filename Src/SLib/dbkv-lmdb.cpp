@@ -14,7 +14,7 @@
 	if(!isempty(pPath)) {
 		SString temp_buf;
 		SString symb;
-		SPathStruc::NormalizePath(pPath, SPathStruc::npfCompensateDotDot|SPathStruc::npfSlash, temp_buf);
+		SFsPath::NormalizePath(pPath, SFsPath::npfCompensateDotDot|SFsPath::npfSlash, temp_buf);
 		(symb = "lmdbenv").CatChar('-').Cat(temp_buf);
 		long   symbol_id = SLS.GetGlobalSymbol(symb, -1, 0);
 		if(symbol_id < 0) {

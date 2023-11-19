@@ -1200,7 +1200,7 @@ int PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, const 
 				size_t bytes_read = 0;
 				STempBuffer temp_buf(4096);
 				SString sys_file_path;
-				THROW_SL(::createDir(GetQueueFilePath(sys_file_path)));
+				THROW_SL(SFile::CreateDir(GetQueueFilePath(sys_file_path)));
 				THROW_SL(MakeTempFileName(sys_file_path, 0, 0, 0, sys_file_name));
 				THROW_SL(sys_file.Open(sys_file_name, SFile::mWrite | SFile::mBinary));
 				fseek(pInStream, 0L, SEEK_SET);
@@ -1971,10 +1971,10 @@ int PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 		{
 			SString ext("tmp");
 			temp_file_name = file_name;
-			SPathStruc::ReplaceExt(temp_file_name, ext, 1);
+			SFsPath::ReplaceExt(temp_file_name, ext, 1);
 			for(long cnt = 0; fileExists(temp_file_name); cnt++) {
 				ext.Z().Cat(++cnt);
-				SPathStruc::ReplaceExt(temp_file_name, ext, 1);
+				SFsPath::ReplaceExt(temp_file_name, ext, 1);
 			}
 			CloseOutPacket();
 			{

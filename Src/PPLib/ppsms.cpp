@@ -2430,7 +2430,7 @@ int SmsClient::SendingSms_(PPID personID, const char * pPhone, const char * pTex
 			Tddo   t;
 			SBuffer buf;
 			StringSet ext_param_list;
-			SPathStruc path_struct;
+			SFsPath path_struct;
 			SString new_phone;
 			PPSendSmsParam send_sms;
 			//

@@ -884,7 +884,7 @@ int ACS_FRONTOL::ImportFiles()
 	for(uint i = 0, set_no = 0; ImpPaths.get(&i, imp_path); set_no++) {
 		if(imp_path.HasPrefixIAscii(p_ftp_flag)) {
 			SString ftp_path, ftp_path_flag, ftp_dir, file_name;
-			SPathStruc sp;
+			SFsPath sp;
 			imp_path.ShiftLeft(sstrlen(p_ftp_flag));
 			if(!ftp_connected) {
 				THROW(ftp.Init());
@@ -892,13 +892,13 @@ int ACS_FRONTOL::ImportFiles()
 				ftp_connected = 1;
 			}
 			{
-				SPathStruc sp(imp_path);
-				sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, ftp_dir);
+				SFsPath sp(imp_path);
+				sp.Merge(0, SFsPath::fNam|SFsPath::fExt, ftp_dir);
 				sp.Split(PathRpt);
-				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, file_name);
+				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir, file_name);
 				(ftp_path = ftp_dir).SetLastSlash().Cat(file_name);
 				sp.Split(PathFlag);
-				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir|SPathStruc::fExt, file_name);
+				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir|SFsPath::fExt, file_name);
 				(ftp_path_flag = ftp_dir).SetLastSlash().Cat(file_name);
 			}
 			MakeTempFileName(dir_in, "front", "txt", 0, path_rpt.Z());
@@ -969,8 +969,8 @@ int ACS_FRONTOL::ImportFiles()
 		temp_dir = dir_in;
 		for(uint file_no = 0; path.GetSubFrom(ImportedFiles, ';', file_no) > 0; file_no++) {
 			if(fileExists(path)) {
-				SPathStruc sp(path);
-				// sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp_dir);
+				SFsPath sp(path);
+				// sp.Merge(0, SFsPath::fNam|SFsPath::fExt, temp_dir);
 				// удаление временных файлов, если их кол-во стало больше 30 {
 				{
 					uint   files_count = 0;
@@ -1211,7 +1211,7 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 		// во входном файле дублируются чеки.
 	FrontolCcPayment cc_payment;
 	SString   imp_file_name = PathRpt;
-	// SPathStruc::ReplacePath(imp_file_name, pImpPath, 1);
+	// SFsPath::ReplacePath(imp_file_name, pImpPath, 1);
 	SFile     imp_file(pImpPath, SFile::mRead); // PathRpt-->imp_file_name
 	PPObjGoods::ReadConfig(&goods_cfg);
 	const  PPID def_goods_id = (goods_cfg.DefGoodsID && goods_obj.Fetch(goods_cfg.DefGoodsID, 0) > 0) ? goods_cfg.DefGoodsID : 0;
@@ -1590,8 +1590,8 @@ int ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 		if(fileExists(imp_path)) {
 			path_rpt = PathRpt;
 			path_flag = PathFlag;
-			SPathStruc::ReplacePath(path_rpt,  imp_path, 1);
-			SPathStruc::ReplacePath(path_flag, exp_path, 1);
+			SFsPath::ReplacePath(path_rpt,  imp_path, 1);
+			SFsPath::ReplacePath(path_flag, exp_path, 1);
 			THROW_PP(ok = WaitForExists(path_flag, 1, notify_timeout), PPERR_ATOL_IMPCHECKS);
 			if(ok > 0) {
 				// @v10.8.2 int     y, m, d;
@@ -1599,7 +1599,7 @@ int ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 				SString tmp_buf;
 				SFile::Remove(path_rpt);
 				SString tmp_name = path_flag;
-				SPathStruc::ReplaceExt(tmp_name, "tmp", 1);
+				SFsPath::ReplaceExt(tmp_name, "tmp", 1);
 				SFile  query_file(tmp_name, SFile::mWrite);
 				SString buf(is_xpos ? "$$$TRANSACTIONSBYDATERANGE" : "$$$TRANSACTIONSBYDATETIMERANGE"); // @v10.8.2 (is_xpos ? "$$$TRANSACTIONSBYDATERANGE")
 				query_file.WriteLine(buf.CR());

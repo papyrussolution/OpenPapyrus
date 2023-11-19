@@ -387,7 +387,7 @@ static long FASTCALL GetDscntCode(PPID goodsID, PPID objID, int isQuotKind)
 static void FASTCALL AddTimeToFileName(SString & fName)
 {
 	const LTIME cur_time = getcurtime_();
-	SPathStruc ps(fName);
+	SFsPath ps(fName);
 	// @v9.7.0 ps.Nam.CatLongZ(cur_time.hour(), 2).CatLongZ(cur_time.minut(), 2).CatLongZ(cur_time.sec(), 2);
 	ps.Nam.Cat(cur_time, TIMF_HMS|TIMF_NODIV); // @v9.7.0
 	ps.Merge(fName);
@@ -620,7 +620,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 		if(mode == 0)
 			temp_buf = rPathGoods_;
 		else if(oneof2(mode, 1, 2)) {
-			SPathStruc ps(rPathGoods_);
+			SFsPath ps(rPathGoods_);
 			ps.Nam.CatChar('-').Cat((mode == 1) ? "attr" : "prices");
 			ps.Merge(temp_buf);
 		}
@@ -1233,7 +1233,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		SString msg_buf;
 		SString ser_ident;
 		LDATETIME cur_dtm;
-		SPathStruc sp;
+		SFsPath sp;
 		PPSCardSeries2 ser_rec;
 		PPObjSCardSeries scs_obj;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
@@ -2624,7 +2624,7 @@ int ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char * pPat
 	int    ok = 1;
 	SString sig_num_file;
 	THROW(PPGetFileName(subStrId, PathRpt[filTyp]));
-	SPathStruc::ReplacePath(PathRpt[filTyp], pPath, 1);
+	SFsPath::ReplacePath(PathRpt[filTyp], pPath, 1);
 	if(sigNum == 18 && ModuleVer == 5 && ModuleSubVer >= 9)
 		sig_num_file.Cat("all").DotCat("dbf");
 	else
@@ -2639,7 +2639,7 @@ int ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char * pPat
 	SString sig_num_file;
 	PathRpt[filTyp] = pName;
 	// } @v8.9.11 {
-	SPathStruc::ReplacePath(PathRpt[filTyp], pPath, 1);
+	SFsPath::ReplacePath(PathRpt[filTyp], pPath, 1);
 	sig_num_file.Cat(sigNum).DotCat("txt");
 	(PathQue[filTyp] = pPath).SetLastSlash().Cat(sig_num_file);
 	// } @v8.9.11
@@ -2650,7 +2650,7 @@ int ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char * pPat
 int ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, const char * pPath)
 {
 	PathRpt[filTyp] = pName;
-	SPathStruc::ReplacePath(PathRpt[filTyp], pPath, 1);
+	SFsPath::ReplacePath(PathRpt[filTyp], pPath, 1);
 	(PathQue[filTyp] = pPath).SetLastSlash().Cat("reports.request");
 	return 1;
 }
@@ -2829,24 +2829,24 @@ PPBillImpExpParam * ACS_CRCSHSRV::CreateImpExpParam(uint sdRecID)
 			p_param->OtrRec.Clear();
 			if(p_param->ReadIni(&ini_file, section, 0)) {
 				p_param->Direction = 1;
-				SPathStruc  sps(p_param->FileName);
-				SPathStruc  def_sps(PathRpt[sdRecID - PPREC_CS_ZREP]);
-				if(!(sps.Flags & SPathStruc::fDrv))
+				SFsPath  sps(p_param->FileName);
+				SFsPath  def_sps(PathRpt[sdRecID - PPREC_CS_ZREP]);
+				if(!(sps.Flags & SFsPath::fDrv))
 					sps.Drv = def_sps.Drv;
-				if(!(sps.Flags & SPathStruc::fDir)) {
+				if(!(sps.Flags & SFsPath::fDir)) {
 					SString  path;
-					if(!(def_sps.Flags & SPathStruc::fDir))
+					if(!(def_sps.Flags & SFsPath::fDir))
 						PPGetPath(PPPATH_OUT, path);
 					else
 						path = def_sps.Dir;
 					sps.Dir = path;
 				}
-				if(sps.Flags & SPathStruc::fNam)
+				if(sps.Flags & SFsPath::fNam)
 					sps.Merge(p_param->FileName);
 				else {
 					sps.Nam = def_sps.Nam;
 					sps.Merge(p_param->FileName);
-					SPathStruc::ReplaceExt(p_param->FileName, (p_param->DataFormat == PPImpExpParam::dfDbf) ? "dbf" :
+					SFsPath::ReplaceExt(p_param->FileName, (p_param->DataFormat == PPImpExpParam::dfDbf) ? "dbf" :
 						(p_param->DataFormat == PPImpExpParam::dfText) ? "txt" : "", 1);
 				}
 				ok = 1;
@@ -2907,13 +2907,13 @@ int ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 		THROW(PrepareImpFileNameV10(filTypZRepXml,  "zreports.xml",  acn.ImpFiles));
 //#endif
 		THROW(PPGetFileName(PPFILNAM_CS_WAIT, PathFlag));
-		SPathStruc::ReplacePath(PathFlag, acn.ImpFiles, 1);
+		SFsPath::ReplacePath(PathFlag, acn.ImpFiles, 1);
 		THROW(PPGetFileName(PPFILNAM_CASHIERS_TXT, PathCshrs));
-		SPathStruc::ReplacePath(PathCshrs, acn.ImpFiles, 1);
+		SFsPath::ReplacePath(PathCshrs, acn.ImpFiles, 1);
 		THROW(GetCashiersList());
 		if(Options & oUseAltImport) {
 			THROW(PPGetFileName(PPFILNAM_CS_EXPORT_CFG, PathSetRExpCfg));
-			SPathStruc::ReplacePath(PathSetRExpCfg, acn.ImpFiles, 1);
+			SFsPath::ReplacePath(PathSetRExpCfg, acn.ImpFiles, 1);
 			for(uint i = PPREC_CS_ZREP; i <= PPREC_CS_DSCNT; i++)
 				THROW_PP(P_IEParam[i - PPREC_CS_ZREP] = CreateImpExpParam(i), PPERR_CASHSRV_IMPCHECKS);
 		}
@@ -2947,7 +2947,7 @@ static void FASTCALL ReplaceFilePath(SString & destFileName, const SString & src
 	SString file_path;
 	SString slash("\\/");
 	(file_path = srcFileName).TrimToDiv(srcFileName.Len() - 1, slash);
-	SPathStruc::ReplacePath(destFileName, file_path, 1);
+	SFsPath::ReplacePath(destFileName, file_path, 1);
 }
 
 int ACS_CRCSHSRV::CreateSCardPaymTbl()
@@ -4186,7 +4186,7 @@ int ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 {
 	int  ok = -1;
 	SString    buf, file_name, sect_name, param;
-	SPathStruc ps;
+	SFsPath ps;
 	PPGetSubStr(PPTXT_SETRETAIL_PARAM, SETR_PARAM_REPORTS, sect_name);
 	PPGetSubStr(PPTXT_SETRETAIL_PARAM, SETR_PARAM_REPGANG + filTyp, param);
 	PPIniFile ini_file(PathSetRExpCfg);
@@ -4242,7 +4242,7 @@ int ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 			for(uint i = 0; i < LogNumList.getCount(); i++) {
 				param.Z().Cat(LogNumList.at(i));
 				if(ini_file.GetParam(sect_name, param, buf) > 0) {
-					SPathStruc ps1(file_name);
+					SFsPath ps1(file_name);
 					ps.Split(buf);
 					ps.Drv = ps1.Drv;
 				}
@@ -4286,7 +4286,7 @@ int ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE queryDate)
 	else
 		SFile::Remove(PathRpt[filTyp]);
 	{
-		SPathStruc ps(PathQue[filTyp]);
+		SFsPath ps(PathQue[filTyp]);
 		if(ps.Nam.IsEqiAscii("all") && ps.Ext.IsEqiAscii("dbf")) {
 			THROW(p_qtbl = CreateDbfTable(DBFS_CRCS_SIGNAL_ALL_EXPORT, PathQue[filTyp], 1));
 			{
@@ -4441,8 +4441,8 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 				SString data_dir, data_path;
 				SDirEntry sd_entry;
 				SDirec sd;
-				SPathStruc sp(PathRpt[filTypZRepXml]);
-				sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, data_dir);
+				SFsPath sp(PathRpt[filTypZRepXml]);
+				sp.Merge(SFsPath::fDrv|SFsPath::fDir, data_dir);
 				sp.Nam.Cat("*");
 				sp.Merge(data_path);
 				for(sd.Init(data_path); sd.Next(&sd_entry) > 0;) {
@@ -4553,11 +4553,11 @@ void ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 	SString backup_dir, dest_path;
 	SString prefix(pPrefix);
 	prefix.Strip().Trim(4);
-	SPathStruc sp(pPath);
+	SFsPath sp(pPath);
 	SString ext = sp.Ext;
-	sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, backup_dir);
+	sp.Merge(SFsPath::fDrv|SFsPath::fDir, backup_dir);
 	backup_dir.Cat("backup").SetLastSlash();
-	createDir(backup_dir);
+	SFile::CreateDir(backup_dir);
 	dest_path = MakeTempFileName(backup_dir, prefix, ext, &start, dest_path);
 	if(start > (_max_copies + 1)) {
 		const size_t pfx_len = prefix.Len();
@@ -4604,8 +4604,8 @@ int ACS_CRCSHSRV::ImportSession(int)
 			wait_msg.Printf(wait_msg_tmpl, datefmt(&oper_date, DATF_DMY, date_buf));
 			if(ModuleVer == 10) {
 				SDirEntry sd_entry;
-				SPathStruc sp(PathRpt[filTypChkXml]);
-				sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, data_dir);
+				SFsPath sp(PathRpt[filTypChkXml]);
+				sp.Merge(SFsPath::fDrv|SFsPath::fDir, data_dir);
 				sp.Nam.Cat("*");
 				sp.Merge(data_path);
 				for(SDirec sd(data_path); sd.Next(&sd_entry) > 0;) {

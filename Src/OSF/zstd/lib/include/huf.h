@@ -130,16 +130,13 @@ HUF_PUBLIC_API size_t HUF_compress4X_wksp(void* dst, size_t dstCapacity, const v
 typedef size_t HUF_CElt;   /* consider it an incomplete type */
 #define HUF_CTABLE_SIZE_ST(maxSymbolValue)   ((maxSymbolValue)+2)   /* Use tables of size_t, for proper alignment */
 #define HUF_CTABLE_SIZE(maxSymbolValue)       (HUF_CTABLE_SIZE_ST(maxSymbolValue) * sizeof(size_t))
-#define HUF_CREATE_STATIC_CTABLE(name, maxSymbolValue) \
-	HUF_CElt name[HUF_CTABLE_SIZE_ST(maxSymbolValue)] /* no final ; */
+#define HUF_CREATE_STATIC_CTABLE(name, maxSymbolValue) HUF_CElt name[HUF_CTABLE_SIZE_ST(maxSymbolValue)] /* no final ; */
 
 /* static allocation of HUF's DTable */
 typedef uint32 HUF_DTable;
 #define HUF_DTABLE_SIZE(maxTableLog)   (1 + (1<<(maxTableLog)))
-#define HUF_CREATE_STATIC_DTABLEX1(DTable, maxTableLog) \
-	HUF_DTable DTable[HUF_DTABLE_SIZE((maxTableLog)-1)] = { ((uint32)((maxTableLog)-1) * 0x01000001) }
-#define HUF_CREATE_STATIC_DTABLEX2(DTable, maxTableLog) \
-	HUF_DTable DTable[HUF_DTABLE_SIZE(maxTableLog)] = { ((uint32)(maxTableLog) * 0x01000001) }
+#define HUF_CREATE_STATIC_DTABLEX1(DTable, maxTableLog) HUF_DTable DTable[HUF_DTABLE_SIZE((maxTableLog)-1)] = { ((uint32)((maxTableLog)-1) * 0x01000001) }
+#define HUF_CREATE_STATIC_DTABLEX2(DTable, maxTableLog) HUF_DTable DTable[HUF_DTABLE_SIZE(maxTableLog)] = { ((uint32)(maxTableLog) * 0x01000001) }
 
 /* ****************************************
 *  Advanced decompression functions

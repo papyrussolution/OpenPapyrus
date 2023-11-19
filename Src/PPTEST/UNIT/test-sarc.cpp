@@ -15,7 +15,7 @@ SLTEST_R(SArchive)
 			SString base_path;
 			SLS.QueryPath("testroot", temp_buf);
 			(base_path = temp_buf).SetLastSlash().Cat("data").SetLastSlash().Cat("Test Directory");
-			SPathStruc::NormalizePath(base_path, SPathStruc::npfCompensateDotDot|SPathStruc::npfKeepCase, temp_buf);
+			SFsPath::NormalizePath(base_path, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, temp_buf);
 			base_path = temp_buf;
 			SFileEntryPool fep;
 			fep.Scan(base_path, "*.*", SFileEntryPool::scanfRecursive|SFileEntryPool::scanfKeepCase);
@@ -82,7 +82,7 @@ SLTEST_R(SArchive)
 						if(_cntr++)
 							temp_buf.CatChar('-').CatLongZ(_cntr, 3);
 					} while(IsDirectory(temp_buf));
-					createDir(temp_buf);
+					SFile::CreateDir(temp_buf);
 					SArchive::InflateAll(SArchive::providerLA, arc_name, 0, temp_buf);
 				}
 				{
@@ -94,7 +94,7 @@ SLTEST_R(SArchive)
 						if(_cntr++)
 							temp_buf.CatChar('-').CatLongZ(_cntr, 3);
 					} while(IsDirectory(temp_buf));
-					createDir(temp_buf);
+					SFile::CreateDir(temp_buf);
 					SArchive::Inflate(SArchive::providerLA, arc_name, 0, "*.jpg", temp_buf);
 				}
 				/*
@@ -109,7 +109,7 @@ SLTEST_R(SArchive)
 						if(_cntr++)
 							temp_buf.CatChar('-').CatLongZ(_cntr, 3);
 					} while(IsDirectory(temp_buf));
-					createDir(temp_buf);
+					SFile::CreateDir(temp_buf);
 					for(uint i = 0; i < arc.GetEntriesCount(); i++) {
 						arc.ExtractEntry(i, temp_buf);
 					}

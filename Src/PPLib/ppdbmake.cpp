@@ -63,7 +63,7 @@ static int64 calcNeededSize(int isEmpty)
 	SString empty_path, base_path, file_name, tbl_name;
 	DbTableStat ts;
 	StrAssocArray tbl_list;
-	SPathStruc ps;
+	SFsPath ps;
 	PPGetFilePath(PPPATH_ROOT, "empty", empty_path);
 	empty_path.SetLastSlash();
 	PPGetPath(PPPATH_DAT, base_path);
@@ -111,7 +111,7 @@ int CreateByExample(const char * pPath)
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
 	SString file_name, src_path, dst_path, pp, tbl_name;
-	SPathStruc ps;
+	SFsPath ps;
 	DBTable * p_dst_tbl = 0;
 	DBTable * p_src_tbl = 0;
 	DbTableStat ts;
@@ -443,8 +443,8 @@ int MakeDatabase()
 		}
 		if(i >= 0) {
 			i = 1;
-			SPathStruc ps(param.Path.SetLastSlash());
-			if(!(ps.Flags & SPathStruc::fDrv && ps.Flags & SPathStruc::fDir)) {
+			SFsPath ps(param.Path.SetLastSlash());
+			if(!(ps.Flags & SFsPath::fDrv && ps.Flags & SFsPath::fDir)) {
 				PPMessage(mfInfo | mfCancel, PPINF_NEEDFULLPATH, param.Path);
 				i = 0;
 			}
@@ -466,7 +466,7 @@ int MakeDatabase()
 				if(i)
 					i = (PPMessage(mfConf | mfYesNo, PPCFM_EXISTDIR, param.Path) == cmYes);
 			}
-			else if(!createDir(param.Path)) {
+			else if(!SFile::CreateDir(param.Path)) {
 				i = 0;
 				PPError(PPERR_SLIB, param.Path);
 				// PPMessage(mfInfo | mfCancel, PPINF_CANTMKDIR);

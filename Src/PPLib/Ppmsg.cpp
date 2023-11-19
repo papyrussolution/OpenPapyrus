@@ -20,7 +20,7 @@ int PPInitStrings(const char * pFileName)
 		else
 			name = pFileName;
         {
-            SPathStruc ps(name);
+            SFsPath ps(name);
 			if(!ps.Nam.HasChr('-')) {
 				const SString org_nam = ps.Nam;
 				const SString org_ext = ps.Ext;
@@ -29,7 +29,7 @@ int PPInitStrings(const char * pFileName)
 				{
 					SString lang_symb;
 					SDirEntry de;
-					SPathStruc ps_lang;
+					SFsPath ps_lang;
 					for(SDirec direc(temp_buf, 0); direc.Next(&de) > 0;) {
 						if(!de.IsFolder()) {
 							de.GetNameA(temp_buf);

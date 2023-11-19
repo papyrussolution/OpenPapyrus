@@ -1546,3 +1546,139 @@ SLTEST_R(SFile)
 	CATCHZOK;
 	return CurrentStatus;
 }
+
+#ifdef __WIN32__
+static int Win_IsFileExists(const char * pFileName)
+{
+	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), 0/* query access only */, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE/* share mode */,
+		NULL/*security attributes*/, OPEN_EXISTING/*disposition*/, FILE_FLAG_NO_BUFFERING|FILE_FLAG_SEQUENTIAL_SCAN/* flags & attributes */, NULL/* template file */);
+	if(handle != INVALID_HANDLE_VALUE) {
+		::CloseHandle(handle);
+		return 1;
+	}
+	else
+		return 0;
+}
+#endif
+/*
+;
+; Аргументы:
+; 0 - тестовый подкаталог каталога IN
+; 1 - подкаталог тестового каталого, в котором находится большое количество файлов
+; 2 - количество файлов, находящихся в каталоге, описанном параметром 1
+; 3 - суммарный размер файлов, находящихся в каталоге, описанном параметром 1
+;
+arglist=Test Directory;Test Directory Level 2\Directory With Many Files;1858;470075
+benchmark=access;winfileexists
+*/
+SLTEST_R(Directory)
+{
+	int    ok = 1;
+	SString path = GetSuiteEntry()->InPath;
+	SString out_path = GetSuiteEntry()->OutPath;
+	SString test_dir, test_dir_with_files;
+	SString temp_buf;
+	uint   files_count = 0;
+	int64  files_size = 0;
+	SStrCollection file_list;
+	// @v11.3.1 {
+	{
+		const char * p_path_to_normalize = "D:\\Papyrus\\Src\\BuildVC2017\\..\\..\\ppy\\bin\\..\\..\\src\\pptest\\out\\lmdb-test";
+		SFsPath::NormalizePath(p_path_to_normalize, SFsPath::npfCompensateDotDot, temp_buf);
+		SLCHECK_EQ(temp_buf, "d:\\papyrus\\src\\pptest\\out\\lmdb-test");
+		SFsPath::NormalizePath(p_path_to_normalize, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, temp_buf);
+		SLCHECK_EQ(temp_buf, "D:\\Papyrus\\src\\pptest\\out\\lmdb-test");
+		SFsPath::NormalizePath(p_path_to_normalize, SFsPath::npfSlash, temp_buf);
+		SLCHECK_EQ(temp_buf, "d:/papyrus/src/buildvc2017/../../ppy/bin/../../src/pptest/out/lmdb-test");
+		SFsPath::NormalizePath(p_path_to_normalize, SFsPath::npfCompensateDotDot|SFsPath::npfUpper, temp_buf);
+		SLCHECK_EQ(temp_buf, "D:\\PAPYRUS\\SRC\\PPTEST\\OUT\\LMDB-TEST");
+	}
+	// } @v11.3.1 
+	{
+		uint   arg_no = 0;
+		for(uint ap = 0, arg_no = 0; EnumArg(&ap, temp_buf); arg_no++) {
+			switch(arg_no) {
+				case 0: test_dir = temp_buf; break;
+				case 1: test_dir_with_files = temp_buf; break;
+				case 2: files_count = temp_buf.ToLong(); break;
+				case 3: files_size = temp_buf.ToLong(); break;
+			}
+		}
+	}
+	(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir);
+	THROW(SLCHECK_NZ(pathValid(path, 1)));
+	(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat(test_dir_with_files);
+	test_dir_with_files = path;
+	THROW(SLCHECK_NZ(pathValid(test_dir_with_files, 1)));
+	{
+		int64  sz = 0;
+		SDirEntry de;
+		(temp_buf = test_dir_with_files).SetLastSlash().CatChar('*').Dot().CatChar('*');
+		for(SDirec dir(temp_buf, 0); dir.Next(&de) > 0;) {
+			if(!de.IsFolder()) {
+				sz += de.Size;
+				de.GetNameA(test_dir_with_files, temp_buf);
+				THROW(SLCHECK_Z(::_access(temp_buf, 0)));
+				THROW(SLCHECK_NZ(Win_IsFileExists(temp_buf)));
+				file_list.insert(newStr(temp_buf));
+			}
+		}
+		THROW(SLCHECK_EQ(file_list.getCount(), files_count));
+		THROW(SLCHECK_EQ((long)sz, (long)files_size));
+		// @v11.6.5 {
+		{
+			// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\TDR\Тестовый каталог в кодировке cp1251\"
+			// Проверяем наличие каталога с именем русскими буквами (он есть). Проверка и в кодировках utf8 и 1251 (ANSI)
+			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251");
+			SLCHECK_NZ(fileExists(path));
+			path.Transf(CTRANSF_UTF8_TO_OUTER);
+			SLCHECK_NZ(fileExists(path));
+			// Проверяем наличие файла с именем русскими буквами (он есть). Проверка и в кодировках utf8 и 1251 (ANSI)
+			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251\\тестовый файл в кодировке 1251.txt");
+			SLCHECK_NZ(fileExists(path));
+			path.Transf(CTRANSF_UTF8_TO_OUTER);
+			SLCHECK_NZ(fileExists(path));
+			// Вставляем дефисы вместо пробелов - такого файла нет!
+			(path = GetSuiteEntry()->InPath).SetLastSlash().Cat(test_dir).SetLastSlash().Cat("TDR\\Тестовый каталог в кодировке cp1251\\тестовый-файл-в-кодировке-1251.txt");
+			SLCHECK_Z(fileExists(path));
+			path.Transf(CTRANSF_UTF8_TO_OUTER);
+			SLCHECK_Z(fileExists(path));
+		}
+		// } @v11.6.5
+		//
+		if(pBenchmark) {
+			if(sstreqi_ascii(pBenchmark, "access")) {
+				for(uint i = 0; i < file_list.getCount(); i++) {
+					::_access(file_list.at(i), 0);
+				}
+			}
+			else if(sstreqi_ascii(pBenchmark, "winfileexists")) {
+				for(uint i = 0; i < file_list.getCount(); i++) {
+					Win_IsFileExists(file_list.at(i));
+				}
+			}
+		}
+	}
+	{
+		const int64 test_file_size = 1024 * 1024;
+		(temp_buf = out_path).SetLastSlash().Cat("тестовый файл с не ansi-символами.txt"); // source-file in utf-8!
+		{
+			SFile f_out(temp_buf, SFile::mWrite|SFile::mBinary);
+			THROW(SLCHECK_NZ(f_out.IsValid()));
+			{
+				uint8 bin_buf[256];
+				for(uint i = 0; i < test_file_size/sizeof(bin_buf); i++) {
+					SObfuscateBuffer(bin_buf, sizeof(bin_buf));
+					THROW(SLCHECK_NZ(f_out.Write(bin_buf, sizeof(bin_buf))));
+				}
+			}
+		}
+		{
+			SFile::Stat stat;
+			THROW(SLCHECK_NZ(SFile::GetStat(temp_buf, 0, &stat, 0)));
+			SLCHECK_EQ(stat.Size, test_file_size);
+		}
+	}
+	CATCHZOK
+	return CurrentStatus;
+}

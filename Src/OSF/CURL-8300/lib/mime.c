@@ -68,8 +68,7 @@ static size_t encoder_7bit_read(char * buffer, size_t size, bool ateof,
 static size_t encoder_base64_read(char * buffer, size_t size, bool ateof,
     curl_mimepart * part);
 static curl_off_t encoder_base64_size(curl_mimepart * part);
-static size_t encoder_qp_read(char * buffer, size_t size, bool ateof,
-    curl_mimepart * part);
+static size_t encoder_qp_read(char * buffer, size_t size, bool ateof, curl_mimepart * part);
 static curl_off_t encoder_qp_size(curl_mimepart * part);
 
 static const struct mime_encoder encoders[] = {
@@ -82,8 +81,7 @@ static const struct mime_encoder encoders[] = {
 };
 
 /* Base64 encoding table */
-static const char base64enc[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char base64enc[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /* Quoted-printable character class table.
  *

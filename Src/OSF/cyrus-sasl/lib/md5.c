@@ -123,7 +123,7 @@ void _sasl_MD5Update(Cyrus_MD5_CTX * context /* context */, const unsigned char 
 
 	 */
 	if(inputLen >= partLen) {
-		memcpy((POINTER)&context->buffer[index], (POINTER)input, partLen); MD5Transform(context->state, context->buffer);
+		memcpy(&context->buffer[index], input, partLen); MD5Transform(context->state, context->buffer);
 		for(i = partLen; i + 63 < inputLen; i += 64)
 			MD5Transform(context->state, &input[i]);
 		index = 0;
@@ -131,7 +131,7 @@ void _sasl_MD5Update(Cyrus_MD5_CTX * context /* context */, const unsigned char 
 	else
 		i = 0;
 	/* Buffer remaining input */
-	memcpy((POINTER)&context->buffer[index], (POINTER)&input[i], inputLen-i);
+	memcpy(&context->buffer[index], &input[i], inputLen-i);
 }
 
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
@@ -152,7 +152,7 @@ void _sasl_MD5Final(unsigned char digest[16] /* message digest */, Cyrus_MD5_CTX
 	/* Store state in digest */
 	Encode(digest, context->state, 16);
 	/* Zeroize sensitive information. */
-	memzero((POINTER)context, sizeof(*context));
+	memzero(context, sizeof(*context));
 }
 
 /* MD5 basic transformation. Transforms state based on block. */
@@ -239,7 +239,7 @@ static void MD5Transform(UINT4 state[4], const unsigned char block[64])
 	state[3] += d;
 	/* Zeroize sensitive information.
 	 */
-	memzero((POINTER)x, sizeof(x));
+	memzero(x, sizeof(x));
 }
 
 /* Encodes input (UINT4) into output (unsigned char). Assumes len is
@@ -249,19 +249,16 @@ static void MD5Transform(UINT4 state[4], const unsigned char block[64])
 
 static void Encode(unsigned char * output, UINT4 * input, unsigned int len)
 {
-	unsigned int i, j;
+	uint i, j;
 	for(i = 0, j = 0; j < len; i++, j += 4) {
-		output[j] = (unsigned char)(input[i] & 0xff);
-		output[j+1] = (unsigned char)((input[i] >> 8) & 0xff);
-		output[j+2] = (unsigned char)((input[i] >> 16) & 0xff);
-		output[j+3] = (unsigned char)((input[i] >> 24) & 0xff);
+		output[j] = (uchar)(input[i] & 0xff);
+		output[j+1] = (uchar)((input[i] >> 8) & 0xff);
+		output[j+2] = (uchar)((input[i] >> 16) & 0xff);
+		output[j+3] = (uchar)((input[i] >> 24) & 0xff);
 	}
 }
 
-/* Decodes input (unsigned char) into output (UINT4). Assumes len is
-       a multiple of 4.
-
- */
+// Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 4.
 static void Decode(UINT4 * output, const unsigned char * input, unsigned int len)
 {
 	uint i, j;
@@ -315,12 +312,11 @@ void _sasl_hmac_md5_init(HMAC_MD5_CTX * hmac, const unsigned char * key, int key
 	 * opad is the byte 0x5c repeated 64 times
 	 * and text is the data being protected
 	 */
-
 	/* start out by storing key in pads */
-	memzero((POINTER)k_ipad, sizeof k_ipad);
-	memzero((POINTER)k_opad, sizeof k_opad);
-	memcpy(k_ipad, (POINTER)key, key_len);
-	memcpy(k_opad, (POINTER)key, key_len);
+	memzero(k_ipad, sizeof k_ipad);
+	memzero(k_opad, sizeof k_opad);
+	memcpy(k_ipad, key, key_len);
+	memcpy(k_opad, key, key_len);
 	/* XOR key with ipad and opad values */
 	for(i = 0; i<64; i++) {
 		k_ipad[i] ^= 0x36;
@@ -332,9 +328,9 @@ void _sasl_hmac_md5_init(HMAC_MD5_CTX * hmac, const unsigned char * key, int key
 	_sasl_MD5Init(&hmac->octx);             /* init outer context */
 	_sasl_MD5Update(&hmac->octx, k_opad, 64); /* apply outer pad */
 	/* scrub the pads and key context (if used) */
-	memzero((POINTER)&k_ipad, sizeof(k_ipad));
-	memzero((POINTER)&k_opad, sizeof(k_opad));
-	memzero((POINTER)&tk, sizeof(tk));
+	memzero(&k_ipad, sizeof(k_ipad));
+	memzero(&k_opad, sizeof(k_opad));
+	memzero(&tk, sizeof(tk));
 	/* and we're done. */
 }
 
@@ -349,20 +345,18 @@ void _sasl_hmac_md5_init(HMAC_MD5_CTX * hmac, const unsigned char * key, int key
 void _sasl_hmac_md5_precalc(HMAC_MD5_STATE * state, const unsigned char * key, int key_len)
 {
 	HMAC_MD5_CTX hmac;
-	unsigned lupe;
 	_sasl_hmac_md5_init(&hmac, key, key_len);
-	for(lupe = 0; lupe < 4; lupe++) {
+	for(uint lupe = 0; lupe < 4; lupe++) {
 		state->istate[lupe] = htonl(hmac.ictx.state[lupe]);
 		state->ostate[lupe] = htonl(hmac.octx.state[lupe]);
 	}
-	memzero((POINTER)&hmac, sizeof(hmac));
+	memzero(&hmac, sizeof(hmac));
 }
 
 void _sasl_hmac_md5_import(HMAC_MD5_CTX * hmac, HMAC_MD5_STATE * state)
 {
-	unsigned lupe;
-	memzero((POINTER)hmac, sizeof(HMAC_MD5_CTX));
-	for(lupe = 0; lupe < 4; lupe++) {
+	memzero(hmac, sizeof(HMAC_MD5_CTX));
+	for(uint lupe = 0; lupe < 4; lupe++) {
 		hmac->ictx.state[lupe] = ntohl(state->istate[lupe]);
 		hmac->octx.state[lupe] = ntohl(state->ostate[lupe]);
 	}
@@ -419,9 +413,8 @@ void _sasl_hmac_md5(const unsigned char * text /* pointer to data stream */, int
 	/* start out by storing key in pads */
 	memzero(k_ipad, sizeof k_ipad);
 	memzero(k_opad, sizeof k_opad);
-	memcpy(k_ipad, (POINTER)key, key_len);
-	memcpy(k_opad, (POINTER)key, key_len);
-
+	memcpy(k_ipad, key, key_len);
+	memcpy(k_opad, key, key_len);
 	/* XOR key with ipad and opad values */
 	for(i = 0; i<64; i++) {
 		k_ipad[i] ^= 0x36;

@@ -47,9 +47,9 @@ int ExecVDos(const ExecVDosParam & rParam)
 	if(startup_path.NotEmptyS()) {
 		startup_path.RmvLastSlash();
 		if(::fileExists(startup_path)) {
-			SPathStruc ps(startup_path.SetLastSlash());
+			SFsPath ps(startup_path.SetLastSlash());
 			if(ps.Drv.IsEmpty()) {
-				SPathStruc ps_cd(curdir);
+				SFsPath ps_cd(curdir);
 				ps.Drv = ps_cd.Drv;
 				ps.Merge(startup_path);
 			}
@@ -61,9 +61,9 @@ int ExecVDos(const ExecVDosParam & rParam)
 		vdos_path.RmvLastSlash();
 		THROW(::fileExists(vdos_path));
 		{
-			SPathStruc ps(vdos_path.SetLastSlash());
+			SFsPath ps(vdos_path.SetLastSlash());
 			if(ps.Drv.IsEmpty()) {
-				SPathStruc ps_cd(curdir);
+				SFsPath ps_cd(curdir);
 				ps.Drv = ps_cd.Drv;
 				ps.Merge(vdos_path);
 			}

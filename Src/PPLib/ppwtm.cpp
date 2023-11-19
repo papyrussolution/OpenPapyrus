@@ -3084,7 +3084,7 @@ int PPWhatmanWindow::FileSave(uint flags, WhatmanObjectLayoutBase * pLayout)
 		Tools.GetParam(param);
 		path = param.FileName;
 		if(PPOpenFile(PPTXT_FILPAT_WTA, path, ofilfNExist, 0) > 0) {
-			SPathStruc::ReplaceExt(path, "wta", 0);
+			SFsPath::ReplaceExt(path, "wta", 0);
 			if(!Tools.Store(path)) {
 				PPSetErrorSLib();
 				ok = PPErrorZ();
@@ -3097,7 +3097,7 @@ int PPWhatmanWindow::FileSave(uint flags, WhatmanObjectLayoutBase * pLayout)
 			SUiLayout * p_lo = W.CreateLayout(pLayout);
 			if(p_lo) {
 				if(PPOpenFile(PPTXT_FILPAT_JSON, path, ofilfNExist, 0) > 0) {
-					SPathStruc::ReplaceExt(path, "json", 0);
+					SFsPath::ReplaceExt(path, "json", 0);
 					SJson * p_js = p_lo->ToJsonObj();
 					if(p_js) {
 						SString temp_buf;
@@ -3121,7 +3121,7 @@ int PPWhatmanWindow::FileSave(uint flags, WhatmanObjectLayoutBase * pLayout)
 		{
 			TWhatmanToolArray::Param param;
 			if(PPOpenFile(PPTXT_FILPAT_WTM, path, ofilfNExist, 0) > 0) {
-				SPathStruc::ReplaceExt(path, "wtm", 0);
+				SFsPath::ReplaceExt(path, "wtm", 0);
 				if(!W.Store(path)) {
 					PPSetErrorSLib();
 					ok = PPErrorZ();

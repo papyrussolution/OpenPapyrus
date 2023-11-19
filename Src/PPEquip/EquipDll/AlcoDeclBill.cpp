@@ -12,78 +12,78 @@
 #include <ppbrow.h>
 #include <sxml.h>
 
-#define EXPORT	extern "C" __declspec (dllexport)
-#define THROWERR(expr,val) { if(!(expr)){ SetError(val, ""); goto __scatch; } }
-#define THROWERR_STR(expr,val,str) { if(!(expr)){ SetError(val, str); goto __scatch; } }
+#define EXPORT  extern "C" __declspec(dllexport)
+#define THROWERR(expr, val) { if(!(expr)) { SetError(val, ""); goto __scatch; } }
+#define THROWERR_STR(expr, val, str) { if(!(expr)) { SetError(val, str); goto __scatch; } }
 
 // Имена элементов xml-файла
-#define ELEMENT_NAME_FILE			"Файл"
-#define ELEMENT_NAME_DOCUMENT		"Документ"
-#define ELEMENT_NAME_TURN			"Оборот"
-#define ELEMENT_NAME_MANUFDATA		"СведПроизвИмпорт"
-#define ELEMENT_NAME_PRODUCT		"Продукция"
-#define ELEMENT_NAME_MOVEMENT		"Движение"
-#define ELEMENT_NAME_CATALOG		"Справочники"
-#define ELEMENT_NAME_REQUISITES		"Реквизиты"
-#define ELEMENT_NAME_RESPPERS		"ОтветЛицо"	// Ответственное лицо
-#define ELEMENT_NAME_CONTRAGS		"Контрагенты"
-#define ELEMENT_NAME_RESIDENT		"Резидент"
-#define ELEMENT_NAME_LICENSES		"Лицензии"
-#define ELEMENT_NAME_LICENSE		"Лицензия"
-#define ELEMENT_NAME_P000000000008	"П000000000008"	// Адрес организации
-#define ELEMENT_NAME_COUNTRYCODE	"КодСтраны"
-#define ELEMENT_NAME_INDEX			"Индекс"
-#define ELEMENT_NAME_REGIONCODE		"КодРегион"
-#define ELEMENT_NAME_DISTRICT		"Район"
-#define ELEMENT_NAME_TOWN			"Город"
-#define ELEMENT_NAME_COMMUNITY		"НаселПункт"
-#define ELEMENT_NAME_STREET			"Улица"
-#define ELEMENT_NAME_HOUSE			"Дом"
-#define ELEMENT_NAME_HOUSING		"Корпус"
-#define ELEMENT_NAME_LETTER			"Литера"
-#define ELEMENT_NAME_SQUARE			"Кварт"
-#define ELEMENT_NAME_LPERSON		"ЮЛ"
-#define ELEMENT_NAME_PRODUCER		"Производитель"
-#define ELEMENT_NAME_TRANSPORTER	"Перевозчик"
+#define ELEMENT_NAME_FILE                       "Файл"
+#define ELEMENT_NAME_DOCUMENT           "Документ"
+#define ELEMENT_NAME_TURN                       "Оборот"
+#define ELEMENT_NAME_MANUFDATA          "СведПроизвИмпорт"
+#define ELEMENT_NAME_PRODUCT            "Продукция"
+#define ELEMENT_NAME_MOVEMENT           "Движение"
+#define ELEMENT_NAME_CATALOG            "Справочники"
+#define ELEMENT_NAME_REQUISITES         "Реквизиты"
+#define ELEMENT_NAME_RESPPERS           "ОтветЛицо"     // Ответственное лицо
+#define ELEMENT_NAME_CONTRAGS           "Контрагенты"
+#define ELEMENT_NAME_RESIDENT           "Резидент"
+#define ELEMENT_NAME_LICENSES           "Лицензии"
+#define ELEMENT_NAME_LICENSE            "Лицензия"
+#define ELEMENT_NAME_P000000000008      "П000000000008" // Адрес организации
+#define ELEMENT_NAME_COUNTRYCODE        "КодСтраны"
+#define ELEMENT_NAME_INDEX                      "Индекс"
+#define ELEMENT_NAME_REGIONCODE         "КодРегион"
+#define ELEMENT_NAME_DISTRICT           "Район"
+#define ELEMENT_NAME_TOWN                       "Город"
+#define ELEMENT_NAME_COMMUNITY          "НаселПункт"
+#define ELEMENT_NAME_STREET                     "Улица"
+#define ELEMENT_NAME_HOUSE                      "Дом"
+#define ELEMENT_NAME_HOUSING            "Корпус"
+#define ELEMENT_NAME_LETTER                     "Литера"
+#define ELEMENT_NAME_SQUARE                     "Кварт"
+#define ELEMENT_NAME_LPERSON            "ЮЛ"
+#define ELEMENT_NAME_PRODUCER           "Производитель"
+#define ELEMENT_NAME_TRANSPORTER        "Перевозчик"
 
 // Имена атрибутов xml-файла
-#define ATRIBUTE_NAME_DATEDOC		"ДатаДок"		// Дата выгрузки
-#define ATRIBUTE_NAME_VERSFORM		"ВерсФорм"
-#define ATRIBUTE_NAME_PROGNAME		"НаимПрог"
-#define ATRIBUTE_NAME_PN			"ПN"			// Порядковый номер
-#define ATRIBUTE_NAME_P000000000003	"П000000000003"	// Код вида продукиции
-#define ATRIBUTE_NAME_P000000000007	"П000000000007"	// Наименование организации
-#define ATRIBUTE_NAME_P000000000009	"П000000000009"	// ИНН Организации
-#define ATRIBUTE_NAME_P000000000010	"П000000000010"	// КПП организации
-#define ATRIBUTE_NAME_P000000000011	"П000000000011"	// Серия,номер лицензии
-#define ATRIBUTE_NAME_P000000000012	"П000000000012"	// Дата начала лицензии
-#define ATRIBUTE_NAME_P000000000013	"П000000000013"	// Дата окончания лицензии
-#define ATRIBUTE_NAME_P000000000014	"П000000000014"	// Регистрирующий орган
-#define ATRIBUTE_NAME_NAMEORG		"NameOrg"
-#define ATRIBUTE_NAME_INN			"INN"
-#define ATRIBUTE_NAME_KPP			"KPP"
-#define ATRIBUTE_NAME_P200000000013	"П200000000013"	// Дата накладной
-#define ATRIBUTE_NAME_P200000000014	"П200000000014"	// Номер ТТН
-#define ATRIBUTE_NAME_P200000000015	"П200000000015"	// ГТД
-#define ATRIBUTE_NAME_P200000000016	"П200000000016"	// Количество в декалитрах
-#define ATRIBUTE_NAME_P100000000006	"П100000000006"
-#define ATRIBUTE_NAME_P100000000007	"П100000000007"
-#define ATRIBUTE_NAME_P100000000008	"П100000000008"	// Общее количество товара в декалитрах
-#define ATRIBUTE_NAME_P100000000009	"П100000000009"
-#define ATRIBUTE_NAME_P100000000010	"П100000000010"	// Общее количество товара в декалитрах
-#define ATRIBUTE_NAME_P100000000011	"П100000000011"
-#define ATRIBUTE_NAME_P100000000012	"П100000000012"
-#define ATRIBUTE_NAME_P100000000013	"П100000000013"
-#define ATRIBUTE_NAME_P100000000014	"П100000000014"	// Общее количество товара в декалитрах
-#define ATRIBUTE_NAME_P100000000015	"П100000000015"
-#define ATRIBUTE_NAME_P100000000016	"П100000000016"
-#define ATRIBUTE_NAME_P100000000017	"П100000000017"
-#define ATRIBUTE_NAME_P100000000018	"П100000000018"
-#define ATRIBUTE_NAME_P100000000019	"П100000000019"
-#define ATRIBUTE_NAME_P100000000020	"П100000000020"
-#define ATRIBUTE_NAME_IDCONTR		"ИдКонтр"
-#define ATRIBUTE_NAME_IDLICENSE		"ИдЛицензии"
-#define ATRIBUTE_NAME_VALUE			"value"
+#define ATRIBUTE_NAME_DATEDOC           "ДатаДок"               // Дата выгрузки
+#define ATRIBUTE_NAME_VERSFORM          "ВерсФорм"
+#define ATRIBUTE_NAME_PROGNAME          "НаимПрог"
+#define ATRIBUTE_NAME_PN                        "ПN"                    // Порядковый номер
+#define ATRIBUTE_NAME_P000000000003     "П000000000003" // Код вида продукиции
+#define ATRIBUTE_NAME_P000000000007     "П000000000007" // Наименование организации
+#define ATRIBUTE_NAME_P000000000009     "П000000000009" // ИНН Организации
+#define ATRIBUTE_NAME_P000000000010     "П000000000010" // КПП организации
+#define ATRIBUTE_NAME_P000000000011     "П000000000011" // Серия,номер лицензии
+#define ATRIBUTE_NAME_P000000000012     "П000000000012" // Дата начала лицензии
+#define ATRIBUTE_NAME_P000000000013     "П000000000013" // Дата окончания лицензии
+#define ATRIBUTE_NAME_P000000000014     "П000000000014" // Регистрирующий орган
+#define ATRIBUTE_NAME_NAMEORG           "NameOrg"
+#define ATRIBUTE_NAME_INN                       "INN"
+#define ATRIBUTE_NAME_KPP                       "KPP"
+#define ATRIBUTE_NAME_P200000000013     "П200000000013" // Дата накладной
+#define ATRIBUTE_NAME_P200000000014     "П200000000014" // Номер ТТН
+#define ATRIBUTE_NAME_P200000000015     "П200000000015" // ГТД
+#define ATRIBUTE_NAME_P200000000016     "П200000000016" // Количество в декалитрах
+#define ATRIBUTE_NAME_P100000000006     "П100000000006"
+#define ATRIBUTE_NAME_P100000000007     "П100000000007"
+#define ATRIBUTE_NAME_P100000000008     "П100000000008" // Общее количество товара в декалитрах
+#define ATRIBUTE_NAME_P100000000009     "П100000000009"
+#define ATRIBUTE_NAME_P100000000010     "П100000000010" // Общее количество товара в декалитрах
+#define ATRIBUTE_NAME_P100000000011     "П100000000011"
+#define ATRIBUTE_NAME_P100000000012     "П100000000012"
+#define ATRIBUTE_NAME_P100000000013     "П100000000013"
+#define ATRIBUTE_NAME_P100000000014     "П100000000014" // Общее количество товара в декалитрах
+#define ATRIBUTE_NAME_P100000000015     "П100000000015"
+#define ATRIBUTE_NAME_P100000000016     "П100000000016"
+#define ATRIBUTE_NAME_P100000000017     "П100000000017"
+#define ATRIBUTE_NAME_P100000000018     "П100000000018"
+#define ATRIBUTE_NAME_P100000000019     "П100000000019"
+#define ATRIBUTE_NAME_P100000000020     "П100000000020"
+#define ATRIBUTE_NAME_IDCONTR           "ИдКонтр"
+#define ATRIBUTE_NAME_IDLICENSE         "ИдЛицензии"
+#define ATRIBUTE_NAME_VALUE                     "value"
 
 // Другие константы
 //#define KVARTAL_1		3	// 1 квартал
@@ -92,15 +92,15 @@
 //#define KVARTAL_4		0	// 4 квартал
 
 // Коды ошибок и сообщений
-#define IEERR_SYMBNOTFOUND			1			// Символ не найден (символ типа объекта импорта/экспорта)
-#define IEERR_NODATA				2			// Нет данных
-#define IEERR_NOSESS				3			// Сессии с таким номером не существует
-#define IEERR_ONLYBILLS				4			// Данная DLL может работать только с документами
-#define IEERR_NOOBJID				5			// Объекта с таким идентификатором нет
-#define IEERR_IMPEXPCLSNOTINTD		6			// Объект для импорта/экспорта не инициализирован
-#define IERR_IMPFILENOTFOUND		7			// Файл импорта не найден: %s
-#define IERR_INVMESSAGEYTYPE		8			// Неверный тип сообщения. Ожидается %S
-#define IERR_ARRAYNOTINITED			9			// Ошибка инициализации массива
+#define IEERR_SYMBNOTFOUND                      1                       // Символ не найден (символ типа объекта импорта/экспорта)
+#define IEERR_NODATA                            2                       // Нет данных
+#define IEERR_NOSESS                            3                       // Сессии с таким номером не существует
+#define IEERR_ONLYBILLS                         4                       // Данная DLL может работать только с документами
+#define IEERR_NOOBJID                           5                       // Объекта с таким идентификатором нет
+#define IEERR_IMPEXPCLSNOTINTD          6                       // Объект для импорта/экспорта не инициализирован
+#define IERR_IMPFILENOTFOUND            7                       // Файл импорта не найден: %s
+#define IERR_INVMESSAGEYTYPE            8                       // Неверный тип сообщения. Ожидается %S
+#define IERR_ARRAYNOTINITED                     9                       // Ошибка инициализации массива
 
 class ExportCls;
 
@@ -112,14 +112,14 @@ int GetObjTypeBySymb(const char * pSymb, uint & rType);
 int SetError(int errCode, const char * pStr = "") { ErrorCode = errCode, StrError = pStr; return 1; }
 
 /*struct ErrMessage {
-	uint Id;
-	const char * P_Msg;
-};*/
+        uint Id;
+        const char * P_Msg;
+   };*/
 
 /*struct ObjectTypeSymbols {
-	char * P_Symb;
-	uint Type;
-};*/
+        char * P_Symb;
+        uint Type;
+   };*/
 
 enum ObjectType {
 	objGood = 1,
@@ -133,7 +133,7 @@ enum ObjectType {
 	// и т.д.
 };
 
-/*ObjectTypeSymbols*/SIntToSymbTabEntry Symbols[] = {
+/*ObjectTypeSymbols*/ SIntToSymbTabEntry Symbols[] = {
 	{objGood,  "GOODS"},
 	{objBill,  "BILLS"},
 	{objCheck, "CHECKS"},
@@ -144,16 +144,16 @@ enum ObjectType {
 	{objCliBnkData, "CLIBANKDATA"}
 };
 
-/*ErrMessage*/SIntToSymbTabEntry ErrMsg[] = {
-	{IEERR_SYMBNOTFOUND,		"Символ не найден"},
-	{IEERR_NODATA,				"Данные не переданы"},
-	{IEERR_NOSESS,				"Сеанса с таким номером нет"},
-	{IEERR_ONLYBILLS,			"Dll может работать только с документами"},
-	{IEERR_NOOBJID,				"Объекта с таким идентификатором нет"},
-	{IEERR_IMPEXPCLSNOTINTD,	"Объект для импорта/экспорта не инициализирован"},
-	{IERR_IMPFILENOTFOUND,		"Файл импорта не найден: "},
-	{IERR_INVMESSAGEYTYPE,		"Неверный тип сообщения. Ожидается "},
-	{IERR_ARRAYNOTINITED,		"Ошибка инициализации массива"}
+/*ErrMessage*/ SIntToSymbTabEntry ErrMsg[] = {
+	{IEERR_SYMBNOTFOUND,            "Символ не найден"},
+	{IEERR_NODATA,                          "Данные не переданы"},
+	{IEERR_NOSESS,                          "Сеанса с таким номером нет"},
+	{IEERR_ONLYBILLS,                       "Dll может работать только с документами"},
+	{IEERR_NOOBJID,                         "Объекта с таким идентификатором нет"},
+	{IEERR_IMPEXPCLSNOTINTD,        "Объект для импорта/экспорта не инициализирован"},
+	{IERR_IMPFILENOTFOUND,          "Файл импорта не найден: "},
+	{IERR_INVMESSAGEYTYPE,          "Неверный тип сообщения. Ожидается "},
+	{IERR_ARRAYNOTINITED,           "Ошибка инициализации массива"}
 };
 
 enum FileTypes {
@@ -169,27 +169,31 @@ public:
 	{
 		Count = 0;
 	}
+
 	const uint GetCount()
 	{
 		return Count;
 	}
+
 	void Next()
 	{
 		Count++;
 	}
+
 private:
-	uint   Count;
+	uint Count;
 };
 
-BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
-    return true;
+	return true;
 }
 
 struct GoodInfoSt {
 	GoodInfoSt() : Quantity(0.0), ReceiptDate(ZERODATE), GoodKind(0)
 	{
 	}
+
 	void Clear()
 	{
 		Quantity = 0.0;
@@ -202,12 +206,12 @@ struct GoodInfoSt {
 		GTD.Z();
 	};
 	double Quantity;
-	LDATE  ReceiptDate;
-	long   GoodKind;
+	LDATE ReceiptDate;
+	long GoodKind;
 	SString OrgName;
 	SString INN;
 	SString KPP;
-	SString	TTN;
+	SString TTN;
 	SString GTD;
 };
 
@@ -216,6 +220,7 @@ struct ContragInfoSt {
 	{
 		Clear();
 	}
+
 	void Clear()
 	{
 		House = 0;
@@ -241,24 +246,25 @@ struct ContragInfoSt {
 		Transporter.Z();
 		IsManuf = 0;
 	}
-	int		House;
-	int		CountryCode;
-	int		RegionCode;
-	int		IsManuf;
-	long	LicID;
-	LDATE	Date;
-	LDATE	Expiry;
-	SString	Index;
+
+	int House;
+	int CountryCode;
+	int RegionCode;
+	int IsManuf;
+	long LicID;
+	LDATE Date;
+	LDATE Expiry;
+	SString Index;
 	SString ContragName;
 	SString LicOrgName;
 	SString LicSerial;
 	SString LicNum;
-	SString	District;
+	SString District;
 	SString Town;
 	SString Community;
 	SString Street;
-	SString	Housing;
-	SString	Letter;
+	SString Housing;
+	SString Letter;
 	SString INN;
 	SString KPP;
 	SString Producer;
@@ -289,7 +295,8 @@ struct ShopInfoSt {
 		ShopBeer.freeAll();
 		//ShopContrag.freeAll();
 	}
-	long   ShopId;
+
+	long ShopId;
 	SString ContragName;
 	SString ShopAddr;
 	TSCollection <GoodInfoSt> ShopAlco;
@@ -298,6 +305,7 @@ struct ShopInfoSt {
 	TSCollection <GoodInfoSt> ShopBeerRet; // @vmiller new
 	//TSCollection <ContragInfoSt> ShopContrag;
 };
+
 //
 // Заметка:
 // Имя выходного файла передаваться не будет. Только если путь.
@@ -320,25 +328,25 @@ public:
 	int    SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPtr, int isBeer = 0); // Сохраняем данные об алкоголе и пиве в соответствующие файлы
 	int    SaveContragInfo(TSCollection <ContragInfoSt> * pArr); // Сохраняем данные о контрагентах в файл
 
-	uint   Id;					// ИД, который Papyrus будет воспринимать как ИД сеанса экспорта
-	uint   ObjId;				// ИД экспортируемого объекта (например, для пакета документов каждому документу соответствует свой ИД)
-	uint   ObjType;				// Тип экспортируемых объектов
-	uint   Inited;
+	uint Id;                                        // ИД, который Papyrus будет воспринимать как ИД сеанса экспорта
+	uint ObjId;                             // ИД экспортируемого объекта (например, для пакета документов каждому документу соответствует свой ИД)
+	uint ObjType;                           // Тип экспортируемых объектов
+	uint Inited;
 	//uint   Kvart;				// Номер квартала отчетности. Для имени выходног файла
 	//uint   Year;				// Год отчетности. Для имени выходного файла
 	//long BeerTypeId;			// ИД группы товара "Пиво"
-	long   ShopPos;				// Позиция инфы в массиве ShopInfo для текущего магазина
-	LDATE  BillDate;
+	long ShopPos;                           // Позиция инфы в массиве ShopInfo для текущего магазина
+	LDATE BillDate;
 	xmlTextWriter * P_WXmlAlco;
 	xmlTextWriter * P_WXmlBeer;
 	xmlTextWriter * P_WXmlAlcoRet; // @vmiller new
 	xmlTextWriter * P_WXmlBeerRet; // @vmiller new
 	xmlTextWriter * P_WXmlContrag;
 	Iterator Itr;
-	SPathStruc PathStruct;
-	SString Prefix;				// Префикс имени документа. Раз уж стали указывать, пусть будет
+	SFsPath PathStruct;
+	SString Prefix;                         // Префикс имени документа. Раз уж стали указывать, пусть будет
 	Sdr_ImpExpHeader Header;
-	TSCollection <ShopInfoSt> ShopInfo;	// Массив групп массивов для каждого магазина
+	TSCollection <ShopInfoSt> ShopInfo;     // Массив групп массивов для каждого магазина
 	TSCollection <ContragInfoSt> ContragInfo; // Массив с инфой о контрагентах (производеителей/импортеров)
 private:
 	void   GetPeriod(LDATE billDate, int quarterNum, int year);
@@ -376,8 +384,8 @@ static SString & PreprocessFnText(SString & rT)
 	}
 	temp_buf.ReplaceStr("  ", " ", 0).Strip();
 	/*rT.ReplaceChar(',', ' ').ReplaceChar('\\', ' ').ReplaceChar('/', ' ').ReplaceChar('.', ' ').
-		ReplaceChar('\"', ' ').ReplaceChar('*', ' ');
-	rT.ReplaceStr("  ", " ", 0).Strip();*/
+	        ReplaceChar('\"', ' ').ReplaceChar('*', ' ');
+	   rT.ReplaceStr("  ", " ", 0).Strip();*/
 	rT = temp_buf;
 	return rT;
 }
@@ -397,7 +405,7 @@ void ExportCls::CreateFileName(long DocType, const char * pContragName, const ch
 				dir = rFileName;
 			}
 			//rFileName.Cat("Контрагенты_GRP").Cat(grpNum).CatChar('(').Cat(doc_num).CatChar(')').Dot().Cat(PathStruct.Ext);
-			rFileName.Cat("Контрагенты").CatChar('(').Cat(/*doc_num*/1).CatChar(')').Dot().Cat(PathStruct.Ext);
+			rFileName.Cat("Контрагенты").CatChar('(').Cat(/*doc_num*/ 1).CatChar(')').Dot().Cat(PathStruct.Ext);
 			// Если такой файл уже существует, то создаем файл с номером, большим на единицу
 
 			// уже не создаем
@@ -437,15 +445,15 @@ void ExportCls::CreateFileName(long DocType, const char * pContragName, const ch
 			//rFileName.CatChar(fmt.C(0)).CatChar('_');
 			// Дата отгрузки
 			/*LDATE date;
-			getcurdate(&date);
-			fmt.Z().Cat(date.day());
-			if(fmt.Len() == 1)
-				fmt.PadLeft(1, '0');
-			rFileName.Cat(fmt);
-			fmt.Z().Cat(date.month());
-			if(fmt.Len() == 1)
-				fmt.PadLeft(1, '0');
-			rFileName.Cat(fmt).Cat(date.year());*/
+			   getcurdate(&date);
+			   fmt.Z().Cat(date.day());
+			   if(fmt.Len() == 1)
+			        fmt.PadLeft(1, '0');
+			   rFileName.Cat(fmt);
+			   fmt.Z().Cat(date.month());
+			   if(fmt.Len() == 1)
+			        fmt.PadLeft(1, '0');
+			   rFileName.Cat(fmt).Cat(date.year());*/
 			// От себя добавим ИД магазина
 			//rFileName.CatChar('_').Cat(shopId).CatChar('_');
 			// Адрес магазина
@@ -469,7 +477,7 @@ void ExportCls::CreateFileName(long DocType, const char * pContragName, const ch
 
 int ExportCls::GetInfo(Sdr_BRow * pBRow, TSCollection <GoodInfoSt> * pList)
 {
-	int    ok = 1;
+	int ok = 1;
 	THROWERR(pBRow, IEERR_NODATA);
 	THROWERR(pList, IERR_ARRAYNOTINITED);
 	{
@@ -478,8 +486,8 @@ int ExportCls::GetInfo(Sdr_BRow * pBRow, TSCollection <GoodInfoSt> * pList)
 		p_new_item->OrgName = pBRow->LotManuf;
 		p_new_item->INN = pBRow->ManufINN;
 		p_new_item->KPP = pBRow->ManufKPP;
-		p_new_item->ReceiptDate = pBRow->BillDate/*LotDocDate*/;
-		p_new_item->TTN = /*pBRow->TTN*/pBRow->BillCode; // У заказчика номер докумена совпадает с номером ТТН
+		p_new_item->ReceiptDate = pBRow->BillDate /*LotDocDate*/;
+		p_new_item->TTN = /*pBRow->TTN*/ pBRow->BillCode; // У заказчика номер докумена совпадает с номером ТТН
 		p_new_item->GTD = pBRow->GTD;
 		p_new_item->Quantity = fabs(pBRow->PhQtty);
 		pList->insert(p_new_item);
@@ -490,14 +498,14 @@ int ExportCls::GetInfo(Sdr_BRow * pBRow, TSCollection <GoodInfoSt> * pList)
 
 int ExportCls::GetContragInfo(Sdr_BRow * pBRow, TSCollection <ContragInfoSt> * pArr)
 {
-	int    ok = 1, same_found = 0;
+	int ok = 1, same_found = 0;
 	THROWERR(pBRow, IEERR_NODATA);
 	for(size_t i = 0; (i < pArr->getCount()) && !same_found; i++) {
 		const ContragInfoSt * p_item = pArr->at(i);
 		if(p_item) {
 			if(!p_item->ContragName.CmpNC(pBRow->LotManuf) && !p_item->INN.CmpNC(pBRow->ManufINN) &&
-				!p_item->KPP.CmpNC(pBRow->ManufKPP) && !p_item->LicSerial.CmpNC(pBRow->LicenseSerial) &&
-				!p_item->LicNum.CmpNC(pBRow->LicenseNum) && (p_item->LicID == pBRow->LicenseID))
+			    !p_item->KPP.CmpNC(pBRow->ManufKPP) && !p_item->LicSerial.CmpNC(pBRow->LicenseSerial) &&
+			    !p_item->LicNum.CmpNC(pBRow->LicenseNum) && (p_item->LicID == pBRow->LicenseID))
 				same_found = 1;
 		}
 	}
@@ -529,144 +537,145 @@ int ExportCls::GetContragInfo(Sdr_BRow * pBRow, TSCollection <ContragInfoSt> * p
 	return ok;
 }
 
-int ExportCls::SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPtr, int isBeer/* = 0*/)
+int ExportCls::SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPtr, int isBeer /* = 0*/)
 {
 	// index - порядковый номер записи оборота
-	int    ok = 1, index = 1;
-	long   good_kind_code = 0;
+	int ok = 1, index = 1;
+	long good_kind_code = 0;
 	double total_qtt = 0.0;
 	SString str, fmt;
-	LDATE  date = ZERODATE;
+	LDATE date = ZERODATE;
 	TSCollection <GoodInfoSt> one_grp;
 	SString org_name("");
 	SString inn("");
 	SString kpp("");
 	THROW(pXmlPtr);
 	xmlTextWriterStartElement(pXmlPtr, (const xmlChar *)ELEMENT_NAME_FILE);
-		xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_DATEDOC);
-			getcurdate(&date);
-			fmt.Z().Cat(date.day());
-			if(fmt.Len() == 1)
-				fmt.PadLeft(1, '0');
-			str.Z().Cat(fmt);
-			fmt.Z().Cat(date.month());
-			if(fmt.Len() == 1)
-				fmt.PadLeft(1, '0');
-			str.Dot().Cat(fmt).Dot().Cat(date.year());
-			xmlTextWriterWriteString(pXmlPtr, str.ucptr());
-		xmlTextWriterEndAttribute(pXmlPtr); //ДатаДок
-		xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_VERSFORM);
-			xmlTextWriterWriteString(pXmlPtr, (const xmlChar *)"4.20"); // Версия ДекларантАлко @v8.6.12 "4.20"-->"4.30"; @v8.7.11 "4.30"-->"4.20"
-		xmlTextWriterEndAttribute(pXmlPtr); //ВерсФорм
-		xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_PROGNAME);
-			xmlTextWriterWriteString(pXmlPtr, (const xmlChar *)Header.SrcSystemName);
-		xmlTextWriterEndAttribute(pXmlPtr); //НаимПрог
+	xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_DATEDOC);
+	getcurdate(&date);
+	fmt.Z().Cat(date.day());
+	if(fmt.Len() == 1)
+		fmt.PadLeft(1, '0');
+	str.Z().Cat(fmt);
+	fmt.Z().Cat(date.month());
+	if(fmt.Len() == 1)
+		fmt.PadLeft(1, '0');
+	str.Dot().Cat(fmt).Dot().Cat(date.year());
+	xmlTextWriterWriteString(pXmlPtr, str.ucptr());
+	xmlTextWriterEndAttribute(pXmlPtr);         //ДатаДок
+	xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_VERSFORM);
+	xmlTextWriterWriteString(pXmlPtr, (const xmlChar *)"4.20");                 // Версия ДекларантАлко @v8.6.12 "4.20"-->"4.30"; @v8.7.11 "4.30"-->"4.20"
+	xmlTextWriterEndAttribute(pXmlPtr);         //ВерсФорм
+	xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_PROGNAME);
+	xmlTextWriterWriteString(pXmlPtr, (const xmlChar *)Header.SrcSystemName);
+	xmlTextWriterEndAttribute(pXmlPtr);         //НаимПрог
 
-		xmlTextWriterStartElement(pXmlPtr, (const xmlChar *)ELEMENT_NAME_DOCUMENT);
-		// GoodsKind
-		// OrgName
-		// ReceiptDate
-			while(pArr->getCount()) {
-				// Сортируем по виду товара
-				GoodInfoSt good_info;
-				const GoodInfoSt * p_item = pArr->at(0);
-				good_kind_code = p_item->GoodKind;
+	xmlTextWriterStartElement(pXmlPtr, (const xmlChar *)ELEMENT_NAME_DOCUMENT);
+	// GoodsKind
+	// OrgName
+	// ReceiptDate
+	while(pArr->getCount()) {
+		// Сортируем по виду товара
+		GoodInfoSt good_info;
+		const GoodInfoSt * p_item = pArr->at(0);
+		good_kind_code = p_item->GoodKind;
+		//
+		// Запишем данные о виде товара
+		//
+		xmlTextWriterStartElement(pXmlPtr, (const xmlChar *)ELEMENT_NAME_TURN);
+		xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_PN);
+		xmlTextWriterWriteString(pXmlPtr, str.Z().Cat(index).ucptr());
+		xmlTextWriterEndAttribute(pXmlPtr);                         //ПN
+		xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_P000000000003);
+		xmlTextWriterWriteString(pXmlPtr, str.Z().Cat(good_kind_code).ucptr());
+		xmlTextWriterEndAttribute(pXmlPtr);                         //П0000000003
+		for(uint j = 0; j < pArr->getCount();) {
+			one_grp.freeAll();
+			total_qtt = 0.0;
+			const GoodInfoSt * p_item_j = pArr->at(j);
+			org_name = p_item_j->OrgName;
+			inn = p_item_j->INN;
+			kpp = p_item_j->KPP;
+			for(uint i = 0; i < pArr->getCount();) {
 				//
-				// Запишем данные о виде товара
+				// Сортируем по контрагенту
 				//
-				xmlTextWriterStartElement(pXmlPtr, (const xmlChar *)ELEMENT_NAME_TURN);
-					xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_PN);
-						xmlTextWriterWriteString(pXmlPtr, str.Z().Cat(index).ucptr());
-					xmlTextWriterEndAttribute(pXmlPtr); //ПN
-					xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_P000000000003);
-						xmlTextWriterWriteString(pXmlPtr, str.Z().Cat(good_kind_code).ucptr());
-					xmlTextWriterEndAttribute(pXmlPtr); //П0000000003
-				for(uint j = 0; j < pArr->getCount();) {
-					one_grp.freeAll();
-					total_qtt = 0.0;
-					const GoodInfoSt * p_item_j = pArr->at(j);
-					org_name = p_item_j->OrgName;
-					inn = p_item_j->INN;
-					kpp = p_item_j->KPP;
-					for(uint i = 0; i < pArr->getCount();) {
-						//
-						// Сортируем по контрагенту
-						//
-						const GoodInfoSt * p_item_i = pArr->at(i);
-						if((p_item_i->GoodKind == good_kind_code) && p_item_i->OrgName.CmpNC(org_name) == 0 && p_item_i->INN.CmpNC(inn) == 0 && p_item_i->KPP.CmpNC(kpp) == 0) {
-							GoodInfoSt * p_new_item = new GoodInfoSt;
-							*p_new_item = *p_item_i;
-							one_grp.insert(p_new_item);
-							pArr->atFree(i);
-						}
-						else
-							i++;
-					}
-					if(one_grp.getCount()) {
-						// Расположим записи в порядке возрастания даты
-						for(size_t k = 0; k < one_grp.getCount(); k++) {
-							const  GoodInfoSt * p_item_k = one_grp.at(k);
-							LDATE  min_date = p_item_k->ReceiptDate;
-							size_t min_index = k;
-							for(size_t d = 0; d < one_grp.getCount(); d++) {
-								const  GoodInfoSt * p_item_d = one_grp.at(d);
-								if(p_item_d->ReceiptDate < min_date) {
-									min_date = p_item_d->ReceiptDate;
-									min_index = d;
-								}
-								one_grp.swap(d, min_index);
-							}
-						}
-						// Вот теперь можно записывать данные
-							xmlTextWriterStartElement(pXmlPtr, (const xmlChar *)ELEMENT_NAME_MANUFDATA);
-								xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_NAMEORG);
-									xmlTextWriterWriteString(pXmlPtr, org_name.ucptr());
-								xmlTextWriterEndAttribute(pXmlPtr); //NameOrg
-								xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_INN);
-									xmlTextWriterWriteString(pXmlPtr, inn.ucptr());
-								xmlTextWriterEndAttribute(pXmlPtr); //INN
-								xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_KPP);
-									xmlTextWriterWriteString(pXmlPtr, kpp.ucptr());
-								xmlTextWriterEndAttribute(pXmlPtr); //KPP
-								// Пишем инфу о каждом товаре
-								for(size_t k = 0; k < one_grp.getCount(); k++) {
-									const  GoodInfoSt * p_item_k = one_grp.at(k);
-									xmlTextWriterStartElement(pXmlPtr, (const xmlChar *)ELEMENT_NAME_PRODUCT);
-										xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_P200000000013);
-											fmt.Z().Cat(p_item_k->ReceiptDate.day());
-											if(fmt.Len() == 1)
-												fmt.PadLeft(1, '0');
-											str.Z().Cat(fmt);
-											fmt.Z().Cat(p_item_k->ReceiptDate.month());
-											if(fmt.Len() == 1)
-												fmt.PadLeft(1, '0');
-											str.Dot().Cat(fmt).Dot().Cat(p_item_k->ReceiptDate.year());
-											xmlTextWriterWriteString(pXmlPtr, str.ucptr());
-										xmlTextWriterEndAttribute(pXmlPtr); //П20000000013
-										xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_P200000000014);
-											xmlTextWriterWriteString(pXmlPtr, p_item_k->TTN.ucptr());
-										xmlTextWriterEndAttribute(pXmlPtr); //П20000000014
-										xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_P200000000015);
-											(str = p_item_k->GTD).Transf(CTRANSF_INNER_TO_OUTER); // Почему-то здесь без преобразования выводится шляпа, а не кириллица
-											xmlTextWriterWriteString(pXmlPtr, /*p_item_k->GTD*/str.ucptr());
-										xmlTextWriterEndAttribute(pXmlPtr); //П20000000015
-										xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_P200000000016);
-											str.Z().Cat(p_item_k->Quantity / 10); // В декалитрах
-											total_qtt += p_item_k->Quantity / 10;
-											xmlTextWriterWriteString(pXmlPtr, str.ucptr());
-										xmlTextWriterEndAttribute(pXmlPtr); //П20000000016
-									xmlTextWriterEndElement(pXmlPtr); //Продукция
-								}
-
-							xmlTextWriterEndElement(pXmlPtr); //СведПроизвИмпорт
-					}
-					else
-						j++;
+				const GoodInfoSt * p_item_i = pArr->at(i);
+				if((p_item_i->GoodKind == good_kind_code) && p_item_i->OrgName.CmpNC(org_name) == 0 && p_item_i->INN.CmpNC(inn) == 0 &&
+				    p_item_i->KPP.CmpNC(kpp) == 0) {
+					GoodInfoSt * p_new_item = new GoodInfoSt;
+					*p_new_item = *p_item_i;
+					one_grp.insert(p_new_item);
+					pArr->atFree(i);
 				}
-				xmlTextWriterEndElement(pXmlPtr); //Оборот
-				index++;
+				else
+					i++;
 			}
-		xmlTextWriterEndElement(pXmlPtr); //Документ
+			if(one_grp.getCount()) {
+				// Расположим записи в порядке возрастания даты
+				for(size_t k = 0; k < one_grp.getCount(); k++) {
+					const GoodInfoSt * p_item_k = one_grp.at(k);
+					LDATE min_date = p_item_k->ReceiptDate;
+					size_t min_index = k;
+					for(size_t d = 0; d < one_grp.getCount(); d++) {
+						const GoodInfoSt * p_item_d = one_grp.at(d);
+						if(p_item_d->ReceiptDate < min_date) {
+							min_date = p_item_d->ReceiptDate;
+							min_index = d;
+						}
+						one_grp.swap(d, min_index);
+					}
+				}
+				// Вот теперь можно записывать данные
+				xmlTextWriterStartElement(pXmlPtr, (const xmlChar *)ELEMENT_NAME_MANUFDATA);
+				xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_NAMEORG);
+				xmlTextWriterWriteString(pXmlPtr, org_name.ucptr());
+				xmlTextWriterEndAttribute(pXmlPtr);                                 //NameOrg
+				xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_INN);
+				xmlTextWriterWriteString(pXmlPtr, inn.ucptr());
+				xmlTextWriterEndAttribute(pXmlPtr);                                 //INN
+				xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_KPP);
+				xmlTextWriterWriteString(pXmlPtr, kpp.ucptr());
+				xmlTextWriterEndAttribute(pXmlPtr);                                 //KPP
+				// Пишем инфу о каждом товаре
+				for(size_t k = 0; k < one_grp.getCount(); k++) {
+					const GoodInfoSt * p_item_k = one_grp.at(k);
+					xmlTextWriterStartElement(pXmlPtr, (const xmlChar *)ELEMENT_NAME_PRODUCT);
+					xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_P200000000013);
+					fmt.Z().Cat(p_item_k->ReceiptDate.day());
+					if(fmt.Len() == 1)
+						fmt.PadLeft(1, '0');
+					str.Z().Cat(fmt);
+					fmt.Z().Cat(p_item_k->ReceiptDate.month());
+					if(fmt.Len() == 1)
+						fmt.PadLeft(1, '0');
+					str.Dot().Cat(fmt).Dot().Cat(p_item_k->ReceiptDate.year());
+					xmlTextWriterWriteString(pXmlPtr, str.ucptr());
+					xmlTextWriterEndAttribute(pXmlPtr);                                         //П20000000013
+					xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_P200000000014);
+					xmlTextWriterWriteString(pXmlPtr, p_item_k->TTN.ucptr());
+					xmlTextWriterEndAttribute(pXmlPtr);                                         //П20000000014
+					xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_P200000000015);
+					(str = p_item_k->GTD).Transf(CTRANSF_INNER_TO_OUTER);                                                 // Почему-то здесь без преобразования выводится шляпа, а не кириллица
+					xmlTextWriterWriteString(pXmlPtr, /*p_item_k->GTD*/ str.ucptr());
+					xmlTextWriterEndAttribute(pXmlPtr);                                         //П20000000015
+					xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_P200000000016);
+					str.Z().Cat(p_item_k->Quantity / 10);                                                 // В декалитрах
+					total_qtt += p_item_k->Quantity / 10;
+					xmlTextWriterWriteString(pXmlPtr, str.ucptr());
+					xmlTextWriterEndAttribute(pXmlPtr);                                         //П20000000016
+					xmlTextWriterEndElement(pXmlPtr);                                 //Продукция
+				}
+
+				xmlTextWriterEndElement(pXmlPtr);                         //СведПроизвИмпорт
+			}
+			else
+				j++;
+		}
+		xmlTextWriterEndElement(pXmlPtr);                 //Оборот
+		index++;
+	}
+	xmlTextWriterEndElement(pXmlPtr);         //Документ
 	xmlTextWriterEndElement(pXmlPtr); //Файл
 	CATCHZOK
 	one_grp.freeAll();
@@ -675,115 +684,115 @@ int ExportCls::SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPt
 
 int ExportCls::SaveContragInfo(TSCollection <ContragInfoSt> * pArr)
 {
-	int    ok = 1;
+	int ok = 1;
 	SString str, fmt;
 	xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_CATALOG);
 	for(size_t i = 0; i < pArr->getCount(); i++) {
 		const ContragInfoSt * p_item = pArr->at(i);
 		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_CONTRAGS);
-			xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_IDCONTR);
-				xmlTextWriterWriteString(P_WXmlContrag, str.Z().Cat(i + 1).ucptr());
-			xmlTextWriterEndAttribute(P_WXmlContrag); //ИдКонтр
-			xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000007);
-				xmlTextWriterWriteString(P_WXmlContrag, p_item->ContragName.ucptr());
-			xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000007
-			xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_RESIDENT);
-				if((p_item->Expiry != ZERODATE) && (p_item->Date != ZERODATE) && (p_item->LicOrgName) && p_item->LicSerial.NotEmpty() && p_item->LicNum) {
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_LICENSES);
-						xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_LICENSE);
-							xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000014);
-								xmlTextWriterWriteString(P_WXmlContrag, p_item->LicOrgName.ucptr());
-							xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000014
-							xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000013);
-								fmt.Z().Cat(p_item->Expiry.day());
-								if(fmt.Len() == 1)
-									fmt.PadLeft(1, '0');
-								str.Z().Cat(fmt);
-								fmt.Z().Cat(p_item->Expiry.month());
-								if(fmt.Len() == 1)
-									fmt.PadLeft(1, '0');
-								str.Dot().Cat(fmt).Dot().Cat(p_item->Expiry.year());
-								xmlTextWriterWriteString(P_WXmlContrag, str.ucptr());
-							xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000013
-							xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000012);
-								fmt.Z().Cat(p_item->Date.day());
-								if(fmt.Len() == 1)
-									fmt.PadLeft(1, '0');
-								str.Z().Cat(fmt);
-								fmt.Z().Cat(p_item->Date.month());
-								if(fmt.Len() == 1)
-									fmt.PadLeft(1, '0');
-								str.Dot().Cat(fmt).Dot().Cat(p_item->Date.year());
-								xmlTextWriterWriteString(P_WXmlContrag, str.ucptr());
-							xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000012
-							xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000011);
-								(str = p_item->LicSerial).Comma().Cat(p_item->LicNum);
-								xmlTextWriterWriteString(P_WXmlContrag, str.ucptr());
-							xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000011
-							xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_IDLICENSE);
-								xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"1"); // 1 - Производство, хранение и поставки произведенного этилового
-																							// спирта, в том числе денатурированного
-							xmlTextWriterEndAttribute(P_WXmlContrag); //ИдЛицензии
-						xmlTextWriterEndElement(P_WXmlContrag); //Лицензия
-					xmlTextWriterEndElement(P_WXmlContrag); //Лицензии
-				}
-				xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_P000000000008);
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_COUNTRYCODE);
-						xmlTextWriterWriteString(P_WXmlContrag, str.Z().Cat(p_item->CountryCode).ucptr());
-					xmlTextWriterEndElement(P_WXmlContrag); //КодСтраны
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_INDEX);
-						xmlTextWriterWriteString(P_WXmlContrag, str.Z().Cat(p_item->Index).ucptr());
-					xmlTextWriterEndElement(P_WXmlContrag); //Индекс
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_REGIONCODE);
-						xmlTextWriterWriteString(P_WXmlContrag, str.Z().Cat(p_item->RegionCode).ucptr());
-					xmlTextWriterEndElement(P_WXmlContrag); //КодРегион
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_DISTRICT);
-						xmlTextWriterWriteString(P_WXmlContrag, p_item->District.ucptr());
-					xmlTextWriterEndElement(P_WXmlContrag); //Район
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_TOWN);
-						xmlTextWriterWriteString(P_WXmlContrag, p_item->Town.ucptr());
-					xmlTextWriterEndElement(P_WXmlContrag); //Город
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_COMMUNITY);
-						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"");
-					xmlTextWriterEndElement(P_WXmlContrag); //НаселПункт
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_STREET);
-						xmlTextWriterWriteString(P_WXmlContrag, p_item->Street.ucptr());
-					xmlTextWriterEndElement(P_WXmlContrag); //Улица
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_HOUSE);
-						xmlTextWriterWriteString(P_WXmlContrag, str.Z().Cat(p_item->House).ucptr());
-					xmlTextWriterEndElement(P_WXmlContrag); //Дом
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_HOUSING);
-						xmlTextWriterWriteString(P_WXmlContrag, p_item->Housing.ucptr());
-					xmlTextWriterEndElement(P_WXmlContrag); //Корпус
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_LETTER);
-						xmlTextWriterWriteString(P_WXmlContrag, p_item->Letter.ucptr());
-					xmlTextWriterEndElement(P_WXmlContrag); //Литера
-					xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_SQUARE);
-						xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"");
-					xmlTextWriterEndElement(P_WXmlContrag); //Кварт
-				xmlTextWriterEndElement(P_WXmlContrag); //П000000000008
-				xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_LPERSON);
-					xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000009);
-						xmlTextWriterWriteString(P_WXmlContrag, p_item->INN.ucptr());
-					xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000009
-					xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000010);
-						xmlTextWriterWriteString(P_WXmlContrag, p_item->KPP.ucptr());
-					xmlTextWriterEndAttribute(P_WXmlContrag); //П000000000010
-				xmlTextWriterEndElement(P_WXmlContrag); //ЮЛ
-				xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_PRODUCER);
-					xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_VALUE);
-						if(p_item->IsManuf)
-							xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"True");
-						else
-							xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"False");
-					xmlTextWriterEndAttribute(P_WXmlContrag); //value
-				xmlTextWriterEndElement(P_WXmlContrag); //Производитель
-				xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_TRANSPORTER);
-					xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_VALUE);
-							xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"False");
-					xmlTextWriterEndAttribute(P_WXmlContrag); //value
-				xmlTextWriterEndElement(P_WXmlContrag); //Перевозчик
-			xmlTextWriterEndElement(P_WXmlContrag); //Резидент
+		xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_IDCONTR);
+		xmlTextWriterWriteString(P_WXmlContrag, str.Z().Cat(i + 1).ucptr());
+		xmlTextWriterEndAttribute(P_WXmlContrag);         //ИдКонтр
+		xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000007);
+		xmlTextWriterWriteString(P_WXmlContrag, p_item->ContragName.ucptr());
+		xmlTextWriterEndAttribute(P_WXmlContrag);         //П000000000007
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_RESIDENT);
+		if((p_item->Expiry != ZERODATE) && (p_item->Date != ZERODATE) && (p_item->LicOrgName) && p_item->LicSerial.NotEmpty() && p_item->LicNum) {
+			xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_LICENSES);
+			xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_LICENSE);
+			xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000014);
+			xmlTextWriterWriteString(P_WXmlContrag, p_item->LicOrgName.ucptr());
+			xmlTextWriterEndAttribute(P_WXmlContrag);                                 //П000000000014
+			xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000013);
+			fmt.Z().Cat(p_item->Expiry.day());
+			if(fmt.Len() == 1)
+				fmt.PadLeft(1, '0');
+			str.Z().Cat(fmt);
+			fmt.Z().Cat(p_item->Expiry.month());
+			if(fmt.Len() == 1)
+				fmt.PadLeft(1, '0');
+			str.Dot().Cat(fmt).Dot().Cat(p_item->Expiry.year());
+			xmlTextWriterWriteString(P_WXmlContrag, str.ucptr());
+			xmlTextWriterEndAttribute(P_WXmlContrag);                                 //П000000000013
+			xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000012);
+			fmt.Z().Cat(p_item->Date.day());
+			if(fmt.Len() == 1)
+				fmt.PadLeft(1, '0');
+			str.Z().Cat(fmt);
+			fmt.Z().Cat(p_item->Date.month());
+			if(fmt.Len() == 1)
+				fmt.PadLeft(1, '0');
+			str.Dot().Cat(fmt).Dot().Cat(p_item->Date.year());
+			xmlTextWriterWriteString(P_WXmlContrag, str.ucptr());
+			xmlTextWriterEndAttribute(P_WXmlContrag);                                 //П000000000012
+			xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000011);
+			(str = p_item->LicSerial).Comma().Cat(p_item->LicNum);
+			xmlTextWriterWriteString(P_WXmlContrag, str.ucptr());
+			xmlTextWriterEndAttribute(P_WXmlContrag);                                 //П000000000011
+			xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_IDLICENSE);
+			xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"1");                                         // 1 - Производство, хранение и поставки произведенного этилового
+			// спирта, в том числе денатурированного
+			xmlTextWriterEndAttribute(P_WXmlContrag);                                 //ИдЛицензии
+			xmlTextWriterEndElement(P_WXmlContrag);                         //Лицензия
+			xmlTextWriterEndElement(P_WXmlContrag);                 //Лицензии
+		}
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_P000000000008);
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_COUNTRYCODE);
+		xmlTextWriterWriteString(P_WXmlContrag, str.Z().Cat(p_item->CountryCode).ucptr());
+		xmlTextWriterEndElement(P_WXmlContrag);                         //КодСтраны
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_INDEX);
+		xmlTextWriterWriteString(P_WXmlContrag, str.Z().Cat(p_item->Index).ucptr());
+		xmlTextWriterEndElement(P_WXmlContrag);                         //Индекс
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_REGIONCODE);
+		xmlTextWriterWriteString(P_WXmlContrag, str.Z().Cat(p_item->RegionCode).ucptr());
+		xmlTextWriterEndElement(P_WXmlContrag);                         //КодРегион
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_DISTRICT);
+		xmlTextWriterWriteString(P_WXmlContrag, p_item->District.ucptr());
+		xmlTextWriterEndElement(P_WXmlContrag);                         //Район
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_TOWN);
+		xmlTextWriterWriteString(P_WXmlContrag, p_item->Town.ucptr());
+		xmlTextWriterEndElement(P_WXmlContrag);                         //Город
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_COMMUNITY);
+		xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"");
+		xmlTextWriterEndElement(P_WXmlContrag);                         //НаселПункт
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_STREET);
+		xmlTextWriterWriteString(P_WXmlContrag, p_item->Street.ucptr());
+		xmlTextWriterEndElement(P_WXmlContrag);                         //Улица
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_HOUSE);
+		xmlTextWriterWriteString(P_WXmlContrag, str.Z().Cat(p_item->House).ucptr());
+		xmlTextWriterEndElement(P_WXmlContrag);                         //Дом
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_HOUSING);
+		xmlTextWriterWriteString(P_WXmlContrag, p_item->Housing.ucptr());
+		xmlTextWriterEndElement(P_WXmlContrag);                         //Корпус
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_LETTER);
+		xmlTextWriterWriteString(P_WXmlContrag, p_item->Letter.ucptr());
+		xmlTextWriterEndElement(P_WXmlContrag);                         //Литера
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_SQUARE);
+		xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"");
+		xmlTextWriterEndElement(P_WXmlContrag);                         //Кварт
+		xmlTextWriterEndElement(P_WXmlContrag);                 //П000000000008
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_LPERSON);
+		xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000009);
+		xmlTextWriterWriteString(P_WXmlContrag, p_item->INN.ucptr());
+		xmlTextWriterEndAttribute(P_WXmlContrag);                         //П000000000009
+		xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_P000000000010);
+		xmlTextWriterWriteString(P_WXmlContrag, p_item->KPP.ucptr());
+		xmlTextWriterEndAttribute(P_WXmlContrag);                         //П000000000010
+		xmlTextWriterEndElement(P_WXmlContrag);                 //ЮЛ
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_PRODUCER);
+		xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_VALUE);
+		if(p_item->IsManuf)
+			xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"True");
+		else
+			xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"False");
+		xmlTextWriterEndAttribute(P_WXmlContrag);                         //value
+		xmlTextWriterEndElement(P_WXmlContrag);                 //Производитель
+		xmlTextWriterStartElement(P_WXmlContrag, (const xmlChar *)ELEMENT_NAME_TRANSPORTER);
+		xmlTextWriterStartAttribute(P_WXmlContrag, (const xmlChar *)ATRIBUTE_NAME_VALUE);
+		xmlTextWriterWriteString(P_WXmlContrag, (const xmlChar *)"False");
+		xmlTextWriterEndAttribute(P_WXmlContrag);                         //value
+		xmlTextWriterEndElement(P_WXmlContrag);                 //Перевозчик
+		xmlTextWriterEndElement(P_WXmlContrag);         //Резидент
 		xmlTextWriterEndElement(P_WXmlContrag); //Контрагенты
 	}
 	xmlTextWriterEndElement(P_WXmlContrag); //Справочники
@@ -819,19 +828,20 @@ int GetObjTypeBySymb(const char * pSymb, uint & rType)
 	rType = static_cast<uint>(SIntToSymbTab_GetId(Symbols, SIZEOFARRAY(Symbols), pSymb)); // @v10.4.12
 	return BIN(rType != 0); // @v10.4.12
 	/* @v10.4.12 for(size_t i = 0; i < SIZEOFARRAY(Symbols); i++) {
-		if(strcmp(Symbols[i].P_Symb, pSymb) == 0) {
-			rType = Symbols[i].Type;
-			return 1;
-		}
-	}
-	return 0;*/
+	        if(strcmp(Symbols[i].P_Symb, pSymb) == 0) {
+	                rType = Symbols[i].Type;
+	                return 1;
+	        }
+	   }
+	   return 0;*/
 }
+
 //
 // Внешние функции экспорта
 //
 EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 {
-	int    ok = 1;
+	int ok = 1;
 	SETIFZ(P_ExportCls, new ExportCls);
 	if(P_ExportCls && !P_ExportCls->Inited) {
 		if(pExpHeader)
@@ -861,7 +871,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 
 EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData, int * pObjId)
 {
-	int    ok = 1;
+	int ok = 1;
 	size_t pos = 0;
 	THROWERR(P_ExportCls, IEERR_IMPEXPCLSNOTINTD);
 	THROWERR(idSess == P_ExportCls->Id, IEERR_NOSESS);
@@ -905,7 +915,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 
 EXPORT int InitExportObjIter(uint idSess, uint objId)
 {
-	int    ok = 1;
+	int ok = 1;
 	THROWERR(P_ExportCls, IEERR_IMPEXPCLSNOTINTD);
 	THROWERR(idSess == P_ExportCls->Id, IEERR_NOSESS);
 	THROWERR(objId == P_ExportCls->ObjId, IEERR_NOOBJID);
@@ -916,7 +926,7 @@ EXPORT int InitExportObjIter(uint idSess, uint objId)
 
 EXPORT int NextExportObjIter(uint idSess, uint objId, void * pBRow)
 {
-	int    ok = 1;
+	int ok = 1;
 	THROWERR(P_ExportCls, IEERR_IMPEXPCLSNOTINTD);
 	THROWERR(pBRow, IEERR_NODATA);
 	THROWERR(idSess == P_ExportCls->Id, IEERR_NOSESS);
@@ -928,7 +938,7 @@ EXPORT int NextExportObjIter(uint idSess, uint objId, void * pBRow)
 			if(((Sdr_BRow *)pBRow)->Quantity < 0) { // @vmiller new
 				// Продажа
 				THROW(P_ExportCls->GetInfo((Sdr_BRow *)pBRow, &p_item->ShopAlco))
-			// @vmiller new {
+				// @vmiller new {
 			}
 			else {
 				// Возврат
@@ -941,16 +951,16 @@ EXPORT int NextExportObjIter(uint idSess, uint objId, void * pBRow)
 			if(((Sdr_BRow *)pBRow)->Quantity < 0) { // @vmiller new
 				// Продажа
 				THROW(P_ExportCls->GetInfo((Sdr_BRow *)pBRow, &p_item->ShopBeer));
-			// @vmiller new {
+				// @vmiller new {
 			}
 			else {
 				// Возврат
 				THROW(P_ExportCls->GetInfo((Sdr_BRow *)pBRow, &p_item->ShopBeerRet));
 			}
-			// } @vmiller new
+		// } @vmiller new
 		if(((Sdr_BRow *)pBRow)->IsAlco || ((Sdr_BRow *)pBRow)->IsBeer)
 			THROW(P_ExportCls->GetContragInfo((Sdr_BRow *)pBRow, &P_ExportCls->ContragInfo)); // Файл с контрагентами один
-			//THROW(P_ExportCls->GetContragInfo((Sdr_BRow *)pBRow, &p_item->ShopContrag)); // Число файлов с контрагентами равно количеству адресов доставки
+		//THROW(P_ExportCls->GetContragInfo((Sdr_BRow *)pBRow, &p_item->ShopContrag)); // Число файлов с контрагентами равно количеству адресов доставки
 		P_ExportCls->Itr.Next();
 	}
 	CATCHZOK
@@ -964,7 +974,7 @@ EXPORT int EnumExpReceipt(void * pReceipt)
 
 EXPORT int FinishImpExp()
 {
-	int    ok = 1;
+	int ok = 1;
 	if(P_ExportCls) {
 		SString alco_name, beer_name, contrag_name;
 		for(size_t pos = 0; pos < P_ExportCls->ShopInfo.getCount(); pos++) {
@@ -1035,17 +1045,17 @@ EXPORT int FinishImpExp()
 			}
 			// Число файлов с контрагентами равно количеству адресов доставки
 			/*if(p_item->ShopContrag.getCount()) {
-				P_ExportCls->CreateFileName(fContrag, 0, pos + 1, contrag_name);
-				P_ExportCls->P_WXmlContrag = xmlNewTextWriterFilename(contrag_name, 0);
-				if(P_ExportCls->P_WXmlContrag) {
-					xmlTextWriterSetIndentTab(P_ExportCls->P_WXmlContrag);
-					xmlTextWriterStartDocument(P_ExportCls->P_WXmlContrag, 0, "windows-1251", 0);
-					P_ExportCls->SaveContragInfo(&p_item->ShopContrag);
-					xmlTextWriterEndDocument(P_ExportCls->P_WXmlContrag);
-					xmlFreeTextWriter(P_ExportCls->P_WXmlContrag);
-					P_ExportCls->P_WXmlContrag = 0;
-				}
-			}*/
+			        P_ExportCls->CreateFileName(fContrag, 0, pos + 1, contrag_name);
+			        P_ExportCls->P_WXmlContrag = xmlNewTextWriterFilename(contrag_name, 0);
+			        if(P_ExportCls->P_WXmlContrag) {
+			                xmlTextWriterSetIndentTab(P_ExportCls->P_WXmlContrag);
+			                xmlTextWriterStartDocument(P_ExportCls->P_WXmlContrag, 0, "windows-1251", 0);
+			                P_ExportCls->SaveContragInfo(&p_item->ShopContrag);
+			                xmlTextWriterEndDocument(P_ExportCls->P_WXmlContrag);
+			                xmlFreeTextWriter(P_ExportCls->P_WXmlContrag);
+			                P_ExportCls->P_WXmlContrag = 0;
+			        }
+			   }*/
 		}
 		//// Файл с контрагентами один {
 		//P_ExportCls->CreateFileName(fContrag, 0, 0, pos + 1, contrag_name);
@@ -1068,11 +1078,11 @@ EXPORT int GetErrorMessage(char * pMsg, uint bufLen)
 {
 	SString str("");
 	/* @v10.4.12 for(size_t i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
-		if(ErrMsg[i].Id == ErrorCode) {
-			str.Cat(ErrMsg[i].P_Msg);
-			break;
-		}
-	}*/
+	        if(ErrMsg[i].Id == ErrorCode) {
+	                str.Cat(ErrMsg[i].P_Msg);
+	                break;
+	        }
+	   }*/
 	SIntToSymbTab_GetSymb(ErrMsg, SIZEOFARRAY(ErrMsg), ErrorCode, str); // @v10.4.12
 	if(ErrorCode == IERR_IMPFILENOTFOUND || IERR_INVMESSAGEYTYPE)
 		str.Cat(StrError);

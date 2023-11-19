@@ -588,6 +588,73 @@ int CCheckItem::SplitByQtty(double restQtty, CCheckItem & rNewItem)
 //
 // CCheckPacket
 //
+CCheckPacket::BueryEAddr_::BueryEAddr_() : AddrType(0)
+{
+}
+		
+CCheckPacket::BueryEAddr_ & CCheckPacket::BueryEAddr_::Z()
+{
+	AddrType = 0;
+	EAddr.Z();
+	return *this;
+}
+
+bool CCheckPacket::BueryEAddr_::IsEmpty() const { return !(EAddr.NotEmpty() && oneof2(AddrType, SNTOK_EMAIL, SNTOK_PHONE)); }
+
+int CCheckPacket::BueryEAddr_::SetEMail(const char * pEAddr)
+{
+	int    ok = 1;
+	if(isempty(pEAddr)) {
+		AddrType = 0;
+		EAddr.Z();
+		ok = -1;
+	}
+	else {
+		// @todo Надо бы проверить валидность pEAddr
+		AddrType = SNTOK_EMAIL;
+		(EAddr = pEAddr).Strip();
+	}
+	return ok;
+}
+
+int CCheckPacket::BueryEAddr_::SetPhone(const char * pEAddr)
+{
+	int    ok = 1;
+	if(isempty(pEAddr)) {
+		AddrType = 0;
+		EAddr.Z();
+		ok = -1;
+	}
+	else {
+		// @todo Надо бы проверить валидность pEAddr
+		AddrType = SNTOK_PHONE;
+		(EAddr = pEAddr).Strip();
+	}
+	return ok;
+}
+
+int CCheckPacket::BueryEAddr_::GetEMail(SString & rBuf) const
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(AddrType == SNTOK_EMAIL && EAddr.NotEmpty()) {
+		rBuf = EAddr;
+		ok = 1;
+	}
+	return ok;
+}
+
+int CCheckPacket::BueryEAddr_::GetPhone(SString & rBuf) const
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(AddrType == SNTOK_PHONE && EAddr.NotEmpty()) {
+		rBuf = EAddr;
+		ok = 1;
+	}
+	return ok;
+}
+
 CCheckPacket::LineExt::LineExt()
 {
 	THISZERO();
@@ -865,23 +932,49 @@ int CCheckPacket::GenerateGuid(S_GUID & rUuid)
 	return ok;
 }
 
-int CCheckPacket::GetPrescription(Prescription & rP) const
+/*static*/int CCheckPacket::GetPrescription(const PPExtStrContainer & rEss, Prescription & rP)
 {
 	int    ok = 0;
 	SString temp_buf;
 	rP.Z();
-	if(GetExtStrData(extssPrescrDate, temp_buf) && temp_buf.NotEmptyS()) {
+	if(rEss.GetExtStrData(extssPrescrDate, temp_buf) && temp_buf.NotEmptyS()) {
 		rP.Dt = strtodate_(temp_buf, DATF_ISO8601CENT);
 	}
-	if(GetExtStrData(extssPrescrSerial, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+	if(rEss.GetExtStrData(extssPrescrSerial, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 		rP.Serial = temp_buf;
 	}
-	if(GetExtStrData(extssPrescrNumber, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+	if(rEss.GetExtStrData(extssPrescrNumber, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 		rP.Number = temp_buf;
 		ok = 1;
 	}
 	return ok;
 }
+
+/*static*/int CCheckPacket::SetPrescription(PPExtStrContainer & rEss, const Prescription & rP)
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(rP.Number.NotEmpty()) {
+		rEss.PutExtStrData(CCheckPacket::extssPrescrNumber, rP.Number);
+		if(checkdate(rP.Dt)) {
+			temp_buf.Z().Cat(rP.Dt, DATF_ISO8601CENT);
+			rEss.PutExtStrData(CCheckPacket::extssPrescrDate, temp_buf);
+		}
+		else
+			rEss.PutExtStrData(CCheckPacket::extssPrescrDate, 0);
+		rEss.PutExtStrData(CCheckPacket::extssPrescrSerial, rP.Serial);
+	}
+	else {
+		rEss.PutExtStrData(CCheckPacket::extssPrescrDate, 0);
+		rEss.PutExtStrData(CCheckPacket::extssPrescrSerial, 0);
+		rEss.PutExtStrData(CCheckPacket::extssPrescrNumber, 0);
+		ok = -1;
+	}
+	return ok;
+}
+
+int CCheckPacket::GetPrescription(Prescription & rP) const { return CCheckPacket::GetPrescription(*this, rP); }
+int CCheckPacket::SetPrescription(const Prescription & rP) { return CCheckPacket::SetPrescription(*this, rP); }
 
 uint  CCheckPacket::GetCount() const { return Items_.getCount(); }
 const CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLineC(uint pos) const { return Items_.at(pos); }
@@ -1023,6 +1116,25 @@ int CCheckPacket::PackTextExt(SString & rResult) const
 	}
 	if(Helper_PackLineTextExt(rResult) > 0)
 		ok = 1;
+	return ok;
+}
+
+/*static*/int CCheckPacket::CopyExtStrContainer(PPExtStrContainer & rDest, const PPExtStrContainer & rSrc, uint flags)
+{
+	int    ok = -1;
+	SString temp_buf;
+	rDest.Z();
+	for(uint i = 0; i < SIZEOFARRAY(ccpack_textext_ident_list); i++) {
+		const int fld_id = ccpack_textext_ident_list[i];
+		assert(fld_id > 0 && fld_id < 100);
+		if(fld_id > 0 && fld_id < 100) {
+			rSrc.GetExtStrData(fld_id, temp_buf);
+			if(temp_buf.NotEmptyS()) {
+				rDest.PutExtStrData(fld_id, temp_buf);
+				ok = 1;
+			}
+		}
+	}
 	return ok;
 }
 

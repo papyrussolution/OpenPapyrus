@@ -459,7 +459,7 @@ static int __absname(ENV * env, char * pref, char * name, char ** newnamep)
 	int ret;
 	char * newname;
 	size_t l_name = sstrlen(name);
-	int isabspath = SPathStruc::IsWindowsPathPrefix(name);
+	int isabspath = SFsPath::IsWindowsPathPrefix(name);
 	size_t l_pref = isabspath ? 0 : sstrlen(pref);
 	/* Malloc space for concatenating the two. */
 	if((ret = __os_malloc(env, l_pref+l_name+2, &newname)) != 0)

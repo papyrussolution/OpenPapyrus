@@ -477,7 +477,7 @@ int PPViewPerson::OpenClientDir(PPID PersonId)
 					for(uint regs_pos = 0; !ok && regs_pos < pack.Regs.getCount(); regs_pos++) {
 						RegisterTbl::Rec & r_reg = pack.Regs.at(regs_pos);
 						if(r_reg.RegTypeID == kind_rec.FolderRegTypeID) {
-							THROW_SL(::createDir(cl_dir_name.SetLastSlash().Cat(r_reg.Num)));
+							THROW_SL(SFile::CreateDir(cl_dir_name.SetLastSlash().Cat(r_reg.Num)));
 							ok = 1;
 						}
 					}

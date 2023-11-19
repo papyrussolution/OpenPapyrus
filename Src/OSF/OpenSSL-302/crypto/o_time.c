@@ -154,17 +154,17 @@ static int julian_adj(const struct tm * tm, int off_day, long offset_sec, long *
  */
 static long date_to_julian(int y, int m, int d)
 {
-	return (1461 * (y + 4800 + (m - 14) / 12)) / 4 + (367 * (m - 2 - 12 * ((m - 14) / 12))) / 12 - (3 * ((y + 4900 + (m - 14) / 12) / 100)) / 4 + d - 32075;
+	return (SlConst::DaysPer4Years * (y + 4800 + (m - 14) / 12)) / 4 + (367 * (m - 2 - 12 * ((m - 14) / 12))) / 12 - (3 * ((y + 4900 + (m - 14) / 12) / 100)) / 4 + d - 32075;
 }
 
 static void julian_to_date(long jd, int * y, int * m, int * d)
 {
 	long L = jd + 68569;
-	long n = (4 * L) / 146097;
+	long n = (4 * L) / SlConst::DaysPer400Years;
 	long i, j;
-	L = L - (146097 * n + 3) / 4;
+	L = L - (SlConst::DaysPer400Years * n + 3) / 4;
 	i = (4000 * (L + 1)) / 1461001;
-	L = L - (1461 * i) / 4 + 31;
+	L = L - (SlConst::DaysPer4Years * i) / 4 + 31;
 	j = (80 * L) / 2447;
 	*d = L - (2447 * j) / 80;
 	L = j / 11;

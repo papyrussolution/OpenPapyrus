@@ -3173,7 +3173,7 @@ static CURLcode ftp_done(struct Curl_easy * data, CURLcode status,
 		case CURLE_REMOTE_FILE_NOT_FOUND:
 		case CURLE_WRITE_ERROR:
 		/* the connection stays alive fine even though this happened */
-		/* fall-through */
+		// @fallthrough
 		case CURLE_OK: /* doesn't affect the control connection's status */
 		    if(!premature)
 			    break;

@@ -62,6 +62,28 @@ private:
 	static uint64 Helper_SetRaw_PlanarAngleDeg(uint64 meta, double deg);
 	static bool   Helper_GetRaw_PlanarAngleDeg(uint64 meta, uint64 ued, double & rDeg);
 };
+
+class UedSetBase : private SBaseBuffer {
+protected:
+	DECL_INVARIANT_C();
+	UedSetBase();
+	UedSetBase(const UedSetBase & rS);
+	~UedSetBase();
+	UedSetBase & FASTCALL operator = (const UedSetBase & rS);
+	bool   FASTCALL operator == (const UedSetBase & rS) const;
+	UedSetBase & Z()
+	{
+		LimbCount = 0;
+		return *this;
+	}
+	int    FASTCALL Copy(const UedSetBase & rS);
+	bool   FASTCALL IsEq(const UedSetBase & rS) const;
+	uint   GetLimbCount() const { return LimbCount; }
+	bool   Add(const uint64 * pUed, uint count, uint * pIdx);
+	bool   Add(uint64 ued, uint * pIdx);
+private:
+	uint   LimbCount; // Фактическое количество 64-битных элементов
+};
 //
 // Descr: Базовый класс контейнера UED-объектов
 //
@@ -85,6 +107,16 @@ public:
 	//   на предмет наличия и соответствия хэша, хранящегося в отдельном файле в том же каталоге.
 	//
 	int    Verify(const char * pPath, long ver, SBinaryChunk * pHash) const;
+	uint64 SearchSymb(const char * pSymb, uint64 meta) const;
+	//
+	// Descr: Флаги функции Recoginaze
+	//
+	enum {
+		rfDraft       = 0x0001, // Не искать соответствия символов
+		rfPrefixSharp = 0x0002  // Символы сущностей должны предваряться знаком '#'
+	};
+
+	uint64 Recognize(SStrScan & rScan, uint64 implicitMeta, uint flags) const;
 protected:
 	SrUedContainer_Base();
 	~SrUedContainer_Base();
@@ -101,6 +133,18 @@ protected:
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
 	bool   SearchSymbHashId(uint32 symbHashId, SString & rSymb) const;
 	//
+	// Descr: Распознает простую конструкцию символа сущности в одном из двух
+	//   вариантов:
+	//   symb или meta.symb
+	// Note: Функция не пытается определить достоверность символов. То есть
+	//   не ищет их среди определений.
+	// Returns:
+	//   0 - не удалось распознать символ
+	//   1 - распознан единичный символ
+	//   2 - распознан вармант meta.symb
+	//
+	int    Helper_RecognizeSymb(SStrScan & rScan, uint flags, SString & rMeta, SString & rSymb) const;
+	//
 	// Descr: Определитель свойства сущности, сохраняемый в препроцессинговом виде
 	//   так как финишная обработка требует знаний о всем массиве сущностей.
 	//
@@ -109,7 +153,7 @@ protected:
 		{
 		}
 		uint64 Ued;
-		int    LocaleId; // Если свойство задано для языкового определения сущности, то здесь - 
+		uint32 LocaleId; // Если свойство задано для языкового определения сущности, то здесь - 
 			// идентификатор соответствующего локуса.
 		uint32 LineNo; // Номер строки, на которой начинается определение свойства.
 		StringSet Prop; // The first item - property symb, other - arguments
@@ -133,25 +177,47 @@ protected:
 		//   <0 - разбор не завершен
 		//    0 - error
 		//
-		int    Do(SStrScan & rScan);
-		const ProtoPropList_SingleUed GetResult() const { return PL; }
+		int    Do(SrUedContainer_Base & rC, SStrScan & rScan);
+		const  ProtoPropList_SingleUed & GetResult() const { return PL; }
 	private:
-		int    ScanProp(SStrScan & rScan);
-		int    ScanArg(SStrScan & rScan, bool isFirst/*@debug*/);
+		int    ScanProp(SrUedContainer_Base & rC, SStrScan & rScan);
+		int    ScanArg(SrUedContainer_Base & rC, SStrScan & rScan, bool isFirst/*@debug*/);
 		int    Status; // 0 - idle, 1 - started, 2 - in work (the first '{' was occured and processed)
 		int    State;  // Внутренний идентификатор состояния разбора.
 		ProtoPropList_SingleUed PL;
+	};
+	struct PropIdxEntry_Ued {
+		uint64 Ued;
+		LongArray RefList; // Список позиций в PropertySet
+	};
+	struct PropIdxEntry_UedLocale {
+		uint64 Ued;
+		uint   LocaleId;
+		LongArray RefList; // Список позиций в PropertySet
+	};
+	//
+	// Descr: Финишный пул свойств, на которые ссылаются элементы UED-реестра.
+	//
+	class PropertySet : private UedSetBase {
+	public:
+		PropertySet();
+		int    Add(const uint64 * pPropChunk, uint count, uint * pPos);
+	private:
+		LAssocArray PosIdx; // Индекс позиций: Key - номер позиции, Val - количество элементов 
 	};
 	TSVector <BaseEntry> BL;
 	TSVector <TextEntry> TL;
 	TSCollection <ProtoProp> ProtoPropList; // compile-time
 private:
 	uint64 SearchBaseIdBySymbId(uint symbId, uint64 meta) const;
+	int    ReplaceSurrogateLocaleId(const SymbHashTable & rT, uint32 surrLocaleId, uint32 * pRealLocaleId, uint lineNo, PPLogger * pLogger);
 	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger);
 	int    RegisterProtoPropList(const ProtoPropList_SingleUed & rList);
+	int    ProcessProperties();
 	uint64 LinguaLocusMeta;
 	SymbHashTable Ht; // Хэш-таблица символов из списка BL
 	uint   LastSymbHashId;
+	PropertySet PropS;
 };
 //
 // Descr: Класс контейнера UED-объектов, реализующий функционал компиляции и сборки.
@@ -178,9 +244,7 @@ public:
 	SrUedContainer_Rt();
 	~SrUedContainer_Rt();
 	int    Read(const char * pFileName);
-	uint64 SearchSymb(const char * pSymb, uint64 meta) const;
 	bool   GetSymb(uint64 ued, SString & rSymb) const;
-	uint64 Recognize(SStrScan & rScan, uint64 implicitMeta, uint flags) const;
 };
 
 enum {

@@ -108,27 +108,23 @@ size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx,
  *
  * @return : nb of bytes read from src (< srcSize )
  *  note : symbol not declared but exposed for fullbench */
-size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx,
-    const void * src, size_t srcSize,                         /* note : srcSize < BLOCKSIZE */
-    void * dst, size_t dstCapacity, const streaming_operation streaming)
+size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx, const void * src, size_t srcSize/* note : srcSize < BLOCKSIZE */, void * dst, size_t dstCapacity, const streaming_operation streaming)
 {
 	DEBUGLOG(5, "ZSTD_decodeLiteralsBlock");
 	RETURN_ERROR_IF(srcSize < MIN_CBLOCK_SIZE, corruption_detected, "");
-
-	{   const BYTE * const istart = (const BYTE *)src;
+	{   
+		const BYTE * const istart = PTR8C(src);
 	    symbolEncodingType_e const litEncType = (symbolEncodingType_e)(istart[0] & 3);
-
-	    switch(litEncType)
-	    {
+	    switch(litEncType) {
 		    case set_repeat:
 			DEBUGLOG(5, "set_repeat flag : re-using stats from previous compressed literals block");
 			RETURN_ERROR_IF(dctx->litEntropy==0, dictionary_corrupted, "");
 			CXX_FALLTHROUGH;
 
 		    case set_compressed:
-			RETURN_ERROR_IF(srcSize < 5, corruption_detected,
-			    "srcSize >= MIN_CBLOCK_SIZE == 3; here we need up to 5 for case 3");
-			{   size_t lhSize, litSize, litCSize;
+			RETURN_ERROR_IF(srcSize < 5, corruption_detected, "srcSize >= MIN_CBLOCK_SIZE == 3; here we need up to 5 for case 3");
+			{   
+				size_t lhSize, litSize, litCSize;
 			    uint32 singleStream = 0;
 			    const uint32 lhlCode = (istart[0] >> 2) & 3;
 			    const uint32 lhc = SMem::GetLe32(istart);
@@ -633,7 +629,7 @@ static size_t ZSTD_buildSeqTable(ZSTD_seqSymbol* DTableSpace, const ZSTD_seqSymb
 
 size_t ZSTD_decodeSeqHeaders(ZSTD_DCtx* dctx, int* nbSeqPtr, const void * src, size_t srcSize)
 {
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * const iend = istart + srcSize;
 	const BYTE * ip = istart;
 	int nbSeq;
@@ -1288,20 +1284,17 @@ DONT_VECTORIZE ZSTD_decompressSequences_bodySplitLitBuffer(ZSTD_DCtx* dctx,
 	if(nbSeq) {
 		seqState_t seqState;
 		dctx->fseEntropy = 1;
-		{ uint32 i; for(i = 0; i<ZSTD_REP_NUM; i++) seqState.prevOffset[i] = dctx->entropy.rep[i]; }
-		RETURN_ERROR_IF(
-			ERR_isError(BIT_initDStream(&seqState.DStream, ip, iend-ip)),
-			corruption_detected, "");
+		{ 
+			uint32 i; 
+			for(i = 0; i<ZSTD_REP_NUM; i++) 
+				seqState.prevOffset[i] = dctx->entropy.rep[i]; 
+		}
+		RETURN_ERROR_IF(ERR_isError(BIT_initDStream(&seqState.DStream, ip, iend-ip)), corruption_detected, "");
 		ZSTD_initFseState(&seqState.stateLL, &seqState.DStream, dctx->LLTptr);
 		ZSTD_initFseState(&seqState.stateOffb, &seqState.DStream, dctx->OFTptr);
 		ZSTD_initFseState(&seqState.stateML, &seqState.DStream, dctx->MLTptr);
 		assert(dst != NULL);
-
-		ZSTD_STATIC_ASSERT(
-			BIT_DStream_unfinished < BIT_DStream_completed &&
-			BIT_DStream_endOfBuffer < BIT_DStream_completed &&
-			BIT_DStream_completed < BIT_DStream_overflow);
-
+		ZSTD_STATIC_ASSERT(BIT_DStream_unfinished < BIT_DStream_completed && BIT_DStream_endOfBuffer < BIT_DStream_completed && BIT_DStream_completed < BIT_DStream_overflow);
 		/* decompress without overrunning litPtr begins */
 		{
 			seq_t sequence = ZSTD_decodeSequence(&seqState, isLongOffset);
@@ -1502,12 +1495,9 @@ DONT_VECTORIZE ZSTD_decompressSequences_bodySplitLitBuffer(ZSTD_DCtx* dctx,
 	return op-ostart;
 }
 
-FORCE_INLINE_TEMPLATE size_t
-DONT_VECTORIZE ZSTD_decompressSequences_body(ZSTD_DCtx* dctx,
-    void * dst, size_t maxDstSize,
-    const void * seqStart, size_t seqSize, int nbSeq,
-    const ZSTD_longOffset_e isLongOffset,
-    const int frame)
+FORCE_INLINE_TEMPLATE size_t DONT_VECTORIZE ZSTD_decompressSequences_body(ZSTD_DCtx* dctx,
+    void * dst, size_t maxDstSize, const void * seqStart, size_t seqSize, int nbSeq,
+    const ZSTD_longOffset_e isLongOffset, const int frame)
 {
 	const BYTE * ip = (const BYTE *)seqStart;
 	const BYTE * const iend = ip + seqSize;
@@ -1526,7 +1516,11 @@ DONT_VECTORIZE ZSTD_decompressSequences_body(ZSTD_DCtx* dctx,
 	if(nbSeq) {
 		seqState_t seqState;
 		dctx->fseEntropy = 1;
-		{ uint32 i; for(i = 0; i < ZSTD_REP_NUM; i++) seqState.prevOffset[i] = dctx->entropy.rep[i]; }
+		{ 
+			uint32 i; 
+			for(i = 0; i < ZSTD_REP_NUM; i++) 
+				seqState.prevOffset[i] = dctx->entropy.rep[i]; 
+		}
 		RETURN_ERROR_IF(
 			ERR_isError(BIT_initDStream(&seqState.DStream, ip, iend - ip)),
 			corruption_detected, "");
@@ -1534,12 +1528,7 @@ DONT_VECTORIZE ZSTD_decompressSequences_body(ZSTD_DCtx* dctx,
 		ZSTD_initFseState(&seqState.stateOffb, &seqState.DStream, dctx->OFTptr);
 		ZSTD_initFseState(&seqState.stateML, &seqState.DStream, dctx->MLTptr);
 		assert(dst != NULL);
-
-		ZSTD_STATIC_ASSERT(
-			BIT_DStream_unfinished < BIT_DStream_completed &&
-			BIT_DStream_endOfBuffer < BIT_DStream_completed &&
-			BIT_DStream_completed < BIT_DStream_overflow);
-
+		ZSTD_STATIC_ASSERT(BIT_DStream_unfinished < BIT_DStream_completed && BIT_DStream_endOfBuffer < BIT_DStream_completed && BIT_DStream_completed < BIT_DStream_overflow);
 #if defined(__GNUC__) && defined(__x86_64__)
 		__asm__ (".p2align 6");
 		__asm__ ("nop");
@@ -1948,7 +1937,7 @@ size_t ZSTD_decompressBlock_internal(ZSTD_DCtx* dctx,
     void * dst, size_t dstCapacity,
     const void * src, size_t srcSize, const int frame, const streaming_operation streaming)
 {   /* blockType == blockCompressed */
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	/* isLongOffset must be true if there are long offsets.
 	 * Offsets are long if they are larger than 2^STREAM_ACCUMULATOR_MIN.
 	 * We don't expect that to be the case in 64-bit mode.

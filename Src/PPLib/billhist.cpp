@@ -157,8 +157,8 @@ int HistBillCore::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 	}
 	if(toDt) {
 		{
-			SPathStruc ps(DBTable::GetName());
-			ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
+			SFsPath ps(DBTable::GetName());
+			ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, fname);
 			msg.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, buf), fname.cptr());
 		}
 		PPTransaction tra(1);

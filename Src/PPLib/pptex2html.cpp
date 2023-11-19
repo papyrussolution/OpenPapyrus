@@ -837,7 +837,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 							if(fileExists(temp_buf)) {
 								(file_name_buf = out_pic_path).SetLastSlash().Cat(p_first_brc_arg->Text).DotCat("png");
 								if(copyFileByName(temp_buf, file_name_buf)) {
-									SPathStruc::GetRelativePath(out_file_name, 0, file_name_buf, 0, line_buf);
+									SFsPath::GetRelativePath(out_file_name, 0, file_name_buf, 0, line_buf);
 									temp_buf2.Z().Cat("pic").CatChar('-').Cat(p_first_brc_arg->Text);
 									file_name_buf.Z().CatQStr(temp_buf2);
 									temp_buf2.Z().CatChar('<').Cat("a").Space().CatEq("name", file_name_buf).CatChar('>');
@@ -1098,7 +1098,7 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
             }
 		}
 		else {
-			SPathStruc::GetRelativePath(out_file_name, 0, p_result->DestFileName, 0, rel_path);
+			SFsPath::GetRelativePath(out_file_name, 0, p_result->DestFileName, 0, rel_path);
 		}
 		if(rel_path.NotEmpty()) {
 			temp_buf.Z().Cat("pic").CatChar('-').Cat(org_symb);
@@ -1230,7 +1230,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 										}
 									}
 									else {
-										SPathStruc::GetRelativePath(p_this_part->FileName, 0, p->FileName, 0, line_buf);
+										SFsPath::GetRelativePath(p_this_part->FileName, 0, p->FileName, 0, line_buf);
 									}
 									temp_buf.Cat(line_buf);
 								}
@@ -1609,11 +1609,11 @@ int PPTex2HtmlPrcssr::InitOutput(SFile * pOut, const char * pPartLabel, const ch
 		P.GetExtStrData(Param::exsOutputFileName, output_file_name);
 		if(output_file_name.IsEmpty()) {
 			P.GetExtStrData(Param::exsInputFileName, output_file_name);
-			SPathStruc::ReplaceExt(output_file_name, "html", 1);
+			SFsPath::ReplaceExt(output_file_name, "html", 1);
 			P.PutExtStrData(Param::exsOutputFileName, output_file_name);
 		}
 		if(part_suffix.NotEmpty()) {
-			SPathStruc ps(output_file_name);
+			SFsPath ps(output_file_name);
 			ps.Nam.Cat(part_suffix);
 			ps.Merge(output_file_name);
 		}
@@ -1642,7 +1642,7 @@ int PPTex2HtmlPrcssr::Run()
 	// @v11.8.3 {
 	{
 		P.GetExtStrData(Param::exsInputFileName, temp_buf);
-		SPathStruc ps(temp_buf);
+		SFsPath ps(temp_buf);
 		ps.Nam.CatChar('-').Cat("debug");
 		ps.Ext = "out";
 		ps.Merge(temp_buf);
@@ -1656,12 +1656,12 @@ int PPTex2HtmlPrcssr::Run()
 			P.GetExtStrData(Param::exsOutputFileName, output_file_name);
 			if(output_file_name.IsEmpty()) {
 				P.GetExtStrData(Param::exsInputFileName, output_file_name);
-				SPathStruc::ReplaceExt(output_file_name, "html", 1);
+				SFsPath::ReplaceExt(output_file_name, "html", 1);
 			}
-			SPathStruc ps(output_file_name);
+			SFsPath ps(output_file_name);
 			ps.Ext = "img";
 			ps.Merge(output_file_name);
-			createDir(output_file_name);
+			SFile::CreateDir(output_file_name);
 			P.PutExtStrData(Param::exsOutputPictPath, output_file_name);
 		}
 		PPWaitStart();
@@ -1816,7 +1816,7 @@ int PPTex2Html()
 		param.GetExtStrData(param.exsInputFileName, file_name);
 		prc.SetParam(&param);
 		ok = prc.Run();
-		SPathStruc::ReplaceExt(file_name, "debug", 1);
+		SFsPath::ReplaceExt(file_name, "debug", 1);
 		prc.Debug_Output(file_name);
 	}
 	return ok;
@@ -2409,7 +2409,7 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 					WriteText(f_out, entry_buf);
 					if(P.Flags & Param::fDivide) {
 						SString part_file_name;
-						SPathStruc ps(pOutputFileName);
+						SFsPath ps(pOutputFileName);
 						int    mj, mn, rz;
 						p_entry->Ver.Get(&mj, &mn, &rz);
 						ps.Nam.CatChar('-').CatLongZ(mj, 2).CatLongZ(mn, 2).CatLongZ(rz, 2);
@@ -2555,12 +2555,12 @@ int PPVer2HtmlPrcssr::Run()
 		P.GetExtStrData(Param::exsOutputFileName, out_file_name);
 		{
 			if(!out_file_name.NotEmptyS()) {
-				SPathStruc::ReplaceExt(out_file_name = file_name, "html", 1);
+				SFsPath::ReplaceExt(out_file_name = file_name, "html", 1);
 			}
 			THROW(Output(out_file_name, pict_path));
 		}
 		{
-			SPathStruc::ReplaceExt(out_file_name, "index", 1);
+			SFsPath::ReplaceExt(out_file_name, "index", 1);
 			SString line_buf;
 			SFile  f_out(out_file_name, SFile::mWrite);
 			THROW_SL(f_out.IsValid());
@@ -2571,7 +2571,7 @@ int PPVer2HtmlPrcssr::Run()
 			}
 		}
 		{
-			SPathStruc::ReplaceExt(out_file_name, "out", 1);
+			SFsPath::ReplaceExt(out_file_name, "out", 1);
 			THROW(Debug_Output(out_file_name));
 		}
 	}

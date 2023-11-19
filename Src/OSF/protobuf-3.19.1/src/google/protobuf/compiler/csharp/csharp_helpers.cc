@@ -446,10 +446,10 @@ int GetFixedSize(FieldDescriptor::Type type) {
 	return -1;
 }
 
-static const char base64_chars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char base64_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-std::string StringToBase64(const std::string& input) {
+std::string StringToBase64(const std::string& input) 
+{
 	std::string result;
 	size_t remaining = input.size();
 	const unsigned char * src = (const unsigned char*)input.c_str();

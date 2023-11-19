@@ -345,7 +345,7 @@ public:
 				F.CalcSize(&file_size);
 				if(MaxTransmitSize > 0 && (static_cast<size_t>(file_size) / 1024) > MaxTransmitSize) {
 					SString file_name;
-					SPathStruc sp;
+					SFsPath sp;
 					EndDocument(ok);
 					FilesCount++;
 					file_name = FileName;
@@ -561,7 +561,7 @@ int PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 	Ep.GetExtStrData(Ep.extssClientCode, client_code);
 	{
 		SString wc_path;
-		SPathStruc sp;
+		SFsPath sp;
 		static const char * p_fn_to_remove[] = { "spprice", "sprest", "spbills", "spbills1", "spbills2", "spdlvadr" };
 		for(uint fntridx = 0; fntridx < SIZEOFARRAY(p_fn_to_remove); fntridx++) {
 			SDirEntry sde;
@@ -570,7 +570,7 @@ int PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 			sp.Nam.CatChar('*');
 			sp.Ext = "xml";
 			sp.Merge(temp_buf);
-			sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, wc_path);
+			sp.Merge(0, SFsPath::fNam|SFsPath::fExt, wc_path);
 			for(SDirec sd(temp_buf); sd.Next(&sde) > 0;) {
 				sde.GetNameA(wc_path, temp_buf);
 				SFile::Remove(temp_buf.cptr());
@@ -761,7 +761,7 @@ int PPSupplExchange_Baltika::ExportRestParties()
 		file_name = path;
 		if(i > 0) {
 			files_count++;
-			SPathStruc sp(file_name);
+			SFsPath sp(file_name);
 			sp.Nam.Cat(files_count);
 			sp.Merge(file_name);
 		}
@@ -931,7 +931,7 @@ int PPSupplExchange_Baltika::ExportRest()
 		file_name = path;
 		if(i > 0) {
 			files_count++;
-			SPathStruc sp(file_name);
+			SFsPath sp(file_name);
 			sp.Nam.Cat(files_count);
 			sp.Merge(file_name);
 		}
@@ -1102,7 +1102,7 @@ int PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 		SString client_code;
 		PPIniFile ini_file(0, 0, 0, 1);
 		PPGetFilePath(PPPATH_OUT, "sprest.xml", file_name);
-		SPathStruc sp(file_name);
+		SFsPath sp(file_name);
 		sp.Nam.Cat(filesIdx);
 		sp.Merge(file_name);
 
@@ -4908,7 +4908,7 @@ int iSalesPepsi::SendInvoices()
     }
 	if(LogFileName.NotEmpty()) {
 		SString dump_file_name;
-		SPathStruc ps(LogFileName);
+		SFsPath ps(LogFileName);
 		ps.Nam.CatChar('-').Cat("dump").CatChar('-').Cat("invoices");
 		ps.Merge(dump_file_name);
 		SFile f_out_log(dump_file_name, SFile::mWrite);
@@ -9403,7 +9403,7 @@ public:
 			(dest_root = remote_addr).SetLastDSlash();
 			for(uint ssp = 0; rFileNameSet.get(&ssp, file_name);) {
 				if(fileExists(file_name)) {
-					SPathStruc ps(file_name);
+					SFsPath ps(file_name);
 					uftp.SrcPath = file_name;
 					const char * p_pfx = 0;
 					for(uint pidx = 0; !p_pfx && pidx < SIZEOFARRAY(pp_pfx_list); pidx++) {
@@ -10740,7 +10740,7 @@ public:
 			for(uint ssp = 0; rFileNameSet.get(&ssp, file_name);) {
 				if(fileExists(file_name)) {
 					// inbox/89041
-					SPathStruc ps(file_name);
+					SFsPath ps(file_name);
 					uftp.SrcPath = file_name;
 					(uftp.DestPath = dest_root).SetLastDSlash().Cat("inbox");
 					if(cli_code.NotEmpty())
@@ -11485,7 +11485,7 @@ int PrcssrSupplInterchange::Run()
 									if(temp_buf.NotEmpty()) {
 										temp_buf.SetLastSlash().Cat("wbd-ord-email");
 										const SString src_path(temp_buf);
-										if(createDir(src_path)) {
+										if(SFile::CreateDir(src_path)) {
 											cli.GetOrderFilesFromMailServer(inetacc_pack.ID, src_path, 0/*deleMsg*/);
 											(temp_buf = src_path).SetLastSlash().Cat("*.csv");
 											SDirEntry sde;

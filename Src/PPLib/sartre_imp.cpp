@@ -632,7 +632,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 		THROW(rParam.GetField(rParam.fldFlexiaModelFileName, temp_buf) > 0);
 		THROW(fm_file.Open(temp_buf, SFile::mRead));
 		if(rParam.Flags & rParam.fTest) {
-			SPathStruc::ReplaceExt(temp_buf, "out", 1);
+			SFsPath::ReplaceExt(temp_buf, "out", 1);
 			test_out_file.Open(temp_buf, SFile::mWrite);
 		}
 		//
@@ -2983,7 +2983,7 @@ int PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 			genus_list.sortAndUndup();
 			{
 				sht.BuildAssoc();
-				SPathStruc ps(pFileName);
+				SFsPath ps(pFileName);
 				ps.Nam.CatChar('-').Cat("stat");
 				ps.Merge(temp_buf);
 				SFile f_out(temp_buf, SFile::mWrite);
@@ -3090,7 +3090,7 @@ int PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSymb, co
 	SString src_file_name;
 	(src_file_name = P.SrcPath).SetLastSlash().Cat(pFileName); // utf-8
 	//
-	SPathStruc ps(src_file_name);
+	SFsPath ps(src_file_name);
 	ps.Nam.CatChar('-').Cat(pExchangeSymb);
 	ps.Ext = "txt";
 	ps.Merge(temp_buf);
@@ -3367,7 +3367,7 @@ int PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSymb, co
 				industry_list.sortAndUndup();
 				{
 					sht.BuildAssoc();
-					SPathStruc ps(src_file_name);
+					SFsPath ps(src_file_name);
 					ps.Nam.CatChar('-').Cat("stat");
 					ps.Merge(temp_buf);
 					SFile f_out(temp_buf, SFile::mWrite);
@@ -6200,7 +6200,7 @@ int PrcssrSartre::UED_Import_Scripts() // @v11.7.7
 					for(SDirec sd(temp_buf); sd.Next(&de) > 0;) {
 						if(!de.IsSelf() && !de.IsUpFolder() && (de.IsFolder() || de.IsFile())) {
 							de.GetNameA(file_name, temp_buf);
-							SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot, path_buf);
+							SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, path_buf);
 							poblk.Import(path_buf, 0, 0);
 						}
 					}

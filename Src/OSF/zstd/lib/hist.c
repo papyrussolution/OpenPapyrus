@@ -27,7 +27,7 @@ uint HIST_isError(size_t code) { return ERR_isError(code); }
 // 
 uint HIST_count_simple(uint * count, uint * maxSymbolValuePtr, const void * src, size_t srcSize)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	const BYTE * const end = ip + srcSize;
 	uint maxSymbolValue = *maxSymbolValuePtr;
 	uint largestCount = 0;

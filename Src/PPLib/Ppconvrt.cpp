@@ -230,7 +230,7 @@ int PPTableConversion::Convert()
 	if(need_conversion) {
 		SString ext_str, new_path, file_path;
 		SString old_fname_to_convert; // Имя файла, который мы будет открывать для конвертации.
-		SPathStruc path_struc;
+		SFsPath path_struc;
 		THROW(DS.GetSync().LockDB());
 		db_locked = 1;
 		SString tbl_name(p_tbl->GetTableName());
@@ -241,12 +241,12 @@ int PPTableConversion::Convert()
 		path_struc.Split(file_name);
 		if(_BakPath.IsEmpty() || !::fileExists(_BakPath)) {
 			for(i = 1; i < 100000; i++) {
-				SPathStruc ps2;
-				ps2.Copy(&path_struc, SPathStruc::fDrv|SPathStruc::fDir);
+				SFsPath ps2;
+				ps2.Copy(&path_struc, SFsPath::fDrv|SFsPath::fDir);
 				ps2.Dir.SetLastSlash().Cat("CVT").CatLongZ((long)i, 5);
 				ps2.Merge(temp_buf);
 				if(!fileExists(temp_buf)) {
-					THROW_SL(::createDir(temp_buf));
+					THROW_SL(SFile::CreateDir(temp_buf));
 					_BakPath = temp_buf;
 					break;
 				}
@@ -273,7 +273,7 @@ int PPTableConversion::Convert()
 			}
 			for(i = 0; i < to_copy_pos_list.getCount(); i++) {
 				THROW_SL(tpl.Get(to_copy_pos_list.get(i), tpe));
-				SPathStruc::ReplacePath(temp_buf = tpe.Path, _BakPath, 1);
+				SFsPath::ReplacePath(temp_buf = tpe.Path, _BakPath, 1);
 				THROW_SL(SFile::Rename(tpe.Path, temp_buf));
 				moved_pos_list.add(i);
 				if(!(tpe.Flags & tpl.fBu) && tpe.Flags & tpl.fMain) {
@@ -328,7 +328,7 @@ int PPTableConversion::Convert()
 		//
 		for(i = 0; i < moved_pos_list.getCount(); i++) {
 			tpl.Get(moved_pos_list.get(i), tpe);
-			SPathStruc::ReplacePath(temp_buf = tpe.Path, _BakPath, 1);
+			SFsPath::ReplacePath(temp_buf = tpe.Path, _BakPath, 1);
 			SFile::Remove(tpe.Path);
 			SFile::Rename(temp_buf, tpe.Path);
 		}
@@ -6067,7 +6067,7 @@ int ConvertWorkbook813()
 		PPWorkbook rec_pre;
 		SString file_name, temp_file_name; //, temp_path;
 		PPIDArray id_list;
-		SPathStruc ps;
+		SFsPath ps;
 		PPWaitStart();
 		//PPGetPath(PPPATH_TEMP, temp_path);
 		PPTransaction tra(1);

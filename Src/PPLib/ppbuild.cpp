@@ -565,7 +565,7 @@ int PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supple
 							for(uint ssp = 0; result_file_list.get(&ssp, name_buf);) {
 								(temp_buf = pCfgEntry->TargetRootPath).SetLastSlash().Cat("BIN").SetLastSlash().Cat(name_buf);
 								if(fileExists(temp_buf)) {
-									SPathStruc ps(temp_buf);
+									SFsPath ps(temp_buf);
 									ps.Nam.Cat("-xp");
 									ps.Merge(supplement_file_name);
 									if(!SCopyFile(temp_buf, supplement_file_name, 0, FILE_SHARE_READ, 0)) {
@@ -658,9 +658,9 @@ int	PrcssrBuild::Run()
 			(distrib_path = p_config_entry->DistribPath).SetLastSlash().Cat(sub_path);
 			_c++;
 		} while(fileExists(distrib_path));
-		THROW(::createDir(distrib_path));
+		THROW(SFile::CreateDir(distrib_path));
 		(distrib_src_path = p_config_entry->DistribPath).SetLastSlash().Cat("SRC").SetLastSlash().Cat(sub_path);
-		THROW(::createDir(distrib_src_path));
+		THROW(SFile::CreateDir(distrib_src_path));
 		//
 		(temp_buf = p_config_entry->RootPath).SetLastSlash().Cat("ManWork").SetLastSlash().Cat("LaTex").SetLastSlash().Cat("ppmanual.pdf");
 		STRNSCPY(nsis_list[4].FileName, temp_buf);
@@ -796,7 +796,7 @@ int PrcssrBuild::BuildLocalDl600(const char * pPath)
 		SString cmd_line;
 		SString cur_dir;
 		SString fmt_buf, msg_buf;
-		SPathStruc ps;
+		SFsPath ps;
 		STARTUPINFO si;
 		DWORD exit_code = 0;
 		PROCESS_INFORMATION pi;
@@ -818,7 +818,7 @@ int PrcssrBuild::BuildLocalDl600(const char * pPath)
 		THROW(fileExists(src_file_name));
 		{
 			ps.Split(src_file_name);
-			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, cur_dir);
+			ps.Merge(SFsPath::fDrv|SFsPath::fDir, cur_dir);
 		}
 		cmd_line.Space().Cat("/ob").Space().CatQStr(src_file_name);
 		PPLoadText(PPTXT_BUILD_LOCALDL600, fmt_buf);
@@ -839,12 +839,12 @@ int PrcssrBuild::BuildLocalDl600(const char * pPath)
 				SString result_file_name;
                 SString dest_file_name;
 				result_file_name = src_file_name;
-				SPathStruc::ReplaceExt(result_file_name, "bin", 1);
+				SFsPath::ReplaceExt(result_file_name, "bin", 1);
 				THROW_SL(fileExists(result_file_name));
                 PPGetFilePath(PPPATH_BIN, "ppexp.bin", dest_file_name);
                 if(fileExists(dest_file_name)) {
 					SString backup_file_name = dest_file_name;
-					SPathStruc::ReplaceExt(backup_file_name, "bin-backup", 1);
+					SFsPath::ReplaceExt(backup_file_name, "bin-backup", 1);
 					if(fileExists(backup_file_name))
 						SFile::Remove(backup_file_name);
 					THROW_SL(SFile::Rename(dest_file_name, backup_file_name));
@@ -907,7 +907,7 @@ int ParseWinRcForNativeText()
 	{
 		SFile  f_in(src_file_name, SFile::mRead);
 		if(f_in.IsValid()) {
-			SPathStruc ps(src_file_name);
+			SFsPath ps(src_file_name);
 			ps.Nam.CatChar('-').Cat("nativetext");
 			ps.Ext = "tsv";
 			ps.Merge(temp_buf);

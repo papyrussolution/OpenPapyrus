@@ -323,7 +323,7 @@ int GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDestDir, 
 		SString src_path, dest_path;
 		SString    ext;
 		StrAssocArray::Item file_item = file_list.Get(i);
-		SPathStruc sp(file_item.Txt);
+		SFsPath sp(file_item.Txt);
 		ext.Dot().Cat(sp.Ext);
 		(src_path = src_dir).Cat(file_item.Txt);
 		(dest_path = dest_dir).Cat(file_item.Txt);
@@ -466,7 +466,7 @@ static int PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileList, PP
 	SString dest_path;
 	SString file_path;
 	SString file_name;
-	SPathStruc ps;
+	SFsPath ps;
 	WinInetFTP ftp;
 	PPObjInternetAccount obj_acct;
 	PPInternetAccount acct;
@@ -485,7 +485,7 @@ static int PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileList, PP
 	for(i = 0; i < pFileList->GetCount(); i++) {
 		if(pFileList->Get(i, 0, &file_path)) {
 			ps.Split(file_path);
-			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
 			(dest_path = dest_dir).Cat(file_name);
 			THROW(ftp.SafePut(file_path, dest_path, 0, CallbackFTPTransfer, 0));
 		}
@@ -655,7 +655,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 				// @v11.7.10 char   ext[16];
 				// @v11.7.10 fnsplit(src, &drive, 0, 0, ext);
 				// @v11.7.10 {
-				SPathStruc ps(src); 
+				SFsPath ps(src); 
 				if(ps.Drv.NotEmpty() && ps.Drv.Len() == 1 && isasciialpha(ps.Drv.C(0)))
 					drive = ps.Drv.C(0);
 				// } @v11.7.10 
@@ -675,7 +675,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 				THROW_PP_S(::access(src, 0) == 0, PPERR_NEXISTPATH, src);
 				if(::access(dest, 0) != 0) {
 					PPSetAddedMsgString(dest);
-					THROW_SL(createDir(dest));
+					THROW_SL(SFile::CreateDir(dest));
 				}
 				{
 					//
@@ -685,7 +685,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 					for(i = 0; i < fep.GetCount(); i++) {
 						if(fep.Get(i, &fe, &file_path)) {
 							PPWaitMsg(fe.Name);
-							SPathStruc::ReplacePath(dest_dir = file_path, dest, 1);
+							SFsPath::ReplacePath(dest_dir = file_path, dest, 1);
 							if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
 								THROW_SL(copyFileByName(file_path, dest_dir));
 							}
@@ -746,7 +746,7 @@ static int PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDe
 	SString file_path;
 	uint   i;
 	SFileEntryPool::Entry fe;
-	SPathStruc ps(pDestPath);
+	SFsPath ps(pDestPath);
 	PPSetAddedMsgString(pDestPath);
 	THROW_PP_S(driveValid(pDestPath), PPERR_NEXISTPATH, pDestPath);
 	removable_drive = (ps.Drv.Len() == 1) ? IsRemovableDrive(ps.Drv.C(0)) : 0;
@@ -768,7 +768,7 @@ static int PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDe
 	THROW_PP(access(src_dir, 0) == 0, PPERR_NEXISTPATH);
 	PPSetAddedMsgString(dest_dir);
 	if(access(dest_dir, 0) != 0)
-		THROW_SL(createDir(dest_dir));
+		THROW_SL(SFile::CreateDir(dest_dir));
 	THROW_PP(::access(dest_dir, 2) == 0, PPERR_DIRACCESSDENIED_W);
 	if(trnsmFlags & TRNSMF_DELOUTFILES)
 		PPRemoveFilesByExt(pDestPath, PPConst::FnExt_PPS, 0, 0);
@@ -779,7 +779,7 @@ static int PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDe
 	for(i = 0; i < pFileList->GetCount(); i++) {
 		if(pFileList->Get(i, &fe, &file_path)) {
 			PPWaitMsg(fe.Name);
-			SPathStruc::ReplacePath(dest_dir = file_path, pDestPath, 1);
+			SFsPath::ReplacePath(dest_dir = file_path, pDestPath, 1);
 			THROW_SL(copyFileByName(file_path, dest_dir));
 		}
 	}
@@ -887,8 +887,8 @@ int PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 								props.Encoding = SEncodingFormat::Unkn;
 								props.Priority = 0;
 								props.TimeStamp = getcurdatetime_();
-								SPathStruc ps(file_name);
-								ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+								SFsPath ps(file_name);
+								ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 								
 								ObjTransmMqProps otmp;
 								otmp.FileName = temp_buf;
@@ -942,7 +942,7 @@ int RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * pHdr, i
 	if(pFile && (pHdr || remove)) {
 		char   buf[4096];
 		dest_file_name = pFile;
-		SPathStruc::ReplaceExt(dest_file_name, "$$$", 1);
+		SFsPath::ReplaceExt(dest_file_name, "$$$", 1);
 		THROW_PP_S(p_in_stream = fopen(pFile, "rb"), PPERR_PPOSOPENFAULT, pFile);
 		THROW_PP_S(p_out_stream = fopen(dest_file_name, "wb"), PPERR_PPOSOPENFAULT, dest_file_name);
 		if(!remove) {
@@ -987,7 +987,7 @@ int PackTransmitFile(const char * pFileName, int pack, PercentFunc callbackProc)
 		}
 		THROW(RemovePPSHeader(pFileName, 0, 1));
 		dest_file = pFileName;
-		SPathStruc::ReplaceExt(dest_file, "__", 1);
+		SFsPath::ReplaceExt(dest_file, "__", 1);
 		rmv_temp_file = 1;
 		THROW_SL(DoCompress(pFileName, dest_file, 0, pack, callbackProc)); // @todo Переделать на нормальное сжатие (libzip)
 		THROW_SL(SFile::Remove(pFileName));
@@ -1045,7 +1045,7 @@ int PPBackupOperationFile(const char * pFileName, const char * pFolderName, long
 	long   n = 0;
 	SString src_file_name;
 	SString src_file_ext;
-	SPathStruc ps(pFileName);
+	SFsPath ps(pFileName);
 	src_file_name = ps.Nam;
 	src_file_ext = ps.Ext;
 	if(!use_arc) {
@@ -1053,7 +1053,7 @@ int PPBackupOperationFile(const char * pFileName, const char * pFolderName, long
 		ps.Nam = isempty(pFolderName) ? "operation-backup" : pFolderName;
 		ps.Ext.Z();
 		ps.Merge(backup_path);
-		THROW_SL(createDir(backup_path));
+		THROW_SL(SFile::CreateDir(backup_path));
 		{
 			int   _found = 0;
 			SString to_backup_name;

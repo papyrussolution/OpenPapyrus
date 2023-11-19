@@ -323,7 +323,7 @@ skip_to_init:
 			case EVP_CIPH_OFB_MODE:
 
 			    ctx->num = 0;
-			/* fall-through */
+			// @fallthrough
 
 			case EVP_CIPH_CBC_MODE:
 			    n = EVP_CIPHER_CTX_get_iv_length(ctx);

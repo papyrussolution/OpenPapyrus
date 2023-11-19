@@ -489,8 +489,8 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	}
 	else {
 		SString temp_buf;
-		SPathStruc ps(_file_name);
-		SPathStruc ps_temp;
+		SFsPath ps(_file_name);
+		SFsPath ps_temp;
 		if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 			PPGetPath(PPPATH_OUT, temp_buf);
 			ps_temp.Split(temp_buf);
@@ -575,7 +575,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 		const int url_prot = (urlpr > 0) ? url.GetProtocol() : 0;
 		{
 			SString temp_buf;
-			SPathStruc ps;
+			SFsPath ps;
 			if(url_prot > 0) {
 				url.GetComponent(InetUrl::cPath, 0, temp_buf);
 				ps.Split(temp_buf);
@@ -617,7 +617,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 			}
 		}
 		//THROW(GetFilesFromSource(wildcard, 0));
-		//ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);*/
+		//ps.Merge(0, SFsPath::fNam|SFsPath::fExt, path);*/
 	}
 	//rList.Scan(path, wildcard);
     if(rList.getCount())
@@ -630,7 +630,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 {
 	rResultList.Z();
 	int    ok = 1;
-	SPathStruc ps(FileName);
+	SFsPath ps(FileName);
 	SString templ = ps.Nam;
 	ps.Split(rFileName);
 	SString name = ps.Nam;
@@ -2267,7 +2267,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 		if(mode != 2 && bill_ident.IsEmpty()) { // нет сопоставления для строки документа
 			SString msg, file_name, goods_info, word;
 			pImpExp->GetFileName(file_name);
-			SPathStruc sp(file_name);
+			SFsPath sp(file_name);
 			(file_name = sp.Nam).Dot().Cat(sp.Ext);
 			PPLoadText(PPTXT_BROWLINKNOTFOUND, temp_buf);
 			if(brow_.Barcode[0]) {
@@ -2564,7 +2564,7 @@ int PPBillImporter::ReadData()
 	SString err_msg, path, wildcard, filename, temp_buf;
 	StringSet ss_files;
 	Sdr_Bill bill;
-	SPathStruc ps;
+	SFsPath ps;
 	const int  h_r_eq_f = (BillParam.DataFormat == BRowParam.DataFormat) ? BillParam.DataFormat : -1;
 	const bool imp_rows_from_same_file = (BillParam.Flags & PPBillImpExpParam::fImpRowsFromSameFile && oneof4(h_r_eq_f, PPImpExpParam::dfText, PPImpExpParam::dfDbf, PPImpExpParam::dfExcel, PPImpExpParam::dfXml));
 	const bool imp_rows_only = (imp_rows_from_same_file && BillParam.Flags & PPBillImpExpParam::fImpExpRowsOnly);
@@ -2729,7 +2729,7 @@ int PPBillImporter::ReadData()
 				{
 					SString fn_for_hash;
 					ps.Split(filename);
-					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, fn_for_hash);
+					ps.Merge(SFsPath::fNam|SFsPath::fExt, fn_for_hash);
 					fn_for_hash.Strip().ToLower();
 					LDATE last_date = ZERODATE;
 					SString last_code;
@@ -5186,8 +5186,8 @@ private:
 			SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SIGNBILL_SIGNFILE));
 			if(p_list) {
 				p_list->getCurString(SignFileName.Z());
-				SPathStruc spath(FileName);
-				SPathStruc sign_spath(SignFileName);
+				SFsPath spath(FileName);
+				SFsPath sign_spath(SignFileName);
 				spath.Nam = sign_spath.Nam;
 				spath.Ext = sign_spath.Ext;
 				spath.Merge(SignFileName);
@@ -6088,7 +6088,7 @@ int DocNalogRu_Generator::MakeOutFileIdent(FileInfo & rHi)
 int DocNalogRu_Generator::MakeOutFileName(const char * pFileIdent, SString & rFileName)
 {
 	int    ok = 1;
-	SPathStruc ps(rFileName);
+	SFsPath ps(rFileName);
 	SFileFormat::GetExt(SFileFormat::Xml, ps.Ext);
 	ps.Nam = pFileIdent;
 	ps.Merge(rFileName);

@@ -1,5 +1,5 @@
 // ALBATROS.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -272,14 +272,14 @@ PPAlbatrossConfig & PPAlbatrossConfig::Z()
 int PPAlbatrossConfig::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
 int PPAlbatrossConfig::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
 
-#define UHTT_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
+// @v11.8.11 (moved to PPConst) #define UHTT_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
 
 int PPAlbatrossConfig::SetPassword(int fld, const char * pPassword)
 {
 	int    ok = 1;
 	SString temp_buf;
 	if(oneof4(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISDOCTPASSW, ALBATROSEXSTR_MQC_SECRET)) {
-		Reference::Helper_EncodeOtherPw(0, pPassword, UHTT_PW_SIZE, temp_buf/*UhttPassword*/);
+		Reference::Helper_EncodeOtherPw(0, pPassword, PPConst::PwSize_UHTT, temp_buf/*UhttPassword*/);
 		PutExtStrData(fld, temp_buf);
 	}
 	else
@@ -294,7 +294,7 @@ int PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 	SString temp_buf;
 	if(oneof4(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISDOCTPASSW, ALBATROSEXSTR_MQC_SECRET)) {
 		GetExtStrData(fld, temp_buf);
-		Reference::Helper_DecodeOtherPw(0, temp_buf/*UhttPassword*/, UHTT_PW_SIZE, rPw);
+		Reference::Helper_DecodeOtherPw(0, temp_buf/*UhttPassword*/, PPConst::PwSize_UHTT, rPw);
 	}
 	else
 		ok = -1;
@@ -997,7 +997,7 @@ int AlbatrosTagParser::SaveTagVal(const char * pTag)
 	memzero(buf, sizeof(buf));
 	if(PPSearchSubStr(TagNamesStr, &tag_idx, pTag, ALBATROS_MAXTAGSIZE) > 0) {
 		if(P_TagValBuf && strip(P_TagValBuf)[0] != 0)
-			decode64(P_TagValBuf, sstrlen(P_TagValBuf), buf, 0);
+			Base64_Decode(P_TagValBuf, sstrlen(P_TagValBuf), buf, 0);
 		SCharToOem(buf);
 		switch(tag_idx) {
 			// if get head items

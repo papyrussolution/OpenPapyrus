@@ -1132,7 +1132,7 @@ int PrcssrDL200::InitOutput()
 	path.SetLastSlash().CatLongZ(DS.GetTLA().PrnDirId, 8);
 	OutPath = path;
 	if(::access(path, 0) != 0) {
-		THROW_SL(createDir(path));
+		THROW_SL(SFile::CreateDir(path));
 		THROW(__CopyFileByPath(packpath, path, BDictionary::DdfTableFileName));
 		THROW(__CopyFileByPath(packpath, path, BDictionary::DdfFieldFileName));
 		THROW(__CopyFileByPath(packpath, path, BDictionary::DdfIndexFileName));
@@ -1241,7 +1241,7 @@ int DL200_ParamDialog::getSelectedFileName(char * pBuf, size_t bufLen)
 		if(fname[0]) {
 			SString path;
 			PPGetPath(PPPATH_DD, path);
-			SPathStruc::ReplaceExt(path.SetLastSlash().Cat(fname), "BIN", 0);
+			SFsPath::ReplaceExt(path.SetLastSlash().Cat(fname), "BIN", 0);
 			path.CopyTo(pBuf, bufLen);
 			return 1;
 		}

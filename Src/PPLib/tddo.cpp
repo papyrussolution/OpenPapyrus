@@ -46,17 +46,17 @@
 	SString path, result;
 	rResult = pFileName;
 	if(fileType == ftTddo)
-		SPathStruc::ReplaceExt(rResult, "tddo", 0);
+		SFsPath::ReplaceExt(rResult, "tddo", 0);
 	else if(fileType == ftTddt)
-		SPathStruc::ReplaceExt(rResult, "tddt", 0);
+		SFsPath::ReplaceExt(rResult, "tddt", 0);
 	{
 		SString preserve_result = rResult;
 		if(pInputFileName) {
-			SPathStruc ps(pInputFileName);
-			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
+			SFsPath ps(pInputFileName);
+			ps.Merge(SFsPath::fDrv|SFsPath::fDir, path);
 		}
 		if(path.NotEmptyS()) {
-			SPathStruc::ReplacePath(rResult, path, 0);
+			SFsPath::ReplacePath(rResult, path, 0);
 			if(fileExists(rResult))
 				ok = 1;
 		}
@@ -64,7 +64,7 @@
 			PPIniFile ini_file;
 			ini_file.Get(PPINISECT_PATH, PPINIPARAM_TDDOPATH, path);
 			if(path.NotEmptyS()) {
-				SPathStruc::ReplacePath(rResult, path, 0);
+				SFsPath::ReplacePath(rResult, path, 0);
 				if(fileExists(rResult))
 					ok = 1;
 			}
@@ -72,7 +72,7 @@
 		if(!ok) {
 			PPGetPath(PPPATH_DD, path);
 			if(path.NotEmptyS()) {
-				SPathStruc::ReplacePath(rResult, path, 0);
+				SFsPath::ReplacePath(rResult, path, 0);
 				if(fileExists(rResult))
 					ok = 1;
 			}
@@ -580,20 +580,20 @@ int Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result & rR)
 	}
 	else if(rText == "__FILEDIR__") {
 		if(InputFileName.NotEmpty()) {
-			SPathStruc ps(InputFileName);
-			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rR.S);
+			SFsPath ps(InputFileName);
+			ps.Merge(SFsPath::fDrv|SFsPath::fDir, rR.S);
 			rR.S.SetLastSlash();
 		}
 	}
 	else if(rText == "__FILENAME__") {
 		if(InputFileName.NotEmpty()) {
-			SPathStruc ps(InputFileName);
+			SFsPath ps(InputFileName);
 			rR.S = ps.Nam;
 		}
 	}
 	else if(rText == "__FILEEXT__") {
 		if(InputFileName.NotEmpty()) {
-			SPathStruc ps(InputFileName);
+			SFsPath ps(InputFileName);
 			rR.S = ps.Ext;
 		}
 	}

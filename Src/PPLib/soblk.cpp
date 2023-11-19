@@ -1,5 +1,5 @@
 // SOBLK.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -533,9 +533,9 @@ int SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 		THROW(P_CsObj->P_Cc->Cards.Search(rHdr.SCardID, &sc_rec) > 0);
 		THROW(scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0);
 	}
-	THROW(IsValidIEEE(rHdr.Amount));
+	THROW(SIEEE754::IsValid(rHdr.Amount));
 	THROW(rHdr.Amount >= 0.0);
-	THROW(IsValidIEEE(rHdr.Discount));
+	THROW(SIEEE754::IsValid(rHdr.Discount));
 	THROW_SL(checkdate(rHdr.Dtm.d, 1));
 	{
 		PPTransaction tra(1);

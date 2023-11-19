@@ -1229,8 +1229,8 @@ int WsCtl_SessionFrame::LaunchProcess(const WsCtl_ProgramEntry * pPe)
 		SlProcess::Result result;
 		SlProcess proc;
 		proc.SetPath(pPe->FullResolvedPath);
-		SPathStruc ps(pPe->FullResolvedPath);
-		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+		SFsPath ps(pPe->FullResolvedPath);
+		ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
 		proc.SetWorkingDir(temp_buf);
 		proc.SetFlags(SlProcess::fLogonWithProfile);
 		if(/*H_UserToken*/false) {

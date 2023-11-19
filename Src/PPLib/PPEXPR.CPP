@@ -556,7 +556,7 @@ int PPExprParser::GetSieve()
 				}
 				SString file_name;
 				PPGetFilePath(PPPATH_DD, left, file_name);
-				SPathStruc::ReplaceExt(file_name, "tab", 0);
+				SFsPath::ReplaceExt(file_name, "tab", 0);
 				STab tab;
 				STab::Row row;
 				STabFile f(file_name, 0);

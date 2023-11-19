@@ -65,8 +65,7 @@ static const uchar decodetable[] =
  *
  * @unittest: 1302
  */
-CURLcode Curl_base64_decode(const char * src,
-    uchar ** outptr, size_t * outlen)
+CURLcode Curl_base64_decode(const char * src, uchar ** outptr, size_t * outlen)
 {
 	size_t srclen = 0;
 	size_t padding = 0;
@@ -77,11 +76,9 @@ CURLcode Curl_base64_decode(const char * src,
 	uchar * pos;
 	uchar * newstr;
 	uchar lookup[256];
-
 	*outptr = NULL;
 	*outlen = 0;
 	srclen = strlen(src);
-
 	/* Check the length of the input string is valid */
 	if(!srclen || srclen % 4)
 		return CURLE_BAD_CONTENT_ENCODING;

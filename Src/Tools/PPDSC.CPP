@@ -186,7 +186,7 @@ int main(int argc, char * argv[])
 	}
 	else {
 		in_fname = argv[1];
-		SPathStruc::ReplaceExt(in_fname, "ds", 0);
+		SFsPath::ReplaceExt(in_fname, "ds", 0);
 		if(!fileExists(in_fname)) {
 			printf("Error: input file %s not found\n", in_fname.cptr());
 			ok = 0;
@@ -194,19 +194,19 @@ int main(int argc, char * argv[])
 		else {
 			if(argc >= 3) {
 				rc_fname = argv[2];
-				SPathStruc::ReplaceExt(rc_fname, "rc", 0);
+				SFsPath::ReplaceExt(rc_fname, "rc", 0);
 			}
 			else {
 				rc_fname = in_fname;
-				SPathStruc::ReplaceExt(rc_fname, "rc", 1);
+				SFsPath::ReplaceExt(rc_fname, "rc", 1);
 			}
 			if(argc >= 4) {
 				h_fname = argv[3];
-				SPathStruc::ReplaceExt(h_fname, "h", 0);
+				SFsPath::ReplaceExt(h_fname, "h", 0);
 			}
 			else {
 				h_fname = in_fname;
-				SPathStruc::ReplaceExt(h_fname, "h", 1);
+				SFsPath::ReplaceExt(h_fname, "h", 1);
 			}
 		}
 	}

@@ -31,7 +31,7 @@
 // __os_abspath --
 // Return if a path is an absolute path.
 //
-/* @v11.7.10 (replaced with SPathStruc::IsWindowsPathPrefix) int __os_abspath_Removed(const char * path)
+/* @v11.7.10 (replaced with SFsPath::IsWindowsPathPrefix) int __os_abspath_Removed(const char * path)
 {
 	//
 	// !!!

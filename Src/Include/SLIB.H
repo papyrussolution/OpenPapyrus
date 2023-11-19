@@ -235,6 +235,7 @@
 	#include <system_error>
 	#include <forward_list>
 	#include <numeric>
+	#include <optional>
 #endif
 #ifndef RC_INVOKED
 	#include <sl-packing-reset.h>
@@ -1319,30 +1320,6 @@ class  S_GUID;
 //
 class SlConst { // @v11.7.4 SlConstParam-->SlConst
 public:
-	//SlConstParam() :
-		//VectorImageMask(0x00008000U),
-		//Ssc_CompressionSignature(0xFDB975312468ACE0ULL),
-		//WaitableObjCheckTimeout(1 * 60 * 1000),
-		//SUiLayoutSignature(0x28785EB8U),
-		//ListBoxDefSignature_INVALID(0x00000000),  // Invalid (destroyed) instance
-		//ListBoxDefSignature_DEFAULT(0x1234ABCD),  // Instance of base class ListBoxDef or subclass hasn't own Sign
-		//ListBoxDefSignature_STD(0xABCD0001),      // StdListBoxDef
-		//ListBoxDefSignature_STRASSOC(0xABCD0002), // StrAssocListBoxDef
-		//ListBoxDefSignature_STDTREE(0xABCD0003),  // StdTreeListBoxDef
-		//ListBoxDefSignature_STRING(0xABCD0004),   // StringListBoxDef
-		//ListBoxDefSignature_DBQ(0xABCD0005),      // DBQListBoxDef
-		//ListBoxDefSignature_STDTREE2(0xABCD0006), // StdTreeListBoxDef2
-		//MagicHashPrime32(2654435761U)/*0x9e3779b1*/, // Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
-		//GoldenRatioInt32(2654435769U)/*0x9e3779b9*/, // The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
-		//MagicMurmurC1(0xcc9e2d51U), // @v11.4.0 Magic number C1 for 32-bit hashing from Murmur3
-		//MagicMurmurC2(0x1b873593U)  // @v11.4.0 Magic number C2 for 32-bit hashing from Murmur3
-	//{}
-
-//#define DEFAULT_BIN_DATE_FORMAT   DF_BTRIEVE
-//#define DEFAULT_TXT_DATE_FORMAT   DATF_GERMAN
-//#define DEFAULT_OVERFLOW_SYMB     '#'
-//#define DEFAULT_PASSWORD_SYMB     '*'
-
 	static constexpr long DefaultBinDateFormat = DF_BTRIEVE;
 	static constexpr long DefaultTxtDateFormat = DATF_GERMAN;
 	static constexpr char DefaultOverflowSymb  = '#';
@@ -1382,6 +1359,8 @@ public:
 	static constexpr uint64 Epoch1600_1970_Offs_s     = 11644473600ULL;        // Number of second units from 1/1/1601 to 1/1/1970
 	static constexpr uint64 Epoch1600_1970_Offs_Mks   = 11644473600000000ULL;  // Number of microsecond units from 1/1/1601 to 1/1/1970
 	static constexpr uint64 Epoch1600_1970_Offs_100Ns = 116444736000000000ULL; // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
+	static constexpr int    DaysPer4Years   = 1461;   // @v11.8.11
+	static constexpr int    DaysPer400Years = 146097; // @v11.8.11
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
 //
@@ -4284,6 +4263,13 @@ public:
 	//   >0 - смещение от начала строки, на котором закончился успешный разбор диапазона.
 	//
 	int    ToIntRange(IntRange & rRange, long flags) const;
+	//
+	// Descr: Копирует подстроку [startPos..startPos+len] в буфер rBuf.
+	//   Если startPos+len превышает длину строки this, то копируем максимально возможное число символов до конца строки.
+	//   Если startPos >= this->Len(), то обнуляет буфер rBuf ничего в него не копируя.
+	// Returns:
+	//   rBuf
+	//
 	SString & Sub(size_t startPos, size_t len, SString & rBuf) const;
 	SString & Fmt(long fmt);
 	SString & TrimRight();
@@ -4949,7 +4935,7 @@ struct SSearchReplaceParam {
 // Descr: Класс, обеспечивающий функционал разбора и сборки текстовых представлений путей в файловой системе.
 //   Несколько статических функций обеспечивают сервисные потребности.
 //
-struct SPathStruc {
+struct SFsPath {
 	//
 	// Descr: Находит расширение имени файла rPath и возвращает его по указателю pExt (если тот не нулевой).
 	// Returns:
@@ -4966,7 +4952,7 @@ struct SPathStruc {
 	static int  ReplacePath(SString & rPath, const char * pNewPath, int force);
 	static int  GetRelativePath(const char * pFrom, uint dwAttrFrom, const char * pTo, uint dwAttrTo, SString & rPath);
 	//
-	// Descr: Флаги функции SPathStruc::NormalizePath
+	// Descr: Флаги функции SFsPath::NormalizePath
 	//
 	enum {
 		npfUpper    = 0x0001, // Все символы приводятся к верхнему регистру (иначе - к нижнему)
@@ -4981,20 +4967,20 @@ struct SPathStruc {
 	//
 	static SString & NormalizePath(const char * pPath, long flags, SString & rNormalizedPath);
 	int    Invariant(SInvariantParam *);
-	SPathStruc();
-	SPathStruc(const SPathStruc & rS);
+	SFsPath();
+	SFsPath(const SFsPath & rS);
 	//
-	// Descr: Создает экземпляр объекта и, если pPath != 0, то сразу вызывает SPathStruc::Split(pPath)
+	// Descr: Создает экземпляр объекта и, если pPath != 0, то сразу вызывает SFsPath::Split(pPath)
 	//
-	explicit SPathStruc(const char * pPath);
-	SPathStruc & FASTCALL operator = (const SPathStruc & rS);
+	explicit SFsPath(const char * pPath);
+	SFsPath & FASTCALL operator = (const SFsPath & rS);
 	//
 	// Descr: Копирует в this компоненты пути pS заданные флагами flags.
 	//   Если pS == 0, то соответствующие флагам компоненты
 	//   обнуляются.
 	//
-	SPathStruc & Copy(const SPathStruc * pS, long flags);
-	SPathStruc & Z();
+	SFsPath & Copy(const SFsPath * pS, long flags);
+	SFsPath & Z();
 	//
 	// Descr: Сравнивает экземпляр this с экземпляром rS на эквивалентность.
 	//   Если аргумент caseSensitive == false, то сравнивает компоненты пути без учета
@@ -5003,7 +4989,7 @@ struct SPathStruc {
 	//   в предположении, что все символы - ascii (до 127 включительно). Это - слишком сильное
 	//   допущение и должно быть скорректировано в ближайшем будущем.
 	//
-	bool   IsEq(const SPathStruc & rS, bool caseSensitive = false) const;
+	bool   IsEq(const SFsPath & rS, bool caseSensitive = false) const;
 	void   FASTCALL Split(const char * pPath);
 	//
 	// Descr: Комбинирует компоненты экземпляра в текстовое представление пути.
@@ -5014,7 +5000,7 @@ struct SPathStruc {
 	//
 	int    FASTCALL Merge(SString & rBuf) const;
 	int    Merge(long mergeFlags, SString & rBuf) const;
-	int    Merge(const SPathStruc * pPattern, long patternFlags, SString & rBuf);
+	int    Merge(const SFsPath * pPattern, long patternFlags, SString & rBuf);
 
 	enum {
 		fDrv = 0x0001, // Путь содержит имя устройства
@@ -5427,6 +5413,14 @@ int    FASTCALL checkdate(LDATE dt);
 int    FASTCALL checktime(LTIME tm);
 //
 //
+// 
+bool   SdnToGregorian(long sdn, int * pYear, int * pMonth, int * pDay);
+long   GregorianToSdn(int inputYear, int inputMonth, int inputDay);
+bool   SdnToJulian(long sdn, int * pYear, int * pMonth, int * pDay);
+long   JulianToSdn(int inputYear, int inputMonth, int inputDay);
+int    SdnDayOfWeek(long sdn); // sunday - 0
+//
+//
 //
 #define MONF_SHORT     0x0001 // Сокращенная форма
 #define MONF_CASENOM   0x0002 // Полная форма (именительный падеж)
@@ -5609,6 +5603,7 @@ public:
 		};
 		uint   Flags;
 	};
+	static bool IsValid(double);
 	// 
 	// Descr: Unpack floating-point double precision binary value according to IEEE 754
 	// 
@@ -5896,7 +5891,7 @@ int    pathValid(const char * pPath, int existOnly);
 //
 SString & makeExecPathFileName(const char * pName, const char * pExt, SString & rPath);
 bool   FASTCALL IsWild(const char * pFileName);
-int    createDir(const char * pPath);
+// @v11.8.11 (replaced with SFile::CreateDir) int    createDir_Removed(const char * pPath);
 int    copyFileByName(const char * pSrcFileName, const char * pDestFileName);
 //
 // Descr: Создает пустой файл с именем pFileName.
@@ -5994,6 +5989,7 @@ void * catmem(void * pDest, size_t destSz, const void * pSrc, size_t srcSz);
 // Descr: Реализация спецификации memchr. Очень быстрая (SSE-2)
 //
 const void * smemchr(const void * pHaystack, int n, size_t len);
+const void * smemrchr(const void * pHaystack, int n, size_t len);
 //
 // Descr: Быстро меняет содержимое по указателям p1 и p2 размером size.
 //
@@ -6383,6 +6379,7 @@ struct SBaseBuffer {
 	SBaseBuffer & Init();
 	SBaseBuffer & Destroy();
 	bool   FASTCALL IsEq(const SBaseBuffer & rS) const;
+	bool   IsEqPrefix(const SBaseBuffer & rS, size_t prefixLen) const; // @v11.8.11
 	//
 	// Descr: Копирует содержимое буфера rS в буфер this.
 	// Note: И rS и this должны быть "правильными" объектами. То есть, для них
@@ -6391,6 +6388,7 @@ struct SBaseBuffer {
 	//   последствия непредсказуемы.
 	//
 	bool   FASTCALL Copy(const SBaseBuffer & rS);
+	bool   CopyPrefix(const SBaseBuffer & rS, size_t prefixLen); // @v11.8.11
 	void   Zero();
 	void   Set(void * pBuf, size_t size);
 	int    FASTCALL Alloc(size_t sz);
@@ -6616,15 +6614,18 @@ public:
 	//   Пустые буферы (WrOffs == 0) считаются равными.
 	//
 	bool   FASTCALL IsEq(const SBuffer & rS) const;
-	//operator const void * () const { return P_Buf; }
-	const void * constptr() const { return P_Buf; }
+	const  void * constptr() const { return P_Buf; }
 	size_t GetSize() const { return Size; }
 	size_t GetRdOffs() const { return RdOffs; }
 	size_t GetWrOffs() const { return WrOffs; }
-	const  void * FASTCALL GetBuf(size_t offs = 0) const;
-	const  char * FASTCALL GetBufC(size_t offs = 0) const;
-	const  int8 * FASTCALL GetBufI8(size_t offs = 0) const;
-	const  uint8 * FASTCALL GetBufU8(size_t offs = 0) const;
+	FORCEINLINE const  void * GetBuf() const { return static_cast<const void *>(Ptr()); }
+	FORCEINLINE const  char * GetBufC() const { return static_cast<const char *>(Ptr()); }
+	FORCEINLINE const  int8 * GetBufI8() const { return static_cast<const int8 *>(Ptr()); }
+	FORCEINLINE const  uint8 * GetBufU8() const { return static_cast<const uint8 *>(Ptr()); }
+	FORCEINLINE const  void * FASTCALL GetBuf(size_t offs) const { return static_cast<const void *>(Ptr(offs)); }
+	FORCEINLINE const  char * FASTCALL GetBufC(size_t offs) const { return static_cast<const char *>(Ptr(offs)); }
+	FORCEINLINE const  int8 * FASTCALL GetBufI8(size_t offs) const { return static_cast<const int8 *>(Ptr(offs)); }
+	FORCEINLINE const  uint8 * FASTCALL GetBufU8(size_t offs) const { return static_cast<const uint8 *>(Ptr(offs)); }
 	void   FASTCALL SetRdOffs(size_t offs);
 	void   FASTCALL SetWrOffs(size_t offs);
 	//
@@ -6736,7 +6737,8 @@ public:
 	int    WriteToFile(FILE * f, uint sign, uint32 * pActualBytes);
 	int    ReadFromFile(FILE * f, uint sign);
 protected:
-	void * FASTCALL Ptr(size_t) const;
+	FORCEINLINE void * Ptr() const { return static_cast<int8 *>(P_Buf); }
+	FORCEINLINE void * FASTCALL Ptr(size_t offs) const { return (static_cast<int8 *>(P_Buf)+offs); }
 private:
 	int    FASTCALL Alloc(size_t);
 	int    Search(const char * pStr, size_t * pPos) const;
@@ -7669,8 +7671,8 @@ ulong  _checksum__(const char *, size_t);
 //
 // MIME64 encoder/decoder
 //
-int    STDCALL  encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen);
-int    STDCALL  decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen);
+bool   STDCALL  Base64_Encode(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen);
+bool   STDCALL  Base64_Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen);
 
 class MIME64 {
 public:
@@ -9573,8 +9575,8 @@ public:
 	//   0  - отрезок rEntry пересекается по крайней мере с одним элементом массива.
 	//        Индекс этого элемента присваивается по указателю pPos.
 	//
-	int    IsFreeEntry(const STimeChunk & rEntry, uint * pPos) const;
-	int    IsFreeEntry(const LDATETIME &, long cont, uint * pPos) const;
+	bool   IsFreeEntry(const STimeChunk & rEntry, uint * pPos) const;
+	bool   IsFreeEntry(const LDATETIME &, long cont, uint * pPos) const;
 		// @>>STimeChunkArray::IsFreeEntry(const STimeChunk &, uint *);
 	//
 	// Descr: Получает список доступных периодов.
@@ -10312,7 +10314,7 @@ public:
 	int    IndexResources(int force);
 private:
 	uint16 NextChr();
-	int    FASTCALL IsDelim(uint16 chr) const;
+	bool   FASTCALL IsDelim(uint16 chr) const;
 	int    FASTCALL AddToken(TSVector <uint16> & rBuf, int tok, int64 sp);
 	int    ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult);
 	void   _CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf);
@@ -11645,8 +11647,8 @@ struct SStrScan : public SRegExpSet {
 	void   FASTCALL Push(uint * pPrevPos = 0);
 	int    FASTCALL Pop();
 	int    FASTCALL Pop(uint prevPos);
-	int    IsEnd() const;
-	int    FASTCALL IsSpace(int ws) const;
+	bool   IsEnd() const;
+	bool   FASTCALL IsSpace(int ws) const;
 	bool   IsNumber();
 	bool   IsHex();
 	//
@@ -12167,6 +12169,7 @@ public:
 
 	DECL_INVARIANT_C();
 
+	static int  CreateDir(const char * pPath); // @v11.8.11
 	static uint ParseAccsf(const char * pSymb);
 	static int  GetAccsfSymb(uint accsf, SString & rBuf);
 	static int  FASTCALL Remove(const char * pFileName);
@@ -12201,6 +12204,12 @@ public:
 		attrCompressed        = 0x00000800, // @v11.8.10 FILE_ATTRIBUTE_COMPRESSED
 		attrNotContentIndexed = 0x00002000, // @v11.8.10 FILE_ATTRIBUTE_NOT_CONTENT_INDEXED (The file or directory is not to be indexed by the content indexing service)
 		attrEncrypted         = 0x00004000, // @v11.8.10 FILE_ATTRIBUTE_ENCRYPTED (A file or directory that is encrypted. For a file, all data streams in the file are encrypted. For a directory, encryption is the default for newly created files and subdirectories)
+		attrOffline           = 0x00001000, // @v11.8.11 FILE_ATTRIBUTE_OFFLINE The data of a file is not available immediately. This attribute indicates that the file 
+			// data is physically moved to offline storage. This attribute is used by Remote Storage, which is the hierarchical storage management software. 
+			// Applications should not arbitrarily change this attribute.
+		attrNoScrubData       = 0x00020000, // @v11.8.11 FILE_ATTRIBUTE_NO_SCRUB_DATA The user data stream not to be read by the background data integrity scanner 
+			// (AKA scrubber). When set on a directory it only provides inheritance. This flag is only supported on Storage Spaces and ReFS volumes. 
+			// It is not included in an ordinary directory listing.
 		//
 		// Следующие 9 флагов имеют внутренние значения не сопоставленные с иными стандартами или канонизациями.
 		//
@@ -12492,7 +12501,9 @@ public:
 		fileforcefEmptyRetry = 0x0004,   //FMF_EMPTY_RETRY=4, 
 		fileforcefAttr       = 0x0100,   //FMF_ATTR=0x100 
 	};
-
+	//
+	// Descr: Специализированная функция, пытающаяся открыть файл невзирая на ограничения по атрибутам.
+	//
 	static SIntHandle ForceCreateFile(const wchar_t * pPath, uint mode, uint share, /*SECURITY_ATTRIBUTES*/void * pSa, uint crMode, uint crFlg, /*HANDLE hTempl,*/uint flags);
 	//
 	// @v11.8.9 
@@ -13386,37 +13397,6 @@ public:
 	static constexpr double WGS84_A          = 6378137.0; // Радиус Земли в метрах (согласно WGS84)
 	static constexpr double WGS84_Flattening = (1.0 / 298.257223563); // Фактор приплюснотости Земли: ƒ = (a − b)/a (согласно WGS84).
 		// Где a - экваториальный радиус, b - полярный радиус.
-	/*
-	static const double Pi;
-	static const double Pi2;        // pi*2
-	static const float  Pi2_f;      // pi*2
-	static const float  Pi_f;
-	static const double PiDiv180;   // pi/180 (DEG to RAD)
-	static const float  PiDiv180_f; // pi/180 (DEG to RAD)
-	static const double PiDiv4;     // pi/4
-	static const float  PiDiv4_f;   // pi/4
-	static const double PiDiv2;     // pi/2
-	static const double E;
-	static const double LnPi;    // 1.14472988584940017414342735135      ln(pi)
-	static const double Ln2;     // 0.69314718055994530941723212146      ln(2)
-	static const double Epsilon; // 2.2204460492503131e-16  DBL_EPSILON (машинный ноль)
-	static const double Root4Epsilon; // 1.2207031250000000e-04
-	static const double Root5Epsilon; // 7.4009597974140505e-04
-	static const double SqrtMin; // 1.4916681462400413e-154
-	static const double SqrtMax; // 1.3407807929942596e+154
-	static const double LogMin;  // -7.0839641853226408e+02
-	static const double LogMax;  // 7.0978271289338397e+02
-	static const double Min;     // 2.2250738585072014e-308          min double value
-	static const double Max;     // 1.7976931348623158e+308          max double value
-	static const float  Min_f;   // 1.175494351e-38F          min normalized positive float value
-	static const float  Max_f;   // 3.402823466e+38F          max float value
-	static const double Euler;   // 0.57721566490153286060651209008  Euler constant
-	static const double Sqrt2;   // 1.41421356237309504880168872421      sqrt(2)
-	static const double SqrtPi;  // 1.77245385090551602729816748334      sqrt(pi)
-	static const double Sqrt1_2; // 0.707106781186547524400844362104849039 sqrt(0.5)
-	static const double MaxU31;  // @v11.7.3 2147483648.0
-	static const double MaxU32;  // @v11.7.3 4294967296.0
-	*/
 };
 #endif // } RC_INVOKED
 
@@ -13439,7 +13419,7 @@ typedef TSVector <unsigned long> UlongArray;
 	#define INFINITY HUGE_VAL
 #endif
 // } @v10.9.1
-bool   IsValidIEEE(double);
+// @v11.8.11 (replaced with SIEEE754::IsValid) bool   IsValidIEEE(double);
 int    FASTCALL fisnan(double);
 int    fisnanf(float);
 int    fisinf(double);
@@ -13479,7 +13459,7 @@ template <class T> CONSTEXPR bool IsPowerOfTwo(T val) { return ((val != 0) && ((
 //
 // Descr: Если val - простое число, то возвращает !0, в противном случае - 0.
 //
-int    FASTCALL IsPrime(ulong val);
+bool   FASTCALL IsPrime(ulong val);
 ulong  FASTCALL GetPrimeGreaterThan(ulong val);
 ulong  FASTCALL GetPrimeLowerThan(ulong val);
 //
@@ -13678,8 +13658,6 @@ public:
 	~LVect();
 	int    init(uint dim, const double * pVals = 0);
 	int    FASTCALL copy(const LVect &);
-	//const  char * getname() const { return P_Name; }
-	//void   FASTCALL setname(const char * pName);
 	uint   size() const { return Dim; }
 	double FASTCALL get(uint) const;
 	int    set(uint, double);
@@ -13695,7 +13673,6 @@ public:
 	friend LVect   * FASTCALL operator * (const LVect &, const LMatrix &);
 	friend LMatrix * FASTCALL operator * (const LVect &, const LVect &);
 private:
-	//char * P_Name;
 	uint   Dim;
 	double * P_Vals;
 };

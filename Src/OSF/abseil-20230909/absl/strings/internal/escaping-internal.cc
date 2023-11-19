@@ -25,11 +25,8 @@ namespace strings_internal {
 // base64-escaped equivalent.
 // For the inverse case, see kUn(WebSafe)Base64 in the external
 // escaping.cc.
-ABSL_CONST_INIT const char kBase64Chars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-ABSL_CONST_INIT const char kWebSafeBase64Chars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+ABSL_CONST_INIT const char kBase64Chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+ABSL_CONST_INIT const char kWebSafeBase64Chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 size_t CalculateBase64EscapedLenInternal(size_t input_len, bool do_padding) {
 	// Base64 encodes three bytes of input at a time. If the input is not

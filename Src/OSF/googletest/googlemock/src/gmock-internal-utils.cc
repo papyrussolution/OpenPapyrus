@@ -223,8 +223,7 @@ constexpr std::array<char, 256> UnBase64(const char* const base64) {
 	return UnBase64Impl(MakeIndexSequence<256>{}, base64);
 }
 
-static constexpr char kBase64[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static constexpr char kBase64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static constexpr std::array<char, 256> kUnBase64 = UnBase64(kBase64);
 
 bool Base64Unescape(const std::string& encoded, std::string* decoded) {

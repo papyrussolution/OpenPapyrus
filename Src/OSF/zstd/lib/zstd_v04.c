@@ -230,7 +230,6 @@ static size_t ZSTD_decompress_usingDict(ZSTD_DCtx* ctx, void* dst, size_t maxDst
 static size_t ZSTD_resetDCtx(ZSTD_DCtx* dctx);
 static size_t ZSTD_getFrameParams(ZSTD_parameters* params, const void* src, size_t srcSize);
 static void   ZSTD_decompress_insertDictionary(ZSTD_DCtx* ctx, const void* src, size_t srcSize);
-static size_t ZSTD_nextSrcSizeToDecompress(ZSTD_DCtx* dctx);
 static size_t ZSTD_decompressContinue(ZSTD_DCtx* dctx, void* dst, size_t maxDstSize, const void* src, size_t srcSize);
 /**
    Streaming decompression, bufferless mode
@@ -332,7 +331,7 @@ static void ZSTD_copy8(void* dst, const void* src) { memcpy(dst, src, 8); }
 /*! ZSTD_wildcopy : custom version of memcpy(), can copy up to 7-8 bytes too many */
 static void ZSTD_wildcopy(void* dst, const void* src, ptrdiff_t length)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	BYTE * op = (BYTE *)dst;
 	BYTE * const oend = op + length;
 	do {
@@ -507,13 +506,14 @@ typedef struct {
 	const char * start;
 } BIT_DStream_t;
 
-typedef enum { 
+/* @sobolev (moved to zstd-internal.h) typedef enum { 
 	BIT_DStream_unfinished = 0,
 	BIT_DStream_endOfBuffer = 1,
 	BIT_DStream_completed = 2,
 	BIT_DStream_overflow = 3 
-} BIT_DStream_status;  /* result of BIT_reloadDStream() */
-/* 1,2,4,8 would be better for bitmap combinations, but slows down performance a bit ... :( */
+} BIT_DStream_status;  // result of BIT_reloadDStream()
+// 1,2,4,8 would be better for bitmap combinations, but slows down performance a bit ... :(
+*/
 
 MEM_STATIC size_t   BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, size_t srcSize);
 MEM_STATIC size_t   BIT_readBits(BIT_DStream_t* bitD, uint nbBits);
@@ -580,12 +580,12 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, si
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize) {
-			case 7: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[6]) << (sizeof(size_t)*8 - 16); /* fall-through */
-			case 6: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[5]) << (sizeof(size_t)*8 - 24); /* fall-through */
-			case 5: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[4]) << (sizeof(size_t)*8 - 32); /* fall-through */
-			case 4: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[3]) << 24; /* fall-through */
-			case 3: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[2]) << 16; /* fall-through */
-			case 2: bitD->bitContainer += (size_t)(((const BYTE *)(bitD->start))[1]) <<  8; /* fall-through */
+			case 7: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[6]) << (sizeof(size_t)*8 - 16); // @fallthrough
+			case 6: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[5]) << (sizeof(size_t)*8 - 24); // @fallthrough
+			case 5: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[4]) << (sizeof(size_t)*8 - 32); // @fallthrough
+			case 4: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[3]) << 24; // @fallthrough
+			case 3: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[2]) << 16; // @fallthrough
+			case 2: bitD->bitContainer += (size_t)(PTR8C(bitD->start)[1]) <<  8; // @fallthrough
 			default: break;
 		}
 		contain32 = ((const BYTE *)srcBuffer)[srcSize-1];
@@ -611,10 +611,7 @@ MEM_STATIC size_t BIT_lookBitsFast(BIT_DStream_t* bitD, uint32 nbBits)
 	return (bitD->bitContainer << (bitD->bitsConsumed & bitMask)) >> (((bitMask+1)-nbBits) & bitMask);
 }
 
-MEM_STATIC void BIT_skipBits(BIT_DStream_t* bitD, uint32 nbBits)
-{
-	bitD->bitsConsumed += nbBits;
-}
+MEM_STATIC void BIT_skipBits(BIT_DStream_t* bitD, uint32 nbBits) { bitD->bitsConsumed += nbBits; }
 
 MEM_STATIC size_t BIT_readBits(BIT_DStream_t* bitD, uint nbBits)
 {
@@ -1201,7 +1198,7 @@ static size_t FSE_decompress_usingDTable(void* dst, size_t originalSize,
 
 static size_t FSE_decompress(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize)
 {
-	const BYTE * const istart = (const BYTE *)cSrc;
+	const BYTE * const istart = PTR8C(cSrc);
 	const BYTE * ip = istart;
 	short counting[FSE_MAX_SYMBOL_VALUE+1];
 	DTable_max_t dt; /* Static analyzer seems unable to understand this table will be properly initialized later */
@@ -1378,28 +1375,25 @@ static size_t HUF_decompress4X4_usingDTable(void* dst, size_t maxDstSize, const 
 // Compiler specifics
 //
 #if defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */)
-/* inline is defined */
+	// inline is defined
 #elif defined(_MSC_VER)
-#define inline __inline
+	#define inline __inline
 #else
-#define inline /* disable inline */
+	#define inline /* disable inline */
 #endif
-
 #ifdef _MSC_VER    /* Visual Studio */
-#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
+	#pragma warning(disable : 4127) // disable: C4127: conditional expression is constant
 #endif
-
-/* **************************************************************
-*  Constants
-****************************************************************/
-#define HUF_ABSOLUTEMAX_TABLELOG  16   /* absolute limit of HUF_MAX_TABLELOG. Beyond that value, code does not work */
-#define HUF_MAX_TABLELOG  12           /* max configured tableLog (for static allocation); can be modified up to
-	                                  HUF_ABSOLUTEMAX_TABLELOG */
-#define HUF_DEFAULT_TABLELOG  HUF_MAX_TABLELOG   /* tableLog by default, when not specified */
-#define HUF_MAX_SYMBOL_VALUE 255
-#if (HUF_MAX_TABLELOG > HUF_ABSOLUTEMAX_TABLELOG)
-#error "HUF_MAX_TABLELOG is too large !"
-#endif
+//
+// Constants
+//
+// @sobolev (moved to zstd-internal.h) #define HUF_ABSOLUTEMAX_TABLELOG  16 // absolute limit of HUF_MAX_TABLELOG. Beyond that value, code does not work
+// @sobolev (moved to zstd-internal.h) #define HUF_MAX_TABLELOG  12 // max configured tableLog (for static allocation); can be modified up to HUF_ABSOLUTEMAX_TABLELOG
+// @sobolev (moved to zstd-internal.h) #define HUF_DEFAULT_TABLELOG  HUF_MAX_TABLELOG // tableLog by default, when not specified
+// @sobolev (moved to zstd-internal.h) #define HUF_MAX_SYMBOL_VALUE 255
+// @sobolev (moved to zstd-internal.h) #if (HUF_MAX_TABLELOG > HUF_ABSOLUTEMAX_TABLELOG)
+	// @sobolev (moved to zstd-internal.h) #error "HUF_MAX_TABLELOG is too large !"
+// @sobolev (moved to zstd-internal.h) #endif
 //
 // Error Management
 //
@@ -1437,7 +1431,7 @@ static size_t HUF_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats
 {
 	uint32 weightTotal;
 	uint32 tableLog;
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	size_t iSize;
 	size_t oSize;
 	uint32 n;
@@ -1604,7 +1598,7 @@ static size_t HUF_decompress4X2_usingDTable(void* dst,  size_t dstSize,
 	if(cSrcSize < 10) return ERROR(corruption_detected); /* strict minimum : jump table + 1 byte per stream */
 
 	{
-		const BYTE * const istart = (const BYTE *)cSrc;
+		const BYTE * const istart = PTR8C(cSrc);
 		BYTE * const ostart = (BYTE *)dst;
 		BYTE * const oend = ostart + dstSize;
 		const void* const dtPtr = DTable;
@@ -1694,7 +1688,7 @@ static size_t HUF_decompress4X2_usingDTable(void* dst,  size_t dstSize,
 static size_t HUF_decompress4X2(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize)
 {
 	HUF_CREATE_STATIC_DTABLEX2(DTable, HUF_MAX_TABLELOG);
-	const BYTE * ip = (const BYTE *)cSrc;
+	const BYTE * ip = PTR8C(cSrc);
 	size_t errorCode;
 
 	errorCode = HUF_readDTableX2(DTable, cSrc, cSrcSize);
@@ -1945,7 +1939,7 @@ static size_t HUF_decompress4X4_usingDTable(void * dst, size_t dstSize, const vo
 	if(cSrcSize < 10) 
 		return ERROR(corruption_detected); /* strict minimum : jump table + 1 byte per stream */
 	{
-		const BYTE * const istart = (const BYTE *)cSrc;
+		const BYTE * const istart = PTR8C(cSrc);
 		BYTE * const ostart = (BYTE *)dst;
 		BYTE * const oend = ostart + dstSize;
 		const void* const dtPtr = DTable;
@@ -2035,7 +2029,7 @@ static size_t HUF_decompress4X4_usingDTable(void * dst, size_t dstSize, const vo
 static size_t HUF_decompress4X4(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize)
 {
 	HUF_CREATE_STATIC_DTABLEX4(DTable, HUF_MAX_TABLELOG);
-	const BYTE * ip = (const BYTE *)cSrc;
+	const BYTE * ip = PTR8C(cSrc);
 
 	size_t hSize = HUF_readDTableX4(DTable, cSrc, cSrcSize);
 	if(HUF_isError(hSize)) return hSize;
@@ -2091,7 +2085,7 @@ static size_t HUF_decompress(void* dst, size_t dstSize, const void* cSrc, size_t
 		memcpy(dst, cSrc, dstSize); return dstSize;
 	}                                                                      /* not compressed */
 	if(cSrcSize == 1) {
-		memset(dst, *(const BYTE *)cSrc, dstSize); return dstSize;
+		memset(dst, *PTR8C(cSrc), dstSize); return dstSize;
 	}                                                                              /* RLE */
 
 	/* decoder timing evaluation */
@@ -2136,14 +2130,15 @@ static size_t HUF_decompress(void* dst, size_t dstSize, const void* cSrc, size_t
 //
 // Tuning parameters
 //
-/*!
- * HEAPMODE :
- * Select how default decompression function ZSTD_decompress() will allocate memory,
- * in memory stack (0), or in memory heap (1, requires malloc())
- */
+/* @sobolev (moved to zstd-internal.h) 
+// 
+// HEAPMODE :
+// Select how default decompression function ZSTD_decompress() will allocate memory,
+// in memory stack (0), or in memory heap (1, requires malloc())
+// 
 #ifndef ZSTD_HEAPMODE
-#define ZSTD_HEAPMODE 1
-#endif
+	#define ZSTD_HEAPMODE 1
+#endif */
 //
 // Compiler specifics
 //
@@ -2299,7 +2294,7 @@ static size_t ZSTD_copyRawBlock(void* dst, size_t maxDstSize, const void* src, s
 static size_t ZSTD_decompressLiterals(void* dst, size_t* maxDstSizePtr,
     const void* src, size_t srcSize)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 
 	const size_t litSize = (SMem::GetLe32(src) & 0x1FFFFF) >> 2; /* no buffer issue : srcSize >= MIN_CBLOCK_SIZE */
 	const size_t litCSize = (SMem::GetLe32(ip+2) & 0xFFFFFF) >> 5; /* no buffer issue : srcSize >= MIN_CBLOCK_SIZE */
@@ -2318,7 +2313,7 @@ static size_t ZSTD_decompressLiterals(void* dst, size_t* maxDstSizePtr,
 static size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx,
     const void* src, size_t srcSize)                         /* note : srcSize < BLOCKSIZE */
 {
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	/* any compressed block with literals segment must be at least this size */
 	if(srcSize < MIN_CBLOCK_SIZE) 
 		return ERROR(corruption_detected);
@@ -2724,7 +2719,7 @@ static size_t ZSTD_decompressBlock_internal(ZSTD_DCtx* dctx,
     const void* src, size_t srcSize)
 {
 	/* blockType == blockCompressed */
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	size_t litCSize;
 
 	if(srcSize > BLOCKSIZE) return ERROR(corruption_detected);
@@ -2743,7 +2738,7 @@ static size_t ZSTD_decompress_usingDict(ZSTD_DCtx* ctx,
     const void* src, size_t srcSize,
     const void* dict, size_t dictSize)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	const BYTE * iend = ip + srcSize;
 	BYTE * const ostart = (BYTE * const)dst;
 	BYTE * op = ostart;
@@ -2762,7 +2757,6 @@ static size_t ZSTD_decompress_usingDict(ZSTD_DCtx* ctx,
 	else {
 		ctx->vBase = ctx->base = ctx->dictEnd = dst;
 	}
-
 	/* Frame Header */
 	{
 		size_t frameHeaderSize;
@@ -2772,21 +2766,20 @@ static size_t ZSTD_decompress_usingDict(ZSTD_DCtx* ctx,
 		if(srcSize < frameHeaderSize+ZSTD_blockHeaderSize) return ERROR(srcSize_wrong);
 		ip += frameHeaderSize; remainingSize -= frameHeaderSize;
 		frameHeaderSize = ZSTD_decodeFrameHeader_Part2(ctx, src, frameHeaderSize);
-		if(ZSTD_isError(frameHeaderSize)) return frameHeaderSize;
+		if(ZSTD_isError(frameHeaderSize)) 
+			return frameHeaderSize;
 	}
-
 	/* Loop on each block */
 	while(1) {
 		size_t decodedSize = 0;
 		size_t cBlockSize = ZSTD_getcBlockSize(ip, iend-ip, &blockProperties);
-		if(ZSTD_isError(cBlockSize)) return cBlockSize;
-
+		if(ZSTD_isError(cBlockSize)) 
+			return cBlockSize;
 		ip += ZSTD_blockHeaderSize;
 		remainingSize -= ZSTD_blockHeaderSize;
-		if(cBlockSize > remainingSize) return ERROR(srcSize_wrong);
-
-		switch(blockProperties.blockType)
-		{
+		if(cBlockSize > remainingSize) 
+			return ERROR(srcSize_wrong);
+		switch(blockProperties.blockType) {
 			case bt_compressed:
 			    decodedSize = ZSTD_decompressBlock_internal(ctx, op, oend-op, ip, cBlockSize);
 			    break;
@@ -2803,9 +2796,10 @@ static size_t ZSTD_decompress_usingDict(ZSTD_DCtx* ctx,
 			default:
 			    return ERROR(GENERIC); /* impossible */
 		}
-		if(cBlockSize == 0) break; /* bt_end */
-
-		if(ZSTD_isError(decodedSize)) return decodedSize;
+		if(cBlockSize == 0) 
+			break; /* bt_end */
+		if(ZSTD_isError(decodedSize)) 
+			return decodedSize;
 		op += decodedSize;
 		ip += cBlockSize;
 		remainingSize -= cBlockSize;
@@ -2824,7 +2818,7 @@ static void ZSTD_errorFrameSizeInfoLegacy(size_t* cSize, uint64* dBound, size_t 
 
 void ZSTDv04_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, uint64* dBound)
 {
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	size_t remainingSize = srcSize;
 	size_t nbBlocks = 0;
 	blockProperties_t blockProperties;
@@ -2867,10 +2861,7 @@ void ZSTDv04_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* c
 // 
 // Streaming Decompression API
 // 
-static size_t ZSTD_nextSrcSizeToDecompress(ZSTD_DCtx* dctx)
-{
-	return dctx->expected;
-}
+static size_t ZSTD_nextSrcSizeToDecompress(ZSTD_DCtx* dctx) { return dctx->expected; }
 
 static size_t ZSTD_decompressContinue(ZSTD_DCtx* ctx, void* dst, size_t maxDstSize, const void* src, size_t srcSize)
 {
@@ -3117,21 +3108,20 @@ static size_t ZBUFF_decompressContinue(ZBUFF_DCtx* zbc, void* dst, size_t* maxDs
 
 			case ZBUFFds_loadHeader:
 			    /* complete header from src */
-		    {   size_t headerSize = ZBUFF_limitCopy(
-				zbc->headerBuffer + zbc->hPos, ZSTD_frameHeaderSize_max - zbc->hPos,
-				src, *srcSizePtr);
-			zbc->hPos += headerSize;
-			ip += headerSize;
-			headerSize = ZSTD_getFrameParams(&(zbc->params), zbc->headerBuffer, zbc->hPos);
-			if(ZSTD_isError(headerSize)) return headerSize;
-			if(headerSize) {
-				/* not enough input to decode header : tell how many bytes would be necessary */
-				*maxDstSizePtr = 0;
-				return headerSize - zbc->hPos;
-			}
-		    }
-			/* intentional fallthrough */
-
+				{   
+					size_t headerSize = ZBUFF_limitCopy(zbc->headerBuffer + zbc->hPos, ZSTD_frameHeaderSize_max - zbc->hPos, src, *srcSizePtr);
+					zbc->hPos += headerSize;
+					ip += headerSize;
+					headerSize = ZSTD_getFrameParams(&(zbc->params), zbc->headerBuffer, zbc->hPos);
+					if(ZSTD_isError(headerSize)) 
+						return headerSize;
+					if(headerSize) {
+						/* not enough input to decode header : tell how many bytes would be necessary */
+						*maxDstSizePtr = 0;
+						return headerSize - zbc->hPos;
+					}
+				}
+				/* intentional fallthrough */
 			case ZBUFFds_decodeHeader:
 			    /* apply header to create / resize buffers */
 		    {   const size_t neededOutSize = (size_t)1 << zbc->params.windowLog;
@@ -3161,7 +3151,7 @@ static size_t ZBUFF_decompressContinue(ZBUFF_DCtx* zbc, void* dst, size_t* maxDs
 				    break;
 			    }
 			    zbc->stage = ZBUFFds_read;
-			/* fall-through */
+			// @fallthrough
 			case ZBUFFds_read:
 		    {
 			    size_t neededInSize = ZSTD_nextSrcSizeToDecompress(zbc->zc);
@@ -3187,7 +3177,7 @@ static size_t ZBUFF_decompressContinue(ZBUFF_DCtx* zbc, void* dst, size_t* maxDs
 			    }                           /* no more input */
 			    zbc->stage = ZBUFFds_load;
 		    }
-			/* fall-through */
+			// @fallthrough
 			case ZBUFFds_load:
 		    {
 			    size_t neededInSize = ZSTD_nextSrcSizeToDecompress(zbc->zc);
@@ -3216,7 +3206,7 @@ static size_t ZBUFF_decompressContinue(ZBUFF_DCtx* zbc, void* dst, size_t* maxDs
 				    /* ZBUFFds_flush follows */
 			    }
 		    }
-			/* fall-through */
+			// @fallthrough
 			case ZBUFFds_flush:
 		    {
 			    size_t toFlushSize = zbc->outEnd - zbc->outStart;
@@ -3239,10 +3229,10 @@ static size_t ZBUFF_decompressContinue(ZBUFF_DCtx* zbc, void* dst, size_t* maxDs
 
 	*srcSizePtr = ip-istart;
 	*maxDstSizePtr = op-ostart;
-
 	{
 		size_t nextSrcSizeHint = ZSTD_nextSrcSizeToDecompress(zbc->zc);
-		if(nextSrcSizeHint > 3) nextSrcSizeHint += 3; /* get the next block header while at it */
+		if(nextSrcSizeHint > 3) 
+			nextSrcSizeHint += 3; /* get the next block header while at it */
 		nextSrcSizeHint -= zbc->inPos; /* already loaded*/
 		return nextSrcSizeHint;
 	}
@@ -3280,36 +3270,18 @@ size_t ZSTDv04_decompress(void* dst, size_t maxDstSize, const void* src, size_t 
 #endif
 }
 
-size_t ZSTDv04_resetDCtx(ZSTDv04_Dctx* dctx) {
-	return ZSTD_resetDCtx(dctx);
-}
-
-size_t ZSTDv04_nextSrcSizeToDecompress(ZSTDv04_Dctx* dctx)
-{
-	return ZSTD_nextSrcSizeToDecompress(dctx);
-}
+size_t ZSTDv04_resetDCtx(ZSTDv04_Dctx* dctx) { return ZSTD_resetDCtx(dctx); }
+size_t ZSTDv04_nextSrcSizeToDecompress(ZSTDv04_Dctx* dctx) { return ZSTD_nextSrcSizeToDecompress(dctx); }
 
 size_t ZSTDv04_decompressContinue(ZSTDv04_Dctx* dctx, void* dst, size_t maxDstSize, const void* src, size_t srcSize)
 {
 	return ZSTD_decompressContinue(dctx, dst, maxDstSize, src, srcSize);
 }
 
-ZBUFFv04_DCtx* ZBUFFv04_createDCtx(void) {
-	return ZBUFF_createDCtx();
-}
-
-size_t ZBUFFv04_freeDCtx(ZBUFFv04_DCtx* dctx) {
-	return ZBUFF_freeDCtx(dctx);
-}
-
-size_t ZBUFFv04_decompressInit(ZBUFFv04_DCtx* dctx) {
-	return ZBUFF_decompressInit(dctx);
-}
-
-size_t ZBUFFv04_decompressWithDictionary(ZBUFFv04_DCtx* dctx, const void* src, size_t srcSize)
-{
-	return ZBUFF_decompressWithDictionary(dctx, src, srcSize);
-}
+ZBUFFv04_DCtx* ZBUFFv04_createDCtx(void) { return ZBUFF_createDCtx(); }
+size_t ZBUFFv04_freeDCtx(ZBUFFv04_DCtx* dctx) { return ZBUFF_freeDCtx(dctx); }
+size_t ZBUFFv04_decompressInit(ZBUFFv04_DCtx* dctx) { return ZBUFF_decompressInit(dctx); }
+size_t ZBUFFv04_decompressWithDictionary(ZBUFFv04_DCtx* dctx, const void* src, size_t srcSize) { return ZBUFF_decompressWithDictionary(dctx, src, srcSize); }
 
 size_t ZBUFFv04_decompressContinue(ZBUFFv04_DCtx* dctx, void* dst, size_t* maxDstSizePtr, const void* src, size_t* srcSizePtr)
 {

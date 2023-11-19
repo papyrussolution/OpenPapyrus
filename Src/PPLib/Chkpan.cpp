@@ -235,7 +235,8 @@ CPosProcessor::Packet & CPosProcessor::Packet::Z()
 	IterIdx = 0;
 	Eccd.Z();
 	GiftAssoc.clear();
-	Prescr.Z();
+	// @v11.8.11 Prescr.Z();
+	PPExtStrContainer::Z(); // @v11.8.11
 	return *this;
 }
 
@@ -354,7 +355,7 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, boo
 	return 1;
 }
 
-void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, const CardState & rCSt) const
+void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, const CardState & rCSt, bool isExtCc) const
 {
 	SString temp_buf;
 	if(pPack) {
@@ -372,20 +373,22 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 		pPack->Ext.LinkCheckID = (pPack->Rec.Flags & CCHKF_SKIP) ? 0 : OrderCheckID;
 		pPack->Ext.CreationDtm = Eccd.InitDtm;
 		pPack->Ext.CreationUserID = Eccd.InitUserID; // @v10.6.8
-		pPack->SetGuid(&Eccd.Uuid); // @v11.5.8
+		if(!isExtCc)
+			CCheckPacket::CopyExtStrContainer(*pPack, *this, 0); // @v11.8.11
+		// @v11.8.11 pPack->SetGuid(&Eccd.Uuid); // @v11.5.8
 		Eccd.Memo.CopyTo(pPack->Ext.Memo, sizeof(pPack->Ext.Memo));
 		SETFLAG(pPack->Rec.Flags, CCHKF_DELIVERY,   Eccd.Flags & Eccd.fDelivery);
 		SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, Eccd.Flags & Eccd.fFixedPrice);
 		SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, Eccd.Flags & Eccd.fSpFinished);
 		// @v11.3.6 {
-		if(BuyersEAddr.NotEmpty()) {
-			if(BuyersEAddrType == SNTOK_EMAIL) {
-				pPack->PutExtStrData(CCheckPacket::extssBuyerEMail, BuyersEAddr);
+		/* @v11.8.11 if(!EAddr.IsEmpty()) {
+			if(EAddr.AddrType == SNTOK_EMAIL) {
+				pPack->PutExtStrData(CCheckPacket::extssBuyerEMail, EAddr.EAddr);
 				pPack->PutExtStrData(CCheckPacket::extssBuyerPhone, 0);
 			}
-			else if(BuyersEAddrType == SNTOK_PHONE) {
+			else if(EAddr.AddrType == SNTOK_PHONE) {
 				pPack->PutExtStrData(CCheckPacket::extssBuyerEMail, 0);
-				pPack->PutExtStrData(CCheckPacket::extssBuyerPhone, BuyersEAddr);
+				pPack->PutExtStrData(CCheckPacket::extssBuyerPhone, EAddr.EAddr);
 			}
 			SETFLAG(pPack->Rec.Flags, CCHKF_PAPERLESS, Paperless);
 		}
@@ -393,27 +396,16 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 			pPack->PutExtStrData(CCheckPacket::extssBuyerEMail, 0);
 			pPack->PutExtStrData(CCheckPacket::extssBuyerPhone, 0);
 			SETFLAG(pPack->Rec.Flags, CCHKF_PAPERLESS, 0);
-		}
+		}*/
 		// } @v11.3.6 
-		// @v11.7.12 {
-		{
-			if(checkdate(Prescr.Dt)) {
-				temp_buf.Z().Cat(Prescr.Dt, DATF_ISO8601CENT);
-				pPack->PutExtStrData(CCheckPacket::extssPrescrDate, temp_buf);
-			}
-			if(Prescr.Serial.NotEmpty())
-				pPack->PutExtStrData(CCheckPacket::extssPrescrSerial, Prescr.Serial);
-			if(Prescr.Number.NotEmpty())
-				pPack->PutExtStrData(CCheckPacket::extssPrescrNumber, Prescr.Number);
-		}
-		// } @v11.7.12 
+		// @v11.8.11 pPack->SetPrescription(Prescr); // @v11.7.12 
 		// @v11.8.8 {
-		{
+		/* @v11.8.11 {
 			if(!!Eccd.LinkBillUuid) {
 				Eccd.LinkBillUuid.ToStr(S_GUID::fmtIDL, temp_buf);
 				pPack->PutExtStrData(CCheckPacket::extssLinkBillUuid, temp_buf);
 			}
-		}
+		}*/
 		// } @v11.8.8
 		if(Eccd.Flags & Eccd.fDelivery) {
 			pPack->SetDlvrAddr(&Eccd.Addr_);
@@ -573,8 +565,8 @@ CPosProcessor::ExtCcData & CPosProcessor::ExtCcData::Z()
 	InitUserID = 0;
 	DlvrDtm.Z();
 	InitDtm.Z();
-	Uuid.Z(); // @v11.5.8
-	LinkBillUuid.Z(); // @v11.8.8
+	// @v11.8.11 Uuid.Z(); // @v11.5.8
+	// @v11.8.11 LinkBillUuid.Z(); // @v11.8.8
 	MEMSZERO(Addr_);
 	Memo.Z();
 	return *this;
@@ -1383,6 +1375,7 @@ void CPosProcessor::SetupExt(const CCheckPacket * pPack)
 		SETFLAG(P.Eccd.Flags, P.Eccd.fDelivery,   pPack->Rec.Flags & CCHKF_DELIVERY);
 		SETFLAG(P.Eccd.Flags, P.Eccd.fFixedPrice, pPack->Rec.Flags & CCHKF_FIXEDPRICE);
 		SETFLAG(P.Eccd.Flags, P.Eccd.fSpFinished, pPack->Rec.Flags & CCHKF_SPFINISHED);
+		SETFLAG(P.Eccd.Flags, P.Eccd.fImported,   pPack->Rec.Flags & CCHKF_IMPORTED); // @v11.8.11
 		if(pPack->Ext.AddrID) {
 			LocationTbl::Rec loc_rec;
 			if(PsnObj.LocObj.Search(pPack->Ext.AddrID, &loc_rec) > 0) {
@@ -1398,7 +1391,7 @@ void CPosProcessor::SetupExt(const CCheckPacket * pPack)
 		}
 		P.Eccd.InitDtm = pPack->Ext.CreationDtm;
 		P.Eccd.InitUserID = pPack->Ext.CreationUserID; // @v10.6.8
-		pPack->GetGuid(P.Eccd.Uuid); // @v11.5.8
+		// @v11.8.11 pPack->GetGuid(P.Eccd.Uuid); // @v11.5.8
 		if(P.Eccd.Flags & P.Eccd.fDelivery) {
 			P.Eccd.DlvrDtm = pPack->Ext.StartOrdDtm;
 			// @v11.8.0 {
@@ -1410,23 +1403,19 @@ void CPosProcessor::SetupExt(const CCheckPacket * pPack)
 		// @v11.8.0 {
 		{
 			P.Paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
-			if(pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, temp_buf) > 0 && temp_buf.NotEmptyS()) {
-				P.BuyersEAddrType = SNTOK_EMAIL;
-				P.BuyersEAddr = temp_buf;
-			}
-			else if(pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, temp_buf) > 0 && temp_buf.NotEmptyS()) {
-				P.BuyersEAddrType = SNTOK_PHONE;
-				P.BuyersEAddr = temp_buf;
-			}
-			pPack->GetPrescription(P.Prescr);
+			if(pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, temp_buf) > 0 && temp_buf.NotEmptyS())
+				P.EAddr.SetEMail(temp_buf);
+			else if(pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, temp_buf) > 0 && temp_buf.NotEmptyS())
+				P.EAddr.SetPhone(temp_buf);
+			// @v11.8.11 pPack->GetPrescription(P.Prescr);
 		}
 		// } @v11.8.0 
 		// @v11.8.8 {
-		{
+		/* @v11.8.11 {
 			if(pPack->GetExtStrData(CCheckPacket::extssLinkBillUuid, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 				P.Eccd.LinkBillUuid.FromStr(temp_buf);
 			}
-		}
+		}*/
 		// } @v11.8.8 
 	}
 }
@@ -1602,10 +1591,13 @@ int CPosProcessor::SetupCTable(int tableNo, int guestCount)
 int CPosProcessor::SetupUuid(const S_GUID & rUuid)
 {
 	int    ok = -1;
+	SString temp_buf; // @v11.8.11
 	if(!!rUuid) {
-		P.Eccd.Uuid = rUuid;
+		temp_buf.Cat(rUuid, S_GUID::fmtIDL); // @v11.8.11 
+		// @v11.8.11 P.Eccd.Uuid = rUuid;
 		ok = 1;
 	}
+	P.PutExtStrData(CCheckPacket::extssUuid, temp_buf); // @v11.8.11
 	return ok;
 }
 /*
@@ -1640,7 +1632,7 @@ int CPosProcessor::OpenSession(LDATE * pDt, int ifClosed)
 	if(open) {
 		if(P_CM)
 			r = P_CM->SyncOpenSession(pDt);
-		if(P_CM_EXT)
+		if(P_CM_EXT) {
 			if(P_CM_EXT->GetNodeData().CashType == PPCMT_PAPYRUS) {
 				if(r > 0) {
 					P_CM_EXT->SetParentNode(CashNodeID);
@@ -1649,6 +1641,7 @@ int CPosProcessor::OpenSession(LDATE * pDt, int ifClosed)
 			}
 			else
 				r_ext = P_CM_EXT->SyncOpenSession(pDt);
+		}
 		if(r > 0 || r_ext > 0) {
 			Flags &= ~fOnlyReports;
 			ok = 1;
@@ -2467,7 +2460,7 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 	}
 	LDBLTOMONEY(cct.Amount, pPack->Rec.Amount);
 	LDBLTOMONEY(cct.Discount, pPack->Rec.Discount);
-	P.SetupCCheckPacket(pPack, CSt);
+	P.SetupCCheckPacket(pPack, CSt, false);
 	pPack->SetupPaymList(pCcPl);
 	// @v11.0.9 {
 	// @todo Здесь надо в пакете чека сохранить информацию о ручной скидке.
@@ -2628,7 +2621,7 @@ int CPosProcessor::AutosaveCheck()
 					epb.ExtPack.Rec.CashID = ExtCashNodeID;
 					epb.ExtPack.Rec.Flags  = epb.Pack.Rec.Flags;
 					epb.ExtPack.SetupAmount(&amt, &dscnt);
-					P.SetupCCheckPacket(&epb.ExtPack, CSt);
+					P.SetupCCheckPacket(&epb.ExtPack, CSt, true);
 					epb.ExtPack._Cash = amt;
 				}
 			}
@@ -2886,6 +2879,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 			}
 			SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, P.Eccd.Flags & P.Eccd.fFixedPrice);
 			SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, P.Eccd.Flags & P.Eccd.fSpFinished);
+			SETFLAG(pPack->Rec.Flags, CCHKF_IMPORTED, P.Eccd.Flags & P.Eccd.fImported); // @v11.8.11
 			pPack->Ext.CreationDtm = P.Eccd.InitDtm;
 			pPack->Ext.CreationUserID = P.Eccd.InitUserID; // @v10.6.8
 			SETFLAG(pPack->Rec.Flags, CCHKF_EXT, pPack->HasExt());
@@ -4418,14 +4412,12 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
 									assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));
 									// @v11.3.6 {
-									if(paym_blk2.BuyersEAddr.NotEmpty() && oneof2(paym_blk2.BuyersEAddrType, SNTOK_PHONE, SNTOK_EMAIL)) {
-										P.BuyersEAddrType = paym_blk2.BuyersEAddrType;
-										P.BuyersEAddr = paym_blk2.BuyersEAddr;
+									if(!paym_blk2.EAddr.IsEmpty()) {
+										P.EAddr = paym_blk2.EAddr;
 										P.Paperless = LOGIC(paym_blk2.Flags & PosPaymentBlock::fPaperless);
 									}
 									else {
-										P.BuyersEAddrType = 0;
-										P.BuyersEAddr.Z();
+										P.EAddr.Z();
 										P.Paperless = false;
 									}
 									// } @v11.3.6 
@@ -6387,7 +6379,8 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 int CheckPaneDialog::EditPrescription()
 {
 	int   ok = -1;
-	CCheckPacket::Prescription data(P.Prescr);
+	CCheckPacket::Prescription data/* @v11.8.11 (P.Prescr)*/;
+	CCheckPacket::GetPrescription(P, data);
 	TDialog * dlg = new TDialog(DLG_CCPRESCR);
 	THROW(CheckDialogPtr(&dlg));
 	dlg->setCtrlDate(CTL_CCPRESCR_DT, data.Dt);
@@ -6398,7 +6391,8 @@ int CheckPaneDialog::EditPrescription()
 		dlg->getCtrlString(CTL_CCPRESCR_SERIAL, data.Serial);
 		dlg->getCtrlString(CTL_CCPRESCR_NUMBER, data.Number);
 		if(data.IsValid()) {
-			P.Prescr = data;
+			// @v11.8.11 P.Prescr = data;
+			CCheckPacket::SetPrescription(P, data); // @v11.8.11
 			ok = 1;
 		}
 		else
@@ -7928,8 +7922,9 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int un
 		Helper_SetupSessUuidForCheck(ccID);
 		THROW(tra.Commit());
 	}
-	P.freeAll();
-	P.OrgUserID = 0;
+	P.Z(); // @v11.9.11
+	// @v11.8.11 P.freeAll();
+	// @v11.8.11 P.OrgUserID = 0;
 	{
 		Goods2Tbl::Rec goods_rec;
 		CCheckItem chk_item;
@@ -7941,6 +7936,7 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int un
 			P.insert(&chk_item);
 		}
 	}
+	CCheckPacket::CopyExtStrContainer(P, cc_pack, 0); // @v11.8.11
 	SetupExt(&cc_pack);
 	if(P.getCount()) {
 		if(CnExtFlags & CASHFX_KEEPORGCCUSER)
@@ -11851,7 +11847,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 				ext_pack.Rec.CashID = ExtCashNodeID;
 				ext_pack.Rec.Flags  = pack.Rec.Flags;
 				ext_pack.SetupAmount(&amt, &dscnt);
-				P.SetupCCheckPacket(&ext_pack, CSt);
+				P.SetupCCheckPacket(&ext_pack, CSt, true);
 				ext_pack._Cash = amt;
 			}
 		}

@@ -598,7 +598,7 @@ bool SStrScan::IsDigits()
 	return ok;
 }
 
-int  SStrScan::IsEnd() const { return (!P_Buf || P_Buf[Offs] == 0); }
+bool SStrScan::IsEnd() const { return (!P_Buf || P_Buf[Offs] == 0); }
 bool SStrScan::IsNumber() { return (InitReNumber() && P_ReNumber->Find(P_Buf+Offs)); }
 bool SStrScan::IsHex() { return (InitReHex() && P_ReHex->Find(P_Buf+Offs)); }
 uint FASTCALL SStrScan::IsEol(SEOLFormat eolf) const { return implement_iseol(P_Buf+Offs, eolf); }
@@ -963,16 +963,16 @@ static size_t FASTCALL _MakeWhitespaceCharSet(int ws, char * pBuf)
 	return i;
 }
 
-int FASTCALL SStrScan::IsSpace(int ws) const
+bool FASTCALL SStrScan::IsSpace(int ws) const
 {
-	int    yes = 0;
+	bool   yes = false;
 	if(P_Buf && ws) {
 		char   buf[16];
 		memzero(buf, sizeof(buf));
 		size_t i = _MakeWhitespaceCharSet(ws, buf);
 		const char * p = (P_Buf+Offs);
 		if(smemchr(buf, *p, i)) { // @v11.7.0 memchr-->smemchr
-			yes = 1;
+			yes = true;
 		}
 	}
 	return yes;
@@ -3819,7 +3819,7 @@ SString & SString::EncodeMime64(const void * pBuf, size_t dataLen)
 	size_t needed_size = (dataLen * 2) + 2;
 	size_t real_size = 0;
 	Alloc(needed_size);
-	if(encode64(static_cast<const char *>(pBuf), dataLen, P_Buf, Size, &real_size)) {
+	if(Base64_Encode(static_cast<const char *>(pBuf), dataLen, P_Buf, Size, &real_size)) {
 		L = real_size;
 		assert(Len() == sstrlen(P_Buf));
 	}
@@ -3979,7 +3979,7 @@ int SString::DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) const
 	size_t out_len = bufLen;
 	char   zero_buf[32];
 	PTR32(zero_buf)[0] = 0;
-	int    ok = decode64(NZOR(P_Buf, zero_buf), Len(), static_cast<char *>(pBuf), &out_len);
+	int    ok = Base64_Decode(NZOR(P_Buf, zero_buf), Len(), static_cast<char *>(pBuf), &out_len);
 	ASSIGN_PTR(pRealLen, out_len);
 	return ok;
 }
@@ -5144,7 +5144,7 @@ int SStringU::AnalyzeCase() const
 //
 //
 //
-int SPathStruc::Invariant(SInvariantParam * pInvP)
+int SFsPath::Invariant(SInvariantParam * pInvP)
 {
 	S_INVARIANT_PROLOG(pInvP);
 	SString path, new_path;
@@ -5155,11 +5155,11 @@ int SPathStruc::Invariant(SInvariantParam * pInvP)
 	Merge(path);
 	if(f1 != f2) {
 		S_ERROR_P(pInvP);
-		pInvP->MsgBuf.Printf("SPathStruc: Flags != ret Split(Merge(%s))", new_path.cptr());
+		pInvP->MsgBuf.Printf("SFsPath: Flags != ret Split(Merge(%s))", new_path.cptr());
 	}
 	if(new_path.CmpNC(path) != 0) {
 		S_ERROR_P(pInvP);
-		pInvP->MsgBuf.Printf("SPathStruc: %s != Merge(Split(Merge(%s)))", path.cptr(), new_path.cptr());
+		pInvP->MsgBuf.Printf("SFsPath: %s != Merge(Split(Merge(%s)))", path.cptr(), new_path.cptr());
 	}
 	if(pInvP && pInvP->LocalOk) {
 		if(Flags & fUNC)
@@ -5170,21 +5170,21 @@ int SPathStruc::Invariant(SInvariantParam * pInvP)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SPathStruc::SPathStruc() : Flags(0)
+SFsPath::SFsPath() : Flags(0)
 {
 }
 
-SPathStruc::SPathStruc(const SPathStruc & rS) : Drv(rS.Drv), Dir(rS.Dir), Nam(rS.Nam), Ext(rS.Ext), Flags(rS.Flags)
+SFsPath::SFsPath(const SFsPath & rS) : Drv(rS.Drv), Dir(rS.Dir), Nam(rS.Nam), Ext(rS.Ext), Flags(rS.Flags)
 {
 }
 
-SPathStruc::SPathStruc(const char * pPath) : Flags(0)
+SFsPath::SFsPath(const char * pPath) : Flags(0)
 {
 	if(!isempty(pPath))
 		Split(pPath);
 }
 
-SPathStruc & FASTCALL SPathStruc::operator = (const SPathStruc & rS)
+SFsPath & FASTCALL SFsPath::operator = (const SFsPath & rS)
 {
 	Flags = rS.Flags;
 	Drv = rS.Drv;
@@ -5194,7 +5194,7 @@ SPathStruc & FASTCALL SPathStruc::operator = (const SPathStruc & rS)
 	return *this;
 }
 
-SPathStruc & SPathStruc::Copy(const SPathStruc * pS, long flags)
+SFsPath & SFsPath::Copy(const SFsPath * pS, long flags)
 {
 	if(flags & fDrv) {
 		if(pS) {
@@ -5225,7 +5225,7 @@ SPathStruc & SPathStruc::Copy(const SPathStruc * pS, long flags)
 	return *this;
 }
 
-SPathStruc & SPathStruc::Z()
+SFsPath & SFsPath::Z()
 {
 	Flags = 0;
 	Drv.Z();
@@ -5235,7 +5235,7 @@ SPathStruc & SPathStruc::Z()
 	return *this;
 }
 
-bool SPathStruc::IsEq(const SPathStruc & rS, bool caseSensitive/*= false*/) const
+bool SFsPath::IsEq(const SFsPath & rS, bool caseSensitive/*= false*/) const
 {
 	bool   eq = true;
 	if(Flags != rS.Flags)
@@ -5269,12 +5269,12 @@ bool SPathStruc::IsEq(const SPathStruc & rS, bool caseSensitive/*= false*/) cons
 	return eq;
 }
 
-int SPathStruc::Merge(const SPathStruc * pPattern, long patternFlags, SString & rBuf)
+int SFsPath::Merge(const SFsPath * pPattern, long patternFlags, SString & rBuf)
 {
 	return Copy(pPattern, patternFlags).Merge(rBuf);
 }
 
-int FASTCALL SPathStruc::Merge(SString & rBuf) const
+int FASTCALL SFsPath::Merge(SString & rBuf) const
 {
 	rBuf.Z();
 	if(Flags & fUNC)
@@ -5300,7 +5300,7 @@ int FASTCALL SPathStruc::Merge(SString & rBuf) const
 	return 1;
 }
 
-int SPathStruc::Merge(long mergeFlags, SString & rBuf) const
+int SFsPath::Merge(long mergeFlags, SString & rBuf) const
 {
 	rBuf.Z();
 	char   last = 0;
@@ -5332,7 +5332,7 @@ int SPathStruc::Merge(long mergeFlags, SString & rBuf) const
 	return 1;
 }
 
-void FASTCALL SPathStruc::Split(const char * pPath)
+void FASTCALL SFsPath::Split(const char * pPath)
 {
 	// \\machine_name\dir\nam.ext
 	// c:\dir\nam.ext
@@ -5417,13 +5417,13 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	}
 }
 
-/*static*/bool SPathStruc::IsWindowsPathPrefix(const char * pText)
+/*static*/bool SFsPath::IsWindowsPathPrefix(const char * pText)
 {
 	//#define IS_WINDOWS_PATH(p) ((p) && (((p[0] >= 'a') && (p[0] <= 'z')) || ((p[0] >= 'A') && (p[0] <= 'Z'))) && (p[1] == ':') && ((p[2] == '/') || (p[2] == '\\')))
 	return (pText && isasciialpha(pText[0]) && pText[1] == ':' && isdirslash(pText[2]));
 }
 
-/*static*/uint SPathStruc::GetExt(const SString & rPath, SString * pExt)
+/*static*/uint SFsPath::GetExt(const SString & rPath, SString * pExt)
 {
 	ASSIGN_PTR(pExt, 0);
 	size_t p = rPath.Len();
@@ -5446,7 +5446,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	return (uint)p;
 }
 
-/*static*/int SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int force)
+/*static*/int SFsPath::ReplaceExt(SString & rPath, const char * pExt, int force)
 {
 	int    ok = -1;
 	rPath.Strip();
@@ -5474,7 +5474,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	}
 	return ok;
 	/*
-	SPathStruc ps;
+	SFsPath ps;
 	ps.Split(rPath);
 	if(force || ps.Ext.Empty()) {
 		ps.Ext = pExt;
@@ -5486,18 +5486,18 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	*/
 }
 
-/*static*/int SPathStruc::ReplacePath(SString & rPath, const char * pNewPath, int force)
+/*static*/int SFsPath::ReplacePath(SString & rPath, const char * pNewPath, int force)
 {
 	int    ok = -1;
-	const  SPathStruc ps(rPath);
+	const  SFsPath ps(rPath);
 	if(force || (ps.Drv.IsEmpty() && ps.Dir.IsEmpty())) {
 		if(isempty(pNewPath)) {
-			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rPath);
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, rPath);
 		}
 		else {
 			SString new_path(pNewPath);
-			SPathStruc ps2(new_path.SetLastSlash());
-			ps2.Merge(&ps, SPathStruc::fNam|SPathStruc::fExt, rPath);
+			SFsPath ps2(new_path.SetLastSlash());
+			ps2.Merge(&ps, SFsPath::fNam|SFsPath::fExt, rPath);
 		}
 		ok = 1;
 	}
@@ -5593,7 +5593,7 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 		return 0;
 }
 
-/*static*/SString & SPathStruc::NormalizePath(const char * pPath, long flags, SString & rNormalizedPath)
+/*static*/SString & SFsPath::NormalizePath(const char * pPath, long flags, SString & rNormalizedPath)
 {
 	(rNormalizedPath = pPath).Strip();
 	const bool is_org_utf8 = rNormalizedPath.IsLegalUtf8();
@@ -5656,7 +5656,7 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 	return rNormalizedPath;
 }
 
-/*static*/int SPathStruc::GetRelativePath(const char * lpszFrom, uint dwAttrFrom, const char * lpszTo, uint dwAttrTo, SString & rPath)
+/*static*/int SFsPath::GetRelativePath(const char * lpszFrom, uint dwAttrFrom, const char * lpszTo, uint dwAttrTo, SString & rPath)
 {
 	static const char * szPrevDirSlash = "..\\";
 	static const char * szPrevDir = "..";
@@ -7048,23 +7048,14 @@ uint16 STokenizer::NextChr()
 	return result;
 }
 
-int FASTCALL STokenizer::IsDelim(uint16 chr) const
+bool FASTCALL STokenizer::IsDelim(uint16 chr) const
 {
 	if(P.Delim.NotEmpty()) {
-		if(P.Cp == cpUTF8) {
-			if(DelimU.HasChr(chr))
-				return 1;
-		}
-		else {
-			if(P.Delim.HasChr(chr))
-				return 1;
-		}
+		return (P.Cp == cpUTF8) ? DelimU.HasChr(chr) : P.Delim.HasChr(chr);
 	}
 	else {
-		if(oneof4(chr, ' ', '\t', '\n', '\r'))
-			return 1;
+		return oneof4(chr, ' ', '\t', '\n', '\r');
 	}
-	return 0;
 }
 
 void STokenizer::_CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf)

@@ -685,11 +685,10 @@ bool EscapeJSString(const std::string& in, std::string* out) {
 	return true;
 }
 
-std::string EscapeBase64(const std::string& in) {
-	static const char* kAlphabet =
-	    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+std::string EscapeBase64(const std::string& in) 
+{
+	static const char* kAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	std::string result;
-
 	for(size_t i = 0; i < in.size(); i += 3) {
 		int value = (in[i] << 16) | (((i + 1) < in.size()) ? (in[i + 1] << 8) : 0) |
 		    (((i + 2) < in.size()) ? (in[i + 2] << 0) : 0);

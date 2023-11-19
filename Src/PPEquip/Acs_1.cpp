@@ -30,7 +30,7 @@ int CS_1::GetFileSet(char *, uint filesPerSet)
 	THROW(cnobj.GetAsync(NodeID, &acn) > 0);
 	THROW_PP(acn.ImpFiles.NotEmptyS(), PPERR_INVFILESET);
 	{
-		SPathStruc ps;
+		SFsPath ps;
 		StringSet ss(';', acn.ImpFiles);
 		for(uint i = 0; ss.get(&i, temp_buf);) {
 			if(temp_buf.NotEmptyS()) {
@@ -41,11 +41,11 @@ int CS_1::GetFileSet(char *, uint filesPerSet)
 				for(uint k = 0; ss2.get(&k, temp_buf);) {
 					THROW_PP(temp_buf.NotEmptyS(), PPERR_INVFILESET);
 					ps.Split(temp_buf);
-					if(ps.Flags & (SPathStruc::fDrv | SPathStruc::fUNC))
+					if(ps.Flags & (SFsPath::fDrv | SFsPath::fUNC))
 						temp_path = temp_buf;
 					else
 						(temp_path = in_path).SetLastSlash().Cat(temp_buf);
-					SPathStruc::ReplaceExt(temp_path, "DBF", 0);
+					SFsPath::ReplaceExt(temp_path, "DBF", 0);
 					temp_path.CopyTo(P_Entries[i].fn[j], sizeof(P_Entries[i].fn[j]));
 					++j;
 				}

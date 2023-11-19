@@ -126,7 +126,7 @@ int PPIniFile::Backup(uint maxCopies)
 		long   C;
 	};
 	SString file_name = GetFileName();
-	SPathStruc ps(file_name);
+	SFsPath ps(file_name);
 	SString new_name, temp_name;
 	SString nam = ps.Nam;
 	long   c = 0;

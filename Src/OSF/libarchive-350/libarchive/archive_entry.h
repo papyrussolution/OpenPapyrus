@@ -82,33 +82,30 @@
  * libarchive source should ever define __LIBARCHIVE_BUILD.
  */
 #if ((defined __WIN32__) || (defined _WIN32) || defined(__CYGWIN__)) && (!defined LIBARCHIVE_STATIC)
-#ifdef __LIBARCHIVE_BUILD
-#ifdef __GNUC__
-#define __LA_DECL	__attribute__((dllexport)) extern
+	#ifdef __LIBARCHIVE_BUILD
+		#ifdef __GNUC__
+			#define __LA_DECL	__attribute__((dllexport)) extern
+		#else
+			#define __LA_DECL	__declspec(dllexport)
+		#endif
+	#else
+		#ifdef __GNUC__
+			#define __LA_DECL
+		#else
+			#define __LA_DECL	__declspec(dllimport)
+		#endif
+	#endif
 #else
-#define __LA_DECL	__declspec(dllexport)
+	#define __LA_DECL // Static libraries on all platforms and shared libraries on non-Windows
 #endif
-#else
-#ifdef __GNUC__
-#define __LA_DECL
-#else
-#define __LA_DECL	__declspec(dllimport)
-#endif
-#endif
-#else
-#define __LA_DECL // Static libraries on all platforms and shared libraries on non-Windows
-#endif
-
 #if defined(__GNUC__) && __GNUC__ >= 3 && __GNUC_MINOR__ >= 1
-#define __LA_DEPRECATED __attribute__((deprecated))
+	#define __LA_DEPRECATED __attribute__((deprecated))
 #else
-#define __LA_DEPRECATED
+	#define __LA_DEPRECATED
 #endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*
  * Description of an archive entry.
  *
@@ -357,7 +354,6 @@ __LA_DECL void	archive_entry_copy_stat(ArchiveEntry *, const struct _stat *);
 
 __LA_DECL const void * archive_entry_mac_metadata(const ArchiveEntry *, size_t *);
 __LA_DECL void archive_entry_copy_mac_metadata(ArchiveEntry *, const void *, size_t);
-
 /*
  * Digest routine. This is used to query the raw hex digest for the
  * given entry. The type of digest is provided as an argument.

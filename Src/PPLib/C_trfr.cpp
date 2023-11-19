@@ -1,5 +1,5 @@
 // C_TRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2023
 // @codepage UTF-8
 // Процедуры корректировки товарных проводок
 //
@@ -2260,7 +2260,7 @@ int RecoverTransfer()
 		{
 			int    fpok = 1;
 			fp_err_var = 0;
-#define _FZEROINV(v) if(!IsValidIEEE(r_data.v) || fabs(r_data.v) > big) { fp_err_var.CatDivIfNotEmpty(';', 2).Cat(#v); fpok = 0; }
+#define _FZEROINV(v) if(!SIEEE754::IsValid(r_data.v) || fabs(r_data.v) > big) { fp_err_var.CatDivIfNotEmpty(';', 2).Cat(#v); fpok = 0; }
 			_FZEROINV(Quantity);
 			_FZEROINV(Rest);
 			_FZEROINV(Cost);

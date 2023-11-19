@@ -2451,7 +2451,7 @@ cairo_surface_t * FASTCALL _cairo_surface_create_in_error(cairo_status_t status)
 		case CAIRO_STATUS_SUCCESS:
 		case CAIRO_STATUS_LAST_STATUS:
 		    ASSERT_NOT_REACHED;
-		/* fall-through */
+		// @fallthrough
 		case CAIRO_STATUS_INVALID_RESTORE:
 		case CAIRO_STATUS_INVALID_POP_GROUP:
 		case CAIRO_STATUS_NO_CURRENT_POINT:

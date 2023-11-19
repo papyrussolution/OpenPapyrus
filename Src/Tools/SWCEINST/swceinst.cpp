@@ -49,7 +49,7 @@ int CopyFileToPDA(const char * pSrcFile, const char * pDestFile, SFile * pLogFil
 	if(ok == 1) {
 		size_t wbuflen = 0;
 		SString dest_dir;
-		SPathStruc sp;
+		SFsPath sp;
 		WCHAR * p_wbuf = 0;
 
 		sp.Split(pDestFile);
@@ -167,7 +167,7 @@ void main(int argc, char ** argv)
 	int ok = 0, conn_with_device = 1;
 	SString buf, path, fname;
 	SFile log_file;
-	SPathStruc sp;
+	SFsPath sp;
 
 	sp.Split(argv[0]);
 	sp.Nam = 0;

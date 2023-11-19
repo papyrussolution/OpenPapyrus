@@ -787,7 +787,7 @@ int LZAri::GetFileInfo(int compress)
 		if(compress) {
 			fclose(P_InFile);
 			P_InFile = 0;
-			SPathStruc ps;
+			SFsPath ps;
 			SFile::Stat fs;
 			SFile::GetStat(P_Src, 0, &fs, 0);
 			THROW_S_S((P_InFile = fopen(P_Src, "rb")) != NULL, SLERR_OPENFAULT, P_Src);

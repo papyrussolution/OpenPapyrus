@@ -558,10 +558,10 @@ int WinInetFTP::CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPat
 			InetUrl url(temp_buf);
 			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
-        SPathStruc ps(temp_buf);
+        SFsPath ps(temp_buf);
 		if(ps.Dir.NotEmpty())
 			THROW(CD(ps.Dir));
-        ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+        ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
 	}
 	MEMSZERO(ff_info);
 	MEMSZERO(lf_info);
@@ -595,8 +595,8 @@ static int FtpReInit(WinInetFTP * pFtp, PPLogger * pLog)
 
 static SString & GetFileName(const char * pPath, SString & rFile)
 {
-	SPathStruc ps(pPath);
-	ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rFile); 
+	SFsPath ps(pPath);
+	ps.Merge(SFsPath::fNam|SFsPath::fExt, rFile); 
 	return rFile;
 }
 
@@ -704,7 +704,7 @@ int WinInetFTP::SafeDeleteWOCD(const char * pPath, PPLogger * pLogger)
 {
 	int    r = 0, reinit = 1;
 	const  int tries = IConnCfg.MaxTries > 0 ? IConnCfg.MaxTries : FTP_MAXTRIES;
-	SPathStruc sp;
+	SFsPath sp;
 	SString file_name;
 	for(int i = 0; !r && i < tries; i++) {
 		if(reinit) {
@@ -712,7 +712,7 @@ int WinInetFTP::SafeDeleteWOCD(const char * pPath, PPLogger * pLogger)
 			//int WinInetFTP::DeleteWOCD(const char * pPath)
 			{
 				sp.Split(pPath);
-				sp.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+				sp.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
 				if(!FtpDeleteFile(Connection, SUcSwitch(file_name))) { // @unicodeproblem
 					PPSetError(PPERR_FTPSRVREPLYERR); 
 					r = ReadResponse();
@@ -768,7 +768,7 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 	HINTERNET file_conn = NULL;
 	HINTERNET ftp_dir = NULL;
 	{
-		SPathStruc::NormalizePath(pFTPPath, SPathStruc::npfSlash|SPathStruc::npfKeepCase, temp_buf);
+		SFsPath::NormalizePath(pFTPPath, SFsPath::npfSlash|SFsPath::npfKeepCase, temp_buf);
 		if(temp_buf.HasPrefix("//")) {
 			temp_buf.ShiftLeft(1);
 		}
@@ -776,10 +776,10 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 			InetUrl url(temp_buf);
 			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
-        SPathStruc ps(temp_buf);
+        SFsPath ps(temp_buf);
 		if(ps.Dir.NotEmpty())
 			THROW(CD(ps.Dir));
-        ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+        ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
 	}
 	MEMSZERO(lf_info);
 	MEMSZERO(ff_info);
@@ -889,7 +889,7 @@ int WinInetFTP::Delete(const char * pPath)
 	SString file_name;
 	{
 		SString temp_buf;
-		SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash|SPathStruc::npfKeepCase, temp_buf);
+		SFsPath::NormalizePath(pPath, SFsPath::npfSlash|SFsPath::npfKeepCase, temp_buf);
 		if(temp_buf.HasPrefix("//")) {
 			temp_buf.ShiftLeft(1);
 		}
@@ -897,10 +897,10 @@ int WinInetFTP::Delete(const char * pPath)
 			InetUrl url(temp_buf);
 			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
-        SPathStruc ps(temp_buf);
+        SFsPath ps(temp_buf);
 		if(ps.Dir.NotEmpty())
 			THROW(CD(ps.Dir));
-        ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+        ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
 	}
 	THROW_PP(FtpDeleteFile(Connection, SUcSwitch(file_name)), PPERR_FTPSRVREPLYERR); // @unicodeproblem
 	CATCH
@@ -915,7 +915,7 @@ int WinInetFTP::Exists(const char * pPath)
 	SString file_name;
 	{
 		SString temp_buf;
-		SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash|SPathStruc::npfKeepCase, temp_buf);
+		SFsPath::NormalizePath(pPath, SFsPath::npfSlash|SFsPath::npfKeepCase, temp_buf);
 		if(temp_buf.HasPrefix("//")) {
 			temp_buf.ShiftLeft(1);
 		}
@@ -923,10 +923,10 @@ int WinInetFTP::Exists(const char * pPath)
 			InetUrl url(temp_buf);
 			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
-        SPathStruc ps(temp_buf);
+        SFsPath ps(temp_buf);
 		if(ps.Dir.NotEmpty())
 			ok = CD(ps.Dir);
-        ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+        ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
 	}
 	if(ok) {
 		WIN32_FIND_DATA ff_info;
@@ -946,7 +946,7 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 	int    ok = 1;
 	if(!isempty(pDir)) {
 		SString temp_buf;
-		SPathStruc::NormalizePath(pDir, SPathStruc::npfSlash|SPathStruc::npfKeepCase, temp_buf);
+		SFsPath::NormalizePath(pDir, SFsPath::npfSlash|SFsPath::npfKeepCase, temp_buf);
 		if(temp_buf.HasPrefix("//")) {
 			temp_buf.ShiftLeft(1);
 		}
@@ -954,7 +954,7 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 			InetUrl url(temp_buf);
 			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
-        SPathStruc ps(temp_buf);
+        SFsPath ps(temp_buf);
 		if(ps.Dir.NotEmpty())
 			ok = CD(ps.Dir);
 	}
@@ -987,7 +987,7 @@ int WinInetFTP::CD(const char * pDir, int isFullPath /*=1*/)
 {
 	int    ok = 1, r;
 	if(pDir) {
-		SPathStruc ps(pDir);
+		SFsPath ps(pDir);
 		SString sdir = ps.Dir;
 		{
 			uint   stop = 0;

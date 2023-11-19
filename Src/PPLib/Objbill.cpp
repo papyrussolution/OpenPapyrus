@@ -956,14 +956,14 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 		}
 		if(SMemo.NotEmpty())
 			STRNSCPY(cp.Ext.Memo, SMemo);
-		if(rParam.BuyersEAddr.NotEmpty()) {
-			if(rParam.BuyersEAddrType == SNTOK_EMAIL) {
-				cp.PutExtStrData(CCheckPacket::extssBuyerEMail, rParam.BuyersEAddr);
+		if(!rParam.EAddr.IsEmpty()) {
+			if(rParam.EAddr.AddrType == SNTOK_EMAIL) {
+				cp.PutExtStrData(CCheckPacket::extssBuyerEMail, rParam.EAddr.EAddr);
 				cp.PutExtStrData(CCheckPacket::extssBuyerPhone, 0);
 			}
-			else if(rParam.BuyersEAddrType == SNTOK_PHONE) {
+			else if(rParam.EAddr.AddrType == SNTOK_PHONE) {
 				cp.PutExtStrData(CCheckPacket::extssBuyerEMail, 0);
-				cp.PutExtStrData(CCheckPacket::extssBuyerPhone, rParam.BuyersEAddr);
+				cp.PutExtStrData(CCheckPacket::extssBuyerPhone, rParam.EAddr.EAddr);
 			}
 			SETFLAG(cp.Rec.Flags, CCHKF_PAPERLESS, rParam.Flags_ & PPBillPacket::ConvertToCCheckParam::fPaperless);
 		}
@@ -1173,7 +1173,7 @@ int PPObjBill::PrintCheck__(PPBillPacket * pPack, PPID posNodeID, int addSummato
 	return ok;
 }
 
-PPBillPacket::ConvertToCCheckParam::ConvertToCCheckParam() : PosNodeID(0), PaymType(0), LocID(0), DivisionN(0), Amount(0.0), Flags_(0), BuyersEAddrType(0)
+PPBillPacket::ConvertToCCheckParam::ConvertToCCheckParam() : PosNodeID(0), PaymType(0), LocID(0), DivisionN(0), Amount(0.0), Flags_(0)/*, BuyersEAddrType(0)*/
 {
 }
 
@@ -1183,8 +1183,8 @@ bool PPBillPacket::ConvertToCCheckParam::SetBuyersEAddr(int addrType, const char
 	THROW(oneof3(addrType, 0, SNTOK_EMAIL, SNTOK_PHONE));
 	THROW(isempty(pAddr) || oneof2(addrType, SNTOK_EMAIL, SNTOK_PHONE));
 	THROW(addrType == 0 || !isempty(pAddr));
-	BuyersEAddrType = addrType;
-	(BuyersEAddr = pAddr).Strip();
+	EAddr.AddrType = addrType;
+	(EAddr.EAddr = pAddr).Strip();
 	CATCHZOK
 	return ok;
 }
@@ -1250,8 +1250,9 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 			setCtrlLong(CTL_CCBYBILL_DIVISION, Data.DivisionN);
 			// @v11.3.7
 			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { 
-				Data.BuyersEAddr.SetIfEmpty(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
-				setCtrlString(CTL_CCBYBILL_EADDR, Data.BuyersEAddr);
+				if(Data.EAddr.IsEmpty())
+					Data.EAddr.SetEMail(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
+				setCtrlString(CTL_CCBYBILL_EADDR, Data.EAddr.EAddr);
 				setCtrlUInt16(CTL_CCBYBILL_PAPERLESS, BIN(Data.Flags_ & PPBillPacket::ConvertToCCheckParam::fPaperless));
 			}
 			// } @v11.3.7
@@ -1433,14 +1434,10 @@ int PPObjBill::PosPrintByBill(PPID billID)
 					assert(ss.getCount());
 					ss.get(0U, _email);
 				}				
-				if(_email.NotEmpty()) {
-					param.BuyersEAddr = _email;
-					param.BuyersEAddrType = SNTOK_EMAIL;
-				}
-				else if(_phone.NotEmpty()) {
-					param.BuyersEAddr = _phone;
-					param.BuyersEAddrType = SNTOK_PHONE;
-				}
+				if(_email.NotEmpty())
+					param.EAddr.SetEMail(_email);
+				else if(_phone.NotEmpty())
+					param.EAddr.SetPhone(_phone);
 			}
 			// } @v11.3.8 
 			// } @v11.1.5 
@@ -6593,7 +6590,7 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 				pPack->LTagL = local_ltagl; // @v11.7.3
 				SString img_path;
 				SString img_tag_addendum;
-				SPathStruc sp;
+				SFsPath sp;
 				for(uint i = 0; i < pPack->GetTCount(); i++) {
 					ObjTagList * p_tag_list = pPack->LTagL.Get(i);
 					if(p_tag_list) {

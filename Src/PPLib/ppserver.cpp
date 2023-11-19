@@ -2245,8 +2245,8 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, int contentType 
 			//SFile::Stat fs;
 			SFileFormat ff(SFileFormat::Unkn);
 			THROW(p_inbuf && p_inbuf->P_Buf && p_inbuf->Size > 0 && p_inbuf->Size <= SMEGABYTE(1024)); // @err
-			//SPathStruc ps(_file_name);
-			//ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+			//SFsPath ps(_file_name);
+			//ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 			//
 			// В качестве имени файла используем суррогат: sha256 hash содержимого буфера закодированный в base32.
 			const binary256 hash = SlHash::Sha256(0, p_inbuf->P_Buf, p_inbuf->Size);
@@ -2305,8 +2305,8 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, int contentType 
 			{
 				SFile::Stat fs;
 				SFileFormat ff;
-				SPathStruc ps(_file_name);
-				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+				SFsPath ps(_file_name);
+				ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 				temp_buf.CopyTo(blk.Name, sizeof(blk.Name));
 				THROW(SFile::GetStat(_file_name, 0, &fs, 0));
 				blk.CrtTime = fs.CrtTime;
@@ -3109,8 +3109,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				{
 					dev_uuid = dev_name; // @todo
 					if(dev_uuid.IsEmpty()) {
-						SPathStruc sp(temp_path);
-						sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, log_path);
+						SFsPath sp(temp_path);
+						sp.Merge(SFsPath::fDrv|SFsPath::fDir, log_path);
 					}
 					else {
 						PPGetPath(PPPATH_SPII, log_path);
@@ -3121,8 +3121,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				if(fileExists(temp_path)) {
 					long start = 1;
 					SString dir, path;
-					SPathStruc sp(temp_path);
-					sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, dir);
+					SFsPath sp(temp_path);
+					sp.Merge(SFsPath::fDrv|SFsPath::fDir, dir);
 					path = MakeTempFileName(dir, "out", "xml", &start, path);
 					SCopyFile(temp_path, path, 0, FILE_SHARE_READ, 0);
 					{
@@ -3133,7 +3133,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					if(dev_name.IsEmpty()) {
 						SString right;
 						StringSet ss("\\");
-						SPathStruc sp(temp_path);
+						SFsPath sp(temp_path);
 						ss.setBuf(sp.Dir);
 						sp.Dir.RmvLastSlash();
 						sp.Dir.Reverse();

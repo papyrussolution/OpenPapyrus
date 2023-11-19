@@ -148,7 +148,7 @@ int SFSortChunkInfo::Finish(const char * pSrcFileName, SfSortStringPool & rChunk
 		//
 		SString line_buf;
 		SString temp_buf;
-		SPathStruc ps(pSrcFileName);
+		SFsPath ps(pSrcFileName);
 		ps.Nam.CatChar('-').Cat("temp").CatLongZ(ChunkNo, 8);
 		ps.Merge(FileName);
 		SFile f_temp(FileName, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
@@ -350,7 +350,7 @@ int SFSortChunkInfoList::Merge(uint firstIdx, uint lastIdx, SFSortChunkInfoList 
 			THROW(p_result_chunk);
 			{
 				SString temp_buf;
-				SPathStruc ps(SrcFileName);
+				SFsPath ps(SrcFileName);
 				ps.Nam.CatChar('-').Cat("temp").CatLongZ((long)p_result_chunk->ChunkNo, 8);
 				ps.Merge(p_result_chunk->FileName);
 				{
@@ -441,7 +441,7 @@ SFile::SortParam::SortParam() : MaxChunkSize(8*1024*1024), MaxChunkCount(8), Max
 	const  SString src_file_name(pSrcFileName_);
 	SString line_buf;
 	SString temp_buf;
-	SPathStruc ps;
+	SFsPath ps;
 	SFSortChunkInfoList * p_header_list = new SFSortChunkInfoList(src_file_name, max_chunk_count, fcmp, pExtraParam);
 	SFSortChunkInfoList * p_current_list = 0;
 	THROW(p_header_list);
@@ -673,7 +673,7 @@ SLTEST_R(FileSort)
 		sp.MaxChunkSize = 1024 * 1024;
 		sp.MaxThread = 2;
 		{
-			SPathStruc ps(test_file_name);
+			SFsPath ps(test_file_name);
 			ps.Nam.CatChar('-').Cat("sorted");
 			ps.Merge(dest_file_name);
 		}

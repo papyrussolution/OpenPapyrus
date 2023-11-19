@@ -754,8 +754,8 @@ int SlProcess::Run(SlProcess::Result * pResult)
 		SStringU working_dir_u;
 		cmd_line_u.CopyFromUtf8(pPe->FullResolvedPath);
 		STRNSCPY(cmd_line_, cmd_line_u);
-		SPathStruc ps(pPe->FullResolvedPath);
-		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+		SFsPath ps(pPe->FullResolvedPath);
+		ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
 		working_dir_u.CopyFromUtf8(temp_buf.SetLastSlash());
 		STRNSCPY(working_dir_, working_dir_u);
 		SECURITY_ATTRIBUTES process_attr;

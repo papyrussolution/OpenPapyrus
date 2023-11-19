@@ -4,33 +4,9 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-/*static void FASTCALL makebasis64(char * pBuf)
+bool STDCALL Base64_Encode(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen)
 {
-// 
-// ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
-// ????????????????????????????????????????????????????????????????
-// ????????????????????????????????????????????????????????????????
-// ???????????
-// 
-	const size_t count = 203;
-	size_t p = 0;
-	char   i;
-	for(i = 0; i < 'Z'-'A'+1; i++)
-		pBuf[p++] = 'A' + i;
-	for(i = 0; i < 'z'-'a'+1; i++)
-		pBuf[p++] = 'a' + i;
-	for(i = 0; i < 10; i++)
-		pBuf[p++] = '0'+i;
-	pBuf[p++] = '+';
-	pBuf[p++] = '/';
-	while(p < count)
-		pBuf[p++] = '?';
-	pBuf[p] = 0;
-}*/
-
-int STDCALL encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen)
-{
-	int    ok = 1;
+	bool    ok = true;
 	uchar * out = reinterpret_cast<uchar *>(pOut);
 	uchar  oval;
 	const  uchar * in = reinterpret_cast<const uchar *>(pIn);
@@ -65,7 +41,7 @@ int STDCALL encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax,
 	real_len++;
 	ASSIGN_PTR(pOutLen, real_len);
 	CATCH
-		ok = (SLibError = SLERR_BUFTOOSMALL, 0);
+		ok = SLS.SetError(SLERR_BUFTOOSMALL);
 	ENDCATCH
 	return ok;
 }
@@ -92,10 +68,10 @@ static const char index_64[] = {
 
 #define CHAR64(c) (index_64[(uint8)(c)])
 
-int STDCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen)
+bool STDCALL Base64_Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen)
 {
 	assert(sizeof(index_64) == 256);
-	int    ok = 1;//, c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+	bool   ok = true;//, c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 	size_t len = 0, lup = 0;
 	char * p_out = pOut;
 	const  char * p_in = pIn;
@@ -146,6 +122,131 @@ int STDCALL decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutL
 	ASSIGN_PTR(pOutLen, len);
 	CATCHZOK
 	return ok;
+}
+//
+//  од ниже заимствован из проекта argon2 со справочной целью. я не думаю, что буду запускать
+// его в работу. —обственно, мен€ привлекли трюки с операци€ми сравнени€ (ARGON2_EQ, ARGON2_LT etc)
+// 
+// Constant-time variant of base64 encoding/decoding from the Argon2 project 
+// Copyright (c) 2015 Thomas Pornin
+//
+// Note: the Base64 functions below assume that uppercase letters (resp. lowercase letters) 
+// have consecutive numerical codes, that fit on 8 bits. All modern systems use ASCII-compatible charsets, where these
+// properties are true. If you are stuck with a dinosaur of a system
+// that still defaults to EBCDIC then you already have much bigger interoperability issues to deal with.
+// 
+// Some macros for constant-time comparisons. These work over values in
+// the 0..255 range. Returned value is 0x00 on "false", 0xFF on "true".
+// 
+#define ARGON2_EQ(x, y) ((((0U - ((uint)(x) ^ (uint)(y))) >> 8) & 0xFF) ^ 0xFF)
+#define ARGON2_GT(x, y) ((((uint)(y) - (uint)(x)) >> 8) & 0xFF)
+#define ARGON2_GE(x, y) (ARGON2_GT(y, x) ^ 0xFF)
+#define ARGON2_LT(x, y) ARGON2_GT(y, x)
+#define ARGON2_LE(x, y) ARGON2_GE(y, x)
+// 
+// Convert value x (0..63) to corresponding Base64 character.
+// 
+static FORCEINLINE int b64_byte_to_char(uint x) 
+{
+	return (ARGON2_LT(x, 26) & (x + 'A')) | (ARGON2_GE(x, 26) & ARGON2_LT(x, 52) & (x + ('a' - 26))) |
+		(ARGON2_GE(x, 52) & ARGON2_LT(x, 62) & (x + ('0' - 52))) | (ARGON2_EQ(x, 62) & '+') | (ARGON2_EQ(x, 63) & '/');
+}
+// 
+// Convert character c to the corresponding 6-bit value. If character c
+// is not a Base64 character, then 0xFF (255) is returned.
+// 
+static FORCEINLINE uint b64_char_to_byte(int c) 
+{
+	const uint x = (ARGON2_GE(c, 'A') & ARGON2_LE(c, 'Z') & (c - 'A')) | (ARGON2_GE(c, 'a') & ARGON2_LE(c, 'z') & (c - ('a' - 26))) |
+		(ARGON2_GE(c, '0') & ARGON2_LE(c, '9') & (c - ('0' - 52))) | (ARGON2_EQ(c, '+') & 62) | (ARGON2_EQ(c, '/') & 63);
+	return x | (ARGON2_EQ(x, 0) & (ARGON2_EQ(c, 'A') ^ 0xFF));
+}
+// 
+// Convert some bytes to Base64. 'dst_len' is the length (in characters)
+// of the output buffer 'dst'; if that buffer is not large enough to
+// receive the result (including the terminating 0), then (size_t)-1
+// is returned. Otherwise, the zero-terminated Base64 string is written
+// in the buffer, and the output length (counted WITHOUT the terminating
+// zero) is returned.
+// 
+size_t Base64_Encode_Argon2(char * dst, size_t dst_len, const void * src, size_t src_len) 
+{
+	const uchar * buf;
+	uint acc, acc_len;
+	size_t olen = (src_len / 3) << 2;
+	switch(src_len % 3) {
+		case 2:
+			olen++;
+			/* fall through */
+		case 1:
+			olen += 2;
+			break;
+	}
+	if(dst_len <= olen) {
+		return (size_t)-1;
+	}
+	acc = 0;
+	acc_len = 0;
+	buf = (const uchar *)src;
+	while(src_len-- > 0) {
+		acc = (acc << 8) + (*buf++);
+		acc_len += 8;
+		while(acc_len >= 6) {
+			acc_len -= 6;
+			*dst++ = (char)b64_byte_to_char((acc >> acc_len) & 0x3F);
+		}
+	}
+	if(acc_len > 0) {
+		*dst++ = (char)b64_byte_to_char((acc << (6 - acc_len)) & 0x3F);
+	}
+	*dst++ = 0;
+	return olen;
+}
+// 
+// Decode Base64 chars into bytes. The '*dst_len' value must initially
+// contain the length of the output buffer '*dst'; when the decoding
+// ends, the actual number of decoded bytes is written back in '*dst_len'.
+// 
+// Decoding stops when a non-Base64 character is encountered, or when
+// the output buffer capacity is exceeded. If an error occurred (output
+// buffer is too small, invalid last characters leading to unprocessed
+// buffered bits), then NULL is returned; otherwise, the returned value
+// points to the first non-Base64 character in the source stream, which
+// may be the terminating zero.
+// 
+static const char * Base64_Decode_Argon2(void * dst, size_t * dst_len, const char * src) 
+{
+	uchar * buf = (uchar *)dst;
+	size_t len = 0;
+	uint acc = 0;
+	uint acc_len = 0;
+	for(;;) {
+		uint d = b64_char_to_byte(*src);
+		if(d == 0xFF) {
+			break;
+		}
+		src++;
+		acc = (acc << 6) + d;
+		acc_len += 6;
+		if(acc_len >= 8) {
+			acc_len -= 8;
+			if((len++) >= *dst_len) {
+				return NULL;
+			}
+			*buf++ = (acc >> acc_len) & 0xFF;
+		}
+	}
+	// 
+	// If the input length is equal to 1 modulo 4 (which is
+	// invalid), then there will remain 6 unprocessed bits;
+	// otherwise, only 0, 2 or 4 bits are buffered. The buffered
+	// bits must also all be zero.
+	// 
+	if(acc_len > 4 || (acc & ((1U << acc_len) - 1)) != 0) {
+		return NULL;
+	}
+	*dst_len = len;
+	return src;
 }
 //
 //

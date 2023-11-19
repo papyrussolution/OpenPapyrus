@@ -1652,7 +1652,7 @@ int CallbackBizScToFtpTransfer(long count, long total, const char * pMsg, int)
 	THROW_PP(ftpAcctID, PPERR_FTPACCTUNDEF);
 	{
 		SString buf;
-		SPathStruc sp;
+		SFsPath sp;
 		PPInternetAccount acct;
 		PPObjInternetAccount obj_acct;
 		(buf = "\\\\").Cat(ftp_path).SetLastSlash();

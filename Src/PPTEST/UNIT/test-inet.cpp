@@ -119,7 +119,7 @@ static void Test_MailMsg_ReadFromFile()
 			{
 				SString out_file_name;
 				SString out_buf;
-				SPathStruc ps(f_in.GetName());
+				SFsPath ps(f_in.GetName());
 				ps.Nam.Cat("-testoutput");
 				ps.Ext = "out";
 				ps.Merge(out_file_name);

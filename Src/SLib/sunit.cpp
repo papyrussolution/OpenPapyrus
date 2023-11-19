@@ -1,5 +1,5 @@
 // SUNIT.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2016, 2017, 2020
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2016, 2017, 2020, 2023
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -199,16 +199,14 @@ void USize::SetInvalid()
 	Dir = -1;
 }
 
-bool USize::IsValid() const { return (IsValidIEEE(S) && Dir >= 0); }
+bool USize::IsValid() const { return (SIEEE754::IsValid(S) && Dir >= 0); }
 
 int USize::FromStr(const char * pStr, int fmt)
 {
 	int    ok = 0;
-
 	S = 0.0;
 	Unit = 0;
 	Dir = 0;
-
 	SString temp_buf;
 	SStrScan scan(pStr);
 	if(scan.Skip().GetDotPrefixedNumber(temp_buf)) {

@@ -80,18 +80,23 @@ SBuffer & FASTCALL SBuffer::operator = (const SBuffer & s)
 	return *this;
 }
 
-int FASTCALL SBuffer::Copy(const SBuffer & s)
+int FASTCALL SBuffer::Copy(const SBuffer & rS)
 {
-	Destroy();
-	if(Alloc(s.WrOffs)) {
-		memcpy(P_Buf, s.P_Buf, s.WrOffs);
-		RdOffs = 0;
-		WrOffs = s.WrOffs;
-		Flags  = s.Flags;
-		return 1;
+	int    ok = 1;
+	if(this != &rS) {
+		Z(); // @v11.8.11 Destroy()-->Z()
+		if(Alloc(rS.WrOffs)) {
+			memcpy(P_Buf, rS.P_Buf, rS.WrOffs);
+			RdOffs = 0;
+			WrOffs = rS.WrOffs;
+			Flags  = rS.Flags;
+		}
+		else
+			ok = 0;
 	}
 	else
-		return 0;
+		ok = -1;
+	return ok;
 }
 
 bool SBuffer::IsValid()
@@ -126,11 +131,6 @@ SBuffer & SBuffer::Z()
 	return *this;
 }
 
-void * FASTCALL SBuffer::Ptr(size_t offs) const { return (static_cast<int8 *>(P_Buf)+offs); }
-const  void * FASTCALL SBuffer::GetBuf(size_t offs) const { return static_cast<const void *>(Ptr(offs)); }
-const  char * FASTCALL SBuffer::GetBufC(size_t offs) const { return static_cast<const char *>(Ptr(offs)); }
-const  int8 * FASTCALL SBuffer::GetBufI8(size_t offs) const { return static_cast<const int8 *>(Ptr(offs)); }
-const  uint8 * FASTCALL SBuffer::GetBufU8(size_t offs) const { return static_cast<const uint8 *>(Ptr(offs)); }
 void   FASTCALL SBuffer::SetRdOffs(size_t offs) { RdOffs = MIN(offs, WrOffs); }
 void   FASTCALL SBuffer::SetWrOffs(size_t offs) { WrOffs = MAX(MIN(offs, Size), RdOffs); }
 size_t SBuffer::GetAvailableSize() const { return (WrOffs > RdOffs) ? (WrOffs - RdOffs) : 0; }
@@ -147,26 +147,7 @@ int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 		}
 		const size_t new_size = (WrOffs + size);
 		if((new_size <= Size) || Alloc(new_size)) { // @v9.4.1 (new_size <= Size) с целью ускорения
-			void * _ptr = Ptr(WrOffs);
-			switch(size) {
-				case 1: *PTR8(_ptr) = *PTR8C(pBuf); break;
-				case 2: *PTR16(_ptr) = *PTR16C(pBuf); break;
-				case 4: *PTR32(_ptr) = *PTR32C(pBuf); break;
-				case 8: *PTR64(_ptr) = *PTR64C(pBuf); break;
-				case 12:
-					PTR32(_ptr)[0] = PTR32C(pBuf)[0];
-					PTR32(_ptr)[1] = PTR32C(pBuf)[1];
-					PTR32(_ptr)[2] = PTR32C(pBuf)[2];
-					break;
-				case 16:
-					PTR32(_ptr)[0] = PTR32C(pBuf)[0];
-					PTR32(_ptr)[1] = PTR32C(pBuf)[1];
-					PTR32(_ptr)[2] = PTR32C(pBuf)[2];
-					PTR32(_ptr)[3] = PTR32C(pBuf)[3];
-					break;
-				default:
-					memcpy(_ptr, pBuf, size);
-			}
+			memcpy(Ptr(WrOffs), pBuf, size);
 			WrOffs += size;
 		}
 		else
@@ -189,7 +170,7 @@ size_t FASTCALL SBuffer::ReadStatic(void * pBuf, size_t bufLen) const
 
 size_t FASTCALL SBuffer::Read(void * pBuf, size_t bufLen)
 {
-	size_t sz = ReadStatic(pBuf, bufLen);
+	const size_t sz = ReadStatic(pBuf, bufLen);
 	RdOffs += sz;
 	return sz;
 }
@@ -267,7 +248,6 @@ size_t SBuffer::ReadTerm(const char * pTerm, void * pBuf, size_t bufLen)
 size_t FASTCALL SBuffer::ReadLine(SString & rBuf)
 {
 	rBuf.Z();
-
 	size_t sz = 0;
 	const size_t avl_size = GetAvailableSize();
 	const char * p_buf = static_cast<const char *>(P_Buf) + RdOffs;
@@ -571,10 +551,32 @@ bool FASTCALL SBaseBuffer::IsEq(const SBaseBuffer & rS) const
 		return true;
 }
 
+bool SBaseBuffer::IsEqPrefix(const SBaseBuffer & rS, size_t prefixLen) const // @v11.8.11
+{
+	assert(prefixLen <= Size && prefixLen <= rS.Size);
+	if(!(prefixLen <= Size && prefixLen <= rS.Size))
+		return false;
+	else if(prefixLen && memcmp(P_Buf, rS.P_Buf, prefixLen) != 0)
+		return false;
+	else
+		return true;
+}
+
 bool FASTCALL SBaseBuffer::Copy(const SBaseBuffer & rS)
 {
 	if(Alloc(rS.Size)) {
 		memcpy(P_Buf, rS.P_Buf, rS.Size);
+		return true;
+	}
+	else
+		return false;
+}
+
+bool SBaseBuffer::CopyPrefix(const SBaseBuffer & rS, size_t prefixLen) // @v11.8.11
+{
+	assert(prefixLen <= rS.Size);
+	if((prefixLen <= rS.Size) && Alloc(prefixLen)) {
+		memcpy(P_Buf, rS.P_Buf, prefixLen);
 		return true;
 	}
 	else
@@ -772,7 +774,7 @@ int SBinaryChunk::FromMime64(const char * pMimeString)
 		{
 			assert(P_Buf); // (in_len > 0) and Ensure() garantee it
 			size_t out_len = Len();
-			ok = decode64(pMimeString, in_len, static_cast<char *>(P_Buf), &out_len);
+			ok = Base64_Decode(pMimeString, in_len, static_cast<char *>(P_Buf), &out_len);
 			assert(out_len <= Len());
 			if(ok)
 				L = out_len;

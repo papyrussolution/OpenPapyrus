@@ -226,7 +226,7 @@ FORCE_INLINE_TEMPLATE size_t HUF_readStats_body(BYTE * huffWeight, size_t hwSize
     uint32 * nbSymbolsPtr, uint32 * tableLogPtr, const void * src, size_t srcSize, void * workSpace, size_t wkspSize, int bmi2)
 {
 	uint32 weightTotal;
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	size_t iSize;
 	size_t oSize;
 	if(!srcSize) 

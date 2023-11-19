@@ -638,8 +638,8 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 	}
 	else {
 		SString temp_buf;
-		SPathStruc ps_temp;
-		SPathStruc ps(_file_name);
+		SFsPath ps_temp;
+		SFsPath ps(_file_name);
 		if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty()) {
 			PPGetPath(PPPATH_OUT, temp_buf);
 			ps_temp.Split(temp_buf);
@@ -705,10 +705,10 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 	int    ok = -1;
 	SString _file_spec;
 	(_file_spec = FileName).Transf(CTRANSF_INNER_TO_OUTER);
-	SPathStruc ps(_file_spec);
+	SFsPath ps(_file_spec);
 	SString wildcard, path;
 	(wildcard = ps.Nam).Dot().Cat(ps.Ext);
-	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
+	ps.Merge(0, SFsPath::fNam|SFsPath::fExt, path);
 	//return rList.Scan(path, wildcard);
 	//PPFileNameArray ffa;
 	SFileEntryPool fep;
@@ -786,7 +786,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 		if(url_prot <= 0 || url_prot == InetUrl::protFile) {
 			SString path;
 			SString file_name;
-			SPathStruc ps;
+			SFsPath ps;
 			if(url_prot == InetUrl::protFile) {
 				url.GetComponent(InetUrl::cPath, 0, file_name);
 			}
@@ -794,11 +794,11 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				file_name = pUrl;
 			else {
 				ps.Split(FileName);
-				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+				ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
 			}
 			ps.Split(file_name);
-			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, wildcard);
-			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, wildcard);
+			ps.Merge(SFsPath::fDrv|SFsPath::fDir, path);
 			// @todo obsolete block. must be refactored {
 			if(ia_obj.Get(InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
 				StrAssocArray file_list;
@@ -812,7 +812,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				THROW(ftp.GetFileList(ftp_path, &file_list, /*file_name*/wildcard));
 				for(uint i = 0; i < file_list.getCount(); i++) {
 					StrAssocArray::Item item = file_list.Get(i);
-					//SPathStruc::NormalizePath((temp_buf = ftp_path).Cat(item.Txt), SPathStruc::npfSlash|SPathStruc::npfKeepCase, file_name);
+					//SFsPath::NormalizePath((temp_buf = ftp_path).Cat(item.Txt), SFsPath::npfSlash|SFsPath::npfKeepCase, file_name);
 					(file_name = ftp_path).Cat(item.Txt);
 					PPGetFilePath(PPPATH_IN, item.Txt, temp_buf);
 					THROW(ftp.SafeGet(temp_buf, file_name, 1, 0, pLogger));
@@ -839,7 +839,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 			if(url_prot <= 0 || url_prot == InetUrl::protFile) {
 				SString path;
 				SString file_name;
-				SPathStruc ps;
+				SFsPath ps;
 				if(url_prot == InetUrl::protFile) {
 					url.GetComponent(InetUrl::cPath, 0, file_name);
 				}
@@ -847,11 +847,11 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 					file_name = pUrl;
 				else {
 					ps.Split(FileName);
-					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+					ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
 				}
 				ps.Split(file_name);
-				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, wildcard);
-				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
+				ps.Merge(SFsPath::fNam|SFsPath::fExt, wildcard);
+				ps.Merge(SFsPath::fDrv|SFsPath::fDir, path);
 				{
 					//
 					// Сначала получим список всех файлов из явно указанного каталога
@@ -1021,7 +1021,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 		long   id = 0;
 		SString normalized_name;
 		for(i = 0; rList.get(&i, temp_buf);) {
-			SPathStruc::NormalizePath(temp_buf, 0, normalized_name);
+			SFsPath::NormalizePath(temp_buf, 0, normalized_name);
 			temp_list.Add(++id, normalized_name);
 		}
 		temp_list.SortByText();
@@ -1050,8 +1050,8 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 			SString ftp_path;
 			SString naked_file_name;
 			{
-				SPathStruc ps(FileName);
-				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, naked_file_name);
+				SFsPath ps(FileName);
+				ps.Merge(SFsPath::fNam|SFsPath::fExt, naked_file_name);
 				ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
 				//@v10.3.10 ftp_path.SetLastSlash().Cat(naked_file_name);
 			}
@@ -1067,7 +1067,7 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 				SString accs_name;
 				char   pwd[256];
 				(param.SrcPath = FileName).Transf(CTRANSF_OUTER_TO_UTF8); // @v11.8.10 Transf(CTRANSF_OUTER_TO_UTF8)
-				SPathStruc::NormalizePath(ftp_path, SPathStruc::npfSlash|SPathStruc::npfKeepCase, param.DestPath);
+				SFsPath::NormalizePath(ftp_path, SFsPath::npfSlash|SFsPath::npfKeepCase, param.DestPath);
 				param.Flags = 0;
 				param.Format = SFileFormat::Unkn;
 				ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
@@ -2028,10 +2028,10 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		}
 		else {
 			SString dir;
-			SPathStruc sp(filename);
-			sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, dir);
+			SFsPath sp(filename);
+			sp.Merge(0, SFsPath::fNam|SFsPath::fExt, dir);
 			if(!pathValid(dir.SetLastSlash(), 1))
-				createDir(dir);
+				SFile::CreateDir(dir);
 		}
 	}
 	if(P.DataFormat == PPImpExpParam::dfDbf) {
@@ -2120,7 +2120,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		SETFLAG(State, sBuffer, is_buffer);
 		SETFLAG(State, sReadOnly, readOnly);
 		if(pResultFileList && !is_buffer) {
-            SPathStruc::NormalizePath(filename, 0, temp_buf);
+            SFsPath::NormalizePath(filename, 0, temp_buf);
             if(temp_buf.NotEmpty()) {
 				if(!pResultFileList->search(temp_buf, 0, 1))
 					pResultFileList->add(temp_buf);

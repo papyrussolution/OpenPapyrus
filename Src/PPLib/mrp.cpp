@@ -1681,8 +1681,8 @@ int PPObjMrpTab::DoMaintain(LDATE toDt)
 	{
 		SString file_name, fmt_buf;
 		PPLoadText(PPTXT_DBMAINTAIN, fmt_buf);
-		SPathStruc ps(P_Tbl->GetName());
-		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+		SFsPath ps(P_Tbl->GetName());
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
 		msg.Printf(fmt_buf, file_name.cptr());
 	}
 	k.Dt = toDt;

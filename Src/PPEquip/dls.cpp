@@ -347,8 +347,8 @@ int DeviceLoadingStat::DoMaintain(LDATE toDt)
 	DvcLoadingStatTbl::Key2 k;
 	{
 		SString buf, added_param;
-		SPathStruc ps(DBTable::GetName());
-		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, added_param);
+		SFsPath ps(DBTable::GetName());
+		ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, added_param);
 		msg.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, buf), added_param);
 	}
 	k.Dt      = toDt;

@@ -1218,8 +1218,8 @@ bool SFile::Stat::IsSymLink() const { return ((Attr & attrReparsePoint) && Repar
 	int    ok = 1;
 	ULARGE_INTEGER avail, total, total_free;
 	SString path;
-	SPathStruc ps(pPath);
-	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
+	SFsPath ps(pPath);
+	ps.Merge(0, SFsPath::fNam|SFsPath::fExt, path);
 	if(GetDiskFreeSpaceEx(SUcSwitch(path), &avail, &total, &total_free)) {
 		ASSIGN_PTR(pTotal, total.QuadPart);
 		ASSIGN_PTR(pAvail, avail.QuadPart);
@@ -1377,6 +1377,44 @@ backtrack:
 				break;
 			}
 	}
+}
+
+/*static*/int SFile::CreateDir(const char * pPath) // @v11.8.11
+{
+	int    ok = 1;
+	SString path;
+	SString temp_path;
+	SStringU temp_buf_u;
+	// @v11.2.12 (temp_path = pPath).SetLastSlash().ReplaceChar('/', '\\');
+	// @v11.8.4 SFsPath::npfCompensateDotDot
+	SFsPath::NormalizePath(pPath, SFsPath::npfKeepCase|SFsPath::npfCompensateDotDot, temp_path).SetLastSlash(); // @v11.2.12 
+	const char * p = temp_path;
+	do {
+		if(*p == '\\') {
+			if(p[1] == '\\')
+				path.CatChar(*p++);
+			else if(path.NotEmpty()) {
+				const bool is_root = (path[0] == path[1] && path[0] == '\\' && !sstrchr(path+2, '\\'));
+				if(path.IsLegalUtf8()) {
+					temp_buf_u.CopyFromUtf8(path);
+				}
+				else {
+					temp_buf_u.CopyFromMb_OUTER(path, path.Len());
+				}
+				if(!is_root && (temp_buf_u[0] && ::_waccess(temp_buf_u, 0) != 0)) {
+					const int cdr = ::CreateDirectoryW(temp_buf_u, NULL);
+					if(cdr == 0) {
+						SLS.SetAddedMsgString(path);
+						ok = (SLibError = SLERR_MKDIRFAULT, 0);
+					}
+					else
+						ok = 1;
+				}
+			}
+		}
+		path.CatChar(*p);
+	} while(ok && *p++ != 0);
+	return ok;
 }
 
 static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
@@ -2940,7 +2978,7 @@ int FileFormatRegBase::IdentifyBuffer(const void * pBuf, size_t bufLen, int * pF
 	//LongArray candid_by_ext;
 	LongArray candid_by_sign;
 	if(bufLen) {
-		//const SPathStruc ps(pFileName);
+		//const SFsPath ps(pFileName);
 		int    entry_mime_type;
 		//SString ext = ps.Ext;
 		SString entry_ext;
@@ -3109,7 +3147,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 	LongArray candid_by_ext;
 	LongArray candid_by_sign;
 	{
-		const SPathStruc ps(pFileName);
+		const SFsPath ps(pFileName);
 		int    entry_mime_type;
 		SString ext = ps.Ext;
 		SString entry_ext;
@@ -3755,7 +3793,7 @@ int SCachedFileEntity::Init(const char * pFilePath)
 		ok = -1;
 	}
 	else if(!isempty(pFilePath)) {
-		SPathStruc::NormalizePath(pFilePath, SPathStruc::npfSlash|SPathStruc::npfCompensateDotDot, FilePath);
+		SFsPath::NormalizePath(pFilePath, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, FilePath);
 		if(fileExists(FilePath)) {
 			State |= stInitialized;
 			State &= ~stError;

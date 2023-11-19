@@ -26,7 +26,7 @@ SLTEST_R(ImportPo)
 	for(SDirec sd(temp_buf); sd.Next(&de) > 0;) {
 		if(!de.IsSelf() && !de.IsUpFolder() && (de.IsFolder() || de.IsFile())) {
 			de.GetNameA(base_dir, temp_buf);
-			SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot, path_buf);
+			SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, path_buf);
 			blk.Import(path_buf, 0, 0);
 		}
 	}

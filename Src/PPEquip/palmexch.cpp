@@ -723,10 +723,10 @@ static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize, uint8 
 
 	THROW_S_S(f = fopen(pCtx->CompressFile, "rb"), SLERR_OPENFAULT, pCtx->CompressFile);
 	// @v10.5.6 replaceExt(STRNSCPY(out_file_name, pCtx->CompressFile), "out", 1);
-	SPathStruc::ReplaceExt(out_file_name = pCtx->CompressFile, "out", 1); // @v10.5.6
+	SFsPath::ReplaceExt(out_file_name = pCtx->CompressFile, "out", 1); // @v10.5.6
 	THROW_S_S(f_out = fopen(out_file_name, "wb"), SLERR_OPENFAULT, out_file_name);
 	// @v10.5.6 replaceExt(STRNSCPY(out_file_name, pCtx->CompressFile), "chk", 1);
-	SPathStruc::ReplaceExt(out_file_name = pCtx->CompressFile, "chk", 1); // @v10.5.6
+	SFsPath::ReplaceExt(out_file_name = pCtx->CompressFile, "chk", 1); // @v10.5.6
 	THROW_S_S(f_out2 = fopen(out_file_name, "wb"), SLERR_OPENFAULT, out_file_name);
 	if(f) {
 		TSArray <PalmArcHdr> hdr_list; // Список заголовков для хранения реального количества записей для каждой таблицы
@@ -841,7 +841,7 @@ static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize, uint8 
 		if(pCtx->PalmCfg.Ver > 500) {
 			SFile::ZClose(&f_out);
 			// @v10.5.6 replaceExt(STRNSCPY(out_file_name, pCtx->CompressFile), "out", 1);
-			SPathStruc::ReplaceExt(out_file_name = pCtx->CompressFile, "out", 1); // @v10.5.6
+			SFsPath::ReplaceExt(out_file_name = pCtx->CompressFile, "out", 1); // @v10.5.6
 			{
 				long   recv_size = (pCtx->PalmCfg.RecvBufSize) ? pCtx->PalmCfg.RecvBufSize : InitBlockSize/*PALMARCBUFSIZE*/;
 				long   tail_len = 0;
@@ -1445,15 +1445,15 @@ int SpiiExchange(PalmTcpExchange * pTcpExch, PROGRESSFN pFn, CSyncProperties * p
 			THROW(found);
 		}
 		root_path.SetLastSlash();
-		::createDir((exp_path = root_path).Cat("IN"));
-		::createDir((imp_path = root_path).Cat("OUT"));
+		SFile::CreateDir((exp_path = root_path).Cat("IN"));
+		SFile::CreateDir((imp_path = root_path).Cat("OUT"));
 		temp_path = root_path;
 		if(pTcpExch) {
 			temp_path.Cat("temp").SetLastSlash();
 			MakeTempFileName(temp_path, 0, 0, 0, temp_fname);
 			(temp_path = temp_fname).TrimRightChr('.').SetLastSlash();
-			::createDir((exp_path = temp_path).Cat("IN"));
-			::createDir((imp_path = temp_path).Cat("OUT"));
+			SFile::CreateDir((exp_path = temp_path).Cat("IN"));
+			SFile::CreateDir((imp_path = temp_path).Cat("OUT"));
 		}
 #if 0 // @v11.2.1 {
 		if(!pTcpExch || CopyFiles(root_path, temp_path, 1, ctx) > 0) {

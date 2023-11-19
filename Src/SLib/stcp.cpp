@@ -814,8 +814,8 @@ int SMailMessage::EnumAttach(uint * pPos, SString & rFileName, SString & rFullPa
 	if(pos < AttachPosL.getCount()) {
 		//rFullPath = AttList.at(pos);
 		GetS(AttachPosL.at(pos), rFullPath);
-		const SPathStruc ps(rFullPath);
-		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rFileName);
+		const SFsPath ps(rFullPath);
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, rFileName);
 		pos++;
 		ASSIGN_PTR(pPos, pos);
 		ok = 1;
@@ -1317,12 +1317,12 @@ int SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SString 
 			}
 		}
 		{
-			const SPathStruc ps(pDestPath);
+			const SFsPath ps(pDestPath);
 			if(ps.Nam.NotEmpty()) {
 				result_file_name = pDestPath;
 			}
 			else {
-				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
+				ps.Merge(SFsPath::fDrv|SFsPath::fDir, path);
 				if(file_name.IsEmpty())
 					MakeTempFileName(path, "eml", mime_ext, 0, result_file_name);
 				else {
@@ -1404,7 +1404,7 @@ SMailMessage::Boundary * SMailMessage::AttachFile(Boundary * pB, int format, con
 	THROW(p_result = Helper_CreateBoundary(pB, format));
 	{
 		SString temp_buf;
-		SPathStruc::NormalizePath(pFilePath, SPathStruc::npfSlash, temp_buf);
+		SFsPath::NormalizePath(pFilePath, SFsPath::npfSlash, temp_buf);
 		AddS(temp_buf, &p_result->OuterFileNameP);
 		{
 			SFile::Stat fs;
@@ -1413,8 +1413,8 @@ SMailMessage::Boundary * SMailMessage::AttachFile(Boundary * pB, int format, con
 			p_result->Cd.ModifDtm = fs.ModTime;
 			p_result->Cd.Size = fs.Size;
 
-			SPathStruc ps(pFilePath);
-			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+			SFsPath ps(pFilePath);
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 			AddS(temp_buf, &p_result->Cd.NameP);
 			p_result->Cd.FileNameP = p_result->Cd.NameP;
 			p_result->Ct.NameP = p_result->Cd.NameP; // В Content-Type тоже надо имя вставить
@@ -2730,17 +2730,17 @@ int ScURL::SetupDefaultSslOptions(const char * pCertFilePath, int sslVer /* SSys
 	SString ca_file;
 	SString ca_path;
 	if(isempty(pCertFilePath)) {
-		SPathStruc::NormalizePath(r_cfg.CaFile, SPathStruc::npfSlash, ca_file);
-		SPathStruc::NormalizePath(r_cfg.CaPath, SPathStruc::npfSlash, ca_path);
+		SFsPath::NormalizePath(r_cfg.CaFile, SFsPath::npfSlash, ca_file);
+		SFsPath::NormalizePath(r_cfg.CaPath, SFsPath::npfSlash, ca_path);
 	}
 	else {
 		SString temp_buf;
-		const SPathStruc ps(pCertFilePath);
-		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+		const SFsPath ps(pCertFilePath);
+		ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
 		temp_buf.RmvLastSlash();
-		SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, ca_path);
-		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
-		SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, ca_file);
+		SFsPath::NormalizePath(temp_buf, SFsPath::npfSlash, ca_path);
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
+		SFsPath::NormalizePath(temp_buf, SFsPath::npfSlash, ca_file);
 	}
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CAINFO, ca_file.cptr())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CAPATH, ca_path.cptr())));
@@ -2898,11 +2898,11 @@ int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rIn
 		}
 	}
 	{
-		long   npf = SPathStruc::npfSlash;
+		long   npf = SFsPath::npfSlash;
 		if(oneof4(prot, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protFtp, InetUrl::protFtps)) // @v10.3.0 InetUrl::protFtp, InetUrl::protFtps
-			npf |= SPathStruc::npfKeepCase;
+			npf |= SFsPath::npfKeepCase;
 		rUrl.GetComponent(InetUrl::cPath, 0, temp_buf);
-		SPathStruc::NormalizePath(temp_buf, npf, rInfo.Path);
+		SFsPath::NormalizePath(temp_buf, npf, rInfo.Path);
 		if(temp_buf != rInfo.Path)
 			rUrl.SetComponent(InetUrl::cPath, rInfo.Path);
 	}
@@ -2969,8 +2969,8 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, con
 				temp_buf.ShiftLeft();
 		}
 		else {
-			SPathStruc ps(pLocalFile);
-			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+			SFsPath ps(pLocalFile);
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 			if(!temp_buf.IsLegalUtf8()) // @v11.8.5
 				temp_buf.Transf(CTRANSF_OUTER_TO_UTF8); // @v10.3.0 !
 		}
@@ -3020,8 +3020,8 @@ int ScURL::FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SSt
 	curl_easy_reset(_CURLH); // @v10.8.2
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
-		SPathStruc ps_local(pLocalFile);
-		SPathStruc ps_remote(url_info.Path);
+		SFsPath ps_local(pLocalFile);
+		SFsPath ps_remote(url_info.Path);
 		if(ps_remote.Nam.NotEmpty()) {
 			if(ps_local.Nam.IsEmpty()) {
 				ps_local.Nam = ps_remote.Nam;
@@ -3428,7 +3428,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
     {
 		SString temp_buf;
 		SString temp_fname;
-		SPathStruc ps;
+		SFsPath ps;
 		InetUrl url_src;
 		InetUrl url_dest;
 		THROW(url_src.Parse(path_src) > 0);
@@ -3471,7 +3471,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 				{
 					SFileFormat::GetMime(Format, temp_buf);
 					ps.Split(local_path_src);
-					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_fname);
+					ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_fname);
 					hf.AddContentFile(local_path_src, temp_buf, temp_fname);
 				}
 				THROW(curl.HttpPost(url_dest, ScURL::mfVerbose|ScURL::mfDontVerifySslPeer, hf, &wr_stream));
@@ -3533,20 +3533,20 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 						has_wildcard = 1;
 					if(has_wildcard) {
 						(filt_filename = ps.Nam).Dot().Cat(ps.Ext);
-						SPathStruc ps_temp;
+						SFsPath ps_temp;
 						SFileEntryPool fep;
 						SFileEntryPool::Entry fe;
-						ps.Merge(~(SPathStruc::fNam|SPathStruc::fExt), temp_buf);
+						ps.Merge(~(SFsPath::fNam|SFsPath::fExt), temp_buf);
 						url_src.SetComponent(InetUrl::cPath, temp_buf);
 						THROW(curl.FtpList(url_src, ScURL::mfVerbose, fep));
 						for(uint i = 0; i < fep.GetCount(); i++) {
 							if(fep.Get(i, &fe, 0) && SFile::WildcardMatch(filt_filename, fe.Name)) {
 								ps.Nam = fe.Name;
-								ps.Merge(~SPathStruc::fExt, temp_buf);
+								ps.Merge(~SFsPath::fExt, temp_buf);
 								url_src.SetComponent(InetUrl::cPath, temp_buf);
 								ps_temp.Split(local_path_dest);
 								ps_temp.Nam = fe.Name;
-								ps_temp.Merge(~SPathStruc::fExt, local_path_dest);
+								ps_temp.Merge(~SFsPath::fExt, local_path_dest);
 								if(curl.FtpGet(url_src, 0, local_path_dest, &temp_buf, 0)) {
 									AddS(temp_buf, &ri.DestPathP);
 									url_src.Composite(0, temp_buf);
@@ -3573,10 +3573,10 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
                 }
 				// @v11.0.9 {
 				{
-					SPathStruc ps_dest(local_path_dest);
+					SFsPath ps_dest(local_path_dest);
 					if(ps_dest.Nam.IsEmpty()) {
 						url_src.GetComponent(InetUrl::cPath, 1, temp_buf);
-						SPathStruc ps_src(temp_buf);
+						SFsPath ps_src(temp_buf);
 						if(ps_src.Nam.NotEmptyS()) {
 							ps_dest.Nam = ps_src.Nam;
 							ps_dest.Ext = ps_src.Ext;
@@ -3614,7 +3614,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 						ps.Split(temp_buf);
 						if(filt_filename.IsEmpty()) {
 							if(ps.Nam.NotEmpty())
-								ps.Merge(SPathStruc::fNam|SPathStruc::fExt, filt_filename);
+								ps.Merge(SFsPath::fNam|SFsPath::fExt, filt_filename);
 						}
 						if(filt_from.IsEmpty()) {
 							if(ps.Dir.NotEmpty()) {
@@ -3643,7 +3643,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
                 }
 				{
 					LAssocArray mail_list;
-					SPathStruc ps_src; // Структура имени исходного файла (в письме)
+					SFsPath ps_src; // Структура имени исходного файла (в письме)
 					THROW(curl.Pop3List(url_src, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, mail_list));
 					{
 						SString _progress_src;
@@ -3693,14 +3693,14 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 											}
 											//
 											if(ps_src.Nam.NotEmpty()) {
-												ps_src.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+												ps_src.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 												if(filt_filename.IsEmpty() || SFile::WildcardMatch(filt_filename, temp_buf)) {
 													ps.Split(local_path_dest);
 													ps.Nam.SetIfEmpty(ps_src.Nam);
 													ps.Ext.SetIfEmpty(ps_src.Ext);
 													result_file_ext = ps.Ext;
 													if(ps.Nam.IsEmpty()) {
-														ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+														ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
 														MakeTempFileName(temp_buf, "eml", result_file_ext, 0, result_file_name);
 													}
 													else {

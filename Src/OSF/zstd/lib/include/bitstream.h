@@ -89,13 +89,14 @@ typedef struct {
 	const char * limitPtr;
 } BIT_DStream_t;
 
-typedef enum { 
+/* @sobolev (moved to zstd-internal.h) typedef enum { 
 	BIT_DStream_unfinished = 0,
 	BIT_DStream_endOfBuffer = 1,
 	BIT_DStream_completed = 2,
 	BIT_DStream_overflow = 3 
-} BIT_DStream_status;  /* result of BIT_reloadDStream() */
-/* 1,2,4,8 would be better for bitmap combinations, but slows down performance a bit ... :( */
+} BIT_DStream_status;  // result of BIT_reloadDStream()
+// 1,2,4,8 would be better for bitmap combinations, but slows down performance a bit ... :( 
+*/
 
 MEM_STATIC size_t   BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, size_t srcSize);
 MEM_STATIC size_t   BIT_readBits(BIT_DStream_t* bitD, uint nbBits);
@@ -255,12 +256,12 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t * bitD, const void * srcBuffer, 
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize) {
-			case 7: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[6]) << (sizeof(bitD->bitContainer)*8 - 16); CXX_FALLTHROUGH;
-			case 6: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[5]) << (sizeof(bitD->bitContainer)*8 - 24); CXX_FALLTHROUGH;
-			case 5: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[4]) << (sizeof(bitD->bitContainer)*8 - 32); CXX_FALLTHROUGH;
-			case 4: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[3]) << 24; CXX_FALLTHROUGH;
-			case 3: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[2]) << 16; CXX_FALLTHROUGH;
-			case 2: bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[1]) <<  8; CXX_FALLTHROUGH;
+			case 7: bitD->bitContainer += (size_t)(PTR8C(srcBuffer)[6]) << (sizeof(bitD->bitContainer)*8 - 16); CXX_FALLTHROUGH;
+			case 6: bitD->bitContainer += (size_t)(PTR8C(srcBuffer)[5]) << (sizeof(bitD->bitContainer)*8 - 24); CXX_FALLTHROUGH;
+			case 5: bitD->bitContainer += (size_t)(PTR8C(srcBuffer)[4]) << (sizeof(bitD->bitContainer)*8 - 32); CXX_FALLTHROUGH;
+			case 4: bitD->bitContainer += (size_t)(PTR8C(srcBuffer)[3]) << 24; CXX_FALLTHROUGH;
+			case 3: bitD->bitContainer += (size_t)(PTR8C(srcBuffer)[2]) << 16; CXX_FALLTHROUGH;
+			case 2: bitD->bitContainer += (size_t)(PTR8C(srcBuffer)[1]) <<  8; CXX_FALLTHROUGH;
 			default: break;
 		}
 		{   
@@ -271,14 +272,10 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t * bitD, const void * srcBuffer, 
 		}
 		bitD->bitsConsumed += (uint32)(sizeof(bitD->bitContainer) - srcSize)*8;
 	}
-
 	return srcSize;
 }
 
-MEM_STATIC FORCEINLINE size_t BIT_getUpperBits(size_t bitContainer, const uint32 start)
-{
-	return bitContainer >> start;
-}
+MEM_STATIC FORCEINLINE size_t BIT_getUpperBits(size_t bitContainer, const uint32 start) { return bitContainer >> start; }
 
 MEM_STATIC FORCEINLINE size_t BIT_getMiddleBits(size_t bitContainer, const uint32 start, const uint32 nbBits)
 {
@@ -327,10 +324,7 @@ MEM_STATIC size_t BIT_lookBitsFast(const BIT_DStream_t* bitD, uint32 nbBits)
 	return (bitD->bitContainer << (bitD->bitsConsumed & regMask)) >> (((regMask+1)-nbBits) & regMask);
 }
 
-MEM_STATIC FORCEINLINE void BIT_skipBits(BIT_DStream_t* bitD, uint32 nbBits)
-{
-	bitD->bitsConsumed += nbBits;
-}
+MEM_STATIC FORCEINLINE void BIT_skipBits(BIT_DStream_t* bitD, uint32 nbBits) { bitD->bitsConsumed += nbBits; }
 
 /*! BIT_readBits() :
  *  Read (consume) next n bits from local register and update.

@@ -216,7 +216,7 @@ typedef enum {
 MEM_STATIC FORCEINLINE void ZSTD_wildcopy(void* dst, const void* src, ptrdiff_t length, ZSTD_overlap_e const ovtype)
 {
 	ptrdiff_t diff = (BYTE *)dst - (const BYTE *)src;
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	BYTE * op = (BYTE *)dst;
 	BYTE * const oend = op + length;
 	if(ovtype == ZSTD_overlap_src_before_dst && diff < WILDCOPY_VECLEN) {

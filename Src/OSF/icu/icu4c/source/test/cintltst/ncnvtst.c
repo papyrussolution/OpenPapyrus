@@ -1,19 +1,10 @@
+// ncnvtst.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-/*****************************************************************************
- *
- * File ncnvtst.c
- *
- * Modification History:
- *        Name                     Description
- *   Madhu Katragadda              7/7/2000        Converter Tests for extended code coverage
- ******************************************************************************
- */
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Madhu Katragadda              7/7/2000        Converter Tests for extended code coverage
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/uloc.h"
@@ -40,7 +31,6 @@ static bool convertFromU(const char16_t * source, int sourceLen,  const uint8_t 
     const char * codepage, const int32_t * expectOffsets, bool doFlush, UErrorCode expectedStatus);
 static bool convertToU(const uint8_t * source, int sourceLen, const char16_t * expect, int expectLen,
     const char * codepage, const int32_t * expectOffsets, bool doFlush, UErrorCode expectedStatus);
-
 static bool testConvertFromU(const char16_t * source, int sourceLen,  const uint8_t * expect, int expectLen,
     const char * codepage, UConverterFromUCallback callback, const int32_t * expectOffsets, bool testReset);
 static bool testConvertToU(const uint8_t * source, int sourcelen, const char16_t * expect, int expectlen,
@@ -49,10 +39,7 @@ static bool testConvertToU(const uint8_t * source, int sourcelen, const char16_t
 static void setNuConvTestName(const char * codepage, const char * direction)
 {
 	sprintf(gNuConvTestName, "[Testing %s %s Unicode, InputBufSiz=%d, OutputBufSiz=%d]",
-	    codepage,
-	    direction,
-	    (int)gInBufferSize,
-	    (int)gOutBufferSize);
+	    codepage, direction, (int)gInBufferSize, (int)gOutBufferSize);
 }
 
 static void TestSurrogateBehaviour();
@@ -70,7 +57,6 @@ static void TestFlushInternalBuffer();  /*for improved code coverage in ucnv_cnv
 static void TestResetBehaviour();
 static void TestTruncated();
 static void TestUnicodeSet();
-
 static void TestWithBufferSize(int32_t osize, int32_t isize);
 
 static void printSeq(const unsigned char * a, int len)
@@ -1301,7 +1287,6 @@ static bool testConvertFromU(const char16_t * source, int sourceLen,  const uint
 		printSeqErr((const unsigned char *)junkout, expectLen);
 		log_info("\nExpected:");
 		printSeqErr((const unsigned char *)expect, expectLen);
-
 		return FALSE;
 	}
 }
@@ -1325,26 +1310,19 @@ static bool testConvertToU(const uint8_t * source, int sourcelen, const char16_t
 	int32_t realBufferSize;
 	char16_t * realBufferEnd;
 	bool doFlush;
-
 	UConverterToUCallback oldAction = NULL;
 	const void * oldContext = NULL;
-
 	for(i = 0; i<MAX_LENGTH; i++)
 		junkout[i] = 0xFFFE;
-
 	for(i = 0; i<MAX_LENGTH; i++)
 		junokout[i] = -1;
-
 	setNuConvTestName(codepage, "TO");
-
 	log_verbose("\n=========  %s\n", gNuConvTestName);
-
 	conv = ucnv_open(codepage, &status);
 	if(U_FAILURE(status)) {
 		log_data_err("Couldn't open converter %s\n", gNuConvTestName);
 		return TRUE;
 	}
-
 	log_verbose("Converter opened..\n");
 	/*----setting the callback routine----*/
 	ucnv_setToUCallBack(conv, callback, NULL, &oldAction, &oldContext, &status);

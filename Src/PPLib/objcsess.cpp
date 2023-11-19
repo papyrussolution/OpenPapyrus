@@ -2529,8 +2529,8 @@ int PPCCheckImporter::Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString
 			xmlBufferFree(p_xml_buf);
 			if(temp_buf.IsEmpty()) { 
 				// Если вдруг, что невероятно, не удалось вывести xml в буфер, то используем в качестве "сырья" для GUID'а имя файла (без пути)
-				SPathStruc ps(rFileName);
-				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+				SFsPath ps(rFileName);
+				ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 			}
 			binary128 hash_md5 = SlHash::Md5(0, temp_buf.cptr(), temp_buf.Len());
 			memcpy(doc_guid.Data, &hash_md5, sizeof(doc_guid));
@@ -2748,7 +2748,7 @@ int PPCCheckImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 		const int url_prot = (urlpr > 0) ? url.GetProtocol() : 0;
 		{
 			SString temp_buf;
-			SPathStruc ps;
+			SFsPath ps;
 			if(url_prot > 0) {
 				url.GetComponent(InetUrl::cPath, 0, temp_buf);
 				ps.Split(temp_buf);

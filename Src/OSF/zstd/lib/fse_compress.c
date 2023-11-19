@@ -584,7 +584,7 @@ size_t FSE_buildCTable_rle(FSE_CTable* ct, BYTE symbolValue)
 
 static size_t FSE_compress_usingCTable_generic(void * dst, size_t dstSize, const void * src, size_t srcSize, const FSE_CTable* ct, const uint fast)
 {
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * const iend = istart + srcSize;
 	const BYTE * ip = iend;
 	BIT_CStream_t bitC;

@@ -308,7 +308,7 @@ typedef struct {
 FORCE_INLINE_TEMPLATE size_t FSE_decompress_wksp_body(void * dst, size_t dstCapacity, const void * cSrc, size_t cSrcSize,
     uint maxLog, void * workSpace, size_t wkspSize, int bmi2)
 {
-	const BYTE * const istart = (const BYTE *)cSrc;
+	const BYTE * const istart = PTR8C(cSrc);
 	const BYTE * ip = istart;
 	uint tableLog;
 	uint maxSymbolValue = FSE_MAX_SYMBOL_VALUE;

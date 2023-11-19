@@ -96,8 +96,8 @@ void PPViewTextBrowser(const char * pFileName, const char * pTitle, const char *
 		if(!isempty(pTitle))
 			title_buf = pTitle;
 		else {
-			SPathStruc ps(pFileName);
-			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, title_buf);
+			SFsPath ps(pFileName);
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, title_buf);
 		}
 		p_brw->setTitle(title_buf);
 	}
@@ -2094,10 +2094,10 @@ static int SplitPath(const char * pDirNFile, SString & rDir, SString & rFile)
 	rDir.Z();
 	rFile.Z();
 	if(!isempty(pDirNFile)) {
-		SPathStruc  ps(pDirNFile);
-		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, rDir);
+		SFsPath  ps(pDirNFile);
+		ps.Merge(0, SFsPath::fNam|SFsPath::fExt, rDir);
 		ps.Split(pDirNFile);
-		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, rFile);
+		ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, rFile);
 		ok = 1;
 	}
 	return ok;
@@ -2347,8 +2347,8 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 		}
 	}
 	if(ok > 0) {
-		SPathStruc ps(result_file_name);
-		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, InitDir);
+		SFsPath ps(result_file_name);
+		ps.Merge(SFsPath::fDrv|SFsPath::fDir, InitDir);
 		if(Flags & fbcgfSaveLastPath) {
 			(temp_buf = InitDir).Transf(CTRANSF_OUTER_TO_UTF8);
 			ris.CheckIn(temp_buf);
@@ -2550,8 +2550,8 @@ int ExtOpenFileDlg::setDTS(const char * pPath)
 	Data = pPath;
 	setCtrlString(CTL_OPENFILE_PATH, Data);
 	if(WaitFolder.Len() == 0) {
-		SPathStruc sp(Data);
-		sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, WaitFolder);
+		SFsPath sp(Data);
+		sp.Merge(0, SFsPath::fNam|SFsPath::fExt, WaitFolder);
 		SetupCtrls();
 	}
 	return 1;
@@ -2743,7 +2743,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 				PPGetPath(PPPATH_TEMP, temp_dir);
 				temp_dir.SetLastSlash().Cat("IMG");
 				if(!IsDirectory(temp_dir))
-					createDir(temp_dir);
+					SFile::CreateDir(temp_dir);
 				MakeTempFileName(temp_dir, "pst", "jpg", &start, temp_path);
 				if(SClipboard::CopyPaste(GetDlgItem(pDlg->H(), CtlImage), 0, temp_path) > 0) {
 					Data.Flags |= Rec::fUpdated;
@@ -7035,8 +7035,8 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 			const char * p_file_name = "pphelp.chm";
 			PPGetFilePath(PPPATH_BIN, p_file_name, path);
 			if(fileExists(path)) {
-				SPathStruc ps(path);
-				if(ps.Flags & SPathStruc::fUNC || ((ps.Flags & SPathStruc::fDrv) && GetDriveType(SUcSwitch(ps.Drv.SetLastSlash())) == DRIVE_REMOTE)) { // @unicodeproblem
+				SFsPath ps(path);
+				if(ps.Flags & SFsPath::fUNC || ((ps.Flags & SFsPath::fDrv) && GetDriveType(SUcSwitch(ps.Drv.SetLastSlash())) == DRIVE_REMOTE)) { // @unicodeproblem
 					//
 					// ¬ св€зи с проблемой загрузки help'а с сетевого каталога коприруем файл в
 					// локальный каталог. ѕри этом, чтобы избежать лишних копирований, провер€ем, нет ли
@@ -7049,7 +7049,7 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 						SFile::Stat st_local, st;
 						local_path.SetLastSlash().Cat(SLS.GetAppName());
 						if(!fileExists(local_path))
-							createDir(local_path);
+							SFile::CreateDir(local_path);
 						local_path.SetLastSlash().Cat(p_file_name);
 						if(!fileExists(local_path))
 							do_copy = 1;
@@ -7136,14 +7136,14 @@ int ExportDialogs(const char * pFileName)
 	LongArray seen_pos_list;
 	SFile  f_out(pFileName, SFile::mWrite);
 	{
-		SPathStruc ps(pFileName);
+		SFsPath ps(pFileName);
 		ps.Nam.CatChar('-').Cat("text");
 		ps.Ext = "tsv";
 		ps.Merge(temp_buf);
 	}
 	SFile f_out_text(temp_buf, SFile::mWrite);
 	{
-		SPathStruc ps(pFileName);
+		SFsPath ps(pFileName);
 		ps.Nam.CatChar('-').Cat("manual");
 		ps.Ext = "tex";
 		ps.Merge(temp_buf);
@@ -7516,14 +7516,14 @@ int ExportDialogs2(const char * pFileName)
 	LongArray seen_pos_list;
 	SFile  f_out(pFileName, SFile::mWrite);
 	{
-		SPathStruc ps(pFileName);
+		SFsPath ps(pFileName);
 		ps.Nam.CatChar('-').Cat("text");
 		ps.Ext = "tsv";
 		ps.Merge(temp_buf);
 	}
 	SFile f_out_text(temp_buf, SFile::mWrite);
 	{
-		SPathStruc ps(pFileName);
+		SFsPath ps(pFileName);
 		ps.Nam.CatChar('-').Cat("manual");
 		ps.Ext = "tex";
 		ps.Merge(temp_buf);

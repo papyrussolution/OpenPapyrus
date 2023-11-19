@@ -985,7 +985,7 @@ FORCE_INLINE_TEMPLATE size_t HUF_compress1X_usingCTable_internal_body(void * dst
 {
 	const uint32 tableLog = (uint32)CTable[0];
 	HUF_CElt const* ct = CTable + 1;
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	BYTE * const ostart = (BYTE *)dst;
 	BYTE * const oend = ostart + dstSize;
 	BYTE * op = ostart;
@@ -1088,7 +1088,7 @@ size_t HUF_compress1X_usingCTable_bmi2(void * dst, size_t dstSize, const void * 
 static size_t HUF_compress4X_usingCTable_internal(void * dst, size_t dstSize, const void * src, size_t srcSize, const HUF_CElt* CTable, int bmi2)
 {
 	const size_t segmentSize = (srcSize+3)/4; /* first 3 segments */
-	const BYTE * ip = (const BYTE *)src;
+	const BYTE * ip = PTR8C(src);
 	const BYTE * const iend = ip + srcSize;
 	BYTE * const ostart = (BYTE *)dst;
 	BYTE * const oend = ostart + dstSize;

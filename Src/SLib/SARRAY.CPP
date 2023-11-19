@@ -3638,7 +3638,7 @@ int Test_StrAssocTree()
 			for(SDirec dir(temp_buf, 0); dir.Next(&de) > 0;) {
 				if(!de.IsSelf() && !de.IsUpFolder() && (de.IsFolder() || de.IsFile())) {
 					de.GetNameA(pDir, temp_buf);
-					SPathStruc::NormalizePath(temp_buf, SPathStruc::npfCompensateDotDot, norm_text);
+					SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, norm_text);
 					LastId++;
 					THROW(Saa.Add(LastId, parentId, norm_text, 0));
 					if(parentId) {
@@ -4571,35 +4571,24 @@ int STimeChunkArray::Limit(const STimeChunk * pPeriod)
 	return ok;
 }
 
-int STimeChunkArray::IsFreeEntry(const STimeChunk & rEntry, uint * pPos) const
+bool STimeChunkArray::IsFreeEntry(const STimeChunk & rEntry, uint * pPos) const
 {
 	STimeChunk result;
-	// @v10.3.12 {
 	for(uint i = 0; i < getCount(); i++) {
 		const STimeChunk * p_item = static_cast<const STimeChunk *>(at(i));
 		if(p_item->Intersect(rEntry, &result) && cmp(result.Start, result.Finish) != 0) {
 			ASSIGN_PTR(pPos, i);
-			return 0;
+			return false;
 		}
 	}
-	// } @v10.3.12 
-	/* @v10.3.12
-	STimeChunk * p_item;
-	for(uint i = 0; enumItems(&i, (void **)&p_item);) {
-		if(p_item->Intersect(rEntry, &result) && cmp(result.Start, result.Finish) != 0) {
-			ASSIGN_PTR(pPos, i-1);
-			return 0;
-		}
-	}
-	*/
-	return 1;
+	return true;
 }
 
-int STimeChunkArray::IsFreeEntry(const LDATETIME & start, long cont, uint * pPos) const
+bool STimeChunkArray::IsFreeEntry(const LDATETIME & start, long cont, uint * pPos) const
 {
 	STimeChunk entry;
 	entry.Init(start, cont);
-	return (!!start.d) ? IsFreeEntry(entry, pPos) : 1;
+	return (!!start.d) ? IsFreeEntry(entry, pPos) : true;
 }
 
 int STimeChunkArray::GetFreeList(STimeChunkArray * pList) const

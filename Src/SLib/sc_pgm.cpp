@@ -88,8 +88,8 @@ int SCDBObjProgram::ExportFile(SFile * pFile, PROGRESSFN pFn)
 		{
 			const SString & r_path = pFile->GetName();
 			SString log_msg, fname;
-			SPathStruc sp(r_path);
-			sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
+			SFsPath sp(r_path);
+			sp.Merge(0, SFsPath::fDrv|SFsPath::fDir, fname);
 			numrecs = (long)(size / buf_len); // @32-64
 			p_out_buf = new char[buf_len];
 

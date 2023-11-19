@@ -406,7 +406,7 @@ int PPViewReport::GetAltPath(PPID type, const char * pPath, const char * pStdNam
 	rPath.Z();
 	if(type == ReportFilt::rpttLocal && sstrlen(pPath)) {
 		SString path;
-		SPathStruc sp(pPath);
+		SFsPath sp(pPath);
 		if(!sp.Drv.NotEmptyS()) {
 			PPGetPath(PPPATH_BIN, path);
 			path.SetLastSlash().Cat(pPath);
@@ -758,7 +758,7 @@ public:
 		getCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
 		if(Data.Type == ReportFilt::rpttLocal) {
 			SString path;
-			SPathStruc sp;
+			SFsPath sp;
 			getCtrlData(sel = CTL_REPORT_PATH,  Data.Path);
 			THROW_PP(sstrlen(Data.Path), PPERR_USERINPUT);
 			sp.Split(Data.Path);

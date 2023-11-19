@@ -5089,9 +5089,9 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
             else
 				PPGetPath(PPPATH_TEMP, dest_file_path);
             dest_file_path.SetLastSlash().Cat("img");
-            ::createDir(dest_file_path);
-            SPathStruc ps_dest(dest_file_path);
-            SPathStruc ps_src(org_file_path);
+            SFile::CreateDir(dest_file_path);
+            SFsPath ps_dest(dest_file_path);
+            SFsPath ps_src(org_file_path);
             ps_dest.Nam = ps_src.Nam;
             /* @v9.1.1
             if(P_Ep && P_Ep->OutputFormat == SFileFormat::Latex)
@@ -5113,11 +5113,11 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
             }
             // }
             if(rel) {
-				SPathStruc::GetRelativePath(dest_file_path, 0, dest_file_name, 0, stub);
+				SFsPath::GetRelativePath(dest_file_path, 0, dest_file_name, 0, stub);
             }
             else
 				stub = dest_file_name;
-            SPathStruc::NormalizePath(stub, SPathStruc::npfSlash, _RET_STR);
+            SFsPath::NormalizePath(stub, SFsPath::npfSlash, _RET_STR);
 		}
 	}
 	else if(pF->Name == "?GetCodeInAltGroup") {

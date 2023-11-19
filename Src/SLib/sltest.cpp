@@ -589,8 +589,8 @@ int STestSuite::LoadTestList(const char * pIniFileName)
 	THROW(ini_file.GetSections(&sect_list));
 	cur_path = pIniFileName;
 	{
-		SPathStruc ps(cur_path);
-		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, cur_path);
+		SFsPath ps(cur_path);
+		ps.Merge(0, SFsPath::fNam|SFsPath::fExt, cur_path);
 		cur_path.SetLastSlash();
 	}
 	static_cast<TSCollection <Entry> *>(P_List)->freeAll();
@@ -648,7 +648,7 @@ int STestSuite::LoadTestList(const char * pIniFileName)
 		}
 	}
 	if(!TabFileName.NotEmptyS())
-		SPathStruc::ReplaceExt(TabFileName = pIniFileName, "tab", 1);
+		SFsPath::ReplaceExt(TabFileName = pIniFileName, "tab", 1);
 	CATCHZOK
 	return ok;
 }

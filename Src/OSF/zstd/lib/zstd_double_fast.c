@@ -55,7 +55,7 @@ size_t ZSTD_compressBlock_doubleFast_noDict_generic(ZSTD_matchState_t* ms, seqSt
 	uint32 * const hashSmall = ms->chainTable;
 	const uint32 hBitsS = cParams->chainLog;
 	const BYTE * const base = ms->window.base;
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * anchor = istart;
 	const uint32 endIndex = (uint32)((size_t)(istart - base) + srcSize);
 	/* presumes that, if there is a dictionary, it must be using Attach mode */
@@ -183,7 +183,7 @@ _search_next_long:
 		while(((ip>anchor) & (matchs0>prefixLowest)) && (ip[-1] == matchs0[-1])) {
 			ip--; matchs0--; mLength++;
 		} // catch up
-		/* fall-through */
+		// @fallthrough
 _match_found:   /* requires ip, offset, mLength */
 		offset_2 = offset_1;
 		offset_1 = offset;
@@ -237,7 +237,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_doubleFast_dictMatchState_generi
 	uint32 * hashSmall = ms->chainTable;
 	const uint32 hBitsS = cParams->chainLog;
 	const BYTE * const base = ms->window.base;
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * ip = istart;
 	const BYTE * anchor = istart;
 	const uint32 endIndex = (uint32)((size_t)(istart - base) + srcSize);
@@ -490,7 +490,7 @@ static size_t ZSTD_compressBlock_doubleFast_extDict_generic(ZSTD_matchState_t* m
 	const uint32 hBitsL = cParams->hashLog;
 	uint32 * const hashSmall = ms->chainTable;
 	const uint32 hBitsS = cParams->chainLog;
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * ip = istart;
 	const BYTE * anchor = istart;
 	const BYTE * const iend = istart + srcSize;

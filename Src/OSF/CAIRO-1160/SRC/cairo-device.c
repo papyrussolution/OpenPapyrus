@@ -109,7 +109,7 @@ cairo_device_t * _cairo_device_create_in_error(cairo_status_t status)
 		case CAIRO_STATUS_SUCCESS:
 		case CAIRO_STATUS_LAST_STATUS:
 		    ASSERT_NOT_REACHED;
-		/* fall-through */
+		// @fallthrough
 		case CAIRO_STATUS_SURFACE_TYPE_MISMATCH:
 		case CAIRO_STATUS_INVALID_STATUS:
 		case CAIRO_STATUS_INVALID_FORMAT:

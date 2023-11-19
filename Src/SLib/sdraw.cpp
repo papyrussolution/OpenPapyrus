@@ -4002,9 +4002,9 @@ SLTEST_R(SDraw)
 	SString input_file_name(MakeInputFilePath("test24.png"));
 	THROW(SLCHECK_NZ(img_buf.Load(input_file_name)));
 	{
-		SPathStruc ps(input_file_name);
+		SFsPath ps(input_file_name);
 		ps.Ext = "webp";
-		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 		SImageBuffer::StoreParam sp(SFileFormat::Webp);
 		SFile out_file(MakeOutputFilePath(temp_buf), SFile::mWrite|SFile::mBinary);
 		THROW(out_file.IsValid());

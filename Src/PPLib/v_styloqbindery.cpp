@@ -46,8 +46,21 @@ PPViewStyloQBindery::~PPViewStyloQBindery()
 		if(Obj.P_Tbl->GetOwnPeerEntry(&sp) > 0 && sp.Pool.Get(SSecretTagPool::tagSvcIdent, &own_svc_ident)) {
 			StyloQCore::SvcDbSymbMap map;
 			map.Read(0, 0);
-			if(!map.FindSvcIdent(own_svc_ident, 0, 0))
+			SString ex_db_symb;
+			uint   ex_flags;
+			if(!map.FindSvcIdent(own_svc_ident, &ex_db_symb, &ex_flags))
 				do_build_svc_db_symb_map = true;
+			else {
+				// @v11.8.11 {
+				DbProvider * p_dict = CurDict;
+				if(p_dict) {
+					SString db_symb;
+					const int gdbsr = p_dict->GetDbSymb(db_symb); 				
+					if(ex_db_symb != db_symb)
+						do_build_svc_db_symb_map = true;
+				}
+				// } @v11.8.11 
+			}
 		}
 	}
 	if(do_build_svc_db_symb_map) {
@@ -150,6 +163,7 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 					THROW_SL(P_DsList->insert(&new_entry));
 				}
 				else {
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_USER|LOGMSGF_DBINFO); // @v11.8.11
 					debug_mark = true; // @debug
 				}
 			}

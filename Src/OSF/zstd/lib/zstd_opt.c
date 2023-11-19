@@ -1049,7 +1049,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_opt_generic(ZSTD_matchState_t* m
     const ZSTD_dictMode_e dictMode)
 {
 	optState_t* const optStatePtr = &ms->opt;
-	const BYTE * const istart = (const BYTE *)src;
+	const BYTE * const istart = PTR8C(src);
 	const BYTE * ip = istart;
 	const BYTE * anchor = istart;
 	const BYTE * const iend = istart + srcSize;

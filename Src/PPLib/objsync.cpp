@@ -506,10 +506,10 @@ int ObjSyncQueueCore::AddFileRecord(PPID * pID, const ObjSyncQueueCore::FileInfo
 	int    ok = 1;
 	ObjSyncQueueTbl::Rec rec;
 	SString name_buf, temp_buf;
-	SPathStruc ps(rInfo.InnerFileName);
+	SFsPath ps(rInfo.InnerFileName);
 	name_buf = ps.Nam; // Файл не имеет расширения //
 	ps.Split(rInfo.OrgFileName);
-	ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+	ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, temp_buf);
 	name_buf.Semicol().Cat(temp_buf);
 	MEMSZERO(rec);
 	name_buf.CopyTo(rec.ObjName, sizeof(rec.ObjName));
@@ -547,8 +547,8 @@ int ObjSyncQueueCore::SearchRefToOrgFile(const char * pFileName, ObjSyncQueueCor
 	int    ok = -1;
 	SString temp_buf, left, right, nam;
 	ObjSyncQueueTbl::Key0 k0;
-	SPathStruc ps(pFileName);
-	ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, nam);
+	SFsPath ps(pFileName);
+	ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, nam);
 	MEMSZERO(k0);
 	BExtQuery q(this, 0);
 	q.select(this->ID, this->ObjName, 0L).where(this->ObjType == 0L && this->ObjID == 0L);

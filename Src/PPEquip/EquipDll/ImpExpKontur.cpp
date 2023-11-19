@@ -593,7 +593,7 @@ public:
 	SString ExpFileName;
 	xmlTextWriter * P_XmlWriter;
 	Iterator Itr;
-	SPathStruc PathStruct;
+	SFsPath PathStruct;
 	Sdr_Bill Bill;
 	// Состоит из типов Sdr_DllImpExpReceipt
 	TSCollection <Sdr_DllImpExpReceipt> ReceiptList; // Список квитанций об отправленных документах
@@ -1177,7 +1177,7 @@ int ExportCls::SendDoc()
 {
 	int    ok = 1;
 	SString	inbox_filename;
-	SPathStruc path_struct(ExpFileName);
+	SFsPath path_struct(ExpFileName);
 	(inbox_filename = OUTBOX).Slash().Cat(path_struct.Nam).Dot().Cat(path_struct.Ext);
 	Sdr_DllImpExpReceipt * p_exp_rcpt = 0;
 	FtpClient ftp_client(Header.EdiLogin, Header.EdiPassword);
@@ -1216,7 +1216,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 {
 	int    ok = 1;
 	SFile  log_file;
-	SPathStruc log_path;
+	SFsPath log_path;
 	SString temp_buf;
 	SETIFZ(P_ExportCls, new ExportCls);
 	if(P_ExportCls && !P_ExportCls->Inited) {
@@ -1237,7 +1237,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 			P_ExportCls->PathStruct.Nam = "export_";
 			P_ExportCls->PathStruct.Ext = "xml";
 		}
-		log_path.Copy(&P_ExportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
+		log_path.Copy(&P_ExportCls->PathStruct, SFsPath::fDrv | SFsPath::fDir | SFsPath::fNam | SFsPath::fExt);
 		log_path.Nam = "export_log";
 		log_path.Ext = "txt";
 		log_path.Merge(LogName);
@@ -1475,7 +1475,7 @@ public:
 	SString LogFileName;		// Там же, где и ImpFileName
 	SString TempPath;
 	Iterator Itr;
-	//SPathStruc PathStruct;
+	//SFsPath PathStruct;
 	AperakInfoSt AperakInfo;
 	//StrAssocArray InboxFiles;   // Массив с именами входящих файлов нужного типа
 	StrAssocArray FilesForDel;  // Массив с именами файлов, которые требуется удалить из папки на ftp
@@ -1566,7 +1566,7 @@ int ImportCls::ParseFileName(const char * pFileName, PPEdiMessageEntry * pEntry)
 {
 	int    ok = 0;
 	SString left, right;
-    SPathStruc ps(pFileName);
+    SFsPath ps(pFileName);
     pEntry->EdiOp = 0;
 	if(ps.Nam.Divide('_', left, right) > 0) {
 		if(left.IsEqiAscii("OrdRsp"))
@@ -2174,7 +2174,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 	SString temp_buf;
 	SETIFZ(P_ImportCls, new ImportCls);
 	if(P_ImportCls && !(P_ImportCls->State & ImportCls::stInit)) {
-		SPathStruc inp_ps;
+		SFsPath inp_ps;
 		if(pImpHeader) {
 			P_ImportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pImpHeader);
 			FormatLoginToLogin(P_ImportCls->Header.EdiLogin, temp_buf.Z());
@@ -2196,9 +2196,9 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 			inp_ps.Ext = "xml";
 		}
 		{
-			SPathStruc ps;
+			SFsPath ps;
 			{
-				ps.Copy(&inp_ps, SPathStruc::fDrv|SPathStruc::fDir|SPathStruc::fNam|SPathStruc::fExt);
+				ps.Copy(&inp_ps, SFsPath::fDrv|SFsPath::fDir|SFsPath::fNam|SFsPath::fExt);
 				ps.Nam = "import_log";
 				ps.Ext = "txt";
 				ps.Merge(LogName);
@@ -2208,10 +2208,10 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 			{
 				ps.Nam.Z();
 				ps.Ext.Z();
-				ps.Copy(&inp_ps, SPathStruc::fDrv|SPathStruc::fDir);
+				ps.Copy(&inp_ps, SFsPath::fDrv|SFsPath::fDir);
 				ps.Merge(P_ImportCls->TempPath);
 				P_ImportCls->TempPath.SetLastSlash().Cat("temp");
-				THROW(::createDir(P_ImportCls->TempPath));
+				THROW(SFile::CreateDir(P_ImportCls->TempPath));
 			}
 		}
 		P_ImportCls->Id = 1;
