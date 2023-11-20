@@ -466,7 +466,7 @@ void ExportCls::CreateFileName(long DocType, const char * pContragName, const ch
 			//rFileName.Cat("GRP").Cat(grpNum).CatChar('(').Cat(doc_num).CatChar(')').Dot().Cat(PathStruct.Ext);
 		}
 		if(pContragName && !pathValid(dir, 1))
-			createDir(dir);
+			SFile::CreateDir(dir);
 		// Если файл с таким именем существует, увеличиваем номер файла
 		if(!file.Open(rFileName, SFile::mRead))
 			exit_while = 1;
@@ -1076,20 +1076,14 @@ EXPORT int FinishImpExp()
 
 EXPORT int GetErrorMessage(char * pMsg, uint bufLen)
 {
-	SString str("");
-	/* @v10.4.12 for(size_t i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
-	        if(ErrMsg[i].Id == ErrorCode) {
-	                str.Cat(ErrMsg[i].P_Msg);
-	                break;
-	        }
-	   }*/
-	SIntToSymbTab_GetSymb(ErrMsg, SIZEOFARRAY(ErrMsg), ErrorCode, str); // @v10.4.12
-	if(ErrorCode == IERR_IMPFILENOTFOUND || IERR_INVMESSAGEYTYPE)
+	SString str;
+	SIntToSymbTab_GetSymb(ErrMsg, SIZEOFARRAY(ErrMsg), ErrorCode, str);
+	if(oneof2(ErrorCode, IERR_IMPFILENOTFOUND, IERR_INVMESSAGEYTYPE))
 		str.Cat(StrError);
 	memzero(pMsg, bufLen);
 	if(str.NotEmpty() && pMsg)
 		str.CopyTo(pMsg, bufLen < (str.Len() + 1) ? bufLen : (str.Len() + 1));
 	ErrorCode = 0;
-	StrError = "";
+	StrError.Z();
 	return 1;
 }
