@@ -262,10 +262,13 @@ int SIniFile::WasModified() const
 	SFile::Stat fs;
 	if(!SFile::GetStat(FileName, 0, &fs, 0))
 		return 2;
-	else if(cmp(fs.ModTime, LoadingTime) > 0)
-		return 1;
-	else
-		return 0;
+	else {
+		LDATETIME dtm_mod;
+		if(cmp(dtm_mod.SetNs100(fs.ModTm_), LoadingTime) > 0)
+			return 1;
+		else
+			return 0;
+	}
 }
 
 // protected

@@ -1946,16 +1946,12 @@ typedef struct _string_array_stream {
 	boolint use_strings;
 } string_array_stream_t;
 
-static cairo_status_t _base85_string_wrap_stream_write(cairo_output_stream_t * base,
-    const uchar * data,
-    uint length)
+static cairo_status_t _base85_string_wrap_stream_write(cairo_output_stream_t * base, const uchar * data, uint length)
 {
 	string_array_stream_t * stream = (string_array_stream_t*)base;
 	uchar c;
-
 	if(!length)
 		return CAIRO_STATUS_SUCCESS;
-
 	while(length--) {
 		if(stream->column == 0) {
 			if(stream->use_strings) {
@@ -1967,11 +1963,9 @@ static cairo_status_t _base85_string_wrap_stream_write(cairo_output_stream_t * b
 				stream->column = 1;
 			}
 		}
-
 		c = *data++;
 		_cairo_output_stream_write(stream->output, &c, 1);
 		stream->column++;
-
 		/* Base85 encodes each 4 byte tuple with a 5 ASCII character
 		 * tuple, except for 'z' with represents 4 zero bytes. We need
 		 * to keep track of the string length after decoding.
@@ -1986,12 +1980,8 @@ static cairo_status_t _base85_string_wrap_stream_write(cairo_output_stream_t * b
 				stream->tuple_count = 0;
 			}
 		}
-
-		/* Split string at tuple boundary when there is not enough
-		 * space for another tuple */
-		if(stream->use_strings &&
-		    stream->tuple_count == 0 &&
-		    stream->string_size > STRING_ARRAY_MAX_STRING_SIZE - 4) {
+		// Split string at tuple boundary when there is not enough space for another tuple
+		if(stream->use_strings && stream->tuple_count == 0 && stream->string_size > STRING_ARRAY_MAX_STRING_SIZE - 4) {
 			_cairo_output_stream_printf(stream->output, "~>\n");
 			stream->string_size = 0;
 			stream->column = 0;
@@ -2001,17 +1991,14 @@ static cairo_status_t _base85_string_wrap_stream_write(cairo_output_stream_t * b
 			stream->column = 1;
 		}
 	}
-
 	return _cairo_output_stream_get_status(stream->output);
 }
 
 static cairo_status_t _base85_string_wrap_stream_close(cairo_output_stream_t * base)
 {
 	string_array_stream_t * stream = (string_array_stream_t*)base;
-
 	if(!stream->use_strings || stream->string_size != 0)
 		_cairo_output_stream_printf(stream->output, "~>");
-
 	return _cairo_output_stream_get_status(stream->output);
 }
 
@@ -2416,14 +2403,9 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 		surface->ps_level_used = CAIRO_PS_LEVEL_3;
 	}
 	if(surface->paint_proc) {
-		/* Emit the image data as a base85-encoded string which will
-		 * be used as the data source for the image operator later. */
+		// Emit the image data as a base85-encoded string which will be used as the data source for the image operator later
 		_cairo_output_stream_printf(surface->stream, "/CairoData [\n");
-		status = _cairo_ps_surface_emit_base85_string(surface,
-			data,
-			data_size,
-			compress,
-			TRUE);
+		status = _cairo_ps_surface_emit_base85_string(surface, data, data_size, compress, TRUE);
 		if(UNLIKELY(status))
 			goto bail2;
 		_cairo_output_stream_printf(surface->stream, "] def\n");
@@ -2432,7 +2414,6 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 	else {
 		_cairo_output_stream_printf(surface->stream, "/cairo_ascii85_file currentfile /ASCII85Decode filter def\n");
 	}
-
 	if(use_mask) {
 		_cairo_output_stream_printf(surface->stream,
 		    "%s setcolorspace\n"

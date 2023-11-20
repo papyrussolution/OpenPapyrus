@@ -1,9 +1,9 @@
-// UED-ID.H
-// version: 4
-// sha256: 60105101cee4b91baf7914bbedca1db14c6dfa19373efcb4d041d47e30180da2
+// UED-ID-TEMP.H
+// version: 25
+// sha256: 6bb3adecb0e2ded81d38af9d2348b0d1028a826f73dafa174fb2b3d6d4b87b0d
 //
-#ifndef __UED_ID_H
-#define __UED_ID_H
+#ifndef __UED_ID_TEMP_H
+#define __UED_ID_TEMP_H
 
 #define UED_META_META                                0x100000001ULL
 #define UED_META_PREDEFVALUE                         0x100000002ULL
@@ -3591,6 +3591,16 @@
 	#define UED_CMP_TANGENT_INTERSECTION                 0x6500000100ULL
 	#define UED_CMP_GENERIC_INTERSECTION                 0x6500000118ULL
 	#define UED_CMP_INCOMPARABLE                         0x6500001000ULL
+#define UED_META_BINTOTEXTENCODING                   0x100000066ULL
+	#define UED_BINTOTEXTENCODING_BASE64                 0x6600000001ULL
+	#define UED_BINTOTEXTENCODING_BASE64URL              0x6600000002ULL
+	#define UED_BINTOTEXTENCODING_BASE32                 0x6600000003ULL
+	#define UED_BINTOTEXTENCODING_BASE58BITCOIN          0x6600000004ULL
+	#define UED_BINTOTEXTENCODING_BASE58RIPPLE           0x6600000005ULL
+	#define UED_BINTOTEXTENCODING_BASE58FLICKR           0x6600000006ULL
+	#define UED_BINTOTEXTENCODING_BASE85                 0x6600000007ULL
+	#define UED_BINTOTEXTENCODING_BASE91                 0x6600000008ULL
+	#define UED_BINTOTEXTENCODING_HEX                    0x6600000009ULL
 #define UED_META_DATE_DAY                            0x100000071ULL
 #define UED_META_DATE_MON                            0x100000072ULL
 #define UED_META_DATE_QUART                          0x100000073ULL
@@ -3678,4 +3688,4 @@
 #define UED_META_INTEGER                             0x197000000ULL
 #define UED_META_DECIMAL                             0x198000000ULL
 
-#endif // __UED_ID_H
+#endif // __UED_ID_TEMP_H

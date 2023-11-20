@@ -288,7 +288,9 @@ int PPViewLogsMonitor::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PP
 		for(uint i = 0; i < Filt.Selected.getCount(); i++) {
 			(log_fname = logs_fpath).Cat(Filt.Selected.at(i).FileName);
 			SFile::GetStat(log_fname, 0, &log_file_stat, 0);
-			if(cmp(log_file_stat.ModTime, this->LastUpdated)>0) {
+			LDATETIME dtm_mod;
+			dtm_mod.SetNs100(log_file_stat.ModTm_);
+			if(cmp(dtm_mod, this->LastUpdated) > 0) {
 				expired_logs.insert(&Filt.Selected.at(i));
 				update = 1;
 			}

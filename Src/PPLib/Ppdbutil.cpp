@@ -2540,8 +2540,10 @@ int CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
 		LDATETIME last_modif = ZERODATETIME;
 		while(file_enum.Next(&f_data) > 0) {
 			copy_size += f_data.Size;
-			if(cmp(f_data.AccsTime, last_modif) == 1)
-				last_modif = f_data.AccsTime;
+			LDATETIME iter_dtm;
+			iter_dtm.SetNs100(f_data.AccsTm_);
+			if(cmp(iter_dtm, last_modif) > 0)
+				last_modif = iter_dtm;
 		}
 		copy_dt = last_modif.d;
 		if(copy_size == 0 || copy_size != copy_data.DestSize)

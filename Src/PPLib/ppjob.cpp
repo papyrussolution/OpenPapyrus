@@ -342,12 +342,24 @@ int PPJobMngr::IsPoolChanged() const
 	int    ok = 0;
 	if(LastLoading.d) {
 		SFile::Stat fs;
+		// @v11.8.11 {
+		if(SFile::GetStat(FilePath, 0, &fs, 0) && SFile::GetStat(XmlFilePath, 0, &fs, 0)) {
+			LDATETIME fs_dtm;
+			if(cmp(fs_dtm.SetNs100(fs.ModTm_), LastLoading) > 0) {
+				ok = 1; // Файл был модифицирован
+			}
+		}
+		else {
+			ok = 1; // Файл был удален, либо не появился
+		}
+		// } @v11.8.11 
+		/* @v11.8.11 {
 		if(!SFile::GetStat(FilePath, 0, &fs, 0) ||!SFile::GetStat(XmlFilePath, 0, &fs, 0) || cmp(fs.ModTime, LastLoading) > 0) { // @erik v10.7.4 add ||!SFile::GetStat(XmlFilePath, &fs)
 			//
 			// Файл был удален, либо не появился, либо был модифирован.
 			//
 			ok = 1;
-		}
+		}*/
 	}
 	else
 		ok = -1;

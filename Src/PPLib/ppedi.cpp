@@ -6634,7 +6634,7 @@ int EdiProviderImplementation_Kontur::GetDocumentList(const PPBillIterchangeFilt
 					entry.Box = p_box;
 					entry.ID = ++last_id;
 					entry.SId = fpe.Name;
-					entry.Time = fpe.ModTime;
+					entry.Time.SetNs100(fpe.ModTm_);
 					THROW(rList.Add(entry, 0));
 				}
 			}

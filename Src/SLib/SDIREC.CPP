@@ -6,7 +6,8 @@
 
 IMPL_CMPFUNC(SDirEntry_Time, i1, i2)
 {
-	return cmp(static_cast<const SDirEntry *>(i1)->ModTime, static_cast<const SDirEntry *>(i2)->ModTime);
+	//return cmp(static_cast<const SDirEntry *>(i1)->ModTime, static_cast<const SDirEntry *>(i2)->ModTime);
+	return CMPSIGN(static_cast<const SDirEntry *>(i1)->ModTm_, static_cast<const SDirEntry *>(i2)->ModTm_);
 }
 
 SDirec::SDirec() : InitFlag(0), /*lPosData(-1),*/vPosData(0), PosDataSize(0)
@@ -80,7 +81,7 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _wfinddatai64_t & rS)
 {
 	THISZERO();
 	struct tm * p_modify_tb = 0;
-	struct tm tb;
+	//struct tm tb;
 	STRNSCPY(Name, rS.name);
 	Attr = rS.attrib;
 	Size = rS.size;
@@ -88,6 +89,8 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _wfinddatai64_t & rS)
 		//
 		// Modify time
 		//
+		ModTm_ = SUniTime_Internal::EpochToNs100(rS.time_write); // @v11.8.11
+		/* @v11.8.11
 		struct tm modify_tb;
 		struct tm * p_tb = p_modify_tb = localtime(&rS.time_write);
 		if(!p_tb) {
@@ -99,11 +102,14 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _wfinddatai64_t & rS)
 			p_modify_tb = &modify_tb;
 		}
 		ModTime = _tm_to_ldatetime(p_tb);
+		*/
 	}
 	{
 		//
 		// Create time
 		//
+		CrtTm_ = SUniTime_Internal::EpochToNs100(rS.time_create); // @v11.8.11
+		/* @v11.8.11
 		struct tm * p_tb = localtime(&rS.time_create);
 		if(!p_tb) {
 			if(p_modify_tb)
@@ -114,11 +120,14 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _wfinddatai64_t & rS)
 			}
 		}
 		CrtTime = _tm_to_ldatetime(p_tb);
+		*/
 	}
 	{
 		//
 		// Access time
 		//
+		AccsTm_ = SUniTime_Internal::EpochToNs100(rS.time_access); // @v11.8.11
+		/* @v11.8.11
 		struct tm * p_tb = localtime(&rS.time_access);
 		if(!p_tb) {
 			if(p_modify_tb)
@@ -129,6 +138,7 @@ SDirEntry & FASTCALL SDirEntry::operator = (const _wfinddatai64_t & rS)
 			}
 		}
 		AccsTime = _tm_to_ldatetime(p_tb);
+		*/
 	}
 	if(Attr & SFile::attrReparsePoint) {
 		//ReparsePointTag = rS
@@ -164,9 +174,12 @@ SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAW & rS)
 		const int64 _mult = static_cast<int64>(MAXDWORD)+1;
 		Size = (static_cast<int64>(rS.nFileSizeHigh) * _mult) + rS.nFileSizeLow;
 	}
-	ModTime = rS.ftLastWriteTime;
-	CrtTime = rS.ftCreationTime;
-	AccsTime = rS.ftLastAccessTime;
+	// @v11.8.11 ModTime = rS.ftLastWriteTime;
+	// @v11.8.11 CrtTime = rS.ftCreationTime;
+	// @v11.8.11 AccsTime = rS.ftLastAccessTime;
+	ModTm_ = *reinterpret_cast<const int64 *>(&rS.ftLastWriteTime); // @v11.8.11
+	CrtTm_ = *reinterpret_cast<const int64 *>(&rS.ftCreationTime); // @v11.8.11
+	AccsTm_ = *reinterpret_cast<const int64 *>(&rS.ftLastAccessTime); // @v11.8.11
 	ReparsePointTag = (Attr & SFile::attrReparsePoint) ? rS.dwReserved0 : 0; // @v11.8.9
 	return *this;
 }
@@ -484,9 +497,12 @@ int SFileEntryPool::Add(SFileEntryPool::Entry & rDe, long flags)
     InnerEntry new_entry;
     MEMSZERO(new_entry);
     new_entry.Attr = rDe.Attr;
-    new_entry.CrtTime = rDe.CrtTime;
-    new_entry.AccsTime = rDe.AccsTime;
-    new_entry.ModTime = rDe.ModTime;
+    // @v11.8.11 new_entry.CrtTime = rDe.CrtTime;
+    // @v11.8.11 new_entry.AccsTime = rDe.AccsTime;
+    // @v11.8.11 new_entry.ModTime = rDe.ModTime;
+	new_entry.CrtTm_ = rDe.CrtTm_; // @v11.8.11
+	new_entry.AccsTm_ = rDe.AccsTm_; // @v11.8.11
+	new_entry.ModTm_ = rDe.ModTm_; // @v11.8.11
     new_entry.Size = rDe.Size;
     if(rDe.Path.NotEmptyS()) {
 		SString & r_temp_path = SLS.AcquireRvlStr();
@@ -510,9 +526,12 @@ int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, con
     InnerEntry new_entry;
     MEMSZERO(new_entry);
     new_entry.Attr = rDe.Attr;
-    new_entry.CrtTime = rDe.CrtTime;
-    new_entry.AccsTime = rDe.AccsTime;
-    new_entry.ModTime = rDe.ModTime;
+    // @v11.8.11 new_entry.CrtTime = rDe.CrtTime;
+    // @v11.8.11 new_entry.AccsTime = rDe.AccsTime;
+    // @v11.8.11 new_entry.ModTime = rDe.ModTime;
+	new_entry.CrtTm_ = rDe.CrtTm_; // @v11.8.11
+	new_entry.AccsTm_ = rDe.AccsTm_; // @v11.8.11
+	new_entry.ModTm_ = rDe.ModTm_; // @v11.8.11
     new_entry.Size = rDe.Size;
 	new_entry.ReparsePointTag = (rDe.Attr & SFile::attrReparsePoint) ? rDe.ReparsePointTag : 0; // @v11.8.10
     if(!isempty(pPath)) {
@@ -536,9 +555,12 @@ int SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, con
 void SFileEntryPool::ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const
 {
 	rEntry.Attr = rIEntry.Attr;
-	rEntry.CrtTime = rIEntry.CrtTime;
-	rEntry.AccsTime = rIEntry.AccsTime;
-	rEntry.ModTime = rIEntry.ModTime;
+	// @v11.8.11 rEntry.CrtTime = rIEntry.CrtTime;
+	// @v11.8.11 rEntry.AccsTime = rIEntry.AccsTime;
+	// @v11.8.11 rEntry.ModTime = rIEntry.ModTime;
+	rEntry.CrtTm_ = rIEntry.CrtTm_; // @v11.8.11
+	rEntry.AccsTm_ = rIEntry.AccsTm_; // @v11.8.11
+	rEntry.ModTm_ = rIEntry.ModTm_; // @v11.8.11
 	rEntry.Size = rIEntry.Size;
     GetS(rIEntry.PathP, rEntry.Path);
     GetS(rIEntry.NameP, rEntry.Name);
@@ -590,9 +612,12 @@ IMPL_CMPFUNC(SFileEntryPool_Entry, p1, p2)
 				si = fp1.CmpNC(fp2); // @todo @fixme Здесь должно быть сравнение utf8
     		}
     		break;
-    	case SFileEntryPool::scByCrTime: si = cmp(p_entry1->CrtTime, p_entry2->CrtTime); break;
-    	case SFileEntryPool::scByAccsTime: si = cmp(p_entry1->AccsTime, p_entry2->AccsTime); break;
-    	case SFileEntryPool::scByWrTime: si = cmp(p_entry1->ModTime, p_entry2->ModTime); break;
+    	// @v11.8.11 case SFileEntryPool::scByCrTime: si = cmp(p_entry1->CrtTime, p_entry2->CrtTime); break;
+    	// @v11.8.11 case SFileEntryPool::scByAccsTime: si = cmp(p_entry1->AccsTime, p_entry2->AccsTime); break;
+    	// @v11.8.11 case SFileEntryPool::scByWrTime: si = cmp(p_entry1->ModTime, p_entry2->ModTime); break;
+    	case SFileEntryPool::scByCrTime: si = CMPSIGN(p_entry1->CrtTm_, p_entry2->CrtTm_); break; // @v11.8.11 
+    	case SFileEntryPool::scByAccsTime: si = CMPSIGN(p_entry1->AccsTm_, p_entry2->AccsTm_); break; // @v11.8.11 
+    	case SFileEntryPool::scByWrTime: si = CMPSIGN(p_entry1->ModTm_, p_entry2->ModTm_); break; // @v11.8.11 
     	case SFileEntryPool::scBySize: si = CMPSIGN(p_entry1->Size, p_entry2->Size); break;
     }
     return (si && _desc) ? -si : si;
@@ -721,8 +746,12 @@ int SDirecDiffPool::Helper_MakeReport(const TSCollection <Entry> & rL, uint inde
 				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("sizes-are-different").CatDiv(':', 2).Cat(p_entry->StatLeft.Size).Space().Cat(p_entry->StatRight.Size);
 			}
 			if(p_entry->Kind & kDiffModTime) {
+				LDATETIME dtm_left;
+				LDATETIME dtm_right;
+				dtm_left.SetNs100(p_entry->StatLeft.ModTm_);
+				dtm_right.SetNs100(p_entry->StatRight.ModTm_);
 				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("modtimestamps-are-different").CatDiv(':', 2).
-					Cat(p_entry->StatLeft.ModTime, DATF_ISO8601CENT, 0).Space().Cat(p_entry->StatRight.ModTime, DATF_ISO8601CENT, 0);
+					Cat(dtm_left, DATF_ISO8601CENT, 0).Space().Cat(dtm_right, DATF_ISO8601CENT, 0);
 			}
 			if(p_entry->Kind & kDiffSubDir) {
 				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("subdirs-are-different");
@@ -814,7 +843,7 @@ int SDirecDiffPool::Helper_Compare(const SString & rDirLeftUtf8, const SString &
 								}
 								else {
 									// Для каталогов время модификации и размер не сравниваем
-									if(entry_left.ModTime != entry_right.ModTime) {
+									if(entry_left.ModTm_ != entry_right.ModTm_) {
 										_k |= kDiffModTime;
 									}
 									if(entry_left.Size != entry_right.Size) {

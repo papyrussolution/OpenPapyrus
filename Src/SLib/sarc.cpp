@@ -251,7 +251,7 @@ struct SArc_Bz2_Block {
 						if(archive_entry_mtime_is_set(p_entry)) {
 							time_t mtm = archive_entry_mtime(p_entry);
 							//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
-							fep_entry.ModTime.SetTimeT(mtm);
+							fep_entry.ModTm_ = SUniTime_Internal::EpochToNs100(mtm);
 						}
 						rPool.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 					}				
@@ -417,7 +417,7 @@ static void extract(const char *filename)
 							if(archive_entry_mtime_is_set(p_entry)) {
 								time_t mtm = archive_entry_mtime(p_entry);
 								//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
-								fep_entry.ModTime.SetTimeT(mtm);
+								fep_entry.ModTm_ = SUniTime_Internal::EpochToNs100(mtm);
 							}
 							//rPool.Add(fep_entry);
 							{
@@ -450,7 +450,7 @@ static void extract(const char *filename)
 												rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
 										} while(rd_result == ARCHIVE_OK);
 										if(rd_result == ARCHIVE_EOF) {
-											f_out.SetDateTime(0, 0, &fep_entry.ModTime);
+											f_out.SetDateTime(0LL, 0LL, fep_entry.ModTm_);
 											local_ok = 1;
 										}
 									}
@@ -770,7 +770,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 					if(zip_stat_index(static_cast<zip_t *>(H), i, ZIP_FL_UNCHANGED, &st) == 0) {
 						fep_entry.Size = st.size;
 						fep_entry.Path = st.name;
-						fep_entry.ModTime.SetTimeT(st.mtime);
+						fep_entry.ModTm_ = SUniTime_Internal::EpochToNs100(st.mtime);
 						Fep.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 					}
 				}
@@ -827,7 +827,7 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 					if(archive_entry_mtime_is_set(p_entry)) {
 						time_t mtm = archive_entry_mtime(p_entry);
 						//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
-						fep_entry.ModTime.SetTimeT(mtm);
+						fep_entry.ModTm_ = SUniTime_Internal::EpochToNs100(mtm);
 					}
 					Fep.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 				}				

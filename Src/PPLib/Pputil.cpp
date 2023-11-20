@@ -2408,7 +2408,9 @@ int WaitNewFile(const char * pDir, SString & rFile, int notifyTimeout /* =5000 *
 				SDirEntry entry;
 				SDirec sdir(path);
 				while(sdir.Next(&entry) > 0) {
-					if(!entry.IsFolder() && cmp(entry.AccsTime, beg_dtm) > 0) {
+					LDATETIME iter_dtm;
+					iter_dtm.SetNs100(entry.AccsTm_);
+					if(!entry.IsFolder() && cmp(iter_dtm, beg_dtm) > 0) {
 						entry.GetNameA(pDir, rFile);
 						stop = ok = 1;
 					}

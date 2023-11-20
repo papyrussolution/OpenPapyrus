@@ -7054,7 +7054,7 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 						if(!fileExists(local_path))
 							do_copy = 1;
 						else if(SFile::GetStat(local_path, 0, &st_local, 0) && SFile::GetStat(path, 0, &st, 0))
-							if(cmp(st_local.ModTime, st.ModTime) < 0)
+							if(st_local.ModTm_ < st.ModTm_)
 								do_copy = 1;
 							else
 								path = local_path; // В локальном каталоге уже лежит актуальный файл: недо использовать его.

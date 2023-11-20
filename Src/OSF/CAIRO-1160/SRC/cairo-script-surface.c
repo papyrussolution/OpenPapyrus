@@ -2411,17 +2411,9 @@ ESCAPED_CHAR:
 }
 
 static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract_surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const char * utf8,
-    int utf8_len,
-    cairo_glyph_t * glyphs,
-    int num_glyphs,
-    const cairo_text_cluster_t * clusters,
-    int num_clusters,
-    cairo_text_cluster_flags_t backward,
-    cairo_scaled_font_t * scaled_font,
-    const cairo_clip_t * clip)
+    cairo_operator_t op, const cairo_pattern_t * source, const char * utf8, int utf8_len,
+    cairo_glyph_t * glyphs, int num_glyphs, const cairo_text_cluster_t * clusters, int num_clusters,
+    cairo_text_cluster_flags_t backward, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip)
 {
 	cairo_script_surface_t * surface = static_cast<cairo_script_surface_t *>(abstract_surface);
 	cairo_script_context_t * ctx = to_context(surface);
@@ -2477,10 +2469,7 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 				break;
 		}
 		else {
-			status = _cairo_scaled_glyph_lookup(scaled_font,
-				glyphs[n].index,
-				CAIRO_SCALED_GLYPH_INFO_METRICS,
-				&scaled_glyph);
+			status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[n].index, CAIRO_SCALED_GLYPH_INFO_METRICS, &scaled_glyph);
 			if(UNLIKELY(status)) {
 				_cairo_scaled_font_thaw_cache(scaled_font);
 				goto BAIL;
@@ -2489,14 +2478,12 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 				break;
 		}
 	}
-
 	if(n == num_glyphs) {
 		_cairo_output_stream_puts(ctx->stream, "<~");
 		base85_stream = _cairo_base85_stream_create(ctx->stream);
 	}
 	else
 		_cairo_output_stream_puts(ctx->stream, "[");
-
 	for(n = 0; n < num_glyphs; n++) {
 		double dx, dy;
 		status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[n].index, CAIRO_SCALED_GLYPH_INFO_METRICS, &scaled_glyph);
@@ -2584,10 +2571,7 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 		if(n < num_clusters) {
 			_cairo_output_stream_puts(ctx->stream, "] [ ");
 			for(n = 0; n < num_clusters; n++) {
-				_cairo_output_stream_printf(ctx->stream,
-				    "%d %d ",
-				    clusters[n].num_bytes,
-				    clusters[n].num_glyphs);
+				_cairo_output_stream_printf(ctx->stream, "%d %d ", clusters[n].num_bytes, clusters[n].num_glyphs);
 			}
 			_cairo_output_stream_puts(ctx->stream, "]");
 		}
@@ -2615,22 +2599,11 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 		_cairo_output_stream_puts(ctx->stream,
 		    "] show-glyphs\n");
 	}
-
 	inactive(surface);
-
 	if(_cairo_surface_wrapper_is_active(&surface->wrapper)) {
-		return _cairo_surface_wrapper_show_text_glyphs(&surface->wrapper,
-			   op, source,
-			   utf8, utf8_len,
-			   glyphs, num_glyphs,
-			   clusters, num_clusters,
-			   backward,
-			   scaled_font,
-			   clip);
+		return _cairo_surface_wrapper_show_text_glyphs(&surface->wrapper, op, source, utf8, utf8_len, glyphs, num_glyphs, clusters, num_clusters, backward, scaled_font, clip);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
-
 BAIL:
 	inactive(surface);
 	return status;
@@ -2687,8 +2660,7 @@ static void _cairo_script_implicit_context_init(cairo_script_implicit_context_t 
 	cr->current_tolerance = CAIRO_GSTATE_TOLERANCE_DEFAULT;
 	cr->current_antialias = CAIRO_ANTIALIAS_DEFAULT;
 	_cairo_stroke_style_init(&cr->current_style);
-	_cairo_pattern_init_solid(&cr->current_source.solid,
-	    CAIRO_COLOR_BLACK);
+	_cairo_pattern_init_solid(&cr->current_source.solid, CAIRO_COLOR_BLACK);
 	_cairo_path_fixed_init(&cr->current_path);
 	cairo_matrix_init_identity(&cr->current_ctm);
 	cairo_matrix_init_identity(&cr->current_stroke_matrix);
@@ -2700,11 +2672,12 @@ static void _cairo_script_implicit_context_init(cairo_script_implicit_context_t 
 
 static void _cairo_script_implicit_context_reset(cairo_script_implicit_context_t * cr)
 {
-	SAlloc::F(cr->current_style.dash);
-	cr->current_style.dash = NULL;
-	_cairo_pattern_fini(&cr->current_source.base);
-	_cairo_path_fixed_fini(&cr->current_path);
-	_cairo_script_implicit_context_init(cr);
+	if(cr) {
+		ZFREE(cr->current_style.dash);
+		_cairo_pattern_fini(&cr->current_source.base);
+		_cairo_path_fixed_fini(&cr->current_path);
+		_cairo_script_implicit_context_init(cr);
+	}
 }
 
 static cairo_script_surface_t * _cairo_script_surface_create_internal(cairo_script_context_t * ctx,

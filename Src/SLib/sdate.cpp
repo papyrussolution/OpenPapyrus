@@ -5,6 +5,67 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
+#define TICKSPERMIN        600000000
+#define TICKSPERSEC        10000000
+#define TICKSPERMSEC       10000
+//#define SECSPERDAY         86400
+#define _YEAR_SEC          (365 * SSECSPERDAY) // secs in a year
+//#define SECSPERHOUR        3600
+#define SECSPERMIN         60
+#define MINSPERHOUR        60
+#define HOURSPERDAY        24
+#define EPOCHWEEKDAY       1
+#define DAYSPERWEEK        7
+#define EPOCHYEAR          1601
+#define DAYSPERNORMALYEAR  365
+#define DAYSPERLEAPYEAR    366
+#define MONSPERYEAR        12
+#define WEEKDAY_OF_1601     1 // This is the week day that January 1st, 1601 fell on (a Monday)
+#define WEEKDAY_OF_1970     4 // 01-01-70 was a Thursday
+//#define EPOCH_BIAS         116444736000000000i64 // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
+//#if defined(__GNUC__)
+	//#define TICKSTO1970         0x019db1ded53e8000LL
+	//#define TICKSTO1980         0x01a8e79fe1d58000LL
+//#else
+	//#define TICKSTO1970         0x019db1ded53e8000i64
+	//#define TICKSTO1980         0x01a8e79fe1d58000i64
+//#endif
+
+#define _IS_LEAP_EPOCH_YEAR(y) ((((y) % 4 == 0) && ((y) % 100 != 0)) || (((y) + 1900) % 400 == 0))
+#define _LEAP_YEAR_ADJUST  17 // Leap years 1900 - 1970
+#define _MAX__TIME64_T     0x100000000000i64 // number of seconds from 00:00:00, 01/01/1970 UTC to 23:59:59. 12/31/2999 UTC
+//
+// Number of leap years from 1970 up to, but not including, the specified year
+// (expressed as the number of years since 1900).
+//
+#define _ELAPSED_LEAP_YEARS(y) ((((y)-1)/4) - (((y)-1)/100) + (((y)+299)/400) - _LEAP_YEAR_ADJUST)
+//
+//  ULONG
+//  NumberOfLeapYears (IN ULONG ElapsedYears);
+//
+//  The number of leap years is simply the number of years divided by 4
+//  minus years divided by 100 plus years divided by 400.  This says
+//  that every four years is a leap year except centuries, and the
+//  exception to the exception is the quadricenturies
+//
+#define NumberOfLeapYears(y) (((y)/4) - ((y)/100) + ((y)/400))
+//
+//  ULONG ElapsedYearsToDays (IN ULONG ElapsedYears);
+//
+//  The number of days contained in elapsed years is simply the number
+//  of years times 365 (because every year has at least 365 days) plus
+//  the number of leap years there are (i.e., the number of 366 days years)
+//
+#define ElapsedYearsToDays(y) (((y) * 365) + NumberOfLeapYears(y))
+#define ConvertMillisecondsTo100ns(MILLISECONDS) ((MILLISECONDS)*10000LL)
+#define ConvertMicrosecondsTo100ns(MILLISECONDS) ((MILLISECONDS)*10LL)
+#define Convert100nsToMilliseconds(v) ((v) / 10000LL)
+#define Convert100nsToMicroseconds(v) ((v) / 10LL)
+#define ConvertMillisecondsToDays(v)  ((v) / (SSECSPERDAY * 1000))
+#define ConvertMicrosecondsToDays(v)  ((v) / (static_cast<uint64>(SSECSPERDAY) * 1000000ULL))
+#define ConvertDaysToMilliseconds(DAYS) ((DAYS) * (SSECSPERDAY * 1000))
+#define ConvertDaysToMicroseconds(DAYS) ((DAYS) * (SSECSPERDAY * 1000000LL))
+
 #ifndef _WIN32_WCE
 	#define USE_DF_CLARION
 #endif
@@ -1012,9 +1073,6 @@ int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 	return 1;
 }
 
-int FASTCALL getcurdate(LDATE * dt) { return getcurdatetime(dt, 0); }
-int FASTCALL getcurtime(LTIME * tm) { return getcurdatetime(0, tm); }
-
 LDATE getcurdate_()
 {
 	LDATE dt;
@@ -1029,10 +1087,9 @@ LTIME getcurtime_()
 	return tm;
 }
 
-int FASTCALL getcurdatetime(LDATETIME * pTm)
-{
-	return getcurdatetime(&pTm->d, &pTm->t);
-}
+int FASTCALL getcurdate(LDATE * dt) { return getcurdatetime(dt, 0); }
+int FASTCALL getcurtime(LTIME * tm) { return getcurdatetime(0, tm); }
+int FASTCALL getcurdatetime(LDATETIME * pTm) { return getcurdatetime(&pTm->d, &pTm->t); }
 
 LDATETIME FASTCALL getcurdatetime_()
 {
@@ -1154,6 +1211,15 @@ LDATETIME & LDATETIME::SetMax() // max-moment: (LDATE)d = MAXLONG, (LTIME)t = MA
 {
 	d = MAXDATE;
 	t = MAXTIME;
+	return *this;
+}
+
+LDATETIME & FASTCALL LDATETIME::SetNs100(int64 ns100Tm) // @v11.8.11
+{
+	SUniTime_Internal uti;
+	uti.SetTime100ns(ns100Tm);
+	d.encode(uti.D, uti.M, uti.Y);
+	t.encode(uti.Hr, uti.Mn, uti.Sc, uti.MSc);
 	return *this;
 }
 
@@ -2468,6 +2534,11 @@ int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
 	return ((tz >= -(12 * 3600) && tz <= +(14 * 3600)) || tz == Undef_TimeZone);
 }
 
+/*static*/int64 SUniTime_Internal::EpochToNs100(int64 epochTimeSec)
+{
+	return epochTimeSec * TICKSPERSEC + SlConst::Epoch1600_1970_Offs_100Ns;
+}
+
 SUniTime_Internal::SUniTime_Internal()
 {
 	THISZERO();
@@ -2572,60 +2643,6 @@ uint64 SUniTime_Internal::Cmp(const SUniTime_Internal & rS, uint64 uedTimedMeta)
 
 #if 1 // {
 
-#define TICKSPERMIN        600000000
-#define TICKSPERSEC        10000000
-#define TICKSPERMSEC       10000
-//#define SECSPERDAY         86400
-#define _YEAR_SEC          (365 * SSECSPERDAY) // secs in a year
-//#define SECSPERHOUR        3600
-#define SECSPERMIN         60
-#define MINSPERHOUR        60
-#define HOURSPERDAY        24
-#define EPOCHWEEKDAY       1
-#define DAYSPERWEEK        7
-#define EPOCHYEAR          1601
-#define DAYSPERNORMALYEAR  365
-#define DAYSPERLEAPYEAR    366
-#define MONSPERYEAR        12
-#define WEEKDAY_OF_1601     1 // This is the week day that January 1st, 1601 fell on (a Monday)
-#define WEEKDAY_OF_1970     4 // 01-01-70 was a Thursday
-//#define EPOCH_BIAS         116444736000000000i64 // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
-
-//#if defined(__GNUC__)
-	//#define TICKSTO1970         0x019db1ded53e8000LL
-	//#define TICKSTO1980         0x01a8e79fe1d58000LL
-//#else
-	//#define TICKSTO1970         0x019db1ded53e8000i64
-	//#define TICKSTO1980         0x01a8e79fe1d58000i64
-//#endif
-
-#define _IS_LEAP_EPOCH_YEAR(y) ((((y) % 4 == 0) && ((y) % 100 != 0)) || (((y) + 1900) % 400 == 0))
-#define _LEAP_YEAR_ADJUST  17 // Leap years 1900 - 1970
-#define _MAX__TIME64_T     0x100000000000i64 // number of seconds from 00:00:00, 01/01/1970 UTC to 23:59:59. 12/31/2999 UTC
-//
-// Number of leap years from 1970 up to, but not including, the specified year
-// (expressed as the number of years since 1900).
-//
-#define _ELAPSED_LEAP_YEARS(y) ((((y)-1)/4) - (((y)-1)/100) + (((y)+299)/400) - _LEAP_YEAR_ADJUST)
-//
-//  ULONG
-//  NumberOfLeapYears (IN ULONG ElapsedYears);
-//
-//  The number of leap years is simply the number of years divided by 4
-//  minus years divided by 100 plus years divided by 400.  This says
-//  that every four years is a leap year except centuries, and the
-//  exception to the exception is the quadricenturies
-//
-#define NumberOfLeapYears(y) (((y)/4) - ((y)/100) + ((y)/400))
-//
-//  ULONG ElapsedYearsToDays (IN ULONG ElapsedYears);
-//
-//  The number of days contained in elapsed years is simply the number
-//  of years times 365 (because every year has at least 365 days) plus
-//  the number of leap years there are (i.e., the number of 366 days years)
-//
-#define ElapsedYearsToDays(y) (((y) * 365) + NumberOfLeapYears(y))
-
 static int FASTCALL DaysSinceEpoch(int year)
 {
     year--; // Don't include a leap day from the current year
@@ -2641,15 +2658,6 @@ static int FASTCALL DaysSinceEpoch(int year)
 //
 #define MaxDaysInMonth(YEAR, MONTH) (IsLeapYear_Gregorian(YEAR) ? LeapYearDaysPrecedingMonth[(MONTH)+1] - LeapYearDaysPrecedingMonth[(MONTH)] : \
 	NormalYearDaysPrecedingMonth[(MONTH)+1] - NormalYearDaysPrecedingMonth[(MONTH)])
-
-#define ConvertMillisecondsTo100ns(MILLISECONDS) ((MILLISECONDS)*10000LL)
-#define ConvertMicrosecondsTo100ns(MILLISECONDS) ((MILLISECONDS)*10LL)
-#define Convert100nsToMilliseconds(v) ((v) / 10000LL)
-#define Convert100nsToMicroseconds(v) ((v) / 10LL)
-#define ConvertMillisecondsToDays(v)  ((v) / (SSECSPERDAY * 1000))
-#define ConvertMicrosecondsToDays(v)  ((v) / (static_cast<uint64>(SSECSPERDAY) * 1000000ULL))
-#define ConvertDaysToMilliseconds(DAYS) ((DAYS) * (SSECSPERDAY * 1000))
-#define ConvertDaysToMicroseconds(DAYS) ((DAYS) * (SSECSPERDAY * 1000000LL))
 //
 // Descr: This routine converts an input 64-bit time value to the number
 //   of total elapsed days and the number of milliseconds in the partial day.

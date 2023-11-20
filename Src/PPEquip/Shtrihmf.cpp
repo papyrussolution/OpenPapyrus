@@ -646,8 +646,10 @@ int ACS_SHTRIHMFRK::ImportFiles()
 					dtm.SetMax();
 					(temp_path = temp_dir.SetLastSlash()).Cat(p_prefix).Cat("?????.txt");
 					for(SDirec sd(temp_path); sd.Next(&sde) > 0;) {
-						if(dtm.IsFar() || cmp(sde.ModTime, dtm) < 0) {
-							dtm = sde.ModTime;
+						LDATETIME iter_dtm;
+						iter_dtm.SetNs100(sde.ModTm_);
+						if(dtm.IsFar() || cmp(iter_dtm, dtm) < 0) {
+							dtm = iter_dtm;
 							sde.GetNameA(temp_dir, firstf_path);
 						}
 						files_count++;

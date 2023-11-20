@@ -2309,9 +2309,9 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, int contentType 
 				ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 				temp_buf.CopyTo(blk.Name, sizeof(blk.Name));
 				THROW(SFile::GetStat(_file_name, 0, &fs, 0));
-				blk.CrtTime = fs.CrtTime;
-				blk.AccsTime = fs.AccsTime;
-				blk.ModTime = fs.ModTime;
+				blk.CrtTime.SetNs100(fs.CrtTm_);
+				blk.AccsTime.SetNs100(fs.AccsTm_);
+				blk.ModTime.SetNs100(fs.ModTm_);
 				blk.Size = fs.Size;
 				ff.Identify(_file_name);
 				blk.Format = ff;

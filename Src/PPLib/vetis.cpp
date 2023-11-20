@@ -6188,7 +6188,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 												n_vc.PutInner(_xmlnst_vd("cargoInspected"), "true");
 												{
 													// @v11.8.5 символ результата экспертизы теперь берется из сертификата (ранее был константой)
-													SXml::WNode n_auth(srb, _xmlnst_vd("authentication"));
+													// @v11.8.11 SXml::WNode n_auth(srb, _xmlnst_vd("authentication"));
 													const char * p_ce_symb = SIntToSymbTab_GetSymbPtr(
 														VetAuthCargoExpertized_SymbTab, SIZEOFARRAY(VetAuthCargoExpertized_SymbTab), r_org_doc.Authentication.CargoExpertized);
 													n_vc.PutInner(_xmlnst_vd("cargoExpertized"), p_ce_symb ? p_ce_symb : "VSERAW"); // @v11.6.6 VSEFULL-->VSERAW // @v11.8.5

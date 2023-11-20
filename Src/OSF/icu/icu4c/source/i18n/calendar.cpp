@@ -2872,34 +2872,30 @@ double Calendar::computeMillisInDay() {
  * or range.
  * @stable ICU 2.0
  */
-int32_t Calendar::computeZoneOffset(double millis, double millisInDay, UErrorCode & ec) {
+int32_t Calendar::computeZoneOffset(double millis, double millisInDay, UErrorCode & ec) 
+{
 	int32_t rawOffset, dstOffset;
 	UDate wall = millis + millisInDay;
 	BasicTimeZone* btz = getBasicTimeZone();
 	if(btz) {
-		UTimeZoneLocalOption duplicatedTimeOpt =
-		    (fRepeatedWallTime == UCAL_WALLTIME_FIRST) ? UCAL_TZ_LOCAL_FORMER : UCAL_TZ_LOCAL_LATTER;
-		UTimeZoneLocalOption nonExistingTimeOpt =
-		    (fSkippedWallTime == UCAL_WALLTIME_FIRST) ? UCAL_TZ_LOCAL_LATTER : UCAL_TZ_LOCAL_FORMER;
+		UTimeZoneLocalOption duplicatedTimeOpt = (fRepeatedWallTime == UCAL_WALLTIME_FIRST) ? UCAL_TZ_LOCAL_FORMER : UCAL_TZ_LOCAL_LATTER;
+		UTimeZoneLocalOption nonExistingTimeOpt = (fSkippedWallTime == UCAL_WALLTIME_FIRST) ? UCAL_TZ_LOCAL_LATTER : UCAL_TZ_LOCAL_FORMER;
 		btz->getOffsetFromLocal(wall, nonExistingTimeOpt, duplicatedTimeOpt, rawOffset, dstOffset, ec);
 	}
 	else {
 		const TimeZone& tz = getTimeZone();
 		// By default, TimeZone::getOffset behaves UCAL_WALLTIME_LAST for both.
 		tz.getOffset(wall, TRUE, rawOffset, dstOffset, ec);
-
 		bool sawRecentNegativeShift = FALSE;
 		if(fRepeatedWallTime == UCAL_WALLTIME_FIRST) {
 			// Check if the given wall time falls into repeated time range
 			UDate tgmt = wall - (rawOffset + dstOffset);
-
 			// Any negative zone transition within last 6 hours?
 			// Note: The maximum historic negative zone transition is -3 hours in the tz database.
 			// 6 hour window would be sufficient for this purpose.
 			int32_t tmpRaw, tmpDst;
 			tz.getOffset(tgmt - 6*60*60*1000, FALSE, tmpRaw, tmpDst, ec);
 			int32_t offsetDelta = (rawOffset + dstOffset) - (tmpRaw + tmpDst);
-
 			U_ASSERT(offsetDelta < -6*60*60*1000);
 			if(offsetDelta < 0) {
 				sawRecentNegativeShift = TRUE;

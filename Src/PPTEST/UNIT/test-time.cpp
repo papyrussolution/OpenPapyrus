@@ -309,7 +309,29 @@ SLTEST_R(LDATE)
 				}
 			}
 		}
+	}
+	{
+		SString temp_file_path;
+		(temp_file_path = GetSuiteEntry()->OutPath).SetLastSlash().Cat("temporary-file.tmp");
+		SFile f_temp(temp_file_path, SFile::mWrite);
+		if(f_temp.IsValid()) {
+			f_temp.WriteLine("any text\n");
+			f_temp.Close();
+			const LDATETIME now_dtm = getcurdatetime_();
+			//
+			SFile::Stat fs;
+			if(SFile::GetStat(temp_file_path, 0, &fs, 0)) {
+				LDATETIME dtm;
+				//int tz = gettimezone(); 
 
+				TIME_ZONE_INFORMATION tz;
+				::GetTimeZoneInformation(&tz);
+
+				dtm.SetNs100(fs.ModTm_);
+				long tm_diff_sec = labs(diffdatetimesec(dtm, now_dtm));
+				SLCHECK_NZ((tm_diff_sec + (tz.Bias * 60)) <= 1);
+			}
+		}
 	}
 	return CurrentStatus;
 }

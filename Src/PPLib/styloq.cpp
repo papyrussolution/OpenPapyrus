@@ -2887,7 +2887,8 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 		InitFilePath(pFilePath, file_path);
 		if(fileExists(file_path)) {
 			SFile::Stat fs;
-			if(loadTimeUsage < 0 && LoadTime > 0 && SFile::GetStat(file_path, 0, &fs, 0) && fs.ModTime.GetTimeT() < LoadTime) {
+			const int64 tmns100_load_time = SUniTime_Internal::EpochToNs100(LoadTime);
+			if(loadTimeUsage < 0 && LoadTime > 0 && SFile::GetStat(file_path, 0, &fs, 0) && static_cast<int64>(fs.ModTm_) < tmns100_load_time) {
 				ok = -1;
 			}
 			else {

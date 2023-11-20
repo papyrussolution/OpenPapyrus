@@ -3,7 +3,44 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-
+//
+// Descr: ѕопытка обобщенной формализации кодировки бинарных данных в текстовые (base64, base58, etc)
+// 
+class BinToTextEncoding { // @construction
+public:
+	//
+	// Descr: ¬арианты реализации. «начени€, отличные от implDefault могут использоватьс€ дл€ тестировани€ и benchmarking'а.
+	//   ¬арианты, как правило, не имеют какой-либо стандартизации. “о есть, почти всегда это - иднтификаторы строго дл€ внутреннего
+	//   применени€.
+	//
+	enum Implementation {
+		implDefault = 0 // ¬ариант реализации, прин€тый дл€ использовани€ // 
+	};
+	BinToTextEncoding() : Ued(0), Impl(implDefault), SplitIntoSubstrOfMaxLen(0), Eolf(eolUndef), State(0)
+	{
+	}
+	//
+	// Descr: ‘ункци€ пытаетс€ определить какой техникой закодирован текст.
+	// Returns:
+	//   >0 - удалось успешно идентифицировать кодировку.
+	//   0  - не удалось идентифицировать кодировку.
+	//   <0 - кодировку идентифицировать удалось, но без полной уверенности
+	//
+	static int DetectEncoding(const void * pEncBuf, size_t encBufLen, BinToTextEncoding & rResult);
+	int    GetEstimatedEncSize(size_t srcLen, size_t * pEncLen) const;
+	int    GetEstimatedDecSize(size_t srcLen, size_t * pDecLen) const;
+	int    Enc(const void * pSrc, size_t srcLen, void * pDest, size_t destBufSize, size_t * pEncLen) const;
+	int    Dec(const void * pSrc, size_t srcLen, void * pDest, size_t destBufSize, size_t * pDecLen) const;
+private:
+	uint64 Ued;  // UED_BINTOTEXTENCODING_XXX
+	int    Impl; // ¬ариант реализации
+	uint   SplitIntoSubstrOfMaxLen; // ≈сли > 0, то при кодировании текст разбиваетс€ на подстроки указанной длины. 
+	SEOLFormat Eolf; // –азделитель строк в случае, если SplitIntoSubstrOfMaxLen > 0
+	int    State;
+};
+//
+//
+//
 bool STDCALL Base64_Encode(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen)
 {
 	bool    ok = true;

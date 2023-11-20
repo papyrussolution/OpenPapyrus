@@ -764,16 +764,14 @@ static cairo_status_t _cairo_xml_emit_type42_font(cairo_xml_t * xml,
 
 #endif
 
-static cairo_status_t _cairo_xml_emit_type3_font(cairo_xml_t * xml, cairo_scaled_font_t * scaled_font,
-    cairo_glyph_t * glyphs, int num_glyphs)
+static cairo_status_t _cairo_xml_emit_type3_font(cairo_xml_t * xml, cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int num_glyphs)
 {
 	_cairo_xml_printf_start(xml, "<font type='3'>");
 	_cairo_xml_printf_end(xml, "</font>");
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_xml_emit_scaled_font(cairo_xml_t * xml, cairo_scaled_font_t * scaled_font,
-    cairo_glyph_t * glyphs, int num_glyphs)
+static cairo_status_t _cairo_xml_emit_scaled_font(cairo_xml_t * xml, cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int num_glyphs)
 {
 	cairo_int_status_t status;
 	_cairo_xml_printf(xml, "<scaled-font>");

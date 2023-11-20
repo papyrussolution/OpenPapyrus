@@ -158,29 +158,23 @@ HRESULT LoadTextureDataFromMemory(_In_reads_(ddsDataSize) const uint8_t* ddsData
 	if(ddsDataSize > UINT32_MAX) {
 		return E_FAIL;
 	}
-
 	if(ddsDataSize < (sizeof(uint32_t) + sizeof(DDS_HEADER))) {
 		return E_FAIL;
 	}
-
 	// DDS files always start with the same magic number ("DDS ")
 	auto const dwMagicNumber = *reinterpret_cast<const uint32_t*>(ddsData);
 	if(dwMagicNumber != DDS_MAGIC) {
 		return E_FAIL;
 	}
-
 	auto hdr = reinterpret_cast<const DDS_HEADER*>(ddsData + sizeof(uint32_t));
-
 	// Verify header to validate DDS file
 	if(hdr->size != sizeof(DDS_HEADER) ||
 	    hdr->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
 		return E_FAIL;
 	}
-
 	// Check for DX10 extension
 	bool bDXT10Header = false;
-	if((hdr->ddspf.flags & DDS_FOURCC) &&
-	    (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
+	if((hdr->ddspf.flags & DDS_FOURCC) && (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
 		// Must be long enough for both headers and magic value
 		if(ddsDataSize < (sizeof(uint32_t) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10))) {
 			return E_FAIL;
@@ -188,56 +182,36 @@ HRESULT LoadTextureDataFromMemory(_In_reads_(ddsDataSize) const uint8_t* ddsData
 
 		bDXT10Header = true;
 	}
-
 	// setup the pointers in the process request
 	*header = hdr;
-	auto offset = sizeof(uint32_t)
-	    + sizeof(DDS_HEADER)
-	    + (bDXT10Header ? sizeof(DDS_HEADER_DXT10) : 0u);
+	auto offset = sizeof(uint32_t) + sizeof(DDS_HEADER) + (bDXT10Header ? sizeof(DDS_HEADER_DXT10) : 0u);
 	*bitData = ddsData + offset;
 	*bitSize = ddsDataSize - offset;
-
 	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT LoadTextureDataFromFile(_In_z_ const wchar_t* fileName,
-    std::unique_ptr<uint8_t[]>& ddsData,
-    const DDS_HEADER** header,
-    const uint8_t** bitData,
-    size_t* bitSize) noexcept
+HRESULT LoadTextureDataFromFile(_In_z_ const wchar_t* fileName, std::unique_ptr<uint8_t[]>& ddsData, const DDS_HEADER** header,
+    const uint8_t** bitData, size_t* bitSize) noexcept
 {
 	if(!header || !bitData || !bitSize) {
 		return E_POINTER;
 	}
-
 	*bitSize = 0;
-
 	// open the file
     #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
-	ScopedHandle hFile(safe_handle(CreateFile2(
-		    fileName,
-		    GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING,
-		    nullptr)));
+		ScopedHandle hFile(safe_handle(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, nullptr)));
     #else
-	ScopedHandle hFile(safe_handle(CreateFileW(
-		    fileName,
-		    GENERIC_READ, FILE_SHARE_READ,
-		    nullptr,
-		    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,
-		    nullptr)));
+		ScopedHandle hFile(safe_handle(CreateFileW(fileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr)));
     #endif
-
 	if(!hFile) {
 		return HRESULT_FROM_WIN32(GetLastError());
 	}
-
 	// Get the file size
 	FILE_STANDARD_INFO fileInfo;
 	if(!GetFileInformationByHandleEx(hFile.get(), FileStandardInfo, &fileInfo, sizeof(fileInfo))) {
 		return HRESULT_FROM_WIN32(GetLastError());
 	}
-
 	// File is too big for 32-bit allocation, so reject read
 	if(fileInfo.EndOfFile.HighPart > 0) {
 		return E_FAIL;

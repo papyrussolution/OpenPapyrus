@@ -798,9 +798,9 @@ int LZAri::GetFileInfo(int compress)
 				crc = _crc32.Calc(crc, p_buf, len);
 			rewind(P_InFile);
 			P_Header->FileSize  = (long)fs.Size;
-			P_Header->FileCreatDateTime = fs.CrtTime;
-			P_Header->FileLAccDateTime  = fs.AccsTime;
-			P_Header->FileLModDateTime  = fs.ModTime;
+			P_Header->FileCreatDateTime.SetNs100(fs.CrtTm_);
+			P_Header->FileLAccDateTime.SetNs100(fs.AccsTm_);
+			P_Header->FileLModDateTime.SetNs100(fs.ModTm_);
 			P_Header->CRC       = (long)crc;
 			P_Header->Signature = LZARI_SIGNATURE;
 			filename.CopyTo(P_Header->FileName, sizeof(P_Header->FileName));

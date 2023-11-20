@@ -1409,8 +1409,8 @@ SMailMessage::Boundary * SMailMessage::AttachFile(Boundary * pB, int format, con
 		{
 			SFile::Stat fs;
 			SFile::GetStat(pFilePath, 0, &fs, 0);
-			p_result->Cd.CrDtm = fs.CrtTime;
-			p_result->Cd.ModifDtm = fs.ModTime;
+			p_result->Cd.CrDtm.SetNs100(fs.CrtTm_);
+			p_result->Cd.ModifDtm.SetNs100(fs.ModTm_);
 			p_result->Cd.Size = fs.Size;
 
 			SFsPath ps(pFilePath);
@@ -2823,16 +2823,17 @@ int ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rEntry)
 	scan.Skip().GetWord(" \t", temp_buf.Z());
 	rEntry.Size = temp_buf.ToInt64();
 	{ // time: mon day [year] time
-		const LDATE curdt = getcurdate_();
+		LDATETIME now_dtm = getcurdatetime_();
 		int    mon = 0;
 		int    day = 0;
 		int    year = 0;
-		LTIME  t = ZEROTIME;
+		LDATETIME dtm;
+		//LTIME  t = ZEROTIME;
 		{ // mon
 			scan.Skip().GetWord(" \t", temp_buf.Z());
 			int mi = STextConst::GetIdx(STextConst::cMon_En_Sh, temp_buf);
 			if(mi >= 0 && mi <= 11)
-				mon = mi+1;
+				mon = (mi+1);
 		}
 		{ // day
 			scan.Skip().GetWord(" \t", temp_buf.Z());
@@ -2843,7 +2844,7 @@ int ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rEntry)
 		{ // year or time
 			scan.Skip().GetWord(" \t", temp_buf.Z());
 			if(temp_buf.HasChr(':')) {
-				strtotime(temp_buf, TIMF_HMS, &t);
+				strtotime(temp_buf, TIMF_HMS, &dtm.t);
 			}
 			else {
 				year = temp_buf.ToLong();
@@ -2851,11 +2852,11 @@ int ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rEntry)
 					year = 0;
 			}
 		}
-		SETIFZ(day, curdt.day());
-		SETIFZ(mon, curdt.month());
-		SETIFZ(year, curdt.year());
-		rEntry.ModTime.d = encodedate(day, mon, year);
-		rEntry.ModTime.t = t;
+		SETIFZ(day, now_dtm.d.day());
+		SETIFZ(mon, now_dtm.d.month());
+		SETIFZ(year, now_dtm.d.year());
+		dtm.d.encode(day, mon, year);
+		rEntry.ModTm_ = SUniTime_Internal::EpochToNs100(dtm.GetTimeT());
 	}
 	{ // name
 		scan.Skip().GetWord("" /*unitl EOL*/, temp_buf.Z());

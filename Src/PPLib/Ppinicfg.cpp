@@ -138,7 +138,7 @@ int PPIniFile::Backup(uint maxCopies)
 			SFile::Stat fs;
 			SFile::GetStat(temp_name, 0, &fs, 0);
 			FE fe;
-			fe.Dtm = fs.ModTime;
+			fe.Dtm.SetNs100(fs.ModTm_);
 			fe.C = c;
 			fe_list.insert(&fe);
 		}

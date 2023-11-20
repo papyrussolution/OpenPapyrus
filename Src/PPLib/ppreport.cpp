@@ -1145,7 +1145,10 @@ private:
 			setStaticText(CTL_PRINT2_ST_FILENAME, p_entry->ReportPath_);
 			SFile::Stat fs;
 			SFile::GetStat(p_entry->ReportPath_, 0, &fs, 0);
-			stat_buf.Cat(fs.ModTime);
+			{
+				LDATETIME dtm_mod;
+				stat_buf.Cat(dtm_mod.SetNs100(fs.ModTm_));
+			}
 			setStaticText(CTL_PRINT2_ST_FILEDTTM, stat_buf);
 			setStaticText(CTL_PRINT2_ST_DATANAME, p_entry->DataName_);
 			data_name = p_entry->DataName_;

@@ -191,23 +191,20 @@ cairo_status_t FASTCALL _cairo_output_stream_destroy(cairo_output_stream_t * str
 	return status;
 }
 
-void FASTCALL _cairo_output_stream_write(cairo_output_stream_t * stream, const void * data, size_t length)
+void STDCALL _cairo_output_stream_write(cairo_output_stream_t * stream, const void * data, size_t length)
 {
-	if(!length)
-		return;
-	if(stream->status)
-		return;
-	stream->status = stream->write_func(stream, reinterpret_cast<const uchar *>(data), length);
-	stream->position += length;
+	if(length && stream && stream->status == 0) {
+		stream->status = stream->write_func(stream, reinterpret_cast<const uchar *>(data), length);
+		stream->position += length;
+	}
 }
 
 void _cairo_output_stream_write_hex_string(cairo_output_stream_t * stream, const uchar * data, size_t length)
 {
 	// @sobolev const char hex_chars[] = "0123456789abcdef";
 	char buffer[2];
-	uint i, column;
 	if(stream->status == 0) {
-		for(i = 0, column = 0; i < length; i++, column++) {
+		for(uint i = 0, column = 0; i < length; i++, column++) {
 			if(column == 38) {
 				_cairo_output_stream_write(stream, "\n", 1);
 				column = 0;

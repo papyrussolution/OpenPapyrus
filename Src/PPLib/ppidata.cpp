@@ -790,17 +790,19 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 		FileTimeToSystemTime(&ff_info.ftLastWriteTime, &st_time);
 		encodedate(st_time.wDay, st_time.wMonth, st_time.wYear, &ftpfile_dttm.d);
 		ftpfile_dttm.t = encodetime(st_time.wHour, st_time.wMinute, st_time.wSecond, st_time.wMilliseconds / 10);
+		LDATETIME lf_mod_dtm;
+		lf_mod_dtm.SetNs100(lf_info.ModTm_);
 		if(send) {
-			if(lf_info.ModTime.d == ftpfile_dttm.d)
-				valid_dttm = (lf_info.ModTime.t > ftpfile_dttm.t);
+			if(lf_mod_dtm.d == ftpfile_dttm.d)
+				valid_dttm = (lf_mod_dtm.t > ftpfile_dttm.t);
 			else
-				valid_dttm = (lf_info.ModTime.d > ftpfile_dttm.d);
+				valid_dttm = (lf_mod_dtm.d > ftpfile_dttm.d);
 		}
 		else {
-			if(ftpfile_dttm.d == lf_info.ModTime.d)
-				valid_dttm = (ftpfile_dttm.t > lf_info.ModTime.t);
+			if(ftpfile_dttm.d == lf_mod_dtm.d)
+				valid_dttm = (ftpfile_dttm.t > lf_mod_dtm.t);
 			else
-				valid_dttm = (ftpfile_dttm.d > lf_info.ModTime.d);
+				valid_dttm = (ftpfile_dttm.d > lf_mod_dtm.d);
 		}
 	}
 	else

@@ -2487,12 +2487,12 @@ public:
 };
 
 enum SEOLFormat {
-	eolAny   = -1, // @v11.3.6 Любая комбинация ('\x0D'; '\x0A'; '\x0D\x0A'; '\x0A\x0D') трактуется как конец строки
-	eolUndef = 0,  // Неопределен
-	eolWindows,    // \x0D\x0A
-	eolUnix,       // \x0A
-	eolMac,        // \x0D
-	eolSpcICalendar // @v11.0.3 Специальный тип строки: если после \xD\xA встречается пробел, то это трактуется как продолжение текущей строки
+	eolAny          = -1, // @v11.3.6 Любая комбинация ('\x0D'; '\x0A'; '\x0D\x0A'; '\x0A\x0D') трактуется как конец строки
+	eolUndef        =  0, // Неопределен
+	eolWindows      =  1, // \x0D\x0A
+	eolUnix         =  2, // \x0A
+	eolMac          =  3, // \x0D
+	eolSpcICalendar =  4, // @v11.0.3 Специальный тип строки: если после \xD\xA встречается пробел, то это трактуется как продолжение текущей строки
 };
 //
 //
@@ -2794,7 +2794,8 @@ struct LDATETIME {
 	LDATETIME & Z();
 	LDATETIME & SetMax(); // max-moment: (LDATE)d = MAXLONG, (LTIME)t = MAXLONG
 	LDATETIME & SetFar(); // far-moment: (LDATE)d = MAXLONG, (LTIME)t = 0
-	LDATETIME & FASTCALL SetTimeT(time_t t);
+	LDATETIME & FASTCALL SetTimeT(time_t epochTm);
+	LDATETIME & FASTCALL SetNs100(int64 ns100Tm); // @v11.8.11
 	time_t GetTimeT() const;
 	bool   IsFar() const;
 	//
@@ -3063,6 +3064,10 @@ private:
 struct SUniTime_Internal { // @internal
 	static constexpr int Undef_TimeZone = 1000000;
 	static bool ValidateTimeZone(int tz);
+	//
+	// Descr: Транслирует время в секундах с 1970-01-01 в значение времени в сотнях наносекунд с 1601-01-01
+	//
+	static int64 EpochToNs100(int64 epochTimeSec);
 	SUniTime_Internal();
 	SUniTime_Internal(SCtrGenerate); // for-testing-only
 	SUniTime_Internal & Z();
@@ -12246,12 +12251,16 @@ public:
 		uint32 Attr;  // @v11.8.9
 		int64  Size;
 		uint32 ReparsePointTag; // @v11.8.9 if(Attr & attrReparsePoint) then this is additional tag of reparse point (wintn.h: IO_REPARSE_TAG_XXX).
-		LDATETIME CrtTime;
-		LDATETIME AccsTime;
-		LDATETIME ModTime;
+		//LDATETIME CrtTime;
+		//LDATETIME AccsTime;
+		//LDATETIME ModTime;
+		uint64 CrtTm_;
+		uint64 AccsTm_;
+		uint64 ModTm_;
 	};
 	static int GetStat(const char * pFileName, uint flags, Stat * pStat, SBinarySet * pExtSet);
-	static int GetStat__(SIntHandle h, uint flags, Stat * pStat, SBinarySet * pExtSet); // @v11.8.9
+	static int GetStatExt(SIntHandle h, uint flags, Stat * pStat, SBinarySet * pExtSet); // @v11.8.9
+	static int SetStatExt(SIntHandle h, uint flags, const Stat * pStat, const SBinarySet * pExtSet); // @v11.8.11
 	static int GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail);
 	//
 	// Descr: возвращает меточные даты файла с именем pFileName
@@ -12277,6 +12286,7 @@ public:
 	//
 	static int GetTime(SIntHandle hFile, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
 	static int SetTime(SIntHandle hFile, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif);
+	static int SetTime(SIntHandle hFile, int64 tmNs100Creation, int64 tmNs100LastAccess, int64 tmNs100LastModif);
 	static int IdentifyFormat(const char * pFileName);
 	static int IsOpenedForWriting(const char * pFileName);
 	//
@@ -12482,6 +12492,7 @@ public:
 	bool   CalcHash(int64 offs, int hashFunc/* SHASHF_XXX */, SBinaryChunk & rHash);
 	int    GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif);
 	int    SetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif);
+	int    SetDateTime(int64 tmNs100Creation, int64 tmNs100LastAccess, int64 tmNs100LastModif);
 	//
 	// Descr: Рассчитывает CRC32 файла, начиная со смещения offs.
 	//   После подсчета восстанавливает исходную текущую позицию файла.

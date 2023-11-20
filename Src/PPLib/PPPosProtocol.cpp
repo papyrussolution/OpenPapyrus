@@ -1409,7 +1409,9 @@ int FASTCALL PPPosProtocol::ProcessInputBlock::CheckFileForProcessedFileList(con
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		SString & r_file_name = SLS.AcquireRvlStr();;
 		rDe.GetNameA(r_file_name);
-		ok = P_ProcessedFiles->Search(MakeProcessedFileEntryHashString(r_file_name, rDe.ModTime, rDe.Size, r_temp_buf), 0, 0);
+		LDATETIME dtm_mod;
+		dtm_mod.SetNs100(rDe.ModTm_);
+		ok = P_ProcessedFiles->Search(MakeProcessedFileEntryHashString(r_file_name, dtm_mod, rDe.Size, r_temp_buf), 0, 0);
 	}
 	return ok;
 }
@@ -1419,7 +1421,9 @@ int FASTCALL PPPosProtocol::ProcessInputBlock::RegisterProcessedFile(const SFile
 	int    ok = -1;
 	if(P_ProcessedFiles) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
-		MakeProcessedFileEntryHashString(rFe.Name, rFe.ModTime, rFe.Size, r_temp_buf);
+		LDATETIME dtm_mod;
+		dtm_mod.SetNs100(rFe.ModTm_);
+		MakeProcessedFileEntryHashString(rFe.Name, dtm_mod, rFe.Size, r_temp_buf);
 		if(!P_ProcessedFiles->Search(r_temp_buf, 0, 0)) {
 			P_ProcessedFiles->Add(r_temp_buf, 1);
 			ok = 1;

@@ -962,8 +962,25 @@ bool SFile::Stat::IsSymLink() const { return ((Attr & attrReparsePoint) && Repar
 	}
 	return ok;
 }
+
+#if 0 // @construction {
+/*static*/int SFile::SetStatExt(SIntHandle h, uint flags, const Stat * pStat, const SBinarySet * pExtSet) // @v11.8.11
+{
+	int    ok = 0;
+	if(!!h && pStat) {
+		FILE_BASIC_INFO fi_basic;
+		FILETIME ft;
+		fi_basic.FileAttributes = pStat->Attr;
+		ldatetime_to_wftime(&pStat->CrtTime, &ft);
+		//fi_basic.CreationTime = pStat->CrtTime.Get();
+		if(SetFileInformationByHandle(h, FileBasicInfo, &fi_basic, sizeof(fi_basic))) {
+		}
+	}
+	return ok;
+}
+#endif // } 0
 	
-/*static*/int SFile::GetStat__(SIntHandle h, uint flags, Stat * pStat, SBinarySet * pExtSet) // @v11.8.9
+/*static*/int SFile::GetStatExt(SIntHandle h, uint flags, Stat * pStat, SBinarySet * pExtSet) // @v11.8.9
 {
 	int    ok = 0;
 	if(!!h) {
@@ -977,21 +994,24 @@ bool SFile::Stat::IsSymLink() const { return ((Attr & attrReparsePoint) && Repar
 		uint okf = 0;
 		if(GetFileInformationByHandleEx(h, FileBasicInfo, &fi_basic, sizeof(fi_basic))) {
 			okf |= okfFileBasicInfo;
-			FILETIME ft;
+			//FILETIME ft;
 			{
-				ft.dwHighDateTime = fi_basic.CreationTime.HighPart;
-				ft.dwLowDateTime = fi_basic.CreationTime.LowPart;
-				wftime_to_ldatetime(&ft, &pStat->CrtTime);
+				pStat->CrtTm_ = fi_basic.ChangeTime.QuadPart;
+				//ft.dwHighDateTime = fi_basic.CreationTime.HighPart;
+				//ft.dwLowDateTime = fi_basic.CreationTime.LowPart;
+				//wftime_to_ldatetime(&ft, &pStat->CrtTime);
 			}
 			{
-				ft.dwHighDateTime = fi_basic.LastAccessTime.HighPart;
-				ft.dwLowDateTime = fi_basic.LastAccessTime.LowPart;
-				wftime_to_ldatetime(&ft, &pStat->AccsTime);
+				pStat->AccsTm_ = fi_basic.LastAccessTime.QuadPart;
+				//ft.dwHighDateTime = fi_basic.LastAccessTime.HighPart;
+				//ft.dwLowDateTime = fi_basic.LastAccessTime.LowPart;
+				//wftime_to_ldatetime(&ft, &pStat->AccsTime);
 			}
 			{
-				ft.dwHighDateTime = fi_basic.LastWriteTime.HighPart;
-				ft.dwLowDateTime = fi_basic.LastWriteTime.LowPart;
-				wftime_to_ldatetime(&ft, &pStat->ModTime);
+				pStat->ModTm_ = fi_basic.LastWriteTime.QuadPart;
+				//ft.dwHighDateTime = fi_basic.LastWriteTime.HighPart;
+				//ft.dwLowDateTime = fi_basic.LastWriteTime.LowPart;
+				//wftime_to_ldatetime(&ft, &pStat->ModTime);
 			}
 			pStat->Attr = fi_basic.FileAttributes;
 		}
@@ -1145,17 +1165,8 @@ bool SFile::Stat::IsSymLink() const { return ((Attr & attrReparsePoint) && Repar
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1; // @v11.2.0 @fix (-1)-->(1)
-	//Stat   stat;
-	//SString _file_name(pFileName);
-	//MEMSZERO(stat);
 #ifdef __WIN32__
-	//HANDLE srchdl = INVALID_HANDLE_VALUE;
-	//SIntHandle h_file;
-	//THROW_V(_file_name.NotEmpty(), SLERR_OPENFAULT);
 	{
-		//SStringU _file_name_u;
-		//LARGE_INTEGER size = {0, 0};
-		//_file_name.CopyToUnicode(_file_name_u);
 		SDirEntry de;
 		if(SDirec::GetSingle(pFileName, &de)) {
 			if(de.Attr & SFile::attrSubdir) {
@@ -1205,11 +1216,9 @@ bool SFile::Stat::IsSymLink() const { return ((Attr & attrReparsePoint) && Repar
 		//stat.Size = size.QuadPart;
 #endif // } 0
 	}
-	//CATCHZOK
-	//if(!!h_file)
-		//::CloseHandle(h_file);
+#else // non-windows os
+	// @todo
 #endif
-	//ASSIGN_PTR(pStat, stat);
 	return ok;
 }
 
@@ -1526,6 +1535,46 @@ static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
 	} while(actual_size1 && actual_size2 && r1 > 0 && r2 > 0);
 	CATCHZOK
 	return ok;
+}
+
+/*static*/int SFile::SetTime(SIntHandle hFile, int64 tmNs100Creation, int64 tmNs100LastAccess, int64 tmNs100LastModif)
+{
+#ifdef __WIN32__
+	FILETIME w_cr_ft;
+	FILETIME * p_w_cr_ft = 0;
+	FILETIME w_la_ft;
+	FILETIME * p_w_la_ft = 0;
+	FILETIME w_lm_ft;
+	FILETIME * p_w_lm_ft = 0;
+	if(tmNs100Creation) {
+		p_w_cr_ft = &w_cr_ft;
+		w_cr_ft = *reinterpret_cast<const FILETIME *>(tmNs100Creation);
+	}
+	if(tmNs100LastAccess) {
+		p_w_la_ft = &w_la_ft;
+		w_la_ft = *reinterpret_cast<const FILETIME *>(tmNs100LastAccess);
+	}
+	if(tmNs100LastModif) {
+		p_w_lm_ft = &w_lm_ft;
+		w_lm_ft = *reinterpret_cast<const FILETIME *>(tmNs100LastModif);
+	}
+	if(p_w_cr_ft || p_w_la_ft || p_w_lm_ft)
+		return BIN(::SetFileTime(hFile, p_w_cr_ft, p_w_la_ft, p_w_lm_ft));
+	else
+		return 0;
+#else
+	struct ftime ftm;
+	int d, m, y, h, s, hs;
+	decodedate(&d, &m, &y, &pLastModif->d);
+	ftm.ft_day   = d;
+	ftm.ft_month = m;
+	ftm.ft_year  = y - 1980;
+	decodetime(&h, &m, &s, &hs, &pLastModif->t);
+	ftm.ft_hour = h;
+	ftm.ft_min  = m;
+	ftm.ft_tsec = s / 2;
+	return BIN(setftime(SIntHandle hFile, &ftm) == 0);
+#endif
 }
 
 /*static*/int SFile::SetTime(SIntHandle hFile, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif)
@@ -2576,6 +2625,24 @@ int SFile::SetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME *
 		}
 		else if(IH >= 0) {
 			return SFile::SetTime(SIntHandle(_get_osfhandle(IH)), pCreate, pLastAccess, pModif);
+		}
+		else
+			return -1;
+	}
+	else
+		return 0;
+}
+
+int SFile::SetDateTime(int64 tmNs100Creation, int64 tmNs100LastAccess, int64 tmNs100LastModif)
+{
+	if(T == tSBuffer)
+		return -1;
+	else if(IsValid()) {
+		if(F) {
+			return SFile::SetTime(SIntHandle(_get_osfhandle(fileno(F))), tmNs100Creation, tmNs100LastAccess, tmNs100LastModif);
+		}
+		else if(IH >= 0) {
+			return SFile::SetTime(SIntHandle(_get_osfhandle(IH)), tmNs100Creation, tmNs100LastAccess, tmNs100LastModif);
 		}
 		else
 			return -1;

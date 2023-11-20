@@ -1645,7 +1645,7 @@ int ImportCls::GetMessageList(const char * pLocalPath)
 					(dest_path = TempPath).SetLastSlash().Cat(file_name);
 					gfr = SCopyFile(src_path, dest_path, 0, FILE_SHARE_READ, 0);
 					if(gfr) {
-						eme.Dtm = de.ModTime;
+						eme.Dtm.SetNs100(de.ModTm_);
 						STRNSCPY(eme.Box, box_name);
 						MsgList.Add(eme);
 						ok = 1;
@@ -1673,7 +1673,7 @@ int ImportCls::GetMessageList(const char * pLocalPath)
 						(dest_path = TempPath).SetLastSlash().Cat(file_name);
 						gfr = P_FtpCli->GetFile(src_path, dest_path);
 						if(gfr) {
-							eme.Dtm = de.ModTime;
+							eme.Dtm.SetNs100(de.ModTm_);
 							STRNSCPY(eme.Box, box_name);
 							MsgList.Add(eme);
 							ok = 1;
