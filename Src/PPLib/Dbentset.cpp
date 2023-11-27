@@ -351,7 +351,7 @@ int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 
 				// компьютера, на который ссылается каталог и, если он не доступен,
 				// запомнить дабы для следующих каталогов не проверять доступность (ибо очень долго).
 				//
-				if(IsDirectory(temp_buf))
+				if(SFile::IsDir(temp_buf))
 					THROW_SL(Add(0, &blk, 1));
 			}
 			else {

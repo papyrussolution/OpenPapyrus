@@ -122,7 +122,7 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	if(flags & rfPrefixSharp && rScan.Is('#')) {
 		rScan.Incr();
 		hr = Helper_RecognizeSymb(rScan, flags, _meta_symb, _symb);
-		if(rScan.GetIdent(temp_buf)) {
+		/*if(rScan.GetIdent(temp_buf)) {
 			if(rScan.Is('.')) {
 				rScan.Incr();
 				uint64 meta = SearchSymb(temp_buf, UED_META_META);
@@ -135,7 +135,7 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 			else if(implicitMeta) {
 				result = SearchSymb(temp_buf, implicitMeta);
 			}
-		}
+		}*/
 	}
 	else {
 		hr = Helper_RecognizeSymb(rScan, flags, _meta_symb, _symb);
@@ -151,7 +151,7 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 		}
 		else if(hr == 1) {
 			if(implicitMeta) {
-				result = SearchSymb(temp_buf, implicitMeta);
+				result = SearchSymb(_symb, implicitMeta);
 			}
 		}
 	}
@@ -297,8 +297,10 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	const  uint bits = GetMetaRawDataBits(meta);
 	assert(bits < 64);
 	THROW(bits > 0);
-	const uint _clz_ = SBits::Clz(rawValue);
-	THROW((64 - (_clz_+32)) <= bits)
+	if(rawValue != 0) {
+		const uint _clz_ = SBits::Clz(rawValue);
+		THROW((64 - (_clz_+32)) <= bits); // @???
+	}
 	{
 		const uint32 meta_lodw = LoDWord(meta);
 		THROW(!(meta_lodw & 0x80000000)); // @todo @err (not applicable)
@@ -309,6 +311,35 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 		result = 0ULL;
 	ENDCATCH
 	return result;
+}
+
+/*static*/uint64 UED::SetRaw_Int(uint64 meta, int64 val)
+{
+	uint64 ued = 0;
+	const  uint bits = GetMetaRawDataBits(meta);
+	int64  aval = abs(val);
+	uint64 raw_val  = 0;
+	if(oneof2(bits, 48, 56)) {
+		if(val != 0) {
+			const uint _clz_ = SBits::Clz(static_cast<uint64>(aval));
+			THROW((64 - _clz_ - 1) <= bits) // 1 - sign-bit
+			if(val < 0) {
+				raw_val = 1ULL << (bits-1);			
+			}
+			raw_val |= aval;
+		}
+		ued = ApplyMetaToRawValue(meta, raw_val);
+	}
+	CATCH
+		ued = 0;
+	ENDCATCH
+	return ued;
+}
+
+/*static*/bool   GetRaw_Int(uint64 ued, int64 & rVal)
+{
+	bool ok = false;
+	return ok;
 }
 
 #if(_MSC_VER >= 1900) // {
@@ -1246,21 +1277,55 @@ int SrUedContainer_Base::ProcessProperties()
 {
 	int    ok = 1;
 	SString temp_buf;
+	SString prop_item_text;
 	SStrScan scan;
+	TSVector <uint64> raw_prop_list;
 	for(uint i = 0; i < ProtoPropList.getCount(); i++) {
 		const ProtoProp * p_pp = ProtoPropList.at(i);
 		if(p_pp) {
 			//UedSetBase line;
 			uint   ssidx = 0;
-			for(uint ssp = 0; p_pp->Prop.get(ssp, temp_buf); ssidx++) {
+			raw_prop_list.clear();
+			bool local_fault = false;
+			for(uint ssp = 0; !local_fault && p_pp->Prop.get(&ssp, prop_item_text); ssidx++) {
+				scan.Set(prop_item_text, 0);
+				scan.Skip();
 				if(ssidx == 0) { // property
-					scan.Set(temp_buf, 0);
 					uint64 ued_prop = Recognize(scan, UED_META_PROP, 0);
 					if(ued_prop && ued_prop != UED_PREDEFVALUE_MAYBE) {
-						
+						raw_prop_list.insert(&ued_prop);
 					}
+					else
+						local_fault = true;
 				}
 				else { // args
+					uint64 ued = 0;
+					if(scan.GetNumber(temp_buf)) {
+						double v = temp_buf.ToReal_Plain();
+						if(ffrac(v) == 0.0) {
+							// int
+						}
+						else {
+							// real
+							SDecimal dcml(temp_buf);
+							ued = dcml.ToUed_(UED_META_DECIMAL);
+						}
+					}
+					else if(scan.GetQuotedString(SFileFormat::Json, temp_buf)) {
+						
+					}
+					else {
+						ued = Recognize(scan, 0, 0);
+						if(ued && ued != UED_PREDEFVALUE_MAYBE) {
+							//
+						}
+					}
+				}
+			}
+			if(!local_fault) {
+				if(raw_prop_list.getCount()) {
+					uint prop_idx = 0;
+					PropS.Add(static_cast<uint64 *>(raw_prop_list.dataPtr()), raw_prop_list.getCount(), &prop_idx);
 				}
 			}
 		}
@@ -1333,8 +1398,8 @@ int SrUedContainer_Base::WriteSource(const char * pFileName, const SBinaryChunk 
 	int    ok = 1;
 	SString line_buf;
 	SString temp_buf;
-	THROW(!isempty(pFileName)); // @todo-err
-	THROW(LinguaLocusMeta); // @todo-err
+	THROW_PP_S(!isempty(pFileName), PPERR_INVPARAM_EXT, __FUNCTION__"/pFileName");
+	THROW(LinguaLocusMeta); // @todo @err
 	{
 		SFile f_out(pFileName, SFile::mWrite|SFile::mBinary);
 		THROW_SL(f_out.IsValid());
@@ -1540,7 +1605,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_Java(const char * pFileName, uint ver
 				assert(max_symb_len >= def_symb.Len());
 				def_symb.CatCharN(' ', (max_symb_len+1)-def_symb.Len());
 				def_value.Z().Cat("0x").CatHex(r_be.Id).Cat("L");
-				temp_buf.Z().Tab().Cat("public static final long").Space().Cat(def_symb).CatChar('=').Space().Cat(def_value).Semicol().CR();
+				temp_buf.Z().Tab().Cat("public static final long").Space().Cat(def_symb).Eq().Space().Cat(def_value).Semicol().CR();
 				genf.WriteLine(temp_buf);
 				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
 					//gen.IndentInc();
@@ -1554,7 +1619,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_Java(const char * pFileName, uint ver
 							assert(max_symb_len >= def_symb.Len());
 							def_symb.CatCharN(' ', (max_symb_len+1)-def_symb.Len());
 							def_value.Z().Cat("0x").CatHex(r_be_inner.Id).Cat("L");
-							temp_buf.Z().Tab(2).Cat("public static final long").Space().Cat(def_symb).CatChar('=').Space().Cat(def_value).Semicol().CR();
+							temp_buf.Z().Tab(2).Cat("public static final long").Space().Cat(def_symb).Eq().Space().Cat(def_value).Semicol().CR();
 							genf.WriteLine(temp_buf);
 						}
 					}
@@ -1673,7 +1738,7 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 	SString java_path;
 	bool   dont_log_last_err = false;
 	long   new_version = 0;
-	THROW(!isempty(pSrcFileName)); // @todo @err
+	THROW_PP_S(!isempty(pSrcFileName), PPERR_INVPARAM_EXT, __FUNCTION__"/pSrcFileName");
 	{
 		SFsPath ps(pSrcFileName);
 		SFsPath ps_out;

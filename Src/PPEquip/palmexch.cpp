@@ -23,7 +23,7 @@ long  SyncFindDbByName(SyncFindDbByNameParams & rParam, SyncDatabaseInfoType & r
 long  SyncOpenDB(const char * pName, int nCardNum, BYTE & rHandle, BYTE openMode) { return -1; }
 long  SyncCloseDB(BYTE) { return -1; }
 long  SyncDeleteDB(const char* pName, int nCardNum) { return -1; }
-long  SyncCreateDB(CDbCreateDB& rDbStats) { return -1; }
+long  SyncCreateDB(CDbCreateDB & rDbStats) { return -1; }
 long  SyncPurgeAllRecs(BYTE) { return -1; }
 long  SyncReadRecordById(CRawRecordInfo& rInfo) { return -1; }
 long  SyncReadRecordByIndex(CRawRecordInfo& rInfo) { return -1; }
@@ -141,7 +141,7 @@ int SyncTable::Find(const char * pName, Stat * pStat, int fromPalmCompressedFile
 	if(fromPalmCompressedFile) {
 		PalmArcHdr hdr;
 		size_t rec_size = sizeof(hdr);
-		P_Ctx->LastErr = SYNCERR_NOT_FOUND;
+		P_Ctx->LastErr = /*SYNCERR_NOT_FOUND*/SLERR_NOTFOUND;
 		MEMSZERO(hdr);
 		if(ReadRecFromTempFile(&hdr, &rec_size) > 0) {
 			if(!stricmp(pName, hdr.Name)) {
@@ -174,11 +174,11 @@ int SyncTable::Find(const char * pName, Stat * pStat, int fromPalmCompressedFile
 				}
 			}
 			else {
-				P_Ctx->LastErr = SYNCERR_NOT_FOUND;
+				P_Ctx->LastErr = /*SYNCERR_NOT_FOUND*/SLERR_NOTFOUND;
 				THROW(0);
 			}
 		}
-		else {
+		/* @v11.8.12 else {
 			char   db_name[64];
 			SyncFindDbByNameParams in_param;
 			SyncDatabaseInfoType out_param;
@@ -197,10 +197,10 @@ int SyncTable::Find(const char * pName, Stat * pStat, int fromPalmCompressedFile
 				pStat->DataSize = out_param.dwDataBytes;
 			}
 			ok = 1;
-		}
+		}*/
 	}
 	CATCH
-		ok = (P_Ctx->LastErr == SYNCERR_NOT_FOUND) ? -1 : 0;
+		ok = (P_Ctx->LastErr == /*SYNCERR_NOT_FOUND*/SLERR_NOTFOUND) ? -1 : 0;
 	ENDCATCH
 	if(ok <= 0 && pStat)
 		memzero(pStat, sizeof(*pStat));
@@ -216,7 +216,7 @@ int SyncTable::DeleteTable(const char * pName)
 			THROW(ok = P_Ctx->P_Pte->TblDelete(pName));
 		}
 		else {
-			THROW(!(P_Ctx->LastErr = SyncDeleteDB(pName, 0)) || P_Ctx->LastErr == SYNCERR_NOT_FOUND);
+			THROW(!(P_Ctx->LastErr = SyncDeleteDB(pName, 0)) || P_Ctx->LastErr == /*SYNCERR_NOT_FOUND*/SLERR_NOTFOUND);
 			ok = 1;
 		}
 	}
@@ -289,7 +289,7 @@ int SyncTable::Create(const char * pName)
 		STRNSCPY(TblName, pName);
 		THROW(P_Ctx->P_Pte->TblOpen(pName, SpiiTblOpenParams::omCreate, Handle));
 	}
-	else {
+	/* @v11.8.12 else {
 		STRNSCPY(TblName, pName);
 		CDbCreateDB cr_blk;
 		MEMSZERO(cr_blk);
@@ -302,7 +302,7 @@ int SyncTable::Create(const char * pName)
 		Handle[0] = (long)cr_blk.m_FileHandle;
 		RecInfo.m_FileHandle = (uint8)Handle[0];
 		THROW(!P_Ctx->LastErr);
-	}
+	}*/
 	CATCH
 		ok = 0;
 		LogError("Create");
@@ -333,7 +333,7 @@ int SyncTable::Open(const char * pName, long flags)
 			long mode = flags & oReadOnly ? SpiiTblOpenParams::omRead : SpiiTblOpenParams::omReadWrite;
 			ok = P_Ctx->P_Pte->TblOpen(pName, mode, Handle);
 		}
-		else {
+		/* @v11.8.12 else {
 			uint8  open_mode = 0, handle = 0;
 			if(flags & oReadOnly)
 				open_mode = (eDbRead|eDbShowSecret);
@@ -347,7 +347,7 @@ int SyncTable::Open(const char * pName, long flags)
 			RecInfo.m_FileHandle = handle;
 			Handle[0] = handle;
 			ok = P_Ctx->LastErr ? 0 : 1;
-		}
+		}*/
 		if(ok) {
 			if(Compress)
 				StartTableInTempFile();
@@ -563,7 +563,7 @@ int SyncTable::AddRec(uint32 * pRecId, void * pBuf, size_t bufLen)
 				THROW(P_Ctx->P_Pte->TblAddRec(Handle, &params, pBuf, bufLen));
 				ASSIGN_PTR(pRecId, params.RecID);
 			}
-			else {
+			/* @v11.8.12 else {
 				MEMSZERO(RecInfo);
 				RecInfo.m_FileHandle = (uint8)Handle[0];
 				RecInfo.m_RecSize = (DWORD)bufLen;
@@ -573,7 +573,7 @@ int SyncTable::AddRec(uint32 * pRecId, void * pBuf, size_t bufLen)
 				P_Ctx->LastErr = SyncWriteRec(RecInfo); // @checkerr
 				THROW(!P_Ctx->LastErr);
 				ASSIGN_PTR(pRecId, SyncHHToHostDWord(RecInfo.m_RecId));
-			}
+			}*/
 			ok = 1;
 		}
 	}
@@ -1296,14 +1296,14 @@ static int GetRootPath(SString & aPath, PalmTcpExchange * pTcpExch, CSyncPropert
 		SString root_path;
 		SpiiDeviceInfoParams dev_info;
 		pTcpExch->GetSpiiPath(root_path);
-		SLibError = SLERR_NOFOUND;
+		SLibError = SLERR_NOTFOUND;
 		THROW(root_path.Len());
 		THROW(pTcpExch->GetDeviceInfo(&dev_info));
 		root_path.SetLastSlash().Cat(dev_info.Name).SetLastSlash().Cat("SPII");
 		aPath = root_path;
 	}
-	else
-		aPath.CopyFrom(pProps->m_PathName);
+	/* @v11.8.12 else
+		aPath.CopyFrom(pProps->m_PathName); */
 	CATCHZOK
 	return ok;
 }
@@ -1564,7 +1564,7 @@ int SpiiExchange(PalmTcpExchange * pTcpExch, PROGRESSFN pFn, CSyncProperties * p
 		if(!sess_quited)
 			pTcpExch->QuitSess();
 #endif // } 0
-		RemoveDir(temp_path);
+		SFile::RemoveDir(temp_path);
 		(msg_buf = "Directory deleted").CatDiv(':', 2).Cat(temp_path).Space().Colon();
 		SyncTable::LogMessage(ctx.LogFile, msg_buf);
 	}

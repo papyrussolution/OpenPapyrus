@@ -1097,21 +1097,21 @@ SString & SString::ToUtf8() { return Helper_MbToMb(CP_ACP, CP_UTF8); }
 SString & SString::Utf8ToChar() { return Helper_MbToMb(CP_UTF8, CP_ACP); }
 SString & SString::Utf8ToOem() { return Helper_MbToMb(CP_UTF8, CP_OEMCP); }
 SString & FASTCALL SString::Utf8ToCp(SCodepageIdent cp) { return Helper_MbToMb(CP_UTF8, static_cast<int>(cp)); }
-SString & SString::CatEq(const char * pKey,  const char * pVal) { return Cat(pKey).CatChar('=').Cat(pVal); }
-SString & SString::CatEqQ(const char * pKey, const char * pVal) { return Cat(pKey).CatChar('=').CatChar('\"').Cat(pVal).CatChar('\"'); }
-SString & SString::CatEq(const char * pKey, bool val) { return Cat(pKey).CatChar('=').Cat(val ? "true" : "false"); }
-SString & SString::CatEq(const char * pKey, uint16 val) { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SString::CatEq(const char * pKey, int val)   { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SString::CatEq(const char * pKey, uint val)   { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SString::CatEq(const char * pKey, long val)   { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SString::CatEq(const char * pKey, ulong val) { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SString::CatEq(const char * pKey, int64 val) { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SString::CatEq(const char * pKey, uint64 val) { return Cat(pKey).CatChar('=').Cat(val); }
-SString & SString::CatEq(const char * pKey, double val, long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
-SString & SString::CatEq(const char * pKey, const S_GUID_Base & rVal, long fmt) { return Cat(pKey).CatChar('=').Cat(rVal, fmt); }
-SString & SString::CatEq(const char * pKey, LTIME val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
-SString & SString::CatEq(const char * pKey, LDATE val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
-SString & SString::CatEq(const char * pKey, LDATETIME val, long dtFmt, long tmFmt) { return Cat(pKey).CatChar('=').Cat(val, dtFmt, tmFmt); }
+SString & SString::CatEq(const char * pKey,  const char * pVal) { return Cat(pKey).Eq().Cat(pVal); }
+SString & SString::CatEqQ(const char * pKey, const char * pVal) { return Cat(pKey).Eq().CatChar('\"').Cat(pVal).CatChar('\"'); }
+SString & SString::CatEq(const char * pKey, bool val) { return Cat(pKey).Eq().Cat(val ? "true" : "false"); }
+SString & SString::CatEq(const char * pKey, uint16 val) { return Cat(pKey).Eq().Cat(val); }
+SString & SString::CatEq(const char * pKey, int val)   { return Cat(pKey).Eq().Cat(val); }
+SString & SString::CatEq(const char * pKey, uint val)   { return Cat(pKey).Eq().Cat(val); }
+SString & SString::CatEq(const char * pKey, long val)   { return Cat(pKey).Eq().Cat(val); }
+SString & SString::CatEq(const char * pKey, ulong val) { return Cat(pKey).Eq().Cat(val); }
+SString & SString::CatEq(const char * pKey, int64 val) { return Cat(pKey).Eq().Cat(val); }
+SString & SString::CatEq(const char * pKey, uint64 val) { return Cat(pKey).Eq().Cat(val); }
+SString & SString::CatEq(const char * pKey, double val, long fmt) { return Cat(pKey).Eq().Cat(val, fmt); }
+SString & SString::CatEq(const char * pKey, const S_GUID_Base & rVal, long fmt) { return Cat(pKey).Eq().Cat(rVal, fmt); }
+SString & SString::CatEq(const char * pKey, LTIME val,  long fmt) { return Cat(pKey).Eq().Cat(val, fmt); }
+SString & SString::CatEq(const char * pKey, LDATE val,  long fmt) { return Cat(pKey).Eq().Cat(val, fmt); }
+SString & SString::CatEq(const char * pKey, LDATETIME val, long dtFmt, long tmFmt) { return Cat(pKey).Eq().Cat(val, dtFmt, tmFmt); }
 // } trivial functions
 
 void SString::Obfuscate()
@@ -2412,6 +2412,22 @@ int FASTCALL SString::CmpNC(const char * pS) const
 		return +1;
 	else
 		return stricmp866(P_Buf, pS);
+}
+
+int FASTCALL SString::CmpiUtf8(const SString & rS) const
+{
+	int    s = 0;
+	if(IsAscii() && rS.IsAscii()) {
+		s = sstrcmpi_ascii(this->P_Buf, rS.P_Buf);
+	}
+	else {
+		SStringU & r_temp_buf_u1 = SLS.AcquireRvlStrU();
+		SStringU & r_temp_buf_u2 = SLS.AcquireRvlStrU();
+		this->CopyToUnicode(r_temp_buf_u1);
+		rS.CopyToUnicode(r_temp_buf_u2);
+		s = _wcsicmp(r_temp_buf_u1, r_temp_buf_u2);
+	}
+	return s;
 }
 
 int STDCALL SString::CmpPrefix(const char * pS, int ignoreCase) const
@@ -3836,7 +3852,7 @@ size_t FASTCALL SString::CharToQp(char c)
 		n = 1;
 	}
 	else {
-		CatChar('=').CatHexUpper(static_cast<uchar>(c));
+		Eq().CatHexUpper(static_cast<uchar>(c));
 		n = 3;
 	}
 	return n;
@@ -3863,7 +3879,7 @@ SString & SString::Encode_QuotedPrintable(const char * pBuf, size_t maxLineLen)
 			size_t qp_len = CharToQp(c);
 			// If this character is going to exceed the maximum line length, insert a soft line break.
 			if(maxLineLen && (linepos + qp_len) >= maxLineLen) {
-				CatChar('=').CRB();
+				Eq().CRB();
 				linepos = 0;
 			}
 			else
@@ -5347,7 +5363,7 @@ void FASTCALL SFsPath::Split(const char * pPath)
 		int    fname_as_dir_part = 0;
 		const  char * p = 0;
 		if(strpbrk(pPath, "*?") == 0) { // @v9.1.8 Следующая проверка возможна только если в пути нет wildcard-символов
-			fname_as_dir_part = IsDirectory((temp_buf = pPath).RmvLastSlash());
+			fname_as_dir_part = SFile::IsDir((temp_buf = pPath).RmvLastSlash());
 		}
 		{
 			SStrScan scan((temp_buf = pPath).Strip());

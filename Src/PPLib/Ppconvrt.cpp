@@ -17,7 +17,7 @@ int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char
 	int    is_dict_opened = 0;
 	SString temp_buf;
 	SString src_pw_buf, dest_pw_buf;
-	THROW(!isempty(pDbSymb));
+	THROW_PP_S(!isempty(pDbSymb), PPERR_INVPARAM_EXT, __FUNCTION__"/pDbSymb");
 	THROW(fileExists(pSrcIniFileName));
 	THROW(fileExists(pDestIniFileName));
 	{

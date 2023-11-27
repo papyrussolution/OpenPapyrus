@@ -7021,7 +7021,7 @@ int PPVetisInterface::GetEntityQuery2(int queryType, const char * pQueryParam, V
 	SString temp_buf;
 	SString reply_buf;
 	THROW_PP(State & stInited, PPERR_VETISIFCNOTINITED);
-	THROW(!isempty(pQueryParam));
+	THROW_PP_S(!isempty(pQueryParam), PPERR_INVPARAM_EXT, __FUNCTION__"/pQueryParam");
 	{
 		enum {
 			svcUndef      = 0,

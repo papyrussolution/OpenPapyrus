@@ -1040,7 +1040,7 @@ bool SlProcess::AppContainer::AllowPath(const char * pPathUtf8, uint accsf)
 	bool   ok = true;
 	SStringU path_u;
 	THROW(Sid);
-	THROW(!isempty(pPathUtf8));
+	THROW_S_S(!isempty(pPathUtf8), SLERR_INVPARAM, __FUNCTION__"/pPathUtf8");
 	THROW(path_u.CopyFromUtf8Strict(pPathUtf8, sstrlen(pPathUtf8)));
 	THROW(AllowNamedObjectAccess(path_u, SE_FILE_OBJECT, FILE_ALL_ACCESS));
 	CATCHZOK
@@ -1052,7 +1052,7 @@ bool SlProcess::AppContainer::AllowRegistry(const char * pKeyUtf8, int keyType, 
 	bool   ok = true;
 	SStringU key_u;
 	THROW(Sid);
-	THROW(!isempty(pKeyUtf8));
+	THROW_S_S(!isempty(pKeyUtf8), SLERR_INVPARAM, __FUNCTION__"/pKeyUtf8");
 	THROW(key_u.CopyFromUtf8Strict(pKeyUtf8, sstrlen(pKeyUtf8)));
 	{
 		int   _type = 0;
@@ -1076,7 +1076,7 @@ bool SlProcess::AppContainer::AllowNamedObjectAccess(const wchar_t * pName, /*SE
 	DWORD  status = ERROR_SUCCESS;
 	THROW(Sid); // @todo @err
 	{
-		EXPLICIT_ACCESS access;
+		EXPLICIT_ACCESSW access;
 		access.grfAccessMode = GRANT_ACCESS;
 		access.grfAccessPermissions = accessMask;
 		access.grfInheritance = OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE;
@@ -1085,20 +1085,16 @@ bool SlProcess::AppContainer::AllowNamedObjectAccess(const wchar_t * pName, /*SE
 		access.Trustee.ptstrName = reinterpret_cast<wchar_t *>(static_cast<void *>(Sid));
 		access.Trustee.TrusteeForm = TRUSTEE_IS_SID;
 		access.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
-		status = GetNamedSecurityInfo(pName, static_cast<SE_OBJECT_TYPE>(type), DACL_SECURITY_INFORMATION, nullptr, nullptr, &old_acl, nullptr, nullptr);
-		THROW(status == ERROR_SUCCESS); // @todo @err
-		status = SetEntriesInAcl(1, &access, old_acl, &new_acl);
-		THROW(status == ERROR_SUCCESS); // @todo @err
+		status = GetNamedSecurityInfoW(pName, static_cast<SE_OBJECT_TYPE>(type), DACL_SECURITY_INFORMATION, nullptr, nullptr, &old_acl, nullptr, nullptr);
+		THROW_S(status == ERROR_SUCCESS, SLERR_WINDOWS);
+		status = SetEntriesInAclW(1, &access, old_acl, &new_acl);
+		THROW_S(status == ERROR_SUCCESS, SLERR_WINDOWS);
 		{
 			STempBuffer name_buf((sstrlen(pName) + 16) * sizeof(*pName));
 			THROW(name_buf.IsValid());
 			sstrcpy(static_cast<wchar_t *>(name_buf.vptr()), pName);
-			status = SetNamedSecurityInfo(static_cast<wchar_t *>(name_buf.vptr()), static_cast<SE_OBJECT_TYPE>(type), 
-				DACL_SECURITY_INFORMATION, nullptr, nullptr, new_acl, nullptr);
-			if(status != ERROR_SUCCESS) {
-				//break;
-				; // @todo @err
-			}
+			status = SetNamedSecurityInfoW(static_cast<wchar_t *>(name_buf.vptr()), static_cast<SE_OBJECT_TYPE>(type), DACL_SECURITY_INFORMATION, nullptr, nullptr, new_acl, nullptr);
+			THROW_S(status == ERROR_SUCCESS, SLERR_WINDOWS);
 		}
 	}
 	//assert(status == ERROR_SUCCESS);
@@ -1153,10 +1149,10 @@ static bool WINAPI ConsoleHandler(DWORD signal)
 int _DontRun__wmain(int argc, PWCHAR argv[])
 {
 	if(argc < 4) {
-		std::wcout << L"ERROR: Invalid number of arguments passed." << std::endl;
-		std::wcout << L"\tArg1: User Account (ex. Domain\\UserName)" << std::endl;
-		std::wcout << L"\tArg2: User Account Password" << std::endl;
-		std::wcout << L"\tArg3: Process to start" << std::endl;
+		//std::wcout << L"ERROR: Invalid number of arguments passed." << std::endl;
+		//std::wcout << L"\tArg1: User Account (ex. Domain\\UserName)" << std::endl;
+		//std::wcout << L"\tArg2: User Account Password" << std::endl;
+		//std::wcout << L"\tArg3: Process to start" << std::endl;
 		return HRESULT_FROM_WIN32(ERROR_INVALID_PARAMETER);
 	}
 	DWORD status = S_OK;
@@ -1210,8 +1206,8 @@ int _DontRun__wmain(int argc, PWCHAR argv[])
 			else if(GetLastError() == ERROR_NOT_ALL_ASSIGNED) {
 				status = GetLastError();
 				PrintWin32ErrorToString(L"ERROR: Cannot adjust privileges with error:", status);
-				std::wcout << L"Open secpol.msc and got to \"Security Settings\" > \"Local Policies\" > \"User Rights Assignment\"" << std::endl;
-				std::wcout << L"From there, add the user under which this process is running to the \"Replace a process level token\" policy and log off and back on again (with that user)." << std::endl;
+				//std::wcout << L"Open secpol.msc and got to \"Security Settings\" > \"Local Policies\" > \"User Rights Assignment\"" << std::endl;
+				//std::wcout << L"From there, add the user under which this process is running to the \"Replace a process level token\" policy and log off and back on again (with that user)." << std::endl;
 				goto cleanup;
 			}
 			else {
@@ -1266,60 +1262,58 @@ int _DontRun__wmain(int argc, PWCHAR argv[])
 		goto cleanup;
 	}
 	else {
-	std::wcout << L"!!! SUCCESS !!! => Waiting (forever) for child porcess to exit ..." << std::endl;
-	g_hProcess = processInfo.hProcess;
-	g_hStopEvent = CreateEventW(NULL, true, false, nullptr);
-	if(!g_hStopEvent) {
-		status = GetLastError();
-		PrintWin32ErrorToString(L"ERROR: Failed to create event with error:", status);
-		goto cleanup;
-	}
-	if(!SetConsoleCtrlHandler(reinterpret_cast<PHANDLER_ROUTINE>(ConsoleHandler), true)) {
-		status = GetLastError();
-		PrintWin32ErrorToString(L"ERROR: Could not set control handler with error:", status);
-		goto cleanup;
-	}
-
-	std::wcout << L"\tAlso waiting for \"CTRL+C\" to (force) terminate the child process and finish the program (just in case it has no UI or you can't see it for some reason) ..." << std::endl;
-	std::wcout << L"\tIf you are using a tool like PsExec.exe (or similar) to start this RunAs tool (program/exe), then, if you press \"CTRL+C\"," << std::endl;
-	std::wcout << L"it will terminate without being able to close the child process in some situations (non-interactive - running under gMSA for example) and so, " << std::endl;
-	std::wcout << L"it might be that you need to kill the child process manually - PID of the child process is: " << processInfo.dwProcessId << std::endl;
-
-	const int waitHandleCount = 2;
-	HANDLE hWaitForHandles[waitHandleCount];
-	hWaitForHandles[0] = processInfo.hProcess;
-	hWaitForHandles[1] = g_hStopEvent;
-	status = WaitForMultipleObjects(waitHandleCount, hWaitForHandles, false, INFINITE);
-	if(status == WAIT_OBJECT_0) {
-		if(!GetExitCodeProcess(processInfo.hProcess, &status)) {
+		//std::wcout << L"!!! SUCCESS !!! => Waiting (forever) for child porcess to exit ..." << std::endl;
+		g_hProcess = processInfo.hProcess;
+		g_hStopEvent = CreateEventW(NULL, true, false, nullptr);
+		if(!g_hStopEvent) {
 			status = GetLastError();
-			PrintWin32ErrorToString(L"ERROR: Failed to get exit status of child process with error:", status);
+			PrintWin32ErrorToString(L"ERROR: Failed to create event with error:", status);
+			goto cleanup;
+		}
+		if(!SetConsoleCtrlHandler(reinterpret_cast<PHANDLER_ROUTINE>(ConsoleHandler), true)) {
+			status = GetLastError();
+			PrintWin32ErrorToString(L"ERROR: Could not set control handler with error:", status);
+			goto cleanup;
+		}
+		//std::wcout << L"\tAlso waiting for \"CTRL+C\" to (force) terminate the child process and finish the program (just in case it has no UI or you can't see it for some reason) ..." << std::endl;
+		//std::wcout << L"\tIf you are using a tool like PsExec.exe (or similar) to start this RunAs tool (program/exe), then, if you press \"CTRL+C\"," << std::endl;
+		//std::wcout << L"it will terminate without being able to close the child process in some situations (non-interactive - running under gMSA for example) and so, " << std::endl;
+		//std::wcout << L"it might be that you need to kill the child process manually - PID of the child process is: " << processInfo.dwProcessId << std::endl;
+		const int waitHandleCount = 2;
+		HANDLE hWaitForHandles[waitHandleCount];
+		hWaitForHandles[0] = processInfo.hProcess;
+		hWaitForHandles[1] = g_hStopEvent;
+		status = WaitForMultipleObjects(waitHandleCount, hWaitForHandles, false, INFINITE);
+		if(status == WAIT_OBJECT_0) {
+			if(!GetExitCodeProcess(processInfo.hProcess, &status)) {
+				status = GetLastError();
+				PrintWin32ErrorToString(L"ERROR: Failed to get exit status of child process with error:", status);
+			}
+			else {
+				PrintWin32ErrorToString(L"Child process succesfully existed with exit code:", status);
+			}
+		}
+		else if(status == (WAIT_OBJECT_0 + 1)) {
+			//std::wcout << L"Cancel event (Ctrl+C) was pressed, so it \"killed\" the child process and thus the exit status is irrelevant." << std::endl;
 		}
 		else {
-			PrintWin32ErrorToString(L"Child process succesfully existed with exit code:", status);
+			//std::wcout << L"Something went wrong while waiting on the child process to finish. This can be ignored in this case though ..." << std::endl;
 		}
-	}
-	else if(status == (WAIT_OBJECT_0 + 1)) {
-		std::wcout << L"Cancel event (Ctrl+C) was pressed, so it \"killed\" the child process and thus the exit status is irrelevant." << std::endl;
-	}
-	else {
-		std::wcout << L"Something went wrong while waiting on the child process to finish. This can be ignored in this case though ..." << std::endl;
-	}
-	if(startupInfo.hStdError) {
-		CloseHandle(startupInfo.hStdError);
-		startupInfo.hStdError = NULL;
-	}
-	if(startupInfo.hStdInput) {
-		CloseHandle(startupInfo.hStdInput);
-		startupInfo.hStdInput = NULL;
-	}
-	if(startupInfo.hStdOutput) {
-		CloseHandle(startupInfo.hStdOutput);
-		startupInfo.hStdOutput = NULL;
-	}
-	CloseHandle(processInfo.hProcess);
-	CloseHandle(processInfo.hThread);
-	UnloadUserProfile(hToken, pProfileInfo.hProfile);
+		if(startupInfo.hStdError) {
+			::CloseHandle(startupInfo.hStdError);
+			startupInfo.hStdError = NULL;
+		}
+		if(startupInfo.hStdInput) {
+			CloseHandle(startupInfo.hStdInput);
+			startupInfo.hStdInput = NULL;
+		}
+		if(startupInfo.hStdOutput) {
+			CloseHandle(startupInfo.hStdOutput);
+			startupInfo.hStdOutput = NULL;
+		}
+		CloseHandle(processInfo.hProcess);
+		CloseHandle(processInfo.hThread);
+		UnloadUserProfile(hToken, pProfileInfo.hProfile);
 	}
 cleanup:
 	if(hToken) {

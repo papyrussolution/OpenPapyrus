@@ -572,7 +572,7 @@ int ViewStatus()
 						const uint16 ctl_id = /*ctl_list*/ctrl_to_path_map[i].CtlId;
 						if(p_dc->H_Ctl == getCtrlHandle(ctl_id)) {
 							getCtrlString(ctl_id, path);
-							int tool_id = IsDirectory(path.RmvLastSlash()) ? brushValidPath : brushInvalidPath;
+							int tool_id = SFile::IsDir(path.RmvLastSlash()) ? brushValidPath : brushInvalidPath;
 							if(tool_id) {
 								::SetBkMode(p_dc->H_DC, TRANSPARENT);
 								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(tool_id));
@@ -2254,7 +2254,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 				ss_ris.reverse();
 				for(uint ssp = 0; ss_ris.get(&ssp, temp_buf);) {
 					temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
-					if(IsDirectory(temp_buf)) {
+					if(SFile::IsDir(temp_buf)) {
 						InitDir = temp_buf;
 						break;
 					}
@@ -2742,7 +2742,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 				SString temp_dir, temp_path;
 				PPGetPath(PPPATH_TEMP, temp_dir);
 				temp_dir.SetLastSlash().Cat("IMG");
-				if(!IsDirectory(temp_dir))
+				if(!SFile::IsDir(temp_dir))
 					SFile::CreateDir(temp_dir);
 				MakeTempFileName(temp_dir, "pst", "jpg", &start, temp_path);
 				if(SClipboard::CopyPaste(GetDlgItem(pDlg->H(), CtlImage), 0, temp_path) > 0) {
@@ -8231,11 +8231,11 @@ int PPEditTextFile(const EditTextFileParam * pParam)
 	SString file_name;
 	if(pParam)
 		file_name = pParam->FileName;
-	if(!file_name.NotEmptyS() || IsWild(file_name) || IsDirectory(file_name) || !fileExists(file_name)) {
+	if(!file_name.NotEmptyS() || IsWild(file_name) || SFile::IsDir(file_name) || !fileExists(file_name)) {
 		const char * p_predefined_wildcard = 0;
 		if(IsWild(file_name))
 			p_predefined_wildcard = file_name;
-		else if(IsDirectory(file_name)) {
+		else if(SFile::IsDir(file_name)) {
 			file_name.SetLastSlash().Cat("*.*");
 			p_predefined_wildcard = file_name;
 		}

@@ -287,19 +287,12 @@ public:
 	// Descr: Запрос к серверу. Помещается в WsCtlReqQueue потому должен быть @flat.
 	//
 	struct Req { // @flat
-		Req() : Cmd(0)
-		{
-		}
-		Req(uint cmd) : Cmd(cmd)
-		{
-		}
+		Req();
+		Req(uint cmd);
+
 		uint   Cmd;
 		struct Param {
-			Param() : SCardID(0), GoodsID(0), TechID(0), TSessID(0), Amount(0.0)
-			{
-				AuthTextUtf8[0] = 0;
-				AuthPwUtf8[0] = 0;
-			}
+			Param();
 			S_GUID Uuid;
 			PPID   SCardID; // 
 			PPID   GoodsID;
@@ -311,29 +304,9 @@ public:
 		};
 		Param P;
 	};
-	WsCtlReqQueue() : SQueue(sizeof(Req), 1024, aryDataOwner), NonEmptyEv(Evnt::modeCreateAutoReset)
-	{
-	}
-	int    FASTCALL Push(const Req & rReq)
-	{
-		int    ok = 0;
-		Lck.Lock();
-		ok = SQueue::push(&rReq);
-		Lck.Unlock();
-		return ok;
-	}
-	int    FASTCALL Pop(Req & rReq)
-	{
-		int    ok = -1;
-		Lck.Lock();
-		Req  * p_item = static_cast<Req *>(SQueue::pop());
-		if(p_item) {
-			rReq = *p_item;
-			ok = 1;
-		}
-		Lck.Unlock();
-		return ok;
-	}
+	WsCtlReqQueue();
+	int    FASTCALL Push(const Req & rReq);
+	int    FASTCALL Pop(Req & rReq);
 
 	Evnt   NonEmptyEv; // Событие поможет "разбудить" поток, принимающий данные из этой очереди. 
 private:
@@ -371,18 +344,7 @@ protected:
 
 class SImFontDescription {
 public:
-	SImFontDescription(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr) : P_Font(0), Symbol(pSymb)
-	{
-		assert(Symbol.NotEmptyS());
-		Clr.Z();
-		static const ImWchar ranges[] = {
-			0x0020, 0x00FF, // Basic Latin + Latin Supplement
-			0x0400, 0x044F, // Cyrillic
-			0,
-		};
-		P_Font = rIo.Fonts->AddFontFromFileTTF(/*"/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf"*/pPath, sizePx, pFontCfg, ranges);
-		RVALUEPTR(Clr, pClr);
-	}
+	SImFontDescription(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr);
 	operator ImFont * () { return P_Font; };
 	bool   IsValid() const { return (P_Font != 0); }
 	bool   HasColor() const { return !Clr.IsEmpty(); }
@@ -390,11 +352,7 @@ public:
 	//
 	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
 	//
-	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const
-	{
-		ASSIGN_PTR(pKeyLen, Symbol.Len());
-		return Symbol.cptr();
-	}
+	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const;
 private:
 	SString Symbol;
 	uint   State;
@@ -405,48 +363,14 @@ private:
 //
 //
 class ImGuiWindowByLayout {
-	void   Helper_Ctr(const SUiLayout * pLo, const SPoint2F * pOffset, const char * pWindowId, ImGuiWindowFlags viewFlags)
-	{
-		P_Lo = pLo;
-		if(P_Lo) {
-			FRect r = P_Lo->GetFrameAdjustedToParent();
-			if(pOffset) {
-				r.Move__(pOffset->x, pOffset->y);
-			}
-			SPoint2F s = r.GetSize();
-			ImVec2 lu(r.a.x, r.a.y);
-			ImVec2 sz(s.x, s.y);
-			ImGui::SetNextWindowPos(lu);
-			ImGui::SetNextWindowSize(sz);
-			SString & r_symb = SLS.AcquireRvlStr();
-			if(pWindowId)
-				r_symb = pWindowId;
-			else
-				r_symb.Cat(pLo->GetID());
-			ImGui::Begin(r_symb, 0, viewFlags);
-		}
-	}
 public:
-	ImGuiWindowByLayout(const SUiLayout * pLoParent, int loId, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(0)
-	{
-		Helper_Ctr((pLoParent ? pLoParent->FindByIdC(loId) : 0), 0, pWindowId, viewFlags);
-	}
-	ImGuiWindowByLayout(const SUiLayout * pLo, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
-	{
-		Helper_Ctr(pLo, 0, pWindowId, viewFlags);
-	}
-	ImGuiWindowByLayout(const SUiLayout * pLo, SPoint2F & rOffset, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
-	{
-		Helper_Ctr(pLo, &rOffset, pWindowId, viewFlags);
-	}
-	~ImGuiWindowByLayout()
-	{
-		if(P_Lo) {
-			ImGui::End();
-			P_Lo = 0;
-		}
-	}
+	ImGuiWindowByLayout(const SUiLayout * pLoParent, int loId, const char * pWindowId, ImGuiWindowFlags viewFlags);
+	ImGuiWindowByLayout(const SUiLayout * pLo, const char * pWindowId, ImGuiWindowFlags viewFlags);
+	ImGuiWindowByLayout(const SUiLayout * pLo, SPoint2F & rOffset, const char * pWindowId, ImGuiWindowFlags viewFlags);
+	~ImGuiWindowByLayout();
 	bool IsValid() const { return (P_Lo != 0); }
+private:
+	void   Helper_Ctr(const SUiLayout * pLo, const SPoint2F * pOffset, const char * pWindowId, ImGuiWindowFlags viewFlags);
 	const SUiLayout * P_Lo;
 };
 
@@ -571,28 +495,6 @@ public:
 		LDATETIME DtmActual; // Момент последней актуализации данных
 		int    S;
 	};
-	//
-	//
-	//
-	/*class DClientPolicy : public DServerError {
-	public:
-		DClientPolicy() : DtmActual(ZERODATETIME), Dirty(false)
-		{
-		}
-		LDATETIME DtmActual; // Момент последней актуализации данных
-		WsCtl_ClientPolicy P;
-		bool Dirty; // Специальный флаг, индицирующий обновление данных со стороны потока обмена с сервером.
-	};*/
-	/*
-	class DProgramList : public DServerError {
-	public:
-		DProgramList() : DtmActual(ZERODATETIME), Dirty(false)
-		{
-		}
-		LDATETIME DtmActual; // Момент последней актуализации данных
-		WsCtl_ProgramCollection L;
-		bool Dirty; // Специальный флаг, индицирующий обновление данных со стороны потока обмена с сервером.
-	};*/
 	//
 	// Descr: Информационный блок о состоянии процессора на сервере, с которым ассоциирована данная рабочая станция //
 	//
@@ -742,12 +644,9 @@ public:
 		SyncEntry <DTSess>   D_TSess;
 		SyncEntry <DConnectionStatus> D_ConnStatus;
 		SyncEntry <DAuth>    D_Auth;
-		// @v11.8.6 SyncEntry <DClientPolicy> D_Policy;
-		// @v11.8.6 SyncEntry <DProgramList> D_PgmList; // @v11.8.5
 
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
 			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError)
-			/*D_Policy(syncdataClientPolicy), D_PgmList(syncdataProgramList)*/
 		{
 		}
 		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
@@ -780,18 +679,8 @@ public:
 	int SetScreen(int scr);
 	int CreateFontEntry(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr);
 	int PushFontEntry(ImGuiObjStack & rStk, const char * pSymb);
-	SString & InputLabelPrefix(const char * pLabel)
-	{
-		float width = ImGui::CalcItemWidth();
-		float x = ImGui::GetCursorPosX();
-		ImGuiObjStack stk;
-		PushFontEntry(stk, "FontSecondary");
-		ImGui::Text(pLabel); 
-		//ImGui::SameLine(); 
-		//ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
-		// @v11.7.8 ImGui::SetNextItemWidth(-1);
-		return SLS.AcquireRvlStr().CatCharN('#', 2).Cat(pLabel);
-	}
+	SString & InputLabelPrefix(const char * pLabel);
+
 	class ImDialog_WsCtlConfig : public ImDialogState {
 	public:
 		ImDialog_WsCtlConfig(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_Config * pCtx);
@@ -909,6 +798,117 @@ public:
 	void EmitEvents();
 	void BuildScene();
 };
+//
+//
+//
+WsCtlReqQueue::Req::Param::Param() : SCardID(0), GoodsID(0), TechID(0), TSessID(0), Amount(0.0)
+{
+	AuthTextUtf8[0] = 0;
+	AuthPwUtf8[0] = 0;
+}
+
+WsCtlReqQueue::Req::Req() : Cmd(0)
+{
+}
+		
+WsCtlReqQueue::Req::Req(uint cmd) : Cmd(cmd)
+{
+}
+
+WsCtlReqQueue::WsCtlReqQueue() : SQueue(sizeof(Req), 1024, aryDataOwner), NonEmptyEv(Evnt::modeCreateAutoReset)
+{
+}
+	
+int FASTCALL WsCtlReqQueue::Push(const Req & rReq)
+{
+	int    ok = 0;
+	Lck.Lock();
+	ok = SQueue::push(&rReq);
+	Lck.Unlock();
+	return ok;
+}
+	
+int FASTCALL WsCtlReqQueue::Pop(Req & rReq)
+{
+	int    ok = -1;
+	Lck.Lock();
+	Req  * p_item = static_cast<Req *>(SQueue::pop());
+	if(p_item) {
+		rReq = *p_item;
+		ok = 1;
+	}
+	Lck.Unlock();
+	return ok;
+}
+//
+//
+//
+SImFontDescription::SImFontDescription(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr) : 
+	P_Font(0), Symbol(pSymb)
+{
+	assert(Symbol.NotEmptyS());
+	Clr.Z();
+	static const ImWchar ranges[] = {
+		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+		0x0400, 0x044F, // Cyrillic
+		0,
+	};
+	P_Font = rIo.Fonts->AddFontFromFileTTF(/*"/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf"*/pPath, sizePx, pFontCfg, ranges);
+	RVALUEPTR(Clr, pClr);
+}
+
+const void * SImFontDescription::GetHashKey(const void * pCtx, uint * pKeyLen) const
+{
+	ASSIGN_PTR(pKeyLen, Symbol.Len());
+	return Symbol.cptr();
+}
+//
+//
+//
+ImGuiWindowByLayout::ImGuiWindowByLayout(const SUiLayout * pLoParent, int loId, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(0)
+{
+	Helper_Ctr((pLoParent ? pLoParent->FindByIdC(loId) : 0), 0, pWindowId, viewFlags);
+}
+
+ImGuiWindowByLayout::ImGuiWindowByLayout(const SUiLayout * pLo, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
+{
+	Helper_Ctr(pLo, 0, pWindowId, viewFlags);
+}
+	
+ImGuiWindowByLayout::ImGuiWindowByLayout(const SUiLayout * pLo, SPoint2F & rOffset, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
+{
+	Helper_Ctr(pLo, &rOffset, pWindowId, viewFlags);
+}
+
+ImGuiWindowByLayout::~ImGuiWindowByLayout()
+{
+	if(P_Lo) {
+		ImGui::End();
+		P_Lo = 0;
+	}
+}
+
+void ImGuiWindowByLayout::Helper_Ctr(const SUiLayout * pLo, const SPoint2F * pOffset, const char * pWindowId, ImGuiWindowFlags viewFlags)
+{
+	P_Lo = pLo;
+	if(P_Lo) {
+		FRect r = P_Lo->GetFrameAdjustedToParent();
+		if(pOffset) {
+			r.Move__(pOffset->x, pOffset->y);
+		}
+		SPoint2F s = r.GetSize();
+		ImVec2 lu(r.a.x, r.a.y);
+		ImVec2 sz(s.x, s.y);
+		ImGui::SetNextWindowPos(lu);
+		ImGui::SetNextWindowSize(sz);
+		SString & r_symb = SLS.AcquireRvlStr();
+		if(pWindowId)
+			r_symb = pWindowId;
+		else
+			r_symb.Cat(pLo->GetID());
+		ImGui::Begin(r_symb, 0, viewFlags);
+	}
+}
 //
 //
 //
@@ -2051,6 +2051,19 @@ int WsCtl_ImGuiSceneBlock::PushFontEntry(ImGuiObjStack & rStk, const char * pSym
 	return ok;
 }
 
+SString & WsCtl_ImGuiSceneBlock::InputLabelPrefix(const char * pLabel)
+{
+	float width = ImGui::CalcItemWidth();
+	float x = ImGui::GetCursorPosX();
+	ImGuiObjStack stk;
+	PushFontEntry(stk, "FontSecondary");
+	ImGui::Text(pLabel); 
+	//ImGui::SameLine(); 
+	//ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
+	// @v11.7.8 ImGui::SetNextItemWidth(-1);
+	return SLS.AcquireRvlStr().CatCharN('#', 2).Cat(pLabel);
+}
+
 int WsCtl_ImGuiSceneBlock::LoadUiDescription()
 {
 	int    ok = 0;
@@ -3099,14 +3112,12 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			0;
 		ImGuiViewport * p_vp = ImGui::GetMainViewport();
 		if(p_vp) {
-
 			//PreprocessProgramList();
-
 			ImVec2 sz = p_vp->Size;
 			const int _screen = GetScreen();
 			SUiLayout::Param evp;
-			evp.ForceWidth = static_cast<float>(sz.x);
-			evp.ForceHeight = static_cast<float>(sz.y);
+			evp.ForceSize.x = sz.x;
+			evp.ForceSize.y = sz.y;
 			if(_screen == screenLogin) {
 				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
 				if(p_tl) {
@@ -3393,6 +3404,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							}
 							if(ImGui::Button("Config...", button_size)) {
 								SETIFZQ(P_Dlg_Cfg, new ImDialog_WsCtlConfig(*this, &JsP));
+							}
+							if(ImGui::Button("Create profile image...", button_size)) {
+								PolicyL.CreateSystemImage();
 							}
 						}
 					}

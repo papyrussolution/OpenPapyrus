@@ -298,8 +298,7 @@ int CreateByExample(const char * pPath)
 	CATCH
 		ZDELETE(p_src_tbl);
 		ZDELETE(p_dst_tbl);
-		// @v9.2.1 RemovePath(pPath);
-		RemoveDir(pPath); // @v9.2.1
+		SFile::RemoveDir(pPath);
 		ok = PPErrorZ();
 	ENDCATCH
 	delete p_dst_tbl;
@@ -448,7 +447,7 @@ int MakeDatabase()
 				PPMessage(mfInfo | mfCancel, PPINF_NEEDFULLPATH, param.Path);
 				i = 0;
 			}
-			else if(IsDirectory(param.Path)) {
+			else if(SFile::IsDir(param.Path)) {
 				//
 				// Проверка на то, что бы каталог назначения был пустым
 				//

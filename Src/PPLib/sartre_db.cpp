@@ -1479,7 +1479,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 		{
 			SString err_file_name;
 			SLS.GetLogPath(err_file_name); // @v10.7.9
-			if(!IsDirectory(err_file_name))
+			if(!SFile::IsDir(err_file_name))
 				err_file_name = pDbPath;
 			err_file_name.SetLastSlash().Cat("bdberr.log");
 			P_Db->SetupErrLog(err_file_name);
@@ -2040,7 +2040,7 @@ int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 		if(P_WdT->Search(rWi.PrefixID, temp_buf) > 0)
 			rBuf.Cat(temp_buf);
 		else
-			rBuf.CatChar('=').Cat(rWi.PrefixID);
+			rBuf.Eq().Cat(rWi.PrefixID);
 	}
 	rBuf.CatChar('|');
 	if(rWi.BaseID) {
@@ -2048,7 +2048,7 @@ int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 			if(P_WdT->Search(rWi.BaseID, temp_buf) > 0)
 				rBuf.Cat(temp_buf);
 			else
-				rBuf.CatChar('=').Cat(rWi.BaseID);
+				rBuf.Eq().Cat(rWi.BaseID);
 		}
 	}
 	rBuf.CatChar('|');
@@ -2056,7 +2056,7 @@ int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 		if(P_WdT->Search(rWi.AffixID, temp_buf) > 0)
 			rBuf.Cat(temp_buf);
 		else
-			rBuf.CatChar('=').Cat(rWi.AffixID);
+			rBuf.Eq().Cat(rWi.AffixID);
 	}
 	rBuf.CatChar('\'');
 	rBuf.Space();
@@ -2098,7 +2098,7 @@ int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 		if(P_WaT->Search(rWi.WaID, &wa) > 0)
 			wa.ToStr(temp_buf);
 		else
-			temp_buf.CatChar('[').CatChar('=').Cat(rWi.WaID).CatChar(']');
+			temp_buf.CatChar('[').Eq().Cat(rWi.WaID).CatChar(']');
 	}
 	else
 		temp_buf.CatChar('[').CatChar(']');
@@ -2450,7 +2450,7 @@ int SrDatabase::FormatProp(const SrCProp & rCp, long flags, SString & rBuf)
 			symb.Utf8ToChar();
 		else
 			symb = "#unknprop#";
-		rBuf.Cat(symb).CatChar('=');
+		rBuf.Cat(symb).Eq();
 		int    typ = GetPropType(rCp.PropID);
 		if(typ == SRPROPT_INT) {
 			int64 iv = 0;

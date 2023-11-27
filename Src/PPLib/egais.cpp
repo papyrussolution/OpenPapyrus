@@ -6259,17 +6259,17 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 							//
 							if(lot_id == 0) {
 								// PPTXT_EGAIS_NOLOTSFORWHREST    "Для остатка по складу ЕГАИС '%s' не найдено ни одного соответствия в лотах"
-								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
+								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().Eq().Cat(cwr_rest, MKSFMTD(0, 1, 0));
 								LogTextWithAddendum(PPTXT_EGAIS_NOLOTSFORWHREST, temp_buf);
 							}
 							else if(!is_beer) { // @v11.2.0 Начиная с этого релиза передается только пиво
 								//PPTXT_EGAIS_CHARGEONSHOPBEERONLY
-								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
+								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().Eq().Cat(cwr_rest, MKSFMTD(0, 1, 0));
 								LogTextWithAddendum(PPTXT_EGAIS_CHARGEONSHOPBEERONLY, temp_buf);
 							}
 							else if(is_lot_in_3format) { // @v10.2.6
 								//PPTXT_EGAIS_LOTFORWHRESTIN3F
-								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(cwr_rest, MKSFMTD(0, 1, 0));
+								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().Eq().Cat(cwr_rest, MKSFMTD(0, 1, 0));
 								LogTextWithAddendum(PPTXT_EGAIS_LOTFORWHRESTIN3F, temp_buf);
 							}
 							else if(cwr_rest > 0.0) {
@@ -6326,7 +6326,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 							else if(shop_rest < 0.0) {
 								//
 								// PPTXT_EGAIS_NOWHRESTFORR2DFCT  "Для отрицательного остатка по регистру 2 @{brand_egais} '%s' нет доступного остатка по складу @{brand_egais}"
-								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().CatChar('=').Cat(shop_rest, MKSFMTD(0, 1, 0));
+								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().Eq().Cat(shop_rest, MKSFMTD(0, 1, 0));
 								LogTextWithAddendum(PPTXT_EGAIS_NOWHRESTFORR2DFCT, temp_buf);
 							}
 						}
@@ -6338,7 +6338,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 						if(r_csr_ti.Quantity_ < 0.0) {
 							pCurrentRestPack->LTagL.GetTagStr(csridx, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
 							// PPTXT_EGAIS_NOWHRESTFORR2DFCT  "Для отрицательного остатка по регистру 2 @{brand_egais} '%s' нет доступного остатка по складу @{brand_egais}"
-							temp_buf.Z().Cat(egais_code).Space().CatChar('=').Cat(r_csr_ti.Quantity_, MKSFMTD(0, 1, 0));
+							temp_buf.Z().Cat(egais_code).Space().Eq().Cat(r_csr_ti.Quantity_, MKSFMTD(0, 1, 0));
 							LogTextWithAddendum(PPTXT_EGAIS_NOWHRESTFORR2DFCT, temp_buf);
 						}
 					}

@@ -149,7 +149,7 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 	switch(rsrv & ~0x8000) {
 		case rtrsrvPapyrusDbx:
 			{
-				THROW(!isempty(pDomain));
+				THROW_S_S(!isempty(pDomain), SLERR_INVPARAM, __FUNCTION__"/pDomain");
 				THROW(destId > 0);
 				QueueName.Z().Cat(symb).Dot().Cat(pDomain).Dot().Cat(destId);
 				(RoutingKey = pDomain).Dot().Cat(destId);
@@ -161,7 +161,7 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 			break;
 		case rtrsrvPapyrusPosProtocol:
 			{
-				THROW(!isempty(pDomain));
+				THROW_S_S(!isempty(pDomain), SLERR_INVPARAM, __FUNCTION__"/pDomain");
 				THROW(pDestGuid && !pDestGuid->IsZero());
 				QueueName.Z().Cat(symb).Dot().Cat(pDomain).Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
 				(RoutingKey = pDomain).Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
@@ -173,7 +173,7 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 			break;
 		case rtrsrvStyloView:
 			{
-				THROW(!isempty(pDomain));
+				THROW_S_S(!isempty(pDomain), SLERR_INVPARAM, __FUNCTION__"/pDomain");
 				THROW(pDestGuid && !pDestGuid->IsZero());
 				QueueName.Z().Cat(symb).Dot().Cat(pDomain).Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
 				(RoutingKey = pDomain).Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
@@ -186,7 +186,7 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 		case rtrsrvRpc:
 			{
 				SString temp_buf;
-				THROW(!isempty(pDomain));
+				THROW_S_S(!isempty(pDomain), SLERR_INVPARAM, __FUNCTION__"/pDomain");
 				QueueName.Z().Cat(symb).Dot().Cat(pDomain);
 				if(pDestGuid) {
 					QueueName.Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
@@ -228,7 +228,7 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 		case rtrsrvStyloQRpc:
 			{
 				SString temp_buf;
-				THROW(!isempty(pDomain));
+				THROW_S_S(!isempty(pDomain), SLERR_INVPARAM, __FUNCTION__"/pDomain");
 				QueueName.Z().Cat(symb).Dot().Cat(pDomain);
 				RoutingKey = pDomain;
 				ExchangeName = symb;

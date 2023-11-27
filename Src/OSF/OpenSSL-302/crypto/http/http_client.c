@@ -604,13 +604,11 @@ next_line:
 				    *line_end = '\0';
 		    }
 		    if(value != NULL && line_end != NULL) {
-			    if(rctx->state == OHS_REDIRECT
-				&& strcasecmp(key, "Location") == 0) {
+			    if(rctx->state == OHS_REDIRECT && strcasecmp(key, "Location") == 0) {
 				    rctx->redirection_url = value;
 				    return 0;
 			    }
-			    if(rctx->expected_ct != NULL
-				&& strcasecmp(key, "Content-Type") == 0) {
+			    if(rctx->expected_ct != NULL && strcasecmp(key, "Content-Type") == 0) {
 				    if(strcasecmp(rctx->expected_ct, value) != 0) {
 					    ERR_raise_data(ERR_LIB_HTTP, HTTP_R_UNEXPECTED_CONTENT_TYPE,
 						"expected=%s, actual=%s",
@@ -619,7 +617,6 @@ next_line:
 				    }
 				    found_expected_ct = 1;
 			    }
-
 			    /* https://tools.ietf.org/html/rfc7230#section-6.3 Persistence */
 			    if(strcasecmp(key, "Connection") == 0) {
 				    if(strcasecmp(value, "keep-alive") == 0)

@@ -1583,7 +1583,7 @@ int ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size_t dat
 	if(pData && dataLen) {
 		SString temp_buf;
 		THROW_PP(rIb.CryptoProPath.NotEmpty(), PPERR_CHZN_CRYPTOPROPATHNDEF);
-		THROW_PP(IsDirectory(rIb.CryptoProPath), PPERR_CHZN_CRYPTOPROPATHINV);
+		THROW_PP(SFile::IsDir(rIb.CryptoProPath), PPERR_CHZN_CRYPTOPROPATHINV);
 		THROW_PP(rIb.Cn.NotEmpty(), PPERR_CHZN_CERTSUBJNDEF);
 		//"C:\Program Files\Crypto Pro\CSP\csptest" -sfsign -sign -in barcode-tobacco.7z –out barcode-tobacco.sign -my "ООО ЛУИЗА ПЛЮС" -detached -base64 –add -silent
 		temp_buf.Cat(rIb.CryptoProPath).SetLastSlash().Cat("csptest.exe");

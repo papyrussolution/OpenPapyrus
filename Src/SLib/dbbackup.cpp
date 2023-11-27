@@ -700,11 +700,11 @@ int DBBackup::CopyLinkFiles(const char * pSrcPath, const char * pDestPath, Backu
 	SString buf, src_dir, dest_dir;
 	src_dir.CopyFrom(pSrcPath).SetLastSlash().Cat(SUBDIR_LINKFILES).RmvLastSlash();
 	dest_dir.CopyFrom(pDestPath).SetLastSlash().Cat(SUBDIR_LINKFILES).RmvLastSlash();
-	if(IsDirectory(src_dir)) {
+	if(SFile::IsDir(src_dir)) {
 		SString src_path, dest_path;
 		SDirec direc;
 		SDirEntry fb;
-		RemoveDir(dest_dir);
+		SFile::RemoveDir(dest_dir);
 		SFile::CreateDir(dest_dir);
 		src_dir.SetLastSlash();
 		dest_dir.SetLastSlash();
@@ -800,7 +800,7 @@ int DBBackup::RemoveCopy(const BCopyData * pData, BackupLogFunc fnLog, void * ex
 					SFile::Remove(src_file_name);
 				}
 			}
-			RemoveDir(cp.Path);
+			SFile::RemoveDir(cp.Path);
 			THROW(InfoF->RemoveRecord(pData->Set, pData->ID));
 			LogMessage(fnLog, BACKUPLOG_SUC_REMOVE, /*pData->CopyPath*/backup_path, extraPtr);
 		}

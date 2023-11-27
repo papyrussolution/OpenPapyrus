@@ -1427,7 +1427,7 @@ SLTEST_R(SFile)
 	{
 		bool   debug_mark = false;
 		const SString root_path(GetSuiteEntry()->InPath);
-		THROW(SLCHECK_NZ(IsDirectory(root_path)));
+		THROW(SLCHECK_NZ(SFile::IsDir(root_path)));
 		{
 			// Тестирование функций распознавания типов файлов
 			SFileEntryPool fep;

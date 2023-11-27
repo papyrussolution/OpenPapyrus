@@ -26,7 +26,7 @@ int PPDrvInputParamBlock::Add(const char * pParam, const char * pValue)
 	int    ok = 1;
 	if(!isempty(pParam) && !isempty(pValue)) {
 		TempBuf.Z().Cat(pParam).Strip();
-		TempBuf.CatChar('=').Cat(EncodeText(ValBuf.Z().Cat(pValue).Strip()));
+		TempBuf.Eq().Cat(EncodeText(ValBuf.Z().Cat(pValue).Strip()));
 		Ss.add(TempBuf);
 	}
 	else

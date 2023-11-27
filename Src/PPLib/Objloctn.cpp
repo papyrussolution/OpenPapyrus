@@ -1860,7 +1860,7 @@ IMPL_HANDLE_EVENT(LocationDialog)
 		if(GetGeoCoord() > 0) {
 			//https://www.google.com/maps?q=61.7697198,34.2983906
 			SString cmd_line;
-			(temp_buf = "maps").CatChar('?').CatChar('q').CatChar('=').Cat(Data.Latitude, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Comma().Cat(Data.Longitude, MKSFMTD(0, 7, NMBF_NOTRAILZ));
+			(temp_buf = "maps").CatChar('?').CatChar('q').Eq().Cat(Data.Latitude, MKSFMTD(0, 7, NMBF_NOTRAILZ)).Comma().Cat(Data.Longitude, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 			cmd_line = InetUrl::MkHttps("www.google.com", temp_buf);
 			::ShellExecute(0, _T("open"), SUcSwitch(cmd_line), NULL, NULL, SW_SHOW);
 		}

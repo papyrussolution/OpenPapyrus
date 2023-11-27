@@ -497,19 +497,90 @@ int WsCtl_ClientPolicy::Resolve()
 
 int WsCtl_ClientPolicy::Apply()
 {
-	// HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion
-	// HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun
-	// HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\RestrictRun
 	int    ok = 1;
 	if(SsAppDisabled.getCount()) {
-		WinRegKey reg_key(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\DisallowRun", 0);
+		WinRegKey reg_key(HKEY_CURRENT_USER, SlConst::P_WrKey_MsWin_DisallowRun, 0);
 		THROW(reg_key.PutEnumeratedStrings(SsAppDisabled, 0));
 	}
 	if(SsAppEnabled.getCount()) {
-		WinRegKey reg_key(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\RestrictRun", 0);
+		WinRegKey reg_key(HKEY_CURRENT_USER, SlConst::P_WrKey_MsWin_RestrictRun, 0);
 		THROW(reg_key.PutEnumeratedStrings(SsAppEnabled, 0));
 	}
 	CATCHZOK
+	return ok;
+}
+
+SString & WsCtl_ClientPolicy::MakeBaseSystemImagePath(SString & rBuf) const
+{
+	rBuf.Z();
+	PPGetPath(PPPATH_WORKSPACE, rBuf);
+	rBuf.SetLastSlash().Cat("wsctl").SetLastSlash().Cat("wsbui");
+	return rBuf;
+}
+
+bool WsCtl_ClientPolicy::IsThereSystemImage() const
+{
+	SString bu_base_path;
+	MakeBaseSystemImagePath(bu_base_path);
+	SSystemBackup sb;
+	uint32 bu_id = sb.GetLastBackupId(bu_base_path);
+	return (bu_id > 0);
+}
+
+int WsCtl_ClientPolicy::CreateSystemImage()
+{
+	int    ok = 1;
+	SSystemBackup::Param param;
+	MakeBaseSystemImagePath(param.BackupPath);
+	if(SysUser.NotEmpty()) {
+		param.AddProfileEntry(SysUser, SysPassword);
+	}
+	if(AllowedPathList.getCount()) {
+		for(uint i = 0; i < AllowedPathList.getCount(); i++) {
+			const AllowedPath * p_ap = AllowedPathList.at(i);
+			if(p_ap && ((p_ap->Flags & SFile::accsfAll) || (p_ap->Flags & SFile::accsfGenericWrite) ||
+				(p_ap->Flags & (SFile::accsfDataWrite|SFile::accsfDataAppend|
+				SFile::accsfEaWrite|SFile::accsfDirAddFile|SFile::accsfDirAddSub|SFile::accsfDirDelete)))) {
+				if(p_ap->ResolvedPath.NotEmpty())
+					param.AddPathEntry(p_ap->ResolvedPath);
+			}
+		}
+	}
+	if(AllowedRegList.getCount()) {
+		for(uint i = 0; i < AllowedRegList.getCount(); i++) {
+			const AllowedRegistryEntry * p_ar = AllowedRegList.at(i);
+			if(p_ar && ((p_ar->Flags & WinRegKey::accsfAll) || (p_ar->Flags & WinRegKey::accsfKeyWrite) ||
+				(p_ar->Flags & (WinRegKey::accsfSetValue|WinRegKey::accsfCreateSub)))) {
+				if(p_ar->Branch.NotEmpty())
+					param.AddRegEntry(p_ar->Branch);
+			}
+		}
+	}
+	{
+		param.Flags |= SSystemBackup::Param::fDumpAfterBackup;
+		SSystemBackup sb(param);
+		if(sb.Backup()) {
+			;
+		}
+		else {
+			ok = 0;
+		}
+	}
+	return ok;
+}
+
+int WsCtl_ClientPolicy::RestoreSystemImage()
+{
+	int    ok = -1;
+	SString bu_base_path;
+	MakeBaseSystemImagePath(bu_base_path);
+	SSystemBackup sb;
+	if(sb.Restore(bu_base_path, _FFFF32, SSystemBackup::rfRemoveNewEntries|SSystemBackup::rfRestoreRemovedEntries)) {
+		ok = 1;
+	}
+	else {
+		ok = 0;
+	}
 	return ok;
 }
 //
@@ -1173,27 +1244,21 @@ int WsCtl_SessionFrame::Start()
 	if(State & stRunning)
 		ok = -1;
 	else {
-		if(Policy.SysUser.NotEmpty()) {
-			SString sys_user_name;
-			SSystem::GetUserName_(sys_user_name); // @debug
+		SString sys_user_name;
+		THROW(Policy.SysUser.NotEmpty()); // @todo @err
+		SSystem::GetUserName_(sys_user_name); // @debug
+		//SSystem::UserProfileInfo profile_info;
+		THROW(Policy.IsThereSystemImage()); // @todo @err
+		{
 			SSystem::UserProfileInfo profile_info;
-			SPtrHandle h_token;// = SSystem::Logon(0, Policy.SysUser, Policy.SysPassword, SSystem::logontypeInteractive, /*&profile_info*/0);
-			if(h_token) {
-				SSystem::GetUserName_(sys_user_name); // @debug
-				//BOOL iplour = ImpersonateLoggedOnUser(h_token);
-				if(/*iplour*/true) {
-					SSystem::GetUserName_(sys_user_name); // @debug
-					H_UserToken = h_token;
-					/*
-					create_proc_result = ::CreateProcessWithTokenW(callee_token, logon_flags, p_app_name, p_cmd_line, 
-						//p_prc_attr_list, p_thread_attr_list, inherit_handles,
-						creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
-					*/
-				}
-			}
+			SPtrHandle h_token = SSystem::Logon(0, Policy.SysUser, Policy.SysPassword, SSystem::logontypeInteractive, &profile_info);
+			THROW(h_token);
+			H_UserToken = h_token;
+			SSystem::GetUserName_(sys_user_name); // @debug
 		}
 		State |= stRunning;
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -1214,6 +1279,7 @@ int WsCtl_SessionFrame::Finish()
 				H_UserToken = 0;
 			}
 		}
+		Policy.RestoreSystemImage(); // @v11.8.12
 		State &= ~stRunning;
 	}
 	else

@@ -1837,7 +1837,7 @@ int PPTextAnalyzer::ProcessGoodsNN()
 											const  PPID _rid = group_list.get(oi);
 											const float _rv = p_nn_test_output[oi];
 											temp_result_list.Add(_rid, _rv, 0);
-											//output_log_buf.Cat(_rid).CatChar('=').Cat(p_nn_test_output[oi], MKSFMTD(0, 6, NMBF_NOTRAILZ)).Space();
+											//output_log_buf.Cat(_rid).Eq().Cat(p_nn_test_output[oi], MKSFMTD(0, 6, NMBF_NOTRAILZ)).Space();
 										}
 									}
 									temp_result_list.SortByValRev();

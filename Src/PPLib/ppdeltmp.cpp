@@ -113,7 +113,7 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 						}
 						if(need_remove) {
 							sde.GetNameA(tmp_dir, tmp_path);
-							::RemoveDir(tmp_path.SetLastSlash());
+							SFile::RemoveDir(tmp_path.SetLastSlash());
 						}
 					}
 				}

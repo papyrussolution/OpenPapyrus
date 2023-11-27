@@ -81,8 +81,7 @@ static const DH_NAMED_GROUP dh_named_groups[] = {
 
 const DH_NAMED_GROUP * ossl_ffc_name_to_dh_named_group(const char * name)
 {
-	size_t i;
-	for(i = 0; i < SIZEOFARRAY(dh_named_groups); ++i) {
+	for(size_t i = 0; i < SIZEOFARRAY(dh_named_groups); ++i) {
 		if(strcasecmp(dh_named_groups[i].name, name) == 0)
 			return &dh_named_groups[i];
 	}
@@ -91,8 +90,7 @@ const DH_NAMED_GROUP * ossl_ffc_name_to_dh_named_group(const char * name)
 
 const DH_NAMED_GROUP * ossl_ffc_uid_to_dh_named_group(int uid)
 {
-	size_t i;
-	for(i = 0; i < SIZEOFARRAY(dh_named_groups); ++i) {
+	for(size_t i = 0; i < SIZEOFARRAY(dh_named_groups); ++i) {
 		if(dh_named_groups[i].uid == uid)
 			return &dh_named_groups[i];
 	}
@@ -102,8 +100,7 @@ const DH_NAMED_GROUP * ossl_ffc_uid_to_dh_named_group(int uid)
 #ifndef OPENSSL_NO_DH
 const DH_NAMED_GROUP * ossl_ffc_numbers_to_dh_named_group(const BIGNUM * p, const BIGNUM * q, const BIGNUM * g)
 {
-	size_t i;
-	for(i = 0; i < SIZEOFARRAY(dh_named_groups); ++i) {
+	for(size_t i = 0; i < SIZEOFARRAY(dh_named_groups); ++i) {
 		/* Keep searching until a matching p and g is found */
 		if(BN_cmp(p, dh_named_groups[i].p) == 0 && BN_cmp(g, dh_named_groups[i].g) == 0 /* Verify q is correct if it exists */ && (q == NULL || BN_cmp(q, dh_named_groups[i].q) == 0))
 			return &dh_named_groups[i];
@@ -113,30 +110,19 @@ const DH_NAMED_GROUP * ossl_ffc_numbers_to_dh_named_group(const BIGNUM * p, cons
 
 #endif
 
-int ossl_ffc_named_group_get_uid(const DH_NAMED_GROUP * group)
-{
-	return group ? group->uid : NID_undef;
-}
-
-const char * ossl_ffc_named_group_get_name(const DH_NAMED_GROUP * group)
-{
-	return group ? group->name : 0;
-}
+int ossl_ffc_named_group_get_uid(const DH_NAMED_GROUP * group) { return group ? group->uid : NID_undef; }
+const char * ossl_ffc_named_group_get_name(const DH_NAMED_GROUP * group) { return group ? group->name : 0; }
 
 #ifndef OPENSSL_NO_DH
-const BIGNUM * ossl_ffc_named_group_get_q(const DH_NAMED_GROUP * group)
-{
-	return group ? group->q : 0;
-}
+	const BIGNUM * ossl_ffc_named_group_get_q(const DH_NAMED_GROUP * group) { return group ? group->q : 0; }
 
-int ossl_ffc_named_group_set_pqg(FFC_PARAMS * ffc, const DH_NAMED_GROUP * group)
-{
-	if(ffc == NULL || group == NULL)
-		return 0;
-	ossl_ffc_params_set0_pqg(ffc, (BIGNUM*)group->p, (BIGNUM*)group->q, (BIGNUM*)group->g);
-	/* flush the cached nid, The DH layer is responsible for caching */
-	ffc->nid = NID_undef;
-	return 1;
-}
-
+	int ossl_ffc_named_group_set_pqg(FFC_PARAMS * ffc, const DH_NAMED_GROUP * group)
+	{
+		if(ffc == NULL || group == NULL)
+			return 0;
+		ossl_ffc_params_set0_pqg(ffc, (BIGNUM*)group->p, (BIGNUM*)group->q, (BIGNUM*)group->g);
+		/* flush the cached nid, The DH layer is responsible for caching */
+		ffc->nid = NID_undef;
+		return 1;
+	}
 #endif

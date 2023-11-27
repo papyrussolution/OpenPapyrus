@@ -2274,7 +2274,7 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 						StringSet ss(';', input_buf);
 						for(uint ssp = 0; local_result != 0 && ss.get(&ssp, temp_buf);) {
 							temp_buf.Strip().RmvLastSlash().Transf(CTRANSF_INNER_TO_OUTER); // @v11.0.0 Transf(CTRANSF_INNER_TO_OUTER)
-							local_result = (IsDirectory(temp_buf) || fileExists(temp_buf)) ? 1 : 0;
+							local_result = (SFile::IsDir(temp_buf) || fileExists(temp_buf)) ? 1 : 0;
 						}
 					}
 					const int tool_id = (local_result > 0) ? brushValidPath : ((local_result == 0) ? brushInvalidPath : 0);

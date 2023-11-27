@@ -71,6 +71,16 @@ public:
 	int    FromJsonObj(const SJson * pJsObj);
 	int    Resolve();
 	int    Apply();
+	//
+	// Descr: ‘ормирует строку пути к базовому каталогу системного образа дл€ копировани€ и восстановлени€.
+	//
+	SString & MakeBaseSystemImagePath(SString & rBuf) const;
+	//
+	// Descr: ‘ункци€ вы€сн€ет существует ли системный образ.
+	//
+	bool   IsThereSystemImage() const;
+	int    CreateSystemImage();
+	int    RestoreSystemImage();
 
 	SString SysUser;
 	SString SysPassword;
@@ -82,11 +92,8 @@ public:
 		AllowedPath() : Flags(0)
 		{
 		}
-		bool  FASTCALL operator == (const AllowedPath & rS) const
-		{
-			return (Flags == rS.Flags && Path == rS.Path);
-		}
-		uint  Flags;   // SFile::accsfXXX
+		bool   FASTCALL operator == (const AllowedPath & rS) const { return (Flags == rS.Flags && Path == rS.Path); }
+		uint   Flags;   // SFile::accsfXXX
 		SString Path;
 		SString ResolvedPath; // “ак как path может быть задан в шаблонизированном виде, могут понадобитьс€ дополнительные действи€ //
 			// по разрешению шаблонов. ќкончательный результат заноситс€ в ResolvedPath.
@@ -95,12 +102,9 @@ public:
 		AllowedRegistryEntry() : RegKeyType(0), Flags(0)
 		{
 		}
-		bool   FASTCALL operator == (const AllowedRegistryEntry & rS) const
-		{
-			return (RegKeyType == rS.RegKeyType && Flags == rS.Flags && Branch == rS.Branch);
-		}
-		int   RegKeyType; // WinRegKey::regkeytypXXX general || wow64_32 || wow64_64
-		uint  Flags;       
+		bool   FASTCALL operator == (const AllowedRegistryEntry & rS) const { return (RegKeyType == rS.RegKeyType && Flags == rS.Flags && Branch == rS.Branch); }
+		int    RegKeyType; // WinRegKey::regkeytypXXX general || wow64_32 || wow64_64
+		uint   Flags;       
 		SString Branch;
 	};
 	TSCollection <AllowedPath> AllowedPathList;

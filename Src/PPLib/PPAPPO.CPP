@@ -1,5 +1,6 @@
 // PPAPPO.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -35,15 +36,6 @@ int UniFindObj();
 int TSessionMaintenance(); // @v11.0.4
 //int ImportSartre();
 // } @prototype
-//
-//
-#if 0 // @v11.4.4 (replaced with PPConst::WrKey_XXX) {
-/*static*/ const char * PPRegKeys::PrefSettings  = "Software\\Papyrus\\Pref";   // @declared(pp.h)
-/*static*/ const char * PPRegKeys::PrefBasketSelSettings = "Software\\Papyrus\\Pref\\BasketSel"; // @declared(pp.h)
-/*static*/ const char * PPRegKeys::SysSettings   = "Software\\Papyrus\\System";   // @declared(pp.h)
-/*static*/ const char * PPRegKeys::Sessions      = "Software\\Papyrus\\Sessions"; // @declared(pp.h)
-#endif // } 0
-//
 //
 //
 int PPHandlePrintError(int)
@@ -152,7 +144,7 @@ IMPL_HANDLE_EVENT(PPApp)
 
 #if 0 // {
 //
-// Аварийная функция восстановления товаров
+// РђРІР°СЂРёР№РЅР°СЏ С„СѓРЅРєС†РёСЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ С‚РѕРІР°СЂРѕРІ
 //
 int RestoreGoods2()
 {
@@ -351,7 +343,7 @@ static int PPAbout()
 		dlg->setCtrlLong(CTL_ABOUT_LICCOUNT, is_open ? 1000 : lic.LicCount);
 		dlg->setCtrlLong(CTL_ABOUT_FREELICCOUNT, lic.FreeLicCount);
 		{
-			text = 0;
+			text.Z();
 			if(is_open)
 				text = "OpenSource";
 			else {
@@ -967,8 +959,8 @@ static int StyloQLoginInvitation(DbLoginBlock & rDlb, SString & rInvString)
 			PPStyloQInterchange::RunServerParam rsparam;
 			p_ic = new PPStyloQInterchange(p_ldb->P_Sqc);
 			THROW(p_ic->GetOwnPeerEntry(&sp) > 0);
-			// @debug @! В следующем вызове должен применяться флаг PPStyloQInterchange::smqbpfLocalSession, а не PPStyloQInterchange::smqbpfLocalMachine
-			// Сейчас мы устанавливаем smqbpfLocalMachine для того, чтобы можно было отладить механизм на эмуляторе клиента.
+			// @debug @! Р’ СЃР»РµРґСѓСЋС‰РµРј РІС‹Р·РѕРІРµ РґРѕР»Р¶РµРЅ РїСЂРёРјРµРЅСЏС‚СЊСЃСЏ С„Р»Р°Рі PPStyloQInterchange::smqbpfLocalSession, Р° РЅРµ PPStyloQInterchange::smqbpfLocalMachine
+			// РЎРµР№С‡Р°СЃ РјС‹ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј smqbpfLocalMachine РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РѕС‚Р»Р°РґРёС‚СЊ РјРµС…Р°РЅРёР·Рј РЅР° СЌРјСѓР»СЏС‚РѕСЂРµ РєР»РёРµРЅС‚Р°.
 			THROW(PPStyloQInterchange::SetupMqbParam(sp, PPStyloQInterchange::smqbpfInitAccessPoint|PPStyloQInterchange::smqbpfLocalMachine, rsparam));
 			{
 				PPMqbClient::RoutingParamEntry rpe;
@@ -1009,7 +1001,7 @@ struct PPLoginDialogParam {
 		fRetryLogin        = 0x0004,
 		fProtect           = 0x0008,
 		fBlindMode         = 0x0010, // @v11.3.12
-		fDisableStqQrLogin = 0x0020  // @v11.6.9 проекция параметра PPINIPARAM_DISABLESTQQRLOGIN
+		fDisableStqQrLogin = 0x0020  // @v11.6.9 РїСЂРѕРµРєС†РёСЏ РїР°СЂР°РјРµС‚СЂР° PPINIPARAM_DISABLESTQQRLOGIN
 	};
 	long   Flags;             // IN
 	PPID   OnetimePassResult; // OUT
@@ -1105,22 +1097,22 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 							// no database with such a user
 							R_P.Dbes.SetSelection(0);
 							PPError(PPERR_INVUSERORPASSW);
-							clearEvent(event); // Уходим на следующий круг обработки: пользователь должен поменять логин или вообще уйти
+							clearEvent(event); // РЈС…РѕРґРёРј РЅР° СЃР»РµРґСѓСЋС‰РёР№ РєСЂСѓРі РѕР±СЂР°Р±РѕС‚РєРё: РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РґРѕР»Р¶РµРЅ РїРѕРјРµРЅСЏС‚СЊ Р»РѕРіРёРЅ РёР»Рё РІРѕРѕР±С‰Рµ СѓР№С‚Рё
 						}
 						else if(db_idx_list.getCount() == 1) {
 							// the best result: we have single database and will try to login into
 							const long db_sel_idx = db_idx_list.get(0);
 							assert(db_sel_idx > 0 && db_sel_idx <= static_cast<long>(R_P.Dbes.GetCount()));
 							R_P.Dbes.SetSelection(db_sel_idx);
-							// TDialog::handleEvent(event) следующий ниже отработает закрытие диалога по [OK] в обычном режиме
+							// TDialog::handleEvent(event) СЃР»РµРґСѓСЋС‰РёР№ РЅРёР¶Рµ РѕС‚СЂР°Р±РѕС‚Р°РµС‚ Р·Р°РєСЂС‹С‚РёРµ РґРёР°Р»РѕРіР° РїРѕ [OK] РІ РѕР±С‹С‡РЅРѕРј СЂРµР¶РёРјРµ
 						}
 						else { // db_idx_list.getCount() > 1
 							// we have several databases with such a user, so let's allow him to select a particular one
 							showCtrl(CTLSEL_LOGIN_DB, true);
 							selectCtrl(CTL_LOGIN_DB);
 							SetupDBEntryComboBox(this, CTLSEL_LOGIN_DB, &R_P.Dbes, &db_idx_list);
-							R_P.Flags &= ~PPLoginDialogParam::fBlindMode; // Дальше работа пойдет в обычном режиме с выбором базы - спецфлаг более не нужен
-							clearEvent(event); // Уходим на следующий круг обработки: пользователь должен выбрать конкретную базу данных в обычном режиме
+							R_P.Flags &= ~PPLoginDialogParam::fBlindMode; // Р”Р°Р»СЊС€Рµ СЂР°Р±РѕС‚Р° РїРѕР№РґРµС‚ РІ РѕР±С‹С‡РЅРѕРј СЂРµР¶РёРјРµ СЃ РІС‹Р±РѕСЂРѕРј Р±Р°Р·С‹ - СЃРїРµС†С„Р»Р°Рі Р±РѕР»РµРµ РЅРµ РЅСѓР¶РµРЅ
+							clearEvent(event); // РЈС…РѕРґРёРј РЅР° СЃР»РµРґСѓСЋС‰РёР№ РєСЂСѓРі РѕР±СЂР°Р±РѕС‚РєРё: РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РґРѕР»Р¶РµРЅ РІС‹Р±СЂР°С‚СЊ РєРѕРЅРєСЂРµС‚РЅСѓСЋ Р±Р°Р·Сѓ РґР°РЅРЅС‹С… РІ РѕР±С‹С‡РЅРѕРј СЂРµР¶РёРјРµ
 						}
 					}
 				}
@@ -1128,7 +1120,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmUtil)) {
 				endModal(TVCMD);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 			else if(TVBROADCAST && TVCMD == cmIdle) {
 				if(DoCheckOnetimePass && IdleTimer.Check(0)) {
@@ -1136,14 +1128,14 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 					if(one_time_pass_usr_id > 0) {
 						OnetimePassResult = one_time_pass_usr_id;
 						endModal(cmOK);
-						return; // После endModal не следует обращаться к this
+						return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 					}
 				}
 			}
 			else if(event.isCbSelected(CTLSEL_LOGIN_DB)) {
 				if(/*SystemAccountLogin*/(R_P.Flags & PPLoginDialogParam::fSysAccLogin) && CheckSystemAccount(1)) {
 					endModal(cmOK);
-					return; // После endModal не следует обращаться к this
+					return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 				}
 				else {
 					// @v11.1.8 @experimental {
@@ -1526,10 +1518,10 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 	int    ok = -1;
 	PPIniFile * p_ini_file = 0;
 	//
-	// Если определен сервер синхронизации времени, то пытаемся установить
-	// системное время на рабочей станции в соответствии с сервером.
-	// Время устанавливается только в том случае, если текущее время на
-	// станции отличается от сервера более чем на 1 секунду
+	// Р•СЃР»Рё РѕРїСЂРµРґРµР»РµРЅ СЃРµСЂРІРµСЂ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РІСЂРµРјРµРЅРё, С‚Рѕ РїС‹С‚Р°РµРјСЃСЏ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ
+	// СЃРёСЃС‚РµРјРЅРѕРµ РІСЂРµРјСЏ РЅР° СЂР°Р±РѕС‡РµР№ СЃС‚Р°РЅС†РёРё РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ СЃРµСЂРІРµСЂРѕРј.
+	// Р’СЂРµРјСЏ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё С‚РµРєСѓС‰РµРµ РІСЂРµРјСЏ РЅР°
+	// СЃС‚Р°РЅС†РёРё РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ СЃРµСЂРІРµСЂР° Р±РѕР»РµРµ С‡РµРј РЅР° 1 СЃРµРєСѓРЅРґСѓ
 	//
 	if(!(LocalState & lsLockSettingTimeByServer)) {
 		SString temp_buf;
@@ -1647,7 +1639,7 @@ int PPBackupSystemFiles_Arc()
 	PPGetFileName(PPFILNAM_BULOCK, fname);
 	(lock_path = backup_dir).SetLastSlash().Cat(fname);
 	SFile::CreateDir(backup_dir);
-	const int  is_locked = BIN(fileExists(lock_path) && SFile::IsOpenedForWriting(lock_path)); // @v10.7.5 дополнительная проверка на то, чтоб файл был открыт для записи
+	const int  is_locked = BIN(fileExists(lock_path) && SFile::IsOpenedForWriting(lock_path)); // @v10.7.5 РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РїСЂРѕРІРµСЂРєР° РЅР° С‚Рѕ, С‡С‚РѕР± С„Р°Р№Р» Р±С‹Р» РѕС‚РєСЂС‹С‚ РґР»СЏ Р·Р°РїРёСЃРё
 	if(!is_locked) {
 		const LDATETIME cur_dtm = getcurdatetime_();
 		LDATE last_copy_dt;
@@ -1702,7 +1694,7 @@ int PPBackupSystemFiles_Arc()
 					arc.AddEntry(path, fname, 0);
 					//@erik v10.6.13 {
 					{
-						// Since @v11.3.3 копируются только конкретные подкаталоги и файлы из workspace
+						// Since @v11.3.3 РєРѕРїРёСЂСѓСЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РєРѕРЅРєСЂРµС‚РЅС‹Рµ РїРѕРґРєР°С‚Р°Р»РѕРіРё Рё С„Р°Р№Р»С‹ РёР· workspace
 						// @v11.3.3 PPGetPath(PPPATH_WORKSPACE, path);
 						// subdirs: desks desktop menu namedfilt nginx srvjobpool styloqcommands
 						// files: styloq-la styloq-sidsmap
@@ -1711,7 +1703,7 @@ int PPBackupSystemFiles_Arc()
 						for(uint wssdidx = 0; wssdidx < SIZEOFARRAY(pp_workspace_subdir); wssdidx++) {
 							PPGetPath(PPPATH_WORKSPACE, path);
 							path.SetLastSlash().Cat(pp_workspace_subdir[wssdidx]);
-							if(IsDirectory(path)) {
+							if(SFile::IsDir(path)) {
 								arc.AddEntries(path, SArchive::aefRecursive);
 							}
 						}
@@ -1727,7 +1719,7 @@ int PPBackupSystemFiles_Arc()
 					// @v10.7.5 {
 					{
 						//
-						// Локальные отчеты
+						// Р›РѕРєР°Р»СЊРЅС‹Рµ РѕС‚С‡РµС‚С‹
 						//
 						PPIniFile ifile;
 						ifile.Get(PPINISECT_PATH, PPINIPARAM_WINLOCALRPT, path);
@@ -1742,7 +1734,7 @@ int PPBackupSystemFiles_Arc()
 					{
 						const uint max_arc = 5;
 						//
-						// Если количество архивов больше max_arc, то лишние самые старые удаляем
+						// Р•СЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ Р°СЂС…РёРІРѕРІ Р±РѕР»СЊС€Рµ max_arc, С‚Рѕ Р»РёС€РЅРёРµ СЃР°РјС‹Рµ СЃС‚Р°СЂС‹Рµ СѓРґР°Р»СЏРµРј
 						//
 						SFileEntryPool fep;
 						fep.Scan(backup_dir, path.Z().Cat("bu").CatChar('-').CatCharN('*', 14), 0);
@@ -1884,9 +1876,9 @@ void PPApp::login(int processCmdLine)
 		}
 		*/
 	}
-	/* WinMain делает эту работу
+	/* WinMain РґРµР»Р°РµС‚ СЌС‚Сѓ СЂР°Р±РѕС‚Сѓ
 	if(PPSession::GetStartUpOption(PPSession::cmdlWsControl, arg_buf)) { // @v11.6.7
-		// С этим флагом интерактивная (и неинтерактивная тоже) часть системы значительно меняет свою работу!
+		// РЎ СЌС‚РёРј С„Р»Р°РіРѕРј РёРЅС‚РµСЂР°РєС‚РёРІРЅР°СЏ (Рё РЅРµРёРЅС‚РµСЂР°РєС‚РёРІРЅР°СЏ С‚РѕР¶Рµ) С‡Р°СЃС‚СЊ СЃРёСЃС‚РµРјС‹ Р·РЅР°С‡РёС‚РµР»СЊРЅРѕ РјРµРЅСЏРµС‚ СЃРІРѕСЋ СЂР°Р±РѕС‚Сѓ!
 		DS.SetExtFlag(ECF_WSCONTROL, 1);
 	}*/
 	if(processCmdLine && no_login) {
@@ -1900,10 +1892,10 @@ void PPApp::login(int processCmdLine)
 			InitStatusBar();
 			StoreLastBinPath();
 			//
-			// Если определен сервер синхронизации времени, то пытаемся установить
-			// системное время на рабочей станции в соответствии с сервером.
-			// Время устанавливается только в том случае, если текущее время на
-			// станции отличается от сервера более чем на 1 секунду
+			// Р•СЃР»Рё РѕРїСЂРµРґРµР»РµРЅ СЃРµСЂРІРµСЂ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РІСЂРµРјРµРЅРё, С‚Рѕ РїС‹С‚Р°РµРјСЃСЏ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ
+			// СЃРёСЃС‚РµРјРЅРѕРµ РІСЂРµРјСЏ РЅР° СЂР°Р±РѕС‡РµР№ СЃС‚Р°РЅС†РёРё РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ СЃРµСЂРІРµСЂРѕРј.
+			// Р’СЂРµРјСЏ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё С‚РµРєСѓС‰РµРµ РІСЂРµРјСЏ РЅР°
+			// СЃС‚Р°РЅС†РёРё РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ СЃРµСЂРІРµСЂР° Р±РѕР»РµРµ С‡РµРј РЅР° 1 СЃРµРєСѓРЅРґСѓ
 			//
 			SetDatetimeByServer(&ini_file, 0);
 			const LDATE dt = getcurdate_();
@@ -1986,7 +1978,7 @@ void PPApp::login(int processCmdLine)
 		int    valid = 0;
 		int    recover = 0;
 		SString lua_script; // @v10.0.1 @experimental
-		SString cmdline_dbsymb; // @v11.0.3 Символ базы данных, указанный в командной строке
+		SString cmdline_dbsymb; // @v11.0.3 РЎРёРјРІРѕР» Р±Р°Р·С‹ РґР°РЅРЅС‹С…, СѓРєР°Р·Р°РЅРЅС‹Р№ РІ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ
 		PPID   dbentry_id = 0;
 		if(_argc > 1 && *_argv[1] != '/' && *_argv[1] != '-') {
 			SFsPath ps(_argv[1]);
@@ -1998,7 +1990,7 @@ void PPApp::login(int processCmdLine)
 				login_param.UserName.Transf(CTRANSF_OUTER_TO_INNER);
 			}
 		}
-		{ // @v10.5.7 Зона видимости ini_file. Ее необходимо изолировать - PPLoginDialog может затребовать эксклюзивный доступ к pp.ini для редактирования.
+		{ // @v10.5.7 Р—РѕРЅР° РІРёРґРёРјРѕСЃС‚Рё ini_file. Р•Рµ РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РѕР»РёСЂРѕРІР°С‚СЊ - PPLoginDialog РјРѕР¶РµС‚ Р·Р°С‚СЂРµР±РѕРІР°С‚СЊ СЌРєСЃРєР»СЋР·РёРІРЅС‹Р№ РґРѕСЃС‚СѓРї Рє pp.ini РґР»СЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ.
 			PPIniFile  ini_file;
 			login_param.Dbes.ReadFromProfile(&ini_file);
 			if(PPSession::GetStartUpOption(PPSession::cmdlDB, arg_buf)) {
@@ -2025,10 +2017,10 @@ void PPApp::login(int processCmdLine)
 				SETFLAG(login_param.Flags, login_param.fDisableStqQrLogin, iv > 0); // @v11.6.9
 			}
 			//
-			// Если определен сервер синхронизации времени, то пытаемся установить
-			// системное время на рабочей станции в соответствии с сервером.
-			// Время устанавливается только в том случае, если текущее время на
-			// станции отличается от сервера более чем на 1 секунду
+			// Р•СЃР»Рё РѕРїСЂРµРґРµР»РµРЅ СЃРµСЂРІРµСЂ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РІСЂРµРјРµРЅРё, С‚Рѕ РїС‹С‚Р°РµРјСЃСЏ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ
+			// СЃРёСЃС‚РµРјРЅРѕРµ РІСЂРµРјСЏ РЅР° СЂР°Р±РѕС‡РµР№ СЃС‚Р°РЅС†РёРё РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ СЃРµСЂРІРµСЂРѕРј.
+			// Р’СЂРµРјСЏ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё С‚РµРєСѓС‰РµРµ РІСЂРµРјСЏ РЅР°
+			// СЃС‚Р°РЅС†РёРё РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ СЃРµСЂРІРµСЂР° Р±РѕР»РµРµ С‡РµРј РЅР° 1 СЃРµРєСѓРЅРґСѓ
 			//
 			SetDatetimeByServer(&ini_file, 0);
 			PPSession::EnsureExtCfgDb(); // @v10.7.7
@@ -2085,7 +2077,7 @@ void PPApp::login(int processCmdLine)
 			DS.SetOperDate(login_param.OperDate);
 			StatusWinChange(1);
 			PPDesktop::RegWindowClass(TProgram::GetInst());
-			PPDesktop::Open(LConfig.DesktopUuid_, 1/*createIfZero*/); // @todo должна вызываться после того, как будут созданы основные окна.
+			PPDesktop::Open(LConfig.DesktopUuid_, 1/*createIfZero*/); // @todo РґРѕР»Р¶РЅР° РІС‹Р·С‹РІР°С‚СЊСЃСЏ РїРѕСЃР»Рµ С‚РѕРіРѕ, РєР°Рє Р±СѓРґСѓС‚ СЃРѕР·РґР°РЅС‹ РѕСЃРЅРѕРІРЅС‹Рµ РѕРєРЅР°.
 			if(!no_login)
 				RemoveMenu(GetMenu(H_MainWnd), cmDBExit, MF_BYCOMMAND);
 			if(processCmdLine) {
@@ -2152,11 +2144,9 @@ void PPApp::login(int processCmdLine)
 						else
 							PPError();
 					}
-					// @v5.6.7 @temp {
 					/* @v9.0.3 if(GetStartUpOption(cmdlRecoverTransfer, arg_buf)) {
 						RecoverAbsenceTrfr();
 					} */
-					// } @v5.6.7 @temp
 				}
 				TestLogin();
 				if(is_batch)
@@ -2166,7 +2156,7 @@ void PPApp::login(int processCmdLine)
 		else if(!no_login)
 			TView::messageCommand(this, cmQuit);
 	}
-	PPSession::GetStartUpOption(-1, arg_buf); // Очищаем внутренний буфер функции
+	PPSession::GetStartUpOption(-1, arg_buf); // РћС‡РёС‰Р°РµРј РІРЅСѓС‚СЂРµРЅРЅРёР№ Р±СѓС„РµСЂ С„СѓРЅРєС†РёРё
 }
 
 int PPApp::InitDeskTop()
@@ -2191,7 +2181,7 @@ int PPApp::InitMenuBar()
 					::DestroyMenu(m);
 					m = 0; // @v10.4.5
 					DS.SetMenu(MENU_MASTER);
-					// @v10.4.5 (Встроенные в windows-ресурс меню упразднены) m = ::LoadMenu(TProgram::GetInst(), MAKEINTRESOURCE(r_cfg.Menu));
+					// @v10.4.5 (Р’СЃС‚СЂРѕРµРЅРЅС‹Рµ РІ windows-СЂРµСЃСѓСЂСЃ РјРµРЅСЋ СѓРїСЂР°Р·РґРЅРµРЅС‹) m = ::LoadMenu(TProgram::GetInst(), MAKEINTRESOURCE(r_cfg.Menu));
 				}
 			}
 			if(!m)
@@ -2212,14 +2202,6 @@ int PPApp::RegisterComServer()
 			Param() : Action(aRegister), Flags(0)
 			{
 			}
-			/*void Init()
-			{
-				Action = aRegister;
-				Flags = 0;
-				ExcelRegKeyDir.Z();
-				DllPath.Z();
-				DllPath_XpCompat.Z();
-			}*/
 			enum {
 				aRegister   = 0x0001,
 				aDeregister = 0x0002

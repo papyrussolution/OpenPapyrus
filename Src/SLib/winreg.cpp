@@ -557,7 +557,7 @@ int WinRegKey::Save(const char * pFileName)
 	/*
 		LSTATUS RegSaveKeyA([in] HKEY hKey, [in] LPCSTR lpFile, [in, optional] const LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 	*/ 
-	THROW(!isempty(pFileName)); // @todo @err
+	THROW_S_S(!isempty(pFileName), SLERR_INVPARAM, __FUNCTION__"/pFileName");
 	THROW(IsValid());
 	if(fileExists(pFileName)) {
 		// Функция RegSaveKeyW выдаст ошибку если файл с таким именем уже существует
@@ -586,9 +586,14 @@ int WinRegKey::Restore(const char * pFileName)
 	/*
 		LSTATUS RegRestoreKeyA([in] HKEY hKey, [in] LPCSTR lpFile, [in] DWORD  dwFlags);
 	*/
-	THROW(!isempty(pFileName)); // @todo @err
+	THROW_S_S(!isempty(pFileName), SLERR_INVPARAM, __FUNCTION__"/pFileName");
 	THROW(IsValid());
 	THROW(fileExists(pFileName));
+	{
+		SPtrHandle _token = SlProcess::OpenCurrentAccessToken(/*TOKEN_ALL_ACCESS*/TOKEN_READ|TOKEN_WRITE|TOKEN_EXECUTE);
+		SlProcess::CheckAndEnableAccesTokenPrivilege(_token, SE_BACKUP_NAME);
+		SlProcess::CheckAndEnableAccesTokenPrivilege(_token, SE_RESTORE_NAME);
+	}
 	{
 		SStringU & r_file_name_u = SLS.AcquireRvlStrU();
 		SString & r_temp_buf = SLS.AcquireRvlStr();

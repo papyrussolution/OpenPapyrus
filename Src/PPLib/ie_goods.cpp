@@ -2186,7 +2186,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 				SString set_path, line_buf;
 				SFsPath ps(Param.FileName);
 				ps.Merge(SFsPath::fDrv|SFsPath::fDir, file_name);
-				THROW_SL(IsDirectory(file_name.RmvLastSlash()));
+				THROW_SL(SFile::IsDir(file_name.RmvLastSlash()));
 				(set_path = file_name).SetLastSlash().Cat("__SET__");
 				if(!fileExists(set_path)) {
 					THROW_SL(SFile::CreateDir(set_path));

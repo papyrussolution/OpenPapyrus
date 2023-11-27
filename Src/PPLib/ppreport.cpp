@@ -665,7 +665,7 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, bool
 					if(ss2.get(&i, buf)) {
 						SString dir;
 						if(buf.NotEmptyS()) {
-							if(IsDirectory(buf.RmvLastSlash())) {
+							if(SFile::IsDir(buf.RmvLastSlash())) {
 								THROW_SL(MakeTempFileName(dir = buf, "exp", ext, 0, buf));
 							}
 							else {
@@ -2490,10 +2490,10 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 						PPGetPath(PPPATH_REPORTDATA, temp_buf);
 						if(data_name.NotEmpty())
 							temp_buf.SetLastSlash().Cat(data_name);
-						if(temp_buf.NotEmpty() && IsDirectory(temp_buf)) {
+						if(temp_buf.NotEmpty() && SFile::IsDir(temp_buf)) {
 							const uint16 cr_eng_ver = PEGetVersion(PE_GV_ENGINE);
 							if(HiByte(cr_eng_ver) >= 10)
-								RemoveDir(temp_buf);
+								SFile::RemoveDir(temp_buf);
 						}
 					}
 					ep.Flags &= ~DlRtm::ExportParam::fForceDDF;

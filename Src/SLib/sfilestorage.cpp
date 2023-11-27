@@ -28,7 +28,7 @@ bool SFileStorage::Init(const char * pBasePath)
 {
 	State = 0;
 	bool    ok = true;
-	THROW(!isempty(pBasePath));
+	THROW_S_S(!isempty(pBasePath), SLERR_INVPARAM, __FUNCTION__"/pBasePath");
 	THROW(SFile::CreateDir(pBasePath));
 	BasePath = pBasePath;
 	State |= stInited;

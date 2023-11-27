@@ -7488,7 +7488,7 @@ int WriteBill_NalogRu2_Invoice2(const PPBillImpExpParam & rParam, const PPBillPa
 	rResultFileName.Z(); // @v10.9.8
 	assert(!isempty(pHeaderSymb)); // @v11.2.1
 	//DocNalogRu_Generator g;
-	THROW(!isempty(pHeaderSymb)); // @v11.2.1
+	THROW_PP_S(!isempty(pHeaderSymb), PPERR_INVPARAM_EXT, __FUNCTION__"/pHeaderSymb"); // @v11.2.1
 	{
 		SString temp_buf;
 		WriteBill_NalogRu_Block _blk(rParam, rBp, pHeaderSymb/*"ON_NSCHFDOPPRMARK"*/, rFileName);

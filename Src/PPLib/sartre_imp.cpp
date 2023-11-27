@@ -4520,7 +4520,7 @@ int SrSyntaxRuleSet::RuleToStr(const Rule * pR, SString & rBuf) const
 	if(pR) {
 		SString temp_buf;
 		GetS(pR->NameP, temp_buf);
-		rBuf.Cat(temp_buf).CatChar('=');
+		rBuf.Cat(temp_buf).Eq();
 		{
 			ExprStack temp_es = pR->ES;
 			ExprStackToStr(temp_es, rBuf);

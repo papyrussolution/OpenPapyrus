@@ -1787,7 +1787,7 @@ int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFile
 		for(i = 0; i < SIZEOFARRAY(StrGroupList); i++) {
 			const SIntToSymbTabEntry & r_item = StrGroupList[i];
 			temp_buf.Z().Cat("public").Space().Cat("static").Space().Cat("final").Space().Cat("int").Space();
-			temp_buf.Cat(r_item.P_Symb).Space().CatChar('=').Space().Cat(r_item.Id).Semicol();
+			temp_buf.Cat(r_item.P_Symb).Space().Eq().Space().Cat(r_item.Id).Semicol();
 			gen.Wr_Indent();
 			gen.WriteLine(temp_buf.CR());
 		}
@@ -1799,7 +1799,7 @@ int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFile
 			//gen.Wr_Define(item.Txt, temp_buf.Z().Cat(item.Id));
 			// public static final int DDD = val;
 			temp_buf.Z().Cat("public").Space().Cat("static").Space().Cat("final").Space().Cat("int").Space();
-			temp_buf.Cat(item.Txt).Space().CatChar('=').Space().Cat(item.Id).Semicol();
+			temp_buf.Cat(item.Txt).Space().Eq().Space().Cat(item.Id).Semicol();
 			gen.Wr_Indent();
 			gen.WriteLine(temp_buf.CR());
 		}
@@ -1818,7 +1818,7 @@ int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFile
 				gen.Wr_Comment(0);
 			}
 			temp_buf.Z().Cat("public").Space().Cat("static").Space().Cat("final").Space().Cat("int").Space();
-			temp_buf.Cat(item.Txt).Space().CatChar('=').Space();
+			temp_buf.Cat(item.Txt).Space().Eq().Space();
 			if(item.Id & 0x80000000)
 				temp_buf.CatChar('0').CatChar('x').CatHex(item.Id);
 			else

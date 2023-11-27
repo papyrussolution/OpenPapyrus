@@ -81,7 +81,7 @@ SLTEST_R(SArchive)
 						(temp_buf = out_path).Cat("sarc-test-out");
 						if(_cntr++)
 							temp_buf.CatChar('-').CatLongZ(_cntr, 3);
-					} while(IsDirectory(temp_buf));
+					} while(SFile::IsDir(temp_buf));
 					SFile::CreateDir(temp_buf);
 					SArchive::InflateAll(SArchive::providerLA, arc_name, 0, temp_buf);
 				}
@@ -93,7 +93,7 @@ SLTEST_R(SArchive)
 						(temp_buf = out_path).Cat("sarc-test-out");
 						if(_cntr++)
 							temp_buf.CatChar('-').CatLongZ(_cntr, 3);
-					} while(IsDirectory(temp_buf));
+					} while(SFile::IsDir(temp_buf));
 					SFile::CreateDir(temp_buf);
 					SArchive::Inflate(SArchive::providerLA, arc_name, 0, "*.jpg", temp_buf);
 				}
@@ -108,7 +108,7 @@ SLTEST_R(SArchive)
 						(temp_buf = out_path).Cat("sarc-test-out");
 						if(_cntr++)
 							temp_buf.CatChar('-').CatLongZ(_cntr, 3);
-					} while(IsDirectory(temp_buf));
+					} while(SFile::IsDir(temp_buf));
 					SFile::CreateDir(temp_buf);
 					for(uint i = 0; i < arc.GetEntriesCount(); i++) {
 						arc.ExtractEntry(i, temp_buf);

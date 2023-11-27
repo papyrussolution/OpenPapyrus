@@ -444,7 +444,7 @@ int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int r
 				else
 					temp_buf = base_msg_buf;
 			}
-			else if(SLibError == SLERR_NOFOUND && addcode) {
+			else if(SLibError == SLERR_NOTFOUND && addcode) {
 				if(addcode == PPERR_DBENGINE) {
 					group   = PPMSG_ERROR;
 					msgcode = PPERR_DBENGINE;

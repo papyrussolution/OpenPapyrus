@@ -371,8 +371,8 @@ instId: d1c0a2bd instTime: 2020-05-10T12:26:05 dispName: Visual Studio Build Too
 			long msvs_ver = p_entry ? ParseVisualStudioVersion(p_entry->Version) : 0;
 			if(msvs_ver && !p_entry->DisplayName.Search("Build Tools", 0, 1, 0)) {
 				temp_buf = p_entry->Path;
-				if(IsDirectory(temp_buf) && IsDirectory(temp_buf.SetLastSlash().Cat("Common7")) &&
-					IsDirectory(temp_buf.SetLastSlash().Cat("IDE"))) {
+				if(SFile::IsDir(temp_buf) && SFile::IsDir(temp_buf.SetLastSlash().Cat("Common7")) &&
+					SFile::IsDir(temp_buf.SetLastSlash().Cat("IDE"))) {
 					rList.Add(msvs_ver, temp_buf);
 					ok = 1;
 				}

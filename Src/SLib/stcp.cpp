@@ -2430,7 +2430,7 @@ int ScURL::Execute()
 					rBuf.CatChar('&');
                 rBuf.Cat((temp_buf = item.Key).Strip().ToUrl());
                 if(!isempty(item.Val))
-					rBuf.CatChar('=').Cat((temp_buf = item.Val).Strip().ToUrl());
+					rBuf.Eq().Cat((temp_buf = item.Val).Strip().ToUrl());
                 flds_count++;
             }
 		}

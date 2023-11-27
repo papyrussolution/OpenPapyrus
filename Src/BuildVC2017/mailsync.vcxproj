@@ -315,7 +315,7 @@
       <Project>{fb27fbdb-e6c0-4d00-a7f8-1eeef1b48abc}</Project>
     </ProjectReference>
     <ProjectReference Include="libcurl-8300.vcxproj">
-      <Project>{fd47df9e-fd33-443d-9048-d802d3364469}</Project>
+      <Project>{76b7da95-5556-4f51-8c77-b1d882a7de84}</Project>
     </ProjectReference>
     <ProjectReference Include="libetpan.vcxproj">
       <Project>{ba4ded3c-e56f-4484-bfc3-9c13e461a1be}</Project>

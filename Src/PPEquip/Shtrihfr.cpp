@@ -1164,8 +1164,8 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			}
 			// } @v10.6.2 
 			{
-				msg_buf.Z().Cat("Payment").CatDiv(':', 2).Cat("PayTypeRegFlags-hex").CatChar('=').CatHex(static_cast<ulong>(PayTypeRegFlags));
-				msg_buf.Space().Cat("PayTypeRegFlags-dec").CatChar('=').Cat(PayTypeRegFlags);
+				msg_buf.Z().Cat("Payment").CatDiv(':', 2).Cat("PayTypeRegFlags-hex").Eq().CatHex(static_cast<ulong>(PayTypeRegFlags));
+				msg_buf.Space().Cat("PayTypeRegFlags-dec").Eq().Cat(PayTypeRegFlags);
 				msg_buf.Space().CatEq("sum", sum, MKSFMTD(0, 6, 0)).Space().CatEq("amt_cash", __amt_cash, MKSFMTD(0, 6, 0)).Space().
 					CatEq("amt_bnk", __amt_bnk, MKSFMTD(0, 6, 0)).Space().CatEq("amt_ccrd", __amt_ccrd, MKSFMTD(0, 6, 0));
 				PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);

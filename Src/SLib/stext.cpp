@@ -2160,6 +2160,33 @@ bool STDCALL sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen)
 	return true;
 }
 
+int FASTCALL sstrcmpi_ascii(const char * pS1, const char * pS2)
+{
+	if(pS1 && pS2) {
+		int c1;
+		int c2;
+		do {
+			c1 = *pS1++;
+			c2 = *pS2++;
+			if(c1 != c2) {
+				if(c1 >= 'A' && c1 <= 'Z')
+					c1 += ('a' - 'A');
+				if(c2 >= 'A' && c2 <= 'Z')
+					c2 += ('a' - 'A');				
+				if(c1 != c2)
+					return (c1 - c2);
+			}
+			else if(c1 == 0)
+				return 0;
+		} while(true);
+	}
+	else if(pS1 && !pS2)
+		return -1;
+	else if(!pS1 && pS2)
+		return +1;
+	return 0;
+}
+
 bool FASTCALL sisascii(const char * pS, size_t len)
 {
 	bool   yes = true;

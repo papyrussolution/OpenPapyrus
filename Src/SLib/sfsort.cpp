@@ -1,5 +1,5 @@
 // SFSORT.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2023
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -445,7 +445,8 @@ SFile::SortParam::SortParam() : MaxChunkSize(8*1024*1024), MaxChunkCount(8), Max
 	SFSortChunkInfoList * p_header_list = new SFSortChunkInfoList(src_file_name, max_chunk_count, fcmp, pExtraParam);
 	SFSortChunkInfoList * p_current_list = 0;
 	THROW(p_header_list);
-	THROW(!isempty(src_file_name) && !isempty(pOutFileName));
+	THROW_S_S(!isempty(src_file_name), SLERR_INVPARAM, __FUNCTION__"/pSrcFileName_");
+	THROW_S_S(!isempty(pOutFileName), SLERR_INVPARAM, __FUNCTION__"/pOutFileName");
 	THROW(fileExists(src_file_name));
 	{
 		SFileSortProgressData cb_info; // Данные возвращаемые callback-процедуре (если такая задана)

@@ -520,9 +520,7 @@ static int ecx_gen_set_params(void * genctx, const OSSL_PARAM params[])
 			    /* We only support this for key exchange at the moment */
 			    break;
 		}
-		if(p->data_type != OSSL_PARAM_UTF8_STRING
-		    || groupname == NULL
-		    || strcasecmp((const char *)p->data, groupname) != 0) {
+		if(p->data_type != OSSL_PARAM_UTF8_STRING || groupname == NULL || strcasecmp((const char *)p->data, groupname) != 0) {
 			ERR_raise(ERR_LIB_PROV, ERR_R_PASSED_INVALID_ARGUMENT);
 			return 0;
 		}
@@ -536,12 +534,10 @@ static int ecx_gen_set_params(void * genctx, const OSSL_PARAM params[])
 		if(gctx->propq == NULL)
 			return 0;
 	}
-
 	return 1;
 }
 
-static const OSSL_PARAM * ecx_gen_settable_params(ossl_unused void * genctx,
-    ossl_unused void * provctx)
+static const OSSL_PARAM * ecx_gen_settable_params(ossl_unused void * genctx, ossl_unused void * provctx)
 {
 	static OSSL_PARAM settable[] = {
 		OSSL_PARAM_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME, NULL, 0),
@@ -555,7 +551,6 @@ static void * ecx_gen(struct ecx_gen_ctx * gctx)
 {
 	ECX_KEY * key;
 	unsigned char * privkey;
-
 	if(gctx == NULL)
 		return NULL;
 	if((key = ossl_ecx_key_new(gctx->libctx, gctx->type, 0,

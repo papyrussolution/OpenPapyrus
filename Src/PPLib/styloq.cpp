@@ -1009,7 +1009,7 @@ int StyloQFace::GetRepresentation(int lang, SString & rBuf) const
 	rFileName.Z();
 	int    ok = 1;
 	PPGetFilePath(PPPATH_WORKSPACE, "styloqcommands", rFileName);
-	if(::IsDirectory(rFileName) || SFile::CreateDir(rFileName)) {
+	if(::SFile::IsDir(rFileName) || SFile::CreateDir(rFileName)) {
 		rFileName.SetLastSlash().Cat("stqc").DotCat("xml");
 	}
 	else
@@ -5439,7 +5439,7 @@ int PPStyloQInterchange::Dump()
 			out_buf.Z();
 			for(size_t pp = 0; spack.Pool.Enum(&pp, &cid, &chunk) > 0;) {
 				chunk.Mime64(temp_buf);
-				out_buf.Tab().Cat(cid).CatChar('=').Cat(temp_buf).CR();
+				out_buf.Tab().Cat(cid).Eq().Cat(temp_buf).CR();
 			}
 			f_out.WriteLine(out_buf.CR());
 		}
@@ -9642,7 +9642,7 @@ int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePac
 	rBuf.Z();
 	int    ok = 0;
 	PPGetPath(PPPATH_WORKSPACE, rBuf);
-	if(rBuf.NotEmpty() && IsDirectory(rBuf)) {
+	if(rBuf.NotEmpty() && SFile::IsDir(rBuf)) {
 		rBuf.SetLastSlash().Cat("blob");
 		ok = 1;
 	}

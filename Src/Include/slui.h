@@ -844,13 +844,14 @@ public:
 			fPaginate        = 0x0001, // Рассчитывать раскладку по страницам.
 			fStopOnFirstUnfittedItem = 0x0002  // Остановить расчет на первом невместившемся элементе
 		};
-		Param() : Flags(0), FirstItemIndex(0), ForceWidth(0.0f), ForceHeight(0.0f)
+		Param() : Flags(0), FirstItemIndex(0)/*, ForceWidth(0.0f), ForceHeight(0.0f)*/
 		{
 		}
 		uint   Flags;
 		uint   FirstItemIndex; // Индекс элемента [0..], с которого начинать расчет
-		float  ForceWidth;
-		float  ForceHeight;
+		SPoint2F ForceSize;
+		//float  ForceWidth;
+		//float  ForceHeight;
 	};
 	int    Evaluate(const Param * pP);
 	SUiLayout * InsertItem();

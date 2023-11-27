@@ -5213,6 +5213,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 65  "Ошибка при создании TCP-соединения"
 66  "Ошибка WinSock: %s"
 75  "Ошибка обращения матрицы"
+94  "Ошибка создания каталога по образцу (%s)" // @v11.8.12 SLERR_MKDIRBYTEMPLATEFAULT
 95  "Файл '%s' слишком большой"
 96  "Недопустимый параметр функции (%s)"
 97  "Ошибка совместного доступа к файлу '%s'"
@@ -5411,6 +5412,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 619  "Resource still in use"
 620  "Tell error"
 623  "Ошибка ZLIB: сбой при распаковке буфера данных '%s'"
+624  "Ошибка чтения файла информации о резервной копии SSystemBackup (%s)" // @v11.8.12
 651  "Ошибка SLCRYPTO: недопустимый параметр функции"
 652  "Ошибка SLCRYPTO: переполнение внутреннего буфера ключа"
 653  "Ошибка SLCRYPTO: недопустимая длина ключа шифрования"

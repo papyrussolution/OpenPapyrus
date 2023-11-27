@@ -209,7 +209,7 @@
 				for(uint i = 0; i < SIZEOFARRAY(test_true_list); i++) {
 					const TextToUedAssoc & r_item = test_true_list[i];
 					scan.Set(r_item.P_Text, 0);
-					uint64 ued = p_uedc->Recognize(scan, r_item.ImplicitMeta, 0);
+					uint64 ued = p_uedc->Recognize(scan, r_item.ImplicitMeta, SrUedContainer_Base::rfPrefixSharp);
 					SLCHECK_EQ(ued, r_item.UED);
 				}
 			}

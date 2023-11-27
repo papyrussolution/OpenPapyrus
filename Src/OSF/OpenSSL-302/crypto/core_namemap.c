@@ -39,21 +39,15 @@ struct ossl_namemap_st {
 
 /* LHASH callbacks */
 
-static unsigned long namenum_hash(const NAMENUM_ENTRY * n)
-{
-	return ossl_lh_strcasehash(n->name);
-}
-
-static int namenum_cmp(const NAMENUM_ENTRY * a, const NAMENUM_ENTRY * b)
-{
-	return strcasecmp(a->name, b->name);
-}
+static unsigned long namenum_hash(const NAMENUM_ENTRY * n) { return ossl_lh_strcasehash(n->name); }
+static int namenum_cmp(const NAMENUM_ENTRY * a, const NAMENUM_ENTRY * b) { return strcasecmp(a->name, b->name); }
 
 static void namenum_free(NAMENUM_ENTRY * n)
 {
-	if(n)
+	if(n) {
 		OPENSSL_free(n->name);
-	OPENSSL_free(n);
+		OPENSSL_free(n);
+	}
 }
 
 /* OSSL_LIB_CTX_METHOD functions for a namemap stored in a library context */

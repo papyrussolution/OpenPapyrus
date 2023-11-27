@@ -1260,131 +1260,190 @@ void TestSArchive()
 //
 //
 //
-class SSystemBackup {
-public:
-	//
-	// Descr: Флаги функции восстановления (SSystemBackup::Restore)
-	//
-	enum {
-		rfRemoveNewDirs = 0x0001
-	};
-	struct Param { // @persistent
-		Param();
-		Param(const Param & rS);
-		~Param();
-		Param & FASTCALL operator = (const Param & rS);
-		int    Copy(const Param & rS);
-		int    AddPathEntry(const SString & rValue);
-		int    AddRegEntry(const SString & rValue);
-		int    AddProfileEntry(const SString & rUser, const SString & rPassword);
-		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-		{
-			int    ok = 1;
-			THROW(pSCtx->Serialize(dir, Ver, rBuf));
-			THROW(pSCtx->Serialize(dir, UedDataFormat, rBuf));
-			THROW(pSCtx->Serialize(dir, RestoreFlags, rBuf));
-			THROW(pSCtx->Serialize(dir, BackupPath, rBuf));
-			THROW(TSCollection_Serialize(L, dir, rBuf, pSCtx));
-			CATCHZOK
-			return ok;
-		}
-
-		enum {
-			etUndef   = 0,
-			etPath    = 1,
-			etProfile = 2,
-			etReg     = 3
-		};
-		struct Entry {
-			Entry() : Type(etUndef)
-			{
-			}
-			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-			{
-				int    ok = 1;
-				THROW(pSCtx->Serialize(dir, Type, rBuf));
-				THROW(pSCtx->Serialize(dir, Uuid, rBuf));
-				THROW(pSCtx->Serialize(dir, Value, rBuf));
-				THROW(pSCtx->Serialize(dir, Password, rBuf));
-				CATCHZOK
-				return ok;
-			}
-			int32  Type; // etXXX
-			S_GUID Uuid; // Идентификатор элемента. Используется для формирования наименований подкаталогов
-			SString Value;    // Если Type == etProfile, то - системное имя пользователя //
-				// Если Type == etPath, то путь к каталогу, который нужно архивировать //
-				// Если Type == etReg, то ветка реестра.
-			SString Password; // Системный пароль пользователя для архивации профиля //
-		};
-		uint32 Ver;
-		uint64 UedDataFormat;
-		uint32 RestoreFlags;
-		SString BackupPath;
-		TSCollection <Entry> L;
-	};
-	SSystemBackup();
-	SSystemBackup(const Param & rP);
-	~SSystemBackup();
-	int    Backup();
-	int    Restore(const char * pBackupPath, uint32 buId, uint flags);
-private:
-	struct BackupInfoHeader {
-		BackupInfoHeader();
-		uint32   Signature;
-		uint32   Ver;
-		uint32   BuId; // Serial number of the backup in one parent backup directory
-		LDATETIME Dtm;
-	};
-	int    Helper_BackupPath(const SString & rDestinationPath, const SString & rPathToBackupBase, const SString & rPathToBackup, 
-		StringSet & rRecurList, void * extraPtr);
-	int    BackupProfile(uint32 buId, const SString & rProfileName, const SString & rPw);
-	//
-	// ARG(rUuid IN): UUID элемента копирования (SSystemBackup::Entry::Uuid). Нужен для формирования подкаталога.
-	//
-	int    BackupReg(uint32 buId, const S_GUID & rUuid, const SString & rReg);
-	int    BackupReg(uint32 buId, HKEY regKey);
-	int    WriteBackupInfo(const char * pPath, uint32 buId);
-	int    ReadBackupInfo(const char * pPath);
-	uint32 GetLastBackupId(const char * pPath) const;
-	uint32 MakeBackupId() const;
-	SString & MakeTerminalBackupPath(const SString & rBasePath, uint32 buId, SString & rBuf) const;
-
-	int    Helper_RestorePath();
-	int    RestorePath(const SString & rTerminalBackupPath, const Param::Entry * pEntry);
-	int    RestoreProfile(const SString & rTerminalBackupPath, const Param::Entry * pEntry);
-	int    RestoreReg(const SString & rTerminalBackupPath, const Param::Entry * pEntry);
-
-	Param P;
-};
-//
-//
-//
 const uint32 SSystemBackup_StorageVer = 0;
 const uint32 Signature_SSystemBackup = 0x590D2EE8U;
 const char * SSystemBackup_InfoFileName = "ssbuinfo";
 
-int SSystemBackup::WriteBackupInfo(const char * pPath, uint32 buId)
+SSystemBackup::Param::Entry::Entry() : Type(etUndef)
+{
+}
+			
+int SSystemBackup::Param::Entry::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW(pSCtx->Serialize(dir, Type, rBuf));
+	THROW(pSCtx->Serialize(dir, Uuid, rBuf));
+	THROW(pSCtx->Serialize(dir, Value, rBuf));
+	THROW(pSCtx->Serialize(dir, Password, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+SSystemBackup::StateBlock::StateBlock()
+{
+}
+		
+SSystemBackup::StateBlock::StateBlock(const Param & rP) : P(rP)
+{
+}
+		
+SSystemBackup::StateBlock::~StateBlock()
+{
+}
+
+SSystemBackup::CopyFaultEntry::CopyFaultEntry() : SFile::Stat()
+{
+}
+		
+int SSystemBackup::CopyFaultEntry::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW(SFile::Stat::Serialize(dir, rBuf, pSCtx));
+	THROW(pSCtx->Serialize(dir, Path, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+int SSystemBackup::StateBlock::SearchCopyFaultEntry(const char * pPath, uint * pIdx) const
+{
+	int    ok = 0;
+	for(uint i = 0; !ok && i < CopyFaultList.getCount(); i++) {
+		const CopyFaultEntry * p_entry = CopyFaultList.at(i);
+		if(p_entry) {
+			if(p_entry->Path.IsEqiUtf8(pPath)) {
+				ASSIGN_PTR(pIdx, i);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int SSystemBackup::StateBlock::Write(const char * pFileName, uint32 buId)
 {
 	int    ok = 1;
 	SString temp_buf;
-	BackupInfoHeader hdr;
 	SBuffer sbuf;
 	SSerializeContext sctx;
 	SBinaryChunk bc;
-	THROW(!isempty(pPath)); // @todo @err
-	hdr.BuId = buId;
+	THROW_S_S(!isempty(pFileName), SLERR_INVPARAM, __FUNCTION__"/pFileName");
+	H.Init(buId);
 	{
-		(temp_buf = pPath).SetLastSlash().Cat(SSystemBackup_InfoFileName);
+		(temp_buf = pFileName).SetLastSlash().Cat(SSystemBackup_InfoFileName);
 		SFile f_out(temp_buf, SFile::mWrite|SFile::mBinary);
 		THROW(f_out.IsValid());
 		THROW(P.Serialize(+1, sbuf, &sctx));
-		THROW(bc.Cat(&hdr, sizeof(hdr)));
+		THROW(TSCollection_Serialize(CopyFaultList, +1, sbuf, &sctx));
+		THROW(bc.Cat(&H, sizeof(H)));
 		THROW(bc.Cat(sbuf.constptr(), sbuf.GetAvailableSize()));
 		THROW(f_out.Write(bc.PtrC(), bc.Len()));
 	}
 	CATCHZOK
 	return ok;
 }
+
+int SSystemBackup::StateBlock::Read(const char * pFileName)
+{
+	int    ok = 1;
+	SString temp_buf;
+	BackupInfoHeader hdr;
+	THROW_S_S(!isempty(pFileName), SLERR_INVPARAM, __FUNCTION__"/pFileName");
+	{
+		size_t in_file_actual_size = 0;
+		STempBuffer in_buf(SKILOBYTE(4));
+		(temp_buf = pFileName).SetLastSlash().Cat(SSystemBackup_InfoFileName);
+		SFile f_in(temp_buf, SFile::mRead|SFile::mBinary);
+		THROW(f_in.IsValid());
+		THROW_S_S(f_in.ReadAll(in_buf, 0, &in_file_actual_size), SLERR_SSYSBU_INFORDFAULT, "io");
+		THROW_S_S(in_file_actual_size > sizeof(BackupInfoHeader), SLERR_SSYSBU_INFORDFAULT, "file-size");
+		assert(in_buf.GetSize() >= in_file_actual_size); // @paranoic
+		{
+			const BackupInfoHeader * p_hdr = static_cast<const BackupInfoHeader *>(in_buf.vcptr());
+			THROW_S_S(p_hdr->Signature == Signature_SSystemBackup, SLERR_SSYSBU_INFORDFAULT, "signature");
+			THROW_S_S(p_hdr->Ver == SSystemBackup_StorageVer, SLERR_SSYSBU_INFORDFAULT, "version");
+			THROW_S_S(checkdate(p_hdr->Dtm.d), SLERR_SSYSBU_INFORDFAULT, "time");
+			H = *p_hdr;
+			{
+				SBuffer sbuf;
+				SSerializeContext sctx;
+				THROW(sbuf.Write(PTR8C(in_buf.vcptr()) + sizeof(BackupInfoHeader), in_file_actual_size-sizeof(BackupInfoHeader)));
+				THROW_S_S(P.Serialize(-1, sbuf, &sctx), SLERR_SSYSBU_INFORDFAULT, "serialize");
+				THROW_S_S(TSCollection_Serialize(CopyFaultList, -1, sbuf, &sctx), SLERR_SSYSBU_INFORDFAULT, "serialize");
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SSystemBackup::StateBlock::Dump(const char * pFileName)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString out_buf;
+	SFile f_out(pFileName, SFile::mWrite);
+	THROW(f_out.IsValid());
+	{
+		// header
+		out_buf.Z();
+		out_buf.CatEq("Signature", H.Signature).CR();
+		out_buf.CatEq("HdrVer", H.Ver).CR();
+		out_buf.CatEq("BuId", H.BuId).CR();
+		out_buf.CatEq("Time", H.Dtm, DATF_ISO8601CENT, 0).CR();
+	}
+	{
+		// param
+		out_buf.CatEq("ParamVer", P.Ver).CR();
+		out_buf.CatEq("UedDataFormat", P.UedDataFormat).CR();
+		out_buf.CatEq("RestoreFlags", P.RestoreFlags).CR();
+		out_buf.CatEq("BackupPath", P.BackupPath).CR();
+		out_buf.Cat("Entries").Colon().CR();
+		if(P.L.getCount()) {
+			for(uint i = 0; i < P.L.getCount(); i++) {
+				const Param::Entry * p_entry = P.L.at(i);
+				if(p_entry) {
+					const char * p_type_text = 0;
+					switch(p_entry->Type) {
+						case Param::etPath: p_type_text = "path"; break;
+						case Param::etProfile: p_type_text = "profile"; break;
+						case Param::etReg: p_type_text = "reg"; break;
+						default: p_type_text = "undefined"; break;
+					}
+					out_buf.Tab().CatEq("type", p_type_text).CR();
+					out_buf.Tab().CatEq("uuid", p_entry->Uuid, S_GUID::fmtIDL).CR();
+					out_buf.Tab().CatEq("value", p_entry->Value).CR();
+					out_buf.Tab().CatEq("password", p_entry->Password.NotEmpty() ? "+" : "-").CR();
+				}
+				else
+					out_buf.Tab().Cat("null").CR();
+			}
+		}
+		else
+			out_buf.Tab().Cat("none").CR();
+	}
+	{
+		// copy-fault-list
+		out_buf.Cat("copy-fault-list").CR();
+		if(CopyFaultList.getCount()) {
+			for(uint i = 0; i < CopyFaultList.getCount(); i++) {
+				const CopyFaultEntry * p_entry = CopyFaultList.at(i);
+				if(p_entry) {
+					out_buf.Tab().Cat(p_entry->Path).CR();
+				}
+				else
+					out_buf.Tab().Cat("null").CR();
+			}
+		}
+		else
+			out_buf.Tab().Cat("none").CR();
+	}
+	f_out.WriteLine(out_buf);
+	CATCHZOK
+	return ok;
+}
+
+int SSystemBackup::WriteBackupInfo(const char * pPath, uint32 buId) { return St.Write(pPath, buId); }
+int SSystemBackup::ReadBackupInfo(const char * pPath) { return St.Read(pPath); }
 
 uint32 SSystemBackup::GetLastBackupId(const char * pPath) const
 {
@@ -1412,7 +1471,7 @@ uint32 SSystemBackup::GetLastBackupId(const char * pPath) const
 	
 uint32 SSystemBackup::MakeBackupId() const
 {
-	uint32 result = GetLastBackupId(P.BackupPath);
+	uint32 result = GetLastBackupId(St.P.BackupPath);
 	return (result >= 0) ? (result+1) : 0;
 }
 
@@ -1425,43 +1484,21 @@ SString & SSystemBackup::MakeTerminalBackupPath(const SString & rBasePath, uint3
 	return rBuf;
 }
 
-int SSystemBackup::ReadBackupInfo(const char * pPath)
+SSystemBackup::BackupInfoHeader::BackupInfoHeader()
 {
-	int    ok = 1;
-	SString temp_buf;
-	BackupInfoHeader hdr;
-	THROW(!isempty(pPath)); // @todo @err
-	{
-		size_t in_file_actual_size = 0;
-		STempBuffer in_buf(SKILOBYTE(4));
-		(temp_buf = pPath).SetLastSlash().Cat(SSystemBackup_InfoFileName);
-		SFile f_in(temp_buf, SFile::mRead|SFile::mBinary);
-		THROW(f_in.IsValid());
-		THROW(f_in.ReadAll(in_buf, 0, &in_file_actual_size));
-		THROW(in_file_actual_size > sizeof(BackupInfoHeader)); // @todo @err
-		assert(in_buf.GetSize() >= in_file_actual_size); // @paranoic
-		{
-			const BackupInfoHeader * p_hdr = static_cast<const BackupInfoHeader *>(in_buf.vcptr());
-			THROW(p_hdr->Signature == Signature_SSystemBackup); // @todo @err
-			THROW(p_hdr->Ver == SSystemBackup_StorageVer); // @todo @err
-			THROW(checkdate(p_hdr->Dtm.d)); // @todo @err
-			{
-				SBuffer sbuf;
-				SSerializeContext sctx;
-				THROW(sbuf.Write(PTR8C(in_buf.vcptr()) + sizeof(BackupInfoHeader), in_file_actual_size-sizeof(BackupInfoHeader)));
-				THROW(P.Serialize(-1, sbuf, &sctx));
-			}
-		}
-	}
-	CATCHZOK
-	return ok;
+	Init(0);
 }
 
-SSystemBackup::BackupInfoHeader::BackupInfoHeader() : Signature(Signature_SSystemBackup), Ver(SSystemBackup_StorageVer), BuId(0), Dtm(getcurdatetime_())
+SSystemBackup::BackupInfoHeader & SSystemBackup::BackupInfoHeader::Init(uint32 buId)
 {
+	Signature = Signature_SSystemBackup;
+	Ver = SSystemBackup_StorageVer;
+	BuId = buId;
+	Dtm = getcurdatetime_();
+	return *this;
 }
 
-SSystemBackup::Param::Param() : Ver(SSystemBackup_StorageVer), UedDataFormat(UED_DATAFORMAT_SEVENZ), RestoreFlags(0)
+SSystemBackup::Param::Param() : Ver(SSystemBackup_StorageVer), UedDataFormat(UED_DATAFORMAT_SEVENZ), Flags(0), RestoreFlags(0)
 {
 }
 		
@@ -1484,12 +1521,39 @@ int SSystemBackup::Param::Copy(const Param & rS)
 {
 	// Ver не копируем!
 	UedDataFormat = rS.UedDataFormat;
+	Flags = rS.Flags;
 	RestoreFlags = rS.RestoreFlags;
 	BackupPath = rS.BackupPath;
 	TSCollection_Copy(L, rS.L);
 	return 1;
 }
+
+int SSystemBackup::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW(pSCtx->Serialize(dir, Ver, rBuf));
+	THROW(pSCtx->Serialize(dir, UedDataFormat, rBuf));
+	THROW(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW(pSCtx->Serialize(dir, RestoreFlags, rBuf));
+	THROW(pSCtx->Serialize(dir, BackupPath, rBuf));
+	THROW(TSCollection_Serialize(L, dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+static IMPL_CMPFUNC(SSystemBackup_Param_Entry, p1, p2)
+{
+	const SSystemBackup::Param::Entry * p_entry1 = static_cast<const SSystemBackup::Param::Entry *>(p1);
+	const SSystemBackup::Param::Entry * p_entry2 = static_cast<const SSystemBackup::Param::Entry *>(p2);
+	int si = CMPSIGN(p_entry1->Type, p_entry2->Type);
+	return si ? si :  p_entry1->Value.CmpiUtf8(p_entry2->Value);
+}
 		
+void SSystemBackup::Param::SortEntries()
+{
+	L.sort(PTR_CMPFUNC(SSystemBackup_Param_Entry));
+}
+
 int SSystemBackup::Param::AddPathEntry(const SString & rValue)
 {
 	int    ok = 1;
@@ -1549,12 +1613,12 @@ SSystemBackup::SSystemBackup()
 {
 }
 
-SSystemBackup::SSystemBackup(const Param & rP) : P(rP)
+SSystemBackup::SSystemBackup(const Param & rP) : St(rP)
 {
-	if(P.BackupPath.NotEmptyS()) {
+	if(St.P.BackupPath.NotEmptyS()) {
 		SString temp_buf;
-		SFsPath::NormalizePath(P.BackupPath, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, temp_buf);
-		P.BackupPath = temp_buf;
+		SFsPath::NormalizePath(St.P.BackupPath, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, temp_buf);
+		St.P.BackupPath = temp_buf;
 	}
 
 }
@@ -1628,7 +1692,7 @@ int SSystemBackup::Helper_BackupPath(const SString & rDestinationPath, const SSt
 								dest_file_name.CopyToUnicode(r_temp_buf_u);
 								SIntHandle h_dest;
 								if(st.Attr & SFile::attrSubdir) {
-									if(CreateDirectoryW(r_temp_buf_u, 0)) {
+									if(::CreateDirectory(r_temp_buf_u, 0)) {
 										h_dest = SFile::ForceCreateFile(r_temp_buf_u, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, 0/*secur_attr*/, 
 											OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT, SFile::fileforcefEmptyRetry);
 									}
@@ -1640,6 +1704,14 @@ int SSystemBackup::Helper_BackupPath(const SString & rDestinationPath, const SSt
 								if(!!h_dest) {
 									if(SFile::SetReparsePoint(h_dest, reparse_buf)) {
 										copy_reparse_point_file_result = true;
+										{
+											FILE_BASIC_INFO dest_file_basic_info;
+											dest_file_basic_info.CreationTime.QuadPart = st.CrtTm_;
+											dest_file_basic_info.LastAccessTime.QuadPart = st.AccsTm_;
+											dest_file_basic_info.LastWriteTime.QuadPart = st.ModTm_;
+											dest_file_basic_info.FileAttributes = st.Attr;
+											SetFileInformationByHandle(h_dest, FileBasicInfo, &dest_file_basic_info, sizeof(dest_file_basic_info)); // @todo @checkerr
+										}
 									}
 									CloseHandle(h_dest);
 								}
@@ -1650,20 +1722,26 @@ int SSystemBackup::Helper_BackupPath(const SString & rDestinationPath, const SSt
 			}
 			else if(de.IsFolder()) {
 				if(!de.IsSelf() && !de.IsUpFolder()) {
+					de.GetNameUtf8(base_path, src_file_name);
 					src_dir_utf8.CopyUtf8FromUnicode(de.Name, sstrlen(de.Name), 1);
 					if(SFsPath::GetRelativePath(rPathToBackupBase, FILE_ATTRIBUTE_DIRECTORY, rPathToBackup, 0, temp_buf)) {
 						temp_buf.ShiftLeftChr('.').ShiftLeftChr('\\');
 						(dest_file_name = rDestinationPath).SetLastSlash().Cat(temp_buf);
 						de.GetNameUtf8(dest_file_name, temp_buf);
-						if(SFile::CreateDir(temp_buf)) {
+						if(SFile::CreateDirByTemplate(temp_buf, src_file_name)) {
 							;
 						}
 						else {
+							{
+								CopyFaultEntry * p_fault_entry = St.CopyFaultList.CreateNewItem();
+								THROW(p_fault_entry);
+								p_fault_entry->Path = src_file_name;
+								*static_cast<SFile::Stat *>(p_fault_entry) = de;
+							}
 							; // @todo @err
 						}
 					}
 					//
-					de.GetNameUtf8(base_path, src_file_name);
 					Helper_BackupPath(rDestinationPath, rPathToBackupBase, src_file_name, rRecurList, extraPtr); // @recursion
 				}
 			}
@@ -1684,6 +1762,12 @@ int SSystemBackup::Helper_BackupPath(const SString & rDestinationPath, const SSt
 					if(dest_path_created) {
 						const int cr = SCopyFile(src_file_name, dest_file_name, 0, FILE_SHARE_READ, 0);
 						if(!cr) {
+							{
+								CopyFaultEntry * p_fault_entry = St.CopyFaultList.CreateNewItem();
+								THROW(p_fault_entry);
+								p_fault_entry->Path = src_file_name;
+								*static_cast<SFile::Stat *>(p_fault_entry) = de;
+							}
 							debug_mark = true;
 							; // @todo @err
 						}
@@ -1692,6 +1776,7 @@ int SSystemBackup::Helper_BackupPath(const SString & rDestinationPath, const SSt
 			}
 		}
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -1702,7 +1787,7 @@ int SSystemBackup::BackupProfile(uint32 buId, const SString & rProfileName, cons
 	SString sub_path;
 	temp_buf = rProfileName;
 	THROW(temp_buf.NotEmptyS()); // @todo @err
-	MakeTerminalBackupPath(P.BackupPath, buId, sub_path).SetLastSlash().Cat("profile").SetLastSlash().Cat(temp_buf);
+	MakeTerminalBackupPath(St.P.BackupPath, buId, sub_path).SetLastSlash().Cat("profile").SetLastSlash().Cat(temp_buf);
 	THROW(SFile::CreateDir(sub_path));
 	{
 		SSystem::AccountInfo acc_info;
@@ -1712,7 +1797,7 @@ int SSystemBackup::BackupProfile(uint32 buId, const SString & rProfileName, cons
 			SSystem::UserProfileInfo profile_info;
 			SPtrHandle h_token = SSystem::Logon(0, rProfileName, rPw, SSystem::logontypeInteractive, &profile_info);
 			if(h_token) {
-				if(IsDirectory(acc_info.ProfilePath)) {
+				if(SFile::IsDir(acc_info.ProfilePath)) {
 					SString & r_profile_path = SLS.AcquireRvlStr();
 					r_profile_path.CopyUtf8FromUnicode(acc_info.ProfilePath, acc_info.ProfilePath.Len(), 1);
 					(temp_buf = sub_path).SetLastSlash().Cat("path");
@@ -1727,8 +1812,77 @@ int SSystemBackup::BackupProfile(uint32 buId, const SString & rProfileName, cons
 					THROW(key.Save(temp_buf));
 				}
 				//
-				::UnloadUserProfile(h_token, profile_info.ProfileRegKey);
+				// ::UnloadUserProfile(h_token, profile_info.ProfileRegKey);
 				::CloseHandle(h_token);
+			}
+			else {
+				CALLEXCEPT(); // @todo @err
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SSystemBackup::RestoreProfile(const SString & rTerminalBackupPath, const Param::Entry * pEntry)
+{
+	int    ok = -1;
+	SString temp_buf;
+	assert(pEntry && pEntry->Type == Param::etProfile);
+	{
+		const SString profile_name(pEntry->Value);
+		const SString pw(pEntry->Password);
+		SSystem::AccountInfo acc_info;
+		THROW(SSystem::GetAccountNameInfo(pEntry->Value, acc_info));
+		acc_info.Sid.ToStr(temp_buf);
+		{
+			SSystem::UserProfileInfo profile_info;
+			SPtrHandle h_token = SSystem::Logon(0, profile_name, pw, SSystem::logontypeInteractive, &profile_info);
+			if(h_token) {
+				SString bu_path;
+				if(SFile::IsDir(acc_info.ProfilePath)) {
+					/*
+					SString & r_profile_path = SLS.AcquireRvlStr();
+					r_profile_path.CopyUtf8FromUnicode(acc_info.ProfilePath, acc_info.ProfilePath.Len(), 1);
+					(temp_buf = sub_path).SetLastSlash().Cat("path");
+					StringSet recur_list;
+					THROW(Helper_BackupPath(temp_buf, r_profile_path, r_profile_path, recur_list, 0));
+					*/
+					SString org_path;
+					acc_info.ProfilePath.CopyToUtf8(org_path, 1);
+					(bu_path = rTerminalBackupPath).SetLastSlash().Cat("profile").SetLastSlash().Cat(profile_name).SetLastSlash().Cat("path");
+					SDirecDiffPool ddp;
+					const int rr = ddp.Run(bu_path, org_path);
+					if(ddp.L.getCount()) {
+						// @debug {
+						{
+							SLS.QueryPath("out", temp_buf);
+							temp_buf.SetLastSlash().Cat("SDirecDiffPool-on_restore-profile-debug-out.txt");
+							SFile f_out(temp_buf, SFile::mWrite);
+							StringSet ss_report;
+							ddp.MakeReport(ss_report);
+							for(uint ssp = 0; ss_report.get(&ssp, temp_buf);) {
+								f_out.WriteLine(temp_buf.CR());
+							}
+							f_out.WriteBlancLine();
+						}
+						// } @debug 
+						Helper_RestorePath(bu_path, org_path, &ddp.L);
+					}
+				}
+				if(profile_info.ProfileRegKey) {
+					SString fn;
+					WinRegKey key(reinterpret_cast<HKEY>(static_cast<void *>(profile_info.ProfileRegKey)));
+					THROW(key.IsValid());
+					(bu_path = rTerminalBackupPath).SetLastSlash().Cat("profile").SetLastSlash().Cat(profile_name).SetLastSlash().Cat("reg");
+					THROW(key.Restore(bu_path));
+				}
+				//
+				// (по-моему, это - лишнее: убивает каталог профиля - ну и зачем восстанавливали?) ::UnloadUserProfile(h_token, profile_info.ProfileRegKey);
+				::CloseHandle(h_token);
+			}
+			else {
+				CALLEXCEPT(); // @todo @err
 			}
 		}
 	}
@@ -1741,7 +1895,7 @@ int SSystemBackup::BackupReg(uint32 buId, const S_GUID & rUuid, const SString & 
 	int    ok = 1;
 	SString sub_path;
 	assert(rUuid);
-	MakeTerminalBackupPath(P.BackupPath, buId, sub_path).SetLastSlash().Cat("reg");
+	MakeTerminalBackupPath(St.P.BackupPath, buId, sub_path).SetLastSlash().Cat("reg");
 	THROW(SFile::CreateDir(sub_path));
 	//
 	{
@@ -1755,6 +1909,29 @@ int SSystemBackup::BackupReg(uint32 buId, const S_GUID & rUuid, const SString & 
 	return ok;
 }
 
+int SSystemBackup::RestoreReg(const SString & rTerminalBackupPath, const Param::Entry * pEntry)
+{
+	int    ok = 1;
+	SString sub_path;
+	assert(pEntry && pEntry->Type == Param::etReg);
+	THROW(pEntry && pEntry->Type == Param::etReg); 
+	(sub_path = rTerminalBackupPath).SetLastSlash().Cat("reg");
+	THROW(SFile::IsDir(sub_path)); // @todo @err
+	{
+		sub_path.SetLastSlash().Cat(pEntry->Uuid, S_GUID::fmtPlain);
+		WinRegKey key(pEntry->Value, 1);
+		THROW(key.IsValid());
+		THROW(key.Restore(sub_path));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SSystemBackup::Dump(const char * pFileName)
+{
+	return St.Dump(pFileName);
+}
+
 int SSystemBackup::Backup()
 {
 	int    ok = 1;
@@ -1762,16 +1939,17 @@ int SSystemBackup::Backup()
 	SString temp_buf;
 	SString sub_path;
 	SString terminal_backup_path;
-	if(P.L.getCount()) {
-		THROW(P.BackupPath.NotEmpty());
+	if(St.P.L.getCount()) {
+		THROW(St.P.BackupPath.NotEmpty());
 		bu_id = MakeBackupId();
 		THROW(bu_id);
-		temp_buf = P.BackupPath;
-		SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, P.BackupPath);
-		THROW(MakeTerminalBackupPath(P.BackupPath, bu_id, terminal_backup_path).NotEmptyS());
+		temp_buf = St.P.BackupPath;
+		SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, St.P.BackupPath);
+		THROW(MakeTerminalBackupPath(St.P.BackupPath, bu_id, terminal_backup_path).NotEmptyS());
 		THROW(SFile::CreateDir(terminal_backup_path));
-		for(uint i = 0; i < P.L.getCount(); i++) {
-			const Param::Entry * p_entry = P.L.at(i);
+		St.P.SortEntries();
+		for(uint i = 0; i < St.P.L.getCount(); i++) {
+			const Param::Entry * p_entry = St.P.L.at(i);
 			if(p_entry) {
 				if(p_entry->Value.NotEmpty()) {
 					switch(p_entry->Type) {
@@ -1794,6 +1972,9 @@ int SSystemBackup::Backup()
 			}
 		}
 		WriteBackupInfo(terminal_backup_path, bu_id);
+		if(St.P.Flags & Param::fDumpAfterBackup) {
+			Dump((temp_buf = terminal_backup_path).SetLastSlash().Cat("dump"));
+		}
 	}
 	else
 		ok = -1;
@@ -1801,9 +1982,74 @@ int SSystemBackup::Backup()
 	return ok;
 }
 
-int SSystemBackup::Helper_RestorePath()
+int SSystemBackup::Helper_RestorePath(const SString & rBuPath, const SString & rOrgPath, const TSCollection <SDirecDiffPool::Entry> * pDiffList)
 {
-	int    ok = -1;
+	//
+	// Если обработка какого либо элемента расхождения каталогов завершилась ошибкой, то мы не будет прекращать 
+	// дальнейшую обработку, но лишь выведем информацию об ошибке в журнал.
+	//
+	int    ok = 1;
+	SString inner_bu_path;
+	SString inner_org_path;
+	for(uint entry_idx = 0; entry_idx < SVector::GetCount(pDiffList); entry_idx++) {
+		const SDirecDiffPool::Entry * p_diff_entry = pDiffList->at(entry_idx);
+		if(p_diff_entry) {
+			(inner_bu_path = rBuPath).SetLastSlash().Cat(p_diff_entry->Name);
+			(inner_org_path = rOrgPath).SetLastSlash().Cat(p_diff_entry->Name);
+			if(p_diff_entry->Kind == SDirecDiffPool::kAbsenceLeft) {
+				if(St.P.RestoreFlags & rfRemoveNewEntries) {
+					if(St.SearchCopyFaultEntry(inner_org_path, 0)) {
+						; // @todo @log Указанный файл отсутствует в резервной копии из-за того, что мы не смогли его скопировать - не пытаемся его удалять!
+					}
+					else {
+						// Удалить элемент, созданный после создания образа
+						const int r = SFile::Remove(inner_org_path);
+						if(!r) {
+							// @todo @logerr
+							ok = 0;
+						}
+					}
+				}
+			}
+			else if(p_diff_entry->Kind == SDirecDiffPool::kAbsenceRight) {
+				if(St.P.RestoreFlags & rfRestoreRemovedEntries) {
+					// Восстановить элемент, удаленный после создания образа
+					const int r = SCopyFile(inner_bu_path, inner_org_path, 0, FILE_SHARE_READ, 0);
+					if(!r) {
+						// @todo @logerr
+						ok = 0;
+					}
+				}
+			}
+			else if(p_diff_entry->Kind == SDirecDiffPool::kDiffType || (p_diff_entry->Kind & (SDirecDiffPool::kDiffSize|SDirecDiffPool::kDiffModTime))) {
+				// Удалить элемент из каталога назначения и затем скопировать аналог из образа в каталог назначения //		
+				const int r1 = SFile::Remove(inner_org_path);
+				if(!r1) {
+					// @todo @logerr
+					ok = 0;
+				}
+				else {
+					const int r2 = SCopyFile(inner_bu_path, inner_org_path, 0, FILE_SHARE_READ, 0);
+					if(!r2) {
+						// @todo @logerr
+						ok = 0;
+					}
+				}
+			}
+			else if(p_diff_entry->Kind & SDirecDiffPool::kDiffSubDir) {
+				// Рекурсивно восстанавливаем подкаталог
+				const int r = Helper_RestorePath(inner_bu_path, inner_org_path, p_diff_entry->P_RecurDir); // @recursion
+				if(!r) {
+					// @todo @logerr
+					ok = 0;
+				}
+			}
+			else {
+				// @todo @logerr (неожиданный результат сравнения каталогов)
+				ok = 0;
+			}
+		}
+	}
 	return ok;
 }
 
@@ -1812,13 +2058,14 @@ int SSystemBackup::RestorePath(const SString & rTerminalBackupPath, const Param:
 	int    ok = -1;
 	SString temp_buf;
 	assert(pEntry && pEntry->Type == Param::etPath);
-	SString bu_path; // Путь в резервной копии
-	SString org_path; // Оригинальный путь который необходимо восстановить
+	SString bu_path; // Путь в резервной копии (left)
+	SString org_path; // Оригинальный путь который необходимо восстановить (right)
 	org_path = pEntry->Value;
 	(bu_path = rTerminalBackupPath).SetLastSlash().Cat(pEntry->Uuid, S_GUID::fmtPlain);
 	SDirecDiffPool ddp;
 	const int rr = ddp.Run(bu_path, org_path);
 	if(ddp.L.getCount()) {
+		// @debug {
 		{
 			SLS.QueryPath("out", temp_buf);
 			temp_buf.SetLastSlash().Cat("SDirecDiffPool-on_restore-debug-out.txt");
@@ -1830,24 +2077,20 @@ int SSystemBackup::RestorePath(const SString & rTerminalBackupPath, const Param:
 			}
 			f_out.WriteBlancLine();
 		}
-		for(uint i = 0; i < ddp.L.getCount(); i++) {
-			
+		// } @debug 
+		const int r = Helper_RestorePath(bu_path, org_path, &ddp.L); // @recursion
+		if(!r) {
+			// @todo @logerr
+			ok = 0;
 		}
+		/*for(uint i = 0; i < ddp.L.getCount(); i++) {
+			const SDirecDiffPool::Entry * p_entry = ddp.L.at(i);
+			int r = Helper_RestorePath(bu_path, org_path, p_entry);
+			if(!r) {
+				// @todo @logerr
+			}
+		}*/
 	}
-	return ok;
-}
-
-int SSystemBackup::RestoreProfile(const SString & rTerminalBackupPath, const Param::Entry * pEntry)
-{
-	int    ok = -1;
-	assert(pEntry && pEntry->Type == Param::etProfile);
-	return ok;
-}
-
-int SSystemBackup::RestoreReg(const SString & rTerminalBackupPath, const Param::Entry * pEntry)
-{
-	int    ok = -1;
-	assert(pEntry && pEntry->Type == Param::etReg);
 	return ok;
 }
 
@@ -1858,7 +2101,7 @@ int SSystemBackup::Restore(const char * pBackupPath, uint32 buId, uint flags)
 	SString terminal_backup_path;
 	//(temp_buf = pBackupPath).Strip();
 	SFsPath::NormalizePath(pBackupPath, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, temp_buf);
-	THROW(IsDirectory(temp_buf));
+	THROW(SFile::IsDir(temp_buf));
 	if(buId == _FFFF32) {
 		buId = GetLastBackupId(temp_buf);
 	}
@@ -1866,9 +2109,10 @@ int SSystemBackup::Restore(const char * pBackupPath, uint32 buId, uint flags)
 		//(temp_buf = terminal_path).
 		THROW(MakeTerminalBackupPath(temp_buf, buId, terminal_backup_path).NotEmptyS());
 		THROW(ReadBackupInfo(terminal_backup_path));
+		St.P.RestoreFlags |= flags;
 		{
-			for(uint i = 0; i < P.L.getCount(); i++) {
-				const Param::Entry * p_entry = P.L.at(i);
+			for(uint i = 0; i < St.P.L.getCount(); i++) {
+				const Param::Entry * p_entry = St.P.L.at(i);
 				if(p_entry) {
 					switch(p_entry->Type) {
 						case Param::etPath:
@@ -1940,7 +2184,7 @@ void Test_SSystemBackup()
 				cfr = ::CopyFileW(src_name_u, dest_name_u, false);
 			}*/
 			param.BackupPath = "d:/__temp__/ssystem_backup";
-			param.AddPathEntry(temp_buf = /*"C:/Python38"*/"C:/Documents and Settings/Администратор");
+			param.AddPathEntry(temp_buf = /*"C:/Python38"*//*"C:/Documents and Settings/Администратор"*/"D:/__TEMP__/c_d&s/Администратор");
 			{
 				SString u("wsctl-client");
 				SString p("123");
@@ -1950,14 +2194,15 @@ void Test_SSystemBackup()
 				acc_info.Sid.ToStr(temp_buf);
 				SString reg_key_buf;
 				//(reg_key_buf = "HKEY_USERS").SetLastSlash().Cat(temp_buf);
-				param.AddRegEntry((reg_key_buf = "HKEY_LOCAL_MACHINE").SetLastSlash().Cat("software"));
+				param.AddRegEntry((reg_key_buf = "HKEY_LOCAL_MACHINE").SetLastSlash().Cat("software\\Eclipse Foundation"));
 			}
+			param.Flags |= SSystemBackup::Param::fDumpAfterBackup;
 			SSystemBackup sb(param);
 			sb.Backup();
 		}
 		{
 			SSystemBackup sb;
-			sb.Restore(p_base_backup_path, _FFFF32, 0);
+			sb.Restore(p_base_backup_path, _FFFF32, SSystemBackup::rfRemoveNewEntries|SSystemBackup::rfRestoreRemovedEntries);
 		}
 	}
 }

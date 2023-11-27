@@ -64,8 +64,7 @@ SLTEST_R(LayoutFlex)
 		}
 		{
 			SUiLayout::Param p;
-			p.ForceWidth = 360.0f;
-			p.ForceHeight = 240.0f;
+			p.ForceSize.Set(360.0f, 240.0f);
 			lo_main.Evaluate(&p);
 			//
 			{
@@ -77,29 +76,29 @@ SLTEST_R(LayoutFlex)
 				const SUiLayout * p_lo_found = lo_main.FindByIdC(loidUpr);
 				SLCHECK_EQ(p_lo_found, p_lo_upr);
 				const FRect rc = p_lo_upr->GetFrameAdjustedToParent();
-				SLCHECK_EQ(rc.Width(), p.ForceWidth);
-				SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
+				SLCHECK_EQ(rc.Width(), p.ForceSize.x);
+				SLCHECK_EQ(rc.Height(), p.ForceSize.y/2.0f);
 			}
 			{
 				const SUiLayout * p_lo_found = lo_main.FindByIdC(loidLwr);
 				SLCHECK_EQ(p_lo_found, p_lo_lwr);
 				const FRect rc = p_lo_lwr->GetFrameAdjustedToParent();
-				SLCHECK_EQ(rc.Width(), p.ForceWidth);
-				SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
+				SLCHECK_EQ(rc.Width(), p.ForceSize.x);
+				SLCHECK_EQ(rc.Height(), p.ForceSize.y/2.0f);
 			}
 			{
 				const SUiLayout * p_lo_found = lo_main.FindByIdC(loidF);
 				SLCHECK_EQ(p_lo_found, p_lo_f);
 				const FRect rc = p_lo_f->GetFrameAdjustedToParent();
-				SLCHECK_EQ(rc.Width(), p.ForceWidth-f_width);
-				SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
+				SLCHECK_EQ(rc.Width(), p.ForceSize.x-f_width);
+				SLCHECK_EQ(rc.Height(), p.ForceSize.y/2.0f);
 			}
 			{
 				const SUiLayout * p_lo_found = lo_main.FindByIdC(loidB);
 				SLCHECK_EQ(p_lo_found, p_lo_b);
 				const FRect rc = p_lo_b->GetFrameAdjustedToParent();
 				SLCHECK_EQ(rc.Width(), f_width);
-				SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
+				SLCHECK_EQ(rc.Height(), p.ForceSize.y/2.0f);
 			}
 		}
 		{
@@ -132,8 +131,7 @@ SLTEST_R(LayoutFlex)
 					SLCHECK_NZ(lo_main2.FromJsonObj(p_js_obj));
 					{
 						SUiLayout::Param p;
-						p.ForceWidth = 360.0f;
-						p.ForceHeight = 240.0f;
+						p.ForceSize.Set(360.0f, 240.0f);
 						lo_main2.Evaluate(&p);
 						//
 						{
@@ -147,8 +145,8 @@ SLTEST_R(LayoutFlex)
 							if(p_lo_found) {
 								SLCHECK_NZ(p_lo_found->GetLayoutBlockC().IsEq(p_lo_upr->GetLayoutBlockC()));
 								const FRect rc = p_lo_found->GetFrameAdjustedToParent();
-								SLCHECK_EQ(rc.Width(), p.ForceWidth);
-								SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
+								SLCHECK_EQ(rc.Width(), p.ForceSize.x);
+								SLCHECK_EQ(rc.Height(), p.ForceSize.y/2.0f);
 							}
 						}
 						{
@@ -157,8 +155,8 @@ SLTEST_R(LayoutFlex)
 							if(p_lo_found) {
 								SLCHECK_NZ(p_lo_found->GetLayoutBlockC().IsEq(p_lo_lwr->GetLayoutBlockC()));
 								const FRect rc = p_lo_found->GetFrameAdjustedToParent();
-								SLCHECK_EQ(rc.Width(), p.ForceWidth);
-								SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
+								SLCHECK_EQ(rc.Width(), p.ForceSize.x);
+								SLCHECK_EQ(rc.Height(), p.ForceSize.y/2.0f);
 							}
 						}
 						{
@@ -167,8 +165,8 @@ SLTEST_R(LayoutFlex)
 							if(p_lo_found) {
 								SLCHECK_NZ(p_lo_found->GetLayoutBlockC().IsEq(p_lo_f->GetLayoutBlockC()));
 								const FRect rc = p_lo_found->GetFrameAdjustedToParent();
-								SLCHECK_EQ(rc.Width(), p.ForceWidth-f_width);
-								SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
+								SLCHECK_EQ(rc.Width(), p.ForceSize.x-f_width);
+								SLCHECK_EQ(rc.Height(), p.ForceSize.y/2.0f);
 							}
 						}
 						{
@@ -178,7 +176,7 @@ SLTEST_R(LayoutFlex)
 								SLCHECK_NZ(p_lo_found->GetLayoutBlockC().IsEq(p_lo_b->GetLayoutBlockC()));
 								const FRect rc = p_lo_found->GetFrameAdjustedToParent();
 								SLCHECK_EQ(rc.Width(), f_width);
-								SLCHECK_EQ(rc.Height(), p.ForceHeight/2.0f);
+								SLCHECK_EQ(rc.Height(), p.ForceSize.y/2.0f);
 							}
 						}
 					}

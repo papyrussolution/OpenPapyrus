@@ -1124,7 +1124,7 @@ long PPLotExtCodeContainer::MarkSet::AddBox(long id, const char * pNum, int doVe
 {
 	int    real_id = 0;
 	long   max_id = 0;
-	THROW(!isempty(pNum));
+	THROW_PP_S(!isempty(pNum), PPERR_INVPARAM_EXT, __FUNCTION__"/pNum");
 	for(uint i = 0; i < L.getCount(); i++) {
 		const InnerEntry & r_entry = L.at(i);
 		if(r_entry.Flags & fBox) {
@@ -1168,7 +1168,7 @@ int PPLotExtCodeContainer::MarkSet::AddNum(long boxId, const char * pNum, int do
 {
 	int    ok = 1;
 	SString temp_buf;
-	THROW(!isempty(pNum));
+	THROW_PP_S(!isempty(pNum), PPERR_INVPARAM_EXT, __FUNCTION__"/pNum");
 	THROW(!boxId || GetBoxNum(boxId, temp_buf));
 	if(doVerify) {
 		for(uint i = 0; i < L.getCount(); i++) {

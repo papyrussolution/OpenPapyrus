@@ -5074,7 +5074,7 @@ int EdiProviderImplementation_Kontur::WriteOwnFormatContractor(SXml::WDoc & rDoc
 	assert(!isempty(pHeaderTag));
 	int    ok = 1;
 	SString temp_buf;
-	THROW(!isempty(pHeaderTag));
+	THROW_PP_S(!isempty(pHeaderTag), PPERR_INVPARAM_EXT, __FUNCTION__"/pHeaderTag");
 	{
 		SXml::WNode n_header(rDoc, pHeaderTag);
 		if(locID) {

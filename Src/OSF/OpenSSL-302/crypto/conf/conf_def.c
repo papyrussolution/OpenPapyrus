@@ -171,22 +171,18 @@ static int def_load(CONF * conf, const char * name, long * line)
 			ERR_raise(ERR_LIB_CONF, ERR_R_SYS_LIB);
 		return 0;
 	}
-
 	ret = def_load_bio(conf, in, line);
 	BIO_free(in);
-
 	return ret;
 }
 
 /* Parse a boolean value and fill in *flag. Return 0 on error. */
 static int parsebool(const char * pval, int * flag)
 {
-	if(strcasecmp(pval, "on") == 0
-	    || strcasecmp(pval, "true") == 0) {
+	if(strcasecmp(pval, "on") == 0 || strcasecmp(pval, "true") == 0) {
 		*flag = 1;
 	}
-	else if(strcasecmp(pval, "off") == 0
-	    || strcasecmp(pval, "false") == 0) {
+	else if(strcasecmp(pval, "off") == 0 || strcasecmp(pval, "false") == 0) {
 		*flag = 0;
 	}
 	else {
@@ -835,22 +831,13 @@ static BIO * process_include(char * include, OPENSSL_DIR_CTX ** dirctx,
 static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx)
 {
 	const char * filename;
-	size_t pathlen;
-
-	pathlen = strlen(path);
+	size_t pathlen = strlen(path);
 	while((filename = OPENSSL_DIR_read(dirctx, path)) != NULL) {
-		size_t namelen;
-
-		namelen = strlen(filename);
-
-		if((namelen > 5 && strcasecmp(filename + namelen - 5, ".conf") == 0)
-		    || (namelen > 4 && strcasecmp(filename + namelen - 4, ".cnf") == 0)) {
-			size_t newlen;
-			char * newpath;
+		size_t namelen = strlen(filename);
+		if((namelen > 5 && strcasecmp(filename + namelen - 5, ".conf") == 0) || (namelen > 4 && strcasecmp(filename + namelen - 4, ".cnf") == 0)) {
 			BIO * bio;
-
-			newlen = pathlen + namelen + 2;
-			newpath = (char*)OPENSSL_zalloc(newlen);
+			size_t newlen = pathlen + namelen + 2;
+			char * newpath = (char*)OPENSSL_zalloc(newlen);
 			if(newpath == NULL) {
 				ERR_raise(ERR_LIB_CONF, ERR_R_MALLOC_FAILURE);
 				break;
@@ -860,9 +847,7 @@ static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx)
 			 * If the given path isn't clear VMS syntax,
 			 * we treat it as on Unix.
 			 */
-			if(path[pathlen - 1] == ']'
-			    || path[pathlen - 1] == '>'
-			    || path[pathlen - 1] == ':') {
+			if(path[pathlen - 1] == ']' || path[pathlen - 1] == '>' || path[pathlen - 1] == ':') {
 				/* Clear VMS directory syntax, just copy as is */
 				OPENSSL_strlcpy(newpath, path, newlen);
 			}
@@ -872,7 +857,6 @@ static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx)
 				OPENSSL_strlcat(newpath, "/", newlen);
 			}
 			OPENSSL_strlcat(newpath, filename, newlen);
-
 			bio = BIO_new_file(newpath, "r");
 			OPENSSL_free(newpath);
 			/* Errors when opening files are non-fatal. */

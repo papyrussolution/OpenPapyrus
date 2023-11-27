@@ -1691,8 +1691,8 @@ public:
 		assert(pItem->ALB.Padding.b.x >= 0.0f);
 		assert(pItem->ALB.Padding.a.y >= 0.0f);
 		assert(pItem->ALB.Padding.b.y >= 0.0f);
-		const float __width  = smax(0.0f, rP.ForceWidth  - (pItem->ALB.Padding.a.x + pItem->ALB.Padding.b.x));
-		const float __height = smax(0.0f, rP.ForceHeight - (pItem->ALB.Padding.a.y + pItem->ALB.Padding.b.y));
+		const float __width  = smax(0.0f, rP.ForceSize.x  - (pItem->ALB.Padding.a.x + pItem->ALB.Padding.b.x));
+		const float __height = smax(0.0f, rP.ForceSize.y - (pItem->ALB.Padding.a.y + pItem->ALB.Padding.b.y));
 		// (smax above) assert(__width >= 0.0f);
 		// (smax above) assert(__height >= 0.0f);
 		switch(pItem->ALB.GetContainerDirection()) {
@@ -2060,8 +2060,8 @@ void SUiLayout::Commit_() const
 	//SETFLAG(R.Flags, R.fDegradedHeight, (bb.Height() <= 0.0f));
 	if(GetChildrenCount()) {
 		Param p;
-		p.ForceWidth  = bb.Width();
-		p.ForceHeight = bb.Height();
+		p.ForceSize.x  = bb.Width();
+		p.ForceSize.y = bb.Height();
 		DoLayout(p);
 	}
 
@@ -2091,7 +2091,7 @@ void SUiLayout::DoLayout(const Param & rP) const
 				// Initialize frame.
 				r_child.R.Frame[0] = 0.0f;
 				r_child.R.Frame[1] = 0.0f;
-				SPoint2F efsxy = r_child.ALB.CalcEffectiveSizeXY(rP.ForceWidth, rP.ForceHeight);
+				SPoint2F efsxy = r_child.ALB.CalcEffectiveSizeXY(rP.ForceSize.x, rP.ForceSize.y);
 				r_child.R.Frame[2] = efsxy.x;
 				r_child.R.Frame[3] = efsxy.y;
 				//
@@ -2102,7 +2102,7 @@ void SUiLayout::DoLayout(const Param & rP) const
 					if(layout_s.Flags & LayoutFlexProcessor::fWrap)
 						layout_s.Flags |= LayoutFlexProcessor::fNeedLines;
 					else {
-						const float full_size = ((layout_s.Flags & LayoutFlexProcessor::fVertical) ? rP.ForceWidth : rP.ForceHeight);
+						const float full_size = ((layout_s.Flags & LayoutFlexProcessor::fVertical) ? rP.ForceSize.x : rP.ForceSize.y);
 						const float mar_a = CHILD_MARGIN_XY_((&layout_s), r_child, a);
 						const float mar_b = CHILD_MARGIN_XY_((&layout_s), r_child, b);
 						r_child.R.Frame[layout_s.FrameSz2i] = full_size - mar_a - mar_b;
@@ -2559,7 +2559,7 @@ void SUiLayout::DoFloatLayout(const Param & rP)
 			// Все виртуальные зоны инициализируем величиной полной области.
 			for(uint i = 0; i < SIZEOFARRAY(area_rect); i++) {
 				area_rect[i].a.SetZero();
-				area_rect[i].b.Set(rP.ForceWidth, rP.ForceHeight);
+				area_rect[i].b = rP.ForceSize;
 			}
 		}
 		{
@@ -2732,22 +2732,21 @@ int SUiLayout::Evaluate(const Param * pP)
 		Param local_evaluate_param;
 		if(pP) {
 			local_evaluate_param.Flags = pP->Flags;
-			if(pP->ForceWidth > 0.0f) {
-				local_evaluate_param.ForceWidth = pP->ForceWidth;
+			if(pP->ForceSize.x > 0.0f) {
+				local_evaluate_param.ForceSize.x = pP->ForceSize.x;
 				stag_x = SUiLayoutParam::szFixed;
 			}
 			else
-				local_evaluate_param.ForceWidth = sx;
-			if(pP->ForceHeight > 0.0f) {
-				local_evaluate_param.ForceHeight = pP->ForceHeight;
+				local_evaluate_param.ForceSize.x = sx;
+			if(pP->ForceSize.y > 0.0f) {
+				local_evaluate_param.ForceSize.y = pP->ForceSize.y;
 				stag_y = SUiLayoutParam::szFixed;
 			}
 			else
-				local_evaluate_param.ForceHeight = sy;
+				local_evaluate_param.ForceSize.y = sy;
 		}
 		else {
-			local_evaluate_param.ForceWidth = sx;
-			local_evaluate_param.ForceHeight = sy;
+			local_evaluate_param.ForceSize.Set(sx, sy);
 		}
 		if(oneof2(cdir, DIREC_HORZ, DIREC_VERT)) {
 			if(stag_x == SUiLayoutParam::szFixed && stag_y == SUiLayoutParam::szFixed && !CbSelfSizing) {

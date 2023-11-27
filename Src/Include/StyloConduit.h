@@ -1,6 +1,6 @@
 // STYLOCONDUIT.H
 // Part of StyloConduit project
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2020, 2023
 //
 #ifndef __STYLOCONDUIT_H
 #define __STYLOCONDUIT_H
@@ -22,12 +22,14 @@
 #include <snet.h>
 #include <dbf.h>
 // Palm CDK includes (papyrus\src\include\palmcdk\403) {
-#include <palmcdk\403\syncmgr.h>
+
+// @v11.8.12 #include <palmcdk\403\syncmgr.h>
+
 // @v10.9.6 #include <palmcdk\403\condapi.h>
 // @v10.9.6 #include <palmcdk\403\logstrng.h>
 // @v10.9.6 #include <palmcdk\403\hslog.h>
 // @v10.9.6 #include <palmcdk\403\palm_cmn.H>
-#include <palmcdk\403\userdata.h>
+// @v11.8.12 #include <palmcdk\403\userdata.h>
 // } Palm CDK includes
 
 #include <stylopalm.h>
@@ -91,6 +93,10 @@ extern "C" {
 }
 #endif
 
+class CSyncProperties; // @v11.8.12 @stub
+class CDbCreateDB; // @v11.8.12 @stub
+class CUserIDInfo; // @v11.8.12 @stub
+
 #define DB_CREATOR 'SPII'
 #define DB_TYPE    'DATA'
 
@@ -100,6 +106,43 @@ extern "C" {
 #ifndef SETFLAG
 	#define SETFLAG(v,f,b) {if(b) {(v)|=(f);} else {(v)&=~(f);}}
 #endif
+//
+// @v11.8.12 (from PalmCDK\403\SYNCMGR.H ) {
+//
+//  Used by all the Record Oriented API's. Houses the DT_Link version
+//  of a database's record layout, specifically that of the remote device.
+//  Raw bytes will be formatted into this structure by the DTLinkConverter
+//  object which resides inside of each Conduit.DLL.
+//
+class CRawRecordInfo {
+public:
+	BYTE	m_FileHandle;		// Supplied by caller
+	DWORD	m_RecId;				// Supplied by caller when reading or deleting records by record id; supplied by
+	// caller as the resource type when deleting a resource; filled in
+	// by HH when reading (unique record id for records and resource type for resources).
+	
+	WORD	m_RecIndex;			// Supplied by caller when reading records or resources by index; supplied by caller
+	// as the resource id when deleting a resource; filled in by handheld as the resource
+	// id when reading a resource; filled in by HH when reading a record using Sync API v2.1
+	// or later. 
+	BYTE	m_Attribs;			// Filled in by HH when reading, and by caller when writing
+	short	m_CatId;				// Filled in by HH when reading, and by caller when writing
+	int	m_ConduitId;		// Ignore
+	DWORD	m_RecSize;			// When reading, filled in by HH with the actual record/resource size,
+	// which might be bigger than buffer size m_TotalBytes (in this
+	// case, only the first m_TotalBytes of record data will be copied
+	// to caller's buffer by Sync API v2.1 or later, and NOTHING will
+	// be copied by Sync API before v2.1).  When writing, filled in by
+	// caller with record data size (same as m_TotalBytes).
+
+	// ****NOTE that m_TotalBytes is defined as WORD, meaning that only
+	// records and resources under 64K may be read or written using this
+	// API (the actual maximum is ~63.8K bytes).
+	WORD	m_TotalBytes;		// Supplied by caller: buffer size for reading; record data size for writing
+	BYTE*	m_pBytes;			// Buffer allocated by caller for reading or writing
+	DWORD	m_dwReserved;		// Reserved	- set to NULL
+};
+// } @v11.8.12
 
 int32  dbltointmoney(double);
 int32  dbltopalmintmoney(double);
@@ -143,7 +186,9 @@ struct SpiiExchgContext {
 	PalmConfig HostCfg;          // Конфигурация на хосте
 	PalmConfig PalmCfg;          // Конфигурация на КПК
 };
-
+//
+//
+//
 class SyncTable {
 public:
 	struct Stat {

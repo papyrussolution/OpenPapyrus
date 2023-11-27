@@ -7567,7 +7567,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_versioning(soap_init) (struct soap * soap, soap_
 		if(fileExists(temp_buf)) {
 			SIniFile ini_file(temp_buf, 0, 0, 1);
 			ini_file.GetParam("path", "log", temp_buf);
-			if(temp_buf.NotEmptyS() && IsDirectory(temp_buf))
+			if(temp_buf.NotEmptyS() && SFile::IsDir(temp_buf))
 				log_path = temp_buf;
 			if(ini_file.GetParam("config", "gsoap_log", temp_buf) && temp_buf.NotEmptyS()) {
 				if(temp_buf.IsEqiAscii("all")) 

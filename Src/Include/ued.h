@@ -31,7 +31,9 @@ public:
 	static bool   GetRawValue32(uint64 ued, uint32 * pRawValue);
 	static uint64 ApplyMetaToRawValue(uint64 meta, uint64 rawValue);
 	static uint64 ApplyMetaToRawValue32(uint64 meta, uint32 rawValue);
-	
+
+	static uint64 SetRaw_Int(uint64 meta, int64 val);
+	static bool   GetRaw_Int(uint64 ued, int64 & rVal);
 	static uint64 SetRaw_GeoLoc(const SGeoPosLL & rGeoPos);
 	static bool   GetRaw_GeoLoc(uint64 ued, SGeoPosLL & rGeoPos);
 	static uint64 SetRaw_PlanarAngleDeg(double deg);

@@ -4,9 +4,46 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <sbht.h>
+//# @v11.9.12 include <sbht.h>
 #include <stylobhtII.h>
+//
+// @v11.8.12 inlined sbht.h {
+//
+struct _LDATETIME {
+	signed long t;
+	signed long d;
+};
 
+struct SBHTCmdBuf { // @persistent
+	enum {
+		cmCheckConnection = 1,
+		cmGetGoods        = 2,
+		cmPutTSessLine    = 3,
+		cmLogout          = 4
+	};
+	signed short  Cmd;
+	signed short  Reserve;
+	signed long   RetCode;
+	unsigned long BufSize;
+};
+
+struct SBHTTSessLineRec {
+	long   BillID;
+	char   PrcCode[9];
+	char   ArCode[9];
+	signed short  Reserve;
+	char   Serial[32];
+	_LDATETIME Dtm;
+	double Qtty;
+};
+
+struct SBHTGoodsRec {
+	long ID;
+	char Name[32];
+};
+//
+// } @v11.8.12 inlined sbht.h
+//
 int RecvBuf(TcpSocket * pSo, void * pBuf, size_t bufSize)
 {
 	int    ok = -1;

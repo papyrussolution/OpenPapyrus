@@ -486,7 +486,7 @@ int PriceChecker::GetOption(const char * pOptionType, SString & rOptionVal)
 	int    ok = 1;
 	size_t start = 0, end = 0;
 	SString str;
-	str.Cat(pOptionType).CatChar('=');
+	str.Cat(pOptionType).Eq();
 	if(Tag.Options.Search(str, 0, 1, &start) && (start != Tag.Options.Len())) {
 		// Смотрим разделитель
 		if(!Tag.Options.Search(" ", start, 1, &end))

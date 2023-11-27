@@ -924,18 +924,23 @@ SLTEST_R(SDecimal)
 		SRandGenerator & r_rng = SLS.GetTLA().Rg;
 		TSStack <SDecimal> stk;
 		SDecimal sum;
-		for(uint i = 0; i < 1000; i++) {
+		double fsum = 0.0;
+		for(uint i = 0; i < 100000; i++) {
 			uint32 m32 = r_rng.GetUniformIntPos(INT32_MAX);
 			int exp = -static_cast<int>(log10i_floor(m32));
 			int64 mant = (i & 1) ? -static_cast<int32>(m32) : static_cast<int32>(m32);
 			SDecimal r(mant, exp);
 			stk.push(r);
 			sum.Add(sum, r);
+			//
+			fsum += (double)mant * fpow10i(exp);
 		}
 		{
 			SDecimal decr;
 			while(stk.pop(decr)) {
 				sum.Sub(sum, decr);
+				//
+				fsum -= decr.GetReal();
 			}
 			SLCHECK_NZ(sum.IsZero());
 		}
@@ -948,8 +953,8 @@ SLTEST_R(SDecimal)
 		};
 		const TestEntry entries[] = {
 			{ 17171717171717LL, -7, "1717171.7171717" },
-			{ 1LL, 0, "1.0" },
-			{ 3LL, 0, "3.0" },
+			{ 1LL, 0, "1" },
+			{ 3LL, 0, "3" },
 			{ 1LL, -1, "0.1" },
 			{ 1LL, -2, "0.01" },
 			{ 5LL, -1, "0.5" },
@@ -958,10 +963,10 @@ SLTEST_R(SDecimal)
 			{ 3333333333333LL,   -12, "3.333333333333" },
 			{ 6666666666666LL,   -12, "6.666666666666" },
 			{ 777777777777777LL, -14, "7.77777777777777" },
-			{ 1LL, +1, "10.0" },
-			{ 1LL, +2, "100.0" },
-			{ 5LL, +1, "50.0" },
-			{ 0LL, 0, "0.0" },
+			{ 1LL, +1, "10" },
+			{ 1LL, +2, "100" },
+			{ 5LL, +1, "50" },
+			{ 0LL, 0, "0" },
 			{ 314159265359LL, -11, "3.14159265359" },
 		};
 		SLCHECK_NZ(SDecimal().IsZero());

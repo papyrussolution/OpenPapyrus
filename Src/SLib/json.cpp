@@ -150,7 +150,7 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 /*static*/SJson * FASTCALL SJson::ParseFile(const char * pFileName)
 {
 	SJson * p_result = 0;
-	THROW(!isempty(pFileName));
+	THROW_S_S(!isempty(pFileName), SLERR_INVPARAM, __FUNCTION__"/pFileName");
 	THROW(fileExists(pFileName));
 	{
 		SString temp_buf;

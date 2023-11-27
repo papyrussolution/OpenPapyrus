@@ -9,17 +9,7 @@
 
 DBFCreateFld * LoadDBFStruct(uint rezID, uint * pNumFlds); // @prototype
 
-int FASTCALL dbl_cmp(double v1, double v2)
-{
-	const double diff = R6(v1 - v2);
-	if(diff < 0.0)
-		return -1;
-	else if(diff > 0.0)
-		return 1;
-	else
-		return 0;
-}
-
+int FASTCALL dbl_cmp(double v1, double v2) { return CMPSIGN(R6(v1 - v2), 0.0); }
 IMPL_CMPFUNC(PPLBItem, i1, i2) { return stricmp866(static_cast<const char *>(i1)+sizeof(long), static_cast<const char *>(i2)+sizeof(long)); }
 
 IMPL_CMPFUNC(PPTLBItem, i1, i2)
@@ -83,17 +73,8 @@ SString & MoneyToStr(double nmb, long fmt, SString & rBuf)
 
 double FASTCALL SalesTaxMult(double rate) { return (rate / (100.0 + rate)); }
 double FASTCALL CalcVATRate(double base, double vat_sum) { return fdivnz(100.0 * vat_sum, base - vat_sum); }
-
-SString & VatRateStr(double rate, SString & rBuf)
-{
-	PPLoadString("vat", rBuf);
-	return rBuf.Space().Cat(R0i(rate)).CatChar('%');
-}
-
-int PPGetSubStr(const char * pStr, int idx, SString & rDest)
-{
-	return rDest.GetSubFrom(pStr, ';', idx);
-}
+SString & VatRateStr(double rate, SString & rBuf) { return PPLoadStringS("vat", rBuf).Space().Cat(R0i(rate)).CatChar('%'); }
+int    PPGetSubStr(const char * pStr, int idx, SString & rDest) { return rDest.GetSubFrom(pStr, ';', idx); }
 
 int PPGetSubStr(const char * pStr, int idx, char * pBuf, size_t bufLen)
 {
@@ -204,17 +185,8 @@ SString & PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf
 	return rBuf;
 }
 
-SString & FASTCALL ideqvalstr(long id, SString & rBuf)
-{
-	return rBuf.CatEq("ID", id);
-}
-
-char * STDCALL ideqvalstr(long id, char * pBuf, size_t bufLen)
-{
-	SString temp_buf;
-	ideqvalstr(id, temp_buf).CopyTo(pBuf, bufLen);
-	return pBuf;
-}
+SString & FASTCALL ideqvalstr(long id, SString & rBuf) { return rBuf.CatEq("ID", id); }
+char * STDCALL ideqvalstr(long id, char * pBuf, size_t bufLen) { return ideqvalstr(id, SLS.AcquireRvlStr()).CopyTo(pBuf, bufLen); }
 //
 //
 //

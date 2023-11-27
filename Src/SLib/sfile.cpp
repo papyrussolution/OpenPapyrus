@@ -916,6 +916,20 @@ SFile::Stat & SFile::Stat::Z()
 bool SFile::Stat::IsFolder() const { return LOGIC(Attr & SFile::attrSubdir); }
 bool SFile::Stat::IsSymLink() const { return ((Attr & attrReparsePoint) && ReparsePointTag == IO_REPARSE_TAG_SYMLINK); }
 
+int SFile::Stat::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW(pSCtx->Serialize(dir, Attr, rBuf));
+	THROW(pSCtx->Serialize(dir, Size, rBuf));
+	THROW(pSCtx->Serialize(dir, ReparsePointTag, rBuf));
+	THROW(pSCtx->Serialize(dir, CrtTm_, rBuf));
+	THROW(pSCtx->Serialize(dir, AccsTm_, rBuf));
+	THROW(pSCtx->Serialize(dir, ModTm_, rBuf));
+	CATCHZOK
+	return ok;
+}
+
 /*static*/bool SFile::GetReparsePoint(SIntHandle h, SBinaryChunk & rC)
 {
 	bool   ok = false;
@@ -1388,7 +1402,7 @@ backtrack:
 	}
 }
 
-/*static*/int SFile::CreateDir(const char * pPath) // @v11.8.11
+/*static*/int SFile::CreateDirByTemplate(const char * pPath, const char * pTemplate) // @v11.8.12
 {
 	int    ok = 1;
 	SString path;
@@ -1404,26 +1418,37 @@ backtrack:
 				path.CatChar(*p++);
 			else if(path.NotEmpty()) {
 				const bool is_root = (path[0] == path[1] && path[0] == '\\' && !sstrchr(path+2, '\\'));
-				if(path.IsLegalUtf8()) {
-					temp_buf_u.CopyFromUtf8(path);
-				}
-				else {
-					temp_buf_u.CopyFromMb_OUTER(path, path.Len());
-				}
+				path.CopyToUnicode(temp_buf_u);
 				if(!is_root && (temp_buf_u[0] && ::_waccess(temp_buf_u, 0) != 0)) {
-					const int cdr = ::CreateDirectoryW(temp_buf_u, NULL);
-					if(cdr == 0) {
-						SLS.SetAddedMsgString(path);
-						ok = (SLibError = SLERR_MKDIRFAULT, 0);
+					const bool is_terminal = !sstrchr(p+1, '\\');
+					if(is_terminal && !isempty(pTemplate)) {
+						SStringU template_buf_u;
+						SString template_buf(pTemplate);
+						template_buf.CopyToUnicode(template_buf_u);
+						const int cdr = CreateDirectoryExW(template_buf_u, temp_buf_u, 0);
+						if(!cdr) {
+							SString added_msg_buf;
+							added_msg_buf.Cat(template_buf).Cat("->").Cat(path);
+							ok = SLS.SetError(SLERR_MKDIRBYTEMPLATEFAULT, added_msg_buf);
+						}
+						else
+							ok = 1;
 					}
-					else
-						ok = 1;
+					else {
+						const int cdr = ::CreateDirectoryW(temp_buf_u, NULL);
+						ok = (cdr == 0) ? SLS.SetError(SLERR_MKDIRFAULT, path) : 1;
+					}
 				}
 			}
 		}
 		path.CatChar(*p);
 	} while(ok && *p++ != 0);
 	return ok;
+}
+
+/*static*/int SFile::CreateDir(const char * pPath) // @v11.8.11
+{
+	return CreateDirByTemplate(pPath, 0);
 }
 
 static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
@@ -1502,7 +1527,35 @@ static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
 
 /*static*/int FASTCALL SFile::Remove(const char * pFileName)
 {
-	return isempty(pFileName) ? -1 : ((::remove(pFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_DELETE, pFileName));
+	// @v11.8.12 return isempty(pFileName) ? -1 : ((::remove(pFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_DELETE, pFileName));
+	// @v11.8.12 {
+	int    ok = -1;
+	if(isempty(pFileName)) {
+		ok = -1;
+	}
+	else {
+#ifdef __WIN32__
+		SFile::Stat stat;
+		if(SFile::GetStat(pFileName, 0, &stat, 0)) {
+			if(stat.Attr & SFile::attrSubdir) {
+				ok = RemoveDir(pFileName);
+			}
+			else {
+				SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+				(SLS.AcquireRvlStr() = pFileName).Strip().CopyToUnicode(r_temp_buf_u);
+				ok = DeleteFileW(r_temp_buf_u);
+			}
+		}
+		else
+			ok = 0;
+#else
+		ok = ::remove(pFileName);
+#endif
+		if(!ok)
+			SLS.SetError(SLERR_FILE_DELETE, pFileName);
+	}
+	// } @v11.8.12
+	return ok;
 }
 
 /*static*/int SFile::Rename(const char * pFileName, const char * pNewFileName)

@@ -2283,24 +2283,20 @@ static const struct translation_st * lookup_translation(struct translation_st * 
 		else if(tmpl->ctrl_str != NULL) {
 			const char * ctrl_str = NULL;
 			const char * ctrl_hexstr = NULL;
-
 			/*
 			 * Search criteria that originates from a ctrl_str is only used
 			 * for setting, never for getting.  Therefore, we only look at
 			 * the setter items.
 			 */
-			if(item->action_type != NONE
-			    && item->action_type != SET)
+			if(item->action_type != NONE && item->action_type != SET)
 				continue;
 			/*
 			 * At least one of the ctrl cmd names must be match the ctrl
 			 * cmd name in the template.
 			 */
-			if(item->ctrl_str != NULL
-			    && strcasecmp(tmpl->ctrl_str, item->ctrl_str) == 0)
+			if(item->ctrl_str != NULL && strcasecmp(tmpl->ctrl_str, item->ctrl_str) == 0)
 				ctrl_str = tmpl->ctrl_str;
-			else if(item->ctrl_hexstr != NULL
-			    && strcasecmp(tmpl->ctrl_hexstr, item->ctrl_hexstr) == 0)
+			else if(item->ctrl_hexstr != NULL && strcasecmp(tmpl->ctrl_hexstr, item->ctrl_hexstr) == 0)
 				ctrl_hexstr = tmpl->ctrl_hexstr;
 			else
 				continue;

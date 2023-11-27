@@ -1992,18 +1992,18 @@ static int Implement_Backup(const SString & rDbSymb, PPBackup * pBu, PPBackupSce
 		copy_data.BssFactor = bss_factor;
 		pIniFile->Get(PPINISECT_SYSTEM, PPINIPARAM_BACKUPTEMP, temp_buf);
 		drv_map.ConvertPathToUnc(temp_buf);
-		if(IsDirectory(temp_buf))
+		if(SFile::IsDir(temp_buf))
 			copy_data.TempPath = temp_buf;
 		else {
 			
 			PPGetPath(PPPATH_TEMP, temp_buf);
 			drv_map.ConvertPathToUnc(temp_buf);
-			if(IsDirectory(temp_buf))
+			if(SFile::IsDir(temp_buf))
 				copy_data.TempPath = temp_buf;
 			// @v11.8.5 else if(SFileUtil::GetSysDir(SFileUtil::sdTemporary, temp_buf)) {
 			else if(GetKnownFolderPath(UED_FSKNOWNFOLDER_TEMPORARY, temp_buf)) { // @v11.8.5
 				drv_map.ConvertPathToUnc(temp_buf);
-				if(IsDirectory(temp_buf))
+				if(SFile::IsDir(temp_buf))
 					copy_data.TempPath = temp_buf;
 			}
 		}
@@ -2171,17 +2171,17 @@ static int _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContin
 		copy_data.BssFactor = bss_factor;
 		ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_BACKUPTEMP, temp_buf);
 		drv_map.ConvertPathToUnc(temp_buf);
-		if(IsDirectory(temp_buf))
+		if(SFile::IsDir(temp_buf))
 			copy_data.TempPath = temp_buf;
 		else {
 			PPGetPath(PPPATH_TEMP, temp_buf);
 			drv_map.ConvertPathToUnc(temp_buf);
-			if(IsDirectory(temp_buf))
+			if(SFile::IsDir(temp_buf))
 				copy_data.TempPath = temp_buf;
 			// @v11.8.5 else if(SFileUtil::GetSysDir(SFileUtil::sdTemporary, temp_buf)) {
 			else if(GetKnownFolderPath(UED_FSKNOWNFOLDER_TEMPORARY, temp_buf)) { // @v11.8.5
 				drv_map.ConvertPathToUnc(temp_buf);
-				if(IsDirectory(temp_buf))
+				if(SFile::IsDir(temp_buf))
 					copy_data.TempPath = temp_buf;
 			}
 		}
@@ -2396,7 +2396,7 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				path.Z();
 			else {
 				PPSetAddedMsgString(path);
-				if(IsDirectory(path))
+				if(SFile::IsDir(path))
 					ret = CONFIRM(PPCFM_EXISTDIR);
 				else if((ret = CONFIRM(PPCFM_MAKENEWDIR)) != 0) {
 					if(!SFile::CreateDir(path))
@@ -2418,7 +2418,7 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 				// Создаем подкаталог, в который будут сбрасываться версии файлов "до ремонта"
 				//
 				for(long k = 1; k < 1000000L; k++) {
-					if(!::IsDirectory((bak_path = data_path).SetLastSlash().Cat("RB").CatLongZ(k, 6))) {
+					if(!::SFile::IsDir((bak_path = data_path).SetLastSlash().Cat("RB").CatLongZ(k, 6))) {
 						bak_path.SetLastSlash(); // @v11.2.12
 						THROW_SL(SFile::CreateDir(bak_path));
 						param.P_BakPath = bak_path;
@@ -2533,7 +2533,7 @@ int CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
 		THROW_PP(pPB->GetCopyData(pBDD->CopyID, &copy_data), PPERR_DBLIB);
 		(copy_dir = copy_data.CopyPath).SetLastSlash().Cat(copy_data.SubDir);
 		PPSetAddedMsgString(copy_dir);
-		THROW_PP_S(IsDirectory(copy_dir), PPERR_DIRNOTEXISTS, copy_dir);
+		THROW_PP_S(SFile::IsDir(copy_dir), PPERR_DIRNOTEXISTS, copy_dir);
 		(wildcard = copy_dir).SetLastSlash().Cat("*.*");
 		SDirec file_enum(wildcard);
 		SDirEntry f_data;

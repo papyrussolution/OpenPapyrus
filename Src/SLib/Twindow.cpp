@@ -1596,8 +1596,8 @@ void TWindowBase::EvaluateLayout(const TRect & rR)
 {
 	if(P_Lfc) {
 		SUiLayout::Param evp;
-		evp.ForceWidth = static_cast<float>(rR.width());
-		evp.ForceHeight = static_cast<float>(rR.height());
+		evp.ForceSize.x = static_cast<float>(rR.width());
+		evp.ForceSize.y = static_cast<float>(rR.height());
 		P_Lfc->Evaluate(&evp);
 	}
 }

@@ -901,7 +901,7 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 					}
 					else {
 						path.RmvLastSlash();
-						if(IsDirectory(path) || SFile::CreateDir(path)) {
+						if(SFile::IsDir(path) || SFile::CreateDir(path)) {
 							long   _seq = 0;
 							do {
 								temp_buf = p_base_name;
@@ -5132,7 +5132,7 @@ int PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet
 			InetUrl _url(src_buf.Strip());
 			const int _url_prot = _url.GetProtocol();
 			if(_url_prot == InetUrl::protFile) {
-				if(IsDirectory(src_buf.RmvLastSlash())) {
+				if(SFile::IsDir(src_buf.RmvLastSlash())) {
 					rSs.add(src_buf);
 					srctype = srctypeFile;
 					ok = 1;
@@ -5284,7 +5284,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			uint   prev_ssp_pos = 0;
 			for(uint ssp_pos = prev_ssp_pos; ss_paths.get(&ssp_pos, in_path); prev_ssp_pos = ssp_pos) {
 				// @v10.0.07 @01 ReadPosProtocolFileProcessedList(in_path, processed_file_list); // @v9.9.12
-				if(IsDirectory(in_path)) {
+				if(SFile::IsDir(in_path)) {
 					(temp_buf = in_path).SetLastSlash().Cat(p_base_name).CatChar('*').DotCat("ppyp");
 					for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 						if(de.IsFile()) {
@@ -5712,7 +5712,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		}
 		else {
 			path.RmvLastSlash();
-			if(IsDirectory(path) || SFile::CreateDir(path)) {
+			if(SFile::IsDir(path) || SFile::CreateDir(path)) {
 				long   _seq = 0;
 				do {
 					temp_buf = p_base_name;
@@ -5977,14 +5977,14 @@ int RunInputProcessThread(PPID posNodeID)
         		PPObjCashNode cn_obj;
 				PPSyncCashNode cn_pack;
 				THROW(cn_obj.GetSync(IB.PosNodeID, &cn_pack) > 0);
-				if(cn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && IsDirectory(temp_buf.RmvLastSlash())) { // @v9.9.12 RmvLastSlash()
+				if(cn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && SFile::IsDir(temp_buf.RmvLastSlash())) { // @v9.9.12 RmvLastSlash()
 					in_path = temp_buf;
 				}
 				else {
 					PPGetPath(PPPATH_IN, in_path);
 				}
 				in_path.RmvLastSlash();
-				if(!IsDirectory(in_path)) {
+				if(!SFile::IsDir(in_path)) {
 
 				}
 				else {

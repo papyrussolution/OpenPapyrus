@@ -154,7 +154,7 @@ VkInterface::VkInterface() : ProtoVer(5, 107, 0), Lth(PPFILNAM_VKTALK_LOG), Last
 
 SString & VkInterface::AppendParamProtoVer(SString & rBuf) const
 {
-	return rBuf.Cat("v").CatChar('=').Cat(ProtoVer.GetMajor()).Dot().Cat(ProtoVer.GetMinor());
+	return rBuf.Cat("v").Eq().Cat(ProtoVer.GetMajor()).Dot().Cat(ProtoVer.GetMinor());
 }
 
 PPID VkInterface::GetOuterWareIdentTagID() const { return Ib.OuterWareIdentTagID; }

@@ -769,8 +769,8 @@ int SDirecDiffPool::Run(const char * pDirLeftUtf8, const char * pDirRightUtf8)
 {
 	Z();
 	int    ok = 1;
-	THROW(!isempty(pDirLeftUtf8));
-	THROW(!isempty(pDirRightUtf8));
+	THROW_S_S(!isempty(pDirLeftUtf8), SLERR_INVPARAM, __FUNCTION__"/pDirLeftUtf8");
+	THROW_S_S(!isempty(pDirRightUtf8), SLERR_INVPARAM, __FUNCTION__"/pDirRightUtf8");
 	{
 		SFsPath::NormalizePath(pDirLeftUtf8, SFsPath::npfCompensateDotDot, DirLeft);
 		SFsPath::NormalizePath(pDirRightUtf8, SFsPath::npfCompensateDotDot, DirRight);
@@ -818,7 +818,7 @@ int SDirecDiffPool::Helper_Compare(const SString & rDirLeftUtf8, const SString &
 							const int rgr = pool_right.Get(ridx, &entry_right, &full_path_right);
 							assert(rgr);
 							const uint tattr_mask = (SFile::attrSubdir|SFile::attrReparsePoint); // јтрибуты, определ€ющие тип элемента
-							const uint iattr_mask = (SFile::attrNotContentIndexed|SFile::attrOffline|SFile::attrNoScrubData); // »гнорируемые при сравнении атрибуты
+							const uint iattr_mask = (SFile::attrNotContentIndexed|SFile::attrOffline|SFile::attrNoScrubData|SFile::attrCompressed); // »гнорируемые при сравнении атрибуты
 							if((entry_left.Attr & tattr_mask) != (entry_right.Attr & tattr_mask)) {
 								_k = kDiffType;
 							}
@@ -826,7 +826,27 @@ int SDirecDiffPool::Helper_Compare(const SString & rDirLeftUtf8, const SString &
 								if((entry_left.Attr & ~iattr_mask) != (entry_right.Attr & ~iattr_mask)) {
 									_k |= kDiffAttr;
 								}
-								if(entry_left.IsFolder()) {
+								// @v11.8.12 {
+								if(entry_left.Attr & SFile::attrReparsePoint) {
+									assert(entry_right.Attr & SFile::attrReparsePoint); // »наче бы мы не попали в этот блок кода
+									SFile::Stat stat_left;
+									SFile::Stat stat_right;
+									SBinarySet set_left;
+									SBinarySet set_right;
+									const int gsrr = SFile::GetStat(full_path_left, 0, &stat_left, &set_left);
+									const int gsrl = SFile::GetStat(full_path_right, 0, &stat_right, &set_right);
+									if(gsrr && gsrl) {
+										SBinaryChunk rt_left;
+										SBinaryChunk rt_right;
+										set_left.Get(SFile::Stat::sbiRaparseTag, &rt_left);
+										set_right.Get(SFile::Stat::sbiRaparseTag, &rt_right);
+										if(!rt_left.IsEq(rt_right)) {
+											_k |= kDiffReparsePoint;
+										}
+									}
+								}
+								// } @v11.8.12 
+								else if(entry_left.IsFolder()) {
 									SDirecDiffPool inner;
 									int inner_result = inner.Helper_Compare(full_path_left, full_path_right); // @recursion
 									assert(inner_result != 2);

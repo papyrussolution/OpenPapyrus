@@ -56,7 +56,7 @@ int FASTCALL SSqliteDbProvider::ProcessError(int status)
 	uint   prep_flags = 0; // SQLITE_PREPARE_XXX
 	const  char * p_ztail = 0;
 	sqlite3_stmt * p_stmt = 0;
-	THROW(!isempty(pText));
+	THROW_S_S(!isempty(pText), SLERR_INVPARAM, __FUNCTION__"/pText");
 	THROW(ProcessError(sqlite3_prepare_v3(static_cast<sqlite3 *>(H), pText, sstrleni(pText), prep_flags, &p_stmt, &p_ztail)));
 	pS->H = p_stmt;
 	/*

@@ -9,7 +9,7 @@
 
 static SString & OutputLongArrayValues(const LongArray & rList, const char * pTitle, SString & rBuf)
 {
-	rBuf.Cat(pTitle).CatChar('=');
+	rBuf.Cat(pTitle).Eq();
 	SForEachVectorItem(rList, ii) { rBuf.CatDivConditionally(',', 0, LOGIC(ii)).Cat(rList.get(ii)); }
 	return rBuf;
 }
@@ -136,7 +136,7 @@ int PPTssModelPacket::Output(SString & rBuf) const
 	// @v10.8.6 OutputLongArrayValues(InputFrameSizeList, "input_frame_size", rBuf).CR();
 	// @v10.8.6 {
 	{
-		rBuf.Cat("input_frame_size").CatChar('=');
+		rBuf.Cat("input_frame_size").Eq();
 		if(Rec.Flags & PPTssModel::fSeparateInpFrameSizes)
 			rBuf.CatChar('[');
 		SForEachVectorItem(InputFrameSizeList, ii) { rBuf.CatDivConditionally(',', 0, LOGIC(ii)).Cat(InputFrameSizeList.get(ii)); }
@@ -149,7 +149,7 @@ int PPTssModelPacket::Output(SString & rBuf) const
 	rBuf.CatEq("main_frame_range_count", static_cast<uint>(Rec.MainFrameRangeCount));
 	rBuf.CR();
 	if(StakeBoundList.getCount()) {
-		rBuf.Cat("stake_bound_list").CatChar('=');
+		rBuf.Cat("stake_bound_list").Eq();
 		for(uint sblidx = 0; sblidx < StakeBoundList.getCount(); sblidx++) {
 			const LAssoc & r_sbl_item = StakeBoundList.at(sblidx);
 			if(sblidx)
@@ -166,7 +166,7 @@ int PPTssModelPacket::Output(SString & rBuf) const
 	// @v10.8.9 rBuf.CR();
 	// @v10.8.1 {
 	if(E.AdoptSlShiftDn || E.AdoptSlShiftUp) {
-		rBuf.Cat("adopt_sltp_params").CatChar('=');
+		rBuf.Cat("adopt_sltp_params").Eq();
 		rBuf.Cat(E.AdoptSlShiftDn).CatDiv(',', 2).Cat(E.AdoptSlShiftUp);
 		if(E.AdoptTpFixed == 1)
 			rBuf.CatDiv(',', 2).Cat("fix");
@@ -176,7 +176,7 @@ int PPTssModelPacket::Output(SString & rBuf) const
 	}
 	// } @v10.8.1
 	{
-		rBuf.Cat("opt_range_target").CatChar('=');
+		rBuf.Cat("opt_range_target").Eq();
 		if(Rec.OptTargetCriterion == PPTssModel::tcWinRatio)
 			rBuf.Cat("winratio");
 		else if(Rec.OptTargetCriterion == PPTssModel::tcVelocity)

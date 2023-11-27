@@ -476,7 +476,7 @@ void PPPaths::DumpToStr(SString & rBuf) const
 				case PPPATH_PACK: rBuf.Cat("PACK"); break;
 				default: rBuf.CatChar('#').Cat(p->ID); break;
 			}
-			rBuf.CatChar('=').Cat(p->Path());
+			rBuf.Eq().Cat(p->Path());
 			s += p->Size;
 		}
 	}

@@ -1293,7 +1293,7 @@ int SColorSet::Put(const char * pSymb, ComplexColorBlock * pBlk)
 {
 	int    ok = 1;
 	bool   do_delete_blk = true;
-	THROW(!isempty(pSymb));
+	THROW_S_S(!isempty(pSymb), SLERR_INVPARAM, __FUNCTION__"/pSymb");
 	THROW(pBlk);
 	{
 		InnerEntry * p_new_entry = 0;

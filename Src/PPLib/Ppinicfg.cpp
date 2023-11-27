@@ -776,7 +776,7 @@ int PPConfigDatabase::Open(const char * pDbPath)
 		{
 			SString err_file_name;
 			SLS.GetLogPath(err_file_name); 
-			if(!IsDirectory(err_file_name))
+			if(!SFile::IsDir(err_file_name))
 				err_file_name = pDbPath;
 			err_file_name.SetLastSlash().Cat("bdberr.log");
 			P_Db->SetupErrLog(err_file_name);

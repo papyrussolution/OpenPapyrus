@@ -162,7 +162,7 @@ int driveValid(const char * pPath)
 
 #pragma warn .asc
 
-bool FASTCALL IsDirectory(const wchar_t * pStr)
+bool FASTCALL SFile::IsDir(const wchar_t * pStr)
 {
 	bool yes = false;
 	if(!isempty(pStr)) {
@@ -192,13 +192,13 @@ bool FASTCALL IsDirectory(const wchar_t * pStr)
 	return yes;
 }
 
-bool FASTCALL IsDirectory(const char * pStr)
+bool FASTCALL SFile::IsDir(const char * pStr)
 {
 	bool   yes = false;
 	if(!isempty(pStr)) {
 		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
 		(SLS.AcquireRvlStr() = pStr).Strip().CopyToUnicode(r_temp_buf_u);
-		yes = IsDirectory(r_temp_buf_u);
+		yes = SFile::IsDir(r_temp_buf_u);
 	}
 	return yes;
 }
@@ -243,7 +243,7 @@ int pathValid(const char * pPath, int existOnly)
 		::GetFullPathName(SUcSwitch(exp_path), SIZEOFARRAY(fpn_buf), fpn_buf, &fn);
 		exp_path = SUcSwitch(fpn_buf);
 	}
-	return (exp_path.Len() <= 3) ? driveValid(exp_path) : (existOnly ? IsDirectory(exp_path.RmvLastSlash()) : 1);
+	return (exp_path.Len() <= 3) ? driveValid(exp_path) : (existOnly ? SFile::IsDir(exp_path.RmvLastSlash()) : 1);
 }
 
 SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
@@ -615,7 +615,7 @@ int GetFileStat(const char * pFileName, SDirEntry * pEntry)
 	return direc.Next(pEntry);
 }
 
-int RemoveDir(const char * pDir)
+int FASTCALL SFile::RemoveDir(const char * pDir)
 {
 	int    ok = 1;
 	if(pDir) {

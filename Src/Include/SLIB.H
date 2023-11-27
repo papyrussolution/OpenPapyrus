@@ -615,7 +615,7 @@
 #define SLERR_INVRANGE                   2
 #define SLERR_BOUNDS                     3
 #define SLERR_BUFTOOSMALL                4
-#define SLERR_NOFOUND                    5
+#define SLERR_NOTFOUND                   5
 #define SLERR_INVSYMBOL                  6
 #define SLERR_INVDATA                    7
 #define SLERR_EOLEXPECTED                8
@@ -627,7 +627,7 @@
 #define SLERR_ARYDELTA                  15
 #define SLERR_ARYZERODELTA              16
 #define SLERR_ARYNOTORD                 17
-#define SLERR_ARYITEMNFOUND             SLERR_NOFOUND
+#define SLERR_ARYITEMNFOUND             SLERR_NOTFOUND
 #define SLERR_ARYDUPITEM                18
 #define SLERR_ARYZEROCOUNT              19
 #define SLERR_FILENOTFOUND              20
@@ -692,6 +692,7 @@
 #define SLERR_MTX_INCOMPATDIM_MMADD     74 // Incompatible dim in matrix+matrix op
 #define SLERR_MTX_INVERSE               75 // Ошибка обращения матрицы.
 
+#define SLERR_MKDIRBYTEMPLATEFAULT      94 // @v11.8.12 Error creating directory by template
 #define SLERR_FILETOOBIG                95 // @v11.3.4 Файл '%s' слишком большой
 #define SLERR_INVPARAM                  96 // Недопустимый параметр функции (%s)
 #define SLERR_FILESHARINGVIOLATION      97 // Ошибка совместного доступа к файлу
@@ -943,6 +944,7 @@
 #define SLERR_ZIP_CANCELLED                    622  // @v10.8.4 N Operation cancelled
 #define SLERR_ZIP_LASTERROR                    622  // @anchor @v10.8.4 620-->622
 #define SLERR_ZLIB_BUFINFLATEFAULT             623  // @v11.2.9 Ошибка распаковки буфера данных
+#define SLERR_SSYSBU_INFORDFAULT               624  // @v11.8.12 Ошибка чтения файла информации о резервной копии SSystemBackup (%s)
 
 #define SLERR_CRYPTO_INVPARAM                  651  // @v11.0.11 Ошибка SLCRYPTO - недопустимый параметр функции
 #define SLERR_CRYPTO_KEYBUFOVRFLW              652  // @v11.0.11 Ошибка SLCRYPTO - переполнение внутреннего буфера ключа
@@ -1361,6 +1363,8 @@ public:
 	static constexpr uint64 Epoch1600_1970_Offs_100Ns = 116444736000000000ULL; // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
 	static constexpr int    DaysPer4Years   = 1461;   // @v11.8.11
 	static constexpr int    DaysPer400Years = 146097; // @v11.8.11
+	static constexpr const char * P_WrKey_MsWin_DisallowRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\DisallowRun"; // @v11.8.12 HKEY_CURRENT_USER
+	static constexpr const char * P_WrKey_MsWin_RestrictRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\RestrictRun"; // @v11.8.12 HKEY_CURRENT_USER
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
 //
@@ -4002,8 +4006,8 @@ private:
 // Descr: Класс, реализующий механизм работы со строками.
 //
 #define STRINGIZE(var) #var // заключает выражение в кавычки
-#define CAT_FLD(fld, str)     str.Cat(#fld).CatChar('=').Cat(fld)
-#define CAT_FLD_HEX(fld, str) str.Cat(#fld).CatChar('=').CatHex(fld)
+#define CAT_FLD(fld, str)     str.Cat(#fld).Eq().Cat(fld)
+#define CAT_FLD_HEX(fld, str) str.Cat(#fld).Eq().CatHex(fld)
 
 #define _CTRANSF_INNER         0x01
 #define _CTRANSF_OUTER         0x02
@@ -4103,6 +4107,7 @@ public:
 	//
 	int    STDCALL  Cmp(const char * pS, int ignoreCase) const;
 	int    FASTCALL CmpNC(const char * pS) const;
+	int    FASTCALL CmpiUtf8(const SString & rS) const;
 	//
 	// Descr: Сравнивает префикс строки this со строкой pS.
 	// Returns:
@@ -5198,6 +5203,7 @@ bool   FASTCALL sstreqi_ascii(const char * pS1, const char * pS2);
 bool   FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2);
 bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const wchar_t * pS2);
 bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2);
+int    FASTCALL sstrcmpi_ascii(const char * pS1, const char * pS2);
 inline char    stolower_ascii(char c) { return (c >= 'A' && c <= 'Z') ? (c - ('A' - 'a')) : c; }
 inline wchar_t stolower_ascii(wchar_t c) { return (c >= 'A' && c <= 'Z') ? (c - ('A' - 'a')) : c; }
 inline char    stoupper_ascii(char c) { return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c; }
@@ -5881,8 +5887,6 @@ char * setLastSlash(char *);
 char * rmvLastSlash(char *);
 bool   FASTCALL fileExists(const char * pFileName);
 int    driveValid(const char * path);
-bool   FASTCALL IsDirectory(const char * pStr);
-bool   FASTCALL IsDirectory(const wchar_t * pStr);
 int    pathValid(const char * pPath, int existOnly);
 // @v10.8.2 (unused) int    validFileName(const char * pFileName);
 //
@@ -12175,9 +12179,13 @@ public:
 	DECL_INVARIANT_C();
 
 	static int  CreateDir(const char * pPath); // @v11.8.11
+	static int  CreateDirByTemplate(const char * pPath, const char * pTemplate); // @v11.8.12
+	static bool FASTCALL IsDir(const char * pStr);
+	static bool FASTCALL IsDir(const wchar_t * pStr);
 	static uint ParseAccsf(const char * pSymb);
 	static int  GetAccsfSymb(uint accsf, SString & rBuf);
 	static int  FASTCALL Remove(const char * pFileName);
+	static int  FASTCALL RemoveDir(const char * pDir);
 	static int  Rename(const char * pFileName, const char * pNewFileName);
 	static int  Compare(const char * pFileName1, const char * pFileName2, long flags);
 	static int  FASTCALL WildcardMatch(const char * pPattern, const char * pStr);
@@ -12243,6 +12251,7 @@ public:
 		//
 		bool   IsFolder() const;
 		bool   IsSymLink() const;
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 		enum {
 			fError = 0x0001 // При извлечении данных структуры возникла ошибка
@@ -12682,7 +12691,7 @@ private:
 };
 
 int    GetFileStat(const char * pFileName, SDirEntry * pEntry);
-int    RemoveDir(const char * pDir);
+// @v11.8.12 (replaced with SFile::RemoveDir) int RemoveDir_Removed(const char * pDir);
 //
 // Descr: Returns execution file name in buffer pBuf.
 // Returns:
@@ -12848,11 +12857,6 @@ public:
     void   Sort(int criteria);
 private:
 	struct InnerEntry : public SFile::Stat {
-		//uint   Attr;
-		//LDATETIME CreateTime;
-		//LDATETIME AccessTime;
-		//LDATETIME WriteTime;
-		//int64  Size;
 		uint   NameP;
 		uint   PathP;
 		uint   RemoteUrlP; // @v10.8.2
@@ -12874,14 +12878,15 @@ private:
 class SDirecDiffPool {
 public:
 	enum {
-		kEqual         =      0,
-		kAbsenceLeft   =      1,
-		kAbsenceRight  =      2,
-		kDiffType      =      3, // Элементы каталогов отличаются принципиалными атрубутами (а именно, SFile::attrSubdir || SFile::attrRepasePoint)
-		kDiffAttr      = 0x0100, // Элементы каталогов отличаются любыми атрубутами кроме SFile::attrSubdir и SFile::attrRepasePoint
-		kDiffSize      = 0x0200, // Элементы каталогов отличаются размером (только для файлов)
-		kDiffModTime   = 0x0400, // Элементы каталогов отличаются временем последней модификации
-		kDiffSubDir    = 0x0800  // Элементы каталогов являются подкаталогами и они отличаются //
+		kEqual            =      0,
+		kAbsenceLeft      =      1,
+		kAbsenceRight     =      2,
+		kDiffType         =      3, // Элементы каталогов отличаются принципиалными атрубутами (а именно, SFile::attrSubdir || SFile::attrRepasePoint)
+		kDiffAttr         = 0x0100, // Элементы каталогов отличаются любыми атрубутами кроме SFile::attrSubdir и SFile::attrRepasePoint
+		kDiffSize         = 0x0200, // Элементы каталогов отличаются размером (только для файлов)
+		kDiffModTime      = 0x0400, // Элементы каталогов отличаются временем последней модификации
+		kDiffSubDir       = 0x0800, // Элементы каталогов являются подкаталогами и они отличаются //
+		kDiffReparsePoint = 0x1000  // @v11.8.12 Элементы каталогов отличаются содержимым reparse_point
 	};
 	class Entry {
 	public:
@@ -13123,6 +13128,143 @@ private:
 	void * H;
 	LaCbBlock * P_Cb_Blk; // @v10.4.4
 	SFileEntryPool Fep;   // @v11.6.9 Пул информации о файлах, находящихся в архиве
+};
+//
+// Descr: Специализированный класс для создания резервной копии или образа набора каталогов, веток реестра и профилей.
+//   Реализован в рамках проекта WSCTL.
+//
+class SSystemBackup {
+public:
+	//
+	// Descr: Флаги функции восстановления (SSystemBackup::Restore)
+	//
+	enum {
+		rfRemoveNewEntries      = 0x0001, 
+		rfRestoreRemovedEntries = 0x0002
+	};
+	//
+	// Descr: Параметры копии.
+	//
+	struct Param { // @persistent
+		Param();
+		Param(const Param & rS);
+		~Param();
+		Param & FASTCALL operator = (const Param & rS);
+		int    Copy(const Param & rS);
+		int    AddPathEntry(const SString & rValue);
+		int    AddRegEntry(const SString & rValue);
+		int    AddProfileEntry(const SString & rUser, const SString & rPassword);
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		//
+		// Descr: Сортирует элементы списка L по комбинации параметров {Entry::Type, Entry::Value}
+		//
+		void   SortEntries();
+		//
+		// Descr: Типы элементов копии.
+		//
+		enum {
+			etUndef   = 0, // Неопределенный (недопустимое значение)
+			etProfile = 1, // Системный профиль пользователя (содержит каталог профиля и ветку реестра)
+				// Этот элемент должен иметь меньшее числовое значение, нежели etPath и etReg
+				// поскольку вероятно пересечение копируемых каталогов/файлов, которое будет элиминировано
+				// в пользу etProfile.
+				// То есть, если элемент etPath содержит путь, который уже скопирован в рамках копирования //
+				// профиля, то этот путь будет пропущен.
+			etPath    = 2, // Путь файловой системы
+			etReg     = 3  // Ветка реестра
+		};
+		//
+		//
+		//
+		enum {
+			fDumpAfterBackup = 0x0001 // Отладочный флаг. Если установлен, то после завершения копирования в каталог
+				// с копией будет записан дамп копии (SSystemBackup::Dump())
+		};
+		//
+		// Descr: Элемент копии.
+		//
+		struct Entry {
+			Entry();
+			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+			int32  Type; // etXXX
+			S_GUID Uuid; // Идентификатор элемента. Используется для формирования наименований подкаталогов
+			SString Value;    // Если Type == etProfile, то - системное имя пользователя //
+				// Если Type == etPath, то путь к каталогу, который нужно архивировать //
+				// Если Type == etReg, то ветка реестра.
+			SString Password; // Системный пароль пользователя для архивации профиля //
+		};
+		uint32 Ver;             // Версия структуры (0..). Эта версия не обязательно совпадает с версией заголовка BackupInfoHeader::Ver
+		uint64 UedDataFormat;   // Формат архивирования копии (reserved)
+		uint32 Flags;           // Общие флаги
+		uint32 RestoreFlags;    // Флаги восстановления копии (rfXXX)
+		SString BackupPath;     // Путь, по которому сохраняется копия. Реальная копия хранится в подкаталоге BackupPath/BuId
+		TSCollection <Entry> L; // Список элементов копии
+	};
+	SSystemBackup();
+	SSystemBackup(const Param & rP);
+	~SSystemBackup();
+	int    Backup();
+	int    Dump(const char * pFileName);
+	//
+	// ARG(flags IN): Флаги восстановления оригинального каталога из образа.
+	//   Константы rfXXX
+	//
+	int    Restore(const char * pBackupPath, uint32 buId, uint flags);
+	uint32 GetLastBackupId(const char * pPath) const;
+private:
+	//
+	// Descr: Заголовок файла, сохраняющего состояние копии.
+	//
+	struct BackupInfoHeader {
+		BackupInfoHeader();
+		BackupInfoHeader & Init(uint32 buId);
+		uint32   Signature; // Контрольная сигнатура
+		uint32   Ver;       // Версия структуры (0..)
+		uint32   BuId;      // Serial number of the backup in one parent backup directory
+		LDATETIME Dtm;      // Время создания копии // 
+	};
+	int    Helper_BackupPath(const SString & rDestinationPath, const SString & rPathToBackupBase, const SString & rPathToBackup, 
+		StringSet & rRecurList, void * extraPtr);
+	int    BackupProfile(uint32 buId, const SString & rProfileName, const SString & rPw);
+	//
+	// ARG(rUuid IN): UUID элемента копирования (SSystemBackup::Entry::Uuid). Нужен для формирования подкаталога.
+	//
+	int    BackupReg(uint32 buId, const S_GUID & rUuid, const SString & rReg);
+	int    BackupReg(uint32 buId, HKEY regKey);
+	int    WriteBackupInfo(const char * pPath, uint32 buId);
+	int    ReadBackupInfo(const char * pPath);
+	uint32 MakeBackupId() const;
+	SString & MakeTerminalBackupPath(const SString & rBasePath, uint32 buId, SString & rBuf) const;
+	int    Helper_RestorePath(const SString & rBuPath, const SString & rOrgPath, const TSCollection <SDirecDiffPool::Entry> * pDiffList);
+	int    RestorePath(const SString & rTerminalBackupPath, const Param::Entry * pEntry);
+	int    RestoreProfile(const SString & rTerminalBackupPath, const Param::Entry * pEntry);
+	int    RestoreReg(const SString & rTerminalBackupPath, const Param::Entry * pEntry);
+	//
+	// Descr: Файл, который не удалось скопировать при создании образа
+	//
+	struct CopyFaultEntry : public SFile::Stat {
+		CopyFaultEntry();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		SString Path;
+	};
+	//
+	// Descr: Агрегатная структура, хранящая параметры копии
+	//
+	class StateBlock {
+	public:
+		StateBlock();
+		StateBlock(const Param & rP);
+		~StateBlock();
+		int    SearchCopyFaultEntry(const char * pPath, uint * pIdx) const;
+		int    Write(const char * pFileName, uint32 buId);
+		int    Read(const char * pFileName);
+		int    Dump(const char * pFileName);
+		BackupInfoHeader H;
+		Param P;
+		TSCollection <CopyFaultEntry> CopyFaultList;
+	};
+	StateBlock St;
 };
 //
 // JSON (Rui Maciel rui.maciel@gmail.com)
@@ -16062,15 +16204,24 @@ public:
 	//
 	//
 	enum {
-		accsfQueryValue       = 0x0001,
-		accsfSetValue         = 0x0002,
-		accsfCreateSub        = 0x0004,
-		accsfEnumSub          = 0x0008,
-		accsfNotify           = 0x0010,
-		accsfCreateLink       = 0x0020,
-		acccfWow64_64         = 0x0100, 
-		accsfWow64_32         = 0x0200,
-		accsfWow64_Res        = 0x0300,
+		accsfQueryValue       = 0x00001, // KEY_QUERY_VALUE (0x0001) Требуется для запроса значений раздела реестра.
+		accsfSetValue         = 0x00002, // KEY_SET_VALUE (0x0002) Требуется для создания, удаления или задания значения реестра.
+		accsfCreateSub        = 0x00004, // KEY_CREATE_SUB_KEY (0x0004) Требуется для создания подраздела раздела реестра
+		accsfEnumSub          = 0x00008, // KEY_ENUMERATE_SUB_KEYS (0x0008) Требуется для перечисления подразделов раздела реестра.
+		accsfNotify           = 0x00010, // KEY_NOTIFY (0x0010) Требуется для запроса уведомлений об изменениях для раздела реестра или подразделов раздела реестра.
+		accsfCreateLink       = 0x00020, // KEY_CREATE_LINK Зарезервировано для системного использования
+		acccfWow64_64         = 0x00100, // KEY_WOW64_64KEY (0x0100) Указывает, что приложение в 64-разрядной версии Windows должно работать в 64-разрядном 
+			// представлении реестра. Этот флаг игнорируется 32-разрядной версией Windows. Дополнительные сведения см. в разделе Доступ к альтернативному 
+			// представлению реестра. Этот флаг необходимо объединить с помощью оператора OR с другими флагами в этой таблице, которые запрашивают или получают 
+			// доступ к значениям реестра. Windows 2000: Этот флаг не поддерживается.
+		accsfWow64_32         = 0x00200, // KEY_WOW64_32KEY (0x0200) Указывает, что приложение в 64-разрядной версии Windows должно работать в 32-разрядном 
+			// представлении реестра. Этот флаг игнорируется 32-разрядной версией Windows. Дополнительные сведения см. в разделе Доступ к альтернативному 
+			// представлению реестра. Этот флаг необходимо объединить с помощью оператора OR с другими флагами в этой таблице, которые запрашивают или получают 
+			// доступ к значениям реестра. Windows 2000: Этот флаг не поддерживается.
+		accsfWow64_Res        = 0x00300, // 
+		accsfKeyWrite         = 0x20006, // KEY_WRITE (0x20006) Объединяет права доступа STANDARD_RIGHTS_WRITE, KEY_SET_VALUE и KEY_CREATE_SUB_KEY.
+		accsfAll              = 0xf003f, // KEY_ALL_ACCESS (0xF003F) Объединяет права доступа STANDARD_RIGHTS_REQUIRED, KEY_QUERY_VALUE, KEY_SET_VALUE, 
+			// KEY_CREATE_SUB_KEY, KEY_ENUMERATE_SUB_KEYS, KEY_NOTIFY и KEY_CREATE_LINK.
 	};
 	/*
 		#define KEY_QUERY_VALUE         (0x0001)

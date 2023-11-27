@@ -481,10 +481,10 @@ int SymbHashTable::GetByAssoc(uint val, SString & rBuf) const
 		if(Assoc.BSearch((long)val, &p, 0))
 			ok = Get((uint)p, rBuf);
 		else
-			ok = SLS.SetError(SLERR_NOFOUND);
+			ok = SLS.SetError(SLERR_NOTFOUND);
 	}
 	else {
-		ok = SLS.SetError(SLERR_NOFOUND);
+		ok = SLS.SetError(SLERR_NOTFOUND);
 		Iter it;
 		if(InitIteration(&it)) {
 			uint   _v = 0;
@@ -909,7 +909,7 @@ int GuidHashTable::GetByAssoc(uint val, S_GUID & rUuid) const
 		if(Assoc.BSearch((long)val, &p, 0))
 			ok = Get((uint)p, rUuid);
 		else
-			ok = (SLibError = SLERR_NOFOUND, 0);
+			ok = (SLibError = SLERR_NOTFOUND, 0);
 	}
 	else
 		ok = (SLibError = SLERR_HT_NOASSOC, 0);
@@ -1104,7 +1104,7 @@ void * FASTCALL PtrHashTable::GetByAssoc(uint val) const
 		if(Assoc.BSearch((long)val, &p, 0))
 			p_result = Get((uint)p);
 		else
-			SLS.SetError(SLERR_NOFOUND);
+			SLS.SetError(SLERR_NOTFOUND);
 	}
 	else
 		SLS.SetError(SLERR_HT_NOASSOC);
