@@ -12,7 +12,7 @@
 #define _CRT_NONSTDC_NO_DEPRECATE
 #define _CRT_NON_CONFORMING_SWPRINTFS 1
 #define _CRT_NON_CONFORMING_WCSTOK
-#define __STDC_FORMAT_MACROS
+// @v11.8.12 (defined at slconfig.h) #define __STDC_FORMAT_MACROS
 
 //..\OSF\npp-gh20210917\scintilla\include
 /*

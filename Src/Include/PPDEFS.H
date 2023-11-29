@@ -1265,134 +1265,135 @@
 //
 // Зарезервированные теги объектов
 //
-#define PPTAG_LOT_CLB                1L // Номер грузовой таможенной декларации (PPOBJ_LOT)
-#define PPTAG_LOT_SN                 2L // Серийный номер (PPOBJ_LOT)
-#define PPTAG_FLOAT_SERIAL           3L // @obsolete since @v9.0.11 (Заменено на TextRefCore SelfRefText)
+#define PPTAG_LOT_CLB                 1L // Номер грузовой таможенной декларации (PPOBJ_LOT)
+#define PPTAG_LOT_SN                  2L // Серийный номер (PPOBJ_LOT)
+#define PPTAG_FLOAT_SERIAL            3L // @obsolete since @v9.0.11 (Заменено на TextRefCore SelfRefText)
 	// "Плавающие" серийные номера. Такие серийные номера не привязаны к
 	// конкретным объектам, но используются для того, чтreобы хранить произвольные строковые значения серий,
 	// ассоциированные и целочисленными идентификаторами. Первоначальное применение - списание кассовых сессий
 	// с серийными номерами, при этом таблица CGoodsLine хранить не сами номера, что было бы расточительно,
 	// а ссылки на них.
-#define PPTAG_PERSON_POSRIGHTS       4L // Права агента на доступ к кассовым операциям.
-#define PPTAG_PERSON_DOB             5L // Дата рождения //
-#define PPTAG_BILL_CREATEDTM         6L // Дата создания документа. В данный момент используется для отражения информации о начале создания заказа на КПК.
-#define PPTAG_BILL_CREATEDTMEND      7L // Дата создания документа. В данный момент используется для отражения информации о окончании создания заказа на КПК.
-#define PPTAG_BILL_GPSCOORD          8L // GPS координаты агента при начале создания заказа на КПК.
-#define PPTAG_BILL_GPSCOORDEND       9L // GPS координаты агента при окончании создания заказа на КПК.
-#define PPTAG_GUA_GOODSRIGHTS       10L // Права глобальной учетной записи на доступ/изменение товара
-#define PPTAG_GUA_PERSONRIGHTS      11L // Права глобальной учетной записи на доступ/изменение персоналий
-#define PPTAG_GUA_SCARDRIGHTS       12L // Права глобальной учетной записи на доступ/изменение пластиковых карт
-#define PPTAG_GUA_SCARDPREFIX       13L // Префикс номеров пластиковых карт
-#define PPTAG_LOT_MANUFTIME         14L // Дата/время производства товара, оприходованного лотом.
-#define PPTAG_GUA_FILESRIGHTS       15L // Права глобальной учетной записи на доступ/изменение файлов
-#define PPTAG_BILL_UUID             16L // UUID документа
-#define PPTAG_GOODS_KEYWORDS        17L // Ключевые слова товара
-#define PPTAG_BILL_KEYWORDS         18L // Ключевые слова документа
-#define PPTAG_GUA_PGGTAG            19L // Символ тега приватной группы товара для данной глобальной учетной записи
-#define PPTAG_WORKBOOK_KEYWORDS     20L // Ключевые слова рабочих книг
-#define PPTAG_WORKBOOK_KWSYN        21L // Синонимы ключевых слов рабочих книг
-#define PPTAG_WORKBOOK_KWLOC        22L // Локации, ассоциированные с ключевыми словами рабочих книг (пока - наименования городов)
-#define PPTAG_CCHECK_JS_UUID        23L // UUID сессии, создавшей JUNK-чек (для того, чтобы можно было быстро восстановить чек после сбоя сеанса)
-#define PPTAG_GUA_SALOCRIGHTS       24L // Права глобальной учетной записи на доступ/изменение к автономным адресам
-#define PPTAG_GUA_WBRIGHTS          25L // Права глобальной учетной записи на доступ/изменение к рабочим книгам
-#define PPTAG_WORKBOOK_LONGCODE     26L // Длинный уникальный код записи рабочей книги (уникальность обеспечивается программно,
+#define PPTAG_PERSON_POSRIGHTS        4L // Права агента на доступ к кассовым операциям.
+#define PPTAG_PERSON_DOB              5L // Дата рождения //
+#define PPTAG_BILL_CREATEDTM          6L // Дата создания документа. В данный момент используется для отражения информации о начале создания заказа на КПК.
+#define PPTAG_BILL_CREATEDTMEND       7L // Дата создания документа. В данный момент используется для отражения информации о окончании создания заказа на КПК.
+#define PPTAG_BILL_GPSCOORD           8L // GPS координаты агента при начале создания заказа на КПК.
+#define PPTAG_BILL_GPSCOORDEND        9L // GPS координаты агента при окончании создания заказа на КПК.
+#define PPTAG_GUA_GOODSRIGHTS        10L // Права глобальной учетной записи на доступ/изменение товара
+#define PPTAG_GUA_PERSONRIGHTS       11L // Права глобальной учетной записи на доступ/изменение персоналий
+#define PPTAG_GUA_SCARDRIGHTS        12L // Права глобальной учетной записи на доступ/изменение пластиковых карт
+#define PPTAG_GUA_SCARDPREFIX        13L // Префикс номеров пластиковых карт
+#define PPTAG_LOT_MANUFTIME          14L // Дата/время производства товара, оприходованного лотом.
+#define PPTAG_GUA_FILESRIGHTS        15L // Права глобальной учетной записи на доступ/изменение файлов
+#define PPTAG_BILL_UUID              16L // UUID документа
+#define PPTAG_GOODS_KEYWORDS         17L // Ключевые слова товара
+#define PPTAG_BILL_KEYWORDS          18L // Ключевые слова документа
+#define PPTAG_GUA_PGGTAG             19L // Символ тега приватной группы товара для данной глобальной учетной записи
+#define PPTAG_WORKBOOK_KEYWORDS      20L // Ключевые слова рабочих книг
+#define PPTAG_WORKBOOK_KWSYN         21L // Синонимы ключевых слов рабочих книг
+#define PPTAG_WORKBOOK_KWLOC         22L // Локации, ассоциированные с ключевыми словами рабочих книг (пока - наименования городов)
+#define PPTAG_CCHECK_JS_UUID         23L // UUID сессии, создавшей JUNK-чек (для того, чтобы можно было быстро восстановить чек после сбоя сеанса)
+#define PPTAG_GUA_SALOCRIGHTS        24L // Права глобальной учетной записи на доступ/изменение к автономным адресам
+#define PPTAG_GUA_WBRIGHTS           25L // Права глобальной учетной записи на доступ/изменение к рабочим книгам
+#define PPTAG_WORKBOOK_LONGCODE      26L // Длинный уникальный код записи рабочей книги (уникальность обеспечивается программно,
 	// поскольку соответствующий индекс в таблице ObjTag дублируемый
-#define PPTAG_BILL_AUTOCREATION     27L // Текстовая метка специальной структуры, помечающая автоматически созданные документы.
+#define PPTAG_BILL_AUTOCREATION      27L // Текстовая метка специальной структуры, помечающая автоматически созданные документы.
 	// Основное назначение - предотвращение дублирования документов при автоматическом формировании.
-#define PPTAG_BILL_OUTERCODE        28L // Номер документа у контрагента
-#define PPTAG_BILL_OUTERDATE        29L // Дата документа у контрагента
-#define PPTAG_PERSON_ENALOGDEST     30L // Код назначения для отправки электронных налоговых документов (для главных организаций)
-#define PPTAG_LOC_FIASGUID_ADR      31L // Идентификатор терминального адреса по справочнику ФИАС
-#define PPTAG_LOC_FIASGUID_HSE      32L // Идентификатор здания по справочнику ФИАС
-#define PPTAG_GUA_STYLORIGHTS       33L // Права глобальной учетной записи на доступ/изменение записей устройств Stylo
-#define PPTAG_GUA_PRCRIGHTS         34L // Права глобальной учетной записи на доступ/изменение записей процессоров
-#define PPTAG_GUA_TSESSRIGHTS       35L // Права глобальной учетной записи на доступ/изменение технологических сессий
-#define PPTAG_TSESS_UUID            36L // UUID технологической сессии
-#define PPTAG_TSESS_DESCR           37L // Описание технологической сессии
-#define PPTAG_LOC_FSRARID           38L // Идентификатор склада в системе ЕГАИС
-#define PPTAG_PERSON_FSRARID        39L // Идентификатор организации в системе ЕГАИС
+#define PPTAG_BILL_OUTERCODE         28L // Номер документа у контрагента
+#define PPTAG_BILL_OUTERDATE         29L // Дата документа у контрагента
+#define PPTAG_PERSON_ENALOGDEST      30L // Код назначения для отправки электронных налоговых документов (для главных организаций)
+#define PPTAG_LOC_FIASGUID_ADR       31L // Идентификатор терминального адреса по справочнику ФИАС
+#define PPTAG_LOC_FIASGUID_HSE       32L // Идентификатор здания по справочнику ФИАС
+#define PPTAG_GUA_STYLORIGHTS        33L // Права глобальной учетной записи на доступ/изменение записей устройств Stylo
+#define PPTAG_GUA_PRCRIGHTS          34L // Права глобальной учетной записи на доступ/изменение записей процессоров
+#define PPTAG_GUA_TSESSRIGHTS        35L // Права глобальной учетной записи на доступ/изменение технологических сессий
+#define PPTAG_TSESS_UUID             36L // UUID технологической сессии
+#define PPTAG_TSESS_DESCR            37L // Описание технологической сессии
+#define PPTAG_LOC_FSRARID            38L // Идентификатор склада в системе ЕГАИС
+#define PPTAG_PERSON_FSRARID         39L // Идентификатор организации в системе ЕГАИС
 // #define PPTAG_GOODS_FSRARCODE       40L // Код товара в системе ЕГАИС
-#define PPTAG_LOT_FSRARINFA         41L // Номер справки А на алкогольную продукцию
-#define PPTAG_LOT_FSRARINFB         42L // Номер справки Б на алкогольную продукцию
-#define PPTAG_LOT_FSRARLOTGOODSCODE 43L // Код товара ЕГАИС привязанный к лоту. Так как один товар может соответствовать
+#define PPTAG_LOT_FSRARINFA          41L // Номер справки А на алкогольную продукцию
+#define PPTAG_LOT_FSRARINFB          42L // Номер справки Б на алкогольную продукцию
+#define PPTAG_LOT_FSRARLOTGOODSCODE  43L // Код товара ЕГАИС привязанный к лоту. Так как один товар может соответствовать
 	// нескольким кодам ЕГАИС для того, чтобы исключить рассогласования, в этот тег записывается код ЕГАИС оприходованного товара
-#define PPTAG_BILL_EDIACK           44L // По каналу EDI отправлено подтверждение на импортированный документ, либо получено
+#define PPTAG_BILL_EDIACK            44L // По каналу EDI отправлено подтверждение на импортированный документ, либо получено
 	// подтверждение на экспортированный. Если в записи установлен флаг BILLF2_ACKPENDING, то это означает, что было
 	// отправлено уведомление о получении импортированного документа, но ответ по каналу EDI еще был не получен.
-#define PPTAG_BILL_EDIIDENT         45L // Идентификатор документа у провайдера EDI (обычно отличается и от собственных номеров/идентификаторов и от оных у контрагента).
-#define PPTAG_LOC_EGAISSRVURL       46L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrossConfig)
-#define PPTAG_LOT_EGIASINFAREG      47L // Подробная информация о справке А (сжатая в одну строку)
-#define PPTAG_PERSON_EGAISSRVURL    48L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrossConfig)
-#define PPTAG_BILL_EDIRECADVCONFIRM 49L // Номер отправленного по каналу EDI нашего согласия/не согласия с полученным RECADV
-#define PPTAG_LOT_DIMENSIONS        50L // Размерности товара, ассоциированные с лотом (для изделий неправильной/нестандартной формы) // @v11.7.0 @fix PPTAG_LOT_DIMENTIONS-->PPTAG_LOT_DIMENSIONS
-#define PPTAG_BILL_EDIREJECTACK     51L // По каналу EDI отправлено требование отменить ранее совершенную передачу документа
-#define PPTAG_GOODS_OUTERPOSCODE    52L // (в ppdata.rc не добавлять) Код товара у источника данных для POS-узла
-#define PPTAG_BILL_EDICHANNEL       53L // Символьное обозначение EDI-канала, по которому был доставлен документ в базу данных.
+#define PPTAG_BILL_EDIIDENT          45L // Идентификатор документа у провайдера EDI (обычно отличается и от собственных номеров/идентификаторов и от оных у контрагента).
+#define PPTAG_LOC_EGAISSRVURL        46L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrossConfig)
+#define PPTAG_LOT_EGIASINFAREG       47L // Подробная информация о справке А (сжатая в одну строку)
+#define PPTAG_PERSON_EGAISSRVURL     48L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrossConfig)
+#define PPTAG_BILL_EDIRECADVCONFIRM  49L // Номер отправленного по каналу EDI нашего согласия/не согласия с полученным RECADV
+#define PPTAG_LOT_DIMENSIONS         50L // Размерности товара, ассоциированные с лотом (для изделий неправильной/нестандартной формы) // @v11.7.0 @fix PPTAG_LOT_DIMENTIONS-->PPTAG_LOT_DIMENSIONS
+#define PPTAG_BILL_EDIREJECTACK      51L // По каналу EDI отправлено требование отменить ранее совершенную передачу документа
+#define PPTAG_GOODS_OUTERPOSCODE     52L // (в ppdata.rc не добавлять) Код товара у источника данных для POS-узла
+#define PPTAG_BILL_EDICHANNEL        53L // Символьное обозначение EDI-канала, по которому был доставлен документ в базу данных.
 	// Этот тег может быть автоматически установлен у документов, имеющих не нулевой признак BillTbl::Rec::EdiOp
 	// Ручная установка этого тега крайне не желательна.
-#define PPTAG_BILL_EDIREPEALACK     54L // По каналу EDI Papyrus'ом отправлен запрос на отмену проведения документа.
+#define PPTAG_BILL_EDIREPEALACK      54L // По каналу EDI Papyrus'ом отправлен запрос на отмену проведения документа.
 	// Этот тег содержит подтверждение о получении сервером EDI такого запроса.
-#define PPTAG_BILL_EDIPROBLEMTRFR   55L // Текстовый тег, перечисляющий проблемные номера товарных строк в формате: number[:descr][;number[:descr]]*
-#define PPTAG_LOT_SOURCESERIAL      56L // Серийный номер исходного лота для данной строки. Применяется в документах модификации.
-#define PPTAG_PERSON_UUID           57L // UUID персоналии
-#define PPTAG_LOC_UUID              58L // UUID локации
-#define PPTAG_BILL_FORMALREASON     59L // Формальное основание документа (перечисление)
-#define PPTAG_BILL_EDIREPEALREQ     60L // Запрос на отмену проведения документа EDI
-#define PPTAG_POSNODE_UUID          61L // UUID кассового узла
-#define PPTAG_POSNODE_HOSTUUID      62L // UUID управляющего кассового узла (для синхронных кассовый узлов Papyrus)
-#define PPTAG_BILL_STATECONTRACTID  63L // ИД государственного контракта (для счетов-фактур)
-#define PPTAG_PERSON_ENALOGID       64L // ИД участника документооборота (nalog.ru)
-#define PPTAG_BILL_COMPLEMENTARY    65L // Формальная текстовая ссылка на комплементарный (парный) документ.
+#define PPTAG_BILL_EDIPROBLEMTRFR    55L // Текстовый тег, перечисляющий проблемные номера товарных строк в формате: number[:descr][;number[:descr]]*
+#define PPTAG_LOT_SOURCESERIAL       56L // Серийный номер исходного лота для данной строки. Применяется в документах модификации.
+#define PPTAG_PERSON_UUID            57L // UUID персоналии
+#define PPTAG_LOC_UUID               58L // UUID локации
+#define PPTAG_BILL_FORMALREASON      59L // Формальное основание документа (перечисление)
+#define PPTAG_BILL_EDIREPEALREQ      60L // Запрос на отмену проведения документа EDI
+#define PPTAG_POSNODE_UUID           61L // UUID кассового узла
+#define PPTAG_POSNODE_HOSTUUID       62L // UUID управляющего кассового узла (для синхронных кассовый узлов Papyrus)
+#define PPTAG_BILL_STATECONTRACTID   63L // ИД государственного контракта (для счетов-фактур)
+#define PPTAG_PERSON_ENALOGID        64L // ИД участника документооборота (nalog.ru)
+#define PPTAG_BILL_COMPLEMENTARY     65L // Формальная текстовая ссылка на комплементарный (парный) документ.
 	// Теоретически, использоваться может достаточно широко, однако непосредственным поводом для ввода тега
 	// послужила необходимость при передаче в ЕГАИС акта постановки на баланс по пересортице (PPEDIOP_EGAIS_ACTCHARGEON_V2)
 	// передавать ссылку на соответствующий документ потерь (PPEDIOP_EGAIS_ACTWRITEOFF_V2).
-#define PPTAG_PERSON_VETISUUID      66L // UUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID)
-#define PPTAG_GUA_LOGIN             67L // Строка авторизации для глобальной учетной записи. Необходим в том случае,
+#define PPTAG_PERSON_VETISUUID       66L // UUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID)
+#define PPTAG_GUA_LOGIN              67L // Строка авторизации для глобальной учетной записи. Необходим в том случае,
 	// если эта строка не может быть помещена в наименование записи из-за нарушения требования уникальности либо максимальной длины.
-#define PPTAG_GOODS_UUID            68L // @v10.0.04 UUID товара
-#define PPTAG_BILL_EDIRECADVRCV     69L // @v10.0.05 Информация о RECADV полученном в ответ на отправленный DESADV
-#define PPTAG_BILL_EDIDESADVSENT    70L // @v10.0.06 Информация об отправленном DESADV
-#define PPTAG_BILL_EDIORDRSPSENT    71L // @v10.0.06 Информация об отправленном ORDRSP
-#define PPTAG_BILL_EDIALCDESADVSENT 72L // @v10.0.06 Информация об отправленном ALCODESADV
-#define PPTAG_BILL_EDIINVOICSENT    73L // @v10.0.06 Информация об отправленном INVOIC
+#define PPTAG_GOODS_UUID             68L // @v10.0.04 UUID товара
+#define PPTAG_BILL_EDIRECADVRCV      69L // @v10.0.05 Информация о RECADV полученном в ответ на отправленный DESADV
+#define PPTAG_BILL_EDIDESADVSENT     70L // @v10.0.06 Информация об отправленном DESADV
+#define PPTAG_BILL_EDIORDRSPSENT     71L // @v10.0.06 Информация об отправленном ORDRSP
+#define PPTAG_BILL_EDIALCDESADVSENT  72L // @v10.0.06 Информация об отправленном ALCODESADV
+#define PPTAG_BILL_EDIINVOICSENT     73L // @v10.0.06 Информация об отправленном INVOIC
 #define PPTAG_PERSON_VETISISSUUID__unused   74L // @v10.0.08 Vetis IssuerUUID предприятия в системе Меркурий (интерфейс ВЕТИС)
-#define PPTAG_PERSON_VETISUSER      75L // @v10.0.08 Vetis initiator в системе Меркурий (интерфейс ВЕТИС)
-#define PPTAG_LOT_VETIS_UUID        76L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
-#define PPTAG_LOC_VETIS_GUID        77L // @v10.1.0 ВЕТИС-идент локации (склад или адрес доставки) // в терминах ВЕТИС - enterprise GUID (не UUID)
-#define PPTAG_GUA_SECRET            78L // @v10.1.3 Строка секрета авторизации для глобальной учетной записи. Необходим в том случае,
+#define PPTAG_PERSON_VETISUSER       75L // @v10.0.08 Vetis initiator в системе Меркурий (интерфейс ВЕТИС)
+#define PPTAG_LOT_VETIS_UUID         76L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
+#define PPTAG_LOC_VETIS_GUID         77L // @v10.1.0 ВЕТИС-идент локации (склад или адрес доставки) // в терминах ВЕТИС - enterprise GUID (не UUID)
+#define PPTAG_GUA_SECRET             78L // @v10.1.3 Строка секрета авторизации для глобальной учетной записи. Необходим в том случае,
 	// если эта строка не может быть помещена в штатный пароль записи из-за нарушения требования максимальной длины, либо по каким-то иным причинам.
-#define PPTAG_GOODS_VETISPURPOSE    79L // @v10.1.12 Цель отгрузки товара для ВЕТИС. Размещение этого признака в товаре
+#define PPTAG_GOODS_VETISPURPOSE     79L // @v10.1.12 Цель отгрузки товара для ВЕТИС. Размещение этого признака в товаре
 	// спорно, однако, на момент создания это - быстрое решение проблемы автоматической дифференциации целей отгрузки
 	// в зависимости от товара.
 // @postponed #define PPTAG_LOC_VETIS_ENTITYGUID  80L // @v10.2.1 GUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID). Имеет приоритет перед PPTAG_PERSON_VETISUUID
 // @postponed #define PPTAG_LOC_VETISUSER         81L // @v10.2.1 Vetis initiator в системе Меркурий (интерфейс ВЕТИС). Имеет приоритет перед PPTAG_PERSON_VETISUSER
-#define PPTAG_GOODS_TRANSPVANTYPE   82L // @v10.2.11 Тип транспортного фургона для отправки данных в Меркурий
-#define PPTAG_BILL_EDIORDERSENT     83L // @v10.2.11 Информация об отправленном ORDER
-#define PPTAG_BILL_EDIORDRSPRCV     84L // @v10.2.11 Информация об ORDRSP, полученном в ответ на отправленный ORDER
-#define PPTAG_LOT_ORGLINEIDENT      85L // @v10.3.4 Оригинальный идентификатор строки документа. Используется в случае, если идент импортированного документа
+#define PPTAG_GOODS_TRANSPVANTYPE    82L // @v10.2.11 Тип транспортного фургона для отправки данных в Меркурий
+#define PPTAG_BILL_EDIORDERSENT      83L // @v10.2.11 Информация об отправленном ORDER
+#define PPTAG_BILL_EDIORDRSPRCV      84L // @v10.2.11 Информация об ORDRSP, полученном в ответ на отправленный ORDER
+#define PPTAG_LOT_ORGLINEIDENT       85L // @v10.3.4 Оригинальный идентификатор строки документа. Используется в случае, если идент импортированного документа
 	// не может быть представлена целым числом [1..30000]
-#define PPTAG_LOT_FREIGHTPACKAGE    86L // @v10.4.1 Транспортная упаковка. Структурированная информация сжата в строку.
-#define PPTAG_GOODS_VETISGUID       87L // @v10.5.1 GUID товара в справочнике ВЕТИС
-#define PPTAG_GUA_GUID              88L // @v10.5.3 GUID глобальной учетной записи
-#define PPTAG_GUA_ACCESSKEY         89L // @v10.5.5 Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
-#define PPTAG_LOT_LINKBILLROW       90L // @v10.5.7 Связанная строка документа
-#define PPTAG_GUA_CERTSUBJCN        91L // @v10.6.3 CN субъекта сертификата электронной подписи
-#define PPTAG_PERSON_CHZNCODE       92L // @v10.6.4 Код контрагента в честном знаке
-#define PPTAG_LOC_CHZNCODE          93L // @v10.6.4 Код локации в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE но имеет приоритет при идентификации)
-#define PPTAG_GUA_CHZNCODE          94L // @v10.6.5 Код своего предприятия в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE, PPTAG_LOC_CHZNCODE но имеет меньший приоритет при идентификации)
-#define PPTAG_GUA_PROTOCOL          95L // @v10.7.10 Протокол либо версия протокола обмена с сервисом, к которому привязана запись.
-#define PPTAG_GUA_OUTERWAREIDTAG    96L // @v10.9.4  Ссылка на тег товара, содержащий внешний идентификатор
-#define PPTAG_GUA_SOCIALGROUPCODE   97L // @v10.9.6  Код группы в социальной сети
-#define PPTAG_GUA_SOCIALPAGECODE    98L // @v10.9.6  Код страницы в социальной сети
-#define PPTAG_LOC_VETIS_REGIONGUID  99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
-#define PPTAG_BILL_LONGCODE        100L // @v11.0.12 (надеюсь, временный тег) Если номер документа, поступившего из-вне длиннее sizeof(Bill:Code)-1 то полный номер сохраняется в этом теге
-#define PPTAG_POSNODE_OFDVER       101L // @v11.1.9  Версия ОФД на аппарате (аппаратах), с которой работает кассовый узел
-#define PPTAG_LOC_TRUNKPOINT       102L // @v11.2.9  Магистральная точка, ближайшая к адресу. Используется в логистике для планирования маршрутов.
-#define PPTAG_TSESS_OUTERCODE      103L // @v11.6.6  Внешний код технологической сессии
-#define PPTAG_PERSON_TRANSPORTTO   104L // @v11.6.9  Транспорт, используемый для доставки товара клиенту по-умолчанию (используется для интеграции с VETIS)
-#define PPTAG_LOT_ACCEPTANCE       105L // @v11.7.0  Результат "физической" приемки документа. Структурированная информация сжата в строку.
-#define PPTAG_PRC_UUID             106L // @v11.7.2  UUID процессора
-#define PPTAG_BILL_LINKCCHECKUUID  107L // @v11.8.8  UUID кассового чека, сформированного по документу
+#define PPTAG_LOT_FREIGHTPACKAGE     86L // @v10.4.1 Транспортная упаковка. Структурированная информация сжата в строку.
+#define PPTAG_GOODS_VETISGUID        87L // @v10.5.1 GUID товара в справочнике ВЕТИС
+#define PPTAG_GUA_GUID               88L // @v10.5.3 GUID глобальной учетной записи
+#define PPTAG_GUA_ACCESSKEY          89L // @v10.5.5 Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
+#define PPTAG_LOT_LINKBILLROW        90L // @v10.5.7 Связанная строка документа
+#define PPTAG_GUA_CERTSUBJCN         91L // @v10.6.3 CN субъекта сертификата электронной подписи
+#define PPTAG_PERSON_CHZNCODE        92L // @v10.6.4 Код контрагента в честном знаке
+#define PPTAG_LOC_CHZNCODE           93L // @v10.6.4 Код локации в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE но имеет приоритет при идентификации)
+#define PPTAG_GUA_CHZNCODE           94L // @v10.6.5 Код своего предприятия в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE, PPTAG_LOC_CHZNCODE но имеет меньший приоритет при идентификации)
+#define PPTAG_GUA_PROTOCOL           95L // @v10.7.10 Протокол либо версия протокола обмена с сервисом, к которому привязана запись.
+#define PPTAG_GUA_OUTERWAREIDTAG     96L // @v10.9.4  Ссылка на тег товара, содержащий внешний идентификатор
+#define PPTAG_GUA_SOCIALGROUPCODE    97L // @v10.9.6  Код группы в социальной сети
+#define PPTAG_GUA_SOCIALPAGECODE     98L // @v10.9.6  Код страницы в социальной сети
+#define PPTAG_LOC_VETIS_REGIONGUID   99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
+#define PPTAG_BILL_LONGCODE         100L // @v11.0.12 (надеюсь, временный тег) Если номер документа, поступившего из-вне длиннее sizeof(Bill:Code)-1 то полный номер сохраняется в этом теге
+#define PPTAG_POSNODE_OFDVER        101L // @v11.1.9  Версия ОФД на аппарате (аппаратах), с которой работает кассовый узел
+#define PPTAG_LOC_TRUNKPOINT        102L // @v11.2.9  Магистральная точка, ближайшая к адресу. Используется в логистике для планирования маршрутов.
+#define PPTAG_TSESS_OUTERCODE       103L // @v11.6.6  Внешний код технологической сессии
+#define PPTAG_PERSON_TRANSPORTTO    104L // @v11.6.9  Транспорт, используемый для доставки товара клиенту по-умолчанию (используется для интеграции с VETIS)
+#define PPTAG_LOT_ACCEPTANCE        105L // @v11.7.0  Результат "физической" приемки документа. Структурированная информация сжата в строку.
+#define PPTAG_PRC_UUID              106L // @v11.7.2  UUID процессора
+#define PPTAG_BILL_LINKCCHECKUUID   107L // @v11.8.8  UUID кассового чека, сформированного по документу
+#define PPTAG_BILL_CHZNDISPOSALRSN  108L // @v11.8.12 Признак причины выбытия марки честный знак <СвВыбытияМАРК> (1,2,3,4 or empty)
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -4623,6 +4624,7 @@
 	#define CTL_TAGV_TIME                (11 + WINDOWS_ID_BIAS)
 	#define CTLTM_TAGV_TIME              (12 + WINDOWS_ID_BIAS)
 	#define CTL_TAGV_TAGID               (13 + WINDOWS_ID_BIAS) // @v11.5.12
+	#define CTL_TAGV_INT                 (14 + WINDOWS_ID_BIAS) // @v11.8.12
 #define DLG_TAGVALVIEW            351
 	#define CTL_TAGVALVIEW_LIST          (1 + WINDOWS_ID_BIAS)
 	#define CTL_TAGVALVIEW_OBJ           (2 + WINDOWS_ID_BIAS)
@@ -11491,7 +11493,8 @@
 	#define CTL_RUNIECC_CFG                 (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RUNIECC_CFG              (2 + WINDOWS_ID_BIAS)
 #define DLG_CCEXTLIST             1435 // @v11.8.8 Список полей расширения кассового чека
-	#define CTL_CCEXTLIST_LIST              (1 + WINDOWS_ID_BIAS) 
+	#define CTL_CCEXTLIST_LIST              (1 + WINDOWS_ID_BIAS)
+#define DLG_TAGVINT               1436 // @v11.8.12
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

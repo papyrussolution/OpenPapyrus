@@ -8116,6 +8116,17 @@ int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket 
 						n_1.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), "none");
 						n_1.PutAttrib(_blk.GetToken(PPHSC_RU_VAL), "none");
 					}
+					// @v11.8.12 {
+					{
+						const ObjTagItem * p_tag = _blk.R_Bp.BTagL.GetItem(PPTAG_BILL_CHZNDISPOSALRSN);
+						int   disposal_reason = 0;
+						if(p_tag && p_tag->GetInt(&disposal_reason) > 0 && (disposal_reason >= 1 && disposal_reason <= 4)) {
+							SXml::WNode n_1(_blk.G.P_X, _blk.GetToken(PPHSC_RU_TEXTINF));
+							n_1.PutAttrib(_blk.GetToken(PPHSC_RU_IDENTIF), _blk.GetToken(PPHSC_RU_CHZNDISPOSALREASON));
+							n_1.PutAttrib(_blk.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(disposal_reason));
+						}
+					}
+					// } @v11.8.12 
 				}
 			}
 			_blk.G.WriteInvoiceItems(rParam, _blk._Hi, rBp);

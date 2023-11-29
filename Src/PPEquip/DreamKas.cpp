@@ -110,8 +110,7 @@ int ACS_DREAMKAS::ParseGoods(const SJson * pJsonObj, S_GUID & rUuid, SString & r
 			}
 		}
 		else if(p_cur->Text.IsEqiAscii("name")) {
-			if(p_cur->P_Child)
-				rName = (temp_buf = p_cur->P_Child->Text).Unescape();
+			SJson::GetChildTextUnescaped(p_cur, rName);
 		}
 	}
 	if(rName.IsEmpty() || rUuid.IsZero())

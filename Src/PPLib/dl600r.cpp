@@ -1,5 +1,5 @@
 // DL600R.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Run-time DL600 modules
 //
@@ -777,7 +777,7 @@ int DlRtm::SetByJSON_Helper(const SJson * pNode, SetScopeBlk & rBlk)
 							THROW(rBlk.GetFieldByName(fld_name, &fld));
 							if(!(fld.T.Flags & STypEx::fFormula)) {
 								//p_value = json_unescape(p_cur->P_Child->P_Text);
-								(temp_buf = p_cur->P_Child->Text).Unescape();
+								SJson::GetChildTextUnescaped(p_cur, temp_buf);
 								THROW(p_buf = rBlk.GetBuffer());
 								fld.PutFieldDataToBuf(temp_buf, p_buf, fp);
 								//ZFREE(p_value);

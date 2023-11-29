@@ -69,28 +69,6 @@ public:
 	StringSet SsRrl;
 	size_t MaxStrListItemLen; // @v11.7.10 Для оценки производительности smemchr(ptr, 0, size)
 };
-//
-// Аналог strnzcpy но с использованием xeos_memchr вместо memchr
-//
-/* @v11.0.0 static char * FASTCALL xeos_strnzcpy(char * dest, const char * src, size_t maxlen)
-{
-	if(dest)
-		if(src)
-			if(maxlen) {
-				const char * p = (SLS.GetSSys().CpuCs >= SSystem::cpucsSSE2) ? (const char *)xeos_memchr32_sse2(src, 0, maxlen) : (const char *)xeos_memchr32(src, 0, maxlen);
-				if(p)
-					memcpy(dest, src, (size_t)(p - src)+1);
-				else {
-					memcpy(dest, src, maxlen-1);
-					dest[maxlen-1] = 0;
-				}
-			}
-			else
-				strcpy(dest, src);
-		else
-			dest[0] = 0;
-	return dest;
-}*/
 
 SLTEST_FIXTURE(SString, SlTestFixtureSString)
 {
@@ -973,16 +951,6 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 		}
-		/* @v11.0.0
-		else if(bm == 6) {
-			for(uint phase = 0; phase < max_bm_phase; phase++) {
-				for(uint i = 0; i < scc; i++) {
-					char buffer[2048];
-					xeos_strnzcpy(buffer, F.P_StrList->at(i), sizeof(buffer));
-					total_len += xeos_strlen(buffer);
-				}
-			}
-		}*/
 		else if(bm == 2) {
 			for(uint phase = 0; phase < max_bm_phase; phase++) {
 				for(uint i = 0; i < scc; i++) {

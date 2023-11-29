@@ -91,29 +91,24 @@ static curl_simple_lock s_lock = CURL_SIMPLE_LOCK_INIT;
 #define global_init_unlock() curl_simple_lock_unlock(&s_lock)
 
 #else
-
-#define global_init_lock()
-#define global_init_unlock()
-
+	#define global_init_lock()
+	#define global_init_unlock()
 #endif
-
 /*
  * strdup (and other memory functions) is redefined in complicated
  * ways, but at this point it must be defined as the system-supplied strdup
  * so the callback pointer is initialized correctly.
  */
 #if defined(_WIN32_WCE)
-#define system_strdup _strdup
+	#define system_strdup _strdup
 #elif !defined(HAVE_STRDUP)
-#define system_strdup Curl_strdup
+	#define system_strdup Curl_strdup
 #else
-#define system_strdup strdup
+	#define system_strdup _strdup // @sobolev strdup--_strdup
 #endif
-
 #if defined(_MSC_VER) && defined(_DLL) && !defined(__POCC__)
-#  pragma warning(disable:4232) /* MSVC extension, dllimport identity */
+	#pragma warning(disable:4232) /* MSVC extension, dllimport identity */
 #endif
-
 /*
  * If a memory-using function (like curl_getenv) is used before
  * curl_global_init() is called, we need to have these pointers set already.
@@ -124,17 +119,14 @@ curl_realloc_callback Curl_crealloc = (curl_realloc_callback)realloc;
 curl_strdup_callback Curl_cstrdup = (curl_strdup_callback)system_strdup;
 curl_calloc_callback Curl_ccalloc = (curl_calloc_callback)calloc;
 #if defined(WIN32) && defined(UNICODE)
-curl_wcsdup_callback Curl_cwcsdup = Curl_wcsdup;
+	curl_wcsdup_callback Curl_cwcsdup = Curl_wcsdup;
 #endif
-
 #if defined(_MSC_VER) && defined(_DLL) && !defined(__POCC__)
-#  pragma warning(default:4232) /* MSVC extension, dllimport identity */
+	#pragma warning(default:4232) /* MSVC extension, dllimport identity */
 #endif
-
 #ifdef DEBUGBUILD
-static char * leakpointer;
+	static char * leakpointer;
 #endif
-
 /**
  * curl_global_init() globally initializes curl given a bitwise set of the
  * different features of what to initialize.

@@ -1249,7 +1249,7 @@ int WsCtl_ImGuiSceneBlock::DPrices::FromJsonObject(const SJson * pJsObj)
 										p_entry->ID = p_qk_cur->P_Child->Text.ToLong();
 									}
 									else if(p_qk_cur->Text.IsEqiAscii("nm")) {
-										(p_entry->NameUtf8 = p_qk_cur->P_Child->Text).Unescape();
+										SJson::GetChildTextUnescaped(p_qk_cur, p_entry->NameUtf8);
 									}
 									else if(p_qk_cur->Text.IsEqiAscii("rank")) {
 										p_entry->Rank = p_qk_cur->P_Child->Text.ToLong();

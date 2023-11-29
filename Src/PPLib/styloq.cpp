@@ -3422,21 +3422,16 @@ int PPStyloQInterchange::DocumentDeclaration::FromJsonObject(const SJson * pJsOb
 	THROW(SJson::IsObject(pJsObj));
 	for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_cur->P_Next) {
 		if(p_cur->P_Child) {
-			if(p_cur->Text.IsEqiAscii("type")) {
-				(Type = p_cur->P_Child->Text).Unescape();
-			}
-			else if(p_cur->Text.IsEqiAscii("displaymethod")) {
-				(DisplayMethSymb = p_cur->P_Child->Text).Unescape();
-			}
-			else if(p_cur->Text.IsEqiAscii("viewsymb")) {
-				(ViewSymb = p_cur->P_Child->Text).Unescape();
-			}
-			else if(p_cur->Text.IsEqiAscii("dl600symb")) {
-				(Dl600Symb = p_cur->P_Child->Text).Unescape();
-			}
-			else if(p_cur->Text.IsEqiAscii("format")) {
-				(Format = p_cur->P_Child->Text).Unescape();
-			}
+			if(p_cur->Text.IsEqiAscii("type"))
+				SJson::GetChildTextUnescaped(p_cur, Type);
+			else if(p_cur->Text.IsEqiAscii("displaymethod"))
+				SJson::GetChildTextUnescaped(p_cur, DisplayMethSymb);
+			else if(p_cur->Text.IsEqiAscii("viewsymb"))
+				SJson::GetChildTextUnescaped(p_cur, ViewSymb);
+			else if(p_cur->Text.IsEqiAscii("dl600symb"))
+				SJson::GetChildTextUnescaped(p_cur, Dl600Symb);
+			else if(p_cur->Text.IsEqiAscii("format"))
+				SJson::GetChildTextUnescaped(p_cur, Format);
 			else if(p_cur->Text.IsEqiAscii("time")) {
 				temp_buf = p_cur->P_Child->Text;
 				Dtm.Set(temp_buf, DATF_ISO8601CENT, TIMF_HMS);
@@ -6565,15 +6560,14 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 				opaque_data.Z();
 				for(const SJson * p_inr = p_cur->P_Child->P_Child; p_inr; p_inr = p_inr->P_Next) {
 					if(p_inr->Text.IsEqiAscii("nm")) {
-						if(p_inr->P_Child) {
-							(temp_buf = p_inr->P_Child->Text).Unescape();
+						if(SJson::GetChildTextUnescaped(p_inr, temp_buf)) {
 							opaque_data = temp_buf;
 							ib_.Tokenize(pTa, temp_buf, ss);
 						}
 					}
 					else if(p_inr->Text.IsEqiAscii("descr")) {
-						if(p_inr->P_Child) {
-							ib_.Tokenize(pTa, (temp_buf = p_inr->P_Child->Text).Unescape(), ss);
+						if(SJson::GetChildTextUnescaped(p_inr, temp_buf)) {
+							ib_.Tokenize(pTa, temp_buf, ss);
 						}
 					}
 					else if(p_inr->Text.IsEqiAscii("gln")) {
@@ -6589,16 +6583,19 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 							ib_.Tokenize(pTa, p_inr->P_Child->Text, ss);
 					}
 					else if(p_inr->Text.IsEqiAscii("phone")) {
-						if(p_inr->P_Child) 
-							ib_.Tokenize(pTa, (temp_buf = p_inr->P_Child->Text).Unescape(), ss);
+						if(SJson::GetChildTextUnescaped(p_inr, temp_buf)) {
+							ib_.Tokenize(pTa, temp_buf, ss);
+						}
 					}
 					else if(p_inr->Text.IsEqiAscii("city")) {
-						if(p_inr->P_Child)
-							ib_.Tokenize(pTa, (temp_buf = p_inr->P_Child->Text).Unescape(), ss);
+						if(SJson::GetChildTextUnescaped(p_inr, temp_buf)) {
+							ib_.Tokenize(pTa, temp_buf, ss);
+						}
 					}
 					else if(p_inr->Text.IsEqiAscii("email")) {
-						if(p_inr->P_Child)
-							ib_.Tokenize(pTa, (temp_buf = p_inr->P_Child->Text).Unescape(), ss);
+						if(SJson::GetChildTextUnescaped(p_inr, temp_buf)) {
+							ib_.Tokenize(pTa, temp_buf, ss);
+						}
 					}
 				}
 				if(pFtsTra && ss.getCount()) {
@@ -6625,8 +6622,7 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 									_id = p_itm->P_Child->Text.ToInt64();
 							}
 							else if(p_itm->Text.IsEqiAscii("nm")) {
-								if(p_itm->P_Child) {
-									(temp_buf = p_itm->P_Child->Text).Unescape();
+								if(SJson::GetChildTextUnescaped(p_itm, temp_buf)) {
 									opaque_data = temp_buf;
 									ib_.Tokenize(pTa, temp_buf, ss);
 								}
@@ -6667,8 +6663,7 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 									_id = p_itm->P_Child->Text.ToInt64();
 							}
 							else if(p_itm->Text.IsEqiAscii("nm")) {
-								if(p_itm->P_Child) {
-									(temp_buf = p_itm->P_Child->Text).Unescape();
+								if(SJson::GetChildTextUnescaped(p_itm, temp_buf)) {
 									opaque_data = temp_buf;
 									ib_.Tokenize(pTa, temp_buf, ss);
 								}
@@ -6700,8 +6695,7 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 									_id = p_itm->P_Child->Text.ToInt64();
 							}
 							else if(p_itm->Text.IsEqiAscii("nm")) {
-								if(p_itm->P_Child) {
-									(temp_buf = p_itm->P_Child->Text).Unescape();
+								if(SJson::GetChildTextUnescaped(p_itm, temp_buf)) {
 									opaque_data = temp_buf;
 									ib_.Tokenize(pTa, temp_buf, ss);
 								}
@@ -6733,8 +6727,7 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 									_id = p_itm->P_Child->Text.ToInt64();
 							}
 							else if(p_itm->Text.IsEqiAscii("nm")) {
-								if(p_itm->P_Child) {
-									(temp_buf = p_itm->P_Child->Text).Unescape();
+								if(SJson::GetChildTextUnescaped(p_itm, temp_buf)) {
 									opaque_data = temp_buf;
 									ib_.Tokenize(pTa, temp_buf, ss);
 								}
@@ -12555,8 +12548,7 @@ bool PPStyloQInterchange::Stq_ReqBlobInfoList::ParseRequestInfoListReply(const S
 			rep_entry.Z();
 			for(const SJson * p_itm = p_inr->P_Child; p_itm; p_itm = p_itm->P_Next) {
 				if(p_itm->Text.IsEqiAscii("signature")) {
-					if(p_itm->P_Child)
-						(rep_entry.Signature = p_itm->P_Child->Text).Unescape();
+					SJson::GetChildTextUnescaped(p_itm, rep_entry.Signature);
 				}
 				else if(p_itm->Text.IsEqiAscii("hashalg")) {
 					if(p_itm->P_Child)

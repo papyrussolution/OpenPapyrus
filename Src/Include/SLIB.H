@@ -454,52 +454,11 @@
 //
 //
 #define WIN32_LEAN_AND_MEAN
-//#define _WIN32_WINNT 0x0501
-//#define _WIN32_IE 0x0501 // @v9.0.8
-//
-/* @v10.9.3 (moved to slport.h) #if !defined(FORCEINLINE)
-	#if defined(_MSC_VER)
-		#define FORCEINLINE __forceinline
-	#else
-		#define FORCEINLINE
-	#endif
-#endif*/
-#if defined(__WIN32__) || defined(_WIN32) || defined(_WIN32_WCE)
-	// @v10.9.1 #define SFAR
-	#define SLAPI_unused    // (since @v10.9.1 unused) __stdcall Тип вызова __stdcall позволяет уменьшить размер бинарного кода, но
-		// снижает скорость работы member-функция из-за того, что this передается на стеке, а не в регистре
-	// @v11.2.0 (moved to slport.h) #define STDCALL  __stdcall // @v11.2.0 не применять для member-функций: снижает производительность
-	// @v11.2.0 (moved to slport.h) #define SLAPIV   __cdecl
-	// @v11.2.0 (moved to slport.h) #define FASTCALL __fastcall // Следует использовать для часто вызываемых функций с количеством параметров
-		// от 1 до 3. Не совсем понятны побочные эффекты от использования регистров под параметры с точки
-		// зрения оптимизации распределения регистров в вызывающих функциях.
-		// @v11.2.0 Небольшое изучение замены __fastcall на __stdcall показало:
-		//  размер кода при такой замене снижается значительно, но общее быстродействие становиться на несколько процентов меньше.
-		//  Пока оставляем как было.
-		//  При этом есть резон standalone-функции с любым числом аргументом объявлять как __stdcall - это снизит общий размер кода.
-#else
-	#ifndef PASCAL
-		#define PASCAL           pascal
-	#endif
-	// @v10.9.1 #define SFAR                 far
-	#define SLAPI_unused         pascal SFAR // (since @v10.9.1 unused)
-	// @v11.2.0 (moved to slport.h) #define STDCALL              // @v11.2.0
-	// @v11.2.0 (moved to slport.h) #define SLAPIV               cdecl SFAR
-	// @v11.2.0 (moved to slport.h) #define FASTCALL
-#endif
 #ifdef _MSC_VER
 	#define THREADLOCAL __declspec(thread)
 #else
 	#define THREADLOCAL
 #endif
-//#ifndef MAX_PATH
-	// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed 260 // @v10.9.1
-	//#if defined(__WIN32__) || defined(_WIN32)
-		// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed 260
-	//#else
-		// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed  80
-	//#endif
-//#endif
 #define CALLPTRMEMB(ptr, memb)          if(ptr) ptr->memb;
 #define CALLTYPEPTRMEMB(typ, ptr, memb) if(ptr) ((typ *)ptr)->memb;
 //
@@ -1459,45 +1418,7 @@ template <typename T, int N> static constexpr size_t sizeofarray(const T(&arr)[N
 #define SSECSPERDAYr       (24.0 * 60.0 * 60.0)
 //
 //
-#if 0 // @v11.7.10 Функции slrotl и slrotr заменяются на SBits::Rotl и SBits::Rotr соответственно {
-	// @v11.2.0 { // @v11.4.0 (some modifications)
-	#if !defined(RC_INVOKED) && !defined(NO_CLANG_BUILTIN) && __has_builtin(__builtin_rotateleft32) && __has_builtin(__builtin_rotateleft64)
-		FORCEINLINE uint32 slrotl32_Removed(uint32 x, uint n) { return __builtin_rotateleft32(x, n); }
-		FORCEINLINE uint64 slrotl64_Removed(uint64 x, uint n) { return __builtin_rotateleft64(x, n); }
-	#elif defined(_MSC_VER)
-		// don't use _rotl with MINGW. It can insert slow call to function.
-		// #if(_MSC_VER >= 1200)
-		#pragma intrinsic(_rotl)
-		#pragma intrinsic(_rotr)
-		#pragma intrinsic(_rotl64)
-		#pragma intrinsic(_rotr64)
-		// #endif
-		FORCEINLINE uint32 slrotl32_Removed(uint32 x, uint n) { return _rotl(x, n); }
-		FORCEINLINE uint32 slrotr32_Removed(uint32 x, uint n) { return _rotr((x), (n)); }
-		FORCEINLINE uint64 slrotl64_Removed(uint64 x, uint n) { return _rotl64((x), (n)); }
-		FORCEINLINE uint64 slrotr64_Removed(uint64 x, uint n) { return _rotr64((x), (n)); }
-	#else
-		// new compilers can translate these macros to fast commands
-		FORCEINLINE uint32 slrotl32_Removed(uint32 x, uint n) { return (((x) << (n)) | ((x) >> (32 - (n)))); }
-		FORCEINLINE uint32 slrotr32_Removed(uint32 x, uint n) { return (((x) >> (n)) | ((x) << (32 - (n)))); }
-		FORCEINLINE uint64 slrotl64_Removed(uint64 x, uint n) { return (((x) << (n)) | ((x) >> (64 - (n)))); }
-		FORCEINLINE uint64 slrotr64_Removed(uint64 x, uint n) { return (((x) >> (n)) | ((x) << (64 - (n)))); }
-	#endif
-	// } @v11.2.0
-#endif // } @v11.7.10
-//
-//
-//
 #include <asmlib.h>
-
-/* @v11.0.0 extern "C" {
-	void * cdecl xeos_memchr(const void * s, int c, size_t n);
-	void * cdecl xeos_memchr32(const void * s, int c, size_t n);
-	void * cdecl xeos_memchr32_sse2(const void * s, int c, size_t n);
-	uint   cdecl xeos_strlen(const char * s);
-	uint   cdecl xeos_strlen32(const char * s);
-	uint   cdecl xeos_strlen32_sse2(const char * s);
-}*/
 
 #if USE_ASMLIB
 	#define memcpy   A_memcpy
@@ -13316,6 +13237,15 @@ struct SJson {
 	static bool FASTCALL IsNull(const SJson * pN) { return (pN && pN->Type == SJson::tNULL); }
 	static bool FASTCALL IsTrue(const SJson * pN) { return (pN && pN->Type == SJson::tTRUE); }
 	static bool FASTCALL IsFalse(const SJson * pN) { return (pN && pN->Type == SJson::tFALSE); }
+	//
+	// Descr: Присваивает по ссылке rBuf текст дочернего элемента pN (pN->P_Child->Text) и одновременно 
+	//   применяет к результату функцию Unescape(). 
+	//   Если pN == 0 || pN->P_Child == 0, то буфер rBuf очищается.
+	// Returns:
+	//   true: pN != 0 && pN->P_Child != 0
+	//   false: pN == 0 || pN->P_Child == 0
+	//
+	static bool FASTCALL GetChildTextUnescaped(const SJson * pN, SString & rBuf);
 	static bool FASTCALL FormatText(const char * pSrcJsText, SString & rBuf);
 	//
 	// Descr: Если pN != 0 и имеет одно из логических значений SJson::tTRUE или SJson::tFALSE,

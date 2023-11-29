@@ -1908,7 +1908,7 @@ int DeleteKey(HKEY hKey, uint32 ver, const char * pKeyBuf)
 		key_buf.CopyFrom(pKeyBuf);
 		reg.Open(hKey, key_buf, 0, 0);
 		uint   idx = 0;
-		while(idx < 2 && reg.EnumKeys(&idx, entry) > 0)
+		while(idx < 2 && reg.EnumKeys(&idx, entry))
 			;
 		if(idx > 1)
 			key_buf.BSlash().Cat(LOWORD(ver)).Dot().Cat(HIWORD(ver));

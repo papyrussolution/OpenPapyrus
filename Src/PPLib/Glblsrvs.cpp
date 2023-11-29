@@ -359,18 +359,18 @@ int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & 
 		(descr = rItem.Description).Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
 		SString url(P_VKMethodUrlBase);
 		if(rItem.OuterId > 0) {
-			url.SetLastDSlash().Cat("market.edit").CatChar('?').CatEq("item_id", rItem.OuterId).Cat("&");
+			url.SetLastDSlash().Cat("market.edit").CatChar('?').CatEq("item_id", rItem.OuterId).CatChar('&');
 		}
 		else {
 			url.SetLastDSlash().Cat("market.add").CatChar('?');
 		}
-		url.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).Cat("&")
-			.CatEq("access_token", Ib.CliAccsKey).Cat("&");
-			AppendParamProtoVer(url).Cat("&")
-			.CatEq("name", name).Cat("&")
-			.CatEq("category_id", /*catId*/1100LL).Cat("&")
-			.CatEq("price", rItem.Price, MKSFMTD(0, 2, 0)).Cat("&")
-			.CatEq("main_photo_id", photo_id).Cat("&")
+		url.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).CatChar('&')
+			.CatEq("access_token", Ib.CliAccsKey).CatChar('&');
+			AppendParamProtoVer(url).CatChar('&')
+			.CatEq("name", name).CatChar('&')
+			.CatEq("category_id", /*catId*/1100LL).CatChar('&')
+			.CatEq("price", rItem.Price, MKSFMTD(0, 2, 0)).CatChar('&')
+			.CatEq("main_photo_id", photo_id).CatChar('&')
 			.CatEq("description", descr);
 		THROW(GetRequest(url, temp_buf, ScURL::mfDontVerifySslPeer));
 		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
@@ -430,8 +430,8 @@ int  VkInterface::Photos_GetWallUploadServer(SString & rOutput)
 	SString url;
 	SString temp_buf;
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("photos.getWallUploadServer").CatChar('?')
-		.CatEq("group_id", Ib.GroupId).Cat("&")
-		.CatEq("access_token", Ib.CliAccsKey).Cat("&");
+		.CatEq("group_id", Ib.GroupId).CatChar('&')
+		.CatEq("access_token", Ib.CliAccsKey).CatChar('&');
 	AppendParamProtoVer(url); //.CatEq("v", "5.107");
 	THROW(GetRequest(url, temp_buf, ScURL::mfDontVerifySslPeer));
 	THROW(ParseUploadServer(temp_buf, rOutput));
@@ -446,9 +446,9 @@ int  VkInterface::Photos_GetMarketUploadServer(const uint mainPhotoFlag, SString
 	SString url;
 	SString temp_buf;
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("photos.getMarketUploadServer").CatChar('?')
-		.CatEq("group_id", Ib.GroupId).Cat("&")
-		.CatEq("main_photo", mainPhotoFlag).Cat("&")
-		.CatEq("access_token", Ib.CliAccsKey).Cat("&");
+		.CatEq("group_id", Ib.GroupId).CatChar('&')
+		.CatEq("main_photo", mainPhotoFlag).CatChar('&')
+		.CatEq("access_token", Ib.CliAccsKey).CatChar('&');
 	AppendParamProtoVer(url);//.CatEq("v", "5.107");
 	THROW(GetRequest(url, temp_buf, ScURL::mfDontVerifySslPeer));
 	THROW(ParseUploadServer(temp_buf, rOutput));
@@ -463,13 +463,13 @@ int  VkInterface::Photos_SaveMarketPhoto(/*const VkStruct &rVkStruct,*/const SSt
 	int    ok = 1;
 	SString url;
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("photos.saveMarketPhoto").CatChar('?')
-		.CatEq("group_id", /*rVkStruct.GroupId*/Ib.GroupId).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
-	AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.Cat("&")
-		.CatEq("photo", rImage).Cat("&")
-		.CatEq("server", rServer).Cat("&")
-		.CatEq("hash", rHash).Cat("&")
-		.CatEq("crop_data", rCropData).Cat("&")
+		.CatEq("group_id", /*rVkStruct.GroupId*/Ib.GroupId).CatChar('&')
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).CatChar('&');
+	AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.CatChar('&')
+		.CatEq("photo", rImage).CatChar('&')
+		.CatEq("server", rServer).CatChar('&')
+		.CatEq("hash", rHash).CatChar('&')
+		.CatEq("crop_data", rCropData).CatChar('&')
 		.CatEq("crop_hash", rCropHash);
 	THROW(GetRequest(url, rOutput, ScURL::mfDontVerifySslPeer));
 	CATCHZOK;
@@ -482,12 +482,12 @@ int VkInterface::Photos_SaveWallPhoto(/*const VkStruct & rVkStruct,*/const SStri
 	int    ok = 1;
 	SString url;
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("photos.saveWallPhoto").CatChar('?')
-		.CatEq("group_id", /*rVkStruct.GroupId*/Ib.GroupId).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
-		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.Cat("&")
-		.CatEq("photo", rPhoto).Cat("&")
-		.CatEq("server", rServer).Cat("&")
-		.CatEq("hash", rHash).Cat("&");
+		.CatEq("group_id", /*rVkStruct.GroupId*/Ib.GroupId).CatChar('&')
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).CatChar('&');
+		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.CatChar('&')
+		.CatEq("photo", rPhoto).CatChar('&')
+		.CatEq("server", rServer).CatChar('&')
+		.CatEq("hash", rHash).CatChar('&');
 	THROW(GetRequest(url, rOutput, ScURL::mfDontVerifySslPeer));
 	CATCHZOK;
 	return ok;
@@ -501,10 +501,10 @@ int VkInterface::Wall_Post(const SString & rMessage, const SString & rVkPhotoNam
 	SString temp_buf(rMessage);
 	temp_buf.Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("wall.post?")
-		.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).Cat("&")
-		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).Cat("&");
-		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.Cat("&")
-		.CatEq("attachments", rVkPhotoName).Cat("&")
+		.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).CatChar('&')
+		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).CatChar('&');
+		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.CatChar('&')
+		.CatEq("attachments", rVkPhotoName).CatChar('&')
 		.CatEq("message", temp_buf);
 	THROW(GetRequest(url, rOutput, ScURL::mfDontVerifySslPeer));
 	CATCHZOK;
@@ -670,14 +670,14 @@ int VkInterface::Market_Get(long offs, long maxItems, TSCollection <MarketWareIt
 	SString json_buf;
 	SString url, temp_buf;
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("market.get").CatChar('?')
-		.CatEq("owner_id", temp_buf.Z().CatChar('-').Cat(Ib.GroupId)).Cat("&")
-		.CatEq("access_token", Ib.CliAccsKey).Cat("&");
+		.CatEq("owner_id", temp_buf.Z().CatChar('-').Cat(Ib.GroupId)).CatChar('&')
+		.CatEq("access_token", Ib.CliAccsKey).CatChar('&');
 		AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/;
 	if(offs > 0) {
-		url.Cat("&").Cat(offs);
+		url.CatChar('&').Cat(offs);
 	}
 	if(maxItems > 0) {
-		url.Cat("&").Cat(maxItems);
+		url.CatChar('&').Cat(maxItems);
 	}
 	THROW(GetRequest(url, temp_buf.Z(), ScURL::mfDontVerifySslPeer));
 	{

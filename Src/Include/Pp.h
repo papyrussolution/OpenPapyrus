@@ -10216,6 +10216,8 @@ public:
 	static int CopyExtStrContainer(PPExtStrContainer & rDest, const PPExtStrContainer & rSrc, uint flags);
 	static int GetPrescription(const PPExtStrContainer & rEss, Prescription & rP);
 	static int SetPrescription(PPExtStrContainer & rEss, const Prescription & rP);
+	static int GetExtssMnemonic(int extss, SString & rBuf);
+	static int RecognizeExtssMnemonic(const char * pSymb);
 
 	CCheckPacket();
 	CCheckPacket(const CCheckPacket & rS);
@@ -53195,6 +53197,7 @@ struct TagDlgParam {
 	uint   TimestampDlgID;
 	uint   GuidDlgID;
 	uint   ImgDlgID;
+	uint   IntDlgID; // @v11.8.12
 	uint   ObjNameCtl;
 	uint   TagNameCtl;
 	uint   ValBoolCtl;
@@ -53205,6 +53208,7 @@ struct TagDlgParam {
 	uint   ValTimeCtl;
 	uint   ValGuidCtl;
 	uint   ValImgCtl;
+	uint   ValIntCtl; // @v11.8.12
 private:
 	ObjTagFilt LinkTagFilt; // @v10.9.4 Для установки фильтра ссылочных тегов
 };

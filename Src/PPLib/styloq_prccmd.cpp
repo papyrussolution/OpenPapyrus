@@ -270,17 +270,16 @@ SJson * PPStyloQInterchange::ProcessCommand_ReqBlobInfoList(const StyloQCore::St
 								Stq_ReqBlobInfoEntry * p_entry = req_list.CreateNewItem();
 								for(const SJson * p_itm = p_inr->P_Child; p_itm; p_itm = p_itm->P_Next) {
 									if(p_itm->Text.IsEqiAscii("signature")) {
-										if(p_itm->P_Child)
-											(p_entry->Signature = p_itm->P_Child->Text).Unescape();
+										SJson::GetChildTextUnescaped(p_itm, p_entry->Signature);
 									}
 									else if(p_itm->Text.IsEqiAscii("hashalg")) {
-										if(p_itm->P_Child) {
-											p_entry->HashAlg = SlHash::IdentifyAlgorithmSymb(p_itm->P_Child->Text.Unescape());
+										if(SJson::GetChildTextUnescaped(p_itm, temp_buf)) {
+											p_entry->HashAlg = SlHash::IdentifyAlgorithmSymb(temp_buf);
 										}
 									}
 									else if(p_itm->Text.IsEqiAscii("hash")) {
-										if(p_itm->P_Child) {
-											p_entry->Hash.FromMime64(p_itm->P_Child->Text.Unescape());
+										if(SJson::GetChildTextUnescaped(p_itm, temp_buf)) {
+											p_entry->Hash.FromMime64(temp_buf);
 										}
 									}
 								}
@@ -445,9 +444,7 @@ int PPStyloQInterchange::ProcessCommand_Search(const StyloQCore::StoragePacket &
 					;
 				}
 				else if(p_obj->Text.IsEqiAscii("plainquery")) {
-					if(SJson::IsString(p_obj->P_Child)) {
-						(plain_query = p_obj->P_Child->Text).Unescape();
-					}
+					SJson::GetChildTextUnescaped(p_obj, plain_query);
 				}
 				else if(p_obj->Text.IsEqiAscii("maxresultcount")) {
 					if(SJson::IsNumber(p_obj->P_Child))

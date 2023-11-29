@@ -8475,6 +8475,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_lotacceptance                       "Результат приемки строки документа" // @v11.7.0
 @rtag_prcuuid                             "UUID процессора" // @v11.7.2
 @rtag_billlinkccheckuuid                  "UUID связанного кассового чека" // @v11.8.8
+@rtag_chzndisposalrsn                     "Причина выбытия марки честный знак" // @v11.8.12
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -18459,6 +18460,7 @@ PPHSC_RU_EGAIS_RETOFSALE       "Возврат" // @v11.0.11 Тип операц
 PPHSC_RU_CORRACCDT             "КоррСчДебет"   // @v11.7.6
 PPHSC_RU_CORRACCCR             "КоррСчКредит"  // @v11.7.6
 PPHSC_RU_FILEOFINFFLDUUID      "ИдФайлИнфПол"  // @v11.7.6 Идентификатор (GUID) файла информационного поля
+PPHSC_RU_CHZNDISPOSALREASON    "СвВыбытияМАРК" // @v11.8.12
 //
 // Далее следуют 16 типов документов, используемых системой VETIS. Текст точно соответствует xsd спецификации dictionary_v2.0.xsd.
 // Номер после PPHSC_VETIS_DOCTYP_ точно соответствует значению enum в спецификации (хотя, это, скорее всего, и не важно).

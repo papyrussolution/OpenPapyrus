@@ -72,10 +72,9 @@
 #define HAVE_SIGNAL_H 1
 
 /* Define to 1 if you have the <stdbool.h> header file. */
-#if (defined(_MSC_VER) && (_MSC_VER >= 1800)) || \
-    defined(__MINGW64_VERSION_MAJOR)
-#define HAVE_STDBOOL_H 1
-#endif
+//#if (defined(_MSC_VER) && (_MSC_VER >= 1800)) || defined(__MINGW64_VERSION_MAJOR)
+    // @v11.8.12 (defined at slport.h) #define HAVE_STDBOOL_H 1
+//#endif
 
 /* Define if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1

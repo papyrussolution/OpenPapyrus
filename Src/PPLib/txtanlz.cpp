@@ -3658,7 +3658,7 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 								LastStatusCode = (temp_buf = p_cur->P_Child->Text).Unescape().ToLong();
 							}
 							else if(sstreqi_ascii(p_cur->Text, "message")) {
-								LastStatusMessage = (temp_buf = p_cur->P_Child->Text).Unescape();
+								SJson::GetChildTextUnescaped(p_cur, LastStatusMessage);
 							}
 							// @v11.1.10 {
 							else if(sstreqi_ascii(p_cur->Text, "error")) {

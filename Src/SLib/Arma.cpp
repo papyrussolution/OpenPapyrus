@@ -31,11 +31,13 @@ void ARMA::Init(int p, int q, const double * pInitTSeries)
 	uint   i;
 	P = p;
 	Q = q;
+	assert(P >= 0);
+	assert(Q >= 0);
 	IterCount = 0;
 	Model.init(P+Q+1);
 	Phi.init(P+Q+1);
 	R.init(P+Q+1, P+Q+1);
-	for(i = 0; i < P+Q+1; i++)
+	for(i = 0; i < static_cast<uint>(P+Q+1); i++)
 		R.set(i, i, ARMA_INVERTMATRIX_INIT_VAL);
 	Phi.set(0, 1L);
 	for(i = P; i >= 1; i--)

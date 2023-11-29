@@ -237,6 +237,18 @@ uint SJson::GetArrayCount() const
 	return result;
 }
 
+/*static*/bool FASTCALL SJson::GetChildTextUnescaped(const SJson * pN, SString & rBuf)
+{
+	bool   ok = true;
+	if(pN && pN->P_Child)
+		(rBuf = pN->P_Child->Text).Unescape();
+	else {
+		rBuf.Z();
+		ok = false;
+	}
+	return ok;
+}
+
 /*static*/bool FASTCALL SJson::FormatText(const char * pSrcJsText, SString & rBuf)
 {
 	return LOGIC(json_format_string(pSrcJsText, rBuf));

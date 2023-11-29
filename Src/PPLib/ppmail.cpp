@@ -1003,7 +1003,7 @@ int PPMailFile::SaveAttachment(const char * pAttachName, const char * pDestPath)
 					else if(this_attachment && start_file) {
 						if(*strip(P_LineBuf)) {
 							char   mime_buf[1024];
-							THROW_PP_S(Base64_Decode(P_LineBuf, sstrlen(P_LineBuf), mime_buf, &out_buf_len) > 0, PPERR_GETATTACHS, file_name);
+							THROW_PP_S(Base64_Decode(P_LineBuf, sstrlen(P_LineBuf), mime_buf, &out_buf_len), PPERR_GETATTACHS, file_name);
 							SLibError = SLERR_WRITEFAULT;
 							THROW_SL(fwrite(mime_buf, out_buf_len, 1, p_out) == 1);
 						}

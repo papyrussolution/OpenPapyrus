@@ -755,6 +755,32 @@ IMPL_INVARIANT_C(CCheckPacket)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
+static const SIntToSymbTabEntry CCheckExtSsList[] = {
+	{ CCheckPacket::extssMemo,               "Memo" },
+	{ CCheckPacket::extssSign,               "Sign" },
+	{ CCheckPacket::extssEgaisUrl,           "EgaisUrl" },
+	{ CCheckPacket::extssRemoteProcessingTa, "RemoteProcessingTa" },
+	{ CCheckPacket::extssChZnProcessingTag,  "ChZnProcessingTag" },
+	{ CCheckPacket::extssBuyerINN,           "BuyerINN" },
+	{ CCheckPacket::extssBuyerName,          "BuyerName" },
+	{ CCheckPacket::extssBuyerPhone,         "BuyerPhone" },
+	{ CCheckPacket::extssBuyerEMail,         "BuyerEMail" },
+	{ CCheckPacket::extssUuid,               "Uuid" },
+	{ CCheckPacket::extssPrescrDate,         "PrescrDate" },
+	{ CCheckPacket::extssPrescrSerial,       "PrescrSerial" },
+	{ CCheckPacket::extssPrescrNumber,       "PrescrNumber" },
+	{ CCheckPacket::extssEgaisProcessingTag, "EgaisProcessingTag" },
+	{ CCheckPacket::extssSourceSymb,         "SourceSymb" },
+	{ CCheckPacket::extssOuterIdent,         "OuterIdent" },
+	{ CCheckPacket::extssOuterExtTag,        "OuterExtTag" },
+	{ CCheckPacket::extssLinkBillUuid,       "LinkBillUuid" },
+};
+
+/*static*/int CCheckPacket::GetExtssMnemonic(int extss, SString & rBuf)
+	{ return SIntToSymbTab_GetSymb(CCheckExtSsList, sizeof(CCheckExtSsList), extss, rBuf); }
+/*static*/int CCheckPacket::RecognizeExtssMnemonic(const char * pSymb)
+	{ return SIntToSymbTab_GetId(CCheckExtSsList, sizeof(CCheckExtSsList), pSymb); }
+
 CCheckPacket::CCheckPacket() : UpdFlags(0), PrintPtt(pttUndef), PctDis(0), Discount(0.0), _Cash(0.0), _OrdPrepay(0.0), P_DlvrAddr(0), P_Stirb(0), P_PpChZnCodeResultList(0)
 {
 }

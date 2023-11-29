@@ -2186,7 +2186,8 @@ union TagDlgVal {
 
 TagDlgParam::TagDlgParam() : ObjType(0), ObjID(0), BoolDlgID(0), NmbDlgID(0), LnkDlgID(0), StrDlgID(0), DateDlgID(0),
 	TimestampDlgID(0), GuidDlgID(0), ImgDlgID(0), ObjNameCtl(0), TagNameCtl(0), ValBoolCtl(0), ValNmbCtl(0),
-	ValLnkCtl(0), ValStrCtl(0), ValDateCtl(0), ValTimeCtl(0), ValGuidCtl(0), ValImgCtl(0)
+	ValLnkCtl(0), ValStrCtl(0), ValDateCtl(0), ValTimeCtl(0), ValGuidCtl(0), ValImgCtl(0),
+	IntDlgID(0), ValIntCtl(0)
 {
 }
 
@@ -2197,6 +2198,7 @@ int TagDlgParam::GetDlgID(long tagDataType, uint * pDlgID) const
 		case OTTYP_BOOL:      rez_id = BoolDlgID; break;
 		case OTTYP_STRING:    rez_id = StrDlgID;  break;
 		case OTTYP_NUMBER:    rez_id = NmbDlgID;  break;
+		case OTTYP_INT:       rez_id = IntDlgID;  break; // @v11.8.12
 		case OTTYP_ENUM:
 		case OTTYP_OBJLINK:   rez_id = LnkDlgID;  break;
 		case OTTYP_DATE:      rez_id = DateDlgID; break;
@@ -2240,6 +2242,10 @@ int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 		case OTTYP_NUMBER:
 			dlg->setCtrlData(ValNmbCtl, &(val.n = pItem->Val.RealVal));
 			dlg->selectCtrl(ValNmbCtl);
+			break;
+		case OTTYP_INT: // @v11.8.12
+			dlg->setCtrlData(ValIntCtl, &(val.l = pItem->Val.IntVal));
+			dlg->selectCtrl(ValIntCtl);
 			break;
 		case OTTYP_OBJLINK:
 		case OTTYP_ENUM:
@@ -2318,6 +2324,10 @@ int TagDlgParam::GetDlgData(TDialog * dlg, ObjTagItem * pItem)
 	else if(typ == OTTYP_NUMBER) {
 		dlg->getCtrlData(ValNmbCtl, &val.n);
 		pItem->Val.RealVal = val.n;
+	}
+	else if(typ == OTTYP_INT) { // @v11.8.12
+		dlg->getCtrlData(ValIntCtl, &val.l);
+		pItem->Val.IntVal = val.l;
 	}
 	else if(oneof2(typ, OTTYP_OBJLINK, OTTYP_ENUM)) {
 		dlg->getCtrlData(ValLnkCtl, &val.l);
@@ -2498,6 +2508,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	param.TimestampDlgID = DLG_TAGVTIMESTAMP;
 	param.GuidDlgID  = DLG_TAGVGUID;
 	param.ImgDlgID   = DLG_TAGVIMG;
+	param.IntDlgID   = DLG_TAGVINT; // @v11.8.12
 	param.ObjNameCtl = CTL_TAGV_OBJNAME;
 	param.TagNameCtl = CTL_TAGV_TAG;
 	param.ValBoolCtl = CTL_TAGV_BOOL;
@@ -2508,6 +2519,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	param.ValTimeCtl = CTL_TAGV_TIME;
 	param.ValGuidCtl = CTL_TAGV_STR;
 	param.ValImgCtl  = CTL_TAGV_IMAGE;
+	param.ValIntCtl  = CTL_TAGV_INT; // @v11.8.12
 	if(pItem->TagID == 0) {
 		PPID   tag_id = 0;
 		pItem->Destroy();

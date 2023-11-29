@@ -4739,6 +4739,29 @@ data CCheck {
 	string OrderEndTxt[32];       // Текстовое представление даты/времени завершения обслуживания //
 	string CreationTxt[32];       // Текстовое представление даты/времени создания чека //
 	string SCardCode[24];         // Номер карты (SCardID)
+	//
+	// Descr: Функция извлекает строку расширения из кассового чека по символьной мнемонике.
+	//   Список мнемоник вот он:
+	//     "Memo"
+	//     "Sign"
+	//     "EgaisUrl"
+	//     "RemoteProcessingTa"
+	//     "ChZnProcessingTag"
+	//     "BuyerINN"
+	//     "BuyerName"
+	//     "BuyerPhone"
+	//     "BuyerEMail"
+	//     "Uuid"
+	//     "PrescrDate"
+	//     "PrescrSerial"
+	//     "PrescrNumber"
+	//     "EgaisProcessingTag"
+	//     "SourceSymb"
+	//     "OuterIdent"
+	//     "OuterExtTag"
+	//     "LinkBillUuid"
+	//
+	string GetExtText[512](string symb[20]); // @v11.8.12
 }
 //
 // Список кассовых чеков

@@ -22,7 +22,7 @@
 #define HAVE_CHECK_CRC32
 #define HAVE_CHECK_CRC64
 #define HAVE_CHECK_SHA256
-#define HAVE_STDBOOL_H
+// @v11.8.12 (defined at slport.h) #define HAVE_STDBOOL_H
 
 #define HAVE_MF_HC3 // @v11.8.7
 #define HAVE_MF_HC4 // @v11.8.7

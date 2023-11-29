@@ -841,12 +841,10 @@ SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 							case SJson::tARRAY: p_next = p_cur->P_Child; break;
 							case SJson::tOBJECT: p_next = p_cur->P_Child; break;
 							case SJson::tSTRING:
-								if(p_cur->P_Child) {
-									if(sstreqi_ascii(p_cur->Text, "AccessPassword"))
-										P_Fptr10->AccessPassword = (temp_buf = p_cur->P_Child->Text).Unescape();
-									else if(sstreqi_ascii(p_cur->Text, "UserPassword"))
-										P_Fptr10->UserPassword = (temp_buf = p_cur->P_Child->Text).Unescape();
-								}
+								if(sstreqi_ascii(p_cur->Text, "AccessPassword"))
+									SJson::GetChildTextUnescaped(p_cur, P_Fptr10->AccessPassword);
+								else if(sstreqi_ascii(p_cur->Text, "UserPassword"))
+									SJson::GetChildTextUnescaped(p_cur, P_Fptr10->UserPassword);
 								break;
 						}
 					}
@@ -924,7 +922,18 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 					p_js_params->InsertDouble("itemQuantity", qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
 					p_js_params->InsertString("itemUnits", "piece");
 					p_js_params->InsertInt("imcModeProcessing", 0);
-					//p_js_params->InsertString("itemFractionalAmount", "");
+					// @v11.8.12 {
+					if(qtty > 0.0 && qtty < 1.0 && uomFragm > 0) {
+						double ip = 0.0;
+						double nmrtr = 0.0;
+						double dnmntr = 0.0;
+						if(fsplitintofractions(qtty, uomFragm, 1E-5, &ip, &nmrtr, &dnmntr)) {
+							//CreateStr(SLS.AcquireRvlStr().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)), in_data);
+							temp_buf.Z().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr));
+							p_js_params->InsertString("itemFractionalAmount", temp_buf);
+						}
+					}
+					// } @v11.8.12 
 					js.Insert("params", p_js_params);
 				}
 				THROW(CallJsonProc(&js, temp_buf));
@@ -959,14 +968,10 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 											if(p_dei->Text.IsEqiAscii("code")) {
 												err_code = p_dei->P_Child->Text.ToLong();
 											}
-											else if(p_dei->Text.IsEqiAscii("error")) {
-												if(p_dei->P_Child)
-													(err_text = p_dei->P_Child->Text).Unescape();
-											}
-											else if(p_dei->Text.IsEqiAscii("description")) {
-												if(p_dei->P_Child)
-													(err_description = p_dei->P_Child->Text).Unescape();
-											}
+											else if(p_dei->Text.IsEqiAscii("error"))
+												SJson::GetChildTextUnescaped(p_dei, err_text);
+											else if(p_dei->Text.IsEqiAscii("description"))
+												SJson::GetChildTextUnescaped(p_dei, err_description);
 										}
 									}
 									else if(p_itm->Text.IsEqiAscii("onlineValidation") && SJson::IsObject(p_itm->P_Child)) {
@@ -1031,12 +1036,10 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 												}
 											}
 											else if(p_olv->Text.IsEqiAscii("imcType")) { // tag 2100
-												if(p_olv->P_Child)
-													(imc_type = p_olv->P_Child->Text).Unescape();
+												SJson::GetChildTextUnescaped(p_olv, imc_type);
 											}
 											else if(p_olv->Text.IsEqiAscii("imcBarcode")) { // tag 2101
-												if(p_olv->P_Child)
-													(imc_barcode = p_olv->P_Child->Text).Unescape();
+												SJson::GetChildTextUnescaped(p_olv, imc_barcode);
 											}
 											else if(p_olv->Text.IsEqiAscii("imcModeProcessing")) { // tag 2102
 												imc_mode_processing = p_olv->P_Child ? p_olv->P_Child->Text.ToLong() : 0;
@@ -1762,6 +1765,19 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 										p_js_imcparams->InsertInt("itemEstimatedStatus", (pPack->Rec.Flags & CCHKF_RETURN) ? 2 : 1);
 										p_js_imcparams->InsertInt("imcModeProcessing", 0); // ofdtag-2102
 										//p_js_imcparams->InsertString("itemFractionalAmount", ""); // ofdtag-1291
+										// @v11.8.12 {
+										if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
+											if(_q > 0.0 && _q < 1.0 && sl_param.UomFragm > 0) {
+												double ip = 0.0;
+												double nmrtr = 0.0;
+												double dnmntr = 0.0;
+												if(fsplitintofractions(_q, sl_param.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr)) {
+													temp_buf.Z().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
+													p_js_imcparams->InsertString("itemFractionalAmount", temp_buf); // ofdtag-1291
+												}
+											}
+										}
+										// } @v11.8.12 
 										{
 											SJson * p_js_checkresult = SJson::CreateObj();
 											p_js_checkresult->InsertBool("imcCheckFlag", LOGIC(sl_param.PpChZnR.CheckResult & (1<<0)));
@@ -1777,7 +1793,8 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 										p_js_item->Insert("imcParams", p_js_imcparams);
 									}
 									// @v11.8.1 {
-									if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
+									/* v11.8.12 (что-то не работает этот блок - касса его не принимает)
+									if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE && (chzn_sid.NotEmpty() || prescr.Number.NotEmpty())) {
 										temp_buf.Z();
 										temp_buf.CatEq("tm", "mdlp");
 										if(chzn_sid.NotEmpty())
@@ -1792,12 +1809,10 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 										}
 										temp_buf.CatChar('&').ToUtf8();
 
-										SJson * p_js_industry_info_list = SJson::CreateArr(); // @v11.8.10
 										SJson * p_js_industry_info = SJson::CreateObj();
 										p_js_industry_info->InsertString("industryAttribute", temp_buf.Escape());
-										p_js_industry_info_list->InsertChild(p_js_industry_info); // @v11.8.10
-										p_js_item->Insert("industryInfo", /*p_js_industry_info*/p_js_industry_info_list); // @v11.8.10 p_js_industry_info-->p_js_industry_info_list
-									}
+										p_js_item->Insert("industryInfo", p_js_industry_info);
+									}*/
 									// } @v11.8.1 
 								}
 							}

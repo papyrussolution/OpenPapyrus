@@ -15,7 +15,7 @@
 #define	ARCHIVE_PLATFORM_H_INCLUDED
 
 #include <slib.h> // @sobolev
-#define __STDC_FORMAT_MACROS // @sobolev
+// @v11.8.12 (defined at slconfig.h) #define __STDC_FORMAT_MACROS // @sobolev
 #define HAVE_INTTYPES_H 1
 /* archive.h and archive_entry.h require this. */
 #define	__LIBARCHIVE_BUILD 1

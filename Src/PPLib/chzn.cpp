@@ -6,7 +6,12 @@
 #include <pp.h>
 #pragma hdrstop
 //#include <wininet.h>
-
+/*
+	в поле <СвВыбытияМАРК> указано значение «4» («Продажа товаров по государственному (муниципальному) контракту») и заполнен элемент «Идентификатор государственного контракта» в поле «Дополнительные сведения об участниках факта хозяйственной жизни, основаниях и обстоятельствах его проведения» (<ДопСвФЧЖ1>);
+	в поле <СвВыбытияМАРК> указано значение «1» («Покупка товаров юридическими лицами и индивидуальными предпринимателями в целях использования для собственных нужд, не связанных с их последующей реализацией (продажей)»);
+	в поле <СвВыбытияМАРК> указано значение «3» («Использование товаров для производственных целей, не связанных с их последующей реализацией (продажей)»);
+	в поле <СвВыбытияМАРК> указано значение «2» («Безвозмездная передача товаров юридическими лицам и индивидуальным предпринимателям, не связанная с их последующей реализацией (продажей)»).
+*/
 /*
 С блока сигарет считали марку 0104600266011725212095134931209513424010067290
 Разбираем ее по правилам https://www.garant.ru/products/ipo/prime/doc/72089916/:
@@ -75,7 +80,7 @@ Data Matrix для табачной продукции и фармацевтик
 			SString _8005; // @v11.8.11
 			if(rS.GetToken(GtinStruc::fldGTIN14, &_01) && rS.GetToken(GtinStruc::fldSerial, &_21) && _01.Len() == 14) {
 				if(rS.GetToken(GtinStruc::fldPrice, &_8005) && rS.GetToken(GtinStruc::fldControlRuTobacco, &_93) && rS.GetToken(GtinStruc::fldAddendumId, &_240)) { // @v11.8.11 блок сигарет
-					rBuf.CatChar('\x1D').Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
+					rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
 						CatChar('\x1D').Cat("93").Cat(_93).CatChar('\x1D').Cat("240").Cat(_240);
 				}
 				else if(rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
@@ -2512,12 +2517,8 @@ int ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const char * 
 			switch(p_cur->Type) {
 				case SJson::tOBJECT: p_next = p_cur->P_Child; break;
 				case SJson::tSTRING:
-					if(p_cur->P_Child) {
-						if(sstreqi_ascii(p_cur->Text, pTarget)) {
-							rResult = (temp_buf = p_cur->P_Child->Text).Unescape();
-							ok = 1;
-						}
-					}
+					if(sstreqi_ascii(p_cur->Text, pTarget) && SJson::GetChildTextUnescaped(p_cur, rResult))
+						ok = 1;
 					break;
 			}
 		}
@@ -2904,8 +2905,9 @@ int ChZnInterface::Connect(InitBlock & rIb)
 												if(p_cur->P_Child) {
 													if(sstreqi_ascii(p_cur->Text, "uuid"))
 														result_uuid.FromStr((temp_buf = p_cur->P_Child->Text).Unescape());
-													else if(sstreqi_ascii(p_cur->Text, "data"))
-														(result_data = p_cur->P_Child->Text).Unescape();
+													else if(sstreqi_ascii(p_cur->Text, "data")) {
+														SJson::GetChildTextUnescaped(p_cur, result_data);
+													}
 												}
 												break;
 										}

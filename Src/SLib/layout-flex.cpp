@@ -2918,8 +2918,9 @@ int SUiLayout::FromJsonObj(const SJson * pJs)
 		if(p_jsn->P_Child) {
 			if(p_jsn->Text.IsEqiAscii("id"))
 				ID = p_jsn->P_Child->Text.ToLong();
-			else if(p_jsn->Text.IsEqiAscii("symb"))
-				(Symb = p_jsn->P_Child->Text).Unescape();
+			else if(p_jsn->Text.IsEqiAscii("symb")) {
+				SJson::GetChildTextUnescaped(p_jsn, Symb);
+			}
 			else if(p_jsn->Text.IsEqiAscii("flags")) {
 				StringSet ss(' ', p_jsn->P_Child->Text);
 				bool is_horizontal = false;

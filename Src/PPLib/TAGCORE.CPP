@@ -1,8 +1,8 @@
 // TAGCORE.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023
-// @codepage windows-1251
+// @codepage UTF-8
 // @Kernel
-// Теги объектов
+// РўРµРіРё РѕР±СЉРµРєС‚РѕРІ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -196,6 +196,9 @@ int FASTCALL ObjTagItem::GetStr(SString & rBuf) const
 		case OTTYP_IMAGE: rBuf = Val.PStr; break;
 		case OTTYP_DATE: rBuf.Cat(Val.DtVal, DATF_DMY|DATF_CENTURY); break;
 		case OTTYP_TIMESTAMP: rBuf.Cat(Val.DtmVal, DATF_DMY|DATF_CENTURY); break;
+		case OTTYP_INT: // @v11.8.12
+			rBuf.Cat(Val.IntVal);
+			break;
 		case OTTYP_NUMBER:
 			if((long)Val.RealVal == Val.RealVal)
 				rBuf.Cat((long)Val.RealVal);
@@ -638,7 +641,7 @@ int ObjTagItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 			temp_buf = Val.PStr;
 		THROW_SL(pSCtx->Serialize(dir, temp_buf, rBuf));
 		if(dir < 0) {
-			// При приеме данных не изменяем адрес изображения дабы не разрушить уже привязанное
+			// РџСЂРё РїСЂРёРµРјРµ РґР°РЅРЅС‹С… РЅРµ РёР·РјРµРЅСЏРµРј Р°РґСЂРµСЃ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РґР°Р±С‹ РЅРµ СЂР°Р·СЂСѓС€РёС‚СЊ СѓР¶Рµ РїСЂРёРІСЏР·Р°РЅРЅРѕРµ
 		}
 #endif // } 0 @construction
 	}
@@ -749,8 +752,8 @@ ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEach
 {
 }
 //
-// Не используем унаследованный copy-constructor так как ObjTagList::Copy сама
-// все сделает правильно.
+// РќРµ РёСЃРїРѕР»СЊР·СѓРµРј СѓРЅР°СЃР»РµРґРѕРІР°РЅРЅС‹Р№ copy-constructor С‚Р°Рє РєР°Рє ObjTagList::Copy СЃР°РјР°
+// РІСЃРµ СЃРґРµР»Р°РµС‚ РїСЂР°РІРёР»СЊРЅРѕ.
 //
 ObjTagList::ObjTagList(const ObjTagList & s) : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
 {
@@ -972,8 +975,8 @@ int ObjTagList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	return ok;
 }
 //
-// @todo Эти 2 функции используются в PPPsnEventPacket::Write и PPPsnEventPacket::Read
-// Следует элиминировать и эти и вызывающие функции
+// @todo Р­С‚Рё 2 С„СѓРЅРєС†РёРё РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РІ PPPsnEventPacket::Write Рё PPPsnEventPacket::Read
+// РЎР»РµРґСѓРµС‚ СЌР»РёРјРёРЅРёСЂРѕРІР°С‚СЊ Рё СЌС‚Рё Рё РІС‹Р·С‹РІР°СЋС‰РёРµ С„СѓРЅРєС†РёРё
 //
 int ObjTagList::Write__(SBuffer & rBuf) const
 {
@@ -1182,7 +1185,7 @@ int ObjTagCore::PutListExcl(PPID objType, PPID objID, const ObjTagList * pList, 
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(!is_excl_list && !is_list) { // @v8.9.2 (|| !pList->GetCount()) ради ускорения
+		if(!is_excl_list && !is_list) { // @v8.9.2 (|| !pList->GetCount()) СЂР°РґРё СѓСЃРєРѕСЂРµРЅРёСЏ
 			THROW(RemoveTag(objType, objID, 0, 0));
 		}
 		else {
@@ -1190,7 +1193,7 @@ int ObjTagCore::PutListExcl(PPID objType, PPID objID, const ObjTagList * pList, 
 			THROW(GetList(objType, objID, &org_list));
 			{
 				//
-				// Сначала удаляем теги, которых нет в новом списке
+				// РЎРЅР°С‡Р°Р»Р° СѓРґР°Р»СЏРµРј С‚РµРіРё, РєРѕС‚РѕСЂС‹С… РЅРµС‚ РІ РЅРѕРІРѕРј СЃРїРёСЃРєРµ
 				//
 				for(uint org_pos = 0; (p_org_item = org_list.EnumItems(&org_pos)) != 0;) {
 					p_item = is_list ? pList->GetItem(p_org_item->TagID) : 0;
@@ -1201,8 +1204,8 @@ int ObjTagCore::PutListExcl(PPID objType, PPID objID, const ObjTagList * pList, 
 			}
 			if(is_list) {
 				//
-				// Теперь, для каждого тега из нового списка ищем соответствующий в существующем (org_list);
-				// Если тег найден и 'квивалентен, то ничего не делаем, в противном случае создаем или модифицируем тег.
+				// РўРµРїРµСЂСЊ, РґР»СЏ РєР°Р¶РґРѕРіРѕ С‚РµРіР° РёР· РЅРѕРІРѕРіРѕ СЃРїРёСЃРєР° РёС‰РµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РІ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРј (org_list);
+				// Р•СЃР»Рё С‚РµРі РЅР°Р№РґРµРЅ Рё 'РєРІРёРІР°Р»РµРЅС‚РµРЅ, С‚Рѕ РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј, РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ СЃРѕР·РґР°РµРј РёР»Рё РјРѕРґРёС„РёС†РёСЂСѓРµРј С‚РµРі.
 				//
 				for(pos = 0; (p_item = pList->EnumItems(&pos)) != 0;) {
 					p_org_item = org_list.GetItem(p_item->TagID);

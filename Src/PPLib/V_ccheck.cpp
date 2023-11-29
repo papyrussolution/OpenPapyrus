@@ -4432,6 +4432,8 @@ int ViewCCheck(const CCheckFilt * pFilt, int exeFlags) { return PPView::Execute(
 //
 PPALDD_CONSTRUCTOR(CCheck)
 {
+	Extra[0].Ptr = 0; // @v11.8.12
+	Extra[1].Ptr = 0; // @v11.8.12
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
 		Extra[0].Ptr = new CCheckCore;
@@ -4442,6 +4444,7 @@ PPALDD_DESTRUCTOR(CCheck)
 {
 	Destroy();
 	delete static_cast<CCheckCore *>(Extra[0].Ptr);
+	delete static_cast<CCheckPacket *>(Extra[1].Ptr); // @v11.8.12
 }
 
 int PPALDD_CCheck::InitData(PPFilt & rFilt, long rsrv)
@@ -4452,63 +4455,62 @@ int PPALDD_CCheck::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		PPObjSCard scard_obj;
 		SCardTbl::Rec scard_rec;
-		// @v10.6.4 MEMSZERO(scard_rec);
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		CCheckPacket pack;
+		CCheckPacket * p_pack = new CCheckPacket;
+		delete static_cast<CCheckPacket *>(Extra[1].Ptr);
+		Extra[1].Ptr = p_pack;
 		CCheckCore & r_cc = *static_cast<CCheckCore *>(Extra[0].Ptr);
-		if(r_cc.LoadPacket(rFilt.ID, CCheckCore::lpfNoLines, &pack) > 0) {
-			H.ID       = pack.Rec.ID;
-			H.Code     = pack.Rec.Code;
-			H.CashID   = pack.Rec.CashID;
-			H.UserID   = pack.Rec.UserID;
-			H.SessID   = pack.Rec.SessID;
-			H.Flags    = pack.Rec.Flags;
-			H.fPrinted     = BIN(pack.Rec.Flags & CCHKF_PRINTED);
-			H.fBanking     = BIN(pack.Rec.Flags & CCHKF_BANKING);
-			H.fIncorpCard  = BIN(pack.Rec.Flags & CCHKF_INCORPCRD);
-			H.fSuspended   = BIN(pack.Rec.Flags & CCHKF_SUSPENDED);
-			H.fOrder       = BIN(pack.Rec.Flags & CCHKF_ORDER);
-			H.fDelivery    = BIN(pack.Rec.Flags & CCHKF_DELIVERY);
-			H.fClosedOrder = BIN(pack.Rec.Flags & CCHKF_CLOSEDORDER);
-			H.fReturn      = BIN(pack.Rec.Flags & CCHKF_RETURN);
-			H.Dt       = pack.Rec.Dt;
-			H.Tm       = pack.Rec.Tm;
-			H.Amount   = MONEYTOLDBL(pack.Rec.Amount);
-			H.Discount = MONEYTOLDBL(pack.Rec.Discount);
-			if(pack.AL_Const().getCount()) {
-				H.CashAmount = pack.AL_Const().Get(CCAMTTYP_CASH);
-				H.BnkAmount  = pack.AL_Const().Get(CCAMTTYP_BANK);
-				H.CCrdAmount = pack.AL_Const().Get(CCAMTTYP_CRDCARD);
+		if(r_cc.LoadPacket(rFilt.ID, CCheckCore::lpfNoLines, p_pack) > 0) {
+			H.ID       = p_pack->Rec.ID;
+			H.Code     = p_pack->Rec.Code;
+			H.CashID   = p_pack->Rec.CashID;
+			H.UserID   = p_pack->Rec.UserID;
+			H.SessID   = p_pack->Rec.SessID;
+			H.Flags    = p_pack->Rec.Flags;
+			H.fPrinted     = BIN(p_pack->Rec.Flags & CCHKF_PRINTED);
+			H.fBanking     = BIN(p_pack->Rec.Flags & CCHKF_BANKING);
+			H.fIncorpCard  = BIN(p_pack->Rec.Flags & CCHKF_INCORPCRD);
+			H.fSuspended   = BIN(p_pack->Rec.Flags & CCHKF_SUSPENDED);
+			H.fOrder       = BIN(p_pack->Rec.Flags & CCHKF_ORDER);
+			H.fDelivery    = BIN(p_pack->Rec.Flags & CCHKF_DELIVERY);
+			H.fClosedOrder = BIN(p_pack->Rec.Flags & CCHKF_CLOSEDORDER);
+			H.fReturn      = BIN(p_pack->Rec.Flags & CCHKF_RETURN);
+			H.Dt       = p_pack->Rec.Dt;
+			H.Tm       = p_pack->Rec.Tm;
+			H.Amount   = MONEYTOLDBL(p_pack->Rec.Amount);
+			H.Discount = MONEYTOLDBL(p_pack->Rec.Discount);
+			if(p_pack->AL_Const().getCount()) {
+				H.CashAmount = p_pack->AL_Const().Get(CCAMTTYP_CASH);
+				H.BnkAmount  = p_pack->AL_Const().Get(CCAMTTYP_BANK);
+				H.CCrdAmount = p_pack->AL_Const().Get(CCAMTTYP_CRDCARD);
 			}
 			else {
-				if(pack.Rec.Flags & CCHKF_BANKING) {
+				if(p_pack->Rec.Flags & CCHKF_BANKING) {
 					H.BnkAmount = H.Amount;
 				}
-				else if(pack.Rec.Flags & CCHKF_INCORPCRD) {
+				else if(p_pack->Rec.Flags & CCHKF_INCORPCRD) {
 					H.CCrdAmount = H.Amount;
 				}
 				else
 					H.CashAmount = H.Amount;
 			}
-			H.SCardID  = pack.Rec.SCardID;
-			scard_obj.Search(pack.Rec.SCardID, &scard_rec);
+			H.SCardID  = p_pack->Rec.SCardID;
+			scard_obj.Search(p_pack->Rec.SCardID, &scard_rec);
 			STRNSCPY(H.SCardCode, scard_rec.Code);
-			if(pack.Rec.Flags & CCHKF_EXT) {
+			if(p_pack->Rec.Flags & CCHKF_EXT) {
 				SString temp_buf;
-				H.AgentID = pack.Ext.SalerID;
-				H.TableNo = pack.Ext.TableNo;
-				H.GuestCount = pack.Ext.GuestCount;
-				// @v9.0.4 H.AddCrdCardID = pack.Ext.AddCrdCardID;
-				// @v9.0.4 H.AddCrdCardPaym = pack.Ext.AddCrdCardPaym;
-				H.CreationDt   = pack.Ext.CreationDtm.d;
-				H.CreationTm   = pack.Ext.CreationDtm.t;
-				H.OrderStartDt = pack.Ext.StartOrdDtm.d;
-				H.OrderStartTm = pack.Ext.StartOrdDtm.t;
-				H.OrderEndDt = pack.Ext.EndOrdDtm.d;
-				H.OrderEndTm = pack.Ext.EndOrdDtm.t;
-				H.LinkCheckID = pack.Ext.LinkCheckID;
-				H.DlvrLocID   = pack.Ext.AddrID;
+				H.AgentID = p_pack->Ext.SalerID;
+				H.TableNo = p_pack->Ext.TableNo;
+				H.GuestCount = p_pack->Ext.GuestCount;
+				H.CreationDt   = p_pack->Ext.CreationDtm.d;
+				H.CreationTm   = p_pack->Ext.CreationDtm.t;
+				H.OrderStartDt = p_pack->Ext.StartOrdDtm.d;
+				H.OrderStartTm = p_pack->Ext.StartOrdDtm.t;
+				H.OrderEndDt = p_pack->Ext.EndOrdDtm.d;
+				H.OrderEndTm = p_pack->Ext.EndOrdDtm.t;
+				H.LinkCheckID = p_pack->Ext.LinkCheckID;
+				H.DlvrLocID   = p_pack->Ext.AddrID;
 				temp_buf.Z();
 				if(H.OrderStartDt)
 					temp_buf.Cat(H.OrderStartDt, DATF_DMY);
@@ -4533,6 +4535,31 @@ int PPALDD_CCheck::InitData(PPFilt & rFilt, long rsrv)
 		}
 	}
 	return ok;
+}
+
+void PPALDD_CCheck::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS)
+{
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_INT(n)  (*static_cast<const int *>(rS.GetPtr(pApl->Get(n))))
+	#define _ARG_DATE(n) (*static_cast<const LDATE *>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
+	if(pF->Name == "?GetExtText") {
+		SString text;
+		CCheckPacket * p_pack = static_cast<CCheckPacket *>(Extra[1].Ptr);
+		if(p_pack) {
+			int extss = CCheckPacket::RecognizeExtssMnemonic(_ARG_STR(1));
+			if(extss) {
+				p_pack->GetExtStrData(extss, text);
+			}
+		}
+		_RET_STR = text;
+	}
+	#undef _ARG_STR
+	#undef _ARG_INT
+	#undef _ARG_DATE
+	#undef _RET_INT
+	#undef _RET_STR
 }
 //
 // Implementation of PPALDD_CCheckView

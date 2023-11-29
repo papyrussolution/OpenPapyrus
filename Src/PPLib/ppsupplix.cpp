@@ -7639,10 +7639,10 @@ int GazpromNeft::Auth()
 							for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
 								if(p_itm->P_Child) {
 									if(p_itm->Text.IsEqiAscii("accessToken")) {
-										(AccessToken = p_itm->P_Child->Text).Unescape();
+										SJson::GetChildTextUnescaped(p_itm, AccessToken);
 									}
 									else if(p_itm->Text.IsEqiAscii("tokenType")) {
-										(token_type = p_itm->P_Child->Text).Unescape();
+										SJson::GetChildTextUnescaped(p_itm, token_type);
 									}
 									else if(p_itm->Text.IsEqiAscii("expiresIn")) {
 										AcsTokExpirySec = p_itm->P_Child->Text.ToLong();
@@ -7703,7 +7703,7 @@ int GazpromNeft::Auth()
 							for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
 								if(p_itm->P_Child) {
 									if(p_itm->Text.IsEqiAscii("accessToken")) {
-										(access_token2 = p_itm->P_Child->Text).Unescape();
+										SJson::GetChildTextUnescaped(p_itm, access_token2);
 									}
 									else if(p_itm->Text.IsEqiAscii("tokenType")) {
 										//(temp_buf = p_itm->P_Child->Text).Unescape();
@@ -7714,7 +7714,7 @@ int GazpromNeft::Auth()
 										AcsTokExpirySec = p_itm->P_Child->Text.ToLong();
 									}
 									else if(p_itm->Text.IsEqiAscii("refeshToken")) {
-										(refresh_token = p_itm->P_Child->Text).Unescape();
+										SJson::GetChildTextUnescaped(p_itm, refresh_token);
 									}
 								}
 							}							

@@ -1877,14 +1877,10 @@ int SFontSource::FromJsonObj(const SJson * pJs)
 	int    ok = 1;
 	THROW(SJson::IsObject(pJs)); // @todo @err
 	for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
-		if(p_jsn->P_Child) {
-			if(p_jsn->Text.IsEqiAscii("face")) {
-				(Face = p_jsn->P_Child->Text).Unescape();
-			}
-			else if(p_jsn->Text.IsEqiAscii("src")) {
-				(Src = p_jsn->P_Child->Text).Unescape();
-			}
-		}
+		if(p_jsn->Text.IsEqiAscii("face"))
+			SJson::GetChildTextUnescaped(p_jsn, Face);
+		else if(p_jsn->Text.IsEqiAscii("src"))
+			SJson::GetChildTextUnescaped(p_jsn, Src);
 	}
 	CATCHZOK
 	return ok;

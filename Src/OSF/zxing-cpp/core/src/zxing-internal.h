@@ -1,0 +1,115 @@
+// ZXING-INTERNAL.H
+//
+#ifndef __ZXING_INTERNAL_H
+#define __ZXING_INTERNAL_H
+
+#define SLIB_INCLUDE_CPPSTDLIBS
+#include <slib.h>
+#include <cstdio>
+#include <string_view>
+#include <initializer_list>
+
+#include "ZXConfig.h"
+#include "BitHacks.h"
+#include "Flags.h"
+#include "BarcodeFormat.h"
+#include "ByteArray.h"
+#include "CharacterSet.h"
+#include "DecodeHints.h"
+#include "Content.h"
+#include "Error.h"
+#include "Point.h"
+#include "ZXAlgorithms.h"
+#include "Quadrilateral.h"
+#include "StructuredAppend.h"
+#include "Result.h"
+#include "MultiFormatReader.h"
+#include "ImageView.h"
+#include "BinaryBitmap.h"
+#include "Reader.h"
+#include "Matrix.h"
+#include "Range.h"
+#include "BitArray.h"
+#include "BitMatrix.h"
+#include "BitMatrixCursor.h"
+#include "Pattern.h"
+#include "ConcentricFinder.h"
+#include "LogMatrix.h"
+#include "RegressionLine.h"
+#include "ECI.h"
+#include "HRI.h"
+#include "TextDecoder.h"
+#include "Utf.h"
+#include "TextUtfEncoding.h"
+#include "TextEncoder.h"
+#include "ResultPoint.h"
+#include "GenericGFPoly.h"
+#include "GenericGF.h"
+#include "ReadBarcode.h"
+#include "GlobalHistogramBinarizer.h"
+#include "HybridBinarizer.h"
+#include "ThresholdBinarizer.h"
+#include "GTIN.h"
+#include "DecoderResult.h"
+#include "TextDecoder.h"
+#include "MultiFormatWriter.h"
+#include "BitSource.h"
+#include "BitMatrixIO.h"
+#include "DetectorResult.h"
+#include "PerspectiveTransform.h"
+#include "GridSampler.h"
+#include "ReedSolomonEncoder.h"
+#include "ReedSolomonDecoder.h"
+#include "WhiteRectDetector.h"
+#include "ZXNullable.h"
+#include "ZXTestSupport.h"
+#include "ByteMatrix.h"
+#include "Scope.h"
+#ifdef __cpp_impl_coroutine
+	#include <Generator.h>
+	//#include <DetectorResult.h>
+#endif
+
+#include "datamatrix/DMVersion.h"
+#include "datamatrix/DMReader.h"
+#include "datamatrix/DMBitLayout.h"
+#include "datamatrix/DMDataBlock.h"
+#include "datamatrix/DMDecoder.h"
+#include "datamatrix/DMDetector.h"
+#include "datamatrix/DMECEncoder.h"
+#include "datamatrix/DMSymbolShape.h"
+#include "datamatrix/DMSymbolInfo.h"
+#include "datamatrix/DMHighLevelEncoder.h"
+#include "datamatrix/DMEncoderContext.h"
+#include "datamatrix/DMWriter.h"
+
+#include "maxicode/MCReader.h"
+
+#include "oned/ODReader.h"
+#include "oned/ODRowReader.h"
+#include "oned/ODCodabarReader.h"
+#include "oned/ODCode128Reader.h"
+#include "oned/ODCode39Reader.h"
+#include "oned/ODCode93Reader.h"
+#include "oned/ODDataBarExpandedReader.h"
+#include "oned/ODDataBarReader.h"
+#include "oned/ODITFReader.h"
+#include "oned/ODMultiUPCEANReader.h"
+#include "oned/ODUPCEANCommon.h"
+#include "oned/ODCodabarWriter.h"
+#include "oned/ODWriterHelper.h"
+
+#include "pdf417/PDFReader.h"
+#include "qrcode/QRReader.h"
+
+#include "aztec/AZReader.h"
+#include "aztec/AZDecoder.h"
+#include "aztec/AZDetector.h"
+#include "aztec/AZDetectorResult.h"
+#include "aztec/AZEncoder.h"
+#include "aztec/AZHighLevelEncoder.h"
+#include "aztec/AZToken.h"
+#include "aztec/AZEncodingState.h"
+#include "aztec/AZWriter.h"
+
+#endif // __ZXING_INTERNAL_H
