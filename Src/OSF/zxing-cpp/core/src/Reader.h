@@ -14,20 +14,25 @@ class DecodeHints;
 class Reader {
 protected:
 	const DecodeHints& _hints;
-
 public:
 	const bool supportsInversion;
 
 	explicit Reader(const DecodeHints& hints, bool supportsInversion = false) : _hints(hints), supportsInversion(supportsInversion) {}
 	explicit Reader(DecodeHints&& hints) = delete;
 	virtual ~Reader() = default;
-
 	virtual Result decode(const BinaryBitmap& image) const = 0;
-
 	// WARNING: this API is experimental and may change/disappear
-	virtual Results decode(const BinaryBitmap& image, [[maybe_unused]] int maxSymbols) const {
+	virtual Results decode(const BinaryBitmap& image, [[maybe_unused]] int maxSymbols) const 
+	{
 		auto res = decode(image);
-		return res.isValid() || (_hints.returnErrors() && res.format() != BarcodeFormat::None) ? Results{std::move(res)} : Results{};
+		//return res.isValid() || (_hints.returnErrors() && res.format() != BarcodeFormat::None) ? Results{std::move(res)} : Results{};
+		if(res.isValid() || (_hints.returnErrors() && res.format() != BarcodeFormat::None)) {
+			Results ret;
+			ret.push_back(res);
+			return ret;
+		}
+		else
+			return Results();
 	}
 };
 

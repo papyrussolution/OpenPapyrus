@@ -43,6 +43,15 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         >
+        <ImageView
+            android:id="@+id/CTL_DOCUMENT_SHARE"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/ic_share01">
+        </ImageView>
+        <View style="@style/FakeView"/>
         <TextView style="@style/FormText"
             android:id="@+id/CTL_DOCUMENT_AGENT"
             android:layout_height="wrap_content"

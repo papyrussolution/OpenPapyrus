@@ -178,6 +178,7 @@ int DBTable::Btr_ProcessLobOnReading()
 				long   rec_offs = retBufLen;
 				const  size_t fixed_header_size = 24;
 				const  long chunk_size = static_cast<long>(temp_buf.GetSize() - fixed_header_size);
+				int    last_btr_err = 0;
 				do {
 					char   k[BTRMAXKEYLEN];
 					size_t temp_buf_offs = 0;
@@ -197,12 +198,13 @@ int DBTable::Btr_ProcessLobOnReading()
 					assert(temp_buf_offs == fixed_header_size);
 					retBufLen = (RECORDSIZE)chunk_size;
 					index = -2;
-					tla.LastBtrErr = BTRV(B_GETDIRECT, FPB, static_cast<char *>(temp_buf.vptr()), reinterpret_cast<uint16 *>(&retBufLen), k, WBTRVTAIL);
-					if(oneof2(tla.LastBtrErr, 0, BE_CHUNK_OFFSET_TOO_LONG)) {
+					last_btr_err = BTRV(B_GETDIRECT, FPB, static_cast<char *>(temp_buf.vptr()), reinterpret_cast<uint16 *>(&retBufLen), k, WBTRVTAIL);
+					tla.LastBtrErr = last_btr_err;
+					if(oneof2(last_btr_err, 0, BE_CHUNK_OFFSET_TOO_LONG)) {
 						THROW(lob_buffer.Write(temp_buf, retBufLen));
 					}
 					rec_offs += chunk_size;
-				} while(tla.LastBtrErr == 0 && retBufLen == chunk_size); // Цикл вращается до тех пор пока не получим ошибку BE_CHUNK_OFFSET_TOO_LONG (103)
+				} while(last_btr_err == 0 && retBufLen == chunk_size); // Цикл вращается до тех пор пока не получим ошибку BE_CHUNK_OFFSET_TOO_LONG (103)
 			}
 			if(oneof2(tla.LastBtrErr, 0, BE_CHUNK_OFFSET_TOO_LONG))
 				ok = 1;

@@ -238,7 +238,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 	PPAsyncCashNode cn_data;
 	LAssocArray  scard_quot_list;
 	PPIDArray retail_quot_list;
-	BitArray used_retail_quot;
+	SBitArray used_retail_quot;
 	PPIniFile ini_file;
 	FILE * p_file = 0;
 	PPObjCashNode cnobj;

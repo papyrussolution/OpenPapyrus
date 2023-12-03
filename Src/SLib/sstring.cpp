@@ -5730,7 +5730,7 @@ SStringPool::~SStringPool()
 	freeAll();
 }
 
-const BitArray & SStringPool::GetMap() const
+const SBitArray & SStringPool::GetMap() const
 {
 	return BusyList;
 }
@@ -5773,7 +5773,7 @@ int FASTCALL SStringPool::Free(const SString * pS)
 	return 0;
 }
 
-int FASTCALL SStringPool::Free(const BitArray & rMap)
+int FASTCALL SStringPool::Free(const SBitArray & rMap)
 {
 	size_t i = rMap.getCount();
 	if(i) do {

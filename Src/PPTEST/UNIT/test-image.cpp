@@ -6,6 +6,8 @@
 #include <pp.h>
 #pragma hdrstop
 
+int ZXing_RecognizeBarcodeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList); // @prototype(zxing_client.cpp)
+
 static const SIntToSymbTabEntry TestBcStdSymbList[] = {
 	{  BARCSTD_CODE11,      "code11"  },
 	{  BARCSTD_CODE11,      "code-11" },
@@ -76,6 +78,15 @@ SLTEST_R(BarcodeOutputAndRecognition)
 	SString code_buf;
 	SString input_file_path;
 	//SString img_path;
+	{
+		// D:\Papyrus\Src\PPTEST\DATA\chzn-sigblk-20230906_144733.jpg 
+		(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("chzn-sigblk-20230906_144733.jpg");
+		TSCollection <PPBarcode::Entry> bc_list;
+		int zxr = ZXing_RecognizeBarcodeImage(input_file_path, bc_list);
+		if(zxr > 0) {
+
+		}
+	}
 	(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("barcode.txt");
     SFile f_in(input_file_path, SFile::mRead);
     while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
@@ -103,6 +114,10 @@ SLTEST_R(BarcodeOutputAndRecognition)
 					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).DotCat("png");
 					if(SLCHECK_NZ(PPBarcode::CreateImage(bip))) {
 						TSCollection <PPBarcode::Entry> bc_list;
+						//
+						TSCollection <PPBarcode::Entry> bc_list2;
+						int zxr = ZXing_RecognizeBarcodeImage(bip.OutputFileName, bc_list2);
+						//
 						if(SLCHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
 							SLCHECK_EQ(bc_list.getCount(), 1U);
 							if(bc_list.getCount() > 0) {
@@ -134,14 +149,5 @@ SLTEST_R(BarcodeOutputAndRecognition)
 			}
 		}
     }
-	/*{
-		// D:\Papyrus\Src\PPTEST\DATA\chzn-sigblk-20230906_144733.jpg 
-		(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("chzn-sigblk-20230906_144733-2.jpg");
-		TSCollection <PPBarcode::Entry> bc_list;
-		int r = PPBarcode::RecognizeImage(input_file_path, bc_list);
-		if(r > 0) {
-
-		}
-	}*/
 	return CurrentStatus;
 }

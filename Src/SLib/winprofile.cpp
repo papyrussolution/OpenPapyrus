@@ -388,7 +388,7 @@ static bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb)
 	DWORD  gle = 0;
 	if(flags & guhfUseSystemAccount) {
 		if(!rSettings.H_User_) { // might already have hUser from a previous call
-			EnablePrivilege(SE_DEBUG_NAME, NULL); //helps with OpenProcess, required for GetLocalSystemProcessToken
+			EnablePrivilege(reinterpret_cast<HANDLE>(SE_DEBUG_NAME), NULL); //helps with OpenProcess, required for GetLocalSystemProcessToken
 			rSettings.H_User_ = GetLocalSystemProcessToken();
 			THROW(rSettings.H_User_); //Log(L"Not able to get Local System token", true);
 			; //Log(L"Got Local System handle", false);

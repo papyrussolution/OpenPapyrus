@@ -7042,7 +7042,7 @@ int mdb_cursor_put(MDB_cursor * mc, MDB_val * key, MDB_val * data, uint flags)
 		// there's only a key anyway, so this is a no-op 
 		if(IS_LEAF2(mc->mc_pg[mc->mc_top])) {
 			char * ptr;
-			uint ksize = mc->mc_db->md_pad;
+			const uint ksize = mc->mc_db->md_pad;
 			if(key->mv_size != ksize)
 				return MDB_BAD_VALSIZE;
 			ptr = LEAF2KEY(mc->mc_pg[mc->mc_top], mc->mc_ki[mc->mc_top], ksize);

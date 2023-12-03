@@ -9228,6 +9228,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_COLUMNS_TWO // @v11.8.6
 	PPDV_COLUMNS_ONE // @v11.8.6
 	PPDV_IMPORT_DOC // @v11.8.8
+	PPDV_SHARE01 // @v11.9.0
 }
 //
 // Следующие изображения используются без замещения цвета

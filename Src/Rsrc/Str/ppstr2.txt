@@ -17643,6 +17643,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqconfig_clifsvcgps                      "Разрешено установить GPS-координаты сервиса"
 @styloqconfig_clifpsnadrgps                   "Разрешено устанавливать GPS-координаты контактов"
 @styloqconfig_clifdisablefaceselfmodifying    "Не модифицировать связанный объект со стороны клиента"
+@styloqconfig_clifsharedoc                    "Разрешено делиться документами"
 
 @styloqface                                   "Лик Stylo-Q"
 @styloqface_lang                              "Язык"

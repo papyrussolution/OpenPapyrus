@@ -339,5 +339,6 @@
     <ClCompile Include="..\PPLib\ppbuild.cpp" />
     <ClCompile Include="..\PPLib\wsctl.cpp" />
     <ClCompile Include="..\PPLib\ued.cpp" />
+    <ClCompile Include="..\PPLib\zxing_client.cpp" />
   </ItemGroup>
 </Project>

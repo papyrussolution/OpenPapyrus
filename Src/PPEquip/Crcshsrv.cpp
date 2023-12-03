@@ -2669,7 +2669,7 @@ static void ConvertCrystalRightsSetToCashierRights(long crystCshrRights, long * 
 	int    i;
 	char   correspondance[] = {3,18,4,5,6,20,12,22,8,9,30,1,10,31,7,23,19,24,25,26,27,17,28,21,29,0,2,0,11,0,0,0}; // 32 items
 	char   rights_buf[SIZEOFARRAY(correspondance)];
-	BitArray  cryst_righst_ary, rights_ary;
+	SBitArray  cryst_righst_ary, rights_ary;
 	cryst_righst_ary.Init(&crystCshrRights, 32);
 	memzero(rights_buf, sizeof(rights_buf));
 	for(i = 0; i < SIZEOFARRAY(correspondance); i++)

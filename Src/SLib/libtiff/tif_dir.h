@@ -278,7 +278,7 @@ struct _TIFFField {
 	ushort field_bit;               /* bit in fieldsset bit vector */
 	uchar field_oktochange;         /* if true, can change while writing */
 	uchar field_passcount;          /* if true, pass dir count on set */
-	char * field_name;                /* ASCII name */
+	const char * field_name; // ASCII name // @v11.9.0 (char *)--(const char *)
 	TIFFFieldArray* field_subfields;        /* if field points to child ifds, child ifd field definition array */
 };
 

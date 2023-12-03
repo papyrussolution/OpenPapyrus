@@ -177,7 +177,7 @@ TIFFCodec* TIFFRegisterCODEC(uint16 scheme, const char * name, TIFFInitMethod in
 	if(cd) {
 		cd->info = (TIFFCodec *)((uint8 *)cd + sizeof(codec_t));
 		cd->info->name = (char *)((uint8 *)cd->info + sizeof(TIFFCodec));
-		strcpy(cd->info->name, name);
+		strcpy(const_cast<char *>(cd->info->name), name); // @badcast
 		cd->info->scheme = scheme;
 		cd->info->init = init;
 		cd->next = registeredCODECS;

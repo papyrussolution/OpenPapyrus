@@ -3283,7 +3283,7 @@ TYPEID FASTCALL IsSTypeName(SStrScan & rScan);
 //
 // User-defined types support
 //
-void FASTCALL RegisterSType(TYPEID, DataType *);
+void FASTCALL RegisterSType(TYPEID, const DataType *);
 
 #endif /* } !RC_INVOKED */
 //
@@ -9956,22 +9956,22 @@ private:
 	SVector List;
 };
 //
-// BitArray
+// SBitArray
 //
-class BitArray : private SBaseBuffer {
+class SBitArray : private SBaseBuffer {
 public:
-	BitArray();
-	BitArray(const BitArray &);
-	~BitArray();
-	BitArray & FASTCALL operator = (const BitArray &);
-	int    FASTCALL Copy(const BitArray &);
+	SBitArray();
+	SBitArray(const SBitArray &);
+	~SBitArray();
+	SBitArray & FASTCALL operator = (const SBitArray &);
+	int    FASTCALL Copy(const SBitArray &);
 	int    Init(const void *, size_t count);
 	//
 	// Descr: Обнуляет внутренний буфер и сбрасывает счетчик битов в 0
 	//
 	void   Clear();
 	size_t getCount() const;
-	bool   FASTCALL IsEq(const BitArray &) const;
+	bool   FASTCALL IsEq(const SBitArray &) const;
 	//
 	// Descr: Возвращает количество бит, соответствующих величине val.
 	//   Т.е. если val == 0, то возвращает количество нулевых бит,
@@ -11820,8 +11820,8 @@ private:
 	int    Swaps;
 	int    Subs;
 	SString Pattern;
-	BitArray Track1;
-	BitArray Track2;
+	SBitArray Track1;
+	SBitArray Track2;
 	ApproxStrSrchParam P;
 };
 
@@ -16823,10 +16823,10 @@ public:
 	SString * FASTCALL Alloc(uint * pPos);
 	int    FASTCALL Free(uint pos);
 	int    FASTCALL Free(const SString *);
-	int    FASTCALL Free(const BitArray &);
-	const  BitArray & GetMap() const;
+	int    FASTCALL Free(const SBitArray &);
+	const  SBitArray & GetMap() const;
 private:
-	BitArray BusyList;
+	SBitArray BusyList;
 };
 //
 // Descr: Шаблонная функция, позволяющая реализовать глобальный циклический

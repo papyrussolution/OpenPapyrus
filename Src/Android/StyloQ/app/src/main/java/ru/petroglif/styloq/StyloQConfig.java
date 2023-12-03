@@ -51,6 +51,7 @@ public class StyloQConfig {
 				// Но в том, случае, если сервис "хочет" явно разрешить клиенту обновлять свой лик, то может установить этот флаг.
 	public static int clifSvcGPS            = 0x0002; // Клиенту разрешается установить GPS-координаты сервиса
 	public static int clifPsnAdrGPS         = 0x0004; // Клиенту разрешается устанавливать GPS-координаты адресов доставки перосналий (контакты, покупатели etc)
+	public static int clifShareDoc          = 0x0008; // @v11.9.0 Клиенту разрешается делиться документами
 
 	private Map<Integer, String> L;
 

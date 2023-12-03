@@ -3581,7 +3581,7 @@ int CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, DraftRc
 	return ok;
 }
 
-int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId, PPIDArray & rCcList, BitArray * pSentList)
+int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId, PPIDArray & rCcList, SBitArray * pSentList)
 {
 	int    ok = -1;
 	rCcList.clear();

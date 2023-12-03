@@ -30,48 +30,50 @@
  */
 void TIFFCleanup(TIFF * tif)
 {
-	/*
-	 * Flush buffered data and directory (if dirty).
-	 */
-	if(tif->tif_mode != O_RDONLY)
-		TIFFFlush(tif);
-	(*tif->tif_cleanup)(tif);
-	TIFFFreeDirectory(tif);
-	SAlloc::F(tif->tif_dirlist);
-	/*
-	 * Clean up client info links.
-	 */
-	while(tif->tif_clientinfo) {
-		TIFFClientInfoLink * psLink = tif->tif_clientinfo;
-		tif->tif_clientinfo = psLink->next;
-		SAlloc::F(psLink->name);
-		SAlloc::F(psLink);
-	}
-	if(tif->tif_rawdata && (tif->tif_flags&TIFF_MYBUFFER))
-		SAlloc::F(tif->tif_rawdata);
-	if(isMapped(tif))
-		TIFFUnmapFileContents(tif, tif->tif_base, (toff_t)tif->tif_size);
-	/*
-	 * Clean up custom fields.
-	 */
-	if(tif->tif_fields && tif->tif_nfields > 0) {
-		for(size_t i = 0; i < tif->tif_nfields; i++) {
-			TIFFField * fld = tif->tif_fields[i];
-			if(fld->field_bit == FIELD_CUSTOM && strncmp("Tag ", fld->field_name, 4) == 0) {
-				SAlloc::F(fld->field_name);
-				SAlloc::F(fld);
+	if(tif) {
+		/*
+		 * Flush buffered data and directory (if dirty).
+		 */
+		if(tif->tif_mode != O_RDONLY)
+			TIFFFlush(tif);
+		(*tif->tif_cleanup)(tif);
+		TIFFFreeDirectory(tif);
+		SAlloc::F(tif->tif_dirlist);
+		/*
+		 * Clean up client info links.
+		 */
+		while(tif->tif_clientinfo) {
+			TIFFClientInfoLink * psLink = tif->tif_clientinfo;
+			tif->tif_clientinfo = psLink->next;
+			SAlloc::F(psLink->name);
+			SAlloc::F(psLink);
+		}
+		if(tif->tif_rawdata && (tif->tif_flags&TIFF_MYBUFFER))
+			SAlloc::F(tif->tif_rawdata);
+		if(isMapped(tif))
+			TIFFUnmapFileContents(tif, tif->tif_base, (toff_t)tif->tif_size);
+		/*
+		 * Clean up custom fields.
+		 */
+		if(tif->tif_fields && tif->tif_nfields > 0) {
+			for(size_t i = 0; i < tif->tif_nfields; i++) {
+				TIFFField * fld = tif->tif_fields[i];
+				if(fld->field_bit == FIELD_CUSTOM && strncmp("Tag ", fld->field_name, 4) == 0) {
+					SAlloc::F(const_cast<char *>(fld->field_name)); // @badcast
+					SAlloc::F(fld);
+				}
 			}
+			SAlloc::F(tif->tif_fields);
 		}
-		SAlloc::F(tif->tif_fields);
-	}
-	if(tif->tif_nfieldscompat > 0) {
-		for(size_t i = 0; i < tif->tif_nfieldscompat; i++) {
-			if(tif->tif_fieldscompat[i].allocated_size)
-				SAlloc::F(tif->tif_fieldscompat[i].fields);
+		if(tif->tif_nfieldscompat > 0) {
+			for(size_t i = 0; i < tif->tif_nfieldscompat; i++) {
+				if(tif->tif_fieldscompat[i].allocated_size)
+					SAlloc::F(tif->tif_fieldscompat[i].fields);
+			}
+			SAlloc::F(tif->tif_fieldscompat);
 		}
-		SAlloc::F(tif->tif_fieldscompat);
+		SAlloc::F(tif);
 	}
-	SAlloc::F(tif);
 }
 // 
 // TIFFClose()

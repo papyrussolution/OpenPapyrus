@@ -6,8 +6,8 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "ODCode93Writer.h"
-#include "ODWriterHelper.h"
+//#include "ODCode93Writer.h"
+//#include "ODWriterHelper.h"
 //#include "ZXTestSupport.h"
 
 namespace ZXing::OneD {

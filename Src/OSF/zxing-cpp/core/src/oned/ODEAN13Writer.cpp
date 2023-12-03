@@ -6,9 +6,9 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "ODEAN13Writer.h"
-#include "ODUPCEANCommon.h"
-#include "ODWriterHelper.h"
+//#include "ODEAN13Writer.h"
+//#include "ODUPCEANCommon.h"
+//#include "ODWriterHelper.h"
 
 namespace ZXing::OneD {
 static const int FIRST_DIGIT_ENCODINGS[] = {

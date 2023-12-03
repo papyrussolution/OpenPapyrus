@@ -2505,7 +2505,7 @@ int AsyncCashiersIterator::Next(AsyncCashierInfo * pInfo)
 						pInfo->IsWorked = 1;
 					}
 					if(pInfo->IsWorked) {
-						BitArray  rights_ary;
+						SBitArray  rights_ary;
 						STRNSCPY(pInfo->Name, psn_pack.Rec.Name);
 						STRNSCPY(pInfo->Password, psn_pack.CshrInfo.Password);
 						rights_ary.Init(&psn_pack.CshrInfo.Rights, sizeof(psn_pack.CshrInfo.Rights) * 8);

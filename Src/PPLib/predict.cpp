@@ -1469,7 +1469,7 @@ public:
 private:
 	const DateRange Period;
 	const PredictSalesCore & T;
-	BitArray LocIdxList;
+	SBitArray LocIdxList;
 };
 
 int __HolidayArray::Is(int16 locIdx, LDATE dt)

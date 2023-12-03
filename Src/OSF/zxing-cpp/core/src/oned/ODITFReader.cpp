@@ -6,7 +6,7 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "ODITFReader.h"
+//#include "ODITFReader.h"
 
 namespace ZXing::OneD {
 constexpr auto START_PATTERN_ = FixedPattern<4, 4>{1, 1, 1, 1};

@@ -168,21 +168,15 @@ inline int CountBitsSet(uint32_t v)
 }
 
 // this is the same as log base 2 of v
-inline int HighestBitSet(uint32_t v)
-{
-	return 31 - NumberOfLeadingZeros(v);
-}
+inline int HighestBitSet(uint32_t v) { return 31 - NumberOfLeadingZeros(v); }
 
 // shift a whole array of bits by offset bits to the right (thinking of the array as a contiguous stream of bits
 // starting with the LSB of the first int and ending with the MSB of the last int, this is actually a left shift)
-template <typename T>
-void ShiftRight(std::vector<T>& bits, std::size_t offset)
+template <typename T> void ShiftRight(std::vector<T>& bits, std::size_t offset)
 {
 	assert(offset < sizeof(T) * 8);
-
 	if(offset == 0 || bits.empty())
 		return;
-
 	std::size_t leftOffset = sizeof(T) * 8 - offset;
 	for(std::size_t i = 0; i < bits.size() - 1; ++i) {
 		bits[i] = (bits[i] >> offset) | (bits[i + 1] << leftOffset);
@@ -191,8 +185,7 @@ void ShiftRight(std::vector<T>& bits, std::size_t offset)
 }
 
 // reverse a whole array of bits. padding is the number of 'dummy' bits at the end of the array
-template <typename T>
-void Reverse(std::vector<T>& bits, std::size_t padding)
+template <typename T> void Reverse(std::vector<T>& bits, std::size_t padding)
 {
 	static_assert(sizeof(T) == sizeof(uint32_t), "Reverse only implemented for 32 bit types");
 
@@ -211,8 +204,7 @@ void Reverse(std::vector<T>& bits, std::size_t padding)
 }
 
 // use to avoid "load of misaligned address" when using a simple type cast
-template <typename T>
-T LoadU(const void* ptr)
+template <typename T> T LoadU(const void* ptr)
 {
 	static_assert(std::is_integral<T>::value, "T must be an integer");
 	T res;

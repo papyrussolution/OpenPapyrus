@@ -297,7 +297,7 @@ void _TIFFSetupFields(TIFF * tif, const TIFFFieldArray* fieldarray)
 		for(uint32 i = 0; i < tif->tif_nfields; i++) {
 			TIFFField * fld = tif->tif_fields[i];
 			if(fld->field_bit == FIELD_CUSTOM && strncmp("Tag ", fld->field_name, 4) == 0) {
-				SAlloc::F(fld->field_name);
+				SAlloc::F(const_cast<char *>(fld->field_name)); // @badcast
 				SAlloc::F(fld);
 			}
 		}
@@ -583,7 +583,7 @@ TIFFField* _TIFFCreateAnonField(TIFF * tif, uint32 tag, TIFFDataType field_type)
 	 * note that this name is a special sign to TIFFClose() and
 	 * _TIFFSetupFields() to free the field
 	 */
-	_snprintf(fld->field_name, 32, "Tag %d", (int)tag);
+	_snprintf(const_cast<char *>(fld->field_name), 32, "Tag %d", (int)tag); // @badcast
 	return fld;
 }
 

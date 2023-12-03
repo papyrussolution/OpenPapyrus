@@ -223,7 +223,7 @@ struct _TIFFRGBAImage {
  */
 typedef int (*TIFFInitMethod)(TIFF *, int);
 typedef struct {
-	char * name;
+	const char * name; // @v11.9.0 (char *)-->(const char *)
 	uint16 scheme;
 	TIFFInitMethod init;
 } TIFFCodec;

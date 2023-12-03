@@ -19,15 +19,15 @@
 #define ZUECI_ERROR_INVALID_UTF8    9   /* Source data not valid UTF-8 */
 
 #ifdef _WIN32
-#  if defined(DLL_EXPORT) || defined(PIC) || defined(_USRDLL)
-#    define ZUECI_EXTERN __declspec(dllexport)
-#  elif defined(ZUECI_DLL)
-#    define ZUECI_EXTERN __declspec(dllimport)
-#  else
-#    define ZUECI_EXTERN extern
-#  endif
+    #if defined(DLL_EXPORT) || defined(PIC) || defined(_USRDLL)
+        #define ZUECI_EXTERN __declspec(dllexport)
+    #elif defined(ZUECI_DLL)
+        #define ZUECI_EXTERN __declspec(dllimport)
+    #else
+        #define ZUECI_EXTERN extern
+    #endif
 #else
-#  define ZUECI_EXTERN extern
+    #define ZUECI_EXTERN extern
 #endif
 
 #ifdef __cplusplus
@@ -106,7 +106,7 @@ extern "C" {
 /*
     If embedding the library (i.e. including the 10 files directly) and only want ECI-to-UTF-8 functionality,
     define `ZUECI_EMBED_NO_TO_ECI`
-*/
+ */
 #ifndef ZUECI_EMBED_NO_TO_ECI
 
 /*
@@ -115,15 +115,13 @@ extern "C" {
     `dest` must be big enough (4-times the `src_len`, or see `zueci_dest_len_eci()`). It is not NUL-terminated.
     Returns 0 if successful, one of `ZUECI_ERROR_XXX` if not.
  */
-ZUECI_EXTERN int zueci_utf8_to_eci(const int eci, const unsigned char src[], const int src_len,
-                    unsigned char dest[], int *p_dest_len);
-
+ZUECI_EXTERN int zueci_utf8_to_eci(const int eci, const unsigned char src[], const int src_len, unsigned char dest[], int * p_dest_len);
 /*
     Calculate sufficient (i.e. approx.) length needed to convert UTF-8 `src` of length `len` from UTF-8 to ECI
     `eci`, and place in `p_dest_len`.
     Returns 0 if successful, one of `ZUECI_ERROR_XXX` if not.
  */
-ZUECI_EXTERN int zueci_dest_len_eci(const int eci, const unsigned char src[], const int src_len, int *p_dest_len);
+ZUECI_EXTERN int zueci_dest_len_eci(const int eci, const unsigned char src[], const int src_len, int * p_dest_len);
 
 #endif /* ZUECI_EMBED_NO_TO_ECI */
 
@@ -145,7 +143,7 @@ ZUECI_EXTERN int zueci_dest_len_eci(const int eci, const unsigned char src[], co
 /*
     If embedding the library (i.e. including the 10 files directly) and only want UTF-8-to-ECI functionality,
     define `ZUECI_EMBED_NO_TO_UTF8`
-*/
+ */
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 
 /*
@@ -158,16 +156,14 @@ ZUECI_EXTERN int zueci_dest_len_eci(const int eci, const unsigned char src[], co
     Returns 0 if successful, one of `ZUECI_ERROR_XXX` if not.
  */
 ZUECI_EXTERN int zueci_eci_to_utf8(const int eci, const unsigned char src[], const int src_len,
-                    const unsigned int replacement_char, const unsigned int flags, unsigned char dest[],
-                    int *p_dest_len);
-
+    const unsigned int replacement_char, const unsigned int flags, unsigned char dest[], int * p_dest_len);
 /*
     Calculate exact length needed to convert ECI-encoded `src` of length `len` from ECI `eci`, and place in
     `p_dest_len`.
     Returns 0 if successful, one of `ZUECI_ERROR_XXX` if not.
  */
 ZUECI_EXTERN int zueci_dest_len_utf8(const int eci, const unsigned char src[], const int src_len,
-                    const unsigned int replacement_char, const unsigned int flags, int *p_dest_len);
+    const unsigned int replacement_char, const unsigned int flags, int * p_dest_len);
 
 #endif /* ZUECI_EMBED_NO_TO_UTF8 */
 

@@ -103,7 +103,7 @@ void * SStack::peek() const
 		return at(Limit-1);
 	}
 	else
-		return (SLibError = SLERR_ARYZEROCOUNT, 0);
+		return (SLibError = SLERR_ARYZEROCOUNT, reinterpret_cast<void *>(0));
 }
 //
 //

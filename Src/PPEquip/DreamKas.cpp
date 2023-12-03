@@ -455,7 +455,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 	LAssocArray  scard_quot_list;
 	PPIDArray retail_quot_list;
 	PPIDArray scard_series_list;
-	BitArray used_retail_quot;
+	SBitArray used_retail_quot;
 	PPIniFile ini_file;
 	const  int check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 	//

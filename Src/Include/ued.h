@@ -188,14 +188,18 @@ protected:
 		int    State;  // Внутренний идентификатор состояния разбора.
 		ProtoPropList_SingleUed PL;
 	};
-	struct PropIdxEntry_Ued {
-		uint64 Ued;
-		LongArray RefList; // Список позиций в PropertySet
-	};
-	struct PropIdxEntry_UedLocale {
+	struct PropIdxEntry {
+		PropIdxEntry() : Ued(0), LocaleId(0)
+		{
+		}
+		const void * GetHashKey(const void * pCtx, uint * pSize) const // hash-table support
+		{
+			ASSIGN_PTR(pSize, sizeof(Ued)+sizeof(LocaleId));
+			return this;
+		}
 		uint64 Ued;
 		uint   LocaleId;
-		LongArray RefList; // Список позиций в PropertySet
+		LAssocArray RefList; // Список позиций в PropertySet
 	};
 	//
 	// Descr: Финишный пул свойств, на которые ссылаются элементы UED-реестра.
@@ -204,12 +208,16 @@ protected:
 	public:
 		PropertySet();
 		int    Add(const uint64 * pPropChunk, uint count, uint * pPos);
+		uint   GetCount() const;
 	private:
 		LAssocArray PosIdx; // Индекс позиций: Key - номер позиции, Val - количество элементов 
 	};
 	TSVector <BaseEntry> BL;
 	TSVector <TextEntry> TL;
 	TSCollection <ProtoProp> ProtoPropList; // compile-time
+	TSHashCollection <PropIdxEntry> PropIdx;
+
+	int    GetPropList(TSCollection <PropIdxEntry> & rList) const;
 private:
 	uint64 SearchBaseIdBySymbId(uint symbId, uint64 meta) const;
 	int    ReplaceSurrogateLocaleId(const SymbHashTable & rT, uint32 surrLocaleId, uint32 * pRealLocaleId, uint lineNo, PPLogger * pLogger);

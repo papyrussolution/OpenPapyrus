@@ -5666,8 +5666,9 @@ public class SLib {
 		{
 			View view = (parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView);
 			if(view != null && view instanceof RecyclerView) {
+				RecyclerView rv = (RecyclerView)view;
 				RecyclerListAdapter adapter = new RecyclerListAdapter(this, null, rcListView, rcItemView);
-				((RecyclerView)view).setAdapter(adapter);
+				rv.setAdapter(adapter);
 				//view.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 			}
 		}

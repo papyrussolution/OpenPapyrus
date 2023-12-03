@@ -98,6 +98,17 @@
 #include "oned/ODUPCEANCommon.h"
 #include "oned/ODCodabarWriter.h"
 #include "oned/ODWriterHelper.h"
+#include "oned/ODCode39Writer.h"
+#include "oned/ODCode93Writer.h"
+#include "oned/ODCode128Patterns.h"
+#include "oned/ODCode128Writer.h"
+#include "oned/ODDataBarCommon.h"
+#include "oned/ODDataBarExpandedBitDecoder.h"
+#include "oned/ODEAN8Writer.h"
+#include "oned/ODEAN13Writer.h"
+#include "oned/ODITFWriter.h"
+#include "oned/ODUPCAWriter.h"
+#include "oned/ODUPCEWriter.h"
 
 #include "pdf417/PDFReader.h"
 #include "qrcode/QRReader.h"
@@ -111,5 +122,9 @@
 #include "aztec/AZToken.h"
 #include "aztec/AZEncodingState.h"
 #include "aztec/AZWriter.h"
+
+#include "maxicode/MCBitMatrixParser.h"
+#include "maxicode/MCDecoder.h"
+#include "maxicode/MCReader.h"
 
 #endif // __ZXING_INTERNAL_H

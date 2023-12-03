@@ -9083,7 +9083,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 										if(!dup_mark) {
 											if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
 												PPIDArray cc_list;
-												BitArray sent_list;
+												SBitArray sent_list;
 												CCheckCore & r_cc = GetCc();
 												int    cc_even = 0;
 												temp_buf.Z();

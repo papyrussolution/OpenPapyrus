@@ -1677,6 +1677,7 @@
     <ClCompile Include="..\PPLib\v_usprof.cpp" />
     <ClCompile Include="..\PPLib\workbook.cpp" />
     <ClCompile Include="..\PPLib\wsctl.cpp" />
+    <ClCompile Include="..\PPLib\zxing_client.cpp" />
     <ClCompile Include="..\Pptest\pptest.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200prs.cpp" />
@@ -1730,6 +1731,9 @@
     </ProjectReference>
     <ProjectReference Include="ZBAR.vcxproj">
       <Project>{64adc8ff-d2ce-4d6e-a2c0-a0c75f5ba7d5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ZXing.vcxproj">
+      <Project>{c5eeb96a-3387-3d80-b63c-5adecfbf87cc}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

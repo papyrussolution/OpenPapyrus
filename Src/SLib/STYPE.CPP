@@ -11,7 +11,7 @@ static void * P_TypeTable[SlConst::TypeTabSize]; // @global @threadsafe
 
 #define INVALID_TYPEID 0
 
-void FASTCALL RegisterSType(TYPEID id, DataType * typ)
+void FASTCALL RegisterSType(TYPEID id, const DataType * typ)
 {
 	int    ok = 1;
 	ENTER_CRITICAL_SECTION

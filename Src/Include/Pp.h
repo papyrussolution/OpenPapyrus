@@ -134,6 +134,7 @@
 #ifndef __PP_H // {
 #define __PP_H
 
+#define SLIB_INCLUDE_CPPSTDLIBS
 #include <slib.h>
 #include <db.h>
 #include <ppdbs.h>
@@ -15510,7 +15511,7 @@ public:
 	//
 	int    MakeDate2MaxIdIndex(LAssocArray & rIndex);
 	// really private (used by PPObjCSession)
-	int    Helper_GetListByMark(const char * pText, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId, PPIDArray & rCcList, BitArray * pSentList);
+	int    Helper_GetListByMark(const char * pText, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId, PPIDArray & rCcList, SBitArray * pSentList);
 
 	CCheckLineTbl Lines;
 	CCheckPaymTbl PaymT;    // Таблица платежей по чекам
@@ -20208,7 +20209,7 @@ public:
 		fldLot,                   // 23x Номер лота: От 1 до 19 буквенно-цифровой
 		fldAddendumId,            // 240 Дополнительная идентификация продукта: 1?30 буквенно-цифровой
 		fldSerial2,               // 250 Второй серийный номер: 1?30 буквенно-цифровой
-		fldQtty,                  // 30 Количество каждого: 1?8 цифр
+		fldQtty,                  // 30  Количество каждого: 1?8 цифр
 		fldWtNettKg,              // 310y Вес нетто (кг): 6 цифр
 		fldLenM,                  // 311y Длина изделия — первое измерение (в метрах): 6 цифр
 		fldWidthM,                // 312y Ширина или диаметр изделия — 2-ое измерение (в метрах): 6 цифр
@@ -20287,7 +20288,8 @@ public:
 		fldInner7,                // 98 Внутренние коды компании 1?30 буквенно-цифровой
 		fldInner8,                // 99 Внутренние коды компании 1?30 буквенно-цифровой
 		fldPriceRuTobacco,        // Собственный идентификатор - МРЦ сигарет (кодируется)
-		fldControlRuTobacco       // 93 Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
+		fldControlRuTobacco,      // 93 Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
+		fldWeight                 // @v11.9.0 3103 Масса товара в единице (на сайте честный знак указана длина поля 9 символов, но фактически длина иная)
 	};
 	GtinStruc();
 	void   SetSpecialFixedToken(int token, int fixedLen /* 1000 - UNTIL EOL */);
@@ -34982,7 +34984,7 @@ public:
 	//   <0 - не найдено ни одного чека
 	//   0  - ошибка
 	//
-	int    GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList);
+	int    GetListByEgaisMark(const char * pText, PPIDArray & rCcList, SBitArray * pSentList);
 	int    GetListByChZnMark(const char * pText, PPIDArray & rCcList);
 	//
 	// Descr: Возвращает список чеков по UUID.
@@ -46016,6 +46018,7 @@ public:
 			// Но в том, случае, если сервис "хочет" явно разрешить клиенту обновлять свой лик, то может установить этот флаг.
 		clifSvcGPS            = 0x0002, // Клиенту разрешается установить GPS-координаты сервиса
 		clifPsnAdrGPS         = 0x0004, // Клиенту разрешается устанавливать GPS-координаты адресов доставки перосналий (контакты, покупатели etc)
+		clifShareDoc          = 0x0008, // @v11.9.0 Клиенту разрешается делиться документами
 	};
 	static int MakeTransmissionJson(const char * pSrcJson, const void * pClientPacket, SString & rTransmissionJson);
 	//

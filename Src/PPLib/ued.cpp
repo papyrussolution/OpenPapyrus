@@ -686,7 +686,7 @@ static IMPL_CMPFUNC(SrUedContainer_TextEntry, p1, p2)
 	RET_CMPCASCADE2(p_e1, p_e2, Locale, Id);
 }
 
-SrUedContainer_Base::SrUedContainer_Base() : LinguaLocusMeta(0), Ht(1024*32, 0), LastSymbHashId(0)
+SrUedContainer_Base::SrUedContainer_Base() : LinguaLocusMeta(0), Ht(1024*32, 0), LastSymbHashId(0), PropIdx(4096, 0)
 {
 }
 	
@@ -851,6 +851,11 @@ int SrUedContainer_Base::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPL
 
 SrUedContainer_Base::PropertySet::PropertySet() : UedSetBase()
 {
+}
+
+uint SrUedContainer_Base::PropertySet::GetCount() const
+{
+	return PosIdx.getCount();
 }
 		
 int SrUedContainer_Base::PropertySet::Add(const uint64 * pPropChunk, uint count, uint * pPos)
@@ -1067,9 +1072,8 @@ int SrUedContainer_Base::RegisterProtoPropList(const ProtoPropList_SingleUed & r
 		const ProtoProp * p_item = rList.at(i);
 		if(p_item && p_item->Ued) {
 			ProtoProp * p_dup = new ProtoProp(*p_item);
-			if(p_dup) {
+			if(p_dup)
 				ProtoPropList.insert(p_dup);
-			}
 		}
 	}
 	return ok;
@@ -1273,6 +1277,24 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 	return ok;
 }
 
+int SrUedContainer_Base::GetPropList(TSCollection <PropIdxEntry> & rList) const
+{
+	rList.freeAll();
+	int    ok = -1;
+	PropIdxEntry * p_entry = 0;
+	for(uint i = 0; PropIdx.Enum(&i, &p_entry);) {
+		assert(p_entry);
+		if(p_entry) {
+			PropIdxEntry * p_new_entry = rList.CreateNewItem();
+			if(p_new_entry) {
+				*p_new_entry = *p_entry;
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 int SrUedContainer_Base::ProcessProperties()
 {
 	int    ok = 1;
@@ -1325,7 +1347,26 @@ int SrUedContainer_Base::ProcessProperties()
 			if(!local_fault) {
 				if(raw_prop_list.getCount()) {
 					uint prop_idx = 0;
-					PropS.Add(static_cast<uint64 *>(raw_prop_list.dataPtr()), raw_prop_list.getCount(), &prop_idx);
+					const uint prop_limb_count = raw_prop_list.getCount();
+					PropS.Add(static_cast<uint64 *>(raw_prop_list.dataPtr()), prop_limb_count, &prop_idx);
+					{
+						PropIdxEntry key;
+						key.Ued = p_pp->Ued;
+						key.LocaleId = p_pp->LocaleId;
+						uint ks = 0;
+						const void * p_key = key.GetHashKey(0, &ks);
+						PropIdxEntry * p_idx_entry = PropIdx.Get(p_key, ks);
+						if(p_idx_entry) {
+							p_idx_entry->RefList.Add(prop_idx, prop_limb_count);
+						}
+						else {
+							PropIdxEntry * p_new_idx_entry = new PropIdxEntry;
+							p_new_idx_entry->Ued = p_pp->Ued;
+							p_new_idx_entry->LocaleId = p_pp->LocaleId;
+							p_new_idx_entry->RefList.Add(prop_idx, prop_limb_count);
+							PropIdx.Put(p_new_idx_entry, true);
+						}
+					}
 				}
 			}
 		}
@@ -1451,6 +1492,18 @@ int SrUedContainer_Base::WriteSource(const char * pFileName, const SBinaryChunk 
 			THROW_SL(f_hash.IsValid());
 			bc_hash.Hex(temp_buf);
 			f_hash.WriteLine(temp_buf);
+		}
+	}
+	if(PropS.GetCount()) {
+		TSCollection <PropIdxEntry> prop_list;
+		if(GetPropList(prop_list) > 0) {
+			for(uint i = 0; i < prop_list.getCount(); i++) {
+				const PropIdxEntry * p_entry = prop_list.at(i);
+				assert(p_entry);
+				if(p_entry) {
+					//
+				}
+			}
 		}
 	}
 	CATCHZOK

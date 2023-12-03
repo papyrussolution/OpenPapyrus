@@ -6,8 +6,8 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "ODUPCAWriter.h"
-#include "ODEAN13Writer.h"
+//#include "ODUPCAWriter.h"
+//#include "ODEAN13Writer.h"
 
 namespace ZXing::OneD {
 BitMatrix UPCAWriter::encode(const std::wstring& contents, int width, int height) const

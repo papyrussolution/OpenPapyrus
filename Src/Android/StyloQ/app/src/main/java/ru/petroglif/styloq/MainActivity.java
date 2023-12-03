@@ -333,7 +333,6 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						}
 						// @v11.6.0 {
 						{
-							//boolean svc_gpsloc_setting_allowed = false;
 							SvcGpslocSettingAllowed = false;
 							byte[] cfg_bytes = _data.Pool.Get(SecretTagPool.tagConfig);
 							if(SLib.GetLen(cfg_bytes) > 0) {
@@ -342,8 +341,6 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									final int cli_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagCliFlags));
 									if((cli_flags & StyloQConfig.clifSvcGPS) != 0) {
 										if(ContextCompat.checkSelfPermission(app_ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-											//if(ActivityCtx != null)
-												//FusedLocClient = new FusedLocationProviderClient(ActivityCtx);
 											SvcGpslocSettingAllowed = true;
 										}
 									}

@@ -6,8 +6,8 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "MCDecoder.h"
-#include "MCBitMatrixParser.h"
+//#include "MCDecoder.h"
+//#include "MCBitMatrixParser.h"
 
 namespace ZXing::MaxiCode {
 static const int ALL = 0;

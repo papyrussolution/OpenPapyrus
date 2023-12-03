@@ -30,23 +30,18 @@ std::string ToString(const BitMatrix& matrix, char one, char zero, bool addSpace
 std::string ToSVG(const BitMatrix& matrix)
 {
 	// see https://stackoverflow.com/questions/10789059/create-qr-code-in-vector-image/60638350#60638350
-
 	const int width = matrix.width();
 	const int height = matrix.height();
 	std::ostringstream out;
-
 	out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 	    << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 " << width << " " << height
 	    << "\" stroke=\"none\">\n"
 	    << "<path d=\"";
-
 	for(int y = 0; y < height; ++y)
 		for(int x = 0; x < width; ++x)
 			if(matrix.get(x, y))
 				out << "M" << x << "," << y << "h1v1h-1z";
-
 	out << "\"/>\n</svg>";
-
 	return out.str();
 }
 

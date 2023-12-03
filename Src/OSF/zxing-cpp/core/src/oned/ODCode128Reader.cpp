@@ -6,8 +6,8 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "ODCode128Reader.h"
-#include "ODCode128Patterns.h"
+//#include "ODCode128Reader.h"
+//#include "ODCode128Patterns.h"
 
 namespace ZXing::OneD {
 static const float MAX_AVG_VARIANCE = 0.25f;
@@ -69,11 +69,9 @@ public:
 	{
 		txt.reserve(20);
 	}
-
 	bool decode(int code)
 	{
 		lastTxtSize = txt.size();
-
 		if(codeSet == CODE_CODE_C) {
 			if(code < 100) {
 				txt.append(ToString(code, 2));
@@ -87,7 +85,6 @@ public:
 		}
 		else {   // codeSet A or B
 			bool unshift = shift;
-
 			switch(code) {
 				case CODE_FNC_1: fnc1(false /*isCodeSetC*/); break;
 				case CODE_FNC_2:

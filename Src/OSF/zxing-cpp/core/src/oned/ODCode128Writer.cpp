@@ -6,9 +6,9 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "ODCode128Writer.h"
-#include "ODCode128Patterns.h"
-#include "ODWriterHelper.h"
+//#include "ODCode128Writer.h"
+//#include "ODCode128Patterns.h"
+//#include "ODWriterHelper.h"
 
 namespace ZXing::OneD {
 static const int CODE_START_A = 103;

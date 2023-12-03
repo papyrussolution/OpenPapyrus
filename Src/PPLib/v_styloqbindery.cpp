@@ -123,9 +123,14 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 		StyloQSecTbl::Key0 k0;
 		MEMSZERO(k0);
 		StyloQCore * p_t = Obj.P_Tbl;
-		if(p_t->search(0, &k0, spFirst)) do {
+		BExtQuery q(p_t, 0);
+		q.select(p_t->ID, p_t->Kind, 0L);
+		if(gklr > 0) {
+			q.where(ppidlist(p_t->Kind, &kind_list));
+		}
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 			if(gklr <= 0 || kind_list.bsearch(p_t->data.Kind)) {
-				if(p_t->ReadCurrentPacket(&pack)) {
+				if(p_t->GetPeerEntry(p_t->data.ID, &pack) > 0) {
 					BrwItem new_entry;
 					MEMSZERO(new_entry);
 					new_entry.ID = pack.Rec.ID;
@@ -167,7 +172,7 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 					debug_mark = true; // @debug
 				}
 			}
-		} while(p_t->search(&k0, spNext));
+		}
 	}
 	CATCHZOK
 	return ok;

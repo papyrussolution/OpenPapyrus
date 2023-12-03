@@ -7,16 +7,7 @@
 #include <zxing-internal.h>
 #pragma hdrstop
 #include "ReadBarcode.h"
-//#include "GTIN.h"
 #include "ZXVersion.h"
-//#include <cctype>
-//#include <chrono>
-//#include <cstring>
-//#include <iostream>
-//#include <iterator>
-//#include <memory>
-//#include <string>
-//#include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -182,8 +173,7 @@ int main(int argc, char* argv[])
 	std::cout.setf(std::ios::boolalpha);
 	for(const auto & filePath : filePaths) {
 		int width, height, channels;
-		std::unique_ptr<stbi_uc, void (*)(void*)> buffer(stbi_load(filePath.c_str(), &width, &height, &channels, 3),
-		    stbi_image_free);
+		std::unique_ptr<stbi_uc, void (*)(void*)> buffer(stbi_load(filePath.c_str(), &width, &height, &channels, 3), stbi_image_free);
 		if(buffer == nullptr) {
 			std::cerr << "Failed to read image: " << filePath << " (" << stbi_failure_reason() << ")" << "\n";
 			return -1;
@@ -280,10 +270,8 @@ int main(int argc, char* argv[])
 			if(result.readerInit())
 				std::cout << "Reader Initialisation/Programming\n";
 		}
-
 		if(Size(filePaths) == 1 && !outPath.empty())
 			stbi_write_png(outPath.c_str(), image.width(), image.height(), 3, image.data(0, 0), image.rowStride());
-
 #ifdef NDEBUG
 		if(getenv("MEASURE_PERF")) {
 			auto startTime = std::chrono::high_resolution_clock::now();

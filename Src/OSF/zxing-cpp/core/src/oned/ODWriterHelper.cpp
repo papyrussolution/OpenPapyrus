@@ -6,7 +6,7 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "ODWriterHelper.h"
+//#include "ODWriterHelper.h"
 
 namespace ZXing::OneD {
 /**

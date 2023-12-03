@@ -1196,7 +1196,7 @@ int GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry)
 		pOperRightsAry->freeAll();
 		if(keyPos > 0 && PPRef->GetPropMainConfig(PPPRP_KEYBWKEYCFG, &kwk_cfg, sizeof(kwk_cfg)) > 0) {
 			for(int i = 0; i < SIZEOFARRAY(kwk_cfg.OperRights); i++) {
-				BitArray  key_pos_ary;
+				SBitArray  key_pos_ary;
 				key_pos_ary.Init(&kwk_cfg.OperRights[i].KeyPos, 32);
 				if(key_pos_ary.get(keyPos - 1) > 0) {
 					long rt = kwk_cfg.OperRights[i].OperRightFlag;
@@ -1225,7 +1225,7 @@ int EditDueToKeyboardRights()
 			SString temp_buf;
 			for(int i = 0; i < SIZEOFARRAY(Data.OperRights); i++) {
 				StringSet key_pos_str(',', 0);
-				BitArray  key_pos_ary;
+				SBitArray  key_pos_ary;
 				key_pos_ary.Init(&Data.OperRights[i].KeyPos, 32);
 				for(size_t pos = 0; pos < 32; pos++)
 					if(key_pos_ary.get(pos))
@@ -1243,7 +1243,7 @@ int EditDueToKeyboardRights()
 				long   l_init = 0;
 				char   buf[64];
 				SString  key_pos;
-				BitArray key_pos_ary;
+				SBitArray key_pos_ary;
 				key_pos_ary.Init(&l_init, 32);
 				getCtrlData(sel = CTL_CFGKBDWKEY1 + i, buf);
 				StringSet  key_pos_str(',', buf);
@@ -2240,7 +2240,7 @@ bool PPObjCSession::IsCcDate2MaxIdIndexLoaded()
 
 IMPL_OBJ_DIRTY(PPObjCSession, CSessCache);
 
-int PPObjCSession::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList)
+int PPObjCSession::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, SBitArray * pSentList)
 {
 	const uint back_days = 14; // @v11.8.3 90-->14
 	LAssocArray index;

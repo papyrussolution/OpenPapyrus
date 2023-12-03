@@ -32,7 +32,8 @@ static int zueci_is_valid_eci(const int eci) {
 }
 
 /* State machine to decode UTF-8 to Unicode codepoints (state 0 means done, state 12 means error) */
-static unsigned int zueci_decode_utf8(unsigned int * p_state, zueci_u32 * p_u, const unsigned char byte) {
+static unsigned int zueci_decode_utf8(unsigned int * p_state, zueci_u32 * p_u, const unsigned char byte) 
+{
 	/*
 	    Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
 
@@ -70,7 +71,6 @@ static unsigned int zueci_decode_utf8(unsigned int * p_state, zueci_u32 * p_u, c
 		12, 12, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, 12, 36, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12,
 		12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
 	};
-
 	const zueci_u32 type = utf8d[byte];
 	*p_u = *p_state ? (byte & 0x3fu) | (*p_u << 6) : (0xff >> type) & byte;
 	*p_state = utf8d[256 + *p_state + type];
@@ -85,18 +85,17 @@ ZUECI_INTERN unsigned int zueci_decode_utf8_test(unsigned int * p_state, zueci_u
 #endif
 
 /* Whether string valid UTF-8 */
-static int zueci_is_valid_utf8(const unsigned char src[], const int len) {
+static int zueci_is_valid_utf8(const unsigned char src[], const int len) 
+{
 	unsigned int state = 0;
 	const unsigned char * s = src;
 	const unsigned char * const se = src + len;
 	zueci_u32 u;
-
 	while(s < se) {
 		if(zueci_decode_utf8(&state, &u, *s++) == 12) {
 			return 0;
 		}
 	}
-
 	return state == 0;
 }
 
@@ -1520,11 +1519,8 @@ ZUECI_EXTERN int zueci_dest_len_eci(const int eci, const unsigned char src[], co
 		/* Quadruple-up ASCII and double-up non-ASCII */
 		dest_len += zueci_chr_lte_cnt(src, src_len, 0x7F) * 2 + src_len;
 	}
-
 	/* Big5, GB 2312, EUC-KR and GBK fit in UTF-8 length */
-
 	*p_dest_len = dest_len;
-
 	return 0;
 }
 

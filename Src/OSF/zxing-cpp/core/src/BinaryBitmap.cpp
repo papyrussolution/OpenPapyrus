@@ -38,7 +38,6 @@ BitMatrix BinaryBitmap::binarize(const uint8_t threshold) const
 			}
 		}
 	}
-
 	return res;
 }
 
@@ -68,7 +67,6 @@ void SumFilter(const BitMatrix& in, BitMatrix& out, F func)
 	const auto* in0 = in.row(0).begin();
 	const auto* in1 = in.row(1).begin();
 	const auto* in2 = in.row(2).begin();
-
 	for(auto * out1 = out.row(1).begin() + 1, * end = out.row(out.height() - 1).begin() - 1; out1 != end; ++in0, ++in1, ++in2, ++out1) {
 		int sum = 0;
 		for(int j = 0; j < 3; ++j)

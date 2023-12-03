@@ -13,65 +13,33 @@ class ByteArray;
 /**
  * A simple, fast array of bits.
  */
-class BitArray
-{
+class BitArray {
 	std::vector<uint8_t> _bits;
-
 	friend class BitMatrix;
-
 	// Nothing wrong to support it, just to make it explicit, instead of by mistake.
 	// Use copy() below.
 	BitArray(const BitArray &) = default;
 	BitArray& operator=(const BitArray &) = delete;
-
 public:
-
 	using Iterator = std::vector<uint8_t>::const_iterator;
-
 	BitArray() = default;
-
-	explicit BitArray(int size) : _bits(size, 0) {
+	explicit BitArray(int size) : _bits(size, 0) 
+	{
 	}
-
 	BitArray(BitArray&& other) noexcept = default;
 	BitArray& operator=(BitArray&& other) noexcept = default;
-
-	BitArray copy() const {
-		return *this;
-	}
-
-	int size() const noexcept {
-		return Size(_bits);
-	}
-
-	int sizeInBytes() const noexcept {
-		return (size() + 7) / 8;
-	}
-
-	bool get(int i) const {
-		return _bits.at(i) != 0;
-	}
-
-	void set(int i, bool val) {
-		_bits.at(i) = val;
-	}
-
+	BitArray copy() const { return *this; }
+	int size() const noexcept { return Size(_bits); }
+	int sizeInBytes() const noexcept { return (size() + 7) / 8; }
+	bool get(int i) const { return _bits.at(i) != 0; }
+	void set(int i, bool val) { _bits.at(i) = val; }
 	// If you know exactly how may bits you are going to iterate
 	// and that you access bit in sequence, iterator is faster than get().
 	// However, be extremely careful since there is no check whatsoever.
 	// (Performance is the reason for the iterator to exist in the first place.)
-	Iterator iterAt(int i) const noexcept {
-		return {_bits.cbegin() + i};
-	}
-
-	Iterator begin() const noexcept {
-		return _bits.cbegin();
-	}
-
-	Iterator end() const noexcept {
-		return _bits.cend();
-	}
-
+	Iterator iterAt(int i) const noexcept { return {_bits.cbegin() + i}; }
+	Iterator begin() const noexcept { return _bits.cbegin(); }
+	Iterator end() const noexcept { return _bits.cend(); }
 	/**
 	 * Appends the least-significant bits, from value, in order from most-significant to
 	 * least-significant. For example, appending 6 bits from 0x000001E will append the bits
@@ -85,31 +53,19 @@ public:
 		for(; numBits; --numBits)
 			_bits.push_back((value >> (numBits-1)) & 1);
 	}
-
-	void appendBit(bool bit) {
-		_bits.push_back(bit);
-	}
-
-	void appendBitArray(const BitArray& other) {
-		_bits.insert(_bits.end(), other.begin(), other.end());
-	}
-
+	void appendBit(bool bit) { _bits.push_back(bit); }
+	void appendBitArray(const BitArray& other) { _bits.insert(_bits.end(), other.begin(), other.end()); }
 	/**
 	 * Reverses all bits in the array.
 	 */
-	void reverse() {
-		std::reverse(_bits.begin(), _bits.end());
-	}
-
+	void reverse() { std::reverse(_bits.begin(), _bits.end()); }
 	void bitwiseXOR(const BitArray& other);
-
 	/**
 	 * @param bitOffset first bit to extract
 	 * @param numBytes how many bytes to extract (-1 == until the end, padded with '0')
 	 * @return Bytes are written most-significant bit first.
 	 */
 	ByteArray toBytes(int bitOffset = 0, int numBytes = -1) const;
-
 	using Range = ZXing::Range<Iterator>;
 	Range range() const {
 		return {begin(), end()};

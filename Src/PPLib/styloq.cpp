@@ -238,8 +238,8 @@ static const SIntToSymbTabEntry StyloQConfigTagNameList[] = {
 				StyloQConfig cli_cfg_pack;
 				if(cli_cfg_pack.FromJson(bch_cli_cfg.ToRawStr(temp_buf)) && cli_cfg_pack.Get(StyloQConfig::tagCliFlags, temp_buf)) {
 					const long cli_flags = temp_buf.ToLong();
-					if(cli_flags & (clifSvcGPS|clifPsnAdrGPS)) {
-						temp_buf.Z().Cat(cli_flags & (clifSvcGPS|clifPsnAdrGPS));
+					if(cli_flags & (clifSvcGPS|clifPsnAdrGPS|clifShareDoc)) { // @v11.9.0 clifShareDoc
+						temp_buf.Z().Cat(cli_flags & (clifSvcGPS|clifPsnAdrGPS|clifShareDoc));
 						cfg_pack.Set(StyloQConfig::tagCliFlags, temp_buf);
 					}
 				}
@@ -1882,34 +1882,16 @@ int StyloQCore::StoragePacket::GetFace(int tag, StyloQFace & rF) const
 {
 	rBuf.Z();
 	switch(docType) {
-		case doctypCommandList:
-			rBuf = "CommandList";
+		case doctypCommandList: rBuf = "CommandList"; break;
+		case doctypOrderPrereq: rBuf = "OrderPrereq"; break;
+		case doctypReport: rBuf = "Report"; break;
+		case doctypGeneric: rBuf = "Generic"; break;
+		case doctypIndexingContent: 
+			(rBuf = "IndexingContent").Space().CatParStr((flags & fUnprocessedDoc_Misplaced) ? "unprocessed" : "processed");
 			break;
-		case doctypOrderPrereq:
-			rBuf = "OrderPrereq";
-			break;
-		case doctypReport:
-			rBuf = "Report";
-			break;
-		case doctypGeneric:
-			rBuf = "Generic";
-			break;
-		case doctypIndexingContent:
-			rBuf = "IndexingContent";
-			if(flags & fUnprocessedDoc_Misplaced)
-				rBuf.Space().CatParStr("unprocessed");
-			else
-				rBuf.Space().CatParStr("processed");
-			break;
-		case doctypIndoorSvcPrereq:
-			rBuf = "IndoorSvcPrereq";
-			break;
-		case doctypIncomingList: // @v11.4.8
-			rBuf = "IncomingList";
-			break;
-		case doctypDebtList: // @v11.5.4
-			rBuf = "DebtList";
-			break;
+		case doctypIndoorSvcPrereq: rBuf = "IndoorSvcPrereq"; break;
+		case doctypIncomingList: rBuf = "IncomingList"; break; // @v11.4.8
+		case doctypDebtList: rBuf = "DebtList"; break; // @v11.5.4
 	}
 }
 
@@ -2708,6 +2690,7 @@ public:
 		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 0, StyloQConfig::clifSvcGPS);
 		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 1, StyloQConfig::clifPsnAdrGPS);
 		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 2, StyloQConfig::clifDisableFaceSelfModifying); // @v11.6.6
+		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 2, StyloQConfig::clifShareDoc); // @v11.9.0
 		SetClusterData(CTL_STQCLIMATCH_CFLAGS, Data.CliFlags);
 		// } @v11.6.0 
 		// @v11.5.10 {

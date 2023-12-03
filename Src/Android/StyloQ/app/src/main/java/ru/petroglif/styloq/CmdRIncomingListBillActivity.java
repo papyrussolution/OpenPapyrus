@@ -14,18 +14,22 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -55,6 +59,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	private ListDataType ListType; // @v11.6.6
 	private Timer RefreshSvcDataPollTmr; // @v11.6.2
 	private long  LastRefreshTime; // @v11.6.4
+	private boolean DocsSharingEnabled; // @v11.9.0
 	private static final int RefreshSvcDataPollPeriodMs = 1 * 60 * 1000; // @v11.6.2
 	private void RefreshCurrentDocStatus()
 	{
@@ -133,6 +138,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		ListType = ListDataType.Undef; // @v11.6.6
 		RefreshSvcDataPollTmr = null; // @v11.6.2
 		LastRefreshTime = 0; // @v11.6.4
+		DocsSharingEnabled = false; // @v11.9.0
 	}
 	private void CreateTabList(boolean force)
 	{
@@ -801,6 +807,22 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						StyloQDatabase db = (app_ctx != null) ? app_ctx.GetDB() : null;
 						if(db != null) {
 							CPM.SetupCurrentState(db); // @v11.7.0
+							// @v11.9.0 {
+							{
+								StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, CPM.SvcIdent);
+								if(svc_pack != null) {
+									byte[] cfg_bytes = svc_pack.Pool.Get(SecretTagPool.tagConfig);
+									if(SLib.GetLen(cfg_bytes) > 0) {
+										StyloQConfig svc_cfg = new StyloQConfig();
+										if(svc_cfg.FromJson(new String(cfg_bytes))) {
+											final int cli_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagCliFlags));
+											if((cli_flags & StyloQConfig.clifShareDoc) != 0)
+												DocsSharingEnabled = true;
+										}
+									}
+								}
+							}
+							// } @v11.9.0
 							ArrayList <UUID> possible_doc_uuid_list = null;
 							if(doc_id > 0) {
 								StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
@@ -1210,10 +1232,11 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_AGENT, View.VISIBLE);
 													else
 														SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_AGENT, View.VISIBLE);
+													SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_SHARE, (DocsSharingEnabled ? View.VISIBLE : View.GONE)); // @v11.9.0
 													{
-														ImageView ctl = (ImageView) iv.findViewById(R.id.CTL_DOCUMENT_EXPANDSTATUS);
+														ImageView ctl = (ImageView)iv.findViewById(R.id.CTL_DOCUMENT_EXPANDSTATUS);
 														if(ctl != null) {
-															ListView detail_lv = (ListView) iv.findViewById(R.id.CTL_DOCUMENT_DETAILLIST);
+															ListView detail_lv = (ListView)iv.findViewById(R.id.CTL_DOCUMENT_DETAILLIST);
 															if(detail_lv != null) {
 																if(cur_entry.TiList != null) {
 																	ctl.setVisibility(View.VISIBLE);

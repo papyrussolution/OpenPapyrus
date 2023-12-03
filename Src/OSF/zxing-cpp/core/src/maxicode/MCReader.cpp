@@ -6,9 +6,9 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "MCReader.h"
-#include "MCBitMatrixParser.h"
-#include "MCDecoder.h"
+//#include "MCReader.h"
+//#include "MCBitMatrixParser.h"
+//#include "MCDecoder.h"
 
 namespace ZXing::MaxiCode {
 /**

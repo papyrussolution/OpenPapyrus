@@ -6,10 +6,10 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "ODEAN8Writer.h"
-#include "ODUPCEANCommon.h"
-#include "ODWriterHelper.h"
-#include "Utf.h"
+//#include "ODEAN8Writer.h"
+//#include "ODUPCEANCommon.h"
+//#include "ODWriterHelper.h"
+//#include "Utf.h"
 //#include <vector>
 
 namespace ZXing::OneD {

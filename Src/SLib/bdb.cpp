@@ -751,7 +751,7 @@ int BDbDatabase::GetSequence(long seqId, int64 * pVal)
 
 SSerializeContext * BDbDatabase::GetSCtx() const
 {
-	return P_SCtx ? P_SCtx : (DBS.SetError(BE_BDB_UNDEFSERIALIZECTX), 0);
+	return P_SCtx ? P_SCtx : (DBS.SetError(BE_BDB_UNDEFSERIALIZECTX), static_cast<SSerializeContext *>(0));
 }
 
 /*static*/int BDbTable::VerifyStatic()

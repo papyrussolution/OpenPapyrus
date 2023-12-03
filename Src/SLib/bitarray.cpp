@@ -5,31 +5,31 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-BitArray::BitArray() : Count(0) 
+SBitArray::SBitArray() : Count(0) 
 {
 	Size = 64;
 	P_Buf = static_cast<char *>(SAlloc::M(Size));
 	resetbitstring(P_Buf, Size);
 }
 
-BitArray::BitArray(const BitArray & s) : Count(0)
+SBitArray::SBitArray(const SBitArray & s) : Count(0)
 {
 	SBaseBuffer::Init();
 	Copy(s);
 }
 
-BitArray::~BitArray()
+SBitArray::~SBitArray()
 {
 	SBaseBuffer::Destroy();
 }
 
-BitArray & FASTCALL BitArray::operator = (const BitArray & s)
+SBitArray & FASTCALL SBitArray::operator = (const SBitArray & s)
 {
 	Copy(s);
 	return *this;
 }
 
-int FASTCALL BitArray::Copy(const BitArray & s)
+int FASTCALL SBitArray::Copy(const SBitArray & s)
 {
 	size_t new_size = s.Size;
 	P_Buf = static_cast<char *>(SAlloc::R(P_Buf, new_size));
@@ -43,7 +43,7 @@ int FASTCALL BitArray::Copy(const BitArray & s)
 		return 0;
 }
 
-int BitArray::Init(const void * pBits, size_t count)
+int SBitArray::Init(const void * pBits, size_t count)
 {
 	int    ok = -1;
 	if(count && pBits) {
@@ -60,20 +60,20 @@ int BitArray::Init(const void * pBits, size_t count)
 	return ok;
 }
 
-void BitArray::Clear()
+void SBitArray::Clear()
 {
 	Zero();
 	Count = 0;
 }
 
-size_t BitArray::getCount() const { return Count; }
-int    FASTCALL BitArray::get(size_t pos) const { return (pos < Count) ? getbit32(P_Buf, Size, pos) : -1; }
-uint32 FASTCALL BitArray::getN(size_t pos, uint count) const { return getbits(P_Buf, Size, pos, count); }
-int    FASTCALL BitArray::operator [] (size_t pos) const { return get(pos); }
-int    FASTCALL BitArray::insert(int val) { return atInsert(Count, val); }
-size_t BitArray::getBufSize() const { return ((Count + 31) / 32) * 4; }
+size_t SBitArray::getCount() const { return Count; }
+int    FASTCALL SBitArray::get(size_t pos) const { return (pos < Count) ? getbit32(P_Buf, Size, pos) : -1; }
+uint32 FASTCALL SBitArray::getN(size_t pos, uint count) const { return getbits(P_Buf, Size, pos, count); }
+int    FASTCALL SBitArray::operator [] (size_t pos) const { return get(pos); }
+int    FASTCALL SBitArray::insert(int val) { return atInsert(Count, val); }
+size_t SBitArray::getBufSize() const { return ((Count + 31) / 32) * 4; }
 
-bool FASTCALL BitArray::IsEq(const BitArray & rS) const
+bool FASTCALL SBitArray::IsEq(const SBitArray & rS) const
 {
 	bool   eq = true;
 	const  size_t c = getCount();
@@ -88,7 +88,7 @@ bool FASTCALL BitArray::IsEq(const BitArray & rS) const
 	return eq;
 }
 
-size_t FASTCALL BitArray::getCountVal(int val) const
+size_t FASTCALL SBitArray::getCountVal(int val) const
 {
 	size_t i;
 	size_t c = (Count / 32);
@@ -134,7 +134,7 @@ size_t FASTCALL BitArray::getCountVal(int val) const
 	return r;
 }
 
-size_t FASTCALL BitArray::findFirst(int val, size_t start) const
+size_t FASTCALL SBitArray::findFirst(int val, size_t start) const
 {
 	size_t p = start;
 	while(p < Count) {
@@ -145,7 +145,7 @@ size_t FASTCALL BitArray::findFirst(int val, size_t start) const
 	return 0;
 }
 
-int FASTCALL BitArray::set(size_t pos, int val)
+int FASTCALL SBitArray::set(size_t pos, int val)
 {
 	if(pos < Count) {
 		if(val)
@@ -158,7 +158,7 @@ int FASTCALL BitArray::set(size_t pos, int val)
 		return 0;
 }
 
-int FASTCALL BitArray::atInsert(size_t pos, int val)
+int FASTCALL SBitArray::atInsert(size_t pos, int val)
 {
 	if(pos <= Count) {
 		size_t new_size = ((Count + 32) / 32) * 4;
@@ -176,7 +176,7 @@ int FASTCALL BitArray::atInsert(size_t pos, int val)
 		return 0;
 }
 
-int FASTCALL BitArray::insertN(int val, size_t N)
+int FASTCALL SBitArray::insertN(int val, size_t N)
 {
 	if(N == 0)
 		return 0;
@@ -186,7 +186,7 @@ int FASTCALL BitArray::insertN(int val, size_t N)
 			P_Buf = static_cast<char *>(SAlloc::R(P_Buf, s));
 			Size = s;
 		}
-		s = Count; // prev value of BitArray::Count
+		s = Count; // prev value of SBitArray::Count
 		Count += N;
 		if(val) {
 			for(size_t i = s; i < Count; i++)
@@ -200,7 +200,7 @@ int FASTCALL BitArray::insertN(int val, size_t N)
 	}
 }
 
-int FASTCALL BitArray::atFree(size_t pos)
+int FASTCALL SBitArray::atFree(size_t pos)
 {
 	if(pos < Count) {
 		delbit(P_Buf, Size, pos);
@@ -211,7 +211,7 @@ int FASTCALL BitArray::atFree(size_t pos)
 		return 0;
 }
 
-int BitArray::getBuf(void * pBits, size_t maxLen) const
+int SBitArray::getBuf(void * pBits, size_t maxLen) const
 {
 	int    ok = -1;
 	if(pBits && maxLen) {

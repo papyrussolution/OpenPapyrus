@@ -1147,7 +1147,7 @@ STimeSeries::ValuVec * FASTCALL STimeSeries::GetVecBySymb(const char * pSymb, ui
 			}
 		}
 	}
-	return (SLS.SetError(SLERR_MATH_TSVECBYSYMBNFOUND, pSymb), 0);
+	return (SLS.SetError(SLERR_MATH_TSVECBYSYMBNFOUND, pSymb), reinterpret_cast<STimeSeries::ValuVec *>(0));
 }
 
 STimeSeries::ValuVec * FASTCALL STimeSeries::GetVecByIdx(uint vecIdx) const

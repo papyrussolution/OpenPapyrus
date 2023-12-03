@@ -344,17 +344,13 @@ Detector::Result Detector::Detect(const BinaryBitmap& image, bool multiple, bool
 {
 	// construct a 'dummy' shared pointer, just be able to pass it up the call chain in DetectorResult
 	// TODO: reimplement PDF Detector
-	auto binImg = std::shared_ptr<const BitMatrix>(image.getBitMatrix(), [](const BitMatrix*){
-			});
+	auto binImg = std::shared_ptr<const BitMatrix>(image.getBitMatrix(), [](const BitMatrix*){});
 	if(!binImg)
 		return {};
-
 	Result result;
-
 	for(int rotate90 = 0; rotate90 <= static_cast<int>(tryRotate); ++rotate90) {
 		if(!HasStartPattern(*binImg, rotate90))
 			continue;
-
 		result.rotation = 90 * rotate90;
 		if(rotate90) {
 			auto newBits = std::make_shared<BitMatrix>(binImg->copy());
@@ -371,11 +367,9 @@ Detector::Result Detector::Detect(const BinaryBitmap& image, bool multiple, bool
 			result.rotation += 180;
 			result.bits = newBits;
 		}
-
 		if(!result.points.empty())
 			return result;
 	}
-
 	return {};
 }
 } // Pdf417

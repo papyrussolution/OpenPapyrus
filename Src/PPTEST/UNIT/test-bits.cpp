@@ -6,14 +6,14 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLTEST_R(BitArray)
+SLTEST_R(SBitArray)
 {
 	int    ok = 1;
 	uint   total = 1001;
 	uint   count_set = 0;
 	uint   count_reset = 0;
 	uint   i;
-	BitArray list;
+	SBitArray list;
 	SRng * p_rng = SRng::CreateInstance(SRng::algMT, 0);
 	p_rng->Set(177);
 	//

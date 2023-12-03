@@ -5,7 +5,7 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "ODDataBarCommon.h"
+//#include "ODDataBarCommon.h"
 
 namespace ZXing::OneD::DataBar {
 static int combins(int n, int r)
