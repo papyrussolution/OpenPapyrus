@@ -6,12 +6,11 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "PDFBoundingBox.h"
-//#include <algorithm>
 
 namespace ZXing {
 namespace Pdf417 {
-BoundingBox::BoundingBox() {
+BoundingBox::BoundingBox() 
+{
 	_imgWidth = _imgHeight = _minX = _maxX = _minY = _maxY = 0;
 }
 

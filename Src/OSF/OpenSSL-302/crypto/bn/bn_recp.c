@@ -32,12 +32,12 @@ BN_RECP_CTX * BN_RECP_CTX_new(void)
 
 void BN_RECP_CTX_free(BN_RECP_CTX * recp)
 {
-	if(recp == NULL)
-		return;
-	BN_free(&recp->N);
-	BN_free(&recp->Nr);
-	if(recp->flags & BN_FLG_MALLOCED)
-		OPENSSL_free(recp);
+	if(recp) {
+		BN_free(&recp->N);
+		BN_free(&recp->Nr);
+		if(recp->flags & BN_FLG_MALLOCED)
+			OPENSSL_free(recp);
+	}
 }
 
 int BN_RECP_CTX_set(BN_RECP_CTX * recp, const BIGNUM * d, BN_CTX * ctx)
@@ -50,13 +50,11 @@ int BN_RECP_CTX_set(BN_RECP_CTX * recp, const BIGNUM * d, BN_CTX * ctx)
 	return 1;
 }
 
-int BN_mod_mul_reciprocal(BIGNUM * r, const BIGNUM * x, const BIGNUM * y,
-    BN_RECP_CTX * recp, BN_CTX * ctx)
+int BN_mod_mul_reciprocal(BIGNUM * r, const BIGNUM * x, const BIGNUM * y, BN_RECP_CTX * recp, BN_CTX * ctx)
 {
 	int ret = 0;
 	BIGNUM * a;
 	const BIGNUM * ca;
-
 	BN_CTX_start(ctx);
 	if((a = BN_CTX_get(ctx)) == NULL)
 		goto err;
@@ -73,7 +71,6 @@ int BN_mod_mul_reciprocal(BIGNUM * r, const BIGNUM * x, const BIGNUM * y,
 	}
 	else
 		ca = x;         /* Just do the mod */
-
 	ret = BN_div_recp(NULL, r, ca, recp, ctx);
 err:
 	BN_CTX_end(ctx);
@@ -81,20 +78,17 @@ err:
 	return ret;
 }
 
-int BN_div_recp(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m,
-    BN_RECP_CTX * recp, BN_CTX * ctx)
+int BN_div_recp(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m, BN_RECP_CTX * recp, BN_CTX * ctx)
 {
 	int i, j, ret = 0;
 	BIGNUM * a, * b, * d, * r;
-
 	BN_CTX_start(ctx);
-	d = (dv != NULL) ? dv : BN_CTX_get(ctx);
-	r = (rem != NULL) ? rem : BN_CTX_get(ctx);
+	d = dv ? dv : BN_CTX_get(ctx);
+	r = rem ? rem : BN_CTX_get(ctx);
 	a = BN_CTX_get(ctx);
 	b = BN_CTX_get(ctx);
 	if(!b)
 		goto err;
-
 	if(BN_ucmp(m, &(recp->N)) < 0) {
 		BN_zero(d);
 		if(!BN_copy(r, m)) {
@@ -104,25 +98,21 @@ int BN_div_recp(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m,
 		BN_CTX_end(ctx);
 		return 1;
 	}
-
 	/*
 	 * We want the remainder Given input of ABCDEF / ab we need multiply
 	 * ABCDEF by 3 digests of the reciprocal of ab
 	 */
-
 	/* i := max(BN_num_bits(m), 2*BN_num_bits(N)) */
 	i = BN_num_bits(m);
 	j = recp->num_bits << 1;
 	if(j > i)
 		i = j;
-
 	/* Nr := round(2^i / N) */
 	if(i != recp->shift)
 		recp->shift = BN_reciprocal(&(recp->Nr), &(recp->N), i, ctx);
 	/* BN_reciprocal could have returned -1 for an error */
 	if(recp->shift == -1)
 		goto err;
-
 	/*-
 	 * d := |round(round(m / 2^BN_num_bits(N)) * recp->Nr / 2^(i - BN_num_bits(N)))|
 	 *    = |round(round(m / 2^BN_num_bits(N)) * round(2^i / N) / 2^(i - BN_num_bits(N)))|
@@ -175,17 +165,13 @@ int BN_reciprocal(BIGNUM * r, const BIGNUM * m, int len, BN_CTX * ctx)
 {
 	int ret = -1;
 	BIGNUM * t;
-
 	BN_CTX_start(ctx);
 	if((t = BN_CTX_get(ctx)) == NULL)
 		goto err;
-
 	if(!BN_set_bit(t, len))
 		goto err;
-
 	if(!BN_div(r, NULL, t, m, ctx))
 		goto err;
-
 	ret = len;
 err:
 	bn_check_top(r);

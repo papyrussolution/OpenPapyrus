@@ -53,9 +53,9 @@ import java.util.UUID;
 
 public class StyloQApp extends SLib.App {
 
-	// @debug private static final int SvcPollPeriodMs = 300000; // Периодичность отправки запросов на уведомления к сервисам (в ms)
-	private static final int SvcPollPeriodMs = 120000; // @debug Периодичность отправки запросов на уведомления к сервисам (в ms)
-	private static final int SeenNotificationListProcessingPeriodMs = 20000;
+	private static final int SvcPollPeriodMs = 600000; // Периодичность отправки запросов на уведомления к сервисам (в ms)
+	// private static final int SvcPollPeriodMs = 120000; // @debug Периодичность отправки запросов на уведомления к сервисам (в ms)
+	private static final int SeenNotificationListProcessingPeriodMs = 120000; // @v11.9.0 20000-->120000
 	public static final String NotificationChannelIdent = "StyloQ_NtfctnChnl"; // @v11.5.12
 
 	protected StyloQDatabase Db;

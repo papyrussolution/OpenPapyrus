@@ -6,9 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODCode93Writer.h"
-//#include "ODWriterHelper.h"
-//#include "ZXTestSupport.h"
 
 namespace ZXing::OneD {
 static const char ALPHABET[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%abcd*";

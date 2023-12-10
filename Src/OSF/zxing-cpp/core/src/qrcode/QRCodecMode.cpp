@@ -6,24 +6,31 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "QRCodecMode.h"
-#include "QRVersion.h"
 
 namespace ZXing::QRCode {
-CodecMode CodecModeForBits(int bits, bool isMicro)
+
+CodecMode CodecModeForBits(int bits, Type type)
 {
-	if(!isMicro) {
-		if((bits >= 0x00 && bits <= 0x05) || (bits >= 0x07 && bits <= 0x09) || bits == 0x0d)
-			return static_cast<CodecMode>(bits);
-	}
-	else {
+	if(type == Type::Micro) {
 		constexpr CodecMode Bits2Mode[4] = {CodecMode::NUMERIC, CodecMode::ALPHANUMERIC, CodecMode::BYTE, CodecMode::KANJI};
 		if(bits < Size(Bits2Mode))
 			return Bits2Mode[bits];
+	} 
+	else if(type == Type::rMQR) {
+		constexpr CodecMode Bits2Mode[8] = {
+			CodecMode::TERMINATOR, CodecMode::NUMERIC, CodecMode::ALPHANUMERIC, CodecMode::BYTE,
+			CodecMode::KANJI, CodecMode::FNC1_FIRST_POSITION, CodecMode::FNC1_SECOND_POSITION, CodecMode::ECI
+		};
+		if(bits < Size(Bits2Mode))
+			return Bits2Mode[bits];
+	} 
+	else {
+		if((bits >= 0x00 && bits <= 0x05) || (bits >= 0x07 && bits <= 0x09) || bits == 0x0d)
+			return static_cast<CodecMode>(bits);
 	}
-
 	throw FormatError("Invalid codec mode");
 }
+
 
 int CharacterCountBits(CodecMode mode, const Version& version)
 {

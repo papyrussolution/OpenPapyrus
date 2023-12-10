@@ -6,10 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "QRBitMatrixParser.h"
-#include "QRDataMask.h"
-#include "QRFormatInformation.h"
-#include "QRVersion.h"
 
 namespace ZXing::QRCode {
 static bool getBit(const BitMatrix& bitMatrix, int x, int y, bool mirrored = false)
@@ -20,33 +16,27 @@ static bool getBit(const BitMatrix& bitMatrix, int x, int y, bool mirrored = fal
 const Version* ReadVersion(const BitMatrix& bitMatrix, Type type)
 {
 	assert(Version::HasValidSize(bitMatrix));
-
 	int number = Version::Number(bitMatrix);
-
 	switch(type) {
 		case Type::Micro: return Version::Micro(number);
+		case Type::rMQR: return Version::rMQR(number);
 		case Type::Model1: return Version::Model1(number);
 		case Type::Model2: break;
 	}
-
 	const Version* version = Version::Model2(number);
 	if(!version || version->versionNumber() < 7)
 		return version;
-
 	int dimension = bitMatrix.height();
-
 	for(bool mirror : {false, true}) {
 		// Read top-right/bottom-left version info: 3 wide by 6 tall (depending on mirrored)
 		int versionBits = 0;
 		for(int y = 5; y >= 0; --y)
 			for(int x = dimension - 9; x >= dimension - 11; --x)
 				AppendBit(versionBits, getBit(bitMatrix, x, y, mirror));
-
 		version = Version::DecodeVersionInformation(versionBits);
 		if(version && version->dimension() == dimension)
 			return version;
 	}
-
 	return nullptr;
 }
 
@@ -59,10 +49,27 @@ FormatInformation ReadFormatInformation(const BitMatrix& bitMatrix)
 			AppendBit(formatInfoBits, getBit(bitMatrix, x, 8));
 		for(int y = 7; y >= 1; y--)
 			AppendBit(formatInfoBits, getBit(bitMatrix, 8, y));
-
 		return FormatInformation::DecodeMQR(formatInfoBits);
 	}
-
+	if(Version::HasRMQRSize(bitMatrix)) {
+		// Read top-left format info bits
+		uint32_t formatInfoBits1 = 0;
+		for(int y = 3; y >= 1; y--)
+			AppendBit(formatInfoBits1, getBit(bitMatrix, 11, y));
+		for(int x = 10; x >= 8; x--)
+			for(int y = 5; y >= 1; y--)
+				AppendBit(formatInfoBits1, getBit(bitMatrix, x, y));
+		// Read bottom-right format info bits
+		uint32_t formatInfoBits2 = 0;
+		const int width = bitMatrix.width();
+		const int height = bitMatrix.height();
+		for(int x = 3; x <= 5; x++)
+			AppendBit(formatInfoBits2, getBit(bitMatrix, width - x, height - 6));
+		for(int x = 6; x <= 8; x++)
+			for(int y = 2; y <= 6; y++)
+				AppendBit(formatInfoBits2, getBit(bitMatrix, width - x, height - y));
+		return FormatInformation::DecodeRMQR(formatInfoBits1, formatInfoBits2);
+	}
 	// Read top-left format info bits
 	int formatInfoBits1 = 0;
 	for(int x = 0; x < 6; x++)
@@ -84,14 +91,12 @@ FormatInformation ReadFormatInformation(const BitMatrix& bitMatrix)
 		AppendBit(formatInfoBits2, getBit(bitMatrix, 8, y));
 	for(int x = dimension - 8; x < dimension; x++)
 		AppendBit(formatInfoBits2, getBit(bitMatrix, x, 8));
-
 	return FormatInformation::DecodeQR(formatInfoBits1, formatInfoBits2);
 }
 
 static ByteArray ReadQRCodewords(const BitMatrix& bitMatrix, const Version& version, const FormatInformation& formatInfo)
 {
 	BitMatrix functionPattern = version.buildFunctionPattern();
-
 	ByteArray result;
 	result.reserve(version.totalCodewords());
 	uint8_t currentByte = 0;
@@ -235,14 +240,48 @@ static ByteArray ReadMQRCodewords(const BitMatrix& bitMatrix, const QRCode::Vers
 	return result;
 }
 
+static ByteArray ReadRMQRCodewords(const BitMatrix& bitMatrix, const Version& version, const FormatInformation& formatInfo)
+{
+	BitMatrix functionPattern = version.buildFunctionPattern();
+	ByteArray result;
+	result.reserve(version.totalCodewords());
+	uint8_t currentByte = 0;
+	bool readingUp = true;
+	int bitsRead = 0;
+	const int width = bitMatrix.width();
+	const int height = bitMatrix.height();
+	// Read columns in pairs, from right to left
+	for(int x = width - 1 - 1; x > 0; x -= 2) { // Skip right edge alignment
+		// Read alternatingly from bottom to top then top to bottom
+		for(int row = 0; row < height; row++) {
+			int y = readingUp ? height - 1 - row : row;
+			for(int col = 0; col < 2; col++) {
+				int xx = x - col;
+				// Ignore bits covered by the function pattern
+				if(!functionPattern.get(xx, y)) {
+					// Read a bit
+					AppendBit(currentByte, GetDataMaskBit(formatInfo.dataMask, xx, y) != getBit(bitMatrix, xx, y, formatInfo.isMirrored));
+					// If we've made a whole byte, save it off
+					if(++bitsRead % 8 == 0)
+						result.push_back(std::exchange(currentByte, 0));
+				}
+			}
+		}
+		readingUp = !readingUp; // switch directions
+	}
+	if(Size(result) != version.totalCodewords())
+		return {};
+	return result;
+}
+
 ByteArray ReadCodewords(const BitMatrix& bitMatrix, const Version& version, const FormatInformation& formatInfo)
 {
 	switch(version.type()) {
 		case Type::Micro: return ReadMQRCodewords(bitMatrix, version, formatInfo);
+		case Type::rMQR: return ReadRMQRCodewords(bitMatrix, version, formatInfo);
 		case Type::Model1: return ReadQRCodewordsModel1(bitMatrix, version, formatInfo);
 		case Type::Model2: return ReadQRCodewords(bitMatrix, version, formatInfo);
 	}
-
 	return {};
 }
 } // namespace ZXing::QRCode

@@ -4,12 +4,9 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "oned/ODCode93Reader.h"
-#include "BitArray.h"
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "BitArrayUtility.h"
-#include "DecodeHints.h"
-#include "Result.h"
-
 #include "gtest/gtest.h"
 
 using namespace ZXing;

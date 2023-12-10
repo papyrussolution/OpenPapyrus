@@ -11886,6 +11886,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_CHZN_SURROGATE_GTIN       38 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14)
 #define SNTOK_CHZN_SURROGATE_GTINCOUNT  39 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14 37 COUNT)
 #define SNTOK_CL_RUT                    40 // @v11.6.1 Чилийский налоговый код RUT
+#define SNTOK_CHZN_ALTCIGITEM           41 // @v11.9.0 честный знак Маркировка альтернативной табачной продукции (розничная единица). Код аналогичен SNTOK_CHZN_CIGITEM, но на месте МРЦ стоит AAAA
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -14456,6 +14457,24 @@ template <class T> T sclampx(T v, T lo, T up) { return (lo < up) ? sclamp(v, lo,
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
 double FASTCALL fdiv1000i(long);
+//
+// Функции idivroundup реализуют целочисленное деление первого аргумента на второй с округлением вверх
+//
+FORCEINLINE int   FASTCALL idivroundup(int a, int b) { return (a + b - 1) / b; } // @v11.9.0
+FORCEINLINE uint  FASTCALL idivroundup(uint a, uint b) { return (a + b - 1U) / b; } // @v11.9.0
+FORCEINLINE long  FASTCALL idivroundup(long a, long b) { return (a + b - 1L) / b; } // @v11.9.0
+FORCEINLINE ulong FASTCALL idivroundup(ulong a, ulong b) { return (a + b - 1LU) / b; } // @v11.9.0
+FORCEINLINE int64 FASTCALL idivroundup(int64 a, int64 b) { return (a + b - 1LL) / b; } // @v11.9.0
+//
+// Функции idivroundn реализуют целочисленное деление первого аргумента на второй с округлением до ближайшего целого 
+// e.g. 
+//   idivroundn(10, 2) == 5
+//   idivroundn(10, 3) == 3
+//   idivroundn(10, 4) == 3
+//
+FORCEINLINE int   FASTCALL idivroundn(int a, int b) { return (a + b/2) / b; } // @v11.9.0
+FORCEINLINE long  FASTCALL idivroundn(long a, long b) { return (a + b/2L) / b; } // @v11.9.0
+FORCEINLINE int64 FASTCALL idivroundn(int64 a, int64 b) { return (a + b/2LL) / b; } // @v11.9.0
 //
 // Descr: делит a на b в вещественном виде ((double)a) / ((double)b)
 //   Если b == 0, то возвращает 0.
@@ -17031,7 +17050,7 @@ public:
 	static int  CheckAccessTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
 	static bool EnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pName, bool enable);
 	static bool AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPrivilegeName);
-
+	static bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb);
 	static bool CheckAndEnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
 	
 	SlProcess();

@@ -419,12 +419,18 @@ SLTEST_R(BDT)
 						THROW(SLCHECK_EQ(out_offs, sizeof(result)));
 						SLCHECK_Z(memcmp(&result, &pattern_value, p_item->Out.GetLen()));
 					}
+					// @v11.9.0 {
+					{
+						uint32 result = SlHash::CRC32(0, p_item->In.GetBuf(), p_item->In.GetLen());
+						SLCHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
+					}
+					// } @v11.9.0 
 					{
 						//
 						// Проверка старой реализации (которой всю жизнь пользуемся)
 						//
 						SCRC32 cc;
-						uint32 result = cc.Calc(0, (const uint8 *)p_item->In.GetBuf(), p_item->In.GetLen());
+						uint32 result = cc.Calc(0, p_item->In.GetBuf(), p_item->In.GetLen());
 						SLCHECK_Z(memcmp(&result, &pattern_value, sizeof(result)));
 					}
 #ifdef TEST_ZLIB_IMPLEMENTATION

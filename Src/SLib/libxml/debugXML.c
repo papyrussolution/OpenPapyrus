@@ -305,7 +305,7 @@ static void FASTCALL xmlCtxtDumpString(xmlDebugCtxt * ctxt, const xmlChar * str)
 			fprintf(ctxt->output, "(NULL)");
 		}
 		else {
-			for(int i = 0; i < 40; i++)
+			for(int i = 0; i < 40; i++) {
 				if(str[i] == 0)
 					return;
 				else if(IS_BLANK_CH(str[i]))
@@ -314,6 +314,7 @@ static void FASTCALL xmlCtxtDumpString(xmlDebugCtxt * ctxt, const xmlChar * str)
 					fprintf(ctxt->output, "#%X", str[i]);
 				else
 					fputc(str[i], ctxt->output);
+			}
 			fprintf(ctxt->output, "...");
 		}
 	}
@@ -682,10 +683,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * pNode)
 			case XML_TEXT_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
-					if(pNode->name == (const xmlChar *)xmlStringTextNoenc)
-						temp_buf = "TEXT no enc";
-					else
-						temp_buf = "TEXT";
+					temp_buf = (pNode->name == (const xmlChar *)xmlStringTextNoenc) ? "TEXT no enc" : "TEXT";
 					if(ctxt->options & DUMP_TEXT_TYPE) {
 						if(pNode->content == (xmlChar *)&(pNode->properties))
 							temp_buf.Space().Cat("compact");

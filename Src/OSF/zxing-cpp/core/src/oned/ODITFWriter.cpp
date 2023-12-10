@@ -6,8 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODITFWriter.h"
-//#include "ODWriterHelper.h"
 
 namespace ZXing::OneD {
 static const std::array<int, 4> START_PATTERN = { 1, 1, 1, 1 };

@@ -6,9 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODUPCEWriter.h"
-//#include "ODUPCEANCommon.h"
-//#include "ODWriterHelper.h"
 
 namespace ZXing::OneD {
 static const int CODE_WIDTH = 3 + // start guard

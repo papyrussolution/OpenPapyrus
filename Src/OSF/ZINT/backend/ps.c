@@ -432,7 +432,6 @@ int ps_plot(struct ZintSymbol * symbol)
 				else {
 					latch = 0;
 				}
-
 				do {
 					block_width = 0;
 					do {
@@ -444,12 +443,7 @@ int ps_plot(struct ZintSymbol * symbol)
 							fprintf(feps, "%.2f %.2f %.2f setrgbcolor\n", red_ink, green_ink, blue_ink);
 						}
 						else {
-							fprintf(feps,
-							    "%.2f %.2f %.2f %.2f setcmykcolor\n",
-							    cyan_ink,
-							    magenta_ink,
-							    yellow_ink,
-							    black_ink);
+							fprintf(feps, "%.2f %.2f %.2f %.2f setcmykcolor\n", cyan_ink, magenta_ink, yellow_ink, black_ink);
 						}
 						fprintf(feps, "%.2f %.2f ", (row_height - 5.0) * scaler, (row_posn - 5.0) * scaler);
 						addon_text_posn = row_posn + row_height - 8.0f;
@@ -506,10 +500,7 @@ int ps_plot(struct ZintSymbol * symbol)
 			    fprintf(feps, "/Helvetica findfont\n");
 			    fprintf(feps, "%.2f scalefont setfont\n", 11.0 * scaler);
 			    textpos = 17;
-			    fprintf(feps,
-			    " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n",
-			    (textpos + xoffset) * scaler,
-			    default_text_posn);
+			    fprintf(feps, " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n", (textpos + xoffset) * scaler, default_text_posn);
 			    fprintf(feps, " (%s) stringwidth\n", textpart);
 			    fprintf(feps, "pop\n");
 			    fprintf(feps, "-2 div 0 rmoveto\n");
@@ -523,10 +514,7 @@ int ps_plot(struct ZintSymbol * symbol)
 			    fprintf(feps, "/Helvetica findfont\n");
 			    fprintf(feps, "%.2f scalefont setfont\n", 11.0 * scaler);
 			    textpos = 50;
-			    fprintf(feps,
-			    " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n",
-			    (textpos + xoffset) * scaler,
-			    default_text_posn);
+			    fprintf(feps, " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n", (textpos + xoffset) * scaler, default_text_posn);
 			    fprintf(feps, " (%s) stringwidth\n", textpart);
 			    fprintf(feps, "pop\n");
 			    fprintf(feps, "-2 div 0 rmoveto\n");
@@ -539,10 +527,7 @@ int ps_plot(struct ZintSymbol * symbol)
 					fprintf(feps, "/Helvetica findfont\n");
 					fprintf(feps, "%.2f scalefont setfont\n", 11.0 * scaler);
 					textpos = (float)(xoffset + 86);
-					fprintf(feps,
-				    " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n",
-				    textpos * scaler,
-				    addon_text_posn * scaler);
+					fprintf(feps, " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n", textpos * scaler, addon_text_posn * scaler);
 					fprintf(feps, " (%s) stringwidth\n", addon);
 					fprintf(feps, "pop\n");
 					fprintf(feps, "-2 div 0 rmoveto\n");
@@ -562,7 +547,6 @@ int ps_plot(struct ZintSymbol * symbol)
 					fprintf(feps, "setmatrix\n");
 					break;
 			    }
-
 			    break;
 			case 13: /* EAN 13 */
 			case 16:
@@ -594,10 +578,7 @@ int ps_plot(struct ZintSymbol * symbol)
 			    fprintf(feps, "/Helvetica findfont\n");
 			    fprintf(feps, "%.2f scalefont setfont\n", 11.0 * scaler);
 			    textpos = -7;
-			    fprintf(feps,
-			    " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n",
-			    (textpos + xoffset) * scaler,
-			    default_text_posn);
+			    fprintf(feps, " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n", (textpos + xoffset) * scaler, default_text_posn);
 			    fprintf(feps, " (%s) stringwidth\n", textpart);
 			    fprintf(feps, "pop\n");
 			    fprintf(feps, "-2 div 0 rmoveto\n");
@@ -611,10 +592,7 @@ int ps_plot(struct ZintSymbol * symbol)
 			    fprintf(feps, "/Helvetica findfont\n");
 			    fprintf(feps, "%.2f scalefont setfont\n", 11.0 * scaler);
 			    textpos = 24;
-			    fprintf(feps,
-			    " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n",
-			    (textpos + xoffset) * scaler,
-			    default_text_posn);
+			    fprintf(feps, " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n", (textpos + xoffset) * scaler, default_text_posn);
 			    fprintf(feps, " (%s) stringwidth\n", textpart);
 			    fprintf(feps, "pop\n");
 			    fprintf(feps, "-2 div 0 rmoveto\n");
@@ -628,10 +606,7 @@ int ps_plot(struct ZintSymbol * symbol)
 			    fprintf(feps, "/Helvetica findfont\n");
 			    fprintf(feps, "%.2f scalefont setfont\n", 11.0 * scaler);
 			    textpos = 71;
-			    fprintf(feps,
-			    " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n",
-			    (textpos + xoffset) * scaler,
-			    default_text_posn);
+			    fprintf(feps, " 0 0 moveto %.2f %.2f translate 0.00 rotate 0 0 moveto\n", (textpos + xoffset) * scaler, default_text_posn);
 			    fprintf(feps, " (%s) stringwidth\n", textpart);
 			    fprintf(feps, "pop\n");
 			    fprintf(feps, "-2 div 0 rmoveto\n");

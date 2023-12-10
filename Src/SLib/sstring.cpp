@@ -8305,8 +8305,15 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 								is_chzn_cigitem = 0;
 							_offs++;
 						}
-						if(is_chzn_cigitem)
-							rResultList.Add(SNTOK_CHZN_CIGITEM, 0.8f);
+						if(is_chzn_cigitem) {
+							if(memcmp(pToken+21, "AAAA", 4) == 0) { // @v11.9.0
+								rResultList.Add(SNTOK_CHZN_ALTCIGITEM, 0.8f);
+								rResultList.Add(SNTOK_CHZN_CIGITEM, 0.4f);
+							}
+							else {
+								rResultList.Add(SNTOK_CHZN_CIGITEM, 0.8f);
+							}
+						}
 					}
 				}
 				else if(oneof5(toklen, 25, 35, 41, 52, 55) || (toklen == 43 && rIb.ChrList.BSearch(static_cast<long>('\x1D'), &val, &pos) && val == 2)) {

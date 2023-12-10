@@ -7,9 +7,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODDataBarExpandedReader.h"
-//#include "ODDataBarCommon.h"
-//#include "ODDataBarExpandedBitDecoder.h"
 
 namespace ZXing::OneD {
 using namespace DataBar;

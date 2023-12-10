@@ -4,10 +4,8 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "DecoderResult.h"
-#include "pdf417/PDFDecoder.h"
-#include "pdf417/PDFDecoderResultExtra.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
 
 namespace ZXing::Pdf417 {

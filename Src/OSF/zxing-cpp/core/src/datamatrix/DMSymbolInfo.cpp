@@ -45,22 +45,19 @@ static constexpr const SymbolInfo PROD_SYMBOLS[] = {
 };
 
 static const SymbolInfo* s_symbols = PROD_SYMBOLS;
-static ZXING_IF_NOT_TEST(const) size_t s_symbolCount = Size(PROD_SYMBOLS);
+static /*ZXING_IF_NOT_TEST(const)*/ size_t s_symbolCount = Size(PROD_SYMBOLS);
 
-#ifdef ZXING_BUILD_FOR_TEST
-
-ZXING_EXPORT_TEST_ONLY void OverrideSymbolSet(const SymbolInfo* symbols, size_t count)
-{
-	s_symbols = symbols;
-	s_symbolCount = count;
-}
-
-ZXING_EXPORT_TEST_ONLY void UseDefaultSymbolSet()
-{
-	s_symbols = PROD_SYMBOLS;
-	s_symbolCount = Size(PROD_SYMBOLS);
-}
-
+#if true // @sobolev #ifdef ZXING_BUILD_FOR_TEST-->#if true
+	ZXING_EXPORT_TEST_ONLY void OverrideSymbolSet(const SymbolInfo* symbols, size_t count)
+	{
+		s_symbols = symbols;
+		s_symbolCount = count;
+	}
+	ZXING_EXPORT_TEST_ONLY void UseDefaultSymbolSet()
+	{
+		s_symbols = PROD_SYMBOLS;
+		s_symbolCount = Size(PROD_SYMBOLS);
+	}
 #endif // ZXING_BUILD_FOR_TEST
 
 const SymbolInfo * SymbolInfo::Lookup(int dataCodewords)

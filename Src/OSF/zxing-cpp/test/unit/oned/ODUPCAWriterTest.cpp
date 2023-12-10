@@ -4,9 +4,8 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "oned/ODUPCAWriter.h"
-#include "BitMatrixIO.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
 
 using namespace ZXing;

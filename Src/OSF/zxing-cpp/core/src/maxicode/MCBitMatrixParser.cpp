@@ -6,7 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "MCBitMatrixParser.h"
 
 namespace ZXing::MaxiCode {
 static const std::array<std::array<int, BitMatrixParser::MATRIX_WIDTH>, BitMatrixParser::MATRIX_HEIGHT> BITNR = {

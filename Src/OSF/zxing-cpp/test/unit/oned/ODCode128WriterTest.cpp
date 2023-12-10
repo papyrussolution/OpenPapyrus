@@ -4,12 +4,8 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "oned/ODCode128Writer.h"
-#include "BitMatrixIO.h"
-#include "DecodeHints.h"
-#include "Result.h"
-#include "oned/ODCode128Reader.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
 
 using namespace ZXing;
@@ -81,7 +77,7 @@ TEST(ODCode128Writer, EncodeWithFunc4)
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(ODCode128Writer, EncodeWithFncsAndNumberInCodesetA)
+TEST(ODCode128Writer, EncodeWithFncsAndNumberInCodesetA) // “ест не проходит из-за того, что Code128Writer::encode не доработана
 {
 	auto toEncode = L"\n" "\xf1" "\xf4" "1" "\n";
 	auto expected = QUIET_SPACE + START_CODE_A + LF + FNC1 + FNC4A + "10011100110" + LF + "10101111000" + STOP + QUIET_SPACE;
@@ -89,19 +85,17 @@ TEST(ODCode128Writer, EncodeWithFncsAndNumberInCodesetA)
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(ODCode128Writer, RoundtripGS1)
+TEST(ODCode128Writer, RoundtripGS1) // “ест не проходит из-за того, что Code128Writer::encode не доработана
 {
 	auto toEncode = L"\xf1" "10958" "\xf1" "17160526";
-
 	auto decResult = Decode(Code128Writer().encode(toEncode, 0, 0));
 	EXPECT_EQ(decResult.text(TextMode::HRI), "(10)958(17)160526");
 	EXPECT_EQ(decResult.symbologyIdentifier(), "]C1");
 }
 
-TEST(ODCode128Writer, RoundtripFNC1)
+TEST(ODCode128Writer, RoundtripFNC1) // “ест не проходит из-за того, что Code128Writer::encode не доработана
 {
 	auto toEncode = L"1\xf1" "0958" "\xf1" "17160526";
-
 	auto encResult = Code128Writer().encode(toEncode, 0, 0);
 	auto decResult = Decode(encResult);
 	EXPECT_EQ(decResult.bytes().asString(), "1\u001D0958\u001D17160526");

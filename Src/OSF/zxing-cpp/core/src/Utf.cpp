@@ -7,7 +7,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ZXTestSupport.h"
 
 namespace ZXing {
 // TODO: c++20 has char8_t
@@ -210,7 +209,7 @@ static bool iswgraph(wchar_t wc)
 	 * - U+FFF9 through U+FFFB (interlinear annotation controls)
 	 * The following code is based on libmusls implementation */
 
-	if(wc == ' ' || (unsigned)wc - '\t' < 5)
+	if(wc == ' ' || (uint)wc - '\t' < 5)
 		return false;
 	if(wc < 0xff)
 		return ((wc + 1) & 0x7f) >= 0x21;

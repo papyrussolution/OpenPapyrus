@@ -4,12 +4,8 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "BitArray.h"
-#include "ByteArray.h"
-#include "DecoderResult.h"
-#include "qrcode/QRErrorCorrectionLevel.h"
-#include "qrcode/QRVersion.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
 
 namespace ZXing {

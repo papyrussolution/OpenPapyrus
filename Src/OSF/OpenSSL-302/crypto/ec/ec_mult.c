@@ -176,11 +176,9 @@ int ossl_ec_scalar_mul_ladder(const EC_GROUP * group, EC_POINT * r,
 			goto err;
 		}
 	}
-
 	EC_POINT_BN_set_flags(p, BN_FLG_CONSTTIME);
 	EC_POINT_BN_set_flags(r, BN_FLG_CONSTTIME);
 	EC_POINT_BN_set_flags(s, BN_FLG_CONSTTIME);
-
 	cardinality = BN_CTX_get(ctx);
 	lambda = BN_CTX_get(ctx);
 	k = BN_CTX_get(ctx);
@@ -188,7 +186,6 @@ int ossl_ec_scalar_mul_ladder(const EC_GROUP * group, EC_POINT * r,
 		ERR_raise(ERR_LIB_EC, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	if(!BN_mul(cardinality, group->order, group->cofactor, ctx)) {
 		ERR_raise(ERR_LIB_EC, ERR_R_BN_LIB);
 		goto err;

@@ -180,16 +180,16 @@ METHODDEF(void) finish_output_ppm(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 GLOBAL(djpeg_dest_ptr) jinit_write_ppm(j_decompress_ptr cinfo)
 {
 	// Create module interface object, fill in method pointers 
-	ppm_dest_ptr dest = (ppm_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(ppm_dest_struct));
+	ppm_dest_ptr dest = (ppm_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(ppm_dest_struct));
 	dest->pub.start_output = start_output_ppm;
 	dest->pub.finish_output = finish_output_ppm;
 	/* Calculate output image dimensions so we can allocate space */
 	jpeg_calc_output_dimensions(cinfo);
 	/* Create physical I/O buffer.  Note we make this near on a PC. */
 	dest->samples_per_row = cinfo->output_width * cinfo->out_color_components;
-	dest->buffer_width = dest->samples_per_row * (BYTESPERSAMPLE * SIZEOF(char));
+	dest->buffer_width = dest->samples_per_row * (BYTESPERSAMPLE * sizeof(char));
 	dest->iobuffer = (char *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, dest->buffer_width);
-	if(cinfo->quantize_colors || BITS_IN_JSAMPLE != 8 || SIZEOF(JSAMPLE) != SIZEOF(char)) {
+	if(cinfo->quantize_colors || BITS_IN_JSAMPLE != 8 || sizeof(JSAMPLE) != sizeof(char)) {
 		/* When quantizing, we need an output buffer for colormap indexes
 		 * that's separate from the physical I/O buffer.  We also need a
 		 * separate buffer if pixel format translation must take place.

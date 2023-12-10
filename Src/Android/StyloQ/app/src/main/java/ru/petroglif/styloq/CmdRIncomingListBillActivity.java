@@ -1474,6 +1474,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						}
 						else {
 							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.CTL_DOCUMENT_EXPANDSTATUS);
+							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.CTL_DOCUMENT_SHARE); // @v11.9.0
 							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.buttonOrder);
 							result = ev_subj.RvHolder;
 						}
@@ -1684,6 +1685,18 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 														cur_entry.DetailExpandStatus_Ti = 1;
 														a.notifyItemChanged(ev_subj.ItemIdx);
 													}
+												}
+												else if(ev_subj.ItemView.getId() == R.id.CTL_DOCUMENT_SHARE) { // @v11.9.0
+													debug_mark = true;
+													// @construction {
+													String doc_text = CPM.DocumentToText(cur_entry);
+													if(SLib.GetLen(doc_text) > 0) {
+														Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+														sharingIntent.setType("text/plain");
+														sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, doc_text);
+														startActivity(Intent.createChooser(sharingIntent, "Share using"));
+													}
+													// } @construction
 												}
 												else {
 													boolean done = false;

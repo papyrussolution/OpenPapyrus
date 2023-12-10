@@ -672,7 +672,6 @@ public:
 	bool moveToNextWhiteAfterBlack()
 	{
 		assert(std::abs(d.x + d.y) == 1);
-
 		FastEdgeToEdgeCounter e2e(BitMatrixCursorI(*img, PointI(p), PointI(d)));
 		int steps = e2e.stepToNextEdge(INT_MAX);
 		if(!steps)

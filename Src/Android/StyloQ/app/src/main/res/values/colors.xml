@@ -35,4 +35,25 @@
     <color name="InputValueInvalid">#ff7f50</color>
     <color name="InputValueEmpty">@color/White</color>
     <color name="ButtonBkgDisabled">#E4DCCF</color>
+
+	<!-- TouchEffects { -->
+    <color name="transparent">#00000000</color>
+    <color name="color_background_dark">#1A9FA9B0</color>
+    <color name="color_background_dynamic">#FFF1F5F7</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="theme_dark_click">#80000000</color>
+    <color name="black">#ff000000</color>
+    <color name="black_5">#0D000000</color>
+    <color name="black_10">#1A000000</color>
+    <color name="black_20">#33000000</color>
+    <color name="black_25">#40000000</color>
+    <color name="black_30">#4d000000</color>
+    <color name="black_35">#59000000</color>
+    <color name="black_40">#66000000</color>
+    <color name="black_45">#73000000</color>
+    <color name="black_50">#7F000000</color>
+    <color name="black_60">#99000000</color>
+    <color name="black_65">#AC000000</color>
+    <color name="black_des">#ff333333</color>
+	<!-- } TouchEffects -->
 </resources>

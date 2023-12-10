@@ -1001,7 +1001,9 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 									*/
 									// @v10.8.11 {
 									case GTCHZNPT_FUR: marking_type = 0x5246; break;
-									case GTCHZNPT_TOBACCO: marking_type = 0x444D; break;
+									case GTCHZNPT_TOBACCO: 
+									case GTCHZNPT_ALTTOBACCO: // @v11.9.0
+										marking_type = 0x444D; break;
 									case GTCHZNPT_SHOE: marking_type = 0x444D; break;
 									case GTCHZNPT_MEDICINE: marking_type = 0x444D; break;
 									case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
@@ -1217,7 +1219,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		if(_fiscal != 0.0) {
 			// @v11.7.2 {
-			if(ExtMethodsFlags & extmethfFNCloseCheckEx && ProtocolVer.IsGe(5, 0, 0)) { // @v11.7.11 (&& ProtocolVer.IsGt(5, 0, 0))
+			if(true/*ExtMethodsFlags & extmethfFNCloseCheckEx && ProtocolVer.IsGe(5, 0, 0)*/) { // @v11.7.11 (&& ProtocolVer.IsGt(5, 0, 0))
 				THROW(ExecFRPrintOper(FNCloseCheckEx));
 			} // } @v11.7.2 
 			else if(ExtMethodsFlags & extmethfCloseCheckEx) { // @v10.6.3

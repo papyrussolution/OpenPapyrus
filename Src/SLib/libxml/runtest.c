@@ -4045,8 +4045,7 @@ static int testThread(void)
 #else
 static int testThread(void)
 {
-	fprintf(stderr,
-	    "Specific platform thread support not detected\n");
+	fprintf(stderr, "Specific platform thread support not detected\n");
 	return (-1);
 }
 
@@ -4059,14 +4058,10 @@ static int threadsTest(const char * filename ATTRIBUTE_UNUSED,
 }
 
 #endif
-/************************************************************************
-*									*
-*			Tests Descriptions				*
-*									*
-************************************************************************/
-
-static
-testDesc testDescriptions[] = {
+//
+// Tests Descriptions
+//
+static testDesc testDescriptions[] = {
 	{ "XML regression tests",
 	  oldParseTest, "./test/*", "result/", "", NULL,
 	  0 },

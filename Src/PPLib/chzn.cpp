@@ -7,6 +7,12 @@
 #pragma hdrstop
 //#include <wininet.h>
 /*
+Альтернативная табачная продукция //
+04670190770074MmK).<EAAAAEC/d
+04670190770814IsYvQdxAAAAtgjI
+04670190770593oijSCi2AAAATkxi
+*/
+/*
 	в поле <СвВыбытияМАРК> указано значение «4» («Продажа товаров по государственному (муниципальному) контракту») и заполнен элемент «Идентификатор государственного контракта» в поле «Дополнительные сведения об участниках факта хозяйственной жизни, основаниях и обстоятельствах его проведения» (<ДопСвФЧЖ1>);
 	в поле <СвВыбытияМАРК> указано значение «1» («Покупка товаров юридическими лицами и индивидуальными предпринимателями в целях использования для собственных нужд, не связанных с их последующей реализацией (продажей)»);
 	в поле <СвВыбытияМАРК> указано значение «3» («Использование товаров для производственных целей, не связанных с их последующей реализацией (продажей)»);
@@ -81,7 +87,7 @@ Data Matrix для табачной продукции и фармацевтик
 			if(rS.GetToken(GtinStruc::fldGTIN14, &_01) && rS.GetToken(GtinStruc::fldSerial, &_21) && _01.Len() == 14) {
 				if(rS.GetToken(GtinStruc::fldPrice, &_8005) && rS.GetToken(GtinStruc::fldControlRuTobacco, &_93) && rS.GetToken(GtinStruc::fldAddendumId, &_240)) { // @v11.8.11 блок сигарет
 					rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
-						CatChar('\x1D').Cat("93").Cat(_93).CatChar('\x1D').Cat("240").Cat(_240);
+						CatChar('\x1D').Cat("93").Cat(_93)/*.CatChar('\x1D').Cat("240").Cat(_240)*/;
 				}
 				else if(rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
 					if(_21.Len() == 13 && _91.Len() == 4/*&& _92.Len() == 44*/) {
@@ -2357,7 +2363,9 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 								const char * p_chzn_prodtype_symb = 0;
 								switch(rPack.ChZnProdType) {
 									case GTCHZNPT_FUR: p_chzn_prodtype_symb = ""; break;
-									case GTCHZNPT_TOBACCO: p_chzn_prodtype_symb = "tobacco"; break;
+									case GTCHZNPT_TOBACCO: 
+									case GTCHZNPT_ALTTOBACCO: // @v11.9.0
+										p_chzn_prodtype_symb = "tobacco"; break;
 									case GTCHZNPT_SHOE: p_chzn_prodtype_symb = "shoes"; break;
 									case GTCHZNPT_MEDICINE: p_chzn_prodtype_symb = 0; break;
 									case GTCHZNPT_CARTIRE: p_chzn_prodtype_symb = "tires"; break;

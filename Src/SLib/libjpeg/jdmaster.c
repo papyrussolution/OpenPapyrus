@@ -136,9 +136,9 @@ void  jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
 	 */
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 		/* Size in samples, after IDCT scaling */
-		compptr->downsampled_width = jdiv_round_up_jd((long)cinfo->image_width * 
+		compptr->downsampled_width = idivroundup((long)cinfo->image_width * 
 			(long)(compptr->h_samp_factor * compptr->DCT_h_scaled_size), (long)(cinfo->max_h_samp_factor * cinfo->block_size));
-		compptr->downsampled_height = jdiv_round_up_jd((long)cinfo->image_height *
+		compptr->downsampled_height = idivroundup((long)cinfo->image_height *
 		    (long)(compptr->v_samp_factor * compptr->DCT_v_scaled_size), (long)(cinfo->max_v_samp_factor * cinfo->block_size));
 	}
 
@@ -201,9 +201,9 @@ void  jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
 // Allocate and fill in the sample_range_limit table 
 {
 	int i;
-	JSAMPLE * table = (JSAMPLE*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 5 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
+	JSAMPLE * table = (JSAMPLE*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 5 * (MAXJSAMPLE+1) * sizeof(JSAMPLE));
 	// First segment of range limit table: limit[x] = 0 for x < 0 
-	memzero(table, 2 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
+	memzero(table, 2 * (MAXJSAMPLE+1) * sizeof(JSAMPLE));
 	table += 2 * (MAXJSAMPLE+1); // allow negative subscripts of table 
 	cinfo->sample_range_limit = table;
 	// Main part of range limit table: limit[x] = x 
@@ -218,9 +218,9 @@ LOCAL(void) prepare_range_limit_table (j_decompress_ptr cinfo)
 // Allocate and fill in the sample_range_limit table */
 {
 	int i;
-	JSAMPLE * table = (JSAMPLE *)(*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE, (RANGE_CENTER * 2 + MAXJSAMPLE + 1) * SIZEOF(JSAMPLE));
+	JSAMPLE * table = (JSAMPLE *)(*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE, (RANGE_CENTER * 2 + MAXJSAMPLE + 1) * sizeof(JSAMPLE));
 	// First segment of range limit table: limit[x] = 0 for x < 0 
-	memzero(table, RANGE_CENTER * SIZEOF(JSAMPLE));
+	memzero(table, RANGE_CENTER * sizeof(JSAMPLE));
 	table += RANGE_CENTER;	/* allow negative subscripts of table */
 	cinfo->sample_range_limit = table;
 	// Main part of range limit table: limit[x] = x 
@@ -491,7 +491,7 @@ void  jpeg_new_colormap(j_decompress_ptr cinfo)
  */
 void  jinit_master_decompress(j_decompress_ptr cinfo)
 {
-	my_master_ptr master = (my_master_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_decomp_master));
+	my_master_ptr master = (my_master_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(my_decomp_master));
 	cinfo->master = &master->pub;
 	master->pub.prepare_for_output_pass = prepare_for_output_pass;
 	master->pub.finish_output_pass = finish_output_pass;

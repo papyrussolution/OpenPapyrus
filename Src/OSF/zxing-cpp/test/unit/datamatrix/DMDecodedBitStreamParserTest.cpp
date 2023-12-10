@@ -4,11 +4,9 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "ByteArray.h"
-#include "DecoderResult.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
-#include <utility>
 
 namespace ZXing::DataMatrix::DecodedBitStreamParser {
 

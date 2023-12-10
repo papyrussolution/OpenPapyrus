@@ -7,21 +7,8 @@
 #pragma hdrstop
 
 namespace ZXing::TextUtfEncoding {
-
-std::string ToUtf8(std::wstring_view str)
-{
-	return ZXing::ToUtf8(str);
-}
-
-// Same as `ToUtf8()` above, except if angleEscape set, places non-graphical characters in angle brackets with text name
-std::string ToUtf8(std::wstring_view str, const bool angleEscape)
-{
-	return angleEscape ? ZXing::ToUtf8(EscapeNonGraphical(str)) : ZXing::ToUtf8(str);
-}
-
-std::wstring FromUtf8(std::string_view utf8)
-{
-	return ZXing::FromUtf8(utf8);
-}
-
+	std::string ToUtf8(std::wstring_view str) { return ZXing::ToUtf8(str); }
+	// Same as `ToUtf8()` above, except if angleEscape set, places non-graphical characters in angle brackets with text name
+	std::string ToUtf8(std::wstring_view str, const bool angleEscape) { return angleEscape ? ZXing::ToUtf8(EscapeNonGraphical(str)) : ZXing::ToUtf8(str); }
+	std::wstring FromUtf8(std::string_view utf8) { return ZXing::FromUtf8(utf8); }
 } // namespace ZXing::TextUtfEncoding

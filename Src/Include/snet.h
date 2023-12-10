@@ -833,7 +833,7 @@ public:
 		mfDontVerifySslPeer = 0x0001, // Устанавливает опцию CURLOPT_SSL_VERIFYPEER в FALSE
 		mfTcpKeepAlive      = 0x0002, // Устанавливает опцию CURLOPT_TCP_KEEPALIVE в TRUE
 		mfNoProgerss        = 0x0004, // Устанавливает опцию CURLOPT_NOPROGRESS в TRUE
-		mfVerbose   = 0x0008  // Подробный вывод в файл журнала (требуется предварительный вызов SetLogFileName())
+		mfVerbose           = 0x0008  // Подробный вывод в файл журнала (требуется предварительный вызов SetLogFileName())
 	};
 
     int    HttpPost(const char * pUrl, int mflags, HttpForm & rForm, SFile * pReplyStream);

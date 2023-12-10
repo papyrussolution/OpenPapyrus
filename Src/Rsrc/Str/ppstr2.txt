@@ -2314,6 +2314,7 @@ PPERR_CCIMP_UNDEFPOSNODE            "Импорт кассовых чеков н
 PPERR_CCIMP_WAREBYCCLINENFOUND      "Товар '%s', на который ссылается строка импортируемого чека, не найден. Чек отклонен"
 PPERR_CCIMP_INVQTTY                 "Количество товара '%s' в строке чека имеет недопустимое значение. Чек отклонен"
 PPERR_UNSUPPORTEDPREDEFFMT          "Неподдерживаемый предопределенный формат '%s'"
+PPERR_NGNXSRV_PIPESESSOVERFLOW      "Достигнут предел числа потоков обработки запросов (%s)"
 // LastError
 
 [102] // confirmation
@@ -4925,7 +4926,7 @@ PPTXT_WAREAUTOCREATED               "Создан товар '%s'"
 PPTXT_GLOBALSERVICELIST             "1,@{globalservice_twitter};2,@{globalservice_facebook};3,@{globalservice_vk};4,@{globalservice_vetis};5,@{brand_chzn};\
 6,@{globalservice_instagram};7,@{globalservice_uds};8,@{globalservice_uhtt};9,@{globalservice_shopify}"
 PPTXT_AGGRFUNCNAMELIST              "1,@{aggrfunc_count};2,@{aggrfunc_sum};3,@{aggrfunc_average};4,@{aggrfunc_min};5,@{aggrfunc_max};6,@{aggrfunc_stddev}"
-PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая"
+PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция"
 PPTXT_DEVICETIMEDIFFROMSYS          "@{attention} Время на регистраторе @datetime отличается от времени на компьютере"
 PPTXT_LOG_VK_NODEFIMG               "Изображение по-умолчанию не найдено!"
 PPTXT_LOG_VK_NODESCRFORGOODS        "Описание для товара '@goods_id' не найдено!"

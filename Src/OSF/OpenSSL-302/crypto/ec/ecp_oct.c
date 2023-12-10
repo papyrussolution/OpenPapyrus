@@ -153,23 +153,17 @@ err:
 	return ret;
 }
 
-size_t ossl_ec_GFp_simple_point2oct(const EC_GROUP * group, const EC_POINT * point,
-    point_conversion_form_t form,
-    uchar * buf, size_t len, BN_CTX * ctx)
+size_t ossl_ec_GFp_simple_point2oct(const EC_GROUP * group, const EC_POINT * point, point_conversion_form_t form, uchar * buf, size_t len, BN_CTX * ctx)
 {
 	size_t ret;
 	BN_CTX * new_ctx = NULL;
 	int used_ctx = 0;
 	BIGNUM * x, * y;
 	size_t field_len, i, skip;
-
-	if((form != POINT_CONVERSION_COMPRESSED)
-	    && (form != POINT_CONVERSION_UNCOMPRESSED)
-	    && (form != POINT_CONVERSION_HYBRID)) {
+	if((form != POINT_CONVERSION_COMPRESSED) && (form != POINT_CONVERSION_UNCOMPRESSED) && (form != POINT_CONVERSION_HYBRID)) {
 		ERR_raise(ERR_LIB_EC, EC_R_INVALID_FORM);
 		goto err;
 	}
-
 	if(EC_POINT_is_at_infinity(group, point)) {
 		/* encodes to a single 0 octet */
 		if(buf) {

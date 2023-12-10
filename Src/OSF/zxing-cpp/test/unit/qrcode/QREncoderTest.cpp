@@ -1,37 +1,29 @@
 /*
  * Copyright 2008 ZXing authors
-*/
+ */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "BitArray.h"
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "BitArrayUtility.h"
-#include "BitMatrixIO.h"
-#include "CharacterSet.h"
-#include "TextDecoder.h"
-#include "Utf.h"
-#include "qrcode/QREncoder.h"
-#include "qrcode/QRCodecMode.h"
-#include "qrcode/QREncodeResult.h"
-#include "qrcode/QRErrorCorrectionLevel.h"
-
 #include "gtest/gtest.h"
 
 namespace ZXing {
-	namespace QRCode {
-		int GetAlphanumericCode(int code);
-		CodecMode ChooseMode(const std::wstring& content, CharacterSet encoding);
-		void AppendModeInfo(CodecMode mode, BitArray& bits);
-		void AppendLengthInfo(int numLetters, const Version& version, CodecMode mode, BitArray& bits);
-		void AppendNumericBytes(const std::wstring& content, BitArray& bits);
-		void AppendAlphanumericBytes(const std::wstring& content, BitArray& bits);
-		void Append8BitBytes(const std::wstring& content, CharacterSet encoding, BitArray& bits);
-		void AppendKanjiBytes(const std::wstring& content, BitArray& bits);
-		void AppendBytes(const std::wstring& content, CodecMode mode, CharacterSet encoding, BitArray& bits);
-		void TerminateBits(int numDataBytes, BitArray& bits);
-		void GetNumDataBytesAndNumECBytesForBlockID(int numTotalBytes, int numDataBytes, int numRSBlocks, int blockID, int& numDataBytesInBlock, int& numECBytesInBlock);
-		void GenerateECBytes(const ByteArray& dataBytes, int numEcBytesInBlock, ByteArray& ecBytes);
-		BitArray InterleaveWithECBytes(const BitArray& bits, int numTotalBytes, int numDataBytes, int numRSBlocks);
-	}
+namespace QRCode {
+int GetAlphanumericCode(int code);
+CodecMode ChooseMode(const std::wstring& content, CharacterSet encoding);
+void AppendModeInfo(CodecMode mode, BitArray& bits);
+void AppendLengthInfo(int numLetters, const Version& version, CodecMode mode, BitArray& bits);
+void AppendNumericBytes(const std::wstring& content, BitArray& bits);
+void AppendAlphanumericBytes(const std::wstring& content, BitArray& bits);
+void Append8BitBytes(const std::wstring& content, CharacterSet encoding, BitArray& bits);
+void AppendKanjiBytes(const std::wstring& content, BitArray& bits);
+void AppendBytes(const std::wstring& content, CodecMode mode, CharacterSet encoding, BitArray& bits);
+void TerminateBits(int numDataBytes, BitArray& bits);
+void GetNumDataBytesAndNumECBytesForBlockID(int numTotalBytes, int numDataBytes, int numRSBlocks, int blockID, int& numDataBytesInBlock, int& numECBytesInBlock);
+void GenerateECBytes(const ByteArray& dataBytes, int numEcBytesInBlock, ByteArray& ecBytes);
+BitArray InterleaveWithECBytes(const BitArray& bits, int numTotalBytes, int numDataBytes, int numRSBlocks);
+}
 }
 
 using namespace ZXing;
@@ -39,29 +31,29 @@ using namespace ZXing::QRCode;
 using namespace ZXing::Utility;
 
 namespace {
-	std::wstring ShiftJISString(const std::vector<uint8_t>& bytes)
-	{
-		std::string str;
-		TextDecoder::Append(str, bytes.data(), bytes.size(), CharacterSet::Shift_JIS);
-		return FromUtf8(str);
-	}
+std::wstring ShiftJISString(const std::vector<uint8_t>& bytes)
+{
+	std::string str;
+	TextDecoder::Append(str, bytes.data(), bytes.size(), CharacterSet::Shift_JIS);
+	return FromUtf8(str);
+}
 
-	std::string RemoveSpace(std::string s)
-	{
-		s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
-		return s;
-	}
+std::string RemoveSpace(std::string s)
+{
+	s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
+	return s;
+}
 }
 
 TEST(QREncoderTest, GetAlphanumericCode)
 {
 	// The first ten code points are numbers.
-	for (int i = 0; i < 10; ++i) {
+	for(int i = 0; i < 10; ++i) {
 		EXPECT_EQ(i, GetAlphanumericCode('0' + i));
 	}
 
 	// The next 26 code points are capital alphabet letters.
-	for (int i = 10; i < 36; ++i) {
+	for(int i = 10; i < 36; ++i) {
 		EXPECT_EQ(i, GetAlphanumericCode('A' + i - 10));
 	}
 
@@ -90,7 +82,7 @@ TEST(QREncoderTest, ChooseMode)
 	// Alphanumeric mode.
 	EXPECT_EQ(CodecMode::ALPHANUMERIC, ChooseMode(L"A", CharacterSet::Unknown));
 	EXPECT_EQ(CodecMode::ALPHANUMERIC,
-			  ChooseMode(L"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:", CharacterSet::Unknown));
+	    ChooseMode(L"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:", CharacterSet::Unknown));
 	// 8-bit byte mode.
 	EXPECT_EQ(CodecMode::BYTE, ChooseMode(L"a", CharacterSet::Unknown));
 	EXPECT_EQ(CodecMode::BYTE, ChooseMode(L"#", CharacterSet::Unknown));
@@ -101,7 +93,7 @@ TEST(QREncoderTest, ChooseMode)
 
 	// AIUE in Hiragana in Shift_JIS
 	EXPECT_EQ(CodecMode::BYTE,
-			  ChooseMode(ShiftJISString({0x8, 0xa, 0x8, 0xa, 0x8, 0xa, 0x8, 0xa6}), CharacterSet::Unknown));
+	    ChooseMode(ShiftJISString({0x8, 0xa, 0x8, 0xa, 0x8, 0xa, 0x8, 0xa6}), CharacterSet::Unknown));
 
 	// Nihon in Kanji in Shift_JIS.
 	EXPECT_EQ(CodecMode::BYTE, ChooseMode(ShiftJISString({0x9, 0xf, 0x9, 0x7b}), CharacterSet::Unknown));
@@ -119,27 +111,27 @@ TEST(QREncoderTest, Encode)
 	EXPECT_EQ(qrCode.version->versionNumber(), 1);
 	EXPECT_EQ(qrCode.maskPattern, 4);
 	EXPECT_EQ(ToString(qrCode.matrix),
-		"X X X X X X X     X   X     X X X X X X X \n"
-		"X           X   X   X   X   X           X \n"
-		"X   X X X   X               X   X X X   X \n"
-		"X   X X X   X     X     X   X   X X X   X \n"
-		"X   X X X   X     X   X     X   X X X   X \n"
-		"X           X   X     X X   X           X \n"
-		"X X X X X X X   X   X   X   X X X X X X X \n"
-		"                X       X                 \n"
-		"        X X X X   X X   X   X X       X   \n"
-		"        X X   X X X     X X X X   X X   X \n"
-		"X         X X     X   X       X X X   X X \n"
-		"X     X X X     X X X X         X         \n"
-		"  X X X X X X   X   X   X X X     X X     \n"
-		"                X X       X X       X   X \n"
-		"X X X X X X X   X X X X           X X     \n"
-		"X           X   X X   X       X   X X X X \n"
-		"X   X X X   X   X     X       X X     X X \n"
-		"X   X X X   X       X X   X         X X X \n"
-		"X   X X X   X     X   X       X X         \n"
-		"X           X     X     X     X X       X \n"
-		"X X X X X X X       X     X         X X X \n");
+	    "X X X X X X X     X   X     X X X X X X X \n"
+	    "X           X   X   X   X   X           X \n"
+	    "X   X X X   X               X   X X X   X \n"
+	    "X   X X X   X     X     X   X   X X X   X \n"
+	    "X   X X X   X     X   X     X   X X X   X \n"
+	    "X           X   X     X X   X           X \n"
+	    "X X X X X X X   X   X   X   X X X X X X X \n"
+	    "                X       X                 \n"
+	    "        X X X X   X X   X   X X       X   \n"
+	    "        X X   X X X     X X X X   X X   X \n"
+	    "X         X X     X   X       X X X   X X \n"
+	    "X     X X X     X X X X         X         \n"
+	    "  X X X X X X   X   X   X X X     X X     \n"
+	    "                X X       X X       X   X \n"
+	    "X X X X X X X   X X X X           X X     \n"
+	    "X           X   X X   X       X   X X X X \n"
+	    "X   X X X   X   X     X       X X     X X \n"
+	    "X   X X X   X       X X   X         X X X \n"
+	    "X   X X X   X     X   X       X X         \n"
+	    "X           X     X     X     X X       X \n"
+	    "X X X X X X X       X     X         X X X \n");
 }
 
 TEST(QREncoderTest, EncodeWithVersion)
@@ -153,7 +145,7 @@ TEST(QREncoderTest, EncodeWithVersionTooSmall)
 {
 	EXPECT_THROW(
 		Encode(L"THISMESSAGEISTOOLONGFORAQRCODEVERSION3", ErrorCorrectionLevel::High, CharacterSet::Unknown, 3, false, -1)
-	, std::invalid_argument);
+		, std::invalid_argument);
 }
 
 TEST(QREncoderTest, SimpleUTF8ECI)
@@ -165,27 +157,27 @@ TEST(QREncoderTest, SimpleUTF8ECI)
 	EXPECT_EQ(qrCode.version->versionNumber(), 1);
 	EXPECT_EQ(qrCode.maskPattern, 6);
 	EXPECT_EQ(ToString(qrCode.matrix), // break the line comment
-		"X X X X X X X       X X     X X X X X X X \n"
-		"X           X       X X     X           X \n"
-		"X   X X X   X   X     X X   X   X X X   X \n"
-		"X   X X X   X   X       X   X   X X X   X \n"
-		"X   X X X   X     X X       X   X X X   X \n"
-		"X           X         X     X           X \n"
-		"X X X X X X X   X   X   X   X X X X X X X \n"
-		"                  X X X X                 \n"
-		"      X X   X X         X         X X     \n"
-		"                X X   X     X   X X X X X \n"
-		"X X       X X X       X X     X   X   X X \n"
-		"        X X     X           X   X X       \n"
-		"  X X     X X     X X X   X X X X X X X X \n"
-		"                X X X   X X X X X X X X X \n"
-		"X X X X X X X   X   X       X             \n"
-		"X           X     X       X       X X     \n"
-		"X   X X X   X   X       X   X       X     \n"
-		"X   X X X   X   X X X X   X     X   X X   \n"
-		"X   X X X   X     X X X     X     X   X X \n"
-		"X           X             X X   X X       \n"
-		"X X X X X X X         X   X     X   X     \n");
+	    "X X X X X X X       X X     X X X X X X X \n"
+	    "X           X       X X     X           X \n"
+	    "X   X X X   X   X     X X   X   X X X   X \n"
+	    "X   X X X   X   X       X   X   X X X   X \n"
+	    "X   X X X   X     X X       X   X X X   X \n"
+	    "X           X         X     X           X \n"
+	    "X X X X X X X   X   X   X   X X X X X X X \n"
+	    "                  X X X X                 \n"
+	    "      X X   X X         X         X X     \n"
+	    "                X X   X     X   X X X X X \n"
+	    "X X       X X X       X X     X   X   X X \n"
+	    "        X X     X           X   X X       \n"
+	    "  X X     X X     X X X   X X X X X X X X \n"
+	    "                X X X   X X X X X X X X X \n"
+	    "X X X X X X X   X   X       X             \n"
+	    "X           X     X       X       X X     \n"
+	    "X   X X X   X   X       X   X       X     \n"
+	    "X   X X X   X   X X X X   X     X   X X   \n"
+	    "X   X X X   X     X X X     X     X   X X \n"
+	    "X           X             X X   X X       \n"
+	    "X X X X X X X         X   X     X   X     \n");
 }
 
 TEST(QREncoderTest, SimpleBINARYECI)
@@ -197,27 +189,27 @@ TEST(QREncoderTest, SimpleBINARYECI)
 	EXPECT_EQ(qrCode.version->versionNumber(), 1);
 	EXPECT_EQ(qrCode.maskPattern, 6);
 	EXPECT_EQ(ToString(qrCode.matrix),
-		"X X X X X X X     X X X X   X X X X X X X \n"
-		"X           X           X   X           X \n"
-		"X   X X X   X   X X   X     X   X X X   X \n"
-		"X   X X X   X   X X X X X   X   X X X   X \n"
-		"X   X X X   X       X       X   X X X   X \n"
-		"X           X     X     X   X           X \n"
-		"X X X X X X X   X   X   X   X X X X X X X \n"
-		"                    X X X                 \n"
-		"      X X   X X     X             X X     \n"
-		"X   X           X X       X     X   X   X \n"
-		"X X       X X X X X X X     X   X X X X X \n"
-		"X   X X X     X X   X     X       X X X X \n"
-		"      X   X X   X       X X X       X X X \n"
-		"                X   X X X     X   X   X X \n"
-		"X X X X X X X   X       X X X X X     X X \n"
-		"X           X     X       X   X X     X   \n"
-		"X   X X X   X   X   X X X X   X     X   X \n"
-		"X   X X X   X   X X   X   X X   X X X     \n"
-		"X   X X X   X           X   X     X X X   \n"
-		"X           X     X X X         X   X     \n"
-		"X X X X X X X     X X X   X X       X     \n");
+	    "X X X X X X X     X X X X   X X X X X X X \n"
+	    "X           X           X   X           X \n"
+	    "X   X X X   X   X X   X     X   X X X   X \n"
+	    "X   X X X   X   X X X X X   X   X X X   X \n"
+	    "X   X X X   X       X       X   X X X   X \n"
+	    "X           X     X     X   X           X \n"
+	    "X X X X X X X   X   X   X   X X X X X X X \n"
+	    "                    X X X                 \n"
+	    "      X X   X X     X             X X     \n"
+	    "X   X           X X       X     X   X   X \n"
+	    "X X       X X X X X X X     X   X X X X X \n"
+	    "X   X X X     X X   X     X       X X X X \n"
+	    "      X   X X   X       X X X       X X X \n"
+	    "                X   X X X     X   X   X X \n"
+	    "X X X X X X X   X       X X X X X     X X \n"
+	    "X           X     X       X   X X     X   \n"
+	    "X   X X X   X   X   X X X X   X     X   X \n"
+	    "X   X X X   X   X X   X   X X   X X X     \n"
+	    "X   X X X   X           X   X     X X X   \n"
+	    "X           X     X X X         X   X     \n"
+	    "X X X X X X X     X X X   X X       X     \n");
 }
 
 TEST(QREncoderTest, EncodeKanjiMode)
@@ -229,27 +221,27 @@ TEST(QREncoderTest, EncodeKanjiMode)
 	EXPECT_EQ(qrCode.version->versionNumber(), 1);
 	EXPECT_EQ(qrCode.maskPattern, 0);
 	EXPECT_EQ(ToString(qrCode.matrix),
-		"X X X X X X X     X   X     X X X X X X X \n"
-		"X           X   X X         X           X \n"
-		"X   X X X   X     X X X X   X   X X X   X \n"
-		"X   X X X   X           X   X   X X X   X \n"
-		"X   X X X   X   X X X X X   X   X X X   X \n"
-		"X           X     X X X     X           X \n"
-		"X X X X X X X   X   X   X   X X X X X X X \n"
-		"                    X                     \n"
-		"X   X   X   X       X   X       X     X   \n"
-		"X X   X       X   X X X   X   X   X       \n"
-		"  X         X X X X X X   X X X   X   X   \n"
-		"X X X     X   X       X X X   X X   X     \n"
-		"  X X     X X   X X   X   X X X   X     X \n"
-		"                X   X       X       X   X \n"
-		"X X X X X X X           X       X     X X \n"
-		"X           X       X       X       X X X \n"
-		"X   X X X   X   X       X   X   X   X   X \n"
-		"X   X X X   X         X   X   X   X   X   \n"
-		"X   X X X   X   X   X X   X X X     X   X \n"
-		"X           X         X X X   X X X   X   \n"
-		"X X X X X X X   X X   X   X X X     X     \n");
+	    "X X X X X X X     X   X     X X X X X X X \n"
+	    "X           X   X X         X           X \n"
+	    "X   X X X   X     X X X X   X   X X X   X \n"
+	    "X   X X X   X           X   X   X X X   X \n"
+	    "X   X X X   X   X X X X X   X   X X X   X \n"
+	    "X           X     X X X     X           X \n"
+	    "X X X X X X X   X   X   X   X X X X X X X \n"
+	    "                    X                     \n"
+	    "X   X   X   X       X   X       X     X   \n"
+	    "X X   X       X   X X X   X   X   X       \n"
+	    "  X         X X X X X X   X X X   X   X   \n"
+	    "X X X     X   X       X X X   X X   X     \n"
+	    "  X X     X X   X X   X   X X X   X     X \n"
+	    "                X   X       X       X   X \n"
+	    "X X X X X X X           X       X     X X \n"
+	    "X           X       X       X       X X X \n"
+	    "X   X X X   X   X       X   X   X   X   X \n"
+	    "X   X X X   X         X   X   X   X   X   \n"
+	    "X   X X X   X   X   X X   X X X     X   X \n"
+	    "X           X         X X X   X X X   X   \n"
+	    "X X X X X X X   X X   X   X X X     X     \n");
 }
 
 TEST(QREncoderTest, EncodeShiftjisNumeric)
@@ -261,27 +253,27 @@ TEST(QREncoderTest, EncodeShiftjisNumeric)
 	EXPECT_EQ(qrCode.version->versionNumber(), 1);
 	EXPECT_EQ(qrCode.maskPattern, 2);
 	EXPECT_EQ(ToString(qrCode.matrix),
-		"X X X X X X X     X X   X   X X X X X X X \n"
-		"X           X     X     X   X           X \n"
-		"X   X X X   X   X           X   X X X   X \n"
-		"X   X X X   X   X   X X X   X   X X X   X \n"
-		"X   X X X   X   X X   X X   X   X X X   X \n"
-		"X           X   X X     X   X           X \n"
-		"X X X X X X X   X   X   X   X X X X X X X \n"
-		"                X X X X X                 \n"
-		"X   X X X X X     X X   X   X X X X X     \n"
-		"X X       X     X   X   X     X     X     \n"
-		"  X X   X X X X   X X X   X     X X   X X \n"
-		"X   X X   X   X     X         X X   X     \n"
-		"    X     X X X       X   X     X   X     \n"
-		"                X X   X X X X     X       \n"
-		"X X X X X X X       X   X   X X           \n"
-		"X           X   X X   X X X X     X   X   \n"
-		"X   X X X   X   X   X   X     X     X     \n"
-		"X   X X X   X   X X X   X     X     X     \n"
-		"X   X X X   X   X X   X   X     X X X     \n"
-		"X           X       X         X X   X X   \n"
-		"X X X X X X X   X X   X   X     X X X     \n");
+	    "X X X X X X X     X X   X   X X X X X X X \n"
+	    "X           X     X     X   X           X \n"
+	    "X   X X X   X   X           X   X X X   X \n"
+	    "X   X X X   X   X   X X X   X   X X X   X \n"
+	    "X   X X X   X   X X   X X   X   X X X   X \n"
+	    "X           X   X X     X   X           X \n"
+	    "X X X X X X X   X   X   X   X X X X X X X \n"
+	    "                X X X X X                 \n"
+	    "X   X X X X X     X X   X   X X X X X     \n"
+	    "X X       X     X   X   X     X     X     \n"
+	    "  X X   X X X X   X X X   X     X X   X X \n"
+	    "X   X X   X   X     X         X X   X     \n"
+	    "    X     X X X       X   X     X   X     \n"
+	    "                X X   X X X X     X       \n"
+	    "X X X X X X X       X   X   X X           \n"
+	    "X           X   X X   X X X X     X   X   \n"
+	    "X   X X X   X   X   X   X     X     X     \n"
+	    "X   X X X   X   X X X   X     X     X     \n"
+	    "X   X X X   X   X X   X   X     X X X     \n"
+	    "X           X       X         X X   X X   \n"
+	    "X X X X X X X   X X   X   X     X X X     \n");
 }
 
 TEST(QREncoderTest, EncodeGS1)
@@ -293,31 +285,31 @@ TEST(QREncoderTest, EncodeGS1)
 	EXPECT_EQ(qrCode.version->versionNumber(), 2);
 	EXPECT_EQ(qrCode.maskPattern, 4);
 	EXPECT_EQ(ToString(qrCode.matrix),
-		"X X X X X X X     X X X X   X   X   X X X X X X X \n"
-		"X           X   X X           X X   X           X \n"
-		"X   X X X   X           X X X   X   X   X X X   X \n"
-		"X   X X X   X     X   X     X X     X   X X X   X \n"
-		"X   X X X   X       X X X       X   X   X X X   X \n"
-		"X           X   X X   X X   X X     X           X \n"
-		"X X X X X X X   X   X   X   X   X   X X X X X X X \n"
-		"                X X   X X   X X                   \n"
-		"        X X X X     X X       X X   X X       X   \n"
-		"  X X   X X     X X X       X X X X X X X       X \n"
-		"    X X X X X   X X X X X   X             X X X   \n"
-		"X   X X X     X X X   X X X X X   X X   X X X     \n"
-		"  X   X     X X X X X X     X X   X           X   \n"
-		"X     X X X     X X       X X   X   X   X         \n"
-		"    X     X X X   X X   X X X   X X X   X X X X   \n"
-		"      X X     X     X     X X     X       X X X   \n"
-		"X X   X   X X   X   X       X X X X X X X         \n"
-		"                X X   X       X X       X X   X   \n"
-		"X X X X X X X   X   X   X   X X X   X   X         \n"
-		"X           X   X X       X   X X       X   X X   \n"
-		"X   X X X   X   X X X           X X X X X X     X \n"
-		"X   X X X   X             X X X     X X   X       \n"
-		"X   X X X   X       X X   X   X X X   X X     X   \n"
-		"X           X     X X   X X X X X   X   X X       \n"
-		"X X X X X X X       X         X X     X X     X X \n");
+	    "X X X X X X X     X X X X   X   X   X X X X X X X \n"
+	    "X           X   X X           X X   X           X \n"
+	    "X   X X X   X           X X X   X   X   X X X   X \n"
+	    "X   X X X   X     X   X     X X     X   X X X   X \n"
+	    "X   X X X   X       X X X       X   X   X X X   X \n"
+	    "X           X   X X   X X   X X     X           X \n"
+	    "X X X X X X X   X   X   X   X   X   X X X X X X X \n"
+	    "                X X   X X   X X                   \n"
+	    "        X X X X     X X       X X   X X       X   \n"
+	    "  X X   X X     X X X       X X X X X X X       X \n"
+	    "    X X X X X   X X X X X   X             X X X   \n"
+	    "X   X X X     X X X   X X X X X   X X   X X X     \n"
+	    "  X   X     X X X X X X     X X   X           X   \n"
+	    "X     X X X     X X       X X   X   X   X         \n"
+	    "    X     X X X   X X   X X X   X X X   X X X X   \n"
+	    "      X X     X     X     X X     X       X X X   \n"
+	    "X X   X   X X   X   X       X X X X X X X         \n"
+	    "                X X   X       X X       X X   X   \n"
+	    "X X X X X X X   X   X   X   X X X   X   X         \n"
+	    "X           X   X X       X   X X       X   X X   \n"
+	    "X   X X X   X   X X X           X X X X X X     X \n"
+	    "X   X X X   X             X X X     X X   X       \n"
+	    "X   X X X   X       X X   X   X X X   X X     X   \n"
+	    "X           X     X X   X X X X X   X   X X       \n"
+	    "X X X X X X X       X         X X     X X     X X \n");
 }
 
 TEST(QREncoderTest, EncodeGS1ModeHeaderWithECI)
@@ -329,27 +321,27 @@ TEST(QREncoderTest, EncodeGS1ModeHeaderWithECI)
 	EXPECT_EQ(qrCode.version->versionNumber(), 1);
 	EXPECT_EQ(qrCode.maskPattern, 5);
 	EXPECT_EQ(ToString(qrCode.matrix),
-		"X X X X X X X   X   X X     X X X X X X X \n"
-		"X           X     X X       X           X \n"
-		"X   X X X   X   X X X       X   X X X   X \n"
-		"X   X X X   X     X   X     X   X X X   X \n"
-		"X   X X X   X   X   X       X   X X X   X \n"
-		"X           X     X X X X   X           X \n"
-		"X X X X X X X   X   X   X   X X X X X X X \n"
-		"                X   X X X                 \n"
-		"          X X     X X       X   X   X   X \n"
-		"  X   X X     X   X X X X X X   X X X   X \n"
-		"  X   X X X X   X X       X   X   X X     \n"
-		"X X X X   X   X     X   X     X X X X     \n"
-		"X     X     X X   X X   X   X     X     X \n"
-		"                X X X X X   X   X     X   \n"
-		"X X X X X X X       X X     X       X X   \n"
-		"X           X   X X         X   X X X     \n"
-		"X   X X X   X     X     X   X   X       X \n"
-		"X   X X X   X           X X X   X X X X   \n"
-		"X   X X X   X       X     X     X   X X X \n"
-		"X           X     X       X X     X X X X \n"
-		"X X X X X X X     X X X   X X   X     X   \n");
+	    "X X X X X X X   X   X X     X X X X X X X \n"
+	    "X           X     X X       X           X \n"
+	    "X   X X X   X   X X X       X   X X X   X \n"
+	    "X   X X X   X     X   X     X   X X X   X \n"
+	    "X   X X X   X   X   X       X   X X X   X \n"
+	    "X           X     X X X X   X           X \n"
+	    "X X X X X X X   X   X   X   X X X X X X X \n"
+	    "                X   X X X                 \n"
+	    "          X X     X X       X   X   X   X \n"
+	    "  X   X X     X   X X X X X X   X X X   X \n"
+	    "  X   X X X X   X X       X   X   X X     \n"
+	    "X X X X   X   X     X   X     X X X X     \n"
+	    "X     X     X X   X X   X   X     X     X \n"
+	    "                X X X X X   X   X     X   \n"
+	    "X X X X X X X       X X     X       X X   \n"
+	    "X           X   X X         X   X X X     \n"
+	    "X   X X X   X     X     X   X   X       X \n"
+	    "X   X X X   X           X X X   X X X X   \n"
+	    "X   X X X   X       X     X     X   X X X \n"
+	    "X           X     X       X X     X X X X \n"
+	    "X X X X X X X     X X X   X X   X     X   \n");
 }
 
 TEST(QREncoderTest, AppendModeInfo)
@@ -363,22 +355,22 @@ TEST(QREncoderTest, AppendLengthInfo)
 {
 	BitArray bits;
 	AppendLengthInfo(1, // 1 letter (1/1).
-					 *Version::Model2(1), CodecMode::NUMERIC, bits);
+	    *Version::Model2(1), CodecMode::NUMERIC, bits);
 	EXPECT_EQ(ToString(bits), RemoveSpace("........ .X")); // 10 bits.
 
 	bits = BitArray();
 	AppendLengthInfo(2, // 2 letters (2/1).
-					 *Version::Model2(10), CodecMode::ALPHANUMERIC, bits);
+	    *Version::Model2(10), CodecMode::ALPHANUMERIC, bits);
 	EXPECT_EQ(ToString(bits), RemoveSpace("........ .X.")); // 11 bits.
 
 	bits = BitArray();
 	AppendLengthInfo(255, // 255 letter (255/1).
-					 *Version::Model2(27), CodecMode::BYTE, bits);
+	    *Version::Model2(27), CodecMode::BYTE, bits);
 	EXPECT_EQ(ToString(bits), RemoveSpace("........ XXXXXXXX")); // 16 bits.
 
 	bits = BitArray();
 	AppendLengthInfo(512, // 512 letters (1024/2).
-					 *Version::Model2(40), CodecMode::KANJI, bits);
+	    *Version::Model2(40), CodecMode::KANJI, bits);
 	EXPECT_EQ(ToString(bits), RemoveSpace("..X..... ....")); // 12 bits.
 }
 
@@ -442,7 +434,7 @@ TEST(QREncoderTest, Append8BitBytes)
 	BitArray bits;
 	Append8BitBytes(L"abc", CharacterSet::Unknown, bits);
 	EXPECT_EQ(ToString(bits), RemoveSpace(".XX....X .XX...X. .XX...XX"));
-	
+
 	// Empty.
 	bits = BitArray();
 	Append8BitBytes(L"", CharacterSet::Unknown, bits);
@@ -455,7 +447,7 @@ TEST(QREncoderTest, AppendKanjiBytes)
 	BitArray bits;
 	AppendKanjiBytes(ShiftJISString({ 0x93, 0x5f }), bits);
 	EXPECT_EQ(ToString(bits), RemoveSpace(".XX.XX.. XXXXX"));
-	
+
 	AppendKanjiBytes(ShiftJISString({ 0xe4, 0xaa }), bits);
 	EXPECT_EQ(ToString(bits), RemoveSpace(".XX.XX.. XXXXXXX. X.X.X.X. X."));
 }
@@ -574,7 +566,7 @@ TEST(QREncoderTest, GenerateECBytes)
 	GenerateECBytes({ 32, 65, 205, 69, 41, 220, 46, 128, 236 }, 17, ecBytes);
 	ByteArray expected = { 42, 159, 74, 221, 244, 169, 239, 150, 138, 70, 237, 85, 224, 96, 74, 219, 61 };
 	EXPECT_EQ(ecBytes, expected);
-	
+
 	GenerateECBytes({ 67, 70, 22, 38, 54, 70, 86, 102, 118, 134, 150, 166, 182, 198, 214 }, 18, ecBytes);
 	expected = { 175, 80, 155, 64, 178, 45, 214, 233, 65, 209, 12, 155, 117, 31, 140, 214, 27, 187 };
 	EXPECT_EQ(ecBytes, expected);
@@ -588,7 +580,7 @@ TEST(QREncoderTest, GenerateECBytes)
 TEST(QREncoderTest, InterleaveWithECBytes)
 {
 	BitArray in;
-	for (int dataByte : {32, 65, 205, 69, 41, 220, 46, 128, 236})
+	for(int dataByte : {32, 65, 205, 69, 41, 220, 46, 128, 236})
 		in.appendBits(dataByte, 8);
 
 	BitArray out = InterleaveWithECBytes(in, 26, 9, 1);
@@ -602,10 +594,10 @@ TEST(QREncoderTest, InterleaveWithECBytes)
 
 	// Numbers are from http://www.swetake.com/qr/qr8.html
 	in = BitArray();
-	for (int dataByte :
-		 {67,  70, 22,  38,  54,  70,  86,  102, 118, 134, 150, 166, 182, 198, 214, 230, 247, 7,   23,  39,  55,
-		  71,  87, 103, 119, 135, 151, 166, 22,  38,  54,  70,  86,  102, 118, 134, 150, 166, 182, 198, 214, 230,
-		  247, 7,  23,  39,  55,  71,  87,  103, 119, 135, 151, 160, 236, 17,  236, 17,  236, 17,  236, 17})
+	for(int dataByte :
+	    {67,  70, 22,  38,  54,  70,  86,  102, 118, 134, 150, 166, 182, 198, 214, 230, 247, 7,   23,  39,  55,
+	     71,  87, 103, 119, 135, 151, 166, 22,  38,  54,  70,  86,  102, 118, 134, 150, 166, 182, 198, 214, 230,
+	     247, 7,  23,  39,  55,  71,  87,  103, 119, 135, 151, 160, 236, 17,  236, 17,  236, 17,  236, 17})
 		in.appendBits(dataByte, 8);
 
 	out = InterleaveWithECBytes(in, 134, 62, 4);

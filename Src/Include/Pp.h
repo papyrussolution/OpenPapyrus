@@ -19802,6 +19802,24 @@ struct PPBizScore { // @flat
 	long   Reserve2;       // @reserve
 };
 
+struct PPBizScore2__ { // @v11.9.0 @construction
+	long   Tag;
+	long   ID;
+	char   Name[48];
+	char   Symb[20];
+	uint8  Reserve[40];
+	int32  DataType;
+	int16  TimeAggrFunc;  // Агрегирующая функция по временной шкале
+	int16  HierAggrFunc;  // Агрегирующая функция по иерархии
+	int16  TimeCycle; // PRD_XXX
+	uint16 Reserve2;
+	long   LinkObjType;
+	long   LinkExtID;
+	long   Flags;
+	long   ParentID;
+	long   AccSheetID;
+};
+
 struct PPBizScorePacket {
 	PPBizScore Rec;
 	SString Descr;
@@ -23847,18 +23865,19 @@ private:
 #define GTF_EXCISEPROFORMA 0x00010000L // @v11.7.10 Товары этого типа формально подакцизные (предприятие, ведущее учет, акциз не рассчитывает, 
 	// но передает специальную информацию о продаже таких товаров в надзорные органы)
 
-#define GTCHZNPT_UNKN     -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
-#define GTCHZNPT_UNDEF     0
-#define GTCHZNPT_FUR       1
-#define GTCHZNPT_TOBACCO   2
-#define GTCHZNPT_SHOE      3
-#define GTCHZNPT_MEDICINE  4
-#define GTCHZNPT_CARTIRE   5 // @v10.9.7  Автомобильные шины
-#define GTCHZNPT_TEXTILE   6 // @v10.9.11 Текстиль
-#define GTCHZNPT_PERFUMERY 7 // @v10.9.11 Парфюмерия
-#define GTCHZNPT_MILK      8 // @v10.9.11 Молоко
-#define GTCHZNPT_JEWELRY   9 // @v11.4.9 Ювелирные изделия //
-#define GTCHZNPT_WATER    10 // @v11.5.4 Вода питьевая //
+#define GTCHZNPT_UNKN       -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
+#define GTCHZNPT_UNDEF       0
+#define GTCHZNPT_FUR         1
+#define GTCHZNPT_TOBACCO     2
+#define GTCHZNPT_SHOE        3
+#define GTCHZNPT_MEDICINE    4
+#define GTCHZNPT_CARTIRE     5 // @v10.9.7  Автомобильные шины
+#define GTCHZNPT_TEXTILE     6 // @v10.9.11 Текстиль
+#define GTCHZNPT_PERFUMERY   7 // @v10.9.11 Парфюмерия
+#define GTCHZNPT_MILK        8 // @v10.9.11 Молоко
+#define GTCHZNPT_JEWELRY     9 // @v11.4.9 Ювелирные изделия //
+#define GTCHZNPT_WATER      10 // @v11.5.4 Вода питьевая //
+#define GTCHZNPT_ALTTOBACCO 11 // @v11.9.0 Альтернативная табачная продукция. Марки очень похожи на табак, но есть нюансы в обработке.
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -54072,6 +54091,15 @@ protected:
 		iccpDontFillLines = 0x0002,
 		iccpFinish        = 0x0004  // Финишное формирование (не отложенного) чека перед сохранением в БД
 	};
+	//
+	// Descr: Вспомогательная функция инициализации чека по состоянию кассовой панели.
+	// Returns:
+	//   0 - error
+	//   1 - ok
+	//   2 - ok and pExtPack is only settled. Специальное значение, означающее, что пакет по указателю pExtPack
+	//     инициализирован вместо основного пакета (поскольку у последнего нет ни одной строки).
+	//     Значение может быть использовано для обхода повторной инициализации pExtPack.
+	//
 	int    Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExtPack, const CcAmountList * pCcPl, long options);
 	int    StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int suspended);
 	int    PreprocessRowBeforeRemoving(/*IN*/long rowNo, /*OUT*/double * pResultQtty);
@@ -56422,7 +56450,7 @@ public:
 			return chznciPretend;
 		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
 			return chznciSurrogate;
-		else if(oneof5(r, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN, SNTOK_CHZN_SSCC))
+		else if(oneof6(r, SNTOK_CHZN_ALTCIGITEM, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN, SNTOK_CHZN_SSCC)) // @v11.9.0 SNTOK_CHZN_ALTCIGITEM
 			return chznciReal;
 		else
 			return chznciNone;

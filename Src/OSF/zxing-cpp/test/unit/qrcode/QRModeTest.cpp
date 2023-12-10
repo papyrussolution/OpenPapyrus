@@ -4,10 +4,8 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "qrcode/QRCodecMode.h"
-#include "qrcode/QRVersion.h"
-#include "Error.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include <stdexcept>
 #include "gtest/gtest.h"
 

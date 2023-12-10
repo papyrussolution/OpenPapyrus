@@ -1,13 +1,11 @@
 /*
-* Copyright 2020 Axel Waggershauser
-*/
+ * Copyright 2020 Axel Waggershauser
+ */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "BarcodeFormat.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
-#include <stdexcept>
-#include <vector>
 
 using namespace ZXing;
 

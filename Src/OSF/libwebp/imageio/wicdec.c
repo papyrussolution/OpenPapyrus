@@ -252,25 +252,18 @@ int ReadPictureWithWIC(const char* const filename, WebPPicture* const pic, int k
 	};
 	int has_alpha = 0;
 	int64_t stride;
-
 	if(filename == NULL || pic == NULL) return 0;
-
 	IFS(CoInitialize(NULL));
 	IFS(CoCreateInstance(MAKE_REFGUID(CLSID_WICImagingFactory), NULL,
 	    CLSCTX_INPROC_SERVER,
 	    MAKE_REFGUID(IID_IWICImagingFactory),
 	    (LPVOID*)&factory));
 	if(hr == REGDB_E_CLASSNOTREG) {
-		fprintf(stderr,
-		    "Couldn't access Windows Imaging Component (are you running "
-		    "Windows XP SP3 or newer?). Most formats not available. "
-		    "Use -s for the available YUV input.\n");
+		fprintf(stderr, "Couldn't access Windows Imaging Component (are you running Windows XP SP3 or newer?). Most formats not available. Use -s for the available YUV input.\n");
 	}
 	// Prepare for image decoding.
 	IFS(OpenInputStream(filename, &stream));
-	IFS(IWICImagingFactory_CreateDecoderFromStream(
-		    factory, stream, NULL,
-		    WICDecodeMetadataCacheOnDemand, &decoder));
+	IFS(IWICImagingFactory_CreateDecoderFromStream(factory, stream, NULL, WICDecodeMetadataCacheOnDemand, &decoder));
 	IFS(IWICBitmapDecoder_GetFrameCount(decoder, &frame_count));
 	if(SUCCEEDED(hr)) {
 		if(frame_count == 0) {

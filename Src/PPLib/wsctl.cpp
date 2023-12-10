@@ -1252,7 +1252,7 @@ int WsCtl_SessionFrame::Start()
 		{
 			SSystem::UserProfileInfo profile_info;
 			SPtrHandle h_token = SSystem::Logon(0, Policy.SysUser, Policy.SysPassword, SSystem::logontypeInteractive, &profile_info);
-			THROW(h_token);
+			THROW_SL(h_token);
 			H_UserToken = h_token;
 			SSystem::GetUserName_(sys_user_name); // @debug
 		}

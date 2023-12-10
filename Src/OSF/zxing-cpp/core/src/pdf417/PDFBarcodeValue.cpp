@@ -6,7 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "PDFBarcodeValue.h"
 
 namespace ZXing {
 namespace Pdf417 {

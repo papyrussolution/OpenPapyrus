@@ -1,11 +1,11 @@
 /*
-* Copyright 2017 Huy Cuong Nguyen
-* Copyright 2006 Jeremias Maerki
-*/
+ * Copyright 2017 Huy Cuong Nguyen
+ * Copyright 2006 Jeremias Maerki
+ */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "datamatrix/DMSymbolInfo.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
 
 using namespace ZXing::DataMatrix;

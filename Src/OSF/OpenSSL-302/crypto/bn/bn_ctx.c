@@ -90,7 +90,7 @@ static void ctxdbg(BIO * channel, const char * text, BN_CTX * ctx)
 	#define CTXDBG(str, ctx) do {} while(0) // We do not want tracing in FIPS module 
 #endif /* FIPS_MODULE */
 
-BN_CTX * BN_CTX_new_ex(OSSL_LIB_CTX * ctx)
+BN_CTX * FASTCALL BN_CTX_new_ex(OSSL_LIB_CTX * ctx)
 {
 	BN_CTX * ret;
 	if((ret = (BN_CTX *)OPENSSL_zalloc(sizeof(*ret))) == NULL) {
@@ -120,7 +120,7 @@ BN_CTX * BN_CTX_secure_new_ex(OSSL_LIB_CTX * ctx)
 	BN_CTX * BN_CTX_secure_new(void) { return BN_CTX_secure_new_ex(NULL); }
 #endif
 
-void BN_CTX_free(BN_CTX * ctx)
+void FASTCALL BN_CTX_free(BN_CTX * ctx)
 {
 	if(ctx) {
 #ifndef FIPS_MODULE
@@ -143,7 +143,7 @@ void BN_CTX_free(BN_CTX * ctx)
 	}
 }
 
-void BN_CTX_start(BN_CTX * ctx)
+void FASTCALL BN_CTX_start(BN_CTX * ctx)
 {
 	CTXDBG("ENTER BN_CTX_start()", ctx);
 	/* If we're already overflowing ... */
@@ -157,7 +157,7 @@ void BN_CTX_start(BN_CTX * ctx)
 	CTXDBG("LEAVE BN_CTX_start()", ctx);
 }
 
-void BN_CTX_end(BN_CTX * ctx)
+void FASTCALL BN_CTX_end(BN_CTX * ctx)
 {
 	if(ctx) {
 		CTXDBG("ENTER BN_CTX_end()", ctx);
@@ -176,7 +176,7 @@ void BN_CTX_end(BN_CTX * ctx)
 	}
 }
 
-BIGNUM * BN_CTX_get(BN_CTX * ctx)
+BIGNUM * FASTCALL BN_CTX_get(BN_CTX * ctx)
 {
 	BIGNUM * ret;
 	CTXDBG("ENTER BN_CTX_get()", ctx);

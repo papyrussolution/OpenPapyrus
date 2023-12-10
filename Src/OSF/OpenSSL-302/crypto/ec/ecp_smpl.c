@@ -795,33 +795,27 @@ end:
 	return ret;
 }
 
-int ossl_ec_GFp_simple_dbl(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a,
-    BN_CTX * ctx)
+int ossl_ec_GFp_simple_dbl(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a, BN_CTX * ctx)
 {
-	int (* field_mul) (const EC_GROUP *, BIGNUM *, const BIGNUM *,
-	    const BIGNUM *, BN_CTX *);
+	int (* field_mul) (const EC_GROUP *, BIGNUM *, const BIGNUM *, const BIGNUM *, BN_CTX *);
 	int (* field_sqr) (const EC_GROUP *, BIGNUM *, const BIGNUM *, BN_CTX *);
 	const BIGNUM * p;
 	BN_CTX * new_ctx = NULL;
 	BIGNUM * n0, * n1, * n2, * n3;
 	int ret = 0;
-
 	if(EC_POINT_is_at_infinity(group, a)) {
 		BN_zero(r->Z);
 		r->Z_is_one = 0;
 		return 1;
 	}
-
 	field_mul = group->meth->field_mul;
 	field_sqr = group->meth->field_sqr;
 	p = group->field;
-
 	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new_ex(group->libctx);
 		if(!ctx)
 			return 0;
 	}
-
 	BN_CTX_start(ctx);
 	n0 = BN_CTX_get(ctx);
 	n1 = BN_CTX_get(ctx);
@@ -829,13 +823,11 @@ int ossl_ec_GFp_simple_dbl(const EC_GROUP * group, EC_POINT * r, const EC_POINT 
 	n3 = BN_CTX_get(ctx);
 	if(n3 == NULL)
 		goto err;
-
 	/*
 	 * Note that in this function we must not read components of 'a' once we
 	 * have written the corresponding components of 'r'. ('r' might the same
 	 * as 'a'.)
 	 */
-
 	/* n1 */
 	if(a->Z_is_one) {
 		if(!field_sqr(group, n0, a->X, ctx))
@@ -931,55 +923,44 @@ int ossl_ec_GFp_simple_dbl(const EC_GROUP * group, EC_POINT * r, const EC_POINT 
 	if(!BN_mod_sub_quick(r->Y, n0, n3, p))
 		goto err;
 	/* Y_r = n1 * (n2 - X_r) - n3 */
-
 	ret = 1;
-
 err:
 	BN_CTX_end(ctx);
 	BN_CTX_free(new_ctx);
 	return ret;
 }
 
-int ossl_ec_GFp_simple_invert(const EC_GROUP * group, EC_POINT * point,
-    BN_CTX * ctx)
+int ossl_ec_GFp_simple_invert(const EC_GROUP * group, EC_POINT * point, BN_CTX * ctx)
 {
 	if(EC_POINT_is_at_infinity(group, point) || BN_is_zero(point->Y))
 		/* point is its own inverse */
 		return 1;
-
 	return BN_usub(point->Y, group->field, point->Y);
 }
 
-int ossl_ec_GFp_simple_is_at_infinity(const EC_GROUP * group,
-    const EC_POINT * point)
+int ossl_ec_GFp_simple_is_at_infinity(const EC_GROUP * group, const EC_POINT * point)
 {
 	return BN_is_zero(point->Z);
 }
 
-int ossl_ec_GFp_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point,
-    BN_CTX * ctx)
+int ossl_ec_GFp_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point, BN_CTX * ctx)
 {
-	int (* field_mul) (const EC_GROUP *, BIGNUM *, const BIGNUM *,
-	    const BIGNUM *, BN_CTX *);
+	int (* field_mul) (const EC_GROUP *, BIGNUM *, const BIGNUM *, const BIGNUM *, BN_CTX *);
 	int (* field_sqr) (const EC_GROUP *, BIGNUM *, const BIGNUM *, BN_CTX *);
 	const BIGNUM * p;
 	BN_CTX * new_ctx = NULL;
 	BIGNUM * rh, * tmp, * Z4, * Z6;
 	int ret = -1;
-
 	if(EC_POINT_is_at_infinity(group, point))
 		return 1;
-
 	field_mul = group->meth->field_mul;
 	field_sqr = group->meth->field_sqr;
 	p = group->field;
-
 	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new_ex(group->libctx);
 		if(!ctx)
 			return -1;
 	}
-
 	BN_CTX_start(ctx);
 	rh = BN_CTX_get(ctx);
 	tmp = BN_CTX_get(ctx);

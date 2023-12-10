@@ -5,7 +5,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODRowReader.h"
 
 namespace ZXing::OneD {
 } // namespace ZXing::OneD

@@ -1788,7 +1788,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 											p_js_imcparams->Insert("itemInfoCheckResult", p_js_checkresult); // ofdtag-2106
 										}
 										p_js_imcparams->InsertInt("itemQuantity", 1); // ofdtag-1023
-										p_js_imcparams->InsertInt("itemUnits", 0); // ofdtag-2108
+										p_js_imcparams->InsertString("itemUnits", "piece"); // ofdtag-2108 
 										//
 										p_js_item->Insert("imcParams", p_js_imcparams);
 									}
@@ -2151,7 +2151,9 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										int marking_type = -1;
 										switch(sl_param.ChZnProductType) {
 											case GTCHZNPT_FUR: marking_type = LIBFPTR_NT_FURS; break;
-											case GTCHZNPT_TOBACCO: marking_type = LIBFPTR_NT_TOBACCO; break;
+											case GTCHZNPT_TOBACCO: 
+											case GTCHZNPT_ALTTOBACCO: // @v11.9.0
+												marking_type = LIBFPTR_NT_TOBACCO; break;
 											case GTCHZNPT_SHOE: marking_type = LIBFPTR_NT_SHOES; break;
 											case GTCHZNPT_MEDICINE: marking_type = LIBFPTR_NT_MEDICINES; break;
 											case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7

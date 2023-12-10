@@ -6,9 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "QRDataBlock.h"
-#include "QRErrorCorrectionLevel.h"
-#include "QRVersion.h"
 
 namespace ZXing::QRCode {
 std::vector<DataBlock> DataBlock::GetDataBlocks(const ByteArray& rawCodewords, const Version& version, ErrorCorrectionLevel ecLevel)

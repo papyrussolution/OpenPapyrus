@@ -642,7 +642,9 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									case GTCHZNPT_TEXTILE: mark_type = 11; break;
 									case GTCHZNPT_CARTIRE: mark_type = 10; break;
 									case GTCHZNPT_PERFUMERY: mark_type = 9; break;
-									case GTCHZNPT_TOBACCO: mark_type = 4; break;
+									case GTCHZNPT_TOBACCO: 
+									case GTCHZNPT_ALTTOBACCO: // @v11.9.0
+										mark_type = 4; break;
 									case GTCHZNPT_MEDICINE: mark_type = 3; break;
 									case GTCHZNPT_FUR: mark_type = 2; break;
 									case GTCHZNPT_MILK: mark_type = 13; break; // @v11.3.5

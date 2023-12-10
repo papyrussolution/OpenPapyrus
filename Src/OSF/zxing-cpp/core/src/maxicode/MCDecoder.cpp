@@ -6,8 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "MCDecoder.h"
-//#include "MCBitMatrixParser.h"
 
 namespace ZXing::MaxiCode {
 static const int ALL = 0;
@@ -121,26 +119,26 @@ static int GetBit(int bit, const ByteArray& bytes)
 	return (bytes[bit / 6] & (1 << (5 - (bit % 6)))) == 0 ? 0 : 1;
 }
 
-static unsigned int GetInt(const ByteArray& bytes, const ByteArray& x)
+static uint GetInt(const ByteArray& bytes, const ByteArray& x)
 {
 	int len = Size(x);
-	unsigned int val = 0;
+	uint val = 0;
 	for(int i = 0; i < len; i++)
 		val += GetBit(x[i], bytes) << (len - i - 1);
 
 	return val;
 }
 
-static unsigned int GetPostCode2Length(const ByteArray& bytes)
+static uint GetPostCode2Length(const ByteArray& bytes)
 {
 	return std::min(GetInt(bytes, {39, 40, 41, 42, 31, 32}), 9U);
 }
 
 static std::string GetPostCode2(const ByteArray& bytes)
 {
-	unsigned int val = GetInt(bytes,
+	uint val = GetInt(bytes,
 		{33, 34, 35, 36, 25, 26, 27, 28, 29, 30, 19, 20, 21, 22, 23, 24, 13, 14, 15, 16, 17, 18, 7, 8, 9, 10, 11, 12, 1, 2});
-	unsigned int len = GetPostCode2Length(bytes);
+	uint len = GetPostCode2Length(bytes);
 	// Pad or truncate to length
 	char buf[11]; // 30 bits 0x3FFFFFFF == 1073741823 (10 digits)
 	snprintf(buf, sizeof(buf), "%0*d", len, val);
@@ -160,12 +158,12 @@ static std::string GetPostCode3(const ByteArray& bytes)
 	};
 }
 
-static unsigned int GetCountry(const ByteArray& bytes)
+static uint GetCountry(const ByteArray& bytes)
 {
 	return std::min(GetInt(bytes, {53, 54, 43, 44, 45, 46, 47, 48, 37, 38}), 999U);
 }
 
-static unsigned int GetServiceClass(const ByteArray& bytes)
+static uint GetServiceClass(const ByteArray& bytes)
 {
 	return std::min(GetInt(bytes, {55, 56, 57, 58, 59, 60, 49, 50, 51, 52}), 999U);
 }

@@ -1042,7 +1042,7 @@ int PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 {
 	static NgxReqQueue * P_Queue = 0;
 
-	int    ok = -1;
+	int    ok = 1;
 	const  uint max_threads = 32; // @v11.4.6 64-->32 @todo make the config param
 	uint   thread_count = 0;
 	ENTER_CRITICAL_SECTION
@@ -1085,6 +1085,10 @@ int PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 					p_thread = p_new_sess;
 				}
 				else {
+					// @v11.9.0 {
+					PPSetError(PPERR_NGNXSRV_PIPESESSOVERFLOW, max_threads);
+					PPLogMessage(PPFILNAM_SERVER_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
+					// } @v11.9.0 
 					break;
 				}
 			}

@@ -27,6 +27,7 @@ struct backing_store_struct;
 typedef struct backing_store_struct * backing_store_ptr;
 #include "jmemcust.h"
 
+#if 0 // @sobolev {
 void * jpeg_get_small(j_common_ptr cinfo, size_t sizeofobject)
 {
 	jpeg_cust_mem_data * cmem = GET_CUST_MEM_DATA(cinfo);
@@ -55,6 +56,7 @@ void jpeg_free_large(j_common_ptr cinfo, void FAR * object, size_t sizeofobject)
 	jpeg_cust_mem_data * cmem = GET_CUST_MEM_DATA(cinfo);
 	(cmem->j_mem_free_large)(cinfo, object, sizeofobject);
 }
+#endif // } @sobolev
 /*
  * This routine computes the total memory space available for allocation.
  * Here we always say, "we got all you want bud!"

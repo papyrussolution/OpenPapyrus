@@ -485,18 +485,16 @@ void* xmlNanoFTPNewCtxt(const char * URL) {
 	}
 	else if(URL != NULL)
 		xmlNanoFTPScanURL(ret, URL);
-
 	return(ret);
 }
-
 /**
  * xmlNanoFTPFreeCtxt:
  * @ctx:  an FTP context
  *
  * Frees the context after closing the connection.
  */
-
-void xmlNanoFTPFreeCtxt(void * ctx) {
+void xmlNanoFTPFreeCtxt(void * ctx) 
+{
 	xmlNanoFTPCtxtPtr ctxt = (xmlNanoFTPCtxtPtr)ctx;
 	if(ctxt == NULL) return;
 	if(ctxt->hostname != NULL) xmlFree(ctxt->hostname);
@@ -509,7 +507,6 @@ void xmlNanoFTPFreeCtxt(void * ctx) {
 	ctxt->controlBufUsed = -1;
 	xmlFree(ctxt);
 }
-
 /**
  * xmlNanoFTPParseResponse:
  * @buf:  the buffer containing the response
@@ -824,7 +821,6 @@ int xmlNanoFTPQuit(void * ctx)
 	}
 	return(0);
 }
-
 /**
  * xmlNanoFTPConnect:
  * @ctx:  an FTP context
@@ -833,7 +829,6 @@ int xmlNanoFTPQuit(void * ctx)
  *
  * Returns -1 in case of error, 0 otherwise
  */
-
 int xmlNanoFTPConnect(void * ctx) {
 	xmlNanoFTPCtxtPtr ctxt = (xmlNanoFTPCtxtPtr)ctx;
 	struct hostent * hp;
@@ -858,9 +853,7 @@ int xmlNanoFTPConnect(void * ctx) {
 	}
 	if(port == 0)
 		port = 21;
-
 	memset(&ctxt->ftpAddr, 0, sizeof(ctxt->ftpAddr));
-
 #ifdef SUPPORT_IP6
 	if(have_ipv6()) {
 		struct addrinfo hints, * tmp, * result;

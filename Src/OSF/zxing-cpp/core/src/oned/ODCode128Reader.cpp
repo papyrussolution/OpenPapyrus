@@ -6,8 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODCode128Reader.h"
-//#include "ODCode128Patterns.h"
 
 namespace ZXing::OneD {
 static const float MAX_AVG_VARIANCE = 0.25f;
@@ -27,14 +25,12 @@ static const int CODE_START_A = 103;
 static const int CODE_START_C = 105;
 static const int CODE_STOP = 106;
 
-class Raw2TxtDecoder
-{
+class Raw2TxtDecoder {
 	int codeSet = 0;
 	SymbologyIdentifier _symbologyIdentifier = {'C', '0'}; // ISO/IEC 15417:2007 Annex C Table C.1
 	bool _readerInit = false;
 	std::string txt;
 	size_t lastTxtSize = 0;
-
 	bool fnc4All = false;
 	bool fnc4Next = false;
 	bool shift = false;

@@ -1,18 +1,14 @@
 /*
-* Copyright 2021 gitlost
-*/
+ * Copyright 2021 gitlost
+ */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "ByteArray.h"
-#include "DecoderResult.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
-#include <utility>
 
 namespace ZXing::MaxiCode::DecodedBitStreamParser {
-
 DecoderResult Decode(ByteArray&& bytes, const int mode);
-
 }
 
 using namespace ZXing;
@@ -20,31 +16,35 @@ using namespace ZXing;
 // Pad out to max data length 93 (mode 4)
 static void pad(ByteArray& padded)
 {
-	while (padded.size() < 93 + 1) { // 93 + mode
+	while(padded.size() < 93 + 1) {  // 93 + mode
 		padded.push_back(33);
 	}
 }
 
 // Helper to call Decode()
-static DecoderResult parse(ByteArray bytes, const int mode, ByteArray *mode2or3 = nullptr)
+static DecoderResult parse(ByteArray bytes, const int mode, ByteArray * mode2or3 = nullptr)
 {
 	ByteArray padded;
 	padded.reserve(93 + 1); // 93 + mode
-	if (mode == 2) {
-		if (mode2or3) {
+	if(mode == 2) {
+		if(mode2or3) {
 			padded = *mode2or3;
-		} else {
+		}
+		else {
 			// Mode 2, Postcode 152382802, Country 840, Class 001 example from ISO/IEC 16023:2000 Annex B.2
 			padded = {34, 20, 45, 20, 17, 18, 2, 18, 7, 0};
 		}
-	} else if (mode == 3) {
-		if (mode2or3) {
+	}
+	else if(mode == 3) {
+		if(mode2or3) {
 			padded = *mode2or3;
-		} else {
+		}
+		else {
 			// Mode 3, Postcode B1050, Country 056, Class 999 example from ISO/IEC 16023:2000 Annex B.1
 			padded = {3, 8, 28, 13, 28, 44, 0, 14, 28, 62};
 		}
-	} else {
+	}
+	else {
 		padded.push_back(mode);
 	}
 	padded.insert(padded.end(), bytes.begin(), bytes.end());

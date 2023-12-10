@@ -5,8 +5,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "ZXBigInteger.h"
-//#include "BitHacks.h"
 
 namespace ZXing {
 using Block = BigInteger::Block;

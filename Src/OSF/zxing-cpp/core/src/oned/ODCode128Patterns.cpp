@@ -6,7 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODCode128Patterns.h"
 
 namespace ZXing::OneD::Code128 {
 

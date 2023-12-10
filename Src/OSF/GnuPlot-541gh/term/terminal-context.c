@@ -768,22 +768,17 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry_Static * pThis)
 		/* written out just for reference - it's commented out since it needs to be part of graphic
 		   and affects estimation of label sizes */
 		fprintf(GPT.P_GpOutFile, "    %%fontscale=%g, %% scaling factor for text labels\n", CONTEXT_params.scale_text);
-
 		/* points (gp_points_with): metapost/tex (gp_points_with_metapost/gp_points_with_tex)
 		 * default: metapost */
 		fprintf(GPT.P_GpOutFile, "    points=%s, %% *metapost* | tex (Should points be drawn with MetaPost or TeX?)\n",
 		    CONTEXT_params.points == CONTEXT_POINTS_WITH_METAPOST ? "metapost" : "tex");
-
 		/* images
 		 * default: inline */
-		fprintf(GPT.P_GpOutFile,
-		    "    images=%s] %% *inline* | external (inline only works in MKIV, external requires png support in gnuplot)\n",
+		fprintf(GPT.P_GpOutFile, "    images=%s] %% *inline* | external (inline only works in MKIV, external requires png support in gnuplot)\n",
 		    CONTEXT_images == CONTEXT_IMAGES_INLINE ? "inline" : "external");
-
 		/*----------------*
 		* end of options *
 		*----------------*/
-
 		fputs("\n\\starttext\n\n", GPT.P_GpOutFile);
 	}
 	else {

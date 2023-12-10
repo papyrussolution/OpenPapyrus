@@ -3,10 +3,9 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "Utf.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
-#include <vector>
 
 using namespace ZXing;
 

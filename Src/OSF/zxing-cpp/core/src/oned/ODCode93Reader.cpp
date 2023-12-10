@@ -7,7 +7,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODCode93Reader.h"
 
 namespace ZXing::OneD {
 // Note that 'abcd' are dummy characters in place of control characters.

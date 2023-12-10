@@ -840,7 +840,7 @@ METHODDEF(void) start_pass(j_compress_ptr cinfo, boolean gather_statistics)
  */
 void jinit_arith_encoder(j_compress_ptr cinfo)
 {
-	arith_entropy_ptr entropy = (arith_entropy_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(arith_entropy_encoder));
+	arith_entropy_ptr entropy = (arith_entropy_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(arith_entropy_encoder));
 	cinfo->entropy = &entropy->pub;
 	entropy->pub.start_pass = start_pass;
 	entropy->pub.finish_pass = finish_pass;

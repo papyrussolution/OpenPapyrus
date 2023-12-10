@@ -89,13 +89,8 @@ int main(int argc, char ** argv) {
 						MAP_SHARED, fd, 0);
 					if(base == (void*)MAP_FAILED)
 						break;
-
 					ctxt = xmlSchemaNewMemParserCtxt((char*)base, info.st_size);
-
-					xmlSchemaSetParserErrors(ctxt,
-					    (xmlSchemaValidityErrorFunc)fprintf,
-					    (xmlSchemaValidityWarningFunc)fprintf,
-					    stderr);
+					xmlSchemaSetParserErrors(ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
 					schema = xmlSchemaParse(ctxt);
 					xmlSchemaFreeParserCtxt(ctxt);
 					munmap((char*)base, info.st_size);
@@ -104,10 +99,7 @@ int main(int argc, char ** argv) {
 #endif
 				{
 					ctxt = xmlSchemaNewParserCtxt(argv[i]);
-					xmlSchemaSetParserErrors(ctxt,
-					    (xmlSchemaValidityErrorFunc)fprintf,
-					    (xmlSchemaValidityWarningFunc)fprintf,
-					    stderr);
+					xmlSchemaSetParserErrors(ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
 					schema = xmlSchemaParse(ctxt);
 					xmlSchemaFreeParserCtxt(ctxt);
 				}

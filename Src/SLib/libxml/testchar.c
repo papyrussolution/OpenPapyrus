@@ -24,9 +24,8 @@ char document2[100] = "<doc foo='XXXX'/>";
 
 static void testDocumentRangeByte1(xmlParserCtxt * ctxt, char * document, int len,  char * data, int forbid1, int forbid2) 
 {
-	int i;
 	xmlDoc * res;
-	for(i = 0; i <= 0xFF; i++) {
+	for(int i = 0; i <= 0xFF; i++) {
 		lastError = 0;
 		xmlCtxtReset(ctxt);
 		data[0] = i;
@@ -38,18 +37,14 @@ static void testDocumentRangeByte1(xmlParserCtxt * ctxt, char * document, int le
 
 		else if((i == '<') || (i == '&')) {
 			if((lastError == 0) || (res != NULL))
-				fprintf(stderr,
-				    "Failed to detect illegal char %c for Byte 0x%02X\n", i, i);
+				fprintf(stderr, "Failed to detect illegal char %c for Byte 0x%02X\n", i, i);
 		}
-		else if(((i < 0x20) || (i >= 0x80)) &&
-		    (i != 0x9) && (i != 0xA) && (i != 0xD)) {
+		else if(((i < 0x20) || (i >= 0x80)) && (i != 0x9) && (i != 0xA) && (i != 0xD)) {
 			if((lastError != XML_ERR_INVALID_CHAR) && (res != NULL))
-				fprintf(stderr,
-				    "Failed to detect invalid char for Byte 0x%02X\n", i);
+				fprintf(stderr, "Failed to detect invalid char for Byte 0x%02X\n", i);
 		}
 		else if(res == NULL) {
-			fprintf(stderr,
-			    "Failed to parse valid char for Byte 0x%02X : %c\n", i, i);
+			fprintf(stderr, "Failed to parse valid char for Byte 0x%02X : %c\n", i, i);
 		}
 		if(res != NULL)
 			xmlFreeDoc(res);
@@ -67,56 +62,41 @@ static void testDocumentRangeByte2(xmlParserCtxt * ctxt, char * document, int le
 
 			data[0] = i;
 			data[1] = j;
-
 			res = xmlReadMemory(document, len, "test", NULL, 0);
-
 			/* if first bit of first char is set, then second bit must too */
 			if((i & 0x80) && ((i & 0x40) == 0)) {
 				if((lastError == 0) || (res != NULL))
-					fprintf(stderr,
-					    "Failed to detect invalid char for Bytes 0x%02X 0x%02X\n",
-					    i, j);
+					fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X\n", i, j);
 			}
-
 			/*
 			 * if first bit of first char is set, then second char first
 			 * bits must be 10
 			 */
 			else if((i & 0x80) && ((j & 0xC0) != 0x80)) {
 				if((lastError == 0) || (res != NULL))
-					fprintf(stderr,
-					    "Failed to detect invalid char for Bytes 0x%02X 0x%02X\n",
-					    i, j);
+					fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X\n", i, j);
 			}
-
 			/*
 			 * if using a 2 byte encoding then the value must be greater
 			 * than 0x80, i.e. one of bits 5 to 1 of i must be set
 			 */
 			else if((i & 0x80) && ((i & 0x1E) == 0)) {
 				if((lastError == 0) || (res != NULL))
-					fprintf(stderr,
-					    "Failed to detect invalid char for Bytes 0x%02X 0x%02X\n",
-					    i, j);
+					fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X\n", i, j);
 			}
-
 			/*
 			 * if third bit of first char is set, then the sequence would need
 			 * at least 3 bytes, but we give only 2 !
 			 */
 			else if((i & 0xE0) == 0xE0) {
 				if((lastError == 0) || (res != NULL))
-					fprintf(stderr,
-					    "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x00\n",
-					    i, j);
+					fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x00\n", i, j);
 			}
-
 			/*
 			 * We should see no error in remaning cases
 			 */
 			else if((lastError != 0) || (res == NULL)) {
-				fprintf(stderr,
-				    "Failed to parse document for Bytes 0x%02X 0x%02X\n", i, j);
+				fprintf(stderr, "Failed to parse document for Bytes 0x%02X 0x%02X\n", i, j);
 			}
 			if(res != NULL)
 				xmlFreeDoc(res);
@@ -146,7 +126,6 @@ static void testDocumentRanges(void)
 		fprintf(stderr, "Failed to allocate parser context\n");
 		return;
 	}
-
 	printf("testing 1 byte char in document: 1");
 	fflush(stdout);
 	data = &document1[5];
@@ -233,22 +212,19 @@ static void testDocumentRanges(void)
 
 static void testCharRangeByte1(xmlParserCtxt * ctxt, char * data) 
 {
-	int i = 0;
 	int len, c;
 	data[1] = 0;
 	data[2] = 0;
 	data[3] = 0;
-	for(i = 0; i <= 0xFF; i++) {
+	for(int i = 0; i <= 0xFF; i++) {
 		data[0] = i;
 		ctxt->charset = XML_CHAR_ENCODING_UTF8;
-
 		lastError = 0;
 		c = xmlCurrentChar(ctxt, &len);
 		if((i == 0) || (i >= 0x80)) {
 			/* we must see an error there */
 			if(lastError != XML_ERR_INVALID_CHAR)
-				fprintf(stderr,
-				    "Failed to detect invalid char for Byte 0x%02X\n", i);
+				fprintf(stderr, "Failed to detect invalid char for Byte 0x%02X\n", i);
 		}
 		else if(i == 0xD) {
 			if((c != 0xA) || (len != 1))
@@ -271,66 +247,48 @@ static void testCharRangeByte2(xmlParserCtxt * ctxt, char * data)
 			data[0] = i;
 			data[1] = j;
 			ctxt->charset = XML_CHAR_ENCODING_UTF8;
-
 			lastError = 0;
 			c = xmlCurrentChar(ctxt, &len);
-
 			/* if first bit of first char is set, then second bit must too */
 			if((i & 0x80) && ((i & 0x40) == 0)) {
 				if(lastError != XML_ERR_INVALID_CHAR)
-					fprintf(stderr,
-					    "Failed to detect invalid char for Bytes 0x%02X 0x%02X\n",
-					    i, j);
+					fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X\n", i, j);
 			}
-
 			/*
 			 * if first bit of first char is set, then second char first
 			 * bits must be 10
 			 */
 			else if((i & 0x80) && ((j & 0xC0) != 0x80)) {
 				if(lastError != XML_ERR_INVALID_CHAR)
-					fprintf(stderr,
-					    "Failed to detect invalid char for Bytes 0x%02X 0x%02X: %d\n",
-					    i, j, c);
+					fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X: %d\n", i, j, c);
 			}
-
 			/*
 			 * if using a 2 byte encoding then the value must be greater
 			 * than 0x80, i.e. one of bits 5 to 1 of i must be set
 			 */
 			else if((i & 0x80) && ((i & 0x1E) == 0)) {
 				if(lastError != XML_ERR_INVALID_CHAR)
-					fprintf(stderr,
-					    "Failed to detect invalid char for Bytes 0x%02X 0x%02X: %d\n",
-					    i, j, c);
+					fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X: %d\n", i, j, c);
 			}
-
 			/*
 			 * if third bit of first char is set, then the sequence would need
 			 * at least 3 bytes, but we give only 2 !
 			 */
 			else if((i & 0xE0) == 0xE0) {
 				if(lastError != XML_ERR_INVALID_CHAR)
-					fprintf(stderr,
-					    "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x00\n",
-					    i, j);
+					fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x00\n", i, j);
 			}
-
 			/*
 			 * We should see no error in remaning cases
 			 */
 			else if((lastError != 0) || (len != 2)) {
-				fprintf(stderr,
-				    "Failed to parse char for Bytes 0x%02X 0x%02X\n", i, j);
+				fprintf(stderr, "Failed to parse char for Bytes 0x%02X 0x%02X\n", i, j);
 			}
-
 			/*
 			 * Finally check the value is right
 			 */
 			else if(c != (j & 0x3F) + ((i & 0x1F) << 6)) {
-				fprintf(stderr,
-				    "Failed to parse char for Bytes 0x%02X 0x%02X: expect %d got %d\n",
-				    i, j, ((j & 0x3F) + ((i & 0x1F) << 6)), c);
+				fprintf(stderr, "Failed to parse char for Bytes 0x%02X 0x%02X: expect %d got %d\n", i, j, ((j & 0x3F) + ((i & 0x1F) << 6)), c);
 			}
 		}
 	}
@@ -352,31 +310,23 @@ static void testCharRangeByte3(xmlParserCtxt * ctxt, char * data)
 				data[2] = (char)K;
 				value = (K & 0x3F) + ((j & 0x3F) << 6) + ((i & 0xF) << 12);
 				ctxt->charset = XML_CHAR_ENCODING_UTF8;
-
 				lastError = 0;
 				c = xmlCurrentChar(ctxt, &len);
-
 				/*
 				 * if fourth bit of first char is set, then the sequence would need
 				 * at least 4 bytes, but we give only 3 !
 				 */
 				if((i & 0xF0) == 0xF0) {
 					if(lastError != XML_ERR_INVALID_CHAR)
-						fprintf(stderr,
-						    "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X 0x%02X\n",
-						    i, j, K, data[3]);
+						fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X 0x%02X\n", i, j, K, data[3]);
 				}
-
 				/*
 				 * The second and the third bytes must start with 10
 				 */
 				else if(((j & 0xC0) != 0x80) || ((K & 0xC0) != 0x80)) {
 					if(lastError != XML_ERR_INVALID_CHAR)
-						fprintf(stderr,
-						    "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X\n",
-						    i, j, K);
+						fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X\n", i, j, K);
 				}
-
 				/*
 				 * if using a 3 byte encoding then the value must be greater
 				 * than 0x800, i.e. one of bits 4 to 0 of i must be set or
@@ -384,38 +334,27 @@ static void testCharRangeByte3(xmlParserCtxt * ctxt, char * data)
 				 */
 				else if(((i & 0xF) == 0) && ((j & 0x20) == 0)) {
 					if(lastError != XML_ERR_INVALID_CHAR)
-						fprintf(stderr,
-						    "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X\n",
-						    i, j, K);
+						fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X\n", i, j, K);
 				}
-
 				/*
 				 * There are values in that range that are not allowed in XML-1.0
 				 */
 				else if(((value > 0xD7FF) && (value <0xE000)) ||
 				    ((value > 0xFFFD) && (value <0x10000))) {
 					if(lastError != XML_ERR_INVALID_CHAR)
-						fprintf(stderr,
-						    "Failed to detect invalid char 0x%04X for Bytes 0x%02X 0x%02X 0x%02X\n",
-						    value, i, j, K);
+						fprintf(stderr, "Failed to detect invalid char 0x%04X for Bytes 0x%02X 0x%02X 0x%02X\n", value, i, j, K);
 				}
-
 				/*
 				 * We should see no error in remaining cases
 				 */
 				else if((lastError != 0) || (len != 3)) {
-					fprintf(stderr,
-					    "Failed to parse char for Bytes 0x%02X 0x%02X 0x%02X\n",
-					    i, j, K);
+					fprintf(stderr, "Failed to parse char for Bytes 0x%02X 0x%02X 0x%02X\n", i, j, K);
 				}
-
 				/*
 				 * Finally check the value is right
 				 */
 				else if(c != value) {
-					fprintf(stderr,
-					    "Failed to parse char for Bytes 0x%02X 0x%02X 0x%02X: expect %d got %d\n",
-					    i, j, data[2], value, c);
+					fprintf(stderr, "Failed to parse char for Bytes 0x%02X 0x%02X 0x%02X: expect %d got %d\n", i, j, data[2], value, c);
 				}
 			}
 		}
@@ -439,35 +378,26 @@ static void testCharRangeByte4(xmlParserCtxt * ctxt, char * data)
 					data[2] = (char)K;
 					L = lows[l];
 					data[3] = (char)L;
-					value = (L & 0x3F) + ((K & 0x3F) << 6) + ((j & 0x3F) << 12) +
-					    ((i & 0x7) << 18);
+					value = (L & 0x3F) + ((K & 0x3F) << 6) + ((j & 0x3F) << 12) + ((i & 0x7) << 18);
 					ctxt->charset = XML_CHAR_ENCODING_UTF8;
-
 					lastError = 0;
 					c = xmlCurrentChar(ctxt, &len);
-
 					/*
 					 * if fifth bit of first char is set, then the sequence would need
 					 * at least 5 bytes, but we give only 4 !
 					 */
 					if((i & 0xF8) == 0xF8) {
 						if(lastError != XML_ERR_INVALID_CHAR)
-							fprintf(stderr,
-							    "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X 0x%02X\n",
-							    i, j, K, data[3]);
+							fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X 0x%02X\n", i, j, K, data[3]);
 					}
-
 					/*
 					 * The second, third and fourth bytes must start with 10
 					 */
 					else if(((j & 0xC0) != 0x80) || ((K & 0xC0) != 0x80) ||
 					    ((L & 0xC0) != 0x80)) {
 						if(lastError != XML_ERR_INVALID_CHAR)
-							fprintf(stderr,
-							    "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X 0x%02X\n",
-							    i, j, K, L);
+							fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X 0x%02X\n", i, j, K, L);
 					}
-
 					/*
 					 * if using a 3 byte encoding then the value must be greater
 					 * than 0x10000, i.e. one of bits 3 to 0 of i must be set or
@@ -475,11 +405,8 @@ static void testCharRangeByte4(xmlParserCtxt * ctxt, char * data)
 					 */
 					else if(((i & 0x7) == 0) && ((j & 0x30) == 0)) {
 						if(lastError != XML_ERR_INVALID_CHAR)
-							fprintf(stderr,
-							    "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X 0x%02X\n",
-							    i, j, K, L);
+							fprintf(stderr, "Failed to detect invalid char for Bytes 0x%02X 0x%02X 0x%02X 0x%02X\n", i, j, K, L);
 					}
-
 					/*
 					 * There are values in that range that are not allowed in XML-1.0
 					 */
@@ -487,34 +414,25 @@ static void testCharRangeByte4(xmlParserCtxt * ctxt, char * data)
 					    ((value > 0xFFFD) && (value <0x10000)) ||
 					    (value > 0x10FFFF)) {
 						if(lastError != XML_ERR_INVALID_CHAR)
-							fprintf(stderr,
-							    "Failed to detect invalid char 0x%04X for Bytes 0x%02X 0x%02X 0x%02X 0x%02X\n",
-							    value, i, j, K, L);
+							fprintf(stderr, "Failed to detect invalid char 0x%04X for Bytes 0x%02X 0x%02X 0x%02X 0x%02X\n", value, i, j, K, L);
 					}
-
 					/*
 					 * We should see no error in remaining cases
 					 */
 					else if((lastError != 0) || (len != 4)) {
-						fprintf(stderr,
-						    "Failed to parse char for Bytes 0x%02X 0x%02X 0x%02X\n",
-						    i, j, K);
+						fprintf(stderr, "Failed to parse char for Bytes 0x%02X 0x%02X 0x%02X\n", i, j, K);
 					}
-
 					/*
 					 * Finally check the value is right
 					 */
 					else if(c != value) {
-						fprintf(stderr,
-						    "Failed to parse char for Bytes 0x%02X 0x%02X 0x%02X: expect %d got %d\n",
-						    i, j, data[2], value, c);
+						fprintf(stderr, "Failed to parse char for Bytes 0x%02X 0x%02X 0x%02X: expect %d got %d\n", i, j, data[2], value, c);
 					}
 				}
 			}
 		}
 	}
 }
-
 /**
  * testCharRanges:
  *

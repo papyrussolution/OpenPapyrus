@@ -59,7 +59,7 @@
 #include <string.h>
 // @sobolev #define memzero(target,size)	memset((void *)(target), 0, (size_t)(size))
 #define MEMZERO_Removed(target,size) memzero(/*(void *)*/(target), (size_t)(size)) // @sobolev
-#define MEMCOPY(dest,src,size)	memcpy(/*(void *)*/(dest), /*(const void *)*/(src), (size_t)(size))
+#define MEMCOPY_Removed(dest,src,size) memcpy(/*(void *)*/(dest), /*(const void *)*/(src), (size_t)(size))
 
 #endif
 /*
@@ -69,7 +69,7 @@
  * size_t is defined as long or ulong.  To ensure consistent results
  * we always use this SIZEOF() macro in place of using sizeof() directly.
  */
-#define SIZEOF(object)	(sizeof(object))
+// @sobolev #define SIZEOF_Removed(object)	(sizeof(object))
 // 
 // The modules that use fread() and fwrite() always invoke them through
 // these macros.  On some systems you may need to twiddle the argument casts.

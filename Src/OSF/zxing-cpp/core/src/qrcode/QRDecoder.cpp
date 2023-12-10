@@ -6,13 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "QRDecoder.h"
-#include "QRBitMatrixParser.h"
-#include "QRCodecMode.h"
-#include "QRDataBlock.h"
-#include "QRFormatInformation.h"
-#include "QRVersion.h"
-#include "StructuredAppend.h"
 
 namespace ZXing::QRCode {
 /**
@@ -225,8 +218,10 @@ ZXING_EXPORT_TEST_ONLY DecoderResult DecodeBitStream(ByteArray&& bytes, const Ve
 			CodecMode mode;
 			if(modeBitLength == 0)
 				mode = CodecMode::NUMERIC; // MicroQRCode version 1 is always NUMERIC and modeBitLength is 0
-			else
-				mode = CodecModeForBits(bits.readBits(modeBitLength), version.isMicro());
+			else {
+				//mode = CodecModeForBits(bits.readBits(modeBitLength), version.isMicro());
+				mode = CodecModeForBits(bits.readBits(modeBitLength), version.type());
+			}
 			switch(mode) {
 				case CodecMode::FNC1_FIRST_POSITION:
 //				if (!result.empty()) // uncomment to enforce specification
@@ -262,29 +257,30 @@ ZXING_EXPORT_TEST_ONLY DecoderResult DecodeBitStream(ByteArray&& bytes, const Ve
 				    // Count doesn't apply to ECI
 				    result.switchEncoding(ParseECIValue(bits));
 				    break;
-				case CodecMode::HANZI: {
-				    // First handle Hanzi mode which does not start with character count
-				    // chinese mode contains a sub set indicator right after mode indicator
-				    if(int subset = bits.readBits(4); subset != 1) // GB2312_SUBSET is the only
-							                           // supported one right now
-					    throw FormatError("Unsupported HANZI subset");
-				    int count = bits.readBits(CharacterCountBits(mode, version));
-				    DecodeHanziSegment(bits, count, result);
-				    break;
-			    }
-				default: {
-				    // "Normal" QR code modes:
-				    // How many characters will follow, encoded in this mode?
-				    int count = bits.readBits(CharacterCountBits(mode, version));
-				    switch(mode) {
-					    case CodecMode::NUMERIC:      DecodeNumericSegment(bits, count, result); break;
-					    case CodecMode::ALPHANUMERIC: DecodeAlphanumericSegment(bits, count, result); break;
-					    case CodecMode::BYTE:         DecodeByteSegment(bits, count, result); break;
-					    case CodecMode::KANJI:        DecodeKanjiSegment(bits, count, result); break;
-					    default:                      throw FormatError("Invalid CodecMode");
-				    }
-				    break;
-			    }
+				case CodecMode::HANZI: 
+					{
+						// First handle Hanzi mode which does not start with character count
+						// chinese mode contains a sub set indicator right after mode indicator
+						if(int subset = bits.readBits(4); subset != 1) // GB2312_SUBSET is the only supported one right now
+							throw FormatError("Unsupported HANZI subset");
+						int count = bits.readBits(CharacterCountBits(mode, version));
+						DecodeHanziSegment(bits, count, result);
+					}
+					break;
+				default: 
+					{
+						// "Normal" QR code modes:
+						// How many characters will follow, encoded in this mode?
+						int count = bits.readBits(CharacterCountBits(mode, version));
+						switch(mode) {
+							case CodecMode::NUMERIC:      DecodeNumericSegment(bits, count, result); break;
+							case CodecMode::ALPHANUMERIC: DecodeAlphanumericSegment(bits, count, result); break;
+							case CodecMode::BYTE:         DecodeByteSegment(bits, count, result); break;
+							case CodecMode::KANJI:        DecodeKanjiSegment(bits, count, result); break;
+							default:                      throw FormatError("Invalid CodecMode");
+						}
+					}
+					break;
 			}
 		}
 	} catch(std::out_of_range& e) {  // see BitSource::readBits

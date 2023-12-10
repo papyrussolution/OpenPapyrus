@@ -6,14 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "PDFScanningDecoder.h"
-#include "PDFBarcodeMetadata.h"
-#include "PDFBarcodeValue.h"
-#include "PDFCodewordDecoder.h"
-#include "PDFDetectionResult.h"
-#include "PDFDecoder.h"
-#include "PDFModulusGF.h"
-//#include "ZXTestSupport.h"
 
 namespace ZXing {
 namespace Pdf417 {
@@ -23,12 +15,8 @@ static const int MAX_EC_CODEWORDS = 512;
 
 using ModuleBitCountType = std::array<int, CodewordDecoder::BARS_IN_MODULE>;
 
-static int AdjustCodewordStartColumn(const BitMatrix& image,
-    int minColumn,
-    int maxColumn,
-    bool leftToRight,
-    int codewordStartColumn,
-    int imageRow)
+static int AdjustCodewordStartColumn(const BitMatrix& image, int minColumn, int maxColumn, bool leftToRight,
+    int codewordStartColumn, int imageRow)
 {
 	int correctedStartColumn = codewordStartColumn;
 	int increment = leftToRight ? -1 : 1;

@@ -9,6 +9,25 @@
 #pragma hdrstop
 
 namespace ZXing {
+
+void GenericGFPoly::Coefficients::reserve(size_t s)
+{
+	if(capacity() < s)
+		std::vector<int>::reserve(std::max(size_t(32), s));
+}
+
+void GenericGFPoly::Coefficients::resize(size_t s)
+{
+	reserve(s);
+	std::vector<int>::resize(s);
+}
+
+void GenericGFPoly::Coefficients::resize(size_t s, int i)
+{
+	reserve(s);
+	std::vector<int>::resize(s, i);
+}
+
 int GenericGFPoly::evaluateAt(int a) const
 {
 	if(a == 0)

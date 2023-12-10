@@ -1,13 +1,10 @@
 /*
-* Copyright 2021 gitlost
-*/
+ * Copyright 2021 gitlost
+ */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "oned/ODCode128Reader.h"
-
-#include "DecodeHints.h"
-#include "Result.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
 
 using namespace ZXing;
@@ -16,11 +13,13 @@ using namespace ZXing::OneD;
 // Helper to call decodePattern()
 static Result parse(const int startPattern, PatternRow row)
 {
-	if (startPattern == 'A') {
+	if(startPattern == 'A') {
 		row.insert(row.begin(), { 0, 2, 1, 1, 4, 1, 2 });
-	} else if (startPattern == 'B') {
+	}
+	else if(startPattern == 'B') {
 		row.insert(row.begin(), { 0, 2, 1, 1, 2, 1, 4 });
-	} else if (startPattern == 'C') {
+	}
+	else if(startPattern == 'C') {
 		row.insert(row.begin(), { 0, 2, 1, 1, 2, 3, 2 });
 	}
 	row.insert(row.end(), { 2, 3, 3, 1, 1, 1, 2, 0 }); // Stop pattern

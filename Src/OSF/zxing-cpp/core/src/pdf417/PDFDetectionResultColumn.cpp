@@ -6,9 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "PDFDetectionResultColumn.h"
-#include "PDFBarcodeMetadata.h"
-#include "PDFBarcodeValue.h"
 
 namespace ZXing {
 namespace Pdf417 {
@@ -17,8 +14,7 @@ static const int MIN_ROWS_IN_BARCODE = 3;
 static const int MAX_ROWS_IN_BARCODE = 90;
 
 DetectionResultColumn::DetectionResultColumn(const BoundingBox& boundingBox, RowIndicator rowIndicator) :
-	_boundingBox(boundingBox),
-	_rowIndicator(rowIndicator)
+	_boundingBox(boundingBox), _rowIndicator(rowIndicator)
 {
 	if(boundingBox.maxY() < boundingBox.minY()) {
 		throw std::invalid_argument("Invalid bounding box");

@@ -6,7 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "PDFCodewordDecoder.h"
 
 namespace ZXing {
 namespace Pdf417 {

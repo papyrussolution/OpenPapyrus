@@ -189,9 +189,9 @@ void  jpeg_stdio_src(j_decompress_ptr cinfo, FILE * infile)
 	 * manager serially with the same JPEG object.  Caveat programmer.
 	 */
 	if(cinfo->src == NULL) { /* first time for this JPEG object? */
-		cinfo->src = (struct jpeg_source_mgr*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, SIZEOF(my_source_mgr));
+		cinfo->src = (struct jpeg_source_mgr*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, sizeof(my_source_mgr));
 		src = (my_src_ptr)cinfo->src;
-		src->buffer = (JOCTET*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, INPUT_BUF_SIZE * SIZEOF(JOCTET));
+		src->buffer = (JOCTET*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, INPUT_BUF_SIZE * sizeof(JOCTET));
 	}
 	src = (my_src_ptr)cinfo->src;
 	src->pub.init_source = init_source;
@@ -218,7 +218,7 @@ void  jpeg_mem_src(j_decompress_ptr cinfo, const uchar * inbuffer, ulong insize)
 	 * the first one.
 	 */
 	if(cinfo->src == NULL) { /* first time for this JPEG object? */
-		cinfo->src = (struct jpeg_source_mgr*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, SIZEOF(struct jpeg_source_mgr));
+		cinfo->src = (struct jpeg_source_mgr*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_PERMANENT, sizeof(struct jpeg_source_mgr));
 	}
 	src = cinfo->src;
 	src->init_source = init_mem_source;

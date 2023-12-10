@@ -7,49 +7,40 @@
  */
 #include <slib-internal.h>
 #pragma hdrstop
-//#include "libxml.h"
-//#include <string.h>
-//#include <stdarg.h>
-//#include <assert.h>
-
 #if defined (_WIN32) && !defined(__CYGWIN__)
-#if defined (_MSC_VER) || defined(__BORLANDC__)
-#include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
-#define gettimeofday(p1, p2)
-#endif /* _MSC_VER */
+	#if defined (_MSC_VER) || defined(__BORLANDC__)
+		#include <winsock2.h>
+		#pragma comment(lib, "ws2_32.lib")
+		#define gettimeofday(p1, p2)
+	#endif /* _MSC_VER */
 #endif /* _WIN32 */
-
 #ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
+	#include <sys/time.h>
 #endif
 #ifdef HAVE_TIME_H
-#include <time.h>
+	#include <time.h>
 #endif
-
 #ifdef __MINGW32__
-#define _WINSOCKAPI_
-#include <wsockcompat.h>
-#include <winsock2.h>
-#undef XML_SOCKLEN_T
-#define XML_SOCKLEN_T unsigned int
+	#define _WINSOCKAPI_
+	#include <wsockcompat.h>
+	#include <winsock2.h>
+	#undef XML_SOCKLEN_T
+	#define XML_SOCKLEN_T unsigned int
 #endif
-
 #ifdef HAVE_SYS_TIMEB_H
-#include <sys/timeb.h>
+	#include <sys/timeb.h>
 #endif
-
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
+	#include <sys/stat.h>
 #endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 #ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
@@ -67,7 +58,6 @@
 #include <readline/history.h>
 #endif
 #endif
-
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 //#include <libxml/parserInternals.h>
@@ -272,50 +262,39 @@ static xmlParserInput * xmllintExternalEntityLoader(const char * URL, const char
 			iter++;
 		}
 	}
-
 	if((ctxt != NULL) && (ctxt->sax != NULL)) {
 		warning = ctxt->sax->warning;
 		err = ctxt->sax->error;
 		ctxt->sax->warning = NULL;
 		ctxt->sax->error = NULL;
 	}
-
 	if(defaultEntityLoader != NULL) {
 		ret = defaultEntityLoader(URL, ID, ctxt);
-		if(ret != NULL) {
+		if(ret) {
 			if(warning != NULL)
 				ctxt->sax->warning = warning;
 			if(err != NULL)
 				ctxt->sax->error = err;
 			if(load_trace) {
-				fprintf \
-					(stderr,
-				    "Loaded URL=\"%s\" ID=\"%s\"\n",
-				    URL ? URL : "(null)",
-				    ID ? ID : "(null)");
+				fprintf(stderr, "Loaded URL=\"%s\" ID=\"%s\"\n", URL ? URL : "(null)", ID ? ID : "(null)");
 			}
 			return(ret);
 		}
 	}
 	for(i = 0; i < nbpaths; i++) {
 		xmlChar * newURL;
-
 		newURL = xmlStrdup((const xmlChar*)paths[i]);
 		newURL = xmlStrcat(newURL, (const xmlChar*)"/");
 		newURL = xmlStrcat(newURL, (const xmlChar*)lastsegment);
 		if(newURL != NULL) {
 			ret = defaultEntityLoader((const char*)newURL, ID, ctxt);
-			if(ret != NULL) {
+			if(ret) {
 				if(warning != NULL)
 					ctxt->sax->warning = warning;
 				if(err != NULL)
 					ctxt->sax->error = err;
 				if(load_trace) {
-					fprintf \
-						(stderr,
-					    "Loaded URL=\"%s\" ID=\"%s\"\n",
-					    newURL,
-					    ID ? ID : "(null)");
+					fprintf(stderr, "Loaded URL=\"%s\" ID=\"%s\"\n", newURL, ID ? ID : "(null)");
 				}
 				xmlFree(newURL);
 				return(ret);
@@ -357,7 +336,7 @@ static void * myMallocFunc(size_t size)
 	void * ret;
 
 	ret = xmlMemMalloc(size);
-	if(ret != NULL) {
+	if(ret) {
 		if(xmlMemUsed() > maxmem) {
 			OOM();
 			xmlMemFree(ret);
@@ -372,7 +351,7 @@ static void * myReallocFunc(void * mem, size_t size)
 	void * ret;
 
 	ret = xmlMemRealloc(mem, size);
-	if(ret != NULL) {
+	if(ret) {
 		if(xmlMemUsed() > maxmem) {
 			OOM();
 			xmlMemFree(ret);
@@ -387,7 +366,7 @@ static char * myStrdupFunc(const char * str)
 	char * ret;
 
 	ret = xmlMemoryStrdup(str);
-	if(ret != NULL) {
+	if(ret) {
 		if(xmlMemUsed() > maxmem) {
 			OOM();
 			xmlFree(ret);
@@ -789,7 +768,7 @@ static char * xmlShellReadline(char * prompt) {
 	line_read[500] = 0;
 	len = strlen(line_read);
 	ret = (char*)malloc(len + 1);
-	if(ret != NULL) {
+	if(ret) {
 		memcpy(ret, line_read, len + 1);
 	}
 	return(ret);
@@ -1204,7 +1183,6 @@ static void endDocumentDebug(void * ctx ATTRIBUTE_UNUSED)
 static void startElementDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name, const xmlChar ** atts)
 {
 	int i;
-
 	callbacks++;
 	if(noout)
 		return;
@@ -1247,7 +1225,6 @@ static void charactersDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * ch, int
 {
 	char out[40];
 	int i;
-
 	callbacks++;
 	if(noout)
 		return;
@@ -1287,7 +1264,6 @@ static void ignorableWhitespaceDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar 
 {
 	char out[40];
 	int i;
-
 	callbacks++;
 	if(noout)
 		return;
@@ -1296,7 +1272,6 @@ static void ignorableWhitespaceDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar 
 	out[i] = 0;
 	fprintf(stdout, "SAX.ignorableWhitespace(%s, %d)\n", out, len);
 }
-
 /**
  * processingInstructionDebug:
  * @ctxt:  An XML parser context
@@ -1306,18 +1281,15 @@ static void ignorableWhitespaceDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar 
  *
  * A processing instruction has been parsed.
  */
-static void processingInstructionDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * target,
-    const xmlChar * data)
+static void processingInstructionDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * target, const xmlChar * data)
 {
 	callbacks++;
 	if(noout)
 		return;
 	if(data != NULL)
-		fprintf(stdout, "SAX.processingInstruction(%s, %s)\n",
-		    (char*)target, (char*)data);
+		fprintf(stdout, "SAX.processingInstruction(%s, %s)\n", (char*)target, (char*)data);
 	else
-		fprintf(stdout, "SAX.processingInstruction(%s, NULL)\n",
-		    (char*)target);
+		fprintf(stdout, "SAX.processingInstruction(%s, NULL)\n", (char*)target);
 }
 
 /**
@@ -1333,8 +1305,7 @@ static void cdataBlockDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * value, 
 	callbacks++;
 	if(noout)
 		return;
-	fprintf(stdout, "SAX.pcdata(%.20s, %d)\n",
-	    (char*)value, len);
+	fprintf(stdout, "SAX.pcdata(%.20s, %d)\n", (char*)value, len);
 }
 
 /**
@@ -1364,7 +1335,6 @@ static void commentDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * value)
 static void XMLCDECL warningDebug(void * ctx ATTRIBUTE_UNUSED, const char * msg, ...)
 {
 	va_list args;
-
 	callbacks++;
 	if(noout)
 		return;
@@ -1386,7 +1356,6 @@ static void XMLCDECL warningDebug(void * ctx ATTRIBUTE_UNUSED, const char * msg,
 static void XMLCDECL errorDebug(void * ctx ATTRIBUTE_UNUSED, const char * msg, ...)
 {
 	va_list args;
-
 	callbacks++;
 	if(noout)
 		return;
@@ -1408,7 +1377,6 @@ static void XMLCDECL errorDebug(void * ctx ATTRIBUTE_UNUSED, const char * msg, .
 static void XMLCDECL fatalErrorDebug(void * ctx ATTRIBUTE_UNUSED, const char * msg, ...)
 {
 	va_list args;
-
 	callbacks++;
 	if(noout)
 		return;
@@ -1464,18 +1432,10 @@ xmlSAXHandler * debugSAXHandler = &debugSAXHandlerStruct;
  *
  * called when an opening tag has been processed.
  */
-static void startElementNsDebug(void * ctx ATTRIBUTE_UNUSED,
-    const xmlChar * localname,
-    const xmlChar * prefix,
-    const xmlChar * URI,
-    int nb_namespaces,
-    const xmlChar ** namespaces,
-    int nb_attributes,
-    int nb_defaulted,
-    const xmlChar ** attributes)
+static void startElementNsDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI,
+    int nb_namespaces, const xmlChar ** namespaces, int nb_attributes, int nb_defaulted, const xmlChar ** attributes)
 {
 	int i;
-
 	callbacks++;
 	if(noout)
 		return;
@@ -1489,7 +1449,6 @@ static void startElementNsDebug(void * ctx ATTRIBUTE_UNUSED,
 	else
 		fprintf(stdout, ", '%s'", (char*)URI);
 	fprintf(stdout, ", %d", nb_namespaces);
-
 	if(namespaces != NULL) {
 		for(i = 0; i < nb_namespaces * 2; i++) {
 			fprintf(stdout, ", xmlns");
@@ -1520,10 +1479,7 @@ static void startElementNsDebug(void * ctx ATTRIBUTE_UNUSED,
  *
  * called when the end of an element has been detected.
  */
-static void endElementNsDebug(void * ctx ATTRIBUTE_UNUSED,
-    const xmlChar * localname,
-    const xmlChar * prefix,
-    const xmlChar * URI)
+static void endElementNsDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI)
 {
 	callbacks++;
 	if(noout)
@@ -2493,7 +2449,7 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 				else {
 					out = fopen(output, "wb");
 				}
-				if(out != NULL) {
+				if(out) {
 					if(htmlDocDump(out, doc) < 0)
 						progresult = XMLLINT_ERR_OUT;
 
@@ -2628,10 +2584,9 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 				else {
 					out = fopen(output, "wb");
 				}
-				if(out != NULL) {
+				if(out) {
 					if(xmlDocDump(out, doc) < 0)
 						progresult = XMLLINT_ERR_OUT;
-
 					if(output != NULL)
 						fclose(out);
 				}
@@ -2680,9 +2635,8 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 		else {
 			out = fopen(output, "wb");
 		}
-		if(out != NULL) {
+		if(out) {
 			xmlDebugDumpDocument(out, doc);
-
 			if(output != NULL)
 				fclose(out);
 		}
@@ -2700,8 +2654,7 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 	 * A posteriori validation test
 	 */
 	if((dtdvalid != NULL) || (dtdvalidfpi != NULL)) {
-		xmlDtdPtr dtd;
-
+		xmlDtd * dtd;
 		if((timing) && (!repeat)) {
 			startTimer();
 		}
@@ -2714,37 +2667,28 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 		}
 		if(dtd == NULL) {
 			if(dtdvalid != NULL)
-				xmlGenericError(xmlGenericErrorContext,
-				    "Could not parse DTD %s\n", dtdvalid);
+				xmlGenericError(xmlGenericErrorContext, "Could not parse DTD %s\n", dtdvalid);
 			else
-				xmlGenericError(xmlGenericErrorContext,
-				    "Could not parse DTD %s\n", dtdvalidfpi);
+				xmlGenericError(xmlGenericErrorContext, "Could not parse DTD %s\n", dtdvalidfpi);
 			progresult = XMLLINT_ERR_DTD;
 		}
 		else {
 			xmlValidCtxtPtr cvp;
-
 			if((cvp = xmlNewValidCtxt()) == NULL) {
-				xmlGenericError(xmlGenericErrorContext,
-				    "Couldn't allocate validation context\n");
+				xmlGenericError(xmlGenericErrorContext, "Couldn't allocate validation context\n");
 				exit(-1);
 			}
 			cvp->userData = (void*)stderr;
 			cvp->error    = (xmlValidityErrorFunc)fprintf;
 			cvp->warning  = (xmlValidityWarningFunc)fprintf;
-
 			if((timing) && (!repeat)) {
 				startTimer();
 			}
 			if(!xmlValidateDtd(cvp, doc, dtd)) {
 				if(dtdvalid != NULL)
-					xmlGenericError(xmlGenericErrorContext,
-					    "Document %s does not validate against %s\n",
-					    filename, dtdvalid);
+					xmlGenericError(xmlGenericErrorContext, "Document %s does not validate against %s\n", filename, dtdvalid);
 				else
-					xmlGenericError(xmlGenericErrorContext,
-					    "Document %s does not validate against %s\n",
-					    filename, dtdvalidfpi);
+					xmlGenericError(xmlGenericErrorContext, "Document %s does not validate against %s\n", filename, dtdvalidfpi);
 				progresult = XMLLINT_ERR_VALID;
 			}
 			if((timing) && (!repeat)) {
@@ -2756,13 +2700,10 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 	}
 	else if(postvalid) {
 		xmlValidCtxtPtr cvp;
-
 		if((cvp = xmlNewValidCtxt()) == NULL) {
-			xmlGenericError(xmlGenericErrorContext,
-			    "Couldn't allocate validation context\n");
+			xmlGenericError(xmlGenericErrorContext, "Couldn't allocate validation context\n");
 			exit(-1);
 		}
-
 		if((timing) && (!repeat)) {
 			startTimer();
 		}
@@ -2770,8 +2711,7 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 		cvp->error    = (xmlValidityErrorFunc)fprintf;
 		cvp->warning  = (xmlValidityWarningFunc)fprintf;
 		if(!xmlValidateDocument(cvp, doc)) {
-			xmlGenericError(xmlGenericErrorContext,
-			    "Document %s does not validate\n", filename);
+			xmlGenericError(xmlGenericErrorContext, "Document %s does not validate\n", filename);
 			progresult = XMLLINT_ERR_VALID;
 		}
 		if((timing) && (!repeat)) {
@@ -2782,14 +2722,12 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 #endif /* LIBXML_VALID_ENABLED */
 #ifdef LIBXML_SCHEMATRON_ENABLED
 	if(wxschematron != NULL) {
-		xmlSchematronValidCtxtPtr ctxt;
+		xmlSchematronValidCtxt * ctxt;
 		int ret;
 		int flag;
-
 		if((timing) && (!repeat)) {
 			startTimer();
 		}
-
 		if(debug)
 			flag = XML_SCHEMATRON_OUT_XML;
 		else
@@ -2826,16 +2764,11 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 	if(relaxngschemas != NULL) {
 		xmlRelaxNGValidCtxtPtr ctxt;
 		int ret;
-
 		if((timing) && (!repeat)) {
 			startTimer();
 		}
-
 		ctxt = xmlRelaxNGNewValidCtxt(relaxngschemas);
-		xmlRelaxNGSetValidErrors(ctxt,
-		    (xmlRelaxNGValidityErrorFunc)fprintf,
-		    (xmlRelaxNGValidityWarningFunc)fprintf,
-		    stderr);
+		xmlRelaxNGSetValidErrors(ctxt, (xmlRelaxNGValidityErrorFunc)fprintf, (xmlRelaxNGValidityWarningFunc)fprintf, stderr);
 		ret = xmlRelaxNGValidateDoc(ctxt, doc);
 		if(ret == 0) {
 			fprintf(stderr, "%s validates\n", filename);
@@ -2845,8 +2778,7 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 			progresult = XMLLINT_ERR_VALID;
 		}
 		else {
-			fprintf(stderr, "%s validation generated an internal error\n",
-			    filename);
+			fprintf(stderr, "%s validation generated an internal error\n", filename);
 			progresult = XMLLINT_ERR_VALID;
 		}
 		xmlRelaxNGFreeValidCtxt(ctxt);
@@ -2855,18 +2787,13 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 		}
 	}
 	else if(wxschemas != NULL) {
-		xmlSchemaValidCtxtPtr ctxt;
+		xmlSchemaValidCtxt * ctxt;
 		int ret;
-
 		if((timing) && (!repeat)) {
 			startTimer();
 		}
-
 		ctxt = xmlSchemaNewValidCtxt(wxschemas);
-		xmlSchemaSetValidErrors(ctxt,
-		    (xmlSchemaValidityErrorFunc)fprintf,
-		    (xmlSchemaValidityWarningFunc)fprintf,
-		    stderr);
+		xmlSchemaSetValidErrors(ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
 		ret = xmlSchemaValidateDoc(ctxt, doc);
 		if(ret == 0) {
 			fprintf(stderr, "%s validates\n", filename);
@@ -2893,7 +2820,6 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 		xmlDebugDumpEntities(stderr, doc);
 #endif
 #endif
-
 	/*
 	 * free it.
 	 */
@@ -2905,13 +2831,9 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 		endTimer("Freeing");
 	}
 }
-
-/************************************************************************
-*									*
-*			Usage and Main					*
-*									*
-************************************************************************/
-
+// 
+// Usage and Main
+// 
 static void showVersion(const char * name) {
 	fprintf(stderr, "%s: using libxml version %s\n", name, xmlParserVersion);
 	fprintf(stderr, "   compiled with: ");

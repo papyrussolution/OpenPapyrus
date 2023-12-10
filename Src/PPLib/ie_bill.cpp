@@ -6362,7 +6362,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 		double excise_sum = 0.0;
 		const PPTransferItem & r_ti = rBp.ConstTI(item_idx);
 		const double qtty_local = fabs(r_ti.Qtty());
-		const  PPID   goods_id = labs(r_ti.GoodsID);
+		const  PPID  goods_id = labs(r_ti.GoodsID);
 		int   chzn_prod_type = 0; // @v11.4.10
 		double org_qtty = 0.0;
 		double org_price = 0.0;
@@ -6689,6 +6689,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 						SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
 						SString chzn_gtin14_buf;
 						SString chzn_serial_buf;
+						SString chzn_price_buf;
 						StringSet ss;
 						ext_codes_set.GetByBoxID(0, ss);
 						for(uint ecsp = 0; ss.get(&ecsp, temp_buf);) {
@@ -6723,7 +6724,21 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
 								}
 								else {
-									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+									// @v11.9.0 {
+									if(chzn_prod_type == GTCHZNPT_ALTTOBACCO) {
+										gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
+										gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
+										gts.GetToken(GtinStruc::fldPrice, &chzn_price_buf);
+										if(chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty()) {
+											temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
+											if(chzn_price_buf.NotEmpty()) {
+												temp_buf.Cat("8005").Cat(chzn_price_buf);
+											}
+										}
+										n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+									}
+									else // } @v11.9.0 
+										n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 								}
 								// } @v11.4.9 
 							}

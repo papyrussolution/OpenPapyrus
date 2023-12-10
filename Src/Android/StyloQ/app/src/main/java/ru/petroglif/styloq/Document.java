@@ -6,6 +6,7 @@ package ru.petroglif.styloq;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.StringTokenizer;
@@ -79,7 +80,6 @@ public class Document {
 		}
 		return result;
 	}
-
 	Head H;
 	ArrayList <TransferItem> TiList;
 	ArrayList <BookingItem> BkList; // Список позиций повременных элементов, связанных с процессорами

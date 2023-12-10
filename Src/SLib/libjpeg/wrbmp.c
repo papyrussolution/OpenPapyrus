@@ -161,8 +161,8 @@ static void write_bmp_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
 	bfSize = headersize + (INT32)dest->row_width * (INT32)cinfo->output_height;
 
 	/* Set unused fields of header to 0 */
-	memzero(bmpfileheader, SIZEOF(bmpfileheader));
-	memzero(bmpinfoheader, SIZEOF(bmpinfoheader));
+	memzero(bmpfileheader, sizeof(bmpfileheader));
+	memzero(bmpinfoheader, sizeof(bmpinfoheader));
 
 	/* Fill the file header */
 	bmpfileheader[0] = 0x42; /* first 2 bytes are ASCII 'B', 'M' */
@@ -226,8 +226,8 @@ static void write_os2_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
 	bfSize = headersize + (INT32)dest->row_width * (INT32)cinfo->output_height;
 
 	/* Set unused fields of header to 0 */
-	memzero(bmpfileheader, SIZEOF(bmpfileheader));
-	memzero(bmpcoreheader, SIZEOF(bmpcoreheader));
+	memzero(bmpfileheader, sizeof(bmpfileheader));
+	memzero(bmpcoreheader, sizeof(bmpcoreheader));
 
 	/* Fill the file header */
 	bmpfileheader[0] = 0x42; /* first 2 bytes are ASCII 'B', 'M' */
@@ -350,7 +350,7 @@ djpeg_dest_ptr jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2)
 {
 	JDIMENSION row_width;
 	// Create module interface object, fill in method pointers 
-	bmp_dest_ptr dest = (bmp_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(bmp_dest_struct));
+	bmp_dest_ptr dest = (bmp_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(bmp_dest_struct));
 	dest->pub.start_output = start_output_bmp;
 	dest->pub.finish_output = finish_output_bmp;
 	dest->is_os2 = is_os2;

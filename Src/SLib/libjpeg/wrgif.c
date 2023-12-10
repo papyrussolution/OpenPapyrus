@@ -325,7 +325,7 @@ METHODDEF(void) finish_output_gif(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 GLOBAL(djpeg_dest_ptr) jinit_write_gif(j_decompress_ptr cinfo)
 {
 	// Create module interface object, fill in method pointers 
-	gif_dest_ptr dest = (gif_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(gif_dest_struct));
+	gif_dest_ptr dest = (gif_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(gif_dest_struct));
 	dest->cinfo = cinfo; // make back link for subroutines 
 	dest->pub.start_output = start_output_gif;
 	dest->pub.put_pixel_rows = put_pixel_rows;

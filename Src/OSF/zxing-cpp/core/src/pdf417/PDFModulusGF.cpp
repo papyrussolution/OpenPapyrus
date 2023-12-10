@@ -6,16 +6,10 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "PDFModulusGF.h"
 
 namespace ZXing {
 namespace Pdf417 {
-ModulusGF::ModulusGF(int modulus, int generator) :
-	_modulus(modulus),
-	_zero(*this, {
-			0
-		}),
-	_one(*this, { 1 })
+ModulusGF::ModulusGF(int modulus, int generator) : _modulus(modulus), _zero(*this, {0}), _one(*this, { 1 })
 {
 #ifdef ZX_REED_SOLOMON_USE_MORE_MEMORY_FOR_SPEED
 	_expTable.resize(modulus * 2, 0);

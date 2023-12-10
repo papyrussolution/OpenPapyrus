@@ -6,8 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "AZEncoder.h"
-//#include "AZHighLevelEncoder.h"
 
 namespace ZXing::Aztec {
 static const int MAX_NB_BITS = 32;

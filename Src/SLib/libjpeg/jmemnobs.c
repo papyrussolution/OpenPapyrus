@@ -26,30 +26,16 @@
 /*
  * Memory allocation and freeing are controlled by the regular library routines malloc and free().
  */
-void * jpeg_get_small(j_common_ptr cinfo, size_t sizeofobject)
-{
-	return SAlloc::M(sizeofobject);
-}
-
-void jpeg_free_small(j_common_ptr cinfo, void * object, size_t sizeofobject)
-{
-	SAlloc::F(object);
-}
+// @sobolev void * jpeg_get_small(j_common_ptr cinfo, size_t sizeofobject) { return SAlloc::M(sizeofobject); }
+// @sobolev void jpeg_free_small(j_common_ptr cinfo, void * object, size_t sizeofobject) { SAlloc::F(object); }
 /*
  * "Large" objects are treated the same as "small" ones.
  * NB: although we include FAR keywords in the routine declarations,
  * this file won't actually work in 80x86 small/medium model; at least,
  * you probably won't be able to process useful-size images in only 64KB.
  */
-void * jpeg_get_large(j_common_ptr cinfo, size_t sizeofobject)
-{
-	return (void *)SAlloc::M(sizeofobject);
-}
-
-void jpeg_free_large(j_common_ptr cinfo, void * object, size_t sizeofobject)
-{
-	SAlloc::F(object);
-}
+// @sobolev void * jpeg_get_large(j_common_ptr cinfo, size_t sizeofobject) { return (void *)SAlloc::M(sizeofobject); }
+// @sobolev void jpeg_free_large(j_common_ptr cinfo, void * object, size_t sizeofobject) { SAlloc::F(object); }
 /*
  * This routine computes the total memory space available for allocation.
  * Here we always say, "we got all you want bud!"

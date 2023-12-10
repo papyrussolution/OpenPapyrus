@@ -6,10 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "QRWriter.h"
-#include "QREncodeResult.h"
-#include "QREncoder.h"
-#include "QRErrorCorrectionLevel.h"
 
 namespace ZXing::QRCode {
 static const int QUIET_ZONE_SIZE = 4;

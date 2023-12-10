@@ -120,58 +120,46 @@ int ossl_ec_GF2m_simple_group_set_curve(EC_GROUP * group, const BIGNUM * p, cons
 err:
 	return ret;
 }
-
 /*
  * Get the curve parameters of an EC_GROUP structure. If p, a, or b are NULL
  * then there values will not be set but the method will return with success.
  */
-int ossl_ec_GF2m_simple_group_get_curve(const EC_GROUP * group, BIGNUM * p,
-    BIGNUM * a, BIGNUM * b, BN_CTX * ctx)
+int ossl_ec_GF2m_simple_group_get_curve(const EC_GROUP * group, BIGNUM * p, BIGNUM * a, BIGNUM * b, BN_CTX * ctx)
 {
 	int ret = 0;
-
 	if(p) {
 		if(!BN_copy(p, group->field))
 			return 0;
 	}
-
 	if(a) {
 		if(!BN_copy(a, group->a))
 			goto err;
 	}
-
 	if(b) {
 		if(!BN_copy(b, group->b))
 			goto err;
 	}
-
 	ret = 1;
-
 err:
 	return ret;
 }
-
 /*
- * Gets the degree of the field.  For a curve over GF(2^m) this is the value
- * m.
+ * Gets the degree of the field.  For a curve over GF(2^m) this is the value m.
  */
 int ossl_ec_GF2m_simple_group_get_degree(const EC_GROUP * group)
 {
 	return BN_num_bits(group->field) - 1;
 }
-
 /*
  * Checks the discriminant of the curve. y^2 + x*y = x^3 + a*x^2 + b is an
  * elliptic curve <=> b != 0 (mod p)
  */
-int ossl_ec_GF2m_simple_group_check_discriminant(const EC_GROUP * group,
-    BN_CTX * ctx)
+int ossl_ec_GF2m_simple_group_check_discriminant(const EC_GROUP * group, BN_CTX * ctx)
 {
 	int ret = 0;
 	BIGNUM * b;
 #ifndef FIPS_MODULE
 	BN_CTX * new_ctx = NULL;
-
 	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
 		if(!ctx) {
@@ -184,19 +172,15 @@ int ossl_ec_GF2m_simple_group_check_discriminant(const EC_GROUP * group,
 	b = BN_CTX_get(ctx);
 	if(!b)
 		goto err;
-
 	if(!BN_GF2m_mod_arr(b, group->b, group->poly))
 		goto err;
-
 	/*
 	 * check the discriminant: y^2 + x*y = x^3 + a*x^2 + b is an elliptic
 	 * curve <=> b != 0 (mod p)
 	 */
 	if(BN_is_zero(b))
 		goto err;
-
 	ret = 1;
-
 err:
 	BN_CTX_end(ctx);
 #ifndef FIPS_MODULE
@@ -211,7 +195,6 @@ int ossl_ec_GF2m_simple_point_init(EC_POINT * point)
 	point->X = BN_new();
 	point->Y = BN_new();
 	point->Z = BN_new();
-
 	if(point->X == NULL || point->Y == NULL || point->Z == NULL) {
 		BN_free(point->X);
 		BN_free(point->Y);
@@ -237,7 +220,6 @@ void ossl_ec_GF2m_simple_point_clear_finish(EC_POINT * point)
 	BN_clear_free(point->Z);
 	point->Z_is_one = 0;
 }
-
 /*
  * Copy the contents of one EC_POINT into another.  Assumes dest is
  * initialized.
@@ -255,35 +237,27 @@ int ossl_ec_GF2m_simple_point_copy(EC_POINT * dest, const EC_POINT * src)
 
 	return 1;
 }
-
 /*
  * Set an EC_POINT to the point at infinity. A point at infinity is
  * represented by having Z=0.
  */
-int ossl_ec_GF2m_simple_point_set_to_infinity(const EC_GROUP * group,
-    EC_POINT * point)
+int ossl_ec_GF2m_simple_point_set_to_infinity(const EC_GROUP * group, EC_POINT * point)
 {
 	point->Z_is_one = 0;
 	BN_zero(point->Z);
 	return 1;
 }
-
 /*
  * Set the coordinates of an EC_POINT using affine coordinates. Note that
  * the simple implementation only uses affine coordinates.
  */
-int ossl_ec_GF2m_simple_point_set_affine_coordinates(const EC_GROUP * group,
-    EC_POINT * point,
-    const BIGNUM * x,
-    const BIGNUM * y,
-    BN_CTX * ctx)
+int ossl_ec_GF2m_simple_point_set_affine_coordinates(const EC_GROUP * group, EC_POINT * point, const BIGNUM * x, const BIGNUM * y, BN_CTX * ctx)
 {
 	int ret = 0;
 	if(x == NULL || y == NULL) {
 		ERR_raise(ERR_LIB_EC, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
-
 	if(!BN_copy(point->X, x))
 		goto err;
 	BN_set_negative(point->X, 0);
@@ -295,7 +269,6 @@ int ossl_ec_GF2m_simple_point_set_affine_coordinates(const EC_GROUP * group,
 	BN_set_negative(point->Z, 0);
 	point->Z_is_one = 1;
 	ret = 1;
-
 err:
 	return ret;
 }
@@ -304,18 +277,13 @@ err:
  * Gets the affine coordinates of an EC_POINT. Note that the simple
  * implementation only uses affine coordinates.
  */
-int ossl_ec_GF2m_simple_point_get_affine_coordinates(const EC_GROUP * group,
-    const EC_POINT * point,
-    BIGNUM * x, BIGNUM * y,
-    BN_CTX * ctx)
+int ossl_ec_GF2m_simple_point_get_affine_coordinates(const EC_GROUP * group, const EC_POINT * point, BIGNUM * x, BIGNUM * y, BN_CTX * ctx)
 {
 	int ret = 0;
-
 	if(EC_POINT_is_at_infinity(group, point)) {
 		ERR_raise(ERR_LIB_EC, EC_R_POINT_AT_INFINITY);
 		return 0;
 	}
-
 	if(BN_cmp(point->Z, BN_value_one())) {
 		ERR_raise(ERR_LIB_EC, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
@@ -331,36 +299,30 @@ int ossl_ec_GF2m_simple_point_get_affine_coordinates(const EC_GROUP * group,
 		BN_set_negative(y, 0);
 	}
 	ret = 1;
-
 err:
 	return ret;
 }
-
 /*
  * Computes a + b and stores the result in r.  r could be a or b, a could be
  * b. Uses algorithm A.10.2 of IEEE P1363.
  */
-int ossl_ec_GF2m_simple_add(const EC_GROUP * group, EC_POINT * r,
-    const EC_POINT * a, const EC_POINT * b, BN_CTX * ctx)
+int ossl_ec_GF2m_simple_add(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a, const EC_POINT * b, BN_CTX * ctx)
 {
 	BIGNUM * x0, * y0, * x1, * y1, * x2, * y2, * s, * t;
 	int ret = 0;
 #ifndef FIPS_MODULE
 	BN_CTX * new_ctx = NULL;
 #endif
-
 	if(EC_POINT_is_at_infinity(group, a)) {
 		if(!EC_POINT_copy(r, b))
 			return 0;
 		return 1;
 	}
-
 	if(EC_POINT_is_at_infinity(group, b)) {
 		if(!EC_POINT_copy(r, a))
 			return 0;
 		return 1;
 	}
-
 #ifndef FIPS_MODULE
 	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
@@ -368,7 +330,6 @@ int ossl_ec_GF2m_simple_add(const EC_GROUP * group, EC_POINT * r,
 			return 0;
 	}
 #endif
-
 	BN_CTX_start(ctx);
 	x0 = BN_CTX_get(ctx);
 	y0 = BN_CTX_get(ctx);
@@ -401,7 +362,6 @@ int ossl_ec_GF2m_simple_add(const EC_GROUP * group, EC_POINT * r,
 		if(!EC_POINT_get_affine_coordinates(group, b, x1, y1, ctx))
 			goto err;
 	}
-
 	if(BN_GF2m_cmp(x0, x1)) {
 		if(!BN_GF2m_add(t, x0, x1))
 			goto err;
@@ -459,64 +419,51 @@ err:
 #endif
 	return ret;
 }
-
 /*
  * Computes 2 * a and stores the result in r.  r could be a. Uses algorithm
  * A.10.2 of IEEE P1363.
  */
-int ossl_ec_GF2m_simple_dbl(const EC_GROUP * group, EC_POINT * r,
-    const EC_POINT * a, BN_CTX * ctx)
+int ossl_ec_GF2m_simple_dbl(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a, BN_CTX * ctx)
 {
 	return ossl_ec_GF2m_simple_add(group, r, a, a, ctx);
 }
 
-int ossl_ec_GF2m_simple_invert(const EC_GROUP * group, EC_POINT * point,
-    BN_CTX * ctx)
+int ossl_ec_GF2m_simple_invert(const EC_GROUP * group, EC_POINT * point, BN_CTX * ctx)
 {
 	if(EC_POINT_is_at_infinity(group, point) || BN_is_zero(point->Y))
 		/* point is its own inverse */
 		return 1;
-
-	if(group->meth->make_affine == NULL
-	    || !group->meth->make_affine(group, point, ctx))
+	if(group->meth->make_affine == NULL || !group->meth->make_affine(group, point, ctx))
 		return 0;
 	return BN_GF2m_add(point->Y, point->X, point->Y);
 }
 
 /* Indicates whether the given point is the point at infinity. */
-int ossl_ec_GF2m_simple_is_at_infinity(const EC_GROUP * group,
-    const EC_POINT * point)
+int ossl_ec_GF2m_simple_is_at_infinity(const EC_GROUP * group, const EC_POINT * point)
 {
 	return BN_is_zero(point->Z);
 }
-
 /*-
  * Determines whether the given EC_POINT is an actual point on the curve defined
  * in the EC_GROUP.  A point is valid if it satisfies the Weierstrass equation:
  *      y^2 + x*y = x^3 + a*x^2 + b.
  */
-int ossl_ec_GF2m_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point,
-    BN_CTX * ctx)
+int ossl_ec_GF2m_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point, BN_CTX * ctx)
 {
 	int ret = -1;
 	BIGNUM * lh, * y2;
-	int (* field_mul) (const EC_GROUP *, BIGNUM *, const BIGNUM *,
-	    const BIGNUM *, BN_CTX *);
+	int (* field_mul) (const EC_GROUP *, BIGNUM *, const BIGNUM *, const BIGNUM *, BN_CTX *);
 	int (* field_sqr) (const EC_GROUP *, BIGNUM *, const BIGNUM *, BN_CTX *);
 #ifndef FIPS_MODULE
 	BN_CTX * new_ctx = NULL;
 #endif
-
 	if(EC_POINT_is_at_infinity(group, point))
 		return 1;
-
 	field_mul = group->meth->field_mul;
 	field_sqr = group->meth->field_sqr;
-
 	/* only support affine coordinates */
 	if(!point->Z_is_one)
 		return -1;
-
 #ifndef FIPS_MODULE
 	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
@@ -524,13 +471,11 @@ int ossl_ec_GF2m_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * poi
 			return -1;
 	}
 #endif
-
 	BN_CTX_start(ctx);
 	y2 = BN_CTX_get(ctx);
 	lh = BN_CTX_get(ctx);
 	if(lh == NULL)
 		goto err;
-
 	/*-
 	 * We have a curve defined by a Weierstrass equation
 	 *      y^2 + x*y = x^3 + a*x^2 + b.

@@ -6,10 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "PDFDecoder.h"
-#include "PDFDecoderResultExtra.h"
-#include "ZXBigInteger.h"
-//#include "ZXTestSupport.h"
 
 namespace ZXing::Pdf417 {
 enum class Mode {

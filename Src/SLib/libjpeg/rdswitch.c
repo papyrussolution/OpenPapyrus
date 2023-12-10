@@ -227,8 +227,8 @@ bogus:
 		 * NOTE: for cjpeg's use, JPOOL_IMAGE is the right lifetime for this data,
 		 * but if you want to compress multiple images you'd want JPOOL_PERMANENT.
 		 */
-		scanptr = static_cast<jpeg_scan_info *>((*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, scanno * SIZEOF(jpeg_scan_info)));
-		MEMCOPY(scanptr, scans, scanno * SIZEOF(jpeg_scan_info));
+		scanptr = static_cast<jpeg_scan_info *>((*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, scanno * sizeof(jpeg_scan_info)));
+		memcpy(scanptr, scans, scanno * sizeof(jpeg_scan_info));
 		cinfo->scan_info = scanptr;
 		cinfo->num_scans = scanno;
 	}

@@ -222,13 +222,14 @@ void ImGui::Text(const char* fmt, ...)
 	va_end(args);
 }
 
-void ImGui::TextV(const char* fmt, va_list args)
+void ImGui::TextV(const char * pFmt, va_list args)
 {
 	ImGuiWindow * window = GetCurrentWindow();
-	if(!window->SkipItems) {
-		const char* text, * text_end;
-		ImFormatStringToTempBufferV(&text, &text_end, fmt, args);
-		TextEx(text, text_end, ImGuiTextFlags_NoWidthForLargeClippedText);
+	if(!window->SkipItems && pFmt) {
+		const char * p_text = 0;
+		const char * p_text_end = 0;
+		ImFormatStringToTempBufferV(&p_text, &p_text_end, pFmt, args);
+		TextEx(p_text, p_text_end, ImGuiTextFlags_NoWidthForLargeClippedText);
 	}
 }
 
@@ -3781,13 +3782,13 @@ void ImGui::InputTextDeactivateHook(ImGuiID id)
 // (FIXME: Rather confusing and messy function, among the worse part of our codebase, expecting to rewrite a V2 at some point.. Partly because we are
 //  doing UTF8 > U16 > UTF8 conversions on the go to easily interface with stb_textedit. Ideally should stay in UTF-8 all the time. See https://github.com/nothings/stb/issues/188)
 //
-bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf_size,
+bool ImGui::InputTextEx(const char* label, const char* hint, char * pBuf, int bufSize,
     const ImVec2 & size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* callback_user_data)
 {
 	ImGuiWindow * window = GetCurrentWindow();
 	if(window->SkipItems)
 		return false;
-	assert(buf != NULL && buf_size >= 0);
+	assert(pBuf && bufSize >= 0);
 	assert(!((flags & ImGuiInputTextFlags_CallbackHistory) && (flags & ImGuiInputTextFlags_Multiline)));    // Can't use both together (they both use up/down keys)
 	assert(!((flags & ImGuiInputTextFlags_CallbackCompletion) && (flags & ImGuiInputTextFlags_AllowTabInput))); // Can't use both together (they both use tab key)
 	ImGuiContext & g = *GImGui;
@@ -3809,11 +3810,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
 	const ImVec2 frame_size = CalcItemSize(size_arg, CalcItemWidth(), (is_multiline ? g.FontSize * 8.0f : label_size.y) + style.FramePadding.y * 2.0f); // Arbitrary default of 8 lines high for multi-line
 	const ImVec2 total_size = ImVec2(frame_size.x + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), frame_size.y);
-
 	const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + frame_size);
 	const ImRect total_bb(frame_bb.Min, frame_bb.Min + total_size);
-
-	ImGuiWindow* draw_window = window;
+	ImGuiWindow * draw_window = window;
 	ImVec2 inner_size = frame_size;
 	ImGuiItemStatusFlags item_status_flags = 0;
 	ImGuiLastItemData item_data_backup;
@@ -3879,22 +3878,22 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 		InputTextDeactivateHook(state->ID);
 		// Take a copy of the initial buffer value (both in original UTF-8 format and converted to wchar)
 		// From the moment we focused we are ignoring the content of 'buf' (unless we are in read-only mode)
-		const int buf_len = (int)strlen(buf);
+		const int buf_len = (int)strlen(pBuf);
 		state->InitialTextA.resize(buf_len + 1); // UTF-8. we use +1 to make sure that .Data is always pointing to at least an empty string.
-		memcpy(state->InitialTextA.Data, buf, buf_len + 1);
+		memcpy(state->InitialTextA.Data, pBuf, buf_len + 1);
 		// Preserve cursor position and undo/redo stack if we come back to same widget
 		// FIXME: Since we reworked this on 2022/06, may want to differenciate recycle_cursor vs recycle_undostate?
 		bool recycle_state = (state->ID == id && !init_changed_specs);
-		if(recycle_state && (state->CurLenA != buf_len || (state->TextAIsValid && strncmp(state->TextA.Data, buf, buf_len) != 0)))
+		if(recycle_state && (state->CurLenA != buf_len || (state->TextAIsValid && strncmp(state->TextA.Data, pBuf, buf_len) != 0)))
 			recycle_state = false;
 		// Start edition
 		const char* buf_end = NULL;
 		state->ID = id;
-		state->TextW.resize(buf_size + 1);  // wchar count <= UTF-8 count. we use +1 to make sure that .Data is always pointing to at least an empty string.
+		state->TextW.resize(bufSize + 1);  // wchar count <= UTF-8 count. we use +1 to make sure that .Data is always pointing to at least an empty string.
 		state->TextA.resize(0);
 		state->TextAIsValid = false;        // TextA is not valid yet (we will display buf until then)
-		state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, buf_size, buf, NULL, &buf_end);
-		state->CurLenA = (int)(buf_end - buf); // We can't get the result from ImStrncpy() above because it is not UTF-8 aware. Here we'll cut off malformed UTF-8.
+		state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, bufSize, pBuf, NULL, &buf_end);
+		state->CurLenA = (int)(buf_end - pBuf); // We can't get the result from ImStrncpy() above because it is not UTF-8 aware. Here we'll cut off malformed UTF-8.
 		if(recycle_state) {
 			// Recycle existing cursor/selection/undo stack but clamp position
 			// Note a single mouse click will override the cursor/position immediately by calling stb_textedit_click handler.
@@ -3940,36 +3939,30 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 		if(flags & (ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_AllowTabInput)) // Disable keyboard tabbing out as we will use the \t character.
 			SetShortcutRouting(ImGuiKey_Tab, id);
 	}
-
 	// We have an edge case if ActiveId was set through another widget (e.g. widget being swapped), clear id immediately (don't wait until the end of the function)
 	if(g.ActiveId == id && state == NULL)
 		ClearActiveID();
-
 	// Release focus when we click outside
 	if(g.ActiveId == id && io.MouseClicked[0] && !init_state && !init_make_active) //-V560
 		clear_active_id = true;
-
 	// Lock the decision of whether we are going to take the path displaying the cursor or selection
 	bool render_cursor = (g.ActiveId == id) || (state && user_scroll_active);
 	bool render_selection = state && (state->HasSelection() || select_all) && (RENDER_SELECTION_WHEN_INACTIVE || render_cursor);
 	bool value_changed = false;
 	bool validated = false;
-
 	// When read-only we always use the live data passed to the function
 	// FIXME-OPT: Because our selection/cursor code currently needs the wide text we need to convert it when active, which is not ideal :(
 	if(is_readonly && state != NULL && (render_cursor || render_selection)) {
 		const char* buf_end = NULL;
-		state->TextW.resize(buf_size + 1);
-		state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, buf, NULL, &buf_end);
-		state->CurLenA = (int)(buf_end - buf);
+		state->TextW.resize(bufSize + 1);
+		state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, pBuf, NULL, &buf_end);
+		state->CurLenA = (int)(buf_end - pBuf);
 		state->CursorClamp();
 		render_selection &= state->HasSelection();
 	}
-
 	// Select the buffer to render.
 	const bool buf_display_from_state = (render_cursor || render_selection || g.ActiveId == id) && !is_readonly && state && state->TextAIsValid;
-	const bool is_displaying_hint = (hint != NULL && (buf_display_from_state ? state->TextA.Data : buf)[0] == 0);
-
+	const bool is_displaying_hint = (hint && (buf_display_from_state ? state->TextA.Data : pBuf)[0] == 0);
 	// Password pushes a temporary font with only a fallback glyph
 	if(is_password && !is_displaying_hint) {
 		const ImFontGlyph* glyph = g.Font->FindGlyph('*');
@@ -3984,25 +3977,21 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 		assert(password_font->Glyphs.empty() && password_font->IndexAdvanceX.empty() && password_font->IndexLookup.empty());
 		PushFont(password_font);
 	}
-
 	// Process mouse inputs and character inputs
 	int backup_current_text_length = 0;
 	if(g.ActiveId == id) {
 		assert(state != NULL);
 		backup_current_text_length = state->CurLenA;
 		state->Edited = false;
-		state->BufCapacityA = buf_size;
+		state->BufCapacityA = bufSize;
 		state->Flags = flags;
-
 		// Although we are active we don't prevent mouse from hovering other elements unless we are interacting right now with the widget.
 		// Down the line we should have a cleaner library-wide concept of Selected vs Active.
 		g.ActiveIdAllowOverlap = !io.MouseDown[0];
 		g.WantTextInputNextFrame = 1;
-
 		// Edit in progress
 		const float mouse_x = (io.MousePos.x - frame_bb.Min.x - style.FramePadding.x) + state->ScrollX;
 		const float mouse_y = (is_multiline ? (io.MousePos.y - draw_window->DC.CursorPos.y) : (g.FontSize * 0.5f));
-
 		if(select_all) {
 			state->SelectAll();
 			state->SelectedAllMouseLock = true;
@@ -4097,24 +4086,19 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 		// Using Shortcut() with ImGuiInputFlags_RouteFocused (default policy) to allow routing operations for other code (e.g. calling window trying to use CTRL+A and CTRL+B: formet would be handled by InputText)
 		// Otherwise we could simply assume that we own the keys as we are active.
 		const ImGuiInputFlags f_repeat = ImGuiInputFlags_Repeat;
-		const bool is_cut   =
-		    (Shortcut(ImGuiMod_Shortcut | ImGuiKey_X, id,
+		const bool is_cut   = (Shortcut(ImGuiMod_Shortcut | ImGuiKey_X, id,
 		    f_repeat) || Shortcut(ImGuiMod_Shift | ImGuiKey_Delete, id, f_repeat)) && !is_readonly && !is_password && (!is_multiline || state->HasSelection());
-		const bool is_copy  =
-		    (Shortcut(ImGuiMod_Shortcut | ImGuiKey_C, id) || Shortcut(ImGuiMod_Ctrl | ImGuiKey_Insert, id))  && !is_password && (!is_multiline || state->HasSelection());
+		const bool is_copy  = (Shortcut(ImGuiMod_Shortcut | ImGuiKey_C, id) || Shortcut(ImGuiMod_Ctrl | ImGuiKey_Insert, id))  && !is_password && (!is_multiline || state->HasSelection());
 		const bool is_paste = (Shortcut(ImGuiMod_Shortcut | ImGuiKey_V, id, f_repeat) || Shortcut(ImGuiMod_Shift | ImGuiKey_Insert, id, f_repeat)) && !is_readonly;
 		const bool is_undo  = (Shortcut(ImGuiMod_Shortcut | ImGuiKey_Z, id, f_repeat)) && !is_readonly && is_undoable;
-		const bool is_redo =
-		    (Shortcut(ImGuiMod_Shortcut | ImGuiKey_Y, id,
+		const bool is_redo = (Shortcut(ImGuiMod_Shortcut | ImGuiKey_Y, id,
 		    f_repeat) || (is_osx && Shortcut(ImGuiMod_Shortcut | ImGuiMod_Shift | ImGuiKey_Z, id, f_repeat))) && !is_readonly && is_undoable;
 		const bool is_select_all = Shortcut(ImGuiMod_Shortcut | ImGuiKey_A, id);
-
 		// We allow validate/cancel with Nav source (gamepad) to makes it easier to undo an accidental NavInput press with no keyboard wired, but otherwise it isn't very useful.
 		const bool nav_gamepad_active = (io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 && (io.BackendFlags & ImGuiBackendFlags_HasGamepad) != 0;
 		const bool is_enter_pressed = IsKeyPressed(ImGuiKey_Enter, true) || IsKeyPressed(ImGuiKey_KeypadEnter, true);
 		const bool is_gamepad_validate = nav_gamepad_active && (IsKeyPressed(ImGuiKey_NavGamepadActivate, false) || IsKeyPressed(ImGuiKey_NavGamepadInput, false));
 		const bool is_cancel = Shortcut(ImGuiKey_Escape, id, f_repeat) || (nav_gamepad_active && Shortcut(ImGuiKey_NavGamepadCancel, id, f_repeat));
-
 		// FIXME: Should use more Shortcut() and reduce IsKeyPressed()+SetKeyOwner(), but requires modifiers combination to be taken account of.
 		if(IsKeyPressed(ImGuiKey_LeftArrow)) {
 			state->OnKeyPressed((is_startend_key_down ? STB_TEXTEDIT_K_LINESTART : is_wordmove_key_down ? STB_TEXTEDIT_K_WORDLEFT : STB_TEXTEDIT_K_LEFT) | k_mask);
@@ -4241,7 +4225,6 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 		// Update render selection flag after events have been handled, so selection highlight can be displayed during the same frame.
 		render_selection |= state->HasSelection() && (RENDER_SELECTION_WHEN_INACTIVE || render_cursor);
 	}
-
 	// Process callbacks and apply result back to user's buffer.
 	const char* apply_new_text = NULL;
 	int apply_new_text_length = 0;
@@ -4255,7 +4238,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 				STB_TEXTEDIT_CHARTYPE empty_string;
 				stb_textedit_replace(state, &state->Stb, &empty_string, 0);
 			}
-			else if(strcmp(buf, state->InitialTextA.Data) != 0) {
+			else if(strcmp(pBuf, state->InitialTextA.Data) != 0) {
 				// Restore initial value. Only return true if restoring to the initial value changes the current buffer contents.
 				// Push records into the undo stack so we can CTRL+Z the revert operation itself
 				apply_new_text = state->InitialTextA.Data;
@@ -4317,8 +4300,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 					callback_data.EventFlag = event_flag;
 					callback_data.Flags = flags;
 					callback_data.UserData = callback_user_data;
-
-					char* callback_buf = is_readonly ? buf : state->TextA.Data;
+					char * callback_buf = is_readonly ? pBuf : state->TextA.Data;
 					callback_data.EventKey = event_key;
 					callback_data.Buf = callback_buf;
 					callback_data.BufTextLen = state->CurLenA;
@@ -4330,12 +4312,10 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 					const int utf8_cursor_pos = callback_data.CursorPos = ImTextCountUtf8BytesFromStr(text, text + state->Stb.cursor);
 					const int utf8_selection_start = callback_data.SelectionStart = ImTextCountUtf8BytesFromStr(text, text + state->Stb.select_start);
 					const int utf8_selection_end = callback_data.SelectionEnd = ImTextCountUtf8BytesFromStr(text, text + state->Stb.select_end);
-
 					// Call user code
 					callback(&callback_data);
-
 					// Read back what user may have modified
-					callback_buf = is_readonly ? buf : state->TextA.Data; // Pointer may have been invalidated by a resize callback
+					callback_buf = is_readonly ? pBuf : state->TextA.Data; // Pointer may have been invalidated by a resize callback
 					assert(callback_data.Buf == callback_buf); // Invalid to modify those fields
 					assert(callback_data.BufSize == state->BufCapacityA);
 					assert(callback_data.Flags == flags);
@@ -4364,28 +4344,26 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 					}
 				}
 			}
-
 			// Will copy result string if modified
-			if(!is_readonly && strcmp(state->TextA.Data, buf) != 0) {
+			if(!is_readonly && strcmp(state->TextA.Data, pBuf) != 0) {
 				apply_new_text = state->TextA.Data;
 				apply_new_text_length = state->CurLenA;
 				value_changed = true;
 			}
 		}
 	}
-
 	// Handle reapplying final data on deactivation (see InputTextDeactivateHook() for details)
 	if(g.InputTextDeactivatedState.ID == id) {
 		if(g.ActiveId != id && IsItemDeactivatedAfterEdit() && !is_readonly) {
 			apply_new_text = g.InputTextDeactivatedState.TextA.Data;
 			apply_new_text_length = g.InputTextDeactivatedState.TextA.Size - 1;
-			value_changed |= (strcmp(g.InputTextDeactivatedState.TextA.Data, buf) != 0);
+			value_changed |= (strcmp(g.InputTextDeactivatedState.TextA.Data, pBuf) != 0);
 			//IMGUI_DEBUG_LOG("InputText(): apply Deactivated data for 0x%08X: \"%.*s\".\n", id, apply_new_text_length, apply_new_text);
 		}
 		g.InputTextDeactivatedState.ID = 0;
 	}
 	// Copy result to user buffer. This can currently only happen when (g.ActiveId == id)
-	if(apply_new_text != NULL) {
+	if(apply_new_text) {
 		// We cannot test for 'backup_current_text_length != apply_new_text_length' here because we have no guarantee that the size
 		// of our owned buffer matches the size of the string object held by the user, and by design we allow InputText() to be used
 		// without any storage on user's side.
@@ -4395,42 +4373,38 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * buf, int buf
 			callback_data.Ctx = &g;
 			callback_data.EventFlag = ImGuiInputTextFlags_CallbackResize;
 			callback_data.Flags = flags;
-			callback_data.Buf = buf;
+			callback_data.Buf = pBuf;
 			callback_data.BufTextLen = apply_new_text_length;
-			callback_data.BufSize = smax(buf_size, apply_new_text_length + 1);
+			callback_data.BufSize = smax(bufSize, apply_new_text_length + 1);
 			callback_data.UserData = callback_user_data;
 			callback(&callback_data);
-			buf = callback_data.Buf;
-			buf_size = callback_data.BufSize;
-			apply_new_text_length = smin(callback_data.BufTextLen, buf_size - 1);
-			assert(apply_new_text_length <= buf_size);
+			pBuf = callback_data.Buf;
+			bufSize = callback_data.BufSize;
+			apply_new_text_length = smin(callback_data.BufTextLen, bufSize-1);
+			assert(apply_new_text_length <= bufSize);
 		}
 		//IMGUI_DEBUG_PRINT("InputText(\"%s\"): apply_new_text length %d\n", label, apply_new_text_length);
 
 		// If the underlying buffer resize was denied or not carried to the next frame, apply_new_text_length+1 may be >= buf_size.
-		ImStrncpy(buf, apply_new_text, smin(apply_new_text_length + 1, buf_size));
+		ImStrncpy(pBuf, apply_new_text, smin(apply_new_text_length + 1, bufSize));
 	}
-
 	// Release active ID at the end of the function (so e.g. pressing Return still does a final application of the value)
 	if(clear_active_id && g.ActiveId == id)
 		ClearActiveID();
-
 	// Render frame
 	if(!is_multiline) {
 		RenderNavHighlight(frame_bb, id);
 		RenderFrame(frame_bb.Min, frame_bb.Max, GetColorU32(ImGuiCol_FrameBg), true, style.FrameRounding);
 	}
-
 	const ImVec4 clip_rect(frame_bb.Min.x, frame_bb.Min.y, frame_bb.Min.x + inner_size.x, frame_bb.Min.y + inner_size.y); // Not using frame_bb.Max because we have adjusted size
 	ImVec2 draw_pos = is_multiline ? draw_window->DC.CursorPos : frame_bb.Min + style.FramePadding;
 	ImVec2 text_size(0.0f, 0.0f);
-
 	// Set upper limit of single-line InputTextEx() at 2 million characters strings. The current pathological worst case is a long line
 	// without any carriage return, which would makes ImFont::RenderText() reserve too many vertices and probably crash. Avoid it altogether.
 	// Note that we only use this limit on single-line InputText(), so a pathologically large line on a InputTextMultiline() would still crash.
 	const int buf_display_max_length = 2 * 1024 * 1024;
-	const char* buf_display = buf_display_from_state ? state->TextA.Data : buf; //-V595
-	const char* buf_display_end = NULL; // We have specialized paths below for setting the length
+	const char * buf_display = buf_display_from_state ? state->TextA.Data : pBuf; //-V595
+	const char * buf_display_end = NULL; // We have specialized paths below for setting the length
 	if(is_displaying_hint) {
 		buf_display = hint;
 		buf_display_end = hint + strlen(hint);

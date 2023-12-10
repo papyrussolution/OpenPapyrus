@@ -2695,46 +2695,31 @@ void Test::Run() {
 	// GTEST_SKIP().
 	if(!HasFatalFailure() && !IsSkipped()) {
 		impl->os_stack_trace_getter()->UponLeavingGTest();
-		internal::HandleExceptionsInMethodIfSupported(this, &Test::TestBody,
-		    "the test body");
+		internal::HandleExceptionsInMethodIfSupported(this, &Test::TestBody, "the test body");
 	}
-
 	// However, we want to clean up as much as possible.  Hence we will
 	// always call TearDown(), even if SetUp() or the test body has
 	// failed.
 	impl->os_stack_trace_getter()->UponLeavingGTest();
-	internal::HandleExceptionsInMethodIfSupported(this, &Test::TearDown,
-	    "TearDown()");
+	internal::HandleExceptionsInMethodIfSupported(this, &Test::TearDown, "TearDown()");
 }
 
 // Returns true if and only if the current test has a fatal failure.
-bool Test::HasFatalFailure() {
-	return internal::GetUnitTestImpl()->current_test_result()->HasFatalFailure();
-}
+bool Test::HasFatalFailure() { return internal::GetUnitTestImpl()->current_test_result()->HasFatalFailure(); }
 
 // Returns true if and only if the current test has a non-fatal failure.
-bool Test::HasNonfatalFailure() {
-	return internal::GetUnitTestImpl()
-	       ->current_test_result()
-	       ->HasNonfatalFailure();
-}
+bool Test::HasNonfatalFailure() { return internal::GetUnitTestImpl()->current_test_result()->HasNonfatalFailure(); }
 
 // Returns true if and only if the current test was skipped.
-bool Test::IsSkipped() {
-	return internal::GetUnitTestImpl()->current_test_result()->Skipped();
-}
+bool Test::IsSkipped() { return internal::GetUnitTestImpl()->current_test_result()->Skipped(); }
 
 // class TestInfo
 
 // Constructs a TestInfo object. It assumes ownership of the test factory
 // object.
-TestInfo::TestInfo(const std::string& a_test_suite_name,
-    const std::string& a_name, const char* a_type_param,
-    const char* a_value_param,
-    internal::CodeLocation a_code_location,
-    internal::TypeId fixture_class_id,
-    internal::TestFactoryBase* factory)
-	: test_suite_name_(a_test_suite_name),
+TestInfo::TestInfo(const std::string& a_test_suite_name, const std::string& a_name, const char* a_type_param,
+    const char* a_value_param, internal::CodeLocation a_code_location, internal::TypeId fixture_class_id,
+    internal::TestFactoryBase* factory) : test_suite_name_(a_test_suite_name),
 	// begin()/end() is MSVC 17.3.3 ASAN crash workaround (GitHub issue #3997)
 	name_(a_name.begin(), a_name.end()),
 	type_param_(a_type_param ? new std::string(a_type_param) : nullptr),
@@ -2746,11 +2731,13 @@ TestInfo::TestInfo(const std::string& a_test_suite_name,
 	matches_filter_(false),
 	is_in_another_shard_(false),
 	factory_(factory),
-	result_() {
+	result_() 
+{
 }
 
 // Destructs a TestInfo object.
-TestInfo::~TestInfo() {
+TestInfo::~TestInfo() 
+{
 	delete factory_;
 }
 

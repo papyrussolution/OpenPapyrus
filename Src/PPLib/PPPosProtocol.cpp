@@ -1835,6 +1835,7 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 				switch(gt_rec.ChZnProdType) {
 					case GTCHZNPT_FUR: p_chzn_type = "fur"; break;
 					case GTCHZNPT_TOBACCO: p_chzn_type = "tobacco"; break;
+					case GTCHZNPT_ALTTOBACCO: p_chzn_type = "alttobacco"; break; // @v11.9.0
 					case GTCHZNPT_SHOE: p_chzn_type = "shoe"; break;
 					case GTCHZNPT_MEDICINE: p_chzn_type = "medicine"; break;
 					case GTCHZNPT_CARTIRE: p_chzn_type = "cartire"; break; // @v10.9.7
@@ -3191,6 +3192,8 @@ int PPPosProtocol::EndElement(const char * pName)
 						chznprodtype = GTCHZNPT_FUR;
 					else if(RdB.TagValue.IsEqiAscii("tobacco"))
 						chznprodtype = GTCHZNPT_TOBACCO;
+					else if(RdB.TagValue.IsEqiAscii("alttobacco")) // @v11.9.0
+						chznprodtype = GTCHZNPT_ALTTOBACCO;
 					else if(RdB.TagValue.IsEqiAscii("shoe"))
 						chznprodtype = GTCHZNPT_SHOE;
 					else if(RdB.TagValue.IsEqiAscii("medicine"))

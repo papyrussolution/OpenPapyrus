@@ -433,11 +433,11 @@ void  jinit_forward_dct(j_compress_ptr cinfo)
 {
 	int ci;
 	jpeg_component_info * compptr;
-	my_fdct_ptr fdct = (my_fdct_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_fdct_controller));
+	my_fdct_ptr fdct = (my_fdct_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(my_fdct_controller));
 	cinfo->fdct = &fdct->pub;
 	fdct->pub.start_pass = start_pass_fdctmgr;
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 		// Allocate a divisor table for each component 
-		compptr->dct_table = (*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(divisor_table));
+		compptr->dct_table = (*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(divisor_table));
 	}
 }

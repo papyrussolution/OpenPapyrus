@@ -1,79 +1,73 @@
 /*
-* Copyright 2017 Huy Cuong Nguyen
-* Copyright 2006 Jeremias Maerki.
-*/
+ * Copyright 2017 Huy Cuong Nguyen
+ * Copyright 2006 Jeremias Maerki.
+ */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "ByteArray.h"
-#include "CharacterSet.h"
-#include "ZXAlgorithms.h"
-#include "datamatrix/DMHighLevelEncoder.h"
-#include "datamatrix/DMSymbolInfo.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
 
 namespace ZXing {
-	namespace DataMatrix {
-		void OverrideSymbolSet(const SymbolInfo* symbols, size_t count);
-		void UseDefaultSymbolSet();
-	}
+namespace DataMatrix {
+void OverrideSymbolSet(const SymbolInfo* symbols, size_t count);
+void UseDefaultSymbolSet();
+}
 }
 
 using namespace ZXing;
 
+//private static void useTestSymbols() {
+//  SymbolInfo.overrideSymbolSet(TEST_SYMBOLS);
+//}
 
-  //private static void useTestSymbols() {
-  //  SymbolInfo.overrideSymbolSet(TEST_SYMBOLS);
-  //}
-
-  //private static void resetSymbols() {
-  //  SymbolInfo.overrideSymbolSet(SymbolInfo.PROD_SYMBOLS);
-  //}
+//private static void resetSymbols() {
+//  SymbolInfo.overrideSymbolSet(SymbolInfo.PROD_SYMBOLS);
+//}
 
 namespace {
+static DataMatrix::SymbolInfo TEST_SYMBOLS[] = {
+	{ false, 3, 5, 8, 8, 1 },
+	{ false, 5, 7, 10, 10, 1 },
+	{ true, 5, 7, 16, 6, 1 },
+	{ false, 8, 10, 12, 12, 1 },
+	{ true, 10, 11, 14, 6, 2 },
+	{ false, 13, 0, 0, 0, 1 },
+	{ false, 77, 0, 0, 0, 1 },
+	//The last entries are fake entries to test special conditions with C40 encoding
+};
 
-	static DataMatrix::SymbolInfo TEST_SYMBOLS[] = {
-		{ false, 3, 5, 8, 8, 1 },
-		{ false, 5, 7, 10, 10, 1 },
-		{ true, 5, 7, 16, 6, 1 },
-		{ false, 8, 10, 12, 12, 1 },
-		{ true, 10, 11, 14, 6, 2 },
-		{ false, 13, 0, 0, 0, 1 },
-		{ false, 77, 0, 0, 0, 1 },
-		//The last entries are fake entries to test special conditions with C40 encoding
-	};
-
-	/**
-	* Convert a string of char codewords into a different string which lists each character
-	* using its decimal value.
-	*
-	* @param codewords the codewords
-	* @return the visualized codewords
-	*/
-	static std::string Visualize(const ByteArray& codewords) {
-		std::stringstream buf;
-		for (int i = 0; i < Size(codewords); i++) {
-			if (i > 0) {
-				buf << ' ';
-			}
-			buf << (int)codewords[i];
+/**
+ * Convert a string of char codewords into a different string which lists each character
+ * using its decimal value.
+ *
+ * @param codewords the codewords
+ * @return the visualized codewords
+ */
+static std::string Visualize(const ByteArray& codewords) {
+	std::stringstream buf;
+	for(int i = 0; i < Size(codewords); i++) {
+		if(i > 0) {
+			buf << ' ';
 		}
-		return buf.str();
+		buf << (int)codewords[i];
 	}
+	return buf.str();
+}
 
-	std::string Encode(const std::wstring& text) {
-		return Visualize(DataMatrix::Encode(text));
-	}
+std::string Encode(const std::wstring& text) {
+	return Visualize(DataMatrix::Encode(text));
+}
 
-	std::wstring CreateBinaryMessage(int len) {
-		std::wstring buf;
-		buf.append(L"\xAB\xE4\xF6\xFC\xE9\xE0\xE1-");
-		for (int i = 0; i < len - 9; i++) {
-			buf.push_back(L'\xB7');
-		}
-		buf.push_back(L'\xBB');
-		return buf;
+std::wstring CreateBinaryMessage(int len) {
+	std::wstring buf;
+	buf.append(L"\xAB\xE4\xF6\xFC\xE9\xE0\xE1-");
+	for(int i = 0; i < len - 9; i++) {
+		buf.push_back(L'\xB7');
 	}
+	buf.push_back(L'\xBB');
+	return buf;
+}
 }
 
 TEST(DMHighLevelEncodeTest, ASCIIEncodation)
@@ -87,7 +81,6 @@ TEST(DMHighLevelEncodeTest, ASCIIEncodation)
 	visualized = Encode(L"30Q324343430794<OQQ");
 	EXPECT_EQ(visualized, "160 82 162 173 173 173 137 224 61 80 82 82");
 }
-
 
 TEST(DMHighLevelEncodeTest, C40EncodationBasic1)
 {
@@ -163,7 +156,6 @@ TEST(DMHighLevelEncodeTest, C40EncodationSpecialCases1)
 }
 
 TEST(DMHighLevelEncodeTest, C40EncodationSpecialCases2) {
-
 	std::string visualized = Encode(L"AIMAIMAIMAIMAIMAIMAI");
 	EXPECT_EQ(visualized, "230 91 11 91 11 91 11 91 11 91 11 91 11 254 66 74");
 	//available > 2, rest = 2 --> unlatch and encode as ASCII
@@ -236,8 +228,8 @@ TEST(DMHighLevelEncodeTest, EDIFACTEncodation)
 	// Checking temporary unlatch from EDIFACT
 	visualized = Encode(L".XXX.XXX.XXX.XXX.XXX.XXX.\xFCXX.XXX.XXX.XXX.XXX.XXX.XXX");
 	EXPECT_EQ(visualized, "240 185 134 24 185 134 24 185 134 24 185 134 24 185 134 24 185 134 24"
-						  " 124 47 235 125 240" //<-- this is the temporary unlatch
-						  " 97 139 152 97 139 152 97 139 152 97 139 152 97 139 152 97 139 152 89 89");
+	    " 124 47 235 125 240"                                       //<-- this is the temporary unlatch
+	    " 97 139 152 97 139 152 97 139 152 97 139 152 97 139 152 97 139 152 89 89");
 }
 
 TEST(DMHighLevelEncodeTest, Base256Encodation)
@@ -258,7 +250,7 @@ TEST(DMHighLevelEncodeTest, Base256Encodation)
 
 	visualized = Encode(L"\xAB\xE4\xF6\xFC\xE9\xBB 23\xA3 1234567890123456789");
 	EXPECT_EQ(visualized, "231 55 108 59 226 126 1 104 99 10 161 167 185 142 164 186 208"
-						  " 220 142 164 186 208 58 129 59 209 104 254 150 45");
+	    " 220 142 164 186 208 58 129 59 209 104 254 150 45");
 
 	visualized = Encode(CreateBinaryMessage(20));
 	EXPECT_EQ(visualized, "231 44 108 59 226 126 1 141 36 5 37 187 80 230 123 17 166 60 210 103 253 150");
@@ -333,7 +325,7 @@ TEST(DMHighLevelEncodeTest, Bug3048549)
 
 TEST(DMHighLevelEncodeTest, MacroCharacters)
 {
-	std::string visualized = Encode(L"[)>\x1E""05\x1D""5555\x1C""6666\x1E\x04");
+	std::string visualized = Encode(L"[)>\x1E" "05\x1D" "5555\x1C" "6666\x1E\x04");
 	//EXPECT_EQ(visualized, "92 42 63 31 135 30 185 185 29 196 196 31 5 129 87 237");
 	EXPECT_EQ(visualized, "236 185 185 29 196 196 129 56");
 }
@@ -353,7 +345,7 @@ TEST(DMHighLevelEncodeTest, EDIFACTWithEODBug)
 }
 
 //  @Ignore
-//  @Test  
+//  @Test
 //  public void testDataURL() {
 //
 //    byte[] data = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A,
@@ -373,7 +365,7 @@ TEST(DMHighLevelEncodeTest, EDIFACTWithEODBug)
 //    //DecodeHighLevel.decode(encoded);
 //    return visualize(encoded);
 //  }
-//  
+//
 //  /**
 //   * Convert a string of char codewords into a different string which lists each character
 //   * using its decimal value.

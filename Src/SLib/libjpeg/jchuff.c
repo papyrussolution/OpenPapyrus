@@ -150,7 +150,7 @@ static void jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tbln
 		ERREXIT1(cinfo, JERR_NO_HUFF_TABLE, tblno);
 	/* Allocate a workspace if we haven't already done so. */
 	if(*pdtbl == NULL)
-		*pdtbl = (c_derived_tbl*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(c_derived_tbl));
+		*pdtbl = (c_derived_tbl*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(c_derived_tbl));
 	dtbl = *pdtbl;
 	/* Figure C.1: make table of Huffman code length for each symbol */
 	p = 0;
@@ -188,7 +188,7 @@ static void jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tbln
 	 * this lets us detect duplicate VAL entries here, and later
 	 * allows emit_bits to detect any attempt to emit such symbols.
 	 */
-	memzero(dtbl->ehufsi, SIZEOF(dtbl->ehufsi));
+	memzero(dtbl->ehufsi, sizeof(dtbl->ehufsi));
 	/* This is also a convenient place to check for out-of-range
 	 * and duplicated VAL entries.  We allow 0..255 for AC symbols
 	 * but only 0..15 for DC.  (We could constrain them further
@@ -1010,8 +1010,8 @@ static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long 
 	int p, i, j;
 	long v;
 	/* This algorithm is explained in section K.2 of the JPEG standard */
-	memzero(bits, SIZEOF(bits));
-	memzero(codesize, SIZEOF(codesize));
+	memzero(bits, sizeof(bits));
+	memzero(codesize, sizeof(codesize));
 	for(i = 0; i < 257; i++)
 		others[i] = -1; /* init links to empty */
 	freq[256] = 1; /* make sure 256 has a nonzero count */
@@ -1098,10 +1098,8 @@ static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long 
 	while(bits[i] == 0)     /* find largest codelength still in use */
 		i--;
 	bits[i]--;
-
 	/* Return final symbol counts (only for lengths 0..16) */
-	MEMCOPY(htbl->bits, bits, SIZEOF(htbl->bits));
-
+	memcpy(htbl->bits, bits, sizeof(htbl->bits));
 	/* Return a list of the symbols sorted by code length */
 	/* It's not real clear to me why we don't need to consider the codelength
 	 * changes made above, but the JPEG spec seems to think this works.
@@ -1134,8 +1132,8 @@ METHODDEF(void) finish_pass_gather(j_compress_ptr cinfo)
 	 */
 	if(cinfo->progressive_mode)
 		emit_eobrun(entropy); // Flush out buffered data (all we care about is counting the EOB symbol) 
-	memzero(did_dc, SIZEOF(did_dc));
-	memzero(did_ac, SIZEOF(did_ac));
+	memzero(did_dc, sizeof(did_dc));
+	memzero(did_ac, sizeof(did_ac));
 	for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 		compptr = cinfo->cur_comp_info[ci];
 		/* DC needs no table for refinement scan */
@@ -1187,7 +1185,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 			else {
 				entropy->pub.encode_mcu = encode_mcu_AC_refine;
 				// AC refinement needs a correction bit buffer 
-				SETIFZ(entropy->bit_buffer, (char *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, MAX_CORR_BITS * SIZEOF(char)));
+				SETIFZ(entropy->bit_buffer, (char *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, MAX_CORR_BITS * sizeof(char)));
 			}
 		}
 		/* Initialize AC stuff */
@@ -1210,8 +1208,8 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 				/* Allocate and zero the statistics tables */
 				/* Note that jpeg_gen_optimal_table expects 257 entries in each table! */
 				if(entropy->dc_count_ptrs[tbl] == NULL)
-					entropy->dc_count_ptrs[tbl] = (long *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 257 * SIZEOF(long));
-				memzero(entropy->dc_count_ptrs[tbl], 257 * SIZEOF(long));
+					entropy->dc_count_ptrs[tbl] = (long *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 257 * sizeof(long));
+				memzero(entropy->dc_count_ptrs[tbl], 257 * sizeof(long));
 			}
 			else {
 				/* Compute derived values for Huffman tables */
@@ -1227,8 +1225,8 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 				if(tbl < 0 || tbl >= NUM_HUFF_TBLS)
 					ERREXIT1(cinfo, JERR_NO_HUFF_TABLE, tbl);
 				if(entropy->ac_count_ptrs[tbl] == NULL)
-					entropy->ac_count_ptrs[tbl] = (long *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 257 * SIZEOF(long));
-				memzero(entropy->ac_count_ptrs[tbl], 257 * SIZEOF(long));
+					entropy->ac_count_ptrs[tbl] = (long *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, 257 * sizeof(long));
+				memzero(entropy->ac_count_ptrs[tbl], 257 * sizeof(long));
 			}
 			else {
 				jpeg_make_c_derived_tbl(cinfo, FALSE, tbl, &entropy->ac_derived_tbls[tbl]);
@@ -1247,7 +1245,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 // 
 void  jinit_huff_encoder(j_compress_ptr cinfo)
 {
-	huff_entropy_ptr entropy = (huff_entropy_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(huff_entropy_encoder));
+	huff_entropy_ptr entropy = (huff_entropy_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(huff_entropy_encoder));
 	cinfo->entropy = &entropy->pub;
 	entropy->pub.start_pass = start_pass_huff;
 	// Mark tables unallocated 

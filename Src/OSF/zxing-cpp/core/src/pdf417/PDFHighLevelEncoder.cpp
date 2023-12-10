@@ -7,10 +7,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "PDFHighLevelEncoder.h"
-#include "PDFCompaction.h"
-#include "TextEncoder.h"
-#include "ZXBigInteger.h"
 
 namespace ZXing {
 namespace Pdf417 {

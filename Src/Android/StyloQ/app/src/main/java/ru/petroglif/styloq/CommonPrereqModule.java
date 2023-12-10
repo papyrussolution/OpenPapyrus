@@ -3686,4 +3686,48 @@ public class CommonPrereqModule {
 			return result;
 		}
 	}
+	String DocumentToText(Document doc)
+	{
+		String result = null;
+		if(doc != null && doc.H != null) {
+			result = "Document" + '\n' + "____________";
+			result += "No" + ": " + doc.H.Code + '\n';
+			result += "Date" + ": " + SLib.datetimefmt(doc.H.Time, SLib.DATF_ISO8601|SLib.DATF_CENTURY, SLib.TIMF_HMS) + '\n';
+			if(SLib.GetLen(doc.H.Memo) > 0)
+				result += "Memo" + ": " + doc.H.Memo + '\n';
+			if(doc.TiList != null && doc.TiList.size() > 0) {
+				result += "____________" + '\n';
+				for(int i = 0; i < doc.TiList.size(); i++) {
+					Document.TransferItem ti = doc.TiList.get(i);
+					if(ti != null) {
+						String qtty_text = null;
+						String goods_name = "";
+						int    uom_id = 0;
+						CommonPrereqModule.WareEntry ware_entry = FindGoodsItemByGoodsID(ti.GoodsID);
+						if(ware_entry != null && ware_entry.Item != null) {
+							goods_name = ware_entry.Item.Name;
+							uom_id = ware_entry.Item.UomID;
+						}
+						int mark_qtty = 0;
+						int item_qtty = (ti.Set != null) ? (int)ti.Set.Qtty : 0;
+						double item_price = (ti.Set != null) ? ti.Set.Price : 0.0;
+						if(ti.XcL != null) {
+							for(Document.LotExtCode iter : ti.XcL) {
+								mark_qtty++;
+							}
+						}
+						qtty_text = Integer.toString(mark_qtty) + "/" + Integer.toString(Math.abs(item_qtty));
+
+						result += '#' + Integer.toString(i+1) + " " + goods_name + '\n';
+						if(ti.Set != null) {
+							result += "    " + FormatQtty(ti.Set.Qtty, uom_id, false) + ' ' + 'x' + ' ' + FormatCurrency(item_price) + '\n';
+						}
+					}
+				}
+			}
+		}
+		else
+			result = "Document is empty";
+		return result;
+	}
 }

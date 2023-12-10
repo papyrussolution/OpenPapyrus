@@ -108,7 +108,7 @@
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,7 +137,7 @@
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -166,7 +166,7 @@
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -197,7 +197,7 @@
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <StructMemberAlignment>Default</StructMemberAlignment>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

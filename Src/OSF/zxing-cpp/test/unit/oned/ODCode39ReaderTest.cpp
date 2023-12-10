@@ -3,11 +3,8 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "oned/ODCode39Reader.h"
-
-#include "DecodeHints.h"
-#include "Result.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
 
 using namespace ZXing;

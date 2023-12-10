@@ -19,20 +19,16 @@
 
 /* Whether codepoint `u` valid Unicode */
 #define ZUECI_IS_VALID_UNICODE(u) ((u) < 0xD800 || ((u) >= 0xE000 && (u) <= 0x10FFFF))
-
 /* Put 4 bytes into `zueci_u32` */
-#define ZUECI_4BYTES_U32(c1, c2, c3, c4) \
-	(((zueci_u32)(c1) << 24) | ((zueci_u32)(c2) << 16) | ((zueci_u32)(c3) << 8) | (c4))
+#define ZUECI_4BYTES_U32(c1, c2, c3, c4) (((zueci_u32)(c1) << 24) | ((zueci_u32)(c2) << 16) | ((zueci_u32)(c3) << 8) | (c4))
 
 /* Utility funcs */
 
 /* Whether `eci` valid character set ECI */
-static int zueci_is_valid_eci(const int eci) {
-	return (eci <= 35 && eci >= 0 && eci != 14 && eci != 19) || eci == 170 || eci == 899;
-}
+static int zueci_is_valid_eci(const int eci) { return (eci <= 35 && eci >= 0 && eci != 14 && eci != 19) || eci == 170 || eci == 899; }
 
 /* State machine to decode UTF-8 to Unicode codepoints (state 0 means done, state 12 means error) */
-static unsigned int zueci_decode_utf8(unsigned int * p_state, zueci_u32 * p_u, const unsigned char byte) 
+static uint zueci_decode_utf8(uint * p_state, zueci_u32 * p_u, const uchar byte) 
 {
 	/*
 	    Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
@@ -51,7 +47,7 @@ static unsigned int zueci_decode_utf8(unsigned int * p_state, zueci_u32 * p_u, c
 	    See https://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.
 	 */
 
-	static const unsigned char utf8d[] = {
+	static const uchar utf8d[] = {
 		/* The first part of the table maps bytes to character classes that
 		 * reduce the size of the transition table and create bitmasks. */
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -78,18 +74,15 @@ static unsigned int zueci_decode_utf8(unsigned int * p_state, zueci_u32 * p_u, c
 }
 
 #ifdef ZUECI_TEST /* Wrapper to make available for use by tests */
-ZUECI_INTERN unsigned int zueci_decode_utf8_test(unsigned int * p_state, zueci_u32 * p_u, const unsigned char byte) {
-	return zueci_decode_utf8(p_state, p_u, byte);
-}
-
+	ZUECI_INTERN uint zueci_decode_utf8_test(uint * p_state, zueci_u32 * p_u, const uchar byte) { return zueci_decode_utf8(p_state, p_u, byte); }
 #endif
 
 /* Whether string valid UTF-8 */
-static int zueci_is_valid_utf8(const unsigned char src[], const int len) 
+static int zueci_is_valid_utf8(const uchar src[], const int len) 
 {
-	unsigned int state = 0;
-	const unsigned char * s = src;
-	const unsigned char * const se = src + len;
+	uint state = 0;
+	const uchar * s = src;
+	const uchar * const se = src + len;
 	zueci_u32 u;
 	while(s < se) {
 		if(zueci_decode_utf8(&state, &u, *s++) == 12) {
@@ -101,26 +94,27 @@ static int zueci_is_valid_utf8(const unsigned char src[], const int len)
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* Convert Unicode codepoint `u` to UTF-8 `dest`, returning UTF-8 length */
-static int zueci_encode_utf8(const zueci_u32 u, unsigned char * dest) {
+static int zueci_encode_utf8(const zueci_u32 u, uchar * dest) 
+{
 	if(u < 0x80) {
-		dest[0] = (unsigned char)u;
+		dest[0] = (uchar)u;
 		return 1;
 	}
 	if(u < 0x800) {
-		dest[0] = (unsigned char)(0xC0 | (u >> 6));
-		dest[1] = (unsigned char)(0x80 | (u & 0x3F));
+		dest[0] = (uchar)(0xC0 | (u >> 6));
+		dest[1] = (uchar)(0x80 | (u & 0x3F));
 		return 2;
 	}
 	if(u < 0x10000) {
-		dest[0] = (unsigned char)(0xE0 | (u >> 12));
-		dest[1] = (unsigned char)(0x80 | ((u >> 6) & 0x3F));
-		dest[2] = (unsigned char)(0x80 | (u & 0x3F));
+		dest[0] = (uchar)(0xE0 | (u >> 12));
+		dest[1] = (uchar)(0x80 | ((u >> 6) & 0x3F));
+		dest[2] = (uchar)(0x80 | (u & 0x3F));
 		return 3;
 	}
-	dest[0] = (unsigned char)(0xF0 | (u >> 18));
-	dest[1] = (unsigned char)(0x80 | ((u >> 12) & 0x3F));
-	dest[2] = (unsigned char)(0x80 | ((u >> 6) & 0x3F));
-	dest[3] = (unsigned char)(0x80 | (u & 0x3F));
+	dest[0] = (uchar)(0xF0 | (u >> 18));
+	dest[1] = (uchar)(0x80 | ((u >> 12) & 0x3F));
+	dest[2] = (uchar)(0x80 | ((u >> 6) & 0x3F));
+	dest[3] = (uchar)(0x80 | (u & 0x3F));
 	return 4;
 }
 
@@ -128,11 +122,11 @@ static int zueci_encode_utf8(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Returns the number of times a character occurs in a string */
-static int zueci_chr_cnt(const unsigned char src[], const int len, const unsigned char c) {
+static int zueci_chr_cnt(const uchar src[], const int len, const uchar c) 
+{
 	int count = 0;
-	const unsigned char * const se = src + len;
-	const unsigned char * s = src;
-
+	const uchar * const se = src + len;
+	const uchar * s = src;
 	while(s < se) {
 		if(*s++ == c) {
 			count++;
@@ -142,11 +136,11 @@ static int zueci_chr_cnt(const unsigned char src[], const int len, const unsigne
 }
 
 /* Returns the number of chars in a string less than or equal to a character */
-static int zueci_chr_lte_cnt(const unsigned char src[], const int len, const unsigned char c) {
+static int zueci_chr_lte_cnt(const uchar src[], const int len, const uchar c) 
+{
 	int count = 0;
-	const unsigned char * const se = src + len;
-	const unsigned char * s = src;
-
+	const uchar * const se = src + len;
+	const uchar * s = src;
 	while(s < se) {
 		if(*s++ <= c) {
 			count++;
@@ -159,7 +153,8 @@ static int zueci_chr_lte_cnt(const unsigned char src[], const int len, const uns
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* Helper to return source increment on using replacement character */
-static int zueci_replacement_incr(const int eci, const unsigned char * src, const zueci_u32 len) {
+static int zueci_replacement_incr(const int eci, const uchar * src, const zueci_u32 len) 
+{
 	assert(len);
 	assert(eci != 26 && eci != 899); /* Dealt with as special cases */
 	if(len == 1) { /* Last char */
@@ -172,7 +167,7 @@ static int zueci_replacement_incr(const int eci, const unsigned char * src, cons
 		return 2;
 	}
 	if(eci == 34 || eci == 35) { /* UTF-32BE/LE */
-		return ZUECI_MIN(len, 4);
+		return MIN(len, 4);
 	}
 	if(eci == 32) { /* GB 18030 */
 		/* If have 4 bytes and match start range of 4-byter [81..E3][30..39] */
@@ -191,13 +186,13 @@ static int zueci_replacement_incr(const int eci, const unsigned char * src, cons
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECIs 0 and 2 (bottom half ASCII, top half IBM CP 437) */
-static int zueci_u_cp437(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_cp437(const zueci_u32 u, uchar * dest) 
+{
 	int s, e;
 	if(u < 0x80) {
-		*dest = (unsigned char)u;
+		*dest = (uchar)u;
 		return 1;
 	}
-
 	s = 0;
 	e = ZUECI_ASIZE(zueci_cp437_u_u) - 1;
 	while(s <= e) {
@@ -220,8 +215,8 @@ static int zueci_u_cp437(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECIs 0 and 2 ASCII/CP 437 to Unicode */
-static int zueci_cp437_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
-	const unsigned char c = *src;
+static int zueci_cp437_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) {
+	const uchar c = *src;
 	(void)len; (void)flags;
 	if(c < 0x80) {
 		*p_u = c;
@@ -235,24 +230,23 @@ static int zueci_cp437_u(const unsigned char * src, const zueci_u32 len, const u
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Base ISO/IEC 8859 routine to convert Unicode codepoint `u` */
-static int zueci_u_iso8859(const zueci_u32 u, const zueci_u16 * tab_s, const zueci_u16 * tab_u_u,
-    const unsigned char * tab_u_sb, int e, unsigned char * dest) {
+static int zueci_u_iso8859(const zueci_u32 u, const zueci_u16 * tab_s, const zueci_u16 * tab_u_u, const uchar * tab_u_sb, int e, uchar * dest) 
+{
 	int s;
 	if(u < 0xA0) {
 		if(u >= 0x80) { /* U+0080-9F fail */
 			return 0;
 		}
-		*dest = (unsigned char)u;
+		*dest = (uchar)u;
 		return 1;
 	}
 	if(u <= 0xFF) {
 		const zueci_u32 u2 = u - 0xA0;
 		if(tab_s[u2 >> 4] & ((zueci_u16)1 << (u2 & 0xF))) {
-			*dest = (unsigned char)u; /* Straight-thru */
+			*dest = (uchar)u; /* Straight-thru */
 			return 1;
 		}
 	}
-
 	s = 0;
 	while(s <= e) {
 		const int m = (s + e) >> 1;
@@ -274,9 +268,9 @@ static int zueci_u_iso8859(const zueci_u32 u, const zueci_u16 * tab_s, const zue
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* Base ISO/IEC 8859 routine to convert single-byte `c` */
-static int zueci_iso8859_u(const unsigned char c, const unsigned int flags, const zueci_u16 * tab_s,
+static int zueci_iso8859_u(const uchar c, const uint flags, const zueci_u16 * tab_s,
     const zueci_u16 * tab_u_u, const char * tab_sb_u, const int c2_max, zueci_u32 * p_u) {
-	unsigned char c2;
+	uchar c2;
 	int idx;
 	if(c < 0xA0) {
 		if(c >= 0x80 && !(flags & ZUECI_FLAG_SB_STRAIGHT_THRU)) { /* U+0080-9F fail unless straight-thru */
@@ -305,21 +299,20 @@ static int zueci_iso8859_u(const unsigned char c, const unsigned int flags, cons
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Base Windows-125x routine to convert Unicode codepoint `u` */
-static int zueci_u_cp125x(const zueci_u32 u, const zueci_u16 * tab_s, const zueci_u16 * tab_u_u,
-    const unsigned char * tab_u_sb, int e, unsigned char * dest) {
+static int zueci_u_cp125x(const zueci_u32 u, const zueci_u16 * tab_s, const zueci_u16 * tab_u_u, const uchar * tab_u_sb, int e, uchar * dest) 
+{
 	int s;
 	if(u < 0x80) {
-		*dest = (unsigned char)u;
+		*dest = (uchar)u;
 		return 1;
 	}
 	if(u <= 0xFF && u >= 0xA0) {
 		const zueci_u32 u2 = u - 0xA0;
 		if(tab_s[u2 >> 4] & ((zueci_u16)1 << (u2 & 0xF))) {
-			*dest = (unsigned char)u; /* Straight-thru */
+			*dest = (uchar)u; /* Straight-thru */
 			return 1;
 		}
 	}
-
 	s = 0;
 	while(s <= e) {
 		const int m = (s + e) >> 1;
@@ -341,7 +334,7 @@ static int zueci_u_cp125x(const zueci_u32 u, const zueci_u16 * tab_s, const zuec
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* Base Windows-125x routine to convert single-byte `c` */
-static int zueci_cp125x_u(const unsigned char c, const unsigned int flags, const zueci_u16 * tab_s,
+static int zueci_cp125x_u(const uchar c, const uint flags, const zueci_u16 * tab_s,
     const zueci_u16 * tab_u_u, const char * tab_sb_u, const int c_max, zueci_u32 * p_u) {
 	int idx;
 	if(c < 0x80) {
@@ -349,7 +342,7 @@ static int zueci_cp125x_u(const unsigned char c, const unsigned int flags, const
 		return 1;
 	}
 	if(c >= 0xA0) {
-		const unsigned char c2 = c - 0xA0;
+		const uchar c2 = c - 0xA0;
 		if(tab_s[c2 >> 4] & ((zueci_u16)1 << (c2 & 0xF))) {
 			*p_u = c; /* Straight-thru */
 			return 1;
@@ -370,9 +363,9 @@ static int zueci_cp125x_u(const unsigned char c, const unsigned int flags, const
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 27 ASCII (ISO/IEC 646:1991 IRV (US)) */
-static int zueci_u_ascii(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_ascii(const zueci_u32 u, uchar * dest) {
 	if(u < 0x80) {
-		*dest = (unsigned char)u;
+		*dest = (uchar)u;
 		return 1;
 	}
 	return 0;
@@ -382,7 +375,7 @@ static int zueci_u_ascii(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 27 ASCII to Unicode */
-static int zueci_ascii_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
+static int zueci_ascii_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) {
 	(void)len;
 	if(*src < 0x80 || (flags & ZUECI_FLAG_SB_STRAIGHT_THRU)) {
 		*p_u = *src;
@@ -396,9 +389,9 @@ static int zueci_ascii_u(const unsigned char * src, const zueci_u32 len, const u
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 170 ISO/IEC 646:1991 Invariant, ASCII subset that excludes 12 chars that historically had
    national variants, namely "#$@[\]^`{|}~" */
-static int zueci_u_ascii_inv(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_ascii_inv(const zueci_u32 u, uchar * dest) {
 	if(u == 0x7F || (u <= 'z' && u != '#' && u != '$' && u != '@' && (u <= 'Z' || u == '_' || u >= 'a'))) {
-		*dest = (unsigned char)u;
+		*dest = (uchar)u;
 		return 1;
 	}
 	return 0;
@@ -408,9 +401,9 @@ static int zueci_u_ascii_inv(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 170 ISO/IEC 646:1991 Invariant to Unicode */
-static int zueci_ascii_inv_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags,
+static int zueci_ascii_inv_u(const uchar * src, const zueci_u32 len, const uint flags,
     zueci_u32 * p_u) {
-	const unsigned char c = *src;
+	const uchar c = *src;
 	(void)len;
 	if((flags & ZUECI_FLAG_SB_STRAIGHT_THRU) || c == 0x7F || (c <= 'z' && c != '#' && c != '$' && c != '@'
 	    && (c <= 'Z' || c == '_' || c >= 'a'))) {
@@ -424,20 +417,20 @@ static int zueci_ascii_inv_u(const unsigned char * src, const zueci_u32 len, con
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 25 UTF-16 Big Endian (ISO/IEC 10646) - assumes valid Unicode */
-static int zueci_u_utf16be(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_utf16be(const zueci_u32 u, uchar * dest) {
 	zueci_u32 u2, v;
 	if(u < 0x10000) {
-		dest[0] = (unsigned char)(u >> 8);
-		dest[1] = (unsigned char)u;
+		dest[0] = (uchar)(u >> 8);
+		dest[1] = (uchar)u;
 		return 2;
 	}
 	u2 = u - 0x10000;
 	v = u2 >> 10;
-	dest[0] = (unsigned char)(0xD8 + (v >> 8));
-	dest[1] = (unsigned char)v;
+	dest[0] = (uchar)(0xD8 + (v >> 8));
+	dest[1] = (uchar)v;
 	v = u2 & 0x3FF;
-	dest[2] = (unsigned char)(0xDC + (v >> 8));
-	dest[3] = (unsigned char)v;
+	dest[2] = (uchar)(0xDC + (v >> 8));
+	dest[3] = (uchar)v;
 	return 4;
 }
 
@@ -445,7 +438,7 @@ static int zueci_u_utf16be(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 25 UTF-16 Big Endian to Unicode */
-static int zueci_utf16be_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
+static int zueci_utf16be_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) {
 	zueci_u16 u1, u2;
 	(void)flags;
 	if(len < 2) {
@@ -471,20 +464,20 @@ static int zueci_utf16be_u(const unsigned char * src, const zueci_u32 len, const
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 33 UTF-16 Little Endian (ISO/IEC 10646) - assumes valid Unicode */
-static int zueci_u_utf16le(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_utf16le(const zueci_u32 u, uchar * dest) {
 	zueci_u32 u2, v;
 	if(u < 0x10000) {
-		dest[0] = (unsigned char)u;
-		dest[1] = (unsigned char)(u >> 8);
+		dest[0] = (uchar)u;
+		dest[1] = (uchar)(u >> 8);
 		return 2;
 	}
 	u2 = u - 0x10000;
 	v = u2 >> 10;
-	dest[0] = (unsigned char)v;
-	dest[1] = (unsigned char)(0xD8 + (v >> 8));
+	dest[0] = (uchar)v;
+	dest[1] = (uchar)(0xD8 + (v >> 8));
 	v = u2 & 0x3FF;
-	dest[2] = (unsigned char)v;
-	dest[3] = (unsigned char)(0xDC + (v >> 8));
+	dest[2] = (uchar)v;
+	dest[3] = (uchar)(0xDC + (v >> 8));
 	return 4;
 }
 
@@ -492,7 +485,7 @@ static int zueci_u_utf16le(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 33 UTF-16 Little Endian to Unicode */
-static int zueci_utf16le_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
+static int zueci_utf16le_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) {
 	zueci_u16 u1, u2;
 	(void)flags;
 	if(len < 2) {
@@ -518,11 +511,11 @@ static int zueci_utf16le_u(const unsigned char * src, const zueci_u32 len, const
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 34 UTF-32 Big Endian (ISO/IEC 10646) - assumes valid Unicode */
-static int zueci_u_utf32be(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_utf32be(const zueci_u32 u, uchar * dest) {
 	dest[0] = 0;
-	dest[1] = (unsigned char)(u >> 16);
-	dest[2] = (unsigned char)(u >> 8);
-	dest[3] = (unsigned char)u;
+	dest[1] = (uchar)(u >> 16);
+	dest[2] = (uchar)(u >> 8);
+	dest[3] = (uchar)u;
 	return 4;
 }
 
@@ -530,7 +523,7 @@ static int zueci_u_utf32be(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 34 UTF-32 Big Endian to Unicode */
-static int zueci_utf32be_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
+static int zueci_utf32be_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) {
 	zueci_u32 u;
 	(void)flags;
 	if(len < 4) {
@@ -548,10 +541,10 @@ static int zueci_utf32be_u(const unsigned char * src, const zueci_u32 len, const
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 35 UTF-32 Little Endian (ISO/IEC 10646) - assumes valid Unicode */
-static int zueci_u_utf32le(const zueci_u32 u, unsigned char * dest) {
-	dest[0] = (unsigned char)u;
-	dest[1] = (unsigned char)(u >> 8);
-	dest[2] = (unsigned char)(u >> 16);
+static int zueci_u_utf32le(const zueci_u32 u, uchar * dest) {
+	dest[0] = (uchar)u;
+	dest[1] = (uchar)(u >> 8);
+	dest[2] = (uchar)(u >> 16);
 	dest[3] = 0;
 	return 4;
 }
@@ -560,7 +553,7 @@ static int zueci_u_utf32le(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 35 UTF-32 Little Endian to Unicode */
-static int zueci_utf32le_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
+static int zueci_utf32le_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) {
 	zueci_u32 u;
 	(void)flags;
 	if(len < 4) {
@@ -578,9 +571,9 @@ static int zueci_utf32le_u(const unsigned char * src, const zueci_u32 len, const
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 899 Binary */
-static int zueci_u_binary(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_binary(const zueci_u32 u, uchar * dest) {
 	if(u <= 0xFF) {
-		*dest = (unsigned char)u;
+		*dest = (uchar)u;
 		return 1;
 	}
 	return 0;
@@ -595,7 +588,7 @@ static int zueci_u_binary(const zueci_u32 u, unsigned char * dest) {
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Helper to lookup Unicode codepoint `u` in the URO (Unified Repertoire and Ordering) block (U+4E00-9FFF) */
 static int zueci_u_lookup_uro(const zueci_u32 u, const zueci_u16 * tab_u_u, const zueci_u16 * tab_mb_ind,
-    const zueci_u16 * tab_u_mb, unsigned char * dest) {
+    const zueci_u16 * tab_u_mb, uchar * dest) {
 	zueci_u32 u2 = (u - 0x4E00) >> 4; /* Blocks of 16 */
 	zueci_u32 v = (zueci_u32)1 << (u & 0xF);
 	zueci_u16 mb;
@@ -608,15 +601,15 @@ static int zueci_u_lookup_uro(const zueci_u32 u, const zueci_u16 * tab_u_u, cons
 	v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
 	v = (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
 	mb = tab_u_mb[tab_mb_ind[u2] + v];
-	dest[0] = (unsigned char)(mb >> 8);
-	dest[1] = (unsigned char)mb;
+	dest[0] = (uchar)(mb >> 8);
+	dest[1] = (uchar)mb;
 	return 2;
 }
 
 /* Unicode to ECI 20 Shift JIS */
-static int zueci_u_sjis(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_sjis(const zueci_u32 u, uchar * dest) {
 	if(u < 0x80 && u != 0x5C && u != 0x7E) { /* Backslash & tilde re-mapped according to JIS X 0201 Roman */
-		dest[0] = (unsigned char)u;
+		dest[0] = (uchar)u;
 		return 1;
 	}
 	/* Special case URO block sequential mappings (considerably lessens size of `zueci_sjis_u_u[]` array) */
@@ -629,8 +622,8 @@ static int zueci_u_sjis(const zueci_u32 u, unsigned char * dest) {
 	/* PUA to user-defined (Table 4-86, Lunde, 2nd ed.) */
 	if(u >= 0xE000 && u <= 0xE757) {
 		const zueci_u32 u2 = u - 0xE000;
-		const unsigned char dv = (unsigned char)(u2 / (0xFC - 0x40));
-		const unsigned char md = (unsigned char)(u2 - dv * (0xFC - 0x40));
+		const uchar dv = (uchar)(u2 / (0xFC - 0x40));
+		const uchar md = (uchar)(u2 - dv * (0xFC - 0x40));
 		dest[0] = dv + 0xF0;
 		dest[1] = md + 0x40 + (md >= 0x3F);
 		return 2;
@@ -650,11 +643,11 @@ static int zueci_u_sjis(const zueci_u32 u, unsigned char * dest) {
 				const zueci_u16 mb = zueci_sjis_u_mb[u >= 0x4E00 ? m + 6356 : m]; /* Adjust for URO
 				                                                                     block */
 				if(mb > 0xFF) {
-					dest[0] = (unsigned char)(mb >> 8);
-					dest[1] = (unsigned char)mb;
+					dest[0] = (uchar)(mb >> 8);
+					dest[1] = (uchar)mb;
 					return 2;
 				}
-				dest[0] = (unsigned char)mb;
+				dest[0] = (uchar)mb;
 				return 1;
 			}
 		}
@@ -663,7 +656,7 @@ static int zueci_u_sjis(const zueci_u32 u, unsigned char * dest) {
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_u_sjis_test(const zueci_u32 u, unsigned char * dest) {
+ZUECI_INTERN int zueci_u_sjis_test(const zueci_u32 u, uchar * dest) {
 	return zueci_u_sjis(u, dest);
 }
 
@@ -672,8 +665,8 @@ ZUECI_INTERN int zueci_u_sjis_test(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 20 Shift JIS to Unicode */
-static int zueci_sjis_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
-	unsigned char c1, c2;
+static int zueci_sjis_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) {
+	uchar c1, c2;
 	int ind;
 	zueci_u32 u2;
 
@@ -715,7 +708,7 @@ static int zueci_sjis_u(const unsigned char * src, const zueci_u32 len, const un
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_sjis_u_test(const unsigned char * src, const zueci_u32 len, const unsigned int flags,
+ZUECI_INTERN int zueci_sjis_u_test(const uchar * src, const zueci_u32 len, const uint flags,
     zueci_u32 * p_u) {
 	return zueci_sjis_u(src, len, flags, p_u);
 }
@@ -725,11 +718,11 @@ ZUECI_INTERN int zueci_sjis_u_test(const unsigned char * src, const zueci_u32 le
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 28 Big5 Chinese (Taiwan) */
-static int zueci_u_big5(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_big5(const zueci_u32 u, uchar * dest) {
 	int s, e;
 
 	if(u < 0x80) {
-		*dest = (unsigned char)u;
+		*dest = (uchar)u;
 		return 1;
 	}
 	/* Special case URO block sequential mappings (considerably lessens size of `zueci_big5_u_u[]` array) */
@@ -753,8 +746,8 @@ static int zueci_u_big5(const zueci_u32 u, unsigned char * dest) {
 			else {
 				const zueci_u16 mb = zueci_big5_u_mb[u >= 0x4E00 ? m + 13061 : m]; /* Adjust for URO
 				                                                                      block */
-				dest[0] = (unsigned char)(mb >> 8);
-				dest[1] = (unsigned char)mb;
+				dest[0] = (uchar)(mb >> 8);
+				dest[1] = (uchar)mb;
 				return 2;
 			}
 		}
@@ -763,7 +756,7 @@ static int zueci_u_big5(const zueci_u32 u, unsigned char * dest) {
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_u_big5_test(const zueci_u32 u, unsigned char * dest) {
+ZUECI_INTERN int zueci_u_big5_test(const zueci_u32 u, uchar * dest) {
 	return zueci_u_big5(u, dest);
 }
 
@@ -772,8 +765,8 @@ ZUECI_INTERN int zueci_u_big5_test(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 28 Big5 to Unicode */
-static int zueci_big5_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
-	unsigned char c1, c2;
+static int zueci_big5_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) {
+	uchar c1, c2;
 	int ind;
 	zueci_u32 u2;
 
@@ -801,7 +794,7 @@ static int zueci_big5_u(const unsigned char * src, const zueci_u32 len, const un
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_big5_u_test(const unsigned char * src, const zueci_u32 len, const unsigned int flags,
+ZUECI_INTERN int zueci_big5_u_test(const uchar * src, const zueci_u32 len, const uint flags,
     zueci_u32 * p_u) {
 	return zueci_big5_u(src, len, flags, p_u);
 }
@@ -811,11 +804,11 @@ ZUECI_INTERN int zueci_big5_u_test(const unsigned char * src, const zueci_u32 le
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 30 EUC-KR (KS X 1001, formerly KS C 5601) Korean */
-static int zueci_u_ksx1001(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_ksx1001(const zueci_u32 u, uchar * dest) 
+{
 	int s, e;
-
 	if(u < 0x80) {
-		*dest = (unsigned char)u;
+		*dest = (uchar)u;
 		return 1;
 	}
 	/* Special case URO block sequential mappings (considerably lessens size of `zueci_ksx1001_u_u[]` array) */
@@ -827,7 +820,7 @@ static int zueci_u_ksx1001(const zueci_u32 u, unsigned char * dest) {
 	}
 	if(u >= zueci_ksx1001_u_u[0] && u <= zueci_ksx1001_u_u[ZUECI_ASIZE(zueci_ksx1001_u_u) - 1]) {
 		s = zueci_ksx1001_u_ind[(u - zueci_ksx1001_u_u[0]) >> 8];
-		e = ZUECI_MIN(s + 0x100, ZUECI_ASIZE(zueci_ksx1001_u_u)) - 1;
+		e = MIN(s + 0x100, ZUECI_ASIZE(zueci_ksx1001_u_u)) - 1;
 		while(s <= e) {
 			const int m = (s + e) >> 1;
 			if(zueci_ksx1001_u_u[m] < u) {
@@ -839,8 +832,8 @@ static int zueci_u_ksx1001(const zueci_u32 u, unsigned char * dest) {
 			else {
 				const zueci_u16 mb = zueci_ksx1001_u_mb[u >= 0x4E00 ? m + 4620 : m]; /* Adjust for URO
 				                                                                        block */
-				dest[0] = (unsigned char)(mb >> 8);
-				dest[1] = (unsigned char)mb;
+				dest[0] = (uchar)(mb >> 8);
+				dest[1] = (uchar)mb;
 				return 2;
 			}
 		}
@@ -849,7 +842,7 @@ static int zueci_u_ksx1001(const zueci_u32 u, unsigned char * dest) {
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_u_ksx1001_test(const zueci_u32 u, unsigned char * dest) {
+ZUECI_INTERN int zueci_u_ksx1001_test(const zueci_u32 u, uchar * dest) {
 	return zueci_u_ksx1001(u, dest);
 }
 
@@ -858,8 +851,8 @@ ZUECI_INTERN int zueci_u_ksx1001_test(const zueci_u32 u, unsigned char * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 30 EUC-KR to Unicode */
-static int zueci_ksx1001_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
-	unsigned char c1, c2;
+static int zueci_ksx1001_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) {
+	uchar c1, c2;
 	int ind;
 	zueci_u32 u2;
 
@@ -888,7 +881,7 @@ static int zueci_ksx1001_u(const unsigned char * src, const zueci_u32 len, const
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_ksx1001_u_test(const unsigned char * src, const zueci_u32 len, const unsigned int flags,
+ZUECI_INTERN int zueci_ksx1001_u_test(const uchar * src, const zueci_u32 len, const uint flags,
     zueci_u32 * p_u) {
 	return zueci_ksx1001_u(src, len, flags, p_u);
 }
@@ -898,7 +891,8 @@ ZUECI_INTERN int zueci_ksx1001_u_test(const unsigned char * src, const zueci_u32
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 29 GB 2312 Chinese (PRC) */
-static int zueci_u_gb2312(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_gb2312(const zueci_u32 u, uchar * dest) 
+{
 	if(u < 0x80) {
 		dest[0] = u;
 		return 1;
@@ -912,7 +906,7 @@ static int zueci_u_gb2312(const zueci_u32 u, unsigned char * dest) {
 	}
 	if(u >= zueci_gb2312_u_u[0] && u <= zueci_gb2312_u_u[ZUECI_ASIZE(zueci_gb2312_u_u) - 1]) {
 		int s = zueci_gb2312_u_ind[(u - zueci_gb2312_u_u[0]) >> 8];
-		int e = ZUECI_MIN(s + 0x100, ZUECI_ASIZE(zueci_gb2312_u_u)) - 1;
+		int e = MIN(s + 0x100, ZUECI_ASIZE(zueci_gb2312_u_u)) - 1;
 		while(s <= e) {
 			const int m = (s + e) >> 1;
 			if(zueci_gb2312_u_u[m] < u) {
@@ -922,10 +916,9 @@ static int zueci_u_gb2312(const zueci_u32 u, unsigned char * dest) {
 				e = m - 1;
 			}
 			else {
-				const zueci_u16 mb = zueci_gb2312_u_mb[u > 0x4E00 ? m + 6627 : m]; /* Adjust for URO
-				                                                                      block */
-				dest[0] = (unsigned char)(mb >> 8);
-				dest[1] = (unsigned char)mb;
+				const zueci_u16 mb = zueci_gb2312_u_mb[u > 0x4E00 ? m + 6627 : m]; /* Adjust for URO block */
+				dest[0] = (uchar)(mb >> 8);
+				dest[1] = (uchar)mb;
 				return 2;
 			}
 		}
@@ -934,23 +927,19 @@ static int zueci_u_gb2312(const zueci_u32 u, unsigned char * dest) {
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_u_gb2312_test(const zueci_u32 u, unsigned char * dest) {
-	return zueci_u_gb2312(u, dest);
-}
-
+	ZUECI_INTERN int zueci_u_gb2312_test(const zueci_u32 u, uchar * dest) { return zueci_u_gb2312(u, dest); }
 #endif
 #endif /* ZUECI_EMBED_NO_TO_ECI */
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 29 GB 2312 to Unicode */
-static int zueci_gb2312_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
-	unsigned char c1, c2;
+static int zueci_gb2312_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) 
+{
+	uchar c1, c2;
 	int ind;
 	zueci_u32 u2;
-
 	(void)flags;
 	assert(len);
-
 	c1 = src[0];
 	if(c1 < 0x80) {
 		*p_u = c1;
@@ -973,22 +962,18 @@ static int zueci_gb2312_u(const unsigned char * src, const zueci_u32 len, const 
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_gb2312_u_test(const unsigned char * src, const zueci_u32 len, const unsigned int flags,
-    zueci_u32 * p_u) {
-	return zueci_gb2312_u(src, len, flags, p_u);
-}
-
+	ZUECI_INTERN int zueci_gb2312_u_test(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) { return zueci_gb2312_u(src, len, flags, p_u); }
 #endif
 #endif /* ZUECI_EMBED_NO_TO_UTF8 */
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 31 GBK Chinese */
-static int zueci_u_gbk(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_gbk(const zueci_u32 u, uchar * dest) 
+{
 	if(u < 0x80) {
-		*dest = (unsigned char)u;
+		*dest = (uchar)u;
 		return 1;
 	}
-
 	/* Check GB 2312 first */
 	if(u == 0x30FB) {
 		/* KATAKANA MIDDLE DOT, mapped by GB 2312 but not by GBK (U+00B7 MIDDLE DOT mapped to 0xA1A4 instead) */
@@ -1025,8 +1010,8 @@ static int zueci_u_gbk(const zueci_u32 u, unsigned char * dest) {
 			else {
 				const zueci_u16 mb = zueci_gbk_u_mb[u >= 0x4E00 ? m + 14139 : m]; /* Adjust for URO
 				                                                                     block */
-				dest[0] = (unsigned char)(mb >> 8);
-				dest[1] = (unsigned char)mb;
+				dest[0] = (uchar)(mb >> 8);
+				dest[1] = (uchar)mb;
 				return 2;
 			}
 		}
@@ -1035,24 +1020,20 @@ static int zueci_u_gbk(const zueci_u32 u, unsigned char * dest) {
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_u_gbk_test(const zueci_u32 u, unsigned char * dest) {
-	return zueci_u_gbk(u, dest);
-}
-
+	ZUECI_INTERN int zueci_u_gbk_test(const zueci_u32 u, uchar * dest) { return zueci_u_gbk(u, dest); }
 #endif
 #endif /* ZUECI_EMBED_NO_TO_ECI */
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 31 GBK Chinese to Unicode */
-static int zueci_gbk_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
-	unsigned char c1, c2;
+static int zueci_gbk_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) 
+{
+	uchar c1, c2;
 	int ind;
 	zueci_u32 u2;
 	zueci_u16 mb;
-
 	(void)flags;
 	assert(len);
-
 	c1 = src[0];
 	if(c1 < 0x80) {
 		*p_u = c1;
@@ -1080,7 +1061,6 @@ static int zueci_gbk_u(const unsigned char * src, const zueci_u32 len, const uns
 			return 2;
 		}
 	}
-
 	/* Non-URO? */
 	mb = ((zueci_u16)c1 << 8) | c2;
 	if(mb >= zueci_gbk_nonuro_mb[0] && mb <= zueci_gbk_nonuro_mb[ZUECI_ASIZE(zueci_gbk_nonuro_mb) - 1]) {
@@ -1118,46 +1098,40 @@ static int zueci_gbk_u(const unsigned char * src, const zueci_u32 len, const uns
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_gbk_u_test(const unsigned char * src, const zueci_u32 len, const unsigned int flags,
-    zueci_u32 * p_u) {
-	return zueci_gbk_u(src, len, flags, p_u);
-}
-
+	ZUECI_INTERN int zueci_gbk_u_test(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) { return zueci_gbk_u(src, len, flags, p_u); }
 #endif
 #endif /* ZUECI_EMBED_NO_TO_UTF8 */
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Helper for `u_gb18030()` to output 4-byte sequential blocks 0x[81-FE][30-39][81-FE][30-39] */
-static int zueci_u_gb18030_4_sequential(zueci_u32 u2, zueci_u32 mb_lead, unsigned char * dest) {
+static int zueci_u_gb18030_4_sequential(zueci_u32 u2, zueci_u32 mb_lead, uchar * dest) {
 	zueci_u32 dv;
 
 	dv = u2 / 10; /* (0x39 - 0x30) + 1 */
-	dest[3] = (unsigned char)(u2 - dv * 10 + 0x30);
+	dest[3] = (uchar)(u2 - dv * 10 + 0x30);
 	u2 = dv;
 	dv = u2 / 126; /* (0xFE - 0x81) + 1 */
-	dest[2] = (unsigned char)(u2 - dv * 126 + 0x81);
+	dest[2] = (uchar)(u2 - dv * 126 + 0x81);
 	u2 = dv;
 	dv = u2 / 10; /* (0x39 - 0x30) + 1 */
-	dest[0] = (unsigned char)(dv + mb_lead);
-	dest[1] = (unsigned char)(u2 - dv * 10 + 0x30);
+	dest[0] = (uchar)(dv + mb_lead);
+	dest[1] = (uchar)(u2 - dv * 10 + 0x30);
 	return 4;
 }
 
 /* Unicode to ECI 32 GB 18030 Chinese - assumes valid Unicode */
-static int zueci_u_gb18030(const zueci_u32 u, unsigned char * dest) {
+static int zueci_u_gb18030(const zueci_u32 u, uchar * dest) 
+{
 	zueci_u32 u2, dv;
 	int s, e;
-
 	if(u < 0x80) {
-		*dest = (unsigned char)u;
+		*dest = (uchar)u;
 		return 1;
 	}
-
 	/* Check GBK first */
 	if(zueci_u_gbk(u, dest)) {
 		return 2;
 	}
-
 	if(u >= 0x10000) {
 		/* Non-BMP that were PUA, see Table 3-37, Lunde, 2nd ed. */
 		if(u == 0x20087) {
@@ -1197,16 +1171,16 @@ static int zueci_u_gb18030(const zueci_u32 u, unsigned char * dest) {
 		if(u <= 0xE4C5) {
 			u2 = u - 0xE000;
 			dv = u2 / 94;
-			dest[0] = (unsigned char)(dv + (dv < 6 ? 0xAA : 0xF2));
-			dest[1] = (unsigned char)(u2 - dv * 94 + 0xA1);
+			dest[0] = (uchar)(dv + (dv < 6 ? 0xAA : 0xF2));
+			dest[1] = (uchar)(u2 - dv * 94 + 0xA1);
 		}
 		else {
 			zueci_u32 md;
 			u2 = u - 0xE4C6;
 			dv = u2 / 96;
 			md = u2 - dv * 96;
-			dest[0] = (unsigned char)(dv + 0xA1);
-			dest[1] = (unsigned char)(md + 0x40 + (md >= 0x3F));
+			dest[0] = (uchar)(dv + 0xA1);
+			dest[1] = (uchar)(md + 0x40 + (md >= 0x3F));
 		}
 		return 2;
 	}
@@ -1223,8 +1197,8 @@ static int zueci_u_gb18030(const zueci_u32 u, unsigned char * dest) {
 			}
 			else {
 				const zueci_u16 mb = zueci_gb18030_2_u_mb[m];
-				dest[0] = (unsigned char)(mb >> 8);
-				dest[1] = (unsigned char)mb;
+				dest[0] = (uchar)(mb >> 8);
+				dest[1] = (uchar)mb;
 				return 2;
 			}
 		}
@@ -1253,34 +1227,30 @@ static int zueci_u_gb18030(const zueci_u32 u, unsigned char * dest) {
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_u_gb18030_test(const zueci_u32 u, unsigned char * dest) {
-	return zueci_u_gb18030(u, dest);
-}
-
+	ZUECI_INTERN int zueci_u_gb18030_test(const zueci_u32 u, uchar * dest) { return zueci_u_gb18030(u, dest); }
 #endif
 #endif /* ZUECI_EMBED_NO_TO_ECI */
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* Helper to convert GB 18030 4-byter to Unicode */
-static zueci_u32 zueci_gb18030_mb4_u(zueci_u32 mb4) {
-	unsigned char c1 = (unsigned char)(mb4 >> 24);
-	unsigned char c2 = (unsigned char)(mb4 >> 16);
-	unsigned char c3 = (unsigned char)(mb4 >> 8);
-	unsigned char c4 = (unsigned char)mb4;
-
+static zueci_u32 zueci_gb18030_mb4_u(zueci_u32 mb4) 
+{
+	uchar c1 = (uchar)(mb4 >> 24);
+	uchar c2 = (uchar)(mb4 >> 16);
+	uchar c3 = (uchar)(mb4 >> 8);
+	uchar c4 = (uchar)mb4;
 	return (((c1 - 0x81) * 10 + (c2 - 0x30)) * 126 + (c3 - 0x81)) * 10 + c4 - 0x30;
 }
 
 /* ECI 32 GB 18030 to Unicode */
-static int zueci_gb18030_u(const unsigned char * src, const zueci_u32 len, const unsigned int flags, zueci_u32 * p_u) {
-	unsigned char c1, c2, c3, c4;
+static int zueci_gb18030_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) 
+{
+	uchar c1, c2, c3, c4;
 	int ret;
 	zueci_u16 mb2;
 	zueci_u32 mb4;
-
 	(void)flags;
 	assert(len);
-
 	c1 = src[0];
 	if(c1 < 0x80) {
 		*p_u = c1;
@@ -1385,14 +1355,9 @@ static int zueci_gb18030_u(const unsigned char * src, const zueci_u32 len, const
 }
 
 #ifdef ZUECI_TEST /* Wrapper for direct testing */
-ZUECI_INTERN int zueci_gb18030_u_test(const unsigned char * src, const zueci_u32 len, const unsigned int flags,
-    zueci_u32 * p_u) {
-	return zueci_gb18030_u(src, len, flags, p_u);
-}
-
+	ZUECI_INTERN int zueci_gb18030_u_test(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) { return zueci_gb18030_u(src, len, flags, p_u); }
 #endif
 #endif /* ZUECI_EMBED_NO_TO_UTF8 */
-
 /* API */
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
@@ -1402,10 +1367,10 @@ ZUECI_INTERN int zueci_gb18030_u_test(const unsigned char * src, const zueci_u32
     `dest` must be big enough (4-times the `src_len`, or see `zueci_dest_len_eci()`). It is not NUL-terminated.
     Returns 0 if successful, one of `ZUECI_ERROR_XXX` if not
  */
-ZUECI_EXTERN int zueci_utf8_to_eci(const int eci, const unsigned char src[], const int src_len,
-    unsigned char dest[], int * p_dest_len) {
+ZUECI_EXTERN int zueci_utf8_to_eci(const int eci, const uchar src[], const int src_len, uchar dest[], int * p_dest_len) 
+{
 	/* Unicode to ECI function table */
-	typedef int (* zueci_eci_func_t)(const zueci_u32 u, unsigned char * dest);
+	typedef int (* zueci_eci_func_t)(const zueci_u32 u, uchar * dest);
 	static const zueci_eci_func_t zueci_eci_funcs[36] = {
 		zueci_u_cp437,               NULL,      zueci_u_cp437,               NULL,  zueci_u_iso8859_2,/*0-4*/
 		zueci_u_iso8859_3,  zueci_u_iso8859_4,  zueci_u_iso8859_5,  zueci_u_iso8859_6,  zueci_u_iso8859_7,/*5-9*/
@@ -1416,20 +1381,18 @@ ZUECI_EXTERN int zueci_utf8_to_eci(const int eci, const unsigned char src[], con
 		zueci_u_ksx1001,        zueci_u_gbk,    zueci_u_gb18030,    zueci_u_utf16le,    zueci_u_utf32be,/*30-34*/
 		zueci_u_utf32le,
 	};
-	unsigned int state = 0;
-	const unsigned char * s = src;
-	const unsigned char * const se = src + src_len;
-	unsigned char * d = dest;
+	uint state = 0;
+	const uchar * s = src;
+	const uchar * const se = src + src_len;
+	uchar * d = dest;
 	zueci_eci_func_t eci_func;
 	zueci_u32 u;
-
 	if(!zueci_is_valid_eci(eci)) {
 		return ZUECI_ERROR_INVALID_ECI;
 	}
 	if(!src || !dest || !p_dest_len) {
 		return ZUECI_ERROR_INVALID_ARGS;
 	}
-
 	/* Special case ISO/IEC 8859-1 */
 	if(eci == 1 || eci == 3) {
 		while(s < se) {
@@ -1442,12 +1405,11 @@ ZUECI_EXTERN int zueci_utf8_to_eci(const int eci, const unsigned char src[], con
 			if(u >= 0x80 && (u < 0xA0 || u >= 0x100)) {
 				return ZUECI_ERROR_INVALID_DATA;
 			}
-			*d++ = (unsigned char)u;
+			*d++ = (uchar)u;
 		}
 		*p_dest_len = (int)(d - dest);
 		return 0;
 	}
-
 	/* Special case UTF-8 */
 	if(eci == 26) {
 		if(!zueci_is_valid_utf8(src, src_len)) {
@@ -1457,7 +1419,6 @@ ZUECI_EXTERN int zueci_utf8_to_eci(const int eci, const unsigned char src[], con
 		*p_dest_len = src_len;
 		return 0;
 	}
-
 	if(eci == 170) { /* ASCII Invariant (archaic subset) */
 		eci_func = zueci_u_ascii_inv;
 	}
@@ -1467,7 +1428,6 @@ ZUECI_EXTERN int zueci_utf8_to_eci(const int eci, const unsigned char src[], con
 	else {
 		eci_func = zueci_eci_funcs[eci];
 	}
-
 	while(s < se) {
 		int incr;
 		do {
@@ -1486,22 +1446,20 @@ ZUECI_EXTERN int zueci_utf8_to_eci(const int eci, const unsigned char src[], con
 
 	return 0;
 }
-
 /*
     Calculate sufficient (i.e. approx.) length needed to convert UTF-8 `src` of length `src_len` from UTF-8 to ECI
     `eci`, and place in `p_dest_len`.
     Returns 0 if successful, one of `ZUECI_ERROR_XXX` if not
  */
-ZUECI_EXTERN int zueci_dest_len_eci(const int eci, const unsigned char src[], const int src_len, int * p_dest_len) {
+ZUECI_EXTERN int zueci_dest_len_eci(const int eci, const uchar src[], const int src_len, int * p_dest_len) 
+{
 	int dest_len = src_len;
-
 	if(!zueci_is_valid_eci(eci)) {
 		return ZUECI_ERROR_INVALID_ECI;
 	}
 	if(!src || !p_dest_len) {
 		return ZUECI_ERROR_INVALID_ARGS;
 	}
-
 	if(eci == 20) { /* Shift JIS */
 		/* Only ASCII backslash (reverse solidus) exceeds UTF-8 length */
 		dest_len += zueci_chr_cnt(src, src_len, '\\');
@@ -1528,7 +1486,7 @@ ZUECI_EXTERN int zueci_dest_len_eci(const int eci, const unsigned char src[], co
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI to Unicode function table */
-typedef int (* zueci_utf8_func_t)(const unsigned char * src, const zueci_u32 len, const unsigned int flags,
+typedef int (* zueci_utf8_func_t)(const uchar * src, const zueci_u32 len, const uint flags,
     zueci_u32 * p_u);
 static const zueci_utf8_func_t zueci_utf8_funcs[36] = {
 	zueci_cp437_u,               NULL,      zueci_cp437_u,               NULL,  zueci_iso8859_2_u,  /*0-4*/
@@ -1549,16 +1507,16 @@ static const zueci_utf8_func_t zueci_utf8_funcs[36] = {
     with no mapping and processing will continue, returning ZUECI_WARN_INVALID_DATA unless other errors.
     Returns 0 if successful, one of `ZUECI_ERROR_XXX` if not.
  */
-ZUECI_EXTERN int zueci_eci_to_utf8(const int eci, const unsigned char src[], const int src_len,
-    const unsigned int replacement_char, const unsigned int flags, unsigned char dest[],
+ZUECI_EXTERN int zueci_eci_to_utf8(const int eci, const uchar src[], const int src_len,
+    const uint replacement_char, const uint flags, uchar dest[],
     int * p_dest_len) {
-	const unsigned char * s = src;
-	const unsigned char * const se = src + src_len;
-	unsigned char * d = dest;
+	const uchar * s = src;
+	const uchar * const se = src + src_len;
+	uchar * d = dest;
 	zueci_utf8_func_t utf8_func;
 	zueci_u32 u;
 	int src_incr;
-	unsigned char replacement[5];
+	uchar replacement[5];
 	int replacement_len = 0; /* g++ complains with "-Wmaybe-uninitialized" if this isn't set */
 	int ret = 0;
 
@@ -1608,7 +1566,7 @@ ZUECI_EXTERN int zueci_eci_to_utf8(const int eci, const unsigned char src[], con
 	/* Special case UTF-8 */
 	if(eci == 26) {
 		if(replacement_char) {
-			unsigned int state = 0;
+			uint state = 0;
 			while(s < se) {
 				do {
 					zueci_decode_utf8(&state, &u, *s++);
@@ -1667,35 +1625,31 @@ ZUECI_EXTERN int zueci_eci_to_utf8(const int eci, const unsigned char src[], con
 	*p_dest_len = (int)(d - dest);
 	return ret;
 }
-
 /*
     Calculate exact length needed to convert ECI-encoded `src` of length `len` from ECI `eci`, and place in
     `p_dest_len`.
     Returns 0 if successful, one of `ZUECI_ERROR_XXX` if not.
  */
-ZUECI_EXTERN int zueci_dest_len_utf8(const int eci, const unsigned char src[], const int src_len,
-    const unsigned int replacement_char, const int unsigned flags, int * p_dest_len) {
-	const unsigned char * s = src;
-	const unsigned char * const se = src + src_len;
+ZUECI_EXTERN int zueci_dest_len_utf8(const int eci, const uchar src[], const int src_len,
+    const uint replacement_char, const uint flags, int * p_dest_len) 
+{
+	const uchar * s = src;
+	const uchar * const se = src + src_len;
 	zueci_utf8_func_t utf8_func;
 	zueci_u32 u;
 	int src_incr;
-	unsigned char replacement[5];
+	uchar replacement[5];
 	int replacement_len = 0; /* g++ complains with "-Wmaybe-uninitialized" if this isn't set */
 	int dest_len = 0;
 	int ret = 0;
-
 	/* NOTE: the following is "unrolled" from `zueci_eci_to_utf8()` and should be the same except for the copying */
-
 	if(!zueci_is_valid_eci(eci)) {
 		return ZUECI_ERROR_INVALID_ECI;
 	}
 	if(!src || !p_dest_len) {
 		return ZUECI_ERROR_INVALID_ARGS;
 	}
-
-	/* Special case Binary, and if straight-thru flag set then ISO/IEC 8859-1, ASCII and ISO/IEC 646 Invariant also
-	   */
+	// Special case Binary, and if straight-thru flag set then ISO/IEC 8859-1, ASCII and ISO/IEC 646 Invariant also 
 	if(eci == 899 || ((flags & ZUECI_FLAG_SB_STRAIGHT_THRU) && (eci == 1 || eci == 3 || eci == 27 || eci == 170))) {
 		while(s < se) {
 			dest_len += 1 + (*s++ >= 0x80);
@@ -1703,15 +1657,13 @@ ZUECI_EXTERN int zueci_dest_len_utf8(const int eci, const unsigned char src[], c
 		*p_dest_len = dest_len;
 		return 0;
 	}
-
 	if(replacement_char) {
 		if(!ZUECI_IS_VALID_UNICODE(replacement_char) || replacement_char > 0xFFFF) { /* Allow BMP only */
 			return ZUECI_ERROR_INVALID_ARGS;
 		}
 		replacement_len = zueci_encode_utf8(replacement_char, replacement);
 	}
-
-	/* Special case ISO/IEC 8859-1 */
+	// Special case ISO/IEC 8859-1
 	if(eci == 1 || eci == 3) {
 		for(; s < se; s++) {
 			if(*s >= 0x80 && *s < 0xA0) {
@@ -1728,10 +1680,9 @@ ZUECI_EXTERN int zueci_dest_len_utf8(const int eci, const unsigned char src[], c
 		*p_dest_len = dest_len;
 		return ret;
 	}
-
-	/* Special case UTF-8 */
+	// Special case UTF-8
 	if(eci == 26) {
-		unsigned int state = 0;
+		uint state = 0;
 		while(s < se) {
 			do {
 				zueci_decode_utf8(&state, &u, *s++);
@@ -1766,7 +1717,6 @@ ZUECI_EXTERN int zueci_dest_len_utf8(const int eci, const unsigned char src[], c
 	else {
 		utf8_func = zueci_utf8_funcs[eci];
 	}
-
 	while(s < se) {
 		if(!(src_incr = (*utf8_func)(s, (int)(se - s), flags, &u))) {
 			if(!replacement_char) {

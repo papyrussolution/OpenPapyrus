@@ -7,7 +7,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODDataBarExpandedBitDecoder.h"
 
 namespace ZXing::OneD::DataBar {
 constexpr char GS = 29; // FNC1

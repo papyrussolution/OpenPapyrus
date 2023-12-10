@@ -91,8 +91,7 @@ static int nb_entities = 0;
 
 static void resetEntities(void) 
 {
-	int i;
-	for(i = 0; i < nb_entities; i++) {
+	for(int i = 0; i < nb_entities; i++) {
 		if(testEntitiesName[i] != NULL)
 			xmlFree(testEntitiesName[i]);
 		if(testEntitiesValue[i] != NULL)
@@ -124,7 +123,7 @@ static xmlParserInput * testExternalEntityLoader(const char * URL, const char * 
 	for(i = 0; i < nb_entities; i++) {
 		if(!strcmp(testEntitiesName[i], URL)) {
 			ret = xmlNewStringInputStream(ctxt, (const xmlChar *)testEntitiesValue[i]);
-			if(ret != NULL) {
+			if(ret) {
 				ret->filename = (const char *)xmlStrdup((xmlChar *)testEntitiesName[i]);
 			}
 			return(ret);
@@ -775,23 +774,18 @@ static int xstcTestInstance(xmlNodePtr cur, xmlSchemaPtr schemas,
 	}
 	path = xmlBuildURI(href, BAD_CAST base);
 	if(path == NULL) {
-		fprintf(stderr,
-		    "Failed to build path to schemas testGroup line %ld : %s\n",
-		    xmlGetLineNo(cur), href);
+		fprintf(stderr, "Failed to build path to schemas testGroup line %ld : %s\n", xmlGetLineNo(cur), href);
 		ret = -1;
 		goto done;
 	}
 	if(checkTestFile((const char *)path) <= 0) {
-		test_log("schemas for testGroup line %ld is missing: %s\n",
-		    xmlGetLineNo(cur), path);
+		test_log("schemas for testGroup line %ld is missing: %s\n", xmlGetLineNo(cur), path);
 		ret = -1;
 		goto done;
 	}
-	validity = getString(cur,
-		"string(ts:expected/@validity)");
+	validity = getString(cur, "string(ts:expected/@validity)");
 	if(validity == NULL) {
-		fprintf(stderr, "instanceDocument line %ld misses expected validity\n",
-		    xmlGetLineNo(cur));
+		fprintf(stderr, "instanceDocument line %ld misses expected validity\n", xmlGetLineNo(cur));
 		ret = -1;
 		goto done;
 	}
@@ -803,41 +797,31 @@ static int xstcTestInstance(xmlNodePtr cur, xmlSchemaPtr schemas,
 		nb_errors++;
 		goto done;
 	}
-
 	ctxt = xmlSchemaNewValidCtxt(schemas);
-	xmlSchemaSetValidErrors(ctxt,
-	    (xmlSchemaValidityErrorFunc)testErrorHandler,
-	    (xmlSchemaValidityWarningFunc)testErrorHandler,
-	    ctxt);
+	xmlSchemaSetValidErrors(ctxt, (xmlSchemaValidityErrorFunc)testErrorHandler, (xmlSchemaValidityWarningFunc)testErrorHandler, ctxt);
 	ret = xmlSchemaValidateDoc(ctxt, doc);
-
 	if(xmlStrEqual(validity, BAD_CAST "valid")) {
 		if(ret > 0) {
-			test_log("valid instance %s failed to validate against %s\n",
-			    path, spath);
+			test_log("valid instance %s failed to validate against %s\n", path, spath);
 			nb_errors++;
 		}
 		else if(ret < 0) {
-			test_log("valid instance %s got internal error validating %s\n",
-			    path, spath);
+			test_log("valid instance %s got internal error validating %s\n", path, spath);
 			nb_internals++;
 			nb_errors++;
 		}
 	}
 	else if(xmlStrEqual(validity, BAD_CAST "invalid")) {
 		if(ret == 0) {
-			test_log("Failed to detect invalid instance %s against %s\n",
-			    path, spath);
+			test_log("Failed to detect invalid instance %s against %s\n", path, spath);
 			nb_errors++;
 		}
 	}
 	else {
-		test_log("instanceDocument line %ld has unexpected validity value%s\n",
-		    xmlGetLineNo(cur), validity);
+		test_log("instanceDocument line %ld has unexpected validity value%s\n", xmlGetLineNo(cur), validity);
 		ret = -1;
 		goto done;
 	}
-
 done:
 	if(href != NULL)  xmlFree(href);
 	if(path != NULL)  xmlFree(path);
@@ -853,7 +837,8 @@ done:
 	return(ret);
 }
 
-static int xstcTestGroup(xmlNodePtr cur, const char * base) {
+static int xstcTestGroup(xmlNodePtr cur, const char * base) 
+{
 	xmlChar * href = NULL;
 	xmlChar * path = NULL;
 	xmlChar * validity = NULL;
@@ -861,7 +846,6 @@ static int xstcTestGroup(xmlNodePtr cur, const char * base) {
 	xmlSchemaParserCtxtPtr ctxt;
 	xmlNodePtr instance;
 	int ret = 0, mem;
-
 	xmlResetLastError();
 	testErrorsSize = 0; testErrors[0] = 0;
 	mem = xmlMemUsed();
@@ -977,19 +961,18 @@ done:
 	return(ret);
 }
 
-static int xstcMetadata(const char * metadata, const char * base) {
+static int xstcMetadata(const char * metadata, const char * base) 
+{
 	xmlDocPtr doc;
 	xmlNodePtr cur;
 	xmlChar * contributor;
 	xmlChar * name;
 	int ret = 0;
-
 	doc = xmlReadFile(metadata, NULL, XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "Failed to parse %s\n", metadata);
 		return(-1);
 	}
-
 	cur = xmlDocGetRootElement(doc);
 	if((cur == NULL) || (!xmlStrEqual(cur->name, BAD_CAST "testSet"))) {
 		fprintf(stderr, "Unexpected format %s\n", metadata);
@@ -1006,7 +989,6 @@ static int xstcMetadata(const char * metadata, const char * base) {
 	printf("## %s test suite for Schemas version %s\n", contributor, name);
 	xmlFree(contributor);
 	xmlFree(name);
-
 	cur = getNext(cur, "./ts:testGroup[1]");
 	if((cur == NULL) || (!xmlStrEqual(cur->name, BAD_CAST "testGroup"))) {
 		fprintf(stderr, "Unexpected format %s\n", metadata);
@@ -1017,7 +999,6 @@ static int xstcMetadata(const char * metadata, const char * base) {
 		xstcTestGroup(cur, base);
 		cur = getNext(cur, "following-sibling::ts:testGroup[1]");
 	}
-
 done:
 	xmlFreeDoc(doc);
 	return(ret);

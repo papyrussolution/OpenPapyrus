@@ -230,7 +230,7 @@ void  jinit_upsampler(j_decompress_ptr cinfo)
 	int ci;
 	jpeg_component_info * compptr;
 	int h_in_group, v_in_group, h_out_group, v_out_group;
-	my_upsample_ptr upsample = (my_upsample_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_upsampler));
+	my_upsample_ptr upsample = (my_upsample_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(my_upsampler));
 	cinfo->upsample = &upsample->pub;
 	upsample->pub.start_pass = start_pass_upsample;
 	upsample->pub.upsample = sep_upsample;

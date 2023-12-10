@@ -1,12 +1,10 @@
 /*
-* Copyright 2021 gitlost
-*/
+ * Copyright 2021 gitlost
+ */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "CharacterSet.h"
-#include "TextDecoder.h"
-#include "Utf.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
@@ -28,7 +26,7 @@ std::string Utf32ToUtf8(const char32_t utf32)
 TEST(TextDecoderTest, AppendBINARY_ASCII)
 {
 	uint8_t data[256];
-	for (int i = 0; i < 256; i++) {
+	for(int i = 0; i < 256; i++) {
 		data[i] = (uint8_t)i;
 	}
 
@@ -55,7 +53,7 @@ TEST(TextDecoderTest, AppendAllASCIIRange00_7F)
 	uint8_t dataUTF32BE[0x80 * 4];
 	uint8_t dataUTF32LE[0x80 * 4];
 
-	for (int i = 0; i < 0x80; i++) {
+	for(int i = 0; i < 0x80; i++) {
 		uint8_t ch = static_cast<uint8_t>(i);
 		data[i] = ch;
 		expected.append(Utf32ToUtf8(i));
@@ -77,15 +75,15 @@ TEST(TextDecoderTest, AppendAllASCIIRange00_7F)
 	}
 	EXPECT_EQ(expected.size(), 128);
 
-	for (int i = 0; i < static_cast<int>(CharacterSet::CharsetCount); i++) {
+	for(int i = 0; i < static_cast<int>(CharacterSet::CharsetCount); i++) {
 		std::string str;
 		CharacterSet cs = static_cast<CharacterSet>(i);
 		switch(cs) {
-		case CharacterSet::UTF16BE: TextDecoder::Append(str, dataUTF16BE, sizeof(dataUTF16BE), cs); break;
-		case CharacterSet::UTF16LE: TextDecoder::Append(str, dataUTF16LE, sizeof(dataUTF16LE), cs); break;
-		case CharacterSet::UTF32BE: TextDecoder::Append(str, dataUTF32BE, sizeof(dataUTF32BE), cs); break;
-		case CharacterSet::UTF32LE: TextDecoder::Append(str, dataUTF32LE, sizeof(dataUTF32LE), cs); break;
-		default: TextDecoder::Append(str, data, sizeof(data), cs); break;
+			case CharacterSet::UTF16BE: TextDecoder::Append(str, dataUTF16BE, sizeof(dataUTF16BE), cs); break;
+			case CharacterSet::UTF16LE: TextDecoder::Append(str, dataUTF16LE, sizeof(dataUTF16LE), cs); break;
+			case CharacterSet::UTF32BE: TextDecoder::Append(str, dataUTF32BE, sizeof(dataUTF32BE), cs); break;
+			case CharacterSet::UTF32LE: TextDecoder::Append(str, dataUTF32LE, sizeof(dataUTF32LE), cs); break;
+			default: TextDecoder::Append(str, data, sizeof(data), cs); break;
 		}
 		EXPECT_EQ(str, expected) << " charset: " << ToString(cs);
 	}
@@ -94,7 +92,7 @@ TEST(TextDecoderTest, AppendAllASCIIRange00_7F)
 TEST(TextDecoderTest, AppendISO8859Range80_9F)
 {
 	uint8_t data[0xA0 - 0x80];
-	for (int i = 0x80; i < 0xA0; i++) {
+	for(int i = 0x80; i < 0xA0; i++) {
 		data[i - 0x80] = (uint8_t)i;
 	}
 	static const CharacterSet isos[] = {
@@ -105,7 +103,7 @@ TEST(TextDecoderTest, AppendISO8859Range80_9F)
 		CharacterSet::ISO8859_13, CharacterSet::ISO8859_14, CharacterSet::ISO8859_15, CharacterSet::ISO8859_16
 	};
 
-	for (CharacterSet iso : isos) {
+	for(CharacterSet iso : isos) {
 		std::wstring str;
 		TextDecoder::Append(str, data, sizeof(data), iso);
 		EXPECT_THAT(str, ElementsAreArray(data, sizeof(data))) << "iso: " << static_cast<int>(iso);
@@ -152,7 +150,7 @@ TEST(TextDecoderTest, AppendShift_JIS)
 
 	{
 		static const uint8_t data[] = { 'a', 0x83, 0xC0, 'c', 0x84, 0x47, 0xA5, 0xBF, 0x93, 0x5F,
-										0xE4, 0xAA, 0x83, 0x65 };
+						0xE4, 0xAA, 0x83, 0x65 };
 		std::wstring str;
 		TextDecoder::Append(str, data, sizeof(data), CharacterSet::Shift_JIS);
 		EXPECT_EQ(str, L"a\u03B2c\u0416\uFF65\uFF7F\u70B9\u8317\u30C6");
@@ -202,7 +200,7 @@ TEST(TextDecoderTest, AppendGB18030)
 {
 	{
 		static const uint8_t data[] = { 'a', 0xA6, 0xC2, 'c', 0x81, 0x39, 0xA7, 0x39, 0xA1, 0xA4, 0xA1, 0xAA,
-										0xA8, 0xA6, 'Z' };
+						0xA8, 0xA6, 'Z' };
 		std::wstring str;
 		TextDecoder::Append(str, data, sizeof(data), CharacterSet::GB18030);
 		EXPECT_EQ(str, L"a\u03B2c\u30FB\u00B7\u2014\u00E9Z");
@@ -234,7 +232,7 @@ TEST(TextDecoderTest, AppendUTF16BE)
 	{
 		std::wstring str;
 		static const uint8_t data[] = { 0x00, 0x01, 0x00, 0x7F, 0x00, 0x80, 0x00, 0xFF, 0x01, 0xFF, 0x10, 0xFF,
-										0xFF, 0xFD };
+						0xFF, 0xFD };
 		TextDecoder::Append(str, data, sizeof(data), CharacterSet::UTF16BE);
 		EXPECT_EQ(str, L"\u0001\u007F\u0080\u00FF\u01FF\u10FF\uFFFD");
 		EXPECT_EQ(ToUtf8(str), "\x01\x7F\xC2\x80ÿǿჿ\xEF\xBF\xBD");

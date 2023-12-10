@@ -359,7 +359,7 @@ LOCAL(ODITHER_MATRIX_PTR) make_odither_array(j_decompress_ptr cinfo, int ncolors
 {
 	int j, k;
 	INT32 num, den;
-	ODITHER_MATRIX_PTR odither = (ODITHER_MATRIX_PTR)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(ODITHER_MATRIX));
+	ODITHER_MATRIX_PTR odither = (ODITHER_MATRIX_PTR)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(ODITHER_MATRIX));
 	/* The inter-value distance for this color is MAXJSAMPLE/(ncolors-1).
 	 * Hence the dither value for the matrix cell with fill order f
 	 * (f=0..N-1) should be (N-1-2*f)/(2*N) * MAXJSAMPLE/(ncolors-1).
@@ -475,7 +475,7 @@ METHODDEF(void) quantize_ord_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf
 	for(row = 0; row < num_rows; row++) {
 		/* Initialize output values to 0 so can process components separately */
 		FMEMZERO(output_buf[row],
-		    (size_t)(width * SIZEOF(JSAMPLE)));
+		    (size_t)(width * sizeof(JSAMPLE)));
 		row_index = cquantize->row_index;
 		for(ci = 0; ci < nc; ci++) {
 			input_ptr = input_buf[row] + ci;
@@ -576,7 +576,7 @@ METHODDEF(void) quantize_fs_dither(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
 	for(row = 0; row < num_rows; row++) {
 		/* Initialize output values to 0 so can process components separately */
 		FMEMZERO(output_buf[row],
-		    (size_t)(width * SIZEOF(JSAMPLE)));
+		    (size_t)(width * sizeof(JSAMPLE)));
 		for(ci = 0; ci < nc; ci++) {
 			input_ptr = input_buf[row] + ci;
 			output_ptr = output_buf[row];
@@ -661,7 +661,7 @@ static void alloc_fs_workspace(j_decompress_ptr cinfo)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
 	int i;
-	size_t arraysize = (size_t)((cinfo->output_width + 2) * SIZEOF(FSERROR));
+	size_t arraysize = (size_t)((cinfo->output_width + 2) * sizeof(FSERROR));
 	for(i = 0; i < cinfo->out_color_components; i++) {
 		cquantize->fserrors[i] = (FSERRPTR)(*cinfo->mem->alloc_large)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, arraysize);
 	}
@@ -709,7 +709,7 @@ METHODDEF(void) start_pass_1_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
 		    if(cquantize->fserrors[0] == NULL)
 			    alloc_fs_workspace(cinfo);
 		    /* Initialize the propagated errors to zero. */
-		    arraysize = (size_t)((cinfo->output_width + 2) * SIZEOF(FSERROR));
+		    arraysize = (size_t)((cinfo->output_width + 2) * sizeof(FSERROR));
 		    for(i = 0; i < cinfo->out_color_components; i++)
 			    FMEMZERO(cquantize->fserrors[i], arraysize);
 		    break;
@@ -742,7 +742,7 @@ METHODDEF(void) new_color_map_1_quant(j_decompress_ptr cinfo)
  */
 void  jinit_1pass_quantizer(j_decompress_ptr cinfo)
 {
-	my_cquantize_ptr cquantize = (my_cquantize_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_cquantizer));
+	my_cquantize_ptr cquantize = (my_cquantize_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(my_cquantizer));
 	cinfo->cquantize = (struct jpeg_color_quantizer*)cquantize;
 	cquantize->pub.start_pass = start_pass_1_quant;
 	cquantize->pub.finish_pass = finish_pass_1_quant;

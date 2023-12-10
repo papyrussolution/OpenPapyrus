@@ -181,26 +181,20 @@ void UnifiedCache::dumpContents() const {
 // Dumps content of cache.
 // On entry, gCacheMutex must be held.
 // On exit, cache contents dumped to stderr.
-void UnifiedCache::_dumpContents() const {
+void UnifiedCache::_dumpContents() const 
+{
 	int32_t pos = UHASH_FIRST;
 	const UHashElement * element = uhash_nextElement(fHashtable, &pos);
 	char buffer[256];
 	int32_t cnt = 0;
 	for(; element != NULL; element = uhash_nextElement(fHashtable, &pos)) {
-		const SharedObject * sharedObject =
-		    (const SharedObject*)element->value.pointer;
-		const CacheKeyBase * key =
-		    (const CacheKeyBase*)element->key.pointer;
+		const SharedObject * sharedObject = (const SharedObject*)element->value.pointer;
+		const CacheKeyBase * key = (const CacheKeyBase*)element->key.pointer;
 		if(sharedObject->hasHardReferences()) {
 			++cnt;
-			fprintf(
-				stderr,
-				"Unified Cache: Key '%s', error %d, value %p, total refcount %d, soft refcount %d\n",
-				key->writeDescription(buffer, 256),
-				key->creationStatus,
-				sharedObject == fNoValue ? NULL : sharedObject,
-				sharedObject->getRefCount(),
-				sharedObject->getSoftRefCount());
+			fprintf(stderr, "Unified Cache: Key '%s', error %d, value %p, total refcount %d, soft refcount %d\n",
+				key->writeDescription(buffer, 256), key->creationStatus, sharedObject == fNoValue ? NULL : sharedObject,
+				sharedObject->getRefCount(), sharedObject->getSoftRefCount());
 		}
 	}
 	slfprintf_stderr("Unified Cache: %d out of a total of %d still have hard references\n", cnt, uhash_count(fHashtable));

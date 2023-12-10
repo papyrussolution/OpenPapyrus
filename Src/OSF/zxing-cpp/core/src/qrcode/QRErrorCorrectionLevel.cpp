@@ -6,7 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "QRErrorCorrectionLevel.h"
 
 namespace ZXing::QRCode {
 const char* ToString(ErrorCorrectionLevel l)

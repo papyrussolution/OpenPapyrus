@@ -313,7 +313,7 @@ void  jpeg_fdct_7x7(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
 	 * furthermore, we scale the results by 2**PASS1_BITS.
@@ -433,7 +433,7 @@ void  jpeg_fdct_6x6(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
 	 * furthermore, we scale the results by 2**PASS1_BITS.
@@ -514,7 +514,7 @@ void  jpeg_fdct_5x5(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
 	 * furthermore, we scale the results by 2**PASS1_BITS.
@@ -607,7 +607,7 @@ void  jpeg_fdct_4x4(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
 	 * furthermore, we scale the results by 2**PASS1_BITS.
@@ -685,7 +685,7 @@ void  jpeg_fdct_3x3(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
@@ -741,7 +741,7 @@ void  jpeg_fdct_2x2(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	JSAMPROW elemptr;
 
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT.
@@ -783,7 +783,7 @@ void  jpeg_fdct_1x1(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	DCTELEM dcval;
 
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 
 	dcval = GETJSAMPLE(sample_data[0][start_col]);
 
@@ -2312,7 +2312,7 @@ void  jpeg_fdct_14x7(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_co
 	int ctr;
 	SHIFT_TEMPS
 	/* Zero bottom row of output coefficient block. */
-	memzero(&data[DCTSIZE*7], SIZEOF(DCTELEM) * DCTSIZE);
+	memzero(&data[DCTSIZE*7], sizeof(DCTELEM) * DCTSIZE);
 
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
@@ -2473,7 +2473,7 @@ void  jpeg_fdct_12x6(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_co
 	int ctr;
 	SHIFT_TEMPS
 	/* Zero 2 bottom rows of output coefficient block. */
-	memzero(&data[DCTSIZE*6], SIZEOF(DCTELEM) * DCTSIZE * 2);
+	memzero(&data[DCTSIZE*6], sizeof(DCTELEM) * DCTSIZE * 2);
 
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
@@ -2589,7 +2589,7 @@ void  jpeg_fdct_10x5(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_co
 	int ctr;
 	SHIFT_TEMPS
 	/* Zero 3 bottom rows of output coefficient block. */
-	memzero(&data[DCTSIZE*5], SIZEOF(DCTELEM) * DCTSIZE * 3);
+	memzero(&data[DCTSIZE*5], sizeof(DCTELEM) * DCTSIZE * 3);
 
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
@@ -2692,7 +2692,7 @@ void  jpeg_fdct_8x4(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Zero 4 bottom rows of output coefficient block. */
-	memzero(&data[DCTSIZE*4], SIZEOF(DCTELEM) * DCTSIZE * 4);
+	memzero(&data[DCTSIZE*4], sizeof(DCTELEM) * DCTSIZE * 4);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
 	 * furthermore, we scale the results by 2**PASS1_BITS.
@@ -2806,7 +2806,7 @@ void  jpeg_fdct_6x3(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
@@ -2904,7 +2904,7 @@ void  jpeg_fdct_4x2(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
@@ -2982,7 +2982,7 @@ void  jpeg_fdct_2x1(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	JSAMPROW elemptr;
 
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 
 	elemptr = sample_data[0] + start_col;
 
@@ -3158,7 +3158,7 @@ void  jpeg_fdct_7x14(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_co
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
 	 * furthermore, we scale the results by 2**PASS1_BITS.
@@ -3284,7 +3284,7 @@ void  jpeg_fdct_6x12(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_co
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
 	 * furthermore, we scale the results by 2**PASS1_BITS.
@@ -3391,7 +3391,7 @@ void  jpeg_fdct_5x10(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_co
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
 	 * furthermore, we scale the results by 2**PASS1_BITS.
@@ -3493,7 +3493,7 @@ void  jpeg_fdct_4x8(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
 	 * furthermore, we scale the results by 2**PASS1_BITS.
@@ -3594,7 +3594,7 @@ void  jpeg_fdct_3x6(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT;
 	 * furthermore, we scale the results by 2**PASS1_BITS.
@@ -3660,7 +3660,7 @@ void  jpeg_fdct_2x4(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 	int ctr;
 	SHIFT_TEMPS
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: process rows.
 	 * Note results are scaled up by sqrt(8) compared to a true DCT.
 	 * We must also scale the output by (8/2)*(8/4) = 2**3, which we add here.
@@ -3709,7 +3709,7 @@ void  jpeg_fdct_1x2(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col
 {
 	DCTELEM tmp0, tmp1;
 	/* Pre-zero output coefficient block. */
-	memzero(data, SIZEOF(DCTELEM) * DCTSIZE2);
+	memzero(data, sizeof(DCTELEM) * DCTSIZE2);
 	/* Pass 1: empty. */
 	/* Pass 2: process columns.
 	 * We leave the results scaled up by an overall factor of 8.

@@ -6,7 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODUPCEANCommon.h"
 
 namespace ZXing::OneD {
 

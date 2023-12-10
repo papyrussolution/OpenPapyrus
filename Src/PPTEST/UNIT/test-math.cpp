@@ -9,6 +9,47 @@ bool FASTCALL Helper_IsPrime(ulong val, int test);
 SLTEST_R(smath)
 {
 	{
+		// 12.0/5.0 == 2.4
+		SLCHECK_EQ(idivroundn(12, 5), 2);
+		SLCHECK_EQ(idivroundn(12L, 5L), 2L);
+		SLCHECK_EQ(idivroundn(12LL, 5LL), 2LL);
+		SLCHECK_EQ(idivroundup(12, 5), 3);
+		SLCHECK_EQ(idivroundup(12L, 5L), 3L);
+		SLCHECK_EQ(idivroundup(12LL, 5LL), 3LL);
+
+		// 13.0/5.0 == 2.6
+		SLCHECK_EQ(idivroundn(13, 5), 3);
+		SLCHECK_EQ(idivroundn(13L, 5L), 3L);
+		SLCHECK_EQ(idivroundn(13LL, 5LL), 3LL);
+		SLCHECK_EQ(idivroundup(13, 5), 3);
+		SLCHECK_EQ(idivroundup(13L, 5L), 3L);
+		SLCHECK_EQ(idivroundup(13LL, 5LL), 3LL);
+
+		// 8.0/4.0 == 2.0
+		SLCHECK_EQ(idivroundn(8, 4), 2);
+		SLCHECK_EQ(idivroundn(8L, 4L), 2L);
+		SLCHECK_EQ(idivroundn(8LL, 4LL), 2LL);
+		SLCHECK_EQ(idivroundup(8, 4), 2);
+		SLCHECK_EQ(idivroundup(8L, 4L), 2L);
+		SLCHECK_EQ(idivroundup(8LL, 4LL), 2LL);
+
+		// 9.0/4.0 == 2.25
+		SLCHECK_EQ(idivroundn(9, 4), 2);
+		SLCHECK_EQ(idivroundn(9L, 4L), 2L);
+		SLCHECK_EQ(idivroundn(9LL, 4LL), 2LL);
+		SLCHECK_EQ(idivroundup(9, 4), 3);
+		SLCHECK_EQ(idivroundup(9L, 4L), 3L);
+		SLCHECK_EQ(idivroundup(9LL, 4LL), 3LL);
+
+		// 10.0/4.0 == 2.5
+		SLCHECK_EQ(idivroundn(10, 4), 3);
+		SLCHECK_EQ(idivroundn(10L, 4L), 3L);
+		SLCHECK_EQ(idivroundn(10LL, 4LL), 3LL);
+		SLCHECK_EQ(idivroundup(10, 4), 3);
+		SLCHECK_EQ(idivroundup(10L, 4L), 3L);
+		SLCHECK_EQ(idivroundup(10LL, 4LL), 3LL);
+	}
+	{
 		struct rational_test_param {
 			ulong  num;
 			ulong  den;

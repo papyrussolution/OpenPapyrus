@@ -137,7 +137,7 @@ METHODDEF(int) decompress_onepass(j_decompress_ptr cinfo, JSAMPIMAGE output_buf)
 		for(MCU_col_num = coef->MCU_ctr; MCU_col_num <= last_MCU_col; MCU_col_num++) {
 			/* Try to fetch an MCU.  Entropy decoder expects buffer to be zeroed. */
 			if(cinfo->lim_Se) /* can bypass in DC only case */
-				FMEMZERO(coef->MCU_buffer[0], (size_t)(cinfo->blocks_in_MCU * SIZEOF(JBLOCK)));
+				FMEMZERO(coef->MCU_buffer[0], (size_t)(cinfo->blocks_in_MCU * sizeof(JBLOCK)));
 			if(!(*cinfo->entropy->decode_mcu)(cinfo, coef->MCU_buffer)) {
 				/* Suspension forced; update state counters and exit */
 				coef->MCU_vert_offset = yoffset;
@@ -354,7 +354,7 @@ LOCAL(boolean) smoothing_ok(j_decompress_ptr cinfo)
 		return FALSE;
 	/* Allocate latch area if not already done */
 	if(coef->coef_bits_latch == NULL)
-		coef->coef_bits_latch = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, cinfo->num_components * (SAVED_COEFS * SIZEOF(int)));
+		coef->coef_bits_latch = (int *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, cinfo->num_components * (SAVED_COEFS * sizeof(int)));
 	coef_bits_latch = coef->coef_bits_latch;
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 		/* All components' quantization values must already be latched. */
@@ -591,7 +591,7 @@ METHODDEF(int) decompress_smooth_data(j_decompress_ptr cinfo, JSAMPIMAGE output_
  */
 void  jinit_d_coef_controller(j_decompress_ptr cinfo, boolean need_full_buffer)
 {
-	my_coef_ptr coef = (my_coef_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_coef_controller));
+	my_coef_ptr coef = (my_coef_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(my_coef_controller));
 	cinfo->coef = (struct jpeg_d_coef_controller*)coef;
 	coef->pub.start_input_pass = start_input_pass;
 	coef->pub.start_output_pass = start_output_pass;
@@ -626,12 +626,12 @@ void  jinit_d_coef_controller(j_decompress_ptr cinfo, boolean need_full_buffer)
 	else {
 		int i;
 		/* We only need a single-MCU buffer. */
-		JBLOCKROW buffer = (JBLOCKROW)(*cinfo->mem->alloc_large)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, D_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
+		JBLOCKROW buffer = (JBLOCKROW)(*cinfo->mem->alloc_large)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, D_MAX_BLOCKS_IN_MCU * sizeof(JBLOCK));
 		for(i = 0; i < D_MAX_BLOCKS_IN_MCU; i++) {
 			coef->MCU_buffer[i] = buffer + i;
 		}
 		if(cinfo->lim_Se == 0) /* DC only case: want to bypass later */
-			FMEMZERO(buffer, (size_t)(D_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK)));
+			FMEMZERO(buffer, (size_t)(D_MAX_BLOCKS_IN_MCU * sizeof(JBLOCK)));
 		coef->pub.consume_data = dummy_consume_data;
 		coef->pub.decompress_data = decompress_onepass;
 		coef->pub.coef_arrays = NULL; /* flag for no virtual arrays */

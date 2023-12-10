@@ -696,6 +696,13 @@ public:
 		char   SubstTxt_Password[128];
 		//char   SubstTxt_
 	};
+	class ImDialog_WsCtlLogin : public ImDialogState {
+	public:
+		ImDialog_WsCtlLogin(WsCtl_ImGuiSceneBlock & rBlk);
+		~ImDialog_WsCtlLogin();
+		virtual int Build();
+		virtual bool CommitData();
+	};
 private:
 	//
 	// Descr: Поток, реализующий запросы к серверу.
@@ -776,13 +783,29 @@ private:
 	void   LoadProgramList2();
 	static void LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache);
 	void   EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl);
-	void   ErrorPopup(bool isErr);
+	//
+	// Descr: Коды состояния ошибки для информирования пользователя //
+	//
+	enum {
+		errstateNone = 0,   // Нет ошибки
+		errstateCommon = 1, // Общая ошибка PPERR_XXX
+		errstateServer = 2, // Серверная ошибка
+	};
+	//
+	void   LastServerErrorPopup(bool isErr);
+	//
+	// Returns:
+	//   true - либо rErrState не находится в состоянии ошибки, либо пользователь нажал кнопку [Close] в диалоге и, соответственно, состояние ошибки сброшено.
+	//   false - состояние ошибки установлено и не изменилось в процессе исполнения функции
+	//
+	bool   ErrorPopup_(int & rErrState);
 	static int CbInput(ImGuiInputTextCallbackData * pInputData);
 
 	//
 	char   TestInput[128];
-	char   LoginText[256];
-	char   PwText[128];
+	//char   LoginText[256];
+	//char   PwText[128];
+	WsCtl_LoginBlock LoginBlk;
 	DServerError LastSvrErr;
 	ImDialog_WsCtlConfig * P_Dlg_Cfg;
 	SScroller::Position PgmGalleryScrollerPosition_Develop; // @v11.7.12
@@ -1993,8 +2016,8 @@ WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnot
 	P_Dlg_Cfg(0)
 {
 	TestInput[0] = 0;
-	LoginText[0] = 0;
-	PwText[0] = 0;
+	//LoginText[0] = 0;
+	//PwText[0] = 0;
 }
 
 WsCtl_ImGuiSceneBlock::~WsCtl_ImGuiSceneBlock()
@@ -2396,7 +2419,40 @@ void WsCtl_ImGuiSceneBlock::Render()
 	return 0;
 }
 
-void WsCtl_ImGuiSceneBlock::ErrorPopup(bool isErr)
+bool WsCtl_ImGuiSceneBlock::ErrorPopup_(int & rErrState)
+{
+	bool result = false;
+	if(oneof2(rErrState, errstateCommon, errstateServer)) {
+		SString message;
+		const char * p_popup_title = "Error message";
+		if(rErrState == errstateServer) {
+			message = LastSvrErr._Message;
+		}
+		else if(rErrState == errstateCommon) {
+			PPGetMessage(mfError, PPErrCode, 0, 1, message);
+			message.Transf(CTRANSF_INNER_TO_UTF8);
+		}
+		if(message.IsEmpty())
+			message.Space().Z();
+		ImGui::OpenPopup(p_popup_title);
+		if(ImGui::BeginPopup(p_popup_title)) {
+			ImGui::Text(message);
+			if(ImGui::Button("Close", ButtonSize_Std)) {
+				ImGui::CloseCurrentPopup();
+				if(rErrState == errstateServer)
+					LastSvrErr.Z();
+				rErrState = errstateNone;
+				result = true;
+			}
+			ImGui::EndPopup();
+		}
+	}
+	else
+		result = true;
+	return result;
+}
+
+void WsCtl_ImGuiSceneBlock::LastServerErrorPopup(bool isErr)
 {
 	if(isErr) {
 		const char * p_popup_title = "Error message";
@@ -3086,7 +3142,8 @@ void WsCtl_ImGuiSceneBlock::PreprocessProgramList()
 
 void WsCtl_ImGuiSceneBlock::BuildScene()
 {
-	const LDATETIME now_dtm = getcurdatetime_();
+	int    errstate = errstateNone;
+	const  LDATETIME now_dtm = getcurdatetime_();
 	if(!TestBlk.DtmLastQuerySent || diffdatetimesec(now_dtm, TestBlk.DtmLastQuerySent) > 5) {
 		if(P_CmdQ) {
 			WsCtlReqQueue::Req qr(PPSCMD_HELLO);
@@ -3135,29 +3192,34 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								//
 								// Handle an error
 								//
-								bool is_err = false;
+								errstate = errstateNone;
 								if(!data_auth.SCardID && data_auth._Status != 0) {
 									LastSvrErr = data_auth;
 									// Сбрасываем информацию об ошибке {
 									data_auth.DServerError::Z();
 									St.D_Auth.SetData(data_auth);
 									// }
-									if(LastSvrErr._Message.NotEmpty())
-										is_err = true;
+									if(LastSvrErr._Message.NotEmpty()) {
+										//is_err = true;
+										errstate = errstateServer;
+									}
 								}
 								else if(LastSvrErr._Status != 0) {
-									if(LastSvrErr._Message.NotEmpty())
-										is_err = true;
+									if(LastSvrErr._Message.NotEmpty()) {
+										//is_err = true;
+										errstate = errstateServer;
+									}
 								}
-								ErrorPopup(is_err);
+								//LastServerErrorPopup(is_err);
+								ErrorPopup_(errstate);
 							}
-							ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-							ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-							if(!isempty(LoginText)) {
+							ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginBlk.LoginText, sizeof(LoginBlk.LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+							ImGui::InputText(InputLabelPrefix("Пароль"), LoginBlk.PwText, sizeof(LoginBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+							if(!isempty(LoginBlk.LoginText)) {
 								if(ImGui::Button("Login", ButtonSize_Std) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
 									WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
-									STRNSCPY(req.P.AuthTextUtf8, LoginText);
-									STRNSCPY(req.P.AuthPwUtf8, PwText);
+									STRNSCPY(req.P.AuthTextUtf8, LoginBlk.LoginText);
+									STRNSCPY(req.P.AuthPwUtf8, LoginBlk.PwText);
 									P_CmdQ->Push(req);
 								}
 							}
@@ -3237,11 +3299,18 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					St.D_TSess.GetData(st_data_tses);
 					if(st_data_tses.TSessID && st_data_tses._Status == 0) {
 						SessF.SetClientPolicy(PolicyL); // @v11.8.6
-						if(SessF.Start()) { // @v11.8.5
+						if(!errstate && SessF.Start()) { // @v11.8.5
+							errstate = errstateNone;
 							SetScreen(screenSession);
 						}
 						else {
-							// @todo @err
+							errstate = errstateCommon;
+							if(ErrorPopup_(errstate)) {
+								assert(!errstate);
+								st_data_tses.Z();
+								St.D_TSess.SetData(st_data_tses);
+								//SetScreen(screenAuthSelectSess);
+							}
 						}
 					}
 					else {
@@ -3249,21 +3318,27 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							//
 							// Handle an error
 							//
-							bool is_err = false;
+							//bool is_err = false;
+							errstate = errstateNone;
 							if(!st_data_tses.TSessID && st_data_tses._Status != 0) {
 								LastSvrErr = st_data_tses;
 								// Сбрасываем информацию об ошибке {
 								st_data_tses.DServerError::Z();
 								St.D_TSess.SetData(st_data_tses);
 								// }
-								if(LastSvrErr._Message.NotEmpty())
-									is_err = true;
+								if(LastSvrErr._Message.NotEmpty()) {
+									//is_err = true;
+									errstate = errstateServer;
+								}
 							}
 							else if(LastSvrErr._Status != 0) {
-								if(LastSvrErr._Message.NotEmpty())
-									is_err = true;
+								if(LastSvrErr._Message.NotEmpty()) {
+									//is_err = true;
+									errstate = errstateServer;
+								}
 							}
-							ErrorPopup(is_err);
+							//LastServerErrorPopup(is_err);
+							ErrorPopup_(errstate);
 						}
 						p_tl->Evaluate(&evp);
 						{
@@ -3442,13 +3517,13 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									SString & r_temp_buf = SLS.AcquireRvlStr();
 									ImGui::Text(r_temp_buf.Z().Cat("Processor is buisy till").Space().Cat(data_sess.TmChunk.Finish, DATF_DMY, TIMF_HM));
 								}
-								ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginText, sizeof(LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-								ImGui::InputText(InputLabelPrefix("Пароль"), PwText, sizeof(PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-								if(!isempty(LoginText)) {
+								ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginBlk.LoginText, sizeof(LoginBlk.LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix("Пароль"), LoginBlk.PwText, sizeof(LoginBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								if(!isempty(LoginBlk.LoginText)) {
 									if(ImGui::Button("Login", ButtonSize_Std)) {
 										WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
-										STRNSCPY(req.P.AuthTextUtf8, LoginText);
-										STRNSCPY(req.P.AuthPwUtf8, PwText);
+										STRNSCPY(req.P.AuthTextUtf8, LoginBlk.LoginText);
+										STRNSCPY(req.P.AuthPwUtf8, LoginBlk.PwText);
 										P_CmdQ->Push(req);
 									}
 								}

@@ -1546,7 +1546,7 @@ bool FASTCALL CPosProcessor::BelongToExtCashNode(PPID goodsID) const
 
 PPID FASTCALL CPosProcessor::GetChargeGoodsID(PPID scardID)
 {
-	PPID   id = ScObj.GetChargeGoodsID(scardID);
+	const PPID id = ScObj.GetChargeGoodsID(scardID);
 	return NZOR(id, UNDEF_CHARGEGOODSID);
 }
 
@@ -2460,8 +2460,18 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 	}
 	LDBLTOMONEY(cct.Amount, pPack->Rec.Amount);
 	LDBLTOMONEY(cct.Discount, pPack->Rec.Discount);
-	P.SetupCCheckPacket(pPack, CSt, false);
-	pPack->SetupPaymList(pCcPl);
+	// @v11.9.0 P.SetupCCheckPacket(pPack, CSt, false);
+	// @v11.9.0 {
+	if(pExtPack && pExtPack->GetCount() && pPack->GetCount() == 0) {
+		P.SetupCCheckPacket(pExtPack, CSt, false); // isExtCc == false ибо в данном случае спаренный чек ведет себя как основной чек (основного - просто нет)
+		pExtPack->SetupPaymList(pCcPl);
+		ok = 2; // @v11.9.0
+	}	
+	// } @v11.9.0 
+	else {
+		P.SetupCCheckPacket(pPack, CSt, false);
+		pPack->SetupPaymList(pCcPl);
+	}
 	// @v11.0.9 {
 	// @todo Здесь надо в пакете чека сохранить информацию о ручной скидке.
 	// Это - важно, иначе не останется следа от того факта, что кассир предоставил произвольную скидку
@@ -2610,18 +2620,25 @@ int CPosProcessor::AutosaveCheck()
 					}
 				}
 			}
-			THROW(Helper_InitCcPacket(&epb.Pack, (((mode == accmRegular || reprint_regular) && !altPosNodeID) ? &epb.ExtPack : 0), pPl, 0));
+			const int iccpr = Helper_InitCcPacket(&epb.Pack, (((mode == accmRegular || reprint_regular) && !altPosNodeID) ? &epb.ExtPack : 0), pPl, 0);
+			THROW(iccpr);
 			if(mode == accmRegular && P_CM_EXT) {
 				epb.Pack._Cash = MONEYTOLDBL(epb.Pack.Rec.Amount);
 				SETFLAG(epb.Flags, epb.fIsExtPack, epb.ExtPack.GetCount());
 				if(epb.Flags & epb.fIsExtPack) {
 					double amt, dscnt;
+					const long preserve_ext_pack_flags = epb.ExtPack.Rec.Flags;
 					GetNewCheckCode(ExtCashNodeID, &epb.ExtPack.Rec.Code);
 					epb.ExtPack.Rec.SessID = P_CM_EXT->GetCurSessID(); // @!
 					epb.ExtPack.Rec.CashID = ExtCashNodeID;
 					epb.ExtPack.Rec.Flags  = epb.Pack.Rec.Flags;
 					epb.ExtPack.SetupAmount(&amt, &dscnt);
-					P.SetupCCheckPacket(&epb.ExtPack, CSt, true);
+					if(iccpr == 2) {
+						SETFLAGBYSAMPLE(epb.ExtPack.Rec.Flags, preserve_ext_pack_flags, CCHKF_PAYMLIST);
+					}
+					else {
+						P.SetupCCheckPacket(&epb.ExtPack, CSt, true);
+					}
 					epb.ExtPack._Cash = amt;
 				}
 			}
@@ -4862,7 +4879,7 @@ SelCheckListDialog::SelCheckListDialog(uint dlgId, const TSVector <CCheckViewIte
 	Init(0);
 }
 
-// @v11.8.7 @construction
+// @v11.8.7
 SelCheckListDialog::SelCheckListDialog(uint dlgId, const PPIDArray & rBillIdList, CPosProcessor * pSrv, const AddedParam * pAddParam/*=0*/) :
 	PPListDialog(dlgId, CTL_SELCHECK_LIST)
 {

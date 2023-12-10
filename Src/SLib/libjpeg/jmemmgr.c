@@ -78,10 +78,9 @@
  * Small and large pool headers are identical except that the latter's
  * link pointer must be FAR on 80x86 machines.
  * Notice that the "real" header fields are union'ed with a dummy ALIGN_TYPE
- * field.  This forces the compiler to make SIZEOF(small_pool_hdr) a multiple
+ * field.  This forces the compiler to make sizeof(small_pool_hdr) a multiple
  * of the alignment requirement of ALIGN_TYPE.
  */
-
 typedef union small_pool_struct * small_pool_ptr;
 
 typedef union small_pool_struct {
@@ -233,12 +232,12 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 	char * data_ptr;
 	size_t odd_bytes, min_request, slop;
 	/* Check for unsatisfiable request (do now to ensure no overflow below) */
-	if(sizeofobject > (size_t)(MAX_ALLOC_CHUNK-SIZEOF(small_pool_hdr)))
+	if(sizeofobject > (size_t)(MAX_ALLOC_CHUNK-sizeof(small_pool_hdr)))
 		out_of_memory(cinfo, 1); /* request exceeds SAlloc::M's ability */
-	/* Round up the requested size to a multiple of SIZEOF(ALIGN_TYPE) */
-	odd_bytes = sizeofobject % SIZEOF(ALIGN_TYPE);
+	/* Round up the requested size to a multiple of sizeof(ALIGN_TYPE) */
+	odd_bytes = sizeofobject % sizeof(ALIGN_TYPE);
 	if(odd_bytes > 0)
-		sizeofobject += SIZEOF(ALIGN_TYPE) - odd_bytes;
+		sizeofobject += sizeof(ALIGN_TYPE) - odd_bytes;
 	/* See if space is available in any existing pool */
 	if(pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
 		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id); /* safety check */
@@ -253,7 +252,7 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 	/* Time to make a new pool? */
 	if(hdr_ptr == NULL) {
 		/* min_request is what we need now, slop is what will be leftover */
-		min_request = sizeofobject + SIZEOF(small_pool_hdr);
+		min_request = sizeofobject + sizeof(small_pool_hdr);
 		if(prev_hdr_ptr == NULL) /* first pool in class? */
 			slop = first_pool_slop[pool_id];
 		else
@@ -263,7 +262,8 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 			slop = (size_t)(MAX_ALLOC_CHUNK-min_request);
 		/* Try to get space, if fail reduce slop and try again */
 		for(;;) {
-			hdr_ptr = (small_pool_ptr)jpeg_get_small(cinfo, min_request + slop);
+			// @sobolev hdr_ptr = (small_pool_ptr)jpeg_get_small(cinfo, min_request + slop);
+			hdr_ptr = (small_pool_ptr)SAlloc::M(min_request + slop); // @sobolev
 			if(hdr_ptr)
 				break;
 			slop /= 2;
@@ -301,27 +301,26 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
  * deliberately bunch rows together to ensure a large request size.
  */
 METHODDEF(void FAR *) alloc_large(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
-/* Allocate a "large" object */
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
 	large_pool_ptr hdr_ptr;
 	size_t odd_bytes;
 	/* Check for unsatisfiable request (do now to ensure no overflow below) */
-	if(sizeofobject > (size_t)(MAX_ALLOC_CHUNK-SIZEOF(large_pool_hdr)))
+	if(sizeofobject > (size_t)(MAX_ALLOC_CHUNK-sizeof(large_pool_hdr)))
 		out_of_memory(cinfo, 3); /* request exceeds SAlloc::M's ability */
-	/* Round up the requested size to a multiple of SIZEOF(ALIGN_TYPE) */
-	odd_bytes = sizeofobject % SIZEOF(ALIGN_TYPE);
+	/* Round up the requested size to a multiple of sizeof(ALIGN_TYPE) */
+	odd_bytes = sizeofobject % sizeof(ALIGN_TYPE);
 	if(odd_bytes > 0)
-		sizeofobject += SIZEOF(ALIGN_TYPE) - odd_bytes;
+		sizeofobject += sizeof(ALIGN_TYPE) - odd_bytes;
 	/* Always make a new pool */
 	if(pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
 		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id); /* safety check */
-	hdr_ptr = (large_pool_ptr)jpeg_get_large(cinfo, sizeofobject + SIZEOF(large_pool_hdr));
+	// @sobolev hdr_ptr = (large_pool_ptr)jpeg_get_large(cinfo, sizeofobject + sizeof(large_pool_hdr));
+	hdr_ptr = (large_pool_ptr)SAlloc::M(sizeofobject + sizeof(large_pool_hdr)); // @sobolev
 	if(hdr_ptr == NULL)
 		out_of_memory(cinfo, 4); /* jpeg_get_large failed */
-	mem->total_space_allocated += sizeofobject + SIZEOF(large_pool_hdr);
-
-	/* Success, initialize the new pool header and add to list */
+	mem->total_space_allocated += sizeofobject + sizeof(large_pool_hdr);
+	// Success, initialize the new pool header and add to list
 	hdr_ptr->hdr.next = mem->large_list[pool_id];
 	/* We maintain space counts in each pool header for statistical purposes,
 	 * even though they are not needed for allocation.
@@ -353,7 +352,7 @@ METHODDEF(JSAMPARRAY) alloc_sarray(j_common_ptr cinfo, int pool_id, JDIMENSION s
 	JDIMENSION rowsperchunk, currow, i;
 	long ltemp;
 	/* Calculate max # of rows allowed in one allocation chunk */
-	ltemp = (MAX_ALLOC_CHUNK-SIZEOF(large_pool_hdr)) / ((long)samplesperrow * SIZEOF(JSAMPLE));
+	ltemp = (MAX_ALLOC_CHUNK-sizeof(large_pool_hdr)) / ((long)samplesperrow * sizeof(JSAMPLE));
 	if(ltemp <= 0)
 		ERREXIT(cinfo, JERR_WIDTH_OVERFLOW);
 	if(ltemp < (long)numrows)
@@ -362,12 +361,12 @@ METHODDEF(JSAMPARRAY) alloc_sarray(j_common_ptr cinfo, int pool_id, JDIMENSION s
 		rowsperchunk = numrows;
 	mem->last_rowsperchunk = rowsperchunk;
 	/* Get space for row pointers (small object) */
-	result = (JSAMPARRAY)alloc_small(cinfo, pool_id, (size_t)(numrows * SIZEOF(JSAMPROW)));
+	result = (JSAMPARRAY)alloc_small(cinfo, pool_id, (size_t)(numrows * sizeof(JSAMPROW)));
 	/* Get the rows themselves (large objects) */
 	currow = 0;
 	while(currow < numrows) {
 		rowsperchunk = MIN(rowsperchunk, numrows - currow);
-		workspace = (JSAMPROW)alloc_large(cinfo, pool_id, (size_t)((size_t)rowsperchunk * (size_t)samplesperrow * SIZEOF(JSAMPLE)));
+		workspace = (JSAMPROW)alloc_large(cinfo, pool_id, (size_t)((size_t)rowsperchunk * (size_t)samplesperrow * sizeof(JSAMPLE)));
 		for(i = rowsperchunk; i > 0; i--) {
 			result[currow++] = workspace;
 			workspace += samplesperrow;
@@ -388,7 +387,7 @@ METHODDEF(JBLOCKARRAY) alloc_barray(j_common_ptr cinfo, int pool_id, JDIMENSION 
 	JDIMENSION rowsperchunk, currow, i;
 	long ltemp;
 	/* Calculate max # of rows allowed in one allocation chunk */
-	ltemp = (MAX_ALLOC_CHUNK-SIZEOF(large_pool_hdr)) / ((long)blocksperrow * SIZEOF(JBLOCK));
+	ltemp = (MAX_ALLOC_CHUNK-sizeof(large_pool_hdr)) / ((long)blocksperrow * sizeof(JBLOCK));
 	if(ltemp <= 0)
 		ERREXIT(cinfo, JERR_WIDTH_OVERFLOW);
 	if(ltemp < (long)numrows)
@@ -397,12 +396,12 @@ METHODDEF(JBLOCKARRAY) alloc_barray(j_common_ptr cinfo, int pool_id, JDIMENSION 
 		rowsperchunk = numrows;
 	mem->last_rowsperchunk = rowsperchunk;
 	/* Get space for row pointers (small object) */
-	result = (JBLOCKARRAY)alloc_small(cinfo, pool_id, (size_t)(numrows * SIZEOF(JBLOCKROW)));
+	result = (JBLOCKARRAY)alloc_small(cinfo, pool_id, (size_t)(numrows * sizeof(JBLOCKROW)));
 	/* Get the rows themselves (large objects) */
 	currow = 0;
 	while(currow < numrows) {
 		rowsperchunk = MIN(rowsperchunk, numrows - currow);
-		workspace = (JBLOCKROW)alloc_large(cinfo, pool_id, (size_t)((size_t)rowsperchunk * (size_t)blocksperrow * SIZEOF(JBLOCK)));
+		workspace = (JBLOCKROW)alloc_large(cinfo, pool_id, (size_t)((size_t)rowsperchunk * (size_t)blocksperrow * sizeof(JBLOCK)));
 		for(i = rowsperchunk; i > 0; i--) {
 			result[currow++] = workspace;
 			workspace += blocksperrow;
@@ -455,7 +454,7 @@ METHODDEF(jvirt_sarray_ptr) request_virt_sarray(j_common_ptr cinfo, int pool_id,
 	if(pool_id != JPOOL_IMAGE)
 		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id); /* safety check */
 	/* get control block */
-	result = (jvirt_sarray_ptr)alloc_small(cinfo, pool_id, SIZEOF(struct jvirt_sarray_control));
+	result = (jvirt_sarray_ptr)alloc_small(cinfo, pool_id, sizeof(struct jvirt_sarray_control));
 	result->mem_buffer = NULL; /* marks array not yet realized */
 	result->rows_in_array = numrows;
 	result->samplesperrow = samplesperrow;
@@ -477,7 +476,7 @@ METHODDEF(jvirt_barray_ptr) request_virt_barray(j_common_ptr cinfo, int pool_id,
 	if(pool_id != JPOOL_IMAGE)
 		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id); /* safety check */
 	/* get control block */
-	result = (jvirt_barray_ptr)alloc_small(cinfo, pool_id, SIZEOF(struct jvirt_barray_control));
+	result = (jvirt_barray_ptr)alloc_small(cinfo, pool_id, sizeof(struct jvirt_barray_control));
 	result->mem_buffer = NULL; /* marks array not yet realized */
 	result->rows_in_array = numrows;
 	result->blocksperrow = blocksperrow;
@@ -505,14 +504,14 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 	maximum_space = 0;
 	for(sptr = mem->virt_sarray_list; sptr; sptr = sptr->next) {
 		if(!sptr->mem_buffer) { /* if not realized yet */
-			space_per_minheight += (long)sptr->maxaccess * (long)sptr->samplesperrow * SIZEOF(JSAMPLE);
-			maximum_space += (long)sptr->rows_in_array * (long)sptr->samplesperrow * SIZEOF(JSAMPLE);
+			space_per_minheight += (long)sptr->maxaccess * (long)sptr->samplesperrow * sizeof(JSAMPLE);
+			maximum_space += (long)sptr->rows_in_array * (long)sptr->samplesperrow * sizeof(JSAMPLE);
 		}
 	}
 	for(bptr = mem->virt_barray_list; bptr; bptr = bptr->next) {
 		if(bptr->mem_buffer == NULL) { /* if not realized yet */
-			space_per_minheight += (long)bptr->maxaccess * (long)bptr->blocksperrow * SIZEOF(JBLOCK);
-			maximum_space += (long)bptr->rows_in_array * (long)bptr->blocksperrow * SIZEOF(JBLOCK);
+			space_per_minheight += (long)bptr->maxaccess * (long)bptr->blocksperrow * sizeof(JBLOCK);
+			maximum_space += (long)bptr->rows_in_array * (long)bptr->blocksperrow * sizeof(JBLOCK);
 		}
 	}
 	if(space_per_minheight <= 0)
@@ -543,7 +542,7 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 			else {
 				/* It doesn't fit in memory, create backing store. */
 				sptr->rows_in_mem = (JDIMENSION)(max_minheights * sptr->maxaccess);
-				jpeg_open_backing_store(cinfo, &sptr->b_s_info, (long)sptr->rows_in_array * (long)sptr->samplesperrow * (long)SIZEOF(JSAMPLE));
+				jpeg_open_backing_store(cinfo, &sptr->b_s_info, (long)sptr->rows_in_array * (long)sptr->samplesperrow * (long)sizeof(JSAMPLE));
 				sptr->b_s_open = TRUE;
 			}
 			sptr->mem_buffer = alloc_sarray(cinfo, JPOOL_IMAGE, sptr->samplesperrow, sptr->rows_in_mem);
@@ -563,7 +562,7 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 			else {
 				/* It doesn't fit in memory, create backing store. */
 				bptr->rows_in_mem = (JDIMENSION)(max_minheights * bptr->maxaccess);
-				jpeg_open_backing_store(cinfo, &bptr->b_s_info, (long)bptr->rows_in_array * (long)bptr->blocksperrow * (long)SIZEOF(JBLOCK));
+				jpeg_open_backing_store(cinfo, &bptr->b_s_info, (long)bptr->rows_in_array * (long)bptr->blocksperrow * (long)sizeof(JBLOCK));
 				bptr->b_s_open = TRUE;
 			}
 			bptr->mem_buffer = alloc_barray(cinfo, JPOOL_IMAGE, bptr->blocksperrow, bptr->rows_in_mem);
@@ -579,7 +578,7 @@ static void do_sarray_io(j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writi
 /* Do backing store read or write of a virtual sample array */
 {
 	long byte_count, rows, thisrow, i;
-	long bytesperrow = (long)ptr->samplesperrow * SIZEOF(JSAMPLE);
+	long bytesperrow = (long)ptr->samplesperrow * sizeof(JSAMPLE);
 	long file_offset = ptr->cur_start_row * bytesperrow;
 	/* Loop to read or write each allocation chunk in mem_buffer */
 	for(i = 0; i < (long)ptr->rows_in_mem; i += ptr->rowsperchunk) {
@@ -609,7 +608,7 @@ static void do_barray_io(j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writi
 /* Do backing store read or write of a virtual coefficient-block array */
 {
 	long byte_count, rows, thisrow, i;
-	long bytesperrow = (long)ptr->blocksperrow * SIZEOF(JBLOCK);
+	long bytesperrow = (long)ptr->blocksperrow * sizeof(JBLOCK);
 	long file_offset = ptr->cur_start_row * bytesperrow;
 	/* Loop to read or write each allocation chunk in mem_buffer */
 	for(i = 0; i < (long)ptr->rows_in_mem; i += ptr->rowsperchunk) {
@@ -690,7 +689,7 @@ METHODDEF(JSAMPARRAY) access_virt_sarray(j_common_ptr cinfo, jvirt_sarray_ptr pt
 		if(writable)
 			ptr->first_undef_row = end_row;
 		if(ptr->pre_zero) {
-			size_t bytesperrow = (size_t)ptr->samplesperrow * SIZEOF(JSAMPLE);
+			size_t bytesperrow = (size_t)ptr->samplesperrow * sizeof(JSAMPLE);
 			undef_row -= ptr->cur_start_row; /* make indexes relative to buffer */
 			end_row -= ptr->cur_start_row;
 			while(undef_row < end_row) {
@@ -768,7 +767,7 @@ METHODDEF(JBLOCKARRAY) access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr p
 		if(writable)
 			ptr->first_undef_row = end_row;
 		if(ptr->pre_zero) {
-			size_t bytesperrow = (size_t)ptr->blocksperrow * SIZEOF(JBLOCK);
+			size_t bytesperrow = (size_t)ptr->blocksperrow * sizeof(JBLOCK);
 			undef_row -= ptr->cur_start_row; /* make indexes relative to buffer */
 			end_row -= ptr->cur_start_row;
 			while(undef_row < end_row) {
@@ -829,8 +828,9 @@ METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 	mem->large_list[pool_id] = NULL;
 	while(lhdr_ptr) {
 		large_pool_ptr next_lhdr_ptr = lhdr_ptr->hdr.next;
-		space_freed = lhdr_ptr->hdr.bytes_used + lhdr_ptr->hdr.bytes_left + SIZEOF(large_pool_hdr);
-		jpeg_free_large(cinfo, (void *)lhdr_ptr, space_freed);
+		space_freed = lhdr_ptr->hdr.bytes_used + lhdr_ptr->hdr.bytes_left + sizeof(large_pool_hdr);
+		// @sobolev jpeg_free_large(cinfo, (void *)lhdr_ptr, space_freed);
+		SAlloc::F(lhdr_ptr); // @sobolev
 		mem->total_space_allocated -= space_freed;
 		lhdr_ptr = next_lhdr_ptr;
 	}
@@ -839,8 +839,9 @@ METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 	mem->small_list[pool_id] = NULL;
 	while(shdr_ptr) {
 		small_pool_ptr next_shdr_ptr = shdr_ptr->hdr.next;
-		space_freed = shdr_ptr->hdr.bytes_used + shdr_ptr->hdr.bytes_left + SIZEOF(small_pool_hdr);
-		jpeg_free_small(cinfo, (void *)shdr_ptr, space_freed);
+		space_freed = shdr_ptr->hdr.bytes_used + shdr_ptr->hdr.bytes_left + sizeof(small_pool_hdr);
+		// @sobolev jpeg_free_small(cinfo, (void *)shdr_ptr, space_freed);
+		SAlloc::F(shdr_ptr); // @sobolev
 		mem->total_space_allocated -= space_freed;
 		shdr_ptr = next_shdr_ptr;
 	}
@@ -858,7 +859,8 @@ METHODDEF(void) self_destruct(j_common_ptr cinfo)
 		free_pool(cinfo, pool);
 	}
 	// Release the memory manager control block too. 
-	jpeg_free_small(cinfo, (void *)cinfo->mem, SIZEOF(my_memory_mgr));
+	// @sobolev jpeg_free_small(cinfo, (void *)cinfo->mem, sizeof(my_memory_mgr));
+	SAlloc::F(cinfo->mem); // @sobolev
 	cinfo->mem = NULL; // ensures I will be called only once 
 	jpeg_mem_term(cinfo); // system-dependent cleanup 
 }
@@ -874,25 +876,26 @@ void jinit_memory_mgr(j_common_ptr cinfo)
 	size_t test_mac;
 	cinfo->mem = NULL; /* for safety if init fails */
 	/* Check for configuration errors.
-	 * SIZEOF(ALIGN_TYPE) should be a power of 2; otherwise, it probably
+	 * sizeof(ALIGN_TYPE) should be a power of 2; otherwise, it probably
 	 * doesn't reflect any real hardware alignment requirement.
 	 * The test is a little tricky: for X>0, X and X-1 have no one-bits
 	 * in common if and only if X is a power of 2, ie has only one one-bit.
 	 * Some compilers may give an "unreachable code" warning here; ignore it.
 	 */
-	if((SIZEOF(ALIGN_TYPE) & (SIZEOF(ALIGN_TYPE)-1)) != 0)
+	if((sizeof(ALIGN_TYPE) & (sizeof(ALIGN_TYPE)-1)) != 0)
 		ERREXIT(cinfo, JERR_BAD_ALIGN_TYPE);
 	/* MAX_ALLOC_CHUNK must be representable as type size_t, and must be
-	 * a multiple of SIZEOF(ALIGN_TYPE).
+	 * a multiple of sizeof(ALIGN_TYPE).
 	 * Again, an "unreachable code" warning may be ignored here.
 	 * But a "constant too large" warning means you need to fix MAX_ALLOC_CHUNK.
 	 */
 	test_mac = (size_t)MAX_ALLOC_CHUNK;
-	if((long)test_mac != MAX_ALLOC_CHUNK || (MAX_ALLOC_CHUNK % SIZEOF(ALIGN_TYPE)) != 0)
+	if((long)test_mac != MAX_ALLOC_CHUNK || (MAX_ALLOC_CHUNK % sizeof(ALIGN_TYPE)) != 0)
 		ERREXIT(cinfo, JERR_BAD_ALLOC_CHUNK);
 	max_to_use = jpeg_mem_init(cinfo); /* system-dependent initialization */
-	/* Attempt to allocate memory manager's control block */
-	mem = (my_mem_ptr)jpeg_get_small(cinfo, SIZEOF(my_memory_mgr));
+	// Attempt to allocate memory manager's control block
+	// @sobolev mem = (my_mem_ptr)jpeg_get_small(cinfo, sizeof(my_memory_mgr));
+	mem = (my_mem_ptr)SAlloc::M(sizeof(my_memory_mgr)); // @sobolev
 	if(!mem) {
 		jpeg_mem_term(cinfo); /* system-dependent cleanup */
 		ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 0);
@@ -920,7 +923,7 @@ void jinit_memory_mgr(j_common_ptr cinfo)
 	}
 	mem->virt_sarray_list = NULL;
 	mem->virt_barray_list = NULL;
-	mem->total_space_allocated = SIZEOF(my_memory_mgr);
+	mem->total_space_allocated = sizeof(my_memory_mgr);
 	/* Declare ourselves open for business */
 	cinfo->mem = &mem->pub;
 	/* Check for an environment variable JPEGMEM; if found, override the

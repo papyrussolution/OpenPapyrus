@@ -4804,6 +4804,15 @@ public class SLib {
 		public Object HandleEvent(int cmd, Object srcObj, Object subj);
 	}
 	static abstract class App extends Application implements EventHandler {
+		// @v11.9.0 @construction {
+		static {
+			TouchEffects.Manager.build(TouchEffects.TouchEffectsWholeType.SCALE)
+				.addViewType(TouchEffects.ViewType.ALL)
+				.setListWholeType(TouchEffects.TouchEffectsWholeType.RIPPLE)
+				.setAspectRatioType(4f, TouchEffects.TouchEffectsWholeType.RIPPLE);
+
+		}
+		// } @v11.9.0
 		private int CurrentLang; // Текущий выбранный натуральный язык. 0 - default
 		protected int      LastError;
 		protected String   LastErrMsg;
@@ -5599,6 +5608,7 @@ public class SLib {
 		}
 		@Override protected void onCreate(Bundle savedInstanceState)
 		{
+			TouchEffects.Factory.initTouchEffects(this); // @v11.9.0 @construction
 			super.onCreate(savedInstanceState);
 			{
 				SlActivity _this_activity = this;

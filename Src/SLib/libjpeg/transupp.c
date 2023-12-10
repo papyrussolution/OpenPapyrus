@@ -127,7 +127,7 @@ static void do_crop_ext(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMEN
 			if(dstinfo->jpeg_height > srcinfo->output_height) {
 				if(dst_blk_y < y_crop_blocks || dst_blk_y >= comp_height + y_crop_blocks) {
 					for(offset_y = 0; offset_y < compptr->v_samp_factor; offset_y++) {
-						FMEMZERO(dst_buffer[offset_y], compptr->width_in_blocks * SIZEOF(JBLOCK));
+						FMEMZERO(dst_buffer[offset_y], compptr->width_in_blocks * sizeof(JBLOCK));
 					}
 					continue;
 				}
@@ -141,11 +141,11 @@ static void do_crop_ext(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMEN
 			for(offset_y = 0; offset_y < compptr->v_samp_factor; offset_y++) {
 				if(dstinfo->jpeg_width > srcinfo->output_width) {
 					if(x_crop_blocks > 0) {
-						FMEMZERO(dst_buffer[offset_y], x_crop_blocks * SIZEOF(JBLOCK));
+						FMEMZERO(dst_buffer[offset_y], x_crop_blocks * sizeof(JBLOCK));
 					}
 					jcopy_block_row(src_buffer[offset_y], dst_buffer[offset_y] + x_crop_blocks, comp_width);
 					if(compptr->width_in_blocks > comp_width + x_crop_blocks) {
-						FMEMZERO(dst_buffer[offset_y] + comp_width + x_crop_blocks, (compptr->width_in_blocks - comp_width - x_crop_blocks) * SIZEOF(JBLOCK));
+						FMEMZERO(dst_buffer[offset_y] + comp_width + x_crop_blocks, (compptr->width_in_blocks - comp_width - x_crop_blocks) * sizeof(JBLOCK));
 					}
 				}
 				else {
@@ -174,7 +174,7 @@ static void do_crop_ext(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMEN
 			buffer = (*srcinfo->mem->access_virt_barray)((j_common_ptr)srcinfo, src_coef_arrays[ci], blk_y + y_wipe_blocks,
 			    (JDIMENSION)compptr->v_samp_factor, TRUE);
 			for(offset_y = 0; offset_y < compptr->v_samp_factor; offset_y++) {
-				FMEMZERO(buffer[offset_y] + x_wipe_blocks, comp_width * SIZEOF(JBLOCK));
+				FMEMZERO(buffer[offset_y] + x_wipe_blocks, comp_width * sizeof(JBLOCK));
 			}
 		}
 	}
@@ -196,7 +196,7 @@ static void do_wipe(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMENSION
 			JBLOCKARRAY buffer = (*srcinfo->mem->access_virt_barray)((j_common_ptr) srcinfo, src_coef_arrays[ci], y_wipe_blocks, (JDIMENSION)compptr->v_samp_factor, TRUE);
 			for(int offset_y = 0; offset_y < compptr->v_samp_factor; offset_y++) {
 				FMEMZERO(buffer[offset_y] + x_wipe_blocks,
-				wipe_width * SIZEOF(JBLOCK));
+				wipe_width * sizeof(JBLOCK));
 			}
 		}
 	}
@@ -222,7 +222,7 @@ LOCAL(void) do_flatten(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 			for(int offset_y = 0; offset_y < compptr->v_samp_factor; offset_y++) {
 				int average;
 				FMEMZERO(buffer[offset_y] + x_wipe_blocks,
-				wipe_width * SIZEOF(JBLOCK));
+				wipe_width * sizeof(JBLOCK));
 				if(x_wipe_blocks > 0) {
 					int dc_left_value = buffer[offset_y][x_wipe_blocks - 1][0];
 					if(wipe_right < compptr->width_in_blocks) {
@@ -1046,8 +1046,8 @@ boolean jtransform_request_workspace(j_decompress_ptr srcinfo, jpeg_transform_in
 		/* Now adjust so that upper left corner falls at an iMCU boundary */
 		if(info->transform == JXFORM_WIPE) {
 			/* Ensure the effective wipe region will cover the requested */
-			info->drop_width = jdiv_round_up_jd((long)(info->crop_width + (xoffset % info->iMCU_sample_width)), (long)info->iMCU_sample_width);
-			info->drop_height = jdiv_round_up_jd((long)(info->crop_height + (yoffset % info->iMCU_sample_height)), (long)info->iMCU_sample_height);
+			info->drop_width = idivroundup((long)(info->crop_width + (xoffset % info->iMCU_sample_width)), (long)info->iMCU_sample_width);
+			info->drop_height = idivroundup((long)(info->crop_height + (yoffset % info->iMCU_sample_height)), (long)info->iMCU_sample_height);
 		}
 		else {
 			/* Ensure the effective crop region will cover the requested */
@@ -1140,9 +1140,9 @@ boolean jtransform_request_workspace(j_decompress_ptr srcinfo, jpeg_transform_in
 	 * so that transform routines need not worry about missing edge blocks.
 	 */
 	if(need_workspace) {
-		coef_arrays = (jvirt_barray_ptr*)(*srcinfo->mem->alloc_small)((j_common_ptr)srcinfo, JPOOL_IMAGE, SIZEOF(jvirt_barray_ptr) * info->num_components);
-		width_in_iMCUs = jdiv_round_up_jd((long)info->output_width, (long)info->iMCU_sample_width);
-		height_in_iMCUs = jdiv_round_up_jd((long)info->output_height, (long)info->iMCU_sample_height);
+		coef_arrays = (jvirt_barray_ptr*)(*srcinfo->mem->alloc_small)((j_common_ptr)srcinfo, JPOOL_IMAGE, sizeof(jvirt_barray_ptr) * info->num_components);
+		width_in_iMCUs = idivroundup((long)info->output_width, (long)info->iMCU_sample_width);
+		height_in_iMCUs = idivroundup((long)info->output_height, (long)info->iMCU_sample_height);
 		for(ci = 0; ci < info->num_components; ci++) {
 			compptr = srcinfo->comp_info + ci;
 			if(info->num_components == 1) {

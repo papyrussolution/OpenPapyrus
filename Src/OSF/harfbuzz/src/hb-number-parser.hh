@@ -17,20 +17,9 @@
 #include "hb.hh"
 
 #line 35 "hb-number-parser.hh"
-static const uchar _double_parser_trans_keys[] = {
-	0u, 0u, 43u, 57u, 46u, 57u, 48u, 57u, 43u, 57u, 48u, 57u, 48u, 101u, 48u, 57u,
-	46u, 101u, 0
-};
-
-static const char _double_parser_key_spans[] = {
-	0, 15, 12, 10, 15, 10, 54, 10,
-	56
-};
-
-static const uchar _double_parser_index_offsets[] = {
-	0, 0, 16, 29, 40, 56, 67, 122,
-	133
-};
+static const uchar _double_parser_trans_keys[] = { 0u, 0u, 43u, 57u, 46u, 57u, 48u, 57u, 43u, 57u, 48u, 57u, 48u, 101u, 48u, 57u, 46u, 101u, 0 };
+static const char _double_parser_key_spans[] = { 0, 15, 12, 10, 15, 10, 54, 10, 56 };
+static const uchar _double_parser_index_offsets[] = { 0, 0, 16, 29, 40, 56, 67, 122, 133 };
 
 static const char _double_parser_indicies[] = {
 	0, 1, 2, 3, 1, 4, 4,
@@ -59,20 +48,11 @@ static const char _double_parser_indicies[] = {
 	1, 1, 1, 1, 1, 9, 1, 0
 };
 
-static const char _double_parser_trans_targs[] = {
-	2, 0, 2, 3, 8, 6, 5, 5,
-	7, 4
-};
-
-static const char _double_parser_trans_actions[] = {
-	0, 0, 1, 0, 2, 3, 0, 4,
-	5, 0
-};
-
+static const char _double_parser_trans_targs[] = { 2, 0, 2, 3, 8, 6, 5, 5, 7, 4 };
+static const char _double_parser_trans_actions[] = { 0, 0, 1, 0, 2, 3, 0, 4, 5, 0 };
 static const int double_parser_start = 1;
 static const int double_parser_first_final = 6;
 static const int double_parser_error = 0;
-
 static const int double_parser_en_main = 1;
 
 #line 68 "hb-number-parser.rl"
@@ -110,18 +90,14 @@ static inline double strtod_rl(const char * p, const char ** end_ptr /* IN/OUT *
 	bool neg = false, exp_neg = false, exp_overflow = false;
 	const unsigned long long MAX_FRACT = 0xFFFFFFFFFFFFFull; /* 2^52-1 */
 	const unsigned MAX_EXP = 0x7FFu; /* 2^11-1 */
-
 	const char * pe = *end_ptr;
 	while(p < pe && ISSPACE(*p))
 		p++;
-
 	int cs;
-
 #line 139 "hb-number-parser.hh"
 	{
 		cs = double_parser_start;
 	}
-
 #line 144 "hb-number-parser.hh"
 	{
 		int _slen;
@@ -135,17 +111,11 @@ static inline double strtod_rl(const char * p, const char ** end_ptr /* IN/OUT *
 _resume:
 		_keys = _double_parser_trans_keys + (cs<<1);
 		_inds = _double_parser_indicies + _double_parser_index_offsets[cs];
-
 		_slen = _double_parser_key_spans[cs];
-		_trans = _inds[ _slen > 0 && _keys[0] <=(*p) &&
-		    (*p) <= _keys[1] ?
-		    (*p) - _keys[0] : _slen ];
-
+		_trans = _inds[ _slen > 0 && _keys[0] <=(*p) && (*p) <= _keys[1] ? (*p) - _keys[0] : _slen ];
 		cs = _double_parser_trans_targs[_trans];
-
 		if(_double_parser_trans_actions[_trans] == 0)
 			goto _again;
-
 		switch(_double_parser_trans_actions[_trans]) {
 			case 1:
 #line 37 "hb-number-parser.rl"

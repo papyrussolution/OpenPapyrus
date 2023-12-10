@@ -327,7 +327,7 @@ METHODDEF(void) finish_input_rle(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 cjpeg_source_ptr jinit_read_rle(j_compress_ptr cinfo)
 {
 	/* Create module interface object */
-	rle_source_ptr source = (rle_source_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(rle_source_struct));
+	rle_source_ptr source = (rle_source_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(rle_source_struct));
 	/* Fill in method ptrs */
 	source->pub.start_input = start_input_rle;
 	source->pub.finish_input = finish_input_rle;

@@ -11,12 +11,10 @@ namespace ZXing {
 MultiFormatReader::MultiFormatReader(const DecodeHints& hints) : _hints(hints)
 {
 	auto formats = hints.formats().empty() ? BarcodeFormat::Any : hints.formats();
-
 	// Put linear readers upfront in "normal" mode
 	if(formats.testFlags(BarcodeFormat::LinearCodes) && !hints.tryHarder())
 		_readers.emplace_back(new OneD::Reader(hints));
-
-	if(formats.testFlags(BarcodeFormat::QRCode | BarcodeFormat::MicroQRCode))
+	if(formats.testFlags(BarcodeFormat::QRCode|BarcodeFormat::MicroQRCode|BarcodeFormat::RMQRCode))
 		_readers.emplace_back(new QRCode::Reader(hints, true));
 	if(formats.testFlag(BarcodeFormat::DataMatrix))
 		_readers.emplace_back(new DataMatrix::Reader(hints, true));
@@ -26,7 +24,6 @@ MultiFormatReader::MultiFormatReader(const DecodeHints& hints) : _hints(hints)
 		_readers.emplace_back(new Pdf417::Reader(hints));
 	if(formats.testFlag(BarcodeFormat::MaxiCode))
 		_readers.emplace_back(new MaxiCode::Reader(hints));
-
 	// At end in "try harder" mode
 	if(formats.testFlags(BarcodeFormat::LinearCodes) && hints.tryHarder())
 		_readers.emplace_back(new OneD::Reader(hints));
@@ -48,16 +45,13 @@ Result MultiFormatReader::read(const BinaryBitmap& image) const
 Results MultiFormatReader::readMultiple(const BinaryBitmap& image, int maxSymbols) const
 {
 	std::vector<Result> res;
-
 	for(const auto& reader : _readers) {
 		if(image.inverted() && !reader->supportsInversion)
 			continue;
 		auto r = reader->decode(image, maxSymbols);
 		if(!_hints.returnErrors()) {
 			//TODO: C++20 res.erase_if()
-			auto it = std::remove_if(res.begin(), res.end(), [](auto&& r) {
-					return !r.isValid();
-				});
+			auto it = std::remove_if(res.begin(), res.end(), [](auto&& r) { return !r.isValid(); });
 			res.erase(it, res.end());
 		}
 		maxSymbols -= Size(r);
@@ -65,14 +59,12 @@ Results MultiFormatReader::readMultiple(const BinaryBitmap& image, int maxSymbol
 		if(maxSymbols <= 0)
 			break;
 	}
-
 	// sort results based on their position on the image
 	std::sort(res.begin(), res.end(), [](const Result& l, const Result& r) {
 			auto lp = l.position().topLeft();
 			auto rp = r.position().topLeft();
 			return lp.y < rp.y || (lp.y == rp.y && lp.x < rp.x);
 		});
-
 	return res;
 }
 } // ZXing

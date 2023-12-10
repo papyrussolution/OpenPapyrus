@@ -6,10 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "QRMatrixUtil.h"
-#include "QRDataMask.h"
-#include "QRErrorCorrectionLevel.h"
-#include "QRVersion.h"
 
 namespace ZXing::QRCode {
 // From Appendix D in JISX0510:2004 (p. 67)
@@ -94,20 +90,14 @@ static void EmbedPositionDetectionPatternsAndSeparators(TritMatrix& matrix)
 }
 
 // Embed the lonely dark dot at left bottom corner. JISX0510:2004 (p.46)
-static void EmbedDarkDotAtLeftBottomCorner(TritMatrix& matrix)
-{
-	matrix.set(8, matrix.height() - 8, 1);
-}
+static void EmbedDarkDotAtLeftBottomCorner(TritMatrix& matrix) { matrix.set(8, matrix.height() - 8, 1); }
 
 // Return the position of the most significant bit set (to one) in the "value". The most
 // significant bit is position 32. If there is no bit set, return 0. Examples:
 // - findMSBSet(0) => 0
 // - findMSBSet(1) => 1
 // - findMSBSet(255) => 8
-static int FindMSBSet(unsigned value)
-{
-	return 32 - BitHacks::NumberOfLeadingZeros(value);
-}
+static int FindMSBSet(uint value) { return 32 - BitHacks::NumberOfLeadingZeros(value); }
 
 // Calculate BCH (Bose-Chaudhuri-Hocquenghem) code for "value" using polynomial "poly". The BCH
 // code is used for encoding type information and version information.

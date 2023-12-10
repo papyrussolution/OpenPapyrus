@@ -2740,7 +2740,12 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 		const uint plc = temp_al.getCount();
 		if(plc) {
 			struct _UhttEntry {
+				_UhttEntry() : P(0), IsCharge(false)
+				{
+					Code[0] = 0;
+				}
 				uint   P;
+				bool   IsCharge; // @v11.9.0 if true then charge (+), else withdraw (-)
 				char   Code[32];
 			};
 			SArray uhtt_list(sizeof(_UhttEntry));
@@ -2772,10 +2777,12 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 						scop_rec.LinkObjType = PPOBJ_CCHECK;
 						scop_rec.LinkObjID   = pPack->Rec.ID;
 						scop_rec.UserID  = pPack->Rec.UserID;
+						bool    is_charge = false;
 						// @v11.5.11 scop_rec.Amount  = -r_entry.Amount;
 						// @v11.5.11 {
 						// @v11.7.8 {
 						if(r_entry.Type == CCAMTTYP_CSCCHARGE) {
+							is_charge = true; // @v11.9.9
 							if(scst == scstCredit)
 								scop_rec.Amount  = +r_entry.Amount;
 							else {
@@ -2784,6 +2791,7 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 							}
 						}
 						else /* } @v11.7.8 */ {
+							is_charge = false; // @v11.9.0
 							if(scst == scstCredit) {
 								// @v11.6.7 scop_rec.Amount  = r_entry.Amount;
 								scop_rec.Amount  = -r_entry.Amount; // @v11.6.7
@@ -2799,6 +2807,7 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 						if(scs_rec.Flags & SCRDSF_UHTTSYNC && fabs(r_entry.Amount) > 0.01) {
 							_UhttEntry u;
 							u.P = i;
+							u.IsCharge = is_charge; // @v11.9.0
 							STRNSCPY(u.Code, sc_rec.Code);
 							THROW_SL(uhtt_list.insert(&u));
 						}
@@ -2818,22 +2827,22 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 						const _UhttEntry * p_u = static_cast<const _UhttEntry *>(uhtt_list.at(i));
 						const CcAmountEntry & r_entry = temp_al.at(p_u->P);
 						char   uhtt_sc_code[64];
-						PTR32(uhtt_sc_code)[0] = 0;
+						uhtt_sc_code[0] = 0;
 						UhttSCardPacket scp;
 						ufp_factor_uhtt += 1.0;
 						if(p_uhtt_cli->GetSCardByNumber(p_u->Code, scp)) {
 							scp.Code.CopyTo(uhtt_sc_code, sizeof(uhtt_sc_code));
-							if(uhtt_sc_code[0]) {
-								if(r_entry.Amount > 0.0) {
-									if(!p_uhtt_cli->WithdrawSCardAmount(uhtt_sc_code, r_entry.Amount)) {
+							if(uhtt_sc_code[0] && r_entry.Amount != 0.0) { // @v11.9.0 (&& r_entry.Amount != 0.0)
+								if(!p_u->IsCharge) { // @v11.9.0 изменено условие
+									if(!p_uhtt_cli->WithdrawSCardAmount(uhtt_sc_code, fabs(r_entry.Amount))) { // @v11.9.0 @fix (r_entry.Amount)-->fabs(r_entry.Amount)
 										PPSetError(PPERR_UHTT_SCWITHDRAW, p_uhtt_cli->GetLastMessage());
 										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 										uhtt_err = 1;
 									}
 									ufp_factor_uhtt += 1.0;
 								}
-								else if(r_entry.Amount < 0.0) {
-									if(!p_uhtt_cli->DepositSCardAmount(uhtt_sc_code, -r_entry.Amount)) {
+								else { // @v11.9.0 // @v11.9.0 изменено условие
+									if(!p_uhtt_cli->DepositSCardAmount(uhtt_sc_code, fabs(r_entry.Amount))) { // @v11.9.0 @fix (-r_entry.Amount)-->fabs(r_entry.Amount)
 										PPSetError(PPERR_UHTT_SCDEPOSIT, p_uhtt_cli->GetLastMessage());
 										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 										uhtt_err = 1;

@@ -39,6 +39,26 @@ public:
 	SString User;
 	SString Password;
 };
+
+class WsCtl_LoginBlock {
+public:
+	WsCtl_LoginBlock()
+	{
+		Z();
+	}
+	~WsCtl_LoginBlock()
+	{
+		Z();
+	}
+	WsCtl_LoginBlock & Z()
+	{
+		memzero(LoginText, sizeof(LoginText));
+		memzero(PwText, sizeof(PwText));
+		return *this;
+	}
+	char   LoginText[256];
+	char   PwText[128];	
+};
 /*
 {
 	"account": {

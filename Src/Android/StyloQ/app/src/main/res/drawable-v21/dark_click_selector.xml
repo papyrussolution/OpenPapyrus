@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TouchEffects -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/theme_dark_click" >
+    <item>
+        <shape
+            android:shape="rectangle">
+            <solid android:color="@color/white" />
+        </shape>
+    </item>
+</ripple>

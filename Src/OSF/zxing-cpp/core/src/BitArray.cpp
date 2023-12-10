@@ -28,4 +28,36 @@ ByteArray BitArray::toBytes(int bitOffset, int numBytes) const
 			AppendBit(res[i], (numBytes != -1 || bitOffset < size()) ? get(bitOffset++) : 0);
 	return res;
 }
+//
+//
+//
+BitArrayView::BitArrayView(const BitArray & bits) : bits(bits), cur(bits.begin())
+{
+}
+
+BitArrayView & BitArrayView::skipBits(int n)
+{
+	if(n > bits.size())
+		throw std::out_of_range("BitArrayView::skipBits() out of range.");
+	cur += n;
+	return *this;
+}
+
+int BitArrayView::peakBits(int n) const
+{
+	assert(n <= 32);
+	if(n > bits.size())
+		throw std::out_of_range("BitArrayView::peakBits() out of range.");
+	int res = 0;
+	for(auto i = cur; n > 0; --n, i++)
+		AppendBit(res, *i);
+	return res;
+}
+
+int BitArrayView::readBits(int n)
+{
+	int res = peakBits(n);
+	cur += n;
+	return res;
+}
 } // ZXing

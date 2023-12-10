@@ -15,9 +15,7 @@ static int ReadBitsImpl(int numBits, const ByteArray& _bytes, int available, int
 	if(numBits < 1 || numBits > 32 || numBits > available) {
 		throw std::out_of_range("BitSource::readBits: out of range");
 	}
-
 	int result = 0;
-
 	// First, read remainder from current byte
 	if(_bitOffset > 0) {
 		int bitsLeft = 8 - _bitOffset;
@@ -32,7 +30,6 @@ static int ReadBitsImpl(int numBits, const ByteArray& _bytes, int available, int
 			_byteOffset++;
 		}
 	}
-
 	// Next read whole bytes
 	if(numBits > 0) {
 		while(numBits >= 8) {
@@ -40,7 +37,6 @@ static int ReadBitsImpl(int numBits, const ByteArray& _bytes, int available, int
 			_byteOffset++;
 			numBits -= 8;
 		}
-
 		// Finally read a partial byte
 		if(numBits > 0) {
 			int bitsToNotRead = 8 - numBits;
@@ -49,7 +45,6 @@ static int ReadBitsImpl(int numBits, const ByteArray& _bytes, int available, int
 			_bitOffset += numBits;
 		}
 	}
-
 	return result;
 }
 

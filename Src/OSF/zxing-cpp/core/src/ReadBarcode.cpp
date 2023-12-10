@@ -7,8 +7,24 @@
 #pragma hdrstop
 
 namespace ZXing {
-class LumImage : public ImageView
+
+Reader::Reader(const DecodeHints& hints, bool supportsInversion/*= false*/) : _hints(hints), supportsInversion(supportsInversion) 
 {
+}
+
+/*virtual*/Results Reader::decode(const BinaryBitmap& image, [[maybe_unused]] int maxSymbols) const
+{
+	auto res = decode(image);
+	Results ret;
+	//return res.isValid() || (_hints.returnErrors() && res.format() != BarcodeFormat::None) ? Results{std::move(res)} : Results{};
+	if(res.isValid() || (_hints.returnErrors() && res.format() != BarcodeFormat::None))
+		ret.push_back(res);
+	return ret;
+}
+//
+//
+//
+class LumImage : public ImageView {
 	std::unique_ptr<uint8_t[]> _memory;
 	LumImage(std::unique_ptr<uint8_t[]>&& data, int w, int h) : ImageView(data.get(), w, h, ImageFormat::Lum), _memory(std::move(data))
 	{

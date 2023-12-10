@@ -7,4 +7,23 @@
         <attr name="button_color" format="color"/>
     </declare-styleable>
     -->
+	<!-- TouchEffects -->
+    <declare-styleable name="TouchEffectsView">
+        <attr name="animation_duration" format="integer"/>
+        <attr name="shake_view_scale" format="float"/>
+        <attr name="touch_effects_forbid" format="boolean"/>
+        <attr name="touch_effects_type" format="enum">
+            <enum name="none" value="-1"/>
+            <enum name="scale" value="0"/>
+            <enum name="ripple" value="1"/>
+            <enum name="state" value="2"/>
+            <enum name="shake" value="3"/>
+            <enum name="ripple_1" value="4"/>
+        </attr>
+        <attr name="touch_effects_pressed_color" format="color"/>
+        <attr name="touch_effects_normal_color" format="color"/>
+        <attr name="touch_effects_radius" format="dimension"/>
+        <attr name="touch_effects_animation_duration" format="integer"/>
+        <attr name="touch_effects_shake_view_scale" format="float"/>
+    </declare-styleable>
 </resources>

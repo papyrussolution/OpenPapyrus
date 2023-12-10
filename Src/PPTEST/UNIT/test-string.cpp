@@ -924,6 +924,14 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SLCHECK_EQ(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
 			tr.Run((const uchar *)"00000%46209443x-8xfgOACZAYGfv", -1, nta.Z(), 0); // !SNTOK_CHZN_CIGITEM
 			SLCHECK_EQ(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
+			// @v11.9.0 {
+			tr.Run((const uchar *)"04670190770074MmK).<EAAAAEC/d", -1, nta.Z(), 0); // SNTOK_CHZN_CIGITEM && SNTOK_CHZN_ALTCIGITEM
+			SLCHECK_LT(0.0f, nta.Has(SNTOK_CHZN_ALTCIGITEM));
+			SLCHECK_LT(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
+			tr.Run((const uchar *)"04670190770814IsYvQdxAAAAtgjI", -1, nta.Z(), 0); // SNTOK_CHZN_CIGITEM && SNTOK_CHZN_ALTCIGITEM
+			SLCHECK_LT(0.0f, nta.Has(SNTOK_CHZN_ALTCIGITEM));
+			SLCHECK_LT(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
+			// } @v11.9.0 
 			{
 				static const char * p_cl_rut_data_list[] = {
 					"9007920-4", "21620312-7", "13621690-2", "9329827-6", "5946647-k", 

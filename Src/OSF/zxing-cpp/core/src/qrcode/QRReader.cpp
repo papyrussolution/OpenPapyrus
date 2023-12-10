@@ -7,9 +7,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "QRReader.h"
-#include "QRDecoder.h"
-#include "QRDetector.h"
 
 namespace ZXing::QRCode {
 Result Reader::decode(const BinaryBitmap& image) const
@@ -18,25 +15,23 @@ Result Reader::decode(const BinaryBitmap& image) const
 	if(!_hints.isPure())
 		return FirstOrDefault(decode(image, 1));
 #endif
-
 	auto binImg = image.getBitMatrix();
 	if(binImg == nullptr)
 		return {};
-
 	DetectorResult detectorResult;
 	if(_hints.hasFormat(BarcodeFormat::QRCode))
 		detectorResult = DetectPureQR(*binImg);
 	if(_hints.hasFormat(BarcodeFormat::MicroQRCode) && !detectorResult.isValid())
 		detectorResult = DetectPureMQR(*binImg);
-
+	if(_hints.hasFormat(BarcodeFormat::RMQRCode) && !detectorResult.isValid())
+		detectorResult = DetectPureRMQR(*binImg);
 	if(!detectorResult.isValid())
 		return {};
-
 	auto decoderResult = Decode(detectorResult.bits());
 	auto position = detectorResult.position();
-
-	return Result(std::move(decoderResult), std::move(position),
-		   detectorResult.bits().width() < 21 ? BarcodeFormat::MicroQRCode : BarcodeFormat::QRCode);
+	//return Result(std::move(decoderResult), std::move(position), detectorResult.bits().width() < 21 ? BarcodeFormat::MicroQRCode : BarcodeFormat::QRCode);
+	return Result(std::move(decoderResult), std::move(position), detectorResult.bits().width() != detectorResult.bits().height() ? BarcodeFormat::RMQRCode :
+		(detectorResult.bits().width() < 21 ? BarcodeFormat::MicroQRCode : BarcodeFormat::QRCode));
 }
 
 void logFPSet(const FinderPatternSet& fps [[maybe_unused]])
@@ -60,28 +55,21 @@ Results Reader::decode(const BinaryBitmap& image, int maxSymbols) const
 	auto binImg = image.getBitMatrix();
 	if(binImg == nullptr)
 		return {};
-
 #ifdef PRINT_DEBUG
 	LogMatrixWriter lmw(log, *binImg, 5, "qr-log.pnm");
 #endif
-
 	auto allFPs = FindFinderPatterns(*binImg, _hints.tryHarder());
-
 #ifdef PRINT_DEBUG
 	printf("allFPs: %d\n", Size(allFPs));
 #endif
-
 	std::vector<ConcentricPattern> usedFPs;
 	Results results;
-
 	if(_hints.hasFormat(BarcodeFormat::QRCode)) {
 		auto allFPSets = GenerateFinderPatternSets(allFPs);
 		for(const auto& fpSet : allFPSets) {
 			if(Contains(usedFPs, fpSet.bl) || Contains(usedFPs, fpSet.tl) || Contains(usedFPs, fpSet.tr))
 				continue;
-
 			logFPSet(fpSet);
-
 			auto detectorResult = SampleQR(*binImg, fpSet);
 			if(detectorResult.isValid()) {
 				auto decoderResult = Decode(detectorResult.bits());
@@ -99,12 +87,10 @@ Results Reader::decode(const BinaryBitmap& image, int maxSymbols) const
 			}
 		}
 	}
-
 	if(_hints.hasFormat(BarcodeFormat::MicroQRCode) && !(maxSymbols && Size(results) == maxSymbols)) {
 		for(const auto& fp : allFPs) {
 			if(Contains(usedFPs, fp))
 				continue;
-
 			auto detectorResult = SampleMQR(*binImg, fp);
 			if(detectorResult.isValid()) {
 				auto decoderResult = Decode(detectorResult.bits());
@@ -117,7 +103,23 @@ Results Reader::decode(const BinaryBitmap& image, int maxSymbols) const
 			}
 		}
 	}
-
+	if(_hints.hasFormat(BarcodeFormat::RMQRCode) && !(maxSymbols && Size(results) == maxSymbols)) {
+		// TODO proper
+		for(const auto& fp : allFPs) {
+			if(Contains(usedFPs, fp))
+				continue;
+			auto detectorResult = SampleRMQR(*binImg, fp);
+			if(detectorResult.isValid()) {
+				auto decoderResult = Decode(detectorResult.bits());
+				auto position = detectorResult.position();
+				if(decoderResult.isValid(_hints.returnErrors())) {
+					results.emplace_back(std::move(decoderResult), std::move(position), BarcodeFormat::RMQRCode);
+					if(maxSymbols && Size(results) == maxSymbols)
+						break;
+				}
+			}
+		}
+	}
 	return results;
 }
 } // namespace ZXing::QRCode

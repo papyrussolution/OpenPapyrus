@@ -556,7 +556,9 @@ int ACS_SETSTART::ExportData(int updOnly)
 								int    identified_type = 0;
 								if(gds_info.Flags_ & gds_info.fGMarkedType) {
 									switch(gds_info.ChZnProdType) {
-										case GTCHZNPT_TOBACCO: identified_type = 4; break; // табак : 4
+										case GTCHZNPT_TOBACCO: 
+										case GTCHZNPT_ALTTOBACCO: // @v11.9.0
+											identified_type = 4; break; // табак : 4
 										// @v11.1.10 {
 										case GTCHZNPT_SHOE: identified_type = 5; break;
 										case GTCHZNPT_MEDICINE: identified_type = 3; break;

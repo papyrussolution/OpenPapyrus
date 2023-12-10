@@ -92,7 +92,7 @@ METHODDEF(void) start_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 	dest->colormap = NULL;
 	if(cinfo->quantize_colors) {
 		/* Allocate storage for RLE-style cmap, zero any extra entries */
-		cmapsize = cinfo->out_color_components * CMAPLENGTH * SIZEOF(rle_map);
+		cmapsize = cinfo->out_color_components * CMAPLENGTH * sizeof(rle_map);
 		dest->colormap = (rle_map*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, cmapsize);
 		memzero(dest->colormap, cmapsize);
 		/* Save away data in RLE format --- note 8-bit left shift! */
@@ -228,7 +228,7 @@ METHODDEF(void) finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 GLOBAL(djpeg_dest_ptr) jinit_write_rle(j_decompress_ptr cinfo)
 {
 	// Create module interface object, fill in method pointers 
-	rle_dest_ptr dest = (rle_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(rle_dest_struct));
+	rle_dest_ptr dest = (rle_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(rle_dest_struct));
 	dest->pub.start_output = start_output_rle;
 	dest->pub.finish_output = finish_output_rle;
 	// Calculate output image dimensions so we can allocate space 

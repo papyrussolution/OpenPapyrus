@@ -729,7 +729,7 @@ void  jinit_arith_decoder(j_decompress_ptr cinfo)
 
 	entropy = (arith_entropy_ptr)
 	    (*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE,
-	    SIZEOF(arith_entropy_decoder));
+	    sizeof(arith_entropy_decoder));
 	cinfo->entropy = &entropy->pub;
 	entropy->pub.start_pass = start_pass;
 	entropy->pub.finish_pass = finish_pass;
@@ -748,7 +748,7 @@ void  jinit_arith_decoder(j_decompress_ptr cinfo)
 		int * coef_bit_ptr, ci;
 		cinfo->coef_bits = (int (*)[DCTSIZE2])
 			    (*cinfo->mem->alloc_small) (reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE,
-		    cinfo->num_components*DCTSIZE2*SIZEOF(int));
+		    cinfo->num_components*DCTSIZE2*sizeof(int));
 		coef_bit_ptr = &cinfo->coef_bits[0][0];
 		for(ci = 0; ci < cinfo->num_components; ci++)
 			for(i = 0; i < DCTSIZE2; i++)

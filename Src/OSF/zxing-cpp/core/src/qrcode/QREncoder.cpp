@@ -6,12 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "QREncoder.h"
-#include "QREncodeResult.h"
-#include "QRErrorCorrectionLevel.h"
-#include "QRMaskUtil.h"
-#include "QRMatrixUtil.h"
-#include "TextEncoder.h"
 
 namespace ZXing::QRCode {
 static const CharacterSet DEFAULT_BYTE_MODE_ENCODING = CharacterSet::ISO8859_1;

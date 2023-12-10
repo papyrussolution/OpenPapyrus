@@ -116,8 +116,8 @@ const uint8 jpeg_natural_order2[2*2+16] = { // @sobolev int-->uin8
 // Descr: Compute a/b rounded up to next integer, ie, ceil(a/b) 
 // Assumes: a >= 0, b > 0 
 //
-GLOBAL(long) FASTCALL jdiv_round_up(long a, long b) { return (a + b - 1L) / b; }
-EXTERN(JDIMENSION) FASTCALL jdiv_round_up_jd(long a, long b) { return static_cast<JDIMENSION>((a + b - 1L) / b); } // @sobolev
+// @v11.9.0 GLOBAL(long) FASTCALL jdiv_round_up(long a, long b) { return (a + b - 1L) / b; }
+// @v11.9.0 (replaced with idivroundup) EXTERN(JDIMENSION) FASTCALL jdiv_round_up_jd_Removed(long a, long b) { return static_cast<JDIMENSION>((a + b - 1L) / b); } // @sobolev
 //
 // Descr: Compute a rounded up to next multiple of b, ie, ceil(a/b)*b 
 // Assumes: a >= 0, b > 0 
@@ -127,77 +127,61 @@ GLOBAL(long) FASTCALL jround_up(long a, long b)
 	a += b - 1L;
 	return a - (a % b);
 }
-
-/* On normal machines we can apply MEMCOPY() and memzero() to sample arrays
- * and coefficient-block arrays.  This won't work on 80x86 because the arrays
- * are FAR and we're assuming a small-pointer memory model.  However, some
- * DOS compilers provide far-pointer versions of memcpy() and memset() even
- * in the small-model libraries.  These will be used if USE_FMEM is defined.
- * Otherwise, the routines below do it the hard way.  (The performance cost
- * is not all that great, because these routines aren't very heavily used.)
- */
-
-#ifndef NEED_FAR_POINTERS       /* normal case, same as regular macro */
-#define FMEMCOPY(dest, src, size) MEMCOPY(dest, src, size)
-#else                           /* 80x86 case, define if we can */
-#ifdef USE_FMEM
-#define FMEMCOPY(dest, src, size) _fmemcpy((void *)(dest), (const void FAR*)(src), (size_t)(size))
-#else
-/* This function is for use by the FMEMZERO macro defined in jpegint.h.
- * Do not call this function directly, use the FMEMZERO macro instead.
- */
-void  jzero_far(void FAR * target, size_t bytestozero)
-/* Zero out a chunk of FAR memory. */
-/* This might be sample-array data, block-array data, or alloc_large data. */
-{
-	char FAR * ptr = (char FAR*)target;
-	size_t count;
-	for(count = bytestozero; count > 0; count--) {
-		*ptr++ = 0;
-	}
-}
-#endif
-#endif
-
+#if 0 // @sobolev @v11.9.0 {
+	// 
+	// On normal machines we can apply MEMCOPY() and memzero() to sample arrays
+	// and coefficient-block arrays.  This won't work on 80x86 because the arrays
+	// are FAR and we're assuming a small-pointer memory model.  However, some
+	// DOS compilers provide far-pointer versions of memcpy() and memset() even
+	// in the small-model libraries.  These will be used if USE_FMEM is defined.
+	// Otherwise, the routines below do it the hard way.  (The performance cost
+	// is not all that great, because these routines aren't very heavily used.)
+	// 
+	#ifndef NEED_FAR_POINTERS       /* normal case, same as regular macro */
+		#define FMEMCOPY(dest, src, size) MEMCOPY(dest, src, size)
+	#else                           /* 80x86 case, define if we can */
+		#ifdef USE_FMEM
+			#define FMEMCOPY(dest, src, size) _fmemcpy((void *)(dest), (const void FAR*)(src), (size_t)(size))
+		#else
+			/* This function is for use by the FMEMZERO macro defined in jpegint.h.
+			 * Do not call this function directly, use the FMEMZERO macro instead.
+			 */
+			void  jzero_far(void FAR * target, size_t bytestozero)
+			/* Zero out a chunk of FAR memory. */
+			/* This might be sample-array data, block-array data, or alloc_large data. */
+			{
+				char FAR * ptr = (char FAR*)target;
+				size_t count;
+				for(count = bytestozero; count > 0; count--) {
+					*ptr++ = 0;
+				}
+			}
+		#endif
+	#endif
+#endif // } 0 @sobolev
+// 
+// Copy some rows of samples from one place to another.
+// num_rows rows are copied from input_array[source_row++]
+// to output_array[dest_row++]; these areas may overlap for duplication.
+// The source and destination arrays must be at least as wide as num_cols.
+// 
 void  jcopy_sample_rows(JSAMPARRAY input_array, int source_row, JSAMPARRAY output_array, int dest_row, int num_rows, JDIMENSION num_cols)
-/* Copy some rows of samples from one place to another.
- * num_rows rows are copied from input_array[source_row++]
- * to output_array[dest_row++]; these areas may overlap for duplication.
- * The source and destination arrays must be at least as wide as num_cols.
- */
 {
 	JSAMPROW inptr, outptr;
-#ifdef FMEMCOPY
-	size_t count = (size_t)(num_cols * SIZEOF(JSAMPLE));
-#else
-	register JDIMENSION count;
-#endif
+	size_t count = (size_t)(num_cols * sizeof(JSAMPLE));
 	int row;
 	input_array += source_row;
 	output_array += dest_row;
 	for(row = num_rows; row > 0; row--) {
 		inptr = *input_array++;
 		outptr = *output_array++;
-#ifdef FMEMCOPY
-		FMEMCOPY(outptr, inptr, count);
-#else
-		for(count = num_cols; count > 0; count--)
-			*outptr++ = *inptr++; /* needn't bother with GETJSAMPLE() here */
-#endif
+		memcpy(outptr, inptr, count);
 	}
 }
-
+//
+// Copy a row of coefficient blocks from one place to another
+//
 void  jcopy_block_row(JBLOCKROW input_row, JBLOCKROW output_row, JDIMENSION num_blocks)
-/* Copy a row of coefficient blocks from one place to another. */
 {
-#ifdef FMEMCOPY
-	FMEMCOPY(output_row, input_row, num_blocks * (DCTSIZE2 * SIZEOF(JCOEF)));
-#else
-	long count;
-	JCOEFPTR inptr = (JCOEFPTR)input_row;
-	JCOEFPTR outptr = (JCOEFPTR)output_row;
-	for(count = (long)num_blocks * DCTSIZE2; count > 0; count--) {
-		*outptr++ = *inptr++;
-	}
-#endif
+	memcpy(output_row, input_row, num_blocks * (DCTSIZE2 * sizeof(JCOEF)));
 }

@@ -6,9 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODCode128Writer.h"
-//#include "ODCode128Patterns.h"
-//#include "ODWriterHelper.h"
 
 namespace ZXing::OneD {
 static const int CODE_START_A = 103;
@@ -133,7 +130,6 @@ BitMatrix Code128Writer::encode(const std::wstring& contents, int width, int hei
 	if(length < 1 || length > 80) {
 		throw std::invalid_argument("Contents length should be between 1 and 80 characters");
 	}
-
 	// Check content
 	for(int i = 0; i < length; ++i) {
 		int c = contents[i];
@@ -144,23 +140,19 @@ BitMatrix Code128Writer::encode(const std::wstring& contents, int width, int hei
 			case ESCAPE_FNC_4: break;
 			default:
 			    if(c > 127) {
-				    // support for FNC4 isn't implemented, no full Latin-1 character set available at
-				    // the moment
+				    // support for FNC4 isn't implemented, no full Latin-1 character set available at the moment
 				    throw std::invalid_argument(std::string("Bad character in input: ") + static_cast<char>(c));
 			    }
 		}
 	}
-
 	std::list<std::array<int, 6> > patterns; // temporary storage for patterns
 	int checkSum = 0;
 	int checkWeight = 1;
 	int codeSet = 0; // selected code (CODE_CODE_B or CODE_CODE_C)
 	int position = 0; // position in contents
-
 	while(position < length) {
 		//Select code to use
 		int newCodeSet = ChooseCode(contents, position, codeSet);
-
 		//Get the pattern index
 		int patternIndex;
 		if(newCodeSet == codeSet) {

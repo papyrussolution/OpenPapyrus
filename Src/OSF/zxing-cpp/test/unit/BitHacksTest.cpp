@@ -3,10 +3,9 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "BitHacks.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
-#include <vector>
 
 TEST(BitHackTest, BitHacks)
 {
@@ -35,13 +34,11 @@ TEST(BitHackTest, BitHacks)
 	EXPECT_EQ(HighestBitSet(0x1), 0);
 	EXPECT_EQ(HighestBitSet(0xffffffff), 31);
 	EXPECT_EQ(HighestBitSet(0x1F), 4);
-
 	using V = std::vector<uint32_t>;
 	auto checkReverse = [](V&& v1, int p, V&& v2) {
 		Reverse(v1, p);
 		EXPECT_EQ(v1, v2);
 	};
-
 	checkReverse(V{1}, 0, V{0x80000000});
 	checkReverse(V{0, 1}, 0, V{0x80000000, 0});
 	checkReverse(V{0, 1}, 31, V{1, 0});

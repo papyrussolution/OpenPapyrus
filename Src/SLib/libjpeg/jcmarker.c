@@ -608,7 +608,7 @@ METHODDEF(void) write_tables_only(j_compress_ptr cinfo)
 void  jinit_marker_writer(j_compress_ptr cinfo)
 {
 	/* Create the subobject */
-	my_marker_ptr marker = (my_marker_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_marker_writer));
+	my_marker_ptr marker = (my_marker_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(my_marker_writer));
 	cinfo->marker = &marker->pub;
 	/* Initialize method pointers */
 	marker->pub.write_file_header = write_file_header;

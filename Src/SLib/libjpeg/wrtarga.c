@@ -51,7 +51,7 @@ static void write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_c
 {
 	char targaheader[18];
 	/* Set unused fields of header to 0 */
-	memzero(targaheader, SIZEOF(targaheader));
+	memzero(targaheader, sizeof(targaheader));
 	if(num_colors > 0) {
 		targaheader[1] = 1; /* color map type 1 */
 		targaheader[5] = (char)(num_colors & 0xFF);
@@ -99,35 +99,30 @@ METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDI
 	}
 	(void)JFWRITE(dest->pub.output_file, dest->iobuffer, dest->buffer_width);
 }
-
+//
+// used for grayscale OR quantized color output
+//
 METHODDEF(void) put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
-/* used for grayscale OR quantized color output */
 {
 	tga_dest_ptr dest = (tga_dest_ptr)dinfo;
-	JSAMPROW inptr;
-	char * outptr;
-	JDIMENSION col;
-	inptr = dest->pub.buffer[0];
-	outptr = dest->iobuffer;
-	for(col = cinfo->output_width; col > 0; col--) {
+	JSAMPROW inptr = dest->pub.buffer[0];
+	char * outptr = dest->iobuffer;
+	for(JDIMENSION col = cinfo->output_width; col > 0; col--) {
 		*outptr++ = (char)GETJSAMPLE(*inptr++);
 	}
 	(void)JFWRITE(dest->pub.output_file, dest->iobuffer, dest->buffer_width);
 }
-/*
- * Write some demapped pixel data when color quantization is in effect.
- * For Targa, this is only applied to grayscale data.
- */
+//
+// Write some demapped pixel data when color quantization is in effect.
+// For Targa, this is only applied to grayscale data.
+//
 METHODDEF(void) put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 {
 	tga_dest_ptr dest = (tga_dest_ptr)dinfo;
-	JSAMPROW inptr;
-	char * outptr;
 	JSAMPROW color_map0 = cinfo->colormap[0];
-	JDIMENSION col;
-	inptr = dest->pub.buffer[0];
-	outptr = dest->iobuffer;
-	for(col = cinfo->output_width; col > 0; col--) {
+	JSAMPROW inptr = dest->pub.buffer[0];
+	char * outptr = dest->iobuffer;
+	for(JDIMENSION col = cinfo->output_width; col > 0; col--) {
 		*outptr++ = (char)GETJSAMPLE(color_map0[GETJSAMPLE(*inptr++)]);
 	}
 	(void)JFWRITE(dest->pub.output_file, dest->iobuffer, dest->buffer_width);
@@ -192,14 +187,14 @@ METHODDEF(void) finish_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 GLOBAL(djpeg_dest_ptr) jinit_write_targa(j_decompress_ptr cinfo)
 {
 	/* Create module interface object, fill in method pointers */
-	tga_dest_ptr dest = (tga_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(tga_dest_struct));
+	tga_dest_ptr dest = (tga_dest_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(tga_dest_struct));
 	dest->pub.start_output = start_output_tga;
 	dest->pub.finish_output = finish_output_tga;
 	/* Calculate output image dimensions so we can allocate space */
 	jpeg_calc_output_dimensions(cinfo);
 	/* Create I/O buffer.  Note we make this near on a PC. */
 	dest->buffer_width = cinfo->output_width * cinfo->output_components;
-	dest->iobuffer = (char *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (size_t)(dest->buffer_width * SIZEOF(char)));
+	dest->iobuffer = (char *)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (size_t)(dest->buffer_width * sizeof(char)));
 	/* Create decompressor output buffer. */
 	dest->pub.buffer = (*cinfo->mem->alloc_sarray)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, dest->buffer_width, (JDIMENSION)1);
 	dest->pub.buffer_height = 1;

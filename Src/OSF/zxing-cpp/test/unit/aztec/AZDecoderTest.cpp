@@ -1,23 +1,17 @@
 /*
-* Copyright 2017 Huy Cuong Nguyen
-* Copyright 2014 ZXing authors
-*/
+ * Copyright 2017 Huy Cuong Nguyen
+ * Copyright 2014 ZXing authors
+ */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "aztec/AZDecoder.h"
-#include "BitArray.h"
-#include "BitMatrixIO.h"
-#include "DecoderResult.h"
-#include "aztec/AZDetectorResult.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
-#include <string_view>
-#include <utility>
+//#include <string_view>
+//#include <utility>
 
 namespace ZXing::Aztec {
-
 DecoderResult Decode(const BitArray& bits);
-
 }
 
 using namespace ZXing;
@@ -138,10 +132,8 @@ TEST(AZDecoderTest, DecodeTooManyErrors2)
 static DecoderResult getData(std::string_view bitStr)
 {
 	BitArray bits;
-
-	for (auto b : bitStr)
+	for(auto b : bitStr)
 		bits.appendBit(b == '1');
-
 	return Aztec::Decode(bits);
 }
 
@@ -229,7 +221,7 @@ static DecoderResult getData(const ByteArray& bytes)
 {
 	BitArray bits; // 5-bit words (assuming no digits/binary)
 
-	for (auto b : bytes)
+	for(auto b : bytes)
 		bits.appendBits(b, 5);
 
 	return Aztec::Decode(bits);

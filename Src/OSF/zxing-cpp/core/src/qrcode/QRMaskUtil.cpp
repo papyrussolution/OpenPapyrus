@@ -6,7 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "QRMaskUtil.h"
 
 namespace ZXing::QRCode::MaskUtil {
 // Penalty weights from section 6.8.2.1

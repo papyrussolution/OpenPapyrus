@@ -171,7 +171,8 @@ struct SystemLogonParamBlock {
 						h_dup = NULL;
 					}
 					else {
-						DWORD gle = ::GetLastError();
+						//DWORD gle = ::GetLastError();
+						SLS.SetOsError("DuplicateTokenEx");
 						_ASSERT(0);
 						//Log(StrFormat(L"Error duplicating a user token (%S, %d)", file, line), GetLastError());
 					}
@@ -185,6 +186,8 @@ struct SystemLogonParamBlock {
 					profile_info.lpUserName = static_cast<wchar_t *>(user_name_noncost.vptr());
 					profile_info.dwFlags = PI_NOUI;
 					//profile_info.lpProfilePath = pUserInfo->usri4_profile;
+					SlProcess::EnablePrivilege(NULL, SE_RESTORE_NAME); // @v11.9.0
+					SlProcess::EnablePrivilege(NULL, SE_BACKUP_NAME); // @v11.9.0
 					BOOL lpr = LoadUserProfileW(h_token, &profile_info);
 					if(lpr) {
 						pProfileInfo->DefaultPath = profile_info.lpDefaultPath;
@@ -196,10 +199,14 @@ struct SystemLogonParamBlock {
 					}
 					else { // @error
 						::CloseHandle(h_token);
+						SLS.SetOsError("LoadUserProfile");
 						h_token = 0;
 					}
 				}
 				result = h_token;
+			}
+			else {
+				SLS.SetOsError("LogonUser");
 			}
 		}
 		return result;
@@ -286,7 +293,7 @@ static SPtrHandle DuplicateAccessToken(SPtrHandle & rH, LPCSTR file, int line)
 	return result;
 }
 
-static bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb)
+/*static*/bool SlProcess::EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb)
 {
 	TOKEN_PRIVILEGES tp; // token privileges
 	LUID luid;
@@ -388,7 +395,7 @@ static bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb)
 	DWORD  gle = 0;
 	if(flags & guhfUseSystemAccount) {
 		if(!rSettings.H_User_) { // might already have hUser from a previous call
-			EnablePrivilege(reinterpret_cast<HANDLE>(SE_DEBUG_NAME), NULL); //helps with OpenProcess, required for GetLocalSystemProcessToken
+			SlProcess::EnablePrivilege(reinterpret_cast<HANDLE>(SE_DEBUG_NAME), NULL); //helps with OpenProcess, required for GetLocalSystemProcessToken
 			rSettings.H_User_ = GetLocalSystemProcessToken();
 			THROW(rSettings.H_User_); //Log(L"Not able to get Local System token", true);
 			; //Log(L"Got Local System handle", false);
@@ -416,9 +423,9 @@ static bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb)
 				SPtrHandle h_dup = DuplicateAccessToken(rSettings.H_User_, __FILE__, __LINE__); //gives max rights
 				rSettings.H_User_ = h_dup;
 				if(!!rSettings.H_User_ && !(flags & guhfDontLoadProfile)) {
-					EnablePrivilege(NULL, SE_RESTORE_NAME);
-					EnablePrivilege(NULL, SE_BACKUP_NAME);
-					EnablePrivilege(NULL, SE_ASSIGNPRIMARYTOKEN_NAME); //
+					SlProcess::EnablePrivilege(NULL, SE_RESTORE_NAME);
+					SlProcess::EnablePrivilege(NULL, SE_BACKUP_NAME);
+					SlProcess::EnablePrivilege(NULL, SE_ASSIGNPRIMARYTOKEN_NAME); //
 					wchar_t user_name_buf[256];
 					STRNSCPY(user_name_buf, user);
 					MEMSZERO(rProfile);

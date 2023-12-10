@@ -88,11 +88,10 @@ static void usage(void)
 #endif
 	exit(EXIT_FAILURE);
 }
-
+//
+// Silly little routine to detect multiple transform options, which we can't handle.
+//
 static void select_transform(JXFORM_CODE transform)
-/* Silly little routine to detect multiple transform options,
- * which we can't handle.
- */
 {
 #if TRANSFORMS_SUPPORTED
 	if(transformoption.transform == JXFORM_NONE ||
@@ -100,13 +99,11 @@ static void select_transform(JXFORM_CODE transform)
 		transformoption.transform = transform;
 	}
 	else {
-		slfprintf_stderr("%s: can only do one image transformation at a time\n",
-		    progname);
+		slfprintf_stderr("%s: can only do one image transformation at a time\n", progname);
 		usage();
 	}
 #else
-	slfprintf_stderr("%s: sorry, image transformation was not compiled\n",
-	    progname);
+	slfprintf_stderr("%s: sorry, image transformation was not compiled\n", progname);
 	exit(EXIT_FAILURE);
 #endif
 }

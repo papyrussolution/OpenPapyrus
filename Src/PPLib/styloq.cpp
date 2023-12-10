@@ -2690,7 +2690,7 @@ public:
 		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 0, StyloQConfig::clifSvcGPS);
 		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 1, StyloQConfig::clifPsnAdrGPS);
 		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 2, StyloQConfig::clifDisableFaceSelfModifying); // @v11.6.6
-		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 2, StyloQConfig::clifShareDoc); // @v11.9.0
+		AddClusterAssoc(CTL_STQCLIMATCH_CFLAGS, 3, StyloQConfig::clifShareDoc); // @v11.9.0
 		SetClusterData(CTL_STQCLIMATCH_CFLAGS, Data.CliFlags);
 		// } @v11.6.0 
 		// @v11.5.10 {

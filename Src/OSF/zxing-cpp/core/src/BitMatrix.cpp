@@ -153,4 +153,33 @@ BitMatrix Deflate(const BitMatrix& input, int width, int height, float top, floa
 	}
 	return result;
 }
+//
+//
+//
+FastEdgeToEdgeCounter::FastEdgeToEdgeCounter(const BitMatrixCursorI& cur)
+{
+	stride = cur.d.y * cur.img->width() + cur.d.x;
+	p = cur.img->row(cur.p.y).begin() + cur.p.x;
+	int maxStepsX = cur.d.x ? (cur.d.x > 0 ? cur.img->width() - 1 - cur.p.x : cur.p.x) : INT_MAX;
+	int maxStepsY = cur.d.y ? (cur.d.y > 0 ? cur.img->height() - 1 - cur.p.y : cur.p.y) : INT_MAX;
+	stepsToBorder = std::min(maxStepsX, maxStepsY);
+}
+
+int FastEdgeToEdgeCounter::stepToNextEdge(int range)
+{
+	int maxSteps = std::min(stepsToBorder, range);
+	int steps = 0;
+	do {
+		if (++steps > maxSteps) {
+			if (maxSteps == stepsToBorder)
+				break;
+			else
+				return 0;
+		}
+	} while (p[steps * stride] == p[0]);
+	p += steps * stride;
+	stepsToBorder -= steps;
+	return steps;
+}
+
 } // ZXing

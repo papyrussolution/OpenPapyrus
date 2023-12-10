@@ -6,8 +6,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-#include "PDFModulusPoly.h"
-#include "PDFModulusGF.h"
 
 namespace ZXing {
 namespace Pdf417 {

@@ -95,7 +95,7 @@ METHODDEF(void) rgb_ycc_start(j_compress_ptr cinfo)
 	INT32 * rgb_ycc_tab;
 	INT32 i;
 	// Allocate and fill in the conversion tables. 
-	cconvert->rgb_ycc_tab = rgb_ycc_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (TABLE_SIZE * SIZEOF(INT32)));
+	cconvert->rgb_ycc_tab = rgb_ycc_tab = (INT32*)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, (TABLE_SIZE * sizeof(INT32)));
 	for(i = 0; i <= MAXJSAMPLE; i++) {
 		rgb_ycc_tab[i+R_Y_OFF] = FIX(0.299) * i;
 		rgb_ycc_tab[i+G_Y_OFF] = FIX(0.587) * i;
@@ -331,7 +331,7 @@ METHODDEF(void) null_method(j_compress_ptr cinfo)
  */
 void  jinit_color_converter(j_compress_ptr cinfo)
 {
-	my_cconvert_ptr cconvert = (my_cconvert_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, SIZEOF(my_color_converter));
+	my_cconvert_ptr cconvert = (my_cconvert_ptr)(*cinfo->mem->alloc_small)(reinterpret_cast<j_common_ptr>(cinfo), JPOOL_IMAGE, sizeof(my_color_converter));
 	cinfo->cconvert = &cconvert->pub;
 	// set start_pass to null method until we find out differently 
 	cconvert->pub.start_pass = null_method;

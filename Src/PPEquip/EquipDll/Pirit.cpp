@@ -2480,6 +2480,7 @@ int PiritEquip::RunCheck(int opertype)
 				switch(Check.ChZnProdType) {
 					case 1: product_type_bytes = 0x5246; break; // GTCHZNPT_FUR @v10.8.11 0x0002-->0x5246
 					case 2: product_type_bytes = 0x444D; break; // GTCHZNPT_TOBACCO @v10.8.11 0x0005-->0x444D
+					case 11: product_type_bytes = 0x444D; break; // @v11.9.0 GTCHZNPT_ALTTOBACCO
 					case 3: product_type_bytes = 0x444D; break; // GTCHZNPT_SHOE @v10.8.11 0x1520-->0x444D
 					case 4: product_type_bytes = 0x444D; break; // GTCHZNPT_MEDICINE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
 					case 5: product_type_bytes = 0x444D; break; // @v10.9.7 GTCHZNPT_CARTIRE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D

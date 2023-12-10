@@ -1308,7 +1308,6 @@ static int test_one_file(const char * inname, const char * outname)
 #ifdef PNG_tIME_SUPPORTED
 	{
 		png_timep mod_time;
-
 		if(png_get_tIME(read_ptr, end_info_ptr, &mod_time) != 0) {
 			png_set_tIME(write_ptr, write_end_info_ptr, mod_time);
 #ifdef PNG_TIME_RFC1123_SUPPORTED
@@ -1352,7 +1351,6 @@ static int test_one_file(const char * inname, const char * outname)
 	 */
 	png_set_text_compression_strategy(write_ptr, Z_FILTERED);
 #endif
-
 	/* When the unknown vpAg/sTER chunks are written by pngtest the only way to
 	 * do it is to write them *before* calling png_write_end.  When unknown
 	 * chunks are written by libpng, however, they are written just before IEND.
@@ -1360,20 +1358,16 @@ static int test_one_file(const char * inname, const char * outname)
 	 * after IDAT.
 	 */
 	write_chunks(write_ptr, after_IDAT);
-
 	png_write_end(write_ptr, write_end_info_ptr);
 #endif
-
 #ifdef PNG_EASY_ACCESS_SUPPORTED
 	if(verbose != 0) {
 		uint32 iwidth, iheight;
 		iwidth = png_get_image_width(write_ptr, write_info_ptr);
 		iheight = png_get_image_height(write_ptr, write_info_ptr);
-		fprintf(STDERR, "\n Image width = %lu, height = %lu\n",
-		    (ulong)iwidth, (ulong)iheight);
+		fprintf(STDERR, "\n Image width = %lu, height = %lu\n", (ulong)iwidth, (ulong)iheight);
 	}
 #endif
-
 	pngtest_debug("Destroying data structs");
 #ifdef SINGLE_ROWBUF_ALLOC
 	pngtest_debug("destroying row_buf for read_ptr");
@@ -1389,10 +1383,8 @@ static int test_one_file(const char * inname, const char * outname)
 	png_destroy_write_struct(&write_ptr, &write_info_ptr);
 #endif
 	pngtest_debug("Destruction complete.");
-
 	FCLOSE(fpin);
 	FCLOSE(fpout);
-
 	/* Summarize any warnings or errors and in 'strict' mode fail the test.
 	 * Unsupported chunks can result in warnings, in that case ignore the strict
 	 * setting, otherwise fail the test on warnings as well as errors.
@@ -1401,35 +1393,26 @@ static int test_one_file(const char * inname, const char * outname)
 		/* We don't really expect to get here because of the setjmp handling
 		 * above, but this is safe.
 		 */
-		fprintf(STDERR, "\n  %s: %d libpng errors found (%d warnings)",
-		    inname, error_count, warning_count);
-
+		fprintf(STDERR, "\n  %s: %d libpng errors found (%d warnings)", inname, error_count, warning_count);
 		if(strict != 0)
 			return (1);
 	}
-
 #ifdef PNG_WRITE_SUPPORTED
 	/* If there is no write support nothing was written! */
 	else if(unsupported_chunks > 0) {
-		fprintf(STDERR, "\n  %s: unsupported chunks (%d)%s",
-		    inname, unsupported_chunks, strict ? ": IGNORED --strict!" : "");
+		fprintf(STDERR, "\n  %s: unsupported chunks (%d)%s", inname, unsupported_chunks, strict ? ": IGNORED --strict!" : "");
 	}
 #endif
-
 	else if(warning_count > 0) {
-		fprintf(STDERR, "\n  %s: %d libpng warnings found",
-		    inname, warning_count);
-
+		fprintf(STDERR, "\n  %s: %d libpng warnings found", inname, warning_count);
 		if(strict != 0)
 			return (1);
 	}
-
 	pngtest_debug("Opening files for comparison");
 	if((fpin = fopen(inname, "rb")) == NULL) {
 		fprintf(STDERR, "Could not find file %s\n", inname);
 		return (1);
 	}
-
 	if((fpout = fopen(outname, "rb")) == NULL) {
 		fprintf(STDERR, "Could not find file %s\n", outname);
 		FCLOSE(fpin);
@@ -1448,49 +1431,30 @@ static int test_one_file(const char * inname, const char * outname)
 			if(num_in != num_out) {
 				fprintf(STDERR, "\nFiles %s and %s are of a different size\n", inname, outname);
 				if(wrote_question == 0 && unsupported_chunks == 0) {
-					fprintf(STDERR,
-					    "   Was %s written with the same maximum IDAT chunk size (%d bytes),",
-					    inname, PNG_ZBUF_SIZE);
-					fprintf(STDERR,
-					    "\n   filtering heuristic (libpng default), compression");
-					fprintf(STDERR,
-					    " level (zlib default),\n   and zlib version (%s)?\n\n",
-					    ZLIB_VERSION);
+					fprintf(STDERR, "   Was %s written with the same maximum IDAT chunk size (%d bytes),", inname, PNG_ZBUF_SIZE);
+					fprintf(STDERR, "\n   filtering heuristic (libpng default), compression");
+					fprintf(STDERR, " level (zlib default),\n   and zlib version (%s)?\n\n", ZLIB_VERSION);
 					wrote_question = 1;
 				}
-
 				FCLOSE(fpin);
 				FCLOSE(fpout);
-
 				if(strict != 0 && unsupported_chunks == 0)
 					return (1);
-
 				else
 					return (0);
 			}
-
 			if(num_in == 0)
 				break;
-
 			if(memcmp(inbuf, outbuf, num_in)) {
-				fprintf(STDERR, "\nFiles %s and %s are different\n", inname,
-				    outname);
-
+				fprintf(STDERR, "\nFiles %s and %s are different\n", inname, outname);
 				if(wrote_question == 0 && unsupported_chunks == 0) {
-					fprintf(STDERR,
-					    "   Was %s written with the same maximum IDAT chunk size (%d bytes),",
-					    inname, PNG_ZBUF_SIZE);
-					fprintf(STDERR,
-					    "\n   filtering heuristic (libpng default), compression");
-					fprintf(STDERR,
-					    " level (zlib default),\n   and zlib version (%s)?\n\n",
-					    ZLIB_VERSION);
+					fprintf(STDERR, "   Was %s written with the same maximum IDAT chunk size (%d bytes),", inname, PNG_ZBUF_SIZE);
+					fprintf(STDERR, "\n   filtering heuristic (libpng default), compression");
+					fprintf(STDERR, " level (zlib default),\n   and zlib version (%s)?\n\n", ZLIB_VERSION);
 					wrote_question = 1;
 				}
-
 				FCLOSE(fpin);
 				FCLOSE(fpout);
-
 				/* NOTE: the unsupported_chunks escape is permitted here because
 				 * unsupported text chunk compression will result in the compression
 				 * mode being changed (to NONE) yet, in the test case, the result
@@ -1498,14 +1462,12 @@ static int test_one_file(const char * inname, const char * outname)
 				 */
 				if(strict != 0 && unsupported_chunks == 0)
 					return (1);
-
 				else
 					return (0);
 			}
 		}
 	}
 #endif /* WRITE && WRITE_FILTER */
-
 	FCLOSE(fpin);
 	FCLOSE(fpout);
 	return (0);

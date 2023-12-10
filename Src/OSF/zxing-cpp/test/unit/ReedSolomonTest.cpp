@@ -1,124 +1,125 @@
 /*
-* Copyright 2017 Huy Cuong Nguyen
-* Copyright 2013 ZXing authors
-*/
+ * Copyright 2017 Huy Cuong Nguyen
+ * Copyright 2013 ZXing authors
+ */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "GenericGF.h"
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "PseudoRandom.h"
-#include "ReedSolomonDecoder.h"
-#include "ReedSolomonEncoder.h"
+#include "gtest/gtest.h"
 
-#include <algorithm>
-#include <ostream>
-
-static std::ostream& operator<<(std::ostream& out, const ZXing::GenericGF& field) {
+static std::ostream& operator<<(std::ostream& out, const ZXing::GenericGF& field) 
+{
 	out << "GF(" << field.size() << ',' << field.generatorBase() << ')';
 	return out;
 }
 
-#include "gtest/gtest.h"
-
 using namespace ZXing;
 
 namespace {
-	static const int DECODER_RANDOM_TEST_ITERATIONS = 3;
-	static const int DECODER_TEST_ITERATIONS = 10;
+static const int DECODER_RANDOM_TEST_ITERATIONS = 3;
+static const int DECODER_TEST_ITERATIONS = 10;
 
-	std::vector<int> operator+(const std::vector<int>& a, const std::vector<int>& b) {
-		std::vector<int> c;
-		c.reserve(a.size() + b.size());
-		c.insert(c.end(), a.begin(), a.end());
-		c.insert(c.end(), b.begin(), b.end());
-		return c;
+std::vector<int> operator+(const std::vector<int>& a, const std::vector<int>& b) 
+{
+	std::vector<int> c;
+	c.reserve(a.size() + b.size());
+	c.insert(c.end(), a.begin(), a.end());
+	c.insert(c.end(), b.begin(), b.end());
+	return c;
+}
+
+void TestEncoder(const GenericGF& field, const std::vector<int>& dataWords, const std::vector<int>& ecWords) 
+{
+	auto messageExpected = dataWords + ecWords;
+	auto message = dataWords;
+	message.resize(message.size() + ecWords.size());
+	ReedSolomonEncode(field, message, Size(ecWords));
+	EXPECT_EQ(message, messageExpected) << "Encode in " << field << " (" << dataWords.size() << ',' << ecWords.size() << ") failed";
+}
+
+void Corrupt(std::vector<int>& received, size_t howMany, PseudoRandom& random, int max) 
+{
+	std::vector<bool> corrupted(received.size(), false);
+	for(size_t j = 0; j < howMany; j++) {
+		auto location = random.next(size_t(0), received.size() - 1);
+		int value = random.next(0, max - 1);
+		if(corrupted[location] || received[location] == value) {
+			j--;
+		}
+		else {
+			corrupted[location] = true;
+			received[location] = value;
+		}
 	}
+}
 
-	void TestEncoder(const GenericGF& field, const std::vector<int>& dataWords, const std::vector<int>& ecWords) {
-		auto messageExpected = dataWords + ecWords;
-		auto message = dataWords;
-		message.resize(message.size() + ecWords.size());
-		ReedSolomonEncode(field, message, Size(ecWords));
-		EXPECT_EQ(message, messageExpected) << "Encode in " << field << " (" << dataWords.size() << ',' << ecWords.size() << ") failed";
-	}
-
-	void Corrupt(std::vector<int>& received, size_t howMany, PseudoRandom& random, int max) {
-		std::vector<bool> corrupted(received.size(), false);
-		for (size_t j = 0; j < howMany; j++) {
-			auto location = random.next(size_t(0), received.size() - 1);
-			int value = random.next(0, max - 1);
-			if (corrupted[location] || received[location] == value) {
-				j--;
+void TestDecoder(const GenericGF& field, const std::vector<int>& dataWords, const std::vector<int>& ecWords) 
+{
+	std::vector<int> message(dataWords.size() + ecWords.size());
+	auto maxErrors = ecWords.size() / 2;
+	PseudoRandom random(0x12345678);
+	int iterations = field.size() > 256 ? 1 : DECODER_TEST_ITERATIONS;
+	for(int j = 0; j < iterations; j++) {
+		for(size_t i = 0; i < ecWords.size(); i++) {
+			if(i > 10 && i < ecWords.size() / 2 - 10) {
+				// performance improvement - skip intermediate cases in long-running tests
+				i += ecWords.size() / 10;
 			}
-			else {
-				corrupted[location] = true;
-				received[location] = value;
+			auto message = dataWords + ecWords;
+			Corrupt(message, i, random, field.size());
+			bool success = ReedSolomonDecode(field, message, Size(ecWords));
+			if(!success) {
+				// fail only if maxErrors exceeded
+				ASSERT_GT(i, maxErrors) << "Decode in " << field << " (" << dataWords.size() << ',' << ecWords.size() << ") failed at " << i;
+				// else stop
+				break;
+			}
+			if(i < maxErrors) {
+				message.resize(dataWords.size());
+				ASSERT_EQ(message, dataWords) << "Decode in " << field << " (" << dataWords.size() << ',' << ecWords.size() << ") failed at " << i << " errors";
 			}
 		}
 	}
+}
 
-	void TestDecoder(const GenericGF& field, const std::vector<int>& dataWords, const std::vector<int>& ecWords) {
-		std::vector<int> message(dataWords.size() + ecWords.size());
-		auto maxErrors = ecWords.size() / 2;
-		PseudoRandom random(0x12345678);
-		int iterations = field.size() > 256 ? 1 : DECODER_TEST_ITERATIONS;
-		for (int j = 0; j < iterations; j++) {
-			for (size_t i = 0; i < ecWords.size(); i++) {
-				if (i > 10 && i < ecWords.size() / 2 - 10) {
-					// performance improvement - skip intermediate cases in long-running tests 
-					i += ecWords.size() / 10;
-				}
-				auto message = dataWords + ecWords;
-				Corrupt(message, i, random, field.size());
-				bool success = ReedSolomonDecode(field, message, Size(ecWords));
-				if (!success) {
-					// fail only if maxErrors exceeded
-					ASSERT_GT(i, maxErrors) << "Decode in " << field << " (" << dataWords.size() << ',' << ecWords.size() << ") failed at " << i;
-					// else stop
-					break;
-				}
-				if (i < maxErrors) {
-					message.resize(dataWords.size());
-					ASSERT_EQ(message, dataWords) << "Decode in " << field << " (" << dataWords.size() << ',' << ecWords.size() << ") failed at " << i << " errors";
-				}
-			}
+void TestEncodeDecode(const GenericGF& field, const std::vector<int>& dataWords, const std::vector<int>& ecWords) 
+{
+	TestEncoder(field, dataWords, ecWords);
+	TestDecoder(field, dataWords, ecWords);
+}
+
+void TestEncodeDecodeRandom(const GenericGF& field, int dataSize, int ecSize) 
+{
+	ASSERT_TRUE(dataSize > 0 && dataSize <= field.size() - 3) << "Invalid data size for " << field;
+	ASSERT_TRUE(ecSize > 0 && ecSize + dataSize <= field.size()) << "Invalid ECC size for " << field;
+	ReedSolomonEncoder encoder(field);
+	std::vector<int> message(dataSize + ecSize);
+	std::vector<int> dataWords(dataSize);
+	std::vector<int> ecWords(ecSize);
+	PseudoRandom random(0x12345678);
+	int iterations = field.size() > 256 ? 1 : DECODER_RANDOM_TEST_ITERATIONS;
+	for(int i = 0; i < iterations; i++) {
+		// generate random data
+		for(auto& val : dataWords) {
+			val = random.next(0, field.size() - 1);
 		}
-	}
-
-	void TestEncodeDecode(const GenericGF& field, const std::vector<int>& dataWords, const std::vector<int>& ecWords) {
-		TestEncoder(field, dataWords, ecWords);
+		// generate ECC words
+		std::copy(dataWords.begin(), dataWords.end(), message.begin());
+		encoder.encode(message, Size(ecWords));
+		std::copy_n(message.begin() + dataWords.size(), ecSize, ecWords.begin());
+		// check to see if Decoder can fix up to ecWords/2 random errors
 		TestDecoder(field, dataWords, ecWords);
 	}
-
-	void TestEncodeDecodeRandom(const GenericGF& field, int dataSize, int ecSize) {
-		ASSERT_TRUE(dataSize > 0 && dataSize <= field.size() - 3) << "Invalid data size for " << field;
-		ASSERT_TRUE(ecSize > 0 && ecSize + dataSize <= field.size()) << "Invalid ECC size for " << field;
-		ReedSolomonEncoder encoder(field);
-		std::vector<int> message(dataSize + ecSize);
-		std::vector<int> dataWords(dataSize);
-		std::vector<int> ecWords(ecSize);
-		PseudoRandom random(0x12345678);
-		int iterations = field.size() > 256 ? 1 : DECODER_RANDOM_TEST_ITERATIONS;
-		for (int i = 0; i < iterations; i++) {
-			// generate random data
-			for (auto& val : dataWords) {
-				val = random.next(0, field.size() - 1);
-			}
-			// generate ECC words
-			std::copy(dataWords.begin(), dataWords.end(), message.begin());
-			encoder.encode(message, Size(ecWords));
-			std::copy_n(message.begin() + dataWords.size(), ecSize, ecWords.begin());
-			// check to see if Decoder can fix up to ecWords/2 random errors
-			TestDecoder(field, dataWords, ecWords);
-		}
-	}
-
+}
 }
 
 TEST(ReedSolomonTest, DataMatrix)
 {
 	// real life test cases
 	TestEncodeDecode(GenericGF::DataMatrixField256(),
-		{ 142, 164, 186 }, { 114, 25, 5, 88, 102 });
+	    { 142, 164, 186 }, { 114, 25, 5, 88, 102 });
 	TestEncodeDecode(GenericGF::DataMatrixField256(), {
 		0x69, 0x75, 0x75, 0x71, 0x3B, 0x30, 0x30, 0x64,
 		0x70, 0x65, 0x66, 0x2F, 0x68, 0x70, 0x70, 0x68,
@@ -128,7 +129,7 @@ TEST(ReedSolomonTest, DataMatrix)
 		0x1C, 0x64, 0xEE, 0xEB, 0xD0, 0x1D, 0x00, 0x03,
 		0xF0, 0x1C, 0xF1, 0xD0, 0x6D, 0x00, 0x98, 0xDA,
 		0x80, 0x88, 0xBE, 0xFF, 0xB7, 0xFA, 0xA9, 0x95 });
-	
+
 	// synthetic test cases
 	TestEncodeDecodeRandom(GenericGF::DataMatrixField256(), 10, 240);
 	TestEncodeDecodeRandom(GenericGF::DataMatrixField256(), 128, 127);
@@ -161,15 +162,10 @@ TEST(ReedSolomonTest, QRCode)
 TEST(ReedSolomonTest, Aztec)
 {
 	// real life test cases
-	TestEncodeDecode(GenericGF::AztecParam(),
-		{ 0x5, 0x6 }, { 0x3, 0x2, 0xB, 0xB, 0x7 });
-	TestEncodeDecode(GenericGF::AztecParam(),
-		{ 0x0, 0x0, 0x0, 0x9 }, { 0xA, 0xD, 0x8, 0x6, 0x5, 0x6 });
-	TestEncodeDecode(GenericGF::AztecParam(),
-		{ 0x2, 0x8, 0x8, 0x7 }, { 0xE, 0xC, 0xA, 0x9, 0x6, 0x8 });
-	TestEncodeDecode(GenericGF::AztecData6(),
-		{ 0x9, 0x32, 0x1, 0x29, 0x2F, 0x2, 0x27, 0x25, 0x1, 0x1B },
-		{ 0x2C, 0x2, 0xD, 0xD, 0xA, 0x16, 0x28, 0x9, 0x22, 0xA, 0x14 });
+	TestEncodeDecode(GenericGF::AztecParam(), { 0x5, 0x6 }, { 0x3, 0x2, 0xB, 0xB, 0x7 });
+	TestEncodeDecode(GenericGF::AztecParam(), { 0x0, 0x0, 0x0, 0x9 }, { 0xA, 0xD, 0x8, 0x6, 0x5, 0x6 });
+	TestEncodeDecode(GenericGF::AztecParam(), { 0x2, 0x8, 0x8, 0x7 }, { 0xE, 0xC, 0xA, 0x9, 0x6, 0x8 });
+	TestEncodeDecode(GenericGF::AztecData6(), { 0x9, 0x32, 0x1, 0x29, 0x2F, 0x2, 0x27, 0x25, 0x1, 0x1B }, { 0x2C, 0x2, 0xD, 0xD, 0xA, 0x16, 0x28, 0x9, 0x22, 0xA, 0x14 });
 	TestEncodeDecode(GenericGF::AztecData8(), {
 		0xE0, 0x86, 0x42, 0x98, 0xE8, 0x4A, 0x96, 0xC6,
 		0xB9, 0xF0, 0x8C, 0xA7, 0x4A, 0xDA, 0xF8, 0xCE,

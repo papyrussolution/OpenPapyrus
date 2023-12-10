@@ -7,8 +7,6 @@
 
 #include <zxing-internal.h>
 #pragma hdrstop
-//#include "ODMultiUPCEANReader.h"
-//#include "ODUPCEANCommon.h"
 
 namespace ZXing::OneD {
 constexpr int CHAR_LEN = 4;

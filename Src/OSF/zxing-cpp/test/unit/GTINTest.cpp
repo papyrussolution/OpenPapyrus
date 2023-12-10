@@ -3,11 +3,8 @@
 */
 // SPDX-License-Identifier: Apache-2.0
 
-#include "GTIN.h"
-
-#include "Result.h"
-#include "oned/ODUPCEANCommon.h"
-
+#include <zxing-internal.h>
+#pragma hdrstop
 #include "gtest/gtest.h"
 
 using namespace ZXing;

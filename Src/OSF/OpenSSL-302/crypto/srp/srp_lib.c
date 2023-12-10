@@ -95,27 +95,18 @@ err:
 	return S;
 }
 
-BIGNUM * SRP_Calc_B_ex(const BIGNUM * b, const BIGNUM * N, const BIGNUM * g,
-    const BIGNUM * v, OSSL_LIB_CTX * libctx, const char * propq)
+BIGNUM * SRP_Calc_B_ex(const BIGNUM * b, const BIGNUM * N, const BIGNUM * g, const BIGNUM * v, OSSL_LIB_CTX * libctx, const char * propq)
 {
 	BIGNUM * kv = NULL, * gb = NULL;
 	BIGNUM * B = NULL, * k = NULL;
 	BN_CTX * bn_ctx;
-
-	if(b == NULL || N == NULL || g == NULL || v == NULL ||
-	    (bn_ctx = BN_CTX_new_ex(libctx)) == NULL)
+	if(b == NULL || N == NULL || g == NULL || v == NULL || (bn_ctx = BN_CTX_new_ex(libctx)) == NULL)
 		return NULL;
-
-	if((kv = BN_new()) == NULL ||
-	    (gb = BN_new()) == NULL || (B = BN_new()) == NULL)
+	if((kv = BN_new()) == NULL || (gb = BN_new()) == NULL || (B = BN_new()) == NULL)
 		goto err;
-
 	/* B = g**b + k*v */
-
-	if(!BN_mod_exp(gb, g, b, N, bn_ctx)
-	    || (k = srp_Calc_k(N, g, libctx, propq)) == NULL
-	    || !BN_mod_mul(kv, v, k, N, bn_ctx)
-	    || !BN_mod_add(B, gb, kv, N, bn_ctx)) {
+	if(!BN_mod_exp(gb, g, b, N, bn_ctx) || (k = srp_Calc_k(N, g, libctx, propq)) == NULL || 
+		!BN_mod_mul(kv, v, k, N, bn_ctx) || !BN_mod_add(B, gb, kv, N, bn_ctx)) {
 		BN_free(B);
 		B = NULL;
 	}
@@ -127,14 +118,12 @@ err:
 	return B;
 }
 
-BIGNUM * SRP_Calc_B(const BIGNUM * b, const BIGNUM * N, const BIGNUM * g,
-    const BIGNUM * v)
+BIGNUM * SRP_Calc_B(const BIGNUM * b, const BIGNUM * N, const BIGNUM * g, const BIGNUM * v)
 {
 	return SRP_Calc_B_ex(b, N, g, v, NULL, NULL);
 }
 
-BIGNUM * SRP_Calc_x_ex(const BIGNUM * s, const char * user, const char * pass,
-    OSSL_LIB_CTX * libctx, const char * propq)
+BIGNUM * SRP_Calc_x_ex(const BIGNUM * s, const char * user, const char * pass, OSSL_LIB_CTX * libctx, const char * propq)
 {
 	unsigned char dig[SHA_DIGEST_LENGTH];
 	EVP_MD_CTX * ctxt;
