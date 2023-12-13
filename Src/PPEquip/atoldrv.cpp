@@ -1709,6 +1709,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 						p_js_item->InsertDouble("amount", pp * pq, MKSFMTD(0, 2, 0));
 						p_js_item->InsertDouble("infoDiscountAmount", 0.0, MKSFMTD(0, 1, 0));
 						p_js_item->InsertInt("department", inrangeordefault(sl_param.DivID, 0, 16, 0));
+						p_js_item->InsertString("measurementUnit", "piece"); // @v11.9.1
 						p_js_item->InsertString("paymentMethod", ""); // "advance" etc
 						p_js_item->InsertString("paymentObject", ""); // "commodity" etc
 						if(sl_param.ChZnProductType && /*sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()*/sl_param.ChZnCode.NotEmpty()) {

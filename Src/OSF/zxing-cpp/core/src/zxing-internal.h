@@ -393,7 +393,9 @@ namespace ZXing {
 	 */
 	class ByteArray : public std::vector<uint8_t> {
 	public:
-		ByteArray() = default;
+		ByteArray() : std::vector<uint8_t>()
+		{
+		}
 		ByteArray(std::initializer_list<uint8_t> list) : std::vector<uint8_t>(list) 
 		{
 		}
@@ -502,35 +504,35 @@ namespace ZXing {
 	};
 
 	class DecodeHints {
-		bool _tryHarder                : 1;
-		bool _tryRotate                : 1;
-		bool _tryInvert                : 1;
-		bool _tryDownscale             : 1;
-		bool _isPure                   : 1;
-		bool _tryCode39ExtendedMode    : 1;
-		bool _validateCode39CheckSum   : 1;
-		bool _validateITFCheckSum      : 1;
-		bool _returnCodabarStartEnd    : 1;
-		bool _returnErrors             : 1;
-		uint8_t _downscaleFactor       : 3;
-		EanAddOnSymbol _eanAddOnSymbol : 2;
-		Binarizer _binarizer           : 2;
-		TextMode _textMode             : 3;
-		CharacterSet _characterSet     : 6;
+		bool _tryHarder/* : 1*/;
+		bool _tryRotate/* : 1*/;
+		bool _tryInvert/*: 1*/;
+		bool _tryDownscale/*: 1*/;
+		bool _isPure/*: 1*/;
+		bool _tryCode39ExtendedMode/*: 1*/;
+		bool _validateCode39CheckSum/*: 1*/;
+		bool _validateITFCheckSum/*: 1*/;
+		bool _returnCodabarStartEnd/*: 1*/;
+		bool _returnErrors/*: 1*/;
+		uint8_t _downscaleFactor/*: 3*/;
+		EanAddOnSymbol _eanAddOnSymbol/*: 2*/;
+		Binarizer _binarizer/*: 2*/;
+		TextMode _textMode/*: 3*/;
+		CharacterSet _characterSet/*: 6*/;
 	#ifdef ZXING_BUILD_EXPERIMENTAL_API
-		bool _tryDenoise               : 1;
+		bool _tryDenoise/*: 1*/;
+	#else
+		bool Reserve; // @alignment
 	#endif
-
 		uint8_t _minLineCount        = 2;
 		uint8_t _maxNumberOfSymbols  = 0xff;
 		uint16_t _downscaleThreshold = 500;
 		BarcodeFormats _formats      = BarcodeFormat::None;
-
 	public:
 		// bitfields don't get default initialized to 0 before c++20
-		DecodeHints() : _tryHarder(1), _tryRotate(1), _tryInvert(1), _tryDownscale(1), _isPure(0),
-			  _tryCode39ExtendedMode(0), _validateCode39CheckSum(0), _validateITFCheckSum(0),
-			  _returnCodabarStartEnd(0), _returnErrors(0), _downscaleFactor(3),
+		DecodeHints() : _tryHarder(true), _tryRotate(true), _tryInvert(true), _tryDownscale(true), _isPure(false),
+			  _tryCode39ExtendedMode(false), _validateCode39CheckSum(false), _validateITFCheckSum(false),
+			  _returnCodabarStartEnd(false), _returnErrors(false), _downscaleFactor(3),
 			  _eanAddOnSymbol(EanAddOnSymbol::Ignore), _binarizer(Binarizer::LocalAverage),
 			  _textMode(TextMode::HRI), _characterSet(CharacterSet::Unknown)
 	#ifdef ZXING_BUILD_EXPERIMENTAL_API
@@ -602,8 +604,20 @@ namespace ZXing {
 	std::string ToString(ContentType type);
 
 	struct SymbologyIdentifier {
-		char code = 0, modifier = 0, eciModifierOffset = 0;
-		AIFlag aiFlag = AIFlag::None;
+		SymbologyIdentifier() : code(0), modifier(0), eciModifierOffset(0), aiFlag(AIFlag::None)
+		{
+		}
+		SymbologyIdentifier(char aCode, char aModif, char aEciModifOffs) : code(aCode), modifier(aModif), eciModifierOffset(aEciModifOffs), aiFlag(AIFlag::None)
+		{
+		}
+		SymbologyIdentifier(char aCode, char aModif, char aEciModifOffs, AIFlag aif) : 
+			code(aCode), modifier(aModif), eciModifierOffset(aEciModifOffs), aiFlag(aif)
+		{
+		}
+		char   code;
+		char   modifier;
+		char   eciModifierOffset;
+		AIFlag aiFlag;
 		std::string toString(bool hasECI = false) const
 		{
 			return code ? ']' + std::string(1, code) + static_cast<char>(modifier + eciModifierOffset * hasECI) : std::string();
@@ -611,8 +625,7 @@ namespace ZXing {
 	};
 
 	class Content {
-		template <typename FUNC>
-		void ForEachECIBlock(FUNC f) const;
+		template <typename FUNC> void ForEachECIBlock(FUNC f) const;
 		void switchEncoding(ECI eci, bool isECI);
 		std::string render(bool withECI) const;
 	public:
@@ -623,8 +636,9 @@ namespace ZXing {
 		ByteArray bytes;
 		std::vector<Encoding> encodings;
 		SymbologyIdentifier symbology;
-		CharacterSet defaultCharset = CharacterSet::Unknown;
-		bool hasECI = false;
+		CharacterSet defaultCharset; // 1byte
+		bool   hasECI;
+		uint8  Reserve[2]; // @alignment
 
 		Content();
 		Content(ByteArray&& bytes, SymbologyIdentifier si);
@@ -665,8 +679,10 @@ namespace ZXing {
 			std::string file(_file);
 			return file.substr(file.find_last_of("/\\") + 1) + ":" + std::to_string(_line);
 		}
-		Error() = default;
-		Error(Type type, std::string msg = {}) : _msg(std::move(msg)), _type(type) 
+		Error() : _file(0), _line(-1), _type(Type::None)
+		{
+		}
+		Error(Type type, std::string msg = {}) : _msg(std::move(msg)), _file(0), _line(-1), _type(type)
 		{
 		}
 		Error(const char* file, short line, Type type, std::string msg = {}) : _msg(std::move(msg)), _file(file), _line(line), _type(type) 
@@ -677,7 +693,7 @@ namespace ZXing {
 		static constexpr auto Unsupported = Type::Unsupported;
 		inline bool operator==(const Error& o) const noexcept
 		{
-			return _type == o._type && _msg == o._msg && _file == o._file && _line == o._line;
+			return (_type == o._type && _msg == o._msg && _file == o._file && _line == o._line);
 		}
 		inline bool operator!=(const Error& o) const noexcept { return !(*this == o); }
 	protected:
@@ -1000,7 +1016,7 @@ namespace ZXing {
 		/**
 		 * @brief bytes is the raw / standard content without any modifications like character set conversions
 		 */
-		const ByteArray& bytes() const;
+		const ByteArray & bytes() const;
 		/**
 		 * @brief bytesECI is the raw / standard content following the ECI protocol
 		 */
@@ -1016,7 +1032,7 @@ namespace ZXing {
 		/**
 		 * @brief ecLevel returns the error correction level of the symbol (empty string if not applicable)
 		 */
-		std::string ecLevel() const;
+		/*std::string*/const char * ecLevel() const;
 		/**
 		 * @brief contentType gives a hint to the type of content found (Text/Binary/GS1/etc.)
 		 */
@@ -1076,7 +1092,7 @@ namespace ZXing {
 		/**
 		 * @brief version QRCode / DataMatrix / Aztec version or size.
 		 */
-		std::string version() const;
+		/*std::string*/const char * version() const;
 		bool operator==(const Result& o) const;
 	private:
 		Content _content;
@@ -1091,6 +1107,7 @@ namespace ZXing {
 		bool _isMirrored = false;
 		bool _isInverted = false;
 		bool _readerInit = false;
+		uint8 Reserve; // @alignment
 	};
 
 	using Results = std::vector<Result>;

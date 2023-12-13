@@ -25,7 +25,7 @@ bool ConvertUtcFileTimeToString(const FILETIME &utc, char * s, int level) throw(
 	if(!BOOLToBool(FileTimeToSystemTime(&ft, &st)))
 		return false;
 	{
-		unsigned val = st.wYear;
+		uint val = st.wYear;
 		if(val >= 10000) {
 			*s++ = (char)('0' + val / 10000);
 			val %= 10000;
@@ -56,7 +56,7 @@ bool ConvertUtcFileTimeToString(const FILETIME &utc, char * s, int level) throw(
 				   *s++ = ' ';
 				 */
 				{
-					unsigned numDigits = 7;
+					uint numDigits = 7;
 					uint32 val = (uint32)((((uint64)ft.dwHighDateTime << 32) + ft.dwLowDateTime) % 10000000);
 					for(uint i = numDigits; i != 0;) {
 						i--;

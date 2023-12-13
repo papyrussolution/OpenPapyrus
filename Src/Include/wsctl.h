@@ -181,6 +181,11 @@ public:
 	//
 	bool   FASTCALL IsEq(const WsCtl_ProgramCollection & rS) const;
 	bool   IsResolved() const { return Resolved; }
+
+	enum {
+		catsurrogateidAll = 10000
+	};
+
 	long   GetSelectedCatSurrogateId() const { return SelectedCatSurrogateId; }
 	void   SetSelectedCatSurrogateId(long id) { SelectedCatSurrogateId = id; }
 	const StrAssocArray & GetCatList() const { return CatList; }

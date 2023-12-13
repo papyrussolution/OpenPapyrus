@@ -102,8 +102,12 @@ public:
 		uint32 TextP;
 		uint32 LineNo; // @v11.7.8 Номер строки исходного файла, с которой начинается определение.
 	};
-	static void MakeUedCanonicalName(SString & rResult, long ver);
-	static long SearchLastCanonicalFile(const char * pPath, SString & rFileName);
+	enum {
+		canonfnIds = 1,
+		canonfnProps = 2
+	};
+	static void MakeUedCanonicalName(int canonfn, SString & rResult, long ver);
+	static long SearchLastCanonicalFile(int canonfn, const char * pPath, SString & rFileName);
 	//
 	// Descr: Верифицирует UED-файл версии ver и находящийся в каталоге pPath 
 	//   на предмет наличия и соответствия хэша, хранящегося в отдельном файле в том же каталоге.
@@ -131,6 +135,7 @@ protected:
 
 	int    ReadSource(const char * pFileName, uint flags, PPLogger * pLogger);
 	int    WriteSource(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
+	int    WriteProps(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
 	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
 	bool   SearchSymbHashId(uint32 symbHashId, SString & rSymb) const;
@@ -238,6 +243,7 @@ public:
 	~SrUedContainer_Ct();
 	int    Read(const char * pFileName, PPLogger * pLogger);
 	int    Write(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
+	int    WriteProps(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
 	bool   GenerateSourceDecl_C(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
 	bool   GenerateSourceDecl_Java(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
 	//

@@ -208,13 +208,11 @@ int archive_match_excluded(Archive * _a, ArchiveEntry * entry)
 		if(r)
 			return r;
 	}
-
 	if(a->setflag & TIME_IS_SET) {
 		r = time_excluded(a, entry);
 		if(r)
 			return r;
 	}
-
 	if(a->setflag & ID_IS_SET)
 		r = owner_excluded(a, entry);
 	return r;
@@ -618,8 +616,7 @@ static int match_path_exclusion(struct archive_match * a, struct match * m, int 
  * Again, mimic gtar:  inclusions are always anchored (have to match
  * the beginning of the path) even though exclusions are not anchored.
  */
-static int match_path_inclusion(struct archive_match * a, struct match * m,
-    int mbs, const void * pn)
+static int match_path_inclusion(struct archive_match * a, struct match * m, int mbs, const void * pn)
 {
 	/* Recursive operation requires only a prefix match. */
 	int flag = a->recursive_include ? PATHMATCH_NO_ANCHOR_END : 0;
@@ -715,41 +712,31 @@ static int match_list_unmatched_inclusions_next(struct archive_match * a, struct
 int archive_match_include_time(Archive * _a, int flag, time_t sec, long nsec)
 {
 	int r = validate_time_flag(_a, flag, "archive_match_include_time");
-	if(r != ARCHIVE_OK)
-		return r;
-	return set_timefilter((struct archive_match *)_a, flag, sec, nsec, sec, nsec);
+	return (r == ARCHIVE_OK) ? set_timefilter((struct archive_match *)_a, flag, sec, nsec, sec, nsec) : r;
 }
 
 int archive_match_include_date(Archive * _a, int flag, const char * datestr)
 {
 	int r = validate_time_flag(_a, flag, "archive_match_include_date");
-	if(r != ARCHIVE_OK)
-		return r;
-	return set_timefilter_date((struct archive_match *)_a, flag, datestr);
+	return (r == ARCHIVE_OK) ? set_timefilter_date((struct archive_match *)_a, flag, datestr) : r;
 }
 
 int archive_match_include_date_w(Archive * _a, int flag, const wchar_t * datestr)
 {
 	int r = validate_time_flag(_a, flag, "archive_match_include_date_w");
-	if(r != ARCHIVE_OK)
-		return r;
-	return set_timefilter_date_w((struct archive_match *)_a, flag, datestr);
+	return (r == ARCHIVE_OK) ? set_timefilter_date_w((struct archive_match *)_a, flag, datestr) : r;
 }
 
 int archive_match_include_file_time(Archive * _a, int flag, const char * pathname)
 {
 	int r = validate_time_flag(_a, flag, "archive_match_include_file_time");
-	if(r != ARCHIVE_OK)
-		return r;
-	return set_timefilter_pathname_mbs((struct archive_match *)_a, flag, pathname);
+	return (r == ARCHIVE_OK) ? set_timefilter_pathname_mbs((struct archive_match *)_a, flag, pathname) : r;
 }
 
 int archive_match_include_file_time_w(Archive * _a, int flag, const wchar_t * pathname)
 {
 	int r = validate_time_flag(_a, flag, "archive_match_include_file_time_w");
-	if(r != ARCHIVE_OK)
-		return r;
-	return set_timefilter_pathname_wcs((struct archive_match *)_a, flag, pathname);
+	return (r == ARCHIVE_OK) ? set_timefilter_pathname_wcs((struct archive_match *)_a, flag, pathname) : r;
 }
 
 int archive_match_exclude_entry(Archive * _a, int flag, ArchiveEntry * entry)
@@ -1080,9 +1067,11 @@ static int cmp_key_wcs(const struct archive_rb_node * n, const void * key)
 
 static void entry_list_init(struct entry_list * list)
 {
-	list->first = NULL;
-	list->last = &(list->first);
-	list->count = 0;
+	if(list) {
+		list->first = NULL;
+		list->last = &(list->first);
+		list->count = 0;
+	}
 }
 
 static void entry_list_free(struct entry_list * list)

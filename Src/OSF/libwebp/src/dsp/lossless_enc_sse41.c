@@ -13,7 +13,7 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-#if defined(WEBP_USE_SSE41)
+#if defined(USE_SSE41)
 #include <smmintrin.h>
 #include "src/dsp/lossless.h"
 
@@ -143,6 +143,6 @@ WEBP_TSAN_IGNORE_FUNCTION void VP8LEncDspInitSSE41(void) {
 	VP8LCollectColorRedTransforms = CollectColorRedTransforms_SSE41;
 }
 
-#else  // !WEBP_USE_SSE41
+#else  // !USE_SSE41
 WEBP_DSP_INIT_STUB(VP8LEncDspInitSSE41)
-#endif  // WEBP_USE_SSE41
+#endif  // USE_SSE41

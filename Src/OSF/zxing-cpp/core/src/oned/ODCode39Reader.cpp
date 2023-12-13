@@ -128,9 +128,7 @@ Result Code39Reader::decodePattern(int rowNumber, PatternView& next, std::unique
 
 	// Symbology identifier modifiers ISO/IEC 16388:2007 Annex C Table C.1
 	constexpr const char symbologyModifiers[4] = { '0', '3' /*checksum*/, '4' /*extended*/, '7' /*checksum,extended*/ };
-	SymbologyIdentifier symbologyIdentifier =
-	{'A', symbologyModifiers[(int)_hints.tryCode39ExtendedMode() * 2 + (int)_hints.validateCode39CheckSum()]};
-
+	SymbologyIdentifier symbologyIdentifier = {'A', symbologyModifiers[(int)_hints.tryCode39ExtendedMode() * 2 + (int)_hints.validateCode39CheckSum()], 0};
 	int xStop = next.pixelsTillEnd();
 	return Result(std::move(txt), rowNumber, xStart, xStop, BarcodeFormat::Code39, symbologyIdentifier, error);
 }

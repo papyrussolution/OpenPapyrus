@@ -29,7 +29,7 @@ const ByteArray& Result::bytes() const { return _content.bytes; }
 ByteArray Result::bytesECI() const { return _content.bytesECI(); }
 std::string Result::text(TextMode mode) const { return _content.text(mode); }
 std::string Result::text() const { return text(_decodeHints.textMode()); }
-std::string Result::ecLevel() const { return _ecLevel; }
+/*std::string*/const char * Result::ecLevel() const { return _ecLevel; }
 ContentType Result::contentType() const { return _content.type(); }
 bool Result::hasECI() const { return _content.hasECI; }
 
@@ -43,7 +43,7 @@ std::string Result::symbologyIdentifier() const { return _content.symbology.toSt
 int Result::sequenceSize() const { return _sai.count; }
 int Result::sequenceIndex() const { return _sai.index; }
 std::string Result::sequenceId() const { return _sai.id; }
-std::string Result::version() const { return _version; }
+/*std::string*/const char * Result::version() const { return _version; }
 
 Result& Result::setDecodeHints(DecodeHints hints)
 {

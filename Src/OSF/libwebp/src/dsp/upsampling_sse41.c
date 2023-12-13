@@ -13,7 +13,7 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 
-#if defined(WEBP_USE_SSE41)
+#if defined(USE_SSE41)
 
 #include <smmintrin.h>
 #include "src/dsp/yuv.h"
@@ -196,10 +196,8 @@ extern WebPYUV444Converter WebPYUV444Converters[] /* MODE_LAST */;
 extern void WebPInitYUV444ConvertersSSE41(void);
 
 #define YUV444_FUNC(FUNC_NAME, CALL, CALL_C, XSTEP)                            \
-	extern void CALL_C(const uint8* y, const uint8* u, const uint8* v,       \
-	    uint8* dst, int len);                                     \
-	static void FUNC_NAME(const uint8* y, const uint8* u, const uint8* v,    \
-	    uint8* dst, int len) {                                 \
+	extern void CALL_C(const uint8* y, const uint8* u, const uint8* v, uint8* dst, int len); \
+	static void FUNC_NAME(const uint8* y, const uint8* u, const uint8* v, uint8* dst, int len) { \
 		int i;                                                                       \
 		const int max_len = len & ~31;                                               \
 		for(i = 0; i < max_len; i += 32) {                                          \
@@ -223,11 +221,8 @@ WEBP_TSAN_IGNORE_FUNCTION void WebPInitYUV444ConvertersSSE41(void) {
 }
 
 #else
-
-WEBP_DSP_INIT_STUB(WebPInitYUV444ConvertersSSE41)
-
-#endif  // WEBP_USE_SSE41
-
-#if !(defined(FANCY_UPSAMPLING) && defined(WEBP_USE_SSE41))
-WEBP_DSP_INIT_STUB(WebPInitUpsamplersSSE41)
+	WEBP_DSP_INIT_STUB(WebPInitYUV444ConvertersSSE41)
+#endif  // USE_SSE41
+#if !(defined(FANCY_UPSAMPLING) && defined(USE_SSE41))
+	WEBP_DSP_INIT_STUB(WebPInitUpsamplersSSE41)
 #endif

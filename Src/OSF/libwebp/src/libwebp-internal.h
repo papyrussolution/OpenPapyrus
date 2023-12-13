@@ -66,16 +66,16 @@
 // files without intrinsics, allowing the corresponding Init() to be called.
 // Files containing intrinsics will need to be built targeting the instruction
 // set so should succeed on one of the earlier tests.
-#if (defined(__SSE2__) || defined(WEBP_MSC_SSE2)) && (!defined(HAVE_CONFIG_H) || defined(WEBP_HAVE_SSE2))
-	#define WEBP_USE_SSE2
-#endif
-#if defined(WEBP_USE_SSE2) && !defined(WEBP_HAVE_SSE2)
+//#if (defined(__SSE2__) || defined(WEBP_MSC_SSE2)) && (!defined(HAVE_CONFIG_H) || defined(WEBP_HAVE_SSE2))
+	//#define WEBP_USE_SSE2_Removed
+//#endif
+#if defined(USE_SSE2) && !defined(WEBP_HAVE_SSE2)
 	#define WEBP_HAVE_SSE2
 #endif
-#if (defined(__SSE4_1__) || defined(WEBP_MSC_SSE41)) && (!defined(HAVE_CONFIG_H) || defined(WEBP_HAVE_SSE41))
-	#define WEBP_USE_SSE41
-#endif
-#if defined(WEBP_USE_SSE41) && !defined(WEBP_HAVE_SSE41)
+//#if (defined(__SSE4_1__) || defined(WEBP_MSC_SSE41)) && (!defined(HAVE_CONFIG_H) || defined(WEBP_HAVE_SSE41))
+	//#define WEBP_USE_SSE41_Removed
+//#endif
+#if defined(USE_SSE41) && !defined(WEBP_HAVE_SSE41)
 	#define WEBP_HAVE_SSE41
 #endif
 #undef WEBP_MSC_SSE41

@@ -15,6 +15,9 @@
     <Filter Include="SandBox\Logue">
       <UniqueIdentifier>{dff62694-a01a-4b1e-a528-3ad46fc1d693}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libdivide">
+      <UniqueIdentifier>{f21ac318-dde2-4b91-b0e4-f0f864f06ee3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\PPTEST\pptest-dedicated.cpp" />
@@ -36,5 +39,17 @@
     <ClCompile Include="..\PPTEST\UNIT\test-inet.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-edlib.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-image.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-libdivide.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\libdivide\constant_fast_div.h">
+      <Filter>libdivide</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libdivide\constant_fast_div.hpp">
+      <Filter>libdivide</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\libdivide\libdivide.h">
+      <Filter>libdivide</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

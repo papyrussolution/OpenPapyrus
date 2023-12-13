@@ -921,12 +921,9 @@ HRESULT EncodeImage(const Image& image,
 		if(FAILED(hr) || !canConvert) {
 			return E_UNEXPECTED;
 		}
-
-		hr = FC->Initialize(source.Get(), targetGuid, GetWICDither(flags), nullptr,
-			0, WICBitmapPaletteTypeMedianCut);
+		hr = FC->Initialize(source.Get(), targetGuid, GetWICDither(flags), nullptr, 0, WICBitmapPaletteTypeMedianCut);
 		if(FAILED(hr))
 			return hr;
-
 		WICRect rect = { 0, 0, static_cast<INT>(image.width), static_cast<INT>(image.height) };
 		hr = frame->WriteSource(FC.Get(), &rect);
 		if(FAILED(hr))
@@ -939,127 +936,99 @@ HRESULT EncodeImage(const Image& image,
 		if(FAILED(hr))
 			return hr;
 	}
-
 	hr = frame->Commit();
 	if(FAILED(hr))
 		return hr;
-
 	return S_OK;
 }
 
-HRESULT EncodeSingleFrame(const Image& image,
-    WIC_FLAGS flags,
-    _In_ REFGUID containerFormat,
-    _Inout_ IStream* stream,
-    _In_opt_ const GUID* targetFormat,
+HRESULT EncodeSingleFrame(const Image& image, WIC_FLAGS flags, _In_ REFGUID containerFormat,
+    _Inout_ IStream* stream, _In_opt_ const GUID* targetFormat,
     _In_opt_ std::function<void(IPropertyBag2*)> setCustomProps)
 {
 	if(!stream)
 		return E_INVALIDARG;
-
 	// Initialize WIC
 	bool iswic2 = false;
 	auto pWIC = GetWICFactory(iswic2);
 	if(!pWIC)
 		return E_NOINTERFACE;
-
 	ComPtr<IWICBitmapEncoder> encoder;
 	HRESULT hr = pWIC->CreateEncoder(containerFormat, nullptr, encoder.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	hr = encoder->Initialize(stream, WICBitmapEncoderNoCache);
 	if(FAILED(hr))
 		return hr;
-
 	ComPtr<IWICBitmapFrameEncode> frame;
 	ComPtr<IPropertyBag2> props;
 	hr = encoder->CreateNewFrame(frame.GetAddressOf(), props.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	if(memcmp(&containerFormat, &GUID_ContainerFormatBmp, sizeof(WICPixelFormatGUID)) == 0 && iswic2) {
 		// Opt-in to the WIC2 support for writing 32-bit Windows BMP files with an alpha channel
 		PROPBAG2 option = {};
 		option.pstrName = const_cast<wchar_t*>(L"EnableV5Header32bppBGRA");
-
 		VARIANT varValue;
 		varValue.vt = VT_BOOL;
 		varValue.boolVal = VARIANT_TRUE;
 		std::ignore = props->Write(1, &option, &varValue);
 	}
-
 	if(setCustomProps) {
 		setCustomProps(props.Get());
 	}
-
 	hr = EncodeImage(image, flags, containerFormat, frame.Get(), props.Get(), targetFormat);
 	if(FAILED(hr))
 		return hr;
-
 	hr = encoder->Commit();
 	if(FAILED(hr))
 		return hr;
-
 	return S_OK;
 }
 
 //-------------------------------------------------------------------------------------
 // Encodes an image array
 //-------------------------------------------------------------------------------------
-HRESULT EncodeMultiframe(_In_reads_(nimages) const Image* images,
-    size_t nimages,
-    WIC_FLAGS flags,
-    _In_ REFGUID containerFormat,
-    _Inout_ IStream* stream,
-    _In_opt_ const GUID* targetFormat,
+HRESULT EncodeMultiframe(_In_reads_(nimages) const Image* images, size_t nimages,
+    WIC_FLAGS flags, _In_ REFGUID containerFormat,
+    _Inout_ IStream* stream, _In_opt_ const GUID* targetFormat,
     _In_opt_ std::function<void(IPropertyBag2*)> setCustomProps)
 {
 	if(!stream || nimages < 2)
 		return E_INVALIDARG;
-
 	if(!images)
 		return E_POINTER;
-
 	// Initialize WIC
 	bool iswic2 = false;
 	auto pWIC = GetWICFactory(iswic2);
 	if(!pWIC)
 		return E_NOINTERFACE;
-
 	ComPtr<IWICBitmapEncoder> encoder;
 	HRESULT hr = pWIC->CreateEncoder(containerFormat, nullptr, encoder.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	ComPtr<IWICBitmapEncoderInfo> einfo;
 	hr = encoder->GetEncoderInfo(einfo.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	BOOL mframe = FALSE;
 	hr = einfo->DoesSupportMultiframe(&mframe);
 	if(FAILED(hr))
 		return hr;
-
 	if(!mframe)
 		return HRESULT_E_NOT_SUPPORTED;
-
 	hr = encoder->Initialize(stream, WICBitmapEncoderNoCache);
 	if(FAILED(hr))
 		return hr;
-
 	for(size_t index = 0; index < nimages; ++index) {
 		ComPtr<IWICBitmapFrameEncode> frame;
 		ComPtr<IPropertyBag2> props;
 		hr = encoder->CreateNewFrame(frame.GetAddressOf(), props.GetAddressOf());
 		if(FAILED(hr))
 			return hr;
-
 		if(setCustomProps) {
 			setCustomProps(props.Get());
 		}
-
 		hr = EncodeImage(images[index], flags, containerFormat, frame.Get(), props.Get(), targetFormat);
 		if(FAILED(hr))
 			return hr;

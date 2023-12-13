@@ -107,20 +107,15 @@ Result Code93Reader::decodePattern(int rowNumber, PatternView& next, std::unique
 	next = next.subView(0, CHAR_LEN + 1);
 	if(!next.isValid() || next[CHAR_LEN] > next.sum(CHAR_LEN) / 4 || !next.hasQuietZoneAfter(QUIET_ZONE_SCALE))
 		return {};
-
 	Error error;
 	if(!CheckChecksums(txt))
 		error = ChecksumError();
-
 	// Remove checksum digits
 	txt.resize(txt.size() - 2);
-
 	if(!error && !DecodeExtendedCode39AndCode93(txt, "abcd"))
 		error = FormatError("Decoding extended Code39/Code93 failed");
-
 	// Symbology identifier ISO/IEC 15424:2008 4.4.10 no modifiers
-	SymbologyIdentifier symbologyIdentifier = {'G', '0'};
-
+	SymbologyIdentifier symbologyIdentifier = {'G', '0', 0};
 	int xStop = next.pixelsTillEnd();
 	return Result(txt, rowNumber, xStart, xStop, BarcodeFormat::Code93, symbologyIdentifier, error);
 }

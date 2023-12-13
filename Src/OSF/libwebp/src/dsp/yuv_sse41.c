@@ -15,7 +15,7 @@
 #pragma hdrstop
 #include "src/dsp/yuv.h"
 
-#if defined(WEBP_USE_SSE41)
+#if defined(USE_SSE41)
 
 #include "src/dsp/common_sse41.h"
 //#include <stdlib.h>
@@ -603,9 +603,9 @@ WEBP_TSAN_IGNORE_FUNCTION void WebPInitConvertARGBToYUVSSE41(void) {
 
 //------------------------------------------------------------------------------
 
-#else  // !WEBP_USE_SSE41
+#else  // !USE_SSE41
 
 WEBP_DSP_INIT_STUB(WebPInitSamplersSSE41)
 WEBP_DSP_INIT_STUB(WebPInitConvertARGBToYUVSSE41)
 
-#endif  // WEBP_USE_SSE41
+#endif  // USE_SSE41

@@ -237,31 +237,28 @@
 #define OSSL_DEPRECATEDIN_1_0_0_FOR(msg)
 #endif
 #if OPENSSL_API_LEVEL >= 908
-#ifndef OPENSSL_NO_DEPRECATED
-#define OSSL_DEPRECATEDIN_0_9_8              OSSL_DEPRECATED(0.9 .8)
-#define OSSL_DEPRECATEDIN_0_9_8_FOR(msg)     OSSL_DEPRECATED_FOR(0.9 .8, msg)
+	#ifndef OPENSSL_NO_DEPRECATED
+		#define OSSL_DEPRECATEDIN_0_9_8              OSSL_DEPRECATED(0.9 .8)
+		#define OSSL_DEPRECATEDIN_0_9_8_FOR(msg)     OSSL_DEPRECATED_FOR(0.9 .8, msg)
+	#else
+		#define OPENSSL_NO_DEPRECATED_0_9_8
+	#endif
 #else
-#define OPENSSL_NO_DEPRECATED_0_9_8
+	#define OSSL_DEPRECATEDIN_0_9_8
+	#define OSSL_DEPRECATEDIN_0_9_8_FOR(msg)
 #endif
-#else
-#define OSSL_DEPRECATEDIN_0_9_8
-#define OSSL_DEPRECATEDIN_0_9_8_FOR(msg)
-#endif
-
 /*
  * Make our own variants of __FILE__ and __LINE__, depending on configuration
  */
-
 #ifndef OPENSSL_FILE
-#ifdef OPENSSL_NO_FILENAMES
-#define OPENSSL_FILE ""
-#define OPENSSL_LINE 0
-#else
-#define OPENSSL_FILE __FILE__
-#define OPENSSL_LINE __LINE__
+	#ifdef OPENSSL_NO_FILENAMES
+		#define OPENSSL_FILE ""
+		#define OPENSSL_LINE 0
+	#else
+		#define OPENSSL_FILE __FILE__
+		#define OPENSSL_LINE __LINE__
+	#endif
 #endif
-#endif
-
 /*
  * __func__ was standardized in C99, so for any compiler that claims
  * to implement that language level or newer, we assume we can safely
@@ -276,22 +273,20 @@
  * and use __FUNCTION__ if that's the case.
  */
 #ifndef OPENSSL_FUNC
-#if defined(__STDC_VERSION__)
-#if __STDC_VERSION__ >= 199901L
-#define OPENSSL_FUNC __func__
-#elif defined(__GNUC__) && __GNUC__ >= 2
-#define OPENSSL_FUNC __FUNCTION__
+	#if defined(__STDC_VERSION__)
+		#if __STDC_VERSION__ >= 199901L
+			#define OPENSSL_FUNC __func__
+		#elif defined(__GNUC__) && __GNUC__ >= 2
+			#define OPENSSL_FUNC __FUNCTION__
+		#endif
+	#elif defined(_MSC_VER)
+		#define OPENSSL_FUNC __FUNCTION__
+	#endif
+	/*
+	 * If all these possibilities are exhausted, we give up and use a static string.
+	 */
+	#ifndef OPENSSL_FUNC
+		#define OPENSSL_FUNC "(unknown function)"
+	#endif
 #endif
-#elif defined(_MSC_VER)
-#define OPENSSL_FUNC __FUNCTION__
-#endif
-/*
- * If all these possibilities are exhausted, we give up and use a
- * static string.
- */
-#ifndef OPENSSL_FUNC
-#define OPENSSL_FUNC "(unknown function)"
-#endif
-#endif
-
 #endif  /* OPENSSL_MACROS_H */

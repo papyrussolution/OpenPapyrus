@@ -14,7 +14,7 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 
-#if defined(WEBP_USE_SSE41)
+#if defined(USE_SSE41)
 
 #include <smmintrin.h>
 
@@ -77,14 +77,10 @@ static int ExtractAlpha_SSE41(const uint8* _RESTRICT argb, int argb_stride, int 
 //------------------------------------------------------------------------------
 // Entry point
 
-extern void WebPInitAlphaProcessingSSE41(void);
+extern void WebPInitAlphaProcessingSSE41();
 
-WEBP_TSAN_IGNORE_FUNCTION void WebPInitAlphaProcessingSSE41(void) {
-	WebPExtractAlpha = ExtractAlpha_SSE41;
-}
+WEBP_TSAN_IGNORE_FUNCTION void WebPInitAlphaProcessingSSE41() { WebPExtractAlpha = ExtractAlpha_SSE41; }
 
-#else  // !WEBP_USE_SSE41
-
-WEBP_DSP_INIT_STUB(WebPInitAlphaProcessingSSE41)
-
-#endif  // WEBP_USE_SSE41
+#else  // !USE_SSE41
+	WEBP_DSP_INIT_STUB(WebPInitAlphaProcessingSSE41)
+#endif  // USE_SSE41

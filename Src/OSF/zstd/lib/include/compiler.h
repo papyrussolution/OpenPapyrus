@@ -154,29 +154,26 @@
 #pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
 #pragma warning(disable : 4324)        /* disable: C4324: padded structure */
 #endif
-
 /*Like DYNAMIC_BMI2 but for compile time determination of BMI2 support*/
 #ifndef STATIC_BMI2
-#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_I86))
-#ifdef __AVX2__  //MSVC does not have a BMI2 specific flag, but every CPU that supports AVX2 also supports BMI2
-#define STATIC_BMI2 1
+	#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_I86))
+		#ifdef __AVX2__  //MSVC does not have a BMI2 specific flag, but every CPU that supports AVX2 also supports BMI2
+			#define STATIC_BMI2 1
+		#endif
+	#elif defined(__BMI2__) && defined(__x86_64__) && defined(__GNUC__)
+		#define STATIC_BMI2 1
+	#endif
 #endif
-#elif defined(__BMI2__) && defined(__x86_64__) && defined(__GNUC__)
-#define STATIC_BMI2 1
-#endif
-#endif
-
 #ifndef STATIC_BMI2
     #define STATIC_BMI2 0
 #endif
-
 /* compile time determination of SIMD support */
 #if !defined(ZSTD_NO_INTRINSICS)
 #if defined(__SSE2__) || defined(_M_AMD64) || (defined (_M_IX86) && defined(_M_IX86_FP) && (_M_IX86_FP >= 2))
-#define ZSTD_ARCH_X86_SSE2
+	#define ZSTD_ARCH_X86_SSE2
 #endif
 #if defined(__ARM_NEON) || defined(_M_ARM64)
-#define ZSTD_ARCH_ARM_NEON
+	#define ZSTD_ARCH_ARM_NEON
 #endif
 #
 #if defined(ZSTD_ARCH_X86_SSE2)

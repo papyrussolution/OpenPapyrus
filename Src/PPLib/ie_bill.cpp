@@ -6292,6 +6292,14 @@ void DocNalogRu_Generator::EndDocument()
 	P_X = 0;
 }
 
+void DocNalogRu_Generator::WriteExcise(SXml::WNode & rParentNode, double value)
+{
+	if(value != 0.0)
+		rParentNode.PutInner(GetToken_Ansi(PPHSC_RU_AMTEXCISE), SLS.AcquireRvlStr().Cat(fabs(value), MKSFMTD(0, 2, 0)));
+	else
+		rParentNode.PutInner(GetToken_Ansi(PPHSC_RU_NOEXCISE_TAG), GetToken_Ansi(PPHSC_RU_NOEXCISE_VAL));
+}
+
 int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction/*= false*/)
 {
 	int    ok = 1;
@@ -6551,17 +6559,11 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				{
 					{
 						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXCISE_BEFORE));
-						if(excise_sum_before != 0.0)
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_AMTEXCISE), temp_buf.Z().Cat(fabs(excise_sum_before), MKSFMTD(0, 2, 0)));
-						else
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_NOEXCISE_TAG), GetToken_Ansi(PPHSC_RU_NOEXCISE_VAL));
+						WriteExcise(n_e, excise_sum_before);
 					}
 					{
 						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXCISE_AFTER));
-						if(excise_sum_after != 0.0)
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_AMTEXCISE), temp_buf.Z().Cat(fabs(excise_sum_before), MKSFMTD(0, 2, 0)));
-						else
-							n_e.PutInner(GetToken_Ansi(PPHSC_RU_NOEXCISE_TAG), GetToken_Ansi(PPHSC_RU_NOEXCISE_VAL));
+						WriteExcise(n_e, excise_sum_after);
 					}
 				}
 				{
@@ -6641,10 +6643,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				excise_sum = vect.GetValue(GTAXVF_EXCISE);
 				{
 					SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXCISE));
-					if(excise_sum != 0.0)
-						n_e.PutInner(GetToken_Ansi(PPHSC_RU_AMTEXCISE), temp_buf.Z().Cat(fabs(excise_sum), MKSFMTD(0, 2, 0)));
-					else
-						n_e.PutInner(GetToken_Ansi(PPHSC_RU_NOEXCISE_TAG), GetToken_Ansi(PPHSC_RU_NOEXCISE_VAL));
+					WriteExcise(n_e, excise_sum);
 				}
 				{
 					SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_AMTTAX));
@@ -7136,12 +7135,14 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 		(kpp = reg_rec.Num).Strip();
 	else if(psn_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0)
 		(kpp = reg_rec.Num).Strip();
-	if(kpp.NotEmpty()) {
-		kpp.Sub(0, 2, temp_buf.Z());
+	// @v11.9.1 Изменен механизм получения кода региона путем включения костыля, исключающего kpp с префиксом 99
+	// Технически, такой префикс у Байконура, но по факту используется для КПП крупных налогоплательщиков.
+	if(inn.NotEmpty() && (kpp.IsEmpty() || kpp.HasPrefix("99"))) {
+		inn.Sub(0, 2, temp_buf.Z());
 		region_code = temp_buf.ToLong();
 	}
-	else if(inn.NotEmpty()) {
-		inn.Sub(0, 2, temp_buf.Z());
+	else if(kpp.NotEmpty()) {
+		kpp.Sub(0, 2, temp_buf.Z());
 		region_code = temp_buf.ToLong();
 	}
 	if(inn.Len() == 12) {

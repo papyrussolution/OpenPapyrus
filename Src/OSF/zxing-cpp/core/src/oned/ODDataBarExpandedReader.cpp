@@ -46,35 +46,31 @@ static Character ReadDataCharacter(const PatternView& view, int finder, bool rev
 	int weightRow = 4 * (std::abs(finder) - 1) + (finder < 0) * 2 + reversed;
 	auto calcChecksum = [weightRow](const Array4I& counts, bool even) {
 		    static constexpr std::array<std::array<int, 8>, 24> WEIGHTS = {{
-											   {0, 0, 0, 0, 0, 0, 0, 0}, // the
-					                                                                             // check
-					                                                                             // character
-					                                                                             // itself
-											   {1, 3, 9, 27, 81, 32, 96, 77},
-											   {20, 60, 180, 118, 143, 7, 21, 63},
-											   {189, 145, 13, 39, 117, 140, 209, 205},
-											   {193, 157, 49, 147, 19, 57, 171, 91},
-											   {62, 186, 136, 197, 169, 85, 44, 132},
-											   {185, 133, 188, 142, 4, 12, 36, 108},
-											   {113, 128, 173, 97, 80, 29, 87, 50},
-											   {150, 28, 84, 41, 123, 158, 52, 156},
-											   {46, 138, 203, 187, 139, 206, 196, 166},
-											   {76, 17, 51, 153, 37, 111, 122, 155},
-											   {43, 129, 176, 106, 107, 110, 119, 146},
-											   {16, 48, 144, 10, 30, 90, 59, 177},
-											   {109, 116, 137, 200, 178, 112, 125, 164},
-											   {70, 210, 208, 202, 184, 130, 179, 115},
-											   {134, 191, 151, 31, 93, 68, 204, 190},
-											   {148, 22, 66, 198, 172, 94, 71, 2},
-											   {6, 18, 54, 162, 64, 192, 154, 40},
-											   {120, 149, 25, 75, 14, 42, 126, 167},
-											   {79, 26, 78, 23, 69, 207, 199, 175},
-											   {103, 98, 83, 38, 114, 131, 182, 124},
-											   {161, 61, 183, 127, 170, 88, 53, 159},
-											   {55, 165, 73, 8, 24, 72, 5, 15},
-											   {45, 135, 194, 160, 58, 174, 100, 89},
-										   }};
-
+				{0, 0, 0, 0, 0, 0, 0, 0}, // the check character itself
+				{1, 3, 9, 27, 81, 32, 96, 77},
+				{20, 60, 180, 118, 143, 7, 21, 63},
+				{189, 145, 13, 39, 117, 140, 209, 205},
+				{193, 157, 49, 147, 19, 57, 171, 91},
+				{62, 186, 136, 197, 169, 85, 44, 132},
+				{185, 133, 188, 142, 4, 12, 36, 108},
+				{113, 128, 173, 97, 80, 29, 87, 50},
+				{150, 28, 84, 41, 123, 158, 52, 156},
+				{46, 138, 203, 187, 139, 206, 196, 166},
+				{76, 17, 51, 153, 37, 111, 122, 155},
+				{43, 129, 176, 106, 107, 110, 119, 146},
+				{16, 48, 144, 10, 30, 90, 59, 177},
+				{109, 116, 137, 200, 178, 112, 125, 164},
+				{70, 210, 208, 202, 184, 130, 179, 115},
+				{134, 191, 151, 31, 93, 68, 204, 190},
+				{148, 22, 66, 198, 172, 94, 71, 2},
+				{6, 18, 54, 162, 64, 192, 154, 40},
+				{120, 149, 25, 75, 14, 42, 126, 167},
+				{79, 26, 78, 23, 69, 207, 199, 175},
+				{103, 98, 83, 38, 114, 131, 182, 124},
+				{161, 61, 183, 127, 170, 88, 53, 159},
+				{55, 165, 73, 8, 24, 72, 5, 15},
+				{45, 135, 194, 160, 58, 174, 100, 89},
+			}};
 		    const int* weights = &WEIGHTS[weightRow][even];
 		    return TransformReduce(counts, 0, [i = 0, weights](int c) mutable {
 				return c * weights[2 * i++];
@@ -114,42 +110,34 @@ constexpr int FINDER_F = 6;
 
 // A negative number means the finder pattern is laid out right2left. Note: each finder may only occur once per code.
 static const std::array<std::vector<int>, 10> FINDER_PATTERN_SEQUENCES = {{
-										  {FINDER_A, -FINDER_A},
-										  {FINDER_A, -FINDER_B, FINDER_B},
-										  {FINDER_A, -FINDER_C, FINDER_B, -FINDER_D},
-										  {FINDER_A, -FINDER_E, FINDER_B, -FINDER_D, FINDER_C},
-										  {FINDER_A, -FINDER_E, FINDER_B, -FINDER_D, FINDER_D,
-										   -FINDER_F},
-										  {FINDER_A, -FINDER_E, FINDER_B, -FINDER_D, FINDER_E,
-										   -FINDER_F, FINDER_F},
-										  {FINDER_A, -FINDER_A, FINDER_B, -FINDER_B, FINDER_C,
-										   -FINDER_C, FINDER_D, -FINDER_D},
-										  {FINDER_A, -FINDER_A, FINDER_B, -FINDER_B, FINDER_C,
-										   -FINDER_C, FINDER_D, -FINDER_E, FINDER_E},
-										  {FINDER_A, -FINDER_A, FINDER_B, -FINDER_B, FINDER_C,
-										   -FINDER_C, FINDER_D, -FINDER_E, FINDER_F, -FINDER_F},
-										  {FINDER_A, -FINDER_A, FINDER_B, -FINDER_B, FINDER_C,
-										   -FINDER_D, FINDER_D, -FINDER_E, FINDER_E, -FINDER_F,
-										   FINDER_F},
-									  }};
+	{FINDER_A, -FINDER_A},
+	{FINDER_A, -FINDER_B, FINDER_B},
+	{FINDER_A, -FINDER_C, FINDER_B, -FINDER_D},
+	{FINDER_A, -FINDER_E, FINDER_B, -FINDER_D, FINDER_C},
+	{FINDER_A, -FINDER_E, FINDER_B, -FINDER_D, FINDER_D, -FINDER_F},
+	{FINDER_A, -FINDER_E, FINDER_B, -FINDER_D, FINDER_E, -FINDER_F, FINDER_F},
+	{FINDER_A, -FINDER_A, FINDER_B, -FINDER_B, FINDER_C, -FINDER_C, FINDER_D, -FINDER_D},
+	{FINDER_A, -FINDER_A, FINDER_B, -FINDER_B, FINDER_C, -FINDER_C, FINDER_D, -FINDER_E, FINDER_E},
+	{FINDER_A, -FINDER_A, FINDER_B, -FINDER_B, FINDER_C, -FINDER_C, FINDER_D, -FINDER_E, FINDER_F, -FINDER_F},
+	{FINDER_A, -FINDER_A, FINDER_B, -FINDER_B, FINDER_C, -FINDER_D, FINDER_D, -FINDER_E, FINDER_E, -FINDER_F, FINDER_F},
+}};
 
 static const std::array<int, 7> VALID_HALF_PAIRS = {{-FINDER_A, FINDER_B, -FINDER_D, FINDER_C, -FINDER_F, FINDER_F, FINDER_E}};
 
 static int ParseFinderPattern(const PatternView& view, Direction dir)
 {
 	static constexpr std::array<FixedPattern<5, 15>, 6> FINDER_PATTERNS = {{
-										       {1, 8, 4, 1, 1}, // A
-										       {3, 6, 4, 1, 1}, // B
-										       {3, 4, 6, 1, 1}, // C
-										       {3, 2, 8, 1, 1}, // D
-										       {2, 6, 5, 1, 1}, // E
-										       {2, 2, 9, 1, 1}, // F
-									       }};
+		{1, 8, 4, 1, 1}, // A
+		{3, 6, 4, 1, 1}, // B
+		{3, 4, 6, 1, 1}, // C
+		{3, 2, 8, 1, 1}, // D
+		{2, 6, 5, 1, 1}, // E
+		{2, 2, 9, 1, 1}, // F
+	}};
 	// TODO: c++20 constexpr inversion from FIND_PATTERN?
 	static constexpr std::array<FixedPattern<5, 15>, 6> REVERSED_FINDER_PATTERNS = {
 		{{1, 1, 4, 8, 1}, {1, 1, 4, 6, 3}, {1, 1, 6, 4, 3}, {1, 1, 8, 2, 3}, {1, 1, 5, 6, 2}, {1, 1, 9, 2, 2}}
 	};
-
 	return ParseFinderPattern(view, dir == Direction::Left, FINDER_PATTERNS, REVERSED_FINDER_PATTERNS);
 }
 
@@ -164,10 +152,7 @@ static bool ChecksumIsValid(const Pairs& pairs)
 
 // calculate the index (length of the sequence - 2) of the only valid sequence for the given FINDER_A, based on the
 // checksum value stored in the first pair's left value. see also ChecksumIsValid().
-static int SequenceIndex(Character first)
-{
-	return (first.value / 211 + 4 + 1) / 2 - 2;
-}
+static int SequenceIndex(Character first) { return (first.value / 211 + 4 + 1) / 2 - 2; }
 
 static bool ChecksumIsValid(Character first)
 {
@@ -191,12 +176,10 @@ static Pair ReadPair(const PatternView& view, Direction dir)
 	return {};
 }
 
-template <bool STACKED>
-static Pairs ReadRowOfPairs(PatternView& next, int rowNumber)
+template <bool STACKED> static Pairs ReadRowOfPairs(PatternView& next, int rowNumber)
 {
 	Pairs pairs;
 	Pair pair;
-
 	if constexpr (STACKED) {
 		// a possible first pair is either left2right starting on a space or right2left starting on a bar.
 		// it might be a half-pair
@@ -221,25 +204,16 @@ static Pairs ReadRowOfPairs(PatternView& next, int rowNumber)
 		// after the first full pair, the symbol may end anytime with a half pair
 		next = next.subView(0, HALF_PAIR_SIZE);
 	}
-
 	if(!pair) {
 		next = {}; // if we didn't find a single pair, consume the rest of the row
 		return {};
 	}
-
-	auto flippedDir = [](Pair p) {
-		    return p.finder < 0 ? Direction::Right : Direction::Left;
-	    };
-	auto isValidPair = [](Pair p, PatternView v) {
-		    return p.right || IsGuard(v[p.finder < 0 ? 9 : 11], v[13]);
-	    };
-
+	auto flippedDir = [](Pair p) { return p.finder < 0 ? Direction::Right : Direction::Left; };
+	auto isValidPair = [](Pair p, PatternView v) { return p.right || IsGuard(v[p.finder < 0 ? 9 : 11], v[13]); };
 	do {
 		pair.y = rowNumber;
 		pairs.push_back(pair);
-	} while(pair.right && next.shift(FULL_PAIR_SIZE) && (pair = ReadPair(next, flippedDir(pair))) &&
-	    isValidPair(pair, next));
-
+	} while(pair.right && next.shift(FULL_PAIR_SIZE) && (pair = ReadPair(next, flippedDir(pair))) && isValidPair(pair, next));
 	return pairs;
 }
 
@@ -327,14 +301,12 @@ static void RemovePairs(PairMap& all, const Pairs& pairs)
 static BitArray BuildBitArray(const Pairs& pairs)
 {
 	BitArray res;
-
 	res.appendBits(pairs.front().right.value, 12);
 	for(auto p = ++pairs.begin(); p != pairs.end(); ++p) {
 		res.appendBits(p->left.value, 12);
 		if(p->right)
 			res.appendBits(p->right.value, 12);
 	}
-
 	return res;
 }
 
@@ -342,19 +314,16 @@ struct DBERState : public RowReader::DecodingState {
 	PairMap allPairs;
 };
 
-Result DataBarExpandedReader::decodePattern(int rowNumber, PatternView& view,
-    std::unique_ptr<RowReader::DecodingState>& state) const
+Result DataBarExpandedReader::decodePattern(int rowNumber, PatternView& view, std::unique_ptr<RowReader::DecodingState>& state) const
 {
 #if 0 // non-stacked version
 	auto pairs = ReadRowOfPairs<false>(view, rowNumber);
-
 	if(pairs.empty() || !ChecksumIsValid(pairs))
 		return {};
 #else
 	if(!state)
 		state.reset(new DBERState);
 	auto& allPairs = static_cast<DBERState*>(state.get())->allPairs;
-
 	// Stacked codes can be laid out in a number of ways. The following rules apply:
 	//  * the first row starts with FINDER_A in left-to-right (l2r) layout
 	//  * pairs in l2r layout start with a space, r2l ones with a bar
@@ -375,13 +344,10 @@ Result DataBarExpandedReader::decodePattern(int rowNumber, PatternView& view,
 	if(pairs.empty())
 		return {};
 #endif
-
 	auto txt = DecodeExpandedBits(BuildBitArray(pairs));
 	if(txt.empty())
 		return {};
-
 	RemovePairs(allPairs, pairs);
-
 	// TODO: EstimatePosition misses part of the symbol in the stacked case where the last row contains less pairs
 	// than
 	// the first

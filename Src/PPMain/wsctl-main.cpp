@@ -2168,11 +2168,19 @@ SUiLayout * WsCtl_ImGuiSceneBlock::MakePgmListLayout(const WsCtl_ProgramCollecti
 		lop_entry.SetFixedSizeX(128.0f);
 		lop_entry.SetFixedSizeY(128.0f);
 	}
-	if(rPgmL.GetSelectedCatSurrogateId()) {
-		uint sel_idx = 0;
-		const StrAssocArray & r_cat_list = rPgmL.GetCatList();
-		if(r_cat_list.Search(rPgmL.GetSelectedCatSurrogateId(), &sel_idx)) {
-			filt_cat_text = r_cat_list.Get(sel_idx).Txt;
+	{
+		const long cat_id = rPgmL.GetSelectedCatSurrogateId();
+		if(cat_id) {
+			if(cat_id == WsCtl_ProgramCollection::catsurrogateidAll) {
+				filt_cat_text.Z();
+			}
+			else {
+				uint sel_idx = 0;
+				const StrAssocArray & r_cat_list = rPgmL.GetCatList();
+				if(r_cat_list.Search(cat_id, &sel_idx)) {
+					filt_cat_text = r_cat_list.Get(sel_idx).Txt;
+				}
+			}
 		}
 	}
 	for(uint i = 0; i < rPgmL.getCount(); i++) {
@@ -3309,7 +3317,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								assert(!errstate);
 								st_data_tses.Z();
 								St.D_TSess.SetData(st_data_tses);
-								//SetScreen(screenAuthSelectSess);
+								SetScreen(screenConstruction); // @debug
 							}
 						}
 					}

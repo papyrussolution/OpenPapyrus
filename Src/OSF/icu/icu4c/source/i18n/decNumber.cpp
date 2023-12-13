@@ -843,17 +843,22 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberAnd(decNumber * res, const decNumber 
 	msudigs = MSUDIGITS(set->digits); /* [faster than remainder]  */
 	for(; uc<=msuc; ua++, ub++, uc++) { /* Unit loop  */
 		Unit a, b; /* extract units  */
-		if(ua>msua) a = 0;
-		else a = *ua;
-		if(ub>msub) b = 0;
-		else b = *ub;
+		if(ua>msua) 
+			a = 0;
+		else 
+			a = *ua;
+		if(ub>msub) 
+			b = 0;
+		else 
+			b = *ub;
 		*uc = 0; /* can now write back  */
 		if(a|b) {               /* maybe 1 bits to examine  */
 			Int i, j;
 			*uc = 0; /* can now write back  */
 			/* This loop could be unrolled and/or use BIN2BCD tables  */
 			for(i = 0; i<DECDPUN; i++) {
-				if(a&b&1) *uc = *uc+(Unit)powers[i]; /* effect AND  */
+				if(a & b & 1) 
+					*uc = *uc+(Unit)powers[i]; /* effect AND  */
 				j = a%10;
 				a = a/10;
 				j |= b%10;
@@ -862,7 +867,8 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberAnd(decNumber * res, const decNumber 
 					decStatus(res, DEC_Invalid_operation, set);
 					return res;
 				}
-				if(uc==msuc && i==msudigs-1) break; /* just did final digit  */
+				if(uc==msuc && i==msudigs-1) 
+					break; /* just did final digit  */
 			} /* each digit  */
 		} /* both OK  */
 	} /* each unit  */

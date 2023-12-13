@@ -60,26 +60,22 @@ LRESULT CALLBACK StatusBarSubclass(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 	StatusBarSubclassInfo* pStatusBarInfo = reinterpret_cast<StatusBarSubclassInfo*>(dwRefData);
 
-	switch(uMsg)
-	{
+	switch(uMsg) {
 		case WM_ERASEBKGND:
 	    {
 		    if(!NppDarkMode::isEnabled()) {
 			    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 		    }
-
 		    RECT rc;
 		    GetClientRect(hWnd, &rc);
 		    FillRect((HDC)wParam, &rc, NppDarkMode::getBackgroundBrush());
 		    return TRUE;
 	    }
-
 		case WM_PAINT:
 	    {
 		    if(!NppDarkMode::isEnabled()) {
 			    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 		    }
-
 		    struct {
 			    int horizontal;
 			    int vertical;

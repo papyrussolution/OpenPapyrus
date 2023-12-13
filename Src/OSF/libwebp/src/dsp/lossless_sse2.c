@@ -13,7 +13,7 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-#if defined(WEBP_USE_SSE2)
+#if defined(USE_SSE2)
 #include "src/dsp/common_sse2.h"
 #include "src/dsp/lossless.h"
 #include "src/dsp/lossless_common.h"
@@ -716,8 +716,8 @@ WEBP_TSAN_IGNORE_FUNCTION void VP8LDspInitSSE2(void)
 	VP8LConvertBGRAToBGR = ConvertBGRAToBGR_SSE2;
 }
 
-#else  // !WEBP_USE_SSE2
+#else  // !USE_SSE2
 
 WEBP_DSP_INIT_STUB(VP8LDspInitSSE2)
 
-#endif  // WEBP_USE_SSE2
+#endif  // USE_SSE2

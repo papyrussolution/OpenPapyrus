@@ -1188,6 +1188,7 @@ int WsCtl_ProgramCollection::MakeCatList()
 	long   surrogate_id = 0;
 	CatList.Z();
 	SString temp_buf;
+	CatList.Add(catsurrogateidAll, "All"); // @v11.9.1
 	for(uint i = 0; i < getCount(); i++) {
 		const WsCtl_ProgramEntry * p_entry = at(i);
 		if(p_entry) {

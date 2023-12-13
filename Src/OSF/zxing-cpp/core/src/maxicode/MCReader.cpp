@@ -40,19 +40,21 @@ Result Reader::decode(const BinaryBitmap& image) const
 {
 	auto binImg = image.getBitMatrix();
 	if(binImg == nullptr)
-		return {};
-
-	//TODO: this only works with effectively 'pure' barcodes. Needs proper detector.
-	BitMatrix bits = ExtractPureBits(*binImg);
-	if(bits.empty())
-		return {};
-
-	DecoderResult decRes = Decode(bits);
-	// TODO: before we can meaningfully return a ChecksumError result, we need to check the center for the presence
-	// of the finder pattern
-	if(!decRes.isValid())
-		return {};
-
-	return Result(std::move(decRes), {}, BarcodeFormat::MaxiCode);
+		return Result();
+	else {
+		//TODO: this only works with effectively 'pure' barcodes. Needs proper detector.
+		BitMatrix bits = ExtractPureBits(*binImg);
+		if(bits.empty())
+			return Result();
+		else {
+			DecoderResult decRes = Decode(bits);
+			// TODO: before we can meaningfully return a ChecksumError result, we need to check the center for the presence
+			// of the finder pattern
+			if(!decRes.isValid())
+				return Result();
+			else
+				return Result(std::move(decRes), {}, BarcodeFormat::MaxiCode);
+		}
+	}
 }
 } // namespace ZXing::MaxiCode

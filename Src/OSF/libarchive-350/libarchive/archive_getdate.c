@@ -446,7 +446,6 @@ static int dayphrase(struct gdstate * gds)
 	}
 	return 0;
 }
-
 /*
  * Try to match a phrase using one of the above functions.
  * This layer also deals with a couple of generic issues.
@@ -469,7 +468,6 @@ static int phrase(struct gdstate * gds)
 		}
 		return 1;
 	}
-
 	/* Bare numbers sometimes have meaning. */
 	if(gds->tokenp[0].token == tUNUMBER) {
 		if(gds->HaveTime && !gds->HaveYear && !gds->HaveRel) {
@@ -478,7 +476,6 @@ static int phrase(struct gdstate * gds)
 			gds->tokenp += 1;
 			return 1;
 		}
-
 		if(gds->tokenp[0].value > 10000) {
 			/* "20040301" */
 			gds->HaveYear++;
@@ -490,7 +487,6 @@ static int phrase(struct gdstate * gds)
 			gds->tokenp += 1;
 			return 1;
 		}
-
 		if(gds->tokenp[0].value < 24) {
 			gds->HaveTime++;
 			gds->Hour = gds->tokenp[0].value;
@@ -499,9 +495,7 @@ static int phrase(struct gdstate * gds)
 			gds->tokenp += 1;
 			return 1;
 		}
-
-		if((gds->tokenp[0].value / 100 < 24)
-		    && (gds->tokenp[0].value % 100 < 60)) {
+		if((gds->tokenp[0].value / 100 < 24) && (gds->tokenp[0].value % 100 < 60)) {
 			/* "513" is same as "5:13" */
 			gds->Hour = gds->tokenp[0].value / 100;
 			gds->Minutes = gds->tokenp[0].value % 100;

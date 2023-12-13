@@ -15,7 +15,7 @@
 #pragma hdrstop
 #include "src/dsp/yuv.h"
 
-#if defined(WEBP_USE_SSE2)
+#if defined(USE_SSE2)
 
 #include "src/dsp/common_sse2.h"
 #include <emmintrin.h>
@@ -846,10 +846,10 @@ WEBP_TSAN_IGNORE_FUNCTION void WebPInitSharpYUVSSE2(void) {
 	WebPSharpYUVFilterRow = SharpYUVFilterRow_SSE2;
 }
 
-#else  // !WEBP_USE_SSE2
+#else  // !USE_SSE2
 
 WEBP_DSP_INIT_STUB(WebPInitSamplersSSE2)
 WEBP_DSP_INIT_STUB(WebPInitConvertARGBToYUVSSE2)
 WEBP_DSP_INIT_STUB(WebPInitSharpYUVSSE2)
 
-#endif  // WEBP_USE_SSE2
+#endif  // USE_SSE2

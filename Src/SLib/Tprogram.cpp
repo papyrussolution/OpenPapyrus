@@ -701,7 +701,7 @@ BOOL CALLBACK SendMainWndSizeMessage(HWND hwnd, LPARAM lParam)
 
 INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	int    is_desktop = 0;
+	bool   is_desktop = false;
 	HWND   h_close_wnd = APPL->H_CloseWnd;
 	HWND   h_tree_wnd = APPL->P_TreeWnd ? APPL->P_TreeWnd->Hwnd : 0; // @v11.0.0
 	{
@@ -709,7 +709,7 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		while(hwnd_tw && oneof2(hwnd_tw, h_close_wnd, h_tree_wnd))
 			hwnd_tw = GetNextWindow(hwnd_tw, GW_HWNDNEXT);
 		//if(hwnd_tw == h_close_wnd) hwnd_tw = GetNextWindow(hwnd_tw, GW_HWNDNEXT);
-		is_desktop = BIN(hwnd_tw == APPL->H_Desktop);
+		is_desktop = (hwnd_tw == APPL->H_Desktop);
 	}
 	switch(message) {
 		case WM_SIZE:

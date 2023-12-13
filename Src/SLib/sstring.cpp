@@ -3272,7 +3272,7 @@ template <typename T> inline T atoi_positive_unchecked(char const* p, char const
 // Нашел быстрые функции перевода 8 или 16 десятичных цифр в целое число.
 // Требуется тестирование и профилирование
 //
-#ifdef __SSE4_1__
+#if USE_SSE41 // {
 	// covert 8 digits into int https://arxiv.org/pdf/1902.08318.pdf, Fig.7
 	static uint32 _texttodec_8digits_simd(const char * p) 
 	{
@@ -3288,24 +3288,25 @@ template <typename T> inline T atoi_positive_unchecked(char const* p, char const
 		__m128i t4 = _mm_madd_epi16(t3, mul_1_10000);
 		return _mm_cvtsi128_si32(t4);
 	}
-
-	// covert 16 digits into int64
-	static uint64 _texttodec_16digits_simd(const char * p) 
-	{
-		__m128i ascii0 = _mm_set1_epi8('0');
-		__m128i mul_1_10 = _mm_setr_epi8(10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1);
-		__m128i mul_1_100 = _mm_setr_epi16(100, 1, 100, 1, 100, 1, 100, 1);
-		__m128i mul_1_10000 = _mm_setr_epi16(10000, 1, 10000, 1, 10000, 1, 10000, 1);
-		__m128i in = _mm_sub_epi8(_mm_loadu_si128((__m128i*)p), ascii0);
-		__m128i t1 = _mm_maddubs_epi16(in, mul_1_10);
-		__m128i t2 = _mm_madd_epi16(t1, mul_1_100);
-		__m128i t3 = _mm_packus_epi32(t2, t2);
-		__m128i t4 = _mm_madd_epi16(t3, mul_1_10000);
-		// the above code is exactly the same as simdtoi
-		uint64 t5 = _mm_cvtsi128_si64(t4);
-		return (t5 >> 32) + (t5 & 0xffffffff) * 100000000LL;
-	}
-#endif
+	#if CXX_ARCH_X86_64 // _mm_cvtsi128_si64 is accessible only at x64 arch
+		// covert 16 digits into int64
+		static uint64 _texttodec_16digits_simd(const char * p) 
+		{
+			__m128i ascii0 = _mm_set1_epi8('0');
+			__m128i mul_1_10 = _mm_setr_epi8(10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1);
+			__m128i mul_1_100 = _mm_setr_epi16(100, 1, 100, 1, 100, 1, 100, 1);
+			__m128i mul_1_10000 = _mm_setr_epi16(10000, 1, 10000, 1, 10000, 1, 10000, 1);
+			__m128i in = _mm_sub_epi8(_mm_loadu_si128((__m128i*)p), ascii0);
+			__m128i t1 = _mm_maddubs_epi16(in, mul_1_10);
+			__m128i t2 = _mm_madd_epi16(t1, mul_1_100);
+			__m128i t3 = _mm_packus_epi32(t2, t2);
+			__m128i t4 = _mm_madd_epi16(t3, mul_1_10000);
+			// the above code is exactly the same as simdtoi
+			uint64 t5 = _mm_cvtsi128_si64(t4);
+			return (t5 >> 32) + (t5 & 0xffffffff) * 100000000LL;
+		}
+	#endif
+#endif // } USE_SSE41
 
 uint32 FASTCALL _texttodec32(const wchar_t * pT, uint len)
 {

@@ -1376,8 +1376,8 @@ bool TimeZone::parseCustomID(const UnicodeString & id, int32_t& sign,
 	return FALSE;
 }
 
-UnicodeString &TimeZone::formatCustomID(int32_t hour, int32_t min, int32_t sec,
-    bool negative, UnicodeString & id) {
+UnicodeString &TimeZone::formatCustomID(int32_t hour, int32_t min, int32_t sec, bool negative, UnicodeString & id) 
+{
 	// Create time zone ID - GMT[+|-]hhmm[ss]
 	id.setTo(GMT_ID, GMT_ID_LENGTH);
 	if(hour | min | sec) {
@@ -1387,7 +1387,6 @@ UnicodeString &TimeZone::formatCustomID(int32_t hour, int32_t min, int32_t sec,
 		else {
 			id += (char16_t)PLUS;
 		}
-
 		if(hour < 10) {
 			id += (char16_t)ZERO_DIGIT;
 		}
@@ -1403,7 +1402,6 @@ UnicodeString &TimeZone::formatCustomID(int32_t hour, int32_t min, int32_t sec,
 			id += (char16_t)(ZERO_DIGIT + min/10);
 		}
 		id += (char16_t)(ZERO_DIGIT + min%10);
-
 		if(sec) {
 			id += (char16_t)COLON;
 			if(sec < 10) {
@@ -1451,8 +1449,7 @@ UnicodeString &TimeZone::getCanonicalID(const UnicodeString & id, UnicodeString 
 	return getCanonicalID(id, canonicalID, isSystemID, status);
 }
 
-UnicodeString &TimeZone::getCanonicalID(const UnicodeString & id, UnicodeString & canonicalID, bool& isSystemID,
-    UErrorCode & status)
+UnicodeString &TimeZone::getCanonicalID(const UnicodeString & id, UnicodeString & canonicalID, bool& isSystemID, UErrorCode & status)
 {
 	canonicalID.remove();
 	isSystemID = FALSE;

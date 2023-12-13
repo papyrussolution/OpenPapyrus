@@ -13,7 +13,7 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-#if defined(WEBP_USE_SSE41)
+#if defined(USE_SSE41)
 #include <smmintrin.h>
 #include "src/dsp/common_sse2.h"
 #include "src/enc/vp8i_enc.h"
@@ -328,6 +328,6 @@ WEBP_TSAN_IGNORE_FUNCTION void VP8EncDspInitSSE41(void) {
 	VP8TDisto16x16 = Disto16x16_SSE41;
 }
 
-#else  // !WEBP_USE_SSE41
+#else  // !USE_SSE41
 	WEBP_DSP_INIT_STUB(VP8EncDspInitSSE41)
-#endif  // WEBP_USE_SSE41
+#endif  // USE_SSE41

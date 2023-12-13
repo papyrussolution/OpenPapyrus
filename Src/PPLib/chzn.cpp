@@ -153,7 +153,7 @@ Data Matrix для табачной продукции и фармацевтик
 	// 
 	int    ok = 0;
 	//static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 };
-	static const int8 serial_len_variant_list[] = { 6, 8, 11, 12, 13 }; 
+	static const int8 serial_len_variant_list[] = { 6, 7, 8, 11, 12, 13 }; // @v11.9.1 (7)
 	static const int8 serial_len_variant_list_83[] = { 13 }; // @v11.5.3 Длины серии [21] для марок с длиной 83 байта
 	const size_t code_len = sstrlen(pCode);
 	rS.Z();

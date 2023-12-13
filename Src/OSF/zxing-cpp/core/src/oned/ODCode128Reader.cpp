@@ -27,7 +27,7 @@ static const int CODE_STOP = 106;
 
 class Raw2TxtDecoder {
 	int codeSet = 0;
-	SymbologyIdentifier _symbologyIdentifier = {'C', '0'}; // ISO/IEC 15417:2007 Annex C Table C.1
+	SymbologyIdentifier _symbologyIdentifier = {'C', '0', 0}; // ISO/IEC 15417:2007 Annex C Table C.1
 	bool _readerInit = false;
 	std::string txt;
 	size_t lastTxtSize = 0;

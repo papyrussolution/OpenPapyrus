@@ -1523,8 +1523,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	Test_SSystemBackup();
 	TestGtinStruc();
+	Test_SSystemBackup();
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");

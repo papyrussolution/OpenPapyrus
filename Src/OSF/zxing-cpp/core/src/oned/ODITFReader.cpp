@@ -40,36 +40,25 @@ Result ITFReader::decodePattern(int rowNumber, PatternView& next, std::unique_pt
 			numWide[i] += next[i] > threshold[i];
 			digits[i] += weights[i/2] * (next[i] > threshold[i]);
 		}
-
 		if(numWide.bar != 2 || numWide.space != 2)
 			break;
-
 		for(int i = 0; i < 2; ++i)
 			txt.push_back(ToDigit(digits[i] == 11 ? 0 : digits[i]));
-
 		next.skipSymbol();
 	}
-
 	next = next.subView(0, 3);
-
 	if(Size(txt) < minCharCount || !next.isValid())
 		return {};
-
 	if(!IsRightGuard(next, STOP_PATTERN_1, minQuietZone) && !IsRightGuard(next, STOP_PATTERN_2, minQuietZone))
 		return {};
-
 	Error error;
 	if(_hints.validateITFCheckSum() && !GTIN::IsCheckDigitValid(txt))
 		error = ChecksumError();
-
 	// Symbology identifier ISO/IEC 16390:2007 Annex C Table C.1
 	// See also GS1 General Specifications 5.1.3 Figure 5.1.3-2
-	SymbologyIdentifier symbologyIdentifier = {'I', '0'}; // No check character validation
-
-	if(_hints.validateITFCheckSum() || (txt.size() == 14 && GTIN::IsCheckDigitValid(txt)))  // If no hint test if
-			                                                                        // valid ITF-14
+	SymbologyIdentifier symbologyIdentifier = {'I', '0', 0}; // No check character validation
+	if(_hints.validateITFCheckSum() || (txt.size() == 14 && GTIN::IsCheckDigitValid(txt)))  // If no hint test if valid ITF-14
 		symbologyIdentifier.modifier = '1'; // Modulo 10 symbol check character validated and transmitted
-
 	int xStop = next.pixelsTillEnd();
 	return Result(txt, rowNumber, xStart, xStop, BarcodeFormat::ITF, symbologyIdentifier, error);
 }

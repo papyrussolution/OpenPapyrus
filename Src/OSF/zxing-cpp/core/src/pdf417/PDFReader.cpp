@@ -235,7 +235,6 @@ std::vector<int> ReadCodeWords(BitMatrixCursor<POINT> topCur, SymbolInfo info)
 		fflush(stdout);
 #endif
 	}
-
 	return codeWords;
 }
 
@@ -245,11 +244,9 @@ static Result DecodePure(const BinaryBitmap& image_)
 	if(!pimage)
 		return {};
 	auto& image = *pimage;
-
 #ifdef PRINT_DEBUG
 	SaveAsPBM(image, "weg.pbm");
 #endif
-
 	int left, top, width, height;
 	if(!image.findBoundingBox(left, top, width, height, 9) || (width < 3 * 17 && height < 3 * 17))
 		return {};
@@ -260,7 +257,6 @@ static Result DecodePure(const BinaryBitmap& image_)
 	// architecture)
 	BitMatrixCursorF cur(image, centered(PointI{left, top}), PointF{1, 0});
 	SymbolInfo info;
-
 	// try all 4 orientations
 	for(int a = 0; a < 4; ++a) {
 		info = DetectSymbol(cur, width, height);
@@ -270,14 +266,10 @@ static Result DecodePure(const BinaryBitmap& image_)
 		cur.turnRight();
 		std::swap(width, height);
 	}
-
 	if(!info)
 		return {};
-
 	auto codeWords = ReadCodeWords(cur, info);
-
 	auto res = DecodeCodewords(codeWords, NumECCodeWords(info.ecLevel));
-
 	return Result(std::move(res), {{left, top}, {right, top}, {right, bottom}, {left, bottom}}, BarcodeFormat::PDF417);
 }
 
@@ -290,7 +282,6 @@ Result Reader::decode(const BinaryBitmap& image) const
 		// This falls through and tries the non-pure code path if we have a checksum error. This approach is
 		// currently the best option to deal with 'aliased' input like e.g. 03-aliased.png
 	}
-
 	return FirstOrDefault(DoDecode(image, false, _hints.tryRotate(), _hints.returnErrors()));
 }
 

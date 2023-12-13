@@ -259,7 +259,6 @@ ZXING_EXPORT_TEST_ONLY DecoderResult Decode(ByteArray&& bytes, const bool isDMRE
 	Error error;
 	result.symbology = {'d', '1', 3}; // ECC 200 (ISO 16022:2006 Annex N Table N.1)
 	std::string resultTrailer;
-
 	struct StructuredAppendInfo sai;
 	bool readerInit = false;
 	bool firstCodeword = true;

@@ -13,7 +13,7 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 
-#if defined(WEBP_USE_SSE41)
+#if defined(USE_SSE41)
 #include <smmintrin.h>
 //#include "src/dec/vp8i_dec.h"
 
@@ -35,6 +35,6 @@ WEBP_TSAN_IGNORE_FUNCTION void VP8DspInitSSE41(void)
 	VP8PredLuma16[3] = HE16_SSE41;
 }
 
-#else  // !WEBP_USE_SSE41
+#else  // !USE_SSE41
 	WEBP_DSP_INIT_STUB(VP8DspInitSSE41)
-#endif  // WEBP_USE_SSE41
+#endif  // USE_SSE41

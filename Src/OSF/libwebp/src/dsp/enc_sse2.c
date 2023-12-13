@@ -12,7 +12,7 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-#if defined(WEBP_USE_SSE2)
+#if defined(USE_SSE2)
 #include <emmintrin.h>
 #include "src/dsp/common_sse2.h"
 #include "src/enc/cost_enc.h"
@@ -1370,6 +1370,6 @@ WEBP_TSAN_IGNORE_FUNCTION void VP8EncDspInitSSE2(void)
 	VP8Mean16x4 = Mean16x4_SSE2;
 }
 
-#else  // !WEBP_USE_SSE2
+#else  // !USE_SSE2
 	WEBP_DSP_INIT_STUB(VP8EncDspInitSSE2)
-#endif  // WEBP_USE_SSE2
+#endif  // USE_SSE2

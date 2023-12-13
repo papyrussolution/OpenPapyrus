@@ -16,11 +16,9 @@ Result Reader::decode(const BinaryBitmap& image) const
 	auto binImg = image.getBitMatrix();
 	if(binImg == nullptr)
 		return {};
-
 	auto detectorResult = Detect(*binImg, _hints.tryHarder(), _hints.tryRotate(), _hints.isPure());
 	if(!detectorResult.isValid())
 		return {};
-
 	return Result(Decode(detectorResult.bits()), std::move(detectorResult).position(), BarcodeFormat::DataMatrix);
 #endif
 }

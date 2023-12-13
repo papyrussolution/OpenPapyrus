@@ -18,7 +18,7 @@
 //extern "C" {
 //#endif
 
-#if defined(WEBP_USE_SSE2)
+#if defined(USE_SSE2)
 
 #include <emmintrin.h>
 
@@ -188,7 +188,7 @@ static FORCEINLINE void VP8L32bToPlanar_SSE2(__m128i* const in0,
 	*in3 = _mm_unpacklo_epi64(C0, C2);
 }
 
-#endif  // WEBP_USE_SSE2
+#endif  // USE_SSE2
 
 //#ifdef __cplusplus
 //}  // extern "C"

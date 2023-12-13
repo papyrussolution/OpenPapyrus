@@ -2482,8 +2482,15 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 		}
 	}*/
 	// } @v11.0.9 
-	if(options & iccpSetCurTime)
-		getcurdatetime(&pPack->Rec.Dt, &pPack->Rec.Tm);
+	if(options & iccpSetCurTime) {
+		const LDATETIME now_dtm = getcurdatetime_();
+		pPack->Rec.Dt = now_dtm.d;
+		pPack->Rec.Tm = now_dtm.t;
+		if(pExtPack) {
+			pExtPack->Rec.Dt = now_dtm.d;
+			pExtPack->Rec.Tm = now_dtm.t;
+		}
+	}
 	CATCHZOK
 	return ok;
 }
@@ -2634,7 +2641,7 @@ int CPosProcessor::AutosaveCheck()
 					epb.ExtPack.Rec.Flags  = epb.Pack.Rec.Flags;
 					epb.ExtPack.SetupAmount(&amt, &dscnt);
 					if(iccpr == 2) {
-						SETFLAGBYSAMPLE(epb.ExtPack.Rec.Flags, preserve_ext_pack_flags, CCHKF_PAYMLIST);
+						SETFLAGBYSAMPLE(epb.ExtPack.Rec.Flags, preserve_ext_pack_flags, (CCHKF_PAYMLIST|CCHKF_BANKING|CCHKF_RETURN)); // @v11.9.1 @fix (CCHKF_BANKING|CCHKF_RETURN)
 					}
 					else {
 						P.SetupCCheckPacket(&epb.ExtPack, CSt, true);

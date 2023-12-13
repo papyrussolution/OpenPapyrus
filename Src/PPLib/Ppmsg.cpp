@@ -427,12 +427,18 @@ int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int r
 				pAddInfo = DBS.GetConstTLA().AddedMsgString;
 			else if(group == PPSTR_SLIBERR)
 				pAddInfo = SLS.GetConstTLA().AddedMsgString;
+			else if(is_win_msg) // @v11.9.1
+				pAddInfo = SLS.GetConstTLA().AddedMsgString;
 			else
 				pAddInfo = r_ds_tla.AddedMsgString;
 		}
 		if(is_win_msg) {
 			const int c = (is_win_msg == 2) ? SLS.GetConstTLA().LastSockErr : SLS.GetOsError();
 			SSystem::SFormatMessage(c, temp_buf);
+			// @v11.9.1 {
+			if(!isempty(pAddInfo))
+				temp_buf.Space().CatParStr(pAddInfo);
+			// } @v11.9.1 
 			temp_buf.Chomp().Transf(CTRANSF_OUTER_TO_INNER); 
 		}
 		else if(msgcode) {

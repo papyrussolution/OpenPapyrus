@@ -242,19 +242,9 @@ out:
 
 Result Reader::decode(const BinaryBitmap& image) const
 {
-	auto result =
-	    DoDecode(_readers, image, _hints.tryHarder(), false, _hints.isPure(), 1, _hints.minLineCount(), _hints.returnErrors());
-
+	auto result = DoDecode(_readers, image, _hints.tryHarder(), false, _hints.isPure(), 1, _hints.minLineCount(), _hints.returnErrors());
 	if(result.empty() && _hints.tryRotate())
-		result = DoDecode(_readers,
-			image,
-			_hints.tryHarder(),
-			true,
-			_hints.isPure(),
-			1,
-			_hints.minLineCount(),
-			_hints.returnErrors());
-
+		result = DoDecode(_readers, image, _hints.tryHarder(), true, _hints.isPure(), 1, _hints.minLineCount(), _hints.returnErrors());
 	return FirstOrDefault(std::move(result));
 }
 

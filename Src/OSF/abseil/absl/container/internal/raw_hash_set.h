@@ -307,13 +307,8 @@ inline bool IsFull(ctrl_t c) {
 	return c >= static_cast<ctrl_t>(0);
 }
 
-inline bool IsDeleted(ctrl_t c) {
-	return c == ctrl_t::kDeleted;
-}
-
-inline bool IsEmptyOrDeleted(ctrl_t c) {
-	return c < ctrl_t::kSentinel;
-}
+inline bool IsDeleted(ctrl_t c) { return c == ctrl_t::kDeleted; }
+inline bool IsEmptyOrDeleted(ctrl_t c) { return c < ctrl_t::kSentinel; }
 
 #if ABSL_INTERNAL_RAW_HASH_SET_HAVE_SSE2
 
@@ -393,11 +388,9 @@ struct GroupSse2Impl {
 
 struct GroupPortableImpl {
 	static constexpr size_t kWidth = 8;
-
-	explicit GroupPortableImpl(const ctrl_t* pos)
-		: ctrl(little_endian::Load64(pos)) {
+	explicit GroupPortableImpl(const ctrl_t* pos) : ctrl(little_endian::Load64(pos)) 
+	{
 	}
-
 	BitMask<uint64_t, kWidth, 3> Match(h2_t hash) const {
 		// For the technique, see:
 		// http://graphics.stanford.edu/~seander/bithacks.html##ValueInWord

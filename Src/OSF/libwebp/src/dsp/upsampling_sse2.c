@@ -14,7 +14,7 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 
-#if defined(WEBP_USE_SSE2)
+#if defined(USE_SSE2)
 
 #include <emmintrin.h>
 #include "src/dsp/yuv.h"
@@ -256,8 +256,8 @@ WEBP_TSAN_IGNORE_FUNCTION void WebPInitYUV444ConvertersSSE2(void) {
 
 WEBP_DSP_INIT_STUB(WebPInitYUV444ConvertersSSE2)
 
-#endif  // WEBP_USE_SSE2
+#endif  // USE_SSE2
 
-#if !(defined(FANCY_UPSAMPLING) && defined(WEBP_USE_SSE2))
+#if !(defined(FANCY_UPSAMPLING) && defined(USE_SSE2))
 WEBP_DSP_INIT_STUB(WebPInitUpsamplersSSE2)
 #endif

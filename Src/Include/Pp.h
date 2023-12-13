@@ -55375,6 +55375,7 @@ public:
 	SXml::WDoc * P_Doc;
 	xmlTextWriter * P_X;
 private:
+	void   WriteExcise(SXml::WNode & rParentNode, double value);
 	enum {
 		fExpChZnMarksGTINSER = 0x0001,
 		fExpPlainAddr        = 0x0002 // @v11.5.11 see pp.ini [config] ExpNalogRuPlainAddr

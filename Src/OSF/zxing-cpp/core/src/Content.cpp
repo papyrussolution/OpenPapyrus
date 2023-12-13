@@ -42,10 +42,15 @@ void Content::switchEncoding(ECI eci, bool isECI)
 	hasECI |= isECI;
 }
 
-Content::Content() {
+Content::Content() : defaultCharset(CharacterSet::Unknown), hasECI(false)
+{
+	memzero(Reserve, sizeof(Reserve));
 }
 
-Content::Content(ByteArray&& bytes, SymbologyIdentifier si) : bytes(std::move(bytes)), symbology(si) {
+Content::Content(ByteArray&& bytes, SymbologyIdentifier si) : 
+	defaultCharset(CharacterSet::Unknown), hasECI(false), bytes(std::move(bytes)), symbology(si)
+{
+	memzero(Reserve, sizeof(Reserve));
 }
 
 void Content::switchEncoding(CharacterSet cs)

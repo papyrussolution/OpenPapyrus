@@ -763,7 +763,7 @@ int TestGtinStruc()
 		SFile f_out2(temp_buf, SFile::mWrite);
 		if(f_out.IsValid() && f_out2.IsValid()) {
 			//static const int8 serial_len_variant_list[] = { 13, 12, 11, 8, 6 }; 
-			static const int8 serial_len_variant_list[] = { 6, 8, 11, 12, 13 }; 
+			static const int8 serial_len_variant_list[] = { 6, 7, 8, 11, 12, 13 }; // @v11.9.1 (7)
 			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				const SString original_text(temp_buf);
 				{

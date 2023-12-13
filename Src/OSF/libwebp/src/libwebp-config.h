@@ -52,10 +52,10 @@
 #define WEBP_HAVE_SSE2 1 /* Set to 1 if SSE2 is supported */
 #define WEBP_HAVE_SSE41 1 /* Set to 1 if SSE4.1 is supported */
 // @sobolev {
-#ifdef USE_SSE2
-	#define WEBP_USE_SSE2    1
-	#define WEBP_USE_SSE41   1
-#endif
+//#if USE_SSE2
+	//#define WEBP_USE_SSE2_Removed    1
+	//#define WEBP_USE_SSE41_Removed   1
+//#endif
 // } @sobolev 
 /* Set to 1 if TIFF library is installed */
 /* #undef WEBP_HAVE_TIFF */

@@ -2,6 +2,23 @@
 	"colorset_list": [
 		{
 			"symb": "papyrus-style",
+			
+			"button-bg": "#DCD9D1",
+			"button-sel-bg": "#BABAC9",
+			"button-contour-bg": "",
+			"button-fg": "black",
+			"button-disabled-fg": "white",
+			"icon-reg": "#004982",
+			"icon-alert": "#DD1C1A",
+			"icon-accent": "#2A9D8F",
+			"icon-passive": "#FFF1D0",
+			"invalidinput-bg": "crimson",
+			"invalidinput2-bg": "#ff9900",
+			"invalidinput3-bg": "#ff33cc",
+			"list-bg": "white",
+			"list-focus-bg": "#0066cc",
+			"list-sel-bg": "#a2d2ff",
+			
 			"ccheck-junk-bg": "orange",
 			"ccheck-junk-fg": "black",
 			"ccheck-imported-bg": "palegreen",

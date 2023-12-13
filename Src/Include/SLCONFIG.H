@@ -109,6 +109,7 @@
 //
 #define USE_ASMLIB       1
 #define USE_SSE2         1 // @v9.8.4 used by pixman. @attention: Эта опция увеличивает размер exe-файла на ~2Mb
+#define USE_SSE41        1 // @v11.9.1
 //
 //
 //

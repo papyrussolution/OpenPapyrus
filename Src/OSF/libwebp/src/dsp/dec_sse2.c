@@ -13,7 +13,7 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 
-#if defined(WEBP_USE_SSE2)
+#if defined(USE_SSE2)
 
 // The 3-coeff sparse transform in SSE2 is not really faster than the plain-C
 // one it seems => disable it by default. Uncomment the following to enable:
@@ -1142,6 +1142,6 @@ WEBP_TSAN_IGNORE_FUNCTION void VP8DspInitSSE2(void)
 	VP8PredChroma8[6] = DC8uvNoTopLeft_SSE2;
 }
 
-#else  // !WEBP_USE_SSE2
+#else  // !USE_SSE2
 	WEBP_DSP_INIT_STUB(VP8DspInitSSE2)
-#endif  // WEBP_USE_SSE2
+#endif  // USE_SSE2

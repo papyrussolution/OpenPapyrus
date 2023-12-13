@@ -206,8 +206,7 @@ const struct Curl_handler Curl_handler_ftps = {
 };
 #endif
 
-static void close_secondarysocket(struct Curl_easy * data,
-    struct connectdata * conn)
+static void close_secondarysocket(struct Curl_easy * data, struct connectdata * conn)
 {
 	Curl_conn_close(data, SECONDARYSOCKET);
 	Curl_conn_cf_discard_all(data, conn, SECONDARYSOCKET);
@@ -227,20 +226,18 @@ static void close_secondarysocket(struct Curl_easy * data,
 
 static void freedirs(struct ftp_conn * ftpc)
 {
-	if(ftpc->dirs) {
-		int i;
-		for(i = 0; i < ftpc->dirdepth; i++) {
-			SAlloc::F(ftpc->dirs[i]);
-			ftpc->dirs[i] = NULL;
+	if(ftpc) {
+		if(ftpc->dirs) {
+			for(int i = 0; i < ftpc->dirdepth; i++) {
+				ZFREE(ftpc->dirs[i]);
+			}
+			ZFREE(ftpc->dirs);
+			ftpc->dirdepth = 0;
 		}
-		SAlloc::F(ftpc->dirs);
-		ftpc->dirs = NULL;
-		ftpc->dirdepth = 0;
+		ZFREE(ftpc->file);
+		/* no longer of any use */
+		ZFREE(ftpc->newhost);
 	}
-	ZFREE(ftpc->file);
-
-	/* no longer of any use */
-	ZFREE(ftpc->newhost);
 }
 
 /***********************************************************************
@@ -263,13 +260,10 @@ static CURLcode AcceptServerConnect(struct Curl_easy * data)
 #endif
 	curl_socklen_t size = (curl_socklen_t)sizeof(add);
 	CURLcode result;
-
 	if(0 == getsockname(sock, (struct sockaddr *)&add, &size)) {
 		size = sizeof(add);
-
 		s = accept(sock, (struct sockaddr *)&add, &size);
 	}
-
 	if(CURL_SOCKET_BAD == s) {
 		failf(data, "Error accept()ing server connect");
 		return CURLE_FTP_PORT_FAILED;
@@ -278,29 +272,22 @@ static CURLcode AcceptServerConnect(struct Curl_easy * data)
 	/* when this happens within the DO state it is important that we mark us as
 	   not needing DO_MORE anymore */
 	conn->bits.do_more = FALSE;
-
 	(void)curlx_nonblock(s, TRUE); /* enable non-blocking */
 	/* Replace any filter on SECONDARY with one listening on this socket */
 	result = Curl_conn_tcp_accepted_set(data, conn, SECONDARYSOCKET, &s);
 	if(result)
 		return result;
-
 	if(data->set.fsockopt) {
 		int error = 0;
-
 		/* activate callback for setting socket options */
 		Curl_set_in_callback(data, true);
-		error = data->set.fsockopt(data->set.sockopt_client,
-			s,
-			CURLSOCKTYPE_ACCEPT);
+		error = data->set.fsockopt(data->set.sockopt_client, s, CURLSOCKTYPE_ACCEPT);
 		Curl_set_in_callback(data, false);
-
 		if(error) {
 			close_secondarysocket(data, conn);
 			return CURLE_ABORTED_BY_CALLBACK;
 		}
 	}
-
 	return CURLE_OK;
 }
 
@@ -318,12 +305,9 @@ static timediff_t ftp_timeleft_accept(struct Curl_easy * data)
 	timediff_t timeout_ms = DEFAULT_ACCEPT_TIMEOUT;
 	timediff_t other;
 	struct curltime now;
-
 	if(data->set.accepttimeout > 0)
 		timeout_ms = data->set.accepttimeout;
-
 	now = Curl_now();
-
 	/* check if the generic timeout possibly is set shorter */
 	other = Curl_timeleft(data, &now, FALSE);
 	if(other && (other < timeout_ms))
@@ -337,7 +321,6 @@ static timediff_t ftp_timeleft_accept(struct Curl_easy * data)
 			/* avoid returning 0 as that means no timeout! */
 			return -1;
 	}
-
 	return timeout_ms;
 }
 
@@ -361,9 +344,7 @@ static CURLcode ReceivedServerConnect(struct Curl_easy * data, bool * received)
 	timediff_t timeout_ms;
 	ssize_t nread;
 	int ftpcode;
-
 	*received = FALSE;
-
 	timeout_ms = ftp_timeleft_accept(data);
 	infof(data, "Checking for server connect");
 	if(timeout_ms < 0) {
@@ -371,7 +352,6 @@ static CURLcode ReceivedServerConnect(struct Curl_easy * data, bool * received)
 		failf(data, "Accept timeout occurred while waiting server connect");
 		return CURLE_FTP_ACCEPT_TIMEOUT;
 	}
-
 	/* First check whether there is a cached response from server */
 	if(pp->cache_size && pp->cache && pp->cache[0] > '3') {
 		/* Data connection could not be established, let's return */
@@ -379,9 +359,7 @@ static CURLcode ReceivedServerConnect(struct Curl_easy * data, bool * received)
 		(void)Curl_GetFTPResponse(data, &nread, &ftpcode);
 		return CURLE_FTP_ACCEPT_FAILED;
 	}
-
 	result = Curl_socket_check(ctrl_sock, data_sock, CURL_SOCKET_BAD, 0);
-
 	/* see if the connection request is already here */
 	switch(result) {
 		case -1: /* error */
@@ -391,7 +369,6 @@ static CURLcode ReceivedServerConnect(struct Curl_easy * data, bool * received)
 		case 0: /* Server connect is not received yet */
 		    break; /* loop */
 		default:
-
 		    if(result & CURL_CSELECT_IN2) {
 			    infof(data, "Ready to accept data connection from server");
 			    *received = TRUE;
@@ -399,16 +376,12 @@ static CURLcode ReceivedServerConnect(struct Curl_easy * data, bool * received)
 		    else if(result & CURL_CSELECT_IN) {
 			    infof(data, "Ctrl conn has data while waiting for data conn");
 			    (void)Curl_GetFTPResponse(data, &nread, &ftpcode);
-
 			    if(ftpcode/100 > 3)
 				    return CURLE_FTP_ACCEPT_FAILED;
-
 			    return CURLE_WEIRD_SERVER_REPLY;
 		    }
-
 		    break;
 	} /* switch() */
-
 	return CURLE_OK;
 }
 

@@ -13,7 +13,7 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-#if defined(WEBP_USE_SSE2) && !defined(WEBP_REDUCE_SIZE)
+#if defined(USE_SSE2) && !defined(WEBP_REDUCE_SIZE)
 #include <emmintrin.h>
 //
 // Implementations of critical functions ImportRow / ExportRow
@@ -360,8 +360,8 @@ WEBP_TSAN_IGNORE_FUNCTION void WebPRescalerDspInitSSE2(void) {
 	WebPRescalerExportRowShrink = RescalerExportRowShrink_SSE2;
 }
 
-#else  // !WEBP_USE_SSE2
+#else  // !USE_SSE2
 
 WEBP_DSP_INIT_STUB(WebPRescalerDspInitSSE2)
 
-#endif  // WEBP_USE_SSE2
+#endif  // USE_SSE2

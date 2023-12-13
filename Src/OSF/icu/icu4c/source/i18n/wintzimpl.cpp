@@ -1,9 +1,8 @@
 // WINTZIMPL.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2009-2013, International Business Machines Corporation and others.  All Rights Reserved.
- */
+// Copyright (C) 2009-2013, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -22,18 +21,14 @@
 
 U_NAMESPACE_USE
 
-static bool getSystemTimeInformation(TimeZone * tz,
-    SYSTEMTIME &daylightDate,
-    SYSTEMTIME &standardDate,
-    int32_t &bias,
-    int32_t &daylightBias,
-    int32_t &standardBias) {
+static bool getSystemTimeInformation(TimeZone * tz, SYSTEMTIME &daylightDate, SYSTEMTIME &standardDate,
+    int32_t &bias, int32_t &daylightBias, int32_t &standardBias) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	bool result = TRUE;
 	BasicTimeZone * btz = (BasicTimeZone*)tz; // we should check type
 	InitialTimeZoneRule * initial = NULL;
 	AnnualTimeZoneRule * std = NULL, * dst = NULL;
-
 	btz->getSimpleRulesNear(uprv_getUTCtime(), initial, std, dst, status);
 	if(U_SUCCESS(status)) {
 		if(std == NULL || dst == NULL) {
@@ -103,16 +98,15 @@ static bool getSystemTimeInformation(TimeZone * tz,
 	else {
 		result = FALSE;
 	}
-
 	delete initial;
 	delete std;
 	delete dst;
-
 	return result;
 }
 
-static bool getWindowsTimeZoneInfo(TIME_ZONE_INFORMATION * zoneInfo, const char16_t * icuid, int32_t length) {
-	bool result = FALSE;
+static bool getWindowsTimeZoneInfo(TIME_ZONE_INFORMATION * zoneInfo, const char16_t * icuid, int32_t length) 
+{
+	bool result = false;
 	UnicodeString id = UnicodeString(icuid, length);
 	TimeZone * tz = TimeZone::createTimeZone(id);
 	if(tz) {
@@ -128,26 +122,17 @@ static bool getWindowsTimeZoneInfo(TIME_ZONE_INFORMATION * zoneInfo, const char1
 			zoneInfo->StandardBias  = standardBias;
 			zoneInfo->DaylightDate  = daylightDate;
 			zoneInfo->StandardDate  = standardDate;
-
-			result = TRUE;
+			result = true;
 		}
 	}
-
 	return result;
 }
-
 /*
  * Given the timezone icuid, fill in zoneInfo by calling auxiliary functions that creates a timezone and extract the
  * information to put into zoneInfo. This includes bias and standard time date and daylight saving date.
  */
 U_CAPI bool U_EXPORT2 uprv_getWindowsTimeZoneInfo(TIME_ZONE_INFORMATION * zoneInfo, const char16_t * icuid, int32_t length)
 {
-	if(getWindowsTimeZoneInfo(zoneInfo, icuid, length)) {
-		return TRUE;
-	}
-	else {
-		return FALSE;
-	}
+	return getWindowsTimeZoneInfo(zoneInfo, icuid, length);
 }
-
 #endif

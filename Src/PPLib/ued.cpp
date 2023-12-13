@@ -16,21 +16,32 @@
 #include <ued-id.h>
 #include <..\OSF\abseil\absl\numeric\int128.h>
 
+IMPL_INVARIANT_C(UedSetBase)
+{
+	S_INVARIANT_PROLOG(pInvP);
+	S_ASSERT_P(LimbCount * sizeof(uint64) <= SBaseBuffer::Size, pInvP);
+	S_INVARIANT_EPILOG(pInvP);
+}
+
 UedSetBase::UedSetBase() : LimbCount(0)
 {
 	SBaseBuffer::Init();
+	SInvariantParam invp;
+	assert(InvariantC(&invp));
 }
 	
 UedSetBase::UedSetBase(const UedSetBase & rS) : LimbCount(0)
 {
 	SBaseBuffer::Init();
 	Copy(rS);
-	assert(LimbCount * sizeof(uint64) <= SBaseBuffer::Size);
+	SInvariantParam invp;
+	assert(InvariantC(&invp));
 }
 
 UedSetBase::~UedSetBase()
 {
-	assert(LimbCount * sizeof(uint64) <= SBaseBuffer::Size);
+	SInvariantParam invp;
+	assert(InvariantC(&invp));
 	SBaseBuffer::Destroy();
 	LimbCount = 0;
 }
@@ -48,6 +59,8 @@ int FASTCALL UedSetBase::Copy(const UedSetBase & rS)
 	int    ok = 1;
 	if(SBaseBuffer::CopyPrefix(rS, rS.LimbCount * sizeof(uint64))) {
 		LimbCount = rS.LimbCount;
+		SInvariantParam invp;
+		assert(InvariantC(&invp));
 	}
 	else
 		ok = 0;
@@ -69,8 +82,10 @@ bool UedSetBase::Add(const uint64 * pUed, uint count, uint * pIdx)
 	bool    ok = true;
 	const   uint current_end_idx = LimbCount;
 	if(pUed && count) {
-		if(SBaseBuffer::Put(current_end_idx, pUed, count * sizeof(uint64))) {
+		if(SBaseBuffer::Put(current_end_idx * sizeof(uint64), pUed, count * sizeof(uint64))) {
 			LimbCount += count;
+			SInvariantParam invp;
+			assert(InvariantC(&invp));
 		}
 		else
 			ok = false;
@@ -1374,20 +1389,26 @@ int SrUedContainer_Base::ProcessProperties()
 	return ok;
 }
 
-/*static*/void SrUedContainer_Base::MakeUedCanonicalName(SString & rResult, long ver)
+/*static*/void SrUedContainer_Base::MakeUedCanonicalName(int canonfn, SString & rResult, long ver)
 {
 	rResult.Z();
-	rResult.Cat("ued-id");
-	if(ver > 0)
-		rResult.CatChar('-').CatLongZ(ver, 4);
-	else if(ver == 0)
-		rResult.CatChar('-').Cat("????");
-	else { // ver < 0 - file-name for programming interface source
-		//
+	assert(oneof2(canonfn, canonfnIds, canonfnProps));
+	if(oneof2(canonfn, canonfnIds, canonfnProps)) {
+		if(canonfn == canonfnIds)
+			rResult.Cat("ued-id");
+		else if(canonfn == canonfnProps)
+			rResult.Cat("ued-prop");
+		if(ver > 0)
+			rResult.CatChar('-').CatLongZ(ver, 4);
+		else if(ver == 0)
+			rResult.CatChar('-').Cat("????");
+		else { // ver < 0 - file-name for programming interface source
+			//
+		}
 	}
 }
 
-/*static*/long SrUedContainer_Base::SearchLastCanonicalFile(const char * pPath, SString & rFileName)
+/*static*/long SrUedContainer_Base::SearchLastCanonicalFile(int canonfn, const char * pPath, SString & rFileName)
 {
 	long   result = 0; // version
 	long   max_ver = 0;
@@ -1399,7 +1420,7 @@ int SrUedContainer_Base::ProcessProperties()
 	StringSet ss;
 	SDirEntry de;
 	SFsPath ps;
-	MakeUedCanonicalName(fn_wc, 0);
+	MakeUedCanonicalName(canonfn, fn_wc, 0);
 	(temp_buf = pPath).Strip().SetLastSlash().Cat(fn_wc).Dot().Cat("dat");
 	for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 		if(de.IsFile()) {
@@ -1407,7 +1428,7 @@ int SrUedContainer_Base::ProcessProperties()
 			de.GetNameA(temp_buf);
 			ps.Split(temp_buf);
 			ps.Nam.Tokenize("-", ss);
-			if(ss.getCount() == 3 && ss.getByIdx(2, temp_buf)) { // ued;id;version ("ued-id-0004")
+			if(ss.getCount() == 3 && ss.getByIdx(2, temp_buf)) { // ued;(id|prop);version ("ued-id-0004")
 				long iter_ver = temp_buf.ToLong();
 				if(iter_ver > 0 && iter_ver > max_ver) {
 					//
@@ -1432,6 +1453,35 @@ int SrUedContainer_Base::ProcessProperties()
 		result = max_ver;
 	}
 	return result;
+}
+
+int SrUedContainer_Base::WriteProps(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash)
+{
+	int    ok = 1;
+	if(PropS.GetCount()) {
+		TSCollection <PropIdxEntry> prop_list;
+		if(GetPropList(prop_list) > 0) {
+			SString line_buf;
+			SString temp_buf;
+			THROW_PP_S(!isempty(pFileName), PPERR_INVPARAM_EXT, __FUNCTION__"/pFileName");
+			THROW(LinguaLocusMeta); // @todo @err
+			{
+				SFile f_out(pFileName, SFile::mWrite|SFile::mBinary);
+				THROW_SL(f_out.IsValid());
+				for(uint i = 0; i < prop_list.getCount(); i++) {
+					const PropIdxEntry * p_entry = prop_list.at(i);
+					assert(p_entry);
+					if(p_entry) {
+						//
+					}
+				}
+			}
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
 }
 	
 int SrUedContainer_Base::WriteSource(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash)
@@ -1492,18 +1542,6 @@ int SrUedContainer_Base::WriteSource(const char * pFileName, const SBinaryChunk 
 			THROW_SL(f_hash.IsValid());
 			bc_hash.Hex(temp_buf);
 			f_hash.WriteLine(temp_buf);
-		}
-	}
-	if(PropS.GetCount()) {
-		TSCollection <PropIdxEntry> prop_list;
-		if(GetPropList(prop_list) > 0) {
-			for(uint i = 0; i < prop_list.getCount(); i++) {
-				const PropIdxEntry * p_entry = prop_list.at(i);
-				assert(p_entry);
-				if(p_entry) {
-					//
-				}
-			}
 		}
 	}
 	CATCHZOK
@@ -1735,7 +1773,7 @@ int SrUedContainer_Base::Verify(const char * pPath, long ver, SBinaryChunk * pHa
 	int    ok = 1;
 	SString temp_buf;
 	THROW(ver > 0);
-	MakeUedCanonicalName(temp_buf, ver);
+	MakeUedCanonicalName(canonfnIds, temp_buf, ver);
 	{
 		SString file_path;
 		SString hash_file_path;
@@ -1813,7 +1851,7 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 		else {
 			ps_rt_out = ps;
 		}
-		const long prev_version = SrUedContainer_Ct::SearchLastCanonicalFile(out_path, last_file_name);
+		const long prev_version = SrUedContainer_Ct::SearchLastCanonicalFile(SrUedContainer_Base::canonfnIds, out_path, last_file_name);
 		if(prev_version > 0) {
 			THROW(uedc_prev.Read(last_file_name, pLogger));
 			THROW(uedc.Verify(out_path, prev_version, &prev_hash));
@@ -1830,39 +1868,41 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 		{
 			SString result_file_name;
 			SETIFZQ(new_version, 1);
-			SrUedContainer_Base::MakeUedCanonicalName(ps_out.Nam, new_version);
-			ps_out.Ext = "dat";
-			ps_out.Merge(result_file_name);
-			slfprintf_stderr((temp_buf = result_file_name).Z().CR());
-			int wsr = uedc.Write(result_file_name, (prev_version > 0) ? &prev_hash : 0, &new_hash);
-			THROW(wsr);
-			if(wsr > 0) {
-				ps_out.Merge(SFsPath::fDir|SFsPath::fDrv, temp_buf);
-				THROW(uedc.Verify(temp_buf, new_version, 0));
-			}
-			else {
-				SrUedContainer_Base::MakeUedCanonicalName(ps_out.Nam, prev_version);
+			{
+				SrUedContainer_Base::MakeUedCanonicalName(SrUedContainer_Base::canonfnIds, ps_out.Nam, new_version);
 				ps_out.Ext = "dat";
 				ps_out.Merge(result_file_name);
-				new_version = prev_version;
-				unchanged = true;
-			}
-			{
-				// Записываем файл без номера версии (будет использоваться в run-time'е)
-				SString result_file_name_wo_sfx;
-				SrUedContainer_Base::MakeUedCanonicalName(ps_rt_out.Nam, -1);
-				ps_rt_out.Ext = "dat";
-				ps_rt_out.Merge(temp_buf);
-				SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, result_file_name_wo_sfx);
-				if(!unchanged || SFile::Compare(result_file_name_wo_sfx, result_file_name, 0) <= 0) {
-					slfprintf_stderr(temp_buf.Z().Cat(result_file_name).Cat(" -> ").Cat(result_file_name_wo_sfx).CR());
-					THROW_SL(copyFileByName(result_file_name, result_file_name_wo_sfx));
-					//
-					SlHash::GetAlgorithmSymb(SHASHF_SHA256, temp_buf);
-					SFsPath::ReplaceExt(result_file_name, temp_buf, 1);
-					SFsPath::ReplaceExt(result_file_name_wo_sfx, temp_buf, 1);
-					slfprintf_stderr(temp_buf.Z().Cat(result_file_name).Cat(" -> ").Cat(result_file_name_wo_sfx).CR());
-					THROW_SL(copyFileByName(result_file_name, result_file_name_wo_sfx));
+				slfprintf_stderr((temp_buf = result_file_name).Z().CR());
+				int wsr = uedc.Write(result_file_name, (prev_version > 0) ? &prev_hash : 0, &new_hash);
+				THROW(wsr);
+				if(wsr > 0) {
+					ps_out.Merge(SFsPath::fDir|SFsPath::fDrv, temp_buf);
+					THROW(uedc.Verify(temp_buf, new_version, 0));
+				}
+				else {
+					SrUedContainer_Base::MakeUedCanonicalName(SrUedContainer_Base::canonfnIds, ps_out.Nam, prev_version);
+					ps_out.Ext = "dat";
+					ps_out.Merge(result_file_name);
+					new_version = prev_version;
+					unchanged = true;
+				}
+				{
+					// Записываем файл без номера версии (будет использоваться в run-time'е)
+					SString result_file_name_wo_sfx;
+					SrUedContainer_Base::MakeUedCanonicalName(SrUedContainer_Base::canonfnIds, ps_rt_out.Nam, -1);
+					ps_rt_out.Ext = "dat";
+					ps_rt_out.Merge(temp_buf);
+					SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, result_file_name_wo_sfx);
+					if(!unchanged || SFile::Compare(result_file_name_wo_sfx, result_file_name, 0) <= 0) {
+						slfprintf_stderr(temp_buf.Z().Cat(result_file_name).Cat(" -> ").Cat(result_file_name_wo_sfx).CR());
+						THROW_SL(copyFileByName(result_file_name, result_file_name_wo_sfx));
+						//
+						SlHash::GetAlgorithmSymb(SHASHF_SHA256, temp_buf);
+						SFsPath::ReplaceExt(result_file_name, temp_buf, 1);
+						SFsPath::ReplaceExt(result_file_name_wo_sfx, temp_buf, 1);
+						slfprintf_stderr(temp_buf.Z().Cat(result_file_name).Cat(" -> ").Cat(result_file_name_wo_sfx).CR());
+						THROW_SL(copyFileByName(result_file_name, result_file_name_wo_sfx));
+					}
 				}
 			}
 		}
@@ -1875,7 +1915,7 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 					ps_src.Split(pCPath);
 				else
 					ps_src = ps;
-				SrUedContainer_Base::MakeUedCanonicalName(ps_src.Nam, -1);
+				SrUedContainer_Base::MakeUedCanonicalName(SrUedContainer_Base::canonfnIds, ps_src.Nam, -1);
 				ps_src.Ext = "h";
 				ps_src.Merge(out_file_name);
 				//
@@ -1902,7 +1942,7 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 					ps_src.Split(pJavaPath);
 				else
 					ps_src = ps;
-				SrUedContainer_Base::MakeUedCanonicalName(ps_src.Nam, -1);
+				SrUedContainer_Base::MakeUedCanonicalName(SrUedContainer_Base::canonfnIds, ps_src.Nam, -1);
 				ps_src.Ext = "java";
 				ps_src.Merge(out_file_name);
 				if(!fileExists(out_file_name)) {
@@ -1951,6 +1991,11 @@ int SrUedContainer_Ct::Read(const char * pFileName, PPLogger * pLogger)
 int SrUedContainer_Ct::Write(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash)
 {
 	return SrUedContainer_Base::WriteSource(pFileName, pPrevHash, pHash);
+}
+
+int SrUedContainer_Ct::WriteProps(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash)
+{
+	return SrUedContainer_Base::WriteProps(pFileName, pPrevHash, pHash);
 }
 //
 //
