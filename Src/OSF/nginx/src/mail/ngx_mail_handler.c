@@ -28,7 +28,7 @@ void ngx_mail_init_connection(ngx_connection_t * c)
 	ngx_mail_session_t * s;
 	ngx_mail_addr_conf_t * addr_conf;
 	ngx_mail_core_srv_conf_t  * cscf;
-	u_char text[NGX_SOCKADDR_STRLEN];
+	uchar text[NGX_SOCKADDR_STRLEN];
 #if (NGX_HAVE_INET6)
 	struct sockaddr_in6  * sin6;
 	ngx_mail_in6_addr_t  * addr6;
@@ -251,7 +251,7 @@ static void ngx_mail_init_session(ngx_connection_t * c)
 
 ngx_int_t ngx_mail_salt(ngx_mail_session_t * s, ngx_connection_t * c, ngx_mail_core_srv_conf_t * cscf)
 {
-	s->salt.data = (u_char *)ngx_pnalloc(c->pool, sizeof(" <18446744073709551616.@>" CRLF) - 1 + NGX_TIME_T_LEN + cscf->server_name.len);
+	s->salt.data = (uchar *)ngx_pnalloc(c->pool, sizeof(" <18446744073709551616.@>" CRLF) - 1 + NGX_TIME_T_LEN + cscf->server_name.len);
 	if(s->salt.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -276,13 +276,13 @@ ngx_int_t ngx_mail_salt(ngx_mail_session_t * s, ngx_connection_t * c, ngx_mail_c
 
 ngx_int_t ngx_mail_auth_plain(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n)
 {
-	u_char * p, * last;
+	uchar * p, * last;
 	ngx_str_t plain;
 	ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 #if (NGX_DEBUG_MAIL_PASSWD)
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth plain: \"%V\"", &arg[n]);
 #endif
-	plain.data = (u_char *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[n].len));
+	plain.data = (uchar *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[n].len));
 	if(plain.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -319,7 +319,7 @@ ngx_int_t ngx_mail_auth_login_username(ngx_mail_session_t * s, ngx_connection_t 
 {
 	ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth login username: \"%V\"", &arg[n]);
-	s->login.data = (u_char *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[n].len));
+	s->login.data = (uchar *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[n].len));
 	if(s->login.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -337,7 +337,7 @@ ngx_int_t ngx_mail_auth_login_password(ngx_mail_session_t * s, ngx_connection_t 
 #if (NGX_DEBUG_MAIL_PASSWD)
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth login password: \"%V\"", &arg[0]);
 #endif
-	s->passwd.data = static_cast<u_char *>(ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[0].len)));
+	s->passwd.data = static_cast<uchar *>(ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[0].len)));
 	if(s->passwd.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -355,7 +355,7 @@ ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t *
 {
 	ngx_str_t salt;
 	ngx_uint_t n;
-	u_char * p = static_cast<u_char *>(ngx_pnalloc(c->pool, len + ngx_base64_encoded_length(s->salt.len) + 2));
+	uchar * p = static_cast<uchar *>(ngx_pnalloc(c->pool, len + ngx_base64_encoded_length(s->salt.len) + 2));
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -372,10 +372,10 @@ ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t *
 
 ngx_int_t ngx_mail_auth_cram_md5(ngx_mail_session_t * s, ngx_connection_t * c)
 {
-	u_char   * p, * last;
+	uchar   * p, * last;
 	ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth cram-md5: \"%V\"", &arg[0]);
-	s->login.data = (u_char *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[0].len));
+	s->login.data = (uchar *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[0].len));
 	if(s->login.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -407,7 +407,7 @@ ngx_int_t ngx_mail_auth_external(ngx_mail_session_t * s, ngx_connection_t * c, n
 	ngx_str_t external;
 	ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth external: \"%V\"", &arg[n]);
-	external.data = (u_char *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[n].len));
+	external.data = (uchar *)ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[n].len));
 	if(external.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -582,9 +582,9 @@ void ngx_mail_close_connection(ngx_connection_t * c)
 	ngx_destroy_pool(pool);
 }
 
-u_char * ngx_mail_log_error(ngx_log_t * log, u_char * buf, size_t len)
+uchar * ngx_mail_log_error(ngx_log_t * log, uchar * buf, size_t len)
 {
-	u_char    * p;
+	uchar    * p;
 	ngx_mail_session_t  * s;
 	ngx_mail_log_ctx_t  * ctx;
 

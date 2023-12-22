@@ -2258,10 +2258,10 @@ void GetCpuName(AString &s)
     #endif
 	}
   #else
-    #ifdef MY_CPU_LE
-	s += "LE";
-    #elif defined(MY_CPU_BE)
-	s += "BE";
+	#if defined(SL_LITTLEENDIAN)
+		s += "LE";
+	#else
+		s += "BE";
     #endif
   #endif
 }

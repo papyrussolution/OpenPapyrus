@@ -1192,13 +1192,9 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 	 * and the block count in the file is only one, store compressed
 	 * data to decmpfs xattr instead of the resource fork.
 	 */
-	if(a->decmpfs_block_count == 1 &&
-	    (a->decmpfs_attr_size + bytes_compressed)
-	    <= MAX_DECMPFS_XATTR_SIZE) {
-		archive_le32enc(&a->decmpfs_header_p[DECMPFS_COMPRESSION_TYPE],
-		    CMP_XATTR);
-		memcpy(a->decmpfs_header_p + DECMPFS_HEADER_SIZE,
-		    buffer_compressed, bytes_compressed);
+	if(a->decmpfs_block_count == 1 && (a->decmpfs_attr_size + bytes_compressed) <= MAX_DECMPFS_XATTR_SIZE) {
+		archive_le32enc(&a->decmpfs_header_p[DECMPFS_COMPRESSION_TYPE], CMP_XATTR);
+		memcpy(a->decmpfs_header_p + DECMPFS_HEADER_SIZE, buffer_compressed, bytes_compressed);
 		a->decmpfs_attr_size += bytes_compressed;
 		a->compressed_buffer_remaining = a->compressed_buffer_size;
 		/*
@@ -1213,8 +1209,7 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 	}
 
 	/* Update block info. */
-	archive_le32enc(a->decmpfs_block_info++,
-	    a->compressed_rsrc_position_v - RSRC_H_SIZE);
+	archive_le32enc(a->decmpfs_block_info++, a->compressed_rsrc_position_v - RSRC_H_SIZE);
 	archive_le32enc(a->decmpfs_block_info++, bytes_compressed);
 	a->compressed_rsrc_position_v += bytes_compressed;
 
@@ -1228,16 +1223,11 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 			return ret;
 		bytes_used -= COMPRESSED_W_SIZE;
 		if(bytes_used > COMPRESSED_W_SIZE)
-			memmove(a->compressed_buffer,
-			    a->compressed_buffer + COMPRESSED_W_SIZE,
-			    bytes_used);
+			memmove(a->compressed_buffer, a->compressed_buffer + COMPRESSED_W_SIZE, bytes_used);
 		else
-			memcpy(a->compressed_buffer,
-			    a->compressed_buffer + COMPRESSED_W_SIZE,
-			    bytes_used);
+			memcpy(a->compressed_buffer, a->compressed_buffer + COMPRESSED_W_SIZE, bytes_used);
 	}
 	a->compressed_buffer_remaining = a->compressed_buffer_size - bytes_used;
-
 	/*
 	 * If the current block is the last block, write the remaining
 	 * compressed data and the resource fork footer.
@@ -1245,7 +1235,6 @@ static int hfs_drive_compressor(struct archive_write_disk * a, const char * buff
 	if(a->file_remaining_bytes == 0) {
 		size_t rsrc_size;
 		int64 bk;
-
 		/* Append the resource footer. */
 		rsrc_size = hfs_set_resource_fork_footer(
 			a->compressed_buffer + bytes_used,

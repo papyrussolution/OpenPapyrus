@@ -561,8 +561,8 @@ bool OlsonTimeZone::useDaylightTime() const
 	int32_t year, month, dom, dow, doy, mid;
 	Grego::timeToFields(current, year, month, dom, dow, doy, mid);
 	// Find start of this year, and start of next year
-	double start = Grego::fieldsToDay(year, 0, 1) * SSECSPERDAY;
-	double limit = Grego::fieldsToDay(year+1, 0, 1) * SSECSPERDAY;
+	double start = Grego::fieldsToDay(year, 0, 1) * SlConst::SecsPerDayR;
+	double limit = Grego::fieldsToDay(year+1, 0, 1) * SlConst::SecsPerDayR;
 	// Return TRUE if DST is observed at any time during the current
 	// year.
 	for(int16 i = 0; i < transitionCount(); ++i) {

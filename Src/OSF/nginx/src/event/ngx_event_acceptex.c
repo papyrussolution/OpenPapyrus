@@ -35,7 +35,7 @@ void ngx_event_acceptex(ngx_event_t * rev)
 		c->buffer = NULL;
 	}
 	if(ls->addr_ntop) {
-		c->addr_text.data = (u_char *)ngx_pnalloc(c->pool, ls->addr_text_max_len);
+		c->addr_text.data = (uchar *)ngx_pnalloc(c->pool, ls->addr_text_max_len);
 		if(c->addr_text.data == NULL) {
 			/* @todo close socket */
 			return;
@@ -54,7 +54,7 @@ void ngx_event_acceptex(ngx_event_t * rev)
 
 ngx_int_t ngx_event_post_acceptex(ngx_listening_t * ls, ngx_uint_t n)
 {
-	u_long rcvd;
+	ulong rcvd;
 	ngx_err_t err;
 	ngx_log_t * log;
 	ngx_event_t * rev, * wev;
@@ -143,7 +143,7 @@ static void ngx_close_posted_connection(ngx_connection_t * c)
 	}
 }
 
-u_char * ngx_acceptex_log_error(ngx_log_t * log, u_char * buf, size_t len)
+uchar * ngx_acceptex_log_error(ngx_log_t * log, uchar * buf, size_t len)
 {
 	return ngx_snprintf(buf, len, " while posting AcceptEx() on %V", log->data);
 }

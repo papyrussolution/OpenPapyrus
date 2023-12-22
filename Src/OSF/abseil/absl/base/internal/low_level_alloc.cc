@@ -242,8 +242,7 @@ namespace {
 class ABSL_SCOPED_LOCKABLE ArenaLock {
 public:
 	explicit ArenaLock(LowLevelAlloc::Arena * arena)
-	ABSL_EXCLUSIVE_LOCK_FUNCTION(arena->mu)
-		: arena_(arena) {
+	ABSL_EXCLUSIVE_LOCK_FUNCTION(arena->mu) : arena_(arena) {
 #ifndef ABSL_LOW_LEVEL_ALLOC_ASYNC_SIGNAL_SAFE_MISSING
 		if((arena->flags & LowLevelAlloc::kAsyncSignalSafe) != 0) {
 			sigset_t all;
@@ -285,14 +284,13 @@ private:
 
 // create an appropriate magic number for an object at "ptr"
 // "magic" should be kMagicAllocated or kMagicUnallocated
-inline static uintptr_t Magic(uintptr_t magic, AllocList::Header * ptr) {
-	return magic ^ reinterpret_cast<uintptr_t>(ptr);
-}
+inline static uintptr_t Magic(uintptr_t magic, AllocList::Header * ptr) { return magic ^ reinterpret_cast<uintptr_t>(ptr); }
 
 #undef max // @sobolev
 
 namespace {
-size_t GetPageSize() {
+size_t GetPageSize() 
+{
 #ifdef _WIN32
 	SYSTEM_INFO system_info;
 	GetSystemInfo(&system_info);
@@ -304,7 +302,8 @@ size_t GetPageSize() {
 #endif
 }
 
-size_t RoundedUpBlockSize() {
+size_t RoundedUpBlockSize() 
+{
 	// Round up block sizes to a power of two close to the header size.
 	size_t round_up = 16;
 	while(round_up < sizeof(AllocList::Header)) {
@@ -396,9 +395,7 @@ static inline uintptr_t CheckedAdd(uintptr_t a, uintptr_t b)
 
 // Return value rounded up to next multiple of align.
 // align must be a power of two.
-static inline uintptr_t RoundUp(uintptr_t addr, uintptr_t align) {
-	return CheckedAdd(addr, align - 1) & ~(align - 1);
-}
+static inline uintptr_t RoundUp(uintptr_t addr, uintptr_t align) { return CheckedAdd(addr, align - 1) & ~(align - 1); }
 
 // Equivalent to "return prev->next[i]" but with sanity checking
 // that the freelist is in the correct order, that it

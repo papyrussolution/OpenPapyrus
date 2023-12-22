@@ -43,7 +43,7 @@ typedef struct ngx_http_v2_connection_s ngx_http_v2_connection_t;
 typedef struct ngx_http_v2_node_s ngx_http_v2_node_t;
 typedef struct ngx_http_v2_out_frame_s ngx_http_v2_out_frame_t;
 
-typedef u_char *(*ngx_http_v2_handler_pt)(ngx_http_v2_connection_t * h2c, u_char * pos, u_char * end);
+typedef uchar *(*ngx_http_v2_handler_pt)(ngx_http_v2_connection_t * h2c, uchar * pos, uchar * end);
 
 struct ngx_http_v2_header_t {
 	ngx_str_t name;
@@ -63,13 +63,13 @@ struct ngx_http_v2_state_t {
 	unsigned index : 1;
 	ngx_http_v2_header_t header;
 	size_t header_limit;
-	u_char field_state;
-	u_char * field_start;
-	u_char * field_end;
+	uchar field_state;
+	uchar * field_start;
+	uchar * field_end;
 	size_t field_rest;
 	ngx_pool_t  * pool;
 	ngx_http_v2_stream_t  * stream;
-	u_char buffer[NGX_HTTP_V2_STATE_BUFFER_SIZE];
+	uchar buffer[NGX_HTTP_V2_STATE_BUFFER_SIZE];
 	size_t buffer_used;
 	ngx_http_v2_handler_pt handler;
 };
@@ -82,8 +82,8 @@ struct ngx_http_v2_hpack_t {
 	ngx_uint_t allocated;
 	size_t size;
 	size_t free;
-	u_char * storage;
-	u_char * pos;
+	uchar * storage;
+	uchar * pos;
 };
 
 struct ngx_http_v2_connection_s {
@@ -208,8 +208,8 @@ ngx_int_t ngx_http_v2_send_output_queue(ngx_http_v2_connection_t * h2c);
 ngx_int_t ngx_http_v2_get_indexed_header(ngx_http_v2_connection_t * h2c, ngx_uint_t index, ngx_uint_t name_only);
 ngx_int_t ngx_http_v2_add_header(ngx_http_v2_connection_t * h2c, ngx_http_v2_header_t * header);
 ngx_int_t ngx_http_v2_table_size(ngx_http_v2_connection_t * h2c, size_t size);
-ngx_int_t ngx_http_v2_huff_decode(u_char * state, u_char * src, size_t len, u_char ** dst, ngx_uint_t last, ngx_log_t * log);
-size_t ngx_http_v2_huff_encode(u_char * src, size_t len, u_char * dst, ngx_uint_t lower);
+ngx_int_t ngx_http_v2_huff_decode(uchar * state, uchar * src, size_t len, uchar ** dst, ngx_uint_t last, ngx_log_t * log);
+size_t ngx_http_v2_huff_encode(uchar * src, size_t len, uchar * dst, ngx_uint_t lower);
 
 #define ngx_http_v2_prefix(bits)  ((1 << (bits)) - 1)
 
@@ -230,8 +230,8 @@ size_t ngx_http_v2_huff_encode(u_char * src, size_t len, u_char * dst, ngx_uint_
 	#define ngx_http_v2_write_uint16  ngx_http_v2_write_uint16_aligned
 	#define ngx_http_v2_write_uint32  ngx_http_v2_write_uint32_aligned
 #else
-	#define ngx_http_v2_write_uint16(p, s) ((p)[0] = (u_char)((s) >> 8), (p)[1] = (u_char)(s), (p) + sizeof(uint16_t))
-	#define ngx_http_v2_write_uint32(p, s) ((p)[0] = (u_char)((s) >> 24), (p)[1] = (u_char)((s) >> 16), (p)[2] = (u_char)((s) >> 8), (p)[3] = (u_char)(s), (p) + sizeof(uint32_t))
+	#define ngx_http_v2_write_uint16(p, s) ((p)[0] = (uchar)((s) >> 8), (p)[1] = (uchar)(s), (p) + sizeof(uint16_t))
+	#define ngx_http_v2_write_uint32(p, s) ((p)[0] = (uchar)((s) >> 24), (p)[1] = (uchar)((s) >> 16), (p)[2] = (uchar)((s) >> 8), (p)[3] = (uchar)(s), (p) + sizeof(uint32_t))
 #endif
 #define ngx_http_v2_write_len_and_type(p, l, t) ngx_http_v2_write_uint32_aligned(p, (l) << 8 | (t))
 #define ngx_http_v2_write_sid  ngx_http_v2_write_uint32

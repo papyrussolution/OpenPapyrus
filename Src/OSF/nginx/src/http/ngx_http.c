@@ -620,7 +620,7 @@ static void ngx_http_create_locations_list(ngx_queue_t * locations, ngx_queue_t 
 			ngx_http_create_locations_list(locations, ngx_queue_next(q));
 		else {
 			size_t len = lq->name->len;
-			u_char * name = lq->name->data;
+			uchar * name = lq->name->data;
 			ngx_queue_t * x, tail;
 			ngx_http_location_queue_t * lx;
 			for(x = ngx_queue_next(q); x != ngx_queue_sentinel(locations); x = ngx_queue_next(x)) {
@@ -664,8 +664,8 @@ static ngx_http_location_tree_node_t * ngx_http_create_locations_tree(ngx_conf_t
 		node->tree = NULL;
 		node->exact = lq->exact;
 		node->inclusive = lq->inclusive;
-		node->auto_redirect = (u_char)((lq->exact && lq->exact->auto_redirect) || (lq->inclusive && lq->inclusive->auto_redirect));
-		node->len = (u_char)len;
+		node->auto_redirect = (uchar)((lq->exact && lq->exact->auto_redirect) || (lq->inclusive && lq->inclusive->auto_redirect));
+		node->len = (uchar)len;
 		memcpy(node->name, &lq->name->data[prefix], len);
 		ngx_queue_split(locations, q, &tail);
 		if(ngx_queue_empty(locations)) {

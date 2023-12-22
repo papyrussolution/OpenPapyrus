@@ -333,6 +333,7 @@ static FORCEINLINE int64 libdivide_mullhi_s64(int64 x, int64 y)
 #endif
 }
 
+#if 0 // @sobolev {
 static FORCEINLINE int16 libdivide_count_leading_zeros16(uint16 val) 
 {
 #if defined(__AVR__)
@@ -412,7 +413,7 @@ static FORCEINLINE int32_t libdivide_count_leading_zeros64(uint64 val)
 	return 32 + libdivide_count_leading_zeros32(lo);
 #endif
 }
-
+#endif // } 0 @sobolev
 // libdivide_32_div_16_to_16: divides a 32-bit uint {u1, u0} by a 16-bit
 // uint {v}. The result must fit in 16 bits.
 // Returns the quotient directly and the remainder in *r
@@ -487,7 +488,8 @@ static FORCEINLINE uint64 libdivide_128_div_64_to_64(uint64 numhi, uint64 numlo,
 
 	// Check for overflow and divide by 0.
 	if(numhi >= den) {
-		if(r != NULL)  *r = ~0ull;
+		if(r != NULL)  
+			*r = ~0ull;
 		return ~0ull;
 	}
 
@@ -498,7 +500,7 @@ static FORCEINLINE uint64 libdivide_128_div_64_to_64(uint64 numhi, uint64 numlo,
 	// The expression (-shift & 63) is the same as (64 - shift), except it avoids the UB of shifting
 	// by 64. The funny bitwise 'and' ensures that numlo does not get shifted into numhi if shift is
 	// 0. clang 11 has an x86 codegen bug here: see LLVM bug 50118. The sequence below avoids it.
-	shift = libdivide_count_leading_zeros64(den);
+	shift = /*libdivide_count_leading_zeros64*/SBits::Clz(den);
 	den <<= shift;
 	numhi <<= shift;
 	numhi |= (numlo >> (-shift & 63)) & (-(int64)shift >> 63);
@@ -517,7 +519,8 @@ static FORCEINLINE uint64 libdivide_128_div_64_to_64(uint64 numhi, uint64 numlo,
 	rhat = numhi % den1;
 	c1 = qhat * den0;
 	c2 = rhat * b + num1;
-	if(c1 > c2)  qhat -= (c1 - c2 > den) ? 2 : 1;
+	if(c1 > c2)  
+		qhat -= (c1 - c2 > den) ? 2 : 1;
 	q1 = (uint32)qhat;
 
 	// Compute the true (partial) remainder.
@@ -529,7 +532,8 @@ static FORCEINLINE uint64 libdivide_128_div_64_to_64(uint64 numhi, uint64 numlo,
 	rhat = rem % den1;
 	c1 = qhat * den0;
 	c2 = rhat * b + num0;
-	if(c1 > c2)  qhat -= (c1 - c2 > den) ? 2 : 1;
+	if(c1 > c2)  
+		qhat -= (c1 - c2 > den) ? 2 : 1;
 	q0 = (uint32)qhat;
 
 	// Return remainder if requested.
@@ -591,7 +595,7 @@ static FORCEINLINE uint64 libdivide_128_div_128_to_64(uint64 u_hi, uint64 u_lo, 
 	// Here v >= 2**64
 	// We know that v.hi != 0, so count leading zeros is OK
 	// We have 0 <= n <= 63
-	uint32 n = libdivide_count_leading_zeros64(v.hi);
+	uint32 n = /*libdivide_count_leading_zeros64*/SBits::Clz(v.hi);
 
 	// Normalize the divisor so its MSB is 1
 	u128_t v1t = v;
@@ -634,7 +638,6 @@ static FORCEINLINE uint64 libdivide_128_div_128_to_64(uint64 u_hi, uint64 u_lo, 
 	u128_t u_q0v = u;
 	u_q0v.hi -= q0v.hi + (u.lo < q0v.lo); // second term is borrow
 	u_q0v.lo -= q0v.lo;
-
 	// Check if u_q0v >= v
 	// This checks if our remainder is larger than the divisor
 	if((u_q0v.hi > v.hi) || (u_q0v.hi == v.hi && u_q0v.lo >= v.lo)) {
@@ -660,7 +663,7 @@ static FORCEINLINE struct libdivide_u16_t libdivide_internal_u16_gen(uint16 d, i
 		LIBDIVIDE_ERROR("divider must be != 0");
 	}
 	struct libdivide_u16_t result;
-	uint8 floor_log_2_d = (uint8)(15 - libdivide_count_leading_zeros16(d));
+	uint8 floor_log_2_d = (uint8)(15 - /*libdivide_count_leading_zeros16*/SBits::Clz(d));
 	// Power of 2
 	if((d & (d - 1)) == 0) {
 		// We need to subtract 1 from the shift value in case of an unsigned
@@ -672,8 +675,8 @@ static FORCEINLINE struct libdivide_u16_t libdivide_internal_u16_gen(uint16 d, i
 	}
 	else {
 		uint8 more;
-		uint16 rem, proposed_m;
-		proposed_m = libdivide_32_div_16_to_16((uint16)1 << floor_log_2_d, 0, d, &rem);
+		uint16 rem;
+		uint16 proposed_m = libdivide_32_div_16_to_16((uint16)1 << floor_log_2_d, 0, d, &rem);
 		assert(rem > 0 && rem < d);
 		const uint16 e = d - rem;
 		// This power works if e < 2**floor_log_2_d.
@@ -689,7 +692,8 @@ static FORCEINLINE struct libdivide_u16_t libdivide_internal_u16_gen(uint16 d, i
 			// don't care about overflow here - in fact, we expect it
 			proposed_m += proposed_m;
 			const uint16 twice_rem = rem + rem;
-			if(twice_rem >= d || twice_rem < rem)  proposed_m += 1;
+			if(twice_rem >= d || twice_rem < rem)  
+				proposed_m += 1;
 			more = floor_log_2_d | LIBDIVIDE_ADD_MARKER;
 		}
 		result.magic = 1 + proposed_m;
@@ -730,8 +734,7 @@ uint16 libdivide_u16_do_raw(uint16 numer, uint16 magic, uint8 more)
 			return t >> (more & LIBDIVIDE_16_SHIFT_MASK);
 		}
 		else {
-			// All upper bits are 0,
-			// don't need to mask them off.
+			// All upper bits are 0, don't need to mask them off.
 			return q >> more;
 		}
 	}
@@ -822,7 +825,7 @@ static FORCEINLINE struct libdivide_u32_t libdivide_internal_u32_gen(uint32 d, i
 		LIBDIVIDE_ERROR("divider must be != 0");
 	}
 	struct libdivide_u32_t result;
-	uint32 floor_log_2_d = 31 - libdivide_count_leading_zeros32(d);
+	uint32 floor_log_2_d = 31 - /*libdivide_count_leading_zeros32*/SBits::Clz(d);
 	// Power of 2
 	if((d & (d - 1)) == 0) {
 		// We need to subtract 1 from the shift value in case of an unsigned
@@ -834,8 +837,8 @@ static FORCEINLINE struct libdivide_u32_t libdivide_internal_u32_gen(uint32 d, i
 	}
 	else {
 		uint8 more;
-		uint32 rem, proposed_m;
-		proposed_m = libdivide_64_div_32_to_32((uint32)1 << floor_log_2_d, 0, d, &rem);
+		uint32 rem;
+		uint32 proposed_m = libdivide_64_div_32_to_32((uint32)1 << floor_log_2_d, 0, d, &rem);
 		assert(rem > 0 && rem < d);
 		const uint32 e = d - rem;
 		// This power works if e < 2**floor_log_2_d.
@@ -851,7 +854,8 @@ static FORCEINLINE struct libdivide_u32_t libdivide_internal_u32_gen(uint32 d, i
 			// don't care about overflow here - in fact, we expect it
 			proposed_m += proposed_m;
 			const uint32 twice_rem = rem + rem;
-			if(twice_rem >= d || twice_rem < rem)  proposed_m += 1;
+			if(twice_rem >= d || twice_rem < rem)  
+				proposed_m += 1;
 			more = (uint8)(floor_log_2_d | LIBDIVIDE_ADD_MARKER);
 		}
 		result.magic = 1 + proposed_m;
@@ -873,8 +877,7 @@ struct libdivide_u32_branchfree_t libdivide_u32_branchfree_gen(uint32 d)
 		LIBDIVIDE_ERROR("branchfree divider must be != 1");
 	}
 	struct libdivide_u32_t tmp = libdivide_internal_u32_gen(d, 1);
-	struct libdivide_u32_branchfree_t ret = {
-		tmp.magic, (uint8)(tmp.more & LIBDIVIDE_32_SHIFT_MASK)};
+	struct libdivide_u32_branchfree_t ret = { tmp.magic, (uint8)(tmp.more & LIBDIVIDE_32_SHIFT_MASK)};
 	return ret;
 }
 
@@ -939,7 +942,6 @@ uint32 libdivide_u32_recover(const struct libdivide_u32_t * denom)
 		// remainder would increase the quotient.
 		// Note that rem<<1 cannot overflow, since rem < d and d is 33 bits
 		uint32 full_q = half_q + half_q + ((rem << 1) >= d);
-
 		// We rounded down in gen (hence +1)
 		return full_q + 1;
 	}
@@ -969,7 +971,6 @@ uint32 libdivide_u32_branchfree_recover(const struct libdivide_u32_branchfree_t 
 		// remainder would increase the quotient.
 		// Note that rem<<1 cannot overflow, since rem < d and d is 33 bits
 		uint32 full_q = half_q + half_q + ((rem << 1) >= d);
-
 		// We rounded down in gen (hence +1)
 		return full_q + 1;
 	}
@@ -983,7 +984,7 @@ static FORCEINLINE struct libdivide_u64_t libdivide_internal_u64_gen(uint64 d, i
 		LIBDIVIDE_ERROR("divider must be != 0");
 	}
 	struct libdivide_u64_t result;
-	uint32 floor_log_2_d = 63 - libdivide_count_leading_zeros64(d);
+	uint32 floor_log_2_d = 63 - /*libdivide_count_leading_zeros64*/SBits::Clz(d);
 	// Power of 2
 	if((d & (d - 1)) == 0) {
 		// We need to subtract 1 from the shift value in case of an unsigned
@@ -994,10 +995,10 @@ static FORCEINLINE struct libdivide_u64_t libdivide_internal_u64_gen(uint64 d, i
 		result.more = (uint8)(floor_log_2_d - (branchfree != 0));
 	}
 	else {
-		uint64 proposed_m, rem;
+		uint64 rem;
 		uint8 more;
 		// (1 << (64 + floor_log_2_d)) / d
-		proposed_m = libdivide_128_div_64_to_64((uint64)1 << floor_log_2_d, 0, d, &rem);
+		uint64 proposed_m = libdivide_128_div_64_to_64((uint64)1 << floor_log_2_d, 0, d, &rem);
 		assert(rem > 0 && rem < d);
 		const uint64 e = d - rem;
 		// This power works if e < 2**floor_log_2_d.
@@ -1013,7 +1014,8 @@ static FORCEINLINE struct libdivide_u64_t libdivide_internal_u64_gen(uint64 d, i
 			// don't care about overflow here - in fact, we expect it
 			proposed_m += proposed_m;
 			const uint64 twice_rem = rem + rem;
-			if(twice_rem >= d || twice_rem < rem)  proposed_m += 1;
+			if(twice_rem >= d || twice_rem < rem)  
+				proposed_m += 1;
 			more = (uint8)(floor_log_2_d | LIBDIVIDE_ADD_MARKER);
 		}
 		result.magic = 1 + proposed_m;
@@ -1036,8 +1038,7 @@ struct libdivide_u64_branchfree_t libdivide_u64_branchfree_gen(uint64 d)
 		LIBDIVIDE_ERROR("branchfree divider must be != 1");
 	}
 	struct libdivide_u64_t tmp = libdivide_internal_u64_gen(d, 1);
-	struct libdivide_u64_branchfree_t ret = {
-		tmp.magic, (uint8)(tmp.more & LIBDIVIDE_64_SHIFT_MASK)};
+	struct libdivide_u64_branchfree_t ret = { tmp.magic, (uint8)(tmp.more & LIBDIVIDE_64_SHIFT_MASK)};
 	return ret;
 }
 
@@ -1136,8 +1137,7 @@ uint64 libdivide_u64_branchfree_recover(const struct libdivide_u64_branchfree_t 
 		// Note that the quotient is guaranteed <= 64 bits,
 		// but the remainder may need 65!
 		uint64 r_hi, r_lo;
-		uint64 half_q =
-		    libdivide_128_div_128_to_64(half_n_hi, half_n_lo, d_hi, d_lo, &r_hi, &r_lo);
+		uint64 half_q = libdivide_128_div_128_to_64(half_n_hi, half_n_lo, d_hi, d_lo, &r_hi, &r_lo);
 		// We computed 2^(64+shift)/(m+2^64)
 		// Double the remainder ('dr') and check if that is larger than d
 		// Note that d is a 65 bit value, so r1 is small and so r1 + r1
@@ -1166,7 +1166,7 @@ static FORCEINLINE struct libdivide_s16_t libdivide_internal_s16_gen(int16 d, in
 	// and is a power of 2.
 	uint16 ud = (uint16)d;
 	uint16 absD = (d < 0) ? -ud : ud;
-	uint16 floor_log_2_d = 15 - libdivide_count_leading_zeros16(absD);
+	uint16 floor_log_2_d = 15 - /*libdivide_count_leading_zeros16*/SBits::Clz(absD);
 	// check if exactly one bit is set,
 	// don't care if absD is 0 since that's divide by zero
 	if((absD & (absD - 1)) == 0) {
@@ -1339,7 +1339,7 @@ static FORCEINLINE struct libdivide_s32_t libdivide_internal_s32_gen(int32_t d, 
 	// and is a power of 2.
 	uint32 ud = (uint32)d;
 	uint32 absD = (d < 0) ? -ud : ud;
-	uint32 floor_log_2_d = 31 - libdivide_count_leading_zeros32(absD);
+	uint32 floor_log_2_d = 31 - /*libdivide_count_leading_zeros32*/SBits::Clz(absD);
 	// check if exactly one bit is set,
 	// don't care if absD is 0 since that's divide by zero
 	if((absD & (absD - 1)) == 0) {
@@ -1493,13 +1493,12 @@ int32_t libdivide_s32_branchfree_recover(const struct libdivide_s32_branchfree_t
 //
 // SINT64
 //
-static FORCEINLINE struct libdivide_s64_t libdivide_internal_s64_gen(int64 d, int branchfree)                                                                       {
+static FORCEINLINE struct libdivide_s64_t libdivide_internal_s64_gen(int64 d, int branchfree)                                                                       
+{
 	if(d == 0) {
 		LIBDIVIDE_ERROR("divider must be != 0");
 	}
-
 	struct libdivide_s64_t result;
-
 	// If d is a power of 2, or negative a power of 2, we have to use a shift.
 	// This is especially important because the magic algorithm fails for -1.
 	// To check if d is a power of 2 or its inverse, it suffices to check
@@ -1508,7 +1507,7 @@ static FORCEINLINE struct libdivide_s64_t libdivide_internal_s64_gen(int64 d, in
 	// and is a power of 2.
 	uint64 ud = (uint64)d;
 	uint64 absD = (d < 0) ? -ud : ud;
-	uint32 floor_log_2_d = 63 - libdivide_count_leading_zeros64(absD);
+	uint32 floor_log_2_d = 63 - /*libdivide_count_leading_zeros64*/SBits::Clz(absD);
 	// check if exactly one bit is set,
 	// don't care if absD is 0 since that's divide by zero
 	if((absD & (absD - 1)) == 0) {

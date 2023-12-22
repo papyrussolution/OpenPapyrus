@@ -386,7 +386,8 @@ public:
 		screenRegister       = 3, // регистрация //
 		screenLogin          = 4, // авторизация //
 		screenAuthSelectSess = 5, // авторизованный режим - выбор сессии
-		screenSession        = 6  // рабочая сессия //
+		screenSession        = 6, // рабочая сессия //
+		screenIntro          = 7, // Заголовочный экран
 	};
 	//
 	enum {
@@ -414,6 +415,7 @@ public:
 		loidInternalProgramGallery    = 10019, // Внутренний лейаут программной галлереи. Формируется динамически (не включен в json-описание)!
 		loidProgramGalleryScrollbar   = 10020, // Область для размещения скроллбара программной галлереи
 		loidProgramGalleryCatSelector = 10021, // Область для размещения комбо-бокса выбора категории
+		loidProgramGalleryDebugInfo   = 10022, // @debug Область для размещения отладочной информации о programgallery 
 		//
 		loidStartProgramEntry         = 20000  // Стартовый идентификатор для иконок выбора программ. Первый layout идентифицируется как (loidStartProgramEntry+1)
 	};
@@ -773,6 +775,13 @@ private:
 	};
 	TestBlock TestBlk;
 	//
+	void   GetBackgroundFilePath(SString & rPath) const
+	{
+		const char * p_bkg_filename = "background.jpg";
+		rPath.Z();
+		WsCtl_ImGuiSceneBlock::GetLocalCachePath(rPath);
+		rPath.SetLastSlash().Cat("img").SetLastSlash().Cat(p_bkg_filename);
+	}
 	void   Render();
 	void   MakeLayout(SJson ** ppJsList);
 	SUiLayout * MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL);
@@ -808,7 +817,20 @@ private:
 	WsCtl_LoginBlock LoginBlk;
 	DServerError LastSvrErr;
 	ImDialog_WsCtlConfig * P_Dlg_Cfg;
-	SScroller::Position PgmGalleryScrollerPosition_Develop; // @v11.7.12
+
+	class ScrollerPosition_ : public SScroller::Position {
+	public:
+		ScrollerPosition_() : SScroller::Position(), Held(false), ActiveCtlId(0)
+		{
+		}
+		//
+		// Следующие 2 поля нужны для отслеживания активного элемента при "захвате" мышкой бегунка скролл-бара 
+		// (костыль, короче, необходимый из-за того, что при потере текущего активного элемента ImGui перестает реагировать не перемещение захваченного бегунка)
+		//
+		bool Held;
+		ImGuiID ActiveCtlId;
+	};
+	ScrollerPosition_ PgmGalleryScrollerPosition_Develop; // @v11.7.12
 	WsCtl_SessionFrame SessF; // @v11.8.5 Блок, отвечающий за системные процедуры работы сессии (политики безопасности, ограничения ресурсов,
 		// отслеживание изменений в системе etc)
 public:
@@ -2029,8 +2051,8 @@ WsCtl_ImGuiSceneBlock::~WsCtl_ImGuiSceneBlock()
 int WsCtl_ImGuiSceneBlock::SetScreen(int scr)
 {
 	int    ok = 0;
-	if(oneof6(scr, screenConstruction, screenHybernat, screenRegister, screenLogin, screenAuthSelectSess, 
-		screenSession)) {
+	if(oneof7(scr, screenConstruction, screenHybernat, screenRegister, screenLogin, screenAuthSelectSess, 
+		screenSession, screenIntro)) {
 		if(Screen != scr) {
 			Screen = scr;
 			ok = 1;
@@ -2209,6 +2231,7 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 {
 	int    ok = 0;
+	SString temp_buf;
 	PPIniFile ini_file;
 	LoadUiDescription();
 	if((ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &JsP.Port) <= 0 || JsP.Port <= 0))
@@ -2339,7 +2362,28 @@ int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 			CreateFontEntry(rIo, "FontPrimary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 16.0f, 0, &primary_font_color);
 		}
 	}
-	LoadProgramList2(); // 
+	{
+		SString pic_base_path;
+		WsCtl_ImGuiSceneBlock::GetLocalCachePath(pic_base_path);
+		pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
+		Cache_Texture.SetBasePath(pic_base_path);
+		{
+			// Load background
+			GetBackgroundFilePath(temp_buf);
+			SFile f_in(temp_buf, SFile::mRead);
+			if(fileExists(temp_buf)) {
+				Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+				if(p_cfe && p_cfe->Init(temp_buf)) {
+					if(p_cfe->Reload(true, &ImgRtb)) {
+						Cache_Texture.Put(p_cfe);
+						p_cfe = 0; // ! prevent deletion below
+					}
+				}
+				delete p_cfe;
+			}
+		}
+		LoadProgramList2(); // 
+	}
 	return ok;
 }
 
@@ -2687,6 +2731,7 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 {
 	const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration;
 	if(rW.IsValid()) {
+		SString debug_info_line;
 		float total_size = 0.0f;
 		SUiLayout * p_lo_ipg = rTl.FindById(loidInternalProgramGallery); // non-const!
 		SUiLayout::Result * p_lor = 0;
@@ -2700,6 +2745,7 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 				//ImGui::SetNextWindowContentSize(ImVec2(total_size, 0.0f));
 			}
 			{
+				//const ImGuiID preserve_active_id = GImGui->ActiveId;
 				SString temp_buf;
 				const bool is_line_content_valid = p_scr ? (p_scr->CheckLineContentIndex(-1) >= 0) : false;
 				SPoint2F offset;
@@ -2751,14 +2797,14 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 					else
 						break;
 				}
+				//ImGui::SetActiveID(preserve_active_id, 0);
 				if(p_clicked_entry) {
 					ExecuteProgram(p_clicked_entry);
 				}
 			}
 			if(p_lor) {
 				{
-					ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryCatSelector, "##ProgramCatSelector",
-						view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
+					ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryCatSelector, "##ProgramCatSelector", view_flags);
 					const StrAssocArray & r_cat_list = PgmL.GetCatList();
 					if(r_cat_list.getCount()) {
 						const char * p_selected_text = 0;
@@ -2777,11 +2823,12 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 						}
 					}
 				}
+				bool  sbr = false;
+				const int64 scroll_size = p_lor->P_Scrlr ? p_lor->P_Scrlr->GetCount() : 0;
+				uint  debug_active_id = 0; // @debug
 				{
-					ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryScrollbar, "##ProgramScrollbar",
-						view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
+					ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryScrollbar, "##ProgramScrollbar", view_flags);
 					int64 scroll_value = 0;
-					int64 scroll_size = p_lor->P_Scrlr ? p_lor->P_Scrlr->GetCount() : 0;
 					int64 scroll_frame = 1; // @?
 					bool debug_mark = false; // @debug
 					if(scroll_size > 0) {
@@ -2795,13 +2842,19 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 							ImDrawFlags sb_flags = 0;
 							ImRect imr = FRectToImRect(p_lo_sb->GetFrameAdjustedToParent());
 							scroll_value = scrp.ItemIdxCurrent;
-							bool sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags);
+							debug_active_id = GImGui->ActiveId; // @debug
+							// @v11.9.1 {
+							if(PgmGalleryScrollerPosition_Develop.Held && PgmGalleryScrollerPosition_Develop.ActiveCtlId) {
+								ImGui::SetActiveID(PgmGalleryScrollerPosition_Develop.ActiveCtlId, 0);
+							}
+							// } @v11.9.1 
+							sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags|ImGuiWindowFlags_NoInputs);
 							// @v11.8.6 {
 							const ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
-							if(mouse_delta.x != 0.0f) {
+							/*if(mouse_delta.x != 0.0f)*/ {
 								//ScrollWhenDraggingOnVoid(ImVec2(-mouse_delta.x, /*-mouse_delta.y*/0.0f));
 								//static void ScrollWhenDraggingOnVoid(const ImVec2 & rDelta) // @v11.8.6
-								{
+								/*{
 									ImGuiContext & g = *ImGui::GetCurrentContext();
 									ImGuiWindow * p_window = g.CurrentWindow;
 									bool hovered = false;
@@ -2812,18 +2865,26 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 										p_window->Scroll.x += mouse_delta.x;
 										p_window->Scroll.y += mouse_delta.y;
 									}
-								}
+								}*/
 							}
 							// } @v11.8.6
-							if(sbr) {
+							/*if(sbr)*/ {
 								if(scroll_value >= 0) {
 									PgmGalleryScrollerPosition_Develop.ItemIdxCurrent = static_cast<uint>(scroll_value);
 								}
+								PgmGalleryScrollerPosition_Develop.Held = sbr;
+								PgmGalleryScrollerPosition_Develop.ActiveCtlId = sbr ? GImGui->ActiveId : 0;
 								debug_mark = true; // @debug
 							}
 						}
 					}
 					//ImGui::Scrollbar(ImGuiAxis_X);
+				}
+				{
+					debug_info_line.CatEq("active-id", debug_active_id).Space().CatEq("scroll-size", scroll_size).Space().
+						CatEq("item-idx-curr", PgmGalleryScrollerPosition_Develop.ItemIdxCurrent).Space().CatEq("sbr", sbr);
+					ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryDebugInfo, "##ProgramGalleryDebugInfo", view_flags|ImGuiWindowFlags_NoInputs);
+					ImGui::Text(debug_info_line);
 				}
 			}
 		}
@@ -3079,7 +3140,7 @@ void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 	WsCtl_ImGuiSceneBlock::GetLocalCachePath(pic_base_path);
 	pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
 	if(pathValid(pic_base_path, 1)) {
-		rTextureCache.SetBasePath(pic_base_path);
+		//rTextureCache.SetBasePath(pic_base_path);
 		for(uint i = 0; i < rPgmL.getCount(); i++) {
 			WsCtl_ProgramEntry * p_pe = rPgmL.at(i);
 			if(p_pe) {
@@ -3183,7 +3244,28 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			SUiLayout::Param evp;
 			evp.ForceSize.x = sz.x;
 			evp.ForceSize.y = sz.y;
-			if(_screen == screenLogin) {
+			{
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				GetBackgroundFilePath(r_temp_buf);
+				Texture_CachedFileEntity * p_bkg_te = Cache_Texture.Get("background.jpg");
+				if(p_bkg_te && p_bkg_te->P_Texture) {
+					ImGui::GetBackgroundDrawList()->AddImage(p_bkg_te->P_Texture, ImVec2(0.0f, 0.0f), /*ImVec2(400.0f, 400.0f)*/sz);
+				}
+			}
+			if(_screen == screenIntro) { // @v11.9.1
+				//SString & r_temp_buf = SLS.AcquireRvlStr();
+				//GetBackgroundFilePath(r_temp_buf);
+				//Texture_CachedFileEntity * p_bkg_te = Cache_Texture.Get("background.jpg");
+				//if(p_bkg_te && p_bkg_te->P_Texture) {
+					//ImGui::GetBackgroundDrawList()->AddImage(p_bkg_te->P_Texture, ImVec2(0.0f, 0.0f), /*ImVec2(400.0f, 400.0f)*/sz);
+					ImGui::Begin("#intro", 0, ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
+					//ImVec2 sz(400.0f, 400.0f);
+					//ImGui::Image(p_te->P_Texture, sz);
+					//ImGui::GetWindowDrawList()->AddImage(p_te->P_Texture, ImVec2(0.0f, 0.0f), /*ImVec2(400.0f, 400.0f)*/sz);
+					ImGui::End();
+				//}
+			}
+			else if(_screen == screenLogin) {
 				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
 				if(p_tl) {
 					p_tl->Evaluate(&evp);
@@ -3292,7 +3374,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							}
 						}
 						{
-							ImGuiWindowByLayout wbl(&tl, loidSessionProgramGallery, "##PROGRAMGALLERY", view_flags);
+							ImGuiWindowByLayout wbl(&tl, loidSessionProgramGallery, "##PROGRAMGALLERY", view_flags|ImGuiWindowFlags_NoInputs);
 							EmitProgramGallery(wbl, tl);
 							//if(wbl.IsValid()) {
 							//}
@@ -3491,6 +3573,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							if(ImGui::Button("Create profile image...", button_size)) {
 								PolicyL.CreateSystemImage();
 							}
+							if(ImGui::Button("Intro Screen...", button_size)) {
+								SetScreen(screenIntro);
+							}
 						}
 					}
 					{
@@ -3601,8 +3686,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						}
 					}
 					{
-						ImGuiWindowByLayout wbl(&tl, loidTestProgramGallery, "##TestProgramGallery", 
-							view_flags/*|ImGuiWindowFlags_NoMouseInputs|ImGuiWindowFlags_HorizontalScrollbar|ImGuiWindowFlags_AlwaysHorizontalScrollbar*/);
+						ImGuiWindowByLayout wbl(&tl, loidTestProgramGallery, "##TestProgramGallery", view_flags|ImGuiWindowFlags_NoInputs);
 						EmitProgramGallery(wbl, tl);
 					}
 					/*{

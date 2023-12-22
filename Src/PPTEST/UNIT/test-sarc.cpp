@@ -4,10 +4,28 @@
 #include <pp.h>
 #pragma hdrstop
 
+/*static void GetUniqArcFileName(uint64 uedDataFormat, SString & rBuf)
+{
+	rBuf.Z();
+	SString temp_buf;
+	SLS.QueryPath("testroot", temp_buf);
+	long _c = 0;
+	do {
+		(rBuf = temp_buf).SetLastSlash().Cat("out").SetLastSlash().Cat("TestArchive");
+		if(_c) {
+			rBuf.CatChar('-').Cat(_c);
+		}
+		rBuf.Dot().Cat("7z");
+		_c++;
+	} while(fileExists(rBuf));
+}*/
+
 SLTEST_R(SArchive)
 {
 	SString temp_buf;
 	SString arc_name;
+	StrAssocArray deflate_result_list;
+	StrAssocArray inflate_result_list;
 	{
 		int   r;
 		//SArchive arc(SArchive::providerLA);
@@ -84,6 +102,10 @@ SLTEST_R(SArchive)
 					} while(SFile::IsDir(temp_buf));
 					SFile::CreateDir(temp_buf);
 					SArchive::InflateAll(SArchive::providerLA, arc_name, 0, temp_buf);
+					{
+						SDirecDiffPool ddp;
+						ddp.Run(temp_buf, 0);
+					}
 				}
 				{
 					long   _cntr = 0;

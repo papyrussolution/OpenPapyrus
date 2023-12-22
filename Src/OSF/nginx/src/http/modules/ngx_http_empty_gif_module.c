@@ -15,7 +15,7 @@ static ngx_command_t ngx_http_empty_gif_commands[] = {
 
 // the minimal single pixel transparent GIF, 43 bytes 
 
-static u_char ngx_empty_gif[] = {
+static uchar ngx_empty_gif[] = {
 	'G', 'I', 'F', '8', '9', 'a', // header                                 
 	// logical screen descriptor              
 	0x01, 0x00, // logical screen width                   

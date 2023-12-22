@@ -57,14 +57,14 @@ char * ngx_syslog_process_conf(ngx_conf_t * cf, ngx_syslog_peer_t * peer)
 
 static char * ngx_syslog_parse_args(ngx_conf_t * cf, ngx_syslog_peer_t * peer)
 {
-	u_char * comma, c;
+	uchar * comma, c;
 	size_t len;
 	ngx_url_t u;
 	ngx_uint_t i;
 	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
-	u_char * p = value[1].data + sizeof("syslog:") - 1;
+	uchar * p = value[1].data + sizeof("syslog:") - 1;
 	for(;;) {
-		comma = (u_char *)ngx_strchr(p, ',');
+		comma = (uchar *)ngx_strchr(p, ',');
 		if(comma) {
 			len = comma - p;
 			*comma = '\0';
@@ -131,7 +131,7 @@ static char * ngx_syslog_parse_args(ngx_conf_t * cf, ngx_syslog_peer_t * peer)
 				return NGX_CONF_ERROR;
 			}
 			for(i = 4; i < len; i++) {
-				c = ngx_tolower(p[i]);
+				c = stolower_ascii(p[i]);
 				if(c < '0' || (c > '9' && c < 'a' && c != '_') || c > 'z') {
 					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "syslog \"tag\" only allows alphanumeric characters and underscore");
 					return NGX_CONF_ERROR;
@@ -156,7 +156,7 @@ next:
 	return NGX_CONF_OK;
 }
 
-u_char * ngx_syslog_add_header(ngx_syslog_peer_t * peer, u_char * buf)
+uchar * ngx_syslog_add_header(ngx_syslog_peer_t * peer, uchar * buf)
 {
 	ngx_uint_t pri = peer->facility * 8 + peer->severity;
 	if(peer->nohostname) {
@@ -165,9 +165,9 @@ u_char * ngx_syslog_add_header(ngx_syslog_peer_t * peer, u_char * buf)
 	return ngx_sprintf(buf, "<%ui>%V %V %V: ", pri, &ngx_cached_syslog_time, &ngx_cycle->hostname, &peer->tag);
 }
 
-void ngx_syslog_writer(ngx_log_t * log, ngx_uint_t level, u_char * buf, size_t len)
+void ngx_syslog_writer(ngx_log_t * log, ngx_uint_t level, uchar * buf, size_t len)
 {
-	u_char * p, msg[NGX_SYSLOG_MAX_STR];
+	uchar * p, msg[NGX_SYSLOG_MAX_STR];
 	ngx_uint_t head_len;
 	ngx_syslog_peer_t * peer = (ngx_syslog_peer_t *)log->wdata;
 	if(!peer->busy) {
@@ -185,7 +185,7 @@ void ngx_syslog_writer(ngx_log_t * log, ngx_uint_t level, u_char * buf, size_t l
 	}
 }
 
-ssize_t ngx_syslog_send(ngx_syslog_peer_t * peer, u_char * buf, size_t len)
+ssize_t ngx_syslog_send(ngx_syslog_peer_t * peer, uchar * buf, size_t len)
 {
 	ssize_t n;
 	if(peer->conn.fd == (ngx_socket_t)-1) {

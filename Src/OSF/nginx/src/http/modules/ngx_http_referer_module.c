@@ -72,12 +72,12 @@ ngx_module_t ngx_http_referer_module = {
 static ngx_int_t ngx_http_referer_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v,
     uintptr_t data)
 {
-	u_char  * p, * ref, * last;
+	uchar  * p, * ref, * last;
 	size_t len;
 	ngx_str_t * uri;
 	ngx_uint_t i, key;
 	ngx_http_referer_conf_t * rlcf;
-	u_char buf[256];
+	uchar buf[256];
 #if (NGX_PCRE)
 	ngx_int_t rc;
 	ngx_str_t referer;
@@ -100,12 +100,12 @@ static ngx_int_t ngx_http_referer_variable(ngx_http_request_t * r, ngx_http_vari
 	ref = r->headers_in.referer->value.data;
 	if(len >= sizeof("http://i.ru") - 1) {
 		last = ref + len;
-		if(ngx_strncasecmp(ref, (u_char *)"http://", 7) == 0) {
+		if(ngx_strncasecmp(ref, (uchar *)"http://", 7) == 0) {
 			ref += 7;
 			len -= 7;
 			goto valid_scheme;
 		}
-		else if(ngx_strncasecmp(ref, (u_char *)"https://", 8) == 0) {
+		else if(ngx_strncasecmp(ref, (uchar *)"https://", 8) == 0) {
 			ref += 8;
 			len -= 8;
 			goto valid_scheme;
@@ -127,7 +127,7 @@ valid_scheme:
 			goto invalid;
 		}
 
-		buf[i] = ngx_tolower(*p);
+		buf[i] = stolower_ascii(*p);
 		key = ngx_hash(key, buf[i++]);
 	}
 	uri = (ngx_str_t *)ngx_hash_find_combined(&rlcf->hash, key, buf, p - ref);
@@ -311,7 +311,7 @@ static char * ngx_http_referer_merge_conf(ngx_conf_t * cf, void * parent, void *
 static const char * ngx_http_valid_referers(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_referer_conf_t  * rlcf = (ngx_http_referer_conf_t *)conf;
-	u_char  * p;
+	uchar  * p;
 	ngx_str_t * value, uri, name;
 	ngx_uint_t i;
 	ngx_http_variable_t  * var;
@@ -357,7 +357,7 @@ static const char * ngx_http_valid_referers(ngx_conf_t * cf, const ngx_command_t
 			continue;
 		}
 		ngx_str_null(&uri);
-		p = (u_char *)ngx_strchr(value[i].data, '/');
+		p = (uchar *)ngx_strchr(value[i].data, '/');
 		if(p) {
 			uri.len = (value[i].data + value[i].len) - p;
 			uri.data = p;
@@ -402,7 +402,7 @@ static ngx_int_t ngx_http_add_regex_referer(ngx_conf_t * cf, ngx_http_referer_co
 #if (NGX_PCRE)
 	ngx_regex_elt_t * re;
 	ngx_regex_compile_t rc;
-	u_char errstr[NGX_MAX_CONF_ERRSTR];
+	uchar errstr[NGX_MAX_CONF_ERRSTR];
 	if(name->len == 1) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "empty regex in \"%V\"", name);
 		return NGX_ERROR;

@@ -4080,3 +4080,137 @@ SLTEST_R(FormatInt)
 	}
 	return CurrentStatus;
 }
+
+class SlTestFixtureAtoi {
+public:
+	SlTestFixtureAtoi()
+	{
+		{
+			for(uint i = 0; i < 1000; i++) {
+				uint64 v = static_cast<uint64>(i);
+				SString * p_new_entry = L.CreateNewItem();
+				assert(p_new_entry);
+				p_new_entry->Cat(v);
+			}
+		}
+		{
+			for(uint i = 1000; i < 10000000; i++) {
+				uint64 v = i * 713ULL;
+				SString * p_new_entry = L.CreateNewItem();
+				assert(p_new_entry);
+				p_new_entry->Cat(v);
+			}
+		}
+	}
+	TSCollection <SString> L;
+};
+
+SLTEST_FIXTURE(atoi, SlTestFixtureAtoi)
+{
+	// benchmark=atoi;satoi;texttodec1;texttodec2
+	if(isempty(pBenchmark)) {
+		SStringU temp_buf_u;
+		{
+			const char * pp_list[] = {
+				"0", "-1 ", "1", " 1000000000000001", " -70003394398439", " -3", "-17a", "    49999900000x"
+			};
+			for(uint i = 0; i < SIZEOFARRAY(pp_list); i++) {
+				const char * p_str = pp_list[i];
+				int64 a1 = _atoi64(p_str);
+				int64 a2 = satoi64(p_str);
+				SLCHECK_EQ(a1, a2);
+				const bool ucr = temp_buf_u.CopyFromUtf8Strict(p_str, sstrlen(p_str));
+				if(ucr) {
+					int64 a3 = satoi64(temp_buf_u);
+					SLCHECK_EQ(a1, a3);
+				}
+			}
+		}
+		{
+			const char* pp_list[] = {
+				"0", "-1 ", "1", " 10000001", "-394398439", "-3", " -17a", "  4999900x"
+			};
+			for(uint i = 0; i < SIZEOFARRAY(pp_list); i++) {
+				const char* p_str = pp_list[i];
+				int a1 = atoi(p_str);
+				int a2 = satoi(p_str);
+				SLCHECK_EQ(a1, a2);
+				const bool ucr = temp_buf_u.CopyFromUtf8Strict(p_str, sstrlen(p_str));
+				if(ucr) {
+					int a3 = satoi(temp_buf_u);
+					SLCHECK_EQ(a1, a3);
+				}
+			}
+		}
+		{
+			for(uint i = 0; i < F.L.getCount(); i++) {
+				const SString * p_item = F.L.at(i);
+				int64 a1 = _atoi64(*p_item);
+				int64 a2 = satoi64(*p_item);
+				SLCHECK_EQ(a1, a2);
+				{
+					const bool ucr = temp_buf_u.CopyFromUtf8(*p_item);
+					if(ucr) {
+						int64 a3 = satoi64(temp_buf_u);
+						SLCHECK_EQ(a1, a3);
+					}
+				}
+				if(HiDWord(a1) == 0 && !(LoDWord(a1) & 0x80000000U)) {
+					int i1 = atoi(*p_item);
+					int i2 = satoi(*p_item);
+					SLCHECK_EQ(i1, i2);
+					{
+						const bool ucr = temp_buf_u.CopyFromUtf8(*p_item);
+						if(ucr) {
+							int i3 = satoi(temp_buf_u);
+							SLCHECK_EQ(i1, i3);
+						}
+					}
+				}
+			}
+		}
+		{
+			for(uint i = 0; i < F.L.getCount(); i++) {
+				const SString * p_item = F.L.at(i);
+				uint64 a1 = _texttodec64(*p_item, p_item->Len());
+				uint64 a2 = _texttodec64_2(*p_item, p_item->Len());
+				SLCHECK_EQ(a1, a2);
+			}
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "atoi")) {
+		int64 s = 0;
+		for(uint i = 0; i < F.L.getCount(); i++) {
+			const SString * p_item = F.L.at(i);
+			int64 a1 = _atoi64(*p_item);
+			//int64 a2 = satoi64(*p_item);
+			s += a1;
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "satoi")) {
+		int64 s = 0;
+		for(uint i = 0; i < F.L.getCount(); i++) {
+			const SString * p_item = F.L.at(i);
+			//int64 a1 = _atoi64(*p_item);
+			int64 a2 = satoi64(*p_item);
+			s += a2;
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "texttodec1")) {
+		uint64 s = 0;
+		for(uint i = 0; i < F.L.getCount(); i++) {
+			const SString * p_item = F.L.at(i);
+			uint64 a = _texttodec64(*p_item, p_item->Len());
+			s += a;
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "texttodec2")) {
+		uint64 s = 0;
+		for(uint i = 0; i < F.L.getCount(); i++) {
+			const SString * p_item = F.L.at(i);
+			uint64 a = _texttodec64_2(*p_item, p_item->Len());
+			s += a;
+		}
+	}
+	return CurrentStatus;
+}

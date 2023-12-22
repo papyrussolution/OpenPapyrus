@@ -37,7 +37,7 @@ X509 * X509_REQ_to_X509(X509_REQ * r, int days, EVP_PKEY * pkey)
 		goto err;
 	if(X509_gmtime_adj(xi->validity.notBefore, 0) == NULL)
 		goto err;
-	if(X509_gmtime_adj(xi->validity.notAfter, (long)SSECSPERDAY * days) == NULL)
+	if(X509_gmtime_adj(xi->validity.notAfter, SlConst::SecsPerDay * days) == NULL)
 		goto err;
 	pubkey = X509_REQ_get0_pubkey(r);
 	if(pubkey == NULL || !X509_set_pubkey(ret, pubkey))

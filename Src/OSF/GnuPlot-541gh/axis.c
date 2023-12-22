@@ -406,22 +406,22 @@ static double make_auto_time_minitics(t_timelevel tlevel, double incr)
 			    tinc = 3 * 3600;
 		    if(incr > 13 * 3600)
 			    tinc = 6 * 3600;
-		    if(incr > SSECSPERDAYr)
+		    if(incr > SlConst::SecsPerDayR)
 			    tinc = 12 * 3600;
-		    if(incr > 2 * SSECSPERDAYr)
-			    tinc = SSECSPERDAYr;
+		    if(incr > 2 * SlConst::SecsPerDayR)
+			    tinc = SlConst::SecsPerDayR;
 		    break;
 		case TIMELEVEL_WEEKS:
-		    if(incr > 2 * SSECSPERDAYr)
-			    tinc = SSECSPERDAYr;
-		    if(incr > 7 * SSECSPERDAYr)
-			    tinc = 7 * SSECSPERDAYr;
+		    if(incr > 2 * SlConst::SecsPerDayR)
+			    tinc = SlConst::SecsPerDayR;
+		    if(incr > 7 * SlConst::SecsPerDayR)
+			    tinc = 7 * SlConst::SecsPerDayR;
 		    break;
 		case TIMELEVEL_MONTHS:
-		    if(incr > 2 * SSECSPERDAYr)
-			    tinc = SSECSPERDAYr;
-		    if(incr > 15 * SSECSPERDAYr)
-			    tinc = 10 * SSECSPERDAYr;
+		    if(incr > 2 * SlConst::SecsPerDayR)
+			    tinc = SlConst::SecsPerDayR;
+		    if(incr > 15 * SlConst::SecsPerDayR)
+			    tinc = 10 * SlConst::SecsPerDayR;
 		    if(incr > 2 * MON_SEC)
 			    tinc = MON_SEC;
 		    if(incr > 6 * MON_SEC)
@@ -656,11 +656,11 @@ static double quantize_time_tics(GpAxis * pAx, double tic, double xr, int guide)
 	}
 	if(tic > 3600) {
 		// turn tic into units of days 
-		tic = quantize_duodecimal_tics(xr / SSECSPERDAYr, guide12) * SSECSPERDAYr;
-		if(tic >= SSECSPERDAYr)
+		tic = quantize_duodecimal_tics(xr / SlConst::SecsPerDayR, guide12) * SlConst::SecsPerDayR;
+		if(tic >= SlConst::SecsPerDayR)
 			pAx->timelevel = TIMELEVEL_DAYS;
 	}
-	if(tic > 2 * SSECSPERDAYr) {
+	if(tic > 2 * SlConst::SecsPerDayR) {
 		// turn tic into units of weeks 
 		tic = quantize_normal_tics(xr / WEEK_SEC, guide) * WEEK_SEC;
 		if(tic < WEEK_SEC) { /* force */

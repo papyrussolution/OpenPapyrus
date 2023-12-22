@@ -3483,7 +3483,7 @@ void Calendar::setWeekData(const Locale & desiredLocale, const char * type, UErr
 	fWeekendOnset = UCAL_SATURDAY;
 	fWeekendOnsetMillis = 0;
 	fWeekendCease = UCAL_SUNDAY;
-	fWeekendCeaseMillis = SSECSPERDAY * 1000; // 24*60*60*1000
+	fWeekendCeaseMillis = SlConst::SecsPerDay * 1000; // 24*60*60*1000
 	// Since week and weekend data is territory based instead of language based,
 	// we may need to tweak the locale that we are using to try to get the appropriate
 	// values, using the following logic:

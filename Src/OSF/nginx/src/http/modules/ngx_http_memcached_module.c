@@ -91,7 +91,7 @@ ngx_module_t ngx_http_memcached_module = {
 static ngx_str_t ngx_http_memcached_key = ngx_string("memcached_key");
 
 #define NGX_HTTP_MEMCACHED_END   (sizeof(ngx_http_memcached_end) - 1)
-static u_char ngx_http_memcached_end[] = CRLF "END" CRLF;
+static uchar ngx_http_memcached_end[] = CRLF "END" CRLF;
 
 static ngx_int_t ngx_http_memcached_handler(ngx_http_request_t * pReq)
 {
@@ -171,7 +171,7 @@ static ngx_int_t ngx_http_memcached_create_request(ngx_http_request_t * pReq)
 			b->last = ngx_copy(b->last, vv->data, vv->len);
 		}
 		else {
-			b->last = (u_char *)ngx_escape_uri(b->last, vv->data, vv->len, NGX_ESCAPE_MEMCACHED);
+			b->last = (uchar *)ngx_escape_uri(b->last, vv->data, vv->len, NGX_ESCAPE_MEMCACHED);
 		}
 		ctx->key.len = b->last - ctx->key.data;
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pReq->connection->log, 0, "http memcached request: \"%V\"", &ctx->key);
@@ -187,7 +187,7 @@ static ngx_int_t ngx_http_memcached_reinit_request(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_memcached_process_header(ngx_http_request_t * r)
 {
-	u_char * p, * start;
+	uchar * p, * start;
 	ngx_str_t line;
 	ngx_uint_t flags;
 	ngx_table_elt_t  * h;
@@ -299,7 +299,7 @@ static ngx_int_t ngx_http_memcached_filter_init(void * data)
 static ngx_int_t ngx_http_memcached_filter(void * data, ssize_t bytes)
 {
 	ngx_http_memcached_ctx_t  * ctx = (ngx_http_memcached_ctx_t *)data;
-	u_char * last;
+	uchar * last;
 	ngx_chain_t   * cl, ** ll;
 	ngx_http_upstream_t  * u = ctx->request->upstream;
 	ngx_buf_t * b = &u->buffer;

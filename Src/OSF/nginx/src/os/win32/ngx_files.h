@@ -13,7 +13,7 @@ typedef BY_HANDLE_FILE_INFORMATION ngx_file_info_t;
 typedef uint64_t ngx_file_uniq_t;
 
 typedef struct {
-	u_char * name;
+	uchar * name;
 	size_t size;
 	void * addr;
 	ngx_fd_t fd;
@@ -35,7 +35,7 @@ typedef struct {
 	unsigned ready : 1;
 	unsigned test : 1;
 	unsigned no_match : 1;
-	u_char * pattern;
+	uchar * pattern;
 	ngx_str_t name;
 	size_t last;
 	ngx_log_t * log;
@@ -52,7 +52,7 @@ typedef struct {
 #define NGX_INVALID_FILE            INVALID_HANDLE_VALUE
 #define NGX_FILE_ERROR              0
 
-ngx_fd_t ngx_open_file(u_char * name, u_long mode, u_long create, u_long access);
+ngx_fd_t ngx_open_file(uchar * name, ulong mode, ulong create, ulong access);
 
 #define ngx_open_file_n             "CreateFile()"
 #define NGX_FILE_RDONLY             GENERIC_READ
@@ -93,10 +93,10 @@ ssize_t ngx_write_console(ngx_fd_t fd, const void * buf, size_t size);
 #define ngx_rename_file_n           "MoveFile()"
 ngx_err_t ngx_win32_rename_file(ngx_str_t * from, ngx_str_t * to, ngx_log_t * log);
 
-ngx_int_t ngx_set_file_time(u_char * name, ngx_fd_t fd, time_t s);
+ngx_int_t ngx_set_file_time(uchar * name, ngx_fd_t fd, time_t s);
 #define ngx_set_file_time_n         "SetFileTime()"
 
-ngx_int_t ngx_file_info(u_char * filename, ngx_file_info_t * fi);
+ngx_int_t ngx_file_info(uchar * filename, ngx_file_info_t * fi);
 #define ngx_file_info_n             "GetFileAttributesEx()"
 
 #define ngx_fd_info(fd, fi)         GetFileInformationByHandle(fd, fi)
@@ -122,7 +122,7 @@ ngx_int_t ngx_file_info(u_char * filename, ngx_file_info_t * fi);
 ngx_int_t ngx_create_file_mapping(ngx_file_mapping_t * fm);
 void ngx_close_file_mapping(ngx_file_mapping_t * fm);
 
-u_char * ngx_realpath(u_char * path, u_char * resolved);
+uchar * ngx_realpath(uchar * path, uchar * resolved);
 #define ngx_realpath_n              ""
 #define ngx_getcwd(buf, size)       GetCurrentDirectoryA(size, reinterpret_cast<char *>(buf)) // @v10.3.11 GetCurrentDirectory-->GetCurrentDirectoryA
 #define ngx_getcwd_n                "GetCurrentDirectory()"
@@ -131,7 +131,7 @@ u_char * ngx_realpath(u_char * path, u_char * resolved);
 #define NGX_HAVE_MAX_PATH           1
 #define NGX_MAX_PATH                MAX_PATH
 
-#define NGX_DIR_MASK                (u_char *)"/*"
+#define NGX_DIR_MASK                (uchar *)"/*"
 #define NGX_DIR_MASK_LEN            2
 
 ngx_int_t ngx_open_dir(ngx_str_t * name, ngx_dir_t * dir);
@@ -151,13 +151,13 @@ ngx_int_t ngx_close_dir(ngx_dir_t * dir);
 
 #define ngx_dir_access(a)           (a)
 
-#define ngx_de_name(dir)            ((u_char *)(dir)->finddata.cFileName)
+#define ngx_de_name(dir)            ((uchar *)(dir)->finddata.cFileName)
 #define ngx_de_namelen(dir)         ngx_strlen((dir)->finddata.cFileName)
 
-ngx_int_t ngx_de_info(u_char * name, ngx_dir_t * dir);
+ngx_int_t ngx_de_info(uchar * name, ngx_dir_t * dir);
 #define ngx_de_info_n               "dummy()"
 
-ngx_int_t ngx_de_link_info(u_char * name, ngx_dir_t * dir);
+ngx_int_t ngx_de_link_info(uchar * name, ngx_dir_t * dir);
 #define ngx_de_link_info_n          "dummy()"
 
 #define ngx_de_is_dir(dir)						     \
@@ -180,10 +180,10 @@ ngx_int_t ngx_open_glob(ngx_glob_t * gl);
 ngx_int_t ngx_read_glob(ngx_glob_t * gl, ngx_str_t * name);
 void ngx_close_glob(ngx_glob_t * gl);
 
-ssize_t ngx_read_file(ngx_file_t * file, u_char * buf, size_t size, nginx_off_t offset);
+ssize_t ngx_read_file(ngx_file_t * file, uchar * buf, size_t size, nginx_off_t offset);
 #define ngx_read_file_n             "ReadFile()"
 
-ssize_t ngx_write_file(ngx_file_t * file, u_char * buf, size_t size, nginx_off_t offset);
+ssize_t ngx_write_file(ngx_file_t * file, uchar * buf, size_t size, nginx_off_t offset);
 ssize_t ngx_write_chain_to_file(ngx_file_t * file, ngx_chain_t * ce, nginx_off_t offset, ngx_pool_t * pool);
 
 ngx_int_t ngx_read_ahead(ngx_fd_t fd, size_t n);
@@ -195,7 +195,7 @@ ngx_int_t ngx_directio_on(ngx_fd_t fd);
 ngx_int_t ngx_directio_off(ngx_fd_t fd);
 #define ngx_directio_off_n          "ngx_directio_off_n"
 
-size_t ngx_fs_bsize(u_char * name);
+size_t ngx_fs_bsize(uchar * name);
 
 #define ngx_stdout               GetStdHandle(STD_OUTPUT_HANDLE)
 #define ngx_stderr               GetStdHandle(STD_ERROR_HANDLE)

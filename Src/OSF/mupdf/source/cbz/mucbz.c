@@ -42,41 +42,36 @@ typedef struct {
 	const char ** page;
 } cbz_document;
 
-static inline int cbz_isdigit(int c)
-{
-	return c >= '0' && c <= '9';
-}
+//static inline int cbz_isdigit(int c) { return c >= '0' && c <= '9'; }
 
-static inline int cbz_toupper(int c)
+/*static inline int cbz_toupper(int c)
 {
 	if(c >= 'a' && c <= 'z')
 		return c - 'a' + 'A';
 	return c;
-}
+}*/
 
 static inline int cbz_strnatcmp(const char * a, const char * b)
 {
 	int x, y;
-
 	while(*a || *b) {
-		if(cbz_isdigit(*a) && cbz_isdigit(*b)) {
+		if(isdec(*a) && isdec(*b)) {
 			x = *a++ - '0';
-			while(cbz_isdigit(*a))
+			while(isdec(*a))
 				x = x * 10 + *a++ - '0';
 			y = *b++ - '0';
-			while(cbz_isdigit(*b))
+			while(isdec(*b))
 				y = y * 10 + *b++ - '0';
 		}
 		else {
-			x = cbz_toupper(*a++);
-			y = cbz_toupper(*b++);
+			x = stoupper_ascii(*a++);
+			y = stoupper_ascii(*b++);
 		}
 		if(x < y)
 			return -1;
 		if(x > y)
 			return 1;
 	}
-
 	return 0;
 }
 
@@ -88,13 +83,10 @@ static int cbz_compare_page_names(const void * a, const void * b)
 static void cbz_create_page_list(fz_context * ctx, cbz_document * doc)
 {
 	fz_archive * arch = doc->arch;
-	int i, k, count;
-
-	count = fz_count_archive_entries(ctx, arch);
-
+	int i, k;
+	int count = fz_count_archive_entries(ctx, arch);
 	doc->page_count = 0;
 	doc->page = fz_malloc_array(ctx, count, const char *);
-
 	for(i = 0; i < count; i++) {
 		const char * name = fz_list_archive_entry(ctx, arch, i);
 		const char * ext = name ? strrchr(name, '.') : NULL;
@@ -105,7 +97,6 @@ static void cbz_create_page_list(fz_context * ctx, cbz_document * doc)
 			}
 		}
 	}
-
 	qsort((char**)doc->page, doc->page_count, sizeof *doc->page, cbz_compare_page_names);
 }
 

@@ -10,7 +10,7 @@
 
 static void ngx_shmtx_wakeup(ngx_shmtx_t * mtx);
 
-ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, u_char * name)
+ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, uchar * name)
 {
 	mtx->lock = &addr->lock;
 	if(mtx->spin == (ngx_uint_t)-1) {
@@ -132,7 +132,7 @@ static void ngx_shmtx_wakeup(ngx_shmtx_t * mtx)
 
 #else
 
-ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, u_char * name)
+ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, uchar * name)
 {
 	if(mtx->name) {
 		if(ngx_strcmp(name, mtx->name) == 0) {

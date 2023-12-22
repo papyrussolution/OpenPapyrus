@@ -476,7 +476,7 @@ HRESULT CArc::GetItemPathToParent(uint32 index, uint32 parent, UStringVector &pa
 	UString s;
 	bool prevWasAltStream = false;
 	for(;;) {
-    #ifdef MY_CPU_LE
+    #if defined(SL_LITTLEENDIAN)
 		const void * p;
 		uint32 size;
 		uint32 propType;
@@ -532,7 +532,7 @@ HRESULT CArc::GetItemPathToParent(uint32 index, uint32 parent, UStringVector &pa
 
 HRESULT CArc::GetItemPath(uint32 index, UString &result) const
 {
-  #ifdef MY_CPU_LE
+  #if defined(SL_LITTLEENDIAN)
 	if(GetRawProps) {
 		const void * p;
 		uint32 size;
@@ -564,7 +564,6 @@ HRESULT CArc::GetItemPath(uint32 index, UString &result) const
 		   size -= 2;
 		   uint32 totalSize = size;
 		   bool isOK = false;
-
 		   {
 		    uint32 index2 = index;
 		    for(;;)

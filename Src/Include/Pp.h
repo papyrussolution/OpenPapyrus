@@ -7564,6 +7564,18 @@ public:
 	int    GetHostAvailability(const char * pHost); // @v11.1.2
 	int    Stq_GetBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi);
 	int    Stq_PutBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi);
+	//
+	// Descr: Функция копирует список адресов прослушивания сервера либо в this (dir>0), либо из this во внешний
+	//   источник (dir<0).
+	// Note: Функция не разделена на set/get для того, чтобы избежать создания отдельного mutex'а.
+	//   Используется эта функция пару раз и городить огород смысла нет.
+	// Returns:
+	//   >0 - скопирован по крайней мере один элемен
+	//   <0 - nothing to do
+	//    0 - error
+	//
+	int    TransferIpServerListeningList(int kind/* 1 - papyrus, 2 - nginx */, int dir/* >0 - set, <0 - get*/, TSCollection <IpServerListeningEntry> & rList);
+	bool   RunNginxServerThread(bool forceReboot);
 private:
 	int    Helper_SetPath(int pathId, SString & rPath);
 	int    MakeMachineID(MACAddr * pMachineID);
@@ -7602,6 +7614,9 @@ private:
 	PPDriveMapping DrvMap;
 	ObjIdentBlock * P_ObjIdentBlk;
 	PPLogMsgQueue * P_LogQueue;
+	// Следущие 2 поля заведены для нужд авто-мониторинга
+	TSCollection <IpServerListeningEntry> SleList_Nginx; // @v11.9.1 Адреса прослушивания серверного потока nginx
+	TSCollection <IpServerListeningEntry> SleList_Server; // @v11.9.1 Адреса прослушивания серверного потока Papyrus (по факту - не более одного)
 	//
 	enum {
 		stSrStxInvalid = 0x0001 // Флаг, сигнализирующий о том, что при первой попытке инициализировать
@@ -7642,6 +7657,10 @@ private:
 		int    STDCALL  GetInfo(ThreadID tId, PPThread::Info & rInfo);
 		void   FASTCALL LocStkToStr(SString & rBuf);
 		int    FASTCALL StopThread(ThreadID tId);
+		//
+		// Descr: "Грубо" останавливает поток с идентификатором tId
+		//
+		int    FASTCALL AbortThread(ThreadID tId);
 		PPThread * FASTCALL SearchById(ThreadID tId);
 		PPThread * FASTCALL SearchBySessId(int32 sessId);
 		//
@@ -42831,7 +42850,7 @@ private:
 // @ModuleDecl(PPViewCCheck)
 //   Анализ кассовых чеков
 //
-class CCheckFilt : public PPBaseFilt { // @persistent
+class CCheckFilt : public PPBaseFilt, public PPExtStrContainer { // @persistent // @v11.9.1 (public PPExtStrContainer) 
 public:
 	enum Grouping {
 		gNone = 0,        //
@@ -42861,10 +42880,11 @@ public:
 		gAmountNGoods,    //
 		gAgentGoodsSCSer, // @v9.6.6 Группировать по агентам, товарам и сериям карт
 		gGoodsDateSerial, // @v10.2.6 Группировать по товару/дате/серийному номеру
-		gGoodsCard        // @erik v10.5.2 Группировка по товару и картам
+		gGoodsCard,       // @erik v10.5.2 Группировка по товару и картам
+		gLnMark           // @v11.9.1 Группировать по маркам в строках чеков
 	};
 	enum {
-		fZeroSess = 0x00000001, // Чеки по неопределенным кассовым сессиям
+		fZeroSess         = 0x00000001, // Чеки по неопределенным кассовым сессиям
 		fActiveSess       = 0x00000002, // Чеки активной синхронной кассовой сессии
 			// Допускается добавление и удаление чеков через кассовую панель.
 		fCheckLines       = 0x00000004, // Просматривать строки чеков (для группировки по товарам)
@@ -42872,36 +42892,39 @@ public:
 			// SessIDList содержит одну сессию и Flags & CCheckFilt::fActiveSess, то сразу открывается панель ввода чеков.
 		fShowSuspended    = 0x00000010, // Показывать отложенные
 		fSuspendedOnly    = 0x00000020, // Только отложенные
-		fRetOnly  = 0x00000040, // Показывать только возвраты
-		fJunkOnly = 0x00000080, // Только отложенные чеки, которые были загружены в панель чеков.
+		fRetOnly          = 0x00000040, // Показывать только возвраты
+		fJunkOnly         = 0x00000080, // Только отложенные чеки, которые были загружены в панель чеков.
 			// Если панель аварийно завершила работу, то этот чек зависнет.
 		fFillCashNodeID   = 0x00000100, // заполнять поле CashNodeID
 		fNotPrintedOnly   = 0x00000200, // Показывать только ненапечатанные чеки
-		fCashOnly = 0x00000400, // Только чеки, проведенные за наличные
+		fCashOnly         = 0x00000400, // Только чеки, проведенные за наличные
 		fBankingOnly      = 0x00000800, // Только чеки, проведенные по безналичной оплате
 		fDontCount        = 0x00001000, // Функция InitIteration не должна рассчитывать общее количество итераций (ради экономии времени)
 		fGoodsCorr        = 0x00002000, // Просмотр корреляции товаров
 		fFiltByCheck      = 0x00004000, // Фильтрация по AmtR, QttyR, PcntR на весь чек, а не по строкам
 		fInitLinesCount   = 0x00008000, // Инициализировать в CCheckViewItem количество строк в чеке
-		fGiftOnly = 0x00010000, // CCHKF_HASGIFT Только по чекам, имеющим признак CCHKF_HASGIFT
+		fGiftOnly         = 0x00010000, // CCHKF_HASGIFT Только по чекам, имеющим признак CCHKF_HASGIFT
 		fOrderOnly        = 0x00020000, // CCHKF_ORDER   Только чеки заказов
 		fCTableStatus     = 0x00040000, // Специальный флаг, необходимый для извлечения чеков, которые определяют статус занятости столов
 		fCalcSkuStat      = 0x00080000, // Подсчитывать статистику по строкам чеков
 		fWithoutSkipTag   = 0x00100000, // Пропускать чеки, имеющие признак CCHKF_SKIP
-		fDlvrOnly = 0x00200000, // Только чеки с доставкой
+		fDlvrOnly         = 0x00200000, // Только чеки с доставкой
 		fDlvrOutstandOnly = 0x00400000, // Только отложенные неисполенные
 		fStartOrderPeriod = 0x00800000, // Поле Period трактуется как период времени начала обслуживания по чеку
 		fShowSrvcDuration = 0x01000000, // Отображать продолжительность обслуживания по чеку
 		fZeroDlvrAddr     = 0x02000000, // Только с пустым адресом доставки
-		fInner    = 0x04000000, // @internal
+		fInner            = 0x04000000, // @internal
 		fLostJunkAsSusp   = 0x08000000, // Специальный флаг, предписывающий отбирать чеки, имеющие признак CCHKF_JUNK,
 			// получившие такой признак аварийно завершенной сессией. UUID'ы незавершенных сессий извлекаются из реестра по ключу
 			// HKEY_CURRENT_USER\\Software\\Papyrus\\Sessions
 			// UUID сессии, присвоившей чеки признак CCHKF_JUNK извлекается из зарезервированного тэга чека PPTAG_CCHECK_JS_UUID
 		fPrintDetail      = 0x10000000, // По умолчанию печатать детализированный отчет по структуре CCheckViewDetail
 		fNotSpFinished    = 0x20000000, // На чеке не установлен флаг CCHKF_SPFINISHED
-		fAvoidExt = 0x40000000, // @v10.2.1 По возможности избегать чтения расширенных данных чека для улучшения производительности
+		fAvoidExt         = 0x40000000, // @v10.2.1 По возможности избегать чтения расширенных данных чека для улучшения производительности
 		fWithMarkOnly     = 0x80000000  // @v11.0.0 Только чеки, среди строк которых имеются маркированные
+	};
+	enum { // @v11.9.1
+		f2ImportedOnly    = 0x00000001 // @v11.9.1 Только импортированные чеки (в записи установлен флаг CCHKF_IMPORTED)
 	};
 	enum {
 		ctNone = 0,
@@ -42928,7 +42951,7 @@ public:
 	int    HasExtFiltering() const
 		{ return BIN(AgentID || TableCode || CreationUserID || GuestCount > 0 || (Flags & fStartOrderPeriod && !Period.IsZero()) || (DlvrAddrID || Flags & fZeroDlvrAddr)); }
 
-	uint8  ReserveStart[4]; // @#0 !Использовать начиная со старших адресов // @v10.7.3 [8]-->[4]
+	uint8  ReserveStart[16]; // @#0 !Использовать начиная со старших адресов // @v10.7.3 [8]-->[4] // @v11.9.1 [4]-->[16]
 	PPID   CreationUserID;   // @v10.7.3
 	uint32 CountOfLastItems; // @v10.2.1 Специализированный критерий, предписывающий извлекать не более CountOfLastItems
 		// последних чеков выборки. Нужен для оптимизации информационных списков, где полная выборка менее важна,
@@ -42950,6 +42973,7 @@ public:
 	uint8  Reserve;          // @alignment // @v10.0.02 uint16-->uint8
 	long   CashNumber;       //
 	long   Flags;            //
+	long   Flags2;           // @v11.9.1
 	PPID   GoodsGrpID;       //
 	PPID   GoodsID;          // ->Goods2.ID
 	PPID   SCardSerID;       //

@@ -175,18 +175,18 @@ namespace ZXing::BitHacks {
 	#endif
 	}
 
-	inline int CountBitsSet(uint32_t v)
+	/* @v11.9.1 (replaced with SBits::Cpop) inline int CountBitsSet(uint32_t v)
 	{
 	#ifdef __cpp_lib_bitops
 		return std::popcount(v);
 	#elif defined(ZX_HAS_GCC_BUILTINS)
 		return __builtin_popcount(v);
 	#else
-		v = v - ((v >> 1) & 0x55555555);                                                        // reuse input as temporary
-		v = (v & 0x33333333) + ((v >> 2) & 0x33333333);                         // temp
-		return (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;        // count
+		v = v - ((v >> 1) & 0x55555555); // reuse input as temporary
+		v = (v & 0x33333333) + ((v >> 2) & 0x33333333); // temp
+		return (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24; // count
 	#endif
-	}
+	}*/
 
 	// this is the same as log base 2 of v
 	inline int HighestBitSet(uint32_t v) { return 31 - NumberOfLeadingZeros(v); }
@@ -246,14 +246,11 @@ namespace ZXing {
 
 	public:
 		using enum_type = Enum;
-
 		constexpr inline Flags() noexcept = default;
 		constexpr inline Flags(Enum flag) noexcept : i(Int(flag)) {}
-
 	//	constexpr inline Flags(std::initializer_list<Enum> flags) noexcept
 	//		: i(initializer_list_helper(flags.begin(), flags.end()))
 	//	{}
-
 		class iterator {
 			friend class Flags;
 			const Int _flags = 0;
@@ -278,12 +275,9 @@ namespace ZXing {
 
 		iterator begin() const noexcept { return {i, BitHacks::NumberOfTrailingZeros(i)}; }
 		iterator end() const noexcept { return {i, BitHacks::HighestBitSet(i) + 1}; }
-
 		bool empty() const noexcept { return i == 0; }
-		int count() const noexcept { return BitHacks::CountBitsSet(i); }
-
+		int count() const noexcept { return /*BitHacks::CountBitsSet*/SBits::Cpop(i); }
 		constexpr inline bool operator==(Flags other) const noexcept { return i == other.i; }
-
 		inline Flags& operator&=(Flags mask) noexcept { return i &= mask.i, *this; }
 		inline Flags& operator&=(Enum mask) noexcept { return i &= Int(mask), *this; }
 		inline Flags& operator|=(Flags other) noexcept { return i |= other.i, *this; }
@@ -2056,7 +2050,8 @@ namespace ZXing {
 				auto asSimd1 = BitHacks::LoadU<simd_t>(bitPos + 1);
 				auto z = asSimd0 ^ asSimd1;
 				if(z) {
-	#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+	//#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+	#if defined(SL_LITTLEENDIAN)
 					int step = BitHacks::NumberOfTrailingZeros(z) / 8 + 1;
 	#else
 					int step = BitHacks::NumberOfLeadingZeros(z) / 8 + 1;

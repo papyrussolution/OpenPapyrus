@@ -10,11 +10,11 @@ static ngx_int_t ngx_http_send_error_page(ngx_http_request_t * r, ngx_http_err_p
 static ngx_int_t ngx_http_send_special_response(ngx_http_request_t * r, ngx_http_core_loc_conf_t * clcf, ngx_uint_t err);
 static ngx_int_t ngx_http_send_refresh(ngx_http_request_t * r);
 
-static u_char ngx_http_error_full_tail[]  = "<hr><center>" NGINX_VER "</center>" CRLF "</body>" CRLF "</html>" CRLF;
-static u_char ngx_http_error_build_tail[] = "<hr><center>" NGINX_VER_BUILD "</center>" CRLF "</body>" CRLF "</html>" CRLF;
-static u_char ngx_http_error_tail[] = "<hr><center>nginx</center>" CRLF "</body>" CRLF "</html>" CRLF;
+static uchar ngx_http_error_full_tail[]  = "<hr><center>" NGINX_VER "</center>" CRLF "</body>" CRLF "</html>" CRLF;
+static uchar ngx_http_error_build_tail[] = "<hr><center>" NGINX_VER_BUILD "</center>" CRLF "</body>" CRLF "</html>" CRLF;
+static uchar ngx_http_error_tail[] = "<hr><center>nginx</center>" CRLF "</body>" CRLF "</html>" CRLF;
 
-static u_char ngx_http_msie_padding[] =
+static uchar ngx_http_msie_padding[] =
     "<!-- a padding to disable MSIE and Chrome friendly error page -->" CRLF
     "<!-- a padding to disable MSIE and Chrome friendly error page -->" CRLF
     "<!-- a padding to disable MSIE and Chrome friendly error page -->" CRLF
@@ -23,8 +23,8 @@ static u_char ngx_http_msie_padding[] =
     "<!-- a padding to disable MSIE and Chrome friendly error page -->" CRLF
 ;
 
-static u_char ngx_http_msie_refresh_head[] = "<html><head><meta http-equiv=\"Refresh\" content=\"0; URL=";
-static u_char ngx_http_msie_refresh_tail[] = "\"></head><body></body></html>" CRLF;
+static uchar ngx_http_msie_refresh_head[] = "<html><head><meta http-equiv=\"Refresh\" content=\"0; URL=";
+static uchar ngx_http_msie_refresh_tail[] = "\"></head><body></body></html>" CRLF;
 
 static char ngx_http_error_301_page[] = "<html>" CRLF "<head><title>301 Moved Permanently</title></head>" CRLF "<body bgcolor=\"white\">" CRLF "<center><h1>301 Moved Permanently</h1></center>" CRLF;
 static char ngx_http_error_302_page[] = "<html>" CRLF "<head><title>302 Found</title></head>" CRLF "<body bgcolor=\"white\">" CRLF "<center><h1>302 Found</h1></center>" CRLF;
@@ -346,7 +346,7 @@ static ngx_int_t ngx_http_send_error_page(ngx_http_request_t * r, ngx_http_err_p
 
 static ngx_int_t ngx_http_send_special_response(ngx_http_request_t * r, ngx_http_core_loc_conf_t * clcf, ngx_uint_t err)
 {
-	u_char * tail;
+	uchar * tail;
 	size_t len;
 	ngx_int_t rc;
 	ngx_buf_t  * b;
@@ -431,11 +431,11 @@ static ngx_int_t ngx_http_send_special_response(ngx_http_request_t * r, ngx_http
 
 static ngx_int_t ngx_http_send_refresh(ngx_http_request_t * pReq)
 {
-	u_char * p;
+	uchar * p;
 	ngx_int_t rc;
 	ngx_buf_t * b;
 	size_t len = pReq->headers_out.location->value.len;
-	u_char * location = pReq->headers_out.location->value.data;
+	uchar * location = pReq->headers_out.location->value.data;
 	uintptr_t escape = 2 * ngx_escape_uri(NULL, location, len, NGX_ESCAPE_REFRESH);
 	size_t size = sizeof(ngx_http_msie_refresh_head) - 1 + escape + len + sizeof(ngx_http_msie_refresh_tail) - 1;
 	pReq->err_status = NGX_HTTP_OK;
@@ -465,7 +465,7 @@ static ngx_int_t ngx_http_send_refresh(ngx_http_request_t * pReq)
 		p = ngx_cpymem(p, location, len);
 	}
 	else {
-		p = (u_char *)ngx_escape_uri(p, location, len, NGX_ESCAPE_REFRESH);
+		p = (uchar *)ngx_escape_uri(p, location, len, NGX_ESCAPE_REFRESH);
 	}
 	b->last = ngx_cpymem(p, ngx_http_msie_refresh_tail, sizeof(ngx_http_msie_refresh_tail) - 1);
 	b->last_buf = (pReq == pReq->main) ? 1 : 0;

@@ -126,7 +126,7 @@ typedef unsigned __int64    uint64_t;
 	#endif
 #endif
 typedef uint32_t            in_addr_t;
-typedef u_short             in_port_t;
+typedef ushort             in_port_t;
 typedef int                 sig_atomic_t;
 
 #ifdef _WIN64

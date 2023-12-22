@@ -9,7 +9,7 @@
 //#include <nginx.h>
 
 static void ngx_console_init(ngx_cycle_t * cycle);
-static int __stdcall ngx_console_handler(u_long type);
+static int __stdcall ngx_console_handler(ulong type);
 static ngx_int_t ngx_create_signal_events(ngx_cycle_t * cycle);
 static ngx_int_t ngx_start_worker_processes(ngx_cycle_t * cycle, ngx_int_t type);
 static void ngx_reopen_worker_processes(ngx_cycle_t * cycle);
@@ -56,13 +56,13 @@ HANDLE ngx_cache_manager_event;
 int ngx_master_process_cycle(ngx_cycle_t * pCycle, const NgxStartUpOptions & rO)
 {
 	int    result = 0;
-	u_long nev, ev, timeout;
+	ulong nev, ev, timeout;
 	ngx_err_t err;
 	ngx_int_t n;
 	ngx_msec_t timer;
 	ngx_uint_t live;
 	HANDLE events[MAXIMUM_WAIT_OBJECTS];
-	ngx_sprintf((u_char *)ngx_master_process_event_name, "ngx_master_%s%Z", ngx_unique);
+	ngx_sprintf((uchar *)ngx_master_process_event_name, "ngx_master_%s%Z", ngx_unique);
 	if(ngx_process == NGX_PROCESS_WORKER) {
 		result = ngx_worker_process_cycle(pCycle, ngx_master_process_event_name); // Normally it won't return
 	}
@@ -81,7 +81,7 @@ int ngx_master_process_cycle(ngx_cycle_t * pCycle, const NgxStartUpOptions & rO)
 			//exit(2);
 		}
 		else {
-			ngx_sprintf((u_char *)ngx_cache_manager_mutex_name, "ngx_cache_manager_mutex_%s%Z", ngx_unique);
+			ngx_sprintf((uchar *)ngx_cache_manager_mutex_name, "ngx_cache_manager_mutex_%s%Z", ngx_unique);
 			ngx_cache_manager_mutex = CreateMutex(NULL, 0, SUcSwitch(ngx_cache_manager_mutex_name));
 			if(ngx_cache_manager_mutex == NULL) {
 				ngx_log_error(NGX_LOG_ALERT, pCycle->log, ngx_errno, "CreateMutex(\"%s\") failed", ngx_cache_manager_mutex_name);
@@ -187,7 +187,7 @@ static void ngx_console_init(ngx_cycle_t * cycle)
 	}
 }
 
-static int __stdcall ngx_console_handler(u_long type)
+static int __stdcall ngx_console_handler(ulong type)
 {
 	const char * msg;
 	switch(type) {
@@ -208,25 +208,25 @@ static int __stdcall ngx_console_handler(u_long type)
 
 static ngx_int_t ngx_create_signal_events(ngx_cycle_t * cycle)
 {
-	ngx_sprintf((u_char *)ngx_stop_event_name, "Global\\ngx_stop_%s%Z", ngx_unique);
+	ngx_sprintf((uchar *)ngx_stop_event_name, "Global\\ngx_stop_%s%Z", ngx_unique);
 	ngx_stop_event = CreateEvent(NULL, 1, 0, SUcSwitch(ngx_stop_event_name));
 	if(ngx_stop_event == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "CreateEvent(\"%s\") failed", ngx_stop_event_name);
 		return NGX_ERROR;
 	}
-	ngx_sprintf((u_char *)ngx_quit_event_name, "Global\\ngx_quit_%s%Z", ngx_unique);
+	ngx_sprintf((uchar *)ngx_quit_event_name, "Global\\ngx_quit_%s%Z", ngx_unique);
 	ngx_quit_event = CreateEvent(NULL, 1, 0, SUcSwitch(ngx_quit_event_name));
 	if(ngx_quit_event == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "CreateEvent(\"%s\") failed", ngx_quit_event_name);
 		return NGX_ERROR;
 	}
-	ngx_sprintf((u_char *)ngx_reopen_event_name, "Global\\ngx_reopen_%s%Z", ngx_unique);
+	ngx_sprintf((uchar *)ngx_reopen_event_name, "Global\\ngx_reopen_%s%Z", ngx_unique);
 	ngx_reopen_event = CreateEvent(NULL, 1, 0, SUcSwitch(ngx_reopen_event_name));
 	if(ngx_reopen_event == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "CreateEvent(\"%s\") failed", ngx_reopen_event_name);
 		return NGX_ERROR;
 	}
-	ngx_sprintf((u_char *)ngx_reload_event_name, "Global\\ngx_reload_%s%Z", ngx_unique);
+	ngx_sprintf((uchar *)ngx_reload_event_name, "Global\\ngx_reload_%s%Z", ngx_unique);
 	ngx_reload_event = CreateEvent(NULL, 1, 0, SUcSwitch(ngx_reload_event_name));
 	if(ngx_reload_event == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "CreateEvent(\"%s\") failed", ngx_reload_event_name);
@@ -299,7 +299,7 @@ static ngx_uint_t ngx_reap_worker(ngx_cycle_t * cycle, HANDLE h)
 	ngx_int_t n;
 	for(n = 0; n < ngx_last_process; n++) {
 		if(ngx_processes[n].handle == h) {
-			u_long code;
+			ulong code;
 			if(GetExitCodeProcess(h, &code) == 0) {
 				ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "GetExitCodeProcess(%P) failed", ngx_processes[n].pid);
 			}
@@ -362,24 +362,24 @@ static int ngx_worker_process_cycle(ngx_cycle_t * cycle, char * mevn)
 	char   wqevn[NGX_PROCESS_SYNC_NAME];
 	char   wroevn[NGX_PROCESS_SYNC_NAME];
 	HANDLE mev, events[3];
-	u_long nev, ev;
+	ulong nev, ev;
 	ngx_err_t err;
 	ngx_tid_t wtid, cmtid, cltid;
 	ngx_log_t  * log = cycle->log;
 	ngx_log_debug0(NGX_LOG_DEBUG_CORE, log, 0, "worker started");
-	ngx_sprintf((u_char *)wtevn, "ngx_worker_term_%P%Z", ngx_pid);
+	ngx_sprintf((uchar *)wtevn, "ngx_worker_term_%P%Z", ngx_pid);
 	events[0] = CreateEvent(NULL, 1, 0, SUcSwitch(wtevn));
 	if(events[0] == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, "CreateEvent(\"%s\") failed", wtevn);
 		goto failed;
 	}
-	ngx_sprintf((u_char *)wqevn, "ngx_worker_quit_%P%Z", ngx_pid);
+	ngx_sprintf((uchar *)wqevn, "ngx_worker_quit_%P%Z", ngx_pid);
 	events[1] = CreateEvent(NULL, 1, 0, SUcSwitch(wqevn));
 	if(events[1] == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, "CreateEvent(\"%s\") failed", wqevn);
 		goto failed;
 	}
-	ngx_sprintf((u_char *)wroevn, "ngx_worker_reopen_%P%Z", ngx_pid);
+	ngx_sprintf((uchar *)wroevn, "ngx_worker_reopen_%P%Z", ngx_pid);
 	events[2] = CreateEvent(NULL, 1, 0, SUcSwitch(wroevn));
 	if(events[2] == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, "CreateEvent(\"%s\") failed", wroevn);
@@ -394,7 +394,7 @@ static int ngx_worker_process_cycle(ngx_cycle_t * cycle, char * mevn)
 		ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, "SetEvent(\"%s\") failed", mevn);
 		goto failed;
 	}
-	ngx_sprintf((u_char *)ngx_cache_manager_mutex_name, "ngx_cache_manager_mutex_%s%Z", ngx_unique);
+	ngx_sprintf((uchar *)ngx_cache_manager_mutex_name, "ngx_cache_manager_mutex_%s%Z", ngx_unique);
 	ngx_cache_manager_mutex = OpenMutex(SYNCHRONIZE, 0, SUcSwitch(ngx_cache_manager_mutex_name));
 	if(ngx_cache_manager_mutex == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, "OpenMutex(\"%s\") failed", ngx_cache_manager_mutex_name);
@@ -557,7 +557,7 @@ static void ngx_worker_process_exit(ngx_cycle_t * cycle)
 
 static ngx_thread_value_t __stdcall ngx_cache_manager_thread(void * data)
 {
-	u_long ev;
+	ulong ev;
 	HANDLE events[2];
 	ngx_err_t err;
 	ngx_cycle_t  * cycle = (ngx_cycle_t*)ngx_cycle;
@@ -597,7 +597,7 @@ static ngx_thread_value_t __stdcall ngx_cache_manager_thread(void * data)
 
 static void ngx_cache_manager_process_handler(void)
 {
-	u_long ev;
+	ulong ev;
 	ngx_uint_t i;
 	ngx_msec_t n;
 	ngx_msec_t next = 60 * 60 * 1000;
@@ -612,7 +612,7 @@ static void ngx_cache_manager_process_handler(void)
 	if(next == 0) {
 		next = 1;
 	}
-	ev = WaitForSingleObject(ngx_cache_manager_event, (u_long)next);
+	ev = WaitForSingleObject(ngx_cache_manager_event, (ulong)next);
 	if(ev != WAIT_TIMEOUT) {
 		ngx_time_update();
 		ngx_log_debug1(NGX_LOG_DEBUG_CORE, ngx_cycle->log, 0, "cache manager WaitForSingleObject: %ul", ev);
@@ -666,7 +666,7 @@ ngx_int_t ngx_os_signal_process(ngx_cycle_t * cycle, const char * sig, ngx_pid_t
 {
 	ngx_int_t rc = 1;
 	char evn[NGX_PROCESS_SYNC_NAME];
-	ngx_sprintf((u_char *)evn, "Global\\ngx_%s_%P%Z", sig, pid);
+	ngx_sprintf((uchar *)evn, "Global\\ngx_%s_%P%Z", sig, pid);
 	HANDLE ev = OpenEvent(EVENT_MODIFY_STATE, 0, SUcSwitch(evn));
 	if(ev == NULL) {
 		ngx_log_error(NGX_LOG_ERR, cycle->log, ngx_errno, "OpenEvent(\"%s\") failed", evn);

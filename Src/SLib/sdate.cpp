@@ -5,21 +5,21 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-#define TICKSPERMIN        600000000
+// @unesed #define TICKSPERMIN        600000000
 #define TICKSPERSEC        10000000
-#define TICKSPERMSEC       10000
+// @unesed #define TICKSPERMSEC       10000
 //#define SECSPERDAY         86400
-#define _YEAR_SEC          (365 * SSECSPERDAY) // secs in a year
+// @unesed #define _YEAR_SEC          (365 * SlConst::SecsPerDay) // secs in a year
 //#define SECSPERHOUR        3600
-#define SECSPERMIN         60
-#define MINSPERHOUR        60
-#define HOURSPERDAY        24
-#define EPOCHWEEKDAY       1
-#define DAYSPERWEEK        7
+// @unesed #define SECSPERMIN         60
+// @unesed #define MINSPERHOUR        60
+// @unesed #define HOURSPERDAY        24
+// @unesed #define EPOCHWEEKDAY       1
+// @unesed #define DAYSPERWEEK        7
 #define EPOCHYEAR          1601
 #define DAYSPERNORMALYEAR  365
 #define DAYSPERLEAPYEAR    366
-#define MONSPERYEAR        12
+// @unesed #define MONSPERYEAR        12
 #define WEEKDAY_OF_1601     1 // This is the week day that January 1st, 1601 fell on (a Monday)
 #define WEEKDAY_OF_1970     4 // 01-01-70 was a Thursday
 //#define EPOCH_BIAS         116444736000000000i64 // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
@@ -61,10 +61,10 @@
 #define ConvertMicrosecondsTo100ns(MILLISECONDS) ((MILLISECONDS)*10LL)
 #define Convert100nsToMilliseconds(v) ((v) / 10000LL)
 #define Convert100nsToMicroseconds(v) ((v) / 10LL)
-#define ConvertMillisecondsToDays(v)  ((v) / (SSECSPERDAY * 1000))
-#define ConvertMicrosecondsToDays(v)  ((v) / (static_cast<uint64>(SSECSPERDAY) * 1000000ULL))
-#define ConvertDaysToMilliseconds(DAYS) ((DAYS) * (SSECSPERDAY * 1000))
-#define ConvertDaysToMicroseconds(DAYS) ((DAYS) * (SSECSPERDAY * 1000000LL))
+#define ConvertMillisecondsToDays(v)  ((v) / (SlConst::SecsPerDay * 1000))
+#define ConvertMicrosecondsToDays(v)  ((v) / (static_cast<uint64>(SlConst::SecsPerDay) * 1000000ULL))
+#define ConvertDaysToMilliseconds(DAYS) ((DAYS) * (SlConst::SecsPerDay * 1000))
+#define ConvertDaysToMicroseconds(DAYS) ((DAYS) * (SlConst::SecsPerDay * 1000000LL))
 
 #ifndef _WIN32_WCE
 	#define USE_DF_CLARION
@@ -878,7 +878,7 @@ LTIME LTIME::encode(int h, int m, int s, int ms)
 
 long FASTCALL LTIME::settotalsec(long s)
 {
-	long   inc_dt = s / SSECSPERDAY; // @v11.2.11 @fix (3600 * 60 * 60)-->(3600 * 24)
+	long   inc_dt = s / SlConst::SecsPerDay; // @v11.2.11 @fix (3600 * 60 * 60)-->(3600 * 24)
 	encodetime(s / 3600, (s % 3600) / 60, s % 60, 0, this);
 	return inc_dt;
 }
@@ -959,11 +959,11 @@ long STDCALL diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long 
 	if(dd != 0) {
 		if(dd > 0 && dt < 0) {
 			dd--;
-			dt += (SSECSPERDAY * 1000L);
+			dt += (SlConst::SecsPerDay * 1000L);
 		}
 		else if(dd < 0 && dt > 0) {
 			dd++;
-			dt -= (SSECSPERDAY * 1000L);
+			dt -= (SlConst::SecsPerDay * 1000L);
 		}
 	}
 	ASSIGN_PTR(pDiffDays, dd);
@@ -986,14 +986,14 @@ long STDCALL diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2)
 {
 	long dif_days = 0;
 	long ds = diffdatetime(d1, t1, d2, t2, 3, &dif_days);
-	return (ds + dif_days * SSECSPERDAY);
+	return (ds + dif_days * SlConst::SecsPerDay);
 }
 
 long FASTCALL diffdatetimesec(const LDATETIME & dtm1, const LDATETIME & dtm2)
 {
 	long   dif_days = 0;
 	long   ds = diffdatetime(dtm1, dtm2, 3, &dif_days);
-	return (ds + dif_days * SSECSPERDAY);
+	return (ds + dif_days * SlConst::SecsPerDay);
 }
 
 LDATETIME FASTCALL plusdatetime(const LDATETIME & dtm1, long plus, int dim)
@@ -1338,10 +1338,10 @@ LDATETIME & LDATETIME::Z()
 
 long FASTCALL LDATETIME::settotalsec(long s)
 {
-	long   inc_dt = s / SSECSPERDAY;
+	long   inc_dt = s / SlConst::SecsPerDay;
 	if(inc_dt)
 		d = plusdate(d, inc_dt);
-	t.settotalsec(s % SSECSPERDAY);
+	t.settotalsec(s % SlConst::SecsPerDay);
 	return inc_dt;
 }
 
@@ -1900,7 +1900,7 @@ int64 STimeChunk::GetDurationMs() const
 	if(Start.d && Finish.d && !Finish.IsFar()) {
 		long days = 0;
 		long diff = diffdatetime(Finish, Start, 4, &days);
-		return ((int64)(diff * 10) + ((int64)days * 1000 * SSECSPERDAY));
+		return ((int64)(diff * 10) + ((int64)days * 1000 * SlConst::SecsPerDay));
 	}
 	else
 		return -1;
@@ -2335,7 +2335,7 @@ int DateTimeRepeating::Next_(LDATETIME startDtm, LDATETIME * pNextDtm) const
 			}
 			else {
 				const long s = (temp_dtm.t.totalsec() + quantsec);
-				if(s < SSECSPERDAY) {
+				if(s < SlConst::SecsPerDay) {
 					temp_dtm.t.settotalsec(s);
 					ok = 1;
 				}
@@ -2472,7 +2472,7 @@ LDATETIME DateTimeRepIterator::Next()
 				else {
 					long s = temp_dtm.t.totalsec();
 					s += Dr.Dtl.D.QuantSec;
-					if(s < SSECSPERDAY) {
+					if(s < SlConst::SecsPerDay) {
 						temp_dtm.t.settotalsec(s);
 						result = temp_dtm;
 					}

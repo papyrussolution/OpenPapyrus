@@ -19,8 +19,8 @@ struct ngx_http_sub_match_t {
 struct ngx_http_sub_tables_t {
 	ngx_uint_t min_match_len;
 	ngx_uint_t max_match_len;
-	u_char index[257];
-	u_char shift[256];
+	uchar index[257];
+	uchar shift[256];
 };
 
 struct ngx_http_sub_loc_conf_t {
@@ -39,9 +39,9 @@ struct ngx_http_sub_ctx_t {
 	ngx_str_t looked;
 	ngx_uint_t once; /* unsigned  once:1 */
 	ngx_buf_t * buf;
-	u_char  * pos;
-	u_char  * copy_start;
-	u_char  * copy_end;
+	uchar  * pos;
+	uchar  * copy_start;
+	uchar  * copy_end;
 	ngx_chain_t * in;
 	ngx_chain_t * out;
 	ngx_chain_t  ** last_out;
@@ -162,11 +162,11 @@ static ngx_int_t ngx_http_sub_header_filter(ngx_http_request_t * pReq)
 			}
 			ngx_http_sub_init_tables(ctx->tables, (ngx_http_sub_match_t*)ctx->matches->elts, ctx->matches->nelts);
 		}
-		ctx->saved.data = (u_char *)ngx_pnalloc(pReq->pool, ctx->tables->max_match_len - 1);
+		ctx->saved.data = (uchar *)ngx_pnalloc(pReq->pool, ctx->tables->max_match_len - 1);
 		if(ctx->saved.data == NULL) {
 			return NGX_ERROR;
 		}
-		ctx->looked.data = (u_char *)ngx_pnalloc(pReq->pool, ctx->tables->max_match_len - 1);
+		ctx->looked.data = (uchar *)ngx_pnalloc(pReq->pool, ctx->tables->max_match_len - 1);
 		if(ctx->looked.data == NULL) {
 			return NGX_ERROR;
 		}
@@ -248,7 +248,7 @@ static ngx_int_t ngx_http_sub_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 				}
 				b = cl->buf;
 				memzero(b, sizeof(ngx_buf_t));
-				b->pos = (u_char *)ngx_pnalloc(r->pool, ctx->saved.len);
+				b->pos = (uchar *)ngx_pnalloc(r->pool, ctx->saved.len);
 				if(b->pos == NULL) {
 					return NGX_ERROR;
 				}
@@ -412,7 +412,7 @@ static ngx_int_t ngx_http_sub_output(ngx_http_request_t * r, ngx_http_sub_ctx_t 
 
 static ngx_int_t ngx_http_sub_parse(ngx_http_request_t * r, ngx_http_sub_ctx_t * ctx, ngx_uint_t flush)
 {
-	u_char * p, c;
+	uchar * p, c;
 	ngx_str_t * m;
 	ngx_int_t start, next, len, rc;
 	ngx_uint_t shift, i, j;
@@ -428,7 +428,7 @@ static ngx_int_t ngx_http_sub_parse(ngx_http_request_t * r, ngx_http_sub_ctx_t *
 	}
 	while(offset < end) {
 		c = offset < 0 ? ctx->looked.data[ctx->looked.len + offset] : ctx->pos[offset];
-		c = ngx_tolower(c);
+		c = stolower_ascii(c);
 		shift = tables->shift[c];
 		if(shift > 0) {
 			offset += shift;
@@ -503,17 +503,17 @@ done:
 
 static ngx_int_t ngx_http_sub_match(ngx_http_sub_ctx_t * ctx, ngx_int_t start, ngx_str_t * m)
 {
-	u_char * p;
-	u_char * pat = m->data;
-	u_char * pat_end = m->data + m->len;
+	uchar * p;
+	uchar * pat = m->data;
+	uchar * pat_end = m->data + m->len;
 	if(start >= 0) {
 		p = ctx->pos + start;
 	}
 	else {
-		u_char * last = ctx->looked.data + ctx->looked.len;
+		uchar * last = ctx->looked.data + ctx->looked.len;
 		p = last + start;
 		while(p < last && pat < pat_end) {
-			if(ngx_tolower(*p) != *pat) {
+			if(stolower_ascii(*p) != *pat) {
 				return NGX_DECLINED;
 			}
 			p++;
@@ -522,7 +522,7 @@ static ngx_int_t ngx_http_sub_match(ngx_http_sub_ctx_t * ctx, ngx_int_t start, n
 		p = ctx->pos;
 	}
 	while(p < ctx->buf->last && pat < pat_end) {
-		if(ngx_tolower(*p) != *pat) {
+		if(stolower_ascii(*p) != *pat) {
 			return NGX_DECLINED;
 		}
 		p++;
@@ -649,7 +649,7 @@ static char * ngx_http_sub_merge_conf(ngx_conf_t * cf, void * parent, void * chi
 
 static void ngx_http_sub_init_tables(ngx_http_sub_tables_t * tables, ngx_http_sub_match_t * match, ngx_uint_t n)
 {
-	u_char c;
+	uchar c;
 	ngx_uint_t i, j, ch;
 	ngx_uint_t min = match[0].match.len;
 	ngx_uint_t max = match[0].match.len;
@@ -667,15 +667,15 @@ static void ngx_http_sub_init_tables(ngx_http_sub_tables_t * tables, ngx_http_su
 	for(i = 0; i < n; i++) {
 		for(j = 0; j < min; j++) {
 			c = match[i].match.data[tables->min_match_len - 1 - j];
-			tables->shift[c] = MIN(tables->shift[c], (u_char)j);
+			tables->shift[c] = MIN(tables->shift[c], (uchar)j);
 		}
 		c = match[i].match.data[tables->min_match_len - 1];
 		while(ch <= (ngx_uint_t)c) {
-			tables->index[ch++] = (u_char)i;
+			tables->index[ch++] = (uchar)i;
 		}
 	}
 	while(ch < 257) {
-		tables->index[ch++] = (u_char)n;
+		tables->index[ch++] = (uchar)n;
 	}
 }
 

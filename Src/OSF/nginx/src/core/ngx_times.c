@@ -37,11 +37,11 @@ volatile ngx_str_t ngx_cached_syslog_time;
 #endif
 
 static ngx_time_t cached_time[NGX_TIME_SLOTS];
-static u_char cached_err_log_time[NGX_TIME_SLOTS][sizeof("1970/09/28 12:00:00")];
-static u_char cached_http_time[NGX_TIME_SLOTS][sizeof("Mon, 28 Sep 1970 06:00:00 GMT")];
-static u_char cached_http_log_time[NGX_TIME_SLOTS][sizeof("28/Sep/1970:12:00:00 +0600")];
-static u_char cached_http_log_iso8601[NGX_TIME_SLOTS][sizeof("1970-09-28T12:00:00+06:00")];
-static u_char cached_syslog_time[NGX_TIME_SLOTS][sizeof("Sep 28 12:00:00")];
+static uchar cached_err_log_time[NGX_TIME_SLOTS][sizeof("1970/09/28 12:00:00")];
+static uchar cached_http_time[NGX_TIME_SLOTS][sizeof("Mon, 28 Sep 1970 06:00:00 GMT")];
+static uchar cached_http_log_time[NGX_TIME_SLOTS][sizeof("28/Sep/1970:12:00:00 +0600")];
+static uchar cached_http_log_iso8601[NGX_TIME_SLOTS][sizeof("1970-09-28T12:00:00+06:00")];
+static uchar cached_syslog_time[NGX_TIME_SLOTS][sizeof("Sep 28 12:00:00")];
 
 static const char  * week[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 static const char  * months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
@@ -59,7 +59,7 @@ void ngx_time_init(void)
 
 void ngx_time_update(void)
 {
-	u_char * p0, * p1, * p2, * p3, * p4;
+	uchar * p0, * p1, * p2, * p3, * p4;
 	ngx_tm_t tm, gmt;
 	time_t sec;
 	ngx_uint_t msec;
@@ -127,7 +127,7 @@ void ngx_time_update(void)
 
 void ngx_time_sigsafe_update(void)
 {
-	u_char * p, * p2;
+	uchar * p, * p2;
 	ngx_tm_t tm;
 	time_t sec;
 	ngx_time_t * tp;
@@ -165,7 +165,7 @@ void ngx_time_sigsafe_update(void)
 
 #endif
 
-u_char * ngx_http_time(u_char * buf, time_t t)
+uchar * ngx_http_time(uchar * buf, time_t t)
 {
 	ngx_tm_t tm;
 	ngx_gmtime(t, &tm);
@@ -173,7 +173,7 @@ u_char * ngx_http_time(u_char * buf, time_t t)
 	    week[tm.ngx_tm_wday], tm.ngx_tm_mday, months[tm.ngx_tm_mon - 1], tm.ngx_tm_year, tm.ngx_tm_hour, tm.ngx_tm_min, tm.ngx_tm_sec);
 }
 
-u_char * ngx_http_cookie_time(u_char * buf, time_t t)
+uchar * ngx_http_cookie_time(uchar * buf, time_t t)
 {
 	ngx_tm_t tm;
 	ngx_gmtime(t, &tm);

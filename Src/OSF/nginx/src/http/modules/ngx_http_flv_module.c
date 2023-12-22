@@ -13,7 +13,7 @@ static ngx_command_t ngx_http_flv_commands[] = {
 	ngx_null_command
 };
 
-static u_char ngx_flv_header[] = "FLV\x1\x5\0\0\0\x9\0\0\0\0";
+static uchar ngx_flv_header[] = "FLV\x1\x5\0\0\0\x9\0\0\0\0";
 
 static ngx_http_module_t ngx_http_flv_module_ctx = {
 	NULL,                      /* preconfiguration */
@@ -43,7 +43,7 @@ ngx_module_t ngx_http_flv_module = {
 
 static ngx_int_t ngx_http_flv_handler(ngx_http_request_t * r)
 {
-	u_char  * last;
+	uchar  * last;
 	nginx_off_t start, len;
 	size_t root;
 	ngx_int_t rc;
@@ -123,7 +123,7 @@ static ngx_int_t ngx_http_flv_handler(ngx_http_request_t * r)
 	len = of.size;
 	i = 1;
 	if(r->args.len) {
-		if(ngx_http_arg(r, (u_char *)"start", 5, &value) == NGX_OK) {
+		if(ngx_http_arg(r, (uchar *)"start", 5, &value) == NGX_OK) {
 			start = ngx_atoof(value.data, value.len);
 			if(start == NGX_ERROR || start >= len) {
 				start = 0;

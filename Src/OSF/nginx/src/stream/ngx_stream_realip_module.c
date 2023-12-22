@@ -90,8 +90,8 @@ static ngx_int_t ngx_stream_realip_handler(ngx_stream_session_t * s)
 static ngx_int_t ngx_stream_realip_set_addr(ngx_stream_session_t * s, ngx_addr_t * addr)
 {
 	size_t len;
-	u_char * p;
-	u_char text[NGX_SOCKADDR_STRLEN];
+	uchar * p;
+	uchar text[NGX_SOCKADDR_STRLEN];
 	ngx_stream_realip_ctx_t  * ctx;
 	ngx_connection_t  * c = s->connection;
 	ctx = (ngx_stream_realip_ctx_t *)ngx_palloc(c->pool, sizeof(ngx_stream_realip_ctx_t));
@@ -102,7 +102,7 @@ static ngx_int_t ngx_stream_realip_set_addr(ngx_stream_session_t * s, ngx_addr_t
 	if(!len) {
 		return NGX_ERROR;
 	}
-	p = (u_char *)ngx_pnalloc(c->pool, len);
+	p = (uchar *)ngx_pnalloc(c->pool, len);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -261,7 +261,7 @@ static ngx_int_t ngx_stream_realip_remote_port_variable(ngx_stream_session_t * s
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char *)ngx_pnalloc(s->connection->pool, sizeof("65535") - 1);
+	v->data = (uchar *)ngx_pnalloc(s->connection->pool, sizeof("65535") - 1);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}

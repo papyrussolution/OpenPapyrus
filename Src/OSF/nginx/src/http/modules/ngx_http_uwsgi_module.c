@@ -511,10 +511,10 @@ static ngx_int_t ngx_http_uwsgi_eval(ngx_http_request_t * r, ngx_http_uwsgi_loc_
 	if(ngx_http_script_run(r, &url.url, uwcf->uwsgi_lengths->elts, 0, uwcf->uwsgi_values->elts) == NULL) {
 		return NGX_ERROR;
 	}
-	if(url.url.len > 8 && ngx_strncasecmp(url.url.data, (u_char *)"uwsgi://", 8) == 0) {
+	if(url.url.len > 8 && ngx_strncasecmp(url.url.data, (uchar *)"uwsgi://", 8) == 0) {
 		add = 8;
 	}
-	else if(url.url.len > 9 && ngx_strncasecmp(url.url.data, (u_char *)"suwsgi://", 9) == 0) {
+	else if(url.url.len > 9 && ngx_strncasecmp(url.url.data, (uchar *)"suwsgi://", 9) == 0) {
 #if (NGX_HTTP_SSL)
 		add = 9;
 		r->upstream->ssl = 1;
@@ -578,7 +578,7 @@ static ngx_int_t ngx_http_uwsgi_create_key(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_uwsgi_create_request(ngx_http_request_t * r)
 {
-	u_char ch, * lowcase_key;
+	uchar ch, * lowcase_key;
 	size_t key_len, val_len, len, allocated;
 	ngx_uint_t i, n, hash, skip_empty, header_params;
 	ngx_buf_t  * b;
@@ -603,7 +603,7 @@ static ngx_int_t ngx_http_uwsgi_create_request(ngx_http_request_t * r)
 		memzero(&le, sizeof(ngx_http_script_engine_t));
 		ngx_http_script_flush_no_cacheable_variables(r, params->flushes);
 		le.flushed = 1;
-		le.ip = (u_char *)params->lengths->elts;
+		le.ip = (uchar *)params->lengths->elts;
 		le.request = r;
 		while(*(uintptr_t*)le.ip) {
 			lcode = *(ngx_http_script_len_code_pt*)le.ip;
@@ -649,7 +649,7 @@ static ngx_int_t ngx_http_uwsgi_create_request(ngx_http_request_t * r)
 			if(params->number) {
 				if(allocated < header[i].key.len) {
 					allocated = header[i].key.len + 16;
-					lowcase_key = (u_char *)ngx_pnalloc(r->pool, allocated);
+					lowcase_key = (uchar *)ngx_pnalloc(r->pool, allocated);
 					if(lowcase_key == NULL) {
 						return NGX_ERROR;
 					}
@@ -698,24 +698,24 @@ static ngx_int_t ngx_http_uwsgi_create_request(ngx_http_request_t * r)
 
 	cl->buf = b;
 
-	*b->last++ = (u_char)uwcf->modifier1;
-	*b->last++ = (u_char)(len & 0xff);
-	*b->last++ = (u_char)((len >> 8) & 0xff);
-	*b->last++ = (u_char)uwcf->modifier2;
+	*b->last++ = (uchar)uwcf->modifier1;
+	*b->last++ = (uchar)(len & 0xff);
+	*b->last++ = (uchar)((len >> 8) & 0xff);
+	*b->last++ = (uchar)uwcf->modifier2;
 
 	if(params->lengths) {
 		memzero(&e, sizeof(ngx_http_script_engine_t));
 
-		e.ip = (u_char *)params->values->elts;
+		e.ip = (uchar *)params->values->elts;
 		e.pos = b->last;
 		e.request = r;
 		e.flushed = 1;
 
-		le.ip = (u_char *)params->lengths->elts;
+		le.ip = (uchar *)params->lengths->elts;
 
 		while(*(uintptr_t*)le.ip) {
 			lcode = *(ngx_http_script_len_code_pt*)le.ip;
-			key_len = (u_char)lcode(&le);
+			key_len = (uchar)lcode(&le);
 
 			lcode = *(ngx_http_script_len_code_pt*)le.ip;
 			skip_empty = lcode(&le);
@@ -739,14 +739,14 @@ static ngx_int_t ngx_http_uwsgi_create_request(ngx_http_request_t * r)
 				continue;
 			}
 
-			*e.pos++ = (u_char)(key_len & 0xff);
-			*e.pos++ = (u_char)((key_len >> 8) & 0xff);
+			*e.pos++ = (uchar)(key_len & 0xff);
+			*e.pos++ = (uchar)((key_len >> 8) & 0xff);
 
 			code = *(ngx_http_script_code_pt*)e.ip;
 			code((ngx_http_script_engine_t*)&e);
 
-			*e.pos++ = (u_char)(val_len & 0xff);
-			*e.pos++ = (u_char)((val_len >> 8) & 0xff);
+			*e.pos++ = (uchar)(val_len & 0xff);
+			*e.pos++ = (uchar)((val_len >> 8) & 0xff);
 
 			while(*(uintptr_t*)e.ip) {
 				code = *(ngx_http_script_code_pt*)e.ip;
@@ -786,8 +786,8 @@ static ngx_int_t ngx_http_uwsgi_create_request(ngx_http_request_t * r)
 			}
 
 			key_len = sizeof("HTTP_") - 1 + header[i].key.len;
-			*b->last++ = (u_char)(key_len & 0xff);
-			*b->last++ = (u_char)((key_len >> 8) & 0xff);
+			*b->last++ = (uchar)(key_len & 0xff);
+			*b->last++ = (uchar)((key_len >> 8) & 0xff);
 
 			b->last = ngx_cpymem(b->last, "HTTP_", sizeof("HTTP_") - 1);
 			for(n = 0; n < header[i].key.len; n++) {
@@ -804,8 +804,8 @@ static ngx_int_t ngx_http_uwsgi_create_request(ngx_http_request_t * r)
 			}
 
 			val_len = header[i].value.len;
-			*b->last++ = (u_char)(val_len & 0xff);
-			*b->last++ = (u_char)((val_len >> 8) & 0xff);
+			*b->last++ = (uchar)(val_len & 0xff);
+			*b->last++ = (uchar)((val_len >> 8) & 0xff);
 			b->last = ngx_copy(b->last, header[i].value.data, val_len);
 
 			ngx_log_debug4(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -912,7 +912,7 @@ static ngx_int_t ngx_http_uwsgi_process_status_line(ngx_http_request_t * r)
 	len = status->end - status->start;
 	u->headers_in.status_line.len = len;
 
-	u->headers_in.status_line.data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
+	u->headers_in.status_line.data = static_cast<uchar *>(ngx_pnalloc(r->pool, len));
 	if(u->headers_in.status_line.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -955,7 +955,7 @@ static ngx_int_t ngx_http_uwsgi_process_header(ngx_http_request_t * r)
 			h->key.len = r->header_name_end - r->header_name_start;
 			h->value.len = r->header_end - r->header_start;
 
-			h->key.data = (u_char *)ngx_pnalloc(r->pool,
+			h->key.data = (uchar *)ngx_pnalloc(r->pool,
 			    h->key.len + 1 + h->value.len + 1
 			    + h->key.len);
 			if(h->key.data == NULL) {
@@ -1319,7 +1319,7 @@ static char * ngx_http_uwsgi_merge_loc_conf(ngx_conf_t * cf, void * parent, void
 static ngx_int_t ngx_http_uwsgi_init_params(ngx_conf_t * cf, ngx_http_uwsgi_loc_conf_t * conf,
     ngx_http_uwsgi_params_t * params, ngx_keyval_t * default_params)
 {
-	u_char   * p;
+	uchar   * p;
 	size_t size;
 	uintptr_t  * code;
 	ngx_uint_t i, nsrc;
@@ -1436,7 +1436,7 @@ next:
 		}
 		copy->code = ngx_http_script_copy_code;
 		copy->len = src[i].key.len;
-		p = (u_char *)copy + sizeof(ngx_http_script_copy_code_t);
+		p = (uchar *)copy + sizeof(ngx_http_script_copy_code_t);
 		memcpy(p, src[i].key.data, src[i].key.len);
 		memzero(&sc, sizeof(ngx_http_script_compile_t));
 		sc.cf = cf;
@@ -1508,10 +1508,10 @@ static const char * ngx_http_uwsgi_pass(ngx_conf_t * cf, const ngx_command_t * c
 	#endif
 			return NGX_CONF_OK;
 		}
-		if(ngx_strncasecmp(url->data, (u_char *)"uwsgi://", 8) == 0) {
+		if(ngx_strncasecmp(url->data, (uchar *)"uwsgi://", 8) == 0) {
 			add = 8;
 		}
-		else if(ngx_strncasecmp(url->data, (u_char *)"suwsgi://", 9) == 0) {
+		else if(ngx_strncasecmp(url->data, (uchar *)"suwsgi://", 9) == 0) {
 	#if (NGX_HTTP_SSL)
 			add = 9;
 			uwcf->ssl = 1;

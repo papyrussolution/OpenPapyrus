@@ -26,7 +26,7 @@ typedef struct {
 
 	time_t expires;
 
-	u_char mark;
+	uchar mark;
 } ngx_http_userid_conf_t;
 
 typedef struct {
@@ -56,7 +56,7 @@ static uint32_t start_value;
 static uint32_t sequencer_v1 = 1;
 static uint32_t sequencer_v2 = 0x03030302;
 
-static u_char expires[] = "; expires=Thu, 31-Dec-37 23:55:55 GMT";
+static uchar expires[] = "; expires=Thu, 31-Dec-37 23:55:55 GMT";
 
 static ngx_http_output_header_filter_pt ngx_http_next_header_filter;
 
@@ -223,7 +223,7 @@ static ngx_http_userid_ctx_t * ngx_http_userid_get_uid(ngx_http_request_t * r, n
 	 *   instead of the correct base64 trail "=="
 	 */
 	src.len = 22;
-	dst.data = (u_char *)ctx->uid_got;
+	dst.data = (uchar *)ctx->uid_got;
 	if(ngx_decode_base64(&dst, &src) == NGX_ERROR) {
 		cookies = (ngx_table_elt_t **)r->headers_in.cookies.elts;
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "client sent invalid userid cookie \"%V\"", &cookies[n]->value);
@@ -235,7 +235,7 @@ static ngx_http_userid_ctx_t * ngx_http_userid_get_uid(ngx_http_request_t * r, n
 
 static ngx_int_t ngx_http_userid_set_uid(ngx_http_request_t * r, ngx_http_userid_ctx_t * ctx, ngx_http_userid_conf_t * conf)
 {
-	u_char * cookie, * p;
+	uchar * cookie, * p;
 	size_t len;
 	ngx_str_t src, dst;
 	ngx_table_elt_t  * set_cookie, * p3p;
@@ -252,7 +252,7 @@ static ngx_int_t ngx_http_userid_set_uid(ngx_http_request_t * r, ngx_http_userid
 	if(conf->domain.len) {
 		len += conf->domain.len;
 	}
-	cookie = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
+	cookie = static_cast<uchar *>(ngx_pnalloc(r->pool, len));
 	if(cookie == NULL) {
 		return NGX_ERROR;
 	}
@@ -260,7 +260,7 @@ static ngx_int_t ngx_http_userid_set_uid(ngx_http_request_t * r, ngx_http_userid
 	*p++ = '=';
 	if(ctx->uid_got[3] == 0 || ctx->reset) {
 		src.len = 16;
-		src.data = (u_char *)ctx->uid_set;
+		src.data = (uchar *)ctx->uid_set;
 		dst.data = p;
 		ngx_encode_base64(&dst, &src);
 		p += dst.len;
@@ -310,7 +310,7 @@ static ngx_int_t ngx_http_userid_create_uid(ngx_http_request_t * r, ngx_http_use
 	struct sockaddr_in  * sin;
 	ngx_http_variable_value_t  * vv;
 #if (NGX_HAVE_INET6)
-	u_char * p;
+	uchar * p;
 	struct sockaddr_in6 * sin6;
 #endif
 	if(ctx->uid_set[3] != 0) {
@@ -365,7 +365,7 @@ static ngx_int_t ngx_http_userid_create_uid(ngx_http_request_t * r, ngx_http_use
 #if (NGX_HAVE_INET6)
 				case AF_INET6:
 				    sin6 = (struct sockaddr_in6*)c->local_sockaddr;
-				    p = (u_char *)&ctx->uid_set[0];
+				    p = (uchar *)&ctx->uid_set[0];
 				    *p++ = sin6->sin6_addr.s6_addr[12];
 				    *p++ = sin6->sin6_addr.s6_addr[13];
 				    *p++ = sin6->sin6_addr.s6_addr[14];
@@ -398,7 +398,7 @@ static ngx_int_t ngx_http_userid_variable(ngx_http_request_t * r, ngx_http_varia
     ngx_str_t * name, uint32_t * uid)
 {
 	v->len = name->len + sizeof("=00001111222233334444555566667777") - 1;
-	v->data = (u_char *)ngx_pnalloc(r->pool, v->len);
+	v->data = (uchar *)ngx_pnalloc(r->pool, v->len);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -461,7 +461,7 @@ static void * ngx_http_userid_create_conf(ngx_conf_t * cf)
 	conf->enable = NGX_CONF_UNSET_UINT;
 	conf->service = NGX_CONF_UNSET;
 	conf->expires = NGX_CONF_UNSET;
-	conf->mark = (u_char)'\xFF';
+	conf->mark = (uchar)'\xFF';
 
 	return conf;
 }
@@ -482,8 +482,8 @@ static char * ngx_http_userid_merge_conf(ngx_conf_t * cf, void * parent, void * 
 	ngx_conf_merge_value(conf->service, prev->service, NGX_CONF_UNSET);
 	ngx_conf_merge_sec_value(conf->expires, prev->expires, 0);
 
-	if(conf->mark == (u_char)'\xFF') {
-		if(prev->mark == (u_char)'\xFF') {
+	if(conf->mark == (uchar)'\xFF') {
+		if(prev->mark == (uchar)'\xFF') {
 			conf->mark = '\0';
 		}
 		else {
@@ -505,12 +505,12 @@ static ngx_int_t ngx_http_userid_init(ngx_conf_t * cf)
 static char * ngx_http_userid_domain(ngx_conf_t * cf, void * post, void * data)
 {
 	ngx_str_t * domain = (ngx_str_t *)data;
-	u_char  * p, * p_new;
+	uchar  * p, * p_new;
 	if(ngx_strcmp(domain->data, "none") == 0) {
 		ngx_str_set(domain, "");
 		return NGX_CONF_OK;
 	}
-	p_new = (u_char *)ngx_pnalloc(cf->pool, sizeof("; domain=") - 1 + domain->len);
+	p_new = (uchar *)ngx_pnalloc(cf->pool, sizeof("; domain=") - 1 + domain->len);
 	if(p_new == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -524,8 +524,8 @@ static char * ngx_http_userid_domain(ngx_conf_t * cf, void * post, void * data)
 static char * ngx_http_userid_path(ngx_conf_t * cf, void * post, void * data)
 {
 	ngx_str_t  * path = (ngx_str_t *)data;
-	u_char  * p, * p_new;
-	p_new = (u_char *)ngx_pnalloc(cf->pool, sizeof("; path=") - 1 + path->len);
+	uchar  * p, * p_new;
+	p_new = (uchar *)ngx_pnalloc(cf->pool, sizeof("; path=") - 1 + path->len);
 	if(p_new == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -575,7 +575,7 @@ static const char * ngx_http_userid_mark(ngx_conf_t * cf, const ngx_command_t * 
 {
 	ngx_http_userid_conf_t * ucf = (ngx_http_userid_conf_t *)conf;
 	ngx_str_t  * value;
-	if(ucf->mark != (u_char)'\xFF') {
+	if(ucf->mark != (uchar)'\xFF') {
 		return "is duplicate";
 	}
 	value = static_cast<ngx_str_t *>(cf->args->elts);

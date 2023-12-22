@@ -63,7 +63,7 @@ ngx_module_t ngx_http_gzip_static_module = {
 
 static ngx_int_t ngx_http_gzip_static_handler(ngx_http_request_t * r)
 {
-	u_char   * p;
+	uchar   * p;
 	size_t root;
 	ngx_str_t path;
 	ngx_int_t rc;

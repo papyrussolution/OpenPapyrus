@@ -86,7 +86,7 @@ static ngx_int_t ngx_select_init(ngx_cycle_t * cycle, ngx_msec_t timer)
 		}
 		if(_ModulBlk.event_index) {
 			memcpy(pp_index, _ModulBlk.event_index, sizeof(ngx_event_t *) * _ModulBlk.nevents);
-			ngx_free(_ModulBlk.event_index);
+			SAlloc::F(_ModulBlk.event_index);
 		}
 		_ModulBlk.event_index = pp_index;
 	}
@@ -100,7 +100,7 @@ static ngx_int_t ngx_select_init(ngx_cycle_t * cycle, ngx_msec_t timer)
 
 static void ngx_select_done(ngx_cycle_t * cycle)
 {
-	ngx_free(_ModulBlk.event_index);
+	SAlloc::F(_ModulBlk.event_index);
 	_ModulBlk.event_index = NULL;
 }
 
@@ -162,7 +162,7 @@ static ngx_int_t ngx_select_del_event(ngx_event_t * ev, ngx_int_t event, ngx_uin
 static void ngx_select_repair_fd_sets(ngx_cycle_t * cycle)
 {
 	int    n;
-	u_int  i;
+	uint   i;
 	for(i = 0; i < _ModulBlk.master_read_fd_set.fd_count; i++) {
 		ngx_socket_t s = _ModulBlk.master_read_fd_set.fd_array[i];
 		socklen_t len = sizeof(int);

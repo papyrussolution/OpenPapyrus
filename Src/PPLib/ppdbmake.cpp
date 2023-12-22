@@ -492,7 +492,7 @@ int MakeDatabase()
 						InitStartupSignal();
 					}
 				private:
-					void Startup()
+					virtual void Startup()
 					{
 						PPThread::Startup();
 						SignalStartup();

@@ -156,23 +156,18 @@ _Use_decl_annotations_ bool DirectX::Internal::DXGIToWIC(DXGI_FORMAT format, GUI
 			    memcpy(&guid, &GUID_WICPixelFormat32bppRGBA, sizeof(GUID));
 		    }
 		    return true;
-
 		case DXGI_FORMAT_D32_FLOAT:
 		    memcpy(&guid, &GUID_WICPixelFormat32bppGrayFloat, sizeof(GUID));
 		    return true;
-
 		case DXGI_FORMAT_D16_UNORM:
 		    memcpy(&guid, &GUID_WICPixelFormat16bppGray, sizeof(GUID));
 		    return true;
-
 		case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
 		    memcpy(&guid, &GUID_WICPixelFormat32bppBGRA, sizeof(GUID));
 		    return true;
-
 		case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
 		    memcpy(&guid, &GUID_WICPixelFormat32bppBGR, sizeof(GUID));
 		    return true;
-
     #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8) || defined(_WIN7_PLATFORM_UPDATE)
 		case DXGI_FORMAT_R32G32B32_FLOAT:
 		    if(g_WIC2) {
@@ -181,7 +176,6 @@ _Use_decl_annotations_ bool DirectX::Internal::DXGIToWIC(DXGI_FORMAT format, GUI
 		    }
 		    break;
     #endif
-
 		default:
 		    for(size_t i = 0; i < std::size(g_WICFormats); ++i) {
 			    if(g_WICFormats[i].format == format) {

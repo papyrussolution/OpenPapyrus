@@ -11,7 +11,7 @@
 
 U_NAMESPACE_BEGIN
 
-#define MILLIS_PER_YEAR (365 * SSECSPERDAY * 1000.0)
+#define MILLIS_PER_YEAR (365 * SlConst::SecsPerDay * 1000.0)
 
 BasicTimeZone::BasicTimeZone() : TimeZone() 
 {

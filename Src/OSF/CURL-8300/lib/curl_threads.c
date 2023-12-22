@@ -94,8 +94,7 @@ int Curl_thread_join(curl_thread_t * hnd)
 #elif defined(USE_THREADS_WIN32)
 
 /* !checksrc! disable SPACEBEFOREPAREN 1 */
-curl_thread_t Curl_thread_create(uint(CURL_STDCALL * func) (void *),
-    void * arg)
+curl_thread_t Curl_thread_create(uint(CURL_STDCALL * func) (void *), void * arg)
 {
 #ifdef _WIN32_WCE
 	typedef HANDLE curl_win_thread_handle_t;
@@ -115,9 +114,7 @@ curl_thread_t Curl_thread_create(uint(CURL_STDCALL * func) (void *),
 	if((t == 0) || (t == LongToHandle(-1L))) {
 #ifdef _WIN32_WCE
 		DWORD gle = GetLastError();
-		errno = ((gle == ERROR_ACCESS_DENIED ||
-		    gle == ERROR_NOT_ENOUGH_MEMORY) ?
-		    EACCES : EINVAL);
+		errno = ((gle == ERROR_ACCESS_DENIED || gle == ERROR_NOT_ENOUGH_MEMORY) ? EACCES : EINVAL);
 #endif
 		return curl_thread_t_null;
 	}
@@ -131,17 +128,13 @@ void Curl_thread_destroy(curl_thread_t hnd)
 
 int Curl_thread_join(curl_thread_t * hnd)
 {
-#if !defined(_WIN32_WINNT) || !defined(_WIN32_WINNT_VISTA) || \
-	(_WIN32_WINNT < _WIN32_WINNT_VISTA)
+#if !defined(_WIN32_WINNT) || !defined(_WIN32_WINNT_VISTA) || (_WIN32_WINNT < _WIN32_WINNT_VISTA)
 	int ret = (WaitForSingleObject(*hnd, INFINITE) == WAIT_OBJECT_0);
 #else
 	int ret = (WaitForSingleObjectEx(*hnd, INFINITE, FALSE) == WAIT_OBJECT_0);
 #endif
-
 	Curl_thread_destroy(*hnd);
-
 	*hnd = curl_thread_t_null;
-
 	return ret;
 }
 

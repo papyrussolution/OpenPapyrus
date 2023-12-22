@@ -662,7 +662,7 @@ const Version* Version::DecodeVersionInformation(int versionBitsA, int versionBi
 	int i = 0;
 	for(int targetVersion : VERSION_DECODE_INFO) {
 		for(int bits : {versionBitsA, versionBitsB}) {
-			int bitsDifference = BitHacks::CountBitsSet(bits ^ targetVersion);
+			int bitsDifference = /*BitHacks::CountBitsSet*/SBits::Cpop(static_cast<uint32>(bits ^ targetVersion));
 			if(bitsDifference < bestDifference) {
 				bestVersion = i + 7;
 				bestDifference = bitsDifference;

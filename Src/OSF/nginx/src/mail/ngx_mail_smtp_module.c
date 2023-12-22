@@ -119,7 +119,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 {
 	ngx_mail_smtp_srv_conf_t * prev = (ngx_mail_smtp_srv_conf_t *)parent;
 	ngx_mail_smtp_srv_conf_t * conf = (ngx_mail_smtp_srv_conf_t *)child;
-	u_char  * p, * auth, * last;
+	uchar  * p, * auth, * last;
 	size_t size;
 	ngx_str_t * c;
 	ngx_uint_t i, m, auth_enabled;
@@ -129,7 +129,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	ngx_conf_merge_bitmask_value(conf->auth_methods, prev->auth_methods, (NGX_CONF_BITMASK_SET|NGX_MAIL_AUTH_PLAIN_ENABLED|NGX_MAIL_AUTH_LOGIN_ENABLED));
 	cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_conf_get_module_srv_conf(cf, ngx_mail_core_module);
 	size = sizeof("220  ESMTP ready" CRLF) - 1 + cscf->server_name.len;
-	p = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
+	p = static_cast<uchar *>(ngx_pnalloc(cf->pool, size));
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -142,7 +142,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	p = ngx_cpymem(p, cscf->server_name.data, cscf->server_name.len);
 	memcpy(p, " ESMTP ready" CRLF, sizeof(" ESMTP ready" CRLF) - 1);
 	size = sizeof("250 " CRLF) - 1 + cscf->server_name.len;
-	p = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
+	p = static_cast<uchar *>(ngx_pnalloc(cf->pool, size));
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -172,7 +172,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	if(auth_enabled) {
 		size += sizeof("250 AUTH") - 1 + sizeof(CRLF) - 1;
 	}
-	p = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
+	p = static_cast<uchar *>(ngx_pnalloc(cf->pool, size));
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -208,7 +208,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 		last[3] = ' ';
 	}
 	size += sizeof("250 STARTTLS" CRLF) - 1;
-	p = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
+	p = static_cast<uchar *>(ngx_pnalloc(cf->pool, size));
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
@@ -219,7 +219,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	p = conf->starttls_capability.data + (last - conf->capability.data) + 3;
 	*p = '-';
 	size = (auth - conf->capability.data) + sizeof("250 STARTTLS" CRLF) - 1;
-	p = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
+	p = static_cast<uchar *>(ngx_pnalloc(cf->pool, size));
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}

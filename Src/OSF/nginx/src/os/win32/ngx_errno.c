@@ -6,10 +6,10 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
-u_char * ngx_strerror(ngx_err_t err, u_char * errstr, size_t size)
+uchar * ngx_strerror(ngx_err_t err, uchar * errstr, size_t size)
 {
-	u_int len;
-	static u_long lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
+	uint len;
+	static ulong lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
 	if(size == 0) {
 		return errstr;
 	}

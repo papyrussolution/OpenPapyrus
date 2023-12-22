@@ -6,21 +6,21 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
-static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_char zero, ngx_uint_t hexadecimal, ngx_uint_t width);
-static void ngx_encode_base64_internal(ngx_str_t * dst, const ngx_str_t * src, const u_char * basis, ngx_uint_t padding);
-static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, const ngx_str_t * src, const u_char * basis);
+static uchar * ngx_sprintf_num(uchar * buf, uchar * last, uint64_t ui64, uchar zero, ngx_uint_t hexadecimal, ngx_uint_t width);
+static void ngx_encode_base64_internal(ngx_str_t * dst, const ngx_str_t * src, const uchar * basis, ngx_uint_t padding);
+static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, const ngx_str_t * src, const uchar * basis);
 
-void FASTCALL ngx_strlow(u_char * dst, const u_char * src, size_t n)
+void FASTCALL ngx_strlow(uchar * dst, const uchar * src, size_t n)
 {
 	while(n) {
-		*dst = ngx_tolower(*src);
+		*dst = stolower_ascii(*src);
 		dst++;
 		src++;
 		n--;
 	}
 }
 
-u_char * FASTCALL ngx_cpystrn(u_char * dst, const u_char * src, size_t n)
+uchar * FASTCALL ngx_cpystrn(uchar * dst, const uchar * src, size_t n)
 {
 	if(n) {
 		while(--n) {
@@ -36,9 +36,9 @@ u_char * FASTCALL ngx_cpystrn(u_char * dst, const u_char * src, size_t n)
 	return dst;
 }
 
-u_char * FASTCALL ngx_pstrdup(ngx_pool_t * pool, const ngx_str_t * src)
+uchar * FASTCALL ngx_pstrdup(ngx_pool_t * pool, const ngx_str_t * src)
 {
-	u_char * dst = (u_char *)ngx_pnalloc(pool, src->len);
+	uchar * dst = (uchar *)ngx_pnalloc(pool, src->len);
 	if(dst)
 		memcpy(dst, src->data, src->len);
 	return dst;
@@ -48,7 +48,7 @@ int SStrDupToNgxStr(ngx_pool_t * pPool, const SString * pSrc, ngx_str_t * pDest)
 {
 	int    ok = 1;
 	if(pSrc && pSrc->Len()) {
-		pDest->data = (u_char *)ngx_pnalloc(pPool, pSrc->Len()+1);
+		pDest->data = (uchar *)ngx_pnalloc(pPool, pSrc->Len()+1);
 		if(pDest->data) {
 			pDest->len = pSrc->Len();
 			memcpy(pDest->data, pSrc->ucptr(), pSrc->Len()+1);
@@ -95,19 +95,19 @@ int SStrDupToNgxStr(ngx_pool_t * pPool, const SString * pSrc, ngx_str_t * pDest)
  *  %C                        wchar
  */
 
-u_char * ngx_cdecl ngx_sprintf(u_char * buf, const char * fmt, ...)
+uchar * ngx_cdecl ngx_sprintf(uchar * buf, const char * fmt, ...)
 {
-	u_char * p;
+	uchar * p;
 	va_list args;
 	va_start(args, fmt);
-	p = ngx_vslprintf(buf, (u_char *)-1, fmt, args);
+	p = ngx_vslprintf(buf, (uchar *)-1, fmt, args);
 	va_end(args);
 	return p;
 }
 
-u_char * ngx_cdecl ngx_snprintf(u_char * buf, size_t max, const char * fmt, ...)
+uchar * ngx_cdecl ngx_snprintf(uchar * buf, size_t max, const char * fmt, ...)
 {
-	u_char * p;
+	uchar * p;
 	va_list args;
 	va_start(args, fmt);
 	p = ngx_vslprintf(buf, buf + max, fmt, args);
@@ -115,9 +115,9 @@ u_char * ngx_cdecl ngx_snprintf(u_char * buf, size_t max, const char * fmt, ...)
 	return p;
 }
 
-u_char * ngx_cdecl ngx_slprintf(u_char * buf, u_char * last, const char * fmt, ...)
+uchar * ngx_cdecl ngx_slprintf(uchar * buf, uchar * last, const char * fmt, ...)
 {
-	u_char * p;
+	uchar * p;
 	va_list args;
 	va_start(args, fmt);
 	p = ngx_vslprintf(buf, last, fmt, args);
@@ -125,9 +125,9 @@ u_char * ngx_cdecl ngx_slprintf(u_char * buf, u_char * last, const char * fmt, .
 	return p;
 }
 
-u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list args)
+uchar * ngx_vslprintf(uchar * buf, uchar * last, const char * fmt, va_list args)
 {
-	u_char  * p, zero;
+	uchar  * p, zero;
 	int d;
 	double f;
 	size_t len, slen;
@@ -142,7 +142,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 		if(*fmt == '%') {
 			i64 = 0;
 			ui64 = 0;
-			zero = (u_char)((*++fmt == '0') ? '0' : ' ');
+			zero = (uchar)((*++fmt == '0') ? '0' : ' ');
 			width = 0;
 			sign = 1;
 			hex = 0;
@@ -201,7 +201,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 				    fmt++;
 				    continue;
 				case 's':
-				    p = va_arg(args, u_char *);
+				    p = va_arg(args, uchar *);
 				    if(slen == (size_t)-1) {
 					    while(*p && buf < last) {
 						    *buf++ = *p++;
@@ -260,7 +260,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 					    i64 = (int64_t)va_arg(args, int);
 				    }
 				    else {
-					    ui64 = (uint64_t)va_arg(args, u_int);
+					    ui64 = (uint64_t)va_arg(args, uint);
 				    }
 				    break;
 				case 'l':
@@ -268,7 +268,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 					    i64 = (int64_t)va_arg(args, long);
 				    }
 				    else {
-					    ui64 = (uint64_t)va_arg(args, u_long);
+					    ui64 = (uint64_t)va_arg(args, ulong);
 				    }
 				    break;
 				case 'D':
@@ -341,7 +341,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 				    break;
 				case 'c':
 				    d = va_arg(args, int);
-				    *buf++ = (u_char)(d & 0xff);
+				    *buf++ = (uchar)(d & 0xff);
 				    fmt++;
 				    continue;
 				case 'Z':
@@ -386,14 +386,14 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 	return buf;
 }
 
-static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_char zero, ngx_uint_t hexadecimal, ngx_uint_t width)
+static uchar * ngx_sprintf_num(uchar * buf, uchar * last, uint64_t ui64, uchar zero, ngx_uint_t hexadecimal, ngx_uint_t width)
 {
-	u_char * p, temp[NGX_INT64_LEN + 1];
+	uchar * p, temp[NGX_INT64_LEN + 1];
 	// we need temp[NGX_INT64_LEN] only, but icc issues the warning
 	size_t len;
 	uint32_t ui32;
-	// @sobolev static u_char hex[] = "0123456789abcdef";
-	// @sobolev static u_char HEX[] = "0123456789ABCDEF";
+	// @sobolev static uchar hex[] = "0123456789abcdef";
+	// @sobolev static uchar HEX[] = "0123456789ABCDEF";
 	p = temp + NGX_INT64_LEN;
 	if(hexadecimal == 0) {
 		if(ui64 <= (uint64_t)NGX_MAX_UINT32_VALUE) {
@@ -413,12 +413,12 @@ static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_ch
 			 */
 			ui32 = (uint32_t)ui64;
 			do {
-				*--p = (u_char)(ui32 % 10 + '0');
+				*--p = (uchar)(ui32 % 10 + '0');
 			} while(ui32 /= 10);
 		}
 		else {
 			do {
-				*--p = (u_char)(ui64 % 10 + '0');
+				*--p = (uchar)(ui64 % 10 + '0');
 			} while(ui64 /= 10);
 		}
 	}
@@ -451,9 +451,9 @@ static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_ch
 // We use ngx_strcasecmp()/ngx_strncasecmp() for 7-bit ASCII strings only,
 // and implement our own ngx_strcasecmp()/ngx_strncasecmp()
 // to avoid libc locale overhead.  Besides, we use the ngx_uint_t's
-// instead of the u_char's, because they are slightly faster.
+// instead of the uchar's, because they are slightly faster.
 // 
-ngx_int_t FASTCALL ngx_strcasecmp(const u_char * s1, const u_char * s2)
+ngx_int_t FASTCALL ngx_strcasecmp(const uchar * s1, const uchar * s2)
 {
 	ngx_uint_t c1, c2;
 	for(;;) {
@@ -471,7 +471,7 @@ ngx_int_t FASTCALL ngx_strcasecmp(const u_char * s1, const u_char * s2)
 	}
 }*/
 
-ngx_int_t FASTCALL ngx_strncasecmp(const u_char * s1, const u_char * s2, size_t n)
+ngx_int_t FASTCALL ngx_strncasecmp(const uchar * s1, const uchar * s2, size_t n)
 {
 	ngx_uint_t c1, c2;
 	while(n) {
@@ -491,12 +491,11 @@ ngx_int_t FASTCALL ngx_strncasecmp(const u_char * s1, const u_char * s2, size_t 
 	return 0;
 }
 
-const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t len)
+const uchar * FASTCALL ngx_strnstr(const uchar * s1, const char * s2, size_t len)
 {
-	u_char c1, c2;
-	size_t n;
-	c2 = *(u_char *)s2++;
-	n = ngx_strlen(s2);
+	uchar c1;
+	uchar c2 = *(uchar *)s2++;
+	size_t n = ngx_strlen(s2);
 	do {
 		do {
 			if(len-- == 0) {
@@ -510,7 +509,7 @@ const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t l
 		if(n > len) {
 			return NULL;
 		}
-	} while(ngx_strncmp(s1, (u_char *)s2, n) != 0);
+	} while(ngx_strncmp(s1, (uchar *)s2, n) != 0);
 	return --s1;
 }
 /*
@@ -518,10 +517,10 @@ const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t l
  * substring with known length in null-terminated string. The argument n
  * must be length of the second substring - 1.
  */
-u_char * FASTCALL ngx_strstrn(u_char * s1, const char * s2, size_t n)
+uchar * FASTCALL ngx_strstrn(uchar * s1, const char * s2, size_t n)
 {
-	u_char c1, c2;
-	c2 = *(const u_char *)s2++;
+	uchar c1;
+	uchar c2 = *(const uchar *)s2++;
 	do {
 		do {
 			c1 = *s1++;
@@ -529,11 +528,11 @@ u_char * FASTCALL ngx_strstrn(u_char * s1, const char * s2, size_t n)
 				return NULL;
 			}
 		} while(c1 != c2);
-	} while(ngx_strncmp(s1, (u_char *)s2, n) != 0);
+	} while(ngx_strncmp(s1, (uchar *)s2, n) != 0);
 	return --s1;
 }
 
-const u_char * FASTCALL ngx_strcasestrn(const u_char * s1, const char * s2, size_t n)
+const uchar * FASTCALL ngx_strcasestrn(const uchar * s1, const char * s2, size_t n)
 {
 	ngx_uint_t c1;
 	ngx_uint_t c2 = (ngx_uint_t)*s2++;
@@ -546,7 +545,7 @@ const u_char * FASTCALL ngx_strcasestrn(const u_char * s1, const char * s2, size
 			}
 			c1 = (c1 >= 'A' && c1 <= 'Z') ? (c1 | 0x20) : c1;
 		} while(c1 != c2);
-	} while(ngx_strncasecmp(s1, (u_char *)s2, n) != 0);
+	} while(ngx_strncasecmp(s1, (uchar *)s2, n) != 0);
 	return --s1;
 }
 /*
@@ -554,7 +553,7 @@ const u_char * FASTCALL ngx_strcasestrn(const u_char * s1, const char * s2, size
  * with known length in string until the argument last. The argument n
  * must be length of the second substring - 1.
  */
-u_char * FASTCALL ngx_strlcasestrn(u_char * s1, u_char * last, const u_char * s2, size_t n)
+uchar * FASTCALL ngx_strlcasestrn(uchar * s1, uchar * last, const uchar * s2, size_t n)
 {
 	ngx_uint_t c1, c2;
 	c2 = (ngx_uint_t)*s2++;
@@ -572,7 +571,7 @@ u_char * FASTCALL ngx_strlcasestrn(u_char * s1, u_char * last, const u_char * s2
 	return --s1;
 }
 
-ngx_int_t ngx_rstrncmp(u_char * s1, u_char * s2, size_t n)
+ngx_int_t ngx_rstrncmp(uchar * s1, uchar * s2, size_t n)
 {
 	if(n == 0) {
 		return 0;
@@ -589,9 +588,9 @@ ngx_int_t ngx_rstrncmp(u_char * s1, u_char * s2, size_t n)
 	}
 }
 
-ngx_int_t ngx_rstrncasecmp(u_char * s1, u_char * s2, size_t n)
+ngx_int_t ngx_rstrncasecmp(uchar * s1, uchar * s2, size_t n)
 {
-	u_char c1, c2;
+	uchar c1, c2;
 	if(n == 0) {
 		return 0;
 	}
@@ -615,7 +614,7 @@ ngx_int_t ngx_rstrncasecmp(u_char * s1, u_char * s2, size_t n)
 	}
 }
 
-ngx_int_t ngx_memn2cmp(u_char * s1, u_char * s2, size_t n1, size_t n2)
+ngx_int_t ngx_memn2cmp(uchar * s1, uchar * s2, size_t n1, size_t n2)
 {
 	size_t n;
 	ngx_int_t m, z;
@@ -634,7 +633,7 @@ ngx_int_t ngx_memn2cmp(u_char * s1, u_char * s2, size_t n1, size_t n2)
 	return z;
 }
 
-ngx_int_t FASTCALL ngx_dns_strcmp(const u_char * s1, const u_char * s2)
+ngx_int_t FASTCALL ngx_dns_strcmp(const uchar * s1, const uchar * s2)
 {
 	ngx_uint_t c1, c2;
 	for(;;) {
@@ -655,7 +654,7 @@ ngx_int_t FASTCALL ngx_dns_strcmp(const u_char * s1, const u_char * s2)
 	}
 }
 
-ngx_int_t FASTCALL ngx_filename_cmp(const u_char * s1, const u_char * s2, size_t n)
+ngx_int_t FASTCALL ngx_filename_cmp(const uchar * s1, const uchar * s2, size_t n)
 {
 	ngx_uint_t c1, c2;
 	while(n) {
@@ -683,7 +682,7 @@ ngx_int_t FASTCALL ngx_filename_cmp(const u_char * s1, const u_char * s2, size_t
 	return 0;
 }
 
-ngx_int_t FASTCALL ngx_atoi(const u_char * line, size_t n)
+ngx_int_t FASTCALL ngx_atoi(const uchar * line, size_t n)
 {
 	ngx_int_t value, cutoff, cutlim;
 	if(n == 0) {
@@ -705,7 +704,7 @@ ngx_int_t FASTCALL ngx_atoi(const u_char * line, size_t n)
 //
 // parse a fixed point number, e.g., ngx_atofp("10.5", 4, 2) returns 1050 
 //
-ngx_int_t FASTCALL ngx_atofp(const u_char * line, size_t n, size_t point)
+ngx_int_t FASTCALL ngx_atofp(const uchar * line, size_t n, size_t point)
 {
 	ngx_int_t value, cutoff, cutlim;
 	ngx_uint_t dot;
@@ -744,7 +743,7 @@ ngx_int_t FASTCALL ngx_atofp(const u_char * line, size_t n, size_t point)
 	return value;
 }
 
-ssize_t FASTCALL ngx_atosz(const u_char * line, size_t n)
+ssize_t FASTCALL ngx_atosz(const uchar * line, size_t n)
 {
 	ssize_t value, cutoff, cutlim;
 	if(n == 0) {
@@ -764,7 +763,7 @@ ssize_t FASTCALL ngx_atosz(const u_char * line, size_t n)
 	return value;
 }
 
-nginx_off_t FASTCALL ngx_atoof(const u_char * line, size_t n)
+nginx_off_t FASTCALL ngx_atoof(const uchar * line, size_t n)
 {
 	nginx_off_t value, cutoff, cutlim;
 	if(n == 0) {
@@ -784,7 +783,7 @@ nginx_off_t FASTCALL ngx_atoof(const u_char * line, size_t n)
 	return value;
 }
 
-time_t FASTCALL ngx_atotm(const u_char * line, size_t n)
+time_t FASTCALL ngx_atotm(const uchar * line, size_t n)
 {
 	time_t value, cutoff, cutlim;
 	if(n == 0) {
@@ -804,9 +803,9 @@ time_t FASTCALL ngx_atotm(const u_char * line, size_t n)
 	return value;
 }
 
-ngx_int_t FASTCALL ngx_hextoi(const u_char * line, size_t n)
+ngx_int_t FASTCALL ngx_hextoi(const uchar * line, size_t n)
 {
-	u_char c, ch;
+	uchar c, ch;
 	ngx_int_t value, cutoff;
 	if(n == 0) {
 		return NGX_ERROR;
@@ -821,7 +820,7 @@ ngx_int_t FASTCALL ngx_hextoi(const u_char * line, size_t n)
 			value = value * 16 + (ch - '0');
 			continue;
 		}
-		c = (u_char)(ch | 0x20);
+		c = (uchar)(ch | 0x20);
 		if(c >= 'a' && c <= 'f') {
 			value = value * 16 + (c - 'a' + 10);
 			continue;
@@ -831,9 +830,9 @@ ngx_int_t FASTCALL ngx_hextoi(const u_char * line, size_t n)
 	return value;
 }
 
-u_char * ngx_hex_dump(u_char * dst, const u_char * src, size_t len)
+uchar * ngx_hex_dump(uchar * dst, const uchar * src, size_t len)
 {
-	// @sobolev static u_char hex[] = "0123456789abcdef";
+	// @sobolev static uchar hex[] = "0123456789abcdef";
 	while(len--) {
 		*dst++ = SlConst::P_HxDigL[*src >> 4];
 		*dst++ = SlConst::P_HxDigL[*src++ & 0xf];
@@ -843,23 +842,23 @@ u_char * ngx_hex_dump(u_char * dst, const u_char * src, size_t len)
 
 void FASTCALL ngx_encode_base64(ngx_str_t * dst, const ngx_str_t * src)
 {
-	//static u_char basis64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	//static uchar basis64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	const uchar * p_basis = (const uchar *)STextConst::Get(STextConst::cBasis64, 0);
 	ngx_encode_base64_internal(dst, src, p_basis, 1);
 }
 
 void FASTCALL ngx_encode_base64url(ngx_str_t * dst, const ngx_str_t * src)
 {
-	//static u_char basis64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+	//static uchar basis64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 	const uchar * p_basis = (const uchar *)STextConst::Get(STextConst::cBasis64Url, 0);
 	ngx_encode_base64_internal(dst, src, p_basis, 0);
 }
 
-static void ngx_encode_base64_internal(ngx_str_t * dst, const ngx_str_t * src, const u_char * basis, ngx_uint_t padding)
+static void ngx_encode_base64_internal(ngx_str_t * dst, const ngx_str_t * src, const uchar * basis, ngx_uint_t padding)
 {
 	size_t len = src->len;
-	const u_char * s = src->data;
-	u_char * d = dst->data;
+	const uchar * s = src->data;
+	uchar * d = dst->data;
 	while(len > 2) {
 		*d++ = basis[(s[0] >> 2) & 0x3f];
 		*d++ = basis[((s[0] & 3) << 4) | (s[1] >> 4)];
@@ -889,7 +888,7 @@ static void ngx_encode_base64_internal(ngx_str_t * dst, const ngx_str_t * src, c
 
 ngx_int_t FASTCALL ngx_decode_base64(ngx_str_t * dst, const ngx_str_t * src)
 {
-	static u_char basis64[] = {
+	static uchar basis64[] = {
 		77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77,
 		77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77,
 		77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 62, 77, 77, 77, 63,
@@ -913,7 +912,7 @@ ngx_int_t FASTCALL ngx_decode_base64(ngx_str_t * dst, const ngx_str_t * src)
 
 ngx_int_t FASTCALL ngx_decode_base64url(ngx_str_t * dst, const ngx_str_t * src)
 {
-	static u_char basis64[] = {
+	static uchar basis64[] = {
 		77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77,
 		77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77,
 		77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 77, 62, 77, 77,
@@ -935,10 +934,10 @@ ngx_int_t FASTCALL ngx_decode_base64url(ngx_str_t * dst, const ngx_str_t * src)
 	return ngx_decode_base64_internal(dst, src, basis64);
 }
 
-static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, const ngx_str_t * src, const u_char * basis)
+static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, const ngx_str_t * src, const uchar * basis)
 {
 	size_t len;
-	u_char  * d, * s;
+	uchar  * d, * s;
 	for(len = 0; len < src->len; len++) {
 		if(src->data[len] == '=') {
 			break;
@@ -953,18 +952,18 @@ static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, const ngx_str_t * s
 	s = src->data;
 	d = dst->data;
 	while(len > 3) {
-		*d++ = (u_char)(basis[s[0]] << 2 | basis[s[1]] >> 4);
-		*d++ = (u_char)(basis[s[1]] << 4 | basis[s[2]] >> 2);
-		*d++ = (u_char)(basis[s[2]] << 6 | basis[s[3]]);
+		*d++ = (uchar)(basis[s[0]] << 2 | basis[s[1]] >> 4);
+		*d++ = (uchar)(basis[s[1]] << 4 | basis[s[2]] >> 2);
+		*d++ = (uchar)(basis[s[2]] << 6 | basis[s[3]]);
 
 		s += 4;
 		len -= 4;
 	}
 	if(len > 1) {
-		*d++ = (u_char)(basis[s[0]] << 2 | basis[s[1]] >> 4);
+		*d++ = (uchar)(basis[s[0]] << 2 | basis[s[1]] >> 4);
 	}
 	if(len > 2) {
-		*d++ = (u_char)(basis[s[1]] << 4 | basis[s[2]] >> 2);
+		*d++ = (uchar)(basis[s[1]] << 4 | basis[s[2]] >> 2);
 	}
 	dst->len = d - dst->data;
 	return NGX_OK;
@@ -977,7 +976,7 @@ static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, const ngx_str_t * s
  *  0xfffffffe              incomplete sequence
  *  0xffffffff              error
  */
-uint32_t FASTCALL ngx_utf8_decode(const u_char ** p, size_t n)
+uint32_t FASTCALL ngx_utf8_decode(const uchar ** p, size_t n)
 {
 	size_t len;
 	uint32_t i, valid;
@@ -1019,12 +1018,12 @@ uint32_t FASTCALL ngx_utf8_decode(const u_char ** p, size_t n)
 	return 0xffffffff;
 }
 
-size_t FASTCALL ngx_utf8_length(const u_char * p, size_t n)
+size_t FASTCALL ngx_utf8_length(const uchar * p, size_t n)
 {
 	size_t len;
-	const u_char * last = p + n;
+	const uchar * last = p + n;
 	for(len = 0; p < last; len++) {
-		u_char c = *p;
+		uchar c = *p;
 		if(c < 0x80) {
 			p++;
 		}
@@ -1036,11 +1035,11 @@ size_t FASTCALL ngx_utf8_length(const u_char * p, size_t n)
 	return len;
 }
 
-u_char * ngx_utf8_cpystrn(u_char * dst, const u_char * src, size_t n, size_t len)
+uchar * ngx_utf8_cpystrn(uchar * dst, const uchar * src, size_t n, size_t len)
 {
 	if(n) {
 		while(--n) {
-			u_char c = *src;
+			uchar c = *src;
 			*dst = c;
 			if(c < 0x80) {
 				if(c != '\0') {
@@ -1052,7 +1051,7 @@ u_char * ngx_utf8_cpystrn(u_char * dst, const u_char * src, size_t n, size_t len
 					return dst;
 			}
 			else {
-				const u_char * next = src;
+				const uchar * next = src;
 				if(ngx_utf8_decode(&next, len) > 0x10ffff) {
 					// invalid UTF-8 
 					break;
@@ -1068,11 +1067,11 @@ u_char * ngx_utf8_cpystrn(u_char * dst, const u_char * src, size_t n, size_t len
 	return dst;
 }
 
-uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size, ngx_uint_t type)
+uintptr_t FASTCALL ngx_escape_uri(uchar * dst, const uchar * src, size_t size, ngx_uint_t type)
 {
 	ngx_uint_t n;
 	uint32_t  * escape;
-	// @sobolev static u_char hex[] = "0123456789ABCDEF";
+	// @sobolev static uchar hex[] = "0123456789ABCDEF";
 	/* " ", "#", "%", "?", %00-%1F, %7F-%FF */
 	static uint32_t uri[] = {
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
@@ -1189,20 +1188,20 @@ uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size,
 	return (uintptr_t)dst;
 }
 
-void FASTCALL ngx_unescape_uri(u_char ** dst, u_char ** src, size_t size, ngx_uint_t type)
+void FASTCALL ngx_unescape_uri(uchar ** dst, uchar ** src, size_t size, ngx_uint_t type)
 {
-	u_char c;
+	uchar c;
 	enum {
 		sw_usual = 0,
 		sw_quoted,
 		sw_quoted_second
 	} state;
-	u_char * d = *dst;
-	u_char * s = *src;
-	u_char decoded = 0;
+	uchar * d = *dst;
+	uchar * s = *src;
+	uchar decoded = 0;
 	state = sw_usual;
 	while(size--) {
-		u_char ch = *s++;
+		uchar ch = *s++;
 		switch(state) {
 			case sw_usual:
 			    if(ch == '?' && (type & (NGX_UNESCAPE_URI|NGX_UNESCAPE_REDIRECT))) {
@@ -1217,13 +1216,13 @@ void FASTCALL ngx_unescape_uri(u_char ** dst, u_char ** src, size_t size, ngx_ui
 			    break;
 			case sw_quoted:
 			    if(ch >= '0' && ch <= '9') {
-				    decoded = (u_char)(ch - '0');
+				    decoded = (uchar)(ch - '0');
 				    state = sw_quoted_second;
 				    break;
 			    }
-			    c = (u_char)(ch | 0x20);
+			    c = (uchar)(ch | 0x20);
 			    if(c >= 'a' && c <= 'f') {
-				    decoded = (u_char)(c - 'a' + 10);
+				    decoded = (uchar)(c - 'a' + 10);
 				    state = sw_quoted_second;
 				    break;
 			    }
@@ -1234,7 +1233,7 @@ void FASTCALL ngx_unescape_uri(u_char ** dst, u_char ** src, size_t size, ngx_ui
 			case sw_quoted_second:
 			    state = sw_usual;
 			    if(ch >= '0' && ch <= '9') {
-				    ch = (u_char)((decoded << 4) + (ch - '0'));
+				    ch = (uchar)((decoded << 4) + (ch - '0'));
 				    if(type & NGX_UNESCAPE_REDIRECT) {
 					    if(ch > '%' && ch < 0x7f) {
 						    *d++ = ch;
@@ -1246,9 +1245,9 @@ void FASTCALL ngx_unescape_uri(u_char ** dst, u_char ** src, size_t size, ngx_ui
 				    *d++ = ch;
 				    break;
 			    }
-			    c = (u_char)(ch | 0x20);
+			    c = (uchar)(ch | 0x20);
 			    if(c >= 'a' && c <= 'f') {
-				    ch = (u_char)((decoded << 4) + (c - 'a') + 10);
+				    ch = (uchar)((decoded << 4) + (c - 'a') + 10);
 				    if(type & NGX_UNESCAPE_URI) {
 					    if(ch == '?') {
 						    *d++ = ch;
@@ -1281,7 +1280,7 @@ done:
 	*src = s;
 }
 
-uintptr_t FASTCALL ngx_escape_html(u_char * dst, u_char * src, size_t size)
+uintptr_t FASTCALL ngx_escape_html(uchar * dst, uchar * src, size_t size)
 {
 	if(dst == NULL) {
 		ngx_uint_t len = 0;
@@ -1299,7 +1298,7 @@ uintptr_t FASTCALL ngx_escape_html(u_char * dst, u_char * src, size_t size)
 	}
 	else {
 		while(size) {
-			u_char ch = *src++;
+			uchar ch = *src++;
 			switch(ch) {
 				case '<': *dst++ = '&'; *dst++ = 'l'; *dst++ = 't'; *dst++ = ';'; break;
 				case '>': *dst++ = '&'; *dst++ = 'g'; *dst++ = 't'; *dst++ = ';'; break;
@@ -1313,9 +1312,9 @@ uintptr_t FASTCALL ngx_escape_html(u_char * dst, u_char * src, size_t size)
 	}
 }
 
-uintptr_t FASTCALL ngx_escape_json(u_char * dst, u_char * src, size_t size)
+uintptr_t FASTCALL ngx_escape_json(uchar * dst, uchar * src, size_t size)
 {
-	u_char ch;
+	uchar ch;
 	if(dst == NULL) {
 		ngx_uint_t len = 0;
 		while(size) {
@@ -1429,17 +1428,17 @@ ngx_str_node_t * ngx_str_rbtree_lookup(ngx_rbtree_t * rbtree, ngx_str_t * val, u
 //
 void ngx_sort(void * base, size_t n, size_t size, ngx_int_t (* cmp)(const void *, const void *))
 {
-	u_char * p = (u_char *)ngx_alloc(size, ngx_cycle->log);
+	uchar * p = (uchar *)ngx_alloc(size, ngx_cycle->log);
 	if(p) {
-		for(u_char * p1 = (u_char *)base + size; p1 < (u_char *)base + n * size; p1 += size) {
-			u_char * p2;
+		for(uchar * p1 = (uchar *)base + size; p1 < (uchar *)base + n * size; p1 += size) {
+			uchar * p2;
 			memcpy(p, p1, size);
-			for(p2 = p1; p2 > (u_char *)base && cmp(p2 - size, p) > 0; p2 -= size) {
+			for(p2 = p1; p2 > (uchar *)base && cmp(p2 - size, p) > 0; p2 -= size) {
 				memcpy(p2, p2 - size, size);
 			}
 			memcpy(p2, p, size);
 		}
-		ngx_free(p);
+		SAlloc::F(p);
 	}
 }
 

@@ -59,7 +59,7 @@ static ngx_inline void ngx_cpuid(uint32_t i, uint32_t * buf)
 
 void ngx_cpuinfo(void)
 {
-	u_char  * vendor;
+	uchar  * vendor;
 	uint32_t vbuf[5], cpu[4], model;
 	vbuf[0] = 0;
 	vbuf[1] = 0;
@@ -67,7 +67,7 @@ void ngx_cpuinfo(void)
 	vbuf[3] = 0;
 	vbuf[4] = 0;
 	ngx_cpuid(0, vbuf);
-	vendor = (u_char *)&vbuf[1];
+	vendor = (uchar *)&vbuf[1];
 	if(vbuf[0] == 0) {
 		return;
 	}

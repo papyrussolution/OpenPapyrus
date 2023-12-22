@@ -745,7 +745,7 @@ int STimeChunkBrowser::SetParam(const Param * pParam)
 	St.HdrLevelCount = 0;
 	memzero(St.HdrLevel, sizeof(St.HdrLevel));
 	if(P.ViewType == Param::vHourDay) {
-		St.HdrLevel[St.HdrLevelCount++] = SSECSPERDAY;
+		St.HdrLevel[St.HdrLevelCount++] = SlConst::SecsPerDay;
 	}
 	else {
 		St.HdrLevel[St.HdrLevelCount++] = P.Quant;
@@ -755,10 +755,10 @@ int STimeChunkBrowser::SetParam(const Param * pParam)
 					St.HdrLevel[St.HdrLevelCount++] = i * 3600;
 					break;
 				}
-			St.HdrLevel[St.HdrLevelCount++] = SSECSPERDAY;
+			St.HdrLevel[St.HdrLevelCount++] = SlConst::SecsPerDay;
 		}
 		else
-			St.HdrLevel[St.HdrLevelCount++] = SSECSPERDAY;
+			St.HdrLevel[St.HdrLevelCount++] = SlConst::SecsPerDay;
 	}
 	SETIFZ(P.HdrLevelHeight, 20);
 	St.TextZonePart = P.TextZonePart;
@@ -1690,7 +1690,7 @@ int FASTCALL STimeChunkBrowser::GetArea(Area & rArea) const
 				pix_per_day = min_pix_per_day;
 				days_per_screen = rArea.Right.width() / pix_per_day;
 			}
-			rArea.Quant = SSECSPERDAY;
+			rArea.Quant = SlConst::SecsPerDay;
 			rArea.PixQuant = pix_per_day;
 			rArea.PixPerHour = 60;
 		}
@@ -2317,7 +2317,7 @@ int STimeChunkBrowser::CopyToClipboard()
 			STimeChunkAssocArray chunk_list(0);
 			SString cell_buf;
 			row = 2;
-			for(uint time_band = 0; time_band < SSECSPERDAY; time_band += time_quant, row++) {
+			for(uint time_band = 0; time_band < SlConst::SecsPerDay; time_band += time_quant, row++) {
 				LTIME   tm_start;
 				LTIME   tm_end;
 				tm_start.settotalsec(time_band);
@@ -2605,7 +2605,7 @@ void STimeChunkBrowser::Paint()
 							first_x = MIN((int)first_x, x);
 							canv.LineVert(x, y, y-5);
 							if(i != 0) {
-								if(unit >= SSECSPERDAY) {
+								if(unit >= SlConst::SecsPerDay) {
 									GetDayOfWeekText(4, dayofweek(&dtm.d, 1), dow_buf);
 									temp_buf.Z().Cat(dtm.d, DATF_DMY).Space().Cat(dow_buf);
 								}
@@ -2638,7 +2638,7 @@ void STimeChunkBrowser::Paint()
 						}
 						prev_date = dtm.d;
 					}
-					else if(unit >= SSECSPERDAY && i != 0) {
+					else if(unit >= SlConst::SecsPerDay && i != 0) {
 						//
 						// Для "коллапсированных" периодов необходимо отрисовывать переход от даты к дате.
 						//
@@ -2688,7 +2688,7 @@ void STimeChunkBrowser::Paint()
 				// Отрисовка подписей засечки шкалы, которая находится левее крайнего обреза области. {
 				//
 				if(i != 0 && first_x > (left_edge+4) && prev_s < 0) {
-					if(unit >= SSECSPERDAY) {
+					if(unit >= SlConst::SecsPerDay) {
 						GetDayOfWeekText(4, dayofweek(&prev_dtm.d, 1), dow_buf);
 						temp_buf.Z().Cat(prev_dtm.d, DATF_DMY).Space().Cat(dow_buf);
 					}

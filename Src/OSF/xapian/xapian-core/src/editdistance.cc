@@ -31,8 +31,8 @@ template <class Char> struct edist_seq {
 };
 
 template <class Char> class edist_state {
-	edist_state& operator = (const edist_state&) = delete; /// Don't allow assignment.
-	edist_state(const edist_state&) = delete; /// Don't allow copying.
+	edist_state & operator = (const edist_state &) = delete; /// Don't allow assignment.
+	edist_state(const edist_state &) = delete; /// Don't allow copying.
 
 	edist_seq<Char> seq1;
 	edist_seq<Char> seq2;
@@ -41,11 +41,9 @@ template <class Char> class edist_state {
 	 * ie: f(k,p) = largest i s.t. d(i,k+i) = p
 	 * Where: d(i,j) = edit distance between substrings of length i and j.
 	 */
-	int* fkp;
+	int * fkp;
 	int fkp_rows;
-
-	/* Maximum possible edit distance (this is referred to as ZERO_K in
-	 * the algorithm description by Berghel and Roach). */
+	// Maximum possible edit distance (this is referred to as ZERO_K in the algorithm description by Berghel and Roach).
 	int maxdist;
 	int calc_index(int k, int p) const { return k + maxdist + fkp_rows * (p + 1); }
 public:
@@ -67,14 +65,8 @@ public:
 			set_f_kp(-k, k - 1, k - 1);
 		}
 	}
-	int get_f_kp(int k, int p) const 
-	{
-		return fkp[calc_index(k, p)];
-	}
-	void set_f_kp(int k, int p, int val) 
-	{
-		fkp[calc_index(k, p)] = val;
-	}
+	int  get_f_kp(int k, int p) const { return fkp[calc_index(k, p)]; }
+	void set_f_kp(int k, int p, int val) { fkp[calc_index(k, p)] = val; }
 	bool is_transposed(int pos1, int pos2) const 
 	{
 		if(pos1 <= 0 || pos2 <= 0 || pos1 >= seq1.len || pos2 >= seq2.len)

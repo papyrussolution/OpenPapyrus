@@ -28,40 +28,34 @@ class StackArray {
 	// We do not want this function to be inlined.
 	// Otherwise the caller will allocate the stack space unnecessarily for all
 	// the variants even though it only calls one.
-	template <size_t steps>
-	ABSL_ATTRIBUTE_NOINLINE static void RunWithCapacityImpl(Func f) {
+	template <size_t steps> ABSL_ATTRIBUTE_NOINLINE static void RunWithCapacityImpl(Func f) 
+	{
 		uint32_t values[steps * kStep]{};
 		f(absl::MakeSpan(values));
 	}
-
 public:
 	static constexpr size_t kMaxCapacity = kStep * kNumSteps;
 
-	static void RunWithCapacity(size_t capacity, Func f) {
+	static void RunWithCapacity(size_t capacity, Func f) 
+	{
 		assert(capacity <= kMaxCapacity);
 		const size_t step = (capacity + kStep - 1) / kStep;
 		assert(step <= kNumSteps);
 		switch(step) {
-			case 1:
-			    return RunWithCapacityImpl<1>(f);
-			case 2:
-			    return RunWithCapacityImpl<2>(f);
-			case 3:
-			    return RunWithCapacityImpl<3>(f);
-			case 4:
-			    return RunWithCapacityImpl<4>(f);
-			case 5:
-			    return RunWithCapacityImpl<5>(f);
+			case 1: return RunWithCapacityImpl<1>(f);
+			case 2: return RunWithCapacityImpl<2>(f);
+			case 3: return RunWithCapacityImpl<3>(f);
+			case 4: return RunWithCapacityImpl<4>(f);
+			case 5: return RunWithCapacityImpl<5>(f);
 		}
-
 		assert(false && "Invalid capacity");
 	}
 };
 
 // Calculates `10 * (*v) + carry` and stores the result in `*v` and returns
 // the carry.
-template <typename Int>
-inline Int MultiplyBy10WithCarry(Int * v, Int carry) {
+template <typename Int> inline Int MultiplyBy10WithCarry(Int * v, Int carry) 
+{
 	using BiggerInt = absl::conditional_t<sizeof(Int) == 4, uint64_t, uint128>;
 	BiggerInt tmp = 10 * static_cast<BiggerInt>(*v) + carry;
 	*v = static_cast<Int>(tmp);
@@ -71,20 +65,19 @@ inline Int MultiplyBy10WithCarry(Int * v, Int carry) {
 // Calculates `(2^64 * carry + *v) / 10`.
 // Stores the quotient in `*v` and returns the remainder.
 // Requires: `0 <= carry <= 9`
-inline uint64_t DivideBy10WithCarry(uint64_t * v, uint64_t carry) {
+inline uint64_t DivideBy10WithCarry(uint64_t * v, uint64_t carry) 
+{
 	constexpr uint64_t divisor = 10;
 	// 2^64 / divisor = chunk_quotient + chunk_remainder / divisor
 	constexpr uint64_t chunk_quotient = (uint64_t{1} << 63) / (divisor / 2);
 	constexpr uint64_t chunk_remainder = uint64_t{} -chunk_quotient * divisor;
-
 	const uint64_t mod = *v % divisor;
 	const uint64_t next_carry = chunk_remainder * carry + mod;
 	*v = *v / divisor + carry * chunk_quotient + next_carry / divisor;
 	return next_carry % divisor;
 }
 
-using MaxFloatType =
-    typename std::conditional<IsDoubleDouble(), double, long double>::type;
+using MaxFloatType = typename std::conditional<IsDoubleDouble(), double, long double>::type;
 
 // Generates the decimal representation for an integer of the form `v * 2^exp`,
 // where `v` and `exp` are both positive integers.
@@ -93,18 +86,18 @@ using MaxFloatType =
 //
 // Requires `0 <= exp` and `exp <= numeric_limits<MaxFloatType>::max_exponent`.
 class BinaryToDecimal {
-	static constexpr int ChunksNeeded(int exp) {
+	static constexpr int ChunksNeeded(int exp) 
+	{
 		// We will left shift a uint128 by `exp` bits, so we need `128+exp` total
 		// bits. Round up to 32.
 		// See constructor for details about adding `10%` to the value.
 		return (128 + exp + 31) / 32 * 11 / 10;
 	}
-
 public:
 	// Run the conversion for `v * 2^exp` and call `f(binary_to_decimal)`.
 	// This function will allocate enough stack space to perform the conversion.
-	static void RunConversion(uint128 v, int exp,
-	    absl::FunctionRef<void(BinaryToDecimal)> f) {
+	static void RunConversion(uint128 v, int exp, absl::FunctionRef<void(BinaryToDecimal)> f) 
+	{
 		assert(exp > 0);
 		assert(exp <= std::numeric_limits<MaxFloatType>::max_exponent);
 		static_assert(static_cast<int>(StackArray::kMaxCapacity) >= ChunksNeeded(std::numeric_limits<MaxFloatType>::max_exponent), "");
@@ -127,9 +120,9 @@ public:
 		}
 		return true;
 	}
-
 private:
-	BinaryToDecimal(absl::Span<uint32_t> data, uint128 v, int exp) : data_(data) {
+	BinaryToDecimal(absl::Span<uint32_t> data, uint128 v, int exp) : data_(data) 
+	{
 		// We need to print the digits directly into the sink object without
 		// buffering them all first. To do this we need two things:
 		// - to know the total number of digits to do padding when necessary
@@ -183,13 +176,10 @@ private:
 
 private:
 	static constexpr int kDigitsPerChunk = 9;
-
 	int decimal_start_;
 	int decimal_end_;
-
 	char digits_[kDigitsPerChunk];
 	int size_ = 0;
-
 	absl::Span<uint32_t> data_;
 };
 
@@ -200,7 +190,8 @@ class FractionalDigitGenerator {
 public:
 	// Run the conversion for `v * 2^exp` and call `f(generator)`.
 	// This function will allocate enough stack space to perform the conversion.
-	static void RunConversion(uint128 v, int exp, absl::FunctionRef<void(FractionalDigitGenerator)> f) {
+	static void RunConversion(uint128 v, int exp, absl::FunctionRef<void(FractionalDigitGenerator)> f) 
+	{
 		using Limits = std::numeric_limits<MaxFloatType>;
 		assert(-exp < 0);
 		assert(-exp >= Limits::min_exponent - 128);
@@ -221,23 +212,21 @@ public:
 
 	// Get the next set of digits.
 	// They are composed by a non-9 digit followed by a runs of zero or more 9s.
-	Digits GetDigits() {
+	Digits GetDigits() 
+	{
 		Digits digits{next_digit_, 0};
-
 		next_digit_ = GetOneDigit();
 		while(next_digit_ == 9) {
 			++digits.num_nines;
 			next_digit_ = GetOneDigit();
 		}
-
 		return digits;
 	}
-
 private:
 	// Return the next digit.
-	int GetOneDigit() {
+	int GetOneDigit() 
+	{
 		if(chunk_index_ < 0) return 0;
-
 		uint32_t carry = 0;
 		for(int i = chunk_index_; i >= 0; --i) {
 			carry = MultiplyBy10WithCarry(&data_[i], carry);
@@ -246,9 +235,8 @@ private:
 		if(data_[chunk_index_] == 0) --chunk_index_;
 		return carry;
 	}
-
-	FractionalDigitGenerator(absl::Span<uint32_t> data, uint128 v, int exp)
-		: chunk_index_(exp / 32), data_(data) {
+	FractionalDigitGenerator(absl::Span<uint32_t> data, uint128 v, int exp) : chunk_index_(exp / 32), data_(data) 
+	{
 		const int offset = exp % 32;
 		// Right shift `v` by `exp` bits.
 		data_[chunk_index_] = static_cast<uint32_t>(v << (32 - offset));
@@ -268,11 +256,9 @@ private:
 };
 
 // Count the number of leading zero bits.
-int LeadingZeros(uint64_t v) {
-	return countl_zero(v);
-}
-
-int LeadingZeros(uint128 v) {
+int LeadingZeros(uint64_t v) { return countl_zero(v); }
+int LeadingZeros(uint128 v) 
+{
 	auto high = static_cast<uint64_t>(v >> 64);
 	auto low = static_cast<uint64_t>(v);
 	return high != 0 ? countl_zero(high) : 64 + countl_zero(low);
@@ -281,19 +267,23 @@ int LeadingZeros(uint128 v) {
 // Round up the text digits starting at `p`.
 // The buffer must have an extra digit that is known to not need rounding.
 // This is done below by having an extra '0' digit on the left.
-void RoundUp(char * p) {
+void RoundUp(char * p) 
+{
 	while(*p == '9' || *p == '.') {
-		if(*p == '9') *p = '0';
+		if(*p == '9') 
+			*p = '0';
 		--p;
 	}
 	++*p;
 }
 
-// Check the previous digit and round up or down to follow the round-to-even
-// policy.
-void RoundToEven(char * p) {
-	if(*p == '.') --p;
-	if(*p % 2 == 1) RoundUp(p);
+// Check the previous digit and round up or down to follow the round-to-even policy.
+void RoundToEven(char * p) 
+{
+	if(*p == '.') 
+		--p;
+	if(*p % 2 == 1) 
+		RoundUp(p);
 }
 
 // Simple integral decimal digit printing for values that fit in 64-bits.
@@ -1142,10 +1132,9 @@ bool RemoveExtraPrecision(int extra_digits, bool has_leftover_value,
 // This will not include the exponent, which will be returned in 'exp_out' for
 // Precision mode.
 template <typename Int, typename Float, FormatStyle mode>
-bool FloatToBufferImpl(Int int_mantissa, int exp, int precision, Buffer * out,
-    int * exp_out) {
+bool FloatToBufferImpl(Int int_mantissa, int exp, int precision, Buffer * out, int * exp_out) 
+{
 	assert((CanFitMantissa<Float, Int>()));
-
 	const int int_bits = std::numeric_limits<Int>::digits;
 
 	// In precision mode, we start printing one char to the right because it will
@@ -1228,18 +1217,15 @@ bool FloatToBufferImpl(Int int_mantissa, int exp, int precision, Buffer * out,
 	    (next_digit == 5 && (int_mantissa || out->last_digit() % 2 == 1))) {
 		RoundUp<mode>(out, exp_out);
 	}
-
 	return true;
 }
 
-template <FormatStyle mode, typename Float>
-bool FloatToBuffer(Decomposed<Float> decomposed, int precision, Buffer * out,
-    int * exp) {
-	if(precision > kMaxFixedPrecision) return false;
-
+template <FormatStyle mode, typename Float> bool FloatToBuffer(Decomposed<Float> decomposed, int precision, Buffer * out, int * exp) 
+{
+	if(precision > kMaxFixedPrecision) 
+		return false;
 	// Try with uint64_t.
-	if(CanFitMantissa<Float, std::uint64_t>() &&
-	    FloatToBufferImpl<std::uint64_t, Float, mode>(
+	if(CanFitMantissa<Float, std::uint64_t>() && FloatToBufferImpl<std::uint64_t, Float, mode>(
 		    static_cast<std::uint64_t>(decomposed.mantissa),
 		    static_cast<std::uint64_t>(decomposed.exponent), precision, out, exp))
 		return true;
@@ -1255,15 +1241,11 @@ bool FloatToBuffer(Decomposed<Float> decomposed, int precision, Buffer * out,
 	return false;
 }
 
-void WriteBufferToSink(char sign_char, absl::string_view str,
-    const FormatConversionSpecImpl &conv,
-    FormatSinkImpl * sink) {
+void WriteBufferToSink(char sign_char, absl::string_view str, const FormatConversionSpecImpl &conv, FormatSinkImpl * sink) 
+{
 	int left_spaces = 0, zeros = 0, right_spaces = 0;
-	int missing_chars =
-	    conv.width() >= 0 ? std::max(conv.width() - static_cast<int>(str.size()) -
-		static_cast<int>(sign_char != 0),
-		0)
-	    : 0;
+	int missing_chars = conv.width() >= 0 ? std::max(conv.width() - static_cast<int>(str.size()) -
+		static_cast<int>(sign_char != 0), 0) : 0;
 	if(conv.has_left_flag()) {
 		right_spaces = missing_chars;
 	}
@@ -1273,7 +1255,6 @@ void WriteBufferToSink(char sign_char, absl::string_view str,
 	else {
 		left_spaces = missing_chars;
 	}
-
 	sink->Append(left_spaces, ' ');
 	if(sign_char != '\0') sink->Append(1, sign_char);
 	sink->Append(zeros, '0');
@@ -1281,9 +1262,8 @@ void WriteBufferToSink(char sign_char, absl::string_view str,
 	sink->Append(right_spaces, ' ');
 }
 
-template <typename Float>
-bool FloatToSink(const Float v, const FormatConversionSpecImpl &conv,
-    FormatSinkImpl * sink) {
+template <typename Float> bool FloatToSink(const Float v, const FormatConversionSpecImpl &conv, FormatSinkImpl * sink) 
+{
 	// Print the sign or the sign column.
 	Float abs_v = v;
 	char sign_char = 0;
@@ -1297,44 +1277,30 @@ bool FloatToSink(const Float v, const FormatConversionSpecImpl &conv,
 	else if(conv.has_sign_col_flag()) {
 		sign_char = ' ';
 	}
-
 	// Print nan/inf.
 	if(ConvertNonNumericFloats(sign_char, abs_v, conv, sink)) {
 		return true;
 	}
-
 	int precision = conv.precision() < 0 ? 6 : conv.precision();
-
 	int exp = 0;
-
 	auto decomposed = Decompose(abs_v);
-
 	Buffer buffer;
-
 	FormatConversionChar c = conv.conversion_char();
-
-	if(c == FormatConversionCharInternal::f ||
-	    c == FormatConversionCharInternal::F) {
-		FormatF(decomposed.mantissa, decomposed.exponent,
-		    {sign_char, precision, conv, sink});
+	if(c == FormatConversionCharInternal::f || c == FormatConversionCharInternal::F) {
+		FormatF(decomposed.mantissa, decomposed.exponent, {sign_char, precision, conv, sink});
 		return true;
 	}
-	else if(c == FormatConversionCharInternal::e ||
-	    c == FormatConversionCharInternal::E) {
-		if(!FloatToBuffer<FormatStyle::Precision>(decomposed, precision, &buffer,
-		    &exp)) {
+	else if(c == FormatConversionCharInternal::e || c == FormatConversionCharInternal::E) {
+		if(!FloatToBuffer<FormatStyle::Precision>(decomposed, precision, &buffer, &exp)) {
 			return FallbackToSnprintf(v, conv, sink);
 		}
-		if(!conv.has_alt_flag() && buffer.back() == '.') buffer.pop_back();
-		PrintExponent(
-			exp, FormatConversionCharIsUpper(conv.conversion_char()) ? 'E' : 'e',
-			&buffer);
+		if(!conv.has_alt_flag() && buffer.back() == '.') 
+			buffer.pop_back();
+		PrintExponent(exp, FormatConversionCharIsUpper(conv.conversion_char()) ? 'E' : 'e', &buffer);
 	}
-	else if(c == FormatConversionCharInternal::g ||
-	    c == FormatConversionCharInternal::G) {
+	else if(c == FormatConversionCharInternal::g || c == FormatConversionCharInternal::G) {
 		precision = std::max(0, precision - 1);
-		if(!FloatToBuffer<FormatStyle::Precision>(decomposed, precision, &buffer,
-		    &exp)) {
+		if(!FloatToBuffer<FormatStyle::Precision>(decomposed, precision, &buffer, &exp)) {
 			return FallbackToSnprintf(v, conv, sink);
 		}
 		if(precision + 1 > exp && exp >= -4) {
@@ -1377,8 +1343,8 @@ bool FloatToSink(const Float v, const FormatConversionSpecImpl &conv,
 }
 }  // namespace
 
-bool ConvertFloatImpl(long double v, const FormatConversionSpecImpl &conv,
-    FormatSinkImpl * sink) {
+bool ConvertFloatImpl(long double v, const FormatConversionSpecImpl &conv, FormatSinkImpl * sink) 
+{
 	if(IsDoubleDouble()) {
 		// This is the `double-double` representation of `long double`. We do not
 		// handle it natively. Fallback to snprintf.
@@ -1387,13 +1353,13 @@ bool ConvertFloatImpl(long double v, const FormatConversionSpecImpl &conv,
 	return FloatToSink(v, conv, sink);
 }
 
-bool ConvertFloatImpl(float v, const FormatConversionSpecImpl &conv,
-    FormatSinkImpl * sink) {
+bool ConvertFloatImpl(float v, const FormatConversionSpecImpl &conv, FormatSinkImpl * sink) 
+{
 	return FloatToSink(static_cast<double>(v), conv, sink);
 }
 
-bool ConvertFloatImpl(double v, const FormatConversionSpecImpl &conv,
-    FormatSinkImpl * sink) {
+bool ConvertFloatImpl(double v, const FormatConversionSpecImpl &conv, FormatSinkImpl * sink) 
+{
 	return FloatToSink(v, conv, sink);
 }
 }  // namespace str_format_internal

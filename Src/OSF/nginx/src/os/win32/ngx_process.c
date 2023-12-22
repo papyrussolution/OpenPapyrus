@@ -14,8 +14,8 @@ ngx_process_t ngx_processes[NGX_MAX_PROCESSES];
 
 ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, const char * name, ngx_int_t respawn)
 {
-	u_long rc;
-	u_long code;
+	ulong rc;
+	ulong code;
 	ngx_int_t s;
 	ngx_pid_t pid;
 	ngx_exec_ctx_t ctx;
@@ -46,7 +46,7 @@ ngx_pid_t ngx_spawn_process(ngx_cycle_t * cycle, const char * name, ngx_int_t re
 		}
 		// } @sobolev 
 		/* @sobolev
-		u_long n = GetModuleFileName(NULL, file, MAX_PATH);
+		ulong n = GetModuleFileName(NULL, file, MAX_PATH);
 		if(n == 0) {
 			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "GetModuleFileName() failed");
 			return NGX_INVALID_PID;

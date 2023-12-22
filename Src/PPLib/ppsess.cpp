@@ -1542,6 +1542,17 @@ int FASTCALL PPSession::ThreadCollection::StopThread(ThreadID tId)
 	return ok;
 }
 
+int FASTCALL PPSession::ThreadCollection::AbortThread(ThreadID tId)
+{
+	int    ok = 1;
+	PPThread * p_target = 0;
+	THROW_PP(tId != DS.GetConstTLA().GetThreadID(), PPERR_THREADCANTBESTOPPED);
+	THROW(p_target = SearchById(tId));
+	p_target->Terminate();
+	CATCHZOK
+	return ok;
+}
+
 PPThread * FASTCALL PPSession::ThreadCollection::SearchById(ThreadID tId)
 {
 	PPThread * p_ret = 0;
@@ -3518,6 +3529,36 @@ int PPSession::Stq_GetBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blo
 int PPSession::Stq_PutBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi)
 {
 	return StQCache.PutBlob(rOwnIdent, oid, blobN, rBi);
+}
+
+int PPSession::TransferIpServerListeningList(int kind/* 1 - papyrus, 2 - nginx */, int dir/* >0 - set, <0 - get*/, TSCollection <IpServerListeningEntry> & rList)
+{
+	int    ok = -1;
+	THROW(oneof2(kind, 1, 2), PPERR_INVPARAM);
+	THROW(dir != 0, PPERR_INVPARAM);
+	{
+		TSCollection <IpServerListeningEntry> & r_internal_list = (kind == 2) ? this->SleList_Nginx : this->SleList_Server;
+		ENTER_CRITICAL_SECTION
+		if(dir > 0) { // set
+			if(rList.getCount()) {
+				TSCollection_Copy(r_internal_list, rList);
+				ok = 1;
+			}
+			else
+				r_internal_list.freeAll();
+		}
+		else { // get
+			if(r_internal_list.getCount()) {
+				TSCollection_Copy(rList, r_internal_list);
+				ok = 1;
+			}
+			else
+				rList.freeAll();
+		}
+		LEAVE_CRITICAL_SECTION
+	}
+	CATCHZOK
+	return ok;
 }
 
 PPSession::LimitedDatabaseBlock::LimitedDatabaseBlock() : P_Ref(0), P_Sj(0), P_Sqc(0), State(0)

@@ -17,7 +17,7 @@
 
 #if 0 // @sobolev {
 
-#ifdef CMS_USE_BIG_ENDIAN
+#ifdef SL_BIGENDIAN
 
 static void byteReverse(uint8 * buf, uint32 longs)
 {

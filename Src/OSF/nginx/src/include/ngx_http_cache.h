@@ -31,7 +31,7 @@ struct ngx_http_cache_valid_t {
 struct ngx_http_file_cache_node_t {
 	ngx_rbtree_node_t node;
 	ngx_queue_t queue;
-	u_char key[NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t)];
+	uchar key[NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t)];
 	unsigned count : 20;
 	unsigned uses : 10;
 	unsigned valid_msec : 10;
@@ -53,8 +53,8 @@ struct ngx_http_cache_s {
 	ngx_file_t file;
 	ngx_array_t keys;
 	uint32_t crc32;
-	u_char key[NGX_HTTP_CACHE_KEY_LEN];
-	u_char main[NGX_HTTP_CACHE_KEY_LEN];
+	uchar key[NGX_HTTP_CACHE_KEY_LEN];
+	uchar main[NGX_HTTP_CACHE_KEY_LEN];
 	ngx_file_uniq_t uniq;
 	time_t valid_sec;
 	time_t updating_sec;
@@ -63,7 +63,7 @@ struct ngx_http_cache_s {
 	time_t date;
 	ngx_str_t etag;
 	ngx_str_t vary;
-	u_char variant[NGX_HTTP_CACHE_KEY_LEN];
+	uchar variant[NGX_HTTP_CACHE_KEY_LEN];
 	size_t header_start;
 	size_t body_start;
 	nginx_off_t length;
@@ -105,14 +105,14 @@ struct ngx_http_file_cache_header_t {
 	time_t last_modified;
 	time_t date;
 	uint32_t crc32;
-	u_short valid_msec;
-	u_short header_start;
-	u_short body_start;
-	u_char etag_len;
-	u_char etag[NGX_HTTP_CACHE_ETAG_LEN];
-	u_char vary_len;
-	u_char vary[NGX_HTTP_CACHE_VARY_LEN];
-	u_char variant[NGX_HTTP_CACHE_KEY_LEN];
+	ushort valid_msec;
+	ushort header_start;
+	ushort body_start;
+	uchar etag_len;
+	uchar etag[NGX_HTTP_CACHE_ETAG_LEN];
+	uchar vary_len;
+	uchar vary[NGX_HTTP_CACHE_VARY_LEN];
+	uchar variant[NGX_HTTP_CACHE_KEY_LEN];
 };
 
 struct ngx_http_file_cache_sh_t {
@@ -151,7 +151,7 @@ ngx_int_t ngx_http_file_cache_new(ngx_http_request_t * r);
 ngx_int_t ngx_http_file_cache_create(ngx_http_request_t * r);
 void ngx_http_file_cache_create_key(ngx_http_request_t * r);
 ngx_int_t ngx_http_file_cache_open(ngx_http_request_t * r);
-ngx_int_t ngx_http_file_cache_set_header(ngx_http_request_t * r, u_char * buf);
+ngx_int_t ngx_http_file_cache_set_header(ngx_http_request_t * r, uchar * buf);
 void ngx_http_file_cache_update(ngx_http_request_t * r, ngx_temp_file_t * tf);
 void ngx_http_file_cache_update_header(ngx_http_request_t * r);
 ngx_int_t ngx_http_cache_send(ngx_http_request_t *);

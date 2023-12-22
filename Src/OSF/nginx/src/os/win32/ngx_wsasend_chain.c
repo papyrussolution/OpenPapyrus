@@ -12,8 +12,8 @@
 ngx_chain_t * ngx_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit)
 {
 	int rc;
-	u_char  * prev;
-	u_long size, sent, send, prev_send;
+	uchar  * prev;
+	ulong size, sent, send, prev_send;
 	ngx_err_t err;
 	ngx_array_t vec;
 	ngx_chain_t  * cl;
@@ -23,7 +23,7 @@ ngx_chain_t * ngx_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_of
 	if(!wev->ready) {
 		return in;
 	}
-	/* the maximum limit size is the maximum u_long value - the page size */
+	/* the maximum limit size is the maximum ulong value - the page size */
 	if(limit == 0 || limit > (nginx_off_t)(NGX_MAX_UINT32_VALUE - ngx_pagesize)) {
 		limit = NGX_MAX_UINT32_VALUE - ngx_pagesize;
 	}
@@ -48,7 +48,7 @@ ngx_chain_t * ngx_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_of
 			}
 			size = cl->buf->last - cl->buf->pos;
 			if(send + size > limit) {
-				size = (u_long)(limit - send);
+				size = (ulong)(limit - send);
 			}
 			if(prev == cl->buf->pos) {
 				wsabuf->len += cl->buf->last - cl->buf->pos;
@@ -93,8 +93,8 @@ ngx_chain_t * ngx_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_of
 ngx_chain_t * ngx_overlapped_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit)
 {
 	int rc;
-	u_char * prev;
-	u_long size, send, sent;
+	uchar * prev;
+	ulong size, send, sent;
 	ngx_err_t err;
 	ngx_array_t vec;
 	ngx_chain_t * cl;
@@ -108,7 +108,7 @@ ngx_chain_t * ngx_overlapped_wsasend_chain(ngx_connection_t * c, ngx_chain_t * i
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0, "wev->complete: %d", wev->complete);
 	if(!wev->complete) {
 		/* post the overlapped WSASend() */
-		/* the maximum limit size is the maximum u_long value - the page size */
+		/* the maximum limit size is the maximum ulong value - the page size */
 		if(limit == 0 || limit > (nginx_off_t)(NGX_MAX_UINT32_VALUE - ngx_pagesize)) {
 			limit = NGX_MAX_UINT32_VALUE - ngx_pagesize;
 		}
@@ -131,7 +131,7 @@ ngx_chain_t * ngx_overlapped_wsasend_chain(ngx_connection_t * c, ngx_chain_t * i
 			}
 			size = cl->buf->last - cl->buf->pos;
 			if(send + size > limit) {
-				size = (u_long)(limit - send);
+				size = (ulong)(limit - send);
 			}
 			if(prev == cl->buf->pos) {
 				wsabuf->len += cl->buf->last - cl->buf->pos;

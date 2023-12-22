@@ -65,16 +65,14 @@ static int setExtraSamples(TIFFDirectory* td, va_list ap, uint32 * v)
 {
 /* XXX: Unassociated alpha data == 999 is a known Corel Draw bug, see below */
 #define EXTRASAMPLE_COREL_UNASSALPHA 999
-
 	uint16* va;
-	uint32 i;
 	*v = (uint16)va_arg(ap, uint16_vap);
 	if((uint16) *v > td->td_samplesperpixel)
 		return 0;
 	va = va_arg(ap, uint16*);
-	if(*v > 0 && va == NULL)                /* typically missing param */
+	if(*v > 0 && va == NULL) /* typically missing param */
 		return 0;
-	for(i = 0; i < *v; i++) {
+	for(uint32 i = 0; i < *v; i++) {
 		if(va[i] > EXTRASAMPLE_UNASSALPHA) {
 			/*
 			 * XXX: Corel Draw is known to produce incorrect

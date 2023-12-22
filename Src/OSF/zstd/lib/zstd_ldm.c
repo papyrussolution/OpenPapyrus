@@ -336,8 +336,10 @@ static size_t ZSTD_ldm_generateSequences_internal(ldmState_t* ldmState, rawSeqSt
 		}
 
 		for(n = 0; n < numSplits; n++) {
-			size_t forwardMatchLength = 0, backwardMatchLength = 0,
-			    bestMatchLength = 0, mLength;
+			size_t forwardMatchLength = 0;
+			size_t backwardMatchLength = 0;
+			size_t bestMatchLength = 0;
+			size_t mLength;
 			uint32 offset;
 			BYTE const* const split = candidates[n].split;
 			const uint32 checksum = candidates[n].checksum;
@@ -346,10 +348,8 @@ static size_t ZSTD_ldm_generateSequences_internal(ldmState_t* ldmState, rawSeqSt
 			ldmEntry_t const* cur;
 			ldmEntry_t const* bestEntry = NULL;
 			ldmEntry_t newEntry;
-
 			newEntry.offset = (uint32)(split - base);
 			newEntry.checksum = checksum;
-
 			/* If a split point would generate a sequence overlapping with
 			 * the previous one, we merely register it in the hash table and
 			 * move on */
@@ -357,23 +357,19 @@ static size_t ZSTD_ldm_generateSequences_internal(ldmState_t* ldmState, rawSeqSt
 				ZSTD_ldm_insertEntry(ldmState, hash, newEntry, *params);
 				continue;
 			}
-
 			for(cur = bucket; cur < bucket + entsPerBucket; cur++) {
-				size_t curForwardMatchLength, curBackwardMatchLength,
-				    curTotalMatchLength;
+				size_t curForwardMatchLength;
+				size_t curBackwardMatchLength;
+				size_t curTotalMatchLength;
 				if(cur->checksum != checksum || cur->offset <= lowestIndex) {
 					continue;
 				}
 				if(extDict) {
-					BYTE const* const curMatchBase =
-					    cur->offset < dictLimit ? dictBase : base;
+					BYTE const* const curMatchBase = cur->offset < dictLimit ? dictBase : base;
 					BYTE const* const pMatch = curMatchBase + cur->offset;
-					BYTE const* const matchEnd =
-					    cur->offset < dictLimit ? dictEnd : iend;
-					BYTE const* const lowMatchPtr =
-					    cur->offset < dictLimit ? dictStart : lowPrefixPtr;
-					curForwardMatchLength =
-					    ZSTD_count_2segments(split, pMatch, iend, matchEnd, lowPrefixPtr);
+					BYTE const* const matchEnd = cur->offset < dictLimit ? dictEnd : iend;
+					BYTE const* const lowMatchPtr = cur->offset < dictLimit ? dictStart : lowPrefixPtr;
+					curForwardMatchLength = ZSTD_count_2segments(split, pMatch, iend, matchEnd, lowPrefixPtr);
 					if(curForwardMatchLength < minMatchLength) {
 						continue;
 					}
@@ -481,8 +477,7 @@ size_t ZSTD_ldm_generateSequences(ldmState_t* ldmState, rawSeqStore_t* sequences
 		/* 1. Perform overflow correction if necessary. */
 		if(ZSTD_window_needOverflowCorrection(ldmState->window, 0, maxDist, ldmState->loadedDictEnd, chunkStart, chunkEnd)) {
 			const uint32 ldmHSize = 1U << params->hashLog;
-			const uint32 correction = ZSTD_window_correctOverflow(
-				&ldmState->window, /* cycleLog */ 0, maxDist, chunkStart);
+			const uint32 correction = ZSTD_window_correctOverflow(&ldmState->window, /* cycleLog */ 0, maxDist, chunkStart);
 			ZSTD_ldm_reduceTable(ldmState->hashTable, ldmHSize, correction);
 			/* invalidate dictionaries on overflow correction */
 			ldmState->loadedDictEnd = 0;

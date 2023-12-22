@@ -10,7 +10,7 @@
 
 struct ngx_http_v2_main_conf_t {
 	size_t recv_buffer_size;
-	u_char    * recv_buffer;
+	uchar    * recv_buffer;
 };
 
 struct ngx_http_v2_srv_conf_t {

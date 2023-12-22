@@ -15,7 +15,7 @@
 #define NGX_HTML_ENTITY_LEN     (sizeof("&#1114111;") - 1)
 
 struct ngx_http_charset_t {
-	u_char ** tables;
+	uchar ** tables;
 	ngx_str_t name;
 	unsigned length : 16;
 	unsigned utf8 : 1;
@@ -29,8 +29,8 @@ struct ngx_http_charset_recode_t {
 struct ngx_http_charset_tables_t {
 	ngx_int_t src;
 	ngx_int_t dst;
-	u_char * src2dst;
-	u_char * dst2src;
+	uchar * src2dst;
+	uchar * dst2src;
 };
 
 struct ngx_http_charset_main_conf_t {
@@ -48,14 +48,14 @@ struct ngx_http_charset_loc_conf_t {
 };
 
 struct ngx_http_charset_ctx_t {
-	u_char * table;
+	uchar * table;
 	ngx_int_t charset;
 	ngx_str_t charset_name;
 	ngx_chain_t  * busy;
 	ngx_chain_t  * free_bufs;
 	ngx_chain_t  * free_buffers;
 	size_t saved_len;
-	u_char saved[NGX_UTF_LEN];
+	uchar saved[NGX_UTF_LEN];
 	unsigned length : 16;
 	unsigned from_utf8 : 1;
 	unsigned to_utf8 : 1;
@@ -72,7 +72,7 @@ static ngx_int_t ngx_http_main_request_charset(ngx_http_request_t * r, ngx_str_t
 static ngx_int_t ngx_http_source_charset(ngx_http_request_t * r, ngx_str_t * name);
 static ngx_int_t ngx_http_get_charset(ngx_http_request_t * r, ngx_str_t * name);
 static ngx_int_t ngx_http_charset_ctx(ngx_http_request_t * r, ngx_http_charset_t * charsets, ngx_int_t charset, ngx_int_t source_charset);
-static ngx_uint_t ngx_http_charset_recode(ngx_buf_t * b, u_char * table);
+static ngx_uint_t ngx_http_charset_recode(ngx_buf_t * b, uchar * table);
 static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_buf_t * buf, ngx_http_charset_ctx_t * ctx);
 static ngx_chain_t * ngx_http_charset_recode_to_utf8(ngx_pool_t * pool, ngx_buf_t * buf, ngx_http_charset_ctx_t * ctx);
 static ngx_chain_t * ngx_http_charset_get_buf(ngx_pool_t * pool, ngx_http_charset_ctx_t * ctx);
@@ -433,10 +433,10 @@ static ngx_int_t ngx_http_charset_body_filter(ngx_http_request_t * r, ngx_chain_
 	return ngx_http_next_body_filter(r, in);
 }
 
-static ngx_uint_t ngx_http_charset_recode(ngx_buf_t * b, u_char * table)
+static ngx_uint_t ngx_http_charset_recode(ngx_buf_t * b, uchar * table)
 {
-	u_char  * p;
-	u_char  * last = b->last;
+	uchar  * p;
+	uchar  * last = b->last;
 	for(p = b->pos; p < last; p++) {
 		if(*p != table[*p]) {
 			goto recode;
@@ -457,15 +457,15 @@ recode:
 static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_buf_t * buf, ngx_http_charset_ctx_t * ctx)
 {
 	size_t len, size;
-	u_char c, * dst;
-	const u_char * p;
-	const u_char * saved;
-	u_char ** table;
+	uchar c, * dst;
+	const uchar * p;
+	const uchar * saved;
+	uchar ** table;
 	uint32_t n;
 	ngx_buf_t * b;
 	ngx_uint_t i;
 	ngx_chain_t  * out, * cl, ** ll;
-	u_char * src = buf->pos;
+	uchar * src = buf->pos;
 	if(ctx->saved_len == 0) {
 		for(/* void */; src < buf->last; src++) {
 			if(*src < 0x80) {
@@ -537,7 +537,7 @@ static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_bu
 	n = ngx_utf8_decode(&saved, i);
 	c = '\0';
 	if(n < 0x10000) {
-		table = (u_char**)ctx->table;
+		table = (uchar**)ctx->table;
 		p = table[n>>8];
 		if(p)
 			c = p[n&0xff];
@@ -589,7 +589,7 @@ static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_bu
 	ctx->saved_len = 0;
 recode:
 	ll = &cl->next;
-	table = (u_char**)ctx->table;
+	table = (uchar**)ctx->table;
 	while(src < buf->last) {
 		if((size_t)(b->end - dst) < NGX_HTML_ENTITY_LEN) {
 			b->last = dst;
@@ -608,7 +608,7 @@ recode:
 			continue;
 		}
 		len = buf->last - src;
-		n = ngx_utf8_decode((const u_char **)&src, len);
+		n = ngx_utf8_decode((const uchar **)&src, len);
 		if(n < 0x10000) {
 			p = table[n >> 8];
 			if(p) {
@@ -650,10 +650,10 @@ recode:
 static ngx_chain_t * ngx_http_charset_recode_to_utf8(ngx_pool_t * pool, ngx_buf_t * buf, ngx_http_charset_ctx_t * ctx)
 {
 	size_t len, size;
-	u_char * p, * src, * dst;
+	uchar * p, * src, * dst;
 	ngx_buf_t  * b;
 	ngx_chain_t  * out, * cl, ** ll;
-	u_char * table = ctx->table;
+	uchar * table = ctx->table;
 	for(src = buf->pos; src < buf->last; src++) {
 		if(table[*src * NGX_UTF_LEN] == '\1') {
 			continue;
@@ -793,7 +793,7 @@ static const char * ngx_http_charset_map_block(ngx_conf_t * cf, const ngx_comman
 {
 	ngx_http_charset_main_conf_t  * mcf = (ngx_http_charset_main_conf_t *)conf;
 	char * rv;
-	u_char * p, * dst2src, ** pp;
+	uchar * p, * dst2src, ** pp;
 	ngx_uint_t i, n;
 	ngx_conf_t pvcf;
 	ngx_http_charset_t * charset;
@@ -826,26 +826,26 @@ static const char * ngx_http_charset_map_block(ngx_conf_t * cf, const ngx_comman
 	}
 	table->src = src;
 	table->dst = dst;
-	if(sstreqi_ascii(value[2].data, (u_char *)"utf-8")) {
-		table->src2dst = (u_char *)ngx_pcalloc(cf->pool, 256 * NGX_UTF_LEN);
+	if(sstreqi_ascii(value[2].data, (uchar *)"utf-8")) {
+		table->src2dst = (uchar *)ngx_pcalloc(cf->pool, 256 * NGX_UTF_LEN);
 		if(table->src2dst == NULL) {
 			return NGX_CONF_ERROR;
 		}
-		table->dst2src = (u_char *)ngx_pcalloc(cf->pool, 256 * sizeof(void *));
+		table->dst2src = (uchar *)ngx_pcalloc(cf->pool, 256 * sizeof(void *));
 		if(table->dst2src == NULL) {
 			return NGX_CONF_ERROR;
 		}
-		dst2src = (u_char *)ngx_pcalloc(cf->pool, 256);
+		dst2src = (uchar *)ngx_pcalloc(cf->pool, 256);
 		if(dst2src == NULL) {
 			return NGX_CONF_ERROR;
 		}
-		pp = (u_char**)&table->dst2src[0];
+		pp = (uchar**)&table->dst2src[0];
 		pp[0] = dst2src;
 		for(i = 0; i < 128; i++) {
 			p = &table->src2dst[i * NGX_UTF_LEN];
 			p[0] = '\1';
-			p[1] = (u_char)i;
-			dst2src[i] = (u_char)i;
+			p[1] = (uchar)i;
+			dst2src[i] = (uchar)i;
 		}
 		for(/* void */; i < 256; i++) {
 			p = &table->src2dst[i * NGX_UTF_LEN];
@@ -854,17 +854,17 @@ static const char * ngx_http_charset_map_block(ngx_conf_t * cf, const ngx_comman
 		}
 	}
 	else {
-		table->src2dst = (u_char *)ngx_palloc(cf->pool, 256);
+		table->src2dst = (uchar *)ngx_palloc(cf->pool, 256);
 		if(table->src2dst == NULL) {
 			return NGX_CONF_ERROR;
 		}
-		table->dst2src = (u_char *)ngx_palloc(cf->pool, 256);
+		table->dst2src = (uchar *)ngx_palloc(cf->pool, 256);
 		if(table->dst2src == NULL) {
 			return NGX_CONF_ERROR;
 		}
 		for(i = 0; i < 128; i++) {
-			table->src2dst[i] = (u_char)i;
-			table->dst2src[i] = (u_char)i;
+			table->src2dst[i] = (uchar)i;
+			table->dst2src[i] = (uchar)i;
 		}
 		for(/* void */; i < 256; i++) {
 			table->src2dst[i] = '?';
@@ -893,8 +893,8 @@ static const char * ngx_http_charset_map_block(ngx_conf_t * cf, const ngx_comman
 
 static const char * ngx_http_charset_map(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf) // F_SetHandler
 {
-	u_char * p;
-	u_char * dst2src, ** pp;
+	uchar * p;
+	uchar * dst2src, ** pp;
 	uint32_t n;
 	ngx_int_t src, dst;
 	ngx_str_t  * value;
@@ -915,34 +915,34 @@ static const char * ngx_http_charset_map(ngx_conf_t * cf, const ngx_command_t * 
 	table = ctx->table;
 	if(ctx->charset->utf8) {
 		p = &table->src2dst[src * NGX_UTF_LEN];
-		*p++ = (u_char)(value[1].len / 2);
+		*p++ = (uchar)(value[1].len / 2);
 		for(i = 0; i < value[1].len; i += 2) {
 			dst = ngx_hextoi(&value[1].data[i], 2);
 			if(dst == NGX_ERROR || dst > 255) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%V\"", &value[1]);
 				return NGX_CONF_ERROR;
 			}
-			*p++ = (u_char)dst;
+			*p++ = (uchar)dst;
 		}
 		i /= 2;
 		ctx->charset->length += i;
 		ctx->characters++;
 		p = &table->src2dst[src * NGX_UTF_LEN] + 1;
-		n = ngx_utf8_decode((const u_char **)&p, i);
+		n = ngx_utf8_decode((const uchar **)&p, i);
 		if(n > 0xffff) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%V\"", &value[1]);
 			return NGX_CONF_ERROR;
 		}
-		pp = (u_char**)&table->dst2src[0];
+		pp = (uchar**)&table->dst2src[0];
 		dst2src = pp[n >> 8];
 		if(dst2src == NULL) {
-			dst2src = (u_char *)ngx_pcalloc(cf->pool, 256);
+			dst2src = (uchar *)ngx_pcalloc(cf->pool, 256);
 			if(dst2src == NULL) {
 				return NGX_CONF_ERROR;
 			}
 			pp[n >> 8] = dst2src;
 		}
-		dst2src[n & 0xff] = (u_char)src;
+		dst2src[n & 0xff] = (uchar)src;
 	}
 	else {
 		dst = ngx_hextoi(value[1].data, value[1].len);
@@ -950,8 +950,8 @@ static const char * ngx_http_charset_map(ngx_conf_t * cf, const ngx_command_t * 
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%V\"", &value[1]);
 			return NGX_CONF_ERROR;
 		}
-		table->src2dst[src] = (u_char)dst;
-		table->dst2src[dst] = (u_char)src;
+		table->src2dst[src] = (uchar)dst;
+		table->dst2src[dst] = (uchar)src;
 	}
 	return NGX_CONF_OK;
 }
@@ -1010,7 +1010,7 @@ static ngx_int_t ngx_http_add_charset(ngx_array_t * charsets, ngx_str_t * name)
 	c->tables = NULL;
 	c->name = *name;
 	c->length = 0;
-	if(sstreqi_ascii(name->data, (u_char *)"utf-8")) {
+	if(sstreqi_ascii(name->data, (uchar *)"utf-8")) {
 		c->utf8 = 1;
 	}
 	else {
@@ -1089,7 +1089,7 @@ static char * ngx_http_charset_merge_loc_conf(ngx_conf_t * cf, void * parent, vo
 
 static ngx_int_t ngx_http_charset_postconfiguration(ngx_conf_t * cf)
 {
-	u_char ** src, ** dst;
+	uchar ** src, ** dst;
 	ngx_int_t c;
 	ngx_uint_t i, t;
 	ngx_http_charset_main_conf_t  * mcf = (ngx_http_charset_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_charset_filter_module);
@@ -1116,7 +1116,7 @@ next:
 	for(t = 0; t < mcf->tables.nelts; t++) {
 		src = charset[tables[t].src].tables;
 		if(!src) {
-			src = (u_char **)ngx_pcalloc(cf->pool, sizeof(u_char *) * mcf->charsets.nelts);
+			src = (uchar **)ngx_pcalloc(cf->pool, sizeof(uchar *) * mcf->charsets.nelts);
 			if(!src) {
 				return NGX_ERROR;
 			}
@@ -1124,7 +1124,7 @@ next:
 		}
 		dst = charset[tables[t].dst].tables;
 		if(dst == NULL) {
-			dst = (u_char **)ngx_pcalloc(cf->pool, sizeof(u_char *) * mcf->charsets.nelts);
+			dst = (uchar **)ngx_pcalloc(cf->pool, sizeof(uchar *) * mcf->charsets.nelts);
 			if(dst == NULL) {
 				return NGX_ERROR;
 			}

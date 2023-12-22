@@ -14,15 +14,15 @@ static ngx_int_t ngx_mail_imap_authenticate(ngx_mail_session_t * s, ngx_connecti
 static ngx_int_t ngx_mail_imap_capability(ngx_mail_session_t * s, ngx_connection_t * c);
 static ngx_int_t ngx_mail_imap_starttls(ngx_mail_session_t * s, ngx_connection_t * c);
 
-static u_char imap_greeting[] = "* OK IMAP4 ready" CRLF;
-static u_char imap_star[] = "* ";
-static u_char imap_ok[] = "OK completed" CRLF;
-static u_char imap_next[] = "+ OK" CRLF;
-static u_char imap_plain_next[] = "+ " CRLF;
-static u_char imap_username[] = "+ VXNlcm5hbWU6" CRLF;
-static u_char imap_password[] = "+ UGFzc3dvcmQ6" CRLF;
-static u_char imap_bye[] = "* BYE" CRLF;
-static u_char imap_invalid_command[] = "BAD invalid command" CRLF;
+static uchar imap_greeting[] = "* OK IMAP4 ready" CRLF;
+static uchar imap_star[] = "* ";
+static uchar imap_ok[] = "OK completed" CRLF;
+static uchar imap_next[] = "+ OK" CRLF;
+static uchar imap_plain_next[] = "+ " CRLF;
+static uchar imap_username[] = "+ VXNlcm5hbWU6" CRLF;
+static uchar imap_password[] = "+ UGFzc3dvcmQ6" CRLF;
+static uchar imap_bye[] = "* BYE" CRLF;
+static uchar imap_invalid_command[] = "BAD invalid command" CRLF;
 
 void ngx_mail_imap_init_session(ngx_mail_session_t * s, ngx_connection_t * c)
 {
@@ -68,7 +68,7 @@ void ngx_mail_imap_init_protocol(ngx_event_t * rev)
 
 void ngx_mail_imap_auth_state(ngx_event_t * rev)
 {
-	u_char    * p, * dst, * src, * end;
+	uchar    * p, * dst, * src, * end;
 	ngx_str_t * arg;
 	ngx_int_t rc;
 	ngx_uint_t tag, i;
@@ -181,7 +181,7 @@ void ngx_mail_imap_auth_state(ngx_event_t * rev)
 		}
 		if(s->tagged_line.len < s->tag.len + s->text.len + s->out.len) {
 			s->tagged_line.len = s->tag.len + s->text.len + s->out.len;
-			s->tagged_line.data = (u_char *)ngx_pnalloc(c->pool, s->tagged_line.len);
+			s->tagged_line.data = (uchar *)ngx_pnalloc(c->pool, s->tagged_line.len);
 			if(s->tagged_line.data == NULL) {
 				ngx_mail_close_connection(c);
 				return;
@@ -226,13 +226,13 @@ static ngx_int_t ngx_mail_imap_login(ngx_mail_session_t * s, ngx_connection_t * 
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
 	s->login.len = arg[0].len;
-	s->login.data = (u_char *)ngx_pnalloc(c->pool, s->login.len);
+	s->login.data = (uchar *)ngx_pnalloc(c->pool, s->login.len);
 	if(s->login.data == NULL) {
 		return NGX_ERROR;
 	}
 	memcpy(s->login.data, arg[0].data, s->login.len);
 	s->passwd.len = arg[1].len;
-	s->passwd.data = (u_char *)ngx_pnalloc(c->pool, s->passwd.len);
+	s->passwd.data = (uchar *)ngx_pnalloc(c->pool, s->passwd.len);
 	if(s->passwd.data == NULL) {
 		return NGX_ERROR;
 	}

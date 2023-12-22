@@ -1821,14 +1821,10 @@ fail:
 	return NULL;
 }
 
-static int parse_rockridge(ArchiveRead * a, struct file_info * file,
-    const uchar * p, const uchar * end)
+static int parse_rockridge(ArchiveRead * a, struct file_info * file, const uchar * p, const uchar * end)
 {
-	struct iso9660 * iso9660;
 	int entry_seen = 0;
-
-	iso9660 = (struct iso9660 *)(a->format->data);
-
+	struct iso9660 * iso9660 = (struct iso9660 *)(a->format->data);
 	while(p + 4 <= end   /* Enough space for another entry. */
 	    && p[0] >= 'A' && p[0] <= 'Z' /* Sanity-check 1st char of name. */
 	    && p[1] >= 'A' && p[1] <= 'Z' /* Sanity-check 2nd char of name. */
@@ -1837,7 +1833,6 @@ static int parse_rockridge(ArchiveRead * a, struct file_info * file,
 		const uchar * data = p + 4;
 		int data_length = p[2] - 4;
 		int version = p[3];
-
 		switch(p[0]) {
 			case 'C':
 			    if(p[1] == 'E') {

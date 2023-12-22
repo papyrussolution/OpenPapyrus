@@ -44,7 +44,7 @@ void ngx_libc_gmtime(time_t s, struct tm * tm)
 ngx_int_t ngx_gettimezone(void)
 {
 	TIME_ZONE_INFORMATION tz;
-	u_long n = GetTimeZoneInformation(&tz);
+	ulong n = GetTimeZoneInformation(&tz);
 	switch(n) {
 		case TIME_ZONE_ID_UNKNOWN: return -tz.Bias;
 		case TIME_ZONE_ID_STANDARD: return -(tz.Bias + tz.StandardBias);

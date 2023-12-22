@@ -132,7 +132,7 @@ cmsINLINE int _cmsQuickFloor(double val)
 		int halves[2];
 	} temp;
 	temp.val = val + _lcms_double2fixmagic;
-#ifdef CMS_USE_BIG_ENDIAN
+#ifdef SL_BIGENDIAN
 	return temp.halves[1] >> 16;
 #else
 	return temp.halves[0] >> 16;

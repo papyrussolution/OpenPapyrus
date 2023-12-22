@@ -650,7 +650,7 @@ double CalcCapacity::Normalyze() const
 	else if(Unit == UNIT_HOUR)
 		div = 3600.0;
 	else if(Unit == UNIT_DAY)
-		div = static_cast<double>(SSECSPERDAY);
+		div = SlConst::SecsPerDayR;
 	else
 		div = 1.0;
 	double v = 0.0;
@@ -671,7 +671,7 @@ int CalcCapacity::SetNorma(double val)
 	else if(Unit == UNIT_HOUR)
 		div = 3600.0;
 	else if(Unit == UNIT_DAY)
-		div = static_cast<double>(SSECSPERDAY);
+		div = SlConst::SecsPerDayR;
 	else
 		div = 1.0;
 	if(Flags & fReverse)

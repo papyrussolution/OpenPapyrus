@@ -34,8 +34,8 @@ static void ngx_http_lingering_close_handler(ngx_event_t * ev);
 static ngx_int_t ngx_http_post_action(ngx_http_request_t * r);
 static void FASTCALL ngx_http_close_request(ngx_http_request_t * r, ngx_int_t error);
 static void ngx_http_log_request(ngx_http_request_t * r);
-static u_char * ngx_http_log_error(ngx_log_t * log, u_char * buf, size_t len);
-static u_char * ngx_http_log_error_handler(ngx_http_request_t * r, ngx_http_request_t * sr, u_char * buf, size_t len);
+static uchar * ngx_http_log_error(ngx_log_t * log, uchar * buf, size_t len);
+static uchar * ngx_http_log_error_handler(ngx_http_request_t * r, ngx_http_request_t * sr, uchar * buf, size_t len);
 
 #if (NGX_HTTP_SSL)
 static void ngx_http_ssl_handshake(ngx_event_t * rev);
@@ -215,7 +215,7 @@ void ngx_http_init_connection(ngx_connection_t * c)
 
 static void ngx_http_wait_request_handler(ngx_event_t * rev)
 {
-	u_char * p;
+	uchar * p;
 	ssize_t n;
 	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "http wait request handler");
@@ -234,7 +234,7 @@ static void ngx_http_wait_request_handler(ngx_event_t * rev)
 			c->buffer = b;
 		}
 		else if(b->start == NULL) {
-			b->start = (u_char *)ngx_palloc(c->pool, size);
+			b->start = (uchar *)ngx_palloc(c->pool, size);
 			THROW(b->start);
 			b->pos = b->start;
 			b->last = b->start;
@@ -372,7 +372,7 @@ ngx_http_request_t * ngx_http_create_request(ngx_connection_t * c)
 
 static void ngx_http_ssl_handshake(ngx_event_t * rev)
 {
-	u_char  * p, buf[NGX_PROXY_PROTOCOL_MAX_HEADER + 1];
+	uchar  * p, buf[NGX_PROXY_PROTOCOL_MAX_HEADER + 1];
 	ngx_int_t rc;
 	ngx_http_core_loc_conf_t  * clcf;
 	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
@@ -542,7 +542,7 @@ int ngx_http_ssl_servername(ngx_ssl_conn_t * ssl_conn, int * ad, void * arg)
 	if(host.len == 0) {
 		return SSL_TLSEXT_ERR_NOACK;
 	}
-	host.data = (u_char *)servername;
+	host.data = (uchar *)servername;
 	if(ngx_http_validate_host(&host, c->pool, 1) != NGX_OK) {
 		return SSL_TLSEXT_ERR_NOACK;
 	}
@@ -690,7 +690,7 @@ ngx_int_t ngx_http_process_request_uri(ngx_http_request_t * r)
 		r->uri.len = r->uri_end - r->uri_start;
 	}
 	if(r->complex_uri || r->quoted_uri) {
-		r->uri.data = (u_char *)ngx_pnalloc(r->pool, r->uri.len + 1);
+		r->uri.data = (uchar *)ngx_pnalloc(r->pool, r->uri.len + 1);
 		if(r->uri.data == NULL) {
 			ngx_http_close_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 			return NGX_ERROR;
@@ -724,8 +724,8 @@ ngx_int_t ngx_http_process_request_uri(ngx_http_request_t * r)
 	}
 #if (NGX_WIN32)
 	{
-		u_char  * p = r->uri.data;
-		u_char  * last = r->uri.data + r->uri.len;
+		uchar  * p = r->uri.data;
+		uchar  * last = r->uri.data + r->uri.len;
 		while(p < last) {
 			if(*p++ == ':') {
 				/*
@@ -765,7 +765,7 @@ ngx_int_t ngx_http_process_request_uri(ngx_http_request_t * r)
 
 static void ngx_http_process_request_headers(ngx_event_t * rev)
 {
-	u_char * p;
+	uchar * p;
 	size_t len;
 	ssize_t n;
 	ngx_int_t rv;
@@ -836,7 +836,7 @@ static void ngx_http_process_request_headers(ngx_event_t * rev)
 				h->value.len = r->header_end - r->header_start;
 				h->value.data = r->header_start;
 				h->value.data[h->value.len] = '\0';
-				h->lowcase_key = (u_char *)ngx_pnalloc(r->pool, h->key.len);
+				h->lowcase_key = (uchar *)ngx_pnalloc(r->pool, h->key.len);
 				if(h->lowcase_key == NULL) {
 					ngx_http_close_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 					return;
@@ -917,8 +917,8 @@ static ssize_t ngx_http_read_request_header(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_alloc_large_header_buffer(ngx_http_request_t * r, ngx_uint_t request_line)
 {
-	u_char  * old;
-	u_char * p_new;
+	uchar  * old;
+	uchar * p_new;
 	ngx_buf_t * b;
 	ngx_chain_t * cl;
 	ngx_http_connection_t   * hc;
@@ -1079,7 +1079,7 @@ static ngx_int_t ngx_http_process_connection(ngx_http_request_t * r, ngx_table_e
 
 static ngx_int_t ngx_http_process_user_agent(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset)
 {
-	u_char  * user_agent, * msie;
+	uchar  * user_agent, * msie;
 	if(r->headers_in.user_agent) {
 		return NGX_OK;
 	}
@@ -1175,12 +1175,12 @@ ngx_int_t ngx_http_process_request_header(ngx_http_request_t * r)
 	}
 
 	if(r->headers_in.transfer_encoding) {
-		if(r->headers_in.transfer_encoding->value.len == 7 && ngx_strncasecmp(r->headers_in.transfer_encoding->value.data, (u_char *)"chunked", 7) == 0) {
+		if(r->headers_in.transfer_encoding->value.len == 7 && ngx_strncasecmp(r->headers_in.transfer_encoding->value.data, (uchar *)"chunked", 7) == 0) {
 			r->headers_in.content_length = NULL;
 			r->headers_in.content_length_n = -1;
 			r->headers_in.chunked = 1;
 		}
-		else if(r->headers_in.transfer_encoding->value.len != 8 || ngx_strncasecmp(r->headers_in.transfer_encoding->value.data, (u_char *)"identity", 8) != 0) {
+		else if(r->headers_in.transfer_encoding->value.len != 8 || ngx_strncasecmp(r->headers_in.transfer_encoding->value.data, (uchar *)"identity", 8) != 0) {
 			ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "client sent unknown \"Transfer-Encoding\": \"%V\"", &r->headers_in.transfer_encoding->value);
 			ngx_http_finalize_request(r, NGX_HTTP_NOT_IMPLEMENTED);
 			return NGX_ERROR;
@@ -1247,7 +1247,7 @@ void ngx_http_process_request(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_validate_host(ngx_str_t * host, ngx_pool_t * pool, ngx_uint_t alloc)
 {
-	u_char ch;
+	uchar ch;
 	size_t i;
 	enum {
 		sw_usual = 0,
@@ -1256,7 +1256,7 @@ static ngx_int_t ngx_http_validate_host(ngx_str_t * host, ngx_pool_t * pool, ngx
 	} state;
 	size_t dot_pos = host->len;
 	size_t host_len = host->len;
-	u_char  * h = host->data;
+	uchar  * h = host->data;
 	state = sw_usual;
 	for(i = 0; i < host->len; i++) {
 		ch = h[i];
@@ -1303,7 +1303,7 @@ static ngx_int_t ngx_http_validate_host(ngx_str_t * host, ngx_pool_t * pool, ngx
 		return NGX_DECLINED;
 	}
 	if(alloc) {
-		host->data = (u_char *)ngx_pnalloc(pool, host_len);
+		host->data = (uchar *)ngx_pnalloc(pool, host_len);
 		if(host->data == NULL) {
 			return NGX_ERROR;
 		}
@@ -2020,7 +2020,7 @@ static void ngx_http_keepalive_handler(ngx_event_t * rev)
 		// The c->buffer's memory was freed by ngx_http_set_keepalive().
 		// However, the c->buffer->start and c->buffer->end were not changed to keep the buffer size.
 		// 
-		THROW(b->pos = (u_char *)ngx_palloc(c->pool, size));
+		THROW(b->pos = (uchar *)ngx_palloc(c->pool, size));
 		b->start = b->pos;
 		b->last = b->pos;
 		b->end = b->pos + size;
@@ -2099,7 +2099,7 @@ static void ngx_http_set_lingering_close(ngx_http_request_t * r)
 static void ngx_http_lingering_close_handler(ngx_event_t * rev)
 {
 	ssize_t n;
-	u_char buffer[NGX_HTTP_LINGERING_BUFFER_SIZE];
+	uchar buffer[NGX_HTTP_LINGERING_BUFFER_SIZE];
 	ngx_connection_t   * c = (ngx_connection_t *)rev->P_Data;
 	ngx_http_request_t * r = (ngx_http_request_t *)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "http lingering close handler");
@@ -2300,9 +2300,9 @@ void ngx_http_close_connection(ngx_connection_t * c)
 	}
 }
 
-static u_char * ngx_http_log_error(ngx_log_t * log, u_char * buf, size_t len)
+static uchar * ngx_http_log_error(ngx_log_t * log, uchar * buf, size_t len)
 {
-	u_char * p;
+	uchar * p;
 	ngx_http_request_t  * r;
 	ngx_http_log_ctx_t  * ctx;
 	if(log->action) {
@@ -2323,12 +2323,12 @@ static u_char * ngx_http_log_error(ngx_log_t * log, u_char * buf, size_t len)
 	return p;
 }
 
-static u_char * ngx_http_log_error_handler(ngx_http_request_t * r, ngx_http_request_t * sr, u_char * buf, size_t len)
+static uchar * ngx_http_log_error_handler(ngx_http_request_t * r, ngx_http_request_t * sr, uchar * buf, size_t len)
 {
 	const char * uri_separator;
 	ngx_http_upstream_t * u;
 	ngx_http_core_srv_conf_t  * cscf = (ngx_http_core_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_core_module);
-	u_char * p = ngx_snprintf(buf, len, ", server: %V", &cscf->server_name);
+	uchar * p = ngx_snprintf(buf, len, ", server: %V", &cscf->server_name);
 	len -= p - buf;
 	buf = p;
 	if(r->request_line.data == NULL && r->request_start) {
@@ -2393,7 +2393,7 @@ int ngx_http_request_t::SetContentType(SFileFormat fmt, SCodepage cp)
 	else 
 		ok = 0;
 	//pReq->headers_out.content_type.len = sizeof("text/html; charset=UTF-8") - 1;
-	//pReq->headers_out.content_type.data = (u_char *)"text/html; charset=UTF-8";
+	//pReq->headers_out.content_type.data = (uchar *)"text/html; charset=UTF-8";
 	return ok;
 }
 

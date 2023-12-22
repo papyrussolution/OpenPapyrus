@@ -17,11 +17,11 @@ ssize_t ngx_wsarecv_chain(ngx_connection_t * c, ngx_chain_t * chain, nginx_off_t
 	ngx_array_t vec;
 	ngx_event_t  * rev;
 	WSABUF wsabufs[NGX_WSABUFS];
-	u_char * prev = NULL;
+	uchar * prev = NULL;
 	LPWSABUF wsabuf = NULL;
-	u_long flags = 0;
+	ulong flags = 0;
 	size_t size = 0;
-	u_long bytes = 0;
+	ulong bytes = 0;
 	vec.elts = wsabufs;
 	vec.nelts = 0;
 	vec.size = sizeof(WSABUF);

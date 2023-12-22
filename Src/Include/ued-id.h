@@ -1,9 +1,9 @@
-// UED-ID-TEMP.H
-// version: 25
-// sha256: 6bb3adecb0e2ded81d38af9d2348b0d1028a826f73dafa174fb2b3d6d4b87b0d
+// UED-ID.H
+// version: 26
+// sha256: ceb92c0b7b401a96983e9918e447444de542b1408cb3953434d1f8741ff85371
 //
-#ifndef __UED_ID_TEMP_H
-#define __UED_ID_TEMP_H
+#ifndef __UED_ID_H
+#define __UED_ID_H
 
 #define UED_META_META                                0x100000001ULL
 #define UED_META_PREDEFVALUE                         0x100000002ULL
@@ -181,8 +181,9 @@
 	#define UED_PROP_PARTOF                              0x90000000bULL
 	#define UED_PROP_EXTDATA                             0x90000000cULL
 	#define UED_PROP_FIXDATASIZE                         0x90000000dULL
-	#define UED_PROP_BELONGTO                            0x90000000eULL
+	#define UED_PROP_BELONGSTO                           0x90000000eULL
 	#define UED_PROP_ARGLIST                             0x90000000fULL
+	#define UED_PROP_SYNON                               0x900000010ULL
 #define UED_META_UTF32CHAR                           0x100000026ULL
 #define UED_META_MBSTRINGENCODING                    0x100000027ULL
 #define UED_META_PARTICULAEELEMENTARIAE              0x100000028ULL
@@ -3688,4 +3689,4 @@
 #define UED_META_INTEGER                             0x197000000ULL
 #define UED_META_DECIMAL                             0x198000000ULL
 
-#endif // __UED_ID_TEMP_H
+#endif // __UED_ID_H

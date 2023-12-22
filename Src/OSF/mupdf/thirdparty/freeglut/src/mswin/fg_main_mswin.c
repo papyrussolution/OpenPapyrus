@@ -36,32 +36,27 @@ extern void fghOnReshapeNotify(SFG_Window * window, int width, int height, GLboo
 extern void fghOnPositionNotify(SFG_Window * window, int x, int y, GLboolean forceNotify);
 extern void fghComputeWindowRectFromClientArea_QueryWindow(RECT * clientRect, const SFG_Window * window, BOOL posIsOutside);
 extern void fghGetClientArea(RECT * clientRect, const SFG_Window * window, BOOL posIsOutside);
-
 extern void fgNewWGLCreateContext(SFG_Window* window);
-extern GLboolean fgSetupPixelFormat(SFG_Window* window, GLboolean checkOnly,
-    unsigned char layer_type);
-
+extern GLboolean fgSetupPixelFormat(SFG_Window* window, GLboolean checkOnly, unsigned char layer_type);
 extern void fgPlatformCheckMenuDeactivate(HWND newFocusWnd);
-
 #ifdef WM_TOUCH
-typedef BOOL (WINAPI *pGetTouchInputInfo)(HTOUCHINPUT, UINT, PTOUCHINPUT, int);
-typedef BOOL (WINAPI *pCloseTouchInputHandle)(HTOUCHINPUT);
-static pGetTouchInputInfo fghGetTouchInputInfo = (pGetTouchInputInfo)0xDEADBEEF;
-static pCloseTouchInputHandle fghCloseTouchInputHandle = (pCloseTouchInputHandle)0xDEADBEEF;
+	typedef BOOL (WINAPI *pGetTouchInputInfo)(HTOUCHINPUT, UINT, PTOUCHINPUT, int);
+	typedef BOOL (WINAPI *pCloseTouchInputHandle)(HTOUCHINPUT);
+	static pGetTouchInputInfo fghGetTouchInputInfo = (pGetTouchInputInfo)0xDEADBEEF;
+	static pCloseTouchInputHandle fghCloseTouchInputHandle = (pCloseTouchInputHandle)0xDEADBEEF;
 #endif
-
 #ifdef _WIN32_WCE
-typedef struct GXDisplayProperties GXDisplayProperties;
-typedef struct GXKeyList GXKeyList;
-#include <gx.h>
+	typedef struct GXDisplayProperties GXDisplayProperties;
+	typedef struct GXKeyList GXKeyList;
+	#include <gx.h>
 
-typedef struct GXKeyList (* GXGETDEFAULTKEYS)(int);
-typedef int (* GXOPENINPUT)();
+	typedef struct GXKeyList (* GXGETDEFAULTKEYS)(int);
+	typedef int (* GXOPENINPUT)();
 
-GXGETDEFAULTKEYS GXGetDefaultKeys_ = NULL;
-GXOPENINPUT GXOpenInput_ = NULL;
+	GXGETDEFAULTKEYS GXGetDefaultKeys_ = NULL;
+	GXOPENINPUT GXOpenInput_ = NULL;
 
-struct GXKeyList gxKeyList;
+	struct GXKeyList gxKeyList;
 #endif /* _WIN32_WCE */
 
 #ifdef _DEBUG
@@ -1541,18 +1536,14 @@ LRESULT CALLBACK fgPlatformWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		    unsigned int numInputs = (unsigned int)wParam;
 		    unsigned int i = 0;
 		    TOUCHINPUT* ti = (TOUCHINPUT*)malloc(sizeof(TOUCHINPUT)*numInputs);
-
 		    if(fghGetTouchInputInfo == (pGetTouchInputInfo)0xDEADBEEF) {
-			    fghGetTouchInputInfo = (pGetTouchInputInfo)GetProcAddress(GetModuleHandle("user32"), "GetTouchInputInfo");
-			    fghCloseTouchInputHandle = (pCloseTouchInputHandle)GetProcAddress(GetModuleHandle("user32"),
-				    "CloseTouchInputHandle");
+			    fghGetTouchInputInfo = (pGetTouchInputInfo)GetProcAddress(GetModuleHandle(L"user32"), "GetTouchInputInfo");
+			    fghCloseTouchInputHandle = (pCloseTouchInputHandle)GetProcAddress(GetModuleHandle(L"user32"), "CloseTouchInputHandle");
 		    }
-
 		    if(!fghGetTouchInputInfo) {
 			    free( (void *)ti);
 			    break;
 		    }
-
 		    if(fghGetTouchInputInfo( (HTOUCHINPUT)lParam, numInputs, ti, sizeof(TOUCHINPUT) )) {
 			    /* Handle each contact point */
 			    for(i = 0; i < numInputs; ++i) {

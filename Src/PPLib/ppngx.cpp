@@ -1,5 +1,5 @@
 // PPNGX.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023
 // @codepage UTF-8
 // Взаимодействие с NGINX
 //
@@ -7,8 +7,13 @@
 #pragma hdrstop
 #include <ngx_core.h>
 
-int NgxStartUp(const NgxStartUpOptions & rO); // prototype
+int NgxStartUp(const NgxStartUpOptions & rO, void (*FnSetIpServerListeningEntryList)(TSCollection <IpServerListeningEntry> & rSleList)); // prototype
 ngx_thread_value_t __stdcall ngx_worker_thread(void * data);
+
+static void SetIpServerListeningEntryList(TSCollection <IpServerListeningEntry> & rSleList)
+{
+	DS.TransferIpServerListeningList(2, +1, rSleList);
+}
 
 int RunNginxServer()
 {
@@ -19,7 +24,7 @@ int RunNginxServer()
 		temp_buf.SetLastDSlash().Cat("nginx").SetLastDSlash();
 		SFsPath::NormalizePath(temp_buf, SFsPath::npfSlash, o.Prefix);
 	}
-	return BIN(NgxStartUp(o) == 0);
+	return BIN(NgxStartUp(o, SetIpServerListeningEntryList) == 0);
 }
 
 int RunNginxWorker()

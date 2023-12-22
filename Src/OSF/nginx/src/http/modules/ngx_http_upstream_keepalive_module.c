@@ -183,7 +183,7 @@ static ngx_int_t ngx_http_upstream_get_keepalive_peer(ngx_peer_connection_t * pc
 	    q = ngx_queue_next(q)) {
 		item = ngx_queue_data(q, ngx_http_upstream_keepalive_cache_t, queue);
 		c = item->connection;
-		if(ngx_memn2cmp((u_char *)&item->sockaddr, (u_char *)pc->sockaddr, item->socklen, pc->socklen) == 0) {
+		if(ngx_memn2cmp((uchar *)&item->sockaddr, (uchar *)pc->sockaddr, item->socklen, pc->socklen) == 0) {
 			ngx_queue_remove(q);
 			ngx_queue_insert_head(&kp->conf->free, q);
 			goto found;

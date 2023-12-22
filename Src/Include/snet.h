@@ -346,17 +346,25 @@ private:
 	STempBuffer OutBuf;
 };
 //
+// Descr: Структура, унифицирующая адрес прослушивания (listening) ip-сервера.
+//
+struct IpServerListeningEntry { // @v11.9.1 
+	bool   Parse(const char * pText);
+	InetAddr A;
+};
+//
 //
 //
 class TcpServer : private TcpSocket {
 public:
-	explicit TcpServer(const InetAddr & rAddr);
+	explicit TcpServer(const /*InetAddr & rAddr*/IpServerListeningEntry & rSle);
 	virtual ~TcpServer();
 	int    Run();
 	virtual int ExecSession(TcpSocket & rSock, InetAddr & rAddr);
 		// @<<TcpServer::Run
 private:
-	InetAddr Addr;
+	//InetAddr Addr;
+	IpServerListeningEntry Sle;
 };
 //
 //

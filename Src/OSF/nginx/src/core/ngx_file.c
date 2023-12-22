@@ -15,7 +15,7 @@ ngx_atomic_int_t ngx_random_number = 123456;
 ngx_int_t ngx_get_full_name(ngx_pool_t * pool, ngx_str_t * prefix, ngx_str_t * name)
 {
 	size_t len;
-	u_char * p, * n;
+	uchar * p, * n;
 	ngx_int_t rc = ngx_test_full_name(name);
 	if(rc == NGX_OK) {
 		return rc;
@@ -26,7 +26,7 @@ ngx_int_t ngx_get_full_name(ngx_pool_t * pool, ngx_str_t * prefix, ngx_str_t * n
 		len = rc;
 	}
 #endif
-	n = (u_char *)ngx_pnalloc(pool, len + name->len + 1);
+	n = (uchar *)ngx_pnalloc(pool, len + name->len + 1);
 	if(n == NULL) {
 		return NGX_ERROR;
 	}
@@ -40,8 +40,8 @@ ngx_int_t ngx_get_full_name(ngx_pool_t * pool, ngx_str_t * prefix, ngx_str_t * n
 static ngx_int_t ngx_test_full_name(ngx_str_t * name)
 {
 #if (NGX_WIN32)
-	u_char c1;
-	u_char c0 = name->data[0];
+	uchar c1;
+	uchar c0 = name->data[0];
 	if(name->len < 2) {
 		if(c0 == '/') {
 			return 2;
@@ -96,7 +96,7 @@ ngx_int_t ngx_create_temp_file(ngx_file_t * file, ngx_path_t * path, ngx_pool_t 
     ngx_uint_t persistent, ngx_uint_t clean, ngx_uint_t access)
 {
 	size_t levels;
-	u_char * p;
+	uchar * p;
 	uint32_t n;
 	ngx_err_t err;
 	ngx_str_t name;
@@ -114,7 +114,7 @@ ngx_int_t ngx_create_temp_file(ngx_file_t * file, ngx_path_t * path, ngx_pool_t 
 		prefix = 0;
 	}
 	file->name.len = name.len + 1 + levels + 10;
-	file->name.data = (u_char *)ngx_pnalloc(pool, file->name.len + 1);
+	file->name.data = (uchar *)ngx_pnalloc(pool, file->name.len + 1);
 	if(file->name.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -166,7 +166,7 @@ ngx_int_t ngx_create_temp_file(ngx_file_t * file, ngx_path_t * path, ngx_pool_t 
 	}
 }
 
-void ngx_create_hashed_filename(ngx_path_t * path, u_char * file, size_t len)
+void ngx_create_hashed_filename(ngx_path_t * path, uchar * file, size_t len)
 {
 	size_t i = path->name.len + 1;
 	file[path->name.len + path->len]  = '/';
@@ -205,9 +205,9 @@ ngx_int_t ngx_create_path(ngx_file_t * file, ngx_path_t * path)
 	return NGX_OK;
 }
 
-ngx_err_t ngx_create_full_path(u_char * dir, ngx_uint_t access)
+ngx_err_t ngx_create_full_path(uchar * dir, ngx_uint_t access)
 {
-	u_char * p;
+	uchar * p;
 	ngx_err_t err = 0;
 #if (NGX_WIN32)
 	p = dir + 3;
@@ -215,7 +215,7 @@ ngx_err_t ngx_create_full_path(u_char * dir, ngx_uint_t access)
 	p = dir + 1;
 #endif
 	for(/* void */; *p; p++) {
-		const u_char ch = *p;
+		const uchar ch = *p;
 		if(ch == '/') {
 			*p = '\0';
 			if(ngx_create_dir(dir, access) == NGX_FILE_ERROR) {
@@ -317,7 +317,7 @@ char * ngx_conf_merge_path_value(ngx_conf_t * cf, ngx_path_t ** path, ngx_path_t
 const char * ngx_conf_set_access_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char  * confp = static_cast<char *>(conf);
-	u_char * p;
+	uchar * p;
 	ngx_uint_t i, right, shift, user;
 	ngx_uint_t * access = (ngx_uint_t*)(confp + cmd->offset);
 	if(*access != NGX_CONF_UNSET_UINT) {
@@ -452,7 +452,7 @@ ngx_int_t ngx_create_paths(ngx_cycle_t * cycle, ngx_uid_t user)
 
 ngx_int_t ngx_ext_rename_file(ngx_str_t * src, ngx_str_t * to, ngx_ext_rename_file_t * ext)
 {
-	u_char * name;
+	uchar * name;
 	ngx_err_t err;
 	ngx_copy_file_t cf;
 #if !(NGX_WIN32)
@@ -504,14 +504,14 @@ ngx_int_t ngx_ext_rename_file(ngx_str_t * src, ngx_str_t * to, ngx_ext_rename_fi
 		cf.access = ext->access;
 		cf.time = ext->time;
 		cf.log = ext->log;
-		name = (u_char *)ngx_alloc(to->len + 1 + 10 + 1, ext->log);
+		name = (uchar *)ngx_alloc(to->len + 1 + 10 + 1, ext->log);
 		if(!name) {
 			return NGX_ERROR;
 		}
 		(void)ngx_sprintf(name, "%*s.%010uD%Z", to->len, to->data, (uint32_t)ngx_next_temp_number(0));
 		if(ngx_copy_file(src->data, name, &cf) == NGX_OK) {
 			if(ngx_rename_file(name, to->data) != NGX_FILE_ERROR) {
-				ngx_free(name);
+				SAlloc::F(name);
 				if(ngx_delete_file(src->data) == NGX_FILE_ERROR) {
 					ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno, ngx_delete_file_n " \"%s\" failed", src->data);
 					return NGX_ERROR;
@@ -523,7 +523,7 @@ ngx_int_t ngx_ext_rename_file(ngx_str_t * src, ngx_str_t * to, ngx_ext_rename_fi
 				ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno, ngx_delete_file_n " \"%s\" failed", name);
 			}
 		}
-		ngx_free(name);
+		SAlloc::F(name);
 		err = 0;
 	}
 failed:
@@ -538,7 +538,7 @@ failed:
 	return NGX_ERROR;
 }
 
-ngx_int_t ngx_copy_file(u_char * from, u_char * to, ngx_copy_file_t * cf)
+ngx_int_t ngx_copy_file(uchar * from, uchar * to, ngx_copy_file_t * cf)
 {
 	nginx_off_t size;
 	size_t len;
@@ -618,7 +618,7 @@ failed:
 		}
 	}
 	if(buf) {
-		ngx_free(buf);
+		SAlloc::F(buf);
 	}
 	return rc;
 }
@@ -644,7 +644,7 @@ failed:
 ngx_int_t ngx_walk_tree(ngx_tree_ctx_t * ctx, ngx_str_t * tree)
 {
 	void * data, * prev;
-	u_char   * p, * name;
+	uchar   * p, * name;
 	size_t len;
 	ngx_int_t rc;
 	ngx_err_t err;
@@ -695,10 +695,10 @@ ngx_int_t ngx_walk_tree(ngx_tree_ctx_t * ctx, ngx_str_t * tree)
 		file.len = tree->len + 1 + len;
 		if(file.len + NGX_DIR_MASK_LEN > buf.len) {
 			if(buf.len) {
-				ngx_free(buf.data);
+				SAlloc::F(buf.data);
 			}
 			buf.len = tree->len + 1 + len + NGX_DIR_MASK_LEN;
-			buf.data = (u_char *)ngx_alloc(buf.len + 1, ctx->log);
+			buf.data = (uchar *)ngx_alloc(buf.len + 1, ctx->log);
 			if(buf.data == NULL) {
 				goto failed;
 			}
@@ -756,10 +756,10 @@ failed:
 	rc = NGX_ABORT;
 done:
 	if(buf.len) {
-		ngx_free(buf.data);
+		SAlloc::F(buf.data);
 	}
 	if(data) {
-		ngx_free(data);
+		SAlloc::F(data);
 		ctx->data = prev;
 	}
 	if(ngx_close_dir(&dir) == NGX_ERROR) {

@@ -4942,6 +4942,62 @@ int CheckVersion()
 //
 //
 //
+bool PPSession::RunNginxServerThread(bool forceReboot)
+{
+	bool ok = false;
+	class NginxServer : public PPThread {
+	public:
+		NginxServer() : PPThread(PPThread::kNginxServer, "nginx", 0)
+		{
+			//InitStartupSignal();
+		}
+		/*virtual void Startup()
+		{
+			PPThread::Startup();
+			SignalStartup();
+		}*/
+		virtual void Run()
+		{
+			RunNginxServer();
+		}
+	};
+	bool do_run = true;
+	LongArray running_srv_thread_list;
+	LongArray running_wrk_thread_list;
+	GetThreadListByKind(PPThread::kNginxServer, running_srv_thread_list);
+	if(running_srv_thread_list.getCount()) {
+		if(forceReboot) {
+			GetThreadListByKind(PPThread::kNginxWorker, running_wrk_thread_list);
+			{
+				for(uint i = 0; i < running_wrk_thread_list.getCount(); i++) {
+					ThreadID thread_id = static_cast<ThreadID>(running_wrk_thread_list.get(i));
+					if(ThreadList.AbortThread(thread_id)) {
+						ThreadList.Remove(thread_id);
+					}
+				}
+			}
+			{
+				for(uint i = 0; i < running_srv_thread_list.getCount(); i++) {
+					ThreadID thread_id = static_cast<ThreadID>(running_srv_thread_list.get(i));
+					if(ThreadList.AbortThread(thread_id)) {
+						ThreadList.Remove(thread_id);
+					}
+				}
+			}
+		}
+		else
+			do_run = false;
+	}
+	if(do_run) {
+		NginxServer * p_ngx_srv = new NginxServer;
+		if(p_ngx_srv) {
+			p_ngx_srv->Start();
+			ok = true;
+		}
+	}
+	return ok;
+}
+
 int run_server()
 {
 	DS.SetExtFlag(ECF_SYSSERVICE, 1);
@@ -4950,7 +5006,8 @@ int run_server()
 		bool do_run_nginx = false;
 		//
 		PPServerSession::InitBlock sib;
-		InetAddr addr;
+		//InetAddr addr;
+		IpServerListeningEntry sle;
 		int    port = 0;
 		int    client_timeout = -1;
 		sib.ClosedSockTimeout = 60000;
@@ -4991,25 +5048,160 @@ int run_server()
 			p_job_srv->Start();
 		}
 		if(do_run_nginx) {
-			class NginxServer : public PPThread {
-			public:
-				NginxServer() : PPThread(PPThread::kNginxServer, "nginx", 0)
+			if(DS.RunNginxServerThread(/*forceReboot*/false)) {
+				// @v11.9.1 {
 				{
+					class MonitorThread : public PPThread {
+					public:
+						MonitorThread(const TSCollection <IpServerListeningEntry> & rSleList) : PPThread(PPThread::kCasualJob, "nginx monitor", 0)
+						{
+							TSCollection_Copy(SleList, rSleList);
+						}
+						virtual void Run()
+						{
+							if(SleList.getCount()) {
+								const uint32 timeout = 600000;
+								const long period_sec = 60;
+								bool  the_first_check = true;
+								uint  seq_fault_count = 0;
+								uint  debug_count = 0;
+								SString temp_buf;
+								STimer timer;
+								Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
+								LDATETIME dtm_last_work_event = ZERODATETIME;
+								for(int stop = 0; !stop;) {
+									const LDATETIME dtm = (dtm_last_work_event == ZERODATETIME) ? getcurdatetime_().plussec(period_sec) : dtm_last_work_event.plussec(period_sec);
+									timer.Set(dtm, 0);
+									{
+										uint   h_count = 0;
+										HANDLE h_list[32];
+										int    evidx_stop = -1;
+										int    evidx_timer = -1;
+										{
+											evidx_stop = h_count++;
+											h_list[evidx_stop] = stop_event;
+										}
+										{
+											evidx_timer = h_count++;
+											h_list[evidx_timer] = timer;
+										}
+										uint   r = WaitForMultipleObjects(h_count, h_list, 0, /*timeout*/INFINITE);
+										if(r == WAIT_TIMEOUT) {
+											;
+										}
+										else if(evidx_stop >= 0 && r == (WAIT_OBJECT_0 + evidx_stop)) { // stop event
+											stop = 1; // quit loop
+										}
+										else if(evidx_timer >= 0 && r == (WAIT_OBJECT_0 + evidx_timer)) { // timer
+											bool r = Ping();
+											if(the_first_check) {
+												if(r)
+													PPLogMessage(PPFILNAM_SERVER_LOG, PPSTR_TEXT, PPTXT_NGINXSRV_STARTED_MNTR_IS_OK, LOGMSGF_TIME);
+												the_first_check = false;
+											}
+											if(!r) {
+												seq_fault_count++;
+												PPLogMessage(PPFILNAM_SERVER_LOG, PPSTR_TEXT, PPTXT_NGINXSRV_MNTRREPORTEDFAULT, LOGMSGF_TIME);
+												if(seq_fault_count >= 2) {
+													DS.RunNginxServerThread(/*forceReboot*/true);
+												}
+											}
+											else {
+												seq_fault_count = 0;
+												debug_count++;
+												//if(debug_count == 3) { DS.RunNginxServerThread(/*forceReboot*/true); }
+											}
+											dtm_last_work_event = getcurdatetime_();
+										}
+										else if(r == WAIT_FAILED) {
+											// error
+										}
+										else {
+											;
+										}
+									}
+								}
+							}							
+						}
+					private:
+						bool   Ping()
+						{
+							bool    ok = true;
+							SString temp_buf;
+							for(uint i = 0; ok && i < SleList.getCount(); i++) {
+								const IpServerListeningEntry * p_sle = SleList.at(i);
+								if(p_sle) {
+									const int port = p_sle->A.GetPort();
+									if(port > 0) {
+										PPStyloQInterchange::RoundTripBlock b;
+										StyloQProtocol prot;
+										b.Url.SetProtocol(InetUrl::protHttp);
+										b.Url.SetComponent(InetUrl::cHost, "localhost");
+										b.Url.SetComponent(InetUrl::cPort, temp_buf.Z().Cat(port));
+										b.Uuid.Generate();
+										prot.StartWriting(PPSCMD_PING, 0);
+										prot.FinishWriting(0);
+										{
+											ScURL  c;
+											SString content_buf;
+											SBuffer reply_buf;
+											SFile wr_stream(reply_buf, SFile::mWrite);
+											StrStrAssocArray hdr_flds;
+											b.Url.GetComponent(InetUrl::cPath, 0, temp_buf);
+											if(temp_buf.IsEmpty()) {
+												b.Url.SetComponent(InetUrl::cPath, "styloq");
+											}
+											b.Url.SetQueryParam("rtsid", SLS.AcquireRvlStr().Cat(b.Uuid, S_GUID::fmtIDL|S_GUID::fmtPlain|S_GUID::fmtLower));
+											content_buf = "test-request-for-connection-checking";
+											SFileFormat::GetMime(SFileFormat::Unkn, temp_buf);
+											SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+											SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentLen, temp_buf.Z().Cat(content_buf.Len()));
+											SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, temp_buf);
+											SFileFormat::GetContentTransferEncName(/*P_Cb->ContentTransfEnc*/SFileFormat::cteBase64, temp_buf);
+											THROW_SL(c.HttpPost(b.Url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, content_buf, &wr_stream));
+											{
+												SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+												THROW(p_ack_buf); // @todo error
+												temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+												THROW(temp_buf.IsEqiAscii("your-test-request-is-accepted"));
+											}
+										}
+									}
+								}
+							}
+							CATCHZOK
+							return ok;
+						}
+						TSCollection <IpServerListeningEntry> SleList;
+					};
+					SDelay(500);
+					TSCollection <IpServerListeningEntry> sle_list;
+					DS.TransferIpServerListeningList(2, -1, sle_list);
+					bool do_start_monitor = false;
+					if(sle_list.getCount()) {
+						for(uint i = 0; !do_start_monitor && i < sle_list.getCount(); i++) {
+							const IpServerListeningEntry * p_sle = sle_list.at(i);
+							if(p_sle && p_sle->A.GetPort() > 0) {
+								do_start_monitor = true;
+							}
+						}
+					}
+					if(do_start_monitor) {
+						MonitorThread * p_monitor = new MonitorThread(sle_list);
+						if(p_monitor) {
+							p_monitor->Start();
+						}
+					}
 				}
-				virtual void Run()
-				{
-					RunNginxServer();
-				}
-			};
-			NginxServer * p_ngx_srv = new NginxServer;
-			p_ngx_srv->Start();
+			}
+			// } @v11.9.1 
 		}
 		RunStyloQMqbServer(); // @v11.2.12 Запуск (если нужно) сервера обработки mqb-запросов StyloQ
 		{
 			class PPServer : public TcpServer {
 			public:
-				PPServer(const InetAddr & rAddr, int clientTimeout, const PPServerSession::InitBlock & rSib) :
-					TcpServer(rAddr), ClientTimeout(clientTimeout), Sib(rSib)
+				PPServer(const IpServerListeningEntry & rSle, int clientTimeout, const PPServerSession::InitBlock & rSib) :
+					TcpServer(rSle), ClientTimeout(clientTimeout), Sib(rSib)
 				{
 				}
 				virtual int ExecSession(::TcpSocket & rSock, InetAddr & rAddr)
@@ -5026,8 +5218,8 @@ int run_server()
 				const int ClientTimeout;
 				const PPServerSession::InitBlock Sib;
 			};
-			addr.Set(0UL, port);
-			PPServer server(addr, client_timeout, sib);
+			sle.A.Set(0UL, port);
+			PPServer server(sle, client_timeout, sib);
 			if(server.Run())
 				PPLogMessage(PPFILNAM_SERVER_LOG, PPSTR_TEXT, PPTXT_PPYSERVERSTOPPED, LOGMSGF_TIME);
 		}

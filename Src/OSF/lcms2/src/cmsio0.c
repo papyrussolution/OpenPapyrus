@@ -393,34 +393,32 @@ cmsIOHANDLER* CMSEXPORT cmsGetProfileIOhandler(cmsHPROFILE hProfile)
 cmsHPROFILE CMSEXPORT cmsCreateProfilePlaceholder(cmsContext ContextID)
 {
 	time_t now = time(NULL);
-	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)_cmsMallocZero(ContextID, sizeof(_cmsICCPROFILE));
-	if(Icc == NULL) return NULL;
-	Icc->ContextID = ContextID;
-	// Set it to empty
-	Icc->TagCount   = 0;
-	// Set default version
-	Icc->Version =  0x02100000;
-	// Set creation date/time
-	memmove(&Icc->Created, gmtime(&now), sizeof(Icc->Created));
-	// Create a mutex if the user provided proper plugin. NULL otherwise
-	Icc->UsrMutex = _cmsCreateMutex(ContextID);
-	// Return the handle
-	return (cmsHPROFILE)Icc;
+	_cmsICCPROFILE * Icc = (_cmsICCPROFILE*)_cmsMallocZero(ContextID, sizeof(_cmsICCPROFILE));
+	if(Icc) {
+		Icc->ContextID = ContextID;
+		// Set it to empty
+		Icc->TagCount   = 0;
+		// Set default version
+		Icc->Version =  0x02100000;
+		// Set creation date/time
+		memmove(&Icc->Created, gmtime(&now), sizeof(Icc->Created));
+		// Create a mutex if the user provided proper plugin. NULL otherwise
+		Icc->UsrMutex = _cmsCreateMutex(ContextID);
+	}
+	return (cmsHPROFILE)Icc; // Return the handle
 }
 
 cmsContext CMSEXPORT cmsGetProfileContextID(cmsHPROFILE hProfile)
 {
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
-	if(Icc == NULL) return NULL;
-	return Icc->ContextID;
+	return Icc ? Icc->ContextID : NULL;
 }
 
 // Return the number of tags
 int32 CMSEXPORT cmsGetTagCount(cmsHPROFILE hProfile)
 {
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
-	if(Icc == NULL) return -1;
-	return (int32)Icc->TagCount;
+	return Icc ? (int32)Icc->TagCount : -1;
 }
 
 // Return the tag signature of a given tag number
@@ -434,10 +432,9 @@ cmsTagSignature CMSEXPORT cmsGetTagSignature(cmsHPROFILE hProfile, uint32 n)
 
 static int SearchOneTag(_cmsICCPROFILE* Profile, cmsTagSignature sig)
 {
-	int i;
-	for(i = 0; i < (int)Profile->TagCount; i++) {
+	for(uint i = 0; i < Profile->TagCount; i++) {
 		if(sig == Profile->TagNames[i])
-			return i;
+			return (int)i;
 	}
 	return -1;
 }
@@ -448,7 +445,6 @@ int _cmsSearchTag(_cmsICCPROFILE* Icc, cmsTagSignature sig, boolint lFollowLinks
 {
 	int n;
 	cmsTagSignature LinkedSig;
-
 	do {
 		// Search for given tag in ICC profile directory
 		n = SearchOneTag(Icc, sig);
@@ -463,7 +459,6 @@ int _cmsSearchTag(_cmsICCPROFILE* Icc, cmsTagSignature sig, boolint lFollowLinks
 			sig = LinkedSig;
 		}
 	} while(LinkedSig != (cmsTagSignature)0);
-
 	return n;
 }
 
@@ -531,8 +526,8 @@ static uint32 _validatedVersion(uint32 DWord)
 	uint8 * pByte = (uint8 *)&DWord;
 	uint8 temp1;
 	uint8 temp2;
-
-	if(*pByte > 0x09) *pByte = (uint8)0x09;
+	if(*pByte > 0x09) 
+		*pByte = (uint8)0x09;
 	temp1 = (uint8)(*(pByte+1) & 0xf0);
 	temp2 = (uint8)(*(pByte+1) & 0x0f);
 	if(temp1 > 0x90U) temp1 = 0x90U;
@@ -540,7 +535,6 @@ static uint32 _validatedVersion(uint32 DWord)
 	*(pByte+1) = (uint8)(temp1 | temp2);
 	*(pByte+2) = (uint8)0;
 	*(pByte+3) = (uint8)0;
-
 	return DWord;
 }
 
@@ -553,12 +547,10 @@ boolint _cmsReadHeader(_cmsICCPROFILE* Icc)
 	uint32 HeaderSize;
 	cmsIOHANDLER* io = Icc->IOhandler;
 	uint32 TagCount;
-
 	// Read the header
 	if(io->Read(io, &Header, sizeof(cmsICCHeader), 1) != 1) {
 		return FALSE;
 	}
-
 	// Validate file as an ICC profile
 	if(_cmsAdjustEndianess32(Header.magic) != cmsMagicNumber) {
 		cmsSignalError(Icc->ContextID, cmsERROR_BAD_SIGNATURE, "not an ICC profile, invalid signature");

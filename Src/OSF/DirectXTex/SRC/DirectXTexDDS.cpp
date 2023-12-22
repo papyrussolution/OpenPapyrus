@@ -522,11 +522,9 @@ _Use_decl_annotations_ HRESULT DirectX::EncodeDDSHeader(const TexMetadata& metad
 	if(flags & DDS_FLAGS_FORCE_DX10_EXT_MISC2) {
 		flags |= DDS_FLAGS_FORCE_DX10_EXT;
 	}
-
 	DDS_PIXELFORMAT ddpf = {};
 	if(!(flags & DDS_FLAGS_FORCE_DX10_EXT)) {
-		switch(metadata.format)
-		{
+		switch(metadata.format) {
 			case DXGI_FORMAT_R8G8B8A8_UNORM:        memcpy(&ddpf, &DDSPF_A8B8G8R8, sizeof(DDS_PIXELFORMAT)); break;
 			case DXGI_FORMAT_R16G16_UNORM:          memcpy(&ddpf, &DDSPF_G16R16, sizeof(DDS_PIXELFORMAT)); break;
 			case DXGI_FORMAT_R8G8_UNORM:            memcpy(&ddpf, &DDSPF_A8L8, sizeof(DDS_PIXELFORMAT)); break;
@@ -536,10 +534,8 @@ _Use_decl_annotations_ HRESULT DirectX::EncodeDDSHeader(const TexMetadata& metad
 			case DXGI_FORMAT_R8G8_B8G8_UNORM:       memcpy(&ddpf, &DDSPF_R8G8_B8G8, sizeof(DDS_PIXELFORMAT)); break;
 			case DXGI_FORMAT_G8R8_G8B8_UNORM:       memcpy(&ddpf, &DDSPF_G8R8_G8B8, sizeof(DDS_PIXELFORMAT)); break;
 			case DXGI_FORMAT_BC1_UNORM:             memcpy(&ddpf, &DDSPF_DXT1, sizeof(DDS_PIXELFORMAT)); break;
-			case DXGI_FORMAT_BC2_UNORM:             memcpy(&ddpf, metadata.IsPMAlpha() ? (&DDSPF_DXT2) : (&DDSPF_DXT3),
-				sizeof(DDS_PIXELFORMAT)); break;
-			case DXGI_FORMAT_BC3_UNORM:             memcpy(&ddpf, metadata.IsPMAlpha() ? (&DDSPF_DXT4) : (&DDSPF_DXT5),
-				sizeof(DDS_PIXELFORMAT)); break;
+			case DXGI_FORMAT_BC2_UNORM:             memcpy(&ddpf, metadata.IsPMAlpha() ? (&DDSPF_DXT2) : (&DDSPF_DXT3), sizeof(DDS_PIXELFORMAT)); break;
+			case DXGI_FORMAT_BC3_UNORM:             memcpy(&ddpf, metadata.IsPMAlpha() ? (&DDSPF_DXT4) : (&DDSPF_DXT5), sizeof(DDS_PIXELFORMAT)); break;
 			case DXGI_FORMAT_BC4_SNORM:             memcpy(&ddpf, &DDSPF_BC4_SNORM, sizeof(DDS_PIXELFORMAT)); break;
 			case DXGI_FORMAT_BC5_SNORM:             memcpy(&ddpf, &DDSPF_BC5_SNORM, sizeof(DDS_PIXELFORMAT)); break;
 			case DXGI_FORMAT_B5G6R5_UNORM:          memcpy(&ddpf, &DDSPF_R5G6B5, sizeof(DDS_PIXELFORMAT)); break;
@@ -547,15 +543,10 @@ _Use_decl_annotations_ HRESULT DirectX::EncodeDDSHeader(const TexMetadata& metad
 			case DXGI_FORMAT_R8G8_SNORM:            memcpy(&ddpf, &DDSPF_V8U8, sizeof(DDS_PIXELFORMAT)); break;
 			case DXGI_FORMAT_R8G8B8A8_SNORM:        memcpy(&ddpf, &DDSPF_Q8W8V8U8, sizeof(DDS_PIXELFORMAT)); break;
 			case DXGI_FORMAT_R16G16_SNORM:          memcpy(&ddpf, &DDSPF_V16U16, sizeof(DDS_PIXELFORMAT)); break;
-			case DXGI_FORMAT_B8G8R8A8_UNORM:        memcpy(&ddpf, &DDSPF_A8R8G8B8, sizeof(DDS_PIXELFORMAT)); break;// DXGI
-			                                                                                                 // 1.1
-			case DXGI_FORMAT_B8G8R8X8_UNORM:        memcpy(&ddpf, &DDSPF_X8R8G8B8, sizeof(DDS_PIXELFORMAT)); break;// DXGI
-			                                                                                                 // 1.1
-			case DXGI_FORMAT_B4G4R4A4_UNORM:        memcpy(&ddpf, &DDSPF_A4R4G4B4, sizeof(DDS_PIXELFORMAT)); break;// DXGI
-			                                                                                                 // 1.2
-			case DXGI_FORMAT_YUY2:                  memcpy(&ddpf, &DDSPF_YUY2, sizeof(DDS_PIXELFORMAT)); break;// DXGI
-			                                                                                    // 1.2
-
+			case DXGI_FORMAT_B8G8R8A8_UNORM:        memcpy(&ddpf, &DDSPF_A8R8G8B8, sizeof(DDS_PIXELFORMAT)); break;// DXGI 1.1
+			case DXGI_FORMAT_B8G8R8X8_UNORM:        memcpy(&ddpf, &DDSPF_X8R8G8B8, sizeof(DDS_PIXELFORMAT)); break;// DXGI 1.1
+			case DXGI_FORMAT_B4G4R4A4_UNORM:        memcpy(&ddpf, &DDSPF_A4R4G4B4, sizeof(DDS_PIXELFORMAT)); break;// DXGI .2
+			case DXGI_FORMAT_YUY2:                  memcpy(&ddpf, &DDSPF_YUY2, sizeof(DDS_PIXELFORMAT)); break;// DXGI 1.2
 			// Legacy D3DX formats using D3DFMT enum value as FourCC
 			case DXGI_FORMAT_R32G32B32A32_FLOAT:
 			    ddpf.size = sizeof(DDS_PIXELFORMAT); ddpf.flags = DDS_FOURCC; ddpf.fourCC = 116; // D3DFMT_A32B32G32R32F

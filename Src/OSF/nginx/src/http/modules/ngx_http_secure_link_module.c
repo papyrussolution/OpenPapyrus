@@ -87,13 +87,13 @@ static ngx_str_t ngx_http_secure_link_expires_name =
 static ngx_int_t ngx_http_secure_link_variable(ngx_http_request_t * r,
     ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char   * p, * last;
+	uchar   * p, * last;
 	ngx_str_t val, hash;
 	time_t expires;
 	ngx_md5_t md5;
 	ngx_http_secure_link_ctx_t * ctx;
 	ngx_http_secure_link_conf_t  * conf;
-	u_char hash_buf[16], md5_buf[16];
+	uchar hash_buf[16], md5_buf[16];
 	conf = (ngx_http_secure_link_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_secure_link_module);
 	if(conf->secret.data) {
 		return ngx_http_secure_link_old_variable(r, conf, v, data);
@@ -150,7 +150,7 @@ static ngx_int_t ngx_http_secure_link_variable(ngx_http_request_t * r,
 	if(memcmp(hash_buf, md5_buf, 16) != 0) {
 		goto not_found;
 	}
-	v->data = (u_char *)((expires && expires < ngx_time()) ? "0" : "1");
+	v->data = (uchar *)((expires && expires < ngx_time()) ? "0" : "1");
 	v->len = 1;
 	v->valid = 1;
 	v->no_cacheable = 0;
@@ -169,12 +169,12 @@ static ngx_int_t ngx_http_secure_link_old_variable(ngx_http_request_t * r,
     ngx_http_secure_link_conf_t * conf, ngx_http_variable_value_t * v,
     uintptr_t data)
 {
-	u_char * p, * start, * end, * last;
+	uchar * p, * start, * end, * last;
 	size_t len;
 	ngx_int_t n;
 	ngx_uint_t i;
 	ngx_md5_t md5;
-	u_char hash[16];
+	uchar hash[16];
 
 	p = &r->unparsed_uri.data[1];
 	last = r->unparsed_uri.data + r->unparsed_uri.len;

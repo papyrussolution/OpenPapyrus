@@ -466,7 +466,7 @@ static ngx_int_t ngx_http_read_discarded_request_body(ngx_http_request_t * r)
 	ssize_t n;
 	ngx_int_t rc;
 	ngx_buf_t b;
-	u_char buffer[NGX_HTTP_DISCARD_BUFFER_SIZE];
+	uchar buffer[NGX_HTTP_DISCARD_BUFFER_SIZE];
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http read discarded body");
 	memzero(&b, sizeof(ngx_buf_t));
 	b.temporary = 1;
@@ -574,11 +574,11 @@ static ngx_int_t ngx_http_test_expect(ngx_http_request_t * r)
 	}
 	r->expect_tested = 1;
 	expect = &r->headers_in.expect->value;
-	if(expect->len != sizeof("100-continue") - 1 || ngx_strncasecmp(expect->data, (u_char *)"100-continue", sizeof("100-continue") - 1) != 0) {
+	if(expect->len != sizeof("100-continue") - 1 || ngx_strncasecmp(expect->data, (uchar *)"100-continue", sizeof("100-continue") - 1) != 0) {
 		return NGX_OK;
 	}
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "send 100 Continue");
-	n = r->connection->send(r->connection, (u_char *)"HTTP/1.1 100 Continue" CRLF CRLF, sizeof("HTTP/1.1 100 Continue" CRLF CRLF) - 1);
+	n = r->connection->send(r->connection, (uchar *)"HTTP/1.1 100 Continue" CRLF CRLF, sizeof("HTTP/1.1 100 Continue" CRLF CRLF) - 1);
 	if(n == sizeof("HTTP/1.1 100 Continue" CRLF CRLF) - 1) {
 		return NGX_OK;
 	}

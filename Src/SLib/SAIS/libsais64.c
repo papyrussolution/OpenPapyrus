@@ -103,37 +103,6 @@ typedef struct LIBSAIS_UNBWT_CONTEXT {
 #else
     #error Your compiler, configuration or platform is not supported.
 #endif
-/*
-#if !defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)
-    #if defined(_LITTLE_ENDIAN) \
-	|| (defined(BYTE_ORDER) && defined(LITTLE_ENDIAN) && BYTE_ORDER == LITTLE_ENDIAN) \
-	|| (defined(_BYTE_ORDER) && defined(_LITTLE_ENDIAN) && _BYTE_ORDER == _LITTLE_ENDIAN) \
-	|| (defined(__BYTE_ORDER) && defined(__LITTLE_ENDIAN) && __BYTE_ORDER == __LITTLE_ENDIAN) \
-	|| (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-	#define __LITTLE_ENDIAN__
-    #elif defined(_BIG_ENDIAN) \
-	|| (defined(BYTE_ORDER) && defined(BIG_ENDIAN) && BYTE_ORDER == BIG_ENDIAN) \
-	|| (defined(_BYTE_ORDER) && defined(_BIG_ENDIAN) && _BYTE_ORDER == _BIG_ENDIAN) \
-	|| (defined(__BYTE_ORDER) && defined(__BIG_ENDIAN) && __BYTE_ORDER == __BIG_ENDIAN) \
-	|| (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-	#define __BIG_ENDIAN__
-    #elif defined(_WIN32)
-	#define __LITTLE_ENDIAN__
-    #endif
-#endif
-#if defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)
-    #if defined(HAS_BUILTIN_BSWAP16)
-	#define libsais64_bswap16_Removed(x) (__builtin_bswap16(x))
-    #elif defined(_MSC_VER) && !defined(__INTEL_COMPILER)
-	#define libsais64_bswap16_Removed(x) (_byteswap_ushort(x))
-    #else
-	#define libsais64_bswap16_Removed(x) ((uint16)(x >> 8) | (uint16)(x << 8))
-    #endif
-#elif !defined(__LITTLE_ENDIAN__) && defined(__BIG_ENDIAN__)
-    #define libsais64_bswap16_Removed(x) (x)
-#else
-    #error Your compiler, configuration or platform is not supported.
-#endif*/
 
 static void * libsais64_align_up(const void * address, size_t alignment)
 {
@@ -661,17 +630,12 @@ static sa_sint_t libsais64_count_and_gather_lms_suffixes_8u_omp(const uint8 * _R
 	    #pragma omp master
 			{
 				memzero(buckets, 4 * ALPHABET_SIZE * sizeof(sa_sint_t));
-
 				fast_sint_t t;
 				for(t = omp_num_threads - 1; t >= 0; --t) {
 					m += (sa_sint_t)thread_state[t].state.m;
-
 					if(t != omp_num_threads - 1 && thread_state[t].state.m > 0) {
-						memcpy(&SA[n - m],
-						    &SA[thread_state[t].state.position - thread_state[t].state.m],
-						    (size_t)thread_state[t].state.m * sizeof(sa_sint_t));
+						memcpy(&SA[n - m], &SA[thread_state[t].state.position - thread_state[t].state.m], (size_t)thread_state[t].state.m * sizeof(sa_sint_t));
 					}
-
 					{
 						sa_sint_t * _RESTRICT temp_bucket = thread_state[t].state.buckets;
 						fast_sint_t s; for(s = 0; s < 4 * ALPHABET_SIZE; s += 1) {

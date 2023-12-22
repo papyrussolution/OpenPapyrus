@@ -12,7 +12,7 @@
 
 typedef struct ngx_stream_log_op_s ngx_stream_log_op_t;
 
-typedef u_char *(*ngx_stream_log_op_run_pt)(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op);
+typedef uchar *(*ngx_stream_log_op_run_pt)(ngx_stream_session_t * s, uchar * buf, ngx_stream_log_op_t * op);
 typedef size_t (*ngx_stream_log_op_getlen_pt)(ngx_stream_session_t * s, uintptr_t data);
 
 struct ngx_stream_log_op_s {
@@ -33,9 +33,9 @@ typedef struct {
 } ngx_stream_log_main_conf_t;
 
 typedef struct {
-	u_char  * start;
-	u_char  * pos;
-	u_char  * last;
+	uchar  * start;
+	uchar  * pos;
+	uchar  * last;
 
 	ngx_event_t * event;
 	ngx_msec_t flush;
@@ -71,21 +71,21 @@ typedef struct {
 	ngx_stream_log_op_run_pt run;
 } ngx_stream_log_var_t;
 
-static void ngx_stream_log_write(ngx_stream_session_t * s, ngx_stream_log_t * log, u_char * buf, size_t len);
-static ssize_t ngx_stream_log_script_write(ngx_stream_session_t * s, ngx_stream_log_script_t * script, u_char ** name, u_char * buf, size_t len);
+static void ngx_stream_log_write(ngx_stream_session_t * s, ngx_stream_log_t * log, uchar * buf, size_t len);
+static ssize_t ngx_stream_log_script_write(ngx_stream_session_t * s, ngx_stream_log_script_t * script, uchar ** name, uchar * buf, size_t len);
 #if (NGX_ZLIB)
-	static ssize_t ngx_stream_log_gzip(ngx_fd_t fd, u_char * buf, size_t len, ngx_int_t level, ngx_log_t * log);
-	static void * ngx_stream_log_gzip_alloc(void * opaque, u_int items, u_int size);
+	static ssize_t ngx_stream_log_gzip(ngx_fd_t fd, uchar * buf, size_t len, ngx_int_t level, ngx_log_t * log);
+	static void * ngx_stream_log_gzip_alloc(void * opaque, uint items, uint size);
 	static void ngx_stream_log_gzip_free(void * opaque, void * address);
 #endif
 static void ngx_stream_log_flush(ngx_open_file_t * file, ngx_log_t * log);
 static void ngx_stream_log_flush_handler(ngx_event_t * ev);
 static ngx_int_t ngx_stream_log_variable_compile(ngx_conf_t * cf, ngx_stream_log_op_t * op, ngx_str_t * value, ngx_uint_t json);
 static size_t ngx_stream_log_variable_getlen(ngx_stream_session_t * s, uintptr_t data);
-static u_char * ngx_stream_log_variable(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op);
-static uintptr_t ngx_stream_log_escape(u_char * dst, u_char * src, size_t size);
+static uchar * ngx_stream_log_variable(ngx_stream_session_t * s, uchar * buf, ngx_stream_log_op_t * op);
+static uintptr_t ngx_stream_log_escape(uchar * dst, uchar * src, size_t size);
 static size_t ngx_stream_log_json_variable_getlen(ngx_stream_session_t * s, uintptr_t data);
-static u_char * ngx_stream_log_json_variable(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op);
+static uchar * ngx_stream_log_json_variable(ngx_stream_session_t * s, uchar * buf, ngx_stream_log_op_t * op);
 static void * ngx_stream_log_create_main_conf(ngx_conf_t * cf);
 static void * ngx_stream_log_create_srv_conf(ngx_conf_t * cf);
 static char * ngx_stream_log_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
@@ -133,7 +133,7 @@ ngx_module_t ngx_stream_log_module = {
 
 static ngx_int_t ngx_stream_log_handler(ngx_stream_session_t * s)
 {
-	u_char * line, * p;
+	uchar * line, * p;
 	size_t len, size;
 	ssize_t n;
 	ngx_str_t val;
@@ -207,7 +207,7 @@ static ngx_int_t ngx_stream_log_handler(ngx_stream_session_t * s)
 			}
 		}
 alloc_line:
-		line = static_cast<u_char *>(ngx_pnalloc(s->connection->pool, len));
+		line = static_cast<uchar *>(ngx_pnalloc(s->connection->pool, len));
 		if(line == NULL) {
 			return NGX_ERROR;
 		}
@@ -235,9 +235,9 @@ alloc_line:
 	return NGX_OK;
 }
 
-static void ngx_stream_log_write(ngx_stream_session_t * s, ngx_stream_log_t * log, u_char * buf, size_t len)
+static void ngx_stream_log_write(ngx_stream_session_t * s, ngx_stream_log_t * log, uchar * buf, size_t len)
 {
-	u_char * name;
+	uchar * name;
 	time_t now;
 	ssize_t n;
 	ngx_err_t err;
@@ -284,7 +284,7 @@ static void ngx_stream_log_write(ngx_stream_session_t * s, ngx_stream_log_t * lo
 }
 
 static ssize_t ngx_stream_log_script_write(ngx_stream_session_t * s,
-    ngx_stream_log_script_t * script, u_char ** name, u_char * buf, size_t len)
+    ngx_stream_log_script_t * script, uchar ** name, uchar * buf, size_t len)
 {
 	ssize_t n;
 	ngx_str_t log;
@@ -319,10 +319,10 @@ static ssize_t ngx_stream_log_script_write(ngx_stream_session_t * s,
 
 #if (NGX_ZLIB)
 
-static ssize_t ngx_stream_log_gzip(ngx_fd_t fd, u_char * buf, size_t len, ngx_int_t level, ngx_log_t * log)
+static ssize_t ngx_stream_log_gzip(ngx_fd_t fd, uchar * buf, size_t len, ngx_int_t level, ngx_log_t * log)
 {
 	int rc;
-	u_char * out;
+	uchar * out;
 	size_t size;
 	ssize_t n;
 	z_stream zstream;
@@ -349,7 +349,7 @@ static ssize_t ngx_stream_log_gzip(ngx_fd_t fd, u_char * buf, size_t len, ngx_in
 	zstream.zalloc = ngx_stream_log_gzip_alloc;
 	zstream.zfree = ngx_stream_log_gzip_free;
 	zstream.opaque = pool;
-	out = (u_char *)ngx_pnalloc(pool, size);
+	out = (uchar *)ngx_pnalloc(pool, size);
 	if(out == NULL) {
 		goto done;
 	}
@@ -390,7 +390,7 @@ done:
 	return len;
 }
 
-static void * ngx_stream_log_gzip_alloc(void * opaque, u_int items, u_int size)
+static void * ngx_stream_log_gzip_alloc(void * opaque, uint items, uint size)
 {
 	ngx_pool_t * pool = (ngx_pool_t *)opaque;
 	ngx_log_debug2(NGX_LOG_DEBUG_STREAM, pool->log, 0, "gzip alloc: n:%ud s:%ud", items, size);
@@ -445,21 +445,21 @@ static void ngx_stream_log_flush_handler(ngx_event_t * ev)
 	ngx_stream_log_flush((ngx_open_file_t *)ev->P_Data, ev->log);
 }
 
-static u_char * ngx_stream_log_copy_short(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op)
+static uchar * ngx_stream_log_copy_short(ngx_stream_session_t * s, uchar * buf, ngx_stream_log_op_t * op)
 {
 	size_t len = op->len;
 	uintptr_t data = op->data;
 	while(len--) {
-		*buf++ = (u_char)(data & 0xff);
+		*buf++ = (uchar)(data & 0xff);
 		data >>= 8;
 	}
 	return buf;
 }
 
-static u_char * ngx_stream_log_copy_long(ngx_stream_session_t * s, u_char * buf,
+static uchar * ngx_stream_log_copy_long(ngx_stream_session_t * s, uchar * buf,
     ngx_stream_log_op_t * op)
 {
-	return ngx_cpymem(buf, (u_char *)op->data, op->len);
+	return ngx_cpymem(buf, (uchar *)op->data, op->len);
 }
 
 static ngx_int_t ngx_stream_log_variable_compile(ngx_conf_t * cf, ngx_stream_log_op_t * op,
@@ -494,7 +494,7 @@ static size_t ngx_stream_log_variable_getlen(ngx_stream_session_t * s, uintptr_t
 	return value->len + len * 3;
 }
 
-static u_char * ngx_stream_log_variable(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op)
+static uchar * ngx_stream_log_variable(ngx_stream_session_t * s, uchar * buf, ngx_stream_log_op_t * op)
 {
 	ngx_stream_variable_value_t * value = ngx_stream_get_indexed_variable(s, op->data);
 	if(value == NULL || value->not_found) {
@@ -505,14 +505,14 @@ static u_char * ngx_stream_log_variable(ngx_stream_session_t * s, u_char * buf, 
 		return ngx_cpymem(buf, value->data, value->len);
 	}
 	else {
-		return (u_char *)ngx_stream_log_escape(buf, value->data, value->len);
+		return (uchar *)ngx_stream_log_escape(buf, value->data, value->len);
 	}
 }
 
-static uintptr_t ngx_stream_log_escape(u_char * dst, u_char * src, size_t size)
+static uintptr_t ngx_stream_log_escape(uchar * dst, uchar * src, size_t size)
 {
 	ngx_uint_t n;
-	// @sobolev static u_char hex[] = "0123456789ABCDEF";
+	// @sobolev static uchar hex[] = "0123456789ABCDEF";
 	static uint32_t escape[] = {
 		0xffffffff, /* 1111 1111 1111 1111  1111 1111 1111 1111 */
 
@@ -570,7 +570,7 @@ static size_t ngx_stream_log_json_variable_getlen(ngx_stream_session_t * s, uint
 	return value->len + len;
 }
 
-static u_char * ngx_stream_log_json_variable(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op)
+static uchar * ngx_stream_log_json_variable(ngx_stream_session_t * s, uchar * buf, ngx_stream_log_op_t * op)
 {
 	ngx_stream_variable_value_t * value = ngx_stream_get_indexed_variable(s, op->data);
 	if(value == NULL || value->not_found) {
@@ -580,7 +580,7 @@ static u_char * ngx_stream_log_json_variable(ngx_stream_session_t * s, u_char * 
 		return ngx_cpymem(buf, value->data, value->len);
 	}
 	else {
-		return (u_char *)ngx_escape_json(buf, value->data, value->len);
+		return (uchar *)ngx_escape_json(buf, value->data, value->len);
 	}
 }
 
@@ -806,7 +806,7 @@ process_formats:
 		if(!buffer) {
 			return NGX_CONF_ERROR;
 		}
-		buffer->start = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
+		buffer->start = static_cast<uchar *>(ngx_pnalloc(cf->pool, size));
 		if(buffer->start == NULL) {
 			return NGX_CONF_ERROR;
 		}
@@ -860,7 +860,7 @@ static const char * ngx_stream_log_set_format(ngx_conf_t * cf, const ngx_command
 
 static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flushes, ngx_array_t * ops, ngx_array_t * args, ngx_uint_t s)
 {
-	u_char  * data, * p, ch;
+	uchar  * data, * p, ch;
 	size_t i, len;
 	ngx_str_t var;
 	ngx_int_t * flush;
@@ -952,7 +952,7 @@ static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flush
 				}
 				else {
 					op->run = ngx_stream_log_copy_long;
-					p = static_cast<u_char *>(ngx_pnalloc(cf->pool, len));
+					p = static_cast<uchar *>(ngx_pnalloc(cf->pool, len));
 					if(!p) {
 						return NGX_CONF_ERROR;
 					}

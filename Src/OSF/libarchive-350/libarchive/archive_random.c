@@ -144,7 +144,6 @@ static inline void arc4_addrandom(u_char * dat, int datlen)
 {
 	int n;
 	uint8 si;
-
 	rs.i--;
 	for(n = 0; n < 256; n++) {
 		rs.i = (rs.i + 1);

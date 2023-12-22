@@ -24,17 +24,17 @@ static ngx_int_t ngx_mail_smtp_rcpt(ngx_mail_session_t * s, ngx_connection_t * c
 static ngx_int_t ngx_mail_smtp_discard_command(ngx_mail_session_t * s, ngx_connection_t * c, const char * err);
 static void ngx_mail_smtp_log_rejected_command(ngx_mail_session_t * s, ngx_connection_t * c, const char * err);
 
-static u_char smtp_ok[] = "250 2.0.0 OK" CRLF;
-static u_char smtp_bye[] = "221 2.0.0 Bye" CRLF;
-static u_char smtp_starttls[] = "220 2.0.0 Start TLS" CRLF;
-static u_char smtp_next[] = "334 " CRLF;
-static u_char smtp_username[] = "334 VXNlcm5hbWU6" CRLF;
-static u_char smtp_password[] = "334 UGFzc3dvcmQ6" CRLF;
-static u_char smtp_invalid_command[] = "500 5.5.1 Invalid command" CRLF;
-static u_char smtp_invalid_pipelining[] = "503 5.5.0 Improper use of SMTP command pipelining" CRLF;
-static u_char smtp_invalid_argument[] = "501 5.5.4 Invalid argument" CRLF;
-static u_char smtp_auth_required[] = "530 5.7.1 Authentication required" CRLF;
-static u_char smtp_bad_sequence[] = "503 5.5.1 Bad sequence of commands" CRLF;
+static uchar smtp_ok[] = "250 2.0.0 OK" CRLF;
+static uchar smtp_bye[] = "221 2.0.0 Bye" CRLF;
+static uchar smtp_starttls[] = "220 2.0.0 Start TLS" CRLF;
+static uchar smtp_next[] = "334 " CRLF;
+static uchar smtp_username[] = "334 VXNlcm5hbWU6" CRLF;
+static uchar smtp_password[] = "334 UGFzc3dvcmQ6" CRLF;
+static uchar smtp_invalid_command[] = "500 5.5.1 Invalid command" CRLF;
+static uchar smtp_invalid_pipelining[] = "503 5.5.0 Improper use of SMTP command pipelining" CRLF;
+static uchar smtp_invalid_argument[] = "501 5.5.4 Invalid argument" CRLF;
+static uchar smtp_auth_required[] = "530 5.7.1 Authentication required" CRLF;
+static uchar smtp_bad_sequence[] = "503 5.5.1 Bad sequence of commands" CRLF;
 
 static ngx_str_t smtp_unavailable = ngx_string("[UNAVAILABLE]");
 static ngx_str_t smtp_tempunavail = ngx_string("[TEMPUNAVAIL]");
@@ -141,7 +141,7 @@ static void ngx_mail_smtp_resolve_name_handler(ngx_resolver_ctx_t * ctx)
 	else {
 #if (NGX_DEBUG)
 		{
-			u_char text[NGX_SOCKADDR_STRLEN];
+			uchar text[NGX_SOCKADDR_STRLEN];
 			ngx_str_t addr;
 			addr.data = text;
 			for(i = 0; i < ctx->naddrs; i++) {
@@ -378,7 +378,7 @@ static ngx_int_t ngx_mail_smtp_helo(ngx_mail_session_t * s, ngx_connection_t * c
 		ngx_mail_smtp_srv_conf_t  * sscf;
 		ngx_str_t * arg = static_cast<ngx_str_t *>(s->args.elts);
 		s->smtp_helo.len = arg[0].len;
-		s->smtp_helo.data = (u_char *)ngx_pnalloc(c->pool, arg[0].len);
+		s->smtp_helo.data = (uchar *)ngx_pnalloc(c->pool, arg[0].len);
 		if(s->smtp_helo.data == NULL) {
 			return NGX_ERROR;
 		}
@@ -489,7 +489,7 @@ static ngx_int_t ngx_mail_smtp_mail(ngx_mail_session_t * s, ngx_connection_t * c
 	cmd.len = arg->data + arg->len - s->cmd.data;
 	cmd.data = s->cmd.data;
 	s->smtp_from.len = cmd.len;
-	s->smtp_from.data = (u_char *)ngx_pnalloc(c->pool, cmd.len);
+	s->smtp_from.data = (uchar *)ngx_pnalloc(c->pool, cmd.len);
 	if(s->smtp_from.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -516,7 +516,7 @@ static ngx_int_t ngx_mail_smtp_rcpt(ngx_mail_session_t * s, ngx_connection_t * c
 		cmd.len = arg->data + arg->len - s->cmd.data;
 		cmd.data = s->cmd.data;
 		s->smtp_to.len = cmd.len;
-		s->smtp_to.data = (u_char *)ngx_pnalloc(c->pool, cmd.len);
+		s->smtp_to.data = (uchar *)ngx_pnalloc(c->pool, cmd.len);
 		if(s->smtp_to.data == NULL) {
 			return NGX_ERROR;
 		}
@@ -596,7 +596,7 @@ static void ngx_mail_smtp_log_rejected_command(ngx_mail_session_t * s, ngx_conne
 		cmd.len = s->buffer->last - s->buffer->start;
 		cmd.data = s->buffer->start;
 		for(i = 0; i < cmd.len; i++) {
-			u_char ch = cmd.data[i];
+			uchar ch = cmd.data[i];
 			if(ch != __CR && ch != LF) {
 				continue;
 			}

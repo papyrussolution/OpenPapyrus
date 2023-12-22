@@ -14,7 +14,7 @@ ssize_t FASTCALL ngx_parse_size(const ngx_str_t * line)
 		return NGX_ERROR;
 	}
 	else {
-		u_char unit = line->data[len-1];
+		uchar unit = line->data[len-1];
 		switch(unit) {
 			case 'K':
 			case 'k':
@@ -44,7 +44,7 @@ ssize_t FASTCALL ngx_parse_size(const ngx_str_t * line)
 
 nginx_off_t FASTCALL ngx_parse_offset(const ngx_str_t * line)
 {
-	u_char unit;
+	uchar unit;
 	nginx_off_t offset, scale, max;
 	size_t len = line->len;
 	if(!len) {
@@ -84,7 +84,7 @@ nginx_off_t FASTCALL ngx_parse_offset(const ngx_str_t * line)
 
 ngx_int_t FASTCALL ngx_parse_time(const ngx_str_t * line, ngx_uint_t is_sec)
 {
-	u_char * p, * last;
+	uchar * p, * last;
 	ngx_int_t value, total, scale;
 	ngx_int_t max, cutoff, cutlim;
 	ngx_uint_t valid;

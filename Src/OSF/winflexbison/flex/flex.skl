@@ -265,8 +265,6 @@ m4preproc_include(`flexint.h')
 #define YY_SC_TO_UI(c) ((YY_CHAR) (c))
 %ok-for-header
 
-
-
 %if-reentrant
 
 /* An opaque pointer. */

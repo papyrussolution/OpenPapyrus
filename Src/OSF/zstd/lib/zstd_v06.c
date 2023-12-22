@@ -1755,19 +1755,16 @@ size_t HUFv06_readDTableX2(uint16* DTable, const void* src, size_t srcSize)
 		nextRankStart += (rankVal[n] << (n-1));
 		rankVal[n] = current;
 	}
-
 	/* fill DTable */
 	for(n = 0; n<nbSymbols; n++) {
 		const uint32 w = huffWeight[n];
 		const uint32 length = (1 << w) >> 1;
-		uint32 i;
 		HUFv06_DEltX2 D;
 		D.byte = (BYTE)n; D.nbBits = (BYTE)(tableLog + 1 - w);
-		for(i = rankVal[w]; i < rankVal[w] + length; i++)
+		for(uint32 i = rankVal[w]; i < rankVal[w] + length; i++)
 			dt[i] = D;
 		rankVal[w] += length;
 	}
-
 	return iSize;
 }
 
@@ -3143,8 +3140,7 @@ static size_t ZSTDv06_decompressSequences(ZSTDv06_DCtx* dctx,
 		memzero(&sequence, sizeof(sequence));
 		sequence.offset = REPCODE_STARTVALUE;
 		{ 
-			uint32 i; 
-			for(i = 0; i<ZSTDv06_REP_INIT; i++) 
+			for(uint32 i = 0; i<ZSTDv06_REP_INIT; i++) 
 				seqState.prevOffset[i] = REPCODE_STARTVALUE; 
 		}
 		{ 

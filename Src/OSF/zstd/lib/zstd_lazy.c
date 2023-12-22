@@ -465,29 +465,23 @@ void ZSTD_dedicatedDictSearch_lazy_loadDictionary(ZSTD_matchState_t* ms, const B
 		}
 		assert(chainPos <= chainSize); /* I believe this is guaranteed... */
 	}
-
 	/* move chain pointers into the last entry of each hash bucket */
 	for(hashIdx = (1 << hashLog); hashIdx;) {
 		const uint32 bucketIdx = --hashIdx << ZSTD_LAZY_DDSS_BUCKET_LOG;
 		const uint32 chainPackedPointer = tmpHashTable[hashIdx];
-		uint32 i;
-		for(i = 0; i < cacheSize; i++) {
+		for(uint32 i = 0; i < cacheSize; i++) {
 			hashTable[bucketIdx + i] = 0;
 		}
 		hashTable[bucketIdx + bucketSize - 1] = chainPackedPointer;
 	}
-
 	/* fill the buckets of the hash table */
 	for(idx = ms->nextToUpdate; idx < target; idx++) {
-		const uint32 h = (uint32)ZSTD_hashPtr(base + idx, hashLog, ms->cParams.minMatch)
-			<< ZSTD_LAZY_DDSS_BUCKET_LOG;
-		uint32 i;
+		const uint32 h = (uint32)ZSTD_hashPtr(base + idx, hashLog, ms->cParams.minMatch) << ZSTD_LAZY_DDSS_BUCKET_LOG;
 		/* Shift hash cache down 1. */
-		for(i = cacheSize - 1; i; i--)
+		for(uint32 i = cacheSize - 1; i; i--)
 			hashTable[h + i] = hashTable[h + i - 1];
 		hashTable[h] = idx;
 	}
-
 	ms->nextToUpdate = target;
 }
 

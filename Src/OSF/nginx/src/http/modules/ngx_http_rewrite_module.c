@@ -94,7 +94,7 @@ static ngx_int_t ngx_http_rewrite_handler(ngx_http_request_t * r)
 	if(e->sp == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-	e->ip = (u_char *)rlcf->codes->elts;
+	e->ip = (uchar *)rlcf->codes->elts;
 	e->request = r;
 	e->quote = 1;
 	e->log = rlcf->log;
@@ -192,7 +192,7 @@ static const char * ngx_http_rewrite(ngx_conf_t * cf, const ngx_command_t * cmd,
 	ngx_http_script_code_pt * code;
 	ngx_http_script_compile_t sc;
 	ngx_http_script_regex_end_code_t  * regex_end;
-	u_char errstr[NGX_MAX_CONF_ERRSTR];
+	uchar errstr[NGX_MAX_CONF_ERRSTR];
 	ngx_http_script_regex_code_t * regex = (ngx_http_script_regex_code_t *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(ngx_http_script_regex_code_t));
 	if(regex == NULL) {
 		return NGX_CONF_ERROR;
@@ -283,14 +283,14 @@ static const char * ngx_http_rewrite(ngx_conf_t * cf, const ngx_command_t * cmd,
 		}
 		*code = NULL;
 	}
-	regex->next = (u_char *)lcf->codes->elts + lcf->codes->nelts - (u_char *)regex;
+	regex->next = (uchar *)lcf->codes->elts + lcf->codes->nelts - (uchar *)regex;
 	return NGX_CONF_OK;
 }
 
 static const char * ngx_http_rewrite_return(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_rewrite_loc_conf_t  * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
-	u_char   * p;
+	uchar   * p;
 	ngx_str_t  * value, * v;
 	ngx_http_script_return_code_t   * ret;
 	ngx_http_compile_complex_value_t ccv;
@@ -350,7 +350,7 @@ static const char * ngx_http_rewrite_if(ngx_conf_t * cf, const ngx_command_t * c
 	ngx_http_rewrite_loc_conf_t  * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
 	void * mconf;
 	char  * rv;
-	u_char   * elts;
+	uchar   * elts;
 	ngx_uint_t i;
 	ngx_conf_t save;
 	ngx_http_module_t  * module;
@@ -398,7 +398,7 @@ static const char * ngx_http_rewrite_if(ngx_conf_t * cf, const ngx_command_t * c
 		return NGX_CONF_ERROR;
 	}
 	if_code->code = ngx_http_script_if_code;
-	elts = (u_char *)lcf->codes->elts;
+	elts = (uchar *)lcf->codes->elts;
 	/* the inner directives must be compiled to the same code array */
 	nlcf = (ngx_http_rewrite_loc_conf_t *)ctx->loc_conf[ngx_http_rewrite_module.ctx_index];
 	nlcf->codes = lcf->codes;
@@ -418,9 +418,9 @@ static const char * ngx_http_rewrite_if(ngx_conf_t * cf, const ngx_command_t * c
 		return rv;
 	}
 	if(elts != lcf->codes->elts) {
-		if_code = (ngx_http_script_if_code_t*)((u_char *)if_code + ((u_char *)lcf->codes->elts - elts));
+		if_code = (ngx_http_script_if_code_t*)((uchar *)if_code + ((uchar *)lcf->codes->elts - elts));
 	}
-	if_code->next = (u_char *)lcf->codes->elts + lcf->codes->nelts - (u_char *)if_code;
+	if_code->next = (uchar *)lcf->codes->elts + lcf->codes->nelts - (uchar *)if_code;
 	/* the code array belong to parent block */
 	nlcf->codes = NULL;
 	return NGX_CONF_OK;
@@ -428,14 +428,14 @@ static const char * ngx_http_rewrite_if(ngx_conf_t * cf, const ngx_command_t * c
 
 static char * ngx_http_rewrite_if_condition(ngx_conf_t * cf, ngx_http_rewrite_loc_conf_t * lcf)
 {
-	u_char * p;
+	uchar * p;
 	size_t len;
 	ngx_uint_t cur;
 	ngx_regex_compile_t rc;
 	ngx_http_script_code_pt  * code;
 	ngx_http_script_file_code_t * fop;
 	ngx_http_script_regex_code_t  * regex;
-	u_char errstr[NGX_MAX_CONF_ERRSTR];
+	uchar errstr[NGX_MAX_CONF_ERRSTR];
 	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_uint_t last = cf->args->nelts - 1;
 	if(value[1].len < 1 || value[1].data[0] != '(') {

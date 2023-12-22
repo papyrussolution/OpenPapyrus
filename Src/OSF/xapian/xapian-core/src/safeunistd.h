@@ -33,7 +33,7 @@
 inline uint sleep(uint seconds)
 {
 	// Use our own little helper function to avoid pulling in <windows.h>.
-	extern void xapian_sleep_milliseconds(uint millisecs);
+	// @v11.9.1 (replaced with SDelay) extern void xapian_sleep_milliseconds(uint millisecs);
 
 	// Sleep takes a time interval in milliseconds, whereas POSIX sleep takes
 	// a time interval in seconds, so we need to multiply 'seconds' by 1000.
@@ -43,10 +43,10 @@ inline uint sleep(uint seconds)
 	// seconds left to sleep for.  The common case of sleep(CONSTANT) should
 	// optimise to just xapian_sleep_milliseconds(CONSTANT).
 	if(seconds > 4294967u) {
-		xapian_sleep_milliseconds(4294967000u);
+		/*xapian_sleep_milliseconds*/SDelay(4294967000u);
 		return seconds - 4294967u;
 	}
-	xapian_sleep_milliseconds(seconds * 1000u);
+	/*xapian_sleep_milliseconds*/SDelay(seconds * 1000u);
 	return 0;
 }
 

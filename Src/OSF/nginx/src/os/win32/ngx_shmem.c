@@ -36,28 +36,28 @@ ngx_uint_t ngx_allocation_granularity;
 
 ngx_int_t ngx_shm_alloc(ngx_shm_t * shm)
 {
-	u_char  * name;
+	uchar  * name;
 	uint64_t size;
-	static u_char  * base = (u_char *)NGX_SHMEM_BASE;
-	name = (u_char *)ngx_alloc(shm->name.len + 2 + NGX_INT32_LEN, shm->log);
+	static uchar  * base = (uchar *)NGX_SHMEM_BASE;
+	name = (uchar *)ngx_alloc(shm->name.len + 2 + NGX_INT32_LEN, shm->log);
 	if(!name) {
 		return NGX_ERROR;
 	}
 	(void)ngx_sprintf(name, "%V_%s%Z", &shm->name, ngx_unique);
 	ngx_set_errno(0);
 	size = shm->size;
-	shm->handle = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, (u_long)(size >> 32), (u_long)(size & 0xffffffff),
+	shm->handle = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, (ulong)(size >> 32), (ulong)(size & 0xffffffff),
 	    SUcSwitch(reinterpret_cast<const char *>(name)));
 	if(shm->handle == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "CreateFileMapping(%uz, %s) failed", shm->size, name);
-		ngx_free(name);
+		SAlloc::F(name);
 		return NGX_ERROR;
 	}
-	ngx_free(name);
+	SAlloc::F(name);
 	if(ngx_errno == ERROR_ALREADY_EXISTS) {
 		shm->exists = 1;
 	}
-	shm->addr = (u_char *)MapViewOfFileEx(shm->handle, FILE_MAP_WRITE, 0, 0, 0, base);
+	shm->addr = (uchar *)MapViewOfFileEx(shm->handle, FILE_MAP_WRITE, 0, 0, 0, base);
 	if(shm->addr != NULL) {
 		base += ngx_align(size, ngx_allocation_granularity);
 		return NGX_OK;
@@ -72,7 +72,7 @@ ngx_int_t ngx_shm_alloc(ngx_shm_t * shm)
 	 * some other uses of the memory.  In this case we retry without a base
 	 * address to let the system assign the address itself.
 	 */
-	shm->addr = (u_char *)MapViewOfFile(shm->handle, FILE_MAP_WRITE, 0, 0, 0);
+	shm->addr = (uchar *)MapViewOfFile(shm->handle, FILE_MAP_WRITE, 0, 0, 0);
 	if(shm->addr != NULL) {
 		return NGX_OK;
 	}
@@ -83,13 +83,13 @@ ngx_int_t ngx_shm_alloc(ngx_shm_t * shm)
 	return NGX_ERROR;
 }
 
-ngx_int_t ngx_shm_remap(ngx_shm_t * shm, u_char * addr)
+ngx_int_t ngx_shm_remap(ngx_shm_t * shm, uchar * addr)
 {
 	if(UnmapViewOfFile(shm->addr) == 0) {
 		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "UnmapViewOfFile(%p) of file mapping \"%V\" failed", shm->addr, &shm->name);
 		return NGX_ERROR;
 	}
-	shm->addr = (u_char *)MapViewOfFileEx(shm->handle, FILE_MAP_WRITE, 0, 0, 0, addr);
+	shm->addr = (uchar *)MapViewOfFileEx(shm->handle, FILE_MAP_WRITE, 0, 0, 0, addr);
 	if(shm->addr != NULL) {
 		return NGX_OK;
 	}

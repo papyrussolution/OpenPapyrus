@@ -180,7 +180,10 @@ static uint FSE_32bits(void) { return sizeof(void *)==4; }
 
 static uint FSE_isLittleEndian(void)
 {
-	const union { uint32 i; BYTE c[4]; } one = { 1 }; /* don't use static : performance detrimental  */
+	const union { 
+		uint32 i; 
+		BYTE c[4]; 
+	} one = { 1 }; /* don't use static : performance detrimental  */
 	return one.c[0];
 }
 
@@ -918,10 +921,9 @@ static size_t HUF_readDTable(uint16* DTable, const void* src, size_t srcSize)
 	for(n = 0; n<=oSize; n++) {
 		const uint32 w = huffWeight[n];
 		const uint32 length = (1 << w) >> 1;
-		uint32 i;
 		HUF_DElt D;
 		D.byte = (BYTE)n; D.nbBits = (BYTE)(maxBits + 1 - w);
-		for(i = rankVal[w]; i < rankVal[w] + length; i++)
+		for(uint32 i = rankVal[w]; i < rankVal[w] + length; i++)
 			dt[i] = D;
 		rankVal[w] += length;
 	}
@@ -1177,7 +1179,10 @@ static uint ZSTD_32bits(void) { return sizeof(void *)==4; }
 
 static uint ZSTD_isLittleEndian(void)
 {
-	const union { uint32 i; BYTE c[4]; } one = { 1 }; /* don't use static : performance detrimental  */
+	const union { 
+		uint32 i; 
+		BYTE c[4]; 
+	} one = { 1 }; /* don't use static : performance detrimental  */
 	return one.c[0];
 }
 

@@ -197,12 +197,12 @@ int PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 				rec.TSessID = entry.TSessID;
 			temp_buf.Z();
 			if(rec.Duration) {
-				int    days = rec.Duration / SSECSPERDAY;
+				int    days = rec.Duration / SlConst::SecsPerDay;
 				if(days)
 					temp_buf.Cat(days).CatChar('d').Space();
-				if(rec.Duration % SSECSPERDAY) {
+				if(rec.Duration % SlConst::SecsPerDay) {
 					LTIME  t;
-					t.settotalsec(rec.Duration % SSECSPERDAY);
+					t.settotalsec(rec.Duration % SlConst::SecsPerDay);
 					temp_buf.Cat(t);
 				}
 			}

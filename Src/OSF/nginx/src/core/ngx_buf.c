@@ -10,7 +10,7 @@ ngx_buf_t * FASTCALL ngx_create_temp_buf(ngx_pool_t * pool, size_t size)
 {
 	ngx_buf_t * b = (ngx_buf_t*)ngx_calloc_buf(pool);
 	if(b) {
-		b->start = (u_char *)ngx_palloc(pool, size);
+		b->start = (uchar *)ngx_palloc(pool, size);
 		if(b->start == NULL) {
 			return NULL;
 		}
@@ -49,7 +49,7 @@ ngx_chain_t * ngx_create_chain_of_bufs(ngx_pool_t * pool, ngx_bufs_t * bufs)
 	ngx_int_t i;
 	ngx_buf_t  * b;
 	ngx_chain_t  * chain, * cl, ** ll;
-	u_char * p = (u_char *)ngx_palloc(pool, bufs->num * bufs->size);
+	uchar * p = (uchar *)ngx_palloc(pool, bufs->num * bufs->size);
 	if(!p) {
 		return NULL;
 	}

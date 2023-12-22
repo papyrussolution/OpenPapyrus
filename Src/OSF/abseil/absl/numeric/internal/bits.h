@@ -100,7 +100,8 @@ template <class T> ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_POPCOUNT
 	return sizeof(x) <= sizeof(uint32_t) ? Popcount32(x) : Popcount64(x);
 }
 
-ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeadingZeroes32(uint32_t x) {
+ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeadingZeroes32(uint32_t x) 
+{
 #if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_clz)
 	// Use __builtin_clz, which uses the following instructions:
 	//  x86: bsr, lzcnt
@@ -133,7 +134,8 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeading
 #endif
 }
 
-ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeadingZeroes16(uint16_t x) {
+ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeadingZeroes16(uint16_t x) 
+{
 #if ABSL_HAVE_BUILTIN(__builtin_clzs)
 	static_assert(sizeof(unsigned short) == sizeof(x), "__builtin_clzs does not take 16-bit arg");
 	return x == 0 ? 16 : __builtin_clzs(x);
@@ -142,7 +144,8 @@ ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeading
 #endif
 }
 
-ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeadingZeroes64(uint64_t x) {
+ABSL_ATTRIBUTE_ALWAYS_INLINE ABSL_INTERNAL_CONSTEXPR_CLZ inline int CountLeadingZeroes64(uint64_t x) 
+{
 #if ABSL_NUMERIC_INTERNAL_HAVE_BUILTIN_OR_GCC(__builtin_clzll)
 	// Use __builtin_clzll, which uses the following instructions:
 	//  x86: bsr, lzcnt

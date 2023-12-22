@@ -1,7 +1,8 @@
+// JSDATE.C
+//
 #include "jsi.h"
 #include "jsvalue.h"
 #include "jsbuiltin.h"
-
 #include <time.h>
 
 #if defined(__unix__) || defined(__APPLE__)
@@ -41,10 +42,7 @@ static double LocalTZA(void)
 	return tza;
 }
 
-static double DaylightSavingTA(double t)
-{
-	return 0; /* TODO */
-}
+static double DaylightSavingTA(double t) { return 0; /* TODO */ }
 
 /* Helpers from the ECMA 262 specification */
 
@@ -68,33 +66,11 @@ static double pmod(double x, double y)
 	return x;
 }
 
-static int Day(double t)
-{
-	return floor(t / msPerDay);
-}
-
-static double TimeWithinDay(double t)
-{
-	return pmod(t, msPerDay);
-}
-
-static int DaysInYear(int y)
-{
-	return y % 4 == 0 && (y % 100 || (y % 400 == 0)) ? 366 : 365;
-}
-
-static int DayFromYear(int y)
-{
-	return 365 * (y - 1970) +
-	       floor((y - 1969) / 4.0) -
-	       floor((y - 1901) / 100.0) +
-	       floor((y - 1601) / 400.0);
-}
-
-static double TimeFromYear(int y)
-{
-	return DayFromYear(y) * msPerDay;
-}
+static int Day(double t) { return floor(t / msPerDay); }
+static double TimeWithinDay(double t) { return pmod(t, msPerDay); }
+static int DaysInYear(int y) { return y % 4 == 0 && (y % 100 || (y % 400 == 0)) ? 366 : 365; }
+static int DayFromYear(int y) { return 365 * (y - 1970) + floor((y - 1969) / 4.0) - floor((y - 1901) / 100.0) + floor((y - 1601) / 400.0); }
+static double TimeFromYear(int y) { return DayFromYear(y) * msPerDay; }
 
 static int YearFromTime(double t)
 {
@@ -107,15 +83,8 @@ static int YearFromTime(double t)
 	return y;
 }
 
-static int InLeapYear(double t)
-{
-	return DaysInYear(YearFromTime(t)) == 366;
-}
-
-static int DayWithinYear(double t)
-{
-	return Day(t) - DayFromYear(YearFromTime(t));
-}
+static int InLeapYear(double t) { return DaysInYear(YearFromTime(t)) == 366; }
+static int DayWithinYear(double t) { return Day(t) - DayFromYear(YearFromTime(t)); }
 
 static int MonthFromTime(double t)
 {

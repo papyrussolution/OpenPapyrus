@@ -15,7 +15,7 @@ ngx_listening_t * ngx_create_listening(ngx_conf_t * cf, struct sockaddr * sockad
 {
 	size_t len;
 	struct sockaddr * sa;
-	u_char text[NGX_SOCKADDR_STRLEN];
+	uchar text[NGX_SOCKADDR_STRLEN];
 	ngx_listening_t * ls = (ngx_listening_t *)ngx_array_push(&cf->cycle->listening);
 	if(ls) {
 		memzero(ls, sizeof(ngx_listening_t));
@@ -47,7 +47,7 @@ ngx_listening_t * ngx_create_listening(ngx_conf_t * cf, struct sockaddr * sockad
 				ls->addr_text_max_len = NGX_SOCKADDR_STRLEN;
 				break;
 		}
-		ls->addr_text.data = static_cast<u_char *>(ngx_pnalloc(cf->pool, len));
+		ls->addr_text.data = static_cast<uchar *>(ngx_pnalloc(cf->pool, len));
 		if(ls->addr_text.data == NULL) {
 			return NULL;
 		}
@@ -144,7 +144,7 @@ ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t * cycle)
 			    ls[i].ignore = 1;
 			    continue;
 		}
-		ls[i].addr_text.data = (u_char *)ngx_pnalloc(cycle->pool, len);
+		ls[i].addr_text.data = (uchar *)ngx_pnalloc(cycle->pool, len);
 		if(ls[i].addr_text.data == NULL) {
 			return NGX_ERROR;
 		}
@@ -221,7 +221,7 @@ ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t * cycle)
 		if(ls[i].accept_filter == NULL) {
 			return NGX_ERROR;
 		}
-		(void)ngx_cpystrn((u_char *)ls[i].accept_filter, (u_char *)af.af_name, 16);
+		(void)ngx_cpystrn((uchar *)ls[i].accept_filter, (uchar *)af.af_name, 16);
 #endif
 #if (NGX_HAVE_DEFERRED_ACCEPT && defined TCP_DEFER_ACCEPT)
 		timeout = 0;
@@ -300,7 +300,6 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOption
 				return NGX_ERROR;
 			}
 #if (NGX_HAVE_REUSEPORT)
-
 			if(ls[i].reuseport && !ngx_test_config) {
 				int reuseport = 1;
 				if(setsockopt(s, SOL_SOCKET, SO_REUSEPORT, (const void *)&reuseport, sizeof(int)) == -1) {
@@ -313,7 +312,6 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOption
 			}
 #endif
 #if (NGX_HAVE_INET6 && defined IPV6_V6ONLY)
-
 			if(ls[i].sockaddr->sa_family == AF_INET6) {
 				int ipv6only = ls[i].ipv6only;
 				if(setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, (const char *)&ipv6only, sizeof(int)) == -1) {
@@ -350,7 +348,7 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOption
 			}
 #if (NGX_HAVE_UNIX_DOMAIN)
 			if(ls[i].sockaddr->sa_family == AF_UNIX) {
-				u_char  * name = ls[i].addr_text.data + sizeof("unix:") - 1;
+				uchar  * name = ls[i].addr_text.data + sizeof("unix:") - 1;
 				mode_t mode = (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
 				if(chmod((char *)name, mode) == -1) {
 					ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno, "chmod() \"%s\" failed", name);
@@ -502,7 +500,7 @@ void ngx_configure_listening_sockets(ngx_cycle_t * cycle)
 		}
 		if(ls[i].add_deferred) {
 			memzero(&af, sizeof(struct accept_filter_arg));
-			(void)ngx_cpystrn((u_char *)af.af_name, (u_char *)ls[i].accept_filter, 16);
+			(void)ngx_cpystrn((uchar *)af.af_name, (uchar *)ls[i].accept_filter, 16);
 			if(setsockopt(ls[i].fd, SOL_SOCKET, SO_ACCEPTFILTER, &af, sizeof(struct accept_filter_arg)) == -1) {
 				ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno, "setsockopt(SO_ACCEPTFILTER, \"%s\") for %V failed, ignored", ls[i].accept_filter, &ls[i].addr_text);
 				continue;
@@ -593,7 +591,7 @@ void ngx_close_listening_sockets(ngx_cycle_t * cycle)
 			}
 #if (NGX_HAVE_UNIX_DOMAIN)
 			if(ls[i].sockaddr->sa_family == AF_UNIX && ngx_process <= NGX_PROCESS_MASTER && ngx_new_binary == 0) {
-				u_char * name = ls[i].addr_text.data + sizeof("unix:") - 1;
+				uchar * name = ls[i].addr_text.data + sizeof("unix:") - 1;
 				if(ngx_delete_file(name) == NGX_FILE_ERROR) {
 					ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_socket_errno, ngx_delete_file_n " %s failed", name);
 				}

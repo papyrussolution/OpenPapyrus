@@ -101,7 +101,7 @@ struct ngx_http_listen_opt_t {
 #if (NGX_HAVE_DEFERRED_ACCEPT && defined SO_ACCEPTFILTER)
 	char * accept_filter;
 #endif
-	u_char addr[NGX_SOCKADDR_STRLEN + 1];
+	uchar addr[NGX_SOCKADDR_STRLEN + 1];
 };
 //
 // Descr: Фаза обработки HTTP-запроса
@@ -359,7 +359,7 @@ struct ngx_http_location_queue_t {
 	ngx_http_core_loc_conf_t * exact;
 	ngx_http_core_loc_conf_t * inclusive;
 	ngx_str_t * name;
-	u_char * file_name;
+	uchar * file_name;
 	ngx_uint_t line;
 	ngx_queue_t list;
 };
@@ -370,9 +370,9 @@ struct /*ngx_http_location_tree_node_s*/ngx_http_location_tree_node_t {
 	ngx_http_location_tree_node_t * tree;
 	ngx_http_core_loc_conf_t * exact;
 	ngx_http_core_loc_conf_t * inclusive;
-	u_char auto_redirect;
-	u_char len;
-	u_char name[1];
+	uchar auto_redirect;
+	uchar len;
+	uchar name[1];
 };
 
 void ngx_http_core_run_phases(ngx_http_request_t * r);
@@ -390,7 +390,7 @@ void ngx_http_set_exten(ngx_http_request_t * r);
 ngx_int_t ngx_http_set_etag(ngx_http_request_t * r);
 void FASTCALL ngx_http_weak_etag(ngx_http_request_t * pReq);
 ngx_int_t ngx_http_send_response(ngx_http_request_t * r, ngx_uint_t status, ngx_str_t * ct, ngx_http_complex_value_t * cv);
-u_char * ngx_http_map_uri_to_path(ngx_http_request_t * r, ngx_str_t * name, size_t * root_length, size_t reserved);
+uchar * ngx_http_map_uri_to_path(ngx_http_request_t * r, ngx_str_t * name, size_t * root_length, size_t reserved);
 ngx_int_t ngx_http_auth_basic_user(ngx_http_request_t * r);
 #if (NGX_HTTP_GZIP)
 	ngx_int_t ngx_http_gzip_ok(ngx_http_request_t * r);

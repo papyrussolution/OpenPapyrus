@@ -75,7 +75,7 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 	ngx_file_t file;
 	ngx_http_auth_basic_ctx_t  * ctx;
 	ngx_http_auth_basic_loc_conf_t  * alcf;
-	u_char buf[NGX_HTTP_AUTH_BUF_SIZE];
+	uchar buf[NGX_HTTP_AUTH_BUF_SIZE];
 	enum {
 		sw_login,
 		sw_passwd,
@@ -191,7 +191,7 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 	ngx_http_auth_basic_close(&file);
 	if(state == sw_passwd) {
 		pwd.len = i - passwd;
-		pwd.data = (u_char *)ngx_pnalloc(r->pool, pwd.len + 1);
+		pwd.data = (uchar *)ngx_pnalloc(r->pool, pwd.len + 1);
 		if(pwd.data == NULL) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
@@ -204,7 +204,7 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_auth_basic_crypt_handler(ngx_http_request_t * r, ngx_http_auth_basic_ctx_t * ctx, ngx_str_t * passwd, ngx_str_t * realm)
 {
-	u_char * encrypted;
+	uchar * encrypted;
 	ngx_int_t rc = ngx_crypt(r->pool, r->headers_in.passwd.data, passwd->data, &encrypted);
 	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "rc: %i user: \"%V\" salt: \"%s\"", rc, &r->headers_in.user, passwd->data);
 	if(rc == NGX_OK) {
@@ -239,13 +239,13 @@ static ngx_int_t ngx_http_auth_basic_crypt_handler(ngx_http_request_t * r, ngx_h
 static ngx_int_t ngx_http_auth_basic_set_realm(ngx_http_request_t * r, ngx_str_t * realm)
 {
 	size_t len;
-	u_char  * basic, * p;
+	uchar  * basic, * p;
 	r->headers_out.www_authenticate = (ngx_table_elt_t *)ngx_list_push(&r->headers_out.headers);
 	if(r->headers_out.www_authenticate == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	len = sizeof("Basic realm=\"\"") - 1 + realm->len;
-	basic = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
+	basic = static_cast<uchar *>(ngx_pnalloc(r->pool, len));
 	if(basic == NULL) {
 		r->headers_out.www_authenticate->hash = 0;
 		r->headers_out.www_authenticate = NULL;

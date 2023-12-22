@@ -158,14 +158,14 @@ static ngx_http_v2_huff_encode_code_t ngx_http_v2_huff_encode_table_lc[256] =
 	(*(uint64_t*)(dst) = __builtin_bswap64(buf))
 #else
 #define ngx_http_v2_huff_encode_buf(dst, buf)				      \
-	((dst)[0] = (u_char)((buf) >> 56),					 \
-	    (dst)[1] = (u_char)((buf) >> 48),					    \
-	    (dst)[2] = (u_char)((buf) >> 40),					    \
-	    (dst)[3] = (u_char)((buf) >> 32),					    \
-	    (dst)[4] = (u_char)((buf) >> 24),					    \
-	    (dst)[5] = (u_char)((buf) >> 16),					    \
-	    (dst)[6] = (u_char)((buf) >> 8),					    \
-	    (dst)[7] = (u_char)(buf))
+	((dst)[0] = (uchar)((buf) >> 56),					 \
+	    (dst)[1] = (uchar)((buf) >> 48),					    \
+	    (dst)[2] = (uchar)((buf) >> 40),					    \
+	    (dst)[3] = (uchar)((buf) >> 32),					    \
+	    (dst)[4] = (uchar)((buf) >> 24),					    \
+	    (dst)[5] = (uchar)((buf) >> 16),					    \
+	    (dst)[6] = (uchar)((buf) >> 8),					    \
+	    (dst)[7] = (uchar)(buf))
 #endif
 #else /* !NGX_HAVE_LITTLE_ENDIAN */
 	#define ngx_http_v2_huff_encode_buf(dst, buf) (*(uint64_t*)(dst) = (buf))
@@ -174,7 +174,7 @@ static ngx_http_v2_huff_encode_code_t ngx_http_v2_huff_encode_table_lc[256] =
 	#define ngx_http_v2_huff_encode_buf(dst, buf) (*(uint32_t *)(dst) = htonl(buf))
 #endif
 
-size_t ngx_http_v2_huff_encode(u_char * src, size_t len, u_char * dst, ngx_uint_t lower)
+size_t ngx_http_v2_huff_encode(uchar * src, size_t len, uchar * dst, ngx_uint_t lower)
 {
 	ngx_uint_t code;
 	ngx_http_v2_huff_encode_code_t  * next;
@@ -182,7 +182,7 @@ size_t ngx_http_v2_huff_encode(u_char * src, size_t len, u_char * dst, ngx_uint_
 	size_t hlen = 0;
 	ngx_uint_t buf = 0;
 	ngx_uint_t pending = 0;
-	u_char * end = src + len;
+	uchar * end = src + len;
 	while(src != end) {
 		next = &table[*src++];
 		code = next->code;
@@ -212,7 +212,7 @@ size_t ngx_http_v2_huff_encode(u_char * src, size_t len, u_char * dst, ngx_uint_
 	buf >>= sizeof(buf) * 8 - pending;
 	do {
 		pending -= 8;
-		dst[hlen++] = (u_char)(buf >> pending);
+		dst[hlen++] = (uchar)(buf >> pending);
 	} while(pending);
 	return hlen;
 }

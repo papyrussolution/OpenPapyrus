@@ -424,7 +424,7 @@ void ImGui::BulletTextV(const char* fmt, va_list args)
 //   Frame N + RepeatDelay + RepeatRate*N   true                     true              -                   true
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
-bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool* out_held, ImGuiButtonFlags flags)
+bool ImGui::ButtonBehavior(const ImRect & bb, ImGuiID id, bool * pHovered, bool * pHeld, ImGuiButtonFlags flags)
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = GetCurrentWindow();
@@ -493,8 +493,7 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
 						SetFocusID(id, window);
 					FocusWindow(window);
 				}
-				if((flags & ImGuiButtonFlags_PressedOnClick) ||
-				    ((flags & ImGuiButtonFlags_PressedOnDoubleClick) && g.IO.MouseClickedCount[mouse_button_clicked] == 2)) {
+				if((flags & ImGuiButtonFlags_PressedOnClick) || ((flags & ImGuiButtonFlags_PressedOnDoubleClick) && g.IO.MouseClickedCount[mouse_button_clicked] == 2)) {
 					pressed = true;
 					if(flags & ImGuiButtonFlags_NoHoldingActiveId)
 						ClearActiveID();
@@ -525,7 +524,6 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
 		if(pressed)
 			g.NavDisableHighlight = true;
 	}
-
 	// Gamepad/Keyboard navigation
 	// We report navigated item as hovered but we don't set g.HoveredId to not interfere with mouse.
 	if(g.NavId == id && !g.NavDisableHighlight && g.NavDisableMouseHover && (g.ActiveId == 0 || g.ActiveId == id || g.ActiveId == window->MoveId))
@@ -536,9 +534,9 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
 		bool nav_activated_by_inputs = (g.NavActivatePressedId == id);
 		if(!nav_activated_by_inputs && (flags & ImGuiButtonFlags_Repeat)) {
 			// Avoid pressing multiple keys from triggering excessive amount of repeat events
-			const ImGuiKeyData* key1 = GetKeyData(ImGuiKey_Space);
-			const ImGuiKeyData* key2 = GetKeyData(ImGuiKey_Enter);
-			const ImGuiKeyData* key3 = GetKeyData(ImGuiKey_NavGamepadActivate);
+			const ImGuiKeyData * key1 = GetKeyData(ImGuiKey_Space);
+			const ImGuiKeyData * key2 = GetKeyData(ImGuiKey_Enter);
+			const ImGuiKeyData * key3 = GetKeyData(ImGuiKey_NavGamepadActivate);
 			const float t1 = smax(smax(key1->DownDuration, key2->DownDuration), key3->DownDuration);
 			nav_activated_by_inputs = CalcTypematicRepeatAmount(t1 - g.IO.DeltaTime, t1, g.IO.KeyRepeatDelay, g.IO.KeyRepeatRate) > 0;
 		}
@@ -557,11 +555,9 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
 		if(g.ActiveIdSource == ImGuiInputSource_Mouse) {
 			if(g.ActiveIdIsJustActivated)
 				g.ActiveIdClickOffset = g.IO.MousePos - bb.Min;
-
 			const int mouse_button = g.ActiveIdMouseButton;
 			if(mouse_button == -1) {
-				// Fallback for the rare situation were g.ActiveId was set programmatically or from another widget (e.g. #6304).
-				ClearActiveID();
+				ClearActiveID(); // Fallback for the rare situation were g.ActiveId was set programmatically or from another widget (e.g. #6304).
 			}
 			else if(IsMouseDown(mouse_button, test_owner_id)) {
 				held = true;
@@ -591,10 +587,8 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
 		if(pressed)
 			g.ActiveIdHasBeenPressedBefore = true;
 	}
-
-	if(out_hovered)  *out_hovered = hovered;
-	if(out_held)  *out_held = held;
-
+	ASSIGN_PTR(pHovered, hovered);
+	ASSIGN_PTR(pHeld, held);
 	return pressed;
 }
 
@@ -2864,7 +2858,6 @@ bool ImGui::SliderScalarN(const char* label, ImGuiDataType data_type, void* v, i
 	ImGuiWindow * window = GetCurrentWindow();
 	if(window->SkipItems)
 		return false;
-
 	ImGuiContext & g = *GImGui;
 	bool value_changed = false;
 	BeginGroup();
@@ -2881,36 +2874,23 @@ bool ImGui::SliderScalarN(const char* label, ImGuiDataType data_type, void* v, i
 		v = (void*)((char*)v + type_size);
 	}
 	PopID();
-
 	const char* label_end = FindRenderedTextEnd(label);
 	if(label != label_end) {
 		SameLine(0, g.Style.ItemInnerSpacing.x);
 		TextEx(label, label_end);
 	}
-
 	EndGroup();
 	return value_changed;
 }
 
 bool ImGui::SliderFloat(const char* label, float* v, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
-{
-	return SliderScalar(label, ImGuiDataType_Float, v, &v_min, &v_max, format, flags);
-}
-
+	{ return SliderScalar(label, ImGuiDataType_Float, v, &v_min, &v_max, format, flags); }
 bool ImGui::SliderFloat2(const char* label, float v[2], float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
-{
-	return SliderScalarN(label, ImGuiDataType_Float, v, 2, &v_min, &v_max, format, flags);
-}
-
+	{ return SliderScalarN(label, ImGuiDataType_Float, v, 2, &v_min, &v_max, format, flags); }
 bool ImGui::SliderFloat3(const char* label, float v[3], float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
-{
-	return SliderScalarN(label, ImGuiDataType_Float, v, 3, &v_min, &v_max, format, flags);
-}
-
+	{ return SliderScalarN(label, ImGuiDataType_Float, v, 3, &v_min, &v_max, format, flags); }
 bool ImGui::SliderFloat4(const char* label, float v[4], float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
-{
-	return SliderScalarN(label, ImGuiDataType_Float, v, 4, &v_min, &v_max, format, flags);
-}
+	{ return SliderScalarN(label, ImGuiDataType_Float, v, 4, &v_min, &v_max, format, flags); }
 
 bool ImGui::SliderAngle(const char* label, float* v_rad, float v_degrees_min, float v_degrees_max, const char* format, ImGuiSliderFlags flags)
 {
@@ -2923,24 +2903,13 @@ bool ImGui::SliderAngle(const char* label, float* v_rad, float v_degrees_min, fl
 }
 
 bool ImGui::SliderInt(const char* label, int* v, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
-{
-	return SliderScalar(label, ImGuiDataType_S32, v, &v_min, &v_max, format, flags);
-}
-
+	{ return SliderScalar(label, ImGuiDataType_S32, v, &v_min, &v_max, format, flags); }
 bool ImGui::SliderInt2(const char* label, int v[2], int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
-{
-	return SliderScalarN(label, ImGuiDataType_S32, v, 2, &v_min, &v_max, format, flags);
-}
-
+	{ return SliderScalarN(label, ImGuiDataType_S32, v, 2, &v_min, &v_max, format, flags); }
 bool ImGui::SliderInt3(const char* label, int v[3], int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
-{
-	return SliderScalarN(label, ImGuiDataType_S32, v, 3, &v_min, &v_max, format, flags);
-}
-
+	{ return SliderScalarN(label, ImGuiDataType_S32, v, 3, &v_min, &v_max, format, flags); }
 bool ImGui::SliderInt4(const char* label, int v[4], int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
-{
-	return SliderScalarN(label, ImGuiDataType_S32, v, 4, &v_min, &v_max, format, flags);
-}
+	{ return SliderScalarN(label, ImGuiDataType_S32, v, 4, &v_min, &v_max, format, flags); }
 
 bool ImGui::VSliderScalar(const char* label, const ImVec2 & size, ImGuiDataType data_type, void* p_data,
     const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags)
@@ -2991,14 +2960,9 @@ bool ImGui::VSliderScalar(const char* label, const ImVec2 & size, ImGuiDataType 
 }
 
 bool ImGui::VSliderFloat(const char* label, const ImVec2 & size, float* v, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
-{
-	return VSliderScalar(label, size, ImGuiDataType_Float, v, &v_min, &v_max, format, flags);
-}
-
+	{ return VSliderScalar(label, size, ImGuiDataType_Float, v, &v_min, &v_max, format, flags); }
 bool ImGui::VSliderInt(const char* label, const ImVec2 & size, int* v, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
-{
-	return VSliderScalar(label, size, ImGuiDataType_S32, v, &v_min, &v_max, format, flags);
-}
+	{ return VSliderScalar(label, size, ImGuiDataType_S32, v, &v_min, &v_max, format, flags); }
 
 //-------------------------------------------------------------------------
 // [SECTION] Widgets: InputScalar, InputFloat, InputInt, etc.
@@ -3106,8 +3070,7 @@ const char* ImParseFormatSanitizeForScanning(const char* fmt_in, char* fmt_out, 
 	return fmt_out_begin;
 }
 
-template <typename TYPE>
-static const char* ImAtoi(const char* src, TYPE* output)
+template <typename TYPE> static const char* ImAtoi(const char* src, TYPE* output)
 {
 	int negative = 0;
 	if(*src == '-') {
@@ -3414,171 +3377,171 @@ static ImVec2 InputTextCalcTextSizeW(ImGuiContext* ctx, const ImWchar* text_begi
 
 // Wrapper for stb_textedit.h to edit text (our wrapper is for: statically sized buffer, single-line, wchar characters. InputText converts between UTF-8 and wchar)
 namespace ImStb {
-static int     STB_TEXTEDIT_STRINGLEN(const ImGuiInputTextState* obj)        { return obj->CurLenW; }
-static ImWchar STB_TEXTEDIT_GETCHAR(const ImGuiInputTextState* obj, int idx) { return obj->TextW[idx]; }
-static float   STB_TEXTEDIT_GETWIDTH(ImGuiInputTextState* obj, int line_start_idx, int char_idx)  
-{
-	ImWchar c = obj->TextW[line_start_idx + char_idx]; if(c == '\n')  return STB_TEXTEDIT_GETWIDTH_NEWLINE; ImGuiContext & g = *obj->Ctx;
-	return g.Font->GetCharAdvance(c) * (g.FontSize / g.Font->FontSize);
-}
-static int     STB_TEXTEDIT_KEYTOTEXT(int key) { return key >= 0x200000 ? 0 : key; }
-static ImWchar STB_TEXTEDIT_NEWLINE = '\n';
-static void    STB_TEXTEDIT_LAYOUTROW(StbTexteditRow* r, ImGuiInputTextState* obj, int line_start_idx)
-{
-	const ImWchar* text = obj->TextW.Data;
-	const ImWchar* text_remaining = NULL;
-	const ImVec2 size = InputTextCalcTextSizeW(obj->Ctx, text + line_start_idx, text + obj->CurLenW, &text_remaining, NULL, true);
-	r->x0 = 0.0f;
-	r->x1 = size.x;
-	r->baseline_y_delta = size.y;
-	r->ymin = 0.0f;
-	r->ymax = size.y;
-	r->num_chars = (int)(text_remaining - (text + line_start_idx));
-}
+	static int     STB_TEXTEDIT_STRINGLEN(const ImGuiInputTextState* obj)        { return obj->CurLenW; }
+	static ImWchar STB_TEXTEDIT_GETCHAR(const ImGuiInputTextState* obj, int idx) { return obj->TextW[idx]; }
+	static float   STB_TEXTEDIT_GETWIDTH(ImGuiInputTextState* obj, int line_start_idx, int char_idx)  
+	{
+		ImWchar c = obj->TextW[line_start_idx + char_idx]; if(c == '\n')  return STB_TEXTEDIT_GETWIDTH_NEWLINE; ImGuiContext & g = *obj->Ctx;
+		return g.Font->GetCharAdvance(c) * (g.FontSize / g.Font->FontSize);
+	}
+	static int     STB_TEXTEDIT_KEYTOTEXT(int key) { return key >= 0x200000 ? 0 : key; }
+	static ImWchar STB_TEXTEDIT_NEWLINE = '\n';
+	static void    STB_TEXTEDIT_LAYOUTROW(StbTexteditRow* r, ImGuiInputTextState* obj, int line_start_idx)
+	{
+		const ImWchar* text = obj->TextW.Data;
+		const ImWchar* text_remaining = NULL;
+		const ImVec2 size = InputTextCalcTextSizeW(obj->Ctx, text + line_start_idx, text + obj->CurLenW, &text_remaining, NULL, true);
+		r->x0 = 0.0f;
+		r->x1 = size.x;
+		r->baseline_y_delta = size.y;
+		r->ymin = 0.0f;
+		r->ymax = size.y;
+		r->num_chars = (int)(text_remaining - (text + line_start_idx));
+	}
 
-static bool is_separator(uint c)
-{
-	return c==',' || c==';' || c=='(' || c==')' || c=='{' || c=='}' || c=='[' || c==']' || c=='|' || c=='\n' || c=='\r' || c=='.' || c=='!';
-}
+	static bool is_separator(uint c)
+	{
+		return c==',' || c==';' || c=='(' || c==')' || c=='{' || c=='}' || c=='[' || c==']' || c=='|' || c=='\n' || c=='\r' || c=='.' || c=='!';
+	}
 
-static int is_word_boundary_from_right(ImGuiInputTextState* obj, int idx)
-{
-	// When ImGuiInputTextFlags_Password is set, we don't want actions such as CTRL+Arrow to leak the fact that underlying data are blanks or separators.
-	if((obj->Flags & ImGuiInputTextFlags_Password) || idx <= 0)
-		return 0;
-	bool prev_white = ImCharIsBlankW(obj->TextW[idx - 1]);
-	bool prev_separ = is_separator(obj->TextW[idx - 1]);
-	bool curr_white = ImCharIsBlankW(obj->TextW[idx]);
-	bool curr_separ = is_separator(obj->TextW[idx]);
-	return ((prev_white || prev_separ) && !(curr_separ || curr_white)) || (curr_separ && !prev_separ);
-}
+	static int is_word_boundary_from_right(ImGuiInputTextState* obj, int idx)
+	{
+		// When ImGuiInputTextFlags_Password is set, we don't want actions such as CTRL+Arrow to leak the fact that underlying data are blanks or separators.
+		if((obj->Flags & ImGuiInputTextFlags_Password) || idx <= 0)
+			return 0;
+		bool prev_white = ImCharIsBlankW(obj->TextW[idx - 1]);
+		bool prev_separ = is_separator(obj->TextW[idx - 1]);
+		bool curr_white = ImCharIsBlankW(obj->TextW[idx]);
+		bool curr_separ = is_separator(obj->TextW[idx]);
+		return ((prev_white || prev_separ) && !(curr_separ || curr_white)) || (curr_separ && !prev_separ);
+	}
 
-static int is_word_boundary_from_left(ImGuiInputTextState* obj, int idx)
-{
-	if((obj->Flags & ImGuiInputTextFlags_Password) || idx <= 0)
-		return 0;
-	bool prev_white = ImCharIsBlankW(obj->TextW[idx]);
-	bool prev_separ = is_separator(obj->TextW[idx]);
-	bool curr_white = ImCharIsBlankW(obj->TextW[idx - 1]);
-	bool curr_separ = is_separator(obj->TextW[idx - 1]);
-	return ((prev_white) && !(curr_separ || curr_white)) || (curr_separ && !prev_separ);
-}
+	static int is_word_boundary_from_left(ImGuiInputTextState* obj, int idx)
+	{
+		if((obj->Flags & ImGuiInputTextFlags_Password) || idx <= 0)
+			return 0;
+		bool prev_white = ImCharIsBlankW(obj->TextW[idx]);
+		bool prev_separ = is_separator(obj->TextW[idx]);
+		bool curr_white = ImCharIsBlankW(obj->TextW[idx - 1]);
+		bool curr_separ = is_separator(obj->TextW[idx - 1]);
+		return ((prev_white) && !(curr_separ || curr_white)) || (curr_separ && !prev_separ);
+	}
 
-static int  STB_TEXTEDIT_MOVEWORDLEFT_IMPL(ImGuiInputTextState* obj, int idx)   
-{
-	idx--; 
-	while(idx >= 0 && !is_word_boundary_from_right(obj, idx))  
+	static int  STB_TEXTEDIT_MOVEWORDLEFT_IMPL(ImGuiInputTextState* obj, int idx)   
+	{
 		idx--; 
-	return idx < 0 ? 0 : idx;
-}
+		while(idx >= 0 && !is_word_boundary_from_right(obj, idx))  
+			idx--; 
+		return idx < 0 ? 0 : idx;
+	}
 
-static int  STB_TEXTEDIT_MOVEWORDRIGHT_MAC(ImGuiInputTextState* obj, int idx)   
-{
-	idx++; 
-	int len = obj->CurLenW; 
-	while(idx < len && !is_word_boundary_from_left(obj, idx))  
+	static int  STB_TEXTEDIT_MOVEWORDRIGHT_MAC(ImGuiInputTextState* obj, int idx)   
+	{
 		idx++; 
-	return idx > len ? len : idx;
-}
+		int len = obj->CurLenW; 
+		while(idx < len && !is_word_boundary_from_left(obj, idx))  
+			idx++; 
+		return idx > len ? len : idx;
+	}
 
-static int  STB_TEXTEDIT_MOVEWORDRIGHT_WIN(ImGuiInputTextState* obj, int idx)   
-{
-	idx++; 
-	int len = obj->CurLenW; 
-	while(idx < len && !is_word_boundary_from_right(obj, idx))  
+	static int  STB_TEXTEDIT_MOVEWORDRIGHT_WIN(ImGuiInputTextState* obj, int idx)   
+	{
 		idx++; 
-	return idx > len ? len : idx;
-}
+		int len = obj->CurLenW; 
+		while(idx < len && !is_word_boundary_from_right(obj, idx))  
+			idx++; 
+		return idx > len ? len : idx;
+	}
 
-static int  STB_TEXTEDIT_MOVEWORDRIGHT_IMPL(ImGuiInputTextState* obj, int idx)  
-{
-	ImGuiContext & g = *obj->Ctx; 
-	if(g.IO.ConfigMacOSXBehaviors)  
-		return STB_TEXTEDIT_MOVEWORDRIGHT_MAC(obj, idx); 
-	else 
-		return STB_TEXTEDIT_MOVEWORDRIGHT_WIN(obj, idx);
-}
-#define STB_TEXTEDIT_MOVEWORDLEFT   STB_TEXTEDIT_MOVEWORDLEFT_IMPL  // They need to be #define for stb_textedit.h
-#define STB_TEXTEDIT_MOVEWORDRIGHT  STB_TEXTEDIT_MOVEWORDRIGHT_IMPL
+	static int  STB_TEXTEDIT_MOVEWORDRIGHT_IMPL(ImGuiInputTextState* obj, int idx)  
+	{
+		ImGuiContext & g = *obj->Ctx; 
+		if(g.IO.ConfigMacOSXBehaviors)  
+			return STB_TEXTEDIT_MOVEWORDRIGHT_MAC(obj, idx); 
+		else 
+			return STB_TEXTEDIT_MOVEWORDRIGHT_WIN(obj, idx);
+	}
+	#define STB_TEXTEDIT_MOVEWORDLEFT   STB_TEXTEDIT_MOVEWORDLEFT_IMPL  // They need to be #define for stb_textedit.h
+	#define STB_TEXTEDIT_MOVEWORDRIGHT  STB_TEXTEDIT_MOVEWORDRIGHT_IMPL
 
-static void STB_TEXTEDIT_DELETECHARS(ImGuiInputTextState* obj, int pos, int n)
-{
-	ImWchar* dst = obj->TextW.Data + pos;
-	// We maintain our buffer length in both UTF-8 and wchar formats
-	obj->Edited = true;
-	obj->CurLenA -= ImTextCountUtf8BytesFromStr(dst, dst + n);
-	obj->CurLenW -= n;
-	// Offset remaining text (FIXME-OPT: Use memmove)
-	const ImWchar* src = obj->TextW.Data + pos + n;
-	while(ImWchar c = *src++)
-		*dst++ = c;
-	*dst = '\0';
-}
+	static void STB_TEXTEDIT_DELETECHARS(ImGuiInputTextState* obj, int pos, int n)
+	{
+		ImWchar* dst = obj->TextW.Data + pos;
+		// We maintain our buffer length in both UTF-8 and wchar formats
+		obj->Edited = true;
+		obj->CurLenA -= ImTextCountUtf8BytesFromStr(dst, dst + n);
+		obj->CurLenW -= n;
+		// Offset remaining text (FIXME-OPT: Use memmove)
+		const ImWchar* src = obj->TextW.Data + pos + n;
+		while(ImWchar c = *src++)
+			*dst++ = c;
+		*dst = '\0';
+	}
 
-static bool STB_TEXTEDIT_INSERTCHARS(ImGuiInputTextState* obj, int pos, const ImWchar* new_text, int new_text_len)
-{
-	const bool is_resizable = (obj->Flags & ImGuiInputTextFlags_CallbackResize) != 0;
-	const int text_len = obj->CurLenW;
-	assert(pos <= text_len);
-	const int new_text_len_utf8 = ImTextCountUtf8BytesFromStr(new_text, new_text + new_text_len);
-	if(!is_resizable && (new_text_len_utf8 + obj->CurLenA + 1 > obj->BufCapacityA))
-		return false;
-	// Grow internal buffer if needed
-	if(new_text_len + text_len + 1 > obj->TextW.Size) {
-		if(!is_resizable)
+	static bool STB_TEXTEDIT_INSERTCHARS(ImGuiInputTextState* obj, int pos, const ImWchar* new_text, int new_text_len)
+	{
+		const bool is_resizable = (obj->Flags & ImGuiInputTextFlags_CallbackResize) != 0;
+		const int text_len = obj->CurLenW;
+		assert(pos <= text_len);
+		const int new_text_len_utf8 = ImTextCountUtf8BytesFromStr(new_text, new_text + new_text_len);
+		if(!is_resizable && (new_text_len_utf8 + obj->CurLenA + 1 > obj->BufCapacityA))
 			return false;
-		assert(text_len < obj->TextW.Size);
-		obj->TextW.resize(text_len + sclamp(new_text_len * 4, 32, smax(256, new_text_len)) + 1);
+		// Grow internal buffer if needed
+		if(new_text_len + text_len + 1 > obj->TextW.Size) {
+			if(!is_resizable)
+				return false;
+			assert(text_len < obj->TextW.Size);
+			obj->TextW.resize(text_len + sclamp(new_text_len * 4, 32, smax(256, new_text_len)) + 1);
+		}
+		ImWchar* text = obj->TextW.Data;
+		if(pos != text_len)
+			memmove(text + pos + new_text_len, text + pos, (size_t)(text_len - pos) * sizeof(ImWchar));
+		memcpy(text + pos, new_text, (size_t)new_text_len * sizeof(ImWchar));
+		obj->Edited = true;
+		obj->CurLenW += new_text_len;
+		obj->CurLenA += new_text_len_utf8;
+		obj->TextW[obj->CurLenW] = '\0';
+		return true;
 	}
-	ImWchar* text = obj->TextW.Data;
-	if(pos != text_len)
-		memmove(text + pos + new_text_len, text + pos, (size_t)(text_len - pos) * sizeof(ImWchar));
-	memcpy(text + pos, new_text, (size_t)new_text_len * sizeof(ImWchar));
-	obj->Edited = true;
-	obj->CurLenW += new_text_len;
-	obj->CurLenA += new_text_len_utf8;
-	obj->TextW[obj->CurLenW] = '\0';
-	return true;
-}
 
-// We don't use an enum so we can build even with conflicting symbols (if another user of stb_textedit.h leak their STB_TEXTEDIT_K_* symbols)
-#define STB_TEXTEDIT_K_LEFT         0x200000 // keyboard input to move cursor left
-#define STB_TEXTEDIT_K_RIGHT        0x200001 // keyboard input to move cursor right
-#define STB_TEXTEDIT_K_UP           0x200002 // keyboard input to move cursor up
-#define STB_TEXTEDIT_K_DOWN         0x200003 // keyboard input to move cursor down
-#define STB_TEXTEDIT_K_LINESTART    0x200004 // keyboard input to move cursor to start of line
-#define STB_TEXTEDIT_K_LINEEND      0x200005 // keyboard input to move cursor to end of line
-#define STB_TEXTEDIT_K_TEXTSTART    0x200006 // keyboard input to move cursor to start of text
-#define STB_TEXTEDIT_K_TEXTEND      0x200007 // keyboard input to move cursor to end of text
-#define STB_TEXTEDIT_K_DELETE       0x200008 // keyboard input to delete selection or character under cursor
-#define STB_TEXTEDIT_K_BACKSPACE    0x200009 // keyboard input to delete selection or character left of cursor
-#define STB_TEXTEDIT_K_UNDO         0x20000A // keyboard input to perform undo
-#define STB_TEXTEDIT_K_REDO         0x20000B // keyboard input to perform redo
-#define STB_TEXTEDIT_K_WORDLEFT     0x20000C // keyboard input to move cursor left one word
-#define STB_TEXTEDIT_K_WORDRIGHT    0x20000D // keyboard input to move cursor right one word
-#define STB_TEXTEDIT_K_PGUP         0x20000E // keyboard input to move cursor up a page
-#define STB_TEXTEDIT_K_PGDOWN       0x20000F // keyboard input to move cursor down a page
-#define STB_TEXTEDIT_K_SHIFT        0x400000
+	// We don't use an enum so we can build even with conflicting symbols (if another user of stb_textedit.h leak their STB_TEXTEDIT_K_* symbols)
+	#define STB_TEXTEDIT_K_LEFT         0x200000 // keyboard input to move cursor left
+	#define STB_TEXTEDIT_K_RIGHT        0x200001 // keyboard input to move cursor right
+	#define STB_TEXTEDIT_K_UP           0x200002 // keyboard input to move cursor up
+	#define STB_TEXTEDIT_K_DOWN         0x200003 // keyboard input to move cursor down
+	#define STB_TEXTEDIT_K_LINESTART    0x200004 // keyboard input to move cursor to start of line
+	#define STB_TEXTEDIT_K_LINEEND      0x200005 // keyboard input to move cursor to end of line
+	#define STB_TEXTEDIT_K_TEXTSTART    0x200006 // keyboard input to move cursor to start of text
+	#define STB_TEXTEDIT_K_TEXTEND      0x200007 // keyboard input to move cursor to end of text
+	#define STB_TEXTEDIT_K_DELETE       0x200008 // keyboard input to delete selection or character under cursor
+	#define STB_TEXTEDIT_K_BACKSPACE    0x200009 // keyboard input to delete selection or character left of cursor
+	#define STB_TEXTEDIT_K_UNDO         0x20000A // keyboard input to perform undo
+	#define STB_TEXTEDIT_K_REDO         0x20000B // keyboard input to perform redo
+	#define STB_TEXTEDIT_K_WORDLEFT     0x20000C // keyboard input to move cursor left one word
+	#define STB_TEXTEDIT_K_WORDRIGHT    0x20000D // keyboard input to move cursor right one word
+	#define STB_TEXTEDIT_K_PGUP         0x20000E // keyboard input to move cursor up a page
+	#define STB_TEXTEDIT_K_PGDOWN       0x20000F // keyboard input to move cursor down a page
+	#define STB_TEXTEDIT_K_SHIFT        0x400000
 
-#define STB_TEXTEDIT_IMPLEMENTATION
-#include "imstb_textedit.h"
+	#define STB_TEXTEDIT_IMPLEMENTATION
+	#include "imstb_textedit.h"
 
-// stb_textedit internally allows for a single undo record to do addition and deletion, but somehow, calling
-// the stb_textedit_paste() function creates two separate records, so we perform it manually. (FIXME: Report to nothings/stb?)
-static void stb_textedit_replace(ImGuiInputTextState* str, STB_TexteditState* state, const STB_TEXTEDIT_CHARTYPE* text, int text_len)
-{
-	stb_text_makeundo_replace(str, state, 0, str->CurLenW, text_len);
-	ImStb::STB_TEXTEDIT_DELETECHARS(str, 0, str->CurLenW);
-	state->cursor = state->select_start = state->select_end = 0;
-	if(text_len <= 0)
-		return;
-	if(ImStb::STB_TEXTEDIT_INSERTCHARS(str, 0, text, text_len)) {
-		state->cursor = state->select_start = state->select_end = text_len;
-		state->has_preferred_x = 0;
-		return;
+	// stb_textedit internally allows for a single undo record to do addition and deletion, but somehow, calling
+	// the stb_textedit_paste() function creates two separate records, so we perform it manually. (FIXME: Report to nothings/stb?)
+	static void stb_textedit_replace(ImGuiInputTextState* str, STB_TexteditState* state, const STB_TEXTEDIT_CHARTYPE* text, int text_len)
+	{
+		stb_text_makeundo_replace(str, state, 0, str->CurLenW, text_len);
+		ImStb::STB_TEXTEDIT_DELETECHARS(str, 0, str->CurLenW);
+		state->cursor = state->select_start = state->select_end = 0;
+		if(text_len <= 0)
+			return;
+		if(ImStb::STB_TEXTEDIT_INSERTCHARS(str, 0, text, text_len)) {
+			state->cursor = state->select_start = state->select_end = text_len;
+			state->has_preferred_x = 0;
+			return;
+		}
+		assert(0); // Failed to insert character, normally shouldn't happen because of how we currently use stb_textedit_replace()
 	}
-	assert(0); // Failed to insert character, normally shouldn't happen because of how we currently use stb_textedit_replace()
-}
 } // namespace ImStb
 
 void ImGuiInputTextState::OnKeyPressed(int key)
@@ -4043,7 +4006,6 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * pBuf, int bu
 		}
 		if(state->SelectedAllMouseLock && !io.MouseDown[0])
 			state->SelectedAllMouseLock = false;
-
 		// We expect backends to emit a Tab key but some also emit a Tab character which we ignore (#2467, #1336)
 		// (For Tab and Enter: Win32/SFML/Allegro are sending both keys and chars, GLFW and SDL are only sending keys. For Space they all send all threes)
 		if((flags & ImGuiInputTextFlags_AllowTabInput) && Shortcut(ImGuiKey_Tab, id) && !is_readonly) {
@@ -4051,7 +4013,6 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * pBuf, int bu
 			if(InputTextFilterCharacter(&c, flags, callback, callback_user_data, ImGuiInputSource_Keyboard))
 				state->OnKeyPressed((int)c);
 		}
-
 		// Process regular text input (before we check for Return because using some IME will effectively send a Return?)
 		// We ignore CTRL inputs, but need to allow ALT+CTRL as some keyboards (e.g. German) use AltGR (which _is_ Alt+Ctrl) to input certain characters.
 		const bool ignore_char_inputs = (io.KeyCtrl && !io.KeyAlt) || (is_osx && io.KeySuper);
@@ -4075,14 +4036,11 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * pBuf, int bu
 	bool revert_edit = false;
 	if(g.ActiveId == id && !g.ActiveIdIsJustActivated && !clear_active_id) {
 		assert(state != NULL);
-
 		const int row_count_per_page = smax((int)((inner_size.y - style.FramePadding.y) / g.FontSize), 1);
 		state->Stb.row_count_per_page = row_count_per_page;
-
 		const int k_mask = (io.KeyShift ? STB_TEXTEDIT_K_SHIFT : 0);
 		const bool is_wordmove_key_down = is_osx ? io.KeyAlt : io.KeyCtrl;             // OS X style: Text editing cursor movement using Alt instead of Ctrl
 		const bool is_startend_key_down = is_osx && io.KeySuper && !io.KeyCtrl && !io.KeyAlt; // OS X style: Line/Text Start and End using Cmd+Arrows instead of Home/End
-
 		// Using Shortcut() with ImGuiInputFlags_RouteFocused (default policy) to allow routing operations for other code (e.g. calling window trying to use CTRL+A and CTRL+B: formet would be handled by InputText)
 		// Otherwise we could simply assume that we own the keys as we are active.
 		const ImGuiInputFlags f_repeat = ImGuiInputFlags_Repeat;
@@ -4700,7 +4658,6 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 	ImGuiWindow * window = GetCurrentWindow();
 	if(window->SkipItems)
 		return false;
-
 	ImGuiContext & g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const float square_sz = GetFrameHeight();
@@ -4709,7 +4666,6 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 	const float w_inputs = w_full - w_button;
 	const char* label_display_end = FindRenderedTextEnd(label);
 	g.NextItemData.ClearFlags();
-
 	BeginGroup();
 	PushID(label);
 	const bool set_current_color_edit_id = (g.ColorEditCurrentID == 0);
@@ -5026,8 +4982,8 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 					H += 1.0f;
 				value_changed = value_changed_h = true;
 			}
-			float cos_hue_angle = ImCos(-H * 2.0f * SMathConst::Pi_f);
-			float sin_hue_angle = ImSin(-H * 2.0f * SMathConst::Pi_f);
+			float cos_hue_angle = cosf(-H * 2.0f * SMathConst::Pi_f);
+			float sin_hue_angle = sinf(-H * 2.0f * SMathConst::Pi_f);
 			if(ImTriangleContainsPoint(triangle_pa, triangle_pb, triangle_pc, ImRotate(initial_off, cos_hue_angle, sin_hue_angle))) {
 				// Interacting with SV triangle
 				ImVec2 current_off_unrotated = ImRotate(current_off, cos_hue_angle, sin_hue_angle);
@@ -5195,13 +5151,13 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 			draw_list->PathStroke(col_white, 0, wheel_thickness);
 			const int vert_end_idx = draw_list->VtxBuffer.Size;
 			// Paint colors over existing vertices
-			ImVec2 gradient_p0(wheel_center.x + ImCos(a0) * wheel_r_inner, wheel_center.y + ImSin(a0) * wheel_r_inner);
-			ImVec2 gradient_p1(wheel_center.x + ImCos(a1) * wheel_r_inner, wheel_center.y + ImSin(a1) * wheel_r_inner);
+			ImVec2 gradient_p0(wheel_center.x + cosf(a0) * wheel_r_inner, wheel_center.y + sinf(a0) * wheel_r_inner);
+			ImVec2 gradient_p1(wheel_center.x + cosf(a1) * wheel_r_inner, wheel_center.y + sinf(a1) * wheel_r_inner);
 			ShadeVertsLinearColorGradientKeepAlpha(draw_list, vert_start_idx, vert_end_idx, gradient_p0, gradient_p1, col_hues[n], col_hues[n + 1]);
 		}
 		// Render Cursor + preview on Hue Wheel
-		float cos_hue_angle = ImCos(H * 2.0f * SMathConst::Pi_f);
-		float sin_hue_angle = ImSin(H * 2.0f * SMathConst::Pi_f);
+		float cos_hue_angle = cosf(H * 2.0f * SMathConst::Pi_f);
+		float sin_hue_angle = sinf(H * 2.0f * SMathConst::Pi_f);
 		ImVec2 hue_cursor_pos(wheel_center.x + cos_hue_angle * (wheel_r_inner + wheel_r_outer) * 0.5f, wheel_center.y + sin_hue_angle * (wheel_r_inner + wheel_r_outer) * 0.5f);
 		float hue_cursor_rad = value_changed_h ? wheel_thickness * 0.65f : wheel_thickness * 0.55f;
 		int hue_cursor_segments = draw_list->_CalcCircleAutoSegmentCount(hue_cursor_rad); // Lock segment count so the +1 one matches others.

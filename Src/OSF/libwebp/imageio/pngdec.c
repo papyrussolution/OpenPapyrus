@@ -115,8 +115,7 @@ static int ProcessRawProfile(const char* profile, size_t profile_len, MetadataPa
 	}
 	expected_length = (int)strtol(src, &end, 10);
 	if(*end != '\n') {
-		fprintf(stderr, "Malformed raw profile, expected '\\n' got '\\x%.2X'\n",
-		    *end);
+		fprintf(stderr, "Malformed raw profile, expected '\\n' got '\\x%.2X'\n", *end);
 		return 0;
 	}
 	++end;
@@ -130,8 +129,7 @@ static int ProcessRawProfile(const char* profile, size_t profile_len, MetadataPa
 
 static const struct {
 	const char* name;
-	int (* process)(const char* profile, size_t profile_len,
-	    MetadataPayload* const payload);
+	int (* process)(const char* profile, size_t profile_len, MetadataPayload* const payload);
 	size_t storage_offset;
 } kPNGMetadataMap[] = {
 	// http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PNG.html#TextualData
@@ -151,16 +149,13 @@ static const struct {
 // all cases.
 static int ExtractMetadataFromPNG(png_structp png, png_infop const head_info, png_infop const end_info, Metadata* const metadata) 
 {
-	int p;
-	for(p = 0; p < 2; ++p) {
+	for(int p = 0; p < 2; ++p) {
 		png_infop const info = (p == 0) ? head_info : end_info;
 		png_textp text = NULL;
 		const uint32 num = png_get_text(png, info, &text, NULL);
-		uint32 i;
 		// Look for EXIF / XMP metadata.
-		for(i = 0; i < num; ++i, ++text) {
-			int j;
-			for(j = 0; kPNGMetadataMap[j].name != NULL; ++j) {
+		for(uint32 i = 0; i < num; ++i, ++text) {
+			for(int j = 0; kPNGMetadataMap[j].name != NULL; ++j) {
 				if(!strcmp(text->key, kPNGMetadataMap[j].name)) {
 					MetadataPayload* const payload = (MetadataPayload*)((uint8*)metadata + kPNGMetadataMap[j].storage_offset);
 					size_t text_length;
@@ -180,8 +175,7 @@ static int ExtractMetadataFromPNG(png_structp png, png_infop const head_info, pn
 					if(payload->bytes != NULL) {
 						fprintf(stderr, "Ignoring additional '%s'\n", text->key);
 					}
-					else if(!kPNGMetadataMap[j].process(text->text, text_length,
-					    payload)) {
+					else if(!kPNGMetadataMap[j].process(text->text, text_length, payload)) {
 						fprintf(stderr, "Failed to process: '%s'\n", text->key);
 						return 0;
 					}
@@ -200,7 +194,8 @@ static int ExtractMetadataFromPNG(png_structp png, png_infop const head_info, pn
 #endif
 			uint32 len;
 			if(png_get_iCCP(png, info, &name, &comp_type, &profile, &len) == PNG_INFO_iCCP) {
-				if(!MetadataCopy((const char*)profile, len, &metadata->iccp)) return 0;
+				if(!MetadataCopy((const char*)profile, len, &metadata->iccp)) 
+					return 0;
 			}
 		}
 	}
@@ -237,16 +232,13 @@ int ReadPNG(const uint8* const data, size_t data_size, struct WebPPicture* const
 	uint32 width, height, y;
 	int64_t stride;
 	uint8* volatile rgb = NULL;
-
-	if(data == NULL || data_size == 0 || pic == NULL) return 0;
-
+	if(data == NULL || data_size == 0 || pic == NULL) 
+		return 0;
 	context.data = data;
 	context.data_size = data_size;
-
-	png = png_create_read_struct_2(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL,
-		NULL, MallocFunc, FreeFunc);
-	if(png == NULL) goto End;
-
+	png = png_create_read_struct_2(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL, NULL, MallocFunc, FreeFunc);
+	if(png == NULL) 
+		goto End;
 	png_set_error_fn(png, 0, error_function, NULL);
 	if(setjmp(png_jmpbuf(png))) {
 Error:

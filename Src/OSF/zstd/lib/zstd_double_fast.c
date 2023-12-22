@@ -30,8 +30,7 @@ void ZSTD_fillDoubleHashTable(ZSTD_matchState_t* ms, void const* end, ZSTD_dictT
 	 */
 	for(; ip + fastHashFillStep - 1 <= iend; ip += fastHashFillStep) {
 		const uint32 curr = (uint32)(ip - base);
-		uint32 i;
-		for(i = 0; i < fastHashFillStep; ++i) {
+		for(uint32 i = 0; i < fastHashFillStep; ++i) {
 			const size_t smHash = ZSTD_hashPtr(ip + i, hBitsS, mls);
 			const size_t lgHash = ZSTD_hashPtr(ip + i, hBitsL, 8);
 			if(!i)

@@ -383,11 +383,11 @@ IM_MSVC_RUNTIME_CHECKS_OFF
 // - Wrapper for standard libs functions. (Note that imgui_demo.cpp does _not_ use them to keep the code easy to copy)
 #ifndef IMGUI_DISABLE_DEFAULT_MATH_FUNCTIONS
 #define ImFabs(X)           fabsf(X)
-#define ImSqrt(X)           sqrtf(X)
+// @sobolev (replaced with sqrtf explicitely) #define ImSqrt(X)           sqrtf(X)
 #define ImFmod(X, Y)        fmodf((X), (Y))
-#define ImCos(X)            cosf(X)
-#define ImSin(X)            sinf(X)
-#define ImAcos(X)           acosf(X)
+// @sobolev (replaced with cosf explicitely) #define ImCos(X)            cosf(X)
+// @sobolev (replaced with sinf explicitely) #define ImSin(X)            sinf(X)
+// @sobolev (replaced with acosf explicitely) #define ImAcos(X)           acosf(X)
 #define ImAtan2(Y, X)       atan2f((Y), (X))
 #define ImAtof(STR)         atof(STR)
 //#define ImFloorStd(X)     floorf(X)           // We use our own, see ImFloor() and ImFloorSigned()
@@ -848,12 +848,12 @@ struct ImGuiTextIndex {
 #define IM_ROUNDUP_TO_EVEN(_V)                                  ((((_V)+1) / 2) * 2)
 #define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN                     4
 #define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX                     512
-#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD, _MAXERROR)    sclamp(IM_ROUNDUP_TO_EVEN((int)ImCeil(SMathConst::Pi_f / ImAcos(1 - smin((_MAXERROR), (_RAD)) / (_RAD)))), \
+#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD, _MAXERROR)    sclamp(IM_ROUNDUP_TO_EVEN((int)ImCeil(SMathConst::Pi_f / acosf(1 - smin((_MAXERROR), (_RAD)) / (_RAD)))), \
 	    IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX)
 
 // Raw equation from IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC rewritten for 'r' and 'error'.
-#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(_N, _MAXERROR)    ((_MAXERROR) / (1 - ImCos(SMathConst::Pi_f / smax((float)(_N), SMathConst::Pi_f))))
-#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_ERROR(_N, _RAD)     ((1 - ImCos(SMathConst::Pi_f / smax((float)(_N), SMathConst::Pi_f))) / (_RAD))
+#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(_N, _MAXERROR)    ((_MAXERROR) / (1 - cosf(SMathConst::Pi_f / smax((float)(_N), SMathConst::Pi_f))))
+#define IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_ERROR(_N, _RAD)     ((1 - cosf(SMathConst::Pi_f / smax((float)(_N), SMathConst::Pi_f))) / (_RAD))
 
 // ImDrawList: Lookup table size for adaptive arc drawing, cover full circle.
 #ifndef IM_DRAWLIST_ARCFAST_TABLE_SIZE
@@ -3398,9 +3398,6 @@ struct ImFontBuilderIO {
 };
 
 // Helper for font builder
-#ifdef IMGUI_ENABLE_STB_TRUETYPE
-	const ImFontBuilderIO* ImFontAtlasGetBuilderForStbTruetype();
-#endif
 void ImFontAtlasBuildInit(ImFontAtlas* atlas);
 void ImFontAtlasBuildSetupFont(ImFontAtlas* atlas, ImFont* font, ImFontConfig* font_config, float ascent, float descent);
 void ImFontAtlasBuildPackCustomRects(ImFontAtlas* atlas, void* stbrp_context_opaque);

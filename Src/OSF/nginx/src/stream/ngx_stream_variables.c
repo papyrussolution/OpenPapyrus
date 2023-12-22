@@ -89,7 +89,7 @@ ngx_stream_variable_t * ngx_stream_add_variable(ngx_conf_t * cf, ngx_str_t * nam
 		return NULL;
 	}
 	v->name.len = name->len;
-	v->name.data = static_cast<u_char *>(ngx_pnalloc(cf->pool, name->len));
+	v->name.data = static_cast<uchar *>(ngx_pnalloc(cf->pool, name->len));
 	if(v->name.data == NULL) {
 		return NULL;
 	}
@@ -130,7 +130,7 @@ static ngx_stream_variable_t * ngx_stream_add_prefix_variable(ngx_conf_t * cf, n
 	v = (ngx_stream_variable_t *)ngx_array_push(&cmcf->prefix_variables);
 	if(v) {
 		v->name.len = name->len;
-		v->name.data = static_cast<u_char *>(ngx_pnalloc(cf->pool, name->len));
+		v->name.data = static_cast<uchar *>(ngx_pnalloc(cf->pool, name->len));
 		if(v->name.data == NULL) {
 			return NULL;
 		}
@@ -173,7 +173,7 @@ ngx_int_t ngx_stream_get_variable_index(ngx_conf_t * cf, ngx_str_t * name)
 		return NGX_ERROR;
 	}
 	v->name.len = name->len;
-	v->name.data = static_cast<u_char *>(ngx_pnalloc(cf->pool, name->len));
+	v->name.data = static_cast<uchar *>(ngx_pnalloc(cf->pool, name->len));
 	if(v->name.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -301,7 +301,7 @@ static ngx_int_t ngx_stream_variable_binary_remote_addr(ngx_stream_session_t * s
 		    v->valid = 1;
 		    v->no_cacheable = 0;
 		    v->not_found = 0;
-		    v->data = (u_char *)&sin->sin_addr;
+		    v->data = (uchar *)&sin->sin_addr;
 		    break;
 	}
 	return NGX_OK;
@@ -324,7 +324,7 @@ static ngx_int_t ngx_stream_variable_remote_port(ngx_stream_session_t * s, ngx_s
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char *)ngx_pnalloc(s->connection->pool, sizeof("65535") - 1);
+	v->data = (uchar *)ngx_pnalloc(s->connection->pool, sizeof("65535") - 1);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -352,7 +352,7 @@ static ngx_int_t ngx_stream_variable_proxy_protocol_port(ngx_stream_session_t * 
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char *)ngx_pnalloc(s->connection->pool, sizeof("65535") - 1);
+	v->data = (uchar *)ngx_pnalloc(s->connection->pool, sizeof("65535") - 1);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -366,13 +366,13 @@ static ngx_int_t ngx_stream_variable_proxy_protocol_port(ngx_stream_session_t * 
 static ngx_int_t ngx_stream_variable_server_addr(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
 	ngx_str_t str;
-	u_char addr[NGX_SOCKADDR_STRLEN];
+	uchar addr[NGX_SOCKADDR_STRLEN];
 	str.len = NGX_SOCKADDR_STRLEN;
 	str.data = addr;
 	if(ngx_connection_local_sockaddr(s->connection, &str, 0) != NGX_OK) {
 		return NGX_ERROR;
 	}
-	str.data = (u_char *)ngx_pnalloc(s->connection->pool, str.len);
+	str.data = (uchar *)ngx_pnalloc(s->connection->pool, str.len);
 	if(str.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -395,7 +395,7 @@ static ngx_int_t ngx_stream_variable_server_port(ngx_stream_session_t * s, ngx_s
 	if(ngx_connection_local_sockaddr(s->connection, NULL, 0) != NGX_OK) {
 		return NGX_ERROR;
 	}
-	v->data = (u_char *)ngx_pnalloc(s->connection->pool, sizeof("65535") - 1);
+	v->data = (uchar *)ngx_pnalloc(s->connection->pool, sizeof("65535") - 1);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -408,7 +408,7 @@ static ngx_int_t ngx_stream_variable_server_port(ngx_stream_session_t * s, ngx_s
 
 static ngx_int_t ngx_stream_variable_bytes(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_OFF_T_LEN);
+	uchar  * p = (uchar *)ngx_pnalloc(s->connection->pool, NGX_OFF_T_LEN);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -429,7 +429,7 @@ static ngx_int_t ngx_stream_variable_session_time(ngx_stream_session_t * s, ngx_
 {
 	ngx_time_t * tp;
 	ngx_msec_int_t ms;
-	u_char   * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_TIME_T_LEN + 4);
+	uchar   * p = (uchar *)ngx_pnalloc(s->connection->pool, NGX_TIME_T_LEN + 4);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -446,7 +446,7 @@ static ngx_int_t ngx_stream_variable_session_time(ngx_stream_session_t * s, ngx_
 
 static ngx_int_t ngx_stream_variable_status(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	v->data = (u_char *)ngx_pnalloc(s->connection->pool, NGX_INT_T_LEN);
+	v->data = (uchar *)ngx_pnalloc(s->connection->pool, NGX_INT_T_LEN);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
@@ -459,7 +459,7 @@ static ngx_int_t ngx_stream_variable_status(ngx_stream_session_t * s, ngx_stream
 
 static ngx_int_t ngx_stream_variable_connection(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_ATOMIC_T_LEN);
+	uchar  * p = (uchar *)ngx_pnalloc(s->connection->pool, NGX_ATOMIC_T_LEN);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -477,7 +477,7 @@ static ngx_int_t ngx_stream_variable_nginx_version(ngx_stream_session_t * s, ngx
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char *)NGINX_VERSION;
+	v->data = (uchar *)NGINX_VERSION;
 	return NGX_OK;
 }
 
@@ -493,7 +493,7 @@ static ngx_int_t ngx_stream_variable_hostname(ngx_stream_session_t * s, ngx_stre
 
 static ngx_int_t ngx_stream_variable_pid(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_INT64_LEN);
+	uchar  * p = (uchar *)ngx_pnalloc(s->connection->pool, NGX_INT64_LEN);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -508,7 +508,7 @@ static ngx_int_t ngx_stream_variable_pid(ngx_stream_session_t * s, ngx_stream_va
 static ngx_int_t ngx_stream_variable_msec(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
 	ngx_time_t  * tp;
-	u_char * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_TIME_T_LEN + 4);
+	uchar * p = (uchar *)ngx_pnalloc(s->connection->pool, NGX_TIME_T_LEN + 4);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -524,7 +524,7 @@ static ngx_int_t ngx_stream_variable_msec(ngx_stream_session_t * s, ngx_stream_v
 static ngx_int_t ngx_stream_variable_time_iso8601(ngx_stream_session_t * s,
     ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p = (u_char *)ngx_pnalloc(s->connection->pool, ngx_cached_http_log_iso8601.len);
+	uchar  * p = (uchar *)ngx_pnalloc(s->connection->pool, ngx_cached_http_log_iso8601.len);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -540,7 +540,7 @@ static ngx_int_t ngx_stream_variable_time_iso8601(ngx_stream_session_t * s,
 static ngx_int_t ngx_stream_variable_time_local(ngx_stream_session_t * s,
     ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p = (u_char *)ngx_pnalloc(s->connection->pool, ngx_cached_http_log_time.len);
+	uchar  * p = (uchar *)ngx_pnalloc(s->connection->pool, ngx_cached_http_log_time.len);
 	if(!p) {
 		return NGX_ERROR;
 	}
@@ -560,7 +560,7 @@ static ngx_int_t ngx_stream_variable_protocol(ngx_stream_session_t * s,
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char *)(s->connection->type == SOCK_DGRAM ? "UDP" : "TCP");
+	v->data = (uchar *)(s->connection->type == SOCK_DGRAM ? "UDP" : "TCP");
 
 	return NGX_OK;
 }
@@ -569,11 +569,11 @@ void * ngx_stream_map_find(ngx_stream_session_t * s, ngx_stream_map_t * map,
     ngx_str_t * match)
 {
 	void * value;
-	u_char * low;
+	uchar * low;
 	ngx_uint_t key;
 	size_t len = match->len;
 	if(len) {
-		low = static_cast<u_char *>(ngx_pnalloc(s->connection->pool, len));
+		low = static_cast<uchar *>(ngx_pnalloc(s->connection->pool, len));
 		if(low == NULL) {
 			return NULL;
 		}
@@ -629,7 +629,7 @@ static ngx_int_t ngx_stream_variable_not_found(ngx_stream_session_t * s,
 
 ngx_stream_regex_t * ngx_stream_regex_compile(ngx_conf_t * cf, ngx_regex_compile_t * rc)
 {
-	u_char   * p;
+	uchar   * p;
 	size_t size;
 	ngx_str_t name;
 	ngx_uint_t i, n;

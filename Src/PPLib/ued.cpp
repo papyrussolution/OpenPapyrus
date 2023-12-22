@@ -77,6 +77,11 @@ bool FASTCALL UedSetBase::IsEq(const UedSetBase & rS) const
 	return eq;
 }
 
+uint64 UedSetBase::Get(uint idx) const
+{
+	return (idx < LimbCount) ? reinterpret_cast<const uint64 *>(P_Buf)[idx] : 0ULL;
+}
+
 bool UedSetBase::Add(const uint64 * pUed, uint count, uint * pIdx)
 {
 	bool    ok = true;
@@ -881,8 +886,26 @@ int SrUedContainer_Base::PropertySet::Add(const uint64 * pPropChunk, uint count,
 		ok = UedSetBase::Add(pPropChunk, count, &pos);
 		if(ok) {
 			PosIdx.Add(static_cast<long>(pos), static_cast<long>(count));
+			ASSIGN_PTR(pPos, pos);
 		}
 	}
+	return ok;
+}
+
+int SrUedContainer_Base::PropertySet::Get(uint idx, uint count, UedSetBase & rList) const
+{
+	rList.Z();
+	int    ok = 0;
+	if(idx < GetLimbCount() && (idx+count) <= GetLimbCount()) {
+		uint idx_pos = 0;
+		if(PosIdx.Search(idx, &idx_pos) && PosIdx.at(idx_pos).Val == (long)count) {
+			for(uint i = idx; i < idx+count; i++) {
+				uint64 u = UedSetBase::Get(i);
+				rList.Add(u, 0);
+			}
+			ok = 1;
+		}
+	}	
 	return ok;
 }
 
@@ -1466,13 +1489,43 @@ int SrUedContainer_Base::WriteProps(const char * pFileName, const SBinaryChunk *
 			THROW_PP_S(!isempty(pFileName), PPERR_INVPARAM_EXT, __FUNCTION__"/pFileName");
 			THROW(LinguaLocusMeta); // @todo @err
 			{
+				UedSetBase local_prop_set;
 				SFile f_out(pFileName, SFile::mWrite|SFile::mBinary);
 				THROW_SL(f_out.IsValid());
 				for(uint i = 0; i < prop_list.getCount(); i++) {
 					const PropIdxEntry * p_entry = prop_list.at(i);
 					assert(p_entry);
 					if(p_entry) {
-						//
+						line_buf.Z();
+						if(SearchBaseId(p_entry->Ued, temp_buf)) {
+							line_buf.Cat(temp_buf);
+						}
+						else {
+							line_buf.CatChar('%').CatHex(p_entry->Ued); // @todo @err
+						}
+						if(p_entry->LocaleId) {
+							uint64 ued_locus = UED::ApplyMetaToRawValue32(LinguaLocusMeta, p_entry->LocaleId);
+							if(SearchBaseId(ued_locus, temp_buf)) {
+								line_buf.Space().Cat(temp_buf);
+							}
+							else
+								line_buf.Space().CatChar('%').CatHex(ued_locus); // @todo @err
+						}
+						line_buf.Colon();
+						for(uint refidx = 0; refidx < p_entry->RefList.getCount(); refidx++) {
+							const LAssoc & r_ref = p_entry->RefList.at(refidx);
+							if(PropS.Get(r_ref.Key, r_ref.Val, local_prop_set)) {
+								for(uint j = 0; j < local_prop_set.GetLimbCount(); j++) {
+									uint64 ued_prop = local_prop_set.Get(j);
+									if(SearchBaseId(ued_prop, temp_buf)) {
+										line_buf.Space().Cat(temp_buf);
+									}
+									else
+										line_buf.Space().CatChar('%').CatHex(ued_prop); // @todo @err
+								}
+							}
+						}
+						f_out.WriteLine(line_buf.CR());
 					}
 				}
 			}
@@ -1867,12 +1920,13 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 		}
 		{
 			SString result_file_name;
+			SString props_file_name;
 			SETIFZQ(new_version, 1);
 			{
 				SrUedContainer_Base::MakeUedCanonicalName(SrUedContainer_Base::canonfnIds, ps_out.Nam, new_version);
 				ps_out.Ext = "dat";
 				ps_out.Merge(result_file_name);
-				slfprintf_stderr((temp_buf = result_file_name).Z().CR());
+				slfprintf_stderr((temp_buf = result_file_name).CR());
 				int wsr = uedc.Write(result_file_name, (prev_version > 0) ? &prev_hash : 0, &new_hash);
 				THROW(wsr);
 				if(wsr > 0) {
@@ -1904,6 +1958,14 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 						THROW_SL(copyFileByName(result_file_name, result_file_name_wo_sfx));
 					}
 				}
+			}
+			{
+				SrUedContainer_Base::MakeUedCanonicalName(SrUedContainer_Base::canonfnProps, ps_out.Nam, new_version);
+				ps_out.Ext = "dat";
+				ps_out.Merge(props_file_name);
+				slfprintf_stderr((temp_buf = props_file_name).CR());
+				int wsr = uedc.WriteProps(props_file_name, (prev_version > 0) ? &prev_hash : 0, &new_hash);
+				THROW(wsr);
 			}
 		}
 		if(!unchanged || (flags & prcssuedfForceUpdatePlDecl)) {

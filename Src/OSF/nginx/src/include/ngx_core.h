@@ -60,8 +60,8 @@ struct /*ngx_rbtree_node_s*/ngx_rbtree_node_t {
 	ngx_rbtree_node_t   * left;
 	ngx_rbtree_node_t   * right;
 	ngx_rbtree_node_t   * parent;
-	u_char color;
-	u_char data;
+	uchar color;
+	uchar data;
 };
 
 typedef struct ngx_rbtree_s ngx_rbtree_t;
@@ -106,8 +106,13 @@ static ngx_inline ngx_rbtree_node_t * ngx_rbtree_min(ngx_rbtree_node_t * node, n
 //
 struct ngx_str_t {
 	size_t len;
-	u_char * data;
+	uchar * data;
 };
+
+inline SString & NgxStrToSStr(const ngx_str_t & rS, SString & rD) // @v11.9.1
+{
+	return (rS.data && rS.len > 0) ? rD.Z().CatN(reinterpret_cast<const char *>(rS.data), rS.len) : rD.Z();
+}
 
 struct ngx_keyval_t {
 	ngx_str_t key;
@@ -120,17 +125,17 @@ struct ngx_variable_value_t {
 	unsigned no_cacheable : 1;
 	unsigned not_found : 1;
 	unsigned escape : 1;
-	u_char * data;
+	uchar * data;
 };
 
-#define ngx_string(str)     { sizeof(str) - 1, (u_char *)str }
+#define ngx_string(str)     { sizeof(str) - 1, (uchar *)str }
 #define ngx_null_string     { 0, NULL }
-#define ngx_str_set(str, text) (str)->len = sizeof(text) - 1; (str)->data = (u_char *)text
+#define ngx_str_set(str, text) (str)->len = sizeof(text) - 1; (str)->data = (uchar *)text
 #define ngx_str_null(str)   (str)->len = 0; (str)->data = NULL
-#define ngx_tolower(c)      (u_char)((c >= 'A' && c <= 'Z') ? (c | 0x20) : c)
-#define ngx_toupper(c)      (u_char)((c >= 'a' && c <= 'z') ? (c & ~0x20) : c)
+// @v11.9.1 (replaced with stolower_ascii) #define ngx_tolower_Removed(c) (uchar)((c >= 'A' && c <= 'Z') ? (c | 0x20) : c)
+// @v11.9.1 (replaced with stoupper_ascii) #define ngx_toupper_Removed(c) (uchar)((c >= 'a' && c <= 'z') ? (c & ~0x20) : c)
 
-void FASTCALL ngx_strlow(u_char * dst, const u_char * src, size_t n);
+void FASTCALL ngx_strlow(uchar * dst, const uchar * src, size_t n);
 
 #define ngx_strncmp(s1, s2, n)  strncmp((const char *)s1, (const char *)s2, n)
 
@@ -140,7 +145,7 @@ void FASTCALL ngx_strlow(u_char * dst, const u_char * src, size_t n);
 #define ngx_strlen(s)       strlen((const char *)s)
 #define ngx_strchr(s1, c)   sstrchr((const char *)s1, (int)c)
 
-static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
+static ngx_inline uchar * ngx_strlchr(uchar * p, uchar * last, uchar c)
 {
 	while(p < last) {
 		if(*p == c) {
@@ -160,7 +165,7 @@ static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 
 #if (NGX_MEMCPY_LIMIT)
 	void * ngx_memcpy_Removed(void * dst, const void * src, size_t n);
-	#define ngx_cpymem(dst, src, n)   (((u_char *)memcpy(dst, src, n)) + (n))
+	#define ngx_cpymem(dst, src, n)   (((uchar *)memcpy(dst, src, n)) + (n))
 #else
 // 
 // gcc3, msvc, and icc7 compile memcpy() to the inline "rep movs".
@@ -168,7 +173,7 @@ static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 // icc8 compile memcpy(d, s, 4) to the inline "mov"es or XMM moves.
 // 
 #define ngx_memcpy_Removed(dst, src, n)   (void)memcpy(dst, src, n)
-#define ngx_cpymem(dst, src, n)   (((u_char *)memcpy(dst, src, n)) + (n))
+#define ngx_cpymem(dst, src, n)   (((uchar *)memcpy(dst, src, n)) + (n))
 #endif
 
 #if ( __INTEL_COMPILER >= 800 )
@@ -176,7 +181,7 @@ static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 	 * the simple inline cycle copies the variable length strings up to 16
 	 * bytes faster than icc8 autodetecting _intel_fast_memcpy()
 	 */
-	static ngx_inline u_char * ngx_copy(u_char * dst, u_char * src, size_t len)
+	static ngx_inline uchar * ngx_copy(uchar * dst, uchar * src, size_t len)
 	{
 		if(len < 17) {
 			while(len) {
@@ -194,38 +199,38 @@ static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 #endif
 
 #define ngx_memmove_Removed(dst, src, n)   (void)memmove(dst, src, n)
-#define ngx_movemem(dst, src, n)   (((u_char *)memmove(dst, src, n)) + (n))
+#define ngx_movemem(dst, src, n)   (((uchar *)memmove(dst, src, n)) + (n))
 // msvc and icc7 compile memcmp() to the inline loop 
 #define ngx_memcmp_Removed(s1, s2, n)  memcmp((const char *)s1, (const char *)s2, n)
 
 int SStrDupToNgxStr(ngx_pool_t * pPool, const SString * pSrc, ngx_str_t * pDest);
 
-u_char * FASTCALL ngx_cpystrn(u_char * dst, const u_char * src, size_t n);
-u_char * FASTCALL ngx_pstrdup(ngx_pool_t * pool, const ngx_str_t * src);
-u_char * ngx_cdecl ngx_sprintf(u_char * buf, const char * fmt, ...);
-u_char * ngx_cdecl ngx_snprintf(u_char * buf, size_t max, const char * fmt, ...);
-u_char * ngx_cdecl ngx_slprintf(u_char * buf, u_char * last, const char * fmt, ...);
-u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list args);
+uchar * FASTCALL ngx_cpystrn(uchar * dst, const uchar * src, size_t n);
+uchar * FASTCALL ngx_pstrdup(ngx_pool_t * pool, const ngx_str_t * src);
+uchar * ngx_cdecl ngx_sprintf(uchar * buf, const char * fmt, ...);
+uchar * ngx_cdecl ngx_snprintf(uchar * buf, size_t max, const char * fmt, ...);
+uchar * ngx_cdecl ngx_slprintf(uchar * buf, uchar * last, const char * fmt, ...);
+uchar * ngx_vslprintf(uchar * buf, uchar * last, const char * fmt, va_list args);
 #define ngx_vsnprintf(buf, max, fmt, args) ngx_vslprintf(buf, buf + (max), fmt, args)
 
-// @sobolev ngx_int_t FASTCALL ngx_strcasecmp(const u_char * s1, const u_char * s2);
-ngx_int_t FASTCALL ngx_strncasecmp(const u_char * s1, const u_char * s2, size_t n);
-const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t n);
-u_char * FASTCALL ngx_strstrn(u_char * s1, const char * s2, size_t n);
-const u_char * FASTCALL ngx_strcasestrn(const u_char * s1, const char * s2, size_t n);
-u_char * FASTCALL ngx_strlcasestrn(u_char * s1, u_char * last, const u_char * s2, size_t n);
-ngx_int_t ngx_rstrncmp(u_char * s1, u_char * s2, size_t n);
-ngx_int_t ngx_rstrncasecmp(u_char * s1, u_char * s2, size_t n);
-ngx_int_t ngx_memn2cmp(u_char * s1, u_char * s2, size_t n1, size_t n2);
-ngx_int_t FASTCALL ngx_dns_strcmp(const u_char * s1, const u_char * s2);
-ngx_int_t FASTCALL ngx_filename_cmp(const u_char * s1, const u_char * s2, size_t n);
-ngx_int_t FASTCALL ngx_atoi(const u_char * line, size_t n);
-ngx_int_t FASTCALL ngx_atofp(const u_char * line, size_t n, size_t point);
-ssize_t FASTCALL ngx_atosz(const u_char * line, size_t n);
-nginx_off_t FASTCALL ngx_atoof(const u_char * line, size_t n);
-time_t FASTCALL ngx_atotm(const u_char * line, size_t n);
-ngx_int_t FASTCALL ngx_hextoi(const u_char * line, size_t n);
-u_char * ngx_hex_dump(u_char * dst, const u_char * src, size_t len);
+// @sobolev ngx_int_t FASTCALL ngx_strcasecmp(const uchar * s1, const uchar * s2);
+ngx_int_t FASTCALL ngx_strncasecmp(const uchar * s1, const uchar * s2, size_t n);
+const uchar * FASTCALL ngx_strnstr(const uchar * s1, const char * s2, size_t n);
+uchar * FASTCALL ngx_strstrn(uchar * s1, const char * s2, size_t n);
+const uchar * FASTCALL ngx_strcasestrn(const uchar * s1, const char * s2, size_t n);
+uchar * FASTCALL ngx_strlcasestrn(uchar * s1, uchar * last, const uchar * s2, size_t n);
+ngx_int_t ngx_rstrncmp(uchar * s1, uchar * s2, size_t n);
+ngx_int_t ngx_rstrncasecmp(uchar * s1, uchar * s2, size_t n);
+ngx_int_t ngx_memn2cmp(uchar * s1, uchar * s2, size_t n1, size_t n2);
+ngx_int_t FASTCALL ngx_dns_strcmp(const uchar * s1, const uchar * s2);
+ngx_int_t FASTCALL ngx_filename_cmp(const uchar * s1, const uchar * s2, size_t n);
+ngx_int_t FASTCALL ngx_atoi(const uchar * line, size_t n);
+ngx_int_t FASTCALL ngx_atofp(const uchar * line, size_t n, size_t point);
+ssize_t FASTCALL ngx_atosz(const uchar * line, size_t n);
+nginx_off_t FASTCALL ngx_atoof(const uchar * line, size_t n);
+time_t FASTCALL ngx_atotm(const uchar * line, size_t n);
+ngx_int_t FASTCALL ngx_hextoi(const uchar * line, size_t n);
+uchar * ngx_hex_dump(uchar * dst, const uchar * src, size_t len);
 
 #define ngx_base64_encoded_length(len)  (((len + 2) / 3) * 4)
 #define ngx_base64_decoded_length(len)  (((len + 3) / 4) * 3)
@@ -234,9 +239,9 @@ void FASTCALL ngx_encode_base64(ngx_str_t * dst, const ngx_str_t * src);
 void FASTCALL ngx_encode_base64url(ngx_str_t * dst, const ngx_str_t * src);
 ngx_int_t FASTCALL ngx_decode_base64(ngx_str_t * dst, const ngx_str_t * src);
 ngx_int_t FASTCALL ngx_decode_base64url(ngx_str_t * dst, const ngx_str_t * src);
-uint32_t FASTCALL ngx_utf8_decode(const u_char ** p, size_t n);
-size_t FASTCALL ngx_utf8_length(const u_char * p, size_t n);
-u_char * ngx_utf8_cpystrn(u_char * dst, const u_char * src, size_t n, size_t len);
+uint32_t FASTCALL ngx_utf8_decode(const uchar ** p, size_t n);
+size_t FASTCALL ngx_utf8_length(const uchar * p, size_t n);
+uchar * ngx_utf8_cpystrn(uchar * dst, const uchar * src, size_t n, size_t len);
 
 #define NGX_ESCAPE_URI            0
 #define NGX_ESCAPE_ARGS           1
@@ -249,10 +254,10 @@ u_char * ngx_utf8_cpystrn(u_char * dst, const u_char * src, size_t n, size_t len
 #define NGX_UNESCAPE_URI       1
 #define NGX_UNESCAPE_REDIRECT  2
 
-uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size, ngx_uint_t type);
-void FASTCALL ngx_unescape_uri(u_char ** dst, u_char ** src, size_t size, ngx_uint_t type);
-uintptr_t FASTCALL ngx_escape_html(u_char * dst, u_char * src, size_t size);
-uintptr_t FASTCALL ngx_escape_json(u_char * dst, u_char * src, size_t size);
+uintptr_t FASTCALL ngx_escape_uri(uchar * dst, const uchar * src, size_t size, ngx_uint_t type);
+void FASTCALL ngx_unescape_uri(uchar ** dst, uchar ** src, size_t size, ngx_uint_t type);
+uintptr_t FASTCALL ngx_escape_html(uchar * dst, uchar * src, size_t size);
+uintptr_t FASTCALL ngx_escape_json(uchar * dst, uchar * src, size_t size);
 
 struct ngx_str_node_t {
 	ngx_rbtree_node_t node;
@@ -290,8 +295,8 @@ typedef struct {
 void ngx_time_init(void);
 void ngx_time_update(void);
 void ngx_time_sigsafe_update(void);
-u_char * ngx_http_time(u_char * buf, time_t t);
-u_char * ngx_http_cookie_time(u_char * buf, time_t t);
+uchar * ngx_http_time(uchar * buf, time_t t);
+uchar * ngx_http_cookie_time(uchar * buf, time_t t);
 void ngx_gmtime(time_t t, ngx_tm_t * tp);
 
 time_t ngx_next_time(time_t when);
@@ -340,8 +345,8 @@ extern volatile ngx_msec_t ngx_current_msec;
 #define NGX_LOG_DEBUG_CONNECTION  0x80000000
 #define NGX_LOG_DEBUG_ALL         0x7ffffff0
 
-typedef u_char *(*ngx_log_handler_pt)(ngx_log_t * log, u_char * buf, size_t len);
-typedef void (*ngx_log_writer_pt)(ngx_log_t * log, ngx_uint_t level, u_char * buf, size_t len);
+typedef uchar *(*ngx_log_handler_pt)(ngx_log_t * log, uchar * buf, size_t len);
+typedef void (*ngx_log_writer_pt)(ngx_log_t * log, ngx_uint_t level, uchar * buf, size_t len);
 
 struct ngx_log_t {
 	ngx_uint_t Level/*log_level*/;
@@ -354,7 +359,7 @@ struct ngx_log_t {
 	void * wdata;
 	// 
 	// we declare "action" as "char *" because the actions are usually
-	// the static strings and in the "u_char *" case we have to override their types all the time
+	// the static strings and in the "uchar *" case we have to override their types all the time
 	// 
 	const char * action;
 	ngx_log_t * next;
@@ -425,10 +430,10 @@ struct ngx_log_t {
 
 /*********************************/
 
-ngx_log_t * ngx_log_init(const u_char * prefix);
+ngx_log_t * ngx_log_init(const uchar * prefix);
 void ngx_cdecl ngx_log_abort(ngx_err_t err, const char * fmt, ...);
 void ngx_cdecl ngx_log_stderr(ngx_err_t err, const char * fmt, ...);
-u_char * ngx_log_errno(u_char * buf, u_char * last, ngx_err_t err);
+uchar * ngx_log_errno(uchar * buf, uchar * last, ngx_err_t err);
 ngx_int_t ngx_log_open_default(ngx_cycle_t * cycle);
 ngx_int_t ngx_log_redirect_stderr(ngx_cycle_t * cycle);
 ngx_log_t * ngx_log_get_file_log(ngx_log_t * head);
@@ -463,7 +468,7 @@ ngx_int_t FASTCALL ngx_parse_time(const ngx_str_t * line, ngx_uint_t is_sec);
 //
 //#include <ngx_parse_time.h>
 //
-time_t FASTCALL ngx_parse_http_time(const u_char * value, size_t len);
+time_t FASTCALL ngx_parse_http_time(const uchar * value, size_t len);
 #define ngx_http_parse_time(value, len)  ngx_parse_http_time(value, len) // compatibility 
 //
 //#include <ngx_palloc.h>
@@ -494,8 +499,8 @@ struct /*ngx_pool_large_s*/ngx_pool_large_t {
 };
 
 struct ngx_pool_data_t {
-	u_char * last;
-	u_char * end;
+	uchar * last;
+	uchar * end;
 	ngx_pool_t * next;
 	ngx_uint_t failed;
 };
@@ -512,7 +517,7 @@ struct /*ngx_pool_s*/ngx_pool_t {
 
 struct ngx_pool_cleanup_file_t {
 	ngx_fd_t fd;
-	u_char * name;
+	uchar * name;
 	ngx_log_t * log;
 };
 
@@ -535,13 +540,13 @@ typedef void * ngx_buf_tag_t;
 //typedef struct ngx_buf_s ngx_buf_t;
 
 struct /*ngx_buf_s*/ngx_buf_t {
-	u_char   * last;  // Указатель на байт, следующий за последним заполненным данными байтом. last == pos означает, что данных нет.
+	uchar   * last;  // Указатель на байт, следующий за последним заполненным данными байтом. last == pos означает, что данных нет.
 		// @sobolev last перемещен на первое место ибо к нему больше всего обращений.
-	u_char   * pos;   
+	uchar   * pos;   
 	nginx_off_t file_pos;
 	nginx_off_t file_last;
-	u_char   * start;    // start of buffer 
-	u_char   * end;      // end of buffer 
+	uchar   * start;    // start of buffer 
+	uchar   * end;      // end of buffer 
 	ngx_buf_tag_t tag;
 	ngx_file_t * file;
 	ngx_buf_t  * shadow;
@@ -753,8 +758,8 @@ void * FASTCALL ngx_list_push(ngx_list_t * list);
 //
 struct ngx_hash_elt_t {
 	void * value;
-	u_short len;
-	u_char name[1];
+	ushort len;
+	uchar name[1];
 };
 
 struct ngx_hash_t {
@@ -773,7 +778,7 @@ struct ngx_hash_key_t {
 	void * value;
 };
 
-typedef ngx_uint_t (*ngx_hash_key_pt)(const u_char * data, size_t len);
+typedef ngx_uint_t (*ngx_hash_key_pt)(const uchar * data, size_t len);
 
 struct ngx_hash_combined_t {
 	ngx_hash_t hash;
@@ -816,18 +821,18 @@ struct ngx_table_elt_t {
 	ngx_uint_t hash;
 	ngx_str_t key;
 	ngx_str_t value;
-	u_char * lowcase_key;
+	uchar * lowcase_key;
 };
 
-void * ngx_hash_find(ngx_hash_t * hash, ngx_uint_t key, const u_char * name, size_t len);
-void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, const u_char * name, size_t len);
-void * ngx_hash_find_wc_tail(ngx_hash_wildcard_t * hwc, const u_char * name, size_t len);
-void * ngx_hash_find_combined(ngx_hash_combined_t * hash, ngx_uint_t key, const u_char * name, size_t len);
+void * ngx_hash_find(ngx_hash_t * hash, ngx_uint_t key, const uchar * name, size_t len);
+void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, const uchar * name, size_t len);
+void * ngx_hash_find_wc_tail(ngx_hash_wildcard_t * hwc, const uchar * name, size_t len);
+void * ngx_hash_find_combined(ngx_hash_combined_t * hash, ngx_uint_t key, const uchar * name, size_t len);
 ngx_int_t ngx_hash_init(ngx_hash_init_t * hinit, ngx_hash_key_t * names, ngx_uint_t nelts);
 ngx_int_t ngx_hash_wildcard_init(ngx_hash_init_t * hinit, ngx_hash_key_t * names, ngx_uint_t nelts);
-ngx_uint_t ngx_hash_key(const u_char * data, size_t len);
-ngx_uint_t ngx_hash_key_lc(const u_char * data, size_t len);
-ngx_uint_t ngx_hash_strlow(u_char * dst, u_char * src, size_t n);
+ngx_uint_t ngx_hash_key(const uchar * data, size_t len);
+ngx_uint_t ngx_hash_key_lc(const uchar * data, size_t len);
+ngx_uint_t ngx_hash_strlow(uchar * dst, uchar * src, size_t n);
 ngx_int_t FASTCALL ngx_hash_keys_array_init(ngx_hash_keys_arrays_t * ha, ngx_uint_t type);
 ngx_int_t ngx_hash_add_key(ngx_hash_keys_arrays_t * ha, ngx_str_t * key, void * value, ngx_uint_t flags);
 
@@ -868,7 +873,7 @@ struct ngx_path_t {
 	ngx_path_purger_pt purger;
 	ngx_path_loader_pt loader;
 	void * data;
-	u_char * conf_file;
+	uchar * conf_file;
 	ngx_uint_t line;
 };
 
@@ -932,13 +937,13 @@ struct ngx_tree_ctx_t {
 ngx_int_t ngx_get_full_name(ngx_pool_t * pool, ngx_str_t * prefix, ngx_str_t * name);
 ssize_t ngx_write_chain_to_temp_file(ngx_temp_file_t * tf, ngx_chain_t * chain);
 ngx_int_t ngx_create_temp_file(ngx_file_t * file, ngx_path_t * path, ngx_pool_t * pool, ngx_uint_t persistent, ngx_uint_t clean, ngx_uint_t access);
-void ngx_create_hashed_filename(ngx_path_t * path, u_char * file, size_t len);
+void ngx_create_hashed_filename(ngx_path_t * path, uchar * file, size_t len);
 ngx_int_t ngx_create_path(ngx_file_t * file, ngx_path_t * path);
-ngx_err_t ngx_create_full_path(u_char * dir, ngx_uint_t access);
+ngx_err_t ngx_create_full_path(uchar * dir, ngx_uint_t access);
 ngx_int_t ngx_add_path(ngx_conf_t * cf, ngx_path_t ** slot);
 ngx_int_t ngx_create_paths(ngx_cycle_t * cycle, ngx_uid_t user);
 ngx_int_t ngx_ext_rename_file(ngx_str_t * src, ngx_str_t * to, ngx_ext_rename_file_t * ext);
-ngx_int_t ngx_copy_file(u_char * from, u_char * to, ngx_copy_file_t * cf);
+ngx_int_t ngx_copy_file(uchar * from, uchar * to, ngx_copy_file_t * cf);
 ngx_int_t ngx_walk_tree(ngx_tree_ctx_t * ctx, ngx_str_t * tree);
 ngx_atomic_uint_t ngx_next_temp_number(ngx_uint_t collision);
 const char * ngx_conf_set_path_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
@@ -952,7 +957,7 @@ extern ngx_atomic_int_t ngx_random_number;
 //
 // 32-bit crc16 
 //
-static ngx_inline uint32_t ngx_crc(u_char * data, size_t len)
+static ngx_inline uint32_t ngx_crc(uchar * data, size_t len)
 {
 	uint32_t sum = 0;
 	for(; len; len--) {
@@ -971,18 +976,18 @@ static ngx_inline uint32_t ngx_crc(u_char * data, size_t len)
 extern uint32_t * ngx_crc32_table_short;
 extern uint32_t ngx_crc32_table256[];
 
-static ngx_inline uint32_t ngx_crc32_short(u_char * p, size_t len)
+static ngx_inline uint32_t ngx_crc32_short(uchar * p, size_t len)
 {
 	uint32_t crc = 0xffffffff;
 	while(len--) {
-		u_char c = *p++;
+		uchar c = *p++;
 		crc = ngx_crc32_table_short[(crc ^ (c & 0xf)) & 0xf] ^ (crc >> 4);
 		crc = ngx_crc32_table_short[(crc ^ (c >> 4)) & 0xf] ^ (crc >> 4);
 	}
 	return crc ^ 0xffffffff;
 }
 
-static ngx_inline uint32_t ngx_crc32_long(u_char * p, size_t len)
+static ngx_inline uint32_t ngx_crc32_long(uchar * p, size_t len)
 {
 	uint32_t crc = 0xffffffff;
 	while(len--) {
@@ -991,7 +996,7 @@ static ngx_inline uint32_t ngx_crc32_long(u_char * p, size_t len)
 	return crc ^ 0xffffffff;
 }
 
-static ngx_inline void ngx_crc32_update(uint32_t * crc, u_char * p, size_t len)
+static ngx_inline void ngx_crc32_update(uint32_t * crc, uchar * p, size_t len)
 {
 	uint32_t c = *crc;
 	while(len--) {
@@ -1007,7 +1012,7 @@ ngx_int_t ngx_crc32_table_init(void);
 //
 //#include <ngx_murmurhash.h>
 //
-// @v10.8.0 (replaced with SlHash::Murmur2_32(a, b, 0)) uint32_t ngx_murmur_hash2(u_char *data, size_t len);
+// @v10.8.0 (replaced with SlHash::Murmur2_32(a, b, 0)) uint32_t ngx_murmur_hash2(uchar *data, size_t len);
 //
 #if (NGX_PCRE)
 	//
@@ -1031,13 +1036,13 @@ ngx_int_t ngx_crc32_table_init(void);
 		int captures;
 		int named_captures;
 		int name_size;
-		u_char  * names;
+		uchar  * names;
 		ngx_str_t err;
 	};
 
 	struct ngx_regex_elt_t {
 		ngx_regex_t  * regex;
-		u_char  * name;
+		uchar  * name;
 	};
 
 	void ngx_regex_init(void);
@@ -1075,9 +1080,9 @@ ngx_int_t ngx_radix32tree_insert(ngx_radix_tree_t * tree, uint32_t key, uint32_t
 ngx_int_t ngx_radix32tree_delete(ngx_radix_tree_t * tree, uint32_t key, uint32_t mask);
 uintptr_t ngx_radix32tree_find(ngx_radix_tree_t * tree, uint32_t key);
 #if (NGX_HAVE_INET6)
-	ngx_int_t ngx_radix128tree_insert(ngx_radix_tree_t * tree, u_char * key, u_char * mask, uintptr_t value);
-	ngx_int_t ngx_radix128tree_delete(ngx_radix_tree_t * tree, u_char * key, u_char * mask);
-	uintptr_t ngx_radix128tree_find(ngx_radix_tree_t * tree, u_char * key);
+	ngx_int_t ngx_radix128tree_insert(ngx_radix_tree_t * tree, uchar * key, uchar * mask, uintptr_t value);
+	ngx_int_t ngx_radix128tree_delete(ngx_radix_tree_t * tree, uchar * key, uchar * mask);
+	uintptr_t ngx_radix128tree_find(ngx_radix_tree_t * tree, uchar * key);
 #endif
 //
 //#include <ngx_rwlock.h>
@@ -1106,12 +1111,12 @@ struct ngx_shmtx_t {
 #endif
 #else
 	ngx_fd_t fd;
-	u_char * name;
+	uchar * name;
 #endif
 	ngx_uint_t spin;
 };
 
-ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, u_char * name);
+ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, uchar * name);
 void FASTCALL ngx_shmtx_destroy(ngx_shmtx_t * mtx);
 ngx_uint_t FASTCALL ngx_shmtx_trylock(ngx_shmtx_t * mtx);
 void FASTCALL ngx_shmtx_lock(ngx_shmtx_t * mtx);
@@ -1144,11 +1149,11 @@ struct ngx_slab_pool_t {
 	ngx_slab_page_t free;
 	ngx_slab_stat_t  * stats;
 	ngx_uint_t pfree;
-	u_char * start;
-	u_char * end;
+	uchar * start;
+	uchar * end;
 	ngx_shmtx_t mutex;
-	u_char * log_ctx;
-	u_char zero;
+	uchar * log_ctx;
+	uchar zero;
 	unsigned log_nomem : 1;
 	void   * data;
 	void   * addr;
@@ -1238,17 +1243,17 @@ struct ngx_url_t {
 	const char * err;
 };
 
-in_addr_t ngx_inet_addr(const u_char * text, size_t len);
+in_addr_t ngx_inet_addr(const uchar * text, size_t len);
 #if (NGX_HAVE_INET6)
-	ngx_int_t ngx_inet6_addr(u_char * p, size_t len, u_char * addr);
-	size_t ngx_inet6_ntop(u_char * p, u_char * text, size_t len);
+	ngx_int_t ngx_inet6_addr(uchar * p, size_t len, uchar * addr);
+	size_t ngx_inet6_ntop(uchar * p, uchar * text, size_t len);
 #endif
-size_t ngx_sock_ntop(struct sockaddr * sa, socklen_t socklen, u_char * text, size_t len, ngx_uint_t port);
-size_t ngx_inet_ntop(int family, void * addr, u_char * text, size_t len);
+size_t ngx_sock_ntop(struct sockaddr * sa, socklen_t socklen, uchar * text, size_t len, ngx_uint_t port);
+size_t ngx_inet_ntop(int family, void * addr, uchar * text, size_t len);
 ngx_int_t ngx_ptocidr(ngx_str_t * text, ngx_cidr_t * cidr);
 ngx_int_t ngx_cidr_match(struct sockaddr * sa, ngx_array_t * cidrs);
-ngx_int_t ngx_parse_addr(ngx_pool_t * pool, ngx_addr_t * addr, u_char * text, size_t len);
-ngx_int_t ngx_parse_addr_port(ngx_pool_t * pool, ngx_addr_t * addr, u_char * text, size_t len);
+ngx_int_t ngx_parse_addr(ngx_pool_t * pool, ngx_addr_t * addr, uchar * text, size_t len);
+ngx_int_t ngx_parse_addr_port(ngx_pool_t * pool, ngx_addr_t * addr, uchar * text, size_t len);
 ngx_int_t ngx_parse_url(ngx_pool_t * pool, ngx_url_t * u);
 ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u);
 ngx_int_t ngx_cmp_sockaddr(struct sockaddr * sa1, socklen_t slen1, struct sockaddr * sa2, socklen_t slen2, ngx_uint_t cmp_port);
@@ -1431,22 +1436,22 @@ struct ngx_resolver_addr_t {
 	struct sockaddr * sockaddr;
 	socklen_t socklen;
 	ngx_str_t name;
-	u_short priority;
-	u_short weight;
+	ushort priority;
+	ushort weight;
 };
 
 struct ngx_resolver_srv_t {
 	ngx_str_t name;
-	u_short priority;
-	u_short weight;
-	u_short port;
+	ushort priority;
+	ushort weight;
+	ushort port;
 };
 
 struct ngx_resolver_srv_name_t {
 	ngx_str_t name;
-	u_short priority;
-	u_short weight;
-	u_short port;
+	ushort priority;
+	ushort weight;
+	ushort port;
 	ngx_resolver_ctx_t  * ctx;
 	ngx_int_t state;
 	ngx_uint_t naddrs;
@@ -1456,32 +1461,32 @@ struct ngx_resolver_srv_name_t {
 struct ngx_resolver_node_t {
 	ngx_rbtree_node_t node;
 	ngx_queue_t queue;
-	u_char * name; // PTR: resolved name, A: name to resolve 
+	uchar * name; // PTR: resolved name, A: name to resolve 
 #if (NGX_HAVE_INET6)
 	struct in6_addr addr6; // PTR: IPv6 address to resolve (IPv4 address is in rbtree node key) 
 #endif
-	u_short nlen;
-	u_short qlen;
-	u_char * query;
+	ushort nlen;
+	ushort qlen;
+	uchar * query;
 #if (NGX_HAVE_INET6)
-	u_char * query6;
+	uchar * query6;
 #endif
 	union {
 		in_addr_t addr;
 		in_addr_t * addrs;
-		u_char * cname;
+		uchar * cname;
 		ngx_resolver_srv_t  * srvs;
 	} u;
-	u_char code;
-	u_short naddrs;
-	u_short nsrvs;
-	u_short cnlen;
+	uchar code;
+	ushort naddrs;
+	ushort nsrvs;
+	ushort cnlen;
 #if (NGX_HAVE_INET6)
 	union {
 		struct in6_addr addr6;
 		struct in6_addr * addrs6;
 	} u6;
-	u_short naddrs6;
+	ushort naddrs6;
 #endif
 	time_t expire;
 	time_t valid;
@@ -1635,14 +1640,14 @@ const char * ngx_resolver_strerror(ngx_int_t err);
 
 	struct /*ngx_ssl_sess_id_s*/ngx_ssl_sess_id_t {
 		ngx_rbtree_node_t node;
-		u_char * id;
+		uchar * id;
 		size_t len;
-		u_char * session;
+		uchar * session;
 		ngx_queue_t queue;
 		time_t expire;
 	#if (NGX_PTR_SIZE == 8)
 		void * stub;
-		u_char sess_id[32];
+		uchar sess_id[32];
 	#endif
 	};
 
@@ -1655,9 +1660,9 @@ const char * ngx_resolver_strerror(ngx_int_t err);
 	#ifdef SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB
 	struct ngx_ssl_session_ticket_key_t {
 		size_t size;
-		u_char name[16];
-		u_char hmac_key[32];
-		u_char aes_key[32];
+		uchar name[16];
+		uchar hmac_key[32];
+		uchar aes_key[32];
 	};
 	#endif
 
@@ -1724,8 +1729,8 @@ const char * ngx_resolver_strerror(ngx_int_t err);
 	ngx_int_t ngx_ssl_get_client_v_remain(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t * s);
 
 	ngx_int_t ngx_ssl_handshake(ngx_connection_t * c);
-	ssize_t ngx_ssl_recv(ngx_connection_t * c, u_char * buf, size_t size);
-	ssize_t ngx_ssl_write(ngx_connection_t * c, u_char * data, size_t size);
+	ssize_t ngx_ssl_recv(ngx_connection_t * c, uchar * buf, size_t size);
+	ssize_t ngx_ssl_write(ngx_connection_t * c, uchar * data, size_t size);
 	ssize_t ngx_ssl_recv_chain(ngx_connection_t * c, ngx_chain_t * cl, nginx_off_t limit);
 	ngx_chain_t * ngx_ssl_send_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit);
 	void ngx_ssl_free_buffer(ngx_connection_t * c);
@@ -1892,7 +1897,7 @@ char * ngx_conf_check_num_bounds(ngx_conf_t * cf, void * post, void * data);
 #define ngx_conf_merge_sec_value(conf, prev, _default)  if(conf == NGX_CONF_UNSET) { conf = (prev == NGX_CONF_UNSET) ? _default : prev; }
 #define ngx_conf_merge_size_value(conf, prev, _default) if(conf == NGX_CONF_UNSET_SIZE) { conf = (prev == NGX_CONF_UNSET_SIZE) ? _default : prev; }
 #define ngx_conf_merge_off_value(conf, prev, _default)  if(conf == NGX_CONF_UNSET) { conf = (prev == NGX_CONF_UNSET) ? _default : prev; }
-#define ngx_conf_merge_str_value(conf, prev, _default)  if(!conf.data) { if(prev.data) { conf.len = prev.len; conf.data = prev.data; } else { conf.len = (sizeof(_default)-1); conf.data = (u_char *)_default; }}
+#define ngx_conf_merge_str_value(conf, prev, _default)  if(!conf.data) { if(prev.data) { conf.len = prev.len; conf.data = prev.data; } else { conf.len = (sizeof(_default)-1); conf.data = (uchar *)_default; }}
 
 #define ngx_conf_merge_bufs_value(conf, prev, default_num, default_size)     \
 	if(conf.num == 0) {							\
@@ -2175,7 +2180,7 @@ typedef struct ngx_cached_open_file_s ngx_cached_open_file_t;
 struct ngx_cached_open_file_s {
 	ngx_rbtree_node_t node;
 	ngx_queue_t queue;
-	u_char  * name;
+	uchar  * name;
 	time_t created;
 	time_t accessed;
 	ngx_fd_t fd;
@@ -2416,13 +2421,13 @@ typedef struct ngx_http_chunked_s ngx_http_chunked_t;
 typedef struct ngx_http_v2_stream_s ngx_http_v2_stream_t;
 
 typedef ngx_int_t (*ngx_http_header_handler_pt)(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset);
-typedef u_char *(*ngx_http_log_handler_pt)(ngx_http_request_t * r, ngx_http_request_t * sr, u_char * buf, size_t len);
+typedef uchar *(*ngx_http_log_handler_pt)(ngx_http_request_t * r, ngx_http_request_t * sr, uchar * buf, size_t len);
 //
 //#include <ngx_http_variables.h>
 //
 typedef ngx_variable_value_t ngx_http_variable_value_t;
 
-#define ngx_http_variable(v)     { sizeof(v) - 1, 1, 0, 0, 0, (u_char *)v }
+#define ngx_http_variable(v)     { sizeof(v) - 1, 1, 0, 0, 0, (uchar *)v }
 
 typedef struct ngx_http_variable_s ngx_http_variable_t;
 typedef void (*ngx_http_set_variable_pt)(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
@@ -2758,7 +2763,7 @@ struct ngx_http_headers_out_t {
 	size_t content_type_len;
 	ngx_str_t content_type;
 	ngx_str_t charset;
-	u_char * content_type_lowcase;
+	uchar * content_type_lowcase;
 	ngx_uint_t content_type_hash;
 	ngx_array_t cache_control;
 	nginx_off_t content_length_n;
@@ -2881,7 +2886,7 @@ struct /*ngx_http_request_s*/ngx_http_request_t {
 #if (NGX_PCRE)
 	ngx_uint_t ncaptures;
 	int  * captures;
-	u_char * captures_data;
+	uchar * captures_data;
 #endif
 	size_t limit_rate;
 	size_t limit_rate_after;
@@ -2976,27 +2981,27 @@ struct /*ngx_http_request_s*/ngx_http_request_t {
 	ngx_uint_t state;
 	ngx_uint_t header_hash;
 	ngx_uint_t lowcase_index;
-	u_char   lowcase_header[NGX_HTTP_LC_HEADER_LEN];
-	u_char * header_name_start;
-	u_char * header_name_end;
-	u_char * header_start;
-	u_char * header_end;
+	uchar   lowcase_header[NGX_HTTP_LC_HEADER_LEN];
+	uchar * header_name_start;
+	uchar * header_name_end;
+	uchar * header_start;
+	uchar * header_end;
 	//
 	// a memory that can be reused after parsing a request line via ngx_http_ephemeral_t
 	//
-	u_char * uri_start;
-	u_char * uri_end;
-	u_char * uri_ext;
-	u_char * args_start;
-	u_char * request_start;
-	u_char * request_end;
-	u_char * method_end;
-	u_char * schema_start;
-	u_char * schema_end;
-	u_char * host_start;
-	u_char * host_end;
-	u_char * port_start;
-	u_char * port_end;
+	uchar * uri_start;
+	uchar * uri_end;
+	uchar * uri_ext;
+	uchar * args_start;
+	uchar * request_start;
+	uchar * request_end;
+	uchar * method_end;
+	uchar * schema_start;
+	uchar * schema_end;
+	uchar * host_start;
+	uchar * host_end;
+	uchar * port_start;
+	uchar * port_end;
 };
 
 struct ngx_http_ephemeral_t {
@@ -3012,13 +3017,13 @@ extern ngx_http_header_out_t ngx_http_headers_out[];
 //#include <ngx_http_script.h>
 //
 struct ngx_http_script_engine_t {
-	u_char * ip;
-	u_char * pos;
+	uchar * ip;
+	uchar * pos;
 	ngx_http_variable_value_t  * sp;
 	ngx_str_t buf;
 	ngx_str_t line;
 	/* the start of the rewritten arguments */
-	u_char * args;
+	uchar * args;
 	unsigned flushed : 1;
 	unsigned skip : 1;
 	unsigned quote : 1;
@@ -3171,7 +3176,7 @@ const char * ngx_http_set_predicate_slot(ngx_conf_t * cf, const ngx_command_t * 
 ngx_int_t ngx_http_test_predicates(ngx_http_request_t * r, ngx_array_t * predicates);
 ngx_uint_t ngx_http_script_variables_count(ngx_str_t * value);
 ngx_int_t ngx_http_script_compile(ngx_http_script_compile_t * sc);
-u_char * ngx_http_script_run(ngx_http_request_t * r, ngx_str_t * value, void * code_lengths, size_t reserved, void * code_values);
+uchar * ngx_http_script_run(ngx_http_request_t * r, ngx_str_t * value, void * code_lengths, size_t reserved, void * code_values);
 void ngx_http_script_flush_no_cacheable_variables(ngx_http_request_t * r, ngx_array_t * indices);
 void * ngx_http_script_start_code(ngx_pool_t * pool, ngx_array_t ** codes, size_t size);
 void * ngx_http_script_add_code(ngx_array_t * codes, size_t size, void * code);
@@ -3464,7 +3469,7 @@ struct ngx_event_conf_t {
 	ngx_flag_t multi_accept;
 	ngx_flag_t accept_mutex;
 	ngx_msec_t accept_mutex_delay;
-	u_char  * name;
+	uchar  * name;
 #if (NGX_DEBUG)
 	ngx_array_t debug_connection;
 #endif
@@ -3510,7 +3515,7 @@ void ngx_event_accept(ngx_event_t * ev);
 	void ngx_event_recvmsg(ngx_event_t * ev);
 #endif
 ngx_int_t ngx_trylock_accept_mutex(ngx_cycle_t * cycle);
-u_char * ngx_accept_log_error(ngx_log_t * log, u_char * buf, size_t len);
+uchar * ngx_accept_log_error(ngx_log_t * log, uchar * buf, size_t len);
 
 void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle);
 ngx_int_t FASTCALL ngx_handle_read_event(ngx_event_t * rev, ngx_uint_t flags);
@@ -3519,7 +3524,7 @@ ngx_int_t FASTCALL ngx_handle_write_event(ngx_event_t * wev, size_t lowat);
 #if (NGX_WIN32)
 	void ngx_event_acceptex(ngx_event_t * ev);
 	ngx_int_t ngx_event_post_acceptex(ngx_listening_t * ls, ngx_uint_t n);
-	u_char * ngx_acceptex_log_error(ngx_log_t * log, u_char * buf, size_t len);
+	uchar * ngx_acceptex_log_error(ngx_log_t * log, uchar * buf, size_t len);
 #endif
 
 ngx_int_t ngx_send_lowat(ngx_connection_t * c, size_t lowat);
@@ -3778,7 +3783,7 @@ struct ngx_http_upstream_srv_conf_s {
 	ngx_array_t * servers; /* ngx_http_upstream_server_t */
 	ngx_uint_t flags;
 	ngx_str_t host;
-	u_char * file_name;
+	uchar * file_name;
 	ngx_uint_t line;
 	in_port_t port;
 	ngx_uint_t no_port; /* unsigned no_port:1 */
@@ -4044,7 +4049,7 @@ extern ngx_conf_bitmask_t ngx_http_upstream_ignore_headers_masks[];
 		ngx_flag_t stapling_verify;
 		ngx_str_t stapling_file;
 		ngx_str_t stapling_responder;
-		u_char * file;
+		uchar * file;
 		ngx_uint_t line;
 	};
 
@@ -4068,8 +4073,8 @@ struct ngx_http_status_t {
 	ngx_uint_t http_version;
 	ngx_uint_t code;
 	ngx_uint_t count;
-	u_char * start;
-	u_char * end;
+	uchar * start;
+	uchar * end;
 };
 
 #define ngx_http_get_module_ctx(r, module)  (r)->ctx[module.ctx_index]
@@ -4091,7 +4096,7 @@ ngx_int_t ngx_http_parse_unsafe_uri(ngx_http_request_t * r, ngx_str_t * uri, ngx
 ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_uint_t allow_underscores);
 ngx_int_t ngx_http_parse_multi_header_lines(ngx_array_t * headers, ngx_str_t * name, ngx_str_t * value);
 ngx_int_t ngx_http_parse_set_cookie_lines(ngx_array_t * headers, ngx_str_t * name, ngx_str_t * value);
-ngx_int_t ngx_http_arg(ngx_http_request_t * r, const u_char * name, size_t len, ngx_str_t * value);
+ngx_int_t ngx_http_arg(ngx_http_request_t * r, const uchar * name, size_t len, ngx_str_t * value);
 void ngx_http_split_args(ngx_http_request_t * r, ngx_str_t * uri, ngx_str_t * args);
 ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http_chunked_t * ctx);
 
@@ -4165,23 +4170,23 @@ struct ngx_syslog_peer_t {
 };
 
 char * ngx_syslog_process_conf(ngx_conf_t * cf, ngx_syslog_peer_t * peer);
-u_char * ngx_syslog_add_header(ngx_syslog_peer_t * peer, u_char * buf);
-void ngx_syslog_writer(ngx_log_t * log, ngx_uint_t level, u_char * buf, size_t len);
-ssize_t ngx_syslog_send(ngx_syslog_peer_t * peer, u_char * buf, size_t len);
+uchar * ngx_syslog_add_header(ngx_syslog_peer_t * peer, uchar * buf);
+void ngx_syslog_writer(ngx_log_t * log, ngx_uint_t level, uchar * buf, size_t len);
+ssize_t ngx_syslog_send(ngx_syslog_peer_t * peer, uchar * buf, size_t len);
 //
 //#include <ngx_proxy_protocol.h>
 //
 #define NGX_PROXY_PROTOCOL_MAX_HEADER  107
 
-u_char * ngx_proxy_protocol_read(ngx_connection_t *c, u_char *buf, u_char *last);
-u_char * ngx_proxy_protocol_write(ngx_connection_t *c, u_char *buf, u_char *last);
+uchar * ngx_proxy_protocol_read(ngx_connection_t *c, uchar *buf, uchar *last);
+uchar * ngx_proxy_protocol_write(ngx_connection_t *c, uchar *buf, uchar *last);
 //
 //#include <ngx_crypt.h>
 //
-ngx_int_t ngx_crypt(ngx_pool_t *pool, u_char *key, u_char *salt, u_char **encrypted);
+ngx_int_t ngx_crypt(ngx_pool_t *pool, uchar *key, uchar *salt, uchar **encrypted);
 //
-#define LF     (u_char)'\n'
-#define __CR   (u_char)'\r'
+#define LF     (uchar)'\n'
+#define __CR   (uchar)'\r'
 #define CRLF   "\r\n"
 
 // (moved above) #define ngx_abs(value)       (((value) >= 0) ? (value) : -(value))
@@ -4235,7 +4240,7 @@ typedef struct ngx_stream_session_s ngx_stream_session_t;
 //
 typedef ngx_variable_value_t ngx_stream_variable_value_t;
 
-#define ngx_stream_variable(v)     { sizeof(v) - 1, 1, 0, 0, 0, (u_char *)v }
+#define ngx_stream_variable(v)     { sizeof(v) - 1, 1, 0, 0, 0, (uchar *)v }
 
 typedef struct ngx_stream_variable_s ngx_stream_variable_t;
 
@@ -4305,8 +4310,8 @@ extern ngx_stream_variable_value_t ngx_stream_variable_true_value;
 //#include <ngx_stream_script.h>
 //
 struct ngx_stream_script_engine_t {
-	u_char * ip;
-	u_char * pos;
+	uchar * ip;
+	uchar * pos;
 	ngx_stream_variable_value_t  * sp;
 	ngx_str_t buf;
 	ngx_str_t line;
@@ -4377,7 +4382,7 @@ ngx_int_t ngx_stream_compile_complex_value(ngx_stream_compile_complex_value_t * 
 const char * ngx_stream_set_complex_value_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 ngx_uint_t FASTCALL ngx_stream_script_variables_count(const ngx_str_t * value);
 ngx_int_t ngx_stream_script_compile(ngx_stream_script_compile_t * sc);
-u_char * ngx_stream_script_run(ngx_stream_session_t * s, ngx_str_t * value, void * code_lengths, size_t reserved, void * code_values);
+uchar * ngx_stream_script_run(ngx_stream_session_t * s, ngx_str_t * value, void * code_lengths, size_t reserved, void * code_values);
 void ngx_stream_script_flush_no_cacheable_variables(ngx_stream_session_t * s, const ngx_array_t * indices);
 void * ngx_stream_script_add_code(ngx_array_t * codes, size_t size, void * code);
 size_t ngx_stream_script_copy_len_code(ngx_stream_script_engine_t * e);
@@ -4437,7 +4442,7 @@ struct ngx_stream_upstream_srv_conf_s {
 	/* ngx_stream_upstream_server_t */
 	ngx_uint_t flags;
 	ngx_str_t host;
-	u_char   * file_name;
+	uchar   * file_name;
 	ngx_uint_t line;
 	in_port_t port;
 	ngx_uint_t no_port; /* unsigned no_port:1 */
@@ -4690,7 +4695,7 @@ struct ngx_stream_core_main_conf_t {
 struct ngx_stream_core_srv_conf_t {
 	ngx_stream_content_handler_pt handler;
 	ngx_stream_conf_ctx_t  * ctx;
-	u_char * file_name;
+	uchar * file_name;
 	ngx_uint_t line;
 	ngx_flag_t tcp_nodelay;
 	size_t preread_buffer_size;
@@ -4719,7 +4724,7 @@ struct ngx_stream_session_s {
 #if (NGX_PCRE)
 	ngx_uint_t ncaptures;
 	int  * captures;
-	u_char * captures_data;
+	uchar * captures_data;
 #endif
 	ngx_int_t phase_handler;
 	ngx_uint_t status;
@@ -4805,7 +4810,7 @@ extern ngx_stream_filter_pt ngx_stream_top_filter;
 		ngx_shm_zone_t  * shm_zone;
 		ngx_flag_t session_tickets;
 		ngx_array_t * session_ticket_keys;
-		u_char * file;
+		uchar * file;
 		ngx_uint_t line;
 	};
 
@@ -4888,7 +4893,7 @@ struct ngx_mail_core_srv_conf_t {
 	ngx_msec_t timeout;
 	ngx_msec_t resolver_timeout;
 	ngx_str_t server_name;
-	u_char * file_name;
+	uchar * file_name;
 	ngx_uint_t line;
 	ngx_resolver_t  * resolver;
 	ngx_log_t    * error_log;
@@ -4979,9 +4984,9 @@ struct ngx_mail_session_t {
 	ngx_uint_t login_attempt;
 	/* used to parse POP3/IMAP/SMTP command */
 	ngx_uint_t state;
-	u_char * cmd_start;
-	u_char * arg_start;
-	u_char * arg_end;
+	uchar * cmd_start;
+	uchar * arg_start;
+	uchar * arg_end;
 	ngx_uint_t literal_len;
 };
 
@@ -5105,7 +5110,7 @@ ngx_int_t ngx_mail_read_command(ngx_mail_session_t * s, ngx_connection_t * c);
 void ngx_mail_auth(ngx_mail_session_t * s, ngx_connection_t * c);
 void ngx_mail_close_connection(ngx_connection_t * c);
 void ngx_mail_session_internal_server_error(ngx_mail_session_t * s);
-u_char * ngx_mail_log_error(ngx_log_t * log, u_char * buf, size_t len);
+uchar * ngx_mail_log_error(ngx_log_t * log, uchar * buf, size_t len);
 const char * ngx_mail_capabilities(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 /* STUB */
@@ -5178,23 +5183,23 @@ extern ngx_module_t ngx_mail_smtp_module;
 struct ngx_md5_t {
 	uint64_t bytes;
 	uint32_t a, b, c, d;
-	u_char buffer[64];
+	uchar buffer[64];
 };
 
 void ngx_md5_init(ngx_md5_t * ctx);
 void ngx_md5_update(ngx_md5_t * ctx, const void * data, size_t size);
-void ngx_md5_final(u_char result[16], ngx_md5_t *ctx);
+void ngx_md5_final(uchar result[16], ngx_md5_t *ctx);
 //
 //#include <ngx_sha1.h>
 //
 typedef struct {
 	uint64_t bytes;
 	uint32_t a, b, c, d, e, f;
-	u_char buffer[64];
+	uchar buffer[64];
 } ngx_sha1_t;
 
 void ngx_sha1_init(ngx_sha1_t * ctx);
 void ngx_sha1_update(ngx_sha1_t * ctx, const void * data, size_t size);
-void ngx_sha1_final(u_char result[20], ngx_sha1_t *ctx);
+void ngx_sha1_final(uchar result[20], ngx_sha1_t *ctx);
 //
 #endif /* _NGX_CORE_H_INCLUDED_ */

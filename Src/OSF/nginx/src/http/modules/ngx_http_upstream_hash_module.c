@@ -117,7 +117,7 @@ static ngx_int_t ngx_http_upstream_get_hash_peer(ngx_peer_connection_t * pc, voi
 {
 	ngx_http_upstream_hash_peer_data_t  * hp = (ngx_http_upstream_hash_peer_data_t  *)data;
 	time_t now;
-	u_char buf[NGX_INT_T_LEN];
+	uchar buf[NGX_INT_T_LEN];
 	size_t size;
 	uint32_t hash;
 	ngx_int_t w;
@@ -202,7 +202,7 @@ next:
 
 static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf, ngx_http_upstream_srv_conf_t * us)
 {
-	u_char * host, * port, c;
+	uchar * host, * port, c;
 	size_t host_len, port_len, size;
 	uint32_t hash, base_hash;
 	ngx_str_t * server;
@@ -213,7 +213,7 @@ static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf, ngx_http_upstream
 	ngx_http_upstream_hash_srv_conf_t  * hcf;
 	union {
 		uint32_t value;
-		u_char byte[4];
+		uchar byte[4];
 	} prev_hash;
 	if(ngx_http_upstream_init_round_robin(cf, us) != NGX_OK) {
 		return NGX_ERROR;
@@ -233,7 +233,7 @@ static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf, ngx_http_upstream
 		 * Hash expression is compatible with Cache::Memcached::Fast:
 		 * crc32(HOST \0 PORT PREV_HASH).
 		 */
-		if(server->len >= 5 && ngx_strncasecmp(server->data, (u_char *)"unix:", 5) == 0) {
+		if(server->len >= 5 && ngx_strncasecmp(server->data, (uchar *)"unix:", 5) == 0) {
 			host = server->data + 5;
 			host_len = server->len - 5;
 			port = NULL;
@@ -260,7 +260,7 @@ static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf, ngx_http_upstream
 done:
 		ngx_crc32_init(base_hash);
 		ngx_crc32_update(&base_hash, host, host_len);
-		ngx_crc32_update(&base_hash, (u_char *)"", 1);
+		ngx_crc32_update(&base_hash, (uchar *)"", 1);
 		ngx_crc32_update(&base_hash, port, port_len);
 		prev_hash.value = 0;
 		npoints = peer->weight * 160;
@@ -274,10 +274,10 @@ done:
 #if (NGX_HAVE_LITTLE_ENDIAN)
 			prev_hash.value = hash;
 #else
-			prev_hash.byte[0] = (u_char)(hash & 0xff);
-			prev_hash.byte[1] = (u_char)((hash >> 8) & 0xff);
-			prev_hash.byte[2] = (u_char)((hash >> 16) & 0xff);
-			prev_hash.byte[3] = (u_char)((hash >> 24) & 0xff);
+			prev_hash.byte[0] = (uchar)(hash & 0xff);
+			prev_hash.byte[1] = (uchar)((hash >> 8) & 0xff);
+			prev_hash.byte[2] = (uchar)((hash >> 16) & 0xff);
+			prev_hash.byte[3] = (uchar)((hash >> 24) & 0xff);
 #endif
 		}
 	}

@@ -12,13 +12,13 @@ static void ngx_log_insert(ngx_log_t * log, ngx_log_t * new_log);
 
 #if (NGX_DEBUG)
 
-static void ngx_log_memory_writer(ngx_log_t * log, ngx_uint_t level, u_char * buf, size_t len);
+static void ngx_log_memory_writer(ngx_log_t * log, ngx_uint_t level, uchar * buf, size_t len);
 static void ngx_log_memory_cleanup(void * data);
 
 struct ngx_log_memory_buf_t {
-	u_char * start;
-	u_char * end;
-	u_char * pos;
+	uchar * start;
+	uchar * end;
+	uchar * pos;
 	ngx_atomic_t written;
 };
 
@@ -75,12 +75,12 @@ static const char * debug_levels[] = { "debug_core", "debug_alloc", "debug_mutex
 #if (NGX_HAVE_VARIADIC_MACROS)
 	va_list args;
 #endif
-	u_char * msg;
+	uchar * msg;
 	ssize_t n;
 	ngx_uint_t wrote_stderr, debug_connection;
-	u_char errstr[NGX_MAX_ERROR_STR];
-	u_char * last = errstr + NGX_MAX_ERROR_STR;
-	u_char * p = ngx_cpymem(errstr, ngx_cached_err_log_time.data, ngx_cached_err_log_time.len);
+	uchar errstr[NGX_MAX_ERROR_STR];
+	uchar * last = errstr + NGX_MAX_ERROR_STR;
+	uchar * p = ngx_cpymem(errstr, ngx_cached_err_log_time.data, ngx_cached_err_log_time.len);
 	p = ngx_slprintf(p, last, " [%V] ", &err_levels[level]);
 	/* pid#tid */
 	p = ngx_slprintf(p, last, "%P#" NGX_TID_T_FMT ": ", ngx_log_pid, ngx_log_tid);
@@ -164,9 +164,9 @@ void ngx_cdecl ngx_log_debug_core(ngx_log_t * log, ngx_err_t err, const char * f
 
 void ngx_cdecl ngx_log_abort(ngx_err_t err, const char * fmt, ...)
 {
-	u_char * p;
+	uchar * p;
 	va_list args;
-	u_char errstr[NGX_MAX_CONF_ERRSTR];
+	uchar errstr[NGX_MAX_CONF_ERRSTR];
 	va_start(args, fmt);
 	p = ngx_vsnprintf(errstr, sizeof(errstr) - 1, fmt, args);
 	va_end(args);
@@ -176,9 +176,9 @@ void ngx_cdecl ngx_log_abort(ngx_err_t err, const char * fmt, ...)
 void ngx_cdecl ngx_log_stderr(ngx_err_t err, const char * fmt, ...)
 {
 	va_list args;
-	u_char errstr[NGX_MAX_ERROR_STR];
-	u_char * last = errstr + NGX_MAX_ERROR_STR;
-	u_char * p = ngx_cpymem(errstr, "nginx: ", 7);
+	uchar errstr[NGX_MAX_ERROR_STR];
+	uchar * last = errstr + NGX_MAX_ERROR_STR;
+	uchar * p = ngx_cpymem(errstr, "nginx: ", 7);
 	va_start(args, fmt);
 	p = ngx_vslprintf(p, last, fmt, args);
 	va_end(args);
@@ -192,7 +192,7 @@ void ngx_cdecl ngx_log_stderr(ngx_err_t err, const char * fmt, ...)
 	(void)ngx_write_console(ngx_stderr, errstr, p - errstr);
 }
 
-u_char * ngx_log_errno(u_char * buf, u_char * last, ngx_err_t err)
+uchar * ngx_log_errno(uchar * buf, uchar * last, ngx_err_t err)
 {
 	if(buf > last - 50) {
 		/* leave a space for an error code */
@@ -213,12 +213,12 @@ u_char * ngx_log_errno(u_char * buf, u_char * last, ngx_err_t err)
 	return buf;
 }
 
-ngx_log_t * ngx_log_init(const u_char * prefix)
+ngx_log_t * ngx_log_init(const uchar * prefix)
 {
-	u_char * p = 0; // Указатель на распределенную память (для финишного удаления)
+	uchar * p = 0; // Указатель на распределенную память (для финишного удаления)
 	ngx_log.file = &ngx_log_file;
 	ngx_log.Level = NGX_LOG_NOTICE;
-	u_char * p_name = (u_char *)NGX_ERROR_LOG_PATH;
+	uchar * p_name = (uchar *)NGX_ERROR_LOG_PATH;
 	// 
 	// we use ngx_strlen() here since BCC warns about condition is always false and unreachable code
 	// 
@@ -237,14 +237,14 @@ ngx_log_t * ngx_log_init(const u_char * prefix)
 			}
 			else {
 #ifdef NGX_PREFIX
-				prefix = (u_char *)NGX_PREFIX;
+				prefix = (uchar *)NGX_PREFIX;
 				plen = ngx_strlen(prefix);
 #else
 				plen = 0;
 #endif
 			}
 			if(plen) {
-				p_name = (u_char *)SAlloc::M(plen + nlen + 2);
+				p_name = (uchar *)SAlloc::M(plen + nlen + 2);
 				if(p_name == NULL) {
 					return NULL;
 				}
@@ -252,7 +252,7 @@ ngx_log_t * ngx_log_init(const u_char * prefix)
 				if(!ngx_path_separator(*(p - 1))) {
 					*p++ = '/';
 				}
-				ngx_cpystrn(p, (u_char *)NGX_ERROR_LOG_PATH, nlen + 1);
+				ngx_cpystrn(p, (uchar *)NGX_ERROR_LOG_PATH, nlen + 1);
 				p = p_name;
 			}
 		}
@@ -265,7 +265,7 @@ ngx_log_t * ngx_log_init(const u_char * prefix)
 			ngx_log_file.fd = ngx_stderr;
 		}
 		if(p) {
-			ngx_free(p);
+			SAlloc::F(p);
 		}
 	}
 	return &ngx_log;
@@ -414,7 +414,7 @@ char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 		if(!buf) {
 			return NGX_CONF_ERROR;
 		}
-		buf->start = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
+		buf->start = static_cast<uchar *>(ngx_pnalloc(cf->pool, size));
 		if(buf->start == NULL) {
 			return NGX_CONF_ERROR;
 		}
@@ -487,12 +487,12 @@ static void ngx_log_insert(ngx_log_t * pLog, ngx_log_t * pNewLog)
 
 #if (NGX_DEBUG)
 
-static void ngx_log_memory_writer(ngx_log_t * log, ngx_uint_t level, u_char * buf, size_t len)
+static void ngx_log_memory_writer(ngx_log_t * log, ngx_uint_t level, uchar * buf, size_t len)
 {
 	ngx_log_memory_buf_t * mem = (ngx_log_memory_buf_t *)log->wdata;
 	if(mem) {
 		size_t written = ngx_atomic_fetch_add(&mem->written, len);
-		u_char * p = mem->pos + written % (mem->end - mem->pos);
+		uchar * p = mem->pos + written % (mem->end - mem->pos);
 		size_t avail = mem->end - p;
 		if(avail >= len) {
 			memcpy(p, buf, len);

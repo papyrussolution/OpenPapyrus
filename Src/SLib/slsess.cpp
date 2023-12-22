@@ -357,7 +357,7 @@ static void InitTest()
 		STATIC_ASSERT(AGGRFUNC_MIN == 4);
 		STATIC_ASSERT(AGGRFUNC_MAX == 5);
 		STATIC_ASSERT(AGGRFUNC_STDDEV == 6);
-		STATIC_ASSERT(SSECSPERDAY == (24 * 60 * 60)); // @v11.4.7 То же кто-то может пошутить :)
+		STATIC_ASSERT(SlConst::SecsPerDay == (24 * 60 * 60)); // @v11.4.7 То же кто-то может пошутить :)
 	}
 	{
 		void * ptr = SAlloc::M(0);

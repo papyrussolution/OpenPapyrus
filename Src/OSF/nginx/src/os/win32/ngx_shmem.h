@@ -9,7 +9,7 @@
 #include <ngx_core.h>
 
 struct ngx_shm_t {
-	u_char * addr;
+	uchar * addr;
 	size_t size;
 	ngx_str_t name;
 	HANDLE handle;
@@ -18,7 +18,7 @@ struct ngx_shm_t {
 };
 
 ngx_int_t ngx_shm_alloc(ngx_shm_t * shm);
-ngx_int_t ngx_shm_remap(ngx_shm_t * shm, u_char * addr);
+ngx_int_t ngx_shm_remap(ngx_shm_t * shm, uchar * addr);
 void ngx_shm_free(ngx_shm_t * shm);
 
 extern ngx_uint_t ngx_allocation_granularity;

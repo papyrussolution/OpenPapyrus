@@ -296,7 +296,7 @@ static const char * ngx_mail_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 		if(ngx_strncmp(value[i].data, "ipv6only=o", 10) == 0) {
 #if (NGX_HAVE_INET6 && defined IPV6_V6ONLY)
 			size_t len;
-			u_char buf[NGX_SOCKADDR_STRLEN];
+			uchar buf[NGX_SOCKADDR_STRLEN];
 
 			if(ls->sockaddr.sockaddr.sa_family == AF_INET6) {
 				if(ngx_strcmp(&value[i].data[10], "n") == 0) {
@@ -353,7 +353,7 @@ static const char * ngx_mail_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 			}
 			else {
 #if (NGX_HAVE_KEEPALIVE_TUNABLE)
-				u_char   * p, * end;
+				uchar   * p, * end;
 				ngx_str_t s;
 
 				end = value[i].data + value[i].len;

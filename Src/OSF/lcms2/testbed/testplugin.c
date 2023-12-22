@@ -880,14 +880,14 @@ static cmsPipeline *  MyNewIntent(cmsContext ContextID, uint32 nProfiles, uint32
 {
 	cmsPipeline *    Result;
 	uint32 ICCIntents[256];
-	uint32 i;
-	for(i = 0; i < nProfiles; i++)
+	for(uint32 i = 0; i < nProfiles; i++)
 		ICCIntents[i] = (TheIntents[i] == INTENT_DECEPTIVE) ? INTENT_PERCEPTUAL : TheIntents[i];
 	if(cmsGetColorSpace(hProfiles[0]) != cmsSigGrayData ||
 	    cmsGetColorSpace(hProfiles[nProfiles-1]) != cmsSigGrayData)
 		return _cmsDefaultICCintents(ContextID, nProfiles, ICCIntents, hProfiles, BPC, AdaptationStates, dwFlags);
 	Result = cmsPipelineAlloc(ContextID, 1, 1);
-	if(Result == NULL) return NULL;
+	if(Result == NULL) 
+		return NULL;
 	cmsPipelineInsertStage(Result, cmsAT_BEGIN, cmsStageAllocIdentity(ContextID, 1));
 	return Result;
 }
@@ -920,7 +920,6 @@ int32 CheckIntentPlugin(FILE * fOut)
 
 	cmsFreeToneCurve(Linear1);
 	cmsFreeToneCurve(Linear2);
-
 	xform = cmsCreateTransformTHR(cpy2, h1, TYPE_GRAY_8, h2, TYPE_GRAY_8, INTENT_DECEPTIVE, 0);
 	cmsCloseProfile(h1); 
 	cmsCloseProfile(h2);

@@ -28,9 +28,9 @@ struct ngx_http_ssi_main_conf_t {
 
 struct ngx_http_ssi_ctx_t {
 	ngx_buf_t * buf;
-	u_char * pos;
-	u_char * copy_start;
-	u_char * copy_end;
+	uchar * pos;
+	uchar * copy_start;
+	uchar * copy_end;
 	ngx_uint_t key;
 	ngx_str_t command;
 	ngx_array_t params;
@@ -51,7 +51,7 @@ struct ngx_http_ssi_ctx_t {
 #if (NGX_PCRE)
 	ngx_uint_t ncaptures;
 	int    * captures;
-	u_char * captures_data;
+	uchar * captures_data;
 #endif
 	unsigned conditional : 2;
 	unsigned encoding : 2;

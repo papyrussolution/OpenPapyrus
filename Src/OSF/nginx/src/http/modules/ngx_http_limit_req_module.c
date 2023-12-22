@@ -7,15 +7,15 @@
 #pragma hdrstop
 
 struct ngx_http_limit_req_node_t {
-	u_char color;
-	u_char dummy;
-	u_short len;
+	uchar color;
+	uchar dummy;
+	ushort len;
 	ngx_queue_t queue;
 	ngx_msec_t last;
 	/* integer value, 1 corresponds to 0.001 r/s */
 	ngx_uint_t excess;
 	ngx_uint_t count;
-	u_char data[1];
+	uchar data[1];
 };
 
 struct ngx_http_limit_req_shctx_t {
@@ -295,7 +295,7 @@ static ngx_int_t ngx_http_limit_req_lookup(ngx_http_limit_req_limit_t * limit, n
 	}
 	node->key = hash;
 	lr = (ngx_http_limit_req_node_t*)&node->color;
-	lr->len = (u_short)key->len;
+	lr->len = (ushort)key->len;
 	lr->excess = 0;
 	memcpy(lr->data, key->data, key->len);
 	ngx_rbtree_insert(&ctx->sh->rbtree, node);
@@ -396,7 +396,7 @@ static void ngx_http_limit_req_expire(ngx_http_limit_req_ctx_t * ctx, ngx_uint_t
 			}
 		}
 		ngx_queue_remove(q);
-		node = (ngx_rbtree_node_t*)((u_char *)lr - offsetof(ngx_rbtree_node_t, color));
+		node = (ngx_rbtree_node_t*)((uchar *)lr - offsetof(ngx_rbtree_node_t, color));
 		ngx_rbtree_delete(&ctx->sh->rbtree, node);
 		ngx_slab_free_locked(ctx->shpool, node);
 	}
@@ -430,7 +430,7 @@ static ngx_int_t ngx_http_limit_req_init_zone(ngx_shm_zone_t * shm_zone, void * 
 	ngx_rbtree_init(&ctx->sh->rbtree, &ctx->sh->sentinel, ngx_http_limit_req_rbtree_insert_value);
 	ngx_queue_init(&ctx->sh->queue);
 	len = sizeof(" in limit_req zone \"\"") + shm_zone->shm.name.len;
-	ctx->shpool->log_ctx = (u_char *)ngx_slab_alloc(ctx->shpool, len);
+	ctx->shpool->log_ctx = (uchar *)ngx_slab_alloc(ctx->shpool, len);
 	if(ctx->shpool->log_ctx == NULL) {
 		return NGX_ERROR;
 	}
@@ -470,7 +470,7 @@ static char * ngx_http_limit_req_merge_conf(ngx_conf_t * cf, void * parent, void
 
 static const char * ngx_http_limit_req_zone(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	u_char * p;
+	uchar * p;
 	size_t len;
 	ssize_t size;
 	ngx_str_t name, s;
@@ -497,7 +497,7 @@ static const char * ngx_http_limit_req_zone(ngx_conf_t * cf, const ngx_command_t
 	for(i = 2; i < cf->args->nelts; i++) {
 		if(ngx_strncmp(value[i].data, "zone=", 5) == 0) {
 			name.data = value[i].data + 5;
-			p = (u_char *)ngx_strchr(name.data, ':');
+			p = (uchar *)ngx_strchr(name.data, ':');
 			if(!p) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;

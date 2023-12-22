@@ -2242,19 +2242,14 @@ static int lzh_decode_blocks(struct lzh_stream * strm, int last)
 					    if(l > w_size - w_pos)
 						    l = w_size - w_pos;
 				    }
-				    if((copy_pos + l < w_pos)
-					|| (w_pos + l < copy_pos)) {
+				    if((copy_pos + l < w_pos) || (w_pos + l < copy_pos)) {
 					    /* No overlap. */
-					    memcpy(w_buff + w_pos,
-						w_buff + copy_pos, l);
+					    memcpy(w_buff + w_pos, w_buff + copy_pos, l);
 				    }
 				    else {
-					    const uchar * s;
-					    uchar * d;
 					    int li;
-
-					    d = w_buff + w_pos;
-					    s = w_buff + copy_pos;
+					    uchar * d = w_buff + w_pos;
+					    const uchar * s = w_buff + copy_pos;
 					    for(li = 0; li < l-1;) {
 						    d[li] = s[li]; li++;
 						    d[li] = s[li]; li++;

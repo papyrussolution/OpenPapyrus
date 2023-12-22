@@ -72,7 +72,7 @@ static ngx_int_t ngx_http_chunked_header_filter(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_chunked_body_filter(ngx_http_request_t * r, ngx_chain_t * in)
 {
-	u_char  * chunk;
+	uchar  * chunk;
 	nginx_off_t size;
 	ngx_int_t rc;
 	ngx_buf_t  * b;
@@ -112,7 +112,7 @@ static ngx_int_t ngx_http_chunked_body_filter(ngx_http_request_t * r, ngx_chain_
 		chunk = b->start;
 		if(chunk == NULL) {
 			/* the "0000000000000000" is 64-bit hexadecimal string */
-			chunk = (u_char *)ngx_palloc(r->pool, sizeof("0000000000000000" CRLF) - 1);
+			chunk = (uchar *)ngx_palloc(r->pool, sizeof("0000000000000000" CRLF) - 1);
 			if(chunk == NULL) {
 				return NGX_ERROR;
 			}
@@ -147,7 +147,7 @@ static ngx_int_t ngx_http_chunked_body_filter(ngx_http_request_t * r, ngx_chain_
 		b->tag = (ngx_buf_tag_t)&ngx_http_chunked_filter_module;
 		b->temporary = 0;
 		b->memory = 1;
-		b->pos = (u_char *)CRLF;
+		b->pos = (uchar *)CRLF;
 		b->last = b->pos + 2;
 		*ll = tl;
 	}
@@ -191,12 +191,12 @@ static ngx_chain_t * ngx_http_chunked_create_trailers(ngx_http_request_t * r, ng
 	b->memory = 1;
 	b->last_buf = 1;
 	if(!len) {
-		b->pos = (u_char *)CRLF "0" CRLF CRLF;
+		b->pos = (uchar *)CRLF "0" CRLF CRLF;
 		b->last = b->pos + sizeof(CRLF "0" CRLF CRLF) - 1;
 		return cl;
 	}
 	len += sizeof(CRLF "0" CRLF CRLF) - 1;
-	b->pos = (u_char *)ngx_palloc(r->pool, len);
+	b->pos = (uchar *)ngx_palloc(r->pool, len);
 	if(b->pos == NULL) {
 		return NULL;
 	}

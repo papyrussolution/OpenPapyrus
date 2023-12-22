@@ -61,7 +61,7 @@ ngx_module_t ngx_http_try_files_module = {
 static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 {
 	size_t len, root, alias, reserve, allocated;
-	u_char  * p, * name;
+	uchar  * p, * name;
 	ngx_str_t path, args;
 	ngx_uint_t test_dir;
 	ngx_http_try_file_t  * tf;
@@ -87,7 +87,7 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 	for(;;) {
 		if(tf->lengths) {
 			memzero(&e, sizeof(ngx_http_script_engine_t));
-			e.ip = (u_char *)tf->lengths->elts;
+			e.ip = (uchar *)tf->lengths->elts;
 			e.request = r;
 			/* 1 is for terminating '\0' as in static names */
 			len = 1;
@@ -122,7 +122,7 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 			path.len = (name + tf->name.len - 1) - path.data;
 		}
 		else {
-			e.ip = (u_char *)tf->values->elts;
+			e.ip = (uchar *)tf->values->elts;
 			e.pos = name;
 			e.flushed = 1;
 			while(*(uintptr_t*)e.ip) {
@@ -192,7 +192,7 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 		else {
 			name = r->uri.data;
 			r->uri.len = alias + path.len;
-			r->uri.data = (u_char *)ngx_pnalloc(r->pool, r->uri.len);
+			r->uri.data = (uchar *)ngx_pnalloc(r->pool, r->uri.len);
 			if(r->uri.data == NULL) {
 				r->uri.len = 0;
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;

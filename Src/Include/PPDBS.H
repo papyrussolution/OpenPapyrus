@@ -6419,6 +6419,55 @@ public:
 
 #pragma pack(push)
 #pragma pack(1)
+class BizScore2Tbl : public DBTable {
+public:
+	BizScore2Tbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		int32  ID;
+		int32  UserID;
+		int32  ScoreID;
+		int32  ArID;
+		uint8  ActualTime[8]; // raw
+		int32  Flags;
+		uint8  LinkOid[8]; // raw
+		uint8  Value[8];   // raw
+		uint8  Reserve[64]; // raw
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  ScoreID;
+		int32  ArID;
+		uint8  ActualTime[8];
+	};
+	struct Key2 {
+		int32  ArID;
+		int32  ScoreID;
+		uint8  ActualTime[8];
+	};
+	struct Key3 {
+		uint8  LinkOid[8];
+		int32  ScoreID;
+		int32  ArID;
+		uint8  ActualTime[8];
+	};
+	DBField ID;
+	DBField UserID;
+	DBField ScoreID;
+	DBField ArID;
+	DBField ActualTime;
+	DBField Flags;
+	DBField LinkOid;
+	DBField Value;
+	DBField Reserve;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
 class DebtStatTbl : public DBTable {
 public:
 	DebtStatTbl(const char * pFileName = 0);

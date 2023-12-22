@@ -1028,6 +1028,7 @@
 	#define TSSMODELPRP_EXTENSION      1L
 #define PPOBJ_EVENTSUBSCRIPTION  82L // @v10.8.9 Подписка на события //
 	#define EVNTSUBSCRPRP_EXTENSION    1L
+#define PPOBJ_BIZSCORE2          83L // @v11.9.1 @construction 2-я версия определителей бизнес-показателей
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -1051,9 +1052,9 @@
 	//
 	// Extra records of PPOBJ_PERSON
 	#define PSNPRP_INFO         10L  // Дополнительная запись, зависящая от вида персоналии
-	#define PSNPRP_REGFREE      11L  // Свид частн предпринимателя Obsolete @v2.2.4
-	#define PSNPRP_REGBANK      12L  // Доп информация о банке     Obsolete @v2.2.4
-	#define PSNPRP_MEMO         13L  // Примечание                 Obsolete @v2.2.4
+	// @v11.9.1 #define PSNPRP_REGFREE      11L  // Свид частн предпринимателя Obsolete @v2.2.4
+	// @v11.9.1 #define PSNPRP_REGBANK      12L  // Доп информация о банке     Obsolete @v2.2.4
+	// @v11.9.1 #define PSNPRP_MEMO         13L  // Примечание                 Obsolete @v2.2.4
 	#define PSNPRP_ELINK        14L  // Адреса электронной связи
 	#define PSNPRP_EXTSTRDATA   15L  // Строка дополнительной информации
 	#define PSNPRP_DLVRLOCLIST  16L  // Список адресов доставки (PPIDArray)
@@ -4187,6 +4188,7 @@
 	#define CTLSEL_CCHECKFLT_CSHR        (29 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKFLT_CRUSER         (30 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CCHECKFLT_CRUSER      (31 + WINDOWS_ID_BIAS)
+	#define CTL_CCHECKFLT_FLAGS2         (32 + WINDOWS_ID_BIAS)
 #define DLG_CORLOTS               306 // C_LOTS Корректировка лотов
 	#define CTL_CORLOTS_LOG              (1 + WINDOWS_ID_BIAS)
 	#define CTL_CORLOTS_FLAGS            (2 + WINDOWS_ID_BIAS)

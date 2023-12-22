@@ -37,8 +37,8 @@ static ngx_int_t ngx_http_dav_copy_dir(ngx_tree_ctx_t * ctx, ngx_str_t * path);
 static ngx_int_t ngx_http_dav_copy_dir_time(ngx_tree_ctx_t * ctx, ngx_str_t * path);
 static ngx_int_t ngx_http_dav_copy_tree_file(ngx_tree_ctx_t * ctx, ngx_str_t * path);
 static ngx_int_t ngx_http_dav_depth(ngx_http_request_t * r, ngx_int_t dflt);
-static ngx_int_t ngx_http_dav_error(ngx_log_t * log, ngx_err_t err, ngx_int_t not_found, const char * failed, u_char * path);
-static ngx_int_t ngx_http_dav_location(ngx_http_request_t * r, u_char * path);
+static ngx_int_t ngx_http_dav_error(ngx_log_t * log, ngx_err_t err, ngx_int_t not_found, const char * failed, uchar * path);
+static ngx_int_t ngx_http_dav_location(ngx_http_request_t * r, uchar * path);
 static void * ngx_http_dav_create_loc_conf(ngx_conf_t * cf);
 static char * ngx_http_dav_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_dav_init(ngx_conf_t * cf);
@@ -317,7 +317,7 @@ static ngx_int_t ngx_http_dav_noop(ngx_tree_ctx_t * ctx, ngx_str_t * path)
 
 static ngx_int_t ngx_http_dav_mkcol_handler(ngx_http_request_t * r, ngx_http_dav_loc_conf_t * dlcf)
 {
-	u_char  * p;
+	uchar  * p;
 	size_t root;
 	ngx_str_t path;
 	if(r->headers_in.content_length_n > 0) {
@@ -346,7 +346,7 @@ static ngx_int_t ngx_http_dav_mkcol_handler(ngx_http_request_t * r, ngx_http_dav
 
 static ngx_int_t ngx_http_dav_copy_move_handler(ngx_http_request_t * r)
 {
-	u_char * p, * host, * last, ch;
+	uchar * p, * host, * last, ch;
 	size_t len, root;
 	ngx_err_t err;
 	ngx_int_t rc, depth;
@@ -565,13 +565,13 @@ overwrite_done:
 
 static ngx_int_t ngx_http_dav_copy_dir(ngx_tree_ctx_t * ctx, ngx_str_t * path)
 {
-	u_char * p, * dir;
+	uchar * p, * dir;
 	size_t len;
 	ngx_http_dav_copy_ctx_t  * copy;
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0, "http copy dir: \"%s\"", path->data);
 	copy = (ngx_http_dav_copy_ctx_t *)ctx->data;
 	len = copy->path.len + path->len;
-	dir = (u_char *)ngx_alloc(len + 1, ctx->log);
+	dir = (uchar *)ngx_alloc(len + 1, ctx->log);
 	if(dir == NULL) {
 		return NGX_ABORT;
 	}
@@ -581,19 +581,19 @@ static ngx_int_t ngx_http_dav_copy_dir(ngx_tree_ctx_t * ctx, ngx_str_t * path)
 	if(ngx_create_dir(dir, ngx_dir_access(ctx->access)) == NGX_FILE_ERROR) {
 		(void)ngx_http_dav_error(ctx->log, ngx_errno, 0, ngx_create_dir_n, dir);
 	}
-	ngx_free(dir);
+	SAlloc::F(dir);
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_dav_copy_dir_time(ngx_tree_ctx_t * ctx, ngx_str_t * path)
 {
-	u_char * p, * dir;
+	uchar * p, * dir;
 	size_t len;
 	ngx_http_dav_copy_ctx_t  * copy;
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0, "http copy dir time: \"%s\"", path->data);
 	copy = (ngx_http_dav_copy_ctx_t *)ctx->data;
 	len = copy->path.len + path->len;
-	dir = (u_char *)ngx_alloc(len + 1, ctx->log);
+	dir = (uchar *)ngx_alloc(len + 1, ctx->log);
 	if(dir == NULL) {
 		return NGX_ABORT;
 	}
@@ -621,20 +621,20 @@ failed:
 		ngx_log_error(NGX_LOG_ALERT, ctx->log, ngx_errno, ngx_set_file_time_n " \"%s\" failed", dir);
 	}
 #endif
-	ngx_free(dir);
+	SAlloc::F(dir);
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_dav_copy_tree_file(ngx_tree_ctx_t * ctx, ngx_str_t * path)
 {
-	u_char * p, * file;
+	uchar * p, * file;
 	size_t len;
 	ngx_copy_file_t cf;
 	ngx_http_dav_copy_ctx_t  * copy;
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0, "http copy file: \"%s\"", path->data);
 	copy = (ngx_http_dav_copy_ctx_t *)ctx->data;
 	len = copy->path.len + path->len;
-	file = (u_char *)ngx_alloc(len + 1, ctx->log);
+	file = (uchar *)ngx_alloc(len + 1, ctx->log);
 	if(file == NULL) {
 		return NGX_ABORT;
 	}
@@ -647,7 +647,7 @@ static ngx_int_t ngx_http_dav_copy_tree_file(ngx_tree_ctx_t * ctx, ngx_str_t * p
 	cf.time = ctx->mtime;
 	cf.log = ctx->log;
 	(void)ngx_copy_file(path->data, file, &cf);
-	ngx_free(file);
+	SAlloc::F(file);
 	return NGX_OK;
 }
 
@@ -674,7 +674,7 @@ static ngx_int_t ngx_http_dav_depth(ngx_http_request_t * r, ngx_int_t dflt)
 	return NGX_HTTP_DAV_INVALID_DEPTH;
 }
 
-static ngx_int_t ngx_http_dav_error(ngx_log_t * log, ngx_err_t err, ngx_int_t not_found, const char * failed, u_char * path)
+static ngx_int_t ngx_http_dav_error(ngx_log_t * log, ngx_err_t err, ngx_int_t not_found, const char * failed, uchar * path)
 {
 	ngx_int_t rc;
 	ngx_uint_t level;
@@ -702,9 +702,9 @@ static ngx_int_t ngx_http_dav_error(ngx_log_t * log, ngx_err_t err, ngx_int_t no
 	return rc;
 }
 
-static ngx_int_t ngx_http_dav_location(ngx_http_request_t * r, u_char * path)
+static ngx_int_t ngx_http_dav_location(ngx_http_request_t * r, uchar * path)
 {
-	u_char  * location;
+	uchar  * location;
 	ngx_http_core_loc_conf_t  * clcf;
 	r->headers_out.location = (ngx_table_elt_t*)ngx_list_push(&r->headers_out.headers);
 	if(r->headers_out.location == NULL) {
@@ -715,7 +715,7 @@ static ngx_int_t ngx_http_dav_location(ngx_http_request_t * r, u_char * path)
 		location = path + clcf->root.len;
 	}
 	else {
-		location = (u_char *)ngx_pnalloc(r->pool, r->uri.len);
+		location = (uchar *)ngx_pnalloc(r->pool, r->uri.len);
 		if(location == NULL) {
 			ngx_http_clear_location(r);
 			return NGX_ERROR;

@@ -7379,7 +7379,7 @@ private:
 					(temp_buf = pBp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
 					STRNSCPY(p_new_pack->Code, temp_buf);
 					p_new_pack->Dtm.Set(pBp->Rec.Dt, ZEROTIME);
-					p_new_pack->Dtm.t.settotalsec(pBp->Rec.ID % SSECSPERDAY); // @v11.6.11 Устанавливаем суррогатное значение времени для обеспечения уникальности  
+					p_new_pack->Dtm.t.settotalsec(pBp->Rec.ID % SlConst::SecsPerDay); // @v11.6.11 Устанавливаем суррогатное значение времени для обеспечения уникальности  
 					{
 						S_GUID uuid;
 						if(!pBp->GetGuid(uuid) || uuid.IsZero()) {

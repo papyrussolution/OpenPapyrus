@@ -172,23 +172,22 @@ static int AppendToMemBuffer(WebPIDecoder* const idec,
 		// allows for a chunk should be considered a smoke smell.
 		return 0;
 	}
-
 	if(mem->end_ + data_size > mem->buf_size_) { // Need some free memory
 		const size_t new_mem_start = old_start - old_base;
 		const size_t current_size = MemDataSize(mem) + new_mem_start;
 		const uint64_t new_size = (uint64_t)current_size + data_size;
 		const uint64_t extra_size = (new_size + CHUNK_SIZE - 1) & ~(CHUNK_SIZE - 1);
-		uint8* const new_buf =
-		    (uint8*)WebPSafeMalloc(extra_size, sizeof(*new_buf));
-		if(new_buf == NULL) return 0;
-		if(old_base != NULL) memcpy(new_buf, old_base, current_size);
+		uint8* const new_buf = (uint8*)WebPSafeMalloc(extra_size, sizeof(*new_buf));
+		if(new_buf == NULL) 
+			return 0;
+		if(old_base != NULL) 
+			memcpy(new_buf, old_base, current_size);
 		WebPSafeFree(mem->buf_);
 		mem->buf_ = new_buf;
 		mem->buf_size_ = (size_t)extra_size;
 		mem->start_ = new_mem_start;
 		mem->end_ = current_size;
 	}
-
 	assert(mem->buf_ != NULL);
 	memcpy(mem->buf_ + mem->end_, data, data_size);
 	mem->end_ += data_size;
@@ -198,25 +197,22 @@ static int AppendToMemBuffer(WebPIDecoder* const idec,
 	return 1;
 }
 
-static int RemapMemBuffer(WebPIDecoder* const idec,
-    const uint8* const data, size_t data_size) {
+static int RemapMemBuffer(WebPIDecoder* const idec, const uint8* const data, size_t data_size) 
+{
 	MemBuffer* const mem = &idec->mem_;
 	const uint8* const old_buf = mem->buf_;
-	const uint8* const old_start =
-	    (old_buf == NULL) ? NULL : old_buf + mem->start_;
+	const uint8* const old_start = (old_buf == NULL) ? NULL : old_buf + mem->start_;
 	assert(old_buf != NULL || mem->start_ == 0);
 	assert(mem->mode_ == MEM_MODE_MAP);
-
 	if(data_size < mem->buf_size_) return 0; // can't remap to a shorter buffer!
-
 	mem->buf_ = (uint8*)data;
 	mem->end_ = mem->buf_size_ = data_size;
-
 	DoRemap(idec, mem->buf_ + mem->start_ - old_start);
 	return 1;
 }
 
-static void InitMemBuffer(MemBuffer* const mem) {
+static void InitMemBuffer(MemBuffer* const mem) 
+{
 	mem->mode_       = MEM_MODE_NONE;
 	mem->buf_        = NULL;
 	mem->buf_size_   = 0;
@@ -224,7 +220,8 @@ static void InitMemBuffer(MemBuffer* const mem) {
 	mem->part0_size_ = 0;
 }
 
-static void ClearMemBuffer(MemBuffer* const mem) {
+static void ClearMemBuffer(MemBuffer* const mem) 
+{
 	assert(mem);
 	if(mem->mode_ == MEM_MODE_APPEND) {
 		WebPSafeFree(mem->buf_);
@@ -232,7 +229,8 @@ static void ClearMemBuffer(MemBuffer* const mem) {
 	}
 }
 
-static int CheckMemBufferMode(MemBuffer* const mem, MemBufferMode expected) {
+static int CheckMemBufferMode(MemBuffer* const mem, MemBufferMode expected) 
+{
 	if(mem->mode_ == MEM_MODE_NONE) {
 		mem->mode_ = expected; // switch to the expected mode
 	}
@@ -244,10 +242,10 @@ static int CheckMemBufferMode(MemBuffer* const mem, MemBufferMode expected) {
 }
 
 // To be called last.
-static VP8StatusCode FinishDecoding(WebPIDecoder* const idec) {
+static VP8StatusCode FinishDecoding(WebPIDecoder* const idec) 
+{
 	const WebPDecoderOptions* const options = idec->params_.options;
 	WebPDecBuffer* const output = idec->params_.output;
-
 	idec->state_ = STATE_DONE;
 	if(options != NULL && options->flip) {
 		const VP8StatusCode status = WebPFlipBuffer(output);

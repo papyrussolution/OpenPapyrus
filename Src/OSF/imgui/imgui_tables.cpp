@@ -699,11 +699,10 @@ static void TableSetupColumnFlags(ImGuiTable* table, ImGuiTableColumn* column, I
 // Runs on the first call to TableNextRow(), to give a chance for TableSetupColumn() to be called first.
 // FIXME-TABLE: Our width (and therefore our WorkRect) will be minimal in the first frame for _WidthAuto columns.
 // Increase feedback side-effect with widgets relying on WorkRect.Max.x... Maybe provide a default distribution for _WidthAuto columns?
-void ImGui::TableUpdateLayout(ImGuiTable* table)
+void ImGui::TableUpdateLayout(ImGuiTable * table)
 {
 	ImGuiContext & g = *GImGui;
 	assert(table->IsLayoutLocked == false);
-
 	const ImGuiTableFlags table_sizing_policy = (table->Flags & ImGuiTableFlags_SizingMask_);
 	table->IsDefaultDisplayOrder = true;
 	table->ColumnsEnabledCount = 0;
@@ -711,7 +710,6 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
 	ImBitArrayClearAllBits(table->EnabledMaskByDisplayOrder, table->ColumnsCount);
 	table->LeftMostEnabledColumn = -1;
 	table->MinColumnWidth = smax(1.0f, g.Style.FramePadding.x * 1.0f); // g.Style.ColumnsMinSpacing; // FIXME-TABLE
-
 	// [Part 1] Apply/lock Enabled and Order states. Calculate auto/ideal width for columns. Count fixed/stretch columns.
 	// Process columns in their visible orders as we are building the Prev/Next indices.
 	int count_fixed = 0;            // Number of columns that have fixed sizing policies
@@ -726,7 +724,6 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
 		if(column_n != order_n)
 			table->IsDefaultDisplayOrder = false;
 		ImGuiTableColumn* column = &table->Columns[column_n];
-
 		// Clear column setup if not submitted by user. Currently we make it mandatory to call TableSetupColumn() every frame.
 		// It would easily work without but we're not ready to guarantee it since e.g. names need resubmission anyway.
 		// We take a slight shortcut but in theory we could be calling TableSetupColumn() here with dummy values, it should yield the same effect.
@@ -736,7 +733,6 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
 			column->UserID = 0;
 			column->InitStretchWeightOrWidth = -1.0f;
 		}
-
 		// Update Enabled state, mark settings and sort specs dirty
 		if(!(table->Flags & ImGuiTableFlags_Hideable) || (column->Flags & ImGuiTableColumnFlags_NoHide))
 			column->IsUserEnabledNextFrame = true;
@@ -745,22 +741,18 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
 			table->IsSettingsDirty = true;
 		}
 		column->IsEnabled = column->IsUserEnabled && (column->Flags & ImGuiTableColumnFlags_Disabled) == 0;
-
 		if(column->SortOrder != -1 && !column->IsEnabled)
 			table->IsSortSpecsDirty = true;
 		if(column->SortOrder > 0 && !(table->Flags & ImGuiTableFlags_SortMulti))
 			table->IsSortSpecsDirty = true;
-
 		// Auto-fit unsized columns
 		const bool start_auto_fit = (column->Flags & ImGuiTableColumnFlags_WidthFixed) ? (column->WidthRequest < 0.0f) : (column->StretchWeight < 0.0f);
 		if(start_auto_fit)
 			column->AutoFitQueue = column->CannotSkipItemsQueue = (1 << 3) - 1; // Fit for three frames
-
 		if(!column->IsEnabled) {
 			column->IndexWithinEnabledSet = -1;
 			continue;
 		}
-
 		// Mark as enabled and link to previous/next enabled column
 		column->PrevEnabledColumn = (ImGuiTableColumnIdx)prev_visible_column_idx;
 		column->NextEnabledColumn = -1;

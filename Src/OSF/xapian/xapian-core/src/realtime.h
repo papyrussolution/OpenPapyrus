@@ -25,7 +25,7 @@
 #else
 	#include <sys/types.h>
 	#include <sys/timeb.h>
-	extern void xapian_sleep_milliseconds(uint millisecs);
+	// @v11.9.1 (replaced with SDelay) extern void xapian_sleep_milliseconds(uint millisecs);
 #endif
 
 namespace RealTime {
@@ -138,10 +138,10 @@ inline void sleep(double t)
 	if(delta <= 0.0)
 		return;
 	while(UNLIKELY(delta > 4294967.0)) {
-		xapian_sleep_milliseconds(4294967000u);
+		/*xapian_sleep_milliseconds*/SDelay(4294967000u);
 		delta -= 4294967.0;
 	}
-	xapian_sleep_milliseconds(uint(delta * 1000.0));
+	/*xapian_sleep_milliseconds*/SDelay(uint(delta * 1000.0));
 #endif
 }
 }

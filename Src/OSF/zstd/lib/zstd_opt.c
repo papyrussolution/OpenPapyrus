@@ -1088,14 +1088,15 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_opt_generic(ZSTD_matchState_t* m
 		{   const uint32 litlen = (uint32)(ip - anchor);
 		    const uint32 ll0 = !litlen;
 		    uint32 nbMatches = getAllMatches(matches, ms, &nextToUpdate3, ip, iend, rep, ll0, minMatch);
-		    ZSTD_optLdm_processMatchCandidate(&optLdm, matches, &nbMatches,
-			(uint32)(ip-istart), (uint32)(iend - ip));
+		    ZSTD_optLdm_processMatchCandidate(&optLdm, matches, &nbMatches, (uint32)(ip-istart), (uint32)(iend - ip));
 		    if(!nbMatches) {
 			    ip++; continue;
 		    }
-
 			/* initialize opt[0] */
-		    { uint32 i; for(i = 0; i<ZSTD_REP_NUM; i++) opt[0].rep[i] = rep[i]; }
+		    { 
+				for(uint32 i = 0; i<ZSTD_REP_NUM; i++) 
+					opt[0].rep[i] = rep[i]; 
+			}
 		    opt[0].mlen = 0; /* means is_a_literal */
 		    opt[0].litlen = litlen;
 			/* We don't need to include the actual price of the literals because
@@ -1106,49 +1107,46 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_opt_generic(ZSTD_matchState_t* m
 		    opt[0].price = (int)ZSTD_litLengthPrice(litlen, optStatePtr, optLevel);
 
 			/* large match -> immediate encoding */
-		    {   const uint32 maxML = matches[nbMatches-1].len;
-			const uint32 maxOffBase = matches[nbMatches-1].off;
-			DEBUGLOG(6, "found %u matches of maxLength=%u and maxOffBase=%u at cPos=%u => start new series",
-			    nbMatches, maxML, maxOffBase, (uint32)(ip-prefixStart));
-
-			if(maxML > sufficient_len) {
-				lastSequence.litlen = litlen;
-				lastSequence.mlen = maxML;
-				lastSequence.off = maxOffBase;
-				DEBUGLOG(6, "large match (%u>%u), immediate encoding",
-				    maxML, sufficient_len);
-				cur = 0;
-				last_pos = ZSTD_totalLen(lastSequence);
-				goto _shortestPath;
-			}
+		    {   
+				const uint32 maxML = matches[nbMatches-1].len;
+				const uint32 maxOffBase = matches[nbMatches-1].off;
+				DEBUGLOG(6, "found %u matches of maxLength=%u and maxOffBase=%u at cPos=%u => start new series",
+					nbMatches, maxML, maxOffBase, (uint32)(ip-prefixStart));
+				if(maxML > sufficient_len) {
+					lastSequence.litlen = litlen;
+					lastSequence.mlen = maxML;
+					lastSequence.off = maxOffBase;
+					DEBUGLOG(6, "large match (%u>%u), immediate encoding", maxML, sufficient_len);
+					cur = 0;
+					last_pos = ZSTD_totalLen(lastSequence);
+					goto _shortestPath;
+				}
 		    }
-
 			/* set prices for first matches starting position == 0 */
 		    assert(opt[0].price >= 0);
-		    {   const uint32 literalsPrice = (uint32)opt[0].price + ZSTD_litLengthPrice(0, optStatePtr, optLevel);
-			uint32 pos;
-			uint32 matchNb;
-			for(pos = 1; pos < minMatch; pos++) {
-				opt[pos].price = ZSTD_MAX_PRICE; /* mlen, litlen and price will be fixed during forward
-					                            scanning */
-			}
-			for(matchNb = 0; matchNb < nbMatches; matchNb++) {
-				const uint32 offBase = matches[matchNb].off;
-				const uint32 end = matches[matchNb].len;
-				for(; pos <= end; pos++) {
-					const uint32 matchPrice = ZSTD_getMatchPrice(offBase, pos, optStatePtr, optLevel);
-					const uint32 sequencePrice = literalsPrice + matchPrice;
-					DEBUGLOG(7, "rPos:%u => set initial price : %.2f",
-					    pos, ZSTD_fCost(sequencePrice));
-					opt[pos].mlen = pos;
-					opt[pos].off = offBase;
-					opt[pos].litlen = litlen;
-					opt[pos].price = (int)sequencePrice;
+		    {   
+				const uint32 literalsPrice = (uint32)opt[0].price + ZSTD_litLengthPrice(0, optStatePtr, optLevel);
+				uint32 pos;
+				uint32 matchNb;
+				for(pos = 1; pos < minMatch; pos++) {
+					opt[pos].price = ZSTD_MAX_PRICE; /* mlen, litlen and price will be fixed during forward scanning */
 				}
+				for(matchNb = 0; matchNb < nbMatches; matchNb++) {
+					const uint32 offBase = matches[matchNb].off;
+					const uint32 end = matches[matchNb].len;
+					for(; pos <= end; pos++) {
+						const uint32 matchPrice = ZSTD_getMatchPrice(offBase, pos, optStatePtr, optLevel);
+						const uint32 sequencePrice = literalsPrice + matchPrice;
+						DEBUGLOG(7, "rPos:%u => set initial price : %.2f", pos, ZSTD_fCost(sequencePrice));
+						opt[pos].mlen = pos;
+						opt[pos].off = offBase;
+						opt[pos].litlen = litlen;
+						opt[pos].price = (int)sequencePrice;
+					}
+				}
+				last_pos = pos-1;
 			}
-			last_pos = pos-1;
 		}
-	}
 		/* check further positions */
 		for(cur = 1; cur <= last_pos; cur++) {
 			const BYTE * const inr = ip + cur;

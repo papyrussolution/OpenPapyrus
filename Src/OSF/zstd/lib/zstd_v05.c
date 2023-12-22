@@ -1038,14 +1038,11 @@ size_t FSEv05_buildDTable(FSEv05_DTable* dt, const short* normalizedCounter, uin
 			while(position > highThreshold) position = (position + step) & tableMask; /* lowprob area */
 		}
 	}
-
-	if(position!=0) return ERROR(GENERIC); /* position must reach all cells once, otherwise normalizedCounter is
-	                                          incorrect */
-
+	if(position!=0) 
+		return ERROR(GENERIC); /* position must reach all cells once, otherwise normalizedCounter is incorrect */
 	/* Build Decoding table */
 	{
-		uint32 i;
-		for(i = 0; i<tableSize; i++) {
+		for(uint32 i = 0; i<tableSize; i++) {
 			FSEv05_FUNCTION_TYPE symbol = (FSEv05_FUNCTION_TYPE)(tableDecode[i].symbol);
 			uint16 nextState = symbolNext[symbol]++;
 			tableDecode[i].nbBits = (BYTE)(tableLog - BITv05_highbit32((uint32)nextState) );
@@ -1630,14 +1627,12 @@ size_t HUFv05_readDTableX2(uint16* DTable, const void* src, size_t srcSize)
 	for(n = 0; n<nbSymbols; n++) {
 		const uint32 w = huffWeight[n];
 		const uint32 length = (1 << w) >> 1;
-		uint32 i;
 		HUFv05_DEltX2 D;
 		D.byte = (BYTE)n; D.nbBits = (BYTE)(tableLog + 1 - w);
-		for(i = rankVal[w]; i < rankVal[w] + length; i++)
+		for(uint32 i = rankVal[w]; i < rankVal[w] + length; i++)
 			dt[i] = D;
 		rankVal[w] += length;
 	}
-
 	return iSize;
 }
 
@@ -1915,14 +1910,12 @@ static void HUFv05_fillDTableX4(HUFv05_DEltX4* DTable, const uint32 targetLog,
 			    nbBitsBaseline, symbol);
 		}
 		else {
-			uint32 i;
 			const uint32 end = start + length;
 			HUFv05_DEltX4 DElt;
-
 			SMem::PutLe(&(DElt.sequence), symbol);
 			DElt.nbBits   = (BYTE)(nbBits);
 			DElt.length   = 1;
-			for(i = start; i < end; i++)
+			for(uint32 i = start; i < end; i++)
 				DTable[i] = DElt;
 		}
 		rankVal[weight] += length;

@@ -1,6 +1,6 @@
 /*
 	DL200.L
-	Copytight (c) A.Sobolev 2003, 2009, 2020
+	Copytight (c) A.Sobolev 2003, 2009, 2020, 2023
 */
 %x incl
 
@@ -9,7 +9,6 @@
 //#include "dl200.tab.h"
 #include "dl200.tab.hpp"
 #include "dl200_yy.h"
-
 
 long yyline = 1;
 long yybrace_count = 0;

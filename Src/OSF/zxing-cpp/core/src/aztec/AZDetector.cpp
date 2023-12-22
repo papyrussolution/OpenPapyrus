@@ -221,11 +221,10 @@ static int FindRotation(uint32_t bits, bool mirror)
 {
 	const uint32_t mask = mirror ? 0b111'000'001'110 : 0b111'011'100'000;
 	for(int i = 0; i < 4; ++i) {
-		if(BitHacks::CountBitsSet(mask ^ bits) <= 2)  // at most 2 bits may be wrong (24778:2008(E) 14.3.3 sais
+		if(/*BitHacks::CountBitsSet*/SBits::Cpop(mask ^ bits) <= 2)  // at most 2 bits may be wrong (24778:2008(E) 14.3.3 sais
 				                              // 3 but that is wrong)
 			return i;
-		bits = ((bits << 3) & 0xfff) | ((bits >> 9) & 0b111); // left shift/rotate, see
-			                                              // RotatedCorners(Quadrilateral)
+		bits = ((bits << 3) & 0xfff) | ((bits >> 9) & 0b111); // left shift/rotate, see RotatedCorners(Quadrilateral)
 	}
 	return -1;
 }

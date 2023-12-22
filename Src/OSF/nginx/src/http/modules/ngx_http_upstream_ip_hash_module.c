@@ -10,9 +10,9 @@ typedef struct {
 	/* the round robin data must be first */
 	ngx_http_upstream_rr_peer_data_t rrp;
 	ngx_uint_t hash;
-	u_char addrlen;
-	u_char   * addr;
-	u_char tries;
+	uchar addrlen;
+	uchar   * addr;
+	uchar tries;
 	ngx_event_get_peer_pt get_rr_peer;
 } ngx_http_upstream_ip_hash_peer_data_t;
 
@@ -54,7 +54,7 @@ ngx_module_t ngx_http_upstream_ip_hash_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static u_char ngx_http_upstream_ip_hash_pseudo_addr[3];
+static uchar ngx_http_upstream_ip_hash_pseudo_addr[3];
 
 static ngx_int_t ngx_http_upstream_init_ip_hash(ngx_conf_t * cf, ngx_http_upstream_srv_conf_t * us)
 {
@@ -87,14 +87,14 @@ static ngx_int_t ngx_http_upstream_init_ip_hash_peer(ngx_http_request_t * r,
 	switch(r->connection->sockaddr->sa_family) {
 		case AF_INET:
 		    sin = (struct sockaddr_in*)r->connection->sockaddr;
-		    iphp->addr = (u_char *)&sin->sin_addr.s_addr;
+		    iphp->addr = (uchar *)&sin->sin_addr.s_addr;
 		    iphp->addrlen = 3;
 		    break;
 
 #if (NGX_HAVE_INET6)
 		case AF_INET6:
 		    sin6 = (struct sockaddr_in6*)r->connection->sockaddr;
-		    iphp->addr = (u_char *)&sin6->sin6_addr.s6_addr;
+		    iphp->addr = (uchar *)&sin6->sin6_addr.s6_addr;
 		    iphp->addrlen = 16;
 		    break;
 #endif

@@ -309,7 +309,7 @@ static const char * ngx_event_init_conf(ngx_cycle_t * cycle, void * conf)
 
 static ngx_int_t ngx_event_module_init(ngx_cycle_t * cycle)
 {
-	u_char * shared;
+	uchar * shared;
 	size_t size, cl;
 	ngx_shm_t shm;
 	ngx_time_t * tp;
@@ -812,7 +812,7 @@ static void * ngx_event_core_create_conf(ngx_cycle_t * cycle)
 		ecf->multi_accept = NGX_CONF_UNSET;
 		ecf->accept_mutex = NGX_CONF_UNSET;
 		ecf->accept_mutex_delay = NGX_CONF_UNSET_MSEC;
-		ecf->name = reinterpret_cast<u_char *>(NGX_CONF_UNSET);
+		ecf->name = reinterpret_cast<uchar *>(NGX_CONF_UNSET);
 #if (NGX_DEBUG)
 		if(ngx_array_init(&ecf->debug_connection, cycle->pool, 4, sizeof(ngx_cidr_t)) == NGX_ERROR) {
 			return NULL;

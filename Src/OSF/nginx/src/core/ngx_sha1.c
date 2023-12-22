@@ -9,7 +9,7 @@
 #pragma hdrstop
 //#include <ngx_sha1.h>
 
-static const u_char * ngx_sha1_body(ngx_sha1_t * ctx, const u_char * data, size_t size);
+static const uchar * ngx_sha1_body(ngx_sha1_t * ctx, const uchar * data, size_t size);
 
 void ngx_sha1_init(ngx_sha1_t * ctx)
 {
@@ -33,18 +33,18 @@ void ngx_sha1_update(ngx_sha1_t * ctx, const void * data, size_t size)
 			return;
 		}
 		memcpy(&ctx->buffer[used], data, free);
-		data = (u_char *)data + free;
+		data = (uchar *)data + free;
 		size -= free;
 		(void)ngx_sha1_body(ctx, ctx->buffer, 64);
 	}
 	if(size >= 64) {
-		data = ngx_sha1_body(ctx, (const u_char *)data, size & ~(size_t)0x3f);
+		data = ngx_sha1_body(ctx, (const uchar *)data, size & ~(size_t)0x3f);
 		size &= 0x3f;
 	}
 	memcpy(ctx->buffer, data, size);
 }
 
-void ngx_sha1_final(u_char result[20], ngx_sha1_t * ctx)
+void ngx_sha1_final(uchar result[20], ngx_sha1_t * ctx)
 {
 	size_t free;
 	size_t used = (size_t)(ctx->bytes & 0x3f);
@@ -58,35 +58,35 @@ void ngx_sha1_final(u_char result[20], ngx_sha1_t * ctx)
 	}
 	memzero(&ctx->buffer[used], free - 8);
 	ctx->bytes <<= 3;
-	ctx->buffer[56] = (u_char)(ctx->bytes >> 56);
-	ctx->buffer[57] = (u_char)(ctx->bytes >> 48);
-	ctx->buffer[58] = (u_char)(ctx->bytes >> 40);
-	ctx->buffer[59] = (u_char)(ctx->bytes >> 32);
-	ctx->buffer[60] = (u_char)(ctx->bytes >> 24);
-	ctx->buffer[61] = (u_char)(ctx->bytes >> 16);
-	ctx->buffer[62] = (u_char)(ctx->bytes >> 8);
-	ctx->buffer[63] = (u_char)ctx->bytes;
+	ctx->buffer[56] = (uchar)(ctx->bytes >> 56);
+	ctx->buffer[57] = (uchar)(ctx->bytes >> 48);
+	ctx->buffer[58] = (uchar)(ctx->bytes >> 40);
+	ctx->buffer[59] = (uchar)(ctx->bytes >> 32);
+	ctx->buffer[60] = (uchar)(ctx->bytes >> 24);
+	ctx->buffer[61] = (uchar)(ctx->bytes >> 16);
+	ctx->buffer[62] = (uchar)(ctx->bytes >> 8);
+	ctx->buffer[63] = (uchar)ctx->bytes;
 	(void)ngx_sha1_body(ctx, ctx->buffer, 64);
-	result[0] = (u_char)(ctx->a >> 24);
-	result[1] = (u_char)(ctx->a >> 16);
-	result[2] = (u_char)(ctx->a >> 8);
-	result[3] = (u_char)ctx->a;
-	result[4] = (u_char)(ctx->b >> 24);
-	result[5] = (u_char)(ctx->b >> 16);
-	result[6] = (u_char)(ctx->b >> 8);
-	result[7] = (u_char)ctx->b;
-	result[8] = (u_char)(ctx->c >> 24);
-	result[9] = (u_char)(ctx->c >> 16);
-	result[10] = (u_char)(ctx->c >> 8);
-	result[11] = (u_char)ctx->c;
-	result[12] = (u_char)(ctx->d >> 24);
-	result[13] = (u_char)(ctx->d >> 16);
-	result[14] = (u_char)(ctx->d >> 8);
-	result[15] = (u_char)ctx->d;
-	result[16] = (u_char)(ctx->e >> 24);
-	result[17] = (u_char)(ctx->e >> 16);
-	result[18] = (u_char)(ctx->e >> 8);
-	result[19] = (u_char)ctx->e;
+	result[0] = (uchar)(ctx->a >> 24);
+	result[1] = (uchar)(ctx->a >> 16);
+	result[2] = (uchar)(ctx->a >> 8);
+	result[3] = (uchar)ctx->a;
+	result[4] = (uchar)(ctx->b >> 24);
+	result[5] = (uchar)(ctx->b >> 16);
+	result[6] = (uchar)(ctx->b >> 8);
+	result[7] = (uchar)ctx->b;
+	result[8] = (uchar)(ctx->c >> 24);
+	result[9] = (uchar)(ctx->c >> 16);
+	result[10] = (uchar)(ctx->c >> 8);
+	result[11] = (uchar)ctx->c;
+	result[12] = (uchar)(ctx->d >> 24);
+	result[13] = (uchar)(ctx->d >> 16);
+	result[14] = (uchar)(ctx->d >> 8);
+	result[15] = (uchar)ctx->d;
+	result[16] = (uchar)(ctx->e >> 24);
+	result[17] = (uchar)(ctx->e >> 16);
+	result[18] = (uchar)(ctx->e >> 8);
+	result[19] = (uchar)ctx->e;
 	memzero(ctx, sizeof(*ctx));
 }
 // 
@@ -105,12 +105,12 @@ void ngx_sha1_final(u_char result[20], ngx_sha1_t * ctx)
 // This processes one or more 64-byte data blocks, but does not update
 // the bit counters.  There are no alignment requirements.
 // 
-static const u_char * ngx_sha1_body(ngx_sha1_t * ctx, const u_char * data, size_t size)
+static const uchar * ngx_sha1_body(ngx_sha1_t * ctx, const uchar * data, size_t size)
 {
 	uint32_t temp;
 	uint32_t words[80];
 	ngx_uint_t i;
-	const u_char * p = data;
+	const uchar * p = data;
 	uint32_t a = ctx->a;
 	uint32_t b = ctx->b;
 	uint32_t c = ctx->c;

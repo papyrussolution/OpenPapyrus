@@ -30,5 +30,7 @@
     <ClCompile Include="..\PPTEST\UNIT\test-inet.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-edlib.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-image.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-libdivide.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-fts.cpp" />
   </ItemGroup>
 </Project>

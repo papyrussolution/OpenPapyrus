@@ -257,7 +257,7 @@ static _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, uin
 	chunk = (_cmsSubAllocator_chunk*)_cmsMallocZero(ContextID, sizeof(_cmsSubAllocator_chunk));
 	if(chunk) {
 		// Initialize values
-		chunk->Block     = (uint8 *)_cmsMalloc(ContextID, Initial);
+		chunk->Block = (uint8 *)_cmsMalloc(ContextID, Initial);
 		if(chunk->Block == NULL) {
 			// Something went wrong
 			_cmsFree(ContextID, chunk);

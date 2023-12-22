@@ -48,7 +48,7 @@ static uint32_t usual[] = {
 
 ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 {
-	u_char c, ch, * p, * m;
+	uchar c, ch, * p, * m;
 	enum _lstate {
 		sw_start = 0,
 		sw_method,
@@ -188,7 +188,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 				    state = sw_after_slash_in_uri;
 				    break;
 			    }
-			    c = (u_char)(ch | 0x20);
+			    c = (uchar)(ch | 0x20);
 			    if(c >= 'a' && c <= 'z') {
 				    r->schema_start = p;
 				    state = sw_schema;
@@ -200,7 +200,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    }
 			    break;
 			case sw_schema:
-			    c = (u_char)(ch | 0x20);
+			    c = (uchar)(ch | 0x20);
 			    if(c >= 'a' && c <= 'z') {
 				    break;
 			    }
@@ -234,7 +234,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    state = sw_host;
 			// @fallthrough
 			case sw_host:
-			    c = (u_char)(ch | 0x20);
+			    c = (uchar)(ch | 0x20);
 			    if(c >= 'a' && c <= 'z') {
 				    break;
 			    }
@@ -269,7 +269,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    if(ch >= '0' && ch <= '9') {
 				    break;
 			    }
-			    c = (u_char)(ch | 0x20);
+			    c = (uchar)(ch | 0x20);
 			    if(c >= 'a' && c <= 'z') {
 				    break;
 			    }
@@ -644,7 +644,7 @@ done:
 
 ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_uint_t allow_underscores)
 {
-	u_char c, ch, * p;
+	uchar c, ch, * p;
 	ngx_uint_t hash, i;
 	enum _lstate {
 		sw_start = 0,
@@ -657,7 +657,7 @@ ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 		sw_header_almost_done
 	} state;
 	/* the last '\0' is not needed because string is zero terminated */
-	static u_char lowcase[] =
+	static uchar lowcase[] =
 	    "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 	    "\0\0\0\0\0\0\0\0\0\0\0\0\0-\0\0" "0123456789\0\0\0\0\0\0"
 	    "\0abcdefghijklmnopqrstuvwxyz\0\0\0\0\0"
@@ -866,7 +866,7 @@ header_done:
 
 ngx_int_t ngx_http_parse_uri(ngx_http_request_t * r)
 {
-	u_char  * p, ch;
+	uchar  * p, ch;
 	enum {
 		sw_start = 0,
 		sw_after_slash_in_uri,
@@ -995,7 +995,7 @@ ngx_int_t ngx_http_parse_uri(ngx_http_request_t * r)
 
 ngx_int_t ngx_http_parse_complex_uri(ngx_http_request_t * r, ngx_uint_t merge_slashes)
 {
-	u_char c, ch, decoded, * p, * u;
+	uchar c, ch, decoded, * p, * u;
 	enum {
 		sw_usual = 0,
 		sw_slash,
@@ -1204,14 +1204,14 @@ ngx_int_t ngx_http_parse_complex_uri(ngx_http_request_t * r, ngx_uint_t merge_sl
 			case sw_quoted:
 			    r->quoted_uri = 1;
 			    if(ch >= '0' && ch <= '9') {
-				    decoded = (u_char)(ch - '0');
+				    decoded = (uchar)(ch - '0');
 				    state = sw_quoted_second;
 				    ch = *p++;
 				    break;
 			    }
-			    c = (u_char)(ch | 0x20);
+			    c = (uchar)(ch | 0x20);
 			    if(c >= 'a' && c <= 'f') {
-				    decoded = (u_char)(c - 'a' + 10);
+				    decoded = (uchar)(c - 'a' + 10);
 				    state = sw_quoted_second;
 				    ch = *p++;
 				    break;
@@ -1219,7 +1219,7 @@ ngx_int_t ngx_http_parse_complex_uri(ngx_http_request_t * r, ngx_uint_t merge_sl
 			    return NGX_HTTP_PARSE_INVALID_REQUEST;
 			case sw_quoted_second:
 			    if(ch >= '0' && ch <= '9') {
-				    ch = (u_char)((decoded << 4) + (ch - '0'));
+				    ch = (uchar)((decoded << 4) + (ch - '0'));
 				    if(oneof2(ch, '%', '#')) {
 					    state = sw_usual;
 					    *u++ = ch;
@@ -1232,9 +1232,9 @@ ngx_int_t ngx_http_parse_complex_uri(ngx_http_request_t * r, ngx_uint_t merge_sl
 				    state = quoted_state;
 				    break;
 			    }
-			    c = (u_char)(ch | 0x20);
+			    c = (uchar)(ch | 0x20);
 			    if(c >= 'a' && c <= 'f') {
-				    ch = (u_char)((decoded << 4) + (c - 'a') + 10);
+				    ch = (uchar)((decoded << 4) + (c - 'a') + 10);
 				    if(ch == '?') {
 					    state = sw_usual;
 					    *u++ = ch;
@@ -1279,8 +1279,8 @@ args:
 
 ngx_int_t ngx_http_parse_status_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_http_status_t * status)
 {
-	u_char ch;
-	u_char  * p;
+	uchar ch;
+	uchar  * p;
 	enum _lstate {
 		sw_start = 0,
 		sw_H,
@@ -1436,9 +1436,9 @@ done:
 
 ngx_int_t ngx_http_parse_unsafe_uri(ngx_http_request_t * r, ngx_str_t * uri, ngx_str_t * args, ngx_uint_t * flags)
 {
-	u_char ch, * src, * dst;
+	uchar ch, * src, * dst;
 	size_t len = uri->len;
-	u_char * p = uri->data;
+	uchar * p = uri->data;
 	ngx_uint_t quoted = 0;
 	if(len == 0 || p[0] == '?') {
 		goto unsafe;
@@ -1474,7 +1474,7 @@ ngx_int_t ngx_http_parse_unsafe_uri(ngx_http_request_t * r, ngx_str_t * uri, ngx
 	if(quoted) {
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "escaped URI: \"%V\"", uri);
 		src = uri->data;
-		dst = (u_char *)ngx_pnalloc(r->pool, uri->len);
+		dst = (uchar *)ngx_pnalloc(r->pool, uri->len);
 		if(dst == NULL) {
 			return NGX_ERROR;
 		}
@@ -1511,7 +1511,7 @@ unsafe:
 ngx_int_t ngx_http_parse_multi_header_lines(ngx_array_t * headers, ngx_str_t * name, ngx_str_t * value)
 {
 	ngx_uint_t i;
-	u_char  * start, * last, * end, ch;
+	uchar  * start, * last, * end, ch;
 	ngx_table_elt_t  ** h = (ngx_table_elt_t **)headers->elts;
 	for(i = 0; i < headers->nelts; i++) {
 		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, headers->pool->log, 0, "parse header: \"%V: %V\"", &h[i]->key, &h[i]->value);
@@ -1564,7 +1564,7 @@ skip:
 ngx_int_t ngx_http_parse_set_cookie_lines(ngx_array_t * headers, ngx_str_t * name, ngx_str_t * value)
 {
 	ngx_uint_t i;
-	u_char  * start, * last, * end;
+	uchar  * start, * last, * end;
 	ngx_table_elt_t ** h = (ngx_table_elt_t **)headers->elts;
 	for(i = 0; i < headers->nelts; i++) {
 		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, headers->pool->log, 0, "parse header: \"%V: %V\"", &h[i]->key, &h[i]->value);
@@ -1595,11 +1595,11 @@ ngx_int_t ngx_http_parse_set_cookie_lines(ngx_array_t * headers, ngx_str_t * nam
 	return NGX_DECLINED;
 }
 
-ngx_int_t ngx_http_arg(ngx_http_request_t * r, const u_char * name, size_t len, ngx_str_t * value)
+ngx_int_t ngx_http_arg(ngx_http_request_t * r, const uchar * name, size_t len, ngx_str_t * value)
 {
 	if(r->args.len) {
-		u_char * p = r->args.data;
-		u_char * last = p + r->args.len;
+		uchar * p = r->args.data;
+		uchar * last = p + r->args.len;
 		for(/* void */; p < last; p++) {
 			/* we need '=' after name, so drop one char from last */
 			p = ngx_strlcasestrn(p, last - 1, name, len - 1);
@@ -1622,8 +1622,8 @@ ngx_int_t ngx_http_arg(ngx_http_request_t * r, const u_char * name, size_t len, 
 
 void ngx_http_split_args(ngx_http_request_t * r, ngx_str_t * uri, ngx_str_t * args)
 {
-	u_char * last = uri->data + uri->len;
-	u_char * p = ngx_strlchr(uri->data, last, '?');
+	uchar * last = uri->data + uri->len;
+	uchar * p = ngx_strlchr(uri->data, last, '?');
 	if(p) {
 		uri->len = p - uri->data;
 		p++;
@@ -1637,7 +1637,7 @@ void ngx_http_split_args(ngx_http_request_t * r, ngx_str_t * uri, ngx_str_t * ar
 
 ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http_chunked_t * ctx)
 {
-	u_char   * pos, ch, c;
+	uchar   * pos, ch, c;
 	ngx_int_t rc;
 	enum _lstate {
 		sw_chunk_start = 0,
@@ -1669,7 +1669,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 				    ctx->size = ch - '0';
 				    break;
 			    }
-			    c = (u_char)(ch | 0x20);
+			    c = (uchar)(ch | 0x20);
 			    if(c >= 'a' && c <= 'f') {
 				    state = sw_chunk_size;
 				    ctx->size = c - 'a' + 10;
@@ -1684,7 +1684,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 				    ctx->size = ctx->size * 16 + (ch - '0');
 				    break;
 			    }
-			    c = (u_char)(ch | 0x20);
+			    c = (uchar)(ch | 0x20);
 			    if(c >= 'a' && c <= 'f') {
 				    ctx->size = ctx->size * 16 + (c - 'a' + 10);
 				    break;

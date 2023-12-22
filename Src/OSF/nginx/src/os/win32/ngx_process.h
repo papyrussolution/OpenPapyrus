@@ -21,9 +21,9 @@ typedef struct {
 	HANDLE term;
 	HANDLE quit;
 	HANDLE reopen;
-	u_char term_event[NGX_PROCESS_SYNC_NAME];
-	u_char quit_event[NGX_PROCESS_SYNC_NAME];
-	u_char reopen_event[NGX_PROCESS_SYNC_NAME];
+	uchar term_event[NGX_PROCESS_SYNC_NAME];
+	uchar quit_event[NGX_PROCESS_SYNC_NAME];
+	uchar reopen_event[NGX_PROCESS_SYNC_NAME];
 	unsigned just_spawn : 1;
 	unsigned exiting : 1;
 } ngx_process_t;

@@ -9,14 +9,14 @@
 
 #if (NGX_CRYPT)
 
-static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted);
-static ngx_int_t ngx_crypt_plain(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted);
-static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted);
-static ngx_int_t ngx_crypt_sha(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted);
+static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, uchar * key, uchar * salt, uchar ** encrypted);
+static ngx_int_t ngx_crypt_plain(ngx_pool_t * pool, uchar * key, uchar * salt, uchar ** encrypted);
+static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, uchar * key, uchar * salt, uchar ** encrypted);
+static ngx_int_t ngx_crypt_sha(ngx_pool_t * pool, uchar * key, uchar * salt, uchar ** encrypted);
 
-static u_char * FASTCALL ngx_crypt_to64(u_char * p, uint32_t v, size_t n)
+static uchar * FASTCALL ngx_crypt_to64(uchar * p, uint32_t v, size_t n)
 {
-	static u_char itoa64[] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	static uchar itoa64[] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	while(n--) {
 		*p++ = itoa64[v & 0x3f];
 		v >>= 6;
@@ -24,7 +24,7 @@ static u_char * FASTCALL ngx_crypt_to64(u_char * p, uint32_t v, size_t n)
 	return p;
 }
 
-ngx_int_t ngx_crypt(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted)
+ngx_int_t ngx_crypt(ngx_pool_t * pool, uchar * key, uchar * salt, uchar ** encrypted)
 {
 	if(ngx_strncmp(salt, "$apr1$", sizeof("$apr1$") - 1) == 0) {
 		return ngx_crypt_apr1(pool, key, salt, encrypted);
@@ -42,11 +42,11 @@ ngx_int_t ngx_crypt(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** en
 	return ngx_libc_crypt(pool, key, salt, encrypted);
 }
 
-static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted)
+static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, uchar * key, uchar * salt, uchar ** encrypted)
 {
 	ngx_int_t n;
 	ngx_uint_t i;
-	u_char  * p, * last, final[16];
+	uchar  * p, * last, final[16];
 	size_t saltlen;
 	ngx_md5_t md5, ctx1;
 	/* Apache's apr1 crypt is Poul-Henning Kamp's md5 crypt with $apr1$ magic */
@@ -60,7 +60,7 @@ static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, u_char * key, u_char * salt, 
 	/* hash key and salt */
 	ngx_md5_init(&md5);
 	ngx_md5_update(&md5, key, keylen);
-	ngx_md5_update(&md5, (u_char *)"$apr1$", sizeof("$apr1$") - 1);
+	ngx_md5_update(&md5, (uchar *)"$apr1$", sizeof("$apr1$") - 1);
 	ngx_md5_update(&md5, salt, saltlen);
 	ngx_md5_init(&ctx1);
 	ngx_md5_update(&ctx1, key, keylen);
@@ -103,7 +103,7 @@ static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, u_char * key, u_char * salt, 
 		ngx_md5_final(final, &ctx1);
 	}
 	/* output */
-	*encrypted = (u_char *)ngx_pnalloc(pool, sizeof("$apr1$") - 1 + saltlen + 1 + 22 + 1);
+	*encrypted = (uchar *)ngx_pnalloc(pool, sizeof("$apr1$") - 1 + saltlen + 1 + 22 + 1);
 	if(*encrypted == NULL) {
 		return NGX_ERROR;
 	}
@@ -120,11 +120,11 @@ static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, u_char * key, u_char * salt, 
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_crypt_plain(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted)
+static ngx_int_t ngx_crypt_plain(ngx_pool_t * pool, uchar * key, uchar * salt, uchar ** encrypted)
 {
-	u_char  * p;
+	uchar  * p;
 	size_t len = ngx_strlen(key);
-	*encrypted = (u_char *)ngx_pnalloc(pool, sizeof("{PLAIN}") - 1 + len + 1);
+	*encrypted = (uchar *)ngx_pnalloc(pool, sizeof("{PLAIN}") - 1 + len + 1);
 	if(*encrypted == NULL) {
 		return NGX_ERROR;
 	}
@@ -133,7 +133,7 @@ static ngx_int_t ngx_crypt_plain(ngx_pool_t * pool, u_char * key, u_char * salt,
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted)
+static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, uchar * key, uchar * salt, uchar ** encrypted)
 {
 	size_t len;
 	ngx_int_t rc;
@@ -144,7 +144,7 @@ static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, u_char * key, u_char * salt, 
 	encoded.data = salt + sizeof("{SSHA}") - 1;
 	encoded.len = ngx_strlen(encoded.data);
 	len = MAX(ngx_base64_decoded_length(encoded.len), static_cast<size_t>(20));
-	decoded.data = static_cast<u_char *>(ngx_pnalloc(pool, len));
+	decoded.data = static_cast<uchar *>(ngx_pnalloc(pool, len));
 	if(decoded.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -159,7 +159,7 @@ static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, u_char * key, u_char * salt, 
 	ngx_sha1_final(decoded.data, &sha1);
 	/* encode it back to base64 */
 	len = sizeof("{SSHA}") - 1 + ngx_base64_encoded_length(decoded.len) + 1;
-	*encrypted = static_cast<u_char *>(ngx_pnalloc(pool, len));
+	*encrypted = static_cast<uchar *>(ngx_pnalloc(pool, len));
 	if(*encrypted == NULL) {
 		return NGX_ERROR;
 	}
@@ -169,12 +169,12 @@ static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, u_char * key, u_char * salt, 
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_crypt_sha(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted)
+static ngx_int_t ngx_crypt_sha(ngx_pool_t * pool, uchar * key, uchar * salt, uchar ** encrypted)
 {
 	size_t len;
 	ngx_str_t encoded, decoded;
 	ngx_sha1_t sha1;
-	u_char digest[20];
+	uchar digest[20];
 	/* "{SHA}" base64(SHA1(key)) */
 	decoded.len = sizeof(digest);
 	decoded.data = digest;
@@ -182,7 +182,7 @@ static ngx_int_t ngx_crypt_sha(ngx_pool_t * pool, u_char * key, u_char * salt, u
 	ngx_sha1_update(&sha1, key, ngx_strlen(key));
 	ngx_sha1_final(digest, &sha1);
 	len = sizeof("{SHA}") - 1 + ngx_base64_encoded_length(decoded.len) + 1;
-	*encrypted = static_cast<u_char *>(ngx_pnalloc(pool, len));
+	*encrypted = static_cast<uchar *>(ngx_pnalloc(pool, len));
 	if(*encrypted == NULL) {
 		return NGX_ERROR;
 	}

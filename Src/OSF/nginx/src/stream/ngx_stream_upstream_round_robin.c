@@ -219,7 +219,7 @@ ngx_int_t ngx_stream_upstream_init_round_robin_peer(ngx_stream_session_t * s, ng
 
 ngx_int_t ngx_stream_upstream_create_round_robin_peer(ngx_stream_session_t * s, ngx_stream_upstream_resolved_t * ur)
 {
-	u_char  * p;
+	uchar  * p;
 	size_t len;
 	socklen_t socklen;
 	ngx_uint_t i, n;
@@ -268,7 +268,7 @@ ngx_int_t ngx_stream_upstream_create_round_robin_peer(ngx_stream_session_t * s, 
 			}
 			memcpy(sockaddr, ur->addrs[i].sockaddr, socklen);
 			ngx_inet_set_port(sockaddr, ur->port);
-			p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_SOCKADDR_STRLEN);
+			p = (uchar *)ngx_pnalloc(s->connection->pool, NGX_SOCKADDR_STRLEN);
 			if(!p) {
 				return NGX_ERROR;
 			}
@@ -491,9 +491,9 @@ static ngx_int_t ngx_stream_upstream_set_round_robin_peer_session(ngx_peer_conne
 #if OPENSSL_VERSION_NUMBER >= 0x0090707fL
 	const
 #endif
-	u_char * p;
+	uchar * p;
 	ngx_stream_upstream_rr_peers_t * peers;
-	u_char buf[NGX_SSL_MAX_SESSION_SIZE];
+	uchar buf[NGX_SSL_MAX_SESSION_SIZE];
 #endif
 	peer = rrp->current;
 #if (NGX_STREAM_UPSTREAM_ZONE)
@@ -531,9 +531,9 @@ static void ngx_stream_upstream_save_round_robin_peer_session(ngx_peer_connectio
 	ngx_stream_upstream_rr_peer_t * peer;
 #if (NGX_STREAM_UPSTREAM_ZONE)
 	int len;
-	u_char * p;
+	uchar * p;
 	ngx_stream_upstream_rr_peers_t  * peers;
-	u_char buf[NGX_SSL_MAX_SESSION_SIZE];
+	uchar buf[NGX_SSL_MAX_SESSION_SIZE];
 #endif
 #if (NGX_STREAM_UPSTREAM_ZONE)
 	peers = rrp->peers;

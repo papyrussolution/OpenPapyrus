@@ -327,13 +327,13 @@ static ngx_int_t ngx_output_chain_get_buf(ngx_output_chain_ctx_t * ctx, nginx_of
 		 * allocate block aligned to a disk sector size to enable
 		 * userland buffer direct usage conjunctly with directio
 		 */
-		b->start = (u_char *)ngx_pmemalign(ctx->pool, size, (size_t)ctx->alignment);
+		b->start = (uchar *)ngx_pmemalign(ctx->pool, size, (size_t)ctx->alignment);
 		if(b->start == NULL) {
 			return NGX_ERROR;
 		}
 	}
 	else {
-		b->start = (u_char *)ngx_palloc(ctx->pool, size);
+		b->start = (uchar *)ngx_palloc(ctx->pool, size);
 		if(b->start == NULL) {
 			return NGX_ERROR;
 		}

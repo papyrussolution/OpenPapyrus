@@ -337,7 +337,6 @@ int _TIFFMergeFields(TIFF * tif, const TIFFField info[], uint32 n)
 	static const char module[] = __FUNCTION__;
 	static const char reason[] = "for fields array";
 	/* TIFFField** tp; */
-	uint32 i;
 	tif->tif_foundfield = NULL;
 	if(tif->tif_fields && tif->tif_nfields > 0) {
 		tif->tif_fields = static_cast<TIFFField **>(_TIFFCheckRealloc(tif, tif->tif_fields, (tif->tif_nfields + n), sizeof(TIFFField *), reason));
@@ -350,7 +349,7 @@ int _TIFFMergeFields(TIFF * tif, const TIFFField info[], uint32 n)
 		return 0;
 	}
 	/* tp = tif->tif_fields + tif->tif_nfields; */
-	for(i = 0; i < n; i++) {
+	for(uint32 i = 0; i < n; i++) {
 		const TIFFField * fip = TIFFFindField(tif, info[i].field_tag, TIFF_ANY);
 		/* only add definitions that aren't already present */
 		if(!fip) {
@@ -693,7 +692,6 @@ int TIFFMergeFieldInfo(TIFF * tif, const TIFFFieldInfo info[], uint32 n)
 	static const char reason[] = "for fields array";
 	TIFFField * tp;
 	size_t nfields;
-	uint32 i;
 	if(tif->tif_nfieldscompat > 0) {
 		tif->tif_fieldscompat = static_cast<TIFFFieldArray *>(_TIFFCheckRealloc(tif, tif->tif_fieldscompat, tif->tif_nfieldscompat + 1, sizeof(TIFFFieldArray), reason));
 	}
@@ -714,7 +712,7 @@ int TIFFMergeFieldInfo(TIFF * tif, const TIFFFieldInfo info[], uint32 n)
 		return -1;
 	}
 	tp = tif->tif_fieldscompat[nfields].fields;
-	for(i = 0; i < n; i++) {
+	for(uint32 i = 0; i < n; i++) {
 		tp->field_tag = info[i].field_tag;
 		tp->field_readcount = info[i].field_readcount;
 		tp->field_writecount = info[i].field_writecount;

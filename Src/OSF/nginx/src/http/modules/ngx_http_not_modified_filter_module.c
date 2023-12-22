@@ -109,7 +109,7 @@ static ngx_uint_t ngx_http_test_if_modified(ngx_http_request_t * r)
 
 static ngx_uint_t ngx_http_test_if_match(ngx_http_request_t * r, ngx_table_elt_t * header, ngx_uint_t weak)
 {
-	u_char   * start, * end, ch;
+	uchar   * start, * end, ch;
 	ngx_str_t etag;
 	ngx_str_t * list = &header->value;
 	if(list->len == 1 && list->data[0] == '*') {

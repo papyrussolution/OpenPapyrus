@@ -3541,6 +3541,25 @@ file:
 	"bizsglob.btr";
 	vlr;
 }
+
+table BizScore2 { // @v11.9.1 @construction
+	long   ID;
+	long   UserID;
+	long   ScoreID;       // ->Ref(PPOBJ_BIZSCORE2)
+	long   ArID;          // ->Article.ID
+	raw    ActualTime[8]; // UED (@todo добавить тип uint4)
+	long   Flags;
+	raw    LinkOid[8];    // UED 
+	raw    Value[8];      // UED (@todo добавить тип uint4)
+	raw    Reserve[64];
+index:
+	ID (unique);
+	ScoreID, ArID, ActualTime (unique mod);
+	ArID, ScoreID, ActualTime (unique mod);
+	LinkOid, ScoreID, ArID, ActualTime (unique mod);
+file:
+	"bizsc2.btr";
+}
 //
 //
 //

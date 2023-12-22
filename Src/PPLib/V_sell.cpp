@@ -281,7 +281,7 @@ int PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 			tics.Font.Size = 8;
 			PPGetSubStr(PPTXT_FONTFACE, PPFONT_ARIALCYR, tics.Font.Face);
 			plot.SetTics(axis, &tics);
-			plot.SetTicsInc(axis, 7 * SSECSPERDAY, low_date, ZERODATE);
+			plot.SetTicsInc(axis, 7 * SlConst::SecsPerDay, low_date, ZERODATE);
 			PPGetSubStr(PPTXT_PLOT_SALES, 0, temp_buf);
 			plot.SetAxisTitle(axis, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 		}

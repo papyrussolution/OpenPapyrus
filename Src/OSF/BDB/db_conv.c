@@ -427,13 +427,11 @@ int __db_byteswap(DB * dbp, db_pgno_t pg, PAGE * h, size_t pagesize, int pgin)
 				for(end = p+len; p < end;) {
 					if(pgin) {
 						P_16_SWAP(p);
-						memcpy(&tmp,
-							p, sizeof(db_indx_t));
+						memcpy(&tmp, p, sizeof(db_indx_t));
 						p += sizeof(db_indx_t);
 					}
 					else {
-						memcpy(&tmp,
-							p, sizeof(db_indx_t));
+						memcpy(&tmp, p, sizeof(db_indx_t));
 						SWAP16(p);
 					}
 					p += tmp;

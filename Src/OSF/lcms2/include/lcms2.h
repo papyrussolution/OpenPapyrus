@@ -161,7 +161,7 @@ typedef uint32 cmsU16Fixed16Number;
 #ifdef __BORLANDC__
 	#define CMS_IS_WINDOWS_ 1
 #endif
-
+/* @sobolev @v11.9.1
 // Try to detect big endian platforms. This list can be endless, so primarily rely on the configure script
 // on Unix-like systems, and allow it to be set on the compiler command line using
 // -DCMS_USE_BIG_ENDIAN or something similar
@@ -170,7 +170,7 @@ typedef uint32 cmsU16Fixed16Number;
 		#undef CMS_USE_BIG_ENDIAN
 	#endif
 #else // CMS_USE_BIG_ENDIAN
-	#ifdef SL_BIGENDIAN // set by configure (or explicitly on compiler command line)
+	#ifdef CMS_USE_BIG_ENDIAN // set by configure (or explicitly on compiler command line)
 		#define CMS_USE_BIG_ENDIAN 1
 	#else
 		// Fall back to platform/compiler specific tests
@@ -193,6 +193,7 @@ typedef uint32 cmsU16Fixed16Number;
 		#define CMS_USE_BIG_ENDIAN      1
 	#endif
 #endif  // CMS_USE_BIG_ENDIAN
+*/
 // Calling convention -- this is hardly platform and compiler dependent
 #ifdef CMS_IS_WINDOWS_
 	#if defined(CMS_DLL) || defined(CMS_DLL_BUILD)
@@ -1097,8 +1098,7 @@ CMSAPI void CMSEXPORT cmsCIECAM02Reverse(cmsHANDLE hModel, const cmsJCh* pIn,   
 
 typedef struct {
 	float x0, x1;         // Domain; for x0 < x <= x1
-	int32 Type;             // Parametric type, Type == 0 means sampled segment. Negative values are
-	                                 // reserved
+	int32 Type;             // Parametric type, Type == 0 means sampled segment. Negative values are reserved
 	double Params[10];     // Parameters if Type != 0
 	uint32 nGridPoints;     // Number of grid points if Type == 0
 	float*  SampledPoints;// Points to an array of floats if Type == 0
@@ -1261,27 +1261,14 @@ typedef struct {
 
 typedef struct _cms_NAMEDCOLORLIST_struct cmsNAMEDCOLORLIST;
 
-CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsAllocNamedColorList(cmsContext ContextID,
-    uint32 n,
-    uint32 ColorantCount,
-    const char * Prefix, const char * Suffix);
-
+CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsAllocNamedColorList(cmsContext ContextID, uint32 n, uint32 ColorantCount, const char * Prefix, const char * Suffix);
 CMSAPI void /*CMSEXPORT*/FASTCALL cmsFreeNamedColorList(cmsNAMEDCOLORLIST* v);
 CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsDupNamedColorList(const cmsNAMEDCOLORLIST* v);
-CMSAPI boolint CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* v, const char * Name,
-    uint16 PCS[3],
-    uint16 Colorant[cmsMAXCHANNELS]);
-
+CMSAPI boolint CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* v, const char * Name, uint16 PCS[3], uint16 Colorant[cmsMAXCHANNELS]);
 CMSAPI uint32 CMSEXPORT cmsNamedColorCount(const cmsNAMEDCOLORLIST* v);
 CMSAPI int32 CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* v, const char * Name);
-
-CMSAPI boolint CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, uint32 nColor,
-    char * Name,
-    char * Prefix,
-    char * Suffix,
-    uint16* PCS,
-    uint16* Colorant);
-
+CMSAPI boolint CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, uint32 nColor, char * Name,
+    char * Prefix, char * Suffix, uint16* PCS, uint16* Colorant);
 // Retrieve named color list from transform
 CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsGetNamedColorList(cmsHTRANSFORM xform);
 

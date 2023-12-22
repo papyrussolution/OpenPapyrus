@@ -3130,10 +3130,8 @@ fz_device * fz_new_draw_device_with_options(fz_context * ctx, const fz_draw_opti
 	fz_matrix transform;
 	fz_irect bbox;
 	fz_device * dev;
-
 	fz_set_rasterizer_graphics_aa_level(ctx, &aa, opts->graphics);
 	fz_set_rasterizer_text_aa_level(ctx, &aa, opts->text);
-
 	if(w > 0) {
 		x_scale = w / page_w;
 		if(h > 0)

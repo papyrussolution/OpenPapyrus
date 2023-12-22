@@ -36,9 +36,7 @@ typedef struct _cmsParametricCurvesCollection_st {
 	uint32 nFunctions;                                 // Number of supported functions in this chunk
 	int32 FunctionTypes[MAX_TYPES_IN_LCMS_PLUGIN];     // The identification types
 	uint32 ParameterCount[MAX_TYPES_IN_LCMS_PLUGIN];   // Number of parameters for each function
-
 	cmsParametricCurveEvaluator Evaluator;                      // The evaluator
-
 	struct _cmsParametricCurvesCollection_st* Next; // Next in list
 } _cmsParametricCurvesCollection;
 
@@ -99,12 +97,10 @@ boolint _cmsRegisterParametricCurvesPlugin(cmsContext ContextID, cmsPluginBase* 
 	_cmsCurvesPluginChunkType* ctx = (_cmsCurvesPluginChunkType*)_cmsContextGetClientChunk(ContextID, CurvesPlugin);
 	cmsPluginParametricCurves* Plugin = (cmsPluginParametricCurves*)Data;
 	_cmsParametricCurvesCollection* fl;
-
 	if(!Data) {
 		ctx->ParametricCurves =  NULL;
 		return TRUE;
 	}
-
 	fl = (_cmsParametricCurvesCollection*)_cmsPluginMalloc(ContextID, sizeof(_cmsParametricCurvesCollection));
 	if(fl == NULL) return FALSE;
 
@@ -392,9 +388,7 @@ static double DefaultEvalParametricFn(int Type, const double Params[], double R)
 		// X=Y/c              | Y< (ad+b)^g
 		case -4:
 	    {
-		    if(fabs(Params[0]) < MATRIX_DET_TOLERANCE ||
-			fabs(Params[1]) < MATRIX_DET_TOLERANCE ||
-			fabs(Params[3]) < MATRIX_DET_TOLERANCE) {
+		    if(fabs(Params[0]) < MATRIX_DET_TOLERANCE || fabs(Params[1]) < MATRIX_DET_TOLERANCE || fabs(Params[3]) < MATRIX_DET_TOLERANCE) {
 			    Val = 0;
 		    }
 		    else {
@@ -419,7 +413,6 @@ static double DefaultEvalParametricFn(int Type, const double Params[], double R)
 		case 5:
 		    if(R >= Params[4]) {
 			    e = Params[1]*R + Params[2];
-
 			    if(e > 0)
 				    Val = pow(e, Params[0]) + Params[5];
 			    else
@@ -434,8 +427,7 @@ static double DefaultEvalParametricFn(int Type, const double Params[], double R)
 		// X=(Y-f)/c          | else
 		case -5:
 	    {
-		    if(fabs(Params[1]) < MATRIX_DET_TOLERANCE ||
-			fabs(Params[3]) < MATRIX_DET_TOLERANCE) {
+		    if(fabs(Params[1]) < MATRIX_DET_TOLERANCE || fabs(Params[3]) < MATRIX_DET_TOLERANCE) {
 			    Val = 0;
 		    }
 		    else {
@@ -498,9 +490,7 @@ static double DefaultEvalParametricFn(int Type, const double Params[], double R)
 		// pow((pow(10, (Y-d) / a) - c) / b, 1/g) = X
 		case -7:
 	    {
-		    if(fabs(Params[0]) < MATRIX_DET_TOLERANCE ||
-			fabs(Params[1]) < MATRIX_DET_TOLERANCE ||
-			fabs(Params[2]) < MATRIX_DET_TOLERANCE) {
+		    if(fabs(Params[0]) < MATRIX_DET_TOLERANCE || fabs(Params[1]) < MATRIX_DET_TOLERANCE || fabs(Params[2]) < MATRIX_DET_TOLERANCE) {
 			    Val = 0;
 		    }
 		    else {
@@ -547,12 +537,10 @@ static double DefaultEvalParametricFn(int Type, const double Params[], double R)
 		case -108:
 		    Val = 1 - pow(1 - pow(R, Params[0]), Params[0]);
 		    break;
-
 		default:
 		    // Unsupported parametric curve. Should never reach here
 		    return 0;
 	}
-
 	return Val;
 }
 
@@ -560,37 +548,30 @@ static double DefaultEvalParametricFn(int Type, const double Params[], double R)
 // If fn type is 0, perform an interpolation on the table
 static double EvalSegmentedFn(const cmsToneCurve * g, double R)
 {
-	int i;
 	float Out32;
 	double Out;
-	for(i = (int)g->nSegments - 1; i >= 0; --i) {
+	for(int i = (int)g->nSegments - 1; i >= 0; --i) {
 		// Check for domain
 		if((R > g->Segments[i].x0) && (R <= g->Segments[i].x1)) {
 			// Type == 0 means segment is sampled
 			if(g->Segments[i].Type == 0) {
 				float R1 = (float)(R - g->Segments[i].x0) / (g->Segments[i].x1 - g->Segments[i].x0);
-
 				// Setup the table (TODO: clean that)
 				g->SegInterp[i]->Table = g->Segments[i].SampledPoints;
-
 				g->SegInterp[i]->Interpolation.LerpFloat(&R1, &Out32, g->SegInterp[i]);
 				Out = (double)Out32;
 			}
 			else {
 				Out = g->Evals[i](g->Segments[i].Type, g->Segments[i].Params, R);
 			}
-
 			if(isinf(Out))
 				return PLUS_INF;
-			else {
-				if(isinf(-Out))
-					return MINUS_INF;
-			}
-
-			return Out;
+			else if(isinf(-Out))
+				return MINUS_INF;
+			else
+				return Out;
 		}
 	}
-
 	return MINUS_INF;
 }
 
@@ -616,40 +597,34 @@ cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurve16(cmsContext ContextID, uint
 
 static uint32 EntriesByGamma(double Gamma)
 {
-	if(fabs(Gamma - 1.0) < 0.001) return 2;
+	if(fabs(Gamma - 1.0) < 0.001) 
+		return 2;
 	return 4096;
 }
 
 // Create a segmented gamma, fill the table
-cmsToneCurve * CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID,
-    uint32 nSegments, const cmsCurveSegment Segments[])
+cmsToneCurve * CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID, uint32 nSegments, const cmsCurveSegment Segments[])
 {
 	uint32 i;
 	double R, Val;
 	cmsToneCurve * g;
 	uint32 nGridPoints = 4096;
-
 	assert(Segments != NULL);
-
 	// Optimizatin for identity curves.
 	if(nSegments == 1 && Segments[0].Type == 1) {
 		nGridPoints = EntriesByGamma(Segments[0].Params[0]);
 	}
-
 	g = AllocateToneCurveStruct(ContextID, nGridPoints, nSegments, Segments, NULL);
-	if(g == NULL) return NULL;
-
+	if(g == NULL) 
+		return NULL;
 	// Once we have the floating point version, we can approximate a 16 bit table of 4096 entries
 	// for performance reasons. This table would normally not be used except on 8/16 bits transforms.
 	for(i = 0; i < nGridPoints; i++) {
 		R   = (double)i / (nGridPoints-1);
-
 		Val = EvalSegmentedFn(g, R);
-
 		// Round and saturate
 		g->Table16[i] = _cmsQuickSaturateWord(Val * 65535.0);
 	}
-
 	return g;
 }
 
@@ -657,7 +632,6 @@ cmsToneCurve * CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID,
 cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurveFloat(cmsContext ContextID, uint32 nEntries, const float values[])
 {
 	cmsCurveSegment Seg[3];
-
 	// A segmented tone curve should have function segments in the first and last positions
 	// Initialize segmented curve part up to 0 to constant value = samples[0]
 	Seg[0].x0 = MINUS_INF;
@@ -709,14 +683,11 @@ cmsToneCurve * CMSEXPORT cmsBuildParametricToneCurve(cmsContext ContextID, int32
 		return NULL;
 	}
 	memzero(&Seg0, sizeof(Seg0));
-
 	Seg0.x0   = MINUS_INF;
 	Seg0.x1   = PLUS_INF;
 	Seg0.Type = Type;
-
 	size = c->ParameterCount[Pos] * sizeof(double);
 	memmove(Seg0.Params, Params, size);
-
 	return cmsBuildSegmentedToneCurve(ContextID, 1, &Seg0);
 }
 

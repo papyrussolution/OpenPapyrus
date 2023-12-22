@@ -42,12 +42,14 @@ bool FixedOffsetFromName(const std::string & name, seconds* offset)
 	}
 	else {
 		const std::size_t prefix_len = sizeof(kFixedZonePrefix) - 1;
-		const char* const ep = kFixedZonePrefix + prefix_len;
+		const char * const ep = kFixedZonePrefix + prefix_len;
 		if(name.size() != prefix_len + 9) // <prefix>+99:99:99
 			return false;
-		if(!std::equal(kFixedZonePrefix, ep, name.begin())) return false;
+		if(!std::equal(kFixedZonePrefix, ep, name.begin())) 
+			return false;
 		const char* np = name.data() + prefix_len;
-		if(np[0] != '+' && np[0] != '-') return false;
+		if(np[0] != '+' && np[0] != '-') 
+			return false;
 		if(np[3] != ':' || np[6] != ':') // see note below about large offsets
 			return false;
 		int hours = Parse02d(np + 1);
@@ -57,7 +59,7 @@ bool FixedOffsetFromName(const std::string & name, seconds* offset)
 		int secs = Parse02d(np + 7);
 		if(secs == -1) return false;
 		secs += ((hours * 60) + mins) * 60;
-		if(secs > SSECSPERDAY) 
+		if(secs > SlConst::SecsPerDay) 
 			return false; // outside supported offset range
 		*offset = seconds(secs * (np[0] == '-' ? -1 : 1)); // "-" means west
 		return true;

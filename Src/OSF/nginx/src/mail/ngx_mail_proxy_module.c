@@ -69,7 +69,7 @@ ngx_module_t ngx_mail_proxy_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static u_char smtp_auth_ok[] = "235 2.0.0 OK" CRLF;
+static uchar smtp_auth_ok[] = "235 2.0.0 OK" CRLF;
 
 void ngx_mail_proxy_init(ngx_mail_session_t * s, ngx_addr_t * peer)
 {
@@ -140,7 +140,7 @@ static void ngx_mail_proxy_block_read(ngx_event_t * rev)
 
 static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev)
 {
-	u_char * p;
+	uchar * p;
 	ngx_int_t rc;
 	ngx_str_t line;
 	ngx_connection_t  * c;
@@ -168,7 +168,7 @@ static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev)
 		    ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy send user");
 		    s->connection->log->action = "sending user name to upstream";
 		    line.len = sizeof("USER ")  - 1 + s->login.len + 2;
-		    line.data = static_cast<u_char *>(ngx_pnalloc(c->pool, line.len));
+		    line.data = static_cast<uchar *>(ngx_pnalloc(c->pool, line.len));
 		    if(line.data == NULL) {
 			    ngx_mail_proxy_internal_server_error(s);
 			    return;
@@ -182,7 +182,7 @@ static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev)
 		    ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy send pass");
 		    s->connection->log->action = "sending password to upstream";
 		    line.len = sizeof("PASS ")  - 1 + s->passwd.len + 2;
-		    line.data = static_cast<u_char *>(ngx_pnalloc(c->pool, line.len));
+		    line.data = static_cast<uchar *>(ngx_pnalloc(c->pool, line.len));
 		    if(line.data == NULL) {
 			    ngx_mail_proxy_internal_server_error(s);
 			    return;
@@ -226,7 +226,7 @@ static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev)
 
 static void ngx_mail_proxy_imap_handler(ngx_event_t * rev)
 {
-	u_char * p;
+	uchar * p;
 	ngx_int_t rc;
 	ngx_str_t line;
 	ngx_connection_t  * c;
@@ -254,7 +254,7 @@ static void ngx_mail_proxy_imap_handler(ngx_event_t * rev)
 		    ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy send login");
 		    s->connection->log->action = "sending LOGIN command to upstream";
 		    line.len = s->tag.len + sizeof("LOGIN ") - 1 + 1 + NGX_SIZE_T_LEN + 1 + 2;
-		    line.data = static_cast<u_char *>(ngx_pnalloc(c->pool, line.len));
+		    line.data = static_cast<uchar *>(ngx_pnalloc(c->pool, line.len));
 		    if(line.data == NULL) {
 			    ngx_mail_proxy_internal_server_error(s);
 			    return;
@@ -267,7 +267,7 @@ static void ngx_mail_proxy_imap_handler(ngx_event_t * rev)
 		    ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy send user");
 		    s->connection->log->action = "sending user name to upstream";
 		    line.len = s->login.len + 1 + 1 + NGX_SIZE_T_LEN + 1 + 2;
-		    line.data = static_cast<u_char *>(ngx_pnalloc(c->pool, line.len));
+		    line.data = static_cast<uchar *>(ngx_pnalloc(c->pool, line.len));
 		    if(line.data == NULL) {
 			    ngx_mail_proxy_internal_server_error(s);
 			    return;
@@ -280,7 +280,7 @@ static void ngx_mail_proxy_imap_handler(ngx_event_t * rev)
 		    ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy send passwd");
 		    s->connection->log->action = "sending password to upstream";
 		    line.len = s->passwd.len + 2;
-		    line.data = static_cast<u_char *>(ngx_pnalloc(c->pool, line.len));
+		    line.data = static_cast<uchar *>(ngx_pnalloc(c->pool, line.len));
 		    if(line.data == NULL) {
 			    ngx_mail_proxy_internal_server_error(s);
 			    return;
@@ -323,7 +323,7 @@ static void ngx_mail_proxy_imap_handler(ngx_event_t * rev)
 
 static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 {
-	u_char  * p;
+	uchar  * p;
 	ngx_int_t rc;
 	ngx_str_t line;
 	ngx_buf_t * b;
@@ -354,7 +354,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 		    s->connection->log->action = "sending HELO/EHLO to upstream";
 		    cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
 		    line.len = sizeof("HELO ")  - 1 + cscf->server_name.len + 2;
-		    line.data = static_cast<u_char *>(ngx_pnalloc(c->pool, line.len));
+		    line.data = static_cast<uchar *>(ngx_pnalloc(c->pool, line.len));
 		    if(line.data == NULL) {
 			    ngx_mail_proxy_internal_server_error(s);
 			    return;
@@ -383,7 +383,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 			    line.len += sizeof("IPV6:") - 1;
 		    }
 #endif
-		    line.data = static_cast<u_char *>(ngx_pnalloc(c->pool, line.len));
+		    line.data = static_cast<uchar *>(ngx_pnalloc(c->pool, line.len));
 		    if(line.data == NULL) {
 			    ngx_mail_proxy_internal_server_error(s);
 			    return;
@@ -418,7 +418,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 		    ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy send client ehlo");
 		    s->connection->log->action = "sending client HELO/EHLO to upstream";
 		    line.len = sizeof("HELO " CRLF) - 1 + s->smtp_helo.len;
-		    line.data = static_cast<u_char *>(ngx_pnalloc(c->pool, line.len));
+		    line.data = static_cast<uchar *>(ngx_pnalloc(c->pool, line.len));
 		    if(line.data == NULL) {
 			    ngx_mail_proxy_internal_server_error(s);
 			    return;
@@ -432,7 +432,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 		    ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy send mail from");
 		    s->connection->log->action = "sending MAIL FROM to upstream";
 		    line.len = s->smtp_from.len + sizeof(CRLF) - 1;
-		    line.data = static_cast<u_char *>(ngx_pnalloc(c->pool, line.len));
+		    line.data = static_cast<uchar *>(ngx_pnalloc(c->pool, line.len));
 		    if(line.data == NULL) {
 			    ngx_mail_proxy_internal_server_error(s);
 			    return;
@@ -445,7 +445,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 		    ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy send rcpt to");
 		    s->connection->log->action = "sending RCPT TO to upstream";
 		    line.len = s->smtp_to.len + sizeof(CRLF) - 1;
-		    line.data = static_cast<u_char *>(ngx_pnalloc(c->pool, line.len));
+		    line.data = static_cast<uchar *>(ngx_pnalloc(c->pool, line.len));
 		    if(line.data == NULL) {
 			    ngx_mail_proxy_internal_server_error(s);
 			    return;
@@ -514,7 +514,7 @@ static void ngx_mail_proxy_dummy_handler(ngx_event_t * wev)
 
 static ngx_int_t ngx_mail_proxy_read_response(ngx_mail_session_t * s, ngx_uint_t state)
 {
-	u_char * p, * m;
+	uchar * p, * m;
 	ssize_t n;
 	ngx_buf_t    * b;
 	ngx_mail_proxy_conf_t  * pcf;

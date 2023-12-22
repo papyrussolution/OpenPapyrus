@@ -43,9 +43,9 @@ using second_t = std::int_fast8_t;  // [0:59]
 
 // Normalized civil-time fields: Y-M-D HH:MM:SS.
 struct fields {
-	CONSTEXPR_M fields(year_t year, month_t month, day_t day, hour_t hour,
-	    minute_t minute, second_t second)
-		: y(year), m(month), d(day), hh(hour), mm(minute), ss(second) {
+	CONSTEXPR_M fields(year_t year, month_t month, day_t day, hour_t hour, minute_t minute, second_t second) : 
+		y(year), m(month), d(day), hh(hour), mm(minute), ss(second) 
+	{
 	}
 	std::int_least64_t y;
 	std::int_least8_t m;
@@ -208,8 +208,7 @@ CONSTEXPR_F fields n_sec(year_t y, diff_t m, diff_t d, diff_t hh, diff_t mm, dif
 		cm -= 1;
 		ss += 60;
 	}
-	return n_min(y, m, d, hh, mm / 60 + cm / 60, mm % 60 + cm % 60,
-		   static_cast<second_t>(ss));
+	return n_min(y, m, d, hh, mm / 60 + cm / 60, mm % 60 + cm % 60, static_cast<second_t>(ss));
 }
 }  // namespace impl
 
@@ -403,18 +402,18 @@ template <typename T1, typename T2> CONSTEXPR_F bool operator < (const civil_tim
 		(lhs.second() < rhs.second())))))))))));
 }
 
-template <typename T1, typename T2> CONSTEXPR_F bool operator <= (const civil_time<T1>& lhs,
-    const civil_time<T2>& rhs) noexcept {
+template <typename T1, typename T2> CONSTEXPR_F bool operator <= (const civil_time<T1>& lhs, const civil_time<T2>& rhs) noexcept 
+{
 	return !(rhs < lhs);
 }
 
-template <typename T1, typename T2> CONSTEXPR_F bool operator >= (const civil_time<T1>& lhs,
-    const civil_time<T2>& rhs) noexcept {
+template <typename T1, typename T2> CONSTEXPR_F bool operator >= (const civil_time<T1>& lhs, const civil_time<T2>& rhs) noexcept 
+{
 	return !(lhs < rhs);
 }
 
-template <typename T1, typename T2> CONSTEXPR_F bool operator > (const civil_time<T1>& lhs,
-    const civil_time<T2>& rhs) noexcept {
+template <typename T1, typename T2> CONSTEXPR_F bool operator > (const civil_time<T1>& lhs, const civil_time<T2>& rhs) noexcept 
+{
 	return rhs < lhs;
 }
 

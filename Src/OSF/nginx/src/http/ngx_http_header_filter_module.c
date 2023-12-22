@@ -35,9 +35,9 @@ ngx_module_t ngx_http_header_filter_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static u_char ngx_http_server_string[] = "Server: nginx" CRLF;
-static u_char ngx_http_server_full_string[] = "Server: " NGINX_VER CRLF;
-static u_char ngx_http_server_build_string[] = "Server: " NGINX_VER_BUILD CRLF;
+static uchar ngx_http_server_string[] = "Server: nginx" CRLF;
+static uchar ngx_http_server_full_string[] = "Server: " NGINX_VER CRLF;
+static uchar ngx_http_server_build_string[] = "Server: " NGINX_VER_BUILD CRLF;
 
 static ngx_str_t ngx_http_status_lines[] = {
 	ngx_string("200 OK"),
@@ -133,7 +133,7 @@ ngx_http_header_out_t ngx_http_headers_out[] = {
 
 static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 {
-	u_char  * p;
+	uchar  * p;
 	size_t len;
 	ngx_str_t host, * status_line;
 	ngx_buf_t * b;
@@ -143,7 +143,7 @@ static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 	ngx_connection_t   * c;
 	ngx_http_core_loc_conf_t  * clcf;
 	ngx_http_core_srv_conf_t  * cscf;
-	u_char addr[NGX_SOCKADDR_STRLEN];
+	uchar addr[NGX_SOCKADDR_STRLEN];
 	if(r->header_sent) {
 		return NGX_OK;
 	}

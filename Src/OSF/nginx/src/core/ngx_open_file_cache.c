@@ -16,7 +16,7 @@
 
 static void ngx_open_file_cache_cleanup(void * data);
 #if (NGX_HAVE_OPENAT)
-	static ngx_fd_t ngx_openat_file_owner(ngx_fd_t at_fd, const u_char * name, ngx_int_t mode, ngx_int_t create, ngx_int_t access, ngx_log_t * log);
+	static ngx_fd_t ngx_openat_file_owner(ngx_fd_t at_fd, const uchar * name, ngx_int_t mode, ngx_int_t create, ngx_int_t access, ngx_log_t * log);
 	#if (NGX_HAVE_O_PATH)
 		static ngx_int_t ngx_file_o_path_info(ngx_fd_t fd, ngx_file_info_t * fi, ngx_log_t * log);
 	#endif
@@ -75,8 +75,8 @@ static void ngx_open_file_cache_cleanup(void * data)
 			ngx_close_cached_file(cache, file, 0, ngx_cycle->log);
 		}
 		else {
-			ngx_free(file->name);
-			ngx_free(file);
+			SAlloc::F(file->name);
+			SAlloc::F(file);
 		}
 	}
 	if(cache->current) {
@@ -243,9 +243,9 @@ create:
 	if(file == NULL) {
 		goto failed;
 	}
-	file->name = (u_char *)ngx_alloc(name->len + 1, pool->log);
+	file->name = (uchar *)ngx_alloc(name->len + 1, pool->log);
 	if(file->name == NULL) {
-		ngx_free(file);
+		SAlloc::F(file);
 		file = NULL;
 		goto failed;
 	}
@@ -307,8 +307,8 @@ failed:
 					ngx_log_error(NGX_LOG_ALERT, pool->log, ngx_errno, ngx_close_file_n " \"%s\" failed", file->name);
 				}
 			}
-			ngx_free(file->name);
-			ngx_free(file);
+			SAlloc::F(file->name);
+			SAlloc::F(file);
 		}
 		else {
 			file->close = 1;
@@ -324,7 +324,7 @@ failed:
 
 #if (NGX_HAVE_OPENAT)
 
-static ngx_fd_t ngx_openat_file_owner(ngx_fd_t at_fd, const u_char * name,
+static ngx_fd_t ngx_openat_file_owner(ngx_fd_t at_fd, const uchar * name,
     ngx_int_t mode, ngx_int_t create, ngx_int_t access, ngx_log_t * log)
 {
 	ngx_fd_t fd;
@@ -436,7 +436,7 @@ static ngx_fd_t ngx_open_file_wrapper(ngx_str_t * name, ngx_open_file_info_t * o
 	}
 	return fd;
 #else
-	u_char * p, * cp, * end;
+	uchar * p, * cp, * end;
 	ngx_fd_t at_fd;
 	ngx_str_t at_name;
 	if(of->disable_symlinks == NGX_DISABLE_SYMLINKS_OFF) {
@@ -698,7 +698,7 @@ static void ngx_open_file_add_event(ngx_open_file_cache_t * cache, ngx_cached_op
 	}
 	fev = (ngx_open_file_cache_event_t *)ngx_alloc(sizeof(ngx_open_file_cache_event_t), log);
 	if(fev == NULL) {
-		ngx_free(file->event);
+		SAlloc::F(file->event);
 		file->event = NULL;
 		return;
 	}
@@ -714,8 +714,8 @@ static void ngx_open_file_add_event(ngx_open_file_cache_t * cache, ngx_cached_op
 	 */
 	file->event->log = ngx_cycle->log;
 	if(ngx_add_event(file->event, NGX_VNODE_EVENT, NGX_ONESHOT_EVENT) != NGX_OK) {
-		ngx_free(file->event->P_Data);
-		ngx_free(file->event);
+		SAlloc::F(file->event->P_Data);
+		SAlloc::F(file->event);
 		file->event = NULL;
 		return;
 	}
@@ -761,16 +761,16 @@ static void ngx_close_cached_file(ngx_open_file_cache_t * cache, ngx_cached_open
 	if(!file->close) {
 		return;
 	}
-	ngx_free(file->name);
-	ngx_free(file);
+	SAlloc::F(file->name);
+	SAlloc::F(file);
 }
 
 static void ngx_open_file_del_event(ngx_cached_open_file_t * file)
 {
 	if(file->event) {
 		(void)ngx_del_event(file->event, NGX_VNODE_EVENT, file->count ? NGX_FLUSH_EVENT : NGX_CLOSE_EVENT);
-		ngx_free(file->event->P_Data);
-		ngx_free(file->event);
+		SAlloc::F(file->event->P_Data);
+		SAlloc::F(file->event);
 		file->event = NULL;
 		file->use_event = 0;
 	}
@@ -804,8 +804,8 @@ static void ngx_expire_old_cached_files(ngx_open_file_cache_t * cache, ngx_uint_
 			ngx_close_cached_file(cache, file, 0, log);
 		}
 		else {
-			ngx_free(file->name);
-			ngx_free(file);
+			SAlloc::F(file->name);
+			SAlloc::F(file);
 		}
 	}
 }
@@ -873,7 +873,7 @@ static void ngx_open_file_cache_remove(ngx_event_t * ev)
 	file->close = 1;
 	ngx_close_cached_file(fev->cache, file, 0, ev->log);
 	/* free memory only when fev->cache and fev->file are already not needed */
-	ngx_free(ev->P_Data);
-	ngx_free(ev);
+	SAlloc::F(ev->P_Data);
+	SAlloc::F(ev);
 }
 

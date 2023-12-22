@@ -217,7 +217,6 @@ const FT_Glyph_Metrics* FreeTypeFont::LoadGlyph(uint32_t codepoint)
 	uint32_t glyph_index = FT_Get_Char_Index(Face, codepoint);
 	if(glyph_index == 0)
 		return nullptr;
-
 	// If this crash for you: FreeType 2.11.0 has a crash bug on some bitmap/colored fonts.
 	// - https://gitlab.freedesktop.org/freetype/freetype/-/issues/1076
 	// - https://github.com/ocornut/imgui/issues/4567
@@ -226,11 +225,9 @@ const FT_Glyph_Metrics* FreeTypeFont::LoadGlyph(uint32_t codepoint)
 	FT_Error error = FT_Load_Glyph(Face, glyph_index, LoadFlags);
 	if(error)
 		return nullptr;
-
 	// Need an outline for this to work
 	FT_GlyphSlot slot = Face->glyph;
 	assert(slot->format == FT_GLYPH_FORMAT_OUTLINE || slot->format == FT_GLYPH_FORMAT_BITMAP);
-
 	// Apply convenience transform (this is not picking from real "Bold"/"Italic" fonts! Merely applying FreeType helper transform. Oblique == Slanting)
 	if(UserFlags & ImGuiFreeTypeBuilderFlags_Bold)
 		FT_GlyphSlot_Embolden(slot);
@@ -241,25 +238,23 @@ const FT_Glyph_Metrics* FreeTypeFont::LoadGlyph(uint32_t codepoint)
 		//slot->metrics.width = bbox.xMax - bbox.xMin;
 		//slot->metrics.height = bbox.yMax - bbox.yMin;
 	}
-
 	return &slot->metrics;
 }
 
 const FT_Bitmap* FreeTypeFont::RenderGlyphAndGetInfo(GlyphInfo* out_glyph_info)
 {
+	FT_Bitmap * ft_bitmap = nullptr;
 	FT_GlyphSlot slot = Face->glyph;
 	FT_Error error = FT_Render_Glyph(slot, RenderMode);
-	if(error != 0)
-		return nullptr;
-
-	FT_Bitmap* ft_bitmap = &Face->glyph->bitmap;
-	out_glyph_info->Width = (int)ft_bitmap->width;
-	out_glyph_info->Height = (int)ft_bitmap->rows;
-	out_glyph_info->OffsetX = Face->glyph->bitmap_left;
-	out_glyph_info->OffsetY = -Face->glyph->bitmap_top;
-	out_glyph_info->AdvanceX = (float)FT_CEIL(slot->advance.x);
-	out_glyph_info->IsColored = (ft_bitmap->pixel_mode == FT_PIXEL_MODE_BGRA);
-
+	if(error == 0) {
+		ft_bitmap = &Face->glyph->bitmap;
+		out_glyph_info->Width = (int)ft_bitmap->width;
+		out_glyph_info->Height = (int)ft_bitmap->rows;
+		out_glyph_info->OffsetX = Face->glyph->bitmap_left;
+		out_glyph_info->OffsetY = -Face->glyph->bitmap_top;
+		out_glyph_info->AdvanceX = (float)FT_CEIL(slot->advance.x);
+		out_glyph_info->IsColored = (ft_bitmap->pixel_mode == FT_PIXEL_MODE_BGRA);
+	}
 	return ft_bitmap;
 }
 
@@ -270,7 +265,6 @@ void FreeTypeFont::BlitGlyph(const FT_Bitmap* ft_bitmap, uint32_t* dst, uint32_t
 	const uint32_t h = ft_bitmap->rows;
 	const uint8_t* src = ft_bitmap->buffer;
 	const uint32_t src_pitch = ft_bitmap->pitch;
-
 	switch(ft_bitmap->pixel_mode) {
 		case FT_PIXEL_MODE_GRAY: // Grayscale image, 1 byte per pixel.
 	    {
@@ -316,10 +310,8 @@ void FreeTypeFont::BlitGlyph(const FT_Bitmap* ft_bitmap, uint32_t* dst, uint32_t
 			    for(uint32_t y = 0; y < h; y++, src += src_pitch, dst += dst_pitch) {
 				    for(uint32_t x = 0; x < w; x++) {
 					    uint8_t r = src[x * 4 + 2], g = src[x * 4 + 1], b = src[x * 4], a = src[x * 4 + 3];
-					    dst[x] = IM_COL32(multiply_table[DE_MULTIPLY(r, a)],
-						    multiply_table[DE_MULTIPLY(g, a)],
-						    multiply_table[DE_MULTIPLY(b, a)],
-						    multiply_table[a]);
+					    dst[x] = IM_COL32(multiply_table[DE_MULTIPLY(r, a)], multiply_table[DE_MULTIPLY(g, a)],
+						    multiply_table[DE_MULTIPLY(b, a)], multiply_table[a]);
 				    }
 			    }
 		    }
@@ -333,16 +325,16 @@ void FreeTypeFont::BlitGlyph(const FT_Bitmap* ft_bitmap, uint32_t* dst, uint32_t
 } // namespace
 
 #ifndef STB_RECT_PACK_IMPLEMENTATION                        // in case the user already have an implementation in the _same_ compilation unit (e.g. unity builds)
-#ifndef IMGUI_DISABLE_STB_RECT_PACK_IMPLEMENTATION
-#define STBRP_ASSERT(x)     do { assert(x); } while(0)
-#define STBRP_STATIC
-#define STB_RECT_PACK_IMPLEMENTATION
-#endif
-#ifdef IMGUI_STB_RECT_PACK_FILENAME
-#include IMGUI_STB_RECT_PACK_FILENAME
-#else
-#include "imstb_rectpack.h"
-#endif
+	#ifndef IMGUI_DISABLE_STB_RECT_PACK_IMPLEMENTATION
+	#define STBRP_ASSERT(x)     do { assert(x); } while(0)
+	#define STBRP_STATIC
+	#define STB_RECT_PACK_IMPLEMENTATION
+	#endif
+	#ifdef IMGUI_STB_RECT_PACK_FILENAME
+		#include IMGUI_STB_RECT_PACK_FILENAME
+	#else
+		#include "imstb_rectpack.h"
+	#endif
 #endif
 
 struct ImFontBuildSrcGlyphFT {
@@ -357,12 +349,12 @@ struct ImFontBuildSrcGlyphFT {
 
 struct ImFontBuildSrcDataFT {
 	FreeTypeFont Font;
-	stbrp_rect*         Rects;          // Rectangle to pack. We first fill in their size and the packer will give us their position.
-	const ImWchar*      SrcRanges;      // Ranges as requested by user (user is allowed to request too much, e.g. 0x0020..0xFFFF)
-	int DstIndex;                       // Index into atlas->Fonts[] and dst_tmp_array[]
-	int GlyphsHighest;                  // Highest requested codepoint
-	int GlyphsCount;                    // Glyph count (excluding missing glyphs and glyphs already set by an earlier source font)
-	ImBitVector GlyphsSet;              // Glyph bit map (random access, 1-bit per codepoint. This will be a maximum of 8KB)
+	stbrp_rect * Rects;        // Rectangle to pack. We first fill in their size and the packer will give us their position.
+	const ImWchar * SrcRanges; // Ranges as requested by user (user is allowed to request too much, e.g. 0x0020..0xFFFF)
+	int DstIndex;              // Index into atlas->Fonts[] and dst_tmp_array[]
+	int GlyphsHighest;         // Highest requested codepoint
+	int GlyphsCount;           // Glyph count (excluding missing glyphs and glyphs already set by an earlier source font)
+	ImBitVector GlyphsSet;     // Glyph bit map (random access, 1-bit per codepoint. This will be a maximum of 8KB)
 	ImVector<ImFontBuildSrcGlyphFT>   GlyphsList;
 };
 
@@ -545,7 +537,7 @@ bool ImFontAtlasBuildWithFreeTypeEx(FT_Library ft_library, ImFontAtlas* atlas, u
 	// We need a width for the skyline algorithm, any width!
 	// The exact width doesn't really matter much, but some API/GPU have texture size limitations and increasing width can decrease height.
 	// User can override TexDesiredWidth and TexGlyphPadding if they wish, otherwise we use a simple heuristic to select the width based on expected surface.
-	const int surface_sqrt = (int)ImSqrt((float)total_surface) + 1;
+	const int surface_sqrt = (int)sqrtf((float)total_surface) + 1;
 	atlas->TexHeight = 0;
 	if(atlas->TexDesiredWidth > 0)
 		atlas->TexWidth = atlas->TexDesiredWidth;

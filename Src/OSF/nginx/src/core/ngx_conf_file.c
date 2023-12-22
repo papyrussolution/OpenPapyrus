@@ -75,7 +75,7 @@ char * ngx_conf_param(ngx_conf_t * cf)
 static ngx_int_t ngx_conf_add_dump(ngx_conf_t * cf, ngx_str_t * filename)
 {
 	nginx_off_t size;
-	u_char * p;
+	uchar * p;
 	ngx_buf_t * buf;
 	ngx_conf_dump_t  * cd;
 	uint32_t hash = ngx_crc32_long(filename->data, filename->len);
@@ -140,7 +140,7 @@ char * ngx_conf_parse(ngx_conf_t * cf, ngx_str_t * filename)
 			ngx_log_error(NGX_LOG_EMERG, cf->log, ngx_errno, ngx_fd_info_n " \"%s\" failed", filename->data);
 		}
 		cf->conf_file->buffer = &buf;
-		buf.start = (u_char *)ngx_alloc(NGX_CONF_BUFFER, cf->log);
+		buf.start = (uchar *)ngx_alloc(NGX_CONF_BUFFER, cf->log);
 		if(buf.start == NULL) {
 			goto failed;
 		}
@@ -237,7 +237,7 @@ failed:
 done:
 	if(filename) {
 		if(cf->conf_file->buffer->start) {
-			ngx_free(cf->conf_file->buffer->start);
+			SAlloc::F(cf->conf_file->buffer->start);
 		}
 		if(ngx_close_file(fd) == NGX_FILE_ERROR) {
 			ngx_log_error(NGX_LOG_ALERT, cf->log, ngx_errno, ngx_close_file_n " %s failed", filename->data);
@@ -339,7 +339,7 @@ invalid:
 
 static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 {
-	u_char * start, ch, * src, * dst;
+	uchar * start, ch, * src, * dst;
 	nginx_off_t file_size;
 	size_t len;
 	ssize_t n, size;
@@ -526,7 +526,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 				if(word == NULL) {
 					return NGX_ERROR;
 				}
-				word->data = (u_char *)ngx_pnalloc(cf->pool, b->pos - 1 - start + 1);
+				word->data = (uchar *)ngx_pnalloc(cf->pool, b->pos - 1 - start + 1);
 				if(word->data == NULL) {
 					return NGX_ERROR;
 				}
@@ -667,32 +667,31 @@ ngx_open_file_t * FASTCALL ngx_conf_open_file(ngx_cycle_t * cycle, const ngx_str
 
 static void ngx_conf_flush_files(ngx_cycle_t * cycle)
 {
-	ngx_uint_t i;
-	ngx_list_part_t  * part;
-	ngx_open_file_t  * file;
 	ngx_log_debug0(NGX_LOG_DEBUG_CORE, cycle->log, 0, "flush files");
-	part = &cycle->open_files.part;
-	file = (ngx_open_file_t *)part->elts;
-	for(i = 0; /* void */; i++) {
-		if(i >= part->nelts) {
-			if(part->next == NULL) {
-				break;
+	{
+		ngx_list_part_t * part = &cycle->open_files.part;
+		ngx_open_file_t * file = (ngx_open_file_t *)part->elts;
+		for(ngx_uint_t i = 0; /* void */; i++) {
+			if(i >= part->nelts) {
+				if(part->next == NULL) {
+					break;
+				}
+				part = part->next;
+				file = (ngx_open_file_t *)part->elts;
+				i = 0;
 			}
-			part = part->next;
-			file = (ngx_open_file_t *)part->elts;
-			i = 0;
-		}
-		if(file[i].flush) {
-			file[i].flush(&file[i], cycle->log);
+			if(file[i].flush) {
+				file[i].flush(&file[i], cycle->log);
+			}
 		}
 	}
 }
 
 void ngx_cdecl ngx_conf_log_error(ngx_uint_t level, ngx_conf_t * cf, ngx_err_t err, const char * fmt, ...)
 {
-	u_char errstr[NGX_MAX_CONF_ERRSTR], * p;
+	uchar errstr[NGX_MAX_CONF_ERRSTR], * p;
 	va_list args;
-	u_char * last = errstr + NGX_MAX_CONF_ERRSTR;
+	uchar * last = errstr + NGX_MAX_CONF_ERRSTR;
 	va_start(args, fmt);
 	p = ngx_vslprintf(errstr, last, fmt, args);
 	va_end(args);
@@ -716,10 +715,10 @@ const char * ngx_conf_set_flag_slot(ngx_conf_t * cf, const ngx_command_t * cmd, 
 	}
 	else {
 		const ngx_str_t * value = (const ngx_str_t *)cf->args->elts;
-		if(sstreqi_ascii(value[1].data, (u_char *)"on")) {
+		if(sstreqi_ascii(value[1].data, (uchar *)"on")) {
 			*fp = 1;
 		}
-		else if(sstreqi_ascii(value[1].data, (u_char *)"off")) {
+		else if(sstreqi_ascii(value[1].data, (uchar *)"off")) {
 			*fp = 0;
 		}
 		else {
@@ -756,7 +755,6 @@ const char * ngx_conf_set_str_slot(ngx_conf_t * cf, const ngx_command_t * cmd, v
 const char * ngx_conf_set_str_array_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char * p = static_cast<char *>(conf);
-	ngx_str_t * value, * s;
 	ngx_array_t ** a = (ngx_array_t**)(p + cmd->offset);
 	if(*a == NGX_CONF_UNSET_PTR) {
 		*a = ngx_array_create(cf->pool, 4, sizeof(ngx_str_t));
@@ -764,24 +762,26 @@ const char * ngx_conf_set_str_array_slot(ngx_conf_t * cf, const ngx_command_t * 
 			return NGX_CONF_ERROR;
 		}
 	}
-	s = (ngx_str_t *)ngx_array_push(*a);
-	if(!s) {
-		return NGX_CONF_ERROR;
+	{
+		ngx_str_t * s = (ngx_str_t *)ngx_array_push(*a);
+		if(!s) {
+			return NGX_CONF_ERROR;
+		}
+		else {
+			ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
+			*s = value[1];
+			if(cmd->P_Post) {
+				ngx_conf_post_t * post = (ngx_conf_post_t *)cmd->P_Post;
+				return post->post_handler(cf, post, s);
+			}
+			return NGX_CONF_OK;
+		}
 	}
-	value = static_cast<ngx_str_t *>(cf->args->elts);
-	*s = value[1];
-	if(cmd->P_Post) {
-		ngx_conf_post_t * post = (ngx_conf_post_t *)cmd->P_Post;
-		return post->post_handler(cf, post, s);
-	}
-	return NGX_CONF_OK;
 }
 
 const char * ngx_conf_set_keyval_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char * p = static_cast<char *>(conf);
-	ngx_str_t  * value;
-	ngx_keyval_t * kv;
 	ngx_array_t ** a = (ngx_array_t**)(p + cmd->offset);
 	if(*a == NULL) {
 		*a = ngx_array_create(cf->pool, 4, sizeof(ngx_keyval_t));
@@ -789,19 +789,23 @@ const char * ngx_conf_set_keyval_slot(ngx_conf_t * cf, const ngx_command_t * cmd
 			return NGX_CONF_ERROR;
 		}
 	}
-	kv = (ngx_keyval_t *)ngx_array_push(*a);
-	if(kv == NULL) {
-		return NGX_CONF_ERROR;
+	{
+		ngx_keyval_t * kv = (ngx_keyval_t *)ngx_array_push(*a);
+		if(kv == NULL) {
+			return NGX_CONF_ERROR;
+		}
+		else {
+			ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
+			kv->key = value[1];
+			kv->value = value[2];
+			if(cmd->P_Post) {
+				ngx_conf_post_t * post = (ngx_conf_post_t *)cmd->P_Post;
+				return post->post_handler(cf, post, kv);
+			}
+			else
+				return NGX_CONF_OK;
+		}
 	}
-	value = static_cast<ngx_str_t *>(cf->args->elts);
-	kv->key = value[1];
-	kv->value = value[2];
-	if(cmd->P_Post) {
-		ngx_conf_post_t * post = (ngx_conf_post_t *)cmd->P_Post;
-		return post->post_handler(cf, post, kv);
-	}
-	else
-		return NGX_CONF_OK;
 }
 
 const char * ngx_conf_set_num_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler

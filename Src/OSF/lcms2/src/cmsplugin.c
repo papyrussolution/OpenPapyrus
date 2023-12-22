@@ -24,7 +24,7 @@
 // Adjust a word value after being read/ before being written from/to an ICC profile
 uint16 /*CMSEXPORT*/FASTCALL _cmsAdjustEndianess16(uint16 Word)
 {
-#ifndef CMS_USE_BIG_ENDIAN
+#ifdef SL_LITTLEENDIAN
 	uint8 * pByte = (uint8 *)&Word;
 	uint8 tmp = pByte[0];
 	pByte[0] = pByte[1];
@@ -40,7 +40,7 @@ uint16 /*CMSEXPORT*/FASTCALL _cmsAdjustEndianess16(uint16 Word)
 
 uint32 /*CMSEXPORT*/FASTCALL _cmsAdjustEndianess32(uint32 DWord)
 {
-#ifndef CMS_USE_BIG_ENDIAN
+#ifdef SL_LITTLEENDIAN
 	uint8 * pByte = (uint8 *)&DWord;
 	uint8 temp1;
 	uint8 temp2;
@@ -59,7 +59,7 @@ uint32 /*CMSEXPORT*/FASTCALL _cmsAdjustEndianess32(uint32 DWord)
 
 void /*CMSEXPORT*/FASTCALL _cmsAdjustEndianess64(uint64* Result, uint64* QWord)
 {
-#ifndef CMS_USE_BIG_ENDIAN
+#ifdef SL_LITTLEENDIAN
 	uint8 * pIn  = (uint8 *)QWord;
 	uint8 * pOut = (uint8 *)Result;
 	assert(Result != NULL);

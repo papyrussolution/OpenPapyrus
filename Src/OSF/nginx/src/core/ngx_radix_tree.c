@@ -244,10 +244,10 @@ uintptr_t ngx_radix32tree_find(ngx_radix_tree_t * tree, uint32_t key)
 
 #if (NGX_HAVE_INET6)
 
-ngx_int_t ngx_radix128tree_insert(ngx_radix_tree_t * tree, u_char * key, u_char * mask, uintptr_t value)
+ngx_int_t ngx_radix128tree_insert(ngx_radix_tree_t * tree, uchar * key, uchar * mask, uintptr_t value)
 {
 	ngx_uint_t i = 0;
-	u_char bit = 0x80;
+	uchar bit = 0x80;
 	ngx_radix_node_t * node = tree->root;
 	ngx_radix_node_t * next = tree->root;
 	while(bit & mask[i]) {
@@ -304,10 +304,10 @@ ngx_int_t ngx_radix128tree_insert(ngx_radix_tree_t * tree, u_char * key, u_char 
 	return NGX_OK;
 }
 
-ngx_int_t ngx_radix128tree_delete(ngx_radix_tree_t * tree, u_char * key, u_char * mask)
+ngx_int_t ngx_radix128tree_delete(ngx_radix_tree_t * tree, uchar * key, uchar * mask)
 {
 	ngx_uint_t i = 0;
-	u_char bit = 0x80;
+	uchar bit = 0x80;
 	ngx_radix_node_t  * node = tree->root;
 	while(node && (bit & mask[i])) {
 		if(key[i] & bit) {
@@ -357,10 +357,10 @@ ngx_int_t ngx_radix128tree_delete(ngx_radix_tree_t * tree, u_char * key, u_char 
 	return NGX_OK;
 }
 
-uintptr_t ngx_radix128tree_find(ngx_radix_tree_t * tree, u_char * key)
+uintptr_t ngx_radix128tree_find(ngx_radix_tree_t * tree, uchar * key)
 {
 	ngx_uint_t i = 0;
-	u_char bit = 0x80;
+	uchar bit = 0x80;
 	uintptr_t value = NGX_RADIX_NO_VALUE;
 	ngx_radix_node_t  * node = tree->root;
 	while(node) {

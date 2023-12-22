@@ -2281,7 +2281,6 @@ static double lambertw(double x)
 	else {
 		w = log(x);
 	}
-
 	if(x > 3) {
 		w = w - log(w);
 	}

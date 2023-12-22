@@ -6,7 +6,7 @@
 #pragma hdrstop
 
 /* @v10.8.0 (replaced with SlHash::Murmur2_32(a, b, 0)) 
-uint32_t ngx_murmur_hash2(u_char * data, size_t len)
+uint32_t ngx_murmur_hash2(uchar * data, size_t len)
 {
 	uint32_t k;
 	uint32_t h = 0 ^ len;

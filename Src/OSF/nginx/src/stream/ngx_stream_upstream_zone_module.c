@@ -96,7 +96,7 @@ static ngx_int_t ngx_stream_upstream_init_zone(ngx_shm_zone_t * shm_zone, void *
 		return NGX_OK;
 	}
 	len = sizeof(" in upstream zone \"\"") + shm_zone->shm.name.len;
-	shpool->log_ctx = (u_char *)ngx_slab_alloc(shpool, len);
+	shpool->log_ctx = (uchar *)ngx_slab_alloc(shpool, len);
 	if(shpool->log_ctx == NULL) {
 		return NGX_ERROR;
 	}

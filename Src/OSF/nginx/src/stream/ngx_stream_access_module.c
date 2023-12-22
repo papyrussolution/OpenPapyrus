@@ -44,7 +44,7 @@ typedef struct {
 static ngx_int_t ngx_stream_access_handler(ngx_stream_session_t * s);
 static ngx_int_t ngx_stream_access_inet(ngx_stream_session_t * s, ngx_stream_access_srv_conf_t * ascf, in_addr_t addr);
 #if (NGX_HAVE_INET6)
-static ngx_int_t ngx_stream_access_inet6(ngx_stream_session_t * s, ngx_stream_access_srv_conf_t * ascf, u_char * p);
+static ngx_int_t ngx_stream_access_inet6(ngx_stream_session_t * s, ngx_stream_access_srv_conf_t * ascf, uchar * p);
 #endif
 #if (NGX_HAVE_UNIX_DOMAIN)
 static ngx_int_t ngx_stream_access_unix(ngx_stream_session_t * s, ngx_stream_access_srv_conf_t * ascf);
@@ -94,7 +94,7 @@ static ngx_int_t ngx_stream_access_handler(ngx_stream_session_t * s)
 	struct sockaddr_in  * sin;
 	ngx_stream_access_srv_conf_t  * ascf;
 #if (NGX_HAVE_INET6)
-	u_char * p;
+	uchar * p;
 	in_addr_t addr;
 	struct sockaddr_in6 * sin6;
 
@@ -165,7 +165,7 @@ static ngx_int_t ngx_stream_access_inet(ngx_stream_session_t * s,
 
 #if (NGX_HAVE_INET6)
 
-static ngx_int_t ngx_stream_access_inet6(ngx_stream_session_t * s, ngx_stream_access_srv_conf_t * ascf, u_char * p)
+static ngx_int_t ngx_stream_access_inet6(ngx_stream_session_t * s, ngx_stream_access_srv_conf_t * ascf, uchar * p)
 {
 	ngx_uint_t n;
 	ngx_uint_t i;
@@ -174,9 +174,9 @@ static ngx_int_t ngx_stream_access_inet6(ngx_stream_session_t * s, ngx_stream_ac
 #if (NGX_DEBUG)
 		{
 			size_t cl, ml, al;
-			u_char ct[NGX_INET6_ADDRSTRLEN];
-			u_char mt[NGX_INET6_ADDRSTRLEN];
-			u_char at[NGX_INET6_ADDRSTRLEN];
+			uchar ct[NGX_INET6_ADDRSTRLEN];
+			uchar mt[NGX_INET6_ADDRSTRLEN];
+			uchar at[NGX_INET6_ADDRSTRLEN];
 
 			cl = ngx_inet6_ntop(p, ct, NGX_INET6_ADDRSTRLEN);
 			ml = ngx_inet6_ntop(rule6[i].mask.s6_addr, mt, NGX_INET6_ADDRSTRLEN);

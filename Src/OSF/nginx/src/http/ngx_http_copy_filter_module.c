@@ -141,7 +141,7 @@ static void ngx_http_copy_aio_event_handler(ngx_event_t * ev)
 
 static ssize_t ngx_http_copy_aio_sendfile_preload(ngx_buf_t * file)
 {
-	static u_char buf[1];
+	static uchar buf[1];
 	ngx_event_aio_t  * aio;
 	ngx_http_request_t * r;
 	ngx_output_chain_ctx_t  * ctx;

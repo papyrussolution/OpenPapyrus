@@ -14,9 +14,6 @@
 #include "safewindows.h"
 
 // Used by safeunistd.h:
-void xapian_sleep_milliseconds(uint millisecs)
-{
-	Sleep(millisecs);
-}
+// @v11.9.1 (replaced with SDelay) void xapian_sleep_milliseconds(uint millisecs) { Sleep(millisecs); }
 
 #endif

@@ -248,28 +248,25 @@
 	#define STATIC_ASSERT(_boolExpr) { enum { __StaticAssertDummyEnum = 1/static_cast<int>(!!(_boolExpr)) }; } // note : use after variable declarations
 	//#define STATIC_ASSERT assert
 #endif
-
 // @v10.8.2 #define FNF_WILDCARDS 0x01
 // @v10.8.2 #define FNF_EXTENSION 0x02
 // @v10.8.2 #define FNF_FILENAME  0x04
-#define FNF_DIRECTORY 0x08
-#define FNF_DRIVE     0x10
-
-#define DMAXEXP     308
-#define FMAXEXP     38
-#define DMINEXP     -307
-#define FMINEXP     -37
-
-#define DSIGNIF     53
-#define FSIGNIF     24
-#define DMAXPOWTWO  0x3FF
-#define FMAXPOWTWO  0x7F
-#define _DEXPLEN    11
-#define _FEXPLEN    8
-#define _EXPBASE    2
-#define _IEEE       1
-#define _LENBASE    1
-#define HIDDENBIT   1
+// @v11.9.1 @unused #define FNF_DIRECTORY 0x08
+// @v11.9.1 @unused #define FNF_DRIVE     0x10
+// @v11.9.1 @unused #define DMAXEXP     308
+// @v11.9.1 @unused #define FMAXEXP     38
+// @v11.9.1 @unused #define DMINEXP     -307
+// @v11.9.1 @unused #define FMINEXP     -37
+// @v11.9.1 @unused #define DSIGNIF     53
+// @v11.9.1 @unused #define FSIGNIF     24
+// @v11.9.1 @unused #define DMAXPOWTWO  0x3FF
+// @v11.9.1 @unused #define FMAXPOWTWO  0x7F
+// @v11.9.1 @unused #define _DEXPLEN    11
+// @v11.9.1 @unused #define _FEXPLEN    8
+// @v11.9.1 @unused #define _EXPBASE    2
+// @v11.9.1 @unused #define _IEEE       1
+// @v11.9.1 @unused #define _LENBASE    1
+// @v11.9.1 @unused #define HIDDENBIT   1
 // @v10.8.2 (use SMathConst::LogMax insted) #define LN_MAXDOUBLE    7.0978E+2
 // @v10.8.2 (use SMathConst::LogMin insted) #define LN_MINDOUBLE    -7.0840E+2
 #ifdef _MSC_VER
@@ -1153,6 +1150,9 @@ typedef struct _cairo_scaled_font cairo_scaled_font_t;
 struct Archive; // @v10.4.4 libarchive
 class  S_GUID_Base;
 class  S_GUID;
+class  STokenRecognizer;
+class  SNaturalTokenArray;
+struct SNaturalTokenStat;
 //
 // Formats for date binary representation
 //
@@ -1322,6 +1322,9 @@ public:
 	static constexpr uint64 Epoch1600_1970_Offs_100Ns = 116444736000000000ULL; // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
 	static constexpr int    DaysPer4Years   = 1461;   // @v11.8.11
 	static constexpr int    DaysPer400Years = 146097; // @v11.8.11
+	static constexpr int    SecsPerDay      = (24 * 60 * 60); // @v11.9.1
+	static constexpr int    SecsPerDay64    = (24LL * 60LL * 60LL); // @v11.9.1
+	static constexpr double SecsPerDayR     = (24.0 * 60.0 * 60.0); // @v11.9.1
 	static constexpr const char * P_WrKey_MsWin_DisallowRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\DisallowRun"; // @v11.8.12 HKEY_CURRENT_USER
 	static constexpr const char * P_WrKey_MsWin_RestrictRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\RestrictRun"; // @v11.8.12 HKEY_CURRENT_USER
 };
@@ -1411,11 +1414,10 @@ template <typename T, int N> static constexpr size_t sizeofarray(const T(&arr)[N
 #define SGIGABYTE(v)       (1024i64 * 1024i64 * 1024i64 * (v))
 #define	MEGABYTE	       SMEGABYTE(1)
 #define	GIGABYTE	       SMEGABYTE(1024)
-
-#define SSECSPERHOUR       3600
-#define SSECSPERDAY        (24 * 60 * 60)
-#define SSECSPERDAY64      (24LL * 60LL * 60LL)
-#define SSECSPERDAYr       (24.0 * 60.0 * 60.0)
+// @v11.9.1 @unused #define SSECSPERHOUR       3600
+// @v11.9.1 (replaced with SlConst::SecsPerDay)   #define SSECSPERDAY        (24 * 60 * 60)
+// @v11.9.1 (replaced with SlConst::SecsPerDay64) #define SSECSPERDAY64      (24LL * 60LL * 60LL)
+// @v11.9.1 (replaced with SlConst::SecsPerDayR)  #define SSECSPERDAYr       (24.0 * 60.0 * 60.0)
 //
 //
 #include <asmlib.h>
@@ -4075,6 +4077,7 @@ public:
 	size_t BufSize() const;
 	void   Obfuscate();
 	const  char * SearchChar(int c, size_t * pPos) const;
+	const  char * SearchRChar(int c, size_t * pPos) const;
 	const  char * SearchCharPos(size_t startPos, int c, size_t * pPos) const;
 	//
 	// Descr: Определяет факт наличия в строке this символа c.
@@ -4308,6 +4311,8 @@ public:
 	SString & FASTCALL SetIfEmpty(const SString & rS);
 	int    IsAscii() const;
 	bool   IsLegalUtf8() const;
+	bool   IsCp866() const;
+	bool   IsCp1251() const;
 	bool   CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
 	//
 	// Descr: Функция пытается идентифицировать кодировку строки this и соответствующим 
@@ -5126,9 +5131,11 @@ bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const wchar_t * pS2);
 bool   FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2);
 int    FASTCALL sstrcmpi_ascii(const char * pS1, const char * pS2);
 inline char    stolower_ascii(char c) { return (c >= 'A' && c <= 'Z') ? (c - ('A' - 'a')) : c; }
-inline wchar_t stolower_ascii(wchar_t c) { return (c >= 'A' && c <= 'Z') ? (c - ('A' - 'a')) : c; }
+inline uchar   stolower_ascii(uchar c) { return (c >= 'A' && c <= 'Z') ? (c - ('A' - 'a')) : c; }
+inline wchar_t stolower_ascii(wchar_t c) { return (c >= L'A' && c <= L'Z') ? (c - (L'A' - L'a')) : c; }
 inline char    stoupper_ascii(char c) { return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c; }
-inline wchar_t stoupper_ascii(wchar_t c) { return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c; }
+inline uchar   stoupper_ascii(uchar c) { return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c; }
+inline wchar_t stoupper_ascii(wchar_t c) { return (c >= L'a' && c <= L'z') ? (c - (L'a' - L'A')) : c; }
 //
 // Descr: определяет эквивалентность строк pS1 и pS2 на отрезке не более maxlen символов
 //   без учета регистра, но только для ascii-символов.
@@ -5175,6 +5182,7 @@ int    hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize);
 uint32 FASTCALL _texttodec32(const char * pT, uint len);
 uint32 FASTCALL _texttodec32(const wchar_t * pT, uint len);
 uint64 FASTCALL _texttodec64(const char * pT, uint len);
+uint64 FASTCALL _texttodec64_2(const char * pT, uint len); // @test
 //
 // Descr: Низкоуровневая функция преобразования серии последовательных шестнадцатиричных цифр в число.
 //   Никаких проверок не делает и полагается на то, что в строке pT ей передается len
@@ -5246,13 +5254,17 @@ inline bool isasciialpha(int ch) { return LOGIC(((uchar)(ch | 32) - 97) < 26U); 
 inline bool isasciialpha(wchar_t ch) { return LOGIC(((uchar)(ch | 32) - 97) < 26U); }
 inline bool isasciialnum(char ch) { return ((ch >= '0' && ch <= '9') || (((uchar)(ch | 32) - 97) < 26U)); }
 // @v10.9.3 (replaced with isasciialpha) int    FASTCALL IsLetterASCII(int ch); // synonym of isasciialpha
-int    FASTCALL IsLetter1251(int ch);
 int    FASTCALL ToLower1251(int ch);
 int    FASTCALL ToUpper1251(int ch);
 char * FASTCALL strlwr1251(char *);
 char * FASTCALL strupr1251(char *);
 int    FASTCALL stricmp1251(const char *, const char *);
-int    FASTCALL IsLetter866(int ch);
+
+FORCEINLINE bool FASTCALL IsLetter866(int c)
+	{ return !(((uint8)c) < 0x80U || (((uint8)c) > 0xafU && (((uint8)c) < 0xe0U || ((uint8)c) > 0xf1U))); }
+FORCEINLINE bool FASTCALL IsLetter1251(int c)
+	{ return ((((uint8)c) >= 0xc0U && ((uint8)c) <= 0xdfU) || (((uint8)c) >= 0xe0U && ((uint8)c) <= 0xffU) || oneof2(((uint8)c), 0xa8U, 0xb8U)); }
+
 int    FASTCALL ToLower866(int ch);
 int    FASTCALL ToUpper866(int ch);
 int    FASTCALL stricmp866(const char *, const char *);
@@ -11780,12 +11792,19 @@ struct SStrScan : public SRegExpSet {
 	//   за ним правильной комбинацией, представляющей UTF8 символ.
 	//
 	uint   IsLegalUtf8() const; // return type must be int (not bool)!
+	bool   InitNaturalTokenRecognizer() const;
+	bool   IsNaturalToken(uint32 ntok, bool greedy, size_t * pLen) const;
+	int    GetNaturalToken(uint32 ntok, bool greedy);
+	//
 	size_t Offs;
 	size_t Len;
 private:
 	const  char * P_Buf;
 private:
 	TSStack <size_t> Stk;
+	mutable STokenRecognizer * P_Tr; // @v11.9.1
+	mutable SNaturalTokenArray * P_NtA; // @v11.9.1 @fastreuse
+	mutable SNaturalTokenStat * P_NtStat; // @v11.9.1 @fastreuse
 };
 //
 //

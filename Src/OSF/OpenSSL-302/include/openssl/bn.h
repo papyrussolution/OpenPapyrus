@@ -161,15 +161,7 @@ void * BN_GENCB_get_arg(BN_GENCB * cb);
  *  (b) >=   55 |     >=   110 |         27 |         64 bit
  *  (b) >=    6 |     >=    12 |         34 |         64 bit
  */
-
-#define BN_prime_checks_for_size(b) ((b) >= 3747 ?  3 : \
-	(b) >=  1345 ?  4 : \
-	(b) >=  476 ?  5 : \
-	(b) >=  400 ?  6 : \
-	(b) >=  347 ?  7 : \
-	(b) >=  308 ?  8 : \
-	(b) >=  55  ? 27 : \
-	/* b >= 6 */ 34)
+#define BN_prime_checks_for_size(b) ((b) >= 3747 ?  3 : (b) >=  1345 ?  4 : (b) >=  476 ?  5 : (b) >=  400 ?  6 : (b) >=  347 ?  7 : (b) >=  308 ?  8 : (b) >=  55  ? 27 : /* b >= 6 */ 34)
 #endif
 
 #define BN_num_bytes(a) ((BN_num_bits(a)+7)/8)

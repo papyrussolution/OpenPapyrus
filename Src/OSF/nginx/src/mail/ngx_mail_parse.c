@@ -8,7 +8,7 @@
 
 ngx_int_t ngx_mail_pop3_parse_command(ngx_mail_session_t * s)
 {
-	u_char ch, * p, * c, c0, c1, c2, c3;
+	uchar ch, * p, * c, c0, c1, c2, c3;
 	ngx_str_t  * arg;
 	enum _lstate {
 		sw_start = 0,
@@ -25,10 +25,10 @@ ngx_int_t ngx_mail_pop3_parse_command(ngx_mail_session_t * s)
 			    if(oneof3(ch, ' ', __CR, LF)) {
 				    c = s->buffer->start;
 				    if(p - c == 4) {
-					    c0 = ngx_toupper(c[0]);
-					    c1 = ngx_toupper(c[1]);
-					    c2 = ngx_toupper(c[2]);
-					    c3 = ngx_toupper(c[3]);
+					    c0 = stoupper_ascii(c[0]);
+					    c1 = stoupper_ascii(c[1]);
+					    c2 = stoupper_ascii(c[2]);
+					    c3 = stoupper_ascii(c[3]);
 					    if(c0 == 'U' && c1 == 'S' && c2 == 'E' && c3 == 'R') {
 						    s->command = NGX_POP3_USER;
 					    }
@@ -156,7 +156,7 @@ invalid:
 
 ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 {
-	u_char ch, * p, * c;
+	uchar ch, * p, * c;
 	ngx_str_t  * arg;
 	enum _lstate {
 		sw_start = 0,
@@ -493,7 +493,7 @@ invalid:
 
 ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 {
-	u_char ch, * p, * c, c0, c1, c2, c3;
+	uchar ch, * p, * c, c0, c1, c2, c3;
 	ngx_str_t  * arg;
 	enum _lstate {
 		sw_start = 0,
@@ -516,10 +516,10 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 			    if(ch == ' ' || ch == __CR || ch == LF) {
 				    c = s->cmd_start;
 				    if(p - c == 4) {
-					    c0 = ngx_toupper(c[0]);
-					    c1 = ngx_toupper(c[1]);
-					    c2 = ngx_toupper(c[2]);
-					    c3 = ngx_toupper(c[3]);
+					    c0 = stoupper_ascii(c[0]);
+					    c1 = stoupper_ascii(c[1]);
+					    c2 = stoupper_ascii(c[2]);
+					    c3 = stoupper_ascii(c[3]);
 					    if(c0 == 'H' && c1 == 'E' && c2 == 'L' && c3 == 'O') {
 						    s->command = NGX_SMTP_HELO;
 					    }
@@ -681,7 +681,7 @@ ngx_int_t ngx_mail_auth_parse(ngx_mail_session_t * s, ngx_connection_t * c)
 	}
 	arg = static_cast<ngx_str_t *>(s->args.elts);
 	if(arg[0].len == 5) {
-		if(ngx_strncasecmp(arg[0].data, (u_char *)"LOGIN", 5) == 0) {
+		if(ngx_strncasecmp(arg[0].data, (uchar *)"LOGIN", 5) == 0) {
 			if(s->args.nelts == 1) {
 				return NGX_MAIL_AUTH_LOGIN;
 			}
@@ -690,7 +690,7 @@ ngx_int_t ngx_mail_auth_parse(ngx_mail_session_t * s, ngx_connection_t * c)
 			}
 			return NGX_MAIL_PARSE_INVALID_COMMAND;
 		}
-		if(ngx_strncasecmp(arg[0].data, (u_char *)"PLAIN", 5) == 0) {
+		if(ngx_strncasecmp(arg[0].data, (uchar *)"PLAIN", 5) == 0) {
 			if(s->args.nelts == 1) {
 				return NGX_MAIL_AUTH_PLAIN;
 			}
@@ -701,13 +701,13 @@ ngx_int_t ngx_mail_auth_parse(ngx_mail_session_t * s, ngx_connection_t * c)
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
 	if(arg[0].len == 8) {
-		if(ngx_strncasecmp(arg[0].data, (u_char *)"CRAM-MD5", 8) == 0) {
+		if(ngx_strncasecmp(arg[0].data, (uchar *)"CRAM-MD5", 8) == 0) {
 			if(s->args.nelts != 1) {
 				return NGX_MAIL_PARSE_INVALID_COMMAND;
 			}
 			return NGX_MAIL_AUTH_CRAM_MD5;
 		}
-		if(ngx_strncasecmp(arg[0].data, (u_char *)"EXTERNAL", 8) == 0) {
+		if(ngx_strncasecmp(arg[0].data, (uchar *)"EXTERNAL", 8) == 0) {
 			if(s->args.nelts == 1) {
 				return NGX_MAIL_AUTH_EXTERNAL;
 			}

@@ -7,10 +7,10 @@
 #pragma hdrstop
 
 struct ngx_http_limit_conn_node_t {
-	u_char color;
-	u_char len;
-	u_short conn;
-	u_char data[1];
+	uchar color;
+	uchar len;
+	ushort conn;
+	uchar data[1];
 };
 
 struct ngx_http_limit_conn_cleanup_t {
@@ -142,7 +142,7 @@ static ngx_int_t ngx_http_limit_conn_handler(ngx_http_request_t * r)
 			}
 			lc = (ngx_http_limit_conn_node_t*)&node->color;
 			node->key = hash;
-			lc->len = (u_char)key.len;
+			lc->len = (uchar)key.len;
 			lc->conn = 1;
 			memcpy(lc->data, key.data, key.len);
 			ngx_rbtree_insert(ctx->rbtree, node);
@@ -288,7 +288,7 @@ static ngx_int_t ngx_http_limit_conn_init_zone(ngx_shm_zone_t * shm_zone, void *
 	}
 	ngx_rbtree_init(ctx->rbtree, sentinel, ngx_http_limit_conn_rbtree_insert_value);
 	len = sizeof(" in limit_conn_zone \"\"") + shm_zone->shm.name.len;
-	shpool->log_ctx = (u_char *)ngx_slab_alloc(shpool, len);
+	shpool->log_ctx = (uchar *)ngx_slab_alloc(shpool, len);
 	if(shpool->log_ctx == NULL) {
 		return NGX_ERROR;
 	}
@@ -325,7 +325,7 @@ static char * ngx_http_limit_conn_merge_conf(ngx_conf_t * cf, void * parent, voi
 
 static const char * ngx_http_limit_conn_zone(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	u_char   * p;
+	uchar   * p;
 	ssize_t size;
 	ngx_str_t name, s;
 	ngx_uint_t i;
@@ -348,7 +348,7 @@ static const char * ngx_http_limit_conn_zone(ngx_conf_t * cf, const ngx_command_
 	for(i = 2; i < cf->args->nelts; i++) {
 		if(ngx_strncmp(value[i].data, "zone=", 5) == 0) {
 			name.data = value[i].data + 5;
-			p = (u_char *)ngx_strchr(name.data, ':');
+			p = (uchar *)ngx_strchr(name.data, ':');
 			if(!p) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;

@@ -7,10 +7,10 @@
 #pragma hdrstop
 //#include <ngx_event.h>
 
-ssize_t ngx_wsasend(ngx_connection_t * c, u_char * buf, size_t size)
+ssize_t ngx_wsasend(ngx_connection_t * c, uchar * buf, size_t size)
 {
 	int n;
-	u_long sent;
+	ulong sent;
 	ngx_err_t err;
 	WSABUF wsabuf;
 	ngx_event_t  * wev = c->P_EvWr;
@@ -44,10 +44,10 @@ ssize_t ngx_wsasend(ngx_connection_t * c, u_char * buf, size_t size)
 	return NGX_ERROR;
 }
 
-ssize_t ngx_overlapped_wsasend(ngx_connection_t * c, u_char * buf, size_t size)
+ssize_t ngx_overlapped_wsasend(ngx_connection_t * c, uchar * buf, size_t size)
 {
 	int n;
-	u_long sent;
+	ulong sent;
 	ngx_err_t err;
 	LPWSAOVERLAPPED ovlp;
 	WSABUF wsabuf;

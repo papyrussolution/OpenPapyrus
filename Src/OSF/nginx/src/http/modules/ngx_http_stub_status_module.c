@@ -112,7 +112,7 @@ static ngx_int_t ngx_http_stub_status_handler(ngx_http_request_t * r)
 static ngx_int_t ngx_http_stub_status_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_atomic_int_t value;
-	u_char * p = (u_char *)ngx_pnalloc(r->pool, NGX_ATOMIC_T_LEN);
+	uchar * p = (uchar *)ngx_pnalloc(r->pool, NGX_ATOMIC_T_LEN);
 	if(!p) {
 		return NGX_ERROR;
 	}

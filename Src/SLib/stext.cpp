@@ -1475,20 +1475,6 @@ uint8 FASTCALL hextobyte(const char * pBuf)
 // @v11.3.6 (inlined) int FASTCALL isasciialnum(char ch) { return ((ch >= '0' && ch <= '9') || (((uchar)(ch | 32) - 97) < 26U)); }
 // @v10.9.3 (replaced with isasciialpha) int FASTCALL IsLetterASCII(int ch) { return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')); }
 
-int FASTCALL IsLetter866(int alpha)
-{
-#define U ((uint8)alpha)
-	return (U < 0x80U || (U > 0xafU && (U < 0xe0U || U > 0xf1U))) ? 0 : 1;
-#undef U
-}
-
-int FASTCALL IsLetter1251(int alpha)
-{
-#define U ((uint8)alpha)
-	return BIN((U >= 0xc0U && U <= 0xdfU) || (U >= 0xe0U && U <= 0xffU) || oneof2(U, 0xa8U, 0xb8U));
-#undef U
-}
-
 int FASTCALL ToLower1251(int alpha)
 {
 	uint   ch = (alpha & 0x00ff);

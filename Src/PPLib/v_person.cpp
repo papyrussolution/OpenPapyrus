@@ -2608,7 +2608,7 @@ int PPViewPerson::SendMail(PPID mailAccId, const StrAssocArray * pMailList, PPLo
 				fmb.PersonID = pMailList->Get(i).Id;
 				const  char * p_mail_addr = pMailList->Get(i).Txt;
 				SString text, subj;
-				if(i && data.Delay > 0 && data.Delay <= (SSECSPERDAY * 1000)) {
+				if(i && data.Delay > 0 && data.Delay <= (SlConst::SecsPerDay * 1000)) {
 					SDelay(data.Delay);
 				}
 				PPSmsSender::FormatMessage_(data.Text, text, &fmb);

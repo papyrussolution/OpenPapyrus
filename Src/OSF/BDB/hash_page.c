@@ -527,25 +527,19 @@ static int __ham_getindex_unsorted(DBC * dbc, PAGE * p, const DBT * key, int * m
 			/* extract item length from possibly unaligned DBT */
 			memcpy(&tlen, HOFFPAGE_TLEN(hk), sizeof(uint32));
 			if(tlen == key->size) {
-				memcpy(&pgno,
-					HOFFPAGE_PGNO(hk), sizeof(db_pgno_t));
-				if((ret = __db_moff(dbc, key, pgno, tlen,
-					    t->h_compare, &res)) != 0)
+				memcpy(&pgno, HOFFPAGE_PGNO(hk), sizeof(db_pgno_t));
+				if((ret = __db_moff(dbc, key, pgno, tlen, t->h_compare, &res)) != 0)
 					return ret;
 			}
 			break;
 		    case H_KEYDATA:
 			if(t->h_compare != NULL) {
-				DB_INIT_DBT(pg_dbt,
-					HKEYDATA_DATA(hk), key->size);
-				if(t->h_compare(
-					   dbp, key, &pg_dbt) != 0)
+				DB_INIT_DBT(pg_dbt, HKEYDATA_DATA(hk), key->size);
+				if(t->h_compare(dbp, key, &pg_dbt) != 0)
 					break;
 			}
-			else if(key->size ==
-			        LEN_HKEY(dbp, p, dbp->pgsize, i))
-				res = memcmp(key->data, HKEYDATA_DATA(hk),
-					key->size);
+			else if(key->size == LEN_HKEY(dbp, p, dbp->pgsize, i))
+				res = memcmp(key->data, HKEYDATA_DATA(hk), key->size);
 			break;
 		    case H_DUPLICATE:
 		    case H_OFFDUP:

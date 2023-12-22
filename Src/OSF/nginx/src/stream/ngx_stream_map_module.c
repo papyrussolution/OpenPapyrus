@@ -274,7 +274,7 @@ static int ngx_libc_cdecl ngx_stream_map_cmp_dns_wildcards(const void * one, con
 
 static const char * ngx_stream_map(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf) // F_SetHandler
 {
-	u_char * data;
+	uchar * data;
 	size_t len;
 	ngx_int_t rv;
 	ngx_str_t v;
@@ -353,7 +353,7 @@ static const char * ngx_stream_map(ngx_conf_t * cf, const ngx_command_t * dummy,
 		}
 		*cvp = cv;
 		var->len = 0;
-		var->data = (u_char *)cvp;
+		var->data = (uchar *)cvp;
 		var->valid = 0;
 	}
 	else {
@@ -381,7 +381,7 @@ found:
 	if(value[0].len && value[0].data[0] == '~') {
 		ngx_regex_compile_t rc;
 		ngx_stream_map_regex_t  * regex;
-		u_char errstr[NGX_MAX_CONF_ERRSTR];
+		uchar errstr[NGX_MAX_CONF_ERRSTR];
 		regex = (ngx_stream_map_regex_t *)ngx_array_push(&ctx->regexes);
 		if(regex == NULL) {
 			return NGX_CONF_ERROR;

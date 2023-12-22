@@ -53,8 +53,7 @@ template <class T> ABSL_MUST_USE_RESULT constexpr typename std::enable_if<std::i
 // Counting functions
 //
 // While these functions are typically constexpr, on some platforms, they may
-// not be marked as constexpr due to constraints of the compiler/available
-// intrinsics.
+// not be marked as constexpr due to constraints of the compiler/available intrinsics.
 template <class T> ABSL_INTERNAL_CONSTEXPR_CLZ inline typename std::enable_if<std::is_unsigned<T>::value, int>::type countl_zero(T x) noexcept 
 {
 	return numeric_internal::CountLeadingZeroes(x);

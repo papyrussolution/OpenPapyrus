@@ -40,15 +40,13 @@
     <ClCompile Include="..\PPTEST\UNIT\test-edlib.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-image.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-libdivide.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-fts.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\libdivide\constant_fast_div.h">
       <Filter>libdivide</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\libdivide\constant_fast_div.hpp">
-      <Filter>libdivide</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\libdivide\libdivide.h">
       <Filter>libdivide</Filter>
     </ClInclude>
   </ItemGroup>

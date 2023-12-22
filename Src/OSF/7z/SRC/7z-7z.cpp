@@ -1931,7 +1931,7 @@ namespace NArchive {
 				return;
 			wchar_t * s = path.GetBuf((uint)size - 1);
 			const Byte * p = ((const Byte *)NamesBuf + offset * 2);
-		  #if defined(_WIN32) && defined(MY_CPU_LE)
+		  #if defined(_WIN32) && defined(SL_LITTLEENDIAN)
 			wmemcpy(s, (const wchar_t *)p, size);
 		  #else
 			for(size_t i = 0; i < size; i++) {
@@ -2160,10 +2160,8 @@ namespace NArchive {
 						CNum numBonds = numCoders - 1;
 						if(numInStreams < numBonds)
 							ThrowUnsupported();
-
 						BoolVector_Fill_False(StreamUsed, numInStreams);
 						BoolVector_Fill_False(CoderUsed, numCoders);
-
 						for(i = 0; i < numBonds; i++) {
 							CNum index = ReadNum();
 							if(index >= numInStreams || StreamUsed[index])

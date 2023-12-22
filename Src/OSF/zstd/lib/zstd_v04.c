@@ -1532,19 +1532,16 @@ static size_t HUF_readDTableX2(uint16* DTable, const void* src, size_t srcSize)
 		nextRankStart += (rankVal[n] << (n-1));
 		rankVal[n] = current;
 	}
-
 	/* fill DTable */
 	for(n = 0; n<nbSymbols; n++) {
 		const uint32 w = huffWeight[n];
 		const uint32 length = (1 << w) >> 1;
-		uint32 i;
 		HUF_DEltX2 D;
 		D.byte = (BYTE)n; D.nbBits = (BYTE)(tableLog + 1 - w);
-		for(i = rankVal[w]; i < rankVal[w] + length; i++)
+		for(uint32 i = rankVal[w]; i < rankVal[w] + length; i++)
 			dt[i] = D;
 		rankVal[w] += length;
 	}
-
 	return iSize;
 }
 
@@ -1780,14 +1777,12 @@ static void HUF_fillDTableX4(HUF_DEltX4* DTable, const uint32 targetLog,
 			    nbBitsBaseline, symbol);
 		}
 		else {
-			uint32 i;
 			const uint32 end = start + length;
 			HUF_DEltX4 DElt;
-
 			SMem::PutLe(&(DElt.sequence), symbol);
 			DElt.nbBits   = (BYTE)(nbBits);
 			DElt.length   = 1;
-			for(i = start; i < end; i++)
+			for(uint32 i = start; i < end; i++)
 				DTable[i] = DElt;
 		}
 		rankVal[weight] += length;

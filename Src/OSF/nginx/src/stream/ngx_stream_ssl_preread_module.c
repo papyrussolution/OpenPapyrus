@@ -13,9 +13,9 @@ typedef struct {
 typedef struct {
 	size_t left;
 	size_t size;
-	u_char  * pos;
-	u_char  * dst;
-	u_char buf[4];
+	uchar  * pos;
+	uchar  * dst;
+	uchar buf[4];
 	ngx_str_t host;
 	ngx_log_t * log;
 	ngx_pool_t   * pool;
@@ -23,7 +23,7 @@ typedef struct {
 } ngx_stream_ssl_preread_ctx_t;
 
 static ngx_int_t ngx_stream_ssl_preread_handler(ngx_stream_session_t * s);
-static ngx_int_t ngx_stream_ssl_preread_parse_record(ngx_stream_ssl_preread_ctx_t * ctx, u_char * pos, u_char * last);
+static ngx_int_t ngx_stream_ssl_preread_parse_record(ngx_stream_ssl_preread_ctx_t * ctx, uchar * pos, uchar * last);
 static ngx_int_t ngx_stream_ssl_preread_server_name_variable(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_stream_ssl_preread_add_variables(ngx_conf_t * cf);
 static void * ngx_stream_ssl_preread_create_srv_conf(ngx_conf_t * cf);
@@ -77,7 +77,7 @@ static ngx_stream_variable_t ngx_stream_ssl_preread_vars[] = {
 
 static ngx_int_t ngx_stream_ssl_preread_handler(ngx_stream_session_t * s)
 {
-	u_char * last, * p;
+	uchar * last, * p;
 	size_t len;
 	ngx_int_t rc;
 	ngx_connection_t * c;
@@ -146,10 +146,10 @@ static ngx_int_t ngx_stream_ssl_preread_handler(ngx_stream_session_t * s)
 }
 
 static ngx_int_t ngx_stream_ssl_preread_parse_record(ngx_stream_ssl_preread_ctx_t * ctx,
-    u_char * pos, u_char * last)
+    uchar * pos, uchar * last)
 {
 	size_t left, n, size;
-	u_char  * dst, * p;
+	uchar  * dst, * p;
 
 	enum _lstate {
 		sw_start = 0,
@@ -295,7 +295,7 @@ static ngx_int_t ngx_stream_ssl_preread_parse_record(ngx_stream_ssl_preread_ctx_
 			    state = sw_sni_host;
 			    size = (p[1] << 8) + p[2];
 
-			    ctx->host.data = (u_char *)ngx_pnalloc(ctx->pool, size);
+			    ctx->host.data = (uchar *)ngx_pnalloc(ctx->pool, size);
 			    if(ctx->host.data == NULL) {
 				    return NGX_ERROR;
 			    }

@@ -1747,33 +1747,15 @@ const char* ImStrSkipBlank(const char* str)
 // Ideally we would test for only one of those limits at runtime depending on the behavior the vsnprintf(), but trying to deduct it at compile time sounds like a pandora can of worm.
 // B) When buf==NULL vsnprintf() will return the output size.
 #ifndef IMGUI_DISABLE_DEFAULT_FORMAT_FUNCTIONS
-
-// We support stb_sprintf which is much faster (see: https://github.com/nothings/stb/blob/master/stb_sprintf.h)
-// You may set IMGUI_USE_STB_SPRINTF to use our default wrapper, or set IMGUI_DISABLE_DEFAULT_FORMAT_FUNCTIONS
-// and setup the wrapper yourself. (FIXME-OPT: Some of our high-level operations such as ImGuiTextBuffer::appendfv() are
-// designed using two-passes worst case, which probably could be improved using the stbsp_vsprintfcb() function.)
-#ifdef IMGUI_USE_STB_SPRINTF
-#define STB_SPRINTF_IMPLEMENTATION
-#ifdef IMGUI_STB_SPRINTF_FILENAME
-#include IMGUI_STB_SPRINTF_FILENAME
-#else
-#include "stb_sprintf.h"
-#endif
-#endif
-
 #if defined(_MSC_VER) && !defined(vsnprintf)
-#define vsnprintf _vsnprintf
+	#define vsnprintf _vsnprintf
 #endif
 
 int ImFormatString(char* buf, size_t buf_size, const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-#ifdef IMGUI_USE_STB_SPRINTF
-	int w = stbsp_vsnprintf(buf, (int)buf_size, fmt, args);
-#else
 	int w = vsnprintf(buf, buf_size, fmt, args);
-#endif
 	va_end(args);
 	if(buf == NULL)
 		return w;
@@ -1785,11 +1767,7 @@ int ImFormatString(char* buf, size_t buf_size, const char* fmt, ...)
 
 int ImFormatStringV(char* buf, size_t buf_size, const char* fmt, va_list args)
 {
-#ifdef IMGUI_USE_STB_SPRINTF
-	int w = stbsp_vsnprintf(buf, (int)buf_size, fmt, args);
-#else
 	int w = vsnprintf(buf, buf_size, fmt, args);
-#endif
 	if(buf == NULL)
 		return w;
 	if(w == -1 || w >= (int)buf_size)
@@ -3377,7 +3355,7 @@ void ImGui::RenderMouseCursor(ImVec2 base_pos, float base_scale, ImGuiMouseCurso
 {
 	ImGuiContext & g = *GImGui;
 	assert(mouse_cursor > ImGuiMouseCursor_None && mouse_cursor < ImGuiMouseCursor_COUNT);
-	ImFontAtlas* font_atlas = g.DrawListSharedData.Font->ContainerAtlas;
+	ImFontAtlas * font_atlas = g.DrawListSharedData.Font->ContainerAtlas;
 	for(int n = 0; n < g.Viewports.Size; n++) {
 		// We scale cursor with current viewport/monitor, however Windows 10 for its own hardware cursor seems to be using a different scale factor.
 		ImVec2 offset, size, uv[4];
@@ -3393,18 +3371,17 @@ void ImGui::RenderMouseCursor(ImVec2 base_pos, float base_scale, ImGuiMouseCurso
 		draw_list->PushTextureID(tex_id);
 		draw_list->AddImage(tex_id, pos + ImVec2(1, 0) * scale, pos + (ImVec2(1, 0) + size) * scale, uv[2], uv[3], col_shadow);
 		draw_list->AddImage(tex_id, pos + ImVec2(2, 0) * scale, pos + (ImVec2(2, 0) + size) * scale, uv[2], uv[3], col_shadow);
-		draw_list->AddImage(tex_id, pos,                        pos + size * scale,                  uv[2], uv[3], col_border);
-		draw_list->AddImage(tex_id, pos,                        pos + size * scale,                  uv[0], uv[1], col_fill);
+		draw_list->AddImage(tex_id, pos, pos + size * scale, uv[2], uv[3], col_border);
+		draw_list->AddImage(tex_id, pos, pos + size * scale, uv[0], uv[1], col_fill);
 		draw_list->PopTextureID();
 	}
 }
-
-//-----------------------------------------------------------------------------
+//
 // [SECTION] INITIALIZATION, SHUTDOWN
-//-----------------------------------------------------------------------------
-
+//
 // Internal state access - if you want to share Dear ImGui state between modules (e.g. DLL) or allocate it yourself
 // Note that we still point to some static data and members (such as GFontAtlas), so the state instance you end up using will point to the static data within its module
+//
 ImGuiContext* ImGui::GetCurrentContext()
 {
 	return GImGui;
@@ -3768,7 +3745,6 @@ void ImGui::GcAwakeTransientWindowBuffers(ImGuiWindow * window)
 void ImGui::SetActiveID(ImGuiID id, ImGuiWindow * window)
 {
 	ImGuiContext & g = *GImGui;
-
 	// Clear previous active id
 	if(g.ActiveId != 0) {
 		// While most behaved code would make an effort to not steal active id during window move/drag operations,
@@ -3778,22 +3754,17 @@ void ImGui::SetActiveID(ImGuiID id, ImGuiWindow * window)
 			IMGUI_DEBUG_LOG_ACTIVEID("SetActiveID() cancel MovingWindow\n");
 			g.MovingWindow = NULL;
 		}
-
 		// This could be written in a more general way (e.g associate a hook to ActiveId),
 		// but since this is currently quite an exception we'll leave it as is.
 		// One common scenario leading to this is: pressing Key ->NavMoveRequestApplyResult() -> ClearActiveId()
 		if(g.InputTextState.ID == g.ActiveId)
 			InputTextDeactivateHook(g.ActiveId);
 	}
-
 	// Set active id
 	g.ActiveIdIsJustActivated = (g.ActiveId != id);
 	if(g.ActiveIdIsJustActivated) {
 		IMGUI_DEBUG_LOG_ACTIVEID("SetActiveID() old:0x%08X (window \"%s\") -> new:0x%08X (window \"%s\")\n",
-		    g.ActiveId,
-		    g.ActiveIdWindow ? g.ActiveIdWindow->Name : "",
-		    id,
-		    window ? window->Name : "");
+		    g.ActiveId, g.ActiveIdWindow ? g.ActiveIdWindow->Name : "", id, window ? window->Name : "");
 		g.ActiveIdTimer = 0.0f;
 		g.ActiveIdHasBeenPressedBefore = false;
 		g.ActiveIdHasBeenEditedBefore = false;
@@ -4187,7 +4158,7 @@ void ImGui::StartMouseMovingWindow(ImGuiWindow * window)
 void ImGui::UpdateMouseMovingWindowNewFrame()
 {
 	ImGuiContext & g = *GImGui;
-	if(g.MovingWindow != NULL) {
+	if(g.MovingWindow) {
 		// We actually want to move the root window. g.MovingWindow == window we clicked on (could be a child window).
 		// We track it to preserve Focus and so that generally ActiveIdWindow == MovingWindow and ActiveId == MovingWindow->MoveId for consistency.
 		KeepAliveID(g.ActiveId);
@@ -4220,11 +4191,9 @@ void ImGui::UpdateMouseMovingWindowEndFrame()
 	ImGuiContext & g = *GImGui;
 	if(g.ActiveId != 0 || g.HoveredId != 0)
 		return;
-
 	// Unless we just made a window/popup appear
 	if(g.NavWindow && g.NavWindow->Appearing)
 		return;
-
 	// Click on empty space to focus window and start moving
 	// (after we're done with all our widgets)
 	if(g.IO.MouseClicked[0]) {
@@ -4232,15 +4201,12 @@ void ImGui::UpdateMouseMovingWindowEndFrame()
 		// If we try to focus it, FocusWindow() > ClosePopupsOverWindow() will accidentally close any parent popups because they are not linked together any more.
 		ImGuiWindow* root_window = g.HoveredWindow ? g.HoveredWindow->RootWindow : NULL;
 		const bool is_closed_popup = root_window && (root_window->Flags & ImGuiWindowFlags_Popup) && !IsPopupOpen(root_window->PopupId, ImGuiPopupFlags_AnyPopupLevel);
-
 		if(root_window != NULL && !is_closed_popup) {
 			StartMouseMovingWindow(g.HoveredWindow); //-V595
-
 			// Cancel moving if clicked outside of title bar
 			if(g.IO.ConfigWindowsMoveFromTitleBarOnly && !(root_window->Flags & ImGuiWindowFlags_NoTitleBar))
 				if(!root_window->TitleBarRect().Contains(g.IO.MouseClickedPos[0]))
 					g.MovingWindow = NULL;
-
 			// Cancel moving if clicked over an item which was disabled or inhibited by popups (note that we know HoveredId == 0 already)
 			if(g.HoveredIdDisabled)
 				g.MovingWindow = NULL;
@@ -4250,7 +4216,6 @@ void ImGui::UpdateMouseMovingWindowEndFrame()
 			FocusWindow(NULL);
 		}
 	}
-
 	// With right mouse button we close popups without changing focus based on where the mouse is aimed
 	// Instead, focus will be restored to the window under the bottom-most closed popup.
 	// (The left mouse button path calls FocusWindow on the hovered window, which will lead NewFrame->ClosePopupsOverWindow to trigger)
@@ -4280,16 +4245,13 @@ void ImGui::UpdateHoveredWindowAndCaptureFlags()
 	// - We also support the moved window toggling the NoInputs flag after moving has started in order to be able to detect windows below it, which is useful for e.g. docking mechanisms.
 	bool clear_hovered_windows = false;
 	FindHoveredWindow();
-
 	// Modal windows prevents mouse from hovering behind them.
 	ImGuiWindow* modal_window = GetTopMostPopupModal();
 	if(modal_window && g.HoveredWindow && !IsWindowWithinBeginStackOf(g.HoveredWindow->RootWindow, modal_window))
 		clear_hovered_windows = true;
-
 	// Disabled mouse?
 	if(io.ConfigFlags & ImGuiConfigFlags_NoMouse)
 		clear_hovered_windows = true;
-
 	// We track click ownership. When clicked outside of a window the click is owned by the application and
 	// won't report hovering nor request capture even while dragging over our windows afterward.
 	const bool has_open_popup = (g.OpenPopupStack.Size > 0);
@@ -4308,16 +4270,13 @@ void ImGui::UpdateHoveredWindowAndCaptureFlags()
 	}
 	const bool mouse_avail = (mouse_earliest_down == -1) || io.MouseDownOwned[mouse_earliest_down];
 	const bool mouse_avail_unless_popup_close = (mouse_earliest_down == -1) || io.MouseDownOwnedUnlessPopupClose[mouse_earliest_down];
-
 	// If mouse was first clicked outside of ImGui bounds we also cancel out hovering.
 	// FIXME: For patterns of drag and drop across OS windows, we may need to rework/remove this test (first committed 311c0ca9 on 2015/02)
 	const bool mouse_dragging_extern_payload = g.DragDropActive && (g.DragDropSourceFlags & ImGuiDragDropFlags_SourceExtern) != 0;
 	if(!mouse_avail && !mouse_dragging_extern_payload)
 		clear_hovered_windows = true;
-
 	if(clear_hovered_windows)
 		g.HoveredWindow = g.HoveredWindowUnderMovingWindow = NULL;
-
 	// Update io.WantCaptureMouse for the user application (true = dispatch mouse info to Dear ImGui only, false = dispatch mouse to Dear ImGui + underlying app)
 	// Update io.WantCaptureMouseAllowPopupClose (experimental) to give a chance for app to react to popup closure with a drag
 	if(g.WantCaptureMouseNextFrame != -1) {
@@ -4335,7 +4294,6 @@ void ImGui::UpdateHoveredWindowAndCaptureFlags()
 		io.WantCaptureKeyboard = (g.ActiveId != 0) || (modal_window != NULL);
 	if(io.NavActive && (io.ConfigFlags & ImGuiConfigFlags_NavEnableKeyboard) && !(io.ConfigFlags & ImGuiConfigFlags_NavNoCaptureKeyboard))
 		io.WantCaptureKeyboard = true;
-
 	// Update io.WantTextInput flag, this is to allow systems without a keyboard (e.g. mobile, hand-held) to show a software keyboard if possible
 	io.WantTextInput = (g.WantTextInputNextFrame != -1) ? (g.WantTextInputNextFrame != 0) : false;
 }
@@ -4461,7 +4419,6 @@ void ImGui::NewFrame()
 			assert(0); // Other values unsupported
 	}
 #endif
-
 	// Update hover delay for IsItemHovered() with delays and tooltips
 	g.HoverDelayIdPreviousFrame = g.HoverDelayId;
 	if(g.HoverDelayId != 0) {
@@ -4528,12 +4485,10 @@ void ImGui::NewFrame()
 		window->WriteAccessed = false;
 		window->BeginCountPreviousFrame = window->BeginCount;
 		window->BeginCount = 0;
-
 		// Garbage collect transient buffers of recently unused windows
 		if(!window->WasActive && !window->MemoryCompacted && window->LastTimeActive < memory_compact_start_time)
 			GcCompactTransientWindowBuffers(window);
 	}
-
 	// Garbage collect transient buffers of recently unused tables
 	for(int i = 0; i < g.TablesLastTimeActive.Size; i++)
 		if(g.TablesLastTimeActive[i] >= 0.0f && g.TablesLastTimeActive[i] < memory_compact_start_time)
@@ -5592,31 +5547,28 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow * window, const ImVec2 &
 	const float grip_draw_size = IM_FLOOR(smax(g.FontSize * 1.35f, window->WindowRounding + 1.0f + g.FontSize * 0.2f));
 	const float grip_hover_inner_size = IM_FLOOR(grip_draw_size * 0.75f);
 	const float grip_hover_outer_size = g.IO.ConfigWindowsResizeFromEdges ? WINDOWS_HOVER_PADDING : 0.0f;
-
 	ImVec2 pos_target(FLT_MAX, FLT_MAX);
 	ImVec2 size_target(FLT_MAX, FLT_MAX);
-
 	// Resize grips and borders are on layer 1
 	window->DC.NavLayerCurrent = ImGuiNavLayer_Menu;
-
 	// Manual resize grips
 	PushID("#RESIZE");
 	for(int resize_grip_n = 0; resize_grip_n < resize_grip_count; resize_grip_n++) {
 		const ImGuiResizeGripDef& def = resize_grip_def[resize_grip_n];
 		const ImVec2 corner = ImLerp(window->Pos, window->Pos + window->Size, def.CornerPosN);
-
 		// Using the FlattenChilds button flag we make the resize button accessible even if we are hovering over a child window
 		bool hovered, held;
 		ImRect resize_rect(corner - def.InnerDir * grip_hover_outer_size, corner + def.InnerDir * grip_hover_inner_size);
-		if(resize_rect.Min.x > resize_rect.Max.x)  ImSwap(resize_rect.Min.x, resize_rect.Max.x);
-		if(resize_rect.Min.y > resize_rect.Max.y)  ImSwap(resize_rect.Min.y, resize_rect.Max.y);
+		if(resize_rect.Min.x > resize_rect.Max.x)  
+			ImSwap(resize_rect.Min.x, resize_rect.Max.x);
+		if(resize_rect.Min.y > resize_rect.Max.y)  
+			ImSwap(resize_rect.Min.y, resize_rect.Max.y);
 		ImGuiID resize_grip_id = window->GetID(resize_grip_n); // == GetWindowResizeCornerID()
 		ItemAdd(resize_rect, resize_grip_id, NULL, ImGuiItemFlags_NoNav);
 		ButtonBehavior(resize_rect, resize_grip_id, &hovered, &held, ImGuiButtonFlags_FlattenChildren | ImGuiButtonFlags_NoNavFocus);
 		//GetForegroundDrawList(window)->AddRect(resize_rect.Min, resize_rect.Max, IM_COL32(255, 255, 0, 255));
 		if(hovered || held)
 			g.MouseCursor = (resize_grip_n & 1) ? ImGuiMouseCursor_ResizeNESW : ImGuiMouseCursor_ResizeNWSE;
-
 		if(held && g.IO.MouseClickedCount[0] == 2 && resize_grip_n == 0) {
 			// Manual auto-fit when double-clicking
 			size_target = CalcWindowSizeAfterConstraint(window, size_auto_fit);
@@ -5629,12 +5581,10 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow * window, const ImVec2 &
 			ImVec2 clamp_min = ImVec2(def.CornerPosN.x == 1.0f ? visibility_rect.Min.x : -FLT_MAX, def.CornerPosN.y == 1.0f ? visibility_rect.Min.y : -FLT_MAX);
 			ImVec2 clamp_max = ImVec2(def.CornerPosN.x == 0.0f ? visibility_rect.Max.x : +FLT_MAX, def.CornerPosN.y == 0.0f ? visibility_rect.Max.y : +FLT_MAX);
 			ImVec2 corner_target = g.IO.MousePos - g.ActiveIdClickOffset + ImLerp(def.InnerDir * grip_hover_outer_size,
-				def.InnerDir * -grip_hover_inner_size,
-				def.CornerPosN);                                                                                                                                // Corner of the window corresponding to our corner grip
+				def.InnerDir * -grip_hover_inner_size, def.CornerPosN); // Corner of the window corresponding to our corner grip
 			corner_target = sclamp(corner_target, clamp_min, clamp_max);
 			CalcResizePosSizeFromAnyCorner(window, corner_target, def.CornerPosN, &pos_target, &size_target);
 		}
-
 		// Only lower-left grip is visible before hovering/activating
 		if(resize_grip_n == 0 || held || hovered)
 			resize_grip_col[resize_grip_n] = GetColorU32(held ? ImGuiCol_ResizeGripActive : hovered ? ImGuiCol_ResizeGripHovered : ImGuiCol_ResizeGrip);
@@ -5642,7 +5592,6 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow * window, const ImVec2 &
 	for(int border_n = 0; border_n < resize_border_count; border_n++) {
 		const ImGuiResizeBorderDef& def = resize_border_def[border_n];
 		const ImGuiAxis axis = (border_n == ImGuiDir_Left || border_n == ImGuiDir_Right) ? ImGuiAxis_X : ImGuiAxis_Y;
-
 		bool hovered, held;
 		ImRect border_rect = GetResizeBorderRect(window, border_n, grip_hover_inner_size, WINDOWS_HOVER_PADDING);
 		ImGuiID border_id = window->GetID(border_n + 4); // == GetWindowResizeBorderID()
@@ -5664,10 +5613,8 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow * window, const ImVec2 &
 		}
 	}
 	PopID();
-
 	// Restore nav layer
 	window->DC.NavLayerCurrent = ImGuiNavLayer_Main;
-
 	// Navigation resize (keyboard/gamepad)
 	// FIXME: This cannot be moved to NavUpdateWindowing() because CalcWindowSizeAfterConstraint() need to callback into user.
 	// Not even sure the callback works here.
@@ -5693,7 +5640,6 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow * window, const ImVec2 &
 			}
 		}
 	}
-
 	// Apply back modified position/size to window
 	if(size_target.x != FLT_MAX) {
 		window->SizeFull = size_target;
@@ -5703,7 +5649,6 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow * window, const ImVec2 &
 		window->Pos = ImFloor(pos_target);
 		MarkIniSettingsDirty(window);
 	}
-
 	window->Size = window->SizeFull;
 	return ret_auto_fit;
 }
@@ -12951,14 +12896,14 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 	enum { TRT_OuterRect, TRT_InnerRect, TRT_WorkRect, TRT_HostClipRect, TRT_InnerClipRect, TRT_BackgroundClipRect, TRT_ColumnsRect, TRT_ColumnsWorkRect, TRT_ColumnsClipRect,
 	       TRT_ColumnsContentHeadersUsed, TRT_ColumnsContentHeadersIdeal, TRT_ColumnsContentFrozen, TRT_ColumnsContentUnfrozen, TRT_Count };                                                                                                                                                                 // Tables Rect Type
 
-	const char* trt_rects_names[TRT_Count] =
-	{ "OuterRect", "InnerRect", "WorkRect", "HostClipRect", "InnerClipRect", "BackgroundClipRect", "ColumnsRect", "ColumnsWorkRect", "ColumnsClipRect",
-	  "ColumnsContentHeadersUsed", "ColumnsContentHeadersIdeal", "ColumnsContentFrozen", "ColumnsContentUnfrozen" };
+	const char* trt_rects_names[TRT_Count] = { 
+		"OuterRect", "InnerRect", "WorkRect", "HostClipRect", "InnerClipRect", "BackgroundClipRect", "ColumnsRect", "ColumnsWorkRect", "ColumnsClipRect",
+		"ColumnsContentHeadersUsed", "ColumnsContentHeadersIdeal", "ColumnsContentFrozen", "ColumnsContentUnfrozen" 
+	 };
 	if(cfg->ShowWindowsRectsType < 0)
 		cfg->ShowWindowsRectsType = WRT_WorkRect;
 	if(cfg->ShowTablesRectsType < 0)
 		cfg->ShowTablesRectsType = TRT_WorkRect;
-
 	struct Funcs {
 		static ImRect GetTableRect(ImGuiTable* table, int rect_type, int n)
 		{
@@ -12982,10 +12927,8 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 				return table->BgClipRect;
 			}
 			else if(rect_type == TRT_ColumnsRect) {
-				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->MinX,
-					   table->InnerClipRect.Min.y,
-					   c->MaxX,
-					   table->InnerClipRect.Min.y + table_instance->LastOuterHeight);
+				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->MinX, table->InnerClipRect.Min.y,
+					   c->MaxX, table->InnerClipRect.Min.y + table_instance->LastOuterHeight);
 			}
 			else if(rect_type == TRT_ColumnsWorkRect) {
 				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->WorkMinX, table->WorkRect.Min.y, c->WorkMaxX, table->WorkRect.Max.y);
@@ -12994,64 +12937,48 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 				ImGuiTableColumn* c = &table->Columns[n]; return c->ClipRect;
 			}
 			else if(rect_type == TRT_ColumnsContentHeadersUsed) {
-				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->WorkMinX,
-					   table->InnerClipRect.Min.y,
-					   c->ContentMaxXHeadersUsed,
-					   table->InnerClipRect.Min.y + table_instance->LastFirstRowHeight);
+				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->WorkMinX, table->InnerClipRect.Min.y,
+					   c->ContentMaxXHeadersUsed, table->InnerClipRect.Min.y + table_instance->LastFirstRowHeight);
 			}                                                                                                                                                                                                                                         // Note: y1/y2 not always accurate
 			else if(rect_type == TRT_ColumnsContentHeadersIdeal) {
-				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->WorkMinX,
-					   table->InnerClipRect.Min.y,
-					   c->ContentMaxXHeadersIdeal,
-					   table->InnerClipRect.Min.y + table_instance->LastFirstRowHeight);
+				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->WorkMinX, table->InnerClipRect.Min.y,
+					   c->ContentMaxXHeadersIdeal, table->InnerClipRect.Min.y + table_instance->LastFirstRowHeight);
 			}
 			else if(rect_type == TRT_ColumnsContentFrozen) {
-				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->WorkMinX,
-					   table->InnerClipRect.Min.y,
-					   c->ContentMaxXFrozen,
-					   table->InnerClipRect.Min.y + table_instance->LastFrozenHeight);
+				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->WorkMinX, table->InnerClipRect.Min.y,
+					   c->ContentMaxXFrozen, table->InnerClipRect.Min.y + table_instance->LastFrozenHeight);
 			}
 			else if(rect_type == TRT_ColumnsContentUnfrozen) {
-				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->WorkMinX,
-					   table->InnerClipRect.Min.y + table_instance->LastFrozenHeight,
-					   c->ContentMaxXUnfrozen,
-					   table->InnerClipRect.Max.y);
+				ImGuiTableColumn* c = &table->Columns[n]; return ImRect(c->WorkMinX, table->InnerClipRect.Min.y + table_instance->LastFrozenHeight,
+					   c->ContentMaxXUnfrozen, table->InnerClipRect.Max.y);
 			}
 			assert(0);
 			return ImRect();
 		}
-
 		static ImRect GetWindowRect(ImGuiWindow * window, int rect_type)
 		{
-			if(rect_type == WRT_OuterRect) {
-				return window->Rect();
-			}
-			else if(rect_type == WRT_OuterRectClipped) {
-				return window->OuterRectClipped;
-			}
-			else if(rect_type == WRT_InnerRect) {
-				return window->InnerRect;
-			}
-			else if(rect_type == WRT_InnerClipRect) {
-				return window->InnerClipRect;
-			}
-			else if(rect_type == WRT_WorkRect) {
-				return window->WorkRect;
-			}
-			else if(rect_type == WRT_Content) {
-				ImVec2 min = window->InnerRect.Min - window->Scroll + window->WindowPadding; return ImRect(min, min + window->ContentSize);
-			}
-			else if(rect_type == WRT_ContentIdeal) {
-				ImVec2 min = window->InnerRect.Min - window->Scroll + window->WindowPadding; return ImRect(min, min + window->ContentSizeIdeal);
-			}
-			else if(rect_type == WRT_ContentRegionRect) {
-				return window->ContentRegionRect;
+			switch(rect_type) {
+				case WRT_OuterRect: return window->Rect();
+				case WRT_OuterRectClipped: return window->OuterRectClipped;
+				case WRT_InnerRect: return window->InnerRect;
+				case WRT_InnerClipRect: return window->InnerClipRect;
+				case WRT_WorkRect: return window->WorkRect;
+				case WRT_Content:
+					{
+						ImVec2 min = window->InnerRect.Min - window->Scroll + window->WindowPadding; 
+						return ImRect(min, min + window->ContentSize);
+					}
+				case WRT_ContentIdeal:
+					{
+						ImVec2 min = window->InnerRect.Min - window->Scroll + window->WindowPadding; 
+						return ImRect(min, min + window->ContentSizeIdeal);
+					}
+				case WRT_ContentRegionRect: return window->ContentRegionRect;
 			}
 			assert(0);
 			return ImRect();
 		}
 	};
-
 	// Tools
 	if(TreeNode("Tools")) {
 		bool show_encoding_viewer = TreeNode("UTF-8 Encoding viewer");
@@ -13406,7 +13333,6 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 		}
 		TreePop();
 	}
-
 	if(TreeNode("Internal state")) {
 		Text("WINDOWING");
 		Indent();
@@ -13415,15 +13341,9 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 		Text("HoveredWindowUnderMovingWindow: '%s'", g.HoveredWindowUnderMovingWindow ? g.HoveredWindowUnderMovingWindow->Name : "NULL");
 		Text("MovingWindow: '%s'", g.MovingWindow ? g.MovingWindow->Name : "NULL");
 		Unindent();
-
 		Text("ITEMS");
 		Indent();
-		Text("ActiveId: 0x%08X/0x%08X (%.2f sec), AllowOverlap: %d, Source: %s",
-		    g.ActiveId,
-		    g.ActiveIdPreviousFrame,
-		    g.ActiveIdTimer,
-		    g.ActiveIdAllowOverlap,
-		    GetInputSourceName(g.ActiveIdSource));
+		Text("ActiveId: 0x%08X/0x%08X (%.2f sec), AllowOverlap: %d, Source: %s", g.ActiveId, g.ActiveIdPreviousFrame, g.ActiveIdTimer, g.ActiveIdAllowOverlap, GetInputSourceName(g.ActiveIdSource));
 		DebugLocateItemOnHover(g.ActiveId);
 		Text("ActiveIdWindow: '%s'", g.ActiveIdWindow ? g.ActiveIdWindow->Name : "NULL");
 		Text("ActiveIdUsing: AllKeyboardKeys: %d, NavDirMask: %X", g.ActiveIdUsingAllKeyboardKeys, g.ActiveIdUsingNavDirMask);
@@ -13474,7 +13394,6 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 			}
 		}
 	}
-
 	// Overlay: Display Tables Rectangles
 	if(cfg->ShowTablesRects) {
 		for(int table_n = 0; table_n < g.Tables.GetMapSize(); table_n++) {
@@ -13496,13 +13415,11 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 			}
 		}
 	}
-
 #ifdef IMGUI_HAS_DOCK
 	// Overlay: Display Docking info
 	if(show_docking_nodes && g.IO.KeyCtrl) {
 	}
 #endif // #ifdef IMGUI_HAS_DOCK
-
 	End();
 }
 
@@ -13526,13 +13443,8 @@ void ImGui::DebugNodeDrawList(ImGuiWindow * window, const ImDrawList* draw_list,
 	int cmd_count = draw_list->CmdBuffer.Size;
 	if(cmd_count > 0 && draw_list->CmdBuffer.back().ElemCount == 0 && draw_list->CmdBuffer.back().UserCallback == NULL)
 		cmd_count--;
-	bool node_open = TreeNode(draw_list,
-		"%s: '%s' %d vtx, %d indices, %d cmds",
-		label,
-		draw_list->_OwnerName ? draw_list->_OwnerName : "",
-		draw_list->VtxBuffer.Size,
-		draw_list->IdxBuffer.Size,
-		cmd_count);
+	bool node_open = TreeNode(draw_list, "%s: '%s' %d vtx, %d indices, %d cmds", label,
+		draw_list->_OwnerName ? draw_list->_OwnerName : "", draw_list->VtxBuffer.Size, draw_list->IdxBuffer.Size, cmd_count);
 	if(draw_list == GetWindowDrawList()) {
 		SameLine();
 		TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "CURRENTLY APPENDING"); // Can't display stats for active draw list! (we don't have the data double-buffered)
@@ -13540,16 +13452,13 @@ void ImGui::DebugNodeDrawList(ImGuiWindow * window, const ImDrawList* draw_list,
 			TreePop();
 		return;
 	}
-
 	ImDrawList* fg_draw_list = GetForegroundDrawList(window); // Render additional visuals into the top-most draw list
 	if(window && IsItemHovered() && fg_draw_list)
 		fg_draw_list->AddRect(window->Pos, window->Pos + window->Size, IM_COL32(255, 255, 0, 255));
 	if(!node_open)
 		return;
-
 	if(window && !window->WasActive)
 		TextDisabled("Warning: owning Window is inactive. This DrawList is not being rendered!");
-
 	for(const ImDrawCmd* pcmd = draw_list->CmdBuffer.Data; pcmd < draw_list->CmdBuffer.Data + cmd_count; pcmd++) {
 		if(pcmd->UserCallback) {
 			BulletText("Callback %p, user_data %p", pcmd->UserCallback, pcmd->UserCallbackData);
@@ -13577,25 +13486,19 @@ void ImGui::DebugNodeDrawList(ImGuiWindow * window, const ImDrawList* draw_list,
 				triangle[n] = vtx_buffer[idx_buffer ? idx_buffer[idx_n] : idx_n].pos;
 			total_area += ImTriangleArea(triangle[0], triangle[1], triangle[2]);
 		}
-
 		// Display vertex information summary. Hover to get all triangles drawn in wire-frame
-		ImFormatString(buf,
-		    SIZEOFARRAYi(buf),
-		    "Mesh: ElemCount: %d, VtxOffset: +%d, IdxOffset: +%d, Area: ~%0.f px",
-		    pcmd->ElemCount,
-		    pcmd->VtxOffset,
-		    pcmd->IdxOffset,
-		    total_area);
+		ImFormatString(buf, SIZEOFARRAYi(buf), "Mesh: ElemCount: %d, VtxOffset: +%d, IdxOffset: +%d, Area: ~%0.f px",
+		    pcmd->ElemCount, pcmd->VtxOffset, pcmd->IdxOffset, total_area);
 		Selectable(buf);
 		if(IsItemHovered() && fg_draw_list)
 			DebugNodeDrawCmdShowMeshAndBoundingBox(fg_draw_list, draw_list, pcmd, true, false);
-
 		// Display individual triangles/vertices. Hover on to get the corresponding triangle highlighted.
 		ImGuiListClipper clipper;
 		clipper.Begin(pcmd->ElemCount / 3); // Manually coarse clip our print out of individual vertices to save CPU, only items that may be visible.
 		while(clipper.Step())
 			for(int prim = clipper.DisplayStart, idx_i = pcmd->IdxOffset + clipper.DisplayStart * 3; prim < clipper.DisplayEnd; prim++) {
-				char* buf_p = buf, * buf_end = buf + SIZEOFARRAYi(buf);
+				char * buf_p = buf;
+				char * buf_end = buf + SIZEOFARRAYi(buf);
 				ImVec2 triangle[3];
 				for(int n = 0; n < 3; n++, idx_i++) {
 					const ImDrawVert& v = vtx_buffer[idx_buffer ? idx_buffer[idx_i] : idx_i];
@@ -13603,7 +13506,6 @@ void ImGui::DebugNodeDrawList(ImGuiWindow * window, const ImDrawList* draw_list,
 					buf_p += ImFormatString(buf_p, buf_end - buf_p, "%s %04d: pos (%8.2f,%8.2f), uv (%.6f,%.6f), col %08X\n",
 						(n == 0) ? "Vert:" : "     ", idx_i, v.pos.x, v.pos.y, v.uv.x, v.uv.y, v.col);
 				}
-
 				Selectable(buf, false);
 				if(fg_draw_list && IsItemHovered()) {
 					ImDrawListFlags backup_flags = fg_draw_list->Flags;
@@ -13630,7 +13532,6 @@ void ImGui::DebugNodeDrawCmdShowMeshAndBoundingBox(ImDrawList* out_draw_list, co
 	for(uint idx_n = draw_cmd->IdxOffset, idx_end = draw_cmd->IdxOffset + draw_cmd->ElemCount; idx_n < idx_end;) {
 		ImDrawIdx* idx_buffer = (draw_list->IdxBuffer.Size > 0) ? draw_list->IdxBuffer.Data : NULL; // We don't hold on those pointers past iterations as ->AddPolyline() may invalidate them if out_draw_list==draw_list
 		ImDrawVert* vtx_buffer = draw_list->VtxBuffer.Data + draw_cmd->VtxOffset;
-
 		ImVec2 triangle[3];
 		for(int n = 0; n < 3; n++, idx_n++)
 			vtxs_rect.Add((triangle[n] = vtx_buffer[idx_buffer ? idx_buffer[idx_n] : idx_n].pos));
@@ -13655,12 +13556,10 @@ void ImGui::DebugNodeFont(ImFont* font)
 		GetIO().FontDefault = font;
 	if(!opened)
 		return;
-
 	// Display preview text
 	PushFont(font);
 	Text("The quick brown fox jumps over the lazy dog");
 	PopFont();
-
 	// Display details
 	SetNextItemWidth(GetFontSize() * 8);
 	DragFloat("Font scale", &font->Scale, 0.005f, 0.3f, 2.0f, "%.1f");
@@ -13674,7 +13573,7 @@ void ImGui::DebugNodeFont(ImFont* font)
 	char c_str[5];
 	Text("Fallback character: '%s' (U+%04X)", ImTextCharToUtf8(c_str, font->FallbackChar), font->FallbackChar);
 	Text("Ellipsis character: '%s' (U+%04X)", ImTextCharToUtf8(c_str, font->EllipsisChar), font->EllipsisChar);
-	const int surface_sqrt = (int)ImSqrt((float)font->MetricsTotalSurface);
+	const int surface_sqrt = (int)sqrtf((float)font->MetricsTotalSurface);
 	Text("Texture Area: about %d px ~%dx%d px", font->MetricsTotalSurface, surface_sqrt, surface_sqrt);
 	for(int config_i = 0; config_i < font->ConfigDataCount; config_i++)
 		if(font->ConfigData)

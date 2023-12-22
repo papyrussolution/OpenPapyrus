@@ -66,7 +66,7 @@ private:
 };
 
 class UedSetBase : private SBaseBuffer {
-protected:
+public:
 	DECL_INVARIANT_C();
 	UedSetBase();
 	UedSetBase(const UedSetBase & rS);
@@ -81,6 +81,7 @@ protected:
 	int    FASTCALL Copy(const UedSetBase & rS);
 	bool   FASTCALL IsEq(const UedSetBase & rS) const;
 	uint   GetLimbCount() const { return LimbCount; }
+	uint64 Get(uint idx) const;
 	bool   Add(const uint64 * pUed, uint count, uint * pIdx);
 	bool   Add(uint64 ued, uint * pIdx);
 private:
@@ -214,6 +215,7 @@ protected:
 		PropertySet();
 		int    Add(const uint64 * pPropChunk, uint count, uint * pPos);
 		uint   GetCount() const;
+		int    Get(uint idx, uint count, UedSetBase & rList) const;
 	private:
 		LAssocArray PosIdx; // Индекс позиций: Key - номер позиции, Val - количество элементов 
 	};

@@ -102,32 +102,23 @@ void ma_SHA1Update(_MA_SHA1_CTX * context, const uchar * input,
 	index = (uint)((context->count[0] >> 3) & 0x3F);
 
 	/* Update number of bits */
-	if((context->count[0] += ((uint32)inputLen << 3))
-	    < ((uint32)inputLen << 3))
+	if((context->count[0] += ((uint32)inputLen << 3)) < ((uint32)inputLen << 3))
 		context->count[1]++;
 	context->count[1] += ((uint32)inputLen >> 29);
-
 	partLen = 64 - index;
-
 	/* Transform as many times as possible.
 	 */
 	if(inputLen >= partLen) {
-		memcpy
-			((uchar *)&context->buffer[index], (uchar *)input, partLen);
+		memcpy((uchar *)&context->buffer[index], (uchar *)input, partLen);
 		ma_SHA1Transform(context->state, context->buffer);
-
 		for(i = partLen; i + 63 < inputLen; i += 64)
 			ma_SHA1Transform(context->state, &input[i]);
-
 		index = 0;
 	}
 	else
 		i = 0;
-
 	/* Buffer remaining input */
-	memcpy
-		((uchar *)&context->buffer[index], (uchar *)&input[i],
-	    inputLen - i);
+	memcpy((uchar *)&context->buffer[index], (uchar *)&input[i], inputLen - i);
 }
 
 /* }}} */

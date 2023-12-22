@@ -14,17 +14,17 @@
 #define NGX_HTTP_ANCIENT_BROWSER  1
 
 struct ngx_http_modern_browser_mask_t {
-	u_char browser[12];
+	uchar browser[12];
 	size_t skip;
 	size_t add;
-	u_char name[12];
+	uchar name[12];
 };
 
 struct ngx_http_modern_browser_t {
 	ngx_uint_t version;
 	size_t skip;
 	size_t add;
-	u_char name[12];
+	uchar name[12];
 };
 
 struct ngx_http_browser_variable_t {
@@ -165,7 +165,7 @@ static ngx_int_t ngx_http_browser_variable(ngx_http_request_t * r, ngx_http_vari
 static ngx_uint_t ngx_http_browser(ngx_http_request_t * r, ngx_http_browser_conf_t * cf)
 {
 	size_t len;
-	u_char * name, * ua, * last, c;
+	uchar * name, * ua, * last, c;
 	ngx_str_t  * ancient;
 	ngx_uint_t i, version, ver, scale;
 	ngx_http_modern_browser_t  * modern;
@@ -185,7 +185,7 @@ static ngx_uint_t ngx_http_browser(ngx_http_request_t * r, ngx_http_browser_conf
 			if(name >= last) {
 				continue;
 			}
-			name = (u_char *)ngx_strstr(name, modern[i].name);
+			name = (uchar *)ngx_strstr(name, modern[i].name);
 			if(!name) {
 				continue;
 			}
@@ -354,7 +354,7 @@ static int ngx_libc_cdecl ngx_http_modern_browser_sort(const void * one, const v
 static const char * ngx_http_modern_browser(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_browser_conf_t * bcf = (ngx_http_browser_conf_t *)conf;
-	u_char c;
+	uchar c;
 	ngx_uint_t i, n, version, ver, scale;
 	ngx_http_modern_browser_t  * browser;
 	ngx_http_modern_browser_mask_t  * mask;

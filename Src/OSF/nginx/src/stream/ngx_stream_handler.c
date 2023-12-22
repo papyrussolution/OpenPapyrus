@@ -10,12 +10,12 @@
 
 static void ngx_stream_log_session(ngx_stream_session_t * s);
 static void ngx_stream_close_connection(ngx_connection_t * c);
-static u_char * ngx_stream_log_error(ngx_log_t * log, u_char * buf, size_t len);
+static uchar * ngx_stream_log_error(ngx_log_t * log, uchar * buf, size_t len);
 static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev);
 
 void ngx_stream_init_connection(ngx_connection_t * c)
 {
-	u_char text[NGX_SOCKADDR_STRLEN];
+	uchar text[NGX_SOCKADDR_STRLEN];
 	size_t len;
 	ngx_uint_t i;
 	ngx_time_t * tp;
@@ -149,7 +149,7 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 
 static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev)
 {
-	u_char  * p, buf[NGX_PROXY_PROTOCOL_MAX_HEADER];
+	uchar  * p, buf[NGX_PROXY_PROTOCOL_MAX_HEADER];
 	size_t size;
 	ngx_stream_core_srv_conf_t  * cscf;
 	ngx_connection_t  * c = (ngx_connection_t *)rev->P_Data;
@@ -244,9 +244,9 @@ static void ngx_stream_close_connection(ngx_connection_t * c)
 	ngx_destroy_pool(pool);
 }
 
-static u_char * ngx_stream_log_error(ngx_log_t * log, u_char * buf, size_t len)
+static uchar * ngx_stream_log_error(ngx_log_t * log, uchar * buf, size_t len)
 {
-	u_char  * p;
+	uchar  * p;
 	ngx_stream_session_t  * s;
 	if(log->action) {
 		p = ngx_snprintf(buf, len, " while %s", log->action);

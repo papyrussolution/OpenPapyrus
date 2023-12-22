@@ -659,7 +659,7 @@ static int32 CheckEndianness()
 	} u;
 	u.l = 1;
 	BigEndian = (u.c[sizeof(long) - 1] == 1);
-#ifdef CMS_USE_BIG_ENDIAN
+#ifdef SL_BIGENDIAN
 	IsOk = BigEndian;
 #else
 	IsOk = !BigEndian;

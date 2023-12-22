@@ -26,7 +26,7 @@ _cmsAdaptationStateChunkType _cmsAdaptationStateChunk = { DEFAULT_OBSERVER_ADAPT
 void _cmsAllocAdaptationStateChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	static _cmsAdaptationStateChunkType AdaptationStateChunk = { DEFAULT_OBSERVER_ADAPTATION_STATE };
-	void * from = src ? src->chunks[AdaptationStateContext] : &AdaptationStateChunk;
+	const void * from = src ? src->chunks[AdaptationStateContext] : &AdaptationStateChunk;
 	ctx->chunks[AdaptationStateContext] = _cmsSubAllocDup(ctx->MemPool, from, sizeof(_cmsAdaptationStateChunkType));
 }
 
@@ -36,7 +36,7 @@ double CMSEXPORT cmsSetAdaptationStateTHR(cmsContext ContextID, double d)
 {
 	_cmsAdaptationStateChunkType * ptr = (_cmsAdaptationStateChunkType*)_cmsContextGetClientChunk(ContextID, AdaptationStateContext);
 	// Get previous value for return
-	double prev = ptr->AdaptationState;
+	const double prev = ptr->AdaptationState;
 	// Set the value if d is positive or zero
 	if(d >= 0.0) {
 		ptr->AdaptationState = d;
@@ -127,7 +127,6 @@ static uint32 PixelSize(uint32 Format)
 
 // Apply transform.
 void CMSEXPORT cmsDoTransform(cmsHTRANSFORM Transform, const void * InputBuffer, void * OutputBuffer, uint32 Size)
-
 {
 	_cmsTRANSFORM* p = (_cmsTRANSFORM*)Transform;
 	cmsStride stride;
@@ -139,43 +138,28 @@ void CMSEXPORT cmsDoTransform(cmsHTRANSFORM Transform, const void * InputBuffer,
 }
 
 // This is a legacy stride for planar
-void CMSEXPORT cmsDoTransformStride(cmsHTRANSFORM Transform,
-    const void * InputBuffer,
-    void * OutputBuffer,
-    uint32 Size, uint32 Stride)
-
+void CMSEXPORT cmsDoTransformStride(cmsHTRANSFORM Transform, const void * InputBuffer, void * OutputBuffer, uint32 Size, uint32 Stride)
 {
 	_cmsTRANSFORM* p = (_cmsTRANSFORM*)Transform;
 	cmsStride stride;
-
 	stride.BytesPerLineIn = 0;
 	stride.BytesPerLineOut = 0;
 	stride.BytesPerPlaneIn = Stride;
 	stride.BytesPerPlaneOut = Stride;
-
 	p->xform(p, InputBuffer, OutputBuffer, Size, 1, &stride);
 }
 
 // This is the "fast" function for plugins
-void CMSEXPORT cmsDoTransformLineStride(cmsHTRANSFORM Transform,
-    const void * InputBuffer,
-    void * OutputBuffer,
-    uint32 PixelsPerLine,
-    uint32 LineCount,
-    uint32 BytesPerLineIn,
-    uint32 BytesPerLineOut,
-    uint32 BytesPerPlaneIn,
-    uint32 BytesPerPlaneOut)
-
+void CMSEXPORT cmsDoTransformLineStride(cmsHTRANSFORM Transform, const void * InputBuffer,
+    void * OutputBuffer, uint32 PixelsPerLine, uint32 LineCount,
+    uint32 BytesPerLineIn, uint32 BytesPerLineOut, uint32 BytesPerPlaneIn, uint32 BytesPerPlaneOut)
 {
 	_cmsTRANSFORM* p = (_cmsTRANSFORM*)Transform;
 	cmsStride stride;
-
 	stride.BytesPerLineIn = BytesPerLineIn;
 	stride.BytesPerLineOut = BytesPerLineOut;
 	stride.BytesPerPlaneIn = BytesPerPlaneIn;
 	stride.BytesPerPlaneOut = BytesPerPlaneOut;
-
 	p->xform(p, InputBuffer, OutputBuffer, PixelsPerLine, LineCount, &stride);
 }
 
@@ -221,10 +205,8 @@ static void FloatXFORM(_cmsTRANSFORM* p, const void * in, void * out, uint32 Pix
 				// No gamut check at all
 				cmsPipelineEvalFloat(fIn, fOut, p->Lut);
 			}
-
 			output = p->ToOutputFloat(p, fOut, output, Stride->BytesPerPlaneOut);
 		}
-
 		strideIn += Stride->BytesPerLineIn;
 		strideOut += Stride->BytesPerLineOut;
 	}

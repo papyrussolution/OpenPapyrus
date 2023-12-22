@@ -1321,18 +1321,15 @@ static size_t HUF_readDTableX2(uint16* DTable, const void* src, size_t srcSize)
 	uint32 nextRankStart;
 	void* ptr = DTable+1;
 	HUF_DEltX2* const dt = (HUF_DEltX2*)(ptr);
-
 	HUF_STATIC_ASSERT(sizeof(HUF_DEltX2) == sizeof(uint16)); /* if compilation fails here, assertion is false */
 	//memset(huffWeight, 0, sizeof(huffWeight));   /* is not necessary, even though some analyzer complain ... */
-
 	iSize = HUF_readStats(huffWeight, HUF_MAX_SYMBOL_VALUE + 1, rankVal, &nbSymbols, &tableLog, src, srcSize);
-	if(HUF_isError(iSize)) return iSize;
-
+	if(HUF_isError(iSize)) 
+		return iSize;
 	/* check result */
-	if(tableLog > DTable[0]) return ERROR(tableLog_tooLarge); /* DTable is too small */
-	DTable[0] = (uint16)tableLog; /* maybe should separate sizeof DTable, as allocated, from used size of DTable, in
-	                              case of DTable re-use */
-
+	if(tableLog > DTable[0]) 
+		return ERROR(tableLog_tooLarge); /* DTable is too small */
+	DTable[0] = (uint16)tableLog; /* maybe should separate sizeof DTable, as allocated, from used size of DTable, in case of DTable re-use */
 	/* Prepare ranks */
 	nextRankStart = 0;
 	for(n = 1; n<=tableLog; n++) {
@@ -1340,19 +1337,16 @@ static size_t HUF_readDTableX2(uint16* DTable, const void* src, size_t srcSize)
 		nextRankStart += (rankVal[n] << (n-1));
 		rankVal[n] = current;
 	}
-
 	/* fill DTable */
 	for(n = 0; n<nbSymbols; n++) {
 		const uint32 w = huffWeight[n];
 		const uint32 length = (1 << w) >> 1;
-		uint32 i;
 		HUF_DEltX2 D;
 		D.byte = (BYTE)n; D.nbBits = (BYTE)(tableLog + 1 - w);
-		for(i = rankVal[w]; i < rankVal[w] + length; i++)
+		for(uint32 i = rankVal[w]; i < rankVal[w] + length; i++)
 			dt[i] = D;
 		rankVal[w] += length;
 	}
-
 	return iSize;
 }
 
@@ -1566,37 +1560,30 @@ static void HUF_fillDTableX4(HUF_DEltX4* DTable, const uint32 targetLog,
 	uint32 rankVal[HUF_ABSOLUTEMAX_TABLELOG + 1];
 	const int scaleLog = nbBitsBaseline - targetLog; /* note : targetLog >= srcLog, hence scaleLog <= 1 */
 	const uint32 minBits  = nbBitsBaseline - maxWeight;
-	uint32 s;
-
 	memcpy(rankVal, rankValOrigin, sizeof(rankVal));
-
 	/* fill DTable */
-	for(s = 0; s<sortedListSize; s++) {
+	for(uint32 s = 0; s<sortedListSize; s++) {
 		const uint16 symbol = sortedList[s].symbol;
 		const uint32 weight = sortedList[s].weight;
 		const uint32 nbBits = nbBitsBaseline - weight;
 		const uint32 start = rankVal[weight];
 		const uint32 length = 1 << (targetLog-nbBits);
-
 		if(targetLog-nbBits >= minBits) { /* enough room for a second symbol */
 			uint32 sortedRank;
 			int minWeight = nbBits + scaleLog;
-			if(minWeight < 1) minWeight = 1;
+			if(minWeight < 1) 
+				minWeight = 1;
 			sortedRank = rankStart[minWeight];
-			HUF_fillDTableX4Level2(DTable+start, targetLog-nbBits, nbBits,
-			    rankValOrigin[nbBits], minWeight,
-			    sortedList+sortedRank, sortedListSize-sortedRank,
-			    nbBitsBaseline, symbol);
+			HUF_fillDTableX4Level2(DTable+start, targetLog-nbBits, nbBits, rankValOrigin[nbBits], minWeight,
+			    sortedList+sortedRank, sortedListSize-sortedRank, nbBitsBaseline, symbol);
 		}
 		else {
-			uint32 i;
 			const uint32 end = start + length;
 			HUF_DEltX4 DElt;
-
 			SMem::PutLe(&(DElt.sequence), symbol);
 			DElt.nbBits   = (BYTE)(nbBits);
 			DElt.length   = 1;
-			for(i = start; i < end; i++)
+			for(uint32 i = start; i < end; i++)
 				DTable[i] = DElt;
 		}
 		rankVal[weight] += length;

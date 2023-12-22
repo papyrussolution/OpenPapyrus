@@ -9,7 +9,7 @@
 
 static void ngx_destroy_cycle_pools(ngx_conf_t * conf);
 static ngx_int_t ngx_init_zone_pool(ngx_cycle_t * cycle, ngx_shm_zone_t * shm_zone);
-static ngx_int_t ngx_test_lockfile(u_char * file, ngx_log_t * log);
+static ngx_int_t ngx_test_lockfile(uchar * file, ngx_log_t * log);
 static void ngx_clean_old_cycles(ngx_event_t * ev);
 static void ngx_shutdown_timer_handler(ngx_event_t * ev);
 
@@ -76,7 +76,7 @@ ngx_cycle_t * ngx_init_cycle(ngx_cycle_t * old_cycle, const NgxStartUpOptions & 
 		return NULL;
 	}
 	cycle->conf_file.len = old_cycle->conf_file.len;
-	cycle->conf_file.data = (u_char *)ngx_pnalloc(p_pool, old_cycle->conf_file.len + 1);
+	cycle->conf_file.data = (uchar *)ngx_pnalloc(p_pool, old_cycle->conf_file.len + 1);
 	if(cycle->conf_file.data == NULL) {
 		ngx_destroy_pool(p_pool);
 		return NULL;
@@ -159,12 +159,12 @@ ngx_cycle_t * ngx_init_cycle(ngx_cycle_t * old_cycle, const NgxStartUpOptions & 
 	//
 	hostname[NGX_MAXHOSTNAMELEN-1] = '\0';
 	cycle->hostname.len = ngx_strlen(hostname);
-	cycle->hostname.data = (u_char *)ngx_pnalloc(p_pool, cycle->hostname.len);
+	cycle->hostname.data = (uchar *)ngx_pnalloc(p_pool, cycle->hostname.len);
 	if(cycle->hostname.data == NULL) {
 		ngx_destroy_pool(p_pool);
 		return NULL;
 	}
-	ngx_strlow(cycle->hostname.data, (u_char *)hostname, cycle->hostname.len);
+	ngx_strlow(cycle->hostname.data, (uchar *)hostname, cycle->hostname.len);
 	{
 		if(ngx_cycle_modules(cycle) != NGX_OK) {
 			ngx_destroy_pool(p_pool);
@@ -512,7 +512,7 @@ old_shm_zone_done:
 				}
 #if (NGX_HAVE_UNIX_DOMAIN)
 				if(ls[i].sockaddr->sa_family == AF_UNIX) {
-					u_char * name = ls[i].addr_text.data + sizeof("unix:") - 1;
+					uchar * name = ls[i].addr_text.data + sizeof("unix:") - 1;
 					ngx_log_error(NGX_LOG_WARN, cycle->log, 0, "deleting socket %s", name);
 					if(ngx_delete_file(name) == NGX_FILE_ERROR) {
 						ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_socket_errno, ngx_delete_file_n " %s failed", name);
@@ -631,7 +631,7 @@ static void ngx_destroy_cycle_pools(ngx_conf_t * conf)
 
 static ngx_int_t ngx_init_zone_pool(ngx_cycle_t * cycle, ngx_shm_zone_t * zn)
 {
-	u_char * file;
+	uchar * file;
 	ngx_slab_pool_t  * sp = (ngx_slab_pool_t*)zn->shm.addr;
 	if(zn->shm.exists) {
 		if(sp == sp->addr) {
@@ -639,7 +639,7 @@ static ngx_int_t ngx_init_zone_pool(ngx_cycle_t * cycle, ngx_shm_zone_t * zn)
 		}
 #if (NGX_WIN32)
 		/* remap at the required address */
-		if(ngx_shm_remap(&zn->shm, (u_char *)sp->addr) != NGX_OK) {
+		if(ngx_shm_remap(&zn->shm, (uchar *)sp->addr) != NGX_OK) {
 			return NGX_ERROR;
 		}
 		sp = (ngx_slab_pool_t*)zn->shm.addr;
@@ -674,7 +674,7 @@ ngx_int_t ngx_create_pidfile(ngx_str_t * name, ngx_log_t * log, const NgxStartUp
 	if(ngx_process <= NGX_PROCESS_MASTER) {
 		size_t len;
 		ngx_uint_t create;
-		u_char pid[NGX_INT64_LEN + 2];
+		uchar pid[NGX_INT64_LEN + 2];
 		ngx_file_t file;
 		memzero(&file, sizeof(ngx_file_t));
 		file.name = *name;
@@ -701,13 +701,13 @@ ngx_int_t ngx_create_pidfile(ngx_str_t * name, ngx_log_t * log, const NgxStartUp
 void ngx_delete_pidfile(ngx_cycle_t * cycle)
 {
 	ngx_core_conf_t  * ccf = (ngx_core_conf_t*)ngx_get_conf(cycle->conf_ctx, ngx_core_module);
-	u_char * name = ngx_new_binary ? ccf->oldpid.data : ccf->pid.data;
+	uchar * name = ngx_new_binary ? ccf->oldpid.data : ccf->pid.data;
 	if(ngx_delete_file(name) == NGX_FILE_ERROR) {
 		ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, ngx_delete_file_n " \"%s\" failed", name);
 	}
 }
 
-static ngx_int_t ngx_test_lockfile(u_char * file, ngx_log_t * log)
+static ngx_int_t ngx_test_lockfile(uchar * file, ngx_log_t * log)
 {
 #if !(NGX_HAVE_ATOMIC_OPS)
 	ngx_fd_t fd = ngx_open_file(file, NGX_FILE_RDWR, NGX_FILE_CREATE_OR_OPEN, NGX_FILE_DEFAULT_ACCESS);

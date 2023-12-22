@@ -59,8 +59,8 @@ struct gztrailer {
 #else /* NGX_HAVE_BIG_ENDIAN || !NGX_HAVE_NONALIGNED */
 
 struct gztrailer {
-	u_char crc32[4];
-	u_char zlen[4];
+	uchar crc32[4];
+	uchar zlen[4];
 };
 
 #endif
@@ -73,7 +73,7 @@ static ngx_int_t ngx_http_gzip_filter_add_data(ngx_http_request_t * r, ngx_http_
 static ngx_int_t ngx_http_gzip_filter_get_buf(ngx_http_request_t * r, ngx_http_gzip_ctx_t * ctx);
 static ngx_int_t ngx_http_gzip_filter_deflate(ngx_http_request_t * r, ngx_http_gzip_ctx_t * ctx);
 static ngx_int_t ngx_http_gzip_filter_deflate_end(ngx_http_request_t * r, ngx_http_gzip_ctx_t * ctx);
-static void * ngx_http_gzip_filter_alloc(void * opaque, u_int items, u_int size);
+static void * ngx_http_gzip_filter_alloc(void * opaque, uint items, uint size);
 static void ngx_http_gzip_filter_free(void * opaque, void * address);
 static void ngx_http_gzip_filter_free_copy_buf(ngx_http_request_t * r, ngx_http_gzip_ctx_t * ctx);
 static ngx_int_t ngx_http_gzip_add_variables(ngx_conf_t * cf);
@@ -436,7 +436,7 @@ static ngx_int_t ngx_http_gzip_filter_deflate_start(ngx_http_request_t * r, ngx_
 static ngx_int_t ngx_http_gzip_filter_gzheader(ngx_http_request_t * r, ngx_http_gzip_ctx_t * ctx)
 {
 	ngx_chain_t  * cl;
-	static u_char gzheader[10] = { 0x1f, 0x8b, Z_DEFLATED, 0, 0, 0, 0, 0, 0, 3 };
+	static uchar gzheader[10] = { 0x1f, 0x8b, Z_DEFLATED, 0, 0, 0, 0, 0, 0, 3 };
 	ngx_buf_t * b = static_cast<ngx_buf_t *>(ngx_calloc_buf(r->pool));
 	if(!b) {
 		return NGX_ERROR;
@@ -550,7 +550,7 @@ static ngx_int_t ngx_http_gzip_filter_deflate(ngx_http_request_t * r, ngx_http_g
 	    ctx->zstream.next_in, ctx->zstream.next_out, ctx->zstream.avail_in, ctx->zstream.avail_out, rc);
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "gzip in_buf:%p pos:%p", ctx->in_buf, ctx->in_buf->pos);
 	if(ctx->zstream.next_in) {
-		ctx->in_buf->pos = const_cast<u_char *>(static_cast<const u_char *>(ctx->zstream.next_in)); // @badcast
+		ctx->in_buf->pos = const_cast<uchar *>(static_cast<const uchar *>(ctx->zstream.next_in)); // @badcast
 		if(ctx->zstream.avail_in == 0) {
 			ctx->zstream.next_in = NULL;
 		}
@@ -663,14 +663,14 @@ static ngx_int_t ngx_http_gzip_filter_deflate_end(ngx_http_request_t * r, ngx_ht
 	trailer->crc32 = ctx->crc32;
 	trailer->zlen = ctx->zin;
 #else
-	trailer->crc32[0] = (u_char)(ctx->crc32 & 0xff);
-	trailer->crc32[1] = (u_char)((ctx->crc32 >> 8) & 0xff);
-	trailer->crc32[2] = (u_char)((ctx->crc32 >> 16) & 0xff);
-	trailer->crc32[3] = (u_char)((ctx->crc32 >> 24) & 0xff);
-	trailer->zlen[0] = (u_char)(ctx->zin & 0xff);
-	trailer->zlen[1] = (u_char)((ctx->zin >> 8) & 0xff);
-	trailer->zlen[2] = (u_char)((ctx->zin >> 16) & 0xff);
-	trailer->zlen[3] = (u_char)((ctx->zin >> 24) & 0xff);
+	trailer->crc32[0] = (uchar)(ctx->crc32 & 0xff);
+	trailer->crc32[1] = (uchar)((ctx->crc32 >> 8) & 0xff);
+	trailer->crc32[2] = (uchar)((ctx->crc32 >> 16) & 0xff);
+	trailer->crc32[3] = (uchar)((ctx->crc32 >> 24) & 0xff);
+	trailer->zlen[0] = (uchar)(ctx->zin & 0xff);
+	trailer->zlen[1] = (uchar)((ctx->zin >> 8) & 0xff);
+	trailer->zlen[2] = (uchar)((ctx->zin >> 16) & 0xff);
+	trailer->zlen[3] = (uchar)((ctx->zin >> 24) & 0xff);
 #endif
 	ctx->zstream.avail_in = 0;
 	ctx->zstream.avail_out = 0;
@@ -679,7 +679,7 @@ static ngx_int_t ngx_http_gzip_filter_deflate_end(ngx_http_request_t * r, ngx_ht
 	return NGX_OK;
 }
 
-static void * ngx_http_gzip_filter_alloc(void * opaque, u_int items, u_int size)
+static void * ngx_http_gzip_filter_alloc(void * opaque, uint items, uint size)
 {
 	ngx_http_gzip_ctx_t * ctx = (ngx_http_gzip_ctx_t *)opaque;
 	void * p;
@@ -689,19 +689,14 @@ static void * ngx_http_gzip_filter_alloc(void * opaque, u_int items, u_int size)
 		 * The zlib deflate_state allocation, it takes about 6K,
 		 * we allocate 8K.  Other allocations are divisible by 512.
 		 */
-
 		alloc = 8192;
 	}
-
 	if(alloc <= ctx->allocated) {
 		p = ctx->free_mem;
 		ctx->free_mem += alloc;
 		ctx->allocated -= alloc;
-
-		ngx_log_debug4(NGX_LOG_DEBUG_HTTP, ctx->request->connection->log, 0,
-		    "gzip alloc: n:%ud s:%ud a:%ui p:%p",
+		ngx_log_debug4(NGX_LOG_DEBUG_HTTP, ctx->request->connection->log, 0, "gzip alloc: n:%ud s:%ud a:%ui p:%p",
 		    items, size, alloc, p);
-
 		return p;
 	}
 	ngx_log_error(NGX_LOG_ALERT, ctx->request->connection->log, 0, "gzip filter failed to use preallocated memory: %ud of %ui",
@@ -747,7 +742,7 @@ static ngx_int_t ngx_http_gzip_ratio_variable(ngx_http_request_t * r, ngx_http_v
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char *)ngx_pnalloc(r->pool, NGX_INT32_LEN + 3);
+	v->data = (uchar *)ngx_pnalloc(r->pool, NGX_INT32_LEN + 3);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}

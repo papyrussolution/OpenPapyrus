@@ -33,7 +33,7 @@ typedef struct {
 	BYTE wProductType;
 } ngx_osviex_stub_t;
 
-static u_int osviex;
+static uint osviex;
 static OSVERSIONINFOEX osvi;
 
 /* Should these pointers be per protocol ? */
@@ -159,7 +159,7 @@ ngx_int_t ngx_os_init(ngx_log_t * log)
 			ngx_log_error(NGX_LOG_EMERG, log, err, "GetEnvironmentVariable(\"ngx_unique\") failed");
 			return NGX_ERROR;
 		}
-		ngx_sprintf((u_char *)ngx_unique, "%P%Z", ngx_pid);
+		ngx_sprintf((uchar *)ngx_unique, "%P%Z", ngx_pid);
 	}
 	tp = ngx_timeofday();
 	srand((ngx_pid << 16) ^ (uint)tp->sec ^ tp->msec);

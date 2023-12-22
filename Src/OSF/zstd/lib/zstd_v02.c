@@ -913,21 +913,17 @@ static size_t FSE_buildDTable(FSE_DTable* dt, const short* normalizedCounter, ui
 			while(position > highThreshold) position = (position + step) & tableMask; /* lowprob area */
 		}
 	}
-
-	if(position!=0) return ERROR(GENERIC); /* position must reach all cells once, otherwise normalizedCounter is
-	                                          incorrect */
-
+	if(position!=0) 
+		return ERROR(GENERIC); /* position must reach all cells once, otherwise normalizedCounter is incorrect */
 	/* Build Decoding table */
 	{
-		uint32 i;
-		for(i = 0; i<tableSize; i++) {
+		for(uint32 i = 0; i<tableSize; i++) {
 			FSE_FUNCTION_TYPE symbol = (FSE_FUNCTION_TYPE)(tableDecode[i].symbol);
 			uint16 nextState = symbolNext[symbol]++;
 			tableDecode[i].nbBits = (BYTE)(tableLog - BIT_highbit32((uint32)nextState) );
 			tableDecode[i].newState = (uint16)( (nextState << tableDecode[i].nbBits) - tableSize);
 		}
 	}
-
 	DTableH.fastMode = (uint16)noLarge;
 	memcpy(dt, &DTableH, sizeof(DTableH)); /* memcpy(), to avoid strict aliasing warnings */
 	return 0;
@@ -1348,19 +1344,16 @@ static size_t HUF_readDTableX2(uint16* DTable, const void* src, size_t srcSize)
 		nextRankStart += (rankVal[n] << (n-1));
 		rankVal[n] = current;
 	}
-
 	/* fill DTable */
 	for(n = 0; n<nbSymbols; n++) {
 		const uint32 w = huffWeight[n];
 		const uint32 length = (1 << w) >> 1;
-		uint32 i;
 		HUF_DEltX2 D;
 		D.byte = (BYTE)n; D.nbBits = (BYTE)(tableLog + 1 - w);
-		for(i = rankVal[w]; i < rankVal[w] + length; i++)
+		for(uint32 i = rankVal[w]; i < rankVal[w] + length; i++)
 			dt[i] = D;
 		rankVal[w] += length;
 	}
-
 	return iSize;
 }
 
@@ -1583,19 +1576,19 @@ static void HUF_fillDTableX4(HUF_DEltX4* DTable, const uint32 targetLog,
 		if(targetLog-nbBits >= minBits) { /* enough room for a second symbol */
 			uint32 sortedRank;
 			int minWeight = nbBits + scaleLog;
-			if(minWeight < 1) minWeight = 1;
+			if(minWeight < 1) 
+				minWeight = 1;
 			sortedRank = rankStart[minWeight];
 			HUF_fillDTableX4Level2(DTable+start, targetLog-nbBits, nbBits,
 			    rankValOrigin[nbBits], minWeight, sortedList+sortedRank, sortedListSize-sortedRank, nbBitsBaseline, symbol);
 		}
 		else {
-			uint32 i;
 			const uint32 end = start + length;
 			HUF_DEltX4 DElt;
 			SMem::PutLe(&(DElt.sequence), symbol);
 			DElt.nbBits   = (BYTE)(nbBits);
 			DElt.length   = 1;
-			for(i = start; i < end; i++)
+			for(uint32 i = start; i < end; i++)
 				DTable[i] = DElt;
 		}
 		rankVal[weight] += length;
@@ -1855,20 +1848,16 @@ static void HUF_fillDTableX6LevelN(HUF_DDescX6* DDescription, HUF_DSeqX6* DSeque
 	const uint32 level = DDesc.nbBytes;
 	uint32 rankVal[HUF_ABSOLUTEMAX_TABLELOG + 1];
 	uint32 symbolStartPos, s;
-
 	/* local rankVal, will be modified */
 	memcpy(rankVal, rankValOrigin[consumed], sizeof(rankVal));
-
 	/* fill skipped values */
 	if(minWeight>1) {
-		uint32 i;
 		const uint32 skipSize = rankVal[minWeight];
-		for(i = 0; i < skipSize; i++) {
+		for(uint32 i = 0; i < skipSize; i++) {
 			DSequence[i] = baseSeq;
 			DDescription[i] = DDesc;
 		}
 	}
-
 	/* fill DTable */
 	DDesc.nbBytes++;
 	symbolStartPos = rankStart[minWeight];
@@ -1891,9 +1880,8 @@ static void HUF_fillDTableX6LevelN(HUF_DDescX6* DDescription, HUF_DSeqX6* DSeque
 			    nbBitsBaseline, baseSeq, DDesc);  /* recursive (max : level 3) */
 		}
 		else {
-			uint32 i;
 			const uint32 end = start + length;
-			for(i = start; i < end; i++) {
+			for(uint32 i = start; i < end; i++) {
 				DDescription[i] = DDesc;
 				DSequence[i] = baseSeq;
 			}

@@ -476,7 +476,7 @@ static ngx_int_t ngx_http_scgi_create_key(ngx_http_request_t * r)
 static ngx_int_t ngx_http_scgi_create_request(ngx_http_request_t * r)
 {
 	nginx_off_t content_length_n;
-	u_char ch, * key, * val, * lowcase_key;
+	uchar ch, * key, * val, * lowcase_key;
 	size_t len, key_len, val_len, allocated;
 	ngx_buf_t  * b;
 	ngx_str_t content_length;
@@ -489,7 +489,7 @@ static ngx_int_t ngx_http_scgi_create_request(ngx_http_request_t * r)
 	ngx_http_script_engine_t e, le;
 	ngx_http_scgi_loc_conf_t   * scf;
 	ngx_http_script_len_code_pt lcode;
-	u_char buffer[NGX_OFF_T_LEN];
+	uchar buffer[NGX_OFF_T_LEN];
 
 	content_length_n = 0;
 	body = r->upstream->request_bufs;
@@ -521,7 +521,7 @@ static ngx_int_t ngx_http_scgi_create_request(ngx_http_request_t * r)
 		ngx_http_script_flush_no_cacheable_variables(r, params->flushes);
 		le.flushed = 1;
 
-		le.ip = (u_char *)params->lengths->elts;
+		le.ip = (uchar *)params->lengths->elts;
 		le.request = r;
 
 		while(*(uintptr_t*)le.ip) {
@@ -580,7 +580,7 @@ static ngx_int_t ngx_http_scgi_create_request(ngx_http_request_t * r)
 			if(params->number) {
 				if(allocated < header[i].key.len) {
 					allocated = header[i].key.len + 16;
-					lowcase_key = (u_char *)ngx_pnalloc(r->pool, allocated);
+					lowcase_key = (uchar *)ngx_pnalloc(r->pool, allocated);
 					if(lowcase_key == NULL) {
 						return NGX_ERROR;
 					}
@@ -633,12 +633,12 @@ static ngx_int_t ngx_http_scgi_create_request(ngx_http_request_t * r)
 	if(params->lengths) {
 		memzero(&e, sizeof(ngx_http_script_engine_t));
 
-		e.ip = (u_char *)params->values->elts;
+		e.ip = (uchar *)params->values->elts;
 		e.pos = b->last;
 		e.request = r;
 		e.flushed = 1;
 
-		le.ip = (u_char *)params->lengths->elts;
+		le.ip = (uchar *)params->lengths->elts;
 
 		while(*(uintptr_t*)le.ip) {
 			lcode = *(ngx_http_script_len_code_pt*)le.ip;
@@ -714,16 +714,16 @@ static ngx_int_t ngx_http_scgi_create_request(ngx_http_request_t * r)
 				}
 				*b->last++ = ch;
 			}
-			*b->last++ = (u_char)0;
+			*b->last++ = (uchar)0;
 			val = b->last;
 			b->last = ngx_copy(val, header[i].value.data, header[i].value.len);
-			*b->last++ = (u_char)0;
+			*b->last++ = (uchar)0;
 			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "scgi param: \"%s: %s\"", key, val);
 next:
 			continue;
 		}
 	}
-	*b->last++ = (u_char)',';
+	*b->last++ = (uchar)',';
 	if(r->request_body_no_buffering) {
 		r->upstream->request_bufs = cl;
 	}
@@ -791,7 +791,7 @@ static ngx_int_t ngx_http_scgi_process_status_line(ngx_http_request_t * r)
 	u->headers_in.status_n = status->code;
 	len = status->end - status->start;
 	u->headers_in.status_line.len = len;
-	u->headers_in.status_line.data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
+	u->headers_in.status_line.data = static_cast<uchar *>(ngx_pnalloc(r->pool, len));
 	if(u->headers_in.status_line.data == NULL) {
 		return NGX_ERROR;
 	}
@@ -825,7 +825,7 @@ static ngx_int_t ngx_http_scgi_process_header(ngx_http_request_t * r)
 			h->key.len = r->header_name_end - r->header_name_start;
 			h->value.len = r->header_end - r->header_start;
 
-			h->key.data = (u_char *)ngx_pnalloc(r->pool, h->key.len + 1 + h->value.len + 1 + h->key.len);
+			h->key.data = (uchar *)ngx_pnalloc(r->pool, h->key.len + 1 + h->value.len + 1 + h->key.len);
 			if(h->key.data == NULL) {
 				h->hash = 0;
 				return NGX_ERROR;
@@ -1153,7 +1153,7 @@ static char * ngx_http_scgi_merge_loc_conf(ngx_conf_t * cf, void * parent, void 
 
 static ngx_int_t ngx_http_scgi_init_params(ngx_conf_t * cf, ngx_http_scgi_loc_conf_t * conf, ngx_http_scgi_params_t * params, ngx_keyval_t * default_params)
 {
-	u_char   * p;
+	uchar   * p;
 	size_t size;
 	uintptr_t  * code;
 	ngx_uint_t i, nsrc;
@@ -1256,7 +1256,7 @@ next:
 		}
 		copy->code = ngx_http_script_copy_code;
 		copy->len = src[i].key.len + 1;
-		p = (u_char *)copy + sizeof(ngx_http_script_copy_code_t);
+		p = (uchar *)copy + sizeof(ngx_http_script_copy_code_t);
 		(void)ngx_cpystrn(p, src[i].key.data, src[i].key.len + 1);
 		memzero(&sc, sizeof(ngx_http_script_compile_t));
 		sc.cf = cf;

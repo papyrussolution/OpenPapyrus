@@ -14,16 +14,16 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 	HKEY key;
 	HANDLE ev;
 	va_list args;
-	u_char text[NGX_MAX_ERROR_STR];
+	uchar text[NGX_MAX_ERROR_STR];
 	const TCHAR * msgarg[9];
-	static u_char netmsg[] = "%SystemRoot%\\System32\\netmsg.dll";
-	u_char * last = text + NGX_MAX_ERROR_STR;
-	// @v10.3.11 u_char * p = text + GetModuleFileName(NULL, reinterpret_cast<char *>(text), NGX_MAX_ERROR_STR - 50);
+	static uchar netmsg[] = "%SystemRoot%\\System32\\netmsg.dll";
+	uchar * last = text + NGX_MAX_ERROR_STR;
+	// @v10.3.11 uchar * p = text + GetModuleFileName(NULL, reinterpret_cast<char *>(text), NGX_MAX_ERROR_STR - 50);
 	// @v10.3.11 {
 	SString module_file_name;
 	const bool gmfnr = SSystem::SGetModuleFileName(0, module_file_name);
 	module_file_name.CopyTo(reinterpret_cast<char *>(text), SIZEOFARRAY(text));
-	u_char * p = text + sstrlen(text);
+	uchar * p = text + sstrlen(text);
 	// } @v10.3.11
 	*p++ = ':';
 	ngx_linefeed(p);
@@ -50,7 +50,7 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 		return;
 	}
 	types = EVENTLOG_ERROR_TYPE;
-	if(RegSetValueEx(key, _T("TypesSupported"), 0, REG_DWORD, (u_char *)&types, sizeof(long)) != 0) {
+	if(RegSetValueEx(key, _T("TypesSupported"), 0, REG_DWORD, (uchar *)&types, sizeof(long)) != 0) {
 		return;
 	}
 	RegCloseKey(key);

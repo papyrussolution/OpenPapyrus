@@ -995,13 +995,10 @@ void gentabs()
 	yybase_curr = 1;
 	for(i = 1; i <= lastdfa; ++i) {
 		int d = def[i];
-
 		if(base[i] == JAMSTATE)
 			base[i] = jambase;
-
 		if(d == JAMSTATE)
 			def[i] = jamstate;
-
 		else if(d < 0) {
 			/* Template reference. */
 			++tmpuses;
@@ -1010,11 +1007,9 @@ void gentabs()
 		mkdata(base[i]);
 		yybase_data[yybase_curr++] = base[i];
 	}
-
 	/* Generate jam state's base index. */
 	mkdata(base[i]);
 	yybase_data[yybase_curr++] = base[i];
-
 	for(++i /* skip jam state */; i <= total_states; ++i) {
 		mkdata(base[i]);
 		yybase_data[yybase_curr++] = base[i];
@@ -1106,42 +1101,36 @@ void gentabs()
 		yychk_tbl = NULL;
 	}
 	/* End generating yy_chk */
-
 	SAlloc::F(acc_array);
 }
-
-/* Write out a formatted string (with a secondary string argument) at the
- * current indentation level, adding a final newline.
- */
-
+//
+// Write out a formatted string (with a secondary string argument) at the
+// current indentation level, adding a final newline.
+//
 void indent_put2s(const char * fmt, const char * arg)
 {
 	do_indent();
 	out_str(fmt, arg);
 	outn("");
 }
-
-/* Write out a string at the current indentation level, adding a final
- * newline.
- */
-
+//
+// Write out a string at the current indentation level, adding a final newline.
+//
 void indent_puts(const char * str)
 {
 	do_indent();
 	outn(str);
 }
-
-/* make_tables - generate transition tables and finishes generating output file
- */
+// 
+// make_tables - generate transition tables and finishes generating output file
+//
 void make_tables()
 {
 	int i;
 	int did_eof_rule = false;
 	struct yytbl_data * yynultrans_tbl = NULL;
-	skelout();              /* %% [2.0] - break point in skel */
-	/* First, take care of YY_DO_BEFORE_ACTION depending on yymore
-	 * being used.
-	 */
+	skelout(); // %% [2.0] - break point in skel
+	// First, take care of YY_DO_BEFORE_ACTION depending on yymore being used.
 	set_indent(1);
 	if(yymore_used && !yytext_is_array) {
 		indent_puts("YY_G(yytext_ptr) -= YY_G(yy_more_len); \\");
@@ -1149,8 +1138,8 @@ void make_tables()
 	}
 	else
 		indent_puts("yyleng = (int) (yy_cp - yy_bp); \\");
-	/* Now also deal with copying yytext_ptr to yytext if needed. */
-	skelout();              /* %% [3.0] - break point in skel */
+	// Now also deal with copying yytext_ptr to yytext if needed
+	skelout(); // %% [3.0] - break point in skel
 	if(yytext_is_array) {
 		if(yymore_used)
 			indent_puts("if(yyleng + YY_G(yy_more_offset) >= YYLMAX) \\");
@@ -1170,21 +1159,19 @@ void make_tables()
 		}
 	}
 	set_indent(0);
-	skelout();              /* %% [4.0] - break point in skel */
-	/* This is where we REALLY begin generating the tables. */
+	skelout(); // %% [4.0] - break point in skel
+	// This is where we REALLY begin generating the tables
 	out_dec("#define YY_NUM_RULES %d\n", num_rules);
 	out_dec("#define YY_END_OF_BUFFER %d\n", num_rules + 1);
 	if(fullspd) {
-		/* Need to define the transet type as a size large
-		 * enough to hold the biggest offset.
-		 */
+		// Need to define the transet type as a size large enough to hold the biggest offset.
 		int total_table_size = tblend + numecs + 1;
 		const char * trans_offset_type = (total_table_size >= INT16_MAX || long_align) ? "flex_int32_t" : "flex_int16_t";
 		set_indent(0);
 		indent_puts("struct yy_trans_info");
 		++indent_level;
 		indent_puts("{");
-		/* We require that yy_verify and yy_nxt must be of the same size int. */
+		// We require that yy_verify and yy_nxt must be of the same size int
 		indent_put2s("%s yy_verify;", trans_offset_type);
 		/* In cases where its sister yy_verify *is* a "yes, there is
 		 * a transition", yy_nxt is the offset (in records) to the
@@ -1198,20 +1185,15 @@ void make_tables()
 		--indent_level;
 	}
 	else {
-		/* We generate a bogus 'struct yy_trans_info' data type
-		 * so we can guarantee that it is always declared in the skel.
-		 * This is so we can compile "sizeof(struct yy_trans_info)"
-		 * in any scanner.
-		 */
-		indent_puts("/* This struct is not used in this scanner,");
-		indent_puts("   but its presence is necessary. */");
-		indent_puts("struct yy_trans_info");
+		// We generate a bogus 'struct yy_trans_info' data type so we can guarantee that it is always declared in the skel.
+		// This is so we can compile "sizeof(struct yy_trans_info)" in any scanner.
+		indent_puts("// This struct is not used in this scanner, but its presence is necessary.");
+		indent_puts("struct yy_trans_info {");
 		++indent_level;
-		indent_puts("{");
 		indent_puts("flex_int32_t yy_verify;");
 		indent_puts("flex_int32_t yy_nxt;");
-		indent_puts("};");
 		--indent_level;
+		indent_puts("};");
 	}
 	if(fullspd) {
 		genctbl();
@@ -1221,7 +1203,6 @@ void make_tables()
 			if(yytbl_data_fwrite(&tableswr, tbl) < 0)
 				flexerror(_("Could not write ftbl"));
 			yytbl_data_destroy(tbl);
-
 			tbl = mkssltbl();
 			yytbl_data_compress(tbl);
 			if(yytbl_data_fwrite(&tableswr, tbl) < 0)
@@ -1247,7 +1228,6 @@ void make_tables()
 				flexerror(_("Could not write ftbl"));
 			yytbl_data_destroy(tbl);
 			tbl = 0;
-
 			if(useecs) {
 				tbl = mkecstbl();
 				yytbl_data_compress(tbl);
@@ -1271,10 +1251,8 @@ void make_tables()
 			tbl = 0;
 		}
 	}
-	/* Definitions for backing up.  We don't need them if REJECT
-	 * is being used because then we use an alternative backin-up
-	 * technique instead.
-	 */
+	// Definitions for backing up.  We don't need them if REJECT
+	// is being used because then we use an alternative backin-up technique instead.
 	if(num_backing_up > 0 && !reject) {
 		if(!C_plus_plus && !reentrant) {
 			indent_puts("static yy_state_type yy_last_accepting_state;");
@@ -1283,10 +1261,9 @@ void make_tables()
 	}
 	if(nultrans) {
 		flex_int32_t * yynultrans_data = 0;
-		/* Begin generating yy_NUL_trans */
+		// Begin generating yy_NUL_trans 
 		out_str_dec(get_state_decl(), "yy_NUL_trans", lastdfa + 1);
-		buf_prints(&yydmap_buf, "\t{YYTD_ID_NUL_TRANS, (void**)&yy_NUL_trans, sizeof(%s)},\n",
-		    (fullspd) ? "struct yy_trans_info*" : "flex_int32_t");
+		buf_prints(&yydmap_buf, "\t{YYTD_ID_NUL_TRANS, (void**)&yy_NUL_trans, sizeof(%s)},\n", (fullspd) ? "struct yy_trans_info*" : "flex_int32_t");
 		yynultrans_tbl = (struct yytbl_data *)SAlloc::C(1, sizeof(struct yytbl_data));
 		yytbl_data_init(yynultrans_tbl, YYTD_ID_NUL_TRANS);
 		if(fullspd)
@@ -1327,7 +1304,7 @@ void make_tables()
 	}
 	if(reject) {
 		outn("m4_ifdef( [[M4_YY_USES_REJECT]],\n[[");
-		/* Declare state buffer variables. */
+		// Declare state buffer variables
 		if(!C_plus_plus && !reentrant) {
 			outn("static yy_state_type *yy_state_buf=0, *yy_state_ptr=0;");
 			outn("static char *yy_full_match;");
@@ -1415,7 +1392,7 @@ void make_tables()
 	}
 	out(&action_array[defs1_offset]);
 	line_directive_out(stdout, 0);
-	skelout();              /* %% [5.0] - break point in skel */
+	skelout(); /* %% [5.0] - break point in skel */
 	if(!C_plus_plus) {
 		if(use_read) {
 			outn("\terrno=0; \\");

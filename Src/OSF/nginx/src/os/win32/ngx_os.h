@@ -10,9 +10,9 @@
 
 #define NGX_IO_SENDFILE    1
 
-typedef ssize_t (*ngx_recv_pt)(ngx_connection_t * c, u_char * buf, size_t size);
+typedef ssize_t (*ngx_recv_pt)(ngx_connection_t * c, uchar * buf, size_t size);
 typedef ssize_t (*ngx_recv_chain_pt)(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit);
-typedef ssize_t (*ngx_send_pt)(ngx_connection_t * c, u_char * buf, size_t size);
+typedef ssize_t (*ngx_send_pt)(ngx_connection_t * c, uchar * buf, size_t size);
 typedef ngx_chain_t *(*ngx_send_chain_pt)(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit);
 
 struct ngx_os_io_t {
@@ -30,13 +30,13 @@ ngx_int_t ngx_os_init(ngx_log_t * log);
 void ngx_os_status(ngx_log_t * log);
 ngx_int_t ngx_os_signal_process(ngx_cycle_t * cycle, const char * sig, ngx_pid_t pid);
 
-ssize_t ngx_wsarecv(ngx_connection_t * c, u_char * buf, size_t size);
-ssize_t ngx_overlapped_wsarecv(ngx_connection_t * c, u_char * buf, size_t size);
-ssize_t ngx_udp_wsarecv(ngx_connection_t * c, u_char * buf, size_t size);
-ssize_t ngx_udp_overlapped_wsarecv(ngx_connection_t * c, u_char * buf, size_t size);
+ssize_t ngx_wsarecv(ngx_connection_t * c, uchar * buf, size_t size);
+ssize_t ngx_overlapped_wsarecv(ngx_connection_t * c, uchar * buf, size_t size);
+ssize_t ngx_udp_wsarecv(ngx_connection_t * c, uchar * buf, size_t size);
+ssize_t ngx_udp_overlapped_wsarecv(ngx_connection_t * c, uchar * buf, size_t size);
 ssize_t ngx_wsarecv_chain(ngx_connection_t * c, ngx_chain_t * chain, nginx_off_t limit);
-ssize_t ngx_wsasend(ngx_connection_t * c, u_char * buf, size_t size);
-ssize_t ngx_overlapped_wsasend(ngx_connection_t * c, u_char * buf, size_t size);
+ssize_t ngx_wsasend(ngx_connection_t * c, uchar * buf, size_t size);
+ssize_t ngx_overlapped_wsasend(ngx_connection_t * c, uchar * buf, size_t size);
 ngx_chain_t * ngx_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit);
 ngx_chain_t * ngx_overlapped_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit);
 

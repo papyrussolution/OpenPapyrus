@@ -1601,15 +1601,15 @@ static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
 	FILETIME * p_w_lm_ft = 0;
 	if(tmNs100Creation) {
 		p_w_cr_ft = &w_cr_ft;
-		w_cr_ft = *reinterpret_cast<const FILETIME *>(tmNs100Creation);
+		w_cr_ft = *reinterpret_cast<const FILETIME *>(&tmNs100Creation); // @v11.9.1 @fix (tmNs100Creation)-->(&tmNs100Creation)
 	}
 	if(tmNs100LastAccess) {
 		p_w_la_ft = &w_la_ft;
-		w_la_ft = *reinterpret_cast<const FILETIME *>(tmNs100LastAccess);
+		w_la_ft = *reinterpret_cast<const FILETIME *>(&tmNs100LastAccess); // @v11.9.1 @fix (tmNs100LastAccess)-->(&tmNs100LastAccess)
 	}
 	if(tmNs100LastModif) {
 		p_w_lm_ft = &w_lm_ft;
-		w_lm_ft = *reinterpret_cast<const FILETIME *>(tmNs100LastModif);
+		w_lm_ft = *reinterpret_cast<const FILETIME *>(&tmNs100LastModif); // @v11.9.1 @fix (tmNs100LastModif)-->(&tmNs100LastModif)
 	}
 	if(p_w_cr_ft || p_w_la_ft || p_w_lm_ft)
 		return BIN(::SetFileTime(hFile, p_w_cr_ft, p_w_la_ft, p_w_lm_ft));

@@ -29,7 +29,7 @@ ngx_int_t ngx_service(ngx_log_t * log)
 	return NGX_OK;
 }
 
-void service_main(u_int argc, char ** argv)
+void service_main(uint argc, char ** argv)
 {
 	SERVICE_STATUS status;
 	/* thread spawned by SCM */
@@ -45,16 +45,12 @@ void service_main(u_int argc, char ** argv)
 	status.dwServiceSpecificExitCode = 0;
 	status.dwCheckPoint = 1;
 	status.dwWaitHint = 2000;
-
 	/* SetServiceStatus() should be called within 80 seconds */
-
 	if(SetServiceStatus(service, &status) == 0) {
 		ngx_log_error(NGX_LOG_EMERG, log, ngx_errno, "SetServiceStatus() failed");
 		return;
 	}
-
 	/* init */
-
 	status.dwCurrentState = SERVICE_RUNNING;
 	status.dwCheckPoint = 0;
 	status.dwWaitHint = 0;
@@ -63,14 +59,13 @@ void service_main(u_int argc, char ** argv)
 		return;
 	}
 	/* call master or worker loop */
-
 	/*
 	 * master should use event notification and look status
 	 * single should use iocp to get notifications from service handler
 	 */
 }
 
-u_int service_handler(u_int control, u_int type, void * data, void * ctx)
+uint service_handler(uint control, uint type, void * data, void * ctx)
 {
 	/* primary thread */
 	switch(control) {

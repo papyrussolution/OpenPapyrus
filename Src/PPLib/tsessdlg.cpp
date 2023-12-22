@@ -890,10 +890,10 @@ void TSessionDialog::SetPlannedTiming(long sec)
 		r_temp_buf.Cat(tm, TIMF_HMS);
 	}
 	else {
-		const long nd = as_ / SSECSPERDAY;
+		const long nd = as_ / SlConst::SecsPerDay;
 		if(nd)
 			r_temp_buf.Cat(nd).CatChar('d').Space();
-		tm.settotalsec(as_ % SSECSPERDAY);
+		tm.settotalsec(as_ % SlConst::SecsPerDay);
 		r_temp_buf.Cat(tm, TIMF_HMS);
 	}
 	setCtrlString(CTL_TSESS_PLANTIMING, r_temp_buf);
@@ -924,7 +924,7 @@ long TSessionDialog::GetPlannedTiming()
 	LTIME tm;
 	if(nd >= 0) {
 		strtotime(scan, TIMF_HMS, &tm);
-		sec = tm.totalsec() + (nd * SSECSPERDAY);
+		sec = tm.totalsec() + (nd * SlConst::SecsPerDay);
 	}
 	else {
 		strtotime(line_buf, TIMF_HMS, &tm);

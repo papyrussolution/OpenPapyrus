@@ -11,7 +11,7 @@
 
 // 7zCrc.c -- CRC32 init
 
-#ifdef MY_CPU_LE
+#if defined(SL_LITTLEENDIAN)
 	#define CRC32_NUM_TABLES 8
 #else
 	#define CRC32_NUM_TABLES 9
@@ -20,7 +20,7 @@
 	uint32 FASTCALL CrcUpdateT1_BeT4(uint32 v, const void * data, size_t size, const uint32 * table);
 	uint32 FASTCALL CrcUpdateT1_BeT8(uint32 v, const void * data, size_t size, const uint32 * table);
 #endif
-#ifndef MY_CPU_BE
+#if !defined(SL_BIGENDIAN)
 	uint32 FASTCALL CrcUpdateT4(uint32 v, const void * data, size_t size, const uint32 * table);
 	uint32 FASTCALL CrcUpdateT8(uint32 v, const void * data, size_t size, const uint32 * table);
 #endif
@@ -62,7 +62,7 @@ void FASTCALL CrcGenerateTable()
 #if CRC32_NUM_TABLES < 4
 	g_CrcUpdate = CrcUpdateT1;
 #else
-	#ifdef MY_CPU_LE
+	#if defined(SL_LITTLEENDIAN)
 	g_CrcUpdateT4 = CrcUpdateT4;
 	g_CrcUpdate = CrcUpdateT4;
 		#if CRC32_NUM_TABLES >= 8
@@ -74,7 +74,7 @@ void FASTCALL CrcGenerateTable()
 		#endif
 	#else
 	{
-    #ifndef MY_CPU_BE
+    #if !defined(SL_BIGENDIAN)
 		uint32 k = 0x01020304;
 		const Byte * p = (const Byte *)&k;
 		if(p[0] == 4 && p[1] == 3) {
@@ -103,14 +103,12 @@ void FASTCALL CrcGenerateTable()
 		}
 	}
   #endif
-
   #endif
 }
 //
 // 7zCrcOpt.c -- CRC32 calculation
-#ifndef MY_CPU_BE
+#if !defined(SL_BIGENDIAN)
 	//#define CRC_UPDATE_BYTE_2(crc, b) (table[((crc) ^ (b)) & 0xFF] ^ ((crc) >> 8))
-
 	uint32 FASTCALL CrcUpdateT4(uint32 v, const void * data, size_t size, const uint32 * table)
 	{
 		const Byte * p = (const Byte *)data;
@@ -142,7 +140,7 @@ void FASTCALL CrcGenerateTable()
 		return v;
 	}
 #endif
-#ifndef MY_CPU_LE
+#if !defined(SL_LITTLEENDIAN)
 	#define CRC_UINT32_SWAP(v) ((v >> 24) | ((v >> 8) & 0xFF00) | ((v << 8) & 0xFF0000) | (v << 24))
 	#define CRC_UPDATE_BYTE_2_BE(crc, b) (table[(((crc) >> 24) ^ (b))] ^ ((crc) << 8))
 
@@ -183,7 +181,7 @@ void FASTCALL CrcGenerateTable()
 #endif
 //
 // XzCrc64.c -- CRC64 calculation
-#ifdef MY_CPU_LE
+#if defined(SL_LITTLEENDIAN)
 	#define CRC64_NUM_TABLES 4
 #else
 	#define CRC64_NUM_TABLES 5
@@ -193,7 +191,7 @@ void FASTCALL CrcGenerateTable()
 
 	uint64 FASTCALL XzCrc64UpdateT1_BeT4(uint64 v, const void * data, size_t size, const uint64 * table);
 #endif
-#ifndef MY_CPU_BE
+#if !defined(SL_BIGENDIAN)
 	uint64 FASTCALL XzCrc64UpdateT4(uint64 v, const void * data, size_t size, const uint64 * table);
 #endif
 
@@ -219,11 +217,11 @@ void FASTCALL Crc64GenerateTable()
 		uint64 r = g_Crc64Table[(size_t)i - 256];
 		g_Crc64Table[i] = g_Crc64Table[r & 0xFF] ^ (r >> 8);
 	}
-#ifdef MY_CPU_LE
+#if defined(SL_LITTLEENDIAN)
 	g_Crc64Update = XzCrc64UpdateT4;
 #else
 	{
-    #ifndef MY_CPU_BE
+    #if !defined(SL_BIGENDIAN)
 		uint32 k = 1;
 		if(*(const Byte *)&k == 1)
 			g_Crc64Update = XzCrc64UpdateT4;
@@ -241,9 +239,8 @@ void FASTCALL Crc64GenerateTable()
 }
 //
 // XzCrc64Opt.c -- CRC64 calculation
-#ifndef MY_CPU_BE
+#if !defined(SL_BIGENDIAN)
 	//#define CRC_UPDATE_BYTE_2(crc, b) (table[((crc) ^ (b)) & 0xFF] ^ ((crc) >> 8))
-
 	uint64 FASTCALL XzCrc64UpdateT4(uint64 v, const void * data, size_t size, const uint64 * table)
 	{
 		const Byte * p = (const Byte *)data;
@@ -258,7 +255,7 @@ void FASTCALL Crc64GenerateTable()
 		return v;
 	}
 #endif
-#ifndef MY_CPU_LE
+#if !defined(SL_LITTLEENDIAN)
 	#define CRC_UINT64_SWAP(v) ((v >> 56) | ((v >> 40) & ((uint64)0xFF <<  8)) | ((v >> 24) & ((uint64)0xFF << 16)) | \
 		((v >>  8) & ((uint64)0xFF << 24)) | ((v <<  8) & ((uint64)0xFF << 32)) | ((v << 24) & ((uint64)0xFF << 40)) | ((v << 40) & ((uint64)0xFF << 48)) | ((v << 56)))
 	#define CRC64_UPDATE_BYTE_2_BE(crc, b) (table[(Byte)((crc) >> 56) ^ (b)] ^ ((crc) << 8))

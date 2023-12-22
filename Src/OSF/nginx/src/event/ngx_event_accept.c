@@ -203,7 +203,7 @@ void ngx_event_accept(ngx_event_t * ev)
 		(void)ngx_atomic_fetch_add(ngx_stat_handled, 1);
 #endif
 		if(ls->addr_ntop) {
-			c->addr_text.data = (u_char *)ngx_pnalloc(c->pool, ls->addr_text_max_len);
+			c->addr_text.data = (uchar *)ngx_pnalloc(c->pool, ls->addr_text_max_len);
 			if(c->addr_text.data == NULL) {
 				ngx_close_accepted_connection(c);
 				return;
@@ -217,7 +217,7 @@ void ngx_event_accept(ngx_event_t * ev)
 #if (NGX_DEBUG)
 		{
 			ngx_str_t addr;
-			u_char text[NGX_SOCKADDR_STRLEN];
+			uchar text[NGX_SOCKADDR_STRLEN];
 			ngx_debug_accepted_connection(ecf, c);
 			if(log->Level & NGX_LOG_DEBUG_EVENT) {
 				addr.data = text;
@@ -255,15 +255,15 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 	ngx_listening_t * ls;
 	ngx_event_conf_t  * ecf;
 	ngx_connection_t  * c, * lc;
-	static u_char buffer[65535];
+	static uchar buffer[65535];
 #if (NGX_HAVE_MSGHDR_MSG_CONTROL)
 	#if (NGX_HAVE_IP_RECVDSTADDR)
-		u_char msg_control[CMSG_SPACE(sizeof(struct in_addr))];
+		uchar msg_control[CMSG_SPACE(sizeof(struct in_addr))];
 	#elif (NGX_HAVE_IP_PKTINFO)
-		u_char msg_control[CMSG_SPACE(sizeof(struct in_pktinfo))];
+		uchar msg_control[CMSG_SPACE(sizeof(struct in_pktinfo))];
 	#endif
 	#if (NGX_HAVE_INET6 && NGX_HAVE_IPV6_RECVPKTINFO)
-		u_char msg_control6[CMSG_SPACE(sizeof(struct in6_pktinfo))];
+		uchar msg_control6[CMSG_SPACE(sizeof(struct in6_pktinfo))];
 	#endif
 #endif
 	if(ev->timedout) {
@@ -440,7 +440,7 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 #if (NGX_DEBUG)
 		{
 			ngx_str_t addr;
-			u_char text[NGX_SOCKADDR_STRLEN];
+			uchar text[NGX_SOCKADDR_STRLEN];
 			ngx_debug_accepted_connection(ecf, c);
 			if(log->log_level & NGX_LOG_DEBUG_EVENT) {
 				addr.data = text;
@@ -540,7 +540,7 @@ static void ngx_close_accepted_connection(ngx_connection_t * c)
 #endif
 }
 
-u_char * ngx_accept_log_error(ngx_log_t * log, u_char * buf, size_t len)
+uchar * ngx_accept_log_error(ngx_log_t * log, uchar * buf, size_t len)
 {
 	return ngx_snprintf(buf, len, " while accepting new connection on %V", log->data);
 }

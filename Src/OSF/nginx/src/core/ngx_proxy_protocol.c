@@ -6,11 +6,11 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
-u_char * ngx_proxy_protocol_read(ngx_connection_t * c, u_char * buf, u_char * last)
+uchar * ngx_proxy_protocol_read(ngx_connection_t * c, uchar * buf, uchar * last)
 {
-	u_char ch, * addr, * port;
+	uchar ch, * addr, * port;
 	ngx_int_t n;
-	u_char * p = buf;
+	uchar * p = buf;
 	size_t len = last - buf;
 	if(len < 8 || ngx_strncmp(p, "PROXY ", 6) != 0) {
 		goto invalid;
@@ -40,7 +40,7 @@ u_char * ngx_proxy_protocol_read(ngx_connection_t * c, u_char * buf, u_char * la
 		}
 	}
 	len = p - addr - 1;
-	c->proxy_protocol_addr.data = (u_char *)ngx_pnalloc(c->pool, len);
+	c->proxy_protocol_addr.data = (uchar *)ngx_pnalloc(c->pool, len);
 	if(c->proxy_protocol_addr.data == NULL) {
 		return NULL;
 	}
@@ -81,7 +81,7 @@ invalid:
 	return NULL;
 }
 
-u_char * ngx_proxy_protocol_write(ngx_connection_t * c, u_char * buf, u_char * last)
+uchar * ngx_proxy_protocol_write(ngx_connection_t * c, uchar * buf, uchar * last)
 {
 	ngx_uint_t port, lport;
 	if((last - buf) < NGX_PROXY_PROTOCOL_MAX_HEADER) {

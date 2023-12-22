@@ -88,7 +88,7 @@ typedef intptr_t        ngx_flag_t;
 	#define NGX_ALIGNMENT   sizeof(ulong)    /* platform word */
 #endif
 #define ngx_align(d, a)     (((d) + (a - 1)) & ~(a - 1))
-#define ngx_align_ptr(p, a) reinterpret_cast<u_char *>(((uintptr_t)(p) + ((uintptr_t)a - 1)) & ~((uintptr_t)a - 1))
+#define ngx_align_ptr(p, a) reinterpret_cast<uchar *>(((uintptr_t)(p) + ((uintptr_t)a - 1)) & ~((uintptr_t)a - 1))
 
 #define ngx_abort       abort
 
@@ -107,8 +107,8 @@ typedef intptr_t        ngx_flag_t;
 #else
 	#define NGX_MAXHOSTNAMELEN  256
 #endif
-#define NGX_MAX_UINT32_VALUE  (uint32_t) 0xffffffff
-#define NGX_MAX_INT32_VALUE   (uint32_t) 0x7fffffff
+#define NGX_MAX_UINT32_VALUE  (uint32_t)0xffffffff
+#define NGX_MAX_INT32_VALUE   (uint32_t)0x7fffffff
 
 #if (NGX_COMPAT)
 	#define NGX_COMPAT_BEGIN(slots)  uint64_t spare[slots];

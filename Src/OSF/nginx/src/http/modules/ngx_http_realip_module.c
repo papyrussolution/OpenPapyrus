@@ -83,7 +83,7 @@ static ngx_http_variable_t ngx_http_realip_vars[] = {
 
 static ngx_int_t ngx_http_realip_handler(ngx_http_request_t * r)
 {
-	u_char  * p;
+	uchar  * p;
 	size_t len;
 	ngx_str_t * value;
 	ngx_uint_t i, hash;
@@ -167,7 +167,7 @@ static ngx_int_t ngx_http_realip_set_addr(ngx_http_request_t * r, ngx_addr_t * a
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	else {
-		u_char text[NGX_SOCKADDR_STRLEN];
+		uchar text[NGX_SOCKADDR_STRLEN];
 		ngx_http_realip_ctx_t  * ctx = (ngx_http_realip_ctx_t *)cln->data;
 		ngx_connection_t  * c = r->connection;
 		size_t len = ngx_sock_ntop(addr->sockaddr, addr->socklen, text, NGX_SOCKADDR_STRLEN, 0);
@@ -175,7 +175,7 @@ static ngx_int_t ngx_http_realip_set_addr(ngx_http_request_t * r, ngx_addr_t * a
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 		else {
-			u_char * p = (u_char *)ngx_pnalloc(c->pool, len);
+			uchar * p = (uchar *)ngx_pnalloc(c->pool, len);
 			if(!p) {
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;
 			}
@@ -411,7 +411,7 @@ static ngx_int_t ngx_http_realip_remote_port_variable(ngx_http_request_t * r, ng
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-	v->data = (u_char *)ngx_pnalloc(r->pool, sizeof("65535") - 1);
+	v->data = (uchar *)ngx_pnalloc(r->pool, sizeof("65535") - 1);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}

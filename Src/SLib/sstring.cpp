@@ -271,13 +271,88 @@ int SRegExpSet::InitRePhone()
 //
 //
 //
-SStrScan::SStrScan(const char * pBuf, size_t offs) : SRegExpSet()
+SStrScan::SStrScan(const char * pBuf, size_t offs) : SRegExpSet(), P_Tr(0), P_NtA(0), P_NtStat(0)
 {
 	Set(pBuf, offs);
 }
 
 SStrScan::~SStrScan()
 {
+	delete P_Tr; // @v11.9.1
+	delete P_NtA; // @v11.9.1
+	delete P_NtStat; // @v11.9.1
+}
+
+bool SStrScan::InitNaturalTokenRecognizer() const
+{
+	bool    ok = true;
+	THROW(SETIFZ(P_Tr, new STokenRecognizer()));
+	THROW(SETIFZ(P_NtA, new SNaturalTokenArray()));
+	THROW(SETIFZ(P_NtStat, new SNaturalTokenStat()));
+	CATCHZOK
+	return ok;
+}
+
+bool SStrScan::IsNaturalToken(uint32 ntok, bool greedy, size_t * pLen) const
+{
+	bool    ok = false;
+	if(InitNaturalTokenRecognizer()) {
+		const  char * p_buf = P_Buf+Offs;
+		const size_t max_scan_len = sstrlen(p_buf);
+		size_t prev_succs_len = 0;
+		for(size_t len = 1; len <= max_scan_len; len++) {
+			P_NtA->clear();
+			P_NtStat->Z();
+			P_Tr->Run(reinterpret_cast<const uchar *>(p_buf), len, *P_NtA, P_NtStat);
+			if(P_NtA->Has(ntok)) {
+				if(!greedy) {
+					ASSIGN_PTR(pLen, len);
+					ok = true;
+					break;
+				}
+				else
+					prev_succs_len = len;
+			}
+			else if(prev_succs_len) {
+				assert(greedy);
+				ASSIGN_PTR(pLen, prev_succs_len);
+				ok = true;
+				break;
+			}
+		}
+	}
+	return ok;
+}
+
+int  SStrScan::GetNaturalToken(uint32 ntok, bool greedy)
+{
+	int    ok = 0;
+	if(InitNaturalTokenRecognizer()) {
+		const  char * p_buf = P_Buf+Offs;
+		const size_t max_scan_len = sstrlen(p_buf);
+		size_t prev_succs_len = 0;
+		for(size_t len = 1; len <= max_scan_len; len++) {
+			P_NtA->clear();
+			P_NtStat->Z();
+			P_Tr->Run(reinterpret_cast<const uchar *>(p_buf), len, *P_NtA, P_NtStat);
+			if(P_NtA->Has(ntok)) {
+				if(!greedy) {
+					Len = len;
+					ok = true;
+					break;
+				}
+				else
+					prev_succs_len = len;
+			}
+			else if(prev_succs_len) {
+				assert(greedy);
+				Len = prev_succs_len;
+				ok = true;
+				break;
+			}
+		}		
+	}
+	return ok;
 }
 
 void FASTCALL SStrScan::Push(uint * pPrevPos)
@@ -1143,18 +1218,21 @@ const char * SString::SearchCharPos(size_t startPos, int c, size_t * pPos) const
 
 const char * SString::SearchChar(int c, size_t * pPos) const
 {
-	/* @v10.3.11
+	return SearchCharPos(0, c, pPos);
+}
+
+const char * SString::SearchRChar(int c, size_t * pPos) const
+{
+	const char * p_result = 0;
 	size_t pos = 0;
-	const  char * p = 0;
-	if(L) {
-		p = static_cast<const char *>(memchr(P_Buf, static_cast<uchar>(c), Len()));
-		if(p)
-			pos = static_cast<size_t>(p - P_Buf);
+	if(Len()) {
+		p_result = sstrrchr(P_Buf, c);
+		if(p_result) {
+			pos = p_result - P_Buf;
+		}
 	}
 	ASSIGN_PTR(pPos, pos);
-	return p;
-	*/
-	return SearchCharPos(0, c, pPos); // @v10.3.11
+	return p_result;
 }
 
 bool FASTCALL SString::HasChr(int c) const
@@ -2106,14 +2184,14 @@ SString & FASTCALL SString::Transf(int ctransf)
 			case CTRANSF_INNER_TO_OUTER: OemToCharA(P_Buf, P_Buf); break; // @unicodeproblem
 			case CTRANSF_OUTER_TO_INNER: CharToOemA(P_Buf, P_Buf); break; // @unicodeproblem
 			case CTRANSF_INNER_TO_UTF8:
-				if(IsLegalUtf8()) // @v11.8.5
+				if(IsLegalUtf8() && !IsCp866()) // @v11.8.5 // @v11.9.1 (&& !IsCp866())
 					return *this;
 				else {
 					OemToCharA(P_Buf, P_Buf); // @unicodeproblem
 					return Helper_MbToMb(CP_ACP, CP_UTF8);
 				}
 			case CTRANSF_OUTER_TO_UTF8: 
-				if(IsLegalUtf8()) // @v11.8.5
+				if(IsLegalUtf8() && !IsCp1251()) // @v11.8.5 // @v11.9.1 (&& !IsCp1251())
 					return *this;
 				else
 					return Helper_MbToMb(CP_ACP, CP_UTF8);
@@ -3226,20 +3304,81 @@ const char * sitoa(int val, char * pBuf, size_t bufLen) // @construction
 	return 0;
 }
 
+#define _MUL10(v) (((v) << 1) + ((v) << 3))
+
 uint32 FASTCALL _texttodec32(const char * pT, uint len)
 {
 	uint32 result;
 	switch(len) {
-		case 0: result = 0; break;
-		case 1: result = pT[0] - '0'; break;
-		case 2: result = (10 * (pT[0] - '0')) + (pT[1] - '0'); break;
-		case 3: result = (100 * (pT[0] - '0')) + (10 * (pT[1] - '0')) + (pT[2] - '0'); break;
-		case 4: result = (1000 * (pT[0] - '0')) + (100 * (pT[1] - '0')) + (10 * (pT[2] - '0')) + (pT[3] - '0'); break;
-		case 5: result = (10000 * (pT[0] - '0')) + (1000 * (pT[1] - '0')) + (100 * (pT[2] - '0')) + (10 * (pT[3] - '0')) + (pT[4] - '0'); break;
+		case 0: break;
+		case 1: result = (pT[0] - '0'); break;
+		case 2:
+			result = (pT[0] - '0');
+			result = _MUL10(result) + (pT[1] - '0');
+			break;
+		case 3:
+			result = (pT[0] - '0');
+			result = _MUL10(result) + (pT[1] - '0');
+			result = _MUL10(result) + (pT[2] - '0');
+			break;
+		case 4:
+			result = (pT[0] - '0');
+			result = _MUL10(result) + (pT[1] - '0');
+			result = _MUL10(result) + (pT[2] - '0');
+			result = _MUL10(result) + (pT[3] - '0');
+			break;
+		case 5:
+			result = (pT[0] - '0');
+			result = _MUL10(result) + (pT[1] - '0');
+			result = _MUL10(result) + (pT[2] - '0');
+			result = _MUL10(result) + (pT[3] - '0');
+			result = _MUL10(result) + (pT[4] - '0');
+			break;
+		case 6:
+			result = (pT[0] - '0');
+			result = _MUL10(result) + (pT[1] - '0');
+			result = _MUL10(result) + (pT[2] - '0');
+			result = _MUL10(result) + (pT[3] - '0');
+			result = _MUL10(result) + (pT[4] - '0');
+			result = _MUL10(result) + (pT[5] - '0');
+			break;
+		case 7:
+			result = (pT[0] - '0');
+			result = _MUL10(result) + (pT[1] - '0');
+			result = _MUL10(result) + (pT[2] - '0');
+			result = _MUL10(result) + (pT[3] - '0');
+			result = _MUL10(result) + (pT[4] - '0');
+			result = _MUL10(result) + (pT[5] - '0');
+			result = _MUL10(result) + (pT[6] - '0');
+			break;
+		case 8:
+			result = (pT[0] - '0');
+			result = _MUL10(result) + (pT[1] - '0');
+			result = _MUL10(result) + (pT[2] - '0');
+			result = _MUL10(result) + (pT[3] - '0');
+			result = _MUL10(result) + (pT[4] - '0');
+			result = _MUL10(result) + (pT[5] - '0');
+			result = _MUL10(result) + (pT[6] - '0');
+			result = _MUL10(result) + (pT[7] - '0');
+			break;
+		case 9:
+			result = (pT[0] - '0');
+			result = _MUL10(result) + (pT[1] - '0');
+			result = _MUL10(result) + (pT[2] - '0');
+			result = _MUL10(result) + (pT[3] - '0');
+			result = _MUL10(result) + (pT[4] - '0');
+			result = _MUL10(result) + (pT[5] - '0');
+			result = _MUL10(result) + (pT[6] - '0');
+			result = _MUL10(result) + (pT[7] - '0');
+			result = _MUL10(result) + (pT[8] - '0');
+			break;
 		default:
-			result = 0;
-			for(uint i = 0; i < len; i++)
-				result = (result * 10) + (pT[i] - '0');
+			{
+				result = (pT[0] - '0');
+				for(uint i = 1; i < len; ++i) {
+					result = _MUL10(result) + (pT[i] - '0');
+				}
+			}
 			break;
 	}
 	return result;
@@ -3248,12 +3387,13 @@ uint32 FASTCALL _texttodec32(const char * pT, uint len)
 Интересный подход у jsteemann (https://github.com/jsteemann/atoi.git)
 позволяет избежать операции умножения.
 Надо проверить производительность этого решения по сравнению с другими.
+// @v11.9.1 Проверил - работает быстрее: использовал в действующей реализации
 //
 template <typename T> inline T atoi_negative_unchecked(char const* p, char const* e) noexcept 
 {
 	T result = 0;
 	while(p != e) {
-		result = (result << 1) + (result << 3) - (*(p++) - '0');
+		result = _MUL10(result) - (*(p++) - '0');
 	}
 	return result;
 }
@@ -3262,7 +3402,7 @@ template <typename T> inline T atoi_positive_unchecked(char const* p, char const
 {
 	T result = 0;
 	while(p != e) {
-		result = (result << 1) + (result << 3) + *(p++) - '0';
+		result = _MUL10(result) + *(p++) - '0';
 	}
 	return result;
 }
@@ -3312,45 +3452,195 @@ uint32 FASTCALL _texttodec32(const wchar_t * pT, uint len)
 {
 	uint32 result;
 	switch(len) {
-		case 0: result = 0; break;
-		case 1: result = pT[0] - L'0'; break;
-		case 2: result = (10 * (pT[0] - L'0')) + (pT[1] - L'0'); break;
-		case 3: result = (100 * (pT[0] - L'0')) + (10 * (pT[1] - L'0')) + (pT[2] - L'0'); break;
-		case 4: result = (1000 * (pT[0] - L'0')) + (100 * (pT[1] - L'0')) + (10 * (pT[2] - L'0')) + (pT[3] - L'0'); break;
-		case 5: result = (10000 * (pT[0] - L'0')) + (1000 * (pT[1] - L'0')) + (100 * (pT[2] - L'0')) + (10 * (pT[3] - L'0')) + (pT[4] - L'0'); break;
+		case 0: break;
+		case 1: result = (pT[0] - L'0'); break;
+		case 2:
+			result = (pT[0] - L'0');
+			result = _MUL10(result) + (pT[1] - L'0');
+			break;
+		case 3:
+			result = (pT[0] - L'0');
+			result = _MUL10(result) + (pT[1] - L'0');
+			result = _MUL10(result) + (pT[2] - L'0');
+			break;
+		case 4:
+			result = (pT[0] - L'0');
+			result = _MUL10(result) + (pT[1] - L'0');
+			result = _MUL10(result) + (pT[2] - L'0');
+			result = _MUL10(result) + (pT[3] - L'0');
+			break;
+		case 5:
+			result = (pT[0] - L'0');
+			result = _MUL10(result) + (pT[1] - L'0');
+			result = _MUL10(result) + (pT[2] - L'0');
+			result = _MUL10(result) + (pT[3] - L'0');
+			result = _MUL10(result) + (pT[4] - L'0');
+			break;
+		case 6:
+			result = (pT[0] - L'0');
+			result = _MUL10(result) + (pT[1] - L'0');
+			result = _MUL10(result) + (pT[2] - L'0');
+			result = _MUL10(result) + (pT[3] - L'0');
+			result = _MUL10(result) + (pT[4] - L'0');
+			result = _MUL10(result) + (pT[5] - L'0');
+			break;
+		case 7:
+			result = (pT[0] - L'0');
+			result = _MUL10(result) + (pT[1] - L'0');
+			result = _MUL10(result) + (pT[2] - L'0');
+			result = _MUL10(result) + (pT[3] - L'0');
+			result = _MUL10(result) + (pT[4] - L'0');
+			result = _MUL10(result) + (pT[5] - L'0');
+			result = _MUL10(result) + (pT[6] - L'0');
+			break;
+		case 8:
+			result = (pT[0] - L'0');
+			result = _MUL10(result) + (pT[1] - L'0');
+			result = _MUL10(result) + (pT[2] - L'0');
+			result = _MUL10(result) + (pT[3] - L'0');
+			result = _MUL10(result) + (pT[4] - L'0');
+			result = _MUL10(result) + (pT[5] - L'0');
+			result = _MUL10(result) + (pT[6] - L'0');
+			result = _MUL10(result) + (pT[7] - L'0');
+			break;
+		case 9:
+			result = (pT[0] - L'0');
+			result = _MUL10(result) + (pT[1] - L'0');
+			result = _MUL10(result) + (pT[2] - L'0');
+			result = _MUL10(result) + (pT[3] - L'0');
+			result = _MUL10(result) + (pT[4] - L'0');
+			result = _MUL10(result) + (pT[5] - L'0');
+			result = _MUL10(result) + (pT[6] - L'0');
+			result = _MUL10(result) + (pT[7] - L'0');
+			result = _MUL10(result) + (pT[8] - L'0');
+			break;
 		default:
-			result = 0;
-			for(uint i = 0; i < len; i++)
-				result = (result * 10) + (pT[i] - L'0');
+			{
+				result = (pT[0] - L'0');
+				for(uint i = 1; i < len; ++i) {
+					result = _MUL10(result) + (pT[i] - L'0');
+				}
+			}
+			break;
+	}
+	return result;
+}
+//
+// @v11.9.1 Немного изменен механизм перевода строки в целое число. Стало значительно быстрее
+//
+uint64 FASTCALL _texttodec64(const char * pT, uint len)
+{
+	if(len < 10) {
+		uint32 result = 0;
+		switch(len) {
+			case 0: break;
+			case 1: result = (pT[0] - '0'); break;
+			case 2:
+				result = (pT[0] - '0');
+				result = _MUL10(result) + (pT[1] - '0');
+				break;
+			case 3:
+				result = (pT[0] - '0');
+				result = _MUL10(result) + (pT[1] - '0');
+				result = _MUL10(result) + (pT[2] - '0');
+				break;
+			case 4:
+				result = (pT[0] - '0');
+				result = _MUL10(result) + (pT[1] - '0');
+				result = _MUL10(result) + (pT[2] - '0');
+				result = _MUL10(result) + (pT[3] - '0');
+				break;
+			case 5:
+				result = (pT[0] - '0');
+				result = _MUL10(result) + (pT[1] - '0');
+				result = _MUL10(result) + (pT[2] - '0');
+				result = _MUL10(result) + (pT[3] - '0');
+				result = _MUL10(result) + (pT[4] - '0');
+				break;
+			case 6:
+				result = (pT[0] - '0');
+				result = _MUL10(result) + (pT[1] - '0');
+				result = _MUL10(result) + (pT[2] - '0');
+				result = _MUL10(result) + (pT[3] - '0');
+				result = _MUL10(result) + (pT[4] - '0');
+				result = _MUL10(result) + (pT[5] - '0');
+				break;
+			case 7:
+				result = (pT[0] - '0');
+				result = _MUL10(result) + (pT[1] - '0');
+				result = _MUL10(result) + (pT[2] - '0');
+				result = _MUL10(result) + (pT[3] - '0');
+				result = _MUL10(result) + (pT[4] - '0');
+				result = _MUL10(result) + (pT[5] - '0');
+				result = _MUL10(result) + (pT[6] - '0');
+				break;
+			case 8:
+				result = (pT[0] - '0');
+				result = _MUL10(result) + (pT[1] - '0');
+				result = _MUL10(result) + (pT[2] - '0');
+				result = _MUL10(result) + (pT[3] - '0');
+				result = _MUL10(result) + (pT[4] - '0');
+				result = _MUL10(result) + (pT[5] - '0');
+				result = _MUL10(result) + (pT[6] - '0');
+				result = _MUL10(result) + (pT[7] - '0');
+				break;
+			case 9:
+				result = (pT[0] - '0');
+				result = _MUL10(result) + (pT[1] - '0');
+				result = _MUL10(result) + (pT[2] - '0');
+				result = _MUL10(result) + (pT[3] - '0');
+				result = _MUL10(result) + (pT[4] - '0');
+				result = _MUL10(result) + (pT[5] - '0');
+				result = _MUL10(result) + (pT[6] - '0');
+				result = _MUL10(result) + (pT[7] - '0');
+				result = _MUL10(result) + (pT[8] - '0');
+				break;
+			default:
+				assert(0);
+				break;
+		}
+		return static_cast<uint64>(result);
+	}
+	else {
+		uint64 result = (pT[0] - '0');
+		for(uint i = 1; i < len; ++i) {
+			result = _MUL10(result) + (pT[i] - '0');
+		}
+		return result;
+	}
+}
+//
+// До @v11.9.1 это был основной механизм перевода строки в целое число.
+//
+uint64 FASTCALL _texttodec64_2(const char * pT, uint len)
+{
+	uint64 result;
+	switch(len) {
+		case 0: result = 0; break;
+		//case 1: result = pT[0] - '0'; break;
+		//case 2: result = (10 * (pT[0] - '0')) + (pT[1] - '0'); break;
+		//case 3: result = (100 * (pT[0] - '0')) + (10 * (pT[1] - '0')) + (pT[2] - '0'); break;
+		//case 4: result = (1000 * (pT[0] - '0')) + (100 * (pT[1] - '0')) + (10 * (pT[2] - '0')) + (pT[3] - '0'); break;
+		//case 5: result = (10000 * (pT[0] - '0')) + (1000 * (pT[1] - '0')) + (100 * (pT[2] - '0')) + (10 * (pT[3] - '0')) + (pT[4] - '0'); break;
+		//case 6: result = (100000 * (pT[0] - '0')) + (10000 * (pT[1] - '0')) + (1000 * (pT[2] - '0')) + (100 * (pT[3] - '0')) + (10 * (pT[4] - '0')) + (pT[5] - '0'); break;
+		default:
+			result = (pT[0] - '0');
+			for(uint i = 1; i < len; ++i) {
+				//result = (result * 10) + (pT[i] - '0');
+				result = _MUL10(result) + (pT[i] - '0');
+			}
 			break;
 	}
 	return result;
 }
 
-uint64 FASTCALL _texttodec64(const char * pT, uint len)
-{
-	uint64 result;
-	switch(len) {
-		case 0: result = 0; break;
-		case 1: result = pT[0] - '0'; break;
-		case 2: result = (10 * (pT[0] - '0')) + (pT[1] - '0'); break;
-		case 3: result = (100 * (pT[0] - '0')) + (10 * (pT[1] - '0')) + (pT[2] - '0'); break;
-		case 4: result = (1000 * (pT[0] - '0')) + (100 * (pT[1] - '0')) + (10 * (pT[2] - '0')) + (pT[3] - '0'); break;
-		case 5: result = (10000 * (pT[0] - '0')) + (1000 * (pT[1] - '0')) + (100 * (pT[2] - '0')) + (10 * (pT[3] - '0')) + (pT[4] - '0'); break;
-		default:
-			result = 0;
-			for(uint i = 0; i < len; i++)
-				result = (result * 10) + (pT[i] - '0');
-			break;
-	}
-	return result;
-}
+#undef _MUL10
 
 uint32 FASTCALL _texttohex32(const char * pT, uint len)
 {
 	uint32 result = 0;
 	for(uint i = 0; i < len; i++) {
-		result = (result * 16) + hex(pT[i]);
+		result = (result << 4) + hex(pT[i]);
 	}
 	return result;
 }
@@ -3359,7 +3649,25 @@ uint32 FASTCALL _texttohex32(const wchar_t * pT, uint len)
 {
 	uint32 result = 0;
 	for(uint i = 0; i < len; i++) {
-		result = (result * 16) + hexw(pT[i]);
+		result = (result << 4) + hexw(pT[i]);
+	}
+	return result;
+}
+
+uint64 FASTCALL _texttohex64(const char * pT, uint len)
+{
+	uint64 result = 0;
+	for(uint i = 0; i < len; i++) {
+		result = (result << 4) + hex(pT[i]);
+	}
+	return result;
+}
+
+uint64 FASTCALL _texttohex64(const wchar_t * pT, uint len)
+{
+	uint64 result = 0;
+	for(uint i = 0; i < len; i++) {
+		result = (result << 4) + hexw(pT[i]);
 	}
 	return result;
 }
@@ -3446,10 +3754,28 @@ int64 FASTCALL satoi64(const char * pT)
 			is_hex = true;
 		}
 		if(is_hex) {
-			if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+			if(ishex(_p[src_pos])) { 
+				uint   local_len = 0;
+				do {
+					local_len++;
+				} while(ishex(_p[src_pos+local_len]));
+				result = static_cast<int64>(_texttohex64(_p+src_pos, local_len));
+				/*do { 
+					result = result * 16 + hex(_p[src_pos]); 
+				} while(ishex(_p[++src_pos]));*/
+			}
 		}
 		else {
-			if(isdec(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - '0'); } while(isdec(_p[++src_pos])); }
+			if(isdec(_p[src_pos])) {
+				uint   local_len = 0;
+				do {
+					local_len++;
+				} while(isdec(_p[src_pos+local_len]));
+				result = static_cast<int64>(_texttodec64(_p+src_pos, local_len));
+				/*do { 
+					result = result * 10 + (_p[src_pos] - '0'); 
+				} while(isdec(_p[++src_pos]));*/
+			}
 		}
 		if(is_neg && result)
 			result = -result;
@@ -3478,10 +3804,28 @@ uint64 FASTCALL satou64(const char * pT)
 			is_hex = true;
 		}
 		if(is_hex) {
-			if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+			if(ishex(_p[src_pos])) { 
+				uint   local_len = 0;
+				do {
+					local_len++;
+				} while(ishex(_p[src_pos+local_len]));
+				result = _texttohex64(_p+src_pos, local_len);
+				/*do { 
+					result = result * 16 + hex(_p[src_pos]); 
+				} while(ishex(_p[++src_pos]));*/
+			}
 		}
 		else {
-			if(isdec(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - '0'); } while(isdec(_p[++src_pos])); }
+			if(isdec(_p[src_pos])) { 
+				uint   local_len = 0;
+				do {
+					local_len++;
+				} while(isdec(_p[src_pos+local_len]));
+				result = _texttodec64(_p+src_pos, local_len);
+				/*do { 
+					result = result * 10 + (_p[src_pos] - '0'); 
+				} while(isdec(_p[++src_pos]));*/
+			}
 		}
 		//if(is_neg && result)
 			//result = -result;
@@ -3509,7 +3853,11 @@ uint64 FASTCALL sxtou64(const char * pT)
 			src_pos += 2;
 			//is_hex = true;
 		}
-		if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+		if(ishex(_p[src_pos])) { 
+			do { 
+				result = result * 16 + hex(_p[src_pos]); 
+			} while(ishex(_p[++src_pos])); 
+		}
 		//if(is_neg && result)
 			//result = -result;
 	}
@@ -3580,10 +3928,18 @@ int64 FASTCALL satoi64(const wchar_t * pT)
 		is_hex = 1;
 	}
 	if(is_hex) {
-		if(ishexw(_p[src_pos])) { do { result = result * 16 + hexw(_p[src_pos]); } while(ishexw(_p[++src_pos])); }
+		if(ishexw(_p[src_pos])) { 
+			do { 
+				result = result * 16 + hexw(_p[src_pos]); 
+			} while(ishexw(_p[++src_pos])); 
+		}
 	}
 	else {
-		if(isdecw(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - L'0'); } while(isdecw(_p[++src_pos])); }
+		if(isdecw(_p[src_pos])) { 
+			do { 
+				result = result * 10 + (_p[src_pos] - L'0'); 
+			} while(isdecw(_p[++src_pos])); 
+		}
 	}
 	if(is_neg && result)
 		result = -result;
@@ -4798,6 +5154,28 @@ int SString::IsAscii() const
 	}
 	return ok;
 	*/
+}
+
+bool SString::IsCp866() const
+{
+	bool   ok = true;
+	const  size_t _len = Len();
+	for(size_t i = 0; ok && i < _len; i++) {
+		if(!IsLetter866(P_Buf[i]))
+			ok = false;
+	}
+	return ok;
+}
+
+bool SString::IsCp1251() const
+{
+	bool   ok = true;
+	const  size_t _len = Len();
+	for(size_t i = 0; ok && i < _len; i++) {
+		if(!IsLetter1251(P_Buf[i]))
+			ok = false;
+	}
+	return ok;
 }
 
 bool SString::IsLegalUtf8() const

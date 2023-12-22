@@ -19,8 +19,8 @@ struct ngx_http_index_loc_conf_t {
 
 #define NGX_HTTP_DEFAULT_INDEX   "index.html"
 
-static ngx_int_t ngx_http_index_test_dir(ngx_http_request_t * r, ngx_http_core_loc_conf_t * clcf, u_char * path, u_char * last);
-static ngx_int_t ngx_http_index_error(ngx_http_request_t * r, ngx_http_core_loc_conf_t * clcf, u_char * file, ngx_err_t err);
+static ngx_int_t ngx_http_index_test_dir(ngx_http_request_t * r, ngx_http_core_loc_conf_t * clcf, uchar * path, uchar * last);
+static ngx_int_t ngx_http_index_error(ngx_http_request_t * r, ngx_http_core_loc_conf_t * clcf, uchar * file, ngx_err_t err);
 static ngx_int_t ngx_http_index_init(ngx_conf_t * cf);
 static void * ngx_http_index_create_loc_conf(ngx_conf_t * cf);
 static char * ngx_http_index_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
@@ -68,7 +68,7 @@ ngx_module_t ngx_http_index_module = {
  */
 static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 {
-	u_char   * p, * name;
+	uchar   * p, * name;
 	size_t len, root, reserve, allocated;
 	ngx_int_t rc;
 	ngx_str_t path, uri;
@@ -105,7 +105,7 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 		}
 		else {
 			memzero(&e, sizeof(ngx_http_script_engine_t));
-			e.ip = (u_char *)index[i].lengths->elts;
+			e.ip = (uchar *)index[i].lengths->elts;
 			e.request = r;
 			e.flushed = 1;
 			/* 1 is for terminating '\0' as in static names */
@@ -130,7 +130,7 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 			path.len = (name + index[i].name.len - 1) - path.data;
 		}
 		else {
-			e.ip = (u_char *)index[i].values->elts;
+			e.ip = (uchar *)index[i].values->elts;
 			e.pos = name;
 			while(*(uintptr_t*)e.ip) {
 				code = *(ngx_http_script_code_pt*)e.ip;
@@ -189,7 +189,7 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 			uri.data = path.data + root;
 		}
 		else {
-			uri.data = (u_char *)ngx_pnalloc(r->pool, uri.len);
+			uri.data = (uchar *)ngx_pnalloc(r->pool, uri.len);
 			if(uri.data == NULL) {
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;
 			}
@@ -201,11 +201,11 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 	return NGX_DECLINED;
 }
 
-static ngx_int_t ngx_http_index_test_dir(ngx_http_request_t * r, ngx_http_core_loc_conf_t * clcf, u_char * path, u_char * last)
+static ngx_int_t ngx_http_index_test_dir(ngx_http_request_t * r, ngx_http_core_loc_conf_t * clcf, uchar * path, uchar * last)
 {
 	ngx_str_t dir;
 	ngx_open_file_info_t of;
-	u_char c = *last;
+	uchar c = *last;
 	if(c != '/' || path == last) {
 		/* "alias" without trailing slash */
 		c = *(++last);
@@ -254,7 +254,7 @@ static ngx_int_t ngx_http_index_test_dir(ngx_http_request_t * r, ngx_http_core_l
 	return NGX_HTTP_INTERNAL_SERVER_ERROR;
 }
 
-static ngx_int_t ngx_http_index_error(ngx_http_request_t * r, ngx_http_core_loc_conf_t  * clcf, u_char * file, ngx_err_t err)
+static ngx_int_t ngx_http_index_error(ngx_http_request_t * r, ngx_http_core_loc_conf_t  * clcf, uchar * file, ngx_err_t err)
 {
 	if(err == NGX_EACCES) {
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, err, "\"%s\" is forbidden", file);
@@ -295,7 +295,7 @@ static char * ngx_http_index_merge_loc_conf(ngx_conf_t * cf, void * parent, void
 			return NGX_CONF_ERROR;
 		}
 		index->name.len = sizeof(NGX_HTTP_DEFAULT_INDEX);
-		index->name.data = (u_char *)NGX_HTTP_DEFAULT_INDEX;
+		index->name.data = (uchar *)NGX_HTTP_DEFAULT_INDEX;
 		index->lengths = NULL;
 		index->values = NULL;
 		conf->max_index_len = sizeof(NGX_HTTP_DEFAULT_INDEX);

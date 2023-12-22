@@ -860,7 +860,6 @@ static uint32 TIFFClampDoubleToUInt32(double val)
 static int TIFFWriteDirectoryTagSampleformatArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, double* value)
 {
 	static const char module[] = __FUNCTION__;
-	uint32 i;
 	int ok;
 	void * conv = SAlloc::M(count*sizeof(double));
 	if(conv == NULL) {
@@ -870,7 +869,7 @@ static int TIFFWriteDirectoryTagSampleformatArray(TIFF * tif, uint32 * ndir, TIF
 	switch(tif->tif_dir.td_sampleformat) {
 		case SAMPLEFORMAT_IEEEFP:
 		    if(tif->tif_dir.td_bitspersample<=32) {
-			    for(i = 0; i < count; ++i)
+			    for(uint32 i = 0; i < count; ++i)
 				    static_cast<float *>(conv)[i] = TIFFClampDoubleToFloat(value[i]);
 			    ok = TIFFWriteDirectoryTagFloatArray(tif, ndir, dir, tag, count, static_cast<float *>(conv));
 		    }
@@ -880,34 +879,34 @@ static int TIFFWriteDirectoryTagSampleformatArray(TIFF * tif, uint32 * ndir, TIF
 		    break;
 		case SAMPLEFORMAT_INT:
 		    if(tif->tif_dir.td_bitspersample<=8) {
-			    for(i = 0; i < count; ++i)
+			    for(uint32 i = 0; i < count; ++i)
 				    static_cast<int8 *>(conv)[i] = TIFFClampDoubleToInt8(value[i]);
 			    ok = TIFFWriteDirectoryTagSbyteArray(tif, ndir, dir, tag, count, static_cast<int8 *>(conv));
 		    }
 		    else if(tif->tif_dir.td_bitspersample<=16) {
-			    for(i = 0; i < count; ++i)
+			    for(uint32 i = 0; i < count; ++i)
 				    static_cast<int16 *>(conv)[i] = TIFFClampDoubleToInt16(value[i]);
 			    ok = TIFFWriteDirectoryTagSshortArray(tif, ndir, dir, tag, count, static_cast<int16 *>(conv));
 		    }
 		    else {
-			    for(i = 0; i < count; ++i)
+			    for(uint32 i = 0; i < count; ++i)
 				    static_cast<int32 *>(conv)[i] = TIFFClampDoubleToInt32(value[i]);
 			    ok = TIFFWriteDirectoryTagSlongArray(tif, ndir, dir, tag, count, static_cast<int32 *>(conv));
 		    }
 		    break;
 		case SAMPLEFORMAT_UINT:
 		    if(tif->tif_dir.td_bitspersample<=8) {
-			    for(i = 0; i < count; ++i)
+			    for(uint32 i = 0; i < count; ++i)
 				    static_cast<uint8 *>(conv)[i] = TIFFClampDoubleToUInt8(value[i]);
 			    ok = TIFFWriteDirectoryTagByteArray(tif, ndir, dir, tag, count, static_cast<uint8 *>(conv));
 		    }
 		    else if(tif->tif_dir.td_bitspersample<=16) {
-			    for(i = 0; i < count; ++i)
+			    for(uint32 i = 0; i < count; ++i)
 				    static_cast<uint16 *>(conv)[i] = TIFFClampDoubleToUInt16(value[i]);
 			    ok = TIFFWriteDirectoryTagShortArray(tif, ndir, dir, tag, count, static_cast<uint16 *>(conv));
 		    }
 		    else {
-			    for(i = 0; i < count; ++i)
+			    for(uint32 i = 0; i < count; ++i)
 				    static_cast<uint32 *>(conv)[i] = TIFFClampDoubleToUInt32(value[i]);
 			    ok = TIFFWriteDirectoryTagLongArray(tif, ndir, dir, tag, count, static_cast<uint32 *>(conv));
 		    }
@@ -915,7 +914,6 @@ static int TIFFWriteDirectoryTagSampleformatArray(TIFF * tif, uint32 * ndir, TIF
 		default:
 		    ok = 0;
 	}
-
 	SAlloc::F(conv);
 	return (ok);
 }

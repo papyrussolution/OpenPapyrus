@@ -23,16 +23,14 @@ static FormatInformation FindBestFormatInfo(const std::vector<uint32_t>& masks, 
 		0x1689, 0x13BE, 0x1CE7, 0x19D0, 0x0762, 0x0255, 0x0D0C, 0x083B, 0x355F, 0x3068, 0x3F31, 0x3A06, 0x24B4, 0x2183, 0x2EDA,
 		0x2BED,
 	};
-
 	FormatInformation fi;
-
 	for(auto mask : masks)
 		for(int bitsIndex = 0; bitsIndex < Size(bits); ++bitsIndex)
 			for(uint32_t pattern : MODEL2_MASKED_PATTERNS) {
 				// 'unmask' the pattern first to get the original 5-data bits + 10-ec bits back
 				pattern ^= FORMAT_INFO_MASK_MODEL2;
 				// Find the pattern with fewest bits differing
-				if(int hammingDist = BitHacks::CountBitsSet((bits[bitsIndex] ^ mask) ^ pattern);
+				if(int hammingDist = /*BitHacks::CountBitsSet*/SBits::Cpop((bits[bitsIndex] ^ mask) ^ pattern);
 				    hammingDist < fi.hammingDistance) {
 					fi.mask = mask; // store the used mask to discriminate between types/models
 					fi.data = pattern >> 10; // drop the 10 BCH error correction bits
@@ -74,7 +72,7 @@ static FormatInformation FindBestFormatInfoRMQR(const std::vector<uint32_t>& bit
 				// 'unmask' the pattern first to get the original 6-data bits + 12-ec bits back
 				pattern ^= mask;
 				// Find the pattern with fewest bits differing
-				if(int hammingDist = BitHacks::CountBitsSet((bits[bitsIndex] ^ mask) ^ pattern); hammingDist < fi.hammingDistance) {
+				if(int hammingDist = /*BitHacks::CountBitsSet*/SBits::Cpop((bits[bitsIndex] ^ mask) ^ pattern); hammingDist < fi.hammingDistance) {
 					fi.mask = mask; // store the used mask to discriminate between types/models
 					fi.data = pattern >> 12; // drop the 12 BCH error correction bits
 					fi.hammingDistance = hammingDist;

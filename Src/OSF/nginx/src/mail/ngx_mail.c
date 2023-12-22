@@ -275,12 +275,12 @@ static char * ngx_mail_optimize_servers(ngx_conf_t * cf, ngx_array_t * ports)
 
 static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ngx_mail_conf_addr_t * addr)
 {
-	u_char    * p;
+	uchar    * p;
 	size_t len;
 	ngx_uint_t i;
 	ngx_mail_in_addr_t  * addrs;
 	struct sockaddr_in  * sin;
-	u_char buf[NGX_SOCKADDR_STRLEN];
+	uchar buf[NGX_SOCKADDR_STRLEN];
 	mport->addrs = ngx_pcalloc(cf->pool, mport->naddrs * sizeof(ngx_mail_in_addr_t));
 	if(mport->addrs == NULL) {
 		return NGX_ERROR;
@@ -295,7 +295,7 @@ static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ng
 		addrs[i].conf.ssl = addr[i].opt.ssl;
 #endif
 		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
-		p = static_cast<u_char *>(ngx_pnalloc(cf->pool, len));
+		p = static_cast<uchar *>(ngx_pnalloc(cf->pool, len));
 		if(!p) {
 			return NGX_ERROR;
 		}
@@ -310,12 +310,12 @@ static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ng
 
 static ngx_int_t ngx_mail_add_addrs6(ngx_conf_t * cf, ngx_mail_port_t * mport, ngx_mail_conf_addr_t * addr)
 {
-	u_char * p;
+	uchar * p;
 	size_t len;
 	ngx_uint_t i;
 	ngx_mail_in6_addr_t * addrs6;
 	struct sockaddr_in6 * sin6;
-	u_char buf[NGX_SOCKADDR_STRLEN];
+	uchar buf[NGX_SOCKADDR_STRLEN];
 	mport->addrs = ngx_pcalloc(cf->pool, mport->naddrs * sizeof(ngx_mail_in6_addr_t));
 	if(mport->addrs == NULL) {
 		return NGX_ERROR;
@@ -329,7 +329,7 @@ static ngx_int_t ngx_mail_add_addrs6(ngx_conf_t * cf, ngx_mail_port_t * mport, n
 		addrs6[i].conf.ssl = addr[i].opt.ssl;
 #endif
 		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
-		p = static_cast<u_char *>(ngx_pnalloc(cf->pool, len));
+		p = static_cast<uchar *>(ngx_pnalloc(cf->pool, len));
 		if(!p) {
 			return NGX_ERROR;
 		}

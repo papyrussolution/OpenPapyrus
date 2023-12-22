@@ -188,12 +188,9 @@ static int __ham_stat_callback(DBC*dbc, PAGE * pagep, void * cookie, int * putp)
 			    case H_DUPLICATE:
 				tlen = LEN_HDATA(dbp, pagep, 0, indx);
 				hk = H_PAIRDATA(dbp, pagep, indx);
-				for(off = 0; off < tlen;
-				    off += len+2*sizeof(db_indx_t)) {
+				for(off = 0; off < tlen; off += len+2*sizeof(db_indx_t)) {
 					sp->hash_ndata++;
-					memcpy(&len,
-						HKEYDATA_DATA(hk)+
-						off, sizeof(db_indx_t));
+					memcpy(&len, HKEYDATA_DATA(hk)+off, sizeof(db_indx_t));
 				}
 				break;
 			    default:

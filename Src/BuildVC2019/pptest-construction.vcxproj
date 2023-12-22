@@ -216,6 +216,7 @@
     <ClCompile Include="..\PPTEST\UNIT\test-dirent.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-edlib.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-etc.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-fts.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-hash.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-image.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-inet.cpp" />
@@ -239,7 +240,6 @@
   <ItemGroup>
     <ClInclude Include="..\OSF\libdivide\constant_fast_div.h" />
     <ClInclude Include="..\OSF\libdivide\constant_fast_div.hpp" />
-    <ClInclude Include="..\OSF\libdivide\libdivide.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

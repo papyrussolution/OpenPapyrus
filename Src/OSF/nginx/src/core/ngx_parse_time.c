@@ -8,9 +8,9 @@
 
 static ngx_uint_t mday[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-time_t FASTCALL ngx_parse_http_time(const u_char * value, size_t len)
+time_t FASTCALL ngx_parse_http_time(const uchar * value, size_t len)
 {
-	const u_char * p, * end;
+	const uchar * p, * end;
 	ngx_int_t month;
 	ngx_uint_t day, year, hour, min, sec;
 	uint64_t time;

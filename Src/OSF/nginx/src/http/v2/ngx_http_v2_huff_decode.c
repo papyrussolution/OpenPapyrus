@@ -7,13 +7,13 @@
 #pragma hdrstop
 
 struct ngx_http_v2_huff_decode_code_t {
-	u_char next;
-	u_char emit;
-	u_char sym;
-	u_char ending;
+	uchar next;
+	uchar emit;
+	uchar sym;
+	uchar ending;
 };
 
-static ngx_inline ngx_int_t ngx_http_v2_huff_decode_bits(u_char * state, u_char * ending, ngx_uint_t bits, u_char ** dst);
+static ngx_inline ngx_int_t ngx_http_v2_huff_decode_bits(uchar * state, uchar * ending, ngx_uint_t bits, uchar ** dst);
 
 static ngx_http_v2_huff_decode_code_t ngx_http_v2_huff_decode_codes[256][16] =
 {
@@ -2631,11 +2631,11 @@ static ngx_http_v2_huff_decode_code_t ngx_http_v2_huff_decode_codes[256][16] =
 	}
 };
 
-ngx_int_t ngx_http_v2_huff_decode(u_char * state, u_char * src, size_t len, u_char ** dst, ngx_uint_t last, ngx_log_t * log)
+ngx_int_t ngx_http_v2_huff_decode(uchar * state, uchar * src, size_t len, uchar ** dst, ngx_uint_t last, ngx_log_t * log)
 {
-	u_char ch = 0;
-	u_char ending = 1;
-	u_char * end = src + len;
+	uchar ch = 0;
+	uchar ending = 1;
+	uchar * end = src + len;
 	while(src != end) {
 		ch = *src++;
 		if(ngx_http_v2_huff_decode_bits(state, &ending, ch >> 4, dst) != NGX_OK) {
@@ -2657,7 +2657,7 @@ ngx_int_t ngx_http_v2_huff_decode(u_char * state, u_char * src, size_t len, u_ch
 	return NGX_OK;
 }
 
-static ngx_inline ngx_int_t ngx_http_v2_huff_decode_bits(u_char * state, u_char * ending, ngx_uint_t bits, u_char ** dst)
+static ngx_inline ngx_int_t ngx_http_v2_huff_decode_bits(uchar * state, uchar * ending, ngx_uint_t bits, uchar ** dst)
 {
 	ngx_http_v2_huff_decode_code_t code = ngx_http_v2_huff_decode_codes[*state][bits];
 	if(code.next == *state) {

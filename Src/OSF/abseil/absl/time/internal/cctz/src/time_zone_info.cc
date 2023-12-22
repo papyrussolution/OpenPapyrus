@@ -42,7 +42,7 @@ const std::int_least16_t kMonthOffsets[2][1 + 12 + 1] = {
 	{-1, 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366},
 };
 
-const std::int_least32_t kSecsPerDay = SSECSPERDAY; // We reject leap-second encoded zoneinfo and so assume 60-second minutes.
+const std::int_least32_t kSecsPerDay = SlConst::SecsPerDay; // We reject leap-second encoded zoneinfo and so assume 60-second minutes.
 const std::int_least64_t kSecsPer400Years = 146097LL * kSecsPerDay; // 400-year chunks always have 146097 days (20871 weeks).
 const std::int_least32_t kSecsPerYear[2] = { 365 * kSecsPerDay, 366 * kSecsPerDay, }; // Like kDaysPerYear[] but scaled up by a factor of kSecsPerDay.
 

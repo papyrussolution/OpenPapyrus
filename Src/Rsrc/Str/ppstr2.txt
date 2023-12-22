@@ -5012,6 +5012,8 @@ PPTXT_SETBOMESTVALUE                 "Установлена оценочная 
 PPTXT_BOMESTVALUENOTSET_UNCERT       "Оценочная цена на производимый товар не установлена поскольку в структуре есть неопределенность по некоторым компонентам: %s"
 PPTXT_CCIMP_ALREADYIMPORTED          "Кассовый чек '%s' ранее уже был импортирован"
 PPTXT_CCIMP_ACCEPTED                 "Кассовый чек '%s' успешно импортирован"
+PPTXT_NGINXSRV_STARTED_MNTR_IS_OK    "NGINX-сервер запущен. Внутренний мониторинг сообщает о том, что он работает"
+PPTXT_NGINXSRV_MNTRREPORTEDFAULT     "Мониторинг NGINX-сервера сообщает об сбое"
 //
 // LastText
 
@@ -13793,6 +13795,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheckfilt_fzerosess                     "С неопределенной сессией"
 @ccheckfilt_fnotspfinished                "Без признака специального финиша"
 @ccheckfilt_fwithmarkonly                 "Только с маркированными позициями"
+@ccheckfilt_f2importedonly                "Только импортированные"
 @ccheckfilt_goods                         "@{ware}"
 @ccheckfilt_goodsgrp                      "@{goodsgroup}"
 @ccheckfilt_grp                           "@{grouping}"

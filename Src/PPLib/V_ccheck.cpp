@@ -14,9 +14,10 @@ IMPL_CMPFUNC(CCheckViewItem_Dtm_Desc, i1, i2)
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(CCheck); CCheckFilt::CCheckFilt() : PPBaseFilt(PPFILT_CCHECK, 0, 4)
+IMPLEMENT_PPFILT_FACTORY(CCheck); CCheckFilt::CCheckFilt() : PPBaseFilt(PPFILT_CCHECK, 0, 5) // @v11.9.1 ver 4-->5
 {
 	SetFlatChunk(offsetof(CCheckFilt, ReserveStart), offsetof(CCheckFilt, SessIDList)-offsetof(CCheckFilt, ReserveStart));
+	SetBranchSString(offsetof(CCheckFilt, ExtString)); // @v11.9.1
 	SetBranchSVector(offsetof(CCheckFilt, SessIDList));
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, NodeList));
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, CorrGoodsList));
@@ -27,14 +28,117 @@ IMPLEMENT_PPFILT_FACTORY(CCheck); CCheckFilt::CCheckFilt() : PPBaseFilt(PPFILT_C
 
 CCheckFilt & FASTCALL CCheckFilt::operator = (const CCheckFilt & src)
 {
-	Copy(&src, 1);
+	PPBaseFilt::Copy(&src, 1);
 	return *this;
 }
 
 /*virtual*/int CCheckFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
-	if(ver == 3) {
+	if(ver == 4) { // @v11.9.1
+		class CCheckFilt_v4 : public PPBaseFilt {
+		public:
+			CCheckFilt_v4() : PPBaseFilt(PPFILT_CCHECK, 0, 4)
+			{
+				SetFlatChunk(offsetof(CCheckFilt_v4, ReserveStart), offsetof(CCheckFilt_v4, SessIDList)-offsetof(CCheckFilt_v4, ReserveStart));
+				SetBranchSVector(offsetof(CCheckFilt_v4, SessIDList));
+				SetBranchObjIdListFilt(offsetof(CCheckFilt_v4, NodeList));
+				SetBranchObjIdListFilt(offsetof(CCheckFilt_v4, CorrGoodsList));
+				SetBranchObjIdListFilt(offsetof(CCheckFilt_v4, CtValList));
+				SetBranchObjIdListFilt(offsetof(CCheckFilt_v4, ScsList));
+				Init(1, 0);
+			}
+			uint8  ReserveStart[4];
+			PPID   CreationUserID;
+			uint32 CountOfLastItems;
+			S_GUID LostJunkUUID;
+			PPID   GcoExcludeGrpID;
+			PPID   DlvrAddrID;
+			DateRange Period;
+			TimeRange TimePeriod;
+			uint16 LowLinesCount;
+			uint16 UppLinesCount;
+			int8   HourBefore;
+			uint8  WeekDays;
+			int16  GuestCount;
+			int16  Div;
+			int8   AltRegF;
+			uint8  Reserve;
+			long   CashNumber;
+			long   Flags;
+			PPID   GoodsGrpID;
+			PPID   GoodsID;
+			PPID   SCardSerID;
+			PPID   SCardID;
+			PPID   CashierID;
+			PPID   AgentID;
+			long   TableCode;
+			IntRange  CodeR;
+			RealRange AmtR;
+			RealRange QttyR;
+			RealRange PcntR;
+			double    AmountQuant;
+			long   SortOrder;
+			Grouping Grp;
+			long   CtKind;
+			long   GcoMinCount;
+			SubstGrpGoods Sgg;
+			PPIDArray SessIDList;
+			ObjIdListFilt NodeList;
+			ObjIdListFilt CorrGoodsList;
+			ObjIdListFilt CtValList;
+			ObjIdListFilt ScsList;
+		};		
+		CCheckFilt_v4 fv4;
+		THROW(fv4.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));
+		Reserve = 0;
+#define CPYFLD(f) f = fv4.f
+			CPYFLD(CreationUserID);
+			CPYFLD(CountOfLastItems);
+			CPYFLD(LostJunkUUID);
+			CPYFLD(GcoExcludeGrpID);
+			CPYFLD(DlvrAddrID);
+			CPYFLD(Period);
+			CPYFLD(TimePeriod);
+			CPYFLD(LowLinesCount);
+			CPYFLD(UppLinesCount);
+			CPYFLD(HourBefore);
+			CPYFLD(WeekDays);
+			CPYFLD(GuestCount);
+			CPYFLD(Div);
+			CPYFLD(AltRegF);
+			CPYFLD(Reserve);
+			CPYFLD(CashNumber);
+			CPYFLD(Flags);
+			CPYFLD(GoodsGrpID);
+			CPYFLD(GoodsID);
+			CPYFLD(SCardSerID);
+			CPYFLD(SCardID);
+			CPYFLD(CashierID);
+			CPYFLD(AgentID);
+			CPYFLD(TableCode);
+			CPYFLD(CodeR);
+			CPYFLD(AmtR);
+			CPYFLD(QttyR);
+			CPYFLD(PcntR);
+			CPYFLD(AmountQuant);
+			CPYFLD(SortOrder);
+			CPYFLD(Grp);
+			CPYFLD(CtKind);
+			CPYFLD(GcoMinCount);
+			CPYFLD(Sgg);
+			CPYFLD(SessIDList);
+			CPYFLD(NodeList);
+			CPYFLD(CorrGoodsList);
+			CPYFLD(CtValList);
+			CPYFLD(ScsList);
+#undef CPYFLD
+		memzero(ReserveStart, sizeof(ReserveStart));
+		Flags2 = 0;
+		ok = 1;
+	}
+	else if(ver == 3) {
 		class CCheckFilt_v3 : public PPBaseFilt {
 		public:
 			CCheckFilt_v3() : PPBaseFilt(PPFILT_CCHECK, 0, 3)
@@ -417,6 +521,8 @@ public:
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 13, CCheckFilt::fNotSpFinished);
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 14, CCheckFilt::fWithMarkOnly); // @v11.0.0
 		SetClusterData(CTL_CCHECKFLT_FLAGS, Data.Flags);
+		AddClusterAssoc(CTL_CCHECKFLT_FLAGS2, 0, CCheckFilt::f2ImportedOnly); // @v11.9.1
+		SetClusterData(CTL_CCHECKFLT_FLAGS2, Data.Flags2); // @v11.9.1
 		grp_rec.Flags |= GoodsCtrlGroup::enableSelUpLevel;
 		setGroupData(ctlgroupGoodsFilt, &grp_rec);
 		{
@@ -477,6 +583,7 @@ public:
 		Data.CodeR.Set(0); // @v9.6.8 при пустой строке диапазон не меняется
 		GetIntRangeInput(this, CTL_CCHECKFLT_CODERANGE, &Data.CodeR);
 		GetClusterData(CTL_CCHECKFLT_FLAGS, &Data.Flags);
+		GetClusterData(CTL_CCHECKFLT_FLAGS2, &Data.Flags2); // @v11.9.1
 		getGroupData(ctlgroupGoodsFilt, &grp_rec);
 		Data.GoodsGrpID = grp_rec.GoodsGrpID;
 		Data.GoodsID = grp_rec.GoodsID;
@@ -622,6 +729,7 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 		return 0;
 	else {
 		const long ff_ = Filt.Flags;
+		const long ff2_ = Filt.Flags2;
 		const long f = pRec->Flags;
 		if(!(ff_ & CCheckFilt::fStartOrderPeriod) && !Filt.Period.CheckDate(pRec->Dt))
 			return 0;
@@ -650,6 +758,8 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 			else if(ff_ & CCheckFilt::fSuspendedOnly && !(f & CCHKF_SUSPENDED))
 				return 0;
 			else if(ff_ & CCheckFilt::fRetOnly && !(f & CCHKF_RETURN))
+				return 0;
+			else if(ff2_ & CCheckFilt::f2ImportedOnly && !(f & CCHKF_IMPORTED)) // @v11.9.1
 				return 0;
 			else if(ff_ & CCheckFilt::fJunkOnly) {
 				if(!(f & CCHKF_JUNK))
@@ -2413,10 +2523,12 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				}
 				if(Filt.Flags & (CCheckFilt::fCashOnly|CCheckFilt::fBankingOnly))
 					dbq = ppcheckflag(dbq, t->Flags, CCHKF_BANKING, (Filt.Flags & CCheckFilt::fBankingOnly) ? 1 : -1);
-				// @v10.0.02 {
 				if(Filt.AltRegF)
 					dbq = ppcheckflag(dbq, t->Flags, CCHKF_ALTREG, Filt.AltRegF);
-				// } @v10.0.02
+				// @v11.9.1 {
+				if(Filt.Flags2 & CCheckFilt::f2ImportedOnly)
+					dbq = ppcheckflag(dbq, t->Flags, CCHKF_IMPORTED, (Filt.Flags2 & CCheckFilt::f2ImportedOnly) ? 1 : -1);
+				// } @v11.9.1 
 				dbq = ppcheckfiltid(dbq, t->CashID, Filt.CashNumber);
 				dbq = ppcheckfiltid(dbq, t->UserID, Filt.CashierID);
 				dbq = & (*dbq && daterange(t->Dt, &Filt.Period));
@@ -2923,7 +3035,7 @@ int PPViewCCheck::ViewGoodsCorr()
 {
 	int    ok = -1;
 	CCheckFilt temp_flt;
-	temp_flt.Copy(&Filt, 1);
+	temp_flt.PPBaseFilt::Copy(&Filt, 1);
 	if(Filt.Grp == CCheckFilt::gNone && SetGoodsCorr(&temp_flt) > 0) {
 		temp_flt.Flags |= CCheckFilt::fGoodsCorr;
 		ok = ViewCCheck(&temp_flt, 0);
@@ -4134,7 +4246,7 @@ int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		else if(Filt.Flags & CCheckFilt::fGoodsCorr) {
 			const TempCCheckGdsCorrTbl::Rec * p_gc_rec = static_cast<const TempCCheckGdsCorrTbl::Rec *>(pHdr);
 			CCheckFilt  temp_flt;
-			temp_flt.Copy(&Filt, 1);
+			temp_flt.PPBaseFilt::Copy(&Filt, 1);
 			if(Filt.Sgg) {
 				PPIDArray list1, list2;
 				Gsl.GetGoodsBySubstID(p_gc_rec->Goods1ID, &list1);

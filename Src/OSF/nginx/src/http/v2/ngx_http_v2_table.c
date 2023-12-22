@@ -78,7 +78,7 @@ static ngx_http_v2_header_t ngx_http_v2_static_table[] = {
 
 ngx_int_t ngx_http_v2_get_indexed_header(ngx_http_v2_connection_t * h2c, ngx_uint_t index, ngx_uint_t name_only)
 {
-	u_char  * p;
+	uchar  * p;
 	size_t rest;
 	ngx_http_v2_header_t  * entry;
 	if(index == 0) {
@@ -95,7 +95,7 @@ ngx_int_t ngx_http_v2_get_indexed_header(ngx_http_v2_connection_t * h2c, ngx_uin
 	if(index < h2c->hpack.added - h2c->hpack.deleted) {
 		index = (h2c->hpack.added - index - 1) % h2c->hpack.allocated;
 		entry = h2c->hpack.entries[index];
-		p = (u_char *)ngx_pnalloc(h2c->state.pool, entry->name.len + 1);
+		p = (uchar *)ngx_pnalloc(h2c->state.pool, entry->name.len + 1);
 		if(!p) {
 			return NGX_ERROR;
 		}
@@ -113,7 +113,7 @@ ngx_int_t ngx_http_v2_get_indexed_header(ngx_http_v2_connection_t * h2c, ngx_uin
 		if(name_only) {
 			return NGX_OK;
 		}
-		p = (u_char *)ngx_pnalloc(h2c->state.pool, entry->value.len + 1);
+		p = (uchar *)ngx_pnalloc(h2c->state.pool, entry->value.len + 1);
 		if(!p) {
 			return NGX_ERROR;
 		}
@@ -148,7 +148,7 @@ ngx_int_t ngx_http_v2_add_header(ngx_http_v2_connection_t * h2c, ngx_http_v2_hea
 		if(h2c->hpack.entries == NULL) {
 			return NGX_ERROR;
 		}
-		h2c->hpack.storage = (u_char *)ngx_palloc(h2c->connection->pool, h2c->hpack.free);
+		h2c->hpack.storage = (uchar *)ngx_palloc(h2c->connection->pool, h2c->hpack.free);
 		if(h2c->hpack.storage == NULL) {
 			return NGX_ERROR;
 		}

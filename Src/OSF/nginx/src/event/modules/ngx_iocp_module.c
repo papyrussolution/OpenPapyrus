@@ -159,8 +159,8 @@ static ngx_int_t ngx_iocp_del_connection(ngx_connection_t * c, ngx_uint_t flags)
 static ngx_int_t ngx_iocp_process_events(ngx_cycle_t * cycle, ngx_msec_t timer, ngx_uint_t flags)
 {
 	int rc;
-	u_int key;
-	u_long bytes;
+	uint key;
+	ulong bytes;
 	ngx_err_t err;
 	ngx_msec_t delta;
 	ngx_event_t  * ev;
@@ -169,7 +169,7 @@ static ngx_int_t ngx_iocp_process_events(ngx_cycle_t * cycle, ngx_msec_t timer, 
 		timer = INFINITE;
 	}
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "iocp timer: %M", timer);
-	rc = GetQueuedCompletionStatus(iocp, &bytes, (PULONG_PTR)&key, (LPOVERLAPPED*)&ovlp, (u_long)timer);
+	rc = GetQueuedCompletionStatus(iocp, &bytes, (PULONG_PTR)&key, (LPOVERLAPPED*)&ovlp, (ulong)timer);
 	if(rc == 0) {
 		err = ngx_errno;
 	}

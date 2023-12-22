@@ -105,15 +105,12 @@ int __rep_islease_granted(ENV*env)
  */
 int __rep_lease_table_alloc(ENV*env, uint32 nsites)
 {
-	REGENV * renv;
-	REGINFO * infop;
-	REP * rep;
 	REP_LEASE_ENTRY * le, * table;
 	int * lease, ret;
 	uint32 i;
-	rep = env->rep_handle->region;
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
+	REP * rep = env->rep_handle->region;
+	REGINFO * infop = env->reginfo;
+	REGENV * renv = (REGENV *)infop->primary;
 	MUTEX_LOCK(env, renv->mtx_regenv);
 	/*
 	 * If we have an old table from some other time, free it and
@@ -209,13 +206,10 @@ int __rep_lease_grant(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
  */
 static void __rep_find_entry(ENV*env, REP * rep, int eid, REP_LEASE_ENTRY ** lep)
 {
-	REGINFO * infop;
-	REP_LEASE_ENTRY * le, * table;
-	uint32 i;
-	infop = env->reginfo;
-	table = (REP_LEASE_ENTRY *)R_ADDR(infop, rep->lease_off);
-	for(i = 0; i < rep->config_nsites; i++) {
-		le = &table[i];
+	REGINFO * infop = env->reginfo;
+	REP_LEASE_ENTRY * table = (REP_LEASE_ENTRY *)R_ADDR(infop, rep->lease_off);
+	for(uint32 i = 0; i < rep->config_nsites; i++) {
+		REP_LEASE_ENTRY * le = &table[i];
 		/*
 		 * Find either the one that matches the client's
 		 * EID or the first empty one.
@@ -225,7 +219,6 @@ static void __rep_find_entry(ENV*env, REP * rep, int eid, REP_LEASE_ENTRY ** lep
 			return;
 		}
 	}
-	return;
 }
 /*
  * __rep_lease_check -
@@ -372,20 +365,19 @@ err:
  */
 int __rep_lease_expire(ENV * env)
 {
-	REP_LEASE_ENTRY * le, * table;
+	REP_LEASE_ENTRY * le;
 	int ret = 0;
-	uint32 i;
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	REGINFO * infop = env->reginfo;
 	if(rep->lease_off != INVALID_ROFF) {
-		table = (REP_LEASE_ENTRY *)R_ADDR(infop, rep->lease_off);
+		REP_LEASE_ENTRY * table = (REP_LEASE_ENTRY *)R_ADDR(infop, rep->lease_off);
 		/*
 		 * Expire all leases forcibly.  We are guaranteed that the
 		 * start_time for all leases are not in the future.  Therefore,
 		 * set the end_time to the start_time.
 		 */
-		for(i = 0; i < rep->config_nsites; i++) {
+		for(uint32 i = 0; i < rep->config_nsites; i++) {
 			le = &table[i];
 			le->end_time = le->start_time;
 		}

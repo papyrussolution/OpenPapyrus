@@ -542,7 +542,18 @@ int TcpSocket::GetStat(long * pRdCount, long * pWrCount)
 //
 //
 //
-TcpServer::TcpServer(const InetAddr & rAddr) : TcpSocket(1000), Addr(rAddr)
+bool IpServerListeningEntry::Parse(const char * pText)
+{
+	bool    ok = false;
+	if(!isempty(pText)) {
+		SStrScan scan(pText);
+	}
+	return ok;
+}
+//
+//
+//
+TcpServer::TcpServer(const /*InetAddr & rAddr*/IpServerListeningEntry & rSle) : TcpSocket(1000), /*Addr(rAddr)*/Sle(rSle)
 {
 }
 
@@ -560,7 +571,7 @@ int TcpServer::Run()
 	int    ok = 1;
 #ifndef _WIN32_WCE
 	SString msg_buf, temp_buf;
-	THROW(Bind(Addr));
+	THROW(Bind(/*Addr*/Sle.A));
 	THROW(Listen());
 	while(!SLS.CheckStopFlag()) {
 		if(Select(TcpSocket::mRead, 10000) > 0) { // @v6.1.4 timeout: -1-->10000

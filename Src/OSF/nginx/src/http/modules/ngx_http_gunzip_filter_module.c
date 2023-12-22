@@ -36,7 +36,7 @@ static ngx_int_t ngx_http_gunzip_filter_add_data(ngx_http_request_t * r, ngx_htt
 static ngx_int_t ngx_http_gunzip_filter_get_buf(ngx_http_request_t * r, ngx_http_gunzip_ctx_t * ctx);
 static ngx_int_t ngx_http_gunzip_filter_inflate(ngx_http_request_t * r, ngx_http_gunzip_ctx_t * ctx);
 static ngx_int_t ngx_http_gunzip_filter_inflate_end(ngx_http_request_t * r, ngx_http_gunzip_ctx_t * ctx);
-static void * ngx_http_gunzip_filter_alloc(void * opaque, u_int items, u_int size);
+static void * ngx_http_gunzip_filter_alloc(void * opaque, uint items, uint size);
 static void ngx_http_gunzip_filter_free(void * opaque, void * address);
 static ngx_int_t ngx_http_gunzip_filter_init(ngx_conf_t * cf);
 static void * ngx_http_gunzip_create_conf(ngx_conf_t * cf);
@@ -90,7 +90,7 @@ static ngx_int_t ngx_http_gunzip_header_filter(ngx_http_request_t * r)
 	// @todo always gunzip - due to configuration or module request 
 	// @todo ignore content encoding? 
 	if(!conf->enable || !r->headers_out.content_encoding || r->headers_out.content_encoding->value.len != 4
-	   || ngx_strncasecmp(r->headers_out.content_encoding->value.data, (u_char *)"gzip", 4) != 0) {
+	   || ngx_strncasecmp(r->headers_out.content_encoding->value.data, (uchar *)"gzip", 4) != 0) {
 		return ngx_http_next_header_filter(r);
 	}
 	r->gzip_vary = 1;
@@ -293,7 +293,7 @@ static ngx_int_t ngx_http_gunzip_filter_inflate(ngx_http_request_t * r, ngx_http
 	    ctx->zstream.next_in, ctx->zstream.next_out, ctx->zstream.avail_in, ctx->zstream.avail_out, rc);
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "gunzip in_buf:%p pos:%p", ctx->in_buf, ctx->in_buf->pos);
 	if(ctx->zstream.next_in) {
-		ctx->in_buf->pos = const_cast<u_char *>(static_cast<const u_char *>(ctx->zstream.next_in)); // @badcast
+		ctx->in_buf->pos = const_cast<uchar *>(static_cast<const uchar *>(ctx->zstream.next_in)); // @badcast
 		if(ctx->zstream.avail_in == 0) {
 			ctx->zstream.next_in = NULL;
 		}
@@ -394,7 +394,6 @@ static ngx_int_t ngx_http_gunzip_filter_inflate_end(ngx_http_request_t * r, ngx_
 			return NGX_ERROR;
 		}
 	}
-
 	cl = ngx_alloc_chain_link(r->pool);
 	if(cl == NULL) {
 		return NGX_ERROR;
@@ -410,7 +409,7 @@ static ngx_int_t ngx_http_gunzip_filter_inflate_end(ngx_http_request_t * r, ngx_
 	return NGX_OK;
 }
 
-static void * ngx_http_gunzip_filter_alloc(void * opaque, u_int items, u_int size)
+static void * ngx_http_gunzip_filter_alloc(void * opaque, uint items, uint size)
 {
 	ngx_http_gunzip_ctx_t * ctx = (ngx_http_gunzip_ctx_t *)opaque;
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, ctx->request->connection->log, 0, "gunzip alloc: n:%ud s:%ud", items, size);

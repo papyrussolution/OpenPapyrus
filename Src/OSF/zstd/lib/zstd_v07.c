@@ -1592,21 +1592,18 @@ size_t HUFv07_readDTableX2(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 		    rankVal[n] = current;
 	    }
 	}
-
 	/* fill DTable */
-	{   uint32 n;
-	    for(n = 0; n<nbSymbols; n++) {
+	{   
+	    for(uint32 n = 0; n<nbSymbols; n++) {
 		    const uint32 w = huffWeight[n];
 		    const uint32 length = (1 << w) >> 1;
-		    uint32 i;
 		    HUFv07_DEltX2 D;
 		    D.byte = (BYTE)n; D.nbBits = (BYTE)(tableLog + 1 - w);
-		    for(i = rankVal[w]; i < rankVal[w] + length; i++)
+		    for(uint32 i = rankVal[w]; i < rankVal[w] + length; i++)
 			    dt[i] = D;
 		    rankVal[w] += length;
 	    }
 	}
-
 	return iSize;
 }
 
@@ -3455,9 +3452,15 @@ static size_t ZSTDv07_decompressSequences(ZSTDv07_DCtx* dctx, void* dst, size_t 
 	if(nbSeq) {
 		seqState_t seqState;
 		dctx->fseEntropy = 1;
-		{ uint32 i; for(i = 0; i<ZSTDv07_REP_INIT; i++) seqState.prevOffset[i] = dctx->rep[i]; }
-		{ const size_t errorCode = BITv07_initDStream(&(seqState.DStream), ip, iend-ip);
-		  if(ERR_isError(errorCode)) return ERROR(corruption_detected); }
+		{ 
+			for(uint32 i = 0; i<ZSTDv07_REP_INIT; i++) 
+				seqState.prevOffset[i] = dctx->rep[i]; 
+		}
+		{ 
+			const size_t errorCode = BITv07_initDStream(&(seqState.DStream), ip, iend-ip);
+			if(ERR_isError(errorCode)) 
+				return ERROR(corruption_detected); 
+		}
 		FSEv07_initDState(&(seqState.stateLL), &(seqState.DStream), DTableLL);
 		FSEv07_initDState(&(seqState.stateOffb), &(seqState.DStream), DTableOffb);
 		FSEv07_initDState(&(seqState.stateML), &(seqState.DStream), DTableML);
@@ -3469,11 +3472,14 @@ static size_t ZSTDv07_decompressSequences(ZSTDv07_DCtx* dctx, void* dst, size_t 
 			    if(ZSTDv07_isError(oneSeqSize)) return oneSeqSize;
 			    op += oneSeqSize;}
 		}
-
 		/* check if reached exact end */
-		if(nbSeq) return ERROR(corruption_detected);
+		if(nbSeq) 
+			return ERROR(corruption_detected);
 		/* save reps for next block */
-		{ uint32 i; for(i = 0; i<ZSTDv07_REP_INIT; i++) dctx->rep[i] = (uint32)(seqState.prevOffset[i]); }
+		{ 
+			for(uint32 i = 0; i<ZSTDv07_REP_INIT; i++) 
+				dctx->rep[i] = (uint32)(seqState.prevOffset[i]); 
+		}
 	}
 
 	/* last literal segment */

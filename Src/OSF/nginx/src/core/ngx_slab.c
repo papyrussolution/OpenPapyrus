@@ -38,7 +38,7 @@
 
 #endif
 
-#define ngx_slab_slots(pool)       (ngx_slab_page_t*)((u_char *)(pool) + sizeof(ngx_slab_pool_t))
+#define ngx_slab_slots(pool)       (ngx_slab_page_t*)((uchar *)(pool) + sizeof(ngx_slab_pool_t))
 #define ngx_slab_page_type(page)   ((page)->prev & NGX_SLAB_PAGE_MASK)
 #define ngx_slab_page_prev(page)   (ngx_slab_page_t*)((page)->prev & ~NGX_SLAB_PAGE_MASK)
 #define ngx_slab_page_addr(pool, page) ((((page) - (pool)->pages) << ngx_pagesize_shift) + (uintptr_t)(pool)->start)
@@ -60,7 +60,7 @@ static ngx_uint_t ngx_slab_exact_shift;
 
 void ngx_slab_init(ngx_slab_pool_t * pool)
 {
-	u_char * p;
+	uchar * p;
 	size_t size;
 	ngx_int_t m;
 	ngx_uint_t i, n, pages;
@@ -76,7 +76,7 @@ void ngx_slab_init(ngx_slab_pool_t * pool)
 	/**/
 	pool->min_size = (size_t)1 << pool->min_shift;
 	slots = ngx_slab_slots(pool);
-	p = (u_char *)slots;
+	p = (uchar *)slots;
 	size = pool->end - p;
 	ngx_slab_junk(p, size);
 	n = ngx_pagesize_shift - pool->min_shift;
@@ -309,11 +309,11 @@ void ngx_slab_free_locked(ngx_slab_pool_t * pool, void * p)
 	ngx_uint_t i, n, type, slot, shift, map;
 	ngx_slab_page_t  * slots, * page;
 	ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, ngx_cycle->log, 0, "slab free: %p", p);
-	if((u_char *)p < pool->start || (u_char *)p > pool->end) {
+	if((uchar *)p < pool->start || (uchar *)p > pool->end) {
 		ngx_slab_error(pool, NGX_LOG_ALERT, "ngx_slab_free(): outside of pool");
 		goto fail;
 	}
-	n = ((u_char *)p - pool->start) >> ngx_pagesize_shift;
+	n = ((uchar *)p - pool->start) >> ngx_pagesize_shift;
 	page = &pool->pages[n];
 	slab = page->slab;
 	type = ngx_slab_page_type(page);
@@ -419,7 +419,7 @@ void ngx_slab_free_locked(ngx_slab_pool_t * pool, void * p)
 			    ngx_slab_error(pool, NGX_LOG_ALERT, "ngx_slab_free(): pointer to wrong page");
 			    goto fail;
 		    }
-		    n = ((u_char *)p - pool->start) >> ngx_pagesize_shift;
+		    n = ((uchar *)p - pool->start) >> ngx_pagesize_shift;
 		    size = slab & ~NGX_SLAB_PAGE_START;
 		    ngx_slab_free_pages(pool, &pool->pages[n], size);
 		    ngx_slab_junk(p, size << ngx_pagesize_shift);

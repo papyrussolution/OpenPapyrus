@@ -244,7 +244,7 @@ static const char * ngx_http_auth_request(ngx_conf_t * cf, const ngx_command_t *
 		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 		if(sstreq(value[1].data, "off")) {
 			arcf->uri.len = 0;
-			arcf->uri.data = (u_char *)"";
+			arcf->uri.data = (uchar *)"";
 			return NGX_CONF_OK;
 		}
 		arcf->uri = value[1];

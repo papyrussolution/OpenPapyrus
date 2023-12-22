@@ -16,105 +16,105 @@ using namespace std;
 [[noreturn]] static void throw_invalid_arg_empty_term() { throw Xapian::InvalidArgumentError("Empty termnames are invalid"); }
 
 namespace Xapian {
-Document::Document(Document::Internal* internal_) : internal(internal_)
-{
-}
-Document::Document(const Document&) = default;
-Document& Document::operator = (const Document&) = default;
-Document::Document(Document&&) = default;
-Document& Document::operator = (Document&&) = default;
-
-Document::Document() : internal(new Xapian::Document::Internal)
-{
-}
-
-Document::~Document()
-{
-}
-
-Xapian::docid Document::get_docid() const { return internal->get_docid(); }
-string Document::get_data() const { return internal->get_data(); }
-void Document::set_data(const string & data) { internal->set_data(data); }
-
-void Document::add_term(const string & term, Xapian::termcount wdf_inc)
-{
-	if(term.empty()) {
-		throw_invalid_arg_empty_term();
+	Document::Document(Document::Internal* internal_) : internal(internal_)
+	{
 	}
-	internal->add_term(term, wdf_inc);
-}
+	Document::Document(const Document&) = default;
+	Document& Document::operator = (const Document&) = default;
+	Document::Document(Document&&) = default;
+	Document& Document::operator = (Document&&) = default;
 
-void Document::remove_term(const string & term)
-{
-	if(term.empty()) {
-		throw_invalid_arg_empty_term();
+	Document::Document() : internal(new Xapian::Document::Internal)
+	{
 	}
-	if(!internal->remove_term(term)) {
-		string m;
-		m = "Document::remove_term() failed - term '";
-		m += term;
-		m += "' not present";
-		throw Xapian::InvalidArgumentError(m);
-	}
-}
 
-void Document::add_posting(const string & term, Xapian::termpos term_pos, Xapian::termcount wdf_inc)
-{
-	if(term.empty()) {
-		throw_invalid_arg_empty_term();
+	Document::~Document()
+	{
 	}
-	internal->add_posting(term, term_pos, wdf_inc);
-}
 
-void Document::remove_posting(const string & term, Xapian::termpos term_pos, Xapian::termcount wdf_dec)
-{
-	if(term.empty()) {
-		throw_invalid_arg_empty_term();
+	Xapian::docid Document::get_docid() const { return internal->get_docid(); }
+	string Document::get_data() const { return internal->get_data(); }
+	void Document::set_data(const string & data) { internal->set_data(data); }
+
+	void Document::add_term(const string & term, Xapian::termcount wdf_inc)
+	{
+		if(term.empty()) {
+			throw_invalid_arg_empty_term();
+		}
+		internal->add_term(term, wdf_inc);
 	}
-	auto res = internal->remove_posting(term, term_pos, wdf_dec);
-	if(res != Document::Internal::OK) {
-		string m = "Document::remove_posting() failed - term '";
-		m += term;
-		if(res == Document::Internal::NO_TERM) {
+
+	void Document::remove_term(const string & term)
+	{
+		if(term.empty()) {
+			throw_invalid_arg_empty_term();
+		}
+		if(!internal->remove_term(term)) {
+			string m;
+			m = "Document::remove_term() failed - term '";
+			m += term;
 			m += "' not present";
+			throw Xapian::InvalidArgumentError(m);
 		}
-		else {
-			m += "' not present at position ";
-			m += str(term_pos);
+	}
+
+	void Document::add_posting(const string & term, Xapian::termpos term_pos, Xapian::termcount wdf_inc)
+	{
+		if(term.empty()) {
+			throw_invalid_arg_empty_term();
 		}
-		throw Xapian::InvalidArgumentError(m);
+		internal->add_posting(term, term_pos, wdf_inc);
 	}
-}
 
-Xapian::termpos Document::remove_postings(const string & term, Xapian::termpos term_pos_first, Xapian::termpos term_pos_last, Xapian::termcount wdf_dec)
-{
-	if(term.empty()) {
-		throw_invalid_arg_empty_term();
+	void Document::remove_posting(const string & term, Xapian::termpos term_pos, Xapian::termcount wdf_dec)
+	{
+		if(term.empty()) {
+			throw_invalid_arg_empty_term();
+		}
+		auto res = internal->remove_posting(term, term_pos, wdf_dec);
+		if(res != Document::Internal::OK) {
+			string m = "Document::remove_posting() failed - term '";
+			m += term;
+			if(res == Document::Internal::NO_TERM) {
+				m += "' not present";
+			}
+			else {
+				m += "' not present at position ";
+				m += str(term_pos);
+			}
+			throw Xapian::InvalidArgumentError(m);
+		}
 	}
-	if(UNLIKELY(term_pos_first > term_pos_last)) {
-		return 0;
-	}
-	Xapian::termpos n_removed;
-	auto res = internal->remove_postings(term, term_pos_first, term_pos_last,
-		wdf_dec, n_removed);
-	if(res != Document::Internal::OK) {
-		string m = "Document::remove_postings() failed - term '";
-		m += term;
-		m += "' not present";
-		throw Xapian::InvalidArgumentError(m);
-	}
-	return n_removed;
-}
 
-void Document::clear_terms() { internal->clear_terms(); }
-Xapian::termcount Document::termlist_count() const { return internal->termlist_count(); }
-TermIterator Document::termlist_begin() const { return TermIterator(internal->open_term_list()); }
-string Document::get_value(Xapian::valueno slot) const { return internal->get_value(slot); }
-void Document::add_value(Xapian::valueno slot, const string & value) { internal->add_value(slot, value); }
-void Document::clear_values() { internal->clear_values(); }
-/*Xapian::termcount*/ Xapian::valueno Document::values_count() const { return internal->values_count(); }
-ValueIterator Document::values_begin() const { return internal->values_begin(); }
-string Document::serialise() const { return serialise_document(*this); }
-Document Document::unserialise(const string & serialised) { return unserialise_document(serialised); }
-string Document::get_description() const { return internal->get_description(); }
+	Xapian::termpos Document::remove_postings(const string & term, Xapian::termpos term_pos_first, Xapian::termpos term_pos_last, Xapian::termcount wdf_dec)
+	{
+		if(term.empty()) {
+			throw_invalid_arg_empty_term();
+		}
+		if(UNLIKELY(term_pos_first > term_pos_last)) {
+			return 0;
+		}
+		Xapian::termpos n_removed;
+		auto res = internal->remove_postings(term, term_pos_first, term_pos_last,
+			wdf_dec, n_removed);
+		if(res != Document::Internal::OK) {
+			string m = "Document::remove_postings() failed - term '";
+			m += term;
+			m += "' not present";
+			throw Xapian::InvalidArgumentError(m);
+		}
+		return n_removed;
+	}
+
+	void Document::clear_terms() { internal->clear_terms(); }
+	Xapian::termcount Document::termlist_count() const { return internal->termlist_count(); }
+	TermIterator Document::termlist_begin() const { return TermIterator(internal->open_term_list()); }
+	string Document::get_value(Xapian::valueno slot) const { return internal->get_value(slot); }
+	void Document::add_value(Xapian::valueno slot, const string & value) { internal->add_value(slot, value); }
+	void Document::clear_values() { internal->clear_values(); }
+	/*Xapian::termcount*/ Xapian::valueno Document::values_count() const { return internal->values_count(); }
+	ValueIterator Document::values_begin() const { return internal->values_begin(); }
+	string Document::serialise() const { return serialise_document(*this); }
+	Document Document::unserialise(const string & serialised) { return unserialise_document(serialised); }
+	string Document::get_description() const { return internal->get_description(); }
 }
