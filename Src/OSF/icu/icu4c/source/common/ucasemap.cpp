@@ -25,11 +25,13 @@ UCaseMap::UCaseMap(const char * localeID, uint32_t opts, UErrorCode * pErrorCode
 #if !UCONFIG_NO_BREAK_ITERATION
 	iter(NULL),
 #endif
-	caseLocale(UCASE_LOC_UNKNOWN), options(opts) {
+	caseLocale(UCASE_LOC_UNKNOWN), options(opts) 
+{
 	ucasemap_setLocale(this, localeID, pErrorCode);
 }
 
-UCaseMap::~UCaseMap() {
+UCaseMap::~UCaseMap() 
+{
 #if !UCONFIG_NO_BREAK_ITERATION
 	delete iter;
 #endif
@@ -712,22 +714,17 @@ void toUpper(uint32_t options,
 U_NAMESPACE_END
 
 static void U_CALLCONV ucasemap_internalUTF8ToLower(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_UNUSED
-    const uint8 * src, int32_t srcLength,
-    icu::ByteSink &sink, icu::Edits * edits,
-    UErrorCode & errorCode) {
+    const uint8 * src, int32_t srcLength, icu::ByteSink &sink, icu::Edits * edits, UErrorCode & errorCode) 
+{
 	UCaseContext csc = UCASECONTEXT_INITIALIZER;
 	csc.p = (void *)src;
 	csc.limit = srcLength;
-	toLower(
-		caseLocale, options,
-		src, &csc, 0, srcLength,
-		sink, edits, errorCode);
+	toLower(caseLocale, options, src, &csc, 0, srcLength, sink, edits, errorCode);
 }
 
 static void U_CALLCONV ucasemap_internalUTF8ToUpper(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_UNUSED
-    const uint8 * src, int32_t srcLength,
-    icu::ByteSink &sink, icu::Edits * edits,
-    UErrorCode & errorCode) {
+    const uint8 * src, int32_t srcLength, icu::ByteSink &sink, icu::Edits * edits, UErrorCode & errorCode) 
+{
 	if(caseLocale == UCASE_LOC_GREEK) {
 		GreekUpper::toUpper(options, src, srcLength, sink, edits, errorCode);
 	}
@@ -735,21 +732,14 @@ static void U_CALLCONV ucasemap_internalUTF8ToUpper(int32_t caseLocale, uint32_t
 		UCaseContext csc = UCASECONTEXT_INITIALIZER;
 		csc.p = (void *)src;
 		csc.limit = srcLength;
-		toUpper(
-			caseLocale, options,
-			src, &csc, srcLength,
-			sink, edits, errorCode);
+		toUpper(caseLocale, options, src, &csc, srcLength, sink, edits, errorCode);
 	}
 }
 
 static void U_CALLCONV ucasemap_internalUTF8Fold(int32_t /* caseLocale */, uint32_t options, UCASEMAP_BREAK_ITERATOR_UNUSED
-    const uint8 * src, int32_t srcLength,
-    icu::ByteSink &sink, icu::Edits * edits,
-    UErrorCode & errorCode) {
-	toLower(
-		-1, options,
-		src, nullptr, 0, srcLength,
-		sink, edits, errorCode);
+    const uint8 * src, int32_t srcLength, icu::ByteSink &sink, icu::Edits * edits, UErrorCode & errorCode) 
+{
+	toLower(-1, options, src, nullptr, 0, srcLength, sink, edits, errorCode);
 }
 
 void ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM

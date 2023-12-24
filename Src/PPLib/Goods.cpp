@@ -2591,7 +2591,7 @@ public:
 
 	GoodsCache();
 	~GoodsCache();
-	virtual int FASTCALL Dirty(PPID id); // @sync_w
+	virtual void FASTCALL Dirty(PPID id); // @sync_w
 	int    GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermList); // @sync_r
 	int    GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt); // @sync_r
 	int    PutAltGrpFilt(PPID grpID, const GoodsFilt * pFilt); // @sync_w
@@ -2978,9 +2978,8 @@ void GoodsCache::ReleaseFullList(const StrAssocArray * pList)
 	}
 }
 
-int FASTCALL GoodsCache::Dirty(PPID id)
+void FASTCALL GoodsCache::Dirty(PPID id)
 {
-	int    ok = 1;
 	uint   pos = 0;
 	ObjCacheHash::Dirty(id);
 	{
@@ -3029,7 +3028,6 @@ int FASTCALL GoodsCache::Dirty(PPID id)
 		SRWLOCKER(FglLock, SReadWriteLocker::Write);
 		FullGoodsList.Dirty(id);
 	}
-	return ok;
 }
 
 int GoodsCache::GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt)
@@ -3263,10 +3261,10 @@ int GoodsCore::SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec,
 	return ok;
 }
 
-int FASTCALL GoodsCore::Dirty(PPID id)
+void FASTCALL GoodsCore::Dirty(PPID id)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 1);
-	return p_cache ? p_cache->Dirty(id) : -1;
+	CALLPTRMEMB(p_cache, Dirty(id));
 }
 
 int GoodsCore::FetchStockExt(PPID id, GoodsStockExt * pExt)

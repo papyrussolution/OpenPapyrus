@@ -9890,6 +9890,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bizscore_symb                            "@{symbol}"
 @bizscore_tag                             "@{tag}"
 @bizscore_user                            "@{user}"
+@bizscore_parent                          "Родительский элемент"  // @v11.9.1 bizscore2
 
 @bizscorefilt                             "Фильтр по бизнес-показателям"
 @bizscorevalfilt                          "Фильтр по значениям бизнес-показателей"

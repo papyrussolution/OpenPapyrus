@@ -1,9 +1,8 @@
 // ucnvsel.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2008-2011, International Business Machines Corporation, Google and others.  All Rights Reserved.
- */
+// Copyright (C) 2008-2011, International Business Machines Corporation, Google and others.  All Rights Reserved.
+//
 // Author : eldawy@google.com (Mohamed Eldawy)
 // Purpose: To generate a list of encodings capable of handling
 // a given Unicode text

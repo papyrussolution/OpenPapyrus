@@ -550,10 +550,9 @@ private:
 				BscObj.TestPacket(&test_pack, result);
 			}
 			setStaticText(CTL_BIZSCORE_TESTLINE, result);
-			clearEvent(event);
 		}
 		// @vmiller
-		if(event.isKeyDown(kbF2) && isCurrCtlID(CTL_BIZSCORE_FORMULA)) {
+		else if(event.isKeyDown(kbF2) && isCurrCtlID(CTL_BIZSCORE_FORMULA)) {
 			DL2_Score score;
 			DL2_Resolver * p_resolver = 0;
 			SETIFZ(p_resolver, new DL2_Resolver());
@@ -573,9 +572,12 @@ private:
 			}
 			//}
 		}
-		if(event.isCtlEvent(CTL_BIZSCORE_FORMULA)) {
+		/* @v11.9.1 else if(event.isCtlEvent(CTL_BIZSCORE_FORMULA)) {
 			getCtrlString(CTL_BIZSCORE_FORMULA, Data.Formula);
-		}
+		}*/
+		else
+			return;
+		clearEvent(event);
 	}
 	PPObjBizScore BscObj;
 };
@@ -2439,3 +2441,151 @@ int PPALDD_UhttStatistic::InitData(PPFilt & rFilt, long rsrv)
 	return ok;
 }
 // } @Muxa
+//
+// BizScore2
+//
+PPBizScore2::PPBizScore2()
+{
+	THISZERO();
+}
+
+PPObjBizScore2::PPObjBizScore2(void * extraPtr) : PPObjReference(PPOBJ_BIZSCORE2, extraPtr)
+{
+}
+	
+PPObjBizScore2::~PPObjBizScore2()
+{
+}
+
+int PPObjBizScore2::GetPacket(PPID id, PPBizScore2Packet * pPack)
+{
+	int    ok = 1;
+	PPBizScore2Packet pack;
+	int    r = P_Ref->GetItem(Obj, id, &pack.Rec);
+	THROW(r);
+	if(r > 0) {
+		//SString strg_buf;
+		//THROW(P_Ref->GetPropVlrString(Obj, id, BZSPRP_DESCR, strg_buf));
+		//PPGetExtStrData(BIZSCEXSTR_DESCR,   strg_buf, pack.Descr);
+		//PPGetExtStrData(BIZSCEXSTR_FORMULA, strg_buf, pack.Formula);
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	ASSIGN_PTR(pPack, pack);
+	return ok;
+}
+
+int PPObjBizScore2::PutPacket(PPID * pID, PPBizScore2Packet * pPack, int use_ta)
+{
+	int    ok = 1;
+	PPID   action = 0;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(pPack) {
+			THROW(CheckDupName(*pID, pPack->Rec.Name));
+			THROW(CheckDupSymb(*pID, pPack->Rec.Symb));
+			if(*pID) {
+				int r;
+				THROW(CheckRights(PPR_MOD));
+				THROW(r = P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+				if(r < 0)
+					ok = -1;
+				// Событие PPACN_OBJUPD создано функцией P_Ref->UpdateItem : action не инициалазируем
+			}
+			else {
+				THROW(CheckRights(PPR_INS));
+				THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
+				// Событие PPACN_OBJADD создано функцией P_Ref->AddItem : action не инициалазируем
+			}
+			/*{
+				SString strg_buf, prev_strg_buf;
+				PPPutExtStrData(BIZSCEXSTR_DESCR,   strg_buf, pPack->Descr);
+				PPPutExtStrData(BIZSCEXSTR_FORMULA, strg_buf, pPack->Formula);
+				THROW(P_Ref->GetPropVlrString(Obj, *pID, BZSPRP_DESCR, prev_strg_buf));
+				if(strg_buf.Cmp(prev_strg_buf, 0) != 0) {
+					THROW(P_Ref->PutPropVlrString(Obj, *pID, BZSPRP_DESCR, strg_buf));
+					if(ok < 0) {
+						//
+						// Заголовочная запись не изменилась, но изменилась формула либо описание.
+						//
+						ok = 1;
+						action = PPACN_OBJUPD;
+					}
+				}
+			}*/
+		}
+		else if(*pID) {
+			THROW(CheckRights(PPR_DEL));
+			//SETIFZ(P_ValTbl, new BizScore2Core);
+			//THROW_MEM(P_ValTbl);
+			//THROW_DB(deleteFrom(P_ValTbl, 0, P_ValTbl->ScoreID == *pID));
+			THROW(P_Ref->RemoveItem(Obj, *pID, 0));
+			//THROW(P_Ref->PutPropVlrString(Obj, *pID, BZSPRP_DESCR, 0));
+			action = PPACN_OBJRMV;
+		}
+		DS.LogAction(action, Obj, *pID, 0, 0);
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+class BizScore2Dialog : public TDialog {
+	DECL_DIALOG_DATA(PPBizScore2Packet);
+public:
+	BizScore2Dialog() : TDialog(DLG_BIZSC2)
+	{
+		enableCommand(cmOK, BscObj.CheckRights(PPR_MOD));
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlLong(CTL_BIZSC2_ID, Data.Rec.ID);
+		setCtrlData(CTL_BIZSC2_NAME, Data.Rec.Name);
+		setCtrlData(CTL_BIZSC2_SYMB, Data.Rec.Symb);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_BIZSC2_NAME, Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		getCtrlData(CTL_BIZSC2_SYMB, Data.Rec.Symb);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+private:
+	PPObjBizScore2 BscObj;
+};
+	
+/*virtual*/int PPObjBizScore2::Edit(PPID * pID, void * extraPtr /*userID*/)
+{
+	const  PPID extra_user_id = reinterpret_cast<PPID>(extraPtr);
+	int    ok = cmCancel;
+	PPBizScore2Packet pack;
+	THROW(CheckRights(PPR_READ));
+	if(*pID) {
+		THROW(GetPacket(*pID, &pack) > 0);
+	}
+	else {
+		THROW(CheckRights(PPR_INS));
+		//pack.Rec.UserID = extra_user_id;
+	}
+	if(PPDialogProcBody <BizScore2Dialog, PPBizScore2Packet> (&pack) > 0) {
+		if(PutPacket(pID, &pack, 1))
+			ok = cmOK;
+		else
+			PPError();
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+	
+/*virtual*/int PPObjBizScore2::Browse(void * extraPtr /*userID*/)
+{
+	return -1;
+}

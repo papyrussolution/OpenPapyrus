@@ -1,5 +1,5 @@
 // OBJAMTT.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
 //
 #include <pp.h>
 #pragma hdrstop
@@ -12,10 +12,8 @@ PPAmountType2::PPAmountType2()
 	THISZERO();
 }
 
-int PPAmountType2::IsTax(PPID taxID  /* GTAX_XXX */) const
-	{ return BIN(Flags & PPAmountType::fTax && Tax == taxID); }
-int PPAmountType2::IsComplementary() const
-	{ return BIN(Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount)); }
+bool PPAmountType2::IsTax(PPID taxID  /* GTAX_XXX */) const { return LOGIC(Flags & PPAmountType::fTax && Tax == taxID); }
+bool PPAmountType2::IsComplementary() const { return LOGIC(Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount)); }
 
 PPAmountTypePacket::PPAmountTypePacket()
 {
@@ -435,7 +433,7 @@ int PPObjAmountType::PutPacket(PPID * pID, PPAmountTypePacket * pPack, int use_t
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
 			if(ok > 0)
-				THROW(Dirty(*pID));
+				Dirty(*pID);
 		}
 		else if(pPack) {
 			THROW(CheckRights(PPR_INS));
@@ -574,7 +572,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjAmountType, PPAmountTypePacket);
 class AmountTypeCache : public ObjCache {
 public:
 	AmountTypeCache();
-	virtual int FASTCALL Dirty(PPID id); // @sync_w
+	virtual void FASTCALL Dirty(PPID id); // @sync_w
 	int    FetchByTax(PPID * pID, PPID tax, double taxRate); // @sync_r
 	int    FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOutAmtID); // @sync_r
 	int    FetchTaxIDs(TaxAmountIDs * pBlk);
@@ -663,13 +661,12 @@ int AmountTypeCache::InitTaxBlock()
 	return 1;
 }
 
-int FASTCALL AmountTypeCache::Dirty(PPID id)
+void FASTCALL AmountTypeCache::Dirty(PPID id)
 {
-	int    ok = 1;
 	PPAmountType temp_rec;
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
-		ok = Helper_Dirty(id);
+		Helper_Dirty(id);
 	}
 	//
 	// Функция Get вызывает блокировку чтения. По этому, мы вынуждены разорвать
@@ -680,7 +677,6 @@ int FASTCALL AmountTypeCache::Dirty(PPID id)
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		InitTaxBlock();
 	}
-	return ok;
 }
 
 int AmountTypeCache::FetchTaxIDs(TaxAmountIDs * pBlk)

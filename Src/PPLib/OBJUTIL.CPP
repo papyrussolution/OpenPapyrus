@@ -874,15 +874,10 @@ int PPObject::ValidateSelection(PPID, uint olwFlags, void * extraPtr)
 	return 1;
 }
 
-int FASTCALL PPObject::Dirty(PPID id)
+void FASTCALL PPObject::Dirty(PPID id)
 {
-	int    ok = -1;
 	ObjCache * p_cache = DS.GetDbLocalObjCache(Obj);
-	if(p_cache) {
-		p_cache->Dirty(id);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(p_cache, Dirty(id));
 }
 
 int PPObject::CheckRights(long rt, int oprRights)

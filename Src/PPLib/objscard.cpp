@@ -4623,7 +4623,7 @@ public:
 	~SCardCache()
 	{
 	}
-	virtual int FASTCALL Dirty(PPID id); // @sync_w
+	virtual void FASTCALL Dirty(PPID id); // @sync_w
 	const  StrAssocArray * GetFullList(); // @sync_w
 	void   FASTCALL ReleaseFullList(const StrAssocArray * pList);
 	int    FetchExtText(PPID id, SString & rBuf)
@@ -4807,16 +4807,14 @@ void FASTCALL SCardCache::ReleaseFullList(const StrAssocArray * pList)
 	}
 }
 
-int FASTCALL SCardCache::Dirty(PPID id)
+void FASTCALL SCardCache::Dirty(PPID id)
 {
-	int    ok = 1;
 	ObjCacheHash::Dirty(id);
 	ExtBlk.Dirty(id);
 	{
 		SRWLOCKER(FclLock, SReadWriteLocker::Write);
 		FullCardList.Dirty(id);
 	}
-	return ok;
 }
 
 int SCardCache::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntry)

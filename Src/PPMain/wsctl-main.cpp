@@ -2731,7 +2731,7 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 {
 	const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration;
 	if(rW.IsValid()) {
-		SString debug_info_line;
+		//SString debug_info_line;
 		float total_size = 0.0f;
 		SUiLayout * p_lo_ipg = rTl.FindById(loidInternalProgramGallery); // non-const!
 		SUiLayout::Result * p_lor = 0;
@@ -2745,7 +2745,6 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 				//ImGui::SetNextWindowContentSize(ImVec2(total_size, 0.0f));
 			}
 			{
-				//const ImGuiID preserve_active_id = GImGui->ActiveId;
 				SString temp_buf;
 				const bool is_line_content_valid = p_scr ? (p_scr->CheckLineContentIndex(-1) >= 0) : false;
 				SPoint2F offset;
@@ -2797,7 +2796,6 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 					else
 						break;
 				}
-				//ImGui::SetActiveID(preserve_active_id, 0);
 				if(p_clicked_entry) {
 					ExecuteProgram(p_clicked_entry);
 				}
@@ -2825,12 +2823,12 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 				}
 				bool  sbr = false;
 				const int64 scroll_size = p_lor->P_Scrlr ? p_lor->P_Scrlr->GetCount() : 0;
-				uint  debug_active_id = 0; // @debug
+				//uint  debug_active_id = 0; // @debug
 				{
 					ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryScrollbar, "##ProgramScrollbar", view_flags);
 					int64 scroll_value = 0;
 					int64 scroll_frame = 1; // @?
-					bool debug_mark = false; // @debug
+					//bool debug_mark = false; // @debug
 					if(scroll_size > 0) {
 						const SUiLayout * p_lo_sb = rTl.FindByIdC(loidProgramGalleryScrollbar);
 						if(p_lo_sb) {
@@ -2842,50 +2840,31 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 							ImDrawFlags sb_flags = 0;
 							ImRect imr = FRectToImRect(p_lo_sb->GetFrameAdjustedToParent());
 							scroll_value = scrp.ItemIdxCurrent;
-							debug_active_id = GImGui->ActiveId; // @debug
+							//debug_active_id = GImGui->ActiveId; // @debug
 							// @v11.9.1 {
 							if(PgmGalleryScrollerPosition_Develop.Held && PgmGalleryScrollerPosition_Develop.ActiveCtlId) {
 								ImGui::SetActiveID(PgmGalleryScrollerPosition_Develop.ActiveCtlId, 0);
 							}
 							// } @v11.9.1 
 							sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags|ImGuiWindowFlags_NoInputs);
-							// @v11.8.6 {
-							const ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
-							/*if(mouse_delta.x != 0.0f)*/ {
-								//ScrollWhenDraggingOnVoid(ImVec2(-mouse_delta.x, /*-mouse_delta.y*/0.0f));
-								//static void ScrollWhenDraggingOnVoid(const ImVec2 & rDelta) // @v11.8.6
-								/*{
-									ImGuiContext & g = *ImGui::GetCurrentContext();
-									ImGuiWindow * p_window = g.CurrentWindow;
-									bool hovered = false;
-									bool held = false;
-									if(g.HoveredId == 0) // If nothing hovered so far in the frame (not same as IsAnyItemHovered()!)
-										ImGui::ButtonBehavior(p_window->Rect(), p_window->GetID("##scrolldraggingoverlay"), &hovered, &held, ImGuiButtonFlags_MouseButtonLeft);
-									if(held) {
-										p_window->Scroll.x += mouse_delta.x;
-										p_window->Scroll.y += mouse_delta.y;
-									}
-								}*/
-							}
-							// } @v11.8.6
-							/*if(sbr)*/ {
+							{
 								if(scroll_value >= 0) {
 									PgmGalleryScrollerPosition_Develop.ItemIdxCurrent = static_cast<uint>(scroll_value);
 								}
 								PgmGalleryScrollerPosition_Develop.Held = sbr;
 								PgmGalleryScrollerPosition_Develop.ActiveCtlId = sbr ? GImGui->ActiveId : 0;
-								debug_mark = true; // @debug
+								//debug_mark = true; // @debug
 							}
 						}
 					}
 					//ImGui::Scrollbar(ImGuiAxis_X);
 				}
-				{
+				/*{
 					debug_info_line.CatEq("active-id", debug_active_id).Space().CatEq("scroll-size", scroll_size).Space().
 						CatEq("item-idx-curr", PgmGalleryScrollerPosition_Develop.ItemIdxCurrent).Space().CatEq("sbr", sbr);
 					ImGuiWindowByLayout wsb(&rTl, loidProgramGalleryDebugInfo, "##ProgramGalleryDebugInfo", view_flags|ImGuiWindowFlags_NoInputs);
 					ImGui::Text(debug_info_line);
-				}
+				}*/
 			}
 		}
 	}

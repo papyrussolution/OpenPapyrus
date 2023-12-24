@@ -10,8 +10,7 @@ namespace ZXing {
 static const std::map<ECI, CharacterSet> ECI_TO_CHARSET = {
 	{ECI(0), CharacterSet::Cp437},     // Obsolete
 	{ECI(1), CharacterSet::ISO8859_1}, // Obsolete
-	{ECI::Cp437, CharacterSet::Cp437}, // Obsolete but still used by PDF417 Macro fields (ISO/IEC 15438:2015 Annex
-		                           // H.2.3)
+	{ECI::Cp437, CharacterSet::Cp437}, // Obsolete but still used by PDF417 Macro fields (ISO/IEC 15438:2015 Annex H.2.3)
 	{ECI::ISO8859_1, CharacterSet::ISO8859_1},
 	{ECI::ISO8859_2, CharacterSet::ISO8859_2},
 	{ECI::ISO8859_3, CharacterSet::ISO8859_3},
@@ -55,7 +54,6 @@ CharacterSet ToCharacterSet(ECI eci)
 {
 	if(auto it = ECI_TO_CHARSET.find(eci); it != ECI_TO_CHARSET.end())
 		return it->second;
-
 	return CharacterSet::Unknown;
 }
 
@@ -67,11 +65,9 @@ ECI ToECI(CharacterSet cs)
 	// Special case Cp437 to avoid obsolete ECI 0 for slightly less obsolete ECI 2
 	if(cs == CharacterSet::Cp437)
 		return ECI::Cp437;
-
 	for(auto& [key, value] : ECI_TO_CHARSET)
 		if(value == cs)
 			return key;
-
 	return ECI::Unknown;
 }
 } // namespace ZXing

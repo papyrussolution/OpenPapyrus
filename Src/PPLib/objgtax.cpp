@@ -1,5 +1,5 @@
 // OBJGTAX.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -777,7 +777,7 @@ int PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use_ta)
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
 			if(ok > 0)
-				THROW(Dirty(*pID));
+				Dirty(*pID);
 		}
 		else if(pPack) {
 			THROW(CheckRights(PPR_INS));
@@ -995,7 +995,7 @@ public:
 	GTaxCache();
 	int    Get(PPID, LDATE, PPID, PPGoodsTaxEntry *);
 	int    GetByID(PPID, PPGoodsTaxEntry *);
-	virtual int  FASTCALL Dirty(PPID); // @sync_w
+	virtual void FASTCALL Dirty(PPID); // @sync_w
 private:
 	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long)
 	{
@@ -1012,7 +1012,7 @@ GTaxCache::GTaxCache() : ObjCache(PPOBJ_GOODSTAX, sizeof(PPGoodsTaxEntry))
 {
 }
 
-int FASTCALL GTaxCache::Dirty(PPID id)
+void FASTCALL GTaxCache::Dirty(PPID id)
 {
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
@@ -1024,7 +1024,6 @@ int FASTCALL GTaxCache::Dirty(PPID id)
 				P_Ary->atFree(c);
 		} while(c);
 	}
-	return 1;
 }
 
 int GTaxCache::GetFromBase(PPID id)

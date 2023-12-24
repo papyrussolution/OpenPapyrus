@@ -11497,6 +11497,12 @@
 #define DLG_CCEXTLIST             1435 // @v11.8.8 Список полей расширения кассового чека
 	#define CTL_CCEXTLIST_LIST              (1 + WINDOWS_ID_BIAS)
 #define DLG_TAGVINT               1436 // @v11.8.12
+#define DLG_BIZSC2                1437 // BIZSCORE2 Запись объекта PPOBJ_BIZSCORE2
+	#define CTL_BIZSC2_ID                  (1 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_NAME                (2 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_SYMB                (3 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_PARENT              (4 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2_PARENT           (5 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

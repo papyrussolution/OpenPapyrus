@@ -15,7 +15,6 @@ bool DetectWhiteRect(const BitMatrix& image, ResultPoint& p0, ResultPoint& p1, R
 {
 	return DetectWhiteRect(image, INIT_SIZE, image.width() / 2, image.height() / 2, p0, p1, p2, p3);
 }
-
 /**
  * Determines whether a segment contains a black point
  *
@@ -48,7 +47,6 @@ static bool ContainsBlackPoint(const BitMatrix& image, int a, int b, int fixed, 
 			}
 		}
 	}
-
 	return false;
 }
 
@@ -56,9 +54,7 @@ static bool GetBlackPointOnSegment(const BitMatrix& image, int aX, int aY, int b
 {
 	PointF a(aX, aY), b(bX, bY);
 	BitMatrixCursorF cur(image, a, b - a);
-
 	auto dist = std::lround(distance(a, b) / length(cur.d));
-
 	for(int i = 0; i < dist; i++) {
 		if(cur.isBlack()) {
 			result = cur.p;
@@ -82,15 +78,8 @@ static bool GetBlackPointOnSegment(const BitMatrix& image, int aX, int aY, int b
  *         point and the last, the bottommost. The second point will be
  *         leftmost and the third, the rightmost
  */
-static void CenterEdges(const ResultPoint& y,
-    const ResultPoint& z,
-    const ResultPoint& x,
-    const ResultPoint& t,
-    int width,
-    ResultPoint& p0,
-    ResultPoint& p1,
-    ResultPoint& p2,
-    ResultPoint& p3)
+static void CenterEdges(const ResultPoint& y, const ResultPoint& z, const ResultPoint& x, const ResultPoint& t,
+    int width, ResultPoint& p0, ResultPoint& p1, ResultPoint& p2, ResultPoint& p3)
 {
 	//
 	//       t            t
@@ -98,7 +87,6 @@ static void CenterEdges(const ResultPoint& y,
 	//        x    OR    z
 	//   y                    y
 	//
-
 	float yi = y.x();
 	float yj = y.y();
 	float zi = z.x();
@@ -107,7 +95,6 @@ static void CenterEdges(const ResultPoint& y,
 	float xj = x.y();
 	float ti = t.x();
 	float tj = t.y();
-
 	if(yi < width / 2.0f) {
 		p0 = ResultPoint(ti - CORR, tj + CORR);
 		p1 = ResultPoint(zi + CORR, zj + CORR);
@@ -135,18 +122,14 @@ bool DetectWhiteRect(const BitMatrix& image, int initSize, int x, int y, ResultP
 	if(up < 0 || left < 0 || down >= height || right >= width) {
 		return false;
 	}
-
 	bool aBlackPointFoundOnBorder = true;
 	bool atLeastOneBlackPointFoundOnBorder = false;
-
 	bool atLeastOneBlackPointFoundOnRight = false;
 	bool atLeastOneBlackPointFoundOnBottom = false;
 	bool atLeastOneBlackPointFoundOnLeft = false;
 	bool atLeastOneBlackPointFoundOnTop = false;
-
 	while(aBlackPointFoundOnBorder) {
 		aBlackPointFoundOnBorder = false;
-
 		// .....
 		// .   |
 		// .....
@@ -162,7 +145,6 @@ bool DetectWhiteRect(const BitMatrix& image, int initSize, int x, int y, ResultP
 				right++;
 			}
 		}
-
 		// .....
 		// .   .
 		// .___.
@@ -178,7 +160,6 @@ bool DetectWhiteRect(const BitMatrix& image, int initSize, int x, int y, ResultP
 				down++;
 			}
 		}
-
 		// .....
 		// |   .
 		// .....
@@ -194,7 +175,6 @@ bool DetectWhiteRect(const BitMatrix& image, int initSize, int x, int y, ResultP
 				left--;
 			}
 		}
-
 		// .___.
 		// .   .
 		// .....
@@ -210,61 +190,49 @@ bool DetectWhiteRect(const BitMatrix& image, int initSize, int x, int y, ResultP
 				up--;
 			}
 		}
-
 		if(aBlackPointFoundOnBorder) {
 			atLeastOneBlackPointFoundOnBorder = true;
 		}
 	}
-
 	if(up < 0 || left < 0 || down >= height || right >= width)
 		return false;
-
 	if(atLeastOneBlackPointFoundOnBorder) {
 		int maxSize = right - left;
-
 		ResultPoint z;
 		bool found = false;
 		for(int i = 1; !found && i < maxSize; i++) {
 			found = GetBlackPointOnSegment(image, left, down - i, left + i, down, z);
 		}
-
 		if(!found) {
 			return false;
 		}
-
 		ResultPoint t;
 		found = false;
 		//go down right
 		for(int i = 1; !found && i < maxSize; i++) {
 			found = GetBlackPointOnSegment(image, left, up + i, left + i, up, t);
 		}
-
 		if(!found) {
 			return false;
 		}
-
 		ResultPoint x;
 		found = false;
 		//go down left
 		for(int i = 1; !found && i < maxSize; i++) {
 			found = GetBlackPointOnSegment(image, right, up + i, right - i, up, x);
 		}
-
 		if(!found) {
 			return false;
 		}
-
 		ResultPoint y;
 		found = false;
 		//go up left
 		for(int i = 1; !found && i < maxSize; i++) {
 			found = GetBlackPointOnSegment(image, right, down - i, right - i, down, y);
 		}
-
 		if(!found) {
 			return false;
 		}
-
 		CenterEdges(y, z, x, t, width, p0, p1, p2, p3);
 		return true;
 	}

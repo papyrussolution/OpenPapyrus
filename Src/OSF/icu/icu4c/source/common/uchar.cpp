@@ -1,18 +1,17 @@
 // UCHAR.C
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1996-2016, International Business Machines Corporation and others.  All Rights Reserved.
- * Modification History:
- *   Date        Name        Description
- *   04/02/97    aliu        Creation.
- *   4/15/99     Madhu       Updated all the function definitions for C Implementation
- *   5/20/99     Madhu       Added the function u_getVersion()
- *   8/19/1999   srl         Upgraded scripts to Unicode3.0
- *   11/11/1999  weiv        added u_isalnum(), cleaned comments
- *   01/11/2000  helena      Renamed u_getVersion to u_getUnicodeVersion.
- *   06/20/2000  helena      OS/400 port changes; mostly typecast.
- */
+// Copyright (C) 1996-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 04/02/97    aliu        Creation.
+// 4/15/99     Madhu       Updated all the function definitions for C Implementation
+// 5/20/99     Madhu       Added the function u_getVersion()
+// 8/19/1999   srl         Upgraded scripts to Unicode3.0
+// 11/11/1999  weiv        added u_isalnum(), cleaned comments
+// 01/11/2000  helena      Renamed u_getVersion to u_getUnicodeVersion.
+// 06/20/2000  helena      OS/400 port changes; mostly typecast.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ucln_cmn.h"
@@ -688,7 +687,6 @@ U_CFUNC void U_EXPORT2 upropsvec_addPropertyStarts(const USetAdder * sa, UErrorC
 	if(U_FAILURE(*pErrorCode)) {
 		return;
 	}
-
 	/* add the start code point of each same-value range of the properties vectors trie */
 	utrie2_enum(&propsVectorsTrie, NULL, _enumPropertyStartsRange, sa);
 }

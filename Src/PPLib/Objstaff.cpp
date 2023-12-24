@@ -1,5 +1,5 @@
 // OBJSTAFF.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
 // @codepage UTF-8
 // Штатное расписание
 //
@@ -1321,10 +1321,10 @@ int FASTCALL PPObjStaffList::Fetch(PPID id, PPStaffEntry * pRec)
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
 }
 
-int FASTCALL PPObjStaffList::Dirty(PPID id)
+void FASTCALL PPObjStaffList::Dirty(PPID id)
 {
 	StaffListCache * p_cache = GetDbLocalCachePtr <StaffListCache> (Obj, 0);
-	return p_cache ? p_cache->Dirty(id) : -1;
+	CALLPTRMEMB(p_cache, Dirty(id));
 }
 //
 //
@@ -1390,10 +1390,10 @@ int PPObjStaffList::FetchPost(PPID id, PersonPostTbl::Rec * pRec)
 	return p_cache ? p_cache->Get(id, pRec) : SearchPost(id, pRec);
 }
 
-int PPObjStaffList::DirtyPost(PPID id)
+void PPObjStaffList::DirtyPost(PPID id)
 {
 	PersonPostCache * p_cache = GetDbLocalCachePtr <PersonPostCache> (PPOBJ_PERSONPOST, 0);
-	return p_cache ? p_cache->Dirty(id) : -1;
+	CALLPTRMEMB(p_cache, Dirty(id));
 }
 //
 // Implementation of PPALDD_StaffNom

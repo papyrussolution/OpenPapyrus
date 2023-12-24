@@ -703,7 +703,7 @@ void CalendarRegressionTest::test4083167()
 	double firstMillisInDay = hr * 3600000 + min * 60000 + sec * 1000 + msec;
 	//logln("Current time: " + firstDate.toString());
 	for(int32_t validity = 0; validity<30; validity++) {
-		UDate lastDate = firstDate + validity*1000 * SSECSPERDAY; // (24*60*60.0)-->SSECSPERDAY
+		UDate lastDate = firstDate + validity*1000 * SlConst::SecsPerDay; // (24*60*60.0)-->SlConst::SecsPerDay
 		cal->setTime(lastDate, status);
 		hr   = cal->get(UCAL_HOUR_OF_DAY, status);
 		min  = cal->get(UCAL_MINUTE, status);
@@ -1491,7 +1491,7 @@ void CalendarRegressionTest::test4141665()
 	}
 	GregorianCalendar * cal2 = cal->clone();
 	UDate cut = cal->getGregorianChange();
-	UDate cut2 = cut + 100 * SSECSPERDAY * 1000.0; // 100 days later
+	UDate cut2 = cut + 100 * SlConst::SecsPerDay * 1000.0; // 100 days later
 	if(*cal != *cal2) {
 		errln("Cloned GregorianCalendars not equal");
 	}

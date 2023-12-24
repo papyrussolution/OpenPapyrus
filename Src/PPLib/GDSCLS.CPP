@@ -225,7 +225,7 @@ int PPObjGoodsClass::PutPacket(PPID * pID, PPGdsClsPacket * pPack, int use_ta)
 			else {
 				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
 			}
-			THROW(Dirty(*pID));
+			Dirty(*pID);
 		}
 		else {
 			*pID = pPack->Rec.ID;

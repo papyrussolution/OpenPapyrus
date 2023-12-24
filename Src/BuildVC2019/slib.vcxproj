@@ -4597,6 +4597,7 @@
     <ClInclude Include="..\Include\xxh3.h" />
     <ClInclude Include="..\Include\xxhash.h" />
     <ClInclude Include="..\Include\zlib.h" />
+    <ClInclude Include="..\OSF\utf8.h\utf8.h" />
     <ClInclude Include="..\SLib\bzip2\bzlib.h" />
     <ClInclude Include="..\SLib\bzip2\bzlib_private.h" />
     <ClInclude Include="..\SLib\BZIP3\include\getopt-shim.h" />

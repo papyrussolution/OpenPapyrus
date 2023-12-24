@@ -3427,7 +3427,7 @@ public:
 	int    GetSaGiftList(SaGiftArray * pList, int clear);
 	int    GetSaSubst(PPID goodsID, RAssocArray & rList);
 private:
-	virtual int  FASTCALL Dirty(PPID id);
+	virtual void FASTCALL Dirty(PPID id);
 	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
@@ -3535,12 +3535,11 @@ void GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 }
 
-int FASTCALL GoodsStrucCache::Dirty(PPID id)
+void FASTCALL GoodsStrucCache::Dirty(PPID id)
 {
-	int    ok = 1;
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
-		ok = Helper_Dirty(id);
+		Helper_Dirty(id);
 	}
 	if(P_GiftList) {
 		PPGoodsStrucHeader temp_rec;
@@ -3549,7 +3548,6 @@ int FASTCALL GoodsStrucCache::Dirty(PPID id)
 			GetSaGiftList(0, 1); // Функция защищена внутренней критической секцией
 		}
 	}
-	return ok;
 }
 
 IMPL_OBJ_FETCH(PPObjGoodsStruc, PPGoodsStrucHeader, GoodsStrucCache);

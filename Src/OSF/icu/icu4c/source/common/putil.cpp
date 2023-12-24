@@ -1,35 +1,30 @@
 // putil.c (previously putil.cpp and ptypes.cpp)
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
- *   Date        Name        Description
- *   04/14/97    aliu        Creation.
- *   04/24/97    aliu        Added getDefaultDataDirectory() and
- *         getDefaultLocaleID().
- *   04/28/97    aliu        Rewritten to assume Unix and apply general methods
- *         for assumed case.  Non-UNIX platforms must be
- *         special-cased.  Rewrote numeric methods dealing
- *         with NaN and Infinity to be platform independent
- *          over all IEEE 754 platforms.
- *   05/13/97    aliu        Restored sign of timezone
- *         (semantics are hours West of GMT)
- *   06/16/98    erm         Added IEEE_754 stuff, cleaned up isInfinite, isNan,
- *          nextDouble..
- *   07/22/98    stephen     Added remainder, max, min, trunc
- *   08/13/98    stephen     Added isNegativeInfinity, isPositiveInfinity
- *   08/24/98    stephen     Added longBitsFromDouble
- *   09/08/98    stephen     Minor changes for Mac Port
- *   03/02/99    stephen     Removed openFile().  Added AS400 support.
- *         Fixed EBCDIC tables
- *   04/15/99    stephen     Converted to C.
- *   06/28/99    stephen     Removed mutex locking in u_isBigEndian().
- *   08/04/99    jeffrey R.  Added OS/2 changes
- *   11/15/99    helena      Integrated S/390 IEEE support.
- *   04/26/01    Barry N.    OS/400 support for uprv_getDefaultLocaleID
- *   08/15/01    Steven H.   OS/400 support for uprv_getDefaultCodepage
- *   01/03/08    Steven L.   Fake Time Support
- */
+// Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 04/14/97    aliu        Creation.
+// 04/24/97    aliu        Added getDefaultDataDirectory() and getDefaultLocaleID().
+// 04/28/97    aliu        Rewritten to assume Unix and apply general methods
+//   for assumed case.  Non-UNIX platforms must be
+//   special-cased.  Rewrote numeric methods dealing
+//   with NaN and Infinity to be platform independent
+//   over all IEEE 754 platforms.
+// 05/13/97    aliu        Restored sign of timezone (semantics are hours West of GMT)
+// 06/16/98    erm         Added IEEE_754 stuff, cleaned up isInfinite, isNan, nextDouble..
+// 07/22/98    stephen     Added remainder, max, min, trunc
+// 08/13/98    stephen     Added isNegativeInfinity, isPositiveInfinity
+// 08/24/98    stephen     Added longBitsFromDouble
+// 09/08/98    stephen     Minor changes for Mac Port
+// 03/02/99    stephen     Removed openFile().  Added AS400 support. Fixed EBCDIC tables
+// 04/15/99    stephen     Converted to C.
+// 06/28/99    stephen     Removed mutex locking in u_isBigEndian().
+// 08/04/99    jeffrey R.  Added OS/2 changes
+// 11/15/99    helena      Integrated S/390 IEEE support.
+// 04/26/01    Barry N.    OS/400 support for uprv_getDefaultLocaleID
+// 08/15/01    Steven H.   OS/400 support for uprv_getDefaultCodepage
+// 01/03/08    Steven L.   Fake Time Support
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 // Defines _XOPEN_SOURCE for access to POSIX functions.
@@ -37,10 +32,8 @@
 #include "unicode/platform.h" // First, the platform type. Need this for U_PLATFORM.
 
 #if U_PLATFORM == U_PF_MINGW && defined __STRICT_ANSI__
-/* tzset isn't defined in strict ANSI on MinGW. */
-#undef __STRICT_ANSI__
+	#undef __STRICT_ANSI__ // tzset isn't defined in strict ANSI on MinGW
 #endif
-
 /*
  * Cygwin with GCC requires inclusion of time.h after the above disabling strict asci mode statement.
  */
@@ -50,7 +43,6 @@
 /* include the rest of the ICU headers */
 #include "locmap.h"
 #include "ucln_cmn.h"
-
 /* Include standard headers. */
 #ifndef U_COMMON_IMPLEMENTATION
 	#error U_COMMON_IMPLEMENTATION not set - must be set for all ICU source files in common/ - see https://unicode-org.github.io/icu/userguide/howtouseicu
@@ -92,40 +84,37 @@
 #elif U_PLATFORM == U_PF_QNX
 #include <sys/neutrino.h>
 #endif
-
 /*
  * Only include langinfo.h if we have a way to get the codeset. If we later
  * depend on more feature, we can test on U_HAVE_NL_LANGINFO.
  *
  */
-
 #if U_HAVE_NL_LANGINFO_CODESET
-#include <langinfo.h>
+	#include <langinfo.h>
 #endif
-
 /**
  * Simple things (presence of functions, etc) should just go in configure.in and be added to
  * icucfg.h via autoheader.
  */
 #if U_PLATFORM_IMPLEMENTS_POSIX
-#if U_PLATFORM == U_PF_OS400
-#define HAVE_DLFCN_H 0
-#define HAVE_DLOPEN 0
+	#if U_PLATFORM == U_PF_OS400
+		#define HAVE_DLFCN_H 0
+		#define HAVE_DLOPEN 0
+	#else
+		#ifndef HAVE_DLFCN_H
+			#define HAVE_DLFCN_H 1
+		#endif
+		#ifndef HAVE_DLOPEN
+			#define HAVE_DLOPEN 1
+		#endif
+	#endif
+	#ifndef HAVE_GETTIMEOFDAY
+		#define HAVE_GETTIMEOFDAY 1
+	#endif
 #else
-#ifndef HAVE_DLFCN_H
-#define HAVE_DLFCN_H 1
-#endif
-#ifndef HAVE_DLOPEN
-#define HAVE_DLOPEN 1
-#endif
-#endif
-#ifndef HAVE_GETTIMEOFDAY
-#define HAVE_GETTIMEOFDAY 1
-#endif
-#else
-#define HAVE_DLFCN_H 0
-#define HAVE_DLOPEN 0
-#define HAVE_GETTIMEOFDAY 0
+	#define HAVE_DLFCN_H 0
+	#define HAVE_DLOPEN 0
+	#define HAVE_GETTIMEOFDAY 0
 #endif
 
 U_NAMESPACE_USE
@@ -453,7 +442,6 @@ U_CAPI bool U_EXPORT2 uprv_mul32_overflow(int32_t a, int32_t b, int32_t* res) {
 	*res = static_cast<int32_t>(res64);
 	return res64 != *res;
 }
-
 /**
  * Truncates the given double.
  * trunc(3.3) = 3.0, trunc (-3.3) = -3.0
@@ -469,12 +457,10 @@ U_CAPI double U_EXPORT2 uprv_trunc(double d)
 		return uprv_getNaN();
 	if(uprv_isInfinite(d))
 		return uprv_getInfinity();
-
 	if(u_signBit(d)) /* Signbit() picks up -0.0;  d<0 does not. */
 		return ceil(d);
 	else
 		return floor(d);
-
 #else
 	return d >= 0 ? floor(d) : ceil(d);
 
@@ -485,15 +471,8 @@ U_CAPI double U_EXPORT2 uprv_trunc(double d)
  * Return the largest positive number that can be represented by an integer
  * type of arbitrary bit length.
  */
-U_CAPI double U_EXPORT2 uprv_maxMantissa(void)
-{
-	return pow(2.0, DBL_MANT_DIG + 1.0) - 1.0;
-}
-
-U_CAPI double U_EXPORT2 uprv_log(double d)
-{
-	return log(d);
-}
+U_CAPI double U_EXPORT2 uprv_maxMantissa(void) { return pow(2.0, DBL_MANT_DIG + 1.0) - 1.0; }
+U_CAPI double U_EXPORT2 uprv_log(double d) { return log(d); }
 
 U_CAPI void * U_EXPORT2 uprv_maximumPtr(void * base)
 {
@@ -2288,7 +2267,6 @@ U_CAPI UVoidFunction* U_EXPORT2 uprv_dlsym_func(void * lib, const char * sym, UE
 	}
 	return (UVoidFunction*)NULL;
 }
-
 #endif
 /*
  * Hey, Emacs, please set the following:

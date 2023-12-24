@@ -3920,7 +3920,7 @@ int PPObjEdiProvider::PutPacket(PPID * pID, PPEdiProviderPacket * pPack, int use
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
 			if(ok > 0)
-				THROW(Dirty(*pID));
+				Dirty(*pID);
 		}
 		else if(pPack) {
 			THROW(CheckRights(PPR_INS));

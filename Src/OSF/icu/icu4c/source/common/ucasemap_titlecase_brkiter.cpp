@@ -1,21 +1,14 @@
+// ucasemap_titlecase_brkiter.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *   Copyright (C) 2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  ucasemap_titlecase_brkiter.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2011jun02
- *   created by: Markus W. Scherer
- *
- *   Titlecasing functions that are based on BreakIterator
- *   were moved here to break dependency cycles among parts of the common library.
- */
+// Copyright (C) 2011, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2011jun02
+// created by: Markus W. Scherer
+// 
+// Titlecasing functions that are based on BreakIterator
+// were moved here to break dependency cycles among parts of the common library.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -28,9 +21,9 @@
 
 U_NAMESPACE_BEGIN
 
-void CaseMap::utf8ToTitle(const char * locale, uint32_t options, BreakIterator * iter,
-    StringPiece src, ByteSink &sink, Edits * edits,
-    UErrorCode & errorCode) {
+void CaseMap::utf8ToTitle(const char * locale, uint32_t options, BreakIterator * iter, StringPiece src, ByteSink &sink, Edits * edits,
+    UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -43,10 +36,7 @@ void CaseMap::utf8ToTitle(const char * locale, uint32_t options, BreakIterator *
 		return;
 	}
 	iter->setText(&utext, errorCode);
-	ucasemap_mapUTF8(
-		ustrcase_getCaseLocale(locale), options, iter,
-		src.data(), src.length(),
-		ucasemap_internalUTF8ToTitle, sink, edits, errorCode);
+	ucasemap_mapUTF8(ustrcase_getCaseLocale(locale), options, iter, src.data(), src.length(), ucasemap_internalUTF8ToTitle, sink, edits, errorCode);
 	utext_close(&utext);
 }
 

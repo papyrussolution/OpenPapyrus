@@ -1,12 +1,8 @@
+// quantityformatter.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 2014-2016, International Business Machines
- * Corporation and others.  All Rights Reserved.
- ******************************************************************************
- * quantityformatter.cpp
- */
+// Copyright (C) 2014-2016, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -22,14 +18,14 @@ U_NAMESPACE_BEGIN
 
 QuantityFormatter::QuantityFormatter() 
 {
-	for(int32_t i = 0; i < SIZEOFARRAYi(formatters); ++i) {
+	for(uint i = 0; i < SIZEOFARRAY(formatters); ++i) {
 		formatters[i] = NULL;
 	}
 }
 
 QuantityFormatter::QuantityFormatter(const QuantityFormatter &other) 
 {
-	for(int32_t i = 0; i < SIZEOFARRAYi(formatters); ++i) {
+	for(uint i = 0; i < SIZEOFARRAY(formatters); ++i) {
 		formatters[i] = other.formatters[i] ? new SimpleFormatter(*other.formatters[i]) : 0;
 	}
 }
@@ -48,14 +44,14 @@ QuantityFormatter &QuantityFormatter::operator = (const QuantityFormatter & othe
 
 QuantityFormatter::~QuantityFormatter() 
 {
-	for(int32_t i = 0; i < SIZEOFARRAYi(formatters); ++i) {
+	for(uint i = 0; i < SIZEOFARRAY(formatters); ++i) {
 		delete formatters[i];
 	}
 }
 
 void QuantityFormatter::reset() 
 {
-	for(int32_t i = 0; i < SIZEOFARRAYi(formatters); ++i) {
+	for(uint i = 0; i < SIZEOFARRAY(formatters); ++i) {
 		ZDELETE(formatters[i]);
 	}
 }
@@ -89,9 +85,7 @@ const SimpleFormatter * QuantityFormatter::getByVariant(const char * variant) co
 	U_ASSERT(isValid());
 	int32_t pluralIndex = StandardPlural::indexOrOtherIndexFromString(variant);
 	const SimpleFormatter * pattern = formatters[pluralIndex];
-	if(pattern == NULL) {
-		pattern = formatters[StandardPlural::OTHER];
-	}
+	SETIFZQ(pattern, formatters[StandardPlural::OTHER]);
 	return pattern;
 }
 
@@ -103,9 +97,9 @@ UnicodeString & QuantityFormatter::format(const Formattable &number, const Numbe
 		return appendTo;
 	}
 	const SimpleFormatter * pattern = formatters[p];
-	if(pattern == NULL) {
+	if(!pattern) {
 		pattern = formatters[StandardPlural::OTHER];
-		if(pattern == NULL) {
+		if(!pattern) {
 			status = U_INVALID_STATE_ERROR;
 			return appendTo;
 		}
@@ -152,12 +146,9 @@ StandardPlural::Form QuantityFormatter::selectPlural(const Formattable &number, 
 	return StandardPlural::orOtherFromString(pluralKeyword);
 }
 
-void QuantityFormatter::formatAndSelect(double quantity,
-    const NumberFormat& fmt,
-    const PluralRules& rules,
-    FormattedStringBuilder& output,
-    StandardPlural::Form& pluralForm,
-    UErrorCode & status) {
+void QuantityFormatter::formatAndSelect(double quantity, const NumberFormat& fmt, const PluralRules& rules,
+    FormattedStringBuilder& output, StandardPlural::Form& pluralForm, UErrorCode & status) 
+{
 	UnicodeString pluralKeyword;
 	const DecimalFormat* df = dynamic_cast<const DecimalFormat*>(&fmt);
 	if(df != nullptr) {

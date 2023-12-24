@@ -19,7 +19,8 @@
 namespace re2 {
 // Test that C++ strings are compared as uint8s, not int8s.
 // PossibleMatchRange doesn't depend on this, but callers probably will.
-TEST(CplusplusStrings, EightBit) {
+TEST(CplusplusStrings, EightBit) 
+{
 	std::string s = "\x70";
 	std::string t = "\xA0";
 	EXPECT_LT(s, t);
@@ -131,37 +132,22 @@ TEST(PossibleMatchRange, HandWritten) {
 }
 
 // Test cases where PossibleMatchRange should return false.
-TEST(PossibleMatchRange, Failures) {
+TEST(PossibleMatchRange, Failures) 
+{
 	std::string min, max;
-
 	// Fails because no room to write max.
 	EXPECT_FALSE(RE2("abc").PossibleMatchRange(&min, &max, 0));
-
 	// Fails because there is no max -- any non-empty string matches
 	// or begins a match.  Have to use Latin-1 input, because there
 	// are no valid UTF-8 strings beginning with byte 0xFF.
-	EXPECT_FALSE(RE2("[\\s\\S]+", RE2::Latin1).
-	    PossibleMatchRange(&min, &max, 10))
-		<< "min=" << CEscape(min) << ", max=" << CEscape(max);
-	EXPECT_FALSE(RE2("[\\0-\xFF]+", RE2::Latin1).
-	    PossibleMatchRange(&min, &max, 10))
-		<< "min=" << CEscape(min) << ", max=" << CEscape(max);
-	EXPECT_FALSE(RE2(".+hello", RE2::Latin1).
-	    PossibleMatchRange(&min, &max, 10))
-		<< "min=" << CEscape(min) << ", max=" << CEscape(max);
-	EXPECT_FALSE(RE2(".*hello", RE2::Latin1).
-	    PossibleMatchRange(&min, &max, 10))
-		<< "min=" << CEscape(min) << ", max=" << CEscape(max);
-	EXPECT_FALSE(RE2(".*", RE2::Latin1).
-	    PossibleMatchRange(&min, &max, 10))
-		<< "min=" << CEscape(min) << ", max=" << CEscape(max);
-	EXPECT_FALSE(RE2("\\C*").
-	    PossibleMatchRange(&min, &max, 10))
-		<< "min=" << CEscape(min) << ", max=" << CEscape(max);
-
+	EXPECT_FALSE(RE2("[\\s\\S]+", RE2::Latin1).PossibleMatchRange(&min, &max, 10)) << "min=" << CEscape(min) << ", max=" << CEscape(max);
+	EXPECT_FALSE(RE2("[\\0-\xFF]+", RE2::Latin1).PossibleMatchRange(&min, &max, 10)) << "min=" << CEscape(min) << ", max=" << CEscape(max);
+	EXPECT_FALSE(RE2(".+hello", RE2::Latin1).PossibleMatchRange(&min, &max, 10)) << "min=" << CEscape(min) << ", max=" << CEscape(max);
+	EXPECT_FALSE(RE2(".*hello", RE2::Latin1).PossibleMatchRange(&min, &max, 10)) << "min=" << CEscape(min) << ", max=" << CEscape(max);
+	EXPECT_FALSE(RE2(".*", RE2::Latin1).PossibleMatchRange(&min, &max, 10)) << "min=" << CEscape(min) << ", max=" << CEscape(max);
+	EXPECT_FALSE(RE2("\\C*").PossibleMatchRange(&min, &max, 10)) << "min=" << CEscape(min) << ", max=" << CEscape(max);
 	// Fails because it's a malformed regexp.
-	EXPECT_FALSE(RE2("*hello").PossibleMatchRange(&min, &max, 10))
-		<< "min=" << CEscape(min) << ", max=" << CEscape(max);
+	EXPECT_FALSE(RE2("*hello").PossibleMatchRange(&min, &max, 10)) << "min=" << CEscape(min) << ", max=" << CEscape(max);
 }
 
 // Exhaustive test: generate all regexps within parameters,
@@ -170,42 +156,31 @@ TEST(PossibleMatchRange, Failures) {
 // the regexp matches each of the strings.
 class PossibleMatchTester : public RegexpGenerator {
 public:
-	PossibleMatchTester(int maxatoms,
-	    int maxops,
-	    const std::vector<std::string>& alphabet,
-	    const std::vector<std::string>& ops,
-	    int maxstrlen,
-	    const std::vector<std::string>& stralphabet)
-		: RegexpGenerator(maxatoms, maxops, alphabet, ops),
-		strgen_(maxstrlen, stralphabet),
-		regexps_(0), tests_(0) { }
-
+	PossibleMatchTester(int maxatoms, int maxops, const std::vector<std::string>& alphabet, const std::vector<std::string>& ops,
+	    int maxstrlen, const std::vector<std::string>& stralphabet) : RegexpGenerator(maxatoms, maxops, alphabet, ops),
+		strgen_(maxstrlen, stralphabet), regexps_(0), tests_(0) 
+	{ 
+	}
 	int regexps()  { return regexps_; }
 	int tests()    { return tests_; }
-
 	// Needed for RegexpGenerator interface.
 	void HandleRegexp(const std::string& regexp);
-
 private:
 	StringGenerator strgen_;
-
 	int regexps_; // Number of HandleRegexp calls
 	int tests_; // Number of regexp tests.
-
 	PossibleMatchTester(const PossibleMatchTester&) = delete;
 	PossibleMatchTester& operator=(const PossibleMatchTester&) = delete;
 };
 
 // Processes a single generated regexp.
 // Checks that all accepted strings agree with the prefix range.
-void PossibleMatchTester::HandleRegexp(const std::string& regexp) {
+void PossibleMatchTester::HandleRegexp(const std::string& regexp) 
+{
 	regexps_++;
-
 	VLOG(3) << CEscape(regexp);
-
 	RE2 re(regexp, RE2::Latin1);
 	ASSERT_EQ(re.error(), "");
-
 	std::string min, max;
 	if(!re.PossibleMatchRange(&min, &max, 10)) {
 		// There's no good max for "\\C*".  Can't use strcmp
@@ -215,7 +190,6 @@ void PossibleMatchTester::HandleRegexp(const std::string& regexp) {
 			return;
 		LOG(QFATAL) << "PossibleMatchRange failed on: " << CEscape(regexp);
 	}
-
 	strgen_.Reset();
 	while(strgen_.HasNext()) {
 		const StringPiece& s = strgen_.Next();

@@ -1,16 +1,12 @@
+// propname.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- * Copyright (c) 2002-2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- **********************************************************************
- * Author: Alan Liu
- * Created: October 30 2002
- * Since: ICU 2.4
- * 2010nov19 Markus Scherer  Rewrite for formatVersion 2.
- **********************************************************************
- */
+// Copyright (c) 2002-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// Author: Alan Liu
+// Created: October 30 2002
+// Since: ICU 2.4
+// 2010nov19 Markus Scherer  Rewrite for formatVersion 2.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "propname.h"
@@ -18,23 +14,18 @@
 #include "propname_data.h"
 
 U_CDECL_BEGIN
-
 /**
  * Get the next non-ignorable ASCII character from a property name
  * and lowercases it.
  * @return ((advance count for the name)<<8)|character
  */
-static inline int32_t getASCIIPropertyNameChar(const char * name) {
+static inline int32_t getASCIIPropertyNameChar(const char * name) 
+{
 	int32_t i;
 	char c;
-
 	/* Ignore delimiters '-', '_', and ASCII White_Space */
-	for(i = 0;
-	    (c = name[i++])==0x2d || c==0x5f ||
-	    c==0x20 || (0x09<=c && c<=0x0d);
-	    ) {
+	for(i = 0; (c = name[i++])==0x2d || c==0x5f || c==0x20 || (0x09<=c && c<=0x0d);) {
 	}
-
 	if(c!=0) {
 		return (i<<8)|(uint8)uprv_asciitolower((char)c);
 	}
@@ -42,23 +33,18 @@ static inline int32_t getASCIIPropertyNameChar(const char * name) {
 		return i<<8;
 	}
 }
-
 /**
  * Get the next non-ignorable EBCDIC character from a property name
  * and lowercases it.
  * @return ((advance count for the name)<<8)|character
  */
-static inline int32_t getEBCDICPropertyNameChar(const char * name) {
+static inline int32_t getEBCDICPropertyNameChar(const char * name) 
+{
 	int32_t i;
 	char c;
-
 	/* Ignore delimiters '-', '_', and EBCDIC White_Space */
-	for(i = 0;
-	    (c = name[i++])==0x60 || c==0x6d ||
-	    c==0x40 || c==0x05 || c==0x15 || c==0x25 || c==0x0b || c==0x0c || c==0x0d;
-	    ) {
+	for(i = 0; (c = name[i++])==0x60 || c==0x6d || c==0x40 || c==0x05 || c==0x15 || c==0x25 || c==0x0b || c==0x0c || c==0x0d;) {
 	}
-
 	if(c!=0) {
 		return (i<<8)|(uint8)uprv_ebcdictolower((char)c);
 	}
@@ -66,7 +52,6 @@ static inline int32_t getEBCDICPropertyNameChar(const char * name) {
 		return i<<8;
 	}
 }
-
 /**
  * Unicode property names and property value names are compared "loosely".
  *
@@ -83,52 +68,43 @@ static inline int32_t getEBCDICPropertyNameChar(const char * name) {
  *
  * @internal
  */
-
-U_CAPI int32_t U_EXPORT2 uprv_compareASCIIPropertyNames(const char * name1, const char * name2) {
-	int32_t rc, r1, r2;
-
+U_CAPI int32_t U_EXPORT2 uprv_compareASCIIPropertyNames(const char * name1, const char * name2) 
+{
 	for(;;) {
-		r1 = getASCIIPropertyNameChar(name1);
-		r2 = getASCIIPropertyNameChar(name2);
-
+		const int32_t r1 = getASCIIPropertyNameChar(name1);
+		const int32_t r2 = getASCIIPropertyNameChar(name2);
 		/* If we reach the ends of both strings then they match */
 		if(((r1|r2)&0xff)==0) {
 			return 0;
 		}
-
 		/* Compare the lowercased characters */
-		if(r1!=r2) {
-			rc = (r1&0xff)-(r2&0xff);
-			if(rc!=0) {
+		if(r1 != r2) {
+			const int32_t rc = (r1&0xff)-(r2&0xff);
+			if(rc != 0) {
 				return rc;
 			}
 		}
-
 		name1 += r1>>8;
 		name2 += r2>>8;
 	}
 }
 
-U_CAPI int32_t U_EXPORT2 uprv_compareEBCDICPropertyNames(const char * name1, const char * name2) {
-	int32_t rc, r1, r2;
-
+U_CAPI int32_t U_EXPORT2 uprv_compareEBCDICPropertyNames(const char * name1, const char * name2) 
+{
 	for(;;) {
-		r1 = getEBCDICPropertyNameChar(name1);
-		r2 = getEBCDICPropertyNameChar(name2);
-
+		const int32_t r1 = getEBCDICPropertyNameChar(name1);
+		const int32_t r2 = getEBCDICPropertyNameChar(name2);
 		/* If we reach the ends of both strings then they match */
 		if(((r1|r2)&0xff)==0) {
 			return 0;
 		}
-
 		/* Compare the lowercased characters */
 		if(r1!=r2) {
-			rc = (r1&0xff)-(r2&0xff);
-			if(rc!=0) {
+			const int32_t rc = (r1&0xff)-(r2&0xff);
+			if(rc != 0) {
 				return rc;
 			}
 		}
-
 		name1 += r1>>8;
 		name2 += r2>>8;
 	}
@@ -138,7 +114,8 @@ U_CDECL_END
 
 U_NAMESPACE_BEGIN
 
-int32_t PropNameData::findProperty(int32_t property) {
+int32_t PropNameData::findProperty(int32_t property) 
+{
 	int32_t i = 1; // valueMaps index, initially after numRanges
 	for(int32_t numRanges = valueMaps[0]; numRanges>0; --numRanges) {
 		// Read and skip the start and limit of this range.
@@ -156,7 +133,8 @@ int32_t PropNameData::findProperty(int32_t property) {
 	return 0;
 }
 
-int32_t PropNameData::findPropertyValueNameGroup(int32_t valueMapIndex, int32_t value) {
+int32_t PropNameData::findPropertyValueNameGroup(int32_t valueMapIndex, int32_t value) 
+{
 	if(valueMapIndex==0) {
 		return 0; // The property does not have named values.
 	}
@@ -195,7 +173,8 @@ int32_t PropNameData::findPropertyValueNameGroup(int32_t valueMapIndex, int32_t 
 	return 0;
 }
 
-const char * PropNameData::getName(const char * nameGroup, int32_t nameIndex) {
+const char * PropNameData::getName(const char * nameGroup, int32_t nameIndex) 
+{
 	int32_t numNames = *nameGroup++;
 	if(nameIndex<0 || numNames<=nameIndex) {
 		return NULL;
@@ -210,7 +189,8 @@ const char * PropNameData::getName(const char * nameGroup, int32_t nameIndex) {
 	return nameGroup;
 }
 
-bool PropNameData::containsName(BytesTrie &trie, const char * name) {
+bool PropNameData::containsName(BytesTrie &trie, const char * name) 
+{
 	if(name==NULL) {
 		return FALSE;
 	}
@@ -230,7 +210,8 @@ bool PropNameData::containsName(BytesTrie &trie, const char * name) {
 	return USTRINGTRIE_HAS_VALUE(result);
 }
 
-const char * PropNameData::getPropertyName(int32_t property, int32_t nameChoice) {
+const char * PropNameData::getPropertyName(int32_t property, int32_t nameChoice) 
+{
 	int32_t valueMapIndex = findProperty(property);
 	if(valueMapIndex==0) {
 		return NULL; // Not a known property.
@@ -238,7 +219,8 @@ const char * PropNameData::getPropertyName(int32_t property, int32_t nameChoice)
 	return getName(nameGroups+valueMaps[valueMapIndex], nameChoice);
 }
 
-const char * PropNameData::getPropertyValueName(int32_t property, int32_t value, int32_t nameChoice) {
+const char * PropNameData::getPropertyValueName(int32_t property, int32_t value, int32_t nameChoice) 
+{
 	int32_t valueMapIndex = findProperty(property);
 	if(valueMapIndex==0) {
 		return NULL; // Not a known property.
@@ -250,7 +232,8 @@ const char * PropNameData::getPropertyValueName(int32_t property, int32_t value,
 	return getName(nameGroups+nameGroupOffset, nameChoice);
 }
 
-int32_t PropNameData::getPropertyOrValueEnum(int32_t bytesTrieOffset, const char * alias) {
+int32_t PropNameData::getPropertyOrValueEnum(int32_t bytesTrieOffset, const char * alias) 
+{
 	BytesTrie trie(bytesTries+bytesTrieOffset);
 	if(containsName(trie, alias)) {
 		return trie.getValue();
@@ -260,9 +243,7 @@ int32_t PropNameData::getPropertyOrValueEnum(int32_t bytesTrieOffset, const char
 	}
 }
 
-int32_t PropNameData::getPropertyEnum(const char * alias) {
-	return getPropertyOrValueEnum(0, alias);
-}
+int32_t PropNameData::getPropertyEnum(const char * alias) { return getPropertyOrValueEnum(0, alias); }
 
 int32_t PropNameData::getPropertyValueEnum(int32_t property, const char * alias) {
 	int32_t valueMapIndex = findProperty(property);
@@ -279,40 +260,39 @@ int32_t PropNameData::getPropertyValueEnum(int32_t property, const char * alias)
 }
 
 U_NAMESPACE_END
-
-//----------------------------------------------------------------------
+//
 // Public API implementation
-
-U_CAPI const char * U_EXPORT2 u_getPropertyName(UProperty property,
-    UPropertyNameChoice nameChoice) {
+//
+U_CAPI const char * U_EXPORT2 u_getPropertyName(UProperty property, UPropertyNameChoice nameChoice) 
+{
 	U_NAMESPACE_USE
 	return PropNameData::getPropertyName(property, nameChoice);
 }
 
-U_CAPI UProperty U_EXPORT2 u_getPropertyEnum(const char * alias) {
+U_CAPI UProperty U_EXPORT2 u_getPropertyEnum(const char * alias) 
+{
 	U_NAMESPACE_USE
 	return (UProperty)PropNameData::getPropertyEnum(alias);
 }
 
-U_CAPI const char * U_EXPORT2 u_getPropertyValueName(UProperty property,
-    int32_t value,
-    UPropertyNameChoice nameChoice) {
+U_CAPI const char * U_EXPORT2 u_getPropertyValueName(UProperty property, int32_t value, UPropertyNameChoice nameChoice) 
+{
 	U_NAMESPACE_USE
 	return PropNameData::getPropertyValueName(property, value, nameChoice);
 }
 
-U_CAPI int32_t U_EXPORT2 u_getPropertyValueEnum(UProperty property,
-    const char * alias) {
+U_CAPI int32_t U_EXPORT2 u_getPropertyValueEnum(UProperty property, const char * alias) 
+{
 	U_NAMESPACE_USE
 	return PropNameData::getPropertyValueEnum(property, alias);
 }
 
-U_CAPI const char * U_EXPORT2 uscript_getName(UScriptCode scriptCode) {
-	return u_getPropertyValueName(UCHAR_SCRIPT, scriptCode,
-		   U_LONG_PROPERTY_NAME);
+U_CAPI const char * U_EXPORT2 uscript_getName(UScriptCode scriptCode) 
+{
+	return u_getPropertyValueName(UCHAR_SCRIPT, scriptCode, U_LONG_PROPERTY_NAME);
 }
 
-U_CAPI const char * U_EXPORT2 uscript_getShortName(UScriptCode scriptCode) {
-	return u_getPropertyValueName(UCHAR_SCRIPT, scriptCode,
-		   U_SHORT_PROPERTY_NAME);
+U_CAPI const char * U_EXPORT2 uscript_getShortName(UScriptCode scriptCode) 
+{
+	return u_getPropertyValueName(UCHAR_SCRIPT, scriptCode, U_SHORT_PROPERTY_NAME);
 }

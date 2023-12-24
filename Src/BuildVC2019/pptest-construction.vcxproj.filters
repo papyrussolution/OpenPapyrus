@@ -41,6 +41,7 @@
     <ClCompile Include="..\PPTEST\UNIT\test-image.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-libdivide.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-fts.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-utf8_h.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\libdivide\constant_fast_div.h">

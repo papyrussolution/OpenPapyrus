@@ -6,16 +6,13 @@
 #define UTIL_STRUTIL_H_
 
 #include <string>
-
 #include "re2/stringpiece.h"
 #include "util/util.h"
 
 namespace re2 {
-
-std::string CEscape(const StringPiece& src);
-void PrefixSuccessor(std::string* prefix);
-std::string StringPrintf(const char* format, ...);
-
-}  // namespace re2
+	std::string CEscape(const StringPiece& src);
+	void PrefixSuccessor(std::string* prefix);
+	std::string StringPrintf(const char* format, ...);
+}
 
 #endif  // UTIL_STRUTIL_H_

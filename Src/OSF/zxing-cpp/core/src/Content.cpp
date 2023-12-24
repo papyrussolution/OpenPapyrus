@@ -13,19 +13,16 @@ std::string ToString(ContentType type)
 	return t2s[static_cast<int>(type)];
 }
 
-template <typename FUNC>
-void Content::ForEachECIBlock(FUNC func) const
+template <typename FUNC> void Content::ForEachECIBlock(FUNC func) const
 {
 	ECI defaultECI = hasECI ? ECI::ISO8859_1 : ECI::Unknown;
 	if(encodings.empty())
 		func(defaultECI, 0, Size(bytes));
 	else if(encodings.front().pos != 0)
 		func(defaultECI, 0, encodings.front().pos);
-
 	for(int i = 0; i < Size(encodings); ++i) {
 		auto [eci, start] = encodings[i];
 		int end = i + 1 == Size(encodings) ? Size(bytes) : encodings[i + 1].pos;
-
 		if(start != end)
 			func(eci, start, end);
 	}
@@ -38,7 +35,6 @@ void Content::switchEncoding(ECI eci, bool isECI)
 		encodings.clear();
 	if(isECI || !hasECI)
 		encodings.push_back({eci, Size(bytes)});
-
 	hasECI |= isECI;
 }
 
@@ -66,7 +62,6 @@ void Content::append(const Content& other)
 		for(auto& e : other.encodings)
 			encodings.push_back({e.eci, Size(bytes) + e.pos});
 	append(other.bytes);
-
 	hasECI |= other.hasECI;
 }
 
@@ -88,16 +83,13 @@ void Content::insert(int pos, const std::string& str)
 
 bool Content::canProcess() const
 {
-	return std::all_of(encodings.begin(), encodings.end(), [](Encoding e) {
-			return CanProcess(e.eci);
-		});
+	return std::all_of(encodings.begin(), encodings.end(), [](Encoding e) { return CanProcess(e.eci); });
 }
 
 std::string Content::render(bool withECI) const
 {
 	if(empty() || !canProcess())
 		return {};
-
 	std::string res;
 	if(withECI)
 		res = symbology.toString(true);
@@ -105,24 +97,19 @@ std::string Content::render(bool withECI) const
 	auto fallbackCS = defaultCharset;
 	if(!hasECI && fallbackCS == CharacterSet::Unknown)
 		fallbackCS = guessEncoding();
-
 	ForEachECIBlock([&](ECI eci, int begin, int end) {
 			// first determine how to decode the content (choose character set)
 			//  * eci == ECI::Unknown implies !hasECI and we guess
 			//  * if !IsText(eci) the ToCharcterSet(eci) will return Unknown and we decode as binary
 			CharacterSet cs = eci == ECI::Unknown ? fallbackCS : ToCharacterSet(eci);
-
-			if(withECI) {
-			        // then find the eci to report back in the ECI designator
+			if(withECI) { // then find the eci to report back in the ECI designator
 				if(IsText(ToECI(cs))) // everything decoded as text is reported as utf8
 					eci = ECI::UTF8;
 				else if(eci == ECI::Unknown) // implies !hasECI and fallbackCS is Unknown or Binary
 					eci = ECI::Binary;
-
 				if(lastECI != eci)
 					res += ToString(eci);
 				lastECI = eci;
-
 				std::string tmp;
 				TextDecoder::Append(tmp, bytes.data() + begin, end - begin, cs);
 				for(auto c : tmp) {
@@ -135,7 +122,6 @@ std::string Content::render(bool withECI) const
 				TextDecoder::Append(res, bytes.data() + begin, end - begin, cs);
 			}
 		});
-
 	return res;
 }
 
@@ -158,14 +144,10 @@ std::string Content::text(TextMode mode) const
 		case TextMode::Hex: return ToHex(bytes);
 		case TextMode::Escaped: return EscapeNonGraphical(render(false));
 	}
-
 	return {}; // silence compiler warning
 }
 
-std::wstring Content::utfW() const
-{
-	return FromUtf8(render(false));
-}
+std::wstring Content::utfW() const { return FromUtf8(render(false)); }
 
 ByteArray Content::bytesECI() const
 {
@@ -175,7 +157,6 @@ ByteArray Content::bytesECI() const
 	ForEachECIBlock([&](ECI eci, int begin, int end) {
 			if(hasECI)
 				res += ToString(eci);
-
 			for(int i = begin; i != end; ++i) {
 				char c = static_cast<char>(bytes[i]);
 				res += c;
@@ -183,7 +164,6 @@ ByteArray Content::bytesECI() const
 					res += c;
 			}
 		});
-
 	return ByteArray(res);
 }
 
@@ -195,10 +175,8 @@ CharacterSet Content::guessEncoding() const
 			if(eci == ECI::Unknown)
 				input.insert(input.end(), bytes.begin() + begin, bytes.begin() + end);
 		});
-
 	if(input.empty())
 		return CharacterSet::Unknown;
-
 	return TextDecoder::GuessEncoding(input.data(), input.size(), CharacterSet::ISO8859_1);
 }
 
@@ -206,17 +184,13 @@ ContentType Content::type() const
 {
 	if(empty())
 		return ContentType::Text;
-
 	if(!canProcess())
 		return ContentType::UnknownECI;
-
 	if(symbology.aiFlag == AIFlag::GS1)
 		return ContentType::GS1;
-
 	// check for the absolut minimum of a ISO 15434 conforming message ("[)>" + RS + digit + digit)
 	if(bytes.size() > 6 && bytes.asString(0, 4) == "[)>\x1E" && std::isdigit(bytes[4]) && std::isdigit(bytes[5]))
 		return ContentType::ISO15434;
-
 	ECI fallback = ToECI(guessEncoding());
 	std::vector<bool> binaryECIs;
 	ForEachECIBlock([&](ECI eci, int begin, int end) {
@@ -229,12 +203,10 @@ ContentType Content::type() const
 				return c < 0x20 && c != 0x9 && c != 0xa && c != 0xd;
 			}))));
 		});
-
 	if(!Contains(binaryECIs, true))
 		return ContentType::Text;
 	if(!Contains(binaryECIs, false))
 		return ContentType::Binary;
-
 	return ContentType::Mixed;
 }
 } // namespace ZXing

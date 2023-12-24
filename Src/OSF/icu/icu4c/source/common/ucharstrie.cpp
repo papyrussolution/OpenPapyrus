@@ -1,28 +1,23 @@
+// ucharstrie.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *   Copyright (C) 2010-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:  ucharstrie.h
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2010nov14
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2010-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2010nov14
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
 U_NAMESPACE_BEGIN
 
-UCharsTrie::~UCharsTrie() {
+UCharsTrie::~UCharsTrie() 
+{
 	uprv_free(ownedArray_);
 }
 
-UStringTrieResult UCharsTrie::current() const {
+UStringTrieResult UCharsTrie::current() const 
+{
 	const char16_t * pos = pos_;
 	if(!pos) {
 		return USTRINGTRIE_NO_MATCH;

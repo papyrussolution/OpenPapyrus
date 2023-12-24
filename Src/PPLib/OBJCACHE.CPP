@@ -227,9 +227,8 @@ int ObjCache::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 //
 //
 //
-int FASTCALL ObjCache::Helper_Dirty(PPID id)
+void FASTCALL ObjCache::Helper_Dirty(PPID id)
 {
-	int    ok = -1;
 	uint   p = 0;
 	if(Search(id, &p)) {
 		ObjCacheEntry * p_entry = SearchByPos(p, 0);
@@ -239,17 +238,14 @@ int FASTCALL ObjCache::Helper_Dirty(PPID id)
 	if(Flags & fUseUndefList) {
 		UndefList.Remove(id);
 	}
-	return ok;
 }
 
-int FASTCALL ObjCache::Dirty(PPID id)
+void FASTCALL ObjCache::Dirty(PPID id)
 {
-	int    ok = 1;
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
-		ok = Helper_Dirty(id);
+		Helper_Dirty(id);
 	}
-	return ok;
 }
 
 int ObjCache::Put(PPID id, uint * p, long extraData)

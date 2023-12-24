@@ -2991,7 +2991,7 @@ public:
 	{
 		delete P_ReckonOpList;
 	}
-	virtual int FASTCALL Dirty(PPID); // @sync_w
+	virtual void FASTCALL Dirty(PPID); // @sync_w
 	int    GetReckonOpList(PPIDArray *); // @sync_rw
 	int    GetInventoryOpEx(PPID, PPInventoryOpEx *); // @>>IoeC.Get()
 	int    GetReckonExData(PPID, PPReckonOpEx *); // @v11.7.11
@@ -3013,7 +3013,7 @@ private:
 	StrAssocArray OpSymbList;
 };
 
-int FASTCALL OpCache::Dirty(PPID opID)
+void FASTCALL OpCache::Dirty(PPID opID)
 {
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
@@ -3028,7 +3028,6 @@ int FASTCALL OpCache::Dirty(PPID opID)
 		}
 		IoeC.Dirty(opID);
 	}
-	return 1;
 }
 
 PPID FASTCALL OpCache::GetBySymb(const char * pSymb)

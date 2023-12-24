@@ -2241,7 +2241,7 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
 			if(ok > 0)
-				THROW(Dirty(*pID));
+				Dirty(*pID);
 		}
 		else if(pPack) {
 			if(!oneof2(pPack->Type, LOCTYP_ADDRESS, 0) || !pPack->IsEmptyAddress()) {
@@ -2328,7 +2328,7 @@ int PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta)
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
 			if(ok > 0)
-				THROW(Dirty(*pID));
+				Dirty(*pID);
 		}
 		else if(pPack) {
 			if(!oneof2(pPack->Type, LOCTYP_ADDRESS, 0) || !LocationCore::IsEmptyAddressRec(*pPack)) {
@@ -3071,7 +3071,7 @@ public:
 	int    DirtyCellList(PPID locID); // @sync_w
 	int    ReleaseFullEaList(const StrAssocArray * pList);
 	const  StrAssocArray * GetFullEaList();
-	virtual int  FASTCALL Dirty(PPID); // @sync_w
+	virtual void FASTCALL Dirty(PPID); // @sync_w
 private:
 	struct WHObjEntry { // @flat
 		PPID   LocID;
@@ -3284,7 +3284,7 @@ int LocationCache::GetConfig(PPLocationConfig * pCfg, int enforce)
 	return 1;
 }
 
-int FASTCALL LocationCache::Dirty(PPID locID)
+void FASTCALL LocationCache::Dirty(PPID locID)
 {
 	PPObjLocation loc_obj(SConstructorLite);
 	{
@@ -3301,7 +3301,6 @@ int FASTCALL LocationCache::Dirty(PPID locID)
 			Helper_Dirty(locID);
 		}
 	}
-	return 1;
 }
 
 int LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec, PPID accSheetID)

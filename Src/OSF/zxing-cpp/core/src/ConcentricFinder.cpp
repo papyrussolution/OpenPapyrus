@@ -68,10 +68,8 @@ std::optional<PointF> CenterOfRing(const BitMatrix& image, PointI center, int ra
 		if(maxAbsComponent(cur.p - center) > radius || center == cur.p || n > 4 * 2 * range)
 			return {};
 	} while(cur.p != start);
-
 	if(requireCircle && neighbourMask != 0b111101111)
 		return {};
-
 	return sum / n;
 }
 
@@ -90,7 +88,6 @@ std::optional<PointF> CenterOfRings(const BitMatrix& image, PointF center, int r
 		else if(distance(*c, center) > range / numOfRings / 2) {
 			return {};
 		}
-
 		sum += *c;
 		n++;
 	}
@@ -106,7 +103,6 @@ static std::vector<PointF> CollectRingPoints(const BitMatrix& image, PointF cent
 		return {};
 	cur.turnRight(); // move clock wise and keep edge on the right/left depending on backup
 	const auto edgeDir = backup ? Direction::LEFT : Direction::RIGHT;
-
 	uint32_t neighbourMask = 0;
 	auto start = cur.p;
 	std::vector<PointF> points;
@@ -115,76 +111,56 @@ static std::vector<PointF> CollectRingPoints(const BitMatrix& image, PointF cent
 	do {
 		log(cur.p, 4);
 		points.push_back(centered(cur.p));
-
 		// find out if we come full circle around the center. 8 bits have to be set in the end.
 		neighbourMask |= (1 << (4 + dot(bresenhamDirection(cur.p - centerI), PointI(1, 3))));
-
 		if(!cur.stepAlongEdge(edgeDir))
 			return {};
-
 		// use L-inf norm, simply because it is a lot faster than L2-norm and sufficiently accurate
 		if(maxAbsComponent(cur.p - centerI) > radius || centerI == cur.p || Size(points) > 4 * 2 * range)
 			return {};
 	} while(cur.p != start);
-
 	if(neighbourMask != 0b111101111)
 		return {};
-
 	return points;
 }
 
 static std::optional<QuadrilateralF> FitQadrilateralToPoints(PointF center, std::vector<PointF>& points)
 {
-	auto dist2Center = [c = center](auto a, auto b) {
-		    return distance(a, c) < distance(b, c);
-	    };
+	auto dist2Center = [c = center](auto a, auto b) { return distance(a, c) < distance(b, c); };
 	// rotate points such that the first one is the furthest away from the center (hence, a corner)
 	std::rotate(points.begin(), std::max_element(points.begin(), points.end(), dist2Center), points.end());
-
 	std::array<const PointF*, 4> corners;
 	corners[0] = &points[0];
 	// find the oposite corner by looking for the farthest point near the oposite point
 	corners[2] = std::max_element(&points[Size(points) * 3 / 8], &points[Size(points) * 5 / 8], dist2Center);
-
 	// find the two in between corners by looking for the points farthest from the long diagonal
 	auto dist2Diagonal = [l = RegressionLine(*corners[0], *corners[2])](auto a, auto b) {
 		    return l.distance(a) < l.distance(b);
 	    };
 	corners[1] = std::max_element(&points[Size(points) * 1 / 8], &points[Size(points) * 3 / 8], dist2Diagonal);
 	corners[3] = std::max_element(&points[Size(points) * 5 / 8], &points[Size(points) * 7 / 8], dist2Diagonal);
-
 	std::array lines{RegressionLine{corners[0] + 1, corners[1]}, RegressionLine{corners[1] + 1, corners[2]},
 			 RegressionLine{corners[2] + 1, corners[3]}, RegressionLine{corners[3] + 1, &points.back() + 1}};
-
 	if(std::any_of(lines.begin(), lines.end(), [](auto line) {
 			return !line.isValid();
 		}))
 		return {};
-
 	std::array<const PointF*, 4> beg = {corners[0] + 1, corners[1] + 1, corners[2] + 1, corners[3] + 1};
 	std::array<const PointF*, 4> end = {corners[1], corners[2], corners[3], &points.back() + 1};
-
 	// check if all points belonging to each line segment are sufficiently close to that line
 	for(int i = 0; i < 4; ++i)
 		for(const PointF* p = beg[i]; p != end[i]; ++p) {
 			auto len = std::distance(beg[i], end[i]);
 			if(len > 3 && lines[i].distance(*p) > std::max(1., std::min(8., len / 8.))) {
 #ifdef PRINT_DEBUG
-				printf("%d: %.2f > %.2f @ %.fx%.f\n",
-				    i,
-				    lines[i].distance(*p),
-				    std::distance(beg[i], end[i]) / 1.,
-				    p->x,
-				    p->y);
+				printf("%d: %.2f > %.2f @ %.fx%.f\n", i, lines[i].distance(*p), std::distance(beg[i], end[i]) / 1., p->x, p->y);
 #endif
 				return {};
 			}
 		}
-
 	QuadrilateralF res;
 	for(int i = 0; i < 4; ++i)
 		res[i] = intersect(lines[i], lines[(i + 1) % 4]);
-
 	return res;
 }
 
@@ -194,7 +170,6 @@ static bool QuadrilateralIsPlausibleSquare(const QuadrilateralF q, int lineIndex
 	m = M = distance(q[0], q[3]);
 	for(int i = 1; i < 4; ++i)
 		UpdateMinMax(m, M, distance(q[i - 1], q[i]));
-
 	return m >= lineIndex * 2 && m > M / 3;
 }
 
@@ -203,11 +178,9 @@ static std::optional<QuadrilateralF> FitSquareToPoints(const BitMatrix& image, P
 	auto points = CollectRingPoints(image, center, range, lineIndex, backup);
 	if(points.empty())
 		return {};
-
 	auto res = FitQadrilateralToPoints(center, points);
 	if(!res || !QuadrilateralIsPlausibleSquare(*res, lineIndex - backup))
 		return {};
-
 	return res;
 }
 
@@ -216,22 +189,16 @@ std::optional<QuadrilateralF> FindConcentricPatternCorners(const BitMatrix& imag
 	auto innerCorners = FitSquareToPoints(image, center, range, lineIndex, false);
 	if(!innerCorners)
 		return {};
-
 	auto outerCorners = FitSquareToPoints(image, center, range, lineIndex + 1, true);
 	if(!outerCorners)
 		return {};
-
 	auto res = Blend(*innerCorners, *outerCorners);
-
 	for(auto p : *innerCorners)
 		log(p, 3);
-
 	for(auto p : *outerCorners)
 		log(p, 3);
-
 	for(auto p : res)
 		log(p, 3);
-
 	return res;
 }
 

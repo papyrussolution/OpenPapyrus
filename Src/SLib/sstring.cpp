@@ -3303,7 +3303,9 @@ const char * sitoa(int val, char * pBuf, size_t bufLen) // @construction
 {
 	return 0;
 }
-
+//
+// Быстрый способ умножить число на 10. Проверено: работает быстрее чем прямое умножение.
+//
 #define _MUL10(v) (((v) << 1) + ((v) << 3))
 
 uint32 FASTCALL _texttodec32(const char * pT, uint len)
@@ -3383,30 +3385,6 @@ uint32 FASTCALL _texttodec32(const char * pT, uint len)
 	}
 	return result;
 }
-/*
-Интересный подход у jsteemann (https://github.com/jsteemann/atoi.git)
-позволяет избежать операции умножения.
-Надо проверить производительность этого решения по сравнению с другими.
-// @v11.9.1 Проверил - работает быстрее: использовал в действующей реализации
-//
-template <typename T> inline T atoi_negative_unchecked(char const* p, char const* e) noexcept 
-{
-	T result = 0;
-	while(p != e) {
-		result = _MUL10(result) - (*(p++) - '0');
-	}
-	return result;
-}
-  
-template <typename T> inline T atoi_positive_unchecked(char const* p, char const* e) noexcept 
-{
-	T result = 0;
-	while(p != e) {
-		result = _MUL10(result) + *(p++) - '0';
-	}
-	return result;
-}
-*/
 //
 // @v11.7.6
 // Нашел быстрые функции перевода 8 или 16 десятичных цифр в целое число.
@@ -4261,6 +4239,7 @@ int SString::Decode_QuotedPrintable(SString & rBuf) const
 				if(c1 == '\x0D' && c2 == '\x0A') {
 					enc_c = 2; // soft wrap
 				}
+				// @fixme Кажется, здесь ошибка: проверка символа на диапазон [a-z], а надо [a-f]
 				else if(((c1 >= '0' && c1 <= '9') || (c1 >= 'A' && c1 <= 'Z')) && ((c2 >= '0' && c2 <= '9') || (c2 >= 'A' && c2 <= 'Z'))) {
 					c = (hex(c1) << 4) | hex(c2);
 					enc_c = 3;
@@ -4490,6 +4469,7 @@ int SString::DecodeUrl(SString & rBuf) const
 			if(p < (src_len-2)) {
 				const char c1 = p_src_buf[p+1];
 				const char c2 = p_src_buf[p+2];
+				// @fixme Кажется, здесь ошибка: проверка символа на диапазон [a-z], а надо [a-f]
 				if(((c1 >= '0' && c1 <= '9') || (c1 >= 'A' && c1 <= 'Z') || (c1 >= 'a' && c1 <= 'z')) &&
 					((c2 >= '0' && c2 <= '9') || (c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z'))) {
 					c = (hex(c1) << 4) | hex(c2);

@@ -1284,7 +1284,7 @@ public:
 private:
 	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	virtual int  FASTCALL Dirty(PPID id); // @sync_w
+	virtual void FASTCALL Dirty(PPID id); // @sync_w
 
 	int    RtlListInited;
 	PPIDArray RtlQkList;   // Список видов котировок с признаком QUOTKF_RETAILED
@@ -1312,9 +1312,8 @@ public:
 	PPObjQuotKind::Special Sk;
 };
 
-int FASTCALL QuotKindCache::Dirty(PPID id)
+void FASTCALL QuotKindCache::Dirty(PPID id)
 {
-	int    ok = 1;
 	ObjCache::Dirty(id);
 	SymbList.Dirty(id);
 	{
@@ -1326,7 +1325,6 @@ int FASTCALL QuotKindCache::Dirty(PPID id)
 			RtlListInited = 0;
 		}
 	}
-	return ok;
 }
 
 int QuotKindCache::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)

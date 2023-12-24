@@ -4744,7 +4744,7 @@ public:
 	int    ReplaceExtObjRefs(PPID clsID, int gcProp, const LAssocArray * pSubstList, int use_ta);
 	int    ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, long newScale, int use_ta);
 	int    FASTCALL Fetch(PPID id, Goods2Tbl::Rec * pRec);
-	int    FASTCALL Dirty(PPID id);
+	void   FASTCALL Dirty(PPID id);
 	int    FASTCALL FetchConfig(PPGoodsConfig * pCfg);
 	int    DirtyConfig();
 	//
@@ -6691,7 +6691,7 @@ public:
 	//   <0 - элемент с идентификатором id не найден
 	//   0  - ошибка
 	//
-	virtual int  FASTCALL Dirty(PPID id); // @sync_w
+	virtual void FASTCALL Dirty(PPID id); // @sync_w
 	//
 	// Descr: Должна возвратить количество элементов в хранилице.
 	//   Внутренние методы класса полагаются на эту функцию при определении валидности
@@ -6773,7 +6773,7 @@ protected:
 	//   Helper_Dirty, а не Remove, поскольку критическая секция должна охватывать всю
 	//   реализацию Dirty.
 	//
-	int    FASTCALL Helper_Dirty(PPID id); // @<<ObjCache::Remove, @>>ObjCache::Helper_RemoveByPos
+	void   FASTCALL Helper_Dirty(PPID id); // @<<ObjCache::Remove, @>>ObjCache::Helper_RemoveByPos
 
 	class MultTextBlock {
 	public:
@@ -8541,7 +8541,7 @@ public:
 	//   <0 - если объекта id в кэше не было
 	//   0  - ошибка
 	//
-	virtual int    FASTCALL Dirty(PPID id);
+	virtual void FASTCALL Dirty(PPID id);
 	//
 	// Если порожденный класс определяет виртуальную функцию MakeStrAssocList
 	// и устанавливает в переменную ImplementFlags флаг implStrAssocMakeList,
@@ -8842,8 +8842,7 @@ template <class ObjType, class ObjPackType> int Implement_ObjReadPacket(ObjType 
 	int FASTCALL obj_cls::Fetch(PPID id, obj_rec * pRec) \
 	{ cache_cls * p_cache = GetDbLocalCachePtr <cache_cls> (Obj); return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec); }
 #define IMPL_OBJ_DIRTY(obj_cls, cache_cls) \
-	int FASTCALL obj_cls::Dirty(PPID id) \
-	{ cache_cls * p_cache = GetDbLocalCachePtr <cache_cls> (Obj, 0); return p_cache ? p_cache->Dirty(id) : -1; }
+	void FASTCALL obj_cls::Dirty(PPID id) { cache_cls * p_cache = GetDbLocalCachePtr <cache_cls> (Obj, 0); CALLPTRMEMB(p_cache, Dirty(id)); }
 //
 // Descr: Проверяет наличие прав для конфигурации cfgID.
 //
@@ -18773,8 +18772,8 @@ public:
 //
 struct PPAmountType2 {     // @persistent @store(Reference2Tbl+)
 	PPAmountType2();
-	int    IsTax(PPID taxID  /* GTAX_XXX */) const;
-	int    IsComplementary() const;
+	bool   IsTax(PPID taxID  /* GTAX_XXX */) const;
+	bool   IsComplementary() const;
 	enum {
 		fErrOnDefault = 0x0001, // Если сумма в документе отсутствует, то генерировать сообщение об ошибке
 		fManual       = 0x0002, // Сумма может быть введена в ручную.
@@ -18868,7 +18867,7 @@ private:
 	virtual int  Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  ProcessReservedItem(TVRez &);
-	virtual int  FASTCALL Dirty(PPID);
+	virtual void FASTCALL Dirty(PPID);
 	int    GetFormula(PPID id, SString & rBuf);
 };
 //
@@ -19709,7 +19708,7 @@ public:
 	virtual int Browse(void * extraPtr);
 	int    FASTCALL Fetch(PPID id, PPDebtDim * pRec);
 	int    FetchAgentList(LAssocArray * pList);
-	int    FASTCALL Dirty(PPID id);
+	void FASTCALL Dirty(PPID id);
 	int    GetPacket(PPID id, PPDebtDimPacket * pPack);
 	int    PutPacket(PPID * pID, PPDebtDimPacket * pPack, int use_ta);
 	int    SerializePacket(int dir, PPDebtDimPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -19805,6 +19804,11 @@ public:
 	int    DeleteItem(LDATE actualDate, PPID scID, PPID objID, int use_ta);
 };
 
+class BizScore2Core : public BizScore2Tbl { // @v11.9.1 @construction
+public:
+	BizScore2Core();
+};
+
 int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket * pSock);
 
 struct PPBizScore { // @flat
@@ -19821,9 +19825,16 @@ struct PPBizScore { // @flat
 	long   Reserve2;       // @reserve
 };
 
-struct PPBizScore2__ { // @v11.9.0 @construction
-	long   Tag;
-	long   ID;
+struct PPBizScorePacket {
+	PPBizScore Rec;
+	SString Descr;
+	SString Formula;
+};
+
+struct PPBizScore2 { // @v11.9.0 @construction
+	PPBizScore2();
+	long   Tag;           // Const=PPOBJ_BIZSCORE2
+	long   ID;            // @id
 	char   Name[48];
 	char   Symb[20];
 	uint8  Reserve[40];
@@ -19835,19 +19846,17 @@ struct PPBizScore2__ { // @v11.9.0 @construction
 	long   LinkObjType;
 	long   LinkExtID;
 	long   Flags;
-	long   ParentID;
+	long   ParentID;    // ->Ref(PPOBJ_BIZSCORE2)
 	long   AccSheetID;
 };
 
-struct PPBizScorePacket {
-	PPBizScore Rec;
-	SString Descr;
-	SString Formula;
+struct PPBizScore2Packet {
+	PPBizScore2 Rec;
 };
 
 class PPObjBizScore : public PPObjReference {
 public:
-	PPObjBizScore(void * extraPtr = 0);
+	explicit PPObjBizScore(void * extraPtr = 0);
 	~PPObjBizScore();
 	virtual int  Edit(PPID * pID, void * extraPtr /*userID*/);
 	virtual int  Browse(void * extraPtr /*userID*/);
@@ -19862,6 +19871,17 @@ private:
 
 	DL2_Resolver * P_Resolver;
 	BizScoreCore * P_ValTbl;
+};
+
+class PPObjBizScore2 : public PPObjReference { // @v11.9.1 @construction
+public:
+	explicit PPObjBizScore2(void * extraPtr = 0);
+	~PPObjBizScore2();
+	virtual int  Edit(PPID * pID, void * extraPtr /*userID*/);
+	virtual int  Browse(void * extraPtr /*userID*/);
+	int    GetPacket(PPID id, PPBizScore2Packet * pPack);
+	int    PutPacket(PPID * pID, PPBizScore2Packet * pPack, int use_ta);
+private:
 };
 //
 // @ModuleDecl(PPViewBizScore)
@@ -21556,7 +21576,7 @@ public:
 	//  0               - все счета
 	//
 	virtual int  Browse(void * extraPtr);
-	virtual int  FASTCALL Dirty(PPID id);
+	virtual void FASTCALL Dirty(PPID id);
 	//
 	// Descr: Если в функции SearchNum параметр sb == -1, то ищется //
 	//   первый субсчет для счета ac
@@ -25774,11 +25794,11 @@ public:
 	static int  ViewDivision();
 	explicit PPObjLocation(void * extraPtr = 0);
 	~PPObjLocation();
-	virtual int Search(PPID id, void * b = 0);
-	virtual int RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam); // @v11.0.4
-	virtual int FASTCALL Dirty(PPID id); // @macrow
-	virtual int Browse(void * extraPtr);
-	virtual int Edit(PPID * pID, void * extraPtr);
+	virtual int  Search(PPID id, void * b = 0);
+	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam); // @v11.0.4
+	virtual void FASTCALL Dirty(PPID id); // @macrow
+	virtual int  Browse(void * extraPtr);
+	virtual int  Edit(PPID * pID, void * extraPtr);
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	// @v11.1.10 virtual int UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
@@ -27040,14 +27060,12 @@ private:
 	//   0  - ошибка.
 	//
 	int    GetPersonPostList(PPID staffID, PPID personID, SArray * pList);
-	int    FASTCALL Dirty(PPID id);
-	int    DirtyPost(PPID id);
+	void   FASTCALL Dirty(PPID id);
+	void   DirtyPost(PPID id);
 	int    ReplyPersonReplace(PPID dest, PPID src);
 	int    IncrementStaffVacancy(PPID staffID, int decr, int use_ta);
 public:
-	// @v9.0.3 TLP_MEMB(StaffListTbl, P_Tbl);
 	TLP_MEMB(PersonPostTbl, P_PostTbl);
-	// @v10.2.12 (dup of PPObjReference::ExtraPtr) void * ExtraPtr;
 	PPObjPerson PsnObj;
 };
 //
@@ -28414,7 +28432,7 @@ public:
 	// Else - without such constrain.
 	//
 	virtual int  Search(PPID id, void * b = 0);
-	virtual int  FASTCALL Dirty(PPID id);
+	virtual void FASTCALL Dirty(PPID id);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /*(ArticleFilt *)*/); // @v9.2.1 accSheetID-->(ArticleFilt *)
 	const  ArticleFilt * GetCurrFilt() const;
 	void   SetCurrFilt(const ArticleFilt * pFilt);
@@ -33197,9 +33215,9 @@ public:
 
 	explicit PPObjBill(void * extraPtr = 0);
 	~PPObjBill();
-	virtual int Search(PPID id, void * = 0);
-	virtual int FASTCALL Dirty(PPID id); // @macrow
-	virtual int Browse(void * extraPtr);
+	virtual int  Search(PPID id, void * = 0);
+	virtual void FASTCALL Dirty(PPID id); // @macrow
+	virtual int  Browse(void * extraPtr);
 	//
 	// Descr: осуществляет кэшированное извлечение записи по идентификатору id.
 	//   Заполняются следующие поля: ID, Code, Dt, OpID, LocID, Object, Flags, Amount
@@ -34982,7 +35000,7 @@ public:
 	virtual int  Search(PPID id, void * b = 0);
 	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	virtual int  Edit(PPID * pID, void * extraPtr);
-	virtual int  FASTCALL Dirty(PPID id); // @macrow
+	virtual void FASTCALL Dirty(PPID id); // @macrow
 	//
 	// Descr: Кэшированное извлечение записи CSession. Инициализируются следующие поля записи:
 	//   ID, SuperSessID, CashNodeID, CashNumber, SessNumber, Dt, Tm, Incomplete, Temporary
@@ -35553,7 +35571,7 @@ public:
 	// Descr: Извлекает через кэш строку расширения fldId пакета с идентификатором id.
 	//
 	int    FetchExtText(PPID id, int fldId, SString & rBuf);
-	int    FASTCALL Dirty(PPID id); // @macrow
+	void FASTCALL Dirty(PPID id); // @macrow
 	//
 	//
 	//

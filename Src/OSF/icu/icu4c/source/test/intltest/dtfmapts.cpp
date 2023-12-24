@@ -104,7 +104,7 @@ void IntlTestDateFormatAPI::TestEquals(void)
 		errln("FAIL: DateFormat objects created at different times are unequal.");
 	SimpleDateFormat * sdtfmt = dynamic_cast<SimpleDateFormat *>(b);
 	if(sdtfmt) {
-		double ONE_YEAR = 365 * SSECSPERDAY * 1000.0;
+		double ONE_YEAR = 365 * SlConst::SecsPerDay * 1000.0;
 		sdtfmt->set2DigitYearStart(start + 50*ONE_YEAR, status);
 		if(U_FAILURE(status))
 			errln("FAIL: setTwoDigitStartDate failed.");

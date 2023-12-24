@@ -108,7 +108,7 @@ UDate TimeZoneRegressionTest::findTransitionStepwise(const SimpleTimeZone& tz, U
 			return min;
 		}
 		if(failure(status, "SimpleTimeZone::inDaylightTime")) return 0;
-		min += (UDate)SSECSPERDAY * 1000; // one day
+		min += (UDate)SlConst::SecsPerDay * 1000; // one day
 	}
 	return 0;
 }
@@ -593,11 +593,11 @@ void TimeZoneRegressionTest:: Test4154542()
 	int32_t DATA [] = {
 		GOOD, INT32_MIN,    0,  INT32_MAX,   INT32_MIN,
 		GOOD, UCAL_JANUARY,    -5,  UCAL_SUNDAY,     0,
-		GOOD, UCAL_DECEMBER,    5,  UCAL_SATURDAY,   SSECSPERDAY * 1000,
-		BAD,  UCAL_DECEMBER,    5,  UCAL_SATURDAY,   SSECSPERDAY * 1000 + 1,
+		GOOD, UCAL_DECEMBER,    5,  UCAL_SATURDAY,   SlConst::SecsPerDay * 1000,
+		BAD,  UCAL_DECEMBER,    5,  UCAL_SATURDAY,   SlConst::SecsPerDay * 1000 + 1,
 		BAD,  UCAL_DECEMBER,    5,  UCAL_SATURDAY,  -1,
 		BAD,  UCAL_JANUARY,    -6,  UCAL_SUNDAY,     0,
-		BAD,  UCAL_DECEMBER,    6,  UCAL_SATURDAY,   SSECSPERDAY * 1000,
+		BAD,  UCAL_DECEMBER,    6,  UCAL_SATURDAY,   SlConst::SecsPerDay * 1000,
 		GOOD, UCAL_DECEMBER,    1,  0,                   0,
 		GOOD, UCAL_DECEMBER,   31,  0,                   0,
 		BAD,  UCAL_APRIL,      31,  0,                   0,

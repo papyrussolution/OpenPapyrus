@@ -805,7 +805,7 @@ public:
 private:
 	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	virtual int  FASTCALL Dirty(PPID id);
+	virtual void FASTCALL Dirty(PPID id);
 public:
 	struct GoodsValRestrData : public ObjCacheEntry {
 		PPID   ScpShipmOpID;
@@ -864,15 +864,13 @@ int GoodsValRestrCache::FetchBarList(PPObjGoodsValRestr::GvrArray & rList)
 	return ok;
 }
 
-int FASTCALL GoodsValRestrCache::Dirty(PPID id)
+void FASTCALL GoodsValRestrCache::Dirty(PPID id)
 {
-	int    ok = 1;
 	ObjCache::Dirty(id);
 	{
 		SRWLOCKER(BarLock, SReadWriteLocker::Write);
 		ZDELETE(P_BarList);
 	}
-	return ok;
 }
 
 int GoodsValRestrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)

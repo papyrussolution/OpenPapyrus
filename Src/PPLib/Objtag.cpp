@@ -2799,7 +2799,7 @@ public:
 	ObjTagCache();
 	~ObjTagCache();
 	int    Fetch(PPID objID, PPID tagID, ObjTagItem * pItem);
-	int    FASTCALL Dirty(PPID objType, PPID objID, PPID tagID);
+	void   FASTCALL Dirty(PPID objType, PPID objID, PPID tagID);
 private:
 	struct TagTypeEntry {
 		PPID   TagID;
@@ -3180,9 +3180,8 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 	return ok;
 }
 
-int FASTCALL ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
+void FASTCALL ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
 {
-	int    ok = 1;
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		for(uint i = 0; i < TagTypeList.getCount(); i++) {
@@ -3202,7 +3201,6 @@ int FASTCALL ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
 			}
 		}
 	}
-	return ok;
 }
 //
 // TagCache
@@ -3225,7 +3223,7 @@ public:
 private:
 	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	virtual int  FASTCALL Dirty(PPID id); // @sync_w
+	virtual void FASTCALL Dirty(PPID id); // @sync_w
 
 	struct TagCacheEntry : public ObjCacheEntry {
 		int16  Flags;
@@ -3240,12 +3238,10 @@ private:
 	RefSymbArray SymbList;
 };
 
-int FASTCALL TagCache::Dirty(PPID id)
+void FASTCALL TagCache::Dirty(PPID id)
 {
-	int    ok = 1;
 	ObjCache::Dirty(id);
 	SymbList.Dirty(id);
-	return ok;
 }
 
 int TagCache::FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem)

@@ -1,10 +1,9 @@
-/*
- * Copyright 2016 Nu-book Inc.
- * Copyright 2021 gitlost
- * Copyright 2022 Axel Waggershauser
- */
+// Copyright 2016 Nu-book Inc.
+// Copyright 2021 gitlost
+// Copyright 2022 Axel Waggershauser
+// 
 // SPDX-License-Identifier: Apache-2.0
-
+// 
 #include <zxing-internal.h>
 #pragma hdrstop
 
@@ -24,8 +23,8 @@ inline char32_t Utf8Decode(char8_t byte, state_t& state, char32_t& codep)
 	// Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
 	// See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.
 	static constexpr const state_t kUtf8Data[] = {
-		/* The first part of the table maps bytes to character classes that
-		 * reduce the size of the transition table and create bitmasks. */
+		// The first part of the table maps bytes to character classes that
+		// reduce the size of the transition table and create bitmasks
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -34,16 +33,14 @@ inline char32_t Utf8Decode(char8_t byte, state_t& state, char32_t& codep)
 		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,  7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
 		8, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 		10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 11, 6, 6, 6, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-
-		/* The second part is a transition table that maps a combination
-		 * of a state of the automaton and a character class to a state. */
+		// The second part is a transition table that maps a combination
+		// of a state of the automaton and a character class to a state
 		0, 12, 24, 36, 60, 96, 84, 12, 12, 12, 48, 72, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
 		12, 0, 12, 12, 12, 12, 12, 0, 12, 0, 12, 12, 12, 24, 12, 12, 12, 12, 12, 24, 12, 24, 12, 12,
 		12, 12, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, 12, 12, 12, 24, 12, 12,
 		12, 12, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, 12, 36, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12,
 		12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
 	};
-
 	state_t type = kUtf8Data[byte];
 	codep = (state != kAccepted) ? (byte & 0x3fu) | (codep << 6) : (0xff >> type) & (byte);
 	state = kUtf8Data[256 + state + type];
@@ -65,7 +62,6 @@ inline char32_t Utf32FromUtf16Surrogates(std::wstring_view str)
 static size_t Utf8CountCodePoints(utf8_t utf8)
 {
 	size_t count = 0;
-
 	for(size_t i = 0; i < utf8.size();) {
 		if(utf8[i] < 128) {
 			++i;
@@ -85,7 +81,6 @@ static size_t Utf8CountCodePoints(utf8_t utf8)
 		}
 		++count;
 	}
-
 	return count;
 }
 
@@ -115,13 +110,12 @@ std::wstring FromUtf8(std::string_view utf8)
 }
 
 #if __cplusplus > 201703L
-std::wstring FromUtf8(std::u8string_view utf8)
-{
-	std::wstring str;
-	AppendFromUtf8(utf8, str);
-	return str;
-}
-
+	std::wstring FromUtf8(std::u8string_view utf8)
+	{
+		std::wstring str;
+		AppendFromUtf8(utf8, str);
+		return str;
+	}
 #endif
 
 // Count the number of bytes required to store given code points in UTF-8.
@@ -202,13 +196,12 @@ std::string ToUtf8(std::wstring_view str)
 
 static bool iswgraph(wchar_t wc)
 {
-	/* Consider all legal codepoints as graphical except for:
-	 * - whitespace
-	 * - C0 and C1 control characters
-	 * - U+2028 and U+2029 (line/para break)
-	 * - U+FFF9 through U+FFFB (interlinear annotation controls)
-	 * The following code is based on libmusls implementation */
-
+	// Consider all legal codepoints as graphical except for:
+	// - whitespace
+	// - C0 and C1 control characters
+	// - U+2028 and U+2029 (line/para break)
+	// - U+FFF9 through U+FFFB (interlinear annotation controls)
+	// The following code is based on libmusls implementation
 	if(wc == ' ' || (uint)wc - '\t' < 5)
 		return false;
 	if(wc < 0xff)
@@ -222,21 +215,18 @@ static bool iswgraph(wchar_t wc)
 
 std::wstring EscapeNonGraphical(std::wstring_view str)
 {
-	static const char* const ascii_nongraphs[33] = {
-		"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL",
-		"BS",  "HT",  "LF",  "VT",  "FF",  "CR",  "SO",  "SI",
-		"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB",
-		"CAN",  "EM", "SUB", "ESC",  "FS",  "GS",  "RS",  "US",
-		"DEL",
-	};
-
+	/* @sobolev static const char* const ascii_nongraphs[33] = {
+		"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS",  "HT",  "LF",  "VT",  "FF",  "CR",  "SO",  "SI",
+		"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB", "CAN",  "EM", "SUB", "ESC",  "FS",  "GS",  "RS",  "US", "DEL",
+	};*/
 	std::wostringstream ws;
 	ws.fill(L'0');
-
 	for(; str.size(); str.remove_prefix(1)) {
 		wchar_t wc = str.front();
-		if(wc < 32 || wc == 127)  // Non-graphical ASCII, excluding space
-			ws << "<" << ascii_nongraphs[wc == 127 ? 32 : wc] << ">";
+		if(wc < 32 || wc == 127) { // Non-graphical ASCII, excluding space
+			// @sobolev ws << "<" << ascii_nongraphs[wc == 127 ? 32 : wc] << ">";
+			ws << "<" << STextConst::Get(STextConst::cAsciiCtrl, wc == 127 ? 32 : wc) << ">"; // @sobolev
+		}
 		else if(wc < 128)  // ASCII
 			ws << wc;
 		else if(IsUtf16SurrogatePair(str))
@@ -247,7 +237,6 @@ std::wstring EscapeNonGraphical(std::wstring_view str)
 		else // Non-graphical Unicode
 			ws << "<U+" << std::setw(wc < 256 ? 2 : 4) << std::uppercase << std::hex << static_cast<uint32_t>(wc) << ">";
 	}
-
 	return ws.str();
 }
 

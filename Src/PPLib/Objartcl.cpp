@@ -2098,7 +2098,7 @@ public:
 	ArticleCache() : ObjCacheHash(PPOBJ_ARTICLE, sizeof(Data), 1024*1024, 4), IsVatFreeListInited(0)
 	{
 	}
-	virtual int FASTCALL Dirty(PPID id); // @sync_w
+	virtual void FASTCALL Dirty(PPID id); // @sync_w
 	int    IsSupplVatFree(PPID supplID); // @sync_rw
 private:
 	struct Data : public ObjCacheEntry {
@@ -2142,15 +2142,13 @@ int ArticleCache::IsSupplVatFree(PPID supplID)
 	return ok;
 }
 
-int FASTCALL ArticleCache::Dirty(PPID id)
+void FASTCALL ArticleCache::Dirty(PPID id)
 {
-	int    ok = 1;
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
-		ok = Helper_Dirty(id);
+		Helper_Dirty(id);
 		// @todo process VatFreeSupplList
 	}
-	return ok;
 }
 
 int ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
@@ -2160,10 +2158,6 @@ int ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	PPObjArticle ar_obj;
 	ArticleTbl::Rec rec;
 	if(ar_obj.Search(id, &rec) > 0) {
-		// @debug {
-		SString temp_buf;
-		(temp_buf = rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
-		// } @debug
 	   	p_cache_rec->AccSheetID = rec.AccSheetID;
 		p_cache_rec->Article = rec.Article;
 		p_cache_rec->ObjID   = rec.ObjID;
@@ -2199,7 +2193,7 @@ int FASTCALL IsSupplVATFree(PPID supplID)
 	return p_cache ? p_cache->IsSupplVatFree(supplID) : 0;
 }
 
-int FASTCALL PPObjArticle::Dirty(PPID id)
+void FASTCALL PPObjArticle::Dirty(PPID id)
 {
 	ArticleCache * p_cache = GetDbLocalCachePtr <ArticleCache> (Obj, 0);
 	CALLPTRMEMB(p_cache, Dirty(id));
@@ -2212,13 +2206,9 @@ int FASTCALL PPObjArticle::Dirty(PPID id)
 			loc_obj.Dirty(rec.ObjID);
 		}
 	}
-	return 1;
 }
 
-const ArticleFilt * PPObjArticle::GetCurrFilt() const
-{
-	return &CurrFilt;
-}
+const ArticleFilt * PPObjArticle::GetCurrFilt() const { return &CurrFilt; }
 
 void PPObjArticle::SetCurrFilt(const ArticleFilt * pFilt)
 {
@@ -2649,7 +2639,7 @@ public:
 	{
 		ZDELETE(P_AgentList);
 	}
-	virtual int FASTCALL Dirty(PPID id);
+	virtual void FASTCALL Dirty(PPID id);
 	int    FetchAgentList(LAssocArray * pAgentList);
 private:
 	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
@@ -2696,14 +2686,13 @@ void DebtDimCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) co
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
 }
 
-int FASTCALL DebtDimCache::Dirty(PPID id)
+void FASTCALL DebtDimCache::Dirty(PPID id)
 {
-	int    ok = id ? ObjCache::Dirty(id) : 1;
+	ObjCache::Dirty(id);
 	{
 		SRWLOCKER(AlLock, SReadWriteLocker::Write);
 		ZDELETE(P_AgentList);
 	}
-	return ok;
 }
 
 int DebtDimCache::FetchAgentList(LAssocArray * pAgentList)

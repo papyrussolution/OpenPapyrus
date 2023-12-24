@@ -186,14 +186,10 @@ static inline uint8 makeSpanLengthByte(int32_t spanLength) {
 
 // Construct for all variants of span(), or only for any one variant.
 // Initialize as little as possible, for single use.
-UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSet & set,
-    const UVector &setStrings,
-    uint32_t which)
-	: spanSet(0, 0x10ffff), pSpanNotSet(NULL), strings(setStrings),
-	utf8Lengths(NULL), spanLengths(NULL), utf8(NULL),
-	utf8Length(0),
-	maxLength16(0), maxLength8(0),
-	all((bool)(which==ALL)) {
+UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSet & set, const UVector &setStrings, uint32_t which) : 
+	spanSet(0, 0x10ffff), pSpanNotSet(NULL), strings(setStrings), utf8Lengths(NULL), spanLengths(NULL), utf8(NULL),
+	utf8Length(0), maxLength16(0), maxLength8(0), all((bool)(which==ALL)) 
+{
 	spanSet.retainAll(set);
 	if(which&NOT_CONTAINED) {
 		// Default to the same sets.

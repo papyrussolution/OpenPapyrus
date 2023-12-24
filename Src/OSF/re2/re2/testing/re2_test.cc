@@ -2140,25 +2140,22 @@ namespace re2 {
 		re->Decref();
 	}
 
-	static void Dump(StringPiece pattern, Regexp::ParseFlags flags,
-		std::string* forward, std::string* reverse) {
+	static void Dump(StringPiece pattern, Regexp::ParseFlags flags, std::string* forward, std::string* reverse) 
+	{
 		Regexp* re = Regexp::Parse(pattern, flags, NULL);
 		EXPECT_TRUE(re != NULL);
-
 		if(forward != NULL) {
 			Prog* prog = re->CompileToProg(0);
 			EXPECT_TRUE(prog != NULL);
 			*forward = prog->Dump();
 			delete prog;
 		}
-
 		if(reverse != NULL) {
 			Prog* prog = re->CompileToReverseProg(0);
 			EXPECT_TRUE(prog != NULL);
 			*reverse = prog->Dump();
 			delete prog;
 		}
-
 		re->Decref();
 	}
 

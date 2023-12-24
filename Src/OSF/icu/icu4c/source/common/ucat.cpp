@@ -1,15 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- * Copyright (c) 2003, International Business Machines
- * Corporation and others.  All Rights Reserved.
- **********************************************************************
- * Author: Alan Liu
- * Created: March 19 2003
- * Since: ICU 2.6
- **********************************************************************
- */
+// Copyright (c) 2003, International Business Machines Corporation and others.  All Rights Reserved.
+// Author: Alan Liu
+// Created: March 19 2003
+// Since: ICU 2.6
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ucat.h"
@@ -26,7 +21,8 @@ static const char SEPARATOR = '%';
  * values. Numeric values must be >= 0. Buffer must be of length
  * MAX_KEY_LEN or more.
  */
-static char * _catkey(char * buffer, int32_t set_num, int32_t msg_num) {
+static char * _catkey(char * buffer, int32_t set_num, int32_t msg_num) 
+{
 	int32_t i = 0;
 	i = T_CString_integerToString(buffer, set_num, 10);
 	buffer[i++] = SEPARATOR;
@@ -61,5 +57,3 @@ __err_label:
 	}
 	return s;
 }
-
-/*eof*/

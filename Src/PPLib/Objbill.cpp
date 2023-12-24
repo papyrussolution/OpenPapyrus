@@ -5341,7 +5341,7 @@ public:
 		(DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)), FullSerialList(1)
 	{
 	}
-	virtual int FASTCALL Dirty(PPID id); // @sync_w
+	virtual void FASTCALL Dirty(PPID id); // @sync_w
 	int    FetchExtMemo(PPID id, SString & rBuf) { return EmBlk.Fetch(id, rBuf, 0); } // @sync_w
 	int    FetchExt(PPID id, PPBillExt * pExt)   { return ExtCache.Get(id, pExt); } // @sync_w
 	int    FetchFreight(PPID id, PPFreight * pFreight) { return FreightCache.Get(id, pFreight); } // @sync_w
@@ -5524,16 +5524,14 @@ private:
 	ReadWriteLock PrjCfgLock; // Блокировка конфигурации проектов
 };
 
-int FASTCALL BillCache::Dirty(PPID id)
+void FASTCALL BillCache::Dirty(PPID id)
 {
-	int    ok = 1;
 	ObjCacheHash::Dirty(id);
 	{
 		EmBlk.Dirty(id);
 		ExtCache.Dirty(id);
 		FreightCache.Dirty(id);
 	}
-	return ok;
 }
 
 int BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
@@ -5838,7 +5836,7 @@ public:
 		long   Flags;
 	};
 	LotCache();
-	virtual int FASTCALL Dirty(PPID id); // @sync_w
+	virtual void FASTCALL Dirty(PPID id); // @sync_w
 private:
 	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;

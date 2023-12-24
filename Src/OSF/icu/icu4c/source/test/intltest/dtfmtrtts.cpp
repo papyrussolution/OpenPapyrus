@@ -509,11 +509,11 @@ const UnicodeString & DateFormatRoundTripTest::fullFormat(UDate d) {
 	dateFormat->format(d, fgStr);
 	return fgStr;
 }
-
 /**
  * Return a field of the given date
  */
-int32_t DateFormatRoundTripTest::getField(UDate d, int32_t f) {
+int32_t DateFormatRoundTripTest::getField(UDate d, int32_t f) 
+{
 	// Should be synchronized, but we're single threaded so it's ok
 	UErrorCode status = U_ZERO_ERROR;
 	getFieldCal->setTime(d, status);
@@ -542,11 +542,10 @@ UnicodeString & DateFormatRoundTripTest::escape(const UnicodeString & src, Unico
 			dst += UnicodeString("]");
 		}
 	}
-
 	return dst;
 }
 
-#define U_MILLIS_PER_YEAR (365.25 * SSECSPERDAY * 1000)
+#define U_MILLIS_PER_YEAR (365.25 * SlConst::SecsPerDay * 1000)
 
 UDate DateFormatRoundTripTest::generateDate(UDate minDate)
 {
@@ -578,7 +577,7 @@ UDate DateFormatRoundTripTest::generateDate()
 	// Range from (4000-1970) BC to (8000-1970) AD
 	a -= 4000;
 	// Now scale up to ms
-	a *= 365.25 * SSECSPERDAY * 1000;
+	a *= 365.25 * SlConst::SecsPerDay * 1000;
 	//return new Date((long)a);
 	return a;
 }

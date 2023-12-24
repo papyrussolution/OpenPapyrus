@@ -3516,7 +3516,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 		THROW(tra.Commit());
 	}
 	if(dirty_id)
-		Dirty(dirty_id); // @v9.5.10 @fix id-->dirty_id
+		Dirty(dirty_id);
 	CATCH
 		{
 			int do_recover_loc_owners = BIN(BTROKORNFOUND && pPack && *pID && is_in_db_mism_owner_loc);

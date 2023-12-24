@@ -275,6 +275,35 @@
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\re2\re2\bitmap256.h" />
+    <ClInclude Include="..\OSF\re2\re2\filtered_re2.h" />
+    <ClInclude Include="..\OSF\re2\re2\pod_array.h" />
+    <ClInclude Include="..\OSF\re2\re2\prefilter.h" />
+    <ClInclude Include="..\OSF\re2\re2\prefilter_tree.h" />
+    <ClInclude Include="..\OSF\re2\re2\prog.h" />
+    <ClInclude Include="..\OSF\re2\re2\re2-internal.h" />
+    <ClInclude Include="..\OSF\re2\re2\re2.h" />
+    <ClInclude Include="..\OSF\re2\re2\regexp.h" />
+    <ClInclude Include="..\OSF\re2\re2\set.h" />
+    <ClInclude Include="..\OSF\re2\re2\sparse_array.h" />
+    <ClInclude Include="..\OSF\re2\re2\sparse_set.h" />
+    <ClInclude Include="..\OSF\re2\re2\stringpiece.h" />
+    <ClInclude Include="..\OSF\re2\re2\unicode_casefold.h" />
+    <ClInclude Include="..\OSF\re2\re2\unicode_groups.h" />
+    <ClInclude Include="..\OSF\re2\re2\walker-inl.h" />
+    <ClInclude Include="..\OSF\re2\util\benchmark.h" />
+    <ClInclude Include="..\OSF\re2\util\flags.h" />
+    <ClInclude Include="..\OSF\re2\util\logging.h" />
+    <ClInclude Include="..\OSF\re2\util\malloc_counter.h" />
+    <ClInclude Include="..\OSF\re2\util\mix.h" />
+    <ClInclude Include="..\OSF\re2\util\mutex.h" />
+    <ClInclude Include="..\OSF\re2\util\pcre.h" />
+    <ClInclude Include="..\OSF\re2\util\strutil.h" />
+    <ClInclude Include="..\OSF\re2\util\test.h" />
+    <ClInclude Include="..\OSF\re2\util\utf.h" />
+    <ClInclude Include="..\OSF\re2\util\util.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

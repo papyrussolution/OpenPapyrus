@@ -21225,7 +21225,7 @@ int setup_tests()
 		ADD_ALL_TESTS(TestInnerBlock_Exp::test_mod_exp_x2, 100);
 	}
 	{
-		// @sobolev (replaced with SSECSPERDAY) #define SECS_PER_DAY (24 * 60 * 60)
+		// @sobolev (replaced with SlConst::SecsPerDay) #define SECS_PER_DAY (24 * 60 * 60)
 		// 
 		// Time checking test code. Check times are identical for a wide range of
 		// offsets. This should be run on a machine with 64 bit time_t or it will
@@ -21253,7 +21253,7 @@ int setup_tests()
 					|| !TEST_int_eq(tm1.tm_sec, tm2.tm_sec)
 					|| !TEST_true(OPENSSL_gmtime_diff(&off_day, &off_sec, &o1, &tm1)))
 					return 0;
-				toffset = (long)off_day * SSECSPERDAY + off_sec;
+				toffset = (long)off_day * SlConst::SecsPerDay + off_sec;
 				if(!TEST_long_eq(offset, toffset))
 					return 0;
 				return 1;

@@ -408,7 +408,7 @@ static const char16_t minutesStr[] = { 0x0034, 0x0039, 0 }; /* "49", minutes str
 enum { kDateOrTimeOutMax = 96, kDateAndTimeOutMax = 192 };
 
 static const UDate minutesTolerance = 2 * 60.0 * 1000.0;
-static const UDate daysTolerance = 2 * SSECSPERDAY * 1000.0;
+static const UDate daysTolerance = 2 * SlConst::SecsPerDay * 1000.0;
 
 static void TestRelativeDateFormat()
 {

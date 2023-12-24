@@ -459,10 +459,7 @@ TEST(TestToString, EquivalentParse) {
 		Regexp* re = Regexp::Parse(tests[i].regexp, f, &status);
 		ASSERT_TRUE(re != NULL) << " " << tests[i].regexp << " " << status.Text();
 		std::string s = re->Dump();
-		EXPECT_EQ(std::string(tests[i].parse), s)
-			<< "Regexp: " << tests[i].regexp
-			<< "\nparse: " << std::string(tests[i].parse)
-			<< " s: " << s << " flag=" << f;
+		EXPECT_EQ(std::string(tests[i].parse), s) << "Regexp: " << tests[i].regexp << "\nparse: " << std::string(tests[i].parse) << " s: " << s << " flag=" << f;
 		std::string t = re->ToString();
 		if(t != tests[i].regexp) {
 			// If ToString didn't return the original regexp,
@@ -489,11 +486,10 @@ TEST(TestToString, EquivalentParse) {
 }
 
 // Test that capture error args are correct.
-TEST(NamedCaptures, ErrorArgs) {
+TEST(NamedCaptures, ErrorArgs) 
+{
 	RegexpStatus status;
-	Regexp* re;
-
-	re = Regexp::Parse("test(?P<name", Regexp::LikePerl, &status);
+	Regexp * re = Regexp::Parse("test(?P<name", Regexp::LikePerl, &status);
 	EXPECT_TRUE(re == NULL);
 	EXPECT_EQ(status.code(), kRegexpBadNamedCapture);
 	EXPECT_EQ(status.error_arg(), "(?P<name");
