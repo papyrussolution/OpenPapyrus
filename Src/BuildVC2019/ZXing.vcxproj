@@ -246,6 +246,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\zxing-cpp\core\src\BarcodeFormat.h" />
+    <ClCompile Include="..\OSF\zxing-cpp\core\src\ReedSolomon.cpp" />
     <ClCompile Include="..\OSF\zxing-cpp\core\src\zxing-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -334,11 +335,9 @@
     <ClInclude Include="..\osf\zxing-cpp\core\src\ReadBarcode.h" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\ReadBarcode.cpp" />
     <ClInclude Include="..\osf\zxing-cpp\core\src\ReedSolomonDecoder.h" />
-    <ClCompile Include="..\osf\zxing-cpp\core\src\ReedSolomonDecoder.cpp" />
     <ClInclude Include="..\osf\zxing-cpp\core\src\Result.h" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\Result.cpp" />
     <ClInclude Include="..\osf\zxing-cpp\core\src\ResultPoint.h" />
-    <ClCompile Include="..\osf\zxing-cpp\core\src\ResultPoint.cpp" />
     <ClInclude Include="..\osf\zxing-cpp\core\src\StructuredAppend.h" />
     <ClInclude Include="..\osf\zxing-cpp\core\src\TextDecoder.h" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\TextDecoder.cpp" />
@@ -346,7 +345,6 @@
     <ClInclude Include="..\osf\zxing-cpp\core\src\WhiteRectDetector.h" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\WhiteRectDetector.cpp" />
     <ClInclude Include="..\osf\zxing-cpp\core\src\ReedSolomonEncoder.h" />
-    <ClCompile Include="..\osf\zxing-cpp\core\src\ReedSolomonEncoder.cpp" />
     <ClInclude Include="..\osf\zxing-cpp\core\src\TextEncoder.h" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\TextEncoder.cpp" />
     <ClInclude Include="..\osf\zxing-cpp\core\src\MultiFormatWriter.h" />

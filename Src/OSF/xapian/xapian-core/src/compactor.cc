@@ -104,7 +104,7 @@ void Database::compact_(const string * output_ptr, int fd, uint flags, int block
 
 	if(n_shards > 1) {
 		auto multi_db = static_cast<MultiDatabase*>(internal.get());
-		for(auto&& db : multi_db->shards) {
+		for(auto && db : multi_db->shards) {
 			internals.push_back(db);
 		}
 	}
@@ -113,7 +113,7 @@ void Database::compact_(const string * output_ptr, int fd, uint flags, int block
 	}
 
 	int backend = BACKEND_UNKNOWN;
-	for(auto&& shard : internals) {
+	for(auto && shard : internals) {
 		string srcdir;
 		int type = shard->get_backend_info(&srcdir);
 		// Check destdir isn't the same as any source directory, unless it

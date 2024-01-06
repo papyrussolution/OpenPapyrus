@@ -256,6 +256,8 @@
 		#define CXX_HAS_X_ATTRIBUTE_NORETURN           (__has_attribute(__noreturn__))
 		#define CXX_HAS_X_ATTRIBUTE_NOSANITIZE         (__has_attribute(__nosanitize__))
 		#define CXX_HAS_X_ATTRIBUTE_OPTIMIZE           (__has_attribute(__optimize__))
+		#define CXX_HAS_X_ATTRIBUTE_PURE               (1) // @v11.9.2 @fixme (я не уверен, что это - верно)
+		#define CXX_HAS_X_ATTRIBUTE_CONST              (0) // @v11.9.2 @fixme (я не уверен, что это - верно)
 		#define CXX_HAS_X_BUILTIN_ASSUME               (__has_builtin(__builtin_assume))
 		#define CXX_HAS_X_BUILTIN_ASSUME_ALIGNED       (__has_builtin(__builtin_assume_aligned))
 		#define CXX_HAS_X_BUILTIN_EXPECT               (__has_builtin(__builtin_expect))
@@ -329,6 +331,8 @@
 		#define CXX_HAS_X_ATTRIBUTE_OPTIMIZE           (CXX_GNU >= CXX_MAKE_VER(4, 4, 0))
 		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (CXX_GNU >= CXX_MAKE_VER(2, 0, 7)) // @v10.9.3
 		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (CXX_GNU >= CXX_MAKE_VER(2, 0, 7)) // @v10.9.3
+		#define CXX_HAS_X_ATTRIBUTE_PURE               (CXX_GNU >= CXX_MAKE_VER(3, 0, 0)) // @v11.9.2
+		#define CXX_HAS_X_ATTRIBUTE_CONST              (CXX_GNU >= CXX_MAKE_VER(3, 0, 0)) // @v11.9.2
 		#define CXX_HAS_X_BUILTIN_ASSUME               (0)
 		#define CXX_HAS_X_BUILTIN_ASSUME_ALIGNED       (CXX_GNU >= CXX_MAKE_VER(4, 7, 0))
 		#define CXX_HAS_X_BUILTIN_EXPECT               (1)
@@ -404,6 +408,8 @@
 		#define CXX_HAS_X_ATTRIBUTE_OPTIMIZE           (CXX_GNU_COMPAT >= 1)
 		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (0) // @v10.9.3
 		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (0) // @v10.9.3
+		#define CXX_HAS_X_ATTRIBUTE_PURE               (0) // @v11.9.2
+		#define CXX_HAS_X_ATTRIBUTE_CONST              (0) // @v11.9.2
 		#define CXX_HAS_X_BUILTIN_ASSUME               (0)
 		#define CXX_HAS_X_BUILTIN_ASSUME_ALIGNED       (0)
 		#define CXX_HAS_X_BUILTIN_EXPECT               (CXX_GNU_COMPAT >= 1)
@@ -483,6 +489,8 @@
 		#define CXX_HAS_X_ATTRIBUTE_OPTIMIZE           (0)
 		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (0) // @v10.9.3
 		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (0) // @v10.9.3
+		#define CXX_HAS_X_ATTRIBUTE_PURE               (0) // @v11.9.2
+		#define CXX_HAS_X_ATTRIBUTE_CONST              (0) // @v11.9.2
 		#define CXX_HAS_X_BUILTIN_ASSUME               (0)
 		#define CXX_HAS_X_BUILTIN_ASSUME_ALIGNED       (0)
 		#define CXX_HAS_X_BUILTIN_EXPECT               (0)
@@ -795,6 +803,30 @@
 	#else
 		#define CXX_UNUSED_PARAM 
 	#endif
+	// @v11.9.2 {
+	// CXX_FUNC_PURE: The function is only allowed to read from its arguments
+	//         and global memory (i.e. following a pointer argument or
+	//         accessing a shared variable). The return value should
+	//         only depend on its arguments, and for an identical set of
+	//         arguments should return the same value.
+	// 
+	// CXX_FUNC_CONST: The function is only allowed to read from its arguments.
+	//         It is not allowed to access global memory. The return
+	//         value should only depend its arguments, and for an
+	//         identical set of arguments should return the same value.
+	//         This is currently the most strict function attribute.
+	// 
+	#if CXX_HAS_X_ATTRIBUTE_PURE
+		#define CXX_FUNC_PURE  __attribute__((pure))
+	#else
+		#define CXX_FUNC_PURE 
+	#endif
+	#if CXX_HAS_X_ATTRIBUTE_CONST
+		#define CXX_FUNC_CONST __attribute__((const))
+	#else
+		#define CXX_FUNC_CONST
+	#endif
+	// } @v11.9.2 
 	//
 	// [Likely / Unlikely]
 	//

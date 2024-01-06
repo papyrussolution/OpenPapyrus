@@ -227,13 +227,13 @@ BitMatrix Code128Writer::encode(const std::wstring& contents, int width, int hei
 
 	// Compute code width
 	int codeWidth = 2; // termination bar
-	for(const auto& pattern : patterns) {
+	for(const auto & pattern : patterns) {
 		codeWidth += Reduce(pattern);
 	}
 
 	// Compute result
 	std::vector<bool> result(codeWidth, false);
-	const auto op = [&result](auto pos, const auto& pattern){
+	const auto op = [&result](auto pos, const auto & pattern){
 		    return pos + WriterHelper::AppendPattern(result, pos, pattern, true);
 	    };
 	auto pos = std::accumulate(std::begin(patterns), std::end(patterns), int{}, op);

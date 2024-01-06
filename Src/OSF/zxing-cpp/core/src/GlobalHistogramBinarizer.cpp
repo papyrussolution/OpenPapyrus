@@ -14,7 +14,8 @@ static constexpr int LUMINANCE_BUCKETS = 1 << LUMINANCE_BITS;
 
 using Histogram = std::array<uint16_t, LUMINANCE_BUCKETS>;
 
-GlobalHistogramBinarizer::GlobalHistogramBinarizer(const ImageView& buffer) : BinaryBitmap(buffer) {
+GlobalHistogramBinarizer::GlobalHistogramBinarizer(const ImageView& buffer) : BinaryBitmap(buffer) 
+{
 }
 
 GlobalHistogramBinarizer::~GlobalHistogramBinarizer() = default;

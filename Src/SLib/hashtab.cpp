@@ -1322,14 +1322,17 @@ uint UintHashTable::GetCount() const
 	for(uint i = 0; i < lcnt; i++) {
 		uint32 busy = static_cast<const UhtBlock *>(List.at(i))->Busy;
 		//
-		// @todo use popcount
+		// @todo use popcount // @v11.9.2 @done
 		// Трюк с подсчетом ненулевых битов посредством обнуления последнего единичного бита X & (X-1) {
 		//
+		/* @v11.9.2
 		uint   popc = 0;
 		for(; busy != 0; busy &= (busy-1))
 			popc++;
 		// }
 		c += popc;
+		*/
+		c += SBits::Cpop(busy); // @v11.9.2
 	}
 	return c;
 }

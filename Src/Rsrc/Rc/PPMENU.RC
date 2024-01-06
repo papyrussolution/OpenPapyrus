@@ -204,6 +204,7 @@
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_viewbizsctempl",				cmViewBizScTempl
 			MENUITEM "@cmd_bizscore",					cmBizScore
+			MENUITEM "@cmd_bizscore2",					cmBizScore2
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_resetopcounters",			cmResetOpCounters
 		}

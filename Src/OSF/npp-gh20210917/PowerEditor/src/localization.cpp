@@ -880,7 +880,7 @@ bool NativeLangSpeaker::changeDlgLang(HWND hDlg, const char * dlgTagName, char *
 			::SendMessage(hCombo, CB_RESETCONTENT, 0, 0);
 
 			// add translated entries
-			for(const auto& i : comboElms) {
+			for(const auto & i : comboElms) {
 				::SendMessage(hCombo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(i.c_str()));
 			}
 

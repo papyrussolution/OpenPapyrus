@@ -109,7 +109,6 @@ static Matrix<int> CalculateBlackPoints(const uint8_t* __restrict luminances, in
 	}
 	return blackPoints;
 }
-
 /**
  * Applies a single threshold to a block of pixels.
  */

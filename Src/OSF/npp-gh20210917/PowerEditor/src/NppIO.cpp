@@ -851,13 +851,13 @@ bool Notepad_plus::fileCloseAllGiven(const std::vector <int>& krvecBufferIndexes
 	std::vector <int> bufferIndexesToClose;
 	// Count the number of dirty file
 	size_t nbDirtyFiles = 0;
-	for(const auto& index : krvecBufferIndexes) {
+	for(const auto & index : krvecBufferIndexes) {
 		BufferID id = _pDocTab->getBufferByIndex(index);
 		Buffer* buf = MainFileManager.getBufferByID(id);
 		if(buf->isDirty())
 			++nbDirtyFiles;
 	}
-	for(const auto& index : krvecBufferIndexes) {
+	for(const auto & index : krvecBufferIndexes) {
 		BufferID id = _pDocTab->getBufferByIndex(index);
 		Buffer* buf = MainFileManager.getBufferByID(id);
 		if((buf->isUntitled() && buf->docLength() == 0) || noSaveToAll || !buf->isDirty()) {
@@ -901,7 +901,7 @@ bool Notepad_plus::fileCloseAllGiven(const std::vector <int>& krvecBufferIndexes
 	}
 	// Now we close.
 	bool isSnapshotMode = NppParameters::getInstance().getNppGUI().isSnapshotMode();
-	for(const auto& index : bufferIndexesToClose) {
+	for(const auto & index : bufferIndexesToClose) {
 		doClose(_pDocTab->getBufferByIndex(index), currentView(), isSnapshotMode);
 	}
 	return true;
@@ -1436,7 +1436,7 @@ void Notepad_plus::fileOpen()
 	fDlg.setExtFilter(TEXT("All types"), TEXT(".*"));
 	setFileOpenSaveDlgFilters(fDlg, true);
 	BufferID lastOpened = BUFFER_INVALID;
-	const auto& fns = fDlg.doOpenMultiFilesDlg();
+	const auto & fns = fDlg.doOpenMultiFilesDlg();
 	size_t sz = fns.size();
 	for(size_t i = 0; i < sz; ++i) {
 		BufferID test = doOpen(fns.at(i).c_str(), fDlg.isReadOnly());
@@ -1787,7 +1787,7 @@ const TCHAR * Notepad_plus::fileSaveSession(size_t nbFile, TCHAR ** fileNames, c
 		currentSession._includeFileBrowser = includeFileBrowser;
 		if(includeFileBrowser && _pFileBrowser && !_pFileBrowser->isClosed()) {
 			currentSession._fileBrowserSelectedItem = _pFileBrowser->getSelectedItemPath();
-			for(auto&& rootFileName : _pFileBrowser->getRoots()) {
+			for(auto && rootFileName : _pFileBrowser->getRoots()) {
 				currentSession._fileBrowserRoots.push_back({ rootFileName });
 			}
 		}

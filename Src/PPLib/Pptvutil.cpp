@@ -1,5 +1,5 @@
 // PPTVUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3110,23 +3110,24 @@ private:
 				PaintEvent * p_blk = static_cast<PaintEvent *>(TVINFOPTR);
 				//CreateFont_();
 				if(oneof2(p_blk->PaintType, PaintEvent::tPaint, PaintEvent::tEraseBackground)) {
-					if(GetWbCapability() & wbcDrawBuffer) {
-						// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
-						// не реагировать
-						if(p_blk->PaintType == PaintEvent::tPaint) {
-							SPaintToolBox & r_tb = APPL->GetUiToolBox();
-							TCanvas2 canv(r_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-							DrawLayout(canv, P_Lfc);
+					SPaintToolBox * p_tb = APPL->GetUiToolBox();
+					if(p_tb) {
+						if(GetWbCapability() & wbcDrawBuffer) {
+							// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
+							// не реагировать
+							if(p_blk->PaintType == PaintEvent::tPaint) {
+								TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+								DrawLayout(canv, P_Lfc);
+							}
 						}
-					}
-					else {
-						SPaintToolBox & r_tb = APPL->GetUiToolBox();
-						TCanvas2 canv(r_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-						if(p_blk->PaintType == PaintEvent::tEraseBackground)
-							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-						if(p_blk->PaintType == PaintEvent::tPaint)
-							DrawLayout(canv, P_Lfc);
+						else {
+							TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+							if(p_blk->PaintType == PaintEvent::tEraseBackground)
+								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+							if(p_blk->PaintType == PaintEvent::tPaint)
+								DrawLayout(canv, P_Lfc);
+						}
 					}
 					clearEvent(event);
 				}
@@ -3244,70 +3245,72 @@ void ListSelectionDialog::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 			int   brush_ident = 0;
 			TWhatmanToolArray::Item tool_item;
 			const SDrawFigure * p_fig = 0;
-			SPaintToolBox & r_tb = APPL->GetUiToolBox();
-			//if(p_lo_extra) {
-				SString text_utf8;
-				SString symb;
-				// Прежде всего закрасим фон
-				rCanv.Rect(lo_rect, 0, TProgram::tbiListBkgBrush);
-				if(pen_ident) {
-					/*if(pLo == P_LoFocused) {
-						pen_ident = TProgram::tbiIconAccentColor;
-					}*/
-					rCanv.Rect(lo_rect);
-					rCanv.Stroke(pen_ident, 0);
-				}
-				if(brush_ident) {
-					rCanv.Rect(lo_rect);
-					rCanv.Fill(brush_ident, 0);
-				}
-				if(p_fig) {
-					const uint _w = 16;
-					const uint _h = 16;
-					SImageBuffer ib(_w, _h);
-					{
-						if(!tool_item.ReplacedColor.IsEmpty()) {
-							SColor replacement_color = r_tb.GetColor(TProgram::tbiIconRegColor);
-							rCanv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
-						}
-						LMatrix2D mtx;
-						SViewPort vp;
-						rCanv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
-						rCanv.PushTransform();
-						p_fig->GetViewPort(&vp);
-						rCanv.PushTransform();
-						rCanv.AddTransform(vp.GetMatrix(lo_rect, mtx));
-						rCanv.Draw(p_fig);
-						rCanv.PopTransform();
+			SPaintToolBox * p_tb = APPL->GetUiToolBox();
+			if(p_tb) {
+				//if(p_lo_extra) {
+					SString text_utf8;
+					SString symb;
+					// Прежде всего закрасим фон
+					rCanv.Rect(lo_rect, 0, TProgram::tbiListBkgBrush);
+					if(pen_ident) {
+						/*if(pLo == P_LoFocused) {
+							pen_ident = TProgram::tbiIconAccentColor;
+						}*/
+						rCanv.Rect(lo_rect);
+						rCanv.Stroke(pen_ident, 0);
 					}
-				}
-				if(text_utf8.NotEmpty()) {
-					/*if(FontId > 0) {
-						SDrawContext dctx = rCanv;
-						if(CStyleId <= 0) {
-							int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
-							CStyleId = r_tb.CreateCStyle(0, FontId, TProgram::tbiBlackPen, tool_text_brush_id);
+					if(brush_ident) {
+						rCanv.Rect(lo_rect);
+						rCanv.Fill(brush_ident, 0);
+					}
+					if(p_fig) {
+						const uint _w = 16;
+						const uint _h = 16;
+						SImageBuffer ib(_w, _h);
+						{
+							if(!tool_item.ReplacedColor.IsEmpty()) {
+								SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
+								rCanv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+							}
+							LMatrix2D mtx;
+							SViewPort vp;
+							rCanv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
+							rCanv.PushTransform();
+							p_fig->GetViewPort(&vp);
+							rCanv.PushTransform();
+							rCanv.AddTransform(vp.GetMatrix(lo_rect, mtx));
+							rCanv.Draw(p_fig);
+							rCanv.PopTransform();
 						}
-						if(CStyleFocusId <= 0) {
-							int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
-							CStyleFocusId = r_tb.CreateCStyle(0, FontId, TProgram::tbiWhitePen, tool_text_brush_id);
-						}
-						SParaDescr pd;
-						pd.Flags |= SParaDescr::fJustCenter;
-						int    tid_para = r_tb.CreateParagraph(0, &pd);
-						STextLayout tlo;
-						tlo.SetText(text_utf8);
-						tlo.SetOptions(STextLayout::fOneLine|STextLayout::fVCenter, tid_para, (brush_ident == TProgram::tbiListFocBrush) ? CStyleFocusId : CStyleId);
-						tlo.SetBounds(lo_rect);
-						tlo.Arrange(dctx, r_tb);
-						rCanv.DrawTextLayout(&tlo);
-					}*/					
-				}
-			//}
-			//else {
-				//rCanv.Rect(lo_rect);
-				//rCanv.Stroke(TProgram::tbiBlackPen, 1);
-			//}
+					}
+					if(text_utf8.NotEmpty()) {
+						/*if(FontId > 0) {
+							SDrawContext dctx = rCanv;
+							if(CStyleId <= 0) {
+								int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
+								CStyleId = r_tb.CreateCStyle(0, FontId, TProgram::tbiBlackPen, tool_text_brush_id);
+							}
+							if(CStyleFocusId <= 0) {
+								int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
+								CStyleFocusId = r_tb.CreateCStyle(0, FontId, TProgram::tbiWhitePen, tool_text_brush_id);
+							}
+							SParaDescr pd;
+							pd.Flags |= SParaDescr::fJustCenter;
+							int    tid_para = p_tb->CreateParagraph(0, &pd);
+							STextLayout tlo;
+							tlo.SetText(text_utf8);
+							tlo.SetOptions(STextLayout::fOneLine|STextLayout::fVCenter, tid_para, (brush_ident == TProgram::tbiListFocBrush) ? CStyleFocusId : CStyleId);
+							tlo.SetBounds(lo_rect);
+							tlo.Arrange(dctx, r_tb);
+							rCanv.DrawTextLayout(&tlo);
+						}*/					
+					}
+				//}
+				//else {
+					//rCanv.Rect(lo_rect);
+					//rCanv.Stroke(TProgram::tbiBlackPen, 1);
+				//}
+			}
 		}
 		for(uint ci = 0; ci < pLo->GetChildrenCount(); ci++) {
 			DrawLayout(rCanv, pLo->GetChildC(ci)); // @recursion

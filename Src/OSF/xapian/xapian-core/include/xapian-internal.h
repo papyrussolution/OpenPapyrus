@@ -43,7 +43,7 @@ typedef uint32_t uint4;
 #ifndef PACKAGE
 	#error config.h must be included first in each C++ source file
 #endif
-
+/* @sobolev (replaced with sbswap32/sbswap16/sbswap64)
 inline uint16_t do_bswap(uint16_t value) 
 {
 #if HAVE_DECL___BUILTIN_BSWAP16
@@ -77,14 +77,14 @@ inline uint64_t do_bswap(uint64_t value)
 	       ((value & 0xff000000) << 8) | ((value >> 8) & 0xff000000) | ((value >> 24) & 0xff0000) |
 	       ((value >> 40) & 0xff00) | (value >> 56);
 #endif
-}
+}*/
 
 template <typename UINT> inline UINT do_aligned_read(const uchar * ptr)
 {
 	UINT value = *alignment_cast<const UINT*>(ptr);
 #ifndef SL_BIGENDIAN
 	//const uint v2 = sbswap32(value);
-	value = do_bswap(value);
+	value = /*do_bswap*/sbswap32(value);
 	//assert(v2 == value);
 #endif
 	return value;
@@ -101,7 +101,7 @@ template <typename T, typename UINT> inline void do_aligned_write(uchar * ptr, T
 	UINT v = UINT(value);
 #ifndef SL_BIGENDIAN
 	//const uint v2 = sbswap32(v);
-	v = do_bswap(v);
+	v = /*do_bswap*/sbswap32(v);
 	//assert(v2 == v);
 #endif
 	*alignment_cast<UINT*>(ptr) = v;
@@ -113,7 +113,7 @@ template <typename UINT> inline UINT do_unaligned_read(const uchar * ptr)
 	memcpy(&value, ptr, sizeof(UINT));
 #ifndef SL_BIGENDIAN
 	//const uint v2 = sbswap32(value);
-	value = do_bswap(value);
+	value = /*do_bswap*/sbswap32(value);
 	//assert(v2 == value);
 #endif
 	return value;
@@ -130,7 +130,7 @@ template <typename T, typename UINT> inline void do_unaligned_write(uchar * ptr,
 	UINT v = UINT(value);
 #ifndef SL_BIGENDIAN
 	//const uint v2 = sbswap32(v);
-	v = do_bswap(v);
+	v = /*do_bswap*/sbswap32(v);
 	//assert(v2 == v);
 #endif
 	memcpy(ptr, &v, sizeof(UINT));

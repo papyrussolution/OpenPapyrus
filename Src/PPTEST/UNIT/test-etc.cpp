@@ -634,3 +634,92 @@ SLTEST_R(SGeo)
 	ENDCATCH
 	return CurrentStatus;
 }
+
+struct Bechmark_ByRefVsByVal_TestStruct {
+	const void * Ptr;
+	uint32 A;
+	//uint8  BigChunk[1024];
+	uint32 B;
+};
+
+static __declspec(noinline) cdecl Bechmark_ByRefVsByVal_TestStruct Bechmark_ByRefVsByVal_Func_ByVal(uint arg)
+{
+	Bechmark_ByRefVsByVal_TestStruct data;
+	data.Ptr = (arg & 1) ? "abcdef" : "ghijkl";
+	data.A = (arg << 1);
+	data.B = (arg >> 2);
+	return data;
+}
+
+static __declspec(noinline) cdecl void Bechmark_ByRefVsByVal_Func_ByRef(uint arg, Bechmark_ByRefVsByVal_TestStruct & rRef)
+{
+	rRef.Ptr = (arg & 1) ? "abcdef" : "ghijkl";
+	rRef.A = (arg << 1);
+	rRef.B = (arg >> 2);
+}
+
+static __declspec(noinline) cdecl std::string Bechmark_ByRefVsByVal_Func_StdString_ByVal(uint /*arg*/)
+{
+	std::string result;
+	result.append("abcdef");
+	return result;
+}
+
+static __declspec(noinline) cdecl void Bechmark_ByRefVsByVal_Func_StdString_ByRef(uint /*arg*/, std::string & rBuf)
+{
+	rBuf.clear();
+	rBuf.append("abcdef");
+}
+
+static volatile uint64 Bechmark_ByRefVsByVal_ResultSum = 0;
+
+SLTEST_R(Bechmark_ByRefVsByVal)
+{
+	// volatile нужны дабы компилятор не пытался оптимизировать циклы и все прочее
+	volatile uint round_count = 1000000000U;
+	volatile uint sum_a = 0;
+	volatile uint sum_b = 0;
+	volatile uint sum_len = 0;
+	if(pBenchmark == 0) {
+		;	
+	}
+	else if(sstreqi_ascii(pBenchmark, "byref")) {
+		for(uint i = 0; i < round_count; ++i) {
+			Bechmark_ByRefVsByVal_TestStruct data;
+			Bechmark_ByRefVsByVal_Func_ByRef(i, data);
+			sum_a += data.A;
+			sum_b += data.B;
+			sum_len += strlen(static_cast<const char *>(data.Ptr));
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "byval")) {
+		for(uint i = 0; i < round_count; ++i) {
+			Bechmark_ByRefVsByVal_TestStruct data = Bechmark_ByRefVsByVal_Func_ByVal(i);
+			sum_a += data.A;
+			sum_b += data.B;
+			sum_len += strlen(static_cast<const char *>(data.Ptr));
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "stdstring_byref")) {
+		for(uint i = 0; i < round_count; ++i) {
+			std::string data;
+			Bechmark_ByRefVsByVal_Func_StdString_ByRef(i, data);
+			sum_len += data.length();
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "stdstring_byref_recycle")) {
+		std::string data;
+		for(uint i = 0; i < round_count; ++i) {
+			Bechmark_ByRefVsByVal_Func_StdString_ByRef(i, data);
+			sum_len += data.length();
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "stdstring_byval")) {
+		for(uint i = 0; i < round_count; ++i) {
+			std::string data = Bechmark_ByRefVsByVal_Func_StdString_ByVal(i);
+			sum_len += data.length();
+		}
+	}
+	Bechmark_ByRefVsByVal_ResultSum += (sum_a + sum_b + sum_len);
+	return CurrentStatus;
+}

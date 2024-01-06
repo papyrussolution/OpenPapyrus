@@ -1046,7 +1046,7 @@ UnicodeString PatternStringUtils::convertLocalized(const UnicodeString & input, 
 		}
 
 		if(state == 0 || state == 3 || state == 4) {
-			for(auto& pair : table) {
+			for(auto & pair : table) {
 				// Perform a greedy match on this symbol string
 				UnicodeString temp = input.tempSubString(offset, pair[0].length());
 				if(temp == pair[0]) {
@@ -1061,7 +1061,7 @@ UnicodeString PatternStringUtils::convertLocalized(const UnicodeString & input, 
 				}
 			}
 			// No replacement found. Check if a special quote is necessary
-			for(auto& pair : table) {
+			for(auto & pair : table) {
 				UnicodeString temp = input.tempSubString(offset, pair[1].length());
 				if(temp == pair[1]) {
 					if(state == 0) {

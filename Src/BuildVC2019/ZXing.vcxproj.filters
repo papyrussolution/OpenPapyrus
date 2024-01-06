@@ -239,10 +239,7 @@
     <ClCompile Include="..\osf\zxing-cpp\core\src\MultiFormatWriter.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\PerspectiveTransform.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\ReadBarcode.cpp" />
-    <ClCompile Include="..\osf\zxing-cpp\core\src\ReedSolomonDecoder.cpp" />
-    <ClCompile Include="..\osf\zxing-cpp\core\src\ReedSolomonEncoder.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\Result.cpp" />
-    <ClCompile Include="..\osf\zxing-cpp\core\src\ResultPoint.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\TextDecoder.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\TextEncoder.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\TextUtfEncoding.cpp" />
@@ -250,6 +247,7 @@
     <ClCompile Include="..\osf\zxing-cpp\core\src\WhiteRectDetector.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\ZXBigInteger.cpp" />
     <ClCompile Include="..\OSF\zxing-cpp\core\src\zxing-pch.cpp" />
+    <ClCompile Include="..\OSF\zxing-cpp\core\src\ReedSolomon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\zxing-cpp\core\src\BarcodeFormat.h">

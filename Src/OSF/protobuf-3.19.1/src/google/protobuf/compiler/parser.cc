@@ -34,9 +34,9 @@ using internal::WireFormat;
 namespace {
 typedef std::unordered_map<std::string, FieldDescriptorProto::Type> TypeNameMap;
 
-TypeNameMap MakeTypeNameTable() {
+TypeNameMap MakeTypeNameTable() 
+{
 	TypeNameMap result;
-
 	result["double"] = FieldDescriptorProto::TYPE_DOUBLE;
 	result["float"] = FieldDescriptorProto::TYPE_FLOAT;
 	result["uint64"] = FieldDescriptorProto::TYPE_UINT64;
@@ -45,7 +45,6 @@ TypeNameMap MakeTypeNameTable() {
 	result["bool"] = FieldDescriptorProto::TYPE_BOOL;
 	result["string"] = FieldDescriptorProto::TYPE_STRING;
 	result["group"] = FieldDescriptorProto::TYPE_GROUP;
-
 	result["bytes"] = FieldDescriptorProto::TYPE_BYTES;
 	result["uint32"] = FieldDescriptorProto::TYPE_UINT32;
 	result["sfixed32"] = FieldDescriptorProto::TYPE_SFIXED32;
@@ -54,7 +53,6 @@ TypeNameMap MakeTypeNameTable() {
 	result["int64"] = FieldDescriptorProto::TYPE_INT64;
 	result["sint32"] = FieldDescriptorProto::TYPE_SINT32;
 	result["sint64"] = FieldDescriptorProto::TYPE_SINT64;
-
 	return result;
 }
 
@@ -62,7 +60,8 @@ const TypeNameMap kTypeNames = MakeTypeNameTable();
 
 // Camel-case the field name and append "Entry" for generated map entry name.
 // e.g. map<KeyType, ValueType> foo_map => FooMapEntry
-std::string MapEntryName(const std::string & field_name) {
+std::string MapEntryName(const std::string & field_name) 
+{
 	std::string result;
 	static const char kSuffix[] = "Entry";
 	result.reserve(field_name.size() + sizeof(kSuffix));
@@ -600,7 +599,7 @@ bool Parser::ValidateEnum(const EnumDescriptorProto* proto) {
 	// Enforce that enum constants must be UPPER_CASE except in case of
 	// enum_alias.
 	if(!allow_alias) {
-		for(const auto& enum_value : proto->value()) {
+		for(const auto & enum_value : proto->value()) {
 			if(!IsUpperUnderscore(enum_value.name())) {
 				AddWarning(
 					"Enum constant should be in UPPER_CASE. Found: " +
@@ -783,14 +782,14 @@ bool Parser::ParseMessageDefinition(DescriptorProto* message, const LocationReco
 		// We have to make sure the oneof names don't conflict with any other
 		// field or oneof.
 		std::unordered_set<std::string> names;
-		for(const auto& field : message->field()) {
+		for(const auto & field : message->field()) {
 			names.insert(field.name());
 		}
-		for(const auto& oneof : message->oneof_decl()) {
+		for(const auto & oneof : message->oneof_decl()) {
 			names.insert(oneof.name());
 		}
 
-		for(auto& field : *message->mutable_field()) {
+		for(auto & field : *message->mutable_field()) {
 			if(field.proto3_optional()) {
 				std::string oneof_name = field.name();
 

@@ -53,7 +53,7 @@ int XapianTcpServer::get_listening_socket(const std::string & host, int port, bo
 {
 	int socketfd = -1;
 	int bind_errno = 0;
-	for(auto&& r : Resolver(host, port, AI_PASSIVE)) {
+	for(auto && r : Resolver(host, port, AI_PASSIVE)) {
 		int socktype = r.ai_socktype | SOCK_CLOEXEC;
 		int fd = socket(r.ai_family, socktype, r.ai_protocol);
 		if(fd == -1)

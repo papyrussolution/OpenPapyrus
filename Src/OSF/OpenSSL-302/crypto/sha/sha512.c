@@ -422,7 +422,7 @@ static const SHA_LONG64 K512[80] = {
 #endif
 #elif defined(_MSC_VER)
 #if defined(_WIN64)         /* applies to both IA-64 and AMD64 */
-#    pragma intrinsic(_rotr64)
+#pragma intrinsic(_rotr64)
 #define ROTR(a, n)    _rotr64((a), n)
 #endif
 #if defined(_M_IX86) && !defined(OPENSSL_NO_ASM) && \

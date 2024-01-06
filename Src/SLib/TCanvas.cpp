@@ -1,5 +1,5 @@
 // TCANVAS.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -60,6 +60,71 @@ TCanvas2::Surface::Surface() : HCtx(0), P_Img(0)
 TCanvas2::Capability::Capability()
 {
 	SizePt.Z();
+}
+
+/*static*/SPtrHandle TCanvas2::TransformDrawFigureToIcon(SPaintToolBox * pTb, const SDrawFigure * pFig, SPoint2S size, SColor colorReplaced, SColor colorBackground)
+{
+	SPtrHandle h_result;
+	if(pFig && pTb && size.x > 0 && size.y > 0) {
+		SImageBuffer ib(size.x, size.y);
+		TCanvas2 canv(*pTb, ib);
+		if(!colorReplaced.IsEmpty()) {
+			SColor replacement_color = pTb->GetColor(TProgram::tbiIconRegColor);
+			canv.SetColorReplacement(colorReplaced, replacement_color);
+		}
+		LMatrix2D mtx;
+		SViewPort vp;
+		FRect pic_bounds(static_cast<float>(size.x), static_cast<float>(size.y));
+		//
+		canv.Rect(pic_bounds);
+		canv.Fill(colorBackground, 0); // Прозрачный фон
+		canv.PushTransform();
+		pFig->GetViewPort(&vp);
+		canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+		canv.Draw(pFig);
+		h_result = static_cast<HICON>(ib.TransformToIcon());
+	}
+	return h_result;
+}
+
+/*static*/bool TCanvas2::TransformDrawFigureToBitmap(SPaintToolBox * pTb, const SDrawFigure * pFig, SPoint2S size, SColor colorReplaced, SColor colorBackground, SBuffer & rBuf)
+{
+	rBuf.Z();
+	bool result = false;
+	if(pFig && pTb && size.x > 0 && size.y > 0) {
+		SImageBuffer ib(size.x, size.y);
+		TCanvas2 canv(*pTb, ib);
+		if(!colorReplaced.IsEmpty()) {
+			SColor replacement_color = pTb->GetColor(TProgram::tbiIconRegColor);
+			canv.SetColorReplacement(colorReplaced, replacement_color);
+		}
+		LMatrix2D mtx;
+		SViewPort vp;
+		FRect pic_bounds(static_cast<float>(size.x), static_cast<float>(size.y));
+		//
+		canv.Rect(pic_bounds);
+		if(!colorBackground.IsEmpty())
+			canv.Fill(colorBackground, 0);
+		canv.PushTransform();
+		pFig->GetViewPort(&vp);
+		canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+		canv.Draw(pFig);
+		{
+			SImageBuffer::StoreParam sp(SFileFormat::Bmp);
+			SBuffer _buf;
+			SFile f(_buf, SFile::mWrite);
+			if(f.IsValid()) {
+				if(ib.Store(sp, f)) {
+					SBuffer * p_buf = f;
+					if(p_buf && p_buf->GetAvailableSize()) {
+						if(rBuf.Copy(*p_buf))
+							result = true;
+					}
+				}
+			}
+		}
+	}	
+	return result;
 }
 
 TCanvas2::TCanvas2(SPaintToolBox & rTb, HDC hDc) : GdiObjStack(sizeof(HGDIOBJ)), R_Tb(rTb), 

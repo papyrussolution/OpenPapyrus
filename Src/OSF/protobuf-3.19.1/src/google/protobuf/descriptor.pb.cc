@@ -1338,7 +1338,7 @@ size_t FileDescriptorSet::ByteSizeLong() const {
 
   // repeated .google.protobuf.FileDescriptorProto file = 1;
   total_size += 1UL * this->_internal_file_size();
-  for(const auto& msg : this->file_) {
+  for(const auto & msg : this->file_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -1743,7 +1743,7 @@ uint8_t* FileDescriptorProto::_InternalSerialize(
 
   // repeated string dependency = 3;
   for(int i = 0, n = this->_internal_dependency_size(); i < n; i++) {
-    const auto& s = this->_internal_dependency(i);
+    const auto & s = this->_internal_dependency(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -1832,25 +1832,25 @@ size_t FileDescriptorProto::ByteSizeLong() const {
 
   // repeated .google.protobuf.DescriptorProto message_type = 4;
   total_size += 1UL * this->_internal_message_type_size();
-  for(const auto& msg : this->message_type_) {
+  for(const auto & msg : this->message_type_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.EnumDescriptorProto enum_type = 5;
   total_size += 1UL * this->_internal_enum_type_size();
-  for(const auto& msg : this->enum_type_) {
+  for(const auto & msg : this->enum_type_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.ServiceDescriptorProto service = 6;
   total_size += 1UL * this->_internal_service_size();
-  for(const auto& msg : this->service_) {
+  for(const auto & msg : this->service_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.FieldDescriptorProto extension = 7;
   total_size += 1UL * this->_internal_extension_size();
-  for(const auto& msg : this->extension_) {
+  for(const auto & msg : this->extension_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -2792,7 +2792,7 @@ uint8_t* DescriptorProto::_InternalSerialize(
 
   // repeated string reserved_name = 10;
   for(int i = 0, n = this->_internal_reserved_name_size(); i < n; i++) {
-    const auto& s = this->_internal_reserved_name(i);
+    const auto & s = this->_internal_reserved_name(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -2818,43 +2818,43 @@ size_t DescriptorProto::ByteSizeLong() const {
 
   // repeated .google.protobuf.FieldDescriptorProto field = 2;
   total_size += 1UL * this->_internal_field_size();
-  for(const auto& msg : this->field_) {
+  for(const auto & msg : this->field_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.DescriptorProto nested_type = 3;
   total_size += 1UL * this->_internal_nested_type_size();
-  for(const auto& msg : this->nested_type_) {
+  for(const auto & msg : this->nested_type_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.EnumDescriptorProto enum_type = 4;
   total_size += 1UL * this->_internal_enum_type_size();
-  for(const auto& msg : this->enum_type_) {
+  for(const auto & msg : this->enum_type_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.DescriptorProto.ExtensionRange extension_range = 5;
   total_size += 1UL * this->_internal_extension_range_size();
-  for(const auto& msg : this->extension_range_) {
+  for(const auto & msg : this->extension_range_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.FieldDescriptorProto extension = 6;
   total_size += 1UL * this->_internal_extension_size();
-  for(const auto& msg : this->extension_) {
+  for(const auto & msg : this->extension_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.OneofDescriptorProto oneof_decl = 8;
   total_size += 1UL * this->_internal_oneof_decl_size();
-  for(const auto& msg : this->oneof_decl_) {
+  for(const auto & msg : this->oneof_decl_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.DescriptorProto.ReservedRange reserved_range = 9;
   total_size += 1UL * this->_internal_reserved_range_size();
-  for(const auto& msg : this->reserved_range_) {
+  for(const auto & msg : this->reserved_range_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -3103,7 +3103,7 @@ size_t ExtensionRangeOptions::ByteSizeLong() const {
 
   // repeated .google.protobuf.UninterpretedOption uninterpreted_option = 999;
   total_size += 2UL * this->_internal_uninterpreted_option_size();
-  for(const auto& msg : this->uninterpreted_option_) {
+  for(const auto & msg : this->uninterpreted_option_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -4421,7 +4421,7 @@ uint8_t* EnumDescriptorProto::_InternalSerialize(
 
   // repeated string reserved_name = 5;
   for(int i = 0, n = this->_internal_reserved_name_size(); i < n; i++) {
-    const auto& s = this->_internal_reserved_name(i);
+    const auto & s = this->_internal_reserved_name(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -4447,13 +4447,13 @@ size_t EnumDescriptorProto::ByteSizeLong() const {
 
   // repeated .google.protobuf.EnumValueDescriptorProto value = 2;
   total_size += 1UL * this->_internal_value_size();
-  for(const auto& msg : this->value_) {
+  for(const auto & msg : this->value_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.EnumDescriptorProto.EnumReservedRange reserved_range = 4;
   total_size += 1UL * this->_internal_reserved_range_size();
-  for(const auto& msg : this->reserved_range_) {
+  for(const auto & msg : this->reserved_range_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -5013,7 +5013,7 @@ size_t ServiceDescriptorProto::ByteSizeLong() const {
 
   // repeated .google.protobuf.MethodDescriptorProto method = 2;
   total_size += 1UL * this->_internal_method_size();
-  for(const auto& msg : this->method_) {
+  for(const auto & msg : this->method_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -6180,7 +6180,7 @@ size_t FileOptions::ByteSizeLong() const {
 
   // repeated .google.protobuf.UninterpretedOption uninterpreted_option = 999;
   total_size += 2UL * this->_internal_uninterpreted_option_size();
-  for(const auto& msg : this->uninterpreted_option_) {
+  for(const auto & msg : this->uninterpreted_option_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -6646,7 +6646,7 @@ size_t MessageOptions::ByteSizeLong() const {
 
   // repeated .google.protobuf.UninterpretedOption uninterpreted_option = 999;
   total_size += 2UL * this->_internal_uninterpreted_option_size();
-  for(const auto& msg : this->uninterpreted_option_) {
+  for(const auto & msg : this->uninterpreted_option_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -7003,7 +7003,7 @@ size_t FieldOptions::ByteSizeLong() const {
 
   // repeated .google.protobuf.UninterpretedOption uninterpreted_option = 999;
   total_size += 2UL * this->_internal_uninterpreted_option_size();
-  for(const auto& msg : this->uninterpreted_option_) {
+  for(const auto & msg : this->uninterpreted_option_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -7262,7 +7262,7 @@ size_t OneofOptions::ByteSizeLong() const {
 
   // repeated .google.protobuf.UninterpretedOption uninterpreted_option = 999;
   total_size += 2UL * this->_internal_uninterpreted_option_size();
-  for(const auto& msg : this->uninterpreted_option_) {
+  for(const auto & msg : this->uninterpreted_option_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -7498,7 +7498,7 @@ size_t EnumOptions::ByteSizeLong() const {
 
   // repeated .google.protobuf.UninterpretedOption uninterpreted_option = 999;
   total_size += 2UL * this->_internal_uninterpreted_option_size();
-  for(const auto& msg : this->uninterpreted_option_) {
+  for(const auto & msg : this->uninterpreted_option_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -7748,7 +7748,7 @@ size_t EnumValueOptions::ByteSizeLong() const {
 
   // repeated .google.protobuf.UninterpretedOption uninterpreted_option = 999;
   total_size += 2UL * this->_internal_uninterpreted_option_size();
-  for(const auto& msg : this->uninterpreted_option_) {
+  for(const auto & msg : this->uninterpreted_option_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -7979,7 +7979,7 @@ size_t ServiceOptions::ByteSizeLong() const {
 
   // repeated .google.protobuf.UninterpretedOption uninterpreted_option = 999;
   total_size += 2UL * this->_internal_uninterpreted_option_size();
-  for(const auto& msg : this->uninterpreted_option_) {
+  for(const auto & msg : this->uninterpreted_option_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -8233,7 +8233,7 @@ size_t MethodOptions::ByteSizeLong() const {
 
   // repeated .google.protobuf.UninterpretedOption uninterpreted_option = 999;
   total_size += 2UL * this->_internal_uninterpreted_option_size();
-  for(const auto& msg : this->uninterpreted_option_) {
+  for(const auto & msg : this->uninterpreted_option_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -8860,7 +8860,7 @@ size_t UninterpretedOption::ByteSizeLong() const {
 
   // repeated .google.protobuf.UninterpretedOption.NamePart name = 2;
   total_size += 1UL * this->_internal_name_size();
-  for(const auto& msg : this->name_) {
+  for(const auto & msg : this->name_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -9211,7 +9211,7 @@ uint8_t* SourceCodeInfo_Location::_InternalSerialize(
 
   // repeated string leading_detached_comments = 6;
   for(int i = 0, n = this->_internal_leading_detached_comments_size(); i < n; i++) {
-    const auto& s = this->_internal_leading_detached_comments(i);
+    const auto & s = this->_internal_leading_detached_comments(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
@@ -9463,7 +9463,7 @@ size_t SourceCodeInfo::ByteSizeLong() const {
 
   // repeated .google.protobuf.SourceCodeInfo.Location location = 1;
   total_size += 1UL * this->_internal_location_size();
-  for(const auto& msg : this->location_) {
+  for(const auto & msg : this->location_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -9936,7 +9936,7 @@ size_t GeneratedCodeInfo::ByteSizeLong() const {
 
   // repeated .google.protobuf.GeneratedCodeInfo.Annotation annotation = 1;
   total_size += 1UL * this->_internal_annotation_size();
-  for(const auto& msg : this->annotation_) {
+  for(const auto & msg : this->annotation_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 

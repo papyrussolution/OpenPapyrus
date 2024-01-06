@@ -10,6 +10,7 @@ import android.location.Location;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -344,6 +345,18 @@ public class CommandListActivity extends SLib.SlActivity {
 					}
 				}
 				break;
+			// @v11.9.2 {
+			case SLib.EV_CREATEVIEWHOLDER:
+				{
+					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
+					if(ev_subj != null) {
+						SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.CTL_BUTTON_RUNCMD);
+						SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.CTL_BUTTON_RUNCMD_FORCEUPDATE);
+						result = ev_subj.RvHolder;
+					}
+				}
+				break;
+			// } @v11.9.2
 			case SLib.EV_LISTVIEWCOUNT:
 				{
 					SLib.RecyclerListAdapter adapter = SLib.IsRecyclerListAdapter(srcObj) ? (SLib.RecyclerListAdapter)srcObj : null;
@@ -356,7 +369,46 @@ public class CommandListActivity extends SLib.SlActivity {
 				}
 				break;
 			case SLib.EV_LISTVIEWITEMCLK:
-			case SLib.EV_LISTVIEWITEMLONGCLK:
+				// @v11.9.2 Активация команды теперь по кнопке, а не по произвольному нажатию элемента списка {
+				{
+					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
+					if(ev_subj != null) {
+						StyloQApp app_ctx = GetAppCtx();
+						if(app_ctx != null) {
+							StyloQCommand.Item cmd_item = ListData.GetViewItem(ev_subj.ItemIdx);
+							if(cmd_item != null && StyloQCommand.IsCommandPending(SvcIdent, cmd_item) == 0) {
+								if(ev_subj.ItemView != null) {
+									if(ev_subj.ItemView.getId() == R.id.CTL_BUTTON_RUNCMD || ev_subj.ItemView.getId() == R.id.CTL_BUTTON_RUNCMD_FORCEUPDATE) {
+										double _max_dist = cmd_item.GetGeoDistanceRestriction();
+										if(_max_dist > 0.0) {
+											// Команда будет запущена после получения координат (see case SLib.EV_GEOLOCDETECTED here)
+											if(SLib.QueryCurrentGeoLoc(this, cmd_item, this) != 0) {
+												; // будем ждать ответа
+											}
+											else {
+												// Ошибка: скорее всего нет прав на получение координат
+												app_ctx.DisplayError(this, ppstr2.PPERR_STQ_EXCECMD_GEOLOCDISABLED, 0);
+											}
+										}
+										else {
+											if(ev_subj.ItemView.getId() == R.id.CTL_BUTTON_RUNCMD) {
+												Helper_RunCmd(cmd_item, null, false);
+												RefreshStatus();
+											}
+											else if(ev_subj.ItemView.getId() == R.id.CTL_BUTTON_RUNCMD_FORCEUPDATE) {
+												Helper_RunCmd(cmd_item, null, true);
+												RefreshStatus();
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				// } @v11.9.2
+				break;
+			/* @v11.9.2 case SLib.EV_LISTVIEWITEMLONGCLK:
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null) {
@@ -386,7 +438,7 @@ public class CommandListActivity extends SLib.SlActivity {
 						}
 					}
 				}
-				break;
+				break;*/
 			case SLib.EV_GEOLOCDETECTED:
 				if(subj != null && subj instanceof Location && srcObj != null && srcObj instanceof StyloQCommand.Item) {
 					StyloQApp app_ctx = GetAppCtx();
@@ -422,17 +474,42 @@ public class CommandListActivity extends SLib.SlActivity {
 											SLib.SetCtrlString(iv, R.id.CTL_IND_EXECUTETIME, timewatch_text);
 										}
 										{
-											ImageView ctl = (ImageView) iv.findViewById(R.id.CTL_IND_STATUS);
-											if(ctl != null) {
-												int rcid = 0;
-												switch(prestatus.S) {
-													case StyloQCommand.prestatusQueryNeeded: rcid = R.drawable.ic_generic_server; break;
-													case StyloQCommand.prestatusActualResultStored: rcid = R.drawable.ic_generic_document; break;
-													case StyloQCommand.prestatusPending: rcid = R.drawable.ic_stopwatch; break;
-													default: rcid = R.drawable.ic_generic_command; break;
-												}
-												ctl.setImageResource(rcid);
+											int rcid = 0;
+											boolean force_update_cmd_is_visible = false;
+											switch(prestatus.S) {
+												case StyloQCommand.prestatusQueryNeeded:
+													rcid = R.drawable.ic_generic_server;
+													break;
+												case StyloQCommand.prestatusActualResultStored:
+													rcid = R.drawable.ic_generic_document;
+													force_update_cmd_is_visible = true;
+													break;
+												case StyloQCommand.prestatusPending:
+													rcid = R.drawable.ic_stopwatch;
+													break;
+												default:
+													rcid = R.drawable.ic_generic_command;
+													break;
 											}
+											{
+												View v = iv.findViewById(R.id.CTL_BUTTON_RUNCMD);
+												if(v != null && v instanceof ImageButton) {
+													if(rcid != 0)
+														((ImageButton)v).setImageResource(rcid);
+												}
+											}
+											{
+												View v = iv.findViewById(R.id.CTL_BUTTON_RUNCMD_FORCEUPDATE);
+												if(v != null) {
+													v.setVisibility(force_update_cmd_is_visible ? View.VISIBLE : View.GONE);
+												}
+											}
+											/*{
+												ImageView ctl = (ImageView) iv.findViewById(R.id.CTL_IND_STATUS);
+												if(ctl != null) {
+													ctl.setImageResource(rcid);
+												}
+											}*/
 										}
 									}
 								}

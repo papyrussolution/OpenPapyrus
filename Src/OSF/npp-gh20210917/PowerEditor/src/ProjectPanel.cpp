@@ -1210,7 +1210,7 @@ void ProjectPanel::addFiles(HTREEITEM hTreeItem)
 	CustomFileDialog fDlg(_hSelf);
 	fDlg.setExtFilter(TEXT("All types"), TEXT(".*"));
 
-	const auto& fns = fDlg.doOpenMultiFilesDlg();
+	const auto & fns = fDlg.doOpenMultiFilesDlg();
 	if(!fns.empty()) {
 		size_t sz = fns.size();
 		for(size_t i = 0; i < sz; ++i) {

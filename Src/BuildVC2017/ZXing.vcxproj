@@ -245,6 +245,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\OSF\zxing-cpp\core\src\ReedSolomon.cpp" />
     <ClCompile Include="..\OSF\zxing-cpp\core\src\zxing-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -276,12 +277,9 @@
     <ClCompile Include="..\osf\zxing-cpp\core\src\MultiFormatReader.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\PerspectiveTransform.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\ReadBarcode.cpp" />
-    <ClCompile Include="..\osf\zxing-cpp\core\src\ReedSolomonDecoder.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\Result.cpp" />
-    <ClCompile Include="..\osf\zxing-cpp\core\src\ResultPoint.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\TextDecoder.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\WhiteRectDetector.cpp" />
-    <ClCompile Include="..\osf\zxing-cpp\core\src\ReedSolomonEncoder.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\TextEncoder.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\MultiFormatWriter.cpp" />
     <ClCompile Include="..\osf\zxing-cpp\core\src\aztec\AZDecoder.cpp" />

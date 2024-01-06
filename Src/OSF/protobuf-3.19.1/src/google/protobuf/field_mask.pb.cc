@@ -173,7 +173,7 @@ uint8_t* FieldMask::_InternalSerialize(
 
   // repeated string paths = 1;
   for(int i = 0, n = this->_internal_paths_size(); i < n; i++) {
-    const auto& s = this->_internal_paths(i);
+    const auto & s = this->_internal_paths(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,

@@ -1,5 +1,5 @@
 // GDSUTIL.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Утилиты для работы с товарами
 //
@@ -3141,6 +3141,12 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 		case BARCSTD_POSTNET:     rBuf = "postnet"; break;
 		case BARCSTD_QR:          rBuf = "qr"; break;
 		case BARCSTD_DATAMATRIX:  rBuf = "datamatrix"; break; // @v10.9.12
+		case BARCSTD_AZTEC:       rBuf = "aztec"; break; // @v11.9.2
+		case BARCSTD_DATABAR:     rBuf = "databar"; break; // @v11.9.2
+		case BARCSTD_MICROQR:     rBuf = "microqr"; break; // @v11.9.2
+		case BARCSTD_ITF:         rBuf = "itf"; break; // @v11.9.2
+		case BARCSTD_MAXICODE:    rBuf = "maxicode"; break; // @v11.9.2
+		case BARCSTD_RMQR:        rBuf = "rmqr"; break; // @v11.9.2
 		default:
 			ok = 0;
     }
@@ -3182,6 +3188,12 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 					case PPHS_BCS_POSTNET:         bcstd = BARCSTD_POSTNET; break;
 					case PPHS_BCS_LOGMARS:         bcstd = BARCSTD_LOGMARS; break;
 					case PPHS_BCS_DATAMATRIX:      bcstd = BARCSTD_DATAMATRIX; break; // @v10.9.12
+					case PPHS_BCS_AZTEC:           bcstd = BARCSTD_AZTEC; break; // @v11.9.2
+					case PPHS_BCS_DATABAR:         bcstd = BARCSTD_DATABAR; break; // @v11.9.2
+					case PPHS_BCS_MICROQR:         bcstd = BARCSTD_MICROQR; break; // @v11.9.2
+					case PPHS_BCS_ITF:             bcstd = BARCSTD_ITF; break; // @v11.9.2
+					case PPHS_BCS_MAXICODE:        bcstd = BARCSTD_MAXICODE; break; // @v11.9.2
+					case PPHS_BCS_RMQR:            bcstd = BARCSTD_RMQR; break; // @v11.9.2
 					default:
 						{
 							//
@@ -3207,7 +3219,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
     return bcstd;
 }
 
-PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputFormat(0), Angle(0), ColorFg(ZEROCOLOR), ColorBg(ZEROCOLOR)
+PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputFormat(0), Angle(0), Margin(0), ColorFg(ZEROCOLOR), ColorBg(ZEROCOLOR)
 {
 	Size.Z();
 }

@@ -110,8 +110,9 @@ size_t FASTCALL SBitArray::getCountVal(int val) const
 		// этой библиотеки.
 		// uint   popc = A_popcount(PTR32(P_Buf)[i]);
 		//
-		uint   popc = popcount32(PTR32(P_Buf)[i]); // @v7.8.3 @proof
+		// @v11.9.2 uint   popc = popcount32(PTR32(P_Buf)[i]); // @v7.8.3 @proof
 		// }
+		uint popc = SBits::Cpop(PTR32(P_Buf)[i]); // @v11.9.2
 		if(val)
 			r += popc;
 		else

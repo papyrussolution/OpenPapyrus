@@ -1257,9 +1257,9 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 										}
 										if(p_found_outer_item) {
 											switch(acceptance) {
-												case StyloQIncomingListParam::acceptanceNone:         // 0 // Ничего не делать
+												case StyloQIncomingListParam::acceptanceNone: // 0 // Ничего не делать
 													break;
-												case StyloQIncomingListParam::acceptanceTags:         // 1 // Расставить теги по строкам
+												case StyloQIncomingListParam::acceptanceTags: // 1 // Расставить теги по строкам
 													{
 														PPObjectTag tag_rec;
 														if(tag_obj.Fetch(PPTAG_LOT_ACCEPTANCE, &tag_rec) > 0) {

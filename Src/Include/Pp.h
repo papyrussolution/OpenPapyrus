@@ -1,5 +1,5 @@
 // PP.H
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 // Спасибо за проделанную работу (Thanks for the work you've done):
@@ -4405,6 +4405,12 @@ private:
 #define BARCSTD_POSTNET         20 // PostNet                        [Fixed]
 #define BARCSTD_QR              21 // QR-code
 #define BARCSTD_DATAMATRIX      22 // @v10.9.10 DataMatrix
+#define BARCSTD_AZTEC           23 // @v11.9.2
+#define BARCSTD_DATABAR         24 // @v11.9.2
+#define BARCSTD_MICROQR         25 // @v11.9.2 MicroQR-code
+#define BARCSTD_ITF             26 // @v11.9.2
+#define BARCSTD_MAXICODE        27 // @v11.9.2
+#define BARCSTD_RMQR            28 // @v11.9.2
 //
 // Конфигурация справочника товаров
 // sizeof(PPGoodsConfig) == PROPRECFIXSIZE
@@ -5374,6 +5380,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	// флаг неправильный. Сделан для того, чтоб собрать оплату с клиентов за эту функцию. Скорее всего в течении нескольких месяцев будет упразднен.
 #define ECF_WSCONTROL              0x02000000L // @v11.6.7 @contruction Сеанс работает в режиме управления рабочей сессией Windows.
 	// Состояние значительно модифицирует парадигму работы: сеанс дает управляемый доступ к функциям Windows.
+#define ECF_STYLOQSVCLOGGING       0x04000000L // @v11.9.2 Если установлен, то объект PPStyloQInterchange записывает в журнал (styloqsvc-talk.log) входящие запросы и ответы
 //
 //
 //
@@ -7576,6 +7583,8 @@ public:
 	//
 	int    TransferIpServerListeningList(int kind/* 1 - papyrus, 2 - nginx */, int dir/* >0 - set, <0 - get*/, TSCollection <IpServerListeningEntry> & rList);
 	bool   RunNginxServerThread(bool forceReboot);
+	const  TWhatmanToolArray & GetVectorTools() const { return DvToolList_; } // @v11.9.2
+	SPaintToolBox & GetUiToolBox() { return UiToolBox_; } // @v11.9.2
 private:
 	int    Helper_SetPath(int pathId, SString & rPath);
 	int    MakeMachineID(MACAddr * pMachineID);
@@ -7638,6 +7647,8 @@ private:
 	SrUedContainer_Rt * P_UedC; // @v11.8.4 @construction Глобально доступный экземпляр для работы с коллекцией объектов UED
 	Profile GPrf; // Глобальный профайлер для всей сессии. Кроме него в каждом потоке есть собственный профайлер PPThreadLocalArea::Prf
 	PPConfigDatabase * P_ExtCfgDb; // @v10.7.6 Экспериментальный вариант экземпляра дополнительной конфигурационной базы данных
+	TWhatmanToolArray DvToolList_; // @v11.9.2 (moved from the class TProgram) Векторные изображения, загружаемые из внешнего файла 
+	SPaintToolBox UiToolBox_;      // @v11.9.2 (moved from the class TProgram) Набор инструментов для отрисовки компонентов пользовательского интерфейса.
 
 	class ThreadCollection : private TSCollection <PPThread> {
 	public:
@@ -8133,6 +8144,7 @@ public:
 			// 0 - в буфер Buffer, SFileFormat::Png, SFileFormat::Svg, SFileFormat::Gif, SFileFormat::Bmp
 			// Остальные значения считаются инвалидными.
 		int   Angle;             // Угол поворота изображения. Допустимы следующие значения: 0, 90, 180, 270
+		int   Margin;            // @v11.9.2 Поля вокруг изображения штрихкода (в пикселях)
 		SPoint2S Size;           // Размеры изображения в пикселах. Если 0, то используются размеры по умолчанию.
 		SColor ColorFg;          // Цвет штрихов. Если ColorFg == ZEROCOLOR, то - черный
 		SColor ColorBg;          // Цвет фона. Если ColorBg == ZROCOLOR, то - белый
@@ -19882,6 +19894,8 @@ public:
 	int    GetPacket(PPID id, PPBizScore2Packet * pPack);
 	int    PutPacket(PPID * pID, PPBizScore2Packet * pPack, int use_ta);
 private:
+	StrAssocArray * MakeStrAssocList(void * extraPtr);
+	virtual void * CreateObjListWin(uint flags, void * extraPtr);
 };
 //
 // @ModuleDecl(PPViewBizScore)
@@ -51769,7 +51783,9 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  InitStatusBar();
-	virtual int  LoadVectorTools(TWhatmanToolArray * pT);
+	// @v11.9.2 virtual int  LoadVectorTools(TWhatmanToolArray * pT);
+	virtual const TWhatmanToolArray * GetVectorTools() const; // @v11.9.2 
+	virtual SPaintToolBox * GetUiToolBox(); // @v11.9.2
 	int    InitDeskTop();
 	int    InitMenuBar();
 	int    RegisterComServer();
@@ -57723,12 +57739,14 @@ int    FASTCALL PPExpandString(SString & rS, int ctransf);
 // Note: Буфер rS предварительно очищается функцией.
 //
 int    FASTCALL PPLoadText(int code, SString & rS);
+int    FASTCALL PPLoadTextUtf8(int code, SString & rS);
 //
 // Descr: Загружает строку категории PPSTR_TEXT с идентификатором code (PPTXT_XXX) в буфер rS.
 // Note: Буфер rS предварительно очищается функцией.
 // Returns: rS
 //
 SString & FASTCALL PPLoadTextS(int code, SString & rS);
+SString & FASTCALL PPLoadTextUtf8S(int code, SString & rS);
 //
 // Descr: Загружает строку с ошибкой в буфер s
 //

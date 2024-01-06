@@ -432,7 +432,7 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_legacy(void* dictBuffer, size_t dictBu
 #elif defined(_MSC_VER)
 #define ZDICT_DEPRECATED(message) ZDICTLIB_API __declspec(deprecated(message))
 #else
-#    pragma message("WARNING: You need to implement ZDICT_DEPRECATED for this compiler")
+#pragma message("WARNING: You need to implement ZDICT_DEPRECATED for this compiler")
 #define ZDICT_DEPRECATED(message) ZDICTLIB_API
 #endif
 #endif /* ZDICT_DISABLE_DEPRECATE_WARNINGS */

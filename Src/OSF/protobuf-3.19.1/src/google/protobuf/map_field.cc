@@ -215,7 +215,7 @@ DynamicMapField::~DynamicMapField() {
 	if(arena_ != nullptr) return;
 	// DynamicMapField owns map values. Need to delete them before clearing the
 	// map.
-	for(auto& kv : map_) {
+	for(auto & kv : map_) {
 		kv.second.DeleteData();
 	}
 	map_.clear();

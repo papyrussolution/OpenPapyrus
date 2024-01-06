@@ -35,7 +35,7 @@ public:
 		for(Xapian::doccount i = 0; i < n_shards; ++i) {
 			rsets.emplace_back(RSet());
 		}
-		for(auto&& did : docs) {
+		for(auto && did : docs) {
 			Xapian::docid shard_did = shard_docid(did, n_shards);
 			rsets[shard_number(did, n_shards)].add_document(shard_did);
 		}

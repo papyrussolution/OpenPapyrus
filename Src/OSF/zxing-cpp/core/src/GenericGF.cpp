@@ -8,49 +8,42 @@
 #pragma hdrstop
 
 namespace ZXing {
-	const GenericGF &GenericGF::AztecData12()
+	const GenericGF & GenericGF::AztecData12()
 	{
 		static GenericGF inst(0x1069, 4096, 1); // x^12 + x^6 + x^5 + x^3 + 1
 		return inst;
 	}
-
-	const GenericGF &GenericGF::AztecData10()
+	const GenericGF & GenericGF::AztecData10()
 	{
 		static GenericGF inst(0x409, 1024, 1); // x^10 + x^3 + 1
 		return inst;
 	}
-
-	const GenericGF &GenericGF::AztecData6()
+	const GenericGF & GenericGF::AztecData6()
 	{
 		static GenericGF inst(0x43, 64, 1); // x^6 + x + 1
 		return inst;
 	}
-
-	const GenericGF &GenericGF::AztecParam()
+	const GenericGF & GenericGF::AztecParam()
 	{
 		static GenericGF inst(0x13, 16, 1); // x^4 + x + 1
 		return inst;
 	}
-
-	const GenericGF &GenericGF::QRCodeField256()
+	const GenericGF & GenericGF::QRCodeField256()
 	{
 		static GenericGF inst(0x011D, 256, 0); // x^8 + x^4 + x^3 + x^2 + 1
 		return inst;
 	}
-
-	const GenericGF &GenericGF::DataMatrixField256()
+	const GenericGF & GenericGF::DataMatrixField256()
 	{
 		static GenericGF inst(0x012D, 256, 1); // x^8 + x^5 + x^3 + x^2 + 1
 		return inst;
 	}
-
-	const GenericGF &GenericGF::AztecData8()
+	const GenericGF & GenericGF::AztecData8()
 	{
 		static const GenericGF inst(0x012D, 256, 1); // = DATA_MATRIX_FIELD_256;
 		return inst;
 	}
-
-	const GenericGF &GenericGF::MaxiCodeField64()
+	const GenericGF & GenericGF::MaxiCodeField64()
 	{
 		static const GenericGF inst(0x43, 64, 1); // = AZTEC_DATA_6;
 		return inst;

@@ -38,8 +38,7 @@ extern void UCNV_DEBUG_LOG(char * what, char * who, void * p, int l);
 #define UCNV_DEBUG_LOG(x, y, z)
 #endif
 
-static const UConverterSharedData * const
-converterData[UCNV_NUMBER_OF_SUPPORTED_CONVERTER_TYPES] = {
+static const UConverterSharedData * const converterData[UCNV_NUMBER_OF_SUPPORTED_CONVERTER_TYPES] = {
 	NULL, NULL,
 
 #if UCONFIG_NO_LEGACY_CONVERSION

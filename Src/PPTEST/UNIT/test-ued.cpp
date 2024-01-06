@@ -190,7 +190,7 @@
 		{
 			struct TextToUedAssoc {
 				const char * P_Text;
-				uint64 UED;
+				uint64 Ued;
 				uint64 ImplicitMeta;
 			};
 			static const TextToUedAssoc test_true_list[] = {
@@ -210,7 +210,7 @@
 					const TextToUedAssoc & r_item = test_true_list[i];
 					scan.Set(r_item.P_Text, 0);
 					uint64 ued = p_uedc->Recognize(scan, r_item.ImplicitMeta, SrUedContainer_Base::rfPrefixSharp);
-					SLCHECK_EQ(ued, r_item.UED);
+					SLCHECK_EQ(ued, r_item.Ued);
 				}
 			}
 		}

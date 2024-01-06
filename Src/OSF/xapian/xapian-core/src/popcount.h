@@ -23,7 +23,7 @@
 #include <intrin.h>
 #endif
 #endif
-
+/* @sobolev (replaced with SBits::Cpop) 
 /// Add the number of set bits in value to accumulator.
 template <typename A, typename V> static inline void add_popcount(A& accumulator, V value)
 {
@@ -58,14 +58,14 @@ template <typename A, typename V> static inline void add_popcount(A& accumulator
 			value &= value - 1;
 		}
 	}
-}
+}*/
 
 /// Count the number of set bits in value.
-template <typename V> static unsigned popcount(V value)
+/* @sobolev (replaced with SBits::Cpop) template <typename V> static unsigned popcount(V value)
 {
 	unsigned accumulator = 0;
 	add_popcount(accumulator, value);
 	return accumulator;
-}
+}*/
 
 #endif // XAPIAN_INCLUDED_POPCOUNT_H

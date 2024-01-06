@@ -10090,6 +10090,11 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 	THROW_PP(rRcvPack.P.Get(SSecretTagPool::tagRawData, &cmd_bch), PPERR_SQ_UNDEFCMDBODY);
 	//ProcessCommand(cmd_bch, sess_secret);
 	cmd_bch.ToRawStr(cmd_buf);
+	// @v11.9.2 {
+	if(DS.CheckExtFlag(ECF_STYLOQSVCLOGGING)) { 
+		PPLogMessage(PPFILNAM_STYLOQSVCTALK_LOG, cmd_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_UTF8);
+	}
+	// } @v11.9.2 
 	THROW_SL(p_js_cmd = SJson::Parse(cmd_buf));
 	{
 		for(const SJson * p_cur = p_js_cmd; p_cur; p_cur = p_cur->P_Next) {
@@ -10445,8 +10450,9 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			THROW(geoloc.IsValid() && !geoloc.IsZero()); // @todo @err
 			if(svcident.NotEmpty()) {
 				SBinaryChunk bc_own_ident;
-				THROW(locident.IsEmpty()); // @todo @err
-				if(bc_own_ident.FromMime64(svcident)) {
+				THROW_PP(locident.IsEmpty(), PPERR_STQ_SETGEOLOC_INVJSPARAM_S_L);
+				THROW_PP(bc_own_ident.FromMime64(svcident), PPERR_SQ_MALFORMEDSVCIDENTTEXT);
+				{
 					PPID   own_id = own_pack.Rec.ID;
 					StyloQFace own_face;
 					const int tag_id = SSecretTagPool::tagSelfyFace;
@@ -10478,8 +10484,8 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				const  PPID loc_id = locident.ToLong();
 				PPObjLocation loc_obj;
 				PPLocationPacket loc_pack;
-				THROW(svcident.IsEmpty()); // @todo @err
-				THROW(loc_id > 0);
+				THROW_PP(loc_id > 0, PPERR_STQ_SETGEOLOC_INVJSPARAM_LOC, locident);
+				THROW_PP(svcident.IsEmpty(), PPERR_STQ_SETGEOLOC_INVJSPARAM_S_L);
 				THROW(loc_obj.GetPacket(loc_id, &loc_pack) > 0);
 				loc_pack.Latitude = geoloc.Lat;
 				loc_pack.Longitude = geoloc.Lon;
@@ -10508,7 +10514,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				}
 			}
 			else {
-				CALLEXCEPT(); // @todo @err
+				CALLEXCEPT_PP(PPERR_STQ_SETGEOLOC_INVJSPARAM_ESEL);
 			}
 		}
 		else if(command.IsEqiAscii("requestnotificationlist")) { // @v11.5.9 Запрос извещений по командам, для которых определены флаги извещений.
@@ -10990,35 +10996,45 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 		if(reply_face.Len())
 			rReplyPack.P.Put(SSecretTagPool::tagFace, reply_face);
 		if(reply_doc.Len()) {
+			// @v11.9.2 {
+			if(DS.CheckExtFlag(ECF_STYLOQSVCLOGGING)) { 
+				temp_buf.Z().Cat("reply").CatDiv(':', 2).Cat("binary_chunk").Space().CatEq("size", reply_doc.Len());
+				PPLogMessage(PPFILNAM_STYLOQSVCTALK_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_UTF8);
+			}
+			// } @v11.9.2 
 			if(reply_doc_declaration.Len()) {
 				rReplyPack.P.Put(SSecretTagPool::tagDocDeclaration, reply_doc_declaration);
 			}
 			rReplyPack.P.Put(SSecretTagPool::tagRawData, reply_doc, &ds);
 		}
-		else if(p_js_reply) {
-			p_js_reply->ToStr(cmd_buf);
-			cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
-			rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch, &ds);
-			if(reply_blob.Len()) {
-				rReplyPack.P.Put(SSecretTagPool::tagBlob, reply_blob, &ds);
-				reply_blob.Z();
-			}
-		}
 		else {
-			p_js_reply = SJson::CreateObj();
-			p_js_reply->InsertString("result", cmd_reply_ok ? "ok" : "error");
-			if(!cmd_reply_ok) {
-				PPGetLastErrorMessage(1, temp_buf);
-				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-				p_js_reply->InsertInt("errcode", PPErrCode);
-				p_js_reply->InsertString("errmsg", temp_buf.Escape());
+			if(!p_js_reply) { // json-ответ мог быть подготовлен выше при обработке конкретной команды
+				p_js_reply = SJson::CreateObj();
+				p_js_reply->InsertString("result", cmd_reply_ok ? "ok" : "error");
+				if(!cmd_reply_ok) {
+					PPGetLastErrorMessage(1, temp_buf);
+					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+					p_js_reply->InsertInt("errcode", PPErrCode);
+					p_js_reply->InsertString("errmsg", temp_buf.Escape());
+				}
+				if(reply_text_buf.NotEmpty()) {
+					p_js_reply->InsertString("msg", reply_text_buf.Escape());
+				}
 			}
-			if(reply_text_buf.NotEmpty()) {
-				p_js_reply->InsertString("msg", reply_text_buf.Escape());
+			if(p_js_reply) {
+				p_js_reply->ToStr(cmd_buf);
+				// @v11.9.2 {
+				if(DS.CheckExtFlag(ECF_STYLOQSVCLOGGING)) { 
+					PPLogMessage(PPFILNAM_STYLOQSVCTALK_LOG, cmd_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_UTF8);
+				}
+				// } @v11.9.2 
+				cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
+				rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch, &ds);
+				if(reply_blob.Len()) {
+					rReplyPack.P.Put(SSecretTagPool::tagBlob, reply_blob, &ds);
+					reply_blob.Z();
+				}
 			}
-			p_js_reply->ToStr(cmd_buf);
-			cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
-			rReplyPack.P.Put(SSecretTagPool::tagRawData, cmd_bch, &ds);
 		}
 		rReplyPack.FinishWriting(pSessSecret);
 		/*{

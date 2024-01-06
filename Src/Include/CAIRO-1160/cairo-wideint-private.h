@@ -33,7 +33,7 @@
  * built-in 64-bit signed/unsigned types another implemented
  * as a pair of 32-bit ints
  */
-#define I cairo_private cairo_const
+#define I cairo_private CXX_FUNC_CONST
 
 static inline cairo_uquorem64_t _cairo_uint64_divrem(uint64 num, uint64 den)
 {
@@ -49,8 +49,8 @@ static inline cairo_uquorem64_t _cairo_uint64_divrem(uint64 num, uint64 den)
  * warning: cast from function call of type ‘#uint64’ to
  * non-matching type ‘double’
  */
-static FORCEINLINE cairo_const uint64 _cairo_double_to_uint64(double i) { return static_cast<uint64>(i); }
-static FORCEINLINE cairo_const double _cairo_uint64_to_double(uint64 i) { return static_cast<double>(i); }
+static FORCEINLINE CXX_FUNC_CONST uint64 _cairo_double_to_uint64(double i) { return static_cast<uint64>(i); }
+static FORCEINLINE CXX_FUNC_CONST double _cairo_uint64_to_double(uint64 i) { return static_cast<double>(i); }
 static FORCEINLINE int64 I _cairo_double_to_int64(double i) { return static_cast<int64>(i); }
 static FORCEINLINE double I _cairo_int64_to_double(int64 i) { return static_cast<double>(i); }
 

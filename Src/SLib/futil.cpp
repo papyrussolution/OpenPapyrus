@@ -779,7 +779,7 @@ int GetKnownFolderList(TSCollection <SKnownFolderEntry> & rList)
 		wchar_t * p_path = 0;
 		HRESULT hr = SHGetKnownFolderPath(r_inner_entry.Val, 0/*dwFlags*/, 0/*hToken*/, &p_path);
 		SKnownFolderEntry * p_new_entry = rList.CreateNewItem();
-		p_new_entry->UED = r_inner_entry.Key;
+		p_new_entry->Ued = r_inner_entry.Key;
 		p_new_entry->Guid = r_inner_entry.Val;
 		if(SUCCEEDED(hr)) {
 			p_new_entry->PathUtf8.CopyUtf8FromUnicode(p_path, sstrlen(p_path), 1);

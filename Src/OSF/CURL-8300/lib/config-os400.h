@@ -1,28 +1,28 @@
 #ifndef HEADER_CURL_CONFIG_OS400_H
 #define HEADER_CURL_CONFIG_OS400_H
 /***************************************************************************
- *                                  _   _ ____  _
- *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
- *
- * Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
- *
- * This software is licensed as described in the file COPYING, which
- * you should have received as part of this distribution. The terms
- * are also available at https://curl.se/docs/copyright.html.
- *
- * You may opt to use, copy, modify, merge, publish, distribute and/or sell
- * copies of the Software, and permit persons to whom the Software is
- * furnished to do so, under the terms of the COPYING file.
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
- * KIND, either express or implied.
- *
- * SPDX-License-Identifier: curl
- *
- ***************************************************************************/
+*                                  _   _ ____  _
+*  Project                     ___| | | |  _ \| |
+*                             / __| | | | |_) | |
+*                            | (__| |_| |  _ <| |___
+*                             \___|\___/|_| \_\_____|
+*
+* Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
+*
+* This software is licensed as described in the file COPYING, which
+* you should have received as part of this distribution. The terms
+* are also available at https://curl.se/docs/copyright.html.
+*
+* You may opt to use, copy, modify, merge, publish, distribute and/or sell
+* copies of the Software, and permit persons to whom the Software is
+* furnished to do so, under the terms of the COPYING file.
+*
+* This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+* KIND, either express or implied.
+*
+* SPDX-License-Identifier: curl
+*
+***************************************************************************/
 
 /* ================================================================ */
 /*                Hand crafted config file for OS/400               */
@@ -157,13 +157,9 @@
 
 /* Define if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
-
 /* Define if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H
-
-
-/* The following define is needed on OS400 to enable strcmpi(), stricmp() and
-   strdup(). */
+/* The following define is needed on OS400 to enable strcmpi(), stricmp() and strdup(). */
 #define __cplusplus__strings__
 
 /* Define if you have the `strcasecmp' function. */

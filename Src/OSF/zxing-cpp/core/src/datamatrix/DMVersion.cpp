@@ -72,7 +72,7 @@ const Version* VersionForDimensions(int height, int width)
 		// clang-format on
 	};
 
-	for(auto& version : allVersions)
+	for(auto & version : allVersions)
 		if(version.symbolHeight == height && version.symbolWidth == width)
 			return &version;
 

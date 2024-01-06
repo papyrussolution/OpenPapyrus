@@ -1290,7 +1290,7 @@ void autoSubclassAndThemeChildControls(HWND hwndParent, bool subclass, bool them
 
 	EnumChildWindows(hwndParent, [] (HWND hwnd, LPARAM lParam) WINAPI_LAMBDA 
 	{
-			auto& p = *reinterpret_cast<Params*>(lParam);
+			auto & p = *reinterpret_cast<Params*>(lParam);
 			const size_t classNameLen = 16;
 			TCHAR className[classNameLen] = { 0 };
 			GetClassName(hwnd, className, classNameLen);

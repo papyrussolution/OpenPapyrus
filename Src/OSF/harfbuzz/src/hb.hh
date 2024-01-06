@@ -203,12 +203,12 @@
 	#define __attribute__(x)
 #endif
 #if defined(__GNUC__) && (__GNUC__ >= 3)
-	#define HB_PURE_FUNC    __attribute__((pure))
-	#define HB_CONST_FUNC   __attribute__((const))
+	// @v11.9.2 (replaced with CXX_FUNC_PURE) #define HB_PURE_FUNC_Removed    __attribute__((pure))
+	// @v11.9.2 (replaced with CXX_FUNC_CONST) #define HB_CONST_FUNC_Removed   __attribute__((const))
 	#define HB_PRINTF_FUNC(format_idx, arg_idx) __attribute__((__format__(__printf__, format_idx, arg_idx)))
 #else
-	#define HB_PURE_FUNC
-	#define HB_CONST_FUNC
+	// @v11.9.2 (replaced with CXX_FUNC_PURE) #define HB_PURE_FUNC_Removed
+	// @v11.9.2 (replaced with CXX_FUNC_CONST) #define HB_CONST_FUNC_Removed
 	#define HB_PRINTF_FUNC(format_idx, arg_idx)
 #endif
 // @sobolev #if defined(__GNUC__) && (__GNUC__ >= 4) || (__clang__)

@@ -262,12 +262,10 @@ static int aesni_xts_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 		 * This addresses Rogaway's vulnerability.
 		 * See comment in aes_xts_init_key() below.
 		 */
-		if((!allow_insecure_decrypt || enc)
-		    && CRYPTO_memcmp(key, key + bytes, bytes) == 0) {
+		if((!allow_insecure_decrypt || enc) && CRYPTO_memcmp(key, key + bytes, bytes) == 0) {
 			ERR_raise(ERR_LIB_EVP, EVP_R_XTS_DUPLICATED_KEYS);
 			return 0;
 		}
-
 		/* key_len is two AES keys */
 		if(enc) {
 			aesni_set_encrypt_key(key, bits, &xctx->ks1.ks);
@@ -588,12 +586,10 @@ static int aes_t4_xts_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 		 * This addresses Rogaway's vulnerability.
 		 * See comment in aes_xts_init_key() below.
 		 */
-		if((!allow_insecure_decrypt || enc)
-		    && CRYPTO_memcmp(key, key + bytes, bytes) == 0) {
+		if((!allow_insecure_decrypt || enc) && CRYPTO_memcmp(key, key + bytes, bytes) == 0) {
 			ERR_raise(ERR_LIB_EVP, EVP_R_XTS_DUPLICATED_KEYS);
 			return 0;
 		}
-
 		xctx->stream = NULL;
 		/* key_len is two AES keys */
 		if(enc) {
@@ -3133,8 +3129,7 @@ static int aes_xts_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 			 *       BEFORE using the keys in the XTS-AES algorithm to process
 			 *       data with them."
 			 */
-			if((!allow_insecure_decrypt || enc)
-			    && CRYPTO_memcmp(key, key + bytes, bytes) == 0) {
+			if((!allow_insecure_decrypt || enc) && CRYPTO_memcmp(key, key + bytes, bytes) == 0) {
 				ERR_raise(ERR_LIB_EVP, EVP_R_XTS_DUPLICATED_KEYS);
 				return 0;
 			}

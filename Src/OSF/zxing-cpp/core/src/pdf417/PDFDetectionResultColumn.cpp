@@ -48,7 +48,7 @@ Nullable<Codeword>DetectionResultColumn::codewordNearby(int imageRow) const
 
 void DetectionResultColumn::setRowNumbers()
 {
-	for(auto& codeword : allCodewords()) {
+	for(auto & codeword : allCodewords()) {
 		if(codeword != nullptr) {
 			codeword.value().setRowNumberAsRowIndicatorColumn();
 		}
@@ -59,12 +59,12 @@ static void RemoveIncorrectCodewords(bool isLeft, std::vector<Nullable<Codeword>
 {
 	// Remove codewords which do not match the metadata
 	// TODO Maybe we should keep the incorrect codewords for the start and end positions?
-	for(auto& item : codewords) {
+	for(auto & item : codewords) {
 		if(item == nullptr) {
 			continue;
 		}
 
-		const auto& codeword = item.value();
+		const auto & codeword = item.value();
 
 		int rowIndicatorValue = codeword.value() % 30;
 		int codewordRowNumber = codeword.rowNumber();
@@ -106,10 +106,10 @@ void DetectionResultColumn::adjustCompleteIndicatorColumnRowNumbers(const Barcod
 		return;
 	}
 
-	auto& codewords = allCodewords();
+	auto & codewords = allCodewords();
 	setRowNumbers();
 	RemoveIncorrectCodewords(isLeftRowIndicator(), codewords, barcodeMetadata);
-	const auto& bb = boundingBox();
+	const auto & bb = boundingBox();
 	auto top = isLeftRowIndicator() ? bb.topLeft() : bb.topRight();
 	auto bottom = isLeftRowIndicator() ? bb.bottomLeft() : bb.bottomRight();
 	int firstRow = imageRowToCodewordIndex((int)top.value().y());
@@ -191,13 +191,13 @@ void DetectionResultColumn::adjustIncompleteIndicatorColumnRowNumbers(const Barc
 		return;
 	}
 
-	const auto& bb = boundingBox();
+	const auto & bb = boundingBox();
 	auto top = isLeftRowIndicator() ? bb.topLeft() : bb.topRight();
 	auto bottom = isLeftRowIndicator() ? bb.bottomLeft() : bb.bottomRight();
 	int firstRow = imageRowToCodewordIndex((int)top.value().y());
 	int lastRow = imageRowToCodewordIndex((int)bottom.value().y());
 	//float averageRowHeight = (lastRow - firstRow) / (float)barcodeMetadata.rowCount();
-	auto& codewords = allCodewords();
+	auto & codewords = allCodewords();
 	int barcodeRow = -1;
 	int maxRowHeight = 1;
 	int currentRowHeight = 0;
@@ -205,9 +205,9 @@ void DetectionResultColumn::adjustIncompleteIndicatorColumnRowNumbers(const Barc
 		if(codewords[codewordsRow] == nullptr) {
 			continue;
 		}
-		auto& item = codewords[codewordsRow];
+		auto & item = codewords[codewordsRow];
 
-		auto& codeword = item.value();
+		auto & codeword = item.value();
 		codeword.setRowNumberAsRowIndicatorColumn();
 
 		int rowDifference = codeword.rowNumber() - barcodeRow;
@@ -243,7 +243,7 @@ bool DetectionResultColumn::getRowHeights(std::vector<int>& result)
 
 	adjustIncompleteIndicatorColumnRowNumbers(barcodeMetadata);
 	result.resize(barcodeMetadata.rowCount());
-	for(auto& item : allCodewords()) {
+	for(auto & item : allCodewords()) {
 		if(item != nullptr) {
 			size_t rowNumber = item.value().rowNumber();
 			if(rowNumber >= result.size()) {
@@ -263,16 +263,16 @@ bool DetectionResultColumn::getBarcodeMetadata(BarcodeMetadata& result)
 		return false;
 	}
 
-	auto& codewords = allCodewords();
+	auto & codewords = allCodewords();
 	BarcodeValue barcodeColumnCount;
 	BarcodeValue barcodeRowCountUpperPart;
 	BarcodeValue barcodeRowCountLowerPart;
 	BarcodeValue barcodeECLevel;
-	for(auto& item : codewords) {
+	for(auto & item : codewords) {
 		if(item == nullptr) {
 			continue;
 		}
-		auto& codeword = item.value();
+		auto & codeword = item.value();
 		codeword.setRowNumberAsRowIndicatorColumn();
 		int rowIndicatorValue = codeword.value() % 30;
 		int codewordRowNumber = codeword.rowNumber();

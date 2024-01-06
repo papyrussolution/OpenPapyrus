@@ -266,7 +266,7 @@ bool ReadFlagsFromEnv(const std::vector <std::string>& flag_names,
 	// lists.
 	args.push_back("");
 
-	for(const auto& flag_name : flag_names) {
+	for(const auto & flag_name : flag_names) {
 		// Avoid infinite recursion.
 		if(flag_name == "fromenv" || flag_name == "tryfromenv") {
 			flags_internal::ReportUsageError(absl::StrCat("Infinite recursion on flag ", flag_name), true);
@@ -622,7 +622,7 @@ std::vector <char*> ParseCommandLineImpl(int argc, char* argv[], ArgvListAction 
 			specified_flags->push_back(flag);
 		}
 	}
-	for(const auto& flag_name : undefined_flag_names) {
+	for(const auto & flag_name : undefined_flag_names) {
 		if(CanIgnoreUndefinedFlag(flag_name.second)) 
 			continue;
 		flags_internal::ReportUsageError(absl::StrCat("Unknown command line flag '", flag_name.second, "'"), true);

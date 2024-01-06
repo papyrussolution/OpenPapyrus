@@ -169,7 +169,7 @@ static bool executeTest(const char * query, int queryLength, const char * target
 	int numLocationsSimple = 0; 
 	int * endLocationsSimple = NULL;
 	CalcEditDistanceSimple(query, queryLength, target, targetLength, mode, &scoreSimple, &endLocationsSimple, &numLocationsSimple);
-	EdlibAlignResult result = edlibAlign(query, queryLength, target, targetLength, edlibNewAlignConfig(-1, mode, EDLIB_TASK_PATH, NULL, 0));
+	EdlibAlignResult result = EdlibAlign(query, queryLength, target, targetLength, edlibNewAlignConfig(-1, mode, EDLIB_TASK_PATH, NULL, 0));
 	if(result.editDistance != scoreSimple) {
 		pass = false;
 		printf("Scores: expected %d, got %d\n", scoreSimple, result.editDistance);
@@ -180,29 +180,27 @@ static bool executeTest(const char * query, int queryLength, const char * target
 	}
 	else {
 		for(int i = 0; i < result.numLocations; i++) {
-			if(result.endLocations[i] != endLocationsSimple[i]) {
+			if(result.P_EndLocations[i] != endLocationsSimple[i]) {
 				pass = false;
-				printf("End locations at %d are not equal! Expected %d, got %d\n", i, endLocationsSimple[i], result.endLocations[1]);
+				printf("End locations at %d are not equal! Expected %d, got %d\n", i, endLocationsSimple[i], result.P_EndLocations[1]);
 				break;
 			}
 		}
 	}
-	if(result.alignment) {
-		if(!checkAlignment(query, queryLength, target,
-		    result.editDistance, result.endLocations[0], mode,
-		    result.alignment, result.alignmentLength)) {
+	if(result.P_Alignment) {
+		if(!checkAlignment(query, queryLength, target, result.editDistance, result.P_EndLocations[0], mode, result.P_Alignment, result.alignmentLength)) {
 			pass = false;
 			printf("Alignment is not correct\n");
 		}
-		int alignmentStart = getAlignmentStart(result.alignment, result.alignmentLength, result.endLocations[0]);
-		if(result.startLocations[0] != alignmentStart) {
+		int alignmentStart = getAlignmentStart(result.P_Alignment, result.alignmentLength, result.P_EndLocations[0]);
+		if(result.P_StartLocations[0] != alignmentStart) {
 			pass = false;
-			printf("Start location (%d) is not consistent with alignment start (%d)\n", result.startLocations[0], alignmentStart);
+			printf("Start location (%d) is not consistent with alignment start (%d)\n", result.P_StartLocations[0], alignmentStart);
 		}
 	}
 	printf(pass ? "\x1B[32m OK \x1B[0m\n" : "\x1B[31m FAIL \x1B[0m\n");
 	delete [] endLocationsSimple;
-	edlibFreeAlignResult(&result);
+	EdlibFreeAlignResult(&result);
 	return pass;
 }
 
@@ -224,11 +222,10 @@ static bool RunRandomTests(int numTests, EdlibAlignMode mode, bool findAlignment
 		bool failed = false;
 		int queryLength = 50 + rand() % 300;
 		int targetLength = 500 + rand() % 10000;
-		char * query = static_cast<char *>(SAlloc::M(sizeof(char) * queryLength));
-		char * target = static_cast<char *>(SAlloc::M(sizeof(char) * targetLength));
-		FillRandomly(query, queryLength, alphabetLength);
-		FillRandomly(target, targetLength, alphabetLength);
-
+		char * p_query = static_cast<char *>(SAlloc::M(sizeof(char) * queryLength));
+		char * p_target = static_cast<char *>(SAlloc::M(sizeof(char) * targetLength));
+		FillRandomly(p_query, queryLength, alphabetLength);
+		FillRandomly(p_target, targetLength, alphabetLength);
 		// // Print query
 		// printf("Query: ");
 		// for (int i = 0; i < queryLength; i++)
@@ -242,27 +239,24 @@ static bool RunRandomTests(int numTests, EdlibAlignMode mode, bool findAlignment
 		// printf("\n");
 
 		start = clock();
-		EdlibAlignResult result = edlibAlign(query, queryLength, target, targetLength,
+		EdlibAlignResult result = EdlibAlign(p_query, queryLength, p_target, targetLength,
 			edlibNewAlignConfig(-1, mode, findAlignment ? EDLIB_TASK_PATH : EDLIB_TASK_DISTANCE, NULL, 0));
 		timeEdlib += clock() - start;
-		if(result.alignment) {
-			if(!checkAlignment(query, queryLength, target,
-			    result.editDistance, result.endLocations[0], mode,
-			    result.alignment, result.alignmentLength)) {
+		if(result.P_Alignment) {
+			if(!checkAlignment(p_query, queryLength, p_target, result.editDistance, result.P_EndLocations[0], mode, result.P_Alignment, result.alignmentLength)) {
 				failed = true;
 				printf("Alignment is not correct\n");
 			}
-			int alignmentStart = getAlignmentStart(result.alignment, result.alignmentLength,
-				result.endLocations[0]);
-			if(result.startLocations[0] != alignmentStart) {
+			int alignmentStart = getAlignmentStart(result.P_Alignment, result.alignmentLength, result.P_EndLocations[0]);
+			if(result.P_StartLocations[0] != alignmentStart) {
 				failed = true;
-				printf("Start location (%d) is not consistent with alignment start (%d)\n", result.startLocations[0], alignmentStart);
+				printf("Start location (%d) is not consistent with alignment start (%d)\n", result.P_StartLocations[0], alignmentStart);
 			}
 		}
 		start = clock();
 		int score2; int numLocations2;
 		int* endLocations2;
-		CalcEditDistanceSimple(query, queryLength, target, targetLength, mode, &score2, &endLocations2, &numLocations2);
+		CalcEditDistanceSimple(p_query, queryLength, p_target, targetLength, mode, &score2, &endLocations2, &numLocations2);
 		timeSimple += clock() - start;
 
 		// Compare results
@@ -270,56 +264,49 @@ static bool RunRandomTests(int numTests, EdlibAlignMode mode, bool findAlignment
 			failed = true;
 			printf("Scores are different! Expected %d, got %d)\n", score2, result.editDistance);
 		}
-		else if(result.editDistance == -1 && !(result.endLocations == NULL)) {
+		else if(result.editDistance == -1 && !(result.P_EndLocations == NULL)) {
 			failed = true;
 			printf("Score was not found but endLocations is not NULL!\n");
 		}
 		else if(result.numLocations != numLocations2) {
 			failed = true;
-			printf("Number of endLocations returned is not equal! Expected %d, got %d\n",
-			    numLocations2, result.numLocations);
+			printf("Number of endLocations returned is not equal! Expected %d, got %d\n", numLocations2, result.numLocations);
 		}
 		else {
 			for(int j = 0; j < result.numLocations; j++) {
-				if(result.endLocations[j] != endLocations2[j]) {
+				if(result.P_EndLocations[j] != endLocations2[j]) {
 					failed = true;
-					printf("EndLocations at %d are not equal! Expected %d, got %d\n",
-					    j, endLocations2[j], result.endLocations[j]);
+					printf("EndLocations at %d are not equal! Expected %d, got %d\n", j, endLocations2[j], result.P_EndLocations[j]);
 					break;
 				}
 			}
 		}
-		edlibFreeAlignResult(&result);
+		EdlibFreeAlignResult(&result);
 		delete [] endLocations2;
 		for(int k = smax(score2 - 1, 0); k <= score2 + 1; k++) {
 			int scoreExpected = score2 > k ? -1 : score2;
-			EdlibAlignResult result3 = edlibAlign(query, queryLength, target, targetLength,
-				edlibNewAlignConfig(k, mode, findAlignment ? EDLIB_TASK_PATH : EDLIB_TASK_DISTANCE, NULL, 0));
+			EdlibAlignResult result3 = EdlibAlign(p_query, queryLength, p_target, targetLength, edlibNewAlignConfig(k, mode, findAlignment ? EDLIB_TASK_PATH : EDLIB_TASK_DISTANCE, NULL, 0));
 			if(result3.editDistance != scoreExpected) {
 				failed = true;
 				printf("For k = %d score was %d but it should have been %d\n", k, result3.editDistance, scoreExpected);
 			}
-			if(result3.alignment) {
-				if(!checkAlignment(query, queryLength, target,
-				    result3.editDistance, result3.endLocations[0],
-				    mode, result3.alignment, result3.alignmentLength)) {
+			if(result3.P_Alignment) {
+				if(!checkAlignment(p_query, queryLength, p_target, result3.editDistance, result3.P_EndLocations[0], mode, result3.P_Alignment, result3.alignmentLength)) {
 					failed = true;
 					printf("Alignment is not correct\n");
 				}
-				int alignmentStart = getAlignmentStart(result3.alignment, result3.alignmentLength,
-					result3.endLocations[0]);
-				if(result3.startLocations[0] != alignmentStart) {
+				int alignmentStart = getAlignmentStart(result3.P_Alignment, result3.alignmentLength, result3.P_EndLocations[0]);
+				if(result3.P_StartLocations[0] != alignmentStart) {
 					failed = true;
-					printf("Start location (%d) is not consistent with alignment start (%d)\n",
-					    result3.startLocations[0], alignmentStart);
+					printf("Start location (%d) is not consistent with alignment start (%d)\n", result3.P_StartLocations[0], alignmentStart);
 				}
 			}
-			edlibFreeAlignResult(&result3);
+			EdlibFreeAlignResult(&result3);
 		}
 		if(failed)
 			numTestsFailed++;
-		SAlloc::F(query);
-		SAlloc::F(target);
+		SAlloc::F(p_query);
+		SAlloc::F(p_target);
 	}
 
 	printf(mode == EDLIB_MODE_HW ? "HW: " : mode == EDLIB_MODE_SHW ? "SHW: " : "NW: ");
@@ -346,8 +333,8 @@ SLTEST_R(EdLib)
 		SLCHECK_NZ(executeTest(query, SIZEOFARRAY(query), target, SIZEOFARRAY(target), EDLIB_MODE_SHW));
 	}
 	{ // bool test2() 
-		const const char query[] = {0, 1, 2, 3, 4}; // "match"
-		const const char target[] = {8, 5, 0, 1, 3, 4, 6, 7, 5}; // "remachine"
+		const char query[] = {0, 1, 2, 3, 4}; // "match"
+		const char target[] = {8, 5, 0, 1, 3, 4, 6, 7, 5}; // "remachine"
 		SLCHECK_NZ(executeTest(query, SIZEOFARRAY(query), target, SIZEOFARRAY(target), EDLIB_MODE_HW));
 		SLCHECK_NZ(executeTest(query, SIZEOFARRAY(query), target, SIZEOFARRAY(target), EDLIB_MODE_NW));
 		SLCHECK_NZ(executeTest(query, SIZEOFARRAY(query), target, SIZEOFARRAY(target), EDLIB_MODE_SHW));
@@ -460,11 +447,11 @@ SLTEST_R(EdLib)
 		const char * query = "GCATATCAATAAGCGGAGGA";
 		const char * target =
 			"TAACAAGGTTTCCGTAGGTGAACCTGCGGAAGGATCATTATCGAATAAACTTGATGGGTTGTCGCTGGCTTCTAGGAGCATGTGCACATCCGTCATTTTTATCCATCCACCTGTGCACCTTTTGTAGTCTTTGGAGGTAATAAGCGTGAATCTATCGAGGTCCTCTGGTCCTCGGAAAGAGGTGTTTGCCATATGGCTCGCCTTTGATACTCGCGAGTTACTCTAAGACTATGTCCTTTCATATACTACGAATGTAATAGAATGTATTCATTGGGCCTCAGTGCCTATAAAACATATACAACTTTCAGCAACGGATCTCTTGGCTCTCGCATCGATGAAGAACGCAGCGAAATGCGATAAGTAATGTGAATTGCAGAATTCAGTGAATCATCGAATCTTTGAACGCACCTTGCGCTCCTTGGTATTCCGAGGAGCATGCCTGTTTGAGTGTCATTAAATTCTCAACCCCTTCCGGTTTTTTGACTGGCTTTGGGGCTTGGATGTGGGGGATTCATTTGCGGGCCTCTGTAGAGGTCGGCTCCCCTGAAATGCATTAGTGGAACCGTTTGCGGTTACCGTCGCTGGTGTGATAACTATCTATGCCAAAGACAAACTGCTCTCTGATAGTTCTGCTTCTAACCGTCCATTTATTGGACAACATTATTATGAACACTTGACCTCAAATCAGGTAGGACTACCCGCTGAACTTAAGCATATCAATAAGCGGAGGAAAAGAAACTAACAAGGATTCCCCTAGTAACTGCGAGTGAAGCGGGAAAAGCTCAAATTTAAAATCTGGCGGTCTTTGGCCGTCCGAGTTGTAATCTAGAGAAGCGACACCCGCGCTGGACCGTGTACAAGTCTCCTGGAATGGAGCGTCATAGAGGGTGAGAATCCCGTCTCTGACACGGACTACCAGGGCTTTGTGGTGCGCTCTCAAAGAGTCGAGTTGTTTGGGAATGCAGCTCTAAATGGGTGGTAAATTCCATCTAAAGCTAAATATTGGCGAGAGACCGATAGCGAACAAGTACCGTGAGGGAAAGATGAAAAGAACTTTGGAAAGAGAGTTAAACAGTACGTGAAATTGCTGAAAGGGAAACGCTTGAAGTCAGTCGCGTTGGCCGGGGATCAGCCTCGCTTTTGCGTGGTGTATTTCCTGGTTGACGGGTCAGCATCAATTTTGACCGCTGGAAAAGGACTTGGGGAATGTGGCATCTTCGGATGTGTTATAGCCCTTTGTCGCATACGGCGGTTGGGATTGAGGAACTCAGCACGCCGCAAGGCCGGGTTTCGACCACGTTCGTGCTTAGGATGCTGGCATAATGGCTTTAATCGACCCGTCTTGAAACACGGACCAAGGAGTCTAACATGCCTGCGAGTGTTTGGGTGGAAAACCCGAGCGCGTAATGAAAGTGAAAGTTGAGATCCCTGTCGTGGGGAGCATCGACGCCCGGACCAGAACTTTTGGGACGGATCTGCGGTAGAGCATGTATGTTGGGACCCGAAAGATGGTGAACTATGCCTGAATAGGGTGAAGCCAGAGGAAACTCTGGTGGAGGCTCGTAGCGATTCTGACGTGCAAATCGATCGTCAAATTTGGGTATAGGGGCGAAAGACTAATCGAACCATCTAGTAGCTGGTTCCTGCCGAAGTTTCCCTCAGGATAGCAGAAACTCATATCAGATTTATGTGGTAAAGCGAATGATTAGAGGCCTTGGGGTTGAAACAACCTTAACCTATTCTCAAACTTTAAATATGTAAGAACGAGCCGTTTCTTGATTGAACCGCTCGGCGATTGAGAGTTTCTAGTGGGCCATTTTTGGTAAGCAGAACTGGCGATGCGGGATGAACCGAACGCGAGGTTAAGGTGCCGGAATTCACGCTCATCAGACACCACAAAAGGTGTTAGTTCATCTAGACAGCAGGACGGTGGCCATGGAAGTCGGAATCCGCTAAGGAGTGTGTAACAACTCACCTGCCGAATGAACTAGCCCTGAAAATGGATGGCGCTTAAGCGTGATACCCATACCTCGCCGTCAGCGTTGAAGTGACGCGCTGACGAGTAGGCAGGCGTGGAGGTCAGTGAAGAAGCCTTGGCAGTGATGCTGGGTGAAACGGCCTCC";
-		EdlibAlignResult result = edlibAlign(query, sstrlen(query), target, sstrlen(target),
+		EdlibAlignResult result = EdlibAlign(query, sstrlen(query), target, sstrlen(target),
 			edlibNewAlignConfig(-1, EDLIB_MODE_HW, EDLIB_TASK_LOC, additionalEqualities, 24));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 0));
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
-		edlibFreeAlignResult(&result);
+		EdlibFreeAlignResult(&result);
 	}
 	{ // bool test13() 
 		// In this test, one of optimal solutions is:
@@ -473,11 +460,11 @@ SLTEST_R(EdLib)
 		// which brings us into interesting situation where one of end locations is -1.
 		const char * query = "AA";
 		const char * target = "B";
-		EdlibAlignResult result = edlibAlign(query, sstrlen(query), target, sstrlen(target),
+		EdlibAlignResult result = EdlibAlign(query, sstrlen(query), target, sstrlen(target),
 			edlibNewAlignConfig(-1, EDLIB_MODE_HW, EDLIB_TASK_PATH, NULL, 0));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 2));
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
-		edlibFreeAlignResult(&result);
+		EdlibFreeAlignResult(&result);
 	}
 	{ // 
 		// In this test, one of optimal solutions is:
@@ -486,31 +473,31 @@ SLTEST_R(EdLib)
 		// which brings us into interesting situation where one of end locations is -1.
 		const char * query = "AA";
 		const char * target = "B";
-		EdlibAlignResult result = edlibAlign(query, sstrlen(query), target, sstrlen(target),
+		EdlibAlignResult result = EdlibAlign(query, sstrlen(query), target, sstrlen(target),
 			edlibNewAlignConfig(-1, EDLIB_MODE_SHW, EDLIB_TASK_PATH, NULL, 0));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 2));
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
-		edlibFreeAlignResult(&result);
+		EdlibFreeAlignResult(&result);
 	}
 	{ // bool test15() 
 		// In this test, optimal alignment is when query and target overlap, query end with target start, HW.
 		const char* query = "AAABBB";
 		const char* target = "BBBC";
-		EdlibAlignResult result = edlibAlign(query, sstrlen(query), target, sstrlen(target),
+		EdlibAlignResult result = EdlibAlign(query, sstrlen(query), target, sstrlen(target),
 			edlibNewAlignConfig(-1, EDLIB_MODE_HW, EDLIB_TASK_LOC, NULL, 0));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 3));
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
-		edlibFreeAlignResult(&result);
+		EdlibFreeAlignResult(&result);
 	}
 	{ // bool test16() 
 		// In this test, optimal alignment is when query and target overlap, query start with target end, HW.
 		const char* query = "BBBAAA";
 		const char* target = "CBBB";
-		EdlibAlignResult result = edlibAlign(query, sstrlen(query),
+		EdlibAlignResult result = EdlibAlign(query, sstrlen(query),
 			target, sstrlen(target), edlibNewAlignConfig(-1, EDLIB_MODE_HW, EDLIB_TASK_LOC, NULL, 0));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 3));
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
-		edlibFreeAlignResult(&result);
+		EdlibFreeAlignResult(&result);
 	}
 	{ // bool testCigar() 
 		const uchar alignment[] = {
@@ -544,10 +531,10 @@ SLTEST_R(EdLib)
 		const char * query =  "GTGNRTCARCGAANCTTTN";
 		const char * target = "GTGAGTCATCGAATCTTTGAACGCACCTTGCGCTCCTTGGT";
 		printf("Degenerate nucleotides (HW): ");
-		EdlibAlignResult result = edlibAlign(query, 19, target, 41,
+		EdlibAlignResult result = EdlibAlign(query, 19, target, 41,
 			edlibNewAlignConfig(-1, EDLIB_MODE_HW, EDLIB_TASK_PATH, additionalEqualities, 6));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 1));
-		edlibFreeAlignResult(&result);
+		EdlibFreeAlignResult(&result);
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
 		//allPass = allPass && pass;
 	}
@@ -619,13 +606,13 @@ SLTEST_R(EdLib)
 				long line_no = 0;
 				while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 					line_no++;
-					EdlibAlignResult result = edlibAlign(pattern_buf, pattern_buf.Len(), 
+					EdlibAlignResult result = EdlibAlign(pattern_buf, pattern_buf.Len(), 
 						line_buf, line_buf.Len(), edlibNewAlignConfig(-1, EDLIB_MODE_NW, EDLIB_TASK_DISTANCE, 0, 0));				
 					if(result.editDistance >= 0) {
 						str_list.AddFast(line_no, line_buf);
 						dist_list.Add(line_no, result.editDistance);
 					}
-					edlibFreeAlignResult(&result);
+					EdlibFreeAlignResult(&result);
 				}
 				{
 					dist_list.SortByVal();

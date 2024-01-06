@@ -1,5 +1,5 @@
 // SIMAGE.CPP
-// Copytight (c) A.Sobolev ..2023
+// Copytight (c) A.Sobolev ..2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -208,11 +208,9 @@ int SImage::LoadThumbnailImage(const char * pPicPath, int width, int height)
 	return ok;
 }
 
-SString & SImage::GetFileName(SString & rBuf)
-{
-	return (rBuf = FileName);
-}
+SString & SImage::GetFileName(SString & rBuf) { return (rBuf = FileName); }
 
+/* @v11.9.2 @unused 
 int SImage::InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd)
 {
 	int    ok = 0;
@@ -247,7 +245,7 @@ int SImage::InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd)
 		ok = 1;
 	}
 	return ok;
-}
+}*/
 
 int FASTCALL GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 {

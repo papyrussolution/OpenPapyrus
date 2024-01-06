@@ -635,7 +635,7 @@ template <typename Derived, typename Key, typename T,
     WireFormatLite::FieldType key_wire_type,
     WireFormatLite::FieldType value_wire_type>
 bool AllAreInitialized(const MapField<Derived, Key, T, key_wire_type, value_wire_type>& field) {
-	const auto& t = field.GetMap();
+	const auto & t = field.GetMap();
 	for(typename Map<Key, T>::const_iterator it = t.begin(); it != t.end();
 	    ++it) {
 		if(!it->second.IsInitialized()) return false;

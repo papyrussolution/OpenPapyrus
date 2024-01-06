@@ -81,7 +81,7 @@ const char* TcParser::RepeatedFixed(PROTOBUF_TC_PARAM_DECL) {
 			return table->fallback(PROTOBUF_TC_PARAM_PASS);
 		}
 	}
-	auto& field = RefAt<RepeatedField<LayoutType> >(msg, data.offset());
+	auto & field = RefAt<RepeatedField<LayoutType> >(msg, data.offset());
 	int idx = field.size();
 	auto elem = field.Add();
 	int space = field.Capacity() - idx;
@@ -117,7 +117,7 @@ const char* TcParser::PackedFixed(PROTOBUF_TC_PARAM_DECL) {
 	// Since ctx->ReadPackedFixed does not use TailCall<> or Return<>, sync any
 	// pending hasbits now:
 	SyncHasbits(msg, hasbits, table);
-	auto& field = RefAt<RepeatedField<LayoutType> >(msg, data.offset());
+	auto & field = RefAt<RepeatedField<LayoutType> >(msg, data.offset());
 	int size = ReadSize(&ptr);
 	// TODO(dlj): add a tailcalling variant of ReadPackedFixed.
 	return ctx->ReadPackedFixed(ptr, size,
@@ -300,7 +300,7 @@ PROTOBUF_NOINLINE const char* TcParser::RepeatedVarint(PROTOBUF_TC_PARAM_DECL) {
 			return table->fallback(PROTOBUF_TC_PARAM_PASS);
 		}
 	}
-	auto& field = RefAt<RepeatedField<FieldType> >(msg, data.offset());
+	auto & field = RefAt<RepeatedField<FieldType> >(msg, data.offset());
 	auto expected_tag = UnalignedLoad<TagType>(ptr);
 	do {
 		ptr += sizeof(TagType);
@@ -373,7 +373,7 @@ const char* TcParser::SingularString(PROTOBUF_TC_PARAM_DECL) {
 	}
 	ptr += sizeof(TagType);
 	hasbits |= (uint64_t{1} << data.hasbit_idx());
-	auto& field = RefAt<ArenaStringPtr>(msg, data.offset());
+	auto & field = RefAt<ArenaStringPtr>(msg, data.offset());
 	auto arena = ctx->data().arena;
 	if(arena) {
 		ptr = ctx->ReadArenaString(ptr, &field, arena);
@@ -404,7 +404,7 @@ const char* TcParser::RepeatedString(PROTOBUF_TC_PARAM_DECL) {
 		return table->fallback(PROTOBUF_TC_PARAM_PASS);
 	}
 	auto expected_tag = UnalignedLoad<TagType>(ptr);
-	auto& field = RefAt<RepeatedPtrField<std::string> >(msg, data.offset());
+	auto & field = RefAt<RepeatedPtrField<std::string> >(msg, data.offset());
 	do {
 		ptr += sizeof(TagType);
 		std::string* str = field.Add();

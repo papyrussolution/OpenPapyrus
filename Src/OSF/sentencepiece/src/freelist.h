@@ -27,7 +27,7 @@ public:
 	}
 	virtual ~FreeList() 
 	{
-		for(auto& chunk : freelist_)  
+		for(auto & chunk : freelist_)  
 			delete[] chunk;
 	}
 	// `Free` doesn't free the object but reuse the allocated memory chunks.

@@ -121,7 +121,6 @@ CURLcode Curl_bufref_memdup(struct bufref * br, const void * ptr, size_t len)
 			memcpy(cpy, ptr, len);
 		cpy[len] = '\0';
 	}
-
 	Curl_bufref_set(br, cpy, len, curl_free);
 	return CURLE_OK;
 }

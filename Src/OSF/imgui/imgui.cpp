@@ -3309,6 +3309,19 @@ void ImGui::RenderFrame(ImVec2 p_min, ImVec2 p_max, ImU32 fill_col, bool border,
 	}
 }
 
+void ImGui::RenderFrame2(ImVec2 p_min, ImVec2 p_max, ImU32 fill_col, uint flags, float rounding) // @sobolev
+{
+	ImGuiContext & g = *GImGui;
+	ImGuiWindow * window = g.CurrentWindow;
+	window->DrawList->AddRectFilled(p_min, p_max, fill_col, rounding);
+	const float border_size = g.Style.FrameBorderSize;
+	if(flags & imframefBorder && border_size > 0.0f) {
+		if(flags & imframefShadow)
+			window->DrawList->AddRect(p_min + ImVec2(1, 1), p_max + ImVec2(1, 1), GetColorU32(ImGuiCol_BorderShadow), rounding, 0, border_size);
+		window->DrawList->AddRect(p_min, p_max, GetColorU32(ImGuiCol_Border), rounding, 0, border_size);
+	}
+}
+
 void ImGui::RenderFrameBorder(ImVec2 p_min, ImVec2 p_max, float rounding)
 {
 	ImGuiContext & g = *GImGui;
@@ -8996,7 +9009,6 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = g.CurrentWindow;
-
 	// Set item data
 	// (DisplayRect is left untouched, made valid when ImGuiItemStatusFlags_HasDisplayRect is set)
 	g.LastItemData.ID = id;
@@ -9004,11 +9016,9 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
 	g.LastItemData.NavRect = nav_bb_arg ? *nav_bb_arg : bb;
 	g.LastItemData.InFlags = g.CurrentItemFlags | extra_flags;
 	g.LastItemData.StatusFlags = ImGuiItemStatusFlags_None;
-
 	// Directional navigation processing
 	if(id != 0) {
 		KeepAliveID(id);
-
 		// Runs prior to clipping early-out
 		//  (a) So that NavInitRequest can be honored, for newly opened windows to select a default widget
 		//  (b) So that we can scroll up/down past clipped items. This adds a small O(N) cost to regular navigation requests
@@ -9025,19 +9035,16 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
 					if(window == g.NavWindow || ((window->Flags | g.NavWindow->Flags) & ImGuiWindowFlags_NavFlattened))
 						NavProcessItem();
 		}
-
 		// [DEBUG] People keep stumbling on this problem and using "" as identifier in the root of a window instead of "##something".
 		// Empty identifier are valid and useful in a small amount of cases, but 99.9% of the time you want to use "##something".
 		// READ THE FAQ: https://dearimgui.com/faq
 		assert(id != window->ID && "Cannot have an empty ID at the root of a window. If you need an empty label, use ## and read the FAQ about how the ID Stack works!");
 	}
 	g.NextItemData.Flags = ImGuiNextItemDataFlags_None;
-
 #ifdef IMGUI_ENABLE_TEST_ENGINE
 	if(id != 0)
 		IMGUI_TEST_ENGINE_ITEM_ADD(id, g.LastItemData.NavRect, &g.LastItemData);
 #endif
-
 	// Clipping test
 	// (FIXME: This is a modified copy of IsClippedEx() so we can reuse the is_rect_visible value)
 	//const bool is_clipped = IsClippedEx(bb, id);
@@ -9048,14 +9055,12 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
 		if(id == 0 || (id != g.ActiveId && id != g.ActiveIdPreviousFrame && id != g.NavId))
 			if(!g.LogEnabled)
 				return false;
-
 	// [DEBUG]
 #ifndef IMGUI_DISABLE_DEBUG_TOOLS
 	if(id != 0 && id == g.DebugLocateId)
 		DebugLocateItemResolveWithLastItem();
 #endif
 	//if (g.IO.KeyAlt) window->DrawList->AddRect(bb.Min, bb.Max, IM_COL32(255,255,0,120)); // [DEBUG]
-
 	// We need to calculate this now to take account of the current clipping rectangle (as items like Selectable may change them)
 	if(is_rect_visible)
 		g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_Visible;

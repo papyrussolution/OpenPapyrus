@@ -3669,7 +3669,7 @@ void Finder::removeAll()
 
 void Finder::openAll()
 {
-	for(auto&& path : getResultFilePaths()) {
+	for(auto && path : getResultFilePaths()) {
 		::SendMessage(_hParent, WM_DOOPEN, 0, reinterpret_cast<LPARAM>(path.c_str()));
 	}
 }
@@ -3677,7 +3677,7 @@ void Finder::openAll()
 void Finder::copyPathnames()
 {
 	generic_string toClipboard;
-	for(auto&& path : getResultFilePaths()) {
+	for(auto && path : getResultFilePaths()) {
 		toClipboard += path + TEXT("\r\n");
 	}
 	if(!toClipboard.empty()) {

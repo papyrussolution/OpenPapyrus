@@ -322,12 +322,12 @@ DecoderResult Decode(const BitMatrix& bits)
 		return FormatError("Failed to get data blocks");
 
 	// Count total number of data bytes
-	const auto op = [](auto totalBytes, const auto& dataBlock) { return totalBytes + dataBlock.numDataCodewords(); };
+	const auto op = [](auto totalBytes, const auto & dataBlock) { return totalBytes + dataBlock.numDataCodewords(); };
 	const auto totalBytes = std::accumulate(std::begin(dataBlocks), std::end(dataBlocks), int{}, op);
 	ByteArray resultBytes(totalBytes);
 	auto resultIterator = resultBytes.begin();
 	// Error-correct and copy data blocks together into a stream of bytes
-	for(auto& dataBlock : dataBlocks) {
+	for(auto & dataBlock : dataBlocks) {
 		ByteArray& codewordBytes = dataBlock.codewords();
 		int numDataCodewords = dataBlock.numDataCodewords();
 		if(!CorrectErrors(codewordBytes, numDataCodewords))

@@ -26,7 +26,7 @@ string serialise_double(double v)
 	uint64_t temp;
 	static_assert(sizeof(temp) == sizeof(v), "Check if size of double and 64 bit int is same");
 	memcpy(&temp, &v, sizeof(double));
-	temp = do_bswap(temp);
+	temp = /*do_bswap*/sbswap64(temp);
 	return string(reinterpret_cast<const char *>(&temp), sizeof(double));
 #else
 	return string(reinterpret_cast<const char *>(&v), sizeof(double));
@@ -43,7 +43,7 @@ double unserialise_double(const char ** p, const char * end)
 	uint64_t temp;
 	static_assert(sizeof(temp) == sizeof(double), "Check if size of double and 64 bit int is same");
 	memcpy(&temp, *p, sizeof(double));
-	temp = do_bswap(temp);
+	temp = /*do_bswap*/sbswap64(temp);
 	memcpy(&result, &temp, sizeof(double));
 #else
 	memcpy(&result, *p, sizeof(double));
@@ -95,7 +95,7 @@ string serialise_double(double v)
 	uint64_t scaled_v_int = static_cast<uint64_t>(scaled_v);
 	result |= scaled_v_int;
 #ifdef SL_BIGENDIAN
-	result = do_bswap(result);
+	result = /*do_bswap*/sbswap64(result);
 #endif
 	return string(reinterpret_cast<const char *>(&result), sizeof(uint64_t));
 }

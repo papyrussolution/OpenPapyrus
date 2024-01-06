@@ -38,9 +38,10 @@
 #endif
 #if !defined(__APPLE__) && !defined(_WIN32) && !defined(_FREEBSD)
 	#include <endian.h>
-	#if BYTE_ORDER == __BIG_ENDIAN
-		#define IS_BIG_ENDIAN
-	#endif
+	// @sobolev (replaced with SL_BIGENDIAN)
+	//#if BYTE_ORDER == __BIG_ENDIAN
+		//#define IS_BIG_ENDIAN
+	//#endif
 #endif
 
 namespace sentencepiece {
@@ -407,8 +408,7 @@ private:
 #define CHECK_LE_OR_RETURN(a, b) CHECK_OR_RETURN((a) <= (b))
 #define CHECK_GT_OR_RETURN(a, b) CHECK_OR_RETURN((a) > (b))
 #define CHECK_LT_OR_RETURN(a, b) CHECK_OR_RETURN((a) < (b))
-
-#ifdef IS_BIG_ENDIAN
+#ifdef SL_BIGENDIAN
 	inline uint32 Swap32(uint32 x) { return __builtin_bswap32(x); }
 #endif
 }  // namespace util

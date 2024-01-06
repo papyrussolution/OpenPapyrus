@@ -72,7 +72,7 @@ ABSL_CONST_INIT static FailureSignalData failure_signal_data[] = {
 
 static void RaiseToPreviousHandler(int signo) {
 	// Search for the previous handler.
-	for(const auto& it : failure_signal_data) {
+	for(const auto & it : failure_signal_data) {
 		if(it.signo == signo) {
 #ifdef ABSL_HAVE_SIGACTION
 			sigaction(signo, &it.previous_action, nullptr);
@@ -90,7 +90,7 @@ static void RaiseToPreviousHandler(int signo) {
 
 namespace debugging_internal {
 const char* FailureSignalToString(int signo) {
-	for(const auto& it : failure_signal_data) {
+	for(const auto & it : failure_signal_data) {
 		if(it.signo == signo) {
 			return it.as_string;
 		}
@@ -345,7 +345,7 @@ static void AbslFailureSignalHandler(int signo, siginfo_t*, void* ucontext) {
 
 void InstallFailureSignalHandler(const FailureSignalHandlerOptions& options) {
 	fsh_options = options;
-	for(auto& it : failure_signal_data) {
+	for(auto & it : failure_signal_data) {
 		InstallOneFailureHandler(&it, AbslFailureSignalHandler);
 	}
 }

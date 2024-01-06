@@ -250,7 +250,7 @@ struct {
  */
 #if 0 // @sobolev (replaced with SBits::Cpop) {
 /* Return the number of 1 bits in v. */
-template <typename T> static inline HB_CONST_FUNC uint hb_popcount(T v)
+template <typename T> static inline CXX_FUNC_CONST uint hb_popcount(T v)
 {
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
 	if(sizeof(T) <= sizeof(uint))
@@ -281,7 +281,7 @@ template <typename T> static inline HB_CONST_FUNC uint hb_popcount(T v)
 #endif // } @sobolev
 
 /* Returns the number of bits needed to store number */
-template <typename T> static inline HB_CONST_FUNC uint hb_bit_storage(T v)
+template <typename T> static inline CXX_FUNC_CONST uint hb_bit_storage(T v)
 {
 	if(UNLIKELY(!v)) return 0;
 #if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
@@ -341,7 +341,7 @@ template <typename T> static inline HB_CONST_FUNC uint hb_bit_storage(T v)
 //
 // Returns the number of zero bits in the least significant side of v
 //
-template <typename T> static inline HB_CONST_FUNC uint hb_ctz(T v)
+template <typename T> static inline CXX_FUNC_CONST uint hb_ctz(T v)
 {
 	if(UNLIKELY(!v))
 		return 8 * sizeof(T);

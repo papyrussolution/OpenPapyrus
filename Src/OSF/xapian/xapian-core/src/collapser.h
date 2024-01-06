@@ -79,7 +79,7 @@ public:
 	 */
 	void result_has_moved(Xapian::doccount from, Xapian::doccount to) 
 	{
-		for(auto&& item : items) {
+		for(auto && item : items) {
 			if(item.first == from) {
 				item.first = to;
 				return;

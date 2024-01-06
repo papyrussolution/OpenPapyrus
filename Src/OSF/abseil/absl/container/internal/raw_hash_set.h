@@ -985,7 +985,7 @@ private:
 		reserve(that.size());
 		// Because the table is guaranteed to be empty, we can do something faster
 		// than a full `insert`.
-		for(const auto& v : that) {
+		for(const auto & v : that) {
 			const size_t hash = PolicyTraits::apply(HashElement{hash_ref()}, v);
 			auto target = find_first_non_full(ctrl_, hash, capacity_);
 			SetCtrl(target.offset, H2(hash), capacity_, ctrl_, slots_,
@@ -1032,7 +1032,7 @@ private:
 			reserve(that.size());
 			// Note: this will copy elements of dense_set and unordered_set instead of
 			// moving them. This can be fixed if it ever becomes an issue.
-			for(auto& elem : that) insert(std::move(elem));
+			for(auto & elem : that) insert(std::move(elem));
 		}
 	}
 
@@ -1213,7 +1213,7 @@ private:
 
 	insert_return_type insert(node_type&& node) {
 		if(!node) return {end(), false, node_type()};
-		const auto& elem = PolicyTraits::element(CommonAccess::GetSlot(node));
+		const auto & elem = PolicyTraits::element(CommonAccess::GetSlot(node));
 		auto res = PolicyTraits::apply(
 			InsertSlot<false>{*this, std::move(*CommonAccess::GetSlot(node))},
 			elem);
@@ -1258,7 +1258,7 @@ private:
 		slot_type* slot = reinterpret_cast<slot_type*>(&raw);
 
 		PolicyTraits::construct(&alloc_ref(), slot, std::forward<Args>(args) ...);
-		const auto& elem = PolicyTraits::element(slot);
+		const auto & elem = PolicyTraits::element(slot);
 		return PolicyTraits::apply(InsertSlot<true>{*this, std::move(*slot)}, elem);
 	}
 

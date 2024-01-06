@@ -330,7 +330,7 @@ private:
 		Container operator()(const Splitter& splitter) const {
 			Container c;
 			auto it = std::inserter(c, c.end());
-			for(const auto& sp : splitter) {
+			for(const auto & sp : splitter) {
 				* it++ = ValueType(sp);
 			}
 			return c;

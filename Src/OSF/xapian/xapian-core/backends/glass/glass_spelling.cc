@@ -317,7 +317,7 @@ TermList * GlassSpellingTable::open_termlist(const string & word)
 	} catch(...) {
 		// Make sure we delete all the TermList objects to avoid leaking
 		// memory.
-		for(auto& t : termlists) {
+		for(auto & t : termlists) {
 			delete t;
 		}
 		throw;

@@ -29,7 +29,7 @@ int TcpClient::open_socket(const std::string & hostname, int port, double timeou
 {
 	int socketfd = -1;
 	int connect_errno = 0;
-	for(auto&& r : Resolver(hostname, port)) {
+	for(auto && r : Resolver(hostname, port)) {
 		int socktype = r.ai_socktype | SOCK_CLOEXEC;
 #ifdef SOCK_NONBLOCK
 		socktype |= SOCK_NONBLOCK;

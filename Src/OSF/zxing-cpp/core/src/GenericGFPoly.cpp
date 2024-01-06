@@ -14,19 +14,16 @@ namespace ZXing {
 		if(capacity() < s)
 			std::vector<int>::reserve(std::max(size_t(32), s));
 	}
-
 	void GenericGFPoly::Coefficients::resize(size_t s)
 	{
 		reserve(s);
 		std::vector<int>::resize(s);
 	}
-
 	void GenericGFPoly::Coefficients::resize(size_t s, int i)
 	{
 		reserve(s);
 		std::vector<int>::resize(s, i);
 	}
-
 	int GenericGFPoly::evaluateAt(int a) const
 	{
 		if(a == 0)
@@ -40,7 +37,6 @@ namespace ZXing {
 			result = _field->multiply(a, result) ^ _coefficients[i];
 		return result;
 	}
-
 	GenericGFPoly& GenericGFPoly::addOrSubtract(GenericGFPoly& other)
 	{
 		assert(_field == other._field); // "GenericGFPolys do not have same GenericGF field"
@@ -50,8 +46,8 @@ namespace ZXing {
 		}
 		if(other.isZero())
 			return *this;
-		auto& smallerCoefs = other._coefficients;
-		auto& largerCoefs = _coefficients;
+		auto & smallerCoefs = other._coefficients;
+		auto & largerCoefs = _coefficients;
 		if(smallerCoefs.size() > largerCoefs.size())
 			std::swap(smallerCoefs, largerCoefs);
 		size_t lengthDiff = largerCoefs.size() - smallerCoefs.size();
@@ -62,13 +58,13 @@ namespace ZXing {
 		return *this;
 	}
 
-	GenericGFPoly&GenericGFPoly::multiply(const GenericGFPoly& other)
+	GenericGFPoly & GenericGFPoly::multiply(const GenericGFPoly& other)
 	{
 		assert(_field == other._field); // "GenericGFPolys do not have same GenericGF field"
 		if(isZero() || other.isZero())
 			return setMonomial(0);
-		auto& a = _coefficients;
-		auto& b = other._coefficients;
+		auto & a = _coefficients;
+		auto & b = other._coefficients;
 		// To disable the use of the malloc cache, simply uncomment:
 		// Coefficients _cache;
 		_cache.resize(a.size() + b.size() - 1);
@@ -80,8 +76,7 @@ namespace ZXing {
 		normalize();
 		return *this;
 	}
-
-	GenericGFPoly&GenericGFPoly::multiplyByMonomial(int coefficient, int degree)
+	GenericGFPoly & GenericGFPoly::multiplyByMonomial(int coefficient, int degree)
 	{
 		assert(degree >= 0);
 		if(coefficient == 0)
@@ -108,11 +103,11 @@ namespace ZXing {
 		// we use the memory from this (the dividend) and swap it with quotient, which will then accumulate the result as
 		// [quotient : remainder]. we later copy back the remainder into this and shorten the quotient.
 		std::swap(*this, quotient);
-		auto& divisor = other._coefficients;
-		auto& result = quotient._coefficients;
+		auto & divisor = other._coefficients;
+		auto & result = quotient._coefficients;
 		auto normalizer = _field->inverse(divisor[0]);
 		for(int i = 0; i < Size(result) - (Size(divisor) - 1); ++i) {
-			auto& ci = result[i];
+			auto & ci = result[i];
 			if(ci == 0)
 				continue;
 			ci = _field->multiply(ci, normalizer);

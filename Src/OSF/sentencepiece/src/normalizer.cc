@@ -36,7 +36,7 @@ void Normalizer::Init()
 	absl::string_view index = spec_->precompiled_charsmap();
 	if(!index.empty()) {
 		absl::string_view trie_blob, normalized;
-#ifdef IS_BIG_ENDIAN
+#ifdef SL_BIGENDIAN
 		status_ = DecodePrecompiledCharsMap(index, &trie_blob, &normalized,
 			&precompiled_charsmap_buffer_);
 #else
@@ -250,7 +250,7 @@ std::pair<absl::string_view, int> Normalizer::NormalizePrefix(absl::string_view 
 	blob.append(string_util::EncodePOD<uint32>(trie_blob.size()));
 	blob.append(trie_blob.data(), trie_blob.size());
 	blob.append(normalized.data(), normalized.size());
-#ifdef IS_BIG_ENDIAN
+#ifdef SL_BIGENDIAN
 	uint32 * data = reinterpret_cast<uint32 *>(const_cast<char *>(blob.data()));
 	for(int i = 0; i <= trie_blob.size() / 4; ++i)
 		data[i] = util::Swap32(data[i]);
@@ -265,16 +265,13 @@ std::pair<absl::string_view, int> Normalizer::NormalizePrefix(absl::string_view 
 	    trie_blob_size >= blob.size()) {
 		return util::InternalError("Blob for normalization rule is broken.");
 	}
-#ifdef IS_BIG_ENDIAN
+#ifdef SL_BIGENDIAN
 	trie_blob_size = util::Swap32(trie_blob_size);
 #endif
-
 	if(trie_blob_size >= blob.size())
 		return util::InternalError("Trie data size exceeds the input blob size.");
-
 	blob.remove_prefix(sizeof(trie_blob_size));
-
-#ifdef IS_BIG_ENDIAN
+#ifdef SL_BIGENDIAN
 	buffer->assign(blob.data(), trie_blob_size);
 	uint32 * data = reinterpret_cast<uint32 *>(const_cast<char *>(buffer->data()));
 	for(int i = 0; i < trie_blob_size / 4; ++i) data[i] = util::Swap32(data[i]);

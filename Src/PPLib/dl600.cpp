@@ -1522,6 +1522,7 @@ DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID))
 		AddType("int32",    MKSTYPE(S_INT, 4),     MANGLE_BT_LONG);
 		AddType("autolong", MKSTYPE(S_AUTOINC, 4), MANGLE_BT_LONG);
 		AddType("int64",    MKSTYPE(S_INT64, 8),   0); // @v10.6.3 MKSTYPE(S_INT, 8)-->MKSTYPE(S_INT64, 8)
+		AddType("uint64",   MKSTYPE(S_UINT64, 8),  0); // @v11.9.2
 		AddType("uint8",    MKSTYPE(S_UBINARY, 1), MANGLE_BT_UCHAR);
 		AddType("uint16",   MKSTYPE(S_UBINARY, 2), MANGLE_BT_USHRT);
 		AddType("uint32",   MKSTYPE(S_UBINARY, 4), MANGLE_BT_ULONG);

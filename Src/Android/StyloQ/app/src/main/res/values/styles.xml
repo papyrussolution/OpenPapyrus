@@ -15,6 +15,16 @@
         <item name="android:layout_marginRight">2dp</item>
         <item name="android:layout_marginBottom">2dp</item>
     </style>
+    <style name="ListItemButton">
+        <item name="android:layout_width">@dimen/listviewiconsqside</item>
+        <item name="android:layout_height">@dimen/listviewiconsqside</item>
+        <item name="android:onClick">OnButtonClk</item>
+        <item name="android:background">@drawable/selector_imagebutton</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+    </style>
     <!-- parent="Widget.MaterialComponents.Button.OutlinedButton" -->
     <style name="PushButton">
         <item name="android:onClick">OnButtonClk</item>

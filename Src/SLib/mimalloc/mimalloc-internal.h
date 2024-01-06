@@ -994,9 +994,7 @@ static inline size_t mi_ctz(uintptr_t x) {
 #endif
 
 // "bit scan reverse": Return index of the highest bit (or MI_INTPTR_BITS if `x` is zero)
-static inline size_t mi_bsr(uintptr_t x) {
-	return (x==0 ? MI_INTPTR_BITS : MI_INTPTR_BITS - 1 - mi_clz(x));
-}
+static inline size_t mi_bsr(uintptr_t x) { return (x==0 ? MI_INTPTR_BITS : MI_INTPTR_BITS - 1 - mi_clz(x)); }
 #if 0 // @sobolev (SLIB already uses an optimized version of memcpy, so it makes no sense to fence the garden with dubious local optimization) {
 //
 // Provide our own `_mi_memcpy` for potential performance optimizations.

@@ -249,14 +249,14 @@ static DetectorResult DetectOld(const BitMatrix& image)
 		TransitionsBetween(image, pointC, pointD),
 	};
 	std::sort(transitions.begin(), transitions.end(),
-	    [](const auto& a, const auto& b) {
+	    [](const auto & a, const auto & b) {
 			return a.transitions < b.transitions;
 		});
 
 	// Sort by number of transitions. First two will be the two solid sides; last two
 	// will be the two alternating black/white sides
-	const auto& lSideOne = transitions[0];
-	const auto& lSideTwo = transitions[1];
+	const auto & lSideOne = transitions[0];
+	const auto & lSideTwo = transitions[1];
 
 	// We accept at most 4 transisions inside the L pattern (i.e. 2 corruptions) to reduce false positive
 	// FormatErrors
@@ -274,7 +274,7 @@ static DetectorResult DetectOld(const BitMatrix& image)
 	const ResultPoint* bottomRight = nullptr;
 	const ResultPoint* bottomLeft = nullptr;
 	const ResultPoint* topLeft = nullptr;
-	for(const auto& [point, count] : pointCount) {
+	for(const auto & [point, count] : pointCount) {
 		if(count == 2) {
 			bottomLeft = point; // this is definitely the bottom left, then -- end of two L sides
 		}
@@ -400,7 +400,7 @@ class DMRegressionLine : public RegressionLine
 	{
 		double sum = 0;
 		int num = 0;
-		for(const auto& v : c)
+		for(const auto & v : c)
 			if(f(v)) {
 				sum += v;
 				++num;
@@ -693,14 +693,14 @@ static DetectorResult Scan(EdgeTracer& startTracer, std::array<DMRegressionLine,
 		log(startTracer.p);
 
 		PointF tl, bl, br, tr;
-		auto& [lineL, lineB, lineR, lineT] = lines;
+		auto & [lineL, lineB, lineR, lineT] = lines;
 
-		for(auto& l : lines)
+		for(auto & l : lines)
 			l.reset();
 
 #ifdef PRINT_DEBUG
 		SCOPE_EXIT([&] {
-				for(auto& l : lines)
+				for(auto & l : lines)
 					log(l.points());
 			});
 # define CHECK(A) if(!(A)) { printf("broke at %d\n", __LINE__); continue; \
@@ -943,7 +943,7 @@ DetectorResults Detect(const BitMatrix& image, bool tryHarder, bool tryRotate, b
 		co_yield std::move(r);
 	else if(!isPure) {  // If r.isValid() then there is no point in looking for more (no-pure) symbols
 		bool found = false;
-		for(auto&& r : DetectNew(image, tryHarder, tryRotate)) {
+		for(auto && r : DetectNew(image, tryHarder, tryRotate)) {
 			found = true;
 			co_yield std::move(r);
 		}

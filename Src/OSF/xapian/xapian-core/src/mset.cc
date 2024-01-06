@@ -216,7 +216,7 @@ int MSet::Internal::convert_to_percent(double weight) const
 
 void MSet::Internal::unshard_docids(Xapian::doccount shard, Xapian::doccount n_shards)
 {
-	for(auto& result : items) {
+	for(auto & result : items) {
 		result.unshard_docid(shard, n_shards);
 	}
 }
@@ -268,7 +268,7 @@ string MSet::Internal::serialise() const
 	pack_uint(result, uncollapsed_estimated);
 	pack_uint(result, uncollapsed_upper_bound);
 	pack_uint(result, items.size());
-	for(auto&& item : items) {
+	for(auto && item : items) {
 		result += serialise_double(item.get_weight());
 		pack_uint(result, item.get_docid());
 		pack_string(result, item.get_sort_key());
@@ -346,7 +346,7 @@ string MSet::Internal::get_description() const
 	}
 	desc += ", [";
 	bool comma = false;
-	for(auto&& item : items) {
+	for(auto && item : items) {
 		if(comma) {
 			desc += ", ";
 		}

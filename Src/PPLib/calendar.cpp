@@ -1,5 +1,5 @@
 // CALENDAR.CPP
-// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1921,12 +1921,14 @@ void SCalendarPicker::CreateFont_()
 		}
 		LOGFONT f;
 		if(hf && ::GetObject(hf, sizeof(f), &f)) {
-			SPaintToolBox & r_tb = APPL->GetUiToolBox();
-			SFontDescr fd(0, 0, 0);
-			f.lfHeight = 12;
-			fd.SetLogFont(&f);
-			//fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(canv, LOGPIXELSY));
-			FontId = r_tb.CreateFont_(0, fd.Face, fd.Size, fd.Flags);
+			SPaintToolBox * p_tb = APPL->GetUiToolBox();
+			if(p_tb) {
+				SFontDescr fd(0, 0, 0);
+				f.lfHeight = 12;
+				fd.SetLogFont(&f);
+				//fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(canv, LOGPIXELSY));
+				FontId = p_tb->CreateFont_(0, fd.Face, fd.Size, fd.Flags);
+			}
 		}
 	}
 }
@@ -2385,8 +2387,8 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 			int   brush_ident = 0;
 			TWhatmanToolArray::Item tool_item;
 			const SDrawFigure * p_fig = 0;
-			SPaintToolBox & r_tb = APPL->GetUiToolBox();
-			if(p_lo_extra) {
+			SPaintToolBox * p_tb = APPL->GetUiToolBox();
+			if(p_lo_extra && p_tb) {
 				SString text_utf8;
 				SString symb;
 				switch(p_lo_extra->Ident) {
@@ -2551,7 +2553,7 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 					SImageBuffer ib(_w, _h);
 					{
 						if(!tool_item.ReplacedColor.IsEmpty()) {
-							SColor replacement_color = r_tb.GetColor(TProgram::tbiIconRegColor);
+							SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
 							rCanv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
 						}
 						LMatrix2D mtx;
@@ -2570,20 +2572,20 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 						SDrawContext dctx = rCanv;
 						if(CStyleId <= 0) {
 							int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
-							CStyleId = r_tb.CreateCStyle(0, FontId, TProgram::tbiBlackPen, tool_text_brush_id);
+							CStyleId = p_tb->CreateCStyle(0, FontId, TProgram::tbiBlackPen, tool_text_brush_id);
 						}
 						if(CStyleFocusId <= 0) {
 							int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
-							CStyleFocusId = r_tb.CreateCStyle(0, FontId, TProgram::tbiWhitePen, tool_text_brush_id);
+							CStyleFocusId = p_tb->CreateCStyle(0, FontId, TProgram::tbiWhitePen, tool_text_brush_id);
 						}
 						SParaDescr pd;
 						pd.Flags |= SParaDescr::fJustCenter;
-						int    tid_para = r_tb.CreateParagraph(0, &pd);
+						int    tid_para = p_tb->CreateParagraph(0, &pd);
 						STextLayout tlo;
 						tlo.SetText(text_utf8);
 						tlo.SetOptions(STextLayout::fOneLine|STextLayout::fVCenter, tid_para, (brush_ident == TProgram::tbiListFocBrush) ? CStyleFocusId : CStyleId);
 						tlo.SetBounds(lo_rect);
-						tlo.Arrange(dctx, r_tb);
+						tlo.Arrange(dctx, *p_tb);
 						rCanv.DrawTextLayout(&tlo);
 					}					
 				}
@@ -2742,34 +2744,37 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 						fig_id = PPDV_CALENDARDAY01;
 					if(fig_id) {
 						const SDrawFigure * p_fig = APPL->LoadDrawFigureById(fig_id, &tool_item);
-						const uint _w = icon_size;
-						const uint _h = icon_size;
-						SImageBuffer ib(_w, _h);
-						{
-							TCanvas2 canv_temp(APPL->GetUiToolBox(), ib);
-							if(!tool_item.ReplacedColor.IsEmpty()) {
-								SColor replacement_color;
-								replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
-								canv_temp.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+						SPaintToolBox * p_tb = APPL->GetUiToolBox();
+						if(p_tb && p_fig) {
+							const uint _w = icon_size;
+							const uint _h = icon_size;
+							SImageBuffer ib(_w, _h);
+							{
+								TCanvas2 canv_temp(*p_tb, ib);
+								if(!tool_item.ReplacedColor.IsEmpty()) {
+									SColor replacement_color;
+									replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
+									canv_temp.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+								}
+								LMatrix2D mtx;
+								SViewPort vp;
+								FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
+								//pic_bounds.a.SetZero();
+								//pic_bounds.b.Set(static_cast<float>(_w), static_cast<float>(_h));
+								//
+								canv_temp.Rect(pic_bounds);
+								canv_temp.Fill(SColor(SClrWhite), 0);
+								//canv_temp.Fill(SColor(0xd4, 0xf0, 0xf0, 255), 0); // Прозрачный фон
+								canv_temp.PushTransform();
+								p_fig->GetViewPort(&vp);
+								canv_temp.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+								canv_temp.Draw(p_fig);
 							}
-							LMatrix2D mtx;
-							SViewPort vp;
-							FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
-							//pic_bounds.a.SetZero();
-							//pic_bounds.b.Set(static_cast<float>(_w), static_cast<float>(_h));
-							//
-							canv_temp.Rect(pic_bounds);
-							canv_temp.Fill(SColor(SClrWhite), 0);
-							//canv_temp.Fill(SColor(0xd4, 0xf0, 0xf0, 255), 0); // Прозрачный фон
-							canv_temp.PushTransform();
-							p_fig->GetViewPort(&vp);
-							canv_temp.AddTransform(vp.GetMatrix(pic_bounds, mtx));
-							canv_temp.Draw(p_fig);
-						}
-						HICON h_icon = static_cast<HICON>(ib.TransformToIcon());
-						if(h_icon) {
-							::SendMessage(H(), WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(h_icon));
-							::DestroyIcon(h_icon);
+							HICON h_icon = static_cast<HICON>(ib.TransformToIcon());
+							if(h_icon) {
+								::SendMessage(H(), WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(h_icon));
+								::DestroyIcon(h_icon);
+							}
 						}
 					}
 				}
@@ -3178,23 +3183,24 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 			PaintEvent * p_blk = static_cast<PaintEvent *>(TVINFOPTR);
 			CreateFont_();
 			if(oneof2(p_blk->PaintType, PaintEvent::tPaint, PaintEvent::tEraseBackground)) {
-				if(GetWbCapability() & wbcDrawBuffer) {
-					// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
-					// не реагировать
-					if(p_blk->PaintType == PaintEvent::tPaint) {
-						SPaintToolBox & r_tb = APPL->GetUiToolBox();
-						TCanvas2 canv(r_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-						canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-						DrawLayout(canv, P_Lfc);
+				SPaintToolBox * p_tb = APPL->GetUiToolBox();
+				if(p_tb) {
+					if(GetWbCapability() & wbcDrawBuffer) {
+						// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
+						// не реагировать
+						if(p_blk->PaintType == PaintEvent::tPaint) {
+							TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+							DrawLayout(canv, P_Lfc);
+						}
 					}
-				}
-				else {
-					SPaintToolBox & r_tb = APPL->GetUiToolBox();
-					TCanvas2 canv(r_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-					if(p_blk->PaintType == PaintEvent::tEraseBackground)
-						canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-					if(p_blk->PaintType == PaintEvent::tPaint)
-						DrawLayout(canv, P_Lfc);
+					else {
+						TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+						if(p_blk->PaintType == PaintEvent::tEraseBackground)
+							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+						if(p_blk->PaintType == PaintEvent::tPaint)
+							DrawLayout(canv, P_Lfc);
+					}
 				}
 				clearEvent(event);
 			}

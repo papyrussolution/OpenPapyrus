@@ -167,14 +167,12 @@ GLOBAL(long) FASTCALL jround_up(long a, long b)
 // 
 void  jcopy_sample_rows(JSAMPARRAY input_array, int source_row, JSAMPARRAY output_array, int dest_row, int num_rows, JDIMENSION num_cols)
 {
-	JSAMPROW inptr, outptr;
-	size_t count = (size_t)(num_cols * sizeof(JSAMPLE));
-	int row;
+	const size_t count = (size_t)(num_cols * sizeof(JSAMPLE));
 	input_array += source_row;
 	output_array += dest_row;
-	for(row = num_rows; row > 0; row--) {
-		inptr = *input_array++;
-		outptr = *output_array++;
+	for(int row = num_rows; row > 0; row--) {
+		JSAMPROW inptr = *input_array++;
+		JSAMPROW outptr = *output_array++;
 		memcpy(outptr, inptr, count);
 	}
 }

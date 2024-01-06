@@ -1,5 +1,5 @@
 // WSCTL.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>

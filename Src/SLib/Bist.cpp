@@ -44,6 +44,20 @@ public:
 	virtual int    Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
+class SUInt64 : public DataType { // @v11.9.2 @construction
+public:
+	SUInt64(); 
+	virtual int    comp(const void *, const void *) const;
+	virtual char * tostr(const void *, long, char *) const;
+	virtual int    fromstr(void *, long, const char *) const;
+	virtual int    base() const { return BTS_INT64_; } // @fixme Возможно, следует завести новый базовый тип (хотя, Оккам напряжется)
+	virtual void   tobase(const void *, void *) const;
+	virtual int    baseto(void *, const void *) const;
+	virtual void   minval(void *) const;
+	virtual void   maxval(void *) const;
+	virtual int    Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
+};
+
 class SBool : public DataType {
 public:
 	explicit SBool(uint32 sz = 4);
@@ -309,6 +323,7 @@ void RegisterBIST()
 	RegisterSType(S_FPOINT2,  	 &SFPoint2());
 	RegisterSType(S_UUID_,    	 &SGuid());
 	RegisterSType(S_INT64,       &SInt64()); // @v10.6.3
+	RegisterSType(S_UINT64,      &SUInt64()); // @v10.6.3
 	RegisterSType(S_COLOR_RGBA,  &SDataType_Color()); // @v10.9.10
 }
 //
@@ -731,6 +746,104 @@ int SInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerial
 					THROW_S(0, SLERR_SRLZ_INVDATAIND);
 				}
 				_longto(v, pData, S);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+SUInt64::SUInt64() : DataType(8) // @v11.9.2 @construction
+{
+}
+
+int SUInt64::comp(const void * i1, const void * i2) const
+{
+	const uint64 l1 = *static_cast<const uint64 *>(i1);
+	const uint64 l2 = *static_cast<const uint64 *>(i2);
+	return CMPSIGN(l1, l2);
+}
+
+char * SUInt64::tostr(const void * d, long fmt, char * buf) const
+{
+	return uint64fmt(*static_cast<const uint64 *>(d), fmt, buf);
+}
+
+int SUInt64::fromstr(void * d, long, const char * buf) const
+{
+	// @todo Нужен вариант функции преобразования строки в целое с диагностикой ошибки
+	uint64 lv = satou64(buf);
+	_longto(lv, d, S);
+	return 1;
+}
+
+void SUInt64::tobase(const void * d, void * baseData) const { *static_cast<int64 *>(baseData) = _tolong(d, S); }
+int  SUInt64::baseto(void * d, const void * baseData) const { return (_longto(*static_cast<const int64 *>(baseData), d, S), 1); }
+void SUInt64::minval(void * d) const { *static_cast<uint64 *>(d) = 0; }
+void SUInt64::maxval(void * d) const { *static_cast<uint64 *>(d) = ULLONG_MAX; }
+
+int SUInt64::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
+{
+	int    ok = 1;
+	if(dir > 0) {
+		int    spec = 0; // 1 - zero, 2 - full
+		const uint64 v64 = *static_cast<const uint64 *>(pData);
+		if(v64 == 0)
+			spec = 1;
+		else {
+			const int64 _a = _abs64(v64);
+			if(_a <= 0x7fL) {
+				*pInd = 2;
+				int8 _v = (int8)v64;
+				rBuf.Write(&_v, sizeof(_v));
+			}
+			else if(_a <= 0x7fffL) {
+				*pInd = 3;
+				int16 _v = (int16)v64;
+				rBuf.Write(_v);
+			}
+			else if(_a <= 0x7fffffffL) {
+				*pInd = 4;
+				int32 _v = (int32)v64;
+				rBuf.Write(_v);
+			}
+			else
+				spec = 2;
+		}
+		if(spec == 1)
+			*pInd = 1;
+		else if(spec == 2) {
+			*pInd = 0;
+			rBuf.Write(pData, S);
+		}
+	}
+	else if(dir < 0) {
+		if(*pInd == 1) {
+			memzero(pData, S);
+		}
+		else if(*pInd == 0) {
+			rBuf.Read(pData, S);
+		}
+		else {
+			if(*pInd == 2) {
+				int8 _v;
+				rBuf.Read(&_v, sizeof(_v));
+				*static_cast<int64 *>(pData) = _v;
+			}
+			else if(*pInd == 3) {
+				int16 _v;
+				rBuf.Read(_v);
+				*static_cast<int64 *>(pData) = _v;
+			}
+			else if(*pInd == 4) {
+				int32 _v;
+				rBuf.Read(_v);
+				*static_cast<int64 *>(pData) = _v;
+			}
+			else {
+				THROW_S(0, SLERR_SRLZ_INVDATAIND);
 			}
 		}
 	}

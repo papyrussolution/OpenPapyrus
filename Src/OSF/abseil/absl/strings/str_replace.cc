@@ -14,11 +14,11 @@ using FixedMapping = std::initializer_list<std::pair<absl::string_view, absl::st
 // occurred.
 int ApplySubstitutions(absl::string_view s, std::vector <strings_internal::ViableSubstitution>* subs_ptr, std::string* result_ptr) 
 {
-	auto& subs = *subs_ptr;
+	auto & subs = *subs_ptr;
 	int substitutions = 0;
 	size_t pos = 0;
 	while(!subs.empty()) {
-		auto& sub = subs.back();
+		auto & sub = subs.back();
 		if(sub.offset >= pos) {
 			if(pos <= s.size()) {
 				StrAppend(result_ptr, s.substr(pos, sub.offset - pos), sub.replacement);

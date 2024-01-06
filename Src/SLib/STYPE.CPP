@@ -377,6 +377,7 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 				(type_text = "int_invalid_size_").Cat(sz);
 			break;
 		case S_INT64: type_text = "int64"; break; // @v10.6.3
+		case S_UINT64: type_text = "uint64"; break; // @v11.9.2
 		case S_LOGICAL: type_text = "bool"; break;
 		case S_UINT:
 			if(sz == 1)

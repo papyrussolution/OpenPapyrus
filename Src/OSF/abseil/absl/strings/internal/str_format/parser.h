@@ -235,7 +235,7 @@ public:
 	{
 		const char* const base = data_.get();
 		string_view text(base, 0);
-		for(const auto& item : items_) {
+		for(const auto & item : items_) {
 			const char* const end = text.data() + text.size();
 			text = string_view(end, static_cast<size_t>((base + item.text_end) - end));
 			if(item.is_conversion) {

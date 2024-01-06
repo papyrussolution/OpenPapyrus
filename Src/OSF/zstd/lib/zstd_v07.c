@@ -2540,17 +2540,13 @@ static const int16 ML_defaultNorm[MaxML+1] = { 1, 4, 3, 2, 2, 2, 2, 2, 2, 1, 1, 
 					     -1, -1, -1, -1, -1 };
 static const uint32 ML_defaultNormLog = 6;
 
-static const int16 OF_defaultNorm[MaxOff+1] = { 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1,
-					      1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1 };
+static const int16 OF_defaultNorm[MaxOff+1] = { 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1 };
 static const uint32 OF_defaultNormLog = 5;
 
 /*-*******************************************
 *  Shared functions to include for inlining
 *********************************************/
-static void ZSTDv07_copy8(void* dst, const void* src) {
-	memcpy(dst, src, 8);
-}
-
+static void ZSTDv07_copy8(void* dst, const void* src) { memcpy(dst, src, 8); }
 #define COPY8(d, s) { ZSTDv07_copy8(d, s); d += 8; s += 8; }
 
 /*! ZSTDv07_wildcopy() :
@@ -2563,7 +2559,7 @@ MEM_STATIC void ZSTDv07_wildcopy(void* dst, const void* src, ptrdiff_t length)
 	BYTE * const oend = op + length;
 	do
 		COPY8(op, ip)
-		while(op < oend);
+	while(op < oend);
 }
 
 /*-*******************************************

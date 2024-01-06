@@ -1,5 +1,5 @@
 // UI.CPP
-// Copyright (c) A.Sobolev 2011, 2016, 2018, 2020, 2023
+// Copyright (c) A.Sobolev 2011, 2016, 2018, 2020, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>

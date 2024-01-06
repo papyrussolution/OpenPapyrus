@@ -39,7 +39,7 @@ static BarcodeFormatName NAMES[] = {
 
 std::string ToString(BarcodeFormat format)
 {
-	auto i = FindIf(NAMES, [format](auto& v) { return v.format == format; });
+	auto i = FindIf(NAMES, [format](auto & v) { return v.format == format; });
 	return i == std::end(NAMES) ? std::string() : std::string(i->name);
 }
 
@@ -63,7 +63,7 @@ static std::string NormalizeFormatString(std::string_view sv)
 
 static BarcodeFormat ParseFormatString(const std::string& str)
 {
-	auto i = FindIf(NAMES, [str](auto& v) { return NormalizeFormatString(v.name) == str; });
+	auto i = FindIf(NAMES, [str](auto & v) { return NormalizeFormatString(v.name) == str; });
 	return i == std::end(NAMES) ? BarcodeFormat::None : i->format;
 }
 

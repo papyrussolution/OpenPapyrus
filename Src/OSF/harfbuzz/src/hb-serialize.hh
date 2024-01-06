@@ -317,7 +317,7 @@ struct hb_serialize_context_t {
 		assert(current);
 		assert(current->head <= (const char *)&ofs);
 
-		auto& link = *current->links.push();
+		auto & link = *current->links.push();
 
 		link.is_wide = sizeof(T) == 4;
 		link.is_signed = hb_is_signed(hb_unwrap_type(T));

@@ -102,16 +102,16 @@ __attribute__((section(".ctors"), used)) extern int (*gcc_ctor)(void) = __ptw32_
 __attribute__((section(".dtors"), used)) extern int (*gcc_dtor)(void) = __ptw32_on_process_exit;
 #elif defined(_MSC_VER)
 #if _MSC_VER >= 1400 /* MSVC8+ */
-#    pragma section(".CRT$XCU", long, read)
-#    pragma section(".CRT$XPU", long, read)
+#pragma section(".CRT$XCU", long, read)
+#pragma section(".CRT$XPU", long, read)
 __declspec(allocate(".CRT$XCU")) extern int (*msc_ctor)(void) = __ptw32_on_process_init;
 __declspec(allocate(".CRT$XPU")) extern int (*msc_dtor)(void) = __ptw32_on_process_exit;
 #else
-#    pragma data_seg(".CRT$XCU")
+#pragma data_seg(".CRT$XCU")
 extern int (*msc_ctor)(void) = __ptw32_on_process_init;
-#    pragma data_seg(".CRT$XPU")
+#pragma data_seg(".CRT$XPU")
 extern int (*msc_dtor)(void) = __ptw32_on_process_exit;
-#    pragma data_seg() /* reset data segment */
+#pragma data_seg() /* reset data segment */
 #endif
 #endif
 

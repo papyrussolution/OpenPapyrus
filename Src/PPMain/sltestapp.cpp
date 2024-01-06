@@ -134,7 +134,7 @@ int main(int argc, char * argv[], char * envp[])
 				for(uint i = 0; i < known_folder_list.getCount(); i++) {
 					const SKnownFolderEntry * p_entry = known_folder_list.at(i);
 					if(p_entry) {
-						temp_buf.Z().CatHex(p_entry->UED).Space().Cat(p_entry->Guid, S_GUID::fmtIDL).Space().Cat(p_entry->Result).Space().Cat(p_entry->PathUtf8).CR();
+						temp_buf.Z().CatHex(p_entry->Ued).Space().Cat(p_entry->Guid, S_GUID::fmtIDL).Space().Cat(p_entry->Result).Space().Cat(p_entry->PathUtf8).CR();
 						f_rep.WriteLine(temp_buf);
 					}
 				}

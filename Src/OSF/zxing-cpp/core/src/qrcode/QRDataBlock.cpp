@@ -15,7 +15,7 @@ std::vector<DataBlock> DataBlock::GetDataBlocks(const ByteArray& rawCodewords, c
 
 	// Figure out the number and size of data blocks used by this version and
 	// error correction level
-	auto& ecBlocks = version.ecBlocksForLevel(ecLevel);
+	auto & ecBlocks = version.ecBlocksForLevel(ecLevel);
 
 	// First count the total number of data blocks
 	int totalBlocks = ecBlocks.numBlocks();
@@ -25,9 +25,9 @@ std::vector<DataBlock> DataBlock::GetDataBlocks(const ByteArray& rawCodewords, c
 	std::vector<DataBlock> result(totalBlocks);
 	// Now establish DataBlocks of the appropriate size and number of data codewords
 	int numResultBlocks = 0;
-	for(auto& ecBlock : ecBlocks.blockArray()) {
+	for(auto & ecBlock : ecBlocks.blockArray()) {
 		for(int i = 0; i < ecBlock.count; i++) {
-			auto& item = result[numResultBlocks++];
+			auto & item = result[numResultBlocks++];
 			item._numDataCodewords = ecBlock.dataCodewords;
 			item._codewords.resize(ecBlocks.codewordsPerBlock + ecBlock.dataCodewords);
 		}

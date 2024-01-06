@@ -514,7 +514,7 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 	percent_threshold_factor -= DBL_EPSILON;
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	for(auto&& submatch : remotes) {
+	for(auto && submatch : remotes) {
 		Assert(submatch.get());
 		// We need to fetch the first "first" results too, as merging may push
 		// those down into the part of the merged MSet we care about.
@@ -533,7 +533,7 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 
 	Xapian::MSet local_mset;
 	if(!locals.empty()) {
-		for(auto&& submatch : locals) {
+		for(auto && submatch : locals) {
 			if(submatch.get())
 				submatch->start_match(stats);
 		}
@@ -584,7 +584,7 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 		Xapian::MSet remote_mset = submatch->get_mset(matchspies);
 		merged_mset.internal->merge_stats(remote_mset.internal.get(),
 		collapse_max != 0);
-		auto& merged_stats = merged_mset.internal->stats;
+		auto & merged_stats = merged_mset.internal->stats;
 		if(!merged_stats.get()) {
 			merged_stats = std::move(remote_mset.internal->stats);
 		}
@@ -634,8 +634,8 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 	CollapserLite collapser(collapse_max);
 	merged_mset.internal->first = first;
 	while(!msets.empty() && merged_mset.size() != maxitems) {
-		auto& front = msets.front();
-		auto& result = front.first.internal->items[front.second];
+		auto & front = msets.front();
+		auto & result = front.first.internal->items[front.second];
 		if(percent_threshold) {
 			if(result.get_weight() < min_weight) {
 				// FIXME: This will need adjusting if we ever support
@@ -671,8 +671,8 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 			todo = 0;
 		}
 		while(!msets.empty() && todo--) {
-			auto& front = msets.front();
-			auto& result = front.first.internal->items[front.second];
+			auto & front = msets.front();
+			auto & result = front.first.internal->items[front.second];
 			if(percent_threshold) {
 				if(result.get_weight() < min_weight) {
 					// FIXME: This will need adjusting if we ever support

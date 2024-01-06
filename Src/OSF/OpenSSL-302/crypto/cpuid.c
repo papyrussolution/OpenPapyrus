@@ -183,7 +183,6 @@ int CRYPTO_memcmp(const void * in_a, const void * in_b, size_t len)
 		x |= a[i] ^ b[i];
 	return x;
 }
-
 /*
  * For systems that don't provide an instruction counter register or equivalent.
  */

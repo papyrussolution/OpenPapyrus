@@ -288,22 +288,16 @@ int custom_exts_copy(custom_ext_methods * dst, const custom_ext_methods * src)
 				methdst->parse_arg = NULL;
 				continue;
 			}
-
-			methdst->add_arg = OPENSSL_memdup(methsrc->add_arg,
-				sizeof(custom_ext_add_cb_wrap));
-			methdst->parse_arg = OPENSSL_memdup(methsrc->parse_arg,
-				sizeof(custom_ext_parse_cb_wrap));
-
+			methdst->add_arg = OPENSSL_memdup(methsrc->add_arg, sizeof(custom_ext_add_cb_wrap));
+			methdst->parse_arg = OPENSSL_memdup(methsrc->parse_arg, sizeof(custom_ext_parse_cb_wrap));
 			if(methdst->add_arg == NULL || methdst->parse_arg == NULL)
 				err = 1;
 		}
 	}
-
 	if(err) {
 		custom_exts_free(dst);
 		return 0;
 	}
-
 	return 1;
 }
 

@@ -18,44 +18,104 @@ static constexpr uint64 WORD_1 = static_cast<uint64>(1);
 static constexpr uint64 HIGH_BIT_MASK = WORD_1 << (WORD_SIZE - 1);  // 100..00
 static constexpr int    MAX_UCHAR = 255;
 
-struct Block {
-	Block() 
+struct EdLibBlock {
+	EdLibBlock() : P(0), M(0), Score(0)
 	{
 	}
-	Block(uint64 p, uint64 m, int s) : P(p), M(m), Score(s) 
+	EdLibBlock(uint64 p, uint64 m, int s) : P(p), M(m), Score(s) 
 	{
 	}
+	EdLibBlock(const EdLibBlock & rS) : P(rS.P), M(rS.M), Score(rS.Score) 
+	{
+	}
+	EdLibBlock & FASTCALL operator = (const EdLibBlock & rS)
+	{
+		P = rS.P;
+		M = rS.M;
+		Score = rS.Score;
+		return *this;
+	}
+	/**
+	 * Corresponds to Advance_Block function from Myers.
+	 * Calculates one word(block), which is part of a column.
+	 * Highest bit of word (one most to the left) is most bottom cell of block from column.
+	 * Pv[i] and Mv[i] define vin of cell[i]: vin = cell[i] - cell[i-1].
+	 * @param [in] Pv  Bitset, Pv[i] == 1 if vin is +1, otherwise Pv[i] == 0.
+	 * @param [in] Mv  Bitset, Mv[i] == 1 if vin is -1, otherwise Mv[i] == 0.
+	 * @param [in] Eq  Bitset, Eq[i] == 1 if match, 0 if mismatch.
+	 * @param [in] hin  Will be +1, 0 or -1.
+	 * @param [out] PvOut  Bitset, PvOut[i] == 1 if vout is +1, otherwise PvOut[i] == 0.
+	 * @param [out] MvOut  Bitset, MvOut[i] == 1 if vout is -1, otherwise MvOut[i] == 0.
+	 * @param [out] hout  Will be +1, 0 or -1.
+	 */
+	int CalculateBlock(/*uint64 Pv, uint64 Mv,*/uint64 Eq, const int hin/*, uint64 & PvOut, uint64 & MvOut*/) 
+	{
+		// hin can be 1, -1 or 0.
+		// 1  -> 00...01
+		// 0  -> 00...00
+		// -1 -> 11...11 (2-complement)
+		uint64 hin_is_neg = static_cast<uint64>(hin >> 2) & WORD_1; // 00...001 if hin is -1, 00...000 if 0 or 1
+		uint64 xv = Eq | M;
+		// This is instruction below written using 'if': if (hin < 0) Eq |= (uint64)1;
+		Eq |= hin_is_neg;
+		uint64 xh = (((Eq & P) + P) ^ P) | Eq;
+		uint64 ph = M | ~(xh | P);
+		uint64 mh = P & xh;
+		int hout = 0;
+		// This is instruction below written using 'if': if (Ph & HIGH_BIT_MASK) hout = 1;
+		hout = (ph & HIGH_BIT_MASK) >> (WORD_SIZE - 1);
+		// This is instruction below written using 'if': if (Mh & HIGH_BIT_MASK) hout = -1;
+		hout -= (mh & HIGH_BIT_MASK) >> (WORD_SIZE - 1);
+		ph <<= 1;
+		mh <<= 1;
+		// This is instruction below written using 'if': if (hin < 0) Mh |= (uint64)1;
+		mh |= hin_is_neg;
+		// This is instruction below written using 'if': if (hin > 0) Ph |= (uint64)1;
+		ph |= static_cast<uint64>((hin + 1) >> 1);
+		P = mh | ~(xv | ph);
+		M = ph & xv;
+		return hout;
+	}
+	bool AllBlockCellsLarger(const int k) const;
+	std::vector <int> GetBlockCellValues() const;
+	void ReadBlock(int * pDest) const;
+	void ReadBlockReverse(int * pDest) const;
 	uint64 P; // Pvin
 	uint64 M; // Mvin
 	int    Score; // score of last cell in block;
 };
-
+//
 // Data needed to find alignment.
+//
 struct AlignmentData {
-	uint64 * Ps;
-	uint64 * Ms;
-	int * scores;
-	int * firstBlocks;
-	int * lastBlocks;
 	AlignmentData(int maxNumBlocks, int targetLength) 
 	{
 		// We build a complete table and mark first and last block for each column
 		// (because algorithm is banded so only part of each columns is used).
 		// TODO: do not build a whole table, but just enough blocks for each column.
-		Ps     = new uint64[maxNumBlocks * targetLength];
-		Ms     = new uint64[maxNumBlocks * targetLength];
-		scores = new  int[maxNumBlocks * targetLength];
-		firstBlocks = new int[targetLength];
-		lastBlocks  = new int[targetLength];
+		//Ps     = new uint64[maxNumBlocks * targetLength];
+		//Ms     = new uint64[maxNumBlocks * targetLength];
+		//P_Scores = new  int[maxNumBlocks * targetLength];
+		P_BlkList = new EdLibBlock[maxNumBlocks * targetLength];
+		P_FirstBlocks = new int[targetLength];
+		P_LastBlocks  = new int[targetLength];
 	}
 	~AlignmentData() 
 	{
-		delete[] Ps;
-		delete[] Ms;
-		delete[] scores;
-		delete[] firstBlocks;
-		delete[] lastBlocks;
+		//delete[] Ps;
+		//delete[] Ms;
+		//delete[] P_Scores;
+		delete [] P_BlkList;
+		delete[] P_FirstBlocks;
+		delete[] P_LastBlocks;
 	}
+	int    ObtainAlignmentTraceback(const int queryLength, const int targetLength, const int bestScore, uchar ** const ppAlignment, int* const alignmentLength) const;
+	EdLibBlock * P_BlkList; // @todo (in order to replace Ps, Ms, P_Scores) 
+	//uint64 * Ps;
+	//uint64 * Ms;
+	//int * P_Scores;
+	int * P_FirstBlocks;
+	int * P_LastBlocks;
 };
 // 
 // Defines equality relation on alphabet characters.
@@ -63,21 +123,21 @@ struct AlignmentData {
 // 
 class EqualityDefinition {
 private:
-	bool matrix[MAX_UCHAR+1][MAX_UCHAR+1];
+	bool   Matrix[MAX_UCHAR+1][MAX_UCHAR+1];
 public:
 	EqualityDefinition(const std::string & alphabet, const EdlibEqualityPair* additionalEqualities = NULL, const int additionalEqualitiesLength = 0) 
 	{
 		for(int i = 0; i < static_cast<int>(alphabet.size()); i++) {
 			for(int j = 0; j < static_cast<int>(alphabet.size()); j++) {
-				matrix[i][j] = (i == j);
+				Matrix[i][j] = (i == j);
 			}
 		}
 		if(additionalEqualities) {
 			for(int i = 0; i < additionalEqualitiesLength; i++) {
-				size_t firstTransformed = alphabet.find(additionalEqualities[i].first);
-				size_t secondTransformed = alphabet.find(additionalEqualities[i].second);
-				if(firstTransformed != std::string::npos && secondTransformed != std::string::npos) {
-					matrix[firstTransformed][secondTransformed] = matrix[secondTransformed][firstTransformed] = true;
+				size_t first_transformed = alphabet.find(additionalEqualities[i].first);
+				size_t second_transformed = alphabet.find(additionalEqualities[i].second);
+				if(first_transformed != std::string::npos && second_transformed != std::string::npos) {
+					Matrix[first_transformed][second_transformed] = Matrix[second_transformed][first_transformed] = true;
 				}
 			}
 		}
@@ -87,29 +147,34 @@ public:
 	// @param b  Element from transformed sequence.
 	// @return True if a and b are defined as equal, false otherwise.
 	// 
-	bool areEqual(uchar a, uchar b) const { return matrix[a][b]; }
+	bool   AreEqual(uchar a, uchar b) const { return Matrix[a][b]; }
+	uint64 * BuildPeq(uint alphabetLength, const uchar * pQuery, int queryLength) const;
+	int    ObtainAlignment(const uchar * query, const uchar * rQuery, int queryLength,
+		const uchar * target, const uchar * rTarget, int targetLength,
+		int alphabetLength, int bestScore, uchar ** alignment, int * alignmentLength) const;
 };
 
-static int myersCalcEditDistanceSemiGlobal(const uint64* Peq, int W, int maxNumBlocks, int queryLength, 
+static int MyersCalcEditDistanceSemiGlobal(const uint64* Peq, int W, int maxNumBlocks, int queryLength, 
 	const uchar* target, int targetLength, int k, EdlibAlignMode mode, int* bestScore_, int** positions_, int* numPositions_);
-static int myersCalcEditDistanceNW(const uint64* Peq, int W, int maxNumBlocks, int queryLength, 
+static int MyersCalcEditDistanceNW(const uint64* Peq, int W, int maxNumBlocks, int queryLength, 
 	const uchar* target, int targetLength, int k, int* bestScore_, int* position_, bool findAlignment, AlignmentData** alignData, int targetStopPosition);
-static int obtainAlignment(const uchar* query, const uchar* rQuery, int queryLength, const uchar* target, const uchar* rTarget, int targetLength,
-    const EqualityDefinition& equalityDefinition, int alphabetLength, int bestScore, uchar** alignment, int* alignmentLength);
+//static int ObtainAlignment(const uchar* query, const uchar* rQuery, int queryLength, const uchar* target, const uchar* rTarget, int targetLength,
+    //const EqualityDefinition& equalityDefinition, int alphabetLength, int bestScore, uchar** alignment, int* alignmentLength);
 // 
 // Does ceiling division x / y.
 // Note: x and y must be non-negative and x + y must not overflow.
 // 
-static inline int ceilDiv(const int x, const int y) { return (x % y) ? (x / y + 1) : (x / y); }
+// @sobolev (replaced with idivroundup) static inline int ceilDiv(const int x, const int y) { return (x % y) ? (x / y + 1) : (x / y); }
 // 
 // Build Peq table for given query and alphabet.
 // Peq is table of dimensions alphabetLength+1 x maxNumBlocks.
 // Bit i of Peq[s * maxNumBlocks + b] is 1 if i-th symbol from block b of query equals symbol s, otherwise it is 0.
 // NOTICE: free returned array with delete[]!
 // 
-static uint64 * buildPeq(uint alphabetLength, const uchar * query, int queryLength, const EqualityDefinition & equalityDefinition) 
+//static uint64 * BuildPeq(uint alphabetLength, const uchar * query, int queryLength, const EqualityDefinition & equalityDefinition) 
+uint64 * EqualityDefinition::BuildPeq(uint alphabetLength, const uchar * query, int queryLength) const
 {
-	int maxNumBlocks = ceilDiv(queryLength, WORD_SIZE);
+	int maxNumBlocks = idivroundup(queryLength, WORD_SIZE);
 	// table of dimensions alphabetLength+1 x maxNumBlocks. Last symbol is wildcard.
 	uint64 * Peq = new uint64[(alphabetLength + 1) * maxNumBlocks];
 	// Build Peq (1 is match, 0 is mismatch). NOTE: last column is wildcard(symbol that matches anything) with just 1s
@@ -120,7 +185,7 @@ static uint64 * buildPeq(uint alphabetLength, const uchar * query, int queryLeng
 				for(int r = (b+1) * WORD_SIZE - 1; r >= b * WORD_SIZE; r--) {
 					Peq[symbol * maxNumBlocks + b] <<= 1;
 					// NOTE: We pretend like query is padded at the end with W wildcard symbols
-					if(r >= queryLength || equalityDefinition.areEqual(query[r], symbol))
+					if(r >= queryLength || AreEqual(query[r], symbol))
 						Peq[symbol * maxNumBlocks + b] += 1;
 				}
 			}
@@ -135,7 +200,7 @@ static uint64 * buildPeq(uint alphabetLength, const uchar * query, int queryLeng
 // Returns new sequence that is reverse of given sequence.
 // Free returned array with delete[].
 // 
-static uchar * createReverseCopy(const uchar * pSeq, uint length) 
+static uchar * CreateReverseCopy(const uchar * pSeq, uint length) 
 {
 	uchar * p_rseq = new uchar[length];
 	for(uint i = 0; i < length; i++) {
@@ -160,8 +225,8 @@ static uchar * createReverseCopy(const uchar * pSeq, uint length)
 // @param [out] targetTransformed  It will contain values in range [0, alphabet length - 1].
 // @return  Alphabet as a string of unique characters, where index of each character is its value in transformed sequences.
 // 
-static std::string TransformSequences(const char * queryOriginal, uint queryLength,
-    const char * targetOriginal, uint targetLength, uchar ** ppQueryTransformed, uchar ** ppTargetTransformed) 
+static std::string TransformSequences(const char * pQueryOriginal, uint queryLength,
+    const char * pTargetOriginal, uint targetLength, uchar ** ppQueryTransformed, uchar ** ppTargetTransformed) 
 {
 	// Alphabet is constructed from letters that are present in sequences.
 	// Each letter is assigned an ordinal number, starting from 0 up to alphabetLength - 1,
@@ -178,20 +243,20 @@ static std::string TransformSequences(const char * queryOriginal, uint queryLeng
 	//for(int i = 0; i < MAX_UCHAR + 1; i++) 
 		//inAlphabet[i] = false;
 	for(uint i = 0; i < queryLength; i++) {
-		uchar c = static_cast<uchar>(queryOriginal[i]);
+		uchar c = static_cast<uchar>(pQueryOriginal[i]);
 		if(!inAlphabet[c]) {
 			inAlphabet[c] = true;
 			letterIdx[c] = static_cast<uchar>(alphabet.size());
-			alphabet += queryOriginal[i];
+			alphabet += pQueryOriginal[i];
 		}
 		(*ppQueryTransformed)[i] = letterIdx[c];
 	}
 	for(uint i = 0; i < targetLength; i++) {
-		const uchar c = static_cast<uchar>(targetOriginal[i]);
+		const uchar c = static_cast<uchar>(pTargetOriginal[i]);
 		if(!inAlphabet[c]) {
 			inAlphabet[c] = true;
 			letterIdx[c] = static_cast<uchar>(alphabet.size());
-			alphabet += targetOriginal[i];
+			alphabet += pTargetOriginal[i];
 		}
 		(*ppTargetTransformed)[i] = letterIdx[c];
 	}
@@ -200,14 +265,14 @@ static std::string TransformSequences(const char * queryOriginal, uint queryLeng
 // 
 // Main edlib method.
 // 
-EdlibAlignResult edlibAlign(const char * pQueryOriginal, uint queryLength, const char * pTargetOriginal, uint targetLength, const EdlibAlignConfig config) 
+EdlibAlignResult EdlibAlign(const char * pQueryOriginal, uint queryLength, const char * pTargetOriginal, uint targetLength, const EdlibAlignConfig config) 
 {
 	EdlibAlignResult result;
 	result.status = EDLIB_STATUS_OK;
 	result.editDistance = -1;
-	result.endLocations = result.startLocations = NULL;
+	result.P_EndLocations = result.P_StartLocations = NULL;
 	result.numLocations = 0;
-	result.alignment = NULL;
+	result.P_Alignment = NULL;
 	result.alignmentLength = 0;
 	result.alphabetLength = 0;
 	/*------------ TRANSFORM SEQUENCES AND RECOGNIZE ALPHABET -----------*/
@@ -219,14 +284,14 @@ EdlibAlignResult edlibAlign(const char * pQueryOriginal, uint queryLength, const
 	if(queryLength == 0 || targetLength == 0) {
 		if(config.Mode == EDLIB_MODE_NW) {
 			result.editDistance = smax(queryLength, targetLength);
-			result.endLocations = static_cast<int *>(SAlloc::M(sizeof(int) * 1));
-			result.endLocations[0] = targetLength - 1;
+			result.P_EndLocations = static_cast<int *>(SAlloc::M(sizeof(int) * 1));
+			result.P_EndLocations[0] = targetLength - 1;
 			result.numLocations = 1;
 		}
-		else if(config.Mode == EDLIB_MODE_SHW || config.Mode == EDLIB_MODE_HW) {
+		else if(oneof2(config.Mode, EDLIB_MODE_SHW, EDLIB_MODE_HW)) {
 			result.editDistance = queryLength;
-			result.endLocations = static_cast<int *>(SAlloc::M(sizeof(int) * 1));
-			result.endLocations[0] = -1;
+			result.P_EndLocations = static_cast<int *>(SAlloc::M(sizeof(int) * 1));
+			result.P_EndLocations[0] = -1;
 			result.numLocations = 1;
 		}
 		else {
@@ -237,14 +302,14 @@ EdlibAlignResult edlibAlign(const char * pQueryOriginal, uint queryLength, const
 		return result;
 	}
 	/*--------------------- INITIALIZATION ------------------*/
-	int maxNumBlocks = ceilDiv(queryLength, WORD_SIZE); // bmax in Myers
+	int maxNumBlocks = idivroundup(static_cast<int>(queryLength), WORD_SIZE); // bmax in Myers
 	int W = maxNumBlocks * WORD_SIZE - queryLength; // number of redundant cells in last level blocks
 	EqualityDefinition equalityDefinition(alphabet, config.additionalEqualities, config.additionalEqualitiesLength);
-	uint64 * Peq = buildPeq(alphabet.size(), query, queryLength, equalityDefinition);
+	uint64 * Peq = equalityDefinition.BuildPeq(alphabet.size(), query, queryLength);
 	/*------------------ MAIN CALCULATION -------------------*/
 	// TODO: Store alignment data only after k is determined? That could make things faster.
 	int positionNW; // Used only when mode is NW.
-	AlignmentData* alignData = NULL;
+	AlignmentData * alignData = NULL;
 	bool dynamicK = false;
 	int k = config.K;
 	if(k < 0) { // If valid k is not given, auto-adjust k until solution is found.
@@ -253,30 +318,30 @@ EdlibAlignResult edlibAlign(const char * pQueryOriginal, uint queryLength, const
 	}
 	do {
 		if(config.Mode == EDLIB_MODE_HW || config.Mode == EDLIB_MODE_SHW) {
-			myersCalcEditDistanceSemiGlobal(Peq, W, maxNumBlocks, queryLength, target, targetLength, k, config.Mode, &(result.editDistance), &(result.endLocations), &(result.numLocations));
+			MyersCalcEditDistanceSemiGlobal(Peq, W, maxNumBlocks, queryLength, target, targetLength, k, config.Mode, &(result.editDistance), &(result.P_EndLocations), &(result.numLocations));
 		}
 		else { // mode == EDLIB_MODE_NW
-			myersCalcEditDistanceNW(Peq, W, maxNumBlocks, queryLength, target, targetLength, k, &(result.editDistance), &positionNW, false, &alignData, -1);
+			MyersCalcEditDistanceNW(Peq, W, maxNumBlocks, queryLength, target, targetLength, k, &(result.editDistance), &positionNW, false, &alignData, -1);
 		}
 		k *= 2;
 	} while(dynamicK && result.editDistance == -1);
 	if(result.editDistance >= 0) { // If there is solution.
 		// If NW mode, set end location explicitly.
 		if(config.Mode == EDLIB_MODE_NW) {
-			result.endLocations = static_cast<int *>(SAlloc::M(sizeof(int) * 1));
-			result.endLocations[0] = targetLength - 1;
+			result.P_EndLocations = static_cast<int *>(SAlloc::M(sizeof(int) * 1));
+			result.P_EndLocations[0] = targetLength - 1;
 			result.numLocations = 1;
 		}
 		// Find starting locations.
-		if(config.Task == EDLIB_TASK_LOC || config.Task == EDLIB_TASK_PATH) {
-			result.startLocations = static_cast<int *>(SAlloc::M(result.numLocations * sizeof(int)));
+		if(oneof2(config.Task, EDLIB_TASK_LOC, EDLIB_TASK_PATH)) {
+			result.P_StartLocations = static_cast<int *>(SAlloc::M(result.numLocations * sizeof(int)));
 			if(config.Mode == EDLIB_MODE_HW) { // If HW, I need to calculate start locations.
-				const uchar * rTarget = createReverseCopy(target, targetLength);
-				const uchar * rQuery  = createReverseCopy(query, queryLength);
+				const uchar * rTarget = CreateReverseCopy(target, targetLength);
+				const uchar * rQuery  = CreateReverseCopy(query, queryLength);
 				// Peq for reversed query.
-				uint64 * rPeq = buildPeq(alphabet.size(), rQuery, queryLength, equalityDefinition);
+				uint64 * rPeq = equalityDefinition.BuildPeq(alphabet.size(), rQuery, queryLength);
 				for(int i = 0; i < result.numLocations; i++) {
-					int endLocation = result.endLocations[i];
+					int endLocation = result.P_EndLocations[i];
 					if(endLocation == -1) {
 						// NOTE: Sometimes one of optimal solutions is that query starts before
 						// target, like this:
@@ -296,19 +361,19 @@ EdlibAlignResult edlibAlign(const char * pQueryOriginal, uint queryLength, const
 						// the space of it's
 						//   search -> how can it do it right if these locations are negative or
 						// incorrect?
-						result.startLocations[i] = 0; // I put 0 for now, but it does not make much sense.
+						result.P_StartLocations[i] = 0; // I put 0 for now, but it does not make much sense.
 					}
 					else {
 						int bestScoreSHW;
 						int numPositionsSHW;
 						int * positionsSHW = 0;
-						myersCalcEditDistanceSemiGlobal(rPeq, W, maxNumBlocks,
+						MyersCalcEditDistanceSemiGlobal(rPeq, W, maxNumBlocks,
 							queryLength, rTarget + targetLength - endLocation - 1, endLocation + 1,
 							result.editDistance, EDLIB_MODE_SHW, &bestScoreSHW, &positionsSHW, &numPositionsSHW);
 						// Taking last location as start ensures that alignment will not start
 						// with insertions
 						// if it can start with mismatches instead.
-						result.startLocations[i] = endLocation - positionsSHW[numPositionsSHW - 1];
+						result.P_StartLocations[i] = endLocation - positionsSHW[numPositionsSHW - 1];
 						SAlloc::F(positionsSHW);
 					}
 				}
@@ -318,22 +383,21 @@ EdlibAlignResult edlibAlign(const char * pQueryOriginal, uint queryLength, const
 			}
 			else { // If mode is SHW or NW
 				for(int i = 0; i < result.numLocations; i++) {
-					result.startLocations[i] = 0;
+					result.P_StartLocations[i] = 0;
 				}
 			}
 		}
 		// Find alignment -> all comes down to finding alignment for NW.
 		// Currently we return alignment only for first pair of locations.
 		if(config.Task == EDLIB_TASK_PATH) {
-			int alnStartLocation = result.startLocations[0];
-			int alnEndLocation = result.endLocations[0];
+			int alnStartLocation = result.P_StartLocations[0];
+			int alnEndLocation = result.P_EndLocations[0];
 			const uchar * alnTarget = target + alnStartLocation;
 			const int alnTargetLength = alnEndLocation - alnStartLocation + 1;
-			const uchar * rAlnTarget = createReverseCopy(alnTarget, alnTargetLength);
-			const uchar * rQuery  = createReverseCopy(query, queryLength);
-			obtainAlignment(query, rQuery, queryLength, alnTarget, rAlnTarget, alnTargetLength,
-			    equalityDefinition, static_cast<int>(alphabet.size()), result.editDistance,
-			    &(result.alignment), &(result.alignmentLength));
+			const uchar * rAlnTarget = CreateReverseCopy(alnTarget, alnTargetLength);
+			const uchar * rQuery  = CreateReverseCopy(query, queryLength);
+			equalityDefinition.ObtainAlignment(query, rQuery, queryLength, alnTarget, rAlnTarget, alnTargetLength,
+			    static_cast<int>(alphabet.size()), result.editDistance, &(result.P_Alignment), &(result.alignmentLength));
 			delete[] rAlnTarget;
 			delete[] rQuery;
 		}
@@ -392,59 +456,19 @@ char* edlibAlignmentToCigar(const uchar * const alignment, const int alignmentLe
 	delete cigar;
 	return cigar_;
 }
-/**
- * Corresponds to Advance_Block function from Myers.
- * Calculates one word(block), which is part of a column.
- * Highest bit of word (one most to the left) is most bottom cell of block from column.
- * Pv[i] and Mv[i] define vin of cell[i]: vin = cell[i] - cell[i-1].
- * @param [in] Pv  Bitset, Pv[i] == 1 if vin is +1, otherwise Pv[i] == 0.
- * @param [in] Mv  Bitset, Mv[i] == 1 if vin is -1, otherwise Mv[i] == 0.
- * @param [in] Eq  Bitset, Eq[i] == 1 if match, 0 if mismatch.
- * @param [in] hin  Will be +1, 0 or -1.
- * @param [out] PvOut  Bitset, PvOut[i] == 1 if vout is +1, otherwise PvOut[i] == 0.
- * @param [out] MvOut  Bitset, MvOut[i] == 1 if vout is -1, otherwise MvOut[i] == 0.
- * @param [out] hout  Will be +1, 0 or -1.
- */
-static inline int calculateBlock(uint64 Pv, uint64 Mv, uint64 Eq, const int hin, uint64 &PvOut, uint64 &MvOut) 
-{
-	// hin can be 1, -1 or 0.
-	// 1  -> 00...01
-	// 0  -> 00...00
-	// -1 -> 11...11 (2-complement)
-	uint64 hinIsNeg = static_cast<uint64>(hin >> 2) & WORD_1; // 00...001 if hin is -1, 00...000 if 0 or 1
-	uint64 Xv = Eq | Mv;
-	// This is instruction below written using 'if': if (hin < 0) Eq |= (uint64)1;
-	Eq |= hinIsNeg;
-	uint64 Xh = (((Eq & Pv) + Pv) ^ Pv) | Eq;
-	uint64 Ph = Mv | ~(Xh | Pv);
-	uint64 Mh = Pv & Xh;
-	int hout = 0;
-	// This is instruction below written using 'if': if (Ph & HIGH_BIT_MASK) hout = 1;
-	hout = (Ph & HIGH_BIT_MASK) >> (WORD_SIZE - 1);
-	// This is instruction below written using 'if': if (Mh & HIGH_BIT_MASK) hout = -1;
-	hout -= (Mh & HIGH_BIT_MASK) >> (WORD_SIZE - 1);
-	Ph <<= 1;
-	Mh <<= 1;
-	// This is instruction below written using 'if': if (hin < 0) Mh |= (uint64)1;
-	Mh |= hinIsNeg;
-	// This is instruction below written using 'if': if (hin > 0) Ph |= (uint64)1;
-	Ph |= static_cast<uint64>((hin + 1) >> 1);
-	PvOut = Mh | ~(Xv | Ph);
-	MvOut = Ph & Xv;
-	return hout;
-}
+
 //static inline int min(const int x, const int y) { return x < y ? x : y; }
 //static inline int max(const int x, const int y) { return x > y ? x : y; }
 // 
 // @param [in] block
 // @return Values of cells in block, starting with bottom cell in block.
 // 
-static std::vector <int> getBlockCellValues(const Block & rBlock) 
+std::vector <int> EdLibBlock::GetBlockCellValues() const
 {
 	std::vector <int> scores(WORD_SIZE);
-	int    score = rBlock.Score;
-	const auto _p = rBlock.P;
-	const auto _m = rBlock.M;
+	int    score = Score;
+	const auto _p = P;
+	const auto _m = M;
 	uint64 mask = HIGH_BIT_MASK;
 	for(int i = 0; i < (WORD_SIZE-1); i++) {
 		scores[i] = score;
@@ -462,34 +486,34 @@ static std::vector <int> getBlockCellValues(const Block & rBlock)
  * @param [in] block
  * @param [out] dest  Array into which cell values are written. Must have size of at least WORD_SIZE.
  */
-static void readBlock(const Block block, int* const dest) 
+void EdLibBlock::ReadBlock(int * pDest) const
 {
-	int score = block.Score;
+	int score = Score;
 	uint64 mask = HIGH_BIT_MASK;
-	for(int i = 0; i < WORD_SIZE - 1; i++) {
-		dest[WORD_SIZE - 1 - i] = score;
-		if(block.P & mask) 
+	for(int i = 0; i < WORD_SIZE-1; i++) {
+		pDest[WORD_SIZE-1-i] = score;
+		if(P & mask) 
 			score--;
-		if(block.M & mask) 
+		if(M & mask) 
 			score++;
 		mask >>= 1;
 	}
-	dest[0] = score;
+	pDest[0] = score;
 }
 /**
  * Writes values of cells in block into given array, starting with last/bottom cell.
  * @param [in] block
  * @param [out] dest  Array into which cell values are written. Must have size of at least WORD_SIZE.
  */
-static void readBlockReverse(const Block block, int * pDest) 
+void EdLibBlock::ReadBlockReverse(int * pDest) const
 {
-	int  score = block.Score;
+	int  score = Score;
 	uint64 mask = HIGH_BIT_MASK;
 	for(int i = 0; i < WORD_SIZE - 1; i++) {
 		pDest[i] = score;
-		if(block.P & mask) 
+		if(P & mask) 
 			score--;
-		if(block.M & mask) 
+		if(M & mask) 
 			score++;
 		mask >>= 1;
 	}
@@ -500,9 +524,10 @@ static void readBlockReverse(const Block block, int * pDest)
  * @param [in] k
  * @return True if all cells in block have value larger than k, otherwise false.
  */
-static bool allBlockCellsLarger(const Block & rBlock, const int k) 
+//static bool AllBlockCellsLarger(const EdLibBlock & rBlock, const int k) 
+bool EdLibBlock::AllBlockCellsLarger(const int k) const
 {
-	std::vector <int> scores = getBlockCellValues(rBlock);
+	std::vector <int> scores = GetBlockCellValues();
 	for(int i = 0; i < WORD_SIZE; i++) {
 		if(scores[i] <= k) 
 			return false;
@@ -528,17 +553,17 @@ static bool allBlockCellsLarger(const Block & rBlock, const int k)
  * @param [out] numPositions_  Number of positions in the positions_ array.
  * @return Status.
  */
-static int myersCalcEditDistanceSemiGlobal(const uint64* const Peq, const int W, const int maxNumBlocks, const int queryLength,
-    const uchar * const target, const int targetLength, int k, const EdlibAlignMode mode, int* const bestScore_, int** const positions_, int* const numPositions_) 
+static int MyersCalcEditDistanceSemiGlobal(const uint64* const Peq, const int W, const int maxNumBlocks, const int queryLength,
+    const uchar * const target, const int targetLength, int k, const EdlibAlignMode mode, int * const bestScore_, int ** const positions_, int* const numPositions_) 
 {
 	*positions_ = NULL;
 	*numPositions_ = 0;
 	// firstBlock is 0-based index of first block in Ukkonen band.
 	// lastBlock is 0-based index of last block in Ukkonen band.
 	int firstBlock = 0;
-	int lastBlock = smin(ceilDiv(k + 1, WORD_SIZE), maxNumBlocks) - 1; // y in Myers
-	Block * bl; // Current block
-	Block * blocks = new Block[maxNumBlocks];
+	int lastBlock = smin(idivroundup(k + 1, WORD_SIZE), maxNumBlocks) - 1; // y in Myers
+	EdLibBlock * bl; // Current block
+	EdLibBlock * blocks = new EdLibBlock[maxNumBlocks];
 	// For HW, solution will never be larger then queryLength.
 	if(mode == EDLIB_MODE_HW) {
 		k = smin(queryLength, k);
@@ -549,9 +574,9 @@ static int myersCalcEditDistanceSemiGlobal(const uint64* const Peq, const int W,
 	// Initialize P, M and score
 	bl = blocks;
 	for(int b = 0; b <= lastBlock; b++) {
-		bl->Score = (b + 1) * WORD_SIZE;
 		bl->P = _FFFF64; // All 1s
 		bl->M = 0ULL;
+		bl->Score = (b + 1) * WORD_SIZE;
 		bl++;
 	}
 	int bestScore = -1;
@@ -565,7 +590,7 @@ static int myersCalcEditDistanceSemiGlobal(const uint64* const Peq, const int W,
 		bl = blocks + firstBlock;
 		Peq_c += firstBlock;
 		for(int b = firstBlock; b <= lastBlock; b++) {
-			hout = calculateBlock(bl->P, bl->M, *Peq_c, hout, bl->P, bl->M);
+			hout = bl->CalculateBlock(*Peq_c, hout);
 			bl->Score += hout;
 			bl++; Peq_c++;
 		}
@@ -576,10 +601,12 @@ static int myersCalcEditDistanceSemiGlobal(const uint64* const Peq, const int W,
 		if((lastBlock < maxNumBlocks - 1) && (bl->Score - hout <= k) // bl is pointing to last block
 		    && ((*(Peq_c + 1) & WORD_1) || hout < 0)) { // Peq_c is pointing to last block
 			// If score of left block is not too big, calculate one more block
-			lastBlock++; bl++; Peq_c++;
+			lastBlock++; 
+			bl++; 
+			Peq_c++;
 			bl->P = _FFFF64; // All 1s
 			bl->M = static_cast<uint64>(0);
-			bl->Score = (bl - 1)->Score - hout + WORD_SIZE + calculateBlock(bl->P, bl->M, *Peq_c, hout, bl->P, bl->M);
+			bl->Score = (bl - 1)->Score - hout + WORD_SIZE + bl->CalculateBlock(*Peq_c, hout);
 		}
 		else {
 			while(lastBlock >= firstBlock && bl->Score >= k + WORD_SIZE) {
@@ -593,8 +620,10 @@ static int myersCalcEditDistanceSemiGlobal(const uint64* const Peq, const int W,
 		//
 		// Reduce the band by decreasing last block if possible.
 		if(c % STRONG_REDUCE_NUM == 0) {
-			while(lastBlock >= 0 && lastBlock >= firstBlock && allBlockCellsLarger(*bl, k)) {
-				lastBlock--; bl--; Peq_c--;
+			while(lastBlock >= 0 && lastBlock >= firstBlock && bl->AllBlockCellsLarger(k)) {
+				lastBlock--; 
+				bl--; 
+				Peq_c--;
 			}
 		}
 		// For HW, even if all cells are > k, there still may be solution in next
@@ -602,7 +631,9 @@ static int myersCalcEditDistanceSemiGlobal(const uint64* const Peq, const int W,
 		// That means that first block is always candidate for solution,
 		// and we can never end calculation before last column.
 		if(mode == EDLIB_MODE_HW && lastBlock == -1) {
-			lastBlock++; bl++; Peq_c++;
+			lastBlock++; 
+			bl++; 
+			Peq_c++;
 		}
 		// Reduce band by increasing first block if possible. Not applicable to HW.
 		if(mode != EDLIB_MODE_HW) {
@@ -610,7 +641,7 @@ static int myersCalcEditDistanceSemiGlobal(const uint64* const Peq, const int W,
 				firstBlock++;
 			}
 			if(c % STRONG_REDUCE_NUM == 0) { // Do strong reduction every some blocks
-				while(firstBlock <= lastBlock && allBlockCellsLarger(blocks[firstBlock], k)) {
+				while(firstBlock <= lastBlock && blocks[firstBlock].AllBlockCellsLarger(k)) {
 					firstBlock++;
 				}
 			}
@@ -647,9 +678,9 @@ static int myersCalcEditDistanceSemiGlobal(const uint64* const Peq, const int W,
 	}
 	// Obtain results for last W columns from last column.
 	if(lastBlock == maxNumBlocks - 1) {
-		std::vector <int> blockScores = getBlockCellValues(*bl);
+		std::vector <int> blockScores = bl->GetBlockCellValues();
 		for(int i = 0; i < W; i++) {
-			int colScore = blockScores[i + 1];
+			const int colScore = blockScores[i + 1];
 			if(colScore <= k && (bestScore == -1 || colScore <= bestScore)) {
 				if(colScore != bestScore) {
 					positions.clear();
@@ -691,7 +722,7 @@ static int myersCalcEditDistanceSemiGlobal(const uint64* const Peq, const int W,
  *         and column p is returned as the only column in alignData.
  * @return Status.
  */
-static int myersCalcEditDistanceNW(const uint64* const Peq, const int W, const int maxNumBlocks, const int queryLength,
+static int MyersCalcEditDistanceNW(const uint64* const Peq, const int W, const int maxNumBlocks, const int queryLength,
     const uchar * const target, const int targetLength, int k, int * pBestScore, int * pPosition, const bool findAlignment,
     AlignmentData ** const ppAlignData, const int targetStopPosition) 
 {
@@ -710,15 +741,15 @@ static int myersCalcEditDistanceNW(const uint64* const Peq, const int W, const i
 	// lastBlock is 0-based index of last block in Ukkonen band.
 	int firstBlock = 0;
 	// This is optimal now, by my formula.
-	int lastBlock = smin(maxNumBlocks, ceilDiv(smin(k, (k + queryLength - targetLength) / 2) + 1, WORD_SIZE)) - 1;
-	Block * bl; // Current block
-	Block * p_blocks = new Block[maxNumBlocks];
+	int lastBlock = smin(maxNumBlocks, idivroundup(smin(k, (k + queryLength - targetLength) / 2) + 1, WORD_SIZE)) - 1;
+	EdLibBlock * bl; // Current block
+	EdLibBlock * p_blocks = new EdLibBlock[maxNumBlocks];
 	// Initialize P, M and score
 	bl = p_blocks;
 	for(int b = 0; b <= lastBlock; b++) {
-		bl->Score = (b + 1) * WORD_SIZE;
 		bl->P = _FFFF64; // All 1s
 		bl->M = 0ULL;
+		bl->Score = (b + 1) * WORD_SIZE;
 		bl++;
 	}
 	// If we want to find alignment, we have to store needed data.
@@ -730,12 +761,12 @@ static int myersCalcEditDistanceNW(const uint64* const Peq, const int W, const i
 		*ppAlignData = NULL;
 	const uchar * targetChar = target;
 	for(int c = 0; c < targetLength; c++) { // for each column
-		const uint64* Peq_c = Peq + *targetChar * maxNumBlocks;
+		const uint64 * Peq_c = Peq + *targetChar * maxNumBlocks;
 		//----------------------- Calculate column -------------------------//
 		int hout = 1;
 		bl = p_blocks + firstBlock;
 		for(int b = firstBlock; b <= lastBlock; b++) {
-			hout = calculateBlock(bl->P, bl->M, Peq_c[b], hout, bl->P, bl->M);
+			hout = bl->CalculateBlock(Peq_c[b], hout);
 			bl->Score += hout;
 			bl++;
 		}
@@ -755,10 +786,11 @@ static int myersCalcEditDistanceNW(const uint64* const Peq, const int W, const i
 			!(//score[lastBlock] >= k + WORD_SIZE ||  // NOTICE: this condition could be satisfied if above
 		         // block also!
 			    ((lastBlock + 1) * WORD_SIZE - 1 > k - bl->Score + 2 * WORD_SIZE - 2 - targetLength + c + queryLength))) {
-			lastBlock++; bl++;
+			lastBlock++; 
+			bl++;
 			bl->P = _FFFF64; // All 1s
-			bl->M = static_cast<uint64>(0);
-			int newHout = calculateBlock(bl->P, bl->M, Peq_c[lastBlock], hout, bl->P, bl->M);
+			bl->M = 0ULL;
+			int newHout = bl->CalculateBlock(Peq_c[lastBlock], hout);
 			bl->Score = (bl - 1)->Score - hout + WORD_SIZE + newHout;
 			hout = newHout;
 		}
@@ -768,7 +800,8 @@ static int myersCalcEditDistanceNW(const uint64* const Peq, const int W, const i
 		// I could consider adding that max part, for optimal performance.
 		while(lastBlock >= firstBlock && (bl->Score >= k + WORD_SIZE || ((lastBlock + 1) * WORD_SIZE - 1 > k - bl->Score + 2 * WORD_SIZE - 2 - targetLength + c + queryLength + 1))) { 
 			// TODO: Does not work if do not put +1! Why???
-			lastBlock--; bl--;
+			lastBlock--; 
+			bl--;
 		}
 		//--- Adjust first block ---//
 		// While outside of band, advance block
@@ -779,7 +812,7 @@ static int myersCalcEditDistanceNW(const uint64* const Peq, const int W, const i
 		if(c % STRONG_REDUCE_NUM == 0) { // Every some columns do more expensive but more efficient reduction
 			while(lastBlock >= firstBlock) {
 				// If all cells outside of band, remove block
-				std::vector <int> scores = getBlockCellValues(*bl);
+				std::vector <int> scores = bl->GetBlockCellValues();
 				int numCells = lastBlock == maxNumBlocks - 1 ? WORD_SIZE - W : WORD_SIZE;
 				int r = lastBlock * WORD_SIZE + numCells - 1;
 				bool reduce = true;
@@ -798,7 +831,7 @@ static int myersCalcEditDistanceNW(const uint64* const Peq, const int W, const i
 			}
 			while(firstBlock <= lastBlock) {
 				// If all cells outside of band, remove block
-				std::vector <int> scores = getBlockCellValues(p_blocks[firstBlock]);
+				std::vector <int> scores = p_blocks[firstBlock].GetBlockCellValues();
 				int numCells = firstBlock == maxNumBlocks - 1 ? WORD_SIZE - W : WORD_SIZE;
 				int r = firstBlock * WORD_SIZE + numCells - 1;
 				bool reduce = true;
@@ -824,25 +857,27 @@ static int myersCalcEditDistanceNW(const uint64* const Peq, const int W, const i
 		if(findAlignment && c < targetLength) {
 			bl = p_blocks + firstBlock;
 			for(int b = firstBlock; b <= lastBlock; b++) {
-				(*ppAlignData)->Ps[maxNumBlocks * c + b] = bl->P;
-				(*ppAlignData)->Ms[maxNumBlocks * c + b] = bl->M;
-				(*ppAlignData)->scores[maxNumBlocks * c + b] = bl->Score;
+				//(*ppAlignData)->Ps[maxNumBlocks * c + b] = bl->P;
+				//(*ppAlignData)->Ms[maxNumBlocks * c + b] = bl->M;
+				//(*ppAlignData)->P_Scores[maxNumBlocks * c + b] = bl->Score;
+				(*ppAlignData)->P_BlkList[maxNumBlocks * c + b] = *bl;
 				bl++;
 			}
-			(*ppAlignData)->firstBlocks[c] = firstBlock;
-			(*ppAlignData)->lastBlocks[c] = lastBlock;
+			(*ppAlignData)->P_FirstBlocks[c] = firstBlock;
+			(*ppAlignData)->P_LastBlocks[c] = lastBlock;
 		}
 		//
 		// If this is stop column, save it and finish
 		//
 		if(c == targetStopPosition) {
 			for(int b = firstBlock; b <= lastBlock; b++) {
-				(*ppAlignData)->Ps[b] = (p_blocks + b)->P;
-				(*ppAlignData)->Ms[b] = (p_blocks + b)->M;
-				(*ppAlignData)->scores[b] = (p_blocks + b)->Score;
+				//(*ppAlignData)->Ps[b] = (p_blocks + b)->P;
+				//(*ppAlignData)->Ms[b] = (p_blocks + b)->M;
+				//(*ppAlignData)->P_Scores[b] = (p_blocks + b)->Score;
+				(*ppAlignData)->P_BlkList[b] = p_blocks[b];
 			}
-			(*ppAlignData)->firstBlocks[0] = firstBlock;
-			(*ppAlignData)->lastBlocks[0] = lastBlock;
+			(*ppAlignData)->P_FirstBlocks[0] = firstBlock;
+			(*ppAlignData)->P_LastBlocks[0] = lastBlock;
 			*pBestScore = -1;
 			*pPosition = targetStopPosition;
 			delete[] p_blocks;
@@ -852,7 +887,7 @@ static int myersCalcEditDistanceNW(const uint64* const Peq, const int W, const i
 	}
 	if(lastBlock == maxNumBlocks - 1) { // If last block of last column was calculated
 		// Obtain best score from block -> it is complicated because query is padded with W cells
-		int best_score = getBlockCellValues(p_blocks[lastBlock])[W];
+		int best_score = p_blocks[lastBlock].GetBlockCellValues()[W];
 		if(best_score <= k) {
 			*pBestScore = best_score;
 			*pPosition = targetLength - 1;
@@ -875,79 +910,78 @@ static int myersCalcEditDistanceNW(const uint64* const Peq, const int W, const i
  * @param [out] alignmentLength  Length of alignment.
  * @return Status code.
  */
-static int obtainAlignmentTraceback(const int queryLength, const int targetLength, const int bestScore, const AlignmentData* const alignData,
-    uchar ** const alignment, int* const alignmentLength) 
+int AlignmentData::ObtainAlignmentTraceback(const int queryLength, const int targetLength, const int bestScore,
+    uchar ** const ppAlignment, int* const alignmentLength) const
 {
-	const int maxNumBlocks = ceilDiv(queryLength, WORD_SIZE);
-	const int W = maxNumBlocks * WORD_SIZE - queryLength;
-	*alignment = static_cast<uchar*>(SAlloc::M((queryLength + targetLength - 1) * sizeof(uchar)));
+	const int max_num_blocks = idivroundup(queryLength, WORD_SIZE);
+	const int W = max_num_blocks * WORD_SIZE - queryLength;
+	*ppAlignment = static_cast<uchar*>(SAlloc::M((queryLength + targetLength - 1) * sizeof(uchar)));
 	*alignmentLength = 0;
 	int c = targetLength - 1; // index of column
-	int b = maxNumBlocks - 1; // index of block in column
-	int currScore = bestScore; // Score of current cell
-	int lScore  = -1;// Score of left cell
-	int uScore  = -1;// Score of upper cell
-	int ulScore = -1; // Score of upper left cell
-	uint64 currP = alignData->Ps[c * maxNumBlocks + b]; // P of current block
-	uint64 currM = alignData->Ms[c * maxNumBlocks + b]; // M of current block
+	int b = max_num_blocks - 1; // index of block in column
+	int curr_score = bestScore; // Score of current cell
+	int l_score  = -1;// Score of left cell
+	int u_score  = -1;// Score of upper cell
+	int ul_score = -1; // Score of upper left cell
+	uint64 currP = P_BlkList[c * max_num_blocks + b].P; // P of current block
+	uint64 currM = P_BlkList[c * max_num_blocks + b].M; // M of current block
 	// True if block to left exists and is in band
-	bool thereIsLeftBlock = c > 0 && b >= alignData->firstBlocks[c-1] && b <= alignData->lastBlocks[c-1];
+	bool thereIsLeftBlock = c > 0 && b >= P_FirstBlocks[c-1] && b <= P_LastBlocks[c-1];
 	// We set initial values of lP and lM to 0 only to avoid compiler warnings, they should not affect the
 	// calculation as both lP and lM should be initialized at some moment later (but compiler can not
 	// detect it since this initialization is guaranteed by "business" logic).
 	uint64 lP = 0, lM = 0;
 	if(thereIsLeftBlock) {
-		lP = alignData->Ps[(c - 1) * maxNumBlocks + b]; // P of block to the left
-		lM = alignData->Ms[(c - 1) * maxNumBlocks + b]; // M of block to the left
+		lP = P_BlkList[(c - 1) * max_num_blocks + b].P; // P of block to the left
+		lM = P_BlkList[(c - 1) * max_num_blocks + b].M; // M of block to the left
 	}
 	currP <<= W;
 	currM <<= W;
-	int blockPos = WORD_SIZE - W - 1; // 0 based index of current cell in blockPos
-
+	int block_pos = WORD_SIZE - W - 1; // 0 based index of current cell in blockPos
 	// TODO(martin): refactor this whole piece of code. There are too many if-else statements,
 	// it is too easy for a bug to hide and to hard to effectively cover all the edge-cases.
 	// We need better separation of logic and responsibilities.
 	while(true) {
 		if(c == 0) {
 			thereIsLeftBlock = true;
-			lScore = b * WORD_SIZE + blockPos + 1;
-			ulScore = lScore - 1;
+			l_score = b * WORD_SIZE + block_pos + 1;
+			ul_score = l_score - 1;
 		}
 		// TODO: improvement: calculate only those cells that are needed,
 		//       for example if I calculate upper cell and can move up,
 		//       there is no need to calculate left and upper left cell
 		//---------- Calculate scores ---------//
-		if(lScore == -1 && thereIsLeftBlock) {
-			lScore = alignData->scores[(c - 1) * maxNumBlocks + b]; // score of block to the left
-			for(int i = 0; i < WORD_SIZE - blockPos - 1; i++) {
+		if(l_score == -1 && thereIsLeftBlock) {
+			l_score = P_BlkList[(c - 1) * max_num_blocks + b].Score; // score of block to the left
+			for(int i = 0; i < WORD_SIZE - block_pos - 1; i++) {
 				if(lP & HIGH_BIT_MASK) 
-					lScore--;
+					l_score--;
 				if(lM & HIGH_BIT_MASK) 
-					lScore++;
+					l_score++;
 				lP <<= 1;
 				lM <<= 1;
 			}
 		}
-		if(ulScore == -1) {
-			if(lScore != -1) {
-				ulScore = lScore;
+		if(ul_score == -1) {
+			if(l_score != -1) {
+				ul_score = l_score;
 				if(lP & HIGH_BIT_MASK) 
-					ulScore--;
+					ul_score--;
 				if(lM & HIGH_BIT_MASK) 
-					ulScore++;
+					ul_score++;
 			}
-			else if(c > 0 && b-1 >= alignData->firstBlocks[c-1] && b-1 <= alignData->lastBlocks[c-1]) {
+			else if(c > 0 && b-1 >= P_FirstBlocks[c-1] && b-1 <= P_LastBlocks[c-1]) {
 				// This is the case when upper left cell is last cell in block,
 				// and block to left is not in band so lScore is -1.
-				ulScore = alignData->scores[(c - 1) * maxNumBlocks + b - 1];
+				ul_score = P_BlkList[(c - 1) * max_num_blocks + b - 1].Score;
 			}
 		}
-		if(uScore == -1) {
-			uScore = currScore;
+		if(u_score == -1) {
+			u_score = curr_score;
 			if(currP & HIGH_BIT_MASK) 
-				uScore--;
+				u_score--;
 			if(currM & HIGH_BIT_MASK) 
-				uScore++;
+				u_score++;
 			currP <<= 1;
 			currM <<= 1;
 		}
@@ -957,27 +991,26 @@ static int obtainAlignmentTraceback(const int queryLength, const int targetLengt
 
 		//-------------- Move --------------//
 		// Move up - insertion to target - deletion from query
-		if(uScore != -1 && uScore + 1 == currScore) {
-			currScore = uScore;
-			lScore = ulScore;
-			uScore = ulScore = -1;
-			if(blockPos == 0) { // If entering new (upper) block
+		if(u_score != -1 && (u_score + 1) == curr_score) {
+			curr_score = u_score;
+			l_score = ul_score;
+			u_score = ul_score = -1;
+			if(block_pos == 0) { // If entering new (upper) block
 				if(b == 0) { // If there are no cells above (only boundary cells)
-					(*alignment)[(*alignmentLength)++] = EDLIB_EDOP_INSERT; // Move up
+					(*ppAlignment)[(*alignmentLength)++] = EDLIB_EDOP_INSERT; // Move up
 					for(int i = 0; i < c + 1; i++) // Move left until end
-						(*alignment)[(*alignmentLength)++] = EDLIB_EDOP_DELETE;
+						(*ppAlignment)[(*alignmentLength)++] = EDLIB_EDOP_DELETE;
 					break;
 				}
 				else {
-					blockPos = WORD_SIZE - 1;
+					block_pos = WORD_SIZE - 1;
 					b--;
-					currP = alignData->Ps[c * maxNumBlocks + b];
-					currM = alignData->Ms[c * maxNumBlocks + b];
-					if(c > 0 && b >= alignData->firstBlocks[c-1] && b <= alignData->lastBlocks[c-1]) {
+					currP = P_BlkList[c * max_num_blocks + b].P;
+					currM = P_BlkList[c * max_num_blocks + b].M;
+					if(c > 0 && b >= P_FirstBlocks[c-1] && b <= P_LastBlocks[c-1]) {
 						thereIsLeftBlock = true;
-						lP = alignData->Ps[(c - 1) * maxNumBlocks + b]; // TODO: improve this,
-						                                                // too many operations
-						lM = alignData->Ms[(c - 1) * maxNumBlocks + b];
+						lP = P_BlkList[(c - 1) * max_num_blocks + b].P; // TODO: improve this, too many operations
+						lM = P_BlkList[(c - 1) * max_num_blocks + b].M;
 					}
 					else {
 						thereIsLeftBlock = false;
@@ -989,104 +1022,104 @@ static int obtainAlignmentTraceback(const int queryLength, const int targetLengt
 				}
 			}
 			else {
-				blockPos--;
+				block_pos--;
 				lP <<= 1;
 				lM <<= 1;
 			}
 			// Mark move
-			(*alignment)[(*alignmentLength)++] = EDLIB_EDOP_INSERT;
+			(*ppAlignment)[(*alignmentLength)++] = EDLIB_EDOP_INSERT;
 		}
 		// Move left - deletion from target - insertion to query
-		else if(lScore != -1 && lScore + 1 == currScore) {
-			currScore = lScore;
-			uScore = ulScore;
-			lScore = ulScore = -1;
+		else if(l_score != -1 && (l_score + 1) == curr_score) {
+			curr_score = l_score;
+			u_score = ul_score;
+			l_score = ul_score = -1;
 			c--;
 			if(c == -1) { // If there are no cells to the left (only boundary cells)
-				(*alignment)[(*alignmentLength)++] = EDLIB_EDOP_DELETE; // Move left
-				int numUp = b * WORD_SIZE + blockPos + 1;
-				for(int i = 0; i < numUp; i++) // Move up until end
-					(*alignment)[(*alignmentLength)++] = EDLIB_EDOP_INSERT;
+				(*ppAlignment)[(*alignmentLength)++] = EDLIB_EDOP_DELETE; // Move left
+				const int num_up = b * WORD_SIZE + block_pos + 1;
+				for(int i = 0; i < num_up; i++) // Move up until end
+					(*ppAlignment)[(*alignmentLength)++] = EDLIB_EDOP_INSERT;
 				break;
 			}
 			currP = lP;
 			currM = lM;
-			if(c > 0 && b >= alignData->firstBlocks[c-1] && b <= alignData->lastBlocks[c-1]) {
+			if(c > 0 && b >= P_FirstBlocks[c-1] && b <= P_LastBlocks[c-1]) {
 				thereIsLeftBlock = true;
-				lP = alignData->Ps[(c - 1) * maxNumBlocks + b];
-				lM = alignData->Ms[(c - 1) * maxNumBlocks + b];
+				lP = P_BlkList[(c - 1) * max_num_blocks + b].P;
+				lM = P_BlkList[(c - 1) * max_num_blocks + b].M;
 			}
 			else {
 				if(c == 0) { // If there are no cells to the left (only boundary cells)
 					thereIsLeftBlock = true;
-					lScore = b * WORD_SIZE + blockPos + 1;
-					ulScore = lScore - 1;
+					l_score = b * WORD_SIZE + block_pos + 1;
+					ul_score = l_score - 1;
 				}
 				else {
 					thereIsLeftBlock = false;
 				}
 			}
 			// Mark move
-			(*alignment)[(*alignmentLength)++] = EDLIB_EDOP_DELETE;
+			(*ppAlignment)[(*alignmentLength)++] = EDLIB_EDOP_DELETE;
 		}
 		// Move up left - (mis)match
-		else if(ulScore != -1) {
-			uchar moveCode = ulScore == currScore ? EDLIB_EDOP_MATCH : EDLIB_EDOP_MISMATCH;
-			currScore = ulScore;
-			uScore = lScore = ulScore = -1;
+		else if(ul_score != -1) {
+			const uchar move_code = (ul_score == curr_score) ? EDLIB_EDOP_MATCH : EDLIB_EDOP_MISMATCH;
+			curr_score = ul_score;
+			u_score = l_score = ul_score = -1;
 			c--;
 			if(c == -1) { // If there are no cells to the left (only boundary cells)
-				(*alignment)[(*alignmentLength)++] = moveCode; // Move left
-				int numUp = b * WORD_SIZE + blockPos;
+				(*ppAlignment)[(*alignmentLength)++] = move_code; // Move left
+				int numUp = b * WORD_SIZE + block_pos;
 				for(int i = 0; i < numUp; i++) // Move up until end
-					(*alignment)[(*alignmentLength)++] = EDLIB_EDOP_INSERT;
+					(*ppAlignment)[(*alignmentLength)++] = EDLIB_EDOP_INSERT;
 				break;
 			}
-			if(blockPos == 0) { // If entering upper left block
+			if(block_pos == 0) { // If entering upper left block
 				if(b == 0) { // If there are no more cells above (only boundary cells)
-					(*alignment)[(*alignmentLength)++] = moveCode; // Move up left
+					(*ppAlignment)[(*alignmentLength)++] = move_code; // Move up left
 					for(int i = 0; i < c + 1; i++) // Move left until end
-						(*alignment)[(*alignmentLength)++] = EDLIB_EDOP_DELETE;
+						(*ppAlignment)[(*alignmentLength)++] = EDLIB_EDOP_DELETE;
 					break;
 				}
-				blockPos = WORD_SIZE - 1;
+				block_pos = WORD_SIZE - 1;
 				b--;
-				currP = alignData->Ps[c * maxNumBlocks + b];
-				currM = alignData->Ms[c * maxNumBlocks + b];
+				currP = P_BlkList[c * max_num_blocks + b].P;
+				currM = P_BlkList[c * max_num_blocks + b].M;
 			}
 			else { // If entering left block
-				blockPos--;
+				block_pos--;
 				currP = lP;
 				currM = lM;
 				currP <<= 1;
 				currM <<= 1;
 			}
 			// Set new left block
-			if(c > 0 && b >= alignData->firstBlocks[c-1] && b <= alignData->lastBlocks[c-1]) {
+			if(c > 0 && b >= P_FirstBlocks[c-1] && b <= P_LastBlocks[c-1]) {
 				thereIsLeftBlock = true;
-				lP = alignData->Ps[(c - 1) * maxNumBlocks + b];
-				lM = alignData->Ms[(c - 1) * maxNumBlocks + b];
+				lP = P_BlkList[(c - 1) * max_num_blocks + b].P;
+				lM = P_BlkList[(c - 1) * max_num_blocks + b].M;
 			}
 			else {
 				if(c == 0) { // If there are no cells to the left (only boundary cells)
 					thereIsLeftBlock = true;
-					lScore = b * WORD_SIZE + blockPos + 1;
-					ulScore = lScore - 1;
+					l_score = b * WORD_SIZE + block_pos + 1;
+					ul_score = l_score - 1;
 				}
 				else {
 					thereIsLeftBlock = false;
 				}
 			}
 			// Mark move
-			(*alignment)[(*alignmentLength)++] = moveCode;
+			(*ppAlignment)[(*alignmentLength)++] = move_code;
 		}
 		else {
 			// Reached end - finished!
 			break;
 		}
 	}
-	*alignment = static_cast<uchar*>(SAlloc::R(*alignment, (*alignmentLength) * sizeof(uchar)));
-	std::reverse(*alignment, *alignment + (*alignmentLength));
+	*ppAlignment = static_cast<uchar*>(SAlloc::R(*ppAlignment, (*alignmentLength) * sizeof(uchar)));
+	std::reverse(*ppAlignment, *ppAlignment + (*alignmentLength));
 	return EDLIB_STATUS_OK;
 }
 // 
@@ -1104,15 +1137,15 @@ static int obtainAlignmentTraceback(const int queryLength, const int targetLengt
 // @param [out] alignmentLength  Length of alignment.
 // @return Status code.
 // 
-static int obtainAlignmentHirschberg(const uchar * query, const uchar * rQuery, int queryLength,
-    const uchar * target, const uchar * rTarget, int targetLength,
+static int ObtainAlignmentHirschberg(const uchar * pQuery, const uchar * pRevQuery, int queryLength,
+    const uchar * pTarget, const uchar * pRevTarget, int targetLength,
     const EqualityDefinition & equalityDefinition, int alphabetLength, int bestScore,
     uchar ** ppAlignment, int * pAlignmentLength) 
 {
-	const int maxNumBlocks = ceilDiv(queryLength, WORD_SIZE);
-	const int W = maxNumBlocks * WORD_SIZE - queryLength;
-	uint64 * Peq = buildPeq(alphabetLength, query, queryLength, equalityDefinition);
-	uint64 * rPeq = buildPeq(alphabetLength, rQuery, queryLength, equalityDefinition);
+	const int max_num_blocks = idivroundup(queryLength, WORD_SIZE);
+	const int W = max_num_blocks * WORD_SIZE - queryLength;
+	uint64 * Peq = equalityDefinition.BuildPeq(alphabetLength, pQuery, queryLength);
+	uint64 * rPeq = equalityDefinition.BuildPeq(alphabetLength, pRevQuery, queryLength);
 	// Used only to call functions.
 	int score_;
 	int endLocation_;
@@ -1121,10 +1154,10 @@ static int obtainAlignmentHirschberg(const uchar * query, const uchar * rQuery, 
 	const int rightHalfWidth = targetLength - leftHalfWidth;
 	// Calculate left half.
 	AlignmentData * alignDataLeftHalf = NULL;
-	int leftHalfCalcStatus = myersCalcEditDistanceNW(Peq, W, maxNumBlocks, queryLength, target, targetLength, bestScore, &score_, &endLocation_, false, &alignDataLeftHalf, leftHalfWidth-1);
+	int leftHalfCalcStatus = MyersCalcEditDistanceNW(Peq, W, max_num_blocks, queryLength, pTarget, targetLength, bestScore, &score_, &endLocation_, false, &alignDataLeftHalf, leftHalfWidth-1);
 	// Calculate right half.
 	AlignmentData * alignDataRightHalf = NULL;
-	int rightHalfCalcStatus = myersCalcEditDistanceNW(rPeq, W, maxNumBlocks, queryLength, rTarget, targetLength, bestScore, &score_, &endLocation_, false, &alignDataRightHalf, rightHalfWidth-1);
+	int rightHalfCalcStatus = MyersCalcEditDistanceNW(rPeq, W, max_num_blocks, queryLength, pRevTarget, targetLength, bestScore, &score_, &endLocation_, false, &alignDataRightHalf, rightHalfWidth-1);
 	delete[] Peq;
 	delete[] rPeq;
 	if(leftHalfCalcStatus == EDLIB_STATUS_ERROR || rightHalfCalcStatus == EDLIB_STATUS_ERROR) {
@@ -1133,31 +1166,29 @@ static int obtainAlignmentHirschberg(const uchar * query, const uchar * rQuery, 
 		return EDLIB_STATUS_ERROR;
 	}
 	// Unwrap the left half.
-	int firstBlockIdxLeft = alignDataLeftHalf->firstBlocks[0];
-	int lastBlockIdxLeft = alignDataLeftHalf->lastBlocks[0];
+	int firstBlockIdxLeft = alignDataLeftHalf->P_FirstBlocks[0];
+	int lastBlockIdxLeft = alignDataLeftHalf->P_LastBlocks[0];
 	// TODO: avoid this allocation by using some shared array?
 	// scoresLeft contains scores from left column, starting with scoresLeftStartIdx row (query index)
 	// and ending with scoresLeftEndIdx row (0-indexed).
 	int scoresLeftLength = (lastBlockIdxLeft - firstBlockIdxLeft + 1) * WORD_SIZE;
-	int* scoresLeft = new int[scoresLeftLength];
+	int * scoresLeft = new int[scoresLeftLength];
 	for(int blockIdx = firstBlockIdxLeft; blockIdx <= lastBlockIdxLeft; blockIdx++) {
-		Block block(alignDataLeftHalf->Ps[blockIdx], alignDataLeftHalf->Ms[blockIdx], alignDataLeftHalf->scores[blockIdx]);
-		readBlock(block, scoresLeft + (blockIdx - firstBlockIdxLeft) * WORD_SIZE);
+		alignDataLeftHalf->P_BlkList[blockIdx].ReadBlock(scoresLeft + (blockIdx - firstBlockIdxLeft) * WORD_SIZE);
 	}
 	int scoresLeftStartIdx = firstBlockIdxLeft * WORD_SIZE;
 	// If last block contains padding, shorten the length of scores for the length of padding.
-	if(lastBlockIdxLeft == maxNumBlocks - 1) {
+	if(lastBlockIdxLeft == (max_num_blocks - 1)) {
 		scoresLeftLength -= W;
 	}
 	// Unwrap the right half (I also reverse it while unwraping).
-	int firstBlockIdxRight = alignDataRightHalf->firstBlocks[0];
-	int lastBlockIdxRight = alignDataRightHalf->lastBlocks[0];
+	int firstBlockIdxRight = alignDataRightHalf->P_FirstBlocks[0];
+	int lastBlockIdxRight = alignDataRightHalf->P_LastBlocks[0];
 	int scoresRightLength = (lastBlockIdxRight - firstBlockIdxRight + 1) * WORD_SIZE;
 	int * p_scores_right = new int[scoresRightLength];
 	int * p_scores_right_original_start = p_scores_right;
 	for(int blockIdx = firstBlockIdxRight; blockIdx <= lastBlockIdxRight; blockIdx++) {
-		Block block(alignDataRightHalf->Ps[blockIdx], alignDataRightHalf->Ms[blockIdx], alignDataRightHalf->scores[blockIdx]);
-		readBlockReverse(block, p_scores_right + (lastBlockIdxRight - blockIdx) * WORD_SIZE);
+		alignDataRightHalf->P_BlkList[blockIdx].ReadBlockReverse(p_scores_right + (lastBlockIdxRight - blockIdx) * WORD_SIZE);
 	}
 	int scoresRightStartIdx = queryLength - (lastBlockIdxRight + 1) * WORD_SIZE;
 	// If there is padding at the beginning of scoresRight (that can happen because of reversing that we do),
@@ -1226,12 +1257,14 @@ static int obtainAlignmentHirschberg(const uchar * query, const uchar * rQuery, 
 	const int lrHeight = queryLength - ulHeight;
 	const int ulWidth = leftHalfWidth;
 	const int lrWidth = rightHalfWidth;
-	uchar * ulAlignment = NULL; int ulAlignmentLength;
-	int ulStatusCode = obtainAlignment(query, rQuery + lrHeight, ulHeight, target, rTarget + lrWidth, ulWidth,
-		equalityDefinition, alphabetLength, leftScore, &ulAlignment, &ulAlignmentLength);
-	uchar * lrAlignment = NULL; int lrAlignmentLength;
-	int lrStatusCode = obtainAlignment(query + ulHeight, rQuery, lrHeight, target + ulWidth, rTarget, lrWidth,
-		equalityDefinition, alphabetLength, rightScore, &lrAlignment, &lrAlignmentLength);
+	uchar * ulAlignment = NULL; 
+	int ulAlignmentLength;
+	int ulStatusCode = equalityDefinition.ObtainAlignment(pQuery, pRevQuery + lrHeight, ulHeight, pTarget, pRevTarget + lrWidth, ulWidth,
+		alphabetLength, leftScore, &ulAlignment, &ulAlignmentLength);
+	uchar * lrAlignment = NULL; 
+	int lrAlignmentLength;
+	int lrStatusCode = equalityDefinition.ObtainAlignment(pQuery + ulHeight, pRevQuery, lrHeight, pTarget + ulWidth, pRevTarget, lrWidth,
+		alphabetLength, rightScore, &lrAlignment, &lrAlignmentLength);
 	if(ulStatusCode == EDLIB_STATUS_ERROR || lrStatusCode == EDLIB_STATUS_ERROR) {
 		SAlloc::F(ulAlignment);
 		SAlloc::F(lrAlignment);
@@ -1263,22 +1296,21 @@ static int obtainAlignmentHirschberg(const uchar * query, const uchar * rQuery, 
  * @param [out] alignmentLength  Length of alignment.
  * @return Status code.
  */
-static int obtainAlignment(const uchar * query, const uchar * rQuery, int queryLength,
+int EqualityDefinition::ObtainAlignment(const uchar * pQuery, const uchar * pRevQuery, int queryLength,
     const uchar * target, const uchar * rTarget, int targetLength,
-    const EqualityDefinition & equalityDefinition, int alphabetLength, int bestScore,
-    uchar ** alignment, int * alignmentLength) 
+    int alphabetLength, int bestScore, uchar ** ppAlignment, int * alignmentLength) const
 {
 	// Handle special case when one of sequences has length of 0.
 	if(queryLength == 0 || targetLength == 0) {
 		*alignmentLength = targetLength + queryLength;
-		*alignment = static_cast<uchar *>(SAlloc::M((*alignmentLength) * sizeof(uchar)));
+		*ppAlignment = static_cast<uchar *>(SAlloc::M((*alignmentLength) * sizeof(uchar)));
 		for(int i = 0; i < *alignmentLength; i++) {
-			(*alignment)[i] = (queryLength == 0) ? EDLIB_EDOP_DELETE : EDLIB_EDOP_INSERT;
+			(*ppAlignment)[i] = (queryLength == 0) ? EDLIB_EDOP_DELETE : EDLIB_EDOP_INSERT;
 		}
 		return EDLIB_STATUS_OK;
 	}
-	const int maxNumBlocks = ceilDiv(queryLength, WORD_SIZE);
-	const int W = maxNumBlocks * WORD_SIZE - queryLength;
+	const int max_num_blocks = idivroundup(queryLength, WORD_SIZE);
+	const int W = max_num_blocks * WORD_SIZE - queryLength;
 	int statusCode;
 	// TODO: think about reducing number of memory allocations in alignment functions, probably
 	// by sharing some memory that is allocated only once. That refers to: Peq, columns in Hirschberg,
@@ -1287,22 +1319,22 @@ static int obtainAlignment(const uchar * query, const uchar * rQuery, int queryL
 
 	// If estimated memory consumption for traceback algorithm is smaller than 1MB use it,
 	// otherwise use Hirschberg's algorithm. By running few tests I choose boundary of 1MB as optimal.
-	long long alignmentDataSize = (2ll * sizeof(uint64) + sizeof(int)) * maxNumBlocks * targetLength + 2ll * sizeof(int) * targetLength;
-	if(alignmentDataSize < 1024 * 1024) {
-		int score_, endLocation_; // Used only to call function.
-		AlignmentData * alignData = NULL;
-		uint64 * Peq = buildPeq(alphabetLength, query, queryLength, equalityDefinition);
-		myersCalcEditDistanceNW(Peq, W, maxNumBlocks, queryLength, target, targetLength,
-		    bestScore, &score_, &endLocation_, true, &alignData, -1);
+	long long alignment_data_size = (2ll * sizeof(uint64) + sizeof(int)) * max_num_blocks * targetLength + 2ll * sizeof(int) * targetLength;
+	if(alignment_data_size < 1024 * 1024) {
+		int score_;
+		int endLocation_; // Used only to call function.
+		AlignmentData * p_align_data = NULL;
+		uint64 * Peq = BuildPeq(alphabetLength, pQuery, queryLength);
+		MyersCalcEditDistanceNW(Peq, W, max_num_blocks, queryLength, target, targetLength, bestScore, &score_, &endLocation_, true, &p_align_data, -1);
 		//assert(score_ == bestScore);
 		//assert(endLocation_ == targetLength - 1);
-		statusCode = obtainAlignmentTraceback(queryLength, targetLength, bestScore, alignData, alignment, alignmentLength);
-		delete alignData;
+		statusCode = p_align_data->ObtainAlignmentTraceback(queryLength, targetLength, bestScore, ppAlignment, alignmentLength);
+		delete p_align_data;
 		delete [] Peq;
 	}
 	else {
-		statusCode = obtainAlignmentHirschberg(query, rQuery, queryLength, target, rTarget, targetLength,
-			equalityDefinition, alphabetLength, bestScore, alignment, alignmentLength);
+		statusCode = ObtainAlignmentHirschberg(pQuery, pRevQuery, queryLength, target, rTarget, targetLength,
+			*this, alphabetLength, bestScore, ppAlignment, alignmentLength);
 	}
 	return statusCode;
 }
@@ -1323,11 +1355,11 @@ EdlibAlignConfig edlibDefaultAlignConfig()
 	return edlibNewAlignConfig(-1, EDLIB_MODE_NW, EDLIB_TASK_DISTANCE, NULL, 0);
 }
 
-void edlibFreeAlignResult(EdlibAlignResult * pResult)
+void EdlibFreeAlignResult(EdlibAlignResult * pResult)
 {
 	if(pResult) {
-		ZFREE(pResult->endLocations);
-		ZFREE(pResult->startLocations);
-		ZFREE(pResult->alignment);
+		ZFREE(pResult->P_EndLocations);
+		ZFREE(pResult->P_StartLocations);
+		ZFREE(pResult->P_Alignment);
 	}
 }

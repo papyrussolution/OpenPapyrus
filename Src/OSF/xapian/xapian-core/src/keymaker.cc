@@ -99,7 +99,7 @@ namespace Xapian {
 	string MultiValueKeyMaker::serialise() const
 	{
 		string result;
-		for(auto& keyspec : slots) {
+		for(auto & keyspec : slots) {
 			pack_uint(result, keyspec.slot);
 			if(keyspec.defvalue.empty()) {
 				result += char((keyspec.reverse ? KEYSPEC_REVERSE : 0));

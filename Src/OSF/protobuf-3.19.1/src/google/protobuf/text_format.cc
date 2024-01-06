@@ -106,7 +106,7 @@ void TextFormat::ParseInfoTree::RecordLocation(const FieldDescriptor* field, Tex
 
 TextFormat::ParseInfoTree* TextFormat::ParseInfoTree::CreateNested(const FieldDescriptor* field) {
 	// Owned by us in the map.
-	auto& vec = nested_[field];
+	auto & vec = nested_[field];
 	vec.emplace_back(new TextFormat::ParseInfoTree());
 	return vec.back().get();
 }

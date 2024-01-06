@@ -145,13 +145,13 @@ ABSL_DLL const char kToUpper[256] = {
 
 void AsciiStrToLower(std::string* s) 
 {
-	for(auto& ch : *s) {
+	for(auto & ch : *s) {
 		ch = absl::ascii_tolower(ch);
 	}
 }
 
 void AsciiStrToUpper(std::string* s) {
-	for(auto& ch : *s) {
+	for(auto & ch : *s) {
 		ch = absl::ascii_toupper(ch);
 	}
 }

@@ -5,6 +5,11 @@
 #pragma hdrstop
 
 bool FASTCALL Helper_IsPrime(ulong val, int test);
+//
+// Descr: Реализация из EdLib (Martin Sosic). Я привожу ее здесь для тестирования с целью замены на
+//   штатную idivroundup.
+//
+static constexpr FORCEINLINE int idivroundup_edlib(int x, int y) { return (x % y) ? (x / y + 1) : (x / y); }
 
 SLTEST_R(smath)
 {
@@ -14,6 +19,7 @@ SLTEST_R(smath)
 		SLCHECK_EQ(idivroundn(12L, 5L), 2L);
 		SLCHECK_EQ(idivroundn(12LL, 5LL), 2LL);
 		SLCHECK_EQ(idivroundup(12, 5), 3);
+		SLCHECK_EQ(idivroundup_edlib(12, 5), 3);
 		SLCHECK_EQ(idivroundup(12L, 5L), 3L);
 		SLCHECK_EQ(idivroundup(12LL, 5LL), 3LL);
 
@@ -22,6 +28,7 @@ SLTEST_R(smath)
 		SLCHECK_EQ(idivroundn(13L, 5L), 3L);
 		SLCHECK_EQ(idivroundn(13LL, 5LL), 3LL);
 		SLCHECK_EQ(idivroundup(13, 5), 3);
+		SLCHECK_EQ(idivroundup_edlib(13, 5), 3);
 		SLCHECK_EQ(idivroundup(13L, 5L), 3L);
 		SLCHECK_EQ(idivroundup(13LL, 5LL), 3LL);
 
@@ -30,6 +37,7 @@ SLTEST_R(smath)
 		SLCHECK_EQ(idivroundn(8L, 4L), 2L);
 		SLCHECK_EQ(idivroundn(8LL, 4LL), 2LL);
 		SLCHECK_EQ(idivroundup(8, 4), 2);
+		SLCHECK_EQ(idivroundup_edlib(8, 4), 2);
 		SLCHECK_EQ(idivroundup(8L, 4L), 2L);
 		SLCHECK_EQ(idivroundup(8LL, 4LL), 2LL);
 
@@ -38,6 +46,7 @@ SLTEST_R(smath)
 		SLCHECK_EQ(idivroundn(9L, 4L), 2L);
 		SLCHECK_EQ(idivroundn(9LL, 4LL), 2LL);
 		SLCHECK_EQ(idivroundup(9, 4), 3);
+		SLCHECK_EQ(idivroundup_edlib(9, 4), 3);
 		SLCHECK_EQ(idivroundup(9L, 4L), 3L);
 		SLCHECK_EQ(idivroundup(9LL, 4LL), 3LL);
 
@@ -46,6 +55,7 @@ SLTEST_R(smath)
 		SLCHECK_EQ(idivroundn(10L, 4L), 3L);
 		SLCHECK_EQ(idivroundn(10LL, 4LL), 3LL);
 		SLCHECK_EQ(idivroundup(10, 4), 3);
+		SLCHECK_EQ(idivroundup_edlib(10, 4), 3);
 		SLCHECK_EQ(idivroundup(10L, 4L), 3L);
 		SLCHECK_EQ(idivroundup(10LL, 4LL), 3LL);
 	}

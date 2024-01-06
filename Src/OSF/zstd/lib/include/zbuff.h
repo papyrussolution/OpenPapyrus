@@ -46,7 +46,7 @@ extern "C" {
 #elif defined(_MSC_VER)
 #define ZBUFF_DEPRECATED(message) ZSTDLIB_API __declspec(deprecated(message))
 #else
-#    pragma message("WARNING: You need to implement ZBUFF_DEPRECATED for this compiler")
+#pragma message("WARNING: You need to implement ZBUFF_DEPRECATED for this compiler")
 #define ZBUFF_DEPRECATED(message) ZSTDLIB_API
 #endif
 #endif /* ZBUFF_DISABLE_DEPRECATE_WARNINGS */

@@ -406,7 +406,7 @@ INT_PTR CALLBACK HashFromFilesDlg::run_dlgProc(UINT message, WPARAM wParam, LPAR
 			{
 				CustomFileDialog fDlg(_hSelf);
 				fDlg.setExtFilter(TEXT("All types"), TEXT(".*"));
-				const auto& fns = fDlg.doOpenMultiFilesDlg();
+				const auto & fns = fDlg.doOpenMultiFilesDlg();
 				if(!fns.empty()) {
 					SString digest_buf;
 					std::wstring files2check, hashResultStr;

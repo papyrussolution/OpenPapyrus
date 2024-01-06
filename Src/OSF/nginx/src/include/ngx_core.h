@@ -162,9 +162,8 @@ static ngx_inline uchar * ngx_strlchr(uchar * p, uchar * last, uchar c)
  */
 //#define ngx_memzero_Removed(buf, n)       (void)memset(buf, 0, n)
 //#define ngx_memset_Removed(buf, c, n)     (void)memset(buf, c, n)
-
 #if (NGX_MEMCPY_LIMIT)
-	void * ngx_memcpy_Removed(void * dst, const void * src, size_t n);
+	//void * ngx_memcpy_Removed(void * dst, const void * src, size_t n);
 	#define ngx_cpymem(dst, src, n)   (((uchar *)memcpy(dst, src, n)) + (n))
 #else
 // 
@@ -172,7 +171,7 @@ static ngx_inline uchar * ngx_strlchr(uchar * p, uchar * last, uchar c)
 // gcc3 compiles memcpy(d, s, 4) to the inline "mov"es.
 // icc8 compile memcpy(d, s, 4) to the inline "mov"es or XMM moves.
 // 
-#define ngx_memcpy_Removed(dst, src, n)   (void)memcpy(dst, src, n)
+//#define ngx_memcpy_Removed(dst, src, n)   (void)memcpy(dst, src, n)
 #define ngx_cpymem(dst, src, n)   (((uchar *)memcpy(dst, src, n)) + (n))
 #endif
 

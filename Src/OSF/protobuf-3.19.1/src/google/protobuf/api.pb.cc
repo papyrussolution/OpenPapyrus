@@ -433,19 +433,19 @@ size_t Api::ByteSizeLong() const {
 
   // repeated .google.protobuf.Method methods = 2;
   total_size += 1UL * this->_internal_methods_size();
-  for(const auto& msg : this->methods_) {
+  for(const auto & msg : this->methods_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Option options = 3;
   total_size += 1UL * this->_internal_options_size();
-  for(const auto& msg : this->options_) {
+  for(const auto & msg : this->options_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Mixin mixins = 6;
   total_size += 1UL * this->_internal_mixins_size();
-  for(const auto& msg : this->mixins_) {
+  for(const auto & msg : this->mixins_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -810,7 +810,7 @@ size_t Method::ByteSizeLong() const {
 
   // repeated .google.protobuf.Option options = 6;
   total_size += 1UL * this->_internal_options_size();
-  for(const auto& msg : this->options_) {
+  for(const auto & msg : this->options_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 

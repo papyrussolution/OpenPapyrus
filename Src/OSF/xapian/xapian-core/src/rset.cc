@@ -66,7 +66,7 @@ string RSet::get_description() const
 		desc += ')';
 	}
 	else {
-		for(auto&& did : internal->docs) {
+		for(auto && did : internal->docs) {
 			desc += str(did);
 			desc += ',';
 		}

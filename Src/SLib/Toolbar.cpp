@@ -1,6 +1,6 @@
 // Toolbar.cpp
 // There's a mine born by Osolotkin, 2000, 2001
-// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023
+// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -488,36 +488,48 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 				else
 					skip = 1;
 				if(!skip) {
-					long   img_idx = -1;
+					long   image_idx = -1;
 					if(item.BitmapIndex & SlConst::VectorImageMask) {
-						TWhatmanToolArray::Item tool_item;
-						const SDrawFigure * p_fig = APPL->LoadDrawFigureById(item.BitmapIndex, &tool_item);
-						const uint _w = 16;
-						const uint _h = 16;
-						SImageBuffer ib(_w, _h);
-						{
-							TCanvas2 canv(APPL->GetUiToolBox(), ib);
-							if(!tool_item.ReplacedColor.IsEmpty()) {
-								SColor replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
-								canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+						//SPaintToolBox * p_tb = APPL->GetUiToolBox();
+						/*if(p_tb)*/{
+							TWhatmanToolArray::Item tool_item;
+							const SDrawFigure * p_fig = APPL->LoadDrawFigureById(item.BitmapIndex, &tool_item);
+							// @v11.9.2 {
+							SPtrHandle h_icon = TCanvas2::TransformDrawFigureToIcon(APPL->GetUiToolBox(), p_fig, SPoint2S(16, 16), tool_item.ReplacedColor, SColor(192, 192, 192, 255));
+							if(h_icon) {
+								image_idx = ImageList_AddIcon(himl, reinterpret_cast<HICON>((void *)h_icon));
+								//added_list.Add(image_id, image_idx, 0);
+								::DestroyIcon(reinterpret_cast<HICON>((void *)h_icon));
 							}
-							LMatrix2D mtx;
-							SViewPort vp;
-							FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
-							//
-							canv.Rect(pic_bounds);
-							//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
-							canv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
-							canv.PushTransform();
-							p_fig->GetViewPort(&vp);
-							canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
-							canv.Draw(p_fig);
-						}
-						HICON h_icon = static_cast<HICON>(ib.TransformToIcon());
-						if(h_icon) {
-							img_idx = ImageList_AddIcon(himl, h_icon);
-							//added_list.Add(image_id, image_idx, 0);
-							DestroyIcon(h_icon);
+							// } @v11.9.2 
+							/* @v11.9.2
+							const uint _w = 16;
+							const uint _h = 16;
+							SImageBuffer ib(_w, _h);
+							{
+								TCanvas2 canv(*p_tb, ib);
+								if(!tool_item.ReplacedColor.IsEmpty()) {
+									SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
+									canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+								}
+								LMatrix2D mtx;
+								SViewPort vp;
+								FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
+								//
+								canv.Rect(pic_bounds);
+								//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
+								canv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
+								canv.PushTransform();
+								p_fig->GetViewPort(&vp);
+								canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+								canv.Draw(p_fig);
+							}
+							HICON h_icon = static_cast<HICON>(ib.TransformToIcon());
+							if(h_icon) {
+								image_idx = ImageList_AddIcon(himl, h_icon);
+								//added_list.Add(image_id, image_idx, 0);
+								DestroyIcon(h_icon);
+							}*/
 						}
 					}
 					else {
@@ -526,11 +538,11 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 							HICON h_icon = BitmapToIcon(h_bmp);
 							// На некоторых машинах не отображаются картинки
 							// img_idx = ImageList_Add(himl, h_bmp, (HBITMAP)0);
-							img_idx = ImageList_AddIcon(himl, h_icon);
+							image_idx = ImageList_AddIcon(himl, h_icon);
 							DestroyIcon(h_icon);
 						}
 					}
-					btns.iBitmap = MAKELONG(img_idx, 0);
+					btns.iBitmap = MAKELONG(image_idx, 0);
 					p_btns[img_count++] = btns;
 				}
 			}

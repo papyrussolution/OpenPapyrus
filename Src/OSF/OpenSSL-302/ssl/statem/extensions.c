@@ -1586,7 +1586,6 @@ err:
 	OPENSSL_cleanse(finishedkey, sizeof(finishedkey));
 	EVP_PKEY_free(mackey);
 	EVP_MD_CTX_free(mctx);
-
 	return ret;
 }
 
@@ -1594,11 +1593,8 @@ static int final_early_data(SSL * s, unsigned int context, int sent)
 {
 	if(!sent)
 		return 1;
-
 	if(!s->server) {
-		if(context == SSL_EXT_TLS1_3_ENCRYPTED_EXTENSIONS
-		    && sent
-		    && !s->ext.early_data_ok) {
+		if(context == SSL_EXT_TLS1_3_ENCRYPTED_EXTENSIONS && sent && !s->ext.early_data_ok) {
 			/*
 			 * If we get here then the server accepted our early_data but we
 			 * later realised that it shouldn't have done (e.g. inconsistent
@@ -1623,14 +1619,11 @@ static int final_early_data(SSL * s, unsigned int context, int sent)
 	}
 	else {
 		s->ext.early_data = SSL_EARLY_DATA_ACCEPTED;
-
-		if(!tls13_change_cipher_state(s,
-		    SSL3_CC_EARLY | SSL3_CHANGE_CIPHER_SERVER_READ)) {
+		if(!tls13_change_cipher_state(s, SSL3_CC_EARLY | SSL3_CHANGE_CIPHER_SERVER_READ)) {
 			/* SSLfatal() already called */
 			return 0;
 		}
 	}
-
 	return 1;
 }
 
@@ -1645,7 +1638,6 @@ static int final_maxfragmentlen(SSL * s, unsigned int context, int sent)
 		SSLfatal(s, SSL_AD_MISSING_EXTENSION, SSL_R_BAD_EXTENSION);
 		return 0;
 	}
-
 	/* Current SSL buffer is lower than requested MFL */
 	if(s->session && USE_MAX_FRAGMENT_LENGTH_EXT(s->session)
 	    && s->max_send_fragment < GET_MAX_FRAGMENT_LENGTH(s->session))
@@ -1654,14 +1646,12 @@ static int final_maxfragmentlen(SSL * s, unsigned int context, int sent)
 			/* SSLfatal() already called */
 			return 0;
 		}
-
 	return 1;
 }
 
 static int init_post_handshake_auth(SSL * s, ossl_unused unsigned int context)
 {
 	s->post_handshake_auth = SSL_PHA_NONE;
-
 	return 1;
 }
 

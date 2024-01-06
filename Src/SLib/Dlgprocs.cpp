@@ -1,5 +1,5 @@
 // DLGPROCS.CPP
-// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -415,14 +415,12 @@ void TDialog::RemoveUnusedControls()
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				TDrawCtrlData dc;
-				if(uMsg == WM_CTLCOLORSTATIC)
-					dc.Src = TDrawCtrlData::cStatic;
-				else if(uMsg == WM_CTLCOLOREDIT)
-					dc.Src = TDrawCtrlData::cEdit;
-				else if(uMsg == WM_CTLCOLORSCROLLBAR)
-					dc.Src = TDrawCtrlData::cScrollBar;
-				else
-					dc.Src = 0;
+				switch(uMsg) {
+					case WM_CTLCOLORSTATIC: dc.Src = TDrawCtrlData::cStatic; break;
+					case WM_CTLCOLOREDIT: dc.Src = TDrawCtrlData::cEdit; break;
+					case WM_CTLCOLORSCROLLBAR: dc.Src = TDrawCtrlData::cScrollBar; break;
+					default: dc.Src = 0; break;
+				}
 				dc.H_Ctl = reinterpret_cast<HWND>(lParam);
 				dc.H_DC  = reinterpret_cast<HDC>(wParam);
 				dc.H_Br  = 0;
@@ -442,8 +440,9 @@ void TDialog::RemoveUnusedControls()
 									long   sdret = 0;
 									_strtodate(r_temp_buf, p_il->getFormat(), &d, &m, &y, &sdret);
 									if(sdret & strtodatefInvalid) {
-										SPaintToolBox & r_tb = APPL->GetUiToolBox();
-										return (BOOL)r_tb.Get(TProgram::tbiInvalInpBrush);
+										SPaintToolBox * p_tb = APPL->GetUiToolBox();
+										if(p_tb)
+											return (BOOL)p_tb->Get(TProgram::tbiInvalInpBrush);
 									}
 								}
 							}

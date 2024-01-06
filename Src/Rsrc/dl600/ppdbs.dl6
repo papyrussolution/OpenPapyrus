@@ -3547,10 +3547,10 @@ table BizScore2 { // @v11.9.1 @construction
 	long   UserID;
 	long   ScoreID;       // ->Ref(PPOBJ_BIZSCORE2)
 	long   ArID;          // ->Article.ID
-	raw    ActualTime[8]; // UED (@todo добавить тип uint4)
+	raw    ActualTime[8]; // UED (@todo добавить тип uint64)
 	long   Flags;
-	raw    LinkOid[8];    // UED 
-	raw    Value[8];      // UED (@todo добавить тип uint4)
+	raw    LinkOid[8];    // UED
+	raw    Value[8];      // UED (@todo добавить тип uint64)
 	raw    Reserve[64];
 index:
 	ID (unique);

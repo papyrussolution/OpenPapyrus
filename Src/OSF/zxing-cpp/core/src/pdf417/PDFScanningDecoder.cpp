@@ -245,7 +245,7 @@ static bool AdjustBoundingBox(Nullable<DetectionResultColumn>& rowIndicatorColum
 			break;
 		}
 	}
-	auto& codewords = rowIndicatorColumn.value().allCodewords();
+	auto & codewords = rowIndicatorColumn.value().allCodewords();
 	for(int row = 0; missingStartRows > 0 && codewords[row] == nullptr; row++) {
 		missingStartRows--;
 	}
@@ -317,7 +317,7 @@ static int GetStartColumn(const DetectionResult& detectionResult, int barcodeCol
 
 	while(IsValidBarcodeColumn(detectionResult, barcodeColumn - offset)) {
 		barcodeColumn -= offset;
-		for(auto& previousRowCodeword : detectionResult.column(barcodeColumn).value().allCodewords()) {
+		for(auto & previousRowCodeword : detectionResult.column(barcodeColumn).value().allCodewords()) {
 			if(previousRowCodeword != nullptr) {
 				return (leftToRight ? previousRowCodeword.value().endX() : previousRowCodeword.value().startX()) +
 				       offset *
@@ -333,14 +333,14 @@ static int GetStartColumn(const DetectionResult& detectionResult, int barcodeCol
 static std::vector<std::vector<BarcodeValue> > CreateBarcodeMatrix(DetectionResult& detectionResult)
 {
 	std::vector<std::vector<BarcodeValue> > barcodeMatrix(detectionResult.barcodeRowCount());
-	for(auto& row : barcodeMatrix) {
+	for(auto & row : barcodeMatrix) {
 		row.resize(detectionResult.barcodeColumnCount() + 2);
 	}
 
 	int column = 0;
-	for(auto& resultColumn : detectionResult.allColumns()) {
+	for(auto & resultColumn : detectionResult.allColumns()) {
 		if(resultColumn != nullptr) {
-			for(auto& codeword : resultColumn.value().allCodewords()) {
+			for(auto & codeword : resultColumn.value().allCodewords()) {
 				if(codeword != nullptr) {
 					int rowNumber = codeword.value().rowNumber();
 					if(rowNumber >= 0) {
@@ -613,7 +613,7 @@ static DecoderResult DecodeCodewords(std::vector<int>& codewords, int numECCodew
 
 DecoderResult DecodeCodewords(std::vector<int>& codewords, int numECCodeWords)
 {
-	for(auto& cw : codewords)
+	for(auto & cw : codewords)
 		cw = std::clamp(cw, 0, CodewordDecoder::MAX_CODEWORDS_IN_BARCODE);
 
 	// erasures array has never been actually used inside the error correction code

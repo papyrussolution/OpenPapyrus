@@ -1507,7 +1507,6 @@ static void fe_neg(fe h, const fe f)
 static void fe_cmov(fe f, const fe g, unsigned b)
 {
 	size_t i;
-
 	b = 0-b;
 	for(i = 0; i < 10; i++) {
 		int32_t x = f[i] ^ g[i];
@@ -1527,9 +1526,7 @@ static int fe_isnonzero(const fe f)
 {
 	uint8 s[32];
 	static const uint8 zero[32] = {0};
-
 	fe_tobytes(s, f);
-
 	return CRYPTO_memcmp(s, zero, sizeof(zero)) != 0;
 }
 
@@ -1543,11 +1540,9 @@ static int fe_isnonzero(const fe f)
 static int fe_isnegative(const fe f)
 {
 	uint8 s[32];
-
 	fe_tobytes(s, f);
 	return s[0] & 1;
 }
-
 /*
  * h = 2 * f * f
  *

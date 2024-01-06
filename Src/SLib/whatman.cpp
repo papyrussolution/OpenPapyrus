@@ -1003,9 +1003,10 @@ int TWhatman::GetRootLayoutObjectIndex(const WhatmanObjectLayoutBase * pC) const
 	return idx;
 }
 
-SUiLayout * TWhatman::Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC) const
+SUiLayout * TWhatman::Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC, TSVector <uintptr_t> & rRecurList) const
 {
 	SUiLayout * p_result = pParentLayout;
+	THROW(!rRecurList.lsearch(&pParentLayout, 0, PTR_CMPFUNC(uintptr_t))); // @v11.9.2
 	//SUiLayout * p_root_item = pParentLayout;
 	if(pC) {
 		const SString & r_container_ident = pC->GetContainerIdent();
@@ -1028,6 +1029,7 @@ SUiLayout * TWhatman::Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObje
 				p_result->SetSymb(pC->GetIdentSymb()); // @v11.7.10
 			}
 			if(p_result) {
+				rRecurList.insert(&p_result); // @v11.9.2
 				for(uint i = 0; i < ObjList.getCount(); i++) {
 					TWhatmanObject * p_iter_obj = ObjList.at(i);
 					assert(p_iter_obj);
@@ -1039,7 +1041,7 @@ SUiLayout * TWhatman::Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObje
 							p_iter_item->SetLayoutBlock(p_iter_obj->GetLayoutBlock());
 							p_iter_item->SetSymb(p_iter_obj->GetIdentSymb()); // @v11.7.10
 							if(p_iter_obj->HasOption(TWhatmanObject::oContainer)) {
-								THROW(Helper_CreateLayout(p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj))); // @recursion
+								THROW(Helper_CreateLayout(p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj), rRecurList)); // @recursion
 								//THROW(Helper_ArrangeLayoutContainer(p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj))); // @recursion
 							}
 							//ok = 1;
@@ -1057,7 +1059,8 @@ SUiLayout * TWhatman::Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObje
 
 SUiLayout * TWhatman::CreateLayout(WhatmanObjectLayoutBase * pC)
 {
-	return Helper_CreateLayout(0, pC);
+	TSVector <uintptr_t> recur_list;
+	return Helper_CreateLayout(0, pC, recur_list);
 }
 
 #if 0 // @v11.7.10 {
@@ -1120,7 +1123,8 @@ int TWhatman::ArrangeLayoutContainer(WhatmanObjectLayoutBase * pC)
 	// @v11.7.10 return Helper_ArrangeLayoutContainer(0, pC);
 	// @v11.7.10 {
 	int    ok = 1;
-	SUiLayout * p_lo = Helper_CreateLayout(0, pC);
+	TSVector <uintptr_t> recur_list;
+	SUiLayout * p_lo = Helper_CreateLayout(0, pC, recur_list);
 	if(p_lo) {
 		p_lo->Evaluate(0);
 		delete p_lo;

@@ -142,7 +142,7 @@ void StandardPluralRanges::setCapacity(int32_t length, UErrorCode & status) {
 
 StandardPlural::Form StandardPluralRanges::resolve(StandardPlural::Form first, StandardPlural::Form second) const {
 	for(int32_t i = 0; i<fTriplesLen; i++) {
-		const auto& triple = fTriples[i];
+		const auto & triple = fTriples[i];
 		if(triple.first == first && triple.second == second) {
 			return triple.result;
 		}

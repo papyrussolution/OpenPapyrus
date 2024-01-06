@@ -1,5 +1,5 @@
 // LBXDEF.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -198,15 +198,24 @@ void * ListBoxDef::CreateImageList(HINSTANCE hInst) // @v10.9.4 HIMAGELIST-->(vo
 				if(image_id & SlConst::VectorImageMask) {
 					TWhatmanToolArray::Item tool_item;
 					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(image_id, &tool_item); // @v10.5.0 (image_id & ~0x40000000)-->image_id
+					// @v11.9.2 {
+					SPtrHandle h_icon = TCanvas2::TransformDrawFigureToIcon(APPL->GetUiToolBox(), p_fig, SPoint2S(16, 16), tool_item.ReplacedColor, SColor(255, 255, 255, 255));
+					if(h_icon) {
+						image_idx = ImageList_AddIcon(himl, reinterpret_cast<HICON>((void *)h_icon));
+						added_list.Add(image_id, image_idx, 0);
+						::DestroyIcon(reinterpret_cast<HICON>((void *)h_icon));
+					}
+					// } @v11.9.2 
+					/* @v11.9.2
 					if(p_fig) {
 						const uint _w = 16;
 						const uint _h = 16;
 						SImageBuffer ib(_w, _h);
-						{
-							TCanvas2 canv(APPL->GetUiToolBox(), ib);
+						SPaintToolBox * p_tb = APPL->GetUiToolBox();
+						if(p_tb) {
+							TCanvas2 canv(*p_tb, ib);
 							if(!tool_item.ReplacedColor.IsEmpty()) {
-								SColor replacement_color;
-								replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
+								SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
 								canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
 							}
 							LMatrix2D mtx;
@@ -226,7 +235,7 @@ void * ListBoxDef::CreateImageList(HINSTANCE hInst) // @v10.9.4 HIMAGELIST-->(vo
 							added_list.Add(image_id, image_idx, 0);
 							::DestroyIcon(h_icon);
 						}
-					}
+					}*/
 				}
 				else {
 					HICON h_icon = LoadIcon(hInst, MAKEINTRESOURCE(image_id));

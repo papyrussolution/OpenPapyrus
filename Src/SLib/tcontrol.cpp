@@ -1,5 +1,5 @@
 // TCONTROL.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1771,37 +1771,39 @@ void ComboBox::freeAll()
 				::GetClientRect(hWnd, &rc);
 				const  TRect rect_elem_i = rc;
 				APPL->InitUiToolBox();
-				SPaintToolBox & r_tb = APPL->GetUiToolBox();
-				if(p_view->P_Fig) {
-					const  FRect rect_elem = rc;
-					TCanvas2 canv(r_tb, ps.hdc);
-					FRect pic_bounds = rect_elem;
-					LMatrix2D mtx;
-					SViewPort vp;
-					if(!p_view->ReplacedColor.IsEmpty()) {
-						SColor replacement_color;
-						replacement_color = r_tb.GetColor(TProgram::tbiIconRegColor);
-						canv.SetColorReplacement(p_view->ReplacedColor, replacement_color);
-					}
-					canv.PushTransform();
-					p_view->P_Fig->GetViewPort(&vp);
-					{
-                        pic_bounds.a.SetZero();
-						if(vp.GetSize().x <= rect_elem.Width() && vp.GetSize().y <= rect_elem.Height()) {
-							pic_bounds.b = vp.GetSize();
-							pic_bounds.MoveCenterTo(rect_elem.GetCenter());
+				SPaintToolBox * p_tb = APPL->GetUiToolBox();
+				if(p_tb) {
+					if(p_view->P_Fig) {
+						const  FRect rect_elem = rc;
+						TCanvas2 canv(*p_tb, ps.hdc);
+						FRect pic_bounds = rect_elem;
+						LMatrix2D mtx;
+						SViewPort vp;
+						if(!p_view->ReplacedColor.IsEmpty()) {
+							SColor replacement_color;
+							replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
+							canv.SetColorReplacement(p_view->ReplacedColor, replacement_color);
 						}
-						else {
+						canv.PushTransform();
+						p_view->P_Fig->GetViewPort(&vp);
+						{
+							pic_bounds.a.SetZero();
+							if(vp.GetSize().x <= rect_elem.Width() && vp.GetSize().y <= rect_elem.Height()) {
+								pic_bounds.b = vp.GetSize();
+								pic_bounds.MoveCenterTo(rect_elem.GetCenter());
+							}
+							else {
 
+							}
 						}
+						canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+						canv.Draw(p_view->P_Fig);
+						canv.PopTransform();
 					}
-					canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
-					canv.Draw(p_view->P_Fig);
-					canv.PopTransform();
-				}
-				else {
-					TCanvas2 canv(r_tb, ps.hdc);
-					canv.Rect(rect_elem_i, 0, TProgram::tbiButtonBrush);
+					else {
+						TCanvas2 canv(*p_tb, ps.hdc);
+						canv.Rect(rect_elem_i, 0, TProgram::tbiButtonBrush);
+					}
 				}
 				::EndPaint(hWnd, &ps);
 			}

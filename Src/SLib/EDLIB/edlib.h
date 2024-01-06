@@ -71,7 +71,7 @@ struct EdlibEqualityPair {
 	char second;
 };
 // 
-// Configuration object for edlibAlign() function.
+// Configuration object for EdlibAlign() function.
 // 
 struct EdlibAlignConfig {
 	//
@@ -104,7 +104,7 @@ struct EdlibAlignConfig {
 	 * Can be set to NULL if there are none.
 	 */
 	const EdlibEqualityPair * additionalEqualities;
-	int additionalEqualitiesLength; // Number of additional equalities, which is non-negative number. 0 if there are none.
+	int    additionalEqualitiesLength; // Number of additional equalities, which is non-negative number. 0 if there are none.
 };
 
 /**
@@ -118,7 +118,7 @@ EdlibAlignConfig edlibNewAlignConfig(int k, EdlibAlignMode mode, EdlibAlignTask 
  */
 EdlibAlignConfig edlibDefaultAlignConfig();
 /**
- * Container for results of alignment done by edlibAlign() function.
+ * Container for results of alignment done by EdlibAlign() function.
  */
 struct EdlibAlignResult {
 	int    status; // EDLIB_STATUS_OK or EDLIB_STATUS_ERROR. If error, all other fields will have undefined values.
@@ -127,17 +127,17 @@ struct EdlibAlignResult {
 	 * Array of zero-based positions in target where optimal alignment paths end.
 	 * If gap after query is penalized, gap counts as part of query (NW), otherwise not.
 	 * Set to NULL if edit distance is larger than k.
-	 * If you do not free whole result object using edlibFreeAlignResult(), do not forget to use free().
+	 * If you do not free whole result object using EdlibFreeAlignResult(), do not forget to use free().
 	 */
-	int  * endLocations;
+	int  * P_EndLocations;
 	/**
 	 * Array of zero-based positions in target where optimal alignment paths start,
 	 * they correspond to endLocations.
 	 * If gap before query is penalized, gap counts as part of query (NW), otherwise not.
 	 * Set to NULL if not calculated or if edit distance is larger than k.
-	 * If you do not free whole result object using edlibFreeAlignResult(), do not forget to use free().
+	 * If you do not free whole result object using EdlibFreeAlignResult(), do not forget to use free().
 	 */
-	int  * startLocations;
+	int  * P_StartLocations;
 	int    numLocations; // Number of end (and start) locations.
 	/**
 	 * Alignment is found for first pair of start and end locations.
@@ -149,9 +149,9 @@ struct EdlibAlignResult {
 	 * 3 stands for mismatch.
 	 * Alignment aligns query to target from begining of query till end of query.
 	 * If gaps are not penalized, they are not in alignment.
-	 * If you do not free whole result object using edlibFreeAlignResult(), do not forget to use free().
+	 * If you do not free whole result object using EdlibFreeAlignResult(), do not forget to use free().
 	 */
-	uchar * alignment;
+	uchar * P_Alignment;
 	int    alignmentLength; // Length of alignment.
 	int    alphabetLength; // Number of different characters in query and target together.
 };
@@ -159,7 +159,7 @@ struct EdlibAlignResult {
 // Descr: Frees memory in EdlibAlignResult that was allocated by edlib.
 //   If you do not use it, make sure to free needed members manually using free().
 // 
-void edlibFreeAlignResult(EdlibAlignResult * pResult);
+void EdlibFreeAlignResult(EdlibAlignResult * pResult);
 /**
  * Aligns two sequences (query and target) using edit distance (levenshtein distance).
  * Through config parameter, this function supports different alignment methods (global, prefix, infix),
@@ -173,9 +173,9 @@ void edlibFreeAlignResult(EdlibAlignResult * pResult);
  * @param [in] targetLength  Number of characters in second sequence.
  * @param [in] config  Additional alignment parameters, like alignment method and wanted results.
  * @return  Result of alignment, which can contain edit distance, start and end locations and alignment path.
- *          Make sure to clean up the object using edlibFreeAlignResult() or by manually freeing needed members.
+ *          Make sure to clean up the object using EdlibFreeAlignResult() or by manually freeing needed members.
  */
-EdlibAlignResult edlibAlign(const char * pQuery, uint queryLength, const char * pTarget, uint targetLength, const EdlibAlignConfig config);
+EdlibAlignResult EdlibAlign(const char * pQuery, uint queryLength, const char * pTarget, uint targetLength, const EdlibAlignConfig config);
 /**
  * Builds cigar string from given alignment sequence.
  * @param [in] alignment  Alignment sequence.
@@ -195,7 +195,7 @@ EdlibAlignResult edlibAlign(const char * pQuery, uint queryLength, const char * 
  *     Needed memory is allocated and given pointer is set to it.
  *     Do not forget to free it later using free()!
  */
-char* edlibAlignmentToCigar(const uchar * alignment, int alignmentLength, EdlibCigarFormat cigarFormat);
+char * edlibAlignmentToCigar(const uchar * alignment, int alignmentLength, EdlibCigarFormat cigarFormat);
 
 //#ifdef __cplusplus
 //}

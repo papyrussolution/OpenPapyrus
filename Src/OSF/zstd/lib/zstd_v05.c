@@ -400,9 +400,7 @@ typedef enum { bt_compressed, bt_raw, bt_rle, bt_end } blockType_t;
 /*-*******************************************
 *  Shared functions to include for inlining
 *********************************************/
-static void ZSTDv05_copy8(void* dst, const void* src) {
-	memcpy(dst, src, 8);
-}
+static void ZSTDv05_copy8(void* dst, const void* src) { memcpy(dst, src, 8); }
 
 #define COPY8(d, s) { ZSTDv05_copy8(d, s); d += 8; s += 8; }
 

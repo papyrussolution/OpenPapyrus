@@ -88,7 +88,7 @@ public:
 		: message_differencer_(message_differencer),
 		key_field_paths_(key_field_paths) {
 		GOOGLE_CHECK(!key_field_paths_.empty());
-		for(const auto& path : key_field_paths_) {
+		for(const auto & path : key_field_paths_) {
 			GOOGLE_CHECK(!path.empty());
 		}
 	}
@@ -103,7 +103,7 @@ public:
 
 	bool IsMatch(const Message& message1, const Message& message2,
 	    const std::vector <SpecificField>& parent_fields) const override {
-		for(const auto& path : key_field_paths_) {
+		for(const auto & path : key_field_paths_) {
 			if(!IsMatchInternal(message1, message2, parent_fields, path, 0)) {
 				return false;
 			}
@@ -393,7 +393,7 @@ void MessageDifferencer::TreatAsMapWithMultipleFieldPathsAsKey(const FieldDescri
 		<< "Field must be repeated: " << field->full_name();
 	GOOGLE_CHECK_EQ(FieldDescriptor::CPPTYPE_MESSAGE, field->cpp_type())
 		<< "Field has to be message type.  Field name is: " << field->full_name();
-	for(const auto& key_field_path : key_field_paths) {
+	for(const auto & key_field_path : key_field_paths) {
 		for(size_t j = 0; j < key_field_path.size(); ++j) {
 			const FieldDescriptor* parent_field =
 			    j == 0 ? field : key_field_path[j - 1];

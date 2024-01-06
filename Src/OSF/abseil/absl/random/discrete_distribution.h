@@ -143,7 +143,7 @@ template <typename URBG>
 typename discrete_distribution<IntType>::result_type discrete_distribution<IntType>::operator()(URBG& g,  // NOLINT(runtime/references)
     const param_type& p) {
 	const auto idx = absl::uniform_int_distribution<result_type>(0, p.n())(g);
-	const auto& q = p.q_[idx];
+	const auto & q = p.q_[idx];
 	const bool selected = absl::bernoulli_distribution(q.first)(g);
 	return selected ? idx : static_cast<result_type>(q.second);
 }
@@ -152,11 +152,11 @@ template <typename CharT, typename Traits, typename IntType>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os,  // NOLINT(runtime/references)
     const discrete_distribution<IntType>& x) {
 	auto saver = random_internal::make_ostream_state_saver(os);
-	const auto& probabilities = x.param().probabilities();
+	const auto & probabilities = x.param().probabilities();
 	os << probabilities.size();
 
 	os.precision(random_internal::stream_precision_helper<double>::kPrecision);
-	for(const auto& p : probabilities) {
+	for(const auto & p : probabilities) {
 		os << os.fill() << p;
 	}
 	return os;

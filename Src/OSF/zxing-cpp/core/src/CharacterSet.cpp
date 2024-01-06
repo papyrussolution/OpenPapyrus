@@ -70,13 +70,13 @@ static std::string NormalizeName(std::string_view sv)
 
 CharacterSet CharacterSetFromString(std::string_view name)
 {
-	auto i = FindIf(NAME_TO_CHARSET, [str = NormalizeName(name)](auto& v) { return NormalizeName(v.name) == str; });
+	auto i = FindIf(NAME_TO_CHARSET, [str = NormalizeName(name)](auto & v) { return NormalizeName(v.name) == str; });
 	return i == std::end(NAME_TO_CHARSET) ? CharacterSet::Unknown : i->cs;
 }
 
 std::string ToString(CharacterSet cs)
 {
-	auto i = FindIf(NAME_TO_CHARSET, [cs](auto& v) { return v.cs == cs; });
+	auto i = FindIf(NAME_TO_CHARSET, [cs](auto & v) { return v.cs == cs; });
 	return i == std::end(NAME_TO_CHARSET) ? "" : std::string(i->name);
 }
 

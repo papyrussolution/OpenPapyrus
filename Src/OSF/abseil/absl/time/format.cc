@@ -90,7 +90,7 @@ bool ParseTime(absl::string_view format, absl::string_view input, absl::TimeZone
 		{kInfinitePastStr, strlen(kInfinitePastStr), InfinitePast()},
 	};
 	strip_leading_space(&input);
-	for(const auto& lit : literals) {
+	for(const auto & lit : literals) {
 		if(absl::StartsWith(input, absl::string_view(lit.name, lit.size))) {
 			absl::string_view tail = input;
 			tail.remove_prefix(lit.size);

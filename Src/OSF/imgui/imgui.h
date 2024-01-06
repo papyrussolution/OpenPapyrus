@@ -520,8 +520,9 @@ void    SeparatorText(const char* label);                                   // c
 // Widgets: Main
 // - Most widgets return true when the value has been changed or when pressed/selected
 // - You may also use one of the many IsItemXXX functions (e.g. IsItemActive, IsItemHovered, etc.) to query widget state.
-bool    Button(const char* label, const ImVec2 & size = ImVec2(0, 0));       // button
-bool    SmallButton(const char* label);                                     // button with FramePadding=(0,0) to easily embed within text
+bool    Button(const char * pLabel, const ImVec2 & rSize = ImVec2(0, 0)); // button
+bool    Button2(const char * pLabel, const ImVec2 & rSize = ImVec2(0, 0), ImGuiButtonFlags flags = 0); // button
+bool    SmallButton(const char * pLabel); // button with FramePadding=(0,0) to easily embed within text
 bool    InvisibleButton(const char* str_id, const ImVec2 & size, ImGuiButtonFlags flags = 0);     // flexible button behavior without the visuals, frequently useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
 bool    ArrowButton(const char* str_id, ImGuiDir dir);                      // square button with an arrow shape
 bool    Checkbox(const char* label, bool* v);

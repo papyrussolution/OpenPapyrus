@@ -1,6 +1,6 @@
 // TVIEW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Adopted to SLIB by A.Sobolev 1995-2021, 2022, 2023
+// Adopted to SLIB by A.Sobolev 1995-2021, 2022, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -488,8 +488,9 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							HWND hw_il = ::CreateWindowEx(0, _T("EDIT"), 0, style, p_il->ViewOrigin.x,
 								p_il->ViewOrigin.y, p_il->ViewSize.x, p_il->ViewSize.y, hw_parent, (HMENU)p_il->GetId(), TProgram::GetInst(), 0);
 							if(hw_il) {
-								{
-									SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
+								SPaintToolBox * p_tb = APPL->GetUiToolBox();
+								if(p_tb) {
+									SPaintObj::Font * p_f = p_tb->GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
 									if(p_f) {
 										HFONT f = static_cast<HFONT>(*p_f);
 										::SendMessageW(hw_il, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
@@ -530,8 +531,9 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						hw = ::CreateWindowExW(0, L"EDIT", 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
-							{
-								SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
+							SPaintToolBox * p_tb = APPL->GetUiToolBox();
+							if(p_tb) {
+								SPaintObj::Font * p_f = p_tb->GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
 								if(p_f) {
 									HFONT f = static_cast<HFONT>(*p_f);
 									::SendMessageW(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
@@ -554,8 +556,9 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							//p_cv->setFont()
 							TView::SSetWindowText(hw, p_cv->GetRawText());
 							//::SendMessageW(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->getText(temp_buf))));
-							{
-								SPaintObj::Font * p_f = APPL->GetUiToolBox().GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
+							SPaintToolBox * p_tb = APPL->GetUiToolBox();
+							if(p_tb) {
+								SPaintObj::Font * p_f = p_tb->GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
 								if(p_f) {
 									HFONT f = static_cast<HFONT>(*p_f);
 									::SendMessageW(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);

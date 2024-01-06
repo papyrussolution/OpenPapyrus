@@ -65,7 +65,7 @@ ECI ToECI(CharacterSet cs)
 	// Special case Cp437 to avoid obsolete ECI 0 for slightly less obsolete ECI 2
 	if(cs == CharacterSet::Cp437)
 		return ECI::Cp437;
-	for(auto& [key, value] : ECI_TO_CHARSET)
+	for(auto & [key, value] : ECI_TO_CHARSET)
 		if(value == cs)
 			return key;
 	return ECI::Unknown;

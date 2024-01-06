@@ -123,7 +123,7 @@ BitMatrix BitMatrixFromCodewords(const ByteArray& codewords, int width, int heig
 	auto visited = VisitMatrix(height, width, [&codeword, &result](const BitPosArray& bitPos) {
 			// Places the 8 bits of a corner or the utah-shaped symbol character in the result matrix
 			uint8_t mask = 0x80;
-			for(auto& p : bitPos) {
+			for(auto & p : bitPos) {
 				if(*codeword & mask)
 					result.set(p.col, p.row);
 				mask >>= 1;
@@ -175,7 +175,7 @@ ByteArray CodewordsFromBitMatrix(const BitMatrix& bits, const Version& version)
 	VisitMatrix(dataBits.height(), dataBits.width(), [&codeword, &dataBits](const BitPosArray& bitPos) {
 			// Read the 8 bits of one of the special corner/utah symbols into the current codeword
 			*codeword = 0;
-			for(auto& p : bitPos)
+			for(auto & p : bitPos)
 				AppendBit(*codeword, dataBits.get(p.col, p.row));
 			++codeword;
 		});

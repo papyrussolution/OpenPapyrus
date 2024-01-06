@@ -43,19 +43,23 @@ private:
 						// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
 						// не реагировать
 						if(p_blk->PaintType == PaintEvent::tPaint) {
-							SPaintToolBox & r_tb = APPL->GetUiToolBox();
-							TCanvas2 canv(r_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-							DrawLayout(canv, P_Lfc);
+							SPaintToolBox * p_tb = APPL->GetUiToolBox();
+							if(p_tb) {
+								TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+								DrawLayout(canv, P_Lfc);
+							}
 						}
 					}
 					else {
-						SPaintToolBox & r_tb = APPL->GetUiToolBox();
-						TCanvas2 canv(r_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-						if(p_blk->PaintType == PaintEvent::tEraseBackground)
-							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-						if(p_blk->PaintType == PaintEvent::tPaint)
-							DrawLayout(canv, P_Lfc);
+						SPaintToolBox * p_tb = APPL->GetUiToolBox();
+						if(p_tb) {
+							TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+							if(p_blk->PaintType == PaintEvent::tEraseBackground)
+								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+							if(p_blk->PaintType == PaintEvent::tPaint)
+								DrawLayout(canv, P_Lfc);
+						}
 					}
 					*/
 					clearEvent(event);

@@ -46,6 +46,6 @@ static inline boolint _cairo_slope_backwards(const cairo_slope_t * a, const cair
 	return _cairo_int64_negative(_cairo_int64_add(_cairo_int32x32_64_mul(a->dx, b->dx), _cairo_int32x32_64_mul(a->dy, b->dy)));
 }
 
-cairo_private int FASTCALL _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b) cairo_pure;
+cairo_private int FASTCALL _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b) CXX_FUNC_PURE;
 
 #endif /* _CAIRO_SLOPE_PRIVATE_H */

@@ -665,19 +665,19 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 			}
 			break;
 		case UED_META_DATE_DAY:
-			DaysSinceChristmasToDate((int)LoDWord(raw), &rT.Y, &rT.M, &rT.D);
+			rT.SetDaysSinceChristmas(LoDWord(raw));
 			break;
 		case UED_META_DATE_MON:
-			DaysSinceChristmasToDate((int)LoDWord(raw), &rT.Y, &rT.M, &rT.D);
+			rT.SetDaysSinceChristmas(LoDWord(raw));
 			rT.D = 2;
 			break;
 		case UED_META_DATE_QUART:
-			DaysSinceChristmasToDate((int)LoDWord(raw), &rT.Y, &rT.M, &rT.D);
+			rT.SetDaysSinceChristmas(LoDWord(raw));
 			rT.M = (((rT.M-1) / 3) * 3) + 1;
 			rT.D = 2;
 			break;
 		case UED_META_DATE_SMYR:
-			DaysSinceChristmasToDate((int)LoDWord(raw), &rT.Y, &rT.M, &rT.D);
+			rT.SetDaysSinceChristmas(LoDWord(raw));
 			rT.M = (((rT.M-1) / 6) * 6) + 1;
 			rT.D = 2;
 			break;

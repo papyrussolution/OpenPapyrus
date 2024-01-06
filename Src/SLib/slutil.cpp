@@ -19,6 +19,7 @@ IMPL_CMPFUNC(int16, i1, i2) { return COMPARE(*static_cast<const int16 *>(i1), *s
 IMPL_CMPFUNC(long,  i1, i2) { return COMPARE(*static_cast<const long *>(i1), *static_cast<const long *>(i2)); }
 IMPL_CMPFUNC(int64, i1, i2) { return COMPARE(*static_cast<const int64 *>(i1), *static_cast<const int64 *>(i2)); }
 IMPL_CMPFUNC(uint,  i1, i2) { return COMPARE(*static_cast<const uint *>(i1), *static_cast<const uint *>(i2)); }
+IMPL_CMPFUNC(uintptr_t, i1, i2) { return COMPARE(*static_cast<const uintptr_t *>(i1), *static_cast<const uintptr_t *>(i2)); }
 IMPL_CMPFUNC(double, i1, i2)      { return COMPARE(*static_cast<const double *>(i1), *static_cast<const double *>(i2)); }
 IMPL_CMPFUNC(LDATE, d1, d2) { return COMPARE(static_cast<const LDATE *>(d1)->v, static_cast<const LDATE *>(d2)->v); }
 IMPL_CMPFUNC(LDATETIME, d1, d2)   { return cmp(*static_cast<const LDATETIME *>(d1), *static_cast<const LDATETIME *>(d2)); }

@@ -57,7 +57,7 @@ uint32_t arc4random(void);
 #define HAVE_WIN_BCRYPTGENRANDOM
 #include <bcrypt.h>
 #ifdef _MSC_VER
-#    pragma comment(lib, "bcrypt.lib")
+#pragma comment(lib, "bcrypt.lib")
 #endif
 #ifndef BCRYPT_USE_SYSTEM_PREFERRED_RNG
 #define BCRYPT_USE_SYSTEM_PREFERRED_RNG 0x00000002
@@ -68,7 +68,7 @@ uint32_t arc4random(void);
 #elif defined(USE_WIN32_CRYPTO)
 #include <wincrypt.h>
 #ifdef _MSC_VER
-#    pragma comment(lib, "advapi32.lib")
+#pragma comment(lib, "advapi32.lib")
 #endif
 #endif
 

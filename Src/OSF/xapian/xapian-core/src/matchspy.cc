@@ -330,7 +330,7 @@ string ValueCountMatchSpy::serialise_results() const {
 	Assert(internal.get());
 	string result;
 	pack_uint(result, internal->total);
-	for(auto&& item : internal->values) {
+	for(auto && item : internal->values) {
 		pack_string(result, item.first);
 		pack_uint(result, item.second);
 	}

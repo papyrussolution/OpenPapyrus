@@ -4,6 +4,7 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="text_20sp">20sp</dimen>
     <dimen name="toolbariconsqside">30dp</dimen>
+    <dimen name="listviewiconsqside">24dp</dimen>
     <dimen name="invitationqrcodeside">160dp</dimen>
     <dimen name="outerimgroundedcorners">1</dimen>
 	<!-- DateTimePicker values -->

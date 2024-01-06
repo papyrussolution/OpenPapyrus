@@ -1088,7 +1088,7 @@ void blueprint_helpers::parseMeasureUnitOption(const StringSegment& segment, Mac
 		return;
 	}
 	for(int32_t i = 0; i < numUnits; i++) {
-		auto& unit = units[i];
+		auto & unit = units[i];
 		if(strcmp(subType.data(), unit.getSubtype()) == 0) {
 			macros.unit = unit;
 			return;
@@ -1416,7 +1416,7 @@ bool blueprint_helpers::parseFracSigOption(const StringSegment& segment, MacroPr
 		return false;
 	}
 
-	auto& oldPrecision = static_cast<const FractionPrecision&>(macros.precision);
+	auto & oldPrecision = static_cast<const FractionPrecision&>(macros.precision);
 	macros.precision = oldPrecision.withSignificantDigits(minSig, maxSig, priority);
 	return true;
 }
@@ -1751,7 +1751,7 @@ bool GeneratorHelpers::integerWidth(const MacroProps& macros, UnicodeString & sb
 		// Error or Default
 		return false;
 	}
-	const auto& minMaxInt = macros.integerWidth.fUnion.minMaxInt;
+	const auto & minMaxInt = macros.integerWidth.fUnion.minMaxInt;
 	if(minMaxInt.fMinInt == 0 && minMaxInt.fMaxInt == 0) {
 		sb.append(u"integer-width-trunc", -1);
 		return true;

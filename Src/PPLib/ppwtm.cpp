@@ -418,8 +418,14 @@ protected:
 			else {
 				// @v11.2.2 {
 				uint   cntr = 0;
+				TSArray <uintptr_t> recur_list;
 				for(const WhatmanObjectLayoutBase * p_par = p_wtm->GetParentLayoutObject(this); p_par; p_par = p_wtm->GetParentLayoutObject(p_par)) {
-					cntr++;
+					if(!recur_list.lsearch(&p_par, 0, PTR_CMPFUNC(uintptr_t))) {
+						recur_list.insert(&p_par);
+						cntr++;
+					}
+					else
+						break;
 				}
 				tool = p_wtm->GetTool((cntr & 1) ? TWhatman::toolPenLayoutOddBorder : TWhatman::toolPenLayoutEvenBorder);
 				// } @v11.2.2 

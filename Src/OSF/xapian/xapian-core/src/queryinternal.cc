@@ -105,7 +105,7 @@ template <typename T> class Context {
 	{
 		if(pls.empty() || pls.front().tf != 0) 
 			return;
-		for(auto&& elt : pls) {
+		for(auto && elt : pls) {
 			elt.tf = elt.pl->get_termfreq_est();
 		}
 	}
@@ -145,7 +145,7 @@ public:
 		AssertRel(new_size, <=, pls.size());
 		if(new_size >= pls.size())
 			return;
-		for(auto&& i = pls.begin() + new_size; i != pls.end(); ++i) {
+		for(auto && i = pls.begin() + new_size; i != pls.end(); ++i) {
 			qopt->destroy_postlist(as_postlist(*i));
 		}
 		pls.resize(new_size);
@@ -1654,7 +1654,7 @@ PostList * QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 		// constant prefixes form a prefix-free set.
 		wdf_disjoint = true;
 		vector <string> prefixes;
-		for(auto&& q : subqueries) {
+		for(auto && q : subqueries) {
 			if(q.get_type() != Query::OP_WILDCARD) {
 				wdf_disjoint = false;
 				break;
@@ -1666,7 +1666,7 @@ PostList * QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 		if(wdf_disjoint) {
 			sort(prefixes.begin(), prefixes.end());
 			const string* prev = nullptr;
-			for(const auto& i : prefixes) {
+			for(const auto & i : prefixes) {
 				if(prev) {
 					if(startswith(i, *prev)) {
 						wdf_disjoint = false;
@@ -1682,7 +1682,7 @@ PostList * QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 		// which are the same.
 		wdf_disjoint = true;
 		unordered_set<string> terms;
-		for(auto&& q : subqueries) {
+		for(auto && q : subqueries) {
 			if(q.get_type() != Query::LEAF_TERM) {
 				wdf_disjoint = false;
 				break;
@@ -2069,7 +2069,7 @@ PostList * QueryFilter::postlist(QueryOptimiser * qopt, double factor) const
 {
 	LOGCALL(QUERY, PostList *, "QueryFilter::postlist", qopt | factor);
 	AndContext ctx(qopt, subqueries.size());
-	for(const auto& subq : subqueries) {
+	for(const auto & subq : subqueries) {
 		// MatchNothing subqueries should have been removed by done().
 		Assert(subq.internal.get());
 		if(!subq.internal->postlist_sub_and_like(ctx, qopt, factor))

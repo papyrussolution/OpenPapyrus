@@ -1202,7 +1202,7 @@ bool ExtensionSet::IsInitialized() const {
 	// Extensions are never required.  However, we need to check that all
 	// embedded messages are initialized.
 	if(PROTOBUF_PREDICT_FALSE(is_large())) {
-		for(const auto& kv : *map_.large) {
+		for(const auto & kv : *map_.large) {
 			if(!kv.second.IsInitialized()) return false;
 		}
 		return true;
@@ -1530,7 +1530,7 @@ bool ExtensionSet::ParseMessageSet(io::CodedInputStream* input,
 uint8_t* ExtensionSet::_InternalSerializeImpl(const MessageLite* extendee, int start_field_number, int end_field_number,
     uint8_t* target, io::EpsCopyOutputStream* stream) const {
 	if(PROTOBUF_PREDICT_FALSE(is_large())) {
-		const auto& end = map_.large->end();
+		const auto & end = map_.large->end();
 		for(auto it = map_.large->lower_bound(start_field_number);
 		    it != end && it->first < end_field_number; ++it) {
 			target = it->second.InternalSerializeFieldWithCachedSizesToArray(

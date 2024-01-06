@@ -223,7 +223,7 @@ static bool WillFit(int numInputBits, const Version& version, ErrorCorrectionLev
 	// numBytes = 196
 	int numBytes = version.totalCodewords();
 	// getNumECBytes = 130
-	auto& ecBlocks = version.ecBlocksForLevel(ecLevel);
+	auto & ecBlocks = version.ecBlocksForLevel(ecLevel);
 	int numEcBytes = ecBlocks.totalCodewords();
 	// getNumDataBytes = 196 - 130 = 66
 	int numDataBytes = numBytes - numEcBytes;
@@ -381,7 +381,7 @@ ZXING_EXPORT_TEST_ONLY BitArray InterleaveWithECBytes(const BitArray& bits, int 
 	BitArray output;
 	// First, place data blocks.
 	for(int i = 0; i < maxNumDataBytes; ++i) {
-		for(auto& block : blocks) {
+		for(auto & block : blocks) {
 			if(i < Size(block.dataBytes)) {
 				output.appendBits(block.dataBytes[i], 8);
 			}
@@ -389,7 +389,7 @@ ZXING_EXPORT_TEST_ONLY BitArray InterleaveWithECBytes(const BitArray& bits, int 
 	}
 	// Then, place error correction blocks.
 	for(int i = 0; i < maxNumEcBytes; ++i) {
-		for(auto& block : blocks) {
+		for(auto & block : blocks) {
 			if(i < Size(block.ecBytes)) {
 				output.appendBits(block.ecBytes[i], 8);
 			}
@@ -501,7 +501,7 @@ EncodeResult Encode(const std::wstring& content, ErrorCorrectionLevel ecLevel, C
 	// Put data together into the overall payload
 	headerAndDataBits.appendBitArray(dataBits);
 
-	auto& ecBlocks = version->ecBlocksForLevel(ecLevel);
+	auto & ecBlocks = version->ecBlocksForLevel(ecLevel);
 	int numDataBytes = version->totalCodewords() - ecBlocks.totalCodewords();
 
 	// Terminate the bits properly.

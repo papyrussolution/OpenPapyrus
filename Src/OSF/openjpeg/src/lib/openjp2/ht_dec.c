@@ -28,9 +28,9 @@
 // compiler detection
 //
 #ifdef _MSC_VER
-#define OPJ_COMPILER_MSVC
+	#define OPJ_COMPILER_MSVC
 #elif (defined __GNUC__)
-#define OPJ_COMPILER_GNUC
+	#define OPJ_COMPILER_GNUC
 #endif
 
 //************************************************************************/
@@ -38,7 +38,7 @@
  * MRP passes
  */
 static boolint only_cleanup_pass_is_decoded = FALSE;
-
+#if 0 // @sobolev (replaced with SBits::Cpop) {
 //************************************************************************/
 /** @brief Generates population count (i.e., the number of set bits)
  *
@@ -59,7 +59,8 @@ static INLINE uint32_t population_count(uint32_t val)
 	return (uint32_t)(val & 0x0000003f);
 #endif
 }
-
+#endif // } @sobolev
+#if 0 // @sobolev (replaced with SBits::Clz) {
 //************************************************************************/
 /** @brief Counts the number of leading zeros
  *
@@ -85,7 +86,7 @@ static INLINE uint32_t count_leading_zeros(uint32_t val)
 	return 32U - population_count(val);
 #endif
 }
-
+#endif // } @sobolev
 //************************************************************************/
 /** @brief Read a little-endian serialized UINT32.
  *
@@ -94,11 +95,8 @@ static INLINE uint32_t count_leading_zeros(uint32_t val)
 static INLINE uint32_t read_le_uint32(const void* dataIn)
 {
 #if defined(OPJ_BIG_ENDIAN)
-	const uint8* data = (const uint8 *)dataIn;
-	return ((uint32_t)data[0]) | (uint32_t)(data[1] << 8) | (uint32_t)(
-		data[2] << 16) | (((
-		       uint32_t)data[3]) <<
-		24U);
+	const uint8 * data = (const uint8 *)dataIn;
+	return ((uint32_t)data[0]) | (uint32_t)(data[1] << 8) | (uint32_t)(data[2] << 16) | (((uint32_t)data[3]) << 24U);
 #else
 	return *(uint32_t*)dataIn;
 #endif
@@ -146,7 +144,6 @@ static INLINE void mel_read(dec_mel_t * melp)
 	if(melp->bits > 32) { //there are enough bits in the tmp variable
 		return; // return without reading new data
 	}
-
 	val = 0xFFFFFFFF;  // feed in 0xFF if buffer is exhausted
 	if(melp->size > 4) { // if there is more than 4 bytes the MEL segment
 		val = read_le_uint32(melp->data); // read 32 bits from MEL data
@@ -667,7 +664,6 @@ static INLINE uint32_t decode_init_uvlc(uint32_t vlc, uint32_t mode, uint32_t * 
 	else if(mode <= 2) { // u_off are either 01 or 10
 		uint32_t d;
 		uint32_t suffix_len;
-
 		d = dec[vlc & 0x7]; //look at the least significant 3 bits
 		vlc >>= d & 0x3;         //prefix length
 		consumed_bits += d & 0x3;
@@ -1064,10 +1060,8 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 	int32_t x, y; // loop indices
 	boolint stripe_causal = (cblksty & J2K_CCP_CBLKSTY_VSC) != 0;
 	uint32_t cblk_len = 0;
-
 	(void)(orient);  // stops unused parameter message
 	(void)(check_pterm); // stops unused parameter message
-
 	// We ignor orient, because the same decoder is used for all subbands
 	// We also ignore check_pterm, because I am not sure how it applies
 	if(roishift != 0) {
@@ -1496,7 +1490,7 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 
 			//update line_state: bit 7 (\sigma^N), and E^N
 			t = lsp[0] & 0x7F; // keep E^NW
-			v_n = 32 - count_leading_zeros(v_n);
+			v_n = 32 - /*count_leading_zeros*/SBits::Clz(v_n);
 			lsp[0] = (uint8)(0x80 | (t > v_n ? t : v_n)); //max(E^NW, E^N) | s
 		}
 		else if(locs & 0x2) { // if this is inside the codeblock, set the
@@ -1536,7 +1530,7 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 			sp[stride] = val | ((v_n + 2) << (p - 1));
 
 			//line_state: bit 7 (\sigma^NW), and E^NW for next quad
-			lsp[0] = (uint8)(0x80 | (32 - count_leading_zeros(v_n)));
+			lsp[0] = (uint8)(0x80 | (32 - /*count_leading_zeros*/SBits::Clz(v_n)));
 		}
 		else if(locs & 0x8) { //if outside set to 0
 			sp[stride] = 0;
@@ -1575,19 +1569,16 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 
 			//update line_state: bit 7 (\sigma^N), and E^N
 			t = lsp[0] & 0x7F; //E^NW
-			v_n = 32 - count_leading_zeros(v_n); //E^N
+			v_n = 32 - /*count_leading_zeros*/SBits::Clz(v_n); //E^N
 			lsp[0] = (uint8)(0x80 | (t > v_n ? t : v_n)); //max(E^NW, E^N) | s
 		}
 		else if(locs & 0x20) {
 			sp[stride] = 0; //no need to update line_state
 		}
-
 		++lsp; //move line state to next quad
 		++sp; //move to next sample
-
 		if(qinf[1] & 0x40) {
 			uint32_t val;
-
 			ms_val = frwd_fetch(&magsgn);
 			m_n = U_q[1] - ((qinf[1] >> 14) & 1); //m_n
 			frwd_advance(&magsgn, m_n);
@@ -1615,7 +1606,7 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 			sp[stride] = val | ((v_n + 2) << (p - 1));
 
 			//line_state: bit 7 (\sigma^NW), and E^NW for next quad
-			lsp[0] = (uint8)(0x80 | (32 - count_leading_zeros(v_n)));
+			lsp[0] = (uint8)(0x80 | (32 - /*count_leading_zeros*/SBits::Clz(v_n)));
 		}
 		else if(locs & 0x80) {
 			sp[stride] = 0;
@@ -1775,10 +1766,8 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 			else if(locs & 0x1) {
 				sp[0] = 0;
 			}
-
 			if(qinf[0] & 0x20) { //sigma_n
 				uint32_t val, t;
-
 				ms_val = frwd_fetch(&magsgn);
 				m_n = U_q[0] - ((qinf[0] >> 13) & 1); //m_n
 				frwd_advance(&magsgn, m_n);
@@ -1790,19 +1779,16 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 
 				//update line_state: bit 7 (\sigma^N), and E^N
 				t = lsp[0] & 0x7F; //E^NW
-				v_n = 32 - count_leading_zeros(v_n);
+				v_n = 32 - /*count_leading_zeros*/SBits::Clz(v_n);
 				lsp[0] = (uint8)(0x80 | (t > v_n ? t : v_n));
 			}
 			else if(locs & 0x2) {
 				sp[stride] = 0; //no need to update line_state
 			}
-
 			++lsp;
 			++sp;
-
 			if(qinf[0] & 0x40) { //sigma_n
 				uint32_t val;
-
 				ms_val = frwd_fetch(&magsgn);
 				m_n = U_q[0] - ((qinf[0] >> 14) & 1); //m_n
 				frwd_advance(&magsgn, m_n);
@@ -1815,10 +1801,8 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 			else if(locs & 0x4) {
 				sp[0] = 0;
 			}
-
 			if(qinf[0] & 0x80) { //sigma_n
 				uint32_t val;
-
 				ms_val = frwd_fetch(&magsgn);
 				m_n = U_q[0] - ((qinf[0] >> 15) & 1); //m_n
 				frwd_advance(&magsgn, m_n);
@@ -1827,16 +1811,13 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 				v_n |= ((qinf[0] & 0x800) >> 11) << m_n;
 				v_n |= 1; //center of bin
 				sp[stride] = val | ((v_n + 2) << (p - 1));
-
 				//update line_state: bit 7 (\sigma^NW), and E^NW for next quad
-				lsp[0] = (uint8)(0x80 | (32 - count_leading_zeros(v_n)));
+				lsp[0] = (uint8)(0x80 | (32 - /*count_leading_zeros*/SBits::Clz(v_n)));
 			}
 			else if(locs & 0x8) {
 				sp[stride] = 0;
 			}
-
 			++sp;
-
 			if(qinf[1] & 0x10) { //sigma_n
 				uint32_t val;
 
@@ -1852,10 +1833,8 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 			else if(locs & 0x10) {
 				sp[0] = 0;
 			}
-
 			if(qinf[1] & 0x20) { //sigma_n
 				uint32_t val, t;
-
 				ms_val = frwd_fetch(&magsgn);
 				m_n = U_q[1] - ((qinf[1] >> 13) & 1); //m_n
 				frwd_advance(&magsgn, m_n);
@@ -1867,7 +1846,7 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 
 				//update line_state: bit 7 (\sigma^N), and E^N
 				t = lsp[0] & 0x7F; //E^NW
-				v_n = 32 - count_leading_zeros(v_n);
+				v_n = 32 - /*count_leading_zeros*/SBits::Clz(v_n);
 				lsp[0] = (uint8)(0x80 | (t > v_n ? t : v_n));
 			}
 			else if(locs & 0x20) {
@@ -1879,7 +1858,6 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 
 			if(qinf[1] & 0x40) { //sigma_n
 				uint32_t val;
-
 				ms_val = frwd_fetch(&magsgn);
 				m_n = U_q[1] - ((qinf[1] >> 14) & 1); //m_n
 				frwd_advance(&magsgn, m_n);
@@ -1892,10 +1870,8 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 			else if(locs & 0x40) {
 				sp[0] = 0;
 			}
-
 			if(qinf[1] & 0x80) { //sigma_n
 				uint32_t val;
-
 				ms_val = frwd_fetch(&magsgn);
 				m_n = U_q[1] - ((qinf[1] >> 15) & 1); //m_n
 				frwd_advance(&magsgn, m_n);
@@ -1906,7 +1882,7 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 				sp[stride] = val | ((v_n + 2) << (p - 1));
 
 				//update line_state: bit 7 (\sigma^NW), and E^NW for next quad
-				lsp[0] = (uint8)(0x80 | (32 - count_leading_zeros(v_n)));
+				lsp[0] = (uint8)(0x80 | (32 - /*count_leading_zeros*/SBits::Clz(v_n)));
 			}
 			else if(locs & 0x80) {
 				sp[stride] = 0;
@@ -1987,18 +1963,15 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 						}
 					}
 					// consume data according to the number of bits set
-					rev_advance_mrp(&magref, population_count(sig));
+					rev_advance_mrp(&magref, SBits::Cpop(sig));
 				}
 			}
-
 			if(y >= 4) { // update mbr array at the end of each stripe
 				//generate mbr corresponding to a stripe
 				uint32_t * sig = y & 0x4 ? sigma1 : sigma2;
 				uint32_t * mbr = y & 0x4 ? mbr1 : mbr2;
-
 				//data is processed in patches of 8 columns, each
 				// each 32 bits in sigma1 or mbr1 represent 4 rows
-
 				//integrate horizontally
 				uint32_t prev = 0; // previous columns
 				int32_t i;
@@ -2140,29 +2113,19 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 								uint32_t * dp = decoded_data + (y - 8) * stride;
 								dp += i + n; // decoded samples address
 								col_mask = 0xFu << (4 * n); //mask to select a column
-
 								for(j = n; j < end; ++j, ++dp, col_mask <<= 4) {
 									uint32_t sample_mask;
-
-									if((col_mask & new_sig) == 0) { //if non is
-										                        // significant
+									if((col_mask & new_sig) == 0) { //if non is significant
 										continue;
 									}
-
 									//scan 4 signs
 									sample_mask = 0x11111111u & col_mask;
 									if(new_sig & sample_mask) {
 										assert(dp[0] == 0);
-										dp[0] |= ((cwd & 1) << 31) | val; //put
-										                                  // value
-										                                  // and
-										                                  // sign
+										dp[0] |= ((cwd & 1) << 31) | val; //put value and sign
 										cwd >>= 1;
-										++cnt; //consume bit and increment
-										       // number
-										//of consumed bits
+										++cnt; //consume bit and increment number of consumed bits
 									}
-
 									sample_mask += sample_mask;
 									if(new_sig & sample_mask) {
 										assert(dp[stride] == 0);
@@ -2267,7 +2230,6 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 								cwd >>= 1;
 							}
 							sample_mask += sample_mask;
-
 							if(sig & sample_mask) {
 								uint32_t sym;
 								assert(dp[3 * stride] != 0);
@@ -2281,10 +2243,9 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 						col_mask <<= 4;
 					}
 				}
-				rev_advance_mrp(&magref, population_count(sig));
+				rev_advance_mrp(&magref, SBits::Cpop(sig));
 			}
 		}
-
 		//do the last incomplete stripe
 		// for cases of (height & 3) == 0 and 3
 		// the should have been processed previously
@@ -2319,7 +2280,6 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 			uint32_t * cur_sig, * cur_mbr, * nxt_sig, * nxt_mbr;
 			uint32_t val;
 			int32_t i;
-
 			uint32_t pattern = 0xFFFFFFFFu; // a pattern needed samples
 			if(height - y == 3) {
 				pattern = 0x77777777u;
@@ -2372,25 +2332,18 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 						uint32_t inv_sig;
 						int32_t end;
 						int32_t j;
-
 						uint32_t cwd = frwd_fetch(&sigprop);
 						uint32_t cnt = 0;
-
 						uint32_t * dp = decoded_data + y * stride;
 						dp += i + n;
-
 						col_mask = 0xFu << (4 * n);
-
 						inv_sig = ~cur_sig[0] & pattern;
-
 						end = n + 4 + i < width ? n + 4 : width - i;
 						for(j = n; j < end; ++j, ++dp, col_mask <<= 4) {
 							uint32_t sample_mask;
-
 							if((col_mask & mbr) == 0) {
 								continue;
 							}
-
 							//scan 4 mbr
 							sample_mask = 0x11111111u & col_mask;
 							if(mbr & sample_mask) {
@@ -2404,7 +2357,6 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 								cwd >>= 1;
 								++cnt;
 							}
-
 							sample_mask += sample_mask;
 							if(mbr & sample_mask) {
 								assert(dp[stride] == 0);
@@ -2417,7 +2369,6 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 								cwd >>= 1;
 								++cnt;
 							}
-
 							sample_mask += sample_mask;
 							if(mbr & sample_mask) {
 								assert(dp[2 * stride] == 0);
@@ -2430,7 +2381,6 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 								cwd >>= 1;
 								++cnt;
 							}
-
 							sample_mask += sample_mask;
 							if(mbr & sample_mask) {
 								assert(dp[3 * stride] == 0);
@@ -2444,7 +2394,6 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 								++cnt;
 							}
 						}
-
 						//signs here
 						if(new_sig & (0xFFFFu << (4 * n))) {
 							uint32_t col_mask;
@@ -2452,7 +2401,6 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 							uint32_t * dp = decoded_data + y * stride;
 							dp += i + n;
 							col_mask = 0xFu << (4 * n);
-
 							for(j = n; j < end; ++j, ++dp, col_mask <<= 4) {
 								uint32_t sample_mask;
 								if((col_mask & new_sig) == 0) {

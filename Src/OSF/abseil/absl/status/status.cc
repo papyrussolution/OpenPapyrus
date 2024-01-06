@@ -132,7 +132,7 @@ const {
 		    payloads->size() > 1 && reinterpret_cast<uintptr_t>(payloads) % 13 > 6;
 
 		for(size_t index = 0; index < payloads->size(); ++index) {
-			const auto& elem =
+			const auto & elem =
 			    (*payloads)[in_reverse ? payloads->size() - 1 - index : index];
 
 #ifdef NDEBUG
@@ -234,9 +234,9 @@ bool Status::EqualsSlow(const absl::Status& a, const absl::Status& b) {
 	if((larger_payloads->size() - smaller_payloads->size()) > 1) return false;
 	// Payloads can be ordered differently, so we can't just compare payload
 	// vectors.
-	for(const auto& payload : *larger_payloads) {
+	for(const auto & payload : *larger_payloads) {
 		bool found = false;
-		for(const auto& other_payload : *smaller_payloads) {
+		for(const auto & other_payload : *smaller_payloads) {
 			if(payload.type_url == other_payload.type_url) {
 				if(payload.payload != other_payload.payload) {
 					return false;

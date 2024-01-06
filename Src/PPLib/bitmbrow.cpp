@@ -1,5 +1,5 @@
 // BITMBROW.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 // Модуль, отвечающий за броузер строк товарных документов.
@@ -3183,90 +3183,92 @@ private:
 				if(list_ctrl_id == CtlList) {
 					SmartListBox * p_lbx = static_cast<SmartListBox *>(p_draw_item->P_View);
 					const FRect  rect_elem = p_draw_item->ItemRect;
-					SPaintToolBox & r_tb = APPL->GetUiToolBox();
-					TCanvas2 canv(r_tb, p_draw_item->H_DC);
-					if(p_draw_item->ItemAction & TDrawItemData::iaBackground) {
-						canv.Rect(rect_elem, 0, TProgram::tbiListBkgBrush);
-						p_draw_item->ItemAction = 0; // Мы перерисовали фон
-					}
-					else {
-						SString code_buf;
-						SString box_code;
-						p_lbx->getText(static_cast<long>(p_draw_item->ItemData), code_buf);
-						int    err = 0;
-						int    row_idx = -1;
-						int    brush_id = 0; //TProgram::tbiListBkgBrush;
-						if(code_buf.NotEmpty()) {
-							uint  inner_idx = 0;
-							int   _found = 0;
-							if(!(ViewFlags & vfShowUncheckedItems))
-								_found = 1;
-							else {
-								if(Data.Search(code_buf, &row_idx, &inner_idx)) 
+					SPaintToolBox * p_tb = APPL->GetUiToolBox();
+					if(p_tb) {
+						TCanvas2 canv(*p_tb, p_draw_item->H_DC);
+						if(p_draw_item->ItemAction & TDrawItemData::iaBackground) {
+							canv.Rect(rect_elem, 0, TProgram::tbiListBkgBrush);
+							p_draw_item->ItemAction = 0; // Мы перерисовали фон
+						}
+						else {
+							SString code_buf;
+							SString box_code;
+							p_lbx->getText(static_cast<long>(p_draw_item->ItemData), code_buf);
+							int    err = 0;
+							int    row_idx = -1;
+							int    brush_id = 0; //TProgram::tbiListBkgBrush;
+							if(code_buf.NotEmpty()) {
+								uint  inner_idx = 0;
+								int   _found = 0;
+								if(!(ViewFlags & vfShowUncheckedItems))
 									_found = 1;
 								else {
-									const int vcr_2 = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
-									if(vcr_2 && box_code.NotEmpty() && Data.Search(box_code, &row_idx, &inner_idx)) {
+									if(Data.Search(code_buf, &row_idx, &inner_idx)) 
 										_found = 1;
+									else {
+										const int vcr_2 = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
+										if(vcr_2 && box_code.NotEmpty() && Data.Search(box_code, &row_idx, &inner_idx)) {
+											_found = 1;
+										}
 									}
 								}
+								if(_found) {
+									const int vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
+									if(!vcr) {
+										if(err == 2) // марка не найдена
+											brush_id = TProgram::tbiInvalInpBrush;
+										else if(err == 3) // не та коробка
+											brush_id = TProgram::tbiInvalInp2Brush;
+										else
+											brush_id = TProgram::tbiInvalInp3Brush;
+									}
+								}
+								else
+									brush_id = TProgram::tbiInvalInp3Brush;
 							}
-							if(_found) {
-								const int vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
-								if(!vcr) {
-									if(err == 2) // марка не найдена
-										brush_id = TProgram::tbiInvalInpBrush;
-									else if(err == 3) // не та коробка
-										brush_id = TProgram::tbiInvalInp2Brush;
-									else
-										brush_id = TProgram::tbiInvalInp3Brush;
+							if(brush_id)
+								canv.Rect(rect_elem, TProgram::tbiListBkgPen, brush_id);
+							{
+								int local_pen_id = 0;
+								if(p_draw_item->ItemState & ODS_FOCUS)
+									local_pen_id = TProgram::tbiListFocPen;
+								else if(p_draw_item->ItemState & ODS_SELECTED)
+									local_pen_id = TProgram::tbiListSelPen;
+								/*else
+									local_pen_id = TProgram::tbiListBkgPen;*/
+								if(local_pen_id) {
+									FRect rect_elem_f(rect_elem);
+									rect_elem_f.Grow(-1.0f, -1.0f);
+									canv.Rect(rect_elem_f, local_pen_id, 0/*brush*/);
 								}
 							}
-							else
-								brush_id = TProgram::tbiInvalInp3Brush;
-						}
-						if(brush_id)
-							canv.Rect(rect_elem, TProgram::tbiListBkgPen, brush_id);
-						{
-							int local_pen_id = 0;
-							if(p_draw_item->ItemState & ODS_FOCUS)
-								local_pen_id = TProgram::tbiListFocPen;
-							else if(p_draw_item->ItemState & ODS_SELECTED)
-								local_pen_id = TProgram::tbiListSelPen;
-							/*else
-								local_pen_id = TProgram::tbiListBkgPen;*/
-							if(local_pen_id) {
-								FRect rect_elem_f(rect_elem);
-								rect_elem_f.Grow(-1.0f, -1.0f);
-								canv.Rect(rect_elem_f, local_pen_id, 0/*brush*/);
-							}
-						}
-						if(code_buf.NotEmpty()) {
-							if(FontId <= 0) {
-								HFONT  hf = reinterpret_cast<HFONT>(SendMessage(p_draw_item->H_Item, WM_GETFONT, 0, 0));
-								LOGFONT f;
-								if(hf && ::GetObject(hf, sizeof(f), &f)) {
-									SFontDescr fd(0, 0, 0);
-									f.lfHeight = 12;
-									fd.SetLogFont(&f);
-									//fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(canv, LOGPIXELSY));
-									FontId = r_tb.CreateFont_(0, fd.Face, fd.Size, fd.Flags);
+							if(code_buf.NotEmpty()) {
+								if(FontId <= 0) {
+									HFONT  hf = reinterpret_cast<HFONT>(SendMessage(p_draw_item->H_Item, WM_GETFONT, 0, 0));
+									LOGFONT f;
+									if(hf && ::GetObject(hf, sizeof(f), &f)) {
+										SFontDescr fd(0, 0, 0);
+										f.lfHeight = 12;
+										fd.SetLogFont(&f);
+										//fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(canv, LOGPIXELSY));
+										FontId = p_tb->CreateFont_(0, fd.Face, fd.Size, fd.Flags);
+									}
 								}
-							}
-							if(FontId) {
-								SDrawContext dctx = canv;
-								if(CStyleId <= 0) {
-									int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
-									CStyleId = r_tb.CreateCStyle(0, FontId, TProgram::tbiBlackPen, tool_text_brush_id);
+								if(FontId) {
+									SDrawContext dctx = canv;
+									if(CStyleId <= 0) {
+										int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
+										CStyleId = p_tb->CreateCStyle(0, FontId, TProgram::tbiBlackPen, tool_text_brush_id);
+									}
+									SParaDescr pd;
+									int    tid_para = p_tb->CreateParagraph(0, &pd);
+									STextLayout tlo;
+									tlo.SetText(code_buf);
+									tlo.SetOptions(STextLayout::fOneLine|STextLayout::fVCenter, tid_para, CStyleId);
+									tlo.SetBounds(rect_elem);
+									tlo.Arrange(dctx, *p_tb);
+									canv.DrawTextLayout(&tlo);
 								}
-								SParaDescr pd;
-								int    tid_para = r_tb.CreateParagraph(0, &pd);
-								STextLayout tlo;
-								tlo.SetText(code_buf);
-								tlo.SetOptions(STextLayout::fOneLine|STextLayout::fVCenter, tid_para, CStyleId);
-								tlo.SetBounds(rect_elem);
-								tlo.Arrange(dctx, r_tb);
-								canv.DrawTextLayout(&tlo);
 							}
 						}
 					}

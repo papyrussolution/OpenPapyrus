@@ -51,11 +51,9 @@ static OSSL_FUNC_cipher_settable_ctx_params_fn aes_xts_settable_ctx_params;
  *       BEFORE using the keys in the XTS-AES algorithm to process
  *       data with them."
  */
-static int aes_xts_check_keys_differ(const unsigned char * key, size_t bytes,
-    int enc)
+static int aes_xts_check_keys_differ(const unsigned char * key, size_t bytes, int enc)
 {
-	if((!ossl_aes_xts_allow_insecure_decrypt || enc)
-	    && CRYPTO_memcmp(key, key + bytes, bytes) == 0) {
+	if((!ossl_aes_xts_allow_insecure_decrypt || enc) && CRYPTO_memcmp(key, key + bytes, bytes) == 0) {
 		ERR_raise(ERR_LIB_PROV, PROV_R_XTS_DUPLICATED_KEYS);
 		return 0;
 	}

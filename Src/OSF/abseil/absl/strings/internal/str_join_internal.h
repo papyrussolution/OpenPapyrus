@@ -221,7 +221,7 @@ std::string JoinAlgorithm(Iterator start, Iterator end, absl::string_view s,
 	std::string result;
 	if(start != end) {
 		// Sums size
-		auto&& start_value = *start;
+		auto && start_value = *start;
 		size_t result_size = start_value.size();
 		for(Iterator it = start; ++it != end;) {
 			result_size += s.size();
@@ -239,7 +239,7 @@ std::string JoinAlgorithm(Iterator start, Iterator end, absl::string_view s,
 			for(Iterator it = start; ++it != end;) {
 				memcpy(result_buf, s.data(), s.size());
 				result_buf += s.size();
-				auto&& value = *it;
+				auto && value = *it;
 				memcpy(result_buf, value.data(), value.size());
 				result_buf += value.size();
 			}

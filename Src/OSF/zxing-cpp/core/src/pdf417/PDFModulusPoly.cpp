@@ -103,9 +103,9 @@ ModulusPoly ModulusPoly::multiply(const ModulusPoly& other) const
 	if(isZero() || other.isZero()) {
 		return _field->zero();
 	}
-	auto& aCoefficients = _coefficients;
+	auto & aCoefficients = _coefficients;
 	size_t aLength = aCoefficients.size();
-	auto& bCoefficients = other._coefficients;
+	auto & bCoefficients = other._coefficients;
 	size_t bLength = bCoefficients.size();
 	std::vector<int> product(aLength + bLength - 1, 0);
 	for(size_t i = 0; i < aLength; i++) {

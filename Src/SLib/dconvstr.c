@@ -1457,6 +1457,7 @@ static inline void multiply_128(uint64 u, uint64 v, uint64 * w) // @todo:unify
 // Descr: Count the number of leading zero bits in provided 64-bit unsigned integer
 //   Behavior of this function is undefined if a == 0.
 // 
+/*
 static inline uint count_leading_zeros(uint64 a) // @todo:unify
 {
 	// Make use of 64-bit leading zero count instruction
@@ -1508,7 +1509,7 @@ static inline uint count_leading_zeros(uint64 a) // @todo:unify
 	}
 	return n;
 #endif
-}
+}*/
 // 
 // Convert extended-precision decimal to double-precision binary (mantissa is rounded to nearest representable value)
 // 
@@ -1534,7 +1535,7 @@ static int FASTCALL convert_extended_decimal_to_binary_and_round(uint64 a, int32
 	uint64 long_mantissa[2];
 	multiply_128(a, mantissa, long_mantissa);
 	if(long_mantissa[1] != 0) { // high half
-		uint lz = count_leading_zeros(long_mantissa[1]);
+		uint lz = /*count_leading_zeros*/SBits::Clz(long_mantissa[1]);
 		if(lz == 0)
 			mantissa = long_mantissa[1];
 		else
@@ -1542,7 +1543,7 @@ static int FASTCALL convert_extended_decimal_to_binary_and_round(uint64 a, int32
 		exponent += (64 - lz);
 	}
 	else if(long_mantissa[0] != 0) { // low half
-		uint lz = count_leading_zeros(long_mantissa[0]);
+		uint lz = /*count_leading_zeros*/SBits::Clz(long_mantissa[0]);
 		mantissa = (long_mantissa[0] << lz);
 		exponent -= lz;
 	}
@@ -1577,7 +1578,7 @@ static bool FASTCALL does_extended_decimal_round_to_given_binary(uint64 a, int32
 	// 1. Check/normalize binary (expected_c * 2^expected_d)
 	if(expected_c == 0)
 		return false;
-	uint lz = count_leading_zeros(expected_c);
+	uint lz = /*count_leading_zeros*/SBits::Clz(expected_c);
 	expected_c <<= lz;
 	expected_d  -= lz;
 	// 2. Convert (a * 10^b) to binary with rounding to 53 bits (in round-to-nearest mode)
@@ -1602,7 +1603,7 @@ static bool FASTCALL convert_binary_to_decimal_1st_approx(uint64 a, int32 b, uin
 	// 1. Check/normalize input mantissa.
 	if(!a)
 		return false;
-	uint lz = count_leading_zeros(a);
+	uint lz = /*count_leading_zeros*/SBits::Clz(a);
 	a <<= lz;
 	b  -= lz;
 	// 2. Move binary point to the right side of mantissa.
@@ -1655,7 +1656,7 @@ static bool FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint6
 	//    mantissa, which are not representable in IEEE 754 double precision format.
 	if(!a)
 		return false;
-	uint lz = count_leading_zeros(a);
+	uint lz = /*count_leading_zeros*/SBits::Clz(a);
 	a <<= lz;
 	a >>= 1;
 	b   = b - lz + 1;
@@ -1691,13 +1692,13 @@ static bool FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint6
 	//    and upper bound is somewhere between base_c and next_c.
 	uint64 negative_extent = 0, negative_search_space = base_c - prev_c;
 	uint64 positive_extent = 0, positive_search_space = next_c - base_c;
-	for(uint64 bit = 1ULL << (63 - count_leading_zeros(negative_search_space)); bit != 0; bit >>= 1) {
+	for(uint64 bit = 1ULL << (63 - /*count_leading_zeros*/SBits::Clz(negative_search_space)); bit != 0; bit >>= 1) {
 		if((bit <= negative_search_space) && does_extended_decimal_round_to_given_binary(base_c - negative_extent - bit, base_d, a, b)) {
 			negative_extent       += bit;
 			negative_search_space -= bit;
 		}
 	}
-	for(uint64 bit = 1ULL << (63 - count_leading_zeros(positive_search_space)); bit != 0; bit >>= 1) {
+	for(uint64 bit = 1ULL << (63 - /*count_leading_zeros*/SBits::Clz(positive_search_space)); bit != 0; bit >>= 1) {
 		if((bit <= positive_search_space) && does_extended_decimal_round_to_given_binary(base_c + positive_extent + bit, base_d, a, b)) {
 			positive_extent       += bit;
 			positive_search_space -= bit;
@@ -1804,7 +1805,7 @@ static bool FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint6
 			output_mantissa = 0;
 		}
 		else {
-			uint lz = count_leading_zeros(inputBinaryMantissa);
+			uint lz = /*count_leading_zeros*/SBits::Clz(inputBinaryMantissa);
 			inputBinaryMantissa <<= lz;
 			inputBinaryExponent  -= lz;
 			if(inputBinaryExponent > 1023) {

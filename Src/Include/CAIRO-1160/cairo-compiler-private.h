@@ -149,15 +149,15 @@
  * do not change across the function call.
  */
 #if __GNUC__ >= 3
-	#define cairo_pure __attribute__((pure))
-	#define cairo_const __attribute__((const))
+	// @v11.9.2 (replaced with CXX_FUNC_PURE) #define cairo_pure_Removed __attribute__((pure))
+	// @v11.9.2 (replaced with CXX_FUNC_CONST) #define cairo_const_Removed __attribute__((const))
 	// @sobolev #define cairo_always_inline_Removed inline __attribute__((always_inline))
 #else
-	#define cairo_pure
-	#define cairo_const
+	// @v11.9.2 (replaced with CXX_FUNC_PURE) #define cairo_pure_Removed
+	// @v11.9.2 (replaced with CXX_FUNC_CONST) #define cairo_const_Removed
 	// @sobolev #define cairo_always_inline_Removed inline
 #endif
-/* о@v11.0.4
+/* @v11.0.4
 #if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
 	#define likely_Removed(expr) (__builtin_expect (!!(expr), 1))
 	#define unlikely_Removed(expr) (__builtin_expect (!!(expr), 0))

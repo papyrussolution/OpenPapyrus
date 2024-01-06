@@ -135,25 +135,27 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 					const  FRect rect_elem = rc;
 					FRect pic_bounds = rect_elem;
 					APPL->InitUiToolBox();
-					SPaintToolBox & r_tb = APPL->GetUiToolBox();
-					TCanvas2 canv(r_tb, ps.hdc);
-					LMatrix2D mtx;
-					SViewPort vp;
-					canv.PushTransform();
-					p_fig->GetViewPort(&vp);
-					{
-                        pic_bounds.a.SetZero();
-						if(vp.GetSize().x <= rect_elem.Width() && vp.GetSize().y <= rect_elem.Height()) {
-							pic_bounds.b = vp.GetSize();
-							pic_bounds.MoveCenterTo(rect_elem.GetCenter());
-						}
-						else {
+					SPaintToolBox * p_tb = APPL->GetUiToolBox();
+					if(p_tb) {
+						TCanvas2 canv(*p_tb, ps.hdc);
+						LMatrix2D mtx;
+						SViewPort vp;
+						canv.PushTransform();
+						p_fig->GetViewPort(&vp);
+						{
+							pic_bounds.a.SetZero();
+							if(vp.GetSize().x <= rect_elem.Width() && vp.GetSize().y <= rect_elem.Height()) {
+								pic_bounds.b = vp.GetSize();
+								pic_bounds.MoveCenterTo(rect_elem.GetCenter());
+							}
+							else {
 
+							}
 						}
+						canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+						canv.Draw(p_fig);
+						canv.PopTransform();
 					}
-					canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
-					canv.Draw(p_fig);
-					canv.PopTransform();
 				}
 				::EndPaint(hWnd, &ps);
 			}

@@ -527,7 +527,7 @@ bool TimeZoneInfo::Load(ZoneInfoSource* zip)
 
 	// Compute the maximum/minimum civil times that can be converted to a
 	// time_point<seconds> for each of the zone's transition types.
-	for(auto& tt : transition_types_) {
+	for(auto & tt : transition_types_) {
 		tt.civil_max = LocalTime(seconds::max().count(), tt).cs;
 		tt.civil_min = LocalTime(seconds::min().count(), tt).cs;
 	}

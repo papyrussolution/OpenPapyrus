@@ -1899,6 +1899,24 @@ private:
 
 class TCanvas2 {
 public:
+	//
+	// Descr: Высокоуровневая функция, трансформирующая фигуру pFig в иконку.
+	// Note: Основным мотиватором для ввода функции являлась необходимость унифицировать механизм, используемый в нескольких
+	//   модулях системы. Последщующий шаг - расширение механизма до транформации фигуры в иные форматы.
+	// ARG(pTb IN): @#{vptr} Набор инструментов для рисования. Должен быть получен от экземпляра TProgram вызовом GetUiToolBox().
+	//   Если аргумент нулевой, то функция вернет нулевой результат.
+	// ARG(pFig IN): Фигура, которая должна быть преобразована в иконку. Если аргумент нулевой, то функция вернет нулевой результат.
+	// ARG(size IN): Размеры результирующей иконки. Если хотя бы один из компонентов аргумента меньше или равен нулю, то функция вернет нулевой результат.
+	// ARG(colorReplaced IN): Цвет, который должен быть замещен в фигуре pFig. Если colorReplaced.IsEmpty(), то замещаться ничего не будет,
+	//   в противном случае цвет для замещения извлекается из набора инструментов pTb по идентификатору TProgram::tbiIconRegColor.
+	// ARG(colorBackground IN): Цвет фона иконки.
+	// Returns:
+	//   Манипулятор иконки (HICON). Если в ходе выполнения функции произошла ошибка, то результат будет нулевым (!ret == true).
+	//   После использования объект, на который ссылается манипулятор, должен быть разрушен вызовом ::DestroyIcon(ret)
+	//
+	static SPtrHandle TransformDrawFigureToIcon(SPaintToolBox * pTb, const SDrawFigure * pFig, SPoint2S size, SColor colorReplaced, SColor colorBackground);
+	static bool TransformDrawFigureToBitmap(SPaintToolBox * pTb, const SDrawFigure * pFig, SPoint2S size, SColor colorReplaced, SColor colorBackground, SBuffer & rBuf);
+
 	struct Surface {
 		Surface();
 		void * HCtx;  // Контекст устройства // @v10.3.1 uint32-->void *
@@ -3462,7 +3480,7 @@ private:
 	int    SnapX(float p, float * pDest) const;
 	int    SnapY(float p, float * pDest) const;
 	int    CalcScrollRange();
-	SUiLayout * Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC) const;
+	SUiLayout * Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC, TSVector <uintptr_t> & rRecurList) const;
 	// @v11.7.10 int    Helper_ArrangeLayoutContainer(SUiLayout * pParentLayout, WhatmanObjectLayoutBase * pC);
 
 	uint32 SrcFileVer;  // @transient Версия формата хранения файла, из которого был загружен данный экземпляр объекта
@@ -5054,7 +5072,8 @@ public:
 	const  UserInterfaceSettings & GetUiSettings();
 	int    UpdateUiSettings(const UserInterfaceSettings & rS);
     int    InitUiToolBox();
-	/*const*/ SPaintToolBox & GetUiToolBox() /*const*/ { return UiToolBox; }
+	// @v11.9.2 /*const*/ SPaintToolBox & GetUiToolBox() /*const*/ { return UiToolBox; }
+	virtual SPaintToolBox * GetUiToolBox(); // @v11.9.2
 	const SDrawFigure * LoadDrawFigureBySymb(const char * pSymb, TWhatmanToolArray::Item * pInfo) const;
 	const SDrawFigure * LoadDrawFigureById(uint id, TWhatmanToolArray::Item * pInfo) const;
 
@@ -5083,7 +5102,9 @@ protected:
 	//   Если переданный указатель pT == 0, то метод должен просто сообщить
 	//   в возвращаемом значение о своей способности реализовать действие.
 	//
-	virtual int  LoadVectorTools(TWhatmanToolArray * pT);
+	// @v11.9.2 virtual int  LoadVectorTools(TWhatmanToolArray * pT);
+	virtual const TWhatmanToolArray * GetVectorTools() const; // @v11.9.2 
+	
 	TStatusWin * P_Stw;
 	SString AppSymbol;
 	SString AppTitle;
@@ -5111,8 +5132,8 @@ private:
 	WNDPROC PrevCloseWndProc;
 	HWND   H_FrameWnd;
 	TBitmapCache BmH;
-	SPaintToolBox UiToolBox;      // Набор инструментов для отрисовки компонентов пользовательского интерфейса.
-	TWhatmanToolArray DvToolList; // Векторные изображения, загружаемые из внешнего файла
+	// @v11.9.2 (replaced with virtual func GetUiToolBox) SPaintToolBox UiToolBox;      // Набор инструментов для отрисовки компонентов пользовательского интерфейса.
+	// @v11.9.2 (replaced with virtual func GetVectorTools) TWhatmanToolArray DvToolList; // Векторные изображения, загружаемые из внешнего файла
 	UserInterfaceSettings UICfg;
 };
 

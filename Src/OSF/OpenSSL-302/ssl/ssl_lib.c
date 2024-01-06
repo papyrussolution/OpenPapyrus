@@ -5346,7 +5346,6 @@ int ssl_cache_cipherlist(SSL * s, PACKET * cipher_suites, int sslv2format)
 		PACKET sslv2ciphers = *cipher_suites;
 		unsigned int leadbyte;
 		uchar * raw;
-
 		/*
 		 * We store the raw ciphers list in SSLv3+ format so we need to do some
 		 * preprocessing to convert the list first. If there are any SSLv2 only
@@ -5379,8 +5378,7 @@ int ssl_cache_cipherlist(SSL * s, PACKET * cipher_suites, int sslv2format)
 				s->s3.tmp.ciphers_rawlen += TLS_CIPHER_LEN;
 		}
 	}
-	else if(!PACKET_memdup(cipher_suites, &s->s3.tmp.ciphers_raw,
-	    &s->s3.tmp.ciphers_rawlen)) {
+	else if(!PACKET_memdup(cipher_suites, &s->s3.tmp.ciphers_raw, &s->s3.tmp.ciphers_rawlen)) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}

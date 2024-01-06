@@ -51,7 +51,7 @@ std::vector<ConcentricPattern> FindFinderPatterns(const BitMatrix& image, bool t
 		while(next = FindPattern(next), next.isValid()) {
 			PointF p(next.pixelsInFront() + next[0] + next[1] + next[2] / 2.0, y + 0.5);
 			// make sure p is not 'inside' an already found pattern area
-			if(FindIf(res, [p](const auto& old) { return distance(p, old) < old.size / 2; }) == res.end()) {
+			if(FindIf(res, [p](const auto & old) { return distance(p, old) < old.size / 2; }) == res.end()) {
 				log(p);
 				N++;
 				auto pattern = LocateConcentricPattern<E2E>(image, PATTERN, p, Reduce(next) * 3); // 3 for very skewed samples
@@ -81,7 +81,7 @@ std::vector<ConcentricPattern> FindFinderPatterns(const BitMatrix& image, bool t
  */
 FinderPatternSets GenerateFinderPatternSets(FinderPatterns& patterns)
 {
-	std::sort(patterns.begin(), patterns.end(), [](const auto& a, const auto& b) {
+	std::sort(patterns.begin(), patterns.end(), [](const auto & a, const auto & b) {
 			return a.size < b.size;
 		});
 
@@ -175,7 +175,7 @@ FinderPatternSets GenerateFinderPatternSets(FinderPatterns& patterns)
 	// convert from multimap to vector
 	FinderPatternSets res;
 	res.reserve(sets.size());
-	for(auto& [d, s] : sets)
+	for(auto & [d, s] : sets)
 		res.push_back(s);
 
 	printf("FPSets: %d\n", Size(res));
@@ -385,7 +385,7 @@ DetectorResult SampleQR(const BitMatrix& image, const FinderPatternSet& fp)
 			mod2Pix = Mod2Pix(dimension, brOffset, {fp.tl, fp.tr, br, fp.bl});
 		}
 #if 1
-		auto& apM = version->alignmentPatternCenters(); // alignment pattern positions in modules
+		auto & apM = version->alignmentPatternCenters(); // alignment pattern positions in modules
 		auto apP = Matrix<std::optional<PointF> >(Size(apM), Size(apM)); // found/guessed alignment pattern
 			                                                         // positions in pixels
 		const int N = Size(apM) - 1;

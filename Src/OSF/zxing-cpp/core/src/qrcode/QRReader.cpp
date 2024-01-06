@@ -66,7 +66,7 @@ Results Reader::decode(const BinaryBitmap& image, int maxSymbols) const
 	Results results;
 	if(_hints.hasFormat(BarcodeFormat::QRCode)) {
 		auto allFPSets = GenerateFinderPatternSets(allFPs);
-		for(const auto& fpSet : allFPSets) {
+		for(const auto & fpSet : allFPSets) {
 			if(Contains(usedFPs, fpSet.bl) || Contains(usedFPs, fpSet.tl) || Contains(usedFPs, fpSet.tr))
 				continue;
 			logFPSet(fpSet);
@@ -88,7 +88,7 @@ Results Reader::decode(const BinaryBitmap& image, int maxSymbols) const
 		}
 	}
 	if(_hints.hasFormat(BarcodeFormat::MicroQRCode) && !(maxSymbols && Size(results) == maxSymbols)) {
-		for(const auto& fp : allFPs) {
+		for(const auto & fp : allFPs) {
 			if(Contains(usedFPs, fp))
 				continue;
 			auto detectorResult = SampleMQR(*binImg, fp);
@@ -105,7 +105,7 @@ Results Reader::decode(const BinaryBitmap& image, int maxSymbols) const
 	}
 	if(_hints.hasFormat(BarcodeFormat::RMQRCode) && !(maxSymbols && Size(results) == maxSymbols)) {
 		// TODO proper
-		for(const auto& fp : allFPs) {
+		for(const auto & fp : allFPs) {
 			if(Contains(usedFPs, fp))
 				continue;
 			auto detectorResult = SampleRMQR(*binImg, fp);

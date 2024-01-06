@@ -111,7 +111,7 @@ namespace Xapian {
 			// Must be a MultiDatabase.
 			auto o_multi = static_cast<MultiDatabase*>(o.internal.get());
 			// Add the shards from o to ourself.
-			for(auto&& shard : o_multi->shards) {
+			for(auto && shard : o_multi->shards) {
 				multi_db->push_back(shard);
 			}
 		}

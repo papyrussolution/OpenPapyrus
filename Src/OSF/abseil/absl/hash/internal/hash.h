@@ -43,7 +43,7 @@ constexpr size_t PiecewiseChunkSize() { return 1024; }
 //
 //  Example usage:
 //    PiecewiseCombiner combiner;
-//    for (const auto& piece : pieces) {
+//    for (const auto & piece : pieces) {
 //      state = combiner.add_buffer(std::move(state), piece.data, piece.size);
 //    }
 //    return combiner.finalize(std::move(state));
@@ -423,7 +423,7 @@ template <typename H, typename T, typename Allocator>
 typename std::enable_if<is_hashable<T>::value, H>::type AbslHashValue(H hash_state, const std::deque<T, Allocator>& deque) {
 	// TODO(gromer): investigate a more efficient implementation taking
 	// advantage of the chunk structure.
-	for(const auto& t : deque) {
+	for(const auto & t : deque) {
 		hash_state = H::combine(std::move(hash_state), t);
 	}
 	return H::combine(std::move(hash_state), deque.size());
@@ -444,7 +444,7 @@ typename std::enable_if<is_hashable<T>::value, H>::type AbslHashValue(H hash_sta
 template <typename H, typename T, typename Allocator>
 typename std::enable_if<is_hashable<T>::value, H>::type AbslHashValue(H hash_state, const std::list<T, Allocator>& list) 
 {
-	for(const auto& t : list) {
+	for(const auto & t : list) {
 		hash_state = H::combine(std::move(hash_state), t);
 	}
 	return H::combine(std::move(hash_state), list.size());
@@ -471,7 +471,7 @@ template <typename H, typename T, typename Allocator>
 typename std::enable_if<is_hashable<T>::value && std::is_same<T, bool>::value, H>::type AbslHashValue(H hash_state, const std::vector <T, Allocator>& vector) 
 {
 	typename H::AbslInternalPiecewiseCombiner combiner;
-	for(const auto& i : vector) {
+	for(const auto & i : vector) {
 		unsigned char c = static_cast<unsigned char>(i);
 		hash_state = combiner.add_buffer(std::move(hash_state), &c, sizeof(c));
 	}
@@ -497,7 +497,7 @@ typename std::enable_if<is_hashable<T>::value && std::is_same<T, bool>::value, H
 // AbslHashValue for hashing std::map
 template <typename H, typename Key, typename T, typename Compare, typename Allocator>
 typename std::enable_if<is_hashable<Key>::value && is_hashable<T>::value, H>::type AbslHashValue(H hash_state, const std::map<Key, T, Compare, Allocator>& map) {
-	for(const auto& t : map) {
+	for(const auto & t : map) {
 		hash_state = H::combine(std::move(hash_state), t);
 	}
 	return H::combine(std::move(hash_state), map.size());
@@ -509,7 +509,7 @@ template <typename H, typename Key, typename T, typename Compare,
 typename std::enable_if<is_hashable<Key>::value && is_hashable<T>::value,
     H>::type AbslHashValue(H hash_state,
     const std::multimap<Key, T, Compare, Allocator>& map) {
-	for(const auto& t : map) {
+	for(const auto & t : map) {
 		hash_state = H::combine(std::move(hash_state), t);
 	}
 	return H::combine(std::move(hash_state), map.size());
@@ -518,7 +518,7 @@ typename std::enable_if<is_hashable<Key>::value && is_hashable<T>::value,
 // AbslHashValue for hashing std::set
 template <typename H, typename Key, typename Compare, typename Allocator>
 typename std::enable_if<is_hashable<Key>::value, H>::type AbslHashValue(H hash_state, const std::set<Key, Compare, Allocator>& set) {
-	for(const auto& t : set) {
+	for(const auto & t : set) {
 		hash_state = H::combine(std::move(hash_state), t);
 	}
 	return H::combine(std::move(hash_state), set.size());
@@ -527,7 +527,7 @@ typename std::enable_if<is_hashable<Key>::value, H>::type AbslHashValue(H hash_s
 // AbslHashValue for hashing std::multiset
 template <typename H, typename Key, typename Compare, typename Allocator>
 typename std::enable_if<is_hashable<Key>::value, H>::type AbslHashValue(H hash_state, const std::multiset<Key, Compare, Allocator>& set) {
-	for(const auto& t : set) {
+	for(const auto & t : set) {
 		hash_state = H::combine(std::move(hash_state), t);
 	}
 	return H::combine(std::move(hash_state), set.size());

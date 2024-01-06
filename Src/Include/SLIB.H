@@ -1,5 +1,5 @@
 // SLIB.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // 
 // @todo unify strtoul
@@ -2988,7 +2988,22 @@ private:
 //
 //
 //
-struct SUniTime_Internal { // @internal
+struct SUniDate_Internal { // @v11.9.2
+	SUniDate_Internal();
+	SUniDate_Internal(int y, uint m, uint d);
+	int    SetDaysSinceChristmas(uint g);
+	bool   FASTCALL operator == (const SUniDate_Internal & rS) const { return (Y == rS.Y && M == rS.M && D == rS.D); }
+	int    Y; // @v11.9.2 uint-->int Год - signed int поскольку в некоторых системах представления даты отрицательное значение
+		// может отражать год до начала какой-то эпохи (B.C., например)
+	uint   M;
+	uint   D; // В случае детализации большей, чем день (месяц, квартал, полугодие и т.д.) 
+		// значение дня устанавливается в 2 с целью избежать путаницы при смене часового пояса.
+		// Скажем, если при месячной градации мы будем использовать 1, то при достаточном удалении
+		// временных зон друг от друга можем столкнуться с тем, что одновременно на Земле будет и середина марта и 
+		// середина апреля.
+};
+
+struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	static constexpr int Undef_TimeZone = 1000000;
 	static bool ValidateTimeZone(int tz);
 	//
@@ -3013,13 +3028,6 @@ struct SUniTime_Internal { // @internal
 	void   FASTCALL SetTime100ns(uint64 time100ns);
 	int    FASTCALL GetTime100ns(uint64 * pTime100ns) const;
 
-	uint   Y;
-	uint   M;
-	uint   D; // В случае детализации большей, чем день (месяц, квартал, полугодие и т.д.) 
-		// значение дня устанавливается в 2 с целью избежать путаницы при смене часового пояса.
-		// Скажем, если при месячной градации мы будем использовать 1, то при достаточном удалении
-		// временных зон друг от друга можем столкнуться с тем, что одновременно на Земле будет и середина марта и 
-		// середина апреля.
 	uint   Hr;
 	uint   Mn;
 	uint   Sc;
@@ -3035,8 +3043,7 @@ struct SUniTime_Internal { // @internal
 		// Указания времени с часовым поясом, представляющие один и тот же момент времени: "18:30Z", "22:30+04", "1130−0700".
 };
 
-int    DateToDaysSinceChristmas(uint y, uint m, uint d);
-int    DaysSinceChristmasToDate(uint g, uint * pYear, uint * pMon, uint * pDay);
+int    DateToDaysSinceChristmas(int y, uint m, uint d);
 void   FASTCALL __EpochTimeToTimeFields(uint64 epochTime, SUniTime_Internal * pTimeFields);
 int    FASTCALL __TimeFieldsToEpochTime(const SUniTime_Internal * pTimeFields, uint64 * pEpochTime);
 //
@@ -5342,7 +5349,7 @@ void   STDCALL  encodedate(int, int, int, void *);
 void   STDCALL  decodedate(int *, int *, int *, const void *);
 void   STDCALL  decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
 void   STDCALL  encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME *);
-bool   FASTCALL IsLeapYear_Gregorian(uint y);
+bool   FASTCALL IsLeapYear_Gregorian(int y);
 inline bool IsLeapYear_Julian(uint y) { return ((y % 4) == 0); }
 int    FASTCALL checkdate(const void * pBinDate);
 //
@@ -7522,7 +7529,7 @@ FORCEINLINE uint64 setlowbits64(uint64 n) { assert(n <= 64); return (n == 64) ? 
 // Descr: Подсчитывает число установленных бит в двойном слове v
 // See: http://graphics.stanford.edu/~seander/bithacks.html
 //
-uint32 FASTCALL popcount32(uint32 v);
+// @v11.9.2 (replaced with SBits::Cpop) uint32 FASTCALL popcount32(uint32 v);
 //
 // Descr: Рассчитывает побитовую четность двойного слова.
 // See: http://graphics.stanford.edu/~seander/bithacks.html
@@ -8540,6 +8547,7 @@ DECL_CMPFUNC(LDATE);
 DECL_CMPFUNC(LDATETIME);
 DECL_CMPFUNC(SDirEntry_Time);
 DECL_CMPFUNC(S_GUID);
+DECL_CMPFUNC(uintptr_t);
 //
 // Descr: Реализует сравнение двух элементов STimeChunk.
 //   Если extraParam != 0, то осуществляется обратное сравнение (item2 vs item1).
@@ -12649,7 +12657,7 @@ SString & GetExecPath(SString & rBuf);
 bool   GetKnownFolderPath(uint64 uedFolderId, SString & rPath);
 
 struct SKnownFolderEntry {
-	uint64 UED;
+	uint64 Ued;
 	S_GUID Guid;
 	SString PathUtf8;
 	int    Result;
@@ -13627,13 +13635,42 @@ public:
 		lo = v;
 	}
 	//
-	// Descr: Перемножает два 64-битных числа, результат заносит в this.
+	// Descr: Перемножает два 64-битных числа, результат возвращает
 	//
-	SUint128 & Mul64(uint64 a, uint64 b);
+	static SUint128 Mul64(uint64 a, uint64 b);
 	//
 	// Descr: Умножает v на 10^p. результат заносит в this.
 	// 
 	bool   MulPow10(uint64 v, uint p);
+};
+
+class SInt128 : private
+#if defined(SL_LITTLEENDIAN)
+	_baseint128_le
+#elif defined(SL_BIGENDIAN)
+	_baseint128_be
+#else
+	#error "Unsupported byte order: must be little-endian or big-endian."
+#endif
+{ // @v11.7.3 @size=128 @construction
+public:
+	SInt128() // no initialization!
+	{
+	}
+	SInt128(int64 _hi, int64 _lo)
+	{
+		hi = _hi;
+		lo = _lo;
+	}
+	SInt128(int64 v)
+	{
+		hi = 0;
+		lo = v;
+	}
+	//
+	// Descr: Перемножает два 64-битных числа, результат возвращает
+	//
+	static SInt128 Mul64(int64 a, int64 b);
 };
 //
 // bits: 
@@ -14855,6 +14892,15 @@ public:
 //
 class SPoint2S { // @persistent @store(SSerializeContext) @noctr @nodestructor @novtbl @size=4
 public:
+	SPoint2S() : x(0), y(0)
+	{
+	}
+	SPoint2S(int16 _x, int16 _y) : x(_x), y(_y)
+	{
+	}
+	SPoint2S(int16 _xy) : x(_xy), y(_xy)
+	{
+	}
 	operator SPoint2F () const;
 	uint32 towparam() const;
 	SPoint2S FASTCALL operator = (SPoint2S p);
@@ -17653,7 +17699,7 @@ public:
 	double GetVRes();
 	SString & GetFileName(SString & rBuf);
 	void   SetClearColor(COLORREF);
-	int    InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd);
+	// @v11.9.2 @unused int    InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd);
 private:
 	COLORREF ClearColor;
 	SString FileName;

@@ -280,7 +280,7 @@ static std::list<std::array<Nullable<ResultPoint>, 8> > DetectBarcode(const BitM
 			// below the lowest barcode we found so far.
 			foundBarcodeInRow = false;
 			column = 0;
-			for(auto& barcodeCoordinate : barcodeCoordinates) {
+			for(auto & barcodeCoordinate : barcodeCoordinates) {
 				if(barcodeCoordinate[1] != nullptr) {
 					row = std::max(row, static_cast<int>(barcodeCoordinate[1].value().y()));
 				}

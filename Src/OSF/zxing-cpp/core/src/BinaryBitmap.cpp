@@ -23,7 +23,7 @@ BitMatrix BinaryBitmap::binarize(const uint8_t threshold) const
 	}
 	else {
 		auto processLine = [&res, threshold](int y, const auto* src, const int stride) {
-			    for(auto& dst : res.row(y)) {
+			    for(auto & dst : res.row(y)) {
 				    dst = (*src <= threshold) * BitMatrix::SET_V;
 				    src += stride;
 			    }
@@ -78,7 +78,7 @@ void SumFilter(const BitMatrix& in, BitMatrix& out, F func)
 void BinaryBitmap::close()
 {
 	if(_cache->matrix) {
-		auto& matrix = *const_cast<BitMatrix*>(_cache->matrix.get());
+		auto & matrix = *const_cast<BitMatrix*>(_cache->matrix.get());
 		BitMatrix tmp(matrix.width(), matrix.height());
 		// dilate
 		SumFilter(matrix, tmp, [](int sum) { return (sum > 0 * BitMatrix::SET_V) * BitMatrix::SET_V; });

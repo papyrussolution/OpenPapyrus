@@ -9,36 +9,27 @@
 namespace ZXing {
 BitMatrix MultiFormatWriter::encode(const std::wstring& contents, int width, int height) const
 {
-	auto exec0 = [&](auto&& writer) {
+	auto exec0 = [&](auto && writer) {
 		    if(_margin >=0)
 			    writer.setMargin(_margin);
 		    return writer.encode(contents, width, height);
 	    };
 
-	auto AztecEccLevel = [&](Aztec::Writer& writer, int eccLevel) {
-		    writer.setEccPercent(eccLevel * 100 / 8);
-	    };
-	auto Pdf417EccLevel = [&](Pdf417::Writer& writer, int eccLevel) {
-		    writer.setErrorCorrectionLevel(eccLevel);
-	    };
-	auto QRCodeEccLevel = [&](QRCode::Writer& writer, int eccLevel) {
-		    writer.setErrorCorrectionLevel(static_cast<QRCode::ErrorCorrectionLevel>(--eccLevel / 2));
-	    };
-
-	auto exec1 = [&](auto&& writer, auto setEccLevel) {
-		    if(_encoding != CharacterSet::Unknown)
-			    writer.setEncoding(_encoding);
-		    if(_eccLevel >= 0 && _eccLevel <= 8)
-			    setEccLevel(writer, _eccLevel);
-		    return exec0(std::move(writer));
-	    };
-
-	auto exec2 = [&](auto&& writer) {
-		    if(_encoding != CharacterSet::Unknown)
-			    writer.setEncoding(_encoding);
-		    return exec0(std::move(writer));
-	    };
-
+	auto AztecEccLevel = [&](Aztec::Writer& writer, int eccLevel) { writer.setEccPercent(eccLevel * 100 / 8); };
+	auto Pdf417EccLevel = [&](Pdf417::Writer& writer, int eccLevel) { writer.setErrorCorrectionLevel(eccLevel); };
+	auto QRCodeEccLevel = [&](QRCode::Writer& writer, int eccLevel) { writer.setErrorCorrectionLevel(static_cast<QRCode::ErrorCorrectionLevel>(--eccLevel / 2)); };
+	auto exec1 = [&](auto && writer, auto setEccLevel) {
+		if(_encoding != CharacterSet::Unknown)
+			writer.setEncoding(_encoding);
+		if(_eccLevel >= 0 && _eccLevel <= 8)
+			setEccLevel(writer, _eccLevel);
+		return exec0(std::move(writer));
+	};
+	auto exec2 = [&](auto && writer) {
+		if(_encoding != CharacterSet::Unknown)
+			writer.setEncoding(_encoding);
+		return exec0(std::move(writer));
+	};
 	switch(_format) {
 		case BarcodeFormat::Aztec: return exec1(Aztec::Writer(), AztecEccLevel);
 		case BarcodeFormat::DataMatrix: return exec2(DataMatrix::Writer());
@@ -57,7 +48,7 @@ BitMatrix MultiFormatWriter::encode(const std::wstring& contents, int width, int
 	}
 }
 
-BitMatrix MultiFormatWriter::encode(const std::string& contents, int width, int height) const
+BitMatrix MultiFormatWriter::encode(const std::string & contents, int width, int height) const
 {
 	return encode(FromUtf8(contents), width, height);
 }

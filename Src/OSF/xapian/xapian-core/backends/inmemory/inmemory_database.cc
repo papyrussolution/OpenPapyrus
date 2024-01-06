@@ -493,7 +493,7 @@ Xapian::termcount InMemoryDatabase::get_wdfdocmax(Xapian::docid did) const
 		throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 			  string(" not found"));
 	Xapian::termcount max_wdf = 0;
-	for(auto&& i : termlists[did - 1].terms) {
+	for(auto && i : termlists[did - 1].terms) {
 		if(i.wdf > max_wdf) max_wdf = i.wdf;
 	}
 	return max_wdf;

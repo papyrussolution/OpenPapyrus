@@ -147,7 +147,7 @@ static std::vector<ConcentricPattern> FindFinderPatterns(const BitMatrix& image,
 			if(line[last + 1] < line[last]) {
 				auto p = centered(PointI((first + last) / 2, y));
 				// make sure p is not 'inside' an already found pattern area
-				if(FindIf(res, [p](const auto& old) {
+				if(FindIf(res, [p](const auto & old) {
 						return distance(p, old) < old.size / 2;
 					}) == res.end()) {
 					++N;
@@ -326,7 +326,7 @@ DetectorResults Detect(const BitMatrix& image, bool isPure, bool tryHarder, int 
 
 	DetectorResults res;
 	auto fps = isPure ? FindPureFinderPattern(image) : FindFinderPatterns(image, tryHarder);
-	for(const auto& fp : fps) {
+	for(const auto & fp : fps) {
 		auto fpQuad = FindConcentricPatternCorners(image, fp, fp.size, 3);
 		if(!fpQuad)
 			continue;

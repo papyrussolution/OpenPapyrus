@@ -813,7 +813,7 @@ namespace ZXing {
 	}
 	template <typename Container, typename Value, class UnaryOp> Value TransformReduce(const Container& c, Value s, UnaryOp op) 
 	{
-		for(const auto& v : c)
+		for(const auto & v : c)
 			s += op(v);
 		return s;
 	}
@@ -1001,8 +1001,7 @@ namespace ZXing {
 	public:
 		Result() = default;
 		// linear symbology convenience constructor
-		Result(const std::string& text, int y, int xStart, int xStop, BarcodeFormat format, SymbologyIdentifier si, Error error = {},
-			   bool readerInit = false);
+		Result(const std::string& text, int y, int xStart, int xStop, BarcodeFormat format, SymbologyIdentifier si, Error error = {}, bool readerInit = false);
 		Result(DecoderResult&& decodeResult, Position&& position, BarcodeFormat format);
 		bool isValid() const;
 		const Error& error() const { return _error; }
@@ -1035,7 +1034,7 @@ namespace ZXing {
 		 * @brief hasECI specifies wheter or not an ECI tag was found
 		 */
 		bool hasECI() const;
-		const Position& position() const { return _position; }
+		const Position & position() const { return _position; }
 		void setPosition(Position pos) { _position = pos; }
 		/**
 		 * @brief orientation of barcode in degree, see also Position::orientation()
@@ -1485,13 +1484,12 @@ namespace ZXing {
 		using data_t = uint8_t;
 
 		std::vector<data_t> _bits;
-		// There is nothing wrong to support this but disable to make it explicit since we may copy something very big
-		// here.
+		// There is nothing wrong to support this but disable to make it explicit since we may copy something very big here.
 		// Use copy() below.
 		BitMatrix(const BitMatrix&) = default;
 		BitMatrix& operator=(const BitMatrix&) = delete;
 
-		const data_t& get(int i) const
+		const data_t & get(int i) const
 		{
 	#if 1
 			return _bits.at(i);
@@ -1499,16 +1497,14 @@ namespace ZXing {
 			return _bits[i];
 	#endif
 		}
-		data_t& get(int i) { return const_cast<data_t&>(static_cast<const BitMatrix*>(this)->get(i)); }
+		data_t & get(int i) { return const_cast<data_t&>(static_cast<const BitMatrix*>(this)->get(i)); }
 		bool getTopLeftOnBit(int &left, int& top) const;
 		bool getBottomRightOnBit(int &right, int& bottom) const;
 	public:
 		static constexpr data_t SET_V = 0xff; // allows playing with SIMD binarization
 		static constexpr data_t UNSET_V = 0;
 		static_assert(bool(SET_V) && !bool(UNSET_V), "SET_V needs to evaluate to true, UNSET_V to false, see iterator usage");
-
 		BitMatrix() = default;
-
 	#if defined(__llvm__) || (defined(__GNUC__) && (__GNUC__ > 7))
 		__attribute__((no_sanitize("signed-integer-overflow")))
 	#endif
@@ -1539,12 +1535,12 @@ namespace ZXing {
 		 */
 		void flip(int x, int y)
 		{
-			auto& v = get(y * _width + x);
+			auto & v = get(y * _width + x);
 			v = !v;
 		}
 		void flipAll()
 		{
-			for(auto& i : _bits)
+			for(auto & i : _bits)
 				i = !i * SET_V;
 		}
 		/**
@@ -1615,7 +1611,7 @@ namespace ZXing {
 					out.set(x, y);
 		return out;
 	}
-	template <typename T> Matrix<T> ToMatrix(const BitMatrix& in, T black = 0, T white = ~0)
+	template <typename T> Matrix<T> ToMatrix(const BitMatrix & in, T black = 0, T white = ~0)
 	{
 		Matrix<T> res(in.width(), in.height());
 		for(int y = 0; y < in.height(); ++y)
@@ -1756,7 +1752,7 @@ namespace ZXing {
 		template <typename ARRAY> ARRAY readPattern(int range = 0)
 		{
 			ARRAY res = {};
-			for(auto& i : res) {
+			for(auto & i : res) {
 				i = stepToEdge(1, range);
 				if(!i)
 					return res;
@@ -2104,7 +2100,7 @@ namespace ZXing {
 		auto constexpr s_2 = Size(res)/2;
 		auto cuo = cur.turnedBack();
 
-		auto next = [&](auto& cur, int i) {
+		auto next = [&](auto & cur, int i) {
 				auto v = cur.stepToEdge(1, range);
 				res[s_2 + i] += v;
 				if(range)
@@ -2133,7 +2129,7 @@ namespace ZXing {
 		auto constexpr s_2 = Size(res)/2;
 		res[s_2] = centerFwd + centerBwd - 1; // -1 because the starting pixel is counted twice
 		range -= res[s_2];
-		auto next = [&](auto& cur, int i) {
+		auto next = [&](auto & cur, int i) {
 				auto v = cur.stepToNextEdge(range);
 				res[s_2 + i] = v;
 				range -= v;
@@ -2317,7 +2313,7 @@ namespace ZXing {
 		{
 			evaluate(b, e);
 		}
-		const auto& points() const { return _points; }
+		const auto & points() const { return _points; }
 		int length() const { return _points.size() >= 2 ? int(distance(_points.front(), _points.back())) : 0; }
 		bool isValid() const { return !std::isnan(a); }
 		PointF normal() const { return isValid() ? PointF(a, b) : _directionInward; }
@@ -2591,7 +2587,7 @@ namespace ZXing {
 			return *this;
 		}
 		const GenericGF& field() const noexcept { return *_field; }
-		const auto& coefficients() const noexcept { return _coefficients; }
+		const auto & coefficients() const noexcept { return _coefficients; }
 		/**
 		 * @return degree of this polynomial
 		 */
@@ -4232,8 +4228,13 @@ namespace ZXing::OneD::DataBar {
 		bool operator!=(const Character& o) const { return !(*this == o); }
 	};
 	struct Pair {
-		Character left, right;
-		int finder = 0, xStart = -1, xStop = 1, y = -1, count = 1;
+		Character left;
+		Character right;
+		int finder = 0;
+		int xStart = -1;
+		int xStop = 1;
+		int y = -1;
+		int count = 1;
 
 		operator bool() const noexcept { return finder != 0; }
 		bool operator==(const Pair& o) const noexcept { return finder == o.finder && left == o.left && right == o.right; }

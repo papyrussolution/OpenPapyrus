@@ -739,10 +739,23 @@ ReportDescrEntry::ReportDescrEntry() : Flags(0)
 		tok = tSilent;
 	else {
 		SString file_name;
-		if(c_second != ':')
+		// @v11.9.2 {
+		SString temp_buf;
+		SFsPath ps(buf);
+		ps.Merge(temp_buf);
+		if(ps.Drv.NotEmpty()) {
+			temp_buf.RmvLastSlash();
+			DS.ConvertPathToUnc(temp_buf);
+		}
+		else {
+			PPGetFilePath(PPPATH_BIN, buf, temp_buf);
+		}
+		file_name = temp_buf;
+		// } @v11.9.2 
+		/* @v11.9.2 if(c_second != ':')
 			PPGetFilePath(PPPATH_BIN, buf, file_name);
 		else
-			file_name = buf;
+			file_name = buf;*/
 		if(fileExists(file_name)) {
 			ASSIGN_PTR(pFileName, file_name);
 			tok = tExistFile;
@@ -913,7 +926,7 @@ int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 						fname = left.Strip();
 						if(fname[0] && fname[1] != ':')
 							PPGetFilePath(PPPATH_BIN, left, fname);
-						if(fname[0] == 0 || fileExists(fname)) {
+						if(fname[0] == 0 || fileExists(fname)) { // @todo unc-names
 							if(fname[0])
 								Entries.at(0)->SetReportFileName(fname);
 							if(temp_buf[0])

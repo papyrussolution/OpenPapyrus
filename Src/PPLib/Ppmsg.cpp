@@ -187,15 +187,19 @@ int FASTCALL PPLoadStringDescription(const char * pSignature, SString & rBuf)
 	return ok;
 }
 
-int FASTCALL PPLoadText(int code, SString & s)
+int FASTCALL PPLoadText(int code, SString & rS) { return PPLoadString(PPSTR_TEXT, code, rS); }
+int FASTCALL PPLoadTextUtf8(int code, SString & rS) { return PPLoadStringUtf8(PPSTR_TEXT, code, rS); }
+
+SString & FASTCALL PPLoadTextS(int code, SString & rS)
 {
-	return PPLoadString(PPSTR_TEXT, code, s);
+	PPLoadString(PPSTR_TEXT, code, rS);
+	return rS;
 }
 
-SString & FASTCALL PPLoadTextS(int code, SString & s)
+SString & FASTCALL PPLoadTextUtf8S(int code, SString & rS)
 {
-	PPLoadString(PPSTR_TEXT, code, s);
-	return s;
+	PPLoadStringUtf8(PPSTR_TEXT, code, rS);
+	return rS;
 }
 
 int FASTCALL PPLoadTextWin(int code, SString & s)

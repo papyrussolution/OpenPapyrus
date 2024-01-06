@@ -5518,7 +5518,7 @@ vector <generic_string> Notepad_plus::addNppComponents(const TCHAR * destDir, co
 	fDlg.setExtFilter(extFilterName, extFilter);
 
 	vector <generic_string> copiedFiles;
-	const auto& fns = fDlg.doOpenMultiFilesDlg();
+	const auto & fns = fDlg.doOpenMultiFilesDlg();
 	if(!fns.empty()) {
 		// Get plugins dir
 		generic_string destDirName = (NppParameters::getInstance()).getNppPath();
@@ -5548,7 +5548,7 @@ vector <generic_string> Notepad_plus::addNppPlugins(const TCHAR * extFilterName,
 
 	vector <generic_string> copiedFiles;
 
-	const auto& fns = fDlg.doOpenMultiFilesDlg();
+	const auto & fns = fDlg.doOpenMultiFilesDlg();
 	if(!fns.empty()) {
 		// Get plugins dir
 		generic_string destDirName = (NppParameters::getInstance()).getPluginRootDir();
@@ -6965,11 +6965,11 @@ void Notepad_plus::refreshDarkMode(bool resetStyle)
 		NppDarkMode::allowDarkModeForApp(NppDarkMode::isEnabled());
 		NppDarkMode::setDarkTitleBar(_pPublicInterface->getHSelf());
 		::SetWindowPos(_pPublicInterface->getHSelf(), nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-		for(auto& docCont : _dockingManager.getContainerInfo()) {
+		for(auto & docCont : _dockingManager.getContainerInfo()) {
 			NppDarkMode::setDarkTitleBar(docCont->getCaptionWnd());
 			::SetWindowPos(docCont->getCaptionWnd(), nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		}
-		for(auto& hwndDlg : _hModelessDlgs) {
+		for(auto & hwndDlg : _hModelessDlgs) {
 			NppDarkMode::setDarkTitleBar(hwndDlg);
 			::SendMessage(hwndDlg, NPPM_INTERNAL_REFRESHDARKMODE, 0, 0);
 			::RedrawWindow(hwndDlg, nullptr, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_ALLCHILDREN);
@@ -6977,7 +6977,7 @@ void Notepad_plus::refreshDarkMode(bool resetStyle)
 		}
 	}
 	else {
-		for(auto& hwndDlg : _hModelessDlgs) {
+		for(auto & hwndDlg : _hModelessDlgs) {
 			::SendMessage(hwndDlg, NPPM_INTERNAL_REFRESHDARKMODE, 0, 0);
 			::RedrawWindow(hwndDlg, nullptr, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_ALLCHILDREN);
 		}

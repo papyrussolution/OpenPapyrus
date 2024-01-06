@@ -2764,6 +2764,14 @@ int SUiLayout::Evaluate(const Param * pP)
 				ok = 1;
 			}
 		}
+		// @v11.9.2 {
+		/*if(ok > 0) {
+			if(local_evaluate_param.ForceSize.x > 0.0f);
+				R.Frame[2] = R.Frame[0] + local_evaluate_param.ForceSize.x;
+			if(local_evaluate_param.ForceSize.y > 0.0f);
+				R.Frame[3] = R.Frame[1] + local_evaluate_param.ForceSize.y;
+		}*/
+		// } @v11.9.2 
 	}
 	return ok;
 }

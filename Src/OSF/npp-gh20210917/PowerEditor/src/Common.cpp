@@ -1108,7 +1108,7 @@ generic_string getMiddayString(const TCHAR* localeName, const SYSTEMTIME& st)
 bool escapeTimeFormat(generic_string& format)
 {
 	bool modified = false;
-	for(auto& ch : format) {
+	for(auto & ch : format) {
 		if(ch == middayFormat[0]) {
 			ch = timeFmtEscapeChar;
 			modified = true;

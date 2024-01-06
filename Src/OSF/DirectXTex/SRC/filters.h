@@ -66,7 +66,7 @@ inline void CreateLinearFilter(_In_ size_t source, _In_ size_t dest, _In_ bool w
 		if(size_t(isrcB) >= source) {
 			isrcB = (wrap) ? 0 : (ptrdiff_t(source) - 1);
 		}
-		auto& entry = lf[u];
+		auto & entry = lf[u];
 		entry.u0 = size_t(isrcA);
 		entry.weight0 = weight;
 		entry.u1 = size_t(isrcB);
@@ -146,7 +146,7 @@ inline void CreateCubicFilter(_In_ size_t source, _In_ size_t dest, _In_ bool wr
 		const ptrdiff_t isrcC = bounduvw(isrcB + 1, ptrdiff_t(source) - 1, wrap, mirror);
 		const ptrdiff_t isrcD = bounduvw(isrcB + 2, ptrdiff_t(source) - 1, wrap, mirror);
 
-		auto& entry = cf[u];
+		auto & entry = cf[u];
 		entry.u0 = size_t(isrcA);
 		entry.u1 = size_t(isrcB);
 		entry.u2 = size_t(isrcC);

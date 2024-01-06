@@ -223,6 +223,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_STAFFCAL:           p = new PPObjStaffCal(extraPtr); break;
 		case PPOBJ_NAMEDOBJASSOC:      p = new PPObjNamedObjAssoc(extraPtr); break;
 		case PPOBJ_BIZSCORE:           p = new PPObjBizScore(extraPtr); break;
+		case PPOBJ_BIZSCORE2:          p = new PPObjBizScore2(extraPtr); break; // @v11.9.2 @construction
 		case PPOBJ_GLOBALUSERACC:      p = new PPObjGlobalUserAcc(extraPtr); break;
 		case PPOBJ_GOODSVALRESTR:      p = new PPObjGoodsValRestr(extraPtr); break;
 		case PPOBJ_BUDGET:             p = new PPObjBudget(extraPtr); break;

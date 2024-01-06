@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout style="@style/ListItemRegular" xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout style="@style/ListItemRegular"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="4dp"
     android:minHeight="64dp"
     android:orientation="horizontal"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <TextView style="@style/GenericListItemText"
         android:id="@+id/LVITEM_CMDNAME"
         android:layout_height="wrap_content"
@@ -14,6 +15,10 @@
         />
     <View style="@style/FakeView"/>
     <TextView style="@style/ExecuteTimeText" android:id="@+id/CTL_IND_EXECUTETIME"/>
-    <ImageView style="@style/StatusIndicator" android:id="@+id/CTL_IND_STATUS"/>
+    <!-- <ImageView style="@style/StatusIndicator" android:id="@+id/CTL_IND_STATUS"/> -->
+    <ImageButton style="@style/ToolbarButton" android:id="@+id/CTL_BUTTON_RUNCMD_FORCEUPDATE"
+        android:gravity="left" app:srcCompat="@drawable/ic_refresh01"/>
+    <ImageButton style="@style/ToolbarButton" android:id="@+id/CTL_BUTTON_RUNCMD"
+        android:gravity="left"/>
     <!-- android:src="@drawable/ic_generic_command"-->
 </LinearLayout>

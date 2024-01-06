@@ -170,7 +170,6 @@ int SCT_set1_signature(SCT * sct, const uchar * sig, size_t sig_len)
 	sct->sig = NULL;
 	sct->sig_len = 0;
 	sct->validation_status = SCT_VALIDATION_STATUS_NOT_SET;
-
 	if(sig != NULL && sig_len > 0) {
 		sct->sig = (uchar *)OPENSSL_memdup(sig, sig_len);
 		if(sct->sig == NULL) {

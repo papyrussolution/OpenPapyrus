@@ -37,14 +37,14 @@ void RecordMessageNames(const DescriptorProto& desc_proto,
 	    : StrCat(prefix, ".", desc_proto.name());
 	output->insert(full_name);
 
-	for(const auto& d : desc_proto.nested_type()) {
+	for(const auto & d : desc_proto.nested_type()) {
 		RecordMessageNames(d, full_name, output);
 	}
 }
 
 void RecordMessageNames(const FileDescriptorProto& file_proto,
     std::set<std::string>* output) {
-	for(const auto& d : file_proto.message_type()) {
+	for(const auto & d : file_proto.message_type()) {
 		RecordMessageNames(d, file_proto.package(), output);
 	}
 }
@@ -58,7 +58,7 @@ bool ForAllFileProtos(DescriptorDatabase* db, Fn callback,
 	}
 	std::set<std::string> set;
 	FileDescriptorProto file_proto;
-	for(const auto& f : file_names) {
+	for(const auto & f : file_names) {
 		file_proto.Clear();
 		if(!db->FindFileByName(f, &file_proto)) {
 			GOOGLE_LOG(ERROR_) << "File not found in database (unexpected): " << f;
@@ -308,7 +308,7 @@ template <typename Value>
 void SimpleDescriptorDatabase::DescriptorIndex<Value>::FindAllFileNames(std::vector <std::string>* output) {
 	output->resize(by_name_.size());
 	int i = 0;
-	for(const auto& kv : by_name_) {
+	for(const auto & kv : by_name_) {
 		(*output)[i] = kv.first;
 		i++;
 	}
@@ -634,18 +634,18 @@ bool EncodedDescriptorDatabase::DescriptorIndex::AddFile(const FileProto& file,
 		return false;
 	}
 
-	for(const auto& message_type : file.message_type()) {
+	for(const auto & message_type : file.message_type()) {
 		if(!AddSymbol(message_type.name())) return false;
 		if(!AddNestedExtensions(file.name(), message_type)) return false;
 	}
-	for(const auto& enum_type : file.enum_type()) {
+	for(const auto & enum_type : file.enum_type()) {
 		if(!AddSymbol(enum_type.name())) return false;
 	}
-	for(const auto& extension : file.extension()) {
+	for(const auto & extension : file.extension()) {
 		if(!AddSymbol(extension.name())) return false;
 		if(!AddExtension(file.name(), extension)) return false;
 	}
-	for(const auto& service : file.service()) {
+	for(const auto & service : file.service()) {
 		if(!AddSymbol(service.name())) return false;
 	}
 
@@ -720,10 +720,10 @@ bool EncodedDescriptorDatabase::DescriptorIndex::AddSymbol(StringPiece symbol) {
 
 template <typename DescProto>
 bool EncodedDescriptorDatabase::DescriptorIndex::AddNestedExtensions(StringPiece filename, const DescProto& message_type) {
-	for(const auto& nested_type : message_type.nested_type()) {
+	for(const auto & nested_type : message_type.nested_type()) {
 		if(!AddNestedExtensions(filename, nested_type)) return false;
 	}
-	for(const auto& extension : message_type.extension()) {
+	for(const auto & extension : message_type.extension()) {
 		if(!AddExtension(filename, extension)) return false;
 	}
 	return true;
@@ -828,11 +828,11 @@ bool EncodedDescriptorDatabase::DescriptorIndex::FindAllExtensionNumbers(StringP
 void EncodedDescriptorDatabase::DescriptorIndex::FindAllFileNames(std::vector <std::string>* output) const {
 	output->resize(by_name_.size() + by_name_flat_.size());
 	int i = 0;
-	for(const auto& entry : by_name_) {
+	for(const auto & entry : by_name_) {
 		(*output)[i] = std::string(entry.name(*this));
 		i++;
 	}
-	for(const auto& entry : by_name_flat_) {
+	for(const auto & entry : by_name_flat_) {
 		(*output)[i] = std::string(entry.name(*this));
 		i++;
 	}

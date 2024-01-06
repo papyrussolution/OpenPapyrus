@@ -955,24 +955,25 @@ enum ImGuiInputTextFlagsPrivate_ {
 
 // Extend ImGuiButtonFlags_
 enum ImGuiButtonFlagsPrivate_ {
-	ImGuiButtonFlags_PressedOnClick         = 1 << 4,// return true on click (mouse down event)
-	ImGuiButtonFlags_PressedOnClickRelease  = 1 << 5,// [Default] return true on click + release on same item <-- this is what the majority of Button are using
+	ImGuiButtonFlags_PressedOnClick         = 1 << 4, // return true on click (mouse down event)
+	ImGuiButtonFlags_PressedOnClickRelease  = 1 << 5, // [Default] return true on click + release on same item <-- this is what the majority of Button are using
 	ImGuiButtonFlags_PressedOnClickReleaseAnywhere = 1 << 6, // return true on click + release even if the release event is not done while hovering the item
-	ImGuiButtonFlags_PressedOnRelease       = 1 << 7,// return true on release (default requires click+release)
-	ImGuiButtonFlags_PressedOnDoubleClick   = 1 << 8,// return true on double-click (default requires click+release)
-	ImGuiButtonFlags_PressedOnDragDropHold  = 1 << 9,// return true when held into while we are drag and dropping another item (used by e.g. tree nodes, collapsing headers)
-	ImGuiButtonFlags_Repeat                 = 1 << 10,// hold to repeat
-	ImGuiButtonFlags_FlattenChildren        = 1 << 11,// allow interactions even if a child window is overlapping
-	ImGuiButtonFlags_AllowItemOverlap       = 1 << 12,// require previous frame HoveredId to either match id or be null before being usable, use along with SetItemAllowOverlap()
-	ImGuiButtonFlags_DontClosePopups        = 1 << 13,// disable automatically closing parent popup on press // [UNUSED]
+	ImGuiButtonFlags_PressedOnRelease       = 1 << 7, // return true on release (default requires click+release)
+	ImGuiButtonFlags_PressedOnDoubleClick   = 1 << 8, // return true on double-click (default requires click+release)
+	ImGuiButtonFlags_PressedOnDragDropHold  = 1 << 9, // return true when held into while we are drag and dropping another item (used by e.g. tree nodes, collapsing headers)
+	ImGuiButtonFlags_Repeat                 = 1 << 10, // hold to repeat
+	ImGuiButtonFlags_FlattenChildren        = 1 << 11, // allow interactions even if a child window is overlapping
+	ImGuiButtonFlags_AllowItemOverlap       = 1 << 12, // require previous frame HoveredId to either match id or be null before being usable, use along with SetItemAllowOverlap()
+	ImGuiButtonFlags_DontClosePopups        = 1 << 13, // disable automatically closing parent popup on press // [UNUSED]
 	//ImGuiButtonFlags_Disabled             = 1 << 14,  // disable interactions -> use BeginDisabled() or ImGuiItemFlags_Disabled
-	ImGuiButtonFlags_AlignTextBaseLine      = 1 << 15,// vertically align button to match text baseline - ButtonEx() only // FIXME: Should be removed and handled by SmallButton(), not possible currently because of DC.CursorPosPrevLine
-	ImGuiButtonFlags_NoKeyModifiers         = 1 << 16,// disable mouse interaction if a key modifier is held
-	ImGuiButtonFlags_NoHoldingActiveId      = 1 << 17,// don't set ActiveId while holding the mouse (ImGuiButtonFlags_PressedOnClick only)
-	ImGuiButtonFlags_NoNavFocus             = 1 << 18,// don't override navigation focus when activated (FIXME: this is essentially used everytime an item uses ImGuiItemFlags_NoNav, but because legacy specs don't requires LastItemData to be set ButtonBehavior(), we can't poll g.LastItemData.InFlags)
-	ImGuiButtonFlags_NoHoveredOnFocus       = 1 << 19,// don't report as hovered when nav focus is on this item
-	ImGuiButtonFlags_NoSetKeyOwner          = 1 << 20,// don't set key/input owner on the initial click (note: mouse buttons are keys! often, the key in question will be ImGuiKey_MouseLeft!)
-	ImGuiButtonFlags_NoTestKeyOwner         = 1 << 21,// don't test key/input owner when polling the key (note: mouse buttons are keys! often, the key in question will be ImGuiKey_MouseLeft!)
+	ImGuiButtonFlags_AlignTextBaseLine      = 1 << 15, // vertically align button to match text baseline - ButtonEx() only // FIXME: Should be removed and handled by SmallButton(), not possible currently because of DC.CursorPosPrevLine
+	ImGuiButtonFlags_NoKeyModifiers         = 1 << 16, // disable mouse interaction if a key modifier is held
+	ImGuiButtonFlags_NoHoldingActiveId      = 1 << 17, // don't set ActiveId while holding the mouse (ImGuiButtonFlags_PressedOnClick only)
+	ImGuiButtonFlags_NoNavFocus             = 1 << 18, // don't override navigation focus when activated (FIXME: this is essentially used everytime an item uses ImGuiItemFlags_NoNav, but because legacy specs don't requires LastItemData to be set ButtonBehavior(), we can't poll g.LastItemData.InFlags)
+	ImGuiButtonFlags_NoHoveredOnFocus       = 1 << 19, // don't report as hovered when nav focus is on this item
+	ImGuiButtonFlags_NoSetKeyOwner          = 1 << 20, // don't set key/input owner on the initial click (note: mouse buttons are keys! often, the key in question will be ImGuiKey_MouseLeft!)
+	ImGuiButtonFlags_NoTestKeyOwner         = 1 << 21, // don't test key/input owner when polling the key (note: mouse buttons are keys! often, the key in question will be ImGuiKey_MouseLeft!)
+	ImGuiButtonFlags_NoShadow               = 1 << 22, // @sobolev disable shadow rendering
 	ImGuiButtonFlags_PressedOnMask_         = ImGuiButtonFlags_PressedOnClick | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_PressedOnClickReleaseAnywhere |
 	    ImGuiButtonFlags_PressedOnRelease | ImGuiButtonFlags_PressedOnDoubleClick | ImGuiButtonFlags_PressedOnDragDropHold,
 	ImGuiButtonFlags_PressedOnDefault_      = ImGuiButtonFlags_PressedOnClickRelease,
@@ -2336,41 +2337,41 @@ struct ImGuiContext {
 // (This doesn't need a constructor because we zero-clear it as part of ImGuiWindow and all frame-temporary data are setup on Begin)
 struct ImGuiWindowTempData {
 	// Layout
-	ImVec2 CursorPos;                           // Current emitting position, in absolute coordinates.
+	ImVec2 CursorPos;                // Current emitting position, in absolute coordinates.
 	ImVec2 CursorPosPrevLine;
-	ImVec2 CursorStartPos;                      // Initial position after Begin(), generally ~ window position + WindowPadding.
-	ImVec2 CursorMaxPos;                        // Used to implicitly calculate ContentSize at the beginning of next frame, for scrolling range and auto-resize. Always growing during the frame.
-	ImVec2 IdealMaxPos;                         // Used to implicitly calculate ContentSizeIdeal at the beginning of next frame, for auto-resize only. Always growing during the frame.
+	ImVec2 CursorStartPos;           // Initial position after Begin(), generally ~ window position + WindowPadding.
+	ImVec2 CursorMaxPos;             // Used to implicitly calculate ContentSize at the beginning of next frame, for scrolling range and auto-resize. Always growing during the frame.
+	ImVec2 IdealMaxPos;              // Used to implicitly calculate ContentSizeIdeal at the beginning of next frame, for auto-resize only. Always growing during the frame.
 	ImVec2 CurrLineSize;
 	ImVec2 PrevLineSize;
-	float CurrLineTextBaseOffset;               // Baseline offset (0.0f by default on a new line, generally == style.FramePadding.y when a framed item has been added).
-	float PrevLineTextBaseOffset;
-	bool IsSameLine;
-	bool IsSetPos;
-	ImVec1 Indent;                              // Indentation / start position from left of window (increased by TreePush/TreePop, etc.)
-	ImVec1 ColumnsOffset;                       // Offset to the current column (if ColumnsCurrent > 0). FIXME: This and the above should be a stack to allow use cases like Tree->Column->Tree. Need revamp columns API.
+	float  CurrLineTextBaseOffset;   // Baseline offset (0.0f by default on a new line, generally == style.FramePadding.y when a framed item has been added).
+	float  PrevLineTextBaseOffset;
+	bool   IsSameLine;
+	bool   IsSetPos;
+	ImVec1 Indent;                   // Indentation / start position from left of window (increased by TreePush/TreePop, etc.)
+	ImVec1 ColumnsOffset;            // Offset to the current column (if ColumnsCurrent > 0). FIXME: This and the above should be a stack to allow use cases like Tree->Column->Tree. Need revamp columns API.
 	ImVec1 GroupOffset;
-	ImVec2 CursorStartPosLossyness;             // Record the loss of precision of CursorStartPos due to really large scrolling amount. This is used by clipper to compensentate and fix the most common use case of large scroll area.
+	ImVec2 CursorStartPosLossyness;  // Record the loss of precision of CursorStartPos due to really large scrolling amount. This is used by clipper to compensentate and fix the most common use case of large scroll area.
 
 	// Keyboard/Gamepad navigation
-	ImGuiNavLayer NavLayerCurrent;              // Current layer, 0..31 (we currently only use 0..1)
-	short NavLayersActiveMask;                  // Which layers have been written to (result from previous frame)
-	short NavLayersActiveMaskNext;              // Which layers have been written to (accumulator for current frame)
-	bool NavHideHighlightOneFrame;
-	bool NavHasScroll;                          // Set when scrolling can be used (ScrollMax > 0.0f)
+	ImGuiNavLayer NavLayerCurrent;   // Current layer, 0..31 (we currently only use 0..1)
+	short  NavLayersActiveMask;       // Which layers have been written to (result from previous frame)
+	short  NavLayersActiveMaskNext;   // Which layers have been written to (accumulator for current frame)
+	bool   NavHideHighlightOneFrame;
+	bool   NavHasScroll;               // Set when scrolling can be used (ScrollMax > 0.0f)
 
 	// Miscellaneous
-	bool MenuBarAppending;                      // FIXME: Remove this
-	ImVec2 MenuBarOffset;                       // MenuBarOffset.x is sort of equivalent of a per-layer CursorPos.x, saved/restored as we switch to the menu bar. The only situation when MenuBarOffset.y is > 0 if when (SafeAreaPadding.y > FramePadding.y), often used on TVs.
-	ImGuiMenuColumns MenuColumns;               // Simplified columns storage for menu items measurement
-	int TreeDepth;                              // Current tree depth.
-	ImU32 TreeJumpToParentOnPopMask;               // Store a copy of !g.NavIdIsAlive for TreeDepth 0..31.. Could be turned into a uint64 if necessary.
+	bool   MenuBarAppending;           // FIXME: Remove this
+	ImVec2 MenuBarOffset;            // MenuBarOffset.x is sort of equivalent of a per-layer CursorPos.x, saved/restored as we switch to the menu bar. The only situation when MenuBarOffset.y is > 0 if when (SafeAreaPadding.y > FramePadding.y), often used on TVs.
+	ImGuiMenuColumns MenuColumns;    // Simplified columns storage for menu items measurement
+	int    TreeDepth;                   // Current tree depth.
+	ImU32  TreeJumpToParentOnPopMask; // Store a copy of !g.NavIdIsAlive for TreeDepth 0..31.. Could be turned into a uint64 if necessary.
 	ImVector<ImGuiWindow*>  ChildWindows;
-	ImGuiStorage*           StateStorage;       // Current persistent per-window storage (store e.g. tree node open/close state)
-	ImGuiOldColumns*        CurrentColumns;     // Current columns set
-	int CurrentTableIdx;                        // Current table index (into g.Tables)
+	ImGuiStorage*           StateStorage;    // Current persistent per-window storage (store e.g. tree node open/close state)
+	ImGuiOldColumns*        CurrentColumns;  // Current columns set
+	int CurrentTableIdx;                     // Current table index (into g.Tables)
 	ImGuiLayoutType LayoutType;
-	ImGuiLayoutType ParentLayoutType;           // Layout type of parent window at the time of Begin()
+	ImGuiLayoutType ParentLayoutType;        // Layout type of parent window at the time of Begin()
 
 	// Local parameters stacks
 	// We store the current settings outside of the vectors to increase memory locality (reduce cache misses). The vectors are rarely modified. Also it allows us to not heap allocate for short-lived windows which are not using those settings.
@@ -3231,6 +3232,15 @@ const ImVec2 & align = ImVec2(0, 0), const ImRect* clip_rect = NULL);
 void RenderTextEllipsis(ImDrawList* draw_list, const ImVec2 & pos_min, const ImVec2 & pos_max, float clip_max_x, float ellipsis_max_x, const char* text,
 const char* text_end, const ImVec2* text_size_if_known);
 void RenderFrame(ImVec2 p_min, ImVec2 p_max, ImU32 fill_col, bool border = true, float rounding = 0.0f);
+//
+// Descr: Флаги функции RenderFrame2
+//
+enum {
+	imframefBorder = 0x0001,
+	imframefShadow = 0x0002
+};
+
+void RenderFrame2(ImVec2 p_min, ImVec2 p_max, ImU32 fill_col, uint flags, float rounding = 0.0f); // @sobolev
 void RenderFrameBorder(ImVec2 p_min, ImVec2 p_max, float rounding = 0.0f);
 void RenderColorRectWithAlphaCheckerboard(ImDrawList* draw_list, ImVec2 p_min, ImVec2 p_max, ImU32 fill_col, float grid_step, ImVec2 grid_off, float rounding = 0.0f,
 ImDrawFlags flags = 0);

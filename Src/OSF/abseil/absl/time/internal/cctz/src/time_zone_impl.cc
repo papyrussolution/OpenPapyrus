@@ -73,7 +73,7 @@ void time_zone::Impl::ClearTimeZoneMapTestOnly() {
 		// logically unreachable but not "leaked".  Future requests will result
 		// in reloading the data.
 		static auto* cleared = new std::deque<const time_zone::Impl*>;
-		for(const auto& element : *time_zone_map) {
+		for(const auto & element : *time_zone_map) {
 			cleared->push_back(element.second);
 		}
 		time_zone_map->clear();

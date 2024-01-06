@@ -592,58 +592,67 @@ bool ImGui::ButtonBehavior(const ImRect & bb, ImGuiID id, bool * pHovered, bool 
 	return pressed;
 }
 
-bool ImGui::ButtonEx(const char* label, const ImVec2 & size_arg, ImGuiButtonFlags flags)
+bool ImGui::ButtonEx(const char * pLabel, const ImVec2 & rSizeArg, ImGuiButtonFlags flags)
 {
+	bool pressed = false;
 	ImGuiWindow * window = GetCurrentWindow();
-	if(window->SkipItems)
-		return false;
-	ImGuiContext & g = *GImGui;
-	const ImGuiStyle& style = g.Style;
-	const ImGuiID id = window->GetID(label);
-	const ImVec2 label_size = CalcTextSize(label, NULL, true);
-	ImVec2 pos = window->DC.CursorPos;
-	if((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
-		pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
-	ImVec2 size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
-
-	const ImRect bb(pos, pos + size);
-	ItemSize(size, style.FramePadding.y);
-	if(!ItemAdd(bb, id))
-		return false;
-
-	if(g.LastItemData.InFlags & ImGuiItemFlags_ButtonRepeat)
-		flags |= ImGuiButtonFlags_Repeat;
-
-	bool hovered, held;
-	bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
-	// Render
-	const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
-	RenderNavHighlight(bb, id);
-	RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
-	if(g.LogEnabled)
-		LogSetNextTextDecoration("[", "]");
-	RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
-
-	// Automatically close popups
-	//if (pressed && !(flags & ImGuiButtonFlags_DontClosePopups) && (window->Flags & ImGuiWindowFlags_Popup))
-	//    CloseCurrentPopup();
-
-	IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
+	if(!window->SkipItems) {
+		ImGuiContext & g = *GImGui;
+		const ImGuiStyle & style = g.Style;
+		const ImGuiID id = window->GetID(pLabel);
+		const ImVec2 label_size = CalcTextSize(pLabel, NULL, true);
+		ImVec2 pos = window->DC.CursorPos;
+		if((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+			pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+		ImVec2 size = CalcItemSize(rSizeArg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+		const ImRect bb(pos, pos + size);
+		ItemSize(size, style.FramePadding.y);
+		if(ItemAdd(bb, id)) {
+			if(g.LastItemData.InFlags & ImGuiItemFlags_ButtonRepeat)
+				flags |= ImGuiButtonFlags_Repeat;
+			bool hovered;
+			bool held;
+			pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
+			// Render
+			const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+			RenderNavHighlight(bb, id);
+			// @sobolev RenderFrame-->RenderFrame2 {
+			{
+				uint framef = imframefBorder;
+				if(!(flags & ImGuiButtonFlags_NoShadow))
+					framef |= imframefShadow;
+				RenderFrame2(bb.Min, bb.Max, col, framef, style.FrameRounding);
+			}
+			// } @sobolev
+			if(g.LogEnabled)
+				LogSetNextTextDecoration("[", "]");
+			RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, pLabel, NULL, &label_size, style.ButtonTextAlign, &bb);
+			// Automatically close popups
+			//if (pressed && !(flags & ImGuiButtonFlags_DontClosePopups) && (window->Flags & ImGuiWindowFlags_Popup))
+			//    CloseCurrentPopup();
+			IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
+		}
+	}
 	return pressed;
 }
 
-bool ImGui::Button(const char* label, const ImVec2 & size_arg)
+bool ImGui::Button(const char * pLabel, const ImVec2 & rSizeArg)
 {
-	return ButtonEx(label, size_arg, ImGuiButtonFlags_None);
+	return ButtonEx(pLabel, rSizeArg, ImGuiButtonFlags_None);
+}
+
+bool ImGui::Button2(const char * pLabel, const ImVec2 & rSizeArg, ImGuiButtonFlags flags/*=ImGuiButtonFlags_None*/)
+{
+	return ButtonEx(pLabel, rSizeArg, flags);
 }
 
 // Small buttons fits within text without additional vertical spacing.
-bool ImGui::SmallButton(const char* label)
+bool ImGui::SmallButton(const char * pLabel)
 {
 	ImGuiContext & g = *GImGui;
 	float backup_padding_y = g.Style.FramePadding.y;
 	g.Style.FramePadding.y = 0.0f;
-	bool pressed = ButtonEx(label, ImVec2(0, 0), ImGuiButtonFlags_AlignTextBaseLine);
+	bool pressed = ButtonEx(pLabel, ImVec2(0, 0), ImGuiButtonFlags_AlignTextBaseLine);
 	g.Style.FramePadding.y = backup_padding_y;
 	return pressed;
 }
@@ -652,22 +661,23 @@ bool ImGui::SmallButton(const char* label)
 // Then you can keep 'str_id' empty or the same for all your buttons (instead of creating a string based on a non-string id)
 bool ImGui::InvisibleButton(const char* str_id, const ImVec2 & size_arg, ImGuiButtonFlags flags)
 {
+	bool pressed = false;
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = GetCurrentWindow();
-	if(window->SkipItems)
-		return false;
-	// Cannot use zero-size for InvisibleButton(). Unlike Button() there is not way to fallback using the label size.
-	assert(size_arg.x != 0.0f && size_arg.y != 0.0f);
-	const ImGuiID id = window->GetID(str_id);
-	ImVec2 size = CalcItemSize(size_arg, 0.0f, 0.0f);
-	const ImRect bb(window->DC.CursorPos, window->DC.CursorPos + size);
-	ItemSize(size);
-	if(!ItemAdd(bb, id))
-		return false;
-	bool hovered;
-	bool held;
-	bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
-	IMGUI_TEST_ENGINE_ITEM_INFO(id, str_id, g.LastItemData.StatusFlags);
+	if(!window->SkipItems) {
+		// Cannot use zero-size for InvisibleButton(). Unlike Button() there is not way to fallback using the label size.
+		assert(size_arg.x != 0.0f && size_arg.y != 0.0f);
+		const ImGuiID id = window->GetID(str_id);
+		ImVec2 size = CalcItemSize(size_arg, 0.0f, 0.0f);
+		const ImRect bb(window->DC.CursorPos, window->DC.CursorPos + size);
+		ItemSize(size);
+		if(ItemAdd(bb, id)) {
+			bool hovered;
+			bool held;
+			pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
+			IMGUI_TEST_ENGINE_ITEM_INFO(id, str_id, g.LastItemData.StatusFlags);
+		}
+	}
 	return pressed;
 }
 
@@ -939,9 +949,7 @@ bool ImGui::ImageButton(const char* str_id, ImTextureID user_texture_id, const I
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = g.CurrentWindow;
-	if(window->SkipItems)
-		return false;
-	return ImageButtonEx(window->GetID(str_id), user_texture_id, size, uv0, uv1, bg_col, tint_col);
+	return window->SkipItems ? false : ImageButtonEx(window->GetID(str_id), user_texture_id, size, uv0, uv1, bg_col, tint_col);
 }
 
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
@@ -994,9 +1002,7 @@ bool ImGui::Checkbox(const char* label, bool* v)
 	}
 	const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
 	RenderNavHighlight(total_bb, id);
-	RenderFrame(check_bb.Min, check_bb.Max,
-	    GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg),
-	    true, style.FrameRounding);
+	RenderFrame(check_bb.Min, check_bb.Max, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), true, style.FrameRounding);
 	ImU32 check_col = GetColorU32(ImGuiCol_CheckMark);
 	bool mixed_value = (g.LastItemData.InFlags & ImGuiItemFlags_MixedValue) != 0;
 	if(mixed_value) {
@@ -1009,13 +1015,11 @@ bool ImGui::Checkbox(const char* label, bool* v)
 		const float pad = smax(1.0f, IM_FLOOR(square_sz / 6.0f));
 		RenderCheckMark(window->DrawList, check_bb.Min + ImVec2(pad, pad), check_col, square_sz - pad * 2.0f);
 	}
-
 	ImVec2 label_pos = ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y);
 	if(g.LogEnabled)
 		LogRenderedText(&label_pos, mixed_value ? "[~]" : *v ? "[x]" : "[ ]");
 	if(label_size.x > 0.0f)
 		RenderText(label_pos, label);
-
 	IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (*v ? ImGuiItemStatusFlags_Checked : 0));
 	return pressed;
 }
@@ -3119,7 +3123,6 @@ bool ImGui::TempInputText(const ImRect& bb, ImGuiID id, const char* label, char*
 	const bool init = (g.TempInputId != id);
 	if(init)
 		ClearActiveID();
-
 	g.CurrentWindow->DC.CursorPos = bb.Min;
 	bool value_changed = InputTextEx(label, NULL, buf, buf_size, bb.GetSize(), flags | ImGuiInputTextFlags_MergedItem);
 	if(init) {

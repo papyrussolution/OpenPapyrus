@@ -385,7 +385,7 @@ struct tm ToTM(absl::Time t, absl::TimeZone tz)
 {
 	struct tm tm = {};
 	const auto ci = tz.At(t);
-	const auto& cs = ci.cs;
+	const auto & cs = ci.cs;
 	tm.tm_sec = cs.second();
 	tm.tm_min = cs.minute();
 	tm.tm_hour = cs.hour();

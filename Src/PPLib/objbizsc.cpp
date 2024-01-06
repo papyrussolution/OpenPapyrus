@@ -2451,6 +2451,7 @@ PPBizScore2::PPBizScore2()
 
 PPObjBizScore2::PPObjBizScore2(void * extraPtr) : PPObjReference(PPOBJ_BIZSCORE2, extraPtr)
 {
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 	
 PPObjBizScore2::~PPObjBizScore2()
@@ -2545,6 +2546,7 @@ public:
 		setCtrlLong(CTL_BIZSC2_ID, Data.Rec.ID);
 		setCtrlData(CTL_BIZSC2_NAME, Data.Rec.Name);
 		setCtrlData(CTL_BIZSC2_SYMB, Data.Rec.Symb);
+		SetupPPObjCombo(this, CTLSEL_BIZSC2_PARENT, PPOBJ_BIZSCORE2, Data.Rec.ParentID, OLW_CANSELUPLEVEL);
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -2554,6 +2556,7 @@ public:
 		getCtrlData(sel = CTL_BIZSC2_NAME, Data.Rec.Name);
 		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
 		getCtrlData(CTL_BIZSC2_SYMB, Data.Rec.Symb);
+		getCtrlData(CTLSEL_BIZSC2_PARENT, &Data.Rec.ParentID);
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -2583,6 +2586,71 @@ private:
 	}
 	CATCHZOKPPERR
 	return ok;
+}
+
+StrAssocArray * PPObjBizScore2::MakeStrAssocList(void * extraPtr)
+{
+	PPBizScore2 rec;
+	StrAssocArray * p_list = new StrAssocArray;
+	THROW_MEM(p_list);
+	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		PPID   parent_id = rec.ParentID;
+		THROW_SL(p_list->Add(rec.ID, parent_id, rec.Name));
+	}
+	p_list->SortByText();
+	CATCH
+		ZDELETE(p_list);
+	ENDCATCH
+	return p_list;
+}
+
+class PPObjBizScore2ListWindow : public PPObjListWindow {
+public:
+	static void * FASTCALL MakeExtraParam(PPID curId, void * extraPtr)
+	{
+		void * extra_ptr = extraPtr;
+		return extra_ptr;
+	}
+	PPObjBizScore2ListWindow(PPObject * pObj, uint flags, void * extraPtr) : PPObjListWindow(pObj, flags, extraPtr)
+	{
+		DefaultCmd = cmaEdit;
+		//SetToolbar(TOOLBAR_LIST_WORLD);
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		int    update = 0;
+		PPID   id = 0;
+		PPObjListWindow::handleEvent(event);
+		if(P_Obj) {
+			getResult(&id);
+			if(TVCOMMAND) {
+				switch(TVCMD) {
+					case cmaInsert:
+						id = 0;
+						if(Flags & OLW_CANINSERT && P_Obj->Edit(&id, MakeExtraParam(id, ExtraPtr)) == cmOK)
+							update = 2;
+						else
+							::SetFocus(H());
+						break;
+					case cmaMore:
+						if(id) {
+							/*
+							long extra_param = PPObjWorld::MakeExtraParam(WORLDOBJ_STREET, parentID, 0);
+							CheckExecAndDestroyDialog(new ObjWorldDialog((PPObjWorld *)ppobj, extra_param), 1, 1);
+							*/
+						}
+					break;
+				}
+			}
+			PostProcessHandleEvent(update, id);
+		}
+	}
+};
+
+/*virtual*/void * PPObjBizScore2::CreateObjListWin(uint flags, void * extraPtr)
+{
+	return new PPObjBizScore2ListWindow(this, flags, extraPtr);
 }
 	
 /*virtual*/int PPObjBizScore2::Browse(void * extraPtr /*userID*/)

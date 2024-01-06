@@ -610,7 +610,7 @@ public:
 		if(SUCCEEDED(hr) && !_filterSpec.empty()) {
 			std::vector <COMDLG_FILTERSPEC> fileTypes;
 			fileTypes.reserve(_filterSpec.size());
-			for(auto&& filter : _filterSpec)
+			for(auto && filter : _filterSpec)
 				fileTypes.push_back({ filter.name.data(), filter.ext.data() });
 			hr = _dialog->SetFileTypes(static_cast<UINT>(fileTypes.size()), fileTypes.data());
 		}
@@ -806,7 +806,7 @@ void CustomFileDialog::setExtFilter(const TCHAR * extText, const TCHAR * exts)
 void CustomFileDialog::setExtFilter(const TCHAR * extText, std::initializer_list<const TCHAR*> extList)
 {
 	generic_string exts;
-	for(auto&& x : extList) {
+	for(auto && x : extList) {
 		exts += x;
 		exts += _T(';');
 	}

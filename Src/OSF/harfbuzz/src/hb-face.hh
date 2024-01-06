@@ -52,18 +52,15 @@ struct hb_face_t {
 	hb_blob_t * reference_table(hb_tag_t tag) const
 	{
 		hb_blob_t * blob;
-
 		if(UNLIKELY(!reference_table_func))
 			return hb_blob_get_empty();
-
 		blob = reference_table_func(/*XXX*/ const_cast<hb_face_t *> (this), tag, user_data);
 		if(UNLIKELY(!blob))
 			return hb_blob_get_empty();
-
 		return blob;
 	}
 
-	HB_PURE_FUNC uint get_upem() const
+	CXX_FUNC_PURE uint get_upem() const
 	{
 		uint ret = upem.get_relaxed();
 		if(UNLIKELY(!ret)) {

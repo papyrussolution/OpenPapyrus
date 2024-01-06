@@ -264,7 +264,8 @@ uint4 GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 			*p_first_bad_blk = first_bad_blk;
 		}
 		// Count set bits in elt.
-		add_popcount(c, elt);
+		// @sobolev add_popcount(c, elt);
+		c += SBits::Cpop(elt); // @sobolev
 	}
 	return c;
 }

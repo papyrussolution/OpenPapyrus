@@ -1032,38 +1032,36 @@ ZSTDLIB_API size_t ZSTD_sizeof_DDict(const ZSTD_DDict* ddict);
 // 
 #if defined(ZSTD_STATIC_LINKING_ONLY) && !defined(ZSTD_H_ZSTD_STATIC_LINKING_ONLY)
 #define ZSTD_H_ZSTD_STATIC_LINKING_ONLY
-
 /* This can be overridden externally to hide static symbols. */
 #ifndef ZSTDLIB_STATIC_API
-#if defined(ZSTD_DLL_EXPORT) && (ZSTD_DLL_EXPORT==1)
-#define ZSTDLIB_STATIC_API __declspec(dllexport) ZSTDLIB_VISIBLE
-#elif defined(ZSTD_DLL_IMPORT) && (ZSTD_DLL_IMPORT==1)
-#define ZSTDLIB_STATIC_API __declspec(dllimport) ZSTDLIB_VISIBLE
-#else
-#define ZSTDLIB_STATIC_API ZSTDLIB_VISIBLE
+	#if defined(ZSTD_DLL_EXPORT) && (ZSTD_DLL_EXPORT==1)
+		#define ZSTDLIB_STATIC_API __declspec(dllexport) ZSTDLIB_VISIBLE
+	#elif defined(ZSTD_DLL_IMPORT) && (ZSTD_DLL_IMPORT==1)
+		#define ZSTDLIB_STATIC_API __declspec(dllimport) ZSTDLIB_VISIBLE
+	#else
+		#define ZSTDLIB_STATIC_API ZSTDLIB_VISIBLE
+	#endif
 #endif
-#endif
-
 /* Deprecation warnings :
  * Should these warnings be a problem, it is generally possible to disable them,
  * typically with -Wno-deprecated-declarations for gcc or _CRT_SECURE_NO_WARNINGS in Visual.
  * Otherwise, it's also possible to define ZSTD_DISABLE_DEPRECATE_WARNINGS.
  */
 #ifdef ZSTD_DISABLE_DEPRECATE_WARNINGS
-#define ZSTD_DEPRECATED(message) ZSTDLIB_STATIC_API  /* disable deprecation warnings */
+	#define ZSTD_DEPRECATED(message) ZSTDLIB_STATIC_API  /* disable deprecation warnings */
 #else
-#if defined (__cplusplus) && (__cplusplus >= 201402) /* C++14 or greater */
-#define ZSTD_DEPRECATED(message) [[deprecated(message)]] ZSTDLIB_STATIC_API
-#elif (defined(GNUC) && (GNUC > 4 || (GNUC == 4 && GNUC_MINOR >= 5))) || defined(__clang__)
-#define ZSTD_DEPRECATED(message) ZSTDLIB_STATIC_API __attribute__((deprecated(message)))
-#elif defined(__GNUC__) && (__GNUC__ >= 3)
-#define ZSTD_DEPRECATED(message) ZSTDLIB_STATIC_API __attribute__((deprecated))
-#elif defined(_MSC_VER)
-#define ZSTD_DEPRECATED(message) ZSTDLIB_STATIC_API __declspec(deprecated(message))
-#else
-#    pragma message("WARNING: You need to implement ZSTD_DEPRECATED for this compiler")
-#define ZSTD_DEPRECATED(message) ZSTDLIB_STATIC_API
-#endif
+	#if defined (__cplusplus) && (__cplusplus >= 201402) /* C++14 or greater */
+		#define ZSTD_DEPRECATED(message) [[deprecated(message)]] ZSTDLIB_STATIC_API
+	#elif (defined(GNUC) && (GNUC > 4 || (GNUC == 4 && GNUC_MINOR >= 5))) || defined(__clang__)
+		#define ZSTD_DEPRECATED(message) ZSTDLIB_STATIC_API __attribute__((deprecated(message)))
+	#elif defined(__GNUC__) && (__GNUC__ >= 3)
+		#define ZSTD_DEPRECATED(message) ZSTDLIB_STATIC_API __attribute__((deprecated))
+	#elif defined(_MSC_VER)
+		#define ZSTD_DEPRECATED(message) ZSTDLIB_STATIC_API __declspec(deprecated(message))
+	#else
+		#pragma message("WARNING: You need to implement ZSTD_DEPRECATED for this compiler")
+		#define ZSTD_DEPRECATED(message) ZSTDLIB_STATIC_API
+	#endif
 #endif /* ZSTD_DISABLE_DEPRECATE_WARNINGS */
 // 
 // experimental API (static linking only)
@@ -1074,10 +1072,9 @@ ZSTDLIB_API size_t ZSTD_sizeof_DDict(const ZSTD_DDict* ddict);
 // Some of them are planned to remain in the static_only section indefinitely.
 // Some of them might be removed in the future (especially when redundant with existing stable functions)
 // 
-#define ZSTD_FRAMEHEADERSIZE_PREFIX(format) ((format) == ZSTD_f_zstd1 ? 5 : 1)   /* minimum input size required to query
-	                                                                            frame header size */
+#define ZSTD_FRAMEHEADERSIZE_PREFIX(format) ((format) == ZSTD_f_zstd1 ? 5 : 1) // minimum input size required to query frame header size
 #define ZSTD_FRAMEHEADERSIZE_MIN(format)    ((format) == ZSTD_f_zstd1 ? 6 : 2)
-#define ZSTD_FRAMEHEADERSIZE_MAX   18   /* can be useful for static allocation */
+#define ZSTD_FRAMEHEADERSIZE_MAX   18 // can be useful for static allocation 
 #define ZSTD_SKIPPABLEHEADERSIZE    8
 
 /* compression parameter bounds */
@@ -1133,17 +1130,12 @@ typedef struct ZSTD_CCtx_params_s ZSTD_CCtx_params;
 
 typedef struct {
 	uint   offset;  /* The offset of the match. (NOT the same as the offset code)
-	                       * If offset == 0 and matchLength == 0, this sequence represents the last
-	                       * literals in the block of litLength size.
-	                       */
-
+		If offset == 0 and matchLength == 0, this sequence represents the last
+		literals in the block of litLength size. */
 	uint   litLength; /* Literal length of the sequence. */
 	uint   matchLength; /* Match length of the sequence. */
-
-	/* Note: Users of this API may provide a sequence with matchLength == litLength == offset == 0.
-	 * In this case, we will treat the sequence as a marker for a block boundary.
-	 */
-
+	// Note: Users of this API may provide a sequence with matchLength == litLength == offset == 0.
+	// In this case, we will treat the sequence as a marker for a block boundary.
 	uint   rep;     /* Represents which repeat offset is represented by the field 'offset'.
 	                       * Ranges from [0, 3].
 	                       *

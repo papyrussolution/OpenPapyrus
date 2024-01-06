@@ -1,0 +1,555 @@
+{
+	"symb": "ui",
+	"colorset_list": [
+		{
+			"symb": "imgui-style",
+			"Substrat": "#1E2228",
+			"TextPrimary": "#white",
+			"TextSecondary": "#silver",
+			"Text": "#rgb(1.00, 1.00, 1.00)",
+			"TextDisabled": "#rgb(0.50, 0.50, 0.50)",
+			"WindowBg": "#2B3038",
+			"ChildBg": "#rgb(0.00, 0.00, 0.00)|0.00",
+			"PopupBg": "#rgb(0.08, 0.08, 0.08)|0.94",
+			"Border": "#rgb(0.43, 0.43, 0.50)|0.50",
+			"BorderShadow": "#rgb(0.00, 0.00, 0.00)|0.00",
+			"FrameBg": "#black|0.95",
+			"FrameBgHovered": "#rgb(0.26, 0.59, 0.98)|0.40",
+			"FrameBgActive": "#rgb(0.26, 0.59, 0.98)|0.67",
+			"TitleBg": "#rgb(0.04, 0.04, 0.04)",
+			"TitleBgActive": "#rgb(0.16, 0.29, 0.48)",
+			"TitleBgCollapsed": "#rgb(0.00, 0.00, 0.00)|0.51",
+			"MenuBarBg": "#rgb(0.14, 0.14, 0.14)",
+			"ScrollbarBg": "#rgb(0.02, 0.02, 0.02)|0.53",
+			"ScrollbarGrab": "#rgb(0.31, 0.31, 0.31)",
+			"ScrollbarGrabHovered": "#rgb(0.41, 0.41, 0.41)",
+			"ScrollbarGrabActive": "#rgb(0.51, 0.51, 0.51)",
+			"CheckMark": "#rgb(0.26, 0.59, 0.98)",
+			"SliderGrab": "#rgb(0.24, 0.52, 0.88)",
+			"SliderGrabActive": "#rgb(0.26, 0.59, 0.98)",
+			"Button": "#rgb(0.26, 0.59, 0.98)|0.40",
+			"ButtonHovered": "#rgb(0.26, 0.59, 0.98)",
+			"ButtonActive": "#rgb(0.06, 0.53, 0.98)",
+			"Header": "#rgb(0.26, 0.59, 0.98)|0.31",
+			"HeaderHovered": "#rgb(0.26, 0.59, 0.98)|0.80",
+			"HeaderActive": "#rgb(0.26, 0.59, 0.98)",
+			"Separator": "$Border",
+			"SeparatorHovered": "#rgb(0.10, 0.40, 0.75)|0.78",
+			"SeparatorActive": "#rgb(0.10, 0.40, 0.75)",
+			"ResizeGrip": "#rgb(0.26, 0.59, 0.98)|0.20",
+			"ResizeGripHovered": "#rgb(0.26, 0.59, 0.98)|0.67",
+			"ResizeGripActive": "#rgb(0.26, 0.59, 0.98)|0.95",
+			"Tab": "lerp $Header, $TitleBgActive, 0.80",
+			"TabHovered": "$HeaderHovered",
+			"TabActive": "lerp $HeaderActive $TitleBgActive 0.60",
+			"TabUnfocused": "lerp $Tab, $TitleBg, 0.80",
+			"TabUnfocusedActive": "lerp $TabActive, $TitleBg, 0.40",
+			"PlotLines": "#rgb(0.61, 0.61, 0.61)",
+			"PlotLinesHovered": "#rgb(1.00, 0.43, 0.35)",
+			"PlotHistogram": "#rgb(0.90, 0.70, 0.00)",
+			"PlotHistogramHovered": "#rgb(1.00, 0.60, 0.00)",
+			"TableHeaderBg": "#rgb(0.19, 0.19, 0.20)",
+			"TableBorderStrong": "#rgb(0.31, 0.31, 0.35)",
+			"TableBorderLight": "#rgb(0.23, 0.23, 0.25)",
+			"TableRowBg": "#rgb(0.00, 0.00, 0.00)|0.00",
+			"TableRowBgAlt": "#rgb(1.00, 1.00, 1.00)|0.06",
+			"TextSelectedBg": "#rgb(0.26, 0.59, 0.98)|0.35",
+			"DragDropTarget": "#rgb(1.00, 1.00, 0.00)|0.90",
+			"NavHighlight": "#rgb(0.26, 0.59, 0.98)",
+			"NavWindowingHighlight": "#rgb(1.00, 1.00, 1.00)|0.70",
+			"NavWindowingDimBg": "#rgb(0.80, 0.80, 0.80)|0.20",
+			"ModalWindowDimBg": "#rgb(0.80, 0.80, 0.80)|0.35"
+		}
+	],
+	"layout_list": [
+		{
+			"id": 10018,
+			"symb": "programEntry",
+			"size": "192, 192",
+			"margin": "4",
+			"growfactor": 0,
+			"shrinkfactor": 0
+		},
+		{
+			"id": 5,
+			"symb": "screenAuthSelectSess",
+			"flags": "horizontal",
+			"size": "",
+			"justifycontent": "center",
+			"aligncontent": "center",
+			"alignitems": "center",
+			"alignself": "auto",
+			"shrinkfactor": 1,
+			"children": [
+				{
+					"id": 10008,
+					"size": "128, 100%",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"margin": "2,1",
+					"shrinkfactor": 1
+				},
+				{
+					"id": 10009,
+					"flags": "vertical",
+					"size": "undef, 100%",
+					"justifycontent": "start",
+					"aligncontent": "stretch",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"margin": "2,1",
+					"growfactor": 1,
+					"shrinkfactor": 1,
+					"children": [
+						{
+							"id": 10009,
+							"flags": "horizontal",
+							"size": "100%, undef",
+							"justifycontent": "start",
+							"aligncontent": "stretch",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"margin": "2,1",
+							"growfactor": 1,
+							"shrinkfactor": 1,
+							"children": [
+								{
+									"id": 10011,
+									"size": "undef, 100%",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"margin": "2,1",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								},
+								{
+									"id": 10012,
+									"size": "undef, 100%",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"margin": "2,1",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								},
+								{
+									"flags": "vertical",
+									"size": "undef, 100%",
+									"justifycontent": "start",
+									"aligncontent": "stretch",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"margin": "2,1",
+									"growfactor": 1,
+									"shrinkfactor": 1,
+									"children": [
+										{
+											"id": 10013,
+											"size": "100%, undef",
+											"alignitems": "stretch",
+											"alignself": "auto",
+											"margin": "2,1",
+											"growfactor": 1,
+											"shrinkfactor": 1
+										},
+										{
+											"id": 10014,
+											"size": "100%, 128",
+											"alignitems": "stretch",
+											"alignself": "auto",
+											"margin": "2,1",
+											"shrinkfactor": 1
+										}
+									]
+								}
+							]
+						},
+						{
+							"id": 10015,
+							"size": "100%, 128",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"margin": "2,1",
+							"shrinkfactor": 1
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": 6,
+			"symb": "screenSession",
+			"flags": "horizontal",
+			"size": "",
+			"justifycontent": "start",
+			"aligncontent": "stretch",
+			"alignitems": "stretch",
+			"alignself": "auto",
+			"shrinkfactor": 1,
+			"children": [
+				{
+					"id": 10008,
+					"size": "256, 100%",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "left",
+					"gravityy": "center",
+					"margin": "1",
+					"shrinkfactor": 1
+				},
+				{
+					"id": 10009,
+					"flags": "vertical",
+					"size": "100%, 100%",
+					"justifycontent": "start",
+					"aligncontent": "stretch",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "left",
+					"gravityy": "center",
+					"margin": "1",
+					"shrinkfactor": 1,
+					"children": [
+						{
+							"id": 10016,
+							"size": "undef, 128",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"margin": "2,1",
+							"growfactor": 1,
+							"shrinkfactor": 1
+						},
+						{
+							"id": 10017,
+							"symb": "SessionProgramGallery",
+							"flags": "vertical",
+							"size": "100%, undef",
+							"justifycontent": "start",
+							"aligncontent": "stretch",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"margin": "2,1",
+							"growfactor": 2,
+							"shrinkfactor": 1,
+							"children": [
+								{
+									"id": 10021,
+									"symb": "ProgramGalleryCatSelector",
+									"size": "100%, 28",
+									"growfactor": 0,
+									"shrinkfactor": 0,
+									"gravityx": "center",
+									"gravityy": "top"
+								},
+								{
+									"id": 10005,
+									"flags": "vertical",
+									"size": "undef, 100%",
+									"justifycontent": "start",
+									"aligncontent": "start",
+									"alignitems": "start",
+									"alignself": "auto",
+									"padding": "4",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								},
+								{
+									"id": 10020,
+									"symb": "programgalleryscrollbar",
+									"size": "100%, 20",
+									"growfactor": 0,
+									"shrinkfactor": 0,
+									"gravityx": "center",
+									"gravityy": "botton"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": 1,
+			"symb": "screenConstruction",
+			"flags": "horizontal",
+			"size": "",
+			"justifycontent": "start",
+			"aligncontent": "stretch",
+			"alignitems": "stretch",
+			"alignself": "auto",
+			"shrinkfactor": 1,
+			"children": [
+				{
+					"id": 10008,
+					"size": "256, 100%",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "left",
+					"gravityy": "center",
+					"margin": "1",
+					"shrinkfactor": 1
+				},
+				{
+					"id": 10009,
+					"flags": "vertical",
+					"size": "100%, 100%",
+					"justifycontent": "start",
+					"aligncontent": "stretch",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "left",
+					"gravityy": "center",
+					"margin": "1",
+					"shrinkfactor": 1,
+					"children": [
+						{
+							"id": 10001,
+							"flags": "horizontal",
+							"size": "100%, undef",
+							"justifycontent": "start",
+							"aligncontent": "stretch",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"margin": "2,1",
+							"growfactor": 1,
+							"shrinkfactor": 1,
+							"children": [
+								{
+									"id": 10003,
+									"size": "undef, 100%",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"margin": "2,1",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								},
+								{
+									"id": 10004,
+									"size": "undef, 100%",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"margin": "2,1",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								}
+							]
+						},
+						{
+							"id": 10002,
+							"flags": "vertical",
+							"size": "100%, undef",
+							"justifycontent": "start",
+							"aligncontent": "stretch",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"margin": "2,1",
+							"growfactor": 1.6,
+							"shrinkfactor": 1,
+							"children": [
+								{
+									"id": 10021,
+									"symb": "ProgramGalleryCatSelector",
+									"size": "100%, 28",
+									"growfactor": 0,
+									"shrinkfactor": 0,
+									"gravityx": "center",
+									"gravityy": "top"
+								},
+								{
+									"id": 10005,
+									"flags": "vertical",
+									"size": "undef, 100%",
+									"justifycontent": "start",
+									"aligncontent": "start",
+									"alignitems": "start",
+									"alignself": "auto",
+									"padding": "4",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								},
+								{
+									"id": 10020,
+									"symb": "programgalleryscrollbar",
+									"size": "100%, 20",
+									"growfactor": 0,
+									"shrinkfactor": 0,
+									"gravityx": "center",
+									"gravityy": "botton"
+								},
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": 7,
+			"symb": "screenIntro",
+			"flags": "vertical wrap",
+			"size": "",
+			"justifycontent": "start",
+			"aligncontent": "stretch",
+			"alignitems": "stretch",
+			"alignself": "auto",
+			"shrinkfactor": 1,
+			"children": [
+				{
+					"id": 10027,
+					"size": "100%, 32",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "top",
+					"shrinkfactor": 1
+				},
+				{
+					"flags": "horizontal wrap",
+					"size": "100%, undef",
+					"justifycontent": "start",
+					"aligncontent": "stretch",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "bottom",
+					"growfactor": 1,
+					"shrinkfactor": 1,
+					"children": [
+						{
+							"flags": "vertical wrap",
+							"size": "undef, 100%",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"gravityx": "center",
+							"gravityy": "center",
+							"growfactor": 1,
+							"shrinkfactor": 1,
+							"children": [
+								{
+									"id": 10026,
+									"symb": "logo",
+									"size": "100%, undef",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"gravityx": "center",
+									"gravityy": "center",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								},
+								{
+									"size": "undef, undef",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"gravityx": "center",
+									"gravityy": "center",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								}
+							]
+						},
+						{
+							"flags": "horizontal",
+							"size": "undef, 100%",
+							"justifycontent": "center",
+							"aligncontent": "end",
+							"alignitems": "center",
+							"alignself": "auto",
+							"gravityx": "end",
+							"gravityy": "center",
+							"growfactor": 1,
+							"shrinkfactor": 1,
+							"children": [
+								{
+									"id": 10025,
+									"symb": "button_start",
+									"size": "512, 128",
+									"margin": "8,8",
+									"alignitems": "stretch",
+									"alignself": "end",
+									"gravityx": "center",
+									"gravityy": "center",
+									"shrinkfactor": 1
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": 4,
+			"symb": "screenLogin",
+			"flags": "vertical",
+			"size": "",
+			"justifycontent": "start",
+			"aligncontent": "end",
+			"alignitems": "center",
+			"alignself": "auto",
+			"shrinkfactor": 1,
+			"children": [
+				{
+					"id": 10027,
+					"size": "100%, 32",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "top",
+					"shrinkfactor": 1
+				},
+				{
+					"flags": "horizontal wrap",
+					"size": "100%, undef",
+					"justifycontent": "start",
+					"aligncontent": "stretch",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "bottom",
+					"growfactor": 1,
+					"shrinkfactor": 1,
+					"children": [
+						{
+							"flags": "vertical wrap",
+							"size": "undef, 100%",
+							"margin": "8",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"gravityx": "center",
+							"gravityy": "center",
+							"growfactor": 1,
+							"shrinkfactor": 1,
+							"children": [
+								{
+									"id": 10026,
+									"symb": "logo",
+									"size": "100%, undef",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"gravityx": "center",
+									"gravityy": "center",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								},
+								{
+									"size": "undef, undef",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"gravityx": "center",
+									"gravityy": "center",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								}
+							]
+						},
+						{
+							"id": 10010,
+							"size": "400, 200",
+							"margin": "8",
+							"alignitems": "center",
+							"alignself": "auto",
+							"shrinkfactor": 1
+						}
+					]
+				}
+			]
+		}
+	]
+}

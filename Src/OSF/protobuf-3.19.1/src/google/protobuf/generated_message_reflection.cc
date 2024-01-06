@@ -1925,7 +1925,7 @@ const Message* Reflection::GetDefaultMessageInstance(const FieldDescriptor* fiel
 	// means they contain null pointers on their message fields and can't be used
 	// to get the default of submessages.
 	if(message_factory_ == MessageFactory::generated_factory()) {
-		auto& ptr = field->default_generated_instance_;
+		auto & ptr = field->default_generated_instance_;
 		auto* res = ptr.load(std::memory_order_acquire);
 		if(res == nullptr) {
 			// First time asking for this field's default. Load it and cache it.

@@ -22,7 +22,7 @@
 
 #define F(x)    pixman_int_to_fixed(x)
 
-static FORCEINLINE int count_leading_zeros(uint32 x)
+/*static FORCEINLINE int count_leading_zeros(uint32 x)
 {
 #ifdef HAVE_BUILTIN_CLZ
 	return __builtin_clz(x);
@@ -34,7 +34,7 @@ static FORCEINLINE int count_leading_zeros(uint32 x)
 	}
 	return 32 - n;
 #endif
-}
+}*/
 
 /*
  * Large signed/unsigned integer division with rounding for the platforms with
@@ -79,10 +79,7 @@ static FORCEINLINE uint64 rounded_udiv_128_by_48(uint64 hi, uint64 lo, uint64 di
 }
 
 /* signed division (128-bit by 49-bit) with rounding to nearest */
-static inline int64 rounded_sdiv_128_by_49(int64 hi,
-    uint64 lo,
-    int64 div,
-    int64 * signed_result_hi)
+static inline int64 rounded_sdiv_128_by_49(int64 hi, uint64 lo, int64 div, int64 * signed_result_hi)
 {
 	uint64 result_lo, result_hi;
 	int sign = 0;
@@ -114,16 +111,11 @@ static inline int64 rounded_sdiv_128_by_49(int64 hi,
  * Multiply 64.16 fixed point value by (2^scalebits) and convert
  * to 128-bit integer.
  */
-static FORCEINLINE void fixed_64_16_to_int128(int64 hi,
-    int64 lo,
-    int64 * rhi,
-    int64 * rlo,
-    int scalebits)
+static FORCEINLINE void fixed_64_16_to_int128(int64 hi, int64 lo, int64 * rhi, int64 * rlo, int scalebits)
 {
 	/* separate integer and fractional parts */
 	hi += lo >> 16;
 	lo &= 0xFFFF;
-
 	if(scalebits <= 0) {
 		*rlo = hi >> (-scalebits);
 		*rhi = *rlo >> 63;
@@ -139,8 +131,7 @@ static FORCEINLINE void fixed_64_16_to_int128(int64 hi,
 }
 
 /*
- * Convert 112.16 fixed point value to 48.16 with clamping for the out
- * of range values.
+ * Convert 112.16 fixed point value to 48.16 with clamping for the out of range values.
  */
 static FORCEINLINE pixman_fixed_48_16_t fixed_112_16_to_fixed_48_16(int64 hi, int64 lo, boolint * clampflag)
 {
@@ -236,7 +227,7 @@ PIXMAN_EXPORT boolint pixman_transform_point_31_16(const pixman_transform_t * t,
 		else {
 			/* the divisor needs to be reduced to 48 bits */
 			int64 hi, rhi, lo, rlo, div;
-			int shift = 32 - count_leading_zeros(hi32divbits);
+			int shift = 32 - /*count_leading_zeros*/SBits::Clz(static_cast<uint>(hi32divbits));
 			fixed_64_16_to_int128(divint, divfrac, &hi, &div, 16 - shift);
 			fixed_64_16_to_int128(tmp[0][0], tmp[0][1], &hi, &lo, 32 - shift);
 			rlo = rounded_sdiv_128_by_49(hi, lo, div, &rhi);

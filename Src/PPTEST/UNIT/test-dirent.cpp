@@ -1141,11 +1141,11 @@ SLTEST_R(dirent)
 			if(p_entry) {
 				ued_symb.Z();
 				temp_buf.Z();
-				if(p_uedc && p_uedc->GetSymb(p_entry->UED, ued_symb)) {
+				if(p_uedc && p_uedc->GetSymb(p_entry->Ued, ued_symb)) {
 					assert(ued_symb.NotEmpty());
 					temp_buf.Cat(ued_symb).Space();
 				}
-				temp_buf.CatHex(p_entry->UED).Space().Cat(p_entry->Guid, S_GUID::fmtIDL).Space().Cat(p_entry->Result).Space().Cat(p_entry->PathUtf8).CR();
+				temp_buf.CatHex(p_entry->Ued).Space().Cat(p_entry->Guid, S_GUID::fmtIDL).Space().Cat(p_entry->Result).Space().Cat(p_entry->PathUtf8).CR();
 				SetInfo(temp_buf);
 			}
 		}

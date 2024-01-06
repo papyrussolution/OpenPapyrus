@@ -1,5 +1,5 @@
 // PPSTR2.TXT
-// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // Codepage=UTF-8
 //
 // Синтаксис:
@@ -2295,6 +2295,9 @@ PPERR_STQ_UNDEFWHFORORDERPREREQ     "Не удалось идентифицир�
 PPERR_STQ_EXCECMD_GEOLOCDISABLED    "Для выполнения команды необходимо разрешение на получение гео-координат на вашем устройстве"
 PPERR_STQ_PSNEV_MAXDISTRESTRICTION  "Вы находитесь слишком далеко от места регистрации события"
 PPERR_STQ_BINDERYPCKDSRLZFAULT      "Ошибка десериализации пакета Stylo-Q bindery (%s)"
+PPERR_STQ_SETGEOLOC_INVJSPARAM_S_L  "Ошибка в команде setgeoloc - заданы одновременно сервис и локация"
+PPERR_STQ_SETGEOLOC_INVJSPARAM_ESEL "Ошибка в команде setgeoloc - не заданы ни сервис, ни локация"
+PPERR_STQ_SETGEOLOC_INVJSPARAM_LOC  "Ошибка в команде setgeoloc - идентификатор локации задан не верно (%s)"
 PPERR_UED_VALUENOTBELONGTOMETA      "UED-значение не принадлежит целевой мета-категории (%s)"
 PPERR_UED_SYMBFORMETANOTFOUND       "Не найден символ, соответствующий мета-категории (%s)"
 PPERR_UED_PREVVERV_SYMBREMOVED      "Символ, существовавший в предудыщей версии, удален в новой версии (%s)"
@@ -2652,6 +2655,7 @@ PPINF_EGAISSHOPRETURNCR    "Создан документ возврата с р
 80   "@{obj_taxsystemkind}"
 81   "@{obj_tssmodel}"
 82   "@{eventsubscription}"
+83   "@{bizscore} II (construction)" // @v11.9.2
 100  "@{dynobject_pl}"
 101  "Породы древесины"
 1000 /!/ "#UNASSIGNED"
@@ -3082,6 +3086,7 @@ PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR     "paperlesscheque_fakeeaddr" // @v11.3.7
 PPINIPARAM_BLINDLOGINMODE                "blindloginmode" // @v11.3.12 [config] "слепой" режим авторизации: пользователь не видит список баз данных. после ввода имени и пароля
 	// система самостоятельно находит базу или базы данных, для которых это имя подходит и, если есть более одной базы - дает возможность выбрать.
 PPINIPARAM_DISABLESTQQRLOGIN             "disablestqqrlogin" // @v11.6.9 [config] Запрет авторизации по QR-коду через Stylo-Q
+PPINIPARAM_STYLOQSVCLOGGING              "StyloQSvcLoggin"   // @v11.9.2 [config]
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT                   "at"
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT2                  "at2"
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT3                  "at3"
@@ -3326,6 +3331,7 @@ PPFILNAM_MERCAPP_LOG           "mercapp.log" // @v11.5.2
 PPFILNAM_NOIMAGE               "nophoto.png" // @v10.9.4
 PPFILNAM_VKTALK_LOG            "vk-talk.log" // @v10.9.6
 PPFILNAM_STYLOQSVC_LOG         "styloqsvc.log" // @v11.6.11
+PPFILNAM_STYLOQSVCTALK_LOG     "styloqsvc-talk.log" // @v11.9.2
 
 #!} // dont_translate
 
@@ -4673,7 +4679,7 @@ PPTXT_EDIOP                         /!/ "1,ORDER;2,ORDERRSP;3,APERAK;4,DESADV;5,
 	66,PPEDIOP_EGAIS_WAYBILL_V3;77,PPEDIOP_EGAIS_WAYBILL_V4"
 PPTXT_EDIEXPCMD                     "1,ORDER,@{booking};2,RECADV,Уведомление о приходе"
 PPTXT_EDIIMPCMD                     "1000,FULLCYCLE,Полный обмен;1,APERAK,Получение статуса;2,ORDRSP,Подтверждение заказа;3,DESADV,Уведомление об отгрузке;4,ALCODESADV,Атрибуты алкогольной продукции"
-PPTXT_WAITFORWRSHRFILENOTIFY        "Ожидание завершения записи в файл '%zstr' продлилось %int ms"
+PPTXT_WAITFORWRSHRFILENOTIFY        "Ожидание завершения записи в файл '@zstr' продлилось @int ms" // @v11.9.2 @fix %-->@
 // @do_remove
 PPTXT_SRCILTIPOSCHANGED             "DEBUG: ! Изменилось сопоставление позиций строк после проведение документа '%s': %s"
 PPTXT_ASYNCEVQUEUESJFAULT           "AsyncAdviseEventQueue: ошибка при получения очередной порции системных событий из журнала. Запрос перестроен."
@@ -5014,6 +5020,7 @@ PPTXT_CCIMP_ALREADYIMPORTED          "Кассовый чек '%s' ранее у
 PPTXT_CCIMP_ACCEPTED                 "Кассовый чек '%s' успешно импортирован"
 PPTXT_NGINXSRV_STARTED_MNTR_IS_OK    "NGINX-сервер запущен. Внутренний мониторинг сообщает о том, что он работает"
 PPTXT_NGINXSRV_MNTRREPORTEDFAULT     "Мониторинг NGINX-сервера сообщает об сбое"
+PPTXT_PRESSTOAUTHANDSTART            "Нажмите чтобы авторизоваться\nи начать работу" // @v11.9.2 wsctl
 //
 // LastText
 
@@ -8770,6 +8777,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_billstatus                           "Статусы документов"
 @cmd_billtag                              "Теги документов"
 @cmd_bizscore                             "@{bizscore_pl}"
+@cmd_bizscore2                            "@{bizscore_pl} ii (construction)"
 @cmd_bizscorecalc                         "Расчет бизнес-показателей"
 @cmd_bizscoreval                          "Значения бизнес-показателей"
 @cmd_bizscvalbytempl                      "Значения бизнес-показателей по шаблону"
@@ -18150,6 +18158,13 @@ PPHS_BCS_PLESSEY                 "plessey"
 PPHS_BCS_POSTNET                 "postnet"
 PPHS_BCS_LOGMARS                 "logmars"
 PPHS_BCS_DATAMATRIX              "datamatrix" // @v10.9.12
+PPHS_BCS_AZTEC                   "aztec" // @v11.9.2
+PPHS_BCS_DATABAR                 "databar" // @v11.9.2
+PPHS_BCS_MICROQR                 "microqr" // @v11.9.2
+PPHS_BCS_ITF                     "itf" // @v11.9.2
+PPHS_BCS_RMQR                    "rmqr" // @v11.9.2
+PPHS_BCS_MAXICODE                "maxicode" // @v11.9.2
+
 PPHS_ALCOPROOF                   "alcoproof"
 PPHS_ALCORUCAT                   "alcorucat"
 PPHS_VATRATE                     "vatrate"

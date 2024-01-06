@@ -1,5 +1,5 @@
 // SDATE.CPP
-// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8 // @v10.4.5
 //
 #include <slib-internal.h>
@@ -112,10 +112,7 @@ int FASTCALL _decode_date_fmt(int style, int * pDiv)
 	return ord;
 }
 
-bool FASTCALL IsLeapYear_Gregorian(uint y)
-{
-	return ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0));
-}
+bool FASTCALL IsLeapYear_Gregorian(int y) { return ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0)); }
 //
 //  The following two tables map a month index to the number of days preceding
 //  the month in the year.  Both tables are zero based.  For example, 1 (Feb)
@@ -193,7 +190,7 @@ static const uint8 NormalYearDayToMonth[365] = {
 	11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11
 };                                                                                                 // December
 
-int DateToDaysSinceChristmas(uint y, uint m, uint d)
+int DateToDaysSinceChristmas(int y, uint m, uint d)
 {
 	int    n = 0;
 	//
@@ -245,43 +242,6 @@ static int FASTCALL getMon(int * pD, int leap)
 	return i;
 }
 
-int DaysSinceChristmasToDate(uint g, uint * pYear, uint * pMon, uint * pDay)
-{
-	int    ok = 1;
-	uint   day = 0;
-	uint   _year = 0;
-	uint   mon = 0;
-	const uint   h4y = g / (400 * 365 + 97);
-	const uint   h4d_rem = g % (400 * 365 + 97);
-	const uint   hy = h4d_rem / (100 * 365 + 24);
-	const uint   hy_rem = h4d_rem % (100 * 365 + 24);
-	const uint   fy = hy_rem / (4 * 365 + 1);
-	const uint   fy_rem = hy_rem % (4 * 365 + 1);
-	const uint   y = fy_rem / 365;
-	day = fy_rem % 365;
-	_year = (h4y * 400) + (hy * 100) + (fy * 4) + y + 1;
-	mon = 0;
-	if(day == 0) {
-		_year--;
-		mon = 12;
-		day = (y == 4 || hy == 4) ? 30 : 31; // Граничная проблема: конец четверки годов или 400-летия
-	}
-	else if(IsLeapYear_Gregorian(_year)) {
-		mon = LeapYearDayToMonth[day-1];
-		day -= LeapYearDaysPrecedingMonth[mon];
-		mon++;
-	}
-	else {
-		mon = NormalYearDayToMonth[day-1];
-		day -= NormalYearDaysPrecedingMonth[mon];
-		mon++;
-	}
-	ASSIGN_PTR(pYear, _year);
-	ASSIGN_PTR(pMon, mon);
-	ASSIGN_PTR(pDay, day);
-	return ok;
-}
-
 uint FASTCALL dayspermonth(uint month, uint year)
 {
 	assert(checkirange(month, 1U, 12U));
@@ -295,7 +255,7 @@ uint FASTCALL dayspermonth(uint month, uint year)
 	return dpm;
 }
 
-static char * FASTCALL extractVarPart(const char * word, char * buf)
+static char * FASTCALL ExtractVarPart(const char * word, char * buf)
 {
 	const char * p = word;
 	char * b = buf;
@@ -326,12 +286,12 @@ static char * extractFormFromVarPart(const char * vp, int n /*[1..]*/, char * bu
 static char * selectVarPart(const char * word, int n, char * pBuf)
 {
 	char   vp[256];
-	char * e = extractVarPart(word, vp);
+	char * e = ExtractVarPart(word, vp);
 	extractFormFromVarPart(vp, n, pBuf);
 	return e;
 }
 
-static char * getWordForm(const char * pattern, long fmt, char * pBuf)
+static char * GetWordForm(const char * pattern, long fmt, char * pBuf)
 {
 	char   temp[32];
 	char * t = temp;
@@ -356,7 +316,7 @@ static char * getWordForm(const char * pattern, long fmt, char * pBuf)
 //
 //
 //
-static const char * FASTCALL _extractVarPart(const char * word, char * buf)
+static const char * FASTCALL _ExtractVarPart(const char * word, char * buf)
 {
 	const char * p = word;
 	char * b = buf;
@@ -384,7 +344,7 @@ static void _extractFormFromVarPart(const char * vp, int n /*[1..]*/, SString & 
 static const char * _selectVarPart(const char * word, int n, SString & rBuf)
 {
 	char   vp[256];
-	const  char * e = _extractVarPart(word, vp);
+	const  char * e = _ExtractVarPart(word, vp);
 	_extractFormFromVarPart(vp, n, rBuf);
 	return e;
 }
@@ -483,9 +443,9 @@ static inline int FASTCALL getDays(int mon, int leap) { return (mon > 1 && mon <
 
 static void _ltodate(long nd, void * dt, int format)
 {
-	uint   y, m, d;
-	DaysSinceChristmasToDate(nd, &y, &m, &d);
-	_encodedate(d, m, y, dt, format);
+	SUniDate_Internal udi;
+	udi.SetDaysSinceChristmas(nd);
+	_encodedate(udi.D, udi.M, udi.Y, dt, format);
 }
 
 static void _ltodate360(long nd, void * dt, int format)
@@ -2528,6 +2488,45 @@ int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
 //
 ///*static*/const int SUniTime_Internal::Undef_TimeZone = 1000;
 
+SUniDate_Internal::SUniDate_Internal() : Y(0), M(0), D(0)
+{
+}
+
+SUniDate_Internal::SUniDate_Internal(int y, uint m, uint d) : Y(y), M(m), D(d)
+{
+}
+
+int SUniDate_Internal::SetDaysSinceChristmas(uint g)
+{
+	int    ok = 1;
+	const uint   h4y = g / (400 * 365 + 97);
+	const uint   h4d_rem = g % (400 * 365 + 97);
+	const uint   hy = h4d_rem / (100 * 365 + 24);
+	const uint   hy_rem = h4d_rem % (100 * 365 + 24);
+	const uint   fy = hy_rem / (4 * 365 + 1);
+	const uint   fy_rem = hy_rem % (4 * 365 + 1);
+	const uint   y = fy_rem / 365;
+	D = fy_rem % 365;
+	M = 0;
+	Y = (h4y * 400) + (hy * 100) + (fy * 4) + y + 1;
+	if(D == 0) {
+		Y--;
+		M = 12;
+		D = (y == 4 || hy == 4) ? 30 : 31; // Граничная проблема: конец четверки годов или 400-летия
+	}
+	else if(IsLeapYear_Gregorian(Y)) {
+		M = LeapYearDayToMonth[D-1];
+		D -= LeapYearDaysPrecedingMonth[M];
+		M++;
+	}
+	else {
+		M = NormalYearDayToMonth[D-1];
+		D -= NormalYearDaysPrecedingMonth[M];
+		M++;
+	}
+	return ok;
+}
+
 /*static*/bool SUniTime_Internal::ValidateTimeZone(int tz)
 {
 	assert((tz >= -(12 * 3600) && tz <= +(14 * 3600)) || tz == Undef_TimeZone);
@@ -2588,7 +2587,7 @@ SUniTime_Internal::SUniTime_Internal(SCtrGenerate)
 
 bool SUniTime_Internal::IsValid() const
 {
-	return (checkirange(Y, 1U, 3000U) && checkirange(M, 1U, 12U) && 
+	return (checkirange(Y, 1, 3000) && checkirange(M, 1U, 12U) && 
 		checkirange(D, 1U, dayspermonth(M, Y)) && (Hr < 24) && (Mn < 60) && (Sc < 60) &&
 		(MSc < 1000ULL) && ValidateTimeZone(TimeZoneSc));
 }
@@ -3491,19 +3490,19 @@ uint8  SUniTime::Implement_Get(void * pData) const
 			p_inner->TimeZoneSc = timezone;
 			break;
 		case indDay:
-			DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
+			p_inner->SetDaysSinceChristmas((uint)value);
 			break;
 		case indMon:
-			DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
+			p_inner->SetDaysSinceChristmas((uint)value);
 			p_inner->D = 2;
 			break;
 		case indQuart:
-			DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
+			p_inner->SetDaysSinceChristmas((uint)value);
 			p_inner->M = (((p_inner->M-1) / 3) * 3) + 1;
 			p_inner->D = 2;
 			break;
 		case indSmYr:
-			DaysSinceChristmasToDate((long)value, &p_inner->Y, &p_inner->M, &p_inner->D);
+			p_inner->SetDaysSinceChristmas((uint)value);
 			p_inner->M = (((p_inner->M-1) / 6) * 6) + 1;
 			p_inner->D = 2;
 			break;

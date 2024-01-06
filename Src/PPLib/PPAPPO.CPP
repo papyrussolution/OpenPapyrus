@@ -1,5 +1,5 @@
 // PPAPPO.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -82,6 +82,7 @@ int PPApp::InitStatusBar()
 	return 1;
 }
 
+#if 0 // @v11.9.2 (replaced with GetVectorTools) {
 /*virtual*/int PPApp::LoadVectorTools(TWhatmanToolArray * pT)
 {
 	int    ok = -1;
@@ -95,6 +96,10 @@ int PPApp::InitStatusBar()
 	CATCHZOK
 	return ok;
 }
+#endif // } 0
+
+/*virtual*/const TWhatmanToolArray * PPApp::GetVectorTools() const { return &DS.GetVectorTools(); } // @v11.9.2 
+/*virtual*/SPaintToolBox * PPApp::GetUiToolBox() { return &DS.GetUiToolBox(); } // @v11.9.2
 
 IMPL_HANDLE_EVENT(PPApp)
 {
@@ -469,6 +474,7 @@ int PPApp::processCommand(uint cmd)
 		case cmProcessor:            ShowObjects(PPOBJ_PROCESSOR, 0);         break;
 		case cmNamedObjAssoc:        ShowObjects(PPOBJ_NAMEDOBJASSOC, 0);     break;
 		case cmBizScore:             ShowObjects(PPOBJ_BIZSCORE, 0);          break;
+		case cmBizScore2:            ShowObjects(PPOBJ_BIZSCORE2, 0);         break; // @v11.9.2 @construction
 		case cmUhttStore:            ShowObjects(PPOBJ_UHTTSTORE, 0);         break;
 		case cmWorkbook:             ShowObjects(PPOBJ_WORKBOOK, 0);          break;
 		case cmGoodsValRestr:        ShowObjects(PPOBJ_GOODSVALRESTR, 0);     break;

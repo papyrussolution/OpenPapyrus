@@ -1,5 +1,5 @@
 // PPSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Модуль управления системным процессом и потоками Papyrus
 //
@@ -2500,6 +2500,76 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 			}
 		}
 	}
+	// @v11.9.2 {
+	{
+		if(PPGetFilePath(PPPATH_BIN, PPFILNAM_PPDV_WTA, temp_buf)) {
+			if(fileExists(temp_buf))
+				DvToolList_.Load(temp_buf);
+		}
+		{
+			UiToolBox_.CreateColor(TProgram::tbiButtonTextColor, SColor(SClrBlack));
+			UiToolBox_.CreateColor(TProgram::tbiButtonTextColor+TProgram::tbisDisable, SColor(SClrWhite));
+			UiToolBox_.CreateColor(TProgram::tbiIconRegColor,     SColor(/*0x06, 0xAE, 0xD5*/0x00, 0x49, 0x82)); // 004982
+			UiToolBox_.CreateColor(TProgram::tbiIconAlertColor,   SColor(0xDD, 0x1C, 0x1A));
+			UiToolBox_.CreateColor(TProgram::tbiIconAccentColor,  SColor(0x2A, 0x9D, 0x8F));
+			UiToolBox_.CreateColor(TProgram::tbiIconPassiveColor, SColor(0xFF, 0xF1, 0xD0));
+			UiToolBox_.CreatePen(TProgram::tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInpBrush,  SPaintObj::bsSolid, SClrCrimson, 0); // @v10.2.4
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInp2Brush, SPaintObj::bsSolid, SColor(0xff, 0x99, 0x00) /*https://www.colorhexa.com/ff9900*/, 0); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInp3Brush, SPaintObj::bsSolid, SColor(0xff, 0x33, 0xcc) /*https://www.colorhexa.com/ff33cc*/, 0); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiListBkgBrush,   SPaintObj::bsSolid, SClrWhite, 0); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiListBkgPen,       SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiListFocBrush,   SPaintObj::bsSolid, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiListFocPen,       SPaintObj::psSolid, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiListSelBrush,   SPaintObj::bsSolid, SColor(0xa2, 0xd2, 0xff) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiListSelPen,       SPaintObj::psDot, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
+			{
+				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
+				/*
+				FRect gr;
+				gr.a.Set(0.0f, 0.0f);
+				gr.b.Set(0.0f, 10.0f);
+				int   gradient = UiToolBox_.CreateGradientLinear(0, gr);
+				UiToolBox_.AddGradientStop(gradient, 0.00f, SColor(0xf0, 0xf9, 0xff));
+				UiToolBox_.AddGradientStop(gradient, 0.47f, SColor(0xcb, 0xeb, 0xff));
+				UiToolBox_.AddGradientStop(gradient, 1.00f, SColor(0xa1, 0xdb, 0xff));
+				UiToolBox_.CreateBrush(tbiButtonBrush, SPaintObj::bsPattern, SColor(0xDC, 0xD9, 0xD1), 0, gradient);
+				*/
+				UiToolBox_.CreateBrush(TProgram::tbiButtonBrush, SPaintObj::bsSolid, SColor(0xDC, 0xD9, 0xD1), 0);
+			}
+			UiToolBox_.CreateBrush(TProgram::tbiButtonBrush+TProgram::tbisSelect, SPaintObj::bsSolid, SColor(0xBA, 0xBA, 0xC9), 0);
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen, SPaintObj::psSolid, 1, UiToolBox_.GetColor(TProgram::tbiIconRegColor)/*SColor(0x47, 0x47, 0x3D)*/);
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, 1, SClrGreen);
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, 1, /*SColor(0x15, 0x20, 0xEA)*/SClrOrange); // SColor(0xE5, 0xC3, 0x65)
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, 1, /*SColor(0x15, 0x20, 0xEA)*/SClrOrange);
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, 1, SColor(SClrWhite));
+			UiToolBox_.SetBrush(TProgram::tbiButtonBrush_F, SPaintObj::bsSolid, SColor(0xDC, 0xD9, 0xD1), 0);
+			UiToolBox_.SetBrush(TProgram::tbiButtonBrush_F+TProgram::tbisSelect, SPaintObj::bsSolid, SColor(0xBA, 0xBA, 0xC9), 0);
+			UiToolBox_.SetPen(TProgram::tbiButtonPen_F, SPaintObj::psSolid, 1, SColor(0x47, 0x47, 0x3D));
+			UiToolBox_.SetPen(TProgram::tbiButtonPen_F+TProgram::tbisFocus,  SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
+			UiToolBox_.SetPen(TProgram::tbiButtonPen_F+TProgram::tbisSelect, SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
+			// @v11.2.3 {
+			{
+				UiToolBox_.CreateFont_(TProgram::tbiControlFont, "Verdana", 11, 0); // ! Не использовать "MS Sans Serif"
+				/*
+				HFONT hf = 0;
+				{
+					LOGFONT lf;
+					MEMSZERO(lf);
+					lf.lfCharSet = DEFAULT_CHARSET;
+					lf.lfHeight  = 9;
+					STRNSCPY(lf.lfFaceName, _T("MS Sans Serif"));
+					hf = ::CreateFontIndirect(&lf);
+				}
+				if(hf) {
+					UiToolBox_.SetFont(tbiControlFont, hf);
+				}
+				*/
+			}
+		}
+	}
+	// } @v11.9.2 
 	if(!(flags & fDenyLogQueue)) { // Для DLL-режима не используем поток журналов (какие-то траблы с потоками - надо разбираться)
 		P_LogQueue = new PPLogMsgQueue;
 		if(P_LogQueue) {
@@ -3535,8 +3605,8 @@ int PPSession::Stq_PutBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blo
 int PPSession::TransferIpServerListeningList(int kind/* 1 - papyrus, 2 - nginx */, int dir/* >0 - set, <0 - get*/, TSCollection <IpServerListeningEntry> & rList)
 {
 	int    ok = -1;
-	THROW(oneof2(kind, 1, 2), PPERR_INVPARAM);
-	THROW(dir != 0, PPERR_INVPARAM);
+	THROW_PP(oneof2(kind, 1, 2), PPERR_INVPARAM);
+	THROW_PP(dir != 0, PPERR_INVPARAM);
 	{
 		TSCollection <IpServerListeningEntry> & r_internal_list = (kind == 2) ? this->SleList_Nginx : this->SleList_Server;
 		ENTER_CRITICAL_SECTION
@@ -4049,6 +4119,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_RCPTDLVRLOCASWAREHOUSE,  ECF_RCPTDLVRLOCASWAREHOUSE, 999);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT,         ECF_USESJLOGINEVENT,        999);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE,         ECF_PAPERLESSCHEQUE,        1); // @v11.3.7
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_STYLOQSVCLOGGING,        ECF_STYLOQSVCLOGGING,       1); // @v11.9.2
+						
 						if(!SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST, ECF_CODEPREFIXEDLIST, 999))
 							SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLEASYNCADVQUEUE, &(iv = 0)) > 0 && iv != 0)

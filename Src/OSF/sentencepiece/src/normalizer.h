@@ -128,29 +128,22 @@ private:
 	// Maximum size of the return value of Trie, which corresponds
 	// to the maximum size of shared common prefix in the chars map.
 	static constexpr int kMaxTrieResultsSize = 32;
-
 	// Internal trie for efficient longest matching.
 	std::unique_ptr<Darts::DoubleArray> trie_;
-
 	// "\0" delimitered output string.
 	// the value of |trie_| stores pointers to this string.
 	const char * normalized_ = nullptr;
-
 	// Spec for normalization.
 	const NormalizerSpec * spec_;
-
 	// Prefix matcher;
 	const PrefixMatcher * matcher_ = nullptr;
-
 	// Split hello world into "hello_" and "world_" instead of
 	// "_hello" and "_world".
 	const bool treat_whitespace_as_suffix_ = false;
-
-#ifdef IS_BIG_ENDIAN
+#ifdef SL_BIGENDIAN
 	// Stores the blob for TRIE encoded in big-endian.
 	std::string precompiled_charsmap_buffer_;
 #endif
-
 	// Normalizer's status.
 	util::Status status_;
 };

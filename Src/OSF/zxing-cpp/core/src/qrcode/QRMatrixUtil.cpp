@@ -44,7 +44,7 @@ static void EmbedPositionAdjustmentPatterns(const Version& version, TritMatrix& 
 	if(version.versionNumber() < 2) {   // The patterns appear if version >= 2
 		return;
 	}
-	auto& coordinates = version.alignmentPatternCenters();
+	auto & coordinates = version.alignmentPatternCenters();
 	for(int y : coordinates) {
 		for(int x : coordinates) {
 			// Check x/y is valid: don't place alignment patterns intersecting with the 3 finder patterns

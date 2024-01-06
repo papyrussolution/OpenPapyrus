@@ -96,46 +96,37 @@ SLTEST_R(LDATE)
 		}
 	}
 	{
-		struct t_YMD {
-			t_YMD(uint y, uint m, uint d) : Y(y), M(m), D(d)
-			{
-			}
-			bool FASTCALL operator == (const t_YMD & rS) const { return (Y == rS.Y && M == rS.M && D == rS.D); }
-			uint   Y;
-			uint   M;
-			uint   D;
-		};
 		{
-			static const t_YMD _ymd_list[] = {
-				t_YMD(2008, 12, 30),
-				t_YMD(2008, 12, 31),
-				t_YMD(1600, 12, 30),
-				t_YMD(1600, 12, 31),
-				t_YMD(2001, 1, 1),
-				t_YMD(2004, 2, 29),
-				t_YMD(1991, 3, 1),
-				t_YMD(1879, 12, 31),
-				t_YMD(1, 1, 1),
-				t_YMD(1582, 10, 15),
+			static const SUniDate_Internal _ymd_list[] = {
+				SUniDate_Internal(2008, 12, 30),
+				SUniDate_Internal(2008, 12, 31),
+				SUniDate_Internal(1600, 12, 30),
+				SUniDate_Internal(1600, 12, 31),
+				SUniDate_Internal(2001, 1, 1),
+				SUniDate_Internal(2004, 2, 29),
+				SUniDate_Internal(1991, 3, 1),
+				SUniDate_Internal(1879, 12, 31),
+				SUniDate_Internal(1, 1, 1),
+				SUniDate_Internal(1582, 10, 15),
 			};
 			for(uint i = 0; i < SIZEOFARRAY(_ymd_list); i++) {
 				const uint dc = DateToDaysSinceChristmas(_ymd_list[i].Y, _ymd_list[i].M, _ymd_list[i].D);
-				t_YMD ymd2(0, 0, 0);
-				DaysSinceChristmasToDate(dc, &ymd2.Y, &ymd2.M, &ymd2.D);
+				SUniDate_Internal ymd2;
+				ymd2.SetDaysSinceChristmas(dc);
 				SLCHECK_NZ(ymd2 == _ymd_list[i]);
 			}
 		}
 
 		struct t_YMD_pair {
-			t_YMD   D1;
-			t_YMD   D2;
+			SUniDate_Internal D1;
+			SUniDate_Internal D2;
 			int     Diff;
 		};
 
 		static const t_YMD_pair _ymd_pair_list[] = {
-			{ t_YMD(1, 3, 1), t_YMD(1970, 3, 1), /*719527*/719162 }, // /*719527*/719162 days were between March 1, 1 BC and March 1, 1970,
-			{ t_YMD(1996, 12, 31), t_YMD(1997, 1, 1), 1 },
-			{ t_YMD(2000, 2, 28), t_YMD(2000, 3, 1), 2 },
+			{ SUniDate_Internal(1, 3, 1), SUniDate_Internal(1970, 3, 1), /*719527*/719162 }, // /*719527*/719162 days were between March 1, 1 BC and March 1, 1970,
+			{ SUniDate_Internal(1996, 12, 31), SUniDate_Internal(1997, 1, 1), 1 },
+			{ SUniDate_Internal(2000, 2, 28), SUniDate_Internal(2000, 3, 1), 2 },
 		};
 		{
 			for(uint i = 0; i < SIZEOFARRAY(_ymd_pair_list); i++) {
@@ -143,10 +134,10 @@ SLTEST_R(LDATE)
 				uint dc2 = DateToDaysSinceChristmas(_ymd_pair_list[i].D2.Y, _ymd_pair_list[i].D2.M, _ymd_pair_list[i].D2.D);
 				SLCHECK_EQ((dc2-dc1), (uint)_ymd_pair_list[i].Diff);
 
-				t_YMD ymd2(0, 0, 0);
-				DaysSinceChristmasToDate(dc1, &ymd2.Y, &ymd2.M, &ymd2.D);
+				SUniDate_Internal ymd2;
+				ymd2.SetDaysSinceChristmas(dc1);
 				SLCHECK_NZ(ymd2 == _ymd_pair_list[i].D1);
-				DaysSinceChristmasToDate(dc2, &ymd2.Y, &ymd2.M, &ymd2.D);
+				ymd2.SetDaysSinceChristmas(dc2);
 				SLCHECK_NZ(ymd2 == _ymd_pair_list[i].D2);
 			}
 		}

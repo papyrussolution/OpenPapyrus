@@ -78,7 +78,7 @@ const SymbolInfo * SymbolInfo::Lookup(int dataCodewords, bool allowRectangular)
 const SymbolInfo * SymbolInfo::Lookup(int dataCodewords, SymbolShape shape, int minWidth, int minHeight, int maxWidth, int maxHeight)
 {
 	for(size_t i = 0; i < s_symbolCount; ++i) {
-		auto& symbol = s_symbols[i];
+		auto & symbol = s_symbols[i];
 		if(shape == SymbolShape::SQUARE && symbol._rectangular) {
 			continue;
 		}

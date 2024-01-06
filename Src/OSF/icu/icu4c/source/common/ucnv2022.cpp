@@ -480,20 +480,14 @@ static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs
 				return;
 			}
 			if(jpCharsetMasks[version]&CSM(ISO8859_7)) {
-				myConverterData->myConverterArray[ISO8859_7] =
-				    ucnv_loadSharedData("ISO8859_7", &stackPieces, &stackArgs, errorCode);
+				myConverterData->myConverterArray[ISO8859_7] = ucnv_loadSharedData("ISO8859_7", &stackPieces, &stackArgs, errorCode);
 			}
-			myConverterData->myConverterArray[JISX208] =
-			    ucnv_loadSharedData("Shift-JIS", &stackPieces, &stackArgs, errorCode);
+			myConverterData->myConverterArray[JISX208] = ucnv_loadSharedData("Shift-JIS", &stackPieces, &stackArgs, errorCode);
 			if(jpCharsetMasks[version]&CSM(JISX212)) {
-				myConverterData->myConverterArray[JISX212] =
-				    ucnv_loadSharedData("jisx-212", &stackPieces, &stackArgs, errorCode);
+				myConverterData->myConverterArray[JISX212] = ucnv_loadSharedData("jisx-212", &stackPieces, &stackArgs, errorCode);
 			}
 			if(jpCharsetMasks[version]&CSM(GB2312)) {
-				myConverterData->myConverterArray[GB2312] =
-				    ucnv_loadSharedData("ibm-5478", &stackPieces, &stackArgs, errorCode); /*
-				                                                                             gb_2312_80-1
-				     */
+				myConverterData->myConverterArray[GB2312] = ucnv_loadSharedData("ibm-5478", &stackPieces, &stackArgs, errorCode); /* gb_2312_80-1 */
 			}
 			if(jpCharsetMasks[version]&CSM(KSC5601)) {
 				myConverterData->myConverterArray[KSC5601] =
@@ -567,21 +561,16 @@ static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs
 				*errorCode = U_MISSING_RESOURCE_ERROR;
 				return;
 			}
-
 			/* open the required converters and cache them */
-			myConverterData->myConverterArray[GB2312_1] =
-			    ucnv_loadSharedData("ibm-5478", &stackPieces, &stackArgs, errorCode);
+			myConverterData->myConverterArray[GB2312_1] = ucnv_loadSharedData("ibm-5478", &stackPieces, &stackArgs, errorCode);
 			if(version==1) {
 				myConverterData->myConverterArray[ISO_IR_165] =
 				    ucnv_loadSharedData("iso-ir-165", &stackPieces, &stackArgs, errorCode);
 			}
-			myConverterData->myConverterArray[CNS_11643] =
-			    ucnv_loadSharedData("cns-11643-1992", &stackPieces, &stackArgs, errorCode);
-
+			myConverterData->myConverterArray[CNS_11643] = ucnv_loadSharedData("cns-11643-1992", &stackPieces, &stackArgs, errorCode);
 			/* set the function pointers to appropriate functions */
 			cnv->sharedData = (UConverterSharedData*)&_ISO2022CNData;
 			strcpy(myConverterData->locale, "cn");
-
 			if(version==0) {
 				myConverterData->version = 0;
 				(void)strcpy(myConverterData->name, "ISO_2022,locale=zh,version=0");
@@ -3847,14 +3836,11 @@ static void U_CALLCONV _ISO_2022_GetUnicodeSet(const UConverter * cnv,
 
 static const UConverterImpl _ISO2022Impl = {
 	UCNV_ISO_2022,
-
 	NULL,
 	NULL,
-
 	_ISO2022Open,
 	_ISO2022Close,
 	_ISO2022Reset,
-
 #ifdef U_ENABLE_GENERIC_ISO_2022
 	T_UConverter_toUnicode_ISO_2022_OFFSETS_LOGIC,
 	T_UConverter_toUnicode_ISO_2022_OFFSETS_LOGIC,

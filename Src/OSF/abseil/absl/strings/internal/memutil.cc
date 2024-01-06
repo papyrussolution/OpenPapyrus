@@ -19,7 +19,7 @@ int memcasecmp(const char* s1, const char* s2, size_t len)
 	return 0;
 }
 
-char* memdup(const char* s, size_t slen) 
+char * memdup(const char* s, size_t slen) 
 {
 	void * copy = SAlloc::M(slen);
 	if(copy) 

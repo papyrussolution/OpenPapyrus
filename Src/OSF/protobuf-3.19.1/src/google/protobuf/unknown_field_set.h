@@ -173,7 +173,7 @@ private:
 		    !std::is_base_of<Message, MessageType>::value,
 		    int>::type = 0>
 	bool InternalMergeFromMessage(const MessageType& message) {
-		const auto& unknown_fields = message.unknown_fields();
+		const auto & unknown_fields = message.unknown_fields();
 		io::ArrayInputStream array_stream(unknown_fields.data(),
 		    unknown_fields.size());
 		io::CodedInputStream coded_stream(&array_stream);

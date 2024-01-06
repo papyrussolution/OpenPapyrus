@@ -10,11 +10,8 @@
 //
 // See: http://wiki.cs.pdx.edu/forge/popcount.html
 //
-uint32 FASTCALL popcount32(uint32 x)
+/* @v11.9.2 (replaced with SBits::Cpop) uint32 FASTCALL popcount32(uint32 x)
 {
-	//const uint32 m1 = 0x55555555;
-	//const uint32 m2 = 0x33333333;
-	//const uint32 m4 = 0x0f0f0f0f;
 #define m1 0x55555555
 #define m2 0x33333333
 #define m4 0x0f0f0f0f
@@ -26,7 +23,7 @@ uint32 FASTCALL popcount32(uint32 x)
 #undef m1
 #undef m2
 #undef m4
-}
+}*/
 //
 // from the "Bit Twiddling Hacks" webpage
 //

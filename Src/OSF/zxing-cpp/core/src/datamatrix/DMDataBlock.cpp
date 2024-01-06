@@ -13,11 +13,11 @@ std::vector<DataBlock> GetDataBlocks(const ByteArray& rawCodewords, const Versio
 {
 	// First count the total number of data blocks
 	// Now establish DataBlocks of the appropriate size and number of data codewords
-	auto& ecBlocks = version.ecBlocks;
+	auto & ecBlocks = version.ecBlocks;
 	const int numResultBlocks = ecBlocks.numBlocks();
 	std::vector<DataBlock> result;
 	result.reserve(numResultBlocks);
-	for(auto& ecBlock : ecBlocks.blocks)
+	for(auto & ecBlock : ecBlocks.blocks)
 		for(int i = 0; i < ecBlock.count; i++)
 			result.push_back({ecBlock.dataCodewords, ByteArray(ecBlocks.codewordsPerBlock + ecBlock.dataCodewords)});
 

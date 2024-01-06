@@ -73,7 +73,7 @@ static BitArray ExtractBits(const DetectorResult& ddata)
 			map[origCenter + i] = center + newOffset + 1;
 		}
 	}
-	auto& matrix = ddata.bits();
+	auto & matrix = ddata.bits();
 	BitArray rawbits(TotalBitsInLayer(layers, compact));
 	for(int i = 0, rowOffset = 0; i < layers; i++) {
 		int rowSize = (layers - i) * 4 + (compact ? 9 : 12);

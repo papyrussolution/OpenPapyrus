@@ -267,7 +267,7 @@ private:
 		table_.resize(copy.size() * 2);
 		table_.fill(kEmpty);
 
-		for(const auto& e : copy) {
+		for(const auto & e : copy) {
 			if(e >= 0) insert(e);
 		}
 	}
@@ -542,7 +542,7 @@ bool GraphCycles::InsertEdge(GraphId idx, GraphId idy)
 		ny->in.erase(x);
 		// Since we do not call Reorder() on this path, clear any visited
 		// markers left by ForwardDFS.
-		for(const auto& d : r->deltaf_) {
+		for(const auto & d : r->deltaf_) {
 			r->nodes_[d]->visited = false;
 		}
 		return false;
@@ -636,7 +636,7 @@ static void Sort(const Vec<Node*>& nodes, Vec<int32_t>* delta)
 
 static void MoveToList(
 	GraphCycles::Rep* r, Vec<int32_t>* src, Vec<int32_t>* dst) {
-	for(auto& v : * src) {
+	for(auto & v : * src) {
 		int32_t w = v;
 		v = r->nodes_[w] -> rank; // Replace v entry with its rank
 		r->nodes_[w] -> visited = false; // Prepare for future DFS calls

@@ -3470,6 +3470,24 @@ const char * byteshift_strstr(const char * pHayStack, const char * pNeedle)
 	return NULL;
 }
 //
+// Descr: Попытка сформулировать хорошие спецификации для функций преобразования типизированных
+//   бинарных данных (int, double, etc) в текст и обратно.
+//   Идея заключается в том, чтобы этот класс был бы базомым механизмом преобразования данные<->текст,
+//   все остальные функции пректа должны бы обращаться к этим методам за реализацией.
+// 
+class SStrTransform { // @v11.9.2 @construction
+public:
+	static bool ToText(int v, long fmt, char * pBuf, size_t bufLen);
+	static bool ToText(uint v, long fmt, char * pBuf, size_t bufLen);
+	static bool ToText(int64 v, long fmt, char * pBuf, size_t bufLen);
+	static bool ToText(uint64 v, long fmt, char * pBuf, size_t bufLen);
+	static bool ToText(double v, long fmt, char * pBuf, size_t bufLen);
+	static bool ToText(float v, long fmt, char * pBuf, size_t bufLen);
+	static bool ToText(const SUniTime_Internal & rV, long fmt, char * pBuf, size_t bufLen);
+	static bool ToText(const S_GUID & rV, long fmt, char * pBuf, size_t bufLen);
+	static bool FromText(const char * pText, long flags, size_t * pScannedCount, int * pV);
+};
+//
 //
 //
 #if 0 // {

@@ -31,7 +31,7 @@ Results Reader::decode(const BinaryBitmap& image, int maxSymbols) const
 		return {};
 	auto detRess = Detect(*binImg, _hints.isPure(), _hints.tryHarder(), maxSymbols);
 	Results results;
-	for(auto&& detRes : detRess) {
+	for(auto && detRes : detRess) {
 		auto decRes = Decode(detRes).setReaderInit(detRes.readerInit()).setIsMirrored(detRes.isMirrored()).setVersionNumber(detRes.nbLayers());
 		if(decRes.isValid(_hints.returnErrors())) {
 			results.emplace_back(std::move(decRes), std::move(detRes).position(), BarcodeFormat::Aztec);

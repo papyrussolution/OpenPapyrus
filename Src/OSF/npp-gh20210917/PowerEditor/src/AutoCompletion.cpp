@@ -24,7 +24,7 @@ static bool isInList(const generic_string& word, const vector <generic_string> &
 
 static bool isAllDigits(const generic_string &str)
 {
-	for(const auto& i : str) {
+	for(const auto & i : str) {
 		if(i < 48 || i > 57)
 			return false;
 	}

@@ -67,7 +67,7 @@ bool SeriesMatcher::match(StringSegment& segment, ParsedNumber& result, UErrorCo
 bool SeriesMatcher::smokeTest(const StringSegment& segment) const {
 	// NOTE: The range-based for loop calls the virtual begin() and end() methods.
 	// NOTE: We only want the first element. Use the for loop for boundary checking.
-	for(auto& matcher : *this) {
+	for(auto & matcher : *this) {
 		// SeriesMatchers are never allowed to start with a Flexible matcher.
 		U_ASSERT(!matcher->isFlexible());
 		return matcher->smokeTest(segment);

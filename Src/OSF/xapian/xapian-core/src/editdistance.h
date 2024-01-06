@@ -28,7 +28,7 @@
  *     in the string.
  */
 class EditDistanceCalculator {
-	EditDistanceCalculator& operator = (const EditDistanceCalculator&) = delete; /// Don't allow assignment.
+	EditDistanceCalculator & operator = (const EditDistanceCalculator&) = delete; /// Don't allow assignment.
 	EditDistanceCalculator(const EditDistanceCalculator&) = delete; /// Don't allow copying.
 	std::vector <uint> target; /// Target in UTF-32.
 	size_t target_bytes;
@@ -111,9 +111,9 @@ public:
 		// Each Unicode codepoint is 1-4 bytes in UTF-8 and one word in UTF-32,
 		// so the number of UTF-32 characters in candidate must be <= the number
 		// of bytes of UTF-8.
-		if(target_utf32_len > candidate.size() + max_distance) {
-			return INT_MAX; // Candidate too short.
-		}
+		if(target_utf32_len > candidate.size() + max_distance) { 
+			return INT_MAX; // Candidate too short
+		} 
 		// Each edit can change the number of UTF-8 bytes by up to 4 (addition
 		// or deletion of any character which needs 4 bytes in UTF-8), which
 		// gives us an alternative lower bound (which is sometimes tighter and

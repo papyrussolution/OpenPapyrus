@@ -390,8 +390,7 @@ static const size_t ZSTDv06_blockHeaderSize = ZSTDv06_BLOCKHEADERSIZE;
 typedef enum { bt_compressed, bt_raw, bt_rle, bt_end } blockType_t;
 
 #define MIN_SEQUENCES_SIZE 1 /* nbSeq==0 */
-#define MIN_CBLOCK_SIZE (1 /*litCSize*/ + 1 /* RLE or RAW */ + MIN_SEQUENCES_SIZE /* nbSeq==0 */)   /* for a non-null
-	                                                                                               block */
+#define MIN_CBLOCK_SIZE (1 /*litCSize*/ + 1 /* RLE or RAW */ + MIN_SEQUENCES_SIZE /* nbSeq==0 */)   /* for a non-null block */
 
 #define ZSTD_HUFFDTABLE_CAPACITY_LOG 12
 
@@ -439,10 +438,7 @@ static const uint32 OF_defaultNormLog = 5;
 /*-*******************************************
 *  Shared functions to include for inlining
 *********************************************/
-static void ZSTDv06_copy8(void* dst, const void* src) 
-{
-	memcpy(dst, src, 8);
-}
+static void ZSTDv06_copy8(void* dst, const void* src) { memcpy(dst, src, 8); }
 
 #define COPY8(d, s) { ZSTDv06_copy8(d, s); d += 8; s += 8; }
 

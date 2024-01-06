@@ -96,7 +96,7 @@ static const std::array<std::array<int8_t, 6>, 6>& InitShiftTable()
 {
 	static std::array<std::array<int8_t, 6>, 6> table;
 
-	for(auto& row : table) {
+	for(auto & row : table) {
 		std::fill(row.begin(), row.end(), -1);
 	}
 	table[MODE_UPPER][MODE_PUNCT] = 0;
@@ -247,10 +247,10 @@ static void UpdateStateForPair(const EncodingState& state, int index, int pairCo
 static std::list<EncodingState> SimplifyStates(const std::list<EncodingState>& states)
 {
 	std::list<EncodingState> result;
-	for(auto& newState : states) {
+	for(auto & newState : states) {
 		bool add = true;
 		for(auto iterator = result.begin(); iterator != result.end();) {
-			auto& oldState = *iterator;
+			auto & oldState = *iterator;
 			if(IsBetterThanOrEqualTo(oldState, newState)) {
 				add = false;
 				break;
@@ -272,7 +272,7 @@ static std::list<EncodingState> SimplifyStates(const std::list<EncodingState>& s
 static std::list<EncodingState> UpdateStateListForPair(const std::list<EncodingState>& states, int index, int pairCode)
 {
 	std::list<EncodingState> result;
-	for(auto& state : states) {
+	for(auto & state : states) {
 		UpdateStateForPair(state, index, pairCode, result);
 	}
 	return SimplifyStates(result);
@@ -325,7 +325,7 @@ static void UpdateStateForChar(const EncodingState& state, const std::string& te
 static std::list<EncodingState> UpdateStateListForChar(const std::list<EncodingState>& states, const std::string& text, int index)
 {
 	std::list<EncodingState> result;
-	for(auto& state : states) {
+	for(auto & state : states) {
 		UpdateStateForChar(state, text, index, result);
 	}
 	return result.size() > 1 ? SimplifyStates(result) : result;

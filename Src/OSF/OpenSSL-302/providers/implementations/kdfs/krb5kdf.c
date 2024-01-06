@@ -210,13 +210,10 @@ static int fixup_des3_key(unsigned char * key)
 			cblock[7] |= (cblock[j] & 1) << (j + 1);
 		DES_set_odd_parity((DES_cblock*)cblock);
 	}
-
 	/* fail if keys are such that triple des degrades to single des */
-	if(CRYPTO_memcmp(&key[0], &key[8], 8) == 0 ||
-	    CRYPTO_memcmp(&key[8], &key[16], 8) == 0) {
+	if(CRYPTO_memcmp(&key[0], &key[8], 8) == 0 || CRYPTO_memcmp(&key[8], &key[16], 8) == 0) {
 		return 0;
 	}
-
 	return 1;
 }
 

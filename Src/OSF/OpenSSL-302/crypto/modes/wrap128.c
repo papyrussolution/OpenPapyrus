@@ -293,12 +293,10 @@ size_t CRYPTO_128_unwrap_pad(void * key, const uchar * icv,
 	 * user-supplied value can be used (even if standard doesn't mention
 	 * this).
 	 */
-	if((!icv && CRYPTO_memcmp(aiv, default_aiv, 4))
-	    || (icv && CRYPTO_memcmp(aiv, icv, 4))) {
+	if((!icv && CRYPTO_memcmp(aiv, default_aiv, 4)) || (icv && CRYPTO_memcmp(aiv, icv, 4))) {
 		OPENSSL_cleanse(out, inlen);
 		return 0;
 	}
-
 	/*
 	 * Check that 8*(n-1) < LSB(32,AIV) <= 8*n. If so, let ptext_len =
 	 * LSB(32,AIV).

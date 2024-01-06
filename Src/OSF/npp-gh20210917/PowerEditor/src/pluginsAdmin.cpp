@@ -19,7 +19,7 @@ Version::Version(const generic_string& versionStr)
 			throw generic_string(TEXT("The string to parse is not a valid version format. Let's make it default value in catch block."));
 		int i = 0;
 		vector <ulong *> v = {&_major, &_minor, &_patch, &_build};
-		for(const auto& s : ss) {
+		for(const auto & s : ss) {
 			if(!isNumber(s)) {
 				throw generic_string(TEXT("The string to parse is not a valid version format. Let's make it default value in catch block."));
 			}
@@ -581,7 +581,7 @@ bool loadFromJson(PluginViewList & pl, const json& j)
 	json jArray = j["npp-plugins"];
 	if(jArray.empty() || jArray.type() != json::value_t::array)
 		return false;
-	for(const auto& i : jArray) {
+	for(const auto & i : jArray) {
 		try {
 			//std::unique_ptr<PluginUpdateInfo*> pi = make_unique<PluginUpdateInfo*>();
 			PluginUpdateInfo* pi = new PluginUpdateInfo();
@@ -737,7 +737,7 @@ bool PluginsAdminDlg::loadFromPluginInfos()
 		return false;
 	// Search from loaded plugins, if loaded plugins are in the available list,
 	// add them into installed plugins list, and hide them from the available list
-	for(const auto& i : _pPluginsManager->_loadedDlls) {
+	for(const auto & i : _pPluginsManager->_loadedDlls) {
 		if(i._fileName.length() >= MAX_PATH)
 			continue;
 		// user file name (without ext. to find whole info in available list
@@ -772,7 +772,7 @@ bool PluginsAdminDlg::loadFromPluginInfos()
 PluginUpdateInfo* PluginViewList::findPluginInfoFromFolderName(const generic_string& folderName, int& index) const
 {
 	index = 0;
-	for(const auto& i : _list) {
+	for(const auto & i : _list) {
 		if(lstrcmpi(i->_folderName.c_str(), folderName.c_str()) == 0)
 			return i;
 		++index;

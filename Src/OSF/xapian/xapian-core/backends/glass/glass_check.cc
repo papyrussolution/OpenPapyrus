@@ -293,7 +293,6 @@ GlassTableCheck * GlassTableCheck::check(const char * tablename, const string & 
 			*out << C[B->level].get_n();
 		*out << endl;
 	}
-
 	if(B->faked_root_block) {
 		if(out && opts)
 			*out << "void ";
@@ -305,7 +304,6 @@ GlassTableCheck * GlassTableCheck::check(const char * tablename, const string & 
 		GlassFreeListChecker flcheck(B->free_list);
 		GlassFreeListChecker flcheck2(B->free_list);
 		B->block_check(C, B->level, opts, flcheck);
-
 		if(opts & Xapian::DBCHECK_SHOW_FREELIST) {
 			*out << "Freelist:";
 			if(B->free_list.empty())
@@ -328,7 +326,6 @@ GlassTableCheck * GlassTableCheck::check(const char * tablename, const string & 
 		}
 		if(opts & Xapian::DBCHECK_SHOW_FREELIST)
 			*out << endl;
-
 		uint4 first_bad;
 		uint4 count = flcheck.count_set_bits(&first_bad);
 		// Skip this check for a single file DB for now.  FIXME
@@ -339,7 +336,8 @@ GlassTableCheck * GlassTableCheck::check(const char * tablename, const string & 
 			throw Xapian::DatabaseError(e);
 		}
 	}
-	if(out && opts) *out << "B-tree checked okay" << endl;
+	if(out && opts) 
+		*out << "B-tree checked okay" << endl;
 	return B.release();
 }
 

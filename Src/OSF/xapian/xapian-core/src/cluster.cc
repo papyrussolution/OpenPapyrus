@@ -384,7 +384,7 @@ DocumentSet Cluster::get_documents() const
 DocumentSet Cluster::Internal::get_documents() const
 {
 	DocumentSet docs;
-	for(auto&& point : cluster_docs)
+	for(auto && point : cluster_docs)
 		docs.add_document(point.get_document());
 	return docs;
 }
@@ -463,7 +463,7 @@ void ClusterSet::add_to_cluster(const Point& point, uint index)
 
 void ClusterSet::Internal::recalculate_centroids()
 {
-	for(auto&& cluster : clusters)
+	for(auto && cluster : clusters)
 		cluster.recalculate();
 }
 
@@ -481,7 +481,7 @@ void ClusterSet::clear_clusters()
 
 void ClusterSet::Internal::clear_clusters()
 {
-	for(auto&& cluster : clusters)
+	for(auto && cluster : clusters)
 		cluster.clear();
 }
 

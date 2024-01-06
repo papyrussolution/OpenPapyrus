@@ -411,7 +411,7 @@ DataPiece DefaultValueObjectWriter::FindEnumDefault(const google::protobuf::Fiel
 			const std::string & enum_default_value_name = field.default_value();
 			for(int enum_index = 0; enum_index < enum_type->enumvalue_size();
 			    ++enum_index) {
-				auto& enum_value = enum_type->enumvalue(enum_index);
+				auto & enum_value = enum_type->enumvalue(enum_index);
 				if(enum_value.name() == enum_default_value_name)
 					return DataPiece(enum_value.number());
 			}

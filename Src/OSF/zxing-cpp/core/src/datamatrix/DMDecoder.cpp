@@ -389,14 +389,14 @@ retry:
 		return FormatError("Invalid number of data blocks");
 
 	// Count total number of data bytes
-	ByteArray resultBytes(TransformReduce(dataBlocks, 0, [](const auto& db) {
+	ByteArray resultBytes(TransformReduce(dataBlocks, 0, [](const auto & db) {
 	    return db.numDataCodewords;
 			}));
 
 	// Error-correct and copy data blocks together into a stream of bytes
 	const int dataBlocksCount = Size(dataBlocks);
 	for(int j = 0; j < dataBlocksCount; j++) {
-		auto& [numDataCodewords, codewords] = dataBlocks[j];
+		auto & [numDataCodewords, codewords] = dataBlocks[j];
 		if(!CorrectErrors(codewords, numDataCodewords)) {
 			if(version->versionNumber == 24 && !fix259) {
 				fix259 = true;

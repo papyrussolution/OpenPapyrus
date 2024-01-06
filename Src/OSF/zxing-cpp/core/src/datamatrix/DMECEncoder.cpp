@@ -118,7 +118,7 @@ static void CreateECCBlock(ByteArray& data, int codeOffset, int codeLength, int 
 	if(iter == FACTORS.end())
 		throw std::invalid_argument("Illegal number of error correction codewords specified: " + std::to_string(eccLength));
 
-	auto& poly = *iter;
+	auto & poly = *iter;
 	ByteArray ecc(eccLength);
 	for(int i = 0; i < codeLength; ++i) {
 		const auto m = ecc.back() ^ data[codeOffset + i * stride];

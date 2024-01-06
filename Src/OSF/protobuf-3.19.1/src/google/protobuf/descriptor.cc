@@ -682,7 +682,7 @@ public:
 	{
 		while(num_allocations_ > checkpoint) {
 			GOOGLE_DCHECK(!rollback_info_.empty());
-			auto& info = rollback_info_.back();
+			auto & info = rollback_info_.back();
 			Block* b = info.block;
 
 			VisitAlloc(b->data(), &b->start_offset, &b->end_offset, DestroyVisitor{},
@@ -1696,7 +1696,7 @@ const char* DescriptorPool::Tables::Strdup(StringPiece value) {
 
 template <typename ... In>
 const std::string* DescriptorPool::Tables::AllocateStringArray(In&& ... values) {
-	auto& array = *arena_.Create<std::array<std::string, sizeof ... (In)> >();
+	auto & array = *arena_.Create<std::array<std::string, sizeof ... (In)> >();
 	array = {{std::string(std::forward<In>(values)) ...}};
 	return array.data();
 }
@@ -5962,7 +5962,7 @@ void DescriptorBuilder::CrossLinkMessage(Descriptor* message, const DescriptorPr
 			}
 			// Must go through oneof_decls_ array to get a non-const version of the
 			// OneofDescriptor.
-			auto& out_oneof_decl = message->oneof_decls_[oneof_decl->index()];
+			auto & out_oneof_decl = message->oneof_decls_[oneof_decl->index()];
 			if(out_oneof_decl.field_count_ == 0) {
 				out_oneof_decl.fields_ = message->field(i);
 			}

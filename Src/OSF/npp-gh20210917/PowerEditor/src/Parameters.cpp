@@ -1201,7 +1201,7 @@ bool NppParameters::load()
 			_pXmlUserLangsDoc.push_back(UdlXmlFileState(_pXmlUserLangDoc, false, r));
 	}
 
-	for(const auto& i : udlFiles) {
+	for(const auto & i : udlFiles) {
 		auto udlDoc = new TiXmlDocument(i);
 		loadOkay = udlDoc->LoadFile();
 		if(!loadOkay) {
@@ -2895,7 +2895,7 @@ void NppParameters::writeSession(const Session & session, const TCHAR * fileName
 			TiXmlNode * fileBrowserRootNode = sessionNode->InsertEndChild(TiXmlElement(TEXT("FileBrowser")));
 			fileBrowserRootNode->ToElement()->SetAttribute(TEXT("latestSelectedItem"),
 			    session._fileBrowserSelectedItem.c_str());
-			for(const auto& root : session._fileBrowserRoots) {
+			for(const auto & root : session._fileBrowserRoots) {
 				TiXmlNode * fileNameNode = fileBrowserRootNode->InsertEndChild(TiXmlElement(TEXT("root")));
 				(fileNameNode->ToElement())->SetAttribute(TEXT("foldername"), root.c_str());
 			}
@@ -6275,7 +6275,7 @@ void NppParameters::safeWow64EnableWow64FsRedirection(BOOL Wow64FsEnableRedirect
 
 void NppParameters::setUdlXmlDirtyFromIndex(size_t i)
 {
-	for(auto& uxfs : _pXmlUserLangsDoc) {
+	for(auto & uxfs : _pXmlUserLangsDoc) {
 		if(i >= uxfs._indexRange.first && i < uxfs._indexRange.second) {
 			uxfs._isDirty = true;
 			return;
@@ -6312,7 +6312,7 @@ void NppParameters::setUdlXmlDirtyFromIndex(size_t i)
 void NppParameters::removeIndexFromXmlUdls(size_t i)
 {
 	bool isUpdateBegin = false;
-	for(auto& uxfs : _pXmlUserLangsDoc) {
+	for(auto & uxfs : _pXmlUserLangsDoc) {
 		// Find index
 		if(!isUpdateBegin && (i >= uxfs._indexRange.first && i < uxfs._indexRange.second)) { // found it
 			if(uxfs._indexRange.second > 0)
@@ -6332,7 +6332,7 @@ void NppParameters::removeIndexFromXmlUdls(size_t i)
 
 void NppParameters::setUdlXmlDirtyFromXmlDoc(const TiXmlDocument* xmlDoc)
 {
-	for(auto& uxfs : _pXmlUserLangsDoc) {
+	for(auto & uxfs : _pXmlUserLangsDoc) {
 		if(xmlDoc == uxfs._udlXmlDoc) {
 			uxfs._isDirty = true;
 			return;

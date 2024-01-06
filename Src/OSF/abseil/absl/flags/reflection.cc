@@ -140,11 +140,11 @@ void ForEachFlag(std::function<void(CommandLineFlag&)> visitor)
 {
 	FlagRegistry& registry = FlagRegistry::GlobalRegistry();
 	if(registry.finalized_flags_.load(std::memory_order_acquire)) {
-		for(const auto& i : registry.flat_flags_) 
+		for(const auto & i : registry.flat_flags_) 
 				visitor(*i);
 	}
 	FlagRegistryLock frl(registry);
-	for(const auto& i : registry.flags_) 
+	for(const auto & i : registry.flags_) 
 			visitor(*i.second);
 }
 
@@ -156,14 +156,14 @@ bool RegisterCommandLineFlag(CommandLineFlag& flag, const char* filename)
 
 void FinalizeRegistry() 
 {
-	auto& registry = FlagRegistry::GlobalRegistry();
+	auto & registry = FlagRegistry::GlobalRegistry();
 	FlagRegistryLock frl(registry);
 	if(registry.finalized_flags_.load(std::memory_order_relaxed)) {
 		// Was already finalized. Ignore the second time.
 		return;
 	}
 	registry.flat_flags_.reserve(registry.flags_.size());
-	for(const auto& f : registry.flags_) {
+	for(const auto & f : registry.flags_) {
 		registry.flat_flags_.push_back(f.second);
 	}
 	std::sort(std::begin(registry.flat_flags_), std::end(registry.flat_flags_),
@@ -268,7 +268,7 @@ public:
 
 	// Restores the saved flag states into the flag registry.
 	void RestoreToRegistry() {
-		for(const auto& flag_state : backup_registry_) {
+		for(const auto & flag_state : backup_registry_) {
 			flag_state->Restore();
 		}
 	}

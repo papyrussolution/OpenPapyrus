@@ -123,7 +123,7 @@ CAIRO_BEGIN_DECLS
  * in libgcc in case a target does not have one, which should be just as
  * good as the open-coded solution below, (which is "HACKMEM 169").
  */
-inline int cairo_const _cairo_popcount(uint32 mask)
+inline int CXX_FUNC_CONST _cairo_popcount(uint32 mask)
 {
 #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
 	return __builtin_popcount(mask);
@@ -151,10 +151,10 @@ FORCEINLINE boolint _cairo_is_little_endian()
 	#define cpu_to_be32(v) (v)
 	#define be32_to_cpu(v) (v)
 #else
-	inline uint16 cairo_const cpu_to_be16(uint16 v) { return (v << 8) | (v >> 8); }
-	inline uint16 cairo_const be16_to_cpu(uint16 v) { return cpu_to_be16(v); }
-	inline uint32 cairo_const cpu_to_be32(uint32 v) { return (v >> 24) | ((v >> 8) & 0xff00) | ((v << 8) & 0xff0000) | (v << 24); }
-	inline uint32 cairo_const be32_to_cpu(uint32 v) { return cpu_to_be32(v); }
+	inline uint16 CXX_FUNC_CONST cpu_to_be16(uint16 v) { return (v << 8) | (v >> 8); }
+	inline uint16 CXX_FUNC_CONST be16_to_cpu(uint16 v) { return cpu_to_be16(v); }
+	inline uint32 CXX_FUNC_CONST cpu_to_be32(uint32 v) { return (v >> 24) | ((v >> 8) & 0xff00) | ((v << 8) & 0xff0000) | (v << 24); }
+	inline uint32 CXX_FUNC_CONST be32_to_cpu(uint32 v) { return cpu_to_be32(v); }
 #endif
 //
 // Unaligned big endian access
@@ -178,9 +178,9 @@ inline void put_unaligned_be32(uint32 v, uchar * p)
 //
 // The glibc versions of ispace() and isdigit() are slow in UTF-8 locales.
 //
-inline int cairo_const _cairo_isspace(int c) { return (c == 0x20 || (c >= 0x09 && c <= 0x0d)); }
-// @sobolev inline int cairo_const _cairo_isdigit__Removed(int c) { return (c >= '0' && c <= '9'); }
-// @sobolev inline int cairo_const _cairo_isalpha__Removed(int c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+inline int CXX_FUNC_CONST _cairo_isspace(int c) { return (c == 0x20 || (c >= 0x09 && c <= 0x0d)); }
+// @sobolev inline int CXX_FUNC_CONST _cairo_isdigit__Removed(int c) { return (c >= '0' && c <= '9'); }
+// @sobolev inline int CXX_FUNC_CONST _cairo_isalpha__Removed(int c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
 
 #include "cairo-atomic-private.h"
 #include "cairo-reference-count-private.h"
@@ -229,8 +229,8 @@ cairo_private void _cairo_rectangle_int_from_double(cairo_rectangle_int_t * rect
  * If one of the rectangles is empty, the result is undefined
  */
 cairo_private void _cairo_rectangle_union(cairo_rectangle_int_t * dst, const cairo_rectangle_int_t * src);
-cairo_private boolint _cairo_box_intersects_line_segment(const cairo_box_t * box, cairo_line_t * line) cairo_pure;
-cairo_private boolint _cairo_spline_intersects(const cairo_point_t * a, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d, const cairo_box_t * box) cairo_pure;
+cairo_private boolint _cairo_box_intersects_line_segment(const cairo_box_t * box, cairo_line_t * line) CXX_FUNC_PURE;
+cairo_private boolint _cairo_spline_intersects(const cairo_point_t * a, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d, const cairo_box_t * box) CXX_FUNC_PURE;
 
 typedef struct {
 	const cairo_user_data_key_t * key;
@@ -473,7 +473,7 @@ typedef struct _cairo_stroke_face {
 
 /* cairo.c */
 
-/* @v11.2.8 (replaced with sclamp) static inline double cairo_const _cairo_restrict_value(double value, double min, double max)
+/* @v11.2.8 (replaced with sclamp) static inline double CXX_FUNC_CONST _cairo_restrict_value(double value, double min, double max)
 {
 	if(value < min)
 		return min;
@@ -485,32 +485,32 @@ typedef struct _cairo_stroke_face {
 /* C99 round() rounds to the nearest integral value with halfway cases rounded
  * away from 0. _cairo_round rounds halfway cases toward positive infinity.
  * This matches the rounding behaviour of _cairo_lround. */
-inline double cairo_const _cairo_round(double r) { return floor(r + 0.5); }
+inline double CXX_FUNC_CONST _cairo_round(double r) { return floor(r + 0.5); }
 
 #if DISABLE_SOME_FLOATING_POINT
-	cairo_private int _cairo_lround(double d) cairo_const;
+	cairo_private int _cairo_lround(double d) CXX_FUNC_CONST;
 #else
-	inline int cairo_const _cairo_lround(double r) { return static_cast<int>(_cairo_round(r)); }
+	inline int CXX_FUNC_CONST _cairo_lround(double r) { return static_cast<int>(_cairo_round(r)); }
 #endif
 
-cairo_private uint16 _cairo_half_from_float(float f) cairo_const;
-cairo_private boolint FASTCALL _cairo_operator_bounded_by_mask(cairo_operator_t op) cairo_const;
-cairo_private boolint FASTCALL _cairo_operator_bounded_by_source(cairo_operator_t op) cairo_const;
+cairo_private uint16 _cairo_half_from_float(float f) CXX_FUNC_CONST;
+cairo_private boolint FASTCALL _cairo_operator_bounded_by_mask(cairo_operator_t op) CXX_FUNC_CONST;
+cairo_private boolint FASTCALL _cairo_operator_bounded_by_source(cairo_operator_t op) CXX_FUNC_CONST;
 
 enum {
 	CAIRO_OPERATOR_BOUND_BY_MASK = 1 << 1,
 	CAIRO_OPERATOR_BOUND_BY_SOURCE = 1 << 2,
 };
 
-cairo_private uint32 _cairo_operator_bounded_by_either(cairo_operator_t op) cairo_const;
+cairo_private uint32 _cairo_operator_bounded_by_either(cairo_operator_t op) CXX_FUNC_CONST;
 /* cairo-color.c */
-cairo_private const cairo_color_t * FASTCALL _cairo_stock_color(cairo_stock_t stock) cairo_pure;
+cairo_private const cairo_color_t * FASTCALL _cairo_stock_color(cairo_stock_t stock) CXX_FUNC_PURE;
 
 #define CAIRO_COLOR_WHITE       _cairo_stock_color(CAIRO_STOCK_WHITE)
 #define CAIRO_COLOR_BLACK       _cairo_stock_color(CAIRO_STOCK_BLACK)
 #define CAIRO_COLOR_TRANSPARENT _cairo_stock_color(CAIRO_STOCK_TRANSPARENT)
 
-//cairo_private uint16 _cairo_color_double_to_short(double d) cairo_const;
+//cairo_private uint16 _cairo_color_double_to_short(double d) CXX_FUNC_CONST;
 FORCEINLINE uint16 _cairo_color_double_to_short(double d)
 {
 	return static_cast<uint16>(d * 65535.0 + 0.5);
@@ -519,9 +519,9 @@ cairo_private void FASTCALL _cairo_color_init_rgba(cairo_color_t * color, double
 cairo_private void _cairo_color_multiply_alpha(cairo_color_t * color, double alpha);
 cairo_private void _cairo_color_get_rgba(const cairo_color_t * color, double * red, double * green, double * blue, double * alpha);
 cairo_private void _cairo_color_get_rgba_premultiplied(cairo_color_t * color, double * red, double * green, double * blue, double * alpha);
-cairo_private boolint FASTCALL _cairo_color_equal(const cairo_color_t * color_a, const cairo_color_t * color_b) cairo_pure;
-cairo_private boolint FASTCALL _cairo_color_stop_equal(const cairo_color_stop_t * color_a, const cairo_color_stop_t * color_b) cairo_pure;
-cairo_private cairo_content_t _cairo_color_get_content(const cairo_color_t * color) cairo_pure;
+cairo_private boolint FASTCALL _cairo_color_equal(const cairo_color_t * color_a, const cairo_color_t * color_b) CXX_FUNC_PURE;
+cairo_private boolint FASTCALL _cairo_color_stop_equal(const cairo_color_stop_t * color_a, const cairo_color_stop_t * color_b) CXX_FUNC_PURE;
+cairo_private cairo_content_t _cairo_color_get_content(const cairo_color_t * color) CXX_FUNC_PURE;
 
 /* cairo-font-face.c */
 
@@ -780,7 +780,7 @@ cairo_private cairo_surface_t * FASTCALL _cairo_surface_has_snapshot(cairo_surfa
 cairo_private void FASTCALL _cairo_surface_detach_snapshot(cairo_surface_t * snapshot);
 cairo_private cairo_status_t FASTCALL _cairo_surface_begin_modification(cairo_surface_t * surface);
 cairo_private_no_warn boolint FASTCALL _cairo_surface_get_extents(cairo_surface_t * surface, cairo_rectangle_int_t * extents);
-cairo_private boolint _cairo_surface_has_device_transform(const cairo_surface_t * surface) cairo_pure;
+cairo_private boolint _cairo_surface_has_device_transform(const cairo_surface_t * surface) CXX_FUNC_PURE;
 cairo_private void _cairo_surface_release_device_reference(cairo_surface_t * surface);
 
 /* cairo-image-surface.c */
@@ -822,10 +822,10 @@ cairo_private void _cairo_surface_release_device_reference(cairo_surface_t * sur
 #define CAIRO_STRIDE_FOR_WIDTH_BPP(w, bpp) ((((bpp)*(w)+7)/8 + CAIRO_STRIDE_ALIGNMENT-1) & -CAIRO_STRIDE_ALIGNMENT)
 #define CAIRO_CONTENT_VALID(content) ((content) && (((content) & ~(CAIRO_CONTENT_COLOR | CAIRO_CONTENT_ALPHA | CAIRO_CONTENT_COLOR_ALPHA)) == 0))
 
-cairo_private int FASTCALL _cairo_format_bits_per_pixel(cairo_format_t format) cairo_const;
-cairo_private cairo_format_t FASTCALL _cairo_format_from_content(cairo_content_t content) cairo_const;
+cairo_private int FASTCALL _cairo_format_bits_per_pixel(cairo_format_t format) CXX_FUNC_CONST;
+cairo_private cairo_format_t FASTCALL _cairo_format_from_content(cairo_content_t content) CXX_FUNC_CONST;
 cairo_private cairo_format_t FASTCALL _cairo_format_from_pixman_format(pixman_format_code_t pixman_format);
-cairo_private cairo_content_t FASTCALL _cairo_content_from_format(cairo_format_t format) cairo_const;
+cairo_private cairo_content_t FASTCALL _cairo_content_from_format(cairo_format_t format) CXX_FUNC_CONST;
 cairo_private cairo_content_t _cairo_content_from_pixman_format(pixman_format_code_t pixman_format);
 cairo_private cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * pixman_image, pixman_format_code_t pixman_format);
 cairo_private pixman_format_code_t FASTCALL _cairo_format_to_pixman_format_code(cairo_format_t format);
@@ -886,9 +886,9 @@ cairo_private cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t a
 cairo_private void _cairo_matrix_get_affine(const cairo_matrix_t * matrix, double * xx, double * yx, double * xy, double * yy, double * x0, double * y0);
 cairo_private void FASTCALL _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix, double * x1, double * y1, double * x2, double * y2, boolint * is_tight);
 cairo_private void FASTCALL _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix, cairo_box_t * bbox, boolint * is_tight);
-cairo_private boolint FASTCALL _cairo_matrix_is_invertible(const cairo_matrix_t * matrix) cairo_pure;
-cairo_private boolint FASTCALL _cairo_matrix_is_scale_0(const cairo_matrix_t * matrix) cairo_pure;
-cairo_private double FASTCALL _cairo_matrix_compute_determinant(const cairo_matrix_t * matrix) cairo_pure;
+cairo_private boolint FASTCALL _cairo_matrix_is_invertible(const cairo_matrix_t * matrix) CXX_FUNC_PURE;
+cairo_private boolint FASTCALL _cairo_matrix_is_scale_0(const cairo_matrix_t * matrix) CXX_FUNC_PURE;
+cairo_private double FASTCALL _cairo_matrix_compute_determinant(const cairo_matrix_t * matrix) CXX_FUNC_PURE;
 cairo_private cairo_status_t _cairo_matrix_compute_basis_scale_factors(const cairo_matrix_t * matrix, double * sx, double * sy, int x_major);
 
 inline boolint _cairo_matrix_is_identity(const cairo_matrix_t * matrix)
@@ -899,8 +899,8 @@ inline boolint _cairo_matrix_is_scale(const cairo_matrix_t * matrix)
 	{ return matrix->yx == 0.0 && matrix->xy == 0.0; }
 cairo_private boolint FASTCALL _cairo_matrix_is_integer_translation(const cairo_matrix_t * matrix, int * itx, int * ity);
 cairo_private boolint FASTCALL _cairo_matrix_has_unity_scale(const cairo_matrix_t * matrix);
-cairo_private boolint _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix) cairo_pure;
-cairo_private double FASTCALL _cairo_matrix_transformed_circle_major_axis(const cairo_matrix_t * matrix, double radius) cairo_pure;
+cairo_private boolint _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix) CXX_FUNC_PURE;
+cairo_private double FASTCALL _cairo_matrix_transformed_circle_major_axis(const cairo_matrix_t * matrix, double radius) CXX_FUNC_PURE;
 cairo_private boolint _cairo_matrix_is_pixman_translation(const cairo_matrix_t * matrix,
     cairo_filter_t filter, int * out_x_offset, int * out_y_offset);
 cairo_private cairo_status_t _cairo_matrix_to_pixman_matrix_offset(const cairo_matrix_t * matrix, cairo_filter_t filter,

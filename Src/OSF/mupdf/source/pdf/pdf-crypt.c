@@ -770,9 +770,7 @@ static void pdf_compute_owner_password(fz_context * ctx, pdf_crypt * crypt, ucha
 
 uchar * pdf_crypt_key(fz_context * ctx, pdf_crypt * crypt)
 {
-	if(crypt)
-		return crypt->key;
-	return NULL;
+	return crypt ? crypt->key : NULL;
 }
 
 int pdf_crypt_version(fz_context * ctx, pdf_crypt * crypt)

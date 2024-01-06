@@ -31,7 +31,7 @@ Results Reader::decode(const BinaryBitmap& image, int maxSymbols) const
 		return {};
 
 	Results results;
-	for(auto&& detRes : Detect(*binImg, _hints.tryHarder(), _hints.tryRotate(), _hints.isPure())) {
+	for(auto && detRes : Detect(*binImg, _hints.tryHarder(), _hints.tryRotate(), _hints.isPure())) {
 		auto decRes = Decode(detRes.bits());
 		if(decRes.isValid(_hints.returnErrors())) {
 			results.emplace_back(std::move(decRes), std::move(detRes).position(), BarcodeFormat::DataMatrix);

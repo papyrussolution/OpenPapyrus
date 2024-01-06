@@ -134,7 +134,7 @@ template <typename StrToStrMapping> std::vector <ViableSubstitution> FindSubstit
 {
 	std::vector <ViableSubstitution> subs;
 	subs.reserve(replacements.size());
-	for(const auto& rep : replacements) {
+	for(const auto & rep : replacements) {
 		using std::get;
 		absl::string_view old(get<0>(rep));
 		size_t pos = s.find(old);

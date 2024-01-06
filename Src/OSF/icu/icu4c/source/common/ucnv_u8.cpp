@@ -252,8 +252,7 @@ donefornow:
 
 U_CDECL_END
 
-U_CFUNC void U_CALLCONV ucnv_fromUnicode_UTF8(UConverterFromUnicodeArgs * args,
-    UErrorCode * err)
+U_CFUNC void U_CALLCONV ucnv_fromUnicode_UTF8(UConverterFromUnicodeArgs * args, UErrorCode * err)
 {
 	UConverter * cnv = args->converter;
 	const char16_t * mySource = args->source;
@@ -265,13 +264,11 @@ U_CFUNC void U_CALLCONV ucnv_fromUnicode_UTF8(UConverterFromUnicodeArgs * args,
 	uint8 tempBuf[4];
 	int32_t indexToWrite;
 	bool isNotCESU8 = !hasCESU8Data(cnv);
-
 	if(cnv->fromUChar32 && myTarget < targetLimit) {
 		ch = cnv->fromUChar32;
 		cnv->fromUChar32 = 0;
 		goto lowsurrogate;
 	}
-
 	while(mySource < sourceLimit && myTarget < targetLimit) {
 		ch = *(mySource++);
 
@@ -840,8 +837,7 @@ static const UConverterStaticData _UTF8StaticData = {
 	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } /* reserved */
 };
 
-const UConverterSharedData _UTF8Data =
-    UCNV_IMMUTABLE_SHARED_DATA_INITIALIZER(&_UTF8StaticData, &_UTF8Impl);
+const UConverterSharedData _UTF8Data = UCNV_IMMUTABLE_SHARED_DATA_INITIALIZER(&_UTF8StaticData, &_UTF8Impl);
 
 /* CESU-8 converter data ---------------------------------------------------- */
 

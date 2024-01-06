@@ -903,7 +903,7 @@ size_t ListValue::ByteSizeLong() const {
 
   // repeated .google.protobuf.Value values = 1;
   total_size += 1UL * this->_internal_values_size();
-  for(const auto& msg : this->values_) {
+  for(const auto & msg : this->values_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 

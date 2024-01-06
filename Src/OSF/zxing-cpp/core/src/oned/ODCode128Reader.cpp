@@ -163,7 +163,7 @@ static auto E2E_PATTERNS = [] {
 	    // 0b11100011110000.
 	    std::array<int, 107> res;
 	    for(int i = 0; i < Size(res); ++i) {
-		    const auto& a = Code128::CODE_PATTERNS[i];
+		    const auto & a = Code128::CODE_PATTERNS[i];
 		    std::array<int, 4> e2e;
 		    for(int j = 0; j < 4; j++)
 			    e2e[j] = a[j] + a[j + 1];

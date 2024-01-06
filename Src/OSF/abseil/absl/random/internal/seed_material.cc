@@ -201,8 +201,8 @@ void MixIntoSeedMaterial(absl::Span<const uint32_t> sequence,
 		    return result;
 	    };
 
-	for(const auto& seq_val : sequence) {
-		for(auto& elem : seed_material) {
+	for(const auto & seq_val : sequence) {
+		for(auto & elem : seed_material) {
 			elem = mix(elem, hash(seq_val));
 		}
 	}

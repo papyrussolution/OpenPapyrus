@@ -61,7 +61,7 @@ static Results DoDecode(const BinaryBitmap& image, bool multiple, bool tryRotate
 	    };
 
 	Results results;
-	for(const auto& points : detectorResult.points) {
+	for(const auto & points : detectorResult.points) {
 		DecoderResult decoderResult =
 		    ScanningDecoder::Decode(*detectorResult.bits, points[4], points[5], points[6], points[7],
 			GetMinCodewordWidth(points), GetMaxCodewordWidth(points));
@@ -100,7 +100,7 @@ struct SymbolInfo {
 template <typename POINT>
 CodeWord ReadCodeWord(BitMatrixCursor<POINT>& cur, int expectedCluster = -1)
 {
-	auto readCodeWord = [expectedCluster](auto& cur) -> CodeWord {
+	auto readCodeWord = [expectedCluster](auto & cur) -> CodeWord {
 		    auto np     = NormalizedPattern<8, 17>(cur.template readPattern<Pattern417>());
 		    int cluster = (np[0] - np[2] + np[4] - np[6] + 9) % 9;
 		    int code = expectedCluster == -1 || cluster == expectedCluster ? CodewordDecoder::GetCodeword(ToInt(np)) : -1;
@@ -243,7 +243,7 @@ static Result DecodePure(const BinaryBitmap& image_)
 	auto pimage = image_.getBitMatrix();
 	if(!pimage)
 		return {};
-	auto& image = *pimage;
+	auto & image = *pimage;
 #ifdef PRINT_DEBUG
 	SaveAsPBM(image, "weg.pbm");
 #endif

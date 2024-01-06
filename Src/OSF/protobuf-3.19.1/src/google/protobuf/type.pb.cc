@@ -537,7 +537,7 @@ uint8_t* Type::_InternalSerialize(
 
   // repeated string oneofs = 3;
   for(int i = 0, n = this->_internal_oneofs_size(); i < n; i++) {
-    const auto& s = this->_internal_oneofs(i);
+    const auto & s = this->_internal_oneofs(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -581,7 +581,7 @@ size_t Type::ByteSizeLong() const {
 
   // repeated .google.protobuf.Field fields = 2;
   total_size += 1UL * this->_internal_fields_size();
-  for(const auto& msg : this->fields_) {
+  for(const auto & msg : this->fields_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -593,7 +593,7 @@ size_t Type::ByteSizeLong() const {
 
   // repeated .google.protobuf.Option options = 4;
   total_size += 1UL * this->_internal_options_size();
-  for(const auto& msg : this->options_) {
+  for(const auto & msg : this->options_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -1007,7 +1007,7 @@ size_t Field::ByteSizeLong() const {
 
   // repeated .google.protobuf.Option options = 9;
   total_size += 1UL * this->_internal_options_size();
-  for(const auto& msg : this->options_) {
+  for(const auto & msg : this->options_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -1366,13 +1366,13 @@ size_t Enum::ByteSizeLong() const {
 
   // repeated .google.protobuf.EnumValue enumvalue = 2;
   total_size += 1UL * this->_internal_enumvalue_size();
-  for(const auto& msg : this->enumvalue_) {
+  for(const auto & msg : this->enumvalue_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // repeated .google.protobuf.Option options = 3;
   total_size += 1UL * this->_internal_options_size();
-  for(const auto& msg : this->options_) {
+  for(const auto & msg : this->options_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
@@ -1630,7 +1630,7 @@ size_t EnumValue::ByteSizeLong() const {
 
   // repeated .google.protobuf.Option options = 3;
   total_size += 1UL * this->_internal_options_size();
-  for(const auto& msg : this->options_) {
+  for(const auto & msg : this->options_) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 

@@ -56,7 +56,7 @@ class LumImagePyramid {
 		auto siv = layers.back();
 		buffers.emplace_back(siv.width() / N, siv.height() / N);
 		layers.push_back(buffers.back());
-		auto& div = buffers.back();
+		auto & div = buffers.back();
 		auto* d   = div.data();
 		for(int dy = 0; dy < div.height(); ++dy)
 			for(int dx = 0; dx < div.width(); ++dx) {
@@ -156,7 +156,7 @@ Results ReadBarcodes(const ImageView& _iv, const DecodeHints& hints)
 
 	Results results;
 	int maxSymbols = hints.maxNumberOfSymbols() ? hints.maxNumberOfSymbols() : INT_MAX;
-	for(auto&& iv : pyramid.layers) {
+	for(auto && iv : pyramid.layers) {
 		auto bitmap = CreateBitmap(hints.binarizer(), iv);
 		for(int close = 0; close <= (closedReader ? 1 : 0); ++close) {
 			if(close)
@@ -167,7 +167,7 @@ Results ReadBarcodes(const ImageView& _iv, const DecodeHints& hints)
 				if(invert)
 					bitmap->invert();
 				auto rs = (close ? *closedReader : reader).readMultiple(*bitmap, maxSymbols);
-				for(auto& r : rs) {
+				for(auto & r : rs) {
 					if(iv.width() != _iv.width())
 						r.setPosition(Scale(r.position(), _iv.width() / iv.width()));
 					if(!Contains(results, r)) {

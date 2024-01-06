@@ -326,7 +326,7 @@ const char* Printer::WriteVariable(const std::vector <std::string>& args,
 		if(annotations->empty()) {
 			GOOGLE_LOG(FATAL) << "Unexpected end of annotation found.";
 		}
-		auto& a = annotations->back();
+		auto & a = annotations->back();
 		a.first.second = offset_;
 		if(annotation_collector_) annotation_collector_->AddAnnotationNew(a);
 		annotations->pop_back();

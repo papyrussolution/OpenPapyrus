@@ -27,8 +27,7 @@ DetectorResult SampleGrid(const BitMatrix& image, int width, int height, const R
 #endif
 	if(width <= 0 || height <= 0)
 		return {};
-
-	for(auto&& [x0, x1, y0, y1, mod2Pix] : rois) {
+	for(auto && [x0, x1, y0, y1, mod2Pix] : rois) {
 		// Precheck the corners of every roi to bail out early if the grid is "obviously" not completely inside
 		// the image
 		auto isInside = [&mod2Pix = mod2Pix, &image](int x, int y) {
@@ -37,9 +36,8 @@ DetectorResult SampleGrid(const BitMatrix& image, int width, int height, const R
 		if(!mod2Pix.isValid() || !isInside(x0, y0) || !isInside(x1 - 1, y0) || !isInside(x1 - 1, y1 - 1) || !isInside(x0, y1 - 1))
 			return {};
 	}
-
 	BitMatrix res(width, height);
-	for(auto&& [x0, x1, y0, y1, mod2Pix] : rois) {
+	for(auto && [x0, x1, y0, y1, mod2Pix] : rois) {
 		for(int y = y0; y < y1; ++y)
 			for(int x = x0; x < x1; ++x) {
 				auto p = mod2Pix(centered(PointI{x, y}));
@@ -70,10 +68,9 @@ DetectorResult SampleGrid(const BitMatrix& image, int width, int height, const R
 #endif
 
 	auto projectCorner = [&](PointI p) {
-		    for(auto&& [x0, x1, y0, y1, mod2Pix] : rois)
+		    for(auto && [x0, x1, y0, y1, mod2Pix] : rois)
 			    if(x0 <= p.x && p.x <= x1 && y0 <= p.y && p.y <= y1)
 				    return PointI(mod2Pix(PointF(p)) + PointF(0.5, 0.5));
-
 		    return PointI();
 	    };
 

@@ -176,7 +176,7 @@
 #define HAVE_STRCASECMP 1 // Define to 1 if you have the `strcasecmp' function.
 #define HAVE_STRCAT 1 // Define to 1 if you have the `strcat' function.
 #define HAVE_STRCHR 1 // Define to 1 if you have the `sstrchr' function.
-#define HAVE_STRDUP 1 // Define to 1 if you have the `strdup' function.
+// @v11.9.2 #define HAVE_STRDUP 1 // Define to 1 if you have the `strdup' function.
 #define HAVE_STRERROR 1 // Define to 1 if you have the `strerror' function.
 #define HAVE_STRFTIME 1 // Define to 1 if you have the `strftime' function.
 #define HAVE_STRINGS_H 1 // Define to 1 if you have the <strings.h> header file.

@@ -110,7 +110,7 @@ namespace Xapian {
 		// order) - if so treat it as just MatchAll.
 		bool match_all = false;
 		bool question_marks = false;
-		for(auto&& ch : pattern) {
+		for(auto && ch : pattern) {
 			if(ch == '*' && (flags & Query::WILDCARD_PATTERN_MULTI)) {
 				match_all = true;
 			}

@@ -1,5 +1,5 @@
 // TEST-IMAGE.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 // Тесты работы с изображениями
 //
@@ -7,6 +7,7 @@
 #pragma hdrstop
 
 int ZXing_RecognizeBarcodeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList); // @prototype(zxing_client.cpp)
+int ZXing_CreateBarcodeImage(const PPBarcode::BarcodeImageParam & rParam); // @prototype(zxing_client.cpp)
 
 static const SIntToSymbTabEntry TestBcStdSymbList[] = {
 	{  BARCSTD_CODE11,      "code11"  },
@@ -52,7 +53,13 @@ static const SIntToSymbTabEntry TestBcStdSymbList[] = {
 	{  BARCSTD_PLESSEY,     "plessey"    },
 	{  BARCSTD_POSTNET,     "postnet"    },
 	{  BARCSTD_LOGMARS,     "logmars"    },
-	{  BARCSTD_DATAMATRIX,  "datamatrix" } // @v10.9.10
+	{  BARCSTD_DATAMATRIX,  "datamatrix" }, // @v10.9.10
+	{  BARCSTD_AZTEC,       "aztec" }, // @v11.9.2
+	{  BARCSTD_DATABAR,     "databar" }, // @v11.9.2
+	{  BARCSTD_MICROQR,     "microqr" }, // @v11.9.2
+	{  BARCSTD_ITF,         "itf" }, // @v11.9.2
+	{  BARCSTD_MAXICODE,    "maxicode" }, // @v11.9.2
+	{  BARCSTD_RMQR,        "rmqr" }, // @v11.9.2
 };
 
 SLTEST_R(BarcodeOutputAndRecognition)
@@ -82,10 +89,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 		// D:\Papyrus\Src\PPTEST\DATA\chzn-sigblk-20230906_144733.jpg 
 		(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("chzn-sigblk-20230906_144733.jpg");
 		TSCollection <PPBarcode::Entry> bc_list;
-		int zxr = ZXing_RecognizeBarcodeImage(input_file_path, bc_list);
-		if(zxr > 0) {
-
-		}
+		SLCHECK_LT(0, ZXing_RecognizeBarcodeImage(input_file_path, bc_list));
 	}
 	(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("barcode.txt");
     SFile f_in(input_file_path, SFile::mRead);
@@ -116,7 +120,14 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						TSCollection <PPBarcode::Entry> bc_list;
 						//
 						TSCollection <PPBarcode::Entry> bc_list2;
-						int zxr = ZXing_RecognizeBarcodeImage(bip.OutputFileName, bc_list2);
+						if(SLCHECK_LT(0, ZXing_RecognizeBarcodeImage(bip.OutputFileName, bc_list2))) {
+							SLCHECK_EQ(bc_list2.getCount(), 1U);
+							if(bc_list2.getCount() > 0) {
+								const PPBarcode::Entry * p_entry = bc_list2.at(0);
+								SLCHECK_EQ(p_entry->BcStd, bip.Std);
+								SLCHECK_EQ(p_entry->Code, code_buf);
+							}
+						}
 						//
 						if(SLCHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
 							SLCHECK_EQ(bc_list.getCount(), 1U);
@@ -128,6 +139,37 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						}
 					}
 				}
+				/* { // @v11.9.2 @construction
+					//
+					// PNG ZXing_CreateBarcodeImage
+					//
+					bip.OutputFormat = SFileFormat::Png;
+					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).CatChar('-').Cat("zxing").DotCat("png");
+					if(SLCHECK_NZ(ZXing_CreateBarcodeImage(bip))) {
+						TSCollection <PPBarcode::Entry> bc_list;
+						//
+						TSCollection <PPBarcode::Entry> bc_list2;
+						if(SLCHECK_LT(0, ZXing_RecognizeBarcodeImage(bip.OutputFileName, bc_list2))) {
+							SLCHECK_LE(1U, bc_list2.getCount());
+							if(bc_list2.getCount() > 0) {
+								for(uint bcidx = 0; bcidx < bc_list2.getCount(); bcidx++) {
+									const PPBarcode::Entry * p_entry = bc_list2.at(bcidx);
+									SLCHECK_EQ(p_entry->BcStd, bip.Std);
+									SLCHECK_EQ(p_entry->Code, code_buf);
+								}
+							}
+						}
+						//
+						if(SLCHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
+							SLCHECK_EQ(bc_list.getCount(), 1U);
+							if(bc_list.getCount() > 0) {
+								const PPBarcode::Entry * p_entry = bc_list.at(0);
+								SLCHECK_EQ(p_entry->BcStd, bip.Std);
+								SLCHECK_EQ(p_entry->Code, code_buf);
+							}
+						}
+					}
+				}*/
 				{
 					//
 					// SVG
@@ -136,6 +178,17 @@ SLTEST_R(BarcodeOutputAndRecognition)
 					(bip.OutputFileName = GetSuiteEntry()->OutPath).SetLastSlash().Cat(code_buf).DotCat("svg");
 					if(SLCHECK_NZ(PPBarcode::CreateImage(bip))) {
 						TSCollection <PPBarcode::Entry> bc_list;
+						//
+						TSCollection <PPBarcode::Entry> bc_list2;
+						if(SLCHECK_LT(0, ZXing_RecognizeBarcodeImage(bip.OutputFileName, bc_list2))) {
+							SLCHECK_EQ(bc_list2.getCount(), 1U);
+							if(bc_list2.getCount() > 0) {
+								const PPBarcode::Entry * p_entry = bc_list2.at(0);
+								SLCHECK_EQ(p_entry->BcStd, bip.Std);
+								SLCHECK_EQ(p_entry->Code, code_buf);
+							}
+						}
+						//
 						if(SLCHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
 							SLCHECK_EQ(bc_list.getCount(), 1U);
 							if(bc_list.getCount() > 0) {

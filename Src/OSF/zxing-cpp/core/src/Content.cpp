@@ -59,7 +59,7 @@ void Content::append(const Content& other)
 	if(!hasECI && other.hasECI)
 		encodings.clear();
 	if(other.hasECI || !hasECI)
-		for(auto& e : other.encodings)
+		for(auto & e : other.encodings)
 			encodings.push_back({e.eci, Size(bytes) + e.pos});
 	append(other.bytes);
 	hasECI |= other.hasECI;
@@ -68,7 +68,7 @@ void Content::append(const Content& other)
 void Content::erase(int pos, int n)
 {
 	bytes.erase(bytes.begin() + pos, bytes.begin() + pos + n);
-	for(auto& e : encodings)
+	for(auto & e : encodings)
 		if(e.pos > pos)
 			pos -= n;
 }
@@ -76,7 +76,7 @@ void Content::erase(int pos, int n)
 void Content::insert(int pos, const std::string& str)
 {
 	bytes.insert(bytes.begin() + pos, str.begin(), str.end());
-	for(auto& e : encodings)
+	for(auto & e : encodings)
 		if(e.pos > pos)
 			pos += Size(str);
 }
@@ -132,11 +132,12 @@ std::string Content::text(TextMode mode) const
 		case TextMode::ECI: return render(true);
 		case TextMode::HRI:
 		    switch(type()) {
-			    case ContentType::GS1: {
-				auto plain = render(false);
-				auto hri = HRIFromGS1(plain);
-				return hri.empty() ? plain : hri;
-			}
+			    case ContentType::GS1: 
+					{
+						auto plain = render(false);
+						auto hri = HRIFromGS1(plain);
+						return hri.empty() ? plain : hri;
+					}
 			    case ContentType::ISO15434: return HRIFromISO15434(render(false));
 			    case ContentType::Text: return render(false);
 			    default: return text(TextMode::Escaped);

@@ -1,5 +1,5 @@
 // WSCTL-MAIN.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -18,6 +18,11 @@
 
 ImVec2 FPointToImVec2(const SPoint2F & rP) { return ImVec2(rP.x, rP.y); }
 ImRect FRectToImRect(const FRect & rR) { return ImRect(FPointToImVec2(rR.a), FPointToImVec2(rR.b)); }
+
+class WsCtlConst {
+public:
+	static constexpr uint IconSize = 32;
+};
 
 namespace ImGui {
 	bool ScrollbarEx(const ImRect & bb_frame, ImGuiID id, ImGuiAxis axis, int64* p_scroll_v, int64 size_avail_v, int64 size_contents_v, ImDrawFlags flags);
@@ -234,10 +239,10 @@ public:
 	}
 	void CreateRenderTarget()
 	{
-		ID3D11Texture2D * pBackBuffer;
-		g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-		g_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &g_mainRenderTargetView);
-		pBackBuffer->Release();
+		ID3D11Texture2D * p_back_buffer;
+		g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&p_back_buffer));
+		g_pd3dDevice->CreateRenderTargetView(p_back_buffer, nullptr, &g_mainRenderTargetView);
+		p_back_buffer->Release();
 	}
 	void CleanupRenderTarget()
 	{
@@ -261,6 +266,27 @@ public:
 		if(SUCCEEDED(hr)) {
 			//p_result = p_texture;
 			p_result = p_texture_view;
+		}
+		return p_result;
+	}
+	void * MakeIconTexture(uint iconId) // @v11.9.2
+	{
+		void * p_result = 0;
+		SPaintToolBox & r_tb = DS.GetUiToolBox();
+		const TWhatmanToolArray & r_vt = DS.GetVectorTools();
+		TWhatmanToolArray::Item vt_item;
+		const SDrawFigure * p_fig = r_vt.GetFigById(1, iconId, &vt_item);
+		if(p_fig) {
+			SBuffer bmp_buf;
+			if(TCanvas2::TransformDrawFigureToBitmap(&r_tb, p_fig, SPoint2S(WsCtlConst::IconSize), vt_item.ReplacedColor, SColor(0, 0, 0, 0), bmp_buf)) {
+				ID3D11Resource * p_texture = 0;
+				ID3D11ShaderResourceView * p_texture_view = 0;
+				HRESULT hr = DirectX::CreateWICTextureFromMemory(g_pd3dDevice, g_pd3dDeviceContext, 
+					reinterpret_cast<const uint8 *>(bmp_buf.GetBufC()), bmp_buf.GetAvailableSize(), &p_texture, &p_texture_view, /*maxsize*/0);
+				if(SUCCEEDED(hr)) {
+					p_result = p_texture_view;
+				}
+			}
 		}
 		return p_result;
 	}
@@ -416,6 +442,11 @@ public:
 		loidProgramGalleryScrollbar   = 10020, // Область для размещения скроллбара программной галлереи
 		loidProgramGalleryCatSelector = 10021, // Область для размещения комбо-бокса выбора категории
 		loidProgramGalleryDebugInfo   = 10022, // @debug Область для размещения отладочной информации о programgallery 
+		loidIntro                     = 10023, // 
+		loidButtonBack                = 10024,
+		loidButtonStart               = 10025,
+		loidLogo                      = 10026,
+		loidToolbar                   = 10027, // Область панели инструментов в верхней части окна
 		//
 		loidStartProgramEntry         = 20000  // Стартовый идентификатор для иконок выбора программ. Первый layout идентифицируется как (loidStartProgramEntry+1)
 	};
@@ -731,10 +762,27 @@ private:
 	ImVec4 ClearColor;
 	//SUiLayout Lo01; // = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
 
-	class Texture_CachedFileEntity : public SCachedFileEntity {
+	class CommonTextureCacheEntry {
+	public:
+		CommonTextureCacheEntry() : P_Texture(0)
+		{
+		}
+		explicit CommonTextureCacheEntry(void * pTexture) : P_Texture(pTexture)
+		{
+		}
+		void * P_Texture;
+		void Destroy()
+		{
+			if(P_Texture) {
+				static_cast<IUnknown *>(P_Texture)->Release();
+				P_Texture = 0;
+			}
+		}
+	};
+
+	class Texture_CachedFileEntity : public SCachedFileEntity, public CommonTextureCacheEntry {
 	public:
 		Texture_CachedFileEntity();
-		void * P_Texture;
 	private:
 		virtual bool InitEntity(void * extraPtr);
 		virtual void DestroyEntity();
@@ -743,8 +791,8 @@ private:
 	class TextureCache : private TSHashCollection <Texture_CachedFileEntity> {
 	public:
 		TextureCache(uint initCount, const void * pCtx);
-		void SetBasePath(const char * pPath);
-		void MakeKey(const char * pFileName, SString & rKey);
+		void   SetBasePath(const char * pPath);
+		void   MakeKey(const char * pFileName, SString & rKey);
 		int    Put(Texture_CachedFileEntity * pEntry);
 		Texture_CachedFileEntity * Get(const char * pSymb);
 	private:
@@ -752,7 +800,54 @@ private:
 		SString BasePath;
 	};
 
+	class Texture_IconEntity : public CommonTextureCacheEntry {
+	public:
+		Texture_IconEntity() : CommonTextureCacheEntry(), Id(0)
+		{
+		}
+		Texture_IconEntity(uint id, void * pTexture) : CommonTextureCacheEntry(pTexture), Id(id)
+		{
+		}
+		const void * GetHashKey(const void * pCtx, uint * pSize) const // hash-table support
+		{
+			ASSIGN_PTR(pSize, sizeof(Id));
+			return &Id;
+		}
+		uint    Id;
+	};
+	class IconTextureCache : private TSHashCollection <Texture_IconEntity> { // @v11.9.2
+	public:
+		IconTextureCache() : TSHashCollection <Texture_IconEntity>(1024, 0)
+		{
+		}
+		void * Get(uint id)
+		{
+			void * p_texture = 0;
+			if(id) {
+				Texture_IconEntity * p_entry = static_cast<Texture_IconEntity *>(TSHashCollection <Texture_IconEntity>::Get(&id, sizeof(id)));
+				if(p_entry) {
+					p_texture = p_entry->P_Texture;
+				}
+				else {
+					void * p_icon = ImgRtb.MakeIconTexture(id);
+					if(p_icon) {
+						Texture_IconEntity * p_new_entry = new Texture_IconEntity(id, p_icon);
+						if(p_new_entry) {
+							if(TSHashCollection <Texture_IconEntity>::Put(p_new_entry, true)) {
+								p_entry = static_cast<Texture_IconEntity *>(TSHashCollection <Texture_IconEntity>::Get(&id, sizeof(id)));
+								assert(p_entry && p_entry == p_new_entry);
+								p_texture = p_entry->P_Texture;
+							}
+						}
+					}
+				}
+			}
+			return p_texture;
+		}
+	};
+
 	TextureCache Cache_Texture;
+	IconTextureCache Cache_Icon; // @v11.9.2
 	TSHashCollection <SUiLayout> Cache_Layout;
 	TSHashCollection <SImFontDescription> Cache_Font; // @v11.7.8
 	//
@@ -775,12 +870,32 @@ private:
 	};
 	TestBlock TestBlk;
 	//
-	void   GetBackgroundFilePath(SString & rPath) const
+	enum {
+		fnBackground = 1,
+		fnLogo
+	};
+
+	bool   GetFilePath(int fn, bool fnOnly, SString & rPath)
 	{
-		const char * p_bkg_filename = "background.jpg";
 		rPath.Z();
-		WsCtl_ImGuiSceneBlock::GetLocalCachePath(rPath);
-		rPath.SetLastSlash().Cat("img").SetLastSlash().Cat(p_bkg_filename);
+		bool   ok = true;
+		const char * p_filename = 0;
+		switch(fn) {
+			case fnBackground: p_filename = "background.jpg"; break;
+			case fnLogo: p_filename = "logo.png"; break;
+		}
+		if(p_filename) {
+			if(fnOnly) {
+				rPath = p_filename;
+			}
+			else {
+				WsCtl_ImGuiSceneBlock::GetLocalCachePath(rPath);
+				rPath.SetLastSlash().Cat("img").SetLastSlash().Cat(p_filename);
+			}
+		}
+		else
+			ok = false;
+		return ok;
 	}
 	void   Render();
 	void   MakeLayout(SJson ** ppJsList);
@@ -957,7 +1072,7 @@ void ImGuiWindowByLayout::Helper_Ctr(const SUiLayout * pLo, const SPoint2F * pOf
 //
 //
 //
-WsCtl_ImGuiSceneBlock::Texture_CachedFileEntity::Texture_CachedFileEntity() : SCachedFileEntity(), P_Texture(0)
+WsCtl_ImGuiSceneBlock::Texture_CachedFileEntity::Texture_CachedFileEntity() : SCachedFileEntity(), CommonTextureCacheEntry()
 {
 }
 
@@ -975,10 +1090,7 @@ WsCtl_ImGuiSceneBlock::Texture_CachedFileEntity::Texture_CachedFileEntity() : SC
 		
 /*virtual*/void WsCtl_ImGuiSceneBlock::Texture_CachedFileEntity::DestroyEntity()
 {
-	if(P_Texture) {
-		static_cast<IUnknown *>(P_Texture)->Release();
-		P_Texture = 0;
-	}
+	CommonTextureCacheEntry::Destroy();
 }
 
 WsCtl_ImGuiSceneBlock::TextureCache::TextureCache(uint initCount, const void * pCtx) : TSHashCollection <Texture_CachedFileEntity>(initCount, pCtx)
@@ -2034,7 +2146,7 @@ WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnot
 	//ClearColor(0.45f, 0.55f, 0.60f, 1.00f), 
 	ClearColor(SColor(0x1E, 0x22, 0x28)),
 	P_CmdQ(new WsCtlReqQueue),
-	Cache_Layout(512, 0), Cache_Texture(1024, 0), Cache_Font(101, 0),
+	Cache_Layout(512, 0), Cache_Texture(1024, 0), Cache_Font(101, 0), Cache_Icon(),
 	P_Dlg_Cfg(0)
 {
 	TestInput[0] = 0;
@@ -2368,18 +2480,22 @@ int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 		pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
 		Cache_Texture.SetBasePath(pic_base_path);
 		{
-			// Load background
-			GetBackgroundFilePath(temp_buf);
-			SFile f_in(temp_buf, SFile::mRead);
-			if(fileExists(temp_buf)) {
-				Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
-				if(p_cfe && p_cfe->Init(temp_buf)) {
-					if(p_cfe->Reload(true, &ImgRtb)) {
-						Cache_Texture.Put(p_cfe);
-						p_cfe = 0; // ! prevent deletion below
+			const int fn_id_list[] = { fnBackground, fnLogo };
+			for(uint i = 0; i < SIZEOFARRAY(fn_id_list); i++) {
+				const int fn_id = fn_id_list[i];
+				// Load background
+				GetFilePath(fn_id, false, temp_buf);
+				SFile f_in(temp_buf, SFile::mRead);
+				if(fileExists(temp_buf)) {
+					Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+					if(p_cfe && p_cfe->Init(temp_buf)) {
+						if(p_cfe->Reload(true, &ImgRtb)) {
+							Cache_Texture.Put(p_cfe);
+							p_cfe = 0; // ! prevent deletion below
+						}
 					}
+					delete p_cfe;
 				}
-				delete p_cfe;
 			}
 		}
 		LoadProgramList2(); // 
@@ -3223,73 +3339,138 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			SUiLayout::Param evp;
 			evp.ForceSize.x = sz.x;
 			evp.ForceSize.y = sz.y;
-			{
+			if(0) {
 				SString & r_temp_buf = SLS.AcquireRvlStr();
-				GetBackgroundFilePath(r_temp_buf);
-				Texture_CachedFileEntity * p_bkg_te = Cache_Texture.Get("background.jpg");
+				GetFilePath(fnBackground, true, r_temp_buf);
+				Texture_CachedFileEntity * p_bkg_te = Cache_Texture.Get(r_temp_buf);
 				if(p_bkg_te && p_bkg_te->P_Texture) {
 					ImGui::GetBackgroundDrawList()->AddImage(p_bkg_te->P_Texture, ImVec2(0.0f, 0.0f), /*ImVec2(400.0f, 400.0f)*/sz);
 				}
 			}
 			if(_screen == screenIntro) { // @v11.9.1
+				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
+				if(p_tl) {
+					p_tl->Evaluate(&evp);
+					{
+						//ImGuiWindowByLayout wbl_full(p_tl, "##Intro", view_flags);
+						{
+							ImGuiWindowByLayout wbl(p_tl, loidLogo, "##Logo", view_flags|ImGuiWindowFlags_NoBackground);
+							if(wbl.IsValid()) {
+								SString & r_temp_buf = SLS.AcquireRvlStr();
+								GetFilePath(fnLogo, true, r_temp_buf);
+								Texture_CachedFileEntity * p_logo_te = Cache_Texture.Get(r_temp_buf);
+								if(p_logo_te && p_logo_te->P_Texture) {
+									const float _x = ImGui::GetWindowWidth();
+									const float _y = ImGui::GetWindowHeight();
+									ImGui::Image(p_logo_te->P_Texture, ImVec2(_x, _y));
+								}
+							}
+						}
+						{
+							ImGuiWindowByLayout wbl(p_tl, loidButtonStart, "##Button-Start", view_flags|ImGuiWindowFlags_NoBackground);
+							if(wbl.IsValid()) {
+								const float preserve_fbs = GImGui->Style.FrameBorderSize;
+								GImGui->Style.FrameBorderSize = 2.0f;
+								SString & r_temp_buf = SLS.AcquireRvlStr();
+								PPLoadTextUtf8(PPTXT_PRESSTOAUTHANDSTART, r_temp_buf);
+								ImVec2 sz(256.0f, 64.0f);
+								if(ImGui::Button2(r_temp_buf, /*ButtonSize_Std*/sz, ImGuiButtonFlags_NoShadow)) {
+									SetScreen(screenLogin);
+								}
+								GImGui->Style.FrameBorderSize = preserve_fbs;
+							}
+						}
+
+						//ImGuiWindowByLayout wbl(p_tl, loidIntro, "##INTRO", view_flags);
+						//if(wbl.IsValid()) {
+						//}
+					}
+				}
 				//SString & r_temp_buf = SLS.AcquireRvlStr();
 				//GetBackgroundFilePath(r_temp_buf);
 				//Texture_CachedFileEntity * p_bkg_te = Cache_Texture.Get("background.jpg");
 				//if(p_bkg_te && p_bkg_te->P_Texture) {
 					//ImGui::GetBackgroundDrawList()->AddImage(p_bkg_te->P_Texture, ImVec2(0.0f, 0.0f), /*ImVec2(400.0f, 400.0f)*/sz);
-					ImGui::Begin("#intro", 0, ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
+
+					//ImGui::Begin("#intro", 0, ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove);
+
 					//ImVec2 sz(400.0f, 400.0f);
 					//ImGui::Image(p_te->P_Texture, sz);
 					//ImGui::GetWindowDrawList()->AddImage(p_te->P_Texture, ImVec2(0.0f, 0.0f), /*ImVec2(400.0f, 400.0f)*/sz);
-					ImGui::End();
+
+					//ImGui::End();
 				//}
 			}
 			else if(_screen == screenLogin) {
 				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
 				if(p_tl) {
 					p_tl->Evaluate(&evp);
-					//loidLoginBlock
-					ImGuiWindowByLayout wbl(p_tl, loidLoginBlock, "##LOGINBLOCK", view_flags);
-					if(wbl.IsValid()) {
-						DAuth data_auth;
-						St.D_Auth.GetData(data_auth);
-						if(data_auth.SCardID && data_auth._Status == 0) {
-							SetScreen(screenAuthSelectSess);
-						}
-						else {
-							{
-								//
-								// Handle an error
-								//
-								errstate = errstateNone;
-								if(!data_auth.SCardID && data_auth._Status != 0) {
-									LastSvrErr = data_auth;
-									// Сбрасываем информацию об ошибке {
-									data_auth.DServerError::Z();
-									St.D_Auth.SetData(data_auth);
-									// }
-									if(LastSvrErr._Message.NotEmpty()) {
-										//is_err = true;
-										errstate = errstateServer;
-									}
-								}
-								else if(LastSvrErr._Status != 0) {
-									if(LastSvrErr._Message.NotEmpty()) {
-										//is_err = true;
-										errstate = errstateServer;
-									}
-								}
-								//LastServerErrorPopup(is_err);
-								ErrorPopup_(errstate);
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
+						void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
+						if(p_icon_back) {
+							if(ImGui::ImageButton(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize))) {
+								SetScreen(screenIntro);
 							}
-							ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginBlk.LoginText, sizeof(LoginBlk.LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-							ImGui::InputText(InputLabelPrefix("Пароль"), LoginBlk.PwText, sizeof(LoginBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-							if(!isempty(LoginBlk.LoginText)) {
-								if(ImGui::Button("Login", ButtonSize_Std) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
-									WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
-									STRNSCPY(req.P.AuthTextUtf8, LoginBlk.LoginText);
-									STRNSCPY(req.P.AuthPwUtf8, LoginBlk.PwText);
-									P_CmdQ->Push(req);
+							//ImGui::Image(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize));
+						}
+					}
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidLogo, "##Logo", view_flags|ImGuiWindowFlags_NoBackground);
+						if(wbl.IsValid()) {
+							SString & r_temp_buf = SLS.AcquireRvlStr();
+							GetFilePath(fnLogo, true, r_temp_buf);
+							Texture_CachedFileEntity * p_logo_te = Cache_Texture.Get(r_temp_buf);
+							if(p_logo_te && p_logo_te->P_Texture) {
+								const float _x = ImGui::GetWindowWidth();
+								const float _y = ImGui::GetWindowHeight();
+								ImGui::Image(p_logo_te->P_Texture, ImVec2(_x, _y));
+							}
+						}
+					}
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidLoginBlock, "##LOGINBLOCK", view_flags);
+						if(wbl.IsValid()) {
+							DAuth data_auth;
+							St.D_Auth.GetData(data_auth);
+							if(data_auth.SCardID && data_auth._Status == 0) {
+								SetScreen(screenAuthSelectSess);
+							}
+							else {
+								{
+									//
+									// Handle an error
+									//
+									errstate = errstateNone;
+									if(!data_auth.SCardID && data_auth._Status != 0) {
+										LastSvrErr = data_auth;
+										// Сбрасываем информацию об ошибке {
+										data_auth.DServerError::Z();
+										St.D_Auth.SetData(data_auth);
+										// }
+										if(LastSvrErr._Message.NotEmpty()) {
+											//is_err = true;
+											errstate = errstateServer;
+										}
+									}
+									else if(LastSvrErr._Status != 0) {
+										if(LastSvrErr._Message.NotEmpty()) {
+											//is_err = true;
+											errstate = errstateServer;
+										}
+									}
+									//LastServerErrorPopup(is_err);
+									ErrorPopup_(errstate);
+								}
+								ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginBlk.LoginText, sizeof(LoginBlk.LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix("Пароль"), LoginBlk.PwText, sizeof(LoginBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								if(!isempty(LoginBlk.LoginText)) {
+									if(ImGui::Button("Login", ButtonSize_Std) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
+										WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
+										STRNSCPY(req.P.AuthTextUtf8, LoginBlk.LoginText);
+										STRNSCPY(req.P.AuthPwUtf8, LoginBlk.PwText);
+										P_CmdQ->Push(req);
+									}
 								}
 							}
 						}

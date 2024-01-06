@@ -380,7 +380,7 @@ void U_CALLCONV initUnitExtras(UErrorCode & status)
 	}
 
 	// Add SI and binary prefixes
-	for(const auto& unitPrefixInfo : gUnitPrefixStrings) {
+	for(const auto & unitPrefixInfo : gUnitPrefixStrings) {
 		b.add(unitPrefixInfo.string, unitPrefixInfo.value + kPrefixOffset, status);
 	}
 	if(U_FAILURE(status)) {

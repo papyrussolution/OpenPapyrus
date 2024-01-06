@@ -33,7 +33,7 @@ public:
 	{
 		Assert(did == post.did);
 		positions.reserve(positions.size() + post.positions.size());
-		for(auto&& pos : post.positions) {
+		for(auto && pos : post.positions) {
 			positions.push_back(pos);
 		}
 		std::inplace_merge(positions.begin(), positions.begin() + post.positions.size(), positions.end());
@@ -50,7 +50,7 @@ public:
 	{
 		Assert(tname == post.tname);
 		positions.reserve(positions.size() + post.positions.size());
-		for(auto&& pos : post.positions) {
+		for(auto && pos : post.positions) {
 			positions.push_back(pos);
 		}
 		std::inplace_merge(positions.begin(), positions.begin() + post.positions.size(), positions.end());

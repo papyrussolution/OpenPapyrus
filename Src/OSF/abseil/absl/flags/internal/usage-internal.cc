@@ -246,13 +246,13 @@ void FlagsHelpImpl(std::ostream & out, PerFlagFilter filter_cb,
 
 	absl::string_view package_separator; // controls blank lines between packages
 	absl::string_view file_separator; // controls blank lines between files
-	for(auto& package : matching_flags) {
+	for(auto & package : matching_flags) {
 		if(format == HelpFormat::kHumanReadable) {
 			out << package_separator;
 			package_separator = "\n\n";
 		}
 		file_separator = "";
-		for(auto& flags_in_file : package.second) {
+		for(auto & flags_in_file : package.second) {
 			if(format == HelpFormat::kHumanReadable) {
 				out << file_separator << "  Flags from " << flags_in_file.first << ":\n";
 				file_separator = "\n";

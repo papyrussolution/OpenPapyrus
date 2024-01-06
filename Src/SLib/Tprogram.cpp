@@ -1,6 +1,6 @@
 // TPROGRAM.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -91,31 +91,42 @@ int TStatusWin::Update()
 		if(icon_id) {
 			HICON h_icon = 0;
 			if(icon_id & SlConst::VectorImageMask) {
-				TWhatmanToolArray::Item tool_item;
-				const SDrawFigure * p_fig = APPL->LoadDrawFigureById(icon_id, &tool_item);
-				const uint _w = 16;
-				const uint _h = 16;
-				SImageBuffer ib(_w, _h);
+				//SPaintToolBox * p_tb = APPL->GetUiToolBox();
+				/*if(p_tb)*/
 				{
-					TCanvas2 canv(APPL->GetUiToolBox(), ib);
-					if(!tool_item.ReplacedColor.IsEmpty()) {
-						SColor replacement_color;
-						replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
-						canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+					TWhatmanToolArray::Item tool_item;
+					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(icon_id, &tool_item);
+					// @v11.9.2 {
+					SPtrHandle h__ = TCanvas2::TransformDrawFigureToIcon(APPL->GetUiToolBox(), p_fig, SPoint2S(16, 16), tool_item.ReplacedColor, SColor(192, 192, 192, 255));
+					if(h__) {
+						h_icon = reinterpret_cast<HICON>((void *)h__);
 					}
-					LMatrix2D mtx;
-					SViewPort vp;
-					FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
-					//
-					canv.Rect(pic_bounds);
-					//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
-					canv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
-					canv.PushTransform();
-					p_fig->GetViewPort(&vp);
-					canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
-					canv.Draw(p_fig);
+					// } @v11.9.2 
+					/* @v11.9.2
+					const uint _w = 16;
+					const uint _h = 16;
+					SImageBuffer ib(_w, _h);
+					{
+						TCanvas2 canv(*p_tb, ib);
+						if(!tool_item.ReplacedColor.IsEmpty()) {
+							SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
+							canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+						}
+						LMatrix2D mtx;
+						SViewPort vp;
+						FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
+						//
+						canv.Rect(pic_bounds);
+						//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
+						canv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
+						canv.PushTransform();
+						p_fig->GetViewPort(&vp);
+						canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+						canv.Draw(p_fig);
+					}
+					h_icon = static_cast<HICON>(ib.TransformToIcon());
+					*/
 				}
-				h_icon = static_cast<HICON>(ib.TransformToIcon());
 			}
 			else {
 				h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(icon_id)); // @1
@@ -460,12 +471,9 @@ HWND TProgram::CreateDlg(uint dlgID, HWND hWndParent, DLGPROC lpDialogFunc, LPAR
 	{ return ::CreateDialogParam(GetInst(), MAKEINTRESOURCE(dlgID), hWndParent, lpDialogFunc, dwInitParam); }
 INT_PTR TProgram::DlgBoxParam(uint dlgID, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
 	{ return ::DialogBoxParam(GetInst(), MAKEINTRESOURCE(dlgID), hWndParent, lpDialogFunc, dwInitParam); }
-HBITMAP FASTCALL TProgram::LoadBitmap_(uint bmID)
-	{ return static_cast<HBITMAP>(::LoadImage(GetInst(), MAKEINTRESOURCE(bmID), IMAGE_BITMAP, 0, 0, 0)); }
-HBITMAP FASTCALL TProgram::FetchBitmap(uint bmID)
-	{ return BmH.Get(bmID); }
-HBITMAP FASTCALL TProgram::FetchSystemBitmap(uint bmID)
-	{ return BmH.GetSystem(bmID); }
+HBITMAP FASTCALL TProgram::LoadBitmap_(uint bmID) { return static_cast<HBITMAP>(::LoadImage(GetInst(), MAKEINTRESOURCE(bmID), IMAGE_BITMAP, 0, 0, 0)); }
+HBITMAP FASTCALL TProgram::FetchBitmap(uint bmID) { return BmH.Get(bmID); }
+HBITMAP FASTCALL TProgram::FetchSystemBitmap(uint bmID) { return BmH.GetSystem(bmID); }
 
 /*virtual*/int TProgram::InitStatusBar()
 {
@@ -473,10 +481,9 @@ HBITMAP FASTCALL TProgram::FetchSystemBitmap(uint bmID)
 	return BIN(P_Stw);
 }
 
-/*virtual*/int TProgram::LoadVectorTools(TWhatmanToolArray * pT)
-{
-	return -1;
-}
+// @v11.9.2 (replaced with GetVectorTools) /*virtual*/int TProgram::LoadVectorTools(TWhatmanToolArray * pT) { return -1; }
+/*virtual*/const TWhatmanToolArray * TProgram::GetVectorTools() const { return 0; } // @v11.9.2 
+/*virtual*/SPaintToolBox * TProgram::GetUiToolBox() { return 0; } // @v11.9.2
 
 int TProgram::GetStatusBarRect(RECT * pRect)
 {
@@ -1533,8 +1540,9 @@ int TProgram::InitUiToolBox()
 	int    ok = 1;
 	if(!(State & stUiToolBoxInited)) {
 		ENTER_CRITICAL_SECTION
-		LoadVectorTools(&DvToolList);
+		// @v11.9.2 LoadVectorTools(&DvToolList);
 		if(!(State & stUiToolBoxInited)) {
+#if 0 // @v11.9.2 {			
 			UiToolBox.CreateColor(tbiButtonTextColor, SColor(SClrBlack));
 			UiToolBox.CreateColor(tbiButtonTextColor+tbisDisable, SColor(SClrWhite));
 			UiToolBox.CreateColor(tbiIconRegColor,     SColor(/*0x06, 0xAE, 0xD5*/0x00, 0x49, 0x82)); // 004982
@@ -1596,6 +1604,7 @@ int TProgram::InitUiToolBox()
 				*/
 			}
 			// } @v11.2.3
+#endif // } 0 @v11.9.2
 			State |= stUiToolBoxInited;
 		}
         LEAVE_CRITICAL_SECTION
@@ -1976,62 +1985,65 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		draw_bitmap = BIN(hbmp);
 	}
 	{
-		TCanvas canv(pDi->hDC);
-		HGDIOBJ brush = UiToolBox.Get(tbiButtonBrush_F + item_state);
-		if(!brush && item_state)
-			brush = UiToolBox.Get(tbiButtonBrush_F);
-		HGDIOBJ pen = UiToolBox.Get(tbiButtonPen_F + item_state);
-		if(!pen && item_state)
-			pen = UiToolBox.Get(tbiButtonPen_F);
-		canv.SelectObjectAndPush(brush);
-		canv.SelectObjectAndPush(pen);
-		SPoint2S pt_round;
-		pt_round = 4; // ROUNDRECT_RADIUS * 2;
-		canv.RoundRect(rect_elem, pt_round);
-		if(draw_text || draw_bitmap) {
-			SETFLAG(text_out_fmt, DT_CENTER, !(draw_text * draw_bitmap));
-			SETFLAG(text_out_fmt, DT_LEFT, draw_text && draw_bitmap);
-		}
-		if(draw_bitmap) {
-			if(item_state != tbisDisable) {
-				POINT bmp_size;
-				TProgram::DrawTransparentBitmap(canv, hbmp, rect_elem, out_r.left, out_r.top, RGB(0xD4, 0xD0, 0xC8), -1, text_out_fmt, &bmp_size);
-				out_r.left += bmp_size.x + 2;
+		SPaintToolBox * p_tb = GetUiToolBox();
+		if(p_tb) {
+			TCanvas canv(pDi->hDC);
+			HGDIOBJ brush = p_tb->Get(tbiButtonBrush_F + item_state);
+			if(!brush && item_state)
+				brush = p_tb->Get(tbiButtonBrush_F);
+			HGDIOBJ pen = p_tb->Get(tbiButtonPen_F + item_state);
+			if(!pen && item_state)
+				pen = p_tb->Get(tbiButtonPen_F);
+			canv.SelectObjectAndPush(brush);
+			canv.SelectObjectAndPush(pen);
+			SPoint2S pt_round;
+			pt_round = 4; // ROUNDRECT_RADIUS * 2;
+			canv.RoundRect(rect_elem, pt_round);
+			if(draw_text || draw_bitmap) {
+				SETFLAG(text_out_fmt, DT_CENTER, !(draw_text * draw_bitmap));
+				SETFLAG(text_out_fmt, DT_LEFT, draw_text && draw_bitmap);
 			}
-		}
-		if(erase_text) {
-			TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
-		}
-		else if(draw_text) {
-			HFONT hf = reinterpret_cast<HFONT>(::SendMessageW(pDi->hwndItem, WM_GETFONT, 0, 0));
-			canv.SelectObjectAndPush(hf);
-			canv.SetBkTranparent();
-			COLORREF text_color;
-            if(!UiToolBox.GetColor(tbiButtonTextColor + item_state, &text_color) && item_state)
-				text_color = UiToolBox.GetColor(tbiButtonTextColor);
-			canv.SetTextColor(text_color);
-			TRect  rect_text;
-			if(style & BS_MULTILINE) {
-				long   text_h = 0;
-				long   height = 0;
-				TEXTMETRIC tm;
-				::GetTextMetrics(canv, &tm);
-				height = tm.tmHeight + 2;
-				text_h = (out_r.bottom - out_r.top) / height;
-				SplitBuf(canv, text_buf, out_r.right - out_r.left, text_h);
-				StringSet ss('\n', text_buf);
-				rect_text.set(out_r.left, out_r.top, out_r.right, height);
-				for(uint i = 0; ss.get(&i, text_buf); rect_text.move(0, height)) {
-					canv.DrawText_(rect_text, text_buf, text_out_fmt);
+			if(draw_bitmap) {
+				if(item_state != tbisDisable) {
+					POINT bmp_size;
+					TProgram::DrawTransparentBitmap(canv, hbmp, rect_elem, out_r.left, out_r.top, RGB(0xD4, 0xD0, 0xC8), -1, text_out_fmt, &bmp_size);
+					out_r.left += bmp_size.x + 2;
 				}
 			}
-			else {
-				rect_text = out_r;
-				canv.DrawText_(rect_text, text_buf, text_out_fmt | DT_SINGLELINE);
+			if(erase_text) {
+				TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 			}
-			canv.PopObject(); // font
+			else if(draw_text) {
+				HFONT hf = reinterpret_cast<HFONT>(::SendMessageW(pDi->hwndItem, WM_GETFONT, 0, 0));
+				canv.SelectObjectAndPush(hf);
+				canv.SetBkTranparent();
+				COLORREF text_color;
+				if(!p_tb->GetColor(tbiButtonTextColor + item_state, &text_color) && item_state)
+					text_color = p_tb->GetColor(tbiButtonTextColor);
+				canv.SetTextColor(text_color);
+				TRect  rect_text;
+				if(style & BS_MULTILINE) {
+					long   text_h = 0;
+					long   height = 0;
+					TEXTMETRIC tm;
+					::GetTextMetrics(canv, &tm);
+					height = tm.tmHeight + 2;
+					text_h = (out_r.bottom - out_r.top) / height;
+					SplitBuf(canv, text_buf, out_r.right - out_r.left, text_h);
+					StringSet ss('\n', text_buf);
+					rect_text.set(out_r.left, out_r.top, out_r.right, height);
+					for(uint i = 0; ss.get(&i, text_buf); rect_text.move(0, height)) {
+						canv.DrawText_(rect_text, text_buf, text_out_fmt);
+					}
+				}
+				else {
+					rect_text = out_r;
+					canv.DrawText_(rect_text, text_buf, text_out_fmt | DT_SINGLELINE);
+				}
+				canv.PopObject(); // font
+			}
+			canv.PopObjectN(2); // pen && brush
 		}
-		canv.PopObjectN(2); // pen && brush
 	}
 	return ok;
 }
@@ -2041,18 +2053,21 @@ int TProgram::GetDialogTextLayout(const SString & rText, int fontId, int penId, 
 	int    ok = -1;
 	rTlo.Reset();
 	if(fontId && rText.NotEmpty()) {
-		SString temp_buf;
-		int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
-		int    tid_cs = UiToolBox.CreateCStyle(0, fontId, penId, tool_text_brush_id);
-		SParaDescr pd;
-		if(adj == ADJ_CENTER)
-			pd.Flags |= SParaDescr::fJustCenter;
-		else if(adj == ADJ_RIGHT)
-			pd.Flags |= SParaDescr::fJustRight;
-		int    tid_para = UiToolBox.CreateParagraph(0, &pd);
-		rTlo.SetText(rText);
-		rTlo.SetOptions(STextLayout::fWrap, tid_para, tid_cs);
-		ok = 1;
+		SPaintToolBox * p_tb = GetUiToolBox();
+		if(p_tb) {
+			SString temp_buf;
+			int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
+			int    tid_cs = p_tb->CreateCStyle(0, fontId, penId, tool_text_brush_id);
+			SParaDescr pd;
+			if(adj == ADJ_CENTER)
+				pd.Flags |= SParaDescr::fJustCenter;
+			else if(adj == ADJ_RIGHT)
+				pd.Flags |= SParaDescr::fJustRight;
+			int    tid_para = p_tb->CreateParagraph(0, &pd);
+			rTlo.SetText(rText);
+			rTlo.SetOptions(STextLayout::fWrap, tid_para, tid_cs);
+			ok = 1;
+		}
 	}
 	return ok;
 }
@@ -2092,7 +2107,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	SString text_buf;
 	TView::SGetWindowText(pDi->hwndItem, text_buf);
 	text_buf.Strip();
-	const int draw_text = BIN(text_buf.Len());
+	const bool draw_text = LOGIC(text_buf.Len());
 	int    erase_text = 0;
 	{
 		void * p_user_data = TView::GetWindowUserData(pDi->hwndItem);
@@ -2312,106 +2327,113 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		draw_bitmap = BIN(hbmp);
 	}
 	{
-		TCanvas2 canv(UiToolBox, pDi->hDC);
-		int   brush_id = tbiButtonBrush + item_state;
-		int   pen_id = tbiButtonPen + item_state;
-		int   text_pen_id = tbiButtonTextColor + item_state;
-		if(item_state) {
-			if(!UiToolBox.GetObj(brush_id))
-				brush_id -= item_state;
-			if(!UiToolBox.GetObj(pen_id))
-				pen_id -= item_state;
-			if(!UiToolBox.GetObj(text_pen_id))
-				text_pen_id -= item_state;
-		}
-		{
-			FRect rect_elem_f(rect_elem);
-			rect_elem_f.Grow(-0.5f, -0.5f);
-			// canv.RoundRect(rect_elem_f, 3, pen_id, brush_id);
-			canv.Rect(rect_elem_f, pen_id, brush_id);
-		}
-		if(draw_text || draw_bitmap) {
-			SETFLAG(text_out_fmt, DT_CENTER, !(draw_text * draw_bitmap));
-			SETFLAG(text_out_fmt, DT_LEFT, draw_text && draw_bitmap);
-		}
-		//
-		{
-            draw_bitmap = 0;
+		SPaintToolBox * p_tb = GetUiToolBox();
+		if(p_tb) {
+			TCanvas2 canv(*p_tb, pDi->hDC);
+			int   brush_id = tbiButtonBrush + item_state;
+			int   pen_id = tbiButtonPen + item_state;
+			int   text_pen_id = tbiButtonTextColor + item_state;
+			if(item_state) {
+				if(!p_tb->GetObj(brush_id))
+					brush_id -= item_state;
+				if(!p_tb->GetObj(pen_id))
+					pen_id -= item_state;
+				if(!p_tb->GetObj(text_pen_id))
+					text_pen_id -= item_state;
+			}
 			{
-				//SETIFZ(dv_id, PPDV_TESTFLOWER);
-				TWhatmanToolArray::Item tool_item;
-				const SDrawFigure * p_fig = DvToolList.GetFigById(1, dv_id, &tool_item);
-				if(p_fig) {
-					if(!tool_item.ReplacedColor.IsEmpty()) {
-						SColor replacement_color;
-						if(item_state == tbisDisable)
-							replacement_color = UiToolBox.GetColor(tbiIconPassiveColor);
-						else
-							replacement_color = UiToolBox.GetColor(tbiIconRegColor);
-						canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+				FRect rect_elem_f(rect_elem);
+				rect_elem_f.Grow(-0.5f, -0.5f);
+				// canv.RoundRect(rect_elem_f, 3, pen_id, brush_id);
+				canv.Rect(rect_elem_f, pen_id, brush_id);
+			}
+			if(draw_text || draw_bitmap) {
+				SETFLAG(text_out_fmt, DT_CENTER, !(draw_text * draw_bitmap));
+				SETFLAG(text_out_fmt, DT_LEFT, draw_text && draw_bitmap);
+			}
+			//
+			{
+				draw_bitmap = 0;
+				{
+					//SETIFZ(dv_id, PPDV_TESTFLOWER);
+					TWhatmanToolArray::Item tool_item;
+					// @v11.9.2 const SDrawFigure * p_fig = DvToolList.GetFigById(1, dv_id, &tool_item);
+					// @v11.9.2 {
+					const TWhatmanToolArray * p_dv_tool_list = GetVectorTools();
+					const SDrawFigure * p_fig = p_dv_tool_list ? p_dv_tool_list->GetFigById(1, dv_id, &tool_item) : 0;
+					// } @v11.9.2 
+					if(p_fig) {
+						if(!tool_item.ReplacedColor.IsEmpty()) {
+							SColor replacement_color;
+							if(item_state == tbisDisable)
+								replacement_color = p_tb->GetColor(tbiIconPassiveColor);
+							else
+								replacement_color = p_tb->GetColor(tbiIconRegColor);
+							canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+						}
+						FRect pic_bounds(rect_elem);
+						if(!erase_text && draw_text) {
+							pic_bounds.a.x = rect_elem.a.x + 2.5f;
+							pic_bounds.a.y = rect_elem.a.y + 2.5f;
+							pic_bounds.b.y = rect_elem.b.y - 2.5f;
+							pic_bounds.b.x = pic_bounds.a.x + pic_bounds.Height();
+							out_r.left += (LONG)pic_bounds.Width();
+						}
+						else {
+							const float min_side = MIN(rect_elem.Width(), rect_elem.Height());
+							pic_bounds.a.SetZero();
+							pic_bounds.b.Set(min_side, min_side);
+							pic_bounds.Grow(/*-2.5f, -2.5f*/-3.5f, -3.5f);
+							pic_bounds.MoveCenterTo(rect_elem.GetCenter());
+						}
+						LMatrix2D mtx;
+						SViewPort vp;
+						canv.PushTransform();
+						p_fig->GetViewPort(&vp);
+						canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+						canv.Draw(p_fig);
+						canv.PopTransform();
+						canv.ResetColorReplacement();
 					}
-					FRect pic_bounds(rect_elem);
-					if(!erase_text && draw_text) {
-						pic_bounds.a.x = rect_elem.a.x + 2.5f;
-						pic_bounds.a.y = rect_elem.a.y + 2.5f;
-						pic_bounds.b.y = rect_elem.b.y - 2.5f;
-						pic_bounds.b.x = pic_bounds.a.x + pic_bounds.Height();
-						out_r.left += (LONG)pic_bounds.Width();
-					}
-					else {
-						const float min_side = MIN(rect_elem.Width(), rect_elem.Height());
-                        pic_bounds.a.SetZero();
-                        pic_bounds.b.Set(min_side, min_side);
-                        pic_bounds.Grow(/*-2.5f, -2.5f*/-3.5f, -3.5f);
-						pic_bounds.MoveCenterTo(rect_elem.GetCenter());
-					}
-					LMatrix2D mtx;
-					SViewPort vp;
-					canv.PushTransform();
-					p_fig->GetViewPort(&vp);
-					canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
-					canv.Draw(p_fig);
-					canv.PopTransform();
-					canv.ResetColorReplacement();
 				}
 			}
-		}
-		//
-		/*
-		if(draw_bitmap) {
-			if(item_state != tbisDisable) {
-				POINT bmp_size;
-				TProgram::DrawTransparentBitmap(canv, hbmp, rect_elem_i, out_r.left, out_r.top, RGB(0xD4, 0xD0, 0xC8), -1, text_out_fmt, &bmp_size);
-				out_r.left += bmp_size.x + 2;
-			}
-		}
-		*/
-		if(erase_text) {
-			// @v9.2.4 TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
-		}
-		else if(draw_text) {
-			HFONT  hf = reinterpret_cast<HFONT>(::SendMessageW(pDi->hwndItem, WM_GETFONT, 0, 0));
-			if(!hf)
-				hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-			int    temp_font_id = 0;
-			if(hf) {
-				LOGFONT f;
-				if(::GetObject(hf, sizeof(f), &f)) {
-					SFontDescr fd(0, 0, 0);
-					fd.SetLogFont(&f);
-					temp_font_id = UiToolBox.CreateFont_(0, fd.Face, fd.Size, fd.Flags);
+			//
+			/*
+			if(draw_bitmap) {
+				if(item_state != tbisDisable) {
+					POINT bmp_size;
+					TProgram::DrawTransparentBitmap(canv, hbmp, rect_elem_i, out_r.left, out_r.top, RGB(0xD4, 0xD0, 0xC8), -1, text_out_fmt, &bmp_size);
+					out_r.left += bmp_size.x + 2;
 				}
 			}
-			if(temp_font_id) {
-				STextLayout tlo;
-				SDrawContext dctx = canv;
-				text_buf.Transf(CTRANSF_OUTER_TO_INNER);
-				if(GetDialogTextLayout(text_buf, temp_font_id, text_pen_id, tlo, draw_bitmap ? ADJ_LEFT : ADJ_CENTER) > 0) {
-					FRect fr(out_r);
-					tlo.SetBounds(fr);
-					tlo.SetOptions(tlo.fVCenter, -1, -1);
-					tlo.Arrange(dctx, UiToolBox);
-					canv.DrawTextLayout(&tlo);
+			*/
+			if(erase_text) {
+				// @v9.2.4 TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
+			}
+			else if(draw_text) {
+				HFONT  hf = reinterpret_cast<HFONT>(::SendMessageW(pDi->hwndItem, WM_GETFONT, 0, 0));
+				if(!hf)
+					hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+				int    temp_font_id = 0;
+				if(hf) {
+					LOGFONT f;
+					if(::GetObject(hf, sizeof(f), &f)) {
+						SFontDescr fd(0, 0, 0);
+						fd.SetLogFont(&f);
+						temp_font_id = p_tb->CreateFont_(0, fd.Face, fd.Size, fd.Flags);
+					}
+				}
+				if(temp_font_id) {
+					STextLayout tlo;
+					SDrawContext dctx = canv;
+					text_buf.Transf(CTRANSF_OUTER_TO_INNER);
+					if(GetDialogTextLayout(text_buf, temp_font_id, text_pen_id, tlo, draw_bitmap ? ADJ_LEFT : ADJ_CENTER) > 0) {
+						FRect fr(out_r);
+						tlo.SetBounds(fr);
+						tlo.SetOptions(tlo.fVCenter, -1, -1);
+						tlo.Arrange(dctx, *p_tb);
+						canv.DrawTextLayout(&tlo);
+					}
 				}
 			}
 		}
@@ -2421,14 +2443,20 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 
 const SDrawFigure * TProgram::LoadDrawFigureBySymb(const char * pSymb, TWhatmanToolArray::Item * pInfo) const
 {
-	const SDrawFigure * p_fig = DvToolList.GetFig(1, pSymb, pInfo);
-	return p_fig;
+	// @v11.9.2 return DvToolList.GetFig(1, pSymb, pInfo);
+	// @v11.9.2 {
+	const TWhatmanToolArray * p_dv_tool_list = GetVectorTools();
+	return p_dv_tool_list ? p_dv_tool_list->GetFig(1, pSymb, pInfo) : 0;
+	// } @v11.9.2 
 }
 
 const SDrawFigure * TProgram::LoadDrawFigureById(uint id, TWhatmanToolArray::Item * pInfo) const
 {
-	const SDrawFigure * p_fig = DvToolList.GetFigById(1, id, pInfo);
-	return p_fig;
+	// @v11.9.2 return DvToolList.GetFigById(1, id, pInfo);
+	// @v11.9.2 {
+	const TWhatmanToolArray * p_dv_tool_list = GetVectorTools();
+	return p_dv_tool_list ? p_dv_tool_list->GetFigById(1, id, pInfo) : 0;
+	// } @v11.9.2 
 }
 
 int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
@@ -2446,31 +2474,33 @@ int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	const  TRect rect_elem_i = pDi->rcItem;
 	const  FRect rect_elem = pDi->rcItem;
 	{
-		TCanvas2 canv(UiToolBox, pDi->hDC);
-
-		int   brush_id = tbiButtonBrush + item_state;
-		int   pen_id = tbiButtonPen + item_state;
-		int   text_pen_id = tbiButtonTextColor + item_state;
-		if(item_state) {
-			if(!UiToolBox.GetObj(brush_id))
-				brush_id -= item_state;
-			if(!UiToolBox.GetObj(pen_id))
-				pen_id -= item_state;
-			if(!UiToolBox.GetObj(text_pen_id))
-				text_pen_id -= item_state;
-		}
-		{
-			FRect rect_elem_f(rect_elem);
-			rect_elem_f.Grow(-0.5f, -0.5f);
-			canv.RoundRect(rect_elem_f, /*3*/0, pen_id, 0/*brush_id*/);
-			//
-			/* test
-			{
-				canv.MoveTo(rect_elem_f.a.AddY(1.0f));
-				canv.LineH(rect_elem_f.b.X);
-				canv.Stroke(tbiIconAlertColor, 0);
+		SPaintToolBox * p_tb = GetUiToolBox();
+		if(p_tb) {
+			TCanvas2 canv(*p_tb, pDi->hDC);
+			int   brush_id = tbiButtonBrush + item_state;
+			int   pen_id = tbiButtonPen + item_state;
+			int   text_pen_id = tbiButtonTextColor + item_state;
+			if(item_state) {
+				if(!p_tb->GetObj(brush_id))
+					brush_id -= item_state;
+				if(!p_tb->GetObj(pen_id))
+					pen_id -= item_state;
+				if(!p_tb->GetObj(text_pen_id))
+					text_pen_id -= item_state;
 			}
-			*/
+			{
+				FRect rect_elem_f(rect_elem);
+				rect_elem_f.Grow(-0.5f, -0.5f);
+				canv.RoundRect(rect_elem_f, /*3*/0, pen_id, 0/*brush_id*/);
+				//
+				/* test
+				{
+					canv.MoveTo(rect_elem_f.a.AddY(1.0f));
+					canv.LineH(rect_elem_f.b.X);
+					canv.Stroke(tbiIconAlertColor, 0);
+				}
+				*/
+			}
 		}
 	}
 	return ok;

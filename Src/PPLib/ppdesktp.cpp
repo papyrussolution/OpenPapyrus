@@ -1,5 +1,5 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -789,31 +789,34 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 					// @v10.7.8 {
 					TWhatmanToolArray::Item tool_item;
 					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(icon_id, &tool_item);
-					const uint _w = IconSize;
-					const uint _h = IconSize;
-					SImageBuffer ib(_w, _h);
-					{
-						TCanvas2 canv_temp(APPL->GetUiToolBox(), ib);
-						if(!tool_item.ReplacedColor.IsEmpty()) {
-							SColor replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
-							canv_temp.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+					SPaintToolBox * p_tb = APPL->GetUiToolBox();
+					if(p_tb && p_fig) {
+						const uint _w = IconSize;
+						const uint _h = IconSize;
+						SImageBuffer ib(_w, _h);
+						{
+							TCanvas2 canv_temp(*p_tb, ib);
+							if(!tool_item.ReplacedColor.IsEmpty()) {
+								SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
+								canv_temp.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+							}
+							LMatrix2D mtx;
+							SViewPort vp;
+							FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
+							//pic_bounds.a.SetZero();
+							//pic_bounds.b.Set(static_cast<float>(_w), static_cast<float>(_h));
+							//
+							canv_temp.Rect(pic_bounds);
+							//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
+							canv_temp.Fill(SColor(0xd4, 0xf0, 0xf0, 255), 0); // Прозрачный фон
+							canv_temp.PushTransform();
+							p_fig->GetViewPort(&vp);
+							canv_temp.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+							canv_temp.Draw(p_fig);
 						}
-						LMatrix2D mtx;
-						SViewPort vp;
-						FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
-						//pic_bounds.a.SetZero();
-						//pic_bounds.b.Set(static_cast<float>(_w), static_cast<float>(_h));
-						//
-						canv_temp.Rect(pic_bounds);
-						//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
-						canv_temp.Fill(SColor(0xd4, 0xf0, 0xf0, 255), 0); // Прозрачный фон
-						canv_temp.PushTransform();
-						p_fig->GetViewPort(&vp);
-						canv_temp.AddTransform(vp.GetMatrix(pic_bounds, mtx));
-						canv_temp.Draw(p_fig);
+						h_icon = static_cast<HICON>(ib.TransformToIcon());
+						// } @v10.7.8 
 					}
-					h_icon = static_cast<HICON>(ib.TransformToIcon());
-					// } @v10.7.8 
 				}
 				else
 					h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(icon_id));

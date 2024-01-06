@@ -26,7 +26,7 @@ template <class Char> struct edist_seq {
 	edist_seq(const Char* ptr_, int len_) : ptr(ptr_), len(len_) 
 	{
 	}
-	const Char* ptr;
+	const Char * ptr;
 	int len;
 };
 
@@ -34,8 +34,8 @@ template <class Char> class edist_state {
 	edist_state & operator = (const edist_state &) = delete; /// Don't allow assignment.
 	edist_state(const edist_state &) = delete; /// Don't allow copying.
 
-	edist_seq<Char> seq1;
-	edist_seq<Char> seq2;
+	edist_seq <Char> seq1;
+	edist_seq <Char> seq2;
 	/* Array of f(k,p) values, where f(k,p) = the largest index i such that
 	 * d(i,j) = p and d(i,j) is on diagonal k.
 	 * ie: f(k,p) = largest i s.t. d(i,k+i) = p
@@ -94,10 +94,10 @@ template <class Char> void edist_state<Char>::edist_calc_f_kp(int k, int p)
 	}
 	else {
 		if(maxlen2 >= maxlen3) {
-			maxlen = maxlen2; // Insertion.
+			maxlen = maxlen2/*Insertion*/;
 		}
 		else {
-			maxlen = maxlen3; // Deletion.
+			maxlen = maxlen3/*Deletion*/;
 		}
 	}
 	// Check for exact matches, and increase the length until we don't have one. 
@@ -110,7 +110,7 @@ template <class Char> void edist_state<Char>::edist_calc_f_kp(int k, int p)
 template <class Char> static int seqcmp_editdist(const Char* ptr1, int len1, const Char* ptr2, int len2, int* fkp_, int max_distance)
 {
 	int lendiff = len2 - len1;
-	/* Make sure second sequence is longer (or same length). */
+	// Make sure second sequence is longer (or same length)
 	if(lendiff < 0) {
 		lendiff = -lendiff;
 		swap(ptr1, ptr2);
@@ -152,7 +152,7 @@ int EditDistanceCalculator::calc(const uint * ptr, int len, int max_distance) co
 	// doesn't change it at all.  But each substitution can change it by 2 so
 	// we need to divide it by 2.  We round up since the unpaired change must
 	// be due to an actual edit.
-	int ed_lower_bound = (popcount(freqs ^ target_freqs) + 1) / 2;
+	int ed_lower_bound = (/*popcount*/SBits::Cpop(freqs ^ target_freqs) + 1) / 2;
 	if(ed_lower_bound > max_distance) {
 		// It's OK to return any distance > max_distance if the true answer is > max_distance.
 		return ed_lower_bound;

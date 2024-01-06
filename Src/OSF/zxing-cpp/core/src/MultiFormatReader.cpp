@@ -34,7 +34,7 @@ MultiFormatReader::~MultiFormatReader() = default;
 Result MultiFormatReader::read(const BinaryBitmap& image) const
 {
 	Result r;
-	for(const auto& reader : _readers) {
+	for(const auto & reader : _readers) {
 		r = reader->decode(image);
 		if(r.isValid())
 			return r;
@@ -45,13 +45,13 @@ Result MultiFormatReader::read(const BinaryBitmap& image) const
 Results MultiFormatReader::readMultiple(const BinaryBitmap& image, int maxSymbols) const
 {
 	std::vector<Result> res;
-	for(const auto& reader : _readers) {
+	for(const auto & reader : _readers) {
 		if(image.inverted() && !reader->supportsInversion)
 			continue;
 		auto r = reader->decode(image, maxSymbols);
 		if(!_hints.returnErrors()) {
 			//TODO: C++20 res.erase_if()
-			auto it = std::remove_if(res.begin(), res.end(), [](auto&& r) { return !r.isValid(); });
+			auto it = std::remove_if(res.begin(), res.end(), [](auto && r) { return !r.isValid(); });
 			res.erase(it, res.end());
 		}
 		maxSymbols -= Size(r);

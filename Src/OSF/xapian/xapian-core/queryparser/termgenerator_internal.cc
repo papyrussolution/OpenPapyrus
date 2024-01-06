@@ -692,20 +692,20 @@ string MSet::Internal::snippet(const string &text, size_t length, const Xapian::
 	check_query(query, exact_phrases, loose_terms, wildcards, fuzzies, longest_phrase);
 	vector <double> exact_phrases_relevance;
 	exact_phrases_relevance.reserve(exact_phrases.size());
-	for(auto&& terms : exact_phrases) {
+	for(auto && terms : exact_phrases) {
 		// FIXME: What relevance to use?
 		exact_phrases_relevance.push_back(max_tw * terms.size());
 	}
 	vector <double> wildcards_relevance;
 	wildcards_relevance.reserve(wildcards.size());
-	for(auto&& pattern : wildcards) {
+	for(auto && pattern : wildcards) {
 		// FIXME: What relevance to use?
 		(void)pattern;
 		wildcards_relevance.push_back(max_tw + min_tw);
 	}
 	vector <double> fuzzies_relevance;
 	fuzzies_relevance.reserve(fuzzies.size());
-	for(auto&& pattern : fuzzies) {
+	for(auto && pattern : fuzzies) {
 		// FIXME: What relevance to use?
 		(void)pattern;
 		fuzzies_relevance.push_back(max_tw + min_tw);
@@ -733,7 +733,7 @@ string MSet::Internal::snippet(const string &text, size_t length, const Xapian::
 			size_t highlight = 0;
 			if(stats) {
 				size_t i = 0;
-				for(auto&& terms : exact_phrases) {
+				for(auto && terms : exact_phrases) {
 					if(term == terms.back()) {
 						size_t n = terms.size() - 1;
 						bool match = true;
@@ -769,7 +769,7 @@ string MSet::Internal::snippet(const string &text, size_t length, const Xapian::
 				// Check wildcards.
 				// FIXME: Sort wildcards, cheapest to check first or something?
 				i = 0;
-				for(auto&& qw : wildcards) {
+				for(auto && qw : wildcards) {
 					if(qw->test(term)) {
 						relevance = &wildcards_relevance[i];
 						highlight = 1;
@@ -780,7 +780,7 @@ string MSet::Internal::snippet(const string &text, size_t length, const Xapian::
 		        // Check fuzzies.
 		        // FIXME: Sort fuzzies, cheapest to check first or something?
 				i = 0;
-				for(auto&& qed : fuzzies) {
+				for(auto && qed : fuzzies) {
 					// test() returns 0 for no match, or edit_distance + 1.
 					int ed_result = qed->test(term);
 					if(ed_result) {

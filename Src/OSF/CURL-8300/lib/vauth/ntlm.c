@@ -747,14 +747,10 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 		unicodecpy(&ntlmbuf[size], host, hostlen / 2);
 	else
 		memcpy(&ntlmbuf[size], host, hostlen);
-
 	size += hostlen;
-
 	/* Return the binary blob. */
 	result = Curl_bufref_memdup(out, ntlmbuf, size);
-
 	Curl_auth_cleanup_ntlm(ntlm);
-
 	return result;
 }
 

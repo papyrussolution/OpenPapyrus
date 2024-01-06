@@ -2597,9 +2597,12 @@ int SImageBuffer::StoreBmp(const StoreParam & rP, SFile & rF) const
 					y = _h - y - 1;
 				#endif
 					uint8 * p = p_bmp_pix_start + y * (_w * 3 + pad) + x * 3;
-					p[0]  = static_cast<uchar>(GetRValue(pix));
-					p[1]  = static_cast<uchar>(GetGValue(pix));
-					p[2]  = static_cast<uchar>(GetBValue(pix));
+					// @v11.9.2 p[0]  = static_cast<uchar>(GetRValue(pix)); 
+					// @v11.9.2 p[1]  = static_cast<uchar>(GetGValue(pix));
+					// @v11.9.2 p[2]  = static_cast<uchar>(GetBValue(pix));
+					p[0]  = static_cast<uchar>(GetBValue(pix)); // @v11.9.2 
+					p[1]  = static_cast<uchar>(GetGValue(pix)); // @v11.9.2 
+					p[2]  = static_cast<uchar>(GetRValue(pix)); // @v11.9.2 
 				}
 				uboffs += 4;
 			}

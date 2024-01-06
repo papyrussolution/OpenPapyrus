@@ -887,11 +887,11 @@ HTREEITEM FileBrowser::createFolderItemsFromDirStruct(HTREEITEM hParentItem, con
 			reinterpret_cast<LPARAM>(customData));
 	}
 
-	for(const auto& folder : directoryStructure._subFolders) {
+	for(const auto & folder : directoryStructure._subFolders) {
 		createFolderItemsFromDirStruct(hFolderItem, folder);
 	}
 
-	for(const auto& file : directoryStructure._files) {
+	for(const auto & file : directoryStructure._files) {
 		SortingData4lParam* customData = new SortingData4lParam(TEXT(""), file._name, false);
 		sortingDataArray.push_back(customData);
 
@@ -1240,7 +1240,7 @@ bool FolderInfo::addToStructure(generic_string & fullpath, std::vector <generic_
 		fullpath += linarPathArray[0];
 		if(PathIsDirectory(fullpath.c_str())) {
 			// search in folders, if found - no good
-			for(const auto& folder : _subFolders) {
+			for(const auto & folder : _subFolders) {
 				if(linarPathArray[0] == folder.getName())
 					return false; // Maybe already added?
 			}
@@ -1249,7 +1249,7 @@ bool FolderInfo::addToStructure(generic_string & fullpath, std::vector <generic_
 		}
 		else {
 			// search in files, if found - no good
-			for(const auto& file : _files) {
+			for(const auto & file : _files) {
 				if(linarPathArray[0] == file.getName())
 					return false; // Maybe already added?
 			}
@@ -1258,7 +1258,7 @@ bool FolderInfo::addToStructure(generic_string & fullpath, std::vector <generic_
 		}
 	}
 	else { // folder
-		for(auto& folder : _subFolders) {
+		for(auto & folder : _subFolders) {
 			if(folder.getName() == linarPathArray[0]) {
 				fullpath += TEXT("\\");
 				fullpath += linarPathArray[0];
@@ -1302,7 +1302,7 @@ bool FolderInfo::removeFromStructure(std::vector <generic_string> linarPathArray
 bool FolderInfo::renameInStructure(std::vector <generic_string> linarPathArrayFrom, std::vector <generic_string> linarPathArrayTo)
 {
 	if(linarPathArrayFrom.size() == 1) { // could be file or folder
-		for(auto& file : _files) {
+		for(auto & file : _files) {
 			if(file.getName() == linarPathArrayFrom[0]) {
 				// rename this file
 				file.setName(linarPathArrayTo[0]);
@@ -1310,7 +1310,7 @@ bool FolderInfo::renameInStructure(std::vector <generic_string> linarPathArrayFr
 			}
 		}
 
-		for(auto& folder : _subFolders) {
+		for(auto & folder : _subFolders) {
 			if(folder.getName() == linarPathArrayFrom[0]) {
 				// rename this folder
 				folder.setName(linarPathArrayTo[0]);
@@ -1320,7 +1320,7 @@ bool FolderInfo::renameInStructure(std::vector <generic_string> linarPathArrayFr
 		return false;
 	}
 	else { // folder
-		for(auto& folder : _subFolders) {
+		for(auto & folder : _subFolders) {
 			if(folder.getName() == linarPathArrayFrom[0]) {
 				linarPathArrayFrom.erase(linarPathArrayFrom.begin());
 				linarPathArrayTo.erase(linarPathArrayTo.begin());

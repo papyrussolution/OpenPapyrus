@@ -224,7 +224,7 @@ static bool Insert(PairMap& all, Pairs&& row)
 {
 	bool res = false;
 	for(const Pair& pair : row) {
-		auto& pairs = all[pair.finder];
+		auto & pairs = all[pair.finder];
 		if(auto i = Find(pairs, pair); i != pairs.end()) {
 			i->count++;
 			// bubble sort the pairs with the highest view count to the front so we test them first in
@@ -253,7 +253,7 @@ static bool FindValidSequence(const PairMap& all, ITER begin, ITER end, Pairs& s
 		// is N^11 (11 is the maximum sequence length).
 		constexpr int N = 2;
 		// TODO c++20 ranges::views::take()
-		auto& pairs = ppairs->second;
+		auto & pairs = ppairs->second;
 		int n = 0;
 		for(auto p = pairs.begin(), pend = pairs.end(); p != pend && n < N; ++p, ++n) {
 			// skip p if it is a half-pair but not the last one in the sequence
@@ -275,12 +275,12 @@ static bool FindValidSequence(const PairMap& all, ITER begin, ITER end, Pairs& s
 static Pairs FindValidSequence(PairMap& all)
 {
 	Pairs stack;
-	for(const auto& first : all[FINDER_A]) {
+	for(const auto & first : all[FINDER_A]) {
 		int sequenceIndex = SequenceIndex(first.left);
 		// if we have not seen enough pairs to possibly complete the sequence, wait for more
 		if(Size(all) < sequenceIndex + 2)
 			continue;
-		auto& sequence = FINDER_PATTERN_SEQUENCES[sequenceIndex];
+		auto & sequence = FINDER_PATTERN_SEQUENCES[sequenceIndex];
 		stack.push_back(first);
 		// recursively fill the stack with pairs according to the valid finder sequence
 		if(FindValidSequence(all, std::next(std::begin(sequence)), std::end(sequence), stack))
@@ -292,7 +292,7 @@ static Pairs FindValidSequence(PairMap& all)
 
 static void RemovePairs(PairMap& all, const Pairs& pairs)
 {
-	for(const auto& p : pairs)
+	for(const auto & p : pairs)
 		if(auto i = Find(all[p.finder], p); i != all[p.finder].end())
 			if(--i->count == 0)
 				all[p.finder].erase(i);
@@ -323,7 +323,7 @@ Result DataBarExpandedReader::decodePattern(int rowNumber, PatternView& view, st
 #else
 	if(!state)
 		state.reset(new DBERState);
-	auto& allPairs = static_cast<DBERState*>(state.get())->allPairs;
+	auto & allPairs = static_cast<DBERState*>(state.get())->allPairs;
 	// Stacked codes can be laid out in a number of ways. The following rules apply:
 	//  * the first row starts with FINDER_A in left-to-right (l2r) layout
 	//  * pairs in l2r layout start with a space, r2l ones with a bar
