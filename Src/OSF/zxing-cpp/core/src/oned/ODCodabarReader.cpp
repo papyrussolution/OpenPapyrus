@@ -22,11 +22,8 @@ static_assert(Size(ALPHABET) - 1 == Size(CHARACTER_ENCODINGS), "table size misma
 
 // some industries use a checksum standard but this is not part of the original codabar standard
 // for more information see : http://www.mecsw.com/specs/codabar.html
-
-// each character has 4 bars and 3 spaces
-constexpr int CHAR_LEN = 7;
-// quiet zone is half the width of a character symbol
-constexpr float QUIET_ZONE_SCALE = 0.5f;
+constexpr int CHAR_LEN = 7; // each character has 4 bars and 3 spaces
+constexpr float QUIET_ZONE_SCALE = 0.5f; // quiet zone is half the width of a character symbol
 
 // official start and stop symbols are "ABCD"
 // some codabar generator allow the codabar string to be closed by every

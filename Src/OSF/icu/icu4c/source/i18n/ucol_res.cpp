@@ -304,7 +304,8 @@ const CollationCacheEntry * CollationLoader::loadFromBundle(UErrorCode & errorCo
 	}
 }
 
-const CollationCacheEntry * CollationLoader::loadFromCollations(UErrorCode & errorCode) {
+const CollationCacheEntry * CollationLoader::loadFromCollations(UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}

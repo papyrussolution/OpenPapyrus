@@ -99,18 +99,15 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 		}
 		else
 			gs_doit[0] = gs_doit[1] = gs_doit[2] = gs_doit[3] = 1;
-
 		for(l2 = j = 0; j < num; j++) {
 			if(!gs_doit[j & 3])
 				continue;
 			l2++;
 			if(q[j] == '/' || q[j] == '+')
 				l2++; /* char needs to be escaped */
-			else if((ossl_toascii(q[j]) < ossl_toascii(' ')) ||
-			    (ossl_toascii(q[j]) > ossl_toascii('~')))
+			else if((ossl_toascii(q[j]) < ossl_toascii(' ')) || (ossl_toascii(q[j]) > ossl_toascii('~')))
 				l2 += 3;
 		}
-
 		lold = l;
 		l += 1 + l1 + 1 + l2;
 		if(l > NAME_ONELINE_MAX) {

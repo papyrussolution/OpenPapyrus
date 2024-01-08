@@ -135,29 +135,22 @@ static int t_tob64(char * dst, const uchar * src, int size)
 	int outl = 0, outl2 = 0;
 	unsigned char pad[2] = {0, 0};
 	size_t leadz = 0;
-
 	if(!ctx)
 		return 0;
-
 	EVP_EncodeInit(ctx);
-	evp_encode_ctx_set_flags(ctx, EVP_ENCODE_CTX_NO_NEWLINES
-	    | EVP_ENCODE_CTX_USE_SRP_ALPHABET);
-
+	evp_encode_ctx_set_flags(ctx, EVP_ENCODE_CTX_NO_NEWLINES | EVP_ENCODE_CTX_USE_SRP_ALPHABET);
 	/*
 	 * We pad at the front with zero bytes until the length is a multiple of 3
 	 * so that EVP_EncodeUpdate/EVP_EncodeFinal does not add any of its own "="
 	 * padding
 	 */
 	leadz = 3 - (size % 3);
-	if(leadz != 3
-	    && !EVP_EncodeUpdate(ctx, (uchar *)dst, &outl, pad,
-	    leadz)) {
+	if(leadz != 3 && !EVP_EncodeUpdate(ctx, (uchar *)dst, &outl, pad, leadz)) {
 		EVP_ENCODE_CTX_free(ctx);
 		return 0;
 	}
 
-	if(!EVP_EncodeUpdate(ctx, (uchar *)dst + outl, &outl2, src,
-	    size)) {
+	if(!EVP_EncodeUpdate(ctx, (uchar *)dst + outl, &outl2, src, size)) {
 		EVP_ENCODE_CTX_free(ctx);
 		return 0;
 	}

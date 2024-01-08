@@ -58,8 +58,7 @@ bool DecodeExtendedCode39AndCode93(std::string& encoded, const char ctrl[4]);
 
 constexpr int CHAR_LEN = 6;
 constexpr int CHAR_SUM = 9;
-// quiet zone is half the width of a character symbol
-constexpr float QUIET_ZONE_SCALE = 0.5f;
+constexpr float QUIET_ZONE_SCALE = 0.5f; // quiet zone is half the width of a character symbol
 
 static bool IsStartGuard(const PatternView& window, int spaceInPixel)
 {

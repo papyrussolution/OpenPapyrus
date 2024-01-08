@@ -822,14 +822,10 @@ static DetectorResult Scan(EdgeTracer& startTracer, std::array<DMRegressionLine,
 			movedTowardsBy(br, bl, tr, 0.5f),
 			movedTowardsBy(bl, tl, br, 0.5f),
 		};
-
 		auto res = SampleGrid(*startTracer.img, dimT, dimR, PerspectiveTransform(Rectangle(dimT, dimR, 0), sourcePoints));
-
 		CHECK(res.isValid());
-
 		return res;
 	}
-
 	return {};
 }
 

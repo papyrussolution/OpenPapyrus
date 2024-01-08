@@ -2305,8 +2305,7 @@ const ImWchar*   ImFontAtlas::GetGlyphRangesGreek()
 
 const ImWchar*  ImFontAtlas::GetGlyphRangesKorean()
 {
-	static const ImWchar ranges[] =
-	{
+	static const ImWchar ranges[] = {
 		0x0020, 0x00FF, // Basic Latin + Latin Supplement
 		0x3131, 0x3163, // Korean alphabets
 		0xAC00, 0xD7A3, // Korean characters

@@ -126,102 +126,62 @@ public:
 	bool IsAggregate() const { return type() == MESSAGE || type() == PACKAGE || type() == ENUM || type() == SERVICE; }
 	const FileDescriptor* GetFile() const {
 		switch(type()) {
-			case MESSAGE:
-			    return descriptor()->file();
-			case FIELD:
-			    return field_descriptor()->file();
-			case ONEOF:
-			    return oneof_descriptor()->containing_type()->file();
-			case ENUM:
-			    return enum_descriptor()->file();
-			case ENUM_VALUE:
-			    return enum_value_descriptor()->type()->file();
-			case SERVICE:
-			    return service_descriptor()->file();
-			case METHOD:
-			    return method_descriptor()->service()->file();
-			case PACKAGE:
-			    return package_file_descriptor()->file;
-			default:
-			    return nullptr;
+			case MESSAGE: return descriptor()->file();
+			case FIELD: return field_descriptor()->file();
+			case ONEOF: return oneof_descriptor()->containing_type()->file();
+			case ENUM: return enum_descriptor()->file();
+			case ENUM_VALUE: return enum_value_descriptor()->type()->file();
+			case SERVICE: return service_descriptor()->file();
+			case METHOD: return method_descriptor()->service()->file();
+			case PACKAGE: return package_file_descriptor()->file;
+			default: return nullptr;
 		}
 	}
 
 	StringPiece full_name() const {
 		switch(type()) {
-			case MESSAGE:
-			    return descriptor()->full_name();
-			case FIELD:
-			    return field_descriptor()->full_name();
-			case ONEOF:
-			    return oneof_descriptor()->full_name();
-			case ENUM:
-			    return enum_descriptor()->full_name();
-			case ENUM_VALUE:
-			    return enum_value_descriptor()->full_name();
-			case SERVICE:
-			    return service_descriptor()->full_name();
-			case METHOD:
-			    return method_descriptor()->full_name();
-			case PACKAGE:
-			    return *package_file_descriptor()->name;
-			case QUERY_KEY:
-			    return query_key()->name;
-			default:
-			    GOOGLE_CHECK(false);
+			case MESSAGE: return descriptor()->full_name();
+			case FIELD: return field_descriptor()->full_name();
+			case ONEOF: return oneof_descriptor()->full_name();
+			case ENUM: return enum_descriptor()->full_name();
+			case ENUM_VALUE: return enum_value_descriptor()->full_name();
+			case SERVICE: return service_descriptor()->full_name();
+			case METHOD: return method_descriptor()->full_name();
+			case PACKAGE: return *package_file_descriptor()->name;
+			case QUERY_KEY: return query_key()->name;
+			default: GOOGLE_CHECK(false);
 		}
 		return "";
 	}
-
-	std::pair<const void*, StringPiece> parent_name_key() const {
-		const auto or_file = [&](const void* p) {
-			    return p ? p : GetFile();
-		    };
+	std::pair<const void*, StringPiece> parent_name_key() const 
+	{
+		const auto or_file = [&](const void* p) { return p ? p : GetFile(); };
 		switch(type()) {
-			case MESSAGE:
-			    return {or_file(descriptor()->containing_type()), descriptor()->name()};
+			case MESSAGE: return {or_file(descriptor()->containing_type()), descriptor()->name()};
 			case FIELD: {
 			    auto* field = field_descriptor();
 			    return {or_file(field->is_extension() ? field->extension_scope()
 					: field->containing_type()),
 				    field->name()};
 		    }
-			case ONEOF:
-			    return {oneof_descriptor()->containing_type(),
-				    oneof_descriptor()->name()};
-			case ENUM:
-			    return {or_file(enum_descriptor()->containing_type()),
-				    enum_descriptor()->name()};
-			case ENUM_VALUE:
-			    return {or_file(enum_value_descriptor()->type()->containing_type()),
-				    enum_value_descriptor()->name()};
-			case ENUM_VALUE_OTHER_PARENT:
-			    return {enum_value_descriptor()->type(),
-				    enum_value_descriptor()->name()};
-			case SERVICE:
-			    return {GetFile(), service_descriptor()->name()};
-			case METHOD:
-			    return {method_descriptor()->service(), method_descriptor()->name()};
-			case QUERY_KEY:
-			    return {query_key()->parent, query_key()->name};
-			default:
-			    GOOGLE_CHECK(false);
+			case ONEOF: return {oneof_descriptor()->containing_type(), oneof_descriptor()->name()};
+			case ENUM: return {or_file(enum_descriptor()->containing_type()), enum_descriptor()->name()};
+			case ENUM_VALUE: return {or_file(enum_value_descriptor()->type()->containing_type()), enum_value_descriptor()->name()};
+			case ENUM_VALUE_OTHER_PARENT: return {enum_value_descriptor()->type(), enum_value_descriptor()->name()};
+			case SERVICE: return {GetFile(), service_descriptor()->name()};
+			case METHOD: return {method_descriptor()->service(), method_descriptor()->name()};
+			case QUERY_KEY: return {query_key()->parent, query_key()->name};
+			default: GOOGLE_CHECK(false);
 		}
 		return {};
 	}
 
 	std::pair<const void*, int> parent_number_key() const {
 		switch(type()) {
-			case FIELD:
-			    return {field_descriptor()->containing_type(),
-				    field_descriptor()->number()};
-			case ENUM_VALUE:
-			    return {enum_value_descriptor()->type(),
-				    enum_value_descriptor()->number()};
-			case QUERY_KEY:
-			    return {query_key()->parent, query_key()->field_number};
-			default:
-			    GOOGLE_CHECK(false);
+			case FIELD: return {field_descriptor()->containing_type(), field_descriptor()->number()};
+			case ENUM_VALUE: return {enum_value_descriptor()->type(), enum_value_descriptor()->number()};
+			case QUERY_KEY: return {query_key()->parent, query_key()->field_number};
+			default: GOOGLE_CHECK(false);
 		}
 		return {};
 	}
@@ -392,7 +352,8 @@ std::string EnumValueToPascalCase(const std::string & input)
 // Class to remove an enum prefix from enum values.
 class PrefixRemover {
 public:
-	PrefixRemover(StringPiece prefix) {
+	PrefixRemover(StringPiece prefix) 
+	{
 		// Strip underscores and lower-case the prefix.
 		for(char character : prefix) {
 			if(character != '_') {
@@ -400,10 +361,10 @@ public:
 			}
 		}
 	}
-
 	// Tries to remove the enum prefix from this enum value.
 	// If this is not possible, returns the input verbatim.
-	std::string MaybeRemove(StringPiece str) {
+	std::string MaybeRemove(StringPiece str) 
+	{
 		// We can't just lowercase and strip str and look for a prefix.
 		// We need to properly recognize the difference between:
 		//

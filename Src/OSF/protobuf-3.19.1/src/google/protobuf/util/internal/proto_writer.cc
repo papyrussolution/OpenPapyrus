@@ -377,8 +377,7 @@ std::string ProtoWriter::ProtoElement::ToString() const {
 		    now->parent()->parent_field_ != now->parent_field_) {
 			std::string name = now->parent_field_->name();
 			int i = 0;
-			while(i < name.size() &&
-			    (ascii_isalnum(name[i]) || name[i] == '_'))
+			while(i < name.size() && (ascii_isalnum(name[i]) || name[i] == '_'))
 				++i;
 			if(i > 0 && i == name.size()) { // safe field name
 				if(loc.empty()) {

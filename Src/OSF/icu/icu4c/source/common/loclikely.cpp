@@ -483,17 +483,10 @@ static bool U_CALLCONV createLikelySubtagsString(const char * lang, int32_t lang
 		if(U_FAILURE(*err)) {
 			goto error;
 		}
-
-		likelySubtags =
-		    findLikelySubtags(
-			tagBuffer.data(),
-			likelySubtagsBuffer,
-			sizeof(likelySubtagsBuffer),
-			err);
+		likelySubtags = findLikelySubtags(tagBuffer.data(), likelySubtagsBuffer, sizeof(likelySubtagsBuffer), err);
 		if(U_FAILURE(*err)) {
 			goto error;
 		}
-
 		if(likelySubtags != NULL) {
 			/* Always use the language tag from the
 			   maximal string, since it may be more

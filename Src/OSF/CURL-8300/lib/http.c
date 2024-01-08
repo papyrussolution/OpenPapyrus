@@ -1678,15 +1678,12 @@ enum proxy_use {
 /* used to compile the provided trailers into one buffer
    will return an error code if one of the headers is
    not formatted correctly */
-CURLcode Curl_http_compile_trailers(struct curl_slist * trailers,
-    struct dynbuf * b,
-    struct Curl_easy * handle)
+CURLcode Curl_http_compile_trailers(struct curl_slist * trailers, struct dynbuf * b, struct Curl_easy * handle)
 {
 	char * ptr = NULL;
 	CURLcode result = CURLE_OK;
 	const char * endofline_native = NULL;
 	const char * endofline_network = NULL;
-
 	if(
 #ifdef CURL_DO_LINEEND_CONV
 		(handle->state.prefer_ascii) ||
@@ -1700,7 +1697,6 @@ CURLcode Curl_http_compile_trailers(struct curl_slist * trailers,
 		endofline_native  = "\r\n";
 		endofline_network = "\x0d\x0a";
 	}
-
 	while(trailers) {
 		/* only add correctly formatted trailers */
 		ptr = strchr(trailers->data, ':');
@@ -1720,8 +1716,7 @@ CURLcode Curl_http_compile_trailers(struct curl_slist * trailers,
 	return result;
 }
 
-static bool hd_name_eq(const char * n1, size_t n1len,
-    const char * n2, size_t n2len)
+static bool hd_name_eq(const char * n1, size_t n1len, const char * n2, size_t n2len)
 {
 	if(n1len == n2len) {
 		return strncasecompare(n1, n2, n1len);
@@ -1729,9 +1724,7 @@ static bool hd_name_eq(const char * n1, size_t n1len,
 	return FALSE;
 }
 
-CURLcode Curl_dynhds_add_custom(struct Curl_easy * data,
-    bool is_connect,
-    struct dynhds * hds)
+CURLcode Curl_dynhds_add_custom(struct Curl_easy * data, bool is_connect, struct dynhds * hds)
 {
 	struct connectdata * conn = data->conn;
 	char * ptr;

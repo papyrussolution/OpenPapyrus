@@ -340,16 +340,13 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 				const char16_t * canonicalInCache = (const char16_t *)uhash_get(gCanonicalIDCache, canonicalID);
 				if(canonicalInCache == NULL) {
 					canonicalInCache = (const char16_t *)uhash_put(gCanonicalIDCache,
-						(void *)canonicalID,
-						(void *)canonicalID,
-						&status);
+						(void *)canonicalID, (void *)canonicalID, &status);
 					U_ASSERT(canonicalInCache == NULL);
 				}
 			}
 		}
 		umtx_unlock(&gZoneMetaLock);
 	}
-
 	return canonicalID;
 }
 

@@ -150,20 +150,20 @@ void AsciiStrToLower(std::string* s)
 	}
 }
 
-void AsciiStrToUpper(std::string* s) {
+void AsciiStrToUpper(std::string* s) 
+{
 	for(auto & ch : *s) {
 		ch = absl::ascii_toupper(ch);
 	}
 }
 
-void RemoveExtraAsciiWhitespace(std::string* str) {
+void RemoveExtraAsciiWhitespace(std::string* str) 
+{
 	auto stripped = StripAsciiWhitespace(*str);
-
 	if(stripped.empty()) {
 		str->clear();
 		return;
 	}
-
 	auto input_it = stripped.begin();
 	auto input_end = stripped.end();
 	auto output_it = &(*str)[0];

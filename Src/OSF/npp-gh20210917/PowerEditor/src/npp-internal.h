@@ -3200,14 +3200,12 @@ struct ColumnModeInfo {
 	int _nbVirtualCaretSpc = 0;
 	int _nbVirtualAnchorSpc = 0;
 
-	ColumnModeInfo(int lPos, int rPos, int order, bool dir = L2R, int vAnchorNbSpc = 0, int vCaretNbSpc = 0)
-		: _selLpos(lPos), _selRpos(rPos), _order(order), _direction(dir), _nbVirtualAnchorSpc(vAnchorNbSpc), _nbVirtualCaretSpc(
-			vCaretNbSpc){
+	ColumnModeInfo(int lPos, int rPos, int order, bool dir = L2R, int vAnchorNbSpc = 0, int vCaretNbSpc = 0) : 
+		_selLpos(lPos), _selRpos(rPos), _order(order), _direction(dir), _nbVirtualAnchorSpc(vAnchorNbSpc), 
+		_nbVirtualCaretSpc(vCaretNbSpc)
+	{
 	};
-
-	bool isValid() const {
-		return (_order >= 0 && _selLpos >= 0 && _selRpos >= 0 && _selLpos <= _selRpos);
-	};
+	bool isValid() const { return (_order >= 0 && _selLpos >= 0 && _selRpos >= 0 && _selLpos <= _selRpos); };
 };
 
 //

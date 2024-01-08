@@ -64,7 +64,8 @@ static int is_valid_mbc_string(const uchar * p, const uchar * end)
 		}
 		else if(*p < 0xff) {
 			p++;
-			if(p >= end) return FALSE;
+			if(p >= end) 
+				return FALSE;
 			if(*p < 0xa1 || *p == 0xff)
 				return FALSE;
 			p++;
@@ -118,9 +119,7 @@ static uchar * euckr_left_adjust_char_head(const uchar * start, const uchar * s)
 static int euckr_is_allowed_reverse_match(const uchar * s, const uchar * end ARG_UNUSED)
 {
 	const uchar c = *s;
-	if(c <= 0x7e) 
-		return TRUE;
-	else return FALSE;
+	return (c <= 0x7e) ? TRUE : FALSE;
 }
 
 OnigEncodingType OnigEncodingEUC_KR = {

@@ -129,24 +129,16 @@ public:
 				shift = false;
 			}
 		}
-
 		return true;
 	}
-
 	std::string text() const
 	{
 		// Need to pull out the check digit(s) from string (if the checksum code happened to
 		// be a printable character).
 		return txt.substr(0, lastTxtSize);
 	}
-
-	SymbologyIdentifier symbologyIdentifier() const {
-		return _symbologyIdentifier;
-	}
-
-	bool readerInit() const {
-		return _readerInit;
-	}
+	SymbologyIdentifier symbologyIdentifier() const { return _symbologyIdentifier; }
+	bool readerInit() const { return _readerInit; }
 };
 
 // all 3 start patterns share the same 2-1-1 prefix

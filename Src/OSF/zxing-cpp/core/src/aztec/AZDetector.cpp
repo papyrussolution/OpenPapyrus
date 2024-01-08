@@ -406,18 +406,14 @@ DetectorResults Detect(const BitMatrix& image, bool isPure, bool tryHarder, int 
 		int dim = radius == 5 ? 4 * nbLayers + 11 : 4 * nbLayers + 2 * ((2 * nbLayers + 6) / 15) + 15;
 		double low = dim / 2.0 + srcQuad[0].x;
 		double high = dim / 2.0 + srcQuad[2].x;
-
-		auto bits = SampleGrid(image, dim, dim, PerspectiveTransform{{PointF{low, low}, {high, low}, {high, high}, {low, high}},
-									     *fpQuad});
+		auto bits = SampleGrid(image, dim, dim, PerspectiveTransform{
+			{PointF{low, low}, {high, low}, {high, high}, {low, high}}, *fpQuad});
 		if(!bits.isValid())
 			continue;
-
 		res.emplace_back(std::move(bits), radius == 5, nbDataBlocks, nbLayers, readerInit, mirror != 0);
-
 		if(Size(res) == maxSymbols)
 			break;
 	}
-
 	return res;
 }
 } // namespace ZXing::Aztec

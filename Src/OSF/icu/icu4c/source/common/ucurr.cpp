@@ -90,7 +90,8 @@ private:
 	const icu::UnicodeString * _current;
 };
 
-const icu::UnicodeString * EquivIterator::next() {
+const icu::UnicodeString * EquivIterator::next() 
+{
 	const icu::UnicodeString * _next = (const icu::UnicodeString *)_hash.get(*_current);
 	if(_next == NULL) {
 		U_ASSERT(_current == _start);

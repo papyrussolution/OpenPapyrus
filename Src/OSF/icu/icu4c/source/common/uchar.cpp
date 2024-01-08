@@ -23,15 +23,13 @@
 #define INCLUDED_FROM_UCHAR_C
 #include "uchar_props_data.h"
 
-/* constants and macros for access to the data ------------------------------ */
-
-/* getting a uint32_t properties word from the data */
-#define GET_PROPS(c, result) ((result) = UTRIE2_GET16(&propsTrie, c))
+#define GET_PROPS(c, result) ((result) = UTRIE2_GET16(&propsTrie, c)) /* getting a uint32_t properties word from the data */
 
 /* API functions ------------------------------------------------------------ */
 
 /* Gets the Unicode character's general category.*/
-U_CAPI int8 U_EXPORT2 u_charType(UChar32 c) {
+U_CAPI int8 U_EXPORT2 u_charType(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (int8)GET_CATEGORY(props);
@@ -43,147 +41,146 @@ struct _EnumTypeCallback {
 	const void * context;
 };
 
-static uint32_t U_CALLCONV _enumTypeValue(const void * context, uint32_t value) {
+static uint32_t U_CALLCONV _enumTypeValue(const void * context, uint32_t value) 
+{
 	(void)context;
 	return GET_CATEGORY(value);
 }
 
-static bool U_CALLCONV _enumTypeRange(const void * context, UChar32 start, UChar32 end, uint32_t value) {
+static bool U_CALLCONV _enumTypeRange(const void * context, UChar32 start, UChar32 end, uint32_t value) 
+{
 	/* just cast the value to UCharCategory */
 	return ((struct _EnumTypeCallback *)context)->
 	       enumRange(((struct _EnumTypeCallback *)context)->context,
 		   start, end+1, (UCharCategory)value);
 }
 
-U_CAPI void U_EXPORT2 u_enumCharTypes(UCharEnumTypeRange * enumRange, const void * context) {
+U_CAPI void U_EXPORT2 u_enumCharTypes(UCharEnumTypeRange * enumRange, const void * context) 
+{
 	struct _EnumTypeCallback callback;
-
 	if(enumRange==NULL) {
 		return;
 	}
-
 	callback.enumRange = enumRange;
 	callback.context = context;
 	utrie2_enum(&propsTrie, _enumTypeValue, _enumTypeRange, &callback);
 }
 
 /* Checks if ch is a lower case letter.*/
-U_CAPI bool U_EXPORT2 u_islower(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_islower(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)(GET_CATEGORY(props)==U_LOWERCASE_LETTER);
 }
 
 /* Checks if ch is an upper case letter.*/
-U_CAPI bool U_EXPORT2 u_isupper(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isupper(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)(GET_CATEGORY(props)==U_UPPERCASE_LETTER);
 }
 
 /* Checks if ch is a title case letter; usually upper case letters.*/
-U_CAPI bool U_EXPORT2 u_istitle(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_istitle(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)(GET_CATEGORY(props)==U_TITLECASE_LETTER);
 }
 
 /* Checks if ch is a decimal digit. */
-U_CAPI bool U_EXPORT2 u_isdigit(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isdigit(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)(GET_CATEGORY(props)==U_DECIMAL_DIGIT_NUMBER);
 }
 
-U_CAPI bool U_EXPORT2 u_isxdigit(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isxdigit(UChar32 c) 
+{
 	uint32_t props;
-
 	/* check ASCII and Fullwidth ASCII a-fA-F */
-	if(
-		(c<=0x66 && c>=0x41 && (c<=0x46 || c>=0x61)) ||
-		(c>=0xff21 && c<=0xff46 && (c<=0xff26 || c>=0xff41))
-		) {
+	if((c<=0x66 && c>=0x41 && (c<=0x46 || c>=0x61)) || (c>=0xff21 && c<=0xff46 && (c<=0xff26 || c>=0xff41))) {
 		return TRUE;
 	}
-
 	GET_PROPS(c, props);
 	return (bool)(GET_CATEGORY(props)==U_DECIMAL_DIGIT_NUMBER);
 }
 
 /* Checks if the Unicode character is a letter.*/
-U_CAPI bool U_EXPORT2 u_isalpha(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isalpha(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)((CAT_MASK(props)&U_GC_L_MASK)!=0);
 }
 
-U_CAPI bool U_EXPORT2 u_isUAlphabetic(UChar32 c) {
-	return (u_getUnicodeProperties(c, 1)&U_MASK(UPROPS_ALPHABETIC))!=0;
-}
+U_CAPI bool U_EXPORT2 u_isUAlphabetic(UChar32 c) { return (u_getUnicodeProperties(c, 1)&U_MASK(UPROPS_ALPHABETIC))!=0; }
 
 /* Checks if c is a letter or a decimal digit */
-U_CAPI bool U_EXPORT2 u_isalnum(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isalnum(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)((CAT_MASK(props)&(U_GC_L_MASK|U_GC_ND_MASK))!=0);
 }
-
 /**
  * Checks if c is alphabetic, or a decimal digit; implements UCHAR_POSIX_ALNUM.
  * @internal
  */
-U_CFUNC bool u_isalnumPOSIX(UChar32 c) {
-	return (bool)(u_isUAlphabetic(c) || u_isdigit(c));
-}
+U_CFUNC bool u_isalnumPOSIX(UChar32 c) { return (bool)(u_isUAlphabetic(c) || u_isdigit(c)); }
 
 /* Checks if ch is a unicode character with assigned character type.*/
-U_CAPI bool U_EXPORT2 u_isdefined(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isdefined(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)(GET_CATEGORY(props)!=0);
 }
 
 /* Checks if the Unicode character is a base form character that can take a diacritic.*/
-U_CAPI bool U_EXPORT2 u_isbase(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isbase(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)((CAT_MASK(props)&(U_GC_L_MASK|U_GC_N_MASK|U_GC_MC_MASK|U_GC_ME_MASK))!=0);
 }
 
 /* Checks if the Unicode character is a control character.*/
-U_CAPI bool U_EXPORT2 u_iscntrl(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_iscntrl(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)((CAT_MASK(props)&(U_GC_CC_MASK|U_GC_CF_MASK|U_GC_ZL_MASK|U_GC_ZP_MASK))!=0);
 }
 
-U_CAPI bool U_EXPORT2 u_isISOControl(UChar32 c) {
-	return (uint32_t)c<=0x9f && (c<=0x1f || c>=0x7f);
-}
+U_CAPI bool U_EXPORT2 u_isISOControl(UChar32 c) { return (uint32_t)c<=0x9f && (c<=0x1f || c>=0x7f); }
 
 /* Some control characters that are used as space. */
-#define IS_THAT_CONTROL_SPACE(c) \
-	(c<=0x9f && ((c>=TAB && c<=CR) || (c>=0x1c && c <=0x1f) || c==0x85))
-
+#define IS_THAT_CONTROL_SPACE(c) (c<=0x9f && ((c>=TAB && c<=CR) || (c>=0x1c && c <=0x1f) || c==0x85))
 /* Java has decided that U+0085 New Line is not whitespace any more. */
-#define IS_THAT_ASCII_CONTROL_SPACE(c) \
-	(c<=0x1f && c>=TAB && (c<=CR || c>=0x1c))
+#define IS_THAT_ASCII_CONTROL_SPACE(c) (c<=0x1f && c>=TAB && (c<=CR || c>=0x1c))
 
 /* Checks if the Unicode character is a space character.*/
-U_CAPI bool U_EXPORT2 u_isspace(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isspace(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)((CAT_MASK(props)&U_GC_Z_MASK)!=0 || IS_THAT_CONTROL_SPACE(c));
 }
 
-U_CAPI bool U_EXPORT2 u_isJavaSpaceChar(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isJavaSpaceChar(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)((CAT_MASK(props)&U_GC_Z_MASK)!=0);
 }
 
 /* Checks if the Unicode character is a whitespace character.*/
-U_CAPI bool U_EXPORT2 u_isWhitespace(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isWhitespace(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)(
@@ -258,14 +255,16 @@ U_CFUNC bool u_isgraphPOSIX(UChar32 c) {
 	       ==0);
 }
 
-U_CAPI bool U_EXPORT2 u_ispunct(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_ispunct(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)((CAT_MASK(props)&U_GC_P_MASK)!=0);
 }
 
 /* Checks if the Unicode character can start a Unicode identifier.*/
-U_CAPI bool U_EXPORT2 u_isIDStart(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isIDStart(UChar32 c) 
+{
 	/* same as u_isalpha() */
 	uint32_t props;
 	GET_PROPS(c, props);
@@ -274,20 +273,17 @@ U_CAPI bool U_EXPORT2 u_isIDStart(UChar32 c) {
 
 /* Checks if the Unicode character can be a Unicode identifier part other than starting the
    identifier.*/
-U_CAPI bool U_EXPORT2 u_isIDPart(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isIDPart(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
-	return (bool)(
-		(CAT_MASK(props)&
-		(U_GC_ND_MASK|U_GC_NL_MASK|
-		U_GC_L_MASK|
-		U_GC_PC_MASK|U_GC_MC_MASK|U_GC_MN_MASK)
-		)!=0 ||
+	return (bool)((CAT_MASK(props)&(U_GC_ND_MASK|U_GC_NL_MASK|U_GC_L_MASK|U_GC_PC_MASK|U_GC_MC_MASK|U_GC_MN_MASK))!=0 ||
 		u_isIDIgnorable(c));
 }
 
 /*Checks if the Unicode character can be ignorable in a Java or Unicode identifier.*/
-U_CAPI bool U_EXPORT2 u_isIDIgnorable(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isIDIgnorable(UChar32 c) 
+{
 	if(c<=0x9f) {
 		return u_isISOControl(c) && !IS_THAT_ASCII_CONTROL_SPACE(c);
 	}
@@ -299,7 +295,8 @@ U_CAPI bool U_EXPORT2 u_isIDIgnorable(UChar32 c) {
 }
 
 /*Checks if the Unicode character can start a Java identifier.*/
-U_CAPI bool U_EXPORT2 u_isJavaIDStart(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isJavaIDStart(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
 	return (bool)((CAT_MASK(props)&(U_GC_L_MASK|U_GC_SC_MASK|U_GC_PC_MASK))!=0);
@@ -308,20 +305,16 @@ U_CAPI bool U_EXPORT2 u_isJavaIDStart(UChar32 c) {
 /*Checks if the Unicode character can be a Java identifier part other than starting the
  * identifier.
  */
-U_CAPI bool U_EXPORT2 u_isJavaIDPart(UChar32 c) {
+U_CAPI bool U_EXPORT2 u_isJavaIDPart(UChar32 c) 
+{
 	uint32_t props;
 	GET_PROPS(c, props);
-	return (bool)(
-		(CAT_MASK(props)&
-		(U_GC_ND_MASK|U_GC_NL_MASK|
-		U_GC_L_MASK|
-		U_GC_SC_MASK|U_GC_PC_MASK|
-		U_GC_MC_MASK|U_GC_MN_MASK)
-		)!=0 ||
+	return (bool)((CAT_MASK(props)&(U_GC_ND_MASK|U_GC_NL_MASK|U_GC_L_MASK|U_GC_SC_MASK|U_GC_PC_MASK|U_GC_MC_MASK|U_GC_MN_MASK))!=0 ||
 		u_isIDIgnorable(c));
 }
 
-U_CAPI int32_t U_EXPORT2 u_charDigitValue(UChar32 c) {
+U_CAPI int32_t U_EXPORT2 u_charDigitValue(UChar32 c) 
+{
 	uint32_t props;
 	int32_t value;
 	GET_PROPS(c, props);
@@ -487,7 +480,8 @@ U_CFUNC uint32_t u_getMainProperties(UChar32 c) {
 	return props;
 }
 
-U_CFUNC uint32_t u_getUnicodeProperties(UChar32 c, int32_t column) {
+U_CFUNC uint32_t u_getUnicodeProperties(UChar32 c, int32_t column) 
+{
 	U_ASSERT(column>=0);
 	if(column>=propsVectorsColumns) {
 		return 0;
@@ -498,14 +492,12 @@ U_CFUNC uint32_t u_getUnicodeProperties(UChar32 c, int32_t column) {
 	}
 }
 
-U_CFUNC int32_t uprv_getMaxValues(int32_t column) {
+U_CFUNC int32_t uprv_getMaxValues(int32_t column) 
+{
 	switch(column) {
-		case 0:
-		    return indexes[UPROPS_MAX_VALUES_INDEX];
-		case 2:
-		    return indexes[UPROPS_MAX_VALUES_2_INDEX];
-		default:
-		    return 0;
+		case 0: return indexes[UPROPS_MAX_VALUES_INDEX];
+		case 2: return indexes[UPROPS_MAX_VALUES_2_INDEX];
+		default: return 0;
 	}
 }
 

@@ -237,9 +237,7 @@ std::string ToCamelCase(StringPiece input) {
 			// first word ends when:
 			// 1) following a lowercase:   "...aB..."
 			// 2) followed by a lowercase: "...ABc..."
-			if(!result.empty() && is_cap &&
-			    (!was_cap ||
-			    (i + 1 < input.size() && ascii_islower(input[i + 1])))) {
+			if(!result.empty() && is_cap && (!was_cap || (i + 1 < input.size() && ascii_islower(input[i + 1])))) {
 				first_word = false;
 				result.push_back(input[i]);
 			}

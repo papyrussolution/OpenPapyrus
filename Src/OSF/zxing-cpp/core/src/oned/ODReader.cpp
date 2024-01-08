@@ -19,12 +19,9 @@ namespace ZXing::OneD {
 Reader::Reader(const DecodeHints& hints) : ZXing::Reader(hints)
 {
 	_readers.reserve(8);
-
 	auto formats = hints.formats().empty() ? BarcodeFormat::Any : hints.formats();
-
 	if(formats.testFlags(BarcodeFormat::EAN13 | BarcodeFormat::UPCA | BarcodeFormat::EAN8 | BarcodeFormat::UPCE))
 		_readers.emplace_back(new MultiUPCEANReader(hints));
-
 	if(formats.testFlag(BarcodeFormat::Code39))
 		_readers.emplace_back(new Code39Reader(hints));
 	if(formats.testFlag(BarcodeFormat::Code93))
@@ -56,33 +53,25 @@ static Results DoDecode(const std::vector<std::unique_ptr<RowReader> >& readers,
     bool tryHarder, bool rotate, bool isPure, int maxSymbols, int minLineCount, bool returnErrors)
 {
 	Results res;
-
 	std::vector<std::unique_ptr<RowReader::DecodingState> > decodingState(readers.size());
-
 	int width = image.width();
 	int height = image.height();
-
 	if(rotate)
 		std::swap(width, height);
-
 	int middle = height / 2;
 	// TODO: find a better heuristic/parameterization if maxSymbols != 1
 	int rowStep = std::max(1, height / ((tryHarder && !isPure) ? (maxSymbols == 1 ? 256 : 512) : 32));
 	int maxLines = tryHarder ?
-	    height :            // Look at the whole image, not just the center
-	    15;                         // 15 rows spaced 1/32 apart is roughly the middle half of the image
-
+	    height : // Look at the whole image, not just the center
+	    15; // 15 rows spaced 1/32 apart is roughly the middle half of the image
 	if(isPure)
 		minLineCount = 1;
 	std::vector<int> checkRows;
-
 	PatternRow bars;
 	bars.reserve(128); // e.g. EAN-13 has 59 bars/spaces
-
 #ifdef PRINT_DEBUG
 	BitMatrix dbg(width, height);
 #endif
-
 	for(int i = 0; i < maxLines; i++) {
 		// Scanning from the middle out. Determine which row we're looking at next:
 		int rowStepsAboveOrBelow = (i + 1) / 2;
@@ -93,7 +82,6 @@ static Results DoDecode(const std::vector<std::unique_ptr<RowReader> >& readers,
 			// Oops, if we run off the top or bottom, stop
 			break;
 		}
-
 		// See if we have additional check rows (see below) to process
 		if(checkRows.size()) {
 			--i;
@@ -103,10 +91,8 @@ static Results DoDecode(const std::vector<std::unique_ptr<RowReader> >& readers,
 			if(rowNumber < 0 || rowNumber >= height)
 				continue;
 		}
-
 		if(!image.getPatternRow(rowNumber, rotate ? 90 : 0, bars))
 			continue;
-
 #ifdef PRINT_DEBUG
 		bool val = false;
 		int x = 0;
@@ -165,10 +151,8 @@ static Results DoDecode(const std::vector<std::unique_ptr<RowReader> >& readers,
 						for(auto & other : res) {
 							if(result == other) {
 								// merge the position information
-								auto dTop = maxAbsComponent(
-									other.position().topLeft() - result.position().topLeft());
-								auto dBot = maxAbsComponent(
-									other.position().bottomLeft() - result.position().topLeft());
+								auto dTop = maxAbsComponent(other.position().topLeft() - result.position().topLeft());
+								auto dBot = maxAbsComponent(other.position().bottomLeft() - result.position().topLeft());
 								auto points = other.position();
 								if(dTop < dBot || (dTop == dBot && rotate ^ (sumAbsComponent(points[0]) >
 								    sumAbsComponent(result.position()[0])))) {
@@ -186,10 +170,8 @@ static Results DoDecode(const std::vector<std::unique_ptr<RowReader> >& readers,
 								break;
 							}
 						}
-
 						if(result.format() != BarcodeFormat::None) {
 							res.push_back(std::move(result));
-
 							// if we found a valid code we have not seen before but a
 							// minLineCount > 1,
 							// add additional check rows above and below the current one
@@ -213,7 +195,6 @@ static Results DoDecode(const std::vector<std::unique_ptr<RowReader> >& readers,
 			}
 		}
 	}
-
 out:
 	// remove all symbols with insufficient line count
 	auto it = std::remove_if(res.begin(), res.end(), [&](auto && r) {
@@ -232,11 +213,9 @@ out:
 			return r.format() == BarcodeFormat::None;
 		});
 	res.erase(it, res.end());
-
 #ifdef PRINT_DEBUG
 	SaveAsPBM(dbg, rotate ? "od-log-r.pnm" : "od-log.pnm");
 #endif
-
 	return res;
 }
 

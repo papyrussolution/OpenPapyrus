@@ -366,16 +366,13 @@ static int FASTCALL c1_look_ahead_test(const uchar source[], int sourcelen, int 
 				}
 			}
 		}
-		if(((text_count + 1.0 <= ascii_count) && (text_count + 1.0 <= c40_count)) &&
-		    ((text_count + 1.0 <= byte_count) && (text_count + 1.0 <= edi_count))) {
+		if(((text_count + 1.0 <= ascii_count) && (text_count + 1.0 <= c40_count)) && ((text_count + 1.0 <= byte_count) && (text_count + 1.0 <= edi_count))) {
 			best_scheme = C1_TEXT;
 		}
-		if(((ascii_count + 1.0 <= byte_count) && (ascii_count + 1.0 <= c40_count)) &&
-		    ((ascii_count + 1.0 <= text_count) && (ascii_count + 1.0 <= edi_count))) {
+		if(((ascii_count + 1.0 <= byte_count) && (ascii_count + 1.0 <= c40_count)) && ((ascii_count + 1.0 <= text_count) && (ascii_count + 1.0 <= edi_count))) {
 			best_scheme = C1_ASCII;
 		}
-		if(((byte_count + 1.0 <= ascii_count) && (byte_count + 1.0 <= c40_count)) &&
-		    ((byte_count + 1.0 <= text_count) && (byte_count + 1.0 <= edi_count))) {
+		if(((byte_count + 1.0 <= ascii_count) && (byte_count + 1.0 <= c40_count)) && ((byte_count + 1.0 <= text_count) && (byte_count + 1.0 <= edi_count))) {
 			best_scheme = C1_BYTE;
 		}
 	}

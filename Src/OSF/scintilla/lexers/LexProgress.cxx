@@ -301,9 +301,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			    break;
 			case SCE_ABL_NUMBER:
 			    // We accept almost anything because of hex. and maybe number suffixes and scientific notations in the future
-			    if(!(setWord.Contains(sc.ch)
-				   || ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E' ||
-						    sc.chPrev == 'p' || sc.chPrev == 'P')))) {
+			    if(!(setWord.Contains(sc.ch) || ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E' || sc.chPrev == 'p' || sc.chPrev == 'P')))) {
 				    sc.SetState(SCE_ABL_DEFAULT);
 			    }
 			    break;
@@ -313,14 +311,12 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				    sc.GetCurrentLowered(s, sizeof(s));
 				    bool isLastWordEnd = (s[0] == 'e' && s[1] =='n' && s[2] == 'd' && !isasciialnum(s[3]) && s[3] != '-'); // helps to identify "end trigger" phrase
 				    if((isSentenceStart &&
-					    keywords2.InListAbbreviated(s,
-						    '(')) || (!isLastWordEnd && keywords3.InListAbbreviated(s, '('))) {
+					    keywords2.InListAbbreviated(s, '(')) || (!isLastWordEnd && keywords3.InListAbbreviated(s, '('))) {
 					    sc.ChangeState(SCE_ABL_BLOCK);
 					    isSentenceStart = false;
 				    }
 				    else if(keywords1.InListAbbreviated(s, '(')) {
-					    if(isLastWordEnd ||
-					    (s[0] == 'f' && s[1] =='o' && s[2] == 'r' && s[3] == 'w' && s[4] =='a' && s[5] == 'r' && s[6] == 'd'&& !isasciialnum(s[7]))) {
+					    if(isLastWordEnd || (s[0] == 'f' && s[1] =='o' && s[2] == 'r' && s[3] == 'w' && s[4] =='a' && s[5] == 'r' && s[6] == 'd'&& !isasciialnum(s[7]))) {
 						    sc.ChangeState(SCE_ABL_END);
 						    isSentenceStart = false;
 					    }

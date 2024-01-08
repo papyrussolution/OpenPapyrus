@@ -106,20 +106,14 @@ struct PartialResult {
 	std::string txt;
 	PatternView end;
 	BarcodeFormat format = BarcodeFormat::None;
-
-	PartialResult() {
+	PartialResult() 
+	{
 		txt.reserve(14);
 	}
-
-	bool isValid() const {
-		return format != BarcodeFormat::None;
-	}
+	bool isValid() const { return format != BarcodeFormat::None; }
 };
 
-bool _ret_false_debug_helper()
-{
-	return false;
-}
+bool _ret_false_debug_helper() { return false; }
 
 #define CHECK(A) if(!(A)) return _ret_false_debug_helper();
 
@@ -127,23 +121,16 @@ static bool EAN13(PartialResult& res, PatternView begin)
 {
 	auto mid = begin.subView(27, MID_PATTERN.size());
 	auto end = begin.subView(56, END_PATTERN.size());
-
 	CHECK(end.isValid() && IsRightGuard(end, END_PATTERN, QUIET_ZONE_RIGHT_EAN) && IsPattern(mid, MID_PATTERN));
-
 	auto next = begin.subView(END_PATTERN.size(), CHAR_LEN);
 	res.txt = " "; // make space for lgPattern character
 	int lgPattern = 0;
-
 	CHECK(DecodeDigits(6, next, res.txt, &lgPattern));
-
 	next = next.subView(MID_PATTERN.size(), CHAR_LEN);
-
 	CHECK(DecodeDigits(6, next, res.txt));
-
 	int i = IndexOf(FIRST_DIGIT_ENCODINGS, lgPattern);
 	CHECK(i != -1);
 	res.txt[0] = ToDigit(i);
-
 	res.end = end;
 	res.format = BarcodeFormat::EAN13;
 	return true;

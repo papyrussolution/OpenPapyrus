@@ -76,76 +76,51 @@
 #include "memdebug.h"
 
 #ifndef NI_MAXHOST
-#define NI_MAXHOST 1025
+	#define NI_MAXHOST 1025
 #endif
 #ifndef INET_ADDRSTRLEN
-#define INET_ADDRSTRLEN 16
+	#define INET_ADDRSTRLEN 16
 #endif
-
 #ifdef CURL_DISABLE_VERBOSE_STRINGS
-#define ftp_pasv_verbose(a, b, c, d)  Curl_nop_stmt
+	#define ftp_pasv_verbose(a, b, c, d)  Curl_nop_stmt
 #endif
 
 /* Local API functions */
 #ifndef DEBUGBUILD
-static void _ftp_state(struct Curl_easy * data,
-    ftpstate newstate);
+static void _ftp_state(struct Curl_easy * data, ftpstate newstate);
 #define ftp_state(x, y) _ftp_state(x, y)
 #else
-static void _ftp_state(struct Curl_easy * data,
-    ftpstate newstate,
-    int lineno);
+static void _ftp_state(struct Curl_easy * data, ftpstate newstate, int lineno);
 #define ftp_state(x, y) _ftp_state(x, y, __LINE__)
 #endif
-
-static CURLcode ftp_sendquote(struct Curl_easy * data,
-    struct connectdata * conn,
-    struct curl_slist * quote);
+static CURLcode ftp_sendquote(struct Curl_easy * data, struct connectdata * conn, struct curl_slist * quote);
 static CURLcode ftp_quit(struct Curl_easy * data, struct connectdata * conn);
 static CURLcode ftp_parse_url_path(struct Curl_easy * data);
 static CURLcode ftp_regular_transfer(struct Curl_easy * data, bool * done);
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
-static void ftp_pasv_verbose(struct Curl_easy * data,
-    struct Curl_addrinfo * ai,
-    char * newhost,                         /* ascii version */
-    int port);
+static void ftp_pasv_verbose(struct Curl_easy * data, struct Curl_addrinfo * ai, char * newhost/* ascii version */, int port);
 #endif
 static CURLcode ftp_state_prepare_transfer(struct Curl_easy * data);
 static CURLcode ftp_state_mdtm(struct Curl_easy * data);
-static CURLcode ftp_state_quote(struct Curl_easy * data,
-    bool init, ftpstate instate);
-static CURLcode ftp_nb_type(struct Curl_easy * data,
-    struct connectdata * conn,
-    bool ascii, ftpstate newstate);
-static int ftp_need_type(struct connectdata * conn,
-    bool ascii);
+static CURLcode ftp_state_quote(struct Curl_easy * data, bool init, ftpstate instate);
+static CURLcode ftp_nb_type(struct Curl_easy * data, struct connectdata * conn, bool ascii, ftpstate newstate);
+static int ftp_need_type(struct connectdata * conn, bool ascii);
 static CURLcode ftp_do(struct Curl_easy * data, bool * done);
-static CURLcode ftp_done(struct Curl_easy * data,
-    CURLcode, bool premature);
+static CURLcode ftp_done(struct Curl_easy * data, CURLcode, bool premature);
 static CURLcode ftp_connect(struct Curl_easy * data, bool * done);
-static CURLcode ftp_disconnect(struct Curl_easy * data,
-    struct connectdata * conn, bool dead_connection);
+static CURLcode ftp_disconnect(struct Curl_easy * data, struct connectdata * conn, bool dead_connection);
 static CURLcode ftp_do_more(struct Curl_easy * data, int * completed);
 static CURLcode ftp_multi_statemach(struct Curl_easy * data, bool * done);
-static int ftp_getsock(struct Curl_easy * data, struct connectdata * conn,
-    curl_socket_t * socks);
-static int ftp_domore_getsock(struct Curl_easy * data,
-    struct connectdata * conn, curl_socket_t * socks);
-static CURLcode ftp_doing(struct Curl_easy * data,
-    bool * dophase_done);
-static CURLcode ftp_setup_connection(struct Curl_easy * data,
-    struct connectdata * conn);
+static int ftp_getsock(struct Curl_easy * data, struct connectdata * conn, curl_socket_t * socks);
+static int ftp_domore_getsock(struct Curl_easy * data, struct connectdata * conn, curl_socket_t * socks);
+static CURLcode ftp_doing(struct Curl_easy * data, bool * dophase_done);
+static CURLcode ftp_setup_connection(struct Curl_easy * data, struct connectdata * conn);
 static CURLcode init_wc_data(struct Curl_easy * data);
 static CURLcode wc_statemach(struct Curl_easy * data);
 static void wc_data_dtor(void * ptr);
 static CURLcode ftp_state_retr(struct Curl_easy * data, curl_off_t filesize);
-static CURLcode ftp_readresp(struct Curl_easy * data,
-    curl_socket_t sockfd,
-    struct pingpong * pp,
-    int * ftpcode,
-    size_t * size);
-static CURLcode ftp_dophase_done(struct Curl_easy * data,
-    bool connected);
+static CURLcode ftp_readresp(struct Curl_easy * data, curl_socket_t sockfd, struct pingpong * pp, int * ftpcode, size_t * size);
+static CURLcode ftp_dophase_done(struct Curl_easy * data, bool connected);
 
 /*
  * FTP protocol handler.
@@ -3401,8 +3376,7 @@ CURLcode ftp_sendquote(struct Curl_easy * data,
  *
  * Returns TRUE if we in the current situation should send TYPE
  */
-static int ftp_need_type(struct connectdata * conn,
-    bool ascii_wanted)
+static int ftp_need_type(struct connectdata * conn, bool ascii_wanted)
 {
 	return conn->proto.ftpc.transfertype != (ascii_wanted?'A':'I');
 }
@@ -3415,23 +3389,18 @@ static int ftp_need_type(struct connectdata * conn,
  * sets one of them.
  * If the transfer type is not sent, simulate on OK response in newstate
  */
-static CURLcode ftp_nb_type(struct Curl_easy * data,
-    struct connectdata * conn,
-    bool ascii, ftpstate newstate)
+static CURLcode ftp_nb_type(struct Curl_easy * data, struct connectdata * conn, bool ascii, ftpstate newstate)
 {
 	struct ftp_conn * ftpc = &conn->proto.ftpc;
 	CURLcode result;
 	char want = (char)(ascii?'A':'I');
-
 	if(ftpc->transfertype == want) {
 		ftp_state(data, newstate);
 		return ftp_state_type_resp(data, 200, newstate);
 	}
-
 	result = Curl_pp_sendf(data, &ftpc->pp, "TYPE %c", want);
 	if(!result) {
 		ftp_state(data, newstate);
-
 		/* keep track of our current transfer type */
 		ftpc->transfertype = want;
 	}
@@ -3448,16 +3417,12 @@ static CURLcode ftp_nb_type(struct Curl_easy * data,
  *
  */
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
-static void ftp_pasv_verbose(struct Curl_easy * data,
-    struct Curl_addrinfo * ai,
-    char * newhost,             /* ascii version */
-    int port)
+static void ftp_pasv_verbose(struct Curl_easy * data, struct Curl_addrinfo * ai, char * newhost/* ascii version */, int port)
 {
 	char buf[256];
 	Curl_printable_address(ai, buf, sizeof(buf));
 	infof(data, "Connecting to %s (%s) port %d", newhost, buf, port);
 }
-
 #endif
 
 /*
@@ -3949,13 +3914,10 @@ static CURLcode ftp_quit(struct Curl_easy * data, struct connectdata * conn)
  * Disconnect from an FTP server. Cleanup protocol-specific per-connection
  * resources. BLOCKING.
  */
-static CURLcode ftp_disconnect(struct Curl_easy * data,
-    struct connectdata * conn,
-    bool dead_connection)
+static CURLcode ftp_disconnect(struct Curl_easy * data, struct connectdata * conn, bool dead_connection)
 {
 	struct ftp_conn * ftpc = &conn->proto.ftpc;
 	struct pingpong * pp = &ftpc->pp;
-
 	/* We cannot send quit unconditionally. If this connection is stale or
 	   bad in any way, sending quit and waiting around here will make the
 	   disconnect wait in vain and cause more problems than we need to.
@@ -3965,17 +3927,14 @@ static CURLcode ftp_disconnect(struct Curl_easy * data,
 	 */
 	if(dead_connection)
 		ftpc->ctl_valid = FALSE;
-
 	/* The FTP session may or may not have been allocated/setup at this point! */
 	(void)ftp_quit(data, conn); /* ignore errors on the QUIT */
-
 	if(ftpc->entrypath) {
 		if(data->state.most_recent_ftp_entrypath == ftpc->entrypath) {
 			data->state.most_recent_ftp_entrypath = NULL;
 		}
 		ZFREE(ftpc->entrypath);
 	}
-
 	freedirs(ftpc);
 	ZFREE(ftpc->account);
 	ZFREE(ftpc->alternative_to_user);

@@ -802,11 +802,10 @@ AlphabeticIndex &AlphabeticIndex::setUnderflowLabel(const UnicodeString & label,
 	return *this;
 }
 
-int32_t AlphabeticIndex::getMaxLabelCount() const {
-	return maxLabelCount_;
-}
+int32_t AlphabeticIndex::getMaxLabelCount() const { return maxLabelCount_; }
 
-AlphabeticIndex &AlphabeticIndex::setMaxLabelCount(int32_t maxLabelCount, UErrorCode & status) {
+AlphabeticIndex &AlphabeticIndex::setMaxLabelCount(int32_t maxLabelCount, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return *this;
 	}
@@ -818,12 +817,11 @@ AlphabeticIndex &AlphabeticIndex::setMaxLabelCount(int32_t maxLabelCount, UError
 	clearBuckets();
 	return *this;
 }
-
 //
 //  init() - Common code for constructors.
 //
-
-void AlphabeticIndex::init(const Locale * locale, UErrorCode & status) {
+void AlphabeticIndex::init(const Locale * locale, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}

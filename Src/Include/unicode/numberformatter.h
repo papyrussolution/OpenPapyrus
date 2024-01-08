@@ -1148,26 +1148,22 @@ private:
 	impl::DecNum* fArbitrary;
 	UErrorCode fError;
 
-	Scale(UErrorCode error) : fMagnitude(0), fArbitrary(nullptr), fError(error) {
+	Scale(UErrorCode error) : fMagnitude(0), fArbitrary(nullptr), fError(error) 
+	{
 	}
-
-	Scale() : fMagnitude(0), fArbitrary(nullptr), fError(U_ZERO_ERROR) {
+	Scale() : fMagnitude(0), fArbitrary(nullptr), fError(U_ZERO_ERROR) 
+	{
 	}
-
-	bool isValid() const {
-		return fMagnitude != 0 || fArbitrary != nullptr;
-	}
-
-	bool copyErrorTo(UErrorCode & status) const {
+	bool isValid() const { return fMagnitude != 0 || fArbitrary != nullptr; }
+	bool copyErrorTo(UErrorCode & status) const 
+	{
 		if(U_FAILURE(fError)) {
 			status = fError;
 			return true;
 		}
 		return false;
 	}
-
 	void applyTo(impl::DecimalQuantity& quantity) const;
-
 	void applyReciprocalTo(impl::DecimalQuantity& quantity) const;
 
 	// To allow MacroProps/MicroProps to initialize empty instances:
@@ -1214,20 +1210,13 @@ public:
 	~StringProp();
 
 	/** @internal */
-	int16 length() const {
-		return fLength;
-	}
-
+	int16 length() const { return fLength; }
 	/** @internal
 	 * Makes a copy of value. Set to "" to unset.
 	 */
 	void set(StringPiece value);
-
 	/** @internal */
-	bool isSet() const {
-		return fLength > 0;
-	}
-
+	bool isSet() const { return fLength > 0; }
 #endif // U_HIDE_INTERNAL_API
 
 private:
@@ -1343,11 +1332,8 @@ private:
 		const DecimalFormatSymbols * dfs;
 		const NumberingSystem * ns;
 	} fPtr;
-
 	void doCopyFrom(const SymbolsWrapper &other);
-
 	void doMoveFrom(SymbolsWrapper&& src);
-
 	void doCleanup();
 };
 
@@ -1368,20 +1354,15 @@ public:
 	// Future: static Grouper forProperties(DecimalFormatProperties& properties);
 
 	/** @internal */
-	Grouper(int16 grouping1, int16 grouping2, int16 minGrouping, UNumberGroupingStrategy strategy)
-		: fGrouping1(grouping1),
-		fGrouping2(grouping2),
-		fMinGrouping(minGrouping),
-		fStrategy(strategy) {
+	Grouper(int16 grouping1, int16 grouping2, int16 minGrouping, UNumberGroupingStrategy strategy) : 
+		fGrouping1(grouping1), fGrouping2(grouping2), fMinGrouping(minGrouping), fStrategy(strategy) 
+	{
 	}
-
 	/** @internal */
 	int16 getPrimary() const;
-
 	/** @internal */
 	int16 getSecondary() const;
 #endif  // U_HIDE_INTERNAL_API
-
 private:
 	/**
 	 * The grouping sizes, with the following special values:
@@ -1393,7 +1374,6 @@ private:
 	 */
 	int16 fGrouping1;
 	int16 fGrouping2;
-
 	/**
 	 * The minimum grouping size, with the following special values:
 	 * <ul>
@@ -1402,36 +1382,26 @@ private:
 	 * </ul>
 	 */
 	int16 fMinGrouping;
-
 	/**
 	 * The UNumberGroupingStrategy that was used to create this Grouper, or UNUM_GROUPING_COUNT if this
 	 * was not created from a UNumberGroupingStrategy.
 	 */
 	UNumberGroupingStrategy fStrategy;
 
-	Grouper() : fGrouping1(-3) {
+	Grouper() : fGrouping1(-3) 
+	{
 	}
-
-	bool isBogus() const {
-		return fGrouping1 == -3;
-	}
-
+	bool isBogus() const { return fGrouping1 == -3; }
 	/** NON-CONST: mutates the current instance. */
 	void setLocaleData(const impl::ParsedPatternInfo &patternInfo, const Locale& locale);
-
 	bool groupAtPosition(int32_t position, const impl::DecimalQuantity &value) const;
-
 	// To allow MacroProps/MicroProps to initialize empty instances:
 	friend struct MacroProps;
-
 	friend struct MicroProps;
-
 	// To allow NumberFormatterImpl to access isBogus() and perform other operations:
 	friend class NumberFormatterImpl;
-
 	// To allow NumberParserImpl to perform setLocaleData():
 	friend class ::icu::numparse::impl::NumberParserImpl;
-
 	// To allow access to the skeleton generation code:
 	friend class impl::GeneratorHelpers;
 };
@@ -1479,23 +1449,15 @@ private:
 		}
 		return false;
 	}
-
-	bool isValid() const {
-		return fWidth > 0;
-	}
-
+	bool isValid() const { return fWidth > 0; }
 	int32_t padAndApply(const impl::Modifier &mod1, const impl::Modifier &mod2,
 	    FormattedStringBuilder &string, int32_t leftIndex, int32_t rightIndex,
 	    UErrorCode & status) const;
-
 	// To allow MacroProps/MicroProps to initialize empty instances:
 	friend struct MacroProps;
-
 	friend struct MicroProps;
-
 	// To allow NumberFormatterImpl to access isBogus() and perform other operations:
 	friend class impl::NumberFormatterImpl;
-
 	// To allow access to the skeleton generation code:
 	friend class impl::GeneratorHelpers;
 };
@@ -2386,14 +2348,12 @@ public:
 	 * @stable ICU 62
 	 */
 	LocalizedNumberFormatter locale(const icu::Locale &locale) &&;
-
 	/**
 	 * Default constructor: puts the formatter into a valid but undefined state.
 	 *
 	 * @stable ICU 62
 	 */
 	UnlocalizedNumberFormatter() = default;
-
 	/**
 	 * Returns a copy of this UnlocalizedNumberFormatter.
 	 * @stable ICU 60
@@ -2419,15 +2379,11 @@ public:
 	 * @stable ICU 62
 	 */
 	UnlocalizedNumberFormatter& operator = (UnlocalizedNumberFormatter&& src) U_NOEXCEPT;
-
 private:
 	explicit UnlocalizedNumberFormatter(const NumberFormatterSettings<UnlocalizedNumberFormatter>& other);
-
 	explicit UnlocalizedNumberFormatter(NumberFormatterSettings<UnlocalizedNumberFormatter>&& src) U_NOEXCEPT;
-
 	// To give the fluent setters access to this class's constructor:
 	friend class NumberFormatterSettings<UnlocalizedNumberFormatter>;
-
 	// To give NumberFormatter::with() access to this class's constructor:
 	friend class NumberFormatter;
 };
@@ -2440,8 +2396,7 @@ private:
  * @see NumberFormatter
  * @stable ICU 60
  */
-class U_I18N_API LocalizedNumberFormatter
-	: public NumberFormatterSettings<LocalizedNumberFormatter>, public UMemory {
+class U_I18N_API LocalizedNumberFormatter : public NumberFormatterSettings<LocalizedNumberFormatter>, public UMemory {
 public:
 	/**
 	 * Format the given integer number to a string using the settings specified in the NumberFormatter fluent
@@ -2589,7 +2544,6 @@ public:
 	 * @stable ICU 60
 	 */
 	~LocalizedNumberFormatter();
-
 private:
 	// Note: fCompiled can't be a LocalPointer because impl::NumberFormatterImpl is defined in an internal
 	// header, and LocalPointer needs the full class definition in order to delete the instance.
@@ -2599,21 +2553,13 @@ private:
 	// Owned pointer to a DecimalFormatWarehouse, used when copying a LocalizedNumberFormatter
 	// from a DecimalFormat.
 	const impl::DecimalFormatWarehouse* fWarehouse {nullptr};
-
 	explicit LocalizedNumberFormatter(const NumberFormatterSettings<LocalizedNumberFormatter>& other);
-
 	explicit LocalizedNumberFormatter(NumberFormatterSettings<LocalizedNumberFormatter>&& src) U_NOEXCEPT;
-
 	LocalizedNumberFormatter(const impl::MacroProps &macros, const Locale &locale);
-
 	LocalizedNumberFormatter(impl::MacroProps &&macros, const Locale &locale);
-
 	void resetCompiled();
-
 	void lnfMoveHelper(LocalizedNumberFormatter&& src);
-
 	void lnfCopyHelper(const LocalizedNumberFormatter& src, UErrorCode & status);
-
 	/**
 	 * @return true if the compiled formatter is available.
 	 */
@@ -2712,8 +2658,7 @@ public:
 	 * @return A StringClass containing the numeric string.
 	 * @stable ICU 65
 	 */
-	template <typename StringClass>
-	inline StringClass toDecimalNumber(UErrorCode & status) const;
+	template <typename StringClass> inline StringClass toDecimalNumber(UErrorCode & status) const;
 	/**
 	 * Gets the resolved output unit.
 	 *
@@ -2851,7 +2796,5 @@ public:
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif // __NUMBERFORMATTER_H__

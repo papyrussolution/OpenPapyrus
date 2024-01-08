@@ -295,7 +295,6 @@ CURLcode Curl_fillreadbuffer(struct Curl_easy * data, size_t bytes,
 		int hexlen = 0;
 		const char * endofline_native;
 		const char * endofline_network;
-
 		if(
 #ifdef CURL_DO_LINEEND_CONV
 			(data->state.prefer_ascii) ||
@@ -313,33 +312,22 @@ CURLcode Curl_fillreadbuffer(struct Curl_easy * data, size_t bytes,
 		/* if we're not handling trailing data, proceed as usual */
 		if(data->state.trailers_state != TRAILERS_SENDING) {
 			char hexbuffer[11] = "";
-			hexlen = msnprintf(hexbuffer, sizeof(hexbuffer),
-				"%zx%s", nread, endofline_native);
-
+			hexlen = msnprintf(hexbuffer, sizeof(hexbuffer), "%zx%s", nread, endofline_native);
 			/* move buffer pointer */
 			data->req.upload_fromhere -= hexlen;
 			nread += hexlen;
-
 			/* copy the prefix to the buffer, leaving out the NUL */
 			memcpy(data->req.upload_fromhere, hexbuffer, hexlen);
-
-			/* always append ASCII CRLF to the data unless
-			   we have a valid trailer callback */
-			if((nread-hexlen) == 0 &&
-			    data->set.trailer_callback != NULL &&
-			    data->state.trailers_state == TRAILERS_NONE) {
+			/* always append ASCII CRLF to the data unless we have a valid trailer callback */
+			if((nread-hexlen) == 0 && data->set.trailer_callback != NULL && data->state.trailers_state == TRAILERS_NONE) {
 				data->state.trailers_state = TRAILERS_INITIALIZED;
 			}
 			else {
-				memcpy(data->req.upload_fromhere + nread,
-				    endofline_network,
-				    strlen(endofline_network));
+				memcpy(data->req.upload_fromhere + nread, endofline_network, strlen(endofline_network));
 				added_crlf = TRUE;
 			}
 		}
-
-		if(data->state.trailers_state == TRAILERS_SENDING &&
-		    !trailers_left(data)) {
+		if(data->state.trailers_state == TRAILERS_SENDING && !trailers_left(data)) {
 			Curl_dyn_free(&data->state.trailers_buf);
 			data->state.trailers_state = TRAILERS_DONE;
 			data->set.trailer_data = NULL;
@@ -909,7 +897,6 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 					data->state.scratch = (char *)SAlloc::M(2 * data->set.upload_buffer_size);
 					if(!data->state.scratch) {
 						failf(data, "Failed to alloc scratch buffer");
-
 						return CURLE_OUT_OF_MEMORY;
 					}
 				}

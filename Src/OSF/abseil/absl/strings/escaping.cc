@@ -286,9 +286,7 @@ std::string CEscapeInternal(absl::string_view src, bool use_hex, bool utf8_safe)
 			    // Note that if we emit \xNN and the src character after that is a hex
 			    // digit then that digit must be escaped too to prevent it being
 			    // interpreted as part of the character code by C.
-			    if((!utf8_safe || c < 0x80) &&
-				(!absl::ascii_isprint(c) ||
-				(last_hex_escape && absl::ascii_isxdigit(c)))) {
+			    if((!utf8_safe || c < 0x80) && (!absl::ascii_isprint(c) || (last_hex_escape && absl::ascii_isxdigit(c)))) {
 				    if(use_hex) {
 					    dest.append("\\" "x");
 					    dest.push_back(SlConst::P_HxDigL[c / 16]);

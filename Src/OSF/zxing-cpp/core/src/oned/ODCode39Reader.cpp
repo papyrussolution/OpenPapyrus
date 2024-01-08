@@ -32,16 +32,13 @@ static const char PERCENTAGE_MAPPING[26] = {
 	'F' - 11, 'G' - 11, 'H' - 11, 'I' - 11, 'J' - 11,       // %F to %J map to ; < = > ?
 	'K' + 16, 'L' + 16, 'M' + 16, 'N' + 16, 'O' + 16,       // %K to %O map to [ \ ] ^ _
 	'P' + 43, 'Q' + 43, 'R' + 43, 'S' + 43, 'T' + 43,       // %P to %T map to { | } ~ DEL
-	'\0', '@', '`',                                                                         // %U map to NUL, %V map
-		                                                                                // to @, %W map to `
-	127, 127, 127                                                                           // %X to %Z all map to
-		                                                                                // DEL (127)
+	'\0', '@', '`', // %U map to NUL, %V map to @, %W map to `
+	127, 127, 127 // %X to %Z all map to DEL (127)
 };
 
 using CounterContainer = std::array<int, 9>;
 
-// each character has 5 bars and 4 spaces
-constexpr int CHAR_LEN = 9;
+constexpr int CHAR_LEN = 9; // each character has 5 bars and 4 spaces
 
 /** Decode the extended string in place. Return false if FormatError occurred.
  * ctrl is either "$%/+" for code39 or "abcd" for code93. */
@@ -73,23 +70,15 @@ Result Code39Reader::decodePattern(int rowNumber, PatternView& next, std::unique
 {
 	// minimal number of characters that must be present (including start, stop and checksum characters)
 	int minCharCount = _hints.validateCode39CheckSum() ? 4 : 3;
-	auto isStartOrStopSymbol = [](char c) {
-		    return c == '*';
-	    };
-
+	auto isStartOrStopSymbol = [](char c) { return c == '*'; };
 	// provide the indices with the narrow bars/spaces which have to be equally wide
 	constexpr auto START_PATTERN = FixedSparcePattern<CHAR_LEN, 6>{0, 2, 3, 5, 7, 8};
-	// quiet zone is half the width of a character symbol
-	constexpr float QUIET_ZONE_SCALE = 0.5f;
-
+	constexpr float QUIET_ZONE_SCALE = 0.5f; // quiet zone is half the width of a character symbol
 	next = FindLeftGuard(next, minCharCount * CHAR_LEN, START_PATTERN, QUIET_ZONE_SCALE * 12);
 	if(!next.isValid())
 		return {};
-
-	if(!isStartOrStopSymbol(DecodeNarrowWidePattern(next, CHARACTER_ENCODINGS, ALPHABET)))  // read off the start
-			                                                                        // pattern
+	if(!isStartOrStopSymbol(DecodeNarrowWidePattern(next, CHARACTER_ENCODINGS, ALPHABET)))  // read off the start pattern
 		return {};
-
 	int xStart = next.pixelsInFront();
 	int maxInterCharacterSpace = next.sum() / 2; // spec actually says 1 narrow space, width/2 is about 4
 
@@ -105,24 +94,18 @@ Result Code39Reader::decodePattern(int rowNumber, PatternView& next, std::unique
 		if(txt.back() == 0)
 			return {};
 	} while(!isStartOrStopSymbol(txt.back()));
-
 	txt.pop_back(); // remove asterisk
-
 	// check txt length and whitespace after the last char. See also FindStartPattern.
 	if(Size(txt) < minCharCount - 2 || !next.hasQuietZoneAfter(QUIET_ZONE_SCALE))
 		return {};
-
 	Error error;
 	if(_hints.validateCode39CheckSum()) {
 		auto checkDigit = txt.back();
 		txt.pop_back();
-		int checksum = TransformReduce(txt, 0, [](char c) {
-				return IndexOf(ALPHABET, c);
-			});
+		int checksum = TransformReduce(txt, 0, [](char c) { return IndexOf(ALPHABET, c); });
 		if(checkDigit != ALPHABET[checksum % 43])
 			error = ChecksumError();
 	}
-
 	if(!error && _hints.tryCode39ExtendedMode() && !DecodeExtendedCode39AndCode93(txt, "$%/+"))
 		error = FormatError("Decoding extended Code39/Code93 failed");
 

@@ -271,9 +271,9 @@ static inline int32_t bocu1Prev(int32_t c) {
  *      0x03xxyyzz for 3-byte sequence xx yy zz
  *      0xwwxxyyzz for 4-byte sequence ww xx yy zz (ww>0x03)
  */
-static int32_t packDiff(int32_t diff) {
+static int32_t packDiff(int32_t diff) 
+{
 	int32_t result, m;
-
 	U_ASSERT(!DIFF_IS_SINGLE(diff)); /* assume we won't be called where diff==BOCU1_REACH_NEG_1=-64 */
 	if(diff>=BOCU1_REACH_NEG_1) {
 		/* mostly positive differences, and single-byte negative ones */
@@ -288,11 +288,9 @@ static int32_t packDiff(int32_t diff) {
 			/* two bytes */
 			diff -= BOCU1_REACH_POS_1+1;
 			result = 0x02000000;
-
 			m = diff%BOCU1_TRAIL_COUNT;
 			diff /= BOCU1_TRAIL_COUNT;
 			result |= BOCU1_TRAIL_TO_BYTE(m);
-
 			result |= (BOCU1_START_POS_2+diff)<<8;
 		}
 		else if(diff<=BOCU1_REACH_POS_3) {

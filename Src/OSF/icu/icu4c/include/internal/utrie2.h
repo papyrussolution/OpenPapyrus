@@ -817,34 +817,22 @@ U_CAPI int32_t U_EXPORT2 utrie2_internalU8PrevIndex(const UTrie2 * trie, UChar32
  * Internal trie getter from a code point, with checking that c is in 0..10FFFF.
  * Returns the data index.
  */
-#define _UTRIE2_INDEX_FROM_CP(trie, asciiOffset, c) \
-	((uint32_t)(c)<0xd800 ? \
-	_UTRIE2_INDEX_RAW(0, (trie)->index, c) : \
-	(uint32_t)(c)<=0xffff ? \
-	_UTRIE2_INDEX_RAW( \
-		(c)<=0xdbff ? UTRIE2_LSCP_INDEX_2_OFFSET-(0xd800>>UTRIE2_SHIFT_2) : 0, \
-		(trie)->index, c) : \
-	(uint32_t)(c)>0x10ffff ? \
-	(asciiOffset)+UTRIE2_BAD_UTF8_DATA_OFFSET : \
-	(c)>=(trie)->highStart ? \
-	(trie)->highValueIndex : \
-	_UTRIE2_INDEX_FROM_SUPP((trie)->index, c))
+#define _UTRIE2_INDEX_FROM_CP(trie, asciiOffset, c) ((uint32_t)(c)<0xd800 ? _UTRIE2_INDEX_RAW(0, (trie)->index, c) : \
+	(uint32_t)(c)<=0xffff ? _UTRIE2_INDEX_RAW((c)<=0xdbff ? UTRIE2_LSCP_INDEX_2_OFFSET-(0xd800>>UTRIE2_SHIFT_2) : 0, (trie)->index, c) : \
+	(uint32_t)(c)>0x10ffff ? (asciiOffset)+UTRIE2_BAD_UTF8_DATA_OFFSET : (c)>=(trie)->highStart ? \
+	(trie)->highValueIndex : _UTRIE2_INDEX_FROM_SUPP((trie)->index, c))
 
 /** Internal trie getter from a UTF-16 single/lead code unit. Returns the data. */
-#define _UTRIE2_GET_FROM_U16_SINGLE_LEAD(trie, data, c) \
-	(trie)->data[_UTRIE2_INDEX_FROM_U16_SINGLE_LEAD((trie)->index, c)]
+#define _UTRIE2_GET_FROM_U16_SINGLE_LEAD(trie, data, c) (trie)->data[_UTRIE2_INDEX_FROM_U16_SINGLE_LEAD((trie)->index, c)]
 
 /** Internal trie getter from a supplementary code point. Returns the data. */
-#define _UTRIE2_GET_FROM_SUPP(trie, data, c) \
-	(trie)->data[(c)>=(trie)->highStart ? (trie)->highValueIndex : \
-	_UTRIE2_INDEX_FROM_SUPP((trie)->index, c)]
+#define _UTRIE2_GET_FROM_SUPP(trie, data, c) (trie)->data[(c)>=(trie)->highStart ? (trie)->highValueIndex : _UTRIE2_INDEX_FROM_SUPP((trie)->index, c)]
 
 /**
  * Internal trie getter from a code point, with checking that c is in 0..10FFFF.
  * Returns the data.
  */
-#define _UTRIE2_GET(trie, data, asciiOffset, c) \
-	(trie)->data[_UTRIE2_INDEX_FROM_CP(trie, asciiOffset, c)]
+#define _UTRIE2_GET(trie, data, asciiOffset, c) (trie)->data[_UTRIE2_INDEX_FROM_CP(trie, asciiOffset, c)]
 
 /** Internal next-post-increment: get the next code point (c) and its data. */
 #define _UTRIE2_U16_NEXT(trie, data, src, limit, c, result) UPRV_BLOCK_MACRO_BEGIN { \

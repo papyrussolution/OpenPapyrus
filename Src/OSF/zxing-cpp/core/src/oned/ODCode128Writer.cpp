@@ -207,17 +207,14 @@ BitMatrix Code128Writer::encode(const std::wstring& contents, int width, int hei
 			}
 			codeSet = newCodeSet;
 		}
-
 		// Get the pattern
 		patterns.push_back(Code128::CODE_PATTERNS[patternIndex]);
-
 		// Compute checksum
 		checkSum += patternIndex * checkWeight;
 		if(position != 0) {
 			checkWeight++;
 		}
 	}
-
 	// Compute and append checksum
 	checkSum %= 103;
 	patterns.push_back(Code128::CODE_PATTERNS[checkSum]);

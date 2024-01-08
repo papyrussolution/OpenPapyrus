@@ -189,14 +189,12 @@ static inline int8 code39_decode_start(zbar_decoder_t * dcode)
 {
 	code39_decoder_t * dcode39 = &dcode->code39;
 	dbprintf(2, " s=%d ", dcode39->s9);
-
 	int8 c = code39_decode9(dcode);
 	if(c != 0x19 && c != 0x2b) {
 		dbprintf(2, "\n");
 		return ZBAR_NONE;
 	}
 	dcode39->direction ^= (c == 0x19);
-
 	/* check leading quiet zone - spec is 10x */
 	uint quiet = get_width(dcode, 9);
 	if(quiet && quiet < dcode39->s9 / 2) {

@@ -938,16 +938,12 @@ static bool FASTCALL ParseOperatorName(State * state, int * arity)
 	state->parse_state = copy;
 
 	// Then vendor extended operators.
-	if(ParseOneCharToken(state, 'v') && ParseDigit(state, arity) &&
-	    ParseSourceName(state)) {
+	if(ParseOneCharToken(state, 'v') && ParseDigit(state, arity) && ParseSourceName(state)) {
 		return true;
 	}
 	state->parse_state = copy;
-
-	// Other operator names should start with a lower alphabet followed
-	// by a lower/upper alphabet.
-	if(!(IsLower(RemainingInput(state)[0]) &&
-	    IsAlpha(RemainingInput(state)[1]))) {
+	// Other operator names should start with a lower alphabet followed by a lower/upper alphabet.
+	if(!(IsLower(RemainingInput(state)[0]) && IsAlpha(RemainingInput(state)[1]))) {
 		return false;
 	}
 	// We may want to perform a binary search if we really need speed.

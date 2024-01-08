@@ -677,19 +677,15 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 			}
 
 			/* step (r)(2) */
-			if(((b256_count + 1.0F) <= (ascii_count + stiction)) ||
-			    (((b256_count + 1.0F) < (edf_count - stiction)) &&
-				    ((b256_count + 1.0F) < (text_count - stiction)) &&
-				    ((b256_count + 1.0F) < (x12_count - stiction)) &&
+			if(((b256_count + 1.0F) <= (ascii_count + stiction)) || (((b256_count + 1.0F) < (edf_count - stiction)) &&
+				    ((b256_count + 1.0F) < (text_count - stiction)) && ((b256_count + 1.0F) < (x12_count - stiction)) &&
 				    ((b256_count + 1.0F) < (c40_count - stiction)))) {
 				best_scheme = DM_BASE256;
 			}
 
 			/* step (r)(1) */
-			if(((ascii_count + 1.0F) <= (b256_count + stiction)) &&
-			    ((ascii_count + 1.0F) <= (edf_count + stiction)) &&
-			    ((ascii_count + 1.0F) <= (text_count + stiction)) &&
-			    ((ascii_count + 1.0F) <= (x12_count + stiction)) &&
+			if(((ascii_count + 1.0F) <= (b256_count + stiction)) && ((ascii_count + 1.0F) <= (edf_count + stiction)) &&
+			    ((ascii_count + 1.0F) <= (text_count + stiction)) && ((ascii_count + 1.0F) <= (x12_count + stiction)) &&
 			    ((ascii_count + 1.0F) <= (c40_count + stiction))) {
 				best_scheme = DM_ASCII;
 			}

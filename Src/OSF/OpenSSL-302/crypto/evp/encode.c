@@ -216,22 +216,18 @@ void EVP_EncodeFinal(EVP_ENCODE_CTX * ctx, uchar * out, int * outl)
 	*outl = ret;
 }
 
-static int evp_encodeblock_int(EVP_ENCODE_CTX * ctx, uchar * t,
-    const uchar * f, int dlen)
+static int evp_encodeblock_int(EVP_ENCODE_CTX * ctx, uchar * t, const uchar * f, int dlen)
 {
 	int i, ret = 0;
 	unsigned long l;
 	const uchar * table;
-
 	if(ctx && (ctx->flags & EVP_ENCODE_CTX_USE_SRP_ALPHABET) != 0)
 		table = srpdata_bin2ascii;
 	else
 		table = data_bin2ascii;
-
 	for(i = dlen; i > 0; i -= 3) {
 		if(i >= 3) {
-			l = (((ulong)f[0]) << 16L) |
-			    (((ulong)f[1]) << 8L) | f[2];
+			l = (((ulong)f[0]) << 16L) | (((ulong)f[1]) << 8L) | f[2];
 			*(t++) = conv_bin2ascii(l >> 18L, table);
 			*(t++) = conv_bin2ascii(l >> 12L, table);
 			*(t++) = conv_bin2ascii(l >> 6L, table);
@@ -241,7 +237,6 @@ static int evp_encodeblock_int(EVP_ENCODE_CTX * ctx, uchar * t,
 			l = ((ulong)f[0]) << 16L;
 			if(i == 2)
 				l |= ((ulong)f[1] << 8L);
-
 			*(t++) = conv_bin2ascii(l >> 18L, table);
 			*(t++) = conv_bin2ascii(l >> 12L, table);
 			*(t++) = (i == 1) ? '=' : conv_bin2ascii(l >> 6L, table);
@@ -250,15 +245,11 @@ static int evp_encodeblock_int(EVP_ENCODE_CTX * ctx, uchar * t,
 		ret += 4;
 		f += 3;
 	}
-
 	*t = '\0';
 	return ret;
 }
 
-int EVP_EncodeBlock(uchar * t, const uchar * f, int dlen)
-{
-	return evp_encodeblock_int(NULL, t, f, dlen);
-}
+int EVP_EncodeBlock(uchar * t, const uchar * f, int dlen) { return evp_encodeblock_int(NULL, t, f, dlen); }
 
 void EVP_DecodeInit(EVP_ENCODE_CTX * ctx)
 {

@@ -632,29 +632,22 @@ private:
 	 * @internal (private)
 	 */
 	AlphabeticIndex(const AlphabeticIndex &other);
-
 	/**
 	 *   No assignment.
 	 */
-	AlphabeticIndex & operator = (const AlphabeticIndex & /*other*/) {
-		return *this;
-	}
-
+	AlphabeticIndex & operator = (const AlphabeticIndex & /*other*/) { return *this; }
 	/**
 	 * No Equality operators.
 	 * @internal (private)
 	 */
 	virtual bool operator==(const AlphabeticIndex& other) const;
-
 	/**
 	 * Inequality operator.
 	 * @internal (private)
 	 */
 	virtual bool operator != (const AlphabeticIndex& other) const;
-
 	// Common initialization, for use from all constructors.
 	void init(const Locale * locale, UErrorCode & status);
-
 	/**
 	 * This method is called to get the index exemplars. Normally these come from the locale directly,
 	 * but if they aren't available, we have to synthesize them.
@@ -664,11 +657,8 @@ private:
 	 * Add Chinese index characters from the tailoring.
 	 */
 	bool addChineseIndexCharacters(UErrorCode & errorCode);
-
 	UVector * firstStringsInScript(UErrorCode & status);
-
 	static UnicodeString separated(const UnicodeString &item);
-
 	/**
 	 * Determine the best labels to use.
 	 * This is based on the exemplars, but we also process to make sure that they are unique,
@@ -679,13 +669,10 @@ private:
 	void initBuckets(UErrorCode & errorCode);
 	void clearBuckets();
 	void internalResetBucketIterator();
-
 public:
-
 	//  The Record is declared public only to allow access from
 	//  implementation code written in plain C.
 	//  It is not intended for public use.
-
 #ifndef U_HIDE_INTERNAL_API
 	/**
 	 * A (name, data) pair, to be sorted by name into one of the index buckets.
@@ -695,57 +682,44 @@ public:
 	 */
 	struct Record : public UMemory {
 		const UnicodeString name_;
-		const void           * data_;
+		const void * data_;
 		Record(const UnicodeString &name, const void * data);
 		~Record();
 	};
-
 	/** \endcond */
 #endif  /* U_HIDE_INTERNAL_API */
-
 private:
-
 	/**
 	 * Holds all user records before they are distributed into buckets.
 	 * Type of contents is (Record *)
 	 * @internal (private)
 	 */
 	UVector  * inputList_;
-
 	int32_t labelsIterIndex_;     // Index of next item to return.
 	int32_t itemsIterIndex_;
 	Bucket   * currentBucket_;    // While an iteration of the index in underway,
 	                              //   point to the bucket for the current label.
 	                              // NULL when no iteration underway.
-
 	int32_t maxLabelCount_;       // Limit on # of labels permitted in the index.
-
 	UnicodeSet * initialLabels_;  // Initial (unprocessed) set of Labels.  Union
 	                              //   of those explicitly set by the user plus
 	                              //   those from locales.  Raw values, before
 	                              //   crunching into bucket labels.
 
-	UVector * firstCharsInScripts_; // The first character from each script,
-	                                //   in collation order.
-
+	UVector * firstCharsInScripts_; // The first character from each script, in collation order.
 	RuleBasedCollator * collator_;
 	RuleBasedCollator * collatorPrimaryOnly_;
-
 	// Lazy evaluated: null means that we have not built yet.
 	BucketList * buckets_;
-
 	UnicodeString inflowLabel_;
 	UnicodeString overflowLabel_;
 	UnicodeString underflowLabel_;
 	UnicodeString overflowComparisonString_;
-
 	UnicodeString emptyString_;
 };
 
 U_NAMESPACE_END
 
 #endif  // !UCONFIG_NO_COLLATION
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif
