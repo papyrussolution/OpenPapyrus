@@ -240,9 +240,7 @@ FT_TrueTypeGX_Validate(FT_Face face,
  *   This function must be used to free the buffer allocated by
  *   @FT_TrueTypeGX_Validate only.
  */
-FT_EXPORT(void)
-FT_TrueTypeGX_Free(FT_Face face,
-    FT_Bytes table);
+FT_EXPORT(void) FT_TrueTypeGX_Free(FT_Face face, FT_Bytes table);
 
 /**************************************************************************
  *
@@ -329,10 +327,7 @@ FT_ClassicKern_Validate(FT_Face face,
  *   This function must be used to free the buffer allocated by
  *   @FT_ClassicKern_Validate only.
  */
-FT_EXPORT(void)
-FT_ClassicKern_Free(FT_Face face,
-    FT_Bytes table);
-
+FT_EXPORT(void) FT_ClassicKern_Free(FT_Face face, FT_Bytes table);
 /* */
 
 FT_END_HEADER

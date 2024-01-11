@@ -100,21 +100,19 @@ static int32_t libraryMax = UPLUG_LIBRARY_INITIAL_COUNT;
  * @param libName libname to search for
  * @return the library's struct
  */
-static int32_t searchForLibraryName(const char * libName) {
-	int32_t i;
-
-	for(i = 0; i<libraryCount; i++) {
-		if(!strcmp(libName, libraryList[i].name)) {
+static int32_t searchForLibraryName(const char * libName) 
+{
+	for(int32_t i = 0; i<libraryCount; i++) {
+		if(sstreq(libName, libraryList[i].name)) {
 			return i;
 		}
 	}
 	return -1;
 }
 
-static int32_t searchForLibrary(void * lib) {
-	int32_t i;
-
-	for(i = 0; i<libraryCount; i++) {
+static int32_t searchForLibrary(void * lib) 
+{
+	for(int32_t i = 0; i<libraryCount; i++) {
 		if(lib==libraryList[i].lib) {
 			return i;
 		}
@@ -122,7 +120,8 @@ static int32_t searchForLibrary(void * lib) {
 	return -1;
 }
 
-U_CAPI char * U_EXPORT2 uplug_findLibrary(void * lib, UErrorCode * status) {
+U_CAPI char * U_EXPORT2 uplug_findLibrary(void * lib, UErrorCode * status) 
+{
 	int32_t libEnt;
 	char * ret = NULL;
 	if(U_FAILURE(*status)) {

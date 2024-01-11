@@ -1455,6 +1455,18 @@ const SColorSet * UiDescription::GetColorSetC(const char * pCsSymb) const
 	return p_result;
 }
 
+const SFontSource * UiDescription::GetFontSourceC(const char * pSymb) const
+{
+	const SFontSource * p_result = 0;
+	if(!isempty(pSymb)) {
+		for(uint i = 0; !p_result && i < FontList.getCount(); i++) {
+			const SFontSource * p_fs = FontList.at(i);
+			if(p_fs && p_fs->Face.IsEqiAscii(pSymb))
+				p_result = p_fs;
+		}
+	}
+	return p_result;
+}
 
 SJson * UiDescription::ToJsonObj() const
 {

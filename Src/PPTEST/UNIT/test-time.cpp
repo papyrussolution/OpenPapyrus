@@ -1,5 +1,5 @@
 // TEST-TIME.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 // Тестирование реализаций времени и даты
 //
@@ -110,7 +110,7 @@ SLTEST_R(LDATE)
 				SUniDate_Internal(1582, 10, 15),
 			};
 			for(uint i = 0; i < SIZEOFARRAY(_ymd_list); i++) {
-				const uint dc = DateToDaysSinceChristmas(_ymd_list[i].Y, _ymd_list[i].M, _ymd_list[i].D);
+				const int dc = _ymd_list[i].GetDaysSinceChristmas();
 				SUniDate_Internal ymd2;
 				ymd2.SetDaysSinceChristmas(dc);
 				SLCHECK_NZ(ymd2 == _ymd_list[i]);
@@ -130,10 +130,9 @@ SLTEST_R(LDATE)
 		};
 		{
 			for(uint i = 0; i < SIZEOFARRAY(_ymd_pair_list); i++) {
-				uint dc1 = DateToDaysSinceChristmas(_ymd_pair_list[i].D1.Y, _ymd_pair_list[i].D1.M, _ymd_pair_list[i].D1.D);
-				uint dc2 = DateToDaysSinceChristmas(_ymd_pair_list[i].D2.Y, _ymd_pair_list[i].D2.M, _ymd_pair_list[i].D2.D);
-				SLCHECK_EQ((dc2-dc1), (uint)_ymd_pair_list[i].Diff);
-
+				int dc1 = _ymd_pair_list[i].D1.GetDaysSinceChristmas();
+				int dc2 = _ymd_pair_list[i].D2.GetDaysSinceChristmas();
+				SLCHECK_EQ((uint)(dc2-dc1), (uint)_ymd_pair_list[i].Diff);
 				SUniDate_Internal ymd2;
 				ymd2.SetDaysSinceChristmas(dc1);
 				SLCHECK_NZ(ymd2 == _ymd_pair_list[i].D1);
@@ -226,59 +225,65 @@ SLTEST_R(LDATE)
 		// SDN date
 		//
 		struct SdnCalendarCvtCase {
-			long   Sdn;
-			int    Y;
-			int    M;
-			int    D;
+			uint   Sdn;
+			SUniDate_Internal Dt;
 		};
 		{
 			static const SdnCalendarCvtCase TestSet_Julian[] = {
-				{ 2298884,  1582, 1, 1 },
-				{ 2299161,  1582, 10, 5, },
-				{ 2440601,  1970, 1, 1 },
-				{ 2816443,  2999 , 1, 1 },
-				{ 1,		  -4713, 1, 2 },
-				{ 2298874,	  1581, 12, 22 },
-				{ 2299151,	  1582, 9, 25 },
-				{ 2440588,	  1969, 12, 19 },
-				{ 2816423,	  2998, 12, 12 },
-				{ 0,          -4713, 1, 1 },
-				{ 0,        0, 0, 0 },  
+				{ 2298884,  { 1582, 1, 1 } },
+				{ 2299161,  { 1582, 10, 5, } },
+				{ 2440601,  { 1970, 1, 1 } },
+				{ 2816443,  { 2999 , 1, 1 } },
+				{ 1,		  { -4713, 1, 2 } },
+				{ 2298874,	  { 1581, 12, 22 } },
+				{ 2299151,	  { 1582, 9, 25 } },
+				{ 2440588,	  { 1969, 12, 19 } },
+				{ 2816423,	  { 2998, 12, 12 } },
+				{ 0,          { -4713, 1, 1 } },
+				{ 0,        { 0, 0, 0 } },  
 			};
+			SUniDate_Internal dt;
+			SLCHECK_Z(dt.SetSdnJulian(0));
 			for(uint i = 0; i < SIZEOFARRAY(TestSet_Julian); i++) {
-				int y;
-				int m;
-				int d;
-				SLCHECK_Z(SdnToJulian(0, &y, &m, &d));
+				//SLCHECK_Z(SUniDate_Internal::SdnToJulian(0, &y, &m, &d));
 				if(TestSet_Julian[i].Sdn) {
-					SLCHECK_NZ(SdnToJulian(TestSet_Julian[i].Sdn, &y, &m, &d));
-					SLCHECK_NZ(y = TestSet_Julian[i].Y && m == TestSet_Julian[i].M && d == TestSet_Julian[i].D);
+					int y;
+					int m;
+					int d;
+					SLCHECK_NZ(SUniDate_Internal::SdnToJulian(TestSet_Julian[i].Sdn, &y, &m, &d));
+					SLCHECK_NZ(y = TestSet_Julian[i].Dt.Y && m == TestSet_Julian[i].Dt.M && d == TestSet_Julian[i].Dt.D);
+					SLCHECK_NZ(dt.SetSdnJulian(TestSet_Julian[i].Sdn));
+					SLCHECK_NZ(dt == TestSet_Julian[i].Dt);
 				}
-				long sdn = JulianToSdn(TestSet_Julian[i].Y, TestSet_Julian[i].M, TestSet_Julian[i].D);
+				uint sdn = SUniDate_Internal::JulianToSdn(TestSet_Julian[i].Dt.Y, TestSet_Julian[i].Dt.M, TestSet_Julian[i].Dt.D);
 				SLCHECK_EQ(sdn, TestSet_Julian[i].Sdn);
 			}
 		}
 		{
 			static const SdnCalendarCvtCase TestSet_Gregorian[] = {
-				{ 2298874,	  1582, 1, 1 },
-				{ 2299151,	  1582, 10, 5 },
-				{ 2440588,	  1970, 1, 1 },
-				{ 2816423,	  2999, 1, 1 },
-				{ 1,		  -4714, 11,25 },
-				{ 0,          0, 0,    0 },
-				{ 0,		  -4714, 1, 1 },
-				{ 0,		  -4714, 11, 24 },
+				{ 2298874,	  { 1582, 1, 1 } },
+				{ 2299151,	  { 1582, 10, 5 } },
+				{ 2440588,	  { 1970, 1, 1 } },
+				{ 2816423,	  { 2999, 1, 1 } },
+				{ 1,		  { -4714, 11,25 } },
+				{ 0,          { 0, 0,    0 } },
+				{ 0,		  { -4714, 1, 1 } },
+				{ 0,		  { -4714, 11, 24 } },
 			};
 			for(uint i = 0; i < SIZEOFARRAY(TestSet_Gregorian); i++) {
-				int y;
-				int m;
-				int d;
-				SLCHECK_Z(SdnToGregorian(0, &y, &m, &d));
+				//int y;
+				//int m;
+				//int d;
+				SUniDate_Internal dt;
+				SLCHECK_Z(dt.SetSdnGregorian(0));
+				//SLCHECK_Z(SUniDate_Internal::SdnToGregorian(0, &y, &m, &d));
 				if(TestSet_Gregorian[i].Sdn) {
-					SLCHECK_NZ(SdnToGregorian(TestSet_Gregorian[i].Sdn, &y, &m, &d));
-					SLCHECK_NZ(y = TestSet_Gregorian[i].Y && m == TestSet_Gregorian[i].M && d == TestSet_Gregorian[i].D);
+					//SLCHECK_NZ(SUniDate_Internal::SdnToGregorian(TestSet_Gregorian[i].Sdn, &y, &m, &d));
+					//SLCHECK_NZ(y = TestSet_Gregorian[i].Dt.Y && m == TestSet_Gregorian[i].Dt.M && d == TestSet_Gregorian[i].Dt.D);
+					SLCHECK_NZ(dt.SetSdnGregorian(TestSet_Gregorian[i].Sdn));
+					SLCHECK_NZ(dt == TestSet_Gregorian[i].Dt);
 				}
-				long sdn = GregorianToSdn(TestSet_Gregorian[i].Y, TestSet_Gregorian[i].M, TestSet_Gregorian[i].D);
+				uint sdn = SUniDate_Internal::GregorianToSdn(TestSet_Gregorian[i].Dt.Y, TestSet_Gregorian[i].Dt.M, TestSet_Gregorian[i].Dt.D);
 				SLCHECK_EQ(sdn, TestSet_Gregorian[i].Sdn);
 			}
 		}
@@ -296,7 +301,7 @@ SLTEST_R(LDATE)
 			};
 			for(uint i = 0; i < SIZEOFARRAY(TestSet_SdnDayOfWeek); i++) {
 				for(uint j = 0; j < SIZEOFARRAY(TestSet_SdnDayOfWeek[i].Dow); j++) {
-					SLCHECK_EQ(SdnDayOfWeek(TestSet_SdnDayOfWeek[i].Sdn + j), TestSet_SdnDayOfWeek[i].Dow[j]);
+					SLCHECK_EQ(SUniDate_Internal::SdnDayOfWeek(TestSet_SdnDayOfWeek[i].Sdn + j), TestSet_SdnDayOfWeek[i].Dow[j]);
 				}
 			}
 		}

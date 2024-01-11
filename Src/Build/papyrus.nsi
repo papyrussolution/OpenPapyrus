@@ -1,5 +1,5 @@
 ; PAPYRUS.NSI
-; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 ; —крипт создани€ инсталл€ции системы Papyrus
 ;
 ;
@@ -460,6 +460,22 @@ Section -PPALDD SEC_PPALDD
 	File "${SRC_ROOT}\SRC\VBA\template.xls"
 	File "${SRC_ROOT}\SRC\VBA\BalanceSheet.xls"
 	File "${SRC_ROOT}\SRC\VBA\IncomeStatement.xls"
+	;
+	; @v11.9.2 Fonts
+	;
+	SetOutPath "$INSTDIR\DD\Font"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\Cousine-Regular.ttf"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\DroidSans.ttf"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\Karla-Regular.ttf"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\ProggyClean.ttf"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\ProggyTiny.ttf"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\Roboto-Medium.ttf"
+	;
+	; @v11.9.2 Styles
+	;
+	SetOutPath "$INSTDIR\DD\UID"
+	File "${SRC_ROOT}\SRC\RSRC\Style\uid-papyrus.json"
+	File "${SRC_ROOT}\SRC\RSRC\Style\uid-wsctl.json"
 	;
 	;
 	;

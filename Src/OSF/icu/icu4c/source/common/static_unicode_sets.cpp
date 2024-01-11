@@ -72,7 +72,7 @@ public:
 			return;
 		}
 		for(int i = 0; contextsTable.getKeyAndValue(i, key, value); i++) {
-			if(strcmp(key, "date") == 0) {
+			if(sstreq(key, "date")) {
 				// ignore
 			}
 			else {
@@ -81,7 +81,7 @@ public:
 					return;
 				}
 				for(int j = 0; strictnessTable.getKeyAndValue(j, key, value); j++) {
-					bool isLenient = (strcmp(key, "lenient") == 0);
+					bool isLenient = sstreq(key, "lenient");
 					ResourceArray array = value.getArray(status);
 					if(U_FAILURE(status)) {
 						return;

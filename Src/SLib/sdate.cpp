@@ -190,7 +190,7 @@ static const uint8 NormalYearDayToMonth[365] = {
 	11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11
 };                                                                                                 // December
 
-int DateToDaysSinceChristmas(int y, uint m, uint d)
+/*static*/int SUniDate_Internal::DateToDaysSinceChristmas(int y, uint m, uint d)
 {
 	int    n = 0;
 	//
@@ -438,8 +438,8 @@ int STDCALL GetDayOfWeekText(int options, int dayOfWeek /* 1..7 */, SString & rB
 
 static const int16 __dpm[11] = { 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334/*, 365*/ };
 
-static inline int FASTCALL getDays360(int mon, int leap) { return (mon > 1 && mon <= 12) ? ((mon-1) * 30) : 0; }
-static inline int FASTCALL getDays(int mon, int leap) { return (mon > 1 && mon <= 12) ? ((leap && mon > 2) ? __dpm[mon-2]+1 : __dpm[mon-2]) : 0; }
+static inline int FASTCALL getDays360(int mon, bool leap) { return (mon > 1 && mon <= 12) ? ((mon-1) * 30) : 0; }
+static inline int FASTCALL getDays(int mon, bool leap) { return (mon > 1 && mon <= 12) ? (((leap && mon > 2) ? __dpm[mon-2]+1 : __dpm[mon-2])) : 0; }
 
 static void _ltodate(long nd, void * dt, int format)
 {
@@ -461,14 +461,14 @@ static long FASTCALL _datetol(const void * dt, int format)
 {
 	int    d, m, y;
 	_decodedate(&d, &m, &y, dt, format);
-	return y ? DateToDaysSinceChristmas(y, m, d) : 0;
+	return y ? SUniDate_Internal::DateToDaysSinceChristmas(y, m, d) : 0;
 }
 
 static long FASTCALL _datetol360(const void * dt, int format)
 {
 	int    d, m, y;
 	_decodedate(&d, &m, &y, dt, format);
-	return (360L * y + getDays360(m, 0) + d);
+	return (360L * y + getDays360(m, false) + d);
 }
 //
 // Преобразование даты в формате Clarion
@@ -481,27 +481,25 @@ static long FASTCALL _datetol360(const void * dt, int format)
 #define firstDay     1
 #define firstOff    4L
 
-static long CLADateToLong(const SDosDate * d)
+static long ClarionDateToLong(const /*SDosDate*/SUniDate_Internal * pDt)
 {
-	SDosDate doff;
-	long loff;
-	int  leap;
-	doff.da_year = d->da_year - firstYear;
-	doff.da_day  = d->da_day  - firstDay;
-	leap = (d->da_year % 4 == 0);
-	loff = firstOff + doff.da_year * 365L + (doff.da_year >> 2) + doff.da_day + getDays(d->da_mon, leap) - getDays(firstMon, 0) - 1;
+	/*SDosDate*/SUniDate_Internal doff;
+	doff.Y = pDt->Y - firstYear;
+	doff.D = pDt->D - firstDay;
+	const bool leap = IsLeapYear_Gregorian(pDt->Y);
+	const long loff = firstOff + doff.Y * 365L + (doff.Y >> 2) + doff.D + getDays(pDt->M, leap) - getDays(firstMon, false) - 1;
 	return loff;
 }
 
-static void CLALongToDate(long off, SDosDate * d)
+static void ClarionLongToDate(long off, /*SDosDate*/SUniDate_Internal * pDt)
 {
 	long dev  = off - ((off / 365) >> 2) - 2;
 	int  rest = (int)(dev % 365);
-	d->da_year = (int)(dev / 365) + firstYear;
+	pDt->Y = (int)(dev / 365) + firstYear;
 	if(rest == 0)
-		d->da_year--;
-	d->da_mon = getMon(&rest, d->da_year % 4 == 0);
-	d->da_day = rest;
+		pDt->Y--;
+	pDt->M = getMon(&rest, IsLeapYear_Gregorian(pDt->Y));
+	pDt->D = rest;
 }
 
 #endif /* USE_DF_CLARION */
@@ -519,13 +517,11 @@ void STDCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 		case DF_BTRIEVE:
 			static_cast<LDATE *>(pBuf)->encode(day, mon, year);
 			break;
-#ifndef _WIN32_WCE
 		case DF_DOS:
 			static_cast<SDosDate *>(pBuf)->da_day  = day;
 			static_cast<SDosDate *>(pBuf)->da_mon  = mon;
 			static_cast<SDosDate *>(pBuf)->da_year = year;
 			break;
-#endif
 		case DF_FAT:
 			*static_cast<uint *>(pBuf) = (((year - 1980) << 9) | (mon << 5) | day);
 			break;
@@ -537,11 +533,11 @@ void STDCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 		case DF_CLARION:
 			{
 #ifdef USE_DF_CLARION
-				SDosDate dt;
-				dt.da_day  = day;
-				dt.da_mon  = mon;
-				dt.da_year = year;
-				*static_cast<long *>(pBuf) = CLADateToLong(&dt);
+				SUniDate_Internal dt;
+				dt.D  = day;
+				dt.M  = mon;
+				dt.Y = year;
+				*static_cast<long *>(pBuf) = ClarionDateToLong(&dt);
 #else
 				*static_cast<long *>(pBuf) = 0;
 				const int clarion_date_format_not_supported = 0
@@ -560,9 +556,6 @@ void STDCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 void STDCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, int format)
 {
 	char   tmp[64];
-#ifndef _WIN32_WCE
-	SDosDate d;
-#endif
 	switch(format) {
 		case DF_BTRIEVE: static_cast<const LDATE *>(pBuf)->decode(day, mon, year); break;
 #ifndef _WIN32_WCE
@@ -584,10 +577,13 @@ void STDCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, in
 		// @v10.2.8 case DF_PARADOX: formatNotSupported("Paradox"); break;
 		case DF_CLARION:
 #ifdef USE_DF_CLARION
-			CLALongToDate(*static_cast<const long *>(pBuf), &d);
-			*day  = d.da_day;
-			*mon  = d.da_mon;
-			*year = d.da_year;
+			{
+				SUniDate_Internal dt;
+				ClarionLongToDate(*static_cast<const long *>(pBuf), &dt);
+				*day  = dt.D;
+				*mon  = dt.M;
+				*year = dt.Y;
+			}
 #else
 			*day  = 0;
 			*mon  = 0;
@@ -2496,9 +2492,17 @@ SUniDate_Internal::SUniDate_Internal(int y, uint m, uint d) : Y(y), M(m), D(d)
 {
 }
 
-int SUniDate_Internal::SetDaysSinceChristmas(uint g)
+SUniDate_Internal & SUniDate_Internal::Z()
 {
-	int    ok = 1;
+	Y = 0;
+	M = 0;
+	D = 0;
+	return *this;
+}
+
+bool SUniDate_Internal::SetDaysSinceChristmas(uint g)
+{
+	bool   ok = true;
 	const uint   h4y = g / (400 * 365 + 97);
 	const uint   h4d_rem = g % (400 * 365 + 97);
 	const uint   hy = h4d_rem / (100 * 365 + 24);
@@ -3143,16 +3147,16 @@ int SUniTime::Implement_Set(uint8 signature, const void * pData)
 				ok = 0;
 			break;
 		case indDay:
-			value = DateToDaysSinceChristmas(p_inner->Y, p_inner->M, p_inner->D);
+			value = p_inner->GetDaysSinceChristmas();
 			break;
 		case indMon:
-			value = DateToDaysSinceChristmas(p_inner->Y, p_inner->M, 2);
+			value = SUniDate_Internal::DateToDaysSinceChristmas(p_inner->Y, p_inner->M, 2);
 			break;
 		case indQuart:
-			value = DateToDaysSinceChristmas(p_inner->Y, (((p_inner->M-1) / 3) * 3) + 1, 2);
+			value = SUniDate_Internal::DateToDaysSinceChristmas(p_inner->Y, (((p_inner->M-1) / 3) * 3) + 1, 2);
 			break;
 		case indSmYr:
-			value = DateToDaysSinceChristmas(p_inner->Y, (((p_inner->M-1) / 6) * 6) + 1, 2);
+			value = SUniDate_Internal::DateToDaysSinceChristmas(p_inner->Y, (((p_inner->M-1) / 6) * 6) + 1, 2);
 			break;
 		case indYr:
 			if(p_inner->Y > 0 && p_inner->Y < 3000)
@@ -3771,7 +3775,7 @@ int FASTCALL SUniTime::Get(FILETIME & rD) const
 // *pYear will be >= -4714 and != 0; *pMonth will be in the range 1 to 12
 // inclusive; *pDay will be in the range 1 to 31 inclusive.
 // 
-//   long int GregorianToSdn(int inputYear, int inputMonth, int inputDay);
+//   int GregorianToSdn(int inputYear, uint inputMonth, uint inputDay);
 // 
 // Convert a Gregorian calendar date to a SDN.  Zero is returned when the
 // input date is detected as invalid or out of the supported range.  The
@@ -3863,7 +3867,78 @@ int FASTCALL SUniTime::Get(FILETIME & rD) const
 //#define DAYS_PER_5_MONTHS  153
 //#define DAYS_PER_4_YEARS   1461
 
-bool SdnToGregorian(long sdn, int * pYear, int * pMonth, int * pDay)
+bool SUniDate_Internal::SetSdnGregorian(uint g)
+{
+	Z();
+	bool   ok = true;
+	THROW(!(g <= 0 || g > (LONG_MAX - 4 * GREGOR_SDN_OFFSET) / 4));
+	{
+		uint   temp = (g + GREGOR_SDN_OFFSET) * 4 - 1;
+		// Calculate the century (year/100)
+		uint   century = temp / SlConst::DaysPer400Years;
+		// Calculate the year and day of year (1 <= dayOfYear <= 366)
+		temp = ((temp % SlConst::DaysPer400Years) / 4) * 4 + 3;
+		Y = (century * 100) + (temp / SlConst::DaysPer4Years);
+		uint   day_of_year = (temp % SlConst::DaysPer4Years) / 4 + 1;
+		// Calculate the month and day of month
+		temp = day_of_year * 5 - 3;
+		M = temp / DAYS_PER_5_MONTHS;
+		D = (temp % DAYS_PER_5_MONTHS) / 5 + 1;
+		// Convert to the normal beginning of the year
+		if(M < 10) {
+			M += 3;
+		}
+		else {
+			Y += 1;
+			M -= 9;
+		}
+		// Adjust to the B.C./A.D. type numbering
+		Y -= 4800;
+		if(Y <= 0)
+			Y--;
+	}
+	CATCHZOK
+	return ok;
+}
+
+bool SUniDate_Internal::SetSdnJulian(uint g)
+{
+	Z();
+	bool   ok = true;
+	THROW(g > 0);
+	// Check for overflow 
+	THROW(g <= (LONG_MAX - JULIAN_SDN_OFFSET * 4 + 1) / 4);
+	{
+		uint   temp = g * 4 + (JULIAN_SDN_OFFSET * 4 - 1);
+		// Calculate the year and day of year (1 <= dayOfYear <= 366)
+		{
+			const int yearl = temp / SlConst::DaysPer4Years;
+			THROW(yearl >= INT_MIN && yearl <= INT_MAX);
+			Y = yearl;
+		}
+		int    day_of_year = (temp % SlConst::DaysPer4Years) / 4 + 1;
+		// Calculate the month and day of month
+		temp = day_of_year * 5 - 3;
+		M = temp / DAYS_PER_5_MONTHS;
+		D = (temp % DAYS_PER_5_MONTHS) / 5 + 1;
+	}
+	// Convert to the normal beginning of the year
+	if(M < 10) {
+		M += 3;
+	}
+	else {
+		Y += 1;
+		M -= 9;
+	}
+	// Adjust to the B.C./A.D. type numbering
+	Y -= 4800;
+	if(Y <= 0)
+		Y--;
+	CATCHZOK
+	return ok;	
+}
+
+/*static*/bool SUniDate_Internal::SdnToGregorian(long sdn, int * pYear, int * pMonth, int * pDay)
 {
 	bool   ok = true;
 	int    century;
@@ -3872,7 +3947,7 @@ bool SdnToGregorian(long sdn, int * pYear, int * pMonth, int * pDay)
 	int    day;
 	long   temp;
 	int    dayOfYear;
-	THROW(!(sdn <= 0 || sdn > (LONG_MAX - 4 * GREGOR_SDN_OFFSET) / 4));
+	THROW(sdn > 0 && sdn <= (LONG_MAX - 4 * GREGOR_SDN_OFFSET) / 4);
 	temp = (sdn + GREGOR_SDN_OFFSET) * 4 - 1;
 	// Calculate the century (year/100)
 	century = temp / SlConst::DaysPer400Years;
@@ -3908,10 +3983,10 @@ bool SdnToGregorian(long sdn, int * pYear, int * pMonth, int * pDay)
 	return ok;
 }
 
-long GregorianToSdn(int inputYear, int inputMonth, int inputDay)
+/*static*/int SUniDate_Internal::GregorianToSdn(int inputYear, uint inputMonth, uint inputDay)
 {
-	long    result = 0;
-	long    year;
+	int     result = 0;
+	int     year;
 	int     month;
 	// check for invalid dates
 	THROW(inputYear != 0 && inputYear >= -4714 && inputMonth >= 1 && inputMonth <= 12 && inputDay >= 1 && inputDay <= 31);
@@ -3950,7 +4025,7 @@ long GregorianToSdn(int inputYear, int inputMonth, int inputDay)
 // will be >= -4713 and != 0; *pMonth will be in the range 1 to 12
 // inclusive; *pDay will be in the range 1 to 31 inclusive.
 // 
-//   long JulianToSdn(int inputYear, int inputMonth, int inputDay);
+//   int JulianToSdn(int inputYear, int inputMonth, int inputDay);
 // 
 // Convert a Julian calendar date to a SDN.  Zero is returned when the
 // input date is detected as invalid or out of the supported range.  The
@@ -4054,15 +4129,14 @@ long GregorianToSdn(int inputYear, int inputMonth, int inputDay)
 //   Gregorian calendar, but was adjusted to use the Julian calendar's
 //   simpler leap year rule.]
 // 
-bool SdnToJulian(long sdn, int * pYear, int * pMonth, int * pDay)
+/*static*/bool SUniDate_Internal::SdnToJulian(long sdn, int * pYear, int * pMonth, int * pDay)
 {
 	bool   ok = true;
 	int    year;
 	int    month;
 	int    day;
-	THROW(sdn > 0);
 	// Check for overflow 
-	THROW(!(sdn > (LONG_MAX - JULIAN_SDN_OFFSET * 4 + 1) / 4 || sdn < LONG_MIN / 4));
+	THROW(sdn > 0 && sdn <= (LONG_MAX - JULIAN_SDN_OFFSET * 4 + 1) / 4);
 	{
 		long   temp = sdn * 4 + (JULIAN_SDN_OFFSET * 4 - 1);
 		// Calculate the year and day of year (1 <= dayOfYear <= 366)
@@ -4101,11 +4175,11 @@ bool SdnToJulian(long sdn, int * pYear, int * pMonth, int * pDay)
 	return ok;
 }
 
-long JulianToSdn(int inputYear, int inputMonth, int inputDay)
+/*static*/int SUniDate_Internal::JulianToSdn(int inputYear, int inputMonth, int inputDay)
 {
-	long result = 0;
-	long year;
-	int month;
+	int  result = 0;
+	int  year;
+	int  month;
 	// check for invalid dates
 	THROW(inputYear != 0 && inputYear >= -4713 && inputMonth >= 1 && inputMonth <= 12 && inputDay >= 1 && inputDay <= 31);
 	// check for dates before SDN 1 (Jan 2, 4713 B.C.)
@@ -4127,7 +4201,7 @@ long JulianToSdn(int inputYear, int inputMonth, int inputDay)
 	return result;
 }
 
-int SdnDayOfWeek(long sdn) // sunday - 0
+/*static*/int SUniDate_Internal::SdnDayOfWeek(long sdn) // sunday - 0
 {
 	int dow = (sdn + 1) % 7;
 	return (dow >= 0) ? dow : (dow + 7);

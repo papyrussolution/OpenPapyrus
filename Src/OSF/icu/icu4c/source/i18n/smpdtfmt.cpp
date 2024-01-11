@@ -2722,13 +2722,12 @@ int32_t SimpleDateFormat::matchString(const UnicodeString & text,
 	if(bestMatch >= 0) {
 		if(field < UCAL_FIELD_COUNT) {
 			// Adjustment for Hebrew Calendar month Adar II
-			if(!strcmp(cal.getType(), "hebrew") && field==UCAL_MONTH && bestMatch==13) {
+			if(sstreq(cal.getType(), "hebrew") && field==UCAL_MONTH && bestMatch==13) {
 				cal.set(field, 6);
 			}
 			else {
 				if(field == UCAL_YEAR) {
-					bestMatch++; // only get here for cyclic year names, which match 1-based years
-					             // 1-60
+					bestMatch++; // only get here for cyclic year names, which match 1-based years 1-60
 				}
 				cal.set(field, bestMatch);
 			}
@@ -3022,7 +3021,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, c
 			    // or not it was a leap year.  We may or may not yet know what year it is, so might have to
 			    // delay checking until
 			    // the year is parsed.
-			    if(!strcmp(cal.getType(), "hebrew")) {
+			    if(sstreq(cal.getType(), "hebrew")) {
 				    HebrewCalendar * hc = (HebrewCalendar*)&cal;
 				    if(cal.isSet(UCAL_YEAR)) {
 					    UErrorCode monthStatus = U_ZERO_ERROR;
@@ -3510,7 +3509,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, c
 		switch(patternCharIndex) {
 			case UDAT_MONTH_FIELD:
 			    // See notes under UDAT_MONTH_FIELD case above
-			    if(!strcmp(cal.getType(), "hebrew")) {
+			    if(sstreq(cal.getType(), "hebrew")) {
 				    HebrewCalendar * hc = (HebrewCalendar*)&cal;
 				    if(cal.isSet(UCAL_YEAR)) {
 					    UErrorCode monthStatus = U_ZERO_ERROR;

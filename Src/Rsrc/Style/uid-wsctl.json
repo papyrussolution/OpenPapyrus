@@ -1,5 +1,31 @@
 {
 	"symb": "ui",
+	"fontsrc_list": [
+		{
+			"face": "Cousine",
+			"src": "dd/font/Cousine-Regular.ttf"
+		},
+		{
+			"face": "DroidSans",
+			"src": "dd/font/DroidSans.ttf"
+		},
+		{
+			"face": "Karla",
+			"src": "dd/font/Karla-Regular.ttf"
+		},
+		{
+			"face": "ProggyClean",
+			"src": "dd/font/ProggyClean.ttf"
+		},
+		{
+			"face": "ProggyTiny",
+			"src": "dd/font/ProggyTiny.ttf"
+		},
+		{
+			"face": "Roboto",
+			"src": "dd/font/Roboto-Medium.ttf"
+		}
+	],
 	"colorset_list": [
 		{
 			"symb": "imgui-style",
@@ -73,38 +99,50 @@
 		{
 			"id": 5,
 			"symb": "screenAuthSelectSess",
-			"flags": "horizontal",
+			"flags": "vertical",
 			"size": "",
-			"justifycontent": "center",
-			"aligncontent": "center",
-			"alignitems": "center",
+			"justifycontent": "start",
+			"aligncontent": "stretch",
+			"alignitems": "stretch",
 			"alignself": "auto",
 			"shrinkfactor": 1,
 			"children": [
 				{
-					"id": 10008,
-					"size": "128, 100%",
+					"id": 10027,
+					"symb": "Toolbar",
+					"size": "100%, 64",
 					"alignitems": "stretch",
 					"alignself": "auto",
-					"margin": "2,1",
+					"gravityx": "center",
+					"gravityy": "top",
 					"shrinkfactor": 1
 				},
 				{
-					"id": 10009,
-					"flags": "vertical",
-					"size": "undef, 100%",
-					"justifycontent": "start",
-					"aligncontent": "stretch",
-					"alignitems": "stretch",
+					"flags": "horizontal",
+					"size": "100%, undef",
+					"justifycontent": "center",
+					"aligncontent": "center",
+					"alignitems": "center",
 					"alignself": "auto",
-					"margin": "2,1",
+					"gravityx": "center",
+					"gravityy": "bottom",
 					"growfactor": 1,
 					"shrinkfactor": 1,
 					"children": [
 						{
+							"id": 10008,
+							"symb": "MenuBlock",
+							"size": "128, 100%",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"margin": "2,1",
+							"shrinkfactor": 1
+						},
+						{
 							"id": 10009,
-							"flags": "horizontal",
-							"size": "100%, undef",
+							"symb": "MainGroup",
+							"flags": "vertical",
+							"size": "undef, 100%",
 							"justifycontent": "start",
 							"aligncontent": "stretch",
 							"alignitems": "stretch",
@@ -114,26 +152,9 @@
 							"shrinkfactor": 1,
 							"children": [
 								{
-									"id": 10011,
-									"size": "undef, 100%",
-									"alignitems": "stretch",
-									"alignself": "auto",
-									"margin": "2,1",
-									"growfactor": 1,
-									"shrinkfactor": 1
-								},
-								{
-									"id": 10012,
-									"size": "undef, 100%",
-									"alignitems": "stretch",
-									"alignself": "auto",
-									"margin": "2,1",
-									"growfactor": 1,
-									"shrinkfactor": 1
-								},
-								{
-									"flags": "vertical",
-									"size": "undef, 100%",
+									"id": 10009,
+									"flags": "horizontal",
+									"size": "100%, undef",
 									"justifycontent": "start",
 									"aligncontent": "stretch",
 									"alignitems": "stretch",
@@ -143,33 +164,77 @@
 									"shrinkfactor": 1,
 									"children": [
 										{
-											"id": 10013,
-											"size": "100%, undef",
+											"flags": "vertical",
+											"size": "undef, 100%",
+											"growfactor": 1,
+											"shrinkfactor": 1,
+											"children": [
+												{
+													"id": 10011,
+													"symb": "PersonInfo",
+													"size": "100%, undef",
+													"alignitems": "stretch",
+													"alignself": "auto",
+													"margin": "2,1",
+													"growfactor": 1,
+													"shrinkfactor": 1
+												},
+												{
+													"id": 10012,
+													"symb": "AccountInfo",
+													"size": "100%, undef",
+													"alignitems": "stretch",
+													"alignself": "auto",
+													"margin": "2,1",
+													"growfactor": 1,
+													"shrinkfactor": 1
+												}
+											]
+										},
+										{
+											"flags": "vertical",
+											"size": "undef, 100%",
+											"justifycontent": "start",
+											"aligncontent": "stretch",
 											"alignitems": "stretch",
 											"alignself": "auto",
 											"margin": "2,1",
 											"growfactor": 1,
-											"shrinkfactor": 1
-										},
-										{
-											"id": 10014,
-											"size": "100%, 128",
-											"alignitems": "stretch",
-											"alignself": "auto",
-											"margin": "2,1",
-											"shrinkfactor": 1
+											"shrinkfactor": 1,
+											"children": [
+												{
+													"id": 10013,
+													"symb": "SessionSelection",
+													"size": "100%, undef",
+													"alignitems": "stretch",
+													"alignself": "auto",
+													"margin": "2,1",
+													"growfactor": 1,
+													"shrinkfactor": 1
+												},
+												{
+													"id": 10014,
+													"symb": "SessionButtonGroup",
+													"size": "100%, 128",
+													"alignitems": "stretch",
+													"alignself": "auto",
+													"margin": "2,1",
+													"shrinkfactor": 1
+												}
+											]
 										}
 									]
+								},
+								{
+									"id": 10015,
+									"symb": "BottomCtrlGroup",
+									"size": "100%, 128",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"margin": "2,1",
+									"shrinkfactor": 1
 								}
 							]
-						},
-						{
-							"id": 10015,
-							"size": "100%, 128",
-							"alignitems": "stretch",
-							"alignself": "auto",
-							"margin": "2,1",
-							"shrinkfactor": 1
 						}
 					]
 				}
@@ -374,7 +439,7 @@
 									"shrinkfactor": 0,
 									"gravityx": "center",
 									"gravityy": "botton"
-								},
+								}
 							]
 						}
 					]
@@ -384,7 +449,7 @@
 		{
 			"id": 7,
 			"symb": "screenIntro",
-			"flags": "vertical wrap",
+			"flags": "vertical",
 			"size": "",
 			"justifycontent": "start",
 			"aligncontent": "stretch",
@@ -394,7 +459,8 @@
 			"children": [
 				{
 					"id": 10027,
-					"size": "100%, 32",
+					"symb": "Toolbar",
+					"size": "100%, 64",
 					"alignitems": "stretch",
 					"alignself": "auto",
 					"gravityx": "center",
@@ -487,7 +553,8 @@
 			"children": [
 				{
 					"id": 10027,
-					"size": "100%, 32",
+					"symb": "Toolbar",
+					"size": "100%, 64",
 					"alignitems": "stretch",
 					"alignself": "auto",
 					"gravityx": "center",

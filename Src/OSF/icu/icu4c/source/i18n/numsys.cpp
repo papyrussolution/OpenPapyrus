@@ -113,8 +113,7 @@ NumberingSystem* U_EXPORT2 NumberingSystem::createInstance(const Locale & inLoca
 	if(count > 0) { // @numbers keyword was specified in the locale
 		U_ASSERT(count < ULOC_KEYWORDS_CAPACITY);
 		buffer[count] = '\0'; // Make sure it is null terminated.
-		if(!strcmp(buffer, gDefault) || !strcmp(buffer, gNative) ||
-		    !strcmp(buffer, gTraditional) || !strcmp(buffer, gFinance)) {
+		if(sstreq(buffer, gDefault) || sstreq(buffer, gNative) || sstreq(buffer, gTraditional) || sstreq(buffer, gFinance)) {
 			nsResolved = FALSE;
 		}
 	}
@@ -147,13 +146,12 @@ NumberingSystem* U_EXPORT2 NumberingSystem::createInstance(const Locale & inLoca
 				buffer[count] = '\0'; // Make sure it is null terminated.
 				nsResolved = TRUE;
 			}
-
 			if(!nsResolved) { // Fallback behavior per TR35 - traditional falls back to native, finance and
 				          // native fall back to default
-				if(!strcmp(buffer, gNative) || !strcmp(buffer, gFinance)) {
+				if(sstreq(buffer, gNative) || sstreq(buffer, gFinance)) {
 					strcpy(buffer, gDefault);
 				}
-				else if(!strcmp(buffer, gTraditional)) {
+				else if(sstreq(buffer, gTraditional)) {
 					strcpy(buffer, gNative);
 				}
 				else { // If we get here we couldn't find even the default numbering system

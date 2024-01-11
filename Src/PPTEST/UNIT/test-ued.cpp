@@ -27,9 +27,7 @@
 		SLS.QueryPath("testroot", path_test_root);
 		{
 			if(false) { // @construction
-				static const SColor color_list[] = {
-					SClrAqua, SClrBlack, SClrWhite, SClrRed, SClrCyan
-				};
+				static const SColor color_list[] = { SClrAqua, SClrBlack, SClrWhite, SClrRed, SClrCyan };
 				static const uint alpha_list[] = { 2, 17, 120, 255 };
 				for(uint aidx = 0; aidx < SIZEOFARRAY(alpha_list); aidx++) {
 					for(uint cidx = 0; cidx < SIZEOFARRAY(color_list); cidx++) {

@@ -60,23 +60,19 @@ LSR &LSR::operator = (LSR &&other) U_NOEXCEPT {
 	return *this;
 }
 
-bool LSR::isEquivalentTo(const LSR &other) const {
-	return
-		strcmp(language, other.language) == 0 &&
-		strcmp(script, other.script) == 0 &&
+bool LSR::isEquivalentTo(const LSR &other) const 
+{
+	return sstreq(language, other.language) && sstreq(script, other.script) &&
 		regionIndex == other.regionIndex &&
 	        // Compare regions if both are ill-formed (and their indexes are 0).
-		(regionIndex > 0 || strcmp(region, other.region) == 0);
+		(regionIndex > 0 || sstreq(region, other.region));
 }
 
-bool LSR::operator == (const LSR &other) const {
-	return
-		strcmp(language, other.language) == 0 &&
-		strcmp(script, other.script) == 0 &&
-		regionIndex == other.regionIndex &&
+bool LSR::operator == (const LSR &other) const 
+{
+	return sstreq(language, other.language) && sstreq(script, other.script) && regionIndex == other.regionIndex &&
 	        // Compare regions if both are ill-formed (and their indexes are 0).
-		(regionIndex > 0 || strcmp(region, other.region) == 0) &&
-		flags == other.flags;
+		(regionIndex > 0 || sstreq(region, other.region)) && flags == other.flags;
 }
 
 int32_t LSR::indexForRegion(const char * region) 

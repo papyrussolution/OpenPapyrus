@@ -178,7 +178,7 @@ void SlThreadLocalArea::RemoveTempFiles(bool dontStoreFailedItems)
 }
 
 SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0), DragndropObjIdx(0), GlobSymbList(512, 0),
-	WsaInitCounter(0), HelpCookie(0), UiLanguageId(0), SessUuid(SCtrGenerate()) /* Генерируем абсолютно уникальный id сессии */
+	WsaInitCounter(0), HelpCookie(0), UiLanguageId(0), P_Uid(0), SessUuid(SCtrGenerate()) /* Генерируем абсолютно уникальный id сессии */
 {
 	assert((void *)&TlsIdx == (void *)this); // TlsIdx - @firstmember
 #if(USE_ASMLIB > 0)
@@ -212,6 +212,7 @@ SlSession::~SlSession()
 	ReleaseThread();
 	TlsFree(TlsIdx);
 	delete P_StopEvnt;
+	delete P_Uid; // @v11.9.2
 	for(int i = 0; i < WsaInitCounter; i++)
 		WSACleanup();
 #ifndef __GENERIC_MAIN_CONDUIT__

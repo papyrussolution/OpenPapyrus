@@ -2226,8 +2226,8 @@ int WsCtl_ImGuiSceneBlock::LoadUiDescription()
 	int    ok = 0;
 	SJson * p_js = 0;
 	SString temp_buf;
-	PPGetPath(PPPATH_WORKSPACE, temp_buf);
-	temp_buf.SetLastSlash().Cat("wsctl").SetLastSlash().Cat("wsctl-ui.json");
+	PPGetPath(PPPATH_DD, temp_buf);
+	temp_buf.SetLastSlash().Cat("uid").SetLastSlash().Cat("uid-wsctl.json");
 	SFile f_in(temp_buf, SFile::mRead);
 	{
 		STempBuffer in_buf(8192);
@@ -2263,7 +2263,7 @@ int WsCtl_ImGuiSceneBlock::LoadUiDescription()
 			MakeLayout(&p_js_lo_list);
 			if(p_js_lo_list) {
 				SString temp_buf;
-				PPGetFilePath(PPPATH_OUT, "wsctl_ui.json", temp_buf);
+				PPGetFilePath(PPPATH_OUT, "uid-wsctl.json", temp_buf);
 				SFile f_out(temp_buf, SFile::mWrite);
 				if(f_out.IsValid()) {
 					SJson js_ui(SJson::tOBJECT);
@@ -2344,7 +2344,9 @@ int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 {
 	int    ok = 0;
 	SString temp_buf;
+	SString path_bin;
 	PPIniFile ini_file;
+	PPGetPath(PPPATH_BIN, path_bin);
 	LoadUiDescription();
 	if((ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &JsP.Port) <= 0 || JsP.Port <= 0))
 		JsP.Port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
@@ -2470,8 +2472,29 @@ int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 				secondary_font_color = SColor(SClrSilver);
 			}
 			ClearColor = substrat_color;
-			CreateFontEntry(rIo, "FontSecondary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 14.0f, 0, &secondary_font_color);
-			CreateFontEntry(rIo, "FontPrimary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 16.0f, 0, &primary_font_color);
+			{
+				//const char * p_font_face_list[] = { "Roboto", "DroidSans", "Cousine", "Karla", "ProggyClean", "ProggyTiny" };
+				{
+					const SFontSource * p_fs = Uid.GetFontSourceC("Roboto");
+					if(p_fs) {
+						PPGetPath(PPPATH_BIN, temp_buf);
+						temp_buf.SetLastSlash().Cat("..").SetLastSlash().Cat(p_fs->Src);
+						if(fileExists(temp_buf))
+							CreateFontEntry(rIo, "FontSecondary", temp_buf, 16.0f, 0, &secondary_font_color);
+					}
+				}
+				{
+					const SFontSource * p_fs = Uid.GetFontSourceC("DroidSans");
+					if(p_fs) {
+						PPGetPath(PPPATH_BIN, temp_buf);
+						temp_buf.SetLastSlash().Cat("..").SetLastSlash().Cat(p_fs->Src);
+						if(fileExists(temp_buf))
+							CreateFontEntry(rIo, "FontPrimary", temp_buf, 18.0f, 0, &primary_font_color);
+					}
+				}
+				//CreateFontEntry(rIo, "FontSecondary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 14.0f, 0, &secondary_font_color);
+				//CreateFontEntry(rIo, "FontPrimary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 16.0f, 0, &primary_font_color);
+			}
 		}
 	}
 	{
@@ -3434,6 +3457,8 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							DAuth data_auth;
 							St.D_Auth.GetData(data_auth);
 							if(data_auth.SCardID && data_auth._Status == 0) {
+								MEMSZERO(LoginBlk.LoginText);
+								MEMSZERO(LoginBlk.PwText);
 								SetScreen(screenAuthSelectSess);
 							}
 							else {
@@ -3592,6 +3617,17 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						}
 						p_tl->Evaluate(&evp);
 						{
+							ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
+							void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
+							if(p_icon_back) {
+								if(ImGui::ImageButton(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize))) {
+									DAuth data_auth;
+									St.D_Auth.SetData(data_auth);
+									SetScreen(screenLogin);
+								}
+							}
+						}
+						{
 							ImGuiWindowByLayout wbl(p_tl, loidMenuBlock, "##MENUBLOCK", view_flags);
 							if(wbl.IsValid()) {
 							}
@@ -3611,7 +3647,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							ImGuiWindowByLayout wbl(p_tl, loidAccountInfo, "##ACCOUNTINFO", view_flags);
 							if(wbl.IsValid()) {
 								SString & r_text_buf = SLS.AcquireRvlStr();
-								ImGui::Text(PPLoadStringUtf8S("account", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.SCardCode));
+								ImGui::Text(PPLoadStringUtf8S("account_lw", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.SCardCode));
 								ImGui::Text(PPLoadStringUtf8S("rest", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.ScRest, MKSFMTD(0, 2, 0)));
 							}
 						}
@@ -3633,7 +3669,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 														//ImGui::RadioButton(
 														ImGui::TableNextColumn();
 														SString & r_temp_buf = SLS.AcquireRvlStr();
-														r_temp_buf.Cat(p_entry->NameUtf8).Space().CatChar('|').Space().Cat(price, MKSFMTD(0, 2, 0));
+														r_temp_buf.Cat(p_entry->NameUtf8).CatDiv('|', 1).Cat(price, MKSFMTD(0, 2, 0));
 														if(ImGui::/*RadioButton*/Selectable(r_temp_buf, (p_entry->ID == selected_tec_goods_id)))
 															St.SetSelectedTecGoodsID(p_entry->ID);
 															//new_selected_tec_goods_id = p_entry->ID;
@@ -3643,13 +3679,13 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 											ImGui::EndTable();
 										}
 									}
-									{
+									/*{
 										const  PPID selected_tec_goods_id = St.GetSelectedTecGoodsID();
 										const GoodsEntry * p_ge = st_data_prices.GetGoodsEntryByID(selected_tec_goods_id);
 										SString & r_text_buf = SLS.AcquireRvlStr();
 										r_text_buf.Cat("Selected Tec Goods ID").CatDiv(':', 2).Cat(p_ge ? p_ge->NameUtf8 : "undefined");
 										ImGui::Text(r_text_buf);
-									}
+									}*/
 								}
 							}
 							{
@@ -3659,7 +3695,14 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									PPID  sel_goods_id = St.GetSelectedTecGoodsID();
 									const GoodsEntry * p_goods_entry = st_data_prices.GetGoodsEntryByID(sel_goods_id);
 									if(p_goods_entry) {
-										if(ImGui::Button("Start Session...", ButtonSize_Double)) {
+										SString & r_temp_buf = SLS.AcquireRvlStr();
+										//
+										PPLoadTextUtf8(PPTXT_SELECTEDTARIFF, r_temp_buf);
+										r_temp_buf.CatDiv(':', 2).Cat(p_goods_entry->NameUtf8);
+										ImGui::Text(r_temp_buf);
+										//
+										PPLoadTextUtf8(PPTXT_STARTSESSION, r_temp_buf);
+										if(ImGui::Button(r_temp_buf, ButtonSize_Double)) {
 											WsCtl_ImGuiSceneBlock::DPrc prc_data;
 											St.D_Prc.GetData(prc_data); 
 											if(!!prc_data.PrcUuid) {
@@ -3758,9 +3801,11 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							St.D_Acc.GetData(data_acc);
 							if(data_acc.SCardID) {
 								SString & r_temp_buf = SLS.AcquireRvlStr();
-								ImGui::Text(r_temp_buf.Z().Cat("Аккаунт").CatDiv(':', 2).Cat(data_acc.SCardCode));
+								PPLoadStringUtf8S("account_lw", r_temp_buf).CatDiv(':', 2).Cat(data_acc.SCardCode);
+								ImGui::Text(r_temp_buf);
 								ImGui::Text(r_temp_buf.Z().Cat(data_acc.PersonName));
-								ImGui::Text(r_temp_buf.Z().Cat("Остаток").CatDiv(':', 2).Cat(data_acc.ScRest, MKSFMTD(0, 2, 0)));
+								PPLoadStringUtf8S("rest", r_temp_buf).CatDiv(':', 2).Cat(data_acc.ScRest, MKSFMTD(0, 2, 0));
+								ImGui::Text(r_temp_buf);
 							}
 							else {
 								//ImGui::SetKeyboardFocusHere();
@@ -3982,7 +4027,7 @@ int main(int, char**)
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO & io = ImGui::GetIO(); 
-		(void)io;
+		//(void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 		// Setup Dear ImGui style

@@ -1639,10 +1639,8 @@ static void _appendLDMLExtensionAsKeywords(const char * ldmlext, ExtensionListEn
 					/* typeless - default type value is "yes" */
 					pType = LOCALE_TYPE_YES;
 				}
-
-				/* Special handling for u-va-posix, since we want to treat this as a variant,
-				   not as a keyword */
-				if(!variantExists && !strcmp(pKey, POSIX_KEY) && !strcmp(pType, POSIX_VALUE)) {
+				// Special handling for u-va-posix, since we want to treat this as a variant, not as a keyword
+				if(!variantExists && sstreq(pKey, POSIX_KEY) && sstreq(pType, POSIX_VALUE)) {
 					*posixVariant = TRUE;
 				}
 				else {
@@ -1652,10 +1650,8 @@ static void _appendLDMLExtensionAsKeywords(const char * ldmlext, ExtensionListEn
 						*status = U_MEMORY_ALLOCATION_ERROR;
 						return;
 					}
-
 					kwd->key = pKey;
 					kwd->value = pType;
-
 					if(!_addExtensionToList(&kwdFirst, kwd, FALSE)) {
 						// duplicate keyword is allowed, Only the first
 						// is honored.

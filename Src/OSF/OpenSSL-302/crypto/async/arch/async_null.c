@@ -11,12 +11,12 @@
 #include <async_local.h> // This must be the first #include file 
 
 #ifdef ASYNC_NULL
-int ASYNC_is_capable(void)
+int ASYNC_is_capable()
 {
 	return 0;
 }
 
-void async_local_cleanup(void)
+void async_local_cleanup()
 {
 }
 #endif

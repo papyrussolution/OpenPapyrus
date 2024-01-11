@@ -33,21 +33,12 @@ static int stbl_module_init(CONF_IMODULE * md, const CONF * cnf)
 	return 1;
 }
 
-static void stbl_module_finish(CONF_IMODULE * md)
-{
-	ASN1_STRING_TABLE_cleanup();
-}
-
-void ASN1_add_stable_module(void)
-{
-	CONF_module_add("stbl_section", stbl_module_init, stbl_module_finish);
-}
-
+static void stbl_module_finish(CONF_IMODULE * md) { ASN1_STRING_TABLE_cleanup(); }
+void ASN1_add_stable_module(void) { CONF_module_add("stbl_section", stbl_module_init, stbl_module_finish); }
 /*
  * Create an table entry based on a name value pair. format is oid_name =
  * n1:v1, n2:v2,... where name is "min", "max", "mask" or "flags".
  */
-
 static int do_tcreate(const char * value, const char * name)
 {
 	char * eptr;
@@ -66,24 +57,24 @@ static int do_tcreate(const char * value, const char * name)
 		goto err;
 	for(i = 0; i < sk_CONF_VALUE_num(lst); i++) {
 		cnf = sk_CONF_VALUE_value(lst, i);
-		if(strcmp(cnf->name, "min") == 0) {
+		if(sstreq(cnf->name, "min")) {
 			tbl_min = strtoul(cnf->value, &eptr, 0);
 			if(*eptr)
 				goto err;
 		}
-		else if(strcmp(cnf->name, "max") == 0) {
+		else if(sstreq(cnf->name, "max")) {
 			tbl_max = strtoul(cnf->value, &eptr, 0);
 			if(*eptr)
 				goto err;
 		}
-		else if(strcmp(cnf->name, "mask") == 0) {
+		else if(sstreq(cnf->name, "mask")) {
 			if(!ASN1_str2mask(cnf->value, &tbl_mask) || !tbl_mask)
 				goto err;
 		}
-		else if(strcmp(cnf->name, "flags") == 0) {
-			if(strcmp(cnf->value, "nomask") == 0)
+		else if(sstreq(cnf->name, "flags")) {
+			if(sstreq(cnf->value, "nomask"))
 				tbl_flags = STABLE_NO_MASK;
-			else if(strcmp(cnf->value, "none") == 0)
+			else if(sstreq(cnf->value, "none"))
 				tbl_flags = STABLE_FLAGS_CLEAR;
 			else
 				goto err;

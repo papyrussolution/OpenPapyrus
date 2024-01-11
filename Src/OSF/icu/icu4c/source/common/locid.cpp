@@ -75,7 +75,8 @@ U_CDECL_BEGIN
 //
 // Deleter function for Locales owned by the default Locale hash table/
 //
-static void U_CALLCONV deleteLocale(void * obj) {
+static void U_CALLCONV deleteLocale(void * obj) 
+{
 	delete (icu::Locale*)obj;
 }
 
@@ -1813,12 +1814,10 @@ void Locale::initBaseName(UErrorCode & status) {
 	}
 }
 
-int32_t Locale::hashCode() const
-{
-	return ustr_hashCharsN(fullName, static_cast<int32_t>(strlen(fullName)));
-}
+int32_t Locale::hashCode() const { return ustr_hashCharsN(fullName, static_cast<int32_t>(strlen(fullName))); }
 
-void Locale::setToBogus() {
+void Locale::setToBogus() 
+{
 	/* Free our current storage */
 	if((baseName != fullName) && (baseName != fullNameBuffer)) {
 		uprv_free(baseName);
@@ -1848,13 +1847,11 @@ const Locale & U_EXPORT2 Locale::getDefault()
 	return *locale_set_default_internal(NULL, status);
 }
 
-void U_EXPORT2 Locale::setDefault(const Locale & newLocale,
-    UErrorCode & status)
+void U_EXPORT2 Locale::setDefault(const Locale & newLocale, UErrorCode & status)
 {
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	/* Set the default from the full name string of the supplied locale.
 	 * This is a convenient way to access the default locale caching mechanisms.
 	 */
@@ -1862,49 +1859,46 @@ void U_EXPORT2 Locale::setDefault(const Locale & newLocale,
 	locale_set_default_internal(localeID, status);
 }
 
-void Locale::addLikelySubtags(UErrorCode & status) {
+void Locale::addLikelySubtags(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	CharString maximizedLocaleID;
 	{
 		CharStringByteSink sink(&maximizedLocaleID);
 		ulocimp_addLikelySubtags(fullName, sink, &status);
 	}
-
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	init(maximizedLocaleID.data(), /*canonicalize=*/ FALSE);
 	if(isBogus()) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 	}
 }
 
-void Locale::minimizeSubtags(UErrorCode & status) {
+void Locale::minimizeSubtags(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	CharString minimizedLocaleID;
 	{
 		CharStringByteSink sink(&minimizedLocaleID);
 		ulocimp_minimizeSubtags(fullName, sink, &status);
 	}
-
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	init(minimizedLocaleID.data(), /*canonicalize=*/ FALSE);
 	if(isBogus()) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 	}
 }
 
-void Locale::canonicalize(UErrorCode & status) {
+void Locale::canonicalize(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -1928,7 +1922,6 @@ Locale U_EXPORT2 Locale::forLanguageTag(StringPiece tag, UErrorCode & status)
 	if(U_FAILURE(status)) {
 		return result;
 	}
-
 	// If a BCP 47 language tag is passed as the language parameter to the
 	// normal Locale constructor, it will actually fall back to invoking
 	// uloc_forLanguageTag() to parse it if it somehow is able to detect that
@@ -1939,23 +1932,15 @@ Locale U_EXPORT2 Locale::forLanguageTag(StringPiece tag, UErrorCode & status)
 	// interpret as ICU locale IDs and because of that won't trigger the BCP 47
 	// parsing. Therefore the code here explicitly calls uloc_forLanguageTag()
 	// and then Locale::init(), instead of just calling the normal constructor.
-
 	CharString localeID;
 	int32_t parsedLength;
 	{
 		CharStringByteSink sink(&localeID);
-		ulocimp_forLanguageTag(
-			tag.data(),
-			tag.length(),
-			sink,
-			&parsedLength,
-			&status);
+		ulocimp_forLanguageTag(tag.data(), tag.length(), sink, &parsedLength, &status);
 	}
-
 	if(U_FAILURE(status)) {
 		return result;
 	}
-
 	if(parsedLength != tag.size()) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return result;
@@ -1973,12 +1958,10 @@ void Locale::toLanguageTag(ByteSink& sink, UErrorCode & status) const
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	if(fIsBogus) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-
 	ulocimp_toLanguageTag(fullName, sink, /*strict=*/ FALSE, &status);
 }
 
@@ -2017,136 +2000,34 @@ const char * Locale::getISO3Country() const
  * in an incorrect format, 0 is returned.  The LocaleID is for use in
  * Windows (it is an LCID), but is available on all platforms.
  */
-uint32_t Locale::getLCID() const
-{
-	return uloc_getLCID(fullName);
-}
-
-const char * const* U_EXPORT2 Locale::getISOCountries()
-{
-	return uloc_getISOCountries();
-}
-
-const char * const* U_EXPORT2 Locale::getISOLanguages()
-{
-	return uloc_getISOLanguages();
-}
+uint32_t Locale::getLCID() const { return uloc_getLCID(fullName); }
+const char * const* U_EXPORT2 Locale::getISOCountries() { return uloc_getISOCountries(); }
+const char * const* U_EXPORT2 Locale::getISOLanguages() { return uloc_getISOLanguages(); }
 
 // Set the locale's data based on a posix id.
-void Locale::setFromPOSIXID(const char * posixID)
-{
-	init(posixID, TRUE);
-}
-
-const Locale & U_EXPORT2 Locale::getRoot(void)
-{
-	return getLocale(eROOT);
-}
-
-const Locale & U_EXPORT2 Locale::getEnglish(void)
-{
-	return getLocale(eENGLISH);
-}
-
-const Locale & U_EXPORT2 Locale::getFrench(void)
-{
-	return getLocale(eFRENCH);
-}
-
-const Locale & U_EXPORT2 Locale::getGerman(void)
-{
-	return getLocale(eGERMAN);
-}
-
-const Locale & U_EXPORT2 Locale::getItalian(void)
-{
-	return getLocale(eITALIAN);
-}
-
-const Locale & U_EXPORT2 Locale::getJapanese(void)
-{
-	return getLocale(eJAPANESE);
-}
-
-const Locale & U_EXPORT2 Locale::getKorean(void)
-{
-	return getLocale(eKOREAN);
-}
-
-const Locale & U_EXPORT2 Locale::getChinese(void)
-{
-	return getLocale(eCHINESE);
-}
-
-const Locale & U_EXPORT2 Locale::getSimplifiedChinese(void)
-{
-	return getLocale(eCHINA);
-}
-
-const Locale & U_EXPORT2 Locale::getTraditionalChinese(void)
-{
-	return getLocale(eTAIWAN);
-}
-
-const Locale & U_EXPORT2 Locale::getFrance(void)
-{
-	return getLocale(eFRANCE);
-}
-
-const Locale & U_EXPORT2 Locale::getGermany(void)
-{
-	return getLocale(eGERMANY);
-}
-
-const Locale & U_EXPORT2 Locale::getItaly(void)
-{
-	return getLocale(eITALY);
-}
-
-const Locale & U_EXPORT2 Locale::getJapan(void)
-{
-	return getLocale(eJAPAN);
-}
-
-const Locale & U_EXPORT2 Locale::getKorea(void)
-{
-	return getLocale(eKOREA);
-}
-
-const Locale & U_EXPORT2 Locale::getChina(void)
-{
-	return getLocale(eCHINA);
-}
-
-const Locale & U_EXPORT2 Locale::getPRC(void)
-{
-	return getLocale(eCHINA);
-}
-
-const Locale & U_EXPORT2 Locale::getTaiwan(void)
-{
-	return getLocale(eTAIWAN);
-}
-
-const Locale & U_EXPORT2 Locale::getUK(void)
-{
-	return getLocale(eUK);
-}
-
-const Locale & U_EXPORT2 Locale::getUS(void)
-{
-	return getLocale(eUS);
-}
-
-const Locale & U_EXPORT2 Locale::getCanada(void)
-{
-	return getLocale(eCANADA);
-}
-
-const Locale & U_EXPORT2 Locale::getCanadaFrench(void)
-{
-	return getLocale(eCANADA_FRENCH);
-}
+void Locale::setFromPOSIXID(const char * posixID) { init(posixID, TRUE); }
+const Locale & U_EXPORT2 Locale::getRoot(void) { return getLocale(eROOT); }
+const Locale & U_EXPORT2 Locale::getEnglish(void) { return getLocale(eENGLISH); }
+const Locale & U_EXPORT2 Locale::getFrench(void) { return getLocale(eFRENCH); }
+const Locale & U_EXPORT2 Locale::getGerman(void) { return getLocale(eGERMAN); }
+const Locale & U_EXPORT2 Locale::getItalian(void) { return getLocale(eITALIAN); }
+const Locale & U_EXPORT2 Locale::getJapanese(void) { return getLocale(eJAPANESE); }
+const Locale & U_EXPORT2 Locale::getKorean(void) { return getLocale(eKOREAN); }
+const Locale & U_EXPORT2 Locale::getChinese(void) { return getLocale(eCHINESE); }
+const Locale & U_EXPORT2 Locale::getSimplifiedChinese(void) { return getLocale(eCHINA); }
+const Locale & U_EXPORT2 Locale::getTraditionalChinese(void) { return getLocale(eTAIWAN); }
+const Locale & U_EXPORT2 Locale::getFrance(void) { return getLocale(eFRANCE); }
+const Locale & U_EXPORT2 Locale::getGermany(void) { return getLocale(eGERMANY); }
+const Locale & U_EXPORT2 Locale::getItaly(void) { return getLocale(eITALY); }
+const Locale & U_EXPORT2 Locale::getJapan(void) { return getLocale(eJAPAN); }
+const Locale & U_EXPORT2 Locale::getKorea(void) { return getLocale(eKOREA); }
+const Locale & U_EXPORT2 Locale::getChina(void) { return getLocale(eCHINA); }
+const Locale & U_EXPORT2 Locale::getPRC(void) { return getLocale(eCHINA); }
+const Locale & U_EXPORT2 Locale::getTaiwan(void) { return getLocale(eTAIWAN); }
+const Locale & U_EXPORT2 Locale::getUK(void) { return getLocale(eUK); }
+const Locale & U_EXPORT2 Locale::getUS(void) { return getLocale(eUS); }
+const Locale & U_EXPORT2 Locale::getCanada(void) { return getLocale(eCANADA); }
+const Locale & U_EXPORT2 Locale::getCanadaFrench(void) { return getLocale(eCANADA_FRENCH); }
 
 const Locale &Locale::getLocale(int locid)
 {
@@ -2178,16 +2059,9 @@ private:
 	int32_t length;
 	UnicodeString currUSKey;
 	static const char fgClassID; /* Warning this is used beyond the typical RTTI usage. */
-
 public:
-	static UClassID U_EXPORT2 getStaticClassID() {
-		return (UClassID)&fgClassID;
-	}
-
-	virtual UClassID getDynamicClassID(void) const override {
-		return getStaticClassID();
-	}
-
+	static UClassID U_EXPORT2 getStaticClassID() { return (UClassID)&fgClassID; }
+	virtual UClassID getDynamicClassID(void) const override { return getStaticClassID(); }
 public:
 	KeywordEnumeration(const char * keys, int32_t keywordLen, int32_t currentIndex, UErrorCode & status)
 		: keywords((char *)&fgClassID), current((char *)&fgClassID), length(0) {
@@ -2209,16 +2083,14 @@ public:
 			}
 		}
 	}
-
 	virtual ~KeywordEnumeration();
-
 	virtual StringEnumeration * clone() const override
 	{
 		UErrorCode status = U_ZERO_ERROR;
 		return new KeywordEnumeration(keywords, length, (int32_t)(current - keywords), status);
 	}
-
-	virtual int32_t count(UErrorCode & /*status*/) const override {
+	virtual int32_t count(UErrorCode & /*status*/) const override 
+	{
 		char * kw = keywords;
 		int32_t result = 0;
 		while(*kw) {
@@ -2227,41 +2099,35 @@ public:
 		}
 		return result;
 	}
-
-	virtual const char * next(int32_t* resultLength, UErrorCode & status) override {
+	virtual const char * next(int32_t* resultLength, UErrorCode & status) override 
+	{
 		const char * result;
 		int32_t len;
 		if(U_SUCCESS(status) && *current != 0) {
 			result = current;
 			len = (int32_t)strlen(current);
 			current += len+1;
-			if(resultLength) {
-				*resultLength = len;
-			}
+			ASSIGN_PTR(resultLength, len);
 		}
 		else {
-			if(resultLength) {
-				*resultLength = 0;
-			}
+			ASSIGN_PTR(resultLength, 0);
 			result = NULL;
 		}
 		return result;
 	}
-
-	virtual const UnicodeString * snext(UErrorCode & status) override {
+	virtual const UnicodeString * snext(UErrorCode & status) override 
+	{
 		int32_t resultLength = 0;
 		const char * s = next(&resultLength, status);
 		return setChars(s, resultLength, status);
 	}
-
-	virtual void reset(UErrorCode & /*status*/) override {
-		current = keywords;
-	}
+	virtual void reset(UErrorCode & /*status*/) override { current = keywords; }
 };
 
 const char KeywordEnumeration::fgClassID = '\0';
 
-KeywordEnumeration::~KeywordEnumeration() {
+KeywordEnumeration::~KeywordEnumeration() 
+{
 	uprv_free(keywords);
 }
 
@@ -2296,11 +2162,9 @@ UnicodeKeywordEnumeration::~UnicodeKeywordEnumeration() = default;
 StringEnumeration * Locale::createKeywords(UErrorCode & status) const
 {
 	StringEnumeration * result = NULL;
-
 	if(U_FAILURE(status)) {
 		return result;
 	}
-
 	const char * variantStart = uprv_strchr(fullName, '@');
 	const char * assignment = uprv_strchr(fullName, '=');
 	if(variantStart) {
@@ -2325,11 +2189,9 @@ StringEnumeration * Locale::createKeywords(UErrorCode & status) const
 StringEnumeration * Locale::createUnicodeKeywords(UErrorCode & status) const
 {
 	StringEnumeration * result = NULL;
-
 	if(U_FAILURE(status)) {
 		return result;
 	}
-
 	const char * variantStart = uprv_strchr(fullName, '@');
 	const char * assignment = uprv_strchr(fullName, '=');
 	if(variantStart) {
@@ -2356,59 +2218,48 @@ int32_t Locale::getKeywordValue(const char * keywordName, char * buffer, int32_t
 	return uloc_getKeywordValue(fullName, keywordName, buffer, bufLen, &status);
 }
 
-void Locale::getKeywordValue(StringPiece keywordName, ByteSink& sink, UErrorCode & status) const {
+void Locale::getKeywordValue(StringPiece keywordName, ByteSink& sink, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	if(fIsBogus) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-
 	// TODO: Remove the need for a const char * to a NUL terminated buffer.
 	const CharString keywordName_nul(keywordName, status);
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	ulocimp_getKeywordValue(fullName, keywordName_nul.data(), sink, &status);
 }
 
-void Locale::getUnicodeKeywordValue(StringPiece keywordName,
-    ByteSink& sink,
-    UErrorCode & status) const {
+void Locale::getUnicodeKeywordValue(StringPiece keywordName, ByteSink& sink, UErrorCode & status) const 
+{
 	// TODO: Remove the need for a const char * to a NUL terminated buffer.
 	const CharString keywordName_nul(keywordName, status);
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	const char * legacy_key = uloc_toLegacyKey(keywordName_nul.data());
-
 	if(legacy_key == nullptr) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-
 	CharString legacy_value;
 	{
 		CharStringByteSink sink(&legacy_value);
 		getKeywordValue(legacy_key, sink, status);
 	}
-
 	if(U_FAILURE(status)) {
 		return;
 	}
-
-	const char * unicode_value = uloc_toUnicodeLocaleType(
-		keywordName_nul.data(), legacy_value.data());
-
+	const char * unicode_value = uloc_toUnicodeLocaleType(keywordName_nul.data(), legacy_value.data());
 	if(unicode_value == nullptr) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-
 	sink.Append(unicode_value, static_cast<int32_t>(strlen(unicode_value)));
 }
 
@@ -2490,5 +2341,4 @@ const char * Locale::getBaseName() const { return baseName; }
 
 Locale::Iterator::~Iterator() = default;
 
-//eof
 U_NAMESPACE_END

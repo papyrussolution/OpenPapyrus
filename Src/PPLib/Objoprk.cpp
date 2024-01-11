@@ -2463,6 +2463,7 @@ public:
 		setCtrlData(CTL_OPKCOUNTER_COUNTER, &opc_rec.Counter);
 		AddClusterAssoc(CTL_OPKCOUNTER_FLAGS, 0, OPCNTF_LOCKINCR);
 		AddClusterAssoc(CTL_OPKCOUNTER_FLAGS, 1, OPCNTF_DIFFBYLOC);
+		AddClusterAssoc(CTL_OPKCOUNTER_FLAGS, 2, OPCNTF_VERIFYUNIQ); // @v11.9.2
 		SetClusterData(CTL_OPKCOUNTER_FLAGS, opc_rec.Flags);
 		enableCommand(cmDiffByLoc, BIN(opc_rec.Flags & OPCNTF_DIFFBYLOC));
 		if(resourceID == DLG_OPKCOUNTER)

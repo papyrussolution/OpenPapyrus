@@ -29,8 +29,7 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace log_internal {
-#define ABSL_LOGGING_INTERNAL_DEFINE_MAKE_CHECK_OP_STRING(x) \
-	template std::string* MakeCheckOpString(x, x, const char*)
+#define ABSL_LOGGING_INTERNAL_DEFINE_MAKE_CHECK_OP_STRING(x) template std::string* MakeCheckOpString(x, x, const char*)
 ABSL_LOGGING_INTERNAL_DEFINE_MAKE_CHECK_OP_STRING(bool);
 ABSL_LOGGING_INTERNAL_DEFINE_MAKE_CHECK_OP_STRING(int64_t);
 ABSL_LOGGING_INTERNAL_DEFINE_MAKE_CHECK_OP_STRING(uint64_t);
@@ -46,21 +45,25 @@ ABSL_LOGGING_INTERNAL_DEFINE_MAKE_CHECK_OP_STRING(const unsigned char*);
 ABSL_LOGGING_INTERNAL_DEFINE_MAKE_CHECK_OP_STRING(const void*);
 #undef ABSL_LOGGING_INTERNAL_DEFINE_MAKE_CHECK_OP_STRING
 
-CheckOpMessageBuilder::CheckOpMessageBuilder(const char* exprtext) {
+CheckOpMessageBuilder::CheckOpMessageBuilder(const char* exprtext) 
+{
 	stream_ << exprtext << " (";
 }
 
-std::ostream& CheckOpMessageBuilder::ForVar2() {
+std::ostream& CheckOpMessageBuilder::ForVar2() 
+{
 	stream_ << " vs. ";
 	return stream_;
 }
 
-std::string* CheckOpMessageBuilder::NewString() {
+std::string* CheckOpMessageBuilder::NewString() 
+{
 	stream_ << ")";
 	return new std::string(stream_.str());
 }
 
-void MakeCheckOpValueString(std::ostream& os, const char v) {
+void MakeCheckOpValueString(std::ostream& os, const char v) 
+{
 	if(v >= 32 && v <= 126) {
 		os << "'" << v << "'";
 	}
@@ -69,7 +72,8 @@ void MakeCheckOpValueString(std::ostream& os, const char v) {
 	}
 }
 
-void MakeCheckOpValueString(std::ostream& os, const signed char v) {
+void MakeCheckOpValueString(std::ostream& os, const signed char v) 
+{
 	if(v >= 32 && v <= 126) {
 		os << "'" << v << "'";
 	}
@@ -78,7 +82,8 @@ void MakeCheckOpValueString(std::ostream& os, const signed char v) {
 	}
 }
 
-void MakeCheckOpValueString(std::ostream& os, const unsigned char v) {
+void MakeCheckOpValueString(std::ostream& os, const unsigned char v) 
+{
 	if(v >= 32 && v <= 126) {
 		os << "'" << v << "'";
 	}
@@ -87,7 +92,8 @@ void MakeCheckOpValueString(std::ostream& os, const unsigned char v) {
 	}
 }
 
-void MakeCheckOpValueString(std::ostream& os, const void* p) {
+void MakeCheckOpValueString(std::ostream& os, const void* p) 
+{
 	if(p == nullptr) {
 		os << "(null)";
 	}

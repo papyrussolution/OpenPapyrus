@@ -431,10 +431,7 @@ typedef enum  FT_Glyph_BBox_Mode_ {
  *   To get the bbox in grid-fitted pixel coordinates, set `bbox_mode` to
  *   @FT_GLYPH_BBOX_PIXELS.
  */
-FT_EXPORT(void)
-FT_Glyph_Get_CBox(FT_Glyph glyph,
-    FT_UInt bbox_mode,
-    FT_BBox  *acbox);
+FT_EXPORT(void) FT_Glyph_Get_CBox(FT_Glyph glyph, FT_UInt bbox_mode, FT_BBox  *acbox);
 
 /**************************************************************************
  *
@@ -558,9 +555,7 @@ FT_Glyph_To_Bitmap(FT_Glyph*       the_glyph,
  *   glyph ::
  *     A handle to the target glyph object.
  */
-FT_EXPORT(void)
-FT_Done_Glyph(FT_Glyph glyph);
-
+FT_EXPORT(void) FT_Done_Glyph(FT_Glyph glyph);
 /* */
 
 /* other helpful functions */
@@ -594,9 +589,7 @@ FT_Done_Glyph(FT_Glyph glyph);
  *   Since the function uses wrap-around arithmetic, results become
  *   meaningless if the arguments are very large.
  */
-FT_EXPORT(void)
-FT_Matrix_Multiply(const FT_Matrix*  a,
-    FT_Matrix*        b);
+FT_EXPORT(void) FT_Matrix_Multiply(const FT_Matrix*  a, FT_Matrix*        b);
 
 /**************************************************************************
  *

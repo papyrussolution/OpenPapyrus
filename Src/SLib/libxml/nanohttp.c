@@ -388,7 +388,7 @@ static xmlNanoHTTPCtxtPtr xmlNanoHTTPNewCtxt(const char * URL) {
 	ret = (xmlNanoHTTPCtxtPtr)xmlMalloc(sizeof(xmlNanoHTTPCtxt));
 	if(ret == NULL) {
 		xmlHTTPErrMemory("allocating context");
-		return(NULL);
+		return NULL;
 	}
 
 	memset(ret, 0, sizeof(xmlNanoHTTPCtxt));
@@ -650,7 +650,7 @@ static char * xmlNanoHTTPReadLine(xmlNanoHTTPCtxtPtr ctxt) {
 		if(ctxt->inrptr == ctxt->inptr) {
 			if( (rc = xmlNanoHTTPRecv(ctxt)) == 0) {
 				if(bp == buf)
-					return(NULL);
+					return NULL;
 				else
 					*bp = 0;
 				return(xmlMemStrdup(buf));
@@ -1354,7 +1354,7 @@ void* xmlNanoHTTPMethodRedir(const char * URL, const char * method, const char *
 	int xmt_bytes;
 #endif
 
-	if(URL == NULL) return(NULL);
+	if(URL == NULL) return NULL;
 	if(method == NULL) method = "GET";
 	xmlNanoHTTPInit();
 
@@ -1362,12 +1362,12 @@ retry:
 	if(redirURL == NULL) {
 		ctxt = xmlNanoHTTPNewCtxt(URL);
 		if(ctxt == NULL)
-			return(NULL);
+			return NULL;
 	}
 	else {
 		ctxt = xmlNanoHTTPNewCtxt(redirURL);
 		if(ctxt == NULL)
-			return(NULL);
+			return NULL;
 		ctxt->location = xmlMemStrdup(redirURL);
 	}
 
@@ -1375,14 +1375,14 @@ retry:
 		__xmlIOErr(XML_FROM_HTTP, XML_HTTP_URL_SYNTAX, "Not a valid HTTP URI");
 		xmlNanoHTTPFreeCtxt(ctxt);
 		if(redirURL != NULL) xmlFree(redirURL);
-		return(NULL);
+		return NULL;
 	}
 	if(ctxt->hostname == NULL) {
 		__xmlIOErr(XML_FROM_HTTP, XML_HTTP_UNKNOWN_HOST,
 		    "Failed to identify host in URI");
 		xmlNanoHTTPFreeCtxt(ctxt);
 		if(redirURL != NULL) xmlFree(redirURL);
-		return(NULL);
+		return NULL;
 	}
 	if(proxy) {
 		blen = strlen(ctxt->hostname) * 2 + 16;
@@ -1395,7 +1395,7 @@ retry:
 	if(ret == INVALID_SOCKET) {
 		xmlNanoHTTPFreeCtxt(ctxt);
 		if(redirURL != NULL) xmlFree(redirURL);
-		return(NULL);
+		return NULL;
 	}
 	ctxt->fd = ret;
 
@@ -1547,7 +1547,7 @@ retry:
 		xmlGenericError(xmlGenericErrorContext,
 		    "xmlNanoHTTPMethodRedir: Too many redirects, aborting ...\n");
 #endif
-		return(NULL);
+		return NULL;
 	}
 
 	if(contentType != NULL) {
@@ -1725,7 +1725,7 @@ int xmlNanoHTTPReturnCode(void * ctx) {
 const char * xmlNanoHTTPAuthHeader(void * ctx) {
 	xmlNanoHTTPCtxtPtr ctxt = (xmlNanoHTTPCtxtPtr)ctx;
 
-	if(ctxt == NULL) return(NULL);
+	if(ctxt == NULL) return NULL;
 
 	return(ctxt->authHeader);
 }

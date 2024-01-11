@@ -477,12 +477,9 @@ const char * UDataPathIterator::next(UErrorCode * pErrorCode)
 		}
 #endif
 		pathBuffer.clear().append(currentPath, pathLen, *pErrorCode);
-
 		/* check for .dat files */
 		pathBasename = findBasename(pathBuffer.data());
-
-		if(checkLastFour == TRUE &&
-		    (pathLen>=4) &&
+		if(checkLastFour == TRUE && (pathLen>=4) &&
 		    uprv_strncmp(pathBuffer.data() +(pathLen-4), suffix.data(), 4)==0 && /* suffix matches */
 		    uprv_strncmp(findBasename(pathBuffer.data()), basename, basenameLen)==0 &&/* base matches */
 		    strlen(pathBasename)==(basenameLen+4)) { /* base+suffix = full len */
@@ -500,7 +497,8 @@ const char * UDataPathIterator::next(UErrorCode * pErrorCode)
 					continue;
 				}
 				/* Check if it is a directory with the same name as our package */
-				if(!packageStub.isEmpty() && (pathLen > packageStub.length()) && !strcmp(pathBuffer.data() + pathLen - packageStub.length(), packageStub.data())) {
+				if(!packageStub.isEmpty() && (pathLen > packageStub.length()) && 
+					sstreq(pathBuffer.data() + pathLen - packageStub.length(), packageStub.data())) {
 #ifdef UDATA_DEBUG
 					slfprintf_stderr("Found stub %s (will add package %s of len %d)\n", packageStub.data(), basename, basenameLen);
 #endif

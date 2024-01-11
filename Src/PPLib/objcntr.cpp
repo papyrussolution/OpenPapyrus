@@ -1,5 +1,5 @@
 // OBJCNTR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -138,8 +138,9 @@ int PPObjOpCounter::Edit(PPID * pID, void * extraPtr)
 	int    ok = -1, valid_data = 0, r = 0;
 	PPOpCounterPacket pack;
 	THROW(CheckRightsModByID(pID));
-	if(*pID)
+	if(*pID) {
 		THROW(GetPacket(*pID, &pack) > 0);
+	}
 	THROW(r = EditCounter(&pack, DLG_OPCNTR));
 	if(r > 0) {
 		THROW(PutPacket(pID, &pack, 1));

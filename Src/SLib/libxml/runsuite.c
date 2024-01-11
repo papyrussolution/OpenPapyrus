@@ -60,7 +60,7 @@ static xmlChar *composeDir(const xmlChar * dir, const xmlChar * path)
 {
 	char buf[500];
 	if(dir == NULL)  return(xmlStrdup(path));
-	if(path == NULL)  return(NULL);
+	if(path == NULL)  return NULL;
 	snprintf(buf, 500, "%s/%s", (const char *)dir, (const char *)path);
 	return(xmlStrdup((const xmlChar *)buf));
 }
@@ -229,18 +229,18 @@ static xmlNode * getNext(xmlNode * cur, const char * xpath)
 	xmlXPathObject * res;
 	xmlXPathCompExprPtr comp;
 	if((cur == NULL)  || (cur->doc == NULL) || (xpath == NULL))
-		return(NULL);
+		return NULL;
 	ctxtXPath->doc = cur->doc;
 	ctxtXPath->P_Node = cur;
 	comp = xmlXPathCompile(BAD_CAST xpath);
 	if(comp == NULL) {
 		fprintf(stderr, "Failed to compile %s\n", xpath);
-		return(NULL);
+		return NULL;
 	}
 	res = xmlXPathCompiledEval(comp, ctxtXPath);
 	xmlXPathFreeCompExpr(comp);
 	if(res == NULL)
-		return(NULL);
+		return NULL;
 	if((res->type == XPATH_NODESET) &&
 	    (res->nodesetval != NULL) &&
 	    (res->nodesetval->nodeNr > 0) &&
@@ -256,18 +256,18 @@ static xmlChar *getString(xmlNodePtr cur, const char * xpath)
 	xmlXPathObjectPtr res;
 	xmlXPathCompExprPtr comp;
 	if((cur == NULL)  || (cur->doc == NULL) || (xpath == NULL))
-		return(NULL);
+		return NULL;
 	ctxtXPath->doc = cur->doc;
 	ctxtXPath->node = cur;
 	comp = xmlXPathCompile(BAD_CAST xpath);
 	if(comp == NULL) {
 		fprintf(stderr, "Failed to compile %s\n", xpath);
-		return(NULL);
+		return NULL;
 	}
 	res = xmlXPathCompiledEval(comp, ctxtXPath);
 	xmlXPathFreeCompExpr(comp);
 	if(res == NULL)
-		return(NULL);
+		return NULL;
 	if(res->type == XPATH_STRING) {
 		ret = res->stringval;
 		res->stringval = NULL;
@@ -375,10 +375,10 @@ static void installResources(xmlNodePtr tst, const xmlChar * base) {
 		xmlBufferFree(buf);
 }
 
-static void installDirs(xmlNodePtr tst, const xmlChar * base) {
-	xmlNodePtr test;
+static void installDirs(xmlNode * tst, const xmlChar * base) 
+{
+	xmlNode * test;
 	xmlChar * name, * res;
-
 	name = getString(tst, "string(@name)");
 	if(name == NULL)
 		return;
@@ -400,20 +400,20 @@ static void installDirs(xmlNodePtr tst, const xmlChar * base) {
 	xmlFree(res);
 }
 
-static int xsdTestCase(xmlNodePtr tst) 
+static int xsdTestCase(xmlNode * tst) 
 {
-	xmlNodePtr test, tmp, cur;
-	xmlBufferPtr buf;
+	xmlNode * test;
+	xmlNode * tmp;
+	xmlNode * cur;
+	xmlBuffer * buf;
 	xmlDocPtr doc = NULL;
-	xmlRelaxNGParserCtxtPtr pctxt;
+	xmlRelaxNGParserCtxt * pctxt;
 	xmlRelaxNGValidCtxtPtr ctxt;
 	xmlRelaxNGPtr rng = NULL;
 	int ret = 0, mem, memt;
 	xmlChar * dtd;
-
 	resetEntities();
 	testErrorsSize = 0; testErrors[0] = 0;
-
 	tmp = getNext(tst, "./dir[1]");
 	if(tmp != NULL) {
 		installDirs(tmp, NULL);
@@ -422,19 +422,16 @@ static int xsdTestCase(xmlNodePtr tst)
 	if(tmp != NULL) {
 		installResources(tmp, NULL);
 	}
-
 	cur = getNext(tst, "./correct[1]");
 	if(cur == NULL) {
 		return(xsdIncorectTestCase(tst));
 	}
-
 	test = getNext(cur, "./*");
 	if(test == NULL) {
 		fprintf(stderr, "Failed to find test in correct line %ld\n",
 		    xmlGetLineNo(cur));
 		return(1);
 	}
-
 	memt = xmlMemUsed();
 	extraMemoryFromResolver = 0;
 	/*
@@ -610,26 +607,23 @@ static int xsdTestSuite(xmlNodePtr cur) {
 	return(0);
 }
 
-static int xsdTest(void) {
-	xmlDocPtr doc;
-	xmlNodePtr cur;
+static int xsdTest(void) 
+{
+	xmlNode * cur;
 	const char * filename = "test/xsdtest/xsdtestsuite.xml";
 	int ret = 0;
-
-	doc = xmlReadFile(filename, NULL, XML_PARSE_NOENT);
+	xmlDoc * doc = xmlReadFile(filename, NULL, XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "Failed to parse %s\n", filename);
 		return(-1);
 	}
 	printf("## XML Schemas datatypes test suite from James Clark\n");
-
 	cur = xmlDocGetRootElement(doc);
 	if((cur == NULL) || (!xmlStrEqual(cur->name, BAD_CAST "testSuite"))) {
 		fprintf(stderr, "Unexpected format %s\n", filename);
 		ret = -1;
 		goto done;
 	}
-
 	cur = getNext(cur, "./testSuite[1]");
 	if((cur == NULL) || (!xmlStrEqual(cur->name, BAD_CAST "testSuite"))) {
 		fprintf(stderr, "Unexpected format %s\n", filename);
@@ -640,17 +634,16 @@ static int xsdTest(void) {
 		xsdTestSuite(cur);
 		cur = getNext(cur, "following-sibling::testSuite[1]");
 	}
-
 done:
 	if(doc != NULL)
 		xmlFreeDoc(doc);
 	return(ret);
 }
 
-static int rngTestSuite(xmlNodePtr cur) {
+static int rngTestSuite(xmlNode * cur) 
+{
 	if(verbose) {
 		xmlChar * doc = getString(cur, "string(documentation)");
-
 		if(doc != NULL) {
 			printf("Suite %s\n", doc);
 			xmlFree(doc);
@@ -672,26 +665,23 @@ static int rngTestSuite(xmlNodePtr cur) {
 	return(0);
 }
 
-static int rngTest1(void) {
-	xmlDocPtr doc;
-	xmlNodePtr cur;
+static int rngTest1(void) 
+{
+	xmlNode * cur;
 	const char * filename = "test/relaxng/OASIS/spectest.xml";
 	int ret = 0;
-
-	doc = xmlReadFile(filename, NULL, XML_PARSE_NOENT);
+	xmlDoc * doc = xmlReadFile(filename, NULL, XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "Failed to parse %s\n", filename);
 		return(-1);
 	}
 	printf("## Relax NG test suite from James Clark\n");
-
 	cur = xmlDocGetRootElement(doc);
 	if((cur == NULL) || (!xmlStrEqual(cur->name, BAD_CAST "testSuite"))) {
 		fprintf(stderr, "Unexpected format %s\n", filename);
 		ret = -1;
 		goto done;
 	}
-
 	cur = getNext(cur, "./testSuite[1]");
 	if((cur == NULL) || (!xmlStrEqual(cur->name, BAD_CAST "testSuite"))) {
 		fprintf(stderr, "Unexpected format %s\n", filename);
@@ -702,7 +692,6 @@ static int rngTest1(void) {
 		rngTestSuite(cur);
 		cur = getNext(cur, "following-sibling::testSuite[1]");
 	}
-
 done:
 	if(doc != NULL)
 		xmlFreeDoc(doc);

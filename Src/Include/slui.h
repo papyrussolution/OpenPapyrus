@@ -1,5 +1,5 @@
 // SLUI.H
-// Copyright (c) A.Sobolev 1996-2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996-2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #ifndef __SLUI_H
@@ -1252,6 +1252,7 @@ public:
 	int FromJsonObj(const SJson * pJsObj);
 	const SColorSet * GetColorSetC(const char * pCsSymb) const;
 	SColorSet * GetColorSet(const char * pCsSymb);
+	const SFontSource * GetFontSourceC(const char * pSymb) const;
 
 	TSCollection <SFontSource> FontList;
 	TSCollection <SColorSet> ClrList;
@@ -4836,7 +4837,7 @@ public:
 	int32  Flags;
 	int32  BillItemTableFlags; // @v11.5.11 bitfXXX flags
 	int    WindowViewStyle;
-	int    TableViewStyle;
+	int    TableViewStyle; // 0 - default, 1 - scheme-01, 2 - scheme-02
 	int    ListElemCount;
 	SFontDescr TableFont;
 	SFontDescr ListFont;

@@ -1537,7 +1537,7 @@ U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice,
 				   we really wanted to. */
 				uint8 cat = getCharCat(cp);
 				for(lower[i] = 0, cIdx = 0; cIdx < SIZEOFARRAYi(charCatNames); ++cIdx) {
-					if(!strcmp(lower + 1, charCatNames[cIdx])) {
+					if(sstreq(lower + 1, charCatNames[cIdx])) {
 						if(cat == cIdx) {
 							return cp;
 						}

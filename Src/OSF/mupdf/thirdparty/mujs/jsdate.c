@@ -124,45 +124,14 @@ static int DateFromTime(double t)
 	}
 }
 
-static int WeekDay(double t)
-{
-	return pmod(Day(t) + 4, 7);
-}
-
-static double LocalTime(double utc)
-{
-	return utc + LocalTZA() + DaylightSavingTA(utc);
-}
-
-static double UTC(double loc)
-{
-	return loc - LocalTZA() - DaylightSavingTA(loc - LocalTZA());
-}
-
-static int HourFromTime(double t)
-{
-	return pmod(floor(t / msPerHour), HoursPerDay);
-}
-
-static int MinFromTime(double t)
-{
-	return pmod(floor(t / msPerMinute), MinutesPerHour);
-}
-
-static int SecFromTime(double t)
-{
-	return pmod(floor(t / msPerSecond), SecondsPerMinute);
-}
-
-static int msFromTime(double t)
-{
-	return pmod(t, msPerSecond);
-}
-
-static double MakeTime(double hour, double min, double sec, double ms)
-{
-	return ((hour * MinutesPerHour + min) * SecondsPerMinute + sec) * msPerSecond + ms;
-}
+static int WeekDay(double t) { return pmod(Day(t) + 4, 7); }
+static double LocalTime(double utc) { return utc + LocalTZA() + DaylightSavingTA(utc); }
+static double UTC(double loc) { return loc - LocalTZA() - DaylightSavingTA(loc - LocalTZA()); }
+static int HourFromTime(double t) { return pmod(floor(t / msPerHour), HoursPerDay); }
+static int MinFromTime(double t) { return pmod(floor(t / msPerMinute), MinutesPerHour); }
+static int SecFromTime(double t) { return pmod(floor(t / msPerSecond), SecondsPerMinute); }
+static int msFromTime(double t) { return pmod(t, msPerSecond); }
+static double MakeTime(double hour, double min, double sec, double ms) { return ((hour * MinutesPerHour + min) * SecondsPerMinute + sec) * msPerSecond + ms; }
 
 static double MakeDay(double y, double m, double date)
 {
@@ -178,21 +147,15 @@ static double MakeDay(double y, double m, double date)
 	int im;
 	y += floor(m / 12);
 	m = pmod(m, 12);
-
 	im = (int)m;
 	if(im < 0 || im >= 12)
 		return NAN;
-
 	yd = floor(TimeFromYear(y) / msPerDay);
 	md = firstDayOfMonth[DaysInYear(y) == 366][im];
-
 	return yd + md + date - 1;
 }
 
-static double MakeDate(double day, double time)
-{
-	return day * msPerDay + time;
-}
+static double MakeDate(double day, double time) { return day * msPerDay + time; }
 
 static double TimeClip(double t)
 {

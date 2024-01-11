@@ -1153,6 +1153,7 @@ class  S_GUID;
 class  STokenRecognizer;
 class  SNaturalTokenArray;
 struct SNaturalTokenStat;
+class  UiDescription; // @v11.9.2
 //
 // Formats for date binary representation
 //
@@ -2989,9 +2990,20 @@ private:
 //
 //
 struct SUniDate_Internal { // @v11.9.2
+	static bool SdnToGregorian(long sdn, int * pYear, int * pMonth, int * pDay);
+	static int  GregorianToSdn(int inputYear, uint inputMonth, uint inputDay);
+	static bool SdnToJulian(long sdn, int * pYear, int * pMonth, int * pDay);
+	static int  JulianToSdn(int inputYear, int inputMonth, int inputDay);
+	static int  SdnDayOfWeek(long sdn); // sunday - 0
+	static int  DateToDaysSinceChristmas(int y, uint m, uint d);
+
 	SUniDate_Internal();
 	SUniDate_Internal(int y, uint m, uint d);
-	int    SetDaysSinceChristmas(uint g);
+	bool   SetDaysSinceChristmas(uint g);
+	int    GetDaysSinceChristmas() const { return DateToDaysSinceChristmas(Y, M, D); }
+	bool   SetSdnGregorian(uint g);
+	bool   SetSdnJulian(uint g);
+	SUniDate_Internal & Z();
 	bool   FASTCALL operator == (const SUniDate_Internal & rS) const { return (Y == rS.Y && M == rS.M && D == rS.D); }
 	int    Y; // @v11.9.2 uint-->int Год - signed int поскольку в некоторых системах представления даты отрицательное значение
 		// может отражать год до начала какой-то эпохи (B.C., например)
@@ -3043,7 +3055,6 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 		// Указания времени с часовым поясом, представляющие один и тот же момент времени: "18:30Z", "22:30+04", "1130−0700".
 };
 
-int    DateToDaysSinceChristmas(int y, uint m, uint d);
 void   FASTCALL __EpochTimeToTimeFields(uint64 epochTime, SUniTime_Internal * pTimeFields);
 int    FASTCALL __TimeFieldsToEpochTime(const SUniTime_Internal * pTimeFields, uint64 * pEpochTime);
 //
@@ -5362,14 +5373,6 @@ int    FASTCALL checkdate(LDATE dt, int zeroIsOk);
 //
 int    FASTCALL checkdate(LDATE dt);
 int    FASTCALL checktime(LTIME tm);
-//
-//
-// 
-bool   SdnToGregorian(long sdn, int * pYear, int * pMonth, int * pDay);
-long   GregorianToSdn(int inputYear, int inputMonth, int inputDay);
-bool   SdnToJulian(long sdn, int * pYear, int * pMonth, int * pDay);
-long   JulianToSdn(int inputYear, int inputMonth, int inputDay);
-int    SdnDayOfWeek(long sdn); // sunday - 0
 //
 //
 //
@@ -17610,6 +17613,7 @@ private:
 	SString AppName;
 	HINSTANCE H_Inst;
 	ULONG_PTR GdiplusToken;
+	UiDescription * P_Uid; // @v11.9.2 @construction Дескрипторы пользовательского интерфейса
 
 	class GlobalObjectArray : public SVector {
 	public:

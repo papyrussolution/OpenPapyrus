@@ -11,12 +11,12 @@
 #include <async_local.h> // This must be the first #include file
 #ifdef ASYNC_WIN
 
-int ASYNC_is_capable(void)
+int ASYNC_is_capable()
 {
 	return 1;
 }
 
-void async_local_cleanup(void)
+void async_local_cleanup()
 {
 	async_ctx * ctx = async_get_ctx();
 	if(ctx) {

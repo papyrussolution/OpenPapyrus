@@ -1,5 +1,5 @@
 // BPAKCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -2969,10 +2969,13 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 			//
 			// @v11.7.8 Введена проверка на дублирование сформированного кода документа.
 			//
-			const bool check_dup_code = LOGIC(CConfig.Flags & CCFLG_CHECKUNIQBILLCODE);
+			const bool global_check_dup_code = LOGIC(CConfig.Flags & CCFLG_CHECKUNIQBILLCODE);
 			PPObjOpCounter opc_obj;
+			PPOpCounter opc_rec;
 			const  PPID loc_id = NZOR(locID, r_cfg.Location);
-			if(check_dup_code) {
+			// @v11.9.2 Добавлено условие для проверки уникальности номера: в счетчике операций должен стоять флаг OPCNTF_VERIFYUNIQ
+			const bool _check_dup_code = (global_check_dup_code && opc_obj.Search(op_counter_id, &opc_rec) > 0 && opc_rec.Flags & OPCNTF_VERIFYUNIQ);
+			if(_check_dup_code) {
 				PPObjBill * p_bobj = BillObj;
 				//
 				// Так как код документа формируется по заданному человеком шаблону, то

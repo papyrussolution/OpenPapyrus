@@ -1574,13 +1574,11 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 	const char * p;
 	if((p = uprv_strrchr(posixID, '@')) != nullptr) {
 		p++;
-
 		/* Take care of any special cases here.. */
-		if(!strcmp(p, "nynorsk")) {
+		if(sstreq(p, "nynorsk")) {
 			p = "NY";
 			/* Don't worry about no__NY. In practice, it won't appear. */
 		}
-
 		if(uprv_strchr(correctedPOSIXLocale, '_') == nullptr) {
 			uprv_strcat(correctedPOSIXLocale, "__"); /* aa@b -> aa__b (note this can make the new locale 1
 			                                            char longer) */

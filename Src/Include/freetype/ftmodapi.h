@@ -477,8 +477,7 @@ FT_Property_Get(FT_Library library,
  * @since:
  *   2.8
  */
-FT_EXPORT(void)
-FT_Set_Default_Properties(FT_Library library);
+FT_EXPORT(void) FT_Set_Default_Properties(FT_Library library);
 
 /**************************************************************************
  *
@@ -647,10 +646,7 @@ typedef FT_Error
  *   Currently, four debug hook slots are available, but only one (for the
  *   TrueType interpreter) is defined.
  */
-FT_EXPORT(void)
-FT_Set_Debug_Hook(FT_Library library,
-    FT_UInt hook_index,
-    FT_DebugHook_Func debug_hook);
+FT_EXPORT(void) FT_Set_Debug_Hook(FT_Library library, FT_UInt hook_index, FT_DebugHook_Func debug_hook);
 
 /**************************************************************************
  *
@@ -666,8 +662,7 @@ FT_Set_Debug_Hook(FT_Library library,
  *   library ::
  *     A handle to a new library object.
  */
-FT_EXPORT(void)
-FT_Add_Default_Modules(FT_Library library);
+FT_EXPORT(void) FT_Add_Default_Modules(FT_Library library);
 
 /**************************************************************************
  *

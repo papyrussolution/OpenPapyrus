@@ -378,16 +378,15 @@ struct CReg : public icu::UMemory {
 		umtx_unlock(&gCRegLock);
 		return found;
 	}
-
-	static const char16_t * get(const char * id) {
+	static const char16_t * get(const char * id) 
+	{
 		const char16_t * result = NULL;
 		umtx_lock(&gCRegLock);
 		CReg* p = gCRegHead;
-
 		/* register cleanup of the mutex */
 		ucln_common_registerCleanup(UCLN_COMMON_CURRENCY, currency_cleanup);
 		while(p) {
-			if(strcmp(id, p->id) == 0) {
+			if(sstreq(id, p->id)) {
 				result = p->iso;
 				break;
 			}
@@ -542,12 +541,13 @@ U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale, char16_t * buff, i
  * @return TRUE if the fallback happened; FALSE if locale is already
  * root ("").
  */
-static bool fallback(char * loc) {
+static bool fallback(char * loc) 
+{
 	if(!*loc) {
 		return FALSE;
 	}
 	UErrorCode status = U_ZERO_ERROR;
-	if(strcmp(loc, "en_GB") == 0) {
+	if(sstreq(loc, "en_GB")) {
 		// HACK: See #13368.  We need "en_GB" to fall back to "en_001" instead of "en"
 		// in order to consume the correct data strings.  This hack will be removed
 		// when proper data sink loading is implemented here.
@@ -1344,8 +1344,7 @@ static CurrencyNameCacheEntry* getCacheEntry(const char * locale, UErrorCode & e
 	// not putting 'search' in a separate function.
 	int8 found = -1;
 	for(int8 i = 0; i < CURRENCY_NAME_CACHE_NUM; ++i) {
-		if(currCache[i]!= NULL &&
-		    strcmp(locale, currCache[i]->locale) == 0) {
+		if(currCache[i]!= NULL && sstreq(locale, currCache[i]->locale)) {
 			found = i;
 			break;
 		}
@@ -1364,8 +1363,7 @@ static CurrencyNameCacheEntry* getCacheEntry(const char * locale, UErrorCode & e
 		umtx_lock(&gCurrencyCacheMutex);
 		// check again.
 		for(int8 i = 0; i < CURRENCY_NAME_CACHE_NUM; ++i) {
-			if(currCache[i]!= NULL &&
-			    strcmp(locale, currCache[i]->locale) == 0) {
+			if(currCache[i]!= NULL && sstreq(locale, currCache[i]->locale)) {
 				found = i;
 				break;
 			}
@@ -2438,7 +2436,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucurr_getKeywordValuesForLocale(const char * key
 			break;
 		}
 		const char * region = ures_getKey(&bundlekey);
-		bool isPrefRegion = strcmp(region, prefRegion) == 0 ? TRUE : FALSE;
+		bool isPrefRegion = sstreq(region, prefRegion);
 		if(!isPrefRegion && commonlyUsed) {
 			// With commonlyUsed=true, we do not put
 			// currencies for other regions in the

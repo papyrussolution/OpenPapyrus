@@ -1,5 +1,5 @@
 // UED.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -583,16 +583,16 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 			}
 			break;
 		case UED_META_DATE_DAY:
-			raw = DateToDaysSinceChristmas(rT.Y, rT.M, rT.D);
+			raw = rT.GetDaysSinceChristmas();
 			break;
 		case UED_META_DATE_MON:
-			raw = DateToDaysSinceChristmas(rT.Y, rT.M, 2);
+			raw = SUniDate_Internal::DateToDaysSinceChristmas(rT.Y, rT.M, 2);
 			break;
 		case UED_META_DATE_QUART:
-			raw = DateToDaysSinceChristmas(rT.Y, (((rT.M-1) / 3) * 3) + 1, 2);
+			raw = SUniDate_Internal::DateToDaysSinceChristmas(rT.Y, (((rT.M-1) / 3) * 3) + 1, 2);
 			break;
 		case UED_META_DATE_SMYR:
-			raw = DateToDaysSinceChristmas(rT.Y, (((rT.M-1) / 6) * 6) + 1, 2);
+			raw = SUniDate_Internal::DateToDaysSinceChristmas(rT.Y, (((rT.M-1) / 6) * 6) + 1, 2);
 			break;
 		case UED_META_DATE_YR:
 			raw = rT.Y;

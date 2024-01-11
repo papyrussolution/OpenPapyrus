@@ -1928,7 +1928,7 @@ public:
 	// void MakeUpper() { MyStringUpper(_chars); }
 	// void MakeLower() { MyStringLower(_chars); }
 	void MakeLower_Ascii() { MyStringLower_Ascii(_chars); }
-	bool IsEqualTo(const char * s) const { return strcmp(_chars, s) == 0; }
+	bool IsEqualTo(const char * s) const { return sstreq(_chars, s); }
 	bool IsEqualTo_Ascii_NoCase(const char * s) const { return sstreqi_ascii(_chars, s); }
 	// int Compare(const char *s) const { return MyStringCompare(_chars, s); }
 	// int Compare(const AString &s) const { return MyStringCompare(_chars, s._chars); }
@@ -1976,12 +1976,12 @@ public:
    bool operator != (const AString &s1, const char    *s2);
    bool operator != (const char    *s1, const AString &s2);
  */
-inline bool operator == (const AString &s1, const AString &s2) { return s1.Len() == s2.Len() && strcmp(s1, s2) == 0; }
-inline bool operator == (const AString &s1, const char    * s2) { return strcmp(s1, s2) == 0; }
-inline bool operator == (const char    * s1, const AString &s2) { return strcmp(s1, s2) == 0; }
-inline bool operator != (const AString &s1, const AString &s2) { return s1.Len() != s2.Len() || strcmp(s1, s2) != 0; }
-inline bool operator != (const AString &s1, const char    * s2) { return strcmp(s1, s2) != 0; }
-inline bool operator != (const char    * s1, const AString &s2) { return strcmp(s1, s2) != 0; }
+inline bool operator == (const AString &s1, const AString &s2) { return s1.Len() == s2.Len() && sstreq(s1, s2); }
+inline bool operator == (const AString &s1, const char    * s2) { return sstreq(s1, s2); }
+inline bool operator == (const char    * s1, const AString &s2) { return sstreq(s1, s2); }
+inline bool operator != (const AString &s1, const AString &s2) { return s1.Len() != s2.Len() || !sstreq(s1, s2); }
+inline bool operator != (const AString &s1, const char    * s2) { return !sstreq(s1, s2); }
+inline bool operator != (const char    * s1, const AString &s2) { return !sstreq(s1, s2); }
 
 // ---------- forbidden functions ----------
 

@@ -16,10 +16,7 @@ using namespace Scintilla;
 #endif
 
 // Is an end of line character
-/*inline*/ bool FASTCALL IsEOL(const int ch)
-{
-	return (ch == '\n');
-}
+/*inline*/ bool FASTCALL IsEOL(const int ch) { return (ch == '\n'); }
 
 // Convert character to uppercase
 static char FASTCALL CharacterUpper(char chChar)
@@ -160,16 +157,10 @@ static void FASTCALL StringUpper(char * szString)
 }
 
 // Clarion Language Colouring Procedure
-static void ColouriseClarionDoc(Sci_PositionU uiStartPos,
-    Sci_Position iLength,
-    int iInitStyle,
-    WordList * wlKeywords[],
-    Accessor &accStyler,
-    bool bCaseSensitive)
+static void ColouriseClarionDoc(Sci_PositionU uiStartPos, Sci_Position iLength, int iInitStyle, WordList * wlKeywords[], Accessor &accStyler, bool bCaseSensitive)
 {
 	int iParenthesesLevel = 0;              // Parenthese Level
 	int iColumn1Label = false;              // Label starts in Column 1
-
 	WordList &wlClarionKeywords = *wlKeywords[0];                   // Clarion Keywords
 	WordList &wlCompilerDirectives = *wlKeywords[1];                // Compiler Directives
 	WordList &wlRuntimeExpressions = *wlKeywords[2];                // Runtime Expressions
@@ -180,8 +171,7 @@ static void ColouriseClarionDoc(Sci_PositionU uiStartPos,
 	WordList &wlLabelReservedWords = *wlKeywords[7];                // Clarion Reserved Keywords (Labels)
 	WordList &wlProcLabelReservedWords = *wlKeywords[8];    // Clarion Reserved Keywords (Procedure Labels)
 
-	const char wlProcReservedKeywordList[] =
-	    "PROCEDURE FUNCTION";
+	const char wlProcReservedKeywordList[] = "PROCEDURE FUNCTION";
 	WordList wlProcReservedKeywords;
 	wlProcReservedKeywords.Set(wlProcReservedKeywordList);
 
@@ -503,21 +493,13 @@ static void ColouriseClarionDoc(Sci_PositionU uiStartPos,
 }
 
 // Clarion Language Case Sensitive Colouring Procedure
-static void ColouriseClarionDocSensitive(Sci_PositionU uiStartPos,
-    Sci_Position iLength,
-    int iInitStyle,
-    WordList * wlKeywords[],
-    Accessor &accStyler)
+static void ColouriseClarionDocSensitive(Sci_PositionU uiStartPos, Sci_Position iLength, int iInitStyle, WordList * wlKeywords[], Accessor &accStyler)
 {
 	ColouriseClarionDoc(uiStartPos, iLength, iInitStyle, wlKeywords, accStyler, true);
 }
 
 // Clarion Language Case Insensitive Colouring Procedure
-static void ColouriseClarionDocInsensitive(Sci_PositionU uiStartPos,
-    Sci_Position iLength,
-    int iInitStyle,
-    WordList * wlKeywords[],
-    Accessor &accStyler)
+static void ColouriseClarionDocInsensitive(Sci_PositionU uiStartPos, Sci_Position iLength, int iInitStyle, WordList * wlKeywords[], Accessor &accStyler)
 {
 	ColouriseClarionDoc(uiStartPos, iLength, iInitStyle, wlKeywords, accStyler, false);
 }

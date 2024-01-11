@@ -1,5 +1,5 @@
 // CRCSHSRV.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) V.Nasonov, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
 //
@@ -38,14 +38,8 @@ public:
 	CashiersArray() : SVector(sizeof(CashierEntry))
 	{
 	}
-	CashierEntry & FASTCALL at(uint p) const
-	{
-		return *static_cast<CashierEntry *>(SVector::at(p));
-	}
-	int    FASTCALL Add(const CashierEntry * pEntry)
-	{
-		return Search(pEntry->TabNum, pEntry->Expiry, 0) ? -1 : Insert(pEntry);
-	}
+	CashierEntry & FASTCALL at(uint p) const { return *static_cast<CashierEntry *>(SVector::at(p)); }
+	int    FASTCALL Add(const CashierEntry * pEntry) { return Search(pEntry->TabNum, pEntry->Expiry, 0) ? -1 : Insert(pEntry); }
 	PPID   GetCshrID(long tabNum, LDATE dt) const
 	{
 		uint  pos = 0;
@@ -53,11 +47,8 @@ public:
 	}
 private:
 	int    Search(long tabNum, LDATE dt, uint * pPos = 0) const;
-	int    SearchNearest(long tabNum, LDATE dt, uint * pPos = 0) const;
-	int    Insert(const CashierEntry * pEntry, uint * pPos = 0)
-	{
-		return ordInsert(pEntry, pPos, PTR_CMPFUNC(CashierEnKey)) ? 1 : PPSetErrorSLib();
-	}
+	bool   SearchNearest(long tabNum, LDATE dt, uint * pPos = 0) const;
+	int    Insert(const CashierEntry * pEntry, uint * pPos = 0) { return ordInsert(pEntry, pPos, PTR_CMPFUNC(CashierEnKey)) ? 1 : PPSetErrorSLib(); }
 };
 
 int CashiersArray::Search(long tabNum, LDATE dt, uint * pPos) const
@@ -68,14 +59,14 @@ int CashiersArray::Search(long tabNum, LDATE dt, uint * pPos) const
 	return bsearch(&ce, pPos, PTR_CMPFUNC(CashierEnKey));
 }
 
-int CashiersArray::SearchNearest(long tabNum, LDATE dt, uint * pPos) const
+bool CashiersArray::SearchNearest(long tabNum, LDATE dt, uint * pPos) const
 {
-	int    is_found = 0;
+	bool   is_found = false;
 	long   tab_num  = tabNum;
 	while(!is_found && lsearch(&tab_num, pPos, CMPF_LONG)) {
 		const CashierEntry & ce = at(*pPos);
 		if(ce.Expiry == ZERODATE || diffdate(ce.Expiry, dt) >= 0)
-			is_found = 1;
+			is_found = true;
 		else
 			(*pPos)++;
 	}
@@ -174,8 +165,6 @@ private:
 		void Add(const char * pBackupPrefix, const char * pPath)
 		{
 			Entry new_entry;
-			new_entry.BackupPrefixP = 0;
-			new_entry.FilePathP = 0;
 			AddS(pBackupPrefix, &new_entry.BackupPrefixP);
 			AddS(pPath, &new_entry.FilePathP);
 			L.insert(&new_entry);
@@ -197,6 +186,9 @@ private:
 		}
 	private:
 		struct Entry {
+			Entry() : FilePathP(0), BackupPrefixP(0)
+			{
+			}
 			uint    FilePathP;
 			uint    BackupPrefixP;
 		};
@@ -634,28 +626,30 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 		if(iter_end <= 0)
 			last_goods_export = 1;
 		if(last_goods_export || rGoodsInfo.ID != prev_goods_id && prev_goods_id) {
-			const  int is_spirit    = BIN(pGoodsIter->GetAlcoGoodsExtension(prev_gds_info.ID, 0, agi) > 0);
-			const  int is_tobacco   = BIN(tobacco_cls_id && tobacco_cls_id == prev_gds_info.GdsClsID);
-			const  int is_gift_card = BIN(giftcard_cls_id && giftcard_cls_id == prev_gds_info.GdsClsID);
+			const AsyncCashGoodsInfo & r_cur_entry = prev_gds_info;
+			const  bool is_spirit    = (pGoodsIter->GetAlcoGoodsExtension(r_cur_entry.ID, 0, agi) > 0);
+			const  bool is_tobacco   = (tobacco_cls_id && tobacco_cls_id == r_cur_entry.GdsClsID);
+			const  bool is_gift_card = BIN(giftcard_cls_id && giftcard_cls_id == r_cur_entry.GdsClsID);
 			int    tag1212 = 0; // @v11.2.0
 			int    do_process_lookbackprices = 0;
 			int    is_weight = 0;
 			LDATE  expiry = ZERODATE;
 			PPID   country_id = 0;
-			PPGoodsPacket goods_pack;
 			PPQuotKind qk_rec;
-			const long divn = (rCnData.Flags & CASHF_EXPDIVN) ? prev_gds_info.DivN : 1;
-			const int  is_deleted = BIN((prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted) ||
-				(prev_gds_info.GoodsFlags & GF_PASSIV && rCnData.ExtFlags & CASHFX_RMVPASSIVEGOODS && prev_gds_info.Rest <= 0.0));
+			const long divn = (rCnData.Flags & CASHF_EXPDIVN) ? r_cur_entry.DivN : 1;
+			const bool is_deleted = ((r_cur_entry.Flags_ & AsyncCashGoodsInfo::fDeleted) || (r_cur_entry.GoodsFlags & GF_PASSIV && 
+				rCnData.ExtFlags & CASHFX_RMVPASSIVEGOODS && r_cur_entry.Rest <= 0.0));
 			temp_buf.Z();
 			if(CConfig.Flags & CCFLG_DEBUG)
-				LogExportingGoodsItem(&prev_gds_info);
+				LogExportingGoodsItem(&r_cur_entry);
 			{
 				RetailExtrItem rtl_ext_item;
-				rpe.GetPrice(prev_gds_info.ID, 0, 0.0, &rtl_ext_item);
+				rpe.GetPrice(r_cur_entry.ID, 0, 0.0, &rtl_ext_item);
 				expiry = rtl_ext_item.Expiry;
 			}
-			AddCheckDigToBarcode(prev_gds_info.PrefBarCode);
+			char pref_barcode[32];
+			STRNSCPY(pref_barcode, r_cur_entry.PrefBarCode);
+			AddCheckDigToBarcode(pref_barcode);
 			// @v10.6.8 {
 			if(mode == 2) {
 				/*
@@ -669,8 +663,8 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					</goods-catalog>
 				*/
 				p_writer->StartElement("price-entry");
-					p_writer->AddAttrib("marking-of-the-good", prev_gds_info.PrefBarCode);
-					p_writer->AddAttrib("price", temp_buf.Z().Cat(prev_gds_info.Price, SFMT_MONEY));
+					p_writer->AddAttrib("marking-of-the-good", pref_barcode);
+					p_writer->AddAttrib("price", temp_buf.Z().Cat(r_cur_entry.Price, SFMT_MONEY));
 					p_writer->AddAttrib("currency", "RUB");
 					p_writer->AddAttrib("deleted", is_deleted ? "true" : "false");
 					if(rStoreIndex.NotEmpty())
@@ -684,24 +678,24 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 			// } @v10.6.8
 				// @v11.4.4 {
 				if(goodsIdAsArticle) {
-					p_writer->StartElement("good", "marking-of-the-good", temp_buf.Z().Cat(prev_gds_info.ID)); 
+					p_writer->StartElement("good", "marking-of-the-good", temp_buf.Z().Cat(r_cur_entry.ID)); 
 				}
 				else /* } @v11.4.4 */ {
-					p_writer->StartElement("good", "marking-of-the-good", prev_gds_info.PrefBarCode);
+					p_writer->StartElement("good", "marking-of-the-good", pref_barcode);
 				}
 				if(oneof2(mode, 0, 2)) { // @v10.6.8 only 0 works
 					if(rStoreIndex.NotEmpty())
 						p_writer->PutElement("shop-indices", rStoreIndex);
 				}
 				if(oneof2(mode, 0, 1)) { // @v10.6.7
-					p_writer->PutElement("name", prev_gds_info.Name);
+					p_writer->PutElement("name", r_cur_entry.Name);
 					{
 						// @v11.4.4 {
 						/* @v11.4.5 if(goodsIdAsArticle) {
 							// @v10.9.11 {
-							if(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
+							if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
 								const char * p_mark_type = 0;
-								switch(prev_gds_info.ChZnProdType) {
+								switch(r_cur_entry.ChZnProdType) {
 									case GTCHZNPT_SHOE: p_mark_type = "FOOTWEAR"; break;
 									case GTCHZNPT_TEXTILE: p_mark_type = "LIGHT_INDUSTRY"; break;
 									case GTCHZNPT_CARTIRE: p_mark_type = "TYRES"; break;
@@ -712,7 +706,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 									p_writer->PutElement("mark-type", p_mark_type);
 							}
 							// } @v10.9.11 
-							p_writer->StartElement("bar-code", "code", temp_buf.Z().Cat(prev_gds_info.ID));
+							p_writer->StartElement("bar-code", "code", temp_buf.Z().Cat(r_cur_entry.ID));
 							p_writer->PutElement("count", temp_buf.Z().Cat("1"));
 							p_writer->PutElement("default-code", true);
 							p_writer->EndElement(); // </bar-code>
@@ -725,15 +719,16 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 									is_weight = gds_cfg.IsWghtPrefix(bc.Code);
 								AddCheckDigToBarcode(bc.Code);
 								// @v10.9.11 {
-								if(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
+								if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
 									const char * p_mark_type = 0;
-									switch(prev_gds_info.ChZnProdType) {
+									switch(r_cur_entry.ChZnProdType) {
 										case GTCHZNPT_SHOE: p_mark_type = "FOOTWEAR"; break;
 										case GTCHZNPT_TEXTILE: p_mark_type = "LIGHT_INDUSTRY"; break;
 										case GTCHZNPT_CARTIRE: p_mark_type = "TYRES"; break;
 										case GTCHZNPT_PERFUMERY: p_mark_type = "PERFUMES"; break;
 										case GTCHZNPT_MILK: p_mark_type = "MILK"; break;
 										case GTCHZNPT_WATER: p_mark_type = "WATER"; break; // @v11.5.6
+										case GTCHZNPT_DRAFTBEER: p_mark_type = "DRAFT_BEER"; break; // @v11.9.2
 									}
 									if(p_mark_type)
 										p_writer->PutElement("mark-type", p_mark_type);
@@ -741,30 +736,30 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 								// } @v10.9.11 
 								p_writer->StartElement("bar-code", "code", bc.Code);
 								// @v10.4.11 {
-								if((prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
+								if((r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
 									p_writer->AddAttrib("marked", "true");
 								}
 								// } @v10.4.11
-								// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price));
+								// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(r_cur_entry.Price));
 								// p_writer->PutElement("begin-date", beg_dtm);
 								// p_writer->PutElement("end-date", end_dtm);
 								// p_writer->EndElement();
 								p_writer->PutElement("count", bc.Qtty);
 								// @v11.4.5 if(!goodsIdAsArticle) // @v11.4.4 
-									p_writer->PutElement("default-code", LOGIC(sstreq(bc.Code, prev_gds_info.PrefBarCode)));
+									p_writer->PutElement("default-code", LOGIC(sstreq(bc.Code, pref_barcode)));
 								p_writer->EndElement(); // </bar-code>
 							}
 						}
 					}
 					// тип товара:
 					// ProductPieceEntity - штучный, ProductWeightEntity - весовой и т.д.
-					if(is_spirit) {
+					if(is_spirit || r_cur_entry.ChZnProdType == GTCHZNPT_DRAFTBEER) { // @v11.9.2 (r_cur_entry.ChZnProdType == GTCHZNPT_DRAFTBEER)
 						p_writer->PutElement("product-type", "ProductSpiritsEntity");
 						tag1212 = 2; // @v11.2.0
 					}
 					else if(is_tobacco) {
 						p_writer->PutElement("product-type", "ProductCiggyEntity");
-						tag1212 = (prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType) ? 31 : 30; // @v11.2.0
+						tag1212 = (r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) ? 31 : 30; // @v11.2.0
 						if(!ignore_lookbackprices)
 							do_process_lookbackprices = 1;
 					}
@@ -773,10 +768,10 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 						tag1212 = 10; // @v11.2.0
 					}
 					else {
-						if(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGMarkedType)
+						if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType)
 							tag1212 = 33; // @v11.2.0
 						else {
-							if(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fGExciseProForma) // @v11.7.10
+							if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGExciseProForma) // @v11.7.10
 								tag1212 = 2;
 							else
 								tag1212 = 1;
@@ -789,14 +784,14 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 							p_writer->PutElement("product-type", "ProductPieceEntity");
 					}
 					// @v10.4.12 {
-					if(sr_prodtagb_tag && p_ref->Ot.GetTagStr(PPOBJ_GOODS, prev_gds_info.ID, sr_prodtagb_tag, temp_buf) > 0) {
+					if(sr_prodtagb_tag && p_ref->Ot.GetTagStr(PPOBJ_GOODS, r_cur_entry.ID, sr_prodtagb_tag, temp_buf) > 0) {
 						temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 						p_writer->PutElement(temp_buf, "true");
 					}
 					// } @v10.4.12
 				}
 				if(mode == 0) {
-					p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price, SFMT_MONEY));
+					p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(r_cur_entry.Price, SFMT_MONEY));
 					p_writer->PutElement("begin-date", beg_dtm);
 					p_writer->PutElement("end-date", end_dtm);
 					p_writer->PutElement("number", "1");
@@ -806,23 +801,23 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					p_writer->EndElement();
 				}
 				if(oneof2(mode, 0, 1)) {
-					p_writer->PutElement("vat", prev_gds_info.VatRate);
+					p_writer->PutElement("vat", r_cur_entry.VatRate);
 					//
 					// Иерархия товарных групп
 					//
-					if(rCnData.Flags & CASHF_EXPGOODSGROUPS && prev_gds_info.ParentID) {
+					if(rCnData.Flags & CASHF_EXPGOODSGROUPS && r_cur_entry.ParentID) {
 						Goods2Tbl::Rec ggrec;
 						grp_code.Z();
-						if(gobj.FetchSingleBarcode(prev_gds_info.ParentID, grp_code) > 0 && grp_code.Len())
+						if(gobj.FetchSingleBarcode(r_cur_entry.ParentID, grp_code) > 0 && grp_code.Len())
 							grp_code.ShiftLeftChr('@');
 						else
-							grp_code.Z().Cat(prev_gds_info.ParentID);
+							grp_code.Z().Cat(r_cur_entry.ParentID);
 						p_writer->StartElement("group", "id", grp_code);
-						GetObjectName(PPOBJ_GOODSGROUP, prev_gds_info.ParentID, temp_buf);
+						GetObjectName(PPOBJ_GOODSGROUP, r_cur_entry.ParentID, temp_buf);
 						p_writer->PutElement("name", temp_buf);
 						// @v10.6.4 MEMSZERO(ggrec);
 						{
-							PPID   parent_id = prev_gds_info.ParentID;
+							PPID   parent_id = r_cur_entry.ParentID;
 							uint   parents_count = 0;
 							while(gobj.GetParentID(parent_id, &parent_id) > 0 && parent_id != 0) {
 								if(gobj.FetchSingleBarcode(parent_id, grp_code) > 0 && grp_code.Len())
@@ -843,7 +838,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					{
 						PPUnit2 unit_rec;
 						// @v10.8.2 @ctr MEMSZERO(unit_rec);
-						unit_obj.Fetch(prev_gds_info.UnitID, &unit_rec);
+						unit_obj.Fetch(r_cur_entry.UnitID, &unit_rec);
 						p_writer->StartElement("measure-type");
 						p_writer->AddAttrib("id", unit_rec.ID);
 						p_writer->PutElement("name", unit_rec.Name);
@@ -856,9 +851,9 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 							p_writer->PutElement("name", temp_buf);
 							p_writer->EndElement();
 						}
-						if(prev_gds_info.ManufID) {
-							p_writer->StartElement("manufacturer", "id", temp_buf.Z().Cat(prev_gds_info.ManufID));
-							GetPersonName(prev_gds_info.ManufID, temp_buf.Z());
+						if(r_cur_entry.ManufID) {
+							p_writer->StartElement("manufacturer", "id", temp_buf.Z().Cat(r_cur_entry.ManufID));
+							GetPersonName(r_cur_entry.ManufID, temp_buf.Z());
 							p_writer->PutElement("name", temp_buf);
 							p_writer->EndElement();
 						}
@@ -869,7 +864,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					if(r_eq_cfg.SalesGoodsGrp != 0) {
 						uint   sg_pos = 0;
 						PPID   sub_grp_id = 0;
-						if(ggobj.BelongToGroup(prev_gds_info.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && rSalesGrpList.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG)) {
+						if(ggobj.BelongToGroup(r_cur_entry.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && rSalesGrpList.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG)) {
 							const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(rSalesGrpList.at(sg_pos));
 							p_writer->StartElement("sale-group");
 							p_writer->AddAttrib("id", sub_grp_id);
@@ -877,7 +872,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 							p_writer->EndElement();
 						}
 					}
-					p_writer->PutPlugin("precision", prev_gds_info.Precision);
+					p_writer->PutPlugin("precision", r_cur_entry.Precision);
 					if(is_spirit) {
 						if(agi.Proof != 0.0) {
 							temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, 0));
@@ -897,7 +892,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 						// 3. food-value (пищевая ценность)
 						{
 							uint   ss_pos = 0;
-							prev_gds_info.AddedMsgList.get(&ss_pos, ingred) && prev_gds_info.AddedMsgList.get(&ss_pos, storage) && prev_gds_info.AddedMsgList.get(&ss_pos, energy);
+							r_cur_entry.AddedMsgList.get(&ss_pos, ingred) && r_cur_entry.AddedMsgList.get(&ss_pos, storage) && r_cur_entry.AddedMsgList.get(&ss_pos, energy);
 						}
 						if(checkdate(expiry)) {
 							const long hours = diffdate(expiry, beg_dtm.d) * 24;
@@ -908,8 +903,8 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 						p_writer->PutPlugin("storage-conditions", storage);
 						p_writer->PutPlugin("food-value", energy);
 						p_writer->PutPlugin("plu-number", plu_num++);
-						p_writer->PutPlugin("description-on-scale-screen", prev_gds_info.LabelName);
-						p_writer->PutPlugin("name-on-scale-screen", prev_gds_info.Name);
+						p_writer->PutPlugin("description-on-scale-screen", r_cur_entry.LabelName);
+						p_writer->PutPlugin("name-on-scale-screen", r_cur_entry.Name);
 					}
 					// @v11.2.0 {
 					{
@@ -927,14 +922,14 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 				if(oneof2(mode, 0, 2)) { // @v10.6.8 only 0 works
 					if(do_process_lookbackprices) {
 						RealArray price_list;
-						if(pGoodsIter->GetDifferentPricesForLookBackPeriod(prev_gds_info.ID, prev_gds_info.Price, price_list) > 0 || (ModuleSubVer >= 2)) { // @v10.8.2 (ModuleSubVer >= 2)
+						if(pGoodsIter->GetDifferentPricesForLookBackPeriod(r_cur_entry.ID, r_cur_entry.Price, price_list) > 0 || (ModuleSubVer >= 2)) { // @v10.8.2 (ModuleSubVer >= 2)
 							assert(price_list.getCount());
 							p_writer->StartElement("plugin-property", "key", "mrc");
 							for(uint pi = 0; pi < price_list.getCount(); pi++) {
 								p_writer->PutPlugin("price", price_list[pi]);
 							}
 							if(ModuleSubVer >= 2) {
-								p_writer->PutPlugin("price", prev_gds_info.Price);
+								p_writer->PutPlugin("price", r_cur_entry.Price);
 							}
 							p_writer->EndElement(); // </plugin-property>
 							/*
@@ -952,19 +947,19 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 						p_writer->PutElement("delete-from-cash", true);
 				}
 				p_writer->EndElement(); // </good>
-				if((prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted) || labs(prev_gds_info.NoDis) == 1) {
+				if((r_cur_entry.Flags_ & AsyncCashGoodsInfo::fDeleted) || labs(r_cur_entry.NoDis) == 1) {
 					_MaxDisEntry dis_entry;
-					STRNSCPY(dis_entry.Barcode, prev_gds_info.PrefBarCode);
-					dis_entry.NoDis = prev_gds_info.NoDis;
-					dis_entry.Deleted = BIN(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted);
+					STRNSCPY(dis_entry.Barcode, pref_barcode);
+					dis_entry.NoDis = r_cur_entry.NoDis;
+					dis_entry.Deleted = BIN(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fDeleted);
 					max_dis_list.insert(&dis_entry);
 				}
 				// @v10.6.4 {
-				if(prev_gds_info.AllowedPriceR.low > 0.0) {
+				if(r_cur_entry.AllowedPriceR.low > 0.0) {
 					_MinPriceEntry mp_entry;
-					STRNSCPY(mp_entry.Barcode, prev_gds_info.PrefBarCode);
-					mp_entry.MinPrice = prev_gds_info.AllowedPriceR.low;
-					mp_entry.Deleted = BIN(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted);
+					STRNSCPY(mp_entry.Barcode, pref_barcode);
+					mp_entry.MinPrice = r_cur_entry.AllowedPriceR.low;
+					mp_entry.Deleted = BIN(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fDeleted);
 					mp_entry.Reserve = 0;
 					min_price_list.insert(&mp_entry);
 				}

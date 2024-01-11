@@ -108,7 +108,8 @@ EraRules::EraRules(LocalMemory<int32_t>& eraStartDates, int32_t numEras)
 EraRules::~EraRules() {
 }
 
-EraRules* EraRules::createInstance(const char * calType, bool includeTentativeEra, UErrorCode & status) {
+EraRules* EraRules::createInstance(const char * calType, bool includeTentativeEra, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}
@@ -159,7 +160,7 @@ EraRules* EraRules::createInstance(const char * calType, bool includeTentativeEr
 				return nullptr;
 			}
 			const char * key = ures_getKey(res.getAlias());
-			if(strcmp(key, "start") == 0) {
+			if(sstreq(key, "start")) {
 				const int32_t * fields = ures_getIntVector(res.getAlias(), &len, &status);
 				if(U_FAILURE(status)) {
 					return nullptr;
@@ -170,17 +171,16 @@ EraRules* EraRules::createInstance(const char * calType, bool includeTentativeEr
 				}
 				startDates[eraIdx] = encodeDate(fields[0], fields[1], fields[2]);
 			}
-			else if(strcmp(key, "named") == 0) {
+			else if(sstreq(key, "named")) {
 				const char16_t * val = ures_getString(res.getAlias(), &len, &status);
 				if(u_strncmp(val, VAL_FALSE, VAL_FALSE_LEN) == 0) {
 					hasName = FALSE;
 				}
 			}
-			else if(strcmp(key, "end") == 0) {
+			else if(sstreq(key, "end")) {
 				hasEnd = TRUE;
 			}
 		}
-
 		if(isSet(startDates[eraIdx])) {
 			if(hasEnd) {
 				// This implementation assumes either start or end is available, not both.
@@ -216,7 +216,6 @@ EraRules* EraRules::createInstance(const char * calType, bool includeTentativeEr
 			}
 		}
 	}
-
 	EraRules * result;
 	if(firstTentativeIdx < MAX_INT32 && !includeTentativeEra) {
 		result = new EraRules(startDates, firstTentativeIdx);

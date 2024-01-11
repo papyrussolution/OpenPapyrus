@@ -335,7 +335,8 @@ static void xmlParserPrintFileContextInternal(xmlParserInputPtr input,
 	chanl(data, "%s\n", content);
 }
 
-static void testStructuredErrorHandler(void * ctx ATTRIBUTE_UNUSED, xmlErrorPtr err) {
+static void testStructuredErrorHandler(void * ctx ATTRIBUTE_UNUSED, xmlErrorPtr err) 
+{
 	char * file = NULL;
 	int line = 0;
 	int code = -1;
@@ -343,41 +344,33 @@ static void testStructuredErrorHandler(void * ctx ATTRIBUTE_UNUSED, xmlErrorPtr 
 	void * data = NULL;
 	const char * str;
 	const xmlChar * name = NULL;
-	xmlNodePtr node;
+	xmlNode * node;
 	xmlErrorLevel level;
-	xmlParserInputPtr input = NULL;
-	xmlParserInputPtr cur = NULL;
-	xmlParserCtxtPtr ctxt = NULL;
-
+	xmlParserInput * input = NULL;
+	xmlParserInput * cur = NULL;
+	xmlParserCtxt * ctxt = NULL;
 	if(err == NULL)
 		return;
-
 	file = err->file;
 	line = err->line;
 	code = err->code;
 	domain = err->domain;
 	level = err->level;
 	node = err->node;
-	if((domain == XML_FROM_PARSER) || (domain == XML_FROM_HTML) ||
-	    (domain == XML_FROM_DTD) || (domain == XML_FROM_NAMESPACE) ||
-	    (domain == XML_FROM_IO) || (domain == XML_FROM_VALID)) {
+	if((domain == XML_FROM_PARSER) || (domain == XML_FROM_HTML) || (domain == XML_FROM_DTD) || (domain == XML_FROM_NAMESPACE) || (domain == XML_FROM_IO) || (domain == XML_FROM_VALID)) {
 		ctxt = err->ctxt;
 	}
 	str = err->message;
-
 	if(code == XML_ERR_OK)
 		return;
-
 	if((node != NULL) && (node->type == XML_ELEMENT_NODE))
 		name = node->name;
-
 	/*
 	 * Maintain the compatibility with the legacy error handling
 	 */
 	if(ctxt != NULL) {
 		input = ctxt->input;
-		if((input != NULL) && (input->filename == NULL) &&
-		    (ctxt->inputNr > 1)) {
+		if((input != NULL) && (input->filename == NULL) && (ctxt->inputNr > 1)) {
 			cur = input;
 			input = ctxt->inputTab[ctxt->inputNr - 2];
 		}
@@ -541,7 +534,7 @@ static void initializeLibxml2(void) {
 static const char *baseFilename(const char * filename) {
 	const char * cur;
 	if(filename == NULL)
-		return(NULL);
+		return NULL;
 	cur = &filename[strlen(filename)];
 	while((cur > filename) && (*cur != '/'))
 		cur--;
@@ -869,13 +862,12 @@ static void externalSubsetDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * nam
  *
  * Returns the xmlParserInputPtr if inlined or NULL for DOM behaviour.
  */
-static xmlParserInputPtr resolveEntityDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * publicId, const xmlChar * systemId)
+static xmlParserInput * resolveEntityDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * publicId, const xmlChar * systemId)
 {
 	callbacks++;
 	if(quiet)
-		return(NULL);
-	/* xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr) ctx; */
-
+		return NULL;
+	/* xmlParserCtxt * ctxt = (xmlParserCtxt *) ctx; */
 	fprintf(SAXdebug, "SAX.resolveEntity(");
 	if(publicId != NULL)
 		fprintf(SAXdebug, "%s", (char *)publicId);
@@ -890,7 +882,7 @@ static xmlParserInputPtr resolveEntityDebug(void * ctx ATTRIBUTE_UNUSED, const x
         return(xmlNewInputFromFile(ctxt, (char *) systemId));
     }
 *********/
-	return(NULL);
+	return NULL;
 }
 
 /**
@@ -902,15 +894,14 @@ static xmlParserInputPtr resolveEntityDebug(void * ctx ATTRIBUTE_UNUSED, const x
  *
  * Returns the xmlParserInputPtr if inlined or NULL for DOM behaviour.
  */
-static xmlEntityPtr getEntityDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name)
+static xmlEntity * getEntityDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name)
 {
 	callbacks++;
 	if(quiet)
-		return(NULL);
+		return NULL;
 	fprintf(SAXdebug, "SAX.getEntity(%s)\n", name);
-	return(NULL);
+	return NULL;
 }
-
 /**
  * getParameterEntityDebug:
  * @ctxt:  An XML parser context
@@ -920,15 +911,14 @@ static xmlEntityPtr getEntityDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * 
  *
  * Returns the xmlParserInputPtr
  */
-static xmlEntityPtr getParameterEntityDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name)
+static xmlEntity * getParameterEntityDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name)
 {
 	callbacks++;
 	if(quiet)
-		return(NULL);
+		return NULL;
 	fprintf(SAXdebug, "SAX.getParameterEntity(%s)\n", name);
-	return(NULL);
+	return NULL;
 }
-
 /**
  * entityDeclDebug:
  * @ctxt:  An XML parser context
@@ -966,19 +956,15 @@ static void entityDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name, i
  *
  * An attribute definition has been parsed
  */
-static void attributeDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * elem,
-    const xmlChar * name, int type, int def,
-    const xmlChar * defaultValue, xmlEnumerationPtr tree)
+static void attributeDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * elem, const xmlChar * name, int type, int def, const xmlChar * defaultValue, xmlEnumeration * tree)
 {
 	callbacks++;
 	if(quiet)
 		return;
 	if(defaultValue == NULL)
-		fprintf(SAXdebug, "SAX.attributeDecl(%s, %s, %d, %d, NULL, ...)\n",
-		    elem, name, type, def);
+		fprintf(SAXdebug, "SAX.attributeDecl(%s, %s, %d, %d, NULL, ...)\n", elem, name, type, def);
 	else
-		fprintf(SAXdebug, "SAX.attributeDecl(%s, %s, %d, %d, %s, ...)\n",
-		    elem, name, type, def, defaultValue);
+		fprintf(SAXdebug, "SAX.attributeDecl(%s, %s, %d, %d, %s, ...)\n", elem, name, type, def, defaultValue);
 	xmlFreeEnumeration(tree);
 }
 
@@ -991,8 +977,7 @@ static void attributeDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * elem
  *
  * An element definition has been parsed
  */
-static void elementDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name, int type,
-    xmlElementContentPtr content ATTRIBUTE_UNUSED)
+static void elementDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name, int type, xmlElementContent * content ATTRIBUTE_UNUSED)
 {
 	callbacks++;
 	if(quiet)
@@ -1010,14 +995,12 @@ static void elementDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name, 
  *
  * What to do when a notation declaration has been parsed.
  */
-static void notationDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name,
-    const xmlChar * publicId, const xmlChar * systemId)
+static void notationDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId)
 {
 	callbacks++;
 	if(quiet)
 		return;
-	fprintf(SAXdebug, "SAX.notationDecl(%s, %s, %s)\n",
-	    (char *)name, (char *)publicId, (char *)systemId);
+	fprintf(SAXdebug, "SAX.notationDecl(%s, %s, %s)\n", (char *)name, (char *)publicId, (char *)systemId);
 }
 
 /**
@@ -1031,23 +1014,16 @@ static void notationDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name,
  * What to do when an unparsed entity declaration is parsed
  */
 static void unparsedEntityDeclDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name,
-    const xmlChar * publicId, const xmlChar * systemId,
-    const xmlChar * notationName)
+    const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName)
 {
 	const xmlChar * nullstr = BAD_CAST "(null)";
-
-	if(publicId == NULL)
-		publicId = nullstr;
-	if(systemId == NULL)
-		systemId = nullstr;
-	if(notationName == NULL)
-		notationName = nullstr;
+	SETIFZQ(publicId, nullstr);
+	SETIFZQ(systemId, nullstr);
+	SETIFZQ(notationName, nullstr);
 	callbacks++;
 	if(quiet)
 		return;
-	fprintf(SAXdebug, "SAX.unparsedEntityDecl(%s, %s, %s, %s)\n",
-	    (char *)name, (char *)publicId, (char *)systemId,
-	    (char *)notationName);
+	fprintf(SAXdebug, "SAX.unparsedEntityDecl(%s, %s, %s, %s)\n", (char *)name, (char *)publicId, (char *)systemId, (char *)notationName);
 }
 
 /**
@@ -1104,15 +1080,14 @@ static void endDocumentDebug(void * ctx ATTRIBUTE_UNUSED)
 static void startElementDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * name, const xmlChar ** atts)
 {
 	int i;
-
 	callbacks++;
 	if(quiet)
 		return;
 	fprintf(SAXdebug, "SAX.startElement(%s", (char *)name);
-	if(atts != NULL) {
+	if(atts) {
 		for(i = 0; (atts[i] != NULL); i++) {
 			fprintf(SAXdebug, ", %s='", atts[i++]);
-			if(atts[i] != NULL)
+			if(atts[i])
 				fprintf(SAXdebug, "%s'", atts[i]);
 		}
 	}
@@ -1147,17 +1122,14 @@ static void charactersDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * ch, int
 {
 	char output[40];
 	int i;
-
 	callbacks++;
 	if(quiet)
 		return;
 	for(i = 0; (i<len) && (i < 30); i++)
 		output[i] = ch[i];
 	output[i] = 0;
-
 	fprintf(SAXdebug, "SAX.characters(%s, %d)\n", output, len);
 }
-
 /**
  * referenceDebug:
  * @ctxt:  An XML parser context
@@ -1187,7 +1159,6 @@ static void ignorableWhitespaceDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar 
 {
 	char output[40];
 	int i;
-
 	callbacks++;
 	if(quiet)
 		return;
@@ -1206,18 +1177,15 @@ static void ignorableWhitespaceDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar 
  *
  * A processing instruction has been parsed.
  */
-static void processingInstructionDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * target,
-    const xmlChar * data)
+static void processingInstructionDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * target, const xmlChar * data)
 {
 	callbacks++;
 	if(quiet)
 		return;
 	if(data != NULL)
-		fprintf(SAXdebug, "SAX.processingInstruction(%s, %s)\n",
-		    (char *)target, (char *)data);
+		fprintf(SAXdebug, "SAX.processingInstruction(%s, %s)\n", (char *)target, (char *)data);
 	else
-		fprintf(SAXdebug, "SAX.processingInstruction(%s, NULL)\n",
-		    (char *)target);
+		fprintf(SAXdebug, "SAX.processingInstruction(%s, NULL)\n", (char *)target);
 }
 
 /**
@@ -1233,8 +1201,7 @@ static void cdataBlockDebug(void * ctx ATTRIBUTE_UNUSED, const xmlChar * value, 
 	callbacks++;
 	if(quiet)
 		return;
-	fprintf(SAXdebug, "SAX.pcdata(%.20s, %d)\n",
-	    (char *)value, len);
+	fprintf(SAXdebug, "SAX.pcdata(%.20s, %d)\n", (char *)value, len);
 }
 
 /**
@@ -1587,7 +1554,7 @@ static xmlSAXHandler debugHTMLSAXHandlerStruct = {
 	NULL
 };
 
-static xmlSAXHandlerPtr debugHTMLSAXHandler = &debugHTMLSAXHandlerStruct;
+static xmlSAXHandler * debugHTMLSAXHandler = &debugHTMLSAXHandlerStruct;
 #endif /* LIBXML_HTML_ENABLED */
 
 #ifdef LIBXML_SAX1_ENABLED
@@ -1601,12 +1568,10 @@ static xmlSAXHandlerPtr debugHTMLSAXHandler = &debugHTMLSAXHandlerStruct;
  *
  * Returns 0 in case of success, an error code otherwise
  */
-static int saxParseTest(const char * filename, const char * result,
-    const char * err ATTRIBUTE_UNUSED,
-    int options) {
+static int saxParseTest(const char * filename, const char * result, const char * err ATTRIBUTE_UNUSED, int options) 
+{
 	int ret;
 	char * temp;
-
 	nb_tests++;
 	temp = resultFilename(filename, "", ".res");
 	if(temp == NULL) {
@@ -1663,27 +1628,21 @@ static int saxParseTest(const char * filename, const char * result,
 		fprintf(stderr, "Got a difference for %s\n", filename);
 		ret = 1;
 	}
-
 done:
 	if(temp != NULL) {
 		unlink(temp);
 		free(temp);
 	}
-
 	/* switch back to structured error handling */
 	xmlSetGenericErrorFunc(NULL, NULL);
 	xmlSetStructuredErrorFunc(NULL, testStructuredErrorHandler);
-
 	return(ret);
 }
 
 #endif
-
-/************************************************************************
-*									*
-*		Parse to tree based tests				*
-*									*
-************************************************************************/
+// 
+// Parse to tree based tests
+// 
 /**
  * oldParseTest:
  * @filename: the file to parse
@@ -1696,13 +1655,11 @@ done:
  *
  * Returns 0 in case of success, an error code otherwise
  */
-static int oldParseTest(const char * filename, const char * result,
-    const char * err ATTRIBUTE_UNUSED,
-    int options ATTRIBUTE_UNUSED) {
-	xmlDocPtr doc;
+static int oldParseTest(const char * filename, const char * result, const char * err ATTRIBUTE_UNUSED, int options ATTRIBUTE_UNUSED) 
+{
+	xmlDoc * doc;
 	char * temp;
 	int res = 0;
-
 	nb_tests++;
 	/*
 	 * base of the test, parse with the old API
@@ -1724,7 +1681,6 @@ static int oldParseTest(const char * filename, const char * result,
 		res = 1;
 	}
 	xmlFreeDoc(doc);
-
 	/*
 	 * Parse the saved result to make sure the round trip is okay
 	 */
@@ -1760,15 +1716,13 @@ static int oldParseTest(const char * filename, const char * result,
  *
  * Returns 0 in case of success, an error code otherwise
  */
-static int pushParseTest(const char * filename, const char * result,
-    const char * err ATTRIBUTE_UNUSED,
-    int options) {
-	xmlParserCtxtPtr ctxt;
-	xmlDocPtr doc;
+static int pushParseTest(const char * filename, const char * result, const char * err ATTRIBUTE_UNUSED, int options) 
+{
+	xmlParserCtxt * ctxt;
+	xmlDoc * doc;
 	const char * base;
 	int size, res;
 	int cur = 0;
-
 	nb_tests++;
 	/*
 	 * load the document in memory and work from there.
@@ -2718,7 +2672,7 @@ static int uripMatch(const char * URI) {
  */
 static void *uripOpen(const char * URI) {
 	if((URI == NULL) || (!strcmp(URI, "file:///etc/xml/catalog")))
-		return(NULL);
+		return NULL;
 	/* Verify we received the escaped URL */
 	if(strcmp(urip_rcvsURLs[urip_current], URI))
 		urip_success = 0;
@@ -3207,19 +3161,15 @@ static int rngStreamTest(const char * filename,
 	len -= 4; /* remove trailing .rng */
 	memcpy(prefix, base, len);
 	prefix[len] = 0;
-
 	/*
 	 * strictly unifying the error messages is nearly impossible this
 	 * hack is also done in the Makefile
 	 */
-	if((!strcmp(prefix, "tutor10_1")) || (!strcmp(prefix, "tutor10_2")) ||
-	    (!strcmp(prefix, "tutor3_2")) || (!strcmp(prefix, "307377")) ||
+	if((!strcmp(prefix, "tutor10_1")) || (!strcmp(prefix, "tutor10_2")) || (!strcmp(prefix, "tutor3_2")) || (!strcmp(prefix, "307377")) ||
 	    (!strcmp(prefix, "tutor8_2")))
 		disable_err = 1;
-
 	snprintf(pattern, 499, "./test/relaxng/%s_?.xml", prefix);
 	pattern[499] = 0;
-
 	globbuf.gl_offs = 0;
 	glob(pattern, GLOB_DOOFFS, NULL, &globbuf);
 	for(i = 0; i < globbuf.gl_pathc; i++) {
@@ -3499,7 +3449,7 @@ static xmlXPathObjectPtr load_xpath_expr(xmlDocPtr parent_doc, const char* filen
 	doc = xmlReadFile(filename, NULL, XML_PARSE_DTDATTR | XML_PARSE_NOENT);
 	if(doc == NULL) {
 		fprintf(stderr, "Error: unable to parse file \"%s\"\n", filename);
-		return(NULL);
+		return NULL;
 	}
 
 	/*
@@ -3508,7 +3458,7 @@ static xmlXPathObjectPtr load_xpath_expr(xmlDocPtr parent_doc, const char* filen
 	if(xmlDocGetRootElement(doc) == NULL) {
 		fprintf(stderr, "Error: empty document for file \"%s\"\n", filename);
 		xmlFreeDoc(doc);
-		return(NULL);
+		return NULL;
 	}
 
 	node = doc->children;
@@ -3519,14 +3469,14 @@ static xmlXPathObjectPtr load_xpath_expr(xmlDocPtr parent_doc, const char* filen
 	if(node == NULL) {
 		fprintf(stderr, "Error: XPath element expected in the file  \"%s\"\n", filename);
 		xmlFreeDoc(doc);
-		return(NULL);
+		return NULL;
 	}
 
 	expr = xmlNodeGetContent(node);
 	if(expr == NULL) {
 		fprintf(stderr, "Error: XPath content element is NULL \"%s\"\n", filename);
 		xmlFreeDoc(doc);
-		return(NULL);
+		return NULL;
 	}
 
 	ctx = xmlXPathNewContext(parent_doc);
@@ -3534,7 +3484,7 @@ static xmlXPathObjectPtr load_xpath_expr(xmlDocPtr parent_doc, const char* filen
 		fprintf(stderr, "Error: unable to create new context\n");
 		xmlFree(expr);
 		xmlFreeDoc(doc);
-		return(NULL);
+		return NULL;
 	}
 
 	/*
@@ -3547,7 +3497,7 @@ static xmlXPathObjectPtr load_xpath_expr(xmlDocPtr parent_doc, const char* filen
 			xmlFree(expr);
 			xmlXPathFreeContext(ctx);
 			xmlFreeDoc(doc);
-			return(NULL);
+			return NULL;
 		}
 		ns = ns->next;
 	}
@@ -3561,7 +3511,7 @@ static xmlXPathObjectPtr load_xpath_expr(xmlDocPtr parent_doc, const char* filen
 		xmlFree(expr);
 		xmlXPathFreeContext(ctx);
 		xmlFreeDoc(doc);
-		return(NULL);
+		return NULL;
 	}
 
 	/* print_xpath_nodes(xpath->nodesetval); */
@@ -3581,7 +3531,7 @@ static xmlXPathObjectPtr load_xpath_expr(xmlDocPtr parent_doc, const char* filen
 		    xmlRealloc(buffer, buffer_size * sizeof(xmlChar*));     \
 		if(buffer == NULL) {                                               \
 			perror("realloc failed");                                       \
-			return(NULL);                                                   \
+			return NULL;                                                   \
 		}                                                                   \
 }
 
@@ -3592,7 +3542,7 @@ static xmlChar **parse_list(xmlChar * str) {
 	int len;
 
 	if(str == NULL) {
-		return(NULL);
+		return NULL;
 	}
 
 	len = xmlStrlen(str);
@@ -3607,7 +3557,7 @@ static xmlChar **parse_list(xmlChar * str) {
 	buffer = (xmlChar **)xmlMalloc(buffer_size * sizeof(xmlChar*));
 	if(buffer == NULL) {
 		perror("malloc failed");
-		return(NULL);
+		return NULL;
 	}
 	out = buffer;
 

@@ -467,7 +467,7 @@ void* xmlNanoFTPNewCtxt(const char * URL) {
 	ret = (xmlNanoFTPCtxtPtr)xmlMalloc(sizeof(xmlNanoFTPCtxt));
 	if(ret == NULL) {
 		xmlFTPErrMemory("allocating FTP context");
-		return(NULL);
+		return NULL;
 	}
 
 	memset(ret, 0, sizeof(xmlNanoFTPCtxt));
@@ -1217,23 +1217,23 @@ void* xmlNanoFTPConnectTo(const char * server, int port) {
 
 	xmlNanoFTPInit();
 	if(server == NULL)
-		return(NULL);
+		return NULL;
 	if(port <= 0)
-		return(NULL);
+		return NULL;
 	ctxt = (xmlNanoFTPCtxtPtr)xmlNanoFTPNewCtxt(NULL);
 	if(ctxt == NULL)
-		return(NULL);
+		return NULL;
 	ctxt->hostname = xmlMemStrdup(server);
 	if(ctxt->hostname == NULL) {
 		xmlNanoFTPFreeCtxt(ctxt);
-		return(NULL);
+		return NULL;
 	}
 	if(port != 0)
 		ctxt->port = port;
 	res = xmlNanoFTPConnect(ctxt);
 	if(res < 0) {
 		xmlNanoFTPFreeCtxt(ctxt);
-		return(NULL);
+		return NULL;
 	}
 	return(ctxt);
 }
@@ -1979,19 +1979,19 @@ void* xmlNanoFTPOpen(const char * URL) {
 	SOCKET sock;
 
 	xmlNanoFTPInit();
-	if(URL == NULL) return(NULL);
-	if(strncmp("ftp://", URL, 6)) return(NULL);
+	if(URL == NULL) return NULL;
+	if(strncmp("ftp://", URL, 6)) return NULL;
 
 	ctxt = (xmlNanoFTPCtxtPtr)xmlNanoFTPNewCtxt(URL);
-	if(ctxt == NULL) return(NULL);
+	if(ctxt == NULL) return NULL;
 	if(xmlNanoFTPConnect(ctxt) < 0) {
 		xmlNanoFTPFreeCtxt(ctxt);
-		return(NULL);
+		return NULL;
 	}
 	sock = xmlNanoFTPGetSocket(ctxt, ctxt->path);
 	if(sock == INVALID_SOCKET) {
 		xmlNanoFTPFreeCtxt(ctxt);
-		return(NULL);
+		return NULL;
 	}
 	return(ctxt);
 }

@@ -28,7 +28,7 @@ static const struct { const char * name; int (* setter)(Archive *); } names[] = 
 int archive_write_add_filter_by_name(Archive * a, const char * name)
 {
 	for(int i = 0; names[i].name; i++) {
-		if(strcmp(name, names[i].name) == 0)
+		if(sstreq(name, names[i].name))
 			return ((names[i].setter)(a));
 	}
 	archive_set_error(a, EINVAL, "No such filter '%s'", name);

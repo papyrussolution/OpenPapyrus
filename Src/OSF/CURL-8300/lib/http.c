@@ -2811,19 +2811,13 @@ CURLcode Curl_http_cookies(struct Curl_easy * data,
 	if(data->set.str[STRING_COOKIE] &&
 	    !Curl_checkheaders(data, STRCONST("Cookie")))
 		addcookies = data->set.str[STRING_COOKIE];
-
 	if(data->cookies || addcookies) {
 		struct Cookie * co = NULL; /* no cookies from start */
 		int count = 0;
-
 		if(data->cookies && data->state.cookie_engine) {
-			const char * host = data->state.aptr.cookiehost ?
-			    data->state.aptr.cookiehost : conn->host.name;
-			const bool secure_context =
-			    conn->handler->protocol&(CURLPROTO_HTTPS|CURLPROTO_WSS) ||
-			    strcasecompare("localhost", host) ||
-			    !strcmp(host, "127.0.0.1") ||
-			    !strcmp(host, "::1") ? TRUE : FALSE;
+			const char * host = data->state.aptr.cookiehost ? data->state.aptr.cookiehost : conn->host.name;
+			const bool secure_context = conn->handler->protocol&(CURLPROTO_HTTPS|CURLPROTO_WSS) ||
+			    strcasecompare("localhost", host) || !strcmp(host, "127.0.0.1") || !strcmp(host, "::1") ? TRUE : FALSE;
 			Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
 			co = Curl_cookie_getlist(data, data->cookies, host, data->state.up.path,
 				secure_context);
@@ -3219,20 +3213,15 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 	result = Curl_http_body(data, conn, httpreq, &te);
 	if(result)
 		return result;
-
 	p_accept = Curl_checkheaders(data,
 		STRCONST("Accept"))?NULL:"Accept: */*\r\n";
-
 	result = Curl_http_resume(data, conn, httpreq);
 	if(result)
 		return result;
-
 	result = Curl_http_range(data, httpreq);
 	if(result)
 		return result;
-
 	httpstring = get_http_string(data, conn);
-
 	/* initialize a dynamic send-buffer */
 	Curl_dyn_init(&req, DYN_HTTP_REQUEST);
 
@@ -3345,10 +3334,8 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 
 	if(!result) {
 		http->postdata = NULL; /* nothing to post at this point */
-		if((httpreq == HTTPREQ_GET) ||
-		    (httpreq == HTTPREQ_HEAD))
+		if((httpreq == HTTPREQ_GET) || (httpreq == HTTPREQ_HEAD))
 			Curl_pgrsSetUploadSize(data, 0); /* nothing */
-
 		/* bodysend takes ownership of the 'req' memory on success */
 		result = Curl_http_bodysend(data, conn, &req, httpreq);
 	}
@@ -3409,13 +3396,11 @@ static bool checkprefixmax(const char * prefix, const char * buffer, size_t len)
  *
  * Returns TRUE if member of the list matches prefix of string
  */
-static statusline checkhttpprefix(struct Curl_easy * data,
-    const char * s, size_t len)
+static statusline checkhttpprefix(struct Curl_easy * data, const char * s, size_t len)
 {
 	struct curl_slist * head = data->set.http200aliases;
 	statusline rc = STATUS_BAD;
 	statusline onmatch = len >= 5? STATUS_DONE : STATUS_UNKNOWN;
-
 	while(head) {
 		if(checkprefixmax(head->data, s, len)) {
 			rc = onmatch;
@@ -3423,30 +3408,24 @@ static statusline checkhttpprefix(struct Curl_easy * data,
 		}
 		head = head->next;
 	}
-
 	if((rc != STATUS_DONE) && (checkprefixmax("HTTP/", s, len)))
 		rc = onmatch;
-
 	return rc;
 }
 
 #ifndef CURL_DISABLE_RTSP
-static statusline checkrtspprefix(struct Curl_easy * data,
-    const char * s, size_t len)
+static statusline checkrtspprefix(struct Curl_easy * data, const char * s, size_t len)
 {
 	statusline result = STATUS_BAD;
 	statusline onmatch = len >= 5? STATUS_DONE : STATUS_UNKNOWN;
 	(void)data; /* unused */
 	if(checkprefixmax("RTSP/", s, len))
 		result = onmatch;
-
 	return result;
 }
-
 #endif /* CURL_DISABLE_RTSP */
 
-static statusline checkprotoprefix(struct Curl_easy * data, struct connectdata * conn,
-    const char * s, size_t len)
+static statusline checkprotoprefix(struct Curl_easy * data, struct connectdata * conn, const char * s, size_t len)
 {
 #ifndef CURL_DISABLE_RTSP
 	if(conn->handler->protocol & CURLPROTO_RTSP)
@@ -3454,7 +3433,6 @@ static statusline checkprotoprefix(struct Curl_easy * data, struct connectdata *
 #else
 	(void)conn;
 #endif /* CURL_DISABLE_RTSP */
-
 	return checkhttpprefix(data, s, len);
 }
 
@@ -3589,9 +3567,7 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 		 * 2616). zlib cannot handle compress.  However, errors are
 		 * handled further down when the response body is processed
 		 */
-		result = Curl_build_unencoding_stack(data,
-			headp + strlen("Content-Encoding:"),
-			FALSE);
+		result = Curl_build_unencoding_stack(data, headp + strlen("Content-Encoding:"), FALSE);
 		if(result)
 			return result;
 	}
@@ -3599,8 +3575,7 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 		/* Retry-After = HTTP-date / delay-seconds */
 		curl_off_t retry_after = 0; /* zero for unknown or "now" */
 		/* Try it as a decimal number, if it works it is not a date */
-		(void)curlx_strtoofft(headp + strlen("Retry-After:"),
-		    NULL, 10, &retry_after);
+		(void)curlx_strtoofft(headp + strlen("Retry-After:"), NULL, 10, &retry_after);
 		if(!retry_after) {
 			time_t date = Curl_getdate_capped(headp + strlen("Retry-After:"));
 			if(-1 != date)
@@ -3620,13 +3595,10 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 		   The third added since some servers use that!
 		   The fourth means the requested range was unsatisfied.
 		 */
-
 		char * ptr = headp + strlen("Content-Range:");
-
 		/* Move forward until first digit or asterisk */
 		while(*ptr && !ISDIGIT(*ptr) && *ptr != '*')
 			ptr++;
-
 		/* if it truly stopped on a digit */
 		if(ISDIGIT(*ptr)) {
 			if(!curlx_strtoofft(ptr, NULL, 10, &k->offset)) {
@@ -3639,23 +3611,13 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 			data->state.resume_from = 0; /* get everything */
 	}
 #if !defined(CURL_DISABLE_COOKIES)
-	else if(data->cookies && data->state.cookie_engine &&
-	    checkprefix("Set-Cookie:", headp)) {
-		/* If there is a custom-set Host: name, use it here, or else use real peer
-		   host name. */
-		const char * host = data->state.aptr.cookiehost?
-		    data->state.aptr.cookiehost:conn->host.name;
-		const bool secure_context =
-		    conn->handler->protocol&(CURLPROTO_HTTPS|CURLPROTO_WSS) ||
-		    strcasecompare("localhost", host) ||
-		    !strcmp(host, "127.0.0.1") ||
-		    !strcmp(host, "::1") ? TRUE : FALSE;
-
-		Curl_share_lock(data, CURL_LOCK_DATA_COOKIE,
-		    CURL_LOCK_ACCESS_SINGLE);
-		Curl_cookie_add(data, data->cookies, TRUE, FALSE,
-		    headp + strlen("Set-Cookie:"), host,
-		    data->state.up.path, secure_context);
+	else if(data->cookies && data->state.cookie_engine && checkprefix("Set-Cookie:", headp)) {
+		// If there is a custom-set Host: name, use it here, or else use real peer host name
+		const char * host = data->state.aptr.cookiehost ? data->state.aptr.cookiehost:conn->host.name;
+		const bool secure_context = conn->handler->protocol&(CURLPROTO_HTTPS|CURLPROTO_WSS) ||
+		    strcasecompare("localhost", host) || !strcmp(host, "127.0.0.1") || !strcmp(host, "::1") ? TRUE : FALSE;
+		Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
+		Curl_cookie_add(data, data->cookies, TRUE, FALSE, headp + strlen("Set-Cookie:"), host, data->state.up.path, secure_context);
 		Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
 	}
 #endif

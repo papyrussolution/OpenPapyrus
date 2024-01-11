@@ -2692,7 +2692,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 	int32_t length = 0;
 	if(U_FAILURE(*status)) return 0;
 	uloc_getKeywordValue(locid, keyword, kwVal, 1024-1, &subStatus);
-	if(!strcmp(kwVal, DEFAULT_TAG)) {
+	if(sstreq(kwVal, DEFAULT_TAG)) {
 		kwVal[0] = 0;
 	}
 	uloc_getBaseName(locid, base, 1024-1, &subStatus);
@@ -2908,7 +2908,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 #endif
 			if(strlen(defLoc) <= strlen(full)) {
 				/* found the keyword in a *child* of where the default tag was present. */
-				if(!strcmp(kwVal, defVal)) { /* if the requested kw is default, */
+				if(sstreq(kwVal, defVal)) { /* if the requested kw is default, */
 					/* and the default is in or in an ancestor of the current locale */
 #if defined(URES_TREE_DEBUG)
 					slfprintf_stderr("Removing unneeded var %s=%s\n", keyword, kwVal);
@@ -3007,7 +3007,7 @@ U_CAPI UEnumeration* U_EXPORT2 ures_getKeywordValues(const char * path, const ch
 				continue;
 			}
 			for(i = 0; i<valuesCount; i++) {
-				if(!strcmp(valuesList[i], k)) {
+				if(sstreq(valuesList[i], k)) {
 					k = NULL; /* found duplicate */
 					break;
 				}

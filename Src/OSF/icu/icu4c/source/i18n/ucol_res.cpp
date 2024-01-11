@@ -238,7 +238,8 @@ const CollationCacheEntry * CollationLoader::loadFromLocale(UErrorCode & errorCo
 	}
 }
 
-const CollationCacheEntry * CollationLoader::loadFromBundle(UErrorCode & errorCode) {
+const CollationCacheEntry * CollationLoader::loadFromBundle(UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
@@ -253,12 +254,10 @@ const CollationCacheEntry * CollationLoader::loadFromBundle(UErrorCode & errorCo
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
-
 	// Fetch the default type from the data.
 	{
 		UErrorCode internalErrorCode = U_ZERO_ERROR;
-		LocalUResourceBundlePointer def(
-			ures_getByKeyWithFallback(collations, "default", NULL, &internalErrorCode));
+		LocalUResourceBundlePointer def(ures_getByKeyWithFallback(collations, "default", NULL, &internalErrorCode));
 		int32_t length;
 		const char16_t * s = ures_getString(def.getAlias(), &length, &internalErrorCode);
 		if(U_SUCCESS(internalErrorCode) && 0 < length && length < SIZEOFARRAYi(defaultType)) {
@@ -268,7 +267,6 @@ const CollationCacheEntry * CollationLoader::loadFromBundle(UErrorCode & errorCo
 			strcpy(defaultType, "standard");
 		}
 	}
-
 	// Record which collation types we have looked for already,
 	// so that we do not deadlock in the cache.
 	//

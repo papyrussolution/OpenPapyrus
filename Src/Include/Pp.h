@@ -5264,7 +5264,7 @@ struct AccTurnParam {
 #define CCFLG2_USECCHECKEXTPAYM    0x00000020L // Использовать расширение оплат по чекам
 #define CCFLG2_DONTUSE3TIERGMTX    0x00000040L // Не использовать извлечение товарной матрицы с сервера при 3-tier режиме работы
 #define CCFLG2_USEOMTPAYMAMT       0x00000080L // Использовать включенную сумму оплаты по документам
-#define CCFLG2_USESARTREDB         0x00000100L // Использовать базу данных Sartre (экпериментальная опция)
+#define CCFLG2_USESARTREDB         0x00000100L // Использовать базу данных Sartre (экспериментальная опция)
 #define CCFLG2_USELOTXCODE         0x00000200L // Использовать дополнительные коды привязанные к строкам документов (ЕГАИС)
 #define CCFLG2_USELCR2             0x00000400L // @v10.1.5 Использовать 2-ю версию индексации остатков по лотам
 #define CCFLG2_USEVETIS            0x00000800L // @v10.1.9 @transient Использовать функционал ВЕТИС (Меркурий). Определяется динамически
@@ -18907,6 +18907,7 @@ public:
 //
 #define OPCNTF_LOCKINCR    0x00000001L // Не изменять значение счетчика при получении очередной величины
 #define OPCNTF_DIFFBYLOC   0x00000002L // Счетчики, рездельные по складам
+#define OPCNTF_VERIFYUNIQ  0x00000004L // @v11.9.2 При создании документа проверять уникальность номера
 
 struct PPOpCounter2 {      // @persistent @store(Reference2Tbl+)
 	PPOpCounter2();
@@ -23931,6 +23932,7 @@ private:
 #define GTCHZNPT_JEWELRY     9 // @v11.4.9 Ювелирные изделия //
 #define GTCHZNPT_WATER      10 // @v11.5.4 Вода питьевая //
 #define GTCHZNPT_ALTTOBACCO 11 // @v11.9.0 Альтернативная табачная продукция. Марки очень похожи на табак, но есть нюансы в обработке.
+#define GTCHZNPT_DRAFTBEER  12 // @v11.9.2 Пиво разливное
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();

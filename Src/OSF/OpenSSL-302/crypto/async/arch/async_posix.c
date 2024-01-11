@@ -17,7 +17,7 @@
 
 #define STACKSIZE       32768
 
-int ASYNC_is_capable(void)
+int ASYNC_is_capable()
 {
 	ucontext_t ctx;
 	/*
@@ -27,7 +27,7 @@ int ASYNC_is_capable(void)
 	return getcontext(&ctx) == 0;
 }
 
-void async_local_cleanup(void)
+void async_local_cleanup()
 {
 }
 

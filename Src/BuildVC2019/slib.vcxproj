@@ -6663,6 +6663,9 @@
     <ProjectReference Include="liblzma.vcxproj">
       <Project>{c241e0ad-81ff-4a43-9b39-f3712e9c0d4e}</Project>
     </ProjectReference>
+    <ProjectReference Include="libwebp-slib.vcxproj">
+      <Project>{05255f31-2054-4df4-ad6d-5bc5da8ccccf}</Project>
+    </ProjectReference>
     <ProjectReference Include="libzip.vcxproj">
       <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
     </ProjectReference>

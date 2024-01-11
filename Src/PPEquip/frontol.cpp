@@ -1,5 +1,5 @@
 // FRONTOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -642,13 +642,13 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									case GTCHZNPT_TEXTILE: mark_type = 11; break;
 									case GTCHZNPT_CARTIRE: mark_type = 10; break;
 									case GTCHZNPT_PERFUMERY: mark_type = 9; break;
-									case GTCHZNPT_TOBACCO: 
-									case GTCHZNPT_ALTTOBACCO: // @v11.9.0
-										mark_type = 4; break;
+									case GTCHZNPT_TOBACCO: mark_type = 4; break; 
+									case GTCHZNPT_ALTTOBACCO: mark_type = 12; break; // @v11.9.0 // @v11.9.2 4-->12
 									case GTCHZNPT_MEDICINE: mark_type = 3; break;
 									case GTCHZNPT_FUR: mark_type = 2; break;
 									case GTCHZNPT_MILK: mark_type = 13; break; // @v11.3.5
 									case GTCHZNPT_WATER: mark_type = 15; break; // @v11.5.6
+									case GTCHZNPT_DRAFTBEER: mark_type = 18; break; // @v11.9.2
 									default:
 										if(gds_info.ChZnProdType)
 											mark_type = 7; // 7–иная маркированная продукция
