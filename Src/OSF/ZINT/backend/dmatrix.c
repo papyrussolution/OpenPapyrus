@@ -559,11 +559,8 @@ static int look_ahead_test(const uchar inputData[], const int sourcelen, const i
 					ascii_count = ceilf(ascii_count) + 1.0F; // (l)(3)
 				}
 			}
-
 			/* c40 ... step (m) */
-			if((inputData[sp] == ' ') ||
-			    (((inputData[sp] >= '0') && (inputData[sp] <= '9')) ||
-				    ((inputData[sp] >= 'A') && (inputData[sp] <= 'Z')))) {
+			if((inputData[sp] == ' ') || (((inputData[sp] >= '0') && (inputData[sp] <= '9')) || ((inputData[sp] >= 'A') && (inputData[sp] <= 'Z')))) {
 				c40_count += (2.0F / 3.0F); // (m)(1)
 			}
 			else {
@@ -785,7 +782,7 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 			next_mode = DM_ASCII;
 
 			if(istwodigits(source, sp) && ((sp + 1) != inputlen)) {
-				target[tp] = (uchar)((10 * hex(source[sp])) + hex(source[sp + 1]) + 130);
+				target[tp] = (uchar)((10 * hex(source[sp])) + hex(source[sp+1]) + 130);
 				if(debug) printf("N%d ", target[tp] - 130);
 				tp++;
 				strcat(binary, " ");
@@ -997,7 +994,7 @@ static int dm200encode(struct ZintSymbol * symbol, const uchar source[],
 				if(source[sp] == ' ') {
 					value = 3;
 				}
-				if((source[sp] >= '0') && (source[sp] <= '9')) {
+				if(isdec(source[sp])) {
 					value = (source[sp] - '0') + 4;
 				}
 				if((source[sp] >= 'A') && (source[sp] <= 'Z')) {

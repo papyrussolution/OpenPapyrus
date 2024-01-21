@@ -14,14 +14,14 @@ static int DispArrAdd(StrAssocArray & rArr, int pos, const char* pValue)
 	return rArr.Add(pos, pValue, 1);
 }
 
-/*static*/int PPCustDisp::IsComPort(const char * pPortName)
+/*static*/bool PPCustDisp::IsComPort(const char * pPortName)
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(pPortName) {
 		int  port = 0;
 		int  comdvcs = IsComDvcSymb(pPortName, &port);
 		if(comdvcs == comdvcsCom && port > 0 && port < 32)
-			ok = 1;
+			ok = true;
 	}
 	return ok;
 }

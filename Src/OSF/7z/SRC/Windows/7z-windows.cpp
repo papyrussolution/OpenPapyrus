@@ -426,13 +426,13 @@ namespace NWindows {
 		  #ifdef _WIN64
 			if(!::GlobalMemoryStatusEx(&stat))
 				return false;
-			size = MyMin(stat.ullTotalVirtual, stat.ullTotalPhys);
+			size = smin(stat.ullTotalVirtual, stat.ullTotalPhys);
 			return true;
 		  #else
 			#ifndef UNDER_CE
 			GlobalMemoryStatusExP globalMemoryStatusEx = (GlobalMemoryStatusExP)::GetProcAddress(::GetModuleHandle(TEXT("kernel32.dll")), "GlobalMemoryStatusEx");
 			if(globalMemoryStatusEx && globalMemoryStatusEx(&stat)) {
-				size = MyMin(stat.ullTotalVirtual, stat.ullTotalPhys);
+				size = smin(stat.ullTotalVirtual, stat.ullTotalPhys);
 				return true;
 			}
 			#endif
@@ -440,7 +440,7 @@ namespace NWindows {
 				MEMORYSTATUS stat2;
 				stat2.dwLength = sizeof(stat2);
 				::GlobalMemoryStatus(&stat2);
-				size = MyMin(stat2.dwTotalVirtual, stat2.dwTotalPhys);
+				size = smin(stat2.dwTotalVirtual, stat2.dwTotalPhys);
 				return true;
 			}
 		  #endif
@@ -1605,13 +1605,12 @@ namespace NWindows {
 				if(len < 18 || len > 22 || !IsString1PrefixedByString2(s + kDevicePathPrefixSize, "PhysicalDrive"))
 					return false;
 				for(uint i = 17; i < len; i++)
-					if(s[i] < '0' || s[i] > '9')
+					if(!isdec(s[i]))
 						return false;
 				return true;
 
 			  #endif
 			}
-
 			bool IsSuperUncPath(CFSTR s) throw() { return (IS_SUPER_PREFIX(s) && IS_UNC_WITH_SLASH(s + kSuperPathPrefixSize)); }
 
 			bool IsNetworkPath(CFSTR s) throw()

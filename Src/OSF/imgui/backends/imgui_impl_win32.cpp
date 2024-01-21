@@ -735,8 +735,7 @@ void ImGui_ImplWin32_EnableDpiAwareness()
 {
 	if(_IsWindows10OrGreater()) {
 		static HINSTANCE user32_dll = ::LoadLibraryA("user32.dll"); // Reference counted per-process
-		if(PFN_SetThreadDpiAwarenessContext SetThreadDpiAwarenessContextFn =
-		    (PFN_SetThreadDpiAwarenessContext)::GetProcAddress(user32_dll, "SetThreadDpiAwarenessContext")) {
+		if(PFN_SetThreadDpiAwarenessContext SetThreadDpiAwarenessContextFn = (PFN_SetThreadDpiAwarenessContext)::GetProcAddress(user32_dll, "SetThreadDpiAwarenessContext")) {
 			SetThreadDpiAwarenessContextFn(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 			return;
 		}

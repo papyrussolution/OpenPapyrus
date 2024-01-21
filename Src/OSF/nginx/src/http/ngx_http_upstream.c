@@ -647,7 +647,7 @@ static ngx_int_t ngx_http_upstream_cache_check_range(ngx_http_request_t * r, ngx
 		return NGX_DECLINED;
 	}
 	start = p;
-	while(*p >= '0' && *p <= '9') {
+	while(isdec(*p)) {
 		p++;
 	}
 	offset = ngx_atoof(start, p - start);
@@ -2856,7 +2856,7 @@ static ngx_int_t ngx_http_upstream_process_cache_control(ngx_http_request_t * r,
 				if(oneof3(*p, ',', ';', ' ')) {
 					break;
 				}
-				else if(*p >= '0' && *p <= '9')
+				else if(isdec(*p))
 					n = n * 10 + (*p - '0');
 				else {
 					u->cacheable = 0;
@@ -2876,7 +2876,7 @@ static ngx_int_t ngx_http_upstream_process_cache_control(ngx_http_request_t * r,
 				if(oneof3(*p, ',', ';', ' ')) {
 					break;
 				}
-				else if(*p >= '0' && *p <= '9')
+				else if(isdec(*p))
 					n = n * 10 + (*p - '0');
 				else {
 					u->cacheable = 0;
@@ -2893,7 +2893,7 @@ static ngx_int_t ngx_http_upstream_process_cache_control(ngx_http_request_t * r,
 				if(oneof3(*p, ',', ';', ' ')) {
 					break;
 				}
-				else if(*p >= '0' && *p <= '9')
+				else if(isdec(*p))
 					n = n * 10 + (*p - '0');
 				else {
 					u->cacheable = 0;

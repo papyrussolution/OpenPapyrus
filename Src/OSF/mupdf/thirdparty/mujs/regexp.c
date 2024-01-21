@@ -94,26 +94,27 @@ enum {
 
 static int hex(struct cstate * g, int c)
 {
-	if(c >= '0' && c <= '9') return c - '0';
-	if(c >= 'a' && c <= 'f') return c - 'a' + 0xA;
-	if(c >= 'A' && c <= 'F') return c - 'A' + 0xA;
+	if(isdec(c)) 
+		return c - '0';
+	if(c >= 'a' && c <= 'f') 
+		return c - 'a' + 0xA;
+	if(c >= 'A' && c <= 'F') 
+		return c - 'A' + 0xA;
 	die(g, "invalid escape sequence");
 	return 0;
 }
 
 static int dec(struct cstate * g, int c)
 {
-	if(c >= '0' && c <= '9') return c - '0';
+	if(isdec(c)) 
+		return c - '0';
 	die(g, "invalid quantifier");
 	return 0;
 }
 
 #define ESCAPES "BbDdSsWw^$\\.*+?()[]{}|0123456789"
 
-static int isunicodeletter(int c)
-{
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isalpharune(c);
-}
+static int isunicodeletter(int c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isalpharune(c); }
 
 static int nextrune(struct cstate * g)
 {
@@ -960,18 +961,8 @@ void regfree(Reprog * prog)
 
 /* Match */
 
-static int isnewline(int c)
-{
-	return c == 0xA || c == 0xD || c == 0x2028 || c == 0x2029;
-}
-
-static int iswordchar(int c)
-{
-	return c == '_' ||
-	       (c >= 'a' && c <= 'z') ||
-	       (c >= 'A' && c <= 'Z') ||
-	       (c >= '0' && c <= '9');
-}
+static int isnewline(int c) { return c == 0xA || c == 0xD || c == 0x2028 || c == 0x2029; }
+static int iswordchar(int c) { return c == '_' || isasciialnum(c); }
 
 static int incclass(Reclass * cc, Rune c)
 {

@@ -288,7 +288,7 @@ static xmlChar * htmlFindEncoding(xmlParserCtxt * ctxt)
 		return NULL;
 	cur += 8;
 	start = cur;
-	while(((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= '0') && (*cur <= '9')) || (*cur == '-') || (*cur == '_') || (*cur == ':') || (*cur == '/'))
+	while(isasciialnum(*cur) || (*cur == '-') || (*cur == '_') || (*cur == ':') || (*cur == '/'))
 		cur++;
 	if(cur == start)
 		return NULL;
@@ -2855,16 +2855,12 @@ int htmlParseCharRef(htmlParserCtxt * ctxt)
 		htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "htmlParseCharRef: context error\n", 0, 0);
 		return 0;
 	}
-	if((CUR == '&') && (NXT(1) == '#') &&
-	    ((NXT(2) == 'x') || NXT(2) == 'X')) {
+	if((CUR == '&') && (NXT(1) == '#') && oneof2(NXT(2), 'x', 'X')) {
 		SKIP(3);
 		while(CUR != ';') {
-			if((CUR >= '0') && (CUR <= '9'))
-				val = val * 16 + (CUR - '0');
-			else if((CUR >= 'a') && (CUR <= 'f'))
-				val = val * 16 + (CUR - 'a') + 10;
-			else if((CUR >= 'A') && (CUR <= 'F'))
-				val = val * 16 + (CUR - 'A') + 10;
+			if(ishex(CUR)) {
+				val = (val << 4) + hex(CUR);
+			}
 			else {
 				htmlParseErr(ctxt, XML_ERR_INVALID_HEX_CHARREF, "htmlParseCharRef: missing semicolon\n", 0, 0);
 				break;
@@ -2877,7 +2873,7 @@ int htmlParseCharRef(htmlParserCtxt * ctxt)
 	else if((CUR == '&') && (NXT(1) == '#')) {
 		SKIP(2);
 		while(CUR != ';') {
-			if((CUR >= '0') && (CUR <= '9'))
+			if(isdec(CUR))
 				val = val * 10 + (CUR - '0');
 			else {
 				htmlParseErr(ctxt, XML_ERR_INVALID_DEC_CHARREF, "htmlParseCharRef: missing semicolon\n", 0, 0);

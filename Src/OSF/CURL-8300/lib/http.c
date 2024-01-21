@@ -3597,10 +3597,10 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 		 */
 		char * ptr = headp + strlen("Content-Range:");
 		/* Move forward until first digit or asterisk */
-		while(*ptr && !ISDIGIT(*ptr) && *ptr != '*')
+		while(*ptr && !isdec(*ptr) && *ptr != '*')
 			ptr++;
 		/* if it truly stopped on a digit */
-		if(ISDIGIT(*ptr)) {
+		if(isdec(*ptr)) {
 			if(!curlx_strtoofft(ptr, NULL, 10, &k->offset)) {
 				if(data->state.resume_from == k->offset)
 					/* we asked for a resume and we got it */
@@ -4332,7 +4332,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 							    if(ISBLANK(p[2])) {
 								    httpversion = 10 + (p[1] - '0');
 								    p += 3;
-								    if(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
+								    if(isdec(p[0]) && isdec(p[1]) && isdec(p[2])) {
 									    k->httpcode = (p[0] - '0') * 100 + (p[1] - '0') * 10 +
 										(p[2] - '0');
 									    p += 3;
@@ -4352,7 +4352,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 							    break;
 						    httpversion = (*p - '0') * 10;
 						    p += 2;
-						    if(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
+						    if(isdec(p[0]) && isdec(p[1]) && isdec(p[2])) {
 							    k->httpcode = (p[0] - '0') * 100 + (p[1] - '0') * 10 +
 								(p[2] - '0');
 							    p += 3;
@@ -4419,12 +4419,12 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					p++;
 				if(!strncmp(p, "RTSP/", 5)) {
 					p += 5;
-					if(ISDIGIT(*p)) {
+					if(isdec(*p)) {
 						p++;
-						if((p[0] == '.') && ISDIGIT(p[1])) {
+						if((p[0] == '.') && isdec(p[1])) {
 							if(ISBLANK(p[2])) {
 								p += 3;
-								if(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
+								if(isdec(p[0]) && isdec(p[1]) && isdec(p[2])) {
 									k->httpcode = (p[0] - '0') * 100 + (p[1] - '0') * 10 +
 									    (p[2] - '0');
 									p += 3;
@@ -4499,16 +4499,12 @@ CURLcode Curl_http_decode_status(int * pstatus, const char * s, size_t len)
 	CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
 	int status = 0;
 	int i;
-
 	if(len != 3)
 		goto out;
-
 	for(i = 0; i < 3; ++i) {
 		char c = s[i];
-
-		if(c < '0' || c > '9')
+		if(!isdec(c))
 			goto out;
-
 		status *= 10;
 		status += c - '0';
 	}
@@ -4519,13 +4515,13 @@ out:
 }
 
 /* simple implementation of strndup(), which isn't portable */
-static char *my_strndup(const char * ptr, size_t len)
+static char * my_strndup(const char * ptr, size_t len)
 {
 	char * copy = static_cast<char *>(SAlloc::M(len + 1));
-	if(!copy)
-		return NULL;
-	memcpy(copy, ptr, len);
-	copy[len] = '\0';
+	if(copy) {
+		memcpy(copy, ptr, len);
+		copy[len] = '\0';
+	}
 	return copy;
 }
 

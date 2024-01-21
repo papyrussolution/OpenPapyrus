@@ -1,5 +1,5 @@
 // CHZN.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Реализация интерфейса к сервисам честный знак
 //
@@ -1276,7 +1276,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					*/
 					PPObjCashNode cnobj;
 					PPCashNode cn_rec;
-					if(cnobj.Fetch(p_ccp->Rec.CashID, &cn_rec) > 0 && cn_rec.LocID) {
+					if(cnobj.Fetch(p_ccp->Rec.PosNodeID, &cn_rec) > 0 && cn_rec.LocID) {
 						//p_ccp->Rec.CashID
 						const  PPID   subj_loc_id = cn_rec.LocID;
 						PPID  subj_psn_id = main_org_id;

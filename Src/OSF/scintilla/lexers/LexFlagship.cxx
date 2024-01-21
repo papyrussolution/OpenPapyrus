@@ -77,7 +77,7 @@ static void ColouriseFlagShipDoc(Sci_PositionU startPos, Sci_Position length, in
 			    }
 			    break;
 			case SCE_FS_NUMBER:
-			    if(!IsAWordChar(sc.ch) && !(sc.ch == '.' && IsADigit(sc.chNext))) {
+			    if(!IsAWordChar(sc.ch) && !(sc.ch == '.' && isdec(sc.chNext))) {
 				    sc.SetState(SCE_FS_DEFAULT);
 			    }
 			    break;
@@ -296,7 +296,7 @@ static void ColouriseFlagShipDoc(Sci_PositionU startPos, Sci_Position length, in
 					sc.SetState(SCE_FS_OPERATOR);
 				}
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(bEnableCode ? SCE_FS_NUMBER : SCE_FS_NUMBER_C);
 			}
 			else if(IsAWordChar(sc.ch)) {

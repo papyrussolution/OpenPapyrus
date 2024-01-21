@@ -477,7 +477,7 @@ time_t FASTCALL ngx_parse_http_time(const uchar * value, size_t len);
 // On Windows NT it decreases a number of locked pages in a kernel.
 // 
 #define NGX_MAX_ALLOC_FROM_POOL  (ngx_pagesize - 1)
-#define NGX_DEFAULT_POOL_SIZE    (16 * 1024)
+#define NGX_DEFAULT_POOL_SIZE    SKILOBYTE(16)
 #define NGX_POOL_ALIGNMENT       16
 #define NGX_MIN_POOL_SIZE        ngx_align((sizeof(ngx_pool_t) + 2 * sizeof(ngx_pool_large_t)), NGX_POOL_ALIGNMENT)
 

@@ -76,15 +76,14 @@ static int NumericBase(absl::string_view text) {
 	return hex ? 16 : 10;
 }
 
-template <typename IntType>
-inline bool ParseFlagImpl(absl::string_view text, IntType& dst) {
+template <typename IntType> inline bool ParseFlagImpl(absl::string_view text, IntType& dst) 
+{
 	text = absl::StripAsciiWhitespace(text);
-
-	return absl::numbers_internal::safe_strtoi_base(text, &dst,
-		   NumericBase(text));
+	return absl::numbers_internal::safe_strtoi_base(text, &dst, NumericBase(text));
 }
 
-bool AbslParseFlag(absl::string_view text, short* dst, std::string*) {
+bool AbslParseFlag(absl::string_view text, short* dst, std::string*) 
+{
 	int val;
 	if(!ParseFlagImpl(text, val)) return false;
 	if(static_cast<short>(val) != val) // worked, but number out of range
@@ -93,7 +92,8 @@ bool AbslParseFlag(absl::string_view text, short* dst, std::string*) {
 	return true;
 }
 
-bool AbslParseFlag(absl::string_view text, unsigned short* dst, std::string*) {
+bool AbslParseFlag(absl::string_view text, unsigned short* dst, std::string*) 
+{
 	unsigned int val;
 	if(!ParseFlagImpl(text, val)) return false;
 	if(static_cast<unsigned short>(val) !=

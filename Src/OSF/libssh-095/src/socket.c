@@ -681,7 +681,7 @@ int ssh_socket_data_writable(ssh_socket s)
  */
 int ssh_socket_buffered_write_bytes(ssh_socket s)
 {
-	if(s==NULL || s->out_buffer == NULL) {
+	if(!s || s->out_buffer == NULL) {
 		return 0;
 	}
 

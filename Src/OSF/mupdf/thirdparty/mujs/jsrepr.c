@@ -1,3 +1,5 @@
+// jsrepr.c
+//
 #include "jsi.h"
 #include "jslex.h"
 #include "jsvalue.h"
@@ -61,21 +63,21 @@ static void reprstr(js_State * J, js_Buffer ** sb, const char * s)
 	js_putc(J, sb, '"');
 }
 
-#ifndef isalpha
-#define isalpha(c) ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
-#endif
-#ifndef isdigit
-#define isdigit(c) (c >= '0' && c <= '9')
-#endif
+//#ifndef isalpha
+	//#define isalpha(c) ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+//#endif
+// @sobolev #ifndef isdigit_Removed
+	// @sobolev #define isdigit_Removed(c) (c >= '0' && c <= '9')
+// @sobolev #endif
 
 static void reprident(js_State * J, js_Buffer ** sb, const char * name)
 {
 	const char * p = name;
-	if(isdigit(*p))
-		while(isdigit(*p))
+	if(isdec(*p))
+		while(isdec(*p))
 			++p;
-	else if(isalpha(*p) || *p == '_')
-		while(isdigit(*p) || isalpha(*p) || *p == '_')
+	else if(isasciialpha(*p) || *p == '_')
+		while(isdec(*p) || isasciialpha(*p) || *p == '_')
 			++p;
 	if(p > name && *p == 0)
 		js_puts(J, sb, name);

@@ -215,51 +215,36 @@ HRESULT LoadTextureDataFromMemory(_In_reads_(ddsDataSize) const uint8_t* ddsData
 	if(dwMagicNumber != DDS_MAGIC) {
 		return E_FAIL;
 	}
-
 	auto hdr = reinterpret_cast<const DDS_HEADER*>(ddsData + sizeof(uint32_t));
-
 	// Verify header to validate DDS file
-	if(hdr->size != sizeof(DDS_HEADER) ||
-	    hdr->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
+	if(hdr->size != sizeof(DDS_HEADER) || hdr->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
 		return E_FAIL;
 	}
-
 	// Check for DX10 extension
 	bool bDXT10Header = false;
-	if((hdr->ddspf.flags & DDS_FOURCC) &&
-	    (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
+	if((hdr->ddspf.flags & DDS_FOURCC) && (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
 		// Must be long enough for both headers and magic value
 		if(ddsDataSize < (sizeof(uint32_t) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10))) {
 			return E_FAIL;
 		}
-
 		bDXT10Header = true;
 	}
-
 	// setup the pointers in the process request
 	*header = hdr;
-	auto offset = sizeof(uint32_t)
-	    + sizeof(DDS_HEADER)
-	    + (bDXT10Header ? sizeof(DDS_HEADER_DXT10) : 0u);
+	auto offset = sizeof(uint32_t) + sizeof(DDS_HEADER) + (bDXT10Header ? sizeof(DDS_HEADER_DXT10) : 0u);
 	*bitData = ddsData + offset;
 	*bitSize = ddsDataSize - offset;
-
 	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT LoadTextureDataFromFile(_In_z_ const wchar_t* fileName,
-    std::unique_ptr<uint8_t[]>& ddsData,
-    const DDS_HEADER** header,
-    const uint8_t** bitData,
+HRESULT LoadTextureDataFromFile(_In_z_ const wchar_t* fileName, std::unique_ptr<uint8_t[]>& ddsData, const DDS_HEADER** header, const uint8_t** bitData,
     size_t* bitSize) noexcept
 {
 	if(!header || !bitData || !bitSize) {
 		return E_POINTER;
 	}
-
 	*bitSize = 0;
-
     #ifdef _WIN32
 	// open the file
 	ScopedHandle hFile(safe_handle(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, nullptr)));
@@ -348,36 +333,27 @@ HRESULT LoadTextureDataFromFile(_In_z_ const wchar_t* fileName,
 		ddsData.reset();
 		return E_FAIL;
 	}
-
 	auto hdr = reinterpret_cast<const DDS_HEADER*>(ddsData.get() + sizeof(uint32_t));
-
 	// Verify header to validate DDS file
-	if(hdr->size != sizeof(DDS_HEADER) ||
-	    hdr->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
+	if(hdr->size != sizeof(DDS_HEADER) || hdr->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
 		ddsData.reset();
 		return E_FAIL;
 	}
-
 	// Check for DX10 extension
 	bool bDXT10Header = false;
-	if((hdr->ddspf.flags & DDS_FOURCC) &&
-	    (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
+	if((hdr->ddspf.flags & DDS_FOURCC) && (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
 		// Must be long enough for both headers and magic value
 		if(len < (sizeof(uint32_t) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10))) {
 			ddsData.reset();
 			return E_FAIL;
 		}
-
 		bDXT10Header = true;
 	}
-
 	// setup the pointers in the process request
 	*header = hdr;
-	auto offset = sizeof(uint32_t) + sizeof(DDS_HEADER)
-	    + (bDXT10Header ? sizeof(DDS_HEADER_DXT10) : 0u);
+	auto offset = sizeof(uint32_t) + sizeof(DDS_HEADER) + (bDXT10Header ? sizeof(DDS_HEADER_DXT10) : 0u);
 	*bitData = ddsData.get() + offset;
 	*bitSize = len - offset;
-
 	return S_OK;
 }
 
@@ -1174,49 +1150,34 @@ HRESULT CreateTextureResource(_In_ ID3D12Device* d3dDevice,
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT CreateTextureFromDDS(_In_ ID3D12Device* d3dDevice,
-    _In_ const DDS_HEADER* header,
-    _In_reads_bytes_(bitSize) const uint8_t* bitData,
-    size_t bitSize,
-    size_t maxsize,
-    D3D12_RESOURCE_FLAGS resFlags,
-    DDS_LOADER_FLAGS loadFlags,
-    _Outptr_ ID3D12Resource** texture,
-    std::vector<D3D12_SUBRESOURCE_DATA>& subresources,
-    _Out_opt_ bool* outIsCubeMap) noexcept(false)
+HRESULT CreateTextureFromDDS(_In_ ID3D12Device* d3dDevice, _In_ const DDS_HEADER* header, _In_reads_bytes_(bitSize) const uint8_t* bitData,
+    size_t bitSize, size_t maxsize, D3D12_RESOURCE_FLAGS resFlags, DDS_LOADER_FLAGS loadFlags, _Outptr_ ID3D12Resource** texture,
+    std::vector<D3D12_SUBRESOURCE_DATA>& subresources, _Out_opt_ bool* outIsCubeMap) noexcept(false)
 {
 	HRESULT hr = S_OK;
-
 	const UINT width = header->width;
 	UINT height = header->height;
 	UINT depth = header->depth;
-
 	D3D12_RESOURCE_DIMENSION resDim = D3D12_RESOURCE_DIMENSION_UNKNOWN;
 	UINT arraySize = 1;
 	DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
 	bool isCubeMap = false;
-
 	size_t mipCount = header->mipMapCount;
 	if(0 == mipCount) {
 		mipCount = 1;
 	}
-
-	if((header->ddspf.flags & DDS_FOURCC) &&
-	    (MAKEFOURCC('D', 'X', '1', '0') == header->ddspf.fourCC)) {
+	if((header->ddspf.flags & DDS_FOURCC) && (MAKEFOURCC('D', 'X', '1', '0') == header->ddspf.fourCC)) {
 		auto d3d10ext = reinterpret_cast<const DDS_HEADER_DXT10*>(reinterpret_cast<const char*>(header) + sizeof(DDS_HEADER));
-
 		arraySize = d3d10ext->arraySize;
 		if(arraySize == 0) {
 			return HRESULT_E_INVALID_DATA;
 		}
-
 		switch(d3d10ext->dxgiFormat) {
 			case DXGI_FORMAT_NV12:
 			case DXGI_FORMAT_P010:
 			case DXGI_FORMAT_P016:
 			case DXGI_FORMAT_420_OPAQUE:
-			    if((d3d10ext->resourceDimension != D3D12_RESOURCE_DIMENSION_TEXTURE2D)
-				|| (width % 2) != 0 || (height % 2) != 0) {
+			    if((d3d10ext->resourceDimension != D3D12_RESOURCE_DIMENSION_TEXTURE2D) || (width % 2) != 0 || (height % 2) != 0) {
 				    return HRESULT_E_NOT_SUPPORTED;
 			    }
 			    break;
@@ -1450,12 +1411,10 @@ DDS_ALPHA_MODE GetAlphaMode(_In_ const DDS_HEADER* header) noexcept
 				    break;
 			}
 		}
-		else if((MAKEFOURCC('D', 'X', 'T', '2') == header->ddspf.fourCC)
-		    || (MAKEFOURCC('D', 'X', 'T', '4') == header->ddspf.fourCC)) {
+		else if((MAKEFOURCC('D', 'X', 'T', '2') == header->ddspf.fourCC) || (MAKEFOURCC('D', 'X', 'T', '4') == header->ddspf.fourCC)) {
 			return DDS_ALPHA_MODE_PREMULTIPLIED;
 		}
 	}
-
 	return DDS_ALPHA_MODE_UNKNOWN;
 }
 

@@ -336,7 +336,7 @@ typedef uint json_uchar;
 
 static uchar hex_value(json_char c)
 {
-	if(isdigit(c))
+	if(isdec(c))
 		return c - '0';
 	else {
 		switch(c) {
@@ -744,11 +744,11 @@ whitespace:
 								flags |= flag_next;
 								break;
 						    default:
-								if(isdigit(b) || b == '-') {
+								if(isdec(b) || b == '-') {
 									if(!new_value(&state, &top, &root, &alloc, json_integer))
 										goto e_alloc_failure;
 									if(!state.first_pass) {
-										while(isdigit(b) || b == '+' || b == '-' || b == 'e' || b == 'E' || b == '.') {
+										while(isdec(b) || b == '+' || b == '-' || b == 'e' || b == 'E' || b == '.') {
 											if((++state.ptr) == end) {
 												b = 0;
 												break;
@@ -806,35 +806,25 @@ whitespace:
 							break;
 
 						    case ',':
-
 							if(flags & flag_need_comma) {
 								flags &= ~flag_need_comma;
 								break;
 							}
-
 						    default:
 							sprintf(error, "%d:%d: Unexpected `%c` in object", line_and_col, b);
 							goto e_failed;
 					    };
-
 					    break;
-
 					case json_integer:
 					case json_double:
-
-					    if(isdigit(b)) {
+					    if(isdec(b)) {
 						    ++num_digits;
-
 						    if(top->type == json_integer || flags & flag_num_e) {
 							    if(!(flags & flag_num_e)) {
 								    if(flags & flag_num_zero) {
-									    sprintf(error,
-										"%d:%d: Unexpected `0` before `%c`",
-										line_and_col,
-										b);
+									    sprintf(error, "%d:%d: Unexpected `0` before `%c`", line_and_col, b);
 									    goto e_failed;
 								    }
-
 								    if(num_digits == 1 && b == '0')
 									    flags |= flag_num_zero;
 							    }

@@ -47,7 +47,7 @@ static char * skip_scheme(char * path)
 			continue;
 		if(*p >= 'A' && *p <= 'Z')
 			continue;
-		if(*p >= '0' && *p <= '9')
+		if(isdec(*p))
 			continue;
 		if(*p == '+')
 			continue;

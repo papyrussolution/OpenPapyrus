@@ -305,12 +305,11 @@ static void ColorizeMarkdownDoc(Sci_PositionU startPos, Sci_Position length, int
 				sc.ForwardSetState(SCE_MARKDOWN_DEFAULT);
 			}
 			// Ordered list
-			else if(IsADigit(sc.ch)) {
+			else if(isdec(sc.ch)) {
 				int digitCount = 0;
-				while(IsADigit(sc.GetRelative(++digitCount)))
+				while(isdec(sc.GetRelative(++digitCount)))
 					;
-				if(sc.GetRelative(digitCount) == '.' &&
-				    IsASpaceOrTab(sc.GetRelative(digitCount + 1))) {
+				if(sc.GetRelative(digitCount) == '.' && IsASpaceOrTab(sc.GetRelative(digitCount + 1))) {
 					sc.SetState(SCE_MARKDOWN_OLIST_ITEM);
 					sc.Forward(digitCount + 1);
 					sc.SetState(SCE_MARKDOWN_DEFAULT);

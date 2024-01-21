@@ -2348,22 +2348,22 @@ int Document::WordPartLeft(int pos) const
 		if(pos > 0) {
 			ceStart = CharacterAfter(pos);
 			pos -= CharacterBefore(pos).widthBytes;
-			if(IsLowerCase(ceStart.character)) {
-				while(pos > 0 && IsLowerCase(CharacterAfter(pos).character))
+			if(isasciilwr(ceStart.character)) {
+				while(pos > 0 && isasciilwr(CharacterAfter(pos).character))
 					pos -= CharacterBefore(pos).widthBytes;
-				if(!IsUpperCase(CharacterAfter(pos).character) && !IsLowerCase(CharacterAfter(pos).character))
+				if(!isasciiupr(CharacterAfter(pos).character) && !isasciilwr(CharacterAfter(pos).character))
 					pos += CharacterAfter(pos).widthBytes;
 			}
-			else if(IsUpperCase(ceStart.character)) {
-				while(pos > 0 && IsUpperCase(CharacterAfter(pos).character))
+			else if(isasciiupr(ceStart.character)) {
+				while(pos > 0 && isasciiupr(CharacterAfter(pos).character))
 					pos -= CharacterBefore(pos).widthBytes;
-				if(!IsUpperCase(CharacterAfter(pos).character))
+				if(!isasciiupr(CharacterAfter(pos).character))
 					pos += CharacterAfter(pos).widthBytes;
 			}
-			else if(IsADigit(ceStart.character)) {
-				while(pos > 0 && IsADigit(CharacterAfter(pos).character))
+			else if(isdec(ceStart.character)) {
+				while(pos > 0 && isdec(CharacterAfter(pos).character))
 					pos -= CharacterBefore(pos).widthBytes;
-				if(!IsADigit(CharacterAfter(pos).character))
+				if(!isdec(CharacterAfter(pos).character))
 					pos += CharacterAfter(pos).widthBytes;
 			}
 			else if(IsASCIIPunctuationCharacter(ceStart.character)) {
@@ -2405,25 +2405,25 @@ int Document::WordPartRight(int pos) const
 		while(pos < length && !IsASCII(CharacterAfter(pos).character))
 			pos += CharacterAfter(pos).widthBytes;
 	}
-	else if(IsLowerCase(ceStart.character)) {
-		while(pos < length && IsLowerCase(CharacterAfter(pos).character))
+	else if(isasciilwr(ceStart.character)) {
+		while(pos < length && isasciilwr(CharacterAfter(pos).character))
 			pos += CharacterAfter(pos).widthBytes;
 	}
-	else if(IsUpperCase(ceStart.character)) {
-		if(IsLowerCase(CharacterAfter(pos + ceStart.widthBytes).character)) {
+	else if(isasciiupr(ceStart.character)) {
+		if(isasciilwr(CharacterAfter(pos + ceStart.widthBytes).character)) {
 			pos += CharacterAfter(pos).widthBytes;
-			while(pos < length && IsLowerCase(CharacterAfter(pos).character))
+			while(pos < length && isasciilwr(CharacterAfter(pos).character))
 				pos += CharacterAfter(pos).widthBytes;
 		}
 		else {
-			while(pos < length && IsUpperCase(CharacterAfter(pos).character))
+			while(pos < length && isasciiupr(CharacterAfter(pos).character))
 				pos += CharacterAfter(pos).widthBytes;
 		}
-		if(IsLowerCase(CharacterAfter(pos).character) && IsUpperCase(CharacterBefore(pos).character))
+		if(isasciilwr(CharacterAfter(pos).character) && isasciiupr(CharacterBefore(pos).character))
 			pos -= CharacterBefore(pos).widthBytes;
 	}
-	else if(IsADigit(ceStart.character)) {
-		while(pos < length && IsADigit(CharacterAfter(pos).character))
+	else if(isdec(ceStart.character)) {
+		while(pos < length && isdec(CharacterAfter(pos).character))
 			pos += CharacterAfter(pos).widthBytes;
 	}
 	else if(IsASCIIPunctuationCharacter(ceStart.character)) {

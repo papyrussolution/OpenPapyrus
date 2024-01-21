@@ -28,47 +28,30 @@ static bool FASTCALL IsTypeCharacter(int ch)
 }
 
 // Extended to accept accented characters
-static bool FASTCALL IsAWordChar(int ch)
-{
-	return ch >= 0x80 ||
-	       (isalnum(ch) || ch == '.' || ch == '_');
-}
-
-static bool FASTCALL IsAWordStart(int ch)
-{
-	return ch >= 0x80 ||
-	       (isalpha(ch) || ch == '_');
-}
+static bool FASTCALL IsAWordChar(int ch) { return ch >= 0x80 || (isalnum(ch) || ch == '.' || ch == '_'); }
+static bool FASTCALL IsAWordStart(int ch) { return ch >= 0x80 || (isalpha(ch) || ch == '_'); }
 
 static bool FASTCALL IsANumberChar(int ch)
 {
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.
-	return (ch < 0x80) &&
-	       (isdec(ch) || toupper(ch) == 'E' ||
-	    ch == '.' || ch == '-' || ch == '+');
+	return (ch < 0x80) && (isdec(ch) || toupper(ch) == 'E' || ch == '.' || ch == '-' || ch == '+');
 }
 
-static void ColouriseVBDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor & styler, bool vbScriptSyntax)
+static void ColouriseVBDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler, bool vbScriptSyntax)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
 	WordList &keywords3 = *keywordlists[2];
 	WordList &keywords4 = *keywordlists[3];
-
 	styler.StartAt(startPos);
-
 	int visibleChars = 0;
 	int fileNbDigits = 0;
-
 	// Do not leak onto next line
 	if(initStyle == SCE_B_STRINGEOL || initStyle == SCE_B_COMMENT || initStyle == SCE_B_PREPROCESSOR) {
 		initStyle = SCE_B_DEFAULT;
 	}
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	for(; sc.More(); sc.Forward()) {
 		if(sc.state == SCE_B_OPERATOR) {
 			sc.SetState(SCE_B_DEFAULT);
@@ -151,7 +134,7 @@ static void ColouriseVBDoc(Sci_PositionU startPos, Sci_Position length, int init
 			}
 		}
 		else if(sc.state == SCE_B_FILENUMBER) {
-			if(IsADigit(sc.ch)) {
+			if(isdec(sc.ch)) {
 				fileNbDigits++;
 				if(fileNbDigits > 3) {
 					sc.ChangeState(SCE_B_DATE);
@@ -214,7 +197,7 @@ static void ColouriseVBDoc(Sci_PositionU startPos, Sci_Position length, int init
 				sc.SetState(SCE_B_NUMBER);
 				sc.Forward();
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_B_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch) || (sc.ch == '[')) {
@@ -224,7 +207,6 @@ static void ColouriseVBDoc(Sci_PositionU startPos, Sci_Position length, int init
 				sc.SetState(SCE_B_OPERATOR);
 			}
 		}
-
 		if(sc.atLineEnd) {
 			visibleChars = 0;
 		}

@@ -330,14 +330,10 @@ int _libssh2_wincng_hash_final(_libssh2_wincng_hash_ctx * ctx,
 	return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int _libssh2_wincng_hash(uchar * data, ulong datalen,
-    BCRYPT_ALG_HANDLE hAlg,
-    uchar * hash, ulong hashlen)
+int _libssh2_wincng_hash(uchar * data, ulong datalen, BCRYPT_ALG_HANDLE hAlg, uchar * hash, ulong hashlen)
 {
 	_libssh2_wincng_hash_ctx ctx;
-	int ret;
-
-	ret = _libssh2_wincng_hash_init(&ctx, hAlg, hashlen, NULL, 0);
+	int ret = _libssh2_wincng_hash_init(&ctx, hAlg, hashlen, NULL, 0);
 	if(!ret) {
 		ret = _libssh2_wincng_hash_update(&ctx, data, datalen);
 		ret |= _libssh2_wincng_hash_final(&ctx, hash);

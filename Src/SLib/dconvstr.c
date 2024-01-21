@@ -2659,7 +2659,7 @@ int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double
 						++s;
 						state = S1;
 					}
-					else if(ch >= '0' && ch <= '9')
+					else if(isdec(ch))
 						state = S2;
 					else if(ch == '.') {
 						++s;
@@ -2670,7 +2670,7 @@ int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double
 					break;
 				// State 1: after mantissa sign, before mantissa digits
 				case S1:
-					if(ch >= '0' && ch <= '9')
+					if(isdec(ch))
 						state = S2;
 					else if(ch == '.') {
 						++s;
@@ -2681,7 +2681,7 @@ int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double
 					break;
 				// State 2: parsing mantissa digits before point
 				case S2:
-					if(ch >= '0' && ch <= '9') {
+					if(isdec(ch)) {
 						++s;
 						if(n_parsed_digits < (int)sizeof(parsed_digits)) {
 							parsed_digits[n_parsed_digits] = ch - '0';
@@ -2704,14 +2704,14 @@ int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double
 					break;
 				// State 3: parsing first mantissa digit just after the point
 				case S3:
-					if(ch >= '0' && ch <= '9')
+					if(isdec(ch))
 						state = S4;
 					else
 						flag_syntax_error = 1;
 					break;
 				// State 4: parsing mantissa digits after the point
 				case S4:
-					if(ch >= '0' && ch <= '9') {
+					if(isdec(ch)) {
 						++s;
 						if(n_parsed_digits < (int)sizeof(parsed_digits)) {
 							parsed_digits[n_parsed_digits] = ch - '0';
@@ -2729,7 +2729,7 @@ int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double
 					break;
 				// State 5: parsing sign after the exponent
 				case S5:
-					if(ch >= '0' && ch <= '9')
+					if(isdec(ch))
 						state = S7;
 					else if(ch == '+') {
 						++s;
@@ -2745,14 +2745,14 @@ int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double
 					break;
 				// State 6: parsing first digits after exponent sign
 				case S6:
-					if(ch >= '0' && ch <= '9')
+					if(isdec(ch))
 						state = S7;
 					else
 						flag_syntax_error = 1;
 					break;
 				// State 7: parsing exponent digits
 				case S7:
-					if(ch >= '0' && ch <= '9') {
+					if(isdec(ch)) {
 						++s;
 						if(exponent < 350) {
 							// we aim to avoid overflow/underflow of the exponent

@@ -18,23 +18,14 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_');
-}
-
-static bool FASTCALL IsAWordStart(int ch)
-{
-	return (ch < 0x80) && (isalpha(ch) || ch == '_');
-}
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
+static bool FASTCALL IsAWordStart(int ch) { return (ch < 0x80) && (isalpha(ch) || ch == '_'); }
 
 static bool FASTCALL IsANumberChar(int ch)
 {
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.
-	return (ch < 0x80) &&
-	       (isdec(ch) || toupper(ch) == 'E' ||
-	    ch == '.' || ch == '-' || ch == '+');
+	return (ch < 0x80) && (isdec(ch) || toupper(ch) == 'E' || ch == '.' || ch == '-' || ch == '+');
 }
 /**
  * Check if the current content context represent a keyword and set the context state if so.
@@ -218,7 +209,7 @@ static void ColouriseMySQLDoc(Sci_PositionU startPos, Sci_Position length, int i
 				    sc.SetState(SCE_MYSQL_DQSTRING | activeState);
 				    break;
 				default:
-				    if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext)))
+				    if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext)))
 					    sc.SetState(SCE_MYSQL_NUMBER | activeState);
 				    else if(IsAWordStart(sc.ch))
 					    sc.SetState(SCE_MYSQL_IDENTIFIER | activeState);

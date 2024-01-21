@@ -325,10 +325,10 @@ static int cn2dnsid(ASN1_STRING * cn, uchar ** dnsid, size_t * idlen)
 	 * that is not a problem.
 	 */
 	for(i = 0; i < utf8_length; ++i) {
-		unsigned char c = utf8_value[i];
-		if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+		uchar c = utf8_value[i];
+		if(isasciialnum(c) || c == '_')
 			continue;
-		/* Dot and hyphen cannot be first or last. */
+		// Dot and hyphen cannot be first or last
 		if(i > 0 && i < utf8_length - 1) {
 			if(c == '-')
 				continue;

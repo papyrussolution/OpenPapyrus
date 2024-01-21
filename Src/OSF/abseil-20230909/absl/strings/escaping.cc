@@ -346,15 +346,15 @@ std::string CEscapeInternal(absl::string_view src, bool use_hex,
 				(last_hex_escape && absl::ascii_isxdigit(uc)))) {
 				    if(use_hex) {
 					    dest.append("\\" "x");
-					    dest.push_back(numbers_internal::kHexChar[uc / 16]);
-					    dest.push_back(numbers_internal::kHexChar[uc % 16]);
+					    dest.push_back(SlConst::P_HxDigL[uc / 16]);
+					    dest.push_back(SlConst::P_HxDigL[uc % 16]);
 					    is_hex_escape = true;
 				    }
 				    else {
 					    dest.append("\\");
-					    dest.push_back(numbers_internal::kHexChar[uc / 64]);
-					    dest.push_back(numbers_internal::kHexChar[(uc % 64) / 8]);
-					    dest.push_back(numbers_internal::kHexChar[uc % 8]);
+					    dest.push_back(SlConst::P_HxDigL[uc / 64]);
+					    dest.push_back(SlConst::P_HxDigL[(uc % 64) / 8]);
+					    dest.push_back(SlConst::P_HxDigL[uc % 8]);
 				    }
 			    }
 			    else {

@@ -124,31 +124,14 @@ static int _arc_segments_needed(double angle, double radius, cairo_matrix_t * ct
    error expression is quite simple, (see the comment for
    _arc_error_normalized).
  */
-static void _cairo_arc_segment(cairo_t * cr,
-    double xc,
-    double yc,
-    double radius,
-    double angle_A,
-    double angle_B)
+static void _cairo_arc_segment(cairo_t * cr, double xc, double yc, double radius, double angle_A, double angle_B)
 {
-	double r_sin_A, r_cos_A;
-	double r_sin_B, r_cos_B;
-	double h;
-
-	r_sin_A = radius * sin(angle_A);
-	r_cos_A = radius * cos(angle_A);
-	r_sin_B = radius * sin(angle_B);
-	r_cos_B = radius * cos(angle_B);
-
-	h = 4.0/3.0 * tan((angle_B - angle_A) / 4.0);
-
-	cairo_curve_to(cr,
-	    xc + r_cos_A - h * r_sin_A,
-	    yc + r_sin_A + h * r_cos_A,
-	    xc + r_cos_B + h * r_sin_B,
-	    yc + r_sin_B - h * r_cos_B,
-	    xc + r_cos_B,
-	    yc + r_sin_B);
+	double r_sin_A = radius * sin(angle_A);
+	double r_cos_A = radius * cos(angle_A);
+	double r_sin_B = radius * sin(angle_B);
+	double r_cos_B = radius * cos(angle_B);
+	double h = 4.0/3.0 * tan((angle_B - angle_A) / 4.0);
+	cairo_curve_to(cr, xc + r_cos_A - h * r_sin_A, yc + r_sin_A + h * r_cos_A, xc + r_cos_B + h * r_sin_B, yc + r_sin_B - h * r_cos_B, xc + r_cos_B, yc + r_sin_B);
 }
 
 static void FASTCALL _cairo_arc_in_direction(cairo_t * cr, double xc, double yc, double radius, double angle_min, double angle_max, cairo_direction_t dir)

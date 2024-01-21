@@ -144,18 +144,18 @@ static void ColouriseSpecmanDoc(Sci_PositionU startPos, Sci_Position length, int
 			}
 		}
 		else if(sc.state == SCE_SN_REGEXTAG) {
-			if(!IsADigit(sc.ch)) {
+			if(!isdec(sc.ch)) {
 				sc.SetState(SCE_SN_CODE);
 			}
 		}
 
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_SN_CODE) {
-			if(sc.ch == '$' && IsADigit(sc.chNext)) {
+			if(sc.ch == '$' && isdec(sc.chNext)) {
 				sc.SetState(SCE_SN_REGEXTAG);
 				sc.Forward();
 			}
-			else if(IsADigit(sc.ch)) {
+			else if(isdec(sc.ch)) {
 				sc.SetState(SCE_SN_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch)) {

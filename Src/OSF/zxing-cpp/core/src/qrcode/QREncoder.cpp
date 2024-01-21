@@ -57,7 +57,7 @@ ZXING_EXPORT_TEST_ONLY CodecMode ChooseMode(const std::wstring& content, Charact
 	bool hasNumeric = false;
 	bool hasAlphanumeric = false;
 	for(wchar_t c : content) {
-		if(c >= '0' && c <= '9') {
+		if(isdec(c)) {
 			hasNumeric = true;
 		}
 		else if(GetAlphanumericCode(c) != -1) {
@@ -370,8 +370,8 @@ ZXING_EXPORT_TEST_ONLY BitArray InterleaveWithECBytes(const BitArray& bits, int 
 		blocks[i].dataBytes = bits.toBytes(8 * dataBytesOffset, numDataBytesInBlock);
 		GenerateECBytes(blocks[i].dataBytes, numEcBytesInBlock, blocks[i].ecBytes);
 
-		maxNumDataBytes = std::max(maxNumDataBytes, numDataBytesInBlock);
-		maxNumEcBytes = std::max(maxNumEcBytes, Size(blocks[i].ecBytes));
+		maxNumDataBytes = smax(maxNumDataBytes, numDataBytesInBlock);
+		maxNumEcBytes = smax(maxNumEcBytes, Size(blocks[i].ecBytes));
 		dataBytesOffset += numDataBytesInBlock;
 	}
 	if(numDataBytes != dataBytesOffset) {

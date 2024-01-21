@@ -807,7 +807,7 @@ U_CAPI int32_t U_EXPORT2 u_getFC_NFKC_Closure(UChar32 c, char16_t * dest, int32_
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0)) {
+	if(destCapacity<0 || (!dest && destCapacity>0)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

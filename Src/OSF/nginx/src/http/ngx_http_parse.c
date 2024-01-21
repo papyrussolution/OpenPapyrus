@@ -266,7 +266,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    }
 			    break;
 			case sw_host_ip_literal:
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    break;
 			    }
 			    c = (uchar)(ch | 0x20);
@@ -303,7 +303,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    }
 			    break;
 			case sw_port:
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    break;
 			    }
 			    switch(ch) {
@@ -574,7 +574,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 				    state = sw_first_minor_digit;
 				    break;
 			    }
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    r->http_major = r->http_major * 10 + (ch - '0');
@@ -584,7 +584,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    break;
 			/* first digit of minor HTTP version */
 			case sw_first_minor_digit:
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    r->http_minor = ch - '0';
@@ -603,7 +603,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 				    state = sw_spaces_after_digit;
 				    break;
 			    }
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    if(r->http_minor > 99) {
@@ -1203,7 +1203,7 @@ ngx_int_t ngx_http_parse_complex_uri(ngx_http_request_t * r, ngx_uint_t merge_sl
 			    break;
 			case sw_quoted:
 			    r->quoted_uri = 1;
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    decoded = (uchar)(ch - '0');
 				    state = sw_quoted_second;
 				    ch = *p++;
@@ -1218,7 +1218,7 @@ ngx_int_t ngx_http_parse_complex_uri(ngx_http_request_t * r, ngx_uint_t merge_sl
 			    }
 			    return NGX_HTTP_PARSE_INVALID_REQUEST;
 			case sw_quoted_second:
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    ch = (uchar)((decoded << 4) + (ch - '0'));
 				    if(oneof2(ch, '%', '#')) {
 					    state = sw_usual;
@@ -1345,7 +1345,7 @@ ngx_int_t ngx_http_parse_status_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 				    state = sw_first_minor_digit;
 				    break;
 			    }
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_ERROR;
 			    }
 			    if(r->http_major > 99) {
@@ -1355,7 +1355,7 @@ ngx_int_t ngx_http_parse_status_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 			    break;
 			/* the first digit of minor HTTP version */
 			case sw_first_minor_digit:
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_ERROR;
 			    }
 			    r->http_minor = ch - '0';
@@ -1367,7 +1367,7 @@ ngx_int_t ngx_http_parse_status_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 				    state = sw_status;
 				    break;
 			    }
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_ERROR;
 			    }
 			    if(r->http_minor > 99) {
@@ -1380,7 +1380,7 @@ ngx_int_t ngx_http_parse_status_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 			    if(ch == ' ') {
 				    break;
 			    }
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_ERROR;
 			    }
 			    status->code = status->code * 10 + (ch - '0');
@@ -1664,7 +1664,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http chunked byte: %02Xd s:%d", ch, state);
 		switch(state) {
 			case sw_chunk_start:
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    state = sw_chunk_size;
 				    ctx->size = ch - '0';
 				    break;
@@ -1680,7 +1680,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    if(ctx->size > NGX_MAX_OFF_T_VALUE / 16) {
 				    goto invalid;
 			    }
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    ctx->size = ctx->size * 16 + (ch - '0');
 				    break;
 			    }

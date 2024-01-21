@@ -249,7 +249,7 @@ static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf, ngx_http_upstream
 				port_len = j;
 				goto done;
 			}
-			if(c < '0' || c > '9') {
+			if(!isdec(c)) {
 				break;
 			}
 		}

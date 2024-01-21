@@ -122,7 +122,7 @@ static uint64 my_strtoull(const char * str, size_t len, const char ** end, int *
 	const char * p = str;
 	const char * end_str = p + len;
 	for(; p < end_str; p++) {
-		if(*p < '0' || *p > '9')
+		if(!isdec(*p))
 			break;
 		if(val > ULONGLONG_MAX /10 || val*10 > ULONGLONG_MAX - (*p - '0')) {
 			*err = ERANGE;
@@ -293,7 +293,7 @@ static int parse_time(const char * str, size_t length, const char ** end_ptr, MY
 	/* Consume whole fractional part, even after 6 digits.*/
 	p += frac_len;
 	while(p < *end_ptr) {
-		if(*p < '0' || *p > '9')
+		if(!isdec(*p))
 			break;
 		p++;
 	}

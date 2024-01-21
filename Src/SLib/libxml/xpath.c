@@ -8888,8 +8888,7 @@ static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContext * ctxt, int qual
  *
  *  [30a]  Float  ::= Number ('e' Digits?)?
  *
- *  [30]   Number ::=   Digits ('.' Digits?)?
- *         | '.' Digits
+ *  [30]   Number ::=   Digits ('.' Digits?)? | '.' Digits
  *  [31]   Digits ::=   [0-9]+
  *
  * Compile a Number in the string
@@ -8914,20 +8913,19 @@ double xmlXPathStringEvalNumber(const xmlChar * str)
 		return 0;
 	while(IS_BLANK_CH(*cur)) 
 		cur++;
-	if((*cur != '.') && ((*cur < '0') || (*cur > '9')) && (*cur != '-')) {
+	if((*cur != '.') && !isdec(*cur) && (*cur != '-')) {
 		return xmlXPathNAN;
 	}
 	if(*cur == '-') {
 		isneg = 1;
 		cur++;
 	}
-
 #ifdef __GNUC__
 	// 
 	// tmp/temp is a workaround against a gcc compiler bug http://veillard.com/gcc.bug
 	// 
 	ret = 0;
-	while((*cur >= '0') && (*cur <= '9')) {
+	while(isdec(*cur)) {
 		ret = ret * 10;
 		tmp = (*cur - '0');
 		ok = 1;
@@ -8937,7 +8935,7 @@ double xmlXPathStringEvalNumber(const xmlChar * str)
 	}
 #else
 	ret = 0;
-	while((*cur >= '0') && (*cur <= '9')) {
+	while(isdec(*cur)) {
 		ret = ret * 10 + (*cur - '0');
 		ok = 1;
 		cur++;
@@ -8958,7 +8956,7 @@ double xmlXPathStringEvalNumber(const xmlChar * str)
 		}
 		fraction /= fpow10i(frac)/*my_pow10[frac]*/;
 		ret = ret + fraction;
-		while((*cur >= '0') && (*cur <= '9'))
+		while(isdec(*cur))
 			cur++;
 	}
 	if((*cur == 'e') || (*cur == 'E')) {
@@ -9007,7 +9005,7 @@ static void xmlXPathCompNumber(xmlXPathParserContext * ctxt)
 	double temp;
 #endif
 	CHECK_ERROR;
-	if((CUR != '.') && ((CUR < '0') || (CUR > '9'))) {
+	if((CUR != '.') && !isdec(CUR)) {
 		XP_ERROR(XPATH_NUMBER_ERROR);
 	}
 #ifdef __GNUC__
@@ -9016,7 +9014,7 @@ static void xmlXPathCompNumber(xmlXPathParserContext * ctxt)
 	 * http://veillard.com/gcc.bug
 	 */
 	ret = 0;
-	while((CUR >= '0') && (CUR <= '9')) {
+	while(isdec(CUR)) {
 		ret = ret * 10;
 		tmp = (CUR - '0');
 		ok = 1;
@@ -9026,7 +9024,7 @@ static void xmlXPathCompNumber(xmlXPathParserContext * ctxt)
 	}
 #else
 	ret = 0;
-	while((CUR >= '0') && (CUR <= '9')) {
+	while(isdec(CUR)) {
 		ret = ret * 10 + (CUR - '0');
 		ok = 1;
 		NEXT;
@@ -9036,10 +9034,10 @@ static void xmlXPathCompNumber(xmlXPathParserContext * ctxt)
 		int v, frac = 0;
 		double fraction = 0;
 		NEXT;
-		if(((CUR < '0') || (CUR > '9')) && (!ok)) {
+		if(!isdec(CUR) && (!ok)) {
 			XP_ERROR(XPATH_NUMBER_ERROR);
 		}
-		while((CUR >= '0') && (CUR <= '9') && (frac < MAX_FRAC)) {
+		while(isdec(CUR) && (frac < MAX_FRAC)) {
 			v = (CUR - '0');
 			fraction = fraction * 10 + v;
 			frac = frac + 1;
@@ -9047,7 +9045,7 @@ static void xmlXPathCompNumber(xmlXPathParserContext * ctxt)
 		}
 		fraction /= fpow10i(frac)/*my_pow10[frac]*/;
 		ret = ret + fraction;
-		while((CUR >= '0') && (CUR <= '9'))
+		while(isdec(CUR))
 			NEXT;
 	}
 	if((CUR == 'e') || (CUR == 'E')) {
@@ -9059,7 +9057,7 @@ static void xmlXPathCompNumber(xmlXPathParserContext * ctxt)
 		else if(CUR == '+') {
 			NEXT;
 		}
-		while((CUR >= '0') && (CUR <= '9')) {
+		while(isdec(CUR)) {
 			exponent = exponent * 10 + (CUR - '0');
 			NEXT;
 		}
@@ -9067,8 +9065,7 @@ static void xmlXPathCompNumber(xmlXPathParserContext * ctxt)
 			exponent = -exponent;
 		ret *= pow(10.0, (double)exponent);
 	}
-	PUSH_LONG_EXPR(XPATH_OP_VALUE, XPATH_NUMBER, 0, 0,
-	    xmlXPathCacheNewFloat(ctxt->context, ret), 0);
+	PUSH_LONG_EXPR(XPATH_OP_VALUE, XPATH_NUMBER, 0, 0, xmlXPathCacheNewFloat(ctxt->context, ret), 0);
 }
 
 /**
@@ -9391,17 +9388,11 @@ static xmlChar * xmlXPathScanName(xmlXPathParserContext * ctxt) {
 
 	c = CUR_CHAR(l);
 	if((c == ' ') || (c == '>') || (c == '/') || /* accelerators */
-	    (!IS_LETTER(c) && (c != '_') &&
-		    (c != ':'))) {
+	    (!IS_LETTER(c) && (c != '_') && (c != ':'))) {
 		return 0;
 	}
-
 	while((c != ' ') && (c != '>') && (c != '/') && /* test bigname.xml */
-	    ((IS_LETTER(c)) || (isdec(c)) ||
-		    (c == '.') || (c == '-') ||
-		    (c == '_') || (c == ':') ||
-		    (IS_COMBINING(c)) ||
-		    (IS_EXTENDER(c)))) {
+	    ((IS_LETTER(c)) || (isdec(c)) || (c == '.') || (c == '-') || (c == '_') || (c == ':') || (IS_COMBINING(c)) || (IS_EXTENDER(c)))) {
 		len += l;
 		NEXTL(l);
 		c = CUR_CHAR(l);
@@ -9428,7 +9419,6 @@ static xmlChar * xmlXPathScanName(xmlXPathParserContext * ctxt) {
  * used in a location path. As in location paths, // is short for
  * /descendant-or-self::node()/.
  */
-
 static void xmlXPathCompPathExpr(xmlXPathParserContext * ctxt)
 {
 	int lc = 1; /* Should we branch to LocationPath ?         */
@@ -9475,7 +9465,7 @@ static void xmlXPathCompPathExpr(xmlXPathParserContext * ctxt)
 			SAlloc::F(name);
 		}
 		else if(name) {
-			int len = sstrlen(name);
+			int len = sstrleni(name);
 			while(NXT(len) != 0) {
 				if(NXT(len) == '/') {
 					/* element name */

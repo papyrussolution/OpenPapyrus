@@ -563,7 +563,6 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 			maxi_codeword[i + 20] = character[i + 9];
 		}
 	}
-
 	if(mode == 5) {
 		for(i = 0; i < 9; i++) { /* primary */
 			maxi_codeword[i+1] = character[i];
@@ -572,7 +571,6 @@ static int maxi_text_process(int mode, const uchar source[], int length, int eci
 			maxi_codeword[i + 20] = character[i + 9];
 		}
 	}
-
 	return 0;
 }
 
@@ -581,7 +579,7 @@ void maxi_do_primary_2(char postcode[], int country, int service)
 {
 	int postcode_length, postcode_num, i;
 	for(i = 0; i < 10; i++) {
-		if((postcode[i] < '0') || (postcode[i] > '9')) {
+		if(!isdec(postcode[i])) {
 			postcode[i] = '\0';
 		}
 	}
@@ -602,9 +600,8 @@ void maxi_do_primary_2(char postcode[], int country, int service)
 /* Format structured primary for Mode 3 */
 void maxi_do_primary_3(char postcode[], int country, int service)
 {
-	int i, h;
-
-	h = strlen(postcode);
+	int i;
+	int h = strlen(postcode);
 	to_upper((uchar *)postcode);
 	for(i = 0; i < h; i++) {
 		if((postcode[i] >= 'A') && (postcode[i] <= 'Z')) {
@@ -635,11 +632,13 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 {
 	int i, j, block, bit, countrycode = 0, service = 0, lp = 0;
 	int bit_pattern[7], internal_error = 0, eclen;
-	char postcode[12], countrystr[4], servicestr[4];
+	char   postcode[12];
+	char   countrystr[4];
+	char   servicestr[4];
 	int    mode = symbol->option_1;
-	sstrcpy(postcode, "");
-	sstrcpy(countrystr, "");
-	sstrcpy(servicestr, "");
+	postcode[0] = 0;
+	countrystr[0] = 0;
+	servicestr[0] = 0;
 	memzero(maxi_codeword, sizeof(maxi_codeword));
 	if(mode == -1) { /* If mode is unspecified */
 		lp = strlen(symbol->primary);
@@ -656,12 +655,10 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 			}
 		}
 	}
-
 	if((mode < 2) || (mode > 6)) { /* Only codes 2 to 6 supported */
 		sstrcpy(symbol->errtxt, "Invalid Maxicode Mode (E50)");
 		return ZINT_ERROR_INVALID_OPTION;
 	}
-
 	if((mode == 2) || (mode == 3)) { /* Modes 2 and 3 need data in symbol->primary */
 		if(lp == 0) { /* Mode set manually means lp doesn't get set */
 			lp = strlen(symbol->primary);
@@ -670,17 +667,14 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 			sstrcpy(symbol->errtxt, "Invalid Primary String (E51)");
 			return ZINT_ERROR_INVALID_DATA;
 		}
-
 		for(i = 9; i < 15; i++) { /* check that country code and service are numeric */
-			if((symbol->primary[i] < '0') || (symbol->primary[i] > '9')) {
+			if(!isdec(symbol->primary[i])) {
 				sstrcpy(symbol->errtxt, "Invalid Primary String (E52)");
 				return ZINT_ERROR_INVALID_DATA;
 			}
 		}
-
 		memcpy(postcode, symbol->primary, 9);
 		postcode[9] = '\0';
-
 		if(mode == 2) {
 			for(i = 0; i < 10; i++) {
 				if(postcode[i] == ' ') {
@@ -691,7 +685,6 @@ int maxicode(struct ZintSymbol * symbol, uchar local_source[], int length)
 		else if(mode == 3) {
 			postcode[6] = '\0';
 		}
-
 		countrystr[0] = symbol->primary[9];
 		countrystr[1] = symbol->primary[10];
 		countrystr[2] = symbol->primary[11];

@@ -226,7 +226,7 @@ ngx_int_t ngx_stream_script_compile(ngx_stream_script_compile_t * sc)
 					bracket = 0;
 					break;
 				}
-				if((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '_') {
+				if(isasciialnum(ch) || ch == '_') {
 					continue;
 				}
 				break;

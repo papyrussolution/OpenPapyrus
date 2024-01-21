@@ -331,7 +331,7 @@ creation:
 	tregion.segid = INVALID_REGION_SEGID;
 	if((tregion.max = dbenv->memory_max) == 0) {
 		/* Add some slop. */
-		size += 16*1024;
+		size += SKILOBYTE(16);
 		tregion.max = (roff_t)size;
 		tregion.max += (roff_t)__lock_region_max(env);
 		tregion.max += (roff_t)__txn_region_max(env);

@@ -86,8 +86,7 @@ unumsys_openByName(const char *name, UErrorCode *status);
  * @param unumsys   The UNumberingSystem object to close.
  * @stable ICU 52
  */
-U_CAPI void U_EXPORT2
-unumsys_close(UNumberingSystem *unumsys);
+U_CAPI void U_EXPORT2 unumsys_close(UNumberingSystem *unumsys);
 
 #if U_SHOW_CPLUSPLUS_API
 U_NAMESPACE_BEGIN
@@ -114,8 +113,7 @@ U_NAMESPACE_END
  *                  or NULL if an error occurred.
  * @stable ICU 52
  */
-U_CAPI UEnumeration * U_EXPORT2
-unumsys_openAvailableNames(UErrorCode *status);
+U_CAPI UEnumeration * U_EXPORT2 unumsys_openAvailableNames(UErrorCode *status);
 
 /**
  * Returns the name of the specified UNumberingSystem object (if it is one of the
@@ -126,8 +124,7 @@ unumsys_openAvailableNames(UErrorCode *status);
  *                  is only valid for the lifetime of the UNumberingSystem object.
  * @stable ICU 52
  */
-U_CAPI const char * U_EXPORT2
-unumsys_getName(const UNumberingSystem *unumsys);
+U_CAPI const char * U_EXPORT2 unumsys_getName(const UNumberingSystem *unumsys);
 
 /**
  * Returns whether the given UNumberingSystem object is for an algorithmic (not purely
@@ -137,8 +134,7 @@ unumsys_getName(const UNumberingSystem *unumsys);
  *                  system.
  * @stable ICU 52
  */
-U_CAPI bool U_EXPORT2
-unumsys_isAlgorithmic(const UNumberingSystem *unumsys);
+U_CAPI bool U_EXPORT2 unumsys_isAlgorithmic(const UNumberingSystem *unumsys);
 
 /**
  * Returns the radix of the specified UNumberingSystem object. Simple positional
@@ -148,8 +144,7 @@ unumsys_isAlgorithmic(const UNumberingSystem *unumsys);
  * @return          The radix of the specified UNumberingSystem object.
  * @stable ICU 52
  */
-U_CAPI int32_t U_EXPORT2
-unumsys_getRadix(const UNumberingSystem *unumsys);
+U_CAPI int32_t U_EXPORT2 unumsys_getRadix(const UNumberingSystem *unumsys);
 
 /**
  * Get the description string of the specified UNumberingSystem object. For simple

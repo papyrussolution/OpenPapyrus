@@ -51,15 +51,9 @@ static fz_text_span * fz_add_text_span(fz_context * ctx, fz_text * text, fz_font
 	if(!text->tail) {
 		text->head = text->tail = fz_new_text_span(ctx, font, wmode, bidi_level, markup_dir, language, trm);
 	}
-	else if(text->tail->font != font ||
-	    text->tail->wmode != wmode ||
-	    text->tail->bidi_level != bidi_level ||
-	    text->tail->markup_dir != markup_dir ||
-	    text->tail->language != language ||
-	    text->tail->trm.a != trm.a ||
-	    text->tail->trm.b != trm.b ||
-	    text->tail->trm.c != trm.c ||
-	    text->tail->trm.d != trm.d) {
+	else if(text->tail->font != font || text->tail->wmode != wmode || text->tail->bidi_level != bidi_level ||
+	    text->tail->markup_dir != markup_dir || text->tail->language != language || text->tail->trm.a != trm.a ||
+	    text->tail->trm.b != trm.b || text->tail->trm.c != trm.c || text->tail->trm.d != trm.d) {
 		text->tail = text->tail->next = fz_new_text_span(ctx, font, wmode, bidi_level, markup_dir, language, trm);
 	}
 	return text->tail;
@@ -68,7 +62,7 @@ static fz_text_span * fz_add_text_span(fz_context * ctx, fz_text * text, fz_font
 static void fz_grow_text_span(fz_context * ctx, fz_text_span * span, int n)
 {
 	int new_cap = span->cap;
-	if(span->len + n < new_cap)
+	if((span->len + n) < new_cap)
 		return;
 	while(span->len + n > new_cap)
 		new_cap = new_cap + 36;
@@ -124,7 +118,6 @@ fz_matrix fz_measure_string(fz_context * ctx, fz_font * user_font, fz_matrix trm
 		else
 			trm = fz_pre_translate(trm, 0, -adv);
 	}
-
 	return trm;
 }
 

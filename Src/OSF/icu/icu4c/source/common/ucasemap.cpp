@@ -781,7 +781,7 @@ int32_t ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_IT
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0) || (src==NULL && srcLength!=0) || srcLength<-1) {
+	if(destCapacity<0 || (!dest && destCapacity>0) || (!src && srcLength) || srcLength<-1) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

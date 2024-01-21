@@ -1,5 +1,5 @@
 // CSHSES.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 // Интерфейс с асинхронными кассовыми устройствами
 //
@@ -96,6 +96,28 @@ void PPSyncCashSession::GetOfdFactors(OfdFactors & rP)
 	}
 }
 
+/*static*/bool PPSyncCashSession::IsSimplifiedDraftBeerPosition(PPID posNodeID, PPID goodsID)
+{
+	bool yes = false;
+	PPObjGoods goods_obj;
+	Goods2Tbl::Rec goods_rec;
+	if(goods_obj.Fetch(goodsID, &goods_rec) > 0) {
+		PPGoodsType gt_rec;
+		if(goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+			if(gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER) {
+				if(posNodeID) {
+					PPObjCashNode cn_obj;
+					PPCashNode2 cn_rec;
+					if(cn_obj.Fetch(posNodeID, &cn_rec) > 0 && cn_rec.Speciality == PPCashNode::spCafe) {
+						yes = true;
+					}
+				}
+			}
+		}
+	}
+	return yes;
+}
+
 int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheckPacket * pPack)
 {
 	int    ok = -1;
@@ -110,7 +132,8 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 				if(chzn_code.NotEmptyS()) {
 					GtinStruc gts;
 					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0)) > 0) {
-						is_there_chzn_marks = true;
+						if(!PPSyncCashSession::IsSimplifiedDraftBeerPosition(NodeID, ccl.GoodsID)) // @v11.9.3
+							is_there_chzn_marks = true;
 					}
 				}
 			}
@@ -127,40 +150,42 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 					if(chzn_code.NotEmptyS()) {
 						GtinStruc gts;
 						if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0)) > 0) {
-							ok = 1;
-							CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
-							PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_code);
-							const double chzn_qtty = fabs(ccl.Quantity);
-							uint  uom_fragm = 0;
-							Goods2Tbl::Rec goods_rec;
-							PPUnit u_rec;
-							if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0 && goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
-								if(u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
-									uom_fragm = u_rec.Fragmentation;
-							}
-							int pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
-							PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
-							// @debug {
-							//pczcr = 0;
-							//chzn_pp_result.Z();
-							// } @debug
-							if(pczcr > 0) {
-								if(chzn_pp_result.Status == 1) {
-									chzn_pp_result.LineIdx = pos;
-									int accept_op = 1; // 1 - accept, 2 - reject
-									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
-									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-									if(pczcr > 0)
-										pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+							if(!PPSyncCashSession::IsSimplifiedDraftBeerPosition(NodeID, ccl.GoodsID)) { // @v11.9.3
+								ok = 1;
+								CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
+								PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_code);
+								const double chzn_qtty = fabs(ccl.Quantity);
+								uint  uom_fragm = 0;
+								Goods2Tbl::Rec goods_rec;
+								PPUnit u_rec;
+								if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0 && goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
+									if(u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
+										uom_fragm = u_rec.Fragmentation;
 								}
-								else {
-									ok = 2;
-									chzn_pp_result.LineIdx = pos;
-									int accept_op = 2; // 1 - accept, 2 - reject
-									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
-									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-									// @v11.7.0 if(pczcr > 0)
-										pPack->SetLineChZnPreprocessResult(/*pos*/0, &chzn_pp_result); // @v11.7.0 pos-->0 (экспериментально: чтобы кассовый чек не содержал эту марку)
+								int pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
+								PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
+								// @debug {
+								//pczcr = 0;
+								//chzn_pp_result.Z();
+								// } @debug
+								if(pczcr > 0) {
+									if(chzn_pp_result.Status == 1) {
+										chzn_pp_result.LineIdx = pos;
+										int accept_op = 1; // 1 - accept, 2 - reject
+										pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
+										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+										if(pczcr > 0)
+											pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+									}
+									else {
+										ok = 2;
+										chzn_pp_result.LineIdx = pos;
+										int accept_op = 2; // 1 - accept, 2 - reject
+										pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
+										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+										// @v11.7.0 if(pczcr > 0)
+											pPack->SetLineChZnPreprocessResult(/*pos*/0, &chzn_pp_result); // @v11.7.0 pos-->0 (экспериментально: чтобы кассовый чек не содержал эту марку)
+									}
 								}
 							}
 						}
@@ -355,11 +380,11 @@ int PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDATETIME
 		// той же кассе и с временем, отличающимся от времени нового чека не более, чем на 10 минут.
 		//
 		CCheckTbl::Key2 k2;
-		k2.CashID = cashID;
+		k2.PosNodeID = cashID;
 		k2.Code = code;
 		k2.Dt = pDT->d;
 		k2.Tm = pDT->t;
-		if(CC.search(2, &k2, spLt) && CC.data.CashID == cashID && CC.data.Code == code) {
+		if(CC.search(2, &k2, spLt) && CC.data.PosNodeID == cashID && CC.data.Code == code) {
 			LDATETIME ccdtm;
 			ccdtm.Set(CC.data.Dt, CC.data.Tm);
 			const long diffsec = diffdatetimesec(*pDT, ccdtm);
@@ -384,7 +409,7 @@ int PPAsyncCashSession::SearchTempCheckByTime(PPID cashID, const LDATETIME * pDT
 	CCheckTbl::Key1 k1;
 	k1.Dt = pDT->d;
 	k1.Tm = pDT->t;
-	k1.CashID = cashID;
+	k1.PosNodeID = cashID;
 	return SearchByKey(P_TmpCcTbl, 1, &k1, 0);
 }
 
@@ -535,16 +560,16 @@ int PPAsyncCashSession::SearchTempCheckByCode(PPID cashID, PPID code, PPID sessN
 	int    ok = -1;
 	CCheckTbl::Key2 k;
 	MEMSZERO(k);
-	k.CashID = cashID;
+	k.PosNodeID = cashID;
 	k.Code   = code;
-	if(P_TmpCcTbl->search(2, &k, spGt) && k.CashID == cashID && k.Code == code) {
+	if(P_TmpCcTbl->search(2, &k, spGt) && k.PosNodeID == cashID && k.Code == code) {
 		DBRowId pos;
 		int    count = 0;
 		do {
 			if(sessNo <= 0 || P_TmpCcTbl->data.SessID == sessNo)
 				if(!(P_TmpCcTbl->data.Flags & CCHKF_ZCHECK) && (++count == 1))
 					THROW_DB(P_TmpCcTbl->getPosition(&pos));
-		} while(P_TmpCcTbl->search(2, &k, spNext) && k.CashID == cashID && k.Code == code);
+		} while(P_TmpCcTbl->search(2, &k, spNext) && k.PosNodeID == cashID && k.Code == code);
 		if(count > 1) {
 			SString msg_buf;
 			CALLEXCEPT_PP_S(PPERR_DUPTEMPCHECK, msg_buf.Cat(cashID).CatDiv(':', 1).Cat(code));
@@ -894,7 +919,7 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 				// @v10.6.4 MEMSZERO(ext_rec);
 				memcpy(&chk_rec, &temp_chk_rec, sizeof(chk_rec));
 				dtm.Set(chk_rec.Dt, chk_rec.Tm);
-				THROW(GetCashSessID(dtm, chk_rec.CashID, chk_rec.SessID, forwardSess, BIN(chk_rec.Flags & CCHKF_TEMPSESS), &sess_id));
+				THROW(GetCashSessID(dtm, chk_rec.PosNodeID, chk_rec.SessID, forwardSess, BIN(chk_rec.Flags & CCHKF_TEMPSESS), &sess_id));
 				if(sess_id) {
 					THROW(rSessList.addUnique(sess_id));
 					// @v10.0.05 {
@@ -997,17 +1022,17 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 			for(i = 0; P_LastSessList->enumItems(&i, (void **)&p_entry);) {
 				CCheckTbl::Key1 k;
 				BExtQuery q(&CC, 1);
-				q.selectAll().where(CC.CashID == p_entry->CashNumber);
+				q.selectAll().where(CC.PosNodeID == p_entry->CashNumber);
 				k.Dt = p_entry->Dtm.d;
 				k.Tm = p_entry->Dtm.t;
-				k.CashID = MAXLONG;
+				k.PosNodeID = MAXLONG;
 				for(q.initIteration(true, &k, spLt); q.nextIteration() > 0;) {
 					if(CC.data.Flags & CCHKF_ZCHECK && CC.data.SessID != p_entry->SessID)
 						break;
 					if(CC.data.SessID == 0) {
 						k.Dt = CC.data.Dt;
 						k.Tm = CC.data.Tm;
-						k.CashID = CC.data.CashID;
+						k.PosNodeID = CC.data.PosNodeID;
 						if(CC.searchForUpdate(1, &k, spEq)) {
 							CC.data.SessID = p_entry->SessID;
 							THROW_DB(CC.updateRec()); // @sfu

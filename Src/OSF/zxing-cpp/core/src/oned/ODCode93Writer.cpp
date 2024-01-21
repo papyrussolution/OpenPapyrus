@@ -72,7 +72,7 @@ ZXING_EXPORT_TEST_ONLY std::string Code93ConvertToExtended(const std::wstring& c
 			extendedContent.push_back('b');
 			extendedContent.push_back((char)('A' + character - 27));
 		}
-		else if(character == ' ' || character == '$' || character == '%' || character == '+') {
+		else if(oneof4(character, ' ', '$', '%', '+')) {
 			// space $ % +
 			extendedContent.push_back(character);
 		}
@@ -121,8 +121,7 @@ ZXING_EXPORT_TEST_ONLY std::string Code93ConvertToExtended(const std::wstring& c
 			extendedContent.push_back((char)('P' + character - '{'));
 		}
 		else {
-			throw std::invalid_argument(std::string(
-					  "Requested content contains a non-encodable character: '") + (char)character + "'");
+			throw std::invalid_argument(std::string("Requested content contains a non-encodable character: '") + (char)character + "'");
 		}
 	}
 	return extendedContent;
@@ -131,7 +130,6 @@ ZXING_EXPORT_TEST_ONLY std::string Code93ConvertToExtended(const std::wstring& c
 BitMatrix Code93Writer::encode(const std::wstring& contents_, int width, int height) const
 {
 	std::string contents = Code93ConvertToExtended(contents_);
-
 	size_t length = contents.length();
 	if(length == 0) {
 		throw std::invalid_argument("Found empty contents");
@@ -139,36 +137,26 @@ BitMatrix Code93Writer::encode(const std::wstring& contents_, int width, int hei
 	if(length > 80) {
 		throw std::invalid_argument("Requested contents should be less than 80 digits long after converting to extended encoding");
 	}
-
 	//length of code + 2 start/stop characters + 2 checksums, each of 9 bits, plus a termination bar
 	size_t codeWidth = (contents.length() + 2 + 2) * 9 + 1;
-
 	std::vector<bool> result(codeWidth, false);
-
 	//start character (*)
 	int pos = AppendPattern(result, 0, ASTERISK_ENCODING);
-
 	for(size_t i = 0; i < length; i++) {
 		int indexInString = IndexOf(ALPHABET, contents[i]);
 		pos += AppendPattern(result, pos, CHARACTER_ENCODINGS[indexInString]);
 	}
-
 	//add two checksums
 	int check1 = ComputeChecksumIndex(contents, 20);
 	pos += AppendPattern(result, pos, CHARACTER_ENCODINGS[check1]);
-
 	//append the contents to reflect the first checksum added
 	contents += static_cast<wchar_t>(ALPHABET[check1]);
-
 	int check2 = ComputeChecksumIndex(contents, 15);
 	pos += AppendPattern(result, pos, CHARACTER_ENCODINGS[check2]);
-
 	//end character (*)
 	pos += AppendPattern(result, pos, ASTERISK_ENCODING);
-
 	//termination bar (single black bar)
 	result[pos] = true;
-
 	return WriterHelper::RenderResult(result, width, height, _sidesMargin >= 0 ? _sidesMargin : 10);
 }
 

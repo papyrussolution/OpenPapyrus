@@ -610,18 +610,15 @@ static void put_num(int64_t val, char ** buf, size_t * remain, size_t * needed)
 {
 	int64_t tmpval = val;
 	size_t len = 1;
-
 	if(tmpval < 0) {
 		len++;
 		tmpval = -tmpval;
 	}
-	for(; tmpval > 9; len++, tmpval /= 10);
-
+	for(; tmpval > 9; len++, tmpval /= 10)
+		;
 	*needed += len;
-
 	if(*remain == 0)
 		return;
-
 	BIO_snprintf(*buf, *remain, "%lld", (long long int)val);
 	if(*remain < len) {
 		*buf += *remain;
@@ -633,15 +630,12 @@ static void put_num(int64_t val, char ** buf, size_t * remain, size_t * needed)
 	}
 }
 
-size_t ossl_property_list_to_string(OSSL_LIB_CTX * ctx,
-    const OSSL_PROPERTY_LIST * list, char * buf,
-    size_t bufsize)
+size_t ossl_property_list_to_string(OSSL_LIB_CTX * ctx, const OSSL_PROPERTY_LIST * list, char * buf, size_t bufsize)
 {
 	int i;
 	const OSSL_PROPERTY_DEFINITION * prop = NULL;
 	size_t needed = 0;
 	const char * val;
-
 	if(list == NULL) {
 		if(bufsize > 0)
 			*buf = '\0';

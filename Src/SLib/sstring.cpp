@@ -1,5 +1,5 @@
 // SSTRING.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -538,10 +538,7 @@ int FASTCALL SStrScan::GetQuotedString(SString & rBuf)
 		return 0;
 }
 
-static bool FASTCALL _is_eqq_ident_chr(char c)
-{
-	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_');
-}
+static bool FASTCALL _is_eqq_ident_chr(char c) { return (isasciialnum(c) || c == '-' || c == '_'); }
 
 int SStrScan::GetEqQ(SString & rKey, SString & rVal)
 {
@@ -1257,8 +1254,7 @@ int SString::IsLatin() const
 {
 	int    ok = 1;
 	for(uint i = 0; ok && i < Len(); i++) {
-		int symb = C(i);
-		if(!((symb >= '0' && symb <= '9') || (symb >= 'a' && symb <= 'z') || (symb >=  'A' && symb <= 'Z')))
+		if(!isasciialnum(C(i)))
 			ok = 0;
 	}
 	return ok;
@@ -1654,7 +1650,7 @@ SString & SString::Z()
 	//
 	// Функция вызывается экстремально часто. Потому максимально оптимизирована.
 	//
-	if(sizeof(uint32) <= Size || Alloc(sizeof(uint32))) { // 4 байта быстрее обнуляются, чем 1 поэтому требуем минимальную длину - 4 символа (4 байта)
+	if(Size >= sizeof(uint32) || Alloc(sizeof(uint32))) { // 4 байта быстрее обнуляются, чем 1 поэтому требуем минимальную длину - 4 символа (4 байта)
 		*PTR32(P_Buf) = 0;
 		L = 1;
 	}
@@ -2089,7 +2085,7 @@ SString & SString::Unescape()
 SString & SString::ToUrl()
 {
 	// "/:$-_.+!*'(),"
-#define NORMURLC(c) (((c)>='0'&&(c)<= '9')||((c)>='a'&&(c)<='z')||((c)>='A'&&(c)<='Z')||oneof9((c),'-','_','.','!','~','*','\'','(',')'))
+#define NORMURLC(c) (isasciialnum(c) || oneof9((c),'-','_','.','!','~','*','\'','(',')'))
     const size_t _len = Len();
     if(_len) {
 		size_t cvt_offs = _len;
@@ -3872,11 +3868,11 @@ int FASTCALL satoi(const wchar_t * pT)
 			}
 		}
 		else {
-			if(isdecw(_p[src_pos])) {
+			if(isdec(_p[src_pos])) {
 				uint   local_len = 0;
 				do {
 					local_len++;
-				} while(isdecw(_p[src_pos+local_len]));
+				} while(isdec(_p[src_pos+local_len]));
 				result = static_cast<int>(_texttodec32(_p+src_pos, local_len));
 			}
 		}
@@ -3913,10 +3909,10 @@ int64 FASTCALL satoi64(const wchar_t * pT)
 		}
 	}
 	else {
-		if(isdecw(_p[src_pos])) { 
+		if(isdec(_p[src_pos])) { 
 			do { 
 				result = result * 10 + (_p[src_pos] - L'0'); 
-			} while(isdecw(_p[++src_pos])); 
+			} while(isdec(_p[++src_pos])); 
 		}
 	}
 	if(is_neg && result)
@@ -4239,8 +4235,7 @@ int SString::Decode_QuotedPrintable(SString & rBuf) const
 				if(c1 == '\x0D' && c2 == '\x0A') {
 					enc_c = 2; // soft wrap
 				}
-				// @fixme Кажется, здесь ошибка: проверка символа на диапазон [a-z], а надо [a-f]
-				else if(((c1 >= '0' && c1 <= '9') || (c1 >= 'A' && c1 <= 'Z')) && ((c2 >= '0' && c2 <= '9') || (c2 >= 'A' && c2 <= 'Z'))) {
+				else if(ishex(c1) && ishex(c2)) {
 					c = (hex(c1) << 4) | hex(c2);
 					enc_c = 3;
 				}
@@ -4469,9 +4464,7 @@ int SString::DecodeUrl(SString & rBuf) const
 			if(p < (src_len-2)) {
 				const char c1 = p_src_buf[p+1];
 				const char c2 = p_src_buf[p+2];
-				// @fixme Кажется, здесь ошибка: проверка символа на диапазон [a-z], а надо [a-f]
-				if(((c1 >= '0' && c1 <= '9') || (c1 >= 'A' && c1 <= 'Z') || (c1 >= 'a' && c1 <= 'z')) &&
-					((c2 >= '0' && c2 <= '9') || (c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z'))) {
+				if(ishex(c1) && ishex(c2)) {
 					c = (hex(c1) << 4) | hex(c2);
 					rBuf.CatChar(c);
 				}
@@ -7616,8 +7609,8 @@ int STokenizer::Search(long flags, TSCollection <STokenizer::SearchBlockEntry> &
 				THROW(ProcessSearchToken(TokenBuf, tokDelim, rResult));
 			}
 			else if(P.Flags & fDivAlNum && prev_chr) {
-				const int is_dig = BIN(isdigit((uint8)chr));
-				const int is_prev_dig = BIN(isdigit((uint8)prev_chr));
+				const bool is_dig = isdec((uint8)chr);
+				const bool is_prev_dig = isdec((uint8)prev_chr);
 				if(is_prev_dig != is_dig) {
 					THROW(ProcessSearchToken(TokenBuf, tokWord, rResult));
 					THROW(ProcessSearchToken(TokenBuf, tokDelim, rResult));
@@ -7737,8 +7730,8 @@ int STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 				bool is_dig = false;
 				bool is_prev_dig = false;
 				if(P.Cp == cpUTF8) {
-					is_dig = isdecw((wchar_t)chr);
-					is_prev_dig = isdecw((wchar_t)prev_chr);
+					is_dig = isdec((wchar_t)chr);
+					is_prev_dig = isdec((wchar_t)prev_chr);
 				}
 				else {
 					is_dig = isdec((char)chr);

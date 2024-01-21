@@ -80,7 +80,7 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 				while(!sc.atLineEnd && sc.More()) sc.Forward();  // Until line end
 			}
 			else if(toLineStart < 5) {
-				if(IsADigit(sc.ch))
+				if(isdec(sc.ch))
 					sc.SetState(SCE_F_LABEL);
 				else
 					sc.SetState(SCE_F_DEFAULT);
@@ -198,7 +198,7 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 			sc.SetState(SCE_F_DEFAULT);
 		}
 		else if(sc.state == SCE_F_LABEL) {
-			if(!IsADigit(sc.ch)) {
+			if(!isdec(sc.ch)) {
 				sc.SetState(SCE_F_DEFAULT);
 			}
 			else {
@@ -219,10 +219,10 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 					sc.SetState(SCE_F_COMMENT);
 				}
 			}
-			else if((!isFixFormat) && IsADigit(sc.ch) && numNonBlank == 1) {
+			else if((!isFixFormat) && isdec(sc.ch) && numNonBlank == 1) {
 				sc.SetState(SCE_F_LABEL);
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_F_NUMBER);
 			}
 			else if((tolower(sc.ch) == 'b' || tolower(sc.ch) == 'o' ||
@@ -463,7 +463,7 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 					// labels to ensure the folding level does not decrease too far when labels are used for other
 					// purposes.
 					// Since this is difficult, do-label constructs are not folded.
-					if(sstreq(s, "do") && IsADigit(chNextNonBlank)) {
+					if(sstreq(s, "do") && isdec(chNextNonBlank)) {
 						// Remove delta for do-label
 						levelDeltaNext -= wordLevelDelta;
 					}

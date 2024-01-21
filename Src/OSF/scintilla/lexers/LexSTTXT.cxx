@@ -134,7 +134,7 @@ static void ColouriseSTTXTDoc(Sci_PositionU startPos, Sci_Position length, int i
 		}
 
 		if(sc.state == SCE_STTXT_DEFAULT) {
-			if(IsADigit(sc.ch))
+			if(isdec(sc.ch))
 				sc.SetState(SCE_STTXT_NUMBER);
 			else if(setWordStart.Contains(sc.ch))
 				sc.SetState(SCE_STTXT_IDENTIFIER);

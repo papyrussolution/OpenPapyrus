@@ -540,7 +540,7 @@ CURLcode Curl_altsvc_parse(struct Curl_easy * data,
 						p = &p[len-1];
 					}
 					else {
-						while(*p && (ISALNUM(*p) || (*p == '.') || (*p == '-')))
+						while(*p && (isasciialnum(*p) || (*p == '.') || (*p == '-')))
 							p++;
 						len = p - hostp;
 					}
@@ -561,7 +561,7 @@ CURLcode Curl_altsvc_parse(struct Curl_easy * data,
 				if(*p == ':') {
 					unsigned long port = 0;
 					p++;
-					if(ISDIGIT(*p))
+					if(isdec(*p))
 						/* a port number */
 						port = strtoul(p, &end_ptr, 10);
 					else

@@ -273,8 +273,7 @@ static void ColouriseBatchLine(char * lineBuffer, Sci_PositionU lengthLine, Sci_
 				wbo++;
 			}
 			// Check for Argument (%n) or (%*)
-			if(((Is0To9(wordBuffer[1])) || (wordBuffer[1] == '*')) &&
-			    (wordBuffer[wbo] != '%')) {
+			if(((Is0To9(wordBuffer[1])) || (wordBuffer[1] == '*')) && (wordBuffer[wbo] != '%')) {
 				// Check for External Command / Program
 				if(cmdLoc == offset - wbl) {
 					cmdLoc = offset - (wbl - 2);
@@ -297,8 +296,7 @@ static void ColouriseBatchLine(char * lineBuffer, Sci_PositionU lengthLine, Sci_
 				offset -= (wbl - wbo);
 				// Check for Environment Variable (%x...%)
 			}
-			else if((wordBuffer[1] != '%') &&
-			    (wordBuffer[wbo] == '%')) {
+			else if((wordBuffer[1] != '%') && (wordBuffer[wbo] == '%')) {
 				wbo++;
 				// Check for External Command / Program
 				if(cmdLoc == offset - wbl) {
@@ -310,12 +308,8 @@ static void ColouriseBatchLine(char * lineBuffer, Sci_PositionU lengthLine, Sci_
 				offset -= (wbl - wbo);
 				// Check for Local Variable (%%a)
 			}
-			else if(
-			    (wbl > 2) &&
-			    (wordBuffer[1] == '%') &&
-			    (wordBuffer[2] != '%') &&
-			    (!IsBOperator(wordBuffer[2])) &&
-			    (!IsBSeparator(wordBuffer[2]))) {
+			else if((wbl > 2) && (wordBuffer[1] == '%') && (wordBuffer[2] != '%') &&
+			    (!IsBOperator(wordBuffer[2])) && (!IsBSeparator(wordBuffer[2]))) {
 				// Check for External Command / Program
 				if(cmdLoc == offset - wbl) {
 					cmdLoc = offset - (wbl - 3);
@@ -398,11 +392,8 @@ static void ColouriseBatchLine(char * lineBuffer, Sci_PositionU lengthLine, Sci_
 		}
 		else {
 			// Read up to %, Operator or Separator
-			while((wbo < wbl) &&
-			    (wordBuffer[wbo] != '%') &&
-			    (wordBuffer[wbo] != '!') &&
-			    (!IsBOperator(wordBuffer[wbo])) &&
-			    (!IsBSeparator(wordBuffer[wbo]))) {
+			while((wbo < wbl) && (wordBuffer[wbo] != '%') && (wordBuffer[wbo] != '!') &&
+			    (!IsBOperator(wordBuffer[wbo])) && (!IsBSeparator(wordBuffer[wbo]))) {
 				wbo++;
 			}
 			// Colorize Default Text

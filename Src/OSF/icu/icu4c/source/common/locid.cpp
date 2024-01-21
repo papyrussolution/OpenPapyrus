@@ -705,14 +705,11 @@ void AliasDataBuilder::readVariantAlias(UResourceBundle * alias, UniqueCharStrin
 #if U_DEBUG
 		[] (const char * type) {
 			U_ASSERT(strlen(type) >= 4 && strlen(type) <= 8);
-			U_ASSERT(strlen(type) != 4 ||
-			(type[0] >= '0' && type[0] <= '9'));
+			U_ASSERT(strlen(type) != 4 || (type[0] >= '0' && type[0] <= '9'));
 		},
 		[](const UnicodeString & replacement) {
 			U_ASSERT(replacement.length() >= 4 && replacement.length() <= 8);
-			U_ASSERT(replacement.length() != 4 ||
-			(replacement.charAt(0) >= u'0' &&
-			replacement.charAt(0) <= u'9'));
+			U_ASSERT(replacement.length() != 4 || (replacement.charAt(0) >= u'0' && replacement.charAt(0) <= u'9'));
 		},
 #else
 		[](const char *) {

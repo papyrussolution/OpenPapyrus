@@ -783,8 +783,7 @@ U_CAPI int32_t U_EXPORT2 unum_formatUFormattable(const UNumberFormat * fmt, cons
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
-	if(fmt == NULL || number==NULL ||
-	    (result==NULL ? resultLength!=0 : resultLength<0)) {
+	if(fmt == NULL || number==NULL || (result==NULL ? resultLength!=0 : resultLength<0)) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

@@ -836,7 +836,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 #else
 		/* XXX TODO XXX Is there a more appropriate choice here ? */
 		/* This needn't match the filesystem allocation size. */
-		block_size = 16*1024;
+		block_size = SKILOBYTE(16);
 #endif
 	}
 

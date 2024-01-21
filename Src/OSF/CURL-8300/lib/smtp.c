@@ -215,7 +215,7 @@ static bool smtp_endofresp(struct Curl_easy * data, struct connectdata * conn,
 	(void)data;
 
 	/* Nothing for us */
-	if(len < 4 || !ISDIGIT(line[0]) || !ISDIGIT(line[1]) || !ISDIGIT(line[2]))
+	if(len < 4 || !isdec(line[0]) || !isdec(line[1]) || !isdec(line[2]))
 		return FALSE;
 
 	/* Do we have a command response? This should be the response code followed

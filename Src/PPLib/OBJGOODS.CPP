@@ -1,5 +1,5 @@
 // OBJGOODS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -8,87 +8,6 @@
 // @ModuleDef(PPObjGoods)
 //
 TLP_IMPL(PPObjGoods, GoodsCore, P_Tbl);
-// @v9.8.11 TLP_IMPL(PPObjGoods, HistGoodsCore, HistGoods);
-//
-#if 0 // @v10.2.11 HistGoodsCore - устаревшая технология - убираем {
-//
-// HistGoodsCore
-//
-class HistGoodsCore : public HistGoodsTbl {
-public:
-	int    Insert(PPID * pHistID, SBuffer * pBuf, int use_ta);
-	int    Search(PPID goodsID, long ver, HistGoodsTbl::Rec * pRec);
-	int    Search(PPID histID, SBuffer * pBuf);
-	long   GetNextVer(PPID goodsID);
-};
-
-int HistGoodsCore::Insert(PPID * pHistID, SBuffer * pBuf, int use_ta)
-{
-	int    ok = -1;
-	if(pBuf) {
-		RECORDSIZE fix_rec_size = 0;
-		RECORDSIZE data_len = (RECORDSIZE)pBuf->GetAvailableSize();
-		const void * p_data_buf = pBuf->GetBuf();
-		{
-			PPTransaction tra(use_ta);
-			THROW(tra);
-			fix_rec_size = getRecSize();
-			copyBufFrom(p_data_buf, fix_rec_size);
-			THROW(writeLobData(this->Data, PTR8(p_data_buf)+fix_rec_size, (data_len > fix_rec_size) ? (data_len-fix_rec_size) : 0));
-			THROW_DB(insertRec(0, pHistID));
-			destroyLobData(this->Data); // @v10.2.11 @fix
-			THROW(tra.Commit());
-		}
-		ok = 1;
-	}
-	CATCHZOK
-	return ok;
-}
-
-int HistGoodsCore::Search(PPID goodsID, long ver, HistGoodsTbl::Rec * pRec)
-{
-	int    ok = -1;
-	int    sp = 0;
-	HistGoodsTbl::Key1 k;
-	k.GoodsID = goodsID;
-	if(ver == 0) {
-		k.Ver = MAXLONG;
-		sp = spLt;
-	}
-	else {
-		k.Ver = ver;
-		sp = spEq;
-	}
-	if(search(1, &k, sp) > 0 && k.GoodsID == goodsID) {
-		copyBufTo(pRec);
-		ok = 1;
-	}
-	return ok;
-}
-
-int HistGoodsCore::Search(PPID histID, SBuffer * pBuf)
-{
-	int    ok = -1;
-	HistGoodsTbl::Key0 k;
-	k.ID = histID;
-	if(search(0, &k, spEq) > 0) {
-		if(pBuf) {
-			RECORDSIZE fix_rec_size = getRecSize();
-			pBuf->Write(&data, fix_rec_size);
-			readLobData(this->Data, *pBuf);
-		}
-		destroyLobData(this->Data); // @v10.2.11 @fix
-		ok = 1;
-	}
-	return ok;
-}
-
-long HistGoodsCore::GetNextVer(PPID goodsID)
-{
-	HistGoodsTbl::Rec rec;
-	return (Search(goodsID, 0, &rec) > 0) ? (rec.Ver + 1) : 1;
-}
-#endif // } 0
 
 PPObjGoods::ExportToGlbSvcParam::ExportToGlbSvcParam() : GlobalService(0), GuaID(0), Flags(0), CategoryObject(coGoodsGrpName), CategoryTagID(0), DescrExtStrId(0)
 {
@@ -812,7 +731,7 @@ int PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 				ok = 1;
 			}
 		}
-		else if(c >= '0' && c <= '9') {
+		else if(isdec(c)) {
 			nd++;
 		}
 		else
@@ -3204,6 +3123,64 @@ int PPObjGoods::Helper_SearchByBarcodeAdopt(const char * pCode, int mode, String
 			}
 			else
 				ok = -1;
+		}
+	}
+	return ok;
+}
+
+bool PPObjGoods::SelectValidBarcode(PPID goodsID, const PPIDArray * pStdList, SString & rCode)
+{
+	rCode.Z();
+	bool   ok = false;
+	SString org_code, norm_code;
+	BarcodeArray codes;
+	P_Tbl->ReadBarcodes(goodsID, codes);
+	if(codes.getCount()) {
+		for(uint i = 0; !ok && i < codes.getCount(); i++) {
+			const BarcodeTbl::Rec & r_bc_rec = codes.at(i);
+			(org_code = r_bc_rec.Code).Strip();
+			int    diag = 0;
+			int    std = 0;
+			int    dbr = DiagBarcode(org_code, &diag, &std, &norm_code);
+			if(dbr > 0 && (!pStdList || pStdList->lsearch(std))) {
+				rCode = norm_code;
+				ok = true;
+			}
+		}
+	}
+	return ok;
+}
+
+bool PPObjGoods::GetSimplifiedDraftBeerBarcode(PPID goodsID, SString & rCode) // @v11.9.3
+{
+	rCode.Z();
+	bool ok = false;
+	Goods2Tbl::Rec goods_rec;
+	if(Fetch(goodsID, &goods_rec) > 0) {
+		SString norm_code;
+		PPIDArray valid_bcstd_list;
+		valid_bcstd_list.add(BARCSTD_EAN13);
+		if(SelectValidBarcode(goodsID, &valid_bcstd_list, norm_code)) {
+			rCode = norm_code;
+			ok = true;
+		}
+		else {
+			PPGoodsStruc::Ident gsi(goodsID, GSF_COMPL, GSF_PARTITIAL);
+			TSCollection <PPGoodsStruc> gs_list;
+			LoadGoodsStruc(gsi, gs_list);
+			for(uint gsidx = 0; !ok && gsidx < gs_list.getCount(); gsidx++) {
+				const PPGoodsStruc * p_gs = gs_list.at(gsidx);
+				if(p_gs) {
+					uint gsitemidx = 0;
+					const PPGoodsStrucItem * p_gs_item = p_gs->GetMainItem(&gsitemidx);
+					if(p_gs_item) {
+						if(SelectValidBarcode(p_gs_item->GoodsID, &valid_bcstd_list, norm_code)) {
+							rCode = norm_code;
+							ok = true;
+						}
+					}
+				}
+			}
 		}
 	}
 	return ok;

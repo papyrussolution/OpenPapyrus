@@ -1151,7 +1151,7 @@ STDMETHODIMP COutMultiVolStream::Write(const void * data, uint32 size, uint32 * 
 			RINOK(altStream.Stream->Seek(_offsetPos, STREAM_SEEK_SET, NULL));
 			altStream.Pos = _offsetPos;
 		}
-		uint32 curSize = (uint32)MyMin((uint64)size, volSize - altStream.Pos);
+		uint32 curSize = (uint32)smin((uint64)size, volSize - altStream.Pos);
 		uint32 realProcessed;
 		RINOK(altStream.Stream->Write(data, curSize, &realProcessed));
 		data = (void *)((Byte *)data + realProcessed);

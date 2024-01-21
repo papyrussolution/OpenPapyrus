@@ -461,7 +461,7 @@ static int FASTCALL looks_like_numeric(const char * format)
 		return 0;
 	while(++format && (*format == ' ' || *format == '-' || *format == '+' || *format == '#'))
 		; /* do nothing */
-	while(isdigit((uchar)*format) || *format == '.')
+	while(isdec((uchar)*format) || *format == '.')
 		++format;
 	return (*format == 'e' || *format == 'f' || *format == 'g' || *format == 'h');
 }
@@ -1872,7 +1872,7 @@ void GnuPlot::GStrDMS(char * pLabel, char * pFormat, double value)
 	for(c = cfmt = sstrdup(pFormat); *c;) {
 		if(*c++ == '%') {
 			while(*c && !strchr("DdMmSsEN%", *c)) {
-				if(!isdigit(*c) && !isspace(*c) && !ispunct(*c))
+				if(!isdec(*c) && !isspace(*c) && !ispunct(*c))
 					IntError(NO_CARET, "unrecognized format: \"%s\"", pFormat);
 				c++;
 			}

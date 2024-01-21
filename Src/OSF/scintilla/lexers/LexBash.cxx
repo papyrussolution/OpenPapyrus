@@ -50,7 +50,7 @@ using namespace Scintilla;
 
 static /*inline*/ int FASTCALL translateBashDigit(int ch)
 {
-	if(ch >= '0' && ch <= '9') {
+	if(isdec(ch)) {
 		return ch - '0';
 	}
 	else if(ch >= 'a' && ch <= 'z') {
@@ -367,7 +367,7 @@ public:
 					    if(numBase != BASH_BASE_ERROR)
 						    break;
 				    }
-				    else if(IsADigit(sc.ch))
+				    else if(isdec(sc.ch))
 					    break;
 			    }
 			    else if(numBase == BASH_BASE_HEX) {
@@ -653,7 +653,7 @@ public:
 				if(sc.chNext == '\r' || sc.chNext == '\n')
 					sc.SetState(SCE_SH_OPERATOR);
 			}
-			else if(IsADigit(sc.ch)) {
+			else if(isdec(sc.ch)) {
 				sc.SetState(SCE_SH_NUMBER);
 				numBase = BASH_BASE_DECIMAL;
 				if(sc.ch == '0') {      // hex,octal
@@ -661,7 +661,7 @@ public:
 						numBase = BASH_BASE_HEX;
 						sc.Forward();
 					}
-					else if(IsADigit(sc.chNext)) {
+					else if(isdec(sc.chNext)) {
 #ifdef PEDANTIC_OCTAL
 						numBase = BASH_BASE_OCTAL;
 #else
@@ -689,7 +689,7 @@ public:
 							sc.Forward();
 						}
 					}
-					else if(sc.Match("##^") && IsUpperCase(sc.GetRelative(3))) {    // ##^A
+					else if(sc.Match("##^") && isasciiupr(sc.GetRelative(3))) {    // ##^A
 						sc.SetState(SCE_SH_IDENTIFIER);
 						sc.Forward(3);
 					}

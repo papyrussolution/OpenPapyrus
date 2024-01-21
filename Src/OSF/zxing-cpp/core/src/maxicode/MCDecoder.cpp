@@ -131,13 +131,12 @@ static uint GetInt(const ByteArray& bytes, const ByteArray& x)
 
 static uint GetPostCode2Length(const ByteArray& bytes)
 {
-	return std::min(GetInt(bytes, {39, 40, 41, 42, 31, 32}), 9U);
+	return smin(GetInt(bytes, {39, 40, 41, 42, 31, 32}), 9U);
 }
 
 static std::string GetPostCode2(const ByteArray& bytes)
 {
-	uint val = GetInt(bytes,
-		{33, 34, 35, 36, 25, 26, 27, 28, 29, 30, 19, 20, 21, 22, 23, 24, 13, 14, 15, 16, 17, 18, 7, 8, 9, 10, 11, 12, 1, 2});
+	uint val = GetInt(bytes, {33, 34, 35, 36, 25, 26, 27, 28, 29, 30, 19, 20, 21, 22, 23, 24, 13, 14, 15, 16, 17, 18, 7, 8, 9, 10, 11, 12, 1, 2});
 	uint len = GetPostCode2Length(bytes);
 	// Pad or truncate to length
 	char buf[11]; // 30 bits 0x3FFFFFFF == 1073741823 (10 digits)
@@ -148,24 +147,23 @@ static std::string GetPostCode2(const ByteArray& bytes)
 
 static std::string GetPostCode3(const ByteArray& bytes)
 {
-	return {
-		       (char)CHARSETS[0].at(GetInt(bytes, { 39, 40, 41, 42, 31, 32 })),
-		       (char)CHARSETS[0].at(GetInt(bytes, { 33, 34, 35, 36, 25, 26 })),
-		       (char)CHARSETS[0].at(GetInt(bytes, { 27, 28, 29, 30, 19, 20 })),
-		       (char)CHARSETS[0].at(GetInt(bytes, { 21, 22, 23, 24, 13, 14 })),
-		       (char)CHARSETS[0].at(GetInt(bytes, { 15, 16, 17, 18,  7,  8 })),
-		       (char)CHARSETS[0].at(GetInt(bytes, { 9,  10, 11, 12,  1,  2 })),
+	return { (char)CHARSETS[0].at(GetInt(bytes, { 39, 40, 41, 42, 31, 32 })),
+		(char)CHARSETS[0].at(GetInt(bytes, { 33, 34, 35, 36, 25, 26 })),
+		(char)CHARSETS[0].at(GetInt(bytes, { 27, 28, 29, 30, 19, 20 })),
+		(char)CHARSETS[0].at(GetInt(bytes, { 21, 22, 23, 24, 13, 14 })),
+		(char)CHARSETS[0].at(GetInt(bytes, { 15, 16, 17, 18,  7,  8 })),
+		(char)CHARSETS[0].at(GetInt(bytes, { 9,  10, 11, 12,  1,  2 })),
 	};
 }
 
 static uint GetCountry(const ByteArray& bytes)
 {
-	return std::min(GetInt(bytes, {53, 54, 43, 44, 45, 46, 47, 48, 37, 38}), 999U);
+	return smin(GetInt(bytes, {53, 54, 43, 44, 45, 46, 47, 48, 37, 38}), 999U);
 }
 
 static uint GetServiceClass(const ByteArray& bytes)
 {
-	return std::min(GetInt(bytes, {55, 56, 57, 58, 59, 60, 49, 50, 51, 52}), 999U);
+	return smin(GetInt(bytes, {55, 56, 57, 58, 59, 60, 49, 50, 51, 52}), 999U);
 }
 
 /**

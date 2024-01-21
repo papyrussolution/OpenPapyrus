@@ -69,15 +69,15 @@ typedef struct sCharacterSetTable {
  * The result is an or of CodeA,CodeB,CodeC,CodeFNC1 in dependency of the
  * possible Code 128 character sets.
  */
-int GetPossibleCharacterSet(uchar C)
+int GetPossibleCharacterSet(uchar c)
 {
-	if(C<='\x19')   /* Dec:31 */
+	if(c<='\x19')   /* Dec:31 */
 		return CodeA;
-	if(C>='0' && C<='9')
+	if(isdec(c))
 		return ZTNum; /* ZTNum=CodeA+CodeB+CodeC */
-	if(C==aFNC1)
+	if(c == aFNC1)
 		return ZTFNC1; /* ZTFNC1=CodeA+CodeB+CodeC+CodeFNC1 */
-	if(C>='\x60' && C<='\x7f')   /* 60 to 127 */
+	if(c >='\x60' && c <='\x7f')   /* 60 to 127 */
 		return CodeB;
 	return CodeA+CodeB;
 }
@@ -102,10 +102,8 @@ void CreateCharacterSetTable(CharacterSetTable T[], uchar * data, int dataLength
 	T[charCur].CFollowing = 0;
 	for(charCur--; charCur>=0; charCur--) {
 		T[charCur].CharacterSet = GetPossibleCharacterSet(data[charCur]);
-		T[charCur].AFollowing =
-		    ((T[charCur].CharacterSet & CodeA)==0) ? 0 : T[charCur+1].AFollowing+1;
-		T[charCur].BFollowing =
-		    ((T[charCur].CharacterSet & CodeB)==0) ? 0 : T[charCur+1].BFollowing+1;
+		T[charCur].AFollowing = ((T[charCur].CharacterSet & CodeA)==0) ? 0 : T[charCur+1].AFollowing+1;
+		T[charCur].BFollowing = ((T[charCur].CharacterSet & CodeB)==0) ? 0 : T[charCur+1].BFollowing+1;
 		T[charCur].CFollowing = 0;
 	}
 	/* Find the CodeC-chains */

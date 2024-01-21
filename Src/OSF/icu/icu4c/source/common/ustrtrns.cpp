@@ -26,7 +26,7 @@ U_CAPI char16_t * U_EXPORT2 u_strFromUTF32WithSub(char16_t * dest, int32_t destC
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-	if((src==NULL && srcLength!=0) || srcLength < -1 || (destCapacity<0) || (dest == NULL && destCapacity > 0) || subchar > 0x10ffff || U_IS_SURROGATE(subchar)) {
+	if((!src && srcLength) || srcLength < -1 || (destCapacity<0) || (!dest && destCapacity > 0) || subchar > 0x10ffff || U_IS_SURROGATE(subchar)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -119,10 +119,7 @@ U_CAPI UChar32* U_EXPORT2 u_strToUTF32WithSub(UChar32 * dest, int32_t destCapaci
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-	if((src==NULL && srcLength!=0) || srcLength < -1 ||
-	    (destCapacity<0) || (dest == NULL && destCapacity > 0) ||
-	    subchar > 0x10ffff || U_IS_SURROGATE(subchar)
-	    ) {
+	if((!src && srcLength) || srcLength < -1 || (destCapacity<0) || (!dest && destCapacity > 0) || subchar > 0x10ffff || U_IS_SURROGATE(subchar)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -198,7 +195,7 @@ U_CAPI char16_t * U_EXPORT2 u_strFromUTF8WithSub(char16_t * dest, int32_t destCa
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-	if((src==NULL && srcLength!=0) || srcLength < -1 || (destCapacity<0) || (dest == NULL && destCapacity > 0) || subchar > 0x10ffff || U_IS_SURROGATE(subchar)) {
+	if((!src && srcLength) || srcLength < -1 || (destCapacity<0) || (!dest && destCapacity > 0) || subchar > 0x10ffff || U_IS_SURROGATE(subchar)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -458,34 +455,25 @@ U_CAPI char16_t * U_EXPORT2 u_strFromUTF8(char16_t * dest,
 		pErrorCode);
 }
 
-U_CAPI char16_t * U_EXPORT2 u_strFromUTF8Lenient(char16_t * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const char * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode) {
+U_CAPI char16_t * U_EXPORT2 u_strFromUTF8Lenient(char16_t * dest, int32_t destCapacity, int32_t * pDestLength, const char * src,
+    int32_t srcLength, UErrorCode * pErrorCode) 
+{
 	char16_t * pDest = dest;
 	UChar32 ch;
 	int32_t reqLength = 0;
 	uint8 * pSrc = (uint8 *)src;
-
 	/* args check */
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-
-	if((src==NULL && srcLength!=0) || srcLength < -1 ||
-	    (destCapacity<0) || (dest == NULL && destCapacity > 0)
-	    ) {
+	if((!src && srcLength) || srcLength < -1 || (destCapacity<0) || (!dest && destCapacity > 0)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
-
 	if(srcLength < 0) {
 		/* Transform a NUL-terminated string. */
 		char16_t * pDestLimit = (dest != NULL) ? (dest+destCapacity) : NULL;
 		uint8 t1, t2, t3; /* trail bytes */
-
 		while(((ch = *pSrc) != 0) && (pDest < pDestLimit)) {
 			if(ch < 0xc0) {
 				/*
@@ -721,7 +709,7 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest, int32_t destCapacity, in
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-	if((pSrc==NULL && srcLength!=0) || srcLength < -1 || (destCapacity<0) || (dest == NULL && destCapacity > 0) || subchar > 0x10ffff || U_IS_SURROGATE(subchar)) {
+	if((pSrc==NULL && srcLength!=0) || srcLength < -1 || (destCapacity<0) || (!dest && destCapacity > 0) || subchar > 0x10ffff || U_IS_SURROGATE(subchar)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -985,7 +973,7 @@ U_CAPI char16_t * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(char16_t * dest, in
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-	if((src==NULL && srcLength!=0) || srcLength < -1 || (dest==NULL && destCapacity!=0) || destCapacity<0 || subchar > 0x10ffff || U_IS_SURROGATE(subchar)) {
+	if((!src && srcLength) || srcLength < -1 || (dest==NULL && destCapacity!=0) || destCapacity<0 || subchar > 0x10ffff || U_IS_SURROGATE(subchar)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -1200,7 +1188,7 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-	if((src==NULL && srcLength!=0) || srcLength < -1 || (dest==NULL && destCapacity!=0) || destCapacity<0) {
+	if((!src && srcLength) || srcLength < -1 || (dest==NULL && destCapacity!=0) || destCapacity<0) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}

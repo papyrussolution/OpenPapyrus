@@ -1652,9 +1652,7 @@ static CURLcode ssh_statemach_act(struct Curl_easy * data, bool * block)
 			case SSH_SFTP_NEXT_QUOTE:
 			    ZFREE(sshc->quote_path1);
 			    ZFREE(sshc->quote_path2);
-
 			    sshc->quote_item = sshc->quote_item->next;
-
 			    if(sshc->quote_item) {
 				    state(data, SSH_SFTP_QUOTE);
 			    }
@@ -1683,16 +1681,13 @@ static CURLcode ssh_statemach_act(struct Curl_easy * data, bool * block)
 				    cmd++;
 				    sshc->acceptfail = TRUE;
 			    }
-
 			    if(!strncasecompare(cmd, "chmod", 5)) {
 				    /* Since chown and chgrp only set owner OR group but libssh2 wants to
 				     * set them both at once, we need to obtain the current ownership
 				     * first.  This takes an extra protocol round trip.
 				     */
 				    rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshc->quote_path2,
-					    curlx_uztoui(strlen(sshc->quote_path2)),
-					    LIBSSH2_SFTP_STAT,
-					    &sshp->quote_attrs);
+					    curlx_uztoui(strlen(sshc->quote_path2)), LIBSSH2_SFTP_STAT, &sshp->quote_attrs);
 				    if(rc == LIBSSH2_ERROR_EAGAIN) {
 					    break;
 				    }
@@ -1713,8 +1708,7 @@ static CURLcode ssh_statemach_act(struct Curl_easy * data, bool * block)
 			    if(strncasecompare(cmd, "chgrp", 5)) {
 				    sshp->quote_attrs.gid = strtoul(sshc->quote_path1, NULL, 10);
 				    sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_UIDGID;
-				    if(sshp->quote_attrs.gid == 0 && !ISDIGIT(sshc->quote_path1[0]) &&
-					!sshc->acceptfail) {
+				    if(sshp->quote_attrs.gid == 0 && !isdec(sshc->quote_path1[0]) && !sshc->acceptfail) {
 					    ZFREE(sshc->quote_path1);
 					    ZFREE(sshc->quote_path2);
 					    failf(data, "Syntax error: chgrp gid not a number");
@@ -1728,8 +1722,7 @@ static CURLcode ssh_statemach_act(struct Curl_easy * data, bool * block)
 				    sshp->quote_attrs.permissions = strtoul(sshc->quote_path1, NULL, 8);
 				    sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_PERMISSIONS;
 				    /* permissions are octal */
-				    if(sshp->quote_attrs.permissions == 0 &&
-					!ISDIGIT(sshc->quote_path1[0])) {
+				    if(sshp->quote_attrs.permissions == 0 && !isdec(sshc->quote_path1[0])) {
 					    ZFREE(sshc->quote_path1);
 					    ZFREE(sshc->quote_path2);
 					    failf(data, "Syntax error: chmod permissions not a number");
@@ -1742,8 +1735,7 @@ static CURLcode ssh_statemach_act(struct Curl_easy * data, bool * block)
 			    else if(strncasecompare(cmd, "chown", 5)) {
 				    sshp->quote_attrs.uid = strtoul(sshc->quote_path1, NULL, 10);
 				    sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_UIDGID;
-				    if(sshp->quote_attrs.uid == 0 && !ISDIGIT(sshc->quote_path1[0]) &&
-					!sshc->acceptfail) {
+				    if(sshp->quote_attrs.uid == 0 && !isdec(sshc->quote_path1[0]) && !sshc->acceptfail) {
 					    ZFREE(sshc->quote_path1);
 					    ZFREE(sshc->quote_path2);
 					    failf(data, "Syntax error: chown uid not a number");
@@ -1753,11 +1745,9 @@ static CURLcode ssh_statemach_act(struct Curl_easy * data, bool * block)
 					    break;
 				    }
 			    }
-			    else if(strncasecompare(cmd, "atime", 5) ||
-				strncasecompare(cmd, "mtime", 5)) {
+			    else if(strncasecompare(cmd, "atime", 5) || strncasecompare(cmd, "mtime", 5)) {
 				    time_t date = Curl_getdate_capped(sshc->quote_path1);
 				    bool fail = FALSE;
-
 				    if(date == -1) {
 					    failf(data, "incorrect date format for %.*s", 5, cmd);
 					    fail = TRUE;

@@ -1275,7 +1275,7 @@ static int parse_device(dev_t * pdev, Archive * a, char * val)
 
 static int parse_hex_nibble(char c)
 {
-	if(c >= '0' && c <= '9')
+	if(isdec(c))
 		return c - '0';
 	if(c >= 'a' && c <= 'f')
 		return 10 + c - 'a';
@@ -1693,17 +1693,7 @@ static void parse_escapes(char * src, struct mtree_entry * mentry)
 }
 
 /* Parse a hex digit. */
-static int parsedigit(char c)
-{
-	if(c >= '0' && c <= '9')
-		return c - '0';
-	else if(c >= 'a' && c <= 'f')
-		return c - 'a';
-	else if(c >= 'A' && c <= 'F')
-		return c - 'A';
-	else
-		return -1;
-}
+static int parsedigit(char c) { return ishex(c) ? hex(c) : -1; }
 
 /*
  * Note that this implementation does not (and should not!) obey

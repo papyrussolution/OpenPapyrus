@@ -2288,7 +2288,6 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 }
 
 #endif
-
 error:
 	SAlloc::F(proxyuser);
 	SAlloc::F(proxypasswd);
@@ -2304,31 +2303,23 @@ error:
 /*
  * Extract the user and password from the authentication string
  */
-static CURLcode parse_proxy_auth(struct Curl_easy * data,
-    struct connectdata * conn)
+static CURLcode parse_proxy_auth(struct Curl_easy * data, struct connectdata * conn)
 {
-	const char * proxyuser = data->state.aptr.proxyuser ?
-	    data->state.aptr.proxyuser : "";
-	const char * proxypasswd = data->state.aptr.proxypasswd ?
-	    data->state.aptr.proxypasswd : "";
-	CURLcode result = Curl_urldecode(proxyuser, 0, &conn->http_proxy.user, NULL,
-		REJECT_ZERO);
+	const char * proxyuser = data->state.aptr.proxyuser ? data->state.aptr.proxyuser : "";
+	const char * proxypasswd = data->state.aptr.proxypasswd ? data->state.aptr.proxypasswd : "";
+	CURLcode result = Curl_urldecode(proxyuser, 0, &conn->http_proxy.user, NULL, REJECT_ZERO);
 	if(!result)
-		result = Curl_setstropt(&data->state.aptr.proxyuser,
-			conn->http_proxy.user);
+		result = Curl_setstropt(&data->state.aptr.proxyuser, conn->http_proxy.user);
 	if(!result)
-		result = Curl_urldecode(proxypasswd, 0, &conn->http_proxy.passwd,
-			NULL, REJECT_ZERO);
+		result = Curl_urldecode(proxypasswd, 0, &conn->http_proxy.passwd, NULL, REJECT_ZERO);
 	if(!result)
-		result = Curl_setstropt(&data->state.aptr.proxypasswd,
-			conn->http_proxy.passwd);
+		result = Curl_setstropt(&data->state.aptr.proxypasswd, conn->http_proxy.passwd);
 	return result;
 }
 
 /* create_conn helper to parse and init proxy values. to be called after unix
    socket init but before any proxy vars are evaluated. */
-static CURLcode create_conn_helper_init_proxy(struct Curl_easy * data,
-    struct connectdata * conn)
+static CURLcode create_conn_helper_init_proxy(struct Curl_easy * data, struct connectdata * conn)
 {
 	char * proxy = NULL;
 	char * socksproxy = NULL;
@@ -2460,7 +2451,6 @@ static CURLcode create_conn_helper_init_proxy(struct Curl_easy * data,
 			conn->bits.httpproxy = FALSE; /* not an HTTP proxy */
 			conn->bits.tunnel_proxy = FALSE; /* no tunneling if not HTTP */
 		}
-
 		if(conn->socks_proxy.host.rawalloc) {
 			if(!conn->http_proxy.host.rawalloc) {
 				/* once a socks proxy */
@@ -2494,9 +2484,7 @@ static CURLcode create_conn_helper_init_proxy(struct Curl_easy * data,
 		   to signal that CURLPROXY_HTTPS is not used for this connection */
 		conn->http_proxy.proxytype = CURLPROXY_HTTP;
 	}
-
 out:
-
 	SAlloc::F(socksproxy);
 	SAlloc::F(proxy);
 	return result;
@@ -2533,9 +2521,7 @@ out:
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_parse_login_details(const char * login, const size_t len,
-    char ** userp, char ** passwdp,
-    char ** optionsp)
+CURLcode Curl_parse_login_details(const char * login, const size_t len, char ** userp, char ** passwdp, char ** optionsp)
 {
 	CURLcode result = CURLE_OK;
 	char * ubuf = NULL;
@@ -2552,14 +2538,9 @@ CURLcode Curl_parse_login_details(const char * login, const size_t len,
 	/* Attempt to find the options separator */
 	if(optionsp)
 		osep = (const char *)smemchr(login, ';', len);
-
 	/* Calculate the portion lengths */
-	ulen = (psep ?
-	    (size_t)(osep && psep > osep ? osep - login : psep - login) :
-	    (osep ? (size_t)(osep - login) : len));
-	plen = (psep ?
-	    (osep && osep > psep ? (size_t)(osep - psep) :
-	    (size_t)(login + len - psep)) - 1 : 0);
+	ulen = (psep ? (size_t)(osep && psep > osep ? osep - login : psep - login) : (osep ? (size_t)(osep - login) : len));
+	plen = (psep ? (osep && osep > psep ? (size_t)(osep - psep) : (size_t)(login + len - psep)) - 1 : 0);
 	olen = (osep ?
 	    (psep && psep > osep ? (size_t)(psep - osep) :
 	    (size_t)(login + len - osep)) - 1 : 0);
@@ -2570,7 +2551,6 @@ CURLcode Curl_parse_login_details(const char * login, const size_t len,
 		if(!ubuf)
 			result = CURLE_OUT_OF_MEMORY;
 	}
-
 	/* Allocate the password portion buffer */
 	if(!result && passwdp && psep) {
 		pbuf = (char *)SAlloc::M(plen + 1);
@@ -2579,7 +2559,6 @@ CURLcode Curl_parse_login_details(const char * login, const size_t len,
 			result = CURLE_OUT_OF_MEMORY;
 		}
 	}
-
 	/* Allocate the options portion buffer */
 	if(!result && optionsp && olen) {
 		obuf = (char *)SAlloc::M(olen + 1);
@@ -2589,7 +2568,6 @@ CURLcode Curl_parse_login_details(const char * login, const size_t len,
 			result = CURLE_OUT_OF_MEMORY;
 		}
 	}
-
 	if(!result) {
 		/* Store the user portion if necessary */
 		if(ubuf) {
@@ -2806,27 +2784,21 @@ static CURLcode parse_connect_to_host_port(struct Curl_easy * data,
 #if defined(CURL_DISABLE_VERBOSE_STRINGS)
 	(void)data;
 #endif
-
 	*hostname_result = NULL;
 	*port_result = -1;
-
 	if(!host || !*host)
 		return CURLE_OK;
-
 	host_dup = strdup(host);
 	if(!host_dup)
 		return CURLE_OUT_OF_MEMORY;
-
 	hostptr = host_dup;
-
 	/* start scanning for port number at this point */
 	portptr = hostptr;
-
 	/* detect and extract RFC6874-style IPv6-addresses */
 	if(*hostptr == '[') {
 #ifdef ENABLE_IPV6
 		char * ptr = ++hostptr; /* advance beyond the initial bracket */
-		while(*ptr && (ISXDIGIT(*ptr) || (*ptr == ':') || (*ptr == '.')))
+		while(*ptr && (ishex(*ptr) || (*ptr == ':') || (*ptr == '.')))
 			ptr++;
 		if(*ptr == '%') {
 			/* There might be a zone identifier */
@@ -2834,8 +2806,7 @@ static CURLcode parse_connect_to_host_port(struct Curl_easy * data,
 				infof(data, "Please URL encode %% as %%25, see RFC 6874.");
 			ptr++;
 			/* Allow unreserved characters as defined in RFC 3986 */
-			while(*ptr && (ISALPHA(*ptr) || ISXDIGIT(*ptr) || (*ptr == '-') ||
-			    (*ptr == '.') || (*ptr == '_') || (*ptr == '~')))
+			while(*ptr && (isasciialpha(*ptr) || ishex(*ptr) || (*ptr == '-') || (*ptr == '.') || (*ptr == '_') || (*ptr == '~')))
 				ptr++;
 		}
 		if(*ptr == ']')
@@ -2854,7 +2825,6 @@ static CURLcode parse_connect_to_host_port(struct Curl_easy * data,
 		goto error;
 #endif
 	}
-
 	/* Get port number off server.com:1080 */
 	host_portno = strchr(portptr, ':');
 	if(host_portno) {

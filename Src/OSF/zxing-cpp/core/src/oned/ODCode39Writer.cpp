@@ -27,7 +27,8 @@ static_assert(Size(ALPHABET) - 1 == Size(CHARACTER_ENCODINGS), "table size misma
 
 static const int ASTERISK_ENCODING = CHARACTER_ENCODINGS[39];
 
-static void ToIntArray(int a, std::array<int, 9>& toReturn) {
+static void ToIntArray(int a, std::array<int, 9>& toReturn) 
+{
 	for(int i = 0; i < 9; ++i) {
 		toReturn[i] = (a & (1 << (8 - i))) == 0 ? 1 : 2;
 	}
@@ -35,11 +36,11 @@ static void ToIntArray(int a, std::array<int, 9>& toReturn) {
 
 static std::string ToHexString(int c)
 {
-	const char* digits = "0123456789abcdef";
+	//const char* digits = "0123456789abcdef";
 	std::string val(4, '0');
 	val[1] = 'x';
-	val[2] = digits[(c >> 4) & 0xf];
-	val[3] = digits[c & 0xf];
+	val[2] = SlConst::P_HxDigL[(c >> 4) & 0xf];
+	val[3] = SlConst::P_HxDigL[c & 0xf];
 	return val;
 }
 

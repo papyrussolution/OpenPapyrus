@@ -583,8 +583,7 @@ static const char * ngx_http_userid_mark(ngx_conf_t * cf, const ngx_command_t * 
 		ucf->mark = '\0';
 		return NGX_CONF_OK;
 	}
-	if(value[1].len != 1 || !((value[1].data[0] >= '0' && value[1].data[0] <= '9') || 
-		(value[1].data[0] >= 'A' && value[1].data[0] <= 'Z') || (value[1].data[0] >= 'a' && value[1].data[0] <= 'z') || value[1].data[0] == '=')) {
+	if(value[1].len != 1 || !(isasciialnum(value[1].data[0]) || value[1].data[0] == '=')) {
 		return "value must be \"off\" or a single letter, digit or \"=\"";
 	}
 	ucf->mark = value[1].data[0];

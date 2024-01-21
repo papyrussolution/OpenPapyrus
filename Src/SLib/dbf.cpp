@@ -1,5 +1,5 @@
 // DBF.CPP
-// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -693,7 +693,7 @@ int DbfTable::getHeader()
 		THROW_S_S(Head.Month >= 1 && Head.Month <= 12, SLERR_DBF_INVHEADER, P_Name);
 		THROW_S_S(Head.Day >= 1 && Head.Day <= 31, SLERR_DBF_INVHEADER, P_Name);
 		THROW_S_S(Head.HeadSize >= sizeof(Head) && Head.HeadSize <= 8192, SLERR_DBF_INVHEADER, P_Name);
-		THROW_S_S(Head.RecSize <= 16*1024, SLERR_DBF_INVHEADER, P_Name);
+		THROW_S_S(Head.RecSize <= SKILOBYTE(16), SLERR_DBF_INVHEADER, P_Name);
 		NumFlds = (Head.HeadSize - 1 - sizeof(DBFH) - dbc_path_size) / sizeof(DBFF);
 		THROW_S_S(NumFlds <= 1024, SLERR_DBF_INVHEADER, P_Name);
 		fseek(Stream, pos, SEEK_SET);

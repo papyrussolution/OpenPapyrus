@@ -219,7 +219,7 @@ static ngx_int_t ngx_http_range_parse(ngx_http_request_t * r, ngx_http_range_fil
 			p++;
 		}
 		if(*p != '-') {
-			if(*p < '0' || *p > '9') {
+			if(!isdec(*p)) {
 				return NGX_HTTP_RANGE_NOT_SATISFIABLE;
 			}
 			while(*p >= '0' && *p <= '9') {
@@ -246,10 +246,10 @@ static ngx_int_t ngx_http_range_parse(ngx_http_request_t * r, ngx_http_range_fil
 			suffix = 1;
 			p++;
 		}
-		if(*p < '0' || *p > '9') {
+		if(!isdec(*p)) {
 			return NGX_HTTP_RANGE_NOT_SATISFIABLE;
 		}
-		while(*p >= '0' && *p <= '9') {
+		while(isdec(*p)) {
 			if(end >= cutoff && (end > cutoff || *p - '0' > cutlim)) {
 				return NGX_HTTP_RANGE_NOT_SATISFIABLE;
 			}

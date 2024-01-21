@@ -1,5 +1,5 @@
 // IE_BILL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1804,7 +1804,7 @@ int PPBillImporter::RunUhttImport()
 						if(cn_obj.Search(PosNodeID, &cn_rec) > 0) {
 							CCheckPacket cc_pack;
 							// @v10.8.7 @ctr cc_pack.Init();
-							cc_pack.Rec.CashID = PosNodeID;
+							cc_pack.Rec.PosNodeID = PosNodeID;
 							// @v8.4.7 @fix (отложенный чек не должен быть привязан к сессии) cc_pack.Rec.SessID = cn_rec.CurSessID;
 							cc_pack.Rec.Dt = p_uhtt_pack->Dtm;
 							cc_pack.Rec.Tm = p_uhtt_pack->Dtm;

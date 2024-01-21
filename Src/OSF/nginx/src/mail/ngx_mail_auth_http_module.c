@@ -653,7 +653,7 @@ static ngx_int_t ngx_mail_auth_http_parse_header_line(ngx_mail_session_t * s, ng
 						break;
 					}
 
-					if(ch >= '0' && ch <= '9') {
+					if(isdec(ch)) {
 						break;
 					}
 
@@ -678,7 +678,7 @@ static ngx_int_t ngx_mail_auth_http_parse_header_line(ngx_mail_session_t * s, ng
 				    break;
 			    }
 
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    break;
 			    }
 

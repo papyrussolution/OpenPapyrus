@@ -163,7 +163,7 @@ static int FASTCALL stateForPrintState(int stateToPrint)
 
 static bool FASTCALL IsNumber(Sci_PositionU start, Accessor & styler)
 {
-	return IsADigit(styler[start]) || (styler[start] == '.') || (styler[start] == '-') || (styler[start] == '#');
+	return isdec(styler[start]) || (styler[start] == '.') || (styler[start] == '-') || (styler[start] == '#');
 }
 
 static bool FASTCALL isStringState(int state)
@@ -312,7 +312,7 @@ static void classifyWordHTJS(Sci_PositionU start, Sci_PositionU end, const WordL
 	}
 	s[i] = '\0';
 	char chAttr = SCE_HJ_WORD;
-	bool wordIsNumber = IsADigit(s[0]) || ((s[0] == '.') && IsADigit(s[1]));
+	bool wordIsNumber = isdec(s[0]) || ((s[0] == '.') && isdec(s[1]));
 	if(wordIsNumber) {
 		chAttr = SCE_HJ_NUMBER;
 	}
@@ -325,7 +325,7 @@ static void classifyWordHTJS(Sci_PositionU start, Sci_PositionU end, const WordL
 static int classifyWordHTVB(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor & styler, script_mode inScriptType)
 {
 	char chAttr = SCE_HB_IDENTIFIER;
-	bool wordIsNumber = IsADigit(styler[start]) || (styler[start] == '.');
+	bool wordIsNumber = isdec(styler[start]) || (styler[start] == '.');
 	if(wordIsNumber) {
 		chAttr = SCE_HB_NUMBER;
 	}
@@ -347,7 +347,7 @@ static int classifyWordHTVB(Sci_PositionU start, Sci_PositionU end, const WordLi
 
 static void classifyWordHTPy(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor & styler, char * prevWord, script_mode inScriptType, bool isMako)
 {
-	bool wordIsNumber = IsADigit(styler[start]);
+	bool wordIsNumber = isdec(styler[start]);
 	char s[30 + 1];
 	Sci_PositionU i = 0;
 	for(; i < end - start + 1 && i < 30; i++) {
@@ -374,7 +374,7 @@ static void classifyWordHTPy(Sci_PositionU start, Sci_PositionU end, const WordL
 static void classifyWordHTPHP(Sci_PositionU start, Sci_PositionU end, const WordList & keywords, Accessor & styler)
 {
 	char chAttr = SCE_HPHP_DEFAULT;
-	bool wordIsNumber = IsADigit(styler[start]) || (styler[start] == '.' && start+1 <= end && IsADigit(styler[start+1]));
+	bool wordIsNumber = isdec(styler[start]) || (styler[start] == '.' && start+1 <= end && isdec(styler[start+1]));
 	if(wordIsNumber) {
 		chAttr = SCE_HPHP_NUMBER;
 	}
@@ -425,20 +425,13 @@ static int FASTCALL StateForScript(script_type scriptLanguage)
 	return Result;
 }
 
-static bool FASTCALL issgmlwordchar(int ch)
-	{ return !IsASCII(ch) || (isalnum(ch) || oneof6(ch, '.', '_', ':', '!', '#', '[')); }
-static bool FASTCALL IsPhpWordStart(int ch)
-	{ return (IsASCII(ch) && (isalpha(ch) || (ch == '_'))) || (ch >= 0x7f); }
-static bool FASTCALL IsPhpWordChar(int ch)
-	{ return IsADigit(ch) || IsPhpWordStart(ch); }
-static bool FASTCALL InTagState(int state)
-	{ return oneof9(state, SCE_H_TAG, SCE_H_TAGUNKNOWN, SCE_H_SCRIPT, SCE_H_ATTRIBUTE, SCE_H_ATTRIBUTEUNKNOWN, SCE_H_NUMBER, SCE_H_OTHER, SCE_H_DOUBLESTRING, SCE_H_SINGLESTRING); }
-static bool FASTCALL IsCommentState(const int state)
-	{ return oneof2(state, SCE_H_COMMENT, SCE_H_SGML_COMMENT); }
-static bool FASTCALL IsScriptCommentState(const int state)
-	{ return oneof6(state, SCE_HJ_COMMENT, SCE_HJ_COMMENTLINE, SCE_HJA_COMMENT, SCE_HJA_COMMENTLINE, SCE_HB_COMMENTLINE, SCE_HBA_COMMENTLINE); }
-static bool FASTCALL isLineEnd(int ch)
-	{ return oneof2(ch, '\r', '\n'); }
+static bool FASTCALL issgmlwordchar(int ch) { return !IsASCII(ch) || (isalnum(ch) || oneof6(ch, '.', '_', ':', '!', '#', '[')); }
+static bool FASTCALL IsPhpWordStart(int ch) { return (IsASCII(ch) && (isalpha(ch) || (ch == '_'))) || (ch >= 0x7f); }
+static bool FASTCALL IsPhpWordChar(int ch) { return isdec(ch) || IsPhpWordStart(ch); }
+static bool FASTCALL InTagState(int state) { return oneof9(state, SCE_H_TAG, SCE_H_TAGUNKNOWN, SCE_H_SCRIPT, SCE_H_ATTRIBUTE, SCE_H_ATTRIBUTEUNKNOWN, SCE_H_NUMBER, SCE_H_OTHER, SCE_H_DOUBLESTRING, SCE_H_SINGLESTRING); }
+static bool FASTCALL IsCommentState(const int state) { return oneof2(state, SCE_H_COMMENT, SCE_H_SGML_COMMENT); }
+static bool FASTCALL IsScriptCommentState(const int state) { return oneof6(state, SCE_HJ_COMMENT, SCE_HJ_COMMENTLINE, SCE_HJA_COMMENT, SCE_HJA_COMMENTLINE, SCE_HB_COMMENTLINE, SCE_HBA_COMMENTLINE); }
+static bool FASTCALL isLineEnd(int ch) { return oneof2(ch, '\r', '\n'); }
 
 static bool isMakoBlockEnd(const int ch, const int chNext, const char * blockType)
 {
@@ -1136,7 +1129,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    }
 				    state = SCE_H_SGML_COMMENT;
 			    }
-			    else if(IsASCII(ch) && isalpha(ch) && (chPrev == '%')) {
+			    else if(isasciialpha(ch) && chPrev == '%') {
 				    styler.ColourTo(i - 2, state_to_print);
 				    state = SCE_H_SGML_ENTITY;
 			    }
@@ -1878,7 +1871,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			    break;
 			case SCE_HPHP_NUMBER:
 			    // recognize bases 8,10 or 16 integers OR floating-point numbers
-			    if(!IsADigit(ch) && !sstrchr(".xXabcdefABCDEF", ch) && ((ch != '-' && ch != '+') || (chPrev != 'e' && chPrev != 'E'))) {
+			    if(!isdec(ch) && !sstrchr(".xXabcdefABCDEF", ch) && ((ch != '-' && ch != '+') || (chPrev != 'e' && chPrev != 'E'))) {
 				    styler.ColourTo(i - 1, SCE_HPHP_NUMBER);
 				    state = IsOperator(ch) ? SCE_HPHP_OPERATOR : SCE_HPHP_DEFAULT;
 			    }
@@ -1969,7 +1962,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			case SCE_HPHP_OPERATOR:
 			case SCE_HPHP_DEFAULT:
 			    styler.ColourTo(i - 1, state_to_print);
-			    if(IsADigit(ch) || (ch == '.' && IsADigit(chNext))) {
+			    if(isdec(ch) || (ch == '.' && isdec(chNext))) {
 				    state = SCE_HPHP_NUMBER;
 			    }
 			    else if(IsAWordStart(ch)) {

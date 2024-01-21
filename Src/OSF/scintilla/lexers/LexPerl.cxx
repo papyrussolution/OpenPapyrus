@@ -538,7 +538,7 @@ void LexerPerl::InterpolateSegment(StyleContext &sc, int maxSeg, bool isPattern)
 						sLen++;
 					}
 				}
-				else if(braces && IsADigit(c) && (sLen == 2)) {         // digit for ${digit}
+				else if(braces && isdec(c) && (sLen == 2)) {         // digit for ${digit}
 					sLen++;
 					isVar = true;
 				}
@@ -555,10 +555,10 @@ void LexerPerl::InterpolateSegment(StyleContext &sc, int maxSeg, bool isPattern)
 			int c = sc.chNext;
 			if(sc.ch == '$') {
 				sLen = 1;
-				if(IsADigit(c)) {       // $[0-9] and slurp trailing digits
+				if(isdec(c)) {       // $[0-9] and slurp trailing digits
 					sLen++;
 					isVar = true;
-					while((maxSeg > sLen) && IsADigit(sc.GetRelativeCharacter(sLen)))
+					while((maxSeg > sLen) && isdec(sc.GetRelativeCharacter(sLen)))
 						sLen++;
 				}
 				else if(setSpecialVar.Contains(c)) {    // $ special variables
@@ -863,14 +863,14 @@ public:
 					    if(numState == PERLNUM_DECIMAL) {
 						    if(dotCount <= 1)   // number with one dot in it
 							    break;
-						    if(IsADigit(sc.chNext)) {   // really a vector
+						    if(isdec(sc.chNext)) {   // really a vector
 							    numState = PERLNUM_VECTOR;
 							    break;
 						    }
 						    // number then dot (go through)
 					    }
 					    else if(numState == PERLNUM_HEX) {
-						    if(dotCount <= 1 && IsADigit(sc.chNext, 16)) {
+						    if(dotCount <= 1 && ishex(sc.chNext)) {
 							    break; // hex with one dot is a hex float
 						    }
 						    else {
@@ -879,7 +879,7 @@ public:
 						    }
 						    // hex then dot (go through)
 					    }
-					    else if(IsADigit(sc.chNext)) // vectors
+					    else if(isdec(sc.chNext)) // vectors
 						    break;
 					    // vector then dot (go through)
 				    }
@@ -896,7 +896,7 @@ public:
 					    }
 					    break;
 				    }
-				    else if(IsADigit(sc.ch))
+				    else if(isdec(sc.ch))
 					    break;
 				    // number then word (go through)
 			    }
@@ -908,12 +908,12 @@ public:
 					    }
 					    break;
 				    }
-				    else if(IsADigit(sc.ch, 16))
+				    else if(ishex(sc.ch))
 					    break;
 				    // hex or hex float then word (go through)
 			    }
 			    else if(numState == PERLNUM_VECTOR || numState == PERLNUM_V_VECTOR) {
-				    if(IsADigit(sc.ch)) // vector
+				    if(isdec(sc.ch)) // vector
 					    break;
 				    if(setWord.Contains(sc.ch) && dotCount == 0) { // change to word
 					    sc.ChangeState(SCE_PL_IDENTIFIER);
@@ -921,7 +921,7 @@ public:
 				    }
 				    // vector then word (go through)
 			    }
-			    else if(IsADigit(sc.ch)) {
+			    else if(isdec(sc.ch)) {
 				    if(numState == PERLNUM_FLOAT_EXP) {
 					    break;
 				    }
@@ -1377,8 +1377,7 @@ public:
 		}
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_PL_DEFAULT) {
-			if(IsADigit(sc.ch) ||
-			    (IsADigit(sc.chNext) && (sc.ch == '.' || sc.ch == 'v'))) {
+			if(isdec(sc.ch) || (isdec(sc.chNext) && (sc.ch == '.' || sc.ch == 'v'))) {
 				sc.SetState(SCE_PL_NUMBER);
 				backFlag = BACK_NONE;
 				numState = PERLNUM_DECIMAL;
@@ -1390,7 +1389,7 @@ public:
 					else if(sc.chNext == 'b' || sc.chNext == 'B') {
 						numState = PERLNUM_BINARY;
 					}
-					else if(IsADigit(sc.chNext)) {
+					else if(isdec(sc.chNext)) {
 						numState = PERLNUM_OCTAL;
 					}
 					if(numState != PERLNUM_DECIMAL) {
@@ -1432,19 +1431,20 @@ public:
 					sc.Forward();
 					fw++;
 				}
-				else if(sc.ch == 'q' && setQDelim.Contains(sc.chNext)
-				 && !setWord.Contains(sc.GetRelative(2))) {
-					if(sc.chNext == 'q') sc.ChangeState(SCE_PL_STRING_QQ);
-					else if(sc.chNext == 'x') sc.ChangeState(SCE_PL_STRING_QX);
-					else if(sc.chNext == 'r') sc.ChangeState(SCE_PL_STRING_QR);
-					else sc.ChangeState(SCE_PL_STRING_QW);  // sc.chNext == 'w'
+				else if(sc.ch == 'q' && setQDelim.Contains(sc.chNext) && !setWord.Contains(sc.GetRelative(2))) {
+					if(sc.chNext == 'q') 
+						sc.ChangeState(SCE_PL_STRING_QQ);
+					else if(sc.chNext == 'x') 
+						sc.ChangeState(SCE_PL_STRING_QX);
+					else if(sc.chNext == 'r') 
+						sc.ChangeState(SCE_PL_STRING_QR);
+					else 
+						sc.ChangeState(SCE_PL_STRING_QW);  // sc.chNext == 'w'
 					Quote.New();
 					sc.Forward();
 					fw++;
 				}
-				else if(sc.ch == 'x' && (sc.chNext == '=' ||    // repetition
-					    !setWord.Contains(sc.chNext) ||
-					    (setRepetition.Contains(sc.chPrev) && IsADigit(sc.chNext)))) {
+				else if(sc.ch == 'x' && (sc.chNext == '=' || /*repetition*/ !setWord.Contains(sc.chNext) || (setRepetition.Contains(sc.chPrev) && isdec(sc.chNext)))) {
 					sc.ChangeState(SCE_PL_OPERATOR);
 				}
 				// if potentially a keyword, scan forward and grab word, then check
@@ -1583,11 +1583,11 @@ public:
 							    if(sc.ch == '/') {
 								    // if '/', /PATTERN/ unless digit/space immediately after '/'
 								    // if '//', always expect defined-or operator to follow identifier
-								    if(IsASpace(sc.chNext) || IsADigit(sc.chNext) || sc.chNext == '/')
+								    if(IsASpace(sc.chNext) || isdec(sc.chNext) || sc.chNext == '/')
 									    preferRE = false;
 							    }
-							    else if(sc.ch == '*' || sc.ch == '%') {
-								    if(IsASpace(sc.chNext) || IsADigit(sc.chNext) || sc.Match('*', '*'))
+							    else if(oneof2(sc.ch, '*', '%')) {
+								    if(IsASpace(sc.chNext) || isdec(sc.chNext) || sc.Match('*', '*'))
 									    preferRE = false;
 							    }
 							    else if(sc.ch == '<') {
@@ -1614,11 +1614,11 @@ public:
 							    }
 							    if(isPerlKeyword(bk, bkend, reWords, styler))
 								    break;
-							    if(IsASpace(sc.chNext) || IsADigit(sc.chNext) || sc.chNext == '/')
+							    if(IsASpace(sc.chNext) || isdec(sc.chNext) || sc.chNext == '/')
 								    preferRE = false;
 						    }
-						    else if(sc.ch == '*' || sc.ch == '%') {
-							    if(IsASpace(sc.chNext) || IsADigit(sc.chNext) || sc.Match('*', '*'))
+						    else if(oneof2(sc.ch, '*', '%')) {
+							    if(IsASpace(sc.chNext) || isdec(sc.chNext) || sc.Match('*', '*'))
 								    preferRE = false;
 						    }
 						    else if(sc.ch == '<') {

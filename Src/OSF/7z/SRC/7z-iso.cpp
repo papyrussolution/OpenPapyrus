@@ -726,7 +726,7 @@ namespace NArchive {
 			ReadBytes(b, 8);
 			uint32 val = 0;
 			for(int i = 0; i < 4; i++) {
-				if(b[i] != b[7 - i])
+				if(b[i] != b[7-i])
 					throw CEndianErrorException();
 				val |= ((uint32)(b[i]) << (8 * i));
 			}
@@ -737,7 +737,7 @@ namespace NArchive {
 			uint32 res = 0;
 			for(int i = 0; i < numDigits; i++) {
 				Byte b = ReadByte();
-				if(b < '0' || b > '9') {
+				if(!isdec(b)) {
 					if(b == 0) // it's bug in some CD's
 						b = '0';
 					else

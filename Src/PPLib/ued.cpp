@@ -356,7 +356,7 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	return ued;
 }
 
-/*static*/bool   GetRaw_Int(uint64 ued, int64 & rVal)
+/*static*/bool GetRaw_Int(uint64 ued, int64 & rVal)
 {
 	bool ok = false;
 	return ok;
@@ -583,16 +583,16 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 			}
 			break;
 		case UED_META_DATE_DAY:
-			raw = rT.GetDaysSinceChristmas();
+			raw = rT.GetSdnGregorian();
 			break;
 		case UED_META_DATE_MON:
-			raw = SUniDate_Internal::DateToDaysSinceChristmas(rT.Y, rT.M, 2);
+			raw = SUniDate_Internal::GregorianToSdn(rT.Y, rT.M, 2);
 			break;
 		case UED_META_DATE_QUART:
-			raw = SUniDate_Internal::DateToDaysSinceChristmas(rT.Y, (((rT.M-1) / 3) * 3) + 1, 2);
+			raw = SUniDate_Internal::GregorianToSdn(rT.Y, (((rT.M-1) / 3) * 3) + 1, 2);
 			break;
 		case UED_META_DATE_SMYR:
-			raw = SUniDate_Internal::DateToDaysSinceChristmas(rT.Y, (((rT.M-1) / 6) * 6) + 1, 2);
+			raw = SUniDate_Internal::GregorianToSdn(rT.Y, (((rT.M-1) / 6) * 6) + 1, 2);
 			break;
 		case UED_META_DATE_YR:
 			raw = rT.Y;
@@ -665,19 +665,19 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 			}
 			break;
 		case UED_META_DATE_DAY:
-			rT.SetDaysSinceChristmas(LoDWord(raw));
+			rT.SetSdnGregorian(LoDWord(raw));
 			break;
 		case UED_META_DATE_MON:
-			rT.SetDaysSinceChristmas(LoDWord(raw));
+			rT.SetSdnGregorian(LoDWord(raw));
 			rT.D = 2;
 			break;
 		case UED_META_DATE_QUART:
-			rT.SetDaysSinceChristmas(LoDWord(raw));
+			rT.SetSdnGregorian(LoDWord(raw));
 			rT.M = (((rT.M-1) / 3) * 3) + 1;
 			rT.D = 2;
 			break;
 		case UED_META_DATE_SMYR:
-			rT.SetDaysSinceChristmas(LoDWord(raw));
+			rT.SetSdnGregorian(LoDWord(raw));
 			rT.M = (((rT.M-1) / 6) * 6) + 1;
 			rT.D = 2;
 			break;

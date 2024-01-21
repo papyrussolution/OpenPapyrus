@@ -355,7 +355,6 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 					arg->len = p - s->arg_start;
 					arg->data = s->arg_start;
 					s->arg_start = NULL;
-
 					switch(ch) {
 						case '"':
 						case ' ': state = sw_spaces_before_argument; break;
@@ -376,14 +375,13 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 			    switch(ch) {
 				    case __CR:
 				    case LF:
-					goto invalid;
+						goto invalid;
 				    default:
-					state = sw_argument;
+						state = sw_argument;
 			    }
 			    break;
-
 			case sw_literal:
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    s->literal_len = s->literal_len * 10 + (ch - '0');
 				    break;
 			    }

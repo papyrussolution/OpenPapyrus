@@ -376,17 +376,21 @@ private:
 
 	typedef NotationUnion::ScientificSettings ScientificSettings;
 
-	Notation(const NotationType &type, const NotationUnion &union_) : fType(type), fUnion(union_) {
+	Notation(const NotationType &type, const NotationUnion &union_) : fType(type), fUnion(union_) 
+	{
 	}
 
-	Notation(UErrorCode errorCode) : fType(NTN_ERROR) {
+	Notation(UErrorCode errorCode) : fType(NTN_ERROR) 
+	{
 		fUnion.errorCode = errorCode;
 	}
 
-	Notation() : fType(NTN_SIMPLE), fUnion() {
+	Notation() : fType(NTN_SIMPLE), fUnion() 
+	{
 	}
 
-	bool copyErrorTo(UErrorCode & status) const {
+	bool copyErrorTo(UErrorCode & status) const 
+	{
 		if(fType == NTN_ERROR) {
 			status = fUnion.errorCode;
 			return true;

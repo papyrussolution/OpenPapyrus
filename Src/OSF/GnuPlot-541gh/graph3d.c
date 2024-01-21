@@ -1429,7 +1429,7 @@ void GnuPlot::Plot3DPoints(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 						DoArc(pTerm, x, y, radius, 0.0, 360.0, style_from_fill(&Gg.default_fillstyle), FALSE);
 						// Retrace the border if the style requests it 
 						if(NeedFillBorder(pTerm, &Gg.default_fillstyle))
-							DoArc(pTerm, x, y, radius, 0., 360., 0, FALSE);
+							DoArc(pTerm, x, y, radius, 0.0, 360.0, 0, FALSE);
 						continue;
 					}
 					// This code is also used for "splot ... with dots" 

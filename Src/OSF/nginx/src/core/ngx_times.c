@@ -201,8 +201,7 @@ void ngx_gmtime(time_t t, ngx_tm_t * tp)
 	min = n / 60;
 	sec = n % 60;
 	/*
-	 * the algorithm based on Gauss' formula,
-	 * see src/http/ngx_http_parse_time.c
+	 * the algorithm based on Gauss' formula, see src/http/ngx_http_parse_time.c
 	 */
 	/* days since March 1, 1 BC */
 	days = days - (31 + 28) + 719527;

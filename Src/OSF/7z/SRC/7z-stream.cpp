@@ -246,7 +246,7 @@ STDMETHODIMP CCachedInStream::Read(void * data, uint32 size, uint32 * processedS
 				_tags[cacheIndex] = cacheTag;
 			}
 			size_t offset = (size_t)_pos & (((size_t)1 << _blockSizeLog) - 1);
-			uint32 cur = (uint32)MyMin(((size_t)1 << _blockSizeLog) - offset, (size_t)size);
+			uint32 cur = (uint32)smin(((size_t)1 << _blockSizeLog) - offset, (size_t)size);
 			memcpy(data, p + offset, cur);
 			if(processedSize)
 				*processedSize += cur;
@@ -1041,7 +1041,7 @@ STDMETHODIMP CInFileStream::Read(void * data, uint32 size, uint32 * processedSiz
 				uint32 pos = (uint32)VirtPos & mask;
 				if(pos >= BufSize)
 					return S_OK;
-				uint32 rem = MyMin(BufSize - pos, size);
+				uint32 rem = smin(BufSize - pos, size);
 				memcpy(data, Buf + pos, rem);
 				VirtPos += rem;
 				if(processedSize)
@@ -1073,7 +1073,7 @@ STDMETHODIMP CInFileStream::Read(void * data, uint32 size, uint32 * processedSiz
 			BufStartPos = alignedPos;
 			uint32 readSize = kClusterSize;
 			if(File.SizeDefined)
-				readSize = (uint32)MyMin(File.Size - PhyPos, (uint64)kClusterSize);
+				readSize = (uint32)smin(File.Size - PhyPos, (uint64)kClusterSize);
 			if(!Buf) {
 				Buf = static_cast<Byte *>(MidAlloc(kClusterSize));
 				if(!Buf)
@@ -1500,7 +1500,7 @@ STDMETHODIMP CMultiStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPos
       subStream.Pos = _offsetPos;
     }
 
-    uint32 curSize = (uint32)MyMin((uint64)size, subStream.Size - subStream.Pos);
+    uint32 curSize = (uint32)smin((uint64)size, subStream.Size - subStream.Pos);
     uint32 realProcessed;
     RINOK(subStream.Stream->Write(data, curSize, &realProcessed));
     data = (void *)((Byte *)data + realProcessed);

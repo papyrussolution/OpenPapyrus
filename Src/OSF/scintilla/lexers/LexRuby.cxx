@@ -15,47 +15,25 @@ using namespace Scintilla;
 #endif
 
 //XXX Identical to Perl, put in common area
-static bool FASTCALL isEOLChar(char ch)
-{
-	return (ch == '\r') || (ch == '\n');
-}
+static bool FASTCALL isEOLChar(char ch) { return (ch == '\r') || (ch == '\n'); }
 
 #define isSafeASCII(ch) ((uint)(ch) <= 127)
 // This one's redundant, but makes for more readable code
 #define isHighBitChar(ch) ((uint)(ch) > 127)
 
-static bool FASTCALL isSafeAlpha(char ch)
-{
-	return (isSafeASCII(ch) && isalpha(ch)) || ch == '_';
-}
-
-static bool FASTCALL isSafeAlnum(char ch)
-{
-	return (isSafeASCII(ch) && isalnum(ch)) || ch == '_';
-}
-
-static bool FASTCALL isSafeAlnumOrHigh(char ch)
-{
-	return isHighBitChar(ch) || isalnum(ch) || ch == '_';
-}
-
-static bool FASTCALL isSafeDigit(char ch)
-{
-	return isSafeASCII(ch) && isdec(ch);
-}
+static bool FASTCALL isSafeAlpha(char ch) { return (isSafeASCII(ch) && isalpha(ch)) || ch == '_'; }
+static bool FASTCALL isSafeAlnum(char ch) { return (isSafeASCII(ch) && isalnum(ch)) || ch == '_'; }
+static bool FASTCALL isSafeAlnumOrHigh(char ch) { return isHighBitChar(ch) || isalnum(ch) || ch == '_'; }
+static bool FASTCALL isSafeDigit(char ch) { return isSafeASCII(ch) && isdec(ch); }
 
 static bool FASTCALL isSafeWordcharOrHigh(char ch)
 {
 	// Error: scintilla's KeyWords.h includes '.' as a word-char
-	// we want to separate things that can take methods from the
-	// methods.
+	// we want to separate things that can take methods from the methods.
 	return isHighBitChar(ch) || isalnum(ch) || ch == '_';
 }
 
-/*static bool inline iswhitespace(char ch)
-{
-	return ch == ' ' || ch == '\t';
-}*/
+/*static bool inline iswhitespace(char ch) { return ch == ' ' || ch == '\t'; }*/
 
 #define MAX_KEYWORD_LENGTH 200
 

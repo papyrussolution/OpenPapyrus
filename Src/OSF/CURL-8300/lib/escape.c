@@ -105,10 +105,10 @@ char *curl_easy_escape(struct Curl_easy * data, const char * string,
 		}
 		else {
 			/* encode it */
-			const char hex[] = "0123456789ABCDEF";
+			//const char hex[] = "0123456789ABCDEF";
 			char out[3] = {'%'};
-			out[1] = hex[in>>4];
-			out[2] = hex[in & 0xf];
+			out[1] = SlConst::P_HxDigU[in>>4];
+			out[2] = SlConst::P_HxDigU[in & 0xf];
 			if(Curl_dyn_addn(&d, out, 3))
 				return NULL;
 		}
@@ -143,9 +143,7 @@ static const uchar hextable[] = {
  * invokes that used TRUE/FALSE (0 and 1).
  */
 
-CURLcode Curl_urldecode(const char * string, size_t length,
-    char ** ostring, size_t * olen,
-    enum urlreject ctrl)
+CURLcode Curl_urldecode(const char * string, size_t length, char ** ostring, size_t * olen, enum urlreject ctrl)
 {
 	size_t alloc;
 	char * ns;
@@ -159,11 +157,9 @@ CURLcode Curl_urldecode(const char * string, size_t length,
 	*ostring = ns;
 	while(alloc) {
 		uchar in = *string;
-		if(('%' == in) && (alloc > 2) &&
-		    ISXDIGIT(string[1]) && ISXDIGIT(string[2])) {
+		if(('%' == in) && (alloc > 2) && ishex(string[1]) && ishex(string[2])) {
 			/* this is two hexadecimal digits following a '%' */
 			in = (uchar)(onehex2dec(string[1]) << 4) | onehex2dec(string[2]);
-
 			string += 3;
 			alloc -= 3;
 		}
@@ -171,13 +167,10 @@ CURLcode Curl_urldecode(const char * string, size_t length,
 			string++;
 			alloc--;
 		}
-
-		if(((ctrl == REJECT_CTRL) && (in < 0x20)) ||
-		    ((ctrl == REJECT_ZERO) && (in == 0))) {
+		if(((ctrl == REJECT_CTRL) && (in < 0x20)) || ((ctrl == REJECT_ZERO) && (in == 0))) {
 			ZFREE(*ostring);
 			return CURLE_URL_MALFORMAT;
 		}
-
 		*ns++ = in;
 	}
 	*ns = 0; /* terminate it */

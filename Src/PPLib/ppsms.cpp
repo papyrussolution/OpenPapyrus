@@ -1,5 +1,5 @@
 // PPSMS.CPP
-// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <slib.h>
 #include <pp.h>
@@ -1090,7 +1090,7 @@ int FormatPhone(const char * pPhone, SString & rPhone, SString & rErrMsg)
 	if(phone.NotEmpty()) {
 		if(!phone.IsDigit()) {
 			for(size_t j = 0; j < phone.Len();) {
-				if((phone.C(j) < '0') || (phone.C(j) > '9'))
+				if(!isdec(phone.C(j)))
 					phone.Excise(j, 1);
 				else
 					j++;

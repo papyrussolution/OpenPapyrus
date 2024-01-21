@@ -24,7 +24,7 @@ void Token::appendTo(BitArray& bitArray, const std::string& text) const
 				}
 				else if(i == 0) {
 					// 1 <= binaryShiftByteCode <= 62
-					bitArray.appendBits(std::min((int)_count, 31), 5);
+					bitArray.appendBits(smin((int)_count, 31), 5);
 				}
 				else {
 					// 32 <= binaryShiftCount <= 62 and i == 31

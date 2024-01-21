@@ -1,5 +1,5 @@
 // PPDBUTIL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1154,7 +1154,7 @@ int PrcssrDbDump::Helper_Undump(long tblID)
 				int    has_lob = 0;
 				DBField lob_fld;
 				RECORDSIZE fix_rec_size = tbl.getRecSize();
-				THROW(tbl.allocOwnBuffer(16*1024));
+				THROW(tbl.allocOwnBuffer(SKILOBYTE(16)));
 				if(tbl.HasLob(&lob_fld) > 0) {
 					has_lob = 1;
 				}
@@ -1232,7 +1232,7 @@ int PrcssrDbDump::Helper_Dump(long tblID)
 			IterCounter cntr;
 			DBField lob_fld;
 			DBTable tbl(ts.TblName);
-			THROW(tbl.allocOwnBuffer(16*1024));
+			THROW(tbl.allocOwnBuffer(SKILOBYTE(16)));
 			if(tbl.HasLob(&lob_fld) > 0) {
 				has_lob = 1;
 			}

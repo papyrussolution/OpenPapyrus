@@ -126,13 +126,11 @@ UnicodeString &ChoiceFormat::dtos(double value, UnicodeString & string)
 	char temp[DBL_DIG + 16];
 	char * itrPtr = temp;
 	char * expPtr;
-
 	sprintf(temp, "%.*g", DBL_DIG, value);
-
 	/* Find and convert the decimal point.
 	   Using setlocale on some machines will cause sprintf to use a comma for certain locales.
 	 */
-	while(*itrPtr && (*itrPtr == '-' || isdigit(*itrPtr))) {
+	while(*itrPtr && (*itrPtr == '-' || isdec(*itrPtr))) {
 		itrPtr++;
 	}
 	if(*itrPtr != 0 && *itrPtr != 'e') {

@@ -173,13 +173,12 @@
 // branch in a codebase is likely counterproductive; however, annotating
 // specific branches that are both hot and consistently mispredicted is likely
 // to yield performance improvements.
-#if ABSL_HAVE_BUILTIN(__builtin_expect) || \
-    (defined(__GNUC__) && !defined(__clang__))
-#define ABSL_PREDICT_FALSE(x) (__builtin_expect(false || (x), false))
-#define ABSL_PREDICT_TRUE(x) (__builtin_expect(false || (x), true))
+#if ABSL_HAVE_BUILTIN(__builtin_expect) || (defined(__GNUC__) && !defined(__clang__))
+    #define ABSL_PREDICT_FALSE(x) (__builtin_expect(false || (x), false))
+    #define ABSL_PREDICT_TRUE(x) (__builtin_expect(false || (x), true))
 #else
-#define ABSL_PREDICT_FALSE(x) (x)
-#define ABSL_PREDICT_TRUE(x) (x)
+    #define ABSL_PREDICT_FALSE(x) (x)
+    #define ABSL_PREDICT_TRUE(x) (x)
 #endif
 
 // `ABSL_INTERNAL_IMMEDIATE_ABORT_IMPL()` aborts the program in the fastest

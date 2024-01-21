@@ -1241,7 +1241,7 @@ uint KeyDownCommand::GetChar() const
 		case VK_OEM_6:      c = (State & stateShift) ? '}' : ']'; break; // @v10.8.0
 		case VK_OEM_7:      c = (State & stateShift) ? '\"' : '\''; break; // @v10.8.0
 		default:
-			if(Code >= '0' && Code <= '9') {
+			if(isdec(Code)) {
 				if(State & stateShift) {
 					switch(Code) {
 						case '0': c = ')'; break;
@@ -1308,7 +1308,7 @@ int KeyDownCommand::SetKeyName(const char * pStr, uint * pLen)
 				}
 			}
 			if(!key_code) {
-				if(scan[0] >= '0' && scan[0] <= '9') {
+				if(isdec(scan[0])) {
 					key_code = scan[0];
 					scan.Incr();
 					scan.Skip();

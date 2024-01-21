@@ -373,42 +373,18 @@ UnicodeString FormattedStringBuilder::toDebugString() const {
 		else if(fieldAt(i).getCategory() == UFIELD_CATEGORY_NUMBER) {
 			char16_t c;
 			switch(fieldAt(i).getField()) {
-				case UNUM_SIGN_FIELD:
-				    c = u'-';
-				    break;
-				case UNUM_INTEGER_FIELD:
-				    c = u'i';
-				    break;
-				case UNUM_FRACTION_FIELD:
-				    c = u'f';
-				    break;
-				case UNUM_EXPONENT_FIELD:
-				    c = u'e';
-				    break;
-				case UNUM_EXPONENT_SIGN_FIELD:
-				    c = u'+';
-				    break;
-				case UNUM_EXPONENT_SYMBOL_FIELD:
-				    c = u'E';
-				    break;
-				case UNUM_DECIMAL_SEPARATOR_FIELD:
-				    c = u'.';
-				    break;
-				case UNUM_GROUPING_SEPARATOR_FIELD:
-				    c = u',';
-				    break;
-				case UNUM_PERCENT_FIELD:
-				    c = u'%';
-				    break;
-				case UNUM_PERMILL_FIELD:
-				    c = u'‰';
-				    break;
-				case UNUM_CURRENCY_FIELD:
-				    c = u'$';
-				    break;
-				default:
-				    c = u'0' + fieldAt(i).getField();
-				    break;
+				case UNUM_SIGN_FIELD: c = u'-'; break;
+				case UNUM_INTEGER_FIELD: c = u'i'; break;
+				case UNUM_FRACTION_FIELD: c = u'f'; break;
+				case UNUM_EXPONENT_FIELD: c = u'e'; break;
+				case UNUM_EXPONENT_SIGN_FIELD: c = u'+'; break;
+				case UNUM_EXPONENT_SYMBOL_FIELD: c = u'E'; break;
+				case UNUM_DECIMAL_SEPARATOR_FIELD: c = u'.'; break;
+				case UNUM_GROUPING_SEPARATOR_FIELD: c = u','; break;
+				case UNUM_PERCENT_FIELD: c = u'%'; break;
+				case UNUM_PERMILL_FIELD: c = u'‰'; break;
+				case UNUM_CURRENCY_FIELD: c = u'$'; break;
+				default: c = u'0' + fieldAt(i).getField(); break;
 			}
 			sb.append(c);
 		}
@@ -420,11 +396,10 @@ UnicodeString FormattedStringBuilder::toDebugString() const {
 	return sb;
 }
 
-const char16_t * FormattedStringBuilder::chars() const {
-	return getCharPtr() + fZero;
-}
+const char16_t * FormattedStringBuilder::chars() const { return getCharPtr() + fZero; }
 
-bool FormattedStringBuilder::contentEquals(const FormattedStringBuilder &other) const {
+bool FormattedStringBuilder::contentEquals(const FormattedStringBuilder &other) const 
+{
 	if(fLength != other.fLength) {
 		return false;
 	}

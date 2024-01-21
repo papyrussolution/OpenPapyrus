@@ -43,7 +43,7 @@ static void ColouriseAPDLDoc(Sci_PositionU startPos, Sci_Position length, int in
 	for(; sc.More(); sc.Forward()) {
 		// Determine if the current state should terminate.
 		if(sc.state == SCE_APDL_NUMBER) {
-			if(!(IsADigit(sc.ch) || sc.ch == '.' || (sc.ch == 'e' || sc.ch == 'E') || ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E')))) {
+			if(!(isdec(sc.ch) || sc.ch == '.' || (sc.ch == 'e' || sc.ch == 'E') || ((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E')))) {
 				sc.SetState(SCE_APDL_DEFAULT);
 			}
 		}
@@ -101,7 +101,7 @@ static void ColouriseAPDLDoc(Sci_PositionU startPos, Sci_Position length, int in
 			else if(sc.ch == '!') {
 				sc.SetState(SCE_APDL_COMMENT);
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_APDL_NUMBER);
 			}
 			else if(oneof2(sc.ch, '\'', '\"')) {

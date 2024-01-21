@@ -435,7 +435,7 @@ int32_t umsg_autoQuoteApostrophe(const char16_t * pattern, int32_t patternLength
 	if(ec == NULL || U_FAILURE(*ec)) {
 		return -1;
 	}
-	if(pattern == NULL || patternLength < -1 || (dest == NULL && destCapacity > 0)) {
+	if(pattern == NULL || patternLength < -1 || (!dest && destCapacity > 0)) {
 		*ec = U_ILLEGAL_ARGUMENT_ERROR;
 		return -1;
 	}
@@ -457,7 +457,6 @@ int32_t umsg_autoQuoteApostrophe(const char16_t * pattern, int32_t patternLength
 						break;
 			    }
 			    break;
-
 			case STATE_SINGLE_QUOTE:
 			    switch(c) {
 				    case SINGLE_QUOTE: state = STATE_INITIAL; break;

@@ -238,7 +238,7 @@ static int _ar_read_header(ArchiveRead * a, ArchiveEntry * entry,
 	 * XXX TODO: Verify that it's all digits... Don't be fooled
 	 * by "/9xyz" XXX
 	 */
-	if(filename[0] == '/' && filename[1] >= '0' && filename[1] <= '9') {
+	if(filename[0] == '/' && isdec(filename[1])) {
 		number = ar_atol10(h + AR_name_offset + 1, AR_name_size - 1);
 		/*
 		 * If we can't look up the real name, warn and return

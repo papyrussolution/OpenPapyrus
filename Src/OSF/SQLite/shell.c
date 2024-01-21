@@ -608,8 +608,10 @@ static void utf8_width_print(FILE * pOut, int w, const char * zUtf){
 /*
 ** Determines if a string is a number of not.
 */
-static int isNumber(const char * z, int * realnum){
-	if(*z=='-' || *z=='+') z++;
+static int isNumber(const char * z, int * realnum)
+{
+	if(*z=='-' || *z=='+') 
+		z++;
 	if(!IsDigit(*z)) {
 		return 0;
 	}
@@ -4484,10 +4486,8 @@ SQLITE_EXTENSION_INIT1
 ** Compare text in lexicographic order, except strings of digits
 ** compare in numeric order.
 */
-static int uintCollFunc(void * notUsed,
-    int nKey1, const void * pKey1,
-    int nKey2, const void * pKey2
-    ){
+static int uintCollFunc(void * notUsed, int nKey1, const void * pKey1, int nKey2, const void * pKey2)
+{
 	const unsigned char * zA = (const unsigned char*)pKey1;
 	const unsigned char * zB = (const unsigned char*)pKey2;
 	int i = 0, j = 0, x;
@@ -4496,7 +4496,8 @@ static int uintCollFunc(void * notUsed,
 		x = zA[i] - zB[j];
 		if(isdigit(zA[i])) {
 			int k;
-			if(!isdigit(zB[j]) ) return x;
+			if(!isdigit(zB[j]) ) 
+				return x;
 			while(i<nKey1 && zA[i]=='0') {
 				i++;
 			}
@@ -4504,8 +4505,7 @@ static int uintCollFunc(void * notUsed,
 				j++;
 			}
 			k = 0;
-			while(i+k<nKey1 && isdigit(zA[i+k])
-			 && j+k<nKey2 && isdigit(zB[j+k])) {
+			while(i+k<nKey1 && isdigit(zA[i+k]) && j+k<nKey2 && isdigit(zB[j+k])) {
 				k++;
 			}
 			if(i+k<nKey1 && isdigit(zA[i+k])) {
@@ -4652,7 +4652,7 @@ static Decimal * decimal_new(sqlite3_context * pCtx,
 	while(i<n && zIn[i]=='0') i++;
 	while(i<n) {
 		char c = zIn[i];
-		if(c>='0' && c<='9') {
+		if(isdec(c)) {
 			p->a[p->nDigit++] = c - '0';
 		}
 		else if(c=='.') {
@@ -6109,15 +6109,10 @@ static unsigned re_next_char_nocase(ReInput * p){
 }
 
 /* Return true if c is a perl "word" character:  [A-Za-z0-9_] */
-static int re_word_char(int c){
-	return (c>='0' && c<='9') || (c>='a' && c<='z')
-	      || (c>='A' && c<='Z') || c=='_';
-}
+static int re_word_char(int c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'; }
 
 /* Return true if c is a "digit" character:  [0-9] */
-static int re_digit_char(int c){
-	return (c>='0' && c<='9');
-}
+static int re_digit_char(int c) { return (c>='0' && c<='9'); }
 
 /* Return true if c is a perl "space" character:  [ \t\r\n\v\f] */
 static int re_space_char(int c){
@@ -6325,8 +6320,9 @@ static void re_copy(ReCompiled * p, int iStart, int N){
 ** If c is a hex digit, also set *pV = (*pV)*16 + valueof(c).  If
 ** c is not a hex digit *pV is unchanged.
 */
-static int re_hex(int c, int * pV){
-	if(c>='0' && c<='9') {
+static int re_hex(int c, int * pV)
+{
+	if(isdec(c)) {
 		c -= '0';
 	}
 	else if(c>='a' && c<='f') {
@@ -10051,14 +10047,11 @@ static char * idxAppendText(int * pRc, char * zIn, const char * zFmt, ...){
 ** Return true if zId must be quoted in order to use it as an SQL
 ** identifier, or false otherwise.
 */
-static int idxIdentifierRequiresQuotes(const char * zId){
+static int idxIdentifierRequiresQuotes(const char * zId)
+{
 	int i;
 	for(i = 0; zId[i]; i++) {
-		if(!(zId[i]=='_')
-		 && !(zId[i]>='0' && zId[i]<='9')
-		 && !(zId[i]>='a' && zId[i]<='z')
-		 && !(zId[i]>='A' && zId[i]<='Z')
-		    ) {
+		if(!(zId[i]=='_') && !(zId[i]>='0' && zId[i]<='9') && !(zId[i]>='a' && zId[i]<='z') && !(zId[i]>='A' && zId[i]<='Z')) {
 			return 1;
 		}
 	}

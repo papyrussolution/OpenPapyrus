@@ -220,11 +220,11 @@ static bool imap_matchresp(const char * line, size_t len, const char * cmd)
 	line += 2;
 
 	/* Do we have a number after the marker? */
-	if(line < end && ISDIGIT(*line)) {
+	if(line < end && isdec(*line)) {
 		/* Skip the number */
 		do
 			line++;
-		while(line < end && ISDIGIT(*line));
+		while(line < end && isdec(*line));
 
 		/* Do we have the space character? */
 		if(line == end || *line != ' ')
@@ -1092,7 +1092,7 @@ static CURLcode imap_state_select_resp(struct Curl_easy * data, int imapcode,
 		if(checkprefix("OK [UIDVALIDITY ", line + 2)) {
 			size_t len = 0;
 			const char * p = &line[2] + strlen("OK [UIDVALIDITY ");
-			while((len < 20) && p[len] && ISDIGIT(p[len]))
+			while((len < 20) && p[len] && isdec(p[len]))
 				len++;
 			if(len && (p[len] == ']')) {
 				struct dynbuf uid;
@@ -1852,7 +1852,7 @@ static bool imap_is_bchar(char ch)
 {
 	/* Performing the alnum check with this macro is faster because of ASCII
 	   arithmetic */
-	if(ISALNUM(ch))
+	if(isasciialnum(ch))
 		return true;
 
 	switch(ch) {

@@ -1665,8 +1665,7 @@ void U_EXPORT2 DateIntervalFormat::adjustFieldWidth(const UnicodeString & inputS
 				inQuote = !inQuote;
 			}
 		}
-		else if(!inQuote && ((ch >= 0x0061 /*'a'*/ && ch <= 0x007A /*'z'*/)
-		 || (ch >= 0x0041 /*'A'*/ && ch <= 0x005A /*'Z'*/))) {
+		else if(!inQuote && ((ch >= 0x0061 /*'a'*/ && ch <= 0x007A /*'z'*/) || (ch >= 0x0041 /*'A'*/ && ch <= 0x005A /*'Z'*/))) {
 			// ch is a date-time pattern character
 			prevCh = ch;
 			++count;
@@ -1695,8 +1694,8 @@ void U_EXPORT2 DateIntervalFormat::adjustFieldWidth(const UnicodeString & inputS
 }
 
 void DateIntervalFormat::findReplaceInPattern(UnicodeString & targetString,
-    const UnicodeString & strToReplace,
-    const UnicodeString & strToReplaceWith) {
+    const UnicodeString & strToReplace, const UnicodeString & strToReplaceWith) 
+{
 	int32_t firstQuoteIndex = targetString.indexOf(u'\'');
 	if(firstQuoteIndex == -1) {
 		targetString.findAndReplace(strToReplace, strToReplaceWith);
@@ -1704,16 +1703,13 @@ void DateIntervalFormat::findReplaceInPattern(UnicodeString & targetString,
 	else {
 		UnicodeString result;
 		UnicodeString source = targetString;
-
 		while(firstQuoteIndex >= 0) {
 			int32_t secondQuoteIndex = source.indexOf(u'\'', firstQuoteIndex + 1);
 			if(secondQuoteIndex == -1) {
 				secondQuoteIndex = source.length() - 1;
 			}
-
 			UnicodeString unquotedText(source, 0, firstQuoteIndex);
 			UnicodeString quotedText(source, firstQuoteIndex, secondQuoteIndex - firstQuoteIndex + 1);
-
 			unquotedText.findAndReplace(strToReplace, strToReplaceWith);
 			result += unquotedText;
 			result += quotedText;

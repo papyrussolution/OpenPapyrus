@@ -1110,15 +1110,11 @@ public:
 	CommonFields& operator=(const CommonFields&) = delete;
 
 	// Movable
-	CommonFields(CommonFields&& that)
-		: CommonFieldsGenerationInfo(
-			std::move(static_cast<CommonFieldsGenerationInfo&&>(that))),
+	CommonFields(CommonFields&& that) : CommonFieldsGenerationInfo(std::move(static_cast<CommonFieldsGenerationInfo&&>(that))),
 		// Explicitly copying fields into "this" and then resetting "that"
 		// fields generates less code then calling absl::exchange per field.
-		control_(that.control()),
-		slots_(that.slot_array()),
-		capacity_(that.capacity()),
-		size_(that.size_) {
+		control_(that.control()), slots_(that.slot_array()), capacity_(that.capacity()), size_(that.size_) 
+	{
 		that.set_control(EmptyGroup());
 		that.set_slots(nullptr);
 		that.set_capacity(0);
@@ -1126,62 +1122,44 @@ public:
 	}
 
 	CommonFields& operator=(CommonFields&&) = default;
-
-	ctrl_t* control() const {
-		return control_;
-	}
-
-	void set_control(ctrl_t* c) {
-		control_ = c;
-	}
-
-	void* backing_array_start() const {
+	ctrl_t* control() const { return control_; }
+	void set_control(ctrl_t* c) { control_ = c; }
+	void* backing_array_start() const 
+	{
 		// growth_left (and maybe infoz) is stored before control bytes.
 		assert(reinterpret_cast<uintptr_t>(control()) % alignof(size_t) == 0);
 		return control() - ControlOffset(has_infoz());
 	}
-
 	// Note: we can't use slots() because Qt defines "slots" as a macro.
-	void* slot_array() const {
-		return slots_;
-	}
-
-	void set_slots(void* s) {
-		slots_ = s;
-	}
-
+	void* slot_array() const { return slots_; }
+	void set_slots(void* s) { slots_ = s; }
 	// The number of filled slots.
-	size_t size() const {
-		return size_ >> HasInfozShift();
-	}
-
-	void set_size(size_t s) {
+	size_t size() const { return size_ >> HasInfozShift(); }
+	void set_size(size_t s) 
+	{
 		size_ = (s << HasInfozShift()) | (size_ & HasInfozMask());
 	}
-
-	void increment_size() {
+	void increment_size() 
+	{
 		assert(size() < capacity());
 		size_ += size_t{1} << HasInfozShift();
 	}
-
-	void decrement_size() {
+	void decrement_size() 
+	{
 		assert(size() > 0);
 		size_ -= size_t{1} << HasInfozShift();
 	}
-
 	// The total number of available slots.
-	size_t capacity() const {
-		return capacity_;
-	}
-
-	void set_capacity(size_t c) {
+	size_t capacity() const { return capacity_; }
+	void set_capacity(size_t c) 
+	{
 		assert(c == 0 || IsValidCapacity(c));
 		capacity_ = c;
 	}
-
 	// The number of slots we can still fill without needing to rehash.
 	// This is stored in the heap allocation before the control bytes.
-	size_t growth_left() const {
+	size_t growth_left() const 
+	{
 		const size_t* gl_ptr = reinterpret_cast<size_t*>(control()) - 1;
 		assert(reinterpret_cast<uintptr_t>(gl_ptr) % alignof(size_t) == 0);
 		return *gl_ptr;
@@ -1192,37 +1170,31 @@ public:
 		assert(reinterpret_cast<uintptr_t>(gl_ptr) % alignof(size_t) == 0);
 		*gl_ptr = gl;
 	}
-
-	bool has_infoz() const {
-		return ABSL_PREDICT_FALSE((size_ & HasInfozMask()) != 0);
-	}
-
-	void set_has_infoz(bool has_infoz) {
+	bool has_infoz() const { return ABSL_PREDICT_FALSE((size_ & HasInfozMask()) != 0); }
+	void set_has_infoz(bool has_infoz) 
+	{
 		size_ = (size() << HasInfozShift()) | static_cast<size_t>(has_infoz);
 	}
-
-	HashtablezInfoHandle infoz() {
-		return has_infoz()
-		       ? *reinterpret_cast<HashtablezInfoHandle*>(backing_array_start())
-		       : HashtablezInfoHandle();
+	HashtablezInfoHandle infoz() 
+	{
+		return has_infoz() ? *reinterpret_cast<HashtablezInfoHandle*>(backing_array_start()) : HashtablezInfoHandle();
 	}
-
-	void set_infoz(HashtablezInfoHandle infoz) {
+	void set_infoz(HashtablezInfoHandle infoz) 
+	{
 		assert(has_infoz());
 		*reinterpret_cast<HashtablezInfoHandle*>(backing_array_start()) = infoz;
 	}
-
-	bool should_rehash_for_bug_detection_on_insert() const {
-		return CommonFieldsGenerationInfo::
-		       should_rehash_for_bug_detection_on_insert(control(), capacity());
+	bool should_rehash_for_bug_detection_on_insert() const 
+	{
+		return CommonFieldsGenerationInfo::should_rehash_for_bug_detection_on_insert(control(), capacity());
 	}
-
-	void reset_reserved_growth(size_t reservation) {
+	void reset_reserved_growth(size_t reservation) 
+	{
 		CommonFieldsGenerationInfo::reset_reserved_growth(reservation, size());
 	}
-
 	// The size of the backing array allocation.
-	size_t alloc_size(size_t slot_size, size_t slot_align) const {
+	size_t alloc_size(size_t slot_size, size_t slot_align) const 
+	{
 		return AllocSize(capacity(), slot_size, slot_align, has_infoz());
 	}
 
@@ -1444,8 +1416,10 @@ inline void AssertSameContainer(const ctrl_t* ctrl_a, const ctrl_t* ctrl_b,
     const void* const& slot_a,
     const void* const& slot_b,
     const GenerationType* generation_ptr_a,
-    const GenerationType* generation_ptr_b) {
-	if(!SwisstableDebugEnabled()) return;
+    const GenerationType* generation_ptr_b) 
+{
+	if(!SwisstableDebugEnabled()) 
+		return;
 	const bool a_is_default = ctrl_a == EmptyGroup();
 	const bool b_is_default = ctrl_b == EmptyGroup();
 	if(a_is_default != b_is_default) {
@@ -1508,17 +1482,16 @@ struct FindInfo {
 // represent a real slot. This is important to take into account on
 // `find_first_non_full()`, where we never try
 // `ShouldInsertBackwards()` for small tables.
-inline bool is_small(size_t capacity) {
-	return capacity < Group::kWidth - 1;
-}
+inline bool is_small(size_t capacity) { return capacity < Group::kWidth - 1; }
 
 // Begins a probing operation on `common.control`, using `hash`.
-inline probe_seq<Group::kWidth> probe(const ctrl_t* ctrl, const size_t capacity,
-    size_t hash) {
+inline probe_seq<Group::kWidth> probe(const ctrl_t* ctrl, const size_t capacity, size_t hash) 
+{
 	return probe_seq<Group::kWidth>(H1(hash, ctrl), capacity);
 }
 
-inline probe_seq<Group::kWidth> probe(const CommonFields& common, size_t hash) {
+inline probe_seq<Group::kWidth> probe(const CommonFields& common, size_t hash) 
+{
 	return probe(common.control(), common.capacity(), hash);
 }
 
@@ -1581,11 +1554,10 @@ inline void ResetCtrl(CommonFields& common, size_t slot_size) {
 //
 // Unlike setting it directly, this function will perform bounds checks and
 // mirror the value to the cloned tail if necessary.
-inline void SetCtrl(const CommonFields& common, size_t i, ctrl_t h,
-    size_t slot_size) {
+inline void SetCtrl(const CommonFields& common, size_t i, ctrl_t h, size_t slot_size) 
+{
 	const size_t capacity = common.capacity();
 	assert(i < capacity);
-
 	auto* slot_i = static_cast<const char*>(common.slot_array()) + i * slot_size;
 	if(IsFull(h)) {
 		SanitizerUnpoisonMemoryRegion(slot_i, slot_size);
@@ -2990,24 +2962,13 @@ protected:
 	// k is the key decomposed from `forward<Args>(args)...`, and the bool
 	// returned by find_or_prepare_insert(k) was true.
 	// POSTCONDITION: *m.iterator_at(i) == value_type(forward<Args>(args)...).
-	template <class ... Args>
-	void emplace_at(size_t i, Args&& ... args) {
-		PolicyTraits::construct(&alloc_ref(), slot_array() + i,
-		    std::forward<Args>(args) ...);
-
-		assert(PolicyTraits::apply(FindElement{*this}, *iterator_at(i)) ==
-		    iterator_at(i) &&
-		    "constructed value does not match the lookup key");
+	template <class ... Args> void emplace_at(size_t i, Args&& ... args) 
+	{
+		PolicyTraits::construct(&alloc_ref(), slot_array() + i, std::forward<Args>(args) ...);
+		assert(PolicyTraits::apply(FindElement{*this}, *iterator_at(i)) == iterator_at(i) && "constructed value does not match the lookup key");
 	}
-
-	iterator iterator_at(size_t i) ABSL_ATTRIBUTE_LIFETIME_BOUND {
-		return {control() + i, slot_array() + i, common().generation_ptr()};
-	}
-
-	const_iterator iterator_at(size_t i) const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-		return {control() + i, slot_array() + i, common().generation_ptr()};
-	}
-
+	iterator iterator_at(size_t i) ABSL_ATTRIBUTE_LIFETIME_BOUND { return {control() + i, slot_array() + i, common().generation_ptr()}; }
+	const_iterator iterator_at(size_t i) const ABSL_ATTRIBUTE_LIFETIME_BOUND { return {control() + i, slot_array() + i, common().generation_ptr()}; }
 private:
 	friend struct RawHashSetTestOnlyAccess;
 
@@ -3163,9 +3124,7 @@ struct HashtableDebugAccess<Set, absl::void_t<typename Set::raw_hash_set> > {
 			container_internal::Group g{ctrl + seq.offset()};
 			for(uint32_t i : g.Match(container_internal::H2(hash))) {
 				if(Traits::apply(
-					    typename Set::template EqualElement<typename Set::key_type>{
-								key, set.eq_ref()
-							},
+					    typename Set::template EqualElement<typename Set::key_type>{key, set.eq_ref()},
 					    Traits::element(set.slot_array() + seq.offset(i))))
 					return num_probes;
 				++num_probes;

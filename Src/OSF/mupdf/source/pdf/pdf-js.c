@@ -427,14 +427,15 @@ static void util_printf_d(fz_context * ctx, fz_buffer * out, int ds, int sign, i
 	}
 	while(i < w)
 		buf[i++] = pad;
-
 	while(i > 0)
 		fz_append_byte(ctx, out, buf[--i]);
 }
 
 static void util_printf_f(fz_context * ctx, fz_buffer * out, int ds, int sign, int pad, int special, uint w, int p, double value)
 {
-	char buf[40], * point, * digits = buf;
+	char buf[40];
+	const char * point;
+	const char * digits = buf;
 	size_t n = 0;
 	int m = 0;
 	fz_snprintf(buf, sizeof buf, "%.*f", p, value);
@@ -442,7 +443,7 @@ static void util_printf_f(fz_context * ctx, fz_buffer * out, int ds, int sign, i
 		sign = '-';
 		++digits;
 	}
-	if(*digits != '.' && (*digits < '0' || *digits > '9')) {
+	if(*digits != '.' && !isdec(*digits)) {
 		fz_append_string(ctx, out, "nan");
 		return;
 	}
@@ -466,23 +467,22 @@ static void util_printf_f(fz_context * ctx, fz_buffer * out, int ds, int sign, i
 		fz_append_byte(ctx, out, pad);
 	if(pad == ' ' && sign)
 		fz_append_byte(ctx, out, sign);
-
 	while(*digits && *digits != '.') {
 		fz_append_byte(ctx, out, *digits++);
 		if(++m == 3 && *digits && *digits != '.') {
-			if(ds == 0) fz_append_byte(ctx, out, ',');
-			if(ds == 2) fz_append_byte(ctx, out, '.');
+			if(ds == 0) 
+				fz_append_byte(ctx, out, ',');
+			if(ds == 2) 
+				fz_append_byte(ctx, out, '.');
 			m = 0;
 		}
 	}
-
 	if(*digits == '.' || special) {
 		if(ds == 0 || ds == 1)
 			fz_append_byte(ctx, out, '.');
 		else
 			fz_append_byte(ctx, out, ',');
 	}
-
 	if(*digits == '.') {
 		++digits;
 		while(*digits)
@@ -533,9 +533,8 @@ static void util_printf(js_State * J)
 					pad = ' ';
 				if(!c)
 					break;
-
 				w = 0;
-				while(c >= '0' && c <= '9') {
+				while(isdec(c)) {
 					w = w * 10 + (c - '0');
 					c = *fmt++;
 				}
@@ -545,7 +544,7 @@ static void util_printf(js_State * J)
 				p = 0;
 				if(c == '.') {
 					c = *fmt++;
-					while(c >= '0' && c <= '9') {
+					while(isdec(c)) {
 						p = p * 10 + (c - '0');
 						c = *fmt++;
 					}
@@ -555,9 +554,7 @@ static void util_printf(js_State * J)
 				}
 				if(!c)
 					break;
-
-				switch(c)
-				{
+				switch(c) {
 					case '%':
 					    fz_append_byte(ctx, out, '%');
 					    break;

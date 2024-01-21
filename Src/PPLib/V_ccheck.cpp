@@ -1,5 +1,5 @@
 // V_CCHECK.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -723,7 +723,7 @@ void PPViewCCheck::PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTbl::Re
 
 int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CCheckExtTbl::Rec * pExtRec)
 {
-	if(Filt.CashNumber && pRec->CashID != Filt.CashNumber)
+	if(Filt.CashNumber && pRec->PosNodeID != Filt.CashNumber)
 		return 0;
 	else if(Filt.CashierID && pRec->UserID != Filt.CashierID)
 		return 0;
@@ -858,7 +858,7 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				// (это всегда синхронные кассы)
 				//
 				if(f & CCHKF_JUNK && (ff_ & CCheckFilt::fLostJunkAsSusp && ff_ & CCheckFilt::fShowSuspended)) {
-					if(!NodeIdList.CheckID(pRec->CashID))
+					if(!NodeIdList.CheckID(pRec->PosNodeID))
 						return 0;
 				}
 				else if(SessCnList.Search(pRec->SessID, &cn_id, 0)) {
@@ -935,7 +935,7 @@ static TempCCheckQttyTbl::Rec & FASTCALL CCheckRec_To_TempCCheckQttyRec(const CC
 {
 	rDest.ID = rSrc.ID;
 	rDest.Code = rSrc.Code;
-	rDest.CashID = rSrc.CashID;
+	rDest.CashID = rSrc.PosNodeID;
 	rDest.UserID = rSrc.UserID;
 	rDest.SessID = rSrc.SessID;
 	rDest.Dt = rSrc.Dt;
@@ -951,7 +951,7 @@ static CCheckTbl::Rec & FASTCALL TempCCheckQttyRec_To_CCheckRec(const TempCCheck
 {
 	rDest.ID = rSrc.ID;
 	rDest.Code = rSrc.Code;
-	rDest.CashID = rSrc.CashID;
+	rDest.PosNodeID = rSrc.CashID;
 	rDest.UserID = rSrc.UserID;
 	rDest.SessID = rSrc.SessID;
 	rDest.Dt = rSrc.Dt;
@@ -1415,7 +1415,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 					case CCheckFilt::gTime:       ccgitem.Tm = encodetime(item.Tm.hour(), 0, 0, 0); break;
 					case CCheckFilt::gDate:       ccgitem.Dt = item.Dt; break;
 					case CCheckFilt::gDayOfWeek:  ccgitem.Dt.setday((uint)dayofweek(&item.Dt, 1)); break;
-					case CCheckFilt::gCash:       ccgitem.CashID = item.CashID; break;
+					case CCheckFilt::gCash:       ccgitem.CashID = item.PosNodeID; break;
 					case CCheckFilt::gCashNode:   ccgitem.CashID = item.CashNodeID; break;
 					case CCheckFilt::gCard:       ccgitem.SCardID = item.SCardID; break;
 					case CCheckFilt::gGuestCount: ccgitem.CashID = item.GuestCount; break;
@@ -1701,7 +1701,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 			DBQ  * dbq = 0;
 			BExtQuery q(p_cct, 1);
 			dbq = & (*dbq && daterange(p_cct->Dt, &Filt.Period));
-			dbq = ppcheckfiltid(dbq, p_cct->CashID, Filt.CashNumber);
+			dbq = ppcheckfiltid(dbq, p_cct->PosNodeID, Filt.CashNumber);
 			dbq = ppcheckfiltid(dbq, p_cct->UserID, Filt.CashierID);
 			dbq = &(*dbq && intrange(p_cct->Code, Filt.CodeR));
 			q.select(p_cct->ID, p_cct->Flags, 0L).where(*dbq);
@@ -1731,7 +1731,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							BExtQuery q(p_cct, 3);
 							q.selectAll();
 							dbq = & (p_cct->SessID == sess_id);
-							dbq = ppcheckfiltid(dbq, p_cct->CashID, Filt.CashNumber);
+							dbq = ppcheckfiltid(dbq, p_cct->PosNodeID, Filt.CashNumber);
 							dbq = ppcheckfiltid(dbq, p_cct->UserID, Filt.CashierID);
 							dbq = ppcheckfiltid(dbq, p_cct->SCardID, Filt.SCardID);
 							dbq = &(*dbq && intrange(p_cct->Code, Filt.CodeR));
@@ -1754,7 +1754,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								BExtQuery q(p_cct, 4);
 								dbq = & (p_cct->SCardID == card_id);
 								dbq = & (*dbq && daterange(p_cct->Dt, &Filt.Period));
-								dbq = ppcheckfiltid(dbq, p_cct->CashID, Filt.CashNumber);
+								dbq = ppcheckfiltid(dbq, p_cct->PosNodeID, Filt.CashNumber);
 								dbq = ppcheckfiltid(dbq, p_cct->UserID, Filt.CashierID);
 								dbq = &(*dbq && intrange(p_cct->Code, Filt.CodeR));
 								q.select(p_cct->ID, 0L).where(*dbq);
@@ -1807,13 +1807,13 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 						DBQ  * dbq = 0;
 						BExtQuery q(p_cct, 1);
 						dbq = & (*dbq && daterange(p_cct->Dt, &Filt.Period));
-						dbq = ppcheckfiltid(dbq, p_cct->CashID, Filt.CashNumber);
+						dbq = ppcheckfiltid(dbq, p_cct->PosNodeID, Filt.CashNumber);
 						dbq = ppcheckfiltid(dbq, p_cct->UserID, Filt.CashierID);
 						dbq = &(*dbq && intrange(p_cct->Code, Filt.CodeR));
 						q.selectAll().where(*dbq);
 						MEMSZERO(k1);
-						k1.Dt     = Filt.Period.low;
-						k1.CashID = Filt.CashNumber;
+						k1.Dt        = Filt.Period.low;
+						k1.PosNodeID = Filt.CashNumber;
 						k1_ = k1;
 						cntr.Init(q.countIterations(0, &k1_, spGe));
 						for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
@@ -1953,7 +1953,7 @@ int PPViewCCheck::InitIteration(int order)
 				sp = spGe;
 				MEMSZERO(k);
 				k.k3.SessID = SessIdList.GetSingle();
-				k.k3.CashID = Filt.CashNumber;
+				k.k3.PosNodeID = Filt.CashNumber;
 				dbq = &(*dbq && p_cct->SessID == SessIdList.GetSingle());
 			}
 			else {
@@ -1962,7 +1962,7 @@ int PPViewCCheck::InitIteration(int order)
 				MEMSZERO(k);
 				k.k1.Dt = Filt.Period.low;
 			}
-			dbq = ppcheckfiltid(dbq, p_cct->CashID, Filt.CashNumber);
+			dbq = ppcheckfiltid(dbq, p_cct->PosNodeID, Filt.CashNumber);
 			dbq = ppcheckfiltid(dbq, p_cct->UserID, Filt.CashierID);
 			dbq = & (*dbq && daterange(p_cct->Dt, &Filt.Period));
 			dbq = ppcheckfiltid(dbq, p_cct->SCardID, Filt.SCardID);
@@ -2003,7 +2003,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 				pItem->ID = rec.ID__;
 				pItem->Dt = rec.Dt;
 				pItem->Tm = rec.Tm;
-				pItem->CashID  = rec.CashID;
+				pItem->PosNodeID = rec.CashID;
 				pItem->SCardID = rec.SCardID;
 				pItem->G_GoodsID = rec.GoodsID;
 				LDBLTOMONEY(rec.Amount,   pItem->Amount);
@@ -2475,7 +2475,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				{
 					dbe_posnode.init();
 					dbe_posnode.push(t->SessID);
-					dbe_posnode.push(t->CashID);
+					dbe_posnode.push(t->PosNodeID);
 					dbe_posnode.push(static_cast<DBFunc>(DynFuncPosText));
 				}
 				p_q = & select(
@@ -2483,7 +2483,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					t->Dt,              // #1
 					t->Tm,              // #2
 					// @v10.1.10 t->CashID,          // #3
-					t->CashID,          // #3 // @v10.1.11
+					t->PosNodeID,       // #3 // @v10.1.11
 					// @v10.1.11 dbe_posnode,        // #3 @v10.1.10
 					t->Flags,           // #4
 					t->Code,            // #5
@@ -2529,7 +2529,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				if(Filt.Flags2 & CCheckFilt::f2ImportedOnly)
 					dbq = ppcheckflag(dbq, t->Flags, CCHKF_IMPORTED, (Filt.Flags2 & CCheckFilt::f2ImportedOnly) ? 1 : -1);
 				// } @v11.9.1 
-				dbq = ppcheckfiltid(dbq, t->CashID, Filt.CashNumber);
+				dbq = ppcheckfiltid(dbq, t->PosNodeID, Filt.CashNumber);
 				dbq = ppcheckfiltid(dbq, t->UserID, Filt.CashierID);
 				dbq = & (*dbq && daterange(t->Dt, &Filt.Period));
 				int    cf = 0;
@@ -3387,7 +3387,7 @@ int PPViewCCheck::Recover()
 				CcDupEntry dup_entry;
 				dup_entry.ID = item.ID;
 				dup_entry.Code = item.Code;
-				dup_entry.PosId = item.CashID;
+				dup_entry.PosId = item.PosNodeID;
 				dup_entry.Dtm.Set(item.Dt, item.Tm);
 				dup_entry.Amount = MONEYTOLDBL(item.Amount);
 				full_list.insert(&dup_entry);
@@ -3836,7 +3836,7 @@ public:
 		char   scard_no[32];
 		setCtrlData(CTL_CCHECKINFO_ID,       &Data.Rec.ID);
 		setCtrlData(CTL_CCHECKINFO_CODE,     &Data.Rec.Code);
-		setCtrlData(CTL_CCHECKINFO_CASHCODE, &Data.Rec.CashID);
+		setCtrlData(CTL_CCHECKINFO_CASHCODE, &Data.Rec.PosNodeID);
 		setCtrlData(CTL_CCHECKINFO_USERID,   &Data.Rec.UserID);
 		setCtrlData(CTL_CCHECKINFO_SESSID,   &Data.Rec.SessID);
 		setCtrlData(CTL_CCHECKINFO_DATE,     &Data.Rec.Dt);
@@ -3990,7 +3990,7 @@ public:
 			ok = 0;
 			if(CanModif) {
 				getCtrlData(CTL_CCHECKINFO_CODE,     &Data.Rec.Code);
-				getCtrlData(CTL_CCHECKINFO_CASHCODE, &Data.Rec.CashID);
+				getCtrlData(CTL_CCHECKINFO_CASHCODE, &Data.Rec.PosNodeID);
 				getCtrlData(CTL_CCHECKINFO_SESSID,   &Data.Rec.SessID);
 				getCtrlData(CTL_CCHECKINFO_DATE,     &Data.Rec.Dt);
 				getCtrlData(CTL_CCHECKINFO_TIME,     &Data.Rec.Tm);
@@ -4019,7 +4019,7 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmPrint)) {
 			if(FiscalPrintintgEnabled()) {
-				CheckPaneDialog * cc_dlg = new CheckPaneDialog(Data.Rec.CashID, Data.Rec.ID, &Data, 0/*ctrFlags*/);
+				CheckPaneDialog * cc_dlg = new CheckPaneDialog(Data.Rec.PosNodeID, Data.Rec.ID, &Data, 0/*ctrFlags*/);
                 if(cc_dlg) {
 					PPID   cc_id = 0;
 					int    r = cc_dlg->AcceptCheck(&cc_id, 0, 0, 0.0, CPosProcessor::accmAveragePrinting);
@@ -4042,7 +4042,7 @@ private:
 	}
 	int    FiscalPrintintgEnabled() const
 	{
-		return (!(Data.Rec.Flags & (CCHKF_PRINTED|CCHKF_SUSPENDED)) && (Data.Rec.Flags & CCHKF_SYNC) && Data.Rec.CashID && Data.Rec.SessID);
+		return (!(Data.Rec.Flags & (CCHKF_PRINTED|CCHKF_SUSPENDED)) && (Data.Rec.Flags & CCHKF_SYNC) && Data.Rec.PosNodeID && Data.Rec.SessID);
 	}
 	int    ViewExtList()
 	{
@@ -4143,7 +4143,7 @@ int PPViewCCheck::EditCCheckSystemInfo(CCheckPacket & rPack)
 			ok = 0;
 			if(can_modif) {
 				dlg->getCtrlData(CTL_CCHECKINFO_CODE,     &rPack.Rec.Code);
-				dlg->getCtrlData(CTL_CCHECKINFO_CASHCODE, &rPack.Rec.CashID);
+				dlg->getCtrlData(CTL_CCHECKINFO_CASHCODE, &rPack.Rec.PosNodeID);
 				dlg->getCtrlData(CTL_CCHECKINFO_SESSID,   &rPack.Rec.SessID);
 				dlg->getCtrlData(CTL_CCHECKINFO_DATE,     &rPack.Rec.Dt);
 				dlg->getCtrlData(CTL_CCHECKINFO_TIME,     &rPack.Rec.Tm);
@@ -4182,7 +4182,7 @@ int PPViewCCheck::EditItemInfo(PPID id)
 				THROW(tra);
 				if(dr & 0x0002) {
 					org_pack.Rec.Code = pack.Rec.Code;
-					org_pack.Rec.CashID = pack.Rec.CashID;
+					org_pack.Rec.PosNodeID = pack.Rec.PosNodeID;
 					org_pack.Rec.SessID = pack.Rec.SessID;
 					org_pack.Rec.Dt = pack.Rec.Dt;
 					org_pack.Rec.Tm = pack.Rec.Tm;
@@ -4576,7 +4576,7 @@ int PPALDD_CCheck::InitData(PPFilt & rFilt, long rsrv)
 		if(r_cc.LoadPacket(rFilt.ID, CCheckCore::lpfNoLines, p_pack) > 0) {
 			H.ID       = p_pack->Rec.ID;
 			H.Code     = p_pack->Rec.Code;
-			H.CashID   = p_pack->Rec.CashID;
+			H.CashID   = p_pack->Rec.PosNodeID;
 			H.UserID   = p_pack->Rec.UserID;
 			H.SessID   = p_pack->Rec.SessID;
 			H.Flags    = p_pack->Rec.Flags;
@@ -4816,7 +4816,7 @@ int PPALDD_CCheckViewDetail::NextIteration(long iterId)
     I.SCardID = item.SCardID;
     I.Dt      = item.Dt;
     I.Tm      = item.Tm;
-    I.MachineN = item.CashID;
+    I.MachineN = item.PosNodeID;
     I.CcFlags = item.Flags;
     I.LinesCount = item.LinesCount;
     I.CcAmount = MONEYTOLDBL(item.Amount);
@@ -4859,7 +4859,7 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 	Extra[1].Ptr = p_cpp;
 	CCheckPacket pack;
 	p_cpp->GetCheckInfo(&pack);
-	H.CashNodeID    = pack.Rec.CashID;
+	H.CashNodeID    = pack.Rec.PosNodeID;
 	H.CheckID       = pack.Rec.ID;
 	H.LinkCheckID   = pack.Ext.LinkCheckID;
 	H.DlvrLocID     = pack.Ext.AddrID;
@@ -5019,7 +5019,7 @@ int PPALDD_CCheckPacket::InitData(PPFilt & rFilt, long rsrv)
 	SString temp_buf;
 	CCheckPacket * p_pack = static_cast<CCheckPacket *>(rFilt.Ptr);
 	Extra[1].Ptr = p_pack;
-	H.PosNodeID     = p_pack->Rec.CashID;
+	H.PosNodeID     = p_pack->Rec.PosNodeID;
 	H.CheckID       = p_pack->Rec.ID;
 	H.LinkCheckID   = p_pack->Ext.LinkCheckID;
 	H.SCardID       = p_pack->Rec.SCardID;

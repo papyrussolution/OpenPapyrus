@@ -907,8 +907,7 @@ private:
 			const char * p;
 			for(p = start; p < end; ++p) {
 				int ch = *p;
-				if((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') ||
-				    (ch >= 'a' && ch <= 'f')) {
+				if(ishex(ch)) {
 					hex = (hex << 4) | (ch < 'A' ? ch - '0' : (ch & 0xF) + 9);
 				}
 				else { // Encountered the first non-hex character.

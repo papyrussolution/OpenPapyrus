@@ -696,7 +696,8 @@ ABSL_CONST_INIT const DisplayUnit kDisplayMin = {"m", -1, 0.0};  // prec ignored
 ABSL_CONST_INIT const DisplayUnit kDisplayHour = {"h", -1,
 						  0.0};  // prec ignored
 
-void AppendNumberUnit(std::string* out, int64_t n, DisplayUnit unit) {
+void AppendNumberUnit(std::string* out, int64_t n, DisplayUnit unit) 
+{
 	char buf[sizeof("2562047788015216")]; // hours in max duration
 	char* const ep = buf + sizeof(buf);
 	char* bp = Format64(ep, 0, n);

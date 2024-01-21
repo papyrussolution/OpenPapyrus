@@ -313,27 +313,21 @@ AffixTag AffixUtils::nextToken(AffixTag tag, const UnicodeString & patternString
 			case STATE_BASE:
 			    switch(cp) {
 				    case u'\'':
-					state = STATE_FIRST_QUOTE;
-					offset += count;
-					// continue to the next code point
-					break;
-				    case u'-':
-					return makeTag(offset + count, TYPE_MINUS_SIGN, STATE_BASE, 0);
-				    case u'+':
-					return makeTag(offset + count, TYPE_PLUS_SIGN, STATE_BASE, 0);
-				    case u'~':
-					return makeTag(offset + count, TYPE_APPROXIMATELY_SIGN, STATE_BASE, 0);
-				    case u'%':
-					return makeTag(offset + count, TYPE_PERCENT, STATE_BASE, 0);
-				    case u'‰':
-					return makeTag(offset + count, TYPE_PERMILLE, STATE_BASE, 0);
+						state = STATE_FIRST_QUOTE;
+						offset += count;
+						// continue to the next code point
+						break;
+				    case u'-': return makeTag(offset + count, TYPE_MINUS_SIGN, STATE_BASE, 0);
+				    case u'+': return makeTag(offset + count, TYPE_PLUS_SIGN, STATE_BASE, 0);
+				    case u'~': return makeTag(offset + count, TYPE_APPROXIMATELY_SIGN, STATE_BASE, 0);
+				    case u'%': return makeTag(offset + count, TYPE_PERCENT, STATE_BASE, 0);
+				    case u'‰': return makeTag(offset + count, TYPE_PERMILLE, STATE_BASE, 0);
 				    case u'¤':
-					state = STATE_FIRST_CURR;
-					offset += count;
-					// continue to the next code point
-					break;
-				    default:
-					return makeTag(offset + count, TYPE_CODEPOINT, STATE_BASE, cp);
+						state = STATE_FIRST_CURR;
+						offset += count;
+						// continue to the next code point
+						break;
+				    default: return makeTag(offset + count, TYPE_CODEPOINT, STATE_BASE, cp);
 			    }
 			    break;
 			case STATE_FIRST_QUOTE:

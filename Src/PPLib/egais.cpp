@@ -1,5 +1,5 @@
 // EGAIS.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Интеграция с системой EGAIS
 //
@@ -637,7 +637,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 		SString fsrar_ident;
 		PPObjCashNode cn_obj;
 		PPSyncCashNode cn_pack;
-        THROW(cn_obj.GetSync(rPack.Rec.CashID, &cn_pack) > 0);
+        THROW(cn_obj.GetSync(rPack.Rec.PosNodeID, &cn_pack) > 0);
         const  PPID loc_id = NZOR(locID, cn_pack.LocID); // Переданный параметром locID имеет приоритет перед cn_pack.LocID
 		THROW(GetURL(loc_id, url));
 		THROW(GetDebugPath(loc_id, temp_path));

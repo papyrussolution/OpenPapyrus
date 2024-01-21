@@ -145,44 +145,31 @@ HRESULT LoadTextureDataFromMemory(_In_reads_(ddsDataSize) const uint8_t* ddsData
 	if(dwMagicNumber != DDS_MAGIC) {
 		return E_FAIL;
 	}
-
 	auto hdr = reinterpret_cast<const DDS_HEADER*>(ddsData + sizeof(uint32_t));
-
 	// Verify header to validate DDS file
-	if(hdr->size != sizeof(DDS_HEADER) ||
-	    hdr->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
+	if(hdr->size != sizeof(DDS_HEADER) || hdr->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
 		return E_FAIL;
 	}
-
 	// Check for DX10 extension
-	if((hdr->ddspf.flags & DDS_FOURCC) &&
-	    (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
+	if((hdr->ddspf.flags & DDS_FOURCC) && (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
 		// We don't support the new DX10 header for Direct3D 9
 		return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
 	}
-
 	// setup the pointers in the process request
 	*header = hdr;
 	auto offset = sizeof(uint32_t) + sizeof(DDS_HEADER);
 	*bitData = ddsData + offset;
 	*bitSize = ddsDataSize - offset;
-
 	return S_OK;
 }
 
-//--------------------------------------------------------------------------------------
-HRESULT LoadTextureDataFromFile(_In_z_ const wchar_t* fileName,
-    std::unique_ptr<uint8_t[]>& ddsData,
-    const DDS_HEADER** header,
-    const uint8_t** bitData,
-    size_t* bitSize) noexcept
+HRESULT LoadTextureDataFromFile(_In_z_ const wchar_t* fileName, std::unique_ptr<uint8_t[]>& ddsData, const DDS_HEADER** header,
+    const uint8_t** bitData, size_t* bitSize) noexcept
 {
 	if(!header || !bitData || !bitSize) {
 		return E_POINTER;
 	}
-
 	*bitSize = 0;
-
 	// open the file
     #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
 	ScopedHandle hFile(safe_handle(CreateFile2(fileName,
@@ -249,30 +236,23 @@ HRESULT LoadTextureDataFromFile(_In_z_ const wchar_t* fileName,
 		ddsData.reset();
 		return E_FAIL;
 	}
-
 	auto hdr = reinterpret_cast<const DDS_HEADER*>(ddsData.get() + sizeof(uint32_t));
-
 	// Verify header to validate DDS file
-	if(hdr->size != sizeof(DDS_HEADER) ||
-	    hdr->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
+	if(hdr->size != sizeof(DDS_HEADER) || hdr->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
 		ddsData.reset();
 		return E_FAIL;
 	}
-
 	// Check for DX10 extension
-	if((hdr->ddspf.flags & DDS_FOURCC) &&
-	    (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
+	if((hdr->ddspf.flags & DDS_FOURCC) && (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
 		// We don't support the new DX10 header for Direct3D 9
 		ddsData.reset();
 		return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
 	}
-
 	// setup the pointers in the process request
 	*header = hdr;
 	auto offset = sizeof(uint32_t) + sizeof(DDS_HEADER);
 	*bitData = ddsData.get() + offset;
 	*bitSize = fileInfo.EndOfFile.LowPart - offset;
-
 	return S_OK;
 }
 

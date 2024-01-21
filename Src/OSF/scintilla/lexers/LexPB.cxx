@@ -170,7 +170,7 @@ static void ColourisePBDoc(Sci_PositionU startPos, Sci_Position length, int init
 			else if(sc.ch == '&' && tolower(sc.chNext) == 'o') {
 				sc.SetState(SCE_B_NUMBER);
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_B_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch)) {

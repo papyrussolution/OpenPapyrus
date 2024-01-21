@@ -102,7 +102,7 @@ static void ColouriseEiffelDoc(Sci_PositionU startPos, Sci_Position length, int 
 			else if(sc.ch == '\'') {
 				sc.SetState(SCE_EIFFEL_CHARACTER);
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.')) {
+			else if(isdec(sc.ch) || (sc.ch == '.')) {
 				sc.SetState(SCE_EIFFEL_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch)) {

@@ -248,7 +248,6 @@ static float scale_integer_to_float(uint32_t M, int N, int negative)
 		M *= 10;
 		--N;
 	}
-
 	while(N < -13 && M % 10 == 0) {
 		M /= 10;
 		++N;
@@ -262,7 +261,6 @@ static float scale_integer_to_float(uint32_t M, int N, int negative)
 		power = strtof_cached_power(-N);
 		result = divide(x, power);
 	}
-
 	return diy_to_float(result, negative);
 }
 
@@ -310,7 +308,7 @@ float fz_strtof(const char * string, char ** tailptr)
 	}
 	number_start = s;
 	/* Parse digits before decimal point.  */
-	while(*s >= '0' && *s <= '9') {
+	while(isdec(*s)) {
 		if(decimal_digits) {
 			if(decimal_digits < 9) {
 				++decimal_digits;

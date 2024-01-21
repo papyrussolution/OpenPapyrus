@@ -151,25 +151,17 @@ static void _vg_snapshot_cache_remove(void * cache_entry)
 static cairo_status_t _vg_context_init(cairo_vg_context_t * context)
 {
 	cairo_status_t status;
-
 	context->status = CAIRO_STATUS_SUCCESS;
 	CAIRO_REFERENCE_COUNT_INIT(&context->ref_count, 1);
-
-	status = _cairo_cache_init(&context->snapshot_cache,
-		NULL,
-		_vg_snapshot_cache_can_remove,
-		_vg_snapshot_cache_remove,
-		16*1024*1024);
+	status = _cairo_cache_init(&context->snapshot_cache, NULL, _vg_snapshot_cache_can_remove,
+		_vg_snapshot_cache_remove, SMEGABYTE(16));
 	if(UNLIKELY(status))
 		return status;
-
 	context->target_id = 0;
 	context->source = NULL;
 	context->alpha = 1.0;
-
 	context->paint = vgCreatePaint();
 	vgLoadIdentity();
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

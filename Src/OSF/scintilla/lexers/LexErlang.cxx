@@ -463,7 +463,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 			    } break;
 				case '+':
 				case '-': {
-				    if(IsADigit(sc.chNext)) {
+				    if(isdec(sc.chNext)) {
 					    parse_state = NUMERAL_START;
 					    radix_digits = 0;
 					    sc.SetState(SCE_ERLANG_UNKNOWN);

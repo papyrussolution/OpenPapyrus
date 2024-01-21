@@ -238,8 +238,7 @@ typedef long int LI;   /* for printf arguments only   */
 /* decNumber struct) safely.  Note that one Unit is included in the */
 /* initial structure.  Used for allocating space that is aligned on */
 /* a decNumber struct boundary. */
-  #define D2N(d) \
-	((((SD2U(d)-1)*sizeof(Unit))+sizeof(decNumber)*2-1)/sizeof(decNumber))
+  #define D2N(d) ((((SD2U(d)-1)*sizeof(Unit))+sizeof(decNumber)*2-1)/sizeof(decNumber))
 
 /* TODIGIT -- macro to remove the leading digit from the unsigned   */
 /* integer u at column cut (counting from the right, LSD=0) and     */

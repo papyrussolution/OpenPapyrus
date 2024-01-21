@@ -57,23 +57,9 @@ static bool IsNativeText(int ch)
 	return (ch == ' ') || (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z');
 }
 
-static bool IsX12TermSep(int ch)
-{
-	return (ch == '\r') //CR
-	       || (ch == '*')
-	       || (ch == '>');
-}
-
-static bool IsNativeX12(int ch)
-{
-	return IsX12TermSep(ch) || (ch == ' ') || (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z');
-}
-
-static bool IsNativeEDIFACT(int ch)
-{
-	return ch >= ' ' && ch <= '^';
-}
-
+static bool IsX12TermSep(int ch) { return (ch == '\r') || (ch == '*') || (ch == '>'); }
+static bool IsNativeX12(int ch) { return IsX12TermSep(ch) || (ch == ' ') || (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z'); }
+static bool IsNativeEDIFACT(int ch) { return ch >= ' ' && ch <= '^'; }
 static bool IsSpecialB256(int /*ch*/)
 {
 	return false; //TODO NOT IMPLEMENTED YET!!!
@@ -288,11 +274,11 @@ static int LookAheadTest(const std::string& msg, size_t startpos, int currentMod
 
 static std::string ToHexString(int c)
 {
-	const char* digits = "0123456789abcdef";
+	//const char* digits = "0123456789abcdef";
 	std::string val(4, '0');
 	val[1] = 'x';
-	val[2] = digits[(c >> 4) & 0xf];
-	val[3] = digits[c & 0xf];
+	val[2] = SlConst::P_HxDigL[(c >> 4) & 0xf];
+	val[3] = SlConst::P_HxDigL[c & 0xf];
 	return val;
 }
 
@@ -355,7 +341,7 @@ static int EncodeChar(int c, std::string& sb)
 		sb.push_back('\3');
 		return 1;
 	}
-	if(c >= '0' && c <= '9') {
+	if(isdec(c)) {
 		sb.push_back((char)(c - 48 + 4));
 		return 1;
 	}
@@ -518,7 +504,7 @@ static int EncodeChar(int c, std::string& sb)
 		sb.push_back('\3');
 		return 1;
 	}
-	if(c >= '0' && c <= '9') {
+	if(isdec(c)) {
 		sb.push_back((char)(c - 48 + 4));
 		return 1;
 	}
@@ -582,7 +568,7 @@ static int EncodeChar(int c, std::string& sb)
 		case '>': sb.push_back('\2'); break;
 		case ' ': sb.push_back('\3'); break;
 		default:
-		    if(c >= '0' && c <= '9') {
+		    if(isdec(c)) {
 			    sb.push_back((char)(c - 48 + 4));
 		    }
 		    else if(c >= 'A' && c <= 'Z') {

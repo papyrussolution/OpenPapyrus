@@ -312,7 +312,7 @@ void SCI_METHOD LexerAsm::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			if(sc.ch == commentChar) {
 				sc.SetState(SCE_ASM_COMMENT);
 			}
-			else if(IsASCII(sc.ch) && (isdec(sc.ch) || (sc.ch == '.' && IsASCII(sc.chNext) && isdec(sc.chNext)))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_ASM_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch)) {

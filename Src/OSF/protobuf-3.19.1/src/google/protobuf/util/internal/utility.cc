@@ -264,12 +264,12 @@ std::string ToCamelCase(StringPiece input) {
 	return result;
 }
 
-std::string ToSnakeCase(StringPiece input) {
+std::string ToSnakeCase(StringPiece input) 
+{
 	bool was_not_underscore = false; // Initialize to false for case 1 (below)
 	bool was_not_cap = false;
 	std::string result;
 	result.reserve(input.size() << 1);
-
 	for(size_t i = 0; i < input.size(); ++i) {
 		if(ascii_isupper(input[i])) {
 			// Consider when the current character B is capitalized:

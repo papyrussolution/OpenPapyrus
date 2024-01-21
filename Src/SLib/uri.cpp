@@ -421,10 +421,6 @@ static const char * FASTCALL UriUnescapeInPlaceEx(char * inout, int plusToSpace,
 	THROW(inout);
 	while(p_read[0] != '\0') {
 		switch(p_read[0]) {
-		    /*case '\0':
-				if(read > p_write)
-					p_write[0] = '\0';
-				return p_write;*/
 		    case '%':
 			switch(p_read[1]) {
 			    case '0': case '1': case '2': case '3': case '4':
@@ -1430,7 +1426,7 @@ static int FASTCALL UriFixPercentEncodingMalloc(const char ** ppFirst, const cha
 static int FASTCALL UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange * range)
 {
 	if(((*doneMask&maskTest) == 0) && range->P_First && range->P_AfterLast) {
-		const int len_in_chars = static_cast<int>(range->Len());
+		const int len_in_chars = range->Len();
 		if(len_in_chars > 0) {
 			const int lenInBytes = len_in_chars * sizeof(char);
 			char * p_dup = static_cast<char *>(SAlloc::M(lenInBytes));
@@ -1611,7 +1607,7 @@ static int FASTCALL UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * o
 		}
 	}
 	else if(inMask&URI_NORMALIZE_PATH) {
-		const int relative = (!uri->Scheme.P_First && !uri->IsAbsolutePath) ? TRUE : FALSE;
+		const bool relative = (!uri->Scheme.P_First && !uri->IsAbsolutePath);
 		// Fix percent-encoding for each segment 
 		UriUri::PathSegment * p_walker = uri->pathHead;
 		if(uri->IsOwner) {
@@ -1697,15 +1693,8 @@ uint FASTCALL UriNormalizeSyntaxMaskRequired(const UriUri * uri)
 	return res;
 }
 
-int FASTCALL UriNormalizeSyntaxEx(UriUri * uri, uint mask)
-{
-	return UriNormalizeSyntaxEngine(uri, mask, 0);
-}
-
-int FASTCALL UriNormalizeSyntax(UriUri * uri)
-{
-	return UriNormalizeSyntaxEx(uri, static_cast<uint>(-1));
-}
+int FASTCALL UriNormalizeSyntaxEx(UriUri * uri, uint mask) { return UriNormalizeSyntaxEngine(uri, mask, 0); }
+int FASTCALL UriNormalizeSyntax(UriUri * uri) { return UriNormalizeSyntaxEx(uri, _FFFF32); }
 //
 //
 //
@@ -1996,8 +1985,8 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			if(dest) {
 				/* Leading ':' */
 				if(written+1 <= maxChars) {
-					memcpy(dest+written, ":", 1*sizeof(char));
-					written += 1;
+					dest[written] = ':';
+					written++;
 				}
 				else {
 					dest[0] = '\0';
@@ -2026,8 +2015,8 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 	if(uri->IsAbsolutePath || (uri->pathHead && UriIsHostSet(uri))) {
 		if(dest) {
 			if(written+1 <= maxChars) {
-				memcpy(dest+written, "/", 1*sizeof(char));
-				written += 1;
+				dest[written] = '/';
+				written++;
 			}
 			else {
 				dest[0] = '\0';
@@ -2061,8 +2050,8 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 			if(walker->next) {
 				if(dest) {
 					if(written+1 <= maxChars) {
-						memcpy(dest+written, "/", 1*sizeof(char));
-						written += 1;
+						dest[written] = '/';
+						written++;
 					}
 					else {
 						dest[0] = '\0';
@@ -2075,15 +2064,15 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				}
 			}
 			walker = walker->next;
-		} while(walker != NULL);
+		} while(walker);
 	}
 	/* [11/19]	if defined(query) then */
-	if(uri->query.P_First != NULL) {
+	if(uri->query.P_First) {
 		/* [12/19]		append "?" to result; */
 		if(dest) {
 			if(written+1 <= maxChars) {
-				memcpy(dest+written, "?", 1*sizeof(char));
-				written += 1;
+				dest[written] = '?';
+				written++;
 			}
 			else {
 				dest[0] = '\0';
@@ -2195,13 +2184,7 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
 					case '2':
 						uriPushToStack(2);
 						return UriParseDecOctetTwo(pFirst+1, pAfterLast);
-					case '3':
-					case '4':
-					case '5':
-					case '6':
-					case '7':
-					case '8':
-					case '9':
+					case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 						uriPushToStack((uchar)(9+*pFirst-'9'));
 						return UriParseDecOctetThree(pFirst+1, pAfterLast);
 					default:
@@ -2248,15 +2231,12 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
 			if(first >= afterLast) {
 				return afterLast;
 			}
-			else {
-				switch(*first) {
-					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-						uriPushToStack((uchar)(9+*first-'9'));
-						return first+1;
-					default:
-						return first;
-				}
+			else if(isdec(*first)) {
+				uriPushToStack((uchar)(9+*first-'9'));
+				return first+1;
 			}
+			else
+				return first;
 		}
 		// 
 		// [decOctetOne]-><NULL>
@@ -2266,15 +2246,12 @@ int UriParseIpFourAddress(uchar * pOctetOutput, const char * pFirst, const char 
 		{
 			if(pFirst >= pAfterLast)
 				return pAfterLast;
-			else {
-				switch(*pFirst) {
-					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-						uriPushToStack((uchar)(9+*pFirst-'9'));
-						return UriParseDecOctetThree(pFirst+1, pAfterLast);
-					default:
-						return pFirst;
-				}
+			else if(isdec(*pFirst)) {
+				uriPushToStack((uchar)(9+*pFirst-'9'));
+				return UriParseDecOctetThree(pFirst+1, pAfterLast);
 			}
+			else
+				return pFirst;
 		}
 		// 
 		// [decOctetFour]-><NULL>

@@ -335,7 +335,7 @@ static boolint ismiddle(int c) { return (!isseparator(c) && (c != '#') && (c !='
 // Checks whatsever c is a valid identifier middle char.
 static boolint isidchar(int c) { return isalnum(c) || ismiddle(c); }
 // Checks whatsever c is a valid identifier first char.
-static boolint isfirstidchar(int c) { return !isdigit(c) && ismiddle(c); }
+static boolint isfirstidchar(int c) { return !isdec(c) && ismiddle(c); }
 
 // Guess whether the supplied path looks like an absolute path
 static boolint isabsolutepath(const char * path)
@@ -420,7 +420,6 @@ static void NextCh(cmsIT8 * it8)
 {
 	if(it8->FileStack[it8->IncludeSP]->Stream) {
 		it8->ch = fgetc(it8->FileStack[it8->IncludeSP]->Stream);
-
 		if(feof(it8->FileStack[it8->IncludeSP]->Stream)) {
 			if(it8->IncludeSP > 0) {
 				fclose(it8->FileStack[it8->IncludeSP--]->Stream);
@@ -459,18 +458,15 @@ static SYMBOL BinSrchKey(const char * id)
 static void ReadReal(cmsIT8 * it8, int32 inum)
 {
 	it8->dnum = (double)inum;
-	while(isdigit(it8->ch)) {
+	while(isdec(it8->ch)) {
 		it8->dnum = (double)it8->dnum * 10.0 + (double)(it8->ch - '0');
 		NextCh(it8);
 	}
-
 	if(it8->ch == '.') {     // Decimal point
 		double frac = 0.0; // fraction
 		int prec = 0;             // precision
-
 		NextCh(it8);       // Eats dec. point
-
-		while(isdigit(it8->ch)) {
+		while(isdec(it8->ch)) {
 			frac = frac * 10.0 + (double)(it8->ch - '0');
 			prec++;
 			NextCh(it8);
@@ -490,7 +486,7 @@ static void ReadReal(cmsIT8 * it8, int32 inum)
 			NextCh(it8);
 		}
 		e = 0;
-		while(isdigit(it8->ch)) {
+		while(isdec(it8->ch)) {
 			int32 digit = (it8->ch - '0');
 			if((double)e * 10.0 + (double)digit < (double)+2147483647.0)
 				e = e * 10 + digit;
@@ -515,18 +511,16 @@ static double ParseFloatNumber(const char * Buffer)
 		sign = (*Buffer == '-') ? -1 : 1;
 		Buffer++;
 	}
-
-	while(*Buffer && isdigit((int)*Buffer)) {
+	while(*Buffer && isdec((int)*Buffer)) {
 		dnum = dnum * 10.0 + (*Buffer - '0');
 		if(*Buffer) Buffer++;
 	}
-
 	if(*Buffer == '.') {
 		double frac = 0.0; // fraction
 		int prec = 0;             // precision
 		if(*Buffer) 
 			Buffer++;
-		while(*Buffer && isdigit((int)*Buffer)) {
+		while(*Buffer && isdec((int)*Buffer)) {
 			frac = frac * 10.0 + (*Buffer - '0');
 			prec++;
 			if(*Buffer) 
@@ -551,7 +545,7 @@ static double ParseFloatNumber(const char * Buffer)
 			if(*Buffer) Buffer++;
 		}
 		e = 0;
-		while(*Buffer && isdigit((int)*Buffer)) {
+		while(*Buffer && isdec((int)*Buffer)) {
 			int32 digit = (*Buffer - '0');
 			if((double)e * 10.0 + digit < (double)+2147483647.0)
 				e = e * 10 + digit;
@@ -578,184 +572,159 @@ static void InSymbol(cmsIT8 * it8)
 			k = 0;
 			idptr = it8->id;
 			do {
-				if(++k < MAXID) *idptr++ = (char)it8->ch;
-
+				if(++k < MAXID) 
+					*idptr++ = (char)it8->ch;
 				NextCh(it8);
 			} while(isidchar(it8->ch));
-
 			*idptr = '\0';
-
 			key = BinSrchKey(it8->id);
-			if(key == SUNDEFINED) it8->sy = SIDENT;
-			else it8->sy = key;
+			if(key == SUNDEFINED) 
+				it8->sy = SIDENT;
+			else 
+				it8->sy = key;
 		}
-		else                 // Is a number?
-		if(isdigit(it8->ch) || it8->ch == '.' || it8->ch == '-' || it8->ch == '+') {
-			int sign = 1;
-
-			if(it8->ch == '-') {
-				sign = -1;
-				NextCh(it8);
-			}
-
-			it8->inum = 0;
-			it8->sy   = SINUM;
-
-			if(it8->ch == '0') {   // 0xnnnn (Hexa) or 0bnnnn (Binary)
-				NextCh(it8);
-				if(toupper(it8->ch) == 'X') {
-					int j;
-
+		else { // Is a number?
+			if(isdec(it8->ch) || it8->ch == '.' || it8->ch == '-' || it8->ch == '+') {
+				int sign = 1;
+				if(it8->ch == '-') {
+					sign = -1;
 					NextCh(it8);
-					while(isxdigit(it8->ch)) {
-						it8->ch = toupper(it8->ch);
-						if(it8->ch >= 'A' && it8->ch <= 'F') 
-							j = it8->ch -'A'+10;
-						else 
+				}
+				it8->inum = 0;
+				it8->sy   = SINUM;
+				if(it8->ch == '0') {   // 0xnnnn (Hexa) or 0bnnnn (Binary)
+					NextCh(it8);
+					if(toupper(it8->ch) == 'X') {
+						int j;
+						NextCh(it8);
+						while(isxdigit(it8->ch)) {
+							it8->ch = toupper(it8->ch);
+							if(it8->ch >= 'A' && it8->ch <= 'F') 
+								j = it8->ch -'A'+10;
+							else 
+								j = it8->ch - '0';
+							if((double)it8->inum * 16.0 + (double)j > (double)+2147483647.0) {
+								SynError(it8, "Invalid hexadecimal number");
+								return;
+							}
+							it8->inum = it8->inum * 16 + j;
+							NextCh(it8);
+						}
+						return;
+					}
+					if(toupper(it8->ch) == 'B') { // Binary
+						int j;
+						NextCh(it8);
+						while(it8->ch == '0' || it8->ch == '1') {
 							j = it8->ch - '0';
-						if((double)it8->inum * 16.0 + (double)j > (double)+2147483647.0) {
-							SynError(it8, "Invalid hexadecimal number");
-							return;
+							if((double)it8->inum * 2.0 + j > (double)+2147483647.0) {
+								SynError(it8, "Invalid binary number");
+								return;
+							}
+							it8->inum = it8->inum * 2 + j;
+							NextCh(it8);
 						}
-
-						it8->inum = it8->inum * 16 + j;
-						NextCh(it8);
+						return;
 					}
-					return;
 				}
-
-				if(toupper(it8->ch) == 'B') { // Binary
-					int j;
-
+				while(isdec(it8->ch)) {
+					int32 digit = (it8->ch - '0');
+					if((double)it8->inum * 10.0 + (double)digit > (double) +2147483647.0) {
+						ReadReal(it8, it8->inum);
+						it8->sy = SDNUM;
+						it8->dnum *= sign;
+						return;
+					}
+					it8->inum = it8->inum * 10 + digit;
 					NextCh(it8);
-					while(it8->ch == '0' || it8->ch == '1') {
-						j = it8->ch - '0';
-
-						if((double)it8->inum * 2.0 + j > (double)+2147483647.0) {
-							SynError(it8, "Invalid binary number");
-							return;
-						}
-
-						it8->inum = it8->inum * 2 + j;
-						NextCh(it8);
-					}
-					return;
 				}
-			}
-
-			while(isdigit(it8->ch)) {
-				int32 digit = (it8->ch - '0');
-
-				if((double)it8->inum * 10.0 + (double)digit > (double) +2147483647.0) {
+				if(it8->ch == '.') {
 					ReadReal(it8, it8->inum);
 					it8->sy = SDNUM;
 					it8->dnum *= sign;
 					return;
 				}
-
-				it8->inum = it8->inum * 10 + digit;
-				NextCh(it8);
-			}
-
-			if(it8->ch == '.') {
-				ReadReal(it8, it8->inum);
-				it8->sy = SDNUM;
-				it8->dnum *= sign;
+				it8->inum *= sign;
+				// Special case. Numbers followed by letters are taken as identifiers
+				if(isidchar(it8->ch)) {
+					if(it8->sy == SINUM) {
+						snprintf(it8->id, 127, "%d", it8->inum);
+					}
+					else {
+						snprintf(it8->id, 127, it8->DoubleFormatter, it8->dnum);
+					}
+					k = (int)strlen(it8->id);
+					idptr = it8->id + k;
+					do {
+						if(++k < MAXID) 
+							*idptr++ = (char)it8->ch;
+						NextCh(it8);
+					} while(isidchar(it8->ch));
+					*idptr = '\0';
+					it8->sy = SIDENT;
+				}
 				return;
 			}
+			else {
+				switch((int)it8->ch) {
+					// EOF marker -- ignore it
+					case '\x1a':
+						NextCh(it8);
+						break;
+					// Eof stream markers
+					case 0:
+					case -1:
+						it8->sy = SEOF;
+						break;
+					// Next line
+					case '\r':
+						NextCh(it8);
+						if(it8->ch == '\n')
+							NextCh(it8);
+						it8->sy = SEOLN;
+						it8->lineno++;
+						break;
 
-			it8->inum *= sign;
-
-			// Special case. Numbers followed by letters are taken as identifiers
-
-			if(isidchar(it8->ch)) {
-				if(it8->sy == SINUM) {
-					snprintf(it8->id, 127, "%d", it8->inum);
+					case '\n':
+						NextCh(it8);
+						it8->sy = SEOLN;
+						it8->lineno++;
+						break;
+					// Comment
+					case '#':
+						NextCh(it8);
+						while(it8->ch && it8->ch != '\n' && it8->ch != '\r')
+							NextCh(it8);
+						it8->sy = SCOMMENT;
+						break;
+					// String.
+					case '\'':
+					case '\"':
+						idptr = it8->str;
+						sng = it8->ch;
+						k = 0;
+						NextCh(it8);
+						while(k < (MAXSTR-1) && it8->ch != sng) {
+							if(it8->ch == '\n'|| it8->ch == '\r') 
+								k = MAXSTR+1;
+							else {
+								*idptr++ = (char)it8->ch;
+								NextCh(it8);
+								k++;
+							}
+						}
+						it8->sy = SSTRING;
+						*idptr = '\0';
+						NextCh(it8);
+						break;
+					default:
+						SynError(it8, "Unrecognized character: 0x%x", it8->ch);
+						return;
 				}
-				else {
-					snprintf(it8->id, 127, it8->DoubleFormatter, it8->dnum);
-				}
-
-				k = (int)strlen(it8->id);
-				idptr = it8->id + k;
-				do {
-					if(++k < MAXID) *idptr++ = (char)it8->ch;
-
-					NextCh(it8);
-				} while(isidchar(it8->ch));
-
-				*idptr = '\0';
-				it8->sy = SIDENT;
 			}
-			return;
 		}
-		else
-			switch((int)it8->ch) {
-				// EOF marker -- ignore it
-				case '\x1a':
-				    NextCh(it8);
-				    break;
-
-				// Eof stream markers
-				case 0:
-				case -1:
-				    it8->sy = SEOF;
-				    break;
-
-				// Next line
-				case '\r':
-				    NextCh(it8);
-				    if(it8->ch == '\n')
-					    NextCh(it8);
-				    it8->sy = SEOLN;
-				    it8->lineno++;
-				    break;
-
-				case '\n':
-				    NextCh(it8);
-				    it8->sy = SEOLN;
-				    it8->lineno++;
-				    break;
-
-				// Comment
-				case '#':
-				    NextCh(it8);
-				    while(it8->ch && it8->ch != '\n' && it8->ch != '\r')
-					    NextCh(it8);
-
-				    it8->sy = SCOMMENT;
-				    break;
-
-				// String.
-				case '\'':
-				case '\"':
-				    idptr = it8->str;
-				    sng = it8->ch;
-				    k = 0;
-				    NextCh(it8);
-
-				    while(k < (MAXSTR-1) && it8->ch != sng) {
-					    if(it8->ch == '\n'|| it8->ch == '\r') k = MAXSTR+1;
-					    else {
-						    *idptr++ = (char)it8->ch;
-						    NextCh(it8);
-						    k++;
-					    }
-				    }
-
-				    it8->sy = SSTRING;
-				    *idptr = '\0';
-				    NextCh(it8);
-				    break;
-
-				default:
-				    SynError(it8, "Unrecognized character: 0x%x", it8->ch);
-				    return;
-			}
 	} while(it8->sy == SCOMMENT);
-
 	// Handle the include special token
-
 	if(it8->sy == SINCLUDE) {
 		FILECTX* FileNest;
 		if(it8->IncludeSP >= (MAXINCLUDE-1)) {

@@ -4299,14 +4299,12 @@ Symbol DescriptorBuilder::LookupSymbol(const std::string & name, const std::stri
 	return result;
 }
 
-static bool ValidateQualifiedName(StringPiece name) {
+static bool ValidateQualifiedName(StringPiece name) 
+{
 	bool last_was_period = false;
-
 	for(char character : name) {
 		// I don't trust isalnum() due to locales.  :(
-		if(('a' <= character && character <= 'z') ||
-		    ('A' <= character && character <= 'Z') ||
-		    ('0' <= character && character <= '9') || (character == '_')) {
+		if(('a' <= character && character <= 'z') || ('A' <= character && character <= 'Z') || ('0' <= character && character <= '9') || (character == '_')) {
 			last_was_period = false;
 		}
 		else if(character == '.') {
@@ -4317,17 +4315,17 @@ static bool ValidateQualifiedName(StringPiece name) {
 			return false;
 		}
 	}
-
 	return !name.empty() && !last_was_period;
 }
 
-Symbol DescriptorPool::NewPlaceholder(StringPiece name,
-    PlaceholderType placeholder_type) const {
+Symbol DescriptorPool::NewPlaceholder(StringPiece name, PlaceholderType placeholder_type) const 
+{
 	MutexLockMaybe lock(mutex_);
 	return NewPlaceholderWithMutexHeld(name, placeholder_type);
 }
 
-Symbol DescriptorPool::NewPlaceholderWithMutexHeld(StringPiece name, PlaceholderType placeholder_type) const {
+Symbol DescriptorPool::NewPlaceholderWithMutexHeld(StringPiece name, PlaceholderType placeholder_type) const 
+{
 	if(mutex_) {
 		mutex_->AssertHeld();
 	}

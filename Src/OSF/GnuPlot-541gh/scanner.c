@@ -16,7 +16,7 @@
 
 bool legal_identifier(char * p)
 {
-	if(!p || !(*p) || isdigit((uchar)*p))
+	if(!p || !(*p) || isdec((uchar)*p))
 		return FALSE;
 	while(*p) {
 		if(!isident(*p))
@@ -90,14 +90,14 @@ int GnuPlot::Scanner(char ** ppExpression, size_t * pExpressionLen)
 			while(isident(p_expression[current+1]))
 				APPEND_TOKEN;
 		}
-		else if(isdigit((uchar)p_expression[current])) {
+		else if(isdec((uchar)p_expression[current])) {
 			Pgm.Tok().IsToken = FALSE;
 			Pgm.Tok().Len = GetNum(&p_expression[current]);
 			current += (Pgm.Tok().Len - 1);
 		}
 		else if(p_expression[current] == '.') {
 			// Rule 9 
-			if(isdigit((uchar)p_expression[current+1])) {
+			if(isdec((uchar)p_expression[current+1])) {
 				Pgm.Tok().IsToken = FALSE;
 				Pgm.Tok().Len = GetNum(&p_expression[current]);
 				current += (Pgm.Tok().Len - 1);
@@ -217,12 +217,12 @@ int FASTCALL GnuPlot::GetNum(char pStr[])
 	char * endptr;
 	Pgm.Tok().IsToken = FALSE;
 	Pgm.Tok().LVal.Type = INTGR; /* assume unless . or E found */
-	while(isdigit((uchar)pStr[count]))
+	while(isdec((uchar)pStr[count]))
 		count++;
 	if(pStr[count] == '.') {
 		Pgm.Tok().LVal.Type = CMPLX;
 		// swallow up digits until non-digit 
-		while(isdigit((uchar)pStr[++count]))
+		while(isdec((uchar)pStr[++count]))
 			;
 		// now str[count] is other than a digit 
 	}
@@ -231,11 +231,11 @@ int FASTCALL GnuPlot::GetNum(char pStr[])
 		count++;
 		if(pStr[count] == '-' || pStr[count] == '+')
 			count++;
-		if(!isdigit((uchar)pStr[count])) {
+		if(!isdec((uchar)pStr[count])) {
 			Pgm.Tok().StartIdx += count;
 			IntError(Pgm.__TNum, "expecting exponent");
 		} 
-		while(isdigit((uchar)pStr[++count]))
+		while(isdec((uchar)pStr[++count]))
 			;
 	}
 	if(Pgm.Tok().LVal.Type == INTGR) {

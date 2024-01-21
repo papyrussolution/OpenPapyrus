@@ -2741,10 +2741,9 @@ static int xmlIsDocNameChar(xmlDoc * doc, int c)
 {
 	if(!doc || (doc->properties & XML_DOC_OLD10) == 0) {
 		/*
-		 * Use the new checks of production [4] [4a] amd [5] of the
-		 * Update 5 of XML-1.0
+		 * Use the new checks of production [4] [4a] amd [5] of the Update 5 of XML-1.0
 		 */
-		if(((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || ((c >= '0') && (c <= '9')) || /* !start */
+		if(isasciialnum(c) || /* !start */
 		    (c == '_') || (c == ':') || (c == '-') || (c == '.') || (c == 0xB7) || /* !start */
 		    ((c >= 0xC0) && (c <= 0xD6)) || ((c >= 0xD8) && (c <= 0xF6)) || ((c >= 0xF8) && (c <= 0x2FF)) ||
 		    ((c >= 0x300) && (c <= 0x36F)) || /* !start */ ((c >= 0x370) && (c <= 0x37D)) ||

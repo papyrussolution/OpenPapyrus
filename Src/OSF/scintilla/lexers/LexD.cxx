@@ -446,14 +446,13 @@ void SCI_METHOD LexerD::Lex(Sci_PositionU startPos, Sci_Position length, int ini
 
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_D_DEFAULT) {
-			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_D_NUMBER);
 				numFloat = sc.ch == '.';
 				// Remember hex literal
-				numHex = sc.ch == '0' && ( sc.chNext == 'x' || sc.chNext == 'X' );
+				numHex = (sc.ch == '0' && oneof2(sc.chNext, 'x', 'X'));
 			}
-			else if((sc.ch == 'r' || sc.ch == 'x' || sc.ch == 'q')
-			 && sc.chNext == '"') {
+			else if((sc.ch == 'r' || sc.ch == 'x' || sc.ch == 'q') && sc.chNext == '"') {
 				// Limited support for hex and delimited strings: parse as r""
 				sc.SetState(SCE_D_STRINGR);
 				sc.Forward();

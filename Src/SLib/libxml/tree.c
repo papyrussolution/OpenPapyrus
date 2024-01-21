@@ -301,11 +301,11 @@ int xmlValidateNCName(const xmlChar * value, int space)
 	if(space)
 		while(IS_BLANK_CH(*cur)) 
 			cur++;
-	if(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || (*cur == '_'))
+	if(isasciialpha(*cur) || (*cur == '_'))
 		cur++;
 	else
 		goto try_complex;
-	while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.'))
+	while(isasciialnum(*cur) || (*cur == '_') || (*cur == '-') || (*cur == '.'))
 		cur++;
 	if(space)
 		while(IS_BLANK_CH(*cur)) 
@@ -370,16 +370,15 @@ int xmlValidateQName(const xmlChar * value, int space)
 		cur++;
 	else
 		goto try_complex;
-	while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) ||
-	    (*cur == '_') || (*cur == '-') || (*cur == '.'))
+	while(isasciialnum(*cur) || (*cur == '_') || (*cur == '-') || (*cur == '.'))
 		cur++;
 	if(*cur == ':') {
 		cur++;
-		if(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || (*cur == '_'))
+		if(isasciialpha(*cur) || (*cur == '_'))
 			cur++;
 		else
 			goto try_complex;
-		while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.'))
+		while(isasciialnum(*cur) || (*cur == '_') || (*cur == '-') || (*cur == '.'))
 			cur++;
 	}
 	if(space)
@@ -509,11 +508,11 @@ int xmlValidateNMToken(const xmlChar * value, int space)
 	if(space)
 		while(IS_BLANK_CH(*cur)) 
 			cur++;
-	if(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.') || (*cur == ':'))
+	if(isasciialnum(*cur) || (*cur == '_') || (*cur == '-') || (*cur == '.') || (*cur == ':'))
 		cur++;
 	else
 		goto try_complex;
-	while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.') || (*cur == ':'))
+	while(isasciialnum(*cur) || (*cur == '_') || (*cur == '-') || (*cur == '.') || (*cur == ':'))
 		cur++;
 	if(space)
 		while(IS_BLANK_CH(*cur)) 
@@ -1061,12 +1060,9 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 				cur += 3;
 				tmp = (cur < end) ? *cur : 0;
 				while(tmp != ';') { /* Non input consuming loop */
-					if(isdec(tmp))
-						charval = charval * 16 + (tmp - '0');
-					else if((tmp >= 'a') && (tmp <= 'f'))
-						charval = charval * 16 + (tmp - 'a') + 10;
-					else if((tmp >= 'A') && (tmp <= 'F'))
-						charval = charval * 16 + (tmp - 'A') + 10;
+					if(ishex(tmp)) {
+						charval = (charval << 4) + hex(tmp);
+					}
 					else {
 						xmlTreeErr(XML_TREE_INVALID_HEX, (xmlNode *)doc, NULL);
 						charval = 0;
@@ -1244,12 +1240,9 @@ xmlNode * xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 				cur += 3;
 				tmp = *cur;
 				while(tmp != ';') { /* Non input consuming loop */
-					if(isdec(tmp))
-						charval = charval * 16 + (tmp - '0');
-					else if((tmp >= 'a') && (tmp <= 'f'))
-						charval = charval * 16 + (tmp - 'a') + 10;
-					else if((tmp >= 'A') && (tmp <= 'F'))
-						charval = charval * 16 + (tmp - 'A') + 10;
+					if(ishex(tmp)) {
+						charval = (charval << 4) + hex(tmp);
+					}
 					else {
 						xmlTreeErr(XML_TREE_INVALID_HEX, (xmlNode *)doc, NULL);
 						charval = 0;

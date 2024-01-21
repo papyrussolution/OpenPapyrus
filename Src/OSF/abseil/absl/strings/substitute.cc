@@ -7,18 +7,15 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace substitute_internal {
-void SubstituteAndAppendArray(std::string* output, absl::string_view format,
-    const absl::string_view* args_array,
-    size_t num_args) {
+void SubstituteAndAppendArray(std::string* output, absl::string_view format, const absl::string_view* args_array, size_t num_args) 
+{
 	// Determine total size needed.
 	size_t size = 0;
 	for(size_t i = 0; i < format.size(); i++) {
 		if(format[i] == '$') {
 			if(i + 1 >= format.size()) {
 #ifndef NDEBUG
-				ABSL_RAW_LOG(FATAL,
-				    "Invalid absl::Substitute() format string: \"%s\".",
-				    absl::CEscape(format).c_str());
+				ABSL_RAW_LOG(FATAL, "Invalid absl::Substitute() format string: \"%s\".", absl::CEscape(format).c_str());
 #endif
 				return;
 			}
@@ -26,8 +23,7 @@ void SubstituteAndAppendArray(std::string* output, absl::string_view format,
 				int index = format[i + 1] - '0';
 				if(static_cast<size_t>(index) >= num_args) {
 #ifndef NDEBUG
-					ABSL_RAW_LOG(
-						FATAL,
+					ABSL_RAW_LOG(FATAL,
 						"Invalid absl::Substitute() format string: asked for \"$"
 						"%d\", but only %d args were given.  Full format string was: "
 						"\"%s\".",

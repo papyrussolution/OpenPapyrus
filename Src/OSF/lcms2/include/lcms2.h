@@ -964,7 +964,7 @@ CMSAPI int CMSEXPORT cmsGetEncodedCMMversion();
 // --------------------------------------------------------------------------------------
 
 CMSAPI int CMSEXPORT cmsstrcasecmp(const char * s1, const char * s2);
-CMSAPI long int CMSEXPORT cmsfilelength(FILE* f);
+CMSAPI long CMSEXPORT cmsfilelength(FILE* f);
 
 // Context handling
 // --------------------------------------------------------------------------------------------------------

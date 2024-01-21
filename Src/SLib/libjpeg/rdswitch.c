@@ -48,13 +48,13 @@ static boolean read_text_integer(FILE * file, long * result, int * termchar)
 			return FALSE;
 		}
 	} while(isspace(ch));
-	if(!isdigit(ch)) {
+	if(!isdec(ch)) {
 		*termchar = ch;
 		return FALSE;
 	}
 	val = ch - '0';
 	while((ch = text_getc(file)) != EOF) {
-		if(!isdigit(ch))
+		if(!isdec(ch))
 			break;
 		val *= 10;
 		val += ch - '0';
@@ -124,7 +124,7 @@ static boolean FASTCALL read_scan_integer(FILE * file, long * result, int * term
 	ch = *termchar;
 	while(ch != EOF && isspace(ch))
 		ch = text_getc(file);
-	if(isdigit(ch)) { // oops, put it back 
+	if(isdec(ch)) { // oops, put it back 
 		if(ungetc(ch, file) == EOF)
 			return FALSE;
 		ch = ' ';
@@ -304,7 +304,7 @@ boolean set_sample_factors(j_compress_ptr cinfo, char * arg)
 			ch2 = ','; /* if not set by sscanf, will be ',' */
 			if(sscanf(arg, "%d%c%d%c", &val1, &ch1, &val2, &ch2) < 3)
 				return FALSE;
-			if((ch1 != 'x' && ch1 != 'X') || ch2 != ',') /* syntax check */
+			if(!oneof2(ch1, 'x', 'X') || ch2 != ',') /* syntax check */
 				return FALSE;
 			if(val1 <= 0 || val1 > MAX_SAMP_FACTOR || val2 <= 0 || val2 > MAX_SAMP_FACTOR) {
 				slfprintf_stderr("JPEG sampling factors must be 1..%d\n", MAX_SAMP_FACTOR);

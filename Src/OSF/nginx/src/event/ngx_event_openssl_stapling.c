@@ -1005,13 +1005,13 @@ static ngx_int_t ngx_ssl_ocsp_parse_status_line(ngx_ssl_ocsp_ctx_t * ctx)
 				    state = sw_first_minor_digit;
 				    break;
 			    }
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_ERROR;
 			    }
 			    break;
 			/* the first digit of minor HTTP version */
 			case sw_first_minor_digit:
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_ERROR;
 			    }
 			    state = sw_minor_digit;
@@ -1022,7 +1022,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_status_line(ngx_ssl_ocsp_ctx_t * ctx)
 				    state = sw_status;
 				    break;
 			    }
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_ERROR;
 			    }
 			    break;
@@ -1031,7 +1031,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_status_line(ngx_ssl_ocsp_ctx_t * ctx)
 			    if(ch == ' ') {
 				    break;
 			    }
-			    if(ch < '0' || ch > '9') {
+			    if(!isdec(ch)) {
 				    return NGX_ERROR;
 			    }
 			    ctx->code = ctx->code * 10 + (ch - '0');
@@ -1171,7 +1171,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_header_line(ngx_ssl_ocsp_ctx_t * ctx)
 					if(c >= 'a' && c <= 'z') {
 						break;
 					}
-					if(ch >= '0' && ch <= '9') {
+					if(isdec(ch)) {
 						break;
 					}
 					return NGX_ERROR;
@@ -1192,7 +1192,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_header_line(ngx_ssl_ocsp_ctx_t * ctx)
 			    if(ch == '-') {
 				    break;
 			    }
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    break;
 			    }
 			    if(ch == __CR) {

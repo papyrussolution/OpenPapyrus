@@ -152,34 +152,28 @@ void fz_write_vprintf(fz_context *ctx, fz_output *out, const char *fmt, va_list 
 	Throw an error on unseekable outputs.
 */
 void fz_seek_output(fz_context *ctx, fz_output *out, int64_t off, int whence);
-
 /**
 	Return the current file position.
 
 	Throw an error on untellable outputs.
 */
 int64_t fz_tell_output(fz_context *ctx, fz_output *out);
-
 /**
 	Flush unwritten data.
 */
 void fz_flush_output(fz_context *ctx, fz_output *out);
-
 /**
 	Flush pending output and close an output stream.
 */
 void fz_close_output(fz_context *, fz_output *);
-
 /**
 	Free an output stream. Don't forget to close it first!
 */
 void fz_drop_output(fz_context *, fz_output *);
-
 /**
 	Query whether a given fz_output supports fz_stream_from_output.
 */
 int fz_output_supports_stream(fz_context *ctx, fz_output *out);
-
 /**
 	Obtain the fz_output in the form of a fz_stream.
 
@@ -189,7 +183,6 @@ int fz_output_supports_stream(fz_context *ctx, fz_output *out);
 	further operations should be performed on the fz_output object.
 */
 fz_stream *fz_stream_from_output(fz_context *, fz_output *);
-
 /**
 	Truncate the output at the current position.
 
@@ -197,27 +190,24 @@ fz_stream *fz_stream_from_output(fz_context *, fz_output *);
 	of their storage to be truncated at the current point.
 */
 void fz_truncate_output(fz_context *, fz_output *);
-
 /**
 	Write data to output.
 
 	data: Pointer to data to write.
 	size: Size of data to write in bytes.
 */
-void fz_write_data(fz_context *ctx, fz_output *out, const void *data, size_t size);
-
+void STDCALL fz_write_data(fz_context *ctx, fz_output *out, const void *data, size_t size);
 /**
 	Write a string. Does not write zero terminator.
 */
-void fz_write_string(fz_context *ctx, fz_output *out, const char *s);
-
+void STDCALL fz_write_string(fz_context *ctx, fz_output *out, const char *s);
 /**
 	Write different sized data to an output stream.
 */
-void fz_write_int32_be(fz_context *ctx, fz_output *out, int x);
-void fz_write_int32_le(fz_context *ctx, fz_output *out, int x);
-void fz_write_uint32_be(fz_context *ctx, fz_output *out, uint x);
-void fz_write_uint32_le(fz_context *ctx, fz_output *out, uint x);
+void STDCALL fz_write_int32_be(fz_context *ctx, fz_output *out, int x);
+void STDCALL fz_write_int32_le(fz_context *ctx, fz_output *out, int x);
+void STDCALL fz_write_uint32_be(fz_context *ctx, fz_output *out, uint x);
+void STDCALL fz_write_uint32_le(fz_context *ctx, fz_output *out, uint x);
 void fz_write_int16_be(fz_context *ctx, fz_output *out, int x);
 void fz_write_int16_le(fz_context *ctx, fz_output *out, int x);
 void fz_write_uint16_be(fz_context *ctx, fz_output *out, uint x);

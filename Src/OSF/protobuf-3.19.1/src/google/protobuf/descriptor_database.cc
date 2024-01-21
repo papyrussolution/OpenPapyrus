@@ -135,11 +135,11 @@ bool SimpleDescriptorDatabase::DescriptorIndex<Value>::AddFile(const FileDescrip
 namespace {
 // Returns true if and only if all characters in the name are alphanumerics,
 // underscores, or periods.
-bool ValidateSymbolName(StringPiece name) {
+bool ValidateSymbolName(StringPiece name) 
+{
 	for(char c : name) {
 		// I don't trust ctype.h due to locales.  :(
-		if(c != '.' && c != '_' && (c < '0' || c > '9') && (c < 'A' || c > 'Z') &&
-		    (c < 'a' || c > 'z')) {
+		if(c != '.' && c != '_' && (c < '0' || c > '9') && (c < 'A' || c > 'Z') && (c < 'a' || c > 'z')) {
 			return false;
 		}
 	}

@@ -7253,7 +7253,7 @@ public:
 	enum {
 		fInitPaths    = 0x0001, // Инициализировать пути (извлекает из pp.ini)
 		fDenyLogQueue = 0x0002, // Не инициализировать очередь журнальных сообщений (вывод прямо в файл)
-		fWsCtlApp     = 0x0004  // @v11.7.1 Объект инициализирован для отдельного приложения WsCtl
+		fWsCtlApp     = 0x0004, // @v11.7.1 Объект инициализирован для отдельного приложения WsCtl
 	};
 	enum {
 		cmdlHelp = 0,  // ?
@@ -7309,7 +7309,7 @@ public:
 
 	PPSession();
 	~PPSession();
-	int    Init(long flags /* PPSession::fInitXXX */, HINSTANCE hInst = NULL);
+	int    Init(long flags /* PPSession::fInitXXX */, HINSTANCE hInst, const char * pUiDescriptionFileName);
 	int    InitThread(const PPThread * pThread);
 	void   ReleaseThread();
 	PPThreadLocalArea & GetTLA(); // { return *(PPThreadLocalArea *)TlsGetValue(TlsIdx); }
@@ -10241,14 +10241,14 @@ public:
 	//
 	// Descr: Функция, обеспечивающая централизованный механиз распаковки текстовых расширений чека и его строк.
 	//
-	static int Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList);
-	static int Helper_SetLineTextExt(int pos /*[1..]*/, int lnextId, StrAssocArray & rList, const char * pText);
-	static int Helper_GetLineTextExt(int pos /*[1..]*/, int lnextId, const StrAssocArray & rList, SString & rBuf);
-	static int CopyExtStrContainer(PPExtStrContainer & rDest, const PPExtStrContainer & rSrc, uint flags);
-	static int GetPrescription(const PPExtStrContainer & rEss, Prescription & rP);
-	static int SetPrescription(PPExtStrContainer & rEss, const Prescription & rP);
-	static int GetExtssMnemonic(int extss, SString & rBuf);
-	static int RecognizeExtssMnemonic(const char * pSymb);
+	static int  Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList);
+	static int  Helper_SetLineTextExt(int pos /*[1..]*/, int lnextId, StrAssocArray & rList, const char * pText);
+	static int  Helper_GetLineTextExt(int pos /*[1..]*/, int lnextId, const StrAssocArray & rList, SString & rBuf);
+	static int  CopyExtStrContainer(PPExtStrContainer & rDest, const PPExtStrContainer & rSrc, uint flags);
+	static int  GetPrescription(const PPExtStrContainer & rEss, Prescription & rP);
+	static int  SetPrescription(PPExtStrContainer & rEss, const Prescription & rP);
+	static int  GetExtssMnemonic(int extss, SString & rBuf);
+	static int  RecognizeExtssMnemonic(const char * pSymb);
 
 	CCheckPacket();
 	CCheckPacket(const CCheckPacket & rS);
@@ -20952,7 +20952,7 @@ public:
 	uint16 ClearCDYTimeout;  // Таймаут очистки дисплея покупателя после печати чека
 	uint16 SleepTimeout;     //
 	PPID   LocalTouchScrID;  // Локальный (по отношению к компютеру) идентификатор записи PPObjTouchScreen
-	uint16 Speciality;       //
+	uint16 Speciality;       // PPCashNode::spXXX
 	uint16 BonusMaxPart;     // Максимальная часть чека, которая может быть оплачена бонусом
 		// Ограничение хранится в промилле. Example: 152 = 15.2% от суммы чека
 	PPID   PhnSvcID;         // Телефонный сервис (для обслуживания заказов столов и доставки)
@@ -21206,6 +21206,11 @@ public:
 	int    SyncPrintZReportCopy(const CSessInfo * pInfo);
 	int    SyncPrintIncasso();
 	int    SyncAllowPrint();
+	//
+	// Descr: Выполняет препроцессинг марки честный знак для ОФД версии 1.2.
+	// Note: Функция фактически используется только для тестовой проверки марки из кассовой панели.
+	//   При проведении чеки применяются менее высокоуровневые вызовы.
+	//
 	int    SyncPreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult);
 	int    SyncBrowseCheckList(const char * pCheckPanInitStr, long checkPanFlags);
 	int    SyncLockCashKeyb();
@@ -21304,13 +21309,10 @@ public:
 		fcdTyssoCodePage = 0x0004,
 		fcdUsb   = 0x0005
 	};
-	static int IsComPort(const char * pPortName);
+	static bool IsComPort(const char * pPortName);
 	PPCustDisp(int portNo, int dispStrLen, long flags, int usb = 0);
 	~PPCustDisp();
-	int    IsError() const
-	{
-		return BIN(State & stError);
-	}
+	bool   IsError() const { return LOGIC(State & stError); }
 	virtual int ClearDisplay();
 	virtual int OpenedCash();
 	virtual int ClosedCash();
@@ -21865,12 +21867,13 @@ struct SlipLineParam {
 	// Descr: Флаги
 	//
 	enum {
-		fRegRegular  = 0x0001, // Регистрация на чековой лента
-		fRegJournal  = 0x0002, // Регистрация на контрольной чековой ленте
-		fRegFiscal   = 0x0004, // Регистрация в фискальной памяти
-		fRegSlip     = 0x0008, // Регистрация на подкладном документе
-		fBcTextAbove = 0x0010, // Текст штрихкода печатать сверху
-		fBcTextBelow = 0x0020  // Текст штрихкода печатать снизу
+		fRegRegular          = 0x0001, // Регистрация на чековой ленте
+		fRegJournal          = 0x0002, // Регистрация на контрольной чековой ленте
+		fRegFiscal           = 0x0004, // Регистрация в фискальной памяти
+		fRegSlip             = 0x0008, // Регистрация на подкладном документе
+		fBcTextAbove         = 0x0010, // Текст штрихкода печатать сверху
+		fBcTextBelow         = 0x0020, // Текст штрихкода печатать снизу
+		fDraftBeerSimplified = 0x0040, // @v11.9.3 Специальная опция, индицирующая то, что в честном знаке разливное пиво фиксируется в упрощенном виде (GTIN+емкость)
 	};
 	//
 	// Descr: Вид данного элемента
@@ -21887,6 +21890,7 @@ struct SlipLineParam {
 	int    Flags;         // fXXX
 	uint   UomFragm;      // @v11.2.6 Фрагментация единицы измерения товара
 	double Qtty;          // для regtoFiscal
+	double PhQtty;        // @v11.9.3 for chzn (ChZnProductType==GTCHZNPT_DRAFTBEER)
 	double Price;         // для regtoFiscal
 	double VatRate;       // для regtoFiscal
 	int    PaymTermTag;   // для regtoFiscal @v10.4.1 CCheckPacket::PaymentTermTag
@@ -21977,6 +21981,12 @@ public:
 	///    ситуация: если сеанс авторизован, то у него есть пользователь, имеющий не пустой имя.
 	//
 	static bool GetCurrentUserName(SString & rBuf);
+	//
+	// Descr: Выясняет следует ли товар goodsID учитывать в контексте честного знака как
+	//   разливное пиво, списываемое по упрощенной схеме (суррогатная марка, состоящая из GTIN и количества).
+	//   Для такого товара, кроме прочего, не осуществляется предварительная проверка марки для ОФД 1.2.
+	//
+	static bool IsSimplifiedDraftBeerPosition(PPID posNodeID, PPID goodsID);
 
 	PPSyncCashSession(PPID cnID, const char * pName, const char * pPort);
 	virtual ~PPSyncCashSession();
@@ -29703,6 +29713,8 @@ public:
 	//
 	int    SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec = 0, int adoptSearching = 0);
 	int    SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec);
+	bool   GetSimplifiedDraftBeerBarcode(PPID goodsID, SString & rCode); // @v11.9.3
+	bool   SelectValidBarcode(PPID goodsID, const PPIDArray * pStdList, SString & rCode);
 	//
 	// Descr: Определяет является ли код pCode весовым кодом какого-либо товара.
 	//

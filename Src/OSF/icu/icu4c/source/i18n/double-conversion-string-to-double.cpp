@@ -523,9 +523,10 @@ double StringToDoubleConverter::StringToIeee(Iterator input,
 		}
 		leading_zero = true;
 		// It could be hexadecimal value.
-		if(((flags_ & ALLOW_HEX) || (flags_ & ALLOW_HEX_FLOATS)) && (*current == 'x' || *current == 'X')) {
+		if(((flags_ & ALLOW_HEX) || (flags_ & ALLOW_HEX_FLOATS)) && oneof2(*current, 'x', 'X')) {
 			++current;
-			if(current == end) return junk_string_value_; // "0x"
+			if(current == end) 
+				return junk_string_value_; // "0x"
 			bool parse_as_hex_float = (flags_ & ALLOW_HEX_FLOATS) && IsHexFloatString(current, end, separator_, allow_trailing_junk);
 			if(!parse_as_hex_float && !isDigit(*current, 16)) {
 				return junk_string_value_;
@@ -534,7 +535,8 @@ double StringToDoubleConverter::StringToIeee(Iterator input,
 			double result = RadixStringToIeee<4>(&current, end, sign, separator_, parse_as_hex_float, allow_trailing_junk, junk_string_value_,
 				read_as_double, &result_is_junk);
 			if(!result_is_junk) {
-				if(allow_trailing_spaces) AdvanceToNonspace(&current, end);
+				if(allow_trailing_spaces) 
+					AdvanceToNonspace(&current, end);
 				*processed_characters_count = static_cast<int>(current - input);
 			}
 			return result;
@@ -653,8 +655,7 @@ double StringToDoubleConverter::StringToIeee(Iterator input,
 				}
 			}
 		}
-
-		if(current == end || *current < '0' || *current > '9') {
+		if(current == end || !isdec(*current)) {
 			if(allow_trailing_junk) {
 				current = junk_begin;
 				goto parsing_done;
@@ -663,15 +664,13 @@ double StringToDoubleConverter::StringToIeee(Iterator input,
 				return junk_string_value_;
 			}
 		}
-
 		const int max_exponent = INT_MAX / 2;
 		DOUBLE_CONVERSION_ASSERT(-max_exponent / 2 <= exponent && exponent <= max_exponent / 2);
 		int num = 0;
 		do {
 			// Check overflow.
 			int digit = *current - '0';
-			if(num >= max_exponent / 10
-			 && !(num == max_exponent / 10 && digit <= max_exponent % 10)) {
+			if(num >= max_exponent / 10 && !(num == max_exponent / 10 && digit <= max_exponent % 10)) {
 				num = max_exponent;
 			}
 			else {
@@ -679,10 +678,8 @@ double StringToDoubleConverter::StringToIeee(Iterator input,
 			}
 			++current;
 		} while(current != end && *current >= '0' && *current <= '9');
-
 		exponent += (exponen_sign == '-' ? -num : num);
 	}
-
 	if(!(allow_trailing_spaces || allow_trailing_junk) && (current != end)) {
 		return junk_string_value_;
 	}
@@ -692,36 +689,24 @@ double StringToDoubleConverter::StringToIeee(Iterator input,
 	if(allow_trailing_spaces) {
 		AdvanceToNonspace(&current, end);
 	}
-
 parsing_done:
 	exponent += insignificant_digits;
-
 	if(octal) {
 		double result;
 		bool result_is_junk;
 		char * start = buffer;
-		result = RadixStringToIeee<3>(&start,
-			buffer + buffer_pos,
-			sign,
-			separator_,
-			false,           // Don't parse as hex_float.
-			allow_trailing_junk,
-			junk_string_value_,
-			read_as_double,
-			&result_is_junk);
+		result = RadixStringToIeee<3>(&start, buffer + buffer_pos, sign, separator_,
+			false/*Don't parse as hex_float*/, allow_trailing_junk, junk_string_value_, read_as_double, &result_is_junk);
 		DOUBLE_CONVERSION_ASSERT(!result_is_junk);
 		*processed_characters_count = static_cast<int>(current - input);
 		return result;
 	}
-
 	if(nonzero_digit_dropped) {
 		buffer[buffer_pos++] = '1';
 		exponent--;
 	}
-
 	DOUBLE_CONVERSION_ASSERT(buffer_pos < kBufferSize);
 	buffer[buffer_pos] = '\0';
-
 	// Code above ensures there are no leading zeros and the buffer has fewer than
 	// kMaxSignificantDecimalDigits characters. Trim trailing zeros.
 	Vector<const char> chars(buffer, buffer_pos);

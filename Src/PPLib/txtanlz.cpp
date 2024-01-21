@@ -310,11 +310,11 @@ int PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SStrScan 
 					else if(term == PPTextAnalyzer::Replacer::stNumL) {
 						char c = rScan[0];
 						rExtBuf.Z();
-						if(c >= '0' && c <= '9') {
+						if(isdec(c)) {
 							rExtBuf.CatChar(c);
 							rScan.Incr();
 							c = rScan[0];
-							if(c >= '0' && c <= '9') {
+							if(isdec(c)) {
 								rExtBuf.CatChar(c);
 								rScan.Incr();
 							}

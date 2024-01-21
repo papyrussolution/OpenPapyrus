@@ -175,14 +175,6 @@ static int unhex(int chr)
 	return strchr(SlConst::P_HxDigL, (chr|32)) - SlConst::P_HxDigL;
 }
 
-/*static int ishex(int chr)
-{
-	if(chr >= '0' && chr <= '9') return 1;
-	if(chr >= 'A' && chr <= 'F') return 1;
-	if(chr >= 'a' && chr <= 'f') return 1;
-	return 0;
-}*/
-
 void svg_parse_color(fz_context * ctx, svg_document * doc, const char * str, float * rgb)
 {
 	int i, l, m, r, cmp;

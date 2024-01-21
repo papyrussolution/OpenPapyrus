@@ -1,5 +1,5 @@
 // SOBLK.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -541,7 +541,7 @@ int SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 		PPTransaction tra(1);
 		CCheckTbl::Rec cc_rec;
 		// @v10.6.4 MEMSZERO(cc_rec);
-		cc_rec.CashID = rHdr.PosNodeID;
+		cc_rec.PosNodeID = rHdr.PosNodeID;
 		{
 			PPSecur sec_rec;
 			PPObjSecur sec_obj(PPOBJ_USR, 0);

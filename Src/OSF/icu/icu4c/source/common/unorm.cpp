@@ -110,7 +110,7 @@ static int32_t _iterate(UCharIterator * src, bool forward, char16_t * dest, int3
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0) || src==NULL) {
+	if(destCapacity<0 || (!dest && destCapacity>0) || src==NULL) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -195,7 +195,7 @@ static int32_t _concatenate(const char16_t * left, int32_t leftLength, const cha
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0) || left==NULL || leftLength<-1 || right==NULL || rightLength<-1) {
+	if(destCapacity<0 || (!dest && destCapacity>0) || left==NULL || leftLength<-1 || right==NULL || rightLength<-1) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

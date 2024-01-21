@@ -268,7 +268,7 @@ std::string HRIFromGS1(std::string_view gs1)
 		if(i->isVariableLength()) {
 			auto gsPos = rem.find(GS);
 #if 1
-			fieldSize = std::min(gsPos == std::string_view::npos ? Size(rem) : narrow_cast<int>(gsPos), fieldSize);
+			fieldSize = smin(gsPos == std::string_view::npos ? Size(rem) : narrow_cast<int>(gsPos), fieldSize);
 #else
 			// TODO: ignore the 'max field size' part for now as it breaks rssexpanded-3/13.png?
 			fieldSize = gsPos == std::string_view::npos ? Size(rem) : narrow_cast<int>(gsPos);

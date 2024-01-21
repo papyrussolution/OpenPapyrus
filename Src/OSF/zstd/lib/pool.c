@@ -242,7 +242,7 @@ static int POOL_resize_internal(POOL_ctx* ctx, size_t numThreads)
 int POOL_resize(POOL_ctx* ctx, size_t numThreads)
 {
 	int result;
-	if(ctx==NULL) 
+	if(!ctx) 
 		return 1;
 	ZSTD_pthread_mutex_lock(&ctx->queueMutex);
 	result = POOL_resize_internal(ctx, numThreads);
@@ -359,7 +359,7 @@ int POOL_tryAdd(POOL_ctx* ctx, POOL_function function, void * opaque)
 
 size_t POOL_sizeof(const POOL_ctx* ctx) 
 {
-	if(ctx==NULL) 
+	if(!ctx) 
 		return 0; /* supports sizeof NULL */
 	assert(ctx == &g_poolCtx);
 	return sizeof(*ctx);

@@ -285,12 +285,7 @@ FT_Stroker_New(FT_Library library,
  *
  *   This function calls @FT_Stroker_Rewind automatically.
  */
-FT_EXPORT(void)
-FT_Stroker_Set(FT_Stroker stroker,
-    FT_Fixed radius,
-    FT_Stroker_LineCap line_cap,
-    FT_Stroker_LineJoin line_join,
-    FT_Fixed miter_limit);
+FT_EXPORT(void) FT_Stroker_Set(FT_Stroker stroker, FT_Fixed radius, FT_Stroker_LineCap line_cap, FT_Stroker_LineJoin line_join, FT_Fixed miter_limit);
 
 /**************************************************************************
  *
@@ -306,8 +301,7 @@ FT_Stroker_Set(FT_Stroker stroker,
  *   stroker ::
  *     The target stroker handle.
  */
-FT_EXPORT(void)
-FT_Stroker_Rewind(FT_Stroker stroker);
+FT_EXPORT(void) FT_Stroker_Rewind(FT_Stroker stroker);
 
 /**************************************************************************
  *
@@ -342,10 +336,7 @@ FT_Stroker_Rewind(FT_Stroker stroker);
  *
  *   This function calls @FT_Stroker_Rewind automatically.
  */
-FT_EXPORT(FT_Error)
-FT_Stroker_ParseOutline(FT_Stroker stroker,
-    FT_Outline*  outline,
-    FT_Bool opened);
+FT_EXPORT(FT_Error) FT_Stroker_ParseOutline(FT_Stroker stroker, FT_Outline*  outline, FT_Bool opened);
 
 /**************************************************************************
  *

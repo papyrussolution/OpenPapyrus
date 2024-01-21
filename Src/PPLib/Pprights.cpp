@@ -1,5 +1,5 @@
 // PPRIGHTS.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Права доступа
 //
@@ -299,7 +299,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 			}
 			SetupOprKindCombo(this, CTLSEL_RTOPLI_OPRKIND, Data.ObjID, 0, &op_list, OPKLF_OPLIST|OPKLF_SHOWPASSIVE); // @v10.8.1 OPKLF_SHOWPASSIVE
 			{
-				const long comm = (Data.Flags & 0x80000000) ? 0 : 1;
+				const int comm = (Data.Flags & 0x80000000) ? 0 : 1;
 				{
 					AddClusterAssoc(CTL_RTOPLI_COMMRT, 0, 1);
 					SetClusterData(CTL_RTOPLI_COMMRT, comm);

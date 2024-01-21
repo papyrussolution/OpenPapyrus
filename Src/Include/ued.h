@@ -40,6 +40,8 @@ public:
 	static bool   GetRaw_PlanarAngleDeg(uint64 ued, double & rDeg);
 	static uint64 SetRaw_Color(const SColor & rC);
 	static bool   GetRaw_Color(uint64 ued, SColor & rC);
+	static uint64 SetRaw_SphDir(const SphericalDirection & rV);
+	static bool   GetRaw_SphDir(uint64 ued, SphericalDirection & rV);
 
 	static uint64 SetRaw_Ru_INN(const char * pT);
 	static bool   GetRaw_Ru_INN(uint64 ued, SString & rT);

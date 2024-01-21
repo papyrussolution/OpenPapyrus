@@ -246,13 +246,13 @@ static void forwardEscapeLiteral(StyleContext &sc, int EscapeState)
 		sc.ChangeState(EscapeState);
 	}
 	else if(sc.Match('u')) {
-		if(IsADigit(sc.chNext, 16)) {
+		if(ishex(sc.chNext)) {
 			sc.Forward();
-			if(IsADigit(sc.chNext, 16)) {
+			if(ishex(sc.chNext)) {
 				sc.Forward();
-				if(IsADigit(sc.chNext, 16)) {
+				if(ishex(sc.chNext)) {
 					sc.Forward();
-					if(IsADigit(sc.chNext, 16)) {
+					if(ishex(sc.chNext)) {
 						sc.Forward();
 						sc.ChangeState(EscapeState);
 					}
@@ -290,7 +290,7 @@ void SCI_METHOD LexerVisualProlog::Lex(Sci_PositionU startPos, Sci_Position leng
 			    break;
 			case SCE_VISUALPROLOG_NUMBER:
 			    // We accept almost anything because of hex. and number suffixes
-			    if(!(setNumber.Contains(sc.ch)) || (sc.Match('.') && IsADigit(sc.chNext))) {
+			    if(!(setNumber.Contains(sc.ch)) || (sc.Match('.') && isdec(sc.chNext))) {
 				    sc.SetState(SCE_VISUALPROLOG_DEFAULT);
 			    }
 			    break;
@@ -438,7 +438,7 @@ void SCI_METHOD LexerVisualProlog::Lex(Sci_PositionU startPos, Sci_Position leng
 				sc.SetState(SCE_VISUALPROLOG_STRING_VERBATIM);
 				sc.Forward();
 			}
-			else if(IsADigit(sc.ch) || (sc.Match('.') && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.Match('.') && isdec(sc.chNext))) {
 				sc.SetState(SCE_VISUALPROLOG_NUMBER);
 			}
 			else if(isLowerLetter(sc.ch)) {

@@ -260,7 +260,7 @@ static int __lv_open_db(DB_ENV * dbenv, DB ** dbpp, DB_THREAD_INFO * ip, const c
 	if(sflags != 0)
 		BDBOP(__db_set_flags(dbp, sflags));
 	/* No concurrency needed, a big page size reduces overflow pages. */
-	BDBOP(__db_set_pagesize(dbp, 16*1024));
+	BDBOP(__db_set_pagesize(dbp, SKILOBYTE(16)));
 	BDBOP(__db_open(dbp, ip, NULL, dbfname, dbname, DB_BTREE, DB_CREATE, 0666, PGNO_BASE_MD));
 	*dbpp = dbp;
 	return 0;

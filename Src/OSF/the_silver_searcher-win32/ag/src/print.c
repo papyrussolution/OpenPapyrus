@@ -359,7 +359,7 @@ const char * normalize_path(const char * path)
 // BUFSIZ is guarenteed to be "at least 256 bytes" which might
 // not be enough for us. Use an arbitrary but reasonably big
 // buffer. win32 colored output will be truncated to this length.
-#define BUF_SIZE (16 * 1024)
+#define BUF_SIZE SKILOBYTE(16)
 #define MAX_VALUES 8 // max consecutive ansi sequence values beyond which we're aborting e.g. this is 3 values: \e[0;1;33m
 
 static int g_use_ansi = 0;
@@ -416,7 +416,7 @@ int fprintf_w32(FILE * fp, const char * format, ...)
 retry:
 			if((c = *ptr++) == 0)
 				break;
-			if(isdigit(c)) {
+			if(isdec(c)) {
 				if(v[n] == -1)
 					v[n] = c - '0';
 				else

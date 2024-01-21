@@ -162,7 +162,8 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 	// initialize styler
 	StyleContext sc(startPos, length, initStyle, styler);
 	Sci_PositionU chToken = 0;
-	int chBase = 0, chLit = 0;
+	int chBase = 0;
+	int chLit = 0;
 	WordList & keywords  = *keywordlists[0];
 	WordList & keywords2 = *keywordlists[1];
 	WordList & keywords3 = *keywordlists[2];
@@ -173,7 +174,6 @@ void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle
 	if(state_ <= SCE_CAML_CHAR || (isSML && state_ == SCE_CAML_STRING))
 		sc.state = SCE_CAML_DEFAULT;
 	int nesting = (state_ >= SCE_CAML_COMMENT) ? (state_ - SCE_CAML_COMMENT) : 0;
-
 	// foreach char in range...
 	while(sc.More()) {
 		// set up [per-char] state info

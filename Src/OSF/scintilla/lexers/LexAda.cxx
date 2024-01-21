@@ -244,7 +244,7 @@ static void ColouriseDocument(Sci_PositionU startPos, Sci_Position length, int i
 
 			// Numbers
 		}
-		else if(IsADigit(sc.ch) || sc.ch == '#') {
+		else if(isdec(sc.ch) || sc.ch == '#') {
 			ColouriseNumber(sc, apostropheStartsAttribute);
 
 			// Keywords or identifiers
@@ -351,7 +351,7 @@ static bool IsValidNumber(const std::string & number)
 				canBeSpecial = false;
 				seenDot = true;
 			}
-			else if(IsADigit(number[i])) {
+			else if(isdec(number[i])) {
 				canBeSpecial = true;
 			}
 			else {
@@ -375,7 +375,7 @@ static bool IsValidNumber(const std::string & number)
 					return false;
 				canBeSpecial = false;
 			}
-			else if(IsADigit(ch)) {
+			else if(isdec(ch)) {
 				base = base * 10 + (ch - '0');
 				if(base > 16)
 					return false;
@@ -410,7 +410,7 @@ static bool IsValidNumber(const std::string & number)
 				canBeSpecial = false;
 				seenDot = true;
 			}
-			else if(IsADigit(ch)) {
+			else if(isdec(ch)) {
 				if(ch - '0' >= base) {
 					return false;
 				}
@@ -456,13 +456,10 @@ static bool IsValidNumber(const std::string & number)
 				return false; // Integer literals should not have negative exponents
 			}
 		}
-
 		if(i == length) {
 			return false;
 		}
-
 		bool canBeSpecial = false;
-
 		for(; i < length; i++) {
 			if(number[i] == '_') {
 				if(!canBeSpecial) {
@@ -470,7 +467,7 @@ static bool IsValidNumber(const std::string & number)
 				}
 				canBeSpecial = false;
 			}
-			else if(IsADigit(number[i])) {
+			else if(isdec(number[i])) {
 				canBeSpecial = true;
 			}
 			else {
@@ -488,7 +485,7 @@ static bool IsValidNumber(const std::string & number)
 
 static bool FASTCALL IsWordCharacter(int ch)
 {
-	return IsWordStartCharacter(ch) || IsADigit(ch);
+	return IsWordStartCharacter(ch) || isdec(ch);
 }
 
 static bool FASTCALL IsWordStartCharacter(int ch)

@@ -685,56 +685,59 @@ static char * xmlNanoHTTPReadLine(xmlNanoHTTPCtxtPtr ctxt) {
  * Returns -1 in case of failure, the file descriptor number otherwise
  */
 
-static void xmlNanoHTTPScanAnswer(xmlNanoHTTPCtxtPtr ctxt, const char * line) {
+static void xmlNanoHTTPScanAnswer(xmlNanoHTTPCtxtPtr ctxt, const char * line) 
+{
 	const char * cur = line;
-
-	if(line == NULL) return;
-
+	if(line == NULL) 
+		return;
 	if(!strncmp(line, "HTTP/", 5)) {
 		int version = 0;
 		int ret = 0;
-
 		cur += 5;
-		while((*cur >= '0') && (*cur <= '9')) {
+		while(isdec(*cur)) {
 			version *= 10;
 			version += *cur - '0';
 			cur++;
 		}
 		if(*cur == '.') {
 			cur++;
-			if((*cur >= '0') && (*cur <= '9')) {
+			if(isdec(*cur)) {
 				version *= 10;
 				version += *cur - '0';
 				cur++;
 			}
-			while((*cur >= '0') && (*cur <= '9'))
+			while(isdec(*cur))
 				cur++;
 		}
 		else
 			version *= 10;
-		if((*cur != ' ') && (*cur != '\t')) return;
-		while((*cur == ' ') || (*cur == '\t')) cur++;
-		if((*cur < '0') || (*cur > '9')) return;
-		while((*cur >= '0') && (*cur <= '9')) {
+		if((*cur != ' ') && (*cur != '\t')) 
+			return;
+		while((*cur == ' ') || (*cur == '\t')) 
+			cur++;
+		if(!isdec(*cur)) 
+			return;
+		while(isdec(*cur)) {
 			ret *= 10;
 			ret += *cur - '0';
 			cur++;
 		}
-		if((*cur != 0) && (*cur != ' ') && (*cur != '\t')) return;
+		if((*cur != 0) && (*cur != ' ') && (*cur != '\t')) 
+			return;
 		ctxt->returnValue = ret;
 		ctxt->version = version;
 	}
 	else if(!xmlStrncasecmp(BAD_CAST line, BAD_CAST "Content-Type:", 13)) {
 		const xmlChar * charset, * last, * mime;
 		cur += 13;
-		while((*cur == ' ') || (*cur == '\t')) cur++;
+		while((*cur == ' ') || (*cur == '\t')) 
+			cur++;
 		if(ctxt->contentType != NULL)
 			xmlFree(ctxt->contentType);
 		ctxt->contentType = xmlMemStrdup(cur);
 		mime = (const xmlChar*)cur;
 		last = mime;
-		while((*last != 0) && (*last != ' ') && (*last != '\t') &&
-		    (*last != ';') && (*last != ','))
+		while((*last != 0) && (*last != ' ') && (*last != '\t') && (*last != ';') && (*last != ','))
 			last++;
 		if(ctxt->mimeType != NULL)
 			xmlFree(ctxt->mimeType);

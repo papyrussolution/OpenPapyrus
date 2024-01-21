@@ -1229,7 +1229,7 @@ long lookup_color_name(char * string)
 		color = pm3d_color_names_tbl[iret].value;
 	else if(string[0] == '#')
 		iret = sscanf(string, "#%lx", &color);
-	else if(string[0] == '0' && (string[1] == 'x' || string[1] == 'X'))
+	else if(string[0] == '0' && oneof2(string[1], 'x', 'X'))
 		iret = sscanf(string, "%lx", &color);
 	return color;
 }

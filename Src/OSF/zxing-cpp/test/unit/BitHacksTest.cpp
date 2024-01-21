@@ -11,25 +11,25 @@ TEST(BitHackTest, BitHacks)
 {
 	using namespace ZXing::BitHacks;
 
-	EXPECT_EQ(NumberOfLeadingZeros(0), 32);
-	EXPECT_EQ(NumberOfLeadingZeros(1), 31);
-	EXPECT_EQ(NumberOfLeadingZeros(0xffffffff), 0);
+	EXPECT_EQ(SBits::Clz(0U), 32);
+	EXPECT_EQ(SBits::Clz(1U), 31);
+	EXPECT_EQ(SBits::Clz(0xffffffff), 0);
 
-//	EXPECT_EQ(NumberOfTrailingZeros(0), 32);
-	EXPECT_EQ(NumberOfTrailingZeros(1), 0);
-	EXPECT_EQ(NumberOfTrailingZeros(2), 1);
-	EXPECT_EQ(NumberOfTrailingZeros(0xffffffff), 0);
+//	EXPECT_EQ(SBits::Ctz(0), 32);
+	EXPECT_EQ(SBits::Ctz(1U), 0);
+	EXPECT_EQ(SBits::Ctz(2U), 1);
+	EXPECT_EQ(SBits::Ctz(0xffffffff), 0);
 
 	EXPECT_EQ(Reverse(0), 0);
 	EXPECT_EQ(Reverse(1), 0x80000000);
 	EXPECT_EQ(Reverse(0xffffffff), 0xffffffff);
 	EXPECT_EQ(Reverse(0xff00ff00), 0x00ff00ff);
 
-	EXPECT_EQ(CountBitsSet(0), 0);
-	EXPECT_EQ(CountBitsSet(1), 1);
-	EXPECT_EQ(CountBitsSet(2), 1);
-	EXPECT_EQ(CountBitsSet(0xffffffff), 32);
-	EXPECT_EQ(CountBitsSet(0x11111111), 8);
+	EXPECT_EQ(SBits::Cpop(0U), 0);
+	EXPECT_EQ(SBits::Cpop(1U), 1);
+	EXPECT_EQ(SBits::Cpop(2U), 1);
+	EXPECT_EQ(SBits::Cpop(0xffffffff), 32);
+	EXPECT_EQ(SBits::Cpop(0x11111111U), 8);
 
 	EXPECT_EQ(HighestBitSet(0x1), 0);
 	EXPECT_EQ(HighestBitSet(0xffffffff), 31);

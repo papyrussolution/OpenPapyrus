@@ -5886,11 +5886,9 @@ static void pr_pointsize()
 		pointsize = 1;
 	}
 }
-
-/*-----------------------------------------------------------------------------
- *   pr_width - determine line width values
- *---------------------------------------------------------------------------*/
-
+//
+// pr_width - determine line width values
+//
 static const char width_keys[Nwidths][30] = { "border", "axis", "line1", "line2", "line3", "line4", "line5", "line6", "line7", "line8" };
 
 static void pr_width()
@@ -5901,7 +5899,7 @@ static void pr_width()
 		strcat(option, width_keys[n]);
 		strcat(option, "Width");
 		if((v = pr_GetR(db, option)) != NULL) {
-			if(*v < '0' || *v > '9' || strlen(v) > 1)
+			if(!isdec(*v) || strlen(v) > 1)
 				fprintf(stderr, "gnuplot: illegal width value %s:%s\n", option, v);
 			else
 				widths[n] = (uint)satoi(v);

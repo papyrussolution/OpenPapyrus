@@ -87,7 +87,7 @@ namespace ZXing {
 		auto length = maxAbsComponent(position().topLeft() - position().bottomRight());
 		auto dLength = std::abs(length - maxAbsComponent(o.position().topLeft() - o.position().bottomRight()));
 
-		return std::min(dTop, dBot) < length / 2 && dLength < length / 5;
+		return smin(dTop, dBot) < length / 2 && dLength < length / 5;
 	}
 
 	Result MergeStructuredAppendSequence(const Results& results)

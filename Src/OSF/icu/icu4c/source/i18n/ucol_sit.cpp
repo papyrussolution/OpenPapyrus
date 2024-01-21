@@ -207,7 +207,7 @@ static char16_t readHexCodeUnit(const char ** string, UErrorCode * status)
 	char c;
 	int32_t noDigits = 0;
 	while((c = **string) != 0 && noDigits < 4) {
-		if(c >= '0' && c <= '9') {
+		if(isdec(c)) {
 			value = c - '0';
 		}
 		else if(c >= 'a' && c <= 'f') {

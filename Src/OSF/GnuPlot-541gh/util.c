@@ -450,7 +450,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			got_hash = TRUE;
 		}
 		// dont put isdigit first since side effect in macro is bad 
-		while(*++pFormat == '.' || isdigit((uchar)*pFormat) || oneof4(*pFormat, '-', '+', ' ', '\''))
+		while(*++pFormat == '.' || isdec((uchar)*pFormat) || oneof4(*pFormat, '-', '+', ' ', '\''))
 			*t++ = *pFormat;
 		//}}} 
 		//{{{  convert conversion character 

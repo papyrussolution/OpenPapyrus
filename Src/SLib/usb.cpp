@@ -740,7 +740,7 @@ int SRawInputData::InitRawInputProc(int unreg)
 			}
 		}
 		else if(RawInputProcStatus == 0) {
-			p_lib_user32 = new SDynLibrary("USER32.DLL");
+			p_lib_user32 = new SDynLibrary("user32.dll");
 			if(p_lib_user32 && p_lib_user32->IsValid()) {
 				RegisterRawInputDevicesProc = (REGISTERRAWINPUTDEVICES)p_lib_user32->GetProcAddr("RegisterRawInputDevices");
 				GetRawInputDataProc = (GETRAWINPUTDATA)p_lib_user32->GetProcAddr("GetRawInputData");

@@ -4,15 +4,8 @@
 #pragma hdrstop
 #include "svg-imp.h"
 
-int svg_is_whitespace_or_comma(int c)
-{
-	return (c == 0x20) || (c == 0x9) || (c == 0xD) || (c == 0xA) || (c == ',');
-}
-
-int svg_is_whitespace(int c)
-{
-	return (c == 0x20) || (c == 0x9) || (c == 0xD) || (c == 0xA);
-}
+int svg_is_whitespace_or_comma(int c) { return (c == 0x20) || (c == 0x9) || (c == 0xD) || (c == 0xA) || (c == ','); }
+int svg_is_whitespace(int c) { return (c == 0x20) || (c == 0x9) || (c == 0xD) || (c == 0xA); }
 
 //int svg_is_alpha(int c) { return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); }
 int svg_is_digit(int c) { return (c >= '0' && c <= '9') || (c == 'e') || (c == 'E') || (c == '+') || (c == '-') || (c == '.'); }
@@ -22,18 +15,18 @@ const char * svg_lex_number(float * fp, const char * ss)
 	const char * s = ss;
 	if(*s == '-')
 		++s;
-	while(*s >= '0' && *s <= '9')
+	while(isdec(*s))
 		++s;
 	if(*s == '.') {
 		++s;
-		while(*s >= '0' && *s <= '9')
+		while(isdec(*s))
 			++s;
 	}
 	if(*s == 'e' || *s == 'E') {
 		++s;
 		if(*s == '+' || *s == '-')
 			++s;
-		while(*s >= '0' && *s <= '9')
+		while(isdec(*s))
 			++s;
 	}
 	*fp = fz_atof(ss);

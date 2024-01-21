@@ -358,7 +358,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 	}
 	if(parser->os_type == ftp_parselist_data::OS_TYPE_UNKNOWN && bufflen > 0) {
 		/* considering info about FILE response format */
-		parser->os_type = ISDIGIT(buffer[0]) ? ftp_parselist_data::OS_TYPE_WIN_NT : ftp_parselist_data::OS_TYPE_UNIX;
+		parser->os_type = isdec(buffer[0]) ? ftp_parselist_data::OS_TYPE_WIN_NT : ftp_parselist_data::OS_TYPE_UNIX;
 	}
 	while(i < bufflen) { /* FSM */
 		char * mem;
@@ -418,7 +418,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 								       whitespace and then the digits */
 								    while(ISBLANK(*endptr))
 									    endptr++;
-								    while(ISDIGIT(*endptr))
+								    while(isdec(*endptr))
 									    endptr++;
 								    if(*endptr) {
 									    parser->error = CURLE_FTP_BAD_FILE_LIST;
@@ -484,7 +484,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 					switch(parser->state.UNIX.sub.hlinks) {
 						case pl_unix_substate::PL_UNIX_HLINKS_PRESPACE:
 						    if(c != ' ') {
-							    if(ISDIGIT(c)) {
+							    if(isdec(c)) {
 								    parser->item_offset = len - 1;
 								    parser->item_length = 1;
 								    parser->state.UNIX.sub.hlinks = pl_unix_substate::PL_UNIX_HLINKS_NUMBER;
@@ -511,7 +511,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 							    parser->state.UNIX.main = PL_UNIX_USER;
 							    parser->state.UNIX.sub.user = pl_unix_substate::PL_UNIX_USER_PRESPACE;
 						    }
-						    else if(!ISDIGIT(c)) {
+						    else if(!isdec(c)) {
 							    parser->error = CURLE_FTP_BAD_FILE_LIST;
 							    goto fail;
 						    }
@@ -566,7 +566,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 					switch(parser->state.UNIX.sub.size) {
 						case pl_unix_substate::PL_UNIX_SIZE_PRESPACE:
 						    if(c != ' ') {
-							    if(ISDIGIT(c)) {
+							    if(isdec(c)) {
 								    parser->item_offset = len - 1;
 								    parser->item_length = 1;
 								    parser->state.UNIX.sub.size = pl_unix_substate::PL_UNIX_SIZE_NUMBER;
@@ -595,7 +595,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 								    parser->state.UNIX.sub.time = pl_unix_substate::PL_UNIX_TIME_PREPART1;
 							    }
 						    }
-						    else if(!ISDIGIT(c)) {
+						    else if(!isdec(c)) {
 							    parser->error = CURLE_FTP_BAD_FILE_LIST;
 							    goto fail;
 						    }
@@ -606,7 +606,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 					switch(parser->state.UNIX.sub.time) {
 						case pl_unix_substate::PL_UNIX_TIME_PREPART1:
 						    if(c != ' ') {
-							    if(ISALNUM(c)) {
+							    if(isasciialnum(c)) {
 								    parser->item_offset = len -1;
 								    parser->item_length = 1;
 								    parser->state.UNIX.sub.time = pl_unix_substate::PL_UNIX_TIME_PART1;
@@ -622,7 +622,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 						    if(c == ' ') {
 							    parser->state.UNIX.sub.time = pl_unix_substate::PL_UNIX_TIME_PREPART2;
 						    }
-						    else if(!ISALNUM(c) && c != '.') {
+						    else if(!isasciialnum(c) && c != '.') {
 							    parser->error = CURLE_FTP_BAD_FILE_LIST;
 							    goto fail;
 						    }
@@ -630,7 +630,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 						case pl_unix_substate::PL_UNIX_TIME_PREPART2:
 						    parser->item_length++;
 						    if(c != ' ') {
-							    if(ISALNUM(c)) {
+							    if(isasciialnum(c)) {
 								    parser->state.UNIX.sub.time = pl_unix_substate::PL_UNIX_TIME_PART2;
 							    }
 							    else {
@@ -644,7 +644,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 						    if(c == ' ') {
 							    parser->state.UNIX.sub.time = pl_unix_substate::PL_UNIX_TIME_PREPART3;
 						    }
-						    else if(!ISALNUM(c) && c != '.') {
+						    else if(!isasciialnum(c) && c != '.') {
 							    parser->error = CURLE_FTP_BAD_FILE_LIST;
 							    goto fail;
 						    }
@@ -652,7 +652,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 						case pl_unix_substate::PL_UNIX_TIME_PREPART3:
 						    parser->item_length++;
 						    if(c != ' ') {
-							    if(ISALNUM(c)) {
+							    if(isasciialnum(c)) {
 								    parser->state.UNIX.sub.time = pl_unix_substate::PL_UNIX_TIME_PART3;
 							    }
 							    else {
@@ -680,7 +680,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 								    parser->state.UNIX.sub.filename = pl_unix_substate::PL_UNIX_FILENAME_PRESPACE;
 							    }
 						    }
-						    else if(!ISALNUM(c) && c != '.' && c != ':') {
+						    else if(!isasciialnum(c) && c != '.' && c != ':') {
 							    parser->error = CURLE_FTP_BAD_FILE_LIST;
 							    goto fail;
 						    }

@@ -115,7 +115,7 @@ static void ColouriseForthDoc(Sci_PositionU startPos, Sci_Position length, int i
 			    (sc.atLineEnd  || IsASpaceChar(sc.chNext))) {
 				sc.SetState(SCE_FORTH_COMMENT_ML);
 			}
-			else if(     (sc.ch == '$' && (IsASCII(sc.chNext) && isxdigit(sc.chNext)))) {
+			else if((sc.ch == '$' && (IsASCII(sc.chNext) && isxdigit(sc.chNext)))) {
 				// number starting with $ is a hex number
 				sc.SetState(SCE_FORTH_NUMBER);
 				while(sc.More() && IsASCII(sc.chNext) && isxdigit(sc.chNext))

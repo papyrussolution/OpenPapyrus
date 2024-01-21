@@ -1,5 +1,5 @@
 // CHKPAN.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Панель ввода кассовых чеков
 //
@@ -319,7 +319,7 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, boo
 				setStaticText(CTL_CHKPAN_CHKID,   temp_buf.Z().Cat(P_ChkPack->Rec.ID));
 				setStaticText(CTL_CHKPAN_CHKDTTM, temp_buf.Z().Cat(P_ChkPack->Rec.Dt).Space().Cat(P_ChkPack->Rec.Tm));
 				setStaticText(CTL_CHKPAN_CHKNUM,  temp_buf.Z().Cat(P_ChkPack->Rec.Code));
-				setStaticText(CTL_CHKPAN_CASHNUM, temp_buf.Z().Cat(P_ChkPack->Rec.CashID));
+				setStaticText(CTL_CHKPAN_CASHNUM, temp_buf.Z().Cat(P_ChkPack->Rec.PosNodeID));
 				setStaticText(CTL_CHKPAN_INITDTM, temp_buf.Z().Cat(P_ChkPack->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO));
 				// @v10.6.8 {
 				if(P_ChkPack->Ext.CreationUserID)
@@ -1326,7 +1326,7 @@ int CPosProcessor::GetCheckInfo(CCheckPacket * pPack)
 {
 	int    ok = 1;
 	CCheckTbl::Rec rec;
-	pPack->Rec.CashID = CashNodeID;
+	pPack->Rec.PosNodeID = CashNodeID;
 	CCheckCore & r_cc = GetCc();
 	if(CheckID && r_cc.Search(CheckID, &pPack->Rec) > 0) {
 		CCheckExtTbl::Rec ext_rec;
@@ -1492,7 +1492,7 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 					CCheckPacket pack;
 					InitCashMachine();
 					pack.Rec.SessID = P_CM ? P_CM->GetCurSessID() : 0;
-					pack.Rec.CashID = CashNodeID;
+					pack.Rec.PosNodeID = CashNodeID;
 					pack.Rec.Flags |= (CCHKF_SYNC | CCHKF_NOTUSED);
 					Helper_InitCcPacket(&pack, 0, 0, 0);
 					if(SuspCheckID && GetCc().Search(SuspCheckID, &org_cc_rec) > 0) {
@@ -2501,7 +2501,7 @@ int CPosProcessor::AcceptCheckToBeCleared()
 	CCheckPacket pack;
 	GetNewCheckCode(CashNodeID, &pack.Rec.Code);
 	pack.Rec.SessID = 0;
-	pack.Rec.CashID = 0;
+	pack.Rec.PosNodeID = 0;
 	pack.Rec.Flags |= (CCHKF_SYNC|CCHKF_NOTUSED|CCHKF_SKIP);
 	THROW(Helper_InitCcPacket(&pack, 0, 0, iccpSetCurTime));
 	{
@@ -2609,7 +2609,7 @@ int CPosProcessor::AutosaveCheck()
 				THROW_PP(OperRightsFlags & orfPrintCheck, PPERR_NORIGHTS);
 			}
 			epb.Pack.Rec.SessID = P_CM->GetCurSessID();
-			epb.Pack.Rec.CashID = CashNodeID;
+			epb.Pack.Rec.PosNodeID = CashNodeID;
 			epb.Pack.Rec.Flags |= (CCHKF_SYNC|CCHKF_NOTUSED);
 			SETFLAG(epb.Pack.Rec.Flags, CCHKF_INCORPCRD, CSt.GetID() && Flags & fSCardCredit);
 			epb.Pack.Rec.Flags &= ~CCHKF_BONUSCARD;
@@ -2637,7 +2637,7 @@ int CPosProcessor::AutosaveCheck()
 					const long preserve_ext_pack_flags = epb.ExtPack.Rec.Flags;
 					GetNewCheckCode(ExtCashNodeID, &epb.ExtPack.Rec.Code);
 					epb.ExtPack.Rec.SessID = P_CM_EXT->GetCurSessID(); // @!
-					epb.ExtPack.Rec.CashID = ExtCashNodeID;
+					epb.ExtPack.Rec.PosNodeID = ExtCashNodeID;
 					epb.ExtPack.Rec.Flags  = epb.Pack.Rec.Flags;
 					epb.ExtPack.SetupAmount(&amt, &dscnt);
 					if(iccpr == 2) {
@@ -3604,7 +3604,7 @@ int FASTCALL CheckPaneDialog::valid(ushort command)
 						else {
 							InitCashMachine();
 							pack.Rec.SessID = P_CM ? P_CM->GetCurSessID() : 0;
-							pack.Rec.CashID = CashNodeID;
+							pack.Rec.PosNodeID = CashNodeID;
 							pack.Rec.Flags |= (CCHKF_SYNC | CCHKF_NOTUSED);
 							Helper_InitCcPacket(&pack, 0, 0, 0);
 						}
@@ -4148,8 +4148,8 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							if(GetCc().GetListByCode(bis.PosId, bis.CcCode, &cc_list) > 0) {
                                 for(uint i = 0; i < cc_list.getCount(); i++) {
                                 	const CCheckTbl::Rec & r_rec = cc_list.at(i);
-                                	assert(r_rec.CashID == CashNodeID && r_rec.Code == bis.CcCode);
-                                    if(r_rec.CashID == CashNodeID && r_rec.Code == bis.CcCode) { // @paranoic
+                                	assert(r_rec.PosNodeID == CashNodeID && r_rec.Code == bis.CcCode);
+                                    if(r_rec.PosNodeID == CashNodeID && r_rec.Code == bis.CcCode) { // @paranoic
                                         if(r_rec.Flags & CCHKF_SUSPENDED) {
                                         	candid_count++;
 											LDATETIME cc_dtm;
@@ -5135,7 +5135,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 								int   do_remove = 0;
 								if(p_rec->Flags & CCHKF_SKIP)
 									do_remove = 1;
-								else if(P_AddParam && P_AddParam->NodeID && p_rec->CashID != P_AddParam->NodeID)
+								else if(P_AddParam && P_AddParam->NodeID && p_rec->PosNodeID != P_AddParam->NodeID)
 									do_remove = 1;
 								else if(cc_amt == 0.0)
 									do_remove = 1;
@@ -5556,7 +5556,7 @@ int SelCheckListDialog::SplitCheck()
 							add_pack.Ext.GuestCount = 0;
 							{
 								CCheckTbl::Rec chk_rec;
-								add_pack.Rec.Code = 1 + ((r_cc.GetLastCheckByCode(pack.Rec.CashID, &chk_rec) > 0) ? chk_rec.Code : pack.Rec.Code);
+								add_pack.Rec.Code = 1 + ((r_cc.GetLastCheckByCode(pack.Rec.PosNodeID, &chk_rec) > 0) ? chk_rec.Code : pack.Rec.Code);
 							}
 							getcurdatetime(&add_pack.Rec.Dt, &add_pack.Rec.Tm);
 							pack.ClearLines();
@@ -8520,7 +8520,7 @@ int CPosProcessor::Helper_RemoveRow(long rowNo, const CCheckItem & rItem)
 		else {
 			InitCashMachine();
 			pack.Rec.SessID = P_CM ? P_CM->GetCurSessID() : 0;
-			pack.Rec.CashID = CashNodeID;
+			pack.Rec.PosNodeID = CashNodeID;
 			pack.Rec.Flags |= (CCHKF_SYNC | CCHKF_NOTUSED);
 		}
 		Helper_InitCcPacket(&pack, 0, 0, 0);
@@ -10170,7 +10170,7 @@ int SCardInfoDialog::setupList()
 					ss.Z();
 					ss.add(temp_buf.Z().Cat(item.Dt));                                // Дата
 					ss.add(temp_buf.Z().Cat(item.Tm));                                // Время //
-					ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
+					ss.add(temp_buf.Z().Cat(item.PosNodeID));                         // Касса
 					ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
 					ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
 					ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
@@ -11841,7 +11841,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 		else
 			GetNewCheckCode(CashNodeID, &pack.Rec.Code);
 		pack.Rec.SessID = P_CM->GetCurSessID();
-		pack.Rec.CashID = CashNodeID;
+		pack.Rec.PosNodeID = CashNodeID;
 		pack.Rec.Flags |= (CCHKF_SYNC | CCHKF_NOTUSED);
 		SETFLAG(pack.Rec.Flags, CCHKF_INCORPCRD, CSt.GetID() && Flags & fSCardCredit);
 		pack.Rec.Flags &= ~CCHKF_BONUSCARD;
@@ -11868,7 +11868,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 				double amt, dscnt;
 				GetNewCheckCode(ExtCashNodeID, &ext_pack.Rec.Code);
 				ext_pack.Rec.SessID = P_CM_EXT->GetCurSessID();
-				ext_pack.Rec.CashID = ExtCashNodeID;
+				ext_pack.Rec.PosNodeID = ExtCashNodeID;
 				ext_pack.Rec.Flags  = pack.Rec.Flags;
 				ext_pack.SetupAmount(&amt, &dscnt);
 				P.SetupCCheckPacket(&ext_pack, CSt, true);
@@ -11970,7 +11970,7 @@ int CheckPaneDialog::PrintCheckCopy()
 			THROW(r = GetCc().LoadPacket(chk_id, 0, &pack));
 			if(r > 0) {
 				PPCashNode     cn_rec;
-				if(P_CM_EXT && pack.Rec.CashID && CnObj.Fetch(pack.Rec.CashID, &cn_rec) > 0 && cn_rec.LocID == ExtCnLocID) {
+				if(P_CM_EXT && pack.Rec.PosNodeID && CnObj.Fetch(pack.Rec.PosNodeID, &cn_rec) > 0 && cn_rec.LocID == ExtCnLocID) {
 					THROW(P_CM_EXT->SyncPrintCheckCopy(&pack, format_name));
 				}
 				else {

@@ -214,7 +214,7 @@ static int32_t unorm_cmpEquivFold(const char16_t * s1, int32_t length1, const ch
 				do {
 					--level1;
 					start1 = stack1[level1].start; /*Not uninitialized*/
-				} while(start1==NULL);
+				} while(!start1);
 				s1 = stack1[level1].s; /*Not uninitialized*/
 				limit1 = stack1[level1].limit; /*Not uninitialized*/
 			}
@@ -238,7 +238,7 @@ static int32_t unorm_cmpEquivFold(const char16_t * s1, int32_t length1, const ch
 				do {
 					--level2;
 					start2 = stack2[level2].start; /*Not uninitialized*/
-				} while(start2==NULL);
+				} while(!start2);
 				s2 = stack2[level2].s; /*Not uninitialized*/
 				limit2 = stack2[level2].limit; /*Not uninitialized*/
 			}

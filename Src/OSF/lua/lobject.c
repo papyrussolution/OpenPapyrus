@@ -173,7 +173,8 @@ static int isneg(const char ** s) {
 ** convert an hexadecimal numeric string to a number, following
 ** C99 specification for 'strtod'
 */
-static lua_Number lua_strx2number(const char * s, char ** endptr) {
+static lua_Number lua_strx2number(const char * s, char ** endptr) 
+{
 	int dot = lua_getlocaledecpoint();
 	lua_Number r = 0.0; /* result (accumulator) */
 	int sigdig = 0; /* number of significant digits */
@@ -184,7 +185,7 @@ static lua_Number lua_strx2number(const char * s, char ** endptr) {
 	*endptr = cast(char *, s); /* nothing is valid yet */
 	while(lisspace(cast_uchar(*s))) s++; /* skip initial spaces */
 	neg = isneg(&s); /* check signal */
-	if(!(*s == '0' && (*(s + 1) == 'x' || *(s + 1) == 'X'))) /* check '0x' */
+	if(!(*s == '0' && oneof2(*(s + 1), 'x', 'X'))) /* check '0x' */
 		return 0.0; /* invalid format (no '0x') */
 	for(s += 2;; s++) { /* skip '0x' and read numeral */
 		if(*s == dot) {
@@ -276,14 +277,14 @@ static const char * l_str2d(const char * s, lua_Number * result) {
 #define MAXBY10         cast(lua_Unsigned, LUA_MAXINTEGER / 10)
 #define MAXLASTD        cast_int(LUA_MAXINTEGER % 10)
 
-static const char * l_str2int(const char * s, lua_Integer * result) {
+static const char * l_str2int(const char * s, lua_Integer * result) 
+{
 	lua_Unsigned a = 0;
 	int empty = 1;
 	int neg;
 	while(lisspace(cast_uchar(*s))) s++; /* skip initial spaces */
 	neg = isneg(&s);
-	if(s[0] == '0' &&
-	    (s[1] == 'x' || s[1] == 'X')) { /* hex? */
+	if(s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) { /* hex? */
 		s += 2; /* skip '0x' */
 		for(; lisxdigit(cast_uchar(*s)); s++) {
 			a = a * 16 + luaO_hexavalue(*s);

@@ -4484,16 +4484,17 @@ static char find_delim(char ** pp, int colon_and_at_sign_are_delims)
 			    *pp = from;
 			    return ch;
 
-			case '%': {
-			    unsigned int val;
-			    int chars;
-			    int res = sscanf(from, "%2x%n", &val, &chars);
-			    if(res == EOF || res < 1 || chars != 2 || val > CHAR_MAX)
-				    return '%'; // Return a surprising delimiter to force an error. 
-			    *to++ = (char)val;
-			    from += 2;
-			    break;
-		    }
+			case '%': 
+				{
+					uint val;
+					int chars;
+					int res = sscanf(from, "%2x%n", &val, &chars);
+					if(res == EOF || res < 1 || chars != 2 || val > CHAR_MAX)
+						return '%'; // Return a surprising delimiter to force an error. 
+					*to++ = (char)val;
+					from += 2;
+				}
+				break;
 			default:
 			    *to++ = ch;
 			    break;

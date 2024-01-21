@@ -10,81 +10,21 @@
 
 namespace ZXing {
 namespace Pdf417 {
-/**
- * code for Text compaction
- */
-static const int TEXT_COMPACTION = 0;
-
-/**
- * code for Byte compaction
- */
-static const int BYTE_COMPACTION = 1;
-
-/**
- * code for Numeric compaction
- */
-static const int NUMERIC_COMPACTION = 2;
-
-/**
- * Text compaction submode Alpha
- */
-static const int SUBMODE_ALPHA = 0;
-
-/**
- * Text compaction submode Lower
- */
-static const int SUBMODE_LOWER = 1;
-
-/**
- * Text compaction submode Mixed
- */
-static const int SUBMODE_MIXED = 2;
-
-/**
- * Text compaction submode Punctuation
- */
-static const int SUBMODE_PUNCTUATION = 3;
-
-/**
- * mode latch to Text Compaction mode
- */
-static const int LATCH_TO_TEXT = 900;
-
-/**
- * mode latch to Byte Compaction mode (number of characters NOT a multiple of 6)
- */
-static const int LATCH_TO_BYTE_PADDED = 901;
-
-/**
- * mode latch to Numeric Compaction mode
- */
-static const int LATCH_TO_NUMERIC = 902;
-
-/**
- * mode shift to Byte Compaction mode
- */
-static const int SHIFT_TO_BYTE = 913;
-
-/**
- * mode latch to Byte Compaction mode (number of characters a multiple of 6)
- */
-static const int LATCH_TO_BYTE = 924;
-
-/**
- * identifier for a user defined Extended Channel Interpretation (ECI)
- */
-static const int ECI_USER_DEFINED = 925;
-
-/**
- * identifier for a general purpose ECO format
- */
-static const int ECI_GENERAL_PURPOSE = 926;
-
-/**
- * identifier for an ECI of a character set of code page
- */
-static const int ECI_CHARSET = 927;
-
+static const int TEXT_COMPACTION = 0; // code for Text compaction
+static const int BYTE_COMPACTION = 1; // code for Byte compaction
+static const int NUMERIC_COMPACTION = 2; // code for Numeric compaction
+static const int SUBMODE_ALPHA = 0; // Text compaction submode Alpha
+static const int SUBMODE_LOWER = 1; // Text compaction submode Lower
+static const int SUBMODE_MIXED = 2; // Text compaction submode Mixed
+static const int SUBMODE_PUNCTUATION = 3; // Text compaction submode Punctuation
+static const int LATCH_TO_TEXT = 900; // mode latch to Text Compaction mode
+static const int LATCH_TO_BYTE_PADDED = 901; // mode latch to Byte Compaction mode (number of characters NOT a multiple of 6)
+static const int LATCH_TO_NUMERIC = 902; // mode latch to Numeric Compaction mode
+static const int SHIFT_TO_BYTE = 913; // mode shift to Byte Compaction mode
+static const int LATCH_TO_BYTE = 924; // mode latch to Byte Compaction mode (number of characters a multiple of 6)
+static const int ECI_USER_DEFINED = 925; // identifier for a user defined Extended Channel Interpretation (ECI)
+static const int ECI_GENERAL_PURPOSE = 926; // identifier for a general purpose ECO format
+static const int ECI_CHARSET = 927; // identifier for an ECI of a character set of code page
 /**
  * Raw code table for text compaction Mixed sub-mode
  */
@@ -159,35 +99,12 @@ static void EncodingECI(int eci, std::vector<int>& buffer)
 	}
 }
 
-static bool IsDigit(int ch)
-{
-	return ch >= '0' && ch <= '9';
-}
-
-static bool IsAlphaUpper(int ch)
-{
-	return ch == ' ' || (ch >= 'A' && ch <= 'Z');
-}
-
-static bool IsAlphaLower(int ch)
-{
-	return ch == ' ' || (ch >= 'a' && ch <= 'z');
-}
-
-static bool IsMixed(int ch)
-{
-	return (ch & 0x7f) == ch && MIXED[ch] != -1;
-}
-
-static bool IsPunctuation(int ch)
-{
-	return (ch & 0x7f) == ch && PUNCTUATION[ch] != -1;
-}
-
-static bool IsText(int ch)
-{
-	return ch == '\t' || ch == '\n' || ch == '\r' || (ch >= 32 && ch <= 126);
-}
+// @sobolev (replaced with isdec) static bool IsDigit_Removed(int ch) { return ch >= '0' && ch <= '9'; }
+static bool IsAlphaUpper(int ch) { return ch == ' ' || (ch >= 'A' && ch <= 'Z'); }
+static bool IsAlphaLower(int ch) { return ch == ' ' || (ch >= 'a' && ch <= 'z'); }
+static bool IsMixed(int ch) { return (ch & 0x7f) == ch && MIXED[ch] != -1; }
+static bool IsPunctuation(int ch) { return (ch & 0x7f) == ch && PUNCTUATION[ch] != -1; }
+static bool IsText(int ch) { return ch == '\t' || ch == '\n' || ch == '\r' || (ch >= 32 && ch <= 126); }
 
 /**
  * Encode parts of the message using Text Compaction as described in ISO/IEC 15438:2001(E),
@@ -366,7 +283,7 @@ static void EncodeNumeric(const std::wstring& msg, int startpos, int count, std:
 	BigInteger num900(900);
 	while(idx < count) {
 		tmp.clear();
-		int len = std::min(44, count - idx);
+		int len = smin(44, count - idx);
 		auto part = L"1" + msg.substr(startpos + idx, len);
 
 		BigInteger bigint, r;
@@ -396,7 +313,7 @@ static int DetermineConsecutiveDigitCount(const std::wstring& msg, int startpos)
 	size_t idx = startpos;
 	if(idx < len) {
 		int ch = msg[idx];
-		while(IsDigit(ch) && idx < len) {
+		while(isdec(ch) && idx < len) {
 			count++;
 			idx++;
 			if(idx < len) {
@@ -421,7 +338,7 @@ static int DetermineConsecutiveTextCount(const std::wstring& msg, int startpos)
 	while(idx < len) {
 		int ch = msg[idx];
 		int numericCount = 0;
-		while(numericCount < 13 && IsDigit(ch) && idx < len) {
+		while(numericCount < 13 && isdec(ch) && idx < len) {
 			numericCount++;
 			idx++;
 			if(idx < len) {
@@ -461,8 +378,7 @@ static int DetermineConsecutiveBinaryCount(const std::wstring& msg, int startpos
 	while(idx < len) {
 		int ch = msg[idx];
 		int numericCount = 0;
-
-		while(numericCount < 13 && IsDigit(ch)) {
+		while(numericCount < 13 && isdec(ch)) {
 			numericCount++;
 			//textCount++;
 			size_t i = idx + numericCount;

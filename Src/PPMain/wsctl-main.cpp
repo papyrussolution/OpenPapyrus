@@ -414,6 +414,7 @@ public:
 		screenAuthSelectSess = 5, // авторизованный режим - выбор сессии
 		screenSession        = 6, // рабочая сессия //
 		screenIntro          = 7, // Заголовочный экран
+		screenAdmin          = 8, // Администраторский экран 
 	};
 	//
 	enum {
@@ -447,6 +448,7 @@ public:
 		loidButtonStart               = 10025,
 		loidLogo                      = 10026,
 		loidToolbar                   = 10027, // Область панели инструментов в верхней части окна
+		loidAdminCtrlGroup            = 10028, // Область администраторского экрана с кнопками команд
 		//
 		loidStartProgramEntry         = 20000  // Стартовый идентификатор для иконок выбора программ. Первый layout идентифицируется как (loidStartProgramEntry+1)
 	};
@@ -857,7 +859,7 @@ private:
 	WsCtl_ProgramCollection PgmL; // @v11.7.12 Список программ, которые клиент может запустить из нашей оболочки
 	
 	WsCtl_Config JsP;
-	UiDescription Uid; // @v11.7.12
+	// @v11.9.3 (replaced with SLS.GetUiDescription()) UiDescription Uid; // @v11.7.12
 	State  St;
 	LongArray SyncReqList; // @fastreuse Список объектов состояния, для которых необходимо запросить обновление у сервера (по таймеру)
 	WsCtlReqQueue * P_CmdQ; // Очередь команд для сервера. Указатель передается в совместное владение потоку обработки команд
@@ -2163,8 +2165,8 @@ WsCtl_ImGuiSceneBlock::~WsCtl_ImGuiSceneBlock()
 int WsCtl_ImGuiSceneBlock::SetScreen(int scr)
 {
 	int    ok = 0;
-	if(oneof7(scr, screenConstruction, screenHybernat, screenRegister, screenLogin, screenAuthSelectSess, 
-		screenSession, screenIntro)) {
+	if(oneof8(scr, screenConstruction, screenHybernat, screenRegister, screenLogin, screenAuthSelectSess, 
+		screenSession, screenIntro, screenAdmin)) {
 		if(Screen != scr) {
 			Screen = scr;
 			ok = 1;
@@ -2224,8 +2226,9 @@ SString & WsCtl_ImGuiSceneBlock::InputLabelPrefix(const char * pLabel)
 int WsCtl_ImGuiSceneBlock::LoadUiDescription()
 {
 	int    ok = 0;
-	SJson * p_js = 0;
 	SString temp_buf;
+	/*
+	SJson * p_js = 0;
 	PPGetPath(PPPATH_DD, temp_buf);
 	temp_buf.SetLastSlash().Cat("uid").SetLastSlash().Cat("uid-wsctl.json");
 	SFile f_in(temp_buf, SFile::mRead);
@@ -2241,45 +2244,49 @@ int WsCtl_ImGuiSceneBlock::LoadUiDescription()
 		THROW(p_js);
 		THROW(Uid.FromJsonObj(p_js));
 	}
-	{
-		SColorSet * p_cs = Uid.GetColorSet("imgui-style");
-		if(p_cs) {
-			p_cs->Resolve();
-		}
-	}
-	{
-		const bool use_outer_layout_description = true;
-		if(use_outer_layout_description) {
-			for(uint i = 0; i < Uid.LoList.getCount(); i++) {
-				const SUiLayout * p_lo = Uid.LoList.at(i);
-				if(p_lo) {
-					SUiLayout * p_new_lo = new SUiLayout(*p_lo);
-					Cache_Layout.Put(p_new_lo, true);
+	*/
+	const UiDescription * p_uid = SLS.GetUiDescription(); // @v11.9.3
+	if(p_uid) {
+		/* (это делает функция SlSession::LoadUiDescription) {
+			SColorSet * p_cs = p_uid->GetColorSet("imgui-style");
+			if(p_cs) {
+				p_cs->Resolve();
+			}
+		}*/
+		{
+			const bool use_outer_layout_description = true;
+			if(use_outer_layout_description) {
+				for(uint i = 0; i < p_uid->LoList.getCount(); i++) {
+					const SUiLayout * p_lo = p_uid->LoList.at(i);
+					if(p_lo) {
+						SUiLayout * p_new_lo = new SUiLayout(*p_lo);
+						Cache_Layout.Put(p_new_lo, true);
+					}
 				}
 			}
-		}
-		else {
-			SJson * p_js_lo_list = 0;
-			MakeLayout(&p_js_lo_list);
-			if(p_js_lo_list) {
-				SString temp_buf;
-				PPGetFilePath(PPPATH_OUT, "uid-wsctl.json", temp_buf);
-				SFile f_out(temp_buf, SFile::mWrite);
-				if(f_out.IsValid()) {
-					SJson js_ui(SJson::tOBJECT);
-					js_ui.Insert("layout_list", p_js_lo_list);
-					p_js_lo_list = 0;
-					SString js_fmt_buf;
-					js_ui.ToStr(temp_buf);
-					SJson::FormatText(temp_buf, js_fmt_buf);
-					f_out.Write(js_fmt_buf, js_fmt_buf.Len());
+			else {
+				SJson * p_js_lo_list = 0;
+				MakeLayout(&p_js_lo_list);
+				if(p_js_lo_list) {
+					SString temp_buf;
+					PPGetFilePath(PPPATH_OUT, "uid-wsctl.json", temp_buf);
+					SFile f_out(temp_buf, SFile::mWrite);
+					if(f_out.IsValid()) {
+						SJson js_ui(SJson::tOBJECT);
+						js_ui.Insert("layout_list", p_js_lo_list);
+						p_js_lo_list = 0;
+						SString js_fmt_buf;
+						js_ui.ToStr(temp_buf);
+						SJson::FormatText(temp_buf, js_fmt_buf);
+						f_out.Write(js_fmt_buf, js_fmt_buf.Len());
+					}
+					ZDELETE(p_js_lo_list);
 				}
-				ZDELETE(p_js_lo_list);
 			}
 		}
 	}
 	CATCHZOK
-	delete p_js;
+	//delete p_js;
 	return ok;
 }
 
@@ -2379,6 +2386,7 @@ int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 	}
 	//WsCtlStyleColors(true, 0);
 	//void WsCtlStyleColors(bool useUiDescription, ImGuiStyle * pDest)
+	const UiDescription * p_uid = SLS.GetUiDescription();
 	{
 		const bool use_ui_descripton = true;
 		ImGuiStyle * p_dest_style = 0;
@@ -2437,8 +2445,8 @@ int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 		colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 		colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-		if(use_ui_descripton) {
-			SColorSet * p_cs = Uid.GetColorSet("imgui-style");	
+		if(use_ui_descripton && p_uid) {
+			const SColorSet * p_cs = p_uid->GetColorSetC("imgui-style");	
 			if(p_cs) {
 				for(uint i = 0; i < SIZEOFARRAY(style->Colors); i++) {
 					const char * p_color_name = ImGui::GetStyleColorName(i);
@@ -2452,8 +2460,8 @@ int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 			}
 		}
 	}
-	{
-		SColorSet * p_cs = Uid.GetColorSet("imgui-style");	
+	if(p_uid) {
+		const SColorSet * p_cs = p_uid->GetColorSetC("imgui-style");	
 		{
 			///Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf
 			//C:/Windows/Fonts/Tahoma.ttf
@@ -2475,7 +2483,7 @@ int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 			{
 				//const char * p_font_face_list[] = { "Roboto", "DroidSans", "Cousine", "Karla", "ProggyClean", "ProggyTiny" };
 				{
-					const SFontSource * p_fs = Uid.GetFontSourceC("Roboto");
+					const SFontSource * p_fs = p_uid->GetFontSourceC("Roboto");
 					if(p_fs) {
 						PPGetPath(PPPATH_BIN, temp_buf);
 						temp_buf.SetLastSlash().Cat("..").SetLastSlash().Cat(p_fs->Src);
@@ -2484,7 +2492,7 @@ int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 					}
 				}
 				{
-					const SFontSource * p_fs = Uid.GetFontSourceC("DroidSans");
+					const SFontSource * p_fs = p_uid->GetFontSourceC("DroidSans");
 					if(p_fs) {
 						PPGetPath(PPPATH_BIN, temp_buf);
 						temp_buf.SetLastSlash().Cat("..").SetLastSlash().Cat(p_fs->Src);
@@ -3370,7 +3378,51 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					ImGui::GetBackgroundDrawList()->AddImage(p_bkg_te->P_Texture, ImVec2(0.0f, 0.0f), /*ImVec2(400.0f, 400.0f)*/sz);
 				}
 			}
-			if(_screen == screenIntro) { // @v11.9.1
+			if(_screen == screenAdmin) { // @v11.9.3
+				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
+				if(p_tl) {
+					p_tl->Evaluate(&evp);
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
+						if(wbl.IsValid()) {
+							void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
+							if(p_icon_back) {
+								if(ImGui::ImageButton(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize))) {
+									SetScreen(screenIntro);
+								}
+								//ImGui::Image(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize));
+							}
+						}
+					}
+					{
+						//loidAdminCtrlGroup            = 10028, // Область администраторского экрана с кнопками команд
+						ImGuiWindowByLayout wbl(p_tl, loidAdminCtrlGroup, "##AdminCtrlGroup", view_flags);
+						if(wbl.IsValid()) {
+							ImVec2 button_size(256.0f, 24.0f);
+							if(ImGui::Button2("Config...", button_size)) {
+								SETIFZQ(P_Dlg_Cfg, new ImDialog_WsCtlConfig(*this, &JsP));
+							}
+							if(ImGui::Button2("Create profile image...", button_size)) {
+								PolicyL.CreateSystemImage();
+							}
+							{
+								if(P_Dlg_Cfg) {
+									int r = P_Dlg_Cfg->Build();
+									if(r != 0) {
+										if(r > 0) {
+											if(P_Dlg_Cfg->CommitData()) {
+												JsP.Write();
+											}
+										}
+										ZDELETE(P_Dlg_Cfg);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(_screen == screenIntro) { // @v11.9.1
 				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
 				if(p_tl) {
 					p_tl->Evaluate(&evp);
@@ -3495,6 +3547,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 										STRNSCPY(req.P.AuthTextUtf8, LoginBlk.LoginText);
 										STRNSCPY(req.P.AuthPwUtf8, LoginBlk.PwText);
 										P_CmdQ->Push(req);
+									}
+									if(ImGui::Button("Admin", ButtonSize_Std)) {
+										SetScreen(screenAdmin);
 									}
 								}
 							}
@@ -4009,7 +4064,7 @@ int main(int, char**)
 {
 	int    result = 0;
 	//
-	DS.Init(PPSession::fWsCtlApp|PPSession::fInitPaths, 0);
+	DS.Init(PPSession::fWsCtlApp|PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/"uid-wsctl.json");
 	// Create application window
 	//ImGui_ImplWin32_EnableDpiAwareness();
 	WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"WSCTL_WCLS", nullptr };

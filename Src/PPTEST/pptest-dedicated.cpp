@@ -26,7 +26,7 @@ int DummyProc_TulipIndicators(); // @prototype @forcelink
 
 int main(int argc, char ** argv)
 {
-	if(DS.Init(PPSession::fInitPaths)) {
+	if(DS.Init(PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/0)) {
 		STestSuite s(STestSuite::fConsole);
 		SRng::CreateInstance((SRng::Algorithm)0, 0); // @forcelink RandomNumberGeneragtor
 		DummyProc_dirent(); // @v10.9.12 @forcelink

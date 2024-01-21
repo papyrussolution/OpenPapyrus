@@ -74,12 +74,11 @@ BitMatrix CodabarWriter::encode(const std::wstring& contents_, int width, int he
 			contents = DEFAULT_GUARD + contents + DEFAULT_GUARD;
 		}
 	}
-
 	// The start character and the end character are decoded to 10 length each.
 	size_t resultLength = 20;
 	for(size_t i = 1; i + 1 < contents.length(); ++i) {
 		auto c = contents[i];
-		if((c >= '0' && c <= '9') || c == '-' || c == '$') {
+		if(isdec(c) || c == '-' || c == '$') {
 			resultLength += 9;
 		}
 		else if(Contains(CHARS_WHICH_ARE_TEN_LENGTH_EACH_AFTER_DECODED, c)) {
@@ -91,7 +90,6 @@ BitMatrix CodabarWriter::encode(const std::wstring& contents_, int width, int he
 	}
 	// A blank is placed between each character.
 	resultLength += contents.length() - 1;
-
 	std::vector<bool> result(resultLength, false);
 	auto position = result.begin();
 	for(wchar_t c : contents) {

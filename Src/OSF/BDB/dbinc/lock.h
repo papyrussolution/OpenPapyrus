@@ -309,8 +309,7 @@ struct __db_lock { /* SHARED */
  *	just return the locker value.
  */
 #define	__lock_locker_hash(locker)	(locker)
-#define	LOCKER_HASH(lt, reg, locker, ndx)				\
-	ndx = __lock_locker_hash(locker) % (reg)->locker_t_size;
+#define	LOCKER_HASH(lt, reg, locker, ndx) ndx = __lock_locker_hash(locker) % (reg)->locker_t_size;
 
 #if defined(__cplusplus)
 }

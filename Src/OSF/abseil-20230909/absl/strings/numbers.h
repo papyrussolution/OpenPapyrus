@@ -122,9 +122,8 @@ ABSL_NAMESPACE_BEGIN
 namespace numbers_internal {
 
 // Digit conversion.
-ABSL_DLL extern const char kHexChar[17];  // 0123456789abcdef
-ABSL_DLL extern const char
-    kHexTable[513];  // 000102030405060708090a0b0c0d0e0f1011...
+// @sobolev ABSL_DLL extern const char kHexChar[17];  // 0123456789abcdef
+ABSL_DLL extern const char kHexTable[513];  // 000102030405060708090a0b0c0d0e0f1011...
 
 // Writes a two-character representation of 'i' to 'buf'. 'i' must be in the
 // range 0 <= i < 100, and buf must have space for two characters. Example:

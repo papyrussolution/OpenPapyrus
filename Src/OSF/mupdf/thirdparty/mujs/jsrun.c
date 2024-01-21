@@ -482,7 +482,7 @@ int js_isarrayindex(js_State * J, const char * p, int * idx)
 
 	while(*p) {
 		int c = *p++;
-		if(c >= '0' && c <= '9') {
+		if(isdec(c)) {
 			if(n >= INT_MAX / 10)
 				return 0;
 			n = n * 10 + (c - '0');

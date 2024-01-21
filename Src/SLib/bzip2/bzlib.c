@@ -1207,7 +1207,7 @@ static BZFILE * bzopen_or_bzdopen(const char * path/* no use when bzdopen */, in
 				case 'w': writing = 1; break;
 				case 's': smallMode = 1; break;
 				default:
-					if(isdigit((int)(*mode))) {
+					if(isdec((int)(*mode))) {
 						blockSize100k = *mode-BZ_HDR_0;
 					}
 			}

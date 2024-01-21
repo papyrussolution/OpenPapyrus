@@ -28,7 +28,7 @@
 int getsubmode(char input)
 {
 	int    submode = 2;
-	if((input >= '0') && (input <= '9'))
+	if(isdec(input))
 		submode = 1;
 	else if((input >= 'A') && (input <= 'Z'))
 		submode = 1;
@@ -242,7 +242,7 @@ static void hx_define_mode(char mode[], const int source[], int length)
 static int lookup_text1(char input)
 {
 	int    encoding_value = 0;
-	if((input >= '0') && (input <= '9')) {
+	if(isdec(input)) {
 		encoding_value = input - '0';
 	}
 	else if((input >= 'A') && (input <= 'Z')) {

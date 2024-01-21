@@ -233,9 +233,9 @@ found_full_mon:
 			    break;
 			case 'w': /* one or two digit weekday number (ignored) */
 			case 'W': /* one or two digit week number (ignored) */
-			    if(isdigit(*s))
+			    if(isdec(*s))
 				    s++;
-			    if(isdigit(*s))
+			    if(isdec(*s))
 				    s++;
 			    break;
 			case 'p': /* am or pm */
@@ -371,13 +371,13 @@ size_t GnuPlot::XStrFTime(char * pStr/* output buffer */, int bsz/* remaining sp
 				z = 1;
 				++pFmt;
 			}
-			while(*pFmt >= '0' && *pFmt <= '9') {
+			while(isdec(*pFmt)) {
 				w = w * 10 + (*pFmt - '0');
 				++pFmt;
 			}
 			if(*pFmt == '.') {
 				++pFmt;
-				while(*pFmt >= '0' && *pFmt <= '9') {
+				while(isdec(*pFmt)) {
 					p = p * 10 + (*pFmt - '0');
 					++pFmt;
 				}
@@ -506,7 +506,7 @@ size_t GnuPlot::XStrFTime(char * pStr/* output buffer */, int bsz/* remaining sp
 						// +/- integral day truncated toward zero 
 						sprintf(s, "%0*d", w, (int)floor(fabs(fulltime/86400.0)));
 						/* Subtract the day component from the total */
-						fulltime -= sgn(fulltime) * 86400. * floor(fabs(fulltime/86400.0));
+						fulltime -= sgn(fulltime) * 86400.0 * floor(fabs(fulltime/86400.0));
 						break;
 					    case 'H':
 						/* +/- fractional hours (not wrapped at 24h) */

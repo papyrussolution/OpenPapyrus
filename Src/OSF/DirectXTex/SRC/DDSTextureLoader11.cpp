@@ -263,8 +263,7 @@ HRESULT LoadTextureDataFromFile(_In_z_ const wchar_t* fileName, std::unique_ptr<
 
 	// Check for DX10 extension
 	bool bDXT10Header = false;
-	if((hdr->ddspf.flags & DDS_FOURCC) &&
-	    (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
+	if((hdr->ddspf.flags & DDS_FOURCC) && (MAKEFOURCC('D', 'X', '1', '0') == hdr->ddspf.fourCC)) {
 		// Must be long enough for both headers and magic value
 		if(fileInfo.EndOfFile.LowPart < (sizeof(uint32_t) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10))) {
 			ddsData.reset();
@@ -1173,30 +1172,23 @@ HRESULT CreateTextureFromDDS(_In_ ID3D11Device* d3dDevice,
     _Outptr_opt_ ID3D11ShaderResourceView** textureView) noexcept
 {
 	HRESULT hr = S_OK;
-
 	const UINT width = header->width;
 	UINT height = header->height;
 	UINT depth = header->depth;
-
 	uint32_t resDim = D3D11_RESOURCE_DIMENSION_UNKNOWN;
 	UINT arraySize = 1;
 	DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
 	bool isCubeMap = false;
-
 	size_t mipCount = header->mipMapCount;
 	if(0 == mipCount) {
 		mipCount = 1;
 	}
-
-	if((header->ddspf.flags & DDS_FOURCC) &&
-	    (MAKEFOURCC('D', 'X', '1', '0') == header->ddspf.fourCC)) {
+	if((header->ddspf.flags & DDS_FOURCC) && (MAKEFOURCC('D', 'X', '1', '0') == header->ddspf.fourCC)) {
 		auto d3d10ext = reinterpret_cast<const DDS_HEADER_DXT10*>(reinterpret_cast<const uint8_t*>(header) + sizeof(DDS_HEADER));
-
 		arraySize = d3d10ext->arraySize;
 		if(arraySize == 0) {
 			return HRESULT_FROM_WIN32(ERROR_INVALID_DATA);
 		}
-
 		switch(d3d10ext->dxgiFormat) {
 			case DXGI_FORMAT_NV12:
 			case DXGI_FORMAT_P010:
@@ -1528,12 +1520,10 @@ DDS_ALPHA_MODE GetAlphaMode(_In_ const DDS_HEADER* header) noexcept
 				    break;
 			}
 		}
-		else if((MAKEFOURCC('D', 'X', 'T', '2') == header->ddspf.fourCC)
-		    || (MAKEFOURCC('D', 'X', 'T', '4') == header->ddspf.fourCC)) {
+		else if((MAKEFOURCC('D', 'X', 'T', '2') == header->ddspf.fourCC) || (MAKEFOURCC('D', 'X', 'T', '4') == header->ddspf.fourCC)) {
 			return DDS_ALPHA_MODE_PREMULTIPLIED;
 		}
 	}
-
 	return DDS_ALPHA_MODE_UNKNOWN;
 }
 

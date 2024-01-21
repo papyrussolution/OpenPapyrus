@@ -1,5 +1,5 @@
 // ECR930.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2007, 2008, 2010, 2011, 2015, 2016, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2007, 2008, 2010, 2011, 2015, 2016, 2019, 2020, 2022, 2024
 // @codepage windows-1251
 // Интерфейс (асинхронный) с ККМ ЭКР-4110
 //
@@ -71,7 +71,7 @@ int ACS_ECR930::FlashCheck(CCheckTbl::Rec * chk, SArray * rows)
 		LDATETIME dm; dm.Set(chk->Dt, chk->Tm);
 		decodetime(&h, &m, &s, &ts, &dm.t);
 		dm.t = encodetime(h, m, (int)(chk->Code % 60), 0);
-		THROW(r = AddTempCheck(&id, chk->SessID, 0, chk->CashID, chk->Code, chk->UserID, 0 /* cardID */, dm, sum, dscnt));
+		THROW(r = AddTempCheck(&id, chk->SessID, 0, chk->PosNodeID, chk->Code, chk->UserID, 0 /* cardID */, dm, sum, dscnt));
 		if(r > 0) {
 			for(i = 0; rows->enumItems(&i, (void **)&e);) {
 				SetupTempCcLineRec(0, id, chk->Code, dm.d, e->div, e->goods);
@@ -128,7 +128,7 @@ int ACS_ECR930::ConvertWareList(int num)
 					prevChk = chk;
 					MEMSZERO(checkr);
 					checkr.Code = chk;
-					checkr.CashID = 1; // ???
+					checkr.PosNodeID = 1; // ???
 					checkr.SessID = z; // ???
 					checkr.Dt = dt;
 					checkr.Tm = tm;

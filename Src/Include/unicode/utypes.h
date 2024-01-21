@@ -179,14 +179,10 @@
  */
 typedef double UDate;
 
-/** The number of milliseconds per second @stable ICU 2.0 */
-#define U_MILLIS_PER_SECOND        (1000)
-/** The number of milliseconds per minute @stable ICU 2.0 */
-#define U_MILLIS_PER_MINUTE       (60000)
-/** The number of milliseconds per hour @stable ICU 2.0 */
-#define U_MILLIS_PER_HOUR       (3600000)
-/** The number of milliseconds per day @stable ICU 2.0 */
-#define U_MILLIS_PER_DAY       (86400000)
+#define U_MILLIS_PER_SECOND        (1000) /** The number of milliseconds per second @stable ICU 2.0 */
+#define U_MILLIS_PER_MINUTE       (60000) /** The number of milliseconds per minute @stable ICU 2.0 */
+#define U_MILLIS_PER_HOUR       (3600000) /** The number of milliseconds per hour @stable ICU 2.0 */
+#define U_MILLIS_PER_DAY       (86400000) /** The number of milliseconds per day @stable ICU 2.0 */
 
 /**
  * Maximum UDate value

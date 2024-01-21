@@ -1030,8 +1030,7 @@ int32_t RegexCImpl::appendReplacement(RegularExpression * regexp, const char16_t
 	else {
 		UErrorCode possibleOverflowError = U_ZERO_ERROR; // ignore
 		destIdx += utext_extract(m->fInputText, m->fLastMatchEnd, m->fMatchStart,
-			dest==NULL ? NULL : &dest[destIdx], REMAINING_CAPACITY(destIdx, capacity),
-			&possibleOverflowError);
+			dest ? &dest[destIdx] : NULL, REMAINING_CAPACITY(destIdx, capacity), &possibleOverflowError);
 	}
 	U_ASSERT(destIdx >= 0);
 
@@ -1146,7 +1145,7 @@ int32_t RegexCImpl::appendReplacement(RegularExpression * regexp, const char16_t
 		// Finally, append the capture group data to the destination.
 		if(U_SUCCESS(*status)) {
 			destIdx += uregex_group((URegularExpression*)regexp, groupNum,
-				dest==NULL ? NULL : &dest[destIdx], REMAINING_CAPACITY(destIdx, capacity), status);
+				dest ? &dest[destIdx] : NULL, REMAINING_CAPACITY(destIdx, capacity), status);
 			if(*status == U_BUFFER_OVERFLOW_ERROR) {
 				// Ignore buffer overflow when extracting the group.  We need to
 				//   continue on to get full size of the untruncated result.  We will

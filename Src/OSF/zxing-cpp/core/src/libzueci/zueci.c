@@ -401,8 +401,8 @@ static int zueci_u_ascii_inv(const zueci_u32 u, uchar * dest) {
 
 #ifndef ZUECI_EMBED_NO_TO_UTF8
 /* ECI 170 ISO/IEC 646:1991 Invariant to Unicode */
-static int zueci_ascii_inv_u(const uchar * src, const zueci_u32 len, const uint flags,
-    zueci_u32 * p_u) {
+static int zueci_ascii_inv_u(const uchar * src, const zueci_u32 len, const uint flags, zueci_u32 * p_u) 
+{
 	const uchar c = *src;
 	(void)len;
 	if((flags & ZUECI_FLAG_SB_STRAIGHT_THRU) || c == 0x7F || (c <= 'z' && c != '#' && c != '$' && c != '@'

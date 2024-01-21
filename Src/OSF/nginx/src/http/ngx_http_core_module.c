@@ -1369,7 +1369,7 @@ static ngx_uint_t FASTCALL ngx_http_gzip_quantity(const uchar * p, const uchar *
 		if(c == ',' || c == ' ') {
 			break;
 		}
-		if(c >= '0' && c <= '9') {
+		if(isdec(c)) {
 			q += c - '0';
 			n++;
 			continue;

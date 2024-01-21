@@ -109,7 +109,7 @@ ngx_int_t FASTCALL ngx_parse_time(const ngx_str_t * line, ngx_uint_t is_sec)
 	p = line->data;
 	last = p + line->len;
 	while(p < last) {
-		if(*p >= '0' && *p <= '9') {
+		if(isdec(*p)) {
 			if(value >= cutoff && (value > cutoff || *p - '0' > cutlim)) {
 				return NGX_ERROR;
 			}

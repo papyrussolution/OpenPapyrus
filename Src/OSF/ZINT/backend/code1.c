@@ -222,7 +222,7 @@ static int FASTCALL c1_look_ahead_test(const uchar source[], int sourcelen, int 
 			reduced_char = source[sp] - 127;
 		}
 		/* Step L */
-		if((source[sp] >= '0') && (source[sp] <= '9')) {
+		if(isdec(source[sp])) {
 			ascii_count += 0.5;
 		}
 		else {
@@ -292,7 +292,7 @@ static int FASTCALL c1_look_ahead_test(const uchar source[], int sourcelen, int 
 			edi_count += (2.0f / 3.0f);
 			done = 1;
 		}
-		if((source[sp] >= '0') && (source[sp] <= '9')) {
+		if(isdec(source[sp])) {
 			edi_count += (2.0f / 3.0f);
 			done = 1;
 		}
@@ -426,7 +426,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				/* Step B1 */
 				j = 0;
 				for(i = 0; i < 21; i++) {
-					if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
+					if(isdec(source[sp+i])) {
 						j++;
 					}
 				}
@@ -439,7 +439,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				/* Step B2 */
 				j = 0;
 				for(i = 0; i < 13; i++) {
-					if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
+					if(isdec(source[sp+i])) {
 						j++;
 					}
 				}
@@ -458,7 +458,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 			}
 			if(next_mode == C1_ASCII) { /* Step B3 */
 				if(istwodigits(source, sp) && ((sp + 1) != length)) {
-					target[tp] = (10 * hex(source[sp])) + hex(source[sp + 1]) + 130;
+					target[tp] = (10 * hex(source[sp])) + hex(source[sp+1]) + 130;
 					tp++;
 					sp += 2;
 				}
@@ -469,7 +469,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 							j = 0;
 
 							for(i = 0; i < 15; i++) {
-								if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
+								if(isdec(source[sp+i])) {
 									j++;
 								}
 							}
@@ -485,7 +485,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 						if((length - sp) >= 7) { /* Step B5 */
 							j = 0;
 							for(i = 0; i < 7; i++) {
-								if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
+								if(isdec(source[sp+i])) {
 									j++;
 								}
 							}
@@ -543,7 +543,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				if((length - sp) >= 12) {
 					j = 0;
 					for(i = 0; i < 12; i++) {
-						if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
+						if(isdec(source[sp+i])) {
 							j++;
 						}
 					}
@@ -555,7 +555,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				if((length - sp) >= 8) {
 					j = 0;
 					for(i = 0; i < 8; i++) {
-						if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
+						if(isdec(source[sp+i])) {
 							j++;
 						}
 					}
@@ -631,7 +631,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				if((length - sp) >= 12) {
 					j = 0;
 					for(i = 0; i < 12; i++) {
-						if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
+						if(isdec(source[sp+i])) {
 							j++;
 						}
 					}
@@ -643,7 +643,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				if((length - sp) >= 8) {
 					j = 0;
 					for(i = 0; i < 8; i++) {
-						if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
+						if(isdec(source[sp+i])) {
 							j++;
 						}
 					}
@@ -719,7 +719,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				if((length - sp) >= 12) {
 					j = 0;
 					for(i = 0; i < 12; i++) {
-						if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
+						if(isdec(source[sp+i])) {
 							j++;
 						}
 					}
@@ -730,7 +730,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				if((length - sp) >= 8) {
 					j = 0;
 					for(i = 0; i < 8; i++) {
-						if((source[sp + i] >= '0') && (source[sp + i] <= '9')) {
+						if(isdec(source[sp+i])) {
 							j++;
 						}
 					}
@@ -749,7 +749,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 						next_mode = C1_ASCII;
 					}
 				}
-				if(!((isedi(source[sp]) && isedi(source[sp + 1])) && isedi(source[sp + 2]))) {
+				if(!((isedi(source[sp]) && isedi(source[sp+1])) && isedi(source[sp + 2]))) {
 					next_mode = C1_ASCII;
 				}
 			}
@@ -770,7 +770,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 				if(source[sp] == ' ') {
 					value = 3;
 				}
-				if((source[sp] >= '0') && (source[sp] <= '9')) {
+				if(isdec(source[sp])) {
 					value = source[sp] - '0' + 4;
 				}
 				if((source[sp] >= 'A') && (source[sp] <= 'Z')) {
@@ -802,12 +802,12 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 			data_left = length - sp;
 			decimal_count = 0;
 			if(data_left >= 1) {
-				if((source[sp] >= '0') && (source[sp] <= '9')) {
+				if(isdec(source[sp])) {
 					decimal_count = 1;
 				}
 			}
 			if(data_left >= 2) {
-				if((decimal_count == 1) && ((source[sp + 1] >= '0') && (source[sp + 1] <= '9'))) {
+				if((decimal_count == 1) && ((source[sp+1] >= '0') && (source[sp+1] <= '9'))) {
 					decimal_count = 2;
 				}
 			}
@@ -890,7 +890,7 @@ static int c1_encode(struct ZintSymbol * symbol, const uchar source[], uint targ
 			}
 			else {
 				/* There are three digits - convert the value to binary */
-				value = (100 * hex(source[sp])) + (10 * hex(source[sp + 1])) + hex(source[sp + 2]) + 1;
+				value = (100 * hex(source[sp])) + (10 * hex(source[sp+1])) + hex(source[sp + 2]) + 1;
 				for(p = 0; p < 10; p++) {
 					strcat(decimal_binary, (value & (0x200 >> p)) ? "1" : "0");
 				}

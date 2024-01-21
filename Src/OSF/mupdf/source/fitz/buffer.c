@@ -3,25 +3,22 @@
 #include "mupdf/fitz.h"
 #pragma hdrstop
 
-fz_buffer * fz_new_buffer(fz_context * ctx, size_t size)
+fz_buffer * FASTCALL fz_new_buffer(fz_context * ctx, size_t size)
 {
 	fz_buffer * b;
 	size = size > 1 ? size : 16;
 	b = fz_malloc_struct(ctx, fz_buffer);
 	b->refs = 1;
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		b->data = (uchar*)Memento_label(fz_malloc(ctx, size), "fz_buffer_data");
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_free(ctx, b);
 		fz_rethrow(ctx);
 	}
 	b->cap = size;
 	b->len = 0;
 	b->unused_bits = 0;
-
 	return b;
 }
 
@@ -80,7 +77,7 @@ fz_buffer * fz_new_buffer_from_base64(fz_context * ctx, const char * data, size_
 				fz_append_bits(ctx, buf, c - 'A', 6);
 			else if(c >= 'a' && c <= 'z')
 				fz_append_bits(ctx, buf, c - 'a' + 26, 6);
-			else if(c >= '0' && c <= '9')
+			else if(isdec(c))
 				fz_append_bits(ctx, buf, c - '0' + 52, 6);
 			else if(c == '+')
 				fz_append_bits(ctx, buf, 62, 6);
@@ -101,7 +98,7 @@ fz_buffer * fz_keep_buffer(fz_context * ctx, fz_buffer * buf)
 	return (fz_buffer *)fz_keep_imp(ctx, buf, &buf->refs);
 }
 
-void fz_drop_buffer(fz_context * ctx, fz_buffer * buf)
+void FASTCALL fz_drop_buffer(fz_context * ctx, fz_buffer * buf)
 {
 	if(fz_drop_imp(ctx, buf, &buf->refs)) {
 		if(!buf->shared)
@@ -205,7 +202,7 @@ void fz_append_data(fz_context * ctx, fz_buffer * buf, const void * data, size_t
 	buf->unused_bits = 0;
 }
 
-void fz_append_string(fz_context * ctx, fz_buffer * buf, const char * data)
+void STDCALL fz_append_string(fz_context * ctx, fz_buffer * buf, const char * data)
 {
 	size_t len = strlen(data);
 	if(buf->len + len > buf->cap)
@@ -215,7 +212,7 @@ void fz_append_string(fz_context * ctx, fz_buffer * buf, const char * data)
 	buf->unused_bits = 0;
 }
 
-void fz_append_byte(fz_context * ctx, fz_buffer * buf, int val)
+void STDCALL fz_append_byte(fz_context * ctx, fz_buffer * buf, int val)
 {
 	if(buf->len + 1 > buf->cap)
 		fz_grow_buffer(ctx, buf);
@@ -248,7 +245,7 @@ void fz_append_int16_be(fz_context * ctx, fz_buffer * buf, int x)
 	fz_append_byte(ctx, buf, (x) & 0xFF);
 }
 
-void fz_append_int32_le(fz_context * ctx, fz_buffer * buf, int x)
+void STDCALL fz_append_int32_le(fz_context * ctx, fz_buffer * buf, int x)
 {
 	fz_append_byte(ctx, buf, (x)&0xFF);
 	fz_append_byte(ctx, buf, (x>>8)&0xFF);
@@ -256,7 +253,7 @@ void fz_append_int32_le(fz_context * ctx, fz_buffer * buf, int x)
 	fz_append_byte(ctx, buf, (x>>24)&0xFF);
 }
 
-void fz_append_int16_le(fz_context * ctx, fz_buffer * buf, int x)
+void STDCALL fz_append_int16_le(fz_context * ctx, fz_buffer * buf, int x)
 {
 	fz_append_byte(ctx, buf, (x)&0xFF);
 	fz_append_byte(ctx, buf, (x>>8)&0xFF);

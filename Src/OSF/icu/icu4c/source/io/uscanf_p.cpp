@@ -35,14 +35,13 @@
 #define DIGIT_EIGHT 0x0038
 #define DIGIT_NINE 0x0039
 
-#define ISDIGIT(s)    (s) == DIGIT_ZERO || (s) == DIGIT_ONE || (s) == DIGIT_TWO || (s) == DIGIT_THREE || (s) == DIGIT_FOUR || \
-	(s) == DIGIT_FIVE || (s) == DIGIT_SIX || (s) == DIGIT_SEVEN || (s) == DIGIT_EIGHT || (s) == DIGIT_NINE
+#define ISDIGIT(s) oneof10(s, DIGIT_ZERO, DIGIT_ONE, DIGIT_TWO, DIGIT_THREE, DIGIT_FOUR, DIGIT_FIVE, DIGIT_SIX, DIGIT_SEVEN, DIGIT_EIGHT, DIGIT_NINE)
 
 /* u_scanf modifiers */
 #define MOD_H 0x0068
 #define MOD_LOWERL 0x006C
 #define MOD_L 0x004C
-#define ISMOD(s)    (s) == MOD_H || (s) == MOD_LOWERL || (s) == MOD_L
+#define ISMOD(s)    oneof3(s, MOD_H, MOD_LOWERL, MOD_L)
 /**
  * Struct encapsulating a single uscanf format specification.
  */
@@ -79,10 +78,8 @@ static int32_t u_scanf_parse_spec(const char16_t * fmt, u_scanf_spec    * spec)
 	const char16_t * s = fmt;
 	const char16_t * backup;
 	u_scanf_spec_info * info = &(spec->fInfo);
-
 	/* initialize spec to default values */
 	spec->fArgPos     = -1;
-
 	info->fWidth        = -1;
 	info->fSpec = 0x0000;
 	info->fPadChar      = 0x0020;
@@ -150,7 +147,6 @@ static int32_t u_scanf_parse_spec(const char16_t * fmt, u_scanf_spec    * spec)
 			case MOD_H:
 			    info->fIsShort = TRUE;
 			    break;
-
 			/* long or long long */
 			case MOD_LOWERL:
 			    if(*s == MOD_LOWERL) {
@@ -161,7 +157,6 @@ static int32_t u_scanf_parse_spec(const char16_t * fmt, u_scanf_spec    * spec)
 			    else
 				    info->fIsLong = TRUE;
 			    break;
-
 			/* long double */
 			case MOD_L:
 			    info->fIsLongDouble = TRUE;

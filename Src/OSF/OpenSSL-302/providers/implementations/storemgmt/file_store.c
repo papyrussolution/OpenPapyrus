@@ -566,23 +566,20 @@ static int file_name_check(struct file_ctx_st * ctx, const char * name)
 	 */
 	if(*p == 'r') {
 		p++;
-		if(ctx->expected_type != 0
-		    && ctx->expected_type != OSSL_STORE_INFO_CRL)
+		if(ctx->expected_type != 0 && ctx->expected_type != OSSL_STORE_INFO_CRL)
 			return 0;
 	}
 	else if(ctx->expected_type == OSSL_STORE_INFO_CRL) {
 		return 0;
 	}
-
 	/*
 	 * Last, check that the rest of the extension is a decimal number, at
 	 * least one digit long.
 	 */
-	if(!isdigit(*p))
+	if(!isdec(*p))
 		return 0;
-	while(isdigit(*p))
+	while(isdec(*p))
 		p++;
-
 #ifdef __VMS
 	/*
 	 * One extra step here, check for a possible generation number.
@@ -592,7 +589,6 @@ static int file_name_check(struct file_ctx_st * ctx, const char * name)
 			if(!ossl_isdigit(*p))
 				break;
 #endif
-
 	/*
 	 * If we've reached the end of the string at this point, we've successfully
 	 * found a fitting file name.
@@ -600,9 +596,7 @@ static int file_name_check(struct file_ctx_st * ctx, const char * name)
 	return *p == '\0';
 }
 
-static int file_load_dir_entry(struct file_ctx_st * ctx,
-    OSSL_CALLBACK * object_cb, void * object_cbarg,
-    OSSL_PASSPHRASE_CALLBACK * pw_cb, void * pw_cbarg)
+static int file_load_dir_entry(struct file_ctx_st * ctx, OSSL_CALLBACK * object_cb, void * object_cbarg, OSSL_PASSPHRASE_CALLBACK * pw_cb, void * pw_cbarg)
 {
 	/* Prepare as much as possible in advance */
 	static const int object_type = OSSL_OBJECT_NAME;

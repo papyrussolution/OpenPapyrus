@@ -184,7 +184,8 @@ static mi_decl_noinline bool mi_check_is_double_freex(const mi_page_t* page, con
 	return false;
 }
 
-static inline bool mi_check_is_double_free(const mi_page_t* page, const mi_block_t* block) {
+static inline bool mi_check_is_double_free(const mi_page_t* page, const mi_block_t* block) 
+{
 	mi_block_t* n = mi_block_nextx(page, block, page->keys); // pretend it is freed, and get the decoded first field
 	if(((uintptr_t)n & (MI_INTPTR_SIZE-1))==0 && // quick check: aligned pointer?
 	    (n==NULL || mi_is_in_same_page(block, n))) { // quick check: in same page or NULL?

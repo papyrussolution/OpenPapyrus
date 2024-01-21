@@ -153,12 +153,10 @@ static void ColouriseA68kDoc(Sci_PositionU startPos, Sci_Position length, int in
 			if((sc.state == SCE_A68K_STRING1) || (sc.state == SCE_A68K_STRING2)) {
 				sc.Forward();
 			}
-
 			// If a macro declaration was terminated with ':', it was a label
 			else if((sc.state == SCE_A68K_MACRO_DECLARATION) && (sc.chPrev == ':')) {
 				sc.ChangeState(SCE_A68K_LABEL);
 			}
-
 			// If it wasn't a Doxygen keyword, change it to normal comment
 			else if(sc.state == SCE_A68K_COMMENT_DOXYGEN) {
 				sc.GetCurrent(Buffer, sizeof(Buffer));
@@ -247,16 +245,16 @@ static void ColouriseA68kDoc(Sci_PositionU startPos, Sci_Position length, int in
 		if(sc.atLineStart && (sc.ch < 0x80) && IsIdentifierStart(sc.ch)) {
 			sc.SetState(SCE_A68K_MACRO_DECLARATION);
 		}
-		else if((sc.ch < 0x80) && (sc.ch == ';')) {                     // Default: alert in a comment. If it doesn't match
+		else if(sc.ch == ';') { // Default: alert in a comment. If it doesn't match
 			sc.SetState(SCE_A68K_COMMENT);                          // with an alert, it will be toggle to a normal comment
 		}
-		else if((sc.ch < 0x80) && isdec(sc.ch)) {                     // Decimal numbers haven't prefix
+		else if(isdec(sc.ch)) { // Decimal numbers haven't prefix
 			sc.SetState(SCE_A68K_NUMBER_DEC);
 		}
-		else if((sc.ch < 0x80) && (sc.ch == '%')) {                     // Binary numbers are prefixed with '%'
+		else if(sc.ch == '%') { // Binary numbers are prefixed with '%'
 			sc.SetState(SCE_A68K_NUMBER_BIN);
 		}
-		else if((sc.ch < 0x80) && (sc.ch == '$')) {                     // Hexadecimal numbers are prefixed with '$'
+		else if(sc.ch == '$') { // Hexadecimal numbers are prefixed with '$'
 			sc.SetState(SCE_A68K_NUMBER_HEX);
 		}
 		else if((sc.ch < 0x80) && (sc.ch == '\'')) {                    // String (single-quoted)

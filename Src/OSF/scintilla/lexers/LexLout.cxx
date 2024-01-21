@@ -56,7 +56,7 @@ static void ColouriseLoutDoc(Sci_PositionU startPos, Sci_Position length, int in
 			}
 		}
 		else if(sc.state == SCE_LOUT_NUMBER) {
-			if(!IsADigit(sc.ch) && sc.ch != '.') {
+			if(!isdec(sc.ch) && sc.ch != '.') {
 				sc.SetState(SCE_LOUT_DEFAULT);
 			}
 		}
@@ -98,7 +98,6 @@ static void ColouriseLoutDoc(Sci_PositionU startPos, Sci_Position length, int in
 			if(!IsAnOther(sc.ch)) {
 				char s[100];
 				sc.GetCurrent(s, sizeof(s));
-
 				if(keywords2.InList(s)) {
 					sc.ChangeState(SCE_LOUT_WORD2);
 				}
@@ -114,8 +113,7 @@ static void ColouriseLoutDoc(Sci_PositionU startPos, Sci_Position length, int in
 			else if(sc.ch == '\"') {
 				sc.SetState(SCE_LOUT_STRING);
 			}
-			else if(IsADigit(sc.ch) ||
-			    (sc.ch == '.' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_LOUT_NUMBER);
 			}
 			else if(IsAWordChar(sc.ch)) {

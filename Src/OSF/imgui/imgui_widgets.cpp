@@ -3084,7 +3084,7 @@ template <typename TYPE> static const char* ImAtoi(const char* src, TYPE* output
 		src++;
 	}
 	TYPE v = 0;
-	while(*src >= '0' && *src <= '9')
+	while(isdec(*src))
 		v = (v * 10) + (*src++ - '0');
 	*output = negative ? -v : v;
 	return src;
@@ -3653,15 +3653,15 @@ static bool InputTextFilterCharacter(uint* p_char, ImGuiInputTextFlags flags, Im
 				c = c - 0xFF01 + 0x21;
 		// Allow 0-9 . - + * /
 		if(flags & ImGuiInputTextFlags_CharsDecimal)
-			if(!(c >= '0' && c <= '9') && (c != c_decimal_point) && (c != '-') && (c != '+') && (c != '*') && (c != '/'))
+			if(!isdec(c) && (c != c_decimal_point) && (c != '-') && (c != '+') && (c != '*') && (c != '/'))
 				return false;
 		// Allow 0-9 . - + * / e E
 		if(flags & ImGuiInputTextFlags_CharsScientific)
-			if(!(c >= '0' && c <= '9') && (c != c_decimal_point) && (c != '-') && (c != '+') && (c != '*') && (c != '/') && (c != 'e') && (c != 'E'))
+			if(!isdec(c) && (c != c_decimal_point) && (c != '-') && (c != '+') && (c != '*') && (c != '/') && (c != 'e') && (c != 'E'))
 				return false;
 		// Allow 0-9 a-F A-F
 		if(flags & ImGuiInputTextFlags_CharsHexadecimal)
-			if(!(c >= '0' && c <= '9') && !(c >= 'a' && c <= 'f') && !(c >= 'A' && c <= 'F'))
+			if(!ishex(c))
 				return false;
 		// Turn a-z into A-Z
 		if(flags & ImGuiInputTextFlags_CharsUppercase)

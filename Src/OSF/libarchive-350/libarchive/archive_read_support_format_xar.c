@@ -852,14 +852,10 @@ static int xar_cleanup(ArchiveRead * a)
 
 static int move_reading_point(ArchiveRead * a, uint64 offset)
 {
-	struct xar * xar;
-
-	xar = (struct xar *)(a->format->data);
+	struct xar * xar = (struct xar *)(a->format->data);
 	if(xar->offset - xar->h_base != offset) {
 		/* Seek forward to the start of file contents. */
-		int64 step;
-
-		step = offset - (xar->offset - xar->h_base);
+		int64 step = offset - (xar->offset - xar->h_base);
 		if(step > 0) {
 			step = __archive_read_consume(a, step);
 			if(step < 0)
@@ -878,11 +874,9 @@ static int move_reading_point(ArchiveRead * a, uint64 offset)
 	return ARCHIVE_OK;
 }
 
-static int rd_contents_init(ArchiveRead * a, enum enctype encoding,
-    int a_sum_alg, int e_sum_alg)
+static int rd_contents_init(ArchiveRead * a, enum enctype encoding, int a_sum_alg, int e_sum_alg)
 {
 	int r;
-
 	/* Init decompress library. */
 	if((r = decompression_init(a, encoding)) != ARCHIVE_OK)
 		return r;
@@ -905,19 +899,16 @@ static int rd_contents(ArchiveRead * a, const void ** buff, size_t * size, size_
 	}
 	if((uint64)bytes > remaining)
 		bytes = (ssize_t)remaining;
-
 	/*
 	 * Decompress contents of file.
 	 */
 	*used = bytes;
 	if(decompress(a, buff, size, b, used) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/*
 	 * Update checksum of a compressed data and a extracted data.
 	 */
 	checksum_update(a, b, *used, *buff, *size);
-
 	return ARCHIVE_OK;
 }
 
@@ -931,10 +922,8 @@ static uint64 atol10(const char * p, size_t char_cnt)
 {
 	uint64 l;
 	int digit;
-
 	if(char_cnt == 0)
 		return 0;
-
 	l = 0;
 	digit = *p - '0';
 	while(digit >= 0 && digit < 10  && char_cnt-- > 0) {
@@ -948,10 +937,8 @@ static int64 atol8(const char * p, size_t char_cnt)
 {
 	int64 l;
 	int digit;
-
 	if(char_cnt == 0)
 		return 0;
-
 	l = 0;
 	while(char_cnt-- > 0) {
 		if(*p >= '0' && *p <= '7')
@@ -968,10 +955,8 @@ static int64 atol8(const char * p, size_t char_cnt)
 static size_t atohex(uchar * b, size_t bsize, const char * p, size_t psize)
 {
 	size_t fbsize = bsize;
-
 	while(bsize && psize > 1) {
 		uchar x;
-
 		if(p[0] >= 'a' && p[0] <= 'z')
 			x = (p[0] - 'a' + 0x0a) << 4;
 		else if(p[0] >= 'A' && p[0] <= 'Z')
@@ -988,7 +973,6 @@ static size_t atohex(uchar * b, size_t bsize, const char * p, size_t psize)
 			x |= p[1] - '0';
 		else
 			return -1;
-
 		*b++ = x;
 		bsize--;
 		p += 2;
@@ -1009,14 +993,8 @@ static time_t time_from_tm(struct tm * t)
 	/* First, fix up tm_yday based on the year/month/day. */
 	mktime(t);
 	/* Then we can compute timegm() from first principles. */
-	return (t->tm_sec
-	       + t->tm_min * 60
-	       + t->tm_hour * 3600
-	       + t->tm_yday * 86400
-	       + (t->tm_year - 70) * 31536000
-	       + ((t->tm_year - 69) / 4) * 86400
-	       - ((t->tm_year - 1) / 100) * 86400
-	       + ((t->tm_year + 299) / 400) * 86400);
+	return (t->tm_sec + t->tm_min * 60 + t->tm_hour * 3600 + t->tm_yday * 86400 + (t->tm_year - 70) * 31536000 + 
+		((t->tm_year - 69) / 4) * 86400 - ((t->tm_year - 1) / 100) * 86400 + ((t->tm_year + 299) / 400) * 86400);
 #endif
 }
 
@@ -1289,11 +1267,9 @@ static int checksum_final(ArchiveRead * a, const void * a_sum_val, size_t a_sum_
 
 static int decompression_init(ArchiveRead * a, enum enctype encoding)
 {
-	struct xar * xar;
 	const char * detail;
 	int r;
-
-	xar = (struct xar *)(a->format->data);
+	struct xar * xar = (struct xar *)(a->format->data);
 	xar->rd_encoding = encoding;
 	switch(encoding) {
 		case NONE:

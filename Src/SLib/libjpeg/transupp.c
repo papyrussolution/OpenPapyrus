@@ -21,7 +21,6 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #include "transupp.h" // My own external interface
-//#include <ctype.h>		/* to declare isdigit() */
 
 #if TRANSFORMS_SUPPORTED
 /*
@@ -809,7 +808,7 @@ LOCAL(boolean) jt_read_integer(const char ** strptr, JDIMENSION * result)
 {
 	const char * ptr = *strptr;
 	JDIMENSION val = 0;
-	for(; isdigit(*ptr); ptr++) {
+	for(; isdec(*ptr); ptr++) {
 		val = val * 10 + (JDIMENSION)(*ptr - '0');
 	}
 	*result = val;
@@ -838,37 +837,37 @@ boolean jtransform_parse_crop_spec(jpeg_transform_info *info, const char * spec)
 	info->crop_height_set = JCROP_UNSET;
 	info->crop_xoffset_set = JCROP_UNSET;
 	info->crop_yoffset_set = JCROP_UNSET;
-	if(isdigit(*spec)) {
+	if(isdec(*spec)) {
 		/* fetch width */
 		if(!jt_read_integer(&spec, &info->crop_width))
 			return FALSE;
-		if(*spec == 'f' || *spec == 'F') {
+		if(oneof2(*spec, 'f', 'F')) {
 			spec++;
 			info->crop_width_set = JCROP_FORCE;
 		}
 		else
 			info->crop_width_set = JCROP_POS;
 	}
-	if(*spec == 'x' || *spec == 'X') {
+	if(oneof2(*spec, 'x', 'X')) {
 		/* fetch height */
 		spec++;
 		if(!jt_read_integer(&spec, &info->crop_height))
 			return FALSE;
-		if(*spec == 'f' || *spec == 'F') {
+		if(oneof2(*spec, 'f', 'F')) {
 			spec++;
 			info->crop_height_set = JCROP_FORCE;
 		}
 		else
 			info->crop_height_set = JCROP_POS;
 	}
-	if(*spec == '+' || *spec == '-') {
+	if(oneof2(*spec, '+', '-')) {
 		/* fetch xoffset */
 		info->crop_xoffset_set = (*spec == '-') ? JCROP_NEG : JCROP_POS;
 		spec++;
 		if(!jt_read_integer(&spec, &info->crop_xoffset))
 			return FALSE;
 	}
-	if(*spec == '+' || *spec == '-') {
+	if(oneof2(*spec, '+', '-')) {
 		/* fetch yoffset */
 		info->crop_yoffset_set = (*spec == '-') ? JCROP_NEG : JCROP_POS;
 		spec++;
@@ -887,8 +886,7 @@ boolean jtransform_parse_crop_spec(jpeg_transform_info *info, const char * spec)
 static void trim_right_edge(jpeg_transform_info *info, JDIMENSION full_width)
 {
 	JDIMENSION MCU_cols = info->output_width / info->iMCU_sample_width;
-	if(MCU_cols > 0 && info->x_crop_offset + MCU_cols ==
-	    full_width / info->iMCU_sample_width)
+	if(MCU_cols > 0 && info->x_crop_offset + MCU_cols == full_width / info->iMCU_sample_width)
 		info->output_width = MCU_cols * info->iMCU_sample_width;
 }
 

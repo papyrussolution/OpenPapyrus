@@ -280,13 +280,14 @@ CONSTEXPR_F diff_t scale_add(diff_t v, diff_t f, diff_t a) noexcept {
 
 // Map a (normalized) Y/M/D to the number of days before/after 1970-01-01.
 // Probably overflows for years outside [-292277022656:292277026595].
-CONSTEXPR_F diff_t ymd_ord(year_t y, month_t m, day_t d) noexcept {
+CONSTEXPR_F diff_t ymd_ord(year_t y, month_t m, day_t d) noexcept 
+{
 	const diff_t eyear = (m <= 2) ? y - 1 : y;
 	const diff_t era = (eyear >= 0 ? eyear : eyear - 399) / 400;
 	const diff_t yoe = eyear - era * 400;
 	const diff_t doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + d - 1;
 	const diff_t doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
-	return era * 146097 + doe - 719468;
+	return era * SlConst::DaysPer400Years + doe - 719468;
 }
 
 // Returns the difference in days between two normalized Y-M-D tuples.

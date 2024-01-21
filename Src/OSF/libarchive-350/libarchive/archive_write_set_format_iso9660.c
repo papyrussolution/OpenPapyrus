@@ -1101,7 +1101,7 @@ static int get_num_opt(struct archive_write * a, int * num, int high, int low, c
 		p++;
 	}
 	while(*p) {
-		if(*p >= '0' && *p <= '9')
+		if(isdec(*p))
 			data = data * 10 + *p - '0';
 		else {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid value for option ``%s''", key);
@@ -1185,7 +1185,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 					    seg += *p - 'A' + 0x0a;
 				    else if(*p >= 'a' && *p <= 'f')
 					    seg += *p - 'a' + 0x0a;
-				    else if(*p >= '0' && *p <= '9')
+				    else if(isdec(*p))
 					    seg += *p - '0';
 				    else
 					    goto invalid_value;

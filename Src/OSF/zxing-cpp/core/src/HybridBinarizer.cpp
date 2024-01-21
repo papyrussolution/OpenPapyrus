@@ -46,9 +46,9 @@ static Matrix<int> CalculateBlackPoints(const uint8_t* __restrict luminances, in
 {
 	Matrix<int>     blackPoints(subWidth, subHeight);
 	for(int y = 0; y < subHeight; y++) {
-		int yoffset = std::min(y * BLOCK_SIZE, height - BLOCK_SIZE);
+		int yoffset = smin(y * BLOCK_SIZE, height - BLOCK_SIZE);
 		for(int x = 0; x < subWidth; x++) {
-			int xoffset = std::min(x * BLOCK_SIZE, width - BLOCK_SIZE);
+			int xoffset = smin(x * BLOCK_SIZE, width - BLOCK_SIZE);
 			int sum = 0;
 			uint8_t min = luminances[yoffset * rowStride + xoffset];
 			uint8_t max = min;
@@ -135,9 +135,9 @@ static std::shared_ptr<BitMatrix> CalculateMatrix(const uint8_t* __restrict lumi
 	auto matrix = std::make_shared<BitMatrix>(width, height);
 
 	for(int y = 0; y < subHeight; y++) {
-		int yoffset = std::min(y * BLOCK_SIZE, height - BLOCK_SIZE);
+		int yoffset = smin(y * BLOCK_SIZE, height - BLOCK_SIZE);
 		for(int x = 0; x < subWidth; x++) {
-			int xoffset = std::min(x * BLOCK_SIZE, width - BLOCK_SIZE);
+			int xoffset = smin(x * BLOCK_SIZE, width - BLOCK_SIZE);
 			int left = std::clamp(x, 2, subWidth - 3);
 			int top = std::clamp(y, 2, subHeight - 3);
 			int sum = 0;

@@ -217,7 +217,7 @@ U_CAPI wchar_t * U_EXPORT2 u_strToWCS(wchar_t * dest,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-	if((src==NULL && srcLength!=0) || srcLength < -1 || (destCapacity<0) || (dest == NULL && destCapacity > 0)) {
+	if((!src && srcLength) || srcLength < -1 || (destCapacity<0) || (!dest && destCapacity > 0)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -436,7 +436,7 @@ U_CAPI char16_t * U_EXPORT2 u_strFromWCS(char16_t * dest, int32_t destCapacity, 
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-	if((src==NULL && srcLength!=0) || srcLength < -1 || (destCapacity<0) || (dest == NULL && destCapacity > 0)) {
+	if((!src && srcLength) || srcLength < -1 || (destCapacity<0) || (!dest && destCapacity > 0)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}

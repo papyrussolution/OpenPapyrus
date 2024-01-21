@@ -352,26 +352,26 @@ typedef int Bool;
 #ifndef RINOK
 	#define RINOK(x) { int __result__ = (x); if(__result__ != 0) return __result__; }
 #endif
-#ifdef _LZMA_UINT32_IS_ULONG
-	typedef long Int32_Removed;
-	typedef unsigned long UInt32_Removed;
-#else
-	typedef int Int32_Removed;
-	typedef unsigned int UInt32_Removed;
-#endif
+//#ifdef _LZMA_UINT32_IS_ULONG
+	//typedef long Int32_Removed;
+	//typedef unsigned long UInt32_Removed;
+//#else
+	//typedef int Int32_Removed;
+	//typedef unsigned int UInt32_Removed;
+//#endif
 #ifdef _SZ_NO_INT_64
 	/* define _SZ_NO_INT_64, if your compiler doesn't support 64-bit integers.
 	NOTES: Some code will work incorrectly in that case! */
 	typedef long int64;
-	typedef unsigned long UInt64_Removed;
+	//typedef unsigned long UInt64_Removed;
 #else
 	#if defined(_MSC_VER) || defined(__BORLANDC__)
-		typedef __int64 Int64_Removed;
-		typedef unsigned __int64 UInt64_Removed;
+		//typedef __int64 Int64_Removed;
+		//typedef unsigned __int64 UInt64_Removed;
 		#define UINT64_CONST(n) n
 	#else
-		typedef long long int Int64_Removed;
-		typedef unsigned long long int UInt64_Removed;
+		//typedef long long int Int64_Removed;
+		//typedef unsigned long long int UInt64_Removed;
 		#define UINT64_CONST(n) n ## ULL
 	#endif
 #endif
@@ -571,8 +571,8 @@ typedef const ISzAlloc * ISzAllocPtr;
 EXTERN_C_END
 //
 //#include <Defs.h>
-template <class T> inline T MyMin(T a, T b) { return a < b ? a : b; }
-template <class T> inline T MyMax(T a, T b) { return a > b ? a : b; }
+// @sobolev template <class T> inline T MyMin_Removed(T a, T b) { return a < b ? a : b; }
+// @sobolev template <class T> inline T MyMax_Removed(T a, T b) { return a > b ? a : b; }
 template <class T> inline int MyCompare(T a, T b) { return a == b ? 0 : (a < b ? -1 : 1); }
 inline int BoolToInt(bool v) { return (v ? 1 : 0); }
 inline bool IntToBool(int v) { return (v != 0); }
@@ -994,7 +994,7 @@ private:
 		m_str = ::SysAllocString(src);
 		return *this;
 	}
-	unsigned Len() const { return ::SysStringLen(m_str); }
+	uint Len() const { return ::SysStringLen(m_str); }
 	BSTR MyCopy() const
 	{
 		// We don't support Byte BSTRs here
@@ -1111,7 +1111,7 @@ public:
 			memcpy(_items, v._items, (size_t)size * sizeof(T));
 		}
 	}
-	unsigned Size() const { return _size; }
+	uint Size() const { return _size; }
 	bool IsEmpty() const { return _size == 0; }
 	void ConstructReserve(uint size)
 	{
@@ -1121,7 +1121,7 @@ public:
 			_capacity = size;
 		}
 	}
-	void Reserve(unsigned newCapacity)
+	void Reserve(uint newCapacity)
 	{
 		if(newCapacity > _capacity) {
 			T * p;
@@ -1134,7 +1134,7 @@ public:
 			_capacity = newCapacity;
 		}
 	}
-	void ClearAndReserve(unsigned newCapacity)
+	void ClearAndReserve(uint newCapacity)
 	{
 		Clear();
 		if(newCapacity > _capacity) {
@@ -1146,12 +1146,12 @@ public:
 			_capacity = newCapacity;
 		}
 	}
-	void ClearAndSetSize(unsigned newSize)
+	void ClearAndSetSize(uint newSize)
 	{
 		ClearAndReserve(newSize);
 		_size = newSize;
 	}
-	void ChangeSize_KeepData(unsigned newSize)
+	void ChangeSize_KeepData(uint newSize)
 	{
 		if(newSize > _capacity) {
 			T * p;
@@ -1196,7 +1196,7 @@ public:
 		// if(index <= _size)
 		_size = index;
 	}
-	void DeleteFrontal(unsigned num)
+	void DeleteFrontal(uint num)
 	{
 		if(num != 0) {
 			MoveItems(0, num);
@@ -1209,7 +1209,7 @@ public:
 		_size -= 1;
 	}
 	/*
-	   void Delete(uint index, unsigned num)
+	   void Delete(uint index, uint num)
 	   {
 	   if(num > 0) {
 	    MoveItems(index, index + num);
@@ -1244,7 +1244,7 @@ public:
 		_size += size;
 		return *this;
 	}
-	unsigned Add(const T item)
+	uint Add(const T item)
 	{
 		ReserveOnePosition();
 		_items[_size] = item;
@@ -1276,7 +1276,7 @@ public:
 	const T& Back() const { return _items[(size_t)_size - 1]; }
 	T & Back() { return _items[(size_t)_size - 1]; }
 	/*
-	   void Swap(unsigned i, unsigned j)
+	   void Swap(uint i, uint j)
 	   {
 	   T temp = _items[i];
 	   _items[i] = _items[j];
@@ -1285,11 +1285,11 @@ public:
 	 */
 	int FindInSorted(const T item) const { return FindInSorted(item, 0, _size); }
 	int FindInSorted2(const T &item) const { return FindInSorted2(item, 0, _size); }
-	unsigned AddToUniqueSorted(const T item)
+	uint AddToUniqueSorted(const T item)
 	{
-		unsigned left = 0, right = _size;
+		uint left = 0, right = _size;
 		while(left != right) {
-			unsigned mid = (left + right) / 2;
+			uint mid = (left + right) / 2;
 			const T midVal = (*this)[mid];
 			if(item == midVal)
 				return mid;
@@ -1301,11 +1301,11 @@ public:
 		Insert(right, item);
 		return right;
 	}
-	unsigned AddToUniqueSorted2(const T &item)
+	uint AddToUniqueSorted2(const T &item)
 	{
-		unsigned left = 0, right = _size;
+		uint left = 0, right = _size;
 		while(left != right) {
-			unsigned mid = (left + right) / 2;
+			uint mid = (left + right) / 2;
 			const T& midVal = (*this)[mid];
 			int comp = item.Compare(midVal);
 			if(comp == 0)
@@ -1318,11 +1318,11 @@ public:
 		Insert(right, item);
 		return right;
 	}
-	static void SortRefDown(T* p, unsigned k, uint size, int (* compare)(const T*, const T*, void *), void * param)
+	static void SortRefDown(T* p, uint k, uint size, int (* compare)(const T*, const T*, void *), void * param)
 	{
 		T temp = p[k];
 		for(;;) {
-			unsigned s = (k << 1);
+			uint s = (k << 1);
 			if(s > size)
 				break;
 			if(s < size && compare(p + s + 1, p + s, param) > 0)
@@ -1340,7 +1340,7 @@ public:
 		if(size > 1) {
 			T * p = (&Front()) - 1;
 			{
-				unsigned i = size >> 1;
+				uint i = size >> 1;
 				do {
 					SortRefDown(p, i, size, compare, param);
 				} while(--i != 0);
@@ -1353,11 +1353,11 @@ public:
 			} while(size > 1);
 		}
 	}
-	static void SortRefDown2(T* p, unsigned k, uint size)
+	static void SortRefDown2(T* p, uint k, uint size)
 	{
 		T temp = p[k];
 		for(;;) {
-			unsigned s = (k << 1);
+			uint s = (k << 1);
 			if(s > size)
 				break;
 			if(s < size && p[(size_t)s + 1].Compare(p[s]) > 0)
@@ -1375,7 +1375,7 @@ public:
 		if(size > 1) {
 			T * p = (&Front()) - 1;
 			{
-				unsigned i = size >> 1;
+				uint i = size >> 1;
 				do {
 					SortRefDown2(p, i, size);
 				} while(--i != 0);
@@ -1389,14 +1389,14 @@ public:
 		}
 	}
 private:
-	void MoveItems(unsigned destIndex, unsigned srcIndex)
+	void MoveItems(uint destIndex, uint srcIndex)
 	{
 		memmove(_items + destIndex, _items + srcIndex, (size_t)(_size - srcIndex) * sizeof(T));
 	}
 	void ReserveOnePosition()
 	{
 		if(_size == _capacity) {
-			unsigned newCapacity = _capacity + (_capacity >> 2) + 1;
+			uint newCapacity = _capacity + (_capacity >> 2) + 1;
 			T * p;
 			MY_ARRAY_NEW(p, T, newCapacity);
 			// p = new T[newCapacity];
@@ -1407,10 +1407,10 @@ private:
 			_capacity = newCapacity;
 		}
 	}
-	int FindInSorted(const T item, unsigned left, unsigned right) const
+	int FindInSorted(const T item, uint left, uint right) const
 	{
 		while(left != right) {
-			unsigned mid = (left + right) / 2;
+			uint mid = (left + right) / 2;
 			const T midVal = (*this)[mid];
 			if(item == midVal)
 				return mid;
@@ -1421,10 +1421,10 @@ private:
 		}
 		return -1;
 	}
-	int FindInSorted2(const T &item, unsigned left, unsigned right) const
+	int FindInSorted2(const T &item, uint left, uint right) const
 	{
 		while(left != right) {
-			unsigned mid = (left + right) / 2;
+			uint mid = (left + right) / 2;
 			const T& midVal = (*this)[mid];
 			int comp = item.Compare(midVal);
 			if(comp == 0)
@@ -1450,11 +1450,11 @@ typedef CRecordVector <void *> CPointerVector;
 template <class T> class CObjectVector {
 	CPointerVector _v;
 public:
-	unsigned Size() const { return _v.Size(); }
+	uint Size() const { return _v.Size(); }
 	bool IsEmpty() const { return _v.IsEmpty(); }
 	void ReserveDown() { _v.ReserveDown(); }
-	// void Reserve(unsigned newCapacity) { _v.Reserve(newCapacity); }
-	void ClearAndReserve(unsigned newCapacity) 
+	// void Reserve(uint newCapacity) { _v.Reserve(newCapacity); }
+	void ClearAndReserve(uint newCapacity) 
 	{
 		Clear(); 
 		_v.ClearAndReserve(newCapacity); 
@@ -1495,7 +1495,7 @@ public:
 	const T& Back() const { return *(T*)_v.Back(); }
 	T& Back() { return *(T*)_v.Back(); }
 	void MoveToFront(uint index) { _v.MoveToFront(index); }
-	unsigned Add(const T& item) { return _v.Add(new T(item)); }
+	uint Add(const T& item) { return _v.Add(new T(item)); }
 	void AddInReserved(const T& item) { _v.AddInReserved(new T(item)); }
 	T & AddNew()
 	{
@@ -1539,7 +1539,7 @@ public:
 			delete (T*)_v[i];
 		_v.DeleteFrom(index);
 	}
-	void DeleteFrontal(unsigned num)
+	void DeleteFrontal(uint num)
 	{
 		for(uint i = 0; i < num; i++)
 			delete (T*)_v[i];
@@ -1556,7 +1556,7 @@ public:
 		_v.Delete(index);
 	}
 	/*
-	   void Delete(uint index, unsigned num)
+	   void Delete(uint index, uint num)
 	   {
 	   for(uint i = 0; i < num; i++)
 	    delete (T *)_v[index + i];
@@ -1575,9 +1575,9 @@ public:
 	 */
 	int FindInSorted(const T& item) const
 	{
-		unsigned left = 0, right = Size();
+		uint left = 0, right = Size();
 		while(left != right) {
-			unsigned mid = (left + right) / 2;
+			uint mid = (left + right) / 2;
 			const T& midVal = (*this)[mid];
 			int comp = item.Compare(midVal);
 			if(comp == 0)
@@ -1589,11 +1589,11 @@ public:
 		}
 		return -1;
 	}
-	unsigned AddToUniqueSorted(const T& item)
+	uint AddToUniqueSorted(const T& item)
 	{
-		unsigned left = 0, right = Size();
+		uint left = 0, right = Size();
 		while(left != right) {
-			unsigned mid = (left + right) / 2;
+			uint mid = (left + right) / 2;
 			const T& midVal = (*this)[mid];
 			int comp = item.Compare(midVal);
 			if(comp == 0)
@@ -1607,12 +1607,12 @@ public:
 		return right;
 	}
 	/*
-	   unsigned AddToSorted(const T& item)
+	   uint AddToSorted(const T& item)
 	   {
-	   unsigned left = 0, right = Size();
+	   uint left = 0, right = Size();
 	   while (left != right)
 	   {
-	    unsigned mid = (left + right) / 2;
+	    uint mid = (left + right) / 2;
 	    const T& midVal = (*this)[mid];
 	    int comp = item.Compare(midVal);
 	    if(comp == 0)
@@ -1672,7 +1672,7 @@ public:
 inline bool IsPathSepar(char c) { return isdirslash(c); }
 inline bool IsPathSepar(wchar_t c) { return isdirslash(c); }
 
-/*inline unsigned MyStringLen_Removed(const char * s)
+/*inline uint MyStringLen_Removed(const char * s)
 {
 	uint i;
 	for(i = 0; s[i] != 0; i++) 
@@ -1694,7 +1694,7 @@ inline char * MyStpCpy(char * dest, const char * src)
 	}
 }
 
-/*inline unsigned MyStringLen_Removed(const wchar_t * s)
+/*inline uint MyStringLen_Removed(const wchar_t * s)
 {
 	uint i;
 	for(i = 0; s[i] != 0; i++) 
@@ -1802,7 +1802,7 @@ bool IsString1PrefixedByString2_NoCase(const wchar_t * s1, const wchar_t * s2) t
 
 #define MyStringCompare(s1, s2) wcscmp(s1, s2)
 int MyStringCompareNoCase(const wchar_t * s1, const wchar_t * s2) throw();
-// int MyStringCompareNoCase_N(const wchar_t *s1, const wchar_t *s2, unsigned num) throw();
+// int MyStringCompareNoCase_N(const wchar_t *s1, const wchar_t *s2, uint num) throw();
 
 // ---------- ASCII ----------
 // char values in ASCII strings must be less then 128
@@ -1816,7 +1816,7 @@ bool StringsAreEqual_Ascii(const wchar_t * u, const char * a) throw();
 
 #define FORBID_STRING_OPS_2(cls, t) \
 	void Find(t) const; \
-	void Find(t, unsigned startIndex) const; \
+	void Find(t, uint startIndex) const; \
 	void ReverseFind(t) const; \
 	void InsertAtFront(t); \
 	void RemoveChar(t); \
@@ -1842,24 +1842,24 @@ bool StringsAreEqual_Ascii(const wchar_t * u, const char * a) throw();
 
 class AString {
 	char * _chars;
-	unsigned _len;
-	unsigned _limit;
-	void MoveItems(unsigned dest, unsigned src)
+	uint _len;
+	uint _limit;
+	void MoveItems(uint dest, uint src)
 	{
 		memmove(_chars + dest, _chars + src, (size_t)(_len - src + 1) * sizeof(char));
 	}
-	void InsertSpace(unsigned &index, uint size);
+	void InsertSpace(uint &index, uint size);
 
-	void ReAlloc(unsigned newLimit);
-	void ReAlloc2(unsigned newLimit);
-	void SetStartLen(unsigned len);
+	void ReAlloc(uint newLimit);
+	void ReAlloc2(uint newLimit);
+	void SetStartLen(uint len);
 	void Grow_1();
-	void Grow(unsigned n);
+	void Grow(uint n);
 
-	AString(unsigned num, const char * s);
-	AString(unsigned num, const AString &s);
+	AString(uint num, const char * s);
+	AString(uint num, const AString &s);
 	AString(const AString &s, char c); // it's for String + char
-	AString(const char * s1, unsigned num1, const char * s2, unsigned num2);
+	AString(const char * s1, uint num1, const char * s2, uint num2);
 
 	friend AString operator+(const AString &s, char c) { return AString(s, c); };
 	// friend AString operator+(char c, const AString &s); // is not supported
@@ -2366,7 +2366,7 @@ public:
 				if(keepSize > _size)
 					keepSize = _size;
 				if(keepSize != 0)
-					memcpy(newBuffer, _items, MyMin(keepSize, newSize) * sizeof(T));
+					memcpy(newBuffer, _items, smin(keepSize, newSize) * sizeof(T));
 			}
 			delete []_items;
 			_items = newBuffer;
@@ -7809,10 +7809,7 @@ namespace NArchive {
 			uint64 GetDataPosition()    const { return GetCommentPosition() + CommentSize + AlignSize; }
 		};
 
-		inline bool IsDigit(wchar_t c)
-		{
-			return c >= L'0' && c <= L'9';
-		}
+		// @sobolev (replaced with isdec) inline bool IsDigit_Removed(wchar_t c) { return c >= L'0' && c <= L'9'; }
 		class CVolumeName {
 			bool _needChangeForNext;
 			UString _before;
@@ -7848,9 +7845,9 @@ namespace NArchive {
 					}
 				}
 				if(newStyle) {
-					unsigned i = base.Len();
+					uint i = base.Len();
 					for(; i != 0; i--)
-						if(!IsDigit(base[i - 1]))
+						if(!isdec(base[i-1]))
 							break;
 					if(i != base.Len()) {
 						_before = base.Left(i);

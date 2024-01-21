@@ -1,5 +1,5 @@
 // LVECT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -449,7 +449,7 @@ static int read_row(FILE * pF, LVect * pVect)
 		size_t p = 0;
 		char buf[64];
 		while((c = fgetc(pF)) != ',' && c != '\n' && c != 0) {
-			THROW(isdigit(c) || oneof4(c, '.', '-', 'e', 'E'));
+			THROW(isdec(c) || oneof4(c, '.', '-', 'e', 'E'));
 			buf[p++] = c;
 		}
 		buf[p] = 0;

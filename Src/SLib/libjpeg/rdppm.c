@@ -88,12 +88,12 @@ static int pbm_getc(FILE * infile)
 	}
 	return ch;
 }
-
+//
+// Read an unsigned decimal integer from the PPM file
+// Swallows one trailing character after the integer
+// Note that on a 16-bit-int machine, only values up to 64k can be read.
+// This should not be a problem in practice.
 LOCAL(uint) read_pbm_integer(j_compress_ptr cinfo, FILE * infile)
-/* Read an unsigned decimal integer from the PPM file */
-/* Swallows one trailing character after the integer */
-/* Note that on a 16-bit-int machine, only values up to 64k can be read. */
-/* This should not be a problem in practice. */
 {
 	int ch;
 	uint val;
@@ -103,10 +103,10 @@ LOCAL(uint) read_pbm_integer(j_compress_ptr cinfo, FILE * infile)
 		if(ch == EOF)
 			ERREXIT(cinfo, JERR_INPUT_EOF);
 	} while(ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
-	if(ch < '0' || ch > '9')
+	if(!isdec(ch))
 		ERREXIT(cinfo, JERR_PPM_NONNUMERIC);
 	val = ch - '0';
-	while((ch = pbm_getc(infile)) >= '0' && ch <= '9') {
+	while(isdec(ch = pbm_getc(infile))) {
 		val *= 10;
 		val += ch - '0';
 	}

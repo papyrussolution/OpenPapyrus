@@ -211,9 +211,8 @@ CharString &CharString::appendInvariantChars(const char16_t * uchars, int32_t uc
 	return *this;
 }
 
-bool CharString::ensureCapacity(int32_t capacity,
-    int32_t desiredCapacityHint,
-    UErrorCode & errorCode) {
+bool CharString::ensureCapacity(int32_t capacity, int32_t desiredCapacityHint, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
@@ -221,9 +220,7 @@ bool CharString::ensureCapacity(int32_t capacity,
 		if(desiredCapacityHint==0) {
 			desiredCapacityHint = capacity+buffer.getCapacity();
 		}
-		if((desiredCapacityHint<=capacity || buffer.resize(desiredCapacityHint, len+1)==NULL) &&
-		    buffer.resize(capacity, len+1)==NULL
-		    ) {
+		if((desiredCapacityHint<=capacity || buffer.resize(desiredCapacityHint, len+1)==NULL) && buffer.resize(capacity, len+1)==NULL) {
 			errorCode = U_MEMORY_ALLOCATION_ERROR;
 			return FALSE;
 		}
@@ -231,7 +228,8 @@ bool CharString::ensureCapacity(int32_t capacity,
 	return TRUE;
 }
 
-CharString &CharString::appendPathPart(StringPiece s, UErrorCode & errorCode) {
+CharString &CharString::appendPathPart(StringPiece s, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return *this;
 	}
@@ -246,16 +244,17 @@ CharString &CharString::appendPathPart(StringPiece s, UErrorCode & errorCode) {
 	return *this;
 }
 
-CharString &CharString::ensureEndsWithFileSeparator(UErrorCode & errorCode) {
+CharString &CharString::ensureEndsWithFileSeparator(UErrorCode & errorCode) 
+{
 	char c;
-	if(U_SUCCESS(errorCode) && len>0 &&
-	    (c = buffer[len-1])!=U_FILE_SEP_CHAR && c!=U_FILE_ALT_SEP_CHAR) {
+	if(U_SUCCESS(errorCode) && len>0 && (c = buffer[len-1])!=U_FILE_SEP_CHAR && c!=U_FILE_ALT_SEP_CHAR) {
 		append(getDirSepChar(), errorCode);
 	}
 	return *this;
 }
 
-char CharString::getDirSepChar() const {
+char CharString::getDirSepChar() const 
+{
 	char dirSepChar = U_FILE_SEP_CHAR;
 #if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 	// We may need to return a different directory separator when building for Cygwin or MSYS2.

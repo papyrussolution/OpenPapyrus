@@ -371,14 +371,13 @@ void ScintillaWin::Initialise()
 	// no effect.  If the app hasn't, we really shouldn't ask them to call
 	// it just so this internal feature works.
 	hrOle = ::OleInitialize(NULL);
-
 	// Find TrackMouseEvent which is available on Windows > 95
 	HMODULE user32 = ::GetModuleHandle(TEXT("user32.dll"));
 	if(user32) {
-		TrackMouseEventFn = (TrackMouseEventSig) ::GetProcAddress(user32, "TrackMouseEvent");
-		SetCoalescableTimerFn = (SetCoalescableTimerSig) ::GetProcAddress(user32, "SetCoalescableTimer");
+		TrackMouseEventFn = (TrackMouseEventSig)::GetProcAddress(user32, "TrackMouseEvent");
+		SetCoalescableTimerFn = (SetCoalescableTimerSig)::GetProcAddress(user32, "SetCoalescableTimer");
 	}
-	if(TrackMouseEventFn == NULL) {
+	if(!TrackMouseEventFn) {
 		// Windows 95 has an emulation in comctl32.dll:_TrackMouseEvent
 		SETIFZ(commctrl32, ::LoadLibrary(TEXT("comctl32.dll")));
 		if(commctrl32 != NULL) {

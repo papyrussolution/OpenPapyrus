@@ -296,7 +296,7 @@ static void ColourisePascalDoc(Sci_PositionU startPos, Sci_Position length, int 
 
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_PAS_DEFAULT) {
-			if(IsADigit(sc.ch) && !(curLineState & stateInAsm)) {
+			if(isdec(sc.ch) && !(curLineState & stateInAsm)) {
 				sc.SetState(SCE_PAS_NUMBER);
 			}
 			else if(setWordStart.Contains(sc.ch)) {

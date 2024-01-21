@@ -22,7 +22,7 @@ namespace NArchive {
 	static HRESULT CalcCheckSum(ISequentialInStream * stream, uint32 size, uint32 excludePos, uint32 &res)
 	{
 		const uint32 kBufSizeMax = (uint32)1 << 16;
-		uint32 bufSize = MyMin(kBufSizeMax, size);
+		uint32 bufSize = smin(kBufSizeMax, size);
 		bufSize += (bufSize & 1);
 		CByteBuffer buffer(bufSize);
 		Byte * buf = buffer;
@@ -297,7 +297,7 @@ namespace NArchive {
 		{
 		}
 		const uint32 GetSizeExtract() const { return PSize; }
-		const uint32 GetSizeMin() const { return MyMin(PSize, VSize); }
+		const uint32 GetSizeMin() const { return smin(PSize, VSize); }
 		void UpdateTotalSize(uint32 &totalSize) const
 		{
 			uint32 t = Pa + PSize;
@@ -1632,7 +1632,7 @@ namespace NArchive {
 					if(callback)
 						RINOK(callback->SetCompleted(NULL, &offset64))
 				}
-				size_t rem = MyMin(fileSize - pos, (size_t)(1 << 22));
+				size_t rem = smin(fileSize - pos, (size_t)(1 << 22));
 				RINOK(ReadStream(stream, _buf + pos, &rem));
 				if(rem == 0) {
 					if(pos < fileSizeMin)

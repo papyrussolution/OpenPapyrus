@@ -14,7 +14,7 @@ static int scanNumber(char ** ptr)
 {
 	int ret = 0;
 	char * cur = *ptr;
-	while((*cur >= '0') && (*cur <= '9')) {
+	while(isdec(*cur)) {
 		ret = ret * 10 + (*cur - '0');
 		cur++;
 	}

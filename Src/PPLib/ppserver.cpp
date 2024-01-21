@@ -1,5 +1,5 @@
 // PPSERVER.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4136,7 +4136,7 @@ static const char * P_TestEndOfSeries = "END OF RANDOM SERIES";
 	size_t actual_size;
 	SCRC32 crc;
 	ulong  c, clen;
-	uint   max_size = 16*1024;
+	uint   max_size = SKILOBYTE(16);
 	char * p_buf = static_cast<char *>(SAlloc::M(max_size+sizeof(ulong)));
 	SString msg_buf, line_buf;
 	(line_buf = "TESTPAPYRUSSERVER").CRB();
@@ -4265,7 +4265,7 @@ static const char * P_TestEndOfSeries = "END OF RANDOM SERIES";
 PPServerSession::CmdRet PPServerSession::Testing()
 {
 	CmdRet ok = cmdretQuit;
-	uint   max_size = 16*1024;
+	uint   max_size = SKILOBYTE(16);
 	SString msg_buf, line_buf;
 	//
 	// Посылаем клиенту буферы длинами от 1 до max_size байт

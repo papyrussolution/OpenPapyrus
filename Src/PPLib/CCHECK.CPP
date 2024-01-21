@@ -1,5 +1,5 @@
 // CCHECK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -884,7 +884,7 @@ int CCheckPacket::IsEq(const CCheckPacket & rS, long options) const
 	if(options == 0) {
 		CMP_FLD(ID);
 		CMP_FLD(Code);
-		CMP_FLD(CashID);
+		CMP_FLD(PosNodeID);
 		CMP_FLD(UserID);
 		CMP_FLD(SessID);
 		CMP_FLD(Dt);
@@ -1764,7 +1764,7 @@ int CCheckPacket::SetDlvrAddr(const LocationTbl::Rec * pRec)
 }
 
 const LocationTbl::Rec * CCheckPacket::GetDlvrAddr() const { return P_DlvrAddr; }
-SString & CCheckPacket::MakeBarcodeIdent(SString & rBuf) const { return rBuf.Z().Cat("CA").CatLongZ(Rec.CashID, 4).CatLongZ(Rec.Code, 6); }
+SString & CCheckPacket::MakeBarcodeIdent(SString & rBuf) const { return rBuf.Z().Cat("CA").CatLongZ(Rec.PosNodeID, 4).CatLongZ(Rec.Code, 6); }
 
 /*static*/int CCheckPacket::ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult)
 {
@@ -1834,7 +1834,7 @@ void FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 	rBuf.Cat(pRec->Dt).CatDiv(':', 1);
 	if(pRec->Tm)
 		rBuf.Cat(pRec->Tm, MKSFMT(0, TIMF_HMS|TIMF_MSEC)).CatDiv(':', 1);
-	return rBuf.CatLongZ(pRec->CashID, 4).CatDiv(':', 1).Cat(pRec->Code);
+	return rBuf.CatLongZ(pRec->PosNodeID, 4).CatDiv(':', 1).Cat(pRec->Code);
 }
 
 CCheckCore::CCheckCore() : CCheckTbl(), P_ChkOpJrnl(0)
@@ -1880,7 +1880,7 @@ int CCheckCore::Search(PPID cashID, LDATE dt, LTIME tm, CCheckTbl::Rec * pRec)
 	CCheckTbl::Key1 k;
 	k.Dt = dt;
 	k.Tm = tm;
-	k.CashID = cashID;
+	k.PosNodeID = cashID;
 	return SearchByKey(this, 1, &k, pRec);
 }
 
@@ -1919,11 +1919,11 @@ int CCheckCore::SearchForwardZCheck(PPID cashID, LDATE dt, LTIME tm, CCheckTbl::
 	dtm.Set(dt, tm);
 	CCheckTbl::Key1 k;
 	BExtQuery q(this, 1, 128);
-	q.select(this->ID, this->Flags, this->Dt, this->Tm, 0L).where(this->Dt >= dt && this->CashID == cashID);
+	q.select(this->ID, this->Flags, this->Dt, this->Tm, 0L).where(this->Dt >= dt && this->PosNodeID == cashID);
 	MEMSZERO(k);
 	k.Dt = dt;
 	k.Tm = tm;
-	k.CashID = cashID;
+	k.PosNodeID = cashID;
 	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;)
 		if(data.Flags & CCHKF_ZCHECK && cmp(dtm, data.Dt, data.Tm) < 0)
 			return Search(data.ID, pRec);
@@ -2193,16 +2193,16 @@ int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & r
 		{
 			CCheckTbl::Key2 k2;
 			MEMSZERO(k2);
-			k2.CashID = cc_pack.Rec.CashID;
+			k2.PosNodeID = cc_pack.Rec.PosNodeID;
 			k2.Code = cc_pack.Rec.Code;
-			if(search(2, &k2, spLt) && data.CashID == cc_pack.Rec.CashID) {
+			if(search(2, &k2, spLt) && data.PosNodeID == cc_pack.Rec.PosNodeID) {
 				if(data.Code < (cc_pack.Rec.Code-1)) {
 					SString code_buf;
 					code_buf.Space().Z();
 					for(long i = data.Code+1; i < cc_pack.Rec.Code; i++) {
 						if(i > (data.Code+1))
 							code_buf.CatDiv(',', 2);
-						code_buf.Cat(data.CashID).CatChar('-').Cat(i);
+						code_buf.Cat(data.PosNodeID).CatChar('-').Cat(i);
 					}
 					rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_CODEGAP, fmt_buf), code_buf.cptr()));
 				}
@@ -2297,7 +2297,7 @@ int CCheckCore::LoadChecksByList(const ObjIdListFilt * pSessList, const PPIDArra
 			MEMSZERO(k3);
 			k3.SessID = sess_id;
 			dbq = ppcheckfiltid(dbq, SessID, sess_id);
-			dbq = ppcheckfiltidlist(dbq, CashID, pCashIDList);
+			dbq = ppcheckfiltidlist(dbq, PosNodeID, pCashIDList);
 			q.select(ID, Dt, Tm, 0L).where(*dbq);
 			for(q.initIteration(false, &k3, spGe); q.nextIteration();) {
 				if(cmp(last_dtm, data.Dt, data.Tm) < 0)
@@ -2353,7 +2353,7 @@ int CCheckCore::GetLastCheck(CCheckTbl::Rec * pRec)
 	CCheckTbl::Key1 k;
 	k.Dt = MAXDATE;
 	k.Tm = MAXTIME;
-	k.CashID = MAXLONG;
+	k.PosNodeID = MAXLONG;
 	if(search(1, &k, spLt)) {
 		copyBufTo(pRec);
 		ok = 1;		
@@ -2366,10 +2366,10 @@ int CCheckCore::GetLastCheck(PPID sessID, long cashN, CCheckTbl::Rec * pRec)
 	int    ok = 0;
 	CCheckTbl::Key3 k;
 	k.SessID = sessID;
-	k.CashID = cashN;
+	k.PosNodeID = cashN;
 	k.Dt = MAXDATE;
 	k.Tm = MAXTIME;
-	while(!ok && search(3, &k, spLt) && data.SessID == sessID && data.CashID == cashN) {
+	while(!ok && search(3, &k, spLt) && data.SessID == sessID && data.PosNodeID == cashN) {
 		if(!(data.Flags & CCHKF_SKIP)) {
 			copyBufTo(pRec);
 			ok = 1;
@@ -2381,11 +2381,11 @@ int CCheckCore::GetLastCheck(PPID sessID, long cashN, CCheckTbl::Rec * pRec)
 int CCheckCore::GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec)
 {
 	CCheckTbl::Key2 k;
-	k.CashID = cashN;
+	k.PosNodeID = cashN;
 	k.Code = MAXLONG;
 	k.Dt = MAXDATE;
 	k.Tm = MAXTIME;
-	if(search(2, &k, spLt) && k.CashID == cashN) {
+	if(search(2, &k, spLt) && k.PosNodeID == cashN) {
 		copyBufTo(pRec);
 		return 1;
 	}
@@ -2398,13 +2398,13 @@ int CCheckCore::GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> *
 	int    ok = -1;
 	CCheckTbl::Key2 k;
 	MEMSZERO(k);
-	k.CashID = cashN;
+	k.PosNodeID = cashN;
 	k.Code = code;
-	if(search(2, &k, spGe) && k.CashID == cashN && k.Code == code) {
+	if(search(2, &k, spGe) && k.PosNodeID == cashN && k.Code == code) {
 		do {
 			CALLPTRMEMB(pRecList, insert(&data));
 			ok = 1;
-		} while(search(2, &k, spNext) && k.CashID == cashN && k.Code == code);
+		} while(search(2, &k, spNext) && k.PosNodeID == cashN && k.Code == code);
 	}
 	else
 		ok = PPDbSearchError();
@@ -2572,7 +2572,7 @@ int CCheckCore::AdjustRecTime(CCheckTbl::Rec & rRec)
 	MEMSZERO(k1);
 	k1.Dt = rRec.Dt;
 	k1.Tm = rRec.Tm;
-	k1.CashID = rRec.CashID;
+	k1.PosNodeID = rRec.PosNodeID;
 	if(search(1, &k1, spEq)) {
 		ok = 1;
 		do {
@@ -2593,7 +2593,7 @@ int CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 		// Проверка на существование в БД чека начальных оборотов по карте
 		//
 		LDATE  d = encodedate(1, 1, 2001);
-		if(header.SCardID && header.Dt == d && header.CashID == 0 && header.SessID == 0) {
+		if(header.SCardID && header.Dt == d && !header.PosNodeID && !header.SessID) {
 			CCheckTbl::Key4 k4;
 			MEMSZERO(k4);
 			k4.SCardID = header.SCardID;
@@ -3400,10 +3400,10 @@ int CCheckCore::UpdateRec(PPID checkID, const CCheckTbl::Rec * pRec, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(SearchByID_ForUpdate(this, PPOBJ_CCHECK, checkID, &rec) > 0) {
-			if(pRec->SessID != rec.SessID || pRec->Code != rec.Code || pRec->CashID != rec.CashID || pRec->Dt != rec.Dt || pRec->Tm != rec.Tm) {
+			if(pRec->SessID != rec.SessID || pRec->Code != rec.Code || pRec->PosNodeID != rec.PosNodeID || pRec->Dt != rec.Dt || pRec->Tm != rec.Tm) {
 				data.SessID = pRec->SessID;
 				data.Code   = pRec->Code;
-				data.CashID = pRec->CashID;
+				data.PosNodeID = pRec->PosNodeID;
 				data.Dt     = pRec->Dt;
 				data.Tm     = pRec->Tm;
 				THROW_DB(updateRec()); // @sfu

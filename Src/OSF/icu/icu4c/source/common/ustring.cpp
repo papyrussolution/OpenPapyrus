@@ -52,7 +52,7 @@ U_CAPI char16_t * U_EXPORT2 u_strFindFirst(const char16_t * s, int32_t length, c
 	if(sub==NULL || subLength<-1) {
 		return (char16_t *)s;
 	}
-	if(s==NULL || length<-1) {
+	if(!s || length<-1) {
 		return NULL;
 	}
 	start = s;
@@ -287,7 +287,7 @@ U_CAPI char16_t * U_EXPORT2 u_strFindLast(const char16_t * s, int32_t length,
 	if(sub==NULL || subLength<-1) {
 		return (char16_t *)s;
 	}
-	if(s==NULL || length<-1) {
+	if(!s || length<-1) {
 		return NULL;
 	}
 
@@ -1000,7 +1000,7 @@ U_CAPI int32_t U_EXPORT2 u_strlen(const char16_t * s)
 U_CAPI int32_t U_EXPORT2 u_countChar32(const char16_t * s, int32_t length) 
 {
 	int32_t count;
-	if(s==NULL || length<-1) {
+	if(!s || length<-1) {
 		return 0;
 	}
 	count = 0;
@@ -1042,7 +1042,7 @@ U_CAPI bool U_EXPORT2 u_strHasMoreChar32Than(const char16_t * s, int32_t length,
 	if(number<0) {
 		return TRUE;
 	}
-	if(s==NULL || length<-1) {
+	if(!s || length<-1) {
 		return FALSE;
 	}
 	if(length == -1) {

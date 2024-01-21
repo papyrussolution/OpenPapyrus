@@ -5125,6 +5125,7 @@ PPTXT_STARTSESSION                   "Начать работу" // @v11.9.2 wsc
 94 "Отправка медиатору данных для индексации сервиса Stylo-Q"
 95 "Отправка сервису Stylo-Q клиентского лика"
 96 "Изменена персоналия-владелец карты"
+97 "В лоте изменена ссылка на сертификат" // @v11.9.3 PPACN_LOTQCERTLINKUPDATED
 
 [119]
 1  "Объект получен"
@@ -5868,6 +5869,7 @@ DVCPARAM_PAPERLESS                    "PAPERLESS"    // @v11.3.6
 DVCPARAM_PRESCRDATE                   "PRESCRDATE"   // @v11.8.0 // Рецепт: Дата
 DVCPARAM_PRESCRSERIAL                 "PRESCRSERIAL" // @v11.8.0 // Рецепт: Серия
 DVCPARAM_PRESCRNUMB                   "PRESCRNUMB"   // @v11.8.0 // Рецепт: Номер
+DVCPARAM_DRAFTBEERSIMPLIFIED          "DRAFTBEERSIMPLIFIED" // @v11.9.3 Признак упрощенного режима проведения продажи разливного пива через честный знак. В качестве значения передается штрихкод позиции.
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"

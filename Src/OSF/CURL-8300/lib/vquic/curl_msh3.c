@@ -48,8 +48,7 @@
 
 #define H3_STREAM_WINDOW_SIZE (128 * 1024)
 #define H3_STREAM_CHUNK_SIZE   (16 * 1024)
-#define H3_STREAM_RECV_CHUNKS \
-	(H3_STREAM_WINDOW_SIZE / H3_STREAM_CHUNK_SIZE)
+#define H3_STREAM_RECV_CHUNKS (H3_STREAM_WINDOW_SIZE / H3_STREAM_CHUNK_SIZE)
 
 #ifdef _WIN32
 #define msh3_lock CRITICAL_SECTION
@@ -285,7 +284,7 @@ static int decode_status_code(const char * value, size_t len)
 	for(i = 0; i < 3; ++i) {
 		char c = value[i];
 
-		if(c < '0' || c > '9') {
+		if(!isdec(c)) {
 			return -1;
 		}
 

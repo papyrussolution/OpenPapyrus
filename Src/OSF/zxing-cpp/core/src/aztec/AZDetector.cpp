@@ -252,8 +252,7 @@ static uint32_t SampleOrientationBits(const BitMatrix& image, const PerspectiveT
 
 static int ModeMessage(const BitMatrix& image, const PerspectiveTransform& mod2Pix, int radius)
 {
-	const bool compact = radius == 5;
-
+	const bool compact = (radius == 5);
 	// read the bits between the corner bits along the 4 edges
 	uint64_t bits = 0;
 	for(auto d : {PointI{-1, -1}, {1, -1}, {1, 1}, {-1, 1}}) {

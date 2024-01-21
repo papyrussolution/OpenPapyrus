@@ -402,7 +402,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_ABL_DEFAULT) {
-			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_ABL_NUMBER);
 				isSentenceStart = false;
 			}

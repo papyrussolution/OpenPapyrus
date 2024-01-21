@@ -451,52 +451,38 @@ static CURLcode AllowServerConnect(struct Curl_easy * data, bool * connected)
 	}
 	else {
 		/* Add timeout to multi handle and break out of the loop */
-		Curl_expire(data, data->set.accepttimeout ?
-		    data->set.accepttimeout: DEFAULT_ACCEPT_TIMEOUT,
-		    EXPIRE_FTP_ACCEPT);
+		Curl_expire(data, data->set.accepttimeout ? data->set.accepttimeout: DEFAULT_ACCEPT_TIMEOUT, EXPIRE_FTP_ACCEPT);
 	}
-
 out:
 	DEBUGF(infof(data, "ftp AllowServerConnect() -> %d", result));
 	return result;
 }
 
-/* macro to check for a three-digit ftp status code at the start of the
-   given string */
-#define STATUSCODE(line) (ISDIGIT(line[0]) && ISDIGIT(line[1]) &&       \
-	ISDIGIT(line[2]))
+/* macro to check for a three-digit ftp status code at the start of the given string */
+#define STATUSCODE(line) (isdec(line[0]) && isdec(line[1]) && isdec(line[2]))
 
 /* macro to check for the last line in an FTP server response */
 #define LASTLINE(line) (STATUSCODE(line) && (' ' == line[3]))
 
-static bool ftp_endofresp(struct Curl_easy * data, struct connectdata * conn,
-    char * line, size_t len, int * code)
+static bool ftp_endofresp(struct Curl_easy * data, struct connectdata * conn, char * line, size_t len, int * code)
 {
 	(void)data;
 	(void)conn;
-
 	if((len > 3) && LASTLINE(line)) {
 		*code = curlx_sltosi(strtol(line, NULL, 10));
 		return TRUE;
 	}
-
 	return FALSE;
 }
 
-static CURLcode ftp_readresp(struct Curl_easy * data,
-    curl_socket_t sockfd,
-    struct pingpong * pp,
-    int * ftpcode,                         /* return the ftp-code if done */
-    size_t * size)                         /* size of the response */
+static CURLcode ftp_readresp(struct Curl_easy * data, curl_socket_t sockfd, struct pingpong * pp, int * ftpcode/* return the ftp-code if done */, size_t * size/* size of the response */)
 {
 	int code;
 	CURLcode result = Curl_pp_readresp(data, sockfd, pp, &code, size);
-
 #ifdef HAVE_GSSAPI
 	{
 		struct connectdata * conn = data->conn;
 		char * const buf = data->state.buffer;
-
 		/* handle the security-oriented responses 6xx ***/
 		switch(code) {
 			case 631:
@@ -1719,7 +1705,7 @@ static bool match_pasv_6nums(const char * p, uint * array/* 6 numbers */)
 				return FALSE;
 			p++;
 		}
-		if(!ISDIGIT(*p))
+		if(!isdec(*p))
 			return FALSE;
 		num = strtoul(p, &endp, 10);
 		if(num > 255)
@@ -1749,9 +1735,8 @@ static CURLcode ftp_state_pasv_resp(struct Curl_easy * data, int ftpcode)
 			ptr++;
 			/* |||12345| */
 			sep = ptr[0];
-			/* the ISDIGIT() check here is because strtoul() accepts leading minus
-			   etc */
-			if((ptr[1] == sep) && (ptr[2] == sep) && ISDIGIT(ptr[3])) {
+			/* the isdec() check here is because strtoul() accepts leading minus etc */
+			if((ptr[1] == sep) && (ptr[2] == sep) && isdec(ptr[3])) {
 				char * endp;
 				ulong num = strtoul(&ptr[3], &endp, 10);
 				if(*endp != sep)
@@ -2199,8 +2184,8 @@ static CURLcode ftp_state_size_resp(struct Curl_easy * data,
 		if(fdigit) {
 			do
 				fdigit--;
-			while(ISDIGIT(*fdigit) && (fdigit > start));
-			if(!ISDIGIT(*fdigit))
+			while(isdec(*fdigit) && (fdigit > start));
+			if(!isdec(*fdigit))
 				fdigit++;
 		}
 		else
@@ -2378,7 +2363,7 @@ static CURLcode ftp_state_get_resp(struct Curl_easy * data,
 					if('(' == *bytes)
 						break;
 					/* skip only digits */
-					if(!ISDIGIT(*bytes)) {
+					if(!isdec(*bytes)) {
 						bytes = NULL;
 						break;
 					}

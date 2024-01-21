@@ -247,13 +247,11 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 {
 	char ch;
 	const Sci_PositionU beg = cur;
-
 	cur++;
 	for(;;) {
 		ch = styler.SafeGetCharAt(cur);
-		if(( ch != '_') && (ch != '-' ) &&
-		    !(IsASCII(ch) && ( islower(ch) || isupper(ch) || isdec(ch) ) ) ) break;
-
+		if(( ch != '_') && (ch != '-' ) && !(IsASCII(ch) && ( islower(ch) || isupper(ch) || isdec(ch) ) ) ) 
+			break;
 		cur++;
 		if(cur >= one_too_much) {
 			break;
@@ -262,13 +260,10 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 	const Sci_Position ide_len = cur - beg + 1;
 	char * ide = new char[ ide_len ];
 	getRange(beg, cur, styler, ide, ide_len);
-
 	WordList & keywords    = *keywordlists[ 0 ];
 	WordList & classwords  = *keywordlists[ 1 ];
-
 	if(keywords.InList(ide)) {  // Keyword
 		delete [] ide;
-
 		styler.ColourTo(cur - 1, SCE_OPAL_KEYWORD);
 		if(cur >= one_too_much) {
 			return false; // STOP

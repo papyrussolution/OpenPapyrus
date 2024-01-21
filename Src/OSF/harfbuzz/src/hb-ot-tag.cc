@@ -250,8 +250,8 @@ static bool parse_private_use_subtag(const char * private_use_subtag, uint * cou
 	if(s[0] == '-') {
 		s += 1;
 		char c;
-		for(i = 0; i < 8 && ISHEX(s[i]); i++) {
-			c = FROMHEX(s[i]);
+		for(i = 0; i < 8 && ishex(s[i]); i++) {
+			c = hex(s[i]);
 			if(i % 2 == 0)
 				tag[i / 2] = c << 4;
 			else

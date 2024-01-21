@@ -226,7 +226,7 @@ int PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 					cost_base = 1;
 					spctval[spctval_len-1] = '\0';
 				}
-				else if(symb == '%' || symb == '/')
+				else if(oneof2(symb, '%', '/'))
 					spctval[spctval_len-1] = '\0';
 				else if(symb == '$') {
 					abs_val = 1;

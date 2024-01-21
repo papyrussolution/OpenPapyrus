@@ -28,25 +28,24 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace strings_internal {
-
 // In this type trait, we look for a __resize_default_init member function, and
 // we use it if available, otherwise, we use resize. We provide HasMember to
 // indicate whether __resize_default_init is present.
 template <typename string_type, typename = void>
 struct ResizeUninitializedTraits {
-  using HasMember = std::false_type;
-  static void Resize(string_type* s, size_t new_size) { s->resize(new_size); }
+	using HasMember = std::false_type;
+	static void Resize(string_type* s, size_t new_size) { s->resize(new_size); }
 };
 
 // __resize_default_init is provided by libc++ >= 8.0
 template <typename string_type>
 struct ResizeUninitializedTraits<
-    string_type, absl::void_t<decltype(std::declval<string_type&>()
-                                           .__resize_default_init(237))> > {
-  using HasMember = std::true_type;
-  static void Resize(string_type* s, size_t new_size) {
-    s->__resize_default_init(new_size);
-  }
+	string_type, absl::void_t<decltype(std::declval<string_type&>()
+	.__resize_default_init(237))> > {
+	using HasMember = std::true_type;
+	static void Resize(string_type* s, size_t new_size) {
+		s->__resize_default_init(new_size);
+	}
 };
 
 // Returns true if the std::string implementation supports a resize where
@@ -56,7 +55,7 @@ struct ResizeUninitializedTraits<
 // the previous function.)
 template <typename string_type>
 inline constexpr bool STLStringSupportsNontrashingResize(string_type*) {
-  return ResizeUninitializedTraits<string_type>::HasMember::value;
+	return ResizeUninitializedTraits<string_type>::HasMember::value;
 }
 
 // Like str->resize(new_size), except any new characters added to "*str" as a
@@ -65,7 +64,7 @@ inline constexpr bool STLStringSupportsNontrashingResize(string_type*) {
 // store of the std::string with known data.
 template <typename string_type, typename = void>
 inline void STLStringResizeUninitialized(string_type* s, size_t new_size) {
-  ResizeUninitializedTraits<string_type>::Resize(s, new_size);
+	ResizeUninitializedTraits<string_type>::Resize(s, new_size);
 }
 
 // Used to ensure exponential growth so that the amortized complexity of
@@ -73,29 +72,29 @@ inline void STLStringResizeUninitialized(string_type* s, size_t new_size) {
 // O(str->size()) in the case of precise growth.
 template <typename string_type>
 void STLStringReserveAmortized(string_type* s, size_t new_size) {
-  const size_t cap = s->capacity();
-  if (new_size > cap) {
-    // Make sure to always grow by at least a factor of 2x.
-    s->reserve((std::max)(new_size, 2 * cap));
-  }
+	const size_t cap = s->capacity();
+	if(new_size > cap) {
+		// Make sure to always grow by at least a factor of 2x.
+		s->reserve((std::max)(new_size, 2 * cap));
+	}
 }
 
 // In this type trait, we look for an __append_default_init member function, and
 // we use it if available, otherwise, we use append.
 template <typename string_type, typename = void>
 struct AppendUninitializedTraits {
-  static void Append(string_type* s, size_t n) {
-    s->append(n, typename string_type::value_type());
-  }
+	static void Append(string_type* s, size_t n) {
+		s->append(n, typename string_type::value_type());
+	}
 };
 
 template <typename string_type>
 struct AppendUninitializedTraits<
-    string_type, absl::void_t<decltype(std::declval<string_type&>()
-                                           .__append_default_init(237))> > {
-  static void Append(string_type* s, size_t n) {
-    s->__append_default_init(n);
-  }
+	string_type, absl::void_t<decltype(std::declval<string_type&>()
+	.__append_default_init(237))> > {
+	static void Append(string_type* s, size_t n) {
+		s->__append_default_init(n);
+	}
 };
 
 // Like STLStringResizeUninitialized(str, new_size), except guaranteed to use
@@ -104,14 +103,14 @@ struct AppendUninitializedTraits<
 // precise growth.
 template <typename string_type>
 void STLStringResizeUninitializedAmortized(string_type* s, size_t new_size) {
-  const size_t size = s->size();
-  if (new_size > size) {
-    AppendUninitializedTraits<string_type>::Append(s, new_size - size);
-  } else {
-    s->erase(new_size);
-  }
+	const size_t size = s->size();
+	if(new_size > size) {
+		AppendUninitializedTraits<string_type>::Append(s, new_size - size);
+	}
+	else {
+		s->erase(new_size);
+	}
 }
-
 }  // namespace strings_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

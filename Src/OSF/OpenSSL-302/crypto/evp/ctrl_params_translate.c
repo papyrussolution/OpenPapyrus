@@ -517,8 +517,7 @@ static int default_fixup_args(enum state state,
 			    tmp_ctrl_str = ctx->ctrl_str = translation->param_key;
 			    if(ctx->ishex) {
 				    strcpy(ctx->name_buf, "hex");
-				    if(OPENSSL_strlcat(ctx->name_buf, tmp_ctrl_str,
-					sizeof(ctx->name_buf)) <= 3) {
+				    if(OPENSSL_strlcat(ctx->name_buf, tmp_ctrl_str, sizeof(ctx->name_buf)) <= 3) {
 					    ERR_raise(ERR_LIB_EVP, ERR_R_INTERNAL_ERROR);
 					    return -1;
 				    }

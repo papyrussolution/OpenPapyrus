@@ -1084,7 +1084,7 @@ int xmlCheckLanguageID(const xmlChar * lang)
 	nxt++;
 	cur = nxt;
 	/* now we can have extlang or script or region or variant */
-	if((nxt[0] >= '0') && (nxt[0] <= '9'))
+	if(isdec(nxt[0]))
 		goto region_m49;
 	while(isasciialpha(nxt[0]))
 		nxt++;
@@ -1104,7 +1104,7 @@ int xmlCheckLanguageID(const xmlChar * lang)
 	nxt++;
 	cur = nxt;
 	/* now we can have script or region or variant */
-	if((nxt[0] >= '0') && (nxt[0] <= '9'))
+	if(isdec(nxt[0]))
 		goto region_m49;
 	while(isasciialpha(nxt[0]))
 		nxt++;
@@ -1123,7 +1123,7 @@ script:
 	nxt++;
 	cur = nxt;
 	/* now we can have region or variant */
-	if((nxt[0] >= '0') && (nxt[0] <= '9'))
+	if(isdec(nxt[0]))
 		goto region_m49;
 	while(isasciialpha(nxt[0]))
 		nxt++;
@@ -1153,7 +1153,7 @@ variant:
 	/* extensions and private use subtags not checked */
 	return 1;
 region_m49:
-	if(((nxt[1] >= '0') && (nxt[1] <= '9')) && ((nxt[2] >= '0') && (nxt[2] <= '9'))) {
+	if(isdec(nxt[1]) && isdec(nxt[2])) {
 		nxt += 3;
 		goto region;
 	}
@@ -1769,12 +1769,9 @@ int xmlParseCharRef(xmlParserCtxt * ctxt)
 				if(ctxt->IsEof())
 					return 0;
 			}
-			if((RAW >= '0') && (RAW <= '9'))
-				val = val * 16 + (CUR - '0');
-			else if((RAW >= 'a') && (RAW <= 'f') && (count < 20))
-				val = val * 16 + (CUR - 'a') + 10;
-			else if((RAW >= 'A') && (RAW <= 'F') && (count < 20))
-				val = val * 16 + (CUR - 'A') + 10;
+			if(ishex(RAW)) {
+				val = (val << 4) + hex(RAW);
+			}
 			else {
 				xmlFatalErr(ctxt, XML_ERR_INVALID_HEX_CHARREF, 0);
 				val = 0;
@@ -1869,12 +1866,9 @@ static int xmlParseStringCharRef(xmlParserCtxt * ctxt, const xmlChar ** str)
 		ptr += 3;
 		cur = *ptr;
 		while(cur != ';') { /* Non input consuming loop */
-			if((cur >= '0') && (cur <= '9'))
-				val = val * 16 + (cur - '0');
-			else if((cur >= 'a') && (cur <= 'f'))
-				val = val * 16 + (cur - 'a') + 10;
-			else if((cur >= 'A') && (cur <= 'F'))
-				val = val * 16 + (cur - 'A') + 10;
+			if(ishex(cur)) {
+				val = (val << 4) + hex(cur);
+			}
 			else {
 				xmlFatalErr(ctxt, XML_ERR_INVALID_HEX_CHARREF, 0);
 				val = 0;
@@ -1882,7 +1876,6 @@ static int xmlParseStringCharRef(xmlParserCtxt * ctxt, const xmlChar ** str)
 			}
 			if(val > 0x10FFFF)
 				outofrange = val;
-
 			ptr++;
 			cur = *ptr;
 		}
@@ -1893,7 +1886,7 @@ static int xmlParseStringCharRef(xmlParserCtxt * ctxt, const xmlChar ** str)
 		ptr += 2;
 		cur = *ptr;
 		while(cur != ';') { /* Non input consuming loops */
-			if((cur >= '0') && (cur <= '9'))
+			if(isdec(cur))
 				val = val * 10 + (cur - '0');
 			else {
 				xmlFatalErr(ctxt, XML_ERR_INVALID_DEC_CHARREF, 0);
@@ -8708,7 +8701,7 @@ xmlChar * xmlParseVersionNum(xmlParserCtxt * ctxt)
 		return 0;
 	}
 	cur = CUR;
-	if(!((cur >= '0') && (cur <= '9'))) {
+	if(!isdec(cur)) {
 		SAlloc::F(buf);
 		return 0;
 	}
@@ -8722,11 +8715,10 @@ xmlChar * xmlParseVersionNum(xmlParserCtxt * ctxt)
 	buf[len++] = cur;
 	xmlNextChar(ctxt);
 	cur = CUR;
-	while((cur >= '0') && (cur <= '9')) {
+	while(isdec(cur)) {
 		if(len + 1 >= size) {
-			xmlChar * tmp;
 			size *= 2;
-			tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
+			xmlChar * tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 			if(!tmp) {
 				SAlloc::F(buf);
 				xmlErrMemory(ctxt, 0);
@@ -8815,11 +8807,10 @@ xmlChar * xmlParseEncName(xmlParserCtxt * ctxt)
 		buf[len++] = cur;
 		xmlNextChar(ctxt);
 		cur = CUR;
-		while(((cur >= 'a') && (cur <= 'z')) || ((cur >= 'A') && (cur <= 'Z')) || ((cur >= '0') && (cur <= '9')) || (cur == '.') || (cur == '_') || (cur == '-')) {
+		while(isasciialnum(cur) || (cur == '.') || (cur == '_') || (cur == '-')) {
 			if((len+1) >= size) {
-				xmlChar * tmp;
 				size *= 2;
-				tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
+				xmlChar * tmp = static_cast<xmlChar *>(SAlloc::R(buf, size * sizeof(xmlChar)));
 				if(!tmp) {
 					xmlErrMemory(ctxt, 0);
 					SAlloc::F(buf);

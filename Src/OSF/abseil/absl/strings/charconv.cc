@@ -578,7 +578,7 @@ template <typename FloatType> from_chars_result FromCharsImpl(const char* first,
 	}
 	// If the `hex` flag is *not* set, then we will accept a 0x prefix and try
 	// to parse a hexadecimal float.
-	if((fmt_flags & chars_format::hex) == chars_format{} && last - first >= 2 && *first == '0' && (first[1] == 'x' || first[1] == 'X')) {
+	if((fmt_flags & chars_format::hex) == chars_format{} && last - first >= 2 && *first == '0' && oneof2(first[1], 'x', 'X')) {
 		const char * hex_first = first + 2;
 		strings_internal::ParsedFloat hex_parse = strings_internal::ParseFloat<16>(hex_first, last, fmt_flags);
 		if(hex_parse.end == nullptr || hex_parse.type != strings_internal::FloatType::kNumber) {

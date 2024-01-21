@@ -170,12 +170,11 @@ static int Disto4x4_SSE41(const uint8* const a, const uint8* const b,
 	return abs(diff_sum) >> 5;
 }
 
-static int Disto16x16_SSE41(const uint8* const a, const uint8* const b,
-    const uint16_t* const w) {
+static int Disto16x16_SSE41(const uint8* const a, const uint8* const b, const uint16_t* const w) 
+{
 	int D = 0;
-	int x, y;
-	for(y = 0; y < 16 * BPS; y += 4 * BPS) {
-		for(x = 0; x < 16; x += 4) {
+	for(int y = 0; y < 16 * BPS; y += 4 * BPS) {
+		for(int x = 0; x < 16; x += 4) {
 			D += Disto4x4_SSE41(a + x + y, b + x + y, w);
 		}
 	}

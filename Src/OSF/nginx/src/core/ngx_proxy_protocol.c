@@ -35,7 +35,7 @@ uchar * ngx_proxy_protocol_read(ngx_connection_t * c, uchar * buf, uchar * last)
 		if(ch == ' ') {
 			break;
 		}
-		if(ch != ':' && ch != '.' && (ch < 'a' || ch > 'f') && (ch < 'A' || ch > 'F') && (ch < '0' || ch > '9')) {
+		if(ch != ':' && ch != '.' && (ch < 'a' || ch > 'f') && (ch < 'A' || ch > 'F') && !isdec(ch)) {
 			goto invalid;
 		}
 	}

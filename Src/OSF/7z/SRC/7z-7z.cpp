@@ -80,7 +80,7 @@ bool CDynBufSeqOutStream::CByteDynBuffer::EnsureCapacity(size_t cap) throw()
 			delta = 16;
 		else
 			delta = 4;
-		cap = MyMax(_capacity + delta, cap);
+		cap = smax(_capacity + delta, cap);
 		Byte * buf = (Byte *)SAlloc::R(_buf, cap);
 		if(!buf)
 			return false;

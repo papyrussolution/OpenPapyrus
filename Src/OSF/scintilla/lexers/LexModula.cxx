@@ -283,11 +283,7 @@ static bool FASTCALL skipWhiteSpaces(StyleContext & sc)
 	return true;
 }
 
-static void ColouriseModulaDoc(Sci_PositionU startPos,
-    Sci_Position length,
-    int initStyle,
-    WordList * wl[],
-    Accessor & styler)
+static void ColouriseModulaDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * wl[], Accessor & styler)
 {
 	WordList & keyWords      = *wl[0];
 	WordList & reservedWords = *wl[1];
@@ -295,21 +291,16 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 	WordList & pragmaWords   = *wl[3];
 	WordList & escapeCodes   = *wl[4];
 	WordList & doxyKeys      = *wl[5];
-
 	const int BUFLEN = 128;
-
 	char buf[BUFLEN];
 	int i, kl;
-
 	Sci_Position charPos = 0;
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	while(sc.More()) {
 		switch(sc.state)      {
 			case SCE_MODULA_DEFAULT:
-			    if(!skipWhiteSpaces(sc) ) break;
-
+			    if(!skipWhiteSpaces(sc)) 
+					break;
 			    if(sc.ch == '(' && sc.chNext == '*') {
 				    if(sc.GetRelative(2) == '*') {
 					    sc.SetState(SCE_MODULA_DOXYCOMM);
@@ -329,7 +320,6 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 					    }
 					    kl = i;
 					    buf[kl] = 0;
-
 					    if(keyWords.InList(buf)) {
 						    sc.SetState(SCE_MODULA_KEYWORD);
 						    sc.Forward(kl);
@@ -349,9 +339,7 @@ static void ColouriseModulaDoc(Sci_PositionU startPos,
 				    else {
 					    for(i = 0; i < BUFLEN - 1; i++) {
 						    buf[i] = sc.GetRelative(i);
-						    if(!isalpha(buf[i]) &&
-						    !isdec(buf[i]) &&
-						    !(buf[i] == '_') )
+						    if(!isalpha(buf[i]) && !isdec(buf[i]) && !(buf[i] == '_') )
 							    break;
 					    }
 					    kl = i;

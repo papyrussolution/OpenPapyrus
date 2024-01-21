@@ -268,7 +268,7 @@ namespace NArchive {
 			ASSIGN_PTR(processedSize, 0);
 			while(size != 0) {
 				if(m_FileIsOpen) {
-					uint32 numBytesToWrite = (uint32)MyMin(m_RemainFileSize, (uint64)(size));
+					uint32 numBytesToWrite = (uint32)smin(m_RemainFileSize, (uint64)(size));
 					HRESULT res = S_OK;
 					if(numBytesToWrite > 0) {
 						if(!isOK)
@@ -309,7 +309,7 @@ namespace NArchive {
 					if(fileOffset < m_PosInSection)
 						return E_FAIL;
 					if(fileOffset > m_PosInSection) {
-						uint32 numBytesToWrite = (uint32)MyMin(fileOffset - m_PosInSection, uint64(size));
+						uint32 numBytesToWrite = (uint32)smin(fileOffset - m_PosInSection, uint64(size));
 						realProcessed += numBytesToWrite;
 						ASSIGN_PTR(processedSize, realProcessed);
 						data = (const void *)((const Byte *)data + numBytesToWrite);
@@ -342,7 +342,7 @@ namespace NArchive {
 			if(maxSize > m_FolderSize)
 				maxSize = m_FolderSize;
 			while(m_PosInFolder < maxSize) {
-				uint32 size = (uint32)MyMin(maxSize - m_PosInFolder, (uint64)kBufferSize);
+				uint32 size = (uint32)smin(maxSize - m_PosInFolder, (uint64)kBufferSize);
 				uint32 processedSizeLocal = 0;
 				RINOK(Write2(buffer, size, &processedSizeLocal, false));
 				if(processedSizeLocal == 0)
@@ -580,7 +580,7 @@ namespace NArchive {
 										lastFolderIndex = m_Database.GetLastFolder(index);
 									}
 								}
-								unPackSize = MyMin(finishPos - startPos, unPackSize);
+								unPackSize = smin(finishPos - startPos, unPackSize);
 								chmFolderOutStream->m_FolderSize = folderSize;
 								chmFolderOutStream->m_PosInFolder = 0;
 								chmFolderOutStream->m_PosInSection = startPos;

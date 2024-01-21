@@ -22,7 +22,7 @@ PatternView FindPattern(const PatternView& view)
 {
 	return FindLeftGuard<PATTERN.size()>(view, PATTERN.size(), [](const PatternView& view, int spaceInPixel) {
 			// perform a fast plausability test for 1:1:3:1:1 pattern
-			if(view[2] < 2 * std::max(view[0], view[4]) || view[2] < std::max(view[1], view[3]))
+			if(view[2] < 2 * smax(view[0], view[4]) || view[2] < smax(view[1], view[3]))
 				return 0.f;
 			return IsPattern<E2E>(view, PATTERN, spaceInPixel, 0.1); // the requires 4, here we accept almost 0
 		});
@@ -247,20 +247,17 @@ static RegressionLine TraceLine(const BitMatrix& image, PointF p, PointF d, int 
 			line.add(centered(c.p));
 		} while(--stepCount > 0 && c.stepAlongEdge(dir, true));
 	}
-
 	line.evaluate(1.0, true);
-
 	for(auto p : line.points())
 		log(p, 2);
-
 	return line;
 }
 
 // estimate how tilted the symbol is (return value between 1 and 2, see also above)
 static double EstimateTilt(const FinderPatternSet& fp)
 {
-	int min = std::min({fp.bl.size, fp.tl.size, fp.tr.size});
-	int max = std::max({fp.bl.size, fp.tl.size, fp.tr.size});
+	int min = smin3(fp.bl.size, fp.tl.size, fp.tr.size);
+	int max = smax3(fp.bl.size, fp.tl.size, fp.tr.size);
 	return double(max) / min;
 }
 

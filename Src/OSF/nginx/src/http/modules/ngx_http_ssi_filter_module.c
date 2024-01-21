@@ -1240,7 +1240,7 @@ static ngx_int_t ngx_http_ssi_evaluate_string(ngx_http_request_t * r, ngx_http_s
 					bracket = 0;
 					break;
 				}
-				if((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '_') {
+				if(isasciialnum(ch) || ch == '_') {
 					continue;
 				}
 				break;

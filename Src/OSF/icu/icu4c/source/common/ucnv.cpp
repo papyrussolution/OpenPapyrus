@@ -434,12 +434,11 @@ U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv, const char16_t * s, 
 /*resets the internal states of a converter
  * goal : have the same behaviour than a freshly created converter
  */
-static void _reset(UConverter * converter, UConverterResetChoice choice,
-    bool callCallback) {
+static void _reset(UConverter * converter, UConverterResetChoice choice, bool callCallback) 
+{
 	if(converter == NULL) {
 		return;
 	}
-
 	if(callCallback) {
 		/* first, notify the callback functions that the converter is reset */
 		UErrorCode errorCode;
@@ -477,33 +476,13 @@ static void _reset(UConverter * converter, UConverterResetChoice choice,
 	}
 }
 
-U_CAPI void U_EXPORT2 ucnv_reset(UConverter * converter)
-{
-	_reset(converter, UCNV_RESET_BOTH, TRUE);
-}
-
-U_CAPI void U_EXPORT2 ucnv_resetToUnicode(UConverter * converter)
-{
-	_reset(converter, UCNV_RESET_TO_UNICODE, TRUE);
-}
-
-U_CAPI void U_EXPORT2 ucnv_resetFromUnicode(UConverter * converter)
-{
-	_reset(converter, UCNV_RESET_FROM_UNICODE, TRUE);
-}
-
-U_CAPI int8 U_EXPORT2 ucnv_getMaxCharSize(const UConverter * converter)
-{
-	return converter->maxBytesPerUChar;
-}
-
-U_CAPI int8 U_EXPORT2 ucnv_getMinCharSize(const UConverter * converter)
-{
-	return converter->sharedData->staticData->minBytesPerChar;
-}
+U_CAPI void U_EXPORT2 ucnv_reset(UConverter * converter) { _reset(converter, UCNV_RESET_BOTH, TRUE); }
+U_CAPI void U_EXPORT2 ucnv_resetToUnicode(UConverter * converter) { _reset(converter, UCNV_RESET_TO_UNICODE, TRUE); }
+U_CAPI void U_EXPORT2 ucnv_resetFromUnicode(UConverter * converter) { _reset(converter, UCNV_RESET_FROM_UNICODE, TRUE); }
+U_CAPI int8 U_EXPORT2 ucnv_getMaxCharSize(const UConverter * converter) { return converter->maxBytesPerUChar; }
+U_CAPI int8 U_EXPORT2 ucnv_getMinCharSize(const UConverter * converter) { return converter->sharedData->staticData->minBytesPerChar; }
 
 U_CAPI const char * U_EXPORT2 ucnv_getName(const UConverter * converter, UErrorCode * err)
-
 {
 	if(U_FAILURE(*err))
 		return NULL;
@@ -2282,40 +2261,31 @@ U_CAPI void U_EXPORT2 ucnv_getStarters(const UConverter * converter, bool starte
 
 static const UAmbiguousConverter * ucnv_getAmbiguous(const UConverter * cnv)
 {
-	UErrorCode errorCode;
-	const char * name;
-	int32_t i;
-	if(cnv==NULL) {
-		return NULL;
-	}
-
-	errorCode = U_ZERO_ERROR;
-	name = ucnv_getName(cnv, &errorCode);
-	if(U_FAILURE(errorCode)) {
-		return NULL;
-	}
-
-	for(i = 0; i<SIZEOFARRAYi(ambiguousConverters); ++i) {
-		if(0==strcmp(name, ambiguousConverters[i].name)) {
-			return ambiguousConverters+i;
+	UErrorCode errorCode = U_ZERO_ERROR;
+	if(cnv) {
+		const char * name = ucnv_getName(cnv, &errorCode);
+		if(U_SUCCESS(errorCode)) {
+			for(int32_t i = 0; i<SIZEOFARRAYi(ambiguousConverters); ++i) {
+				if(sstreq(name, ambiguousConverters[i].name)) {
+					return ambiguousConverters+i;
+				}
+			}
 		}
 	}
-
 	return NULL;
 }
 
 U_CAPI void U_EXPORT2 ucnv_fixFileSeparator(const UConverter * cnv, char16_t * source, int32_t sourceLength) 
 {
-	const UAmbiguousConverter * a;
-	int32_t i;
-	char16_t variant5c;
-	if(cnv==NULL || source==NULL || sourceLength<=0 || (a = ucnv_getAmbiguous(cnv))==NULL) {
-		return;
-	}
-	variant5c = a->variant5c;
-	for(i = 0; i<sourceLength; ++i) {
-		if(source[i]==variant5c) {
-			source[i] = 0x5c;
+	if(cnv && source && sourceLength > 0) {
+		const UAmbiguousConverter * a = ucnv_getAmbiguous(cnv);
+		if(a) {
+			char16_t variant5c = a->variant5c;
+			for(int32_t i = 0; i<sourceLength; ++i) {
+				if(source[i]==variant5c) {
+					source[i] = 0x5c;
+				}
+			}
 		}
 	}
 }

@@ -3832,7 +3832,7 @@ void GnuPlot::PlotOptionBinaryFormat(char * pFormatString)
 			if(ignore)
 				substr++;
 			// Check for field repeat number. 
-			field_repeat = isdigit((uchar)*substr) ? strtol(substr, &substr, 10) : 1;
+			field_repeat = isdec((uchar)*substr) ? strtol(substr, &substr, 10) : 1;
 			// Try finding the word among the valid type names. 
 			for(j = 0, breakout = 0; j < (sizeof(df_binary_tables)/sizeof(df_binary_tables[0])); j++) {
 				for(k = 0, breakout = 0; k < df_binary_tables[j].group_length; k++) {

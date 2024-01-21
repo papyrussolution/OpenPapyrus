@@ -132,7 +132,7 @@ static char_class charclass(uchar c)
 		return CCLASS_UPPER;
 	if(ISLOWER(c))
 		return CCLASS_LOWER;
-	if(ISDIGIT(c))
+	if(isdec(c))
 		return CCLASS_DIGIT;
 	return CCLASS_OTHER;
 }
@@ -143,7 +143,7 @@ static void setcharorrange(uchar ** pp, uchar * charset)
 	uchar * p = (*pp)++;
 	uchar c = *p++;
 	charset[c] = 1;
-	if(ISALNUM(c) && *p++ == '-') {
+	if(isasciialnum(c) && *p++ == '-') {
 		char_class cc = charclass(c);
 		uchar endrange = *p++;
 		if(endrange == '\\')
@@ -304,13 +304,13 @@ static int loop(const uchar * pattern, const uchar * string,
 				    if(charset[(uint)*s])
 					    found = TRUE;
 				    else if(charset[CURLFNM_ALNUM])
-					    found = ISALNUM(*s);
+					    found = isasciialnum(*s);
 				    else if(charset[CURLFNM_ALPHA])
-					    found = ISALPHA(*s);
+					    found = isasciialpha(*s);
 				    else if(charset[CURLFNM_DIGIT])
-					    found = ISDIGIT(*s);
+					    found = isdec(*s);
 				    else if(charset[CURLFNM_XDIGIT])
-					    found = ISXDIGIT(*s);
+					    found = ishex(*s);
 				    else if(charset[CURLFNM_PRINT])
 					    found = ISPRINT(*s);
 				    else if(charset[CURLFNM_SPACE])

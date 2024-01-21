@@ -61,7 +61,6 @@ namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace time_internal {
 namespace cctz {
-
 // The date/time of the transition. The date is specified as either:
 // (J) the Nth day of the year (1 <= N <= 365), excluding leap days, or
 // (N) the Nth day of the year (0 <= N <= 365), including leap days, or
@@ -70,36 +69,38 @@ namespace cctz {
 // of the transition, and may be negative or >= 24h, and in which case
 // it would take us to another day, and perhaps week, or even month.
 struct PosixTransition {
-  enum DateFormat { J, N, M };
+	enum DateFormat { J, N, M };
 
-  struct Date {
-    struct NonLeapDay {
-      std::int_fast16_t day;  // day of non-leap year [1:365]
-    };
-    struct Day {
-      std::int_fast16_t day;  // day of year [0:365]
-    };
-    struct MonthWeekWeekday {
-      std::int_fast8_t month;    // month of year [1:12]
-      std::int_fast8_t week;     // week of month [1:5] (5==last)
-      std::int_fast8_t weekday;  // 0==Sun, ..., 6=Sat
-    };
+	struct Date {
+		struct NonLeapDay {
+			std::int_fast16_t day; // day of non-leap year [1:365]
+		};
 
-    DateFormat fmt;
+		struct Day {
+			std::int_fast16_t day; // day of year [0:365]
+		};
 
-    union {
-      NonLeapDay j;
-      Day n;
-      MonthWeekWeekday m;
-    };
-  };
+		struct MonthWeekWeekday {
+			std::int_fast8_t month; // month of year [1:12]
+			std::int_fast8_t week; // week of month [1:5] (5==last)
+			std::int_fast8_t weekday; // 0==Sun, ..., 6=Sat
+		};
 
-  struct Time {
-    std::int_fast32_t offset;  // seconds before/after 00:00:00
-  };
+		DateFormat fmt;
 
-  Date date;
-  Time time;
+		union {
+			NonLeapDay j;
+			Day n;
+			MonthWeekWeekday m;
+		};
+	};
+
+	struct Time {
+		std::int_fast32_t offset; // seconds before/after 00:00:00
+	};
+
+	Date date;
+	Time time;
 };
 
 // The entirety of a POSIX-string specified time-zone rule. The standard
@@ -109,13 +110,13 @@ struct PosixTransition {
 // are not ordered---in the southern hemisphere the transition to end
 // daylight time occurs first in any particular year.
 struct PosixTimeZone {
-  std::string std_abbr;
-  std::int_fast32_t std_offset;
+	std::string std_abbr;
+	std::int_fast32_t std_offset;
 
-  std::string dst_abbr;
-  std::int_fast32_t dst_offset;
-  PosixTransition dst_start;
-  PosixTransition dst_end;
+	std::string dst_abbr;
+	std::int_fast32_t dst_offset;
+	PosixTransition dst_start;
+	PosixTransition dst_end;
 };
 
 // Breaks down a POSIX time-zone specification into its constituent pieces,
@@ -123,7 +124,6 @@ struct PosixTimeZone {
 // with the standard-defined defaults. Returns false if the specification
 // could not be parsed (although some fields of *res may have been altered).
 bool ParsePosixSpec(const std::string& spec, PosixTimeZone* res);
-
 }  // namespace cctz
 }  // namespace time_internal
 ABSL_NAMESPACE_END

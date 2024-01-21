@@ -376,28 +376,15 @@ static bool IsTwoCharOperator(int c, int n)
 	      || (c == '^' && n == '=') || (c == '%' && n == '=');
 }
 
-static bool IsThreeCharOperator(int c, int n, int n2)
-{
-	return (c == '<' && n == '<' && n2 == '=')
-	      || (c == '>' && n == '>' && n2 == '=');
-}
-
-static bool IsValidCharacterEscape(int c)
-{
-	return c == 'n' || c == 'r' || c == 't' || c == '\\'
-	      || c == '\'' || c == '"' || c == '0';
-}
-
-static bool IsValidStringEscape(int c)
-{
-	return IsValidCharacterEscape(c) || c == '\n' || c == '\r';
-}
+static bool IsThreeCharOperator(int c, int n, int n2) { return (c == '<' && n == '<' && n2 == '=') || (c == '>' && n == '>' && n2 == '='); }
+static bool IsValidCharacterEscape(int c) { return c == 'n' || c == 'r' || c == 't' || c == '\\' || c == '\'' || c == '"' || c == '0'; }
+static bool IsValidStringEscape(int c) { return IsValidCharacterEscape(c) || c == '\n' || c == '\r'; }
 
 static bool ScanNumericEscape(Accessor & styler, Sci_Position& pos, Sci_Position num_digits, bool stop_asap)
 {
 	for(;;) {
 		int c = styler.SafeGetCharAt(pos, '\0');
-		if(!IsADigit(c, 16))
+		if(!ishex(c))
 			break;
 		num_digits--;
 		pos++;
@@ -442,7 +429,7 @@ static void ScanCharacterLiteralOrLifetime(Accessor & styler, Sci_Position& pos,
 				    }
 				    else {
 					    int n_digits = 0;
-					    while(IsADigit(styler.SafeGetCharAt(++pos, '\0'), 16) && n_digits++ < 6) {
+					    while(ishex(styler.SafeGetCharAt(++pos, '\0')) && n_digits++ < 6) {
 					    }
 					    if(n_digits > 0 && styler.SafeGetCharAt(pos, '\0') == '}')
 						    pos++;
@@ -642,7 +629,7 @@ static void ResumeString(Accessor & styler, Sci_Position& pos, Sci_Position max,
 				}
 				else {
 					int n_digits = 0;
-					while(IsADigit(styler.SafeGetCharAt(++pos, '\0'), 16) && n_digits++ < 6) {
+					while(ishex(styler.SafeGetCharAt(++pos, '\0')) && n_digits++ < 6) {
 					}
 					if(n_digits > 0 && styler.SafeGetCharAt(pos, '\0') == '}')
 						pos++;
@@ -786,7 +773,7 @@ void SCI_METHOD LexerRust::Lex(Sci_PositionU startPos, Sci_Position length, int 
 		else if(IsIdentifierStart(c)) {
 			ScanIdentifier(styler, pos, keywords);
 		}
-		else if(IsADigit(c)) {
+		else if(isdec(c)) {
 			ScanNumber(styler, pos);
 		}
 		else if(IsThreeCharOperator(c, n, n2)) {

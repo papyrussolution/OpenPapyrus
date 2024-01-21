@@ -1305,7 +1305,7 @@ static int is_allowed_callout_name(OnigEncoding enc, uchar * name, uchar * name_
 		if(!IS_ALLOWED_CODE_IN_CALLOUT_NAME(c))
 			return 0;
 		if(p == name) {
-			if(c >= '0' && c <= '9') 
+			if(isdec(c)) 
 				return 0;
 		}
 		p += ONIGENC_MBC_ENC_LEN(enc, p);
@@ -1325,7 +1325,7 @@ static int is_allowed_callout_tag_name(OnigEncoding enc, uchar * name, uchar * n
 		if(!IS_ALLOWED_CODE_IN_CALLOUT_TAG_NAME(c))
 			return 0;
 		if(p == name) {
-			if(c >= '0' && c <= '9') 
+			if(isdec(c)) 
 				return 0;
 		}
 		p += ONIGENC_MBC_ENC_LEN(enc, p);
@@ -6432,7 +6432,7 @@ static long prs_long(OnigEncoding enc, uchar * s, uchar * end, int sign_on, long
 	while(p < end) {
 		c = ONIGENC_MBC_TO_CODE(enc, p, end);
 		p += ONIGENC_MBC_ENC_LEN(enc, p);
-		if(c >= '0' && c <= '9') {
+		if(isdec(c)) {
 			d = (long)(c - '0');
 			if(v > (max - d) / 10)
 				return ONIGERR_INVALID_CALLOUT_ARG;

@@ -46,14 +46,14 @@ static CType FindCType(const std::wstring& value, int start)
 	if(c == ESCAPE_FNC_1) {
 		return CType::FNC_1;
 	}
-	if(c < '0' || c > '9') {
+	if(!isdec(c)) {
 		return CType::UNCODABLE;
 	}
 	if(start + 1 >= last) {
 		return CType::ONE_DIGIT;
 	}
 	c = value[start + 1];
-	if(c < '0' || c > '9') {
+	if(!isdec(c)) {
 		return CType::ONE_DIGIT;
 	}
 	return CType::TWO_DIGITS;

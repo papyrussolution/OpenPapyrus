@@ -39,25 +39,17 @@ static bool FASTCALL IsAnOperator(const int ch, const int ch2, const int ch3)
 	if(IsASpaceOrTab(ch2)) {
 		return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '<' || ch == '>' || ch == '=' || ch == '?';
 	}
-
 	// Two char operators
 	if(IsASpaceOrTab(ch3)) {
-		return (ch == '*' && ch2 == '*') ||
-		       (ch == '/' && ch2 == '/') ||
-		       (ch == '<' && (ch2 == '=' || ch2 == '>')) ||
-		       (ch == '>' && ch2 == '=') ||
-		       (ch == '=' && (ch2 == '=' || ch2 == '?')) ||
-		       (ch == '?' && ch2 == '?');
+		return (ch == '*' && ch2 == '*') || (ch == '/' && ch2 == '/') || (ch == '<' && (ch2 == '=' || ch2 == '>')) ||
+		       (ch == '>' && ch2 == '=') || (ch == '=' && (ch2 == '=' || ch2 == '?')) || (ch == '?' && ch2 == '?');
 	}
-
 	return false;
 }
 
 static bool FASTCALL IsBinaryStart(const int ch, const int ch2, const int ch3, const int ch4)
 {
-	return (ch == '#' && ch2 == '{') ||
-	       (IsADigit(ch) && ch2 == '#' && ch3 == '{' ) ||
-	       (IsADigit(ch) && IsADigit(ch2) && ch3 == '#' && ch4 == '{' );
+	return (ch == '#' && ch2 == '{') || (isdec(ch) && ch2 == '#' && ch3 == '{' ) || (isdec(ch) && isdec(ch2) && ch3 == '#' && ch4 == '{' );
 }
 
 static void ColouriseRebolDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
@@ -252,7 +244,7 @@ static void ColouriseRebolDoc(Sci_PositionU startPos, Sci_Position length, int i
 			else if(IsAWordStart(sc.ch, sc.chNext)) {
 				sc.SetState(SCE_REBOL_IDENTIFIER);
 			}
-			else if(IsADigit(sc.ch) || sc.ch == '+' || sc.ch == '-' || /*Decimal*/ sc.ch == '.' || sc.ch == ',') {
+			else if(isdec(sc.ch) || sc.ch == '+' || sc.ch == '-' || /*Decimal*/ sc.ch == '.' || sc.ch == ',') {
 				dotCount = 0;
 				sc.SetState(SCE_REBOL_NUMBER);
 			}

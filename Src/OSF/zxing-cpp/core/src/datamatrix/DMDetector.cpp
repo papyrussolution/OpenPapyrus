@@ -367,12 +367,12 @@ static DetectorResult DetectOld(const BitMatrix& image)
 	else {
 		// The matrix is square
 
-		int dimension = std::min(dimensionRight, dimensionTop);
+		int dimension = smin(dimensionRight, dimensionTop);
 		// correct top right point to match the white module
 		correctedTopRight = CorrectTopRight(image, *bottomLeft, *bottomRight, *topLeft, *topRight, dimension);
 
 		// Redetermine the dimension using the corrected top right point
-		int dimensionCorrected = std::max(TransitionsBetween(image, *topLeft, correctedTopRight).transitions,
+		int dimensionCorrected = smax(TransitionsBetween(image, *topLeft, correctedTopRight).transitions,
 			TransitionsBetween(image, *bottomRight, correctedTopRight).transitions);
 		dimensionCorrected++;
 		if((dimensionCorrected & 0x01) == 1) {
@@ -495,12 +495,10 @@ class EdgeTracer : public BitMatrixCursorF
 				for(int i = 0; i <= 2*(step/4+1) * breadth; ++i) {
 					auto pEdge = p + step * d + (i&1 ? (i+1)/2 : -i/2) * dEdge;
 					log(pEdge);
-
 					if(!blackAt(pEdge + dEdge))
 						continue;
-
 					// found black pixel -> go 'outward' until we hit the b/w border
-					for(int j = 0; j < std::max(maxStepSize, 3) && isIn(pEdge); ++j) {
+					for(int j = 0; j < smax(maxStepSize, 3) && isIn(pEdge); ++j) {
 						if(whiteAt(pEdge)) {
 							// if we are not making any progress, we still have another
 							// endless loop bug
@@ -750,7 +748,7 @@ static DetectorResult Scan(EdgeTracer& startTracer, std::array<DMRegressionLine,
 		tlTracer.setDirection(right);
 		CHECK(tlTracer.traceGaps(tlTracer.right(), lineT, maxStepSize, {}, lenB / 2));
 
-		maxStepSize = std::min(lineT.length() / 3, static_cast<int>(lenL / 5)) * 2;
+		maxStepSize = smin(lineT.length() / 3, static_cast<int>(lenL / 5)) * 2;
 
 		// follow up until we reach the top line
 		t.setDirection(up);

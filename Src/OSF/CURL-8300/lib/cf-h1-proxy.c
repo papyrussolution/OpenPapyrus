@@ -395,26 +395,16 @@ static CURLcode on_resp_header(struct Curl_cfilter * cf,
 			Curl_httpchunk_init(data);
 		}
 	}
-	else if(Curl_compareheader(header,
-	    STRCONST("Proxy-Connection:"),
-	    STRCONST("close")))
+	else if(Curl_compareheader(header, STRCONST("Proxy-Connection:"), STRCONST("close")))
 		ts->close_connection = TRUE;
-	else if(!strncmp(header, "HTTP/1.", 7) &&
-	    ((header[7] == '0') || (header[7] == '1')) &&
-	    (header[8] == ' ') &&
-	    ISDIGIT(header[9]) && ISDIGIT(header[10]) && ISDIGIT(header[11]) &&
-	    !ISDIGIT(header[12])) {
+	else if(!strncmp(header, "HTTP/1.", 7) && ((header[7] == '0') || (header[7] == '1')) && (header[8] == ' ') && isdec(header[9]) && isdec(header[10]) && isdec(header[11]) && !isdec(header[12])) {
 		/* store the HTTP code from the proxy */
-		data->info.httpproxycode =  k->httpcode = (header[9] - '0') * 100 +
-		    (header[10] - '0') * 10 + (header[11] - '0');
+		data->info.httpproxycode =  k->httpcode = (header[9] - '0') * 100 + (header[10] - '0') * 10 + (header[11] - '0');
 	}
 	return result;
 }
 
-static CURLcode recv_CONNECT_resp(struct Curl_cfilter * cf,
-    struct Curl_easy * data,
-    struct h1_tunnel_state * ts,
-    bool * done)
+static CURLcode recv_CONNECT_resp(struct Curl_cfilter * cf, struct Curl_easy * data, struct h1_tunnel_state * ts, bool * done)
 {
 	CURLcode result = CURLE_OK;
 	struct SingleRequest * k = &data->req;
@@ -422,7 +412,6 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter * cf,
 	char * linep;
 	size_t perline;
 	int error;
-
 #define SELECT_OK      0
 #define SELECT_ERROR   1
 

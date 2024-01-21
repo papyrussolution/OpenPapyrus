@@ -111,17 +111,14 @@ static int prepare_from_text(const OSSL_PARAM * paramdefs, const char * key, con
 		    }
 		    break;
 	}
-
 	return 1;
 }
 
 static int construct_from_text(OSSL_PARAM * to, const OSSL_PARAM * paramdef,
-    const char * value, size_t value_n, int ishex,
-    void * buf, size_t buf_n, BIGNUM * tmpbn)
+    const char * value, size_t value_n, int ishex, void * buf, size_t buf_n, BIGNUM * tmpbn)
 {
 	if(buf == NULL)
 		return 0;
-
 	if(buf_n > 0) {
 		switch(paramdef->data_type) {
 			case OSSL_PARAM_INTEGER:
@@ -185,21 +182,15 @@ int OSSL_PARAM_allocate_from_text(OSSL_PARAM * to, const OSSL_PARAM * paramdefs,
 	size_t buf_n = 0;
 	BIGNUM * tmpbn = NULL;
 	int ok = 0;
-
 	if(to == NULL || paramdefs == NULL)
 		return 0;
-
-	if(!prepare_from_text(paramdefs, key, value, value_n,
-	    &paramdef, &ishex, &buf_n, &tmpbn, found))
+	if(!prepare_from_text(paramdefs, key, value, value_n, &paramdef, &ishex, &buf_n, &tmpbn, found))
 		goto err;
-
 	if((buf = OPENSSL_zalloc(buf_n > 0 ? buf_n : 1)) == NULL) {
 		ERR_raise(ERR_LIB_CRYPTO, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
-	ok = construct_from_text(to, paramdef, value, value_n, ishex,
-		buf, buf_n, tmpbn);
+	ok = construct_from_text(to, paramdef, value, value_n, ishex, buf, buf_n, tmpbn);
 	BN_free(tmpbn);
 	if(!ok)
 		OPENSSL_free(buf);

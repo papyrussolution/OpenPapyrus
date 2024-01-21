@@ -276,7 +276,7 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_COFFEESCRIPT_DEFAULT) {
-			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_COFFEESCRIPT_NUMBER);
 			}
 			else if(setWordStart.Contains(sc.ch)) {

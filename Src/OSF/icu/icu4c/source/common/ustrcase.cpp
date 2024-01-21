@@ -1244,7 +1244,7 @@ U_CFUNC int32_t ustrcase_map(int32_t caseLocale, uint32_t options, UCASEMAP_BREA
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0) || src==NULL || srcLength<-1) {
+	if(destCapacity<0 || (!dest && destCapacity>0) || src==NULL || srcLength<-1) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -1275,7 +1275,7 @@ U_CFUNC int32_t ustrcase_mapWithOverlap(int32_t caseLocale, uint32_t options, UC
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0) || src==NULL || srcLength<-1) {
+	if(destCapacity<0 || (!dest && destCapacity>0) || src==NULL || srcLength<-1) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -1469,7 +1469,7 @@ static int32_t _cmpFold(const char16_t * s1, int32_t length1,
 				do {
 					--level1;
 					start1 = stack1[level1].start; /*Not uninitialized*/
-				} while(start1==NULL);
+				} while(!start1);
 				s1 = stack1[level1].s; /*Not uninitialized*/
 				limit1 = stack1[level1].limit; /*Not uninitialized*/
 			}
@@ -1493,7 +1493,7 @@ static int32_t _cmpFold(const char16_t * s1, int32_t length1,
 				do {
 					--level2;
 					start2 = stack2[level2].start; /*Not uninitialized*/
-				} while(start2==NULL);
+				} while(!start2);
 				s2 = stack2[level2].s; /*Not uninitialized*/
 				limit2 = stack2[level2].limit; /*Not uninitialized*/
 			}

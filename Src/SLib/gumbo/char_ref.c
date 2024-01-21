@@ -43,12 +43,10 @@ static const CharReplacement kCharReplacements[] = {
 
 static int FASTCALL parse_digit(int c, bool allow_hex) 
 {
-	if(c >= '0' && c <= '9')
+	if(isdec(c))
 		return (c - '0');
-	else if(allow_hex && c >= 'a' && c <= 'f')
-		return (c - 'a' + 10);
-	else if(allow_hex && c >= 'A' && c <= 'F')
-		return (c - 'A' + 10);
+	else if(allow_hex && ishex(c))
+		return hex(c);
 	else
 		return -1;
 }

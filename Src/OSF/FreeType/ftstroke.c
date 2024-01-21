@@ -407,46 +407,33 @@ static FT_Error ft_stroke_border_cubicto(FT_StrokeBorder border,
 		vec[0] = *control1;
 		vec[1] = *control2;
 		vec[2] = *to;
-
 		tag[0] = FT_STROKE_TAG_CUBIC;
 		tag[1] = FT_STROKE_TAG_CUBIC;
 		tag[2] = FT_STROKE_TAG_ON;
-
 		border->num_points += 3;
 	}
-
 	border->movable = FALSE;
-
 	return error;
 }
 
 #define FT_ARC_CUBIC_ANGLE  ( FT_ANGLE_PI / 2 )
 
-static FT_Error ft_stroke_border_arcto(FT_StrokeBorder border,
-    FT_Vector*       center,
-    FT_Fixed radius,
-    FT_Angle angle_start,
-    FT_Angle angle_diff)
+static FT_Error ft_stroke_border_arcto(FT_StrokeBorder border, FT_Vector * center, FT_Fixed radius, FT_Angle angle_start, FT_Angle angle_diff)
 {
 	FT_Fixed coef;
 	FT_Vector a0, a1, a2, a3;
 	FT_Int i, arcs = 1;
 	FT_Error error = FT_Err_Ok;
-
 	/* number of cubic arcs to draw */
-	while(angle_diff > FT_ARC_CUBIC_ANGLE * arcs ||
-	    -angle_diff > FT_ARC_CUBIC_ANGLE * arcs)
+	while(angle_diff > FT_ARC_CUBIC_ANGLE * arcs || -angle_diff > FT_ARC_CUBIC_ANGLE * arcs)
 		arcs++;
-
 	/* control tangents */
 	coef  = FT_Tan(angle_diff / ( 4 * arcs ));
 	coef += coef / 3;
-
 	/* compute start and first control point */
 	FT_Vector_From_Polar(&a0, radius, angle_start);
 	a1.x = FT_MulFix(-a0.y, coef);
 	a1.y = FT_MulFix(a0.x, coef);
-
 	a0.x += center->x;
 	a0.y += center->y;
 	a1.x += a0.x;

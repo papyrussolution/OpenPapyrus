@@ -44,7 +44,7 @@ U_CAPI UNewTrie * U_EXPORT2 utrie_open(UNewTrie * fillIn,
 	}
 	else {
 		trie = (UNewTrie*)uprv_malloc(sizeof(UNewTrie));
-		if(trie==NULL) {
+		if(!trie) {
 			return NULL;
 		}
 	}
@@ -117,7 +117,7 @@ U_CAPI UNewTrie * U_EXPORT2 utrie_clone(UNewTrie * fillIn, const UNewTrie * othe
 	trie = utrie_open(fillIn, aliasData, aliasDataCapacity,
 		other->data[0], other->leadUnitValue,
 		other->isLatin1Linear);
-	if(trie==NULL) {
+	if(!trie) {
 		uprv_free(aliasData);
 	}
 	else {
@@ -145,7 +145,7 @@ U_CAPI void U_EXPORT2 utrie_close(UNewTrie * trie)
 
 U_CAPI uint32_t * U_EXPORT2 utrie_getData(UNewTrie * trie, int32_t * pLength) 
 {
-	if(trie==NULL || pLength==NULL) {
+	if(!trie || pLength==NULL) {
 		return NULL;
 	}
 	*pLength = trie->dataLength;
@@ -194,19 +194,17 @@ static int32_t utrie_getDataBlock(UNewTrie * trie, UChar32 c) {
 /**
  * @return TRUE if the value was successfully set
  */
-U_CAPI bool U_EXPORT2 utrie_set32(UNewTrie * trie, UChar32 c, uint32_t value) {
+U_CAPI bool U_EXPORT2 utrie_set32(UNewTrie * trie, UChar32 c, uint32_t value) 
+{
 	int32_t block;
-
 	/* valid, uncompacted trie and valid c? */
-	if(trie==NULL || trie->isCompacted || (uint32_t)c>0x10ffff) {
+	if(!trie || trie->isCompacted || (uint32_t)c>0x10ffff) {
 		return FALSE;
 	}
-
 	block = utrie_getDataBlock(trie, c);
 	if(block<0) {
 		return FALSE;
 	}
-
 	trie->data[block+(c&UTRIE_MASK)] = value;
 	return TRUE;
 }
@@ -215,7 +213,7 @@ U_CAPI uint32_t U_EXPORT2 utrie_get32(UNewTrie * trie, UChar32 c, bool * pInBloc
 {
 	int32_t block;
 	/* valid, uncompacted trie and valid c? */
-	if(trie==NULL || trie->isCompacted || (uint32_t)c>0x10ffff) {
+	if(!trie || trie->isCompacted || (uint32_t)c>0x10ffff) {
 		ASSIGN_PTR(pInBlockZero, TRUE);
 		return 0;
 	}
@@ -256,7 +254,7 @@ U_CAPI bool U_EXPORT2 utrie_setRange32(UNewTrie * trie, UChar32 start, UChar32 l
 	uint32_t initialValue;
 	int32_t block, rest, repeatBlock;
 	/* valid, uncompacted trie and valid indexes? */
-	if(trie==NULL || trie->isCompacted || (uint32_t)start>0x10ffff || (uint32_t)limit>0x110000 || start>limit) {
+	if(!trie || trie->isCompacted || (uint32_t)start>0x10ffff || (uint32_t)limit>0x110000 || start>limit) {
 		return FALSE;
 	}
 	if(start==limit) {
@@ -530,7 +528,7 @@ static void utrie_compact(UNewTrie * trie, bool overlap, UErrorCode * pErrorCode
 	}
 
 	/* valid, uncompacted trie? */
-	if(trie==NULL) {
+	if(!trie) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
@@ -694,7 +692,7 @@ U_CAPI int32_t U_EXPORT2 utrie_serialize(UNewTrie * trie, void * dt, int32_t cap
 		return 0;
 	}
 
-	if(trie==NULL || capacity<0 || (capacity>0 && dt==NULL)) {
+	if(!trie || capacity<0 || (capacity>0 && dt==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -989,7 +987,7 @@ U_CAPI void U_EXPORT2 utrie_enum(const UTrie * trie,
 	int32_t l, i, j, block, prevBlock, nullBlock, offset;
 
 	/* check arguments */
-	if(trie==NULL || trie->index==NULL || enumRange==NULL) {
+	if(!trie || trie->index==NULL || enumRange==NULL) {
 		return;
 	}
 	if(enumValue==NULL) {

@@ -1464,7 +1464,7 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 					const wchar_t d = extension[k];
 					if(d == 0)
 						break;
-					if(d < '0' || d > '9') {
+					if(!isdec(d)) {
 						isNumber = false;
 						break;
 					}

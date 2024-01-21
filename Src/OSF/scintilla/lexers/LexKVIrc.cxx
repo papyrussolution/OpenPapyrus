@@ -91,41 +91,33 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 				    sc.SetState(SCE_KVIRC_STRING);
 				    break;
 			    }
-
 			    /* Detecting functions */
 			    if(sc.ch == '$') {
 				    sc.SetState(SCE_KVIRC_FUNCTION);
 				    break;
 			    }
-
 			    /* Detecting variables */
 			    if(sc.ch == '%') {
 				    sc.SetState(SCE_KVIRC_VARIABLE);
 				    break;
 			    }
-
-			    /* Detecting numbers - isdigit is unsafe as it does not
-			 * validate, use CharacterSet.h functions */
-			    if(IsADigit(sc.ch)) {
+			    /* Detecting numbers - isdigit is unsafe as it does not validate, use CharacterSet.h functions */
+			    if(isdec(sc.ch)) {
 				    sc.SetState(SCE_KVIRC_NUMBER);
 				    break;
 			    }
-
 			    /* Detecting words */
 			    if(IsAWordStart(sc.ch) && IsAWordChar(sc.chNext)) {
 				    sc.SetState(SCE_KVIRC_WORD);
 				    sc.Forward();
 				    break;
 			    }
-
 			    /* Detecting operators */
 			    if(isoperator(sc.ch)) {
 				    sc.SetState(SCE_KVIRC_OPERATOR);
 				    break;
 			    }
-
 			    break;
-
 			case SCE_KVIRC_COMMENT:
 
 			    /* Breaking out of single line comment when a newline
@@ -245,7 +237,7 @@ static void ColouriseKVIrcDoc(Sci_PositionU startPos, Sci_Position length,
 			case SCE_KVIRC_NUMBER:
 
 			    /* Detecting the end of a number */
-			    if(!IsADigit(sc.ch)) {
+			    if(!isdec(sc.ch)) {
 				    sc.SetState(SCE_KVIRC_DEFAULT);
 
 				    /* Number has been exited yet the current character

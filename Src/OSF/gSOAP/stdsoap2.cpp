@@ -892,10 +892,7 @@ static soap_wchar soap_getchunkchar(struct soap * soap)
 #endif
 
 #ifndef PALM_1
-/*static int FASTCALL soap_isxdigit(int c)
-{
-	return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
-}*/
+/*static int FASTCALL soap_isxdigit(int c) { return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }*/
 
 SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_recv_raw(struct soap * soap)
 {
@@ -8314,7 +8311,7 @@ SOAP_FMAC1 long SOAP_FMAC2 soap_strtol(const char * s, char ** t, int b)
 	}
 	else { /* assume b == 16 and value is always positive */
 		while((c = *s)) {
-			if(c >= '0' && c <= '9')
+			if(isdec(c))
 				c -= '0';
 			else if(c >= 'A' && c <= 'F')
 				c -= 'A'-10;
@@ -8352,7 +8349,7 @@ SOAP_FMAC1 ulong SOAP_FMAC2 soap_strtoul(const char * s, char ** t, int b)
 	}
 	else { /* b == 16 */
 		while((c = *s)) {
-			if(c >= '0' && c <= '9')
+			if(isdec(c))
 				c -= '0';
 			else if(c >= 'A' && c <= 'F')
 				c -= 'A'-10;
@@ -11379,7 +11376,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_s2dateTime(struct soap * soap, const char * s, ti
 		T.tm_mon--;
 		if(*zone == '.') {
 			for(s = zone+1; *s; s++)
-				if(*s < '0' || *s > '9')
+				if(!isdec(*s))
 					break;
 		}
 		else

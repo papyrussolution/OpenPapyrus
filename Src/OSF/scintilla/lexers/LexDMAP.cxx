@@ -118,7 +118,7 @@ static void ColouriseDMAPDoc(Sci_PositionU startPos, Sci_Position length, int in
 			if(sc.ch == '$') {
 				sc.SetState(SCE_DMAP_COMMENT);
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext)) || (sc.ch == '-' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext)) || (sc.ch == '-' && isdec(sc.chNext))) {
 				sc.SetState(SCE_F_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch)) {

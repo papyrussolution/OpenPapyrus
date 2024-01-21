@@ -306,9 +306,9 @@ static int xmlParse3986DecOctet(const char ** str)
 		return 1;
 	if(!isdec(cur[1]))
 		cur++;
-	else if((*cur != '0') && (isdec(cur[1])) && (!isdec(cur[2])))
+	else if((*cur != '0') && isdec(cur[1]) && !isdec(cur[2]))
 		cur += 2;
-	else if((*cur == '1') && (isdec(cur[1])) && (isdec(cur[2])))
+	else if((*cur == '1') && isdec(cur[1]) && isdec(cur[2]))
 		cur += 3;
 	else if((*cur == '2') && (*(cur + 1) >= '0') && (*(cur + 1) <= '4') && (isdec(cur[2])))
 		cur += 3;
@@ -1389,23 +1389,9 @@ char * FASTCALL xmlURIUnescapeString(const char * str, int len, char * target)
 		out = ret;
 		while(len > 0) {
 			if((len > 2) && (*in == '%') && (ishex(in[1])) && (ishex(in[2]))) {
-				in++;
-				if(isdec(*in))
-					*out = (*in - '0');
-				else if((*in >= 'a') && (*in <= 'f'))
-					*out = (*in - 'a') + 10;
-				else if((*in >= 'A') && (*in <= 'F'))
-					*out = (*in - 'A') + 10;
-				in++;
-				if(isdec(*in))
-					*out = *out * 16 + (*in - '0');
-				else if((*in >= 'a') && (*in <= 'f'))
-					*out = *out * 16 + (*in - 'a') + 10;
-				else if((*in >= 'A') && (*in <= 'F'))
-					*out = *out * 16 + (*in - 'A') + 10;
-				in++;
+				*out++ = hex2(in[1], in[2]); // @v11.9.3
+				in += 3;
 				len -= 3;
-				out++;
 			}
 			else {
 				*out++ = *in++;

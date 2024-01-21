@@ -594,7 +594,7 @@ static int __fop_set_pgsize(DB * dbp, DB_FH * fhp, const char * name)
 	}
 	else {
 		SETMAX(iopsize, 512);
-		SETMIN(iopsize, 16*1024);
+		SETMIN(iopsize, SKILOBYTE(16));
 		/*
 		* Sheer paranoia, but we don't want anything that's not a power-of-2
 		* (we rely on that for alignment of various types on the pages), and

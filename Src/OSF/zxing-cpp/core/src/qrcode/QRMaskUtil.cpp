@@ -101,7 +101,6 @@ static int ApplyMaskPenaltyRule3(const TritMatrix& matrix)
 	const std::array<bool, 7> finder = {1, 0, 1, 1, 1, 0, 1};
 	const int whiteSize = Size(white);
 	const int finderSize = Size(finder);
-
 	int numPenalties = 0;
 	int width = matrix.width();
 	int height = matrix.height();
@@ -109,13 +108,13 @@ static int ApplyMaskPenaltyRule3(const TritMatrix& matrix)
 		for(int x = 0; x < width; x++) {
 			auto i = &matrix.get(x, y);
 			if(x <= width - finderSize && HasPatternAt(finder, i, finderSize, 1)
-			    && (HasPatternAt(white, i, -std::min(x, whiteSize), 1)
-			    || HasPatternAt(white, i + finderSize, std::min(width - x - finderSize, whiteSize), 1))) {
+			    && (HasPatternAt(white, i, -smin(x, whiteSize), 1)
+			    || HasPatternAt(white, i + finderSize, smin(width - x - finderSize, whiteSize), 1))) {
 				numPenalties++;
 			}
 			if(y <= height - finderSize && HasPatternAt(finder, i, finderSize, width)
-			    && (HasPatternAt(white, i, -std::min(y, whiteSize), width)
-			    || HasPatternAt(white, i + finderSize * width, std::min(height - y - finderSize, whiteSize), width))) {
+			    && (HasPatternAt(white, i, -smin(y, whiteSize), width)
+			    || HasPatternAt(white, i + finderSize * width, smin(height - y - finderSize, whiteSize), width))) {
 				numPenalties++;
 			}
 		}
@@ -129,9 +128,7 @@ static int ApplyMaskPenaltyRule3(const TritMatrix& matrix)
  */
 static int ApplyMaskPenaltyRule4(const TritMatrix& matrix)
 {
-	auto numDarkCells = std::count_if(matrix.begin(), matrix.end(), [](Trit cell) {
-			return cell;
-		});
+	auto numDarkCells = std::count_if(matrix.begin(), matrix.end(), [](Trit cell) { return cell; });
 	auto numTotalCells = matrix.size();
 	auto fivePercentVariances = std::abs(numDarkCells * 2 - numTotalCells) * 10 / numTotalCells;
 	return narrow_cast<int>(fivePercentVariances * N4);
@@ -141,9 +138,7 @@ static int ApplyMaskPenaltyRule4(const TritMatrix& matrix)
 // Basically it applies four rules and summate all penalties.
 int CalculateMaskPenalty(const TritMatrix& matrix)
 {
-	return MaskUtil::ApplyMaskPenaltyRule1(matrix)
-	       + MaskUtil::ApplyMaskPenaltyRule2(matrix)
-	       + MaskUtil::ApplyMaskPenaltyRule3(matrix)
-	       + MaskUtil::ApplyMaskPenaltyRule4(matrix);
+	return MaskUtil::ApplyMaskPenaltyRule1(matrix) + MaskUtil::ApplyMaskPenaltyRule2(matrix) + 
+		MaskUtil::ApplyMaskPenaltyRule3(matrix) + MaskUtil::ApplyMaskPenaltyRule4(matrix);
 }
 } // namespace ZXing::QRCode::MaskUtil

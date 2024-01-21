@@ -314,12 +314,11 @@ static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retl
 						return 0;
 					break;
 				    case 'n':
-				{
-					int * num;
-					num = va_arg(args, int *);
-					*num = currlen;
-				}
-				break;
+						{
+							int * num = va_arg(args, int *);
+							*num = currlen;
+						}
+						break;
 				    case '%':
 					if(!doapr_outch(sbuffer, buffer, &currlen, maxlen, ch))
 						return 0;

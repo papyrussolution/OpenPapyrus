@@ -473,12 +473,11 @@ ngx_int_t FASTCALL ngx_strcasecmp(const uchar * s1, const uchar * s2)
 
 ngx_int_t FASTCALL ngx_strncasecmp(const uchar * s1, const uchar * s2, size_t n)
 {
-	ngx_uint_t c1, c2;
 	while(n) {
-		c1 = (ngx_uint_t)*s1++;
-		c2 = (ngx_uint_t)*s2++;
-		c1 = (c1 >= 'A' && c1 <= 'Z') ? (c1 | 0x20) : c1;
-		c2 = (c2 >= 'A' && c2 <= 'Z') ? (c2 | 0x20) : c2;
+		uchar c1 = *s1++;
+		uchar c2 = *s2++;
+		c1 = isasciiupr(c1) ? (c1 | 0x20) : c1;
+		c2 = isasciiupr(c2) ? (c2 | 0x20) : c2;
 		if(c1 == c2) {
 			if(c1) {
 				n--;
@@ -486,7 +485,7 @@ ngx_int_t FASTCALL ngx_strncasecmp(const uchar * s1, const uchar * s2, size_t n)
 			}
 			return 0;
 		}
-		return c1 - c2;
+		return static_cast<int>(c1) - static_cast<int>(c2);
 	}
 	return 0;
 }
@@ -534,16 +533,16 @@ uchar * FASTCALL ngx_strstrn(uchar * s1, const char * s2, size_t n)
 
 const uchar * FASTCALL ngx_strcasestrn(const uchar * s1, const char * s2, size_t n)
 {
-	ngx_uint_t c1;
-	ngx_uint_t c2 = (ngx_uint_t)*s2++;
-	c2 = (c2 >= 'A' && c2 <= 'Z') ? (c2 | 0x20) : c2;
+	uchar c1;
+	char c2 = *s2++;
+	c2 = isasciiupr(c2) ? (c2 | 0x20) : c2;
 	do {
 		do {
-			c1 = (ngx_uint_t)*s1++;
+			c1 = *s1++;
 			if(c1 == 0) {
 				return NULL;
 			}
-			c1 = (c1 >= 'A' && c1 <= 'Z') ? (c1 | 0x20) : c1;
+			c1 = isasciiupr(c1) ? (c1 | 0x20) : c1;
 		} while(c1 != c2);
 	} while(ngx_strncasecmp(s1, (uchar *)s2, n) != 0);
 	return --s1;
@@ -555,17 +554,17 @@ const uchar * FASTCALL ngx_strcasestrn(const uchar * s1, const char * s2, size_t
  */
 uchar * FASTCALL ngx_strlcasestrn(uchar * s1, uchar * last, const uchar * s2, size_t n)
 {
-	ngx_uint_t c1, c2;
-	c2 = (ngx_uint_t)*s2++;
-	c2 = (c2 >= 'A' && c2 <= 'Z') ? (c2 | 0x20) : c2;
+	uchar c1, c2;
+	c2 = *s2++;
+	c2 = isasciiupr(c2) ? (c2 | 0x20) : c2;
 	last -= n;
 	do {
 		do {
 			if(s1 >= last) {
 				return NULL;
 			}
-			c1 = (ngx_uint_t)*s1++;
-			c1 = (c1 >= 'A' && c1 <= 'Z') ? (c1 | 0x20) : c1;
+			c1 = *s1++;
+			c1 = isasciiupr(c1) ? (c1 | 0x20) : c1;
 		} while(c1 != c2);
 	} while(ngx_strncasecmp(s1, s2, n) != 0);
 	return --s1;
@@ -635,12 +634,12 @@ ngx_int_t ngx_memn2cmp(uchar * s1, uchar * s2, size_t n1, size_t n2)
 
 ngx_int_t FASTCALL ngx_dns_strcmp(const uchar * s1, const uchar * s2)
 {
-	ngx_uint_t c1, c2;
+	uchar c1, c2;
 	for(;;) {
-		c1 = (ngx_uint_t)*s1++;
-		c2 = (ngx_uint_t)*s2++;
-		c1 = (c1 >= 'A' && c1 <= 'Z') ? (c1 | 0x20) : c1;
-		c2 = (c2 >= 'A' && c2 <= 'Z') ? (c2 | 0x20) : c2;
+		c1 = *s1++;
+		c2 = *s2++;
+		c1 = isasciiupr(c1) ? (c1 | 0x20) : c1;
+		c2 = isasciiupr(c2) ? (c2 | 0x20) : c2;
 		if(c1 == c2) {
 			if(c1) {
 				continue;
@@ -691,7 +690,7 @@ ngx_int_t FASTCALL ngx_atoi(const uchar * line, size_t n)
 	cutoff = NGX_MAX_INT_T_VALUE / 10;
 	cutlim = NGX_MAX_INT_T_VALUE % 10;
 	for(value = 0; n--; line++) {
-		if(*line < '0' || *line > '9') {
+		if(!isdec(*line)) {
 			return NGX_ERROR;
 		}
 		if(value >= cutoff && (value > cutoff || *line - '0' > cutlim)) {
@@ -725,7 +724,7 @@ ngx_int_t FASTCALL ngx_atofp(const uchar * line, size_t n, size_t point)
 			dot = 1;
 			continue;
 		}
-		if(*line < '0' || *line > '9') {
+		if(!isdec(*line)) {
 			return NGX_ERROR;
 		}
 		if(value >= cutoff && (value > cutoff || *line - '0' > cutlim)) {
@@ -752,7 +751,7 @@ ssize_t FASTCALL ngx_atosz(const uchar * line, size_t n)
 	cutoff = NGX_MAX_SIZE_T_VALUE / 10;
 	cutlim = NGX_MAX_SIZE_T_VALUE % 10;
 	for(value = 0; n--; line++) {
-		if(*line < '0' || *line > '9') {
+		if(!isdec(*line)) {
 			return NGX_ERROR;
 		}
 		if(value >= cutoff && (value > cutoff || *line - '0' > cutlim)) {
@@ -772,7 +771,7 @@ nginx_off_t FASTCALL ngx_atoof(const uchar * line, size_t n)
 	cutoff = NGX_MAX_OFF_T_VALUE / 10;
 	cutlim = NGX_MAX_OFF_T_VALUE % 10;
 	for(value = 0; n--; line++) {
-		if(*line < '0' || *line > '9') {
+		if(!isdec(*line)) {
 			return NGX_ERROR;
 		}
 		if(value >= cutoff && (value > cutoff || *line - '0' > cutlim)) {
@@ -792,7 +791,7 @@ time_t FASTCALL ngx_atotm(const uchar * line, size_t n)
 	cutoff = (time_t)(NGX_MAX_TIME_T_VALUE / 10);
 	cutlim = NGX_MAX_TIME_T_VALUE % 10;
 	for(value = 0; n--; line++) {
-		if(*line < '0' || *line > '9') {
+		if(!isdec(*line)) {
 			return NGX_ERROR;
 		}
 		if(value >= cutoff && (value > cutoff || *line - '0' > cutlim)) {
@@ -816,7 +815,7 @@ ngx_int_t FASTCALL ngx_hextoi(const uchar * line, size_t n)
 			return NGX_ERROR;
 		}
 		ch = *line;
-		if(ch >= '0' && ch <= '9') {
+		if(isdec(ch)) {
 			value = value * 16 + (ch - '0');
 			continue;
 		}
@@ -1215,7 +1214,7 @@ void FASTCALL ngx_unescape_uri(uchar ** dst, uchar ** src, size_t size, ngx_uint
 			    *d++ = ch;
 			    break;
 			case sw_quoted:
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    decoded = (uchar)(ch - '0');
 				    state = sw_quoted_second;
 				    break;
@@ -1232,7 +1231,7 @@ void FASTCALL ngx_unescape_uri(uchar ** dst, uchar ** src, size_t size, ngx_uint
 			    break;
 			case sw_quoted_second:
 			    state = sw_usual;
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    ch = (uchar)((decoded << 4) + (ch - '0'));
 				    if(type & NGX_UNESCAPE_REDIRECT) {
 					    if(ch > '%' && ch < 0x7f) {

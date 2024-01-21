@@ -1437,12 +1437,17 @@ int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
 bool   FASTCALL ishex(char c) { return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')); }
 bool   FASTCALL ishexw(wchar_t c) { return ((c >= L'0' && c <= L'9') || (c >= L'A' && c <= L'F') || (c >= L'a' && c <= L'f')); }
 bool   FASTCALL isdec(char c) { return (c >= '0' && c <= '9'); }
-bool   FASTCALL isdecw(wchar_t c) { return (c >= L'0' && c <= L'9'); }
+bool   FASTCALL isdec(int c) { return (c >= '0' && c <= '9'); } // @v11.9.3
+bool   FASTCALL isdec(uint c) { return (c >= '0' && c <= '9'); } // @v11.9.3
+bool   FASTCALL isdec(wchar_t c) { return (c >= L'0' && c <= L'9'); } // @v11.9.3
+bool   FASTCALL isdec(char16_t c) { return (c >= L'0' && c <= L'9'); } // @v11.9.3
 uint   FASTCALL hex(char c) { return (c >= '0' && c <= '9') ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0)); }
 uint   FASTCALL hexw(wchar_t c) { return (c >= L'0' && c <= L'9') ? (c-L'0') : ((c >= L'A' && c <= L'F') ? (c-L'A'+10) : ((c >= L'a' && c <= L'f') ? (c-L'a'+10) : 0)); }
 
 uint8 FASTCALL hextobyte(const char * pBuf)
 {
+	return (ishex(pBuf[0]) && ishex(pBuf[1])) ? hex2(pBuf[0], pBuf[1]) : 0; // @v11.9.3
+	/* @v11.9.3
 	uint8  c0 = pBuf[1];
 	uint8  c1 = pBuf[0];
 	uint8  r = 0;
@@ -1454,7 +1459,6 @@ uint8 FASTCALL hextobyte(const char * pBuf)
 		r |= c0 - 'a' + 10;
 	else
 		return 0;
-
 	if(c1 >= '0' && c1 <= '9')
 		r |= (c1 - '0') << 4;
 	else if(c1 >= 'A' && c1 <= 'F')
@@ -1464,6 +1468,7 @@ uint8 FASTCALL hextobyte(const char * pBuf)
 	else
 		return 0;
 	return r;
+	*/
 }
 
 /*static int experimental_isasciialpha(int c) 
@@ -2532,7 +2537,7 @@ int hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 				if(pos + i + 2 < in_buf_len) {
 					int    symb = pOutBuf[pos + i + 2];
 					int    dig  = -1;
-					if(isdigit(symb)) {
+					if(isdec(symb)) {
 						dig = (symb - '0');
 						dig = (base == 8 && dig > 7) ? -1 : dig;
 					}

@@ -1121,6 +1121,56 @@ long  SlSession::SetUiFlag(long f, int set)
 
 int   FASTCALL SlSession::CheckUiFlag(long f) const { return BIN((GetConstTLA().UiFlags & f) == f); }
 
+bool SlSession::LoadUiDescription(const char * pFileName) // @v11.9.3
+{
+	bool   ok = true;
+	SJson * p_js = 0;
+	THROW(!isempty(pFileName)); // @todo @err
+	{
+		SString final_file_name;
+		SString path;
+		SFsPath ps;
+		ps.Split(pFileName);
+		if(ps.Drv.NotEmpty() && ps.Dir.NotEmpty()) {
+			final_file_name = pFileName;
+		}
+		else {
+			QueryPath("uid", path);
+			THROW(path.NotEmpty()); // @todo @err
+			(final_file_name = path).SetLastSlash();
+			if(oneof2(pFileName[0], '/', '\\'))
+				final_file_name.Cat(pFileName+1);
+			else
+				final_file_name.Cat(pFileName);
+		}
+		THROW(fileExists(final_file_name)); // @todo @err
+		{
+			p_js = SJson::ParseFile(final_file_name);
+			THROW(p_js); // @todo @err
+			{
+				UiDescription * p_uid = new UiDescription;
+				if(p_uid->FromJsonObj(p_js)) {
+					for(uint i = 0; i < p_uid->ClrList.getCount(); i++) {
+						SColorSet * p_cs = p_uid->ClrList.at(i);
+						if(p_cs)
+							p_cs->Resolve();
+					}
+					ENTER_CRITICAL_SECTION
+						ZDELETE(P_Uid);
+						P_Uid = p_uid;
+					LEAVE_CRITICAL_SECTION
+				}
+				else {
+					delete p_uid;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js;
+	return ok;
+}
+
 struct DdoEntry {
 	DdoEntry() : Type(0), P_Obj(0)
 	{

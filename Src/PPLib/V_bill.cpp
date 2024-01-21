@@ -1,5 +1,5 @@
 // V_BILL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -5539,7 +5539,7 @@ static int SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, int is
 							if(sc_obj.P_CcTbl->GetListByCard(sc_rec_.ID, &dttm, &chk_ary) > 0) {
 								for(uint i = 0; i < chk_ary.getCount(); i++) {
 									THROW(sc_obj.P_CcTbl->Search(chk_ary.at(i), &tmp_cc_rec));
-									if(tmp_cc_rec.Code == chk_no && (!cash_no || tmp_cc_rec.CashID == cash_no) && (++chks_qtty == 1))
+									if(tmp_cc_rec.Code == chk_no && (!cash_no || tmp_cc_rec.PosNodeID == cash_no) && (++chks_qtty == 1))
 										cc_rec = tmp_cc_rec;
 								}
 							}

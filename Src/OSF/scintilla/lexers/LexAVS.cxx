@@ -15,35 +15,24 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(const int ch) 
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_');
-}
+static bool FASTCALL IsAWordChar(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
+static bool FASTCALL IsAWordStart(int ch) { return isalpha(ch) || (ch != ' ' && ch != '\n' && ch != '(' && ch != '.' && ch != ','); }
 
-static bool FASTCALL IsAWordStart(int ch) 
+static bool FASTCALL IsANumberChar(int ch) 
 {
-	return isalpha(ch) || (ch != ' ' && ch != '\n' && ch != '(' && ch != '.' && ch != ',');
-}
-
-static bool FASTCALL IsANumberChar(int ch) {
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.
-	return (ch < 0x80) &&
-	       (isdec(ch) || ch == '.' || ch == '-' || ch == '+');
+	return (ch < 0x80) && (isdec(ch) || ch == '.' || ch == '-' || ch == '+');
 }
 
-static void ColouriseAvsDoc(Sci_PositionU startPos,
-    Sci_Position length,
-    int initStyle,
-    WordList * keywordlists[],
-    Accessor & styler) {
+static void ColouriseAvsDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) 
+{
 	WordList &keywords = *keywordlists[0];
 	WordList &filters = *keywordlists[1];
 	WordList &plugins = *keywordlists[2];
 	WordList &functions = *keywordlists[3];
 	WordList &clipProperties = *keywordlists[4];
 	WordList &userDefined = *keywordlists[5];
-
 	Sci_Position currentLine = styler.GetLine(startPos);
 	// Initialize the block comment nesting level, if we are inside such a comment.
 	int blockCommentLevel = 0;
@@ -154,10 +143,10 @@ static void ColouriseAvsDoc(Sci_PositionU startPos,
 
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_AVS_DEFAULT) {
-			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_AVS_NUMBER);
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == ',' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == ',' && isdec(sc.chNext))) {
 				sc.Forward();
 				sc.SetState(SCE_AVS_NUMBER);
 			}

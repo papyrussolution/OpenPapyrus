@@ -266,42 +266,29 @@ HRESULT DecodeDDSHeader(_In_reads_bytes_(size) const void* pSource, size_t size,
 		metadata.mipLevels = 1;
 
 	// Check for DX10 extension
-	if((pHeader->ddspf.flags & DDS_FOURCC)
-	    && (MAKEFOURCC('D', 'X', '1', '0') == pHeader->ddspf.fourCC)) {
+	if((pHeader->ddspf.flags & DDS_FOURCC) && (MAKEFOURCC('D', 'X', '1', '0') == pHeader->ddspf.fourCC)) {
 		// Buffer must be big enough for both headers and magic value
 		if(size < (sizeof(DDS_HEADER) + sizeof(uint32_t) + sizeof(DDS_HEADER_DXT10))) {
 			return E_FAIL;
 		}
-
-		auto d3d10ext =
-		    reinterpret_cast<const DDS_HEADER_DXT10*>(static_cast<const uint8_t*>(pSource) + sizeof(uint32_t) +
-		    sizeof(DDS_HEADER));
+		auto d3d10ext = reinterpret_cast<const DDS_HEADER_DXT10*>(static_cast<const uint8_t*>(pSource) + sizeof(uint32_t) + sizeof(DDS_HEADER));
 		convFlags |= CONV_FLAGS_DX10;
-
 		metadata.arraySize = d3d10ext->arraySize;
 		if(metadata.arraySize == 0) {
 			return HRESULT_E_INVALID_DATA;
 		}
-
 		metadata.format = d3d10ext->dxgiFormat;
 		if(!IsValid(metadata.format) || IsPalettized(metadata.format)) {
 			return HRESULT_E_NOT_SUPPORTED;
 		}
-
-		static_assert(static_cast<int>(TEX_MISC_TEXTURECUBE) == static_cast<int>(DDS_RESOURCE_MISC_TEXTURECUBE),
-		    "DDS header mismatch");
-
+		static_assert(static_cast<int>(TEX_MISC_TEXTURECUBE) == static_cast<int>(DDS_RESOURCE_MISC_TEXTURECUBE), "DDS header mismatch");
 		metadata.miscFlags = d3d10ext->miscFlag & ~static_cast<uint32_t>(TEX_MISC_TEXTURECUBE);
-
-		switch(d3d10ext->resourceDimension)
-		{
+		switch(d3d10ext->resourceDimension) {
 			case DDS_DIMENSION_TEXTURE1D:
-
 			    // D3DX writes 1D textures with a fixed Height of 1
 			    if((pHeader->flags & DDS_HEIGHT) && pHeader->height != 1) {
 				    return HRESULT_E_INVALID_DATA;
 			    }
-
 			    metadata.width = pHeader->width;
 			    metadata.height = 1;
 			    metadata.depth = 1;
@@ -1200,8 +1187,7 @@ HRESULT CopyImage(_In_reads_bytes_(size) const void* pPixels, _In_ size_t size, 
 
 					    if(cpFlags & CP_FLAGS_BAD_DXTN_TAILS) {
 						    if(images[index].width < 4 || images[index].height < 4) {
-							    csize =
-								std::min<size_t>(images[index].slicePitch, timages[lastgood].slicePitch);
+							    csize = std::min<size_t>(images[index].slicePitch, timages[lastgood].slicePitch);
 							    memcpy(pDest, timages[lastgood].pixels, csize);
 						    }
 						    else {
@@ -1213,7 +1199,6 @@ HRESULT CopyImage(_In_reads_bytes_(size) const void* pPixels, _In_ size_t size, 
 					    const size_t count = ComputeScanlines(metadata.format, images[index].height);
 					    if(!count)
 						    return E_UNEXPECTED;
-
 					    const size_t csize = std::min<size_t>(dpitch, spitch);
 					    for(size_t h = 0; h < count; ++h) {
 						    memcpy(pDest, pSrc, csize);
@@ -1225,12 +1210,8 @@ HRESULT CopyImage(_In_reads_bytes_(size) const void* pPixels, _In_ size_t size, 
 					    for(size_t h = 0; h < images[index].height; ++h) {
 						    if(convFlags & CONV_FLAGS_EXPAND) {
 							    if(convFlags & CONV_FLAGS_4444) {
-								    if(!ExpandScanline(pDest, dpitch, DXGI_FORMAT_R8G8B8A8_UNORM,
-									pSrc, spitch,
-									(convFlags &
-									CONF_FLAGS_11ON12) ? WIN11_DXGI_FORMAT_A4B4G4R4_UNORM :
-									DXGI_FORMAT_B4G4R4A4_UNORM,
-									tflags))
+								    if(!ExpandScanline(pDest, dpitch, DXGI_FORMAT_R8G8B8A8_UNORM, pSrc, spitch,
+									(convFlags & CONF_FLAGS_11ON12) ? WIN11_DXGI_FORMAT_A4B4G4R4_UNORM : DXGI_FORMAT_B4G4R4A4_UNORM, tflags))
 									    return E_FAIL;
 							    }
 							    else if(convFlags & (CONV_FLAGS_565 | CONV_FLAGS_5551)) {

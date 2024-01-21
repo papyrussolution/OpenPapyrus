@@ -14,18 +14,12 @@ BoundingBox::BoundingBox()
 	_imgWidth = _imgHeight = _minX = _maxX = _minY = _maxY = 0;
 }
 
-bool BoundingBox::Create(int imgWidth,
-    int imgHeight,
-    const Nullable<ResultPoint>& topLeft,
-    const Nullable<ResultPoint>& bottomLeft,
-    const Nullable<ResultPoint>& topRight,
-    const Nullable<ResultPoint>& bottomRight,
-    BoundingBox& result)
+bool BoundingBox::Create(int imgWidth, int imgHeight,
+    const Nullable<ResultPoint>& topLeft, const Nullable<ResultPoint>& bottomLeft,
+    const Nullable<ResultPoint>& topRight, const Nullable<ResultPoint>& bottomRight, BoundingBox& result)
 {
-	if((topLeft == nullptr && topRight == nullptr) ||
-	    (bottomLeft == nullptr && bottomRight == nullptr) ||
-	    (topLeft != nullptr && bottomLeft == nullptr) ||
-	    (topRight != nullptr && bottomRight == nullptr)) {
+	if((topLeft == nullptr && topRight == nullptr) || (bottomLeft == nullptr && bottomRight == nullptr) ||
+	    (topLeft != nullptr && bottomLeft == nullptr) || (topRight != nullptr && bottomRight == nullptr)) {
 		return false;
 	}
 	result._imgWidth = imgWidth;
@@ -48,11 +42,10 @@ void BoundingBox::calculateMinMaxValues()
 		_topRight = ResultPoint(static_cast<float>(_imgWidth - 1), _topLeft.value().y());
 		_bottomRight = ResultPoint(static_cast<float>(_imgWidth - 1), _bottomLeft.value().y());
 	}
-
-	_minX = static_cast<int>(std::min(_topLeft.value().x(), _bottomLeft.value().x()));
-	_maxX = static_cast<int>(std::max(_topRight.value().x(), _bottomRight.value().x()));
-	_minY = static_cast<int>(std::min(_topLeft.value().y(), _topRight.value().y()));
-	_maxY = static_cast<int>(std::max(_bottomLeft.value().y(), _bottomRight.value().y()));
+	_minX = static_cast<int>(smin(_topLeft.value().x(), _bottomLeft.value().x()));
+	_maxX = static_cast<int>(smax(_topRight.value().x(), _bottomRight.value().x()));
+	_minY = static_cast<int>(smin(_topLeft.value().y(), _topRight.value().y()));
+	_maxY = static_cast<int>(smax(_bottomLeft.value().y(), _bottomRight.value().y()));
 }
 
 bool BoundingBox::Merge(const Nullable<BoundingBox>& leftBox, const Nullable<BoundingBox>& rightBox, Nullable<BoundingBox>& result)

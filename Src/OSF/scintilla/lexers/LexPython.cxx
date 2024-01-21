@@ -676,7 +676,7 @@ void SCI_METHOD LexerPython::Lex(Sci_PositionU startPos, Sci_Position length, in
 
 		// Check for a new state starting character
 		if(sc.state == SCE_P_DEFAULT) {
-			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				if(sc.ch == '0' && (sc.chNext == 'x' || sc.chNext == 'X')) {
 					base_n_number = true;
 					sc.SetState(SCE_P_NUMBER);

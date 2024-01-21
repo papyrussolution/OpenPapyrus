@@ -32,14 +32,13 @@ U_CAPI const char16_t * U_EXPORT2 uloc_getTableStringWithFallback(const char * p
 {
 /* char localeBuffer[ULOC_FULLNAME_CAPACITY*4];*/
 	const char16_t * item = NULL;
-	UErrorCode errorCode;
 	char explicitFallbackName[ULOC_FULLNAME_CAPACITY] = {0};
 
 	/*
 	 * open the bundle for the current locale
 	 * this falls back through the locale's chain to root
 	 */
-	errorCode = U_ZERO_ERROR;
+	UErrorCode errorCode = U_ZERO_ERROR;
 	icu::LocalUResourceBundlePointer rb(ures_open(path, locale, &errorCode));
 	if(U_FAILURE(errorCode)) {
 		/* total failure, not even root could be opened */

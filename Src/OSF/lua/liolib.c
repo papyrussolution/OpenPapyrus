@@ -369,7 +369,8 @@ static int nextc(RN * rn) {
 /*
 ** Accept current char if it is in 'set' (of size 2)
 */
-static int test2(RN * rn, const char * set) {
+static int test2(RN * rn, const char * set) 
+{
 	if(rn->c == set[0] || rn->c == set[1])
 		return nextc(rn);
 	else return 0;
@@ -378,9 +379,10 @@ static int test2(RN * rn, const char * set) {
 /*
 ** Read a sequence of (hex)digits
 */
-static int readdigits(RN * rn, int hex) {
+static int readdigits(RN * rn, int hex) 
+{
 	int count = 0;
-	while((hex ? isxdigit(rn->c) : isdigit(rn->c)) && nextc(rn))
+	while((hex ? isxdigit(rn->c) : isdec(rn->c)) && nextc(rn))
 		count++;
 	return count;
 }
@@ -390,7 +392,8 @@ static int readdigits(RN * rn, int hex) {
 ** Then it calls 'lua_stringtonumber' to check whether the format is
 ** correct and to convert it to a Lua number
 */
-static int read_number(lua_State * L, FILE * f) {
+static int read_number(lua_State * L, FILE * f) 
+{
 	RN rn;
 	int count = 0;
 	int hex = 0;

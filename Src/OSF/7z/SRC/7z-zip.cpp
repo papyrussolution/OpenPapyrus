@@ -7013,8 +7013,8 @@ namespace NArchive {
 					RINOK(_stream->Seek(_cachedPos, STREAM_SEEK_SET, &_phyPos));
 				}
 				size_t pos = (size_t)_cachedPos & kCacheMask;
-				size_t curSize = MyMin(kCacheSize - pos, _cachedSize);
-				curSize = MyMin(curSize, size);
+				size_t curSize = smin(kCacheSize - pos, _cachedSize);
+				curSize = smin(curSize, size);
 				RINOK(WriteStream(_stream, _cache + pos, curSize));
 				_phyPos += curSize;
 				SETMAX(_phySize, _phyPos);
@@ -7083,10 +7083,10 @@ namespace NArchive {
 			if(_cachedSize == 0)
 				_cachedPos = _virtPos;
 			size_t pos = (size_t)_virtPos & kCacheMask;
-			size = (uint32)MyMin((size_t)size, kCacheSize - pos);
+			size = (uint32)smin((size_t)size, kCacheSize - pos);
 			uint64 cachedEnd = _cachedPos + _cachedSize;
 			if(_virtPos != cachedEnd) // _virtPos < cachedEnd
-				size = (uint32)MyMin((size_t)size, (size_t)(cachedEnd - _virtPos));
+				size = (uint32)smin((size_t)size, (size_t)(cachedEnd - _virtPos));
 			else {
 				// _virtPos == cachedEnd
 				if(_cachedSize == kCacheSize) {
@@ -7094,7 +7094,7 @@ namespace NArchive {
 				}
 				size_t startPos = (size_t)_cachedPos & kCacheMask;
 				if(startPos > pos)
-					size = (uint32)MyMin((size_t)size, (size_t)(startPos - pos));
+					size = (uint32)smin((size_t)size, (size_t)(startPos - pos));
 				_cachedSize += size;
 			}
 			memcpy(_cache + pos, data, size);

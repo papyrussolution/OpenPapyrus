@@ -83,7 +83,7 @@ int gs1_verify(struct ZintSymbol * symbol, const uchar source[], const size_t sr
 		int ai_latch = 0;
 		for(i = 0; i < src_len; i++) {
 			ai_length += j;
-			if(((j == 1) && (source[i] != ']')) && ((source[i] < '0') || (source[i] > '9'))) {
+			if(((j == 1) && (source[i] != ']')) && !isdec(source[i])) {
 				ai_latch = 1;
 			}
 			if(source[i] == '[') {

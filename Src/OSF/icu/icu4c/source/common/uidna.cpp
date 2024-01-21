@@ -190,7 +190,7 @@ static int32_t _internal_toASCII(const char16_t * src, int32_t srcLength, char16
 	}
 	if(srcLength > b1Capacity) {
 		b1 = (char16_t *)uprv_malloc(srcLength * U_SIZEOF_UCHAR);
-		if(b1==NULL) {
+		if(!b1) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			goto CLEANUP;
 		}
@@ -214,7 +214,7 @@ static int32_t _internal_toASCII(const char16_t * src, int32_t srcLength, char16
 				uprv_free(b1);
 			}
 			b1 = (char16_t *)uprv_malloc(b1Len * U_SIZEOF_UCHAR);
-			if(b1==NULL) {
+			if(!b1) {
 				*status = U_MEMORY_ALLOCATION_ERROR;
 				goto CLEANUP;
 			}
@@ -403,7 +403,7 @@ static int32_t _internal_toUnicode(const char16_t * src, int32_t srcLength, char
 			// redo processing of string
 			/* we do not have enough room so grow the buffer*/
 			b1 = (char16_t *)uprv_malloc(b1Len * U_SIZEOF_UCHAR);
-			if(b1==NULL) {
+			if(!b1) {
 				*status = U_MEMORY_ALLOCATION_ERROR;
 				goto CLEANUP;
 			}
@@ -751,7 +751,7 @@ U_CAPI int32_t U_EXPORT2 uidna_compare(const char16_t * s1, int32_t length1, con
 	if(*status == U_BUFFER_OVERFLOW_ERROR) {
 		// redo processing of string
 		b1 = (char16_t *)uprv_malloc(b1Len * U_SIZEOF_UCHAR);
-		if(b1==NULL) {
+		if(!b1) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			goto CLEANUP;
 		}

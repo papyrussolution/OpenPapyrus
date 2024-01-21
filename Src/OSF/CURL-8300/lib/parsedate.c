@@ -249,7 +249,7 @@ static int checktz(const char * check, size_t len)
 static void skip(const char ** date)
 {
 	/* skip everything that aren't letters or digits */
-	while(**date && !ISALNUM(**date))
+	while(**date && !isasciialnum(**date))
 		(*date)++;
 }
 
@@ -276,7 +276,7 @@ static time_t time2epoch(int sec, int min, int hour, int mday, int mon, int year
 static int oneortwodigit(const char * date, const char ** endp)
 {
 	int num = date[0] - '0';
-	if(ISDIGIT(date[1])) {
+	if(isdec(date[1])) {
 		*endp = &date[2];
 		return num*10 + (date[1] - '0');
 	}
@@ -290,10 +290,10 @@ static bool match_time(const char * date, int * h, int * m, int * s, char ** end
 	const char * p;
 	int mm, ss = 0;
 	int hh = oneortwodigit(date, &p);
-	if((hh < 24) && (*p == ':') && ISDIGIT(p[1])) {
+	if((hh < 24) && (*p == ':') && isdec(p[1])) {
 		mm = oneortwodigit(&p[1], &p);
 		if(mm < 60) {
-			if((*p == ':') && ISDIGIT(p[1])) {
+			if((*p == ':') && isdec(p[1])) {
 				ss = oneortwodigit(&p[1], &p);
 				if(ss <= 60) {
 					/* valid HH:MM:SS */
@@ -346,11 +346,11 @@ static int parsedate(const char * date, time_t * output)
 	while(*date && (part < 6)) {
 		bool found = FALSE;
 		skip(&date);
-		if(ISALPHA(*date)) {
+		if(isasciialpha(*date)) {
 			/* a name coming up */
 			size_t len = 0;
 			const char * p = date;
-			while(ISALPHA(*p) && (len < NAME_LEN)) {
+			while(isasciialpha(*p) && (len < NAME_LEN)) {
 				p++;
 				len++;
 			}
@@ -378,7 +378,7 @@ static int parsedate(const char * date, time_t * output)
 				return PARSEDATE_FAIL; /* bad string */
 			date += len;
 		}
-		else if(ISDIGIT(*date)) {
+		else if(isdec(*date)) {
 			/* a digit */
 			int val;
 			char * end;

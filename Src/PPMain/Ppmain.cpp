@@ -96,7 +96,7 @@ int main(int argc, char ** argv)
 #endif // } SLTEST_RUNNING
 	if(!CheckExeLocking())
 		ret = -1;
-	else if(DS.Init(PPSession::fInitPaths)) {
+	else if(DS.Init(PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/0)) {
 		DS.SetMenu(0);
 		SString cmd_buf, line_buf, login, pw;
 		if(argc == 1) {
@@ -193,7 +193,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 			if(!CheckExeLocking())
 				return FALSE;
 			else {
-				DS.Init(PPSession::fInitPaths|PPSession::fDenyLogQueue, (HINSTANCE)hModule);
+				DS.Init(PPSession::fInitPaths|PPSession::fDenyLogQueue, (HINSTANCE)hModule, /*pUiDescriptionFileName*/0);
 				DS.SetExtFlag(ECF_SYSSERVICE, 1);
 				DS.SetExtFlag(ECF_DLLMODULE, 1);
 			}
@@ -243,7 +243,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 		iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 		iccex.dwICC = ICC_COOL_CLASSES|ICC_BAR_CLASSES|ICC_LISTVIEW_CLASSES|ICC_USEREX_CLASSES|ICC_WIN95_CLASSES;
 		InitCommonControlsEx(&iccex);
-		if(DS.Init(PPSession::fInitPaths)) {
+		if(DS.Init(PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/"uid-papyrus.json")) {
 //#if SLTEST_RUNNING
 			TestNoLogin();
 			// @experimental ExploreIEEE754();

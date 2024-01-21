@@ -1,5 +1,5 @@
 // OBJSCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Модуль, управляющий объектом PPObjSCard - персональные карты
 //
@@ -4198,12 +4198,12 @@ int PPObjSCard::GetTransmitPacket(PPID id, const LDATETIME * pMoment, SCardTrans
 				for(uint j = 0; j < chk_list.getCount(); j++) {
 					if(P_CcTbl->Search(chk_list.at(j), &chk_rec) > 0) {
 						if(!(chk_rec.Flags & (CCHKF_SYNC|CCHKF_TRANSMIT))) {
-							chk_rec.CashID = 0;
+							chk_rec.PosNodeID = 0;
 							if(chk_rec.SessID) {
 								CSessionTbl::Rec cs_rec;
 								THROW_MEM(SETIFZ(P_CsObj, new PPObjCSession));
 								if(P_CsObj->Search(chk_rec.SessID, &cs_rec) > 0)
-									chk_rec.CashID = cs_rec.CashNodeID;
+									chk_rec.PosNodeID = cs_rec.CashNodeID;
 							}
 						}
 						chk_rec.SessID = 0;
@@ -4276,8 +4276,8 @@ int PPObjSCard::PutTransmitPacket(PPID * pID, SCardTransmitPacket * pPack, int u
 			CCheckTbl::Rec * p_chk_rec;
 			SCardOpTbl::Rec * p_op_rec;
 			for(i = 0; pPack->CheckList.enumItems(&i, (void **)&p_chk_rec);) {
-				if(p_chk_rec->CashID) {
-					if(P_CcTbl->Search(p_chk_rec->CashID, p_chk_rec->Dt, p_chk_rec->Tm) > 0)
+				if(p_chk_rec->PosNodeID) {
+					if(P_CcTbl->Search(p_chk_rec->PosNodeID, p_chk_rec->Dt, p_chk_rec->Tm) > 0)
 						continue;
 				}
 				else if(P_CcTbl->SearchByTimeAndCard(*pID, p_chk_rec->Dt, p_chk_rec->Tm) > 0)
@@ -4380,7 +4380,7 @@ int PPObjSCard::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, O
 		{
 			CCheckTbl::Rec * p_chk_rec;
 			for(i = 0; p_pack->CheckList.enumItems(&i, (void **)&p_chk_rec);) {
-				THROW(ProcessObjRefInArray(PPOBJ_CASHNODE, &p_chk_rec->CashID, ary, replace));
+				THROW(ProcessObjRefInArray(PPOBJ_CASHNODE, &p_chk_rec->PosNodeID, ary, replace));
 			}
 		}
 		{

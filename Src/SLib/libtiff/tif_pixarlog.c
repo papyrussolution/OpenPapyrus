@@ -1084,17 +1084,13 @@ static int PixarLogEncode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 	}
 
 	sp->stream.next_in = (uchar *)sp->tbuf;
-	assert(sizeof(sp->stream.avail_in)==4); /* if this assert gets raised,
-	                                            we need to simplify this code to reflect a ZLib that is likely
-	                                               updated
-	                                            to deal with 8byte memory sizes, though this code will respond
-	                                            appropriately even before we simplify it */
+	assert(sizeof(sp->stream.avail_in)==4); /* if this assert gets raised, we need to simplify this code to reflect a ZLib that is likely
+		updated to deal with 8byte memory sizes, though this code will respond appropriately even before we simplify it */
 	sp->stream.avail_in = (uInt)(n * sizeof(uint16));
 	if((sp->stream.avail_in / sizeof(uint16)) != (uInt)n) {
 		TIFFErrorExt(tif->tif_clientdata, module, "ZLib cannot deal with buffers this size");
 		return 0;
 	}
-
 	do {
 		if(deflate(&sp->stream, Z_NO_FLUSH) != Z_OK) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Encoder error: %s", sp->stream.msg ? sp->stream.msg : "(null)");

@@ -1,5 +1,5 @@
 // BILLDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4055,10 +4055,22 @@ int PPObjBill::EditLotExtData(PPID lotID)
 			if(dlg->getDTS(&lqcd)) {
 				valid_data = 1;
 				if(lqcd.QCertID != lot_rec.QCertID || lqcd.Expiry != lot_rec.Expiry) {
+					//
+					// @v11.9.3 Внесена модификация, фиксирующая системное событие PPACN_LOTQCERTLINKUPDATED если изменился сертификат лота.
+					//
+					PPTransaction tra(1);
+					THROW(tra);
 					THROW(trfr->Rcpt.Search(lotID, &lot_rec) > 0);
-					lot_rec.QCertID = lqcd.QCertID;
-					lot_rec.Expiry  = lqcd.Expiry;
-					THROW_DB(trfr->Rcpt.Update(lotID, &lot_rec, 1));
+					{
+						const PPID org_qc_id = lot_rec.QCertID;
+						lot_rec.QCertID = lqcd.QCertID;
+						lot_rec.Expiry  = lqcd.Expiry;
+						THROW_DB(trfr->Rcpt.Update(lotID, &lot_rec, 0));
+						if(lot_rec.QCertID != org_qc_id) {
+							DS.LogAction(PPACN_LOTQCERTLINKUPDATED, PPOBJ_LOT, lotID, org_qc_id, 0);
+						}
+					}
+					THROW(tra.Commit());
 					ok = 1;
 				}
 				if(!sstreq(org_clb, lqcd.CLB) && !is_inherited_clb) {

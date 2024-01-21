@@ -828,12 +828,7 @@ static const u_printf_info g_u_printf_infos[UPRINTF_NUM_FMT_HANDLERS] = {
 #define FLAG_ZERO  0x0030
 #define FLAG_PAREN 0x0028
 
-#define ISFLAG(s)    (s) == FLAG_MINUS || \
-	(s) == FLAG_PLUS || \
-	(s) == FLAG_SPACE || \
-	(s) == FLAG_POUND || \
-	(s) == FLAG_ZERO || \
-	(s) == FLAG_PAREN
+#define ISFLAG(s)    oneof6(s, FLAG_MINUS, FLAG_PLUS, FLAG_SPACE, FLAG_POUND, FLAG_ZERO, FLAG_PAREN)
 
 /* special characters for uprintf */
 #define SPEC_ASTERISK 0x002A
@@ -853,15 +848,14 @@ static const u_printf_info g_u_printf_infos[UPRINTF_NUM_FMT_HANDLERS] = {
 #define DIGIT_EIGHT 0x0038
 #define DIGIT_NINE 0x0039
 
-#define ISDIGIT(s)    (s) == DIGIT_ZERO || (s) == DIGIT_ONE || (s) == DIGIT_TWO || (s) == DIGIT_THREE || (s) == DIGIT_FOUR || \
-	(s) == DIGIT_FIVE || (s) == DIGIT_SIX || (s) == DIGIT_SEVEN || (s) == DIGIT_EIGHT || (s) == DIGIT_NINE
+#define ISDIGIT(s) oneof10(s, DIGIT_ZERO, DIGIT_ONE, DIGIT_TWO, DIGIT_THREE, DIGIT_FOUR, DIGIT_FIVE, DIGIT_SIX, DIGIT_SEVEN, DIGIT_EIGHT, DIGIT_NINE)
 
 /* u_printf modifiers */
 #define MOD_H 0x0068
 #define MOD_LOWERL 0x006C
 #define MOD_L 0x004C
 
-#define ISMOD(s)    (s) == MOD_H || (s) == MOD_LOWERL || (s) == MOD_L
+#define ISMOD(s)    oneof3(s, MOD_H, MOD_LOWERL, MOD_L)
 /* Returns an array of the parsed argument type given in the format string. */
 static ufmt_args* parseArguments(const char16_t * alias, va_list ap, UErrorCode * status) 
 {

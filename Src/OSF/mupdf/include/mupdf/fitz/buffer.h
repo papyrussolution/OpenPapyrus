@@ -26,15 +26,13 @@ typedef struct {
 	Never throws exceptions.
 */
 fz_buffer *fz_keep_buffer(fz_context *ctx, fz_buffer *buf);
-
 /**
 	Drop a reference to the buffer. When the reference count reaches
 	zero, the buffer is destroyed.
 
 	Never throws exceptions.
 */
-void fz_drop_buffer(fz_context *ctx, fz_buffer *buf);
-
+void FASTCALL fz_drop_buffer(fz_context *ctx, fz_buffer *buf);
 /**
 	Retrieve internal memory of buffer.
 
@@ -43,15 +41,12 @@ void fz_drop_buffer(fz_context *ctx, fz_buffer *buf);
 	Returns the current size of the data in bytes.
 */
 size_t fz_buffer_storage(fz_context *ctx, fz_buffer *buf, uchar **datap);
-
 /**
 	Ensure that a buffer's data ends in a
 	0 byte, and return a pointer to it.
 */
 const char *fz_string_from_buffer(fz_context *ctx, fz_buffer *buf);
-
-fz_buffer *fz_new_buffer(fz_context *ctx, size_t capacity);
-
+fz_buffer * FASTCALL fz_new_buffer(fz_context *ctx, size_t capacity);
 /**
 	Create a new buffer with existing data.
 
@@ -66,22 +61,18 @@ fz_buffer *fz_new_buffer(fz_context *ctx, size_t capacity);
 	failure.
 */
 fz_buffer *fz_new_buffer_from_data(fz_context *ctx, uchar *data, size_t size);
-
 /**
 	Like fz_new_buffer, but does not take ownership.
 */
 fz_buffer *fz_new_buffer_from_shared_data(fz_context *ctx, const uchar *data, size_t size);
-
 /**
 	Create a new buffer containing a copy of the passed data.
 */
 fz_buffer *fz_new_buffer_from_copied_data(fz_context *ctx, const uchar *data, size_t size);
-
 /**
 	Create a new buffer with data decoded from a base64 input string.
 */
 fz_buffer *fz_new_buffer_from_base64(fz_context *ctx, const char *data, size_t size);
-
 /**
 	Ensure that a buffer has a given capacity,
 	truncating data if required.
@@ -97,12 +88,10 @@ void fz_resize_buffer(fz_context *ctx, fz_buffer *buf, size_t capacity);
 	capacity > size).
 */
 void fz_grow_buffer(fz_context *ctx, fz_buffer *buf);
-
 /**
 	Trim wasted capacity from a buffer by resizing internal memory.
 */
 void fz_trim_buffer(fz_context *ctx, fz_buffer *buf);
-
 /**
 	Empties the buffer. Storage is not freed, but is held ready
 	to be reused as the buffer is refilled.
@@ -110,7 +99,6 @@ void fz_trim_buffer(fz_context *ctx, fz_buffer *buf);
 	Never throws exceptions.
 */
 void fz_clear_buffer(fz_context *ctx, fz_buffer *buf);
-
 /**
 	Append the contents of the source buffer onto the end of the
 	destination buffer, extending automatically as required.
@@ -118,18 +106,17 @@ void fz_clear_buffer(fz_context *ctx, fz_buffer *buf);
 	Ownership of buffers does not change.
 */
 void fz_append_buffer(fz_context *ctx, fz_buffer *destination, fz_buffer *source);
-
 /**
 	fz_append_*: Append data to a buffer.
 
 	The buffer will automatically grow as required.
 */
 void fz_append_data(fz_context *ctx, fz_buffer *buf, const void *data, size_t len);
-void fz_append_string(fz_context *ctx, fz_buffer *buf, const char *data);
-void fz_append_byte(fz_context *ctx, fz_buffer *buf, int c);
+void STDCALL fz_append_string(fz_context *ctx, fz_buffer *buf, const char *data);
+void STDCALL fz_append_byte(fz_context *ctx, fz_buffer *buf, int c);
 void fz_append_rune(fz_context *ctx, fz_buffer *buf, int c);
-void fz_append_int32_le(fz_context *ctx, fz_buffer *buf, int x);
-void fz_append_int16_le(fz_context *ctx, fz_buffer *buf, int x);
+void STDCALL fz_append_int32_le(fz_context *ctx, fz_buffer *buf, int x);
+void STDCALL fz_append_int16_le(fz_context *ctx, fz_buffer *buf, int x);
 void fz_append_int32_be(fz_context *ctx, fz_buffer *buf, int x);
 void fz_append_int16_be(fz_context *ctx, fz_buffer *buf, int x);
 void fz_append_bits(fz_context *ctx, fz_buffer *buf, int value, int count);

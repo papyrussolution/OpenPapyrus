@@ -74,10 +74,10 @@ static void ColouriseGAPDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			    break;
 
 			case SCE_GAP_NUMBER:
-			    if(!IsADigit(sc.ch)) {
+			    if(!isdec(sc.ch)) {
 				    if(sc.ch == '\\') {
 					    if(!sc.atLineEnd) {
-						    if(!IsADigit(sc.chNext)) {
+						    if(!isdec(sc.chNext)) {
 							    sc.Forward();
 							    sc.ChangeState(SCE_GAP_IDENTIFIER);
 						    }
@@ -159,7 +159,7 @@ static void ColouriseGAPDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			if(IsGAPOperator(static_cast<char>(sc.ch))) {
 				sc.SetState(SCE_GAP_OPERATOR);
 			}
-			else if(IsADigit(sc.ch)) {
+			else if(isdec(sc.ch)) {
 				sc.SetState(SCE_GAP_NUMBER);
 			}
 			else if(isalpha(sc.ch) || sc.ch == '_' || sc.ch == '\\' || sc.ch == '$' || sc.ch == '~') {

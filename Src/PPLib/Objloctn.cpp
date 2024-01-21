@@ -4630,7 +4630,7 @@ int PPLocAddrStruc::GetTok(AddrTok & rTok)
 				temp_buf.CatChar(c);
 				Scan.Incr();
 				c = Scan[0];
-			} while(isdec((uchar)c));
+			} while(isdec(c));
 			//
 			// Пытаемся засечь порядковое числительное с последующим текстом.
 			// Это - обычно улица либо поселок.

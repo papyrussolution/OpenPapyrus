@@ -1,5 +1,5 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -17,6 +17,7 @@ SlipLineParam & SlipLineParam::Z()
 	Flags = 0;
 	UomFragm = 0; // @v11.2.6
 	Qtty = 0.0;
+	PhQtty = 0.0; // @v11.9.3
 	Price = 0.0;
 	VatRate = 0.0;
 	PaymTermTag = CCheckPacket::pttUndef; // @v10.4.1
@@ -137,18 +138,20 @@ public:
 		long   EntryNo;
 		long   SrcItemsCount;
 		long   PrintedLineNo; // Номер строки на листе
-		long   ChZnProductType; // @v10.7.2
+		int    ChZnProductType; // @v10.7.2 // @v11.9.3 long-->int
 		uint   PageWidth;     // ==PPSlipFormat::PageWidth  Справочное поле
 		uint   PageLength;    // ==PPSlipFormat::PageLength Справочное поле
 		uint   RegTo;         // ==PPSlipFormat::RegTo      Справочное поле
 		uint   UomFragm;      // @v11.2.6
 		double Qtty;          // Для строки чека (документа) - абсолютное количество, в остальных случаях - 0
+		double PhQtty;        // @v11.9.3 draft-beer
 		double Price;         // Для строки чека (документа) - чистая цена (с учетом скидки), в остальных случаях - 0
 		double Amount;        // Для строки чека (документа) - чистая сумма по строке, для "дна" чека (документа) -
 			// сумма к оплате, для кассовой сессии - общая сумма выручки (с учетом возвратов).
 		double VatRate;       // Для строки чека (документа) - ставка НДС (в процентах)
 		int16  DivID;         // Для строки чека (документа) - ИД отдела, в остальных случаях - 0
-		uint16 Reserve;       // @alignment
+		uint16 IsSimplifiedDraftBeer; // @v11.9.3 Признак того, что строка ассоциирована с позицией чека, предполагающей упрощенный учет разливного пива в честном знаке.
+			// При этом полем Code содержит штрихкод этого пива (кега)
 		long   GoodsID;       //
 		CCheckPacket::PaymentTermTag Ptt; // @v10.4.1 Признак способа расчета (определяется типом товара)
 		CCheckPacket::SubjTermTag Stt;    // @erikD v10.4.12 Признак предмета расчета
@@ -280,7 +283,7 @@ private:
 	struct FontBlock { // @flat
 		FontBlock() : Id(0), Size(0), PageWidth(0)
 		{
-			PTR32(Face)[0] = 0;
+			Face[0] = 0;
 		}
 		int    Id;
 		int    Size;
@@ -290,7 +293,7 @@ private:
 	struct PictBlock { // @flat
 		PictBlock() : Id(0)
 		{
-			PTR32(Path)[0] = 0;
+			Path[0] = 0;
 			MEMSZERO(Coord);
 		}
 		int    Id;
@@ -300,7 +303,7 @@ private:
 	struct BarcodeBlock { // @flat
 		BarcodeBlock() : Id(0), Flags(0), BcStd(0), Width(0), Height(0)
 		{
-			PTR32(Code)[0] = 0;
+			Code[0] = 0;
 		}
 		enum {
 			fTextAbove = 0x0001,
@@ -1141,7 +1144,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbPos:
 					if(Src == srcCCheck)
-						rResult.Cat(p_ccp->Rec.CashID);
+						rResult.Cat(p_ccp->Rec.PosNodeID);
 					/*
 					else if(Src == srcGoodsBill) {
 					}
@@ -1500,10 +1503,10 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			pIter->Qtty = 0.0;
 			pIter->Price = 0.0;
 			pIter->UomFragm = 0; // @v11.2.6
-			PTR32(pIter->ChZnCode)[0] = 0; // @v10.7.0
-			PTR32(pIter->ChZnGTIN)[0] = 0;  // @v10.7.2
-			PTR32(pIter->ChZnSerial)[0] = 0;  // @v10.7.2
-			PTR32(pIter->ChZnPartN)[0] = 0; // @v10.7.8
+			pIter->ChZnCode[0] = 0; // @v10.7.0
+			pIter->ChZnGTIN[0] = 0;  // @v10.7.2
+			pIter->ChZnSerial[0] = 0; // @v10.7.2
+			pIter->ChZnPartN[0] = 0; // @v10.7.8
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < p_zone->getCountI()) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
@@ -1513,6 +1516,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					PPTransferItem ti;
 					PPGoodsType gt_rec;
 					PPUnit u_rec;
+					PPUnit phu_rec; // @v11.9.3
 					if(Src == srcCCheck) {
 						CCheckPacket::LineExt cc_ext;
 						// @v10.1.0 {
@@ -1529,6 +1533,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							RunningTotal = R2(RunningTotal + s - ds);
 							const double is = RunningTotal - prev_rt;
 							pIter->Qtty  = fabs(cc_item.Quantity);
+							pIter->PhQtty = 0.0; // @v11.9.3
 							pIter->Price = is / pIter->Qtty;
 							pIter->VatRate = 0.0;
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
@@ -1563,10 +1568,36 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 
 								}
 								// } @v10.4.1 
+								// @v11.9.3 {
+								if(PPSyncCashSession::IsSimplifiedDraftBeerPosition(P_CcPack->Rec.PosNodeID, pIter->GoodsID)) { 
+									SString draftbeer_code;
+									if(P_Od->GObj.GetSimplifiedDraftBeerBarcode(pIter->GoodsID, draftbeer_code)) {
+										assert(draftbeer_code.Len() == 13);
+										if(draftbeer_code.Len() == 13) {
+											pIter->IsSimplifiedDraftBeer = 1;
+											STRNSCPY(pIter->Code, draftbeer_code);
+										}
+									}
+								}
+								// } @v11.9.3 
 								// @v11.2.6 {
 								if(goods_rec.UnitID && P_Od->GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
 									if(u_rec.Fragmentation > 0 && u_rec.Fragmentation <= 100000)
 										pIter->UomFragm = u_rec.Fragmentation;
+									//
+									// @v11.9.3 {
+									if(gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER) {
+										double ratio = 0.0;
+										if(P_Od->GObj.TranslateGoodsUnitToBase(goods_rec, PPUNT_LITER, &ratio) > 0) {
+											pIter->PhQtty = pIter->Qtty * ratio;
+										}
+									}
+									else {
+										if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0 && P_Od->GObj.FetchUnit(goods_rec.PhUnitID, &phu_rec) > 0) {
+											pIter->PhQtty = pIter->Qtty * goods_rec.PhUPerU;
+										}
+									}
+									// } @v11.9.3 
 								}
 								// } @v11.2.6 
 							}
@@ -2533,11 +2564,17 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegFiscal,  flags & PPSlipFormat::Entry::fFiscal);
 			sl_param.UomFragm = CurIter.UomFragm; // @v11.2.6
 			sl_param.Qtty  = CurIter.Qtty;
+			sl_param.PhQtty = CurIter.PhQtty; // @v11.9.3
 			sl_param.Price = CurIter.Price;
 			sl_param.VatRate = CurIter.VatRate;
 			sl_param.DivID = CurIter.DivID;
 			sl_param.PaymTermTag = CurIter.Ptt; // @v10.4.1
 			sl_param.SbjTermTag = CurIter.Stt; // @erikI v10.4.12
+			// @v11.9.3 {
+			if(CurIter.IsSimplifiedDraftBeer) {
+				sl_param.Flags |= SlipLineParam::fDraftBeerSimplified;
+			}
+			// } @v11.9.3 
 		}
 		else if(ok < 0) {
 			if(CurZone == 0)

@@ -227,11 +227,10 @@ CURLcode Curl_rand(struct Curl_easy * data, uchar * rnd, size_t num)
  * size.
  */
 
-CURLcode Curl_rand_hex(struct Curl_easy * data, uchar * rnd,
-    size_t num)
+CURLcode Curl_rand_hex(struct Curl_easy * data, uchar * rnd, size_t num)
 {
 	CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-	const char * hex = "0123456789abcdef";
+	//const char * hex = "0123456789abcdef";
 	uchar buffer[128];
 	uchar * bufp = buffer;
 	DEBUGASSERT(num > 1);
@@ -245,16 +244,14 @@ CURLcode Curl_rand_hex(struct Curl_easy * data, uchar * rnd,
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 
 	num--; /* save one for null-termination */
-
 	result = Curl_rand(data, buffer, num/2);
 	if(result)
 		return result;
-
 	while(num) {
 		/* clang-tidy warns on this line without this comment: */
 		/* NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult) */
-		*rnd++ = hex[(*bufp & 0xF0)>>4];
-		*rnd++ = hex[*bufp & 0x0F];
+		*rnd++ = SlConst::P_HxDigL[(*bufp & 0xF0)>>4];
+		*rnd++ = SlConst::P_HxDigL[*bufp & 0x0F];
 		bufp++;
 		num -= 2;
 	}

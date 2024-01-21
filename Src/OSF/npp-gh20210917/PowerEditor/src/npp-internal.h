@@ -5767,7 +5767,7 @@ private:
 	void showCalltip(); // display calltip based on current variables
 	void reset(); // reset all vars in case function is invalidated
 	void cleanup(); // delete any leftovers
-	bool isBasicWordChar(TCHAR ch) const { return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '_'); };
+	bool isBasicWordChar(TCHAR ch) const { return (isasciialnum(ch) || ch == '_'); };
 	bool isAdditionalWordChar(TCHAR ch) const;
 };
 //

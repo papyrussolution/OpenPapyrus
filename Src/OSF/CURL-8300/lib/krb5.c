@@ -755,7 +755,7 @@ static int sec_set_protection_level(struct Curl_easy * data)
 		pbsz = strstr(data->state.buffer, "PBSZ=");
 		if(pbsz) {
 			/* stick to default value if the check fails */
-			if(!strncmp(pbsz, "PBSZ=", 5) && ISDIGIT(pbsz[5]))
+			if(!strncmp(pbsz, "PBSZ=", 5) && isdec(pbsz[5]))
 				buffer_size = atoi(&pbsz[5]);
 			if(buffer_size < conn->buffer_size)
 				conn->buffer_size = buffer_size;

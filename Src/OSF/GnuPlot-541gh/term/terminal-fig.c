@@ -877,8 +877,7 @@ TERM_PUBLIC void FIG_boxfill(GpTermEntry_Static * pThis, int style, uint x, uint
 	x = FIG_xoff + x;
 	y = pThis->MaxY + FIG_yoff - y;
 
-	fprintf(GPT.P_GpOutFile, "%d %d %d %d %d %d %d %d %d %6.3f %d %d %d %d %d %d\n"
-	    "  %d %d %d %d %d %d %d %d %d %d\n",
+	fprintf(GPT.P_GpOutFile, "%d %d %d %d %d %d %d %d %d %6.3f %d %d %d %d %d %d\n  %d %d %d %d %d %d %d %d %d %d\n",
 	    O_POLYLINE, T_BOX, FIG_line.style, FIG_line.thickness,
 	    pen_color, fill_color, FIG_linedepth, FIG_line.pen_style,
 	    fill_style, FIG_line.style_val, FIG_line.join_style,

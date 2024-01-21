@@ -48,7 +48,7 @@ static bool FASTCALL IsNumberChar(int ch, int chNext)
 	// recognized and it will be styled together with the preceding number.
 	// This should not occur; at least not often. The coding style recommends
 	// putting spaces around operators.
-	return IsADigit(ch) || toupper(ch) == 'E' || ch == '.' || ((ch == '-' || ch == '+') && toupper(chNext) == 'E');
+	return isdec(ch) || toupper(ch) == 'E' || ch == '.' || ((ch == '-' || ch == '+') && toupper(chNext) == 'E');
 }
 
 // This function checks for the start or a natural number without any symbols
@@ -56,7 +56,7 @@ static bool FASTCALL IsNumberChar(int ch, int chNext)
 // immediately after this one to cover all possible numeric constructs.
 static bool FASTCALL IsNaturalNumberStart(int ch)
 {
-	return IsADigit(ch) != 0;
+	return isdec(ch) != 0;
 }
 
 static bool FASTCALL IsPrefixedNumberStart(int ch, int chNext)
@@ -65,7 +65,7 @@ static bool FASTCALL IsPrefixedNumberStart(int ch, int chNext)
 	// the operator will not be recognized and it will be styled together with
 	// the succeeding number. This should not occur; at least not often. The
 	// coding style recommends putting spaces around operators.
-	return (ch == '.' || ch == '-' || ch == '+') && IsADigit(chNext);
+	return (ch == '.' || ch == '-' || ch == '+') && isdec(chNext);
 }
 
 static bool FASTCALL IsOperator(int ch)

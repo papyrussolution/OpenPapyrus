@@ -118,13 +118,13 @@ BitMatrix Inflate(BitMatrix&& input, int width, int height, int quietZone)
 {
 	const int codeWidth = input.width();
 	const int codeHeight = input.height();
-	const int outputWidth = std::max(width, codeWidth + 2 * quietZone);
-	const int outputHeight = std::max(height, codeHeight + 2 * quietZone);
+	const int outputWidth = smax(width, codeWidth + 2 * quietZone);
+	const int outputHeight = smax(height, codeHeight + 2 * quietZone);
 
 	if(input.width() == outputWidth && input.height() == outputHeight)
 		return std::move(input);
 
-	const int scale = std::min((outputWidth - 2*quietZone) / codeWidth, (outputHeight - 2*quietZone) / codeHeight);
+	const int scale = smin((outputWidth - 2*quietZone) / codeWidth, (outputHeight - 2*quietZone) / codeHeight);
 	// Padding includes both the quiet zone and the extra white pixels to
 	// accommodate the requested dimensions.
 	const int leftPadding = (outputWidth - (codeWidth * scale)) / 2;
@@ -162,12 +162,12 @@ FastEdgeToEdgeCounter::FastEdgeToEdgeCounter(const BitMatrixCursorI& cur)
 	p = cur.img->row(cur.p.y).begin() + cur.p.x;
 	int maxStepsX = cur.d.x ? (cur.d.x > 0 ? cur.img->width() - 1 - cur.p.x : cur.p.x) : INT_MAX;
 	int maxStepsY = cur.d.y ? (cur.d.y > 0 ? cur.img->height() - 1 - cur.p.y : cur.p.y) : INT_MAX;
-	stepsToBorder = std::min(maxStepsX, maxStepsY);
+	stepsToBorder = smin(maxStepsX, maxStepsY);
 }
 
 int FastEdgeToEdgeCounter::stepToNextEdge(int range)
 {
-	int maxSteps = std::min(stepsToBorder, range);
+	int maxSteps = smin(stepsToBorder, range);
 	int steps = 0;
 	do {
 		if (++steps > maxSteps) {

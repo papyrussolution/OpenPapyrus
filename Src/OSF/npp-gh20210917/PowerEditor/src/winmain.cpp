@@ -33,18 +33,13 @@ void allowWmCopydataMessages(Notepad_plus_Window& notepad_plus_plus, const NppPa
 			// that is why we use ChangeWindowMessageFilterEx if it is available (windows version >= Win7).
 			if(nppParameters.getWinVersion() == WV_VISTA) {
 				typedef BOOL (WINAPI *MESSAGEFILTERFUNC)(UINT message, DWORD dwFlag);
-
 				MESSAGEFILTERFUNC func = (MESSAGEFILTERFUNC)::GetProcAddress(hDll, "ChangeWindowMessageFilter");
-
 				if(func)
 					func(WM_COPYDATA, MSGFLT_ADD);
 			}
 			else {
-				typedef BOOL (WINAPI *MESSAGEFILTERFUNCEX)(HWND hWnd, UINT message, DWORD action,
-				    VOID* pChangeFilterStruct);
-
+				typedef BOOL (WINAPI *MESSAGEFILTERFUNCEX)(HWND hWnd, UINT message, DWORD action, VOID * pChangeFilterStruct);
 				MESSAGEFILTERFUNCEX func = (MESSAGEFILTERFUNCEX)::GetProcAddress(hDll, "ChangeWindowMessageFilterEx");
-
 				if(func)
 					func(notepad_plus_plus.getHSelf(), WM_COPYDATA, MSGFLT_ALLOW, NULL);
 			}

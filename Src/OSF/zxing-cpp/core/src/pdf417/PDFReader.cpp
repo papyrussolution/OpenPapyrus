@@ -23,9 +23,9 @@ static int GetMinWidth(const Nullable<ResultPoint>& p1, const Nullable<ResultPoi
 
 static int GetMinCodewordWidth(const std::array<Nullable<ResultPoint>, 8>& p)
 {
-	return std::min(std::min(GetMinWidth(p[0], p[4]),
+	return smin(smin(GetMinWidth(p[0], p[4]),
 		   GetMinWidth(p[6], p[2]) * CodewordDecoder::MODULES_IN_CODEWORD / MODULES_IN_STOP_PATTERN),
-		   std::min(GetMinWidth(p[1], p[5]),
+		   smin(GetMinWidth(p[1], p[5]),
 		   GetMinWidth(p[7], p[3]) * CodewordDecoder::MODULES_IN_CODEWORD / MODULES_IN_STOP_PATTERN));
 }
 
@@ -39,9 +39,9 @@ static int GetMaxWidth(const Nullable<ResultPoint>& p1, const Nullable<ResultPoi
 
 static int GetMaxCodewordWidth(const std::array<Nullable<ResultPoint>, 8>& p)
 {
-	return std::max(std::max(GetMaxWidth(p[0], p[4]),
+	return smax(smax(GetMaxWidth(p[0], p[4]),
 		   GetMaxWidth(p[6], p[2]) * CodewordDecoder::MODULES_IN_CODEWORD / MODULES_IN_STOP_PATTERN),
-		   std::max(GetMaxWidth(p[1], p[5]),
+		   smax(GetMaxWidth(p[1], p[5]),
 		   GetMaxWidth(p[7], p[3]) * CodewordDecoder::MODULES_IN_CODEWORD / MODULES_IN_STOP_PATTERN));
 }
 
@@ -179,7 +179,7 @@ SymbolInfo DetectSymbol(BitMatrixCursor<POINT> topCur, int width, int height)
 	if(!IsPattern(pat, START_PATTERN))
 		return {};
 	int colWidth = Reduce(pat);
-	auto rowSkip = std::max(colWidth / 17.f, 1.f) * bresenhamDirection(topCur.right());
+	auto rowSkip = smax(colWidth / 17.f, 1.f) * bresenhamDirection(topCur.right());
 	auto botCur  = topCur.movedBy((height - 1) * topCur.right());
 
 	auto topSI = ReadSymbolInfo(topCur, rowSkip, colWidth, width, height);
@@ -213,7 +213,7 @@ std::vector<int> ReadCodeWords(BitMatrixCursor<POINT> topCur, SymbolInfo info)
 
 	int maxColWidth = info.colWidth * 3 / 2;
 	std::vector<int> codeWords(info.nRows * info.nCols, -1);
-	for(int row = info.firstRow; row < std::min(info.nRows, info.lastRow + 1); ++row) {
+	for(int row = info.firstRow; row < smin(info.nRows, info.lastRow + 1); ++row) {
 		int cluster = (row % 3) * 3;
 		auto cur = topCur.movedBy(int((row - info.firstRow + 0.5f) * info.rowHeight) * rowSkip);
 		// skip start pattern

@@ -7,20 +7,14 @@
 #include FT_FREETYPE_H
 #include FT_ADVANCES_H
 
-static inline int ishex(int a)
-{
-	return (a >= 'A' && a <= 'F') ||
-	       (a >= 'a' && a <= 'f') ||
-	       (a >= '0' && a <= '9');
-}
-
-static inline int unhex(int a)
+// @sobolev static inline int ishex(int a) { return (a >= 'A' && a <= 'F') || (a >= 'a' && a <= 'f') || (a >= '0' && a <= '9'); }
+/* @sobolev (replaced with hex()) static inline int unhex(int a)
 {
 	if(a >= 'A' && a <= 'F') return a - 'A' + 0xA;
 	if(a >= 'a' && a <= 'f') return a - 'a' + 0xA;
 	if(a >= '0' && a <= '9') return a - '0';
 	return 0;
-}
+}*/
 
 int xps_count_font_encodings(fz_context * ctx, fz_font * font)
 {
@@ -107,34 +101,27 @@ static void xps_deobfuscate_font_resource(fz_context * ctx, xps_document * doc, 
 	uchar buf[33];
 	uchar key[16];
 	uchar * data;
-	size_t size;
 	char * p;
 	int i;
-
-	size = fz_buffer_storage(ctx, part->data, &data);
+	size_t size = fz_buffer_storage(ctx, part->data, &data);
 	if(size < 32) {
 		fz_warn(ctx, "insufficient data for font deobfuscation");
 		return;
 	}
-
 	p = strrchr(part->name, '/');
 	if(!p)
 		p = part->name;
-
 	for(i = 0; i < 32 && *p; p++) {
 		if(ishex(*p))
 			buf[i++] = *p;
 	}
 	buf[i] = 0;
-
 	if(i != 32) {
 		fz_warn(ctx, "cannot extract GUID from obfuscated font part name");
 		return;
 	}
-
 	for(i = 0; i < 16; i++)
-		key[i] = unhex(buf[i*2+0]) * 16 + unhex(buf[i*2+1]);
-
+		key[i] = /*unhex*/hex(buf[i*2+0]) * 16 + /*unhex*/hex(buf[i*2+1]);
 	for(i = 0; i < 16; i++) {
 		data[i] ^= key[15-i];
 		data[i+16] ^= key[15-i];
@@ -279,7 +266,7 @@ fz_font * xps_lookup_font(fz_context * ctx, xps_document * doc, char * base_uri,
 static char * xps_parse_digits(char * s, int * digit)
 {
 	*digit = 0;
-	while(*s >= '0' && *s <= '9') {
+	while(isdec(*s)) {
 		*digit = *digit * 10 + (*s - '0');
 		s++;
 	}

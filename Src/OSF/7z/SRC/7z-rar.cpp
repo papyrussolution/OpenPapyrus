@@ -1864,10 +1864,10 @@ namespace NCompress {
 				R[kStackRegIndex] = kSpaceSize;
 				R[kNumRegs] = 0;
 				Flags = 0;
-				uint32 globalSize = MyMin((uint32)initState->GlobalData.Size(), kGlobalSize);
+				uint32 globalSize = smin((uint32)initState->GlobalData.Size(), kGlobalSize);
 				if(globalSize != 0)
 					memcpy(Mem + kGlobalOffset, &initState->GlobalData[0], globalSize);
-				uint32 staticSize = MyMin((uint32)prg->StaticData.Size(), kGlobalSize - globalSize);
+				uint32 staticSize = smin((uint32)prg->StaticData.Size(), kGlobalSize - globalSize);
 				if(staticSize != 0)
 					memcpy(Mem + kGlobalOffset + globalSize, &prg->StaticData[0], staticSize);
 				bool res = true;
@@ -1896,7 +1896,7 @@ namespace NCompress {
 				outBlockRef.Size = newBlockSize;
 				outGlobalData.Clear();
 				uint32 dataSize = GetFixedGlobalValue32(NGlobalOffset::kGlobalMemOutSize);
-				dataSize = MyMin(dataSize, kGlobalSize - kFixedGlobalSize);
+				dataSize = smin(dataSize, kGlobalSize - kFixedGlobalSize);
 				if(dataSize != 0) {
 					dataSize += kFixedGlobalSize;
 					outGlobalData.ClearAndSetSize(dataSize);
@@ -2526,7 +2526,7 @@ namespace NCompress {
 			void CVm::SetMemory(uint32 pos, const Byte *data, uint32 dataSize)
 			{
 				if(pos < kSpaceSize && data != Mem + pos)
-					memmove(Mem + pos, data, MyMin(dataSize, kSpaceSize - pos));
+					memmove(Mem + pos, data, smin(dataSize, kSpaceSize - pos));
 			}
 
 			#ifdef RARVM_STANDARD_FILTERS
@@ -3883,7 +3883,7 @@ namespace NArchive {
 				if(item.HasUnicodeName()) {
 					if(i < nameSize) {
 						i++;
-						unsigned uNameSizeMax = MyMin(nameSize, (uint)0x400);
+						unsigned uNameSizeMax = smin(nameSize, (uint)0x400);
 						uint len = DecodeUnicodeFileName(p, p + i, nameSize - i, _unicodeNameBuffer.GetBuf(
 										uNameSizeMax), uNameSizeMax);
 						_unicodeNameBuffer.ReleaseBuf_SetEnd(len);

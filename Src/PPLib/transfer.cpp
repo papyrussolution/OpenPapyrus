@@ -1,5 +1,5 @@
 // TRANSFER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -2472,7 +2472,8 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rByBill, long flags, int u
 //
 int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, long flags, int use_ta)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	short  _rbb = ti->RByBill;
 	double rest    = 0.0;
 	double ph_rest = 0.0;
@@ -2522,19 +2523,15 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 							}
 							THROW(GetOprNo(ti->Date, &upd_oprno));
 							rec.OprNo = upd_oprno;
-							// @v10.1.5 {
-							if(P_Lcr2T) {
+							if(P_Lcr2T) { // @v10.1.5 {
 								LcrBlock2 lcr(LcrBlockBase::opUpdate, P_Lcr2T, 0);
 								THROW(lcr.Update(org_lot_id, org_dt, -fmul1000i(org_qtty)));
 								THROW(lcr.Update(org_lot_id, ti->Date, fmul1000i(new_qtty)));
 							}
-							else {
-								// } @v10.1.5
-								if(P_LcrT) {
-									LcrBlock lcr(LcrBlockBase::opUpdate, P_LcrT, 0);
-									THROW(lcr.Update(org_lot_id, org_dt, -org_qtty));
-									THROW(lcr.Update(org_lot_id, ti->Date, new_qtty));
-								}
+							else if(P_LcrT) {
+								LcrBlock lcr(LcrBlockBase::opUpdate, P_LcrT, 0);
+								THROW(lcr.Update(org_lot_id, org_dt, -org_qtty));
+								THROW(lcr.Update(org_lot_id, ti->Date, new_qtty));
 							}
 						}
 						THROW(UpdateReceipt(rec.LotID, ti, 0, flags));
@@ -2588,7 +2585,8 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 					ti->SetSignFlags(0, (new_qtty < 0.0) ? TISIGN_MINUS : TISIGN_PLUS);
 				}
 				else {
-					qtty = new_qtty = 0.0;
+					qtty = 0.0;
+					new_qtty = 0.0;
 				}
 			}
 			THROW(SearchByBill(ti->BillID, 0, _rbb, 0) > 0);
@@ -2623,7 +2621,8 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 		// Ищем зеркальную проводку
 		//
 		_rbb = ti->RByBill;
-		if((r = SearchByBill(ti->BillID, 1, _rbb, &rec)) > 0) {
+		THROW(r = SearchByBill(ti->BillID, 1, _rbb, &rec));
+		if(r > 0) {
 			int    is_row_rebuilded = 0;
 			upd_oprno = 0;
 			THROW_DB(getPosition(&pos));
@@ -2725,7 +2724,6 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 				THROW_DB(updateRec());
 			}
 		}
-		THROW(r);
 		THROW(tra.Commit());
 	}
 	CATCHZOK

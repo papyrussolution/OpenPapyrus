@@ -487,15 +487,13 @@ void SCI_METHOD LexerSQL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			    }
 			    break;
 		}
-
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_SQL_DEFAULT) {
 			if(sc.Match('q', '\'') || sc.Match('Q', '\'')) {
 				sc.SetState(SCE_SQL_QOPERATOR);
 				sc.Forward();
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext)) ||
-			    ((sc.ch == '-' || sc.ch == '+') && IsADigit(sc.chNext) && !IsADigit(sc.chPrev))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext)) || ((sc.ch == '-' || sc.ch == '+') && isdec(sc.chNext) && !isdec(sc.chPrev))) {
 				sc.SetState(SCE_SQL_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch)) {
@@ -546,7 +544,6 @@ void SCI_METHOD LexerSQL::Fold(Sci_PositionU startPos, Sci_Position length, int 
 	int visibleChars = 0;
 	Sci_Position lineCurrent = styler.GetLine(startPos);
 	int levelCurrent = SC_FOLDLEVELBASE;
-
 	if(lineCurrent > 0) {
 		// Backtrack to previous line in case need to fix its fold status for folding block of single-line comments (i.e. '--').
 		Sci_Position lastNLPos = -1;

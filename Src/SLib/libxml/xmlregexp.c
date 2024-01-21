@@ -4226,10 +4226,10 @@ static void xmlFAParseCharProp(xmlRegParserCtxt * ctxt) {
 		NEXT;
 		start = ctxt->cur;
 		cur = CUR;
-		if(((cur >= 'a') && (cur <= 'z')) || ((cur >= 'A') && (cur <= 'Z')) || ((cur >= '0') && (cur <= '9')) || (cur == 0x2D)) {
+		if(isasciialnum(cur) || (cur == 0x2D)) {
 			NEXT;
 			cur = CUR;
-			while(((cur >= 'a') && (cur <= 'z')) || ((cur >= 'A') && (cur <= 'Z')) || ((cur >= '0') && (cur <= '9')) || (cur == 0x2D)) {
+			while(isasciialnum(cur) || (cur == 0x2D)) {
 				NEXT;
 				cur = CUR;
 			}

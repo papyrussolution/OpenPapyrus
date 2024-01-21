@@ -1080,15 +1080,8 @@ uint32 FASTCALL SlHash::BobJenc(const void * pData, size_t len)
 	return hash;
 }
 
-uint32 FASTCALL SlHash::XX32(const void * pData, size_t len, uint seed)
-{
-	return XXH32(pData, len, seed);
-}
-
-uint64 FASTCALL SlHash::XX64(const void * pData, size_t len, uint64 seed)
-{
-	return XXH64(pData, len, seed);
-}
+uint32 FASTCALL SlHash::XX32(const void * pData, size_t len, uint seed) { return XXH32(pData, len, seed); }
+uint64 FASTCALL SlHash::XX64(const void * pData, size_t len, uint64 seed) { return XXH64(pData, len, seed); }
 //
 // MurmurHash2, by Austin Appleby
 // Note - This code makes a few assumptions about how your machine behaves -

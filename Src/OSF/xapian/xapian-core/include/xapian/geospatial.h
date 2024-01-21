@@ -346,11 +346,11 @@ public:
  *
  *  See https://en.wikipedia.org/wiki/Haversine_formula
  */
-class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
+class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric 
+{
 	/** The radius of the sphere in metres.
 	 */
 	double radius;
-
 public:
 	/** Construct a GreatCircleMetric.
 	 *
@@ -358,7 +358,6 @@ public:
 	 *  calculator.
 	 */
 	GreatCircleMetric();
-
 	/** Construct a GreatCircleMetric using a specified radius.
 	 *
 	 *  This is useful for data sets in which the points are not on Earth (eg,
@@ -367,7 +366,6 @@ public:
 	 *  @param radius_ The radius of the sphere to use, in metres.
 	 */
 	explicit GreatCircleMetric(double radius_);
-
 	/** Return the great-circle distance between points on the sphere.
 	 */
 	double pointwise_distance(const LatLongCoord & a, const LatLongCoord &b) const;

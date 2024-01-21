@@ -97,7 +97,7 @@ static void EmbedDarkDotAtLeftBottomCorner(TritMatrix& matrix) { matrix.set(8, m
 // - findMSBSet(0) => 0
 // - findMSBSet(1) => 1
 // - findMSBSet(255) => 8
-static int FindMSBSet(uint value) { return 32 - BitHacks::NumberOfLeadingZeros(value); }
+static int FindMSBSet(uint value) { return 32 - /*BitHacks::NumberOfLeadingZeros*/SBits::Clz(value); }
 
 // Calculate BCH (Bose-Chaudhuri-Hocquenghem) code for "value" using polynomial "poly". The BCH
 // code is used for encoding type information and version information.

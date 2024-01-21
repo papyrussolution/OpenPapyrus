@@ -452,7 +452,7 @@ static CURLcode canon_query(struct Curl_easy * data, const char * query, struct 
 		if(!ap->len)
 			continue;
 		for(len = ap->len; len && !result; q++, len--) {
-			if(ISALNUM(*q))
+			if(isasciialnum(*q))
 				result = Curl_dyn_addn(dq, q, 1);
 			else {
 				switch(*q) {
@@ -466,7 +466,7 @@ static CURLcode canon_query(struct Curl_easy * data, const char * query, struct 
 					    break;
 					case '%':
 					    /* uppercase the following if hexadecimal */
-					    if(ISXDIGIT(q[1]) && ISXDIGIT(q[2])) {
+					    if(ishex(q[1]) && ishex(q[2])) {
 						    char tmp[3] = "%";
 						    tmp[1] = Curl_raw_toupper(q[1]);
 						    tmp[2] = Curl_raw_toupper(q[2]);
@@ -480,10 +480,10 @@ static CURLcode canon_query(struct Curl_easy * data, const char * query, struct 
 					    break;
 					default: {
 					    /* URL encode */
-					    const char hex[] = "0123456789ABCDEF";
+					    //const char hex[] = "0123456789ABCDEF";
 					    char out[3] = {'%'};
-					    out[1] = hex[((uchar)*q)>>4];
-					    out[2] = hex[*q & 0xf];
+					    out[1] = SlConst::P_HxDigU[((uchar)*q)>>4];
+					    out[2] = SlConst::P_HxDigU[*q & 0xf];
 					    result = Curl_dyn_addn(dq, out, 3);
 					    break;
 				    }

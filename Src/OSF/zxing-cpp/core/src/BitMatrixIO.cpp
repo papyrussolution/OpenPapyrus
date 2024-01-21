@@ -50,19 +50,20 @@ BitMatrix ParseBitMatrix(const std::string& str, char one, bool expectSpace)
 	auto lineLength = str.find('\n');
 	if(lineLength == std::string::npos)
 		return {};
-
-	int strStride = expectSpace ? 2 : 1;
-	int height = narrow_cast<int>(str.length() / (lineLength + 1));
-	int width = narrow_cast<int>(lineLength / strStride);
-	BitMatrix mat(width, height);
-	for(int y = 0; y < height; ++y) {
-		size_t offset = y * (lineLength + 1);
-		for(int x = 0; x < width; ++x, offset += strStride) {
-			if(str[offset] == one)
-				mat.set(x, y);
+	else {
+		const int strStride = expectSpace ? 2 : 1;
+		const int height = narrow_cast<int>(str.length() / (lineLength + 1));
+		const int width = narrow_cast<int>(lineLength / strStride);
+		BitMatrix mat(width, height);
+		for(int y = 0; y < height; ++y) {
+			size_t offset = y * (lineLength + 1);
+			for(int x = 0; x < width; ++x, offset += strStride) {
+				if(str[offset] == one)
+					mat.set(x, y);
+			}
 		}
+		return mat;
 	}
-	return mat;
 }
 
 void SaveAsPBM(const BitMatrix& matrix, const std::string filename, int quietZone)

@@ -1,3 +1,5 @@
+// jslex.c
+//
 #include "jsi.h"
 #include "jslex.h"
 #include "utf.h"
@@ -9,14 +11,11 @@ static void jsY_error(js_State * J, const char * fmt, ...)
 	va_list ap;
 	char buf[512];
 	char msgbuf[256];
-
 	va_start(ap, fmt);
 	vsnprintf(msgbuf, 256, fmt, ap);
 	va_end(ap);
-
 	snprintf(buf, 256, "%s:%d: ", J->filename, J->lexline);
 	strcat(buf, msgbuf);
-
 	js_newsyntaxerror(J, buf);
 	js_throw(J);
 }
@@ -107,53 +106,34 @@ static int jsY_findkeyword(js_State * J, const char * s)
 	return TK_IDENTIFIER;
 }
 
-int jsY_iswhite(int c)
-{
-	return c == 0x9 || c == 0xB || c == 0xC || c == 0x20 || c == 0xA0 || c == 0xFEFF;
-}
+int jsY_iswhite(int c) { return c == 0x9 || c == 0xB || c == 0xC || c == 0x20 || c == 0xA0 || c == 0xFEFF; }
+int jsY_isnewline(int c) { return c == 0xA || c == 0xD || c == 0x2028 || c == 0x2029; }
 
-int jsY_isnewline(int c)
-{
-	return c == 0xA || c == 0xD || c == 0x2028 || c == 0x2029;
-}
+//#ifndef isalpha
+	//#define isalpha(c) ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+//#endif
+// @sobolev #ifndef isdigit_Removed
+// @sobolev #define isdigit_Removed(c) (c >= '0' && c <= '9')
+// @sobolev #endif
+//#ifndef ishex
+	//#define ishex(c) ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
+//#endif
 
-#ifndef isalpha
-#define isalpha(c) ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
-#endif
-#ifndef isdigit
-#define isdigit(c) (c >= '0' && c <= '9')
-#endif
-#ifndef ishex
-#define ishex(c) ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
-#endif
-
-static int jsY_isidentifierstart(int c)
+static int jsY_isidentifierstart(int c) { return isasciialpha(c) || c == '$' || c == '_' || isalpharune(c); }
+static int jsY_isidentifierpart(int c) { return isasciialnum(c) || c == '$' || c == '_' || isalpharune(c); }
+static int jsY_isdec(int c) { return isdec(c); }
+//int jsY_ishex(int c) { return isdec(c) || ishex(c); }
+/* @v11.9.3 (replaced with hex) int jsY_tohex(int c)
 {
-	return isalpha(c) || c == '$' || c == '_' || isalpharune(c);
-}
-
-static int jsY_isidentifierpart(int c)
-{
-	return isdigit(c) || isalpha(c) || c == '$' || c == '_' || isalpharune(c);
-}
-
-static int jsY_isdec(int c)
-{
-	return isdigit(c);
-}
-
-int jsY_ishex(int c)
-{
-	return isdigit(c) || ishex(c);
-}
-
-int jsY_tohex(int c)
-{
-	if(c >= '0' && c <= '9') return c - '0';
-	if(c >= 'a' && c <= 'f') return c - 'a' + 0xA;
-	if(c >= 'A' && c <= 'F') return c - 'A' + 0xA;
-	return 0;
-}
+	if(isdec(c)) 
+		return c - '0';
+	else if(c >= 'a' && c <= 'f') 
+		return c - 'a' + 0xA;
+	else if(c >= 'A' && c <= 'F') 
+		return c - 'A' + 0xA;
+	else
+		return 0;
+}*/
 
 static void jsY_next(js_State * J)
 {
@@ -182,22 +162,25 @@ static void jsY_unescape(js_State * J)
 	if(jsY_accept(J, '\\')) {
 		if(jsY_accept(J, 'u')) {
 			int x = 0;
-			if(!jsY_ishex(J->lexchar)) {
+			if(!ishex(J->lexchar)) {
 				goto error;
 			}
-			x |= jsY_tohex(J->lexchar) << 12; jsY_next(J);
-			if(!jsY_ishex(J->lexchar)) {
+			x |= hex(J->lexchar) << 12; 
+			jsY_next(J);
+			if(!ishex(J->lexchar)) {
 				goto error;
 			}
-			x |= jsY_tohex(J->lexchar) << 8; jsY_next(J);
-			if(!jsY_ishex(J->lexchar)) {
+			x |= hex(J->lexchar) << 8; 
+			jsY_next(J);
+			if(!ishex(J->lexchar)) {
 				goto error;
 			}
-			x |= jsY_tohex(J->lexchar) << 4; jsY_next(J);
-			if(!jsY_ishex(J->lexchar)) {
+			x |= hex(J->lexchar) << 4; 
+			jsY_next(J);
+			if(!ishex(J->lexchar)) {
 				goto error;
 			}
-			x |= jsY_tohex(J->lexchar);
+			x |= hex(J->lexchar);
 			J->lexchar = x;
 			return;
 		}
@@ -263,10 +246,10 @@ static int lexcomment(js_State * J)
 static double lexhex(js_State * J)
 {
 	double n = 0;
-	if(!jsY_ishex(J->lexchar))
+	if(!ishex(J->lexchar))
 		jsY_error(J, "malformed hexadecimal number");
-	while(jsY_ishex(J->lexchar)) {
-		n = n * 16 + jsY_tohex(J->lexchar);
+	while(ishex(J->lexchar)) {
+		n = n * 16 + hex(J->lexchar);
 		jsY_next(J);
 	}
 	return n;
@@ -405,37 +388,52 @@ static int lexnumber(js_State * J)
 static int lexescape(js_State * J)
 {
 	int x = 0;
-
 	/* already consumed '\' */
-
 	if(jsY_accept(J, '\n'))
 		return 0;
-
 	switch(J->lexchar) {
 		case EOF: jsY_error(J, "unterminated escape sequence");
 		case 'u':
 		    jsY_next(J);
-		    if(!jsY_ishex(J->lexchar)) return 1; else {
-			    x |= jsY_tohex(J->lexchar) << 12; jsY_next(J);
+		    if(!ishex(J->lexchar)) 
+				return 1; 
+			else {
+			    x |= hex(J->lexchar) << 12; 
+				jsY_next(J);
 		    }
-		    if(!jsY_ishex(J->lexchar)) return 1; else {
-			    x |= jsY_tohex(J->lexchar) << 8; jsY_next(J);
+		    if(!ishex(J->lexchar)) 
+				return 1; 
+			else {
+			    x |= hex(J->lexchar) << 8; 
+				jsY_next(J);
 		    }
-		    if(!jsY_ishex(J->lexchar)) return 1; else {
-			    x |= jsY_tohex(J->lexchar) << 4; jsY_next(J);
+		    if(!ishex(J->lexchar)) 
+				return 1; 
+			else {
+			    x |= hex(J->lexchar) << 4; 
+				jsY_next(J);
 		    }
-		    if(!jsY_ishex(J->lexchar)) return 1; else {
-			    x |= jsY_tohex(J->lexchar); jsY_next(J);
+		    if(!ishex(J->lexchar)) 
+				return 1; 
+			else {
+			    x |= hex(J->lexchar); 
+				jsY_next(J);
 		    }
 		    textpush(J, x);
 		    break;
 		case 'x':
 		    jsY_next(J);
-		    if(!jsY_ishex(J->lexchar)) return 1; else {
-			    x |= jsY_tohex(J->lexchar) << 4; jsY_next(J);
+		    if(!ishex(J->lexchar)) 
+				return 1; 
+			else {
+			    x |= hex(J->lexchar) << 4; 
+				jsY_next(J);
 		    }
-		    if(!jsY_ishex(J->lexchar)) return 1; else {
-			    x |= jsY_tohex(J->lexchar); jsY_next(J);
+		    if(!ishex(J->lexchar)) 
+				return 1; 
+			else {
+			    x |= hex(J->lexchar); 
+				jsY_next(J);
 		    }
 		    textpush(J, x);
 		    break;
@@ -739,7 +737,6 @@ static int jsY_lexx(js_State * J)
 		if(jsY_isidentifierstart(J->lexchar)) {
 			textinit(J);
 			textpush(J, J->lexchar);
-
 			jsY_next(J);
 			jsY_unescape(J);
 			while(jsY_isidentifierpart(J->lexchar)) {
@@ -749,10 +746,8 @@ static int jsY_lexx(js_State * J)
 			}
 
 			textend(J);
-
 			return jsY_findkeyword(J, J->lexbuf.text);
 		}
-
 		if(J->lexchar >= 0x20 && J->lexchar <= 0x7E)
 			jsY_error(J, "unexpected character: '%c'", J->lexchar);
 		jsY_error(J, "unexpected character: \\u%04X", J->lexchar);
@@ -768,29 +763,25 @@ void jsY_initlex(js_State * J, const char * filename, const char * source)
 	jsY_next(J); /* load first lookahead character */
 }
 
-int jsY_lex(js_State * J)
-{
-	return J->lasttoken = jsY_lexx(J);
-}
+int jsY_lex(js_State * J) { return J->lasttoken = jsY_lexx(J); }
 
 static int lexjsonnumber(js_State * J)
 {
 	const char * s = J->source - 1;
-
 	if(J->lexchar == '-')
 		jsY_next(J);
 
 	if(J->lexchar == '0')
 		jsY_next(J);
 	else if(J->lexchar >= '1' && J->lexchar <= '9')
-		while(isdigit(J->lexchar))
+		while(isdec(J->lexchar))
 			jsY_next(J);
 	else
 		jsY_error(J, "unexpected non-digit");
 
 	if(jsY_accept(J, '.')) {
-		if(isdigit(J->lexchar))
-			while(isdigit(J->lexchar))
+		if(isdec(J->lexchar))
+			while(isdec(J->lexchar))
 				jsY_next(J);
 		else
 			jsY_error(J, "missing digits after decimal point");
@@ -799,8 +790,8 @@ static int lexjsonnumber(js_State * J)
 	if(jsY_accept(J, 'e') || jsY_accept(J, 'E')) {
 		if(J->lexchar == '-' || J->lexchar == '+')
 			jsY_next(J);
-		if(isdigit(J->lexchar))
-			while(isdigit(J->lexchar))
+		if(isdec(J->lexchar))
+			while(isdec(J->lexchar))
 				jsY_next(J);
 		else
 			jsY_error(J, "missing digits after exponent indicator");
@@ -813,24 +804,34 @@ static int lexjsonnumber(js_State * J)
 static int lexjsonescape(js_State * J)
 {
 	int x = 0;
-
 	/* already consumed '\' */
-
 	switch(J->lexchar) {
 		default: jsY_error(J, "invalid escape sequence");
 		case 'u':
 		    jsY_next(J);
-		    if(!jsY_ishex(J->lexchar)) return 1; else {
-			    x |= jsY_tohex(J->lexchar) << 12; jsY_next(J);
+		    if(!ishex(J->lexchar)) 
+				return 1; 
+			else {
+			    x |= hex(J->lexchar) << 12; 
+				jsY_next(J);
 		    }
-		    if(!jsY_ishex(J->lexchar)) return 1; else {
-			    x |= jsY_tohex(J->lexchar) << 8; jsY_next(J);
+		    if(!ishex(J->lexchar)) 
+				return 1; 
+			else {
+			    x |= hex(J->lexchar) << 8; 
+				jsY_next(J);
 		    }
-		    if(!jsY_ishex(J->lexchar)) return 1; else {
-			    x |= jsY_tohex(J->lexchar) << 4; jsY_next(J);
+		    if(!ishex(J->lexchar)) 
+				return 1; 
+			else {
+			    x |= hex(J->lexchar) << 4; 
+				jsY_next(J);
 		    }
-		    if(!jsY_ishex(J->lexchar)) return 1; else {
-			    x |= jsY_tohex(J->lexchar); jsY_next(J);
+		    if(!ishex(J->lexchar)) 
+				return 1; 
+			else {
+			    x |= hex(J->lexchar); 
+				jsY_next(J);
 		    }
 		    textpush(J, x);
 		    break;
@@ -882,7 +883,6 @@ int jsY_lexjson(js_State * J)
 
 		if((J->lexchar >= '0' && J->lexchar <= '9') || J->lexchar == '-')
 			return lexjsonnumber(J);
-
 		switch(J->lexchar) {
 			case ',': jsY_next(J); return ',';
 			case ':': jsY_next(J); return ':';
@@ -890,7 +890,6 @@ int jsY_lexjson(js_State * J)
 			case ']': jsY_next(J); return ']';
 			case '{': jsY_next(J); return '{';
 			case '}': jsY_next(J); return '}';
-
 			case '"':
 			    jsY_next(J);
 			    return lexjsonstring(J);
@@ -902,15 +901,12 @@ int jsY_lexjson(js_State * J)
 			case 'n':
 			    jsY_next(J); jsY_expect(J, 'u'); jsY_expect(J, 'l'); jsY_expect(J, 'l');
 			    return TK_NULL;
-
 			case 't':
 			    jsY_next(J); jsY_expect(J, 'r'); jsY_expect(J, 'u'); jsY_expect(J, 'e');
 			    return TK_TRUE;
-
 			case EOF:
 			    return 0; /* EOF */
 		}
-
 		if(J->lexchar >= 0x20 && J->lexchar <= 0x7E)
 			jsY_error(J, "unexpected character: '%c'", J->lexchar);
 		jsY_error(J, "unexpected character: \\u%04X", J->lexchar);

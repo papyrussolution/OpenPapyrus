@@ -140,7 +140,7 @@ ushort Curl_sasl_decode_mech(const char * ptr, size_t maxlen, size_t * len)
 				return mechtable[i].bit;
 
 			c = ptr[mechtable[i].len];
-			if(!ISUPPER(c) && !ISDIGIT(c) && c != '-' && c != '_')
+			if(!ISUPPER(c) && !isdec(c) && c != '-' && c != '_')
 				return mechtable[i].bit;
 		}
 	}

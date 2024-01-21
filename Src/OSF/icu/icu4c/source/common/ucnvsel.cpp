@@ -354,20 +354,16 @@ static int32_t ucnvsel_swap(const UDataSwapper * ds,
 		*status = U_UNSUPPORTED_ERROR;
 		return 0;
 	}
-
 	if(length >= 0) {
 		length -= headerSize;
 		if(length < 16*4) {
-			udata_printError(ds, "ucnvsel_swap(): too few bytes (%d after header) for UConverterSelector data\n",
-			    length);
+			udata_printError(ds, "ucnvsel_swap(): too few bytes (%d after header) for UConverterSelector data\n", length);
 			*status = U_INDEX_OUTOFBOUNDS_ERROR;
 			return 0;
 		}
 	}
-
 	const uint8 * inBytes = (const uint8 *)inData + headerSize;
 	uint8 * outBytes = (uint8 *)outData + headerSize;
-
 	/* read the indexes */
 	const int32_t * inIndexes = (const int32_t*)inBytes;
 	int32_t indexes[16];

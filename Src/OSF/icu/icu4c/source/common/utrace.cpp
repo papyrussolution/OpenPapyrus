@@ -139,7 +139,7 @@ static void outputPtrBytes(void * val, char * outBuf, int32_t * outIx, int32_t c
 static void outputString(const char * s, char * outBuf, int32_t * outIx, int32_t capacity, int32_t indent) {
 	int32_t i = 0;
 	char c;
-	if(s==NULL) {
+	if(!s) {
 		s = "*NULL*";
 	}
 	do {
@@ -152,7 +152,7 @@ static void outputUString(const char16_t * s, int32_t len, char * outBuf, int32_
 {
 	int32_t i = 0;
 	char16_t c;
-	if(s==NULL) {
+	if(!s) {
 		outputString(NULL, outBuf, outIx, capacity, indent);
 		return;
 	}

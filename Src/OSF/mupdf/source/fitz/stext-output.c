@@ -90,19 +90,15 @@ void fz_print_stext_block_as_html(fz_context * ctx, fz_output * out, fz_stext_bl
 	fz_stext_line * line;
 	fz_stext_char * ch;
 	int x, y;
-
 	fz_font * font = NULL;
 	float size = 0;
 	int sup = 0;
 	int color = 0;
-
 	for(line = block->u.t.first_line; line; line = line->next) {
 		x = line->bbox.x0;
 		y = line->bbox.y0;
-
 		fz_write_printf(ctx, out, "<p style=\"position:absolute;white-space:pre;margin:0;padding:0;top:%dpt;left:%dpt\">", y, x);
 		font = NULL;
-
 		for(ch = line->first_char; ch; ch = ch->next) {
 			int ch_sup = detect_super_script(line, ch);
 			if(ch->font != font || ch->size != size || ch_sup != sup || ch->color != color) {
@@ -114,9 +110,7 @@ void fz_print_stext_block_as_html(fz_context * ctx, fz_output * out, fz_stext_bl
 				sup = ch_sup;
 				fz_print_style_begin_html(ctx, out, font, size, sup, color);
 			}
-
-			switch(ch->c)
-			{
+			switch(ch->c) {
 				default:
 				    if(ch->c >= 32 && ch->c <= 127)
 					    fz_write_byte(ctx, out, ch->c);
@@ -141,24 +135,16 @@ void fz_print_stext_block_as_html(fz_context * ctx, fz_output * out, fz_stext_bl
 void fz_print_stext_page_as_html(fz_context * ctx, fz_output * out, fz_stext_page * page, int id)
 {
 	fz_stext_block * block;
-
 	int w = page->mediabox.x1 - page->mediabox.x0;
 	int h = page->mediabox.y1 - page->mediabox.y0;
-
-	fz_write_printf(ctx,
-	    out,
-	    "<div id=\"page%d\" style=\"position:relative;width:%dpt;height:%dpt;background-color:white\">\n",
-	    id,
-	    w,
-	    h);
-
+	fz_write_printf(ctx, out, "<div id=\"page%d\" style=\"position:relative;width:%dpt;height:%dpt;background-color:white\">\n",
+	    id, w, h);
 	for(block = page->first_block; block; block = block->next) {
 		if(block->type == FZ_STEXT_BLOCK_IMAGE)
 			fz_print_stext_image_as_html(ctx, out, block);
 		else if(block->type == FZ_STEXT_BLOCK_TEXT)
 			fz_print_stext_block_as_html(ctx, out, block);
 	}
-
 	fz_write_string(ctx, out, "</div>\n");
 }
 
@@ -187,7 +173,6 @@ static void fz_print_stext_image_as_xhtml(fz_context * ctx, fz_output * out, fz_
 {
 	int w = block->bbox.x1 - block->bbox.x0;
 	int h = block->bbox.y1 - block->bbox.y0;
-
 	fz_write_printf(ctx, out, "<p><img width=\"%d\" height=\"%d\" src=\"", w, h);
 	fz_write_image_as_data_uri(ctx, out, block->u.i.image);
 	fz_write_string(ctx, out, "\"/></p>\n");
@@ -198,7 +183,6 @@ static void fz_print_style_begin_xhtml(fz_context * ctx, fz_output * out, fz_fon
 	int is_mono = fz_font_is_monospaced(ctx, font);
 	int is_bold = fz_font_is_bold(ctx, font);
 	int is_italic = fz_font_is_italic(ctx, font);
-
 	if(sup)
 		fz_write_string(ctx, out, "<sup>");
 	if(is_mono)
@@ -214,7 +198,6 @@ static void fz_print_style_end_xhtml(fz_context * ctx, fz_output * out, fz_font 
 	int is_mono = fz_font_is_monospaced(ctx, font);
 	int is_bold = fz_font_is_bold(ctx, font);
 	int is_italic = fz_font_is_italic(ctx, font);
-
 	if(is_italic)
 		fz_write_string(ctx, out, "</i>");
 	if(is_bold)
@@ -241,23 +224,25 @@ static float avg_font_size_of_line(fz_stext_char * ch)
 
 static const char * tag_from_font_size(float size)
 {
-	if(size >= 20) return "h1";
-	if(size >= 15) return "h2";
-	if(size >= 12) return "h3";
-	return "p";
+	if(size >= 20) 
+		return "h1";
+	else if(size >= 15) 
+		return "h2";
+	else if(size >= 12) 
+		return "h3";
+	else
+		return "p";
 }
 
 static void fz_print_stext_block_as_xhtml(fz_context * ctx, fz_output * out, fz_stext_block * block)
 {
 	fz_stext_line * line;
 	fz_stext_char * ch;
-
 	fz_font * font = NULL;
 	int sup = 0;
 	int sp = 1;
 	const char * tag = NULL;
 	const char * new_tag;
-
 	for(line = block->u.t.first_line; line; line = line->next) {
 		new_tag = tag_from_font_size(avg_font_size_of_line(line->first_char));
 		if(tag != new_tag) {
@@ -271,10 +256,8 @@ static void fz_print_stext_block_as_xhtml(fz_context * ctx, fz_output * out, fz_
 			if(font)
 				fz_print_style_begin_xhtml(ctx, out, font, sup);
 		}
-
 		if(!sp)
 			fz_write_byte(ctx, out, ' ');
-
 		for(ch = line->first_char; ch; ch = ch->next) {
 			int ch_sup = detect_super_script(line, ch);
 			if(ch->font != font || ch_sup != sup) {
@@ -284,10 +267,8 @@ static void fz_print_stext_block_as_xhtml(fz_context * ctx, fz_output * out, fz_
 				sup = ch_sup;
 				fz_print_style_begin_xhtml(ctx, out, font, sup);
 			}
-
 			sp = (ch->c == ' ');
-			switch(ch->c)
-			{
+			switch(ch->c) {
 				default:
 				    if(ch->c >= 32 && ch->c <= 127)
 					    fz_write_byte(ctx, out, ch->c);
@@ -311,9 +292,7 @@ static void fz_print_stext_block_as_xhtml(fz_context * ctx, fz_output * out, fz_
 void fz_print_stext_page_as_xhtml(fz_context * ctx, fz_output * out, fz_stext_page * page, int id)
 {
 	fz_stext_block * block;
-
 	fz_write_printf(ctx, out, "<div id=\"page%d\">\n", id);
-
 	for(block = page->first_block; block; block = block->next) {
 		if(block->type == FZ_STEXT_BLOCK_IMAGE)
 			fz_print_stext_image_as_xhtml(ctx, out, block);

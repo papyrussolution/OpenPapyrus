@@ -1524,7 +1524,7 @@ static int isint(const char * start, const char * end, int * result)
 	if(start >= end)
 		return 0;
 	while(start < end) {
-		if(*start < '0' || *start > '9')
+		if(!isdec(*start))
 			return 0;
 		if(n > (INT_MAX / 10) || (n == INT_MAX / 10 && (*start - '0') > INT_MAX % 10)) {
 			n = INT_MAX;

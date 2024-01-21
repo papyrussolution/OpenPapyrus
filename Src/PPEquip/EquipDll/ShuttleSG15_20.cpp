@@ -449,9 +449,9 @@ int PriceChecker::GetFirstTag(const char * pInputStr, TagType & rTag)
 						if(closetag.NotEmpty() && closetag.Search(rTag.Name, 0, 1, &pos) && (pos != input_str.Len())) {
 							// Находим данные между тегами
 							input_str.Sub(datastart, start - datastart - 1, rTag.Data);
-							//if(!isdigit(rTag.Data.C(0)))
+							//if(!isdec(rTag.Data.C(0)))
 							// А то может быть больше одной буквы в начале штрихкода
-							while(!isdigit(rTag.Data.C(0)) && rTag.Data.NotEmpty())
+							while(!isdec(rTag.Data.C(0)) && rTag.Data.NotEmpty())
 								rTag.Data.ShiftLeft();
 							input_str.Excise(0, end + 1);
 							endtag_found = true;

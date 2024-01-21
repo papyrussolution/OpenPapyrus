@@ -94,20 +94,18 @@ U_CAPI void U_EXPORT2 ucol_close(UCollator * coll)
 }
 
 U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8 * src1, int32_t src1Length,
-    const uint8 * src2, int32_t src2Length,
-    uint8 * dest, int32_t destCapacity) {
+    const uint8 * src2, int32_t src2Length, uint8 * dest, int32_t destCapacity) 
+{
 	/* check arguments */
-	if(src1==NULL || src1Length<-1 || src1Length==0 || (src1Length>0 && src1[src1Length-1]!=0) ||
-	    src2==NULL || src2Length<-1 || src2Length==0 || (src2Length>0 && src2[src2Length-1]!=0) ||
-	    destCapacity<0 || (destCapacity>0 && dest==NULL)
-	    ) {
+	if(!src1 || src1Length<-1 || src1Length==0 || (src1Length>0 && src1[src1Length-1]!=0) ||
+	    !src2 || src2Length<-1 || src2Length==0 || (src2Length>0 && src2[src2Length-1]!=0) ||
+	    destCapacity<0 || (destCapacity>0 && dest==NULL)) {
 		/* error, attempt to write a zero byte and return 0 */
 		if(dest && destCapacity>0) {
 			*dest = 0;
 		}
 		return 0;
 	}
-
 	/* check lengths and capacity */
 	if(src1Length<0) {
 		src1Length = (int32_t)strlen((const char *)src1)+1;
@@ -115,13 +113,11 @@ U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8 * src1, int32_t src1Leng
 	if(src2Length<0) {
 		src2Length = (int32_t)strlen((const char *)src2)+1;
 	}
-
 	int32_t destLength = src1Length+src2Length;
 	if(destLength>destCapacity) {
 		/* the merged sort key does not fit into the destination */
 		return destLength;
 	}
-
 	/* merge the sort keys with the same number of levels */
 	uint8 * p = dest;
 	for(;;) {
@@ -131,10 +127,8 @@ U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8 * src1, int32_t src1Leng
 			++src1;
 			*p++ = b;
 		}
-
 		/* add a 02 merge separator */
 		*p++ = 2;
-
 		/* copy level from src2 not including 00 or 01 */
 		while((b = *src2)>=2) {
 			++src2;
@@ -151,7 +145,6 @@ U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8 * src1, int32_t src1Leng
 			break;
 		}
 	}
-
 	/*
 	 * here, at least one sort key is finished now, but the other one
 	 * might have some contents left from containing more levels;
@@ -164,7 +157,6 @@ U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8 * src1, int32_t src1Leng
 	/* append src2, "the other, unfinished sort key" */
 	while((*p++ = *src2++)!=0) {
 	}
-
 	/* the actual length might be less than destLength if either sort key contained illegally embedded zero bytes */
 	return (int32_t)(p-dest);
 }
@@ -189,15 +181,10 @@ U_CAPI int32_t U_EXPORT2 ucol_nextSortKeyPart(const UCollator * coll, UCharItera
 		return 0;
 	}
 	UTRACE_ENTRY(UTRACE_UCOL_NEXTSORTKEYPART);
-	UTRACE_DATA6(UTRACE_VERBOSE, "coll=%p, iter=%p, state=%d %d, dest=%p, count=%d",
-	    coll, iter, state[0], state[1], dest, count);
-
-	int32_t i = Collator::fromUCollator(coll)->
-	    internalNextSortKeyPart(iter, state, dest, count, *status);
-
+	UTRACE_DATA6(UTRACE_VERBOSE, "coll=%p, iter=%p, state=%d %d, dest=%p, count=%d", coll, iter, state[0], state[1], dest, count);
+	int32_t i = Collator::fromUCollator(coll)->internalNextSortKeyPart(iter, state, dest, count, *status);
 	// Return number of meaningful sortkey bytes.
-	UTRACE_DATA4(UTRACE_VERBOSE, "dest = %vb, state=%d %d",
-	    dest, i, state[0], state[1]);
+	UTRACE_DATA4(UTRACE_VERBOSE, "dest = %vb, state=%d %d", dest, i, state[0], state[1]);
 	UTRACE_EXIT_VALUE_STATUS(i, *status);
 	return i;
 }
@@ -205,13 +192,8 @@ U_CAPI int32_t U_EXPORT2 ucol_nextSortKeyPart(const UCollator * coll, UCharItera
 /**
  * Produce a bound for a given sortkey and a number of levels.
  */
-U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8 * source,
-    int32_t sourceLength,
-    UColBoundMode boundType,
-    uint32_t noOfLevels,
-    uint8 * result,
-    int32_t resultLength,
-    UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8 * source, int32_t sourceLength, UColBoundMode boundType,
+    uint32_t noOfLevels, uint8 * result, int32_t resultLength, UErrorCode * status)
 {
 	// consistency checks
 	if(!status || U_FAILURE(*status)) {
@@ -221,7 +203,6 @@ U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8 * source,
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	int32_t sourceIndex = 0;
 	// Scan the string until we skip enough of the key OR reach the end of the key
 	do {
@@ -229,14 +210,10 @@ U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8 * source,
 		if(source[sourceIndex] == Collation::LEVEL_SEPARATOR_BYTE) {
 			noOfLevels--;
 		}
-	} while(noOfLevels > 0
-	 && (source[sourceIndex] != 0 || sourceIndex < sourceLength));
-
-	if((source[sourceIndex] == 0 || sourceIndex == sourceLength)
-	 && noOfLevels > 0) {
+	} while(noOfLevels > 0 && (source[sourceIndex] != 0 || sourceIndex < sourceLength));
+	if((source[sourceIndex] == 0 || sourceIndex == sourceLength) && noOfLevels > 0) {
 		*status = U_SORT_KEY_TOO_SHORT_WARNING;
 	}
-
 	// READ ME: this code assumes that the values for boundType
 	// enum will not changes. They are set so that the enum value
 	// corresponds to the number of extra bytes each bound type

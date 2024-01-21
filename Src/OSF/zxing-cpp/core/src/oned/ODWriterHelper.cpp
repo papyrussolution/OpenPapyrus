@@ -16,8 +16,8 @@ BitMatrix WriterHelper::RenderResult(const std::vector<bool>& code, int width, i
 	int inputWidth = Size(code);
 	// Add quiet zone on both sides.
 	int fullWidth = inputWidth + sidesMargin;
-	int outputWidth = std::max(width, fullWidth);
-	int outputHeight = std::max(1, height);
+	int outputWidth = smax(width, fullWidth);
+	int outputHeight = smax(1, height);
 
 	int multiple = outputWidth / fullWidth;
 	int leftPadding = (outputWidth - (inputWidth * multiple)) / 2;

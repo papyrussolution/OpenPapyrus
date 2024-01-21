@@ -4170,7 +4170,7 @@ public:
 		Rec();
 		int32  ID;
 		int32  Code;
-		int32  CashID;
+		int32  PosNodeID;
 		int32  UserID;
 		int32  SessID;
 		LDATE  Dt;
@@ -4186,17 +4186,17 @@ public:
 	struct Key1 {
 		LDATE  Dt;
 		LTIME  Tm;
-		int32  CashID;
+		int32  PosNodeID;
 	};
 	struct Key2 {
-		int32  CashID;
+		int32  PosNodeID;
 		int32  Code;
 		LDATE  Dt;
 		LTIME  Tm;
 	};
 	struct Key3 {
 		int32  SessID;
-		int32  CashID;
+		int32  PosNodeID;
 		LDATE  Dt;
 		LTIME  Tm;
 	};
@@ -4207,7 +4207,7 @@ public:
 	};
 	DBField ID;
 	DBField Code;
-	DBField CashID;
+	DBField PosNodeID;
 	DBField UserID;
 	DBField SessID;
 	DBField Dt;

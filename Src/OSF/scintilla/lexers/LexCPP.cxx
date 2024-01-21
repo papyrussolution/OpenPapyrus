@@ -1101,7 +1101,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				sc.SetState(SCE_C_STRINGRAW|activitySet);
 				rawStringTerminator = "`";
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				if(lastWordWasUUID) {
 					sc.SetState(SCE_C_UUID|activitySet);
 					lastWordWasUUID = false;

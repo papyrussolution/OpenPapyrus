@@ -174,7 +174,6 @@ ASN1_INTEGER * s2i_ASN1_INTEGER(X509V3_EXT_METHOD * method, const char * value)
 	ASN1_INTEGER * aint;
 	int isneg, ishex;
 	int ret;
-
 	if(value == NULL) {
 		ERR_raise(ERR_LIB_X509V3, X509V3_R_INVALID_NULL_VALUE);
 		return NULL;
@@ -191,7 +190,6 @@ ASN1_INTEGER * s2i_ASN1_INTEGER(X509V3_EXT_METHOD * method, const char * value)
 	else {
 		isneg = 0;
 	}
-
 	if(value[0] == '0' && ((value[1] == 'x') || (value[1] == 'X'))) {
 		value += 2;
 		ishex = 1;
@@ -199,21 +197,17 @@ ASN1_INTEGER * s2i_ASN1_INTEGER(X509V3_EXT_METHOD * method, const char * value)
 	else {
 		ishex = 0;
 	}
-
 	if(ishex)
 		ret = BN_hex2bn(&bn, value);
 	else
 		ret = BN_dec2bn(&bn, value);
-
 	if(!ret || value[ret]) {
 		BN_free(bn);
 		ERR_raise(ERR_LIB_X509V3, X509V3_R_BN_DEC2BN_ERROR);
 		return NULL;
 	}
-
 	if(isneg && BN_is_zero(bn))
 		isneg = 0;
-
 	aint = BN_to_ASN1_INTEGER(bn, NULL);
 	BN_free(bn);
 	if(!aint) {
@@ -225,12 +219,10 @@ ASN1_INTEGER * s2i_ASN1_INTEGER(X509V3_EXT_METHOD * method, const char * value)
 	return aint;
 }
 
-int X509V3_add_value_int(const char * name, const ASN1_INTEGER * aint,
-    STACK_OF(CONF_VALUE) ** extlist)
+int X509V3_add_value_int(const char * name, const ASN1_INTEGER * aint, STACK_OF(CONF_VALUE) ** extlist)
 {
 	char * strtmp;
 	int ret;
-
 	if(!aint)
 		return 1;
 	if((strtmp = i2s_ASN1_INTEGER(NULL, aint)) == NULL)
@@ -243,24 +235,13 @@ int X509V3_add_value_int(const char * name, const ASN1_INTEGER * aint,
 int X509V3_get_value_bool(const CONF_VALUE * value, int * asn1_bool)
 {
 	const char * btmp;
-
 	if((btmp = value->value) == NULL)
 		goto err;
-	if(strcmp(btmp, "TRUE") == 0
-	    || strcmp(btmp, "true") == 0
-	    || strcmp(btmp, "Y") == 0
-	    || strcmp(btmp, "y") == 0
-	    || strcmp(btmp, "YES") == 0
-	    || strcmp(btmp, "yes") == 0) {
+	if(sstreq(btmp, "TRUE") || sstreq(btmp, "true") || sstreq(btmp, "Y") || sstreq(btmp, "y") || sstreq(btmp, "YES") || sstreq(btmp, "yes")) {
 		*asn1_bool = 0xff;
 		return 1;
 	}
-	if(strcmp(btmp, "FALSE") == 0
-	    || strcmp(btmp, "false") == 0
-	    || strcmp(btmp, "N") == 0
-	    || strcmp(btmp, "n") == 0
-	    || strcmp(btmp, "NO") == 0
-	    || strcmp(btmp, "no") == 0) {
+	if(sstreq(btmp, "FALSE") || sstreq(btmp, "false") || sstreq(btmp, "N") || sstreq(btmp, "n") || sstreq(btmp, "NO") || sstreq(btmp, "no")) {
 		*asn1_bool = 0;
 		return 1;
 	}
@@ -691,10 +672,7 @@ static int wildcard_match(const uchar * prefix, size_t prefix_len,
 	 * allow_multi is set.
 	 */
 	for(p = wildcard_start; p != wildcard_end; ++p)
-		if(!(('0' <= *p && *p <= '9') ||
-		    ('A' <= *p && *p <= 'Z') ||
-		    ('a' <= *p && *p <= 'z') ||
-		    *p == '-' || (allow_multi && *p == '.')))
+		if(!(isasciialnum(*p) || *p == '-' || (allow_multi && *p == '.')))
 			return 0;
 	return 1;
 }
@@ -704,14 +682,12 @@ static int wildcard_match(const uchar * prefix, size_t prefix_len,
 #define LABEL_HYPHEN    (1 << 2)
 #define LABEL_IDNA      (1 << 3)
 
-static const uchar * valid_star(const uchar * p, size_t len,
-    unsigned int flags)
+static const uchar * valid_star(const uchar * p, size_t len, unsigned int flags)
 {
 	const uchar * star = 0;
 	size_t i;
 	int state = LABEL_START;
 	int dots = 0;
-
 	for(i = 0; i < len; ++i) {
 		/*
 		 * Locate first and only legal wildcard, either at the start
@@ -728,8 +704,7 @@ static const uchar * valid_star(const uchar * p, size_t len,
 			if(star != NULL || (state & LABEL_IDNA) != 0 || dots)
 				return NULL;
 			/* Only full-label '*.example.com' wildcards? */
-			if((flags & X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS)
-			    && (!atstart || !atend))
+			if((flags & X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS) && (!atstart || !atend))
 				return NULL;
 			/* No 'foo*bar' wildcards */
 			if(!atstart && !atend)
@@ -737,11 +712,8 @@ static const uchar * valid_star(const uchar * p, size_t len,
 			star = &p[i];
 			state &= ~LABEL_START;
 		}
-		else if(('a' <= p[i] && p[i] <= 'z')
-		    || ('A' <= p[i] && p[i] <= 'Z')
-		    || ('0' <= p[i] && p[i] <= '9')) {
-			if((state & LABEL_START) != 0
-			    && len - i >= 4 && strncasecmp((char*)&p[i], "xn--", 4) == 0)
+		else if(isasciialnum(p[i])) {
+			if((state & LABEL_START) != 0 && len - i >= 4 && strncasecmp((char*)&p[i], "xn--", 4) == 0)
 				state |= LABEL_IDNA;
 			state &= ~(LABEL_HYPHEN | LABEL_START);
 		}
@@ -761,7 +733,6 @@ static const uchar * valid_star(const uchar * p, size_t len,
 			return NULL;
 		}
 	}
-
 	/*
 	 * The final label must not end in a hyphen or ".", and
 	 * there must be at least two dots after the star.
@@ -772,12 +743,9 @@ static const uchar * valid_star(const uchar * p, size_t len,
 }
 
 /* Compare using wildcards. */
-static int equal_wildcard(const uchar * pattern, size_t pattern_len,
-    const uchar * subject, size_t subject_len,
-    unsigned int flags)
+static int equal_wildcard(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, unsigned int flags)
 {
 	const uchar * star = NULL;
-
 	/*
 	 * Subject names starting with '.' can only match a wildcard pattern
 	 * via a subject sub-domain pattern suffix match.

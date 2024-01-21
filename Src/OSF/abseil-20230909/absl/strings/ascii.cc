@@ -180,7 +180,8 @@ constexpr void AsciiStrCaseFold(char* p, char* end) {
 	}
 }
 
-static constexpr size_t ValidateAsciiCasefold() {
+static constexpr size_t ValidateAsciiCasefold() 
+{
 	constexpr size_t num_chars = 1 + CHAR_MAX - CHAR_MIN;
 	size_t incorrect_index = 0;
 	char lowered[num_chars] = {};
@@ -191,9 +192,9 @@ static constexpr size_t ValidateAsciiCasefold() {
 	AsciiStrCaseFold<false>(&lowered[0], &lowered[num_chars]);
 	AsciiStrCaseFold<true>(&uppered[0], &uppered[num_chars]);
 	for(size_t i = 0; i < num_chars; ++i) {
-		const char ch = static_cast<char>(i),
-		    ch_upper = ('a' <= ch && ch <= 'z' ? 'A' + (ch - 'a') : ch),
-		    ch_lower = ('A' <= ch && ch <= 'Z' ? 'a' + (ch - 'A') : ch);
+		const char ch = static_cast<char>(i);
+		const char ch_upper = ('a' <= ch && ch <= 'z' ? 'A' + (ch - 'a') : ch);
+		const char ch_lower = ('A' <= ch && ch <= 'Z' ? 'a' + (ch - 'A') : ch);
 		if(uppered[i] != ch_upper || lowered[i] != ch_lower) {
 			incorrect_index = i > 0 ? i : num_chars;
 			break;

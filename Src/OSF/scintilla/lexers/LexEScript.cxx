@@ -60,7 +60,7 @@ static void ColouriseESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int
 			sc.SetState(SCE_ESCRIPT_DEFAULT);
 		}
 		else if(sc.state == SCE_ESCRIPT_NUMBER) {
-			if(!IsADigit(sc.ch) || sc.ch != '.') {
+			if(!isdec(sc.ch) || sc.ch != '.') {
 				sc.SetState(SCE_ESCRIPT_DEFAULT);
 			}
 		}
@@ -119,7 +119,7 @@ static void ColouriseESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int
 
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_ESCRIPT_DEFAULT) {
-			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_ESCRIPT_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch) || (sc.ch == '#')) {

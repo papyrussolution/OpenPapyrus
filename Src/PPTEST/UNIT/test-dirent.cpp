@@ -965,10 +965,10 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 	counter = 0;
 	while((entry = readdir(dir)) != NULL) {
 		/* Skip pseudo directories */
-		if(strcmp(entry->d_name, ".") == 0) {
+		if(sstreq(entry->d_name, ".")) {
 			continue;
 		}
-		if(strcmp(entry->d_name, "..") == 0) {
+		if(sstreq(entry->d_name, "..")) {
 			continue;
 		}
 		/* Found a file */
@@ -1051,10 +1051,10 @@ static int T_DirEntUnicode(STestCase & rCase, const char * pLocale)
 	counter = 0;
 	while((entry = readdir(dir)) != NULL) {
 		/* Skip pseudo directories */
-		if(strcmp(entry->d_name, ".") == 0) {
+		if(sstreq(entry->d_name, ".")) {
 			continue;
 		}
-		if(strcmp(entry->d_name, "..") == 0) {
+		if(sstreq(entry->d_name, "..")) {
 			continue;
 		}
 		/* Found a file */

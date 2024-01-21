@@ -342,7 +342,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int ini
 				    break;
 			    }
 			    // test for E notation
-			    if(IsADigit(sc.chPrev) && (sc.ch == 'e' || sc.ch == 'E') && ni <= 1) {
+			    if(isdec(sc.chPrev) && (sc.ch == 'e' || sc.ch == 'E') && ni <= 1) {
 				    ni = 3;
 				    break;
 			    }
@@ -364,7 +364,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int ini
 				    break;
 			    }
 			    // end of numeric string ?
-			    if(!(IsADigit(sc.ch))) {
+			    if(!(isdec(sc.ch))) {
 				    if(ni==9) {
 					    sc.ChangeState(SCE_AU3_DEFAULT);
 				    }
@@ -374,7 +374,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int ini
 		    }
 			case SCE_AU3_VARIABLE:
 			    // Check if its a COMObject
-			    if(sc.ch == '.' && !IsADigit(sc.chNext)) {
+			    if(sc.ch == '.' && !isdec(sc.chNext)) {
 				    sc.SetState(SCE_AU3_OPERATOR);
 			    }
 			    else if(!IsAWordChar(sc.ch)) {
@@ -488,7 +488,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int ini
 				sc.SetState(SCE_AU3_KEYWORD);
 			else if(sc.ch == '$')
 				sc.SetState(SCE_AU3_VARIABLE);
-			else if(sc.ch == '.' && !IsADigit(sc.chNext))
+			else if(sc.ch == '.' && !isdec(sc.chNext))
 				sc.SetState(SCE_AU3_OPERATOR);
 			else if(sc.ch == '@')
 				sc.SetState(SCE_AU3_KEYWORD);
@@ -503,7 +503,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int ini
 				sc.SetState(SCE_AU3_STRING);
 				si = 2;
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_AU3_NUMBER);
 				ni = 0;
 			}

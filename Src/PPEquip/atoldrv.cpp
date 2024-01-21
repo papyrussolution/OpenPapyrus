@@ -1793,28 +1793,6 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 										//
 										p_js_item->Insert("imcParams", p_js_imcparams);
 									}
-									// @v11.8.1 {
-									/* v11.8.12 (что-то не работает этот блок - касса его не принимает)
-									if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE && (chzn_sid.NotEmpty() || prescr.Number.NotEmpty())) {
-										temp_buf.Z();
-										temp_buf.CatEq("tm", "mdlp");
-										if(chzn_sid.NotEmpty())
-											temp_buf.CatChar('&').CatEq("sid", chzn_sid);
-										if(prescr.Number.NotEmpty()) {
-											if(prescr.Serial.NotEmpty())
-												temp_buf.CatChar('&').CatEq("ps", prescr.Serial);
-											temp_buf.CatChar('&').CatEq("dn", prescr.Number);
-											if(checkdate(prescr.Dt)) {
-												temp_buf.CatChar('&').CatEq("dd", prescr.Dt, DATF_DMY|DATF_NODIV);
-											}
-										}
-										temp_buf.CatChar('&').ToUtf8();
-
-										SJson * p_js_industry_info = SJson::CreateObj();
-										p_js_industry_info->InsertString("industryAttribute", temp_buf.Escape());
-										p_js_item->Insert("industryInfo", p_js_industry_info);
-									}*/
-									// } @v11.8.1 
 								}
 							}
 							else {

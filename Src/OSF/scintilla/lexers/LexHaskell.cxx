@@ -631,7 +631,7 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 				sc.Forward(2);
 				dot = false;
 			}
-			else if((base == 10) && oneof2(sc.ch, 'e', 'E') && (IsADigit(sc.chNext) || sc.chNext == '+' || sc.chNext == '-')) {
+			else if((base == 10) && oneof2(sc.ch, 'e', 'E') && (isdec(sc.chNext) || sc.chNext == '+' || sc.chNext == '-')) {
 				sc.Forward();
 				if(oneof2(sc.ch, '+', '-'))
 					sc.Forward();
@@ -792,7 +792,7 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 		// New state?
 		else if(sc.state == SCE_HA_DEFAULT) {
 			// Digit
-			if(IsADigit(sc.ch)) {
+			if(isdec(sc.ch)) {
 				hs.mode = HA_MODE_DEFAULT;
 
 				sc.SetState(SCE_HA_NUMBER);

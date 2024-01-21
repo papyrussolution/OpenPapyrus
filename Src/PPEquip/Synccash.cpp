@@ -1,5 +1,5 @@
 // SYNCCASH.CPP
-// Copyright (c) A.Sobolev 1997-2021, 2022
+// Copyright (c) A.Sobolev 1997-2021, 2022, 2024
 // @codepage UTF-8
 // Интерфейс (синхронный) для ККМ
 //
@@ -136,6 +136,7 @@ private:
 	int    GetStatus(int & rStatus);
 	int    SetLogotype();
 	int    GetPort(const char * pPortName, int * pPortNo);
+	int    PutPrescription(const CCheckPacket::Prescription & rPrescr);
 
 	enum DevFlags {
 		sfConnected     = 0x0001, // установлена связь с ККМ, COM-порт занят
@@ -158,9 +159,10 @@ private:
 	long   CheckStrLen;     // Длина строки чека в символах
 	long   Flags;           // Флаги настройки ККМ
 	uint   RibbonParam;     // Носитель для печати
-	uint   Inited;          // Если равен 0, то устройство не инициализировано, 1 - инициализировано
 	int	   PrintLogo;       // Печатать логотип
-	int	   IsSetLogo;       // 0 - логотип не загружен, 1 - логотип загружен
+	bool   IsLogoSet;       // false - логотип не загружен, true - логотип загружен
+	bool   Inited;          // Если равен false, то устройство не инициализировано, true - инициализировано
+	uint8  Reserve[2];      // @alignment
 	SString AdmName;        // Имя сист.администратора
 };
 
@@ -211,7 +213,7 @@ int SCS_SYNCCASH::GetPort(const char * pPortName, int * pPortNo)
 
 SCS_SYNCCASH::SCS_SYNCCASH(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port), Port(0), CashierPassword(0),
 	AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR), CheckStrLen(DEF_STRLEN), Flags(/*sfKeepAlive*/0),
-	RibbonParam(0), Inited(0), IsSetLogo(0), PrintLogo(0), DeviceType(0)
+	RibbonParam(0), Inited(false), IsLogoSet(false), PrintLogo(0), DeviceType(0)
 {
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
 		Flags |= sfDontUseCutter;
@@ -231,7 +233,7 @@ SCS_SYNCCASH::~SCS_SYNCCASH()
 	if(Flags & sfConnected) {
 		ExecOper(DVCCMD_DISCONNECT, Arr_In, Arr_Out);
 		ExecOper(DVCCMD_RELEASE, Arr_In, Arr_Out);
-		Inited = 0;
+		Inited = false;
 	}
 	ZDELETE(P_AbstrDvc);
 }
@@ -396,12 +398,12 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 				}
 				THROW(ArrAdd(Arr_In, DVCPARAM_ADMINNAME, AdmName.NotEmpty() ? AdmName : operator_name)); // Имя администратора
 				THROW(ArrAdd(Arr_In, DVCPARAM_SESSIONID, /*pIn->*/SCn.CurSessID)); // Текущая кассовая сесси
-				THROW(ArrAdd(Arr_In, DVCPARAM_LOGGING, (Flags & sfLogging) ? 1 : 0)); // @v11.5.0
+				THROW(ArrAdd(Arr_In, DVCPARAM_LOGGING, BIN(Flags & sfLogging))); // @v11.5.0
 			}
 			THROW(ExecOper(DVCCMD_SETCFG, Arr_In, Arr_Out));
 			// Загружаем логотип
 			Arr_In.Z();
-			if(!IsSetLogo)
+			if(!IsLogoSet)
 				THROW(SetLogotype());
 			CashierPassword = cshr_pssw;
 		}
@@ -645,6 +647,24 @@ int SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * 
 	return ok;
 }
 
+int SCS_SYNCCASH::PutPrescription(const CCheckPacket::Prescription & rPrescr)
+{
+	bool    ok = true;
+	if(rPrescr.Number.NotEmpty()) {
+		THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRNUMB, rPrescr.Number)); 
+		if(rPrescr.Serial.NotEmpty()) {
+			THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRSERIAL, rPrescr.Serial)); 
+		}
+		if(checkdate(rPrescr.Dt)) {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			r_temp_buf.Z().Cat(rPrescr.Dt, DATF_ISO8601CENT);
+			THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRDATE, r_temp_buf)); 
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
@@ -665,7 +685,6 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 	else {
 		SlipDocCommonParam sdc_param;
 		PPID   tax_sys_id = 0;
-		//SString ofd_ver; // @v11.1.9
 		OfdFactors ofdf; // @v11.3.12
 		const  bool  is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0);
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
@@ -686,25 +705,12 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		bool  paperless = false; 
 		CCheckPacket::Prescription prescr; // @v11.8.0
 		pPack->GetPrescription(prescr); // @v11.8.0
-		/*
-		// @v10.8.12 {
-		SString chzn_sid;
-		if(SCn.LocID)
-			p_ref->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
-		// } @v10.8.12
-		p_ref->Ot.GetTagStr(PPOBJ_CASHNODE, NodeID, PPTAG_POSNODE_OFDVER, ofd_ver);
-		*/
 		GetOfdFactors(ofdf); // @v11.3.12
 		// @v11.3.6 {
 		{
 			pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
 			pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, buyers_phone);
-			if(buyers_email.NotEmpty())
-				paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
-			else if(buyers_phone.NotEmpty())
-				paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
-			else
-				paperless = false;
+			paperless = (buyers_email.NotEmpty() || buyers_phone.NotEmpty()) ? LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS) : false;
 		}
 		// } @v11.3.6 
 		THROW(Connect());
@@ -749,20 +755,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(ArrAdd(Arr_In, DVCPARAM_PAPERLESS, 1)); 
 					}
 					// } @v11.3.6 
-					// @v11.8.0 {
-					{
-						if(prescr.Number.NotEmpty()) {
-							THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRNUMB, prescr.Number)); 
-							if(prescr.Serial.NotEmpty()) {
-								THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRSERIAL, prescr.Serial)); 
-							}
-							if(checkdate(prescr.Dt)) {
-								temp_buf.Z().Cat(prescr.Dt, DATF_ISO8601CENT);
-								THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRDATE, temp_buf)); 
-							}
-						}
-					}
-					// } @v11.8.0 
+					THROW(PutPrescription(prescr)); // @v11.8.0 // @v11.9.3 (one call)
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
 					if(_fiscal == 0.0 && !paperless) { // @v11.3.6
@@ -863,20 +856,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							}
 						}
 						// } @erik v10.4.12
-						// @v11.8.0 {
-						{
-							if(prescr.Number.NotEmpty()) {
-								THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRNUMB, prescr.Number)); 
-								if(prescr.Serial.NotEmpty()) {
-									THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRSERIAL, prescr.Serial)); 
-								}
-								if(checkdate(prescr.Dt)) {
-									temp_buf.Z().Cat(prescr.Dt, DATF_ISO8601CENT);
-									THROW(ArrAdd(Arr_In, DVCPARAM_PRESCRDATE, temp_buf)); 
-								}
-							}
-						}
-						// } @v11.8.0 
+						THROW(PutPrescription(prescr)); // @v11.8.0 // @v11.9.3 (one call)
 						THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
 						PROFILE_END
 						Flags |= sfOpenCheck;
@@ -1872,7 +1852,7 @@ int SCS_SYNCCASH::SetLogotype()
 		THROW(ArrAdd(Arr_In, DVCPARAM_LOGOWIDTH, (int)width));
 		THROW(ArrAdd(Arr_In, DVCPARAM_LOGOHEIGHT, (int)height));
 		THROW(ExecOper(DVCCMD_SETLOGOTYPE, Arr_In, Arr_Out));
-		IsSetLogo = 1;
+		IsLogoSet = true;
 	}
 	CATCHZOK;
     return ok;

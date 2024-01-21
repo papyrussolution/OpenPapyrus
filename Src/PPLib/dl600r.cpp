@@ -961,7 +961,7 @@ int DlRtm::Export(ExportParam & rParam)
 					long   iter_id = GetIterID(p_child->Name);
 					char * p_rec_buf = static_cast<char *>(p_tbl->getDataBuf());
 					int    r;
-					BExtInsert bei(p_tbl, 16*1024U);
+					BExtInsert bei(p_tbl, SKILOBYTE(16U));
 					THROW(InitIteration(iter_id, rParam.Sort));
 					while((r = NextIteration(iter_id)) > 0) {
 						p_tbl->clearDataBuf();

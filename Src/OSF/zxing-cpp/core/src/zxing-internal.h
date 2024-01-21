@@ -52,7 +52,7 @@ namespace ZXing::BitHacks {
 	/// <summary>
 	/// Compute the number of zero bits on the left.
 	/// </summary>
-	template <typename T, typename = std::enable_if_t<std::is_integral_v<T> > > inline int NumberOfLeadingZeros(T x)
+	/* @sobolev (replaced with SBits::Clz) template <typename T, typename = std::enable_if_t<std::is_integral_v<T> > > inline int NumberOfLeadingZeros(T x)
 	{
 	#ifdef __cpp_lib_bitops
 		return std::countl_zero(static_cast<std::make_unsigned_t<T> >(x));
@@ -92,19 +92,19 @@ namespace ZXing::BitHacks {
 	#elif defined(ZX_HAS_MSC_BUILTINS)
 			return __lzcnt64(x);
 	#else
-			int n = NumberOfLeadingZeros(static_cast<uint32_t>(x >> 32));
+			int n = NumberOfLeadingZeros(static_cast<uint32_t>(x >> 32)); // @recursion
 			if(n == 32)
-				n += NumberOfLeadingZeros(static_cast<uint32_t>(x));
+				n += NumberOfLeadingZeros(static_cast<uint32_t>(x)); // @recursion
 			return n;
 	#endif
 		}
 	#endif
-	}
+	}*/
 
 	/// <summary>
 	/// Compute the number of zero bits on the right.
 	/// </summary>
-	template <typename T, typename = std::enable_if_t<std::is_integral_v<T> > > inline int NumberOfTrailingZeros(T v)
+	/* @sobolev (replaced with SBits::Ctz) template <typename T, typename = std::enable_if_t<std::is_integral_v<T> > > inline int NumberOfTrailingZeros(T v)
 	{
 		assert(v != 0);
 	#ifdef __cpp_lib_bitops
@@ -148,15 +148,14 @@ namespace ZXing::BitHacks {
 		#endif
 			return 64;
 	#else
-			int n = NumberOfTrailingZeros(static_cast<uint32_t>(v));
+			int n = NumberOfTrailingZeros(static_cast<uint32_t>(v)); // @recursion
 			if(n == 32)
-				n += NumberOfTrailingZeros(static_cast<uint32_t>(v >> 32));
+				n += NumberOfTrailingZeros(static_cast<uint32_t>(v >> 32)); // @recursion
 			return n;
 	#endif
 		}
 	#endif
-	}
-
+	}*/
 	inline uint32_t Reverse(uint32_t v)
 	{
 	#if 0
@@ -189,7 +188,7 @@ namespace ZXing::BitHacks {
 	}*/
 
 	// this is the same as log base 2 of v
-	inline int HighestBitSet(uint32_t v) { return 31 - NumberOfLeadingZeros(v); }
+	inline int HighestBitSet(uint32_t v) { return 31 - /*NumberOfLeadingZeros*/SBits::Clz(v); }
 
 	// shift a whole array of bits by offset bits to the right (thinking of the array as a contiguous stream of bits
 	// starting with the LSB of the first int and ending with the MSB of the last int, this is actually a left shift)
@@ -235,6 +234,9 @@ namespace ZXing::BitHacks {
 } // namespace ZXing::BitHacks
 //#include "Flags.h"
 namespace ZXing {
+	//
+	// @sobolev Note: Фактически, этот класс используется только для BarcodeFormat. Таким образом, правильнее его элиминировать вообще!
+	//
 	template<typename Enum> class Flags {
 		static_assert(std::is_enum<Enum>::value, "Flags is only usable on enumeration types.");
 
@@ -273,7 +275,7 @@ namespace ZXing {
 			bool operator!=(const iterator& rhs) const noexcept { return !(*this == rhs); }
 		};
 
-		iterator begin() const noexcept { return {i, BitHacks::NumberOfTrailingZeros(i)}; }
+		iterator begin() const noexcept { return {i, /*BitHacks::NumberOfTrailingZeros*/static_cast<int>(SBits::Ctz(static_cast<uint>(i)))}; }
 		iterator end() const noexcept { return {i, BitHacks::HighestBitSet(i) + 1}; }
 		bool empty() const noexcept { return i == 0; }
 		int count() const noexcept { return /*BitHacks::CountBitsSet*/SBits::Cpop(i); }
@@ -754,7 +756,7 @@ namespace ZXing {
 	/// L2 norm
 	template <typename T> auto length(PointT<T> p) -> decltype(std::sqrt(dot(p, p))) { return std::sqrt(dot(p, p)); }
 	/// L-inf norm
-	template <typename T> T maxAbsComponent(PointT<T> p) { return std::max(std::abs(p.x), std::abs(p.y)); }
+	template <typename T> T maxAbsComponent(PointT<T> p) { return smax(std::abs(p.x), std::abs(p.y)); }
 	template <typename T> auto distance(PointT<T> a, PointT<T> b) -> decltype(length(a - b)) { return length(a - b); }
 
 	using PointI = PointT<int>;
@@ -834,12 +836,12 @@ namespace ZXing {
 			throw FormatError("Invalid value");
 		return result;
 	}
-	template <typename T> void UpdateMin(T& min, T val) { min = std::min(min, val); }
-	template <typename T> void UpdateMax(T& max, T val) { max = std::max(max, val); }
+	template <typename T> void UpdateMin(T& min, T val) { min = smin(min, val); }
+	template <typename T> void UpdateMax(T& max, T val) { max = smax(max, val); }
 	template <typename T> void UpdateMinMax(T& min, T& max, T val)
 	{
-		min = std::min(min, val);
-		max = std::max(max, val);
+		min = smin(min, val);
+		max = smax(max, val);
 
 		// Note: the above code is not equivalent to
 		//    if (val < min)        min = val;
@@ -1199,10 +1201,10 @@ namespace ZXing {
 		const uint8_t * data(int x, int y) const { return _data + y * _rowStride + x * _pixStride; }
 		ImageView cropped(int left, int top, int width, int height) const
 		{
-			left   = std::max(0, left);
-			top    = std::max(0, top);
-			width  = width <= 0 ? (_width - left) : std::min(_width - left, width);
-			height = height <= 0 ? (_height - top) : std::min(_height - top, height);
+			left   = smax(0, left);
+			top    = smax(0, top);
+			width  = width <= 0 ? (_width - left) : smin(_width - left, width);
+			height = height <= 0 ? (_height - top) : smin(_height - top, height);
 			return {data(left, top), width, height, _format, _rowStride, _pixStride};
 		}
 		ImageView rotated(int degree) const
@@ -1442,7 +1444,7 @@ namespace ZXing {
 	{
 		assert(0 <= count && count <= 8 * (int)sizeof(T));
 		assert(0 <= pos && pos + count <= bits.size());
-		count = std::min(count, bits.size());
+		count = smin(count, bits.size());
 		int res = 0;
 		auto it = bits.iterAt(pos);
 		for(int i = 0; i < count; ++i, ++it)
@@ -1842,13 +1844,13 @@ namespace ZXing {
 				size = _size - offset;
 			else if(size < 0)
 				size = _size - offset + size;
-			return {begin() + offset, std::max(size, 0), _base, _end};
+			return {begin() + offset, smax(size, 0), _base, _end};
 		}
 		bool shift(int n) { return _data && ((_data += n) + _size <= _end); }
 		bool skipPair() { return shift(2); }
 		bool skipSymbol() { return shift(_size); }
 		bool skipSingle(int maxWidth) { return shift(1) && _data[-1] <= maxWidth; }
-		void extend() { _size = std::max(0, narrow_cast<int>(_end - _data)); }
+		void extend() { _size = smax(0, narrow_cast<int>(_end - _data)); }
 	};
 	/**
 	 * @brief The BarAndSpace struct is a simple 2 element data structure to hold information about bar(s) and space(s).
@@ -1972,7 +1974,7 @@ namespace ZXing {
 	template <int LEN, int SUM, bool IS_SPARCE> PatternView FindLeftGuard(const PatternView& view, int minSize, const FixedPattern<LEN, SUM, IS_SPARCE>& pattern,
 		float minQuietZone)
 	{
-		return FindLeftGuard<LEN>(view, std::max(minSize, LEN),
+		return FindLeftGuard<LEN>(view, smax(minSize, LEN),
 			   [&pattern, minQuietZone](const PatternView& window, int spaceInPixel) {
 				return IsPattern(window, pattern, spaceInPixel, minQuietZone);
 			});
@@ -2048,9 +2050,9 @@ namespace ZXing {
 				if(z) {
 	//#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 	#if defined(SL_LITTLEENDIAN)
-					int step = BitHacks::NumberOfTrailingZeros(z) / 8 + 1;
+					int step = /*BitHacks::NumberOfTrailingZeros*/SBits::Ctz(z) / 8 + 1;
 	#else
-					int step = BitHacks::NumberOfLeadingZeros(z) / 8 + 1;
+					int step = /*BitHacks::NumberOfLeadingZeros*/SBits::Clz(z) / 8 + 1;
 	#endif
 					(*intPos++) += step;
 					bitPos += step;
@@ -2386,7 +2388,7 @@ namespace ZXing {
 			}
 			auto diff  = max - min;
 			auto len   = maxAbsComponent(diff);
-			auto steps = std::min(std::abs(diff.x), std::abs(diff.y));
+			auto steps = smin(std::abs(diff.x), std::abs(diff.y));
 			// due to aliasing we get bad extrapolations if the line is short and too close to vertical/horizontal
 			return steps > 2 || len > 50;
 		}
@@ -3817,7 +3819,7 @@ namespace ZXing {
 					if(M[i] > 4 * (m[i] + 1) || M[i] > 3 * M[i + 1] || m[i] > 2 * (m[i + 1] + 1))
 						return {};
 					// the threshold is the average of min and max but at least 1.5 * min
-					res[i] = std::max((m[i] + M[i]) / 2, m[i] * 3 / 2);
+					res[i] = smax((m[i] + M[i]) / 2, m[i] * 3 / 2);
 				}
 
 				return res;

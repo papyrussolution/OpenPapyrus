@@ -535,10 +535,9 @@ static ngx_int_t ngx_http_mp4_atofp(uchar * line, size_t n, size_t point)
 			dot = 1;
 			continue;
 		}
-		if(*line < '0' || *line > '9') {
+		if(!isdec(*line)) {
 			return NGX_ERROR;
 		}
-
 		if(point == 0) {
 			continue;
 		}

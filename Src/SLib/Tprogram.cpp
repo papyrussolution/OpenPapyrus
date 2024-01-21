@@ -1542,7 +1542,7 @@ int TProgram::InitUiToolBox()
 		ENTER_CRITICAL_SECTION
 		// @v11.9.2 LoadVectorTools(&DvToolList);
 		if(!(State & stUiToolBoxInited)) {
-#if 0 // @v11.9.2 {			
+#if 0 // @v11.9.2 (moved to PPSession::Init) {			
 			UiToolBox.CreateColor(tbiButtonTextColor, SColor(SClrBlack));
 			UiToolBox.CreateColor(tbiButtonTextColor+tbisDisable, SColor(SClrWhite));
 			UiToolBox.CreateColor(tbiIconRegColor,     SColor(/*0x06, 0xAE, 0xD5*/0x00, 0x49, 0x82)); // 004982
@@ -1989,11 +1989,11 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		if(p_tb) {
 			TCanvas canv(pDi->hDC);
 			HGDIOBJ brush = p_tb->Get(tbiButtonBrush_F + item_state);
-			if(!brush && item_state)
-				brush = p_tb->Get(tbiButtonBrush_F);
 			HGDIOBJ pen = p_tb->Get(tbiButtonPen_F + item_state);
-			if(!pen && item_state)
-				pen = p_tb->Get(tbiButtonPen_F);
+			if(item_state) {
+				SETIFZQ(brush, p_tb->Get(tbiButtonBrush_F));
+				SETIFZQ(pen, p_tb->Get(tbiButtonPen_F));
+			}
 			canv.SelectObjectAndPush(brush);
 			canv.SelectObjectAndPush(pen);
 			SPoint2S pt_round;

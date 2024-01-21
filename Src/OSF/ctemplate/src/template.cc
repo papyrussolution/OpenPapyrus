@@ -1385,19 +1385,16 @@ void SectionTemplateNode::DumpToString(int level, string * out) const {
 // the state of the parser.
 // Returns false only if the HTML parser failed to parse in
 // auto-escape mode.
-bool SectionTemplateNode::AddTextNode(const TemplateToken* token,
-    Template* my_template) {
+bool SectionTemplateNode::AddTextNode(const TemplateToken* token, Template* my_template) 
+{
 	assert(token);
 	bool success = true;
 	HtmlParser * htmlparser = my_template->htmlparser_;
-
 	if(token->textlen > 0) { // ignore null text sections
 		node_list_.push_back(new TextTemplateNode(*token));
 		if(AUTO_ESCAPE_PARSING_CONTEXT(my_template->initial_context_)) {
 			assert(htmlparser);
-			if(htmlparser->state() == HtmlParser::STATE_ERROR ||
-			    htmlparser->Parse(token->text, static_cast<int>(token->textlen)) ==
-			    HtmlParser::STATE_ERROR) {
+			if(htmlparser->state() == HtmlParser::STATE_ERROR || htmlparser->Parse(token->text, static_cast<int>(token->textlen)) == HtmlParser::STATE_ERROR) {
 				string error_msg =  "Failed parsing: " +
 				    string(token->text, token->textlen) +
 				    "\nIn: " + string(token_.text, token_.textlen);
@@ -1428,13 +1425,12 @@ bool SectionTemplateNode::AddTextNode(const TemplateToken* token,
 // Finally, we check if the variable is whitelisted, in which case
 // Auto-Escape does not apply escaping to it. See comment for global
 // array kSafeWhitelistedVariables[].
-bool SectionTemplateNode::AddVariableNode(TemplateToken* token,
-    Template* my_template) {
+bool SectionTemplateNode::AddVariableNode(TemplateToken* token, Template* my_template) 
+{
 	assert(token);
 	bool success = true;
 	HtmlParser * htmlparser = my_template->htmlparser_;
 	TemplateContext initial_context = my_template->initial_context_;
-
 	if(AUTO_ESCAPE_MODE(initial_context)) {
 		// Determines modifiers for the variable in auto escape mode.
 		string variable_name(token->text, token->textlen);
@@ -2030,7 +2026,8 @@ Template::~Template() {
 // In_tag is only meaningful for TC_HTML: It is true for templates that
 // start inside an HTML tag and hence are expected to contain HTML attribute
 // name/value pairs only. It is false for standard HTML templates.
-void Template::MaybeInitHtmlParser(bool in_tag) {
+void Template::MaybeInitHtmlParser(bool in_tag) 
+{
 	assert(!htmlparser_);
 	if(AUTO_ESCAPE_PARSING_CONTEXT(initial_context_)) {
 		htmlparser_ = new HtmlParser();

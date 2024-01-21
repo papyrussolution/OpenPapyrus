@@ -101,7 +101,7 @@ Jbig2Image * jbig2_image_read_pbm(Jbig2Ctx * ctx, FILE * in)
 		}
 		if(isdigit(c)) {
 			buf[i++] = c;
-			while(isdigit(c = fgetc(in))) {
+			while(isdec(c = fgetc(in))) {
 				if(i >= 32) {
 					slfprintf_stderr("pbm parsing error\n");
 					return NULL;

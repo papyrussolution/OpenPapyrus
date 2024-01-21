@@ -1,5 +1,5 @@
 // TAB.CPP
-// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -176,15 +176,15 @@ int FASTCALL STab::Row::FromStr(const char * pStr)
 	long   c = 0;
 	long   pos = 0;
 	SString temp_buf;
-	for(; isdigit(pStr[p]); p++)
+	for(; isdec(pStr[p]); p++)
 		temp_buf.CatChar(pStr[p]);
 	c = temp_buf.ToLong();
 	for(long i = 0; i < c; i++) {
 		THROW(pStr[p] == ' ');
 		p++;
-		THROW(isdigit(pStr[p]));
+		THROW(isdec(pStr[p]));
 		temp_buf.Z();
-		for(; isdigit(pStr[p]); p++)
+		for(; isdec(pStr[p]); p++)
 			temp_buf.CatChar(pStr[p]);
 		PosList.add(temp_buf.ToLong());
 	}

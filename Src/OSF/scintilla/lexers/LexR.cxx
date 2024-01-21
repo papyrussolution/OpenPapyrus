@@ -64,7 +64,7 @@ static void ColouriseRDoc(Sci_PositionU startPos, Sci_Position length, int initS
 			sc.SetState(SCE_R_DEFAULT);
 		}
 		else if(sc.state == SCE_R_NUMBER) {
-			if(!IsADigit(sc.ch) && !(sc.ch == '.' && IsADigit(sc.chNext))) {
+			if(!isdec(sc.ch) && !(sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_R_DEFAULT);
 			}
 		}
@@ -121,7 +121,7 @@ static void ColouriseRDoc(Sci_PositionU startPos, Sci_Position length, int initS
 
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_R_DEFAULT) {
-			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_R_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch)) {

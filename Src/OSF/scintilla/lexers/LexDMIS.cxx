@@ -180,7 +180,6 @@ void SCI_METHOD LexerDMIS::Lex(Sci_PositionU startPos, Sci_Position lengthDoc, i
 			isIFLine = false;
 		}
 		;
-
 		switch(scCTX.state) {
 			case SCE_DMIS_DEFAULT:
 			    if(scCTX.Match('$', '$')) {
@@ -190,7 +189,7 @@ void SCI_METHOD LexerDMIS::Lex(Sci_PositionU startPos, Sci_Position lengthDoc, i
 			    if(scCTX.Match('\'')) {
 				    scCTX.SetState(SCE_DMIS_STRING);
 			    }
-			    if(IsADigit(scCTX.ch) || ((scCTX.Match('-') || scCTX.Match('+')) && IsADigit(scCTX.chNext))) {
+			    if(isdec(scCTX.ch) || ((scCTX.Match('-') || scCTX.Match('+')) && isdec(scCTX.chNext))) {
 				    scCTX.SetState(SCE_DMIS_NUMBER);
 				    break;
 			    }

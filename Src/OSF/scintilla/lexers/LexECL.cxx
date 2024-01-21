@@ -314,7 +314,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				sc.SetState(SCE_ECL_CHARACTER);
 				sc.Forward();
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				if(lastWordWasUUID) {
 					sc.SetState(SCE_ECL_UUID);
 					lastWordWasUUID = false;

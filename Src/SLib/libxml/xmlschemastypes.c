@@ -907,7 +907,7 @@ static int _xmlSchemaParseGYear(xmlSchemaValDatePtr dt, const xmlChar ** str)
 {
 	const xmlChar * cur = *str, * firstChar;
 	int isneg = 0, digcnt = 0;
-	if(((*cur < '0') || (*cur > '9')) && (*cur != '-') && (*cur != '+'))
+	if(!isdec(*cur) && (*cur != '-') && (*cur != '+'))
 		return -1;
 	if(*cur == '-') {
 		isneg = 1;
@@ -919,8 +919,7 @@ static int _xmlSchemaParseGYear(xmlSchemaValDatePtr dt, const xmlChar ** str)
 		cur++;
 		digcnt++;
 	}
-	/* year must be at least 4 digits (CCYY); over 4
-	 * digits cannot have a leading zero. */
+	// year must be at least 4 digits (CCYY); over 4 digits cannot have a leading zero
 	if((digcnt < 4) || ((digcnt > 4) && (*firstChar == '0')))
 		return 1;
 	if(isneg)
@@ -943,7 +942,7 @@ static int _xmlSchemaParseGYear(xmlSchemaValDatePtr dt, const xmlChar ** str)
  * @cur are undefined.
  */
 #define PARSE_2_DIGITS(num, cur, invalid)			\
-	if((cur[0] < '0') || (cur[0] > '9') || (cur[1] < '0') || (cur[1] > '9')) \
+	if(!isdec(cur[0]) || !isdec(cur[1])) \
 		invalid = 1;					    \
 	else							\
 		num = (cur[0] - '0') * 10 + (cur[1] - '0');	    \
@@ -964,11 +963,11 @@ static int _xmlSchemaParseGYear(xmlSchemaValDatePtr dt, const xmlChar ** str)
 #define PARSE_FLOAT(num, cur, invalid)				\
 	PARSE_2_DIGITS(num, cur, invalid);			\
 	if(!invalid && (*cur == '.')) {			       \
-		double mult = 1;				    \
+		double mult = 1.0;				    \
 		cur++;						    \
-		if((*cur < '0') || (*cur > '9'))		   \
+		if(!isdec(*cur))		   \
 			invalid = 1;					\
-		while((*cur >= '0') && (*cur <= '9')) {		   \
+		while(isdec(*cur)) {		   \
 			mult /= 10;					\
 			num += (*cur - '0') * mult;			\
 			cur++;						\
@@ -1149,7 +1148,6 @@ static int _xmlSchemaParseTimeZone(xmlSchemaValDatePtr dt, const xmlChar ** str)
 	*str = cur;
 	return 0;
 }
-
 /**
  * _xmlSchemaBase64Decode:
  * @ch: a character
@@ -1160,21 +1158,20 @@ static int _xmlSchemaParseTimeZone(xmlSchemaValDatePtr dt, const xmlChar ** str)
  */
 static int FASTCALL _xmlSchemaBase64Decode(const xmlChar ch) 
 {
-	if(('A' <= ch) && (ch <= 'Z')) return ch - 'A';
-	if(('a' <= ch) && (ch <= 'z')) return ch - 'a' + 26;
-	if(('0' <= ch) && (ch <= '9')) return ch - '0' + 52;
+	if(('A' <= ch) && (ch <= 'Z')) 
+		return ch - 'A';
+	if(('a' <= ch) && (ch <= 'z')) 
+		return ch - 'a' + 26;
+	if(('0' <= ch) && (ch <= '9')) 
+		return ch - '0' + 52;
 	if('+' == ch) return 62;
 	if('/' == ch) return 63;
 	if('=' == ch) return 64;
 	return -1;
 }
-
-/****************************************************************
-*								*
-*	XML Schema Dates/Times Datatypes Handling		*
-*								*
-****************************************************************/
-
+// 
+// XML Schema Dates/Times Datatypes Handling
+// 
 /**
  * PARSE_DIGITS:
  * @num:  the integer to fill in
@@ -1699,13 +1696,13 @@ static int xmlSchemaParseUInt(const xmlChar ** str, ulong * llo, ulong * lmi, ul
 	ulong lo = 0, mi = 0, hi = 0;
 	const xmlChar * tmp, * cur = *str;
 	int ret = 0, i = 0;
-	if(!((*cur >= '0') && (*cur <= '9')))
+	if(!isdec(*cur))
 		return -2;
 	while(*cur == '0') { /* ignore leading zeroes */
 		cur++;
 	}
 	tmp = cur;
-	while((*tmp != 0) && (*tmp >= '0') && (*tmp <= '9')) {
+	while(*tmp != 0 && isdec(*tmp)) {
 		i++; tmp++; ret++;
 	}
 	if(i > 24) {
@@ -1724,7 +1721,6 @@ static int xmlSchemaParseUInt(const xmlChar ** str, ulong * llo, ulong * lmi, ul
 		lo = lo * 10 + (*cur++ - '0');
 		i--;
 	}
-
 	*str = cur;
 	*llo = lo;
 	*lmi = mi;
@@ -1910,7 +1906,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    }
 		    if(*cur) {
 			    do {
-				    if((*cur >= '0') && (*cur <= '9')) {
+				    if(isdec(*cur)) {
 					    *cptr++ = *cur++;
 					    len++;
 				    }
@@ -1918,7 +1914,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 					    cur++;
 					    integ = len;
 					    do {
-						    if((*cur >= '0') && (*cur <= '9')) {
+						    if(isdec(*cur)) {
 							    *cptr++ = *cur++;
 							    len++;
 						    }
@@ -2080,13 +2076,13 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    cur++;
 		    if(oneof3(cur[0], 0, '+', '-'))
 			    goto return1;
-		    while((*cur >= '0') && (*cur <= '9')) {
+		    while(isdec(*cur)) {
 			    cur++;
 			    digits_before++;
 		    }
 		    if(*cur == '.') {
 			    cur++;
-			    while((*cur >= '0') && (*cur <= '9')) {
+			    while(isdec(*cur)) {
 				    cur++;
 				    digits_after++;
 			    }
@@ -2097,7 +2093,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    cur++;
 			    if((*cur == '-') || (*cur == '+'))
 				    cur++;
-			    while((*cur >= '0') && (*cur <= '9'))
+			    while(isdec(*cur))
 				    cur++;
 		    }
 		    if(normOnTheFly)
@@ -2114,8 +2110,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 					 * value for extremely high/low values.
 					 * E.g. "1E-149" results in zero.
 					     */
-					    if(sscanf((const char *)value, "%f",
-							    &(v->value.f)) == 1) {
+					    if(sscanf((const char *)value, "%f", &(v->value.f)) == 1) {
 						    *val = v;
 					    }
 					    else {
@@ -2134,8 +2129,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 					 * @todo sscanf seems not to give the correct
 					 * value for extremely high/low values.
 					     */
-					    if(sscanf((const char *)value, "%lf",
-							    &(v->value.d)) == 1) {
+					    if(sscanf((const char *)value, "%lf", &(v->value.d)) == 1) {
 						    *val = v;
 					    }
 					    else {
@@ -2535,7 +2529,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    while IS_WSP_BLANK_CH(*cur) 
 					cur++;
 		    start = cur;
-		    while(((*cur >= '0') && (*cur <= '9')) || ((*cur >= 'A') && (*cur <= 'F')) || ((*cur >= 'a') && (*cur <= 'f'))) {
+		    while(ishex(*cur)) {
 			    i++;
 			    cur++;
 		    }

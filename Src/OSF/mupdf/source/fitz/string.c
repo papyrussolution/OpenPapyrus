@@ -142,20 +142,17 @@ char * fz_realpath(const char * path, char buf[PATH_MAX])
 
 #endif
 
-static inline int ishex(int a)
+// @sobolev static inline int ishex(int a) { return (a >= 'A' && a <= 'F') || (a >= 'a' && a <= 'f') || (a >= '0' && a <= '9'); }
+/* @sobolev (replaced with hex()) static inline int tohex(int c)
 {
-	return (a >= 'A' && a <= 'F') ||
-	       (a >= 'a' && a <= 'f') ||
-	       (a >= '0' && a <= '9');
-}
-
-static inline int tohex(int c)
-{
-	if(c >= '0' && c <= '9') return c - '0';
-	if(c >= 'a' && c <= 'f') return c - 'a' + 0xA;
-	if(c >= 'A' && c <= 'F') return c - 'A' + 0xA;
+	if(isdec(c)) 
+		return c - '0';
+	if(c >= 'a' && c <= 'f') 
+		return c - 'a' + 0xA;
+	if(c >= 'A' && c <= 'F') 
+		return c - 'A' + 0xA;
 	return 0;
-}
+}*/
 
 char * fz_urldecode(char * url)
 {
@@ -164,8 +161,8 @@ char * fz_urldecode(char * url)
 	while(*s) {
 		int c = (uchar)*s++;
 		if(c == '%' && ishex(s[0]) && ishex(s[1])) {
-			int a = tohex(*s++);
-			int b = tohex(*s++);
+			int a = /*tohex*/hex(*s++);
+			int b = /*tohex*/hex(*s++);
 			*p++ = a << 4 | b;
 		}
 		else {
@@ -456,7 +453,7 @@ int fz_is_page_range(fz_context * ctx, const char * s)
 {
 	// TODO: check the actual syntax...
 	while(*s) {
-		if((*s < '0' || *s > '9') && *s != 'N' && *s != '-' && *s != ',')
+		if(!isdec(*s) && *s != 'N' && *s != '-' && *s != ',')
 			return 0;
 		s++;
 	}

@@ -1213,7 +1213,7 @@ namespace Scintilla {
 		void Set(uint red, uint green, uint blue) { co = red | (green << 8) | (blue << 16); }
 		/*static inline uint ValueOfHex(const char ch)
 		{
-			if(ch >= '0' && ch <= '9')
+			if(isdec(ch))
 				return ch - '0';
 			else if(ch >= 'A' && ch <= 'F')
 				return ch - 'A' + 10;
@@ -1569,11 +1569,11 @@ namespace Scintilla {
 	//
 	bool FASTCALL IsASpace(int ch);
 	bool FASTCALL IsASpaceOrTab(int ch);
-	bool FASTCALL IsADigit(int ch);
+	// @sobolev bool FASTCALL IsADigit_Removed(int ch);
 	bool FASTCALL IsADigit(int ch, int base);
 	bool FASTCALL IsASCII(int ch);
-	bool FASTCALL IsLowerCase(int ch);
-	bool FASTCALL IsUpperCase(int ch);
+	// @sobolev (replaced with isasciilwr) bool FASTCALL IsLowerCase(int ch);
+	// @sobolev (replaced with isasciiupr) bool FASTCALL IsUpperCase(int ch);
 	// @v10.9.6 (replaced with isasciialnum) bool FASTCALL IsAlphaNumeric(int ch);
 	// 
 	// Check if a character is a space.

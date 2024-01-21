@@ -372,7 +372,7 @@ retry:
 		 * names sharing LFPREFIX, such as "log.db", are legal.
 		 */
 		for(c = names[cnt]+sizeof(LFPREFIX)-1; *c != '\0'; c++)
-			if(!isdigit((int)*c))
+			if(!isdec(*c))
 				break;
 		if(*c != '\0')
 			continue;

@@ -135,8 +135,7 @@ uint32 __ham_func4(DB * dbp, const void * key, uint32 len)
  * Glenn Fowler (gsf@research.att.com).  Landon Curt Noll (chongo@toad.com)
  * later improved on their algorithm.
  *
- * The magic is in the interesting relationship between the special prime
- * 16777619 (2^24 + 403) and 2^32 and 2^8.
+ * The magic is in the interesting relationship between the special prime 16777619 (2^24 + 403) and 2^32 and 2^8.
  *
  * This hash produces the fewest collisions of any function that we've seen so
  * far, and works well on both numbers and strings.

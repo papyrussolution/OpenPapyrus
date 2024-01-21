@@ -1,5 +1,5 @@
 // OBJCSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -908,7 +908,7 @@ int CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 				pack.Rec.Flags |= CCHKF_NOTUSED;
 				if(accept_dup_time) {
 					CCheckTbl::Rec rec;
-					while(SessObj.P_Cc->Search(pack.Rec.CashID, pack.Rec.Dt, pack.Rec.Tm, &rec) > 0) {
+					while(SessObj.P_Cc->Search(pack.Rec.PosNodeID, pack.Rec.Dt, pack.Rec.Tm, &rec) > 0) {
 						if(pack.Rec.Code != rec.Code)
 							pack.Rec.Tm.addhs(10);
 						else
@@ -960,7 +960,7 @@ int CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 							CCheckTbl::Key3 k3;
 							MEMSZERO(k3);
 							k3.SessID = *pID;
-							k3.CashID = pack.Rec.CashID;
+							k3.PosNodeID = pack.Rec.PosNodeID;
 							k3.Dt = pack.Rec.Dt;
 							k3.Tm = pack.Rec.Tm;
 							PPID   cc_id = 0;
@@ -1693,7 +1693,7 @@ int CTableOrder::MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack)
 	THROW_PP_S(cn_rec.CurSessID, PPERR_CSESSNOPENED, cn_rec.Name);
 	pCcPack->Z();
 	pCcPack->Rec.Flags |= CCHKF_ORDER;
-	pCcPack->Rec.CashID = pPack->PosNodeID;
+	pCcPack->Rec.PosNodeID = pPack->PosNodeID;
 	pCcPack->Rec.SessID = cn_rec.CurSessID;
 	pCcPack->Rec.SCardID = pPack->SCardID;
 	pCcPack->Ext.TableNo = pPack->TableNo;
@@ -2800,7 +2800,7 @@ int PPCCheckImporter::Run()
 			CCheckPacket cc_pack;
 			const int r = Read_Predef_Contract01(p_ctx, filename, cc_pack);
 			if(r > 0) {
-				cc_pack.Rec.CashID = Param.PosNodeID;
+				cc_pack.Rec.PosNodeID = Param.PosNodeID;
 				// отложенный чек не должен быть привязан к сессии: cc_pack.Rec.SessID == 0
 				PPObjPerson::GetCurUserPerson(&cc_pack.Rec.UserID, 0);
 				cc_pack.Rec.Flags |= (CCHKF_SYNC|CCHKF_SUSPENDED|CCHKF_IMPORTED);

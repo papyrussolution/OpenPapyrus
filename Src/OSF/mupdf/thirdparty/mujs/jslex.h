@@ -68,12 +68,11 @@ enum
 
 int jsY_iswhite(int c);
 int jsY_isnewline(int c);
-int jsY_ishex(int c);
-int jsY_tohex(int c);
+// @sobolev int jsY_ishex(int c);
+// @v11.9.3 (replaced with hex) int jsY_tohex(int c);
 
 const char *jsY_tokenstring(int token);
 int jsY_findword(const char *s, const char **list, int num);
-
 void jsY_initlex(js_State *J, const char *filename, const char *source);
 int jsY_lex(js_State *J);
 int jsY_lexjson(js_State *J);

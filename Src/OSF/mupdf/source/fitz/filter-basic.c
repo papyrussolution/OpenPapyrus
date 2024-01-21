@@ -362,20 +362,18 @@ static inline int iswhite(int a)
 	return 0;
 }
 
-static inline int ishex(int a)
-{
-	return (a >= 'A' && a <= 'F') ||
-	       (a >= 'a' && a <= 'f') ||
-	       (a >= '0' && a <= '9');
-}
+// @sobolev static inline int ishex(int a) { return (a >= 'A' && a <= 'F') || (a >= 'a' && a <= 'f') || (a >= '0' && a <= '9'); }
 
-static inline int unhex(int a)
+/* @sobolev (replaced with hex()) static inline int unhex(int a)
 {
-	if(a >= 'A' && a <= 'F') return a - 'A' + 0xA;
-	if(a >= 'a' && a <= 'f') return a - 'a' + 0xA;
-	if(a >= '0' && a <= '9') return a - '0';
+	if(a >= 'A' && a <= 'F') 
+		return a - 'A' + 0xA;
+	if(a >= 'a' && a <= 'f') 
+		return a - 'a' + 0xA;
+	if(a >= '0' && a <= '9') 
+		return a - '0';
 	return 0;
-}
+}*/
 
 static int next_ahxd(fz_context * ctx, fz_stream * stm, size_t max)
 {
@@ -390,18 +388,16 @@ static int next_ahxd(fz_context * ctx, fz_stream * stm, size_t max)
 	while(p < ep) {
 		if(state->eod)
 			break;
-
 		c = fz_read_byte(ctx, state->chain);
 		if(c < 0)
 			break;
-
 		if(ishex(c)) {
 			if(!odd) {
-				a = unhex(c);
+				a = /*unhex*/hex(c);
 				odd = 1;
 			}
 			else {
-				b = unhex(c);
+				b = /*unhex*/hex(c);
 				*p++ = (a << 4) | b;
 				odd = 0;
 			}

@@ -376,45 +376,37 @@ static void Append(State * state, const char * const str, const size_t length) {
 		}
 	}
 	if(state->parse_state.out_cur_idx < state->out_end_idx) {
-		state->out[state->parse_state.out_cur_idx] =
-		    '\0'; // Terminate it with '\0'
+		state->out[state->parse_state.out_cur_idx] = '\0'; // Terminate it with '\0'
 	}
 }
 
 // We don't use equivalents in libc to avoid locale issues.
-static bool IsLower(char c) {
-	return c >= 'a' && c <= 'z';
-}
-
-static bool IsAlpha(char c) {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-}
-
-static bool IsDigit(char c) {
-	return c >= '0' && c <= '9';
-}
+static bool IsLower(char c) { return c >= 'a' && c <= 'z'; }
+// @v11.9.3 (replaced with isasciialpha) static bool IsAlpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+// @v11.9.3 (replaced with isdec) static bool IsDigit(char c) { return c >= '0' && c <= '9'; }
 
 // Returns true if "str" is a function clone suffix.  These suffixes are used
 // by GCC 4.5.x and later versions (and our locally-modified version of GCC
 // 4.4.x) to indicate functions which have been cloned during optimization.
 // We treat any sequence (.<alpha>+.<digit>+)+ as a function clone suffix.
 // Additionally, '_' is allowed along with the alphanumeric sequence.
-static bool IsFunctionCloneSuffix(const char * str) {
+static bool IsFunctionCloneSuffix(const char * str) 
+{
 	size_t i = 0;
 	while(str[i] != '\0') {
 		bool parsed = false;
 		// Consume a single [.<alpha> | _]*[.<digit>]* sequence.
-		if(str[i] == '.' && (IsAlpha(str[i + 1]) || str[i + 1] == '_')) {
+		if(str[i] == '.' && (isasciialpha(str[i + 1]) || str[i + 1] == '_')) {
 			parsed = true;
 			i += 2;
-			while(IsAlpha(str[i]) || str[i] == '_') {
+			while(isasciialpha(str[i]) || str[i] == '_') {
 				++i;
 			}
 		}
-		if(str[i] == '.' && IsDigit(str[i + 1])) {
+		if(str[i] == '.' && isdec(str[i + 1])) {
 			parsed = true;
 			i += 2;
-			while(IsDigit(str[i])) {
+			while(isdec(str[i])) {
 				++i;
 			}
 		}
@@ -424,15 +416,14 @@ static bool IsFunctionCloneSuffix(const char * str) {
 	return true; // Consumed everything in "str".
 }
 
-static bool EndsWith(State * state, const char chr) {
-	return state->parse_state.out_cur_idx > 0 &&
-	       state->parse_state.out_cur_idx < state->out_end_idx &&
-	       chr == state->out[state->parse_state.out_cur_idx - 1];
+static bool EndsWith(State * state, const char chr) 
+{
+	return state->parse_state.out_cur_idx > 0 && state->parse_state.out_cur_idx < state->out_end_idx && chr == state->out[state->parse_state.out_cur_idx - 1];
 }
 
 // Append "str" with some tweaks, iff "append" state is true.
-static void MaybeAppendWithLength(State * state, const char * const str,
-    const size_t length) {
+static void MaybeAppendWithLength(State * state, const char * const str, const size_t length) 
+{
 	if(state->parse_state.append && length > 0) {
 		// Append a space if the output buffer ends with '<' and "str"
 		// starts with '<' to avoid <<<.
@@ -441,8 +432,7 @@ static void MaybeAppendWithLength(State * state, const char * const str,
 		}
 		// Remember the last identifier name for ctors/dtors,
 		// but only if we haven't yet overflown the buffer.
-		if(state->parse_state.out_cur_idx < state->out_end_idx &&
-		    (IsAlpha(str[0]) || str[0] == '_')) {
+		if(state->parse_state.out_cur_idx < state->out_end_idx && (isasciialpha(str[0]) || str[0] == '_')) {
 			state->parse_state.prev_name_idx = state->parse_state.out_cur_idx;
 			state->parse_state.prev_name_length = static_cast<unsigned int>(length);
 		}
@@ -451,11 +441,11 @@ static void MaybeAppendWithLength(State * state, const char * const str,
 }
 
 // Appends a positive decimal number to the output if appending is enabled.
-static bool MaybeAppendDecimal(State * state, int val) {
+static bool MaybeAppendDecimal(State * state, int val) 
+{
 	// Max {32-64}-bit unsigned int is 20 digits.
 	constexpr size_t kMaxLength = 20;
 	char buf[kMaxLength];
-
 	// We can't use itoa or sprintf as neither is specified to be
 	// async-signal-safe.
 	if(state->parse_state.append) {
@@ -466,17 +456,16 @@ static bool MaybeAppendDecimal(State * state, int val) {
 			*--p = static_cast<char>((val % 10) + '0');
 			val /= 10;
 		} while(p > buf && val != 0);
-
 		// 'p' landed on the last character we set.  How convenient.
 		Append(state, p, kMaxLength - static_cast<size_t>(p - buf));
 	}
-
 	return true;
 }
 
 // A convenient wrapper around MaybeAppendWithLength().
 // Returns true so that it can be placed in "if" conditions.
-static bool MaybeAppend(State * state, const char * const str) {
+static bool MaybeAppend(State * state, const char * const str) 
+{
 	if(state->parse_state.append) {
 		size_t length = StrLen(str);
 		MaybeAppendWithLength(state, str, length);
@@ -877,7 +866,7 @@ static bool ParseNumber(State * state, int * number_out) {
 	const char * p = RemainingInput(state);
 	uint64_t number = 0;
 	for(; *p != '\0'; ++p) {
-		if(IsDigit(*p)) {
+		if(isdec(*p)) {
 			number = number * 10 + static_cast<uint64_t>(*p - '0');
 		}
 		else {
@@ -903,12 +892,13 @@ static bool ParseNumber(State * state, int * number_out) {
 
 // Floating-point literals are encoded using a fixed-length lowercase
 // hexadecimal string.
-static bool ParseFloatNumber(State * state) {
+static bool ParseFloatNumber(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	const char * p = RemainingInput(state);
 	for(; *p != '\0'; ++p) {
-		if(!IsDigit(*p) && !(*p >= 'a' && *p <= 'f')) {
+		if(!isdec(*p) && !(*p >= 'a' && *p <= 'f')) {
 			break;
 		}
 	}
@@ -921,12 +911,13 @@ static bool ParseFloatNumber(State * state) {
 
 // The <seq-id> is a sequence number in base 36,
 // using digits and upper case letters
-static bool ParseSeqId(State * state) {
+static bool ParseSeqId(State * state) 
+{
 	ComplexityGuard guard(state);
 	if(guard.IsTooComplex()) return false;
 	const char * p = RemainingInput(state);
 	for(; *p != '\0'; ++p) {
-		if(!IsDigit(*p) && !(*p >= 'A' && *p <= 'Z')) {
+		if(!isdec(*p) && !isasciiupr(*p)) {
 			break;
 		}
 	}
@@ -981,11 +972,9 @@ static bool ParseOperatorName(State * state, int * arity) {
 		return true;
 	}
 	state->parse_state = copy;
-
 	// Other operator names should start with a lower alphabet followed
 	// by a lower/upper alphabet.
-	if(!(IsLower(RemainingInput(state)[0]) &&
-	    IsAlpha(RemainingInput(state)[1]))) {
+	if(!(IsLower(RemainingInput(state)[0]) && isasciialpha(RemainingInput(state)[1]))) {
 		return false;
 	}
 	// We may want to perform a binary search if we really need speed.

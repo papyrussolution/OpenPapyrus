@@ -102,8 +102,8 @@ bool ReadDataCharacterRaw(const PatternView& view, int numModules, bool reversed
 
 	int sumErr = oddSum + evnSum - numModules;
 	// sum < min -> negative error; sum > max -> positive error
-	int oddSumErr = std::min(0, oddSum - (minSum + (numModules == 15))) + std::max(0, oddSum - maxSum);
-	int evnSumErr = std::min(0, evnSum - minSum) + std::max(0, evnSum - (maxSum - (numModules == 15)));
+	int oddSumErr = smin(0, oddSum - (minSum + (numModules == 15))) + smax(0, oddSum - maxSum);
+	int evnSumErr = smin(0, evnSum - minSum) + smax(0, evnSum - (maxSum - (numModules == 15)));
 
 	int oddParityErr = (oddSum & 1) == (numModules > 15);
 	int evnParityErr = (evnSum & 1) == (numModules < 17);
@@ -167,6 +167,6 @@ Position EstimatePosition(const Pair& first, const Pair& last)
 int EstimateLineCount(const Pair& first, const Pair& last)
 {
 	// see incrementLineCount() in ODReader.cpp for the -1 here
-	return std::min(first.count, last.count) - 1 + IsStacked(first, last);
+	return smin(first.count, last.count) - 1 + IsStacked(first, last);
 }
 } // namespace ZXing::OneD::DataBar

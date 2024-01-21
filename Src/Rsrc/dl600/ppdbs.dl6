@@ -2310,7 +2310,7 @@ file:
 table CCheck {             // size=52
 	autolong ID;           // ИД чека уникальный по этой таблице
 	long   Code;           // Код чека по внутреннему реестру ККМ, если Flags & CCHKF_ZCHECK, тогда Code - это номер Z-отчета
-	long   CashID;         // if (Flags & (CCHKF_SYNC|CCHKF_TRANSMIT)) then (CashID ->Obj(PPOBJ_CASHNODE).ID) else (CashID - Code of cash machine)
+	long   PosNodeID;      // if (Flags & (CCHKF_SYNC|CCHKF_TRANSMIT)) then (CashID ->Obj(PPOBJ_CASHNODE).ID) else (CashID - Code of cash machine) // @v11.9.3 CashID-->PosNodeID
 	long   UserID;         // Пользователь, создавший чек
 	long   SessID;         // ->CSession.ID
 	date   Dt;             // Дата чека
@@ -2320,11 +2320,11 @@ table CCheck {             // size=52
 	money  Discount[8];    // Общая скидка по чеку
 	long   SCardID;        // ->SCard.ID
 index:
-	ID (unique);                           // #0
-	Dt, Tm, CashID (unique mod);           // #1
-	CashID, Code, Dt, Tm (unique mod);     // #2
-	SessID, CashID, Dt, Tm (unique mod);   // #3
-	SCardID, Dt, Tm (anysegnull dup mod);  // #4
+	ID (unique);                            // #0
+	Dt, Tm, PosNodeID (unique mod);         // #1
+	PosNodeID, Code, Dt, Tm (unique mod);   // #2
+	SessID, PosNodeID, Dt, Tm (unique mod); // #3
+	SCardID, Dt, Tm (anysegnull dup mod);   // #4
 file:
 	"ccheck.btr";
 	access=1;

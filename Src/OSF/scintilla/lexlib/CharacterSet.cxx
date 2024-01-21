@@ -56,7 +56,7 @@ int CompareNCaseInsensitive(const char * a, const char * b, size_t len)
 //
 bool FASTCALL IsASpace(int ch) { return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d)); }
 bool FASTCALL IsASpaceOrTab(int ch) { return oneof2(ch, ' ', '\t'); }
-bool FASTCALL IsADigit(int ch) { return (ch >= '0') && (ch <= '9'); }
+// @sobolev bool FASTCALL IsADigit_Removed(int ch) { return (ch >= '0') && (ch <= '9'); }
 bool FASTCALL IsADigit(int ch, int base)
 {
 	if(base <= 10)
@@ -65,8 +65,8 @@ bool FASTCALL IsADigit(int ch, int base)
 		return ((ch >= '0') && (ch <= '9')) || ((ch >= 'A') && (ch < 'A' + base - 10)) || ((ch >= 'a') && (ch < 'a' + base - 10));
 }
 bool FASTCALL IsASCII(int ch) { return (ch >= 0) && (ch < 0x80); }
-bool FASTCALL IsLowerCase(int ch) { return (ch >= 'a') && (ch <= 'z'); }
-bool FASTCALL IsUpperCase(int ch) { return (ch >= 'A') && (ch <= 'Z'); }
+// @sobolev (replaced with isasciilwr) bool FASTCALL IsLowerCase(int ch) { return (ch >= 'a') && (ch <= 'z'); }
+// @sobolev (replaced with isasciiupr) bool FASTCALL IsUpperCase(int ch) { return (ch >= 'A') && (ch <= 'Z'); }
 // @v10.9.6 (replaced with isasciialnum) bool FASTCALL IsAlphaNumeric(int ch) { return ((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')); }
 // 
 // Check if a character is a space.

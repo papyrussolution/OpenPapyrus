@@ -28,11 +28,10 @@ struct fmtbuf {
 	void (* emit)(fz_context * ctx, void * user, int c);
 };
 
-static inline void fmtputc(struct fmtbuf * out, int c)
+static /*inline*/void FASTCALL fmtputc(struct fmtbuf * out, int c)
 {
 	out->emit(out->ctx, out->user, c);
 }
-
 /*
  * Convert float to shortest possible string that won't lose precision, except:
  * NaN to 0, +Inf to FLT_MAX, -Inf to -FLT_MAX.
@@ -313,14 +312,13 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 				w = va_arg(args, int);
 			}
 			else {
-				while(c >= '0' && c <= '9') {
+				while(isdec(c)) {
 					w = w * 10 + c - '0';
 					c = *fmt++;
 				}
 			}
 			if(!c)
 				break;
-
 			/* precision */
 			p = 6;
 			if(c == '.') {
@@ -332,9 +330,9 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 					p = va_arg(args, int);
 				}
 				else {
-					if(c >= '0' && c <= '9')
+					if(isdec(c))
 						p = 0;
-					while(c >= '0' && c <= '9') {
+					while(isdec(c)) {
 						p = p * 10 + c - '0';
 						c = *fmt++;
 					}
@@ -407,8 +405,8 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 					    fmtputc(&out, c);
 				    else {
 					    char buf[10];
-					    int i, n = fz_runetochar(buf, c);
-					    for(i = 0; i < n; ++i)
+					    const int n = fz_runetochar(buf, c);
+					    for(int i = 0; i < n; ++i)
 						    fmtputc(&out, buf[i]);
 				    }
 				    break;

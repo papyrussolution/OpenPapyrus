@@ -73,7 +73,7 @@ namespace NCompress {
 		void CMsbfEncoderTemp::WriteBits(uint32 value, uint numBits)
 		{
 			while(numBits > 0) {
-				uint   numNewBits = MyMin(numBits, _bitPos);
+				uint   numNewBits = smin(numBits, _bitPos);
 				numBits -= numNewBits;
 				_curByte <<= numNewBits;
 				uint32 newBits = value >> numBits;

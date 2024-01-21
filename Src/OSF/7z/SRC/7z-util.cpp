@@ -464,7 +464,7 @@ static const uint64 k_uint64_max = UINT64_CONST(0xFFFFFFFFFFFFFFFF);
 		uintType res = 0; \
 		for(;; s++) { \
 			charTypeUnsigned c = (charTypeUnsigned)*s; \
-			if(c < '0' || c > '9') { ASSIGN_PTR(end, s); return res; } \
+			if(!isdec(c)) { ASSIGN_PTR(end, s); return res; } \
 			if(res > (k_ ## uintType ## _max) / 10) return 0; \
 			res *= 10; \
 			unsigned v = (c - '0');	\
@@ -540,11 +540,14 @@ uint32 ConvertHexStringToUInt32(const char * s, const char ** end) throw()
 	ASSIGN_PTR(end, s);
 	uint32 res = 0;
 	for(;; s++) {
-		unsigned c = (Byte)*s;
-		unsigned v;
-		if(c >= '0' && c <= '9') v = (c - '0');
-		else if(c >= 'A' && c <= 'F') v = 10 + (c - 'A');
-		else if(c >= 'a' && c <= 'f') v = 10 + (c - 'a');
+		uint c = (Byte)*s;
+		uint v;
+		if(isdec(c)) 
+			v = (c - '0');
+		else if(c >= 'A' && c <= 'F') 
+			v = 10 + (c - 'A');
+		else if(c >= 'a' && c <= 'f') 
+			v = 10 + (c - 'a');
 		else {
 			ASSIGN_PTR(end, s);
 			return res;
@@ -561,11 +564,14 @@ uint64 ConvertHexStringToUInt64(const char * s, const char ** end) throw()
 	ASSIGN_PTR(end, s);
 	uint64 res = 0;
 	for(;; s++) {
-		unsigned c = (Byte)*s;
-		unsigned v;
-		if(c >= '0' && c <= '9') v = (c - '0');
-		else if(c >= 'A' && c <= 'F') v = 10 + (c - 'A');
-		else if(c >= 'a' && c <= 'f') v = 10 + (c - 'a');
+		uint c = (Byte)*s;
+		uint v;
+		if(isdec(c)) 
+			v = (c - '0');
+		else if(c >= 'A' && c <= 'F') 
+			v = 10 + (c - 'A');
+		else if(c >= 'a' && c <= 'f') 
+			v = 10 + (c - 'a');
 		else {
 			ASSIGN_PTR(end, s);
 			return res;

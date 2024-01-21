@@ -534,7 +534,7 @@ static int FASTCALL Base36ToTobaccoPrice(const SString & rS, SString & rBuf)
 	for(uint i = 0; ok && i < len; i++) {
 		const  char c = toupper(rS.C(i));
 		uint64 v = 0;
-		if(c >= '0' && c <= '9')
+		if(isdec(c))
 			v = c - '0';
 		else if(c >= 'A' && c <= 'Z')
 			v = c - 'A' + 10;

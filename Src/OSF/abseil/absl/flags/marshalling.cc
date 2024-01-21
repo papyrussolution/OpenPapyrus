@@ -38,7 +38,7 @@ bool AbslParseFlag(absl::string_view text, bool* dst, std::string*)
 // caused too many bugs when we had that behavior.
 static int NumericBase(absl::string_view text) 
 {
-	const bool hex = (text.size() >= 2 && text[0] == '0' && (text[1] == 'x' || text[1] == 'X'));
+	const bool hex = (text.size() >= 2 && text[0] == '0' && oneof2(text[1], 'x', 'X'));
 	return hex ? 16 : 10;
 }
 

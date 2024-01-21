@@ -1,5 +1,5 @@
 // SPROCESS.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -14,6 +14,8 @@
 #include <iostream>
 #include <dsgetdc.h>
 #include <Lm.h>
+
+// #include <..\SLib\subprocess\subprocess.h> // @v11.9.3 @experimental
 
 typedef HRESULT (WINAPI * FN_CREATEAPPCONTAINERPROFILE)(PCWSTR, PCWSTR, PCWSTR, PSID_AND_ATTRIBUTES, DWORD, PSID *); // Userenv.dll:CreateAppContainerProfile
 typedef HRESULT (WINAPI * FN_DERIVEAPPCONTAINERSIDFROMAPPCONTAINERNAME)(PCWSTR, PSID *); // Userenv.dll:DeriveAppContainerSidFromAppContainerName
@@ -456,7 +458,7 @@ bool SlProcess::SetAppContainer(AppContainer * pAppC)
 bool SlProcess::SetFlags(uint flags)
 {
 	bool  ok = true;
-	// @todo Необходимо проверить переданные с аргументов флаги на непротиворечивость.
+	// @todo Необходимо проверить переданные с аргументом флаги на непротиворечивость.
 	// Например, internal-флаги не должны передаваться (их надо игнорировать).
 	Flags |= flags;
 	return ok;
@@ -742,9 +744,60 @@ static const LAssoc CreateProcessFlagsAssoc[] = {
 
 int __ParseWindowsUserForDomain(const wchar_t * pUserIn, SStringU & rUserName, SStringU & rDomainName); // @prototype(winprofile.cpp)
 
+bool subprocess_create_named_pipe_helper(void ** ppRd, void ** ppWr) 
+{
+	bool   ok = true;
+	SIntHandle h_rd;
+	SIntHandle h_wr;
+	const ulong pipeAccessInbound = 0x00000001;
+	const ulong fileFlagOverlapped = 0x40000000;
+	const ulong pipeTypeByte = 0x00000000;
+	const ulong pipeWait = 0x00000000;
+	const ulong genericWrite = 0x40000000;
+	const ulong openExisting = 3;
+	const ulong fileAttributeNormal = 0x00000080;
+	//struct subprocess_security_attributes_s saAttr = {sizeof(saAttr), nullptr, 1};
+	SECURITY_ATTRIBUTES sa_pipe;
+	MEMSZERO(sa_pipe);
+	sa_pipe.nLength = sizeof(sa_pipe);
+	sa_pipe.bInheritHandle = TRUE;
+	//char name[256] = {0};
+	//static subprocess_tls long index = 0;
+	//const long unique = index++;
+	SString uniq_pipe_name;
+	uniq_pipe_name.Cat("\\\\.\\pipe").SetLastSlash().Cat("slib_subprocess").CatChar('-').Cat(S_GUID(SCtrGenerate_), S_GUID::fmtPlain);
+/*
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	#pragma warning(push, 1)
+	#pragma warning(disable : 4996)
+	_snprintf(name, sizeof(name) - 1, "\\\\.\\pipe\\sheredom_subprocess_h.%08lx.%08lx.%ld", GetCurrentProcessId(), GetCurrentThreadId(), unique);
+	#pragma warning(pop)
+#else
+	snprintf(name, sizeof(name) - 1, "\\\\.\\pipe\\sheredom_subprocess_h.%08lx.%08lx.%ld", GetCurrentProcessId(), GetCurrentThreadId(), unique);
+#endif
+*/
+	h_rd = CreateNamedPipeA(uniq_pipe_name, pipeAccessInbound|fileFlagOverlapped, pipeTypeByte | pipeWait, 1, 4096, 4096, 0, &sa_pipe);
+	THROW(h_rd); // @todo @err
+	h_wr = CreateFileA(uniq_pipe_name, genericWrite, 0, &sa_pipe, openExisting, fileAttributeNormal, nullptr);
+	THROW(h_wr);
+	ASSIGN_PTR(ppRd, h_rd);
+	ASSIGN_PTR(ppWr, h_wr);
+	CATCH
+		if(h_rd.IsValid())
+			::CloseHandle(h_rd);
+		if(h_wr.IsValid())
+			::CloseHandle(h_wr);
+		ok = false;
+	ENDCATCH
+	return ok;
+}
+
 int SlProcess::Run(SlProcess::Result * pResult)
 {
 	int    ok = 0;
+	FILE * f_captured_stdin  = 0; // @v11.9.3
+	FILE * f_captured_stdout = 0; // @v11.9.3
+	FILE * f_captured_stderr = 0; // @v11.9.3
 	THROW(Path.NotEmpty()); // @todo @err
 	{
 		/*
@@ -838,7 +891,75 @@ int SlProcess::Run(SlProcess::Result * pResult)
 			else {
 				startup_info.StartupInfo.cb = sizeof(STARTUPINFOW);
 			}
-			//
+			// @v11.9.3 @construction {
+			{
+				SECURITY_ATTRIBUTES sa_pipe;
+				MEMSZERO(sa_pipe);
+				sa_pipe.nLength = sizeof(sa_pipe);
+				sa_pipe.bInheritHandle = TRUE;
+				if(Flags & fCaptureStdIn) {
+					void * rd;
+					void * wr;
+					THROW(::CreatePipe(&rd, &wr, &sa_pipe, 0)); // @todo @err
+					THROW(::SetHandleInformation(wr, HANDLE_FLAG_INHERIT, 0)); // @todo @err
+					{
+						int fd = _open_osfhandle(reinterpret_cast<intptr_t>(wr), 0);
+						if(fd != -1) {
+							f_captured_stdin = _fdopen(fd, "wb");
+							THROW(f_captured_stdin); // @todo @err
+						}
+						startup_info.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
+						startup_info.StartupInfo.hStdInput = rd;
+					}
+				}
+				if(Flags & fCaptureStdOut) {
+					void * rd;
+					void * wr;
+					if(Flags & fCaptureReadAsync) {
+						THROW(subprocess_create_named_pipe_helper(&rd, &wr));
+					}
+					else {
+						THROW(::CreatePipe(&rd, &wr, &sa_pipe, 0)); // @todo @err
+					}
+					THROW(::SetHandleInformation(rd, HANDLE_FLAG_INHERIT, 0)); // @todo @err
+					{
+						int fd = _open_osfhandle(reinterpret_cast<intptr_t>(rd), 0);
+						if(fd != -1) {
+							f_captured_stdout = _fdopen(fd, "rb");
+							THROW(f_captured_stdout); // @todo @err
+						}
+						startup_info.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
+						startup_info.StartupInfo.hStdOutput = wr;
+					}
+				}
+				if(Flags & fCaptureStdErr) {
+					void * rd;
+					void * wr;
+					if(Flags & fCombinedStdErrStdOut) {
+						f_captured_stderr = f_captured_stdout;
+						startup_info.StartupInfo.hStdError = startup_info.StartupInfo.hStdOutput;
+					}
+					else {
+						if(Flags & fCaptureReadAsync) {
+							THROW(subprocess_create_named_pipe_helper(&rd, &wr));
+						}
+						else {
+							THROW(::CreatePipe(&rd, &wr, &sa_pipe, 0)); // @todo @err
+						}
+						THROW(::SetHandleInformation(rd, HANDLE_FLAG_INHERIT, 0)); // @todo @err
+						{
+							int fd = _open_osfhandle(reinterpret_cast<intptr_t>(rd), 0);
+							if(fd != -1) {
+								f_captured_stderr = _fdopen(fd, "rb");
+								THROW(f_captured_stderr); // @todo @err
+							}
+							startup_info.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
+							startup_info.StartupInfo.hStdError = wr;
+						}
+					}
+				}
+			}
+			// } @v11.9.3
 			enum {
 				runprocessmAsUser = 1,
 				runprocessmWithToken,
@@ -925,12 +1046,32 @@ int SlProcess::Run(SlProcess::Result * pResult)
 				pResult->HThread = prc_info.hThread;
 				pResult->ProcessId = prc_info.dwProcessId;
 				pResult->ThreadId = prc_info.dwThreadId;
+				pResult->F_StdIn = f_captured_stdin;
+				f_captured_stdin = 0;
+				pResult->F_StdOut = f_captured_stdout;
+				f_captured_stdout = 0;
+				pResult->F_StdErr = f_captured_stderr;
+				f_captured_stderr = 0;
 			}
 			ok = 1;
 		}
 	}
 	CATCHZOK
+	SFile::ZClose(&f_captured_stdin);
+	SFile::ZClose(&f_captured_stdout);
+	SFile::ZClose(&f_captured_stderr);
 	return ok;
+}
+
+SlProcess::Result::Result() : ProcessId(0), ThreadId(0), F_StdIn(0), F_StdOut(0), F_StdErr(0)
+{
+}
+		
+SlProcess::Result::~Result()
+{
+	SFile::ZClose(&F_StdIn);
+	SFile::ZClose(&F_StdOut);
+	SFile::ZClose(&F_StdErr);
 }
 
 SlProcess::AppContainer::AppContainer()

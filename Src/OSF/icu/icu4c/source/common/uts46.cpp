@@ -556,7 +556,7 @@ int32_t UTS46::mapDevChars(UnicodeString & dest, int32_t labelStart, int32_t map
 	}
 	int32_t length = dest.length();
 	char16_t * s = dest.getBuffer(dest[mappingStart]==0xdf ? length+1 : length);
-	if(s==NULL) {
+	if(!s) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return length;
 	}
@@ -575,7 +575,7 @@ int32_t UTS46::mapDevChars(UnicodeString & dest, int32_t labelStart, int32_t map
 				    if(length==capacity) {
 					    dest.releaseBuffer(length);
 					    s = dest.getBuffer(length+1);
-					    if(s==NULL) {
+					    if(!s) {
 						    errorCode = U_MEMORY_ALLOCATION_ERROR;
 						    return length;
 					    }

@@ -35,14 +35,11 @@ int64 SecondsPer100Years(int year)
 // after.
 int64 SecondsPer4Years(int year) 
 {
-	if((year % 100 == 0 || year % 100 > 96) &&
-	    !(year % 400 == 0 || year % 400 > 396)) {
-		// No leap years.
-		return kSecondsPerDay * (4 * 365);
+	if((year % 100 == 0 || year % 100 > 96) && !(year % 400 == 0 || year % 400 > 396)) {
+		return kSecondsPerDay * (4 * 365); // No leap years.
 	}
 	else {
-		// One leap years.
-		return kSecondsPerDay * (4 * 365 + 1);
+		return kSecondsPerDay * (4 * 365 + 1); // One leap years.
 	}
 }
 
@@ -156,7 +153,8 @@ const char* ParseInt(const char* data, int width, int min_value,
 
 // Consumes the fractional parts of a second into nanos. For example,
 // "010" will be parsed to 10000000 nanos.
-const char* ParseNanos(const char* data, int32* nanos) {
+const char* ParseNanos(const char* data, int32* nanos) 
+{
 	if(!ascii_isdigit(*data)) {
 		return nullptr;
 	}
@@ -179,7 +177,8 @@ const char* ParseNanos(const char* data, int32* nanos) {
 	return data;
 }
 
-const char* ParseTimezoneOffset(const char* data, int64* offset) {
+const char* ParseTimezoneOffset(const char* data, int64* offset) 
+{
 	// Accept format "HH:MM". E.g., "08:00"
 	int hour;
 	if((data = ParseInt(data, 2, 0, 23, &hour)) == nullptr) {

@@ -28,6 +28,59 @@
 	],
 	"colorset_list": [
 		{
+			"symb": "papyrus_style",
+			"button_bg": "#DCD9D1",
+			"button_sel_bg": "#BABAC9",
+			"button_border": "$icon_reg",
+			"button_def_border": "#green",
+			"button_focus_border": "#orange",
+			"button_sel_border": "#orange",
+			"button_disabled_border": "#white",
+			"button_fg": "#black",
+			"button_disabled_fg": "#white",
+			"icon_reg": "#52E4C0",
+			"icon_alert": "#DD1C1A",
+			"icon_accent": "#2A9D8F",
+			"icon_passive": "#FFF1D0",
+			"invalidinput_bg": "#crimson",
+			"invalidinput2_bg": "#ff9900",
+			"invalidinput3_bg": "#ff33cc",
+			"list_bg": "#white",
+			"list_border": "#white",
+			"list_focus_bg": "#0066cc",
+			"list_focus_border": "#0066cc",
+			"list_sel_bg": "#a2d2ff",
+			"list_sel_border": "#0066cc",
+			"grid_title":      "#D6D3CE",
+			"grid_titledelim": "#909090",
+			"grid_bg":         "#white", 
+			"grid_fg":         "#black",
+			"grid_curcell_bg": "#808080", 
+			"grid_curcell_fg": "#white", 
+			"grid_curline_bg": "#C0C0C0", 
+			"grid_curline_fg": "#black",
+			"grid_gridhorz":   "#C0C0C0", 
+			"grid_gridvert":   "#909090",
+			"ccheck_junk_bg": "#orange",
+			"ccheck_junk_fg": "#black",
+			"ccheck_imported_bg": "#palegreen",
+			"ccheck_imported_fg": "#black",
+			"ccheck_suspended_bg": "#yellow",
+			"ccheck_suspended_fg": "#black",
+			"ccheckitem_gift_bg": "#green",
+			"ccheckitem_gift_fg": "#black",
+			"ccheckitem_grouped_bg": "#lightgrey",
+			"ccheckitem_grouped_fg": "#black",
+			"ccheckitem_printed_bg": "#FCD5B4",
+			"ccheckitem_printed_fg": "#black",
+			"ccheckitem_partofcomplex_bg": "#D7E4BC",
+			"ccheckitem_partofcomplex_fg": "#black",
+			"ccheckitem_fixedprice_bg": "#cadetblue",
+			"ccheckitem_fixedprice_fg": "#black",
+			"barcode_preferred_bg": "#green",
+			"barcode_preferred_fg": "#white"
+		},	
+		{
 			"symb": "imgui-style",
 			"Substrat": "#1E2228",
 			"TextPrimary": "#white",
@@ -253,6 +306,7 @@
 			"children": [
 				{
 					"id": 10008,
+					"symb": "MenuBlock",
 					"size": "256, 100%",
 					"alignitems": "stretch",
 					"alignself": "auto",
@@ -263,6 +317,7 @@
 				},
 				{
 					"id": 10009,
+					"symb": "MainGroup",
 					"flags": "vertical",
 					"size": "100%, 100%",
 					"justifycontent": "start",
@@ -276,6 +331,7 @@
 					"children": [
 						{
 							"id": 10016,
+							"symb": "SessionInfo",
 							"size": "undef, 128",
 							"alignitems": "stretch",
 							"alignself": "auto",
@@ -608,7 +664,87 @@
 						},
 						{
 							"id": 10010,
+							"symb": "LoginBlock",
 							"size": "400, 200",
+							"margin": "8",
+							"alignitems": "center",
+							"alignself": "auto",
+							"shrinkfactor": 1
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": 8,
+			"symb": "screenAdmin",
+			"flags": "vertical",
+			"size": "",
+			"justifycontent": "start",
+			"aligncontent": "end",
+			"alignitems": "center",
+			"alignself": "auto",
+			"shrinkfactor": 1,
+			"children": [
+				{
+					"id": 10027,
+					"symb": "Toolbar",
+					"size": "100%, 64",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "top",
+					"shrinkfactor": 1
+				},
+				{
+					"flags": "horizontal wrap",
+					"size": "100%, undef",
+					"justifycontent": "start",
+					"aligncontent": "stretch",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "bottom",
+					"growfactor": 1,
+					"shrinkfactor": 1,
+					"children": [
+						{
+							"flags": "vertical wrap",
+							"size": "undef, 100%",
+							"margin": "8",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"gravityx": "center",
+							"gravityy": "center",
+							"growfactor": 1,
+							"shrinkfactor": 1,
+							"children": [
+								{
+									"id": 10026,
+									"symb": "logo",
+									"size": "100%, undef",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"gravityx": "center",
+									"gravityy": "center",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								},
+								{
+									"size": "undef, undef",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"gravityx": "center",
+									"gravityy": "center",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								}
+							]
+						},
+						{
+							"id": 10028,
+							"symb": "AdminCtrlGroup",
+							"size": "600, 400",
 							"margin": "8",
 							"alignitems": "center",
 							"alignself": "auto",

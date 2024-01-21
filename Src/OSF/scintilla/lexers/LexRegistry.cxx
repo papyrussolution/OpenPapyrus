@@ -274,9 +274,7 @@ void SCI_METHOD LexerRegistry::Lex(Sci_PositionU startPos,
 					    context.SetState(SCE_REG_STRING_GUID);
 				    }
 			    }
-			    if(context.state == SCE_REG_STRING &&
-				    context.ch == '%' &&
-				    (isdec(context.chNext) || context.chNext == '*')) {
+			    if(context.state == SCE_REG_STRING && context.ch == '%' && (isdec(context.chNext) || context.chNext == '*')) {
 				    context.SetState(SCE_REG_PARAMETER);
 			    }
 		    }

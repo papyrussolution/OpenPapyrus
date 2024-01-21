@@ -146,10 +146,7 @@ static int GetTEHexAddressFieldType(Sci_PositionU recStartPos, Accessor & styler
 static int GetTEHexChecksum(Sci_PositionU recStartPos, Accessor & styler);
 static int CalcTEHexChecksum(Sci_PositionU recStartPos, Accessor & styler);
 
-static bool FASTCALL IsNewline(const int ch)
-{
-	return (ch == '\n' || ch == '\r');
-}
+static bool FASTCALL IsNewline(const int ch) { return (ch == '\n' || ch == '\r'); }
 
 static int FASTCALL GetHexaNibble(char hd)
 {

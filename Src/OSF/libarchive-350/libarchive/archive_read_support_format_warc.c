@@ -36,24 +36,15 @@ __FBSDID("$FreeBSD$");
 
 typedef enum {
 	WT_NONE,
-	/* warcinfo */
-	WT_INFO,
-	/* metadata */
-	WT_META,
-	/* resource */
-	WT_RSRC,
-	/* request, unsupported */
-	WT_REQ,
-	/* response, unsupported */
-	WT_RSP,
-	/* revisit, unsupported */
-	WT_RVIS,
-	/* conversion, unsupported */
-	WT_CONV,
-	/* continuation, unsupported at the moment */
-	WT_CONT,
-	/* invalid type */
-	LAST_WT
+	WT_INFO, /* warcinfo */
+	WT_META, /* metadata */
+	WT_RSRC, /* resource */
+	WT_REQ, /* request, unsupported */
+	WT_RSP, /* response, unsupported */
+	WT_RVIS, /* revisit, unsupported */
+	WT_CONV, /* conversion, unsupported */
+	WT_CONT, /* continuation, unsupported at the moment */
+	LAST_WT /* invalid type */
 } warc_type_t;
 
 typedef struct {
@@ -433,10 +424,7 @@ static int strtoi_lim(const char * str, const char ** ep, int llim, int ulim)
 	const char * sp;
 	/* we keep track of the number of digits via rulim */
 	int rulim;
-
-	for(sp = str, rulim = ulim > 10 ? ulim : 10;
-	    res * 10 <= ulim && rulim && *sp >= '0' && *sp <= '9';
-	    sp++, rulim /= 10) {
+	for(sp = str, rulim = ulim > 10 ? ulim : 10; res * 10 <= ulim && rulim && isdec(*sp); sp++, rulim /= 10) {
 		res *= 10;
 		res += *sp - '0';
 	}
@@ -463,14 +451,8 @@ static time_t time_from_tm(struct tm * t)
 	if(mktime(t) == (time_t)-1)
 		return ((time_t)-1);
 	/* Then we can compute timegm() from first principles. */
-	return (t->tm_sec
-	       + t->tm_min * 60
-	       + t->tm_hour * 3600
-	       + t->tm_yday * 86400
-	       + (t->tm_year - 70) * 31536000
-	       + ((t->tm_year - 69) / 4) * 86400
-	       - ((t->tm_year - 1) / 100) * 86400
-	       + ((t->tm_year + 299) / 400) * 86400);
+	return (t->tm_sec + t->tm_min * 60 + t->tm_hour * 3600 + t->tm_yday * 86400 + (t->tm_year - 70) * 31536000 + 
+		((t->tm_year - 69) / 4) * 86400 - ((t->tm_year - 1) / 100) * 86400 + ((t->tm_year + 299) / 400) * 86400);
 #endif
 }
 
@@ -530,18 +512,15 @@ static uint _warc_rdver(const char * buf, size_t bsz)
 	const char * c;
 	uint ver = 0U;
 	uint end = 0U;
-
 	if(bsz < 12 || memcmp(buf, magic, sizeof(magic) - 1U) != 0) {
 		/* buffer too small or invalid magic */
 		return ver;
 	}
 	/* looks good so far, read the version number for a laugh */
 	buf += sizeof(magic) - 1U;
-
-	if(isdigit((uchar)buf[0U]) && (buf[1U] == '.') &&
-	    isdigit((uchar)buf[2U])) {
+	if(isdec((uchar)buf[0U]) && (buf[1U] == '.') && isdec((uchar)buf[2U])) {
 		/* we support a maximum of 2 digits in the minor version */
-		if(isdigit((uchar)buf[3U]))
+		if(isdec((uchar)buf[3U]))
 			end = 1U;
 		/* set up major version */
 		ver = (buf[0U] - '0') * 10000U;
@@ -676,7 +655,7 @@ static ssize_t _warc_rdlen(const char * buf, size_t bsz)
 	while(val < eol && (*val == ' ' || *val == '\t'))
 		val++;
 	/* there must be at least one digit */
-	if(!isdigit((uchar)*val))
+	if(!isdec((uchar)*val))
 		return -1;
 	errno = 0;
 	len = strtol(val, &on, 10);

@@ -404,7 +404,7 @@ static int archive_read_format_cpio_skip(ArchiveRead * a)
 static int is_hex(const char * p, size_t len)
 {
 	while(len-- > 0) {
-		if((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
+		if(ishex(*p))
 			++p;
 		else
 			return 0;
@@ -792,12 +792,8 @@ static int64 atol16(const char * p, uint char_cnt)
 	int digit;
 	int64 l = 0;
 	while(char_cnt-- > 0) {
-		if(*p >= 'a' && *p <= 'f')
-			digit = *p - 'a' + 10;
-		else if(*p >= 'A' && *p <= 'F')
-			digit = *p - 'A' + 10;
-		else if(*p >= '0' && *p <= '9')
-			digit = *p - '0';
+		if(ishex(*p))
+			digit = hex(*p);
 		else
 			return (l);
 		p++;

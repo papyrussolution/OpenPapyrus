@@ -526,9 +526,8 @@ CordRepBtree* CordRepBtree::NewLeaf<kFront>(absl::string_view data,
 	return leaf;
 }
 
-template <>
-absl::string_view CordRepBtree::AddData<kBack>(absl::string_view data,
-    size_t extra) {
+template <> absl::string_view CordRepBtree::AddData<kBack>(absl::string_view data, size_t extra) 
+{
 	assert(!data.empty());
 	assert(size() < capacity());
 	AlignBegin();
@@ -543,9 +542,8 @@ absl::string_view CordRepBtree::AddData<kBack>(absl::string_view data,
 	return data;
 }
 
-template <>
-absl::string_view CordRepBtree::AddData<kFront>(absl::string_view data,
-    size_t extra) {
+template <> absl::string_view CordRepBtree::AddData<kFront>(absl::string_view data, size_t extra) 
+{
 	assert(!data.empty());
 	assert(size() < capacity());
 	AlignEnd();
@@ -559,11 +557,10 @@ absl::string_view CordRepBtree::AddData<kFront>(absl::string_view data,
 	return data;
 }
 
-template <EdgeType edge_type>
-CordRepBtree* CordRepBtree::AddData(CordRepBtree* tree, absl::string_view data,
-    size_t extra) {
-	if(ABSL_PREDICT_FALSE(data.empty())) return tree;
-
+template <EdgeType edge_type> CordRepBtree* CordRepBtree::AddData(CordRepBtree* tree, absl::string_view data, size_t extra) 
+{
+	if(ABSL_PREDICT_FALSE(data.empty())) 
+		return tree;
 	const size_t original_data_size = data.size();
 	int depth = tree->height();
 	StackOperations<edge_type> ops;

@@ -151,93 +151,40 @@ const int8_t kAsciiToInt[256] = {
 };
 
 // Returns true if `ch` is a digit in the given base
-template <int base>
-bool IsDigit(char ch);
+template <int base> bool IsDigit(char ch);
 
 // Converts a valid `ch` to its digit value in the given base.
-template <int base>
-unsigned ToDigit(char ch);
+template <int base> unsigned ToDigit(char ch);
 
 // Returns true if `ch` is the exponent delimiter for the given base.
-template <int base>
-bool IsExponentCharacter(char ch);
+template <int base> bool IsExponentCharacter(char ch);
 
 // Returns the maximum number of significant digits we will read for a float
 // in the given base.
-template <int base>
-constexpr int MantissaDigitsMax();
+template <int base> constexpr int MantissaDigitsMax();
 
 // Returns the largest consecutive run of digits we will accept when parsing a
 // number in the given base.
-template <int base>
-constexpr int DigitLimit();
+template <int base> constexpr int DigitLimit();
 
 // Returns the amount the exponent must be adjusted by for each dropped digit.
 // (For decimal this is 1, since the digits are in base 10 and the exponent base
 // is also 10, but for hexadecimal this is 4, since the digits are base 16 but
 // the exponent base is 2.)
-template <int base>
-constexpr int DigitMagnitude();
+template <int base> constexpr int DigitMagnitude();
 
-template <>
-bool IsDigit<10>(char ch) {
-	return ch >= '0' && ch <= '9';
-}
-
-template <>
-bool IsDigit<16>(char ch) {
-	return kAsciiToInt[static_cast<unsigned char>(ch)] >= 0;
-}
-
-template <>
-unsigned ToDigit<10>(char ch) {
-	return static_cast<unsigned>(ch - '0');
-}
-
-template <>
-unsigned ToDigit<16>(char ch) {
-	return static_cast<unsigned>(kAsciiToInt[static_cast<unsigned char>(ch)]);
-}
-
-template <>
-bool IsExponentCharacter<10>(char ch) {
-	return ch == 'e' || ch == 'E';
-}
-
-template <>
-bool IsExponentCharacter<16>(char ch) {
-	return ch == 'p' || ch == 'P';
-}
-
-template <>
-constexpr int MantissaDigitsMax<10>() {
-	return kDecimalMantissaDigitsMax;
-}
-
-template <>
-constexpr int MantissaDigitsMax<16>() {
-	return kHexadecimalMantissaDigitsMax;
-}
-
-template <>
-constexpr int DigitLimit<10>() {
-	return kDecimalDigitLimit;
-}
-
-template <>
-constexpr int DigitLimit<16>() {
-	return kHexadecimalDigitLimit;
-}
-
-template <>
-constexpr int DigitMagnitude<10>() {
-	return 1;
-}
-
-template <>
-constexpr int DigitMagnitude<16>() {
-	return 4;
-}
+template <> bool IsDigit<10>(char ch) { return ch >= '0' && ch <= '9'; }
+template <> bool IsDigit<16>(char ch) { return kAsciiToInt[static_cast<unsigned char>(ch)] >= 0; }
+template <> unsigned ToDigit<10>(char ch) { return static_cast<unsigned>(ch - '0'); }
+template <> unsigned ToDigit<16>(char ch) { return static_cast<unsigned>(kAsciiToInt[static_cast<unsigned char>(ch)]); }
+template <> bool IsExponentCharacter<10>(char ch) { return ch == 'e' || ch == 'E'; }
+template <> bool IsExponentCharacter<16>(char ch) { return ch == 'p' || ch == 'P'; }
+template <> constexpr int MantissaDigitsMax<10>() { return kDecimalMantissaDigitsMax; }
+template <> constexpr int MantissaDigitsMax<16>() { return kHexadecimalMantissaDigitsMax; }
+template <> constexpr int DigitLimit<10>() { return kDecimalDigitLimit; }
+template <> constexpr int DigitLimit<16>() { return kHexadecimalDigitLimit; }
+template <> constexpr int DigitMagnitude<10>() { return 1; }
+template <> constexpr int DigitMagnitude<16>() { return 4; }
 
 // Reads decimal digits from [begin, end) into *out.  Returns the number of
 // digits consumed.
@@ -293,15 +240,15 @@ int ConsumeDigits(const char* begin, const char* end, int max_digits, T* out,
 
 // Returns true if `v` is one of the chars allowed inside parentheses following
 // a NaN.
-bool IsNanChar(char v) {
-	return (v == '_') || (v >= '0' && v <= '9') || (v >= 'a' && v <= 'z') ||
-	       (v >= 'A' && v <= 'Z');
+bool IsNanChar(char v) 
+{
+	return (v == '_') || (v >= '0' && v <= '9') || (v >= 'a' && v <= 'z') || (v >= 'A' && v <= 'Z');
 }
 
 // Checks the range [begin, end) for a strtod()-formatted infinity or NaN.  If
 // one is found, sets `out` appropriately and returns true.
-bool ParseInfinityOrNan(const char* begin, const char* end,
-    strings_internal::ParsedFloat* out) {
+bool ParseInfinityOrNan(const char* begin, const char* end, strings_internal::ParsedFloat* out) 
+{
 	if(end - begin < 3) {
 		return false;
 	}

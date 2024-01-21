@@ -5326,7 +5326,7 @@ namespace NArchive {
 			const uint64 inSizeStart = GetInputProcessedSize();
 			uint64 offset = 0;
 			while(StreamPos < pos) {
-				size_t size = (size_t)MyMin(pos - StreamPos, (uint64)Buffer.Size());
+				size_t size = (size_t)smin(pos - StreamPos, (uint64)Buffer.Size());
 				RINOK(Read(Buffer, &size));
 				if(size == 0)
 					return S_FALSE;
@@ -5375,7 +5375,7 @@ namespace NArchive {
 					CALLPTRMEMB(outBuf, Alloc(size));
 					uint64 offset = 0;
 					while(size > 0) {
-						uint32 curSize = (uint32)MyMin((size_t)size, Buffer.Size());
+						uint32 curSize = (uint32)smin((size_t)size, Buffer.Size());
 						uint32 processedSize;
 						RINOK(InputStream->Read(Buffer, curSize, &processedSize));
 						if(processedSize == 0)

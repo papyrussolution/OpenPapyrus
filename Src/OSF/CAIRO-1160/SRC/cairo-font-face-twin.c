@@ -142,8 +142,7 @@ static boolint field_matches(const char * s1, const char * s2, int len)
 {
 	int c1, c2;
 	while(len && *s1 && *s2) {
-#define TOLOWER(c) \
-	(((c) >= 'A' && (c) <= 'Z') ? (c) - 'A' + 'a' : (c))
+#define TOLOWER(c) (((c) >= 'A' && (c) <= 'Z') ? (c) - 'A' + 'a' : (c))
 		c1 = TOLOWER(*s1);
 		c2 = TOLOWER(*s2);
 		if(c1 != c2) {

@@ -105,22 +105,21 @@ static int archive_compressor_zstd_free(struct archive_write_filter * f)
 	return ARCHIVE_OK;
 }
 
-static int string_is_numeric(const char* value)
+static int string_is_numeric(const char * value)
 {
-	size_t len = strlen(value);
+	size_t len = sstrlen(value);
 	size_t i;
 	if(!len) {
 		return ARCHIVE_WARN;
 	}
-	else if(len == 1 && !(value[0] >= '0' && value[0] <= '9')) {
+	else if(len == 1 && !isdec(value[0])) {
 		return ARCHIVE_WARN;
 	}
-	else if(!(value[0] >= '0' && value[0] <= '9') &&
-	    value[0] != '-' && value[0] != '+') {
+	else if(!isdec(value[0]) && value[0] != '-' && value[0] != '+') {
 		return ARCHIVE_WARN;
 	}
 	for(i = 1; i < len; i++) {
-		if(!(value[i] >= '0' && value[i] <= '9')) {
+		if(!isdec(value[i])) {
 			return ARCHIVE_WARN;
 		}
 	}

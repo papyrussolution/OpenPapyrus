@@ -159,7 +159,7 @@ static int read_body_to_string(ArchiveRead *, struct tar *, archive_string *, co
 static int solaris_sparse_parse(ArchiveRead *, struct tar *, ArchiveEntry *, const char *);
 static int64  tar_atol256(const char *, size_t);
 static int    tar_read_header(ArchiveRead *, struct tar *, ArchiveEntry *, size_t *);
-static int    tohex(int c);
+static int    tohex(int c) { return ishex(c) ? hex(c) : -1; }
 static char * url_decode(const char *);
 static void   tar_flush_unconsumed(ArchiveRead *, size_t *);
 // 
@@ -363,8 +363,7 @@ static int archive_read_format_tar_bid(ArchiveRead * a, int best_bid)
 	if((memcmp(header->magic, "ustar ", 6) == 0) && (memcmp(header->version, " \0", 2) == 0))
 		bid += 56;
 	/* Type flag must be null, digit or A-Z, a-z. */
-	if(header->typeflag[0] != 0 && !( header->typeflag[0] >= '0' && header->typeflag[0] <= '9') &&
-	    !( header->typeflag[0] >= 'A' && header->typeflag[0] <= 'Z') && !( header->typeflag[0] >= 'a' && header->typeflag[0] <= 'z'))
+	if(header->typeflag[0] != 0 && !isdec(header->typeflag[0]) && !isasciialpha(header->typeflag[0]))
 		return 0;
 	bid += 2; /* 6 bits of variation in an 8-bit field leaves 2 bits. */
 	/*
@@ -1415,7 +1414,7 @@ static int pax_header(ArchiveRead * a, struct tar * tar, ArchiveEntry * entry, a
 				l--;
 				break;
 			}
-			if(*p < '0' || *p > '9') {
+			if(!isdec(*p)) {
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Ignoring malformed pax extended attributes");
 				return ARCHIVE_WARN;
 			}
@@ -1880,10 +1879,9 @@ static void pax_time(const char * p, int64 * ps, long * pn)
 		sign = -1;
 		p++;
 	}
-	while(*p >= '0' && *p <= '9') {
+	while(isdec(*p)) {
 		digit = *p - '0';
-		if(s > limit ||
-		    (s == limit && digit > last_digit_limit)) {
+		if(s > limit || (s == limit && digit > last_digit_limit)) {
 			s = INT64_MAX;
 			break;
 		}
@@ -1898,7 +1896,7 @@ static void pax_time(const char * p, int64 * ps, long * pn)
 	l = 100000000UL;
 	do {
 		++p;
-		if(*p >= '0' && *p <= '9')
+		if(isdec(*p))
 			*pn += (*p - '0') * l;
 		else
 			break;
@@ -2103,7 +2101,6 @@ static int gnu_sparse_old_parse(ArchiveRead * a, struct tar * tar, const struct 
  * importantly, the sparse data was lost when extracted by archivers
  * that didn't recognize this extension.
  */
-
 static int gnu_sparse_01_parse(ArchiveRead * a, struct tar * tar, const char * p)
 {
 	int64 offset = -1;
@@ -2111,7 +2108,7 @@ static int gnu_sparse_01_parse(ArchiveRead * a, struct tar * tar, const char * p
 	for(;;) {
 		const char * e = p;
 		while(*e != '\0' && *e != ',') {
-			if(*e < '0' || *e > '9')
+			if(!isdec(*e))
 				return ARCHIVE_WARN;
 			e++;
 		}
@@ -2260,7 +2257,7 @@ static int solaris_sparse_parse(ArchiveRead * a, struct tar * tar, ArchiveEntry 
 	for(;;) {
 		e = p;
 		while(*e != '\0' && *e != ' ') {
-			if(*e < '0' || *e > '9')
+			if(!isdec(*e))
 				return ARCHIVE_WARN;
 			e++;
 		}
@@ -2269,8 +2266,7 @@ static int solaris_sparse_parse(ArchiveRead * a, struct tar * tar, ArchiveEntry 
 		if(end < 0)
 			return ARCHIVE_WARN;
 		if(start < end) {
-			if(gnu_add_sparse_entry(a, tar, start,
-			    end - start) != ARCHIVE_OK)
+			if(gnu_add_sparse_entry(a, tar, start, end - start) != ARCHIVE_OK)
 				return ARCHIVE_FATAL;
 			tar->sparse_last->hole = hole;
 		}
@@ -2499,14 +2495,3 @@ static char * url_decode(const char * in)
 	return (out);
 }
 
-static int tohex(int c)
-{
-	if(c >= '0' && c <= '9')
-		return (c - '0');
-	else if(c >= 'A' && c <= 'F')
-		return (c - 'A' + 10);
-	else if(c >= 'a' && c <= 'f')
-		return (c - 'a' + 10);
-	else
-		return -1;
-}

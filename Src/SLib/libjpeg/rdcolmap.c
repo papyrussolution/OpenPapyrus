@@ -124,10 +124,10 @@ LOCAL(uint) read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
 		if(ch == EOF)
 			ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
 	} while(ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
-	if(ch < '0' || ch > '9')
+	if(!isdec(ch))
 		ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
 	val = ch - '0';
-	while((ch = pbm_getc(infile)) >= '0' && ch <= '9') {
+	while(isdec(ch = pbm_getc(infile))) {
 		val *= 10;
 		val += ch - '0';
 	}

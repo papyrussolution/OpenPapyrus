@@ -2505,7 +2505,7 @@ int CheckCorrAcc(const char * pCode, const char * pBic)
 		int    r = 1;
 		size_t i;
 		for(i = 0; r && i < len; i++) {
-			if(pCode[i] < '0' || pCode[i] > '9')
+			if(!isdec(pCode[i]))
 				r = 0;
 		}
 		if(r) {
@@ -2540,7 +2540,7 @@ int CheckBnkAcc(const char * pCode, const char * pBic)
 		int    r = 1;
 		size_t i;
 		for(i = 0; r && i < len; i++) {
-			if(pCode[i] < '0' || pCode[i] > '9')
+			if(!isdec(pCode[i]))
 				r = 0;
 		}
 		if(r) {
@@ -2638,7 +2638,7 @@ int CheckINN(const char * pCode)
 	if(len) {
 		int    r = 1;
 		for(i = 0; r && i < len; i++) {
-			if(pCode[i] < '0' || pCode[i] > '9')
+			if(!isdec(pCode[i]))
 				r = 0;
 		}
 		if(r) {

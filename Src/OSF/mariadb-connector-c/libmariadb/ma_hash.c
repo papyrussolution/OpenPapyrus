@@ -138,13 +138,11 @@ static uint calc_hashnr_caseup(const uchar * key, uint length)
  * Glenn Fowler (gsf@research.att.com).  Landon Curt Noll (chongo@toad.com)
  * later improved on their algorithm.
  *
- * The magic is in the interesting relationship between the special prime
- * 16777619 (2^24 + 403) and 2^32 and 2^8.
+ * The magic is in the interesting relationship between the special prime 16777619 (2^24 + 403) and 2^32 and 2^8.
  *
  * This hash produces the fewest collisions of any function that we've seen so
  * far, and works well on both numbers and strings.
  */
-
 uint calc_hashnr(const uchar * key, uint len)
 {
 	const uchar * end = key+len;

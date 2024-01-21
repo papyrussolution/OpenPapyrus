@@ -221,10 +221,10 @@ static ngx_int_t ngx_http_slice_parse_content_range(ngx_http_request_t * r, ngx_
 	while(*p == ' ') {
 		p++;
 	}
-	if(*p < '0' || *p > '9') {
+	if(!isdec(*p)) {
 		return NGX_ERROR;
 	}
-	while(*p >= '0' && *p <= '9') {
+	while(isdec(*p)) {
 		if(start >= cutoff && (start > cutoff || *p - '0' > cutlim)) {
 			return NGX_ERROR;
 		}
@@ -239,10 +239,10 @@ static ngx_int_t ngx_http_slice_parse_content_range(ngx_http_request_t * r, ngx_
 	while(*p == ' ') {
 		p++;
 	}
-	if(*p < '0' || *p > '9') {
+	if(!isdec(*p)) {
 		return NGX_ERROR;
 	}
-	while(*p >= '0' && *p <= '9') {
+	while(isdec(*p)) {
 		if(end >= cutoff && (end > cutoff || *p - '0' > cutlim)) {
 			return NGX_ERROR;
 		}
@@ -259,10 +259,10 @@ static ngx_int_t ngx_http_slice_parse_content_range(ngx_http_request_t * r, ngx_
 		p++;
 	}
 	if(*p != '*') {
-		if(*p < '0' || *p > '9') {
+		if(!isdec(*p)) {
 			return NGX_ERROR;
 		}
-		while(*p >= '0' && *p <= '9') {
+		while(isdec(*p)) {
 			if(complete_length >= cutoff && (complete_length > cutoff || *p - '0' > cutlim)) {
 				return NGX_ERROR;
 			}
@@ -363,20 +363,15 @@ static nginx_off_t ngx_http_slice_get_start(ngx_http_request_t * r)
 	if(*p == '-') {
 		return 0;
 	}
-
 	cutoff = NGX_MAX_OFF_T_VALUE / 10;
 	cutlim = NGX_MAX_OFF_T_VALUE % 10;
-
 	start = 0;
-
-	while(*p >= '0' && *p <= '9') {
+	while(isdec(*p)) {
 		if(start >= cutoff && (start > cutoff || *p - '0' > cutlim)) {
 			return 0;
 		}
-
 		start = start * 10 + (*p++ - '0');
 	}
-
 	return start;
 }
 

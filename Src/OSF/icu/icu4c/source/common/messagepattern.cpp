@@ -950,14 +950,13 @@ void MessagePattern::parseDouble(int32_t start, int32_t limit, bool allowInfinit
 				}
 			}
 			// try to parse the number as a small integer but fall back to a double
-			while('0'<=c && c<='9') {
+			while(isdec(c)) {
 				value = value*10+(c-'0');
 				if(value>(Part::MAX_VALUE+isNegative)) {
 					break; // not a small-enough integer
 				}
 				if(index==limit) {
-					addPart(UMSGPAT_PART_TYPE_ARG_INT, start, limit-start,
-						isNegative!=0 ? -value : value, errorCode);
+					addPart(UMSGPAT_PART_TYPE_ARG_INT, start, limit-start, isNegative!=0 ? -value : value, errorCode);
 					return;
 				}
 				c = msg.charAt(index++);

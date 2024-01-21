@@ -97,12 +97,12 @@ time_t FASTCALL ngx_parse_http_time(const uchar * value, size_t len)
 		if(*p == ' ') {
 			p++;
 		}
-		if(*p < '0' || *p > '9') {
+		if(!isdec(*p)) {
 			return NGX_ERROR;
 		}
 		day = *p++ - '0';
 		if(*p != ' ') {
-			if(*p < '0' || *p > '9') {
+			if(!isdec(*p)) {
 				return NGX_ERROR;
 			}
 			day = day * 10 + (*p++ - '0');

@@ -200,7 +200,7 @@ static ngx_uint_t ngx_http_browser(ngx_http_request_t * r, ngx_http_browser_conf
 			scale = 1000000;
 			while(name < last) {
 				c = *name++;
-				if(c >= '0' && c <= '9') {
+				if(isdec(c)) {
 					ver = ver * 10 + (c - '0');
 					continue;
 				}
@@ -396,7 +396,7 @@ found:
 	scale = 1000000;
 	for(i = 0; i < value[2].len; i++) {
 		c = value[2].data[i];
-		if(c >= '0' && c <= '9') {
+		if(isdec(c)) {
 			ver = ver * 10 + (c - '0');
 			continue;
 		}

@@ -179,7 +179,7 @@ int number_lat(int gbdata[], int length, int position)
 	int    sp = position;
 	do {
 		done = 0;
-		if((gbdata[sp] >= '0') && (gbdata[sp] <= '9')) {
+		if(isdec(gbdata[sp])) {
 			numb++;
 			done = 1;
 		}
@@ -193,7 +193,7 @@ int number_lat(int gbdata[], int length, int position)
 			    done = 1;
 		}
 		if((sp + 1) < length) {
-			if((gbdata[sp] == 0x13) && (gbdata[sp + 1] == 0x10)) {
+			if((gbdata[sp] == 0x13) && (gbdata[sp+1] == 0x10)) {
 				nonum++;
 				done = 1;
 				sp++;
@@ -225,7 +225,6 @@ int number_lat(int gbdata[], int length, int position)
 	if(numb == 0) {
 		tally += 80;
 	}
-
 	if(numb > 1) {
 		if(nonum == 0) {
 			tally += 10;
@@ -237,7 +236,6 @@ int number_lat(int gbdata[], int length, int position)
 			tally += 80;
 		}
 	}
-
 	return tally;
 }
 
@@ -252,11 +250,9 @@ int seek_forward(int gbdata[], int length, int position, int current_mode)
 	int sp, best_mode, done;
 	int best_count, last = -1;
 	int debug = 0;
-
 	if(gbdata[position] > 0xff) {
 		return GM_CHINESE;
 	}
-
 	switch(current_mode) {
 		case GM_CHINESE:
 		    number_count = 13;
@@ -314,10 +310,8 @@ int seek_forward(int gbdata[], int length, int position, int current_mode)
 		    lower_count = 4;
 		    chinese_count = 4;
 	}
-
 	for(sp = position; (sp < length) && (sp <= (position + 8)); sp++) {
 		done = 0;
-
 		if(gbdata[sp] >= 0xff) {
 			byte_count += 17;
 			mixed_count += 23;
@@ -326,8 +320,7 @@ int seek_forward(int gbdata[], int length, int position, int current_mode)
 			chinese_count += 13;
 			done = 1;
 		}
-
-		if((gbdata[sp] >= 'a') && (gbdata[sp] <= 'z')) {
+		if(isasciilwr(gbdata[sp])) {
 			byte_count += 8;
 			mixed_count += 6;
 			upper_count += 10;
@@ -335,8 +328,7 @@ int seek_forward(int gbdata[], int length, int position, int current_mode)
 			chinese_count += 13;
 			done = 1;
 		}
-
-		if((gbdata[sp] >= 'A') && (gbdata[sp] <= 'Z')) {
+		if(isasciiupr(gbdata[sp])) {
 			byte_count += 8;
 			mixed_count += 6;
 			upper_count += 5;
@@ -344,8 +336,7 @@ int seek_forward(int gbdata[], int length, int position, int current_mode)
 			chinese_count += 13;
 			done = 1;
 		}
-
-		if((gbdata[sp] >= '0') && (gbdata[sp] <= '9')) {
+		if(isdec(gbdata[sp])) {
 			byte_count += 8;
 			mixed_count += 6;
 			upper_count += 8;
@@ -353,7 +344,6 @@ int seek_forward(int gbdata[], int length, int position, int current_mode)
 			chinese_count += 13;
 			done = 1;
 		}
-
 		if(gbdata[sp] == ' ') {
 			byte_count += 8;
 			mixed_count += 6;
@@ -362,7 +352,6 @@ int seek_forward(int gbdata[], int length, int position, int current_mode)
 			chinese_count += 13;
 			done = 1;
 		}
-
 		if(done == 0) {
 			/* Control character */
 			byte_count += 8;
@@ -371,113 +360,80 @@ int seek_forward(int gbdata[], int length, int position, int current_mode)
 			lower_count += 13;
 			chinese_count += 13;
 		}
-
 		if(gbdata[sp] >= 0x7f) {
 			mixed_count += 20;
 			upper_count += 20;
 			lower_count += 20;
 		}
 	}
-
 	/* Adjust for <end of line> */
 	for(sp = position; (sp < (length - 1)) && (sp <= (position + 7)); sp++) {
-		if((gbdata[sp] == 0x13) && (gbdata[sp + 1] == 0x10)) {
+		if((gbdata[sp] == 0x13) && (gbdata[sp+1] == 0x10)) {
 			chinese_count -= 13;
 		}
 	}
-
 	/* Adjust for double digits */
 	for(sp = position; (sp < (length - 1)) && (sp <= (position + 7)); sp++) {
 		if(sp != last) {
-			if(((gbdata[sp] >= '0') && (gbdata[sp] <= '9')) && ((gbdata[sp + 1] >= '0') && (gbdata[sp + 1] <= '9'))) {
+			if(isdec(gbdata[sp]) && isdec(gbdata[sp+1])) {
 				chinese_count -= 13;
 				last = sp + 1;
 			}
 		}
 	}
-
 	/* Numeric mode is more complex */
 	number_count += number_lat(gbdata, length, position);
-
 	if(debug) {
-		printf("C %d / B %d / M %d / U %d / L %d / N %d\n",
-		    chinese_count,
-		    byte_count,
-		    mixed_count,
-		    upper_count,
-		    lower_count,
-		    number_count);
+		printf("C %d / B %d / M %d / U %d / L %d / N %d\n", chinese_count, byte_count, mixed_count, upper_count, lower_count, number_count);
 	}
-
 	best_count = chinese_count;
 	best_mode = GM_CHINESE;
-
 	if(byte_count <= best_count) {
 		best_count = byte_count;
 		best_mode = GM_BYTE;
 	}
-
 	if(mixed_count <= best_count) {
 		best_count = mixed_count;
 		best_mode = GM_MIXED;
 	}
-
 	if(upper_count <= best_count) {
 		best_count = upper_count;
 		best_mode = GM_UPPER;
 	}
-
 	if(lower_count <= best_count) {
 		best_count = lower_count;
 		best_mode = GM_LOWER;
 	}
-
 	if(number_count <= best_count) {
 		best_count = number_count;
 		best_mode = GM_NUMBER;
 	}
-
 	return best_mode;
 }
 
 /* Add the length indicator for byte encoded blocks */
 static void add_byte_count(char binary[], const size_t byte_count_posn, const int byte_count)
 {
-	int p;
-
-	for(p = 0; p < 8; p++) {
-		if(byte_count & (0x100 >> p)) {
-			binary[byte_count_posn + p] = '0';
-		}
-		else {
-			binary[byte_count_posn + p] = '1';
-		}
+	for(uint p = 0; p < 8; p++) {
+		binary[byte_count_posn+p] = (byte_count & (0x100 >> p)) ? '0' : '1';
 	}
 }
 
 /* Add a control character to the data stream */
 void add_shift_char(char binary[], int shifty)
 {
-	int i, p, debug = 0;
+	int debug = 0;
 	int glyph = 0;
-
-	for(i = 0; i < 64; i++) {
+	for(int i = 0; i < 64; i++) {
 		if(shift_set[i] == shifty) {
 			glyph = i;
 		}
 	}
-
 	if(debug) {
 		printf("SHIFT [%d] ", glyph);
 	}
-
-	for(p = 0; p < 6; p++) {
-		if(glyph & (0x20 >> p)) {
-			strcat(binary, "1");
-		}
-		else {
-			strcat(binary, "0");
-		}
+	for(uint p = 0; p < 6; p++) {
+		strcat(binary, (glyph & (0x20 >> p)) ? "1" : "0");
 	}
 }
 
@@ -493,119 +449,85 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 	size_t number_pad_posn, byte_count_posn = 0;
 	int byte_count = 0, debug = 0;
 	int shift, i;
-
 	sstrcpy(binary, "");
-
 	sp = 0;
 	current_mode = 0;
 	last_mode = 0;
 	number_pad_posn = 0;
-
 	if(reader) {
 		strcat(binary, "1010"); /* FNC3 - Reader Initialisation */
 	}
-
 	if(eci != 3) {
 		strcat(binary, "11000"); /* ECI */
 		for(q = 0; q < 10; q++) {
-			if(eci & (0x100 >> q)) {
-				strcat(binary, "1");
-			}
-			else {
-				strcat(binary, "0");
-			}
+			strcat(binary, (eci & (0x100 >> q)) ? "1" : "0");
 		}
 	}
-
 	do {
 		next_mode = seek_forward(gbdata, length, sp, current_mode);
-
 		if(next_mode != current_mode) {
 			switch(current_mode) {
 				case 0:
 				    switch(next_mode) {
-					    case GM_CHINESE: strcat(binary, "0001");
-						break;
-					    case GM_NUMBER: strcat(binary, "0010");
-						break;
-					    case GM_LOWER: strcat(binary, "0011");
-						break;
-					    case GM_UPPER: strcat(binary, "0100");
-						break;
-					    case GM_MIXED: strcat(binary, "0101");
-						break;
-					    case GM_BYTE: strcat(binary, "0111");
-						break;
+					    case GM_CHINESE: strcat(binary, "0001"); break;
+					    case GM_NUMBER: strcat(binary, "0010"); break;
+					    case GM_LOWER: strcat(binary, "0011"); break;
+					    case GM_UPPER: strcat(binary, "0100"); break;
+					    case GM_MIXED: strcat(binary, "0101"); break;
+					    case GM_BYTE: strcat(binary, "0111"); break;
 				    }
 				    break;
 				case GM_CHINESE:
 				    switch(next_mode) {
-					    case GM_NUMBER: strcat(binary, "1111111100001");
-						break; // 8161
-					    case GM_LOWER: strcat(binary, "1111111100010");
-						break; // 8162
-					    case GM_UPPER: strcat(binary, "1111111100011");
-						break; // 8163
-					    case GM_MIXED: strcat(binary, "1111111100100");
-						break; // 8164
-					    case GM_BYTE: strcat(binary, "1111111100101");
-						break; // 8165
+					    case GM_NUMBER: strcat(binary, "1111111100001"); break; // 8161
+					    case GM_LOWER: strcat(binary, "1111111100010"); break; // 8162
+					    case GM_UPPER: strcat(binary, "1111111100011"); break; // 8163
+					    case GM_MIXED: strcat(binary, "1111111100100"); break; // 8164
+					    case GM_BYTE: strcat(binary, "1111111100101"); break; // 8165
 				    }
 				    break;
 				case GM_NUMBER:
 				    /* add numeric block padding value */
 				    switch(p) {
-					    case 1: binary[number_pad_posn] = '1';
-						binary[number_pad_posn + 1] = '0';
-						break; // 2 pad digits
-					    case 2: binary[number_pad_posn] = '0';
-						binary[number_pad_posn + 1] = '1';
-						break; // 1 pad digit
-					    case 3: binary[number_pad_posn] = '0';
-						binary[number_pad_posn + 1] = '0';
-						break; // 0 pad digits
+					    case 1: 
+							binary[number_pad_posn] = '1';
+							binary[number_pad_posn + 1] = '0';
+							break; // 2 pad digits
+					    case 2: 
+							binary[number_pad_posn] = '0';
+							binary[number_pad_posn + 1] = '1';
+							break; // 1 pad digit
+					    case 3: 
+							binary[number_pad_posn] = '0';
+							binary[number_pad_posn + 1] = '0';
+							break; // 0 pad digits
 				    }
 				    switch(next_mode) {
-					    case GM_CHINESE: strcat(binary, "1111111011");
-						break; // 1019
-					    case GM_LOWER: strcat(binary, "1111111100");
-						break; // 1020
-					    case GM_UPPER: strcat(binary, "1111111101");
-						break; // 1021
-					    case GM_MIXED: strcat(binary, "1111111110");
-						break; // 1022
-					    case GM_BYTE: strcat(binary, "1111111111");
-						break; // 1023
+					    case GM_CHINESE: strcat(binary, "1111111011"); break; // 1019
+					    case GM_LOWER: strcat(binary, "1111111100"); break; // 1020
+					    case GM_UPPER: strcat(binary, "1111111101"); break; // 1021
+					    case GM_MIXED: strcat(binary, "1111111110"); break; // 1022
+					    case GM_BYTE: strcat(binary, "1111111111"); break; // 1023
 				    }
 				    break;
 				case GM_LOWER:
 				case GM_UPPER:
 				    switch(next_mode) {
-					    case GM_CHINESE: strcat(binary, "11100");
-						break; // 28
-					    case GM_NUMBER: strcat(binary, "11101");
-						break; // 29
+					    case GM_CHINESE: strcat(binary, "11100"); break; // 28
+					    case GM_NUMBER: strcat(binary, "11101"); break; // 29
 					    case GM_LOWER:
-					    case GM_UPPER: strcat(binary, "11110");
-						break; // 30
-					    case GM_MIXED: strcat(binary, "1111100");
-						break; // 124
-					    case GM_BYTE: strcat(binary, "1111110");
-						break; // 126
+					    case GM_UPPER: strcat(binary, "11110"); break; // 30
+					    case GM_MIXED: strcat(binary, "1111100"); break; // 124
+					    case GM_BYTE: strcat(binary, "1111110"); break; // 126
 				    }
 				    break;
 				case GM_MIXED:
 				    switch(next_mode) {
-					    case GM_CHINESE: strcat(binary, "1111110001");
-						break; // 1009
-					    case GM_NUMBER: strcat(binary, "1111110010");
-						break; // 1010
-					    case GM_LOWER: strcat(binary, "1111110011");
-						break; // 1011
-					    case GM_UPPER: strcat(binary, "1111110100");
-						break; // 1012
-					    case GM_BYTE: strcat(binary, "1111110111");
-						break; // 1015
+					    case GM_CHINESE: strcat(binary, "1111110001"); break; // 1009
+					    case GM_NUMBER: strcat(binary, "1111110010"); break; // 1010
+					    case GM_LOWER: strcat(binary, "1111110011"); break; // 1011
+					    case GM_UPPER: strcat(binary, "1111110100"); break; // 1012
+					    case GM_BYTE: strcat(binary, "1111110111"); break; // 1015
 				    }
 				    break;
 				case GM_BYTE:
@@ -613,39 +535,27 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 				    add_byte_count(binary, byte_count_posn, byte_count);
 				    byte_count = 0;
 				    switch(next_mode) {
-					    case GM_CHINESE: strcat(binary, "0001");
-						break; // 1
-					    case GM_NUMBER: strcat(binary, "0010");
-						break; // 2
-					    case GM_LOWER: strcat(binary, "0011");
-						break; // 3
-					    case GM_UPPER: strcat(binary, "0100");
-						break; // 4
-					    case GM_MIXED: strcat(binary, "0101");
-						break; // 5
+					    case GM_CHINESE: strcat(binary, "0001"); break; // 1
+					    case GM_NUMBER: strcat(binary, "0010"); break; // 2
+					    case GM_LOWER: strcat(binary, "0011"); break; // 3
+					    case GM_UPPER: strcat(binary, "0100"); break; // 4
+					    case GM_MIXED: strcat(binary, "0101"); break; // 5
 				    }
 				    break;
 			}
 			if(debug) {
 				switch(next_mode) {
-					case GM_CHINESE: printf("CHIN ");
-					    break;
-					case GM_NUMBER: printf("NUMB ");
-					    break;
-					case GM_LOWER: printf("LOWR ");
-					    break;
-					case GM_UPPER: printf("UPPR ");
-					    break;
-					case GM_MIXED: printf("MIXD ");
-					    break;
-					case GM_BYTE: printf("BYTE ");
-					    break;
+					case GM_CHINESE: printf("CHIN "); break;
+					case GM_NUMBER: printf("NUMB "); break;
+					case GM_LOWER: printf("LOWR "); break;
+					case GM_UPPER: printf("UPPR "); break;
+					case GM_MIXED: printf("MIXD "); break;
+					case GM_BYTE: printf("BYTE "); break;
 				}
 			}
 		}
 		last_mode = current_mode;
 		current_mode = next_mode;
-
 		switch(current_mode) {
 			case GM_CHINESE:
 			    done = 0;
@@ -653,7 +563,6 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 				    /* GB2312 character */
 				    c1 = (gbdata[sp] & 0xff00) >> 8;
 				    c2 = gbdata[sp] & 0xff;
-
 				    if((c1 >= 0xa0) && (c1 <= 0xa9)) {
 					    glyph = (0x60 * (c1 - 0xa1)) + (c2 - 0xa0);
 				    }
@@ -664,7 +573,7 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 			    }
 			    if(!(done)) {
 				    if(sp != (length - 1)) {
-					    if((gbdata[sp] == 0x13) && (gbdata[sp + 1] == 0x10)) {
+					    if((gbdata[sp] == 0x13) && (gbdata[sp+1] == 0x10)) {
 						    /* End of Line */
 						    glyph = 7776;
 						    sp++;
@@ -674,10 +583,9 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 			    }
 			    if(!(done)) {
 				    if(sp != (length - 1)) {
-					    if(((gbdata[sp] >= '0') && (gbdata[sp] <= '9')) &&
-					    ((gbdata[sp + 1] >= '0') && (gbdata[sp + 1] <= '9'))) {
+					    if(isdec(gbdata[sp]) && isdec(gbdata[sp+1])) {
 						    /* Two digits */
-						    glyph = 8033 + (10 * (gbdata[sp] - '0')) + (gbdata[sp + 1] - '0');
+						    glyph = 8033 + (10 * (gbdata[sp] - '0')) + (gbdata[sp+1] - '0');
 						    sp++;
 					    }
 				    }
@@ -690,16 +598,10 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 				    printf("[%d] ", glyph);
 			    }
 			    for(q = 0; q < 13; q++) {
-				    if(glyph & (0x1000 >> q)) {
-					    strcat(binary, "1");
-				    }
-				    else {
-					    strcat(binary, "0");
-				    }
+				    strcat(binary, (glyph & (0x1000 >> q)) ? "1" : "0");
 			    }
 			    sp++;
 			    break;
-
 			case GM_NUMBER:
 			    if(last_mode != current_mode) {
 				    /* Reserve a space for numeric digit padding value (2 bits) */
@@ -708,18 +610,13 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 			    }
 			    p = 0;
 			    ppos = -1;
-
-			    /* Numeric compression can also include certain combinations of
-			       non-numeric character */
-
+			    /* Numeric compression can also include certain combinations of non-numeric character */
 			    numbuf[0] = '0';
 			    numbuf[1] = '0';
 			    numbuf[2] = '0';
 			    do {
-				    if((gbdata[sp] >= '0') && (gbdata[sp] <= '9')) {
-					    numbuf[p] = gbdata[sp];
-					    sp++;
-					    p++;
+				    if(isdec(gbdata[sp])) {
+					    numbuf[p++] = gbdata[sp++];
 				    }
 				    switch(gbdata[sp]) {
 					    case ' ':
@@ -727,13 +624,12 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 					    case '-':
 					    case '.':
 					    case ',':
-						punt = gbdata[sp];
-						sp++;
-						ppos = p;
-						break;
+							punt = gbdata[sp++];
+							ppos = p;
+							break;
 				    }
 				    if(sp < (length - 1)) {
-					    if((gbdata[sp] == 0x13) && (gbdata[sp + 1] == 0x10)) {
+					    if((gbdata[sp] == 0x13) && (gbdata[sp+1] == 0x10)) {
 						    /* <end of line> */
 						    punt = gbdata[sp];
 						    sp += 2;
@@ -752,36 +648,21 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 				    }
 				    glyph += ppos;
 				    glyph += 1000;
-
 				    if(debug) {
 					    printf("[%d] ", glyph);
 				    }
-
 				    for(q = 0; q < 10; q++) {
-					    if(glyph & (0x200 >> q)) {
-						    strcat(binary, "1");
-					    }
-					    else {
-						    strcat(binary, "0");
-					    }
+					    strcat(binary, (glyph & (0x200 >> q)) ? "1" : "0");
 				    }
 			    }
-
 			    glyph = (100 * (numbuf[0] - '0')) + (10 * (numbuf[1] - '0')) + (numbuf[2] - '0');
 			    if(debug) {
 				    printf("[%d] ", glyph);
 			    }
-
 			    for(q = 0; q < 10; q++) {
-				    if(glyph & (0x200 >> q)) {
-					    strcat(binary, "1");
-				    }
-				    else {
-					    strcat(binary, "0");
-				    }
+				    strcat(binary, (glyph & (0x200 >> q)) ? "1" : "0");
 			    }
 			    break;
-
 			case GM_BYTE:
 			    if(last_mode != current_mode) {
 				    /* Reserve space for byte block length indicator (9 bits) */
@@ -796,26 +677,19 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 				    strcat(binary, "LLLLLLLLL");
 				    byte_count = 0;
 			    }
-
 			    glyph = gbdata[sp];
 			    if(debug) {
 				    printf("[%d] ", glyph);
 			    }
 			    for(q = 0; q < 8; q++) {
-				    if(glyph & (0x80 >> q)) {
-					    strcat(binary, "1");
-				    }
-				    else {
-					    strcat(binary, "0");
-				    }
+				    strcat(binary, (glyph & (0x80 >> q)) ? "1" : "0");
 			    }
 			    sp++;
 			    byte_count++;
 			    break;
-
 			case GM_MIXED:
 			    shift = 1;
-			    if((gbdata[sp] >= '0') && (gbdata[sp] <= '9')) {
+			    if(isdec(gbdata[sp])) {
 				    shift = 0;
 			    }
 			    if((gbdata[sp] >= 'A') && (gbdata[sp] <= 'Z')) {
@@ -827,21 +701,14 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 			    if(gbdata[sp] == ' ') {
 				    shift = 0;
 			    }
-
 			    if(shift == 0) {
 				    /* Mixed Mode character */
 				    glyph = posn(EUROPIUM, gbdata[sp]);
 				    if(debug) {
 					    printf("[%d] ", glyph);
 				    }
-
 				    for(q = 0; q < 6; q++) {
-					    if(glyph & (0x20 >> q)) {
-						    strcat(binary, "1");
-					    }
-					    else {
-						    strcat(binary, "0");
-					    }
+					    strcat(binary, (glyph & (0x20 >> q)) ? "1" : "0");
 				    }
 			    }
 			    else {
@@ -849,10 +716,8 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 				    strcat(binary, "1111110110"); /* 1014 - shift indicator */
 				    add_shift_char(binary, gbdata[sp]);
 			    }
-
 			    sp++;
 			    break;
-
 			case GM_UPPER:
 			    shift = 1;
 			    if((gbdata[sp] >= 'A') && (gbdata[sp] <= 'Z')) {
@@ -861,21 +726,14 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 			    if(gbdata[sp] == ' ') {
 				    shift = 0;
 			    }
-
 			    if(shift == 0) {
 				    /* Upper Case character */
 				    glyph = posn("ABCDEFGHIJKLMNOPQRSTUVWXYZ ", gbdata[sp]);
 				    if(debug) {
 					    printf("[%d] ", glyph);
 				    }
-
 				    for(q = 0; q < 5; q++) {
-					    if(glyph & (0x10 >> q)) {
-						    strcat(binary, "1");
-					    }
-					    else {
-						    strcat(binary, "0");
-					    }
+					    strcat(binary, (glyph & (0x10 >> q)) ? "1" : "0");
 				    }
 			    }
 			    else {
@@ -883,10 +741,8 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 				    strcat(binary, "1111101"); /* 127 - shift indicator */
 				    add_shift_char(binary, gbdata[sp]);
 			    }
-
 			    sp++;
 			    break;
-
 			case GM_LOWER:
 			    shift = 1;
 			    if((gbdata[sp] >= 'a') && (gbdata[sp] <= 'z')) {
@@ -895,21 +751,14 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 			    if(gbdata[sp] == ' ') {
 				    shift = 0;
 			    }
-
 			    if(shift == 0) {
 				    /* Lower Case character */
 				    glyph = posn("abcdefghijklmnopqrstuvwxyz ", gbdata[sp]);
 				    if(debug) {
 					    printf("[%d] ", glyph);
 				    }
-
 				    for(q = 0; q < 5; q++) {
-					    if(glyph & (0x10 >> q)) {
-						    strcat(binary, "1");
-					    }
-					    else {
-						    strcat(binary, "0");
-					    }
+					    strcat(binary, (glyph & (0x10 >> q)) ? "1" : "0");
 				    }
 			    }
 			    else {
@@ -917,7 +766,6 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 				    strcat(binary, "1111101"); /* 127 - shift indicator */
 				    add_shift_char(binary, gbdata[sp]);
 			    }
-
 			    sp++;
 			    break;
 		}
@@ -949,19 +797,13 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 
 	/* Add "end of data" character */
 	switch(current_mode) {
-		case GM_CHINESE: strcat(binary, "1111111100000");
-		    break; // 8160
-		case GM_NUMBER: strcat(binary, "1111111010");
-		    break; // 1018
+		case GM_CHINESE: strcat(binary, "1111111100000"); break; // 8160
+		case GM_NUMBER: strcat(binary, "1111111010"); break; // 1018
 		case GM_LOWER:
-		case GM_UPPER: strcat(binary, "11011");
-		    break; // 27
-		case GM_MIXED: strcat(binary, "1111110000");
-		    break; // 1008
-		case GM_BYTE: strcat(binary, "0000");
-		    break; // 0
+		case GM_UPPER: strcat(binary, "11011"); break; // 27
+		case GM_MIXED: strcat(binary, "1111110000"); break; // 1008
+		case GM_BYTE: strcat(binary, "0000"); break; // 0
 	}
-
 	/* Add padding bits if required */
 	p = 7 - (strlen(binary) % 7);
 	if(p == 7) {
@@ -970,7 +812,6 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 	for(i = 0; i < p; i++) {
 		strcat(binary, "0");
 	}
-
 	if(strlen(binary) > 9191) {
 		return ZINT_ERROR_TOO_LONG;
 	}
@@ -982,12 +823,11 @@ static void gm_add_ecc(const char binary[], const size_t data_posn, const int la
 	int    i, j, wp, p;
 	int    n1, b1, n2, b2, e1, b3, e2;
 	int    block_size, data_size, ecc_size;
-	int    data[1320], block[130];
+	int    data[1320];
+	int    block[130];
 	uchar  data_block[115], ecc_block[70];
 	int    data_cw = gm_data_codewords[((layers - 1) * 5) + (ecc_level - 1)];
-	for(i = 0; i < 1320; i++) {
-		data[i] = 0;
-	}
+	memzero(data, sizeof(data));
 	// Convert from binary sream to 7-bit codewords 
 	for(i = 0; i < (int)data_posn; i++) {
 		for(p = 0; p < 7; p++) {
@@ -999,12 +839,7 @@ static void gm_add_ecc(const char binary[], const size_t data_posn, const int la
 	// Add padding codewords 
 	data[data_posn] = 0x00;
 	for(i = (int)(data_posn + 1); i < data_cw; i++) {
-		if(i & 1) {
-			data[i] = 0x7e;
-		}
-		else {
-			data[i] = 0x00;
-		}
+		data[i] = (i & 1) ? 0x7e : 0x00;
 	}
 	// Get block sizes 
 	n1 = gm_n1[(layers - 1)];
@@ -1018,33 +853,18 @@ static void gm_add_ecc(const char binary[], const size_t data_posn, const int la
 	/* Split the data into blocks */
 	wp = 0;
 	for(i = 0; i < (b1 + b2); i++) {
-		if(i < b1) {
-			block_size = n1;
-		}
-		else {
-			block_size = n2;
-		}
-		if(i < b3) {
-			ecc_size = e1;
-		}
-		else {
-			ecc_size = e2;
-		}
+		block_size = (i < b1) ? n1 : n2;
+		ecc_size = (i < b3) ? e1 : e2;
 		data_size = block_size - ecc_size;
-
 		/* printf("block %d/%d: data %d / ecc %d\n", i + 1, (b1 + b2), data_size, ecc_size);*/
-
 		for(j = 0; j < data_size; j++) {
-			data_block[j] = data[wp];
-			wp++;
+			data_block[j] = data[wp++];
 		}
-
 		/* Calculate ECC data for this block */
 		rs_init_gf(0x89);
 		rs_init_code(ecc_size, 1);
 		rs_encode(data_size, data_block, ecc_block);
 		rs_free();
-
 		/* Correct error correction data but in reverse order */
 		for(j = 0; j < data_size; j++) {
 			block[j] = data_block[j];
@@ -1052,7 +872,6 @@ static void gm_add_ecc(const char binary[], const size_t data_posn, const int la
 		for(j = 0; j < ecc_size; j++) {
 			block[(j + data_size)] = ecc_block[ecc_size - j - 1];
 		}
-
 		for(j = 0; j < n2; j++) {
 			word[((b1 + b2) * j) + i] = block[j];
 		}
@@ -1064,11 +883,8 @@ static void gm_add_ecc(const char binary[], const size_t data_posn, const int la
 
 void place_macromodule(char grid[], int x, int y, int word1, int word2, int size)
 {
-	int i, j;
-
-	i = (x * 6) + 1;
-	j = (y * 6) + 1;
-
+	const int i = (x * 6) + 1;
+	const int j = (y * 6) + 1;
 	if(word2 & 0x40) {
 		grid[(j * size) + i + 2] = '1';
 	}
@@ -1115,12 +931,10 @@ void place_macromodule(char grid[], int x, int y, int word1, int word2, int size
 
 void place_data_in_grid(int word[], char grid[], int modules, int size)
 {
-	int x, y, macromodule, offset;
-
-	offset = 13 - ((modules - 1) / 2);
-	for(y = 0; y < modules; y++) {
-		for(x = 0; x < modules; x++) {
-			macromodule = gm_macro_matrix[((y + offset) * 27) + (x + offset)];
+	const int offset = 13 - ((modules - 1) / 2);
+	for(int y = 0; y < modules; y++) {
+		for(int x = 0; x < modules; x++) {
+			int macromodule = gm_macro_matrix[((y + offset) * 27) + (x + offset)];
 			place_macromodule(grid, x, y, word[macromodule * 2], word[(macromodule * 2) + 1], size);
 		}
 	}
@@ -1130,7 +944,6 @@ void place_data_in_grid(int word[], char grid[], int modules, int size)
 void place_layer_id(char* grid, int size, int layers, int modules, int ecc_level)
 {
 	int i, j, layer, start, stop;
-
 #ifndef _MSC_VER
 	int layerid[layers + 1];
 	int id[modules * modules];
@@ -1138,7 +951,6 @@ void place_layer_id(char* grid, int size, int layers, int modules, int ecc_level
 	int* layerid = (int *)_alloca((layers + 1) * sizeof(int));
 	int* id = (int *)_alloca((modules * modules) * sizeof(int));
 #endif
-
 	/* Calculate Layer IDs */
 	for(i = 0; i <= layers; i++) {
 		if(ecc_level == 1) {
@@ -1148,13 +960,11 @@ void place_layer_id(char* grid, int size, int layers, int modules, int ecc_level
 			layerid[i] = (i + 5 - ecc_level) % 4;
 		}
 	}
-
 	for(i = 0; i < modules; i++) {
 		for(j = 0; j < modules; j++) {
 			id[(i * modules) + j] = 0;
 		}
 	}
-
 	/* Calculate which value goes in each macromodule */
 	start = modules / 2;
 	stop = modules / 2;
@@ -1168,7 +978,6 @@ void place_layer_id(char* grid, int size, int layers, int modules, int ecc_level
 		start--;
 		stop++;
 	}
-
 	/* Place the data in the grid */
 	for(i = 0; i < modules; i++) {
 		for(j = 0; j < modules; j++) {
@@ -1321,16 +1130,13 @@ int grid_matrix(struct ZintSymbol * symbol, const uchar source[], int length)
 		case 4: data_max = 875; break;
 		case 5: data_max = 729; break;
 	}
-
 	if(data_cw > data_max) {
 		sstrcpy(symbol->errtxt, "Input data too long (E32)");
 		return ZINT_ERROR_TOO_LONG;
 	}
-
 	gm_add_ecc(binary, data_cw, layers, ecc_level, word);
 	size = 6 + (layers * 12);
 	modules = 1 + (layers * 2);
-
 #ifndef _MSC_VER
 	char grid[size * size];
 #else
@@ -1375,4 +1181,3 @@ int grid_matrix(struct ZintSymbol * symbol, const uchar source[], int length)
 	}
 	return 0;
 }
-

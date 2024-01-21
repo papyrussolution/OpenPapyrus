@@ -70,13 +70,13 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 				    // simple case...
 				    styler.ColourTo(i, SCE_CONF_OPERATOR);
 			    }
-			    else if(IsASCII(ch) && isalpha(ch)) {
+			    else if(isasciialpha(ch)) {
 				    // signals the start of an identifier
 				    bufferCount = 0;
 				    buffer[bufferCount++] = static_cast<char>(tolower(ch));
 				    state = SCE_CONF_IDENTIFIER;
 			    }
-			    else if(IsASCII(ch) && isdec(ch)) {
+			    else if(isdec(ch)) {
 				    // signals the start of a number
 				    bufferCount = 0;
 				    buffer[bufferCount++] = ch;

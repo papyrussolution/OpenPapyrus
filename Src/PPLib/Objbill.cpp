@@ -1,5 +1,5 @@
 // OBJBILL.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -936,7 +936,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 		double cc_amount = 0.0;
 		double dscnt = 0.0;
 		cp.Rec.SessID = cur_sess_id;
-		cp.Rec.CashID = rParam.PosNodeID;
+		cp.Rec.PosNodeID = rParam.PosNodeID;
 		/*{
 			long  code = 1;
 			CCheckTbl::Rec last_cc_rec;
@@ -3192,7 +3192,7 @@ int PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const PPLot
 			while(*p) {
 				if(isdec(*p))
 					*c++ = *p++;
-				else if(strnicmp(p, (char *)&sGR, 3) == 0) {
+				else if(strnicmp(p, (const char *)&sGR, 3) == 0) {
 					if(GObj.Fetch(goodsID, &goods_rec) > 0) {
 						if(GObj.GetSingleBarcode(goods_rec.ParentID, code) > 0) {
 							code.ShiftLeftChr('@').Strip();
@@ -3201,12 +3201,12 @@ int PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const PPLot
 						p += 3;
 					}
 				}
-				else if(strnicmp(p, (char *)&sGS, 3) == 0) {
+				else if(strnicmp(p, (const char *)&sGS, 3) == 0) {
 					if(GObj.GetSingleBarcode(goodsID, code) > 0)
 						c += sstrlen(strcpy(c, code.Strip()));
 					p += 3;
 				}
-				else if(strnicmp(p, (char *)&sBN, 3) == 0) {
+				else if(strnicmp(p, (const char *)&sBN, 3) == 0) {
 					c += sstrlen(strcpy(c, (code = pBillCode).Strip()));
 					p += 3;
 				}
@@ -7227,21 +7227,13 @@ int PPObjBill::ProcessShadowPacket(PPBillPacket * pPack, int doUpdate)
 		if(r > 0) {
 			PPBillPacket shadow;
 			while((r = pPack->CreateShadowPacket(&shadow)) > 0) {
-				/* @v9.5.3
-				if(shadow.Rec.ID == 0)
-					update = 0;
-				THROW(update ? UpdatePacket(&shadow, 0) : TurnPacket(&shadow, 0));
-				*/
-				// @v9.5.3 {
 				if(doUpdate && shadow.Rec.ID) {
 					THROW(UpdatePacket(&shadow, 0));
 				}
 				else {
 					THROW(TurnPacket(&shadow, 0));
 				}
-				// } @v9.5.3
-				new_shadow_bills.add(shadow.Rec.ID); // @v9.5.3
-				// @v9.5.3 old_shadow_bills.freeByKey(shadow.Rec.ID, 0);
+				new_shadow_bills.add(shadow.Rec.ID);
 				THROW_SL(orders.addUnique(shadow.Rec.Object));
 			}
 			THROW(r);
@@ -7807,7 +7799,7 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 		if(pPack->IsDraft()) {
 			if(P_CpTrfr) {
 				SString clb;
-				const int zero_rbybill = (pPack->ProcessFlags & PPBillPacket::pfForceRByBill) ? 0 : 1;
+				const bool zero_rbybill = !(pPack->ProcessFlags & PPBillPacket::pfForceRByBill);
 				for(i = 0; pPack->EnumTItems(&i, &pti);) {
 					pPack->ErrLine = i-1;
 					CpTrfrExt cte;
@@ -7832,8 +7824,7 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 			}
 		}
 		else {
-			const int zero_rbybill = ((pPack->ProcessFlags & PPBillPacket::pfForeignSync &&
-				pPack->Rec.Flags2 & BILLF2_FULLSYNC) || (pPack->ProcessFlags & PPBillPacket::pfForceRByBill)) ? 0 : 1;
+			const bool zero_rbybill = !((pPack->ProcessFlags & PPBillPacket::pfForeignSync && pPack->Rec.Flags2 & BILLF2_FULLSYNC) || (pPack->ProcessFlags & PPBillPacket::pfForceRByBill));
 			for(i = 0; pPack->EnumTItems(&i, &pti);) {
 				PPID   ac_link_lot_id = 0;
 				pPack->ErrLine = i-1;
@@ -8007,6 +7998,16 @@ int PPObjBill::RemoveTransferItem(PPID billID, int rByBill, int force)
 	CATCHZOK
 	return ok;
 }
+//
+// Descr: Элемент списка измененных привязок сертификатов к лотам. 
+//   Нужен для фиксации системного события для информирования об изменения сертификатов.
+//
+struct QCertUpdLinkEntry { // @flat @v11.9.3
+	int    RByBill;
+	PPID   LotID;
+	PPID   OrgQcID;
+	PPID   NewQcID;
+};
 
 int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 {
@@ -8023,6 +8024,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	ObjVersioningCore * p_ovc = p_ref->P_OvT;
 	const  PPID  id = pPack->Rec.ID;
 	TBlock tb_;
+	TSVector <QCertUpdLinkEntry> qc_upd_link_list; // @v11.9.3
 	PPIDArray added_lot_items; // Список позиций товарных строк с признаком
 		// PPTFR_RECEIPT, которые были добавлены. Нобходим для корректной очистки после ошибки.
 	PPIDArray _debug_org_ord_bill_list; // @v9.5.2 @debug Список документов заказов, к которым до изменения был привязан данный документ
@@ -8121,8 +8123,8 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		pPack->ErrCause = PPBillPacket::err_on_line;
 		if(!(pPack->Rec.Flags & BILLF_NOLOADTRFR)) {
 			PPIDArray not_changed_lines;
-			const int zero_rbybill = (pPack->ProcessFlags & PPBillPacket::pfForeignSync && pPack->Rec.Flags2 & BILLF2_FULLSYNC) ? 0 : 1;
-			const int full_update = (org.ID != id || (org.Object != pPack->Rec.Object && IsIntrOp(org.OpID))) ? 1 : 0;
+			const bool zero_rbybill = !(pPack->ProcessFlags & PPBillPacket::pfForeignSync && pPack->Rec.Flags2 & BILLF2_FULLSYNC);
+			const bool full_update = (org.ID != id || (org.Object != pPack->Rec.Object && IsIntrOp(org.OpID)));
 			for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
 				pPack->ErrLine = i-1;
 				const long preserve_tflags = p_ti->TFlags;
@@ -8195,7 +8197,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				//
 				// Вычищаем удаленные и сильно измененные товарные строки
 				//
-				int    chg_closedorder_tag = BIN(pPack->OpTypeID == PPOPT_GOODSORDER && !TESTFLAG(org.Flags, pPack->Rec.Flags, BILLF_CLOSEDORDER));
+				const bool chg_closedorder_tag = (pPack->OpTypeID == PPOPT_GOODSORDER && !TESTFLAG(org.Flags, pPack->Rec.Flags, BILLF_CLOSEDORDER));
 				for(rbybill = 0; (r = trfr->EnumItems(id, &rbybill, &ti)) > 0;) {
 					int    force_remove = 0;
 					for(found = i = 0; !found && pPack->EnumTItems(&i, &p_ti);) {
@@ -8204,8 +8206,19 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							found = 1;
 							if(p_ti->TFlags & PPTransferItem::tfForceRemove)
 								force_remove = 1;
-							if(p_ti->Flags & PPTFR_RECEIPT)
+							if(p_ti->Flags & PPTFR_RECEIPT) {
 								p_ti->LotID = ti.LotID;
+								// @v11.9.3 {
+								if(p_ti->QCert != ti.QCert) {
+									QCertUpdLinkEntry new_qcul_entry;
+									new_qcul_entry.RByBill = rbybill;
+									new_qcul_entry.LotID = p_ti->LotID;
+									new_qcul_entry.OrgQcID = ti.QCert;
+									new_qcul_entry.NewQcID = p_ti->QCert;
+									qc_upd_link_list.insert(&new_qcul_entry);
+								}
+								// } @v11.9.3 
+							}
 							if(p_ti->IsEq(ti) && !chg_closedorder_tag)
 								not_changed_lines.add(i);
 						}
@@ -8391,6 +8404,14 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 					}
 				}
 			}
+			// @v11.9.3 {
+			if(qc_upd_link_list.getCount()) {
+				for(uint qculidx = 0; qculidx < qc_upd_link_list.getCount(); qculidx++) {
+					const QCertUpdLinkEntry & r_entry = qc_upd_link_list.at(qculidx);
+					DS.LogAction(PPACN_LOTQCERTLINKUPDATED, PPOBJ_LOT, r_entry.LotID, r_entry.OrgQcID, 0);
+				}
+			}
+			// } @v11.9.3 
 			DS.LogAction(PPACN_UPDBILL, PPOBJ_BILL, pPack->Rec.ID, h_id, 0);
 		}
 		THROW(PPCommitWork(&ta));

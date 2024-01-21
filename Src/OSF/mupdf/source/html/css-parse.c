@@ -131,15 +131,14 @@ static void css_lex_init(fz_context * ctx, struct lexbuf * buf, fz_pool * pool, 
 	buf->file = file;
 	buf->line = 1;
 	css_lex_next(buf);
-
 	buf->string_len = 0;
 }
 
 static inline int iswhite(int c) { return c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\f'; }
-static int isnmstart(int c) { return c == '\\' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= 128 && c <= 255); }
-static int isnmchar(int c) { return c == '\\' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || (c >= 128 && c <= 255); }
+static int isnmstart(int c) { return c == '\\' || c == '_' || isasciialpha(c) || (c >= 128 && c <= 255); }
+static int isnmchar(int c) { return c == '\\' || c == '_' || isasciialnum(c) || c == '-' || (c >= 128 && c <= 255); }
 
-static void css_push_char(struct lexbuf * buf, int c)
+static void FASTCALL css_push_char(struct lexbuf * buf, int c)
 {
 	if(buf->string_len + 1 >= SIZEOFARRAYi(buf->string))
 		fz_css_error(buf, "token too long");
@@ -163,25 +162,22 @@ static void css_lex_expect(struct lexbuf * buf, int t)
 
 static int css_lex_number(struct lexbuf * buf)
 {
-	while(buf->c >= '0' && buf->c <= '9') {
+	while(isdec(buf->c)) {
 		css_push_char(buf, buf->c);
 		css_lex_next(buf);
 	}
-
 	if(css_lex_accept(buf, '.')) {
 		css_push_char(buf, '.');
-		while(buf->c >= '0' && buf->c <= '9') {
+		while(isdec(buf->c)) {
 			css_push_char(buf, buf->c);
 			css_lex_next(buf);
 		}
 	}
-
 	if(css_lex_accept(buf, '%')) {
 		css_push_char(buf, '%');
 		css_push_char(buf, 0);
 		return CSS_PERCENT;
 	}
-
 	if(isnmstart(buf->c)) {
 		css_push_char(buf, buf->c);
 		css_lex_next(buf);
@@ -263,10 +259,7 @@ static void css_lex_uri(struct lexbuf * buf)
 				css_lex_next(buf);
 			}
 		}
-		else if(buf->c == '!' || buf->c == '#' || buf->c == '$' || buf->c == '%' || buf->c == '&' ||
-		    (buf->c >= '*' && buf->c <= '[') ||
-		    (buf->c >= ']' && buf->c <= '~') ||
-		    buf->c > 159) {
+		else if(oneof5(buf->c, '!', '#', '$', '%', '&') || (buf->c >= '*' && buf->c <= '[') || (buf->c >= ']' && buf->c <= '~') || buf->c > 159) {
 			css_push_char(buf, buf->c);
 			css_lex_next(buf);
 		}

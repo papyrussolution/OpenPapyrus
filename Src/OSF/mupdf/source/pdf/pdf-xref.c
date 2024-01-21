@@ -12,7 +12,7 @@
 	#define DEBUGMESS(A) do { } while(0)
 #endif
 
-#define isdigit(c) (c >= '0' && c <= '9')
+// @sobolev #define isdigit_Removed(c) (c >= '0' && c <= '9')
 
 static inline int iswhite(int ch) { return ch == '\000' || ch == '\011' || ch == '\012' || ch == '\014' || ch == '\015' || ch == '\040'; }
 /*
@@ -624,18 +624,13 @@ static void pdf_read_start_xref(fz_context * ctx, pdf_document * doc)
 	uchar buf[1024];
 	size_t i, n;
 	int64_t t;
-
 	fz_seek(ctx, doc->file, 0, SEEK_END);
-
 	doc->file_size = fz_tell(ctx, doc->file);
-
 	t = fz_maxi64(0, doc->file_size - (int64_t)sizeof buf);
 	fz_seek(ctx, doc->file, t, SEEK_SET);
-
 	n = fz_read(ctx, doc->file, buf, sizeof buf);
 	if(n < 9)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "cannot find startxref");
-
 	i = n - 9;
 	do {
 		if(memcmp(buf + i, "startxref", 9) == 0) {
@@ -643,7 +638,7 @@ static void pdf_read_start_xref(fz_context * ctx, pdf_document * doc)
 			while(i < n && iswhite(buf[i]))
 				i++;
 			doc->startxref = 0;
-			while(i < n && isdigit(buf[i])) {
+			while(i < n && isdec(buf[i])) {
 				if(doc->startxref >= INT64_MAX/10)
 					fz_throw(ctx, FZ_ERROR_GENERIC, "startxref too large");
 				doc->startxref = doc->startxref * 10 + (buf[i++] - '0');
@@ -653,7 +648,6 @@ static void pdf_read_start_xref(fz_context * ctx, pdf_document * doc)
 			break;
 		}
 	} while(i-- > 0);
-
 	fz_throw(ctx, FZ_ERROR_GENERIC, "cannot find startxref");
 }
 
@@ -707,7 +701,7 @@ static int pdf_xref_size_from_old_trailer(fz_context * ctx, pdf_document * doc, 
 
 	while(1) {
 		c = fz_peek_byte(ctx, doc->file);
-		if(!isdigit(c))
+		if(!isdec(c))
 			break;
 		fz_read_line(ctx, doc->file, buf->scratch, buf->size);
 		s = buf->scratch;
@@ -835,7 +829,7 @@ static pdf_obj * pdf_read_old_xref(fz_context * ctx, pdf_document * doc, pdf_lex
 
 	while(1) {
 		c = fz_peek_byte(ctx, file);
-		if(!isdigit(c))
+		if(!isdec(c))
 			break;
 
 		fz_read_line(ctx, file, buf->scratch, buf->size);
@@ -882,16 +876,16 @@ static pdf_obj * pdf_read_old_xref(fz_context * ctx, pdf_document * doc, pdf_lex
 				while(s < e && iswhite(*s))
 					s++;
 
-				if(s == e || !isdigit(*s))
+				if(s == e || !isdec(*s))
 					fz_throw(ctx, FZ_ERROR_GENERIC, "xref offset missing");
-				while(s < e && isdigit(*s))
+				while(s < e && isdec(*s))
 					entry->ofs = entry->ofs * 10 + *s++ - '0';
 
 				while(s < e && iswhite(*s))
 					s++;
-				if(s == e || !isdigit(*s))
+				if(s == e || !isdec(*s))
 					fz_throw(ctx, FZ_ERROR_GENERIC, "xref generation number missing");
-				while(s < e && isdigit(*s))
+				while(s < e && isdec(*s))
 					entry->gen = entry->gen * 10 + *s++ - '0';
 
 				while(s < e && iswhite(*s))
@@ -1069,7 +1063,7 @@ static pdf_obj * pdf_read_xref(fz_context * ctx, pdf_document * doc, int64_t ofs
 	c = fz_peek_byte(ctx, doc->file);
 	if(c == 'x')
 		trailer = pdf_read_old_xref(ctx, doc, buf);
-	else if(isdigit(c))
+	else if(isdec(c))
 		trailer = pdf_read_new_xref(ctx, doc, buf);
 	else
 		fz_throw(ctx, FZ_ERROR_GENERIC, "cannot recognize xref format");

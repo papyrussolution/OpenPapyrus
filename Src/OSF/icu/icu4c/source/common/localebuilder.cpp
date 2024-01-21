@@ -23,8 +23,7 @@ static bool _isExtensionSubtags(char key, const char * s, int32_t len)
 	}
 }
 
-LocaleBuilder::LocaleBuilder() : UObject(), status_(U_ZERO_ERROR), language_(),
-	script_(), region_(), variant_(nullptr), extensions_(nullptr)
+LocaleBuilder::LocaleBuilder() : UObject(), status_(U_ZERO_ERROR), language_(), script_(), region_(), variant_(nullptr), extensions_(nullptr)
 {
 	language_[0] = 0;
 	script_[0] = 0;
@@ -142,8 +141,7 @@ static bool _isKeywordValue(const char * key, const char * value, int32_t value_
 {
 	if(key[1] == '\0') {
 		// one char key
-		return (UPRV_ISALPHANUM(uprv_tolower(key[0])) &&
-		       _isExtensionSubtags(key[0], value, value_len));
+		return (UPRV_ISALPHANUM(uprv_tolower(key[0])) && _isExtensionSubtags(key[0], value, value_len));
 	}
 	else if(strcmp(key, kAttributeKey) == 0) {
 		// unicode attributes

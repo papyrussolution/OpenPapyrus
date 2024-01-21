@@ -1889,8 +1889,7 @@ static boolint _radial_pattern_is_degenerate(const cairo_radial_pattern_t * radi
 	 * _cairo_radial_pattern_box_to_parameter ().
 	 */
 	return fabs(radial->cd1.radius - radial->cd2.radius) < DBL_EPSILON &&
-	       (MIN(radial->cd1.radius, radial->cd2.radius) < DBL_EPSILON ||
-	       MAX(fabs(radial->cd1.center.x - radial->cd2.center.x),
+	       (MIN(radial->cd1.radius, radial->cd2.radius) < DBL_EPSILON || MAX(fabs(radial->cd1.center.x - radial->cd2.center.x),
 	       fabs(radial->cd1.center.y - radial->cd2.center.y)) < 2 * DBL_EPSILON);
 }
 
@@ -1898,7 +1897,6 @@ static void _cairo_linear_pattern_box_to_parameter(const cairo_linear_pattern_t 
     double x0, double y0, double x1, double y1, double range[2])
 {
 	double t0, tdx, tdy;
-	double p1x, p1y, pdx, pdy, invsqnorm;
 	assert(!_linear_pattern_is_degenerate(linear));
 	/*
 	 * Linear gradients are othrogonal to the line passing through
@@ -1914,19 +1912,16 @@ static void _cairo_linear_pattern_box_to_parameter(const cairo_linear_pattern_t 
 	 * tdx is the difference between left and right corners
 	 * tdy is the difference between top and bottom corners
 	 */
-
-	p1x = linear->pd1.x;
-	p1y = linear->pd1.y;
-	pdx = linear->pd2.x - p1x;
-	pdy = linear->pd2.y - p1y;
-	invsqnorm = 1.0 / (pdx * pdx + pdy * pdy);
+	double p1x = linear->pd1.x;
+	double p1y = linear->pd1.y;
+	double pdx = linear->pd2.x - p1x;
+	double pdy = linear->pd2.y - p1y;
+	double invsqnorm = 1.0 / (pdx * pdx + pdy * pdy);
 	pdx *= invsqnorm;
 	pdy *= invsqnorm;
-
 	t0 = (x0 - p1x) * pdx + (y0 - p1y) * pdy;
 	tdx = (x1 - x0) * pdx;
 	tdy = (y1 - y0) * pdy;
-
 	/*
 	 * Because of the linearity of the t value, tdx can simply be
 	 * added the t0 to move along the top edge. After this, range[0]
@@ -1934,13 +1929,11 @@ static void _cairo_linear_pattern_box_to_parameter(const cairo_linear_pattern_t 
 	 * extending it to include the whole box simply requires adding
 	 * tdy to the correct extreme.
 	 */
-
 	range[0] = range[1] = t0;
 	if(tdx < 0)
 		range[0] += tdx;
 	else
 		range[1] += tdx;
-
 	if(tdy < 0)
 		range[0] += tdy;
 	else
@@ -1955,10 +1948,8 @@ static boolint _extend_range(double range[2], double value, boolint valid)
 		range[0] = value;
 	else if(value > range[1])
 		range[1] = value;
-
 	return TRUE;
 }
-
 /*
  * _cairo_radial_pattern_focus_is_inside:
  *
@@ -1975,69 +1966,51 @@ static boolint _extend_range(double range[2], double value, boolint valid)
  */
 boolint _cairo_radial_pattern_focus_is_inside(const cairo_radial_pattern_t * radial)
 {
-	double cx, cy, cr, dx, dy, dr;
-
-	cx = radial->cd1.center.x;
-	cy = radial->cd1.center.y;
-	cr = radial->cd1.radius;
-	dx = radial->cd2.center.x - cx;
-	dy = radial->cd2.center.y - cy;
-	dr = radial->cd2.radius   - cr;
-
+	double cx = radial->cd1.center.x;
+	double cy = radial->cd1.center.y;
+	double cr = radial->cd1.radius;
+	double dx = radial->cd2.center.x - cx;
+	double dy = radial->cd2.center.y - cy;
+	double dr = radial->cd2.radius   - cr;
 	return dx*dx + dy*dy < dr*dr;
 }
 
-static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t * radial,
-    double x0, double y0,
-    double x1, double y1,
-    double tolerance,
-    double range[2])
+static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t * radial, double x0, double y0,
+    double x1, double y1, double tolerance, double range[2])
 {
 	double cx, cy, cr, dx, dy, dr;
 	double a, x_focus, y_focus;
 	double mindr, minx, miny, maxx, maxy;
 	boolint valid;
-
 	assert(!_radial_pattern_is_degenerate(radial));
 	assert(x0 < x1);
 	assert(y0 < y1);
-
 	tolerance = MAX(tolerance, DBL_EPSILON);
-
 	range[0] = range[1] = 0;
 	valid = FALSE;
-
 	x_focus = y_focus = 0; /* silence gcc */
-
 	cx = radial->cd1.center.x;
 	cy = radial->cd1.center.y;
 	cr = radial->cd1.radius;
 	dx = radial->cd2.center.x - cx;
 	dy = radial->cd2.center.y - cy;
 	dr = radial->cd2.radius   - cr;
-
 	/* translate by -(cx, cy) to simplify computations */
 	x0 -= cx;
 	y0 -= cy;
 	x1 -= cx;
 	y1 -= cy;
-
-	/* enlarge boundaries slightly to avoid rounding problems in the
-	 * parameter range computation */
+	/* enlarge boundaries slightly to avoid rounding problems in the parameter range computation */
 	x0 -= DBL_EPSILON;
 	y0 -= DBL_EPSILON;
 	x1 += DBL_EPSILON;
 	y1 += DBL_EPSILON;
-
-	/* enlarge boundaries even more to avoid rounding problems when
-	 * testing if a point belongs to the box */
+	/* enlarge boundaries even more to avoid rounding problems when testing if a point belongs to the box */
 	minx = x0 - DBL_EPSILON;
 	miny = y0 - DBL_EPSILON;
 	maxx = x1 + DBL_EPSILON;
 	maxy = y1 + DBL_EPSILON;
-
-	/* we dont' allow negative radiuses, so we will be checking that
-	 * t*dr >= mindr to consider t valid */
+	/* we dont' allow negative radiuses, so we will be checking that t*dr >= mindr to consider t valid */
 	mindr = -(cr + DBL_EPSILON);
 	/*
 	 * After the previous transformations, the start circle is

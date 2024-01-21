@@ -345,7 +345,7 @@ void fz_write_char(fz_context * ctx, fz_output * out, char x)
 	fz_write_byte(ctx, out, (uchar)x);
 }
 
-void fz_write_data(fz_context * ctx, fz_output * out, const void * data_, size_t size)
+void STDCALL fz_write_data(fz_context * ctx, fz_output * out, const void * data_, size_t size)
 {
 	const char * data = (const char *)data_;
 	if(out->bp) {
@@ -373,41 +373,37 @@ void fz_write_data(fz_context * ctx, fz_output * out, const void * data_, size_t
 	}
 }
 
-void fz_write_string(fz_context * ctx, fz_output * out, const char * s)
+void STDCALL fz_write_string(fz_context * ctx, fz_output * out, const char * s)
 {
 	fz_write_data(ctx, out, s, strlen(s));
 }
 
-void fz_write_int32_be(fz_context * ctx, fz_output * out, int x)
+void STDCALL fz_write_int32_be(fz_context * ctx, fz_output * out, int x)
 {
 	char data[4];
-
 	data[0] = x>>24;
 	data[1] = x>>16;
 	data[2] = x>>8;
 	data[3] = x;
-
 	fz_write_data(ctx, out, data, 4);
 }
 
-void fz_write_uint32_be(fz_context * ctx, fz_output * out, uint x)
+void STDCALL fz_write_uint32_be(fz_context * ctx, fz_output * out, uint x)
 {
 	fz_write_int32_be(ctx, out, (uint)x);
 }
 
-void fz_write_int32_le(fz_context * ctx, fz_output * out, int x)
+void STDCALL fz_write_int32_le(fz_context * ctx, fz_output * out, int x)
 {
 	char data[4];
-
 	data[0] = x;
 	data[1] = x>>8;
 	data[2] = x>>16;
 	data[3] = x>>24;
-
 	fz_write_data(ctx, out, data, 4);
 }
 
-void fz_write_uint32_le(fz_context * ctx, fz_output * out, uint x)
+void STDCALL fz_write_uint32_le(fz_context * ctx, fz_output * out, uint x)
 {
 	fz_write_int32_le(ctx, out, (int)x);
 }

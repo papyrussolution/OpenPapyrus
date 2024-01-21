@@ -26,11 +26,11 @@ bool DetectWhiteRect(const BitMatrix& image, ResultPoint& p0, ResultPoint& p1, R
  */
 static bool ContainsBlackPoint(const BitMatrix& image, int a, int b, int fixed, bool horizontal) 
 {
-	a = std::max(a, 0);
+	a = smax(a, 0);
 	if(horizontal) {
 		if(fixed < 0 || fixed >= image.height())
 			return false;
-		b = std::min(b, image.width() - 1);
+		b = smin(b, image.width() - 1);
 		for(int x = a; x <= b; x++) {
 			if(image.get(x, fixed)) {
 				return true;
@@ -40,7 +40,7 @@ static bool ContainsBlackPoint(const BitMatrix& image, int a, int b, int fixed, 
 	else {
 		if(fixed < 0 || fixed >= image.width())
 			return false;
-		b = std::min(b, image.height() - 1);
+		b = smin(b, image.height() - 1);
 		for(int y = a; y <= b; y++) {
 			if(image.get(fixed, y)) {
 				return true;

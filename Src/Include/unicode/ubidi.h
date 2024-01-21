@@ -259,7 +259,7 @@
  *                 styleRuns+styleRunStart,
  *                 styleRunLimit-styleRunStart, pErrorCode);
  *                     }
- *                     if(limit==length) { break; }
+ *                     if(limit == length) { break; }
  *                     start=limit;
  *                     styleRunStart=styleRunLimit-1;
  *                     if(start>=styleRuns[styleRunStart].limit) {

@@ -23,30 +23,17 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(int ch)
-{
-	return ch < 0x80 && (isalnum(ch) || ch == '_');
-}
-
-static bool FASTCALL IsAWordStart(int ch)
-{
-	return ch < 0x80 && isalpha(ch);
-}
+static bool FASTCALL IsAWordChar(int ch) { return ch < 0x80 && (isalnum(ch) || ch == '_'); }
+static bool FASTCALL IsAWordStart(int ch) { return ch < 0x80 && isalpha(ch); }
 
 static bool FASTCALL IsANumberChar(int ch)
 {
 	// Not exactly following number definition (several dots are seen as OK, etc.)
 	// but probably enough in most cases.
-	return (ch < 0x80) &&
-	       (isdec(ch) || toupper(ch) == 'E' ||
-	    ch == '.' || ch == '-' || ch == '+');
+	return (ch < 0x80) && (isdec(ch) || toupper(ch) == 'E' || ch == '.' || ch == '-' || ch == '+');
 }
 
-static void ColourisePovDoc(Sci_PositionU startPos,
-    Sci_Position length,
-    int initStyle,
-    WordList * keywordlists[],
-    Accessor & styler)
+static void ColourisePovDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords1 = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -56,23 +43,18 @@ static void ColourisePovDoc(Sci_PositionU startPos,
 	WordList &keywords6 = *keywordlists[5];
 	WordList &keywords7 = *keywordlists[6];
 	WordList &keywords8 = *keywordlists[7];
-
 	Sci_Position currentLine = styler.GetLine(startPos);
 	// Initialize the block comment /* */ nesting level, if we are inside such a comment.
 	int blockCommentLevel = 0;
 	if(initStyle == SCE_POV_COMMENT) {
 		blockCommentLevel = styler.GetLineState(currentLine - 1);
 	}
-
 	// Do not leak onto next line
-	if(initStyle == SCE_POV_STRINGEOL || initStyle == SCE_POV_COMMENTLINE) {
+	if(oneof2(initStyle, SCE_POV_STRINGEOL, SCE_POV_COMMENTLINE)) {
 		initStyle = SCE_POV_DEFAULT;
 	}
-
 	short stringLen = 0;
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	for(; sc.More(); sc.Forward()) {
 		if(sc.atLineEnd) {
 			// Update the line state, so it can be seen by next line
@@ -203,7 +185,7 @@ static void ColourisePovDoc(Sci_PositionU startPos,
 
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_POV_DEFAULT) {
-			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_POV_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch)) {

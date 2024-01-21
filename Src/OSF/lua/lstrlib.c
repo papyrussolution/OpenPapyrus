@@ -255,7 +255,7 @@ static int match_class(int c, int cl)
 	switch(tolower(cl)) {
 		case 'a': res = isalpha(c); break;
 		case 'c': res = iscntrl(c); break;
-		case 'd': res = isdigit(c); break;
+		case 'd': res = isdec(c); break;
 		case 'g': res = isgraph(c); break;
 		case 'l': res = islower(c); break;
 		case 'p': res = ispunct(c); break;
@@ -661,7 +661,7 @@ static void add_s(MatchState * ms, luaL_Buffer * b, const char * s, const char *
 			luaL_addchar(b, news[i]);
 		else {
 			i++; /* skip ESC */
-			if(!isdigit(uchar(news[i]))) {
+			if(!isdec(uchar(news[i]))) {
 				if(news[i] != L_ESC)
 					luaL_error(L, "invalid use of '%c' in replacement string", L_ESC);
 				luaL_addchar(b, news[i]);
@@ -846,7 +846,8 @@ static int lua_number2strx(lua_State * L, char * buff, int sz, const char * fmt,
 */
 #define MAX_FORMAT      32
 
-static void addquoted(luaL_Buffer * b, const char * s, size_t len) {
+static void addquoted(luaL_Buffer * b, const char * s, size_t len) 
+{
 	luaL_addchar(b, '"');
 	while(len--) {
 		if(*s == '"' || *s == '\\' || *s == '\n') {
@@ -855,7 +856,7 @@ static void addquoted(luaL_Buffer * b, const char * s, size_t len) {
 		}
 		else if(iscntrl(uchar(*s))) {
 			char buff[10];
-			if(!isdigit(uchar(*(s+1))))
+			if(!isdec(uchar(*(s+1))))
 				l_sprintf(buff, sizeof(buff), "\\%d", (int)uchar(*s));
 			else
 				l_sprintf(buff, sizeof(buff), "\\%03d", (int)uchar(*s));
@@ -922,12 +923,16 @@ static const char * scanformat(lua_State * L, const char * strfrmt, char * form)
 	while(*p != '\0' && sstrchr(FLAGS, *p) != NULL) p++; /* skip flags */
 	if((size_t)(p - strfrmt) >= sizeof(FLAGS)/sizeof(char))
 		luaL_error(L, "invalid format (repeated flags)");
-	if(isdigit(uchar(*p))) p++; /* skip width */
-	if(isdigit(uchar(*p))) p++; /* (2 digits at most) */
+	if(isdec(uchar(*p))) 
+		p++; /* skip width */
+	if(isdec(uchar(*p))) 
+		p++; /* (2 digits at most) */
 	if(*p == '.') {
 		p++;
-		if(isdigit(uchar(*p))) p++; /* skip precision */
-		if(isdigit(uchar(*p))) p++; /* (2 digits at most) */
+		if(isdec(uchar(*p))) 
+			p++; /* skip precision */
+		if(isdec(uchar(*p))) 
+			p++; /* (2 digits at most) */
 	}
 	if(isdigit(uchar(*p)))
 		luaL_error(L, "invalid format (width or precision too long)");

@@ -164,13 +164,7 @@ static const int qr_annex_c1[] = {
 static int in_alpha(int glyph)
 {
 	int retval = 0;
-	char cglyph = (char)glyph;
-	if((cglyph >= '0') && (cglyph <= '9')) {
-		retval = 1;
-	}
-	if((cglyph >= 'A') && (cglyph <= 'Z')) {
-		retval = 1;
-	}
+	const char cglyph = (char)glyph;
 	switch(cglyph) {
 		case ' ':
 		case '$':
@@ -183,8 +177,12 @@ static int in_alpha(int glyph)
 		case ':':
 		    retval = 1;
 		    break;
+		default:
+			if(isdec(cglyph) || isasciiupr(cglyph)) {
+				retval = 1;
+			}
+			break;
 	}
-
 	return retval;
 }
 

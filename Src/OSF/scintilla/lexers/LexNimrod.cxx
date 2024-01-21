@@ -125,7 +125,7 @@ static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 				break;
 		}
 	}
-	else if(ch == '0' && (ch2 == 'x' || ch2 == 'X')) {
+	else if(ch == '0' && oneof2(ch2, 'x', 'X')) {
 		/* hexadecimal number: */
 		pos += 2;
 		for(;;) {
@@ -241,7 +241,7 @@ static void ColouriseNimrodDoc(Sci_PositionU startPos, Sci_Position length, int 
 			    pos++;
 			    break;
 			default: // identifers, numbers, operators, whitespace
-			    if(ch >= '0' && ch <= '9') {
+			    if(isdec(ch)) {
 				    pos = scanNumber(styler, pos);
 			    }
 			    else if(IsAWordChar(ch)) {

@@ -349,7 +349,8 @@ static bool init() {
 	return TRUE;
 }
 
-static bool isSpecialTypeCodepoints(const char * val) {
+static bool isSpecialTypeCodepoints(const char * val) 
+{
 	int32_t subtagLen = 0;
 	const char * p = val;
 	while(*p) {
@@ -359,9 +360,7 @@ static bool isSpecialTypeCodepoints(const char * val) {
 			}
 			subtagLen = 0;
 		}
-		else if((*p >= '0' && *p <= '9') ||
-		    (*p >= 'A' && *p <= 'F') || // A-F/a-f are contiguous
-		    (*p >= 'a' && *p <= 'f')) { // also in EBCDIC
+		else if(ishex(*p)) { // A-F/a-f are contiguous also in EBCDIC
 			subtagLen++;
 		}
 		else {
@@ -372,7 +371,8 @@ static bool isSpecialTypeCodepoints(const char * val) {
 	return (subtagLen >= 4 && subtagLen <= 6);
 }
 
-static bool isSpecialTypeReorderCode(const char * val) {
+static bool isSpecialTypeReorderCode(const char * val) 
+{
 	int32_t subtagLen = 0;
 	const char * p = val;
 	while(*p) {
@@ -393,12 +393,12 @@ static bool isSpecialTypeReorderCode(const char * val) {
 	return (subtagLen >=3 && subtagLen <=8);
 }
 
-static bool isSpecialTypeRgKeyValue(const char * val) {
+static bool isSpecialTypeRgKeyValue(const char * val) 
+{
 	int32_t subtagLen = 0;
 	const char * p = val;
 	while(*p) {
-		if((subtagLen < 2 && uprv_isASCIILetter(*p)) ||
-		    (subtagLen >= 2 && (*p == 'Z' || *p == 'z'))) {
+		if((subtagLen < 2 && uprv_isASCIILetter(*p)) || (subtagLen >= 2 && (*p == 'Z' || *p == 'z'))) {
 			subtagLen++;
 		}
 		else {
@@ -409,11 +409,11 @@ static bool isSpecialTypeRgKeyValue(const char * val) {
 	return (subtagLen == 6);
 }
 
-U_CFUNC const char * ulocimp_toBcpKey(const char * key) {
+U_CFUNC const char * ulocimp_toBcpKey(const char * key) 
+{
 	if(!init()) {
 		return NULL;
 	}
-
 	LocExtKeyData* keyData = (LocExtKeyData*)uhash_get(gLocExtKeyMap, key);
 	if(keyData != NULL) {
 		return keyData->bcpId;
@@ -421,11 +421,11 @@ U_CFUNC const char * ulocimp_toBcpKey(const char * key) {
 	return NULL;
 }
 
-U_CFUNC const char * ulocimp_toLegacyKey(const char * key) {
+U_CFUNC const char * ulocimp_toLegacyKey(const char * key) 
+{
 	if(!init()) {
 		return NULL;
 	}
-
 	LocExtKeyData* keyData = (LocExtKeyData*)uhash_get(gLocExtKeyMap, key);
 	if(keyData != NULL) {
 		return keyData->legacyId;
@@ -433,18 +433,17 @@ U_CFUNC const char * ulocimp_toLegacyKey(const char * key) {
 	return NULL;
 }
 
-U_CFUNC const char * ulocimp_toBcpType(const char * key, const char * type, bool* isKnownKey, bool* isSpecialType) {
+U_CFUNC const char * ulocimp_toBcpType(const char * key, const char * type, bool* isKnownKey, bool* isSpecialType) 
+{
 	if(isKnownKey != NULL) {
 		*isKnownKey = FALSE;
 	}
 	if(isSpecialType != NULL) {
 		*isSpecialType = FALSE;
 	}
-
 	if(!init()) {
 		return NULL;
 	}
-
 	LocExtKeyData* keyData = (LocExtKeyData*)uhash_get(gLocExtKeyMap, key);
 	if(keyData != NULL) {
 		if(isKnownKey != NULL) {
@@ -476,18 +475,17 @@ U_CFUNC const char * ulocimp_toBcpType(const char * key, const char * type, bool
 	return NULL;
 }
 
-U_CFUNC const char * ulocimp_toLegacyType(const char * key, const char * type, bool* isKnownKey, bool* isSpecialType) {
+U_CFUNC const char * ulocimp_toLegacyType(const char * key, const char * type, bool* isKnownKey, bool* isSpecialType) 
+{
 	if(isKnownKey != NULL) {
 		*isKnownKey = FALSE;
 	}
 	if(isSpecialType != NULL) {
 		*isSpecialType = FALSE;
 	}
-
 	if(!init()) {
 		return NULL;
 	}
-
 	LocExtKeyData* keyData = (LocExtKeyData*)uhash_get(gLocExtKeyMap, key);
 	if(keyData != NULL) {
 		if(isKnownKey != NULL) {

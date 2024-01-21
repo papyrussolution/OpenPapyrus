@@ -706,7 +706,7 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 				}
 			}
 			else if(!isProtected) {
-				if(IsADigit(sc.ch) || (sc.ch == '\'') || (sc.ch == '.' && IsADigit(sc.chNext))) {
+				if(isdec(sc.ch) || (sc.ch == '\'') || (sc.ch == '.' && isdec(sc.chNext))) {
 					sc.SetState(SCE_V_NUMBER|activitySet);
 				}
 				else if(IsAWordStart(sc.ch)) {

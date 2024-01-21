@@ -146,7 +146,7 @@ void DetectionResultColumn::adjustCompleteIndicatorColumnRowNumbers(const Barcod
 			currentRowHeight++;
 		}
 		else if(rowDifference == increment) {
-			maxRowHeight = std::max(maxRowHeight, currentRowHeight);
+			maxRowHeight = smax(maxRowHeight, currentRowHeight);
 			currentRowHeight = 1;
 			barcodeRow = codeword.rowNumber();
 		}
@@ -218,7 +218,7 @@ void DetectionResultColumn::adjustIncompleteIndicatorColumnRowNumbers(const Barc
 			currentRowHeight++;
 		}
 		else if(rowDifference == 1) {
-			maxRowHeight = std::max(maxRowHeight, currentRowHeight);
+			maxRowHeight = smax(maxRowHeight, currentRowHeight);
 			currentRowHeight = 1;
 			barcodeRow = codeword.rowNumber();
 		}

@@ -841,15 +841,10 @@ static UDataMemory * checkDataItem(const DataHeader  * pHeader,         /* The d
     )
 {
 	UDataMemory  * rDataMem = NULL; /* the new UDataMemory, to be returned.        */
-
 	if(U_FAILURE(*fatalErr)) {
 		return NULL;
 	}
-
-	if(pHeader->dataHeader.magic1==0xda &&
-	    pHeader->dataHeader.magic2==0x27 &&
-	    (isAcceptable==NULL || isAcceptable(context, type, name, &pHeader->info))
-	    ) {
+	if(pHeader->dataHeader.magic1==0xda && pHeader->dataHeader.magic2==0x27 && (isAcceptable==NULL || isAcceptable(context, type, name, &pHeader->info))) {
 		rDataMem = UDataMemory_createNewInstance(fatalErr);
 		if(U_FAILURE(*fatalErr)) {
 			return NULL;
@@ -864,7 +859,6 @@ static UDataMemory * checkDataItem(const DataHeader  * pHeader,         /* The d
 	}
 	return rDataMem;
 }
-
 /**
  * @return 0 if not loaded, 1 if loaded or err
  */
@@ -873,13 +867,11 @@ static UDataMemory * doLoadFromIndividualFiles(const char * pkgName,
     /* following arguments are the same as doOpenChoice itself */
     const char * path, const char * type, const char * name,
     UDataMemoryIsAcceptable * isAcceptable, void * context,
-    UErrorCode * subErrorCode,
-    UErrorCode * pErrorCode)
+    UErrorCode * subErrorCode, UErrorCode * pErrorCode)
 {
 	const char * pathBuffer;
 	UDataMemory dataMemory;
 	UDataMemory * pEntryData;
-
 	/* look in ind. files: package\nam.typ  ========================= */
 	/* init path iterator for individual files */
 	UDataPathIterator iter(dataPath, pkgName, path, tocEntryPathSuffix, FALSE, pErrorCode);

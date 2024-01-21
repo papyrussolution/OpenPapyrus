@@ -12,7 +12,7 @@ namespace ZXing {
 	void GenericGFPoly::Coefficients::reserve(size_t s)
 	{
 		if(capacity() < s)
-			std::vector<int>::reserve(std::max(size_t(32), s));
+			std::vector<int>::reserve(smax(size_t(32), s));
 	}
 	void GenericGFPoly::Coefficients::resize(size_t s)
 	{

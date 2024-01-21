@@ -71,7 +71,7 @@ LPTSTR GetInt(LPTSTR str, LPINT pval)
 		negative = TRUE;
 		str++;
 	}
-	while(((ch = *str) != 0) && isdigit(ch)) {
+	while(((ch = *str) != 0) && isdec(ch)) {
 		success = TRUE;
 		val = val * 10 + (ch - '0');
 		str++;

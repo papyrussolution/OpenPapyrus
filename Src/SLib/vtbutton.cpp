@@ -233,7 +233,7 @@ int InputLineCalc::Calculate()
 
 uint InputLineCalc::TranslateCharToCmd(int chr)
 {
-	if(isdigit(chr))
+	if(isdec(chr))
 		return (CTL_INLNCALC_0 + chr - '0');
 	else if(chr == '.')
 		return CTL_INLNCALC_DOT;

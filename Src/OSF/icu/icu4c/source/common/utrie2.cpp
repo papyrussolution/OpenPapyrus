@@ -154,7 +154,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
 	}
 	/* allocate the trie */
 	trie = (UTrie2*)uprv_malloc(sizeof(UTrie2));
-	if(trie==NULL) {
+	if(!trie) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return 0;
 	}
@@ -221,7 +221,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits, uint32_t i
 	}
 	/* allocate the trie */
 	trie = (UTrie2*)uprv_malloc(sizeof(UTrie2));
-	if(trie==NULL) {
+	if(!trie) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return 0;
 	}
@@ -341,7 +341,7 @@ U_CAPI int32_t U_EXPORT2 utrie2_serialize(const UTrie2 * trie, void * data, int3
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(trie==NULL || trie->memory==NULL || trie->newTrie!=NULL || capacity<0 || (capacity>0 && (data==NULL || (U_POINTER_MASK_LSB(data, 3)!=0)))) {
+	if(!trie || trie->memory==NULL || trie->newTrie!=NULL || capacity<0 || (capacity>0 && (data==NULL || (U_POINTER_MASK_LSB(data, 3)!=0)))) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

@@ -295,14 +295,12 @@ static int cc_a(struct ZintSymbol * symbol, const char source[], int cc_width)
 		}
 		strcat(codebarre, RAPLR[RightRAP]);
 		strcat(codebarre, "1"); /* stop */
-
 		/* Now codebarre is a mixture of letters and numbers */
-
 		writer = 0;
 		flip = 1;
 		sstrcpy(pattern, "");
 		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
-			if((codebarre[loop] >= '0') && (codebarre[loop] <= '9')) {
+			if(isdec(codebarre[loop])) {
 				for(k = 0; k < (int)hex(codebarre[loop]); k++) {
 					pattern[writer] = (flip == 0) ? '0' : '1';
 					writer++;
@@ -316,7 +314,6 @@ static int cc_a(struct ZintSymbol * symbol, const char source[], int cc_width)
 			}
 		}
 		symbol->width = writer;
-
 		/* so now pattern[] holds the string of '1's and '0's. - copy this to the symbol */
 		for(loop = 0; loop < (int)strlen(pattern); loop++) {
 			if(pattern[loop] == '1') {
@@ -558,7 +555,7 @@ static int cc_b(struct ZintSymbol * symbol, const char source[], int cc_width)
 		flip = 1;
 		sstrcpy(pattern, "");
 		for(loop = 0; loop < (int)strlen(codebarre); loop++) {
-			if((codebarre[loop] >= '0') && (codebarre[loop] <= '9')) {
+			if(isdec(codebarre[loop])) {
 				for(k = 0; k < (int)hex(codebarre[loop]); k++) {
 					pattern[writer++] = (flip == 0) ? '0' : '1';
 				}
@@ -1391,7 +1388,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 				general_field_type[i] = ALPHA_OR_ISO;
 			}
 			// Numeric encodation 
-			if((general_field[i] >= '0') && (general_field[i] <= '9')) {
+			if(isdec(general_field[i])) {
 				general_field_type[i] = ANY_ENC;
 			}
 			if(general_field[i] == '[') {
@@ -1451,7 +1448,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 							strcat(binary_string, "00100"); /* ISO/IEC 646 latch */
 						}
 					}
-					if((general_field[i] >= '0') && (general_field[i] <= '9')) {
+					if(isdec(general_field[i])) {
 						value = general_field[i] - 43;
 						mask = 0x10;
 						for(j = 0; j < 5; j++) {
@@ -1496,7 +1493,7 @@ static int cc_binary_string(struct ZintSymbol * symbol, const char source[], cha
 							strcat(binary_string, "00100"); /* ISO/IEC 646 latch */
 						}
 					}
-					if((general_field[i] >= '0') && (general_field[i] <= '9')) {
+					if(isdec(general_field[i])) {
 						value = general_field[i] - 43;
 						mask = 0x10;
 						for(j = 0; j < 5; j++) {

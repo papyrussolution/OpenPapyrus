@@ -172,11 +172,14 @@ static void SubMem(void* ptr)
 #endif
 
 // Returns 0 in case of overflow of nmemb * size.
-static int CheckSizeArgumentsOverflow(uint64_t nmemb, size_t size) {
+static int CheckSizeArgumentsOverflow(uint64_t nmemb, size_t size) 
+{
 	const uint64_t total_size = nmemb * size;
 	if(nmemb == 0) return 1;
-	if((uint64_t)size > WEBP_MAX_ALLOCABLE_MEMORY / nmemb) return 0;
-	if(!CheckSizeOverflow(total_size)) return 0;
+	if((uint64_t)size > WEBP_MAX_ALLOCABLE_MEMORY / nmemb) 
+		return 0;
+	if(!CheckSizeOverflow(total_size)) 
+		return 0;
 #if defined(PRINT_MEM_INFO) && defined(MALLOC_FAIL_AT)
 	if(countdown_to_fail > 0 && --countdown_to_fail == 0) {
 		return 0; // fake fail!
@@ -191,7 +194,6 @@ static int CheckSizeArgumentsOverflow(uint64_t nmemb, size_t size) {
 		}
 	}
 #endif
-
 	return 1;
 }
 

@@ -165,7 +165,7 @@ static void ColourisePowerProDoc(Sci_PositionU startPos, Sci_Position length, in
 
 			case SCE_POWERPRO_NUMBER:
 
-			    if(!IsADigit(sc.ch))
+			    if(!isdec(sc.ch))
 				    sc.SetState(SCE_POWERPRO_DEFAULT);
 
 			    break;
@@ -291,7 +291,7 @@ static void ColourisePowerProDoc(Sci_PositionU startPos, Sci_Position length, in
 				sc.SetState(SCE_POWERPRO_VERBATIM);
 				sc.Forward();
 			}
-			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_POWERPRO_NUMBER);
 			}
 			else if(sc.Match('?', '#')) {

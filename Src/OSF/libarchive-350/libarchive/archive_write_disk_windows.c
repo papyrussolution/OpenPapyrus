@@ -266,7 +266,7 @@ static int file_information(struct archive_write_disk * a, wchar_t * path, BY_HA
 					    *mode |= S_IXUSR | S_IXGRP | S_IXOTH;
 				    break;
 				case L'E': case L'e':
-				    if((p[2] == L'X' || p[2] == L'x' ) && (p[3] == L'E' || p[3] == L'e' ))
+				    if(oneof2(p[2], L'X', L'x' ) && oneof2(p[3], L'E', L'e'))
 					    *mode |= S_IXUSR | S_IXGRP | S_IXOTH;
 				    break;
 				default:
@@ -903,7 +903,7 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 	if(a->flags & ARCHIVE_EXTRACT_SPARSE) {
 		/* XXX TODO XXX Is there a more appropriate choice here ? */
 		/* This needn't match the filesystem allocation size. */
-		block_size = 16*1024;
+		block_size = SKILOBYTE(16);
 	}
 	/* If this write would run beyond the file size, truncate it. */
 	if(a->filesize >= 0 && (int64)(a->offset + size) > a->filesize)

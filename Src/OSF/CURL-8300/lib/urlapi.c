@@ -42,18 +42,12 @@
 #include "memdebug.h"
 
 /* MSDOS/Windows style drive prefix, eg c: in c:foo */
-#define STARTS_WITH_DRIVE_PREFIX(str) \
-	((('a' <= str[0] && str[0] <= 'z') || \
-	('A' <= str[0] && str[0] <= 'Z')) && \
-	(str[1] == ':'))
+#define STARTS_WITH_DRIVE_PREFIX(str) (isasciialpha(str[0]) && (str[1] == ':'))
 
 /* MSDOS/Windows style drive prefix, optionally with
  * a '|' instead of ':', followed by a slash or NUL */
 #define STARTS_WITH_URL_DRIVE_PREFIX(str) \
-	((('a' <= (str)[0] && (str)[0] <= 'z') || \
-	('A' <= (str)[0] && (str)[0] <= 'Z')) && \
-	((str)[1] == ':' || (str)[1] == '|') && \
-	((str)[2] == '/' || (str)[2] == '\\' || (str)[2] == 0))
+	(isasciialpha((str)[0]) && ((str)[1] == ':' || (str)[1] == '|') && ((str)[2] == '/' || (str)[2] == '\\' || (str)[2] == 0))
 
 /* scheme is not URL encoded, the longest libcurl supported ones are... */
 #define MAX_SCHEME_LEN 40
@@ -131,7 +125,7 @@ static const char *find_host_sep(const char * url)
  */
 #define urlchar_needs_escaping(c) (!(ISCNTRL(c) || ISSPACE(c) || ISGRAPH(c)))
 
-static const char hexdigits[] = "0123456789abcdef";
+// @sobolev static const char hexdigits[] = "0123456789abcdef";
 /* urlencode_str() writes data into an output dynbuf and URL-encodes the
  * spaces in the source URL accordingly.
  *
@@ -169,14 +163,12 @@ static CURLUcode urlencode_str(struct dynbuf * o, const char * url,
 			}
 			continue;
 		}
-
 		if(*iptr == '?')
 			left = FALSE;
-
 		if(urlchar_needs_escaping(*iptr)) {
 			char out[3] = {'%'};
-			out[1] = hexdigits[*iptr>>4];
-			out[2] = hexdigits[*iptr & 0xf];
+			out[1] = SlConst::P_HxDigL[*iptr>>4];
+			out[2] = SlConst::P_HxDigL[*iptr & 0xf];
 			if(Curl_dyn_addn(o, out, 3))
 				return CURLUE_OUT_OF_MEMORY;
 		}
@@ -197,8 +189,7 @@ static CURLUcode urlencode_str(struct dynbuf * o, const char * url,
  * If 'guess_scheme' is TRUE, it means the URL might be provided without
  * scheme.
  */
-size_t Curl_is_absolute_url(const char * url, char * buf, size_t buflen,
-    bool guess_scheme)
+size_t Curl_is_absolute_url(const char * url, char * buf, size_t buflen, bool guess_scheme)
 {
 	int i = 0;
 	DEBUGASSERT(!buf || (buflen > MAX_SCHEME_LEN));
@@ -209,10 +200,10 @@ size_t Curl_is_absolute_url(const char * url, char * buf, size_t buflen,
 	if(guess_scheme && STARTS_WITH_DRIVE_PREFIX(url))
 		return 0;
 #endif
-	if(ISALPHA(url[0]))
+	if(isasciialpha(url[0]))
 		for(i = 1; i < MAX_SCHEME_LEN; ++i) {
 			char s = url[i];
-			if(s && (ISALNUM(s) || (s == '+') || (s == '-') || (s == '.') )) {
+			if(s && (isasciialnum(s) || (s == '+') || (s == '-') || (s == '.') )) {
 				/* RFC 3986 3.1 explains:
 				   scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 				 */
@@ -255,13 +246,11 @@ static char *concat_url(char * base, const char * relurl)
 	   problems in the future...
 	 */
 	struct dynbuf newest;
-	char * protsep;
 	char * pathsep;
 	bool host_changed = FALSE;
 	const char * useurl = relurl;
-
 	/* protsep points to the start of the host name */
-	protsep = strstr(base, "//");
+	char * protsep = strstr(base, "//");
 	if(!protsep)
 		protsep = base;
 	else
@@ -533,7 +522,7 @@ UNITTEST CURLUcode Curl_parse_port(struct Curl_URL * u, struct dynbuf * host,
 		if(!*portptr)
 			return has_scheme ? CURLUE_OK : CURLUE_BAD_PORT_NUMBER;
 
-		if(!ISDIGIT(*portptr))
+		if(!isdec(*portptr))
 			return CURLUE_BAD_PORT_NUMBER;
 
 		port = strtol(portptr, &rest, 10); /* Port number must be decimal */
@@ -660,23 +649,19 @@ static int ipv4_normalize(struct dynbuf * host)
 	bool done = FALSE;
 	int n = 0;
 	const char * c = Curl_dyn_ptr(host);
-	unsigned long parts[4] = {0, 0, 0, 0};
+	ulong parts[4] = {0, 0, 0, 0};
 	CURLcode result = CURLE_OK;
-
 	if(*c == '[')
 		return HOST_IPV6;
-
 	while(!done) {
 		char * endp;
-		unsigned long l;
-		if(!ISDIGIT(*c))
+		ulong l;
+		if(!isdec(*c))
 			/* most importantly this doesn't allow a leading plus or minus */
 			return HOST_NAME;
 		l = strtoul(c, &endp, 0);
-
 		parts[n] = l;
 		c = endp;
-
 		switch(*c) {
 			case '.':
 			    if(n == 3)
@@ -684,19 +669,15 @@ static int ipv4_normalize(struct dynbuf * host)
 			    n++;
 			    c++;
 			    break;
-
 			case '\0':
 			    done = TRUE;
 			    break;
-
 			default:
 			    return HOST_NAME;
 		}
-
 		/* overflow */
 		if((l == ULONG_MAX) && (errno == ERANGE))
 			return HOST_NAME;
-
 #if SIZEOF_LONG > 4
 		/* a value larger than 32 bits */
 		if(l > UINT_MAX)
@@ -1732,10 +1713,10 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 			    return CURLUE_UNSUPPORTED_SCHEME;
 		    storep = &u->scheme;
 		    urlencode = FALSE; /* never */
-		    if(ISALPHA(*s)) {
+		    if(isasciialpha(*s)) {
 			    /* ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ) */
 			    while(--plen) {
-				    if(ISALNUM(*s) || (*s == '+') || (*s == '-') || (*s == '.'))
+				    if(isasciialnum(*s) || (*s == '+') || (*s == '-') || (*s == '.'))
 					    s++; /* fine */
 				    else
 					    return CURLUE_BAD_SCHEME;
@@ -1860,8 +1841,8 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 				}
 				else {
 					char out[3] = {'%'};
-					out[1] = hexdigits[*i>>4];
-					out[2] = hexdigits[*i & 0xf];
+					out[1] = SlConst::P_HxDigL[*i>>4];
+					out[2] = SlConst::P_HxDigL[*i & 0xf];
 					result = Curl_dyn_addn(&enc, out, 3);
 					if(result)
 						return CURLUE_OUT_OF_MEMORY;
@@ -1876,8 +1857,7 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 			p = Curl_dyn_ptr(&enc);
 			while(*p) {
 				/* make sure percent encoded are lower case */
-				if((*p == '%') && ISXDIGIT(p[1]) && ISXDIGIT(p[2]) &&
-				    (ISUPPER(p[1]) || ISUPPER(p[2]))) {
+				if((*p == '%') && ishex(p[1]) && ishex(p[2]) && (ISUPPER(p[1]) || ISUPPER(p[2]))) {
 					p[1] = Curl_raw_tolower(p[1]);
 					p[2] = Curl_raw_tolower(p[2]);
 					p += 3;

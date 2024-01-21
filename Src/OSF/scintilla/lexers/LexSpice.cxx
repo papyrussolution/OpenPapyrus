@@ -153,7 +153,7 @@ static void ColouriseDocument(Sci_PositionU startPos,
 			ColouriseDelimiter(sc, apostropheStartsAttribute);
 			// Numbers
 		}
-		else if(IsADigit(sc.ch) || sc.ch == '#') {
+		else if(isdec(sc.ch) || sc.ch == '#') {
 			ColouriseNumber(sc, apostropheStartsAttribute);
 			// Keywords or identifiers
 		}

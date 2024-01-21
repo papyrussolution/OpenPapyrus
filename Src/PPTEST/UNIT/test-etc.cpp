@@ -230,6 +230,8 @@ SLTEST_R(iterator)
 
 SLTEST_R(GUID) // @v11.7.11
 {
+	SString temp_buf;
+	GUID win_guid;
 	{
 		S_GUID u;
 		SLCHECK_NZ(u.IsZero());
@@ -245,8 +247,6 @@ SLTEST_R(GUID) // @v11.7.11
 		const char * p_guid_text1 = "{076A7660-6891-4E8B-A9D7-E7A8B074267B}";
 		const char * p_guid_text2 = "076A7660-6891-4E8B-A9D7-E7A8B074267B";
 		const char * p_guid_text3 = "076a7660-6891-4e8b-a9d7-e7a8b074267b";
-		SString temp_buf;
-		GUID win_guid;
 		S_GUID u;
 		S_GUID u2;
 		u.FromStr(p_guid_text1);
@@ -259,6 +259,26 @@ SLTEST_R(GUID) // @v11.7.11
 		u.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 		SLCHECK_EQ(temp_buf, p_guid_text3);
 	}
+	// @v11.9.3 {
+	{
+		S_GUID prev_uuid;
+		for(uint i = 0; i < 1000; i++) {
+			S_GUID u(SCtrGenerate_);
+			S_GUID u2;
+			if(i) {
+				SLCHECK_NZ(u != prev_uuid);
+			}
+			u.ToStr(S_GUID::fmtIDL, temp_buf);
+			u2.FromStr(temp_buf);
+			SLCHECK_NZ(u == u2);
+			temp_buf.Quot('{', '}');
+			SLCHECK_Z(CLSIDFromString(SUcSwitchW(temp_buf), &win_guid));
+			SLCHECK_NZ(u == win_guid);
+			//
+			prev_uuid = u;
+		}
+	}
+	// } @v11.9.3 
 	return CurrentStatus;
 }
 
@@ -721,5 +741,103 @@ SLTEST_R(Bechmark_ByRefVsByVal)
 		}
 	}
 	Bechmark_ByRefVsByVal_ResultSum += (sum_a + sum_b + sum_len);
+	return CurrentStatus;
+}
+
+SLTEST_R(ObjTypeSymb)
+{
+	struct Test_ObjSymbEntry {
+		const  char * P_Symb;
+		long   Id;
+		long   HsId;
+	};
+	static Test_ObjSymbEntry __Test_ObjSymbList[] = {
+		{ "UNIT",           PPOBJ_UNIT,          PPHS_UNIT },
+		{ "QUOTKIND",       PPOBJ_QUOTKIND,      PPHS_QUOTKIND },
+		{ "LOCATION",       PPOBJ_LOCATION,      PPHS_LOCATION },
+		{ "GOODS",          PPOBJ_GOODS,         PPHS_GOODS },
+		{ "GOODSGROUP",     PPOBJ_GOODSGROUP,    PPHS_GOODSGROUP },
+		{ "BRAND",          PPOBJ_BRAND,         PPHS_BRAND },
+		{ "GOODSTYPE",      PPOBJ_GOODSTYPE,     PPHS_GOODSTYPE },
+		{ "GOODSCLASS",     PPOBJ_GOODSCLASS,    PPHS_GOODSCLASS },
+		{ "GOODSARCODE",    PPOBJ_GOODSARCODE,   PPHS_GOODSARCODE },
+		{ "PERSON",         PPOBJ_PERSON,        PPHS_PERSON },
+		{ "PERSONKIND",     PPOBJ_PERSONKIND,      PPHS_PERSONKIND },
+		{ "PERSONSTATUS",   PPOBJ_PRSNSTATUS,    PPHS_PERSONSTATUS },
+		{ "PERSONCATEGORY", PPOBJ_PRSNCATEGORY,  PPHS_PERSONCATEGORY },
+		{ "GLOBALUSER",     PPOBJ_GLOBALUSERACC, PPHS_GLOBALUSER },
+		{ "DL600",          PPOBJ_DL600DATA,     PPHS_DL600 },
+		{ "WORLD",          PPOBJ_WORLD,         PPHS_WORLD },
+		{ "CITY",           PPOBJ_WORLD | (WORLDOBJ_CITY << 16),    PPHS_CITY },
+		{ "COUNTRY",        PPOBJ_WORLD | (WORLDOBJ_COUNTRY << 16), PPHS_COUNTRY },
+		{ "QUOT",           PPOBJ_QUOT2,         PPHS_QUOT },
+		{ "CURRENCY",       PPOBJ_CURRENCY,      PPHS_CURRENCY },
+		{ "CURRATETYPE",    PPOBJ_CURRATETYPE,   PPHS_CURRATETYPE },
+		{ "SPECSERIES",     PPOBJ_SPECSERIES,    PPHS_SPECSERIES },
+		{ "SCARD",          PPOBJ_SCARD,         PPHS_SCARD },
+		{ "SCARDSERIES",    PPOBJ_SCARDSERIES,   PPHS_SCARDSERIES },
+		{ "POSNODE",        PPOBJ_CASHNODE,      PPHS_POSNODE },
+		{ "CURRATEIDENT",   PPOBJ_CURRATEIDENT,  PPHS_CURRATEIDENT },
+		{ "UHTTSCARDOP",    PPOBJ_UHTTSCARDOP,   PPHS_UHTTSCARDOP },
+		{ "LOT",            PPOBJ_LOT,           PPHS_LOT },
+		{ "BILL",           PPOBJ_BILL,          PPHS_BILL },
+		{ "UHTTSTORE",      PPOBJ_UHTTSTORE,     PPHS_UHTTSTORE },
+		{ "OPRKIND",        PPOBJ_OPRKIND,       PPHS_OPRKIND },
+		{ "WORKBOOK",       PPOBJ_WORKBOOK,      PPHS_WORKBOOK },
+		{ "CCHECK",         PPOBJ_CCHECK,        PPHS_CCHECK },
+		{ "PROCESSOR",      PPOBJ_PROCESSOR,     PPHS_PROCESSOR },
+		{ "TSESSION",       PPOBJ_TSESSION,      PPHS_TSESSION },
+		{ "STYLOPALM",      PPOBJ_STYLOPALM,     PPHS_STYLOPALM },
+		{ "STYLODEVICE",    PPOBJ_STYLOPALM,     PPHS_STYLODEVICE }
+	};
+
+	int    ok = 1;
+	SString temp_buf;
+	SString symb;
+	long   ext_param = 0;
+	PPID   obj_type = 0;
+	for(uint i = 0; i < SIZEOFARRAY(__Test_ObjSymbList); i++) {
+		Test_ObjSymbEntry & r_entry = __Test_ObjSymbList[i];
+		ext_param = 0;
+		obj_type = 0;
+		{
+			temp_buf = r_entry.P_Symb;
+			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
+			SLCHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
+			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
+				SLCHECK_LT(0, DS.GetObjectTypeSymb(r_entry.Id, symb));
+				SLCHECK_NZ(sstreqi_ascii(symb, temp_buf));
+			}
+		}
+		{
+			(temp_buf = r_entry.P_Symb).ToLower();
+			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
+			SLCHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
+			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
+				SLCHECK_LT(0, DS.GetObjectTypeSymb(r_entry.Id, symb));
+				SLCHECK_NZ(sstreqi_ascii(symb, temp_buf));
+			}
+		}
+	}
+	{
+		ext_param = 0;
+		obj_type = 0;
+		{
+			temp_buf = "CANTRY";
+			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
+			SLCHECK_EQ(0L, MakeLong(obj_type, ext_param));
+			symb = "abracadabra";
+			SLCHECK_EQ(0, DS.GetObjectTypeSymb(31139, symb));
+			SLCHECK_NZ(symb.IsEmpty());
+		}
+		{
+			temp_buf = "id";
+			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
+			SLCHECK_EQ(0L, MakeLong(obj_type, ext_param));
+			symb = "abracadabra";
+			SLCHECK_EQ(0, DS.GetObjectTypeSymb(31139, symb));
+			SLCHECK_NZ(symb.IsEmpty());
+		}
+	}
 	return CurrentStatus;
 }

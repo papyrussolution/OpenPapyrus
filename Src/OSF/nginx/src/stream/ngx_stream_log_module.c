@@ -909,7 +909,7 @@ static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flush
 						bracket = 0;
 						break;
 					}
-					if((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '_') {
+					if(isasciialnum(ch) || ch == '_') {
 						continue;
 					}
 					break;

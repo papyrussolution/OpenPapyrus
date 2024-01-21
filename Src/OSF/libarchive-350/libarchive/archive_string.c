@@ -1104,7 +1104,7 @@ static void free_sconv_object(archive_string_conv * sc)
 	{
 		uint cp = 0;
 		while(*p) {
-			if(*p >= '0' && *p <= '9')
+			if(isdec(*p))
 				cp = cp * 10 + (*p - '0');
 			else
 				return -1;

@@ -2277,6 +2277,7 @@ static int PPQueryPathFunc(const char * pSignature, SString & rBuf)
 	static const SIntToSymbTabEntry path_symb_list[] = {
 		{ PPPATH_BIN, "bin" }, { PPPATH_LOCAL, "local" }, { PPPATH_TEMP, "temp" },         { PPPATH_IN, "in" },
 		{ PPPATH_OUT, "out" }, { PPPATH_LOG, "log" },     { PPPATH_TESTROOT, "testroot" }, { PPPATH_WORKSPACE, "workspace" },
+		{ PPPATH_UID, "uid" }/*@v11.9.3*/
 	};
 	int    path_id = SIntToSymbTab_GetId(path_symb_list, SIZEOFARRAY(path_symb_list), pSignature);
 	return path_id ? PPGetPath(path_id, rBuf) : 0;
@@ -2344,7 +2345,15 @@ static int PPGetDefaultEncrKey(SString & rBuf)
 	return ok;
 }
 
-int PPSession::Init(long flags, HINSTANCE hInst)
+static SColor STDCALL Helper_GetUiColor(const SColorSet * pCs, const char * pColorSymb, SColor defaultColor) // @v11.9.3
+{
+	SColor result;
+	if(!pCs || !pCs->Get(pColorSymb, result))
+		result = defaultColor;
+	return result;
+}
+
+int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFileName)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2363,7 +2372,7 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 	SLS.InitWSA();
 	{
 		typedef VOID (WINAPI * DISABLEPROCESSWINDOWSGHOSTING)(VOID);
-		SDynLibrary lib_user32("USER32.DLL");
+		SDynLibrary lib_user32("user32.dll");
 		if(lib_user32.IsValid()) {
 			DISABLEPROCESSWINDOWSGHOSTING proc_DisableProcessWindowsGhosting = reinterpret_cast<DISABLEPROCESSWINDOWSGHOSTING>(lib_user32.GetProcAddr("DisableProcessWindowsGhosting"));
 			if(proc_DisableProcessWindowsGhosting)
@@ -2502,28 +2511,31 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 	}
 	// @v11.9.2 {
 	{
+		const bool ui_description_loaded = SLS.LoadUiDescription(pUiDescriptionFileName); // @v11.9.3
 		if(PPGetFilePath(PPPATH_BIN, PPFILNAM_PPDV_WTA, temp_buf)) {
 			if(fileExists(temp_buf))
 				DvToolList_.Load(temp_buf);
 		}
+		const UiDescription * p_uid = SLS.GetUiDescription();
+		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 		{
-			UiToolBox_.CreateColor(TProgram::tbiButtonTextColor, SColor(SClrBlack));
-			UiToolBox_.CreateColor(TProgram::tbiButtonTextColor+TProgram::tbisDisable, SColor(SClrWhite));
-			UiToolBox_.CreateColor(TProgram::tbiIconRegColor,     SColor(/*0x06, 0xAE, 0xD5*/0x00, 0x49, 0x82)); // 004982
-			UiToolBox_.CreateColor(TProgram::tbiIconAlertColor,   SColor(0xDD, 0x1C, 0x1A));
-			UiToolBox_.CreateColor(TProgram::tbiIconAccentColor,  SColor(0x2A, 0x9D, 0x8F));
-			UiToolBox_.CreateColor(TProgram::tbiIconPassiveColor, SColor(0xFF, 0xF1, 0xD0));
+			UiToolBox_.CreateColor(TProgram::tbiButtonTextColor, Helper_GetUiColor(p_cs, "button_fg", SColor(SClrBlack)));
+			UiToolBox_.CreateColor(TProgram::tbiButtonTextColor+TProgram::tbisDisable, Helper_GetUiColor(p_cs, "button_disabled_fg", SColor(SClrWhite)));
+			UiToolBox_.CreateColor(TProgram::tbiIconRegColor,     Helper_GetUiColor(p_cs, "icon_reg", SColor(0x00, 0x49, 0x82))); // "#004982"
+			UiToolBox_.CreateColor(TProgram::tbiIconAlertColor,   Helper_GetUiColor(p_cs, "icon_alert", SColor(0xDD, 0x1C, 0x1A)));
+			UiToolBox_.CreateColor(TProgram::tbiIconAccentColor,  Helper_GetUiColor(p_cs, "icon_accent", SColor(0x2A, 0x9D, 0x8F)));
+			UiToolBox_.CreateColor(TProgram::tbiIconPassiveColor, Helper_GetUiColor(p_cs, "icon_passive", SColor(0xFF, 0xF1, 0xD0)));
 			UiToolBox_.CreatePen(TProgram::tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack); // @v10.3.0
 			UiToolBox_.CreatePen(TProgram::tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInpBrush,  SPaintObj::bsSolid, SClrCrimson, 0); // @v10.2.4
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInp2Brush, SPaintObj::bsSolid, SColor(0xff, 0x99, 0x00) /*https://www.colorhexa.com/ff9900*/, 0); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInp3Brush, SPaintObj::bsSolid, SColor(0xff, 0x33, 0xcc) /*https://www.colorhexa.com/ff33cc*/, 0); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiListBkgBrush,   SPaintObj::bsSolid, SClrWhite, 0); // @v10.3.0
-			UiToolBox_.CreatePen(TProgram::tbiListBkgPen,       SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiListFocBrush,   SPaintObj::bsSolid, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
-			UiToolBox_.CreatePen(TProgram::tbiListFocPen,       SPaintObj::psSolid, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiListSelBrush,   SPaintObj::bsSolid, SColor(0xa2, 0xd2, 0xff) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
-			UiToolBox_.CreatePen(TProgram::tbiListSelPen,       SPaintObj::psDot, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInpBrush,  SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "invalidinput_bg", SClrCrimson), 0); // @v10.2.4
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInp2Brush, SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "invalidinput2_bg", SColor(0xff, 0x99, 0x00))/*https://www.colorhexa.com/ff9900*/, 0); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInp3Brush, SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "invalidinput3_bg", SColor(0xff, 0x33, 0xcc))/*https://www.colorhexa.com/ff33cc*/, 0); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiListBkgBrush,   SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "list_bg", SClrWhite), 0); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiListBkgPen,       SPaintObj::psSolid, 1.0f, Helper_GetUiColor(p_cs, "list_border", SClrWhite)); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiListFocBrush,   SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "list_focus_bg", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiListFocPen,       SPaintObj::psSolid, 1.0f, Helper_GetUiColor(p_cs, "list_focus_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiListSelBrush,   SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "list_sel_bg", SColor(0xa2, 0xd2, 0xff))/*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiListSelPen,       SPaintObj::psDot, 1.0f, Helper_GetUiColor(p_cs, "list_sel_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/); // @v10.3.0
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
 				/*
@@ -2536,14 +2548,14 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 				UiToolBox_.AddGradientStop(gradient, 1.00f, SColor(0xa1, 0xdb, 0xff));
 				UiToolBox_.CreateBrush(tbiButtonBrush, SPaintObj::bsPattern, SColor(0xDC, 0xD9, 0xD1), 0, gradient);
 				*/
-				UiToolBox_.CreateBrush(TProgram::tbiButtonBrush, SPaintObj::bsSolid, SColor(0xDC, 0xD9, 0xD1), 0);
+				UiToolBox_.CreateBrush(TProgram::tbiButtonBrush, SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "button_bg", SColor(0xDC, 0xD9, 0xD1)), 0);
 			}
-			UiToolBox_.CreateBrush(TProgram::tbiButtonBrush+TProgram::tbisSelect, SPaintObj::bsSolid, SColor(0xBA, 0xBA, 0xC9), 0);
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen, SPaintObj::psSolid, 1, UiToolBox_.GetColor(TProgram::tbiIconRegColor)/*SColor(0x47, 0x47, 0x3D)*/);
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, 1, SClrGreen);
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, 1, /*SColor(0x15, 0x20, 0xEA)*/SClrOrange); // SColor(0xE5, 0xC3, 0x65)
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, 1, /*SColor(0x15, 0x20, 0xEA)*/SClrOrange);
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, 1, SColor(SClrWhite));
+			UiToolBox_.CreateBrush(TProgram::tbiButtonBrush+TProgram::tbisSelect, SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "button_sel_bg", SColor(0xBA, 0xBA, 0xC9)), 0);
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen, SPaintObj::psSolid, 1, Helper_GetUiColor(p_cs, "button_border", UiToolBox_.GetColor(TProgram::tbiIconRegColor)));
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, 1, Helper_GetUiColor(p_cs, "button_def_border", SClrGreen));
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, 1, Helper_GetUiColor(p_cs, "button_focus_border", SClrOrange));
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, 1, Helper_GetUiColor(p_cs, "button_sel_border", SClrOrange));
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, 1, Helper_GetUiColor(p_cs, "button_disabled_border", SColor(SClrWhite)));
 			UiToolBox_.SetBrush(TProgram::tbiButtonBrush_F, SPaintObj::bsSolid, SColor(0xDC, 0xD9, 0xD1), 0);
 			UiToolBox_.SetBrush(TProgram::tbiButtonBrush_F+TProgram::tbisSelect, SPaintObj::bsSolid, SColor(0xBA, 0xBA, 0xC9), 0);
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F, SPaintObj::psSolid, 1, SColor(0x47, 0x47, 0x3D));
@@ -5046,6 +5058,10 @@ int PPSession::GetPath(PPID pathID, SString & rBuf)
 			GetPath(PPPATH_DD, rBuf); // @recursion
 			rBuf.SetLastSlash().Cat("WTM");
 			break;
+		case PPPATH_UID: // @v11.9.3
+			GetPath(PPPATH_DD, rBuf); // @recursion
+			rBuf.SetLastSlash().Cat("UID");
+			break;
 		case PPPATH_LOCAL:
 			GetLocalPath(rBuf);
 			break;
@@ -6242,110 +6258,6 @@ bool SysMaintenanceEventResponder::IsConsistent() const { return (Signature == P
 {
 	return -1;
 }
-//
-//
-//
-#if SLTEST_RUNNING // {
-
-SLTEST_R(ObjTypeSymb)
-{
-	struct Test_ObjSymbEntry {
-		const  char * P_Symb;
-		long   Id;
-		long   HsId;
-	};
-	static Test_ObjSymbEntry __Test_ObjSymbList[] = {
-		{ "UNIT",           PPOBJ_UNIT,          PPHS_UNIT },
-		{ "QUOTKIND",       PPOBJ_QUOTKIND,      PPHS_QUOTKIND },
-		{ "LOCATION",       PPOBJ_LOCATION,      PPHS_LOCATION },
-		{ "GOODS",          PPOBJ_GOODS,         PPHS_GOODS },
-		{ "GOODSGROUP",     PPOBJ_GOODSGROUP,    PPHS_GOODSGROUP },
-		{ "BRAND",          PPOBJ_BRAND,         PPHS_BRAND },
-		{ "GOODSTYPE",      PPOBJ_GOODSTYPE,     PPHS_GOODSTYPE },
-		{ "GOODSCLASS",     PPOBJ_GOODSCLASS,    PPHS_GOODSCLASS },
-		{ "GOODSARCODE",    PPOBJ_GOODSARCODE,   PPHS_GOODSARCODE },
-		{ "PERSON",         PPOBJ_PERSON,        PPHS_PERSON },
-		{ "PERSONKIND",     PPOBJ_PERSONKIND,      PPHS_PERSONKIND },
-		{ "PERSONSTATUS",   PPOBJ_PRSNSTATUS,    PPHS_PERSONSTATUS },
-		{ "PERSONCATEGORY", PPOBJ_PRSNCATEGORY,  PPHS_PERSONCATEGORY },
-		{ "GLOBALUSER",     PPOBJ_GLOBALUSERACC, PPHS_GLOBALUSER },
-		{ "DL600",          PPOBJ_DL600DATA,     PPHS_DL600 },
-		{ "WORLD",          PPOBJ_WORLD,         PPHS_WORLD },
-		{ "CITY",           PPOBJ_WORLD | (WORLDOBJ_CITY << 16),    PPHS_CITY },
-		{ "COUNTRY",        PPOBJ_WORLD | (WORLDOBJ_COUNTRY << 16), PPHS_COUNTRY },
-		{ "QUOT",           PPOBJ_QUOT2,         PPHS_QUOT },
-		{ "CURRENCY",       PPOBJ_CURRENCY,      PPHS_CURRENCY },
-		{ "CURRATETYPE",    PPOBJ_CURRATETYPE,   PPHS_CURRATETYPE },
-		{ "SPECSERIES",     PPOBJ_SPECSERIES,    PPHS_SPECSERIES },
-		{ "SCARD",          PPOBJ_SCARD,         PPHS_SCARD },
-		{ "SCARDSERIES",    PPOBJ_SCARDSERIES,   PPHS_SCARDSERIES },
-		{ "POSNODE",        PPOBJ_CASHNODE,      PPHS_POSNODE },
-		{ "CURRATEIDENT",   PPOBJ_CURRATEIDENT,  PPHS_CURRATEIDENT },
-		{ "UHTTSCARDOP",    PPOBJ_UHTTSCARDOP,   PPHS_UHTTSCARDOP },
-		{ "LOT",            PPOBJ_LOT,           PPHS_LOT },
-		{ "BILL",           PPOBJ_BILL,          PPHS_BILL },
-		{ "UHTTSTORE",      PPOBJ_UHTTSTORE,     PPHS_UHTTSTORE },
-		{ "OPRKIND",        PPOBJ_OPRKIND,       PPHS_OPRKIND },
-		{ "WORKBOOK",       PPOBJ_WORKBOOK,      PPHS_WORKBOOK },
-		{ "CCHECK",         PPOBJ_CCHECK,        PPHS_CCHECK },
-		{ "PROCESSOR",      PPOBJ_PROCESSOR,     PPHS_PROCESSOR },
-		{ "TSESSION",       PPOBJ_TSESSION,      PPHS_TSESSION },
-		{ "STYLOPALM",      PPOBJ_STYLOPALM,     PPHS_STYLOPALM },
-		{ "STYLODEVICE",    PPOBJ_STYLOPALM,     PPHS_STYLODEVICE }
-	};
-
-	int    ok = 1;
-	SString temp_buf;
-	SString symb;
-	long   ext_param = 0;
-	PPID   obj_type = 0;
-	for(uint i = 0; i < SIZEOFARRAY(__Test_ObjSymbList); i++) {
-		Test_ObjSymbEntry & r_entry = __Test_ObjSymbList[i];
-		ext_param = 0;
-		obj_type = 0;
-		{
-			temp_buf = r_entry.P_Symb;
-			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
-			SLCHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
-			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
-				SLCHECK_LT(0, DS.GetObjectTypeSymb(r_entry.Id, symb));
-				SLCHECK_NZ(sstreqi_ascii(symb, temp_buf));
-			}
-		}
-		{
-			(temp_buf = r_entry.P_Symb).ToLower();
-			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
-			SLCHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
-			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
-				SLCHECK_LT(0, DS.GetObjectTypeSymb(r_entry.Id, symb));
-				SLCHECK_NZ(sstreqi_ascii(symb, temp_buf));
-			}
-		}
-	}
-	{
-		ext_param = 0;
-		obj_type = 0;
-		{
-			temp_buf = "CANTRY";
-			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
-			SLCHECK_EQ(0L, MakeLong(obj_type, ext_param));
-			symb = "abracadabra";
-			SLCHECK_EQ(0, DS.GetObjectTypeSymb(31139, symb));
-			SLCHECK_NZ(symb.IsEmpty());
-		}
-		{
-			temp_buf = "id";
-			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
-			SLCHECK_EQ(0L, MakeLong(obj_type, ext_param));
-			symb = "abracadabra";
-			SLCHECK_EQ(0, DS.GetObjectTypeSymb(31139, symb));
-			SLCHECK_NZ(symb.IsEmpty());
-		}
-	}
-	return CurrentStatus;
-}
-
-#endif // } SLTEST_RUNNING
 //
 //
 //

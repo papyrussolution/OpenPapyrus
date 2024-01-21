@@ -151,7 +151,7 @@ static std::optional<QuadrilateralF> FitQadrilateralToPoints(PointF center, std:
 	for(int i = 0; i < 4; ++i)
 		for(const PointF* p = beg[i]; p != end[i]; ++p) {
 			auto len = std::distance(beg[i], end[i]);
-			if(len > 3 && lines[i].distance(*p) > std::max(1., std::min(8., len / 8.))) {
+			if(len > 3 && lines[i].distance(*p) > smax(1., smin(8., len / 8.))) {
 #ifdef PRINT_DEBUG
 				printf("%d: %.2f > %.2f @ %.fx%.f\n", i, lines[i].distance(*p), std::distance(beg[i], end[i]) / 1., p->x, p->y);
 #endif

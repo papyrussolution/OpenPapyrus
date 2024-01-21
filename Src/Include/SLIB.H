@@ -3003,6 +3003,8 @@ struct SUniDate_Internal { // @v11.9.2
 	int    GetDaysSinceChristmas() const { return DateToDaysSinceChristmas(Y, M, D); }
 	bool   SetSdnGregorian(uint g);
 	bool   SetSdnJulian(uint g);
+	int    GetSdnGregorian() const { return GregorianToSdn(Y, M, D); }
+	int    GetSdnJulian() const { return JulianToSdn(Y, M, D); }
 	SUniDate_Internal & Z();
 	bool   FASTCALL operator == (const SUniDate_Internal & rS) const { return (Y == rS.Y && M == rS.M && D == rS.D); }
 	int    Y; // @v11.9.2 uint-->int Год - signed int поскольку в некоторых системах представления даты отрицательное значение
@@ -5244,6 +5246,7 @@ inline bool isdirslash(uchar c) { return oneof2(c, '/', '\\'); }
 inline bool isdirslash(wchar_t c) { return oneof2(c, L'/', L'\\'); }
 //
 // Descr: Возвращает !0 если символ c является шестнадцатиричным знаком [0-9A-Fa-f]
+// Note: (from icu) A-F/a-f are contiguous also in EBCDIC
 //
 bool   FASTCALL ishex(char c);
 bool   FASTCALL ishexw(wchar_t c);
@@ -5251,13 +5254,23 @@ bool   FASTCALL ishexw(wchar_t c);
 // Descr: Возвращает !0 если символ c является десятичным знаком [0-9]
 //
 bool   FASTCALL isdec(char c);
-bool   FASTCALL isdecw(wchar_t c);
+bool   FASTCALL isdec(int c);
+bool   FASTCALL isdec(uint c);
+bool   FASTCALL isdec(wchar_t c);
+bool   FASTCALL isdec(char16_t c);
 //
-// Descr: Возвращает значение шестнадцатиричного знака c. Если c не является шестнацдатиричным знаком,
+// Descr: Возвращает значение шестнадцатиричного знака c. Если c не является шестнадцатиричным знаком,
 //   то возвращает 0 (для того, чтобы избежать путаницы с hex('0') следует проверять
 //   символ функцией ishex(char)).
 //
 uint   FASTCALL hex(char c);
+//
+// Descr: Возвращает значение пары шестнадцатиричных символов c1 и c2.
+//   Фактически, эквивалент hex(c1) * 16 + hex(c2).
+//   Так же как и hex(), если символы c1 или c2 не являются валидными шестнадцатиричными
+//   знаками, то соответствующий результат будет нулевым.
+//
+inline uint FASTCALL hex2(char c1, char c2) { return (hex(c1) << 4) + hex(c2); }
 uint   FASTCALL hexw(wchar_t c);
 //
 // Descr: Преобразует два шестнадцатиричных символа pBuf[0] и pBuf[1] в
@@ -5267,10 +5280,10 @@ uint   FASTCALL hexw(wchar_t c);
 //    проверить эти символы функцией ishex(char).
 //
 uint8  FASTCALL hextobyte(const char * pBuf);
-inline bool isasciialpha(char ch) { return LOGIC(((uchar)(ch | 32) - 97) < 26U); }
-inline bool isasciialpha(int ch) { return LOGIC(((uchar)(ch | 32) - 97) < 26U); }
-inline bool isasciialpha(wchar_t ch) { return LOGIC(((uchar)(ch | 32) - 97) < 26U); }
-inline bool isasciialnum(char ch) { return ((ch >= '0' && ch <= '9') || (((uchar)(ch | 32) - 97) < 26U)); }
+template <class T> bool isasciiupr(T ch) { return (ch >= 'A' && ch <= 'Z'); }
+template <class T> bool isasciilwr(T ch) { return (ch >= 'a' && ch <= 'z'); }
+template <class T> bool isasciialpha(T ch) { return (((uchar)(ch | 32) - 97) < 26U); }
+template <class T> bool isasciialnum(T ch) { return ((ch >= '0' && ch <= '9') || (((uchar)(ch | 32) - 97) < 26U)); }
 // @v10.9.3 (replaced with isasciialpha) int    FASTCALL IsLetterASCII(int ch); // synonym of isasciialpha
 int    FASTCALL ToLower1251(int ch);
 int    FASTCALL ToUpper1251(int ch);
@@ -13526,6 +13539,27 @@ struct SMathResult {
 	double E; // Error
 };
 
+struct SphericalDirection { // @v11.9.3
+	SphericalDirection() : PolarAngle(0.0), Azimuth(0.0)
+	{
+	}
+	void Normalize()
+	{
+		if(fabs(Azimuth) >= 360.0)
+			Azimuth = fmod(Azimuth, 360.0);
+		if(Azimuth < 0.0)
+			Azimuth += 360.0;
+		if(PolarAngle < 0.0)
+			PolarAngle = -PolarAngle;
+		if(PolarAngle > 180.0) {
+			PolarAngle = fmod(PolarAngle, 360.0);
+			// ... @todo
+		}
+	}
+	double PolarAngle; // полярный угол [0deg..180deg] в направлении с севера на юг
+	double Azimuth;    // угол азимута [0deg..360deg) в направлении справа налево
+};
+
 // @v11.7.12 typedef uint LMIDX_Removed; // @v11.7.12 long-->uint
 typedef TSVector <unsigned long> UlongArray;
 // @v10.9.1 {
@@ -14463,18 +14497,6 @@ uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 //
 //
 //
-//int    FASTCALL smin(int a, int b);
-//int    FASTCALL smax(int a, int b);
-//int64  FASTCALL smin(int64 a, int64 b);
-//int64  FASTCALL smax(int64 a, int64 b);
-//uint   FASTCALL smin(uint a, uint b);
-//uint   FASTCALL smax(uint a, uint b);
-//uint64 FASTCALL smin(uint64 a, uint64 b);
-//uint64 FASTCALL smax(uint64 a, uint64 b);
-//double FASTCALL smin(double a, double b);
-//double FASTCALL smax(double a, double b);
-//float  FASTCALL smax(float a, float b);
-//float  FASTCALL smin(float a, float b);
 template <class T> T smin(T a, T b) { return MIN(a, b); }
 //
 // Descr: Возвращает минимум 3-х аргументов.
@@ -14497,19 +14519,6 @@ template <class T> T smax4(T a, T b, T c, T d) { return smax(MAX(a, b), MAX(c, d
 // Descr: Функция возвращает значение v в пределах диапазона [lo..up]. If v >= lo && v <= up, то результат v, elseif (v < lo) --> lo, else --> up
 // Функции sclampx проверяют границы диапазона lo vs up: если lo < up то результат эквивалентен sclamp(v, lo, up) иначе - sclamp(v, up, lo)
 //
-//int    FASTCALL sclamp(int v, int lo, int up);
-//uint   FASTCALL sclamp(uint v, uint lo, uint up);
-//int64  FASTCALL sclamp(int64 v, int64 lo, int64 up);
-//uint64 FASTCALL sclamp(uint64 v, uint64 lo, uint64 up);
-//double FASTCALL sclamp(double v, double lo, double up);
-//float  FASTCALL sclamp(float v, float lo, float up);
-//int    FASTCALL sclampx(int v, int lo, int up);
-//uint   FASTCALL sclampx(uint v, uint lo, uint up);
-//int64  FASTCALL sclampx(int64 v, int64 lo, int64 up);
-//uint64 FASTCALL sclampx(uint64 v, uint64 lo, uint64 up);
-//double FASTCALL sclampx(double v, double lo, double up);
-//float  FASTCALL sclampx(float v, float lo, float up);
-
 template <class T> T sclamp(T v, T lo, T up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 template <class T> T sclampx(T v, T lo, T up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
 
@@ -17044,8 +17053,13 @@ public:
 			// Windows Server 2008, Windows Vista, Windows Server 2003 and Windows XP: This value is not supported.
 		//
 		fInheritHandles             = 0x00020000,
-		fLogonWithProfile           = 0x00040000 // Если запуск приложения осуществляется от имени пользователя, то вызов соответствующей
+		fLogonWithProfile           = 0x00040000, // Если запуск приложения осуществляется от имени пользователя, то вызов соответствующей
 			// функции сопровождается флагом LOGON_WITH_PROFILE.
+		fCaptureStdIn               = 0x00080000, // @v11.9.3 @construction Перехватить ввод из stdin
+		fCaptureStdOut              = 0x00100000, // @v11.9.3 @construction Перехватить вывод в stdout
+		fCaptureStdErr              = 0x00200000, // @v11.9.3 @construction Перехватить вывод в stderr
+		fCaptureReadAsync           = 0x00400000, // @v11.9.3 @construction Чтение stdout и stderr дочернего процесса осуществляется асинхронно 
+		fCombinedStdErrStdOut       = 0x00800000, // @v11.9.3 @construction 
 	};
 
 	class StartUpBlock {
@@ -17067,13 +17081,16 @@ public:
 	};
 
 	struct Result {
-		Result() : ProcessId(0), ThreadId(0)
-		{
-		}
+		Result();
+		~Result();
 		SIntHandle HProcess;
 		SIntHandle HThread;
 		uint   ProcessId;
 		uint   ThreadId;
+		//
+		FILE * F_StdIn;   // @v11.9.3
+		FILE * F_StdOut;  // @v11.9.3
+		FILE * F_StdErr;  // @v11.9.3
 	};
 
 	class AppContainer {
@@ -17154,7 +17171,7 @@ private:
 	bool   Helper_SsAdd(StringSet & rInner, const char * pAddendumUtf8);
 	bool   Helper_SsAdd(StringSet & rInner, const wchar_t * pAddendum);
 
-	uint   Flags;
+	uint   Flags;   // Флаги (частично проецируются на флаги системного вызова функции создания процесса)
 	SPtrHandle UserToken; // Если !!UserToken, то запуск процесса осуществляется от имени пользователя, определяемого этим токеном.
 	SStringU AppName;
 	SStringU Path;       // Полный путь до exe-модуля //
@@ -17336,7 +17353,8 @@ typedef int (*GetDefaultEncrKeyFunc)(SString & rBuf);
 //   "out"  - каталог исходящих данных
 //   "log"  - каталог файлов журналов
 //   "testroot"  - головной каталог тестовых данных
-//   "workspace" - головной каталог рабочего пространства пользователя
+//   "workspace" - головной каталог рабочего пространства пользователя //
+//   "uid" - каталог, содержащий описания (частичные) пользовательского интерфейса // @v11.9.3
 // ARG(rBuf      OUT): буфер, в который функция должна записать запрашиваемый путь.
 //
 typedef int (*QueryPathFunc)(const char * pSignature, SString & rBuf);
@@ -17564,6 +17582,17 @@ public:
 	// Descr: Проверят установлен ли заданный флаг пользовательского интерфейса текущего потока.
 	//
 	int     FASTCALL CheckUiFlag(long f) const;
+	//
+	// Descr: Функция загружает определители пользовательского интерфейса из файла с именем pFileName.
+	//   Указатель pFileName должен содержать только имя файла, поскольку каталог, где находится файл
+	//   определяется вызовом функции QueryPath("uid") (клиентский прикладной код должен определить этот каталог).
+	// Note: Функцию нельзя вызывать в методе SlSession::Init поскольку на момент выполнения этой функции
+	//   высокоуровневый прикладной клиент скорее всего еще не инициализировал пути.
+	//   Функция сама по себе реентерабельная, однако объект по указателю PPSession::P_Uid не блокируется,
+	//   что потенциально может быть причиной сбоя! 
+	//
+	bool    LoadUiDescription(const char * pFileName); // @v11.9.3
+	const UiDescription * GetUiDescription() const { return P_Uid; } // @v11.9.3
 	//
 	//
 	//

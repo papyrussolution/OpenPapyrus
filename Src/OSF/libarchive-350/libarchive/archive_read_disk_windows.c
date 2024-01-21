@@ -1634,7 +1634,6 @@ static int tree_dir_next_windows(struct tree * t, const wchar_t * pattern)
 static void fileTimeToUtc(const FILETIME * filetime, time_t * t, long * ns)
 {
 	ULARGE_INTEGER utc;
-
 	utc.HighPart = filetime->dwHighDateTime;
 	utc.LowPart  = filetime->dwLowDateTime;
 	if(utc.QuadPart >= SlConst::Epoch1600_1970_Offs_100Ns) {
@@ -1650,14 +1649,12 @@ static void fileTimeToUtc(const FILETIME * filetime, time_t * t, long * ns)
 	}
 }
 
-static void entry_copy_bhfi(ArchiveEntry * entry, const wchar_t * path,
-    const WIN32_FIND_DATAW * findData,
+static void entry_copy_bhfi(ArchiveEntry * entry, const wchar_t * path, const WIN32_FIND_DATAW * findData,
     const BY_HANDLE_FILE_INFORMATION * bhfi)
 {
 	time_t secs;
 	long nsecs;
 	mode_t mode;
-
 	fileTimeToUtc(&bhfi->ftLastAccessTime, &secs, &nsecs);
 	archive_entry_set_atime(entry, secs, nsecs);
 	fileTimeToUtc(&bhfi->ftLastWriteTime, &secs, &nsecs);
@@ -1691,7 +1688,7 @@ static void entry_copy_bhfi(ArchiveEntry * entry, const wchar_t * path,
 		if(p && wcslen(p) == 4) {
 			switch(p[1]) {
 				case L'B': case L'b':
-				    if((p[2] == L'A' || p[2] == L'a' ) && (p[3] == L'T' || p[3] == L't' ))
+				    if((p[2] == L'A' || p[2] == L'a') && (p[3] == L'T' || p[3] == L't'))
 					    mode |= S_IXUSR | S_IXGRP | S_IXOTH;
 				    break;
 				case L'C': case L'c':
@@ -1699,7 +1696,7 @@ static void entry_copy_bhfi(ArchiveEntry * entry, const wchar_t * path,
 					    mode |= S_IXUSR | S_IXGRP | S_IXOTH;
 				    break;
 				case L'E': case L'e':
-				    if((p[2] == L'X' || p[2] == L'x' ) && (p[3] == L'E' || p[3] == L'e' ))
+				    if(oneof2(p[2], L'X', L'x') && oneof2(p[3], L'E', L'e'))
 					    mode |= S_IXUSR | S_IXGRP | S_IXOTH;
 				    break;
 				default:

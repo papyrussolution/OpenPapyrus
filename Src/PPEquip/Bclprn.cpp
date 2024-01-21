@@ -1,5 +1,5 @@
 // BCLPRN.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -540,23 +540,14 @@ BarcodeFormatToken BarcodeLabel::NextToken(char ** ppLine, char * pBuf, size_t b
 			while(!oneof2(*s, '\"', 0) && dp < tbs-2) {
 				if(*s == '\\') {
 					s++;
-					if(toupper(*s) == 'X') {
+					if(oneof2(*s, 'X', 'x')) {
 						s++; // @v10.3.0 @fix *s++ --> s++
 						int    hc = 0;
 						if(ishex(*s)) { // @v10.9.8 isxdigit-->ishex
-							int    h = toupper(*s);
-							if(isdec(h))
-								hc += (h-'0');
-							else if(h >= 'A' && h <= 'F')
-								hc += 10 + (h-'A');
+							hc += hex(*s);
 							s++;
 							if(ishex(*s)) { // @v10.9.8 isxdigit-->ishex
-								hc *= 16;
-								h = toupper(*s);
-								if(isdec(h))
-									hc += (h-'0');
-								else if(h >= 'A' && h <= 'F')
-									hc += 10 + (h-'A');
+								hc = (hc << 4) + hex(*s);
 								s++;
 							}
 						}
@@ -601,7 +592,7 @@ BarcodeFormatToken BarcodeLabel::NextToken(char ** ppLine, char * pBuf, size_t b
 					case bcvsSerXNom:    tok = tokSerXNom; break;
 					default:
 						{
-							size_t len = sstrlen(word);
+							const size_t len = sstrlen(word);
 							tok = tokNumber;
 							for(size_t i = 0; tok != tokIdent && i < len; i++)
 								if(!isdec(word[i]))

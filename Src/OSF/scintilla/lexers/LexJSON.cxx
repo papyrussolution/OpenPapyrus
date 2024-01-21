@@ -443,37 +443,17 @@ void SCI_METHOD LexerJSON::Lex(Sci_PositionU startPos,
 					context.SetState(SCE_JSON_KEYWORD);
 				}
 			}
-			bool numberStart =
-			    IsADigit(context.ch) && (context.chPrev == '+'||
-			    context.chPrev == '-' ||
-			    context.atLineStart ||
-			    IsASpace(context.chPrev) ||
-			    setOperators.Contains(context.chPrev));
-			bool exponentPart =
-			    tolower(context.ch) == 'e' &&
-			    IsADigit(context.chPrev) &&
-			    (IsADigit(context.chNext) ||
-			    context.chNext == '+' ||
-			    context.chNext == '-');
-			bool signPart =
-			    (context.ch == '-' || context.ch == '+') &&
-			    ((tolower(context.chPrev) == 'e' && IsADigit(context.chNext)) ||
-			    ((IsASpace(context.chPrev) || setOperators.Contains(context.chPrev))
-				 && IsADigit(context.chNext)));
-			bool adjacentDigit =
-			    IsADigit(context.ch) && IsADigit(context.chPrev);
-			bool afterExponent = IsADigit(context.ch) && tolower(context.chPrev) == 'e';
-			bool dotPart = context.ch == '.' &&
-			    IsADigit(context.chPrev) &&
-			    IsADigit(context.chNext);
-			bool afterDot = IsADigit(context.ch) && context.chPrev == '.';
-			if(numberStart ||
-			    exponentPart ||
-			    signPart ||
-			    adjacentDigit ||
-			    dotPart ||
-			    afterExponent ||
-			    afterDot) {
+			bool numberStart = isdec(context.ch) && (context.chPrev == '+'|| context.chPrev == '-' ||
+			    context.atLineStart || IsASpace(context.chPrev) || setOperators.Contains(context.chPrev));
+			bool exponentPart = tolower(context.ch) == 'e' && isdec(context.chPrev) && (isdec(context.chNext) || context.chNext == '+' || context.chNext == '-');
+			bool signPart = (context.ch == '-' || context.ch == '+') &&
+			    ((tolower(context.chPrev) == 'e' && isdec(context.chNext)) ||
+			    ((IsASpace(context.chPrev) || setOperators.Contains(context.chPrev)) && isdec(context.chNext)));
+			bool adjacentDigit = isdec(context.ch) && isdec(context.chPrev);
+			bool afterExponent = isdec(context.ch) && tolower(context.chPrev) == 'e';
+			bool dotPart = context.ch == '.' && isdec(context.chPrev) && isdec(context.chNext);
+			bool afterDot = isdec(context.ch) && context.chPrev == '.';
+			if(numberStart || exponentPart || signPart || adjacentDigit || dotPart || afterExponent || afterDot) {
 				context.SetState(SCE_JSON_NUMBER);
 			}
 			else if(context.state == SCE_JSON_DEFAULT && !IsASpace(context.ch)) {

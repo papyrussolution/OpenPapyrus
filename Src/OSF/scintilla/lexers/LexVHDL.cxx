@@ -112,7 +112,7 @@ static void ColouriseVHDLDoc(Sci_PositionU startPos, Sci_Position length, int in
 
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_VHDL_DEFAULT) {
-			if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
+			if(isdec(sc.ch) || (sc.ch == '.' && isdec(sc.chNext))) {
 				sc.SetState(SCE_VHDL_NUMBER);
 			}
 			else if(IsAWordStart(sc.ch)) {

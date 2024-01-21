@@ -62,7 +62,6 @@ TEST(ODCode128Writer, EncodeWithFunc3)
 	auto toEncode = L"\xf3""123";
 	//                                                       "1"            "2"             "3"          check digit 51
 	auto expected = QUIET_SPACE + START_CODE_B + FNC3 + "10011100110" + "11001110010" + "11001011100" + "11101000110" + STOP + QUIET_SPACE;
-
 	auto actual = LineMatrixToString(Code128Writer().encode(toEncode, 0, 0));
 	EXPECT_EQ(actual, expected);
 }
@@ -72,7 +71,6 @@ TEST(ODCode128Writer, EncodeWithFunc4)
 	auto toEncode = L"\xf4""123";
 	//                                                       "1"            "2"             "3"          check digit 59
 	auto expected = QUIET_SPACE + START_CODE_B + FNC4B + "10011100110" + "11001110010" + "11001011100" + "11100011010" + STOP + QUIET_SPACE;
-
 	auto actual = LineMatrixToString(Code128Writer().encode(toEncode, 0, 0));
 	EXPECT_EQ(actual, expected);
 }
@@ -108,7 +106,6 @@ TEST(ODCode128Writer, EncodeSwitchCodesetFromAToB)
 	auto toEncode = std::string("\0ABab\u0010", 6);
 	//                                           "\0"            "A"             "B"             Switch to B     "a"             "b"             Switch to A     "\u0010"        check digit
 	auto expected = QUIET_SPACE + START_CODE_A + "10100001100" + "10100011000" + "10001011000" + SWITCH_CODE_B + "10010110000" + "10010000110" + SWITCH_CODE_A + "10100111100" + "11001110100" + STOP + QUIET_SPACE;
-
 	auto encoded = Code128Writer().encode(toEncode, 0, 0);
 	auto actual = LineMatrixToString(encoded);
 	EXPECT_EQ(actual, expected);
@@ -127,7 +124,6 @@ TEST(ODCode128Writer, EncodeSwitchCodesetFromBToA)
 	auto encoded = Code128Writer().encode(toEncode, 0, 0);
 	auto actual = LineMatrixToString(encoded);
 	EXPECT_EQ(actual, expected);
-
 	auto actualRoundTrip = Decode(encoded).text(TextMode::Plain);
 	EXPECT_EQ(actualRoundTrip, toEncode);
 }

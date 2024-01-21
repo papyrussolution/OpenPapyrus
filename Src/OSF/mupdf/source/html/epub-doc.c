@@ -721,12 +721,9 @@ static void epub_output_accelerator(fz_context * ctx, fz_document * doc_, fz_out
 {
 	epub_document * doc = (epub_document*)doc_;
 	int i;
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		if(doc->accel == NULL)
 			fz_throw(ctx, FZ_ERROR_GENERIC, "No accelerator data to write");
-
 		fz_write_int32_le(ctx, out, MAGIC_ACCELERATOR);
 		fz_write_int32_le(ctx, out, MAGIC_ACCEL_EPUB);
 		fz_write_int32_le(ctx, out, ACCEL_VERSION);
@@ -738,7 +735,6 @@ static void epub_output_accelerator(fz_context * ctx, fz_document * doc_, fz_out
 		fz_write_int32_le(ctx, out, doc->accel->num_chapters);
 		for(i = 0; i < doc->accel->num_chapters; i++)
 			fz_write_int32_le(ctx, out, doc->accel->pages_in_chapter[i]);
-
 		fz_close_output(ctx, out);
 	}
 	fz_always(ctx)
@@ -750,15 +746,11 @@ static void epub_output_accelerator(fz_context * ctx, fz_document * doc_, fz_out
 static fz_document * epub_init(fz_context * ctx, fz_archive * zip, fz_stream * accel)
 {
 	epub_document * doc = NULL;
-
 	fz_var(doc);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		doc = fz_new_derived_document(ctx, epub_document);
 		doc->zip = zip;
 		zip = NULL;
-
 		doc->super.drop_document = epub_drop_document;
 		doc->super.layout = epub_layout;
 		doc->super.load_outline = epub_load_outline;
@@ -771,19 +763,16 @@ static fz_document * epub_init(fz_context * ctx, fz_archive * zip, fz_stream * a
 		doc->super.lookup_metadata = epub_lookup_metadata;
 		doc->super.output_accelerator = epub_output_accelerator;
 		doc->super.is_reflowable = 1;
-
 		doc->set = fz_new_html_font_set(ctx);
 		doc->css_sum = user_css_sum(ctx);
 		epub_load_accelerator(ctx, doc, accel);
 		epub_parse_header(ctx, doc);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_archive(ctx, zip);
 		fz_drop_document(ctx, &doc->super);
 		fz_rethrow(ctx);
 	}
-
 	return (fz_document*)doc;
 }
 
@@ -796,12 +785,9 @@ static fz_document * epub_open_accel_document(fz_context * ctx, const char * fil
 {
 	fz_stream * afile = NULL;
 	fz_document * doc;
-
 	if(accel)
 		afile = fz_open_file(ctx, accel);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		if(strstr(filename, "META-INF/container.xml") || strstr(filename, "META-INF\\container.xml")) {
 			char dirname[2048], * p;
 			fz_strlcpy(dirname, filename, sizeof dirname);
@@ -818,7 +804,6 @@ static fz_document * epub_open_accel_document(fz_context * ctx, const char * fil
 	fz_drop_stream(ctx, afile);
 	fz_catch(ctx)
 	fz_rethrow(ctx);
-
 	return doc;
 }
 
@@ -839,20 +824,10 @@ static int epub_recognize(fz_context * doc, const char * magic)
 	return 0;
 }
 
-static const char * epub_extensions[] =
-{
-	"epub",
-	NULL
-};
+static const char * epub_extensions[] = { "epub", NULL };
+static const char * epub_mimetypes[] = { "application/epub+zip", NULL };
 
-static const char * epub_mimetypes[] =
-{
-	"application/epub+zip",
-	NULL
-};
-
-fz_document_handler epub_document_handler =
-{
+fz_document_handler epub_document_handler = {
 	epub_recognize,
 	epub_open_document,
 	epub_open_document_with_stream,

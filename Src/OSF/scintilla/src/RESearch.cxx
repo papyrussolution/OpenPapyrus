@@ -319,6 +319,8 @@ static uchar escapeValue(uchar ch)
 
 static int GetHexaChar(uchar hd1, uchar hd2) 
 {
+	return (ishex(hd1) && ishex(hd2)) ? (int)hex2(hd1, hd2) : -1; // @v11.9.3
+	/* @v11.9.3
 	int hexValue = 0;
 	if(hd1 >= '0' && hd1 <= '9') {
 		hexValue += 16 * (hd1 - '0');
@@ -345,6 +347,7 @@ static int GetHexaChar(uchar hd1, uchar hd2)
 		return -1;
 	}
 	return hexValue;
+	*/
 }
 
 /**
@@ -399,7 +402,7 @@ int RESearch::GetBackslashExpression(const char * pattern, int &incr)
 		    break;
 		case 'D':
 		    for(c = 0; c < MAXCHR; c++) {
-			    if(c < '0' || c > '9') {
+			    if(!isdec(c)) {
 				    ChSet(static_cast<uchar>(c));
 			    }
 		    }

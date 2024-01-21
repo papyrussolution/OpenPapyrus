@@ -3436,15 +3436,14 @@ enum enum_dyncol_func_result mariadb_dyncol_val_long(longlong * ll, DYNAMIC_COLU
 		    char * src = val->x.string.value.str;
 		    size_t len = val->x.string.value.length;
 		    longlong i = 0, sign = 1;
-
-		    while(len && isspace(*src)) src++, len--;
-
+		    while(len && isspace(*src)) 
+				src++, len--;
 		    if(len) {
 			    if(*src == '-') {
 				    sign = -1;
 				    src++;
 			    }
-			    while(len && isdigit(*src)) {
+			    while(len && isdec(*src)) {
 				    i = i * 10 + (*src - '0');
 				    src++;
 			    }

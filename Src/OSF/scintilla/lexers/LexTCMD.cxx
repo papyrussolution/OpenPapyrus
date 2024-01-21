@@ -312,7 +312,7 @@ ColorizeArg:
 
 				// Check for Local Variable (%%a)
 			}
-			else if(     (wbl > 2) && (wordBuffer[1] == '%') && (wordBuffer[2] != '%') && (!IsBOperator(wordBuffer[2])) &&
+			else if((wbl > 2) && (wordBuffer[1] == '%') && (wordBuffer[2] != '%') && (!IsBOperator(wordBuffer[2])) &&
 			    (!IsBSeparator(wordBuffer[2]))) {
 				n = 2;
 				while(( wordBuffer[n]) && (!IsBOperator(wordBuffer[n])) && (!IsBSeparator(wordBuffer[n])))

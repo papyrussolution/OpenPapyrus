@@ -140,9 +140,10 @@ static void Decode(js_State * J, const char * str, const char * reserved)
 				js_urierror(J, "truncated escape sequence");
 			a = *str++;
 			b = *str++;
-			if(!jsY_ishex(a) || !jsY_ishex(b))
+			if(!ishex(a) || !ishex(b))
 				js_urierror(J, "invalid escape sequence");
-			c = jsY_tohex(a) << 4 | jsY_tohex(b);
+			// @v11.9.3 c = jsY_tohex(a) << 4 | jsY_tohex(b);
+			c = hex2(a, b); // @v11.9.3
 			if(!strchr(reserved, c))
 				js_putc(J, &sb, c);
 			else {

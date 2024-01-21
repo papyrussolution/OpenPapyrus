@@ -508,14 +508,13 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromString(decNumber * dn, const char
   #endif
 	Int residue; /* rounding residue  */
 	uInt status = 0; /* error code  */
-
   #if DECCHECK
 	if(decCheckOperands(DECUNRESU, DECUNUSED, DECUNUSED, set))
 		return uprv_decNumberZero(dn);
   #endif
 	do { // status & malloc protection
 		for(c = chars;; c++) { /* -> input character  */
-			if(*c>='0' && *c<='9') { /* test for Arabic digit  */
+			if(isdec(*c)) { /* test for Arabic digit  */
 				last = c;
 				d++; /* count of real digits  */
 				continue; /* still in decimal part  */
@@ -974,7 +973,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberCompareTotalMag(decNumber * res, cons
 			needbytes = sizeof(decNumber)+(D2U(lhs->digits)-1)*sizeof(Unit);
 			if(needbytes>sizeof(bufa)) { /* need malloc space  */
 				allocbufa = (decNumber*)uprv_malloc(needbytes);
-				if(allocbufa==NULL) { /* hopeless -- abandon  */
+				if(!allocbufa) { /* hopeless -- abandon  */
 					status |= DEC_Insufficient_storage;
 					break;
 				}
@@ -1170,7 +1169,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberFMA(decNumber * res, const decNumber 
 		needbytes = sizeof(decNumber)+(D2U(dcmul.digits)-1)*sizeof(Unit);
 		if(needbytes>sizeof(bufa)) { /* need malloc space  */
 			allocbufa = (decNumber*)uprv_malloc(needbytes);
-			if(allocbufa==NULL) { /* hopeless -- abandon  */
+			if(!allocbufa) { /* hopeless -- abandon  */
 				status |= DEC_Insufficient_storage;
 				break;
 			}
@@ -1502,7 +1501,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberLog10(decNumber * res, const decNumbe
 			needbytes = sizeof(decNumber)+(D2U(p)-1)*sizeof(Unit);
 			if(needbytes>sizeof(bufa)) { /* need malloc space  */
 				allocbufa = (decNumber*)uprv_malloc(needbytes);
-				if(allocbufa==NULL) { /* hopeless -- abandon  */
+				if(!allocbufa) { /* hopeless -- abandon  */
 					status |= DEC_Insufficient_storage;
 					break;
 				}
@@ -4261,9 +4260,8 @@ static decNumber * decAddOp(decNumber * res, const decNumber * lhs,
 /* The static buffers may be larger than might be expected to allow   */
 /* for calls from higher-level functions (notable exp).       */
 /* ------------------------------------------------------------------ */
-static decNumber * decDivideOp(decNumber * res,
-    const decNumber * lhs, const decNumber * rhs,
-    decContext * set, Flag op, uInt * status) {
+static decNumber * decDivideOp(decNumber * res, const decNumber * lhs, const decNumber * rhs, decContext * set, Flag op, uInt * status) 
+{
   #if DECSUBSET
 	decNumber * alloclhs = NULL; /* non-NULL if rounded lhs allocated  */
 	decNumber * allocrhs = NULL; /* .., rhs  */
@@ -5273,8 +5271,8 @@ static decNumber * decMultiplyOp(decNumber * res, const decNumber * lhs, const d
 /* 4. The working precisions for the static buffers are twice the     */
 /* obvious size to allow for calls from decNumberPower.   */
 /* ------------------------------------------------------------------ */
-decNumber * decExpOp(decNumber * res, const decNumber * rhs,
-    decContext * set, uInt * status) {
+decNumber * decExpOp(decNumber * res, const decNumber * rhs, decContext * set, uInt * status) 
+{
 	uInt ignore = 0; /* working status  */
 	Int h; /* adjusted exponent for 0.xxxx  */
 	Int p; /* working precision  */
@@ -5447,7 +5445,7 @@ decNumber * decExpOp(decNumber * res, const decNumber * rhs,
 			needbytes = sizeof(decNumber)+(D2U(p*2)-1)*sizeof(Unit);
 			if(needbytes>sizeof(bufa)) { /* need malloc space  */
 				allocbufa = (decNumber*)uprv_malloc(needbytes);
-				if(allocbufa==NULL) { /* hopeless -- abandon  */
+				if(!allocbufa) { /* hopeless -- abandon  */
 					*status |= DEC_Insufficient_storage;
 					break;
 				}
@@ -5644,8 +5642,8 @@ static const uShort LNnn[90] = {9016,  8652,  8316,  8008,  7724,  7456,  7208,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-decNumber * decLnOp(decNumber * res, const decNumber * rhs,
-    decContext * set, uInt * status) {
+decNumber * decLnOp(decNumber * res, const decNumber * rhs, decContext * set, uInt * status) 
+{
 	uInt ignore = 0; /* working status accumulator  */
 	uInt needbytes; /* for space calculations  */
 	Int residue; /* rounding residue  */
@@ -5733,7 +5731,7 @@ decNumber * decLnOp(decNumber * res, const decNumber * rhs,
 		needbytes = sizeof(decNumber)+(D2U(MAXI(p, 16))-1)*sizeof(Unit);
 		if(needbytes>sizeof(bufa)) { /* need malloc space  */
 			allocbufa = (decNumber*)uprv_malloc(needbytes);
-			if(allocbufa==NULL) { /* hopeless -- abandon  */
+			if(!allocbufa) { /* hopeless -- abandon  */
 				*status |= DEC_Insufficient_storage;
 				break;
 			}

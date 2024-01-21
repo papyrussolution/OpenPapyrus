@@ -1569,14 +1569,14 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 					temp_buf.Z();
 					uint n = 0;
 					int  c = rScan[0];
-					if((c >= 'A' && c <= 'Z') || c == '_') {
+					if(isasciiupr(c) || c == '_') {
 						// THROW_V((c >= 'A' && c <= 'Z') || c == '_', sc2eStxStrSymbStart);
 							// @str Символ строки должен начинаться с прописной латинской буквы или '_'
 						temp_buf.CatChar(c);
 						rScan.Incr();
 						while((c = rScan[0]) != 0) {
 							if(!oneof5(c, ' ', '\t', '/', '=', '\"')) {
-								THROW_V((c >= 'A' && c <= 'Z') || isdec(c) || c == '_', sc2eStxStrSymbChr);
+								THROW_V(isasciiupr(c) || isdec(c) || c == '_', sc2eStxStrSymbChr);
 									// @str Символ строки должен содержать либо прописные латинские буквы либо цифры либо '_'
 								temp_buf.CatChar(c);
 								rScan.Incr();

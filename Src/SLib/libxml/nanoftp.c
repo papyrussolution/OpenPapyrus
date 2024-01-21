@@ -518,21 +518,22 @@ void xmlNanoFTPFreeCtxt(void * ctx)
  *     +XXX for last line of response
  *     -XXX for response to be continued
  */
-static int xmlNanoFTPParseResponse(char * buf, int len) {
+static int xmlNanoFTPParseResponse(char * buf, int len) 
+{
 	int val = 0;
-
-	if(len < 3) return(-1);
-	if((*buf >= '0') && (*buf <= '9'))
+	if(len < 3) 
+		return(-1);
+	if(isdec(*buf))
 		val = val * 10 + (*buf - '0');
 	else
 		return(0);
 	buf++;
-	if((*buf >= '0') && (*buf <= '9'))
+	if(isdec(*buf))
 		val = val * 10 + (*buf - '0');
 	else
 		return(0);
 	buf++;
-	if((*buf >= '0') && (*buf <= '9'))
+	if(isdec(*buf))
 		val = val * 10 + (*buf - '0');
 	else
 		return(0);
@@ -1416,38 +1417,35 @@ SOCKET xmlNanoFTPGetConnection(void * ctx) {
 			}
 		}
 		cur = &ctxt->controlBuf[ctxt->controlBufAnswer];
-		while(((*cur < '0') || (*cur > '9')) && *cur != '\0') cur++;
+		while(!isdec(*cur) && *cur != '\0') 
+			cur++;
 #ifdef SUPPORT_IP6
 		if((ctxt->ftpAddr).ss_family == AF_INET6) {
 			if(sscanf(cur, "%u", &temp[0]) != 1) {
-				__xmlIOErr(XML_FROM_FTP, XML_FTP_EPSV_ANSWER,
-				    "Invalid answer to EPSV\n");
+				__xmlIOErr(XML_FROM_FTP, XML_FTP_EPSV_ANSWER, "Invalid answer to EPSV\n");
 				if(ctxt->dataFd != INVALID_SOCKET) {
 					closesocket(ctxt->dataFd); ctxt->dataFd = INVALID_SOCKET;
 				}
 				return INVALID_SOCKET;
 			}
-			memcpy(&((struct sockaddr_in6*)&dataAddr)->sin6_addr, &((struct sockaddr_in6*)&ctxt->ftpAddr)->sin6_addr,
-			    sizeof(struct in6_addr));
+			memcpy(&((struct sockaddr_in6*)&dataAddr)->sin6_addr, &((struct sockaddr_in6*)&ctxt->ftpAddr)->sin6_addr, sizeof(struct in6_addr));
 			((struct sockaddr_in6*)&dataAddr)->sin6_port = htons(temp[0]);
 		}
 		else
 #endif
 		{
-			if(sscanf(cur, "%u,%u,%u,%u,%u,%u", &temp[0], &temp[1], &temp[2],
-				    &temp[3], &temp[4], &temp[5]) != 6) {
-				__xmlIOErr(XML_FROM_FTP, XML_FTP_PASV_ANSWER,
-				    "Invalid answer to PASV\n");
+			if(sscanf(cur, "%u,%u,%u,%u,%u,%u", &temp[0], &temp[1], &temp[2], &temp[3], &temp[4], &temp[5]) != 6) {
+				__xmlIOErr(XML_FROM_FTP, XML_FTP_PASV_ANSWER, "Invalid answer to PASV\n");
 				if(ctxt->dataFd != INVALID_SOCKET) {
 					closesocket(ctxt->dataFd); ctxt->dataFd = INVALID_SOCKET;
 				}
 				return INVALID_SOCKET;
 			}
-			for(i = 0; i<6; i++) ad[i] = (unsigned char)(temp[i] & 0xff);
+			for(i = 0; i<6; i++) 
+				ad[i] = (unsigned char)(temp[i] & 0xff);
 			memcpy(&((struct sockaddr_in*)&dataAddr)->sin_addr, &ad[0], 4);
 			memcpy(&((struct sockaddr_in*)&dataAddr)->sin_port, &ad[4], 2);
 		}
-
 		if(connect(ctxt->dataFd, (struct sockaddr*)&dataAddr, dataAddrLen) < 0) {
 			__xmlIOErr(XML_FROM_FTP, 0, "Failed to create a data connection");
 			closesocket(ctxt->dataFd); ctxt->dataFd = INVALID_SOCKET;
@@ -1575,7 +1573,8 @@ int xmlNanoFTPCloseConnection(void * ctx) {
  * Returns -1 incase of error, the length of data parsed otherwise
  */
 
-static int xmlNanoFTPParseList(const char * list, ftpListCallback callback, void * userData) {
+static int xmlNanoFTPParseList(const char * list, ftpListCallback callback, void * userData) 
+{
 	const char * cur = list;
 	char filename[151];
 	char attrib[11];
@@ -1589,11 +1588,10 @@ static int xmlNanoFTPParseList(const char * list, ftpListCallback callback, void
 	unsigned long size = 0;
 	int links = 0;
 	int i;
-
 	if(!strncmp(cur, "total", 5)) {
 		cur += 5;
 		while(*cur == ' ') cur++;
-		while((*cur >= '0') && (*cur <= '9'))
+		while(isdec(*cur))
 			links = (links * 10) + (*cur++ - '0');
 		while((*cur == ' ') || (*cur == '\n')  || (*cur == '\r'))
 			cur++;
@@ -1616,7 +1614,7 @@ static int xmlNanoFTPParseList(const char * list, ftpListCallback callback, void
 		attrib[10] = 0;
 		while(*cur == ' ') cur++;
 		if(*cur == 0) return(0);
-		while((*cur >= '0') && (*cur <= '9'))
+		while(isdec(*cur))
 			links = (links * 10) + (*cur++ - '0');
 		while(*cur == ' ') cur++;
 		if(*cur == 0) return(0);
@@ -1640,7 +1638,7 @@ static int xmlNanoFTPParseList(const char * list, ftpListCallback callback, void
 		group[i] = 0;
 		while(*cur == ' ') cur++;
 		if(*cur == 0) return(0);
-		while((*cur >= '0') && (*cur <= '9'))
+		while(isdec(*cur))
 			size = (size * 10) + (*cur++ - '0');
 		while(*cur == ' ') cur++;
 		if(*cur == 0) return(0);
@@ -1654,20 +1652,20 @@ static int xmlNanoFTPParseList(const char * list, ftpListCallback callback, void
 		month[i] = 0;
 		while(*cur == ' ') cur++;
 		if(*cur == 0) return(0);
-		while((*cur >= '0') && (*cur <= '9'))
+		while(isdec(*cur))
 			day = (day * 10) + (*cur++ - '0');
 		while(*cur == ' ') cur++;
 		if(*cur == 0) return(0);
 		if((cur[1] == 0) || (cur[2] == 0)) return(0);
 		if((cur[1] == ':') || (cur[2] == ':')) {
-			while((*cur >= '0') && (*cur <= '9'))
+			while(isdec(*cur))
 				hour = (hour * 10) + (*cur++ - '0');
 			if(*cur == ':') cur++;
-			while((*cur >= '0') && (*cur <= '9'))
+			while(isdec(*cur))
 				minute = (minute * 10) + (*cur++ - '0');
 		}
 		else {
-			while((*cur >= '0') && (*cur <= '9'))
+			while(isdec(*cur))
 				year = (year * 10) + (*cur++ - '0');
 		}
 		while(*cur == ' ') cur++;

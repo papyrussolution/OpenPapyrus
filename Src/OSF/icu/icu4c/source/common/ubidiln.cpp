@@ -300,13 +300,11 @@ U_CAPI const UBiDiLevel * U_EXPORT2 ubidi_getLevels(UBiDi * pBiDi, UErrorCode * 
 	}
 }
 
-U_CAPI void U_EXPORT2 ubidi_getLogicalRun(const UBiDi * pBiDi, int32_t logicalPosition,
-    int32_t * pLogicalLimit, UBiDiLevel * pLevel) {
-	UErrorCode errorCode;
+U_CAPI void U_EXPORT2 ubidi_getLogicalRun(const UBiDi * pBiDi, int32_t logicalPosition, int32_t * pLogicalLimit, UBiDiLevel * pLevel) 
+{
 	int32_t runCount, visualStart, logicalLimit, logicalFirst, i;
 	Run iRun;
-
-	errorCode = U_ZERO_ERROR;
+	UErrorCode errorCode = U_ZERO_ERROR;
 	RETURN_VOID_IF_BAD_RANGE(logicalPosition, 0, pBiDi->length, errorCode);
 	/* ubidi_countRuns will check VALID_PARA_OR_LINE */
 	runCount = ubidi_countRuns((UBiDi*)pBiDi, &errorCode);
@@ -318,7 +316,6 @@ U_CAPI void U_EXPORT2 ubidi_getLogicalRun(const UBiDi * pBiDi, int32_t logicalPo
 	 */
 	visualStart = logicalLimit = 0;
 	iRun = pBiDi->runs[0];
-
 	for(i = 0; i<runCount; i++) {
 		iRun = pBiDi->runs[i];
 		logicalFirst = GET_INDEX(iRun.logicalStart);
@@ -793,14 +790,12 @@ U_CAPI void U_EXPORT2 ubidi_reorderLogical(const UBiDiLevel * levels, int32_t le
 			 * new visual index=sumOfSosEos-old visual index;
 			 */
 			sumOfSosEos = start+limit-1;
-
 			/* reorder each index in the sequence */
 			do {
 				indexMap[start] = sumOfSosEos-indexMap[start];
-			} while(++start<limit);
-
+			} while(++start < limit);
 			/* start==limit */
-			if(limit==length) {
+			if(limit == length) {
 				break; /* no more such sequences */
 			}
 			else {
@@ -810,22 +805,19 @@ U_CAPI void U_EXPORT2 ubidi_reorderLogical(const UBiDiLevel * levels, int32_t le
 	} while(--maxLevel>=minLevel);
 }
 
-U_CAPI void U_EXPORT2 ubidi_reorderVisual(const UBiDiLevel * levels, int32_t length, int32_t * indexMap) {
+U_CAPI void U_EXPORT2 ubidi_reorderVisual(const UBiDiLevel * levels, int32_t length, int32_t * indexMap) 
+{
 	int32_t start, end, limit, temp;
 	UBiDiLevel minLevel = 0, maxLevel = 0;
-
 	if(indexMap==NULL || !prepareReorder(levels, length, indexMap, &minLevel, &maxLevel)) {
 		return;
 	}
-
 	/* nothing to do? */
 	if(minLevel==maxLevel && (minLevel&1)==0) {
 		return;
 	}
-
 	/* reorder only down to the lowest odd level */
 	minLevel |= 1;
-
 	/* loop maxLevel..minLevel */
 	do {
 		start = 0;
@@ -861,7 +853,7 @@ U_CAPI void U_EXPORT2 ubidi_reorderVisual(const UBiDiLevel * levels, int32_t len
 				--end;
 			}
 
-			if(limit==length) {
+			if(limit == length) {
 				break; /* no more such sequences */
 			}
 			else {

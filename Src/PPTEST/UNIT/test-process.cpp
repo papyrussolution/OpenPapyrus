@@ -521,7 +521,27 @@ SLTEST_R(SlProcess)
 		p.SetImpersUser(policy.SysUser, policy.SysPassword);
 		p.SetFlags(SlProcess::fLogonWithProfile);
 	}
-	SLCHECK_NZ(p.Run(&result));
+	{
+		p.SetFlags(SlProcess::fCaptureStdOut|SlProcess::fCaptureStdErr);
+	}
+	const int run_result = p.Run(&result);
+	SLCHECK_NZ(run_result);
+	if(run_result) {
+		/*if(result.F_StdOut) {
+			char out_line[1024];
+			while(fgets(out_line, sizeof(out_line)-1, result.F_StdOut)) {
+				(temp_buf = out_line).Strip().Chomp();
+				SetInfo(temp_buf);
+			}
+		}*/
+		/*if(result.F_StdErr) {
+			char out_line[1024];
+			while(fgets(out_line, sizeof(out_line)-1, result.F_StdErr)) {
+				(temp_buf = out_line).Strip().Chomp();
+				SetInfo(temp_buf);
+			}
+		}*/
+	}
 	//
 	if(use_appcontainer) {
 		SLCHECK_NZ(ac.Delete());

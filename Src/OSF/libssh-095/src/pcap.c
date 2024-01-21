@@ -269,7 +269,7 @@ void ssh_pcap_file_free(ssh_pcap_file pcap)
 ssh_pcap_context ssh_pcap_context_new(ssh_session session)
 {
 	ssh_pcap_context ctx = (struct ssh_pcap_context_struct *)SAlloc::M(sizeof(struct ssh_pcap_context_struct));
-	if(ctx==NULL) {
+	if(!ctx) {
 		ssh_set_error_oom(session);
 		return NULL;
 	}
@@ -481,7 +481,7 @@ error:
 int ssh_set_pcap_file(ssh_session session, ssh_pcap_file pcap)
 {
 	ssh_pcap_context ctx = ssh_pcap_context_new(session);
-	if(ctx==NULL) {
+	if(!ctx) {
 		ssh_set_error_oom(session);
 		return SSH_ERROR;
 	}

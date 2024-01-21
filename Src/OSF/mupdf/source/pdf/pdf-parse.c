@@ -5,10 +5,10 @@
 //#include "mupdf/pdf.h"
 
 #ifdef _WIN32
-#define timegm _mkgmtime
+	#define timegm _mkgmtime
 #endif
 
-#define isdigit(c) (c >= '0' && c <= '9')
+// @sobolev #define isdigit_Removed(c) (c >= '0' && c <= '9')
 
 fz_rect pdf_to_rect(fz_context * ctx, pdf_obj * array)
 {
@@ -73,8 +73,7 @@ int64_t pdf_to_date(fz_context * ctx, pdf_obj * time)
 	tz_min = 0;
 	if(s[0] == 'D' && s[1] == ':')
 		s += 2;
-
-	if(!isdigit(s[0]) || !isdigit(s[1]) || !isdigit(s[2]) || !isdigit(s[3])) {
+	if(!isdec(s[0]) || !isdec(s[1]) || !isdec(s[2]) || !isdec(s[3])) {
 		fz_warn(ctx, "invalid date format (missing year)");
 		return -1;
 	}
@@ -85,20 +84,19 @@ int64_t pdf_to_date(fz_context * ctx, pdf_obj * time)
 		fz_warn(ctx, "invalid date (year out of range)");
 		return -1;
 	}
-
-	if(isdigit(s[0]) && isdigit(s[1])) {
+	if(isdec(s[0]) && isdec(s[1])) {
 		tm.tm_mon = (s[0]-'0')*10 + (s[1]-'0') - 1; /* month is 0-11 in struct tm */
 		s += 2;
-		if(isdigit(s[0]) && isdigit(s[1])) {
+		if(isdec(s[0]) && isdec(s[1])) {
 			tm.tm_mday = (s[0]-'0')*10 + (s[1]-'0');
 			s += 2;
-			if(isdigit(s[0]) && isdigit(s[1])) {
+			if(isdec(s[0]) && isdec(s[1])) {
 				tm.tm_hour = (s[0]-'0')*10 + (s[1]-'0');
 				s += 2;
-				if(isdigit(s[0]) && isdigit(s[1])) {
+				if(isdec(s[0]) && isdec(s[1])) {
 					tm.tm_min = (s[0]-'0')*10 + (s[1]-'0');
 					s += 2;
-					if(isdigit(s[0]) && isdigit(s[1])) {
+					if(isdec(s[0]) && isdec(s[1])) {
 						tm.tm_sec = (s[0]-'0')*10 + (s[1]-'0');
 						s += 2;
 					}
@@ -106,20 +104,18 @@ int64_t pdf_to_date(fz_context * ctx, pdf_obj * time)
 			}
 		}
 	}
-
 	if(tm.tm_sec > 60 || tm.tm_min > 59 || tm.tm_hour > 23 || tm.tm_mday > 31 || tm.tm_mon > 11) {
 		fz_warn(ctx, "invalid date (a field is out of range)");
 		return -1;
 	}
-
 	if(s[0] == 'Z') {
 		s += 1;
 	}
-	else if((s[0] == '-' || s[0] == '+') && isdigit(s[1]) && isdigit(s[2])) {
+	else if((s[0] == '-' || s[0] == '+') && isdec(s[1]) && isdec(s[2])) {
 		tz_sign = (s[0] == '-') ? -1 : 1;
 		tz_hour = (s[1]-'0')*10 + (s[2]-'0');
 		s += 3;
-		if(s[0] == '\'' && isdigit(s[1]) && isdigit(s[2])) {
+		if(s[0] == '\'' && isdec(s[1]) && isdec(s[2])) {
 			tz_min = (s[1]-'0')*10 + (s[2]-'0');
 			s += 3;
 			if(s[0] == '\'')

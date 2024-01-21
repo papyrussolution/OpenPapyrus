@@ -32,23 +32,19 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace substitute_internal {
-void SubstituteAndAppendArray(std::string* output, absl::string_view format,
-    const absl::string_view* args_array,
-    size_t num_args) {
+void SubstituteAndAppendArray(std::string* output, absl::string_view format, const absl::string_view* args_array, size_t num_args) 
+{
 	// Determine total size needed.
 	size_t size = 0;
 	for(size_t i = 0; i < format.size(); i++) {
 		if(format[i] == '$') {
 			if(i + 1 >= format.size()) {
 #ifndef NDEBUG
-				ABSL_RAW_LOG(FATAL,
-				    "Invalid absl::Substitute() format string: \"%s\".",
-				    absl::CEscape(format).c_str());
+				ABSL_RAW_LOG(FATAL, "Invalid absl::Substitute() format string: \"%s\".", absl::CEscape(format).c_str());
 #endif
 				return;
 			}
-			else if(absl::ascii_isdigit(
-				    static_cast<unsigned char>(format[i + 1]))) {
+			else if(absl::ascii_isdigit(static_cast<unsigned char>(format[i + 1]))) {
 				int index = format[i + 1] - '0';
 				if(static_cast<size_t>(index) >= num_args) {
 #ifndef NDEBUG
@@ -119,7 +115,7 @@ Arg::Arg(const void* value) {
 		char* ptr = scratch_ + sizeof(scratch_);
 		uintptr_t num = reinterpret_cast<uintptr_t>(value);
 		do {
-			*--ptr = absl::numbers_internal::kHexChar[num & 0xf];
+			*--ptr = SlConst::P_HxDigL[num & 0xf];
 			num >>= 4;
 		} while(num != 0);
 		*--ptr = 'x';
@@ -130,12 +126,13 @@ Arg::Arg(const void* value) {
 }
 
 // TODO(jorg): Don't duplicate so much code between here and str_cat.cc
-Arg::Arg(Hex hex) {
+Arg::Arg(Hex hex) 
+{
 	char* const end = &scratch_[numbers_internal::kFastToBufferSize];
 	char* writer = end;
 	uint64_t value = hex.value;
 	do {
-		*--writer = absl::numbers_internal::kHexChar[value & 0xF];
+		*--writer = SlConst::P_HxDigL[value & 0xF];
 		value >>= 4;
 	} while(value != 0);
 

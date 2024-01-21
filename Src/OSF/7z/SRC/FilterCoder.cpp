@@ -31,7 +31,7 @@ STDMETHODIMP CFilterCoder::SetOutBufSize(uint32, uint32 size) { _outBufSize = si
 
 HRESULT CFilterCoder::Alloc()
 {
-	uint32 size = MyMin(_inBufSize, _outBufSize);
+	uint32 size = smin(_inBufSize, _outBufSize);
 	/* minimal bufSize is 16 bytes for AES and IA64 filter.
 	   bufSize for AES must be aligned for 16 bytes.
 	   We use (1 << 12) min size to support future aligned filters. */
@@ -165,7 +165,7 @@ STDMETHODIMP CFilterCoder::Write(const void * data, uint32 size, uint32 * proces
 		// _convPos is 0
 		// _bufPos is small
 		if(_bufPos != _bufSize) {
-			uint32 num = MyMin(size, _bufSize - _bufPos);
+			uint32 num = smin(size, _bufSize - _bufPos);
 			memcpy(_buf + _bufPos, data, num);
 			size -= num;
 			data = (const Byte *)data + num;

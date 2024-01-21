@@ -146,7 +146,7 @@ static void DecodeNumericSegment(BitSource& bits, int count, Content& result)
 	result.switchEncoding(CharacterSet::ISO8859_1);
 	result.reserve(count);
 	while(count) {
-		int n = std::min(count, 3);
+		int n = smin(count, 3);
 		int nDigits = bits.readBits(1 + 3 * n); // read 4, 7 or 10 bits into 1, 2 or 3 digits
 		result.append(ZXing::ToString(nDigits, n));
 		count -= n;
@@ -193,7 +193,7 @@ static ECI ParseECIValue(BitSource& bits)
 bool IsEndOfStream(const BitSource& bits, const Version& version)
 {
 	const int bitsRequired = TerminatorBitsLength(version);
-	const int bitsAvailable = std::min(bits.available(), bitsRequired);
+	const int bitsAvailable = smin(bits.available(), bitsRequired);
 	return bitsAvailable == 0 || bits.peakBits(bitsAvailable) == 0;
 }
 

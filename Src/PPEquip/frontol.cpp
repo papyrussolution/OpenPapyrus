@@ -614,7 +614,15 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {
 							tail.Cat(agi.CategoryCode).Semicol();                               // #53 Код вида алкогольной продукции
                             tail.Cat(agi.Volume, MKSFMTD(0, 3, NMBF_NOZERO)).Semicol();         // #54 Емкость тары
-                            tail.Cat(1L).Semicol();                                             // #55 Признак алкогольной продукции
+							// @v11.9.3 {
+							int mark_type = 1;
+							if(gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType|AsyncCashGoodsInfo::fGMarkedCode)) {
+								if(gds_info.ChZnProdType == GTCHZNPT_DRAFTBEER) {
+									mark_type = 18;
+								}
+							}
+							// } @v11.9.3 
+                            tail.Cat(mark_type).Semicol();                                      // #55 Признак алкогольной продукции // @v11.9.3 1L-->mark_type
                             tail.Cat((agi.StatusFlags & agi.stMarkWanted) ? 0L : 1L).Semicol(); // #56 Признак маркированной алкогольной продукции (0 - маркированная)
                             tail.Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOZERO)).Semicol();          // #57 Крепость алкогольной продукции
 						}

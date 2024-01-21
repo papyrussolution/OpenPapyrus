@@ -27,11 +27,8 @@ static bool FASTCALL IsAWordStart(int ch)
 
 static bool FASTCALL IsANumberChar(int ch)
 {
-	// Not exactly following number definition (several dots are seen as OK, etc.)
-	// but probably enough in most cases.
-	return (ch < 0x80) &&
-	       (IsADigit(ch, 0x10) || toupper(ch) == 'E' ||
-	    ch == '.' || ch == '-' || ch == '+');
+	// Not exactly following number definition (several dots are seen as OK, etc.) but probably enough in most cases.
+	return (ch < 0x80) && (ishex(ch) || toupper(ch) == 'E' || ch == '.' || ch == '-' || ch == '+');
 }
 
 static void ColouriseTCLDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordlists[], Accessor & styler)
@@ -303,7 +300,7 @@ next:
 			if(IsAWordStart(sc.ch)) {
 				sc.SetState(SCE_TCL_IDENTIFIER);
 			}
-			else if(IsADigit(sc.ch) && !IsAWordChar(sc.chPrev)) {
+			else if(isdec(sc.ch) && !IsAWordChar(sc.chPrev)) {
 				sc.SetState(SCE_TCL_NUMBER);
 			}
 			else {
@@ -344,12 +341,11 @@ next:
 					    }
 					    break;
 					case '#':
-					    if((isspacechar(static_cast<uchar>(sc.chPrev))||
-						    isoperator(static_cast<char>(sc.chPrev))) && IsADigit(sc.chNext, 0x10))
+					    if((isspacechar(static_cast<uchar>(sc.chPrev))|| isoperator(static_cast<char>(sc.chPrev))) && ishex(sc.chNext))
 						    sc.SetState(SCE_TCL_NUMBER);
 					    break;
 					case '-':
-					    sc.SetState(IsADigit(sc.chNext) ? SCE_TCL_NUMBER : SCE_TCL_MODIFIER);
+					    sc.SetState(isdec(sc.chNext) ? SCE_TCL_NUMBER : SCE_TCL_MODIFIER);
 					    break;
 					default:
 					    if(isoperator(static_cast<char>(sc.ch))) {

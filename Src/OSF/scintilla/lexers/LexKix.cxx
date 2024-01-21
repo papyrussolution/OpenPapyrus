@@ -61,7 +61,7 @@ static void ColouriseKixDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			}
 		}
 		else if(sc.state == SCE_KIX_NUMBER) {
-			if(!IsADigit(sc.ch)) {
+			if(!isdec(sc.ch)) {
 				sc.SetState(SCE_KIX_DEFAULT);
 			}
 		}
@@ -71,7 +71,7 @@ static void ColouriseKixDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			}
 		}
 		else if(sc.state == SCE_KIX_MACRO) {
-			if(!IsAWordChar(sc.ch) && !IsADigit(sc.ch)) {
+			if(!IsAWordChar(sc.ch) && !isdec(sc.ch)) {
 				char s[100];
 				sc.GetCurrentLowered(s, sizeof(s));
 
@@ -121,7 +121,7 @@ static void ColouriseKixDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			else if(sc.ch == '@') {
 				sc.SetState(SCE_KIX_MACRO);
 			}
-			else if(IsADigit(sc.ch) || ((sc.ch == '.' || sc.ch == '&') && IsADigit(sc.chNext))) {
+			else if(isdec(sc.ch) || ((sc.ch == '.' || sc.ch == '&') && isdec(sc.chNext))) {
 				sc.SetState(SCE_KIX_NUMBER);
 			}
 			else if(IsOperator(sc.ch)) {

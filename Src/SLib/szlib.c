@@ -2931,7 +2931,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 	state->strategy = Z_DEFAULT_STRATEGY;
 	state->direct = 0;
 	while(*mode) {
-		if(*mode >= '0' && *mode <= '9')
+		if(isdec(*mode))
 			state->level = *mode - '0';
 		else
 			switch(*mode) {

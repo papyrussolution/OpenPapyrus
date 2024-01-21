@@ -485,7 +485,7 @@ int strverscmp(const char * a, const char * b)
 	}
 	// Count backwards and find the leftmost digit 
 	j = i;
-	while(j > 0 && isdigit(a[j-1])) {
+	while(j > 0 && isdec(a[j-1])) {
 		--j;
 	}
 	// Determine mode of comparison 
@@ -495,24 +495,24 @@ int strverscmp(const char * a, const char * b)
 			j++;
 		}
 		// String with more digits is smaller, e.g 002 < 01 
-		if(isdigit(a[j])) {
-			if(!isdigit(b[j])) {
+		if(isdec(a[j])) {
+			if(!isdec(b[j])) {
 				return -1;
 			}
 		}
-		else if(isdigit(b[j])) {
+		else if(isdec(b[j])) {
 			return 1;
 		}
 	}
-	else if(isdigit(a[j]) && isdigit(b[j])) {
+	else if(isdec(a[j]) && isdec(b[j])) {
 		// Numeric comparison 
 		size_t k1 = j;
 		size_t k2 = j;
 		// Compute number of digits in each string 
-		while(isdigit(a[k1])) {
+		while(isdec(a[k1])) {
 			k1++;
 		}
-		while(isdigit(b[k2])) {
+		while(isdec(b[k2])) {
 			k2++;
 		}
 		// Number with more digits is bigger, e.g 999 < 1000 
@@ -524,6 +524,7 @@ int strverscmp(const char * a, const char * b)
 	// Alphabetical comparison 
 	return (int)((uchar)a[i]) - ((uchar)b[i]);
 }
+
 #if !defined(_MSC_VER) || _MSC_VER < 1400
 	//
 	// Convert multi-byte string to wide character string 

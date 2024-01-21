@@ -303,8 +303,7 @@ void entityfilter_delete(entityfilter_ctx * ctx)
  */
 static const char * parse_hex(const char * s, char * output)
 {
-	int n;
-	n = strtol(s, NULL, 16);
+	int n = strtol(s, NULL, 16);
 	output[0] = n;
 	output[1] = 0;
 	/* TODO(falmeida): Make this function return void */
@@ -318,8 +317,7 @@ static const char * parse_hex(const char * s, char * output)
  */
 static const char * parse_dec(const char * s, char * output)
 {
-	int n;
-	n = strtol(s, NULL, 10);
+	int n = strtol(s, NULL, 10);
 	output[0] = n;
 	output[1] = 0;
 	return output;
@@ -885,8 +883,7 @@ int htmlparser_is_js_quoted(htmlparser_ctx * ctx)
 {
 	if(htmlparser_in_js(ctx)) {
 		int st = jsparser_state(ctx->jsparser);
-		if(st == JSPARSER_STATE_Q ||
-		    st == JSPARSER_STATE_DQ)
+		if(st == JSPARSER_STATE_Q || st == JSPARSER_STATE_DQ)
 			return 1;
 	}
 	return 0;

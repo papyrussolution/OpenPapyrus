@@ -1051,8 +1051,8 @@ void CCShapeDrawNode::drawEllipse(const cocos2d::CCPoint &leftTop, const cocos2d
 
 int FASTCALL TCanvas2::Ellipse(const FRect & rRect)
 {
-	float  x_radius = fabsf(rRect.Width())/2;
-	float  y_radius = fabsf(rRect.Height())/2;
+	float  x_radius = fabsf(rRect.Width())/2.0f;
+	float  y_radius = fabsf(rRect.Height())/2.0f;
 	float  centerX = rRect.a.x < rRect.b.x ? (rRect.a.x + x_radius) : (rRect.b.x + x_radius);
 	float  centerY = rRect.a.y < rRect.b.y ? (rRect.a.y + y_radius) : (rRect.b.y + y_radius);
 	const  uint segs = 500;
@@ -2008,7 +2008,7 @@ int FASTCALL SFontDescr::FromStr(const char * pStr)
 			while(oneof2(*p, ' ', '\t'))
 				p++;
 			SString temp_buf;
-			while(isdigit(*p))
+			while(isdec(*p))
 				temp_buf.CatChar(*p++);
 			Size = static_cast<int16>(SDrawContext::CalcScreenFontSizePt(static_cast<uint>(temp_buf.ToLong())));
 			while(*p != ')' && *p != 0) {

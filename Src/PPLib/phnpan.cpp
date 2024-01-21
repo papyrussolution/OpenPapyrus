@@ -1,5 +1,5 @@
 // PHNPAN.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1058,7 +1058,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							LDATETIME dtm;
 							dtm.Set(item.Dt, item.Tm);
 							ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
-							ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
+							ss.add(temp_buf.Z().Cat(item.PosNodeID));                         // Касса
 							ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
 							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
 							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
@@ -1088,7 +1088,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 										ss.add(temp_buf = sc_rec.Code); // scard code
 										dtm.Set(item.Dt, item.Tm);
 										ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
-										ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
+										ss.add(temp_buf.Z().Cat(item.PosNodeID));                         // Касса
 										ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
 										ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
 										ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
@@ -1125,7 +1125,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							LDATETIME dtm;
 							dtm.Set(item.Dt, item.Tm);
 							ss.add(temp_buf.Z().Cat(dtm, DATF_DMY, TIMF_HMS)); // time
-							ss.add(temp_buf.Z().Cat(item.CashID));                            // Касса
+							ss.add(temp_buf.Z().Cat(item.PosNodeID));                         // Касса
 							ss.add(temp_buf.Z().Cat(item.Code));                              // Номер чека
 							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
 							ss.add(temp_buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка

@@ -76,7 +76,7 @@ pcre32_maketables(void)
 	   test for alnum specially. */
 	memzero(p, cbit_length);
 	for(i = 0; i < 256; i++) {
-		if(isdigit(i)) p[cbit_digit  + i/8] |= 1 << (i&7);
+		if(isdec(i)) p[cbit_digit  + i/8] |= 1 << (i&7);
 		if(isupper(i)) p[cbit_upper  + i/8] |= 1 << (i&7);
 		if(islower(i)) p[cbit_lower  + i/8] |= 1 << (i&7);
 		if(isalnum(i)) p[cbit_word   + i/8] |= 1 << (i&7);
@@ -96,17 +96,22 @@ pcre32_maketables(void)
    at release 8.34. */
 	for(i = 0; i < 256; i++) {
 		int x = 0;
-		if(isspace(i)) x += ctype_space;
-		if(isalpha(i)) x += ctype_letter;
-		if(isdigit(i)) x += ctype_digit;
-		if(isxdigit(i)) x += ctype_xdigit;
-		if(isalnum(i) || i == '_') x += ctype_word;
+		if(isspace(i)) 
+			x += ctype_space;
+		if(isalpha(i)) 
+			x += ctype_letter;
+		if(isdec(i)) 
+			x += ctype_digit;
+		if(isxdigit(i)) 
+			x += ctype_xdigit;
+		if(isalnum(i) || i == '_') 
+			x += ctype_word;
 	        /* Note: sstrchr includes the terminating zero in the characters it considers.
 	           In this instance, that is ok because we want binary zero to be flagged as a
 	           meta-character, which in this sense is any character that terminates a run
 	           of data characters. */
-
-		if(sstrchr("\\*+?{^.$|()[", i) != 0) x += ctype_meta;
+		if(sstrchr("\\*+?{^.$|()[", i) != 0) 
+			x += ctype_meta;
 		*p++ = x;
 	}
 	return yield;

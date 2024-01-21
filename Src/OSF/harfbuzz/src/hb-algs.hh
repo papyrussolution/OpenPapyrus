@@ -409,9 +409,9 @@ static inline bool ISALNUM(uchar c) { return (c >= 'a' && c <= 'z') || (c >= 'A'
 static inline bool ISSPACE(uchar c) { return c == ' ' || c =='\f'|| c =='\n'|| c =='\r'|| c =='\t'|| c =='\v'; }
 static inline uchar TOUPPER(uchar c) { return (c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c; }
 static inline uchar TOLOWER(uchar c) { return (c >= 'A' && c <= 'Z') ? c - 'A' + 'a' : c; }
-static inline bool ISHEX(uchar c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
+// @v11.9.3 (replaced with ishex) static inline bool ISHEX(uchar c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
 static inline uchar TOHEX(uint8 c) { return (c & 0xF) <= 9 ? (c & 0xF) + '0' : (c & 0xF) + 'a' - 10; }
-static inline uint8 FROMHEX(uchar c) { return (c >= '0' && c <= '9') ? c - '0' : TOLOWER(c) - 'a' + 10; }
+// @v11.9.3 (replaced with hex) static inline uint8 FROMHEX(uchar c) { return (c >= '0' && c <= '9') ? c - '0' : TOLOWER(c) - 'a' + 10; }
 static inline uint DIV_CEIL(const uint a, uint b) { return (a + (b - 1)) / b; }
 
 #undef  ARRAY_LENGTH

@@ -881,11 +881,9 @@ static BOOL FASTCALL is_counted_repeat(const pcre_uchar * p)
 		}
 	}
 }
-
-/*************************************************
-*            Handle escapes                      *
-*************************************************/
-
+//
+// Handle escapes
+//
 /* This function is called when a \ has been encountered. It either returns a
    positive value for a simple escape such as \n, or 0 for a data character which
    will be placed in chptr. A backreference to group n is returned as negative n.
@@ -6520,15 +6518,16 @@ NUMBERED_GROUP:
 			                would actually be in error are never taken. */
 					    skipbytes = 0;
 					    reset_bracount = FALSE;
-						/* If it's not a signed or unsigned number, treat it as a name. */
+						// If it's not a signed or unsigned number, treat it as a name
 					    cf = ptr[1];
-					    if(cf != CHAR_PLUS && cf != CHAR_MINUS && !isdec(cf)) {
+					    if(cf != CHAR_PLUS && cf != CHAR_MINUS && !isdec((int)cf)) {
 						    is_recurse = TRUE;
 						    goto NAMED_REF_OR_RECURSE;
 					    }
 						// Signed or unsigned number (cf = ptr[1]) is known to be plus or minus or a digit.
 					    p = ptr + 2;
-					    while(isdec(*p)) p++;
+					    while(isdec(*p)) 
+							p++;
 					    if(*p != (pcre_uchar)terminator) {
 						    *errorcodeptr = ERR57;
 						    goto FAILED;
@@ -7445,7 +7444,7 @@ PCRE_EXP_DEFN pcre32 * PCRE_CALL_CONVENTION pcre32_compile2(PCRE_SPTR32 pattern,
 		else if(STRNCMP_UC_C8(ptr+skipatstart+2, STRING_LIMIT_MATCH_EQ, 12) == 0) {
 			uint32 c = 0;
 			int p = skipatstart + 14;
-			while(isdigit(ptr[p])) {
+			while(isdec(ptr[p])) {
 				if(c > PCRE_UINT32_MAX / 10 - 1) 
 					break; // Integer overflow 
 				c = c*10 + ptr[p++] - CHAR_0;
@@ -7462,7 +7461,7 @@ PCRE_EXP_DEFN pcre32 * PCRE_CALL_CONVENTION pcre32_compile2(PCRE_SPTR32 pattern,
 		else if(STRNCMP_UC_C8(ptr+skipatstart+2, STRING_LIMIT_RECURSION_EQ, 16) == 0) {
 			uint32 c = 0;
 			int p = skipatstart + 18;
-			while(isdigit(ptr[p])) {
+			while(isdec(ptr[p])) {
 				if(c > PCRE_UINT32_MAX / 10 - 1) 
 					break; /* Integer overflow check */
 				c = c*10 + ptr[p++] - CHAR_0;

@@ -924,7 +924,8 @@ static UnOpr getunopr(int op) {
 	}
 }
 
-static BinOpr getbinopr(int op) {
+static BinOpr getbinopr(int op) 
+{
 	switch(op) {
 		case '+': return OPR_ADD;
 		case '-': return OPR_SUB;

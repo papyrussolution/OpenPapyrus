@@ -724,7 +724,7 @@ uint32 * gravity_bytecode_deserialize(const char * buffer, size_t len, uint32 * 
 			if(c >= 'A' && c <= 'F') {
 				c = c - 'A' + 10;
 			}
-			else if(c >= '0' && c <= '9') {
+			else if(isdec(c)) {
 				c -= '0';
 			}
 			else 

@@ -546,23 +546,21 @@ static CordRep::ExtractResult ExtractAppendBuffer(CordRep* rep,
 	}
 }
 
-static CordBuffer CreateAppendBuffer(InlineData& data, size_t block_size,
-    size_t capacity) {
+static CordBuffer CreateAppendBuffer(InlineData& data, size_t block_size, size_t capacity) 
+{
 	// Watch out for overflow, people can ask for size_t::max().
 	const size_t size = data.inline_size();
 	const size_t max_capacity = std::numeric_limits<size_t>::max() - size;
 	capacity = (std::min)(max_capacity, capacity) + size;
-	CordBuffer buffer =
-	    block_size ? CordBuffer::CreateWithCustomLimit(block_size, capacity)
-	    : CordBuffer::CreateWithDefaultLimit(capacity);
+	CordBuffer buffer = block_size ? CordBuffer::CreateWithCustomLimit(block_size, capacity) : CordBuffer::CreateWithDefaultLimit(capacity);
 	cord_internal::SmallMemmove(buffer.data(), data.as_chars(), size);
 	buffer.SetLength(size);
 	data = {};
 	return buffer;
 }
 
-CordBuffer Cord::GetAppendBufferSlowPath(size_t block_size, size_t capacity,
-    size_t min_capacity) {
+CordBuffer Cord::GetAppendBufferSlowPath(size_t block_size, size_t capacity, size_t min_capacity) 
+{
 	auto constexpr method = CordzUpdateTracker::kGetAppendBuffer;
 	CordRep* tree = contents_.tree();
 	if(tree != nullptr) {
@@ -572,22 +570,16 @@ CordBuffer Cord::GetAppendBufferSlowPath(size_t block_size, size_t capacity,
 			contents_.SetTreeOrEmpty(result.tree, scope);
 			return CordBuffer(result.extracted->flat());
 		}
-		return block_size ? CordBuffer::CreateWithCustomLimit(block_size, capacity)
-		       : CordBuffer::CreateWithDefaultLimit(capacity);
+		return block_size ? CordBuffer::CreateWithCustomLimit(block_size, capacity) : CordBuffer::CreateWithDefaultLimit(capacity);
 	}
 	return CreateAppendBuffer(contents_.data_, block_size, capacity);
 }
 
-void Cord::Append(const Cord& src) {
-	AppendImpl(src);
-}
+void Cord::Append(const Cord& src) { AppendImpl(src); }
+void Cord::Append(Cord&& src) { AppendImpl(std::move(src)); }
 
-void Cord::Append(Cord&& src) {
-	AppendImpl(std::move(src));
-}
-
-template <typename T, Cord::EnableIfString<T> >
-void Cord::Append(T&& src) {
+template <typename T, Cord::EnableIfString<T> > void Cord::Append(T&& src) 
+{
 	if(src.size() <= kMaxBytesToCopy) {
 		Append(absl::string_view(src));
 	}
@@ -599,27 +591,26 @@ void Cord::Append(T&& src) {
 
 template void Cord::Append(std::string&& src);
 
-void Cord::Prepend(const Cord& src) {
+void Cord::Prepend(const Cord& src) 
+{
 	contents_.MaybeRemoveEmptyCrcNode();
-	if(src.empty()) return;
-
+	if(src.empty()) 
+		return;
 	CordRep* src_tree = src.contents_.tree();
 	if(src_tree != nullptr) {
 		CordRep::Ref(src_tree);
-		contents_.PrependTree(cord_internal::RemoveCrcNode(src_tree),
-		    CordzUpdateTracker::kPrependCord);
+		contents_.PrependTree(cord_internal::RemoveCrcNode(src_tree), CordzUpdateTracker::kPrependCord);
 		return;
 	}
-
 	// `src` cord is inlined.
 	absl::string_view src_contents(src.contents_.data(), src.contents_.size());
 	return Prepend(src_contents);
 }
 
-void Cord::PrependArray(absl::string_view src, MethodIdentifier method) {
+void Cord::PrependArray(absl::string_view src, MethodIdentifier method) 
+{
 	contents_.MaybeRemoveEmptyCrcNode();
 	if(src.empty()) return; // memcpy(_, nullptr, 0) is undefined.
-
 	if(!contents_.is_tree()) {
 		size_t cur_size = contents_.inline_size();
 		if(cur_size + src.size() <= InlineRep::kMaxInline) {

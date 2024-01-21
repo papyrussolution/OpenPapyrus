@@ -113,7 +113,7 @@ const char * ma_pvio_tls_get_protocol_version(MARIADB_TLS * ctls)
 
 static signed char ma_hex2int(char c)
 {
-	if(c >= '0' && c <= '9')
+	if(isdec(c))
 		return c - '0';
 	if(c >= 'A' && c <= 'F')
 		return 10 + c - 'A';
@@ -122,33 +122,26 @@ static signed char ma_hex2int(char c)
 	return -1;
 }
 
-static bool ma_pvio_tls_compare_fp(const char * cert_fp,
-    uint cert_fp_len,
-    const char * fp, uint fp_len)
+static bool ma_pvio_tls_compare_fp(const char * cert_fp, uint cert_fp_len, const char * fp, uint fp_len)
 {
-	char * p = (char *)fp,
-	    * c;
-
+	char * p = (char *)fp;
+	char * c;
 	/* check length */
 	if(cert_fp_len != 20)
 		return 1;
-
 	/* We support two formats:
 	   2 digits hex numbers, separated by colons (length=59)
 	   20 * 2 digits hex numbers without separators (length = 40)
 	 */
 	if(fp_len != (strchr(fp, ':') ? 59 : 40))
 		return 1;
-
 	for(c = (char *)cert_fp; c < cert_fp + cert_fp_len; c++) {
 		signed char d1, d2;
 		if(*p == ':')
 			p++;
 		if(p - fp > (int)fp_len -1)
 			return 1;
-		if((d1 = ma_hex2int(*p)) == -1 ||
-		    (d2 = ma_hex2int(*(p+1))) == -1 ||
-		    (char)(d1 * 16 + d2) != *c)
+		if((d1 = ma_hex2int(*p)) == -1 || (d2 = ma_hex2int(*(p+1))) == -1 || (char)(d1 * 16 + d2) != *c)
 			return 1;
 		p += 2;
 	}
@@ -158,12 +151,9 @@ static bool ma_pvio_tls_compare_fp(const char * cert_fp,
 bool ma_pvio_tls_check_fp(MARIADB_TLS * ctls, const char * fp, const char * fp_list)
 {
 	uint cert_fp_len = 64;
-	char * cert_fp = NULL;
 	bool rc = 1;
 	MYSQL * mysql = ctls->pvio->mysql;
-
-	cert_fp = (char *)SAlloc::M(cert_fp_len);
-
+	char * cert_fp = (char *)SAlloc::M(cert_fp_len);
 	if((cert_fp_len = ma_tls_get_finger_print(ctls, cert_fp, cert_fp_len)) < 1)
 		goto end;
 	if(fp)
@@ -171,7 +161,6 @@ bool ma_pvio_tls_check_fp(MARIADB_TLS * ctls, const char * fp, const char * fp_l
 	else if(fp_list) {
 		MA_FILE * fp;
 		char buff[255];
-
 		if(!(fp = ma_open(fp_list, "r", mysql)))
 			goto end;
 

@@ -626,7 +626,7 @@ int __qam_nameop(DB*dbp, DB_TXN * txn, const char * newname, qam_name_op op)
 			continue;
 		/* Make sure we have all numbers. foo.db vs. foo.db.0. */
 		for(cp = &names[i][len]; *cp != '\0'; cp++)
-			if(!isdigit((int)*cp))
+			if(!isdec(*cp))
 				break;
 		if(*cp != '\0')
 			continue;

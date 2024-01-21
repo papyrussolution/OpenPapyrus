@@ -189,8 +189,10 @@ uint32_t Decode32Bit(absl::Span<const char> * buf) {
 }
 }  // namespace
 
-bool ProtoField::DecodeFrom(absl::Span<const char> * data) {
-	if(data->empty()) return false;
+bool ProtoField::DecodeFrom(absl::Span<const char> * data) 
+{
+	if(data->empty()) 
+		return false;
 	const uint64_t tag_type = DecodeVarint(data);
 	tag_ = tag_type >> 3;
 	type_ = static_cast<WireType>(tag_type & 0x07);
@@ -203,8 +205,7 @@ bool ProtoField::DecodeFrom(absl::Span<const char> * data) {
 		    break;
 		case WireType::kLengthDelimited: {
 		    value_ = DecodeVarint(data);
-		    data_ = data->subspan(
-			    0, static_cast<size_t>(std::min<uint64_t>(value_, data->size())));
+		    data_ = data->subspan(0, static_cast<size_t>(std::min<uint64_t>(value_, data->size())));
 		    data->remove_prefix(data_.size());
 		    break;
 	    }

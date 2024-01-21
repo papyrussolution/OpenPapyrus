@@ -1424,26 +1424,23 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 	}
 	if(debug) 
 		printf("Setting binary = %s\n", binary_string);
-
-	/* Variable length symbol bit field is just given a place holder (XX)
-	   for the time being */
-
-	/* Verify that the data to be placed in the compressed data field is all
-	   numeric data before carrying out compression */
+	// Variable length symbol bit field is just given a place holder (XX) for the time being 
+	// 
+	// Verify that the data to be placed in the compressed data field is all numeric data before carrying out compression
 	for(i = 0; i < read_posn; i++) {
-		if((source[i] < '0') || (source[i] > '9')) {
+		if(!isdec(source[i])) {
 			if((source[i] != '[') && (source[i] != ']')) {
-				/* Something is wrong */
+				// Something is wrong
 				sstrcpy(symbol->errtxt, "Invalid characters in input data (C85)");
 				return ZINT_ERROR_INVALID_DATA;
 			}
 		}
 	}
-	/* Now encode the compressed data field */
+	// Now encode the compressed data field
 	if(debug) 
 		printf("Proceeding to encode data\n");
 	if(encoding_method == 1) {
-		/* Encoding method field "1" - general item identification data */
+		// Encoding method field "1" - general item identification data
 		char group[4];
 		int group_val;
 		group[0] = source[2];
@@ -1698,7 +1695,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 			if(general_field[i] == '/')
 				general_field_type[i] = ALPHA_OR_ISO;
 			// Numeric encodation 
-			if((general_field[i] >= '0') && (general_field[i] <= '9')) {
+			if(isdec(general_field[i])) {
 				general_field_type[i] = ANY_ENC;
 			}
 			if(general_field[i] == '[') {
@@ -1779,7 +1776,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 					    strcat(binary_string, "00100"); /* Alphanumeric latch */
 				    }
 			    }
-			    if((general_field[i] >= '0') && (general_field[i] <= '9')) {
+			    if(isdec(general_field[i])) {
 				    value = general_field[i] - 43;
 				    mask = 0x10;
 				    for(j = 0; j < 5; j++) {
@@ -1824,7 +1821,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 					    strcat(binary_string, "00100"); /* ISO/IEC 646 latch */
 				    }
 			    }
-			    if((general_field[i] >= '0') && (general_field[i] <= '9')) {
+			    if(isdec(general_field[i])) {
 				    value = general_field[i] - 43;
 				    mask = 0x10;
 				    for(j = 0; j < 5; j++) {

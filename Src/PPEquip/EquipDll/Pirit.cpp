@@ -120,7 +120,7 @@ struct Config {
 };
 
 struct CheckStruct {
-	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), UomFragm(0), TaxSys(0), Tax(0),
+	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Qtty(0.0), PhQtty(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), UomFragm(0), TaxSys(0), Tax(0),
 		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0), //@erik v10.4.12 add "Stt(0),"
 		Timestamp(ZERODATETIME) /*@v11.2.3*/, PrescrDate(ZERODATE)/*@v11.8.0*/
 	{
@@ -128,7 +128,8 @@ struct CheckStruct {
 	CheckStruct & Z()
 	{
 		FontSize = 3;
-		Quantity = 0.0;
+		Qtty = 0.0;
+		PhQtty = 0.0; // @v11.9.3
 		Price = 0.0;
 		Department = 0;
 		Tax = 0;
@@ -160,7 +161,8 @@ struct CheckStruct {
 	int    CheckType;
 	int    FontSize;
 	int    CheckNum;
-	double Quantity;
+	double Qtty; // @v11.9.3 Quantity-->Qtty
+	double PhQtty;
 	double Price;
 	int    Department;
 	//
@@ -337,7 +339,7 @@ private:
 	struct DvcTaxEntry {
 		DvcTaxEntry() : Rate(0.0)
 		{
-			PTR32(Name)[0] = 0;
+			Name[0] = 0;
 		}
 		char   Name[64];
 		double Rate;
@@ -505,19 +507,19 @@ int Release()
 
 #define	FS_STR	"\x1C"	// Символ-разделитель пар параметров
 
-static void FASTCALL CreateStr(const char * pValue, SString & dst) { dst.Cat(pValue).Cat(FS_STR); }
-static void FASTCALL CreateChZnCode(const char * pValue, SString & dst) 
+static void FASTCALL CreateStr(const char * pValue, SString & rDst) { rDst.Cat(pValue).Cat(FS_STR); }
+static void FASTCALL CreateChZnCode(const char * pValue, SString & rDst) 
 { 
 	//dst.Cat(pValue).Cat(FS_STR); 
 	const size_t len = sstrlen(pValue);
 	for(size_t i = 0; i < len; i++) {
 		const char c = pValue[i];
 		if(c == 0x1D)
-			dst.Cat("$1D");
+			rDst.Cat("$1D");
 		else
-			dst.CatChar(c);
+			rDst.CatChar(c);
 	}
-	dst.Cat(FS_STR);
+	rDst.Cat(FS_STR);
 }
 static void FASTCALL CreateStr(int value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
 static void FASTCALL CreateStr(int64 value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
@@ -1214,15 +1216,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			// } @v11.3.6 
 			// @v11.8.0 {
 			{
-				if(pb.Get("PRESCRDATE", param_val) > 0) {
+				if(pb.Get("PRESCRDATE", param_val) > 0)
 					Check.PrescrDate = strtodate_(param_val, DATF_ISO8601CENT);
-				}
-				if(pb.Get("PRESCRSERIAL", param_val) > 0) {
+				if(pb.Get("PRESCRSERIAL", param_val) > 0)
 					Check.PrescrSerial = param_val;
-				}
-				if(pb.Get("PRESCRNUMB", param_val) > 0) {
+				if(pb.Get("PRESCRNUMB", param_val) > 0)
 					Check.PrescrNumber = param_val;
-				}
 			}
 			// } @v11.8.0 
 			THROW(RunCheck(0));
@@ -1363,16 +1362,9 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				// 4 	Единый сельскохозяйственный налог
 				// 5 	Патентная система налогообложения
 				//
-				int vat_entry_n = (blk.IsVatFree || blk.VatRate >= 0.0) ? IdentifyTaxEntry(blk.VatRate, blk.IsVatFree) : -1;
-				if(vat_entry_n >= 0)
-					correction_type &= ~0x10;
-				else
-					correction_type |= 0x10;
-				if(blk.CashAmt < 0.0 || blk.BankAmt < 0.0 || blk.PrepayAmt < 0.0)
-					correction_type |= 0x02;
-				else
-					correction_type &= ~0x02;
-
+				const int vat_entry_n = (blk.IsVatFree || blk.VatRate >= 0.0) ? IdentifyTaxEntry(blk.VatRate, blk.IsVatFree) : -1;
+				SETFLAG(correction_type, 0x10, vat_entry_n < 0);
+				SETFLAG(correction_type, 0x02, blk.CashAmt < 0.0 || blk.BankAmt < 0.0 || blk.PrepayAmt < 0.0);
 				SString in_data;
 				//
 				// CMD 0x58
@@ -1448,7 +1440,9 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SetLastItems(cmd, 0);
 			// @v10.1.2 THROW(StartWork());
 			if(pb.Get("QUANTITY", param_val) > 0)
-				Check.Quantity = param_val.ToReal();
+				Check.Qtty = param_val.ToReal();
+			if(pb.Get("PHQTTY", param_val) > 0) // @v11.9.3
+				Check.PhQtty = param_val.ToReal();
 			if(pb.Get("PRICE", param_val) > 0)
 				Check.Price = param_val.ToReal();
 			if(pb.Get("DEPARTMENT", param_val) > 0)
@@ -1542,15 +1536,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			// @v11.8.0 {
 			{
-				if(pb.Get("PRESCRDATE", param_val) > 0) {
+				if(pb.Get("PRESCRDATE", param_val) > 0)
 					Check.PrescrDate = strtodate_(param_val, DATF_ISO8601CENT);
-				}
-				if(pb.Get("PRESCRSERIAL", param_val) > 0) {
+				if(pb.Get("PRESCRSERIAL", param_val) > 0)
 					Check.PrescrSerial = param_val;
-				}
-				if(pb.Get("PRESCRNUMB", param_val) > 0) {
+				if(pb.Get("PRESCRNUMB", param_val) > 0)
 					Check.PrescrNumber = param_val;
-				}
 			}
 			// } @v11.8.0 
 			{
@@ -2473,7 +2464,7 @@ int PiritEquip::RunCheck(int opertype)
 					6 	Агент
 			*/
 			THROW(GetCurFlags(3, flag)); // @v10.7.9 (moved up)
-			if(Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())/*Check.ChZnCode.NotEmpty()*/) {
+			if(Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())) {
 				in_data.Z();
 				uint16 product_type_bytes = 0;
 				uint8  chzn_1162_bytes[128];
@@ -2534,11 +2525,11 @@ int PiritEquip::RunCheck(int opertype)
 								//
 								if(Check.ChZnProdType == 4) { // #2 (tag 1191) GTCHZNPT_MEDICINE
 									str = "mdlp";
-									if(Check.Quantity > 0.0 && Check.Quantity < 1.0 && Check.UomFragm > 0) {
+									if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
 										double ip = 0.0;
 										double nmrtr = 0.0;
 										double dnmntr = 0.0;
-										if(fsplitintofractions(Check.Quantity, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
+										if(fsplitintofractions(Check.Qtty, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
 											str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
 									}
 									CreateStr(str, in_data);
@@ -2560,17 +2551,22 @@ int PiritEquip::RunCheck(int opertype)
 								{
 									if(Check.ChZnProdType == 4)
 										str = "020";
+									else if(Check.ChZnProdType == 12) // @v11.9.3 GTCHZNPT_DRAFTBEER
+										str = "030";
 									else
 										str.Z();
 									CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								}
-								str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
+								// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
+								str.Z().Cat("26.03.2022"); // @v11.9.3
 								CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
 									// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
-								if(Check.CheckNum > 0)
+								/* @v11.9.3 if(Check.CheckNum > 0)
 									str.Z().Cat(Check.CheckNum);
 								else
 									str = "83d185d1";
+								*/
+								str.Z().Cat("477"); // @v11.9.3
 								CreateStr(str, in_data); // #17 (tag 1264) Номер документа основания. Должен содержать сведения об НПА отраслевого регулирования. 
 									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								// @v11.2.3 {
@@ -2635,11 +2631,11 @@ int PiritEquip::RunCheck(int opertype)
 						if(Check.ChZnProdType == 4) { // GTCHZNPT_MEDICINE
 							// @v11.2.6 {
 							str = "mdlp";
-							if(Check.Quantity > 0.0 && Check.Quantity < 1.0 && Check.UomFragm > 0) {
+							if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
 								double ip = 0.0;
 								double nmrtr = 0.0;
 								double dnmntr = 0.0;
-								if(fsplitintofractions(Check.Quantity, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
+								if(fsplitintofractions(Check.Qtty, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
 									str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
 							}
 							CreateStr(str, in_data);
@@ -2670,7 +2666,7 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(str, in_data); // Название товара      // @v9.5.7 ""-->Check.Text
 			(str = Check.Code).Trim(13); // [0..18]
 			CreateStr(str, in_data); // Артикул или штрихкод // @v9.5.7 ""-->Check.Code
-			CreateStr(Check.Quantity, in_data);
+			CreateStr(Check.Qtty, in_data);
 			// @vmiller comment
 			/*FormatPaym(Check.Price, str);
 			CreateStr(str, in_data);*/
@@ -3229,30 +3225,13 @@ int PiritEquip::SetLogotype(SString & rPath, size_t size, uint height, uint widt
 
 int PiritEquip::PrintLogo(int print)
 {
-	int    ok = 1, flag = 0;
+	int    ok = 1;
+	int    flag = 0;
 	SString out_data;
 	SString r_error;
-	//SString in_data;
-	/*
-	CreateStr(1, in_data);
-	CreateStr(0, in_data);
-	{
-		OpLogBlock __oplb(LogFileName, "11", 0);
-		THROWERR(PutData("11", in_data), PIRIT_NOTSENT);
-		out_data.Destroy();
-		THROW(GetWhile(out_data, r_error));
-	}
-	*/
 	THROW(ReadConfigTab(1, 0, out_data, r_error));
 	flag = out_data.ToLong();
 	SETFLAG(flag, 0x04, print);
-	/*
-	in_data.Destroy();
-	CreateStr(1, in_data);
-	CreateStr(0, in_data);
-	CreateStr(flag, in_data);
-	THROW(ExecCmd("12", in_data, out_data, r_error));
-	*/
 	THROW(WriteConfigTab(1, 0, flag, out_data, r_error));
 	THROW(StartWork());
 	CATCHZOK

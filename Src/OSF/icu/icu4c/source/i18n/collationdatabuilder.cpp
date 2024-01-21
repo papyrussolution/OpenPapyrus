@@ -1042,8 +1042,8 @@ static bool U_CALLCONV enumRangeForCopy(const void * context, UChar32 start, UCh
 
 U_CDECL_END
 
-void CollationDataBuilder::copyFrom(const CollationDataBuilder &src, const CEModifier &modifier,
-    UErrorCode & errorCode) {
+void CollationDataBuilder::copyFrom(const CollationDataBuilder &src, const CEModifier &modifier, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}

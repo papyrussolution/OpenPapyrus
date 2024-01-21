@@ -383,14 +383,10 @@ void _mi_warning_message(const char* fmt, ...) {
 }
 
 #if MI_DEBUG
-void _mi_assert_fail(const char* assertion, const char* fname, unsigned line, const char* func) {
-	_mi_fprintf(NULL,
-	    NULL,
-	    "mimalloc: assertion failed: at \"%s\":%u, %s\n  assertion: \"%s\"\n",
-	    fname,
-	    line,
-	    (func==NULL ? "" : func),
-	    assertion);
+void _mi_assert_fail(const char* assertion, const char* fname, unsigned line, const char* func) 
+{
+	_mi_fprintf(NULL, NULL, "mimalloc: assertion failed: at \"%s\":%u, %s\n  assertion: \"%s\"\n",
+	    fname, line, (func==NULL ? "" : func), assertion);
 	abort();
 }
 
@@ -401,7 +397,8 @@ void _mi_assert_fail(const char* assertion, const char* fname, unsigned line, co
 static mi_error_fun* volatile mi_error_handler;  // = NULL
 static _Atomic(void*) mi_error_arg;     // = NULL
 
-static void mi_error_default(int err) {
+static void mi_error_default(int err) 
+{
 	MI_UNUSED(err);
 #if (MI_DEBUG>0)
 	if(err==EFAULT) {

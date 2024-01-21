@@ -169,7 +169,7 @@ struct asprintf {
 static long dprintf_DollarString(char * input, char ** end)
 {
 	int number = 0;
-	while(ISDIGIT(*input)) {
+	while(isdec(*input)) {
 		if(number < MAX_PARAMETERS) {
 			number *= 10;
 			number += *input - '0';

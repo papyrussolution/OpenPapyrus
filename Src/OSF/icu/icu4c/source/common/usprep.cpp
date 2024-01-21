@@ -590,25 +590,18 @@ static int32_t usprep_map(const UStringPrepProfile* profile,
           character MUST be the first character of the string, and a
           RandALCat character MUST be the last character of the string.
  */
-U_CAPI int32_t U_EXPORT2 usprep_prepare(const UStringPrepProfile* profile,
-    const char16_t * src, int32_t srcLength,
-    char16_t * dest, int32_t destCapacity,
-    int32_t options,
-    UParseError* parseError,
-    UErrorCode * status) {
+U_CAPI int32_t U_EXPORT2 usprep_prepare(const UStringPrepProfile* profile, const char16_t * src, int32_t srcLength,
+    char16_t * dest, int32_t destCapacity, int32_t options, UParseError* parseError, UErrorCode * status) 
+{
 	// check error status
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
-
 	//check arguments
-	if(profile==NULL ||
-	    (src==NULL ? srcLength!=0 : srcLength<-1) ||
-	    (dest==NULL ? destCapacity!=0 : destCapacity<0)) {
+	if(profile==NULL || (src==NULL ? srcLength!=0 : srcLength<-1) || (dest==NULL ? destCapacity!=0 : destCapacity<0)) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	//get the string length
 	if(srcLength < 0) {
 		srcLength = u_strlen(src);
@@ -616,19 +609,18 @@ U_CAPI int32_t U_EXPORT2 usprep_prepare(const UStringPrepProfile* profile,
 	// map
 	UnicodeString s1;
 	char16_t * b1 = s1.getBuffer(srcLength);
-	if(b1==NULL) {
+	if(!b1) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return 0;
 	}
-	int32_t b1Len = usprep_map(profile, src, srcLength,
-		b1, s1.getCapacity(), options, parseError, status);
+	int32_t b1Len = usprep_map(profile, src, srcLength, b1, s1.getCapacity(), options, parseError, status);
 	s1.releaseBuffer(U_SUCCESS(*status) ? b1Len : 0);
 
 	if(*status == U_BUFFER_OVERFLOW_ERROR) {
 		// redo processing of string
 		/* we do not have enough room so grow the buffer*/
 		b1 = s1.getBuffer(b1Len);
-		if(b1==NULL) {
+		if(!b1) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			return 0;
 		}
@@ -763,17 +755,13 @@ U_CAPI int32_t U_EXPORT2 usprep_swap(const UDataSwapper * ds,
 		*pErrorCode = U_UNSUPPORTED_ERROR;
 		return 0;
 	}
-
 	inBytes = (const uint8 *)inData+headerSize;
 	outBytes = (uint8 *)outData+headerSize;
-
 	inIndexes = (const int32_t*)inBytes;
-
 	if(length>=0) {
 		length -= headerSize;
-		if(length<16*4) {
-			udata_printError(ds, "usprep_swap(): too few bytes (%d after header) for StringPrep .spp data\n",
-			    length);
+		if(length < 16*4) {
+			udata_printError(ds, "usprep_swap(): too few bytes (%d after header) for StringPrep .spp data\n", length);
 			*pErrorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 			return 0;
 		}

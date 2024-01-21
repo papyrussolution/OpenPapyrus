@@ -638,8 +638,7 @@ inline bool safe_parse_sign_and_base(absl::string_view* text /*inout*/,
 	//  base 16: "0x" -> base 16
 	// Also validate the base.
 	if(base == 0) {
-		if(end - start >= 2 && start[0] == '0' &&
-		    (start[1] == 'x' || start[1] == 'X')) {
+		if(end - start >= 2 && start[0] == '0' && (start[1] == 'x' || start[1] == 'X')) {
 			base = 16;
 			start += 2;
 			if(start >= end) {
@@ -656,8 +655,7 @@ inline bool safe_parse_sign_and_base(absl::string_view* text /*inout*/,
 		}
 	}
 	else if(base == 16) {
-		if(end - start >= 2 && start[0] == '0' &&
-		    (start[1] == 'x' || start[1] == 'X')) {
+		if(end - start >= 2 && start[0] == '0' && (start[1] == 'x' || start[1] == 'X')) {
 			start += 2;
 			if(start >= end) {
 				// "0x" with no digits after is invalid.

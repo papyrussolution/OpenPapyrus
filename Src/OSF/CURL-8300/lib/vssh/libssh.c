@@ -2846,8 +2846,7 @@ static void sftp_quote_stat(struct Curl_easy * data)
 	/* Now set the new attributes... */
 	if(strncasecompare(cmd, "chgrp", 5)) {
 		sshc->quote_attrs->gid = (uint32_t)strtoul(sshc->quote_path1, NULL, 10);
-		if(sshc->quote_attrs->gid == 0 && !ISDIGIT(sshc->quote_path1[0]) &&
-		    !sshc->acceptfail) {
+		if(sshc->quote_attrs->gid == 0 && !isdec(sshc->quote_path1[0]) && !sshc->acceptfail) {
 			ZFREE(sshc->quote_path1);
 			ZFREE(sshc->quote_path2);
 			failf(data, "Syntax error: chgrp gid not a number");
@@ -2862,7 +2861,7 @@ static void sftp_quote_stat(struct Curl_easy * data)
 		mode_t perms;
 		perms = (mode_t)strtoul(sshc->quote_path1, NULL, 8);
 		/* permissions are octal */
-		if(perms == 0 && !ISDIGIT(sshc->quote_path1[0])) {
+		if(perms == 0 && !isdec(sshc->quote_path1[0])) {
 			ZFREE(sshc->quote_path1);
 			ZFREE(sshc->quote_path2);
 			failf(data, "Syntax error: chmod permissions not a number");
@@ -2876,8 +2875,7 @@ static void sftp_quote_stat(struct Curl_easy * data)
 	}
 	else if(strncasecompare(cmd, "chown", 5)) {
 		sshc->quote_attrs->uid = (uint32_t)strtoul(sshc->quote_path1, NULL, 10);
-		if(sshc->quote_attrs->uid == 0 && !ISDIGIT(sshc->quote_path1[0]) &&
-		    !sshc->acceptfail) {
+		if(sshc->quote_attrs->uid == 0 && !isdec(sshc->quote_path1[0]) && !sshc->acceptfail) {
 			ZFREE(sshc->quote_path1);
 			ZFREE(sshc->quote_path2);
 			failf(data, "Syntax error: chown uid not a number");
@@ -2888,8 +2886,7 @@ static void sftp_quote_stat(struct Curl_easy * data)
 		}
 		sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_UIDGID;
 	}
-	else if(strncasecompare(cmd, "atime", 5) ||
-	    strncasecompare(cmd, "mtime", 5)) {
+	else if(strncasecompare(cmd, "atime", 5) || strncasecompare(cmd, "mtime", 5)) {
 		time_t date = Curl_getdate_capped(sshc->quote_path1);
 		bool fail = FALSE;
 		if(date == -1) {

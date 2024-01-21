@@ -90,13 +90,13 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 				    // no state jump necessary for this simple case...
 				    styler.ColourTo(i, SCE_NNCRONTAB_ASTERISK);
 			    }
-			    else if((IsASCII(ch) && isalpha(ch)) || ch == '<') {
+			    else if(isasciialpha(ch) || ch == '<') {
 				    // signals the start of an identifier
 				    bufferCount = 0;
 				    buffer[bufferCount++] = ch;
 				    state = SCE_NNCRONTAB_IDENTIFIER;
 			    }
-			    else if(IsASCII(ch) && isdec(ch)) {
+			    else if(isdec(ch)) {
 				    // signals the start of a number
 				    bufferCount = 0;
 				    buffer[bufferCount++] = ch;
@@ -119,7 +119,6 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 				    styler.ColourTo(i, SCE_NNCRONTAB_COMMENT);
 			    }
 			    break;
-
 			case SCE_NNCRONTAB_TASK:
 			    // if we find a newline here,
 			    // we simply go to default state
@@ -131,7 +130,6 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 				    styler.ColourTo(i, SCE_NNCRONTAB_TASK);
 			    }
 			    break;
-
 			case SCE_NNCRONTAB_STRING:
 			    if(ch == '%') {
 				    state = SCE_NNCRONTAB_ENVIRONMENT;
@@ -162,7 +160,6 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 			    }
 			    styler.ColourTo(i+1, SCE_NNCRONTAB_ENVIRONMENT);
 			    break;
-
 			case SCE_NNCRONTAB_IDENTIFIER:
 			    // stay  in CONF_IDENTIFIER state until we find a non-alphanumeric
 			    if(isasciialnum(ch) || oneof8(ch, '_', '-', '/', '$', '.', '<', '>', '@')) {
@@ -192,10 +189,9 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 				    chNext = styler[i--];
 			    }
 			    break;
-
 			case SCE_NNCRONTAB_NUMBER:
 			    // stay  in CONF_NUMBER state until we find a non-numeric
-			    if(IsASCII(ch) && isdec(ch) /* || ch == '.' */) {
+			    if(isdec(ch) /* || ch == '.' */) {
 				    buffer[bufferCount++] = ch;
 			    }
 			    else {

@@ -1109,7 +1109,7 @@ LRESULT CALLBACK WndParentProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 /* PM 20011218: Reallocate larger keyboard buffer */
 static int ReallocateKeyBuf(TW * lptw)
 {
-	int newbufsize = lptw->KeyBufSize + 16*1024; /* new buffer size */
+	int newbufsize = lptw->KeyBufSize + SKILOBYTE(16); /* new buffer size */
 	HGLOBAL h_old = (HGLOBAL)GlobalHandle(lptw->KeyBuf);
 	HGLOBAL h = GlobalAlloc(LHND, newbufsize);
 	int pos_in = lptw->KeyBufIn - lptw->KeyBuf;

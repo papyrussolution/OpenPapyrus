@@ -56,7 +56,7 @@ int SMailClient::Connect(InetUrl & rUrl, int timeout)
 						line_no++;
 						{
 							uint   p = 0;
-							while(isdigit(reply_buf[p])) {
+							while(isdec(reply_buf[p])) {
 								p++;
 							}
 							temp_buf.Z();

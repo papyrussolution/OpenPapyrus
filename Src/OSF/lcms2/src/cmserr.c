@@ -36,7 +36,7 @@ int CMSEXPORT cmsstrcasecmp(const char * s1, const char * s2)
 }
 
 // long int because C99 specifies ftell in such way (7.19.9.2)
-long int CMSEXPORT cmsfilelength(FILE* f)
+long CMSEXPORT cmsfilelength(FILE* f)
 {
 	long n;
 	long p = ftell(f); // register current file position

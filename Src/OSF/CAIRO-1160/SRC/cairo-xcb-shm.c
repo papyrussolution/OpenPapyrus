@@ -46,7 +46,7 @@
 #include <sys/shm.h>
 #include <errno.h>
 
-#define CAIRO_MAX_SHM_MEMORY (16*1024*1024)
+#define CAIRO_MAX_SHM_MEMORY SMEGABYTE(16)
 
 /* a simple buddy allocator for memory pools
  * XXX fragmentation? use Doug Lea's malloc?

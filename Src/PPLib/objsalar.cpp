@@ -1,5 +1,5 @@
 // OBJSALAR.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -52,7 +52,7 @@ public:
 		SetupEnumExt();
 
 		setCtrlString(CTL_SALCHARGE_FORMULA, Data.Formula);
-		disableCtrl(CTL_SALCHARGE_ID,        Data.Rec.ID);
+		disableCtrl(CTL_SALCHARGE_ID,        LOGIC(Data.Rec.ID));
 		//SetupPPObjCombo(this, CTLSEL_SALCHARGE_STAFCAL, PPOBJ_STAFFCAL, Data.Rec.CalID, 0, 0);
 		SetupAmtTypeCombo(this, CTLSEL_SALCHARGE_AMTTYPE, Data.Rec.AmtID, OLW_CANINSERT, PPObjAmountType::selStaffOnly, 0);
 		PPIDArray op_type_list;

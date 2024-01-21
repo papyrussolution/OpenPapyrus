@@ -3368,11 +3368,9 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter * cf,
 	struct ssl_primary_config * conn_config = Curl_ssl_cf_get_primary_config(cf);
 	struct ssl_config_data * ssl_config = Curl_ssl_cf_get_config(cf, data);
 	BIO * bio;
-
 #ifdef SSL_CTRL_SET_TLSEXT_HOSTNAME
 	bool sni;
 	const char * hostname = connssl->hostname;
-
 #ifdef ENABLE_IPV6
 	struct in6_addr addr;
 #else
@@ -3385,21 +3383,15 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter * cf,
 	const char * const ssl_cert_type = ssl_config->cert_type;
 	const bool verifypeer = conn_config->verifypeer;
 	char error_buffer[256];
-	struct ossl_ssl_backend_data * backend =
-	    (struct ossl_ssl_backend_data *)connssl->backend;
-
+	struct ossl_ssl_backend_data * backend = (struct ossl_ssl_backend_data *)connssl->backend;
 	DEBUGASSERT(ssl_connect_1 == connssl->connecting_state);
 	DEBUGASSERT(backend);
-
 	/* Make funny stuff to get random input */
 	result = ossl_seed(data);
 	if(result)
 		return result;
-
 	ssl_config->certverifyresult = !X509_V_OK;
-
 	/* check to see if we've been told to use an explicit SSL/TLS version */
-
 	switch(ssl_version) {
 		case CURL_SSLVERSION_DEFAULT:
 		case CURL_SSLVERSION_TLSv1:

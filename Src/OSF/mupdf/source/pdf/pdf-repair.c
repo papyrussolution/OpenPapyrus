@@ -111,10 +111,8 @@ int pdf_repair_obj(fz_context * ctx,
 				*page = pdf_keep_obj(ctx, dict);
 			}
 		}
-
 		pdf_drop_obj(ctx, dict);
 	}
-
 	while(tok != PDF_TOK_STREAM &&
 	    tok != PDF_TOK_ENDOBJ &&
 	    tok != PDF_TOK_ERROR &&
@@ -192,24 +190,15 @@ static void pdf_repair_obj_stm(fz_context * ctx, pdf_document * doc, int stm_num
 	pdf_token tok;
 	int i, n, count;
 	pdf_lexbuf buf;
-
 	fz_var(stm);
-
 	pdf_lexbuf_init(ctx, &buf, PDF_LEXBUF_SMALL);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		obj = pdf_load_object(ctx, doc, stm_num);
-
 		count = pdf_dict_get_int(ctx, obj, PDF_NAME(N));
-
 		pdf_drop_obj(ctx, obj);
-
 		stm = pdf_open_stream_number(ctx, doc, stm_num);
-
 		for(i = 0; i < count; i++) {
 			pdf_xref_entry * entry;
-
 			tok = pdf_lex(ctx, stm, &buf);
 			if(tok != PDF_TOK_INT)
 				fz_throw(ctx, FZ_ERROR_GENERIC, "corrupt object stream (%d 0 R)", stm_num);
@@ -238,13 +227,11 @@ static void pdf_repair_obj_stm(fz_context * ctx, pdf_document * doc, int stm_num
 				fz_throw(ctx, FZ_ERROR_GENERIC, "corrupt object stream (%d 0 R)", stm_num);
 		}
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_stream(ctx, stm);
 		pdf_lexbuf_fin(ctx, &buf);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_rethrow(ctx);
 	}
 }
@@ -253,14 +240,11 @@ static void orphan_object(fz_context * ctx, pdf_document * doc, pdf_obj * obj)
 {
 	if(doc->orphans_count == doc->orphans_max) {
 		int new_max = (doc->orphans_max ? doc->orphans_max*2 : 32);
-
-		fz_try(ctx)
-		{
+		fz_try(ctx) {
 			doc->orphans = fz_realloc_array(ctx, doc->orphans, new_max, pdf_obj*);
 			doc->orphans_max = new_max;
 		}
-		fz_catch(ctx)
-		{
+		fz_catch(ctx) {
 			pdf_drop_obj(ctx, obj);
 			fz_rethrow(ctx);
 		}
@@ -311,19 +295,13 @@ void pdf_repair_xref(fz_context * ctx, pdf_document * doc)
 	fz_var(obj);
 
 	fz_warn(ctx, "repairing PDF document");
-
 	if(doc->repair_attempted)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "Repair failed already - not trying again");
 	doc->repair_attempted = 1;
-
 	doc->dirty = 1;
-
 	pdf_forget_xref(ctx, doc);
-
 	fz_seek(ctx, doc->file, 0, 0);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		pdf_xref_entry * entry;
 		listlen = 0;
 		listcap = 1024;
@@ -386,9 +364,7 @@ have_next_token:
 
 			else if(tok == PDF_TOK_OBJ) {
 				pdf_obj * root = NULL;
-
-				fz_try(ctx)
-				{
+				fz_try(ctx) {
 					stm_len = 0;
 					stm_ofs = 0;
 					tok = (pdf_token)pdf_repair_obj(ctx, doc, buf, &stm_ofs, &stm_len, &encrypt, &id, NULL, &tmpofs, &root);
@@ -429,10 +405,8 @@ have_next_token:
 				list[listlen].stm_ofs = stm_ofs;
 				list[listlen].stm_len = stm_len;
 				listlen++;
-
 				if(num > maxnum)
 					maxnum = num;
-
 				goto have_next_token;
 			}
 
@@ -441,9 +415,7 @@ have_next_token:
 			 * by a corrupt file. */
 			else if(tok == PDF_TOK_OPEN_DICT) {
 				pdf_obj * dictobj;
-
-				fz_try(ctx)
-				{
+				fz_try(ctx) {
 					dict = pdf_parse_dict(ctx, doc, doc->file, buf);
 				}
 				fz_catch(ctx)
@@ -505,10 +477,8 @@ have_next_token:
 		        Dummy access to entry to assure sufficient space in the xref table
 		        and avoid repeated reallocs in the loop
 		 */
-		/* Ensure that the first xref table is a 'solid' one from
-		 * 0 to maxnum. */
+		/* Ensure that the first xref table is a 'solid' one from 0 to maxnum. */
 		pdf_ensure_solid_xref(ctx, doc, maxnum);
-
 		for(i = 1; i < maxnum; i++) {
 			entry = pdf_get_populating_xref_entry(ctx, doc, i);
 			if(entry->obj != NULL)
@@ -517,10 +487,8 @@ have_next_token:
 			entry->ofs = 0;
 			entry->gen = 0;
 			entry->num = 0;
-
 			entry->stm_ofs = 0;
 		}
-
 		for(i = 0; i < listlen; i++) {
 			entry = pdf_get_populating_xref_entry(ctx, doc, list[i].num);
 			entry->type = 'n';
@@ -534,9 +502,7 @@ have_next_token:
 			if(!encrypt && list[i].stm_len >= 0) {
 				pdf_obj * old_obj = NULL;
 				dict = pdf_load_object(ctx, doc, list[i].num);
-
-				fz_try(ctx)
-				{
+				fz_try(ctx) {
 					length = pdf_new_int(ctx, list[i].stm_len);
 					pdf_dict_get_put_drop(ctx, dict, PDF_NAME(Length), length, &old_obj);
 					if(old_obj)
@@ -643,29 +609,23 @@ void pdf_repair_obj_stms(fz_context * ctx, pdf_document * doc)
 	pdf_obj * dict;
 	int i;
 	int xref_len = pdf_xref_len(ctx, doc);
-
 	for(i = 0; i < xref_len; i++) {
 		pdf_xref_entry * entry = pdf_get_populating_xref_entry(ctx, doc, i);
-
 		if(entry->stm_ofs) {
 			dict = pdf_load_object(ctx, doc, i);
-			fz_try(ctx)
-			{
+			fz_try(ctx) {
 				if(pdf_name_eq(ctx, pdf_dict_get(ctx, dict, PDF_NAME(Type)), PDF_NAME(ObjStm)))
 					pdf_repair_obj_stm(ctx, doc, i);
 			}
-			fz_catch(ctx)
-			{
+			fz_catch(ctx) {
 				fz_warn(ctx, "ignoring broken object stream (%d 0 R)", i);
 			}
 			pdf_drop_obj(ctx, dict);
 		}
 	}
-
 	/* Ensure that streamed objects reside inside a known non-streamed object */
 	for(i = 0; i < xref_len; i++) {
 		pdf_xref_entry * entry = pdf_get_populating_xref_entry(ctx, doc, i);
-
 		if(entry->type == 'o' && pdf_get_populating_xref_entry(ctx, doc, entry->ofs)->type != 'n')
 			fz_throw(ctx, FZ_ERROR_GENERIC, "invalid reference to non-object-stream: %d (%d 0 R)", (int)entry->ofs, i);
 	}

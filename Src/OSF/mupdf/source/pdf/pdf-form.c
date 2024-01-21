@@ -1090,26 +1090,16 @@ int pdf_signature_byte_range(fz_context * ctx, pdf_document * doc, pdf_obj * sig
 			byte_range[i].length = length;
 		}
 	}
-
 	return n;
 }
 
-static int is_white(int c)
-{
-	return c == '\x00' || c == '\x09' || c == '\x0a' || c == '\x0c' || c == '\x0d' || c == '\x20';
-}
-
-static int is_hex_or_white(int c)
-{
-	return (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || (c >= '0' && c <= '9') || is_white(c);
-}
+static int is_white(int c) { return c == '\x00' || c == '\x09' || c == '\x0a' || c == '\x0c' || c == '\x0d' || c == '\x20'; }
+static int is_hex_or_white(int c) { return ishex(c) || is_white(c); }
 
 static void validate_certificate_data(fz_context * ctx, pdf_document * doc, fz_range * hole)
 {
-	fz_stream * stm;
 	int c;
-
-	stm = fz_open_range_filter(ctx, doc->file, hole, 1);
+	fz_stream * stm = fz_open_range_filter(ctx, doc->file, hole, 1);
 	fz_try(ctx)
 	{
 		while(is_white((c = fz_read_byte(ctx, stm))))

@@ -108,7 +108,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_open(uint32_t initialValue, uint32_t errorValue
 	trie = (UTrie2*)uprv_malloc(sizeof(UTrie2));
 	newTrie = (UNewTrie2*)uprv_malloc(sizeof(UNewTrie2));
 	data = (uint32_t*)uprv_malloc(UNEWTRIE2_INITIAL_DATA_LENGTH*4);
-	if(trie==NULL || newTrie==NULL || data==NULL) {
+	if(!trie || newTrie==NULL || data==NULL) {
 		uprv_free(trie);
 		uprv_free(newTrie);
 		uprv_free(data);
@@ -230,7 +230,7 @@ static UNewTrie2 * cloneBuilder(const UNewTrie2 * other) {
 	UNewTrie2 * trie;
 
 	trie = (UNewTrie2*)uprv_malloc(sizeof(UNewTrie2));
-	if(trie==NULL) {
+	if(!trie) {
 		return NULL;
 	}
 
@@ -289,7 +289,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_clone(const UTrie2 * other, UErrorCode * pError
 	}
 
 	trie = (UTrie2*)uprv_malloc(sizeof(UTrie2));
-	if(trie==NULL) {
+	if(!trie) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
@@ -639,7 +639,7 @@ static void set32(UNewTrie2 * trie,
     UErrorCode * pErrorCode) {
 	int32_t block;
 
-	if(trie==NULL || trie->isCompacted) {
+	if(!trie || trie->isCompacted) {
 		*pErrorCode = U_NO_WRITE_PERMISSION;
 		return;
 	}
@@ -1285,7 +1285,8 @@ static void compactTrie(UTrie2 * trie, UErrorCode * pErrorCode) {
 #define UTRIE2_MAX_DATA_LENGTH (0xffff<<UTRIE2_INDEX_SHIFT)
 
 /* Compact and internally serialize the trie. */
-U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UErrorCode * pErrorCode) {
+U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UErrorCode * pErrorCode) 
+{
 	UNewTrie2 * newTrie;
 	UTrie2Header * header;
 	uint32_t * p;
@@ -1294,14 +1295,11 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 	int32_t allIndexesLength;
 	int32_t dataMove; /* >0 if the data is moved to the end of the index array */
 	UChar32 highStart;
-
 	/* argument check */
 	if(U_FAILURE(*pErrorCode)) {
 		return;
 	}
-	if(trie==NULL ||
-	    valueBits<0 || UTRIE2_COUNT_VALUE_BITS<=valueBits
-	    ) {
+	if(!trie || valueBits<0 || UTRIE2_COUNT_VALUE_BITS<=valueBits) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}

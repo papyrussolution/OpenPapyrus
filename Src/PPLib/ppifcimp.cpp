@@ -1,5 +1,5 @@
 // PPIFCIMP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 // Реализация интерфейсов
@@ -7485,7 +7485,7 @@ int32 DL6ICLS_PPViewCCheck::NextIteration(PPYVIEWITEM item)
 		p_item->RecTag     = PPVIEWITEM_CCHECK;
 		p_item->ID = inner_item.ID;
 		p_item->Code       = inner_item.Code;
-		p_item->CashID     = inner_item.CashID;
+		p_item->CashID     = inner_item.PosNodeID;
 		p_item->UserID     = inner_item.UserID;
 		p_item->SessID     = inner_item.SessID;
 		p_item->Flags      = inner_item.Flags;
@@ -10592,8 +10592,8 @@ static void FillCCheckRec(const CCheckPacket * pInner, SPpyO_CCheck * pOuter)
 		pOuter->PosNodeID = (cs_obj.Fetch(pInner->Rec.SessID, &cs_rec) > 0) ? cs_rec.CashNodeID : 0;
 	}
 	else
-		pOuter->PosNodeID = pInner->Rec.CashID;
-	pOuter->PosNumber = pInner->Rec.CashID;
+		pOuter->PosNodeID = pInner->Rec.PosNodeID;
+	pOuter->PosNumber = pInner->Rec.PosNodeID;
 	FLD(UserID);
 	pOuter->CSessID = pInner->Rec.SessID;
 	pOuter->Dt = pInner->Rec.Dt.GetOleDate();

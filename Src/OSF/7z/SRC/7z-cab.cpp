@@ -240,7 +240,7 @@ namespace NCompress {
 			uint   numItems = (_numDictBits == 0 ? 1 : (_numDictBits << 1));
 			const  uint kNumPosSymbolsMax[kNumMatchSelectors] = { 24, 36, 42 };
 			for(i = 0; i < kNumMatchSelectors; i++)
-				m_PosSlot[i].Init(MyMin(numItems, kNumPosSymbolsMax[i]));
+				m_PosSlot[i].Init(smin(numItems, kNumPosSymbolsMax[i]));
 			m_LenSlot.Init(kNumLenSymbols);
 		}
 
@@ -974,7 +974,7 @@ namespace NArchive {
 			ASSIGN_PTR(processedSize, 0);
 			while(size != 0) {
 				if(m_FileIsOpen) {
-					uint32 numBytesToWrite = MyMin(m_RemainFileSize, size);
+					uint32 numBytesToWrite = smin(m_RemainFileSize, size);
 					HRESULT res = S_OK;
 					if(numBytesToWrite != 0) {
 						if(!isOK)
@@ -1032,7 +1032,7 @@ namespace NArchive {
 					if(fileOffset < m_PosInFolder)
 						return E_FAIL;
 					if(fileOffset > m_PosInFolder) {
-						uint32 numBytesToWrite = MyMin(fileOffset - (uint32)m_PosInFolder, size);
+						uint32 numBytesToWrite = smin(fileOffset - (uint32)m_PosInFolder, size);
 						realProcessed += numBytesToWrite;
 						ASSIGN_PTR(processedSize, realProcessed);
 						data = (const void *)((const Byte *)data + numBytesToWrite);

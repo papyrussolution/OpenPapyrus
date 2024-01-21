@@ -1343,7 +1343,7 @@ static int32_t U_CALLCONV utf8TextExtract(UText * ut, int64_t start, int64_t lim
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0)) {
+	if(destCapacity<0 || (!dest && destCapacity>0)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -1479,11 +1479,11 @@ U_CAPI UText * U_EXPORT2 utext_openUTF8(UText * ut, const char * s, int64_t leng
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-	if(s==NULL && length==0) {
+	if(!s && length==0) {
 		s = gEmptyString;
 	}
 
-	if(s==NULL || length<-1 || length>INT32_MAX) {
+	if(!s || length<-1 || length>INT32_MAX) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -1686,7 +1686,7 @@ static int32_t U_CALLCONV repTextExtract(UText * ut,
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0)) {
+	if(destCapacity<0 || (!dest && destCapacity>0)) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 	}
 	if(start>limit) {
@@ -1940,7 +1940,7 @@ static int32_t U_CALLCONV unistrTextExtract(UText * t,
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0)) {
+	if(destCapacity<0 || (!dest && destCapacity>0)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 	}
 	if(start<0 || start>limit) {
@@ -2283,7 +2283,7 @@ static int32_t U_CALLCONV ucstrTextExtract(UText * ut, int64_t start, int64_t li
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0) || start>limit) {
+	if(destCapacity<0 || (!dest && destCapacity>0) || start>limit) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -2382,10 +2382,10 @@ U_CAPI UText * U_EXPORT2 utext_openUChars(UText * ut, const char16_t * s, int64_
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-	if(s==NULL && length==0) {
+	if(!s && length==0) {
 		s = gEmptyUString;
 	}
-	if(s==NULL || length < -1 || length>INT32_MAX) {
+	if(!s || length < -1 || length>INT32_MAX) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -2539,7 +2539,7 @@ static int32_t U_CALLCONV charIterTextExtract(UText * ut, int64_t start, int64_t
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
-	if(destCapacity<0 || (dest==NULL && destCapacity>0) || start>limit) {
+	if(destCapacity<0 || (!dest && destCapacity>0) || start>limit) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

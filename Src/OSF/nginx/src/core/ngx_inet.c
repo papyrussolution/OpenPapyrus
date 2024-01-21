@@ -18,7 +18,7 @@ in_addr_t ngx_inet_addr(const uchar * text, size_t len)
 	ngx_uint_t n = 0;
 	for(const uchar * p = text; p < (text + len); p++) {
 		c = *p;
-		if(c >= '0' && c <= '9') {
+		if(isdec(c)) {
 			octet = octet * 10 + (c - '0');
 			if(octet > 255)
 				return INADDR_NONE;
@@ -100,7 +100,7 @@ ngx_int_t ngx_inet6_addr(uchar * p, size_t len, uchar * addr)
 		if(++nibbles > 4) {
 			return NGX_ERROR;
 		}
-		if(c >= '0' && c <= '9') {
+		if(isdec(c)) {
 			word = word * 16 + (c - '0');
 			continue;
 		}

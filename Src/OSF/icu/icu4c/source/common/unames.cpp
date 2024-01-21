@@ -302,29 +302,24 @@ static uint16 expandName(UCharNames * names,
 			}
 		}
 	}
-
 	/* zero-terminate */
-	if(bufferLength>0) {
+	if(bufferLength > 0) {
 		*buffer = 0;
 	}
-
 	return bufferPos;
 }
-
 /*
  * compareName() is almost the same as expandName() except that it compares
  * the currently expanded name to an input name.
  * It returns the match/no match result as soon as possible.
  */
-static bool compareName(UCharNames * names,
-    const uint8 * name, uint16 nameLength, UCharNameChoice nameChoice,
-    const char * otherName) {
+static bool compareName(UCharNames * names, const uint8 * name, uint16 nameLength, UCharNameChoice nameChoice, const char * otherName) 
+{
 	uint16 * tokens = (uint16*)names+8;
 	uint16 token, tokenCount = *tokens++;
 	uint8 * tokenStrings = (uint8 *)names+names->tokenStringOffset;
 	uint8 c;
 	const char * origOtherName = otherName;
-
 	if(nameChoice!=U_UNICODE_CHAR_NAME && nameChoice!=U_EXTENDED_CHAR_NAME) {
 		/*
 		 * skip the modern name if it is not requested _and_
@@ -569,23 +564,21 @@ static uint16 expandGroupName(UCharNames * names, const uint16 * group,
 		   buffer, bufferLength);
 }
 
-static uint16 getName(UCharNames * names, uint32_t code, UCharNameChoice nameChoice,
-    char * buffer, uint16 bufferLength) {
+static uint16 getName(UCharNames * names, uint32_t code, UCharNameChoice nameChoice, char * buffer, uint16 bufferLength) 
+{
 	const uint16 * group = getGroup(names, code);
 	if((uint16)(code>>GROUP_SHIFT)==group[GROUP_MSB]) {
-		return expandGroupName(names, group, (uint16)(code&GROUP_MASK), nameChoice,
-			   buffer, bufferLength);
+		return expandGroupName(names, group, (uint16)(code&GROUP_MASK), nameChoice, buffer, bufferLength);
 	}
 	else {
 		/* group not found */
 		/* zero-terminate */
-		if(bufferLength>0) {
+		if(bufferLength > 0) {
 			*buffer = 0;
 		}
 		return 0;
 	}
 }
-
 /*
  * enumGroupNames() enumerates all the names in a 32-group
  * and either calls the enumerator function or finds a given input name.
@@ -809,7 +802,7 @@ static uint16 writeFactorSuffix(const uint16 * factors, uint16 count, const char
 		++i;
 	}
 	/* zero-terminate */
-	if(bufferLength>0) {
+	if(bufferLength > 0) {
 		*buffer = 0;
 	}
 	return bufferPos;
@@ -823,9 +816,9 @@ static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoic
 {
 	uint16 bufferPos = 0;
 	/* Only the normative character name can be algorithmic. */
-	if(nameChoice!=U_UNICODE_CHAR_NAME && nameChoice!=U_EXTENDED_CHAR_NAME) {
+	if(!oneof2(nameChoice, U_UNICODE_CHAR_NAME, U_EXTENDED_CHAR_NAME)) {
 		/* zero-terminate */
-		if(bufferLength>0) {
+		if(bufferLength > 0) {
 			*buffer = 0;
 		}
 		return 0;
@@ -879,7 +872,7 @@ static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoic
 		default:
 		    /* undefined type */
 		    /* zero-terminate */
-		    if(bufferLength>0) {
+		    if(bufferLength > 0) {
 			    *buffer = 0;
 		    }
 		    break;
@@ -917,7 +910,7 @@ static bool enumAlgNames(AlgorithmicRange * range, UChar32 start, UChar32 limit,
 		    }
 
 		    /* enumerate the rest of the names */
-		    while(++start<limit) {
+		    while(++start < limit) {
 			    /* increment the hexadecimal number on a character-basis */
 			    s = end;
 			    for(;;) {
@@ -934,7 +927,6 @@ static bool enumAlgNames(AlgorithmicRange * range, UChar32 start, UChar32 limit,
 					    *s = '0';
 				    }
 			    }
-
 			    if(!fn(context, start, nameChoice, buffer, length)) {
 				    return FALSE;
 			    }
@@ -949,11 +941,8 @@ static bool enumAlgNames(AlgorithmicRange * range, UChar32 start, UChar32 limit,
 		    const char * s = (const char *)(factors+count);
 		    char * suffix, * t;
 		    uint16 prefixLength, i, idx;
-
 		    char c;
-
 		    /* name = prefix factorized-elements */
-
 		    /* copy prefix */
 		    suffix = buffer;
 		    prefixLength = 0;
@@ -963,18 +952,14 @@ static bool enumAlgNames(AlgorithmicRange * range, UChar32 start, UChar32 limit,
 		    }
 
 		    /* append the suffix of the start character */
-		    length = (uint16)(prefixLength+writeFactorSuffix(factors, count,
-			s, (uint32_t)start-range->start,
-			indexes, elementBases, elements,
-			suffix, (uint16)(sizeof(buffer)-prefixLength)));
-
+		    length = (uint16)(prefixLength+writeFactorSuffix(factors, count, s, (uint32_t)start-range->start,
+				indexes, elementBases, elements, suffix, (uint16)(sizeof(buffer)-prefixLength)));
 		    /* call the enumerator function with this first character */
 		    if(!fn(context, start, nameChoice, buffer, length)) {
 			    return FALSE;
 		    }
-
 		    /* enumerate the rest of the names */
-		    while(++start<limit) {
+		    while(++start < limit) {
 			    /* increment the indexes in lexical order bound by the factors */
 			    i = count;
 			    for(;;) {
@@ -994,7 +979,6 @@ static bool enumAlgNames(AlgorithmicRange * range, UChar32 start, UChar32 limit,
 					    elements[i] = elementBases[i];
 				    }
 			    }
-
 			    /* to make matters a little easier, just append all elements to the suffix */
 			    t = suffix;
 			    length = prefixLength;
@@ -1007,7 +991,6 @@ static bool enumAlgNames(AlgorithmicRange * range, UChar32 start, UChar32 limit,
 			    }
 			    /* zero-terminate */
 			    *t = 0;
-
 			    if(!fn(context, start, nameChoice, buffer, length)) {
 				    return FALSE;
 			    }
@@ -1018,136 +1001,121 @@ static bool enumAlgNames(AlgorithmicRange * range, UChar32 start, UChar32 limit,
 		    /* undefined type */
 		    break;
 	}
-
 	return TRUE;
 }
-
 /*
  * findAlgName() is almost the same as enumAlgNames() except that it
  * returns the code point for a name if it fits into the range.
  * It returns 0xffff otherwise.
  */
-static UChar32 findAlgName(AlgorithmicRange * range, UCharNameChoice nameChoice, const char * otherName) {
+static UChar32 findAlgName(AlgorithmicRange * range, UCharNameChoice nameChoice, const char * otherName) 
+{
 	UChar32 code;
-
 	if(nameChoice!=U_UNICODE_CHAR_NAME && nameChoice!=U_EXTENDED_CHAR_NAME) {
 		return 0xffff;
 	}
-
 	switch(range->type) {
-		case 0: {
-		    /* name = prefix hex-digits */
-		    const char * s = (const char *)(range+1);
-		    char c;
-
-		    uint16 i, count;
-
-		    /* compare prefix */
-		    while((c = *s++)!=0) {
-			    if((char)c!=*otherName++) {
-				    return 0xffff;
-			    }
-		    }
-
-		    /* read hexadecimal code point value */
-		    count = range->variant;
-		    code = 0;
-		    for(i = 0; i<count; ++i) {
-			    c = *otherName++;
-			    if('0'<=c && c<='9') {
-				    code = (code<<4)|(c-'0');
-			    }
-			    else if('A'<=c && c<='F') {
-				    code = (code<<4)|(c-'A'+10);
-			    }
-			    else {
-				    return 0xffff;
-			    }
-		    }
-
-		    /* does it fit into the range? */
-		    if(*otherName==0 && range->start<=(uint32_t)code && (uint32_t)code<=range->end) {
-			    return code;
-		    }
-		    break;
-	    }
-		case 1: {
-		    char buffer[64];
-		    uint16 indexes[8];
-		    const char * elementBases[8], * elements[8];
-		    const uint16 * factors = (const uint16*)(range+1);
-		    uint16 count = range->variant;
-		    const char * s = (const char *)(factors+count), * t;
-		    UChar32 start, limit;
-		    uint16 i, idx;
-
-		    char c;
-
-		    /* name = prefix factorized-elements */
-
-		    /* compare prefix */
-		    while((c = *s++)!=0) {
-			    if((char)c!=*otherName++) {
-				    return 0xffff;
-			    }
-		    }
-
-		    start = (UChar32)range->start;
-		    limit = (UChar32)(range->end+1);
-
-		    /* initialize the suffix elements for enumeration; indexes should all be set to 0 */
-		    writeFactorSuffix(factors, count, s, 0,
-			indexes, elementBases, elements, buffer, sizeof(buffer));
-
-		    /* compare the first suffix */
-		    if(0==strcmp(otherName, buffer)) {
-			    return start;
-		    }
-
-		    /* enumerate and compare the rest of the suffixes */
-		    while(++start<limit) {
-			    /* increment the indexes in lexical order bound by the factors */
-			    i = count;
-			    for(;;) {
-				    idx = (uint16)(indexes[--i]+1);
-				    if(idx<factors[i]) {
-					    /* skip one index and its element string */
-					    indexes[i] = idx;
-					    s = elements[i];
-					    while(*s++!=0) {
-					    }
-					    elements[i] = s;
-					    break;
-				    }
-				    else {
-					    /* reset this index to 0 and its element string to the first one */
-					    indexes[i] = 0;
-					    elements[i] = elementBases[i];
-				    }
-			    }
-
-			    /* to make matters a little easier, just compare all elements of the suffix */
-			    t = otherName;
-			    for(i = 0; i<count; ++i) {
-				    s = elements[i];
-				    while((c = *s++)!=0) {
-					    if(c!=*t++) {
-						    s = ""; /* does not match */
-						    i = 99;
-					    }
-				    }
-			    }
-			    if(i<99 && *t==0) {
-				    return start;
-			    }
-		    }
-		    break;
-	    }
+		case 0: 
+			{
+				/* name = prefix hex-digits */
+				const char * s = (const char *)(range+1);
+				char c;
+				uint16 i, count;
+				/* compare prefix */
+				while((c = *s++)!=0) {
+					if((char)c!=*otherName++) {
+						return 0xffff;
+					}
+				}
+				/* read hexadecimal code point value */
+				count = range->variant;
+				code = 0;
+				for(i = 0; i<count; ++i) {
+					c = *otherName++;
+					if(isdec(c)) {
+						code = (code<<4)|(c-'0');
+					}
+					else if('A' <= c && c <= 'F') {
+						code = (code<<4)|(c-'A'+10);
+					}
+					else {
+						return 0xffff;
+					}
+				}
+				/* does it fit into the range? */
+				if(*otherName==0 && range->start<=(uint32_t)code && (uint32_t)code<=range->end) {
+					return code;
+				}
+			}
+			break;
+		case 1: 
+			{
+				char buffer[64];
+				uint16 indexes[8];
+				const char * elementBases[8], * elements[8];
+				const uint16 * factors = (const uint16*)(range+1);
+				uint16 count = range->variant;
+				const char * s = (const char *)(factors+count), * t;
+				UChar32 start, limit;
+				uint16 i, idx;
+				char c;
+				/* name = prefix factorized-elements */
+				/* compare prefix */
+				while((c = *s++)!=0) {
+					if((char)c!=*otherName++) {
+						return 0xffff;
+					}
+				}
+				start = (UChar32)range->start;
+				limit = (UChar32)(range->end+1);
+				/* initialize the suffix elements for enumeration; indexes should all be set to 0 */
+				writeFactorSuffix(factors, count, s, 0, indexes, elementBases, elements, buffer, sizeof(buffer));
+				/* compare the first suffix */
+				if(0==strcmp(otherName, buffer)) {
+					return start;
+				}
+				/* enumerate and compare the rest of the suffixes */
+				while(++start < limit) {
+					/* increment the indexes in lexical order bound by the factors */
+					i = count;
+					for(;;) {
+						idx = (uint16)(indexes[--i]+1);
+						if(idx<factors[i]) {
+							/* skip one index and its element string */
+							indexes[i] = idx;
+							s = elements[i];
+							while(*s++!=0) {
+							}
+							elements[i] = s;
+							break;
+						}
+						else {
+							/* reset this index to 0 and its element string to the first one */
+							indexes[i] = 0;
+							elements[i] = elementBases[i];
+						}
+					}
+					/* to make matters a little easier, just compare all elements of the suffix */
+					t = otherName;
+					for(i = 0; i<count; ++i) {
+						s = elements[i];
+						while((c = *s++)!=0) {
+							if(c!=*t++) {
+								s = ""; /* does not match */
+								i = 99;
+							}
+						}
+					}
+					if(i<99 && *t==0) {
+						return start;
+					}
+				}
+			}
+			break;
 		default:
 		    /* undefined type */
 		    break;
 	}
-
 	return 0xffff;
 }
 
@@ -1156,10 +1124,10 @@ static UChar32 findAlgName(AlgorithmicRange * range, UCharNameChoice nameChoice,
 #define SET_ADD(set, c) ((set)[(uint8)c>>5] |= ((uint32_t)1<<((uint8)c&0x1f)))
 #define SET_CONTAINS(set, c) (((set)[(uint8)c>>5]&((uint32_t)1<<((uint8)c&0x1f)))!=0)
 
-static int32_t calcStringSetLength(uint32_t set[8], const char * s) {
+static int32_t calcStringSetLength(uint32_t set[8], const char * s) 
+{
 	int32_t length = 0;
 	char c;
-
 	while((c = *s++)!=0) {
 		SET_ADD(set, c);
 		++length;
@@ -1167,37 +1135,33 @@ static int32_t calcStringSetLength(uint32_t set[8], const char * s) {
 	return length;
 }
 
-static int32_t calcAlgNameSetsLengths(int32_t maxNameLength) {
-	AlgorithmicRange * range;
-	uint32_t * p;
-	uint32_t rangeCount;
+static int32_t calcAlgNameSetsLengths(int32_t maxNameLength) 
+{
 	int32_t length;
-
 	/* enumerate algorithmic ranges */
-	p = (uint32_t*)((uint8 *)uCharNames+uCharNames->algNamesOffset);
-	rangeCount = *p;
-	range = (AlgorithmicRange*)(p+1);
+	uint32_t * p = (uint32_t*)((uint8 *)uCharNames+uCharNames->algNamesOffset);
+	uint32_t rangeCount = *p;
+	AlgorithmicRange * range = (AlgorithmicRange*)(p+1);
 	while(rangeCount>0) {
 		switch(range->type) {
 			case 0:
 			    /* name = prefix + (range->variant times) hex-digits */
 			    /* prefix */
 			    length = calcStringSetLength(gNameSet, (const char *)(range+1))+range->variant;
-			    if(length>maxNameLength) {
-				    maxNameLength = length;
-			    }
+			    SETMAX(maxNameLength, length);
 			    break;
 			case 1: {
 			    /* name = prefix factorized-elements */
 			    const uint16 * factors = (const uint16*)(range+1);
-			    const char * s;
-			    int32_t i, count = range->variant, factor, factorLength, maxFactorLength;
-
+			    int32_t i;
+				int32_t count = range->variant;
+				int32_t factor;
+				int32_t factorLength;
+				int32_t maxFactorLength;
 			    /* prefix length */
-			    s = (const char *)(factors+count);
+			    const char * s = (const char *)(factors+count);
 			    length = calcStringSetLength(gNameSet, s);
 			    s += length+1; /* start of factor suffixes */
-
 			    /* get the set and maximum factor suffix length for each factor */
 			    for(i = 0; i<count; ++i) {
 				    maxFactorLength = 0;
@@ -1210,27 +1174,22 @@ static int32_t calcAlgNameSetsLengths(int32_t maxNameLength) {
 				    }
 				    length += maxFactorLength;
 			    }
-
-			    if(length>maxNameLength) {
-				    maxNameLength = length;
-			    }
+			    SETMAX(maxNameLength, length);
 			    break;
 		    }
 			default:
 			    /* unknown type */
 			    break;
 		}
-
 		range = (AlgorithmicRange*)((uint8 *)range+range->size);
 		--rangeCount;
 	}
 	return maxNameLength;
 }
 
-static int32_t calcExtNameSetsLengths(int32_t maxNameLength) {
-	int32_t i, length;
-
-	for(i = 0; i<SIZEOFARRAYi(charCatNames); ++i) {
+static int32_t calcExtNameSetsLengths(int32_t maxNameLength) 
+{
+	for(int32_t i = 0; i<SIZEOFARRAYi(charCatNames); ++i) {
 		/*
 		 * for each category, count the length of the category name
 		 * plus 9=
@@ -1238,21 +1197,18 @@ static int32_t calcExtNameSetsLengths(int32_t maxNameLength) {
 		 * 1 for -
 		 * 6 for most hex digits per code point
 		 */
-		length = 9+calcStringSetLength(gNameSet, charCatNames[i]);
-		if(length>maxNameLength) {
-			maxNameLength = length;
-		}
+		int32_t length = 9+calcStringSetLength(gNameSet, charCatNames[i]);
+		SETMAX(maxNameLength, length);
 	}
 	return maxNameLength;
 }
 
 static int32_t calcNameSetLength(const uint16 * tokens, uint16 tokenCount, const uint8 * tokenStrings, int8 * tokenLengths,
-    uint32_t set[8],
-    const uint8 ** pLine, const uint8 * lineLimit) {
+    uint32_t set[8], const uint8 ** pLine, const uint8 * lineLimit) 
+{
 	const uint8 * line = *pLine;
 	int32_t length = 0, tokenLength;
 	uint16 c, token;
-
 	while(line!=lineLimit && (c = *line++)!=(uint8)';') {
 		if(c>=tokenCount) {
 			/* implicit letter */
@@ -1288,7 +1244,6 @@ static int32_t calcNameSetLength(const uint16 * tokens, uint16 tokenCount, const
 			}
 		}
 	}
-
 	*pLine = line;
 	return length;
 }
@@ -1309,12 +1264,10 @@ static void calcGroupNameSetsLengths(int32_t maxNameLength)
 	}
 	group = GET_GROUPS(uCharNames);
 	groupCount = *group++;
-
 	/* enumerate all groups */
 	while(groupCount>0) {
 		s = (uint8 *)uCharNames+uCharNames->groupStringOffset+GET_GROUP_OFFSET(group);
 		s = expandGroupLengths(s, offsets, lengths);
-
 		/* enumerate all lines in each group */
 		for(lineNumber = 0; lineNumber<LINES_PER_GROUP; ++lineNumber) {
 			line = s+offsets[lineNumber];
@@ -1322,32 +1275,22 @@ static void calcGroupNameSetsLengths(int32_t maxNameLength)
 			if(!length) {
 				continue;
 			}
-
 			lineLimit = line+length;
-
 			/* read regular name */
 			length = calcNameSetLength(tokens, tokenCount, tokenStrings, tokenLengths, gNameSet, &line, lineLimit);
-			if(length>maxNameLength) {
-				maxNameLength = length;
-			}
+			SETMAX(maxNameLength, length);
 			if(line==lineLimit) {
 				continue;
 			}
-
 			/* read Unicode 1.0 name */
 			length = calcNameSetLength(tokens, tokenCount, tokenStrings, tokenLengths, gNameSet, &line, lineLimit);
-			if(length>maxNameLength) {
-				maxNameLength = length;
-			}
+			SETMAX(maxNameLength, length);
 			if(line==lineLimit) {
 				continue;
 			}
-
 			/* read ISO comment */
-			/*length=calcNameSetLength(tokens, tokenCount, tokenStrings, tokenLengths, gISOCommentSet,
-			   &line, lineLimit);*/
+			/*length=calcNameSetLength(tokens, tokenCount, tokenStrings, tokenLengths, gISOCommentSet, &line, lineLimit);*/
 		}
-
 		group = NEXT_GROUP(group);
 		--groupCount;
 	}
@@ -1436,13 +1379,12 @@ U_CAPI int32_t U_EXPORT2 u_charName(UChar32 code, UCharNameChoice nameChoice, ch
 			length = getName(uCharNames, (uint32_t)code, nameChoice, buffer, (uint16)bufferLength);
 		}
 	}
-
 	return u_terminateChars(buffer, bufferLength, length, pErrorCode);
 }
 
 U_CAPI int32_t U_EXPORT2 u_getISOComment(UChar32 /*c*/,
-    char * dest, int32_t destCapacity,
-    UErrorCode * pErrorCode) {
+    char * dest, int32_t destCapacity, UErrorCode * pErrorCode) 
+{
 	/* check the argument values */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
@@ -1451,13 +1393,11 @@ U_CAPI int32_t U_EXPORT2 u_getISOComment(UChar32 /*c*/,
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	return u_terminateChars(dest, destCapacity, 0, pErrorCode);
 }
 
-U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice,
-    const char * name,
-    UErrorCode * pErrorCode) {
+U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice, const char * name, UErrorCode * pErrorCode) 
+{
 	char upper[120] = {0};
 	char lower[120] = {0};
 	FindName findName;
@@ -1467,20 +1407,16 @@ U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice,
 	UChar32 cp = 0;
 	char c0;
 	static constexpr UChar32 error = 0xffff; /* Undefined, but use this for backwards compatibility. */
-
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return error;
 	}
-
 	if(nameChoice>=U_CHAR_NAME_CHOICE_COUNT || name==NULL || *name==0) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return error;
 	}
-
 	if(!isDataLoaded(pErrorCode)) {
 		return error;
 	}
-
 	/* construct the uppercase and lowercase of the name first */
 	for(i = 0; i<sizeof(upper); ++i) {
 		if((c0 = *name++)!=0) {
@@ -1506,14 +1442,11 @@ U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice,
 			uint32_t limit = i;
 			while(i >= 3 && lower[--i] != '-') {
 			}
-
 			// There should be 1 to 8 hex digits.
 			int32_t hexLength = limit - (i + 1);
 			if(i >= 2 && lower[i] == '-' && 1 <= hexLength && hexLength <= 8) {
 				uint32_t cIdx;
-
 				lower[i] = 0;
-
 				for(++i; i < limit; ++i) {
 					if(lower[i] >= '0' && lower[i] <= '9') {
 						cp = (cp << 4) + lower[i] - '0';
@@ -1546,11 +1479,9 @@ U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice,
 				}
 			}
 		}
-
 		*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 		return error;
 	}
-
 	/* try algorithmic names now */
 	p = (uint32_t*)((uint8 *)uCharNames+uCharNames->algNamesOffset);
 	i = *p;
@@ -1562,7 +1493,6 @@ U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice,
 		algRange = (AlgorithmicRange*)((uint8 *)algRange+algRange->size);
 		--i;
 	}
-
 	/* normal character name */
 	findName.otherName = upper;
 	findName.code = error;
@@ -1573,35 +1503,28 @@ U_CAPI UChar32 U_EXPORT2 u_charFromName(UCharNameChoice nameChoice,
 	return findName.code;
 }
 
-U_CAPI void U_EXPORT2 u_enumCharNames(UChar32 start, UChar32 limit,
-    UEnumCharNamesFn * fn,
-    void * context,
-    UCharNameChoice nameChoice,
-    UErrorCode * pErrorCode) {
+U_CAPI void U_EXPORT2 u_enumCharNames(UChar32 start, UChar32 limit, UEnumCharNamesFn * fn, void * context,
+    UCharNameChoice nameChoice, UErrorCode * pErrorCode) 
+{
 	AlgorithmicRange * algRange;
 	uint32_t * p;
 	uint32_t i;
-
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return;
 	}
-
 	if(nameChoice>=U_CHAR_NAME_CHOICE_COUNT || fn==NULL) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-
 	if((uint32_t)limit > UCHAR_MAX_VALUE + 1) {
 		limit = UCHAR_MAX_VALUE + 1;
 	}
 	if((uint32_t)start>=(uint32_t)limit) {
 		return;
 	}
-
 	if(!isDataLoaded(pErrorCode)) {
 		return;
 	}
-
 	/* interleave the data-driven ones with the algorithmic ones */
 	/* iterate over all algorithmic ranges; assume that they are in ascending order */
 	p = (uint32_t*)((uint8 *)uCharNames+uCharNames->algNamesOffset);
@@ -1640,14 +1563,10 @@ U_CAPI void U_EXPORT2 u_enumCharNames(UChar32 start, UChar32 limit,
 	enumNames(uCharNames, start, limit, fn, context, nameChoice);
 }
 
-U_CAPI int32_t U_EXPORT2 uprv_getMaxCharNameLength() {
+U_CAPI int32_t U_EXPORT2 uprv_getMaxCharNameLength() 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
-	if(calcNameSetsLengths(&errorCode)) {
-		return gMaxNameLength;
-	}
-	else {
-		return 0;
-	}
+	return calcNameSetsLengths(&errorCode) ? gMaxNameLength : 0;
 }
 
 /**
@@ -1655,15 +1574,12 @@ U_CAPI int32_t U_EXPORT2 uprv_getMaxCharNameLength() {
  * @param cset Set of 256 bit flags corresponding to a set of chars.
  * @param uset USet to receive characters. Existing contents are deleted.
  */
-static void charSetToUSet(uint32_t cset[8], const USetAdder * sa) {
+static void charSetToUSet(uint32_t cset[8], const USetAdder * sa) 
+{
 	char16_t us[256];
 	char cs[256];
-
 	int32_t i, length;
-	UErrorCode errorCode;
-
-	errorCode = U_ZERO_ERROR;
-
+	UErrorCode errorCode = U_ZERO_ERROR;
 	if(!calcNameSetsLengths(&errorCode)) {
 		return;
 	}

@@ -60,7 +60,7 @@ static Results DoDecode(const std::vector<std::unique_ptr<RowReader> >& readers,
 		std::swap(width, height);
 	int middle = height / 2;
 	// TODO: find a better heuristic/parameterization if maxSymbols != 1
-	int rowStep = std::max(1, height / ((tryHarder && !isPure) ? (maxSymbols == 1 ? 256 : 512) : 32));
+	int rowStep = smax(1, height / ((tryHarder && !isPure) ? (maxSymbols == 1 ? 256 : 512) : 32));
 	int maxLines = tryHarder ?
 	    height : // Look at the whole image, not just the center
 	    15; // 15 rows spaced 1/32 apart is roughly the middle half of the image
