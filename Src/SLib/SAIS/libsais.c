@@ -788,10 +788,12 @@ static sa_sint_t libsais_count_and_gather_compacted_lms_suffixes_32s_2k(const sa
 
 static fast_sint_t libsais_get_bucket_stride(fast_sint_t free_space, fast_sint_t bucket_size, fast_sint_t num_buckets)
 {
-	fast_sint_t bucket_size_1024 = (bucket_size + 1023) & (-1024); if(free_space / (num_buckets - 1) >= bucket_size_1024) {
+	fast_sint_t bucket_size_1024 = (bucket_size + 1023) & (-1024); 
+	if(free_space / (num_buckets - 1) >= bucket_size_1024) {
 		return bucket_size_1024;
 	}
-	fast_sint_t bucket_size_16 = (bucket_size + 15) & (-16); if(free_space / (num_buckets - 1) >= bucket_size_16) {
+	fast_sint_t bucket_size_16 = (bucket_size + 15) & (-16); 
+	if(free_space / (num_buckets - 1) >= bucket_size_16) {
 		return bucket_size_16;
 	}
 
@@ -1140,7 +1142,8 @@ static sa_sint_t libsais_count_and_gather_lms_suffixes_32s_4k_omp(const sa_sint_
 	sa_sint_t m;
 
 #if defined(LIBSAIS_OPENMP)
-	sa_sint_t max_threads = (sa_sint_t)((buckets - &SA[n]) / ((4 * (fast_sint_t)k + 15) & (-16))); if(max_threads > threads) {
+	sa_sint_t max_threads = (sa_sint_t)((buckets - &SA[n]) / ((4 * (fast_sint_t)k + 15) & (-16))); 
+	if(max_threads > threads) {
 		max_threads = threads;
 	}
 	if(max_threads > 1 && n >= 65536 && n / k >= 2) {
@@ -1171,7 +1174,8 @@ static sa_sint_t libsais_count_and_gather_lms_suffixes_32s_2k_omp(const sa_sint_
 	sa_sint_t m;
 
 #if defined(LIBSAIS_OPENMP)
-	sa_sint_t max_threads = (sa_sint_t)((buckets - &SA[n]) / ((2 * (fast_sint_t)k + 15) & (-16))); if(max_threads > threads) {
+	sa_sint_t max_threads = (sa_sint_t)((buckets - &SA[n]) / ((2 * (fast_sint_t)k + 15) & (-16))); 
+	if(max_threads > threads) {
 		max_threads = threads;
 	}
 	if(max_threads > 1 && n >= 65536 && n / k >= 2) {
@@ -1200,7 +1204,8 @@ static void libsais_count_and_gather_compacted_lms_suffixes_32s_2k_omp(const sa_
     LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
 {
 #if defined(LIBSAIS_OPENMP)
-	sa_sint_t max_threads = (sa_sint_t)((buckets - &SA[(fast_sint_t)n + (fast_sint_t)n]) / ((2 * (fast_sint_t)k + 15) & (-16))); if(max_threads > threads) {
+	sa_sint_t max_threads = (sa_sint_t)((buckets - &SA[(fast_sint_t)n + (fast_sint_t)n]) / ((2 * (fast_sint_t)k + 15) & (-16))); 
+	if(max_threads > threads) {
 		max_threads = threads;
 	}
 	if(max_threads > 1 && n >= 65536 && n / k >= 2) {
@@ -1768,7 +1773,8 @@ static void libsais_radix_sort_lms_suffixes_32s_6k_omp(const sa_sint_t * _RESTRI
 	else {
 		fast_sint_t block_start, block_end;
 		for(block_start = 0; block_start < (fast_sint_t)m - 1; block_start = block_end) {
-			block_end = block_start + (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; if(block_end >= m) {
+			block_end = block_start + (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; 
+			if(block_end >= m) {
 				block_end = (fast_sint_t)m - 1;
 			}
 
@@ -1801,7 +1807,8 @@ static void libsais_radix_sort_lms_suffixes_32s_2k_omp(const sa_sint_t * _RESTRI
 	else {
 		fast_sint_t block_start, block_end;
 		for(block_start = 0; block_start < (fast_sint_t)m - 1; block_start = block_end) {
-			block_end = block_start + (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; if(block_end >= m) {
+			block_end = block_start + (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; 
+			if(block_end >= m) {
 				block_end = (fast_sint_t)m - 1;
 			}
 
@@ -2941,7 +2948,8 @@ static void libsais_partial_sorting_scan_left_to_right_32s_1k_omp(const sa_sint_
 	else {
 		fast_sint_t block_start, block_end;
 		for(block_start = 0; block_start < n; block_start = block_end) {
-			block_end = block_start + (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; if(block_end > n) {
+			block_end = block_start + (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; 
+			if(block_end > n) {
 				block_end = n;
 			}
 			libsais_partial_sorting_scan_left_to_right_32s_1k_block_omp(T, SA, buckets, thread_state[0].state.cache, block_start, block_end - block_start, threads);
@@ -3337,11 +3345,13 @@ static sa_sint_t libsais_partial_sorting_scan_right_to_left_32s_4k(const sa_sint
 		libsais_prefetchr(s0 > 0 ? Ts0 : NULL);
 		sa_sint_t s1 = SA[i - 2 * prefetch_distance - 1]; const sa_sint_t * Ts1 = &T[s1 & ~SUFFIX_GROUP_MARKER] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL); Ts1--;
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
-		sa_sint_t s2 = SA[i - 1 * prefetch_distance - 0]; if(s2 > 0) {
+		sa_sint_t s2 = SA[i - 1 * prefetch_distance - 0]; 
+		if(s2 > 0) {
 			const fast_sint_t Ts2 = T[(s2 & ~SUFFIX_GROUP_MARKER) - 1]; libsais_prefetchw(&induction_bucket[Ts2]);
 			libsais_prefetchw(&distinct_names[BUCKETS_INDEX2(Ts2, 0)]);
 		}
-		sa_sint_t s3 = SA[i - 1 * prefetch_distance - 1]; if(s3 > 0) {
+		sa_sint_t s3 = SA[i - 1 * prefetch_distance - 1]; 
+		if(s3 > 0) {
 			const fast_sint_t Ts3 = T[(s3 & ~SUFFIX_GROUP_MARKER) - 1]; libsais_prefetchw(&induction_bucket[Ts3]);
 			libsais_prefetchw(&distinct_names[BUCKETS_INDEX2(Ts3, 0)]);
 		}
@@ -3387,23 +3397,28 @@ static void libsais_partial_sorting_scan_right_to_left_32s_1k(const sa_sint_t * 
 
 		sa_sint_t s0 = SA[i - 2 * prefetch_distance - 0]; const sa_sint_t * Ts0 = &T[s0] - 1; libsais_prefetchr(s0 > 0 ? Ts0 : NULL);
 		sa_sint_t s1 = SA[i - 2 * prefetch_distance - 1]; const sa_sint_t * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
-		sa_sint_t s2 = SA[i - 1 * prefetch_distance - 0]; if(s2 > 0) {
+		sa_sint_t s2 = SA[i - 1 * prefetch_distance - 0]; 
+		if(s2 > 0) {
 			libsais_prefetchw(&induction_bucket[T[s2 - 1]]); libsais_prefetchr(&T[s2] - 2);
 		}
-		sa_sint_t s3 = SA[i - 1 * prefetch_distance - 1]; if(s3 > 0) {
+		sa_sint_t s3 = SA[i - 1 * prefetch_distance - 1]; 
+		if(s3 > 0) {
 			libsais_prefetchw(&induction_bucket[T[s3 - 1]]); libsais_prefetchr(&T[s3] - 2);
 		}
 
-		sa_sint_t p0 = SA[i - 0]; if(p0 > 0) {
+		sa_sint_t p0 = SA[i - 0]; 
+		if(p0 > 0) {
 			SA[i - 0] = 0; SA[--induction_bucket[T[p0 - 1]]] = (p0 - 1) | ((sa_sint_t)(T[p0 - 2] > T[p0 - 1]) << (SAINT_BIT - 1));
 		}
-		sa_sint_t p1 = SA[i - 1]; if(p1 > 0) {
+		sa_sint_t p1 = SA[i - 1]; 
+		if(p1 > 0) {
 			SA[i - 1] = 0; SA[--induction_bucket[T[p1 - 1]]] = (p1 - 1) | ((sa_sint_t)(T[p1 - 2] > T[p1 - 1]) << (SAINT_BIT - 1));
 		}
 	}
 
 	for(j -= 2 * prefetch_distance + 1; i >= j; i -= 1) {
-		sa_sint_t p = SA[i]; if(p > 0) {
+		sa_sint_t p = SA[i]; 
+		if(p > 0) {
 			SA[i] = 0; SA[--induction_bucket[T[p - 1]]] = (p - 1) | ((sa_sint_t)(T[p - 2] > T[p - 1]) << (SAINT_BIT - 1));
 		}
 	}
@@ -3418,30 +3433,29 @@ static void libsais_partial_sorting_scan_right_to_left_32s_6k_block_gather(const
     fast_sint_t omp_block_size)
 {
 	const fast_sint_t prefetch_distance = 32;
-
 	fast_sint_t i, j;
 	for(i = omp_block_start, j = omp_block_start + omp_block_size-prefetch_distance-1; i < j; i += 2) {
 		libsais_prefetchr(&SA[i + 2 * prefetch_distance]);
-
 		libsais_prefetchr(&T[SA[i + prefetch_distance + 0] & SAINT_MAX] - 1);
 		libsais_prefetchr(&T[SA[i + prefetch_distance + 0] & SAINT_MAX] - 2);
 		libsais_prefetchr(&T[SA[i + prefetch_distance + 1] & SAINT_MAX] - 1);
 		libsais_prefetchr(&T[SA[i + prefetch_distance + 1] & SAINT_MAX] - 2);
-
 		libsais_prefetchw(&cache[i + prefetch_distance]);
-
-		sa_sint_t p0 = cache[i + 0].index = SA[i + 0]; sa_sint_t symbol0 = 0; p0 &= SAINT_MAX; if(p0 != 0) {
+		sa_sint_t p0 = cache[i + 0].index = SA[i + 0]; sa_sint_t symbol0 = 0; p0 &= SAINT_MAX; 
+		if(p0 != 0) {
 			symbol0 = BUCKETS_INDEX4(T[p0 - 1], T[p0 - 2] > T[p0 - 1]);
 		}
 		cache[i + 0].symbol = symbol0;
-		sa_sint_t p1 = cache[i + 1].index = SA[i + 1]; sa_sint_t symbol1 = 0; p1 &= SAINT_MAX; if(p1 != 0) {
+		sa_sint_t p1 = cache[i + 1].index = SA[i + 1]; sa_sint_t symbol1 = 0; p1 &= SAINT_MAX; 
+		if(p1 != 0) {
 			symbol1 = BUCKETS_INDEX4(T[p1 - 1], T[p1 - 2] > T[p1 - 1]);
 		}
 		cache[i + 1].symbol = symbol1;
 	}
 
 	for(j += prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t p = cache[i].index = SA[i]; sa_sint_t symbol = 0; p &= SAINT_MAX; if(p != 0) {
+		sa_sint_t p = cache[i].index = SA[i]; sa_sint_t symbol = 0; p &= SAINT_MAX; 
+		if(p != 0) {
 			symbol = BUCKETS_INDEX4(T[p - 1], T[p - 2] > T[p - 1]);
 		}
 		cache[i].symbol = symbol;
@@ -3467,18 +3481,21 @@ static void libsais_partial_sorting_scan_right_to_left_32s_4k_block_gather(const
 
 		libsais_prefetchw(&cache[i + prefetch_distance]);
 
-		sa_sint_t symbol0 = SAINT_MIN, p0 = SA[i + 0]; if(p0 > 0) {
+		sa_sint_t symbol0 = SAINT_MIN, p0 = SA[i + 0]; 
+		if(p0 > 0) {
 			SA[i + 0] = 0; cache[i + 0].index = p0; p0 &= ~SUFFIX_GROUP_MARKER; symbol0 = BUCKETS_INDEX2(T[p0 - 1], T[p0 - 2] > T[p0 - 1]);
 		}
 		cache[i + 0].symbol = symbol0;
-		sa_sint_t symbol1 = SAINT_MIN, p1 = SA[i + 1]; if(p1 > 0) {
+		sa_sint_t symbol1 = SAINT_MIN, p1 = SA[i + 1]; 
+		if(p1 > 0) {
 			SA[i + 1] = 0; cache[i + 1].index = p1; p1 &= ~SUFFIX_GROUP_MARKER; symbol1 = BUCKETS_INDEX2(T[p1 - 1], T[p1 - 2] > T[p1 - 1]);
 		}
 		cache[i + 1].symbol = symbol1;
 	}
 
 	for(j += prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t symbol = SAINT_MIN, p = SA[i]; if(p > 0) {
+		sa_sint_t symbol = SAINT_MIN, p = SA[i]; 
+		if(p > 0) {
 			SA[i] = 0; cache[i].index = p; p &= ~SUFFIX_GROUP_MARKER; symbol = BUCKETS_INDEX2(T[p - 1], T[p - 2] > T[p - 1]);
 		}
 		cache[i].symbol = symbol;
@@ -3504,18 +3521,21 @@ static void libsais_partial_sorting_scan_right_to_left_32s_1k_block_gather(const
 
 		libsais_prefetchw(&cache[i + prefetch_distance]);
 
-		sa_sint_t symbol0 = SAINT_MIN, p0 = SA[i + 0]; if(p0 > 0) {
+		sa_sint_t symbol0 = SAINT_MIN, p0 = SA[i + 0]; 
+		if(p0 > 0) {
 			SA[i + 0] = 0; cache[i + 0].index = (p0 - 1) | ((sa_sint_t)(T[p0 - 2] > T[p0 - 1]) << (SAINT_BIT - 1)); symbol0 = T[p0 - 1];
 		}
 		cache[i + 0].symbol = symbol0;
-		sa_sint_t symbol1 = SAINT_MIN, p1 = SA[i + 1]; if(p1 > 0) {
+		sa_sint_t symbol1 = SAINT_MIN, p1 = SA[i + 1]; 
+		if(p1 > 0) {
 			SA[i + 1] = 0; cache[i + 1].index = (p1 - 1) | ((sa_sint_t)(T[p1 - 2] > T[p1 - 1]) << (SAINT_BIT - 1)); symbol1 = T[p1 - 1];
 		}
 		cache[i + 1].symbol = symbol1;
 	}
 
 	for(j += prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t symbol = SAINT_MIN, p = SA[i]; if(p > 0) {
+		sa_sint_t symbol = SAINT_MIN, p = SA[i]; 
+		if(p > 0) {
 			SA[i] = 0; cache[i].index = (p - 1) | ((sa_sint_t)(T[p - 2] > T[p - 1]) << (SAINT_BIT - 1)); symbol = T[p - 1];
 		}
 		cache[i].symbol = symbol;
@@ -3589,7 +3609,8 @@ static sa_sint_t libsais_partial_sorting_scan_right_to_left_32s_4k_block_sort(co
 			sa_sint_t p0 = cache[i - 0].index; d += (p0 >> (SUFFIX_GROUP_BIT - 1)); cache[i - 0].symbol = --induction_bucket[v0 >> 1];
 			cache[i - 0].index = (p0 - 1) | (v0 << (SAINT_BIT - 1)) | ((sa_sint_t)(distinct_names[v0] != d) << (SUFFIX_GROUP_BIT - 1)); distinct_names[v0] = d;
 			if(cache[i - 0].symbol >= omp_block_start) {
-				sa_sint_t ni = cache[i - 0].symbol, np = cache[i - 0].index; if(np > 0) {
+				sa_sint_t ni = cache[i - 0].symbol, np = cache[i - 0].index; 
+				if(np > 0) {
 					cache[i - 0].index = 0; cache[ni].index = np; np &= ~SUFFIX_GROUP_MARKER;
 					cache[ni].symbol = BUCKETS_INDEX2(T[np - 1], T[np - 2] > T[np - 1]);
 				}
@@ -3601,7 +3622,8 @@ static sa_sint_t libsais_partial_sorting_scan_right_to_left_32s_4k_block_sort(co
 			sa_sint_t p1 = cache[i - 1].index; d += (p1 >> (SUFFIX_GROUP_BIT - 1)); cache[i - 1].symbol = --induction_bucket[v1 >> 1];
 			cache[i - 1].index = (p1 - 1) | (v1 << (SAINT_BIT - 1)) | ((sa_sint_t)(distinct_names[v1] != d) << (SUFFIX_GROUP_BIT - 1)); distinct_names[v1] = d;
 			if(cache[i - 1].symbol >= omp_block_start) {
-				sa_sint_t ni = cache[i - 1].symbol, np = cache[i - 1].index; if(np > 0) {
+				sa_sint_t ni = cache[i - 1].symbol, np = cache[i - 1].index; 
+				if(np > 0) {
 					cache[i - 1].index = 0; cache[ni].index = np; np &= ~SUFFIX_GROUP_MARKER;
 					cache[ni].symbol = BUCKETS_INDEX2(T[np - 1], T[np - 2] > T[np - 1]);
 				}
@@ -3615,7 +3637,8 @@ static sa_sint_t libsais_partial_sorting_scan_right_to_left_32s_4k_block_sort(co
 			sa_sint_t p = cache[i].index; d += (p >> (SUFFIX_GROUP_BIT - 1)); cache[i].symbol = --induction_bucket[v >> 1];
 			cache[i].index = (p - 1) | (v << (SAINT_BIT - 1)) | ((sa_sint_t)(distinct_names[v] != d) << (SUFFIX_GROUP_BIT - 1)); distinct_names[v] = d;
 			if(cache[i].symbol >= omp_block_start) {
-				sa_sint_t ni = cache[i].symbol, np = cache[i].index; if(np > 0) {
+				sa_sint_t ni = cache[i].symbol, np = cache[i].index; 
+				if(np > 0) {
 					cache[i].index = 0; cache[ni].index = np; np &= ~SUFFIX_GROUP_MARKER; cache[ni].symbol = BUCKETS_INDEX2(T[np - 1], T[np - 2] > T[np - 1]);
 				}
 			}
@@ -3644,7 +3667,8 @@ static void libsais_partial_sorting_scan_right_to_left_32s_1k_block_sort(const s
 		if(v0 >= 0) {
 			cache[i - 0].symbol = --induction_bucket[v0];
 			if(cache[i - 0].symbol >= omp_block_start) {
-				sa_sint_t ni = cache[i - 0].symbol, np = cache[i - 0].index; if(np > 0) {
+				sa_sint_t ni = cache[i - 0].symbol, np = cache[i - 0].index; 
+				if(np > 0) {
 					cache[i - 0].index = 0; cache[ni].index = (np - 1) | ((sa_sint_t)(T[np - 2] > T[np - 1]) << (SAINT_BIT - 1)); cache[ni].symbol = T[np - 1];
 				}
 			}
@@ -3654,7 +3678,8 @@ static void libsais_partial_sorting_scan_right_to_left_32s_1k_block_sort(const s
 		if(v1 >= 0) {
 			cache[i - 1].symbol = --induction_bucket[v1];
 			if(cache[i - 1].symbol >= omp_block_start) {
-				sa_sint_t ni = cache[i - 1].symbol, np = cache[i - 1].index; if(np > 0) {
+				sa_sint_t ni = cache[i - 1].symbol, np = cache[i - 1].index; 
+				if(np > 0) {
 					cache[i - 1].index = 0; cache[ni].index = (np - 1) | ((sa_sint_t)(T[np - 2] > T[np - 1]) << (SAINT_BIT - 1)); cache[ni].symbol = T[np - 1];
 				}
 			}
@@ -3666,7 +3691,8 @@ static void libsais_partial_sorting_scan_right_to_left_32s_1k_block_sort(const s
 		if(v >= 0) {
 			cache[i].symbol = --induction_bucket[v];
 			if(cache[i].symbol >= omp_block_start) {
-				sa_sint_t ni = cache[i].symbol, np = cache[i].index; if(np > 0) {
+				sa_sint_t ni = cache[i].symbol, np = cache[i].index; 
+				if(np > 0) {
 					cache[i].index = 0; cache[ni].index = (np - 1) | ((sa_sint_t)(T[np - 2] > T[np - 1]) << (SAINT_BIT - 1)); cache[ni].symbol = T[np - 1];
 				}
 			}
@@ -3842,19 +3868,11 @@ static void libsais_partial_sorting_scan_right_to_left_32s_1k_block_omp(const sa
 
 #endif
 
-static sa_sint_t libsais_partial_sorting_scan_right_to_left_32s_6k_omp(const sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t n,
-    sa_sint_t * _RESTRICT buckets,
-    sa_sint_t first_lms_suffix,
-    sa_sint_t left_suffixes_count,
-    sa_sint_t d,
-    sa_sint_t threads,
-    LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
+static sa_sint_t libsais_partial_sorting_scan_right_to_left_32s_6k_omp(const sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA, sa_sint_t n,
+    sa_sint_t * _RESTRICT buckets, sa_sint_t first_lms_suffix, sa_sint_t left_suffixes_count, sa_sint_t d, sa_sint_t threads, LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
 {
 	fast_sint_t scan_start    = (fast_sint_t)left_suffixes_count + 1;
 	fast_sint_t scan_end      = (fast_sint_t)n - (fast_sint_t)first_lms_suffix;
-
 	if(threads == 1 || (scan_end - scan_start) < 65536) {
 		d = libsais_partial_sorting_scan_right_to_left_32s_6k(T, SA, buckets, d, scan_start, scan_end - scan_start);
 	}
@@ -3862,18 +3880,12 @@ static sa_sint_t libsais_partial_sorting_scan_right_to_left_32s_6k_omp(const sa_
 	else {
 		fast_sint_t block_start, block_end;
 		for(block_start = scan_end - 1; block_start >= scan_start; block_start = block_end) {
-			block_end = block_start - (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; if(block_end < scan_start) {
+			block_end = block_start - (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; 
+			if(block_end < scan_start) {
 				block_end = scan_start - 1;
 			}
-
-			d = libsais_partial_sorting_scan_right_to_left_32s_6k_block_omp(T,
-				SA,
-				buckets,
-				d,
-				thread_state[0].state.cache,
-				block_end + 1,
-				block_start - block_end,
-				threads);
+			d = libsais_partial_sorting_scan_right_to_left_32s_6k_block_omp(T, SA, buckets, d, thread_state[0].state.cache, block_end + 1,
+				block_start - block_end, threads);
 		}
 	}
 #else
@@ -3899,10 +3911,10 @@ static sa_sint_t libsais_partial_sorting_scan_right_to_left_32s_4k_omp(const sa_
 	else {
 		fast_sint_t block_start, block_end;
 		for(block_start = (fast_sint_t)n - 1; block_start >= 0; block_start = block_end) {
-			block_end = block_start - (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; if(block_end < 0) {
+			block_end = block_start - (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; 
+			if(block_end < 0) {
 				block_end = -1;
 			}
-
 			d = libsais_partial_sorting_scan_right_to_left_32s_4k_block_omp(T,
 				SA,
 				k,
@@ -3935,7 +3947,8 @@ static void libsais_partial_sorting_scan_right_to_left_32s_1k_omp(const sa_sint_
 	else {
 		fast_sint_t block_start, block_end;
 		for(block_start = (fast_sint_t)n - 1; block_start >= 0; block_start = block_end) {
-			block_end = block_start - (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; if(block_end < 0) {
+			block_end = block_start - (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; 
+			if(block_end < 0) {
 				block_end = -1;
 			}
 
@@ -4809,16 +4822,19 @@ static void libsais_final_bwt_scan_left_to_right_8u(const uint8 * _RESTRICT T,
 		sa_sint_t s1 = SA[i + prefetch_distance + 1]; const uint8 * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL); Ts1--;
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
-		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 & SAINT_MAX; if(p0 > 0) {
+		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
 			p0--; SA[i + 0] = T[p0] | SAINT_MIN; SA[induction_bucket[T[p0]]++] = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] < T[p0]) << (SAINT_BIT - 1));
 		}
-		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 & SAINT_MAX; if(p1 > 0) {
+		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
 			p1--; SA[i + 1] = T[p1] | SAINT_MIN; SA[induction_bucket[T[p1]]++] = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] < T[p1]) << (SAINT_BIT - 1));
 		}
 	}
 
 	for(j += prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; if(p > 0) {
+		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
 			p--; SA[i] = T[p] | SAINT_MIN; SA[induction_bucket[T[p]]++] = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1));
 		}
 	}
@@ -4843,21 +4859,27 @@ static void libsais_final_bwt_aux_scan_left_to_right_8u(const uint8 * _RESTRICT 
 		sa_sint_t s1 = SA[i + prefetch_distance + 1]; const uint8 * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL); Ts1--;
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
-		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 & SAINT_MAX; if(p0 > 0) {
-			p0--; SA[i + 0] = T[p0] | SAINT_MIN; SA[induction_bucket[T[p0]]++] = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] < T[p0]) << (SAINT_BIT - 1)); if((p0 & rm) == 0) {
+		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
+			p0--; SA[i + 0] = T[p0] | SAINT_MIN; SA[induction_bucket[T[p0]]++] = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] < T[p0]) << (SAINT_BIT - 1)); 
+			if((p0 & rm) == 0) {
 				I[p0 / (rm + 1)] = induction_bucket[T[p0]];
 			}
 		}
-		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 & SAINT_MAX; if(p1 > 0) {
-			p1--; SA[i + 1] = T[p1] | SAINT_MIN; SA[induction_bucket[T[p1]]++] = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] < T[p1]) << (SAINT_BIT - 1)); if((p1 & rm) == 0) {
+		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
+			p1--; SA[i + 1] = T[p1] | SAINT_MIN; SA[induction_bucket[T[p1]]++] = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] < T[p1]) << (SAINT_BIT - 1)); 
+			if((p1 & rm) == 0) {
 				I[p1 / (rm + 1)] = induction_bucket[T[p1]];
 			}
 		}
 	}
 
 	for(j += prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; if(p > 0) {
-			p--; SA[i] = T[p] | SAINT_MIN; SA[induction_bucket[T[p]]++] = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1)); if((p & rm) == 0) {
+		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
+			p--; SA[i] = T[p] | SAINT_MIN; SA[induction_bucket[T[p]]++] = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1)); 
+			if((p & rm) == 0) {
 				I[p / (rm + 1)] = induction_bucket[T[p]];
 			}
 		}
@@ -4881,52 +4903,53 @@ static void libsais_final_sorting_scan_left_to_right_8u(const uint8 * _RESTRICT 
 		sa_sint_t s1 = SA[i + prefetch_distance + 1]; const uint8 * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL); Ts1--;
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
-		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 ^ SAINT_MIN; if(p0 > 0) {
+		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 ^ SAINT_MIN; 
+		if(p0 > 0) {
 			p0--; SA[induction_bucket[T[p0]]++] = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] < T[p0]) << (SAINT_BIT - 1));
 		}
-		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 ^ SAINT_MIN; if(p1 > 0) {
+		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 ^ SAINT_MIN; 
+		if(p1 > 0) {
 			p1--; SA[induction_bucket[T[p1]]++] = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] < T[p1]) << (SAINT_BIT - 1));
 		}
 	}
 
 	for(j += prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t p = SA[i]; SA[i] = p ^ SAINT_MIN; if(p > 0) {
+		sa_sint_t p = SA[i]; SA[i] = p ^ SAINT_MIN; 
+		if(p > 0) {
 			p--; SA[induction_bucket[T[p]]++] = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1));
 		}
 	}
 }
 
-static void libsais_final_sorting_scan_left_to_right_32s(const sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t * _RESTRICT induction_bucket,
-    fast_sint_t omp_block_start,
-    fast_sint_t omp_block_size)
+static void libsais_final_sorting_scan_left_to_right_32s(const sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA, sa_sint_t * _RESTRICT induction_bucket,
+    fast_sint_t omp_block_start, fast_sint_t omp_block_size)
 {
 	const fast_sint_t prefetch_distance = 32;
-
 	fast_sint_t i, j;
 	for(i = omp_block_start, j = omp_block_start + omp_block_size - 2 * prefetch_distance - 1; i < j; i += 2) {
 		libsais_prefetchw(&SA[i + 3 * prefetch_distance]);
-
 		sa_sint_t s0 = SA[i + 2 * prefetch_distance + 0]; const sa_sint_t * Ts0 = &T[s0] - 1; libsais_prefetchr(s0 > 0 ? Ts0 : NULL);
 		sa_sint_t s1 = SA[i + 2 * prefetch_distance + 1]; const sa_sint_t * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
-		sa_sint_t s2 = SA[i + 1 * prefetch_distance + 0]; if(s2 > 0) {
+		sa_sint_t s2 = SA[i + 1 * prefetch_distance + 0]; 
+		if(s2 > 0) {
 			libsais_prefetchw(&induction_bucket[T[s2 - 1]]); libsais_prefetchr(&T[s2] - 2);
 		}
-		sa_sint_t s3 = SA[i + 1 * prefetch_distance + 1]; if(s3 > 0) {
+		sa_sint_t s3 = SA[i + 1 * prefetch_distance + 1]; 
+		if(s3 > 0) {
 			libsais_prefetchw(&induction_bucket[T[s3 - 1]]); libsais_prefetchr(&T[s3] - 2);
 		}
-
-		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 ^ SAINT_MIN; if(p0 > 0) {
+		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 ^ SAINT_MIN; 
+		if(p0 > 0) {
 			p0--; SA[induction_bucket[T[p0]]++] = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] < T[p0]) << (SAINT_BIT - 1));
 		}
-		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 ^ SAINT_MIN; if(p1 > 0) {
+		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 ^ SAINT_MIN; 
+		if(p1 > 0) {
 			p1--; SA[induction_bucket[T[p1]]++] = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] < T[p1]) << (SAINT_BIT - 1));
 		}
 	}
-
 	for(j += 2 * prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t p = SA[i]; SA[i] = p ^ SAINT_MIN; if(p > 0) {
+		sa_sint_t p = SA[i]; SA[i] = p ^ SAINT_MIN; 
+		if(p > 0) {
 			p--; SA[induction_bucket[T[p]]++] = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1));
 		}
 	}
@@ -4951,18 +4974,21 @@ static fast_sint_t libsais_final_bwt_scan_left_to_right_8u_block_prepare(const u
 		sa_sint_t s1 = SA[i + prefetch_distance + 1]; const uint8 * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL); Ts1--;
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
-		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 & SAINT_MAX; if(p0 > 0) {
+		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
 			p0--; SA[i + 0] = T[p0] | SAINT_MIN; buckets[cache[count].symbol = T[p0]]++;
 			cache[count++].index = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] < T[p0]) << (SAINT_BIT - 1));
 		}
-		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 & SAINT_MAX; if(p1 > 0) {
+		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
 			p1--; SA[i + 1] = T[p1] | SAINT_MIN; buckets[cache[count].symbol = T[p1]]++;
 			cache[count++].index = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] < T[p1]) << (SAINT_BIT - 1));
 		}
 	}
 
 	for(j += prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; if(p > 0) {
+		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
 			p--; SA[i] = T[p] | SAINT_MIN; buckets[cache[count].symbol = T[p]]++; cache[count++].index = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1));
 		}
 	}
@@ -4987,16 +5013,19 @@ static fast_sint_t libsais_final_sorting_scan_left_to_right_8u_block_prepare(con
 		sa_sint_t s1 = SA[i + prefetch_distance + 1]; const uint8 * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL); Ts1--;
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
-		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 ^ SAINT_MIN; if(p0 > 0) {
+		sa_sint_t p0 = SA[i + 0]; SA[i + 0] = p0 ^ SAINT_MIN; 
+		if(p0 > 0) {
 			p0--; buckets[cache[count].symbol = T[p0]]++; cache[count++].index = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] < T[p0]) << (SAINT_BIT - 1));
 		}
-		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 ^ SAINT_MIN; if(p1 > 0) {
+		sa_sint_t p1 = SA[i + 1]; SA[i + 1] = p1 ^ SAINT_MIN; 
+		if(p1 > 0) {
 			p1--; buckets[cache[count].symbol = T[p1]]++; cache[count++].index = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] < T[p1]) << (SAINT_BIT - 1));
 		}
 	}
 
 	for(j += prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t p = SA[i]; SA[i] = p ^ SAINT_MIN; if(p > 0) {
+		sa_sint_t p = SA[i]; SA[i] = p ^ SAINT_MIN; 
+		if(p > 0) {
 			p--; buckets[cache[count].symbol = T[p]]++; cache[count++].index = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1));
 		}
 	}
@@ -5036,22 +5065,27 @@ static void libsais_final_bwt_aux_scan_left_to_right_8u_block_place(sa_sint_t * 
 	for(i = 0, j = count - 3; i < j; i += 4) {
 		libsais_prefetchr(&cache[i + prefetch_distance]);
 
-		SA[buckets[cache[i + 0].symbol]++] = cache[i + 0].index; if((cache[i + 0].index & rm) == 0) {
+		SA[buckets[cache[i + 0].symbol]++] = cache[i + 0].index; 
+		if((cache[i + 0].index & rm) == 0) {
 			I[(cache[i + 0].index & SAINT_MAX) / (rm + 1)] = buckets[cache[i + 0].symbol];
 		}
-		SA[buckets[cache[i + 1].symbol]++] = cache[i + 1].index; if((cache[i + 1].index & rm) == 0) {
+		SA[buckets[cache[i + 1].symbol]++] = cache[i + 1].index; 
+		if((cache[i + 1].index & rm) == 0) {
 			I[(cache[i + 1].index & SAINT_MAX) / (rm + 1)] = buckets[cache[i + 1].symbol];
 		}
-		SA[buckets[cache[i + 2].symbol]++] = cache[i + 2].index; if((cache[i + 2].index & rm) == 0) {
+		SA[buckets[cache[i + 2].symbol]++] = cache[i + 2].index; 
+		if((cache[i + 2].index & rm) == 0) {
 			I[(cache[i + 2].index & SAINT_MAX) / (rm + 1)] = buckets[cache[i + 2].symbol];
 		}
-		SA[buckets[cache[i + 3].symbol]++] = cache[i + 3].index; if((cache[i + 3].index & rm) == 0) {
+		SA[buckets[cache[i + 3].symbol]++] = cache[i + 3].index; 
+		if((cache[i + 3].index & rm) == 0) {
 			I[(cache[i + 3].index & SAINT_MAX) / (rm + 1)] = buckets[cache[i + 3].symbol];
 		}
 	}
 
 	for(j += 3; i < j; i += 1) {
-		SA[buckets[cache[i].symbol]++] = cache[i].index; if((cache[i].index & rm) == 0) {
+		SA[buckets[cache[i].symbol]++] = cache[i].index; 
+		if((cache[i].index & rm) == 0) {
 			I[(cache[i].index & SAINT_MAX) / (rm + 1)] = buckets[cache[i].symbol];
 		}
 	}
@@ -5076,18 +5110,21 @@ static void libsais_final_sorting_scan_left_to_right_32s_block_gather(const sa_s
 
 		libsais_prefetchw(&cache[i + prefetch_distance]);
 
-		sa_sint_t symbol0 = SAINT_MIN, p0 = SA[i + 0]; SA[i + 0] = p0 ^ SAINT_MIN; if(p0 > 0) {
+		sa_sint_t symbol0 = SAINT_MIN, p0 = SA[i + 0]; SA[i + 0] = p0 ^ SAINT_MIN; 
+		if(p0 > 0) {
 			p0--; cache[i + 0].index = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] < T[p0]) << (SAINT_BIT - 1)); symbol0 = T[p0];
 		}
 		cache[i + 0].symbol = symbol0;
-		sa_sint_t symbol1 = SAINT_MIN, p1 = SA[i + 1]; SA[i + 1] = p1 ^ SAINT_MIN; if(p1 > 0) {
+		sa_sint_t symbol1 = SAINT_MIN, p1 = SA[i + 1]; SA[i + 1] = p1 ^ SAINT_MIN; 
+		if(p1 > 0) {
 			p1--; cache[i + 1].index = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] < T[p1]) << (SAINT_BIT - 1)); symbol1 = T[p1];
 		}
 		cache[i + 1].symbol = symbol1;
 	}
 
 	for(j += prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t symbol = SAINT_MIN, p = SA[i]; SA[i] = p ^ SAINT_MIN; if(p > 0) {
+		sa_sint_t symbol = SAINT_MIN, p = SA[i]; SA[i] = p ^ SAINT_MIN; 
+		if(p > 0) {
 			p--; cache[i].index = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1)); symbol = T[p];
 		}
 		cache[i].symbol = symbol;
@@ -5113,7 +5150,8 @@ static void libsais_final_sorting_scan_left_to_right_32s_block_sort(const sa_sin
 		if(v0 >= 0) {
 			cache[i + 0].symbol = induction_bucket[v0]++;
 			if(cache[i + 0].symbol < omp_block_end) {
-				sa_sint_t ni = cache[i + 0].symbol, np = cache[i + 0].index; cache[i + 0].index = np ^ SAINT_MIN; if(np > 0) {
+				sa_sint_t ni = cache[i + 0].symbol, np = cache[i + 0].index; cache[i + 0].index = np ^ SAINT_MIN; 
+				if(np > 0) {
 					np--; cache[ni].index = np | ((sa_sint_t)(T[np - (np > 0)] < T[np]) << (SAINT_BIT - 1)); cache[ni].symbol = T[np];
 				}
 			}
@@ -5123,7 +5161,8 @@ static void libsais_final_sorting_scan_left_to_right_32s_block_sort(const sa_sin
 		if(v1 >= 0) {
 			cache[i + 1].symbol = induction_bucket[v1]++;
 			if(cache[i + 1].symbol < omp_block_end) {
-				sa_sint_t ni = cache[i + 1].symbol, np = cache[i + 1].index; cache[i + 1].index = np ^ SAINT_MIN; if(np > 0) {
+				sa_sint_t ni = cache[i + 1].symbol, np = cache[i + 1].index; cache[i + 1].index = np ^ SAINT_MIN; 
+				if(np > 0) {
 					np--; cache[ni].index = np | ((sa_sint_t)(T[np - (np > 0)] < T[np]) << (SAINT_BIT - 1)); cache[ni].symbol = T[np];
 				}
 			}
@@ -5135,7 +5174,8 @@ static void libsais_final_sorting_scan_left_to_right_32s_block_sort(const sa_sin
 		if(v >= 0) {
 			cache[i].symbol = induction_bucket[v]++;
 			if(cache[i].symbol < omp_block_end) {
-				sa_sint_t ni = cache[i].symbol, np = cache[i].index; cache[i].index = np ^ SAINT_MIN; if(np > 0) {
+				sa_sint_t ni = cache[i].symbol, np = cache[i].index; cache[i].index = np ^ SAINT_MIN; 
+				if(np > 0) {
 					np--; cache[ni].index = np | ((sa_sint_t)(T[np - (np > 0)] < T[np]) << (SAINT_BIT - 1)); cache[ni].symbol = T[np];
 				}
 			}
@@ -5434,7 +5474,8 @@ static void libsais_final_bwt_scan_left_to_right_8u_omp(const uint8 * _RESTRICT 
 
 				if(block_size < 32) {
 					for(; block_start < block_end; block_start += 1) {
-						sa_sint_t p = SA[block_start]; SA[block_start] = p & SAINT_MAX; if(p > 0) {
+						sa_sint_t p = SA[block_start]; SA[block_start] = p & SAINT_MAX; 
+						if(p > 0) {
 							p--; SA[block_start] = T[p] | SAINT_MIN;
 							SA[induction_bucket[T[p]]++] = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1));
 						}
@@ -5489,9 +5530,11 @@ static void libsais_final_bwt_aux_scan_left_to_right_8u_omp(const uint8 * _RESTR
 
 				if(block_size < 32) {
 					for(; block_start < block_end; block_start += 1) {
-						sa_sint_t p = SA[block_start]; SA[block_start] = p & SAINT_MAX; if(p > 0) {
+						sa_sint_t p = SA[block_start]; SA[block_start] = p & SAINT_MAX; 
+						if(p > 0) {
 							p--; SA[block_start] = T[p] | SAINT_MIN;
-							SA[induction_bucket[T[p]]++] = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1)); if((p & rm) == 0) {
+							SA[induction_bucket[T[p]]++] = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1)); 
+							if((p & rm) == 0) {
 								I[p / (rm + 1)] = induction_bucket[T[p]];
 							}
 						}
@@ -5540,7 +5583,8 @@ static void libsais_final_sorting_scan_left_to_right_8u_omp(const uint8 * _RESTR
 
 				if(block_size < 32) {
 					for(; block_start < block_end; block_start += 1) {
-						sa_sint_t p = SA[block_start]; SA[block_start] = p ^ SAINT_MIN; if(p > 0) {
+						sa_sint_t p = SA[block_start]; SA[block_start] = p ^ SAINT_MIN; 
+						if(p > 0) {
 							p--; SA[induction_bucket[T[p]]++] = p | ((sa_sint_t)(T[p - (p > 0)] < T[p]) << (SAINT_BIT - 1));
 						}
 					}
@@ -5557,15 +5601,10 @@ static void libsais_final_sorting_scan_left_to_right_8u_omp(const uint8 * _RESTR
 #endif
 }
 
-static void libsais_final_sorting_scan_left_to_right_32s_omp(const sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t n,
-    sa_sint_t * _RESTRICT induction_bucket,
-    sa_sint_t threads,
-    LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
+static void libsais_final_sorting_scan_left_to_right_32s_omp(const sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA,
+    sa_sint_t n, sa_sint_t * _RESTRICT induction_bucket, sa_sint_t threads, LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
 {
 	SA[induction_bucket[T[n - 1]]++] = (n - 1) | ((sa_sint_t)(T[n - 2] < T[n - 1]) << (SAINT_BIT - 1));
-
 	if(threads == 1 || n < 65536) {
 		libsais_final_sorting_scan_left_to_right_32s(T, SA, induction_bucket, 0, n);
 	}
@@ -5573,10 +5612,10 @@ static void libsais_final_sorting_scan_left_to_right_32s_omp(const sa_sint_t * _
 	else {
 		fast_sint_t block_start, block_end;
 		for(block_start = 0; block_start < n; block_start = block_end) {
-			block_end = block_start + (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; if(block_end > n) {
+			block_end = block_start + (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; 
+			if(block_end > n) {
 				block_end = n;
 			}
-
 			libsais_final_sorting_scan_left_to_right_32s_block_omp(T, SA, induction_bucket, thread_state[0].state.cache, block_start, block_end - block_start, threads);
 		}
 	}
@@ -5603,19 +5642,22 @@ static sa_sint_t libsais_final_bwt_scan_right_to_left_8u(const uint8 * _RESTRICT
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
 		sa_sint_t p0 = SA[i - 0]; index = (p0 == 0) ? (sa_sint_t)(i - 0) : index;
-		SA[i - 0] = p0 & SAINT_MAX; if(p0 > 0) {
+		SA[i - 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
 			p0--; uint8 c0 = T[p0 - (p0 > 0)], c1 = T[p0]; SA[i - 0] = c1; sa_sint_t t = c0 | SAINT_MIN; SA[--induction_bucket[c1]] = (c0 <= c1) ? p0 : t;
 		}
 
 		sa_sint_t p1 = SA[i - 1]; index = (p1 == 0) ? (sa_sint_t)(i - 1) : index;
-		SA[i - 1] = p1 & SAINT_MAX; if(p1 > 0) {
+		SA[i - 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
 			p1--; uint8 c0 = T[p1 - (p1 > 0)], c1 = T[p1]; SA[i - 1] = c1; sa_sint_t t = c0 | SAINT_MIN; SA[--induction_bucket[c1]] = (c0 <= c1) ? p1 : t;
 		}
 	}
 
 	for(j -= prefetch_distance + 1; i >= j; i -= 1) {
 		sa_sint_t p = SA[i]; index = (p == 0) ? (sa_sint_t)i : index;
-		SA[i] = p & SAINT_MAX; if(p > 0) {
+		SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
 			p--; uint8 c0 = T[p - (p > 0)], c1 = T[p]; SA[i] = c1; sa_sint_t t = c0 | SAINT_MIN; SA[--induction_bucket[c1]] = (c0 <= c1) ? p : t;
 		}
 	}
@@ -5643,7 +5685,8 @@ static void libsais_final_bwt_aux_scan_right_to_left_8u(const uint8 * _RESTRICT 
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
 		sa_sint_t p0 = SA[i - 0];
-		SA[i - 0] = p0 & SAINT_MAX; if(p0 > 0) {
+		SA[i - 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
 			p0--; uint8 c0 = T[p0 - (p0 > 0)], c1 = T[p0]; SA[i - 0] = c1; sa_sint_t t = c0 | SAINT_MIN; SA[--induction_bucket[c1]] = (c0 <= c1) ? p0 : t;
 			if((p0 & rm) == 0) {
 				I[p0 / (rm + 1)] = induction_bucket[T[p0]] + 1;
@@ -5651,7 +5694,8 @@ static void libsais_final_bwt_aux_scan_right_to_left_8u(const uint8 * _RESTRICT 
 		}
 
 		sa_sint_t p1 = SA[i - 1];
-		SA[i - 1] = p1 & SAINT_MAX; if(p1 > 0) {
+		SA[i - 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
 			p1--; uint8 c0 = T[p1 - (p1 > 0)], c1 = T[p1]; SA[i - 1] = c1; sa_sint_t t = c0 | SAINT_MIN; SA[--induction_bucket[c1]] = (c0 <= c1) ? p1 : t;
 			if((p1 & rm) == 0) {
 				I[p1 / (rm + 1)] = induction_bucket[T[p1]] + 1;
@@ -5661,8 +5705,11 @@ static void libsais_final_bwt_aux_scan_right_to_left_8u(const uint8 * _RESTRICT 
 
 	for(j -= prefetch_distance + 1; i >= j; i -= 1) {
 		sa_sint_t p = SA[i];
-		SA[i] = p & SAINT_MAX; if(p > 0) {
-			p--; uint8 c0 = T[p - (p > 0)], c1 = T[p]; SA[i] = c1; sa_sint_t t = c0 | SAINT_MIN; SA[--induction_bucket[c1]] = (c0 <= c1) ? p : t; if((p & rm) == 0) {
+		SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
+			p--; 
+			uint8 c0 = T[p - (p > 0)], c1 = T[p]; SA[i] = c1; sa_sint_t t = c0 | SAINT_MIN; SA[--induction_bucket[c1]] = (c0 <= c1) ? p : t; 
+			if((p & rm) == 0) {
 				I[p / (rm + 1)] = induction_bucket[T[p]] + 1;
 			}
 		}
@@ -5686,16 +5733,19 @@ static void libsais_final_sorting_scan_right_to_left_8u(const uint8 * _RESTRICT 
 		sa_sint_t s1 = SA[i-prefetch_distance-1]; const uint8 * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL); Ts1--;
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
-		sa_sint_t p0 = SA[i - 0]; SA[i - 0] = p0 & SAINT_MAX; if(p0 > 0) {
+		sa_sint_t p0 = SA[i - 0]; SA[i - 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
 			p0--; SA[--induction_bucket[T[p0]]] = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] > T[p0]) << (SAINT_BIT - 1));
 		}
-		sa_sint_t p1 = SA[i - 1]; SA[i - 1] = p1 & SAINT_MAX; if(p1 > 0) {
+		sa_sint_t p1 = SA[i - 1]; SA[i - 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
 			p1--; SA[--induction_bucket[T[p1]]] = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] > T[p1]) << (SAINT_BIT - 1));
 		}
 	}
 
 	for(j -= prefetch_distance + 1; i >= j; i -= 1) {
-		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; if(p > 0) {
+		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
 			p--; SA[--induction_bucket[T[p]]] = p | ((sa_sint_t)(T[p - (p > 0)] > T[p]) << (SAINT_BIT - 1));
 		}
 	}
@@ -5715,23 +5765,28 @@ static void libsais_final_sorting_scan_right_to_left_32s(const sa_sint_t * _REST
 
 		sa_sint_t s0 = SA[i - 2 * prefetch_distance - 0]; const sa_sint_t * Ts0 = &T[s0] - 1; libsais_prefetchr(s0 > 0 ? Ts0 : NULL);
 		sa_sint_t s1 = SA[i - 2 * prefetch_distance - 1]; const sa_sint_t * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
-		sa_sint_t s2 = SA[i - 1 * prefetch_distance - 0]; if(s2 > 0) {
+		sa_sint_t s2 = SA[i - 1 * prefetch_distance - 0]; 
+		if(s2 > 0) {
 			libsais_prefetchw(&induction_bucket[T[s2 - 1]]); libsais_prefetchr(&T[s2] - 2);
 		}
-		sa_sint_t s3 = SA[i - 1 * prefetch_distance - 1]; if(s3 > 0) {
+		sa_sint_t s3 = SA[i - 1 * prefetch_distance - 1]; 
+		if(s3 > 0) {
 			libsais_prefetchw(&induction_bucket[T[s3 - 1]]); libsais_prefetchr(&T[s3] - 2);
 		}
 
-		sa_sint_t p0 = SA[i - 0]; SA[i - 0] = p0 & SAINT_MAX; if(p0 > 0) {
+		sa_sint_t p0 = SA[i - 0]; SA[i - 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
 			p0--; SA[--induction_bucket[T[p0]]] = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] > T[p0]) << (SAINT_BIT - 1));
 		}
-		sa_sint_t p1 = SA[i - 1]; SA[i - 1] = p1 & SAINT_MAX; if(p1 > 0) {
+		sa_sint_t p1 = SA[i - 1]; SA[i - 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
 			p1--; SA[--induction_bucket[T[p1]]] = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] > T[p1]) << (SAINT_BIT - 1));
 		}
 	}
 
 	for(j -= 2 * prefetch_distance + 1; i >= j; i -= 1) {
-		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; if(p > 0) {
+		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
 			p--; SA[--induction_bucket[T[p]]] = p | ((sa_sint_t)(T[p - (p > 0)] > T[p]) << (SAINT_BIT - 1));
 		}
 	}
@@ -5754,18 +5809,21 @@ static fast_sint_t libsais_final_bwt_scan_right_to_left_8u_block_prepare(const u
 		sa_sint_t s1 = SA[i-prefetch_distance-1]; const uint8 * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL); Ts1--;
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
-		sa_sint_t p0 = SA[i - 0]; SA[i - 0] = p0 & SAINT_MAX; if(p0 > 0) {
+		sa_sint_t p0 = SA[i - 0]; SA[i - 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
 			p0--; uint8 c0 = T[p0 - (p0 > 0)], c1 = T[p0]; SA[i - 0] = c1; sa_sint_t t = c0 | SAINT_MIN; buckets[cache[count].symbol = c1]++;
 			cache[count++].index = (c0 <= c1) ? p0 : t;
 		}
-		sa_sint_t p1 = SA[i - 1]; SA[i - 1] = p1 & SAINT_MAX; if(p1 > 0) {
+		sa_sint_t p1 = SA[i - 1]; SA[i - 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
 			p1--; uint8 c0 = T[p1 - (p1 > 0)], c1 = T[p1]; SA[i - 1] = c1; sa_sint_t t = c0 | SAINT_MIN; buckets[cache[count].symbol = c1]++;
 			cache[count++].index = (c0 <= c1) ? p1 : t;
 		}
 	}
 
 	for(j -= prefetch_distance + 1; i >= j; i -= 1) {
-		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; if(p > 0) {
+		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
 			p--; uint8 c0 = T[p - (p > 0)], c1 = T[p]; SA[i] = c1; sa_sint_t t = c0 | SAINT_MIN; buckets[cache[count].symbol = c1]++;
 			cache[count++].index = (c0 <= c1) ? p : t;
 		}
@@ -5787,18 +5845,21 @@ static fast_sint_t libsais_final_bwt_aux_scan_right_to_left_8u_block_prepare(con
 		sa_sint_t s1 = SA[i-prefetch_distance-1]; const uint8 * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL); Ts1--;
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
-		sa_sint_t p0 = SA[i - 0]; SA[i - 0] = p0 & SAINT_MAX; if(p0 > 0) {
+		sa_sint_t p0 = SA[i - 0]; SA[i - 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
 			p0--; uint8 c0 = T[p0 - (p0 > 0)], c1 = T[p0]; SA[i - 0] = c1; sa_sint_t t = c0 | SAINT_MIN; buckets[cache[count].symbol = c1]++;
 			cache[count].index = (c0 <= c1) ? p0 : t; cache[count + 1].index = p0; count += 2;
 		}
-		sa_sint_t p1 = SA[i - 1]; SA[i - 1] = p1 & SAINT_MAX; if(p1 > 0) {
+		sa_sint_t p1 = SA[i - 1]; SA[i - 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
 			p1--; uint8 c0 = T[p1 - (p1 > 0)], c1 = T[p1]; SA[i - 1] = c1; sa_sint_t t = c0 | SAINT_MIN; buckets[cache[count].symbol = c1]++;
 			cache[count].index = (c0 <= c1) ? p1 : t; cache[count + 1].index = p1; count += 2;
 		}
 	}
 
 	for(j -= prefetch_distance + 1; i >= j; i -= 1) {
-		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; if(p > 0) {
+		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
 			p--; uint8 c0 = T[p - (p > 0)], c1 = T[p]; SA[i] = c1; sa_sint_t t = c0 | SAINT_MIN; buckets[cache[count].symbol = c1]++;
 			cache[count].index = (c0 <= c1) ? p : t; cache[count + 1].index = p; count += 2;
 		}
@@ -5822,16 +5883,19 @@ static fast_sint_t libsais_final_sorting_scan_right_to_left_8u_block_prepare(con
 		sa_sint_t s1 = SA[i-prefetch_distance-1]; const uint8 * Ts1 = &T[s1] - 1; libsais_prefetchr(s1 > 0 ? Ts1 : NULL); Ts1--;
 		libsais_prefetchr(s1 > 0 ? Ts1 : NULL);
 
-		sa_sint_t p0 = SA[i - 0]; SA[i - 0] = p0 & SAINT_MAX; if(p0 > 0) {
+		sa_sint_t p0 = SA[i - 0]; SA[i - 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
 			p0--; buckets[cache[count].symbol = T[p0]]++; cache[count++].index = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] > T[p0]) << (SAINT_BIT - 1));
 		}
-		sa_sint_t p1 = SA[i - 1]; SA[i - 1] = p1 & SAINT_MAX; if(p1 > 0) {
+		sa_sint_t p1 = SA[i - 1]; SA[i - 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
 			p1--; buckets[cache[count].symbol = T[p1]]++; cache[count++].index = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] > T[p1]) << (SAINT_BIT - 1));
 		}
 	}
 
 	for(j -= prefetch_distance + 1; i >= j; i -= 1) {
-		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; if(p > 0) {
+		sa_sint_t p = SA[i]; SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
 			p--; buckets[cache[count].symbol = T[p]]++; cache[count++].index = p | ((sa_sint_t)(T[p - (p > 0)] > T[p]) << (SAINT_BIT - 1));
 		}
 	}
@@ -5864,35 +5928,35 @@ static void libsais_final_bwt_aux_scan_right_to_left_8u_block_place(sa_sint_t * 
 	for(i = 0, j = count - 6; i < j; i += 8) {
 		libsais_prefetchr(&cache[i + prefetch_distance]);
 
-		SA[--buckets[cache[i + 0].symbol]] = cache[i + 0].index; if((cache[i + 1].index & rm) == 0) {
+		SA[--buckets[cache[i + 0].symbol]] = cache[i + 0].index; 
+		if((cache[i + 1].index & rm) == 0) {
 			I[cache[i + 1].index / (rm + 1)] = buckets[cache[i + 0].symbol] + 1;
 		}
-		SA[--buckets[cache[i + 2].symbol]] = cache[i + 2].index; if((cache[i + 3].index & rm) == 0) {
+		SA[--buckets[cache[i + 2].symbol]] = cache[i + 2].index; 
+		if((cache[i + 3].index & rm) == 0) {
 			I[cache[i + 3].index / (rm + 1)] = buckets[cache[i + 2].symbol] + 1;
 		}
-		SA[--buckets[cache[i + 4].symbol]] = cache[i + 4].index; if((cache[i + 5].index & rm) == 0) {
+		SA[--buckets[cache[i + 4].symbol]] = cache[i + 4].index; 
+		if((cache[i + 5].index & rm) == 0) {
 			I[cache[i + 5].index / (rm + 1)] = buckets[cache[i + 4].symbol] + 1;
 		}
-		SA[--buckets[cache[i + 6].symbol]] = cache[i + 6].index; if((cache[i + 7].index & rm) == 0) {
+		SA[--buckets[cache[i + 6].symbol]] = cache[i + 6].index; 
+		if((cache[i + 7].index & rm) == 0) {
 			I[cache[i + 7].index / (rm + 1)] = buckets[cache[i + 6].symbol] + 1;
 		}
 	}
-
 	for(j += 6; i < j; i += 2) {
-		SA[--buckets[cache[i].symbol]] = cache[i].index; if((cache[i + 1].index & rm) == 0) {
+		SA[--buckets[cache[i].symbol]] = cache[i].index; 
+		if((cache[i + 1].index & rm) == 0) {
 			I[(cache[i + 1].index & SAINT_MAX) / (rm + 1)] = buckets[cache[i].symbol] + 1;
 		}
 	}
 }
 
-static void libsais_final_sorting_scan_right_to_left_32s_block_gather(const sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    LIBSAIS_THREAD_CACHE * _RESTRICT cache,
-    fast_sint_t omp_block_start,
-    fast_sint_t omp_block_size)
+static void libsais_final_sorting_scan_right_to_left_32s_block_gather(const sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA,
+    LIBSAIS_THREAD_CACHE * _RESTRICT cache, fast_sint_t omp_block_start, fast_sint_t omp_block_size)
 {
 	const fast_sint_t prefetch_distance = 32;
-
 	fast_sint_t i, j;
 	for(i = omp_block_start, j = omp_block_start + omp_block_size-prefetch_distance-1; i < j; i += 2) {
 		libsais_prefetchw(&SA[i + 2 * prefetch_distance]);
@@ -5904,18 +5968,21 @@ static void libsais_final_sorting_scan_right_to_left_32s_block_gather(const sa_s
 
 		libsais_prefetchw(&cache[i + prefetch_distance]);
 
-		sa_sint_t symbol0 = SAINT_MIN, p0 = SA[i + 0]; SA[i + 0] = p0 & SAINT_MAX; if(p0 > 0) {
+		sa_sint_t symbol0 = SAINT_MIN, p0 = SA[i + 0]; SA[i + 0] = p0 & SAINT_MAX; 
+		if(p0 > 0) {
 			p0--; cache[i + 0].index = p0 | ((sa_sint_t)(T[p0 - (p0 > 0)] > T[p0]) << (SAINT_BIT - 1)); symbol0 = T[p0];
 		}
 		cache[i + 0].symbol = symbol0;
-		sa_sint_t symbol1 = SAINT_MIN, p1 = SA[i + 1]; SA[i + 1] = p1 & SAINT_MAX; if(p1 > 0) {
+		sa_sint_t symbol1 = SAINT_MIN, p1 = SA[i + 1]; SA[i + 1] = p1 & SAINT_MAX; 
+		if(p1 > 0) {
 			p1--; cache[i + 1].index = p1 | ((sa_sint_t)(T[p1 - (p1 > 0)] > T[p1]) << (SAINT_BIT - 1)); symbol1 = T[p1];
 		}
 		cache[i + 1].symbol = symbol1;
 	}
 
 	for(j += prefetch_distance + 1; i < j; i += 1) {
-		sa_sint_t symbol = SAINT_MIN, p = SA[i]; SA[i] = p & SAINT_MAX; if(p > 0) {
+		sa_sint_t symbol = SAINT_MIN, p = SA[i]; SA[i] = p & SAINT_MAX; 
+		if(p > 0) {
 			p--; cache[i].index = p | ((sa_sint_t)(T[p - (p > 0)] > T[p]) << (SAINT_BIT - 1)); symbol = T[p];
 		}
 		cache[i].symbol = symbol;
@@ -5941,7 +6008,8 @@ static void libsais_final_sorting_scan_right_to_left_32s_block_sort(const sa_sin
 		if(v0 >= 0) {
 			cache[i - 0].symbol = --induction_bucket[v0];
 			if(cache[i - 0].symbol >= omp_block_start) {
-				sa_sint_t ni = cache[i - 0].symbol, np = cache[i - 0].index; cache[i - 0].index = np & SAINT_MAX; if(np > 0) {
+				sa_sint_t ni = cache[i - 0].symbol, np = cache[i - 0].index; cache[i - 0].index = np & SAINT_MAX; 
+				if(np > 0) {
 					np--; cache[ni].index = np | ((sa_sint_t)(T[np - (np > 0)] > T[np]) << (SAINT_BIT - 1)); cache[ni].symbol = T[np];
 				}
 			}
@@ -5951,7 +6019,8 @@ static void libsais_final_sorting_scan_right_to_left_32s_block_sort(const sa_sin
 		if(v1 >= 0) {
 			cache[i - 1].symbol = --induction_bucket[v1];
 			if(cache[i - 1].symbol >= omp_block_start) {
-				sa_sint_t ni = cache[i - 1].symbol, np = cache[i - 1].index; cache[i - 1].index = np & SAINT_MAX; if(np > 0) {
+				sa_sint_t ni = cache[i - 1].symbol, np = cache[i - 1].index; cache[i - 1].index = np & SAINT_MAX; 
+				if(np > 0) {
 					np--; cache[ni].index = np | ((sa_sint_t)(T[np - (np > 0)] > T[np]) << (SAINT_BIT - 1)); cache[ni].symbol = T[np];
 				}
 			}
@@ -5963,7 +6032,8 @@ static void libsais_final_sorting_scan_right_to_left_32s_block_sort(const sa_sin
 		if(v >= 0) {
 			cache[i].symbol = --induction_bucket[v];
 			if(cache[i].symbol >= omp_block_start) {
-				sa_sint_t ni = cache[i].symbol, np = cache[i].index; cache[i].index = np & SAINT_MAX; if(np > 0) {
+				sa_sint_t ni = cache[i].symbol, np = cache[i].index; cache[i].index = np & SAINT_MAX; 
+				if(np > 0) {
 					np--; cache[ni].index = np | ((sa_sint_t)(T[np - (np > 0)] > T[np]) << (SAINT_BIT - 1)); cache[ni].symbol = T[np];
 				}
 			}
@@ -6262,7 +6332,8 @@ static sa_sint_t libsais_final_bwt_scan_right_to_left_8u_omp(const uint8 * _REST
 
 				if(block_size < 32) {
 					for(; block_start > block_end; block_start -= 1) {
-						sa_sint_t p = SA[block_start]; SA[block_start] = p & SAINT_MAX; if(p > 0) {
+						sa_sint_t p = SA[block_start]; SA[block_start] = p & SAINT_MAX; 
+						if(p > 0) {
 							p--; uint8 c0 = T[p - (p > 0)], c1 = T[p]; SA[block_start] = c1; sa_sint_t t = c0 | SAINT_MIN;
 							SA[--induction_bucket[c1]] = (c0 <= c1) ? p : t;
 						}
@@ -6313,9 +6384,11 @@ static void libsais_final_bwt_aux_scan_right_to_left_8u_omp(const uint8 * _RESTR
 
 				if(block_size < 32) {
 					for(; block_start > block_end; block_start -= 1) {
-						sa_sint_t p = SA[block_start]; SA[block_start] = p & SAINT_MAX; if(p > 0) {
+						sa_sint_t p = SA[block_start]; SA[block_start] = p & SAINT_MAX; 
+						if(p > 0) {
 							p--; uint8 c0 = T[p - (p > 0)], c1 = T[p]; SA[block_start] = c1; sa_sint_t t = c0 | SAINT_MIN;
-							SA[--induction_bucket[c1]] = (c0 <= c1) ? p : t; if((p & rm) == 0) {
+							SA[--induction_bucket[c1]] = (c0 <= c1) ? p : t; 
+							if((p & rm) == 0) {
 								I[p / (rm + 1)] = induction_bucket[T[p]] + 1;
 							}
 						}
@@ -6362,7 +6435,8 @@ static void libsais_final_sorting_scan_right_to_left_8u_omp(const uint8 * _RESTR
 
 				if(block_size < 32) {
 					for(; block_start > block_end; block_start -= 1) {
-						sa_sint_t p = SA[block_start]; SA[block_start] = p & SAINT_MAX; if(p > 0) {
+						sa_sint_t p = SA[block_start]; SA[block_start] = p & SAINT_MAX; 
+						if(p > 0) {
 							p--; SA[--induction_bucket[T[p]]] = p | ((sa_sint_t)(T[p - (p > 0)] > T[p]) << (SAINT_BIT - 1));
 						}
 					}
@@ -6393,7 +6467,8 @@ static void libsais_final_sorting_scan_right_to_left_32s_omp(const sa_sint_t * _
 	else {
 		fast_sint_t block_start, block_end;
 		for(block_start = (fast_sint_t)n - 1; block_start >= 0; block_start = block_end) {
-			block_end = block_start - (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; if(block_end < 0) {
+			block_end = block_start - (fast_sint_t)threads * LIBSAIS_PER_THREAD_CACHE_SIZE; 
+			if(block_end < 0) {
 				block_end = -1;
 			}
 
@@ -6535,26 +6610,31 @@ static sa_sint_t libsais_renumber_unique_and_nonunique_lms_suffixes_32s(sa_sint_
 		sa_uint_t q2 = (sa_uint_t)SA[i + prefetch_distance + 2]; const sa_sint_t * Tq2 = &T[q2]; libsais_prefetchw(SAm[q2 >> 1] < 0 ? Tq2 : NULL);
 		sa_uint_t q3 = (sa_uint_t)SA[i + prefetch_distance + 3]; const sa_sint_t * Tq3 = &T[q3]; libsais_prefetchw(SAm[q3 >> 1] < 0 ? Tq3 : NULL);
 
-		sa_uint_t p0 = (sa_uint_t)SA[i + 0]; sa_sint_t s0 = SAm[p0 >> 1]; if(s0 < 0) {
+		sa_uint_t p0 = (sa_uint_t)SA[i + 0]; sa_sint_t s0 = SAm[p0 >> 1]; 
+		if(s0 < 0) {
 			T[p0] |= SAINT_MIN; f++; s0 = i + 0 + SAINT_MIN + f;
 		}
 		SAm[p0 >> 1] = s0 - f;
-		sa_uint_t p1 = (sa_uint_t)SA[i + 1]; sa_sint_t s1 = SAm[p1 >> 1]; if(s1 < 0) {
+		sa_uint_t p1 = (sa_uint_t)SA[i + 1]; sa_sint_t s1 = SAm[p1 >> 1]; 
+		if(s1 < 0) {
 			T[p1] |= SAINT_MIN; f++; s1 = i + 1 + SAINT_MIN + f;
 		}
 		SAm[p1 >> 1] = s1 - f;
-		sa_uint_t p2 = (sa_uint_t)SA[i + 2]; sa_sint_t s2 = SAm[p2 >> 1]; if(s2 < 0) {
+		sa_uint_t p2 = (sa_uint_t)SA[i + 2]; sa_sint_t s2 = SAm[p2 >> 1]; 
+		if(s2 < 0) {
 			T[p2] |= SAINT_MIN; f++; s2 = i + 2 + SAINT_MIN + f;
 		}
 		SAm[p2 >> 1] = s2 - f;
-		sa_uint_t p3 = (sa_uint_t)SA[i + 3]; sa_sint_t s3 = SAm[p3 >> 1]; if(s3 < 0) {
+		sa_uint_t p3 = (sa_uint_t)SA[i + 3]; sa_sint_t s3 = SAm[p3 >> 1]; 
+		if(s3 < 0) {
 			T[p3] |= SAINT_MIN; f++; s3 = i + 3 + SAINT_MIN + f;
 		}
 		SAm[p3 >> 1] = s3 - f;
 	}
 
 	for(j += 2 * (sa_sint_t)prefetch_distance + 3; i < j; i += 1) {
-		sa_uint_t p = (sa_uint_t)SA[i]; sa_sint_t s = SAm[p >> 1]; if(s < 0) {
+		sa_uint_t p = (sa_uint_t)SA[i]; sa_sint_t s = SAm[p >> 1]; 
+		if(s < 0) {
 			T[p] |= SAINT_MIN; f++; s = i + SAINT_MIN + f;
 		}
 		SAm[p >> 1] = s - f;
@@ -6752,53 +6832,46 @@ static void libsais_compact_unique_and_nonunique_lms_suffixes_32s_omp(sa_sint_t 
 	memcpy(&SA[(fast_sint_t)n + (fast_sint_t)fs - (fast_sint_t)m], &SA[(fast_sint_t)m - (fast_sint_t)f], (size_t)f * sizeof(sa_sint_t));
 }
 
-static sa_sint_t libsais_compact_lms_suffixes_32s_omp(sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t n,
-    sa_sint_t m,
-    sa_sint_t fs,
-    sa_sint_t threads,
-    LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
+static sa_sint_t libsais_compact_lms_suffixes_32s_omp(sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA, sa_sint_t n, sa_sint_t m,
+    sa_sint_t fs, sa_sint_t threads, LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
 {
 	sa_sint_t f = libsais_renumber_unique_and_nonunique_lms_suffixes_32s_omp(T, SA, m, threads, thread_state);
 	libsais_compact_unique_and_nonunique_lms_suffixes_32s_omp(SA, n, m, fs, f, threads, thread_state);
-
 	return f;
 }
 
-static void libsais_merge_unique_lms_suffixes_32s(sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t n,
-    sa_sint_t m,
-    fast_sint_t l,
-    fast_sint_t omp_block_start,
-    fast_sint_t omp_block_size)
+static void libsais_merge_unique_lms_suffixes_32s(sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRICT SA, sa_sint_t n, sa_sint_t m,
+    fast_sint_t l, fast_sint_t omp_block_start, fast_sint_t omp_block_size)
 {
 	const fast_sint_t prefetch_distance = 32;
-
 	const sa_sint_t * _RESTRICT SAnm = &SA[(fast_sint_t)n - (fast_sint_t)m - 1 + l];
-
 	sa_sint_t i, j; fast_sint_t tmp = *SAnm++;
 	for(i = (sa_sint_t)omp_block_start, j = (sa_sint_t)omp_block_start + (sa_sint_t)omp_block_size - 6; i < j; i += 4) {
 		libsais_prefetchr(&T[i + prefetch_distance]);
-
-		sa_sint_t c0 = T[i + 0]; if(c0 < 0) {
+		sa_sint_t c0 = T[i + 0]; 
+		if(c0 < 0) {
 			T[i + 0] = c0 & SAINT_MAX; SA[tmp] = i + 0; i++; tmp = *SAnm++;
 		}
-		sa_sint_t c1 = T[i + 1]; if(c1 < 0) {
+		sa_sint_t c1 = T[i + 1]; 
+		if(c1 < 0) {
 			T[i + 1] = c1 & SAINT_MAX; SA[tmp] = i + 1; i++; tmp = *SAnm++;
 		}
-		sa_sint_t c2 = T[i + 2]; if(c2 < 0) {
+		sa_sint_t c2 = T[i + 2]; 
+		if(c2 < 0) {
 			T[i + 2] = c2 & SAINT_MAX; SA[tmp] = i + 2; i++; tmp = *SAnm++;
 		}
-		sa_sint_t c3 = T[i + 3]; if(c3 < 0) {
+		sa_sint_t c3 = T[i + 3]; 
+		if(c3 < 0) {
 			T[i + 3] = c3 & SAINT_MAX; SA[tmp] = i + 3; i++; tmp = *SAnm++;
 		}
 	}
-
 	for(j += 6; i < j; i += 1) {
-		sa_sint_t c = T[i]; if(c < 0) {
-			T[i] = c & SAINT_MAX; SA[tmp] = i; i++; tmp = *SAnm++;
+		sa_sint_t c = T[i]; 
+		if(c < 0) {
+			T[i] = c & SAINT_MAX; 
+			SA[tmp] = i; 
+			i++; 
+			tmp = *SAnm++;
 		}
 	}
 }
@@ -7054,11 +7127,9 @@ static sa_sint_t libsais_main_32s(sa_sint_t * _RESTRICT T,
 			sa_sint_t names = libsais_renumber_and_mark_distinct_lms_suffixes_32s_4k_omp(SA, n, m, threads, thread_state);
 			if(names < m) {
 				sa_sint_t f = libsais_compact_lms_suffixes_32s_omp(T, SA, n, m, fs, threads, thread_state);
-
 				if(libsais_main_32s(SA + n + fs - m + f, SA, m - f, names - f, fs + n - 2 * m + f, threads, thread_state) != 0) {
 					return -2;
 				}
-
 				libsais_reconstruct_compacted_lms_suffixes_32s_2k_omp(T, SA, n, k, m, fs, f, buckets, threads, thread_state);
 			}
 			else {
@@ -7068,36 +7139,28 @@ static sa_sint_t libsais_main_32s(sa_sint_t * _RESTRICT T,
 		else {
 			SA[0] = SA[n - 1];
 		}
-
 		libsais_initialize_buckets_start_and_end_32s_4k(k, buckets);
 		libsais_place_lms_suffixes_histogram_32s_4k(SA, n, k, m, buckets);
 		libsais_induce_final_order_32s_4k(T, SA, n, k, buckets, threads, thread_state);
-
 		return 0;
 	}
 	else if(k > 0 && fs / k >= 2) {
 		sa_sint_t alignment = (fs - 1024) / k >= 2 ? 1024 : 16;
-		sa_sint_t * _RESTRICT buckets = (fs - alignment) / k >=
-		    2 ? (sa_sint_t *)libsais_align_up(&SA[n + fs - 2 * (fast_sint_t)k - alignment], (size_t)alignment * sizeof(sa_sint_t)) : &SA[n + fs - 2 * (fast_sint_t)k];
-
+		sa_sint_t * _RESTRICT buckets = (fs - alignment) / k >= 2 ? 
+			(sa_sint_t *)libsais_align_up(&SA[n + fs - 2 * (fast_sint_t)k - alignment], (size_t)alignment * sizeof(sa_sint_t)) : &SA[n + fs - 2 * (fast_sint_t)k];
 		sa_sint_t m = libsais_count_and_gather_lms_suffixes_32s_2k_omp(T, SA, n, k, buckets, threads, thread_state);
 		if(m > 1) {
 			libsais_initialize_buckets_for_lms_suffixes_radix_sort_32s_2k(T, k, buckets, SA[n - m]);
-
 			libsais_radix_sort_lms_suffixes_32s_2k_omp(T, SA, n, m, &buckets[1], threads, thread_state);
 			libsais_place_lms_suffixes_interval_32s_2k(SA, n, k, m - 1, buckets);
-
 			libsais_initialize_buckets_start_and_end_32s_2k(k, buckets);
 			libsais_induce_partial_order_32s_2k_omp(T, SA, n, k, buckets, threads, thread_state);
-
 			sa_sint_t names = libsais_renumber_and_mark_distinct_lms_suffixes_32s_1k_omp(T, SA, n, m, threads);
 			if(names < m) {
 				sa_sint_t f = libsais_compact_lms_suffixes_32s_omp(T, SA, n, m, fs, threads, thread_state);
-
 				if(libsais_main_32s(SA + n + fs - m + f, SA, m - f, names - f, fs + n - 2 * m + f, threads, thread_state) != 0) {
 					return -2;
 				}
-
 				libsais_reconstruct_compacted_lms_suffixes_32s_2k_omp(T, SA, n, k, m, fs, f, buckets, threads, thread_state);
 			}
 			else {
@@ -7107,21 +7170,17 @@ static sa_sint_t libsais_main_32s(sa_sint_t * _RESTRICT T,
 		else {
 			SA[0] = SA[n - 1];
 		}
-
 		libsais_initialize_buckets_end_32s_2k(k, buckets);
 		libsais_place_lms_suffixes_histogram_32s_2k(SA, n, k, m, buckets);
-
 		libsais_initialize_buckets_start_and_end_32s_2k(k, buckets);
 		libsais_induce_final_order_32s_2k(T, SA, n, k, buckets, threads, thread_state);
-
 		return 0;
 	}
 	else {
 		sa_sint_t * buffer = fs < k ? (sa_sint_t *)libsais_alloc_aligned((size_t)k * sizeof(sa_sint_t), 4096) : (sa_sint_t *)NULL;
-
 		sa_sint_t alignment = fs - 1024 >= k ? 1024 : 16;
-		sa_sint_t * _RESTRICT buckets = fs - alignment >=
-		    k ? (sa_sint_t *)libsais_align_up(&SA[n + fs - k - alignment], (size_t)alignment * sizeof(sa_sint_t)) : fs >= k ? &SA[n + fs - k] : buffer;
+		sa_sint_t * _RESTRICT buckets = fs - alignment >= k ? 
+			(sa_sint_t *)libsais_align_up(&SA[n + fs - k - alignment], (size_t)alignment * sizeof(sa_sint_t)) : fs >= k ? &SA[n + fs - k] : buffer;
 		if(!buckets) {
 			return -2;
 		}
@@ -7131,15 +7190,12 @@ static sa_sint_t libsais_main_32s(sa_sint_t * _RESTRICT T,
 		sa_sint_t m = libsais_radix_sort_lms_suffixes_32s_1k(T, SA, n, buckets);
 		if(m > 1) {
 			libsais_induce_partial_order_32s_1k_omp(T, SA, n, k, buckets, threads, thread_state);
-
 			sa_sint_t names = libsais_renumber_and_mark_distinct_lms_suffixes_32s_1k_omp(T, SA, n, m, threads);
 			if(names < m) {
 				if(buffer) {
 					libsais_free_aligned(buffer); buckets = NULL;
 				}
-
 				sa_sint_t f = libsais_compact_lms_suffixes_32s_omp(T, SA, n, m, fs, threads, thread_state);
-
 				if(libsais_main_32s(SA + n + fs - m + f, SA, m - f, names - f, fs + n - 2 * m + f, threads, thread_state) != 0) {
 					return -2;
 				}
@@ -7303,7 +7359,8 @@ int32_t libsais(const uint8 * T, int32_t * SA, int32_t n, int32_t fs, int32_t * 
 			memzero(freq, ALPHABET_SIZE * sizeof(int32_t));
 		}
 		if(n == 1) {
-			SA[0] = 0; if(freq) {
+			SA[0] = 0; 
+			if(freq) {
 				freq[T[0]]++;
 			}
 		}
@@ -7337,7 +7394,8 @@ int32_t libsais_ctx(const void * ctx, const uint8 * T, int32_t * SA, int32_t n, 
 			memzero(freq, ALPHABET_SIZE * sizeof(int32_t));
 		}
 		if(n == 1) {
-			SA[0] = 0; if(freq) {
+			SA[0] = 0; 
+			if(freq) {
 				freq[T[0]]++;
 			}
 		}
@@ -7356,7 +7414,8 @@ int32_t libsais_bwt(const uint8 * T, uint8 * U, int32_t * A, int32_t n, int32_t 
 			memzero(freq, ALPHABET_SIZE * sizeof(int32_t));
 		}
 		if(n == 1) {
-			U[0] = T[0]; if(freq) {
+			U[0] = T[0]; 
+			if(freq) {
 				freq[T[0]]++;
 			}
 		}
@@ -7383,7 +7442,8 @@ int32_t libsais_bwt_aux(const uint8 * T, uint8 * U, int32_t * A, int32_t n, int3
 			memzero(freq, ALPHABET_SIZE * sizeof(int32_t));
 		}
 		if(n == 1) {
-			U[0] = T[0]; if(freq) {
+			U[0] = T[0]; 
+			if(freq) {
 				freq[T[0]]++;
 			}
 		}
@@ -7412,7 +7472,8 @@ int32_t libsais_bwt_ctx(const void * ctx, const uint8 * T, uint8 * U, int32_t * 
 			memzero(freq, ALPHABET_SIZE * sizeof(int32_t));
 		}
 		if(n == 1) {
-			U[0] = T[0]; if(freq) {
+			U[0] = T[0]; 
+			if(freq) {
 				freq[T[0]]++;
 			}
 		}
@@ -7444,7 +7505,8 @@ int32_t libsais_bwt_aux_ctx(const void * ctx, const uint8 * T, uint8 * U, int32_
 			memzero(freq, ALPHABET_SIZE * sizeof(int32_t));
 		}
 		if(n == 1) {
-			U[0] = T[0]; if(freq) {
+			U[0] = T[0]; 
+			if(freq) {
 				freq[T[0]]++;
 			}
 		}
@@ -7489,7 +7551,8 @@ int32_t libsais_omp(const uint8 * T, int32_t * SA, int32_t n, int32_t fs, int32_
 			memzero(freq, ALPHABET_SIZE * sizeof(int32_t));
 		}
 		if(n == 1) {
-			SA[0] = 0; if(freq) {
+			SA[0] = 0; 
+			if(freq) {
 				freq[T[0]]++;
 			}
 		}
@@ -7527,7 +7590,8 @@ int32_t libsais_bwt_omp(const uint8 * T, uint8 * U, int32_t * A, int32_t n, int3
 			memzero(freq, ALPHABET_SIZE * sizeof(int32_t));
 		}
 		if(n == 1) {
-			U[0] = T[0]; if(freq) {
+			U[0] = T[0]; 
+			if(freq) {
 				freq[T[0]]++;
 			}
 		}
@@ -7554,7 +7618,8 @@ int32_t libsais_bwt_aux_omp(const uint8 * T, uint8 * U, int32_t * A, int32_t n, 
 			memzero(freq, ALPHABET_SIZE * sizeof(int32_t));
 		}
 		if(n == 1) {
-			U[0] = T[0]; if(freq) {
+			U[0] = T[0]; 
+			if(freq) {
 				freq[T[0]]++;
 			}
 		}
@@ -7567,11 +7632,9 @@ int32_t libsais_bwt_aux_omp(const uint8 * T, uint8 * U, int32_t * A, int32_t n, 
 	if(libsais_main(T, A, n, 1, r, I, fs, freq, threads) != 0) {
 		return -2;
 	}
-
 	U[0] = T[n - 1];
 	libsais_bwt_copy_8u_omp(U + 1, A, I[0] - 1, threads);
 	libsais_bwt_copy_8u_omp(U + I[0], A + I[0], n - I[0], threads);
-
 	return 0;
 }
 
@@ -7583,15 +7646,12 @@ static LIBSAIS_UNBWT_CONTEXT * libsais_unbwt_create_ctx_main(sa_sint_t threads)
 	sa_uint_t *                 _RESTRICT bucket2        = (sa_uint_t *)libsais_alloc_aligned(ALPHABET_SIZE * ALPHABET_SIZE * sizeof(sa_uint_t), 4096);
 	uint16 *                  _RESTRICT fastbits       = (uint16 *)libsais_alloc_aligned((1 + (1 << UNBWT_FASTBITS)) * sizeof(uint16), 4096);
 	sa_uint_t *                 _RESTRICT buckets        = threads > 1 ? (sa_uint_t *)libsais_alloc_aligned(
-		(size_t)threads * (ALPHABET_SIZE + (ALPHABET_SIZE * ALPHABET_SIZE)) * sizeof(sa_uint_t),
-		4096) : NULL;
-
+		(size_t)threads * (ALPHABET_SIZE + (ALPHABET_SIZE * ALPHABET_SIZE)) * sizeof(sa_uint_t), 4096) : NULL;
 	if(ctx != NULL && bucket2 != NULL && fastbits != NULL && (buckets != NULL || threads == 1)) {
 		ctx->bucket2    = bucket2;
 		ctx->fastbits   = fastbits;
 		ctx->buckets    = buckets;
 		ctx->threads    = threads;
-
 		return ctx;
 	}
 	libsais_free_aligned(buckets);
@@ -7666,8 +7726,8 @@ static void libsais_unbwt_compute_histogram(const uint8 * _RESTRICT T, fast_sint
 		copy0[(uint8)y]++; y >>= 8; copy1[(uint8)y]++; y >>= 8; copy2[(uint8)y]++; y >>= 8; copy3[y]++;
 
 		T_p += 8;
-
-		fast_uint_t i; for(i = 0; i < ALPHABET_SIZE; i++) {
+		fast_uint_t i; 
+		for(i = 0; i < ALPHABET_SIZE; i++) {
 			count[i] += copy0[i] + copy1[i] + copy2[i] + copy3[i];
 		}
 	}
@@ -7679,19 +7739,17 @@ static void libsais_unbwt_compute_histogram(const uint8 * _RESTRICT T, fast_sint
 
 static void libsais_unbwt_transpose_bucket2(sa_uint_t * _RESTRICT bucket2)
 {
-	fast_uint_t x, y, c, d;
-	for(x = 0; x != ALPHABET_SIZE; x += 16) {
+	fast_uint_t c;
+	for(fast_uint_t x = 0; x != ALPHABET_SIZE; x += 16) {
 		for(c = x; c != x + 16; ++c) {
-			for(d = c + 1; d != x + 16; ++d) {
+			for(fast_uint_t d = c + 1; d != x + 16; ++d) {
 				sa_uint_t tmp = bucket2[(d << 8) + c]; bucket2[(d << 8) + c] = bucket2[(c << 8) + d]; bucket2[(c << 8) + d] = tmp;
 			}
 		}
-
-		for(y = x + 16; y != ALPHABET_SIZE; y += 16) {
+		for(fast_uint_t y = x + 16; y != ALPHABET_SIZE; y += 16) {
 			for(c = x; c != x + 16; ++c) {
 				sa_uint_t * bucket2_yc = &bucket2[(y << 8) + c];
 				sa_uint_t * bucket2_cy = &bucket2[(c << 8) + y];
-
 				sa_uint_t tmp00 = bucket2_yc[ 0 * 256]; bucket2_yc[ 0 * 256] = bucket2_cy[ 0]; bucket2_cy[ 0] = tmp00;
 				sa_uint_t tmp01 = bucket2_yc[ 1 * 256]; bucket2_yc[ 1 * 256] = bucket2_cy[ 1]; bucket2_cy[ 1] = tmp01;
 				sa_uint_t tmp02 = bucket2_yc[ 2 * 256]; bucket2_yc[ 2 * 256] = bucket2_cy[ 2]; bucket2_cy[ 2] = tmp02;
@@ -7720,23 +7778,23 @@ static void libsais_unbwt_compute_bigram_histogram_single(const uint8 * _RESTRIC
 		fast_uint_t prev = sum; sum += bucket1[c]; bucket1[c] = (sa_uint_t)prev;
 		if(prev != sum) {
 			sa_uint_t * _RESTRICT bucket2_p = &bucket2[c << 8];
-
 			{
-				fast_uint_t hi = index; if(sum < hi) {
+				fast_uint_t hi = index; 
+				if(sum < hi) {
 					hi = sum;
 				}
 				libsais_unbwt_compute_histogram(&T[prev], (fast_sint_t)(hi - prev), bucket2_p);
 			}
 
 			{
-				fast_uint_t lo = index + 1; if(prev > lo) {
+				fast_uint_t lo = index + 1; 
+				if(prev > lo) {
 					lo = prev;
 				}
 				libsais_unbwt_compute_histogram(&T[lo - 1], (fast_sint_t)(sum - lo), bucket2_p);
 			}
 		}
 	}
-
 	libsais_unbwt_transpose_bucket2(bucket2);
 }
 
@@ -7747,7 +7805,6 @@ static void libsais_unbwt_calculate_fastbits(sa_uint_t * _RESTRICT bucket2, uint
 		if(c == lastc) {
 			sum += 1;
 		}
-
 		for(d = 0; d < ALPHABET_SIZE; ++d, ++w) {
 			fast_uint_t prev = sum; sum += bucket2[w]; bucket2[w] = (sa_uint_t)prev;
 			if(prev != sum) {
@@ -7759,32 +7816,29 @@ static void libsais_unbwt_calculate_fastbits(sa_uint_t * _RESTRICT bucket2, uint
 	}
 }
 
-static void libsais_unbwt_calculate_biPSI(const uint8 * _RESTRICT T,
-    sa_uint_t * _RESTRICT P,
-    sa_uint_t * _RESTRICT bucket1,
-    sa_uint_t * _RESTRICT bucket2,
-    fast_uint_t index,
-    fast_sint_t omp_block_start,
-    fast_sint_t omp_block_end)
+static void libsais_unbwt_calculate_biPSI(const uint8 * _RESTRICT T, sa_uint_t * _RESTRICT P, sa_uint_t * _RESTRICT bucket1, sa_uint_t * _RESTRICT bucket2,
+    fast_uint_t index, fast_sint_t omp_block_start, fast_sint_t omp_block_end)
 {
 	{
-		fast_sint_t i = omp_block_start, j = (fast_sint_t)index; if(omp_block_end < j) {
+		fast_sint_t i = omp_block_start;
+		fast_sint_t j = (fast_sint_t)index; 
+		if(omp_block_end < j) {
 			j = omp_block_end;
 		}
 		for(; i < j; ++i) {
 			fast_uint_t c = T[i];
 			fast_uint_t p = bucket1[c]++;
 			fast_sint_t t = (fast_sint_t)(index - p);
-
 			if(t != 0) {
 				fast_uint_t w = (((fast_uint_t)T[p + (fast_uint_t)(t >> ((sizeof(fast_sint_t) * 8) - 1))]) << 8) + c;
 				P[bucket2[w]++] = (sa_uint_t)i;
 			}
 		}
 	}
-
 	{
-		fast_sint_t i = (fast_sint_t)index, j = omp_block_end; if(omp_block_start > i) {
+		fast_sint_t i = (fast_sint_t)index;
+		fast_sint_t j = omp_block_end; 
+		if(omp_block_start > i) {
 			i = omp_block_start;
 		}
 		for(i += 1; i <= j; ++i) {
@@ -7800,16 +7854,10 @@ static void libsais_unbwt_calculate_biPSI(const uint8 * _RESTRICT T,
 	}
 }
 
-static void libsais_unbwt_init_single(const uint8 * _RESTRICT T,
-    sa_uint_t * _RESTRICT P,
-    sa_sint_t n,
-    const sa_sint_t * freq,
-    const sa_uint_t * _RESTRICT I,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16 * _RESTRICT fastbits)
+static void libsais_unbwt_init_single(const uint8 * _RESTRICT T, sa_uint_t * _RESTRICT P, sa_sint_t n, const sa_sint_t * freq,
+    const sa_uint_t * _RESTRICT I, sa_uint_t * _RESTRICT bucket2, uint16 * _RESTRICT fastbits)
 {
 	sa_uint_t bucket1[ALPHABET_SIZE];
-
 	fast_uint_t index = I[0];
 	fast_uint_t lastc = T[0];
 	fast_uint_t shift = 0; while((n >> shift) > (1 << UNBWT_FASTBITS)) {
@@ -7830,12 +7878,8 @@ static void libsais_unbwt_init_single(const uint8 * _RESTRICT T,
 
 #if defined(LIBSAIS_OPENMP)
 
-static void libsais_unbwt_compute_bigram_histogram_parallel(const uint8 * _RESTRICT T,
-    fast_uint_t index,
-    sa_uint_t * _RESTRICT bucket1,
-    sa_uint_t * _RESTRICT bucket2,
-    fast_sint_t omp_block_start,
-    fast_sint_t omp_block_size)
+static void libsais_unbwt_compute_bigram_histogram_parallel(const uint8 * _RESTRICT T, fast_uint_t index, sa_uint_t * _RESTRICT bucket1,
+    sa_uint_t * _RESTRICT bucket2, fast_sint_t omp_block_start, fast_sint_t omp_block_size)
 {
 	fast_sint_t i;
 	for(i = omp_block_start; i < omp_block_start + omp_block_size; ++i) {
@@ -7850,14 +7894,8 @@ static void libsais_unbwt_compute_bigram_histogram_parallel(const uint8 * _RESTR
 	}
 }
 
-static void libsais_unbwt_init_parallel(const uint8 * _RESTRICT T,
-    sa_uint_t * _RESTRICT P,
-    sa_sint_t n,
-    const sa_sint_t * freq,
-    const sa_uint_t * _RESTRICT I,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16 * _RESTRICT fastbits,
-    sa_uint_t * _RESTRICT buckets,
+static void libsais_unbwt_init_parallel(const uint8 * _RESTRICT T, sa_uint_t * _RESTRICT P, sa_sint_t n, const sa_sint_t * freq,
+    const sa_uint_t * _RESTRICT I, sa_uint_t * _RESTRICT bucket2, uint16 * _RESTRICT fastbits, sa_uint_t * _RESTRICT buckets,
     sa_sint_t threads)
 {
 	sa_uint_t bucket1[ALPHABET_SIZE];
@@ -7981,7 +8019,8 @@ static void libsais_unbwt_decode_1(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P,
 	uint16 * _RESTRICT U0 = (uint16 *)(void *)U;
 	fast_uint_t i, p0 = *i0;
 	for(i = 0; i != k; ++i) {
-		uint16 c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
+		uint16 c0 = fastbits[p0 >> shift]; 
+		if(bucket2[c0] <= p0) {
 			do {
 				c0++;
 			} while(bucket2[c0] <= p0);
@@ -8000,14 +8039,16 @@ static void libsais_unbwt_decode_2(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P,
 	uint16 * _RESTRICT U1 = (uint16 *)(void *)(((uint8 *)U0) + r);
 	fast_uint_t i, p0 = *i0, p1 = *i1;
 	for(i = 0; i != k; ++i) {
-		uint16 c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
+		uint16 c0 = fastbits[p0 >> shift]; 
+		if(bucket2[c0] <= p0) {
 			do {
 				c0++;
 			} while(bucket2[c0] <= p0);
 		}
 		p0 = P[p0]; 
 		U0[i] = /*libsais_bswap16*/SMem::CBe(c0);
-		uint16 c1 = fastbits[p1 >> shift]; if(bucket2[c1] <= p1) {
+		uint16 c1 = fastbits[p1 >> shift]; 
+		if(bucket2[c1] <= p1) {
 			do {
 				c1++;
 			} while(bucket2[c1] <= p1);
@@ -8018,16 +8059,8 @@ static void libsais_unbwt_decode_2(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P,
 	*i0 = p0; *i1 = p1;
 }
 
-static void libsais_unbwt_decode_3(uint8 * _RESTRICT U,
-    sa_uint_t * _RESTRICT P,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16 * _RESTRICT fastbits,
-    fast_uint_t shift,
-    fast_uint_t r,
-    fast_uint_t * i0,
-    fast_uint_t * i1,
-    fast_uint_t * i2,
-    fast_uint_t k)
+static void libsais_unbwt_decode_3(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, sa_uint_t * _RESTRICT bucket2, uint16 * _RESTRICT fastbits,
+    fast_uint_t shift, fast_uint_t r, fast_uint_t * i0, fast_uint_t * i1, fast_uint_t * i2, fast_uint_t k)
 {
 	uint16 * _RESTRICT U0 = (uint16 *)(void *)U;
 	uint16 * _RESTRICT U1 = (uint16 *)(void *)(((uint8 *)U0) + r);
@@ -8036,19 +8069,22 @@ static void libsais_unbwt_decode_3(uint8 * _RESTRICT U,
 	fast_uint_t i, p0 = *i0, p1 = *i1, p2 = *i2;
 
 	for(i = 0; i != k; ++i) {
-		uint16 c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
+		uint16 c0 = fastbits[p0 >> shift]; 
+		if(bucket2[c0] <= p0) {
 			do {
 				c0++;
 			} while(bucket2[c0] <= p0);
 		}
 		p0 = P[p0]; U0[i] = /*libsais_bswap16*/SMem::CBe(c0);
-		uint16 c1 = fastbits[p1 >> shift]; if(bucket2[c1] <= p1) {
+		uint16 c1 = fastbits[p1 >> shift]; 
+		if(bucket2[c1] <= p1) {
 			do {
 				c1++;
 			} while(bucket2[c1] <= p1);
 		}
 		p1 = P[p1]; U1[i] = /*libsais_bswap16*/SMem::CBe(c1);
-		uint16 c2 = fastbits[p2 >> shift]; if(bucket2[c2] <= p2) {
+		uint16 c2 = fastbits[p2 >> shift]; 
+		if(bucket2[c2] <= p2) {
 			do {
 				c2++;
 			} while(bucket2[c2] <= p2);
@@ -8058,102 +8094,87 @@ static void libsais_unbwt_decode_3(uint8 * _RESTRICT U,
 	*i0 = p0; *i1 = p1; *i2 = p2;
 }
 
-static void libsais_unbwt_decode_4(uint8 * _RESTRICT U,
-    sa_uint_t * _RESTRICT P,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16 * _RESTRICT fastbits,
-    fast_uint_t shift,
-    fast_uint_t r,
-    fast_uint_t * i0,
-    fast_uint_t * i1,
-    fast_uint_t * i2,
-    fast_uint_t * i3,
-    fast_uint_t k)
+static void libsais_unbwt_decode_4(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, sa_uint_t * _RESTRICT bucket2, uint16 * _RESTRICT fastbits,
+    fast_uint_t shift, fast_uint_t r, fast_uint_t * i0, fast_uint_t * i1, fast_uint_t * i2, fast_uint_t * i3, fast_uint_t k)
 {
 	uint16 * _RESTRICT U0 = (uint16 *)(void *)U;
 	uint16 * _RESTRICT U1 = (uint16 *)(void *)(((uint8 *)U0) + r);
 	uint16 * _RESTRICT U2 = (uint16 *)(void *)(((uint8 *)U1) + r);
 	uint16 * _RESTRICT U3 = (uint16 *)(void *)(((uint8 *)U2) + r);
-
 	fast_uint_t i, p0 = *i0, p1 = *i1, p2 = *i2, p3 = *i3;
-
 	for(i = 0; i != k; ++i) {
-		uint16 c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
+		uint16 c0 = fastbits[p0 >> shift]; 
+		if(bucket2[c0] <= p0) {
 			do {
 				c0++;
 			} while(bucket2[c0] <= p0);
 		}
 		p0 = P[p0]; U0[i] = /*libsais_bswap16*/SMem::CBe(c0);
-		uint16 c1 = fastbits[p1 >> shift]; if(bucket2[c1] <= p1) {
+		uint16 c1 = fastbits[p1 >> shift]; 
+		if(bucket2[c1] <= p1) {
 			do {
 				c1++;
 			} while(bucket2[c1] <= p1);
 		}
 		p1 = P[p1]; U1[i] = /*libsais_bswap16*/SMem::CBe(c1);
-		uint16 c2 = fastbits[p2 >> shift]; if(bucket2[c2] <= p2) {
+		uint16 c2 = fastbits[p2 >> shift]; 
+		if(bucket2[c2] <= p2) {
 			do {
 				c2++;
 			} while(bucket2[c2] <= p2);
 		}
 		p2 = P[p2]; U2[i] = /*libsais_bswap16*/SMem::CBe(c2);
-		uint16 c3 = fastbits[p3 >> shift]; if(bucket2[c3] <= p3) {
+		uint16 c3 = fastbits[p3 >> shift]; 
+		if(bucket2[c3] <= p3) {
 			do {
 				c3++;
 			} while(bucket2[c3] <= p3);
 		}
 		p3 = P[p3]; U3[i] = /*libsais_bswap16*/SMem::CBe(c3);
 	}
-
 	*i0 = p0; *i1 = p1; *i2 = p2; *i3 = p3;
 }
 
-static void libsais_unbwt_decode_5(uint8 * _RESTRICT U,
-    sa_uint_t * _RESTRICT P,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16 * _RESTRICT fastbits,
-    fast_uint_t shift,
-    fast_uint_t r,
-    fast_uint_t * i0,
-    fast_uint_t * i1,
-    fast_uint_t * i2,
-    fast_uint_t * i3,
-    fast_uint_t * i4,
-    fast_uint_t k)
+static void libsais_unbwt_decode_5(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, sa_uint_t * _RESTRICT bucket2, uint16 * _RESTRICT fastbits,
+    fast_uint_t shift, fast_uint_t r, fast_uint_t * i0, fast_uint_t * i1, fast_uint_t * i2, fast_uint_t * i3, fast_uint_t * i4, fast_uint_t k)
 {
 	uint16 * _RESTRICT U0 = (uint16 *)(void *)U;
 	uint16 * _RESTRICT U1 = (uint16 *)(void *)(((uint8 *)U0) + r);
 	uint16 * _RESTRICT U2 = (uint16 *)(void *)(((uint8 *)U1) + r);
 	uint16 * _RESTRICT U3 = (uint16 *)(void *)(((uint8 *)U2) + r);
 	uint16 * _RESTRICT U4 = (uint16 *)(void *)(((uint8 *)U3) + r);
-
 	fast_uint_t i, p0 = *i0, p1 = *i1, p2 = *i2, p3 = *i3, p4 = *i4;
-
 	for(i = 0; i != k; ++i) {
-		uint16 c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
+		uint16 c0 = fastbits[p0 >> shift]; 
+		if(bucket2[c0] <= p0) {
 			do {
 				c0++;
 			} while(bucket2[c0] <= p0);
 		}
 		p0 = P[p0]; U0[i] = /*libsais_bswap16*/SMem::CBe(c0);
-		uint16 c1 = fastbits[p1 >> shift]; if(bucket2[c1] <= p1) {
+		uint16 c1 = fastbits[p1 >> shift]; 
+		if(bucket2[c1] <= p1) {
 			do {
 				c1++;
 			} while(bucket2[c1] <= p1);
 		}
 		p1 = P[p1]; U1[i] = /*libsais_bswap16*/SMem::CBe(c1);
-		uint16 c2 = fastbits[p2 >> shift]; if(bucket2[c2] <= p2) {
+		uint16 c2 = fastbits[p2 >> shift]; 
+		if(bucket2[c2] <= p2) {
 			do {
 				c2++;
 			} while(bucket2[c2] <= p2);
 		}
 		p2 = P[p2]; U2[i] = /*libsais_bswap16*/SMem::CBe(c2);
-		uint16 c3 = fastbits[p3 >> shift]; if(bucket2[c3] <= p3) {
+		uint16 c3 = fastbits[p3 >> shift]; 
+		if(bucket2[c3] <= p3) {
 			do {
 				c3++;
 			} while(bucket2[c3] <= p3);
 		}
 		p3 = P[p3]; U3[i] = /*libsais_bswap16*/SMem::CBe(c3);
-		uint16 c4 = fastbits[p4 >> shift]; if(bucket2[c4] <= p4) {
+		uint16 c4 = fastbits[p4 >> shift]; 
+		if(bucket2[c4] <= p4) {
 			do {
 				c4++;
 			} while(bucket2[c4] <= p4);
@@ -8178,37 +8199,43 @@ static void libsais_unbwt_decode_6(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P,
 	fast_uint_t i, p0 = *i0, p1 = *i1, p2 = *i2, p3 = *i3, p4 = *i4, p5 = *i5;
 
 	for(i = 0; i != k; ++i) {
-		uint16 c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
+		uint16 c0 = fastbits[p0 >> shift]; 
+		if(bucket2[c0] <= p0) {
 			do {
 				c0++;
 			} while(bucket2[c0] <= p0);
 		}
 		p0 = P[p0]; U0[i] = /*libsais_bswap16*/SMem::CBe(c0);
-		uint16 c1 = fastbits[p1 >> shift]; if(bucket2[c1] <= p1) {
+		uint16 c1 = fastbits[p1 >> shift]; 
+		if(bucket2[c1] <= p1) {
 			do {
 				c1++;
 			} while(bucket2[c1] <= p1);
 		}
 		p1 = P[p1]; U1[i] = /*libsais_bswap16*/SMem::CBe(c1);
-		uint16 c2 = fastbits[p2 >> shift]; if(bucket2[c2] <= p2) {
+		uint16 c2 = fastbits[p2 >> shift]; 
+		if(bucket2[c2] <= p2) {
 			do {
 				c2++;
 			} while(bucket2[c2] <= p2);
 		}
 		p2 = P[p2]; U2[i] = /*libsais_bswap16*/SMem::CBe(c2);
-		uint16 c3 = fastbits[p3 >> shift]; if(bucket2[c3] <= p3) {
+		uint16 c3 = fastbits[p3 >> shift]; 
+		if(bucket2[c3] <= p3) {
 			do {
 				c3++;
 			} while(bucket2[c3] <= p3);
 		}
 		p3 = P[p3]; U3[i] = /*libsais_bswap16*/SMem::CBe(c3);
-		uint16 c4 = fastbits[p4 >> shift]; if(bucket2[c4] <= p4) {
+		uint16 c4 = fastbits[p4 >> shift]; 
+		if(bucket2[c4] <= p4) {
 			do {
 				c4++;
 			} while(bucket2[c4] <= p4);
 		}
 		p4 = P[p4]; U4[i] = /*libsais_bswap16*/SMem::CBe(c4);
-		uint16 c5 = fastbits[p5 >> shift]; if(bucket2[c5] <= p5) {
+		uint16 c5 = fastbits[p5 >> shift]; 
+		if(bucket2[c5] <= p5) {
 			do {
 				c5++;
 			} while(bucket2[c5] <= p5);
@@ -8234,68 +8261,62 @@ static void libsais_unbwt_decode_7(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P,
 	fast_uint_t i, p0 = *i0, p1 = *i1, p2 = *i2, p3 = *i3, p4 = *i4, p5 = *i5, p6 = *i6;
 
 	for(i = 0; i != k; ++i) {
-		uint16 c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
+		uint16 c0 = fastbits[p0 >> shift]; 
+		if(bucket2[c0] <= p0) {
 			do {
 				c0++;
 			} while(bucket2[c0] <= p0);
 		}
 		p0 = P[p0]; U0[i] = /*libsais_bswap16*/SMem::CBe(c0);
-		uint16 c1 = fastbits[p1 >> shift]; if(bucket2[c1] <= p1) {
+		uint16 c1 = fastbits[p1 >> shift]; 
+		if(bucket2[c1] <= p1) {
 			do {
 				c1++;
 			} while(bucket2[c1] <= p1);
 		}
 		p1 = P[p1]; U1[i] = /*libsais_bswap16*/SMem::CBe(c1);
-		uint16 c2 = fastbits[p2 >> shift]; if(bucket2[c2] <= p2) {
+		uint16 c2 = fastbits[p2 >> shift]; 
+		if(bucket2[c2] <= p2) {
 			do {
 				c2++;
 			} while(bucket2[c2] <= p2);
 		}
 		p2 = P[p2]; U2[i] = /*libsais_bswap16*/SMem::CBe(c2);
-		uint16 c3 = fastbits[p3 >> shift]; if(bucket2[c3] <= p3) {
+		uint16 c3 = fastbits[p3 >> shift]; 
+		if(bucket2[c3] <= p3) {
 			do {
 				c3++;
 			} while(bucket2[c3] <= p3);
 		}
 		p3 = P[p3]; U3[i] = /*libsais_bswap16*/SMem::CBe(c3);
-		uint16 c4 = fastbits[p4 >> shift]; if(bucket2[c4] <= p4) {
+		uint16 c4 = fastbits[p4 >> shift]; 
+		if(bucket2[c4] <= p4) {
 			do {
 				c4++;
 			} while(bucket2[c4] <= p4);
 		}
 		p4 = P[p4]; U4[i] = /*libsais_bswap16*/SMem::CBe(c4);
-		uint16 c5 = fastbits[p5 >> shift]; if(bucket2[c5] <= p5) {
+		uint16 c5 = fastbits[p5 >> shift]; 
+		if(bucket2[c5] <= p5) {
 			do {
 				c5++;
 			} while(bucket2[c5] <= p5);
 		}
 		p5 = P[p5]; U5[i] = /*libsais_bswap16*/SMem::CBe(c5);
-		uint16 c6 = fastbits[p6 >> shift]; if(bucket2[c6] <= p6) {
+		uint16 c6 = fastbits[p6 >> shift]; 
+		if(bucket2[c6] <= p6) {
 			do {
 				c6++;
 			} while(bucket2[c6] <= p6);
 		}
 		p6 = P[p6]; U6[i] = /*libsais_bswap16*/SMem::CBe(c6);
 	}
-
 	*i0 = p0; *i1 = p1; *i2 = p2; *i3 = p3; *i4 = p4; *i5 = p5; *i6 = p6;
 }
 
-static void libsais_unbwt_decode_8(uint8 * _RESTRICT U,
-    sa_uint_t * _RESTRICT P,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16 * _RESTRICT fastbits,
-    fast_uint_t shift,
-    fast_uint_t r,
-    fast_uint_t * i0,
-    fast_uint_t * i1,
-    fast_uint_t * i2,
-    fast_uint_t * i3,
-    fast_uint_t * i4,
-    fast_uint_t * i5,
-    fast_uint_t * i6,
-    fast_uint_t * i7,
-    fast_uint_t k)
+static void libsais_unbwt_decode_8(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, sa_uint_t * _RESTRICT bucket2, uint16 * _RESTRICT fastbits,
+    fast_uint_t shift, fast_uint_t r, fast_uint_t * i0, fast_uint_t * i1, fast_uint_t * i2, fast_uint_t * i3, fast_uint_t * i4, fast_uint_t * i5, fast_uint_t * i6,
+    fast_uint_t * i7, fast_uint_t k)
 {
 	uint16 * _RESTRICT U0 = (uint16 *)(void *)U;
 	uint16 * _RESTRICT U1 = (uint16 *)(void *)(((uint8 *)U0) + r);
@@ -8305,60 +8326,66 @@ static void libsais_unbwt_decode_8(uint8 * _RESTRICT U,
 	uint16 * _RESTRICT U5 = (uint16 *)(void *)(((uint8 *)U4) + r);
 	uint16 * _RESTRICT U6 = (uint16 *)(void *)(((uint8 *)U5) + r);
 	uint16 * _RESTRICT U7 = (uint16 *)(void *)(((uint8 *)U6) + r);
-
 	fast_uint_t i, p0 = *i0, p1 = *i1, p2 = *i2, p3 = *i3, p4 = *i4, p5 = *i5, p6 = *i6, p7 = *i7;
-
 	for(i = 0; i != k; ++i) {
-		uint16 c0 = fastbits[p0 >> shift]; if(bucket2[c0] <= p0) {
+		uint16 c0 = fastbits[p0 >> shift]; 
+		if(bucket2[c0] <= p0) {
 			do {
 				c0++;
 			} while(bucket2[c0] <= p0);
 		}
 		p0 = P[p0]; U0[i] = /*libsais_bswap16*/SMem::CBe(c0);
-		uint16 c1 = fastbits[p1 >> shift]; if(bucket2[c1] <= p1) {
+		uint16 c1 = fastbits[p1 >> shift]; 
+		if(bucket2[c1] <= p1) {
 			do {
 				c1++;
 			} while(bucket2[c1] <= p1);
 		}
 		p1 = P[p1]; U1[i] = /*libsais_bswap16*/SMem::CBe(c1);
-		uint16 c2 = fastbits[p2 >> shift]; if(bucket2[c2] <= p2) {
+		uint16 c2 = fastbits[p2 >> shift]; 
+		if(bucket2[c2] <= p2) {
 			do {
 				c2++;
 			} while(bucket2[c2] <= p2);
 		}
 		p2 = P[p2]; U2[i] = /*libsais_bswap16*/SMem::CBe(c2);
-		uint16 c3 = fastbits[p3 >> shift]; if(bucket2[c3] <= p3) {
+		uint16 c3 = fastbits[p3 >> shift]; 
+		if(bucket2[c3] <= p3) {
 			do {
 				c3++;
 			} while(bucket2[c3] <= p3);
 		}
 		p3 = P[p3]; U3[i] = /*libsais_bswap16*/SMem::CBe(c3);
-		uint16 c4 = fastbits[p4 >> shift]; if(bucket2[c4] <= p4) {
+		uint16 c4 = fastbits[p4 >> shift]; 
+		if(bucket2[c4] <= p4) {
 			do {
 				c4++;
 			} while(bucket2[c4] <= p4);
 		}
 		p4 = P[p4]; U4[i] = /*libsais_bswap16*/SMem::CBe(c4);
-		uint16 c5 = fastbits[p5 >> shift]; if(bucket2[c5] <= p5) {
+		uint16 c5 = fastbits[p5 >> shift]; 
+		if(bucket2[c5] <= p5) {
 			do {
 				c5++;
 			} while(bucket2[c5] <= p5);
 		}
 		p5 = P[p5]; U5[i] = /*libsais_bswap16*/SMem::CBe(c5);
-		uint16 c6 = fastbits[p6 >> shift]; if(bucket2[c6] <= p6) {
+		uint16 c6 = fastbits[p6 >> shift]; 
+		if(bucket2[c6] <= p6) {
 			do {
 				c6++;
 			} while(bucket2[c6] <= p6);
 		}
 		p6 = P[p6]; U6[i] = /*libsais_bswap16*/SMem::CBe(c6);
-		uint16 c7 = fastbits[p7 >> shift]; if(bucket2[c7] <= p7) {
+		uint16 c7 = fastbits[p7 >> shift]; 
+		if(bucket2[c7] <= p7) {
 			do {
 				c7++;
 			} while(bucket2[c7] <= p7);
 		}
-		p7 = P[p7]; U7[i] = /*libsais_bswap16*/SMem::CBe(c7);
+		p7 = P[p7]; 
+		U7[i] = /*libsais_bswap16*/SMem::CBe(c7);
 	}
-
 	*i0 = p0; *i1 = p1; *i2 = p2; *i3 = p3; *i4 = p4; *i5 = p5; *i6 = p6; *i7 = p7;
 }
 
@@ -8422,20 +8449,12 @@ static void libsais_unbwt_decode(uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, s
 	}
 }
 
-static void libsais_unbwt_decode_omp(const uint8 * _RESTRICT T,
-    uint8 * _RESTRICT U,
-    sa_uint_t * _RESTRICT P,
-    sa_sint_t n,
-    sa_sint_t r,
-    const sa_uint_t * _RESTRICT I,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16 * _RESTRICT fastbits,
-    sa_sint_t threads)
+static void libsais_unbwt_decode_omp(const uint8 * _RESTRICT T, uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, sa_sint_t n, sa_sint_t r,
+    const sa_uint_t * _RESTRICT I, sa_uint_t * _RESTRICT bucket2, uint16 * _RESTRICT fastbits, sa_sint_t threads)
 {
 	fast_uint_t lastc       = T[0];
 	fast_sint_t blocks      = 1 + (((fast_sint_t)n - 1) / (fast_sint_t)r);
 	fast_uint_t remainder   = (fast_uint_t)n - ((fast_uint_t)r * ((fast_uint_t)blocks - 1));
-
 #if defined(LIBSAIS_OPENMP)
 	fast_sint_t max_threads = blocks < threads ? blocks : threads;
     #pragma omp parallel num_threads(max_threads) if(max_threads > 1 && n >= 65536)
@@ -8446,7 +8465,6 @@ static void libsais_unbwt_decode_omp(const uint8 * _RESTRICT T,
 		fast_sint_t omp_num_threads     = omp_get_num_threads();
 #else
 		UNUSED(threads);
-
 		fast_sint_t omp_thread_num      = 0;
 		fast_sint_t omp_num_threads     = 1;
 #endif
@@ -8457,20 +8475,11 @@ static void libsais_unbwt_decode_omp(const uint8 * _RESTRICT T,
 		libsais_unbwt_decode(U + r * omp_block_start, P, n, r, I + omp_block_start, bucket2,
 		    fastbits, omp_block_size, omp_thread_num < omp_num_threads - 1 ? (fast_uint_t)r : remainder);
 	}
-
 	U[n - 1] = (uint8)lastc;
 }
 
-static sa_sint_t libsais_unbwt_core(const uint8 * _RESTRICT T,
-    uint8 * _RESTRICT U,
-    sa_uint_t * _RESTRICT P,
-    sa_sint_t n,
-    const sa_sint_t * freq,
-    sa_sint_t r,
-    const sa_uint_t * _RESTRICT I,
-    sa_uint_t * _RESTRICT bucket2,
-    uint16 * _RESTRICT fastbits,
-    sa_uint_t * _RESTRICT buckets,
+static sa_sint_t libsais_unbwt_core(const uint8 * _RESTRICT T, uint8 * _RESTRICT U, sa_uint_t * _RESTRICT P, sa_sint_t n,
+    const sa_sint_t * freq, sa_sint_t r, const sa_uint_t * _RESTRICT I, sa_uint_t * _RESTRICT bucket2, uint16 * _RESTRICT fastbits, sa_uint_t * _RESTRICT buckets,
     sa_sint_t threads)
 {
 #if defined(LIBSAIS_OPENMP)
@@ -8563,13 +8572,12 @@ int32_t libsais_unbwt_aux_ctx(const void * ctx, const uint8 * T, uint8 * U, int3
 		}
 		return 0;
 	}
-
-	fast_sint_t t; for(t = 0; t <= (n - 1) / r; ++t) {
+	fast_sint_t t; 
+	for(t = 0; t <= (n - 1) / r; ++t) {
 		if(I[t] <= 0 || I[t] > n) {
 			return -1;
 		}
 	}
-
 	return libsais_unbwt_main_ctx((const LIBSAIS_UNBWT_CONTEXT *)ctx, T, U, (sa_uint_t *)A, n, freq, r, (const sa_uint_t *)I);
 }
 
@@ -8603,13 +8611,12 @@ int32_t libsais_unbwt_aux_omp(const uint8 * T, uint8 * U, int32_t * A, int32_t n
 		}
 		return 0;
 	}
-
-	fast_sint_t t; for(t = 0; t <= (n - 1) / r; ++t) {
+	fast_sint_t t; 
+	for(t = 0; t <= (n - 1) / r; ++t) {
 		if(I[t] <= 0 || I[t] > n) {
 			return -1;
 		}
 	}
-
 	threads = threads > 0 ? threads : omp_get_max_threads();
 	return libsais_unbwt_main(T, U, (sa_uint_t *)A, n, freq, r, (const sa_uint_t *)I, threads);
 }
@@ -8619,24 +8626,18 @@ int32_t libsais_unbwt_aux_omp(const uint8 * T, uint8 * U, int32_t * A, int32_t n
 static void libsais_compute_phi(const sa_sint_t * _RESTRICT SA, sa_sint_t * _RESTRICT PLCP, sa_sint_t n, fast_sint_t omp_block_start, fast_sint_t omp_block_size)
 {
 	const fast_sint_t prefetch_distance = 32;
-
 	fast_sint_t i, j; sa_sint_t k = omp_block_start > 0 ? SA[omp_block_start - 1] : n;
 	for(i = omp_block_start, j = omp_block_start + omp_block_size-prefetch_distance-3; i < j; i += 4) {
 		libsais_prefetchr(&SA[i + 2 * prefetch_distance]);
-
 		libsais_prefetchw(&PLCP[SA[i + prefetch_distance + 0]]);
 		libsais_prefetchw(&PLCP[SA[i + prefetch_distance + 1]]);
-
 		PLCP[SA[i + 0]] = k; k = SA[i + 0];
 		PLCP[SA[i + 1]] = k; k = SA[i + 1];
-
 		libsais_prefetchw(&PLCP[SA[i + prefetch_distance + 2]]);
 		libsais_prefetchw(&PLCP[SA[i + prefetch_distance + 3]]);
-
 		PLCP[SA[i + 2]] = k; k = SA[i + 2];
 		PLCP[SA[i + 3]] = k; k = SA[i + 3];
 	}
-
 	for(j += prefetch_distance + 3; i < j; i += 1) {
 		PLCP[SA[i]] = k; k = SA[i];
 	}

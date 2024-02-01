@@ -1,5 +1,5 @@
 // V_TRANLZ.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1172,7 +1172,13 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 				}
 			}
 			else if(ext_val_param > Filt.extvQuotBias) {
-				const QuotIdent qi(pTrfrRec->Dt, pTrfrRec->LocID, ext_val_param-Filt.extvQuotBias, pTrfrRec->CurID, pBillRec->Object);
+				QuotIdent qi(pTrfrRec->Dt, pTrfrRec->LocID, ext_val_param-Filt.extvQuotBias, pTrfrRec->CurID, pBillRec->Object);
+				// @v11.9.4 {
+				if(Filt.Flags & TrfrAnlzFilt::fExtValQuotSkipTmVal) {
+					qi.Dt = ZERODATE;
+					qi.Flags |= QuotIdent::fIgnoreTimeLimitValues;
+				}
+				// } @v11.9.4 
 				double _ext_quot = 0.0;
 				if(GObj.GetQuotExt(goods_id, qi, pTrfrRec->Cost, pTrfrRec->Price, &_ext_quot, 1) > 0)
 					ext_val1 = _ext_quot * qtty * sign;
@@ -2047,8 +2053,8 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getrest_iidp)
 	if(option != CALC_SIZE) {
 		const  PPID   goods_id = params[0].lval;
 		const  PPID   loc_id = params[1].lval;
-		const LDATE  dt = params[2].dval;
-		const GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
+		const  LDATE  dt = params[2].dval;
+		const  GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
         if(p_rest_list) {
 			rest = loc_id ? p_rest_list->GetRest(goods_id, loc_id, dt) : p_rest_list->GetRest(goods_id, dt);
         }
@@ -2062,7 +2068,7 @@ static IMPL_DBE_PROC(dbqf_trfrnalz_getavgrest_iidp)
 	if(option != CALC_SIZE) {
 		const  PPID   goods_id = params[0].lval;
 		const  PPID   loc_id = params[1].lval;
-		const LDATE  dt = params[2].dval;
+		const  LDATE  dt = params[2].dval;
 		const  GCTIterator::GoodsRestArray * p_rest_list = static_cast<const GCTIterator::GoodsRestArray *>(params[3].ptrval);
         if(p_rest_list) {
 			DateRange period;
@@ -3162,6 +3168,25 @@ void FASTCALL PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 			pItem->SaldoQtty = r_tg_rec.SaldoQtty;
 			pItem->SaldoAmt  = r_tg_rec.SaldoAmt;
 			pItem->LocCount  = r_tg_rec.LocCount;
+			// @v11.9.4 {
+			if(Filt.Flags & TrfrAnlzFilt::fCalcRest) {
+				PPID   _loc_id = 0;
+				const  GCTIterator::GoodsRestArray * p_rest_list = &GctRestList;
+				if(Filt.Flags & TrfrAnlzFilt::fCalcAvgRest) {
+					DateRange _period;
+					_period.Set(MAXDATE, encodedate(1, 1, 1900));
+					pItem->Rest = p_rest_list->GetAverageRest(pItem->GoodsID, _loc_id, _period);
+				}
+				else {
+					LDATE _dt;
+					if(Filt.Grp == TrfrAnlzFilt::gGoodsDate)
+						_dt = pItem->Dt;
+					else
+						_dt = NZOR(Filt.Period.upp, getcurdate_());
+					pItem->Rest = _loc_id ? p_rest_list->GetRest(pItem->GoodsID, _loc_id, _dt) : p_rest_list->GetRest(pItem->GoodsID, _dt);
+				}
+			}
+			// } @v11.9.4 
 		}
 		ASSIGN_PTR(P_InnerIterItem, *pItem);
 	}
@@ -3465,6 +3490,10 @@ public:
 			qk_list_addendum.SortByText();
 			//
 			SetupStringComboWithAddendum(this, CTLSEL_TAGRPNG_EXTVAL1, "trfranlz_enum_extval", &qk_list_addendum, Data.ExtValueParam[0]);
+			// @v11.9.4 {
+			AddClusterAssoc(CTL_TAGRPNG_EXTVALFLAGS, 0, TrfrAnlzFilt::fExtValQuotSkipTmVal);
+			SetClusterData(CTL_TAGRPNG_EXTVALFLAGS, Data.Flags);
+			// } @v11.9.4 
 		}
 		SetupExtFactorCombo(false); // @v11.0.2
 		SetupCtrls();
@@ -3489,6 +3518,12 @@ public:
 		GetRestParams();
 		GetClusterData(CTL_TAGRPNG_TURNOVER, &Data.RestAddendumValue);
 		getCtrlData(CTLSEL_TAGRPNG_EXTVAL1, &Data.ExtValueParam[0]);
+		// @v11.9.4 {
+		GetClusterData(CTL_TAGRPNG_EXTVALFLAGS, &Data.Flags); 
+		if(Data.ExtValueParam[0] <= TrfrAnlzFilt::extvQuotBias) {
+			Data.Flags &= ~TrfrAnlzFilt::fExtValQuotSkipTmVal;
+		}
+		// } @v11.9.4 
 		{
 			long sel_id = 0;
 			getCtrlData(CTLSEL_TAGRPNG_EXTF1, &sel_id);
@@ -3698,6 +3733,12 @@ void TrfrAnlzGrpngDialog::SetupCtrls()
 		const int disable_trnovr = BIN(disable_calc_rest || !(Data.Flags & TrfrAnlzFilt::fCalcRest));
 		disableCtrl(CTL_TAGRPNG_TURNOVER, disable_trnovr);
 	}
+	// @v11.9.4 {
+	{
+		getCtrlData(CTLSEL_TAGRPNG_EXTVAL1, &Data.ExtValueParam[0]);
+		showCtrl(CTL_TAGRPNG_EXTVALFLAGS, (Data.ExtValueParam[0] > TrfrAnlzFilt::extvQuotBias));
+	}
+	// } @v11.9.4
 }
 
 IMPL_HANDLE_EVENT(TrfrAnlzGrpngDialog)
@@ -3713,9 +3754,8 @@ IMPL_HANDLE_EVENT(TrfrAnlzGrpngDialog)
 		disableCtrls(getCtrlUInt16(CTL_TAGRPNG_DIFFDLVRADDR), CTLSEL_TAGRPNG_CNTRAGENT, CTL_TAGRPNG_SUBSTRADDR, 0);
 		SetupExtFactorCombo(true); // @v11.1.0
 	}
-	else if(event.isCbSelected(CTLSEL_TAGRPNG_CNTRAGENT) ||
-		event.isCbSelected(CTLSEL_TAGRPNG_GOODS) || event.isCbSelected(CTLSEL_TAGRPNG_GGRPNG) ||
-		event.isClusterClk(CTL_TAGRPNG_CALCREST))
+	else if(event.isCbSelected(CTLSEL_TAGRPNG_CNTRAGENT) || event.isCbSelected(CTLSEL_TAGRPNG_GOODS) || event.isCbSelected(CTLSEL_TAGRPNG_GGRPNG) ||
+		event.isCbSelected(CTLSEL_TAGRPNG_EXTVAL1) || event.isClusterClk(CTL_TAGRPNG_CALCREST))
 		SetupCtrls();
 	else
 		return;
@@ -4938,13 +4978,13 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 		}
 		if(goods_rec.UnitID) {
 			PPObjUnit u_obj;
-			u_obj.TranslateToBase(goods_rec.UnitID, PPUNT_LITER, &rItem.UnpackedVolume); // @v10.1.1
-			/* @v10.1.1 if(goods_rec.UnitID == PPUNT_LITER)
+			u_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &rItem.UnpackedVolume); // @v10.1.1
+			/* @v10.1.1 if(goods_rec.UnitID == SUOM_LITER)
 				rItem.UnpackedVolume = 1.0;
 			else {
 				PPObjUnit u_obj;
 				PPUnit u_rec;
-				if(u_obj.Fetch(goods_rec.UnitID, &u_rec) > 0 && u_rec.BaseUnitID == PPUNT_LITER)
+				if(u_obj.Fetch(goods_rec.UnitID, &u_rec) > 0 && u_rec.BaseUnitID == SUOM_LITER)
 					rItem.UnpackedVolume = u_rec.BaseRatio;
 			}*/
 		}

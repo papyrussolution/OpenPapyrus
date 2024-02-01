@@ -277,9 +277,7 @@ static int uudecode_bidder_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter
 			--len;
 			--l;
 		}
-		if(len-nl == 1 &&
-		    (uuchar[*b] ||               /* Check sum. */
-		    (*b >= 'a' && *b <= 'z'))) { /* Padding data(MINIX). */
+		if(len-nl == 1 && (uuchar[*b] || /* Check sum. */ (*b >= 'a' && *b <= 'z'))) { /* Padding data(MINIX). */
 			++b;
 			--len;
 		}

@@ -2258,7 +2258,7 @@ ZEXTERN int deflateResetKeep(z_streamp);
 	#endif
 	#if defined(VAXC) || defined(VMS)
 		#define OS_CODE  2
-		#define F_OPEN(name, mode) fopen((name), (mode), "mbc=60", "ctx=stm", "rfm=fix", "mrs=512")
+		//#define F_OPEN(name, mode) fopen((name), (mode), "mbc=60", "ctx=stm", "rfm=fix", "mrs=512")
 	#endif
 	#ifdef __370__
 		#if __TARGET_LIB__ < 0x20000000
@@ -2335,9 +2335,9 @@ ZEXTERN int deflateResetKeep(z_streamp);
 	#ifndef OS_CODE
 		#define OS_CODE  3     /* assume Unix */
 	#endif
-	#ifndef F_OPEN
-		#define F_OPEN(name, mode) fopen((name), (mode))
-	#endif
+	//#ifndef F_OPEN
+		//#define F_OPEN(name, mode) fopen((name), (mode))
+	//#endif
 	//
 	// functions 
 	//

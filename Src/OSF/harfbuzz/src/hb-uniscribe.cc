@@ -103,67 +103,22 @@ static HRESULT WINAPI hb_ScriptItemizeOpenType(const WCHAR * pwcInChars,
 	}
 }
 
-static HRESULT WINAPI hb_ScriptShapeOpenType(HDC hdc,
-    SCRIPT_CACHE * psc,
-    SCRIPT_ANALYSIS * psa,
-    OPENTYPE_TAG tagScript,
-    OPENTYPE_TAG tagLangSys,
-    int * rcRangeChars,
-    TEXTRANGE_PROPERTIES ** rpRangeProperties,
-    int cRanges,
-    const WCHAR * pwcChars,
-    int cChars,
-    int cMaxGlyphs,
-    WORD * pwLogClust,
-    SCRIPT_CHARPROP * pCharProps,
-    WORD * pwOutGlyphs,
-    SCRIPT_GLYPHPROP * pOutGlyphProps,
-    int * pcGlyphs
-    )
+static HRESULT WINAPI hb_ScriptShapeOpenType(HDC hdc, SCRIPT_CACHE * psc, SCRIPT_ANALYSIS * psa, OPENTYPE_TAG tagScript,
+    OPENTYPE_TAG tagLangSys, int * rcRangeChars, TEXTRANGE_PROPERTIES ** rpRangeProperties, int cRanges,
+    const WCHAR * pwcChars, int cChars, int cMaxGlyphs, WORD * pwLogClust, SCRIPT_CHARPROP * pCharProps, WORD * pwOutGlyphs,
+    SCRIPT_GLYPHPROP * pOutGlyphProps, int * pcGlyphs)
 {
 	SCRIPT_VISATTR * psva = (SCRIPT_VISATTR*)pOutGlyphProps;
-	return ScriptShape(hdc,
-		   psc,
-		   pwcChars,
-		   cChars,
-		   cMaxGlyphs,
-		   psa,
-		   pwOutGlyphs,
-		   pwLogClust,
-		   psva,
-		   pcGlyphs);
+	return ScriptShape(hdc, psc, pwcChars, cChars, cMaxGlyphs, psa, pwOutGlyphs, pwLogClust, psva, pcGlyphs);
 }
 
-static HRESULT WINAPI hb_ScriptPlaceOpenType(HDC hdc,
-    SCRIPT_CACHE * psc,
-    SCRIPT_ANALYSIS * psa,
-    OPENTYPE_TAG tagScript,
-    OPENTYPE_TAG tagLangSys,
-    int * rcRangeChars,
-    TEXTRANGE_PROPERTIES ** rpRangeProperties,
-    int cRanges,
-    const WCHAR * pwcChars,
-    WORD * pwLogClust,
-    SCRIPT_CHARPROP * pCharProps,
-    int cChars,
-    const WORD * pwGlyphs,
-    const SCRIPT_GLYPHPROP * pGlyphProps,
-    int cGlyphs,
-    int * piAdvance,
-    GOFFSET * pGoffset,
-    ABC * pABC
-    )
+static HRESULT WINAPI hb_ScriptPlaceOpenType(HDC hdc, SCRIPT_CACHE * psc, SCRIPT_ANALYSIS * psa, OPENTYPE_TAG tagScript,
+    OPENTYPE_TAG tagLangSys, int * rcRangeChars, TEXTRANGE_PROPERTIES ** rpRangeProperties, int cRanges,
+    const WCHAR * pwcChars, WORD * pwLogClust, SCRIPT_CHARPROP * pCharProps, int cChars, const WORD * pwGlyphs,
+    const SCRIPT_GLYPHPROP * pGlyphProps, int cGlyphs, int * piAdvance, GOFFSET * pGoffset, ABC * pABC)
 {
 	SCRIPT_VISATTR * psva = (SCRIPT_VISATTR*)pGlyphProps;
-	return ScriptPlace(hdc,
-		   psc,
-		   pwGlyphs,
-		   cGlyphs,
-		   psva,
-		   psa,
-		   piAdvance,
-		   pGoffset,
-		   pABC);
+	return ScriptPlace(hdc, psc, pwGlyphs, cGlyphs, psva, psa, piAdvance, pGoffset, pABC);
 }
 
 struct hb_uniscribe_shaper_funcs_t {
@@ -202,14 +157,13 @@ struct hb_uniscribe_shaper_funcs_t {
 static void free_static_uniscribe_shaper_funcs();
 #endif
 
-static struct hb_uniscribe_shaper_funcs_lazy_loader_t : hb_lazy_loader_t<hb_uniscribe_shaper_funcs_t,
-	    hb_uniscribe_shaper_funcs_lazy_loader_t> {
+static struct hb_uniscribe_shaper_funcs_lazy_loader_t : hb_lazy_loader_t<hb_uniscribe_shaper_funcs_t, hb_uniscribe_shaper_funcs_lazy_loader_t> 
+{
 	static hb_uniscribe_shaper_funcs_t * create()
 	{
 		hb_uniscribe_shaper_funcs_t * funcs = (hb_uniscribe_shaper_funcs_t*)SAlloc::C(1, sizeof(hb_uniscribe_shaper_funcs_t));
 		if(UNLIKELY(!funcs))
 			return nullptr;
-
 		funcs->init();
 
 #if HB_USE_ATEXIT
@@ -218,25 +172,12 @@ static struct hb_uniscribe_shaper_funcs_lazy_loader_t : hb_lazy_loader_t<hb_unis
 
 		return funcs;
 	}
-
-	static void destroy(hb_uniscribe_shaper_funcs_t * p)
-	{
-		SAlloc::F((void *)p);
-	}
-
-	static hb_uniscribe_shaper_funcs_t * get_null()
-	{
-		return nullptr;
-	}
+	static void destroy(hb_uniscribe_shaper_funcs_t * p) { SAlloc::F((void *)p); }
+	static hb_uniscribe_shaper_funcs_t * get_null() { return nullptr; }
 } static_uniscribe_shaper_funcs;
 
 #if HB_USE_ATEXIT
-static
-void free_static_uniscribe_shaper_funcs()
-{
-	static_uniscribe_shaper_funcs.free_instance();
-}
-
+	static void free_static_uniscribe_shaper_funcs() { static_uniscribe_shaper_funcs.free_instance(); }
 #endif
 
 static hb_uniscribe_shaper_funcs_t * hb_uniscribe_shaper_get_funcs()
@@ -248,19 +189,17 @@ struct active_feature_t {
 	OPENTYPE_FEATURE_RECORD rec;
 	uint order;
 
-	HB_INTERNAL static int cmp(const void * pa, const void * pb) {
-		const active_feature_t * a = (const active_feature_t*)pa;
-		const active_feature_t * b = (const active_feature_t*)pb;
-		return a->rec.tagFeature < b->rec.tagFeature ? -1 : a->rec.tagFeature > b->rec.tagFeature ? 1 :
+	HB_INTERNAL static int cmp(const void * pa, const void * pb) 
+	{
+		RET_CMPCASCADE3((const active_feature_t*)pa, (const active_feature_t*)pb, rec.tagFeature, order, rec.lParameter); // @v11.9.3
+		// @v11.9.3 const active_feature_t * a = (const active_feature_t*)pa;
+		// @v11.9.3 const active_feature_t * b = (const active_feature_t*)pb;
+		/* @v11.9.3 return a->rec.tagFeature < b->rec.tagFeature ? -1 : a->rec.tagFeature > b->rec.tagFeature ? 1 :
 		       a->order < b->order ? -1 : a->order > b->order ? 1 :
 		       a->rec.lParameter < b->rec.lParameter ? -1 : a->rec.lParameter > b->rec.lParameter ? 1 :
-		       0;
+		       0;*/
 	}
-
-	bool operator == (const active_feature_t * f)
-	{
-		return cmp(this, f) == 0;
-	}
+	bool operator == (const active_feature_t * f) { return cmp(this, f) == 0; }
 };
 
 struct feature_event_t {
@@ -270,11 +209,18 @@ struct feature_event_t {
 
 	HB_INTERNAL static int cmp(const void * pa, const void * pb)
 	{
+		// @v11.9.3 {
+		int    si;
+		CMPCASCADE2(si, (const feature_event_t*)pa, (const feature_event_t*)pb, index, start);
+		SETIFZQ(si, active_feature_t::cmp(&((const feature_event_t*)pa)->feature, &((const feature_event_t*)pb)->feature));
+		return si;
+		// } @v11.9.3 
+		/* @v11.9.3
 		const feature_event_t * a = (const feature_event_t*)pa;
 		const feature_event_t * b = (const feature_event_t*)pb;
 		return a->index < b->index ? -1 : a->index > b->index ? 1 :
-		       a->start < b->start ? -1 : a->start > b->start ? 1 :
-		       active_feature_t::cmp(&a->feature, &b->feature);
+		       a->start < b->start ? -1 : a->start > b->start ? 1 : active_feature_t::cmp(&a->feature, &b->feature);
+		*/
 	}
 };
 
@@ -342,22 +288,16 @@ static hb_blob_t * _hb_rename_font(hb_blob_t * blob, wchar_t * new_name)
 	_hb_generate_unique_face_name(new_name, &name_str_len);
 
 	static const uint16_t name_IDs[] = { 1, 2, 3, 4, 6 };
-
-	uint name_table_length = OT::name::min_size +
-	    ARRAY_LENGTH(name_IDs) * OT::NameRecord::static_size +
-	    name_str_len * 2; /* for name data in UTF16BE form */
+	uint name_table_length = OT::name::min_size + ARRAY_LENGTH(name_IDs) * OT::NameRecord::static_size + name_str_len * 2; /* for name data in UTF16BE form */
 	uint padded_name_table_length = ((name_table_length + 3) & ~3);
 	uint name_table_offset = (length + 3) & ~3;
-
 	new_length = name_table_offset + padded_name_table_length;
 	void * new_sfnt_data = SAlloc::C(1, new_length);
 	if(!new_sfnt_data) {
 		hb_blob_destroy(blob);
 		return nullptr;
 	}
-
 	memcpy(new_sfnt_data, orig_sfnt_data, length);
-
 	OT::name &name = StructAtOffset<OT::name> (new_sfnt_data, name_table_offset);
 	name.format = 0;
 	name.count = ARRAY_LENGTH(name_IDs);
@@ -441,11 +381,9 @@ void _hb_uniscribe_shaper_face_data_destroy(hb_uniscribe_face_data_t * data)
 	RemoveFontMemResourceEx(data->fh);
 	SAlloc::F(data);
 }
-
 /*
  * shaper font data
  */
-
 struct hb_uniscribe_font_data_t {
 	HDC hdc;
 	mutable LOGFONTW log_font;
@@ -536,16 +474,11 @@ HFONT hb_uniscribe_font_get_hfont(hb_font_t * font)
 	const hb_uniscribe_font_data_t * data =  font->data.uniscribe;
 	return data ? data->hfont : nullptr;
 }
-
 /*
  * shaper
  */
-
-hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan,
-    hb_font_t * font,
-    hb_buffer_t * buffer,
-    const hb_feature_t * features,
-    uint num_features)
+hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan, hb_font_t * font, hb_buffer_t * buffer,
+    const hb_feature_t * features, uint num_features)
 {
 	hb_face_t * face = font->face;
 	const hb_uniscribe_face_data_t * face_data = face->data.uniscribe;
@@ -580,25 +513,20 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan,
 			feature.rec.tagFeature = 0;
 			feature.rec.lParameter = 0;
 			feature.order = num_features + 1;
-
 			feature_event_t * event = feature_events.push();
 			event->index = 0; /* This value does magic. */
 			event->start = false;
 			event->feature = feature;
 		}
-
 		/* Scan events and save features for each range. */
 		hb_vector_t<active_feature_t> active_features;
 		uint last_index = 0;
 		for(uint i = 0; i < feature_events.length; i++) {
 			feature_event_t * event = &feature_events[i];
-
 			if(event->index != last_index) {
 				/* Save a snapshot of active features and the range. */
 				range_record_t * range = range_records.push();
-
 				uint offset = feature_records.length;
-
 				active_features.qsort();
 				for(uint j = 0; j < active_features.length; j++) {
 					if(!j ||
@@ -658,16 +586,14 @@ retry:
 #define ALLOCATE_ARRAY(Type, name, len) \
 	Type *name = (Type*)scratch; \
 	do { \
-		uint _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
+		uint _consumed = idivroundup((len) * sizeof(Type), sizeof(*scratch)); \
 		assert(_consumed <= scratch_size); \
 		scratch += _consumed; \
 		scratch_size -= _consumed; \
 	} while(0)
 
 #define utf16_index() var1.u32
-
 	ALLOCATE_ARRAY(WCHAR, pchars, buffer->len * 2);
-
 	uint chars_len = 0;
 	for(uint i = 0; i < buffer->len; i++) {
 		hb_codepoint_t c = buffer->info[i].codepoint;
@@ -736,7 +662,6 @@ retry:
 
 	bidi_state.uBidiLevel = HB_DIRECTION_IS_FORWARD(buffer->props.direction) ? 0 : 1;
 	bidi_state.fOverrideDirection = 1;
-
 	hr = funcs->ScriptItemizeOpenType(pchars,
 		chars_len,
 		MAX_ITEMS,
@@ -770,9 +695,7 @@ retry:
 		if(num_features) {
 			range_properties.shrink(0);
 			range_char_counts.shrink(0);
-
 			range_record_t * last_range = &range_records[0];
-
 			for(uint k = chars_offset; k < chars_offset + item_chars_len; k++) {
 				range_record_t * range = last_range;
 				while(log_clusters[k] < range->index_first)
@@ -838,39 +761,16 @@ retry_shape:
 		if(UNLIKELY(FAILED(hr))) {
 			FAIL("ScriptShapeOpenType() failed: 0x%08lx", hr);
 		}
-
 		for(uint j = chars_offset; j < chars_offset + item_chars_len; j++)
 			log_clusters[j] += glyphs_offset;
-
-		hr = funcs->ScriptPlaceOpenType(font_data->hdc,
-			&font_data->script_cache,
-			&items[i].a,
-			script_tags[i],
-			language_tag,
-			range_char_counts.arrayZ,
-			range_properties.arrayZ,
-			range_properties.length,
-			pchars + chars_offset,
-			log_clusters + chars_offset,
-			char_props + chars_offset,
-			item_chars_len,
-			glyphs + glyphs_offset,
-			glyph_props + glyphs_offset,
-			glyphs_len,
-		        /*OUT*/
-			advances + glyphs_offset,
-			offsets + glyphs_offset,
-			nullptr);
+		hr = funcs->ScriptPlaceOpenType(font_data->hdc, &font_data->script_cache, &items[i].a, script_tags[i], language_tag, range_char_counts.arrayZ,
+			range_properties.arrayZ, range_properties.length, pchars + chars_offset, log_clusters + chars_offset, char_props + chars_offset,
+			item_chars_len, glyphs + glyphs_offset, glyph_props + glyphs_offset, glyphs_len, /*OUT*/ advances + glyphs_offset, offsets + glyphs_offset, nullptr);
 		if(UNLIKELY(FAILED(hr)))
 			FAIL("ScriptPlaceOpenType() failed: 0x%08lx", hr);
-
 		if(DEBUG_ENABLED(UNISCRIBE))
 			slfprintf_stderr("Item %d RTL %d LayoutRTL %d LogicalOrder %d ScriptTag %c%c%c%c\n",
-			    i,
-			    items[i].a.fRTL,
-			    items[i].a.fLayoutRTL,
-			    items[i].a.fLogicalOrder,
-			    HB_UNTAG(hb_uint32_swap(script_tags[i])));
+			    i, items[i].a.fRTL, items[i].a.fLayoutRTL, items[i].a.fLogicalOrder, HB_UNTAG(hb_uint32_swap(script_tags[i])));
 
 		glyphs_offset += glyphs_len;
 	}
@@ -886,8 +786,8 @@ retry_shape:
 		*p = hb_min(*p, buffer->info[i].cluster);
 	}
 	for(uint i = 1; i < glyphs_len; i++)
-		if(vis_clusters[i] == (uint32_t)-1)
-			vis_clusters[i] = vis_clusters[i - 1];
+		if(vis_clusters[i] == _FFFF32)
+			vis_clusters[i] = vis_clusters[i-1];
 #undef utf16_index
 	if(UNLIKELY(!buffer->ensure(glyphs_len)))
 		FAIL("Buffer in error");

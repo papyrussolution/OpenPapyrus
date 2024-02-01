@@ -431,6 +431,7 @@ private:
 	DECL_HANDLE_EVENT;
 	void   setupAccSheet(PPID accSheetID, PPID accSheet2ID);
  	void   extraFilt();
+	void   ExtraFilt2(); // @v11.9.4 @construction (will replace the extraFilt)
 	void   viewOptions();
 	void   SetupLocationCombo();
 	BillFilt Data;
@@ -530,8 +531,10 @@ IMPL_HANDLE_EVENT(BillFiltDialog)
                 SetupLocationCombo();
 		}
 	}
-	else if(event.isCmd(cmaMore))
-		extraFilt();
+	else if(event.isCmd(cmaMore)) {
+		// @v11.9.4 extraFilt();
+		ExtraFilt2(); // @v11.9.4
+	}
 	else if(event.isCmd(cmViewOptions))
 		viewOptions();
 	else if(event.isCmd(cmSysjFilt2)) {
@@ -572,6 +575,151 @@ IMPL_HANDLE_EVENT(BillFiltDialog)
 	clearEvent(event);
 }
 
+void BillFiltDialog::ExtraFilt2()
+{
+	class BillFiltExtDialog : public TDialog {
+		DECL_DIALOG_DATA(BillFilt);
+		const PPID AgentAcsID;
+		const PPID PayerAcsID;
+	public:
+		BillFiltExtDialog() : TDialog(DLG_BILLEXTFLT2), AgentAcsID(GetAgentAccSheet()), PayerAcsID(GetSellAccSheet())
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			int    ok = 1;
+			SetupArCombo(this, CTLSEL_BILLEXT_PAYER, Data.PayerID, OLW_CANINSERT|OLW_LOADDEFONOPEN, PayerAcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
+			SetupArCombo(this, CTLSEL_BILLEXT_AGENT, Data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, AgentAcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
+			if(Data.OrderFulfillmentStatus < 0) 
+				showCtrl(CTL_BILLEXTFLT_ORDFFST, 0);
+			PPAccessRestriction accsr;
+			const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
+			setCtrlUInt16(CTL_BILLEXTFLT_STAXTGGL, (Data.Ft_STax > 0) ? 1 : ((Data.Ft_STax < 0) ? 2 : 0));
+			setCtrlUInt16(CTL_BILLEXTFLT_DCLTGGL,  (Data.Ft_Declined > 0) ? 1 : ((Data.Ft_Declined < 0) ? 2 : 0));
+			setCtrlUInt16(CTL_BILLEXTFLT_CHECKPRST, (Data.Ft_CheckPrintStatus>0) ? 1 : ((Data.Ft_CheckPrintStatus<0) ? 2 : 0)); //@erik v10.6.13
+            {
+                AddClusterAssocDef(CTL_BILLEXTFLT_RECADV, 0, PPEDI_RECADV_STATUS_UNDEF);
+                AddClusterAssoc(CTL_BILLEXTFLT_RECADV, 1, PPEDI_RECADV_STATUS_ACCEPT);
+                AddClusterAssoc(CTL_BILLEXTFLT_RECADV, 2, PPEDI_RECADV_STATUS_PARTACCEPT);
+                AddClusterAssoc(CTL_BILLEXTFLT_RECADV, 3, PPEDI_RECADV_STATUS_REJECT);
+                AddClusterAssoc(CTL_BILLEXTFLT_RECADV, 4, -1);
+                SetClusterData(CTL_BILLEXTFLT_RECADV, Data.EdiRecadvStatus);
+            }
+            {
+                AddClusterAssocDef(CTL_BILLEXTFLT_RECADVCFM, 0, PPEDI_RECADVCONF_STATUS_UNDEF);
+                AddClusterAssoc(CTL_BILLEXTFLT_RECADVCFM, 1, PPEDI_RECADVCONF_STATUS_ACCEPT);
+                AddClusterAssoc(CTL_BILLEXTFLT_RECADVCFM, 2, PPEDI_RECADVCONF_STATUS_REJECT);
+                AddClusterAssoc(CTL_BILLEXTFLT_RECADVCFM, 3, -1);
+                SetClusterData(CTL_BILLEXTFLT_RECADVCFM, Data.EdiRecadvConfStatus);
+            }
+			disableCtrl(CTLSEL_BILLEXT_CREATOR, own_bill_restr);
+			SetupPPObjCombo(this, CTLSEL_BILLEXT_CREATOR, PPOBJ_USR, Data.CreatorID, OLW_CANSELUPLEVEL);
+			SetupCalPeriod(CTLCAL_BILLEXT_DUEPERIOD, CTL_BILLEXT_DUEPERIOD);
+			SetPeriodInput(this, CTL_BILLEXT_DUEPERIOD, &Data.DuePeriod);
+			SetupPPObjCombo(this, CTLSEL_BILLEXTFLT_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.0.11
+			SetupPPObjCombo(this, CTLSEL_BILLEXTFLT_CLICAT, PPOBJ_PRSNCATEGORY, Data.CliPsnCategoryID, 0); // @v11.1.9
+			 // @v11.9.4 {
+			{
+				PPIDArray worldobj_kind_list;
+				worldobj_kind_list.addzlist(WORLDOBJ_CITY, WORLDOBJ_CITYAREA, 0L);
+				SetupPPObjCombo(this, CTLSEL_BILLEXTFLT_DPORT, PPOBJ_WORLD, Data.FreightPortOfDischarge, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+					PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0));
+			}
+			// } @v11.9.4 
+			if(Data.Bbt == bbtOrderBills && Data.OrderFulfillmentStatus >= 0) {
+				AddClusterAssocDef(CTL_BILLEXTFLT_ORDFFST, 0, 0);
+				AddClusterAssoc(CTL_BILLEXTFLT_ORDFFST, 1, 1);
+				AddClusterAssoc(CTL_BILLEXTFLT_ORDFFST, 2, 2);
+				AddClusterAssoc(CTL_BILLEXTFLT_ORDFFST, 3, 3);
+				SetClusterData(CTL_BILLEXTFLT_ORDFFST, Data.OrderFulfillmentStatus);
+			}
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			ushort v;
+			Data.PayerID = PayerAcsID ? getCtrlLong(CTLSEL_BILLEXT_PAYER) : 0;
+			Data.AgentID = AgentAcsID ? getCtrlLong(CTLSEL_BILLEXT_AGENT) : 0;
+			{
+				v = getCtrlUInt16(CTL_BILLEXTFLT_STAXTGGL);
+				Data.Ft_STax = (v == 1) ? 1 : ((v == 2) ? -1 : 0);
+			}
+			{
+				v = getCtrlUInt16(CTL_BILLEXTFLT_DCLTGGL);
+				Data.Ft_Declined = (v == 1) ? 1 : ((v == 2) ? -1 : 0);
+			}
+			// @erik v10.6.13 {
+			{
+				v = getCtrlUInt16(CTL_BILLEXTFLT_CHECKPRST);
+				Data.Ft_CheckPrintStatus = (v==1) ? 1 : ((v==2) ? -1 : 0);
+			}
+			// } @erik
+			Data.EdiRecadvStatus = static_cast<int16>(GetClusterData(CTL_BILLEXTFLT_RECADV));
+			Data.EdiRecadvConfStatus = static_cast<int16>(GetClusterData(CTL_BILLEXTFLT_RECADVCFM));
+			getCtrlData(CTLSEL_BILLEXT_CREATOR, &Data.CreatorID);
+			getCtrlData(CTLSEL_BILLEXTFLT_GGRP, &Data.GoodsGroupID); // @v11.0.11
+			getCtrlData(CTLSEL_BILLEXTFLT_CLICAT, &Data.CliPsnCategoryID); // @v11.1.9
+			getCtrlData(CTLSEL_BILLEXTFLT_DPORT, &Data.FreightPortOfDischarge); // @v11.9.4
+			// @v11.1.8 {
+			if(Data.Bbt == bbtOrderBills) {
+				if(Data.OrderFulfillmentStatus >= 0 && getCtrlView(CTL_BILLEXTFLT_ORDFFST))
+					Data.OrderFulfillmentStatus = static_cast<int16>(GetClusterData(CTL_BILLEXTFLT_ORDFFST));
+			}
+			// } @v11.1.8 
+			THROW_PP(GetPeriodInput(this, sel = CTL_BILLEXT_DUEPERIOD, &Data.DuePeriod), CTL_BILLEXT_DUEPERIOD);
+			//
+			ASSIGN_PTR(pData, Data);
+			CATCHZOKPPERRBYDLG
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+		}
+	};
+	if(getCtrlView(CTL_BILLFLT_DUEPERIOD)) {
+		GetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
+	}
+	const  PPID cur_user_id = LConfig.UserID;
+	//
+	ushort v = getCtrlUInt16(CTL_BILLFLT_FLAGS);
+	PPAccessRestriction accsr;
+	const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
+	if(v & 0x02 || own_bill_restr == 1) {
+		SETIFZQ(Data.CreatorID, cur_user_id);
+	}
+	else if(own_bill_restr == 2) {
+		PPObjSecur sec_obj(PPOBJ_USR, 0);
+		PPSecur sec_rec;
+		if(sec_obj.Fetch(cur_user_id, &sec_rec) > 0)
+			SETIFZQ(Data.CreatorID, (sec_rec.ParentID | PPObjSecur::maskUserGroup));
+	}
+	else if(Data.CreatorID == cur_user_id)
+		Data.CreatorID = 0;
+	//
+	if(PPDialogProcBody<BillFiltExtDialog, BillFilt>(&Data)) {
+		if(getCtrlView(CTL_BILLFLT_DUEPERIOD)) {
+			SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
+		}
+		int    disable_own_bill_only_tag = 0;
+		v = getCtrlUInt16(CTL_BILLFLT_FLAGS);
+		if(Data.CreatorID)
+			if(Data.CreatorID != cur_user_id) {
+				setCtrlUInt16(CTL_BILLFLT_FLAGS, v & ~0x02);
+				disable_own_bill_only_tag = 1;
+			}
+			else
+				setCtrlUInt16(CTL_BILLFLT_FLAGS, v | 0x02);
+		else
+			setCtrlUInt16(CTL_BILLFLT_FLAGS, v & ~0x02);
+		DisableClusterItem(CTL_BILLFLT_FLAGS, 1, disable_own_bill_only_tag);		
+	}
+}
+
 void BillFiltDialog::extraFilt()
 {
 	if(GetSellAccSheet() || GetAgentAccSheet()) {
@@ -595,28 +743,17 @@ void BillFiltDialog::extraFilt()
 		PPAccessRestriction accsr;
 		const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
 		if(v & 0x02 || own_bill_restr == 1) {
-			SETIFZ(Data.CreatorID, cur_user_id);
+			SETIFZQ(Data.CreatorID, cur_user_id);
 		}
 		else if(own_bill_restr == 2) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPSecur sec_rec;
 			if(sec_obj.Fetch(cur_user_id, &sec_rec) > 0)
-				SETIFZ(Data.CreatorID, (sec_rec.ParentID | PPObjSecur::maskUserGroup));
+				SETIFZQ(Data.CreatorID, (sec_rec.ParentID | PPObjSecur::maskUserGroup));
 		}
 		else if(Data.CreatorID == cur_user_id)
 			Data.CreatorID = 0;
 		ext.CreatorID = Data.CreatorID;
-// @erik v10.6.13 {
-		/*if((Data.Flags & BillFilt::fCcPrintedOnly) && !(Data.Flags & BillFilt::fCcNotPrintedOnly)){
-			ext.Ft_CheckPrintStatus = 1;
-		}
-		else if((Data.Flags & BillFilt::fCcNotPrintedOnly) && !(Data.Flags & BillFilt::fCcPrintedOnly)){
-			ext.Ft_CheckPrintStatus = -1;
-		}
-		else {
-			ext.Ft_CheckPrintStatus = 0;
-		}*/
-// } @erik
 		if(BillExtraDialog(0, &ext, 0, 2) > 0) {
 			Data.PayerID = ext.PayerID;
 			Data.AgentID = ext.AgentID;
@@ -630,21 +767,6 @@ void BillFiltDialog::extraFilt()
 			Data.GoodsGroupID = ext.GoodsGroupID; // @v11.0.11
 			Data.OrderFulfillmentStatus = (Data.Bbt == bbtOrderBills) ? ext.OrderFulfillmentStatus : -1; // @v11.1.8
 			Data.CliPsnCategoryID = ext.CliPsnCategoryID; // @v11.1.9
-// @erik v10.6.13 {
-			/* @v10.7.0 if(ext.Ft_CheckPrintStatus > 0) {
-				//SETFLAG(Data.Flags, BillFilt::fCcPrintedOnly, v&0x10); // @v9.7.12
-				Data.Flags |= BillFilt::fCcPrintedOnly;
-				Data.Flags &= ~BillFilt::fCcNotPrintedOnly;
-			}
-			else if(ext.Ft_CheckPrintStatus < 0) {
-				Data.Flags |= BillFilt::fCcNotPrintedOnly;
-				Data.Flags &= ~BillFilt::fCcPrintedOnly;
-			}
-			else {
-				Data.Flags &= ~BillFilt::fCcNotPrintedOnly;
-				Data.Flags &= ~BillFilt::fCcPrintedOnly;
-			}*/
-// } @erik
 			if(getCtrlView(CTL_BILLFLT_DUEPERIOD)) {
 				SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
 			}
@@ -1152,10 +1274,10 @@ bool PPViewBill::IsTempTblNeeded() const
 	if(State & stNoTempTbl)
 		return false;
 	else if((Filt.P_SjF && !Filt.P_SjF->IsEmpty()) || (Filt.P_TagF && !Filt.P_TagF->IsEmpty()) || IdList.IsExists() ||
-		(Filt.PoolBillID && Filt.AssocID) || Filt.PayerID || Filt.AgentID ||
+		(Filt.PoolBillID && Filt.AssocID) || Filt.PayerID || Filt.AgentID || Filt.FreightPortOfDischarge ||
 		(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) ||
 		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID || Filt.GoodsGroupID ||
-		(Filt.Bbt == bbtOrderBills && Filt.OrderFulfillmentStatus > 0)) { // @v11.0.11 Filt.GoodsGroupID // @v11.1.8 OrderFulfillmentStatus
+		(Filt.Bbt == bbtOrderBills && Filt.OrderFulfillmentStatus > 0)) { // @v11.0.11 Filt.GoodsGroupID // @v11.1.8 OrderFulfillmentStatus // @v11.9.4 Filt.FreightPortOfDischarge
 		return true;
 	}
 	else
@@ -1373,6 +1495,16 @@ int PPViewBill::Helper_CheckIDForFilt(uint flags, PPID id, const BillTbl::Rec * 
 		else if(Filt.AgentID || Filt.PayerID)
 			return 0;
 	}
+	// @v11.9.4 {
+	if(Filt.FreightPortOfDischarge) {
+		PPFreight freight;
+		if(P_BObj->FetchFreight(id, &freight) > 0 && freight.PortOfDischarge == Filt.FreightPortOfDischarge) {
+			; // ok
+		}
+		else
+			return 0;
+	}
+	// } @v11.9.4 
 	// @v11.7.4 {
 	if(!(flags & enfSkipExtssMemo)) {
 		SString memo_pattern;
@@ -1741,6 +1873,16 @@ int PPViewBill::Enumerator(uint flags, BillViewEnumProc proc, void * pExtraPtr)
 				if(Filt.GoodsGroupID && P_BObj->DoesContainGoods(bill_rec.ID, GoodsList) <= 0)
 					continue;
 				// } @v11.0.11
+				// @v11.9.4 {
+				if(Filt.FreightPortOfDischarge) {
+					PPFreight freight;
+					if(P_BObj->FetchFreight(bill_rec.ID, &freight) > 0 && freight.PortOfDischarge == Filt.FreightPortOfDischarge) {
+						; // ok
+					}
+					else
+						continue;
+				}
+				// } @v11.9.4
 				// @v11.1.8 {
 				if(Filt.Bbt == bbtOrderBills && oneof3(Filt.OrderFulfillmentStatus, 1, 2, 3)) {
 					int ordffs = EvaluateOrderFulfillmentStatus(bill_rec.ID);
@@ -1753,8 +1895,11 @@ int PPViewBill::Enumerator(uint flags, BillViewEnumProc proc, void * pExtraPtr)
 		}
 	}
 	if(p_list) {
-		for(uint i = 0; ok > 0 && i < p_list->getCount(); i++)
-			THROW(ok = Helper_EnumProc(p_list->get(i), 0, check_list_item_for_filt, flags, proc, pExtraPtr));
+		for(uint i = 0; ok > 0 && i < p_list->getCount(); i++) {
+			const PPID bill_id = p_list->get(i);
+			if(!Filt.GoodsGroupID || P_BObj->DoesContainGoods(bill_id, GoodsList) > 0) // @v11.9.4 @fix (это условие не проверялось)
+				THROW(ok = Helper_EnumProc(bill_id, 0, check_list_item_for_filt, flags, proc, pExtraPtr));
+		}
 	}
 	CATCHZOK
 	delete q;

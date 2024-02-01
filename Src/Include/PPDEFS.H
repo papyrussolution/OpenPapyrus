@@ -275,9 +275,10 @@
 #define PPPATH_SARTREDB      19 // @v9.7.8 Путь к базе данных проекта Sartre
 #define PPPATH_WORKSPACE     20 // @v9.8.2 Путь к каталогу рабочего пространства (туда перенесем все конфигруационные и прочие файлы,
 	// не относящиеся к дистрибутиву, из BIN
-#define PPPATH_TESTROOT      21 // @v9.8.3 (только для отладки) корневой каталог тестовых данных
+#define PPPATH_TESTROOT      21 // @v9.8.3 (только для отладки и тестирования) корневой каталог тестовых данных
 #define PPPATH_REPORTDATA    22 // @v9.8.9 [system]PPINIPARAM_REPORTDATAPATH
 #define PPPATH_UID           23 // @v11.9.3 Путь к каталогу с json-описаниями пользовательского интерфейса
+#define PPPATH_SRCROOT       24 // @v11.9.4 (только для отладки и тестирования) корневой каталог исходных кодов системы
 // @v9.8.2 (@unused) #define PPPATH_LAST          20L  // Последний из путей
 #define PPPRP_PATHS          20L  //
 #define PPPRP_PRINTER        21L  // Принтер
@@ -412,11 +413,13 @@
 	// @v10.1.5 (unused) #define PPUSR_ADMIN          2L
 	// @v10.1.5 (unused) #define PPUSR_MANAGER        3L
 #define PPOBJ_UNIT                5L  // $ Единицы измерения (struct PPUnit)
-	#define PPUNT_KILOGRAM       1L
-	#define PPUNT_METRE          2L
-	#define PPUNT_SECOND         3L // Зарезервировано, но можно не выводить
-	#define PPUNT_LITER          4L
-	#define PPUNT_ITEM          21L
+	// @v11.9.4 Макро-определения PPUNT_XXX замещаются аналогичными SUOM_XXX. С этой целью значиния SUOM_XXX изменены с целью
+	// обеспечить бинарную совместимость с существующими базами данных.
+	//#define PPUNT_KILOGRAM       1L
+	//#define PPUNT_METRE          2L
+	//#define PPUNT_SECOND         3L // Зарезервировано, но можно не выводить
+	//#define PPUNT_LITER          4L
+	//#define PPUNT_ITEM          21L
 #define PPOBJ_CURRATE             6L  // @unused # Просто строки
 	#define PPCUR_MAIN           1L // Основной курс. Что угодно, но "основное"
 #define PPOBJ_CITYSTATUS          7L  // $(PPWorldObjStatus) Статусы географических объектов
@@ -4879,6 +4882,8 @@
 	#define CTL_BILLEXTFLT_ORDFFST       (37 + WINDOWS_ID_BIAS)
 	#define CTL_BILLEXTFLT_CLICAT        (38 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLEXTFLT_CLICAT     (39 + WINDOWS_ID_BIAS)
+	#define CTL_BILLEXTFLT_DPORT         (40 + WINDOWS_ID_BIAS) // @v11.9.4 Порт разгрузки
+	#define CTLSEL_BILLEXTFLT_DPORT      (41 + WINDOWS_ID_BIAS) // @v11.9.4 Порт разгрузки (selector)
 
 #define DLG_OPRPOP                408 // Параметры зачета для вида операции
 	#define CTL_OPRPOP_LIST              (1 + WINDOWS_ID_BIAS)
@@ -5347,6 +5352,7 @@
 	#define CTLSEL_TAGRPNG_EXTVAL1       (15 + WINDOWS_ID_BIAS)
 	#define CTL_TAGRPNG_EXTF1            (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TAGRPNG_EXTF1         (17 + WINDOWS_ID_BIAS)
+	#define CTL_TAGRPNG_EXTVALFLAGS      (18 + WINDOWS_ID_BIAS) // @v11.9.4 Флаги дополнительных показателей
 #define DLG_FIXSTAFF              477 // Директор и гл бух организации
 	#define CTL_FIXSTAFF_ORGNAME         (1 + WINDOWS_ID_BIAS)
 	#define CTL_FIXSTAFF_DIRECTOR        (2 + WINDOWS_ID_BIAS)
@@ -10507,6 +10513,8 @@
 	#define CTL_EDIPRV_GUA              (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EDIPRV_GUA           (13 + WINDOWS_ID_BIAS)
 	#define CTL_EDIPRV_FORMAT           (14 + WINDOWS_ID_BIAS)
+	#define CTL_EDIPRV_SUBIN            (15 + WINDOWS_ID_BIAS) // @v11.9.4
+	#define CTL_EDIPRV_SUBOUT           (16 + WINDOWS_ID_BIAS) // @v11.9.4
 #define DLG_BILLCFGEXT            1276 // Диалог дополнительных параметров конфигурации документов
 	// CTL_BILLCFG_XXX
 #define DLG_IMPEXPQUOT            1277

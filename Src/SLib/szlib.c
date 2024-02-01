@@ -1187,7 +1187,7 @@ uLong zlibCompileFlags()
 }
 
 #ifdef ZLIB_DEBUG
-	#include <stdlib.h>
+	//#include <stdlib.h>
 	#ifndef verbose
 		#define verbose 0
 	#endif
@@ -1201,10 +1201,7 @@ uLong zlibCompileFlags()
 //
 // exported to allow conversion of error code to string for compress() and uncompress()
 //
-const char * zError(int err)
-{
-	return ERR_MSG(err);
-}
+const char * zError(int err) { return ERR_MSG(err); }
 
 #if defined(_WIN32_WCE)
 	// The Microsoft C Run-Time Library for Windows CE doesn't have

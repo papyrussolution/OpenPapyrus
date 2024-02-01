@@ -1,5 +1,5 @@
 // DL600.H
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #ifndef __DL600_H
@@ -898,14 +898,15 @@ public:
 	// Compile-time {
 	//
 	enum {
-		cfDebug = 0x0001, // Отладочный режим компиляции
+		cfDebug         = 0x0001, // Отладочный режим компиляции
 		cfBinOnly       = 0x0002, // Создавать только бинарные файлы (не генерировать .H, .CPP и прочие файлы для разработки)
-		cfSQL   = 0x0004, // Генерировать SQL-скрипт для создания таблиц базы данных
+		cfSQL           = 0x0004, // Генерировать SQL-скрипт для создания таблиц базы данных
 		cfOracle        = 0x0008, // Генерировать SQL-скрипт специфичный для ORACLE для создания таблиц базы данных
 		cfGravity       = 0x0010, // @v10.8.2 Генерировать gravity интерфейсы
-		cfMySQL = 0x0020, // @v10.9.1 Генерировать SQL-скрипт специфичный для MySQL для создания таблиц базы данных
+		cfMySQL         = 0x0020, // @v10.9.1 Генерировать SQL-скрипт специфичный для MySQL для создания таблиц базы данных
 		cfSqLite        = 0x0040, // @v10.9.1 Генерировать SQL-скрипт специфичный для SqLite для создания таблиц базы данных
-		cfStyloQAndroid = 0x0080  // @v11.1.2 Генерировать модули для проекта StyloQ Android (если другие опции это предполагают)
+		cfStyloQAndroid = 0x0080, // @v11.1.2 Генерировать модули для проекта StyloQ Android (если другие опции это предполагают)
+		cfSkipBtrDict   = 0x0100, // @v11.9.4 Не создавать словарь btrieve
 	};
 	int    Compile(const char * pInFileName, const char * pDictPath, const char * pDataPath, long cflags);
 	int    FindImportFile(const char * pFileName, SString & rPath);
@@ -972,7 +973,7 @@ public:
 	int    ResolveDbIndexFlag(const char * pSymb);
 	int    ResolveDbFileDefinition(const CtmToken & rSymb, const char * pConstStr, int constInt);
 	int    Write_Code();
-	int    CreateDbDictionary(const char * pDictPath, const char * pDataPath, const LongArray * pSqlServerTypeList/*SqlServerType sqlst*/);
+	int    CreateDbDictionary(const char * pDictPath, const char * pDataPath, bool skipBtrDictCreation, const LongArray * pSqlServerTypeList/*SqlServerType sqlst*/);
 	//
 	// Descr: Создает описание диалогового управляющего элемента в текущей области видимости.
 	// Returns:

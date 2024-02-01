@@ -73,17 +73,14 @@ bool SimpleAtod(absl::string_view str, double* out) {
 	return true;
 }
 
-bool SimpleAtob(absl::string_view str, bool* out) {
+bool SimpleAtob(absl::string_view str, bool* out) 
+{
 	ABSL_RAW_CHECK(out != nullptr, "Output pointer must not be nullptr.");
-	if(EqualsIgnoreCase(str, "true") || EqualsIgnoreCase(str, "t") ||
-	    EqualsIgnoreCase(str, "yes") || EqualsIgnoreCase(str, "y") ||
-	    EqualsIgnoreCase(str, "1")) {
+	if(EqualsIgnoreCase(str, "true") || EqualsIgnoreCase(str, "t") || EqualsIgnoreCase(str, "yes") || EqualsIgnoreCase(str, "y") || EqualsIgnoreCase(str, "1")) {
 		*out = true;
 		return true;
 	}
-	if(EqualsIgnoreCase(str, "false") || EqualsIgnoreCase(str, "f") ||
-	    EqualsIgnoreCase(str, "no") || EqualsIgnoreCase(str, "n") ||
-	    EqualsIgnoreCase(str, "0")) {
+	if(EqualsIgnoreCase(str, "false") || EqualsIgnoreCase(str, "f") || EqualsIgnoreCase(str, "no") || EqualsIgnoreCase(str, "n") || EqualsIgnoreCase(str, "0")) {
 		*out = false;
 		return true;
 	}

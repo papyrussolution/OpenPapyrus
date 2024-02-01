@@ -1,5 +1,5 @@
 // PPPOSPROTOCOL.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -593,8 +593,8 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 						// Форсированно добавляем зарезервированную единицу LITER в список экспорта
 						// Она нам понадобиться для передачи алкогольных товаров.
 						//
-						if(!unit_list.lsearch(PPUNT_LITER) && goods_obj.FetchUnit(PPUNT_LITER, &unit_rec) > 0)
-							unit_list.add(PPUNT_LITER);
+						if(!unit_list.lsearch(SUOM_LITER) && goods_obj.FetchUnit(SUOM_LITER, &unit_rec) > 0)
+							unit_list.add(SUOM_LITER);
 						unit_list.sortAndUndup();
 						for(i = 0; i < unit_list.getCount(); i++) {
 							const  PPID unit_id = unit_list.get(i);
@@ -1795,12 +1795,12 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 			PPUnit unit_rec;
 			SXml::WNode w_u(rB.P_Xw, "unit");
 			w_u.PutInner("id", temp_buf.Z().Cat(rInfo.UnitID));
-			if(is_spirit && agi.Proof > 0.0 && agi.Volume > 0.0 && GObj.FetchUnit(PPUNT_LITER, &unit_rec) > 0) {
+			if(is_spirit && agi.Proof > 0.0 && agi.Volume > 0.0 && GObj.FetchUnit(SUOM_LITER, &unit_rec) > 0) {
 				//
 				// Для алкоголя искусственно устанавливаем единицу измерения //
 				//
 				SXml::WNode w_pu(rB.P_Xw, "phunit");
-				w_pu.PutInner("id", temp_buf.Z().Cat(PPUNT_LITER));
+				w_pu.PutInner("id", temp_buf.Z().Cat(SUOM_LITER));
 				w_pu.PutInner("ratio", temp_buf.Z().Cat(agi.Volume, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 			}
 			else if(rInfo.PhUnitID) {

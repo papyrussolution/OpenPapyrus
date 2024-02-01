@@ -247,30 +247,12 @@ inline void * hb_atomic_ptr_impl_get(void ** const P)   {
 
 #define HB_ATOMIC_INT_INIT(V)          {V}
 struct hb_atomic_int_t {
-	void set_relaxed(int v_) {
-		hb_atomic_int_impl_set_relaxed(&v, v_);
-	}
-
-	void set(int v_) {
-		hb_atomic_int_impl_set(&v, v_);
-	}
-
-	int get_relaxed() const {
-		return hb_atomic_int_impl_get_relaxed(&v);
-	}
-
-	int get() const {
-		return hb_atomic_int_impl_get(&v);
-	}
-
-	int inc() {
-		return hb_atomic_int_impl_add(&v,  1);
-	}
-
-	int dec() {
-		return hb_atomic_int_impl_add(&v, -1);
-	}
-
+	void set_relaxed(int v_) { hb_atomic_int_impl_set_relaxed(&v, v_); }
+	void set(int v_) { hb_atomic_int_impl_set(&v, v_); }
+	int get_relaxed() const { return hb_atomic_int_impl_get_relaxed(&v); }
+	int get() const { return hb_atomic_int_impl_get(&v); }
+	int inc() { return hb_atomic_int_impl_add(&v,  1); }
+	int dec() { return hb_atomic_int_impl_add(&v, -1); }
 	int v;
 };
 
@@ -279,26 +261,11 @@ template <typename P>
 struct hb_atomic_ptr_t {
 	typedef hb_remove_pointer<P> T;
 
-	void init(T* v_ = nullptr) {
-		set_relaxed(v_);
-	}
-
-	void set_relaxed(T* v_) {
-		hb_atomic_ptr_impl_set_relaxed(&v, v_);
-	}
-
-	T * get_relaxed() const {
-		return (T*)hb_atomic_ptr_impl_get_relaxed(&v);
-	}
-
-	T * get() const {
-		return (T*)hb_atomic_ptr_impl_get((void**)&v);
-	}
-
-	bool cmpexch(const T * old, T * new_) const {
-		return hb_atomic_ptr_impl_cmpexch((void**)&v, (void *)old, (void *)new_);
-	}
-
+	void init(T* v_ = nullptr) { set_relaxed(v_); }
+	void set_relaxed(T* v_) { hb_atomic_ptr_impl_set_relaxed(&v, v_); }
+	T * get_relaxed() const { return (T*)hb_atomic_ptr_impl_get_relaxed(&v); }
+	T * get() const { return (T*)hb_atomic_ptr_impl_get((void**)&v); }
+	bool cmpexch(const T * old, T * new_) const { return hb_atomic_ptr_impl_cmpexch((void**)&v, (void *)old, (void *)new_); }
 	T * operator->() const { return get(); }
 	template <typename C> operator C * () const { return get(); }
 

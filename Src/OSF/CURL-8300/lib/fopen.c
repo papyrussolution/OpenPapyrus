@@ -47,8 +47,7 @@
  * file.  if 'tempname' is non-NULL, it needs a rename after the file is
  * written.
  */
-CURLcode Curl_fopen(struct Curl_easy * data, const char * filename,
-    FILE ** fh, char ** tempname)
+CURLcode Curl_fopen(struct Curl_easy * data, const char * filename, FILE ** fh, char ** tempname)
 {
 	CURLcode result = CURLE_WRITE_ERROR;
 	uchar randsuffix[9];
@@ -56,7 +55,6 @@ CURLcode Curl_fopen(struct Curl_easy * data, const char * filename,
 	struct_stat sb;
 	int fd = -1;
 	*tempname = NULL;
-
 	*fh = fopen(filename, FOPEN_WRITETEXT);
 	if(!*fh)
 		goto fail;
@@ -64,11 +62,9 @@ CURLcode Curl_fopen(struct Curl_easy * data, const char * filename,
 		return CURLE_OK;
 	fclose(*fh);
 	*fh = NULL;
-
 	result = Curl_rand_hex(data, randsuffix, sizeof(randsuffix));
 	if(result)
 		goto fail;
-
 	tempstore = aprintf("%s.%s.tmp", filename, randsuffix);
 	if(!tempstore) {
 		result = CURLE_OUT_OF_MEMORY;

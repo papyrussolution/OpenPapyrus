@@ -51,7 +51,6 @@ DocNalogRu_Base::DocNalogRu_Base() : TsHt(2048)
 SString & FASTCALL DocNalogRu_Base::Helper_GetToken(long tokId)
 {
 	SString & r_tok_buf = SLS.AcquireRvlStr(); // @v11.7.0
-	//TokBuf.Z();
 	if(!TsHt.Get(tokId, &r_tok_buf)) {
 		PPLoadStringS(PPSTR_HASHTOKEN_C, tokId, r_tok_buf);
 		TsHt.Put(tokId, r_tok_buf);
@@ -6695,7 +6694,24 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 							bool  is_mark_accepted = false;
 							GtinStruc gts;
 							const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
-							if((rParam.Flags & PPBillImpExpParam::fChZnMarkGTINSER) || (Flags & fExpChZnMarksGTINSER)) {
+							// @v11.9.4 {
+							const int ntok = gts.GetSpecialNaturalToken();
+							if(oneof2(ntok, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_ALTCIGITEM)) {
+								//static const _FldEntry fe_list[] = { { fldGTIN14, 14 }, { fldSerial, 7 }, { fldPriceRuTobacco, 4 }, { fldControlRuTobacco, 4 } };
+								//
+								// Розничная табачная (в т.ч. альтернативная) продукция экспортируется без крипто-хвоста (fldControlRuTobacco)!
+								//
+								gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
+								gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
+								gts.GetToken(GtinStruc::fldPriceRuTobacco, &chzn_price_buf);
+								if(chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty() && chzn_price_buf.NotEmpty()) {
+									temp_buf.Z().Cat(chzn_gtin14_buf).Cat(chzn_serial_buf).Cat(chzn_price_buf);
+									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
+									is_mark_accepted = true;
+								}
+							}
+							// } @v11.9.4 
+							if(!is_mark_accepted && ((rParam.Flags & PPBillImpExpParam::fChZnMarkGTINSER) || (Flags & fExpChZnMarksGTINSER))) {
 								if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) > 0) {
 									gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
 									gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);

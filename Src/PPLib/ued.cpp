@@ -232,23 +232,20 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 
 /*static*/uint64 UED::GetMeta(uint64 ued)
 {
+	uint64 result = 0ULL;
 	if(IsMetaId(ued))
-		return  UED_META_META; // meta
+		result = UED_META_META; // meta
 	else {
 		const uint32 dw_hi = HiDWord(ued);
 		const uint8  b_hi = static_cast<uint8>(dw_hi >> 24);
-		if(b_hi & 0x80) {
-			return (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0xff000000U));
-		}
-		else if(b_hi & 0x40) {
-			return (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0xffff0000U));
-		}
-		else if(dw_hi) {
-			return (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0x0fffffffU));
-		}
-		else
-			return 0ULL;
+		if(b_hi & 0x80)
+			result = (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0xff000000U));
+		else if(b_hi & 0x40)
+			result = (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0xffff0000U));
+		else if(dw_hi)
+			result = (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0x0fffffffU));
 	}
+	return result;
 }
 
 /*static*/bool UED::GetRawValue(uint64 ued, uint64 * pRawValue)
@@ -338,7 +335,7 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	uint64 ued = 0;
 	const  uint bits = GetMetaRawDataBits(meta);
 	int64  aval = abs(val);
-	uint64 raw_val  = 0;
+	uint64 raw_val  = 0ULL;
 	if(oneof2(bits, 48, 56)) {
 		if(val != 0) {
 			const uint _clz_ = SBits::Clz(static_cast<uint64>(aval));
@@ -364,12 +361,64 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 
 #if(_MSC_VER >= 1900) // {
 
+/*static*/uint64 UED::SetRaw_SphDir(const SphericalDirection & rV)
+{
+	uint64 result = 0;
+	SphericalDirection test_v;
+	if(rV.IsValid()) {
+		constexpr uint _bits = 28;
+		constexpr uint64 ued_coeff = 3600ULL;
+		constexpr uint64 ued_width = ((1ULL << _bits) - 1) / ued_coeff * ued_coeff;
+		uint64 _polarangle = static_cast<uint64>(rV.PolarAngle * 1000000.0);
+		uint64 _azimuth = static_cast<uint64>(rV.Azimuth * 1000000.0);
+		absl::uint128 _p128 = (_polarangle * ued_width);
+		_p128 /= absl::uint128(180ULL * 1000000ULL);
+		assert(_p128 <= ued_width);
+		absl::uint128 _a128 = (_azimuth * ued_width);
+		_a128 /= absl::uint128(360ULL * 1000000ULL);
+		assert(_a128 <= ued_width);
+		uint64 raw = (static_cast<uint64>(_p128) << _bits) | static_cast<uint64>(_a128);
+		result = ApplyMetaToRawValue(UED_META_SPHERDIR, raw);
+		// @debug {
+		//
+		// test straighten
+		//
+		absl::uint128 _p128_ = ((result >> _bits) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
+		absl::uint128 _a128_ = (result & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
+		_p128_ /= ued_width;
+		_a128_ /= ued_width;
+		test_v.PolarAngle = (static_cast<double>(_p128_) / 1000000.0);
+		test_v.Azimuth = (static_cast<double>(_a128_) / 1000000.0);
+		// } @debug
+	}
+	return result;
+}
+
+/*static*/bool UED::GetRaw_SphDir(uint64 ued, SphericalDirection & rV)
+{
+	bool   ok = false;
+	if(BelongToMeta(ued, UED_META_SPHERDIR)) {
+		constexpr uint _bits = 28;
+		constexpr uint64 ued_coeff = 3600ULL;
+		constexpr uint64 ued_width = ((1ULL << _bits) - 1) / ued_coeff * ued_coeff;
+		absl::uint128 _p128 = ((ued >> _bits) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
+		absl::uint128 _a128 = (ued & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
+		_p128 /= ued_width;
+		_a128 /= ued_width;
+		rV.PolarAngle = (static_cast<double>(_p128) / 1000000.0);
+		rV.Azimuth = (static_cast<double>(_a128) / 1000000.0);
+		ok = rV.IsValid();
+	}
+	return ok;
+}
+
 /*static*/uint64 UED::SetRaw_GeoLoc(const SGeoPosLL & rGeoPos)
 {
 	uint64 result = 0;
 	SGeoPosLL test_geopos; // @debug
 	if(rGeoPos.IsValid()) {
-		constexpr uint64 ued_width = ((1ULL << 28) - 1); // 28 bits
+		constexpr uint _bits = 28;
+		constexpr uint64 ued_width = ((1ULL << _bits) - 1); // 28 bits
 		uint64 _lat = static_cast<uint64>((rGeoPos.Lat + 90.0)  * 1000000.0);
 		uint64 _lon = static_cast<uint64>((rGeoPos.Lon + 180.0) * 1000000.0);
 		absl::uint128 _lat128 = (_lat * ued_width);
@@ -378,13 +427,13 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 		absl::uint128 _lon128 = (_lon * ued_width);
 		_lon128 /= absl::uint128(360ULL * 1000000ULL);
 		assert(_lon128 <= ued_width);
-		uint64 raw = (static_cast<uint64>(_lat128) << 28) | static_cast<uint64>(_lon128);
+		uint64 raw = (static_cast<uint64>(_lat128) << _bits) | static_cast<uint64>(_lon128);
 		result = ApplyMetaToRawValue(UED_META_GEOLOC, raw);
 		// @debug {
 		//
 		// test straighten
 		//
-		absl::uint128 _lat128_ = ((result >> 28) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
+		absl::uint128 _lat128_ = ((result >> _bits) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
 		absl::uint128 _lon128_ = (result & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
 		_lat128_ /= ued_width;
 		_lon128_ /= ued_width;
@@ -399,8 +448,9 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 {
 	bool   ok = false;
 	if(BelongToMeta(ued, UED_META_GEOLOC)) {
-		const uint64 ued_width = ((1 << 28) - 1); // 28 bits
-		absl::uint128 _lat128 = ((ued >> 28) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
+		constexpr uint _bits = 28;
+		constexpr uint64 ued_width = ((1 << _bits) - 1); // 28 bits
+		absl::uint128 _lat128 = ((ued >> _bits) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
 		absl::uint128 _lon128 = (ued & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
 		_lat128 /= ued_width;
 		_lon128 /= ued_width;
@@ -447,6 +497,239 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 			rDeg = -rDeg;
 		ok = true;
 	}
+	return ok;
+}
+
+/*static*/uint64 UED::Helper_SetRaw_DecimalString(uint64 meta, const char * pT, uint flagsBits, uint flags)
+{
+	assert(flagsBits <= 8 && (!flags || ((sizeof(flags) << 3) - SBits::Clz(flags)) <= flagsBits));
+	uint64 result = 0;
+	const uint bits = GetMetaRawDataBits(meta);
+	if(bits) {
+		if(flagsBits <= 8 && (!flags || ((sizeof(flags) << 3) - SBits::Clz(flags)) <= flagsBits)) {
+			const uint tlen = sstrlen(pT);
+			if(tlen) {
+				bool all_dec = true;
+				for(uint i = 0; all_dec && i < tlen; i++) {
+					if(!isdec(pT[i]))
+						all_dec = false;
+				}
+				if(all_dec) {
+					uint64 val = _texttodec64(pT, tlen);
+					uint val_bits = val ? ((sizeof(val) << 3) - SBits::Clz(val)) : 0;
+					if((val_bits + flagsBits) <= bits) {
+						uint64 raw = (static_cast<uint64>(flags) << (bits - flagsBits)) | val;
+						result = ApplyMetaToRawValue(meta, raw);
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
+/*static*/bool UED::Helper_GetRaw_DecimalString(uint64 meta, uint64 ued, SString & rT, uint flagsBits, uint * pFlags)
+{
+	rT.Z();
+	assert(flagsBits <= 8);
+	bool ok = false;
+	uint flags = 0;
+	const  uint bits = GetMetaRawDataBits(meta);
+	if(bits && BelongToMeta(ued, meta)) {
+		if(flagsBits <= 8) {
+			uint64 raw = 0;
+			if(GetRawValue(ued, &raw)) {
+				flags = static_cast<uint>(raw >> (bits - flagsBits));
+				uint64 val = raw & (_FFFF64 << (64 - bits) >> (64 - bits));
+				rT.Cat(val);
+				ok = true;
+			}
+		}
+	}
+	ASSIGN_PTR(pFlags, flags);
+	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_Ru_INN(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		if(nta.Has(SNTOK_RU_INN))
+			result = Helper_SetRaw_DecimalString(UED_META_RU_INN, pT, 4, 0);
+	}
+	return result;
+}
+
+/*static*/bool UED::GetRaw_Ru_INN(uint64 ued, SString & rT)
+{
+	uint flags = 0;
+	bool ok = Helper_GetRaw_DecimalString(UED_META_RU_INN, ued, rT, 4, &flags);
+	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_Ru_KPP(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		if(nta.Has(SNTOK_RU_KPP))
+			result = Helper_SetRaw_DecimalString(UED_META_RU_KPP, pT, 4, 0);
+	}
+	return result;
+}
+	
+/*static*/bool UED::GetRaw_Ru_KPP(uint64 ued, SString & rT)
+{
+	uint flags = 0;
+	bool ok = Helper_GetRaw_DecimalString(UED_META_RU_KPP, ued, rT, 4, &flags);
+	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_Ru_SNILS(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		if(nta.Has(SNTOK_RU_SNILS))
+			result = Helper_SetRaw_DecimalString(UED_META_RU_SNILS, pT, 4, 0);
+	}
+	return result;
+}
+	
+/*static*/bool UED::GetRaw_Ru_SNILS(uint64 ued, SString & rT)
+{
+	uint flags = 0;
+	bool ok = Helper_GetRaw_DecimalString(UED_META_RU_SNILS, ued, rT, 4, &flags);
+	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_Ar_DNI(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		if(nta.Has(SNTOK_AR_DNI))
+			result = Helper_SetRaw_DecimalString(UED_META_AR_DNI, pT, 4, 0);
+	}
+	return result;
+}
+
+/*static*/bool   UED::GetRaw_Ar_DNI(uint64 ued, SString & rT)
+{
+	uint flags = 0;
+	bool ok = Helper_GetRaw_DecimalString(UED_META_AR_DNI, ued, rT, 4, &flags);
+	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_Cl_RUT(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		if(nta.Has(SNTOK_CL_RUT))
+			result = Helper_SetRaw_DecimalString(UED_META_CL_RUT, pT, 4, 0);
+	}
+	return result;
+}
+
+/*static*/bool   UED::GetRaw_Cl_RUT(uint64 ued, SString & rT)
+{
+	uint flags = 0;
+	bool ok = Helper_GetRaw_DecimalString(UED_META_CL_RUT, ued, rT, 4, &flags);
+	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_EAN13(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		if(nta.Has(SNTOK_EAN13))
+			result = Helper_SetRaw_DecimalString(UED_META_BARCODE_EAN13, pT, 4, 0);
+	}
+	return result;
+}
+
+/*static*/bool UED::GetRaw_EAN13(uint64 ued, SString & rT)
+{
+	uint flags = 0;
+	bool ok = Helper_GetRaw_DecimalString(UED_META_BARCODE_EAN13, ued, rT, 4, &flags);
+	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_EAN8(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		if(nta.Has(SNTOK_EAN8))
+			result = Helper_SetRaw_DecimalString(UED_META_BARCODE_EAN8, pT, 4, 0);
+	}
+	return result;
+}
+
+/*static*/bool   UED::GetRaw_EAN8(uint64 ued, SString & rT)
+{
+	uint flags = 0;
+	bool ok = Helper_GetRaw_DecimalString(UED_META_BARCODE_EAN8, ued, rT, 4, &flags);
+	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_UPCA(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		// @todo Различие между upca и upce необходимо задать флагами
+		if(nta.Has(SNTOK_UPCA))
+			result = Helper_SetRaw_DecimalString(UED_META_BARCODE_UPC, pT, 4, 0);
+		else if(nta.Has(SNTOK_UPCE))
+			result = Helper_SetRaw_DecimalString(UED_META_BARCODE_UPC, pT, 4, 0);
+	}
+	return result;
+}
+
+/*static*/bool UED::GetRaw_UPCA(uint64 ued, SString & rT)
+{
+	uint flags = 0;
+	bool ok = Helper_GetRaw_DecimalString(UED_META_BARCODE_UPC, ued, rT, 4, &flags);
+	return ok;
+}
+
+/*static*/uint64 UED::SetRaw_GLN(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run(reinterpret_cast<const uchar *>(pT), sstrlen(pT), nta, 0);
+		if(nta.Has(SNTOK_EAN13))
+			result = Helper_SetRaw_DecimalString(UED_META_GLN, pT, 4, 0);
+	}
+	return result;
+}
+
+/*static*/bool UED::GetRaw_GLN(uint64 ued, SString & rT)
+{
+	uint flags = 0;
+	bool ok = Helper_GetRaw_DecimalString(UED_META_GLN, ued, rT, 4, &flags);
 	return ok;
 }
 
@@ -695,6 +978,18 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 	THROW(rT.IsValid());
 	CATCHZOK
 	return ok;
+}
+
+/*static*/bool   UED::_GetRaw_RangeDate(uint64 ued, DateRange & rT)
+{
+	bool   ok = false;
+	return ok;
+}
+
+/*static*/uint64 UED::_SetRaw_RangeDate(const DateRange & rT)
+{
+	uint64 result = 0;
+	return result;
 }
 //
 //

@@ -454,15 +454,11 @@ static int ossl_rsa_sync_to_pss_params_30(RSA * rsa)
 	return 1;
 }
 
-int ossl_rsa_pss_get_param_unverified(const RSA_PSS_PARAMS * pss,
-    const EVP_MD ** pmd, const EVP_MD ** pmgf1md,
-    int * psaltlen, int * ptrailerField)
+int ossl_rsa_pss_get_param_unverified(const RSA_PSS_PARAMS * pss, const EVP_MD ** pmd, const EVP_MD ** pmgf1md, int * psaltlen, int * ptrailerField)
 {
 	RSA_PSS_PARAMS_30 pss_params;
-
 	/* Get the defaults from the ONE place */
 	(void)ossl_rsa_pss_params_30_set_defaults(&pss_params);
-
 	if(pss == NULL)
 		return 0;
 	*pmd = ossl_x509_algor_get_md(pss->hashAlgorithm);
@@ -478,8 +474,7 @@ int ossl_rsa_pss_get_param_unverified(const RSA_PSS_PARAMS * pss,
 	if(pss->trailerField)
 		*ptrailerField = ASN1_INTEGER_get(pss->trailerField);
 	else
-		*ptrailerField = ossl_rsa_pss_params_30_trailerfield(&pss_params); ;
-
+		*ptrailerField = ossl_rsa_pss_params_30_trailerfield(&pss_params);
 	return 1;
 }
 
@@ -489,7 +484,6 @@ int ossl_rsa_param_decode(RSA * rsa, const X509_ALGOR * alg)
 	const ASN1_OBJECT * algoid;
 	const void * algp;
 	int algptype;
-
 	X509_ALGOR_get0(&algoid, &algptype, &algp, alg);
 	if(OBJ_obj2nid(algoid) != EVP_PKEY_RSA_PSS)
 		return 1;

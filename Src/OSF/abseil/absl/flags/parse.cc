@@ -392,11 +392,7 @@ std::tuple<bool, absl::string_view> DeduceFlagValue(const CommandLineFlag& flag,
 		if(value.empty()) {
 			if(is_empty_value) {
 				// "--bool_flag=" case
-				flags_internal::ReportUsageError(
-					absl::StrCat(
-						"Missing the value after assignment for the boolean flag '",
-						flag.Name(), "'"),
-					true);
+				flags_internal::ReportUsageError(absl::StrCat("Missing the value after assignment for the boolean flag '", flag.Name(), "'"), true);
 				return std::make_tuple(false, "");
 			}
 
@@ -405,31 +401,21 @@ std::tuple<bool, absl::string_view> DeduceFlagValue(const CommandLineFlag& flag,
 		}
 		else if(is_negative) {
 			// "--nobool_flag=Y" case
-			flags_internal::ReportUsageError(
-				absl::StrCat("Negative form with assignment is not valid for the "
-				"boolean flag '",
-				flag.Name(), "'"),
-				true);
+			flags_internal::ReportUsageError(absl::StrCat("Negative form with assignment is not valid for the boolean flag '", flag.Name(), "'"), true);
 			return std::make_tuple(false, "");
 		}
 	}
 	else if(is_negative) {
 		// "--noint_flag=1" case
-		flags_internal::ReportUsageError(
-			absl::StrCat("Negative form is not valid for the flag '", flag.Name(),
-			"'"),
-			true);
+		flags_internal::ReportUsageError(absl::StrCat("Negative form is not valid for the flag '", flag.Name(), "'"), true);
 		return std::make_tuple(false, "");
 	}
 	else if(value.empty() && (!is_empty_value)) {
 		if(curr_list->Size() == 1) {
 			// "--int_flag" case
-			flags_internal::ReportUsageError(
-				absl::StrCat("Missing the value for the flag '", flag.Name(), "'"),
-				true);
+			flags_internal::ReportUsageError(absl::StrCat("Missing the value for the flag '", flag.Name(), "'"), true);
 			return std::make_tuple(false, "");
 		}
-
 		// "--int_flag" "10" case
 		curr_list->PopFront();
 		value = curr_list->Front();
@@ -441,18 +427,13 @@ std::tuple<bool, absl::string_view> DeduceFlagValue(const CommandLineFlag& flag,
 		// dash and corresponds to known flag or standalone --.
 		if(!value.empty() && value[0] == '-' && flag.IsOfType<std::string>()) {
 			auto maybe_flag_name = std::get<0>(SplitNameAndValue(value.substr(1)));
-
 			if(maybe_flag_name.empty() ||
 			    std::get<0>(LocateFlag(maybe_flag_name)) != nullptr) {
 				// "--string_flag" "--known_flag" case
-				ABSL_INTERNAL_LOG(
-					WARNING,
-					absl::StrCat("Did you really mean to set flag '", flag.Name(),
-					"' to the value '", value, "'?"));
+				ABSL_INTERNAL_LOG(WARNING, absl::StrCat("Did you really mean to set flag '", flag.Name(), "' to the value '", value, "'?"));
 			}
 		}
 	}
-
 	return std::make_tuple(true, value);
 }
 

@@ -919,7 +919,8 @@ bool ConsumeDurationUnit(const char** start, const char* end, Duration* unit) {
 //   a possibly signed sequence of decimal numbers, each with optional
 //   fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m".
 //   Valid time units are "ns", "us" "ms", "s", "m", "h".
-bool ParseDuration(absl::string_view dur_sv, Duration* d) {
+bool ParseDuration(absl::string_view dur_sv, Duration* d) 
+{
 	int sign = 1;
 	if(absl::ConsumePrefix(&dur_sv, "-")) {
 		sign = -1;
@@ -934,15 +935,12 @@ bool ParseDuration(absl::string_view dur_sv, Duration* d) {
 		*d = ZeroDuration();
 		return true;
 	}
-
 	if(dur_sv == "inf") {
 		*d = sign * InfiniteDuration();
 		return true;
 	}
-
 	const char* start = dur_sv.data();
 	const char* end = start + dur_sv.size();
-
 	Duration dur;
 	while(start != end) {
 		int64_t int_part;

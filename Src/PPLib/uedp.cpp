@@ -17,7 +17,7 @@ int main(int argc, const char * argv[])
 	//bool   force_update_pldecl = false;
 	//bool   tolerant_mode = false;
 	uint   flags = 0;
-	DS.Init(PPSession::fInitPaths);
+	DS.Init(PPSession::fInitPaths, 0, 0);
 	assert(argc >= 1);
 	if(argc < 1) {
 		result = -1;

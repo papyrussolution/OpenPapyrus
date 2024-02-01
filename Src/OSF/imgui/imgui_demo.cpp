@@ -1393,9 +1393,9 @@ static void ShowDemoWindowWidgets()
 					else if(data->EventFlag == ImGuiInputTextFlags_CallbackEdit) {
 						// Toggle casing of first character
 						char c = data->Buf[0];
-						if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))  data->Buf[0] ^= 32;
+						if(isasciialpha(c))  
+							data->Buf[0] ^= 32;
 						data->BufDirty = true;
-
 						// Increment a counter
 						int* p_int = (int*)data->UserData;
 						*p_int = *p_int + 1;

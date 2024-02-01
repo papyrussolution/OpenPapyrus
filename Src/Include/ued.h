@@ -1,5 +1,5 @@
 // UED.H
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 //
 #ifndef __UED_H
 #define __UED_H
@@ -47,6 +47,8 @@ public:
 	static bool   GetRaw_Ru_INN(uint64 ued, SString & rT);
 	static uint64 SetRaw_Ru_KPP(const char * pT);
 	static bool   GetRaw_Ru_KPP(uint64 ued, SString & rT);
+	static uint64 SetRaw_Ru_SNILS(const char * pT);
+	static bool   GetRaw_Ru_SNILS(uint64 ued, SString & rT);
 	static uint64 SetRaw_Ar_DNI(const char * pT);
 	static bool   GetRaw_Ar_DNI(uint64 ued, SString & rT);
 	static uint64 SetRaw_Cl_RUT(const char * pT);
@@ -62,9 +64,20 @@ public:
 
 	static bool   _GetRaw_Time(uint64 ued, SUniTime_Internal & rT);
 	static uint64 _SetRaw_Time(uint64 meta, const SUniTime_Internal & rT);
+	static bool   _GetRaw_RangeDate(uint64 ued, DateRange & rT);
+	static uint64 _SetRaw_RangeDate(const DateRange & rT);
 private:
+	enum {
+		decstrf_LZ1           = 0x01,
+		decstrf_LZ2           = 0x02,
+		decstrf_LZ3           = 0x03,
+		decstrf_RuInn_InvCheckDigit = 0x08,
+		decstrf_ClRut_CtlK    = 0x08, // Для чилийского RUT в качестве контрольного символа - K
+	};
 	static uint64 Helper_SetRaw_PlanarAngleDeg(uint64 meta, double deg);
 	static bool   Helper_GetRaw_PlanarAngleDeg(uint64 meta, uint64 ued, double & rDeg);
+	static uint64 Helper_SetRaw_DecimalString(uint64 meta, const char * pT, uint flagsBits, uint flags);
+	static bool   Helper_GetRaw_DecimalString(uint64 meta, uint64 ued, SString & rT, uint flagsBits, uint * pFlags);
 };
 
 class UedSetBase : private SBaseBuffer {

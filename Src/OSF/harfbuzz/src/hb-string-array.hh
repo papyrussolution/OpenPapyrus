@@ -54,7 +54,7 @@ static const uint HB_STRING_ARRAY_OFFS_NAME[] = {
 	sizeof(HB_STRING_ARRAY_TYPE_NAME)
 };
 
-static const uint HB_STRING_ARRAY_LENG_NAME = ARRAY_LENGTH_CONST(HB_STRING_ARRAY_OFFS_NAME) - 1;
+static const uint HB_STRING_ARRAY_LENG_NAME = SIZEOFARRAY(HB_STRING_ARRAY_OFFS_NAME) - 1;
 
 static inline hb_bytes_t HB_STRING_ARRAY_NAME(uint i)
 {

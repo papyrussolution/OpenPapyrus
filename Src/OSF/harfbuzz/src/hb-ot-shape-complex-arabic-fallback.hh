@@ -78,18 +78,17 @@ static OT::SubstLookup * arabic_fallback_synthesize_lookup_single(const hb_ot_sh
 	return ret && !c.in_error() ? c.copy<OT::SubstLookup> () : nullptr;
 }
 
-static OT::SubstLookup * arabic_fallback_synthesize_lookup_ligature(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
-    hb_font_t * font)
+static OT::SubstLookup * arabic_fallback_synthesize_lookup_ligature(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM, hb_font_t * font)
 {
-	OT::HBGlyphID first_glyphs[ARRAY_LENGTH_CONST(ligature_table)];
-	uint first_glyphs_indirection[ARRAY_LENGTH_CONST(ligature_table)];
-	uint ligature_per_first_glyph_count_list[ARRAY_LENGTH_CONST(first_glyphs)];
+	OT::HBGlyphID first_glyphs[SIZEOFARRAY(ligature_table)];
+	uint first_glyphs_indirection[SIZEOFARRAY(ligature_table)];
+	uint ligature_per_first_glyph_count_list[SIZEOFARRAY(first_glyphs)];
 	uint num_first_glyphs = 0;
 
 	/* We know that all our ligatures are 2-component */
-	OT::HBGlyphID ligature_list[ARRAY_LENGTH_CONST(first_glyphs) * ARRAY_LENGTH_CONST(ligature_table[0].ligatures)];
-	uint component_count_list[ARRAY_LENGTH_CONST(ligature_list)];
-	OT::HBGlyphID component_list[ARRAY_LENGTH_CONST(ligature_list) * 1 /* One extra component per ligature */];
+	OT::HBGlyphID ligature_list[SIZEOFARRAY(first_glyphs) * SIZEOFARRAY(ligature_table[0].ligatures)];
+	uint component_count_list[SIZEOFARRAY(ligature_list)];
+	OT::HBGlyphID component_list[SIZEOFARRAY(ligature_list) * 1 /* One extra component per ligature */];
 	uint num_ligatures = 0;
 
 	/* Populate arrays */
@@ -135,7 +134,7 @@ static OT::SubstLookup * arabic_fallback_synthesize_lookup_ligature(const hb_ot_
 		return nullptr;
 
 	/* 16 bytes per ligature ought to be enough... */
-	char buf[ARRAY_LENGTH_CONST(ligature_list) * 16 + 128];
+	char buf[SIZEOFARRAY(ligature_list) * 16 + 128];
 	hb_serialize_context_t c(buf, sizeof(buf));
 	OT::SubstLookup * lookup = c.start_serialize<OT::SubstLookup> ();
 	bool ret = lookup->serialize_ligature(&c,
@@ -221,21 +220,17 @@ static bool arabic_fallback_plan_init_win1256(arabic_fallback_plan_t * fallback_
 			}
 		}
 	}
-
 	fallback_plan->num_lookups = j;
 	fallback_plan->free_lookups = false;
-
 	return j > 0;
 #else
 	return false;
 #endif
 }
 
-static bool arabic_fallback_plan_init_unicode(arabic_fallback_plan_t * fallback_plan,
-    const hb_ot_shape_plan_t * plan,
-    hb_font_t * font)
+static bool arabic_fallback_plan_init_unicode(arabic_fallback_plan_t * fallback_plan, const hb_ot_shape_plan_t * plan, hb_font_t * font)
 {
-	static_assert((ARRAY_LENGTH_CONST(arabic_fallback_features) <= ARABIC_FALLBACK_MAX_LOOKUPS), "");
+	static_assert((SIZEOFARRAY(arabic_fallback_features) <= ARABIC_FALLBACK_MAX_LOOKUPS), "");
 	uint j = 0;
 	for(uint i = 0; i < ARRAY_LENGTH(arabic_fallback_features); i++) {
 		fallback_plan->mask_array[j] = plan->map.get_1_mask(arabic_fallback_features[i]);

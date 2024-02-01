@@ -32,5 +32,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-image.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-libdivide.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-fts.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-sqlparser.cpp" />
   </ItemGroup>
 </Project>

@@ -130,7 +130,7 @@ static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 		pos += 2;
 		for(;;) {
 			ch = styler.SafeGetCharAt(pos, '\0');
-			if(ch == '_' || (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) 
+			if(ch == '_' || ishex(ch)) 
 				++pos;
 			else 
 				break;
@@ -170,7 +170,7 @@ static Sci_Position scanNumber(Accessor & styler, Sci_Position pos)
 		pos++;
 		for(;;) {
 			ch = styler.SafeGetCharAt(pos);
-			if((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '_') 
+			if(isasciialnum(ch) || ch == '_') 
 				++pos;
 			else 
 				break;

@@ -249,23 +249,20 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 		}
 	}
 
-	static int32_t keyToDirection(const char * key) {
-		if(strcmp(key, "-2") == 0) {
+	static int32_t keyToDirection(const char * key) 
+	{
+		if(sstreq(key, "-2"))
 			return UDAT_DIRECTION_LAST_2;
-		}
-		if(strcmp(key, "-1") == 0) {
+		else if(sstreq(key, "-1"))
 			return UDAT_DIRECTION_LAST;
-		}
-		if(strcmp(key, "0") == 0) {
+		else if(sstreq(key, "0"))
 			return UDAT_DIRECTION_THIS;
-		}
-		if(strcmp(key, "1") == 0) {
+		else if(sstreq(key, "1"))
 			return UDAT_DIRECTION_NEXT;
-		}
-		if(strcmp(key, "2") == 0) {
+		else if(sstreq(key, "2"))
 			return UDAT_DIRECTION_NEXT_2;
-		}
-		return -1;
+		else
+			return -1;
 	}
 
 	// Values kept between levels of parsing the CLDR data.
@@ -288,40 +285,38 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 	static UDateRelativeDateTimeFormatterStyle styleFromString(const char * s) 
 	{
 		int32_t len = static_cast<int32_t>(strlen(s));
-		if(len >= 7 && strcmp(s + len - 7, "-narrow") == 0) {
+		if(len >= 7 && sstreq(s + len - 7, "-narrow"))
 			return UDAT_STYLE_NARROW;
-		}
-		if(len >= 6 && strcmp(s + len - 6, "-short") == 0) {
+		else if(len >= 6 && sstreq(s + len - 6, "-short"))
 			return UDAT_STYLE_SHORT;
-		}
-		return UDAT_STYLE_LONG;
+		else
+			return UDAT_STYLE_LONG;
 	}
 
-	static int32_t styleSuffixLength(UDateRelativeDateTimeFormatterStyle style) {
+	static int32_t styleSuffixLength(UDateRelativeDateTimeFormatterStyle style) 
+	{
 		switch(style) {
-			case UDAT_STYLE_NARROW:
-			    return 7;
-			case UDAT_STYLE_SHORT:
-			    return 6;
-			default:
-			    return 0;
+			case UDAT_STYLE_NARROW: return 7;
+			case UDAT_STYLE_SHORT: return 6;
+			default: return 0;
 		}
 	}
 
 	// Utility functions
-	static UDateRelativeDateTimeFormatterStyle styleFromAliasUnicodeString(UnicodeString s) {
+	static UDateRelativeDateTimeFormatterStyle styleFromAliasUnicodeString(UnicodeString s) 
+	{
 		static const char16_t narrow[7] = {0x002D, 0x006E, 0x0061, 0x0072, 0x0072, 0x006F, 0x0077};
 		static const char16_t sshort[6] = {0x002D, 0x0073, 0x0068, 0x006F, 0x0072, 0x0074, };
-		if(s.endsWith(narrow, 7)) {
+		if(s.endsWith(narrow, 7))
 			return UDAT_STYLE_NARROW;
-		}
-		if(s.endsWith(sshort, 6)) {
+		else if(s.endsWith(sshort, 6))
 			return UDAT_STYLE_SHORT;
-		}
-		return UDAT_STYLE_LONG;
+		else
+			return UDAT_STYLE_LONG;
 	}
 
-	static RelAbsUnit unitOrNegativeFromString(const char * keyword, int32_t length) {
+	static RelAbsUnit unitOrNegativeFromString(const char * keyword, int32_t length) 
+	{
 		// Quick check from string to enum.
 		switch(length) {
 			case 3:
@@ -385,7 +380,8 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 		return INVALID_UNIT;
 	}
 
-	void handlePlainDirection(ResourceValue &value, UErrorCode & errorCode) {
+	void handlePlainDirection(ResourceValue &value, UErrorCode & errorCode) 
+	{
 		// Handle Display Name for PLAIN direction for some units.
 		if(U_FAILURE(errorCode)) {
 			return;
@@ -396,20 +392,17 @@ struct RelDateTimeFmtDataSink : public ResourceSink {
 		}
 
 		// Store displayname if not set.
-		if(outputData.absoluteUnits[style]
-		    [absUnit][UDAT_DIRECTION_PLAIN].isEmpty()) {
-			outputData.absoluteUnits[style]
-			[absUnit][UDAT_DIRECTION_PLAIN].fastCopyFrom(value.getUnicodeString(errorCode));
+		if(outputData.absoluteUnits[style][absUnit][UDAT_DIRECTION_PLAIN].isEmpty()) {
+			outputData.absoluteUnits[style][absUnit][UDAT_DIRECTION_PLAIN].fastCopyFrom(value.getUnicodeString(errorCode));
 			return;
 		}
 	}
-
-	void consumeTableRelative(const char * key, ResourceValue &value, UErrorCode & errorCode) {
+	void consumeTableRelative(const char * key, ResourceValue &value, UErrorCode & errorCode) 
+	{
 		ResourceTable unitTypesTable = value.getTable(errorCode);
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
-
 		for(int32_t i = 0; unitTypesTable.getKeyAndValue(i, key, value); ++i) {
 			if(value.getType() == URES_STRING) {
 				int32_t direction = keyToDirection(key);

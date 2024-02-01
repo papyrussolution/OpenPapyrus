@@ -48,17 +48,14 @@ struct Reprog {
 struct cstate {
 	Reprog * prog;
 	Renode * pstart, * pend;
-
 	const char * source;
 	int ncclass;
 	int nsub;
 	Renode * sub[REG_MAXSUB];
-
 	int lookahead;
 	Rune yychar;
 	Reclass * yycc;
 	int yymin, yymax;
-
 	const char * error;
 	jmp_buf kaboom;
 };
@@ -72,9 +69,7 @@ static void die(struct cstate * g, const char * message)
 static int canon(Rune c)
 {
 	Rune u = toupperrune(c);
-	if(c >= 128 && u < 128)
-		return c;
-	return u;
+	return (c >= 128 && u < 128) ? c : u;
 }
 
 /* Scan */
@@ -94,6 +89,17 @@ enum {
 
 static int hex(struct cstate * g, int c)
 {
+	// @v11.9.4 {
+	if(ishex(c)) {
+		return hex(c);
+	}
+	else {
+		die(g, "invalid escape sequence");
+		return 0;
+	}
+	// } @v11.9.4 
+	//
+	/* @v11.9.4 
 	if(isdec(c)) 
 		return c - '0';
 	if(c >= 'a' && c <= 'f') 
@@ -102,6 +108,7 @@ static int hex(struct cstate * g, int c)
 		return c - 'A' + 0xA;
 	die(g, "invalid escape sequence");
 	return 0;
+	*/
 }
 
 static int dec(struct cstate * g, int c)

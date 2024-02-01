@@ -1,5 +1,5 @@
 // DL600C.Y
-// Copyright (c) A.Sobolev 2006-2007, 2008, 2009, 2010, 2011, 2016, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2006-2007, 2008, 2009, 2010, 2011, 2016, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 // debug cmdline: /dict:$(SolutionDir)..\..\BASE\INIT_DL6 /data:$(SolutionDir)..\..\BASE\INIT_DL6 /oracle $(SolutionDir)..\rsrc\dl600\ppdbs.dl6
@@ -1242,6 +1242,8 @@ int main(int argc, char * argv[])
 				cflags |= DlContext::cfStyloQAndroid;
 			else if(arg.IsEqiAscii("/gravity")) // @v10.8.2
 				cflags |= DlContext::cfGravity;
+			else if(arg.IsEqiAscii("/skipbtrdict") || arg.IsEqiAscii("/skipbtrdictcreation")) // @v11.9.4
+				cflags |= DlContext::cfSkipBtrDict;
 			else if(arg.HasPrefixIAscii("/dict")) {
 				if(arg.Divide(':', left, right) > 0) {
 					dict_path = right;

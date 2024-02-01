@@ -28,13 +28,11 @@
 #include "absl/base/config.h"
 
 #if defined(ABSL_INTERNAL_HAVE_SSE)
-#include <xmmintrin.h>
+	#include <xmmintrin.h>
 #endif
-
-#if defined(_MSC_VER) && _MSC_VER >= 1900 && \
-    (defined(_M_X64) || defined(_M_IX86))
-#include <intrin.h>
-#pragma intrinsic(_mm_prefetch)
+#if defined(_MSC_VER) && _MSC_VER >= 1900 && (defined(_M_X64) || defined(_M_IX86))
+	#include <intrin.h>
+	#pragma intrinsic(_mm_prefetch)
 #endif
 
 namespace absl {
@@ -135,71 +133,49 @@ void PrefetchToLocalCacheNta(const void* addr);
 void PrefetchToLocalCacheForWrite(const void* addr);
 
 #if ABSL_HAVE_BUILTIN(__builtin_prefetch) || defined(__GNUC__)
+	#define ABSL_HAVE_PREFETCH 1
 
-#define ABSL_HAVE_PREFETCH 1
+	// See __builtin_prefetch:
+	// https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html.
+	//
+	ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCache(const void* addr) { __builtin_prefetch(addr, 0, 3); }
+	ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheNta(const void* addr) { __builtin_prefetch(addr, 0, 0); }
 
-// See __builtin_prefetch:
-// https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html.
-//
-ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCache(
-    const void* addr) {
-  __builtin_prefetch(addr, 0, 3);
-}
-
-ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheNta(
-    const void* addr) {
-  __builtin_prefetch(addr, 0, 0);
-}
-
-ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheForWrite(
-    const void* addr) {
-  // [x86] gcc/clang don't generate PREFETCHW for __builtin_prefetch(.., 1)
-  // unless -march=broadwell or newer; this is not generally the default, so we
-  // manually emit prefetchw. PREFETCHW is recognized as a no-op on older Intel
-  // processors and has been present on AMD processors since the K6-2.
-#if defined(__x86_64__)
-  asm("prefetchw (%0)" : : "r"(addr));
-#else
-  __builtin_prefetch(addr, 1, 3);
-#endif
-}
-
+	ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheForWrite(const void* addr) 
+	{
+		// [x86] gcc/clang don't generate PREFETCHW for __builtin_prefetch(.., 1)
+		// unless -march=broadwell or newer; this is not generally the default, so we
+		// manually emit prefetchw. PREFETCHW is recognized as a no-op on older Intel
+		// processors and has been present on AMD processors since the K6-2.
+	#if defined(__x86_64__)
+		asm ("prefetchw (%0)" : : "r" (addr));
+	#else
+		__builtin_prefetch(addr, 1, 3);
+	#endif
+	}
 #elif defined(ABSL_INTERNAL_HAVE_SSE)
+	#define ABSL_HAVE_PREFETCH 1
 
-#define ABSL_HAVE_PREFETCH 1
-
-ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCache(
-    const void* addr) {
-  _mm_prefetch(reinterpret_cast<const char*>(addr), _MM_HINT_T0);
-}
-
-ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheNta(
-    const void* addr) {
-  _mm_prefetch(reinterpret_cast<const char*>(addr), _MM_HINT_NTA);
-}
-
-ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheForWrite(
-    const void* addr) {
-#if defined(_MM_HINT_ET0)
-  _mm_prefetch(reinterpret_cast<const char*>(addr), _MM_HINT_ET0);
-#elif !defined(_MSC_VER) && defined(__x86_64__)
-  // _MM_HINT_ET0 is not universally supported. As we commented further
-  // up, PREFETCHW is recognized as a no-op on older Intel processors
-  // and has been present on AMD processors since the K6-2. We have this
-  // disabled for MSVC compilers as this miscompiles on older MSVC compilers.
-  asm("prefetchw (%0)" : : "r"(addr));
-#endif
-}
-
+	ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCache(const void* addr) 
+		{ _mm_prefetch(reinterpret_cast<const char*>(addr), _MM_HINT_T0); }
+	ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheNta(const void* addr) 
+		{ _mm_prefetch(reinterpret_cast<const char*>(addr), _MM_HINT_NTA); }
+	ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheForWrite(const void* addr) 
+	{
+	#if defined(_MM_HINT_ET0)
+		_mm_prefetch(reinterpret_cast<const char*>(addr), _MM_HINT_ET0);
+	#elif !defined(_MSC_VER) && defined(__x86_64__)
+		// _MM_HINT_ET0 is not universally supported. As we commented further
+		// up, PREFETCHW is recognized as a no-op on older Intel processors
+		// and has been present on AMD processors since the K6-2. We have this
+		// disabled for MSVC compilers as this miscompiles on older MSVC compilers.
+		asm ("prefetchw (%0)" : : "r" (addr));
+	#endif
+	}
 #else
-
-ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCache(
-    const void* addr) {}
-ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheNta(
-    const void* addr) {}
-ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheForWrite(
-    const void* addr) {}
-
+	ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCache(const void* addr) {}
+	ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheNta(const void* addr) {}
+	ABSL_ATTRIBUTE_ALWAYS_INLINE inline void PrefetchToLocalCacheForWrite(const void* addr) {}
 #endif
 
 ABSL_NAMESPACE_END

@@ -1,6 +1,6 @@
 // UED-ID.H
-// version: 29
-// sha256: 9d6c85f7f5078841a1c4aeddef9905e9cd01474c64fed97693af8478eb1fb0a3
+// version: 30
+// sha256: 9f7dcf620981584c964e166378d2ac8cf70f0e6a496d9c2f6a85208597474555
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -3653,6 +3653,7 @@
 #define UED_META_BARCODE_UPC                         0x140060000ULL
 #define UED_META_RU_INN                              0x140070000ULL
 #define UED_META_RU_KPP                              0x140080000ULL
+#define UED_META_RU_SNILS                            0x140090000ULL
 #define UED_META_FIXEDPOINT8                         0x1400b0000ULL
 #define UED_META_FIXEDPOINT16                        0x1400c0000ULL
 #define UED_META_DATASIZE                            0x1400d0000ULL

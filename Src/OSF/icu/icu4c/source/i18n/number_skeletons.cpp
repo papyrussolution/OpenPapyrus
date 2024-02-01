@@ -146,7 +146,8 @@ void U_CALLCONV initNumberSkeletons(UErrorCode & status)
 	uprv_memcpy(kSerializedStemTrie, result.getBuffer(), numBytes);
 }
 
-inline void appendMultiple(UnicodeString & sb, UChar32 cp, int32_t count) {
+inline void appendMultiple(UnicodeString & sb, UChar32 cp, int32_t count) 
+{
 	for(int i = 0; i < count; i++) {
 		sb.append(cp);
 	}
@@ -162,289 +163,174 @@ inline void appendMultiple(UnicodeString & sb, UChar32 cp, int32_t count) {
 	} UPRV_BLOCK_MACRO_END
 } // anonymous namespace
 
-Notation stem_to_object::notation(skeleton::StemEnum stem) {
+Notation stem_to_object::notation(skeleton::StemEnum stem) 
+{
 	switch(stem) {
-		case STEM_COMPACT_SHORT:
-		    return Notation::compactShort();
-		case STEM_COMPACT_LONG:
-		    return Notation::compactLong();
-		case STEM_SCIENTIFIC:
-		    return Notation::scientific();
-		case STEM_ENGINEERING:
-		    return Notation::engineering();
-		case STEM_NOTATION_SIMPLE:
-		    return Notation::simple();
-		default:
-		    UPRV_UNREACHABLE_EXIT;
+		case STEM_COMPACT_SHORT: return Notation::compactShort();
+		case STEM_COMPACT_LONG: return Notation::compactLong();
+		case STEM_SCIENTIFIC: return Notation::scientific();
+		case STEM_ENGINEERING: return Notation::engineering();
+		case STEM_NOTATION_SIMPLE: return Notation::simple();
+		default: UPRV_UNREACHABLE_EXIT;
 	}
 }
 
-MeasureUnit stem_to_object::unit(skeleton::StemEnum stem) {
+MeasureUnit stem_to_object::unit(skeleton::StemEnum stem) 
+{
 	switch(stem) {
-		case STEM_BASE_UNIT:
-		    return MeasureUnit();
-		case STEM_PERCENT:
-		    return MeasureUnit::getPercent();
-		case STEM_PERMILLE:
-		    return MeasureUnit::getPermille();
-		default:
-		    UPRV_UNREACHABLE_EXIT;
+		case STEM_BASE_UNIT: return MeasureUnit();
+		case STEM_PERCENT: return MeasureUnit::getPercent();
+		case STEM_PERMILLE: return MeasureUnit::getPermille();
+		default: UPRV_UNREACHABLE_EXIT;
 	}
 }
 
-Precision stem_to_object::precision(skeleton::StemEnum stem) {
+Precision stem_to_object::precision(skeleton::StemEnum stem) 
+{
 	switch(stem) {
-		case STEM_PRECISION_INTEGER:
-		    return Precision::integer();
-		case STEM_PRECISION_UNLIMITED:
-		    return Precision::unlimited();
-		case STEM_PRECISION_CURRENCY_STANDARD:
-		    return Precision::currency(UCURR_USAGE_STANDARD);
-		case STEM_PRECISION_CURRENCY_CASH:
-		    return Precision::currency(UCURR_USAGE_CASH);
-		default:
-		    UPRV_UNREACHABLE_EXIT;
+		case STEM_PRECISION_INTEGER: return Precision::integer();
+		case STEM_PRECISION_UNLIMITED: return Precision::unlimited();
+		case STEM_PRECISION_CURRENCY_STANDARD: return Precision::currency(UCURR_USAGE_STANDARD);
+		case STEM_PRECISION_CURRENCY_CASH: return Precision::currency(UCURR_USAGE_CASH);
+		default: UPRV_UNREACHABLE_EXIT;
 	}
 }
 
-UNumberFormatRoundingMode stem_to_object::roundingMode(skeleton::StemEnum stem) {
+UNumberFormatRoundingMode stem_to_object::roundingMode(skeleton::StemEnum stem) 
+{
 	switch(stem) {
-		case STEM_ROUNDING_MODE_CEILING:
-		    return UNUM_ROUND_CEILING;
-		case STEM_ROUNDING_MODE_FLOOR:
-		    return UNUM_ROUND_FLOOR;
-		case STEM_ROUNDING_MODE_DOWN:
-		    return UNUM_ROUND_DOWN;
-		case STEM_ROUNDING_MODE_UP:
-		    return UNUM_ROUND_UP;
-		case STEM_ROUNDING_MODE_HALF_EVEN:
-		    return UNUM_ROUND_HALFEVEN;
-		case STEM_ROUNDING_MODE_HALF_ODD:
-		    return UNUM_ROUND_HALF_ODD;
-		case STEM_ROUNDING_MODE_HALF_CEILING:
-		    return UNUM_ROUND_HALF_CEILING;
-		case STEM_ROUNDING_MODE_HALF_FLOOR:
-		    return UNUM_ROUND_HALF_FLOOR;
-		case STEM_ROUNDING_MODE_HALF_DOWN:
-		    return UNUM_ROUND_HALFDOWN;
-		case STEM_ROUNDING_MODE_HALF_UP:
-		    return UNUM_ROUND_HALFUP;
-		case STEM_ROUNDING_MODE_UNNECESSARY:
-		    return UNUM_ROUND_UNNECESSARY;
-		default:
-		    UPRV_UNREACHABLE_EXIT;
+		case STEM_ROUNDING_MODE_CEILING: return UNUM_ROUND_CEILING;
+		case STEM_ROUNDING_MODE_FLOOR: return UNUM_ROUND_FLOOR;
+		case STEM_ROUNDING_MODE_DOWN: return UNUM_ROUND_DOWN;
+		case STEM_ROUNDING_MODE_UP: return UNUM_ROUND_UP;
+		case STEM_ROUNDING_MODE_HALF_EVEN: return UNUM_ROUND_HALFEVEN;
+		case STEM_ROUNDING_MODE_HALF_ODD: return UNUM_ROUND_HALF_ODD;
+		case STEM_ROUNDING_MODE_HALF_CEILING: return UNUM_ROUND_HALF_CEILING;
+		case STEM_ROUNDING_MODE_HALF_FLOOR: return UNUM_ROUND_HALF_FLOOR;
+		case STEM_ROUNDING_MODE_HALF_DOWN: return UNUM_ROUND_HALFDOWN;
+		case STEM_ROUNDING_MODE_HALF_UP: return UNUM_ROUND_HALFUP;
+		case STEM_ROUNDING_MODE_UNNECESSARY: return UNUM_ROUND_UNNECESSARY;
+		default: UPRV_UNREACHABLE_EXIT;
 	}
 }
 
-UNumberGroupingStrategy stem_to_object::groupingStrategy(skeleton::StemEnum stem) {
+UNumberGroupingStrategy stem_to_object::groupingStrategy(skeleton::StemEnum stem) 
+{
 	switch(stem) {
-		case STEM_GROUP_OFF:
-		    return UNUM_GROUPING_OFF;
-		case STEM_GROUP_MIN2:
-		    return UNUM_GROUPING_MIN2;
-		case STEM_GROUP_AUTO:
-		    return UNUM_GROUPING_AUTO;
-		case STEM_GROUP_ON_ALIGNED:
-		    return UNUM_GROUPING_ON_ALIGNED;
-		case STEM_GROUP_THOUSANDS:
-		    return UNUM_GROUPING_THOUSANDS;
-		default:
-		    return UNUM_GROUPING_COUNT; // for objects, throw; for enums, return COUNT
+		case STEM_GROUP_OFF: return UNUM_GROUPING_OFF;
+		case STEM_GROUP_MIN2: return UNUM_GROUPING_MIN2;
+		case STEM_GROUP_AUTO: return UNUM_GROUPING_AUTO;
+		case STEM_GROUP_ON_ALIGNED: return UNUM_GROUPING_ON_ALIGNED;
+		case STEM_GROUP_THOUSANDS: return UNUM_GROUPING_THOUSANDS;
+		default: return UNUM_GROUPING_COUNT; // for objects, throw; for enums, return COUNT
 	}
 }
 
-UNumberUnitWidth stem_to_object::unitWidth(skeleton::StemEnum stem) {
+UNumberUnitWidth stem_to_object::unitWidth(skeleton::StemEnum stem) 
+{
 	switch(stem) {
-		case STEM_UNIT_WIDTH_NARROW:
-		    return UNUM_UNIT_WIDTH_NARROW;
-		case STEM_UNIT_WIDTH_SHORT:
-		    return UNUM_UNIT_WIDTH_SHORT;
-		case STEM_UNIT_WIDTH_FULL_NAME:
-		    return UNUM_UNIT_WIDTH_FULL_NAME;
-		case STEM_UNIT_WIDTH_ISO_CODE:
-		    return UNUM_UNIT_WIDTH_ISO_CODE;
-		case STEM_UNIT_WIDTH_FORMAL:
-		    return UNUM_UNIT_WIDTH_FORMAL;
-		case STEM_UNIT_WIDTH_VARIANT:
-		    return UNUM_UNIT_WIDTH_VARIANT;
-		case STEM_UNIT_WIDTH_HIDDEN:
-		    return UNUM_UNIT_WIDTH_HIDDEN;
-		default:
-		    return UNUM_UNIT_WIDTH_COUNT; // for objects, throw; for enums, return COUNT
+		case STEM_UNIT_WIDTH_NARROW: return UNUM_UNIT_WIDTH_NARROW;
+		case STEM_UNIT_WIDTH_SHORT: return UNUM_UNIT_WIDTH_SHORT;
+		case STEM_UNIT_WIDTH_FULL_NAME: return UNUM_UNIT_WIDTH_FULL_NAME;
+		case STEM_UNIT_WIDTH_ISO_CODE: return UNUM_UNIT_WIDTH_ISO_CODE;
+		case STEM_UNIT_WIDTH_FORMAL: return UNUM_UNIT_WIDTH_FORMAL;
+		case STEM_UNIT_WIDTH_VARIANT: return UNUM_UNIT_WIDTH_VARIANT;
+		case STEM_UNIT_WIDTH_HIDDEN: return UNUM_UNIT_WIDTH_HIDDEN;
+		default: return UNUM_UNIT_WIDTH_COUNT; // for objects, throw; for enums, return COUNT
 	}
 }
 
-UNumberSignDisplay stem_to_object::signDisplay(skeleton::StemEnum stem) {
+UNumberSignDisplay stem_to_object::signDisplay(skeleton::StemEnum stem) 
+{
 	switch(stem) {
-		case STEM_SIGN_AUTO:
-		    return UNUM_SIGN_AUTO;
-		case STEM_SIGN_ALWAYS:
-		    return UNUM_SIGN_ALWAYS;
-		case STEM_SIGN_NEVER:
-		    return UNUM_SIGN_NEVER;
-		case STEM_SIGN_ACCOUNTING:
-		    return UNUM_SIGN_ACCOUNTING;
-		case STEM_SIGN_ACCOUNTING_ALWAYS:
-		    return UNUM_SIGN_ACCOUNTING_ALWAYS;
-		case STEM_SIGN_EXCEPT_ZERO:
-		    return UNUM_SIGN_EXCEPT_ZERO;
-		case STEM_SIGN_ACCOUNTING_EXCEPT_ZERO:
-		    return UNUM_SIGN_ACCOUNTING_EXCEPT_ZERO;
-		case STEM_SIGN_NEGATIVE:
-		    return UNUM_SIGN_NEGATIVE;
-		case STEM_SIGN_ACCOUNTING_NEGATIVE:
-		    return UNUM_SIGN_ACCOUNTING_NEGATIVE;
-		default:
-		    return UNUM_SIGN_COUNT; // for objects, throw; for enums, return COUNT
+		case STEM_SIGN_AUTO: return UNUM_SIGN_AUTO;
+		case STEM_SIGN_ALWAYS: return UNUM_SIGN_ALWAYS;
+		case STEM_SIGN_NEVER: return UNUM_SIGN_NEVER;
+		case STEM_SIGN_ACCOUNTING: return UNUM_SIGN_ACCOUNTING;
+		case STEM_SIGN_ACCOUNTING_ALWAYS: return UNUM_SIGN_ACCOUNTING_ALWAYS;
+		case STEM_SIGN_EXCEPT_ZERO: return UNUM_SIGN_EXCEPT_ZERO;
+		case STEM_SIGN_ACCOUNTING_EXCEPT_ZERO: return UNUM_SIGN_ACCOUNTING_EXCEPT_ZERO;
+		case STEM_SIGN_NEGATIVE: return UNUM_SIGN_NEGATIVE;
+		case STEM_SIGN_ACCOUNTING_NEGATIVE: return UNUM_SIGN_ACCOUNTING_NEGATIVE;
+		default: return UNUM_SIGN_COUNT; // for objects, throw; for enums, return COUNT
 	}
 }
 
-UNumberDecimalSeparatorDisplay stem_to_object::decimalSeparatorDisplay(skeleton::StemEnum stem) {
+UNumberDecimalSeparatorDisplay stem_to_object::decimalSeparatorDisplay(skeleton::StemEnum stem) 
+{
 	switch(stem) {
-		case STEM_DECIMAL_AUTO:
-		    return UNUM_DECIMAL_SEPARATOR_AUTO;
-		case STEM_DECIMAL_ALWAYS:
-		    return UNUM_DECIMAL_SEPARATOR_ALWAYS;
-		default:
-		    return UNUM_DECIMAL_SEPARATOR_COUNT; // for objects, throw; for enums, return COUNT
+		case STEM_DECIMAL_AUTO: return UNUM_DECIMAL_SEPARATOR_AUTO;
+		case STEM_DECIMAL_ALWAYS: return UNUM_DECIMAL_SEPARATOR_ALWAYS;
+		default: return UNUM_DECIMAL_SEPARATOR_COUNT; // for objects, throw; for enums, return COUNT
 	}
 }
 
-void enum_to_stem_string::roundingMode(UNumberFormatRoundingMode value, UnicodeString & sb) {
+void enum_to_stem_string::roundingMode(UNumberFormatRoundingMode value, UnicodeString & sb) 
+{
 	switch(value) {
-		case UNUM_ROUND_CEILING:
-		    sb.append(u"rounding-mode-ceiling", -1);
-		    break;
-		case UNUM_ROUND_FLOOR:
-		    sb.append(u"rounding-mode-floor", -1);
-		    break;
-		case UNUM_ROUND_DOWN:
-		    sb.append(u"rounding-mode-down", -1);
-		    break;
-		case UNUM_ROUND_UP:
-		    sb.append(u"rounding-mode-up", -1);
-		    break;
-		case UNUM_ROUND_HALFEVEN:
-		    sb.append(u"rounding-mode-half-even", -1);
-		    break;
-		case UNUM_ROUND_HALF_ODD:
-		    sb.append(u"rounding-mode-half-odd", -1);
-		    break;
-		case UNUM_ROUND_HALF_CEILING:
-		    sb.append(u"rounding-mode-half-ceiling", -1);
-		    break;
-		case UNUM_ROUND_HALF_FLOOR:
-		    sb.append(u"rounding-mode-half-floor", -1);
-		    break;
-		case UNUM_ROUND_HALFDOWN:
-		    sb.append(u"rounding-mode-half-down", -1);
-		    break;
-		case UNUM_ROUND_HALFUP:
-		    sb.append(u"rounding-mode-half-up", -1);
-		    break;
-		case UNUM_ROUND_UNNECESSARY:
-		    sb.append(u"rounding-mode-unnecessary", -1);
-		    break;
-		default:
-		    UPRV_UNREACHABLE_EXIT;
+		case UNUM_ROUND_CEILING: sb.append(u"rounding-mode-ceiling", -1); break;
+		case UNUM_ROUND_FLOOR: sb.append(u"rounding-mode-floor", -1); break;
+		case UNUM_ROUND_DOWN: sb.append(u"rounding-mode-down", -1); break;
+		case UNUM_ROUND_UP: sb.append(u"rounding-mode-up", -1); break;
+		case UNUM_ROUND_HALFEVEN: sb.append(u"rounding-mode-half-even", -1); break;
+		case UNUM_ROUND_HALF_ODD: sb.append(u"rounding-mode-half-odd", -1); break;
+		case UNUM_ROUND_HALF_CEILING: sb.append(u"rounding-mode-half-ceiling", -1); break;
+		case UNUM_ROUND_HALF_FLOOR: sb.append(u"rounding-mode-half-floor", -1); break;
+		case UNUM_ROUND_HALFDOWN: sb.append(u"rounding-mode-half-down", -1); break;
+		case UNUM_ROUND_HALFUP: sb.append(u"rounding-mode-half-up", -1); break;
+		case UNUM_ROUND_UNNECESSARY: sb.append(u"rounding-mode-unnecessary", -1); break;
+		default: UPRV_UNREACHABLE_EXIT;
 	}
 }
 
-void enum_to_stem_string::groupingStrategy(UNumberGroupingStrategy value, UnicodeString & sb) {
+void enum_to_stem_string::groupingStrategy(UNumberGroupingStrategy value, UnicodeString & sb) 
+{
 	switch(value) {
-		case UNUM_GROUPING_OFF:
-		    sb.append(u"group-off", -1);
-		    break;
-		case UNUM_GROUPING_MIN2:
-		    sb.append(u"group-min2", -1);
-		    break;
-		case UNUM_GROUPING_AUTO:
-		    sb.append(u"group-auto", -1);
-		    break;
-		case UNUM_GROUPING_ON_ALIGNED:
-		    sb.append(u"group-on-aligned", -1);
-		    break;
-		case UNUM_GROUPING_THOUSANDS:
-		    sb.append(u"group-thousands", -1);
-		    break;
-		default:
-		    UPRV_UNREACHABLE_EXIT;
+		case UNUM_GROUPING_OFF: sb.append(u"group-off", -1); break;
+		case UNUM_GROUPING_MIN2: sb.append(u"group-min2", -1); break;
+		case UNUM_GROUPING_AUTO: sb.append(u"group-auto", -1); break;
+		case UNUM_GROUPING_ON_ALIGNED: sb.append(u"group-on-aligned", -1); break;
+		case UNUM_GROUPING_THOUSANDS: sb.append(u"group-thousands", -1); break;
+		default: UPRV_UNREACHABLE_EXIT;
 	}
 }
 
-void enum_to_stem_string::unitWidth(UNumberUnitWidth value, UnicodeString & sb) {
+void enum_to_stem_string::unitWidth(UNumberUnitWidth value, UnicodeString & sb) 
+{
 	switch(value) {
-		case UNUM_UNIT_WIDTH_NARROW:
-		    sb.append(u"unit-width-narrow", -1);
-		    break;
-		case UNUM_UNIT_WIDTH_SHORT:
-		    sb.append(u"unit-width-short", -1);
-		    break;
-		case UNUM_UNIT_WIDTH_FULL_NAME:
-		    sb.append(u"unit-width-full-name", -1);
-		    break;
-		case UNUM_UNIT_WIDTH_ISO_CODE:
-		    sb.append(u"unit-width-iso-code", -1);
-		    break;
-		case UNUM_UNIT_WIDTH_FORMAL:
-		    sb.append(u"unit-width-formal", -1);
-		    break;
-		case UNUM_UNIT_WIDTH_VARIANT:
-		    sb.append(u"unit-width-variant", -1);
-		    break;
-		case UNUM_UNIT_WIDTH_HIDDEN:
-		    sb.append(u"unit-width-hidden", -1);
-		    break;
-		default:
-		    UPRV_UNREACHABLE_EXIT;
+		case UNUM_UNIT_WIDTH_NARROW: sb.append(u"unit-width-narrow", -1); break;
+		case UNUM_UNIT_WIDTH_SHORT: sb.append(u"unit-width-short", -1); break;
+		case UNUM_UNIT_WIDTH_FULL_NAME: sb.append(u"unit-width-full-name", -1); break;
+		case UNUM_UNIT_WIDTH_ISO_CODE: sb.append(u"unit-width-iso-code", -1); break;
+		case UNUM_UNIT_WIDTH_FORMAL: sb.append(u"unit-width-formal", -1); break;
+		case UNUM_UNIT_WIDTH_VARIANT: sb.append(u"unit-width-variant", -1); break;
+		case UNUM_UNIT_WIDTH_HIDDEN: sb.append(u"unit-width-hidden", -1); break;
+		default: UPRV_UNREACHABLE_EXIT;
 	}
 }
 
-void enum_to_stem_string::signDisplay(UNumberSignDisplay value, UnicodeString & sb) {
+void enum_to_stem_string::signDisplay(UNumberSignDisplay value, UnicodeString & sb) 
+{
 	switch(value) {
-		case UNUM_SIGN_AUTO:
-		    sb.append(u"sign-auto", -1);
-		    break;
-		case UNUM_SIGN_ALWAYS:
-		    sb.append(u"sign-always", -1);
-		    break;
-		case UNUM_SIGN_NEVER:
-		    sb.append(u"sign-never", -1);
-		    break;
-		case UNUM_SIGN_ACCOUNTING:
-		    sb.append(u"sign-accounting", -1);
-		    break;
-		case UNUM_SIGN_ACCOUNTING_ALWAYS:
-		    sb.append(u"sign-accounting-always", -1);
-		    break;
-		case UNUM_SIGN_EXCEPT_ZERO:
-		    sb.append(u"sign-except-zero", -1);
-		    break;
-		case UNUM_SIGN_ACCOUNTING_EXCEPT_ZERO:
-		    sb.append(u"sign-accounting-except-zero", -1);
-		    break;
-		case UNUM_SIGN_NEGATIVE:
-		    sb.append(u"sign-negative", -1);
-		    break;
-		case UNUM_SIGN_ACCOUNTING_NEGATIVE:
-		    sb.append(u"sign-accounting-negative", -1);
-		    break;
-		default:
-		    UPRV_UNREACHABLE_EXIT;
+		case UNUM_SIGN_AUTO: sb.append(u"sign-auto", -1); break;
+		case UNUM_SIGN_ALWAYS: sb.append(u"sign-always", -1); break;
+		case UNUM_SIGN_NEVER: sb.append(u"sign-never", -1); break;
+		case UNUM_SIGN_ACCOUNTING: sb.append(u"sign-accounting", -1); break;
+		case UNUM_SIGN_ACCOUNTING_ALWAYS: sb.append(u"sign-accounting-always", -1); break;
+		case UNUM_SIGN_EXCEPT_ZERO: sb.append(u"sign-except-zero", -1); break;
+		case UNUM_SIGN_ACCOUNTING_EXCEPT_ZERO: sb.append(u"sign-accounting-except-zero", -1); break;
+		case UNUM_SIGN_NEGATIVE: sb.append(u"sign-negative", -1); break;
+		case UNUM_SIGN_ACCOUNTING_NEGATIVE: sb.append(u"sign-accounting-negative", -1); break;
+		default: UPRV_UNREACHABLE_EXIT;
 	}
 }
 
 void enum_to_stem_string::decimalSeparatorDisplay(UNumberDecimalSeparatorDisplay value, UnicodeString & sb) 
 {
 	switch(value) {
-		case UNUM_DECIMAL_SEPARATOR_AUTO:
-		    sb.append(u"decimal-auto", -1);
-		    break;
-		case UNUM_DECIMAL_SEPARATOR_ALWAYS:
-		    sb.append(u"decimal-always", -1);
-		    break;
-		default:
-		    UPRV_UNREACHABLE_EXIT;
+		case UNUM_DECIMAL_SEPARATOR_AUTO: sb.append(u"decimal-auto", -1); break;
+		case UNUM_DECIMAL_SEPARATOR_ALWAYS: sb.append(u"decimal-always", -1); break;
+		default: UPRV_UNREACHABLE_EXIT;
 	}
 }
 
@@ -481,21 +367,21 @@ UnlocalizedNumberFormatter skeleton::create(const UnicodeString & skeletonString
 	return {};
 }
 
-UnicodeString skeleton::generate(const MacroProps& macros, UErrorCode & status) {
+UnicodeString skeleton::generate(const MacroProps& macros, UErrorCode & status) 
+{
 	umtx_initOnce(gNumberSkeletonsInitOnce, &initNumberSkeletons, status);
 	UnicodeString sb;
 	GeneratorHelpers::generateSkeleton(macros, sb, status);
 	return sb;
 }
 
-MacroProps skeleton::parseSkeleton(const UnicodeString & skeletonString, int32_t& errOffset, UErrorCode & status) {
+MacroProps skeleton::parseSkeleton(const UnicodeString & skeletonString, int32_t& errOffset, UErrorCode & status) 
+{
 	U_ASSERT(U_SUCCESS(status));
 	U_ASSERT(kSerializedStemTrie != nullptr);
-
 	// Add a trailing whitespace to the end of the skeleton string to make code cleaner.
 	UnicodeString tempSkeletonString(skeletonString);
 	tempSkeletonString.append(u' ');
-
 	SeenMacroProps seen;
 	MacroProps macros;
 	StringSegment segment(tempSkeletonString, false);
@@ -595,10 +481,9 @@ MacroProps skeleton::parseSkeleton(const UnicodeString & skeletonString, int32_t
 	return macros;
 }
 
-ParseState skeleton::parseStem(const StringSegment& segment, const UCharsTrie& stemTrie, SeenMacroProps& seen,
-    MacroProps& macros, UErrorCode & status) {
+ParseState skeleton::parseStem(const StringSegment& segment, const UCharsTrie& stemTrie, SeenMacroProps& seen, MacroProps& macros, UErrorCode & status) 
+{
 	U_ASSERT(U_SUCCESS(status));
-
 	// First check for "blueprint" stems, which start with a "signal char"
 	switch(segment.charAt(0)) {
 		case u'.':
@@ -785,46 +670,23 @@ ParseState skeleton::parseStem(const StringSegment& segment, const UCharsTrie& s
 	}
 }
 
-ParseState skeleton::parseOption(ParseState stem, const StringSegment& segment, MacroProps& macros,
-    UErrorCode & status) {
+ParseState skeleton::parseOption(ParseState stem, const StringSegment& segment, MacroProps& macros, UErrorCode & status) 
+{
 	U_ASSERT(U_SUCCESS(status));
-
 	///// Required options: /////
-
 	switch(stem) {
-		case STATE_CURRENCY_UNIT:
-		    blueprint_helpers::parseCurrencyOption(segment, macros, status);
-		    return STATE_NULL;
-		case STATE_MEASURE_UNIT:
-		    blueprint_helpers::parseMeasureUnitOption(segment, macros, status);
-		    return STATE_NULL;
-		case STATE_PER_MEASURE_UNIT:
-		    blueprint_helpers::parseMeasurePerUnitOption(segment, macros, status);
-		    return STATE_NULL;
-		case STATE_IDENTIFIER_UNIT:
-		    blueprint_helpers::parseIdentifierUnitOption(segment, macros, status);
-		    return STATE_NULL;
-		case STATE_UNIT_USAGE:
-		    blueprint_helpers::parseUnitUsageOption(segment, macros, status);
-		    return STATE_NULL;
-		case STATE_INCREMENT_PRECISION:
-		    blueprint_helpers::parseIncrementOption(segment, macros, status);
-		    return STATE_PRECISION;
-		case STATE_INTEGER_WIDTH:
-		    blueprint_helpers::parseIntegerWidthOption(segment, macros, status);
-		    return STATE_NULL;
-		case STATE_NUMBERING_SYSTEM:
-		    blueprint_helpers::parseNumberingSystemOption(segment, macros, status);
-		    return STATE_NULL;
-		case STATE_SCALE:
-		    blueprint_helpers::parseScaleOption(segment, macros, status);
-		    return STATE_NULL;
-		default:
-		    break;
+		case STATE_CURRENCY_UNIT: blueprint_helpers::parseCurrencyOption(segment, macros, status); return STATE_NULL;
+		case STATE_MEASURE_UNIT: blueprint_helpers::parseMeasureUnitOption(segment, macros, status); return STATE_NULL;
+		case STATE_PER_MEASURE_UNIT: blueprint_helpers::parseMeasurePerUnitOption(segment, macros, status); return STATE_NULL;
+		case STATE_IDENTIFIER_UNIT: blueprint_helpers::parseIdentifierUnitOption(segment, macros, status); return STATE_NULL;
+		case STATE_UNIT_USAGE: blueprint_helpers::parseUnitUsageOption(segment, macros, status); return STATE_NULL;
+		case STATE_INCREMENT_PRECISION: blueprint_helpers::parseIncrementOption(segment, macros, status); return STATE_PRECISION;
+		case STATE_INTEGER_WIDTH: blueprint_helpers::parseIntegerWidthOption(segment, macros, status); return STATE_NULL;
+		case STATE_NUMBERING_SYSTEM: blueprint_helpers::parseNumberingSystemOption(segment, macros, status); return STATE_NULL;
+		case STATE_SCALE: blueprint_helpers::parseScaleOption(segment, macros, status); return STATE_NULL;
+		default: break;
 	}
-
 	///// Non-required options: /////
-
 	// Scientific options
 	switch(stem) {
 		case STATE_SCIENTIFIC:
@@ -844,7 +706,6 @@ ParseState skeleton::parseOption(ParseState stem, const StringSegment& segment, 
 		default:
 		    break;
 	}
-
 	// Frac-sig option
 	switch(stem) {
 		case STATE_FRACTION_PRECISION:
@@ -860,7 +721,6 @@ ParseState skeleton::parseOption(ParseState stem, const StringSegment& segment, 
 		default:
 		    break;
 	}
-
 	// Trailing zeros option
 	switch(stem) {
 		case STATE_PRECISION:
@@ -881,11 +741,11 @@ ParseState skeleton::parseOption(ParseState stem, const StringSegment& segment, 
 	return STATE_NULL;
 }
 
-void GeneratorHelpers::generateSkeleton(const MacroProps& macros, UnicodeString & sb, UErrorCode & status) {
+void GeneratorHelpers::generateSkeleton(const MacroProps& macros, UnicodeString & sb, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	// Supported options
 	if(GeneratorHelpers::notation(macros, sb, status)) {
 		sb.append(u' ');
@@ -1548,8 +1408,8 @@ void blueprint_helpers::parseScaleOption(const StringSegment& segment, MacroProp
 	macros.scale = {0, decnum.orphan()};
 }
 
-void blueprint_helpers::generateScaleOption(int32_t magnitude, const DecNum* arbitrary, UnicodeString & sb,
-    UErrorCode & status) {
+void blueprint_helpers::generateScaleOption(int32_t magnitude, const DecNum* arbitrary, UnicodeString & sb, UErrorCode & status) 
+{
 	// Utilize DecimalQuantity/double_conversion to format this for us.
 	DecimalQuantity dq;
 	if(arbitrary != nullptr) {
@@ -1566,7 +1426,8 @@ void blueprint_helpers::generateScaleOption(int32_t magnitude, const DecNum* arb
 	sb.append(dq.toPlainString());
 }
 
-bool GeneratorHelpers::notation(const MacroProps& macros, UnicodeString & sb, UErrorCode & status) {
+bool GeneratorHelpers::notation(const MacroProps& macros, UnicodeString & sb, UErrorCode & status) 
+{
 	if(macros.notation.fType == Notation::NTN_COMPACT) {
 		UNumberCompactStyle style = macros.notation.fUnion.compactStyle;
 		if(style == UNumberCompactStyle::UNUM_LONG) {
@@ -1660,7 +1521,8 @@ bool GeneratorHelpers::usage(const MacroProps& macros, UnicodeString & sb, UErro
 	return false;
 }
 
-bool GeneratorHelpers::precision(const MacroProps& macros, UnicodeString & sb, UErrorCode & status) {
+bool GeneratorHelpers::precision(const MacroProps& macros, UnicodeString & sb, UErrorCode & status) 
+{
 	if(macros.precision.fType == Precision::RND_NONE) {
 		sb.append(u"precision-unlimited", -1);
 	}
@@ -1684,16 +1546,10 @@ bool GeneratorHelpers::precision(const MacroProps& macros, UnicodeString & sb, U
 			sb.append(u's');
 		}
 	}
-	else if(macros.precision.fType == Precision::RND_INCREMENT
-	 || macros.precision.fType == Precision::RND_INCREMENT_ONE
-	 || macros.precision.fType == Precision::RND_INCREMENT_FIVE) {
+	else if(oneof3(macros.precision.fType, Precision::RND_INCREMENT, Precision::RND_INCREMENT_ONE, Precision::RND_INCREMENT_FIVE)) {
 		const Precision::IncrementSettings& impl = macros.precision.fUnion.increment;
 		sb.append(u"precision-increment/", -1);
-		blueprint_helpers::generateIncrementOption(
-			impl.fIncrement,
-			impl.fMinFrac,
-			sb,
-			status);
+		blueprint_helpers::generateIncrementOption(impl.fIncrement, impl.fMinFrac, sb, status);
 	}
 	else if(macros.precision.fType == Precision::RND_CURRENCY) {
 		UCurrencyUsage usage = macros.precision.fUnion.currencyUsage;
@@ -1708,11 +1564,9 @@ bool GeneratorHelpers::precision(const MacroProps& macros, UnicodeString & sb, U
 		// Bogus or Error
 		return false;
 	}
-
 	if(macros.precision.fTrailingZeroDisplay == UNUM_TRAILING_ZERO_HIDE_IF_WHOLE) {
 		sb.append(u"/w", -1);
 	}
-
 	// NOTE: Always return true for rounding because the default value depends on other options.
 	return true;
 }

@@ -80,12 +80,6 @@ typedef union {
 
 #endif /* UNICODE && WIN32 */
 
-#define curlx_unicodefree(ptr)                          \
-	do {                                                  \
-		if(ptr) {                                           \
-			(free)(ptr);                                      \
-			(ptr) = NULL;                                     \
-		}                                                   \
-	} while(0)
+#define curlx_unicodefree(ptr) do { ZFREE(ptr); } while(0)
 
 #endif /* HEADER_CURL_MULTIBYTE_H */

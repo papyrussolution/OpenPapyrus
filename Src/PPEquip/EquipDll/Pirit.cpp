@@ -144,6 +144,7 @@ struct CheckStruct {
 		ChZnSerial.Z(); // @v10.7.2
 		ChZnPartN.Z(); // @v10.7.8
 		ChZnSid.Z(); // @v10.8.12
+		DraftBeerSimplifiedCode.Z(); // @v11.9.4
 		PaymCash = 0.0;
 		PaymBank = 0.0;
 		IncassAmt = 0.0;
@@ -161,7 +162,7 @@ struct CheckStruct {
 	int    CheckType;
 	int    FontSize;
 	int    CheckNum;
-	double Qtty; // @v11.9.3 Quantity-->Qtty
+	double Qtty;   // @v11.9.3 Quantity-->Qtty
 	double PhQtty;
 	double Price;
 	int    Department;
@@ -184,8 +185,8 @@ struct CheckStruct {
 	double PaymBank;
 	double PaymCCrdCard;
 	double IncassAmt;
-	int    ChZnPpResult; // @v11.1.11
-	int    ChZnPpStatus; // @v11.1.11
+	int    ChZnPpResult; // @v11.1.11 Результат проверки марки честный знак на фазе препроцессинга
+	int    ChZnPpStatus; // @v11.1.11 Статус, присвоенный марке честный знак на фазе препроцессинга
 	LDATETIME Timestamp; // @v11.2.3 Дата и время чека
 	SString Text;
 	SString Code;        //
@@ -194,6 +195,7 @@ struct CheckStruct {
 	SString ChZnSerial;  // @v10.7.2
 	SString ChZnPartN;   // @v10.7.8
 	SString ChZnSid;     // @v10.8.12 Ид предприятия для передачи в честный знак
+	SString DraftBeerSimplifiedCode; // @v11.9.4 Код для упрощенного списания chzn-марки разливного пива для horeca
 	SString BuyersEmail; // @v11.3.6
 	SString BuyersPhone; // @v11.3.6
 	LDATE  PrescrDate;    // @v11.8.0 Рецепт: Дата  //
@@ -266,10 +268,11 @@ public:
 		int    Status;           // tag 2109 Сведения о статусе товара (ofdtag-2109)
 	};
 	enum {
-		pchznmfReturn     = 0x0001, // Возврат
-		pchznmfFractional = 0x0002  // Дробный товар
+		pchznmfReturn              = 0x0001, // Возврат
+		pchznmfFractional          = 0x0002, // Дробный товар
+		pchznmfDraftBeerSimplified = 0x0004  // @v11.9.4 Упрощенный режим проведения разливного пива
 	};
-	int    PreprocessChZnMark(const char * pMarkCode, double qtty, uint uomFragm, uint flags, PreprocessChZnCodeResult * pResult);
+	int    PreprocessChZnMark(const char * pMarkCode, double qtty, int uomId, uint uomFragm, uint flags, PreprocessChZnCodeResult * pResult);
 
 	int    SessID;
 	int    LastError;
@@ -1119,6 +1122,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		}
 		else if(cmd.IsEqiAscii("PREPROCESSCHZNCODE")) { // @v11.1.10
 			double qtty = 1.0;
+			double phqtty = 0.0; // @v11.9.4
 			SString result_buf;
 			SString chzn_code;
 			SString chzn_gtin;
@@ -1126,11 +1130,19 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SString chzn_partn;
 			int   chzn_prodtype = 0;
 			int   uom_fragm = 0;
+			int   suom_id = 0; // @v11.9.4
+			bool  is_draftbeer_simplified = false; // @v11.9.4
 			PreprocessChZnCodeResult result;
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			if(pb.Get("QUANTITY", param_val) > 0)
 				qtty = param_val.ToReal();
+			if(pb.Get("PHQTTY", param_val) > 0) // @v11.9.4
+				phqtty = param_val.ToReal();
+			if(pb.Get("UOMID", param_val) > 0) // @v11.9.4
+				suom_id = param_val.ToLong();
+			if(pb.Get("DRAFTBEERSIMPLIFIED", param_val) > 0) // @v11.9.4
+				is_draftbeer_simplified = true;
 			if(pb.Get("CHZNCODE", param_val) > 0)
 				chzn_code = param_val;
 			if(pb.Get("CHZNGTIN", param_val) > 0)
@@ -1149,7 +1161,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					(chzn_code = chzn_gtin).Cat(p_serial);
 				}
 				//int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
-				THROW(PreprocessChZnMark(chzn_code, fabs(qtty), uom_fragm, 0, &result) > 0);
+				uint pchznm_flags = 0;
+				if(is_draftbeer_simplified)
+					pchznm_flags |= pchznmfDraftBeerSimplified;
+				THROW(PreprocessChZnMark(chzn_code, fabs(qtty), suom_id, uom_fragm, pchznm_flags, &result) > 0);
 				result_buf.Z().CatEq("CheckResult", result.CheckResult).Semicol().
 					CatEq("Reason", result.Reason).Semicol().
 					CatEq("ProcessingResult", result.ProcessingResult).Semicol().
@@ -1213,7 +1228,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			if(pb.Get("PAPERLESS", param_val) > 0) {
 				Check.CheckType |= 0x80;
 			}
-			// } @v11.3.6 
+			// } @v11.3.6
+			// @v11.9.4 {
+			if(pb.Get("DRAFTBEERSIMPLIFIED", param_val) > 0) {
+				Check.DraftBeerSimplifiedCode = param_val;
+			}
+			// } @v11.9.4 
 			// @v11.8.0 {
 			{
 				if(pb.Get("PRESCRDATE", param_val) > 0)
@@ -1443,6 +1463,9 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.Qtty = param_val.ToReal();
 			if(pb.Get("PHQTTY", param_val) > 0) // @v11.9.3
 				Check.PhQtty = param_val.ToReal();
+			if(pb.Get("DRAFTBEERSIMPLIFIED", param_val) > 0) { // @v11.9.4
+				Check.DraftBeerSimplifiedCode = param_val;
+			}
 			if(pb.Get("PRICE", param_val) > 0)
 				Check.Price = param_val.ToReal();
 			if(pb.Get("DEPARTMENT", param_val) > 0)
@@ -1477,61 +1500,49 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					is_vat_free = 1;
 			}
 			if(pb.Get("PAYMENTTERMTAG", param_val) > 0) { // @v10.4.1
-				if(param_val.IsEqiAscii("PTT_FULL_PREPAY"))
-					Check.Ptt = 1;
-				else if(param_val.IsEqiAscii("PTT_PREPAY"))
-					Check.Ptt = 2;
-				else if(param_val.IsEqiAscii("PTT_ADVANCE"))
-					Check.Ptt = 3;
-				else if(param_val.IsEqiAscii("PTT_FULLPAYMENT"))
-					Check.Ptt = 4;
-				else if(param_val.IsEqiAscii("PTT_PARTIAL"))
-					Check.Ptt = 5;
-				else if(param_val.IsEqiAscii("PTT_CREDITHANDOVER"))
-					Check.Ptt = 6;
-				else if(param_val.IsEqiAscii("PTT_CREDIT"))
-					Check.Ptt = 7;
+				static const SIntToSymbTabEntry ptt_list[] = {
+					{1, "PTT_FULL_PREPAY" },
+					{2, "PTT_PREPAY" },
+					{3, "PTT_ADVANCE"},
+					{4, "PTT_FULLPAYMENT"},
+					{5, "PTT_PARTIAL"},
+					{6, "PTT_CREDITHANDOVER" },
+					{7, "PTT_CREDIT" }
+				};
+				for(uint i = 0; i < SIZEOFARRAY(ptt_list); i++) {
+					if(param_val.IsEqiAscii(ptt_list[i].P_Symb))
+						Check.Ptt = ptt_list[i].Id;
+				}
 			}
 			//@erik v10.4.12{
 			if(pb.Get("SUBJTERMTAG", param_val) > 0) {
-				if(param_val.IsEqiAscii("STT_GOOD"))
-					Check.Stt = 1;
-				else if(param_val.IsEqiAscii("STT_EXCISABLEGOOD"))
-					Check.Stt = 2;
-				else if(param_val.IsEqiAscii("STT_EXECUTABLEWORK"))
-					Check.Stt = 3;
-				else if(param_val.IsEqiAscii("STT_SERVICE"))
-					Check.Stt = 4;
-				else if(param_val.IsEqiAscii("STT_BETTING"))
-					Check.Stt = 5;
-				else if(param_val.IsEqiAscii("STT_PAYMENTGAMBLING"))
-					Check.Stt = 6;
-				else if(param_val.IsEqiAscii("STT_BETTINGLOTTERY"))
-					Check.Stt = 7;
-				else if(param_val.IsEqiAscii("STT_PAYMENTLOTTERY"))
-					Check.Stt = 8;
-				else if(param_val.IsEqiAscii("STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY"))
-					Check.Stt = 9;
-				else if(param_val.IsEqiAscii("STT_ADVANCE"))
-					Check.Stt = 10;
-				else if(param_val.IsEqiAscii("STT_PAYMENTSPAYINGAGENT"))
-					Check.Stt = 11;
-				else if(param_val.IsEqiAscii("STT_SUBJTERM"))
-					Check.Stt = 12;
-				else if(param_val.IsEqiAscii("STT_NOTSUBJTERM"))
-					Check.Stt = 13;
-				else if(param_val.IsEqiAscii("STT_TRANSFERPROPERTYRIGHTS"))
-					Check.Stt = 14;
-				else if(param_val.IsEqiAscii("STT_NONOPERATINGINCOME"))
-					Check.Stt = 15;
-				else if(param_val.IsEqiAscii("STT_EXPENSESREDUCETAX"))
-					Check.Stt = 16;
-				else if(param_val.IsEqiAscii("STT_AMOUNTMERCHANTFEE"))
-					Check.Stt = 17;
-				else if(param_val.IsEqiAscii("STT_RESORTAEE"))
-					Check.Stt = 18;
-				else if(param_val.IsEqiAscii("STT_DEPOSIT"))
-					Check.Stt = 19;
+				static const SIntToSymbTabEntry stt_list[] = {
+					{1, "STT_GOOD" },
+					{2, "STT_EXCISABLEGOOD" },
+					{3, "STT_EXECUTABLEWORK" },
+					{4, "STT_SERVICE" },
+					{5, "STT_BETTING" },
+					{6, "STT_PAYMENTGAMBLING" },
+					{7, "STT_BETTINGLOTTERY" },
+					{8, "STT_PAYMENTLOTTERY" },
+					{9, "STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY" },
+					{10, "STT_ADVANCE" },
+					{11, "STT_PAYMENTSPAYINGAGENT" },
+					{12, "STT_SUBJTERM" },
+					{13, "STT_NOTSUBJTERM" },
+					{14, "STT_TRANSFERPROPERTYRIGHTS" },
+					{15, "STT_NONOPERATINGINCOME" },
+					{16, "STT_EXPENSESREDUCETAX" },
+					{17, "STT_AMOUNTMERCHANTFEE" },
+					{18, "STT_RESORTAEE" },
+					{19, "STT_DEPOSIT" },
+				};
+				for(uint i = 0; i < SIZEOFARRAY(stt_list); i++) {
+					if(param_val.IsEqiAscii(stt_list[i].P_Symb)) {
+						Check.Stt = stt_list[i].Id;
+						break;
+					}
+				}
 				// } @erik v10.4.12
 			}
 			// @v11.8.0 {
@@ -2128,7 +2139,7 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 		pchznmfReturn     = 0x0001, // Возврат
 		pchznmfFractional = 0x0002  // Дробный товар
 */
-int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, uint uomFragm, uint flags, PreprocessChZnCodeResult * pResult)
+int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomId, uint uomFragm, uint flags, PreprocessChZnCodeResult * pResult)
 {
 	int    ok = 1;
 	if(isempty(pMarkCode))
@@ -2217,8 +2228,24 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, uint uom
 		else {
 			CreateStr(static_cast<int>(qtty), in_data);
 		}
-		CreateStr(0, in_data); // uom
-		CreateStr(0, in_data); // Режим работы (Если = 1 - все равно проверять КМ в ИСМ, даже если ФН проверил код с отрицательным результатом)
+		{
+			// @v11.9.4 {
+			int chzn_uom_id = 0;
+			switch(uomId) {
+				case SUOM_LITER: chzn_uom_id = 41; break;
+				case SUOM_KILOGRAM: chzn_uom_id = 11; break;
+			}
+			// } @v11.9.4 
+			CreateStr(chzn_uom_id, in_data); // uom
+		}
+		{
+			// @v11.9.4 {
+			int mode = 0;
+			if(flags & pchznmfDraftBeerSimplified)
+				mode = 2;
+			// } @v11.9.4 
+			CreateStr(mode, in_data); // Режим работы (Если = 1 - все равно проверять КМ в ИСМ, даже если ФН проверил код с отрицательным результатом)
+		}
 		THROW(ExecCmd("79", in_data, out_data, r_error)); // query=1
 		if(pResult) {
 			StringSet fl_pack(FS, out_data);
@@ -2331,10 +2358,7 @@ int PiritEquip::RunCheck(int opertype)
 					(Строка)[0..12] ИНН покупателя
 				*/
 				in_data.Z();
-				if(Cfg.Flags & 0x08000000L)
-					CreateStr(1, in_data); // Чек не отрезаем (только для сервисных документов)
-				else
-					CreateStr(0, in_data); // Чек отрезаем
+				CreateStr((Cfg.Flags & 0x08000000L) ? 1 : 0, in_data); // Чек не отрезаем (1) для сервисных документов, для остальных - отрезаем (0)
 				// Адрес покупателя {
 				// @v11.3.6 {
 				if(Check.BuyersPhone.NotEmptyS())
@@ -2348,7 +2372,6 @@ int PiritEquip::RunCheck(int opertype)
 				CreateStr("", in_data); // @v10.8.11 Зарезервировано
 				CreateStr("", in_data); // @v10.8.11 Зарезервировано
 				CreateStr("", in_data); // @v10.8.11 Зарезервировано
-				// @v10.8.12 {
 				if(Check.ChZnSid.NotEmpty()) {
 					CreateStr("mdlp", in_data); // Название дополнительного реквизита пользователя
 					str.Z().Cat("sid").Cat(Check.ChZnSid).CatChar('&');
@@ -2358,7 +2381,6 @@ int PiritEquip::RunCheck(int opertype)
 						SLS.LogMessage(LogFileName, out_data, 8192);
 					}
 				}
-				// } @v10.8.12
 				THROW(ExecCmd("31", in_data, out_data, r_error));
 				// gcf_result = GetCurFlags(3, flag); // @v10.2.10 @debug
 			}
@@ -2464,78 +2486,31 @@ int PiritEquip::RunCheck(int opertype)
 					6 	Агент
 			*/
 			THROW(GetCurFlags(3, flag)); // @v10.7.9 (moved up)
-			if(Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())) {
-				in_data.Z();
+			{
 				uint16 product_type_bytes = 0;
 				uint8  chzn_1162_bytes[128];
-				switch(Check.ChZnProdType) {
-					case 1: product_type_bytes = 0x5246; break; // GTCHZNPT_FUR @v10.8.11 0x0002-->0x5246
-					case 2: product_type_bytes = 0x444D; break; // GTCHZNPT_TOBACCO @v10.8.11 0x0005-->0x444D
-					case 11: product_type_bytes = 0x444D; break; // @v11.9.0 GTCHZNPT_ALTTOBACCO
-					case 3: product_type_bytes = 0x444D; break; // GTCHZNPT_SHOE @v10.8.11 0x1520-->0x444D
-					case 4: product_type_bytes = 0x444D; break; // GTCHZNPT_MEDICINE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
-					case 5: product_type_bytes = 0x444D; break; // @v10.9.7 GTCHZNPT_CARTIRE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
-					default: product_type_bytes = 0x444D; break; // @v11.0.5
-				}
-				const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr(); // @v10.7.8
-				int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
-				if(rl > 0) {
-					PreprocessChZnCodeResult pczcr;
-					str.Z();
-					//bool set_chzn_mark = true;
-					// @v11.1.10 {
-					if(OfdVer.IsGe(1, 2, 0)) {
-						if(Check.ChZnPpStatus > 0) {
+				if(Check.DraftBeerSimplifiedCode.NotEmpty() && Check.PhQtty > 0.0) {
+					product_type_bytes = 0x444D;
+					int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, 0, chzn_1162_bytes, sizeof(chzn_1162_bytes));
+					if(rl > 0) {
+						str.Z();
+						// @v11.1.10 {
+						if(OfdVer.IsGe(1, 2, 0)) {
+							/*{
+								in_data.Z();
+								CreateStr(15, in_data);
+								CreateChZnCode(Check.ChZnGTIN, in_data); // (Строка)[0..128] Код маркировки
+								CreateStr(Check.ChZnPpStatus, in_data); // (Целое число) Присвоенный статус товара (ofdtag-2110)
+								CreateStr(0L, in_data); // (Целое число) Режим обработки кода маркировки (ofdtag-2102) = 0
+								CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (ofdtag-2106)
+								// @v11.2.3 CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (ofdtag-2108)
+								CreateStr(0L, in_data); // (Целое число) Мера количества [единица измерения то есть; 0 - штуки] (ofdtag-2108) // @v11.2.3
+								THROW(ExecCmd("79", in_data, out_data, r_error)); // query=15
+							}*/
 							{
-								// --> 79/1
-								// --> 79/2
-								//
-								// --> 79/15
-							}
-							//PreprocessChZnMark(Check.ChZnCode, 1, 0, &pczcr);
-							//int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult)
-							// 79
-							in_data.Z();
-							CreateStr(15, in_data);
-							CreateChZnCode(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
-							CreateStr(Check.ChZnPpStatus, in_data); // (Целое число) Присвоенный статус товара (ofdtag-2110)
-							CreateStr(0L, in_data); // (Целое число) Режим обработки кода маркировки (ofdtag-2102) = 0
-							CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (ofdtag-2106)
-							// @v11.2.3 CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (ofdtag-2108)
-							CreateStr(0L, in_data); // (Целое число) Мера количества [единица измерения то есть; 0 - штуки] (ofdtag-2108) // @v11.2.3
-							THROW(ExecCmd("79", in_data, out_data, r_error)); // query=15
-							//set_chzn_mark = false;
-							//
-							{
-								/*
-								str.Z();
-								for(int si = 0; si < rl; si++) {
-									if(si < 8)
-										str.CatChar('$').CatHex(chzn_1162_bytes[si]);
-									else
-										str.CatChar(chzn_1162_bytes[si]);
-									//str.CatHex(chzn_1162_bytes[si]);
-								}
-								CreateStr(str, in_data); // Код товарной номенклатуры
-								*/
 								in_data.Z(); // @v11.2.3 @fix
-								//
 								CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
-								//CreateChZnCode(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
-								//
-								if(Check.ChZnProdType == 4) { // #2 (tag 1191) GTCHZNPT_MEDICINE
-									str = "mdlp";
-									if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
-										double ip = 0.0;
-										double nmrtr = 0.0;
-										double dnmntr = 0.0;
-										if(fsplitintofractions(Check.Qtty, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
-											str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
-									}
-									CreateStr(str, in_data);
-								}
-								else
-									CreateStr("[M]", in_data);
+								CreateStr("[M]", in_data);
 								CreateStr("", in_data);     // #3 (tag 1197)
 								CreateStr((int)0, in_data); // #4 (tag 1222)
 								CreateStr("", in_data); // #5 (tag 1226) ИНН поставщика 
@@ -2548,15 +2523,7 @@ int PiritEquip::RunCheck(int opertype)
 								CreateStr("", in_data); // #12 (tag 1044) Операция платежного агента (для банк.пл.агента/субагента, иначе пустой) 
 								CreateStr("", in_data); // #13 (tag 1073) Телефон(ы) платежного агента (для пл.агента/субагента, иначе пустой) 
 								CreateStr("", in_data); // #14 (tag 1074) Телефон(ы) оператора по приему платежей (для пл.агента/субагента, иначе пустой) 
-								{
-									if(Check.ChZnProdType == 4)
-										str = "020";
-									else if(Check.ChZnProdType == 12) // @v11.9.3 GTCHZNPT_DRAFTBEER
-										str = "030";
-									else
-										str.Z();
-									CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
-								}
+								CreateStr("030"/*GTCHZNPT_DRAFTBEER*/, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
 								str.Z().Cat("26.03.2022"); // @v11.9.3
 								CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
@@ -2572,91 +2539,165 @@ int PiritEquip::RunCheck(int opertype)
 								// @v11.2.3 {
 								{
 									str.Z();
-									// 1265 "industryDetails": "tm=mdlp&sid=12121212121212&"
-									// tm=mdlp&ps=45102&dn=АБV492&&781&dd=181110&sid=00752852194630&
-									//
-									// ps - серия рецепта;
-									// dn - номер рецепта;
-									// dd - дата рецепта.
-									//
-									if(Check.ChZnProdType == 4) {
-										str.CatEq("tm", "mdlp");
-										if(Check.ChZnSid.NotEmpty())
-											str.CatChar('&').CatEq("sid", Check.ChZnSid);
-										// @v11.8.0 {
-										if(Check.PrescrNumber.NotEmpty()) {
-											if(Check.PrescrSerial.NotEmpty())
-												str.CatChar('&').CatEq("ps", Check.PrescrSerial);
-											str.CatChar('&').CatEq("dn", Check.PrescrNumber);
-											if(checkdate(Check.PrescrDate)) {
-												str.CatChar('&').CatEq("dd", Check.PrescrDate, DATF_DMY|DATF_NODIV);
-											}
-										}
-										// } @v11.8.0 
-										str.CatChar('&');
-									}
 									CreateStr(str, in_data); // #18 (tag 1265) Значение отраслевого реквизита. Значение определяется отраслевым НПА. 
 										// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								}
 								THROW(ExecCmd("24", in_data, out_data, r_error));
 								// } @v11.2.3 
-								/* @v11.2.3 {
-									const int do_check_ret = 1;
-									OpLogBlock __oplb(LogFileName, "24", str);
-									THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
-									if(do_check_ret) {
-										THROW(GetWhile(out_data, r_error));
-									}
-									else {
-										out_data.Z();
-										r_error = "00";
-									}
-								}*/								
 							}
 						}
 					}
-					else {
-					// } @v11.1.10
-						in_data.Z(); // @v11.2.3 @fix
-						for(int si = 0; si < rl; si++) {
-							if(si < 8)
-								str.CatChar('$').CatHex(chzn_1162_bytes[si]);
+				}
+				else if(Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())) {
+					in_data.Z();
+					switch(Check.ChZnProdType) {
+						case 1: product_type_bytes = 0x5246; break; // GTCHZNPT_FUR @v10.8.11 0x0002-->0x5246
+						case 2: product_type_bytes = 0x444D; break; // GTCHZNPT_TOBACCO @v10.8.11 0x0005-->0x444D
+						case 11: product_type_bytes = 0x444D; break; // @v11.9.0 GTCHZNPT_ALTTOBACCO
+						case 3: product_type_bytes = 0x444D; break; // GTCHZNPT_SHOE @v10.8.11 0x1520-->0x444D
+						case 4: product_type_bytes = 0x444D; break; // GTCHZNPT_MEDICINE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
+						case 5: product_type_bytes = 0x444D; break; // @v10.9.7 GTCHZNPT_CARTIRE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
+						case 12: product_type_bytes = 0x444D; break; // @v11.9.4 GTCHZNPT_DRAFTBEER
+						default: product_type_bytes = 0x444D; break; // @v11.0.5
+					}
+					const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr(); // @v10.7.8
+					int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
+					if(rl > 0) {
+						PreprocessChZnCodeResult pczcr;
+						str.Z();
+						// @v11.1.10 {
+						if(OfdVer.IsGe(1, 2, 0)) {
+							if(Check.ChZnPpStatus > 0) {
+								{
+									// --> 79/1
+									// --> 79/2
+									//
+									// --> 79/15
+								}
+								//PreprocessChZnMark(Check.ChZnCode, 1, 0, &pczcr);
+								//int PiritEquip::PreprocessChZnMark(const char * pMarkCode, uint qtty, uint flags, PreprocessChZnCodeResult * pResult)
+								// 79
+								in_data.Z();
+								CreateStr(15, in_data);
+								CreateChZnCode(Check.ChZnCode, in_data); // (Строка)[0..128] Код маркировки
+								CreateStr(Check.ChZnPpStatus, in_data); // (Целое число) Присвоенный статус товара (ofdtag-2110)
+								CreateStr(0L, in_data); // (Целое число) Режим обработки кода маркировки (ofdtag-2102) = 0
+								CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (ofdtag-2106)
+								CreateStr(0L, in_data); // (Целое число) Мера количества [единица измерения то есть; 0 - штуки] (ofdtag-2108)
+								THROW(ExecCmd("79", in_data, out_data, r_error)); // query=15
+								//set_chzn_mark = false;
+								//
+								{
+									in_data.Z(); // @v11.2.3 @fix
+									CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
+									if(Check.ChZnProdType == 4) { // #2 (tag 1191) GTCHZNPT_MEDICINE
+										str = "mdlp";
+										if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
+											double ip = 0.0;
+											double nmrtr = 0.0;
+											double dnmntr = 0.0;
+											if(fsplitintofractions(Check.Qtty, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
+												str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
+										}
+										CreateStr(str, in_data);
+									}
+									else
+										CreateStr("[M]", in_data);
+									CreateStr("", in_data);     // #3 (tag 1197)
+									CreateStr((int)0, in_data); // #4 (tag 1222)
+									CreateStr("", in_data); // #5 (tag 1226) ИНН поставщика 
+									CreateStr("", in_data); // #6 (tag 1171) Телефон(ы) поставщика
+									CreateStr("", in_data); // #7 (tag 1225) Наименование поставщика
+									CreateStr("", in_data); // #8 (tag 1005) Адрес оператора перевода (для банк.пл.агента/субагента, иначе пустой) 
+									CreateStr("", in_data); // #9 (tag 1016) ИНН оператора перевода (для банк.пл.агента/субагента, иначе пустой)
+									CreateStr("", in_data); // #10 (tag 1026) Наименование оператора перевода (для банк.пл.агента/субагента, иначе пустой) 
+									CreateStr("", in_data); // #11 (tag 1075) Телефон(ы) оператора перевода (для банк.пл.агента/субагента, иначе пустой) 
+									CreateStr("", in_data); // #12 (tag 1044) Операция платежного агента (для банк.пл.агента/субагента, иначе пустой) 
+									CreateStr("", in_data); // #13 (tag 1073) Телефон(ы) платежного агента (для пл.агента/субагента, иначе пустой) 
+									CreateStr("", in_data); // #14 (tag 1074) Телефон(ы) оператора по приему платежей (для пл.агента/субагента, иначе пустой) 
+									{
+										if(Check.ChZnProdType == 4)
+											str = "020";
+										else if(Check.ChZnProdType == 12) // @v11.9.3 GTCHZNPT_DRAFTBEER
+											str = "030";
+										else
+											str.Z();
+										CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
+									}
+									// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
+									str.Z().Cat("26.03.2022"); // @v11.9.3
+									CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
+										// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
+									/* @v11.9.3 if(Check.CheckNum > 0)
+										str.Z().Cat(Check.CheckNum);
+									else
+										str = "83d185d1";
+									*/
+									str.Z().Cat("477"); // @v11.9.3
+									CreateStr(str, in_data); // #17 (tag 1264) Номер документа основания. Должен содержать сведения об НПА отраслевого регулирования. 
+										// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
+									// @v11.2.3 {
+									{
+										str.Z();
+										// 1265 "industryDetails": "tm=mdlp&sid=12121212121212&"
+										// tm=mdlp&ps=45102&dn=АБV492&&781&dd=181110&sid=00752852194630&
+										//
+										// ps - серия рецепта;
+										// dn - номер рецепта;
+										// dd - дата рецепта.
+										//
+										if(Check.ChZnProdType == 4) {
+											str.CatEq("tm", "mdlp");
+											if(Check.ChZnSid.NotEmpty())
+												str.CatChar('&').CatEq("sid", Check.ChZnSid);
+											// @v11.8.0 {
+											if(Check.PrescrNumber.NotEmpty()) {
+												if(Check.PrescrSerial.NotEmpty())
+													str.CatChar('&').CatEq("ps", Check.PrescrSerial);
+												str.CatChar('&').CatEq("dn", Check.PrescrNumber);
+												if(checkdate(Check.PrescrDate)) {
+													str.CatChar('&').CatEq("dd", Check.PrescrDate, DATF_DMY|DATF_NODIV);
+												}
+											}
+											// } @v11.8.0 
+											str.CatChar('&');
+										}
+										CreateStr(str, in_data); // #18 (tag 1265) Значение отраслевого реквизита. Значение определяется отраслевым НПА. 
+											// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
+									}
+									THROW(ExecCmd("24", in_data, out_data, r_error));
+									// } @v11.2.3 
+								}
+							}
+						}
+						else {
+						// } @v11.1.10
+							in_data.Z(); // @v11.2.3 @fix
+							for(int si = 0; si < rl; si++) {
+								if(si < 8)
+									str.CatChar('$').CatHex(chzn_1162_bytes[si]);
+								else
+									str.CatChar(chzn_1162_bytes[si]);
+							}
+							CreateStr(str, in_data); // Код товарной номенклатуры
+							if(Check.ChZnProdType == 4) { // GTCHZNPT_MEDICINE
+								// @v11.2.6 {
+								str = "mdlp";
+								if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
+									double ip = 0.0;
+									double nmrtr = 0.0;
+									double dnmntr = 0.0;
+									if(fsplitintofractions(Check.Qtty, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
+										str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
+								}
+								CreateStr(str, in_data);
+								// } @v11.2.6 
+								//CreateStr("mdlp", in_data);
+							}
 							else
-								str.CatChar(chzn_1162_bytes[si]);
-							//str.CatHex(chzn_1162_bytes[si]);
+								CreateStr("[M]", in_data);
+							THROW(ExecCmd("24", in_data, out_data, r_error)); // @v11.2.3
 						}
-						//str.Trim(32);
-						//(str = Check.ChZnCode).Trim(32); // [1..32]
-						CreateStr(str, in_data); // Код товарной номенклатуры
-						if(Check.ChZnProdType == 4) { // GTCHZNPT_MEDICINE
-							// @v11.2.6 {
-							str = "mdlp";
-							if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
-								double ip = 0.0;
-								double nmrtr = 0.0;
-								double dnmntr = 0.0;
-								if(fsplitintofractions(Check.Qtty, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
-									str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
-							}
-							CreateStr(str, in_data);
-							// } @v11.2.6 
-							//CreateStr("mdlp", in_data);
-						}
-						else
-							CreateStr("[M]", in_data);
-						THROW(ExecCmd("24", in_data, out_data, r_error)); // @v11.2.3
-						/*@v11.2.3 {
-							const int do_check_ret = 1;
-							OpLogBlock __oplb(LogFileName, "24", str);
-							THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
-							if(do_check_ret) {
-								THROW(GetWhile(out_data, r_error));
-							}
-							else {
-								out_data.Z();
-								r_error = "00";
-							}
-						}*/
 					}
 				}
 			}

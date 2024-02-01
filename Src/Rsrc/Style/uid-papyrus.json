@@ -1,4 +1,10 @@
 {
+	"value_list": {
+		"standalone_list_width": 300,
+		"standalone_list_height": 200,
+		"desktop_icon_size": 32,
+		"desktop_icon_gap": 8
+	},
 	"colorset_list": [
 		{
 			"symb": "gridscheme_01",

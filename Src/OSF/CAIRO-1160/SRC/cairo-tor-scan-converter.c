@@ -1083,19 +1083,19 @@ inline static int polygon_fill_buckets(struct active_list * active, struct edge 
 
 static void step(struct edge * edge)
 {
-	if(edge->dy == 0)
-		return;
-	edge->x.quo += edge->dxdy.quo;
-	edge->x.rem += edge->dxdy.rem;
-	if(edge->x.rem < 0) {
-		--edge->x.quo;
-		edge->x.rem += edge->dy;
+	if(edge->dy != 0) {
+		edge->x.quo += edge->dxdy.quo;
+		edge->x.rem += edge->dxdy.rem;
+		if(edge->x.rem < 0) {
+			--edge->x.quo;
+			edge->x.rem += edge->dy;
+		}
+		else if(edge->x.rem >= edge->dy) {
+			++edge->x.quo;
+			edge->x.rem -= edge->dy;
+		}
+		edge->cell = edge->x.quo + (edge->x.rem >= edge->dy/2);
 	}
-	else if(edge->x.rem >= edge->dy) {
-		++edge->x.quo;
-		edge->x.rem -= edge->dy;
-	}
-	edge->cell = edge->x.quo + (edge->x.rem >= edge->dy/2);
 }
 
 inline static void sub_row(struct active_list * active, struct cell_list * coverages, uint mask)
@@ -1163,13 +1163,10 @@ static void full_row(struct active_list * active, struct cell_list * coverages, 
 		right = left->next;
 		do {
 			dec(active, right, GRID_Y);
-
 			winding += right->dir;
 			if((winding & mask) == 0 && right->next->cell != right->cell)
 				break;
-
 			full_step(right);
-
 			right = right->next;
 		} while(1);
 		cell_list_set_rewind(coverages);

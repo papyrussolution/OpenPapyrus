@@ -44,7 +44,8 @@ public:
 
 		int cmp(const hb_tag_t tag_) const
 		{
-			return tag_ < tag ? -1 : tag_ > tag ? 1 : 0;
+			return CMPSIGN(tag_, tag); // @v11.9.3 
+			// @v11.9.3 return tag_ < tag ? -1 : tag_ > tag ? 1 : 0;
 		}
 	};
 
@@ -58,7 +59,8 @@ public:
 		{
 			const lookup_map_t * a = (const lookup_map_t*)pa;
 			const lookup_map_t * b = (const lookup_map_t*)pb;
-			return a->index < b->index ? -1 : a->index > b->index ? 1 : 0;
+			return CMPSIGN(a->index, b->index); // @v11.9.3
+			// @v11.9.3 return a->index < b->index ? -1 : a->index > b->index ? 1 : 0;
 		}
 	};
 

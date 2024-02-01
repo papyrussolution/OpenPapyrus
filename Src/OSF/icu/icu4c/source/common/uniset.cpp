@@ -1148,7 +1148,8 @@ UnicodeSet & UnicodeSet::retain(const UnicodeString & s) {
  * @param end last character, inclusive, of range to be removed
  * from this set.
  */
-UnicodeSet & UnicodeSet::remove(UChar32 start, UChar32 end) {
+UnicodeSet & UnicodeSet::remove(UChar32 start, UChar32 end) 
+{
 	if(pinCodePoint(start) <= pinCodePoint(end)) {
 		UChar32 range[3] = { start, end+1, UNICODESET_HIGH };
 		retain(range, 2, 2);
@@ -1161,10 +1162,7 @@ UnicodeSet & UnicodeSet::remove(UChar32 start, UChar32 end) {
  * The set will not contain the specified range once the call
  * returns.
  */
-UnicodeSet & UnicodeSet::remove(UChar32 c) {
-	return remove(c, c);
-}
-
+UnicodeSet & UnicodeSet::remove(UChar32 c) { return remove(c, c); }
 /**
  * Removes the specified string from this set if it is present.
  * The set will not contain the specified character once the call
@@ -1172,16 +1170,18 @@ UnicodeSet & UnicodeSet::remove(UChar32 c) {
  * @param the source string
  * @return the modified set, for chaining
  */
-UnicodeSet & UnicodeSet::remove(const UnicodeString & s) {
-	if(isFrozen() || isBogus()) return *this;
-	int32_t cp = getSingleCP(s);
-	if(cp < 0) {
-		if(strings != nullptr && strings->removeElement((void *)&s)) {
-			releasePattern();
+UnicodeSet & UnicodeSet::remove(const UnicodeString & s) 
+{
+	if(!isFrozen() && !isBogus()) {
+		int32_t cp = getSingleCP(s);
+		if(cp < 0) {
+			if(strings != nullptr && strings->removeElement((void *)&s)) {
+				releasePattern();
+			}
 		}
-	}
-	else {
-		remove((UChar32)cp, (UChar32)cp);
+		else {
+			remove((UChar32)cp, (UChar32)cp);
+		}
 	}
 	return *this;
 }
@@ -1197,27 +1197,25 @@ UnicodeSet & UnicodeSet::remove(const UnicodeString & s) {
  * @param end last character, inclusive, of range to be removed
  * from this set.
  */
-UnicodeSet & UnicodeSet::complement(UChar32 start, UChar32 end) {
-	if(isFrozen() || isBogus()) {
-		return *this;
+UnicodeSet & UnicodeSet::complement(UChar32 start, UChar32 end) 
+{
+	if(!isFrozen() && !isBogus()) {
+		if(pinCodePoint(start) <= pinCodePoint(end)) {
+			UChar32 range[3] = { start, end+1, UNICODESET_HIGH };
+			exclusiveOr(range, 2, 0);
+		}
+		releasePattern();
 	}
-	if(pinCodePoint(start) <= pinCodePoint(end)) {
-		UChar32 range[3] = { start, end+1, UNICODESET_HIGH };
-		exclusiveOr(range, 2, 0);
-	}
-	releasePattern();
 	return *this;
 }
 
-UnicodeSet & UnicodeSet::complement(UChar32 c) {
-	return complement(c, c);
-}
-
+UnicodeSet & UnicodeSet::complement(UChar32 c) { return complement(c, c); }
 /**
  * This is equivalent to
  * <code>complement(MIN_VALUE, MAX_VALUE)</code>.
  */
-UnicodeSet & UnicodeSet::complement() {
+UnicodeSet & UnicodeSet::complement() 
+{
 	if(isFrozen() || isBogus()) {
 		return *this;
 	}
@@ -1236,7 +1234,6 @@ UnicodeSet & UnicodeSet::complement() {
 	releasePattern();
 	return *this;
 }
-
 /**
  * Complement the specified string in this set.
  * The set will not contain the specified string once the call
@@ -1245,8 +1242,10 @@ UnicodeSet & UnicodeSet::complement() {
  * @param s the string to complement
  * @return this object, for chaining
  */
-UnicodeSet & UnicodeSet::complement(const UnicodeString & s) {
-	if(isFrozen() || isBogus()) return *this;
+UnicodeSet & UnicodeSet::complement(const UnicodeString & s) 
+{
+	if(isFrozen() || isBogus()) 
+		return *this;
 	int32_t cp = getSingleCP(s);
 	if(cp < 0) {
 		if(stringsContains(s)) {
@@ -1300,7 +1299,8 @@ UnicodeSet & UnicodeSet::addAll(const UnicodeSet & c)
  *
  * @param c set that defines which elements this set will retain.
  */
-UnicodeSet & UnicodeSet::retainAll(const UnicodeSet & c) {
+UnicodeSet & UnicodeSet::retainAll(const UnicodeSet & c) 
+{
 	if(isFrozen() || isBogus()) {
 		return *this;
 	}

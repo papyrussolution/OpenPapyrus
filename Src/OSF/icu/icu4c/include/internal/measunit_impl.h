@@ -89,7 +89,8 @@ struct U_I18N_API SingleUnitImpl : public UMemory {
 	 * would sort before other units by virtue of index being < 0 and
 	 * dimensionality not being negative.
 	 */
-	int32_t compareTo(const SingleUnitImpl& other) const {
+	int32_t compareTo(const SingleUnitImpl& other) const 
+	{
 		if(dimensionality < 0 && other.dimensionality > 0) {
 			// Positive dimensions first
 			return 1;
@@ -97,7 +98,6 @@ struct U_I18N_API SingleUnitImpl : public UMemory {
 		if(dimensionality > 0 && other.dimensionality < 0) {
 			return -1;
 		}
-
 		// Sort by official quantity order
 		int32_t thisQuantity = this->getUnitCategoryIndex();
 		int32_t otherQuantity = other.getUnitCategoryIndex();
@@ -107,7 +107,6 @@ struct U_I18N_API SingleUnitImpl : public UMemory {
 		if(thisQuantity > otherQuantity) {
 			return 1;
 		}
-
 		// If quantity order didn't help, then we go by index.
 		if(index < other.index) {
 			return -1;
@@ -115,7 +114,6 @@ struct U_I18N_API SingleUnitImpl : public UMemory {
 		if(index > other.index) {
 			return 1;
 		}
-
 		// When comparing binary prefixes vs SI prefixes, instead of comparing the actual values, we can
 		// multiply the binary prefix power by 3 and compare the powers. if they are equal, we can can
 		// compare the bases.
@@ -143,10 +141,8 @@ struct U_I18N_API SingleUnitImpl : public UMemory {
 		if(unitBase > otherUnitBase) {
 			return -1;
 		}
-
 		return 0;
 	}
-
 	/**
 	 * Return whether this SingleUnitImpl is compatible with another for the purpose of coalescing.
 	 *
@@ -169,17 +165,13 @@ struct U_I18N_API SingleUnitImpl : public UMemory {
 	 * isDimensionless() will return true, until index is changed.
 	 */
 	int32_t index = -1;
-
 	/**
 	 * SI or binary prefix.
-	 *
 	 * This is ignored for the dimensionless unit.
 	 */
 	UMeasurePrefix unitPrefix = UMEASURE_PREFIX_ONE;
-
 	/**
 	 * Dimensionality.
-	 *
 	 * This is meaningless for the dimensionless unit.
 	 */
 	int32_t dimensionality = 1;
@@ -208,14 +200,9 @@ public:
 	// No copy constructor, use MeasureUnitImpl::copy() to make it explicit.
 	MeasureUnitImpl(const MeasureUnitImpl &other, UErrorCode & status) = delete;
 	MeasureUnitImpl(const SingleUnitImpl &singleUnit, UErrorCode & status);
-
 	MeasureUnitImpl & operator =(MeasureUnitImpl &&other) noexcept = default;
-
 	/** Extract the MeasureUnitImpl from a MeasureUnit. */
-	static inline const MeasureUnitImpl * get(const MeasureUnit &measureUnit) {
-		return measureUnit.fImpl;
-	}
-
+	static inline const MeasureUnitImpl * get(const MeasureUnit &measureUnit) { return measureUnit.fImpl; }
 	/**
 	 * Parse a unit identifier into a MeasureUnitImpl.
 	 *
@@ -225,7 +212,6 @@ public:
 	 * unspecified if an error is returned via status.
 	 */
 	static MeasureUnitImpl forIdentifier(StringPiece identifier, UErrorCode & status);
-
 	/**
 	 * Extract the MeasureUnitImpl from a MeasureUnit, or parse if it is not present.
 	 *
@@ -244,21 +230,19 @@ public:
 	 * @return A value object, either newly parsed or copied from measureUnit.
 	 */
 	static MeasureUnitImpl forMeasureUnitMaybeCopy(const MeasureUnit& measureUnit, UErrorCode & status);
-
 	/**
 	 * Used for currency units.
 	 */
-	static inline MeasureUnitImpl forCurrencyCode(StringPiece currencyCode) {
+	static inline MeasureUnitImpl forCurrencyCode(StringPiece currencyCode) 
+	{
 		MeasureUnitImpl result;
 		UErrorCode localStatus = U_ZERO_ERROR;
 		result.identifier.append(currencyCode, localStatus);
 		// localStatus is not expected to fail since currencyCode should be 3 chars long
 		return result;
 	}
-
 	/** Transform this MeasureUnitImpl into a MeasureUnit, simplifying if possible. */
 	MeasureUnit build(UErrorCode & status) &&;
-
 	/**
 	 * Create a copy of this MeasureUnitImpl. Don't use copy constructor to make this explicit.
 	 */
@@ -273,10 +257,8 @@ public:
 	 *                  it will return a list of 2 {(0, `foot`), (1, `inch`)}
 	 */
 	MaybeStackVector<MeasureUnitImplWithIndex>extractIndividualUnitsWithIndices(UErrorCode & status) const;
-
 	/** Mutates this MeasureUnitImpl to take the reciprocal. */
 	void takeReciprocal(UErrorCode & status);
-
 	/**
 	 * Returns a simplified version of the unit.
 	 * NOTE: the simplification happen when there are two units equals in their base unit and their
@@ -286,7 +268,6 @@ public:
 	 * Example 2: "square-millimeter-per-meter" --> "square-millimeter-per-meter"
 	 */
 	MeasureUnitImpl copyAndSimplify(UErrorCode & status) const;
-
 	/**
 	 * Mutates this MeasureUnitImpl to append a single unit.
 	 *
@@ -294,15 +275,12 @@ public:
 	 * it is never added: the return value will always be false.
 	 */
 	bool appendSingleUnit(const SingleUnitImpl& singleUnit, UErrorCode & status);
-
 	/**
 	 * Normalizes a MeasureUnitImpl and generate the identifier string in place.
 	 */
 	void serialize(UErrorCode & status);
-
 	/** The complexity, either SINGLE, COMPOUND, or MIXED. */
 	UMeasureUnitComplexity complexity = UMEASURE_UNIT_SINGLE;
-
 	/**
 	 * The list of single units. These may be summed or multiplied, based on the
 	 * value of the complexity field.
@@ -311,7 +289,6 @@ public:
 	 * added to this list.
 	 */
 	MaybeStackVector<SingleUnitImpl> singleUnits;
-
 	/**
 	 * The full unit identifier.  Owned by the MeasureUnitImpl.  Empty if not computed.
 	 */
@@ -326,12 +303,11 @@ struct U_I18N_API MeasureUnitImplWithIndex : public UMemory {
 	const int32_t index;
 	MeasureUnitImpl unitImpl;
 	// Makes a copy of unitImpl.
-	MeasureUnitImplWithIndex(int32_t index, const MeasureUnitImpl &unitImpl, UErrorCode & status)
-		: index(index), unitImpl(unitImpl.copy(status)) {
+	MeasureUnitImplWithIndex(int32_t index, const MeasureUnitImpl &unitImpl, UErrorCode & status) : index(index), unitImpl(unitImpl.copy(status)) 
+	{
 	}
-
-	MeasureUnitImplWithIndex(int32_t index, const SingleUnitImpl &singleUnitImpl, UErrorCode & status)
-		: index(index), unitImpl(MeasureUnitImpl(singleUnitImpl, status)) {
+	MeasureUnitImplWithIndex(int32_t index, const SingleUnitImpl &singleUnitImpl, UErrorCode & status) : index(index), unitImpl(MeasureUnitImpl(singleUnitImpl, status)) 
+	{
 	}
 };
 

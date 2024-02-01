@@ -1314,7 +1314,7 @@ PPERR_BILLSTCHECKFLD_AGENT         "@{billstatusfieldreq} '@{agent}'"  // Ста
 PPERR_BILLSTCHECKFLD_PAYER         "@{billstatusfieldreq} '@{payer}'"
 PPERR_BILLSTCHECKFLD_DLVRADDR      "@{billstatusfieldreq} '@{daddress}'"
 PPERR_BILLSTCHECKFLD_PORTOFLD      "@{billstatusfieldreq} 'Пункт отгрузки'"
-PPERR_BILLSTCHECKFLD_PORTOFDCHG    "@{billstatusfieldreq} 'Пункт разгрузки'"
+PPERR_BILLSTCHECKFLD_PORTOFDCHG    "@{billstatusfieldreq} '@{bill_portofdischarge}'"
 PPERR_BILLSTCHECKFLD_ISSUEDATE     "@{billstatusfieldreq} '@{bill_issuedate}'"
 PPERR_BILLSTCHECKFLD_ARRIVALDATE   "@{billstatusfieldreq} '@{arrivaldate}'"
 PPERR_BILLSTCHECKFLD_SHIP          "@{billstatusfieldreq} 'Транспорт'"
@@ -5790,6 +5790,8 @@ DVCPARAM_CHECKNUM              "CHECKNUM"
 DVCPARAM_CHECKTIMESTAMP        "CHECKTIMESTAMP"
 DVCPARAM_DEPARTMENT            "DEPARTMENT"
 DVCPARAM_QUANTITY              "QUANTITY"
+DVCPARAM_PHQTTY                "PHQTTY" // @v11.9.4
+DVCPARAM_UOMID                 "UOMID"  // @v11.9.4 Идентификатор физической единицы измерения //
 DVCPARAM_PRICE                 "PRICE"
 DVCPARAM_PAYMCASH              "PAYMCASH"
 DVCPARAM_PAYMCARD              "PAYMCARD"
@@ -11370,6 +11372,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ediprovider_symb                         "@{symbol}"
 @ediprovider_tag                          "@{tag}"
 @ediprovider_formatsymb                   "Символ формата обмена"
+@ediprovider_subin                        "Подкаталог входящих документов" // @v11.9.4 Подкаталог (или иное дополнение к адресу), указывающий на входящие документы
+@ediprovider_subout                       "Подкаталог исходящих документов" // @v11.9.4 Подкаталог (или иное дополнение к адресу), указывающий на исходящие документы
 
 @egaisperson_actualdate                   "@{actualdate}"
 @egaisperson_countrycode                  "Код страны"
@@ -13767,6 +13771,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billfilt_orderfulfillmentstatus_partcmpl "Частично выполнен"
 @billfilt_clipsncategory                  "Категория персоналий клиентов"
 @billfilt_extssmemotext                   "Примечание содержит строку"
+@billfilt_freightportofdischarge          "@{bill_portofdischarge}"
 
 @billflagsupd                             "Изменение флагов документов" // Специализированный диалог массового изменения флагов выборки документов
 
@@ -13927,7 +13932,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @freightfilt_ordbydlvraddr                "По адресу доставки"
 @freightfilt_ordbyportname                "По пункту разгрузки"
 @freightfilt_order                        "@{sortby}"
-@freightfilt_port                         "Пункт разгрузки"
+@freightfilt_port                         "@{bill_portofdischarge}"
 @freightfilt_ship                         "@{transport}"
 @freightfilt_shipmperiod                  "Период отгрузки"
 
@@ -15032,6 +15037,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_fcomparewroff_diffonly      "Показывать только отличия от документов списания"
 @trfranlzfilt_funcloseddraftsonly         "Только по не списанным драфт-документам"
 @trfranlzfilt_fshowcargo                  "Показывать грузовые значения"
+@trfranlzfilt_fextvalquotskiptmval        "Игнорировать значения котировок, привязанные к периоду"
 @trfranlzfilt_initord                     "@{sorting}"
 @trfranlzfilt_crosstab                    "Параметры кросстабуляции анализа товарных операций" // Обобщающее понятие
 @trfranlzfilt_ctkind                      "@{crosstab_sh}" // Вид кросстабулированного отчета

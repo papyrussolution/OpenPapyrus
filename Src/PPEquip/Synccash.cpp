@@ -97,7 +97,7 @@ class SCS_SYNCCASH : public PPSyncCashSession {
 public:
 	SCS_SYNCCASH(PPID n, char * pName, char * pPort);
 	~SCS_SYNCCASH();
-	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult);
+	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult);
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	virtual int PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -463,12 +463,31 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 	PPLogMessage(PPFILNAM_CCHECK_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);	
 }
 
-int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult)
+int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult)
 {
 	int    ok = -1;
 	if(op == 100) { // 100 - предварителные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
 		;
 	}
+	// @v11.9.4 {
+	else if(op == 101) {
+		rResult.CheckResult = 0;
+		rResult.Reason = 0;
+		rResult.ProcessingResult = 0;
+		rResult.ProcessingCode = 0;
+		rResult.Status = 0;
+		if(!isempty(pCode)) {
+			THROW(Connect());
+			Arr_In.Z();
+			THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, pCode));
+			THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, qtty));
+			if(uomId)
+				THROW(ArrAdd(Arr_In, DVCPARAM_UOMID, uomId));
+			THROW(ArrAdd(Arr_In, DVCPARAM_DRAFTBEERSIMPLIFIED, pCode));
+			THROW(ExecOper(DVCCMD_PREPROCESSCHZNCODE, Arr_In, Arr_Out));
+		}
+	}
+	// } @v11.9.4
 	else if(op == 0) {
 		rResult.CheckResult = 0;
 		rResult.Reason = 0;
@@ -778,6 +797,16 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sl_param.Text));
 						THROW(ArrAdd(Arr_In, DVCPARAM_CODE, sl_param.Code));
 						THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, _q));
+						// @v11.9.4 {
+						if(sl_param.PhQtty > 0.0) {
+							THROW(ArrAdd(Arr_In, DVCPARAM_PHQTTY, sl_param.PhQtty));
+						}
+						if(sl_param.Flags & SlipLineParam::fDraftBeerSimplified && sl_param.Code.NotEmpty()) {
+							THROW(ArrAdd(Arr_In, DVCPARAM_DRAFTBEERSIMPLIFIED, sl_param.Code));
+							if(sl_param.ChZnGTIN.NotEmpty())
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNGTIN, sl_param.ChZnGTIN));
+						}
+						// } @v11.9.4 
 						// @v11.2.6 {
 						if(sl_param.UomFragm > 0) {
 							THROW(ArrAdd(Arr_In, DVCPARAM_UOMFRAGM, static_cast<int>(sl_param.UomFragm)));

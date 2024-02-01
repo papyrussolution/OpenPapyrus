@@ -1477,16 +1477,10 @@ int FASTCALL SString::Alloc(size_t sz)
 		if(p) {
 			Size = new_size;
 			P_Buf = p;
-			// @v9.4.9 @fix (big mistake) P_Buf[L] = 0;
-			// @v9.4.9 {
 			if(L)
 				P_Buf[L-1] = 0;
-			else {
-				// @v9.9.5 P_Buf[0] = 0;
-				assert(Size >= 4);
-				PTR32(P_Buf)[0] = 0; // @speedcritical @v9.9.5
-			}
-			// } @v9.4.9
+			else
+				P_Buf[0] = 0;
 		}
 		else
 			ok = 0;
@@ -1494,10 +1488,7 @@ int FASTCALL SString::Alloc(size_t sz)
 	return ok;
 }
 
-bool SString::Ensure(uint sz)
-{
-	return (sz > Size) ? Alloc(sz) : true;
-}
+bool SString::Ensure(uint sz) { return (sz > Size) ? Alloc(sz) : true; }
 
 SString & FASTCALL SString::CopyFrom(const SString & s)
 {
@@ -3859,11 +3850,11 @@ int FASTCALL satoi(const wchar_t * pT)
 			is_hex = 1;
 		}
 		if(is_hex) {
-			if(ishexw(_p[src_pos])) {
+			if(ishex(_p[src_pos])) {
 				uint   local_len = 0;
 				do {
 					local_len++;
-				} while(ishexw(_p[src_pos+local_len]));
+				} while(ishex(_p[src_pos+local_len]));
 				result = static_cast<int>(_texttohex32(_p+src_pos, local_len));
 			}
 		}
@@ -3902,10 +3893,10 @@ int64 FASTCALL satoi64(const wchar_t * pT)
 		is_hex = 1;
 	}
 	if(is_hex) {
-		if(ishexw(_p[src_pos])) { 
+		if(ishex(_p[src_pos])) { 
 			do { 
 				result = result * 16 + hexw(_p[src_pos]); 
-			} while(ishexw(_p[++src_pos])); 
+			} while(ishex(_p[++src_pos])); 
 		}
 	}
 	else {

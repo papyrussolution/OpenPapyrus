@@ -128,8 +128,8 @@ std::string FormatNanos(int32 nanos)
 // consumes at most "width" chars. Returns a pointer after the consumed
 // integer, or nullptr if the data does not start with an integer or the
 // integer value does not fall in the range of [min_value, max_value].
-const char* ParseInt(const char* data, int width, int min_value,
-    int max_value, int* result) {
+const char* ParseInt(const char* data, int width, int min_value, int max_value, int* result) 
+{
 	if(!ascii_isdigit(*data)) {
 		return nullptr;
 	}

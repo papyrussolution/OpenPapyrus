@@ -548,12 +548,8 @@ LIBSSH_API int ssh_set_callbacks(ssh_session session, ssh_callbacks cb);
  * @returns number of bytes processed by the callee. The remaining bytes will
  * be sent in the next callback message, when more data is available.
  */
-typedef int (* ssh_channel_data_callback) (ssh_session session,
-    ssh_channel channel,
-    void * data,
-    uint32_t len,
-    int is_stderr,
-    void * userdata);
+typedef int (* ssh_channel_data_callback) (ssh_session session, ssh_channel channel, void * data,
+    uint32_t len, int is_stderr, void * userdata);
 
 /**
  * @brief SSH channel eof callback. Called when a channel receives EOF
@@ -561,10 +557,7 @@ typedef int (* ssh_channel_data_callback) (ssh_session session,
  * @param channel the actual channel
  * @param userdata Userdata to be passed to the callback function.
  */
-typedef void (* ssh_channel_eof_callback) (ssh_session session,
-    ssh_channel channel,
-    void * userdata);
-
+typedef void (* ssh_channel_eof_callback) (ssh_session session, ssh_channel channel, void * userdata);
 /**
  * @brief SSH channel close callback. Called when a channel is closed by remote peer
  * @param session Current session handler

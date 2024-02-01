@@ -105,16 +105,13 @@ hb_graphite2_face_data_t * _hb_graphite2_shaper_face_data_create(hb_face_t * fac
 void _hb_graphite2_shaper_face_data_destroy(hb_graphite2_face_data_t * data)
 {
 	hb_graphite2_tablelist_t * tlist = data->tlist;
-
 	while(tlist) {
 		hb_graphite2_tablelist_t * old = tlist;
 		hb_blob_destroy(tlist->blob);
 		tlist = tlist->next;
 		SAlloc::F(old);
 	}
-
 	gr_face_destroy(data->grface);
-
 	SAlloc::F(data);
 }
 
@@ -151,17 +148,13 @@ void _hb_graphite2_shaper_font_data_destroy(hb_graphite2_font_data_t * data CXX_
 }
 
 #ifndef HB_DISABLE_DEPRECATED
-/**
- * hb_graphite2_font_get_gr_font:
- *
- * Since: 0.9.10
- * Deprecated: 1.4.2
- */
-gr_font * hb_graphite2_font_get_gr_font(hb_font_t * font CXX_UNUSED_PARAM)
-{
-	return nullptr;
-}
-
+	/**
+	 * hb_graphite2_font_get_gr_font:
+	 *
+	 * Since: 0.9.10
+	 * Deprecated: 1.4.2
+	 */
+	gr_font * hb_graphite2_font_get_gr_font(hb_font_t * font CXX_UNUSED_PARAM) { return nullptr; }
 #endif
 
 /*
@@ -219,8 +212,8 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
 	}
 	buffer->ensure(glyph_count);
 	scratch = buffer->get_scratch_buffer(&scratch_size);
-	while((DIV_CEIL(sizeof(hb_graphite2_cluster_t) * buffer->len, sizeof(*scratch)) +
-	    DIV_CEIL(sizeof(hb_codepoint_t) * glyph_count, sizeof(*scratch))) > scratch_size) {
+	while((idivroundup(sizeof(hb_graphite2_cluster_t) * buffer->len, sizeof(*scratch)) +
+	    idivroundup(sizeof(hb_codepoint_t) * glyph_count, sizeof(*scratch))) > scratch_size) {
 		if(UNLIKELY(!buffer->ensure(buffer->allocated * 2))) {
 			if(feats) gr_featureval_destroy(feats);
 			gr_seg_destroy(seg);
@@ -231,7 +224,7 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
 #define ALLOCATE_ARRAY(Type, name, len) \
 	Type *name = (Type*)scratch; \
 	do { \
-		uint _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
+		uint _consumed = idivroundup((len) * sizeof(Type), sizeof(*scratch)); \
 		assert(_consumed <= scratch_size); \
 		scratch += _consumed; \
 		scratch_size -= _consumed; \

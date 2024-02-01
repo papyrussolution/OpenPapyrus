@@ -521,7 +521,6 @@ protected:
 /*
  * shaper
  */
-
 static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
     hb_font_t * font,
     hb_buffer_t * buffer,
@@ -542,7 +541,7 @@ static hb_bool_t _hb_directwrite_shape_full(hb_shape_plan_t * shape_plan,
 #define ALLOCATE_ARRAY(Type, name, len) \
 	Type *name = (Type*)scratch; \
 	do { \
-		uint _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
+		uint _consumed = idivroundup((len) * sizeof(Type), sizeof(*scratch)); \
 		assert(_consumed <= scratch_size); \
 		scratch += _consumed; \
 		scratch_size -= _consumed; \

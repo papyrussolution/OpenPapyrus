@@ -1,5 +1,5 @@
 // SSVG.CPP
-// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1005,7 +1005,7 @@ int SSvg::ParsePrimitivs(const xmlNode * pParentNode, SDrawGroup & rGroup, SStrS
 							if(attr_list.GetText(tOffset, temp_buf)) {
 								USize usz;
 								usz.FromStr(temp_buf);
-								if(usz.Unit == UNIT_PERCENT)
+								if(usz.Unit == SUOM_PERCENT)
 									offs = static_cast<float>(usz / 100.0);
 								else
 									offs = static_cast<float>(usz);
@@ -1039,7 +1039,7 @@ int SSvg::_GetGradientCoord(const char * pStr, float & rF, int & rPct)
 	rPct = 0;
 	USize usz;
 	usz.FromStr(pStr, USize::fmtSVG);
-	if(usz.Unit == UNIT_PERCENT) {
+	if(usz.Unit == SUOM_PERCENT) {
 		rPct = 1;
 		rF = static_cast<float>(usz);
 	}

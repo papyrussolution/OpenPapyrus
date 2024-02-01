@@ -1,5 +1,5 @@
 // SHTRIHFR.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Интерфейс (синхронный) с ККМ Штрих-ФР
 //
@@ -239,7 +239,7 @@ public:
 	virtual int OpenBox();
 	virtual int CheckForSessionOver();
 	virtual int PrintBnkTermReport(const char * pZCheck);
-	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult); // @v11.6.6
+	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult); // @v11.6.6
 private:
 	// @v10.3.9 virtual int InitChannel();
 	FR_INTRF  * InitDriver();
@@ -2786,7 +2786,7 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 	}
 }
 
-/*virtual*/int SCS_SHTRIHFRF::PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.6.6
+/*virtual*/int SCS_SHTRIHFRF::PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.6.6
 {
 	int    ok = -1;
 	SString temp_buf;

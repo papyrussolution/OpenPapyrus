@@ -442,7 +442,7 @@ HRESULT CUpdateCallbackConsole::GetStream(const wchar_t * name, bool /* isDir */
 {
 	if(StdOutMode)
 		return S_OK;
-	if(!name || name[0] == 0)
+	if(isempty(name))
 		name = kEmptyFileAlias;
 	unsigned requiredLevel = 1;
 	const char * s;
@@ -580,7 +580,7 @@ HRESULT CUpdateCallbackConsole::ShowDeleteFile(const wchar_t * name, bool /* isD
 	if(StdOutMode)
 		return S_OK;
 	if(LogLevel > 7) {
-		if(!name || name[0] == 0)
+		if(isempty(name))
 			name = kEmptyFileAlias;
 		return PrintProgress(name, "D", true);
 	}

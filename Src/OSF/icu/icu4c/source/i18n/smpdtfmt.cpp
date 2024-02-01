@@ -1878,12 +1878,9 @@ void SimpleDateFormat::subFormat(UnicodeString & appendTo,
 		    // Midnight/Noon -> General Periods -> AM/PM.
 
 		    // Midnight/Noon -> General Periods.
-		    if((toAppend == NULL || toAppend->isBogus()) &&
-			(periodType == DayPeriodRules::DAYPERIOD_MIDNIGHT ||
-			periodType == DayPeriodRules::DAYPERIOD_NOON)) {
+		    if((!toAppend || toAppend->isBogus()) && oneof2(periodType, DayPeriodRules::DAYPERIOD_MIDNIGHT, DayPeriodRules::DAYPERIOD_NOON)) {
 			    periodType = ruleSet->getDayPeriodForHour(hour);
 			    index = (int32_t)periodType;
-
 			    if(count <= 3) {
 				    toAppend = &fSymbols->fAbbreviatedDayPeriods[index]; // i.e. short
 			    }

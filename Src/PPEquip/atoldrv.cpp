@@ -165,7 +165,7 @@ public:
 		return ok;
 	}
 	virtual int PrintBnkTermReport(const char * pZCheck);
-	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult); // @v11.2.12
+	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult); // @v11.2.12
 	virtual int Diagnostics(StringSet * pSs) // @v10.5.12
 	{ 
 		if(pSs) {
@@ -885,7 +885,7 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 	}
 }
 
-/*virtual*/int SCS_ATOLDRV::PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.2.12
+/*virtual*/int SCS_ATOLDRV::PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.2.12
 {
 	if(op == 0) { // Другие операции этот блок менять не должны!
 		rResult.Z();

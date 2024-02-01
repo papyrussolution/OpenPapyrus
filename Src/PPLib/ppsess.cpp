@@ -2277,7 +2277,7 @@ static int PPQueryPathFunc(const char * pSignature, SString & rBuf)
 	static const SIntToSymbTabEntry path_symb_list[] = {
 		{ PPPATH_BIN, "bin" }, { PPPATH_LOCAL, "local" }, { PPPATH_TEMP, "temp" },         { PPPATH_IN, "in" },
 		{ PPPATH_OUT, "out" }, { PPPATH_LOG, "log" },     { PPPATH_TESTROOT, "testroot" }, { PPPATH_WORKSPACE, "workspace" },
-		{ PPPATH_UID, "uid" }/*@v11.9.3*/
+		{ PPPATH_UID, "uid" }/*@v11.9.3*/, { PPPATH_SRCROOT, "srcroot" }/*@v11.9.4*/
 	};
 	int    path_id = SIntToSymbTab_GetId(path_symb_list, SIZEOFARRAY(path_symb_list), pSignature);
 	return path_id ? PPGetPath(path_id, rBuf) : 0;
@@ -5031,6 +5031,18 @@ int PPSession::GetPath(PPID pathID, SString & rBuf)
 				GetPath(PPPATH_BIN, temp_buf); // @recursion
                 SFsPath ps(temp_buf);
                 ps.Dir.SetLastSlash().Cat("..\\..\\src\\pptest");
+				ps.Merge(SFsPath::fDrv|SFsPath::fDir, rBuf);
+			}
+			break;
+		case PPPATH_SRCROOT: // @v11.9.4
+			{
+				//
+				// Путь нужен для тестирования и отладки.
+				//
+				SString temp_buf;
+				GetPath(PPPATH_BIN, temp_buf); // @recursion
+                SFsPath ps(temp_buf);
+                ps.Dir.SetLastSlash().Cat("..\\..\\src");
 				ps.Merge(SFsPath::fDrv|SFsPath::fDir, rBuf);
 			}
 			break;

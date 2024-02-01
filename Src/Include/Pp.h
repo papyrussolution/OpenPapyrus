@@ -3934,9 +3934,10 @@ public:
 	void   FASTCALL SetIdentPeriod(const DateRange * pPeriod);
 	void   FASTCALL SetIdentQtty(const long * pQtty);
 	enum {
-		fUsePeriod    = 0x0001,
-		fUseQtty      = 0x0002,
-		fOmitRounding = 0x0004  // @v10.9.11 @internal Не применять округление при извлечении значения.
+		fUsePeriod             = 0x0001,
+		fUseQtty               = 0x0002,
+		fOmitRounding          = 0x0004, // @v10.9.11 @internal Не применять округление при извлечении значения.
+		fIgnoreTimeLimitValues = 0x0008  // @v11.9.4 Игнорировать значения, привязанные к времени действия //
 	};
 	long   Flags;          // @flags
 	PPID   LocID;
@@ -13699,27 +13700,7 @@ struct GoodsByTransferFilt {
 	ObjIdListFilt LocList;
 };
 //
-//
-//
-/* @v9.8.5
-struct UnlimOrderParam {
-	PPID   GoodsID;       // ИД товара
-	PPID   ArID;          // ИД контрагента
-	DateRange OrdPeriod;  // Период заказов
-	DateRange ShpPeriod;  // Период отгрузки
-	long   Flags;
-};
-
-struct UnlimOrderEntry { // @flat
-	PPID   GoodsID;       // ИД товара
-	PPID   OrdBillID;     // ИД документа заказа
-	PPID   ShpBillID;     // ИД документа отгрузки по заказу
-	double OrdQtty;       // Заказанное количество
-	double ShpQtty;       // Отгруженное количество
-};
-*/
-//
-//
+// Descr: Класс, реализующий низкоуровневые функции работы с таблицей товарных операций //
 //
 class Transfer : public TransferTbl {
 public:
@@ -20420,11 +20401,13 @@ public:
 	enum { // @persistent
 		extssDllModuleName =  1,
 		extssTempPath      =  2,
-		extssAddr  = 11,
-		extssAddr2 = 12,
-		extssLogin = 13,
+		extssAddr          = 11,
+		extssAddr2         = 12,
+		extssLogin         = 13,
 		extssPassword      = 14,
-		extssFormatSymb    = 15  // @v10.0.02 Символ формата обмена (зависит от провайдера)
+		extssFormatSymb    = 15, // @v10.0.02 Символ формата обмена (зависит от провайдера)
+		extssSubIn         = 16, // @v11.9.4 Подкаталог (или иное дополнение к адресу), указывающий на входящие документы
+		extssSubOut        = 17, // @v11.9.4 Подкаталог (или иное дополнение к адресу), указывающий на исходящие документы
 	};
 
 	PPEdiProviderPacket();
@@ -21211,7 +21194,7 @@ public:
 	// Note: Функция фактически используется только для тестовой проверки марки из кассовой панели.
 	//   При проведении чеки применяются менее высокоуровневые вызовы.
 	//
-	int    SyncPreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult);
+	int    SyncPreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult);
 	int    SyncBrowseCheckList(const char * pCheckPanInitStr, long checkPanFlags);
 	int    SyncLockCashKeyb();
 	int    SyncUnlockCashKeyb();
@@ -21498,45 +21481,6 @@ struct PPAccountPacket {
 	PPIDArray CurList;
 	ObjRestrictArray GenList;   // Список группируемых счетов (для группирующего счета)
 };
-
-#if 0 // @v9.0.4 {
-
-class AccountCore : public Account_Pre9004Tbl {
-public:
-	//
-	// Descr: Генерирует код счета в формате Ac.Sb
-	//
-	static void GenerateCode(PPAccount &);
-
-	AccountCore();
-	//
-	// Descr: Генерирует номер счета по его коду и типу и заносит его в поля Ac и Sb
-	//
-	int    GenerateNumber(PPAccount *);
-	int    Remove(PPID, int use_ta);
-	int    Search(PPID, PPAccount * pRec = 0);
-	int    GetCurList(int ac, int sb, PPIDArray * pAccList, PPIDArray * pCurList);
-	int    GetCurList(PPID accID, PPIDArray * pAccList, PPIDArray * pCurList);
-	int    GetIntersectCurList(PPID accID_1, PPID accID_2, PPIDArray *);
-	int    GetPacket(PPID, PPAccountPacket *);
-	int    PutPacket(PPID *, PPAccountPacket *, int use_ta);
-	int    SearchCode(const char * pCode, PPID curID, PPAccount * = 0);
-	int    SearchBase(PPID curAccID, PPID * pBaseAccID, void * = 0);
-	int    SearchCur(PPID accID, PPID curID, PPID * pCurAccID, void * = 0);
-	//
-	// Descr: возвращает (>0) если у счета с номером ac имеется хотя бы один субсчет.
-	//   Если нет, то возвращается (<0). В случае ошибки возвращает 0.
-	//
-	int    HasAnySubacct(int ac);
-	int    GetSubacctList(int ac, int sb, PPID curID, PPIDArray *);
-	int    InitAccSheetForAcctID(AcctID * pAcctId, PPID * pSheetID);
-	int    ParseString(const char * pStr, int tok[]);
-private:
-	int    AddCurRecord(PPAccount * pBaseRec, PPID curID);
-	int    GetAggrNumber(PPAccount *);
-};
-
-#endif // } 0 @v9.0.4
 //
 // @ModuleDecl(PPObjAccount)
 //
@@ -22006,13 +21950,15 @@ public:
 	//   0 - проверка марки
 	//   1 - акцепт марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
 	//   2 - отказ от акцепта марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
-	//   100 - предварителные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
+	//   100 - предварительные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
+	//   101 - фиктивная проверка марки в специальных случаях (draftbeer horeca) // @v11.9.4
+	//   102 - фиктивный акцепт марки в специальных случаях (draftbeer horeca) // @v11.9.4
 	// Returns:
 	//  <0 - функция не поддерживается либо pCode не является валидным кодом честный знак
 	//  >0 - функция выполнена (не обязательно успешно - это определяется результатом rResult)
 	//   0 - error при выполнении запроса
 	//
-	virtual int    PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) { return -1; }
+	virtual int    PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) { return -1; }
 	//
 	// Функции кассового аппарата уровня приложения //
 	//
@@ -23207,11 +23153,6 @@ private:
 struct StConfig {
 	StConfig();
 	void   Clear();
-	/* @v9.5.12 (emitted)
-	int    SetConfig_(const char * pHost, uint port, const char * pSystemId, const char * pLogin,
-		const char * pPassword, const char * pSystemType, uint sourceAddressTon, uint sourceAddressNpi,
-		uint destAddressTon, uint destAddressNpi, uint dataCoding, const char * pFrom, uint splitLongMsg);
-	*/
 	SString Host;
 	uint   Port;
 	SString SystemId; // Идентификатор клиента в системе
@@ -32509,7 +32450,6 @@ public:
 	int    AcceptBill(PPObjBHT::BillRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID);
 	int    AcceptBillLine(PPID billID, PPObjBHT::BillLineRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID);
 	int    AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec * pInvRec, PPLogger * pLogger);
-	// @v9.4.9 int    PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods = 1);
 	int    PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pGoodsList, int uniteGoods = 1);
 	int    PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID billID);
 	int    PrepareLocCellData(const PPBhtTerminalPacket * pPack);
@@ -38654,7 +38594,8 @@ public:
 		dliDlvrAddr,                  // Адрес доставки
 		dliTSessLinkTo                // @v11.6.12 Тех сессия, к которой привязан документ
 	};
-	char   ReserveStart[24]; // @anchor @v11.0.11 [32]-->[28] // @v11.1.9 [28]-->[24]
+	char   ReserveStart[20]; // @anchor @v11.0.11 [32]-->[28] // @v11.1.9 [28]-->[24] // @v11.9.4 [24]-->[20]
+	PPID   FreightPortOfDischarge; // @v11.9.4 @construction Порт (пункт) разгрузки (из фрахта документа) //
 	PPID   CliPsnCategoryID; // @v11.1.9 Категория персоналии, соответствующей контрагенту документа
 	PPID   GoodsGroupID;   // @v11.0.11 Товарная группа, ограничивающая выборку документов по содержимому
 	long   Tag;            // @#0 reserved
@@ -43351,33 +43292,35 @@ public:
 		gGoodsSuppl // @v10.1.6 По товару и поставщику
 	};
 	enum {
-		fLabelOnly  = 0x00000001,   // Только помеченные операции
-		fGByDate    = 0x00000002,   // Группировка по дате (только если выбран товар - GoodsID)
-		fGetRest    = 0x00000004,   // Рассчитывать товарные остатки
-		fSubstPersonRAddr   = 0x00000008,   // При подстановке персоналии использовать фактический адрес
-		fSubstDlvrAddr      = 0x00000010,   // При подстановке персоналии использовать адрес доставки
-		fDiffByDlvrAddr     = 0x00000020,   // При группировке по контрагенту заменять контрагента на конкатенацию (контрагент+адрес доставки)
-		fDontInitSubstNames = 0x00000040,   // Не инициализировать имена подставляемых объектов
+		fLabelOnly           = 0x00000001,   // Только помеченные операции
+		fGByDate             = 0x00000002,   // Группировка по дате (только если выбран товар - GoodsID)
+		fGetRest             = 0x00000004,   // Рассчитывать товарные остатки
+		fSubstPersonRAddr    = 0x00000008,   // При подстановке персоналии использовать фактический адрес
+		fSubstDlvrAddr       = 0x00000010,   // При подстановке персоналии использовать адрес доставки
+		fDiffByDlvrAddr      = 0x00000020,   // При группировке по контрагенту заменять контрагента на конкатенацию (контрагент+адрес доставки)
+		fDontInitSubstNames  = 0x00000040,   // Не инициализировать имена подставляемых объектов
 			// Эта опция экономит время подготовки данных если нет необходимости сортировать записи
 			// или выводить отчет на экран.
-		fInitLocCount       = 0x00000080,   // Рассчитывать количество адресов доставки для каждого
+		fInitLocCount        = 0x00000080,   // Рассчитывать количество адресов доставки для каждого
 			// элемента группировки. Внутренний флаг (инициализируется программно)
-		fCalcRest   = 0x00000100,   // Для группировки gGoods, gGoodsBill, gGoodsDate рассчитывать остатки
-		fShowAllArticles    = 0x00000200,   // Показывать отсутствующие позиции контрагентов
-		fShowAllAgents      = 0x00000400,   // Показывать отсутствующие позиции агентов
-		fShowAllGoods       = 0x00000800,   // Показывать отсутствующие позиции товаров
-		fByZeroAgent        = 0x00001000,   // Фильтрация по нулевому агенту по документу
-		fCalcVat    = 0x00002000,   // Рассчитывать суммы НДС
-		fCWoVat     = 0x00008000,   // Показывать цены без НДС
-		fByZeroDlvrAddr     = 0x00010000,   // Фильтрация по пустому адресу доставки
-		fForceInitDlvrAddr  = 0x00020000,   // Инициализировать адрес доставки без группировки
-		fShowGoodsCode      = 0x00040000,   // Показывать код (single) товара
-		fShowSerial = 0x00080000,   // Показывать серийный номер лота
-		fCalcAvgRest        = 0x00100000,   // Рассчитывать среднедневные остатки (предполагает наличие флага fCalcRest)
-		fCmpWrOff   = 0x00200000,   // Если отчет строится по драфт-документам, то выводить результаты сравнения с документами списания.
-		fCmpWrOff_DiffOnly  = 0x00400000,   // Если отчет строится со сравнением драфт-документов и документов списания, то отображать только различающиеся позиции.
-		fUnclosedDraftsOnly = 0x00800000,   // @v10.1.10 Если отчет строится по драфт-документам, то пропускать списанные документы
-		fShowCargo  = 0x01000000    // @v10.3.4 Отображать грузовые параметры (брутто и объем)
+		fCalcRest            = 0x00000100,   // Для группировки gGoods, gGoodsBill, gGoodsDate рассчитывать остатки
+		fShowAllArticles     = 0x00000200,   // Показывать отсутствующие позиции контрагентов
+		fShowAllAgents       = 0x00000400,   // Показывать отсутствующие позиции агентов
+		fShowAllGoods        = 0x00000800,   // Показывать отсутствующие позиции товаров
+		fByZeroAgent         = 0x00001000,   // Фильтрация по нулевому агенту по документу
+		fCalcVat             = 0x00002000,   // Рассчитывать суммы НДС
+		fCWoVat              = 0x00008000,   // Показывать цены без НДС
+		fByZeroDlvrAddr      = 0x00010000,   // Фильтрация по пустому адресу доставки
+		fForceInitDlvrAddr   = 0x00020000,   // Инициализировать адрес доставки без группировки
+		fShowGoodsCode       = 0x00040000,   // Показывать код (single) товара
+		fShowSerial          = 0x00080000,   // Показывать серийный номер лота
+		fCalcAvgRest         = 0x00100000,   // Рассчитывать среднедневные остатки (предполагает наличие флага fCalcRest)
+		fCmpWrOff            = 0x00200000,   // Если отчет строится по драфт-документам, то выводить результаты сравнения с документами списания.
+		fCmpWrOff_DiffOnly   = 0x00400000,   // Если отчет строится со сравнением драфт-документов и документов списания, то отображать только различающиеся позиции.
+		fUnclosedDraftsOnly  = 0x00800000,   // @v10.1.10 Если отчет строится по драфт-документам, то пропускать списанные документы
+		fShowCargo           = 0x01000000,   // @v10.3.4 Отображать грузовые параметры (брутто и объем)
+		fExtValQuotSkipTmVal = 0x02000000    // @v11.9.4 Если в качестве дополнительного значения (ExtValueParam) задан вид котировки и
+			// установлен этот флаг, то значения котировок, привязанные к периоду, будут игнорироваться.
 	};
 	enum {
 		ctNone       = 0,  // Без кросстаба
@@ -43434,7 +43377,7 @@ public:
 
 	enum {
 		ravNothing      = 0,
-		ravRest = 0x0001, // Простой остаток
+		ravRest         = 0x0001, // Простой остаток
 		ravAvgRest      = 0x0002, // Среднедневной остаток
 		ravTurnoverRate = 0x0004, // Коэффициент оборачиваемости (движение / остаток)
 	};

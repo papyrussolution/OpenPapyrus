@@ -555,17 +555,14 @@ static void skip_prefix(const uchar ** p, size_t * plen,
 }
 
 /* Compare while ASCII ignoring case. */
-static int equal_nocase(const uchar * pattern, size_t pattern_len,
-    const uchar * subject, size_t subject_len,
-    unsigned int flags)
+static int equal_nocase(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, unsigned int flags)
 {
 	skip_prefix(&pattern, &pattern_len, subject_len, flags);
 	if(pattern_len != subject_len)
 		return 0;
 	while(pattern_len != 0) {
-		unsigned char l = *pattern;
-		unsigned char r = *subject;
-
+		uchar l = *pattern;
+		uchar r = *subject;
 		/* The pattern must not contain NUL characters. */
 		if(l == 0)
 			return 0;
@@ -594,17 +591,13 @@ static int equal_case(const uchar * pattern, size_t pattern_len,
 		return 0;
 	return !memcmp(pattern, subject, pattern_len);
 }
-
 /*
  * RFC 5280, section 7.5, requires that only the domain is compared in a
  * case-insensitive manner.
  */
-static int equal_email(const uchar * a, size_t a_len,
-    const uchar * b, size_t b_len,
-    unsigned int unused_flags)
+static int equal_email(const uchar * a, size_t a_len, const uchar * b, size_t b_len, unsigned int unused_flags)
 {
 	size_t i = a_len;
-
 	if(a_len != b_len)
 		return 0;
 	/*
@@ -624,7 +617,6 @@ static int equal_email(const uchar * a, size_t a_len,
 		i = a_len;
 	return equal_case(a, i, b, i, 0);
 }
-
 /*
  * Compare the prefix and suffix with the subject, and check that the
  * characters in-between are valid.

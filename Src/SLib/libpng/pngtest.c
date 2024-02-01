@@ -85,9 +85,9 @@
 	#define PNG_DEBUG 0
 #endif
 #if PNG_DEBUG > 1
-	#define pngtest_debug(m)        ((void)fprintf(stderr, m "\n"))
-	#define pngtest_debug1(m, p1)    ((void)fprintf(stderr, m "\n", p1))
-	#define pngtest_debug2(m, p1, p2) ((void)fprintf(stderr, m "\n", p1, p2))
+	#define pngtest_debug(m)        ((void)slfprintf_stderr(m "\n"))
+	#define pngtest_debug1(m, p1)    ((void)slfprintf_stderr(m "\n", p1))
+	#define pngtest_debug2(m, p1, p2) ((void)slfprintf_stderr(m "\n", p1, p2))
 #else
 	#define pngtest_debug(m)        ((void)0)
 	#define pngtest_debug1(m, p1)    ((void)0)

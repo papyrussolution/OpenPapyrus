@@ -1916,8 +1916,7 @@ static const ContextUsageTypeNameToEnumValue contextUsageTypeMap[] = {
 // The first one must be midnight and the second must be noon, so that their indices coincide
 // with the am/pm field. Formatting and parsing code for day periods relies on this coincidence.
 static const char * dayPeriodKeys[] = {"midnight", "noon",
-				       "morning1", "afternoon1", "evening1", "night1",
-				       "morning2", "afternoon2", "evening2", "night2"};
+	"morning1", "afternoon1", "evening1", "night1", "morning2", "afternoon2", "evening2", "night2"};
 
 UnicodeString * loadDayPeriodStrings(CalendarDataSink &sink, CharString &path, int32_t &stringCount,  UErrorCode & status) 
 {
@@ -1926,7 +1925,6 @@ UnicodeString * loadDayPeriodStrings(CalendarDataSink &sink, CharString &path, i
 	}
 	UnicodeString pathUString(path.data(), -1, US_INV);
 	Hashtable* map = static_cast<Hashtable*>(sink.maps.get(pathUString));
-
 	stringCount = SIZEOFARRAYi(dayPeriodKeys);
 	UnicodeString * strings = new UnicodeString[stringCount];
 	if(strings == NULL) {
@@ -2034,7 +2032,6 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 	// is region sensitive, thus, bundle locale bundle's locale
 	// is not sufficient.
 	fZSFLocale = locale;
-
 	if(U_FAILURE(status)) return;
 
 	// Create a CalendarDataSink to process this data and the resource bundles
@@ -2177,24 +2174,17 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 	}
 	// Load day periods
 	fWideDayPeriods = loadDayPeriodStrings(calendarSink,
-		buildResourcePath(path, gDayPeriodTag, gNamesFormatTag, gNamesWideTag, status),
-		fWideDayPeriodsCount, status);
+		buildResourcePath(path, gDayPeriodTag, gNamesFormatTag, gNamesWideTag, status), fWideDayPeriodsCount, status);
 	fNarrowDayPeriods = loadDayPeriodStrings(calendarSink,
-		buildResourcePath(path, gDayPeriodTag, gNamesFormatTag, gNamesNarrowTag, status),
-		fNarrowDayPeriodsCount, status);
+		buildResourcePath(path, gDayPeriodTag, gNamesFormatTag, gNamesNarrowTag, status), fNarrowDayPeriodsCount, status);
 	fAbbreviatedDayPeriods = loadDayPeriodStrings(calendarSink,
-		buildResourcePath(path, gDayPeriodTag, gNamesFormatTag, gNamesAbbrTag, status),
-		fAbbreviatedDayPeriodsCount, status);
+		buildResourcePath(path, gDayPeriodTag, gNamesFormatTag, gNamesAbbrTag, status), fAbbreviatedDayPeriodsCount, status);
 	fStandaloneWideDayPeriods = loadDayPeriodStrings(calendarSink,
-		buildResourcePath(path, gDayPeriodTag, gNamesStandaloneTag, gNamesWideTag, status),
-		fStandaloneWideDayPeriodsCount, status);
+		buildResourcePath(path, gDayPeriodTag, gNamesStandaloneTag, gNamesWideTag, status), fStandaloneWideDayPeriodsCount, status);
 	fStandaloneNarrowDayPeriods = loadDayPeriodStrings(calendarSink,
-		buildResourcePath(path, gDayPeriodTag, gNamesStandaloneTag, gNamesNarrowTag, status),
-		fStandaloneNarrowDayPeriodsCount, status);
+		buildResourcePath(path, gDayPeriodTag, gNamesStandaloneTag, gNamesNarrowTag, status), fStandaloneNarrowDayPeriodsCount, status);
 	fStandaloneAbbreviatedDayPeriods = loadDayPeriodStrings(calendarSink,
-		buildResourcePath(path, gDayPeriodTag, gNamesStandaloneTag, gNamesAbbrTag, status),
-		fStandaloneAbbreviatedDayPeriodsCount, status);
-
+		buildResourcePath(path, gDayPeriodTag, gNamesStandaloneTag, gNamesAbbrTag, status), fStandaloneAbbreviatedDayPeriodsCount, status);
 	U_LOCALE_BASED(locBased, *this);
 	// if we make it to here, the resource data is cool, and we can get everything out
 	// of it that we need except for the time-zone and localized-pattern data, which

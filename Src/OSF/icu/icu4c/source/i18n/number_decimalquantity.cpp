@@ -667,13 +667,13 @@ double DecimalQuantity::toDouble() const {
 		&count);
 }
 
-DecNum& DecimalQuantity::toDecNum(DecNum& output, UErrorCode & status) const {
+DecNum& DecimalQuantity::toDecNum(DecNum& output, UErrorCode & status) const 
+{
 	// Special handling for zero
 	if(precision == 0) {
 		output.setTo("0", status);
 		return output;
 	}
-
 	// Use the BCD constructor. We need to do a little bit of work to convert, though.
 	// The decNumber constructor expects most-significant first, but we store least-significant first.
 	MaybeStackArray<uint8, 20> ubcd(precision, status);
@@ -687,7 +687,8 @@ DecNum& DecimalQuantity::toDecNum(DecNum& output, UErrorCode & status) const {
 	return output;
 }
 
-void DecimalQuantity::truncate() {
+void DecimalQuantity::truncate() 
+{
 	if(scale < 0) {
 		shiftRight(-scale);
 		scale = 0;
@@ -695,22 +696,16 @@ void DecimalQuantity::truncate() {
 	}
 }
 
-void DecimalQuantity::roundToNickel(int32_t magnitude, RoundingMode roundingMode, UErrorCode & status) {
-	roundToMagnitude(magnitude, roundingMode, true, status);
-}
+void DecimalQuantity::roundToNickel(int32_t magnitude, RoundingMode roundingMode, UErrorCode & status) { roundToMagnitude(magnitude, roundingMode, true, status); }
+void DecimalQuantity::roundToMagnitude(int32_t magnitude, RoundingMode roundingMode, UErrorCode & status) { roundToMagnitude(magnitude, roundingMode, false, status); }
 
-void DecimalQuantity::roundToMagnitude(int32_t magnitude, RoundingMode roundingMode, UErrorCode & status) {
-	roundToMagnitude(magnitude, roundingMode, false, status);
-}
-
-void DecimalQuantity::roundToMagnitude(int32_t magnitude, RoundingMode roundingMode, bool nickel, UErrorCode & status) {
+void DecimalQuantity::roundToMagnitude(int32_t magnitude, RoundingMode roundingMode, bool nickel, UErrorCode & status) 
+{
 	// The position in the BCD at which rounding will be performed; digits to the right of position
 	// will be rounded away.
 	int position = safeSubtract(magnitude, scale);
-
 	// "trailing" = least significant digit to the left of rounding
 	int8 trailingDigit = getDigitPos(position);
-
 	if(position <= 0 && !isApproximate && (!nickel || trailingDigit == 0 || trailingDigit == 5)) {
 		// All digits are to the left of the rounding magnitude.
 	}
@@ -1443,7 +1438,8 @@ bool DecimalQuantity::operator == (const DecimalQuantity& other) const {
 	}
 }
 
-UnicodeString DecimalQuantity::toString() const {
+UnicodeString DecimalQuantity::toString() const 
+{
 	UErrorCode localStatus = U_ZERO_ERROR;
 	MaybeStackArray<char, 30> digits(precision + 1, localStatus);
 	if(U_FAILURE(localStatus)) {
@@ -1454,17 +1450,8 @@ UnicodeString DecimalQuantity::toString() const {
 	}
 	digits[precision] = 0; // terminate buffer
 	char buffer8[100];
-	snprintf(
-		buffer8,
-		sizeof(buffer8),
-		"<DecimalQuantity %d:%d %s %s%s%s%d>",
-		lReqPos,
-		rReqPos,
-		(usingBytes ? "bytes" : "long"),
-		(isNegative() ? "-" : ""),
-		(precision == 0 ? "0" : digits.getAlias()),
-		"E",
-		scale);
+	snprintf(buffer8, sizeof(buffer8), "<DecimalQuantity %d:%d %s %s%s%s%d>",
+		lReqPos, rReqPos, (usingBytes ? "bytes" : "long"), (isNegative() ? "-" : ""), (precision == 0 ? "0" : digits.getAlias()), "E", scale);
 	return UnicodeString(buffer8, -1, US_INV);
 }
 

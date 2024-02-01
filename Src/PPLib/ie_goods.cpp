@@ -1,5 +1,5 @@
 // IE_GOODS.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1276,7 +1276,7 @@ private:
 
 struct CommonUnit { // @flat
 	char   Abbr[128];
-	uint   BaseId;   // UNIT_XXX
+	uint   BaseId;   // SUOM_XXX
 	double Rate;     // Отношение base / this
 };
 
@@ -1505,7 +1505,7 @@ int TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 								normalize_val = 0;
 								lex_next = 0;
 								next_buf.Z();
-								if(single_measure.IsEmpty() && unit_id != UNIT_COLOR) {
+								if(single_measure.IsEmpty() && unit_id != SUOM_COLOR) {
 									single_measure = TempBuf;
 									single_measure_idx = word_count;
 								}

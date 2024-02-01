@@ -42,19 +42,9 @@ struct hb_set_t {
 	};
 
 	struct page_t {
-		void init0() {
-			v.clear();
-		}
-
-		void init1() {
-			v.clear(0xFF);
-		}
-
-		uint len() const
-		{
-			return ARRAY_LENGTH_CONST(v);
-		}
-
+		void init0() { v.clear(); }
+		void init1() { v.clear(0xFF); }
+		uint len() const { return SIZEOFARRAY(v); }
 		bool is_empty() const
 		{
 			for(uint i = 0; i < len(); i++)
@@ -62,19 +52,9 @@ struct hb_set_t {
 					return false;
 			return true;
 		}
-
-		void add(hb_codepoint_t g) {
-			elt(g) |= mask(g);
-		}
-
-		void del(hb_codepoint_t g) {
-			elt(g) &= ~mask (g);
-		}
-
-		bool get(hb_codepoint_t g) const {
-			return elt(g) & mask(g);
-		}
-
+		void add(hb_codepoint_t g) { elt(g) |= mask(g); }
+		void del(hb_codepoint_t g) { elt(g) &= ~mask (g); }
+		bool get(hb_codepoint_t g) const { return elt(g) & mask(g); }
 		void add_range(hb_codepoint_t a, hb_codepoint_t b)
 		{
 			elt_t * la = &elt(a);
@@ -82,15 +62,12 @@ struct hb_set_t {
 			if(la == lb)
 				*la |= (mask(b) << 1) - mask(a);
 			else {
-				* la |= ~(mask(a) - 1);
+				*la |= ~(mask(a) - 1);
 				la++;
-
 				memset(la, 0xff, (char *)lb - (char *)la);
-
-				* lb |= ((mask(b) << 1) - 1);
+				*lb |= ((mask(b) << 1) - 1);
 			}
 		}
-
 		void del_range(hb_codepoint_t a, hb_codepoint_t b)
 		{
 			elt_t * la = &elt(a);

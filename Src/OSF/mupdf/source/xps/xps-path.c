@@ -205,32 +205,26 @@ fz_path * xps_parse_abbreviated_geometry(fz_context * ctx, xps_document * doc, c
 	float x1, y1, x2, y2, x3, y3;
 	float smooth_x, smooth_y; /* saved cubic bezier control point for smooth curves */
 	int reset_smooth;
-
 	fz_var(args);
-
 	path = fz_new_path(ctx);
-
 	fz_try(ctx)
 	{
 		args = fz_malloc_array(ctx, strlen(geom) + 1, char*);
 		pargs = args;
-
 		while(*s) {
-			if((*s >= 'A' && *s <= 'Z') || (*s >= 'a' && *s <= 'z')) {
+			if(isasciialpha(*s)) {
 				*pargs++ = s++;
 			}
-			else if((*s >= '0' && *s <= '9') || *s == '.' || *s == '+' || *s == '-' || *s == 'e' || *s == 'E') {
+			else if(isdec(*s) || *s == '.' || *s == '+' || *s == '-' || *s == 'e' || *s == 'E') {
 				*pargs++ = s;
-				while((*s >= '0' && *s <= '9') || *s == '.' || *s == '+' || *s == '-' || *s == 'e' || *s == 'E')
+				while(isdec(*s) || *s == '.' || *s == '+' || *s == '-' || *s == 'e' || *s == 'E')
 					s++;
 			}
 			else {
 				s++;
 			}
 		}
-
 		*pargs = s;
-
 		n = pargs - args;
 		i = 0;
 

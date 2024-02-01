@@ -1,5 +1,5 @@
 // PPEDI.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -557,6 +557,10 @@ int GtinStruc::Parse(const char * pCode)
 	SString code_buf(pCode);
 	Z();
 	if(code_buf.NotEmptyS()) {
+		struct _FldEntry {
+			int  Id;
+			uint Len;
+		};
 		SString temp_buf;
 		//SString prefix_;
 		//SString next_prefix_;
@@ -574,37 +578,21 @@ int GtinStruc::Parse(const char * pCode)
 			tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta, 0);
 			//tr.Run(code_buf.ucptr(), code_buf.Len(), nta, 0);
 		}
-		if(nta.Has(SNTOK_CHZN_CIGITEM)) {
+		if(nta.Has(SNTOK_CHZN_CIGITEM) || nta.Has(SNTOK_CHZN_ALTCIGITEM)) { // @v11.9.4 (SNTOK_CHZN_ALTCIGITEM)
+			// Розничные сигареты и альтернативная табачная продукция по структуре кода схожи. Разнича в том, что 
+			// код альтернативной табачной продукции вместо цены содержит "AAAA".
 			assert(code_buf.Len() == 29);
 			size_t offs = 0; 
-			// @v11.3.0 {
-			struct _FldEntry {
-				int  Id;
-				uint Len;
-			};
 			static const _FldEntry fe_list[] = { { fldGTIN14, 14 }, { fldSerial, 7 }, { fldPriceRuTobacco, 4 }, { fldControlRuTobacco, 4 } };
 			for(uint feidx = 0; feidx < SIZEOFARRAY(fe_list); feidx++) {
 				StrAssocArray::Add(fe_list[feidx].Id, temp_buf.Z().CatN(code_buf+offs, fe_list[feidx].Len));
 				offs += fe_list[feidx].Len;
 			}
 			assert(offs == code_buf.Len());
-			// } @v11.3.0 
-			/* @v11.3.0
-			temp_buf.Z().CatN(code_buf+offs, 14); offs += 14;
-			StrAssocArray::Add(fldGTIN14, temp_buf);
-			temp_buf.Z().CatN(code_buf+offs, 7); offs += 7;
-			StrAssocArray::Add(fldSerial, temp_buf);
-			temp_buf.Z().CatN(code_buf+offs, 4); offs += 4;
-			StrAssocArray::Add(fldPriceRuTobacco, temp_buf);
-			temp_buf.Z().CatN(code_buf+offs, 4); offs += 4;
-			{
-				//SString price_buf;
-				//Base80ToTobaccoPrice(temp_buf, price_buf);
-				//Base36ToTobaccoPrice(temp_buf, price_buf);
-				StrAssocArray::Add(fldControlRuTobacco, temp_buf);
-			}
-			*/
-			SpecialNaturalToken = SNTOK_CHZN_CIGITEM;
+			if(nta.Has(SNTOK_CHZN_CIGITEM))
+				SpecialNaturalToken = SNTOK_CHZN_CIGITEM;
+			else if(nta.Has(SNTOK_CHZN_ALTCIGITEM))
+				SpecialNaturalToken = SNTOK_CHZN_ALTCIGITEM;
 		}
 		else if(nta.Has(SNTOK_CHZN_CIGBLOCK)) {
 			// 010460043993816321>n>!3E?8005173000938SSf24015063283
@@ -844,7 +832,7 @@ public:
 		{
 		}
 		int    Q;    // Qualifier
-		int    Unit; // UNIT_XXX
+		int    Unit; // SUOM_XXX
 		int    Currency; // Валюта (для денежных величин)
 		double Value; // Значение
 	};
@@ -3231,9 +3219,9 @@ int PPEanComDocument::Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ, doubl
 		if(goodsID && P_Pi->GObj.Fetch(goodsID, &goods_rec) > 0) {
 			PPUnit u_rec;
 			if(P_Pi->GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
-				if(u_rec.ID == PPUNT_KILOGRAM)
+				if(u_rec.ID == SUOM_KILOGRAM)
 					unit_buf = "KGM";
-				else if(u_rec.BaseUnitID == PPUNT_KILOGRAM && u_rec.BaseRatio > 0.0) {
+				else if(u_rec.BaseUnitID == SUOM_KILOGRAM && u_rec.BaseRatio > 0.0) {
 					unit_buf = "KGM";
 					unit_scale = u_rec.BaseRatio;
 				}
@@ -3261,9 +3249,9 @@ int PPEanComDocument::Read_QTY(const xmlNode * pFirstNode, TSVector <QValue> & r
 				}
 				else if(SXml::GetContentByName(p_n2, "E6411", temp_buf)) {
 					if(temp_buf.IsEqiAscii("KGM"))
-						qv.Unit = UNIT_KILOGRAM;
+						qv.Unit = SUOM_KILOGRAM;
 					else if(temp_buf.IsEqiAscii("PCE"))
-						qv.Unit = UNIT_ITEM;
+						qv.Unit = SUOM_ITEM;
 				}
 			}
 		}
@@ -4877,6 +4865,81 @@ private:
 	AuthToken AT;
 };
 
+class EdiProviderImplementation_SBIS : public PPEdiProcessor::ProviderImplementation {
+public:
+	EdiProviderImplementation_SBIS(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
+	virtual ~EdiProviderImplementation_SBIS();
+	virtual int    GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
+	virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
+	virtual int    SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+private:
+};
+//
+//
+//
+EdiProviderImplementation_SBIS::EdiProviderImplementation_SBIS(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
+	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags)
+{
+}
+
+/*virtual*/EdiProviderImplementation_SBIS::~EdiProviderImplementation_SBIS()
+{
+}
+
+/*virtual*/int EdiProviderImplementation_SBIS::GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList)
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString left, right;
+	SFsPath ps;
+	InetUrl url;
+	THROW(Epp.MakeUrl(0, url));
+	const int prot = url.GetProtocol();
+	if(prot == InetUrl::protUnkn) {
+		url.SetProtocol(InetUrl::protFtp);
+	}
+	if(prot == InetUrl::protFtp) {
+		const char * p_box = "Inbox";
+		int    last_id = 0;
+		ScURL  curl;
+		url.SetComponent(url.cPath, p_box);
+		SFileEntryPool fp;
+		SFileEntryPool::Entry fpe;
+		THROW_SL(curl.FtpList(url, ScURL::mfVerbose, fp));
+		for(uint i = 0; i < fp.GetCount(); i++) {
+			if(fp.Get(i, &fpe, 0) > 0) {
+				ps.Split(fpe.Name);
+				if(ps.Ext.IsEqiAscii("xml") && ps.Nam.Divide('_', left, right) > 0) {
+					PPEdiProcessor::DocumentInfo entry;
+					entry.Uuid.FromStr(right);
+					entry.EdiOp = PPEdiProcessor::GetEdiMsgTypeByText(left);
+					entry.Box = p_box;
+					entry.ID = ++last_id;
+					entry.SId = fpe.Name;
+					entry.Time.SetNs100(fpe.ModTm_);
+					THROW(rList.Add(entry, 0));
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*virtual*/int EdiProviderImplementation_SBIS::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
+{
+	int    ok = 0;
+	return ok;
+}
+
+/*virtual*/int EdiProviderImplementation_SBIS::SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
+{
+	int    ok = 0;
+	return ok;
+}
+//
+//
+//
 EdiProviderImplementation_Kontur::OwnFormatCommonAttr::OwnFormatCommonAttr() : Dt(ZERODATE)
 {
 }
@@ -6154,6 +6217,9 @@ PPEdiProcessor::Packet::~Packet()
 	}
 	else if(sstreqi_ascii(ep_pack.Rec.Symb, "EXITE")) { // @v10.2.8
 		p_imp = new EdiProviderImplementation_Exite(ep_pack, mainOrgID, flags);
+	}
+	else if(sstreqi_ascii(ep_pack.Rec.Symb, "SBIS")) { // @v11.9.4
+		p_imp = new EdiProviderImplementation_SBIS(ep_pack, mainOrgID, flags);
 	}
 	else {
 		CALLEXCEPT_PP_S(PPERR_EDI_THEREISNTPRVIMP, ep_pack.Rec.Symb);

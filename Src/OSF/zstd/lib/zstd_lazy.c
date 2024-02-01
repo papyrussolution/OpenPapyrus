@@ -1495,8 +1495,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_lazy_generic(ZSTD_matchState_t* 
 			while(ip<ilimit) {
 				DEBUGLOG(7, "search depth 1");
 				ip++;
-				if( (dictMode == ZSTD_noDict)
-				    && (offBase) && ((offset_1>0) & (SMem::Get32(ip) == SMem::Get32(ip - offset_1)))) {
+				if((dictMode == ZSTD_noDict) && (offBase) && ((offset_1>0) & (SMem::Get32(ip) == SMem::Get32(ip - offset_1)))) {
 					const size_t mlRep = ZSTD_count(ip+4, ip+4-offset_1, iend) + 4;
 					int const gain2 = (int)(mlRep * 3);
 					int const gain1 = (int)(matchLength*3 - ZSTD_highbit32((uint32)offBase) + 1);
@@ -1505,14 +1504,10 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_lazy_generic(ZSTD_matchState_t* 
 				}
 				if(isDxS) {
 					const uint32 repIndex = (uint32)(ip - base) - offset_1;
-					const BYTE * repMatch = repIndex < prefixLowestIndex ?
-					    dictBase + (repIndex - dictIndexDelta) :
-					    base + repIndex;
-					if(((uint32)((prefixLowestIndex-1) - repIndex) >= 3 /* intentional underflow */)
-					    && (SMem::Get32(repMatch) == SMem::Get32(ip)) ) {
+					const BYTE * repMatch = repIndex < prefixLowestIndex ? dictBase + (repIndex - dictIndexDelta) : base + repIndex;
+					if(((uint32)((prefixLowestIndex-1) - repIndex) >= 3 /* intentional underflow */) && (SMem::Get32(repMatch) == SMem::Get32(ip)) ) {
 						const BYTE * repMatchEnd = repIndex < prefixLowestIndex ? dictEnd : iend;
-						const size_t mlRep =
-						    ZSTD_count_2segments(ip+4, repMatch+4, iend, repMatchEnd, prefixLowest) + 4;
+						const size_t mlRep = ZSTD_count_2segments(ip+4, repMatch+4, iend, repMatchEnd, prefixLowest) + 4;
 						int const gain2 = (int)(mlRep * 3);
 						int const gain1 = (int)(matchLength*3 - ZSTD_highbit32((uint32)offBase) + 1);
 						if((mlRep >= 4) && (gain2 > gain1))
@@ -1608,11 +1603,8 @@ _storeSequence:
 			while(ip <= ilimit) {
 				const uint32 current2 = (uint32)(ip-base);
 				const uint32 repIndex = current2 - offset_2;
-				const BYTE * repMatch = repIndex < prefixLowestIndex ?
-				    dictBase - dictIndexDelta + repIndex :
-				    base + repIndex;
-				if( ((uint32)((prefixLowestIndex-1) - (uint32)repIndex) >= 3 /* intentional overflow */)
-				    && (SMem::Get32(repMatch) == SMem::Get32(ip)) ) {
+				const BYTE * repMatch = repIndex < prefixLowestIndex ? dictBase - dictIndexDelta + repIndex : base + repIndex;
+				if(((uint32)((prefixLowestIndex-1) - (uint32)repIndex) >= 3 /* intentional overflow */) && (SMem::Get32(repMatch) == SMem::Get32(ip))) {
 					const BYTE * const repEnd2 = repIndex < prefixLowestIndex ? dictEnd : iend;
 					matchLength = ZSTD_count_2segments(ip+4, repMatch+4, iend, repEnd2, prefixLowest) + 4;
 					// swap offset_2 <=> offset_1 
@@ -1639,7 +1631,6 @@ _storeSequence:
 			}
 		}
 	}
-
 	/* Save reps for next block */
 	rep[0] = offset_1 ? offset_1 : savedOffset;
 	rep[1] = offset_2 ? offset_2 : savedOffset;
@@ -1756,11 +1747,8 @@ size_t ZSTD_compressBlock_greedy_dedicatedDictSearch_row(ZSTD_matchState_t* ms, 
 	return ZSTD_compressBlock_lazy_generic(ms, seqStore, rep, src, srcSize, search_rowHash, 0, ZSTD_dedicatedDictSearch);
 }
 
-FORCE_INLINE_TEMPLATE
-size_t ZSTD_compressBlock_lazy_extDict_generic(ZSTD_matchState_t* ms, seqStore_t* seqStore,
-    uint32 rep[ZSTD_REP_NUM],
-    const void * src, size_t srcSize,
-    const searchMethod_e searchMethod, const uint32 depth)
+FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_lazy_extDict_generic(ZSTD_matchState_t* ms, seqStore_t* seqStore,
+    uint32 rep[ZSTD_REP_NUM], const void * src, size_t srcSize, const searchMethod_e searchMethod, const uint32 depth)
 {
 	const BYTE * const istart = PTR8C(src);
 	const BYTE * ip = istart;
@@ -1797,14 +1785,13 @@ size_t ZSTD_compressBlock_lazy_extDict_generic(ZSTD_matchState_t* ms, seqStore_t
 		size_t offBase = REPCODE1_TO_OFFBASE;
 		const BYTE * start = ip+1;
 		uint32 curr = (uint32)(ip-base);
-
 		/* check repCode */
-		{   const uint32 windowLow = ZSTD_getLowestMatchIndex(ms, curr+1, windowLog);
+		{   
+			const uint32 windowLow = ZSTD_getLowestMatchIndex(ms, curr+1, windowLog);
 		    const uint32 repIndex = (uint32)(curr+1 - offset_1);
 		    const BYTE * const repBase = repIndex < dictLimit ? dictBase : base;
 		    const BYTE * const repMatch = repBase + repIndex;
-		    if( ((uint32)((dictLimit-1) - repIndex) >= 3) /* intentional overflow */
-			& (offset_1 <= curr+1 - windowLow) ) /* note: we are searching at curr+1 */
+		    if(((uint32)((dictLimit-1) - repIndex) >= 3) /* intentional overflow */ & (offset_1 <= curr+1 - windowLow) ) /* note: we are searching at curr+1 */
 			    if(SMem::Get32(ip+1) == SMem::Get32(repMatch)) {
 				    /* repcode detected we should take it */
 				    const BYTE * const repEnd = repIndex < dictLimit ? dictEnd : iend;
@@ -1817,7 +1804,8 @@ size_t ZSTD_compressBlock_lazy_extDict_generic(ZSTD_matchState_t* ms, seqStore_t
 			size_t ofbCandidate = 999999999;
 		    const size_t ml2 = searchMax(ms, ip, iend, &ofbCandidate);
 		    if(ml2 > matchLength)
-			    matchLength = ml2, start = ip, offBase = ofbCandidate; }
+			    matchLength = ml2, start = ip, offBase = ofbCandidate; 
+		}
 		if(matchLength < 4) {
 			ip += ((ip-anchor) >> kSearchStrength) + 1; /* jump faster over incompressible sections */
 			continue;
@@ -1845,9 +1833,9 @@ size_t ZSTD_compressBlock_lazy_extDict_generic(ZSTD_matchState_t* ms, seqStore_t
 								matchLength = repLength, offBase = REPCODE1_TO_OFFBASE, start = ip;
 						}
 				}
-
 				/* search match, depth 1 */
-				{   size_t ofbCandidate = 999999999;
+				{   
+					size_t ofbCandidate = 999999999;
 				    const size_t ml2 = searchMax(ms, ip, iend, &ofbCandidate);
 				    int const gain2 = (int)(ml2*4 - ZSTD_highbit32((uint32)ofbCandidate)); /* raw approx */
 				    int const gain1 = (int)(matchLength*4 - ZSTD_highbit32((uint32)offBase) + 4);
@@ -1856,7 +1844,6 @@ size_t ZSTD_compressBlock_lazy_extDict_generic(ZSTD_matchState_t* ms, seqStore_t
 					    continue; /* search a better one */
 				    }
 				}
-
 				/* let's find an even better one */
 				if((depth==2) && (ip<ilimit)) {
 					ip++;
@@ -1879,9 +1866,9 @@ size_t ZSTD_compressBlock_lazy_extDict_generic(ZSTD_matchState_t* ms, seqStore_t
 									matchLength = repLength, offBase = REPCODE1_TO_OFFBASE, start = ip;
 							}
 					}
-
 					/* search match, depth 2 */
-					{   size_t ofbCandidate = 999999999;
+					{   
+						size_t ofbCandidate = 999999999;
 					    const size_t ml2 = searchMax(ms, ip, iend, &ofbCandidate);
 					    int const gain2 = (int)(ml2*4 - ZSTD_highbit32((uint32)ofbCandidate)); // raw approx
 					    int const gain1 = (int)(matchLength*4 - ZSTD_highbit32((uint32)offBase) + 7);

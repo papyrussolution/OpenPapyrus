@@ -54,6 +54,7 @@
     <ClInclude Include="..\OSF\abseil-20230909\absl\absl-internal.h" />
     <ClInclude Include="..\OSF\abseil-20230909\absl\base\call_once.h" />
     <ClInclude Include="..\OSF\abseil-20230909\absl\base\casts.h" />
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\config.h" />
     <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\cycleclock.h" />
     <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\direct_mmap.h" />
     <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\low_level_alloc.h" />
@@ -70,6 +71,7 @@
     <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\tsan_mutex_interface.h" />
     <ClInclude Include="..\OSF\abseil-20230909\absl\base\internal\unscaledcycleclock.h" />
     <ClInclude Include="..\OSF\abseil-20230909\absl\base\log_severity.h" />
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\prefetch.h" />
     <ClInclude Include="..\OSF\abseil-20230909\absl\container\internal\hashtablez_sampler.h" />
     <ClInclude Include="..\OSF\abseil-20230909\absl\container\internal\raw_hash_set.h" />
     <ClInclude Include="..\OSF\abseil-20230909\absl\debugging\failure_signal_handler.h" />

@@ -1,5 +1,5 @@
 // TEST-STRING.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 // Тестирование функций класса SString
 //
@@ -4210,6 +4210,248 @@ SLTEST_FIXTURE(atoi, SlTestFixtureAtoi)
 			const SString * p_item = F.L.at(i);
 			uint64 a = _texttodec64_2(*p_item, p_item->Len());
 			s += a;
+		}
+	}
+	return CurrentStatus;
+}
+//
+// Descr: Тест классификации символов
+//
+SLTEST_R(charclass)
+{
+	{
+		// char
+		for(char c = -127; c <= 126; c++) { // ограничение цикла в 126 (не 127) из-за того, что в противном случае на следующей итерации произойдет зацикливание (c вернется к -127)
+			if(c >= 'A' && c <= 'Z') {
+				SLCHECK_NZ(isasciiupr(c));
+			}
+			else {
+				SLCHECK_Z(isasciiupr(c));
+			}
+			if(c >= 'a' && c <= 'z') {
+				SLCHECK_NZ(isasciilwr(c));
+			}
+			else {
+				SLCHECK_Z(isasciilwr(c));
+			}
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+				SLCHECK_NZ(isasciialpha(c));
+			}
+			else {
+				SLCHECK_Z(isasciialpha(c));
+			}
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+				SLCHECK_NZ(isasciialnum(c));
+			}
+			else {
+				SLCHECK_Z(isasciialnum(c));
+			}
+			if(c >= '0' && c <= '9') {
+				SLCHECK_NZ(isdec(c));
+			}
+			else {
+				SLCHECK_Z(isdec(c));
+			}
+			if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+				SLCHECK_NZ(ishex(c));
+			}
+			else {
+				SLCHECK_Z(ishex(c));
+			}
+			if(c == '/' || c == '\\') {
+				SLCHECK_NZ(isdirslash(c));
+			}
+			else {
+				SLCHECK_Z(isdirslash(c));
+			}
+		}
+	}
+	{
+		// uchar
+		for(uchar c = 0; c <= 254; c++) { // ограничение 254 - не 255 во избежании зацикливания (итератор 8-битный)
+			if(c >= 'A' && c <= 'Z') {
+				SLCHECK_NZ(isasciiupr(c));
+			}
+			else {
+				SLCHECK_Z(isasciiupr(c));
+			}
+			if(c >= 'a' && c <= 'z') {
+				SLCHECK_NZ(isasciilwr(c));
+			}
+			else {
+				SLCHECK_Z(isasciilwr(c));
+			}
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+				SLCHECK_NZ(isasciialpha(c));
+			}
+			else {
+				SLCHECK_Z(isasciialpha(c));
+			}
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+				SLCHECK_NZ(isasciialnum(c));
+			}
+			else {
+				SLCHECK_Z(isasciialnum(c));
+			}
+			if(c >= '0' && c <= '9') {
+				SLCHECK_NZ(isdec(c));
+			}
+			else {
+				SLCHECK_Z(isdec(c));
+			}
+			if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+				SLCHECK_NZ(ishex(c));
+			}
+			else {
+				SLCHECK_Z(ishex(c));
+			}
+			if(c == '/' || c == '\\') {
+				SLCHECK_NZ(isdirslash(c));
+			}
+			else {
+				SLCHECK_Z(isdirslash(c));
+			}
+		}
+	}
+	{
+		// int
+		for(int c = -1000; c <= +1000; c++) {
+			if(c >= 'A' && c <= 'Z') {
+				SLCHECK_NZ(isasciiupr(c));
+			}
+			else {
+				SLCHECK_Z(isasciiupr(c));
+			}
+			if(c >= 'a' && c <= 'z') {
+				SLCHECK_NZ(isasciilwr(c));
+			}
+			else {
+				SLCHECK_Z(isasciilwr(c));
+			}
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+				SLCHECK_NZ(isasciialpha(c));
+			}
+			else {
+				SLCHECK_Z(isasciialpha(c));
+			}
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+				SLCHECK_NZ(isasciialnum(c));
+			}
+			else {
+				SLCHECK_Z(isasciialnum(c));
+			}
+			if(c >= '0' && c <= '9') {
+				SLCHECK_NZ(isdec(c));
+			}
+			else {
+				SLCHECK_Z(isdec(c));
+			}
+			if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+				SLCHECK_NZ(ishex(c));
+			}
+			else {
+				SLCHECK_Z(ishex(c));
+			}
+			if(c == '/' || c == '\\') {
+				SLCHECK_NZ(isdirslash(c));
+			}
+			else {
+				SLCHECK_Z(isdirslash(c));
+			}
+		}
+	}
+	{
+		// uint
+		for(uint c = 0; c <= 1000; c++) {
+			if(c >= 'A' && c <= 'Z') {
+				SLCHECK_NZ(isasciiupr(c));
+			}
+			else {
+				SLCHECK_Z(isasciiupr(c));
+			}
+			if(c >= 'a' && c <= 'z') {
+				SLCHECK_NZ(isasciilwr(c));
+			}
+			else {
+				SLCHECK_Z(isasciilwr(c));
+			}
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+				SLCHECK_NZ(isasciialpha(c));
+			}
+			else {
+				SLCHECK_Z(isasciialpha(c));
+			}
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+				SLCHECK_NZ(isasciialnum(c));
+			}
+			else {
+				SLCHECK_Z(isasciialnum(c));
+			}
+			if(c >= '0' && c <= '9') {
+				SLCHECK_NZ(isdec(c));
+			}
+			else {
+				SLCHECK_Z(isdec(c));
+			}
+			if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+				SLCHECK_NZ(ishex(c));
+			}
+			else {
+				SLCHECK_Z(ishex(c));
+			}
+			if(c == '/' || c == '\\') {
+				SLCHECK_NZ(isdirslash(c));
+			}
+			else {
+				SLCHECK_Z(isdirslash(c));
+			}
+		}
+	}
+	{
+		// wchar_t
+		for(wchar_t c = -1000; c <= 1000; c++) {
+			if(c >= 'A' && c <= 'Z') {
+				SLCHECK_NZ(isasciiupr(c));
+			}
+			else {
+				SLCHECK_Z(isasciiupr(c));
+			}
+			if(c >= 'a' && c <= 'z') {
+				SLCHECK_NZ(isasciilwr(c));
+			}
+			else {
+				SLCHECK_Z(isasciilwr(c));
+			}
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+				SLCHECK_NZ(isasciialpha(c));
+			}
+			else {
+				SLCHECK_Z(isasciialpha(c));
+			}
+			if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+				SLCHECK_NZ(isasciialnum(c));
+			}
+			else {
+				SLCHECK_Z(isasciialnum(c));
+			}
+			if(c >= '0' && c <= '9') {
+				SLCHECK_NZ(isdec(c));
+			}
+			else {
+				SLCHECK_Z(isdec(c));
+			}
+			if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+				SLCHECK_NZ(ishex(c));
+			}
+			else {
+				SLCHECK_Z(ishex(c));
+			}
+			if(c == '/' || c == '\\') {
+				SLCHECK_NZ(isdirslash(c));
+			}
+			else {
+				SLCHECK_Z(isdirslash(c));
+			}
 		}
 	}
 	return CurrentStatus;

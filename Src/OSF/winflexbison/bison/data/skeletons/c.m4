@@ -59,16 +59,11 @@ m4_define([b4_cpp_guard_close],
 m4_define([b4_identification],
 [[/* Identify Bison output.  */
 #define YYBISON 1
-/* Bison version.  */
-#define YYBISON_VERSION "]b4_version["
-/* Skeleton name.  */
-#define YYSKELETON_NAME ]b4_skeleton[]m4_ifdef([b4_pure_flag], [[
-/* Pure parsers.  */
-#define YYPURE ]b4_pure_flag])[]m4_ifdef([b4_push_flag], [[
-/* Push parsers.  */
-#define YYPUSH ]b4_push_flag])[]m4_ifdef([b4_pull_flag], [[
-/* Pull parsers.  */
-#define YYPULL ]b4_pull_flag])[
+#define YYBISON_VERSION "]b4_version[" /* Bison version.  */
+#define YYSKELETON_NAME ]b4_skeleton[]m4_ifdef([b4_pure_flag], [[ /* Skeleton name.  */
+#define YYPURE ]b4_pure_flag])[]m4_ifdef([b4_push_flag], [[ /* Pure parsers.  */
+#define YYPUSH ]b4_push_flag])[]m4_ifdef([b4_pull_flag], [[ /* Push parsers.  */
+#define YYPULL ]b4_pull_flag])[ /* Pull parsers.  */
 ]])
 
 ## ---------------- ##

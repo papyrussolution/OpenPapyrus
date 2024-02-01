@@ -1402,6 +1402,232 @@ int SColorSet::Get(const char * pSymb, SColor & rC) const
 {
 	return Helper_Get(pSymb, rC, 0);
 }
+//
+//
+//
+UiValueList::ValueUnion::ValueUnion()
+{
+	THISZERO();
+}
+
+bool FASTCALL UiValueList::ValueUnion::IsEq(const ValueUnion & rS) const
+{
+	return (I == rS.I && R == rS.R && sstreq(T, rS.T));
+}
+
+UiValueList::Entry::Entry() : Id(0)
+{
+}
+
+bool FASTCALL UiValueList::Entry::IsEq(const Entry & rS) const
+{
+	return (Id == rS.Id && V.IsEq(rS.V));
+}
+
+UiValueList::UiValueList()
+{
+}
+	
+UiValueList::~UiValueList()
+{
+}
+
+UiValueList & UiValueList::Z()
+{
+	L.clear();
+	return *this;
+}
+
+bool FASTCALL UiValueList::IsEq(const UiValueList & rS) const
+{
+	bool   eq = true;
+	if(L.getCount() == rS.L.getCount()) {
+		uint max_id1 = 0;
+		uint max_id2 = 0;
+		{
+			for(uint i = 0; i < L.getCount(); i++) {
+				SETMAX(max_id1, L.at(i).Id);
+			}
+		}
+		{
+			for(uint i = 0; i < rS.L.getCount(); i++) {
+				SETMAX(max_id2, rS.L.at(i).Id);
+			}
+		}
+		if(max_id1 == max_id2) {
+			for(uint id_ = 1; eq && id_ <= max_id1; id_++) {
+				Entry entry1;
+				Entry entry2;
+				bool r1 = Implement_Get(id_, entry1);
+				bool r2 = rS.Implement_Get(id_, entry2);
+				if(r1 && r2) {
+					if(!entry1.IsEq(entry2))
+						eq = false;
+				}
+				else if(r1 != r2)
+					eq = false;
+			}
+		}
+		else
+			eq = false;
+	}
+	else
+		eq = false;
+	return eq;
+}
+
+int UiValueList::Implement_Put(const Entry & rEntry)
+{
+	int    ok = 1;
+	if(rEntry.Id) {
+		uint   idx = 0;
+		if(L.lsearch(&rEntry.Id, &idx, CMPF_LONG)) {
+			L.at(idx) = rEntry;
+			ok = 2;
+		}
+		else
+			L.insert(&rEntry);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+bool UiValueList::Implement_Get(uint id, Entry & rEntry) const
+{
+	bool   ok = false;
+	uint   idx = 0;
+	if(id && L.lsearch(&id, &idx, CMPF_LONG)) {
+		rEntry = L.at(idx);
+		assert(rEntry.Id == id);
+		ok = true;
+	}
+	return ok;
+}
+	
+int UiValueList::Put(uint id, double v)
+{
+	Entry entry;
+	entry.Id = id;
+	entry.V.R = v;
+	return Implement_Put(entry);
+}
+	
+int UiValueList::Get(uint id, double & rV) const
+{
+	int    ok = 0;
+	Entry entry;
+	if(Implement_Get(id, entry)) {
+		rV = entry.V.R;
+		ok = 1;
+	}
+	else
+		rV = 0.0;
+	return ok;
+}
+	
+int UiValueList::Put(uint id, int v)
+{
+	Entry entry;
+	entry.Id = id;
+	entry.V.I = v;
+	return Implement_Put(entry);
+}
+	
+int UiValueList::Get(uint id, int & rV) const
+{
+	int    ok = 0;
+	Entry entry;
+	if(Implement_Get(id, entry)) {
+		rV = entry.V.I;
+		ok = 1;
+	}
+	else
+		rV = 0;
+	return ok;
+}
+	
+int UiValueList::Put(uint id, const char * pV)
+{
+	Entry entry;
+	entry.Id = id;
+	STRNSCPY(entry.V.T, pV);
+	return Implement_Put(entry);
+}
+	
+int UiValueList::Get(uint id, SString & rV) const
+{
+	int    ok = 0;
+	Entry entry;
+	if(Implement_Get(id, entry)) {
+		rV = entry.V.T;
+		ok = 1;
+	}
+	else
+		rV.Z();
+	return ok;
+}
+
+struct UiValueDescr {
+	uint   Id;
+	const char * P_Symb;
+	TYPEID Type; // T_INT32 || T_DOUBLE || MKSTYPE(S_ZSTRING, 0)
+};
+
+static const UiValueDescr UiValueDescrList[] = {
+	{ UiValueList::vStandaloneListWidth, "standalone_list_width", T_INT32 },
+	{ UiValueList::vStandaloneListHeight, "standalone_list_height", T_INT32 },
+	{ UiValueList::vDesktopIconSize, "desktop_icon_size", T_INT32 },
+	{ UiValueList::vDesktopIconGap, "desktop_icon_gap", T_INT32 },
+};
+	
+SJson * UiValueList::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	SString temp_buf;
+	for(uint i = 0; i < L.getCount(); i++) {
+		const Entry & r_entry = L.at(i);
+		for(uint j = 0; j < SIZEOFARRAY(UiValueDescrList); j++) {
+			if(UiValueDescrList[j].Id == r_entry.Id) {
+				switch(GETSTYPE(UiValueDescrList[j].Type)) {
+					case S_INT: p_result->InsertInt(UiValueDescrList[j].P_Symb, r_entry.V.I); break;
+					case S_FLOAT: p_result->InsertDouble(UiValueDescrList[j].P_Symb, r_entry.V.R, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)); break;
+					case S_ZSTRING: p_result->InsertString(UiValueDescrList[j].P_Symb, r_entry.V.T); break;
+				}
+				break;
+			}
+		}
+	}
+	return p_result;
+}
+	
+int UiValueList::FromJsonObj(const SJson * pJsObj)
+{
+	int    ok = 1;
+	if(SJson::IsObject(pJsObj)) {
+		for(const SJson * p_jsn = pJsObj->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+			if(p_jsn->P_Child) {
+				for(uint j = 0; j < SIZEOFARRAY(UiValueDescrList); j++) {
+					if(p_jsn->Text.IsEqiAscii(UiValueDescrList[j].P_Symb)) {
+						switch(GETSTYPE(UiValueDescrList[j].Type)) {
+							case S_INT: 
+								Put(UiValueDescrList[j].Id, p_jsn->P_Child->Text.ToLong());
+								break;
+							case S_FLOAT: 
+								Put(UiValueDescrList[j].Id, p_jsn->P_Child->Text.ToReal());
+								break;
+							case S_ZSTRING: 
+								Put(UiValueDescrList[j].Id, p_jsn->P_Child->Text);
+								break;
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
 
 UiDescription::UiDescription()
 {
@@ -1473,6 +1699,12 @@ SJson * UiDescription::ToJsonObj() const
 	SJson * p_result = SJson::CreateObj();
 	SString temp_buf;
 	p_result->InsertString("symb", "ui");
+	if(VList.GetCount()) { // @v11.9.4
+		SJson * p_js_valuelist = VList.ToJsonObj();
+		if(p_js_valuelist) {
+			p_result->Insert("value_list", p_js_valuelist);
+		}
+	}
 	if(FontList.getCount()) {
 		SJson * p_js_fontsrc_list = SJson::CreateArr();
 		for(uint i = 0; i < FontList.getCount(); i++) {
@@ -1565,6 +1797,9 @@ int UiDescription::FromJsonObj(const SJson * pJsObj)
 						THROW(p_item->FromJsonObj(p_js_inner));
 					}
 				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("value_list")) { // @v11.9.4
+				VList.FromJsonObj(p_jsn->P_Child);
 			}
 		}
 	}

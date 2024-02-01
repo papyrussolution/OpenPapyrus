@@ -4333,8 +4333,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 								    httpversion = 10 + (p[1] - '0');
 								    p += 3;
 								    if(isdec(p[0]) && isdec(p[1]) && isdec(p[2])) {
-									    k->httpcode = (p[0] - '0') * 100 + (p[1] - '0') * 10 +
-										(p[2] - '0');
+									    k->httpcode = (p[0] - '0') * 100 + (p[1] - '0') * 10 + (p[2] - '0');
 									    p += 3;
 									    if(ISSPACE(*p))
 										    fine_statusline = TRUE;
@@ -4353,8 +4352,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 						    httpversion = (*p - '0') * 10;
 						    p += 2;
 						    if(isdec(p[0]) && isdec(p[1]) && isdec(p[2])) {
-							    k->httpcode = (p[0] - '0') * 100 + (p[1] - '0') * 10 +
-								(p[2] - '0');
+							    k->httpcode = (p[0] - '0') * 100 + (p[1] - '0') * 10 + (p[2] - '0');
 							    p += 3;
 							    if(!ISSPACE(*p))
 								    break;

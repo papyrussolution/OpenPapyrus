@@ -782,8 +782,8 @@ namespace {
 // A helper for ParseDuration() that parses a leading number from the given
 // string and stores the result in *int_part/*frac_part/*frac_scale.  The
 // given string pointer is modified to point to the first unconsumed char.
-bool ConsumeDurationNumber(const char** dpp, const char* ep, int64_t* int_part,
-    int64_t* frac_part, int64_t* frac_scale) {
+bool ConsumeDurationNumber(const char** dpp, const char* ep, int64_t* int_part, int64_t* frac_part, int64_t* frac_scale) 
+{
 	*int_part = 0;
 	*frac_part = 0;
 	*frac_scale = 1; // invariant: *frac_part < *frac_scale
@@ -874,7 +874,8 @@ bool ConsumeDurationUnit(const char** start, const char* end, Duration* unit) {
 //   a possibly signed sequence of decimal numbers, each with optional
 //   fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m".
 //   Valid time units are "ns", "us" "ms", "s", "m", "h".
-bool ParseDuration(absl::string_view dur_sv, Duration* d) {
+bool ParseDuration(absl::string_view dur_sv, Duration* d) 
+{
 	int sign = 1;
 	if(absl::ConsumePrefix(&dur_sv, "-")) {
 		sign = -1;
@@ -889,15 +890,12 @@ bool ParseDuration(absl::string_view dur_sv, Duration* d) {
 		*d = ZeroDuration();
 		return true;
 	}
-
 	if(dur_sv == "inf") {
 		*d = sign * InfiniteDuration();
 		return true;
 	}
-
 	const char* start = dur_sv.data();
 	const char* end = start + dur_sv.size();
-
 	Duration dur;
 	while(start != end) {
 		int64_t int_part;

@@ -380,12 +380,8 @@ double CalendarAstronomer::getLocalSidereal()
 }
 /**
  * Converts local sidereal time to Universal Time.
- *
- * @param lst   The Local Sidereal Time, in hours since sidereal midnight
- *              on this object's current date.
- *
- * @return      The corresponding Universal Time, in milliseconds since
- *              1 Jan 1970, GMT.
+ * @param lst   The Local Sidereal Time, in hours since sidereal midnight on this object's current date.
+ * @return      The corresponding Universal Time, in milliseconds since 1 Jan 1970, GMT.
  */
 double CalendarAstronomer::lstToUT(double lst) 
 {

@@ -598,11 +598,9 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 			else {
 				noVersion = TRUE;
 				if(IN_DLL_MODE(mode)) {
-					fprintf(stdout,
-					    "Warning: Providing a revision number with the -r option is recommended when packaging data in the current mode.\n");
+					fprintf(stdout, "Warning: Providing a revision number with the -r option is recommended when packaging data in the current mode.\n");
 				}
 			}
-
 #if U_PLATFORM != U_PF_OS400
 			/* Certain platforms have different library extension ordering. (e.g. libicudata.##.so vs
 			   libicudata.so.##)

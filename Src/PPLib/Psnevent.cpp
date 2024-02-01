@@ -1,5 +1,5 @@
 // PSNEVENT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1012,7 +1012,7 @@ int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * p
 											if(is_quot || pClause->CmdText.NotEmpty()) {
 												double qtty = 1.0;
 												double ratio = 0.0;
-												if(goods_obj.TranslateGoodsUnitToBase(goods_rec, PPUNT_SECOND, &ratio) > 0) {
+												if(goods_obj.TranslateGoodsUnitToBase(goods_rec, SUOM_SECOND, &ratio) > 0) {
 													if(ratio > 0.0) {
 														PersonEventCore::PairIdent pi;
 														pi.PersonID = psn_id;

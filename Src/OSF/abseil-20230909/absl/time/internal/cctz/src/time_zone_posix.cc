@@ -15,10 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "time_zone_posix.h"
-//#include <cstddef>
-//#include <cstring>
-//#include <limits>
-//#include <string>
 #include "absl/base/config.h"
 
 namespace absl {
@@ -26,14 +22,15 @@ ABSL_NAMESPACE_BEGIN
 namespace time_internal {
 namespace cctz {
 namespace {
-const char kDigits[] = "0123456789";
+// @v11.9.4 (replaced with STextConst::P_Digits) const char kDigits[] = "0123456789";
 
-const char* ParseInt(const char* p, int min, int max, int* vp) {
+const char* ParseInt(const char* p, int min, int max, int* vp) 
+{
 	int value = 0;
 	const char* op = p;
 	const int kMaxInt = std::numeric_limits<int>::max();
-	for(; const char* dp = strchr(kDigits, *p); ++p) {
-		int d = static_cast<int>(dp - kDigits);
+	for(; const char* dp = strchr(STextConst::P_Digits, *p); ++p) {
+		int d = static_cast<int>(dp - STextConst::P_Digits);
 		if(d >= 10) break; // '\0'
 		if(value > kMaxInt / 10) return nullptr;
 		value *= 10;
@@ -46,7 +43,8 @@ const char* ParseInt(const char* p, int min, int max, int* vp) {
 }
 
 // abbr = <.*?> | [^-+,\d]{3,}
-const char* ParseAbbr(const char* p, std::string* abbr) {
+const char* ParseAbbr(const char* p, std::string* abbr) 
+{
 	const char* op = p;
 	if(*p == '<') { // special zoneinfo <...> form
 		while(*++p != '>') {
@@ -57,7 +55,7 @@ const char* ParseAbbr(const char* p, std::string* abbr) {
 	}
 	while(*p != '\0') {
 		if(strchr("-+,", *p)) break;
-		if(strchr(kDigits, *p)) break;
+		if(strchr(STextConst::P_Digits, *p)) break;
 		++p;
 	}
 	if(p - op < 3) return nullptr;
@@ -66,8 +64,8 @@ const char* ParseAbbr(const char* p, std::string* abbr) {
 }
 
 // offset = [+|-]hh[:mm[:ss]] (aggregated into single seconds value)
-const char* ParseOffset(const char* p, int min_hour, int max_hour, int sign,
-    std::int_fast32_t* offset) {
+const char* ParseOffset(const char* p, int min_hour, int max_hour, int sign, std::int_fast32_t* offset) 
+{
 	if(p == nullptr) return nullptr;
 	if(*p == '+' || *p == '-') {
 		if(*p++ == '-') sign = -sign;

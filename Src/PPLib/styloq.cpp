@@ -1,5 +1,5 @@
 // STYLOQ.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -10484,7 +10484,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				const  PPID loc_id = locident.ToLong();
 				PPObjLocation loc_obj;
 				PPLocationPacket loc_pack;
-				THROW_PP(loc_id > 0, PPERR_STQ_SETGEOLOC_INVJSPARAM_LOC, locident);
+				THROW_PP_S(loc_id > 0, PPERR_STQ_SETGEOLOC_INVJSPARAM_LOC, locident);
 				THROW_PP(svcident.IsEmpty(), PPERR_STQ_SETGEOLOC_INVJSPARAM_S_L);
 				THROW(loc_obj.GetPacket(loc_id, &loc_pack) > 0);
 				loc_pack.Latitude = geoloc.Lat;

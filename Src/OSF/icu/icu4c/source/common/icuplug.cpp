@@ -186,9 +186,9 @@ U_CAPI void * U_EXPORT2 uplug_openLibrary(const char * libName, UErrorCode * sta
 	return lib;
 }
 
-U_CAPI void U_EXPORT2 uplug_closeLibrary(void * lib, UErrorCode * status) {
+U_CAPI void U_EXPORT2 uplug_closeLibrary(void * lib, UErrorCode * status) 
+{
 	int32_t i;
-
 #if UPLUG_TRACE
 	DBG((stderr, "uplug_closeLibrary(%p,%s) list %p\n", lib, u_errorName(*status), (void *)libraryList));
 #endif

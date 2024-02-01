@@ -18,6 +18,9 @@
     <Filter Include="libdivide">
       <UniqueIdentifier>{f21ac318-dde2-4b91-b0e4-f0f864f06ee3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sql-parser-pattern">
+      <UniqueIdentifier>{d2eea6e7-ea43-439f-bfe8-148a907a3f85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\PPTEST\pptest-dedicated.cpp" />
@@ -43,6 +46,25 @@
     <ClCompile Include="..\PPTEST\UNIT\test-fts.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-utf8_h.cpp" />
     <ClCompile Include="..\SLib\libpng\pngtest.c" />
+    <ClCompile Include="..\PPTEST\UNIT\test-sqlparser.cpp" />
+    <ClCompile Include="..\OSF\sql-parser\test\auto_query_file_test.cpp">
+      <Filter>sql-parser-pattern</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\sql-parser\test\prepare_tests.cpp">
+      <Filter>sql-parser-pattern</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\sql-parser\test\select_tests.cpp">
+      <Filter>sql-parser-pattern</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\sql-parser\test\sql_parser.cpp">
+      <Filter>sql-parser-pattern</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\sql-parser\test\sql_tests.cpp">
+      <Filter>sql-parser-pattern</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\sql-parser\test\tpc_h_tests.cpp">
+      <Filter>sql-parser-pattern</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\libdivide\constant_fast_div.h">
@@ -50,6 +72,9 @@
     </ClInclude>
     <ClInclude Include="..\OSF\libdivide\constant_fast_div.hpp">
       <Filter>libdivide</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sql-parser\test\sql_asserts.h">
+      <Filter>sql-parser-pattern</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

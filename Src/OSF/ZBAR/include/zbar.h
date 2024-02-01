@@ -1351,15 +1351,13 @@ extern zbar_image_t * zbar_video_next_image(zbar_video_t * video);
 /** display detail for last video error to stderr.
  * @returns a non-zero value suitable for passing to exit()
  */
-static inline int zbar_video_error_spew(const zbar_video_t * video,
-    int verbosity)
+static inline int zbar_video_error_spew(const zbar_video_t * video, int verbosity)
 {
 	return (_zbar_error_spew(video, verbosity));
 }
 
 /** retrieve the detail string for the last video error. */
-static inline const char * zbar_video_error_string(const zbar_video_t * video,
-    int verbosity)
+static inline const char * zbar_video_error_string(const zbar_video_t * video, int verbosity)
 {
 	return (_zbar_error_string(video, verbosity));
 }

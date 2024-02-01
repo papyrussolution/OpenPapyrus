@@ -19,50 +19,50 @@
 
 U_NAMESPACE_BEGIN
 
-static const char * gKeywords[StandardPlural::COUNT] = {
-	"zero", "one", "two", "few", "many", "other", "=0", "=1"
-};
+static const char * gKeywords[StandardPlural::COUNT] = { "zero", "one", "two", "few", "many", "other", "=0", "=1" };
 
-const char * StandardPlural::getKeyword(Form p) {
+const char * StandardPlural::getKeyword(Form p) 
+{
 	U_ASSERT(ZERO <= p && p < COUNT);
 	return gKeywords[p];
 }
 
-int32_t StandardPlural::indexOrNegativeFromString(const char * keyword) {
+int32_t StandardPlural::indexOrNegativeFromString(const char * keyword) 
+{
 	switch(*keyword++) {
 		case 'f':
-		    if(strcmp(keyword, "ew") == 0) {
+		    if(sstreq(keyword, "ew")) {
 			    return FEW;
 		    }
 		    break;
 		case 'm':
-		    if(strcmp(keyword, "any") == 0) {
+		    if(sstreq(keyword, "any")) {
 			    return MANY;
 		    }
 		    break;
 		case 'o':
-		    if(strcmp(keyword, "ther") == 0) {
+		    if(sstreq(keyword, "ther")) {
 			    return OTHER;
 		    }
-		    else if(strcmp(keyword, "ne") == 0) {
+		    else if(sstreq(keyword, "ne")) {
 			    return ONE;
 		    }
 		    break;
 		case 't':
-		    if(strcmp(keyword, "wo") == 0) {
+		    if(sstreq(keyword, "wo")) {
 			    return TWO;
 		    }
 		    break;
 		case 'z':
-		    if(strcmp(keyword, "ero") == 0) {
+		    if(sstreq(keyword, "ero")) {
 			    return ZERO;
 		    }
 		    break;
 		case '=':
-		    if(strcmp(keyword, "0") == 0) {
+		    if(sstreq(keyword, "0")) {
 			    return EQ_0;
 		    }
-		    else if(strcmp(keyword, "1") == 0) {
+		    else if(sstreq(keyword, "1")) {
 			    return EQ_1;
 		    }
 		    break;

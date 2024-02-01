@@ -48,7 +48,6 @@ static void usage(void)
 #else
 	slfprintf_stderr("[inputfile]\n");
 #endif
-
 	slfprintf_stderr("Switches (names may be abbreviated):\n");
 	slfprintf_stderr("  -copy none     Copy no extra markers from source file\n");
 	slfprintf_stderr("  -copy comments Copy only comment markers (default)\n");

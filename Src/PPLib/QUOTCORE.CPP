@@ -1,5 +1,5 @@
 // QUOTCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -30,15 +30,8 @@ QuotIdent::QuotIdent(const PPQuot & rS) : Flags((fUsePeriod|fUseQtty)), Period(r
 {
 }
 
-void QuotIdent::SetBase(double b)
-{
-	PrevBase = b;
-}
-
-double QuotIdent::GetPrevBase() const
-{
-	return PrevBase;
-}
+void QuotIdent::SetBase(double b) { PrevBase = b; }
+double QuotIdent::GetPrevBase() const { return PrevBase; }
 
 void FASTCALL QuotIdent::SetIdentPeriod(const DateRange * pPeriod)
 {
@@ -627,11 +620,12 @@ int FASTCALL PPQuotArray::SearchQi(const QuotIdent & rQi, uint * pPos) const
 	const  uint c = getCount();
 	long   min_period_len = MAXLONG;
 	double min_qtty_diff = SMathConst::Max;
+	const bool use_period = LOGIC(rQi.Flags & QuotIdent::fUsePeriod);
 	for(uint i = 0; i < c; i++) {
 		const PPQuot & rq = at(i);
-		if(rq.Kind == rQi.QuotKindID) {
+		if(rq.Kind == rQi.QuotKindID /* @v11.9.4{*/&& (!(rQi.Flags & QuotIdent::fIgnoreTimeLimitValues) || rq.Period.IsZero())/* }@v11.9.4 */) {
 			if(rq.LocID == rQi.LocID && rq.CurID == rQi.CurID && rq.ArID == rQi.ArID && (!rq.IsEmpty() || (rq.Flags & PPQuot::fPctDisabled))) {
-				if((!(rQi.Flags & QuotIdent::fUsePeriod) || rq.Period == rQi.Period) && (!(rQi.Flags & QuotIdent::fUseQtty) || rq.MinQtty == (long)rQi.Qtty_)) {
+				if((!use_period || rq.Period == rQi.Period) && (!(rQi.Flags & QuotIdent::fUseQtty) || rq.MinQtty == (long)rQi.Qtty_)) {
 					const double q_min_qtty = (double)rq.MinQtty;
 					const double qtty_diff = rQi.Qtty_ - q_min_qtty;
 					if(qtty_diff >= 0.0) {
@@ -643,7 +637,7 @@ int FASTCALL PPQuotArray::SearchQi(const QuotIdent & rQi, uint * pPos) const
 							//
 							if(rq.Period.CheckDate(rQi.Dt)) {
 								long rq_len = rq.Period.GetLength();
-								if(rq_len <= min_period_len && qtty_diff <= min_qtty_diff) { // @v7.6.7 (<)--(<=)
+								if(rq_len <= min_period_len && qtty_diff <= min_qtty_diff) {
 									min_period_len = rq_len;
 									min_qtty_diff = qtty_diff;
 									pos = i;

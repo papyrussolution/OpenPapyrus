@@ -24,7 +24,7 @@ SlipLineParam & SlipLineParam::Z()
 	SbjTermTag = CCheckPacket::sttUndef;  // @erikH v10.4.12
 	DivID = 0;
 	FontSize = 0;
-	MEMSZERO(PictCoord);
+	PictCoord.Z();
 	FontName.Z();
 	PictPath.Z();
 	BarcodeStd = 0;
@@ -1539,12 +1539,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
 							pIter->GoodsID = cc_item.GoodsID;
 							// @v11.1.5 pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
-							// @v11.1.5 {
-							if(P_CcPack->PrintPtt >= 0 && P_CcPack->PrintPtt <= 7)
-								pIter->Ptt = (CCheckPacket::PaymentTermTag)P_CcPack->PrintPtt; 
-							else
-								pIter->Ptt = CCheckPacket::pttUndef;
-							// } @v11.1.5 
+							pIter->Ptt = (P_CcPack->PrintPtt >= 0 && P_CcPack->PrintPtt <= 7) ? (CCheckPacket::PaymentTermTag)P_CcPack->PrintPtt : CCheckPacket::pttUndef; // @v11.1.5
 							pIter->Stt = CCheckPacket::sttUndef; // @erikP v10.4.12
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
@@ -1576,6 +1571,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 										if(draftbeer_code.Len() == 13) {
 											pIter->IsSimplifiedDraftBeer = 1;
 											STRNSCPY(pIter->Code, draftbeer_code);
+											temp_buf.Z().Cat("0").Cat(draftbeer_code);
+											STRNSCPY(pIter->ChZnGTIN, temp_buf);
 										}
 									}
 								}
@@ -1588,7 +1585,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 									// @v11.9.3 {
 									if(gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER) {
 										double ratio = 0.0;
-										if(P_Od->GObj.TranslateGoodsUnitToBase(goods_rec, PPUNT_LITER, &ratio) > 0) {
+										if(P_Od->GObj.TranslateGoodsUnitToBase(goods_rec, SUOM_LITER, &ratio) > 0) {
 											pIter->PhQtty = pIter->Qtty * ratio;
 										}
 									}

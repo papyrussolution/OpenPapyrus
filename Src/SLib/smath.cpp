@@ -125,6 +125,21 @@ int SMathResult::SetUnderflow()
 //
 // }
 //
+SphericalDirection::SphericalDirection() : PolarAngle(0.0), Azimuth(0.0)
+{
+}
+	
+SphericalDirection::SphericalDirection(double polarAngle, double azimuth) : PolarAngle(polarAngle), Azimuth(azimuth)
+{
+}
+	
+bool FASTCALL SphericalDirection::operator == (const SphericalDirection & rS) const { return IsEq(rS); }
+bool FASTCALL SphericalDirection::IsEq(const SphericalDirection & rS) const { return PolarAngle == rS.PolarAngle && Azimuth == rS.Azimuth; }
+bool FASTCALL SphericalDirection::IsEqTol(const SphericalDirection & rS, double tol) const { return feqeps(PolarAngle, rS.PolarAngle, tol) && feqeps(Azimuth, rS.Azimuth, tol); }
+bool SphericalDirection::IsValid() const { return (Azimuth >= 0.0 && Azimuth < 360.0 && PolarAngle >= 0 && PolarAngle <= 180.0); }
+//
+//
+//
 bool CheckOverflowMul(int32 a, int32 b)
 {
 	bool   ok = true;

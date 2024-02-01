@@ -126,8 +126,7 @@ static void tease()
 
 void usage(const char * argv0)
 {
-	fprintf(stdout,
-	    "Usage:\n"
+	fprintf(stdout, "Usage:\n"
 	    "%s [options] [files ...]\n"
 	    "\n"
 	    "If no input files are specified, the input is read from stdin\n"

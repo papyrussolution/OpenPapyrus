@@ -292,22 +292,16 @@ done:
 			points->point[++i] = points->point[j];
 		}
 	}
-
 	points->number = i + 1;
-
 	hcf = (ngx_http_upstream_hash_srv_conf_t*)ngx_http_conf_upstream_srv_conf(us, ngx_http_upstream_hash_module);
 	hcf->points = points;
-
 	return NGX_OK;
 }
 
 static int ngx_libc_cdecl ngx_http_upstream_chash_cmp_points(const void * one, const void * two)
 {
-	ngx_http_upstream_chash_point_t * first =
-	    (ngx_http_upstream_chash_point_t*)one;
-	ngx_http_upstream_chash_point_t * second =
-	    (ngx_http_upstream_chash_point_t*)two;
-
+	ngx_http_upstream_chash_point_t * first = (ngx_http_upstream_chash_point_t*)one;
+	ngx_http_upstream_chash_point_t * second = (ngx_http_upstream_chash_point_t*)two;
 	if(first->hash < second->hash) {
 		return -1;
 	}
@@ -319,22 +313,15 @@ static int ngx_libc_cdecl ngx_http_upstream_chash_cmp_points(const void * one, c
 	}
 }
 
-static ngx_uint_t ngx_http_upstream_find_chash_point(ngx_http_upstream_chash_points_t * points,
-    uint32_t hash)
+static ngx_uint_t ngx_http_upstream_find_chash_point(ngx_http_upstream_chash_points_t * points, uint32_t hash)
 {
-	ngx_uint_t i, j, k;
-	ngx_http_upstream_chash_point_t  * point;
-
+	ngx_uint_t k;
 	/* find first point >= hash */
-
-	point = &points->point[0];
-
-	i = 0;
-	j = points->number;
-
+	ngx_http_upstream_chash_point_t  * point = &points->point[0];
+	ngx_uint_t i = 0;
+	ngx_uint_t j = points->number;
 	while(i < j) {
 		k = (i + j) / 2;
-
 		if(hash > point[k].hash) {
 			i = k + 1;
 		}
@@ -345,34 +332,24 @@ static ngx_uint_t ngx_http_upstream_find_chash_point(ngx_http_upstream_chash_poi
 			return k;
 		}
 	}
-
 	return i;
 }
 
-static ngx_int_t ngx_http_upstream_init_chash_peer(ngx_http_request_t * r,
-    ngx_http_upstream_srv_conf_t * us)
+static ngx_int_t ngx_http_upstream_init_chash_peer(ngx_http_request_t * r, ngx_http_upstream_srv_conf_t * us)
 {
 	uint32_t hash;
 	ngx_http_upstream_hash_srv_conf_t * hcf;
 	ngx_http_upstream_hash_peer_data_t  * hp;
-
 	if(ngx_http_upstream_init_hash_peer(r, us) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	r->upstream->peer.get = ngx_http_upstream_get_chash_peer;
-
 	hp = (ngx_http_upstream_hash_peer_data_t *)r->upstream->peer.data;
 	hcf = (ngx_http_upstream_hash_srv_conf_t*)ngx_http_conf_upstream_srv_conf(us, ngx_http_upstream_hash_module);
-
 	hash = ngx_crc32_long(hp->key.data, hp->key.len);
-
 	ngx_http_upstream_rr_peers_rlock(hp->rrp.peers);
-
 	hp->hash = ngx_http_upstream_find_chash_point(hcf->points, hash);
-
 	ngx_http_upstream_rr_peers_unlock(hp->rrp.peers);
-
 	return NGX_OK;
 }
 

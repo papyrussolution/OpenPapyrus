@@ -1693,18 +1693,14 @@ static void processNode(xmlTextReader * reader)
 							xmlTextReaderCurrentNode(reader));
 					}
 #endif
-					fprintf(stderr,
-					    "xmlPatternMatch and xmlStreamPush disagree\n");
+					fprintf(stderr, "xmlPatternMatch and xmlStreamPush disagree\n");
 					if(path != NULL)
-						fprintf(stderr, "  pattern %s node %s\n",
-						    pattern, path);
+						fprintf(stderr, "  pattern %s node %s\n", pattern, path);
 					else
-						fprintf(stderr, "  pattern %s node %s\n",
-						    pattern, xmlTextReaderConstName(reader));
+						fprintf(stderr, "  pattern %s node %s\n", pattern, xmlTextReaderConstName(reader));
 				}
 			}
-			if((type == XML_READER_TYPE_END_ELEMENT) ||
-			    ((type == XML_READER_TYPE_ELEMENT) && (empty))) {
+			if((type == XML_READER_TYPE_END_ELEMENT) || ((type == XML_READER_TYPE_ELEMENT) && (empty))) {
 				ret = xmlStreamPop(patstream);
 				if(ret < 0) {
 					fprintf(stderr, "xmlStreamPop() failure\n");
@@ -1713,8 +1709,7 @@ static void processNode(xmlTextReader * reader)
 				}
 			}
 		}
-		if(path != NULL)
-			xmlFree(path);
+		xmlFree(path);
 	}
 #endif
 }
@@ -2090,7 +2085,7 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 	else if((html) && (push)) {
 		FILE * f;
 
-#if defined(_WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
+#if defined(_WIN32) && !defined (__CYGWIN__)
 		f = fopen(filename, "rb");
 #elif defined(__OS400__)
 		f = fopen(filename, "rb");
@@ -2157,7 +2152,7 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 				f = stdin;
 			}
 			else {
-#if defined(_WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
+#if defined(_WIN32) && !defined (__CYGWIN__)
 				f = fopen(filename, "rb");
 #elif defined(__OS400__)
 				f = fopen(filename, "rb");
@@ -2200,8 +2195,7 @@ static void parseAndPrintFile(char * filename, xmlParserCtxtPtr rectxt) {
 			}
 			else {
 				FILE * f;
-
-#if defined(_WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
+#if defined(_WIN32) && !defined (__CYGWIN__)
 				f = fopen(filename, "rb");
 #elif defined(__OS400__)
 				f = fopen(filename, "rb");

@@ -1,5 +1,5 @@
 // PPSUPPLIX.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -6668,7 +6668,7 @@ int SfaHeineken::Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAssocArr
 				p_new_item->SkuID = temp_buf.ToLong();
 				p_new_item->Count = fabs(ti.Quantity_);
 				double ratio = 0.0;
-				if(GObj.TranslateGoodsUnitToBase(goods_rec, PPUNT_LITER, &ratio) > 0)
+				if(GObj.TranslateGoodsUnitToBase(goods_rec, SUOM_LITER, &ratio) > 0)
 					p_new_item->Volume = fabs(ti.Quantity_) * ratio / 100.0; // гекталитры
 				else
 					p_new_item->Volume = 0.0;
@@ -7082,8 +7082,8 @@ int SfaHeineken::SendStocks()
 							if(GObj.Fetch(gr_item.GoodsID, &goods_rec) > 0) {
 								double rt1 = 0.0;
 								double rt2 = 0.0;
-								int tr1 = UObj.TranslateToBase(goods_rec.UnitID, PPUNT_LITER, &rt1);
-								int tr2 = UObj.TranslateToBase(goods_rec.PhUnitID, PPUNT_LITER, &rt2);
+								int tr1 = UObj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &rt1);
+								int tr2 = UObj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &rt2);
 								if(tr1 > 0 && tr2 > 0 && rt1 == rt2) {
 									GoodsStockExt gse;
 									if(GObj.GetStockExt(goods_rec.ID, &gse, 1) > 0 && gse.Package > 0.0) {
@@ -10988,7 +10988,7 @@ private:
 										PPUnit u_rec;
 										if(UObj.Fetch(goods_rec.UnitID, &u_rec) > 0) {
 											STRNSCPY(item.UnitName, u_rec.Name);
-											if(UObj.TranslateToBase(goods_rec.UnitID, PPUNT_KILOGRAM, &item.KgPerUnit) > 0) {
+											if(UObj.TranslateToBase(goods_rec.UnitID, SUOM_KILOGRAM, &item.KgPerUnit) > 0) {
 												;
 											}
 											else

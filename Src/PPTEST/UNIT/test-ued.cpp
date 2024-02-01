@@ -63,6 +63,27 @@
 				}
 			}
 		}
+		/* @construction*/ {
+			const SphericalDirection test_val_list[] = {
+				{ 0.0, 0.0 }, // up
+				{ 90.0, 0.0 }, // right
+				{ 90.0, 180.0 }, // left
+				{ 180.0, 0.0 }, // down
+				{ 90.0, 90.0 }, // forward
+				{ 90.0, 270.0 }, // backward
+				{ 73.13, 101.58 }, 
+				{ 73.139, 101.583 }
+			};
+			for(uint i = 0; i < SIZEOFARRAY(test_val_list); i++) {
+				SphericalDirection sd(test_val_list[i]); 
+				uint64 ued_ = UED::SetRaw_SphDir(sd);
+				SLCHECK_NZ(ued_);
+				SLCHECK_NZ(UED::BelongToMeta(ued_, UED_META_SPHERDIR));
+				SphericalDirection sd_;
+				SLCHECK_NZ(UED::GetRaw_SphDir(ued_, sd_));
+				SLCHECK_NZ(sd_.IsEqTol(sd, 1e-5));
+			}
+		}/**/
 		{
 			SGeo geo;
 			{

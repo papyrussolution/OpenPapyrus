@@ -404,21 +404,21 @@ template <typename T> static inline CXX_FUNC_CONST uint hb_ctz(T v)
  * Tiny stuff.
  */
 /* ASCII tag/character handling */
-static inline bool ISALPHA(uchar c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
-static inline bool ISALNUM(uchar c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'); }
+// @v11.9.3 (replaced with isasciialpha) static inline bool ISALPHA(uchar c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+// @v11.9.3 (replaced with isasciialnum) static inline bool ISALNUM(uchar c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'); }
 static inline bool ISSPACE(uchar c) { return c == ' ' || c =='\f'|| c =='\n'|| c =='\r'|| c =='\t'|| c =='\v'; }
 static inline uchar TOUPPER(uchar c) { return (c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c; }
 static inline uchar TOLOWER(uchar c) { return (c >= 'A' && c <= 'Z') ? c - 'A' + 'a' : c; }
 // @v11.9.3 (replaced with ishex) static inline bool ISHEX(uchar c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
 static inline uchar TOHEX(uint8 c) { return (c & 0xF) <= 9 ? (c & 0xF) + '0' : (c & 0xF) + 'a' - 10; }
 // @v11.9.3 (replaced with hex) static inline uint8 FROMHEX(uchar c) { return (c >= '0' && c <= '9') ? c - '0' : TOLOWER(c) - 'a' + 10; }
-static inline uint DIV_CEIL(const uint a, uint b) { return (a + (b - 1)) / b; }
+// @v11.9.3 (replaced with idivroundup) static inline uint DIV_CEIL(const uint a, uint b) { return (a + (b - 1)) / b; }
 
 #undef  ARRAY_LENGTH
 template <typename Type, uint n> static inline uint ARRAY_LENGTH(const Type (&)[n]) { return n; }
 
 /* A const version, but does not detect erratically being called on pointers. */
-#define ARRAY_LENGTH_CONST(__array) ((signed int)(sizeof(__array) / sizeof(__array[0])))
+// @v11.9.3 (replaced with SIZEOFARRAY) #define ARRAY_LENGTH_CONST(__array) ((signed int)(sizeof(__array) / sizeof(__array[0])))
 
 static inline int hb_memcmp(const void * a, const void * b, uint len)
 {

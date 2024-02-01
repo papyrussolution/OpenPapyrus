@@ -480,6 +480,12 @@
     <ClInclude Include="..\OSF\abseil-20230909\absl\strings\internal\pow10_helper.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\prefetch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil-20230909\absl\base\config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\OSF\abseil-20230909\absl\types\bad_any_cast.cc" />

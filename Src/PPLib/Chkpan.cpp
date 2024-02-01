@@ -7211,7 +7211,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						if(InitCashMachine() && P_CM) {
 							SString msg_buf;
 							//PPChZnPrcssr::ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf)
-							int r = P_CM->SyncPreprocessChZnCode(0, /*mark*/reconstructed_original, 1.0, 0, chzn_result);
+							int r = P_CM->SyncPreprocessChZnCode(0, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
 							msg_buf.CatEq("SyncPreprocessChZnCode-result", r).CR();
 							msg_buf.CatEq("check-result", chzn_result.CheckResult).CR();
 							msg_buf.CatEq("reason", chzn_result.Reason).CR();
@@ -9173,7 +9173,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 							}
 						}
 						if(!is_mark_processed) {
-							if(gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) {
+							const bool is_simplified_draftbeer = PPSyncCashSession::IsSimplifiedDraftBeerPosition(CashNodeID, goodsID); // @v11.9.4
+							if((gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) && !is_simplified_draftbeer) {
 								const int disable_chzn_mark_backtest = 0; // @v10.8.1 Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени // @v11.7.4 1-->0
 								if(!(CnSpeciality == PPCashNode::spApteka && (rBlk.Qtty > 0.0 && rBlk.Qtty < 1.0))) // @v11.6.9
 									rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека (исключение: аптека и остаток менее 1)

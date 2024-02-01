@@ -1,5 +1,5 @@
 // STEXT.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 // Преобразование символов и строк, и другие текстовые функции
 //
@@ -1434,14 +1434,7 @@ int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
 //
 //
 //
-bool   FASTCALL ishex(char c) { return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')); }
-bool   FASTCALL ishexw(wchar_t c) { return ((c >= L'0' && c <= L'9') || (c >= L'A' && c <= L'F') || (c >= L'a' && c <= L'f')); }
-bool   FASTCALL isdec(char c) { return (c >= '0' && c <= '9'); }
-bool   FASTCALL isdec(int c) { return (c >= '0' && c <= '9'); } // @v11.9.3
-bool   FASTCALL isdec(uint c) { return (c >= '0' && c <= '9'); } // @v11.9.3
-bool   FASTCALL isdec(wchar_t c) { return (c >= L'0' && c <= L'9'); } // @v11.9.3
-bool   FASTCALL isdec(char16_t c) { return (c >= L'0' && c <= L'9'); } // @v11.9.3
-uint   FASTCALL hex(char c) { return (c >= '0' && c <= '9') ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0)); }
+uint   FASTCALL hex(char c) { return isdec(c) ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0)); }
 uint   FASTCALL hexw(wchar_t c) { return (c >= L'0' && c <= L'9') ? (c-L'0') : ((c >= L'A' && c <= L'F') ? (c-L'A'+10) : ((c >= L'a' && c <= L'f') ? (c-L'a'+10) : 0)); }
 
 uint8 FASTCALL hextobyte(const char * pBuf)

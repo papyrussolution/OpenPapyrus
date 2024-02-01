@@ -171,14 +171,11 @@ void OSSL_CMP_print_errors_cb(OSSL_CMP_log_cb_t log_fn)
 			BIO_snprintf(msg, sizeof(msg), "%s:%s", rs, data);
 		else
 			BIO_snprintf(msg, sizeof(msg), "%s", rs);
-
 		if(log_fn == NULL) {
 #ifndef OPENSSL_NO_STDIO
 			BIO * bio = BIO_new_fp(stderr, BIO_NOCLOSE);
-
 			if(bio != NULL) {
-				OSSL_CMP_print_to_bio(bio, component, file, line,
-				    OSSL_CMP_LOG_ERR, msg);
+				OSSL_CMP_print_to_bio(bio, component, file, line, OSSL_CMP_LOG_ERR, msg);
 				BIO_free(bio);
 			}
 #else
@@ -192,11 +189,9 @@ void OSSL_CMP_print_errors_cb(OSSL_CMP_log_cb_t log_fn)
 	}
 }
 
-int ossl_cmp_X509_STORE_add1_certs(X509_STORE * store, STACK_OF(X509) * certs,
-    int only_self_signed)
+int ossl_cmp_X509_STORE_add1_certs(X509_STORE * store, STACK_OF(X509) * certs, int only_self_signed)
 {
 	int i;
-
 	if(!store) {
 		ERR_raise(ERR_LIB_CMP, CMP_R_NULL_ARGUMENT);
 		return 0;

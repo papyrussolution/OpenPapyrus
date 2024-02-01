@@ -40,27 +40,21 @@ UnicodeString UCharToUnicodeString(char16_t c)
 }
 
 // [rtg] Just to get things working
-UnicodeString operator+(const UnicodeString & left,
-    long num)
+UnicodeString operator+(const UnicodeString & left, long num)
 {
 	char buffer[64]; // nos changed from 10 to 64
 	char danger = 'p'; // guard against overrunning the buffer (rtg)
-
 	sprintf(buffer, "%ld", num);
 	assert(danger == 'p');
-
 	return left + buffer;
 }
 
-UnicodeString operator+(const UnicodeString & left,
-    unsigned long num)
+UnicodeString operator+(const UnicodeString & left, unsigned long num)
 {
 	char buffer[64]; // nos changed from 10 to 64
 	char danger = 'p'; // guard against overrunning the buffer (rtg)
-
 	sprintf(buffer, "%lu", num);
 	assert(danger == 'p');
-
 	return left + buffer;
 }
 
@@ -68,14 +62,12 @@ UnicodeString Int64ToUnicodeString(int64_t num)
 {
 	char buffer[64]; // nos changed from 10 to 64
 	char danger = 'p'; // guard against overrunning the buffer (rtg)
-
 #if defined(_MSC_VER)
 	sprintf(buffer, "%I64d", num);
 #else
 	sprintf(buffer, "%lld", (long long)num);
 #endif
 	assert(danger == 'p');
-
 	return buffer;
 }
 
@@ -83,36 +75,26 @@ UnicodeString DoubleToUnicodeString(double num)
 {
 	char buffer[64]; // nos changed from 10 to 64
 	char danger = 'p'; // guard against overrunning the buffer (rtg)
-
 	sprintf(buffer, "%1.14e", num);
 	assert(danger == 'p');
-
 	return buffer;
 }
 
 // [LIU] Just to get things working
-UnicodeString operator+(const UnicodeString & left,
-    double num)
+UnicodeString operator+(const UnicodeString & left, double num)
 {
 	char buffer[64]; // was 32, made it arbitrarily bigger (rtg)
 	char danger = 'p'; // guard against overrunning the buffer (rtg)
-
 	// IEEE floating point has 52 bits of mantissa, plus one assumed bit
 	//  53*log(2)/log(10) = 15.95
 	// so there is no need to show more than 16 digits. [alan]
-
 	sprintf(buffer, "%.17g", num);
 	assert(danger == 'p');
-
 	return left + buffer;
 }
 
 #if 0
-UnicodeString operator+(const UnicodeString & left,
-    int64_t num) {
-	return left + Int64ToUnicodeString(num);
-}
-
+UnicodeString operator+(const UnicodeString & left, int64_t num) { return left + Int64ToUnicodeString(num); }
 #endif
 
 #if !UCONFIG_NO_FORMATTING
@@ -120,7 +102,8 @@ UnicodeString operator+(const UnicodeString & left,
 /**
  * Return a string display for this, without surrounding braces.
  */
-UnicodeString _toString(const Formattable& f) {
+UnicodeString _toString(const Formattable& f) 
+{
 	UnicodeString s;
 	switch(f.getType()) {
 		case Formattable::kDate:
@@ -143,11 +126,9 @@ UnicodeString _toString(const Formattable& f) {
 		case Formattable::kLong:
 		    s = UnicodeString("long:") + f.getLong();
 		    break;
-
 		case Formattable::kInt64:
 		    s = UnicodeString("int64:") + Int64ToUnicodeString(f.getInt64());
 		    break;
-
 		case Formattable::kString:
 		    f.getString(s);
 		    s.insert(0, "String:");
@@ -187,78 +168,41 @@ UnicodeString _toString(const Formattable& f) {
  * Originally coded this as operator+, but that makes the expression
  * + char * ambiguous. - liu
  */
-UnicodeString toString(const Formattable& f) {
+UnicodeString toString(const Formattable& f) 
+{
 	UnicodeString s((char16_t)91 /*[*/);
 	s.append(_toString(f));
 	s.append((char16_t)0x5d /*]*/);
 	return s;
 }
-
 #endif
 
 // useful when operator+ won't cooperate
-UnicodeString toString(int32_t n) {
-	return UnicodeString() + (long)n;
-}
+UnicodeString toString(int32_t n) { return UnicodeString() + (long)n; }
+UnicodeString toString(bool b) { return b ? UnicodeString("TRUE") : UnicodeString("FALSE"); }
 
-UnicodeString toString(bool b) {
-	return b ? UnicodeString("TRUE") : UnicodeString("FALSE");
-}
-
-UnicodeString toString(const UnicodeSet & uniset, UErrorCode & status) {
+UnicodeString toString(const UnicodeSet & uniset, UErrorCode & status) 
+{
 	UnicodeString result;
 	uniset.toPattern(result, status);
 	return result;
 }
 
 // stephen - cleaned up 05/05/99
-UnicodeString operator+(const UnicodeString & left, char num)
-{
-	return left + (long)num;
-}
-
-UnicodeString operator+(const UnicodeString & left, short num)
-{
-	return left + (long)num;
-}
-
-UnicodeString operator+(const UnicodeString & left, int num)
-{
-	return left + (long)num;
-}
-
-UnicodeString operator+(const UnicodeString & left, unsigned char num)
-{
-	return left + (unsigned long)num;
-}
-
-UnicodeString operator+(const UnicodeString & left, unsigned short num)
-{
-	return left + (unsigned long)num;
-}
-
-UnicodeString operator+(const UnicodeString & left, unsigned int num)
-{
-	return left + (unsigned long)num;
-}
-
-UnicodeString operator+(const UnicodeString & left, float num)
-{
-	return left + (double)num;
-}
+UnicodeString operator+(const UnicodeString & left, char num) { return left + (long)num; }
+UnicodeString operator+(const UnicodeString & left, short num) { return left + (long)num; }
+UnicodeString operator+(const UnicodeString & left, int num) { return left + (long)num; }
+UnicodeString operator+(const UnicodeString & left, unsigned char num) { return left + (unsigned long)num; }
+UnicodeString operator+(const UnicodeString & left, unsigned short num) { return left + (unsigned long)num; }
+UnicodeString operator+(const UnicodeString & left, unsigned int num) { return left + (unsigned long)num; }
+UnicodeString operator+(const UnicodeString & left, float num) { return left + (double)num; }
 
 //------------------
 
 // Append a hex string to the target
-UnicodeString &IntlTest::appendHex(uint32_t number,
-    int32_t digits,
-    UnicodeString & target)
+UnicodeString &IntlTest::appendHex(uint32_t number, int32_t digits, UnicodeString & target)
 {
-	static const char16_t digitString[] = {
-		0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39,
-		0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0
-	}; /* "0123456789ABCDEF" */
-
+	static const char16_t digitString[] = { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0 }; /* "0123456789ABCDEF" */
 	if(digits < 0) { // auto-digits
 		digits = 2;
 		uint32_t max = 0xff;
@@ -267,8 +211,7 @@ UnicodeString &IntlTest::appendHex(uint32_t number,
 			max = (max << 8) | 0xff;
 		}
 	}
-	switch(digits)
-	{
+	switch(digits) {
 		case 8:
 		    target += digitString[(number >> 28) & 0xF];
 		    CXX_FALLTHROUGH;
@@ -299,29 +242,24 @@ UnicodeString &IntlTest::appendHex(uint32_t number,
 	return target;
 }
 
-UnicodeString IntlTest::toHex(uint32_t number, int32_t digits) {
+UnicodeString IntlTest::toHex(uint32_t number, int32_t digits) 
+{
 	UnicodeString result;
 	appendHex(number, digits, result);
 	return result;
 }
 
-static inline bool isPrintable(UChar32 c) {
-	return c <= 0x7E && (c >= 0x20 || c == 9 || c == 0xA || c == 0xD);
-}
+static inline bool isPrintable(UChar32 c) { return c <= 0x7E && (c >= 0x20 || c == 9 || c == 0xA || c == 0xD); }
 
 // Replace nonprintable characters with unicode escapes
-UnicodeString &IntlTest::prettify(const UnicodeString & source,
-    UnicodeString & target)
+UnicodeString &IntlTest::prettify(const UnicodeString & source, UnicodeString & target)
 {
 	int32_t i;
-
 	target.remove();
 	target += "\"";
-
 	for(i = 0; i < source.length();) {
 		UChar32 ch = source.char32At(i);
 		i += U16_LENGTH(ch);
-
 		if(!isPrintable(ch)) {
 			if(ch <= 0xFFFF) {
 				target += "\\u";
@@ -336,9 +274,7 @@ UnicodeString &IntlTest::prettify(const UnicodeString & source,
 			target += ch;
 		}
 	}
-
 	target += "\"";
-
 	return target;
 }
 
@@ -349,11 +285,9 @@ UnicodeString IntlTest::prettify(const UnicodeString & source, bool parseBacksla
 	UnicodeString target;
 	target.remove();
 	target += "\"";
-
 	for(i = 0; i < source.length();) {
 		UChar32 ch = source.char32At(i);
 		i += U16_LENGTH(ch);
-
 		if(!isPrintable(ch)) {
 			if(parseBackslash) {
 				// If we are preceded by an odd number of backslashes,
@@ -682,10 +616,10 @@ bool IntlTest::runTest(char * name, char * par, char * baseName)
 		testPath = NULL;
 	}
 
-	if(!name || (name[0] == 0) || (strcmp(name, "*") == 0)) {
+	if(!name || (name[0] == 0) || sstreq(name, "*")) {
 		rval = runTestLoop(NULL, par, baseName);
 	}
-	else if(strcmp(name, "LIST") == 0) {
+	else if(sstreq(name, "LIST")) {
 		this->usage();
 		rval = TRUE;
 	}
@@ -734,7 +668,7 @@ bool IntlTest::runTestLoop(char * testname, char * par, char * baseName)
 	gTest = this;
 	do {
 		this->runIndexedTest(index, FALSE, name, par);
-		if(strcmp(name, "skip") == 0) {
+		if(sstreq(name, "skip")) {
 			run_this_test = FALSE;
 		}
 		else {
@@ -744,7 +678,7 @@ bool IntlTest::runTestLoop(char * testname, char * par, char * baseName)
 				run_this_test = TRUE;
 			}
 			else {
-				run_this_test = (bool)(strcmp(name, testname) == 0);
+				run_this_test = sstreq(name, testname);
 			}
 		}
 		if(run_this_test) {
@@ -1211,27 +1145,27 @@ int main(int argc, char * argv[])
 	for(int i = 1; i < argc; ++i) {
 		if(argv[i][0] == '-') {
 			const char * str = argv[i] + 1;
-			if(strcmp("verbose", str) == 0 || strcmp("v", str) == 0)
+			if(sstreq("verbose", str) || sstreq("v", str))
 				verbose = TRUE;
-			else if(strcmp("noerrormsg", str) == 0 || strcmp("n", str) == 0)
+			else if(sstreq("noerrormsg", str) || sstreq("n", str))
 				no_err_msg = TRUE;
-			else if(strcmp("exhaustive", str) == 0 || strcmp("e", str) == 0)
+			else if(sstreq("exhaustive", str) || sstreq("e", str))
 				quick = FALSE;
-			else if(strcmp("all", str) == 0 || strcmp("a", str) == 0)
+			else if(sstreq("all", str) || sstreq("a", str))
 				all = TRUE;
-			else if(strcmp("utf-8", str) == 0 || strcmp("u", str) == 0)
+			else if(sstreq("utf-8", str) || sstreq("u", str))
 				utf8 = TRUE;
-			else if(strcmp("noknownissues", str) == 0 || strcmp("K", str) == 0)
+			else if(sstreq("noknownissues", str) || sstreq("K", str))
 				noKnownIssues = TRUE;
-			else if(strcmp("leaks", str) == 0 || strcmp("l", str) == 0)
+			else if(sstreq("leaks", str) || sstreq("l", str))
 				leaks = TRUE;
-			else if(strcmp("notime", str) == 0 || strcmp("T", str) == 0)
+			else if(sstreq("notime", str) || sstreq("T", str))
 				no_time = TRUE;
-			else if(strcmp("goldens", str) == 0 || strcmp("G", str) == 0)
+			else if(sstreq("goldens", str) || sstreq("G", str))
 				writeGoldenData = TRUE;
 			else if(strncmp("E", str, 1) == 0)
 				summary_file = str+1;
-			else if(strcmp("x", str)==0) {
+			else if(sstreq("x", str)) {
 				if(++i>=argc) {
 					printf("* Error: '-x' option requires an argument. usage: '-x outfile.xml'.\n");
 					syntax = TRUE;
@@ -1240,7 +1174,7 @@ int main(int argc, char * argv[])
 					return 1; /* error */
 				}
 			}
-			else if(strcmp("w", str) == 0) {
+			else if(sstreq("w", str)) {
 				warnOnMissingData = TRUE;
 				warnOrErr = "WARNING";
 			}
@@ -1268,8 +1202,7 @@ int main(int argc, char * argv[])
 		syntax = TRUE;
 	}
 	if(syntax) {
-		fprintf(stdout,
-		    "### Syntax:\n"
+		fprintf(stdout, "### Syntax:\n"
 		    "### IntlTest [-option1 -option2 ...] [testname1 testname2 ...] \n"
 		    "### \n"
 		    "### Options are: verbose (v), all (a), noerrormsg (n), \n"
@@ -1449,7 +1382,7 @@ int main(int argc, char * argv[])
 					fprintf(stdout, "\n---ERROR: Test doesn't exist: %s!\n", name);
 				}
 			}
-			else if(!strcmp(argv[i], "-x")) {
+			else if(sstreq(argv[i], "-x")) {
 				i++;
 			}
 		}
@@ -1900,15 +1833,12 @@ bool IntlTest::assertEquals(const char * message,
 	return TRUE;
 }
 
-bool IntlTest::assertEquals(const char * message,
-    const char * expected,
-    const char * actual) {
+bool IntlTest::assertEquals(const char * message, const char * expected, const char * actual) 
+{
 	U_ASSERT(expected != nullptr);
 	U_ASSERT(actual != nullptr);
-	if(strcmp(expected, actual) != 0) {
-		errln((UnicodeString)"FAIL: " + message + "; got \"" +
-		    actual +
-		    "\"; expected \"" + expected + "\"");
+	if(!sstreq(expected, actual)) {
+		errln((UnicodeString)"FAIL: " + message + "; got \"" + actual + "\"; expected \"" + expected + "\"");
 		return FALSE;
 	}
 #ifdef VERBOSE_ASSERTIONS
@@ -1919,9 +1849,8 @@ bool IntlTest::assertEquals(const char * message,
 	return TRUE;
 }
 
-bool IntlTest::assertEquals(const char * message,
-    int32_t expected,
-    int32_t actual) {
+bool IntlTest::assertEquals(const char * message, int32_t expected, int32_t actual) 
+{
 	if(expected != actual) {
 		errln((UnicodeString)"FAIL: " + message + "; got " +
 		    actual + "=0x" + toHex(actual) +

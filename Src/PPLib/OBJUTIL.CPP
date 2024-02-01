@@ -1,5 +1,5 @@
 // OBJUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -829,7 +829,7 @@ ListBoxDef * PPObject::Selector(ListBoxDef * pOrgDef, long flags, void * extraPt
 			}
 			else {
 				if(ImplementFlags & implTreeSelector)
-					p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 64));
+					p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 128)); // @v11.9.4 64-->128
 				else
 					p_def = new StrAssocListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
 				if(!p_def)
@@ -1630,7 +1630,21 @@ int PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
 			p_lw->listBox()->TransmitData(+1, &id);
 		if(titleID && PPLoadText(titleID, temp_buf))
 			p_lw->setTitle(temp_buf);
-		p_lw->changeBounds(TRect(0, 0, 216, 144)); // @v10.9.4 TRect(0, 0, 96, 36)-->TRect(0, 0, 160, 64) // @v11.1.9 (0, 0, 160, 64)-->(0, 0, 216, 144)
+		// @v11.9.4 {
+		int width = 0;
+		int height = 0;
+		const UiDescription * p_uid = SLS.GetUiDescription();
+		if(p_uid) {
+			int v = 0;
+			if(p_uid->VList.Get(UiValueList::vStandaloneListWidth, v) > 0 && v > 0)
+				width = v;
+			if(p_uid->VList.Get(UiValueList::vStandaloneListHeight, v) > 0 && v > 0)
+				height = v;
+		}
+		SETIFZQ(width, 216);
+		SETIFZQ(height, 144);
+		// } @v11.9.4 
+		p_lw->changeBounds(TRect(0, 0, width, height)); // @v10.9.4 TRect(0, 0, 96, 36)-->TRect(0, 0, 160, 64) // @v11.1.9 (0, 0, 160, 64)-->(0, 0, 216, 144)
 		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(ExecView(p_lw) == cmOK) {
 			p_lw->getResult(&id);

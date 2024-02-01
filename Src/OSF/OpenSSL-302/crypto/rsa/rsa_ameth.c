@@ -686,9 +686,7 @@ static int rsa_sig_info_set(X509_SIG_INFO * siginf, const X509_ALGOR * sigalg,
 	 * For TLS need SHA256, SHA384 or SHA512, digest and MGF1 digest must
 	 * match and salt length must equal digest size
 	 */
-	if((mdnid == NID_sha256 || mdnid == NID_sha384 || mdnid == NID_sha512)
-	    && mdnid == EVP_MD_get_type(mgf1md)
-	    && saltlen == EVP_MD_get_size(md))
+	if(oneof3(mdnid, NID_sha256, NID_sha384, NID_sha512) && mdnid == EVP_MD_get_type(mgf1md) && saltlen == EVP_MD_get_size(md))
 		flags = X509_SIG_INFO_TLS;
 	else
 		flags = 0;

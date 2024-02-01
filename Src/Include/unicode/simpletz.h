@@ -136,23 +136,17 @@ public:
 	 *
 	 * @param rawOffsetGMT      The new SimpleTimeZone's raw GMT offset
 	 * @param ID                The new SimpleTimeZone's time zone ID.
-	 * @param savingsStartMonth The daylight savings starting month. Month is
-	 *                          0-based. eg, 0 for January.
+	 * @param savingsStartMonth The daylight savings starting month. Month is 0-based. eg, 0 for January.
 	 * @param savingsStartDayOfWeekInMonth   The daylight savings starting
-	 *                          day-of-week-in-month. See setStartRule() for a
-	 *                          complete explanation.
+	 *                          day-of-week-in-month. See setStartRule() for a complete explanation.
 	 * @param savingsStartDayOfWeek The daylight savings starting day-of-week.
 	 *                          See setStartRule() for a complete explanation.
-	 * @param savingsStartTime  The daylight savings starting time, expressed as the
-	 *                          number of milliseconds after midnight.
-	 * @param savingsEndMonth   The daylight savings ending month. Month is
-	 *                          0-based. eg, 0 for January.
+	 * @param savingsStartTime  The daylight savings starting time, expressed as the number of milliseconds after midnight.
+	 * @param savingsEndMonth   The daylight savings ending month. Month is 0-based. eg, 0 for January.
 	 * @param savingsEndDayOfWeekInMonth     The daylight savings ending day-of-week-in-month.
 	 *                          See setStartRule() for a complete explanation.
-	 * @param savingsEndDayOfWeek The daylight savings ending day-of-week.
-	 *                          See setStartRule() for a complete explanation.
-	 * @param savingsEndTime    The daylight savings ending time, expressed as the
-	 *                          number of milliseconds after midnight.
+	 * @param savingsEndDayOfWeek The daylight savings ending day-of-week. See setStartRule() for a complete explanation.
+	 * @param savingsEndTime    The daylight savings ending time, expressed as the number of milliseconds after midnight.
 	 * @param status            An UErrorCode to receive the status.
 	 * @stable ICU 2.0
 	 */
@@ -177,23 +171,16 @@ public:
 	 *
 	 * @param rawOffsetGMT      The new SimpleTimeZone's raw GMT offset
 	 * @param ID                The new SimpleTimeZone's time zone ID.
-	 * @param savingsStartMonth The daylight savings starting month. Month is
-	 *                          0-based. eg, 0 for January.
+	 * @param savingsStartMonth The daylight savings starting month. Month is 0-based. eg, 0 for January.
 	 * @param savingsStartDayOfWeekInMonth   The daylight savings starting
-	 *                          day-of-week-in-month. See setStartRule() for a
-	 *                          complete explanation.
+	 *                          day-of-week-in-month. See setStartRule() for a complete explanation.
 	 * @param savingsStartDayOfWeek The daylight savings starting day-of-week.
 	 *                          See setStartRule() for a complete explanation.
-	 * @param savingsStartTime  The daylight savings starting time, expressed as the
-	 *                          number of milliseconds after midnight.
-	 * @param savingsEndMonth   The daylight savings ending month. Month is
-	 *                          0-based. eg, 0 for January.
-	 * @param savingsEndDayOfWeekInMonth     The daylight savings ending day-of-week-in-month.
-	 *                          See setStartRule() for a complete explanation.
-	 * @param savingsEndDayOfWeek The daylight savings ending day-of-week.
-	 *                          See setStartRule() for a complete explanation.
-	 * @param savingsEndTime    The daylight savings ending time, expressed as the
-	 *                          number of milliseconds after midnight.
+	 * @param savingsStartTime  The daylight savings starting time, expressed as the number of milliseconds after midnight.
+	 * @param savingsEndMonth   The daylight savings ending month. Month is 0-based. eg, 0 for January.
+	 * @param savingsEndDayOfWeekInMonth     The daylight savings ending day-of-week-in-month. See setStartRule() for a complete explanation.
+	 * @param savingsEndDayOfWeek The daylight savings ending day-of-week. See setStartRule() for a complete explanation.
+	 * @param savingsEndTime    The daylight savings ending time, expressed as the number of milliseconds after midnight.
 	 * @param savingsDST        The number of milliseconds added to standard time
 	 *                          to get DST time. Default is one hour.
 	 * @param status            An UErrorCode to receive the status.
@@ -221,25 +208,19 @@ public:
 	 *
 	 * @param rawOffsetGMT      The new SimpleTimeZone's raw GMT offset
 	 * @param ID                The new SimpleTimeZone's time zone ID.
-	 * @param savingsStartMonth The daylight savings starting month. Month is
-	 *                          0-based. eg, 0 for January.
+	 * @param savingsStartMonth The daylight savings starting month. Month is 0-based. eg, 0 for January.
 	 * @param savingsStartDayOfWeekInMonth   The daylight savings starting
-	 *                          day-of-week-in-month. See setStartRule() for a
-	 *                          complete explanation.
-	 * @param savingsStartDayOfWeek The daylight savings starting day-of-week.
-	 *                          See setStartRule() for a complete explanation.
-	 * @param savingsStartTime  The daylight savings starting time, expressed as the
-	 *                          number of milliseconds after midnight.
+	 *                          day-of-week-in-month. See setStartRule() for a complete explanation.
+	 * @param savingsStartDayOfWeek The daylight savings starting day-of-week. See setStartRule() for a complete explanation.
+	 * @param savingsStartTime  The daylight savings starting time, expressed as the number of milliseconds after midnight.
 	 * @param savingsStartTimeMode Whether the start time is local wall time, local
 	 *                          standard time, or UTC time. Default is local wall time.
 	 * @param savingsEndMonth   The daylight savings ending month. Month is
 	 *                          0-based. eg, 0 for January.
 	 * @param savingsEndDayOfWeekInMonth     The daylight savings ending day-of-week-in-month.
 	 *                          See setStartRule() for a complete explanation.
-	 * @param savingsEndDayOfWeek The daylight savings ending day-of-week.
-	 *                          See setStartRule() for a complete explanation.
-	 * @param savingsEndTime    The daylight savings ending time, expressed as the
-	 *                          number of milliseconds after midnight.
+	 * @param savingsEndDayOfWeek The daylight savings ending day-of-week. See setStartRule() for a complete explanation.
+	 * @param savingsEndTime    The daylight savings ending time, expressed as the number of milliseconds after midnight.
 	 * @param savingsEndTimeMode Whether the end time is local wall time, local
 	 *                          standard time, or UTC time. Default is local wall time.
 	 * @param savingsDST        The number of milliseconds added to standard time

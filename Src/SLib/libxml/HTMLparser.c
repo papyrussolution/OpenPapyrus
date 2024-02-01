@@ -2472,7 +2472,7 @@ static void htmlParseScript(htmlParserCtxt * ctxt)
 				}
 			}
 			else {
-				if(((NXT(2) >= 'A') && (NXT(2) <= 'Z')) || ((NXT(2) >= 'a') && (NXT(2) <= 'z'))) {
+				if(isasciialpha(NXT(2))) {
 					break; /* while */
 				}
 			}

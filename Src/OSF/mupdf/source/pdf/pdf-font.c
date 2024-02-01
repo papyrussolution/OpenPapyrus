@@ -567,13 +567,11 @@ static FT_CharMap select_truetype_cmap(FT_Face face, int symbolic)
 		if(face->charmaps[i]->platform_id == 3 && face->charmaps[i]->encoding_id == 1)
 			if(FT_Get_CMap_Format(face->charmaps[i]) != -1)
 				return face->charmaps[i];
-
 	/* Finally look for an Apple MacRoman cmap */
 	for(i = 0; i < face->num_charmaps; i++)
 		if(face->charmaps[i]->platform_id == 1 && face->charmaps[i]->encoding_id == 0)
 			if(FT_Get_CMap_Format(face->charmaps[i]) != -1)
 				return face->charmaps[i];
-
 	if(face->num_charmaps > 0)
 		if(FT_Get_CMap_Format(face->charmaps[0]) != -1)
 			return face->charmaps[0];
@@ -582,9 +580,7 @@ static FT_CharMap select_truetype_cmap(FT_Face face, int symbolic)
 
 static FT_CharMap select_unknown_cmap(FT_Face face)
 {
-	if(face->num_charmaps > 0)
-		return face->charmaps[0];
-	return NULL;
+	return (face->num_charmaps > 0) ? face->charmaps[0] : NULL;
 }
 
 static pdf_font_desc * pdf_load_simple_font(fz_context * ctx, pdf_document * doc, pdf_obj * dict)
@@ -601,30 +597,24 @@ static pdf_font_desc * pdf_load_simple_font(fz_context * ctx, pdf_document * doc
 	int symbolic;
 	int kind;
 	int glyph;
-
 	const char * estrings[256];
 	char ebuffer[256][32];
 	int i, k, n;
 	int fterr;
 	int has_lock = 0;
-
 	fz_var(fontdesc);
 	fz_var(etable);
 	fz_var(has_lock);
-
 	/* Load font file */
 	fz_try(ctx)
 	{
 		fontdesc = pdf_new_font_desc(ctx);
-
 		basefont = pdf_to_name(ctx, pdf_dict_get(ctx, dict, PDF_NAME(BaseFont)));
-
 		descriptor = pdf_dict_get(ctx, dict, PDF_NAME(FontDescriptor));
 		if(descriptor)
 			pdf_load_font_descriptor(ctx, doc, fontdesc, descriptor, NULL, basefont, 0);
 		else
 			pdf_load_builtin_font(ctx, fontdesc, basefont, 0);
-
 		/* Some chinese documents mistakenly consider WinAnsiEncoding to be codepage 936 */
 		if(descriptor && pdf_is_string(ctx, pdf_dict_get(ctx, descriptor, PDF_NAME(FontName))) &&
 		    !pdf_dict_get(ctx, dict, PDF_NAME(ToUnicode)) &&

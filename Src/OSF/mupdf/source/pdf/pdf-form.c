@@ -1477,35 +1477,27 @@ static pdf_obj * get_locked_fields_from_xfa(fz_context * ctx, pdf_document * doc
 				ref = fz_xml_find_next(ref, "ref");
 			}
 		}
-		fz_catch(ctx)
-		{
+		fz_catch(ctx) {
 			pdf_drop_obj(ctx, arr);
 			fz_rethrow(ctx);
 		}
 		return arr;
 	}
-
 	return NULL;
 }
 
 static void lock_field(fz_context * ctx, pdf_obj * f)
 {
 	int ff = pdf_to_int(ctx, pdf_dict_get_inheritable(ctx, f, PDF_NAME(Ff)));
-
-	if((ff & PDF_FIELD_IS_READ_ONLY) ||
-	    !pdf_name_eq(ctx, pdf_dict_get(ctx, f, PDF_NAME(Type)), PDF_NAME(Annot)) ||
-	    !pdf_name_eq(ctx, pdf_dict_get(ctx, f, PDF_NAME(Subtype)), PDF_NAME(Widget)))
+	if((ff & PDF_FIELD_IS_READ_ONLY) || !pdf_name_eq(ctx, pdf_dict_get(ctx, f, PDF_NAME(Type)), PDF_NAME(Annot)) || !pdf_name_eq(ctx, pdf_dict_get(ctx, f, PDF_NAME(Subtype)), PDF_NAME(Widget)))
 		return;
-
 	pdf_dict_put(ctx, f, PDF_NAME(Ff), pdf_new_int(ctx, ff | PDF_FIELD_IS_READ_ONLY));
 }
 
 static void lock_xfa_locked_fields(fz_context * ctx, pdf_obj * a)
 {
-	int i;
-	int len = pdf_array_len(ctx, a);
-
-	for(i = 0; i < len; i++) {
+	const int len = pdf_array_len(ctx, a);
+	for(int i = 0; i < len; i++) {
 		lock_field(ctx, pdf_array_get(ctx, a, i));
 	}
 }

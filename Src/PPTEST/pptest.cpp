@@ -1298,17 +1298,47 @@ int TestFann()
 //
 #include <..\SLib\gumbo\gumbo.h>
 
-static void PrintGumboNode(GumboNode * pN, uint tabN, SFile & rF, SString & rTempBuf)
+static bool IsTextContainsSpacesOnly(const SString & rText)
+{
+	bool result = true;
+	const size_t len = rText.Len();
+	if(len) {
+		for(uint i = 0; result && i < len; i++) {
+			if(!oneof4(rText.C(i), ' ', '\t', '\xD', '\xA'))
+				result = false;
+		}
+	}
+	return result;
+}
+
+static void PreprocessText(SString & rText)
+{
+	rText.Strip();
+	while(oneof2(rText.C(0), '\xD', '\xA'))
+		rText.ShiftLeft();
+	rText.Chomp();
+	rText.ReplaceStr("  ", " ", 0);
+	rText.Strip();
+}
+
+enum {
+	pgnfTextOnly      = 0x0001,
+	pgnfSkipEmptyText = 0x0002
+};
+
+static void PrintGumboNode(GumboNode * pN, uint tabN, uint flags, SFile & rF, SString & rTempBuf)
 {
 	if(pN) {
 		SString tag_buf;
 		if(pN->type == GUMBO_NODE_DOCUMENT) {
 			const GumboDocument & r_doc = pN->v.document;
-			rTempBuf.Z().Tab(tabN).CatEq("doc", r_doc.name);
-			rF.WriteLine(rTempBuf.CR());
+			if(!(flags & pgnfTextOnly)) {
+				rTempBuf.Z().Tab(tabN).CatEq("doc", r_doc.name);
+				rF.WriteLine(rTempBuf.CR());
+			}
 			for(uint i = 0; i < r_doc.children.length; i++) {
 				GumboNode * p_node = static_cast<GumboNode *>(r_doc.children.data[i]);
-				PrintGumboNode(p_node, tabN+1, rF, rTempBuf); // @recursion
+				PrintGumboNode(p_node, tabN+1, flags, rF, rTempBuf); // @recursion
 			}
 		}
 		else if(pN->type == GUMBO_NODE_ELEMENT) {
@@ -1324,35 +1354,80 @@ static void PrintGumboNode(GumboNode * pN, uint tabN, SFile & rF, SString & rTem
 					tag_buf.CatN(r_el.original_tag.data, r_el.original_tag.length);
 			    }
 		    }
-			rTempBuf.Z().Tab(tabN).CatEq("element", tag_buf);
-			rF.WriteLine(rTempBuf.CR());
+			if(!(flags & pgnfTextOnly)) {
+				rTempBuf.Z().Tab(tabN).CatEq("element", tag_buf);
+				rF.WriteLine(rTempBuf.CR());
+			}
 			//
 			if(r_el.attributes.length) {
-				rTempBuf.Z().Tab(tabN).Cat("attributes").Colon();
-				rF.WriteLine(rTempBuf.CR());
-				for(uint i = 0; i < r_el.attributes.length; i++) {
-					GumboAttribute * p_attr = static_cast<GumboAttribute *>(r_el.attributes.data[i]);
-					if(p_attr) {
-						rTempBuf.Z().Tab(tabN+1).CatEq(p_attr->name, p_attr->value);
-						rF.WriteLine(rTempBuf.CR());
+				if(!(flags & pgnfTextOnly)) {
+					rTempBuf.Z().Tab(tabN).Cat("attributes").Colon();
+					rF.WriteLine(rTempBuf.CR());
+					for(uint i = 0; i < r_el.attributes.length; i++) {
+						GumboAttribute * p_attr = static_cast<GumboAttribute *>(r_el.attributes.data[i]);
+						if(p_attr) {
+							rTempBuf.Z().Tab(tabN+1).CatEq(p_attr->name, p_attr->value);
+							rF.WriteLine(rTempBuf.CR());
+						}
 					}
 				}
 			}
 			if(r_el.children.length) {
-				rTempBuf.Z().Tab(tabN).Cat("children").Colon();
-				rF.WriteLine(rTempBuf.CR());
+				if(!(flags & pgnfTextOnly)) {
+					rTempBuf.Z().Tab(tabN).Cat("children").Colon();
+					rF.WriteLine(rTempBuf.CR());
+				}
 				for(uint i = 0; i < r_el.children.length; i++) {
 					GumboNode * p_node = static_cast<GumboNode *>(r_el.children.data[i]);
-					PrintGumboNode(p_node, tabN+1, rF, rTempBuf); // @recursion
+					PrintGumboNode(p_node, tabN+1, flags, rF, rTempBuf); // @recursion
 				}
 			}
 		}
 		else {
 			GumboText & r_t = pN->v.text;
-			rTempBuf.Z().Tab(tabN+1).Cat("text").CatDiv(':', 2).Cat(r_t.text);
+			tag_buf = r_t.text;
+			if(IsTextContainsSpacesOnly(tag_buf) && !(flags & pgnfSkipEmptyText)) {
+				rTempBuf.Z().Tab(tabN+1).Cat("text").CatDiv(':', 2).Cat("(spaces)");
+			}
+			else {
+				PreprocessText(tag_buf);
+				rTempBuf.Z().Tab(tabN+1).Cat("text").CatDiv(':', 2).Cat(tag_buf);
+			}
 			rF.WriteLine(rTempBuf.CR());
 		}
 	}
+}
+
+static int LoadHttpPage(const char * pUrl, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 1;
+	SString temp_buf;
+	InetUrl url;
+	THROW(!isempty(pUrl));
+	THROW(url.Parse(pUrl));
+	{
+		ScURL c;
+		SBuffer in_buffer;
+		SFile wr_stream(in_buffer, SFile::mWrite);
+		StrStrAssocArray hdr_flds;
+		SFileFormat::GetMime(SFileFormat::Html, temp_buf);
+		temp_buf.CatDiv(';', 2).CatEq("charset", "utf-8");
+		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrCacheControl, "no-cache");
+		//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAcceptLang, "ru");
+		//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, "application/json");
+		THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, /*&hdr_flds*/0, &wr_stream));
+		{
+			SBuffer * p_in_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_in_buf) {
+				rBuf.Z().CatN(p_in_buf->GetBufC(), p_in_buf->GetAvailableSize());
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 static void GumboTest()
@@ -1361,6 +1436,28 @@ static void GumboTest()
 	const GumboOptions go = kGumboDefaultOptions;
 	//SString input_buf;
 	SString temp_buf;
+
+	const char * p_addr_list[] = {
+		"https://holdingbeauty.ru/catalog/",
+		"https://holdingbeauty.ru/catalog/ukhod-za-volosami/"
+	};
+	for(uint i = 0; i < SIZEOFARRAY(p_addr_list); i++) {
+		const char * p_url = p_addr_list[i];
+		if(LoadHttpPage(p_url, temp_buf)) {
+			p_output = gumbo_parse_with_options(&go, temp_buf, temp_buf.Len());
+			{
+				PPGetPath(PPPATH_TESTROOT, temp_buf);
+				temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html").CatChar('-').Cat(i+1).Dot().Cat("out");
+				SFile f_out(temp_buf, SFile::mWrite);
+				uint pgn_flags = pgnfTextOnly|pgnfSkipEmptyText;
+				PrintGumboNode(p_output->document, 0, pgn_flags, f_out, temp_buf);
+			}
+			//
+			gumbo_destroy_output(p_output);
+			p_output = 0;
+		}
+	}
+	//
 	PPGetPath(PPPATH_TESTROOT, temp_buf);
 	if(temp_buf.NotEmpty()) {
 		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("html5_spec.html");
@@ -1378,7 +1475,8 @@ static void GumboTest()
 						PPGetPath(PPPATH_TESTROOT, temp_buf);
 						temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html5_spec.out");
 						SFile f_out(temp_buf, SFile::mWrite);
-						PrintGumboNode(p_output->document, 0, f_out, temp_buf);
+						uint pgn_flags = 0;
+						PrintGumboNode(p_output->document, 0, pgn_flags, f_out, temp_buf);
 					}
 				}
 			}
@@ -1523,8 +1621,9 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	TestGtinStruc();
-	Test_SSystemBackup();
+	GumboTest();
+	//TestGtinStruc();
+	//Test_SSystemBackup();
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");
 	//Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
@@ -1587,7 +1686,6 @@ int DoConstructionTest()
 	#endif // } 0 @construction
 	//PPChZnPrcssr::Test();
 	//TestUdsInterface();
-	//GumboTest();
 	//TestTsDensityMap();
 	//TestAddressRecognition();
 	//TestGravity();

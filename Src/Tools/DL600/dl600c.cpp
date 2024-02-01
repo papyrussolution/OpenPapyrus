@@ -1,5 +1,5 @@
 // DL600C.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Compile-time DL600 modules
 //
@@ -4511,7 +4511,7 @@ int DlContext::Test()
 	return 1;
 }
 
-int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath, const LongArray * pSqlServerTypeList/*SqlServerType sqlst*/)
+int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath, bool skipBtrDictCreation, const LongArray * pSqlServerTypeList/*SqlServerType sqlst*/)
 {
 	int    ok = 1;
 	char   acs[512];
@@ -4540,7 +4540,7 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 		SFsPath::ReplaceExt(sql_file_name, "sql", 1);
 		p_sqlgen = new Generator_SQL(sqlst, Generator_SQL::fIndent);
 	}*/
-	{
+	if(!skipBtrDictCreation) {
 		DbLoginBlock dlb;
 		DbProvider * p_db = BDictionary::CreateBtrDictInstance(pDictPath);
 		dlb.SetAttr(DbLoginBlock::attrDictPath, pDictPath);
@@ -4559,17 +4559,19 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 	for(uint i = 0; i < scope_id_list.getCount(); i++) {
 		DBTable tbl;
 		THROW(LoadDbTableSpec(scope_id_list.at(i), &tbl, 0));
-		if(CurDict) {
-			if(!CurDict->CreateTableSpec(&tbl)) {
-				(msg_buf = tbl.GetTableName()).CatDiv(':', 1).CatEq("BtrError", static_cast<long>(BtrError));
-				SetError(PPERR_DL6_DDFENTRYCRFAULT, msg_buf);
-				CALLEXCEPT();
-			}
-			if(!(tbl.GetFlags() & XTF_TEMP) && !(tbl.GetFlags() & XTF_DICT)) {
-				if(!CurDict->CreateDataFile(&tbl, 0, crmTTSReplace, GetRusNCaseACS(acs))) {
-					(msg_buf = tbl.GetName()).CatDiv(':', 1).CatEq("BtrError", static_cast<long>(BtrError));
-					SetError(PPERR_DL6_BTRFILECRFAULT, msg_buf);
+		if(!skipBtrDictCreation) {
+			if(CurDict) {
+				if(!CurDict->CreateTableSpec(&tbl)) {
+					(msg_buf = tbl.GetTableName()).CatDiv(':', 1).CatEq("BtrError", static_cast<long>(BtrError));
+					SetError(PPERR_DL6_DDFENTRYCRFAULT, msg_buf);
 					CALLEXCEPT();
+				}
+				if(!(tbl.GetFlags() & XTF_TEMP) && !(tbl.GetFlags() & XTF_DICT)) {
+					if(!CurDict->CreateDataFile(&tbl, 0, crmTTSReplace, GetRusNCaseACS(acs))) {
+						(msg_buf = tbl.GetName()).CatDiv(':', 1).CatEq("BtrError", static_cast<long>(BtrError));
+						SetError(PPERR_DL6_BTRFILECRFAULT, msg_buf);
+						CALLEXCEPT();
+					}
 				}
 			}
 		}
@@ -4978,7 +4980,7 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 			Sc.GetChildList(DlScope::kDbTable, 1, &scope_id_list);
 			if(scope_id_list.getCount()) {
 				if(!isempty(pDictPath)) {
-					if(!CreateDbDictionary(pDictPath, pDataPath, &sqlst_list))
+					if(!CreateDbDictionary(pDictPath, pDataPath, LOGIC(cflags & cfSkipBtrDict), &sqlst_list))
 						Error(LastError, 0, 0);
 				}
 				else

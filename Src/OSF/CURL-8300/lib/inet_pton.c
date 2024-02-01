@@ -100,7 +100,6 @@ static int inet_pton4(const char * src, uchar * dst)
 	static const char digits[] = "0123456789";
 	int saw_digit, octets, ch;
 	uchar tmp[INADDRSZ], * tp;
-
 	saw_digit = 0;
 	octets = 0;
 	tp = tmp;

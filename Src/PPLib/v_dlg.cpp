@@ -1,5 +1,6 @@
 // V_DLG.CPP
-// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019, 2020, 2021, 2024
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -38,7 +39,7 @@ int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = 1;
 	SString file_name, text_buf;
 	StrAssocArray temp_list;
-	char   c_buf[1024]; // Буфер для извлечения констант
+	char   c_buf[1024]; // Р‘СѓС„РµСЂ РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ РєРѕРЅСЃС‚Р°РЅС‚
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	file_name = Filt.DlFileName;
 	if(!file_name.NotEmptyS()) {
@@ -126,7 +127,7 @@ protected:
 	//
 	uint32 UiKind;
 	DlContext * P_DlCtx; // @notowned @transient
-	DlScope * P_Scope;   // @notowned @transient Диалог, владеющий данным элементом.
+	DlScope * P_Scope;   // @notowned @transient Р”РёР°Р»РѕРі, РІР»Р°РґРµСЋС‰РёР№ РґР°РЅРЅС‹Рј СЌР»РµРјРµРЅС‚РѕРј.
 	SdbField   F;        //
 	UiRelRect Rect;
 	SString UiText;
@@ -135,7 +136,7 @@ protected:
 		brWindowFrame = PPWhatmanWindow::anchorLastTool+1,
 	};
 	int    TidFont;
-	int    TidWindowFrame; // #E8EFFF Цвет шапки окна
+	int    TidWindowFrame; // #E8EFFF Р¦РІРµС‚ С€Р°РїРєРё РѕРєРЅР°
 };
 
 IMPLEMENT_WTMOBJ_FACTORY(UiCtrl, "@wtmo_uictrl");
@@ -214,7 +215,7 @@ int WhatmanObjectUiCtrl::Set(DlContext * pCtx, DlScope * pScope)
 int WhatmanObjectUiCtrl::Set(DlContext * pCtx, DlScope * pScope, DlScope * pInnerScope, uint fldId)
 {
 	int    ok = 1;
-	char   c_buf[1024]; // Буфер для извлечения констант
+	char   c_buf[1024]; // Р‘СѓС„РµСЂ РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ РєРѕРЅСЃС‚Р°РЅС‚
 	Init();
 	P_DlCtx = pCtx;
 	P_Scope = pScope;
@@ -286,7 +287,7 @@ int WhatmanObjectUiCtrl::CreateTextLayout(SPaintToolBox & rTb, STextLayout & rTl
 	rTlo.Reset();
 	if(UiText.NotEmpty()) {
 		SString temp_buf;
-		char   c_buf[1024]; // Буфер для извлечения констант из DlScope
+		char   c_buf[1024]; // Р‘СѓС„РµСЂ РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ РєРѕРЅСЃС‚Р°РЅС‚ РёР· DlScope
 		if(!TidFont) {
 			SString font_face;
 			if(P_DlCtx && P_Scope) {
@@ -607,7 +608,7 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 			if(P_DlCtx && P_Scope) {
 				PPWhatmanWindow * p_win = static_cast<PPWhatmanWindow *>(GetOwnerWindow());
 				if(p_win) {
-					char   c_buf[1024]; // Буфер для извлечения констант
+					char   c_buf[1024]; // Р‘СѓС„РµСЂ РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ РєРѕРЅСЃС‚Р°РЅС‚
 					if(oneof2(UiKind, DlScope::ckCheckCluster, DlScope::ckRadioCluster)) {
 						if(P_DlCtx->GetConstData(P_Scope->GetFldConst(F.ID, DlScope::cuifCtrlScope), c_buf, sizeof(c_buf))) {
 							DLSYMBID inner_scope_id = *reinterpret_cast<const uint32 *>(c_buf);
@@ -739,7 +740,7 @@ int EditDialogSpec(DlContext * pCtx, uint dlgId)
 		p_frame_win->AddChild(p_edit_win, TWindowBase::coChild, FrameWindow::zoneCenter);
 		{
 			TWhatman::Param p = p_edit_win->W.GetParam();
-			p.Unit = UNIT_GR_PIXEL;
+			p.Unit = SUOM_GR_PIXEL;
 			p.UnitFactor = 10;
 			p.Flags |= (TWhatman::Param::fRule | TWhatman::Param::fGrid);
 			p.Flags &= ~(TWhatman::Param::fDisableReszObj | TWhatman::Param::fDisableMoveObj | TWhatman::Param::fSnapToGrid);
@@ -761,4 +762,3 @@ int EditDialogSpec(DlContext * pCtx, uint dlgId)
 	ENDCATCH
 	return ok;
 }
-

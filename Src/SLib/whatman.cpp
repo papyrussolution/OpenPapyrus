@@ -1,5 +1,5 @@
 // WHATMAN.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -426,11 +426,11 @@ int FASTCALL WhatmanObjectLayoutBase::Copy(const WhatmanObjectLayoutBase & rS)
 	return ok;
 }
 
-TWhatman::Param::Param() : Unit(UNIT_INCH), UnitFactor(1.0), Scale(1.0), Flags(0)
+TWhatman::Param::Param() : Unit(SUOM_INCH), UnitFactor(1.0), Scale(1.0), Flags(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 	THISZERO();
-	//Unit = UNIT_METER;
+	//Unit = SUOM_METER;
 	//UnitFactor = 0.001;
 	
 }
@@ -2055,15 +2055,13 @@ int TWhatman::CalcRule(double ptPerInch, Rule & rRule) const
 {
 	const double about_dots_per_unit = 100.0;
 	const double min_notch_dots = 3.0;
-
 	rRule.Init();
-
 	double dots_per_unit = 1.0;
-	if(P.Unit == UNIT_METER)
+	if(P.Unit == SUOM_METER)
 		dots_per_unit = ptPerInch / 25.4 * 1000.0 * P.UnitFactor;
-	else if(P.Unit == UNIT_INCH)
+	else if(P.Unit == SUOM_INCH)
 		dots_per_unit = ptPerInch * P.UnitFactor;
-	else if(P.Unit == UNIT_GR_PIXEL)
+	else if(P.Unit == SUOM_GR_PIXEL)
 		dots_per_unit = P.UnitFactor;
 	if(dots_per_unit != 1.0) {
 		double min_delta = SMathConst::Max;

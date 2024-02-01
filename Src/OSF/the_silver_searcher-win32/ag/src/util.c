@@ -382,7 +382,7 @@ void init_wordchar_table()
 {
 	for(int i = 0; i < 256; ++i) {
 		char ch = (char)i;
-		wordchar_table[i] = ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ('0' <= ch && ch <= '9') || ch == '_';
+		wordchar_table[i] = isasciialnum(ch) || ch == '_';
 	}
 }
 

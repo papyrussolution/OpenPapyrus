@@ -806,7 +806,7 @@ copy %(RootDir)%(Directory)%(Filename).chm $(OutDir)
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -815,7 +815,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -828,7 +828,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -837,7 +837,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -850,7 +850,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -859,7 +859,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -872,7 +872,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -881,7 +881,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -894,7 +894,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -903,7 +903,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -916,7 +916,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -925,7 +925,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -936,7 +936,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
@@ -947,7 +947,7 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB
 path
 del ..\..\BASE\INIT_DL6\*.* /Q
 xcopy ..\..\BASE\INIT_DDF\800\*.ddf ..\..\BASE\INIT_DL6
-..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite %(FullPath)
+..\..\TOOLS\DL600C /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle /mysql /sqlite /skipbtrdict %(FullPath)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
 XCOPY /Y %(RootDir)%(Directory)%(Filename).H ..\INCLUDE
 XCOPY /Y %(RootDir)%(Directory)%(Filename).CPP ..\PPLIB

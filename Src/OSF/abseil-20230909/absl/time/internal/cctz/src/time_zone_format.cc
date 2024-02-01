@@ -138,12 +138,13 @@ int ToWeek(const civil_day& cd, weekday week_start) {
 	return static_cast<int>((d - prev_weekday(civil_year(d), week_start)) / 7);
 }
 
-const char kDigits[] = "0123456789";
+// @v11.9.4 (replaced with STextConst::P_Digits) const char kDigits[] = "0123456789";
 
 // Formats a 64-bit integer in the given field width.  Note that it is up
 // to the caller of Format64() [and Format02d()/FormatOffset()] to ensure
 // that there is sufficient space before ep to hold the conversion.
-char* Format64(char* ep, int width, std::int_fast64_t v) {
+char* Format64(char* ep, int width, std::int_fast64_t v) 
+{
 	bool neg = false;
 	if(v < 0) {
 		--width;
@@ -157,13 +158,13 @@ char* Format64(char* ep, int width, std::int_fast64_t v) {
 				last_digit += 10;
 			}
 			--width;
-			*--ep = kDigits[last_digit];
+			*--ep = STextConst::P_Digits[last_digit];
 		}
 		v = -v;
 	}
 	do {
 		--width;
-		*--ep = kDigits[v % 10];
+		*--ep = STextConst::P_Digits[v % 10];
 	} while(v /= 10);
 	while(--width >= 0) *--ep = '0'; // zero pad
 	if(neg) *--ep = '-';
@@ -171,14 +172,16 @@ char* Format64(char* ep, int width, std::int_fast64_t v) {
 }
 
 // Formats [0 .. 99] as %02d.
-char* Format02d(char* ep, int v) {
-	*--ep = kDigits[v % 10];
-	*--ep = kDigits[(v / 10) % 10];
+char* Format02d(char* ep, int v) 
+{
+	*--ep = STextConst::P_Digits[v % 10];
+	*--ep = STextConst::P_Digits[(v / 10) % 10];
 	return ep;
 }
 
 // Formats a UTC offset, like +00:00.
-char* FormatOffset(char* ep, int offset, const char* mode) {
+char* FormatOffset(char* ep, int offset, const char* mode) 
+{
 	// TODO: Follow the RFC3339 "Unknown Local Offset Convention" and
 	// generate a "negative zero" when we're formatting a zero offset
 	// as the result of a failed load_time_zone().
@@ -229,8 +232,8 @@ void FormatTM(std::string* out, const std::string& fmt, const std::tm& tm) {
 }
 
 // Used for %E#S/%E#f specifiers and for data values in parse().
-template <typename T>
-const char* ParseInt(const char* dp, int width, T min, T max, T* vp) {
+template <typename T> const char* ParseInt(const char* dp, int width, T min, T max, T* vp) 
+{
 	if(dp != nullptr) {
 		const T kmin = std::numeric_limits<T>::min();
 		bool erange = false;
@@ -246,8 +249,8 @@ const char* ParseInt(const char* dp, int width, T min, T max, T* vp) {
 			}
 		}
 		if(const char* const bp = dp) {
-			while(const char* cp = strchr(kDigits, *dp)) {
-				int d = static_cast<int>(cp - kDigits);
+			while(const char* cp = strchr(STextConst::P_Digits, *dp)) {
+				int d = static_cast<int>(cp - STextConst::P_Digits);
 				if(d >= 10) break;
 				if(value < kmin / 10) {
 					erange = true;
@@ -621,7 +624,8 @@ const char* ParseOffset(const char* dp, const char* mode, int* offset) {
 	return dp;
 }
 
-const char* ParseZone(const char* dp, std::string* zone) {
+const char* ParseZone(const char* dp, std::string* zone) 
+{
 	zone->clear();
 	if(dp != nullptr) {
 		while(*dp != '\0' && !std::isspace(*dp)) zone->push_back(*dp++);
@@ -630,13 +634,14 @@ const char* ParseZone(const char* dp, std::string* zone) {
 	return dp;
 }
 
-const char* ParseSubSeconds(const char* dp, detail::femtoseconds* subseconds) {
-	if(dp != nullptr) {
+const char* ParseSubSeconds(const char* dp, detail::femtoseconds* subseconds) 
+{
+	if(dp) {
 		std::int_fast64_t v = 0;
 		std::int_fast64_t exp = 0;
 		const char* const bp = dp;
-		while(const char* cp = strchr(kDigits, *dp)) {
-			int d = static_cast<int>(cp - kDigits);
+		while(const char* cp = strchr(STextConst::P_Digits, *dp)) {
+			int d = static_cast<int>(cp - STextConst::P_Digits);
 			if(d >= 10) break;
 			if(exp < 15) {
 				exp += 1;

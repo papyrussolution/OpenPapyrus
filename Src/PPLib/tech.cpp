@@ -1,5 +1,5 @@
 // TECH.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -570,7 +570,7 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 // обработанного за секунду.
 //
 struct CalcCapacity {
-	CalcCapacity() : Flags(0), Unit(UNIT_SECOND), Val(0.0)
+	CalcCapacity() : Flags(0), Unit(SUOM_SECOND), Val(0.0)
 	{
 	}
 	DECL_INVARIANT_C();
@@ -595,7 +595,7 @@ struct CalcCapacity {
 		fReverse  = 0x0001,
 		fAbsolute = 0x0002
 	};
-	int    Unit;    // UNIT_XXX
+	int    Unit;    // SUOM_XXX
 	int    Flags;
 	double Val;
 };
@@ -606,7 +606,7 @@ IMPL_INVARIANT_C(CalcCapacity)
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P(!((Flags & fReverse) && (Flags & fAbsolute)), pInvP);
 	S_ASSERT_P((Flags & ~(fReverse|fAbsolute)) == 0, pInvP);
-	S_ASSERT_P(oneof4(Unit, UNIT_SECOND, UNIT_MINUTE, UNIT_HOUR, UNIT_DAY), pInvP);
+	S_ASSERT_P(oneof4(Unit, SUOM_SECOND, SUOM_MINUTE, SUOM_HOUR, SUOM_DAY), pInvP);
 	S_ASSERT_P(Val >= 0.0, pInvP);
 	S_INVARIANT_EPILOG(pInvP);
 }
@@ -619,18 +619,18 @@ int CalcCapacity::FromText(const char * pBuf)
 		uint pos = 0;
 		SString temp_buf;
 		if(ss.get(&pos, temp_buf)) {
-			Unit = atol(temp_buf);
+			Unit = temp_buf.ToLong();
 			//
 			// Обеспечение обратной совместимости с идентификатороми единиц измерения до v7.5.8
 			//
 			if(Unit == 0)
-				Unit = UNIT_SECOND;
+				Unit = SUOM_SECOND;
 			else if(Unit == 1)
-				Unit = UNIT_MINUTE;
+				Unit = SUOM_MINUTE;
 			else if(Unit == 2)
-				Unit = UNIT_HOUR;
+				Unit = SUOM_HOUR;
 			else if(Unit == 3)
-				Unit = UNIT_DAY;
+				Unit = SUOM_DAY;
 			//
 			if(ss.get(&pos, temp_buf))
 				Flags = satoi(temp_buf);
@@ -645,11 +645,11 @@ int CalcCapacity::FromText(const char * pBuf)
 double CalcCapacity::Normalyze() const
 {
 	double div;
-	if(Unit == UNIT_MINUTE)
+	if(Unit == SUOM_MINUTE)
 		div = 60.0;
-	else if(Unit == UNIT_HOUR)
+	else if(Unit == SUOM_HOUR)
 		div = 3600.0;
-	else if(Unit == UNIT_DAY)
+	else if(Unit == SUOM_DAY)
 		div = SlConst::SecsPerDayR;
 	else
 		div = 1.0;
@@ -666,11 +666,11 @@ double CalcCapacity::Normalyze() const
 int CalcCapacity::SetNorma(double val)
 {
 	double div;
-	if(Unit == UNIT_MINUTE)
+	if(Unit == SUOM_MINUTE)
 		div = 60.0;
-	else if(Unit == UNIT_HOUR)
+	else if(Unit == SUOM_HOUR)
 		div = 3600.0;
-	else if(Unit == UNIT_DAY)
+	else if(Unit == SUOM_DAY)
 		div = SlConst::SecsPerDayR;
 	else
 		div = 1.0;
@@ -715,10 +715,10 @@ int EditCapacity(CalcCapacity * pData)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			AddClusterAssocDef(CTL_CAPACITY_TIMEUNIT, 0, UNIT_SECOND);
-			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 1, UNIT_MINUTE);
-			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 2, UNIT_HOUR);
-			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 3, UNIT_DAY);
+			AddClusterAssocDef(CTL_CAPACITY_TIMEUNIT, 0, SUOM_SECOND);
+			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 1, SUOM_MINUTE);
+			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 2, SUOM_HOUR);
+			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 3, SUOM_DAY);
 			SetClusterData(CTL_CAPACITY_TIMEUNIT, Data.Unit);
 			{
 				long   r = 0;
@@ -2066,7 +2066,7 @@ int PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 						cc.SetNorma(pack.Rec.Capacity);
 						if(is_rev) {
 							cc.Flags |= CalcCapacity::fReverse;
-							cc.Unit = UNIT_MINUTE;
+							cc.Unit = SUOM_MINUTE;
 						}
 						if(EditCapacity(&cc) > 0) {
 							double nv = cc.Normalyze();

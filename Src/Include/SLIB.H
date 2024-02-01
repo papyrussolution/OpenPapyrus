@@ -163,8 +163,6 @@
 		#define MININT32    ((int32)~MAXINT32)
 	#endif
 	// } @v11.3.10 
-	// @v10.3.10 #define pow10l(x) pow(10,(x))
-	// @v10.3.10 #define pow10(x)  pow(10,(x))
 	// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed  261
 #endif // _WIN32
 #ifndef SLIB_DONT_UNDEF_MINMAX // @v11.1.11
@@ -219,6 +217,7 @@
 	#include <cstdarg>
 	#include <cstddef>
 	#include <set>
+	#include <unordered_set>
 	#include <ostream>
 	#include <clocale>
 	#include <cstdio>
@@ -248,9 +247,6 @@
 	#define STATIC_ASSERT(_boolExpr) { enum { __StaticAssertDummyEnum = 1/static_cast<int>(!!(_boolExpr)) }; } // note : use after variable declarations
 	//#define STATIC_ASSERT assert
 #endif
-// @v10.8.2 #define FNF_WILDCARDS 0x01
-// @v10.8.2 #define FNF_EXTENSION 0x02
-// @v10.8.2 #define FNF_FILENAME  0x04
 // @v11.9.1 @unused #define FNF_DIRECTORY 0x08
 // @v11.9.1 @unused #define FNF_DRIVE     0x10
 // @v11.9.1 @unused #define DMAXEXP     308
@@ -267,8 +263,6 @@
 // @v11.9.1 @unused #define _IEEE       1
 // @v11.9.1 @unused #define _LENBASE    1
 // @v11.9.1 @unused #define HIDDENBIT   1
-// @v10.8.2 (use SMathConst::LogMax insted) #define LN_MAXDOUBLE    7.0978E+2
-// @v10.8.2 (use SMathConst::LogMin insted) #define LN_MINDOUBLE    -7.0840E+2
 #ifdef _MSC_VER
 	#define _argc __argc
 	#define _argv __argv
@@ -399,35 +393,54 @@
 #define CCAS_UPPER            2 // Все символы прописные
 #define CCAS_CAPITAL          3 // Первая буква прописная, остальные строчные
 //
-// Единицы измерения //
+// Единицы измерения // @persistent
+// @v11.9.4 Значения некоторых идентификаторов изменены с целью унифицировать с макросами PPUNIT_XXX, которые
+// замещаются макросами SUOM_XXX, но чьи значения не могут быть произвольно изменены из-за использования в существующих базах данных.
 //
-#define UNIT_METER            1
-#define UNIT_INCH             2
-#define UNIT_KILOGRAM         3
-#define UNIT_GRAM             4
-#define UNIT_LITER            5
-#define UNIT_FLOZ             6 // fluid ounce 0.029573531 liters
-#define UNIT_WATT             7
-#define UNIT_VOLT             8
-#define UNIT_DAY              9 // Сутки
-#define UNIT_HOUR            10 // Час
-#define UNIT_SECOND          11 // Секунда
-#define UNIT_ITEM            12 // Абстрактная штука
-#define UNIT_OZ              13 // ounce = 28.3495231 gram
-#define UNIT_COLOR           14 // Специфическая единица - количество цветов в наборе
-#define UNIT_CMETER          15 // Сантиметр
-#define UNIT_MMETER          16 // Миллиметр
-#define UNIT_PERCENT         17 // Процент
-#define UNIT_GR_PIXEL        18 // Графическая единица: Точка устройства вывода
-#define UNIT_GR_PT           19 // Графическая единица: 1/72 дюйма
-#define UNIT_GR_PC           20 // Графическая единица: 1/6 дюйма
-#define UNIT_GR_EM           21 // Графическая единица: em
-#define UNIT_GR_EX           22 // Графическая единица: ex
-#define UNIT_ONE             23 // Единица. Используется как база для частичных величин: percent например.
-#define UNIT_RADIAN          24
-#define UNIT_DEGREE          25 // Угловой градус
-#define UNIT_GR_DIALOG       26 // Графическая единица: одна диалоговая единица (неизоморфна, контекстно-зависима)
-#define UNIT_MINUTE          27 // Минута
+#define SUOM_KILOGRAM         1 // @v11.9.4 3-->1
+#define SUOM_METER            2 // @v11.9.4 1-->2
+#define SUOM_SECOND           3 // Секунда // @v11.9.4 11-->3
+#define SUOM_LITER            4 // @v11.9.4 5-->4
+#define SUOM_GRAM             5 // @v11.9.4 4-->5
+#define SUOM_FLOZ             6 // fluid ounce 0.029573531 liters
+#define SUOM_WATT             7
+#define SUOM_VOLT             8
+#define SUOM_DAY              9 // Сутки
+#define SUOM_HOUR            10 // Час
+#define SUOM_INCH            11 // @v11.9.4 2-->11
+#define SUOM_OZ              13 // ounce = 28.3495231 gram
+#define SUOM_COLOR           14 // Специфическая единица - количество цветов в наборе
+#define SUOM_CMETER          15 // Сантиметр
+#define SUOM_MMETER          16 // Миллиметр
+#define SUOM_PERCENT         17 // Процент
+#define SUOM_GR_PIXEL        18 // Графическая единица: Точка устройства вывода
+#define SUOM_GR_PT           19 // Графическая единица: 1/72 дюйма
+#define SUOM_GR_PC           20 // Графическая единица: 1/6 дюйма
+#define SUOM_ITEM            21 // Абстрактная штука // @v11.9.4 12-->21
+#define SUOM_GR_EX           22 // Графическая единица: ex
+#define SUOM_ONE             23 // Единица. Используется как база для частичных величин: percent например.
+#define SUOM_RADIAN          24
+#define SUOM_DEGREE          25 // Угловой градус
+#define SUOM_GR_DIALOG       26 // Графическая единица: одна диалоговая единица (неизоморфна, контекстно-зависима)
+#define SUOM_MINUTE          27 // Минута
+#define SUOM_TON             28 // @v11.9.4 Тонна 
+#define SUOM_DMETER          29 // @v11.9.4 Дециметр
+#define SUOM_SQMETER         30 // @v11.9.4 Квадратный метр
+#define SUOM_SQCMETER        31 // @v11.9.4 Квадратный сантиметр
+#define SUOM_SQDMETER        32 // @v11.9.4 Квадратный дециметр
+#define SUOM_QMETER          33 // @v11.9.4 Кубический метр
+#define SUOM_MLITER          34 // @v11.9.4 Миллилитр
+#define SUOM_KWATTH          35 // @v11.9.4 Киловатт в час
+#define SUOM_CALORIE         36 // @v11.9.4 Калория
+#define SUOM_KCALORIE        37 // @v11.9.4 Килокалория
+#define SUOM_GCALORIE        38 // @v11.9.4 Гигакалория
+#define SUOM_BIT             39 // @v11.9.4 Бит
+#define SUOM_BYTE            40 // @v11.9.4 Байт
+#define SUOM_KIBIBYTE        41 // @v11.9.4 Кибибайт (1024 байт)
+#define SUOM_MEBIBYTE        42 // @v11.9.4 Мебибайт (1024*1024 байт)
+#define SUOM_GIBIBYTE        43 // @v11.9.4 Гибибайт (1024*1024*1024 байт)
+#define SUOM_TIBIBYTE        44 // @v11.9.4 Тебибайт (1024*1024*1024*1024 байт)
+#define SUOM_GR_EM           45 // Графическая единица: em // @v11.9.4 21-->45
 //
 // Половая принадлежность
 // @persistent
@@ -3676,7 +3689,7 @@ struct USize { // @noctr @novtbl
 	SString & ToStr(SString & rBuf, int fmt); // @notimplemented
 
 	double S;
-	int16  Unit;   // UNIT_XXX
+	int16  Unit;   // SUOM_XXX
 	int16  Dir;    // DIREC_XXX, -1 означает инвалидную величину
 };
 //
@@ -3716,7 +3729,9 @@ public:
 		clsDensity,           // Плотность
 		clsLinearDensity,     // Линейная плотность
 		clsViscosity,         // Вязкость
-		clsKinematicViscosity // Кинематическая вязкость
+		clsKinematicViscosity, // Кинематическая вязкость
+		clsInformation,        // @v11.9.4 Количество информации
+		clsVoltage,            // @v11.9.4 Электрическое напряжение (разность потенциалов)
 	};
 	class Context {
 	public:
@@ -3737,7 +3752,7 @@ private:
 
 	static const void * FASTCALL SearchEntry(int unitId);
 	static const void * FASTCALL SearchClsEntry(int cls);
-	int    Id; // UNIT_XXX
+	int    Id; // SUOM_XXX
 };
 //
 //
@@ -5241,23 +5256,17 @@ int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 // @v10.3.0 (unused) int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr = '\"');
 //
 // Функции для классификации и конвертации символов
-inline bool isdirslash(char c) { return oneof2(c, '/', '\\'); }
-inline bool isdirslash(uchar c) { return oneof2(c, '/', '\\'); }
-inline bool isdirslash(wchar_t c) { return oneof2(c, L'/', L'\\'); }
+//
+template <class T> bool isdirslash(T c) { return oneof2(c, '/', '\\'); }
 //
 // Descr: Возвращает !0 если символ c является шестнадцатиричным знаком [0-9A-Fa-f]
 // Note: (from icu) A-F/a-f are contiguous also in EBCDIC
 //
-bool   FASTCALL ishex(char c);
-bool   FASTCALL ishexw(wchar_t c);
+template <class T> bool ishex(T c) { return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')); }
 //
 // Descr: Возвращает !0 если символ c является десятичным знаком [0-9]
 //
-bool   FASTCALL isdec(char c);
-bool   FASTCALL isdec(int c);
-bool   FASTCALL isdec(uint c);
-bool   FASTCALL isdec(wchar_t c);
-bool   FASTCALL isdec(char16_t c);
+template <class T> bool isdec(T c) { return (c >= '0' && c <= '9'); }
 //
 // Descr: Возвращает значение шестнадцатиричного знака c. Если c не является шестнадцатиричным знаком,
 //   то возвращает 0 (для того, чтобы избежать путаницы с hex('0') следует проверять
@@ -5282,8 +5291,9 @@ uint   FASTCALL hexw(wchar_t c);
 uint8  FASTCALL hextobyte(const char * pBuf);
 template <class T> bool isasciiupr(T ch) { return (ch >= 'A' && ch <= 'Z'); }
 template <class T> bool isasciilwr(T ch) { return (ch >= 'a' && ch <= 'z'); }
-template <class T> bool isasciialpha(T ch) { return (((uchar)(ch | 32) - 97) < 26U); }
-template <class T> bool isasciialnum(T ch) { return ((ch >= '0' && ch <= '9') || (((uchar)(ch | 32) - 97) < 26U)); }
+//template <class T> bool isasciialpha(T ch) { return (((uchar)(ch | 32) - 97) < 26U); }
+template <class T> bool isasciialpha(T ch) { return ((((uint)ch | 32) - 97) < 26U); }
+template <class T> bool isasciialnum(T ch) { return ((ch >= '0' && ch <= '9') || ((((uint)ch | 32) - 97) < 26U)); }
 // @v10.9.3 (replaced with isasciialpha) int    FASTCALL IsLetterASCII(int ch); // synonym of isasciialpha
 int    FASTCALL ToLower1251(int ch);
 int    FASTCALL ToUpper1251(int ch);
@@ -11415,7 +11425,7 @@ public:
 //
 #define NSUBEXP 10
 
-class SRegExp2 { // @construction
+class SRegExp2 {
 public:
 	enum {
 		syntaxDefault = 0,
@@ -11568,16 +11578,6 @@ protected:
 	int    InitReHex();
 	int    InitReEmail();
 	int    InitRePhone(); // @v11.0.3
-	/*
-	CRegExp * P_ReQuotedStr;
-	CRegExp * P_ReNumber;
-	CRegExp * P_ReIdent;
-	CRegExp * P_ReHex;
-	CRegExp * P_ReDigits;
-	CRegExp * P_ReEMail;
-	CRegExp * P_ReDate;
-	TSCollection <CRegExp> ReList; // Список регулярных выражений, регистрируемых вызывающим модулем.
-	*/
 	SRegExp2 * P_ReQuotedStr;
 	SRegExp2 * P_ReNumber;
 	SRegExp2 * P_ReIdent;
@@ -11930,6 +11930,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_CHZN_SURROGATE_GTINCOUNT  39 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14 37 COUNT)
 #define SNTOK_CL_RUT                    40 // @v11.6.1 Чилийский налоговый код RUT
 #define SNTOK_CHZN_ALTCIGITEM           41 // @v11.9.0 честный знак Маркировка альтернативной табачной продукции (розничная единица). Код аналогичен SNTOK_CHZN_CIGITEM, но на месте МРЦ стоит AAAA
+#define SNTOK_AR_DNI                    42 // @v11.9.4 @construction Аргентинский идентификатор гражданина 
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -13506,8 +13507,8 @@ public:
 	static constexpr double Root5Epsilon = 7.4009597974140505E-04;
 	static constexpr double SqrtMin  = 1.4916681462400413E-154;
 	static constexpr double SqrtMax  = 1.3407807929942596E+154;
-	static constexpr double LogMin   = -7.0839641853226408E+02;
-	static constexpr double LogMax   = 7.0978271289338397E+02;
+	static constexpr double LogMin   = -7.0839641853226408E+02;         // (LN_MINDOUBLE)
+	static constexpr double LogMax   = 7.0978271289338397E+02;          // (LN_MAXDOUBLE)
 	static constexpr double Min      = 2.2250738585072014E-308;         // min value
 	static constexpr double Max      = 1.7976931348623158E+308;         // max value
 	static constexpr float  Min_f    = 1.175494351E-38f;         // min normalized positive value
@@ -13540,22 +13541,12 @@ struct SMathResult {
 };
 
 struct SphericalDirection { // @v11.9.3
-	SphericalDirection() : PolarAngle(0.0), Azimuth(0.0)
-	{
-	}
-	void Normalize()
-	{
-		if(fabs(Azimuth) >= 360.0)
-			Azimuth = fmod(Azimuth, 360.0);
-		if(Azimuth < 0.0)
-			Azimuth += 360.0;
-		if(PolarAngle < 0.0)
-			PolarAngle = -PolarAngle;
-		if(PolarAngle > 180.0) {
-			PolarAngle = fmod(PolarAngle, 360.0);
-			// ... @todo
-		}
-	}
+	SphericalDirection();
+	SphericalDirection(double polarAngle, double azimuth);
+	bool FASTCALL operator == (const SphericalDirection & rS) const;
+	bool FASTCALL IsEq(const SphericalDirection & rS) const;
+	bool FASTCALL IsEqTol(const SphericalDirection & rS, double tol) const;
+	bool IsValid() const;
 	double PolarAngle; // полярный угол [0deg..180deg] в направлении с севера на юг
 	double Azimuth;    // угол азимута [0deg..360deg) в направлении справа налево
 };
@@ -17355,6 +17346,7 @@ typedef int (*GetDefaultEncrKeyFunc)(SString & rBuf);
 //   "testroot"  - головной каталог тестовых данных
 //   "workspace" - головной каталог рабочего пространства пользователя //
 //   "uid" - каталог, содержащий описания (частичные) пользовательского интерфейса // @v11.9.3
+//   "srcroot" - головной каталог, в котором размещаются все исходные коды системы // @v11.9.4
 // ARG(rBuf      OUT): буфер, в который функция должна записать запрашиваемый путь.
 //
 typedef int (*QueryPathFunc)(const char * pSignature, SString & rBuf);

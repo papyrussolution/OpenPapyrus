@@ -106,7 +106,7 @@ TERM_PUBLIC int  CGM_make_palette(GpTermEntry_Static * pThis, t_sm_palette * pal
 TERM_PUBLIC void CGM_set_color(GpTermEntry_Static * pThis, const t_colorspec *);
 TERM_PUBLIC void CGM_filled_polygon(GpTermEntry_Static * pThis, int points, gpiPoint * corner);
 TERM_PUBLIC void CGM_set_pointsize(GpTermEntry_Static * pThis, double size);
-#define FATAL(msg) { fprintf(stderr, "%s\nFile %s line %d\n", msg, __FILE__, __LINE__); exit(EXIT_FAILURE); }
+#define FATAL(msg) { slfprintf_stderr("%s\nFile %s line %d\n", msg, __FILE__, __LINE__); exit(EXIT_FAILURE); }
 #define CGM_LARGE 32767
 #define CGM_SMALL 32767/18*13   /* aspect ratio 1:.7222 */
 #define CGM_MARGIN (CGM_LARGE/180)

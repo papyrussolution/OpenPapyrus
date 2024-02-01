@@ -41,10 +41,7 @@ Result CodabarReader::decodePattern(int rowNumber, PatternView& next, std::uniqu
 	// absolute minimum would be 2 (meaning 0 'content'). everything below 4 produces too many false
 	// positives.
 	const int minCharCount = 4;
-	auto isStartOrStopSymbol = [](char c) {
-		    return 'A' <= c && c <= 'D';
-	    };
-
+	auto isStartOrStopSymbol = [](char c) { return 'A' <= c && c <= 'D'; };
 	next = FindLeftGuard<CHAR_LEN>(next, minCharCount * CHAR_LEN, IsLeftGuard);
 	if(!next.isValid())
 		return {};

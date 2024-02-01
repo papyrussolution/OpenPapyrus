@@ -66,11 +66,9 @@ static long memsize = 0;  /* set number of mallocs allowed */
    on exit so the logfile must be closed explicitly or data could be lost.
    Though _exit() does not call atexit handlers such as this, LSAN's call to
    _exit() comes after the atexit handlers are called. curl/curl#6620 */
-static void curl_dbg_cleanup(void)
+static void curl_dbg_cleanup()
 {
-	if(curl_dbg_logfile &&
-	    curl_dbg_logfile != stderr &&
-	    curl_dbg_logfile != stdout) {
+	if(curl_dbg_logfile && curl_dbg_logfile != stderr && curl_dbg_logfile != stdout) {
 		fclose(curl_dbg_logfile);
 	}
 	curl_dbg_logfile = NULL;
@@ -112,11 +110,9 @@ static bool countcheck(const char * func, int line, const char * source)
 	if(memlimit && source) {
 		if(!memsize) {
 			/* log to file */
-			curl_dbg_log("LIMIT %s:%d %s reached memlimit\n",
-			    source, line, func);
+			curl_dbg_log("LIMIT %s:%d %s reached memlimit\n", source, line, func);
 			/* log to stderr also */
-			fprintf(stderr, "LIMIT %s:%d %s reached memlimit\n",
-			    source, line, func);
+			slfprintf_stderr("LIMIT %s:%d %s reached memlimit\n", source, line, func);
 			fflush(curl_dbg_logfile); /* because it might crash now */
 			errno = ENOMEM;
 			return TRUE; /* RETURN ERROR! */

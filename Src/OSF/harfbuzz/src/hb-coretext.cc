@@ -535,12 +535,10 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 						};
 						CFTypeRef values[] = {
 							CFStringCreateWithCString(kCFAllocatorDefault, tag, kCFStringEncodingASCII),
-							CFNumberCreate(kCFAllocatorDefault,
-							    kCFNumberIntType,
-							    &active_features[j].rec.setting)
+							CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &active_features[j].rec.setting)
 						};
 #endif
-						static_assert((ARRAY_LENGTH_CONST(keys) == ARRAY_LENGTH_CONST(values)), "");
+						static_assert((SIZEOFARRAY(keys) == SIZEOFARRAY(values)), "");
 						CFDictionaryRef dict = CFDictionaryCreate(kCFAllocatorDefault,
 							(const void**)keys,
 							(const void**)values,
@@ -595,7 +593,7 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 #define ALLOCATE_ARRAY(Type, name, len, on_no_room) \
 	Type *name = (Type*)scratch; \
 	do { \
-		uint _consumed = DIV_CEIL((len) * sizeof(Type), sizeof(*scratch)); \
+		uint _consumed = idivroundup((len) * sizeof(Type), sizeof(*scratch)); \
 		if(UNLIKELY(_consumed > scratch_size)) \
 		{ \
 			on_no_room; \

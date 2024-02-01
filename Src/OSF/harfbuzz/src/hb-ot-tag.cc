@@ -144,7 +144,7 @@ static bool subtag_matches(const char * lang_str, const char * limit, const char
 		const char * s = strstr(lang_str, subtag);
 		if(!s || s >= limit)
 			return false;
-		if(!ISALNUM(s[strlen(subtag)]))
+		if(!isasciialnum(s[strlen(subtag)]))
 			return true;
 		lang_str = s + strlen(subtag);
 	} while(true);
@@ -210,7 +210,7 @@ static void hb_ot_tags_from_language(const char * lang_str, const char * limit, 
 		if(s && limit - lang_str >= 6) {
 			const char * extlang_end = strchr(s + 1, '-');
 			/* If there is an extended language tag, use it. */
-			if(3 == (extlang_end ? extlang_end - s - 1 : strlen(s + 1)) && ISALPHA(s[1]))
+			if(3 == (extlang_end ? extlang_end - s - 1 : strlen(s + 1)) && isasciialpha(s[1]))
 				lang_str = s + 1;
 		}
 		if(hb_sorted_array(ot_languages).bfind(lang_str, &tag_idx)) {
@@ -260,10 +260,10 @@ static bool parse_private_use_subtag(const char * private_use_subtag, uint * cou
 		if(i != 8) return false;
 	}
 	else {
-		for(i = 0; i < 4 && ISALNUM(s[i]); i++)
+		for(i = 0; i < 4 && isasciialnum(s[i]); i++)
 			tag[i] = normalize(s[i]);
-		if(!i) return false;
-
+		if(!i) 
+			return false;
 		for(; i < 4; i++)
 			tag[i] = ' ';
 	}
@@ -370,7 +370,7 @@ hb_language_t hb_ot_tag_to_language(hb_tag_t tag)
 	{
 		char buf[20];
 		char * str = buf;
-		if(ISALPHA(tag >> 24) && ISALPHA((tag >> 16) & 0xFF) && ISALPHA((tag >> 8) & 0xFF) && (tag & 0xFF) == ' ') {
+		if(isasciialpha(tag >> 24) && isasciialpha((tag >> 16) & 0xFF) && isasciialpha((tag >> 8) & 0xFF) && (tag & 0xFF) == ' ') {
 			buf[0] = TOLOWER(tag >> 24);
 			buf[1] = TOLOWER((tag >> 16) & 0xFF);
 			buf[2] = TOLOWER((tag >> 8) & 0xFF);

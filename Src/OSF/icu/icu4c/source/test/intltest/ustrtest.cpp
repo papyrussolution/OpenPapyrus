@@ -1748,18 +1748,16 @@ namespace bogus {
 class UnicodeString {
 public:
 	enum EInvariant { kInvariant };
-
-	UnicodeString() : i(1) {
+	UnicodeString() : i(1) 
+	{
 	}
-
-	UnicodeString(bool /*isTerminated*/, const char16_t * /*text*/, int32_t textLength) : i(textLength) {
+	UnicodeString(bool /*isTerminated*/, const char16_t * /*text*/, int32_t textLength) : i(textLength) 
+	{
 		(void)i;
 	}
-
-	UnicodeString(const char * /*src*/, int32_t length, enum EInvariant /*inv*/
-	    ) : i(length) {
+	UnicodeString(const char * /*src*/, int32_t length, enum EInvariant /*inv*/) : i(length) 
+	{
 	}
-
 private:
 	int32_t i;
 };
@@ -1782,7 +1780,8 @@ void UnicodeStringTest::TestNameSpace() {
 	}
 }
 
-void UnicodeStringTest::TestUTF32() {
+void UnicodeStringTest::TestUTF32() 
+{
 	// Input string length US_STACKBUF_SIZE to cause overflow of the
 	// initially chosen fStackBuffer due to supplementary characters.
 	static const UChar32 utf32[] = {
@@ -1799,39 +1798,30 @@ void UnicodeStringTest::TestUTF32() {
 		errln("UnicodeString::fromUTF32() did not create the expected string.");
 	}
 
-	static const char16_t utf16[] = {
-		0x41, 0xd900, 0x61, 0xdc00, 0x5a, 0xd900, 0xdc00, 0x7a, 0xd800, 0xdc00, 0xdbff, 0xdfff
-	};
-	static const UChar32 expected_utf32[] = {
-		0x41, 0xfffd, 0x61, 0xfffd, 0x5a, 0x50000, 0x7a, 0x10000, 0x10ffff
-	};
+	static const char16_t utf16[] = { 0x41, 0xd900, 0x61, 0xdc00, 0x5a, 0xd900, 0xdc00, 0x7a, 0xd800, 0xdc00, 0xdbff, 0xdfff };
+	static const UChar32 expected_utf32[] = { 0x41, 0xfffd, 0x61, 0xfffd, 0x5a, 0x50000, 0x7a, 0x10000, 0x10ffff };
 	UChar32 result32[16];
 	UErrorCode errorCode = U_ZERO_ERROR;
-	int32_t length32 =
-	    UnicodeString(FALSE, utf16, SIZEOFARRAYi(utf16)).
-	    toUTF32(result32, SIZEOFARRAYi(result32), errorCode);
-	if(length32 != SIZEOFARRAYi(expected_utf32) ||
-	    0 != memcmp(result32, expected_utf32, length32*4) ||
-	    result32[length32] != 0
-	    ) {
+	int32_t length32 = UnicodeString(FALSE, utf16, SIZEOFARRAYi(utf16)).toUTF32(result32, SIZEOFARRAYi(result32), errorCode);
+	if(length32 != SIZEOFARRAYi(expected_utf32) || 0 != memcmp(result32, expected_utf32, length32*4) || result32[length32] != 0) {
 		errln("UnicodeString::toUTF32() did not create the expected string.");
 	}
 }
 
 class TestCheckedArrayByteSink : public CheckedArrayByteSink {
 public:
-	TestCheckedArrayByteSink(char * outbuf, int32_t capacity)
-		: CheckedArrayByteSink(outbuf, capacity), calledFlush(FALSE) {
+	TestCheckedArrayByteSink(char * outbuf, int32_t capacity) : CheckedArrayByteSink(outbuf, capacity), calledFlush(FALSE) 
+	{
 	}
-
-	virtual void Flush() override {
+	virtual void Flush() override 
+	{
 		calledFlush = TRUE;
 	}
-
 	bool calledFlush;
 };
 
-void UnicodeStringTest::TestUTF8() {
+void UnicodeStringTest::TestUTF8() 
+{
 	static const uint8_t utf8[] = {
 		// Code points:
 		// 0x41, 0xd900,
@@ -1857,7 +1847,6 @@ void UnicodeStringTest::TestUTF8() {
 	};
 	UnicodeString from8 = UnicodeString::fromUTF8(StringPiece((const char *)utf8, (int32_t)sizeof(utf8)));
 	UnicodeString expected(FALSE, expected_utf16, SIZEOFARRAYi(expected_utf16));
-
 	if(from8 != expected) {
 		errln("UnicodeString::fromUTF8(StringPiece) did not create the expected string.");
 	}
@@ -1866,22 +1855,13 @@ void UnicodeStringTest::TestUTF8() {
 	if(from8b != expected) {
 		errln("UnicodeString::fromUTF8(std::string) did not create the expected string.");
 	}
-
-	static const char16_t utf16[] = {
-		0x41, 0xd900, 0x61, 0xdc00, 0x5a, 0xd900, 0xdc00, 0x7a, 0xd800, 0xdc00, 0xdbff, 0xdfff
-	};
-	static const uint8_t expected_utf8[] = {
-		0x41, 0xef, 0xbf, 0xbd, 0x61, 0xef, 0xbf, 0xbd, 0x5a, 0xf1, 0x90, 0x80, 0x80, 0x7a,
-		0xf0, 0x90, 0x80, 0x80, 0xf4, 0x8f, 0xbf, 0xbf
-	};
+	static const char16_t utf16[] = { 0x41, 0xd900, 0x61, 0xdc00, 0x5a, 0xd900, 0xdc00, 0x7a, 0xd800, 0xdc00, 0xdbff, 0xdfff };
+	static const uint8_t expected_utf8[] = { 0x41, 0xef, 0xbf, 0xbd, 0x61, 0xef, 0xbf, 0xbd, 0x5a, 0xf1, 0x90, 0x80, 0x80, 0x7a, 0xf0, 0x90, 0x80, 0x80, 0xf4, 0x8f, 0xbf, 0xbf };
 	UnicodeString us(FALSE, utf16, SIZEOFARRAYi(utf16));
-
 	char buffer[64];
 	TestCheckedArrayByteSink sink(buffer, (int32_t)sizeof(buffer));
 	us.toUTF8(sink);
-	if(sink.NumberOfBytesWritten() != (int32_t)sizeof(expected_utf8) ||
-	    0 != memcmp(buffer, expected_utf8, sizeof(expected_utf8))
-	    ) {
+	if(sink.NumberOfBytesWritten() != (int32_t)sizeof(expected_utf8) || 0 != memcmp(buffer, expected_utf8, sizeof(expected_utf8))) {
 		errln("UnicodeString::toUTF8() did not create the expected string.");
 	}
 	if(!sink.calledFlush) {
@@ -1898,11 +1878,10 @@ void UnicodeStringTest::TestUTF8() {
 }
 
 // Test if this compiler supports Return Value Optimization of unnamed temporary objects.
-static UnicodeString wrapUChars(const char16_t * uchars) {
-	return UnicodeString(TRUE, uchars, -1);
-}
+static UnicodeString wrapUChars(const char16_t * uchars) { return UnicodeString(TRUE, uchars, -1); }
 
-void UnicodeStringTest::TestReadOnlyAlias() {
+void UnicodeStringTest::TestReadOnlyAlias() 
+{
 	char16_t uchars[] = { 0x61, 0x62, 0 };
 	UnicodeString alias(TRUE, uchars, 2);
 	if(alias.length()!=2 || alias.getBuffer()!=uchars || alias.getTerminatedBuffer()!=uchars) {
@@ -1914,16 +1893,13 @@ void UnicodeStringTest::TestReadOnlyAlias() {
 		errln("UnicodeString(read-only-alias).truncate() did not preserve aliasing as expected.");
 	}
 	if(alias.getTerminatedBuffer()==uchars) {
-		errln("UnicodeString(read-only-alias).truncate().getTerminatedBuffer() "
-		    "did not allocate and copy as expected.");
+		errln("UnicodeString(read-only-alias).truncate().getTerminatedBuffer() did not allocate and copy as expected.");
 	}
 	if(uchars[1]!=0x62) {
-		errln("UnicodeString(read-only-alias).truncate().getTerminatedBuffer() "
-		    "modified the original buffer.");
+		errln("UnicodeString(read-only-alias).truncate().getTerminatedBuffer() modified the original buffer.");
 	}
 	if(1!=u_strlen(alias.getTerminatedBuffer())) {
-		errln("UnicodeString(read-only-alias).truncate().getTerminatedBuffer() "
-		    "does not return a buffer terminated at the proper length.");
+		errln("UnicodeString(read-only-alias).truncate().getTerminatedBuffer() does not return a buffer terminated at the proper length.");
 	}
 
 	alias.setTo(TRUE, uchars, 2);
@@ -1936,16 +1912,13 @@ void UnicodeStringTest::TestReadOnlyAlias() {
 		errln("UnicodeString(read-only-alias).remove() did not work.");
 	}
 	if(alias.getTerminatedBuffer()==uchars) {
-		errln("UnicodeString(read-only-alias).remove().getTerminatedBuffer() "
-		    "did not un-alias as expected.");
+		errln("UnicodeString(read-only-alias).remove().getTerminatedBuffer() did not un-alias as expected.");
 	}
 	if(uchars[0]!=0x61) {
-		errln("UnicodeString(read-only-alias).remove().getTerminatedBuffer() "
-		    "modified the original buffer.");
+		errln("UnicodeString(read-only-alias).remove().getTerminatedBuffer() modified the original buffer.");
 	}
 	if(0!=u_strlen(alias.getTerminatedBuffer())) {
-		errln("UnicodeString.setTo(read-only-alias).remove().getTerminatedBuffer() "
-		    "does not return a buffer terminated at length 0.");
+		errln("UnicodeString.setTo(read-only-alias).remove().getTerminatedBuffer() does not return a buffer terminated at length 0.");
 	}
 
 	UnicodeString longString = UNICODE_STRING_SIMPLE("abcdefghijklmnopqrstuvwxyz0123456789");
@@ -2001,7 +1974,8 @@ void UnicodeStringTest::TestReadOnlyAlias() {
 	}
 }
 
-void UnicodeStringTest::doTestAppendable(UnicodeString & dest, Appendable &app) {
+void UnicodeStringTest::doTestAppendable(UnicodeString & dest, Appendable &app) 
+{
 	static const char16_t cde[3] = { 0x63, 0x64, 0x65 };
 	static const char16_t fg[3] = { 0x66, 0x67, 0 };
 	if(!app.reserveAppendCapacity(12)) {
@@ -2026,29 +2000,23 @@ void UnicodeStringTest::doTestAppendable(UnicodeString & dest, Appendable &app) 
 		errln("Appendable.append(...) failed");
 	}
 	buffer = app.getAppendBuffer(0, 3, scratch, 3, &capacity);
-	if(buffer!=NULL || capacity!=0) {
+	if(buffer || capacity!=0) {
 		errln("Appendable.getAppendBuffer(min=0) failed");
 	}
 	capacity = 1;
 	buffer = app.getAppendBuffer(3, 3, scratch, 2, &capacity);
-	if(buffer!=NULL || capacity!=0) {
+	if(buffer || capacity!=0) {
 		errln("Appendable.getAppendBuffer(scratch<min) failed");
 	}
 }
 
 class SimpleAppendable : public Appendable {
 public:
-	explicit SimpleAppendable(UnicodeString & dest) : str(dest) {
+	explicit SimpleAppendable(UnicodeString & dest) : str(dest) 
+	{
 	}
-
-	virtual bool appendCodeUnit(char16_t c) override {
-		str.append(c); return TRUE;
-	}
-
-	SimpleAppendable &reset() {
-		str.remove(); return *this;
-	}
-
+	virtual bool appendCodeUnit(char16_t c) override { str.append(c); return TRUE; }
+	SimpleAppendable &reset() { str.remove(); return *this; }
 private:
 	UnicodeString & str;
 };

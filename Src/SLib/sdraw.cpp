@@ -1,5 +1,5 @@
 // SDRAW.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -32,27 +32,27 @@ int SDrawContext::UC::Describe(int unitId, int dir, int * pCls, double * pToBase
 	double to_base = 0.0;
 	const  char * p_name = 0;
 	switch(unitId) {
-		case UNIT_GR_PIXEL:
+		case SUOM_GR_PIXEL:
 			to_base = (dir == DIREC_VERT) ? fdivnz(2.54e-2, Dpi.y) : fdivnz(2.54e-2, Dpi.x);
 			cls = SUnit::clsLength;
 			p_name = "pixel";
 			break;
-		case UNIT_GR_PT:
+		case SUOM_GR_PT:
 			to_base = 2.54e-2 / 72.0;
 			cls = SUnit::clsLength;
 			p_name = "pt";
 			break;
-		case UNIT_GR_EM:
+		case SUOM_GR_EM:
 			to_base = (dir == DIREC_VERT) ? fdivnz(FontSize * 2.54e-2, Dpi.y) : fdivnz(FontSize * 2.54e-2, Dpi.x);
 			cls = SUnit::clsLength;
 			p_name = "em";
 			break;
-		case UNIT_GR_EX:
+		case SUOM_GR_EX:
 			to_base = (dir == DIREC_VERT) ? fdivnz((FontSize / 2.0) * 2.54e-2, Dpi.y) : fdivnz((FontSize / 2.0)  * 2.54e-2, Dpi.x);
 			cls = SUnit::clsLength;
 			p_name = "ex";
 			break;
-		//case UNIT_PERCENT: break;
+		//case SUOM_PERCENT: break;
 	}
 	if(cls) {
 		ASSIGN_PTR(pCls, cls);
@@ -72,7 +72,7 @@ int SDrawContext::UC::Describe(int unitId, int dir, int * pCls, double * pToBase
 	if(p_uc) {
 		USize pt_size;
 		USize px_size;
-		SUnit::Convert(pt_size.Set(pt, UNIT_GR_PT, DIREC_VERT), px_size.Set(1, UNIT_GR_PIXEL, DIREC_VERT), p_uc);
+		SUnit::Convert(pt_size.Set(pt, SUOM_GR_PT, DIREC_VERT), px_size.Set(1, SUOM_GR_PIXEL, DIREC_VERT), p_uc);
 		s = fceili(px_size);
 		delete p_uc;
 	}
@@ -1264,7 +1264,7 @@ int SDraw::ConvertCoord(const USize & rUsz, double * pR) const
 	}
 	else {
 		USize s;
-		s.Set(0.0, UNIT_GR_PIXEL, rUsz.Dir);
+		s.Set(0.0, SUOM_GR_PIXEL, rUsz.Dir);
 		if(rUsz.Unit && !SUnit::Convert(rUsz, s, &UCtx)) {
 			ASSIGN_PTR(pR, 0.0);
 			ok = 0;

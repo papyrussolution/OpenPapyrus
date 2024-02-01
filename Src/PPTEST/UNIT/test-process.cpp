@@ -527,6 +527,51 @@ SLTEST_R(SlProcess)
 	const int run_result = p.Run(&result);
 	SLCHECK_NZ(run_result);
 	if(run_result) {
+		{
+			const wchar_t * p_named_pipe_name = L"\\\\.\\pipe\\sltestapp-pipe";
+			SIntHandle h_pipe;
+			bool do_exit = false;
+			do {
+				h_pipe = ::CreateFileW(p_named_pipe_name, GENERIC_READ|GENERIC_WRITE, 0/*no sharing*/,
+					NULL/*default security attributes*/, OPEN_EXISTING/*opens existing pipe*/, 0/*default attributes*/, NULL/*no template file*/);
+				if(!h_pipe) {
+					if(GetLastError() == ERROR_PIPE_BUSY) {
+						boolint w_ok = WaitNamedPipeW(p_named_pipe_name, 20000);
+						if(!w_ok) {
+							do_exit = true;
+						}
+					}
+					else {
+						do_exit = true;
+					}
+				}
+			} while(!h_pipe && !do_exit);
+			if(!!h_pipe) {
+				DWORD pipe_mode = PIPE_READMODE_MESSAGE; 
+				boolint _ok = SetNamedPipeHandleState(h_pipe, &pipe_mode/*new pipe mode*/, NULL/*don't set maximum bytes*/, NULL/*don't set maximum time*/);
+				if(_ok) {
+					STempBuffer wr_buf(1024);
+					STempBuffer rd_buf(1024);
+					SString message("Hello, Named Pipe!");
+					DWORD wr_size = 0;
+					boolint wr_ok = WriteFile(h_pipe, message.cptr(), message.Len()+1, &wr_size, NULL/*not overlapped*/);
+					if(wr_ok) {
+						do {
+							DWORD rd_size = 0;
+							boolint rd_ok = ReadFile(h_pipe, rd_buf, rd_buf.GetSize(), &rd_size, NULL/*not overlapped*/);
+							if(rd_ok) {
+								;
+							}
+							else {
+								if(GetLastError() == ERROR_MORE_DATA) {
+									
+								}
+							}
+						} while(false);
+					}
+				}
+			}
+		}
 		/*if(result.F_StdOut) {
 			char out_line[1024];
 			while(fgets(out_line, sizeof(out_line)-1, result.F_StdOut)) {

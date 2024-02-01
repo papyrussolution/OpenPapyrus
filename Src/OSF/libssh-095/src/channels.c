@@ -2819,15 +2819,10 @@ void ssh_channel_set_counter(ssh_channel channel, ssh_counter counter)
 }
 /**
  * @brief Blocking write on a channel stderr.
- *
  * @param[in]  channel  The channel to write to.
- *
  * @param[in]  data     A pointer to the data to write.
- *
  * @param[in]  len      The length of the buffer to write to.
- *
  * @return              The number of bytes written, SSH_ERROR on error.
- *
  * @see ssh_channel_read()
  */
 int ssh_channel_write_stderr(ssh_channel channel, const void * data, uint32_t len) {
@@ -2835,27 +2830,19 @@ int ssh_channel_write_stderr(ssh_channel channel, const void * data, uint32_t le
 }
 
 #if WITH_SERVER
-
 /**
  * @brief Open a TCP/IP reverse forwarding channel.
- *
  * @param[in]  channel  An allocated channel.
- *
  * @param[in]  remotehost The remote host to connected (host name or IP).
- *
  * @param[in]  remoteport The remote port.
- *
  * @param[in]  sourcehost The source host (your local computer). It's optional
  *                  and for logging purpose.
- *
  * @param[in]  localport  The source port (your local computer). It's optional
  *                  and for logging purpose.
- *
  * @return              SSH_OK on success,
  *                SSH_ERROR if an error occurred,
  *                SSH_AGAIN if in nonblocking mode and call has
  *                to be done again.
- *
  * @warning This function does not bind the local port and does not automatically
  *    forward the content of a socket to the channel. You still have to
  *    use channel_read and channel_write for this.
@@ -2893,13 +2880,9 @@ error:
 }
 /**
  * @brief Open a X11 channel.
- *
  * @param[in]  channel      An allocated channel.
- *
  * @param[in]  orig_addr    The source host (the local server).
- *
  * @param[in]  orig_port    The source port (the local server).
- *
  * @return              SSH_OK on success,
  *                SSH_ERROR if an error occurred,
  *                SSH_AGAIN if in nonblocking mode and call has
@@ -2953,32 +2936,28 @@ error:
  * @return     SSH_OK on success, SSH_ERROR if an error occurred.
  *       (including attempts to send exit status via SSH-v1 session).
  */
-int ssh_channel_request_send_exit_status(ssh_channel channel, int exit_status) {
+int ssh_channel_request_send_exit_status(ssh_channel channel, int exit_status) 
+{
 	ssh_buffer buffer = NULL;
 	int rc = SSH_ERROR;
-
 	if(!channel) {
 		return SSH_ERROR;
 	}
-
 	buffer = ssh_buffer_new();
 	if(!buffer) {
 		ssh_set_error_oom(channel->session);
 		goto error;
 	}
-
 	rc = ssh_buffer_pack(buffer, "d", exit_status);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(channel->session);
 		goto error;
 	}
-
 	rc = channel_request(channel, "exit-status", buffer, 0);
 error:
 	SSH_BUFFER_FREE(buffer);
 	return rc;
 }
-
 /**
  * @brief Send an exit signal to remote process (RFC 4254, section 6.10).
  *

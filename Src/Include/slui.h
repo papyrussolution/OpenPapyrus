@@ -1237,8 +1237,50 @@ public:
 	SString Src;
 };
 //
+// Descr: Список скалярных величин, устанавливаемых в json-конфигурации интерфейса
 //
-//
+class UiValueList { // @v11.9.4
+public:
+	enum {
+		vStandaloneListWidth = 1,
+		vStandaloneListHeight,
+		vDesktopIconSize,
+		vDesktopIconGap
+	};
+	union ValueUnion {
+		ValueUnion();
+		bool   FASTCALL IsEq(const ValueUnion & rS) const;
+		int    I;
+		double R;
+		char   T[128]; // utf-8
+	};
+	struct Entry { // @flat
+		Entry();
+		bool   FASTCALL IsEq(const Entry & rS) const;
+		bool   FASTCALL operator == (const Entry & rS) const { return IsEq(rS); }
+		uint   Id;
+		ValueUnion V;
+	};
+	UiValueList();
+	~UiValueList();
+	bool   FASTCALL IsEq(const UiValueList & rS) const;
+	UiValueList & Z();
+	uint   GetCount() const { return L.getCount(); }
+	int    Put(uint id, double v);
+	int    Get(uint id, double & rV) const;
+	int    Put(uint id, int v);
+	int    Get(uint id, int & rV) const;
+	int    Put(uint id, const char * pV);
+	int    Get(uint id, SString & rV) const;
+	SJson * ToJsonObj() const;
+	int FromJsonObj(const SJson * pJsObj);
+private:
+	int    Implement_Put(const Entry & rEntry);
+	bool   Implement_Get(uint id, Entry & rEntry) const;
+
+	TSVector <Entry> L;
+};
+
 class UiDescription {
 public:
 	UiDescription();
@@ -1257,6 +1299,7 @@ public:
 	TSCollection <SFontSource> FontList;
 	TSCollection <SColorSet> ClrList;
 	TSCollection <SUiLayout> LoList;
+	UiValueList VList; // @v11.9.4
 };
 //
 // Descr: Определитель шрифта

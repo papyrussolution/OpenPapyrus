@@ -138,19 +138,17 @@ static char * pdf_parse_file_spec(fz_context * ctx, pdf_document * doc, pdf_obj 
 		fz_snprintf(frag, sizeof frag, "#%s", pdf_to_str_buf(ctx, dest));
 	else
 		frag[0] = 0;
-
 	path = pdf_to_text_string(ctx, filename);
 	uri = NULL;
 #ifdef _WIN32
 	if(!pdf_name_eq(ctx, pdf_dict_get(ctx, file_spec, PDF_NAME(FS)), PDF_NAME(URL))) {
 		/* Fix up the drive letter (change "/C/Documents/Foo" to "C:/Documents/Foo") */
-		if(path[0] == '/' && (('A' <= path[1] && path[1] <= 'Z') || ('a' <= path[1] && path[1] <= 'z')) && path[2] == '/')
+		if(path[0] == '/' && isasciialpha(path[1]) && path[2] == '/')
 			uri = fz_asprintf(ctx, "file://%c:%s%s", path[1], path+2, frag);
 	}
 #endif
 	if(!uri)
 		uri = fz_asprintf(ctx, "file://%s%s", path, frag);
-
 	return uri;
 }
 

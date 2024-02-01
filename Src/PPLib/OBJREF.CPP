@@ -1,5 +1,5 @@
 // OBJREF.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3973,7 +3973,12 @@ int PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 			Data.GetExtStrData(PPEdiProviderPacket::extssAddr2, temp_buf);
 			setCtrlString(CTL_EDIPRV_ADDR2, temp_buf);
 			setCtrlLong(CTL_EDIPRV_PORT2, Data.Rec.AddrPort2);
-
+			// @v11.9.4 {
+			Data.GetExtStrData(PPEdiProviderPacket::extssSubIn, temp_buf);
+			setCtrlString(CTL_EDIPRV_SUBIN, temp_buf);
+			Data.GetExtStrData(PPEdiProviderPacket::extssSubOut, temp_buf);
+			setCtrlString(CTL_EDIPRV_SUBOUT, temp_buf);
+			// } @v11.9.4
 			SetupPPObjCombo(this, CTLSEL_EDIPRV_GUA, PPOBJ_GLOBALUSERACC, Data.Rec.GuaID, OLW_CANINSERT);
 			return ok;
 		}
@@ -4000,6 +4005,12 @@ int PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 			getCtrlString(CTL_EDIPRV_ADDR2, temp_buf.Z());
 			Data.PutExtStrData(PPEdiProviderPacket::extssAddr2, temp_buf);
 			Data.Rec.AddrPort2 = getCtrlLong(CTL_EDIPRV_PORT2);
+			// @v11.9.4 {
+			getCtrlString(CTL_EDIPRV_SUBIN, temp_buf);
+			Data.PutExtStrData(PPEdiProviderPacket::extssSubIn, temp_buf);
+			getCtrlString(CTL_EDIPRV_SUBOUT, temp_buf);
+			Data.PutExtStrData(PPEdiProviderPacket::extssSubOut, temp_buf);
+			// } @v11.9.4
 			Data.Rec.GuaID = getCtrlLong(CTLSEL_EDIPRV_GUA);
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
@@ -4011,7 +4022,9 @@ int PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 	};
 
 	int    ok = cmCancel;
-	int    r = cmCancel, valid_data = 0, is_new = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	PPEdiProviderPacket pack;
 	EdiProviderDialog * dlg = new EdiProviderDialog(this);
 	THROW(CheckDialogPtr(&dlg));

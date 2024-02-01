@@ -552,8 +552,8 @@ static bool parse_uint32(const char ** pp, const char * end, uint32_t * pv)
 	/* Intentionally use hb_parse_int inside instead of hb_parse_uint,
 	 * such that -1 turns into "big number"... */
 	int v;
-	if(UNLIKELY(!hb_parse_int(pp, end, &v))) return false;
-
+	if(UNLIKELY(!hb_parse_int(pp, end, &v))) 
+		return false;
 	*pv = v;
 	return true;
 }
@@ -561,24 +561,16 @@ static bool parse_uint32(const char ** pp, const char * end, uint32_t * pv)
 static bool parse_bool(const char ** pp, const char * end, uint32_t * pv)
 {
 	parse_space(pp, end);
-
 	const char * p = *pp;
-	while(*pp < end && ISALPHA(**pp))
+	while(*pp < end && isasciialpha(**pp))
 		(*pp)++;
-
 	/* CSS allows on/off as aliases 1/0. */
-	if(*pp - p == 2
-	    && TOLOWER(p[0]) == 'o'
-	    && TOLOWER(p[1]) == 'n')
+	if(*pp - p == 2 && TOLOWER(p[0]) == 'o' && TOLOWER(p[1]) == 'n')
 		*pv = 1;
-	else if(*pp - p == 3
-	    && TOLOWER(p[0]) == 'o'
-	    && TOLOWER(p[1]) == 'f'
-	    && TOLOWER(p[2]) == 'f')
+	else if(*pp - p == 3 && TOLOWER(p[0]) == 'o' && TOLOWER(p[1]) == 'f' && TOLOWER(p[2]) == 'f')
 		*pv = 0;
 	else
 		return false;
-
 	return true;
 }
 
@@ -592,30 +584,23 @@ static bool parse_feature_value_prefix(const char ** pp, const char * end, hb_fe
 		parse_char(pp, end, '+');
 		feature->value = 1;
 	}
-
 	return true;
 }
 
 static bool parse_tag(const char ** pp, const char * end, hb_tag_t * tag)
 {
 	parse_space(pp, end);
-
 	char quote = 0;
-
 	if(*pp < end && (**pp == '\'' || **pp == '"')) {
 		quote = **pp;
 		(*pp)++;
 	}
-
 	const char * p = *pp;
-	while(*pp < end && (ISALNUM(**pp) || **pp == '_'))
+	while(*pp < end && (isasciialnum(**pp) || **pp == '_'))
 		(*pp)++;
-
 	if(p == *pp || *pp - p > 4)
 		return false;
-
 	*tag = hb_tag_from_string(p, *pp - p);
-
 	if(quote) {
 		/* CSS expects exactly four bytes.  And we only allow quotations for
 		 * CSS compatibility.  So, enforce the length. */
@@ -625,7 +610,6 @@ static bool parse_tag(const char ** pp, const char * end, hb_tag_t * tag)
 			return false;
 		(*pp)++;
 	}
-
 	return true;
 }
 

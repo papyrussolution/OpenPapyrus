@@ -1,5 +1,5 @@
 // LISTWIN.CPP
-// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -242,25 +242,28 @@ void ListWindow::MoveWindow(HWND linkHwnd, long right)
 	HWND   h_list = GetDlgItem(H(), list_ctl);
 	RECT   link_rect, list_rect;
 	::GetWindowRect(H(), &list_rect);
+	int    _width = 0;
 	if(linkHwnd) {
 		::GetWindowRect(linkHwnd, &link_rect);
 		link_rect.right = (right) ? right : link_rect.right;
+		_width = (link_rect.right - link_rect.left); // @v11.9.4
 	}
 	else {
 		link_rect = list_rect;
 		link_rect.bottom = link_rect.top;
+		_width = (ViewSize.x > 0) ? ViewSize.x : (link_rect.right - link_rect.left);
 	}
 	long   item_height = IsTreeList() ? TreeView_GetItemHeight(h_list) : ::SendMessageW(h_list, LB_GETITEMHEIGHT, 0, 0);
 	int    h = 	P_Def ? ((P_Def->ViewHight + 1) * item_height) : (list_rect.bottom - list_rect.top);
 	int    tt = link_rect.top;
 	int    x  = link_rect.left;
-	int    w  = (link_rect.right - link_rect.left);
+	// @v11.9.4 int    w  = (ViewSize.x > 0) ? ViewSize.x : (link_rect.right - link_rect.left); // @v11.9.4 ViewSize.x
 	HWND   h_scroll = IsTreeList() ? 0 : GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1));
 
 	if(GetSystemMetrics(SM_CYFULLSCREEN) > link_rect.bottom+h)
-		::MoveWindow(H(), x, link_rect.bottom, w, h, 1);
+		::MoveWindow(H(), x, link_rect.bottom, _width, h, 1);
 	else
-		::MoveWindow(H(), x, tt-h, w, h, 1);
+		::MoveWindow(H(), x, tt-h, _width, h, 1);
 	::GetClientRect(H(), &list_rect);
 	if(!IsTreeList())
 		list_rect.right -= (h_scroll ? GetSystemMetrics(SM_CXVSCROLL) : 0);

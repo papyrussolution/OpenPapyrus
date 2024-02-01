@@ -404,7 +404,6 @@ static int __hstat(HANDLE handle, struct ustat * st)
 		    }
 		    else {
 			    DWORD avail;
-
 			    st->st_mode = S_IFIFO;
 			    if(PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL))
 				    st->st_size = avail;

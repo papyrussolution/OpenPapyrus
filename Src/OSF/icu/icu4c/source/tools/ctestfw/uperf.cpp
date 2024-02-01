@@ -77,9 +77,8 @@ static UOption options[OPTIONS_COUNT+20] = {
 
 UPerfTest::UPerfTest(int32_t argc, const char * argv[], UErrorCode & status) : ArgC(argc), ArgV(argv), _addUsage(NULL), ucharBuf(NULL), encoding(""),
 	uselen(FALSE), fileName(NULL), sourceDir("."), lines(NULL), numLines(0), line_mode(TRUE), buffer(NULL), bufferLen(0),
-	verbose(FALSE), bulk_mode(FALSE),
-	passes(1), iterations(0), time(0),
-	locale(NULL) {
+	verbose(FALSE), bulk_mode(FALSE), passes(1), iterations(0), time(0), locale(NULL) 
+{
 	init(NULL, 0, status);
 }
 
@@ -95,32 +94,26 @@ void UPerfTest::init(UOption addOptions[], int32_t addOptionsCount, UErrorCode &
 	//initialize the argument list
 	U_MAIN_INIT_ARGS(_argc, _argv);
 	resolvedFileName = NULL;
-
 	// add specific options
 	int32_t optionsCount = OPTIONS_COUNT;
 	if(addOptionsCount > 0) {
 		memcpy(options+optionsCount, addOptions, addOptionsCount*sizeof(UOption));
 		optionsCount += addOptionsCount;
 	}
-
 	//parse the arguments
 	_remainingArgc = u_parseArgs(_argc, (char **)_argv, optionsCount, options);
-
 	// copy back values for additional options
 	if(addOptionsCount > 0) {
 		memcpy(addOptions, options+OPTIONS_COUNT, addOptionsCount*sizeof(UOption));
 	}
-
 	// Now setup the arguments
 	if(_argc==1 || options[HELP1].doesOccur || options[HELP2].doesOccur) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-
 	if(options[VERBOSE].doesOccur) {
 		verbose = TRUE;
 	}
-
 	if(options[SOURCEDIR].doesOccur) {
 		sourceDir = options[SOURCEDIR].value;
 	}
@@ -149,12 +142,10 @@ void UPerfTest::init(UOption addOptions[], int32_t addOptionsCount, UErrorCode &
 	else {
 		iterations = 1000; // some default
 	}
-
 	if(options[LINE_MODE].doesOccur) {
 		line_mode = TRUE;
 		bulk_mode = FALSE;
 	}
-
 	if(options[BULK_MODE].doesOccur) {
 		bulk_mode = TRUE;
 		line_mode = FALSE;
@@ -176,7 +167,6 @@ void UPerfTest::init(UOption addOptions[], int32_t addOptionsCount, UErrorCode &
 		}
 		ucbuf_resolveFileName(sourceDir, fileName, resolvedFileName, &len, &status);
 		ucharBuf = ucbuf_open(resolvedFileName, &encoding, TRUE, FALSE, &status);
-
 		if(U_FAILURE(status)) {
 			printf("Could not open the input file %s. Error: %s\n", fileName, u_errorName(status));
 			return;
@@ -184,7 +174,8 @@ void UPerfTest::init(UOption addOptions[], int32_t addOptionsCount, UErrorCode &
 	}
 }
 
-ULine* UPerfTest::getLines(UErrorCode & status) {
+ULine* UPerfTest::getLines(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
@@ -225,7 +216,8 @@ ULine* UPerfTest::getLines(UErrorCode & status) {
 	return lines;
 }
 
-const char16_t * UPerfTest::getBuffer(int32_t& len, UErrorCode & status) {
+const char16_t * UPerfTest::getBuffer(int32_t& len, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
@@ -281,20 +273,17 @@ bool UPerfTest::runTest(char * name, char * par)
 	else {
 		path = NULL;
 	}
-
-	if(!name || (name[0] == 0) || (strcmp(name, "*") == 0)) {
+	if(isempty(name) || sstreq(name, "*")) {
 		rval = runTestLoop(NULL, NULL);
 	}
-	else if(strcmp(name, "LIST") == 0) {
+	else if(sstreq(name, "LIST")) {
 		this->usage();
 		rval = TRUE;
 	}
 	else {
 		rval = runTestLoop(name, par);
 	}
-
-	if(pos)
-		*pos = delim; // restore original value at pos
+	ASSIGN_PTR(pos, delim); // restore original value at pos
 	return rval;
 }
 
@@ -422,13 +411,7 @@ bool UPerfTest::runTestLoop(char * testname, char * par)
 						fprintf(stdout, "= %s end: %f loops: %i operations: %li \n", name, t, (int)loops, ops);
 					}
 					else {
-						fprintf(stdout,
-						    "= %s end: %f loops: %i operations: %li events: %li\n",
-						    name,
-						    t,
-						    (int)loops,
-						    ops,
-						    events);
+						fprintf(stdout, "= %s end: %f loops: %i operations: %li events: %li\n", name, t, (int)loops, ops, events);
 					}
 				}
 				else {
@@ -446,23 +429,18 @@ bool UPerfTest::runTestLoop(char * testname, char * par)
 					slfprintf_stderr("%s did not run\n", name);
 				}
 				else if(events == -1) {
-					fprintf(stdout, "%%= %s avg: %.4g loops: %i avg/op: %.4g ns\n",
-					    name, avg_t, (int)loops, (avg_t*1E9)/(loops*ops));
-					fprintf(stdout, "_= %s min: %.4g loops: %i min/op: %.4g ns\n",
-					    name, min_t, (int)loops, (min_t*1E9)/(loops*ops));
+					fprintf(stdout, "%%= %s avg: %.4g loops: %i avg/op: %.4g ns\n", name, avg_t, (int)loops, (avg_t*1E9)/(loops*ops));
+					fprintf(stdout, "_= %s min: %.4g loops: %i min/op: %.4g ns\n", name, min_t, (int)loops, (min_t*1E9)/(loops*ops));
 				}
 				else {
-					fprintf(stdout, "%%= %s avg: %.4g loops: %i avg/op: %.4g ns avg/event: %.4g ns\n",
-					    name, avg_t, (int)loops, (avg_t*1E9)/(loops*ops), (avg_t*1E9)/(loops*events));
-					fprintf(stdout, "_= %s min: %.4g loops: %i min/op: %.4g ns min/event: %.4g ns\n",
-					    name, min_t, (int)loops, (min_t*1E9)/(loops*ops), (min_t*1E9)/(loops*events));
+					fprintf(stdout, "%%= %s avg: %.4g loops: %i avg/op: %.4g ns avg/event: %.4g ns\n", name, avg_t, (int)loops, (avg_t*1E9)/(loops*ops), (avg_t*1E9)/(loops*events));
+					fprintf(stdout, "_= %s min: %.4g loops: %i min/op: %.4g ns min/event: %.4g ns\n", name, min_t, (int)loops, (min_t*1E9)/(loops*ops), (min_t*1E9)/(loops*events));
 				}
 			}
 			delete testFunction;
 		}
 		index++;
 	} while(name);
-
 	gTest = saveTest;
 	return rval;
 }
@@ -476,12 +454,10 @@ void UPerfTest::usage(void)
 	if(_addUsage != NULL) {
 		puts(_addUsage);
 	}
-
 	bool save_verbose = verbose;
 	verbose = TRUE;
 	fprintf(stdout, "Test names:\n");
 	fprintf(stdout, "-----------\n");
-
 	int32_t index = 0;
 	const char * name = NULL;
 	do {
@@ -512,7 +488,7 @@ bool UPerfTest::callTest(UPerfTest& testToBeCalled, char * par)
 UPerfTest::~UPerfTest() 
 {
 	delete[] lines;
-	if(buffer!=NULL) {
+	if(buffer) {
 		uprv_free(buffer);
 	}
 	if(resolvedFileName!=NULL) {

@@ -613,15 +613,13 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 //
 // Indicates whether absl::any is an alias for std::any.
 #if !defined(ABSL_OPTION_USE_STD_ANY)
-#error options.h is misconfigured.
-#elif ABSL_OPTION_USE_STD_ANY == 0 || \
-    (ABSL_OPTION_USE_STD_ANY == 2 && !defined(ABSL_HAVE_STD_ANY))
-#undef ABSL_USES_STD_ANY
-#elif ABSL_OPTION_USE_STD_ANY == 1 || \
-    (ABSL_OPTION_USE_STD_ANY == 2 && defined(ABSL_HAVE_STD_ANY))
-#define ABSL_USES_STD_ANY 1
+    #error options.h is misconfigured.
+#elif ABSL_OPTION_USE_STD_ANY == 0 || (ABSL_OPTION_USE_STD_ANY == 2 && !defined(ABSL_HAVE_STD_ANY))
+    #undef ABSL_USES_STD_ANY
+#elif ABSL_OPTION_USE_STD_ANY == 1 || (ABSL_OPTION_USE_STD_ANY == 2 && defined(ABSL_HAVE_STD_ANY))
+    #define ABSL_USES_STD_ANY 1
 #else
-#error options.h is misconfigured.
+    #error options.h is misconfigured.
 #endif
 
 // ABSL_USES_STD_OPTIONAL
@@ -629,31 +627,25 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 // Indicates whether absl::optional is an alias for std::optional.
 #if !defined(ABSL_OPTION_USE_STD_OPTIONAL)
 #error options.h is misconfigured.
-#elif ABSL_OPTION_USE_STD_OPTIONAL == 0 || \
-    (ABSL_OPTION_USE_STD_OPTIONAL == 2 && !defined(ABSL_HAVE_STD_OPTIONAL))
-#undef ABSL_USES_STD_OPTIONAL
-#elif ABSL_OPTION_USE_STD_OPTIONAL == 1 || \
-    (ABSL_OPTION_USE_STD_OPTIONAL == 2 && defined(ABSL_HAVE_STD_OPTIONAL))
-#define ABSL_USES_STD_OPTIONAL 1
+#elif ABSL_OPTION_USE_STD_OPTIONAL == 0 || (ABSL_OPTION_USE_STD_OPTIONAL == 2 && !defined(ABSL_HAVE_STD_OPTIONAL))
+    #undef ABSL_USES_STD_OPTIONAL
+#elif ABSL_OPTION_USE_STD_OPTIONAL == 1 || (ABSL_OPTION_USE_STD_OPTIONAL == 2 && defined(ABSL_HAVE_STD_OPTIONAL))
+    #define ABSL_USES_STD_OPTIONAL 1
 #else
-#error options.h is misconfigured.
+    #error options.h is misconfigured.
 #endif
-
 // ABSL_USES_STD_VARIANT
 //
 // Indicates whether absl::variant is an alias for std::variant.
 #if !defined(ABSL_OPTION_USE_STD_VARIANT)
-#error options.h is misconfigured.
-#elif ABSL_OPTION_USE_STD_VARIANT == 0 || \
-    (ABSL_OPTION_USE_STD_VARIANT == 2 && !defined(ABSL_HAVE_STD_VARIANT))
-#undef ABSL_USES_STD_VARIANT
-#elif ABSL_OPTION_USE_STD_VARIANT == 1 || \
-    (ABSL_OPTION_USE_STD_VARIANT == 2 && defined(ABSL_HAVE_STD_VARIANT))
-#define ABSL_USES_STD_VARIANT 1
+    #error options.h is misconfigured.
+#elif ABSL_OPTION_USE_STD_VARIANT == 0 || (ABSL_OPTION_USE_STD_VARIANT == 2 && !defined(ABSL_HAVE_STD_VARIANT))
+    #undef ABSL_USES_STD_VARIANT
+#elif ABSL_OPTION_USE_STD_VARIANT == 1 || (ABSL_OPTION_USE_STD_VARIANT == 2 && defined(ABSL_HAVE_STD_VARIANT))
+    #define ABSL_USES_STD_VARIANT 1
 #else
-#error options.h is misconfigured.
+    #error options.h is misconfigured.
 #endif
-
 // ABSL_USES_STD_STRING_VIEW
 //
 // Indicates whether absl::string_view is an alias for std::string_view.
@@ -868,16 +860,15 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 // See https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html for an overview of
 // which architectures support the various x86 instruction sets.
 #ifdef ABSL_INTERNAL_HAVE_SSE
-#error ABSL_INTERNAL_HAVE_SSE cannot be directly set
+    #error ABSL_INTERNAL_HAVE_SSE cannot be directly set
 #elif defined(__SSE__)
-#define ABSL_INTERNAL_HAVE_SSE 1
-#elif (defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)) && \
-    !defined(_M_ARM64EC)
-// MSVC only defines _M_IX86_FP for x86 32-bit code, and _M_IX86_FP >= 1
-// indicates that at least SSE was targeted with the /arch:SSE option.
-// All x86-64 processors support SSE, so support can be assumed.
-// https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros
-#define ABSL_INTERNAL_HAVE_SSE 1
+    #define ABSL_INTERNAL_HAVE_SSE 1
+#elif (defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)) && !defined(_M_ARM64EC)
+    // MSVC only defines _M_IX86_FP for x86 32-bit code, and _M_IX86_FP >= 1
+    // indicates that at least SSE was targeted with the /arch:SSE option.
+    // All x86-64 processors support SSE, so support can be assumed.
+    // https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros
+    #define ABSL_INTERNAL_HAVE_SSE 1
 #endif
 
 // ABSL_INTERNAL_HAVE_SSE2 is used for compile-time detection of SSE2 support.

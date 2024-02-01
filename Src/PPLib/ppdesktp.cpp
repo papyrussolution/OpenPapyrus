@@ -577,9 +577,21 @@ int PPBizScoreWindow::DoCommand(SPoint2S p)
 //
 // PPDesktop
 //
-PPDesktop::PPDesktop() : TWindow(TRect(1,1,50,20), 0, 1), IconSize(32), IconGap(8), HwndTT(0), P_ActiveDesktop(0), State(0), HBizScoreWnd(0),
+PPDesktop::PPDesktop() : TWindow(TRect(1,1,50,20), 0, 1), IconSize(0), IconGap(0), HwndTT(0), P_ActiveDesktop(0), State(0), HBizScoreWnd(0),
 	P_ScObj(0), P_GObj(0), P_PsnObj(0)
 {
+	// @v11.9.4 {
+	const UiDescription * p_uid = SLS.GetUiDescription();
+	if(p_uid) {
+		int v = 0;
+		if(p_uid->VList.Get(UiValueList::vDesktopIconSize, v) > 0 && v > 0)
+			IconSize = v;
+		if(p_uid->VList.Get(UiValueList::vDesktopIconGap, v) > 0 && v > 0)
+			IconGap = v;
+	}
+	// } @v11.9.4
+	SETIFZQ(IconSize, 32);
+	SETIFZQ(IconGap, 8);
 }
 
 PPDesktop::~PPDesktop()

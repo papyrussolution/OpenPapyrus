@@ -473,6 +473,7 @@ void PPPaths::DumpToStr(SString & rBuf) const
 				case PPPATH_SPII: rBuf.Cat("SPII"); break;
 				case PPPATH_DD: rBuf.Cat("DD"); break;
 				case PPPATH_UID: rBuf.Cat("UID"); break; // @v11.9.3
+				case PPPATH_SRCROOT: rBuf.Cat("SRCROOT"); break; // @v11.9.4
 				case PPPATH_LOCAL: rBuf.Cat("LOCAL"); break;
 				case PPPATH_PACK: rBuf.Cat("PACK"); break;
 				default: rBuf.CatChar('#').Cat(p->ID); break;

@@ -887,7 +887,6 @@ static int tls1_check_cert_param(SSL * s, X509 * x, int check_ee_md)
 	if(check_ee_md && tls1_suiteb(s)) {
 		int check_md;
 		size_t i;
-
 		/* Check to see we have necessary signing algorithm */
 		if(group_id == TLSEXT_curve_P_256)
 			check_md = NID_ecdsa_with_SHA256;
@@ -897,7 +896,7 @@ static int tls1_check_cert_param(SSL * s, X509 * x, int check_ee_md)
 			return 0; /* Should never happen */
 		for(i = 0; i < s->shared_sigalgslen; i++) {
 			if(check_md == s->shared_sigalgs[i]->sigandhash)
-				return 1; ;
+				return 1;
 		}
 		return 0;
 	}

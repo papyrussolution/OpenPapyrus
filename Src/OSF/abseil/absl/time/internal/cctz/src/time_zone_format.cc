@@ -187,7 +187,8 @@ char* FormatOffset(char* ep, int offset, const char* mode)
 }
 
 // Formats a std::tm using strftime(3).
-void FormatTM(std::string* out, const std::string & fmt, const std::tm& tm) {
+void FormatTM(std::string* out, const std::string & fmt, const std::tm& tm) 
+{
 	// strftime(3) returns the number of characters placed in the output
 	// array (which may be 0 characters).  It also returns 0 to indicate
 	// an error, like the array wasn't large enough.  To accommodate this,
@@ -204,8 +205,8 @@ void FormatTM(std::string* out, const std::string & fmt, const std::tm& tm) {
 }
 
 // Used for %E#S/%E#f specifiers and for data values in parse().
-template <typename T>
-const char* ParseInt(const char* dp, int width, T min, T max, T* vp) {
+template <typename T> const char* ParseInt(const char* dp, int width, T min, T max, T* vp) 
+{
 	if(dp != nullptr) {
 		const T kmin = std::numeric_limits<T>::min();
 		bool erange = false;
@@ -560,7 +561,8 @@ std::string format(const std::string & format, const time_point<seconds>& tp, co
 }
 
 namespace {
-const char* ParseOffset(const char* dp, const char* mode, int* offset) {
+const char* ParseOffset(const char* dp, const char* mode, int* offset) 
+{
 	if(dp != nullptr) {
 		const char first = *dp++;
 		if(first == '+' || first == '-') {
@@ -596,11 +598,14 @@ const char* ParseOffset(const char* dp, const char* mode, int* offset) {
 	return dp;
 }
 
-const char* ParseZone(const char* dp, std::string* zone) {
+const char* ParseZone(const char* dp, std::string* zone) 
+{
 	zone->clear();
 	if(dp != nullptr) {
-		while(*dp != '\0' && !std::isspace(*dp)) zone->push_back(*dp++);
-		if(zone->empty()) dp = nullptr;
+		while(*dp != '\0' && !std::isspace(*dp)) zone->push_back(*dp++)
+			;
+		if(zone->empty()) 
+			dp = nullptr;
 	}
 	return dp;
 }
@@ -613,7 +618,8 @@ const char* ParseSubSeconds(const char* dp, detail::femtoseconds* subseconds)
 		const char* const bp = dp;
 		while(const char * cp = sstrchr(STextConst::P_Digits, *dp)) {
 			int d = static_cast<int>(cp - STextConst::P_Digits);
-			if(d >= 10) break;
+			if(d >= 10) 
+				break;
 			if(exp < 15) {
 				exp += 1;
 				v *= 10;
@@ -644,7 +650,8 @@ const char* ParseTM(const char* dp, const char* fmt, std::tm* tm)
 // Sets year, tm_mon and tm_mday given the year, week_num, and tm_wday,
 // and the day on which weeks are defined to start.  Returns false if year
 // would need to move outside its bounds.
-bool FromWeek(int week_num, weekday week_start, year_t* year, std::tm* tm) {
+bool FromWeek(int week_num, weekday week_start, year_t* year, std::tm* tm) 
+{
 	const civil_year y(*year % 400);
 	civil_day cd = prev_weekday(y, week_start); // week 0
 	cd = next_weekday(cd - 1, FromTmWday(tm->tm_wday)) + (week_num * 7);
@@ -677,15 +684,13 @@ bool FromWeek(int week_num, weekday week_start, year_t* year, std::tm* tm) {
 //
 // We also handle the %z specifier to accommodate platforms that do not
 // support the tm_gmtoff extension to std::tm.  %Z is parsed but ignored.
-bool parse(const std::string & format, const std::string & input,
-    const time_zone& tz, time_point<seconds>* sec,
-    detail::femtoseconds* fs, std::string* err) {
+bool parse(const std::string & format, const std::string & input, const time_zone& tz, time_point<seconds>* sec, detail::femtoseconds* fs, std::string* err) 
+{
 	// The unparsed input.
 	const char* data = input.c_str(); // NUL terminated
-
 	// Skips leading whitespace.
-	while(std::isspace(*data)) ++data;
-
+	while(std::isspace(*data)) 
+		++data;
 	const year_t kyearmax = std::numeric_limits<year_t>::max();
 	const year_t kyearmin = std::numeric_limits<year_t>::min();
 

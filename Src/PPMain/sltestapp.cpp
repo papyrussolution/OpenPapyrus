@@ -1,14 +1,106 @@
 // SLTESTAPP.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 // Тестовое приложение для отработки функций запуска и управления системными процессами
 //
 #include <pp.h>
 #include <wsctl.h>
 
+const char * P_NamedPipeName = "\\\\.\\pipe\\sltestapp-pipe";
+
+class PipeServer : public PPThread { // @construction
+	static constexpr uint32 BufSize = 1024;
+public:
+	struct AppBlock {
+		void * Ptr;
+	};
+	PipeServer(const char * pPipeName, AppBlock * pAppBlk) : PPThread(PPThread::kUnknown, 0, 0), P_AppBlk(pAppBlk)
+	{
+	}
+	~PipeServer()
+	{
+	}
+	virtual void Run()
+	{
+		class PipeSession : public PPThread {
+		public:
+			PipeSession(SIntHandle hPipe, AppBlock * pAppBlk) : PPThread(PPThread::kUnknown, 0, 0), H_Pipe(hPipe), P_AppBlk(pAppBlk)
+			{
+			}
+			~PipeSession()
+			{
+			}
+			virtual void Run()
+			{
+				if(!!H_Pipe) {
+					STempBuffer rd_buf(BufSize);
+					STempBuffer wr_buf(BufSize);
+					bool do_exit = false;
+					do {
+						DWORD rd_size = 0;
+						boolint rd_ok = ::ReadFile(H_Pipe, rd_buf, rd_buf.GetSize(), &rd_size, NULL/*not overlapped I/O*/);
+						if(rd_ok) {
+							DWORD reply_size = 0;
+							// do make reply
+							DWORD wr_size = 0;
+							boolint wr_ok = ::WriteFile(H_Pipe, wr_buf, reply_size, &wr_size, NULL/*not overlapped I/O*/);
+							if(wr_ok) {
+								;
+							}
+							else {
+							}
+						}
+						else {
+							if(GetLastError() == ERROR_BROKEN_PIPE) {
+								;
+							}
+							else {
+								;
+							}
+						}
+					} while(!do_exit);
+					FlushFileBuffers(H_Pipe);
+					DisconnectNamedPipe(H_Pipe); 
+					CloseHandle(H_Pipe); 
+					H_Pipe.Z();
+				}
+			}
+		private:
+			SIntHandle H_Pipe;
+			AppBlock * P_AppBlk;
+		};
+		for(bool do_exit = false; !do_exit;) {
+			SIntHandle h_pipe = ::CreateNamedPipeA(P_NamedPipeName, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE/*message type pipe*/|PIPE_READMODE_MESSAGE |   // message-read mode 
+			  PIPE_WAIT/*blocking mode*/, PIPE_UNLIMITED_INSTANCES/*max. instances*/, BufSize/*output buffer size*/, BufSize/*input buffer size*/,
+			  0/*client time-out*/, NULL/*default security attribute*/);                    
+			if(!h_pipe) {
+				// @todo @err
+				do_exit = true;
+			}
+			else {
+				if(::ConnectNamedPipe(h_pipe, 0)) {
+					// do run PipeSession
+					PipeSession * p_sess = new PipeSession(h_pipe, P_AppBlk);
+					if(p_sess)
+						p_sess->Start();
+				}
+				else {
+					// @todo @err
+					do_exit = true;
+				}
+			}
+		}
+	}
+private:
+	SString PipeName;
+	AppBlock * P_AppBlk;
+};
+
 int main(int argc, char * argv[], char * envp[])
 {
 	int    result = 0;
+	DS.Init(PPSession::fInitPaths, 0, 0);
+	SIntHandle h_pipe;
 	SString temp_buf;
 	SStringU temp_buf_u;
 	SString out_buf;
@@ -55,6 +147,21 @@ int main(int argc, char * argv[], char * envp[])
 		out_buf.Z().Cat("Current Directory").CatDiv(':', 2).Cat(temp_buf).CR();
 		slfprintf_stderr(out_buf);
 	}
+	//
+	{
+		struct AppBlock : public PipeServer::AppBlock {
+			AppBlock() : PipeServer::AppBlock()
+			{
+				memzero(Dummy, sizeof(Dummy));
+			}
+			uint8 Dummy[64];
+		};
+		AppBlock * p_app_blk = new AppBlock();
+		PipeServer * p_psrv = new PipeServer(P_NamedPipeName, p_app_blk);
+		if(p_psrv)
+			p_psrv->Start();
+	}
+	//
 	if(!f_rep.IsValid()) {
 		out_buf.Z().Cat("Report file").Space().CatParStr(report_file_name).Space().Cat("opening fault").CR();
 		slfprintf_stderr(out_buf);

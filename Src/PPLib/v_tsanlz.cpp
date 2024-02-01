@@ -1,5 +1,5 @@
 // V_TSANLZ.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -528,7 +528,7 @@ int PPViewTSessAnlz::ProcessSession(const TSessionTbl::Rec * pRec, TSessAnlzList
 	// В дальнейшем следует организованть поле в структуре товара, определяющее общую
 	// единицу измерения.
 	//
-	const  PPID   comm_ph_unit_id = PPUNT_KILOGRAM;
+	const  PPID   comm_ph_unit_id = SUOM_KILOGRAM;
 	AddQttyBlock blk;
 	MEMSZERO(blk);
 	const  PPID ar_id = pRec->ArID;

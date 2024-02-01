@@ -40,20 +40,14 @@ struct hb_serialize_context_t {
 		void fini() {
 			links.fini();
 		}
-
 		bool operator == (const object_t &o) const
 		{
-			return (tail - head == o.tail - o.head)
-			       && (links.length == o.links.length)
-			       && 0 == hb_memcmp(head, o.head, tail - head)
-			       && links.as_bytes() == o.links.as_bytes();
+			return (tail - head == o.tail - o.head) && (links.length == o.links.length) && 0 == hb_memcmp(head, o.head, tail - head) && links.as_bytes() == o.links.as_bytes();
 		}
 		uint32_t hash() const
 		{
-			return hb_bytes_t(head, tail - head).hash() ^
-			       links.as_bytes().hash();
+			return hb_bytes_t(head, tail - head).hash() ^ links.as_bytes().hash();
 		}
-
 		struct link_t {
 			bool is_wide : 1;
 			bool is_signed : 1;

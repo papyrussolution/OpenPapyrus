@@ -171,7 +171,6 @@ void bio_sock_cleanup_int(void)
 int BIO_socket_ioctl(int fd, long type, void * arg)
 {
 	int i;
-
 #ifdef __DJGPP__
 	i = ioctlsocket(fd, type, (char*)arg);
 #else
@@ -185,11 +184,11 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 	 */
 #if __INITIAL_POINTER_SIZE == 64
 #define ARG arg_32p
-#     pragma pointer_size save
-#     pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 	unsigned long arg_32;
 	unsigned long * arg_32p;
-#     pragma pointer_size restore
+#pragma pointer_size restore
 	arg_32p = &arg_32;
 	arg_32 = *((ulong *)arg);
 #else                       /* __INITIAL_POINTER_SIZE == 64 */

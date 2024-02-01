@@ -2499,8 +2499,7 @@ bool PhoneNumberUtil::IsViablePhoneNumber(const string & number) const
 bool PhoneNumberUtil::ParsePrefixAsIdd(const RegExp& idd_pattern, string* number) const 
 {
 	DCHECK(number);
-	const scoped_ptr<RegExpInput> number_copy(
-		reg_exps_->regexp_factory_->CreateInput(*number));
+	const scoped_ptr<RegExpInput> number_copy(reg_exps_->regexp_factory_->CreateInput(*number));
 	// First attempt to strip the idd_pattern at the start, if present. We make a
 	// copy so that we can revert to the original string if necessary.
 	if(idd_pattern.Consume(number_copy.get())) {
