@@ -814,8 +814,7 @@ static CURLcode check_telnet_options(struct Curl_easy * data)
 				case 5:
 				    /* Terminal type */
 				    if(strncasecompare(option, "TTYPE", 5)) {
-					    strncpy(tn->subopt_ttype, arg, 31);
-					    tn->subopt_ttype[31] = 0; /* String termination */
+					    strnzcpy(tn->subopt_ttype, arg, sizeof(tn->subopt_ttype));
 					    tn->us_preferred[CURL_TELOPT_TTYPE] = CURL_YES;
 				    }
 				    else
@@ -825,8 +824,7 @@ static CURLcode check_telnet_options(struct Curl_easy * data)
 				case 8:
 				    /* Display variable */
 				    if(strncasecompare(option, "XDISPLOC", 8)) {
-					    strncpy(tn->subopt_xdisploc, arg, 127);
-					    tn->subopt_xdisploc[127] = 0; /* String termination */
+					    strnzcpy(tn->subopt_xdisploc, arg, sizeof(tn->subopt_xdisploc));
 					    tn->us_preferred[CURL_TELOPT_XDISPLOC] = CURL_YES;
 				    }
 				    else
@@ -1386,30 +1384,24 @@ static CURLcode telnet_do(struct Curl_easy * data, bool * done)
 
 					    if(n == 0) /* no bytes */
 						    break;
-
 					    /* fall through with number of bytes read */
 					    readfile_read = (DWORD)n;
 				    }
 				    else {
 					    /* read from stdin */
-					    if(!PeekNamedPipe(stdin_handle, NULL, 0, NULL,
-						&readfile_read, NULL)) {
+					    if(!PeekNamedPipe(stdin_handle, NULL, 0, NULL, &readfile_read, NULL)) {
 						    keepon = FALSE;
 						    result = CURLE_READ_ERROR;
 						    break;
 					    }
-
 					    if(!readfile_read)
 						    break;
-
-					    if(!ReadFile(stdin_handle, buf, buf_size,
-						&readfile_read, NULL)) {
+					    if(!ReadFile(stdin_handle, buf, buf_size, &readfile_read, NULL)) {
 						    keepon = FALSE;
 						    result = CURLE_READ_ERROR;
 						    break;
 					    }
 				    }
-
 				    result = send_telnet_data(data, buf, readfile_read);
 				    if(result) {
 					    keepon = FALSE;
@@ -1418,16 +1410,13 @@ static CURLcode telnet_do(struct Curl_easy * data, bool * done)
 			    }
 		    }
 		    break;
-
 			case WAIT_OBJECT_0 + 1:
 		    {
-			    if(!ReadFile(stdin_handle, buf, buf_size,
-				&readfile_read, NULL)) {
+			    if(!ReadFile(stdin_handle, buf, buf_size, &readfile_read, NULL)) {
 				    keepon = FALSE;
 				    result = CURLE_READ_ERROR;
 				    break;
 			    }
-
 			    result = send_telnet_data(data, buf, readfile_read);
 			    if(result) {
 				    keepon = FALSE;
@@ -1435,7 +1424,6 @@ static CURLcode telnet_do(struct Curl_easy * data, bool * done)
 			    }
 		    }
 		    break;
-
 			case WAIT_OBJECT_0:
 		    {
 			    events.lNetworkEvents = 0;

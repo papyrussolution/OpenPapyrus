@@ -2556,16 +2556,15 @@ Error:
 static boolint Type_NamedColor_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	cmsNAMEDCOLORLIST* NamedColorList = (cmsNAMEDCOLORLIST*)Ptr;
-	char prefix[33];                // Prefix for each color name
-	char suffix[33];                // Suffix for each color name
+	char prefix[32+1]; // Prefix for each color name
+	char suffix[32+1]; // Suffix for each color name
 	uint32 i, nColors;
 	nColors = cmsNamedColorCount(NamedColorList);
 	if(!_cmsWriteUInt32Number(io, 0)) return FALSE;
 	if(!_cmsWriteUInt32Number(io, nColors)) return FALSE;
 	if(!_cmsWriteUInt32Number(io, NamedColorList->ColorantCount)) return FALSE;
-	strncpy(prefix, (const char *)NamedColorList->Prefix, 32);
-	strncpy(suffix, (const char *)NamedColorList->Suffix, 32);
-	suffix[32] = prefix[32] = 0;
+	strnzcpy(prefix, (const char *)NamedColorList->Prefix, sizeof(prefix));
+	strnzcpy(suffix, (const char *)NamedColorList->Suffix, sizeof(suffix));
 	if(!io->Write(io, 32, prefix)) return FALSE;
 	if(!io->Write(io, 32, suffix)) return FALSE;
 	for(i = 0; i < nColors; i++) {

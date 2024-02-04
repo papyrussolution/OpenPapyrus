@@ -442,7 +442,7 @@ float fz_atof(const char * s)
 	if((errno == ERANGE && result == 0) || isnan(result))
 		/* Return 1.0 on  underflow, as it's a small known value that won't cause a divide by 0.  */
 		return 1;
-	result = fz_clamp(result, -FLT_MAX, FLT_MAX);
+	result = sclamp(result, -FLT_MAX, FLT_MAX);
 	return result;
 }
 

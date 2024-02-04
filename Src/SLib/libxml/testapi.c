@@ -115,20 +115,18 @@ static xmlAttr * get_api_attr()
 
 static int quiet = 0;
 
-int main(int argc, char ** argv) {
+int main(int argc, char ** argv) 
+{
 	int ret;
 	int blocks, mem;
-
 #ifdef HAVE_PUTENV
 	/* access to the proxy can slow up regression tests a lot */
 	putenv((char*)"http_proxy=");
 #endif
-
-	memset(chartab, 0, sizeof(chartab));
+	memzero(chartab, sizeof(chartab));
 	strncpy((char*)chartab, "  chartab\n", 20);
-	memset(inttab, 0, sizeof(inttab));
-	memset(longtab, 0, sizeof(longtab));
-
+	memzero(inttab, sizeof(inttab));
+	memzero(longtab, sizeof(longtab));
 	xmlInitParser();
 #ifdef LIBXML_SCHEMAS_ENABLED
 	xmlRelaxNGInitTypes();

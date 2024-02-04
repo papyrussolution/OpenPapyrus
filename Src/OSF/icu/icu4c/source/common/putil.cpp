@@ -1943,17 +1943,13 @@ static const char * int_getDefaultCodepage()
 
 #elif U_PLATFORM == U_PF_OS390
 	static char codepage[64];
-
 	strncpy(codepage, nl_langinfo(CODESET), 63-strlen(UCNV_SWAP_LFNL_OPTION_STRING));
 	strcat(codepage, UCNV_SWAP_LFNL_OPTION_STRING);
 	codepage[63] = 0; /* NULL terminate */
-
 	return codepage;
-
 #elif U_PLATFORM_USES_ONLY_WIN32_API
 	static char codepage[64];
 	DWORD codepageNumber = 0;
-
 #if U_PLATFORM_HAS_WINUWP_API == 1
 	// UWP doesn't have a direct API to get the default ACP as Microsoft would rather
 	// have folks use Unicode than a "system" code page, however this is the same

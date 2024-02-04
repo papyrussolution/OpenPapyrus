@@ -11,6 +11,89 @@ DocNalogRu_Base::FileInfo::FileInfo() : SenderPersonID(0), ReceiverPersonID(0), 
 {
 }
 
+DocNalogRu_Base::FileInfo & DocNalogRu_Base::FileInfo::Z()
+{
+	SenderPersonID = 0;
+	ReceiverPersonID = 0;
+	ProviderPersonID = 0;
+	CurDtm.Z();
+	Flags = 0;
+	Uuid.Z();
+	FormatPrefix.Z();
+	SenderIdent.Z();
+	ReceiverIdent.Z();
+	ProviderIdent.Z();
+	ProviderName.Z();
+	ProviderINN.Z();
+	FileId.Z();
+	FileName.Z();
+	FileFormatVer.Z();
+	ProgVer.Z();
+	return *this;
+}
+
+static const char * P_NalogRu_HeaderSymbList[] = {
+	"ON_ORDER", 
+	"ON_CONFORDER",
+	"DP_REZRUISP",
+	"ON_SFAKT",
+	"ON_NSCHFDOPPR",
+	"ON_NSCHFDOPPRMARK",
+};
+
+bool DocNalogRu_Base::FileInfo::ParseFileName(const char * pFileName)
+{
+	Z();
+	bool   ok = false;
+	if(!isempty(pFileName)) {
+		SString src_buf(pFileName);
+		bool is_prefix_valid = false;
+		for(uint i = 0; !is_prefix_valid && i < SIZEOFARRAY(P_NalogRu_HeaderSymbList); i++) {
+			if(src_buf.HasPrefixIAscii(P_NalogRu_HeaderSymbList[i])) {
+				src_buf.ShiftLeft(sstrlen(P_NalogRu_HeaderSymbList[i]));
+				if(src_buf.C(0) == '_') {
+					FormatPrefix = P_NalogRu_HeaderSymbList[i];
+					src_buf.ShiftLeft(1);
+					is_prefix_valid = true;
+				}
+			}
+		}
+		if(is_prefix_valid) {
+			ok = true;
+			SString temp_buf;
+			StringSet ss;
+			const char * p_ext = ".xml";
+			if(src_buf.CmpSuffix(p_ext, 1) == 0)
+				src_buf.Trim(src_buf.Len() - sstrlen(p_ext));
+			src_buf.Tokenize("_", ss);
+			// ON_ORDER_ 100400537995 _ 100100910817 _ 20240124 _ 10BACC44-756A-4ECC-86D0-6F97FC6FED9A.xml 
+			for(uint ssp = 0, c_ = 0; ss.get(&ssp, temp_buf); c_++) {
+				if(c_ == 0) {
+					if(temp_buf.IsDigit())
+						ReceiverIdent = temp_buf;
+					else
+						ok = false;
+				}
+				else if(c_ == 1) {
+					if(temp_buf.IsDigit())
+						SenderIdent = temp_buf;
+					else
+						ok = false;
+				}
+				else if(c_ == 2) {
+					if(!strtodatetime(temp_buf, &CurDtm, DATF_ISO8601CENT, 0))
+						ok = false;
+				}
+				else if(c_ == 3) {
+					if(!Uuid.FromStr(temp_buf))
+						ok = false;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 DocNalogRu_Base::Address::Address() : RuRegionCode(0)
 {
 }
@@ -63,254 +146,252 @@ const SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe0(long n) { return Hel
 const SString & FASTCALL DocNalogRu_Base::GetToken_Ansi_Pe1(long n) { return Helper_GetToken(PPHSC_RU_PE1).Transf(CTRANSF_INNER_TO_OUTER).CatLongZ(n, 11); }
 const SString & FASTCALL DocNalogRu_Base::GetToken_Utf8(long tokId) { return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_UTF8); }
 
-class DocNalogRu_Reader : public DocNalogRu_Base {
-public:
-	DocNalogRu_Reader() : DocNalogRu_Base()
-	{
-	}
-	int    ReadFile(const char * pFileName, FileInfo & rHeader, TSCollection <DocumentInfo> & rDocList)
-	{
-		int    ok = -1;
-		xmlParserCtxt * p_ctx = 0;
-		xmlDoc * p_xml_doc = 0;
-		SString temp_buf;
-		if(fileExists(pFileName)) {
-			xmlNode * p_root = 0;
-			SString extra_key;
-			SString extra_val;
-			SString norm_barcode; // @v11.4.2 нормализованное представление штрихкода (только как параметр-заглушка для DiagBarcode)
-			THROW(p_ctx = xmlNewParserCtxt());
-			{
-				SFile f_in(pFileName, SFile::mRead);
-				int64 fs = 0;
-				f_in.CalcSize(&fs);
-				if(fs > 0) {
-					STempBuffer temp_input(static_cast<size_t>(fs + 64)); // 64 insurance
-					size_t actual_size = 0;
-					THROW_SL(temp_input.IsValid());
-					THROW_SL(f_in.Read(temp_input, temp_input.GetSize(), &actual_size));
-					if(actual_size) {
-						SString input_str;
-						input_str.CatN(temp_input, actual_size);
-						input_str.Helper_MbToMb(cp1251, cpUTF8);
-						THROW_LXML(p_xml_doc = xmlCtxtReadMemory(p_ctx, input_str.cptr(), input_str.Len(), 0, "UTF-8", XML_PARSE_NOENT), p_ctx);
-					}
+DocNalogRu_Reader::DocNalogRu_Reader() : DocNalogRu_Base()
+{
+}
+
+int DocNalogRu_Reader::ReadFile(const char * pFileName, FileInfo & rHeader, TSCollection <DocumentInfo> & rDocList)
+{
+	int    ok = -1;
+	xmlParserCtxt * p_ctx = 0;
+	xmlDoc * p_xml_doc = 0;
+	SString temp_buf;
+	if(fileExists(pFileName)) {
+		xmlNode * p_root = 0;
+		SString extra_key;
+		SString extra_val;
+		SString norm_barcode; // @v11.4.2 нормализованное представление штрихкода (только как параметр-заглушка для DiagBarcode)
+		THROW(p_ctx = xmlNewParserCtxt());
+		{
+			SFile f_in(pFileName, SFile::mRead);
+			int64 fs = 0;
+			f_in.CalcSize(&fs);
+			if(fs > 0) {
+				STempBuffer temp_input(static_cast<size_t>(fs + 64)); // 64 insurance
+				size_t actual_size = 0;
+				THROW_SL(temp_input.IsValid());
+				THROW_SL(f_in.Read(temp_input, temp_input.GetSize(), &actual_size));
+				if(actual_size) {
+					SString input_str;
+					input_str.CatN(temp_input, actual_size);
+					input_str.Helper_MbToMb(cp1251, cpUTF8);
+					THROW_LXML(p_xml_doc = xmlCtxtReadMemory(p_ctx, input_str.cptr(), input_str.Len(), 0, "UTF-8", XML_PARSE_NOENT), p_ctx);
 				}
 			}
-			//THROW_LXML(p_xml_doc = xmlCtxtReadFile(p_ctx, pFileName, "WINDOWS-1251", XML_PARSE_NOENT), p_ctx);
-			THROW(p_root = xmlDocGetRootElement(p_xml_doc));
-			if(SXml::IsName(p_root, GetToken_Utf8(PPHSC_RU_FILE))) {
-				if(SXml::GetAttrib(p_root, GetToken_Utf8(PPHSC_RU_IDFILE), temp_buf))
-					rHeader.FileId = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				if(SXml::GetAttrib(p_root, GetToken_Utf8(PPHSC_RU_VERFORM), temp_buf))
-					rHeader.FileFormatVer = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				if(SXml::GetAttrib(p_root, GetToken_Utf8(PPHSC_RU_VERPROG), temp_buf))
-					rHeader.ProgVer = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				for(const xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
-					if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_EDISIDESINFO))) {
-						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_RECEIVERID), temp_buf)) {
-							rHeader.SenderIdent = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						}
-						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_RECEIVERID), temp_buf)) {
-							rHeader.ReceiverIdent =  temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						}
-						for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
-							if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_EDIPROVIDERINFO))) { // Провайдер обмена
-								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_NAMEOFORG), temp_buf)) {
-								}
-								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INNJUR), temp_buf)) {
-								}
-								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_EDIPROVIDERID), temp_buf)) {
-								}
+		}
+		//THROW_LXML(p_xml_doc = xmlCtxtReadFile(p_ctx, pFileName, "WINDOWS-1251", XML_PARSE_NOENT), p_ctx);
+		THROW(p_root = xmlDocGetRootElement(p_xml_doc));
+		if(SXml::IsName(p_root, GetToken_Utf8(PPHSC_RU_FILE))) {
+			if(SXml::GetAttrib(p_root, GetToken_Utf8(PPHSC_RU_IDFILE), temp_buf))
+				rHeader.FileId = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			if(SXml::GetAttrib(p_root, GetToken_Utf8(PPHSC_RU_VERFORM), temp_buf))
+				rHeader.FileFormatVer = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			if(SXml::GetAttrib(p_root, GetToken_Utf8(PPHSC_RU_VERPROG), temp_buf))
+				rHeader.ProgVer = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			for(const xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
+				if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_EDISIDESINFO))) {
+					if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_RECEIVERID), temp_buf)) {
+						rHeader.SenderIdent = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					}
+					if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_RECEIVERID), temp_buf)) {
+						rHeader.ReceiverIdent =  temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					}
+					for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+						if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_EDIPROVIDERINFO))) { // Провайдер обмена
+							if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_NAMEOFORG), temp_buf)) {
+							}
+							if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INNJUR), temp_buf)) {
+							}
+							if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_EDIPROVIDERID), temp_buf)) {
 							}
 						}
 					}
-					else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_DOCUMENT))) {
-						DocumentInfo * p_new_doc = rDocList.CreateNewItem();
-						ok = 1;
-						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_KND), temp_buf))
-							p_new_doc->KND = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_FUNCTION), temp_buf))
-							p_new_doc->Function = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_NAMEOFDOC2), temp_buf)) {
-						}
-						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_NAMEOFDOC), temp_buf)) {
-						}
-						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_SELLERINFODATE), temp_buf)) {
-						}
-						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_SELLERINFOTIME), temp_buf)) {
-						}
-						if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_NAMEECSUBJCOMP), temp_buf)) {
-						}
-						for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
-							if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_INVOICEHEADER))) {
-								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INVOICENUMBER), temp_buf)) {
-									p_new_doc->InvcCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_DOCUMENT))) {
+					DocumentInfo * p_new_doc = rDocList.CreateNewItem();
+					ok = 1;
+					if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_KND), temp_buf))
+						p_new_doc->KND = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_FUNCTION), temp_buf))
+						p_new_doc->Function = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_NAMEOFDOC2), temp_buf)) {
+					}
+					if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_NAMEOFDOC), temp_buf)) {
+					}
+					if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_SELLERINFODATE), temp_buf)) {
+					}
+					if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_SELLERINFOTIME), temp_buf)) {
+					}
+					if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_NAMEECSUBJCOMP), temp_buf)) {
+					}
+					for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+						if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_INVOICEHEADER))) {
+							if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INVOICENUMBER), temp_buf)) {
+								p_new_doc->InvcCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+							}
+							if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INVOICEDATE), temp_buf)) {
+								p_new_doc->InvcDate = strtodate_(temp_buf, DATF_GERMANCENT);
+							}
+							if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_CODEOKV), temp_buf)) {
+							}
+							for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+								if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_INVOICECORRECTION))) {
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_INVOICECORR_NOCODE), temp_buf)) {
+									}
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_INVOICECORR_NODATE), temp_buf)) {
+									}
 								}
-								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INVOICEDATE), temp_buf)) {
-									p_new_doc->InvcDate = strtodate_(temp_buf, DATF_GERMANCENT);
+								else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_SELLERINFO))) {
+									Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_SELLER, true);
+									if(p_part)
+										ReadParticipant(p_n3, *p_part);
 								}
-								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_CODEOKV), temp_buf)) {
+								else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_CONSIGNORINFO))) {
+									Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_CONSIGNOR, true);
+									if(p_part)
+										ReadParticipant(p_n3, *p_part);
 								}
-								for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
-									if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_INVOICECORRECTION))) {
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_INVOICECORR_NOCODE), temp_buf)) {
-										}
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_INVOICECORR_NODATE), temp_buf)) {
-										}
-									}
-									else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_SELLERINFO))) {
-										Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_SELLER, true);
-										if(p_part)
-											ReadParticipant(p_n3, *p_part);
-									}
-									else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_CONSIGNORINFO))) {
-										Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_CONSIGNOR, true);
-										if(p_part)
-											ReadParticipant(p_n3, *p_part);
-									}
-									else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_CONSIGNEEINFO))) {
-										Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_CONSIGNEE, true);
-										if(p_part)
-											ReadParticipant(p_n3, *p_part);
-									}
-									else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_BUYERINFO))) {
-										Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_BUYER, true);
-										if(p_part)
-											ReadParticipant(p_n3, *p_part);
-									}
-									else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_EXTRA1))) {
-										for(const xmlNode * p_n4 = p_n3->children; p_n4; p_n4 = p_n4->next) {
-											if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_TEXTINF))) {
-												if(ReadExtraValue(p_n4, extra_key, extra_val) > 0) {
-													if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_GLN_SUPPL))) { // @v11.1.12 CmpNC-->IsEqiUtf8
-														Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_SELLER, true);
-														if(p_part)
-															p_part->GLN = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
-													}
-													else if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_GLN_CONSIGNOR))) { // @v11.1.12 CmpNC-->IsEqiUtf8
-														Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_CONSIGNOR, true);
-														if(p_part)
-															p_part->GLN = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
-													}
-													else if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_WAYBILLCODE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
-														p_new_doc->Code = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
-													}
-													else if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_WAYBILLDATE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
-														p_new_doc->Dt = strtodate_(extra_val, DATF_GERMANCENT);
-													}
+								else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_CONSIGNEEINFO))) {
+									Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_CONSIGNEE, true);
+									if(p_part)
+										ReadParticipant(p_n3, *p_part);
+								}
+								else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_BUYERINFO))) {
+									Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_BUYER, true);
+									if(p_part)
+										ReadParticipant(p_n3, *p_part);
+								}
+								else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_EXTRA1))) {
+									for(const xmlNode * p_n4 = p_n3->children; p_n4; p_n4 = p_n4->next) {
+										if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_TEXTINF))) {
+											if(ReadExtraValue(p_n4, extra_key, extra_val) > 0) {
+												if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_GLN_SUPPL))) { // @v11.1.12 CmpNC-->IsEqiUtf8
+													Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_SELLER, true);
+													if(p_part)
+														p_part->GLN = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
+												}
+												else if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_GLN_CONSIGNOR))) { // @v11.1.12 CmpNC-->IsEqiUtf8
+													Participant * p_part = p_new_doc->GetParticipant(EDIPARTYQ_CONSIGNOR, true);
+													if(p_part)
+														p_part->GLN = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
+												}
+												else if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_WAYBILLCODE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
+													p_new_doc->Code = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
+												}
+												else if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_WAYBILLDATE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
+													p_new_doc->Dt = strtodate_(extra_val, DATF_GERMANCENT);
 												}
 											}
 										}
 									}
 								}
 							}
-							else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_INVOICETAB))) {
-								for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
-									if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_WAREINFO))) {
-										GoodsItem * p_item = p_new_doc->GoodsItemList.CreateNewItem();
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_LINENUMBER), temp_buf))
-											p_item->RowN = temp_buf.ToLong();
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WARENAME), temp_buf))
-											p_item->GoodsName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREOKEI), temp_buf))
-											p_item->OKEI = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREQTTY), temp_buf))
-											p_item->Qtty = temp_buf.ToReal();
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREPRICE), temp_buf))
-											p_item->PriceWoVat = temp_buf.ToReal();
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREAMTWOVAT), temp_buf))
-											p_item->PriceSumWoVat = temp_buf.ToReal();
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_TAXRATE), temp_buf))
-											p_item->VatRate = temp_buf.ToReal();
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREAMT), temp_buf))
-											p_item->PriceSum = temp_buf.ToReal();
-										for(const xmlNode * p_n4 = p_n3->children; p_n4; p_n4 = p_n4->next) {
-											if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_EXCISE))) {
+						}
+						else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_INVOICETAB))) {
+							for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+								if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_WAREINFO))) {
+									GoodsItem * p_item = p_new_doc->GoodsItemList.CreateNewItem();
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_LINENUMBER), temp_buf))
+										p_item->RowN = temp_buf.ToLong();
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WARENAME), temp_buf))
+										p_item->GoodsName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREOKEI), temp_buf))
+										p_item->OKEI = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREQTTY), temp_buf))
+										p_item->Qtty = temp_buf.ToReal();
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREPRICE), temp_buf))
+										p_item->PriceWoVat = temp_buf.ToReal();
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREAMTWOVAT), temp_buf))
+										p_item->PriceSumWoVat = temp_buf.ToReal();
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_TAXRATE), temp_buf))
+										p_item->VatRate = temp_buf.ToReal();
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREAMT), temp_buf))
+										p_item->PriceSum = temp_buf.ToReal();
+									for(const xmlNode * p_n4 = p_n3->children; p_n4; p_n4 = p_n4->next) {
+										if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_EXCISE))) {
+										}
+										else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_AMTTAX))) {
+										}
+										else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_WAREEXTRAINFO))) {
+											// PPHSC_RU_WAREEXTRAINFO
+											// PPHSC_RU_WARECODE
+											//
+											if(SXml::GetAttrib(p_n4, GetToken_Utf8(PPHSC_RU_WARETYPE), temp_buf)) {
 											}
-											else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_AMTTAX))) {
+											if(SXml::GetAttrib(p_n4, GetToken_Utf8(PPHSC_RU_UNITNAME), temp_buf)) {
+												p_item->UOM = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 											}
-											else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_WAREEXTRAINFO))) {
-												// PPHSC_RU_WAREEXTRAINFO
-												// PPHSC_RU_WARECODE
-												//
-												if(SXml::GetAttrib(p_n4, GetToken_Utf8(PPHSC_RU_WARETYPE), temp_buf)) {
+											if(SXml::GetAttrib(p_n4, GetToken_Utf8(PPHSC_RU_WARECODE), temp_buf)) { // @v11.4.2
+												// @v11.4.2 {
+												temp_buf.Strip();
+												int   bc_diag = 0;
+												int   bc_std = 0;
+												int   dbcr = PPObjGoods::DiagBarcode(temp_buf, &bc_diag, &bc_std, &norm_barcode);
+												// Валидные коды с '2' в префиксе принимаем
+												if(oneof4(bc_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE) && (dbcr > 0 || (dbcr < 0 && bc_diag == PPObjGoods::cddFreePrefixEan13))) {
+													p_item->GTIN = temp_buf;
 												}
-												if(SXml::GetAttrib(p_n4, GetToken_Utf8(PPHSC_RU_UNITNAME), temp_buf)) {
-													p_item->UOM = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+												else if(temp_buf.Len() >= 5) { // @v11.5.3
+													p_item->NonEAN_Code = temp_buf;
 												}
-												if(SXml::GetAttrib(p_n4, GetToken_Utf8(PPHSC_RU_WARECODE), temp_buf)) { // @v11.4.2
-													// @v11.4.2 {
-													temp_buf.Strip();
-													int   bc_diag = 0;
-													int   bc_std = 0;
-													int   dbcr = PPObjGoods::DiagBarcode(temp_buf, &bc_diag, &bc_std, &norm_barcode);
-													// Валидные коды с '2' в префиксе принимаем
-													if(oneof4(bc_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE) && (dbcr > 0 || (dbcr < 0 && bc_diag == PPObjGoods::cddFreePrefixEan13))) {
-														p_item->GTIN = temp_buf;
+												// } @v11.4.2 
+											}
+											for(const xmlNode * p_n5 = p_n4->children; p_n5; p_n5 = p_n5->next) {
+												if(SXml::IsName(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENTBLOCK))) {
+													if(SXml::GetAttrib(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENT_TPACKCODE), temp_buf)) { // @v11.5.4 Бывает и такое: единственная марка в атрибуте!
+														p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
 													}
-													else if(temp_buf.Len() >= 5) { // @v11.5.3
-														p_item->NonEAN_Code = temp_buf;
-													}
-													// } @v11.4.2 
-												}
-												for(const xmlNode * p_n5 = p_n4->children; p_n5; p_n5 = p_n5->next) {
-													if(SXml::IsName(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENTBLOCK))) {
-														if(SXml::GetAttrib(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENT_TPACKCODE), temp_buf)) { // @v11.5.4 Бывает и такое: единственная марка в атрибуте!
+													for(const xmlNode * p_n6 = p_n5->children; p_n6; p_n6 = p_n6->next) {
+														if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_PACKCODE), temp_buf) > 0) {
 															p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
 														}
-														for(const xmlNode * p_n6 = p_n5->children; p_n6; p_n6 = p_n6->next) {
-															if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_PACKCODE), temp_buf) > 0) {
-																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
-															}
-															else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_KIZ), temp_buf) > 0) { // @v10.8.7
-																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
-															}
-															else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_TPACKCODE), temp_buf) > 0) { // @v11.5.1
-																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
-															}
+														else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_KIZ), temp_buf) > 0) { // @v10.8.7
+															p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
+														}
+														else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_TPACKCODE), temp_buf) > 0) { // @v11.5.1
+															p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
 														}
 													}
 												}
 											}
-											else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_EXTRA2))) {
-												if(ReadExtraValue(p_n4, extra_key, extra_val) > 0) {
-													if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_BARCODE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
-														// @v11.4.2 {
-														extra_val.Strip().Transf(CTRANSF_UTF8_TO_INNER);
-														/* Код под вопросом: в целом, он правильнее, чем безусловное присваивание (p_item->GTIN = extra_val)
-														однако то уже работает давно, а это может привести к проблемам.
-														if(p_item->GTIN.IsEmpty()) {
-															int   bc_diag = 0;
-															int   bc_std = 0;
-															int   dbcr = PPObjGoods::DiagBarcode(extra_val, &bc_diag, &bc_std, &norm_barcode);
-															if(oneof4(bc_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
-																if(dbcr > 0 || (dbcr < 0 && bc_diag == PPObjGoods::cddFreePrefixEan13)) {
-																	p_item->GTIN = extra_val;
-																}
+										}
+										else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_EXTRA2))) {
+											if(ReadExtraValue(p_n4, extra_key, extra_val) > 0) {
+												if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_BARCODE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
+													// @v11.4.2 {
+													extra_val.Strip().Transf(CTRANSF_UTF8_TO_INNER);
+													/* Код под вопросом: в целом, он правильнее, чем безусловное присваивание (p_item->GTIN = extra_val)
+													однако то уже работает давно, а это может привести к проблемам.
+													if(p_item->GTIN.IsEmpty()) {
+														int   bc_diag = 0;
+														int   bc_std = 0;
+														int   dbcr = PPObjGoods::DiagBarcode(extra_val, &bc_diag, &bc_std, &norm_barcode);
+														if(oneof4(bc_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
+															if(dbcr > 0 || (dbcr < 0 && bc_diag == PPObjGoods::cddFreePrefixEan13)) {
+																p_item->GTIN = extra_val;
 															}
-														}*/
-														// @v11.4.2 {
-														p_item->GTIN = extra_val; // @v11.4.2 see comment above
-													}
+														}
+													}*/
+													// @v11.4.2 {
+													p_item->GTIN = extra_val; // @v11.4.2 see comment above
 												}
 											}
 										}
 									}
-									else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_TOTALTOPAYM))) {
-									}
+								}
+								else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_TOTALTOPAYM))) {
 								}
 							}
-							else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_WARETRANSFINFO))) {
-								for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
-									if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_WARETRANSFINFO2))) { // СвПер
-									}
+						}
+						else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_WARETRANSFINFO))) {
+							for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+								if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_WARETRANSFINFO2))) { // СвПер
 								}
 							}
-							else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_SIGNER))) {
-								for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
-									if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_JUR_S))) {
-									}
+						}
+						else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_SIGNER))) {
+							for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+								if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_JUR_S))) {
 								}
 							}
 						}
@@ -318,119 +399,121 @@ public:
 				}
 			}
 		}
-		CATCHZOK
-		xmlFreeDoc(p_xml_doc);
-		xmlFreeParserCtxt(p_ctx);
-		return ok;
 	}
-private:
-	// Читает атрибуты тега <??? Идентиф="key" Значен="val"/>
-	int    ReadExtraValue(const xmlNode * pNode, SString & rKey, SString & rVal)
-	{
-		rKey.Z();
-		rVal.Z();
-		SString temp_buf;
-		if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_IDENTIF), temp_buf))
-			rKey = temp_buf;
-		if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_VAL), temp_buf))
-			rVal = temp_buf;
-		return BIN(rKey.NotEmpty() && rVal.NotEmpty());
-	}
-	int    ReadAddress(const xmlNode * pNode, Address & rResult)
-	{
-		int    ok = 1;
-		SString temp_buf;
-		for(const xmlNode * p_n = pNode->children; p_n; p_n = p_n->next) {
-			if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_ADDR_RF))) {
-				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_INDEX), temp_buf))
-					rResult.ZIP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_REGIONCODE), temp_buf))
-					rResult.RuRegionCode = temp_buf.ToLong();
-				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_DESTRICT), temp_buf))
-					rResult.Destrict = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_CITY), temp_buf))
-					rResult.City = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_STREET), temp_buf))
-					rResult.Street = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_HOUSE), temp_buf))
-					rResult.House = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_HOUSECORP), temp_buf))
-					rResult.HouseCorp = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_APARTM), temp_buf))
-					rResult.Apart = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-			}
+	CATCHZOK
+	xmlFreeDoc(p_xml_doc);
+	xmlFreeParserCtxt(p_ctx);
+	return ok;
+}
+
+int DocNalogRu_Reader::ReadExtraValue(const xmlNode * pNode, SString & rKey, SString & rVal)
+{
+	rKey.Z();
+	rVal.Z();
+	SString temp_buf;
+	if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_IDENTIF), temp_buf))
+		rKey = temp_buf;
+	if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_VAL), temp_buf))
+		rVal = temp_buf;
+	return BIN(rKey.NotEmpty() && rVal.NotEmpty());
+}
+
+int DocNalogRu_Reader::ReadAddress(const xmlNode * pNode, Address & rResult)
+{
+	int    ok = 1;
+	SString temp_buf;
+	for(const xmlNode * p_n = pNode->children; p_n; p_n = p_n->next) {
+		if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_ADDR_RF))) {
+			if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_INDEX), temp_buf))
+				rResult.ZIP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_REGIONCODE), temp_buf))
+				rResult.RuRegionCode = temp_buf.ToLong();
+			if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_DESTRICT), temp_buf))
+				rResult.Destrict = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_CITY), temp_buf))
+				rResult.City = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_STREET), temp_buf))
+				rResult.Street = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_HOUSE), temp_buf))
+				rResult.House = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_HOUSECORP), temp_buf))
+				rResult.HouseCorp = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_APARTM), temp_buf))
+				rResult.Apart = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		}
-		return ok;
 	}
-	int    ReadFIO(const xmlNode * pNode, FIO & rResult)
-	{
-		SString temp_buf;
-		if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_SURNAME), temp_buf))
-			rResult.Surname = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_NAME), temp_buf))
-			rResult.Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_PATRONYMIC), temp_buf))
-			rResult.Patronymic = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		return 1;
-	}
-	int    ReadParticipant(const xmlNode * pNode, Participant & rResult)
-	{
-		int    ok = 1;
-		SString temp_buf;
-		if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_OKPO), temp_buf))
-			rResult.OKPO = temp_buf;
-		for(const xmlNode * p_n = pNode->children; p_n; p_n = p_n->next) {
-			if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_IDPARTICIPANT))) {
-				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_OKPO), temp_buf))
-					rResult.OKPO = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
-					if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_JURINFO))) {
-						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_NAMEOFORG), temp_buf))
-							rResult.Appellation = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INNJUR), temp_buf))
-							rResult.INN = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_KPP), temp_buf))
-							rResult.KPP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-					}
-					// @v10.8.4 {
-					else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_PRIVEINFO))) {
-						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INNPHS), temp_buf))
-							rResult.INN = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_KPP), temp_buf))
-							rResult.KPP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
-							if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_FIO))) {
-								if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_SURNAME), temp_buf))
-									rResult.Surname = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-								if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_NAME), temp_buf))
-									rResult.Name_ = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-								if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_PATRONYMIC), temp_buf))
-									rResult.Patronymic = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-							}
+	return ok;
+}
+
+int DocNalogRu_Reader::ReadFIO(const xmlNode * pNode, FIO & rResult)
+{
+	SString temp_buf;
+	if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_SURNAME), temp_buf))
+		rResult.Surname = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+	if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_NAME), temp_buf))
+		rResult.Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+	if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_PATRONYMIC), temp_buf))
+		rResult.Patronymic = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+	return 1;
+}
+
+int DocNalogRu_Reader::ReadParticipant(const xmlNode * pNode, Participant & rResult)
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(SXml::GetAttrib(pNode, GetToken_Utf8(PPHSC_RU_OKPO), temp_buf))
+		rResult.OKPO = temp_buf;
+	for(const xmlNode * p_n = pNode->children; p_n; p_n = p_n->next) {
+		if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_IDPARTICIPANT))) {
+			if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_OKPO), temp_buf))
+				rResult.OKPO = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+				if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_JURINFO))) {
+					if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_NAMEOFORG), temp_buf))
+						rResult.Appellation = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INNJUR), temp_buf))
+						rResult.INN = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_KPP), temp_buf))
+						rResult.KPP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				// @v10.8.4 {
+				else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_PRIVEINFO))) {
+					if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INNPHS), temp_buf))
+						rResult.INN = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_KPP), temp_buf))
+						rResult.KPP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+						if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_FIO))) {
+							if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_SURNAME), temp_buf))
+								rResult.Surname = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+							if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_NAME), temp_buf))
+								rResult.Name_ = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+							if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_PATRONYMIC), temp_buf))
+								rResult.Patronymic = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						}
 					}
-					// } @v10.8.4
 				}
+				// } @v10.8.4
 			}
-			else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_ADDRESS))) {
-				ReadAddress(p_n, rResult.Addr);
-			}
-			else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_BANKACCINFO))) {
-				if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_ACCNO), temp_buf))
-					rResult.BA.Account = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-				for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
-					if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_BANKINFO))) {
-						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_BANKNAME), temp_buf))
-							rResult.BA.BankName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_BANKBIC), temp_buf))
-							rResult.BA.BIC = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-					}
+		}
+		else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_ADDRESS))) {
+			ReadAddress(p_n, rResult.Addr);
+		}
+		else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_BANKACCINFO))) {
+			if(SXml::GetAttrib(p_n, GetToken_Utf8(PPHSC_RU_ACCNO), temp_buf))
+				rResult.BA.Account = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+				if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_BANKINFO))) {
+					if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_BANKNAME), temp_buf))
+						rResult.BA.BankName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_BANKBIC), temp_buf))
+						rResult.BA.BIC = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				}
 			}
 		}
-		return ok;
 	}
-};
+	return ok;
+}
 //
 //
 //

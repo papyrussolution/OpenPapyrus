@@ -37,9 +37,7 @@ BitMatrix VisitMatrix(int numRows, int numCols, VisitFunc visit)
 	int col = 0;
 
 	auto corner = [&numRows, &numCols, logAccess](const BitPosArray& corner) {
-		    auto clamp = [](int i, int max) {
-				return i < 0 ? i + max : i;
-			};
+		    auto clamp = [](int i, int max) { return i < 0 ? i + max : i; };
 		    BitPosArray result;
 		    for(size_t bit = 0; bit < 8; ++bit) {
 			    result[bit] = {clamp(corner[bit].row, numRows), clamp(corner[bit].col, numCols)};

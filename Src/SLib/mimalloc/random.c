@@ -36,9 +36,7 @@
    (gcc x64 has no register spills, and clang 6+ uses SSE instructions)
    -----------------------------------------------------------------------------*/
 
-static inline uint32_t rotl(uint32_t x, uint32_t shift) {
-	return (x << shift) | (x >> (32 - shift));
-}
+static inline uint32_t rotl(uint32_t x, uint32_t shift) { return (x << shift) | (x >> (32 - shift)); }
 
 static inline void qround(uint32_t x[16], size_t a, size_t b, size_t c, size_t d) {
 	x[a] += x[b]; x[d] = rotl(x[d] ^ x[a], 16);
@@ -92,7 +90,8 @@ static uint32_t chacha_next32(mi_random_ctx_t* ctx) {
 	return x;
 }
 
-static inline uint32_t read32(const uint8_t* p, size_t idx32) {
+static inline uint32_t read32(const uint8_t* p, size_t idx32) 
+{
 	const size_t i = 4*idx32;
 	return ((uint32_t)p[i+0] | (uint32_t)p[i+1] << 8 | (uint32_t)p[i+2] << 16 | (uint32_t)p[i+3] << 24);
 }
@@ -169,7 +168,7 @@ uintptr_t _mi_random_next(mi_random_ctx_t* ctx) {
 // We prefer to use BCryptGenRandom instead of (the unofficial) RtlGenRandom but when using
 // dynamic overriding, we observed it can raise an exception when compiled with C++, and
 // sometimes deadlocks when also running under the VS debugger.
-#pragma comment (lib,"advapi32.lib")
+#pragma comment(lib, "advapi32.lib")
 #define RtlGenRandom  SystemFunction036
 #ifdef __cplusplus
 extern "C" {
@@ -178,12 +177,10 @@ BOOLEAN NTAPI RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
 #ifdef __cplusplus
 }
 #endif
-static bool os_random_buf(void* buf, size_t buf_len) {
-	return (RtlGenRandom(buf, (ULONG)buf_len) != 0);
-}
+static bool os_random_buf(void* buf, size_t buf_len) { return (RtlGenRandom(buf, (ULONG)buf_len) != 0); }
 
 #else
-#pragma comment (lib,"bcrypt.lib")
+#pragma comment(lib, "bcrypt.lib")
 #include <bcrypt.h>
 static bool os_random_buf(void* buf, size_t buf_len) {
 	return (BCryptGenRandom(NULL, (PUCHAR)buf, (ULONG)buf_len, BCRYPT_USE_SYSTEM_PREFERRED_RNG) >= 0);

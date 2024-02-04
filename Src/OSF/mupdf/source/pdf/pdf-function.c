@@ -177,7 +177,7 @@ static void ps_push_real(ps_stack * st, float n)
 			 * cause a divide by 0. Same reason as in fz_atof. */
 			n = 1.0f;
 		}
-		st->stack[st->sp].u.f = fz_clamp(n, -FLT_MAX, FLT_MAX);
+		st->stack[st->sp].u.f = sclamp(n, -FLT_MAX, FLT_MAX);
 		st->sp++;
 	}
 }
@@ -825,19 +825,15 @@ static void eval_postscript_func(fz_context * ctx, pdf_function * func, const fl
 	ps_stack st;
 	float x;
 	int i;
-
 	ps_init_stack(&st);
-
 	for(i = 0; i < func->m; i++) {
-		x = fz_clamp(in[i], func->domain[i][0], func->domain[i][1]);
+		x = sclamp(in[i], func->domain[i][0], func->domain[i][1]);
 		ps_push_real(&st, x);
 	}
-
 	ps_run(ctx, func->u.p.code, &st, 0);
-
 	for(i = func->n - 1; i >= 0; i--) {
 		x = ps_pop_real(&st);
-		out[i] = fz_clamp(x, func->range[i][0], func->range[i][1]);
+		out[i] = sclamp(x, func->range[i][0], func->range[i][1]);
 	}
 }
 
@@ -978,18 +974,15 @@ static void eval_sample_func(fz_context * ctx, pdf_function * func, const float 
 	float efrac[MAX_M];
 	float x;
 	int i;
-
 	/* encode input coordinates */
 	for(i = 0; i < func->m; i++) {
-		x = fz_clamp(in[i], func->domain[i][0], func->domain[i][1]);
-		x = lerp(x, func->domain[i][0], func->domain[i][1],
-			func->u.sa.encode[i][0], func->u.sa.encode[i][1]);
-		x = fz_clamp(x, 0, func->u.sa.size[i] - 1);
+		x = sclamp(in[i], func->domain[i][0], func->domain[i][1]);
+		x = lerp(x, func->domain[i][0], func->domain[i][1], func->u.sa.encode[i][0], func->u.sa.encode[i][1]);
+		x = sclampf(x, 0.0f, func->u.sa.size[i] - 1);
 		e0[i] = floorf(x);
 		e1[i] = ceilf(x);
 		efrac[i] = x - e0[i];
 	}
-
 	scale[0] = func->n;
 	for(i = 1; i < func->m; i++)
 		scale[i] = scale[i - 1] * func->u.sa.size[i-1];
@@ -998,13 +991,10 @@ static void eval_sample_func(fz_context * ctx, pdf_function * func, const float 
 		if(func->m == 1) {
 			float a = func->u.sa.samples[e0[0] * func->n + i];
 			float b = func->u.sa.samples[e1[0] * func->n + i];
-
 			float ab = a + (b - a) * efrac[0];
-
 			out[i] = lerp(ab, 0, 1, func->u.sa.decode[i][0], func->u.sa.decode[i][1]);
-			out[i] = fz_clamp(out[i], func->range[i][0], func->range[i][1]);
+			out[i] = sclamp(out[i], func->range[i][0], func->range[i][1]);
 		}
-
 		else if(func->m == 2) {
 			int s0 = func->n;
 			int s1 = s0 * func->u.sa.size[0];
@@ -1017,15 +1007,13 @@ static void eval_sample_func(fz_context * ctx, pdf_function * func, const float 
 			float ab = a + (b - a) * efrac[0];
 			float cd = c + (d - c) * efrac[0];
 			float abcd = ab + (cd - ab) * efrac[1];
-
 			out[i] = lerp(abcd, 0, 1, func->u.sa.decode[i][0], func->u.sa.decode[i][1]);
-			out[i] = fz_clamp(out[i], func->range[i][0], func->range[i][1]);
+			out[i] = sclamp(out[i], func->range[i][0], func->range[i][1]);
 		}
-
 		else {
 			x = interpolate_sample(func, scale, e0, e1, efrac, func->m - 1, i);
 			out[i] = lerp(x, 0, 1, func->u.sa.decode[i][0], func->u.sa.decode[i][1]);
-			out[i] = fz_clamp(out[i], func->range[i][0], func->range[i][1]);
+			out[i] = sclamp(out[i], func->range[i][0], func->range[i][1]);
 		}
 	}
 }
@@ -1089,31 +1077,25 @@ static void load_exponential_func(fz_context * ctx, pdf_function * func, pdf_obj
 
 static void eval_exponential_func(fz_context * ctx, pdf_function * func, float in, float * out)
 {
-	float x = in;
 	float tmp;
 	int i;
-
-	x = fz_clamp(x, func->domain[0][0], func->domain[0][1]);
-
+	const float x = sclamp(in, func->domain[0][0], func->domain[0][1]);
 	/* Default output is zero, which is suitable for violated constraints */
 	if((func->u.e.n != (int)func->u.e.n && x < 0) || (func->u.e.n < 0 && x == 0)) {
 		for(i = 0; i < func->n; i++)
 			out[i] = 0;
 		return;
 	}
-
 	tmp = powf(x, func->u.e.n);
 	for(i = 0; i < func->n; i++) {
 		out[i] = func->u.e.c0[i] + tmp * (func->u.e.c1[i] - func->u.e.c0[i]);
 		if(func->has_range)
-			out[i] = fz_clamp(out[i], func->range[i][0], func->range[i][1]);
+			out[i] = sclamp(out[i], func->range[i][0], func->range[i][1]);
 	}
 }
-
 /*
  * Stitching function
  */
-
 static void load_stitching_func(fz_context * ctx, pdf_function * func, pdf_obj * dict)
 {
 	pdf_function ** funcs;
@@ -1211,14 +1193,11 @@ static void eval_stitching_func(fz_context * ctx, pdf_function * func, float in,
 	int k = func->u.st.k;
 	float * bounds = func->u.st.bounds;
 	int i;
-
-	in = fz_clamp(in, func->domain[0][0], func->domain[0][1]);
-
+	in = sclamp(in, func->domain[0][0], func->domain[0][1]);
 	for(i = 0; i < k - 1; i++) {
 		if(in < bounds[i])
 			break;
 	}
-
 	if(i == 0 && k == 1) {
 		low = func->domain[0][0];
 		high = func->domain[0][1];

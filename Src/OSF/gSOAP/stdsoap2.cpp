@@ -13865,7 +13865,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_print_fault(struct soap * soap, FILE * fd)
 SOAP_FMAC1 char * SOAP_FMAC2 soap_sprint_fault(struct soap * soap, char * buf, size_t len)
 {
 	if(soap_check_state(soap))
-		strncpy(buf, "Error: soap struct not initialized", len);
+		strnzcpy(buf, "Error: soap struct not initialized", len);
 	else if(soap->error) {
 		const char * v = NULL, * s, * d;
 		const char ** c = soap_faultcode(soap);

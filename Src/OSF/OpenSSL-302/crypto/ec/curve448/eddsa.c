@@ -98,12 +98,8 @@ c448_error_t ossl_c448_ed448_derive_public_key(OSSL_LIB_CTX * ctx,
 	    EDDSA_448_PRIVATE_BYTES,
 	    propq))
 		return C448_FAILURE;
-
 	clamp(secret_scalar_ser);
-
-	ossl_curve448_scalar_decode_long(secret_scalar, secret_scalar_ser,
-	    sizeof(secret_scalar_ser));
-
+	ossl_curve448_scalar_decode_long(secret_scalar, secret_scalar_ser, sizeof(secret_scalar_ser));
 	/*
 	 * Since we are going to mul_by_cofactor during encoding, divide by it
 	 * here. However, the EdDSA base point is not the same as the decaf base
@@ -153,8 +149,7 @@ c448_error_t ossl_c448_ed448_sign(OSSL_LIB_CTX * ctx,
 		    EDDSA_448_PRIVATE_BYTES, propq))
 			goto err;
 		clamp(expanded);
-		ossl_curve448_scalar_decode_long(secret_scalar, expanded,
-		    EDDSA_448_PRIVATE_BYTES);
+		ossl_curve448_scalar_decode_long(secret_scalar, expanded, EDDSA_448_PRIVATE_BYTES);
 
 		/* Hash to create the nonce */
 		if(!hash_init_with_dom(ctx, hashctx, prehashed, 0, context,

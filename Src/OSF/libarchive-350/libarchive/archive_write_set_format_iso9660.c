@@ -1936,16 +1936,12 @@ static void get_system_identitier(char * system_id, size_t size)
 {
 #if defined(HAVE_SYS_UTSNAME_H)
 	struct utsname u;
-
 	uname(&u);
-	strncpy(system_id, u.sysname, size-1);
-	system_id[size-1] = '\0';
+	strnzcpy(system_id, u.sysname, size);
 #elif defined(_WIN32) && !defined(__CYGWIN__)
-	strncpy(system_id, "Windows", size-1);
-	system_id[size-1] = '\0';
+	strnzcpy(system_id, "Windows", size);
 #else
-	strncpy(system_id, "Unknown", size-1);
-	system_id[size-1] = '\0';
+	strnzcpy(system_id, "Unknown", size);
 #endif
 }
 
@@ -3734,65 +3730,48 @@ static int write_information_block(struct archive_write * a)
 #elif defined(HAVE_CTIME_R)
 	ctime_r(&(iso9660->birth_time), buf);
 #else
-	strncpy(buf, ctime(&(iso9660->birth_time)), sizeof(buf)-1);
-	buf[sizeof(buf)-1] = '\0';
+	strnzcpy(buf, ctime(&(iso9660->birth_time)), sizeof(buf));
 #endif
-	archive_string_sprintf(&info,
-	    "INFO %s%s", buf, archive_version_string());
+	archive_string_sprintf(&info, "INFO %s%s", buf, archive_version_string());
 	if(iso9660->opt.abstract_file != OPT_ABSTRACT_FILE_DEFAULT)
-		set_option_info(&info, &opt, "abstract-file",
-		    KEY_STR, iso9660->abstract_file_identifier.s);
+		set_option_info(&info, &opt, "abstract-file", KEY_STR, iso9660->abstract_file_identifier.s);
 	if(iso9660->opt.application_id != OPT_APPLICATION_ID_DEFAULT)
-		set_option_info(&info, &opt, "application-id",
-		    KEY_STR, iso9660->application_identifier.s);
+		set_option_info(&info, &opt, "application-id", KEY_STR, iso9660->application_identifier.s);
 	if(iso9660->opt.allow_vernum != OPT_ALLOW_VERNUM_DEFAULT)
-		set_option_info(&info, &opt, "allow-vernum",
-		    KEY_FLG, iso9660->opt.allow_vernum);
+		set_option_info(&info, &opt, "allow-vernum", KEY_FLG, iso9660->opt.allow_vernum);
 	if(iso9660->opt.biblio_file != OPT_BIBLIO_FILE_DEFAULT)
-		set_option_info(&info, &opt, "biblio-file",
-		    KEY_STR, iso9660->bibliographic_file_identifier.s);
+		set_option_info(&info, &opt, "biblio-file", KEY_STR, iso9660->bibliographic_file_identifier.s);
 	if(iso9660->opt.boot != OPT_BOOT_DEFAULT)
-		set_option_info(&info, &opt, "boot",
-		    KEY_STR, iso9660->el_torito.boot_filename.s);
+		set_option_info(&info, &opt, "boot", KEY_STR, iso9660->el_torito.boot_filename.s);
 	if(iso9660->opt.boot_catalog != OPT_BOOT_CATALOG_DEFAULT)
-		set_option_info(&info, &opt, "boot-catalog",
-		    KEY_STR, iso9660->el_torito.catalog_filename.s);
+		set_option_info(&info, &opt, "boot-catalog", KEY_STR, iso9660->el_torito.catalog_filename.s);
 	if(iso9660->opt.boot_info_table != OPT_BOOT_INFO_TABLE_DEFAULT)
-		set_option_info(&info, &opt, "boot-info-table",
-		    KEY_FLG, iso9660->opt.boot_info_table);
+		set_option_info(&info, &opt, "boot-info-table", KEY_FLG, iso9660->opt.boot_info_table);
 	if(iso9660->opt.boot_load_seg != OPT_BOOT_LOAD_SEG_DEFAULT)
-		set_option_info(&info, &opt, "boot-load-seg",
-		    KEY_HEX, iso9660->el_torito.boot_load_seg);
+		set_option_info(&info, &opt, "boot-load-seg", KEY_HEX, iso9660->el_torito.boot_load_seg);
 	if(iso9660->opt.boot_load_size != OPT_BOOT_LOAD_SIZE_DEFAULT)
-		set_option_info(&info, &opt, "boot-load-size",
-		    KEY_INT, iso9660->el_torito.boot_load_size);
+		set_option_info(&info, &opt, "boot-load-size", KEY_INT, iso9660->el_torito.boot_load_size);
 	if(iso9660->opt.boot_type != OPT_BOOT_TYPE_DEFAULT) {
 		v = "no-emulation";
 		if(iso9660->opt.boot_type == OPT_BOOT_TYPE_FD)
 			v = "fd";
 		if(iso9660->opt.boot_type == OPT_BOOT_TYPE_HARD_DISK)
 			v = "hard-disk";
-		set_option_info(&info, &opt, "boot-type",
-		    KEY_STR, v);
+		set_option_info(&info, &opt, "boot-type", KEY_STR, v);
 	}
 #ifdef HAVE_ZLIB_H
 	if(iso9660->opt.compression_level != OPT_COMPRESSION_LEVEL_DEFAULT)
-		set_option_info(&info, &opt, "compression-level",
-		    KEY_INT, iso9660->zisofs.compression_level);
+		set_option_info(&info, &opt, "compression-level", KEY_INT, iso9660->zisofs.compression_level);
 #endif
 	if(iso9660->opt.copyright_file != OPT_COPYRIGHT_FILE_DEFAULT)
-		set_option_info(&info, &opt, "copyright-file",
-		    KEY_STR, iso9660->copyright_file_identifier.s);
+		set_option_info(&info, &opt, "copyright-file", KEY_STR, iso9660->copyright_file_identifier.s);
 	if(iso9660->opt.iso_level != OPT_ISO_LEVEL_DEFAULT)
-		set_option_info(&info, &opt, "iso-level",
-		    KEY_INT, iso9660->opt.iso_level);
+		set_option_info(&info, &opt, "iso-level", KEY_INT, iso9660->opt.iso_level);
 	if(iso9660->opt.joliet != OPT_JOLIET_DEFAULT) {
 		if(iso9660->opt.joliet == OPT_JOLIET_LONGNAME)
-			set_option_info(&info, &opt, "joliet",
-			    KEY_STR, "long");
+			set_option_info(&info, &opt, "joliet", KEY_STR, "long");
 		else
-			set_option_info(&info, &opt, "joliet",
-			    KEY_FLG, iso9660->opt.joliet);
+			set_option_info(&info, &opt, "joliet", KEY_FLG, iso9660->opt.joliet);
 	}
 	if(iso9660->opt.limit_depth != OPT_LIMIT_DEPTH_DEFAULT)
 		set_option_info(&info, &opt, "limit-depth",
@@ -3849,21 +3828,17 @@ static int write_rr_ER(struct archive_write * a)
 
 static void calculate_path_table_size(struct iso9660::vdd * vdd)
 {
-	int depth, size;
-	struct iso9660::vdd::path_table * pt;
-	pt = vdd->pathtbl;
-	size = 0;
+	int depth;
+	struct iso9660::vdd::path_table * pt = vdd->pathtbl;
+	int size = 0;
 	for(depth = 0; depth < vdd->max_depth; depth++) {
 		struct isoent ** ptbl;
 		int i, cnt;
-
 		if((cnt = pt[depth].cnt) == 0)
 			break;
-
 		ptbl = pt[depth].sorted;
 		for(i = 0; i < cnt; i++) {
 			int len;
-
 			if(ptbl[i]->identifier == NULL)
 				len = 1; /* root directory */
 			else

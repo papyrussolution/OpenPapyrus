@@ -186,12 +186,9 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
 						CertFreeCertificateContext(cert_context);
 						if(!add_cert_result) {
 							char buffer[STRERROR_LEN];
-							failf(data,
-							    "schannel: failed to add certificate from CA file '%s' "
+							failf(data, "schannel: failed to add certificate from CA file '%s' "
 							    "to certificate store: %s",
-							    ca_file_text,
-							    Curl_winapi_strerror(GetLastError(), buffer,
-							    sizeof(buffer)));
+							    ca_file_text, Curl_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
 							result = CURLE_SSL_CACERT_BADFILE;
 							more_certs = 0;
 						}
@@ -247,59 +244,36 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
 	 * optimizes for the common case where the CA file will be relatively
 	 * small ( < 1 MiB ).
 	 */
-	ca_file_handle = CreateFile(ca_file_tstr,
-		GENERIC_READ,
-		FILE_SHARE_READ,
-		NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
+	ca_file_handle = CreateFile(ca_file_tstr, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(ca_file_handle == INVALID_HANDLE_VALUE) {
 		char buffer[STRERROR_LEN];
-		failf(data,
-		    "schannel: failed to open CA file '%s': %s",
-		    ca_file,
-		    Curl_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
+		failf(data, "schannel: failed to open CA file '%s': %s", ca_file, Curl_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
 		result = CURLE_SSL_CACERT_BADFILE;
 		goto cleanup;
 	}
-
 	if(!GetFileSizeEx(ca_file_handle, &file_size)) {
 		char buffer[STRERROR_LEN];
-		failf(data,
-		    "schannel: failed to determine size of CA file '%s': %s",
-		    ca_file,
-		    Curl_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
+		failf(data, "schannel: failed to determine size of CA file '%s': %s", ca_file, Curl_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
 		result = CURLE_SSL_CACERT_BADFILE;
 		goto cleanup;
 	}
-
 	if(file_size.QuadPart > MAX_CAFILE_SIZE) {
-		failf(data,
-		    "schannel: CA file exceeds max size of %u bytes",
-		    MAX_CAFILE_SIZE);
+		failf(data, "schannel: CA file exceeds max size of %u bytes", MAX_CAFILE_SIZE);
 		result = CURLE_SSL_CACERT_BADFILE;
 		goto cleanup;
 	}
-
 	ca_file_bufsize = (size_t)file_size.QuadPart;
 	ca_file_buffer = (char *)SAlloc::M(ca_file_bufsize + 1);
 	if(!ca_file_buffer) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto cleanup;
 	}
-
 	while(total_bytes_read < ca_file_bufsize) {
 		DWORD bytes_to_read = (DWORD)(ca_file_bufsize - total_bytes_read);
 		DWORD bytes_read = 0;
-
-		if(!ReadFile(ca_file_handle, ca_file_buffer + total_bytes_read,
-		    bytes_to_read, &bytes_read, NULL)) {
+		if(!ReadFile(ca_file_handle, ca_file_buffer + total_bytes_read, bytes_to_read, &bytes_read, NULL)) {
 			char buffer[STRERROR_LEN];
-			failf(data,
-			    "schannel: failed to read from CA file '%s': %s",
-			    ca_file,
-			    Curl_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
+			failf(data, "schannel: failed to read from CA file '%s': %s", ca_file, Curl_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
 			result = CURLE_SSL_CACERT_BADFILE;
 			goto cleanup;
 		}

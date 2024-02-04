@@ -52,24 +52,23 @@ uint32_t arc4random(void);
 #define HAVE_MINGW_ORIGINAL
 #endif
 
-#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x600 && \
-	!defined(HAVE_MINGW_ORIGINAL)
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x600 && !defined(HAVE_MINGW_ORIGINAL)
 #define HAVE_WIN_BCRYPTGENRANDOM
 #include <bcrypt.h>
 #ifdef _MSC_VER
-#pragma comment(lib, "bcrypt.lib")
+	#pragma comment(lib, "bcrypt.lib")
 #endif
 #ifndef BCRYPT_USE_SYSTEM_PREFERRED_RNG
-#define BCRYPT_USE_SYSTEM_PREFERRED_RNG 0x00000002
+	#define BCRYPT_USE_SYSTEM_PREFERRED_RNG 0x00000002
 #endif
 #ifndef STATUS_SUCCESS
-#define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
+	#define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
 #endif
 #elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
-#ifdef _MSC_VER
-#pragma comment(lib, "advapi32.lib")
-#endif
+	#include <wincrypt.h>
+	#ifdef _MSC_VER
+		#pragma comment(lib, "advapi32.lib")
+	#endif
 #endif
 
 CURLcode Curl_win32_random(uchar * entropy, size_t length)
@@ -82,16 +81,12 @@ CURLcode Curl_win32_random(uchar * entropy, size_t length)
 #elif defined(USE_WIN32_CRYPTO)
 	{
 		HCRYPTPROV hCryptProv = 0;
-
-		if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL,
-		    CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
+		if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
 			return CURLE_FAILED_INIT;
-
 		if(!CryptGenRandom(hCryptProv, (DWORD)length, entropy)) {
 			CryptReleaseContext(hCryptProv, 0UL);
 			return CURLE_FAILED_INIT;
 		}
-
 		CryptReleaseContext(hCryptProv, 0UL);
 	}
 	return CURLE_OK;
@@ -108,7 +103,6 @@ static CURLcode randit(struct Curl_easy * data, uint * rnd)
 	CURLcode result = CURLE_OK;
 	static uint randseed;
 	static bool seeded = FALSE;
-
 #ifdef CURLDEBUG
 	char * force_entropy = getenv("CURL_ENTROPY");
 	if(force_entropy) {
@@ -199,13 +193,10 @@ static CURLcode randit(struct Curl_easy * data, uint * rnd)
 CURLcode Curl_rand(struct Curl_easy * data, uchar * rnd, size_t num)
 {
 	CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-
 	DEBUGASSERT(num > 0);
-
 	while(num) {
 		uint r;
 		size_t left = num < sizeof(uint) ? num : sizeof(uint);
-
 		result = randit(data, &r);
 		if(result)
 			return result;
@@ -256,6 +247,5 @@ CURLcode Curl_rand_hex(struct Curl_easy * data, uchar * rnd, size_t num)
 		num -= 2;
 	}
 	*rnd = 0;
-
 	return result;
 }

@@ -144,7 +144,7 @@ typedef enum {
 	ONE_MINUS_INV_SA_OVER_DA
 } combine_factor_t;
 
-#define CLAMP(v) (((v) < 0.0f) ? 0.0f : (((v) > 1.0f) ? 1.0f : (v)))
+//#define CLAMP(v) (((v) < 0.0f) ? 0.0f : (((v) > 1.0f) ? 1.0f : (v)))
 
 static FORCEINLINE float get_factor(combine_factor_t factor, float sa, float da)
 {
@@ -156,62 +156,20 @@ static FORCEINLINE float get_factor(combine_factor_t factor, float sa, float da)
 		case DEST_ALPHA: f = da; break;
 		case INV_SA: f = 1 - sa; break;
 		case INV_DA: f = 1 - da; break;
-		case SA_OVER_DA:
-		    if(FLOAT_IS_ZERO(da))
-			    f = 1.0f;
-		    else
-			    f = CLAMP(sa / da);
-		    break;
-		case DA_OVER_SA:
-		    if(FLOAT_IS_ZERO(sa))
-			    f = 1.0f;
-		    else
-			    f = CLAMP(da / sa);
-		    break;
-		case INV_SA_OVER_DA:
-		    if(FLOAT_IS_ZERO(da))
-			    f = 1.0f;
-		    else
-			    f = CLAMP((1.0f - sa) / da);
-		    break;
-
-		case INV_DA_OVER_SA:
-		    if(FLOAT_IS_ZERO(sa))
-			    f = 1.0f;
-		    else
-			    f = CLAMP((1.0f - da) / sa);
-		    break;
-		case ONE_MINUS_SA_OVER_DA:
-		    if(FLOAT_IS_ZERO(da))
-			    f = 0.0f;
-		    else
-			    f = CLAMP(1.0f - sa / da);
-		    break;
-		case ONE_MINUS_DA_OVER_SA:
-		    if(FLOAT_IS_ZERO(sa))
-			    f = 0.0f;
-		    else
-			    f = CLAMP(1.0f - da / sa);
-		    break;
-		case ONE_MINUS_INV_DA_OVER_SA:
-		    if(FLOAT_IS_ZERO(sa))
-			    f = 0.0f;
-		    else
-			    f = CLAMP(1.0f - (1.0f - da) / sa);
-		    break;
-		case ONE_MINUS_INV_SA_OVER_DA:
-		    if(FLOAT_IS_ZERO(da))
-			    f = 0.0f;
-		    else
-			    f = CLAMP(1.0f - (1.0f - sa) / da);
-		    break;
+		case SA_OVER_DA: f = FLOAT_IS_ZERO(da) ? 1.0f : sclamp(sa / da, 0.0f, 1.0f); break;
+		case DA_OVER_SA: f = FLOAT_IS_ZERO(sa) ? 1.0f : sclamp(da / sa, 0.0f, 1.0f); break;
+		case INV_SA_OVER_DA: f = FLOAT_IS_ZERO(da) ? 1.0f : sclamp((1.0f - sa) / da, 0.0f, 1.0f); break;
+		case INV_DA_OVER_SA: f = FLOAT_IS_ZERO(sa) ? 1.0f : sclamp((1.0f - da) / sa, 0.0f, 1.0f); break;
+		case ONE_MINUS_SA_OVER_DA: f = FLOAT_IS_ZERO(da) ? 0.0f : sclamp(1.0f - sa / da, 0.0f, 1.0f); break;
+		case ONE_MINUS_DA_OVER_SA: f = FLOAT_IS_ZERO(sa) ? 0.0f : sclamp(1.0f - da / sa, 0.0f, 1.0f); break;
+		case ONE_MINUS_INV_DA_OVER_SA: f = FLOAT_IS_ZERO(sa) ? 0.0f : sclamp(1.0f - (1.0f - da) / sa, 0.0f, 1.0f); break;
+		case ONE_MINUS_INV_SA_OVER_DA: f = FLOAT_IS_ZERO(da) ? 0.0f : sclamp(1.0f - (1.0f - sa) / da, 0.0f, 1.0f); break;
 	}
 	return f;
 }
 
 #define MAKE_PD_COMBINERS(name, a, b)                                   \
-	static float FORCEINLINE                                           \
-	pd_combine_ ## name(float sa, float s, float da, float d)          \
+	static float FORCEINLINE pd_combine_ ## name(float sa, float s, float da, float d)          \
 	{                                                                   \
 		const float fa = get_factor(a, sa, da);                        \
 		const float fb = get_factor(b, sa, da);                        \

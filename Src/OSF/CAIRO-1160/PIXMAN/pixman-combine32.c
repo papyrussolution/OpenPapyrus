@@ -357,7 +357,7 @@ static void combine_multiply_ca(pixman_implementation_t * imp, pixman_op_t op, u
 	}
 }
 
-#define CLAMP(v, low, high) do { if((v) < (low)) (v) = (low); if((v) > (high)) (v) = (high); } while(0)
+// v11.9.4 (replaced with sclamp) #define CLAMP(v, low, high) do { if((v) < (low)) (v) = (low); if((v) > (high)) (v) = (high); } while(0)
 
 #define PDF_SEPARABLE_BLEND_MODE(name)                                  \
 	static void combine_ ## name ## _u(pixman_implementation_t *imp, pixman_op_t op, uint32 * dest, const uint32 * src, const uint32 * mask, int width) \
@@ -369,7 +369,7 @@ static void combine_multiply_ca(pixman_implementation_t * imp, pixman_op_t op, u
 			uint8 isa = ~sa;                                          \
 			uint8 da = ALPHA_8(d);                                   \
 			uint8 ida = ~da;                                          \
-			int32 ra, rr, rg, rb;                                     \
+			/*int32*/int ra, rr, rg, rb;                               \
                                                                         \
 			ra = da * 0xff + sa * 0xff - sa * da;                       \
 			rr = isa * RED_8(d) + ida * RED_8(s);                     \
@@ -380,10 +380,10 @@ static void combine_multiply_ca(pixman_implementation_t * imp, pixman_op_t op, u
 			rg += blend_ ## name(GREEN_8(d), da, GREEN_8(s), sa);    \
 			rb += blend_ ## name(BLUE_8(d), da, BLUE_8(s), sa);      \
                                                                         \
-			CLAMP(ra, 0, 255 * 255);                                   \
-			CLAMP(rr, 0, 255 * 255);                                   \
-			CLAMP(rg, 0, 255 * 255);                                   \
-			CLAMP(rb, 0, 255 * 255);                                   \
+			ra = sclamp(ra, 0, 255 * 255);                                   \
+			rr = sclamp(rr, 0, 255 * 255);                                   \
+			rg = sclamp(rg, 0, 255 * 255);                                   \
+			rb = sclamp(rb, 0, 255 * 255);                                   \
                                                                         \
 			ra = DIV_ONE_UN8(ra);                                      \
 			rr = DIV_ONE_UN8(rr);                                      \
@@ -402,7 +402,7 @@ static void combine_multiply_ca(pixman_implementation_t * imp, pixman_op_t op, u
 			uint32 d = *(dest + i);                                   \
 			uint8 da = ALPHA_8(d);                                   \
 			uint8 ida = ~da;                                          \
-			int32 ra, rr, rg, rb;                                     \
+			/*int32*/int ra, rr, rg, rb;                                     \
 			uint8 ira, iga, iba;                                      \
                                                                         \
 			combine_mask_ca(&s, &m);                                   \
@@ -420,10 +420,10 @@ static void combine_multiply_ca(pixman_implementation_t * imp, pixman_op_t op, u
 			rg += blend_ ## name(GREEN_8(d), da, GREEN_8(s), GREEN_8(m)); \
 			rb += blend_ ## name(BLUE_8(d), da, BLUE_8(s), BLUE_8(m)); \
                                                                         \
-			CLAMP(ra, 0, 255 * 255);                                   \
-			CLAMP(rr, 0, 255 * 255);                                   \
-			CLAMP(rg, 0, 255 * 255);                                   \
-			CLAMP(rb, 0, 255 * 255);                                   \
+			ra = sclamp(ra, 0, 255 * 255);                                   \
+			rr = sclamp(rr, 0, 255 * 255);                                   \
+			rg = sclamp(rg, 0, 255 * 255);                                   \
+			rb = sclamp(rb, 0, 255 * 255);                                   \
                                                                         \
 			ra = DIV_ONE_UN8(ra);                                      \
 			rr = DIV_ONE_UN8(rr);                                      \
@@ -441,10 +441,7 @@ static void combine_multiply_ca(pixman_implementation_t * imp, pixman_op_t op, u
  * = ad * as * (d/ad + s/as - s/as * d/ad)
  * = ad * s + as * d - s * d
  */
-static inline int32 blend_screen(int32 d, int32 ad, int32 s, int32 as)
-{
-	return s * ad + d * as - s * d;
-}
+static inline int32 blend_screen(int32 d, int32 ad, int32 s, int32 as) { return s * ad + d * as - s * d; }
 
 PDF_SEPARABLE_BLEND_MODE(screen)
 /*

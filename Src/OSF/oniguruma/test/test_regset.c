@@ -198,8 +198,7 @@ static void xx(int line_no, int n, const char * ps[], const char * s, int from, 
 			else {
 				char buf[1000];
 				int len = region->end[mem] - region->beg[mem];
-				strncpy(buf, s + region->beg[mem], len);
-				buf[len] = '\0';
+				strnzcpy(buf, s + region->beg[mem], len);
 				slfprintf(OnigTB.out_file, "FAIL: %d: %d-%d : %d-%d (%s)\n", line_no, from, to, region->beg[mem], region->end[mem], buf);
 				OnigTB.nfail++;
 			}

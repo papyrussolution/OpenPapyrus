@@ -467,9 +467,9 @@ public:
 	}
 	INTColor& Clamp(_In_ int iMin, _In_ int iMax) noexcept
 	{
-		r = std::min<int>(iMax, std::max<int>(iMin, r));
-		g = std::min<int>(iMax, std::max<int>(iMin, g));
-		b = std::min<int>(iMax, std::max<int>(iMin, b));
+		r = sclamp(r, iMin, iMax);
+		g = sclamp(g, iMin, iMax);
+		b = sclamp(b, iMin, iMax);
 		return *this;
 	}
 	INTColor& SignExtend(_In_ const LDRColorA& Prec) noexcept

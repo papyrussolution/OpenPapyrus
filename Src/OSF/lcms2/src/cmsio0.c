@@ -342,8 +342,7 @@ cmsIOHANDLER * CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const ch
 	iohandler->stream = (void *)fm;
 	iohandler->UsedSpace = 0;
 	// Keep track of the original file
-	strncpy(iohandler->PhysicalFile, FileName, sizeof(iohandler->PhysicalFile)-1);
-	iohandler->PhysicalFile[sizeof(iohandler->PhysicalFile)-1] = 0;
+	strnzcpy(iohandler->PhysicalFile, FileName, sizeof(iohandler->PhysicalFile));
 	iohandler->Read    = FileRead;
 	iohandler->Seek    = FileSeek;
 	iohandler->Close   = FileClose;

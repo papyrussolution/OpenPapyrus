@@ -662,20 +662,17 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry_Static * pThis)
 			// it would also be very nice to do some sanity checks on filenames 
 			// <name>.xx.png; must be at least 7 characters long 
 			CONTEXT_image_filename = (char *)SAlloc::M(CONTEXT_image_filename_length + 10);
-			strncpy(CONTEXT_image_filename, GPT.P_OutStr, CONTEXT_image_filename_length);
-			CONTEXT_image_filename[CONTEXT_image_filename_length] = 0;
+			strnzcpy(CONTEXT_image_filename, GPT.P_OutStr, CONTEXT_image_filename_length+1);
 		}
 		else {
 			CONTEXT_image_filename_length = strlen("gp_image");
 			CONTEXT_image_filename_start  = 0;
 			/* <name>.xx.png; must be at least 7 characters long */
 			CONTEXT_image_filename = (char *)SAlloc::M(CONTEXT_image_filename_length + 10);
-			strncpy(CONTEXT_image_filename, "gp_image", CONTEXT_image_filename_length);
-			CONTEXT_image_filename[CONTEXT_image_filename_length] = 0;
+			strnzcpy(CONTEXT_image_filename, "gp_image", CONTEXT_image_filename_length+1);
 		}
 	}
 #endif
-
 	fprintf(GPT.P_GpOutFile, "%% Written by ConTeXt terminal for GNUPLOT");
 	if(CONTEXT_params.timestamp) {
 		if(strftime(timebuffer, 100, "%Y-%m-%d %H:%M %Z", localtime(&now)) != 0)

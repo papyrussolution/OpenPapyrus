@@ -1119,11 +1119,18 @@ size_t ZSTD_checkCParams(ZSTD_compressionParameters cParams)
  *  @return : valid CParams */
 static ZSTD_compressionParameters ZSTD_clampCParams(ZSTD_compressionParameters cParams)
 {
-#define CLAMP_TYPE(cParam, val, type) {                                \
+
+/* @v11.9.4 #define CLAMP_TYPE(cParam, val, type) {                                \
 		ZSTD_bounds const bounds = ZSTD_cParam_getBounds(cParam);         \
 		if((int)val<bounds.lowerBound) val = (type)bounds.lowerBound;      \
 		else if((int)val>bounds.upperBound) val = (type)bounds.upperBound; \
+}*/
+
+#define CLAMP_TYPE(cParam, val, type) {                                \
+		ZSTD_bounds const bounds = ZSTD_cParam_getBounds(cParam);         \
+		val = (type)sclamp((int)val, bounds.lowerBound, bounds.upperBound); \
 }
+
 #define CLAMP(cParam, val) CLAMP_TYPE(cParam, val, uint)
 	CLAMP(ZSTD_c_windowLog, cParams.windowLog);
 	CLAMP(ZSTD_c_chainLog,  cParams.chainLog);

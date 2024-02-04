@@ -403,7 +403,8 @@ void Bignum::Square() {
 	Clamp();
 }
 
-void Bignum::AssignPowerUInt16(uint16 base, const int power_exponent) {
+void Bignum::AssignPowerUInt16(uint16 base, const int power_exponent) 
+{
 	DOUBLE_CONVERSION_ASSERT(base != 0);
 	DOUBLE_CONVERSION_ASSERT(power_exponent >= 0);
 	if(power_exponent == 0) {
@@ -685,7 +686,8 @@ int Bignum::PlusCompare(const Bignum & a, const Bignum & b, const Bignum & c) {
 	return -1;
 }
 
-void Bignum::Clamp() {
+void Bignum::Clamp() 
+{
 	while(used_bigits_ > 0 && RawBigit(used_bigits_ - 1) == 0) {
 		used_bigits_--;
 	}
@@ -695,7 +697,8 @@ void Bignum::Clamp() {
 	}
 }
 
-void Bignum::Align(const Bignum & other) {
+void Bignum::Align(const Bignum & other) 
+{
 	if(exponent_ > other.exponent_) {
 		// If "X" represents a "hidden" bigit (by the exponent) then we are in the
 		// following case (a == this, b == other):

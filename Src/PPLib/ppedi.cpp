@@ -4873,6 +4873,9 @@ public:
 	virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 	virtual int    SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 private:
+	int    ReadDocument(const char * pFileName, TSCollection <PPEdiProcessor::Packet> & rList);
+	DocNalogRu_Reader Reader;
+	DocNalogRu_Generator Writer; 
 };
 //
 //
@@ -4899,25 +4902,36 @@ EdiProviderImplementation_SBIS::EdiProviderImplementation_SBIS(const PPEdiProvid
 		url.SetProtocol(InetUrl::protFtp);
 	}
 	if(prot == InetUrl::protFtp) {
-		const char * p_box = "Inbox";
+		//const char * p_box = "Inbox";
+		SString _box;
 		int    last_id = 0;
 		ScURL  curl;
-		url.SetComponent(url.cPath, p_box);
+		if(Epp.GetExtStrData(PPEdiProviderPacket::extssSubIn, _box) > 0 && _box.NotEmptyS())
+			url.SetComponent(url.cPath, _box);
+		url.Composite(InetUrl::stAll, temp_buf); // @debug
 		SFileEntryPool fp;
 		SFileEntryPool::Entry fpe;
 		THROW_SL(curl.FtpList(url, ScURL::mfVerbose, fp));
 		for(uint i = 0; i < fp.GetCount(); i++) {
 			if(fp.Get(i, &fpe, 0) > 0) {
 				ps.Split(fpe.Name);
-				if(ps.Ext.IsEqiAscii("xml") && ps.Nam.Divide('_', left, right) > 0) {
-					PPEdiProcessor::DocumentInfo entry;
-					entry.Uuid.FromStr(right);
-					entry.EdiOp = PPEdiProcessor::GetEdiMsgTypeByText(left);
-					entry.Box = p_box;
-					entry.ID = ++last_id;
-					entry.SId = fpe.Name;
-					entry.Time.SetNs100(fpe.ModTm_);
-					THROW(rList.Add(entry, 0));
+				if(ps.Ext.IsEqiAscii("xml")) {
+					// ON_ORDER_100400537995_100100910817_20240124_10BACC44-756A-4ECC-86D0-6F97FC6FED9A.xml 
+					DocNalogRu_Base::FileInfo file_info;
+					if(file_info.ParseFileName(ps.Nam)) {
+						PPEdiProcessor::DocumentInfo entry;
+						entry.Uuid = file_info.Uuid;
+						if(file_info.FormatPrefix.IsEqiAscii("on_order"))
+							entry.EdiOp = PPEDIOP_ORDER;
+						else
+							entry.EdiOp = 0; // @todo
+						entry.Box = _box;
+						entry.ID = ++last_id;
+						entry.SId = fpe.Name;
+						entry.Time.SetNs100(fpe.ModTm_);
+						THROW(rList.Add(entry, 0));
+						ok = 1;
+					}
 				}
 			}
 		}
@@ -4926,9 +4940,68 @@ EdiProviderImplementation_SBIS::EdiProviderImplementation_SBIS(const PPEdiProvid
 	return ok;
 }
 
+int EdiProviderImplementation_SBIS::ReadDocument(const char * pFileName, TSCollection <PPEdiProcessor::Packet> & rList)
+{
+	int    ok = -1;
+	return ok;
+}
+
 /*virtual*/int EdiProviderImplementation_SBIS::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList)
 {
-	int    ok = 0;
+	int    ok = -1;
+	xmlParserCtxt * p_ctx = 0;
+	if(pIdent && pIdent->Box.NotEmpty() && pIdent->SId.NotEmpty()) {
+		int    skip = 0;
+		SString temp_buf;
+		if(!pIdent->Uuid.IsZero())
+			pIdent->Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+		else {
+			SFsPath ps(pIdent->SId);
+			temp_buf = ps.Nam;
+		}
+		const SString edi_ident_buf(temp_buf);
+		if(edi_ident_buf.NotEmpty()) {
+			PPIDArray ex_bill_id_list;
+			PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, edi_ident_buf, &ex_bill_id_list);
+			if(ex_bill_id_list.getCount()) {
+				// Документ уже существует ?@todo message
+				skip = 1;
+			}
+		}
+		if(!skip) {
+			InetUrl url;
+			THROW(Epp.MakeUrl(0, url));
+			const int prot = url.GetProtocol();
+			if(prot == InetUrl::protUnkn) {
+				url.SetProtocol(InetUrl::protFtp);
+			}
+			if(prot == InetUrl::protFtp) {
+				const char * p_box = pIdent->Box;
+				ScURL  curl;
+				THROW(p_ctx = xmlNewParserCtxt());
+				(temp_buf = p_box).SetLastDSlash().Cat(pIdent->SId);
+				url.SetComponent(url.cPath, temp_buf);
+
+				GetTempInputPath(pIdent->EdiOp, temp_buf);
+				temp_buf.SetLastSlash().Cat(pIdent->SId);
+				if(!fileExists(temp_buf)) {
+					THROW_SL(curl.FtpGet(url, ScURL::mfVerbose, temp_buf, 0, 0));
+				}
+				{
+					int    format = 0;
+					PPXmlFileDetector xfd;
+					if(xfd.Run(temp_buf, &format)) {
+						if(format == xfd.NalogRu_Generic) {
+							const int rdr = ReadDocument(temp_buf, rList);
+						}
+					}
+				}
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	xmlFreeParserCtxt(p_ctx);
 	return ok;
 }
 

@@ -130,13 +130,13 @@ int TIFFCIELabToRGBInit(TIFFCIELabToRGB* cielab, const TIFFDisplay * display, fl
 #define ONE_HALF                ((int32)(1<<(SHIFT-1)))
 #define Code2V(c, RB, RW, CR)   ((((c)-(int32)(RB))*(float)(CR))/(float)(((RW)-(RB)!=0) ? ((RW)-(RB)) : 1))
 // @sobolev @20200511 #define CLAMP(f, min, max)        ((f)<(min) ? (min) : (f)>(max) ? (max) : (f))
-#define HICLAMP(f, max)          ((f)>(max) ? (max) : (f))
+// @v11.9.4 (replaced with smin) #define HICLAMP(f, max)          ((f)>(max) ? (max) : (f))
 
 void FASTCALL TIFFYCbCrtoRGB(TIFFYCbCrToRGB * ycbcr, uint32 Y, int32 Cb, int32 Cr, uint32 * r, uint32 * g, uint32 * b)
 {
 	int32 i;
 	// XXX: Only 8-bit YCbCr input supported for now 
-	Y = HICLAMP(Y, 255);
+	Y = /*HICLAMP*/smin(Y, 255U);
 	Cb = sclamp(Cb, (int32)0, (int32)255);
 	Cr = sclamp(Cr, (int32)0, (int32)255);
 	i = ycbcr->Y_tab[Y] + ycbcr->Cr_r_tab[Cr];

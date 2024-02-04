@@ -764,15 +764,6 @@
     <ClInclude Include="..\OSF\xapian\xapian-core\src\errno_to_string.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\fd.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\filetests.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\fileutils.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\xapian\xapian-core\src\heap.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -858,9 +849,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\xapian\xapian-core\src\socket_utils.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\stdclamp.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\xapian\xapian-core\src\str.h">
@@ -1299,6 +1287,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\languages\steminternal.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

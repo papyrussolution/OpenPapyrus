@@ -2381,10 +2381,7 @@ static void xml_data(void * userData, const char * s, int len)
 #if DEBUG
 	{
 		char buff[1024];
-		if(len > (int)(sizeof(buff)-1))
-			len = (int)(sizeof(buff)-1);
-		strncpy(buff, s, len);
-		buff[len] = 0;
+		strnzcpy(buff, s, MIN(len, sizeof(buff));
 		slfprintf_stderr("\tlen=%d:\"%s\"\n", len, buff);
 	}
 #endif

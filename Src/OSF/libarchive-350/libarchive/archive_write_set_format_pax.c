@@ -1285,8 +1285,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
  * Note: Recall that the ustar format does not store the '/' separating
  * parts 1 & 2, but does store the '/' separating parts 2 & 3.
  */
-static char * build_ustar_entry_name(char * dest, const char * src, size_t src_length,
-    const char * insert)
+static char * build_ustar_entry_name(char * dest, const char * src, size_t src_length, const char * insert)
 {
 	const char * prefix, * prefix_end;
 	const char * suffix, * suffix_end;
@@ -1319,8 +1318,7 @@ static char * build_ustar_entry_name(char * dest, const char * src, size_t src_l
 			need_slash = 1; /* Remember to restore trailing '/'. */
 			continue;
 		}
-		if(filename_end > src + 1 && filename_end[-1] == '.'
-		    && filename_end[-2] == '/') {
+		if(filename_end > src + 1 && filename_end[-1] == '.' && filename_end[-2] == '/') {
 			filename_end -= 2;
 			need_slash = 1; /* "foo/." will become "foo/" */
 			continue;

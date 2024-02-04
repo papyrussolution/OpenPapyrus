@@ -1291,13 +1291,11 @@ static int fix_rsa_pss_saltlen(enum state state,
 		}
 		else {
 			/* This won't truncate but it will quiet static analysers */
-			strncpy(ctx->name_buf, (const char *)str_value_map[i].ptr, sizeof(ctx->name_buf) - 1);
-			ctx->name_buf[sizeof(ctx->name_buf) - 1] = '\0';
+			strnzcpy(ctx->name_buf, (const char *)str_value_map[i].ptr, sizeof(ctx->name_buf));
 		}
 		ctx->p2 = ctx->name_buf;
 		ctx->p1 = strlen((const char *)ctx->p2);
 	}
-
 	if((ret = default_fixup_args(state, translation, ctx)) <= 0)
 		return ret;
 

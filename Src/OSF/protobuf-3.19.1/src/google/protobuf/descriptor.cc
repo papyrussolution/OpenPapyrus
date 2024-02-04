@@ -4451,12 +4451,12 @@ FileDescriptor* DescriptorPool::NewPlaceholderFileWithMutexHeld(StringPiece name
 	return placeholder;
 }
 
-bool DescriptorBuilder::AddSymbol(const std::string & full_name,
-    const void* parent, const std::string & name,
-    const Message& proto, Symbol symbol) {
+bool DescriptorBuilder::AddSymbol(const std::string & full_name, const void* parent, const std::string & name, const Message& proto, Symbol symbol) 
+{
 	// If the caller passed nullptr for the parent, the symbol is at file scope.
 	// Use its file as the parent instead.
-	if(parent == nullptr) parent = file_;
+	if(parent == nullptr) 
+		parent = file_;
 
 	if(full_name.find('\0') != std::string::npos) {
 		AddError(full_name, proto, DescriptorPool::ErrorCollector::NAME,
@@ -4482,22 +4482,17 @@ bool DescriptorBuilder::AddSymbol(const std::string & full_name,
 		if(other_file == file_) {
 			std::string::size_type dot_pos = full_name.find_last_of('.');
 			if(dot_pos == std::string::npos) {
-				AddError(full_name, proto, DescriptorPool::ErrorCollector::NAME,
-				    "\"" + full_name + "\" is already defined.");
+				AddError(full_name, proto, DescriptorPool::ErrorCollector::NAME, "\"" + full_name + "\" is already defined.");
 			}
 			else {
-				AddError(full_name, proto, DescriptorPool::ErrorCollector::NAME,
-				    "\"" + full_name.substr(dot_pos + 1) +
-				    "\" is already defined in \"" +
-				    full_name.substr(0, dot_pos) + "\".");
+				AddError(full_name, proto, DescriptorPool::ErrorCollector::NAME, "\"" + full_name.substr(dot_pos + 1) +
+				    "\" is already defined in \"" + full_name.substr(0, dot_pos) + "\".");
 			}
 		}
 		else {
 			// Symbol seems to have been defined in a different file.
-			AddError(full_name, proto, DescriptorPool::ErrorCollector::NAME,
-			    "\"" + full_name + "\" is already defined in file \"" +
-			    (other_file == nullptr ? "null" : other_file->name()) +
-			    "\".");
+			AddError(full_name, proto, DescriptorPool::ErrorCollector::NAME, "\"" + full_name + "\" is already defined in file \"" +
+			    (other_file == nullptr ? "null" : other_file->name()) + "\".");
 		}
 		return false;
 	}

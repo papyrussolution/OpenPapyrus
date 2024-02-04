@@ -73,17 +73,14 @@
 #pragma GCC diagnostic pop
 #endif
 #endif
-
-#ifdef HAVE_ZSTD
-#include <zstd.h>
+#ifdef /*HAVE_ZSTD*/HAVE_LIBZSTD
+	#include <..\osf\zstd\lib\include\zstd.h>
 #endif
-
 #ifdef USE_GSASL
-#include <gsasl.h>
+	#include <gsasl.h>
 #endif
-
 #ifdef USE_OPENLDAP
-#include <ldap.h>
+	#include <ldap.h>
 #endif
 
 #ifdef HAVE_BROTLI
@@ -98,7 +95,7 @@ static void brotli_version(char * buf, size_t bufsz)
 
 #endif
 
-#ifdef HAVE_ZSTD
+#ifdef /*HAVE_ZSTD*/HAVE_LIBZSTD
 static void zstd_version(char * buf, size_t bufsz)
 {
 	unsigned long zstd_version = (ulong)ZSTD_versionNumber();
@@ -137,7 +134,7 @@ char *curl_version(void)
 #ifdef HAVE_BROTLI
 	char br_version[40] = "brotli/";
 #endif
-#ifdef HAVE_ZSTD
+#ifdef /*HAVE_ZSTD*/HAVE_LIBZSTD
 	char zst_version[40] = "zstd/";
 #endif
 #ifdef USE_ARES
@@ -177,12 +174,10 @@ char *curl_version(void)
 	/* Override version string when environment variable CURL_VERSION is set */
 	const char * debugversion = getenv("CURL_VERSION");
 	if(debugversion) {
-		strncpy(out, debugversion, sizeof(out)-1);
-		out[sizeof(out)-1] = '\0';
+		strnzcpy(out, debugversion, sizeof(out));
 		return out;
 	}
 #endif
-
 	src[i++] = LIBCURL_NAME "/" LIBCURL_VERSION;
 #ifdef USE_SSL
 	Curl_ssl_version(ssl_version, sizeof(ssl_version));
@@ -196,7 +191,7 @@ char *curl_version(void)
 	brotli_version(&br_version[7], sizeof(br_version) - 7);
 	src[i++] = br_version;
 #endif
-#ifdef HAVE_ZSTD
+#ifdef /*HAVE_ZSTD*/HAVE_LIBZSTD
 	zstd_version(&zst_version[5], sizeof(zst_version) - 5);
 	src[i++] = zst_version;
 #endif
@@ -521,7 +516,7 @@ static const struct feat features_table[] = {
 #ifdef USE_UNIX_SOCKETS
 	FEATURE("UnixSockets", NULL,                CURL_VERSION_UNIX_SOCKETS),
 #endif
-#ifdef HAVE_ZSTD
+#ifdef /*HAVE_ZSTD*/HAVE_LIBZSTD
 	FEATURE("zstd",        NULL,                CURL_VERSION_ZSTD),
 #endif
 	{NULL,             NULL,                0}
@@ -586,7 +581,7 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
 #ifdef HAVE_BROTLI
 	static char brotli_buffer[80];
 #endif
-#ifdef HAVE_ZSTD
+#ifdef /*HAVE_ZSTD*/HAVE_LIBZSTD
 	static char zstd_buffer[80];
 #endif
 
@@ -625,7 +620,7 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
 	version_info.brotli_version = brotli_buffer;
 #endif
 
-#ifdef HAVE_ZSTD
+#ifdef /*HAVE_ZSTD*/HAVE_LIBZSTD
 	version_info.zstd_ver_num = (uint)ZSTD_versionNumber();
 	zstd_version(zstd_buffer, sizeof(zstd_buffer));
 	version_info.zstd_version = zstd_buffer;

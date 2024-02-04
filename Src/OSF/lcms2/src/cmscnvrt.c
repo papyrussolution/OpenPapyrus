@@ -858,8 +858,7 @@ boolint _cmsRegisterRenderingIntentPlugin(cmsContext id, cmsPluginBase* Data)
 		if(fl == NULL) 
 			return FALSE;
 		fl->Intent  = Plugin->Intent;
-		strncpy(fl->Description, Plugin->Description, sizeof(fl->Description)-1);
-		fl->Description[sizeof(fl->Description)-1] = 0;
+		strnzcpy(fl->Description, Plugin->Description, sizeof(fl->Description));
 		fl->Link    = Plugin->Link;
 		fl->Next = ctx->Intents;
 		ctx->Intents = fl;

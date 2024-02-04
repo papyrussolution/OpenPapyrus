@@ -1040,8 +1040,7 @@ static int test_one_file(const char * inname, const char * outname)
 			if(png_convert_to_rfc1123_buffer(tIME_string, mod_time) != 0)
 				tIME_string[(sizeof tIME_string) - 1] = '\0';
 			else {
-				strncpy(tIME_string, "*** invalid time ***", (sizeof tIME_string));
-				tIME_string[(sizeof tIME_string) - 1] = '\0';
+				strnzcpy(tIME_string, "*** invalid time ***", (sizeof tIME_string));
 			}
 			tIME_chunk_present++;
 #endif /* TIME_RFC1123 */
@@ -1194,10 +1193,8 @@ static int test_one_file(const char * inname, const char * outname)
 				tIME_string[(sizeof tIME_string) - 1] = '\0';
 
 			else {
-				strncpy(tIME_string, "*** invalid time ***", sizeof tIME_string);
-				tIME_string[(sizeof tIME_string)-1] = '\0';
+				strnzcpy(tIME_string, "*** invalid time ***", sizeof tIME_string);
 			}
-
 			tIME_chunk_present++;
 #endif /* TIME_RFC1123 */
 		}

@@ -52,14 +52,7 @@ boolint _cmsRegisterInterpPlugin(cmsContext ContextID, cmsPluginBase* Data)
 {
 	cmsPluginInterpolation* Plugin = (cmsPluginInterpolation*)Data;
 	_cmsInterpPluginChunkType* ptr = (_cmsInterpPluginChunkType*)_cmsContextGetClientChunk(ContextID, InterpPlugin);
-
-	if(!Data) {
-		ptr->Interpolators = NULL;
-		return TRUE;
-	}
-
-	// Set replacement functions
-	ptr->Interpolators = Plugin->InterpolatorsFactory;
+	ptr->Interpolators = Plugin ? Plugin->InterpolatorsFactory/*Set replacement functions*/ : NULL;
 	return TRUE;
 }
 
@@ -67,59 +60,47 @@ boolint _cmsRegisterInterpPlugin(cmsContext ContextID, cmsPluginBase* Data)
 boolint _cmsSetInterpolationRoutine(cmsContext ContextID, cmsInterpParams* p)
 {
 	_cmsInterpPluginChunkType* ptr = (_cmsInterpPluginChunkType*)_cmsContextGetClientChunk(ContextID, InterpPlugin);
-
 	p->Interpolation.Lerp16 = NULL;
-
 	// Invoke factory, possibly in the Plug-in
 	if(ptr->Interpolators != NULL)
 		p->Interpolation = ptr->Interpolators(p->nInputs, p->nOutputs, p->dwFlags);
-
 	// If unsupported by the plug-in, go for the LittleCMS default.
 	// If happens only if an extern plug-in is being used
 	if(p->Interpolation.Lerp16 == NULL)
 		p->Interpolation = DefaultInterpolatorsFactory(p->nInputs, p->nOutputs, p->dwFlags);
-
 	// Check for valid interpolator (we just check one member of the union)
 	if(p->Interpolation.Lerp16 == NULL) {
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
 // This function precalculates as many parameters as possible to speed up the interpolation.
-cmsInterpParams* _cmsComputeInterpParamsEx(cmsContext ContextID,
-    const uint32 nSamples[],
-    uint32 InputChan, uint32 OutputChan,
-    const void * Table,
-    uint32 dwFlags)
+cmsInterpParams* _cmsComputeInterpParamsEx(cmsContext ContextID, const uint32 nSamples[], uint32 InputChan, uint32 OutputChan,
+    const void * Table, uint32 dwFlags)
 {
 	cmsInterpParams* p;
 	uint32 i;
-
 	// Check for maximum inputs
 	if(InputChan > MAX_INPUT_DIMENSIONS) {
 		cmsSignalError(ContextID, cmsERROR_RANGE, "Too many input channels (%d channels, max=%d)", InputChan, MAX_INPUT_DIMENSIONS);
 		return NULL;
 	}
-
 	// Creates an empty object
 	p = (cmsInterpParams*)_cmsMallocZero(ContextID, sizeof(cmsInterpParams));
-	if(!p) return NULL;
-
+	if(!p) 
+		return NULL;
 	// Keep original parameters
 	p->dwFlags  = dwFlags;
 	p->nInputs  = InputChan;
 	p->nOutputs = OutputChan;
 	p->Table     = Table;
 	p->ContextID  = ContextID;
-
 	// Fill samples per input direction and domain (which is number of nodes minus one)
 	for(i = 0; i < InputChan; i++) {
 		p->nSamples[i] = nSamples[i];
 		p->Domain[i]   = nSamples[i] - 1;
 	}
-
 	// Compute factors to apply to each component to index the grid array
 	p->opta[0] = p->nOutputs;
 	for(i = 1; i < InputChan; i++)
@@ -187,10 +168,7 @@ static void LinLerp1D(const uint16 Value[], uint16 Output[], const cmsInterpPara
 }
 
 // To prevent out of bounds indexing
-cmsINLINE float fclamp(float v)
-{
-	return ((v < 1.0e-9f) || isnan(v)) ? 0.0f : (v > 1.0f ? 1.0f : v);
-}
+cmsINLINE float fclamp(float v) { return ((v < 1.0e-9f) || isnan(v)) ? 0.0f : (v > 1.0f ? 1.0f : v); }
 
 // Floating-point version of 1D interpolation
 static void LinLerp1Dfloat(const float Value[], float Output[], const cmsInterpParams* p)
@@ -242,33 +220,26 @@ static void Eval1InputFloat(const float Value[], float Output[], const cmsInterp
 	float y1, y0;
 	float rest;
 	int cell0, cell1;
-	uint32 OutChan;
 	const float* LutTable = (float *)p->Table;
 	float val2 = fclamp(Value[0]);
 	// if last value...
 	if(val2 == 1.0) {
 		y0 = LutTable[p->Domain[0]];
-
-		for(OutChan = 0; OutChan < p->nOutputs; OutChan++) {
+		for(uint32 OutChan = 0; OutChan < p->nOutputs; OutChan++) {
 			Output[OutChan] = y0;
 		}
 	}
 	else {
 		val2 *= p->Domain[0];
-
 		cell0 = (int)floor(val2);
 		cell1 = (int)ceil(val2);
-
 		// Rest is 16 LSB bits
 		rest = val2 - cell0;
-
 		cell0 *= p->opta[0];
 		cell1 *= p->opta[0];
-
-		for(OutChan = 0; OutChan < p->nOutputs; OutChan++) {
+		for(uint32 OutChan = 0; OutChan < p->nOutputs; OutChan++) {
 			y0 = LutTable[cell0 + OutChan];
 			y1 = LutTable[cell1 + OutChan];
-
 			Output[OutChan] = y0 + (y1 - y0) * rest;
 		}
 	}
@@ -283,12 +254,11 @@ static void BilinearInterpFloat(const float Input[], float Output[], const cmsIn
 	float px, py;
 	int x0, y0,
 	    X0, Y0, X1, Y1;
-	int TotalOut, OutChan;
 	float fx, fy,
 	    d00, d01, d10, d11,
 	    dx0, dx1,
 	    dxy;
-	TotalOut   = p->nOutputs;
+	const int TotalOut = p->nOutputs;
 	px = fclamp(Input[0]) * p->Domain[0];
 	py = fclamp(Input[1]) * p->Domain[1];
 	x0 = (int)_cmsQuickFloor(px); fx = px - (float)x0;
@@ -297,7 +267,7 @@ static void BilinearInterpFloat(const float Input[], float Output[], const cmsIn
 	X1 = X0 + (fclamp(Input[0]) >= 1.0 ? 0 : p->opta[1]);
 	Y0 = p->opta[0] * y0;
 	Y1 = Y0 + (fclamp(Input[1]) >= 1.0 ? 0 : p->opta[0]);
-	for(OutChan = 0; OutChan < TotalOut; OutChan++) {
+	for(int OutChan = 0; OutChan < TotalOut; OutChan++) {
 		d00 = DENS(X0, Y0);
 		d01 = DENS(X0, Y1);
 		d10 = DENS(X1, Y0);
@@ -332,28 +302,21 @@ static CMS_NO_SANITIZE void BilinearInterp16(const uint16 Input[], uint16 Output
 	fx = _cmsToFixedDomain((int)Input[0] * p->Domain[0]);
 	x0  = FIXED_TO_INT(fx);
 	rx  = FIXED_REST_TO_INT(fx);// Rest in 0..1.0 domain
-
 	fy = _cmsToFixedDomain((int)Input[1] * p->Domain[1]);
 	y0  = FIXED_TO_INT(fy);
 	ry  = FIXED_REST_TO_INT(fy);
-
 	X0 = p->opta[1] * x0;
 	X1 = X0 + (Input[0] == 0xFFFFU ? 0 : p->opta[1]);
-
 	Y0 = p->opta[0] * y0;
 	Y1 = Y0 + (Input[1] == 0xFFFFU ? 0 : p->opta[0]);
-
 	for(OutChan = 0; OutChan < TotalOut; OutChan++) {
 		d00 = DENS(X0, Y0);
 		d01 = DENS(X0, Y1);
 		d10 = DENS(X1, Y0);
 		d11 = DENS(X1, Y1);
-
 		dx0 = LERP(rx, d00, d10);
 		dx1 = LERP(rx, d01, d11);
-
 		dxy = LERP(ry, dx0, dx1);
-
 		Output[OutChan] = (uint16)dxy;
 	}
 
@@ -851,37 +814,24 @@ static CMS_NO_SANITIZE void Eval4Inputs(const uint16 Input[], uint16 Output[], c
 static void Eval4InputsFloat(const float Input[], float Output[], const cmsInterpParams* p)
 {
 	const float* LutTable = (float *)p->Table;
-	float rest;
-	float pk;
-	int k0, K0, K1;
 	const float* T;
-	uint32 i;
 	float Tmp1[MAX_STAGE_CHANNELS], Tmp2[MAX_STAGE_CHANNELS];
-	cmsInterpParams p1;
-
-	pk = fclamp(Input[0]) * p->Domain[0];
-	k0 = _cmsQuickFloor(pk);
-	rest = pk - (float)k0;
-
-	K0 = p->opta[3] * k0;
-	K1 = K0 + (fclamp(Input[0]) >= 1.0 ? 0 : p->opta[3]);
-
-	p1 = *p;
+	float pk = fclamp(Input[0]) * p->Domain[0];
+	int k0 = _cmsQuickFloor(pk);
+	float rest = pk - (float)k0;
+	int K0 = p->opta[3] * k0;
+	int K1 = K0 + (fclamp(Input[0]) >= 1.0 ? 0 : p->opta[3]);
+	cmsInterpParams p1 = *p;
 	memmove(&p1.Domain[0], &p->Domain[1], 3*sizeof(uint32));
-
 	T = LutTable + K0;
 	p1.Table = T;
-
 	TetrahedralInterpFloat(Input + 1,  Tmp1, &p1);
-
 	T = LutTable + K1;
 	p1.Table = T;
 	TetrahedralInterpFloat(Input + 1,  Tmp2, &p1);
-
-	for(i = 0; i < p->nOutputs; i++) {
-		float y0 = Tmp1[i];
-		float y1 = Tmp2[i];
-
+	for(uint32 i = 0; i < p->nOutputs; i++) {
+		const float y0 = Tmp1[i];
+		const float y1 = Tmp2[i];
 		Output[i] = y0 + (y1 - y0) * rest;
 	}
 }
@@ -1210,16 +1160,13 @@ static cmsInterpFunction DefaultInterpolatorsFactory(uint32 nInputChannels, uint
 				    Interpolation.Lerp16 = Eval1Input;
 		    }
 		    break;
-
 		case 2: // Duotone
 		    if(IsFloat)
 			    Interpolation.LerpFloat =  BilinearInterpFloat;
 		    else
 			    Interpolation.Lerp16    =  BilinearInterp16;
 		    break;
-
 		case 3: // RGB et al
-
 		    if(IsTrilinear) {
 			    if(IsFloat)
 				    Interpolation.LerpFloat = TrilinearInterpFloat;
@@ -1234,29 +1181,24 @@ static cmsInterpFunction DefaultInterpolatorsFactory(uint32 nInputChannels, uint
 			    }
 		    }
 		    break;
-
 		case 4: // CMYK lut
-
 		    if(IsFloat)
 			    Interpolation.LerpFloat =  Eval4InputsFloat;
 		    else
 			    Interpolation.Lerp16    =  Eval4Inputs;
 		    break;
-
 		case 5: // 5 Inks
 		    if(IsFloat)
 			    Interpolation.LerpFloat =  Eval5InputsFloat;
 		    else
 			    Interpolation.Lerp16    =  Eval5Inputs;
 		    break;
-
 		case 6: // 6 Inks
 		    if(IsFloat)
 			    Interpolation.LerpFloat =  Eval6InputsFloat;
 		    else
 			    Interpolation.Lerp16    =  Eval6Inputs;
 		    break;
-
 		case 7: // 7 inks
 		    if(IsFloat)
 			    Interpolation.LerpFloat =  Eval7InputsFloat;

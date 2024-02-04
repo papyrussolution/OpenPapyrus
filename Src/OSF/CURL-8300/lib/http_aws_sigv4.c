@@ -247,9 +247,7 @@ static CURLcode make_headers(struct Curl_easy * data,
 		*date_header = curl_maprintf("%s: %s\r\n", date_hdr_key, timestamp);
 	}
 	else {
-		char * value;
-
-		value = strchr(*date_header, ':');
+		char * value = strchr(*date_header, ':');
 		if(!value) {
 			*date_header = NULL;
 			goto fail;

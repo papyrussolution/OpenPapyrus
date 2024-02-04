@@ -2387,6 +2387,25 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 	RegisterSTAcct();
 	PPDbqFuncPool::Register();
 	{
+		SlExtraProcBlock epb;
+		SLS.GetExtraProcBlock(&epb);
+        epb.F_LoadString = PPLoadStringFunc;
+        epb.F_ExpandString = PPExpandStringFunc;
+        epb.F_GetGlobalSecureConfig = PPGetGlobalSecureConfig;
+		if(!(flags & fWsCtlApp)) {
+			epb.F_CallHelp = PPCallHelp;
+			epb.F_CallCalc = PPCalculator;
+			epb.F_CallCalendar = ExecDateCalendar;
+		}
+        epb.F_GetDefaultEncrKey = PPGetDefaultEncrKey;
+        epb.F_QueryPath = PPQueryPathFunc;
+        SLS.SetExtraProcBlock(&epb);
+		//SLS.SetLoadStringFunc(PPLoadStringFunc);
+		//SLS.SetExpandStringFunc(PPExpandStringFunc);
+		//SLS.SetCallHelpFunc(PPCallHelp);
+		//SLS.SetGlobalSecureConfigFunc(PPGetGlobalSecureConfig);
+	}
+	if(!(flags & fNoInstalledInfrastructure)) {
 		PPIniFile ini_file(0, 0, 0, 1); // @v10.3.11 useIniBuf=1
 		if(GetStartUpOption(cmdlUiLang, temp_buf)) { // @v10.4.4
 			const int slang = RecognizeLinguaSymb(temp_buf, 0);
@@ -2399,24 +2418,54 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
                 SLS.SetUiLanguageId(slang, 0);
 		}
 		THROW(PPInitStrings());
-		{
-			SlExtraProcBlock epb;
-			SLS.GetExtraProcBlock(&epb);
-            epb.F_LoadString = PPLoadStringFunc;
-            epb.F_ExpandString = PPExpandStringFunc;
-            epb.F_GetGlobalSecureConfig = PPGetGlobalSecureConfig;
-			if(!(flags & fWsCtlApp)) {
-				epb.F_CallHelp = PPCallHelp;
-				epb.F_CallCalc = PPCalculator;
-				epb.F_CallCalendar = ExecDateCalendar;
+		if(flags & PPSession::fInitPaths) {
+			SString path, root_path;
+			PPGetPath(PPPATH_SYSROOT, root_path);
+			{
+				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_TEMP, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+				Helper_SetPath(PPPATH_TEMP, path);
 			}
-            epb.F_GetDefaultEncrKey = PPGetDefaultEncrKey;
-            epb.F_QueryPath = PPQueryPathFunc;
-            SLS.SetExtraProcBlock(&epb);
-			//SLS.SetLoadStringFunc(PPLoadStringFunc);
-			//SLS.SetExpandStringFunc(PPExpandStringFunc);
-			//SLS.SetCallHelpFunc(PPCallHelp);
-			//SLS.SetGlobalSecureConfigFunc(PPGetGlobalSecureConfig);
+			{
+				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_LOG, temp_buf) > 0) ? temp_buf.cptr() : 0;
+				if(!path.NotEmptyS()) {
+					PPIniFile::GetParamSymb(PPINIPARAM_LOG, temp_buf.Z());
+					(path = root_path).SetLastSlash().Cat(temp_buf);
+				}
+				if(!SFile::IsDir(path) && !SFile::CreateDir(path))
+					path = root_path.RmvLastSlash();
+				if(Helper_SetPath(PPPATH_LOG, path))
+					SLS.SetLogPath(path);
+			}
+			{
+				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_PACK, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+				if(!path.NotEmptyS())
+					(path = root_path).SetLastSlash().Cat("PACK");
+				Helper_SetPath(PPPATH_PACK, path);
+			}
+			{
+				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SPII, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+				Helper_SetPath(PPPATH_SPII, path);
+			}
+			{
+				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SARTREDB, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+				Helper_SetPath(PPPATH_SARTREDB, path);
+			}
+			{
+				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_WORKSPACE, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+				if(!path.NotEmptyS())
+					(path = root_path).SetLastSlash().Cat("WORKSPACE");
+				Helper_SetPath(PPPATH_WORKSPACE, path);
+			}
+			{
+				path = (ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+				if(!path.NotEmptyS()) {
+					path = (ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_REPORTDATAPATH, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+					if(!path.NotEmptyS())
+						PPGetPath(PPPATH_TEMP, path);
+				}
+				Helper_SetPath(PPPATH_REPORTDATA, path);
+			}
+			LoadDriveMapping(&ini_file);
 		}
 		{
 			//
@@ -2456,56 +2505,6 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 						MaxLogFileSize = max_log_file_size;
 					}
 				}
-			}
-			if(flags & PPSession::fInitPaths) {
-				MemLeakTracer mlt;
-				SString path, root_path;
-				PPGetPath(PPPATH_SYSROOT, root_path);
-				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_TEMP, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
-					Helper_SetPath(PPPATH_TEMP, path);
-				}
-				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_LOG, temp_buf) > 0) ? temp_buf.cptr() : 0;
-					if(!path.NotEmptyS()) {
-						PPIniFile::GetParamSymb(PPINIPARAM_LOG, temp_buf.Z());
-						(path = root_path).SetLastSlash().Cat(temp_buf);
-					}
-					if(!SFile::IsDir(path) && !SFile::CreateDir(path))
-						path = root_path.RmvLastSlash();
-					if(Helper_SetPath(PPPATH_LOG, path))
-						SLS.SetLogPath(path);
-				}
-				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_PACK, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
-					if(!path.NotEmptyS())
-						(path = root_path).SetLastSlash().Cat("PACK");
-					Helper_SetPath(PPPATH_PACK, path);
-				}
-				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SPII, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
-					Helper_SetPath(PPPATH_SPII, path);
-				}
-				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SARTREDB, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
-					Helper_SetPath(PPPATH_SARTREDB, path);
-				}
-				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_WORKSPACE, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
-					if(!path.NotEmptyS())
-						(path = root_path).SetLastSlash().Cat("WORKSPACE");
-					Helper_SetPath(PPPATH_WORKSPACE, path);
-				}
-				{
-					path = (ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
-					if(!path.NotEmptyS()) {
-						path = (ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_REPORTDATAPATH, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
-						if(!path.NotEmptyS())
-							PPGetPath(PPPATH_TEMP, path);
-					}
-					Helper_SetPath(PPPATH_REPORTDATA, path);
-				}
-				LoadDriveMapping(&ini_file);
 			}
 		}
 	}
@@ -2582,7 +2581,7 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 		}
 	}
 	// } @v11.9.2 
-	if(!(flags & fDenyLogQueue)) { // Для DLL-режима не используем поток журналов (какие-то траблы с потоками - надо разбираться)
+	if(!(flags & fDenyLogQueue) && !(flags & fNoInstalledInfrastructure)) { // Для DLL-режима не используем поток журналов (какие-то траблы с потоками - надо разбираться)
 		P_LogQueue = new PPLogMsgQueue;
 		if(P_LogQueue) {
 			PPLogMsgSession * p_sess = new PPLogMsgSession(P_LogQueue);
@@ -2601,7 +2600,7 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 	// } @v11.1.2
 	// @v11.4.1 {
 #if(_MSC_VER >= 1900)
-	{
+	if(!(flags & fNoInstalledInfrastructure)) {
 		using namespace U_ICU_NAMESPACE;
 		UErrorCode icu_status = U_ZERO_ERROR;
 		u_setDataDirectory(BinPath);
@@ -2612,7 +2611,7 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 	}
 #endif
 	// } @v11.4.1
-	if(!(flags & fWsCtlApp)) {
+	if(!(flags & fWsCtlApp) && !(flags & fNoInstalledInfrastructure)) {
 		// @v11.4.4 {
 		// Регистрация специальных типов View. Я не уверен, что нашел удачную точку для такой регистрации, но надо по-быстрому :(
 		PPView::InitializeDescriptionList();

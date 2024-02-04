@@ -3982,19 +3982,18 @@ static decNumber * decAddOp(decNumber * res, const decNumber * lhs,
 		/* Fastpath cases where the numbers are aligned and normal, the RHS  */
 		/* is all in one unit, no operand rounding is needed, and no carry,  */
 		/* lengthening, or borrow is needed  */
-		if(padding==0
-		 && rhs->digits<=DECDPUN
-		 && rhs->exponent>=set->emin /* [some normals drop through]  */
-		 && rhs->exponent<=set->emax-set->digits+1 /* [could clamp]  */
-		 && rhs->digits<=reqdigits
-		 && lhs->digits<=reqdigits) {
+		if(padding==0 && rhs->digits<=DECDPUN && 
+			rhs->exponent>=set->emin /* [some normals drop through]  */ && 
+			rhs->exponent<=set->emax-set->digits+1 /* [could clamp]  */ && 
+			rhs->digits<=reqdigits && lhs->digits<=reqdigits) {
 			Int partial = *lhs->lsu;
 			if(!diffsign) { /* adding  */
 				partial += *rhs->lsu;
-				if((partial<=DECDPUNMAX) /* result fits in unit  */
-				 && (lhs->digits>=DECDPUN || /* .. and no digits-count change  */
+				if((partial<=DECDPUNMAX) /* result fits in unit  */ && 
+					(lhs->digits>=DECDPUN || /* .. and no digits-count change  */
 				    partial<(Int)powers[lhs->digits])) { /* ..  */
-					if(res!=lhs) uprv_decNumberCopy(res, lhs); /* not in place  */
+					if(res!=lhs) 
+						uprv_decNumberCopy(res, lhs); /* not in place  */
 					*res->lsu = (Unit)partial; /* [copy could have overwritten RHS]  */
 					break;
 				}
@@ -4034,7 +4033,9 @@ static decNumber * decAddOp(decNumber * res, const decNumber * lhs,
 				const decNumber * t;
 				padding = -padding; /* will be +ve  */
 				bits = (uByte)(rhs->bits^negate); /* assumed sign is now that of RHS  */
-				t = lhs; lhs = rhs; rhs = t;
+				t = lhs; 
+				lhs = rhs; 
+				rhs = t;
 				swapped = 1;
 			}
 
@@ -6636,23 +6637,20 @@ static Int decUnitAddSub(const Unit * a, Int alength,
 /* All fields are updated as required.  This is a utility operation,  */
 /* so special values are unchanged and no error is possible. */
 /* ------------------------------------------------------------------ */
-static decNumber * decTrim(decNumber * dn, decContext * set, Flag all,
-    Flag noclamp, Int * dropped) {
+static decNumber * decTrim(decNumber * dn, decContext * set, Flag all, Flag noclamp, Int * dropped) 
+{
 	Int d, exp; /* work  */
 	uInt cut; /* ..  */
 	Unit  * up; /* -> current Unit  */
-
   #if DECCHECK
 	if(decCheckOperands(dn, DECUNUSED, DECUNUSED, DECUNCONT)) return dn;
   #endif
 	*dropped = 0; /* assume no zeros dropped  */
-	if((dn->bits & DECSPECIAL)      /* fast exit if special ..  */
-	 || (*dn->lsu & 0x01)) return dn; /* .. or odd  */
+	if((dn->bits & DECSPECIAL) /* fast exit if special ..  */ || (*dn->lsu & 0x01)) return dn; /* .. or odd  */
 	if(ISZERO(dn)) {                /* .. or 0  */
 		dn->exponent = 0; /* (sign is preserved)  */
 		return dn;
 	}
-
 	/* have a finite number which is even  */
 	exp = dn->exponent;
 	cut = 1; /* digit (1-DECDPUN) in Unit  */

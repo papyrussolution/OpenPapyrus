@@ -13,7 +13,6 @@
 #define XAPIAN_INCLUDED_GLASS_CURSOR_H
 
 #include "glass_defs.h"
-#include "alignment_cast.h"
 
 using std::string;
 class GlassTable;

@@ -8,13 +8,13 @@
 
 const char * P_NamedPipeName = "\\\\.\\pipe\\sltestapp-pipe";
 
-class PipeServer : public PPThread { // @construction
+class PipeServer : public SlThread_WithStartupSignal { // @construction
 	static constexpr uint32 BufSize = 1024;
 public:
 	struct AppBlock {
 		void * Ptr;
 	};
-	PipeServer(const char * pPipeName, AppBlock * pAppBlk) : PPThread(PPThread::kUnknown, 0, 0), P_AppBlk(pAppBlk)
+	PipeServer(const char * pPipeName, AppBlock * pAppBlk) : SlThread_WithStartupSignal(), P_AppBlk(pAppBlk)
 	{
 	}
 	~PipeServer()
@@ -22,9 +22,9 @@ public:
 	}
 	virtual void Run()
 	{
-		class PipeSession : public PPThread {
+		class PipeSession : public SlThread_WithStartupSignal {
 		public:
-			PipeSession(SIntHandle hPipe, AppBlock * pAppBlk) : PPThread(PPThread::kUnknown, 0, 0), H_Pipe(hPipe), P_AppBlk(pAppBlk)
+			PipeSession(SIntHandle hPipe, AppBlock * pAppBlk) : SlThread_WithStartupSignal(), H_Pipe(hPipe), P_AppBlk(pAppBlk)
 			{
 			}
 			~PipeSession()
@@ -36,12 +36,16 @@ public:
 					STempBuffer rd_buf(BufSize);
 					STempBuffer wr_buf(BufSize);
 					bool do_exit = false;
+					SString temp_buf;
 					do {
 						DWORD rd_size = 0;
 						boolint rd_ok = ::ReadFile(H_Pipe, rd_buf, rd_buf.GetSize(), &rd_size, NULL/*not overlapped I/O*/);
 						if(rd_ok) {
-							DWORD reply_size = 0;
+							temp_buf.Z().CatN(rd_buf.cptr(), rd_size);
 							// do make reply
+							//memcpy(wr_buf.cptr()
+							temp_buf.CopyTo(wr_buf, wr_buf.GetSize());
+							DWORD reply_size = temp_buf.Len()+1;
 							DWORD wr_size = 0;
 							boolint wr_ok = ::WriteFile(H_Pipe, wr_buf, reply_size, &wr_size, NULL/*not overlapped I/O*/);
 							if(wr_ok) {
@@ -69,6 +73,7 @@ public:
 			SIntHandle H_Pipe;
 			AppBlock * P_AppBlk;
 		};
+		uint _call_count = 0;
 		for(bool do_exit = false; !do_exit;) {
 			SIntHandle h_pipe = ::CreateNamedPipeA(P_NamedPipeName, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE/*message type pipe*/|PIPE_READMODE_MESSAGE |   // message-read mode 
 			  PIPE_WAIT/*blocking mode*/, PIPE_UNLIMITED_INSTANCES/*max. instances*/, BufSize/*output buffer size*/, BufSize/*input buffer size*/,
@@ -79,10 +84,11 @@ public:
 			}
 			else {
 				if(::ConnectNamedPipe(h_pipe, 0)) {
+					_call_count++;
 					// do run PipeSession
 					PipeSession * p_sess = new PipeSession(h_pipe, P_AppBlk);
 					if(p_sess)
-						p_sess->Start();
+						p_sess->Start(1);
 				}
 				else {
 					// @todo @err
@@ -96,10 +102,80 @@ private:
 	AppBlock * P_AppBlk;
 };
 
+class PipeClient : public SlThread_WithStartupSignal {
+public:
+	PipeClient(const char * pPipeName) : SlThread_WithStartupSignal(), PipeName(pPipeName)
+	{
+	}
+	~PipeClient()
+	{
+	}
+	virtual void Run()
+	{
+		SIntHandle h_pipe;
+		bool do_exit = false;
+		do {
+			h_pipe = ::CreateFileA(PipeName, GENERIC_READ|GENERIC_WRITE, 0/*no sharing*/,
+				NULL/*default security attributes*/, OPEN_EXISTING/*opens existing pipe*/, 0/*default attributes*/, NULL/*no template file*/);
+			if(!h_pipe) {
+				if(GetLastError() == ERROR_PIPE_BUSY) {
+					boolint w_ok = WaitNamedPipeA(PipeName, 20000);
+					if(!w_ok) {
+						do_exit = true;
+					}
+				}
+				else {
+					do_exit = true;
+				}
+			}
+		} while(!h_pipe && !do_exit);
+		if(!!h_pipe) {
+			DWORD pipe_mode = PIPE_READMODE_MESSAGE; 
+			boolint _ok = SetNamedPipeHandleState(h_pipe, &pipe_mode/*new pipe mode*/, NULL/*don't set maximum bytes*/, NULL/*don't set maximum time*/);
+			if(_ok) {
+				STempBuffer wr_buf(1024);
+				STempBuffer rd_buf(1024);
+				for(uint i = 0; i < 100000; i++) {
+					//slfprintf_stderr("Call on named-pipe #%u\n", i+1);
+					SString message("Hello, Named Pipe!");
+					SString reply;
+					DWORD wr_size = 0;
+					boolint wr_ok = WriteFile(h_pipe, message.cptr(), message.Len()+1, &wr_size, NULL/*not overlapped*/);
+					if(wr_ok) {
+						reply.Z();
+						bool more_data = false;
+						do {
+							more_data = false;
+							DWORD rd_size = 0;
+							rd_buf[0] = 0;
+							boolint rd_ok = ReadFile(h_pipe, rd_buf, rd_buf.GetSize(), &rd_size, NULL/*not overlapped*/);
+							if(rd_ok) {
+								reply.CatN(rd_buf, rd_size);
+							}
+							else if(GetLastError() == ERROR_MORE_DATA) {
+								more_data = true;
+							}
+							else {
+								; // real error
+							}
+						} while(more_data);
+						if(reply == message) {
+							//slfprintf_stderr("Success!\n");
+							; // ok
+						}
+					}
+				}
+			}
+		}
+	}
+private:
+	SString PipeName;
+};
+
 int main(int argc, char * argv[], char * envp[])
 {
 	int    result = 0;
-	DS.Init(PPSession::fInitPaths, 0, 0);
+	SLS.Init("SlTestApp", 0);
 	SIntHandle h_pipe;
 	SString temp_buf;
 	SStringU temp_buf_u;
@@ -149,17 +225,25 @@ int main(int argc, char * argv[], char * envp[])
 	}
 	//
 	{
-		struct AppBlock : public PipeServer::AppBlock {
-			AppBlock() : PipeServer::AppBlock()
-			{
-				memzero(Dummy, sizeof(Dummy));
-			}
-			uint8 Dummy[64];
-		};
-		AppBlock * p_app_blk = new AppBlock();
-		PipeServer * p_psrv = new PipeServer(P_NamedPipeName, p_app_blk);
-		if(p_psrv)
-			p_psrv->Start();
+		{ // pipe server
+			struct AppBlock : public PipeServer::AppBlock {
+				AppBlock() : PipeServer::AppBlock()
+				{
+					memzero(Dummy, sizeof(Dummy));
+				}
+				uint8 Dummy[64];
+			};
+			AppBlock * p_app_blk = new AppBlock();
+			PipeServer * p_psrv = new PipeServer(P_NamedPipeName, p_app_blk);
+			if(p_psrv)
+				p_psrv->Start(1);
+		}
+		SDelay(500);
+		{ // pipe client
+			PipeClient * p_pcli = new PipeClient(P_NamedPipeName);
+			if(p_pcli)
+				p_pcli->Start(1);
+		}
 	}
 	//
 	if(!f_rep.IsValid()) {

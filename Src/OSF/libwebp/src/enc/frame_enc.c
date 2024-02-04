@@ -29,9 +29,7 @@
 // we allow 2k of extra head-room in PARTITION0 limit.
 #define PARTITION0_SIZE_LIMIT ((VP8_MAX_PARTITION0_SIZE - 2048ULL) << 11)
 
-static float Clamp(float v, float min, float max) {
-	return (v < min) ? min : (v > max) ? max : v;
-}
+// @v11.9.4 (replaced with sclampf) static float Clamp(float v, float min, float max) { return (v < min) ? min : (v > max) ? max : v; }
 
 typedef struct {  // struct for organizing convergence in either size or PSNR
 	int is_first;
@@ -52,7 +50,7 @@ static int InitPassStats(const VP8Encoder* const enc, PassStats* const s) {
 	s->dq = 10.f;
 	s->qmin = 1.f * enc->config_->qmin;
 	s->qmax = 1.f * enc->config_->qmax;
-	s->q = s->last_q = Clamp(enc->config_->quality, s->qmin, s->qmax);
+	s->q = s->last_q = sclamp(enc->config_->quality, s->qmin, s->qmax);
 	s->target = do_size_search ? (double)target_size
 	    : (target_PSNR > 0.) ? target_PSNR
 	    : 40.;   // default, just in case
@@ -75,10 +73,10 @@ static float ComputeNextQ(PassStats* const s) {
 		dq = 0.; // we're done?!
 	}
 	// Limit variable to avoid large swings.
-	s->dq = Clamp(dq, -30.f, 30.f);
+	s->dq = sclamp(dq, -30.f, 30.f);
 	s->last_q = s->q;
 	s->last_value = s->value;
-	s->q = Clamp(s->q + s->dq, s->qmin, s->qmax);
+	s->q = sclamp(s->q + s->dq, s->qmin, s->qmax);
 	return s->q;
 }
 
@@ -581,13 +579,12 @@ static double GetPSNR(uint64_t mse, uint64_t size) {
 //  This is used for deciding optimal probabilities. It also modifies the
 //  quantizer value if some target (size, PSNR) was specified.
 
-static void SetLoopParams(VP8Encoder* const enc, float q) {
+static void SetLoopParams(VP8Encoder* const enc, float q) 
+{
 	// Make sure the quality parameter is inside valid bounds
-	q = Clamp(q, 0.f, 100.f);
-
+	q = sclamp(q, 0.f, 100.f);
 	VP8SetSegmentParams(enc, q); // setup segment quantizations and filters
 	SetSegmentProbas(enc);      // compute segment probabilities
-
 	ResetStats(enc);
 	ResetSSE(enc);
 }

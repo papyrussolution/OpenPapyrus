@@ -1716,15 +1716,15 @@ static int record()
 				       instead: see below */
 				    int scaled_hchar, scaled_vchar;
 				    char * c = &(buf[strlen(buf)-1]);
-				    while(*c <= ' ') *c-- = '\0';
+				    while(*c <= ' ') 
+						*c-- = '\0';
 				    strncpy(default_font, &buf[2], sizeof(default_font)-1);
 				    pr_font(NULL);
 				    if(plot) {
 					    double scale = (double)plot->width / 4096.0;
 					    scaled_hchar = (1.0/scale) * hchar;
 					    scaled_vchar = (1.0/scale) * vchar;
-					    FPRINTF((stderr, "gplt_x11: preset default font to %s hchar = %d vchar = %d \n",
-						default_font, scaled_hchar, scaled_vchar));
+					    FPRINTF((stderr, "gplt_x11: preset default font to %s hchar = %d vchar = %d \n", default_font, scaled_hchar, scaled_vchar));
 					    gp_exec_event(GE_fontprops, plot->width, plot->gheight,
 						scaled_hchar, scaled_vchar, 0);
 					    ymax = 4096.0 * (double)plot->gheight / (double)plot->width;
@@ -2097,7 +2097,8 @@ static void exec_cmd(plot_struct * plot, char * command)
 			case 'D':
 			    /* Save the request default font */
 			    c = &(buffer[strlen(buffer)-1]);
-			    while(*c <= ' ') *c-- = '\0';
+			    while(*c <= ' ') 
+					*c-- = '\0';
 			    strncpy(default_font, &buffer[2], sizeof(default_font)-1);
 			    FPRINTF((stderr, "gnuplot_x11: exec_cmd() set default_font to \"%s\"\n", default_font));
 			    break;
@@ -5550,7 +5551,7 @@ static void pr_font(char * fontname)
 		fontname = default_font;
 	if(!fontname || !(*fontname)) {
 		if((fontname = pr_GetR(db, ".font"))) {
-			strncpy(default_font, fontname, sizeof(default_font)-1);
+			strnzcpy(default_font, fontname, sizeof(default_font));
 			/* shige: default_font may be clear for each plot command by
 			 * X11_set_default_font() in x11.trm, since the function is called
 			 * in X11_graphics(). And then the font list will be cleared by the

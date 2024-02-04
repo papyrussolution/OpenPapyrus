@@ -1954,6 +1954,7 @@ template <typename T> static bool DataTypeClampT(T* v, const T* v_min, const T* 
 	return false;
 }
 
+// @sobolev-note: Функция используется единожды в ImGui::TempInputScalar
 bool ImGui::DataTypeClamp(ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max)
 {
 	switch(data_type) {

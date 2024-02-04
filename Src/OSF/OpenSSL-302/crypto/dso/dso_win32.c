@@ -354,12 +354,9 @@ static char * win32_joiner(DSO * dso, const struct file_st * file_split)
 	}
 	start = file_split->predir;
 	while(file_split->predirlen > (start - file_split->predir)) {
-		const char * end = openssl_strnchr(start, '/',
-			file_split->predirlen - (start -
-			file_split->predir));
+		const char * end = openssl_strnchr(start, '/', file_split->predirlen - (start - file_split->predir));
 		if(!end)
-			end = start
-			    + file_split->predirlen - (start - file_split->predir);
+			end = start + file_split->predirlen - (start - file_split->predir);
 		strncpy(&result[offset], start, end - start);
 		offset += (int)(end - start);
 		result[offset] = '\\';
@@ -368,9 +365,7 @@ static char * win32_joiner(DSO * dso, const struct file_st * file_split)
 	}
 	start = file_split->dir;
 	while(file_split->dirlen > (start - file_split->dir)) {
-		const char * end = openssl_strnchr(start, '/',
-			file_split->dirlen - (start -
-			file_split->dir));
+		const char * end = openssl_strnchr(start, '/', file_split->dirlen - (start - file_split->dir));
 		if(!end)
 			end = start + file_split->dirlen - (start - file_split->dir);
 		strncpy(&result[offset], start, end - start);
@@ -385,13 +380,11 @@ static char * win32_joiner(DSO * dso, const struct file_st * file_split)
 	return result;
 }
 
-static char * win32_merger(DSO * dso, const char * filespec1,
-    const char * filespec2)
+static char * win32_merger(DSO * dso, const char * filespec1, const char * filespec2)
 {
 	char * merged = NULL;
 	struct file_st * filespec1_split = NULL;
 	struct file_st * filespec2_split = NULL;
-
 	if(!filespec1 && !filespec2) {
 		ERR_raise(ERR_LIB_DSO, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;

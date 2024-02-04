@@ -31,10 +31,10 @@
 #include <dxguids/dxguids.h>
 #else
 #include <d3d12.h>
-#pragma comment(lib,"dxguid.lib")
+#pragma comment(lib, "dxguid.lib")
 #endif
 
-#pragma comment(lib,"windowscodecs.lib")
+#pragma comment(lib, "windowscodecs.lib")
 
 #include <cstddef>
 #include <cstdint>

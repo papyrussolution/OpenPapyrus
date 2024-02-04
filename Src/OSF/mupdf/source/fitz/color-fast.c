@@ -126,14 +126,14 @@ static void lab_to_rgb(fz_context * ctx, fz_color_converter * cc, const float * 
 	float r = (3.240449f * x + -1.537136f * y + -0.498531f * z) * 0.830026f;
 	float g = (-0.969265f * x + 1.876011f * y + 0.041556f * z) * 1.05452f;
 	float b = (0.055643f * x + -0.204026f * y + 1.057229f * z) * 1.1003f;
-	rgb[0] = sqrtf(fz_clamp(r, 0, 1));
-	rgb[1] = sqrtf(fz_clamp(g, 0, 1));
-	rgb[2] = sqrtf(fz_clamp(b, 0, 1));
+	rgb[0] = sqrtf(sclamp(r, 0.0f, 1.0f));
+	rgb[1] = sqrtf(sclamp(g, 0.0f, 1.0f));
+	rgb[2] = sqrtf(sclamp(b, 0.0f, 1.0f));
 }
 
 static void lab_to_gray(fz_context * ctx, fz_color_converter * cc, const float * lab, float * gray)
 {
-	gray[0] = lab[0] / 100;
+	gray[0] = lab[0] / 100.0f;
 }
 
 static void lab_to_bgr(fz_context * ctx, fz_color_converter * cc, const float * lab, float * bgr)
@@ -160,35 +160,30 @@ fz_color_convert_fn * fz_lookup_fast_color_converter(fz_context * ctx, fz_colors
 		if(dtype == FZ_COLORSPACE_BGR) return gray_to_rgb;
 		if(dtype == FZ_COLORSPACE_CMYK) return gray_to_cmyk;
 	}
-
 	else if(stype == FZ_COLORSPACE_RGB) {
 		if(dtype == FZ_COLORSPACE_GRAY) return rgb_to_gray;
 		if(dtype == FZ_COLORSPACE_RGB) return rgb_to_rgb;
 		if(dtype == FZ_COLORSPACE_BGR) return rgb_to_bgr;
 		if(dtype == FZ_COLORSPACE_CMYK) return rgb_to_cmyk;
 	}
-
 	else if(stype == FZ_COLORSPACE_BGR) {
 		if(dtype == FZ_COLORSPACE_GRAY) return bgr_to_gray;
 		if(dtype == FZ_COLORSPACE_RGB) return rgb_to_bgr;
 		if(dtype == FZ_COLORSPACE_BGR) return rgb_to_rgb;
 		if(dtype == FZ_COLORSPACE_CMYK) return bgr_to_cmyk;
 	}
-
 	else if(stype == FZ_COLORSPACE_CMYK) {
 		if(dtype == FZ_COLORSPACE_GRAY) return cmyk_to_gray;
 		if(dtype == FZ_COLORSPACE_RGB) return cmyk_to_rgb;
 		if(dtype == FZ_COLORSPACE_BGR) return cmyk_to_bgr;
 		if(dtype == FZ_COLORSPACE_CMYK) return cmyk_to_cmyk;
 	}
-
 	else if(stype == FZ_COLORSPACE_LAB) {
 		if(dtype == FZ_COLORSPACE_GRAY) return lab_to_gray;
 		if(dtype == FZ_COLORSPACE_RGB) return lab_to_rgb;
 		if(dtype == FZ_COLORSPACE_BGR) return lab_to_bgr;
 		if(dtype == FZ_COLORSPACE_CMYK) return lab_to_cmyk;
 	}
-
 	fz_throw(ctx, FZ_ERROR_GENERIC, "cannot find color converter");
 }
 
@@ -208,21 +203,17 @@ static void fast_gray_to_rgb(fz_context * ctx, const fz_pixmap * src, fz_pixmap 
 	int da = dst->alpha;
 	ptrdiff_t d_line_inc = dst->stride - w * dn;
 	ptrdiff_t s_line_inc = src->stride - w * sn;
-
 	/* If copying spots, they must match, and we can never drop alpha (but we can invent it) */
 	if(copy_spots && ss != ds)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "incompatible number of spots when converting pixmap");
 	if(!da && sa)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "cannot drop alpha when converting pixmap");
-
 	if((int)w < 0 || h < 0)
 		return;
-
 	if(!d_line_inc && !s_line_inc) {
 		w *= h;
 		h = 1;
 	}
-
 	if(ss == 0 && ds == 0) {
 		/* Common, no spots case */
 		if(da) {

@@ -350,8 +350,7 @@ void GnuPlot::TwoColumnOutput(SglColumnStats x, SglColumnStats y, TwoColumnStats
 		return;
 	}
 	// Create a string of blanks of the required length 
-	strncpy(blank, "                 ", width+4);
-	blank[width+4] = '\0';
+	strnzcpy(blank, "                 ", width+4);
 	EnsureOutput();
 
 	fprintf(Pgm.print_out, "\n");

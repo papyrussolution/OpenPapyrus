@@ -4224,8 +4224,8 @@ case 178:
 YY_RULE_SETUP
 #line 244 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
 {
-  yylval->fval = atof(yytext);
-  return SQL_FLOATVAL;
+	yylval->fval = atof(yytext);
+	return SQL_FLOATVAL;
 }
 	YY_BREAK
 /*
@@ -4237,38 +4237,38 @@ case 179:
 YY_RULE_SETUP
 #line 254 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
 {
-  yylval->ival = LLONG_MIN;
-  return SQL_INTVAL;
+	yylval->ival = LLONG_MIN;
+	return SQL_INTVAL;
 }
 	YY_BREAK
 case 180:
 YY_RULE_SETUP
 #line 259 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
 {
-  errno = 0;
-  yylval->ival = strtoll(yytext, nullptr, 0);
-  if(errno) {
-    return slfprintf_stderr("[SQL-Lexer-Error] Integer cannot be parsed - is it out of range?");
-    return 0;
-  }
-  return SQL_INTVAL;
+	errno = 0;
+	yylval->ival = strtoll(yytext, nullptr, 0);
+	if(errno) {
+		slfprintf_stderr("[SQL-Lexer-Error] Integer cannot be parsed - is it out of range?");
+		return 0;
+	}
+	return SQL_INTVAL;
 }
 	YY_BREAK
 case 181:
 YY_RULE_SETUP
 #line 269 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
 {
-  // Crop the leading and trailing quote char
-  yylval->sval = hsql::substr(yytext, 1, strlen(yytext)-1);
-  return SQL_IDENTIFIER;
+	// Crop the leading and trailing quote char
+	yylval->sval = hsql::substr(yytext, 1, strlen(yytext)-1);
+	return SQL_IDENTIFIER;
 }
 	YY_BREAK
 case 182:
 YY_RULE_SETUP
 #line 275 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
 {
-  yylval->sval = _strdup(yytext);
-  return SQL_IDENTIFIER;
+	yylval->sval = _strdup(yytext);
+	return SQL_IDENTIFIER;
 }
 	YY_BREAK
 case 183:

@@ -1985,25 +1985,21 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 static char * ssh_bind_options_expand_escape(ssh_bind sshbind, const char * s)
 {
 	char buf[MAX_BUF_SIZE];
-	char * r, * x = NULL;
+	char * x = NULL;
 	const char * p;
 	size_t i, l;
-
-	r = ssh_path_expand_tilde(s);
+	char * r = ssh_path_expand_tilde(s);
 	if(!r) {
 		ssh_set_error_oom(sshbind);
 		return NULL;
 	}
-
 	if(strlen(r) > MAX_BUF_SIZE) {
 		ssh_set_error(sshbind, SSH_FATAL, "string to expand too long");
 		SAlloc::F(r);
 		return NULL;
 	}
-
 	p = r;
 	buf[0] = '\0';
-
 	for(i = 0; *p != '\0'; p++) {
 		if(*p != '%') {
 			buf[i] = *p;

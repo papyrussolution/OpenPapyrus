@@ -668,25 +668,20 @@ static void pdf_show_path(fz_context * ctx, pdf_run_processor * pr, int doclose,
 /*
  * Assemble and emit text
  */
-
 static pdf_gstate * pdf_flush_text(fz_context * ctx, pdf_run_processor * pr)
 {
 	pdf_gstate * gstate = pr->gstate + pr->gtop;
-	fz_text * text;
 	int dofill;
 	int dostroke;
 	int doclip;
 	int doinvisible;
 	softmask_save softmask = { NULL };
 	int knockout_group = 0;
-
-	text = pdf_tos_get_text(ctx, &pr->tos);
+	fz_text * text = pdf_tos_get_text(ctx, &pr->tos);
 	if(!text)
 		return gstate;
-
 	dofill = dostroke = doclip = doinvisible = 0;
-	switch(pr->tos.text_mode)
-	{
+	switch(pr->tos.text_mode) {
 		case 0: dofill = 1; break;
 		case 1: dostroke = 1; break;
 		case 2: dofill = dostroke = 1; break;
@@ -696,10 +691,8 @@ static pdf_gstate * pdf_flush_text(fz_context * ctx, pdf_run_processor * pr)
 		case 6: dofill = dostroke = doclip = 1; break;
 		case 7: doclip = 1; break;
 	}
-
 	if(pr->super.hidden)
 		dostroke = dofill = 0;
-
 	fz_try(ctx)
 	{
 		fz_rect tb = fz_transform_rect(pr->tos.text_bbox, gstate->ctm);
@@ -712,7 +705,6 @@ static pdf_gstate * pdf_flush_text(fz_context * ctx, pdf_run_processor * pr)
 
 		if(dofill || dostroke)
 			gstate = pdf_begin_group(ctx, pr, tb, &softmask);
-
 		if(dofill && dostroke) {
 			/* We may need to push a knockout group */
 			if(gstate->stroke.alpha == 0) {
@@ -726,13 +718,10 @@ static pdf_gstate * pdf_flush_text(fz_context * ctx, pdf_run_processor * pr)
 				fz_begin_group(ctx, pr->dev, tb, NULL, 0, 1, FZ_BLEND_NORMAL, 1);
 			}
 		}
-
 		if(doinvisible)
 			fz_ignore_text(ctx, pr->dev, text, gstate->ctm);
-
 		if(dofill) {
-			switch(gstate->fill.kind)
-			{
+			switch(gstate->fill.kind) {
 				case PDF_MAT_NONE:
 				    break;
 				case PDF_MAT_COLOR:
@@ -762,10 +751,8 @@ static pdf_gstate * pdf_flush_text(fz_context * ctx, pdf_run_processor * pr)
 				    break;
 			}
 		}
-
 		if(dostroke) {
-			switch(gstate->stroke.kind)
-			{
+			switch(gstate->stroke.kind) {
 				case PDF_MAT_NONE:
 				    break;
 				case PDF_MAT_COLOR:
@@ -798,13 +785,10 @@ static pdf_gstate * pdf_flush_text(fz_context * ctx, pdf_run_processor * pr)
 				    break;
 			}
 		}
-
 		if(knockout_group)
 			fz_end_group(ctx, pr->dev);
-
 		if(dofill || dostroke)
 			pdf_end_group(ctx, pr, &softmask);
-
 		if(doclip) {
 			gstate->clip_depth++;
 			fz_clip_text(ctx, pr->dev, text, gstate->ctm, tb);
@@ -1041,8 +1025,7 @@ static void pdf_set_color(fz_context * ctx, pdf_run_processor * pr, int what, fl
 
 	mat = what == PDF_FILL ? &gstate->fill : &gstate->stroke;
 
-	switch(mat->kind)
-	{
+	switch(mat->kind) {
 		case PDF_MAT_PATTERN:
 		case PDF_MAT_COLOR:
 		    fz_clamp_color(ctx, mat->colorspace, v, mat->v);
@@ -1050,7 +1033,6 @@ static void pdf_set_color(fz_context * ctx, pdf_run_processor * pr, int what, fl
 		default:
 		    fz_warn(ctx, "color incompatible with material");
 	}
-
 	mat->gstate_num = pr->gparent;
 }
 
@@ -1374,14 +1356,14 @@ static void pdf_run_gs_CA(fz_context * ctx, pdf_processor * proc, float alpha)
 {
 	pdf_run_processor * pr = (pdf_run_processor*)proc;
 	pdf_gstate * gstate = pdf_flush_text(ctx, pr);
-	gstate->stroke.alpha = fz_clamp(alpha, 0, 1);
+	gstate->stroke.alpha = sclamp(alpha, 0.0f, 1.0f);
 }
 
 static void pdf_run_gs_ca(fz_context * ctx, pdf_processor * proc, float alpha)
 {
 	pdf_run_processor * pr = (pdf_run_processor*)proc;
 	pdf_gstate * gstate = pdf_flush_text(ctx, pr);
-	gstate->fill.alpha = fz_clamp(alpha, 0, 1);
+	gstate->fill.alpha = sclamp(alpha, 0.0f, 1.0f);
 }
 
 static void pdf_run_gs_SMask(fz_context * ctx, pdf_processor * proc, pdf_obj * smask, pdf_obj * page_resources, float * bc, int luminosity)

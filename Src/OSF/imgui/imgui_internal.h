@@ -317,7 +317,7 @@ static inline bool ImIsPowerOfTwo(uint64 v)  { return v != 0 && (v & (v - 1)) ==
 static inline int  ImUpperPowerOfTwo(int v) { v--; v |= v >> 1; v |= v >> 2; v |= v >> 4; v |= v >> 8; v |= v >> 16; v++; return v; }
 
 // Helpers: String
-int           ImStricmp(const char* str1, const char* str2);
+// @sobolev int ImStricmp(const char* str1, const char* str2);
 int           ImStrnicmp(const char* str1, const char* str2, size_t count);
 void          ImStrncpy(char* dst, const char* src, size_t count);
 char*         ImStrdup(const char* str);

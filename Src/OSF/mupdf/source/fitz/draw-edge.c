@@ -153,14 +153,14 @@ static void fz_insert_gel(fz_context * ctx, fz_rasterizer * ras, float fx0, floa
 	fx1 = floorf(fx1 * hscale);
 	fy0 = floorf(fy0 * vscale);
 	fy1 = floorf(fy1 * vscale);
-	/* Call fz_clamp so that clamping is done in the float domain, THEN
+	/* Call sclampf so that clamping is done in the float domain, THEN
 	 * cast down to an int. Calling sclamp causes problems due to the
 	 * implicit cast down from float to int of the first argument
 	 * over/underflowing and flipping sign at extreme values. */
-	x0 = (int)fz_clamp(fx0, BBOX_MIN * hscale, BBOX_MAX * hscale);
-	y0 = (int)fz_clamp(fy0, BBOX_MIN * vscale, BBOX_MAX * vscale);
-	x1 = (int)fz_clamp(fx1, BBOX_MIN * hscale, BBOX_MAX * hscale);
-	y1 = (int)fz_clamp(fy1, BBOX_MIN * vscale, BBOX_MAX * vscale);
+	x0 = (int)sclampf(fx0, BBOX_MIN * hscale, BBOX_MAX * hscale);
+	y0 = (int)sclampf(fy0, BBOX_MIN * vscale, BBOX_MAX * vscale);
+	x1 = (int)sclampf(fx1, BBOX_MIN * hscale, BBOX_MAX * hscale);
+	y1 = (int)sclampf(fy1, BBOX_MIN * vscale, BBOX_MAX * vscale);
 	d = clip_lerp_y(ras->clip.y0, 0, x0, y0, x1, y1, &v);
 	if(d == OUTSIDE) return;
 	if(d == LEAVE) {
@@ -177,7 +177,6 @@ static void fz_insert_gel(fz_context * ctx, fz_rasterizer * ras, float fx0, floa
 	if(d == ENTER) {
 		y0 = ras->clip.y1; x0 = v;
 	}
-
 	d = clip_lerp_x(ras->clip.x0, 0, x0, y0, x1, y1, &v);
 	if(d == OUTSIDE) {
 		x0 = x1 = ras->clip.x0;
@@ -233,21 +232,18 @@ static void fz_insert_gel_rect(fz_context * ctx, fz_rasterizer * ras, float fx0,
 		fy0 = ceilf(fy0 * vscale);
 		fy1 = floorf(fy1 * vscale);
 	}
-
-	fx0 = fz_clamp(fx0, ras->clip.x0, ras->clip.x1);
-	fx1 = fz_clamp(fx1, ras->clip.x0, ras->clip.x1);
-	fy0 = fz_clamp(fy0, ras->clip.y0, ras->clip.y1);
-	fy1 = fz_clamp(fy1, ras->clip.y0, ras->clip.y1);
-
-	/* Call fz_clamp so that clamping is done in the float domain, THEN
+	fx0 = sclampf(fx0, ras->clip.x0, ras->clip.x1);
+	fx1 = sclampf(fx1, ras->clip.x0, ras->clip.x1);
+	fy0 = sclampf(fy0, ras->clip.y0, ras->clip.y1);
+	fy1 = sclampf(fy1, ras->clip.y0, ras->clip.y1);
+	/* Call sclampf so that clamping is done in the float domain, THEN
 	 * cast down to an int. Calling sclamp causes problems due to the
 	 * implicit cast down from float to int of the first argument
 	 * over/underflowing and flipping sign at extreme values. */
-	x0 = (int)fz_clamp(fx0, BBOX_MIN * hscale, BBOX_MAX * hscale);
-	y0 = (int)fz_clamp(fy0, BBOX_MIN * vscale, BBOX_MAX * vscale);
-	x1 = (int)fz_clamp(fx1, BBOX_MIN * hscale, BBOX_MAX * hscale);
-	y1 = (int)fz_clamp(fy1, BBOX_MIN * vscale, BBOX_MAX * vscale);
-
+	x0 = (int)sclampf(fx0, BBOX_MIN * hscale, BBOX_MAX * hscale);
+	y0 = (int)sclampf(fy0, BBOX_MIN * vscale, BBOX_MAX * vscale);
+	x1 = (int)sclampf(fx1, BBOX_MIN * hscale, BBOX_MAX * hscale);
+	y1 = (int)sclampf(fy1, BBOX_MIN * vscale, BBOX_MAX * vscale);
 	fz_insert_gel_raw(ctx, ras, x1, y0, x1, y1);
 	fz_insert_gel_raw(ctx, ras, x0, y1, x0, y0);
 }

@@ -405,9 +405,8 @@ cmsNAMEDCOLORLIST* CMSEXPORT cmsAllocNamedColorList(cmsContext ContextID, uint32
 			return NULL;
 		}
 	}
-	strncpy(v->Prefix, Prefix, sizeof(v->Prefix)-1);
-	strncpy(v->Suffix, Suffix, sizeof(v->Suffix)-1);
-	v->Prefix[32] = v->Suffix[32] = 0;
+	strnzcpy(v->Prefix, Prefix, sizeof(v->Prefix));
+	strnzcpy(v->Suffix, Suffix, sizeof(v->Suffix));
 	v->ColorantCount = ColorantCount;
 	return v;
 }

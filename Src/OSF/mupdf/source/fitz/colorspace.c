@@ -476,17 +476,17 @@ const char * fz_colorspace_colorant(fz_context * ctx, fz_colorspace * cs, int i)
 void fz_clamp_color(fz_context * ctx, fz_colorspace * cs, const float * in, float * out)
 {
 	if(cs->type == FZ_COLORSPACE_LAB) {
-		out[0] = fz_clamp(in[0], 0, 100);
-		out[1] = fz_clamp(in[1], -128, 127);
-		out[2] = fz_clamp(in[2], -128, 127);
+		out[0] = sclampf(in[0], 0, 100);
+		out[1] = sclampf(in[1], -128, 127);
+		out[2] = sclampf(in[2], -128, 127);
 	}
 	else if(cs->type == FZ_COLORSPACE_INDEXED) {
-		out[0] = fz_clamp(in[0], 0, cs->u.indexed.high) / 255.0f;
+		out[0] = sclampf(in[0], 0, cs->u.indexed.high) / 255.0f;
 	}
 	else {
 		int i, n = cs->n;
 		for(i = 0; i < n; ++i)
-			out[i] = fz_clamp(in[i], 0, 1);
+			out[i] = sclampf(in[i], 0.0f, 1.0f);
 	}
 }
 

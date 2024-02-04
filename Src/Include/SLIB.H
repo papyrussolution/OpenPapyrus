@@ -6273,24 +6273,6 @@ char * FASTCALL newStr(const char *);
 //
 // Descr: Меняет значения по указателям pA и pB один с другим
 //
-//void   FASTCALL Exchange(int * pA, int * pB);
-//void   FASTCALL Exchange(uint * pA, uint * pB);
-//void   FASTCALL ExchangeForOrder(int * pA, int * pB);
-//void   FASTCALL Exchange(long * pA, long * pB);
-//
-// Descr: Если *pA > *pB, то меняет значения по этим указателям местами,
-//   в противном случае ничего не делает
-//
-//void   FASTCALL ExchangeForOrder(long * pA, long * pB);
-//void   FASTCALL Exchange(ulong * pA, ulong * pB);
-//void   FASTCALL Exchange(int16 * pA, int16 * pB);
-//void   FASTCALL ExchangeForOrder(int16 * pA, int16 * pB);
-//void   FASTCALL Exchange(int64 * pA, int64 * pB);
-//void   FASTCALL Exchange(float * pA, float * pB);
-//void   FASTCALL Exchange(double * pA, double * pB);
-//
-// Descr: Меняет значения по указателям pA и pB один с другим
-//
 template <class T> void SExchange(T * pA, T * pB)
 {
 	T temp = *pA;
@@ -6310,11 +6292,6 @@ template <class T> void SExchangeForOrder(T * pA, T * pB)
 		*pB = temp;
 	}
 }
-//
-// Descr: Если *pA > *pB, то меняет значения по этим указателям местами,
-//   в противном случае ничего не делает
-//
-//void   FASTCALL ExchangeForOrder(double * pA, double * pB);
 int    FASTCALL cmp_long(long a, long b);
 int    FASTCALL cmp_ulong(ulong a, ulong b);
 int    FASTCALL cmp_int64(int64 a, int64 b);
@@ -14512,6 +14489,12 @@ template <class T> T smax4(T a, T b, T c, T d) { return smax(MAX(a, b), MAX(c, d
 //
 template <class T> T sclamp(T v, T lo, T up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 template <class T> T sclampx(T v, T lo, T up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+//
+// Descr: clamp с первым аргументом типа float часто используется. При этом 
+//   остальные 2 аргумента в выховах часто не приводят к float (используют int-constant)
+//   что сильно затрудняет применени шаблонизированной функции slamp().
+//
+FORCEINLINE float sclampf(float v, float lo, float up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);

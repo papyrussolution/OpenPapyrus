@@ -3036,7 +3036,7 @@ void GnuPlot::SetPaletteFunction()
 	Pgm.Shift();
 	strcpy(saved_dummy_var, _Pb.c_dummy_var[0]);
 	// set dummy variable 
-	strncpy(_Pb.c_dummy_var[0], "gray", MAX_ID_LEN);
+	strnzcpy(_Pb.c_dummy_var[0], "gray", MAX_ID_LEN+1);
 	// Afunc 
 	start_token = Pgm.GetCurTokenIdx();
 	if(SmPltt.Afunc.at) {

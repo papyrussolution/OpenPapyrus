@@ -1,4 +1,4 @@
-//
+// SQLParser.cpp
 //
 #include <sql-parser.h>
 #pragma hdrstop
@@ -65,11 +65,9 @@ namespace hsql {
 		}
 	}
 
-	Expr* Expr::make(ExprType type) 
-	{
-		Expr* e = new Expr(type);
-		return e;
-	}
+	Expr * Expr::make(ExprType type) { return new Expr(type); }
+	Expr * Expr::makeNullLiteral() { return new Expr(kExprLiteralNull); }
+	Expr * Expr::makeStar(void) { return new Expr(kExprStar); }
 
 	Expr* Expr::makeOpUnary(OperatorType op, Expr* expr) 
 	{
@@ -167,15 +165,9 @@ namespace hsql {
 		return e;
 	}
 
-	Expr* Expr::makeNullLiteral()
-	{
-		Expr* e = new Expr(kExprLiteralNull);
-		return e;
-	}
-
 	Expr* Expr::makeDateLiteral(char* string) 
 	{
-		Expr* e = new Expr(kExprLiteralDate);
+		Expr * e = new Expr(kExprLiteralDate);
 		e->name = string;
 		return e;
 	}
@@ -200,12 +192,6 @@ namespace hsql {
 		Expr* e = new Expr(kExprColumnRef);
 		e->name = name;
 		e->table = table;
-		return e;
-	}
-
-	Expr* Expr::makeStar(void) 
-	{
-		Expr* e = new Expr(kExprStar);
 		return e;
 	}
 
@@ -301,28 +287,32 @@ namespace hsql {
 
 	bool Expr::isLiteral() const 
 	{
-		return isType(kExprLiteralInt) || isType(kExprLiteralFloat) || isType(kExprLiteralString) || isType(kExprParameter) ||
-			   isType(kExprLiteralNull) || isType(kExprLiteralDate) || isType(kExprLiteralInterval);
+		return oneof7(type, kExprLiteralInt, kExprLiteralFloat, kExprLiteralString, kExprParameter, kExprLiteralNull, kExprLiteralDate, kExprLiteralInterval);
 	}
 
 	bool Expr::hasAlias() const { return alias != nullptr; }
 	bool Expr::hasTable() const { return table != nullptr; }
 	const char* Expr::getName() const { return alias ? alias : name; }
 
-	char* substr(const char* source, int from, int to) 
+	char * substr(const char* source, int from, int to) 
 	{
-		int len = to - from;
-		char* copy = (char*)SAlloc::M(len + 1);
-		;
-		strncpy(copy, source + from, len);
-		copy[len] = '\0';
-		return copy;
+		const int len = to - from;
+		char * p_copy = 0;
+		if(len >= 0) {
+			p_copy = (char *)SAlloc::M(len+1);
+			if(len == 0)
+				p_copy[0] = 0;
+			else
+				strnzcpy(p_copy, source + from, len+1);
+		}
+		return p_copy;
 	}
 }  // namespace hsql
 
 namespace hsql {
-	SQLStatement::SQLStatement(StatementType type) : hints(nullptr), type_(type) {}
-
+	SQLStatement::SQLStatement(StatementType type) : hints(nullptr), type_(type) 
+	{
+	}
 	SQLStatement::~SQLStatement() 
 	{
 		if(hints) {
@@ -430,14 +420,12 @@ namespace hsql {
 	{
 	}
 
-	bool operator==(const ColumnType& lhs, const ColumnType& rhs) 
+	bool operator == (const ColumnType& lhs, const ColumnType& rhs) 
 	{
-		if(lhs.data_type != rhs.data_type)  
-			return false;
-		return lhs.length == rhs.length && lhs.precision == rhs.precision && lhs.scale == rhs.scale;
+		return (lhs.data_type == rhs.data_type && lhs.length == rhs.length && lhs.precision == rhs.precision && lhs.scale == rhs.scale);
 	}
 
-	bool operator!=(const ColumnType& lhs, const ColumnType& rhs) { return !(lhs == rhs); }
+	bool operator != (const ColumnType& lhs, const ColumnType& rhs) { return !(lhs == rhs); }
 
 	std::ostream& operator<<(std::ostream& stream, const ColumnType& column_type) 
 	{
@@ -464,7 +452,9 @@ namespace hsql {
 	}
 
 	// DeleteStatement
-	DeleteStatement::DeleteStatement() : SQLStatement(kStmtDelete), schema(nullptr), tableName(nullptr), expr(nullptr) {}
+	DeleteStatement::DeleteStatement() : SQLStatement(kStmtDelete), schema(nullptr), tableName(nullptr), expr(nullptr) 
+	{
+	}
 
 	DeleteStatement::~DeleteStatement() 
 	{
@@ -512,8 +502,9 @@ namespace hsql {
 	}
 
 	// TransactionStatement
-	TransactionStatement::TransactionStatement(TransactionCommand command)
-		: SQLStatement(kStmtTransaction), command(command) {}
+	TransactionStatement::TransactionStatement(TransactionCommand command) : SQLStatement(kStmtTransaction), command(command) 
+	{
+	}
 
 	TransactionStatement::~TransactionStatement() {}
 
@@ -582,9 +573,12 @@ namespace hsql {
 			delete values;
 		}
 	}
-
-	// ShowStatament
-	ShowStatement::ShowStatement(ShowType type) : SQLStatement(kStmtShow), type(type), schema(nullptr), name(nullptr) {}
+	//
+	//
+	//
+	ShowStatement::ShowStatement(ShowType type) : SQLStatement(kStmtShow), type(type), schema(nullptr), name(nullptr) 
+	{
+	}
 
 	ShowStatement::~ShowStatement() 
 	{
@@ -758,9 +752,14 @@ namespace hsql {
 	//
 	//
 	//
-	SQLParserResult::SQLParserResult() : isValid_(false), errorMsg_(nullptr) {}
+	SQLParserResult::SQLParserResult() : isValid_(false), errorMsg_(nullptr) 
+	{
+	}
 
-	SQLParserResult::SQLParserResult(SQLStatement* stmt) : isValid_(false), errorMsg_(nullptr) { addStatement(stmt); }
+	SQLParserResult::SQLParserResult(SQLStatement* stmt) : isValid_(false), errorMsg_(nullptr) 
+	{ 
+		addStatement(stmt); 
+	}
 
 	// Move constructor.
 	SQLParserResult::SQLParserResult(SQLParserResult&& moved) { *this = std::forward<SQLParserResult>(moved); }
@@ -882,21 +881,49 @@ namespace hsql {
 	//
 	//
 	//
-	void printOperatorExpression(Expr* expr, uintmax_t num_indent);
-	void printAlias(Alias* alias, uintmax_t num_indent);
-	std::ostream& operator<<(std::ostream& os, const OperatorType& op);
-	std::ostream& operator<<(std::ostream& os, const DatetimeField& datetime);
-	std::ostream& operator<<(std::ostream& os, const FrameBound& frame_bound);
+	std::ostream & operator<<(std::ostream& os, const OperatorType& op);
+	std::ostream & operator<<(std::ostream& os, const DatetimeField& datetime);
+	std::ostream & operator<<(std::ostream& os, const FrameBound& frame_bound);
 	std::string indent(uintmax_t num_indent) { return std::string(static_cast<uint>(num_indent), '\t'); }
-	void inprint(int64_t val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << "  " << std::endl; }
-	void inprint(double val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << std::endl; }
-	void inprint(const char* val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << std::endl; }
-	void inprint(const char* val, const char* val2, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << "->" << val2 << std::endl; }
-	void inprintC(char val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << std::endl; }
-	void inprint(const OperatorType& op, uintmax_t num_indent) { std::cout << indent(num_indent) << op << std::endl; }
-	void inprint(const ColumnType& colType, uintmax_t num_indent) { std::cout << indent(num_indent) << colType << std::endl; }
-	void inprint(const DatetimeField& colType, uintmax_t num_indent) { std::cout << indent(num_indent) << colType << std::endl; }
-	void printTableRefInfo(TableRef* table, uintmax_t num_indent) 
+	static void inprint(int64_t val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << "  " << std::endl; }
+	static void inprint(double val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << std::endl; }
+	static void inprint(const char* val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << std::endl; }
+	static void inprint(const char* val, const char* val2, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << "->" << val2 << std::endl; }
+	static void inprintC(char val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << std::endl; }
+	static void inprint(const OperatorType& op, uintmax_t num_indent) { std::cout << indent(num_indent) << op << std::endl; }
+	static void inprint(const ColumnType& colType, uintmax_t num_indent) { std::cout << indent(num_indent) << colType << std::endl; }
+	static void inprint(const DatetimeField& colType, uintmax_t num_indent) { std::cout << indent(num_indent) << colType << std::endl; }
+
+	static void printOperatorExpression(const Expr * expr, uintmax_t num_indent) 
+	{
+		if(expr == nullptr) {
+			inprint("null", num_indent);
+		}
+		else {
+			inprint(expr->opType, num_indent);
+			printExpression(expr->expr, num_indent + 1);
+			if(expr->expr2) {
+				printExpression(expr->expr2, num_indent + 1);
+			}
+			else if(expr->exprList) {
+				for(const Expr * e : *expr->exprList)  
+					printExpression(e, num_indent + 1);
+			}
+		}
+	}
+
+	static void printAlias(const Alias * alias, uintmax_t num_indent) 
+	{
+		inprint("Alias", num_indent + 1);
+		inprint(alias->name, num_indent + 2);
+		if(alias->columns) {
+			for(const char * column : *(alias->columns)) {
+				inprint(column, num_indent + 3);
+			}
+		}
+	}
+	
+	static void printTableRefInfo(const TableRef * table, uintmax_t num_indent) 
 	{
 		switch(table->type) {
 			case kTableName:
@@ -919,40 +946,16 @@ namespace hsql {
 				printExpression(table->join->condition, num_indent + 2);
 				break;
 			case kTableCrossProduct:
-				for(TableRef* tbl : *table->list)  printTableRefInfo(tbl, num_indent);
+				for(const TableRef * tbl : *table->list)  
+					printTableRefInfo(tbl, num_indent);
 				break;
 		}
 		if(table->alias) {
 			printAlias(table->alias, num_indent);
 		}
 	}
-	void printAlias(Alias* alias, uintmax_t num_indent) 
-	{
-		inprint("Alias", num_indent + 1);
-		inprint(alias->name, num_indent + 2);
-		if(alias->columns) {
-			for(char* column : *(alias->columns)) {
-				inprint(column, num_indent + 3);
-			}
-		}
-	}
-	void printOperatorExpression(Expr* expr, uintmax_t num_indent) 
-	{
-		if(expr == nullptr) {
-			inprint("null", num_indent);
-			return;
-		}
-		inprint(expr->opType, num_indent);
-		printExpression(expr->expr, num_indent + 1);
-		if(expr->expr2) {
-			printExpression(expr->expr2, num_indent + 1);
-		}
-		else if(expr->exprList) {
-			for(Expr* e : *expr->exprList)  printExpression(e, num_indent + 1);
-		}
-	}
 
-	void printExpression(Expr* expr, uintmax_t num_indent) 
+	void printExpression(const Expr * expr, uintmax_t num_indent) 
 	{
 		if(expr) {
 			switch(expr->type) {
@@ -989,8 +992,8 @@ namespace hsql {
 					break;
 				case kExprFunctionRef:
 					inprint(expr->name, num_indent);
-					for(Expr* e : *expr->exprList) {
-						printExpression(e, num_indent + 1);
+					for(const Expr * e : *expr->exprList) {
+						printExpression(e, num_indent + 1); // @recursion
 					}
 					if(expr->windowDescription) {
 						printWindowDescription(expr->windowDescription, num_indent + 1);
@@ -1016,8 +1019,8 @@ namespace hsql {
 					inprint(expr->ival, num_indent);
 					break;
 				case kExprArray:
-					for(Expr* e : *expr->exprList) {
-						printExpression(e, num_indent + 1);
+					for(const Expr * e : *expr->exprList) {
+						printExpression(e, num_indent + 1); // @recursion
 					}
 					break;
 				case kExprArrayIndex:
@@ -1035,20 +1038,18 @@ namespace hsql {
 		}
 	}
 
-	void printOrderBy(const std::vector<OrderDescription*>* expr, uintmax_t num_indent) {
-		if(!expr)  return;
-		for(const auto& order_description : *expr) {
-			printExpression(order_description->expr, num_indent);
-			if(order_description->type == kOrderAsc) {
-				inprint("ascending", num_indent);
-			}
-			else {
-				inprint("descending", num_indent);
+	void printOrderBy(const std::vector<OrderDescription*>* expr, uintmax_t num_indent) 
+	{
+		if(expr) {
+			for(const auto& order_description : *expr) {
+				printExpression(order_description->expr, num_indent);
+				inprint((order_description->type == kOrderAsc) ? "ascending" : "descending", num_indent);
 			}
 		}
 	}
 
-	void printWindowDescription(WindowDescription* window_description, uintmax_t num_indent) {
+	void printWindowDescription(WindowDescription* window_description, uintmax_t num_indent) 
+	{
 		inprint("OVER", num_indent);
 		if(window_description->partitionList) {
 			inprint("PARTITION BY", num_indent + 1);
@@ -1056,7 +1057,6 @@ namespace hsql {
 				printExpression(e, num_indent + 2);
 			}
 		}
-
 		if(window_description->orderList) {
 			inprint("ORDER BY", num_indent + 1);
 			printOrderBy(window_description->orderList, num_indent + 2);
@@ -1074,21 +1074,20 @@ namespace hsql {
 	{
 		inprint("SelectStatement", num_indent);
 		inprint("Fields:", num_indent + 1);
-		for(Expr* expr : *stmt->selectList)  printExpression(expr, num_indent + 2);
-
+		for(const Expr* expr : *stmt->selectList)  
+			printExpression(expr, num_indent + 2);
 		if(stmt->fromTable) {
 			inprint("Sources:", num_indent + 1);
 			printTableRefInfo(stmt->fromTable, num_indent + 2);
 		}
-
 		if(stmt->whereClause) {
 			inprint("Search Conditions:", num_indent + 1);
 			printExpression(stmt->whereClause, num_indent + 2);
 		}
-
 		if(stmt->groupBy) {
 			inprint("GroupBy:", num_indent + 1);
-			for(Expr* expr : *stmt->groupBy->columns)  printExpression(expr, num_indent + 2);
+			for(const Expr* expr : *stmt->groupBy->columns)  
+				printExpression(expr, num_indent + 2);
 			if(stmt->groupBy->having) {
 				inprint("Having:", num_indent + 1);
 				printExpression(stmt->groupBy->having, num_indent + 2);
@@ -1096,7 +1095,7 @@ namespace hsql {
 		}
 		if(stmt->lockings) {
 			inprint("Lock Info:", num_indent + 1);
-			for(LockingClause* lockingClause : *stmt->lockings) {
+			for(const LockingClause * lockingClause : *stmt->lockings) {
 				inprint("Type", num_indent + 2);
 				if(lockingClause->rowLockMode == RowLockMode::ForUpdate) {
 					inprint("FOR UPDATE", num_indent + 3);
@@ -1112,7 +1111,7 @@ namespace hsql {
 				}
 				if(lockingClause->tables) {
 					inprint("Target tables:", num_indent + 2);
-					for(char* dtable : *lockingClause->tables) {
+					for(const char * dtable : *lockingClause->tables) {
 						inprint(dtable, num_indent + 3);
 					}
 				}
@@ -1154,12 +1153,10 @@ namespace hsql {
 			inprint("OrderBy:", num_indent + 1);
 			printOrderBy(stmt->order, num_indent + 2);
 		}
-
 		if(stmt->limit && stmt->limit->limit) {
 			inprint("Limit:", num_indent + 1);
 			printExpression(stmt->limit->limit, num_indent + 2);
 		}
-
 		if(stmt->limit && stmt->limit->offset) {
 			inprint("Offset:", num_indent + 1);
 			printExpression(stmt->limit->offset, num_indent + 2);
@@ -1201,13 +1198,16 @@ namespace hsql {
 		}
 	}
 
-	void printCreateStatementInfo(const CreateStatement* stmt, uintmax_t num_indent) {
+	void printCreateStatementInfo(const CreateStatement* stmt, uintmax_t num_indent) 
+	{
 		inprint("CreateStatement", num_indent);
 		inprint(stmt->tableName, num_indent + 1);
-		if(stmt->filePath)  inprint(stmt->filePath, num_indent + 1);
+		if(stmt->filePath)  
+			inprint(stmt->filePath, num_indent + 1);
 	}
 
-	void printInsertStatementInfo(const InsertStatement* stmt, uintmax_t num_indent) {
+	void printInsertStatementInfo(const InsertStatement* stmt, uintmax_t num_indent) 
+	{
 		inprint("InsertStatement", num_indent);
 		inprint(stmt->tableName, num_indent + 1);
 		if(stmt->columns) {
@@ -1303,20 +1303,15 @@ namespace hsql {
 	{
 		if(frame_bound.type == kCurrentRow) {
 			os << "CURRENT ROW";
-			return os;
-		}
-		if(frame_bound.unbounded) {
-			os << "UNBOUNDED";
 		}
 		else {
-			os << frame_bound.offset;
-		}
-		os << " ";
-		if(frame_bound.type == kPreceding) {
-			os << "PRECEDING";
-		}
-		else {
-			os << "FOLLOWING";
+			if(frame_bound.unbounded) {
+				os << "UNBOUNDED";
+			}
+			else {
+				os << frame_bound.offset;
+			}
+			os << " " << (frame_bound.type == kPreceding) ? "PRECEDING" : "FOLLOWING";
 		}
 		return os;
 	}

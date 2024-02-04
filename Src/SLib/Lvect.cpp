@@ -925,7 +925,7 @@ LMatrix2D & LMatrix2D::InitSkew(double angleX, double angleY)
 LMatrix2D & LMatrix2D::InitSkewDeg(double angleXDeg, double angleYDeg)
 	{ return InitSkew(SMathConst::PiDiv180 * angleXDeg, SMathConst::PiDiv180 * angleYDeg); }
 int LMatrix2D::IsIdentical() const
-	{ return (xx == yy && xx == 1.0 && x0 == 0.0 && y0 == 0.0 && yx == 0.0 && xy == 0.0); }
+	{ return (xx == 1.0 && yy == 1.0 && x0 == 0.0 && y0 == 0.0 && yx == 0.0 && xy == 0.0); }
 double LMatrix2D::GetDeterminant() const
 	{ return xx * yy - yx * xy; }
 SPoint2R & FASTCALL LMatrix2D::TransformDistance(SPoint2R & rP) const

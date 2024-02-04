@@ -1361,8 +1361,7 @@ static void map_charset_name(const char * cs_name, bool target_cs, char * buffer
 	}
 	else {
 		/* Not our client - copy as is*/
-		strncpy(buffer, cs_name, buff_len - 1);
-		buffer[buff_len - 1] = '\0';
+		strnzcpy(buffer, cs_name, buff_len);
 	}
 	if(target_cs) {
 		strncat(buffer, "//TRANSLIT", buff_len - strlen(buffer));

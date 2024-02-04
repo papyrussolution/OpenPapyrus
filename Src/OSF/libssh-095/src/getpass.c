@@ -18,17 +18,11 @@
 #pragma hdrstop
 /**
  * @internal
- *
  * @brief Get the password from the console.
- *
  * @param[in]  prompt   The prompt to display.
- *
  * @param[in]  buf      The buffer to fill.
- *
  * @param[in]  len      The length of the buffer.
- *
  * @param[in]  verify   Should the password be verified?
- *
  * @return              1 on success, 0 on error.
  */
 static int ssh_gets(const char * prompt, char * buf, size_t len, int verify)
@@ -57,7 +51,7 @@ static int ssh_gets(const char * prompt, char * buf, size_t len, int verify)
 		}
 		fprintf(stdout, "\n");
 		if(*tmp) {
-			strncpy(buf, tmp, len);
+			strnzcpy(buf, tmp, len);
 		}
 		if(verify) {
 			char * key_string = (char *)SAlloc::C(1, len);

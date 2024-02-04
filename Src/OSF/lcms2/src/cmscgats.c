@@ -345,8 +345,7 @@ static boolint isabsolutepath(const char * path)
 		return FALSE;
 	if(path[0] == 0)
 		return FALSE;
-	strncpy(ThreeChars, path, 3);
-	ThreeChars[3] = 0;
+	strnzcpy(ThreeChars, path, sizeof(ThreeChars));
 	if(ThreeChars[0] == DIR_CHAR)
 		return TRUE;
 #ifdef  CMS_IS_WINDOWS_
@@ -364,13 +363,11 @@ static boolint BuildAbsolutePath(const char * relPath, const char * basePath, ch
 	uint32 len;
 	// Already absolute?
 	if(isabsolutepath(relPath)) {
-		strncpy(buffer, relPath, MaxLen);
-		buffer[MaxLen-1] = 0;
+		strnzcpy(buffer, relPath, MaxLen);
 		return TRUE;
 	}
 	// No, search for last
-	strncpy(buffer, basePath, MaxLen);
-	buffer[MaxLen-1] = 0;
+	strnzcpy(buffer, basePath, MaxLen);
 	tail = strrchr(buffer, DIR_CHAR);
 	if(tail == NULL) 
 		return FALSE; // Is not absolute and has no separators??

@@ -23,9 +23,9 @@
 #define XAPIAN_INCLUDED_STEMINTERNAL_H
 
 #include <xapian/stem.h>
-#include "alignment_cast.h"
-#include <cstdlib>
-#include <string>
+//#include "alignment_cast.h"
+//#include <cstdlib>
+//#include <string>
 
 typedef unsigned char symbol;
 

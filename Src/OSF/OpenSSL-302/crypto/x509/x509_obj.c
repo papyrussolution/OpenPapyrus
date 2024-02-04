@@ -49,11 +49,9 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 			buf = b->data;
 			OPENSSL_free(b);
 		}
-		strncpy(buf, "NO X509_NAME", len);
-		buf[len - 1] = '\0';
+		strnzcpy(buf, "NO X509_NAME", len);
 		return buf;
 	}
-
 	len--;                  /* space for '\0' */
 	l = 0;
 	for(i = 0; i < sk_X509_NAME_ENTRY_num(a->entries); i++) {

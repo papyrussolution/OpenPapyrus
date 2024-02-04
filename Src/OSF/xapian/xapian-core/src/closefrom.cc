@@ -154,8 +154,7 @@ void Xapian::Internal::closefrom(int fd)
 			// available with 64-bit inode_t, which seems to be tied to LFS.
 			gdea_type count = sizeof(buf);
 			gdea_type new_state;
-			int r = getdirentriesattr(dir, &alist, buf, sizeof(buf),
-				&count, &base, &new_state, 0);
+			int r = getdirentriesattr(dir, &alist, buf, sizeof(buf), &count, &base, &new_state, 0);
 			(void)new_state;
 			if(r < 0) {
 				// Fallback if getdirentriesattr() fails.
@@ -165,7 +164,6 @@ void Xapian::Internal::closefrom(int fd)
 			while(count-- > 0) {
 				const char * leaf = p + sizeof(u_int32_t);
 				p += *static_cast<u_int32_t*>(static_cast<void*>(p));
-
 				int n;
 				if(!parse_signed(leaf, n)) {
 					// Skip '.' and '..'.

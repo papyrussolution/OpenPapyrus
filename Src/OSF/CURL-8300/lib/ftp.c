@@ -871,7 +871,6 @@ static CURLcode ftp_state_use_port(struct Curl_easy * data, /*ftpport*/int fcmd/
 			result = CURLE_OUT_OF_MEMORY;
 			goto out;
 		}
-
 #ifdef ENABLE_IPV6
 		if(*string_ftpport == '[') {
 			/* [ipv6]:port(-range) */
@@ -959,8 +958,7 @@ static CURLcode ftp_state_use_port(struct Curl_easy * data, /*ftpport*/int fcmd/
 		   the IP from the control connection */
 		sslen = sizeof(ss);
 		if(getsockname(conn->sock[FIRSTSOCKET], sa, &sslen)) {
-			failf(data, "getsockname() failed: %s",
-			    Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
+			failf(data, "getsockname() failed: %s", Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
 			goto out;
 		}
 		switch(sa->sa_family) {
@@ -1010,17 +1008,13 @@ static CURLcode ftp_state_use_port(struct Curl_easy * data, /*ftpport*/int fcmd/
 		break;
 	}
 	if(!ai) {
-		failf(data, "socket failure: %s",
-		    Curl_strerror(error, buffer, sizeof(buffer)));
+		failf(data, "socket failure: %s", Curl_strerror(error, buffer, sizeof(buffer)));
 		goto out;
 	}
 	DEBUGF(infof(data, "ftp_state_use_port(), opened socket"));
-
 	/* step 3, bind to a suitable local address */
-
 	memcpy(sa, ai->ai_addr, ai->ai_addrlen);
 	sslen = ai->ai_addrlen;
-
 	for(port = port_min; port <= port_max;) {
 		if(sa->sa_family == AF_INET)
 			sa4->sin_port = htons(port);
@@ -1041,8 +1035,7 @@ static CURLcode ftp_state_use_port(struct Curl_easy * data, /*ftpport*/int fcmd/
 
 				sslen = sizeof(ss);
 				if(getsockname(conn->sock[FIRSTSOCKET], sa, &sslen)) {
-					failf(data, "getsockname() failed: %s",
-					    Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
+					failf(data, "getsockname() failed: %s", Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
 					goto out;
 				}
 				port = port_min;
@@ -1071,8 +1064,7 @@ static CURLcode ftp_state_use_port(struct Curl_easy * data, /*ftpport*/int fcmd/
 	   port number it uses now */
 	sslen = sizeof(ss);
 	if(getsockname(portsock, sa, &sslen)) {
-		failf(data, "getsockname() failed: %s",
-		    Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
+		failf(data, "getsockname() failed: %s", Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
 		goto out;
 	}
 	DEBUGF(infof(data, "ftp_state_use_port(), socket bound to port %d", port));
@@ -4026,21 +4018,19 @@ CURLcode ftp_parse_url_path(struct Curl_easy * data)
 			    /* parse the URL path into separate path components */
 			    while((slashPos = strchr(curPos, '/'))) {
 				    size_t compLen = slashPos - curPos;
-
 				    /* path starts with a slash: add that as a directory */
 				    if((compLen == 0) && (ftpc->dirdepth == 0))
 					    ++compLen;
-
 				    /* we skip empty path components, like "x//y" since the FTP command
 				       CWD requires a parameter and a non-existent parameter a) doesn't
 				       work on many servers and b) has no effect on the others. */
 				    if(compLen > 0) {
-					    char * comp = static_cast<char *>(SAlloc::C(1, compLen + 1));
+					    char * comp = static_cast<char *>(SAlloc::C(1, compLen+1));
 					    if(!comp) {
 						    SAlloc::F(rawPath);
 						    return CURLE_OUT_OF_MEMORY;
 					    }
-					    strncpy(comp, curPos, compLen);
+					    strnzcpy(comp, curPos, compLen+1);
 					    ftpc->dirs[ftpc->dirdepth++] = comp;
 				    }
 				    curPos = slashPos + 1;
@@ -4051,22 +4041,17 @@ CURLcode ftp_parse_url_path(struct Curl_easy * data)
 	    }
 	    break;
 	} /* switch */
-
 	if(fileName && *fileName)
 		ftpc->file = strdup(fileName);
 	else
-		ftpc->file = NULL; /* instead of point to a zero byte,
-	                                we make it a NULL pointer */
-
+		ftpc->file = NULL; /* instead of point to a zero byte, we make it a NULL pointer */
 	if(data->state.upload && !ftpc->file && (ftp->transfer == PPTRANSFER_BODY)) {
 		/* We need a file name when uploading. Return error! */
 		failf(data, "Uploading to a URL without a file name");
 		SAlloc::F(rawPath);
 		return CURLE_URL_MALFORMAT;
 	}
-
 	ftpc->cwddone = FALSE; /* default to not done */
-
 	if((data->set.ftp_filemethod == FTPFILE_NOCWD) && (rawPath[0] == '/'))
 		ftpc->cwddone = TRUE; /* skip CWD for absolute paths */
 	else { /* newly created FTP connections are already in entry path */
@@ -4077,14 +4062,12 @@ CURLcode ftp_parse_url_path(struct Curl_easy * data)
 				n = 0; /* CWD to entry for relative paths */
 			else
 				n -= ftpc->file?strlen(ftpc->file):0;
-
 			if((strlen(oldPath) == n) && !strncmp(rawPath, oldPath, n)) {
 				infof(data, "Request has same path as previous transfer");
 				ftpc->cwddone = TRUE;
 			}
 		}
 	}
-
 	SAlloc::F(rawPath);
 	return CURLE_OK;
 }

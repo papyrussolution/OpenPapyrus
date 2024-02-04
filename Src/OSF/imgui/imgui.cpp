@@ -1622,14 +1622,14 @@ ImVec2 ImTriangleClosestPoint(const ImVec2 & a, const ImVec2 & b, const ImVec2 &
 // [SECTION] MISC HELPERS/UTILITIES (String, Format, Hash functions)
 //
 // Consider using _stricmp/_strnicmp under Windows or strcasecmp/strncasecmp. We don't actually use either ImStricmp/ImStrnicmp in the codebase any more.
-int ImStricmp(const char* str1, const char* str2)
+/* @sobolev int ImStricmp(const char* str1, const char* str2)
 {
 	int d;
 	while((d = ImToUpper(*str2) - ImToUpper(*str1)) == 0 && *str1) {
 		str1++; str2++;
 	}
 	return d;
-}
+}*/
 
 int ImStrnicmp(const char* str1, const char* str2, size_t count)
 {
@@ -2360,12 +2360,12 @@ void ImGuiStorage::SetAllInt(int v)
 //-----------------------------------------------------------------------------
 
 // Helper: Parse and apply text filters. In format "aaaaa[,bbbb][,ccccc]"
-ImGuiTextFilter::ImGuiTextFilter(const char* default_filter) //-V1077
+ImGuiTextFilter::ImGuiTextFilter(const char * default_filter) //-V1077
 {
 	InputBuf[0] = 0;
 	CountGrep = 0;
 	if(default_filter) {
-		ImStrncpy(InputBuf, default_filter, SIZEOFARRAYi(InputBuf));
+		strnzcpy(InputBuf, default_filter, sizeof(InputBuf));
 		Build();
 	}
 }
@@ -10458,7 +10458,6 @@ static void ImGui::NavProcessItem()
 	const ImGuiID id = g.LastItemData.ID;
 	const ImRect nav_bb = g.LastItemData.NavRect;
 	const ImGuiItemFlags item_flags = g.LastItemData.InFlags;
-
 	// Process Init Request
 	if(g.NavInitRequest && g.NavLayer == window->DC.NavLayerCurrent && (item_flags & ImGuiItemFlags_Disabled) == 0) {
 		// Even if 'ImGuiItemFlags_NoNavDefaultFocus' is on (typically collapse/close button) we record the first ResultId so they can be used as a fallback
@@ -10472,7 +10471,6 @@ static void ImGui::NavProcessItem()
 			NavUpdateAnyRequestFlag();
 		}
 	}
-
 	// Process Move Request (scoring for navigation)
 	// FIXME-NAV: Consider policy for double scoring (scoring from NavScoringRect + scoring from a rect wrapped according to current wrapping policy)
 	if(g.NavMoveScoringItems && (item_flags & ImGuiItemFlags_Disabled) == 0) {
@@ -10484,18 +10482,19 @@ static void ImGui::NavProcessItem()
 			ImGuiNavItemData* result = (window == g.NavWindow) ? &g.NavMoveResultLocal : &g.NavMoveResultOther;
 			if(NavScoreItem(result))
 				NavApplyItemToResult(result);
-
 			// Features like PageUp/PageDown need to maintain a separate score for the visible set of items.
 			const float VISIBLE_RATIO = 0.70f;
-			if((g.NavMoveFlags & ImGuiNavMoveFlags_AlsoScoreVisibleSet) && window->ClipRect.Overlaps(nav_bb))
-				if(sclamp(nav_bb.Max.y, window->ClipRect.Min.y,
-				    window->ClipRect.Max.y) -
-				    sclamp(nav_bb.Min.y, window->ClipRect.Min.y, window->ClipRect.Max.y) >= (nav_bb.Max.y - nav_bb.Min.y) * VISIBLE_RATIO)
-					if(NavScoreItem(&g.NavMoveResultLocalVisible))
+			if((g.NavMoveFlags & ImGuiNavMoveFlags_AlsoScoreVisibleSet) && window->ClipRect.Overlaps(nav_bb)) {
+				const float cmaxy = sclamp(nav_bb.Max.y, window->ClipRect.Min.y, window->ClipRect.Max.y);
+				const float cminy = sclamp(nav_bb.Min.y, window->ClipRect.Min.y, window->ClipRect.Max.y);
+				if((cmaxy - cminy) >= (nav_bb.Max.y - nav_bb.Min.y) * VISIBLE_RATIO) {
+					if(NavScoreItem(&g.NavMoveResultLocalVisible)) {
 						NavApplyItemToResult(&g.NavMoveResultLocalVisible);
+					}
+				}
+			}
 		}
 	}
-
 	// Update window-relative bounding box of navigated item
 	if(g.NavId == id) {
 		if(g.NavWindow != window)
@@ -10517,11 +10516,9 @@ static void ImGui::NavProcessItem()
 void ImGui::NavProcessItemForTabbingRequest(ImGuiID id, ImGuiItemFlags item_flags, ImGuiNavMoveFlags move_flags)
 {
 	ImGuiContext & g = *GImGui;
-
 	if((move_flags & ImGuiNavMoveFlags_FocusApi) == 0)
 		if(g.NavLayer != g.CurrentWindow->DC.NavLayerCurrent)
 			return;
-
 	// - Can always land on an item when using API call.
 	// - Tabbing with _NavEnableKeyboard (space/enter/arrows): goes through every item.
 	// - Tabbing without _NavEnableKeyboard: goes through inputable items only.
@@ -10530,7 +10527,6 @@ void ImGui::NavProcessItemForTabbingRequest(ImGuiID id, ImGuiItemFlags item_flag
 		can_stop = true;
 	else
 		can_stop = (item_flags & ImGuiItemFlags_NoTabStop) == 0 && ((g.IO.ConfigFlags & ImGuiConfigFlags_NavEnableKeyboard) || (item_flags & ImGuiItemFlags_Inputable));
-
 	// Always store in NavMoveResultLocal (unlike directional request which uses NavMoveResultOther on sibling/flattened windows)
 	ImGuiNavItemData* result = &g.NavMoveResultLocal;
 	if(g.NavTabbingDir == +1) {
@@ -10574,10 +10570,8 @@ void ImGui::NavMoveRequestSubmit(ImGuiDir move_dir, ImGuiDir clip_dir, ImGuiNavM
 {
 	ImGuiContext & g = *GImGui;
 	assert(g.NavWindow != NULL);
-
 	if(move_flags & ImGuiNavMoveFlags_Tabbing)
 		move_flags |= ImGuiNavMoveFlags_AllowCurrentNavId;
-
 	g.NavMoveSubmitted = g.NavMoveScoringItems = true;
 	g.NavMoveDir = move_dir;
 	g.NavMoveDirForDebug = move_dir;
@@ -10648,9 +10642,7 @@ static void ImGui::NavSaveLastChildNavWindowIntoParent(ImGuiWindow* nav_window)
 // Call when we are expected to land on the Main Layer (0) after FocusWindow()
 static ImGuiWindow* ImGui::NavRestoreLastChildNavWindow(ImGuiWindow * window)
 {
-	if(window->NavLastChildNavWindow && window->NavLastChildNavWindow->WasActive)
-		return window->NavLastChildNavWindow;
-	return window;
+	return (window->NavLastChildNavWindow && window->NavLastChildNavWindow->WasActive) ? window->NavLastChildNavWindow : window;
 }
 
 void ImGui::NavRestoreLayer(ImGuiNavLayer layer)
@@ -11753,7 +11745,7 @@ bool ImGui::SetDragDropPayload(const char* type, const void* data, size_t data_s
 	assert(payload.SourceId != 0);                           // Not called between BeginDragDropSource() and EndDragDropSource()
 	if(cond == ImGuiCond_Always || payload.DataFrameCount == -1) {
 		// Copy payload
-		ImStrncpy(payload.DataType, type, SIZEOFARRAYi(payload.DataType));
+		strnzcpy(payload.DataType, type, sizeof(payload.DataType));
 		g.DragDropPayloadBufHeap.resize(0);
 		if(data_size > sizeof(g.DragDropPayloadBufLocal)) {
 			// Store in heap
@@ -12675,11 +12667,8 @@ static void SetPlatformImeDataFn_DefaultImpl(ImGuiViewport* viewport, ImGuiPlatf
 		::ImmReleaseContext(hwnd, himc);
 	}
 }
-
 #else
-
 static void SetPlatformImeDataFn_DefaultImpl(ImGuiViewport*, ImGuiPlatformImeData*) {}
-
 #endif
 
 //-----------------------------------------------------------------------------
@@ -13092,12 +13081,13 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 			for(int i = 0; i < g.Windows.Size; i++)
 				if(g.Windows[i]->LastFrameActive + 1 >= g.FrameCount)
 					temp_buffer.push_back(g.Windows[i]);
-			struct Func { static int IMGUI_CDECL WindowComparerByBeginOrder(const void* lhs, const void* rhs) {
-					      return ((int)(*(const ImGuiWindow* const *)lhs)->BeginOrderWithinContext -
-						     (*(const ImGuiWindow* const*)rhs)->BeginOrderWithinContext);
-				      }
+			struct Func { 
+				static int IMGUI_CDECL WindowComparerByBeginOrder(const void* lhs, const void* rhs) 
+				{
+					return ((int)(*(const ImGuiWindow* const *)lhs)->BeginOrderWithinContext -
+						(*(const ImGuiWindow* const*)rhs)->BeginOrderWithinContext);
+				}
 			};
-
 			ImQsort(temp_buffer.Data, (size_t)temp_buffer.Size, sizeof(ImGuiWindow*), Func::WindowComparerByBeginOrder);
 			DebugNodeWindowsListByBeginStackParent(temp_buffer.Data, temp_buffer.Size, NULL);
 			TreePop();
@@ -13220,7 +13210,6 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 
 #ifdef IMGUI_HAS_DOCK
 #endif // #ifdef IMGUI_HAS_DOCK
-
 		if(TreeNode("SettingsIniData", "Settings unpacked data (.ini): %d bytes", g.SettingsIniData.size())) {
 			InputTextMultiline("##Ini",
 			    (char*)(void*)g.SettingsIniData.c_str(),
@@ -13231,7 +13220,6 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 		}
 		TreePop();
 	}
-
 	if(TreeNode("Inputs")) {
 		Text("KEYBOARD/GAMEPAD/MOUSE KEYS");
 		{
@@ -13240,32 +13228,48 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 			Indent();
 #ifdef IMGUI_DISABLE_OBSOLETE_KEYIO
 			struct funcs { static bool IsLegacyNativeDupe(ImGuiKey) { return false; } };
-
 #else
-			struct funcs { static bool IsLegacyNativeDupe(ImGuiKey key) { return key < 512 && GetIO().KeyMap[key] != -1; } }; // Hide Native<>ImGuiKey duplicates when both exists in the array
-
+			struct funcs { 
+				static bool IsLegacyNativeDupe(ImGuiKey key) 
+				{ 
+					return key < 512 && GetIO().KeyMap[key] != -1; 
+				} 
+			}; // Hide Native<>ImGuiKey duplicates when both exists in the array
 			//Text("Legacy raw:");      for (ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key++) { if (io.KeysDown[key]) { SameLine(); Text("\"%s\" %d", GetKeyName(key), key); } }
 #endif
-			Text("Keys down:");         for(ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1)) {
-				if(funcs::IsLegacyNativeDupe(key) || !IsKeyDown(key))  continue; SameLine(); Text(IsNamedKey(key) ? "\"%s\"" : "\"%s\" %d", GetKeyName(key), key);
-				SameLine(); Text("(%.02f)", GetKeyData(key)->DownDuration);
+			Text("Keys down:");         
+			for(ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1)) {
+				if(funcs::IsLegacyNativeDupe(key) || !IsKeyDown(key))  
+					continue; 
+				SameLine(); 
+				Text(IsNamedKey(key) ? "\"%s\"" : "\"%s\" %d", GetKeyName(key), key);
+				SameLine(); 
+				Text("(%.02f)", GetKeyData(key)->DownDuration);
 			}
-			Text("Keys pressed:");      for(ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1)) {
-				if(funcs::IsLegacyNativeDupe(key) || !IsKeyPressed(key))  continue; SameLine();
+			Text("Keys pressed:");      
+			for(ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1)) {
+				if(funcs::IsLegacyNativeDupe(key) || !IsKeyPressed(key))  
+					continue; 
+				SameLine();
 				Text(IsNamedKey(key) ? "\"%s\"" : "\"%s\" %d", GetKeyName(key), key);
 			}
-			Text("Keys released:");     for(ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1)) {
-				if(funcs::IsLegacyNativeDupe(key) || !IsKeyReleased(key))  continue; SameLine();
+			Text("Keys released:");     
+			for(ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1)) {
+				if(funcs::IsLegacyNativeDupe(key) || !IsKeyReleased(key))  
+					continue; 
+				SameLine();
 				Text(IsNamedKey(key) ? "\"%s\"" : "\"%s\" %d", GetKeyName(key), key);
 			}
 			Text("Keys mods: %s%s%s%s", io.KeyCtrl ? "CTRL " : "", io.KeyShift ? "SHIFT " : "", io.KeyAlt ? "ALT " : "", io.KeySuper ? "SUPER " : "");
-			Text("Chars queue:");       for(int i = 0; i < io.InputQueueCharacters.Size; i++) {
-				ImWchar c = io.InputQueueCharacters[i]; SameLine(); Text("\'%c\' (0x%04X)", (c > ' ' && c <= 255) ? (char)c : '?', c);
+			Text("Chars queue:");       
+			for(int i = 0; i < io.InputQueueCharacters.Size; i++) {
+				ImWchar c = io.InputQueueCharacters[i]; 
+				SameLine(); 
+				Text("\'%c\' (0x%04X)", (c > ' ' && c <= 255) ? (char)c : '?', c);
 			}                                                                                                                                                                                                 // FIXME: We should convert 'c' to UTF-8 here but the functions are not public.
 			DebugRenderKeyboardPreview(GetWindowDrawList());
 			Unindent();
 		}
-
 		Text("MOUSE STATE");
 		{
 			Indent();
@@ -13275,21 +13279,29 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 				Text("Mouse pos: <INVALID>");
 			Text("Mouse delta: (%g, %g)", io.MouseDelta.x, io.MouseDelta.y);
 			int count = SIZEOFARRAYi(io.MouseDown);
-			Text("Mouse down:");     for(int i = 0; i < count; i++)  if(IsMouseDown(i)) {
-					SameLine(); Text("b%d (%.02f secs)", i, io.MouseDownDuration[i]);
+			Text("Mouse down:");     
+			for(int i = 0; i < count; i++)  
+				if(IsMouseDown(i)) {
+					SameLine(); 
+					Text("b%d (%.02f secs)", i, io.MouseDownDuration[i]);
 				}
-			Text("Mouse clicked:");  for(int i = 0; i < count; i++)  if(IsMouseClicked(i)) {
-					SameLine(); Text("b%d (%d)", i, io.MouseClickedCount[i]);
+			Text("Mouse clicked:");  
+			for(int i = 0; i < count; i++)  
+				if(IsMouseClicked(i)) {
+					SameLine(); 
+					Text("b%d (%d)", i, io.MouseClickedCount[i]);
 				}
-			Text("Mouse released:"); for(int i = 0; i < count; i++)  if(IsMouseReleased(i)) {
-					SameLine(); Text("b%d", i);
+			Text("Mouse released:"); 
+			for(int i = 0; i < count; i++)  
+				if(IsMouseReleased(i)) {
+					SameLine(); 
+					Text("b%d", i);
 				}
 			Text("Mouse wheel: %.1f", io.MouseWheel);
 			Text("Mouse source: %s", GetMouseSourceName(io.MouseSource));
 			Text("Pen Pressure: %.1f", io.PenPressure); // Note: currently unused
 			Unindent();
 		}
-
 		Text("MOUSE WHEELING");
 		{
 			Indent();
@@ -13299,7 +13311,6 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 			    (g.WheelingAxisAvg.x > g.WheelingAxisAvg.y) ? "X" : (g.WheelingAxisAvg.x < g.WheelingAxisAvg.y) ? "Y" : "<none>");
 			Unindent();
 		}
-
 		Text("KEY OWNERS");
 		{
 			Indent();
@@ -13355,10 +13366,7 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 		Text("HoveredId: 0x%08X (%.2f sec), AllowOverlap: %d", g.HoveredIdPreviousFrame, g.HoveredIdTimer, g.HoveredIdAllowOverlap); // Not displaying g.HoveredId as it is update mid-frame
 		Text("HoverDelayId: 0x%08X, Timer: %.2f, ClearTimer: %.2f", g.HoverDelayId, g.HoverDelayTimer, g.HoverDelayClearTimer);
 		Text("DragDrop: %d, SourceId = 0x%08X, Payload \"%s\" (%d bytes)",
-		    g.DragDropActive,
-		    g.DragDropPayload.SourceId,
-		    g.DragDropPayload.DataType,
-		    g.DragDropPayload.DataSize);
+		    g.DragDropActive, g.DragDropPayload.SourceId, g.DragDropPayload.DataType, g.DragDropPayload.DataSize);
 		DebugLocateItemOnHover(g.DragDropPayload.SourceId);
 		Unindent();
 
@@ -13857,11 +13865,9 @@ void ImGui::DebugNodeWindowsListByBeginStackParent(ImGuiWindow** windows, int wi
 		Unindent();
 	}
 }
-
-//-----------------------------------------------------------------------------
+//
 // [SECTION] DEBUG LOG WINDOW
-//-----------------------------------------------------------------------------
-
+//
 void ImGui::DebugLog(const char* fmt, ...)
 {
 	va_list args;
@@ -13890,19 +13896,24 @@ void ImGui::ShowDebugLogWindow(bool* p_open)
 		End();
 		return;
 	}
-
 	CheckboxFlags("All", &g.DebugLogFlags, ImGuiDebugLogFlags_EventMask_);
-	SameLine(); CheckboxFlags("ActiveId", &g.DebugLogFlags, ImGuiDebugLogFlags_EventActiveId);
-	SameLine(); CheckboxFlags("Focus", &g.DebugLogFlags, ImGuiDebugLogFlags_EventFocus);
-	SameLine(); CheckboxFlags("Popup", &g.DebugLogFlags, ImGuiDebugLogFlags_EventPopup);
-	SameLine(); CheckboxFlags("Nav", &g.DebugLogFlags, ImGuiDebugLogFlags_EventNav);
-	SameLine(); if(CheckboxFlags("Clipper", &g.DebugLogFlags, ImGuiDebugLogFlags_EventClipper)) {
+	SameLine(); 
+	CheckboxFlags("ActiveId", &g.DebugLogFlags, ImGuiDebugLogFlags_EventActiveId);
+	SameLine(); 
+	CheckboxFlags("Focus", &g.DebugLogFlags, ImGuiDebugLogFlags_EventFocus);
+	SameLine(); 
+	CheckboxFlags("Popup", &g.DebugLogFlags, ImGuiDebugLogFlags_EventPopup);
+	SameLine(); 
+	CheckboxFlags("Nav", &g.DebugLogFlags, ImGuiDebugLogFlags_EventNav);
+	SameLine(); 
+	if(CheckboxFlags("Clipper", &g.DebugLogFlags, ImGuiDebugLogFlags_EventClipper)) {
 		g.DebugLogClipperAutoDisableFrames = 2;
 	}
-	if(IsItemHovered())  SetTooltip("Clipper log auto-disabled after 2 frames");
+	if(IsItemHovered())  
+		SetTooltip("Clipper log auto-disabled after 2 frames");
 	//SameLine(); CheckboxFlags("Selection", &g.DebugLogFlags, ImGuiDebugLogFlags_EventSelection);
-	SameLine(); CheckboxFlags("IO", &g.DebugLogFlags, ImGuiDebugLogFlags_EventIO);
-
+	SameLine(); 
+	CheckboxFlags("IO", &g.DebugLogFlags, ImGuiDebugLogFlags_EventIO);
 	if(SmallButton("Clear")) {
 		g.DebugLogBuf.clear();
 		g.DebugLogIndex.clear();
@@ -13936,7 +13947,6 @@ void ImGui::ShowDebugLogWindow(bool* p_open)
 	if(GetScrollY() >= GetScrollMaxY())
 		SetScrollHereY(1.0f);
 	EndChild();
-
 	End();
 }
 
@@ -14095,11 +14105,11 @@ static int StackToolFormatLevelInfo(ImGuiStackTool* tool, int n, bool format_for
 {
 	ImGuiStackLevelInfo* info = &tool->Results[n];
 	ImGuiWindow * window = (info->Desc[0] == 0 && n == 0) ? ImGui::FindWindowByID(info->ID) : NULL;
-	if(window)                                                              // Source: window name (because the root ID don't call GetID() and so doesn't get hooked)
+	if(window) // Source: window name (because the root ID don't call GetID() and so doesn't get hooked)
 		return ImFormatString(buf, buf_size, format_for_ui ? "\"%s\" [window]" : "%s", window->Name);
-	if(info->QuerySuccess)                                                  // Source: GetID() hooks (prioritize over ItemInfo() because we frequently use patterns like: PushID(str), Button("") where they both have same id)
+	if(info->QuerySuccess) // Source: GetID() hooks (prioritize over ItemInfo() because we frequently use patterns like: PushID(str), Button("") where they both have same id)
 		return ImFormatString(buf, buf_size, (format_for_ui && info->DataType == ImGuiDataType_String) ? "\"%s\"" : "%s", info->Desc);
-	if(tool->StackLevel < tool->Results.Size)                               // Only start using fallback below when all queries are done, so during queries we don't flickering ??? markers.
+	if(tool->StackLevel < tool->Results.Size) // Only start using fallback below when all queries are done, so during queries we don't flickering ??? markers.
 		return (*buf = 0);
 #ifdef IMGUI_ENABLE_TEST_ENGINE
 	if(const char* label = ImGuiTestEngine_FindItemDebugLabel(GImGui, info->ID)) // Source: ImGuiTestEngine's ItemInfo()

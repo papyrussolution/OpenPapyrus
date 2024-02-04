@@ -599,14 +599,11 @@ static DecoderResult DecodeCodewords(std::vector<int>& codewords, int numECCodew
 {
 	if(codewords.empty())
 		return FormatError();
-
 	int correctedErrorsCount = 0;
 	if(!CorrectErrors(codewords, erasures, numECCodewords, correctedErrorsCount))
 		return ChecksumError();
-
 	if(!VerifyCodewordCount(codewords, numECCodewords))
 		return FormatError();
-
 	// Decode the codewords
 	return Decode(codewords).setEcLevel(std::to_string(numECCodewords * 100 / Size(codewords)) + "%");
 }
@@ -614,8 +611,7 @@ static DecoderResult DecodeCodewords(std::vector<int>& codewords, int numECCodew
 DecoderResult DecodeCodewords(std::vector<int>& codewords, int numECCodeWords)
 {
 	for(auto & cw : codewords)
-		cw = std::clamp(cw, 0, CodewordDecoder::MAX_CODEWORDS_IN_BARCODE);
-
+		cw = /*std::clamp*/sclamp(cw, 0, CodewordDecoder::MAX_CODEWORDS_IN_BARCODE);
 	// erasures array has never been actually used inside the error correction code
 	return DecodeCodewords(codewords, numECCodeWords, {});
 }
@@ -634,11 +630,9 @@ DecoderResult DecodeCodewords(std::vector<int>& codewords, int numECCodeWords)
  * be the same length as the ambiguousIndexes array
  */
 static DecoderResult CreateDecoderResultFromAmbiguousValues(int ecLevel, std::vector<int>& codewords,
-    const std::vector<int>& erasureArray, const std::vector<int>& ambiguousIndexes,
-    const std::vector<std::vector<int> >& ambiguousIndexValues)
+    const std::vector<int>& erasureArray, const std::vector<int>& ambiguousIndexes, const std::vector<std::vector<int> >& ambiguousIndexValues)
 {
 	std::vector<int> ambiguousIndexCount(ambiguousIndexes.size(), 0);
-
 	int tries = 100;
 	while(tries-- > 0) {
 		for(size_t i = 0; i < ambiguousIndexCount.size(); i++) {
@@ -648,7 +642,6 @@ static DecoderResult CreateDecoderResultFromAmbiguousValues(int ecLevel, std::ve
 		if(result.error() != Error::Checksum) {
 			return result;
 		}
-
 		if(ambiguousIndexCount.empty()) {
 			return ChecksumError();
 		}
@@ -702,45 +695,29 @@ static DecoderResult CreateDecoderResult(DetectionResult& detectionResult)
 // columns. That way width can be deducted from the pattern column.
 // This approach also allows detecting more details about the barcode, e.g. if a bar type (white or black) is wider
 // than it should be. This can happen if the scanner used a bad blackpoint.
-DecoderResult ScanningDecoder::Decode(const BitMatrix& image,
-    const Nullable<ResultPoint>& imageTopLeft,
-    const Nullable<ResultPoint>& imageBottomLeft,
-    const Nullable<ResultPoint>& imageTopRight,
-    const Nullable<ResultPoint>& imageBottomRight,
-    int minCodewordWidth,
-    int maxCodewordWidth)
+DecoderResult ScanningDecoder::Decode(const BitMatrix& image, const Nullable<ResultPoint>& imageTopLeft,
+    const Nullable<ResultPoint>& imageBottomLeft, const Nullable<ResultPoint>& imageTopRight, const Nullable<ResultPoint>& imageBottomRight,
+    int minCodewordWidth, int maxCodewordWidth)
 {
 	BoundingBox boundingBox;
 	if(!BoundingBox::Create(image.width(), image.height(), imageTopLeft, imageBottomLeft, imageTopRight, imageBottomRight,
 	    boundingBox)) {
 		return {};
 	}
-
 	Nullable<DetectionResultColumn> leftRowIndicatorColumn, rightRowIndicatorColumn;
 	DetectionResult detectionResult;
 	for(int i = 0; i < 2; i++) {
 		if(imageTopLeft != nullptr) {
-			leftRowIndicatorColumn = GetRowIndicatorColumn(image,
-				boundingBox,
-				imageTopLeft,
-				true,
-				minCodewordWidth,
-				maxCodewordWidth);
+			leftRowIndicatorColumn = GetRowIndicatorColumn(image, boundingBox, imageTopLeft, true, minCodewordWidth, maxCodewordWidth);
 		}
 		if(imageTopRight != nullptr) {
-			rightRowIndicatorColumn = GetRowIndicatorColumn(image,
-				boundingBox,
-				imageTopRight,
-				false,
-				minCodewordWidth,
-				maxCodewordWidth);
+			rightRowIndicatorColumn = GetRowIndicatorColumn(image, boundingBox, imageTopRight, false, minCodewordWidth, maxCodewordWidth);
 		}
 		if(!Merge(leftRowIndicatorColumn, rightRowIndicatorColumn, detectionResult)) {
 			return {};
 		}
 		if(i == 0 && detectionResult.getBoundingBox() != nullptr &&
-		    (detectionResult.getBoundingBox().value().minY() < boundingBox.minY() ||
-		    detectionResult.getBoundingBox().value().maxY() > boundingBox.maxY())) {
+		    (detectionResult.getBoundingBox().value().minY() < boundingBox.minY() || detectionResult.getBoundingBox().value().maxY() > boundingBox.maxY())) {
 			boundingBox = detectionResult.getBoundingBox();
 		}
 		else {
@@ -748,11 +725,9 @@ DecoderResult ScanningDecoder::Decode(const BitMatrix& image,
 			break;
 		}
 	}
-
 	int maxBarcodeColumn = detectionResult.barcodeColumnCount() + 1;
 	detectionResult.setColumn(0, leftRowIndicatorColumn);
 	detectionResult.setColumn(maxBarcodeColumn, rightRowIndicatorColumn);
-
 	bool leftToRight = leftRowIndicatorColumn != nullptr;
 	for(int barcodeColumnCount = 1; barcodeColumnCount <= maxBarcodeColumn; barcodeColumnCount++) {
 		int barcodeColumn = leftToRight ? barcodeColumnCount : maxBarcodeColumn - barcodeColumnCount;

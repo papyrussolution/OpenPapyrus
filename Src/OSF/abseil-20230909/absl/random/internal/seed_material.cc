@@ -82,11 +82,10 @@ namespace {
 #if defined(ABSL_RANDOM_USE_BCRYPT)
 
 // On Windows potentially use the BCRYPT CNG API to read available entropy.
-bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
+bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) 
+{
 	BCRYPT_ALG_HANDLE hProvider;
-	NTSTATUS ret;
-	ret = BCryptOpenAlgorithmProvider(&hProvider, BCRYPT_RNG_ALGORITHM,
-		MS_PRIMITIVE_PROVIDER, 0);
+	NTSTATUS ret = BCryptOpenAlgorithmProvider(&hProvider, BCRYPT_RNG_ALGORITHM, MS_PRIMITIVE_PROVIDER, 0);
 	if(!(BCRYPT_SUCCESS(ret))) {
 		ABSL_RAW_LOG(ERROR, "Failed to open crypto provider.");
 		return false;
@@ -103,10 +102,10 @@ bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
 #elif defined(ABSL_RANDOM_USE_NACL_SECURE_RANDOM)
 
 // On NaCL use nacl_secure_random to acquire bytes.
-bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
+bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) 
+{
 	auto buffer = reinterpret_cast<uint8_t*>(values.data());
 	size_t buffer_size = sizeof(uint32_t) * values.size();
-
 	uint8_t* output_ptr = buffer;
 	while(buffer_size > 0) {
 		size_t nread = 0;

@@ -930,6 +930,7 @@ cd $(ProjectDir)</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian-internal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\languages\steminternal.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\documenttermlist.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\documentvaluelist.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\editdistance.h" />
@@ -1015,9 +1016,6 @@ cd $(ProjectDir)</Command>
     <ClInclude Include="..\OSF\xapian\xapian-core\src\compression_stream.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\debuglog.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\errno_to_string.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\fd.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\filetests.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\fileutils.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\heap.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\io_utils.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\keyword.h" />
@@ -1047,7 +1045,6 @@ cd $(ProjectDir)</Command>
     <ClInclude Include="..\OSF\xapian\xapian-core\src\serialise-double.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\setenv.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\socket_utils.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\src\stdclamp.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\str.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\stringutils.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\src\wordaccess.h" />

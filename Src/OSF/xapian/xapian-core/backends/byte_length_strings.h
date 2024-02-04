@@ -17,29 +17,27 @@ class ByteLengthPrefixedStringItor {
 	const uchar * p;
 	size_t left;
 
-	ByteLengthPrefixedStringItor(const uchar * p_, size_t left_)
-		: p(p_), left(left_) {
+	ByteLengthPrefixedStringItor(const uchar * p_, size_t left_) : p(p_), left(left_) 
+	{
 	}
-
 public:
-	explicit ByteLengthPrefixedStringItor(const std::string & s)
-		: p(reinterpret_cast<const uchar *>(s.data())),
-		left(s.size()) {
+	explicit ByteLengthPrefixedStringItor(const std::string & s) : p(reinterpret_cast<const uchar *>(s.data())), left(s.size()) 
+	{
 	}
-
-	std::string operator*() const {
+	std::string operator*() const 
+	{
 		size_t len = *p ^ MAGIC_XOR_VALUE;
 		return std::string(reinterpret_cast<const char *>(p + 1), len);
 	}
-
-	ByteLengthPrefixedStringItor operator++(int) {
+	ByteLengthPrefixedStringItor operator++(int) 
+	{
 		const uchar * old_p = p;
 		size_t old_left = left;
 		operator++();
 		return ByteLengthPrefixedStringItor(old_p, old_left);
 	}
-
-	ByteLengthPrefixedStringItor & operator++() {
+	ByteLengthPrefixedStringItor & operator++() 
+	{
 		if(!left) {
 			throw Xapian::DatabaseCorruptError("Bad synonym data (none left)");
 		}
@@ -51,18 +49,12 @@ public:
 		left -= add;
 		return *this;
 	}
-
-	bool at_end() const {
-		return left == 0;
-	}
+	bool at_end() const { return left == 0; }
 };
 
 struct ByteLengthPrefixedStringItorGt {
 	/// Return true if and only if a's string is strictly greater than b's.
-	bool operator()(const ByteLengthPrefixedStringItor * a,
-	    const ByteLengthPrefixedStringItor * b) const {
-		return (**a > **b);
-	}
+	bool operator()(const ByteLengthPrefixedStringItor * a, const ByteLengthPrefixedStringItor * b) const { return (**a > **b); }
 };
 
 #endif // XAPIAN_INCLUDED_BYTE_LENGTH_STRINGS_H

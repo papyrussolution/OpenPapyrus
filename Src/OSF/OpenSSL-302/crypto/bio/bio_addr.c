@@ -90,9 +90,7 @@ int BIO_ADDR_make(BIO_ADDR * ap, const struct sockaddr * sa)
 	return 0;
 }
 
-int BIO_ADDR_rawmake(BIO_ADDR * ap, int family,
-    const void * where, size_t wherelen,
-    unsigned short port)
+int BIO_ADDR_rawmake(BIO_ADDR * ap, int family, const void * where, size_t wherelen, unsigned short port)
 {
 #ifdef AF_UNIX
 	if(family == AF_UNIX) {
@@ -124,20 +122,15 @@ int BIO_ADDR_rawmake(BIO_ADDR * ap, int family,
 		return 1;
 	}
 #endif
-
 	return 0;
 }
 
-int BIO_ADDR_family(const BIO_ADDR * ap)
-{
-	return ap->sa.sa_family;
-}
+int BIO_ADDR_family(const BIO_ADDR * ap) { return ap->sa.sa_family; }
 
 int BIO_ADDR_rawaddress(const BIO_ADDR * ap, void * p, size_t * l)
 {
 	size_t len = 0;
 	const void * addrptr = NULL;
-
 	if(ap->sa.sa_family == AF_INET) {
 		len = sizeof(ap->s_in.sin_addr);
 		addrptr = &ap->s_in.sin_addr;
@@ -154,14 +147,12 @@ int BIO_ADDR_rawaddress(const BIO_ADDR * ap, void * p, size_t * l)
 		addrptr = &ap->s_un.sun_path;
 	}
 #endif
-
 	if(addrptr == NULL)
 		return 0;
 	if(p) {
 		memcpy(p, addrptr, len);
 	}
-	if(l)
-		*l = len;
+	ASSIGN_PTR(l, len);
 	return 1;
 }
 

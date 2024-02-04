@@ -502,8 +502,7 @@ map_device_n_spot:
 									uchar v = sd[i];
 									if(v != 0) {
 										for(j = 0; j < dc; j++)
-											dd[j] =
-											    sclamp(dd[j] - v * (1-convert[j]), 0, 255);
+											dd[j] = sclamp(dd[j] - v * (1-convert[j]), 0, 255);
 									}
 									dd += dn;
 									sd += sn;

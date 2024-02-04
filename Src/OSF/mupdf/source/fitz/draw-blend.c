@@ -887,13 +887,10 @@ static inline void fz_blend_nonseparable_nonisolated(byte * _RESTRICT bp,
 						rr = ra - rr;
 						rg = ra - rg;
 						rb = ra - rb;
-
 						sk = sa ? (sp[3] * invsa) >> 8 : 255;
 						bk = ba ? (bp[3] * invba) >> 8 : 255;
-
 						bk = sclamp(bk, 0, 255);
 						sk = sclamp(sk, 0, 255);
-
 						if(blendmode == FZ_BLEND_LUMINOSITY)
 							rk = sk;
 						else

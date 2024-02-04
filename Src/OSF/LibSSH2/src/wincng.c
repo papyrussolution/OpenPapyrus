@@ -166,42 +166,20 @@
 void _libssh2_wincng_init(void)
 {
 	int ret;
-
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgRNG,
-	    BCRYPT_RNG_ALGORITHM, NULL, 0);
-
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashMD5,
-	    BCRYPT_MD5_ALGORITHM, NULL, 0);
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashSHA1,
-	    BCRYPT_SHA1_ALGORITHM, NULL, 0);
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashSHA256,
-	    BCRYPT_SHA256_ALGORITHM, NULL, 0);
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashSHA512,
-	    BCRYPT_SHA512_ALGORITHM, NULL, 0);
-
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHmacMD5,
-	    BCRYPT_MD5_ALGORITHM, NULL,
-	    BCRYPT_ALG_HANDLE_HMAC_FLAG);
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHmacSHA1,
-	    BCRYPT_SHA1_ALGORITHM, NULL,
-	    BCRYPT_ALG_HANDLE_HMAC_FLAG);
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHmacSHA256,
-	    BCRYPT_SHA256_ALGORITHM, NULL,
-	    BCRYPT_ALG_HANDLE_HMAC_FLAG);
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHmacSHA512,
-	    BCRYPT_SHA512_ALGORITHM, NULL,
-	    BCRYPT_ALG_HANDLE_HMAC_FLAG);
-
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgRSA,
-	    BCRYPT_RSA_ALGORITHM, NULL, 0);
-	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgDSA,
-	    BCRYPT_DSA_ALGORITHM, NULL, 0);
-
-	ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgAES_CBC,
-	    BCRYPT_AES_ALGORITHM, NULL, 0);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgRNG, BCRYPT_RNG_ALGORITHM, NULL, 0);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashMD5, BCRYPT_MD5_ALGORITHM, NULL, 0);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashSHA1, BCRYPT_SHA1_ALGORITHM, NULL, 0);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashSHA256, BCRYPT_SHA256_ALGORITHM, NULL, 0);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashSHA512, BCRYPT_SHA512_ALGORITHM, NULL, 0);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHmacMD5, BCRYPT_MD5_ALGORITHM, NULL, BCRYPT_ALG_HANDLE_HMAC_FLAG);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHmacSHA1, BCRYPT_SHA1_ALGORITHM, NULL, BCRYPT_ALG_HANDLE_HMAC_FLAG);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHmacSHA256, BCRYPT_SHA256_ALGORITHM, NULL, BCRYPT_ALG_HANDLE_HMAC_FLAG);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHmacSHA512, BCRYPT_SHA512_ALGORITHM, NULL, BCRYPT_ALG_HANDLE_HMAC_FLAG);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgRSA, BCRYPT_RSA_ALGORITHM, NULL, 0);
+	(void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgDSA, BCRYPT_DSA_ALGORITHM, NULL, 0);
+	ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgAES_CBC, BCRYPT_AES_ALGORITHM, NULL, 0);
 	if(BCRYPT_SUCCESS(ret)) {
-		ret = BCryptSetProperty(_libssh2_wincng.hAlgAES_CBC, BCRYPT_CHAINING_MODE,
-		    (PBYTE)BCRYPT_CHAIN_MODE_CBC,
+		ret = BCryptSetProperty(_libssh2_wincng.hAlgAES_CBC, BCRYPT_CHAINING_MODE, (PBYTE)BCRYPT_CHAIN_MODE_CBC,
 		    sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
 		if(!BCRYPT_SUCCESS(ret)) {
 			(void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgAES_CBC, 0);

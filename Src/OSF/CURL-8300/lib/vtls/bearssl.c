@@ -513,10 +513,8 @@ static CURLcode bearssl_set_selected_ciphers(struct Curl_easy * data,
 	const char * cipher_start = ciphers;
 	const char * cipher_end;
 	size_t i, j;
-
 	if(!cipher_start)
 		return CURLE_SSL_CIPHER;
-
 	while(true) {
 		/* Extract the next cipher name from the ciphers string */
 		while(is_separator(*cipher_start))
@@ -526,8 +524,7 @@ static CURLcode bearssl_set_selected_ciphers(struct Curl_easy * data,
 		cipher_end = cipher_start;
 		while(*cipher_end != '\0' && !is_separator(*cipher_end))
 			++cipher_end;
-		j = cipher_end - cipher_start < CIPHER_NAME_BUF_LEN - 1 ?
-		    cipher_end - cipher_start : CIPHER_NAME_BUF_LEN - 1;
+		j = cipher_end - cipher_start < CIPHER_NAME_BUF_LEN - 1 ? (cipher_end - cipher_start) : (CIPHER_NAME_BUF_LEN - 1);
 		strncpy(cipher_name, cipher_start, j);
 		cipher_name[j] = '\0';
 		cipher_start = cipher_end;

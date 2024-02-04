@@ -396,10 +396,10 @@ public:
 		min_weight_pending = true;
 	}
 
-	void finalise_percentages() {
+	void finalise_percentages() 
+	{
 		if(results.empty() || max_weight == 0.0)
 			return;
-
 		percent_scale = max_weight_subqs_matched / double(total_subqs);
 		percent_scale /= max_weight;
 		Assert(percent_scale > 0);
@@ -414,15 +414,12 @@ public:
 		}
 	}
 
-	Xapian::MSet finalise(const Xapian::MatchDecider* mdecider,
-	    Xapian::doccount matches_lower_bound,
-	    Xapian::doccount matches_estimated,
-	    Xapian::doccount matches_upper_bound) {
+	Xapian::MSet finalise(const Xapian::MatchDecider* mdecider, Xapian::doccount matches_lower_bound,
+	    Xapian::doccount matches_estimated, Xapian::doccount matches_upper_bound) 
+	{
 		finalise_percentages();
-
 		AssertRel(matches_estimated, >=, matches_lower_bound);
 		AssertRel(matches_estimated, <=, matches_upper_bound);
-
 		Xapian::doccount uncollapsed_lower_bound = matches_lower_bound;
 		Xapian::doccount uncollapsed_estimated = matches_estimated;
 		Xapian::doccount uncollapsed_upper_bound = matches_upper_bound;
@@ -484,11 +481,8 @@ public:
 						matches_lower_bound = known_matching_docs;
 					}
 				}
-
 				Xapian::doccount decider_denied = mdecider->docs_denied_;
-				Xapian::doccount decider_considered =
-				    mdecider->docs_allowed_ + mdecider->docs_denied_;
-
+				Xapian::doccount decider_considered = mdecider->docs_allowed_ + mdecider->docs_denied_;
 				// Scale the estimate by the rate at which the MatchDecider has
 				// been accepting documents.
 				if(decider_considered > 0) {
@@ -514,28 +508,19 @@ public:
 					uncollapsed_lower_bound = matches_lower_bound;
 				}
 			}
-
 			if(collapser && estimate_scale != 1.0) {
-				uncollapsed_estimated =
-				    Xapian::doccount(uncollapsed_estimated * estimate_scale +
-					0.5);
+				uncollapsed_estimated = Xapian::doccount(uncollapsed_estimated * estimate_scale + 0.5);
 			}
-
 			estimate_scale *= unique_rate;
-
 			if(estimate_scale != 1.0) {
-				matches_estimated =
-				    Xapian::doccount(matches_estimated * estimate_scale + 0.5);
+				matches_estimated = Xapian::doccount(matches_estimated * estimate_scale + 0.5);
 				if(matches_estimated < matches_lower_bound)
 					matches_estimated = matches_lower_bound;
 			}
-
 			if(collapser || mdecider) {
 				// Clamp the estimate the range given by the bounds.
 				AssertRel(matches_lower_bound, <=, matches_upper_bound);
-				matches_estimated = STD_CLAMP(matches_estimated,
-					matches_lower_bound,
-					matches_upper_bound);
+				matches_estimated = /*STD_CLAMP*/sclamp(matches_estimated, matches_lower_bound, matches_upper_bound);
 			}
 			else if(!percent_threshold) {
 				AssertRel(known_matching_docs, <=, matches_upper_bound);

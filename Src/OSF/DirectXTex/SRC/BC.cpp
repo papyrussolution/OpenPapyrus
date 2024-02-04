@@ -66,84 +66,59 @@ void OptimizeRGB(_Out_ HDRColorA * pX, _Out_ HDRColorA * pY, _In_reads_(NUM_PIXE
 	for(size_t iPoint = 0; iPoint < NUM_PIXELS_PER_BLOCK; iPoint++) {
 	#ifdef COLOR_WEIGHTS
 		if(pPoints[iPoint].a > 0.0f)
-	    #endif // COLOR_WEIGHTS
+    #endif // COLOR_WEIGHTS
 		{
 			if(pPoints[iPoint].r < X.r)
 				X.r = pPoints[iPoint].r;
-
 			if(pPoints[iPoint].g < X.g)
 				X.g = pPoints[iPoint].g;
-
 			if(pPoints[iPoint].b < X.b)
 				X.b = pPoints[iPoint].b;
-
 			if(pPoints[iPoint].r > Y.r)
 				Y.r = pPoints[iPoint].r;
-
 			if(pPoints[iPoint].g > Y.g)
 				Y.g = pPoints[iPoint].g;
-
 			if(pPoints[iPoint].b > Y.b)
 				Y.b = pPoints[iPoint].b;
 		}
 	}
-
 	// Diagonal axis
 	const HDRColorA AB(Y.r - X.r, Y.g - X.g, Y.b - X.b, 0.0f);
-
 	const float fAB = AB.r * AB.r + AB.g * AB.g + AB.b * AB.b;
-
 	// Single color block.. no need to root-find
 	if(fAB < FLT_MIN) {
 		pX->r = X.r; pX->g = X.g; pX->b = X.b; pX->a = 1.0f;
 		pY->r = Y.r; pY->g = Y.g; pY->b = Y.b; pY->a = 1.0f;
 		return;
 	}
-
 	// Try all four axis directions, to determine which diagonal best fits data
 	const float fABInv = 1.0f / fAB;
-
 	HDRColorA Dir(AB.r * fABInv, AB.g * fABInv, AB.b * fABInv, 0.0f);
-
-	const HDRColorA Mid(
-		(X.r + Y.r) * 0.5f,
-		(X.g + Y.g) * 0.5f,
-		(X.b + Y.b) * 0.5f,
-		0.0f);
-
+	const HDRColorA Mid((X.r + Y.r) * 0.5f, (X.g + Y.g) * 0.5f, (X.b + Y.b) * 0.5f, 0.0f);
 	float fDir[4] = {};
-
 	for(size_t iPoint = 0; iPoint < NUM_PIXELS_PER_BLOCK; iPoint++) {
 		HDRColorA Pt;
 		Pt.r = (pPoints[iPoint].r - Mid.r) * Dir.r;
 		Pt.g = (pPoints[iPoint].g - Mid.g) * Dir.g;
 		Pt.b = (pPoints[iPoint].b - Mid.b) * Dir.b;
 		Pt.a = 0.0f;
-
 		float f;
-
 	#ifdef COLOR_WEIGHTS
 		f = Pt.r + Pt.g + Pt.b;
 		fDir[0] += pPoints[iPoint].a * f * f;
-
 		f = Pt.r + Pt.g - Pt.b;
 		fDir[1] += pPoints[iPoint].a * f * f;
-
 		f = Pt.r - Pt.g + Pt.b;
 		fDir[2] += pPoints[iPoint].a * f * f;
-
 		f = Pt.r - Pt.g - Pt.b;
 		fDir[3] += pPoints[iPoint].a * f * f;
 	#else
 		f = Pt.r + Pt.g + Pt.b;
 		fDir[0] += f * f;
-
 		f = Pt.r + Pt.g - Pt.b;
 		fDir[1] += f * f;
-
 		f = Pt.r - Pt.g + Pt.b;
 		fDir[2] += f * f;
-
 		f = Pt.r - Pt.g - Pt.b;
 		fDir[3] += f * f;
 	#endif // COLOR_WEIGHTS
@@ -151,70 +126,53 @@ void OptimizeRGB(_Out_ HDRColorA * pX, _Out_ HDRColorA * pY, _In_reads_(NUM_PIXE
 
 	float fDirMax = fDir[0];
 	size_t iDirMax = 0;
-
 	for(size_t iDir = 1; iDir < 4; iDir++) {
 		if(fDir[iDir] > fDirMax) {
 			fDirMax = fDir[iDir];
 			iDirMax = iDir;
 		}
 	}
-
 	if(iDirMax & 2) {
 		const float f = X.g; X.g = Y.g; Y.g = f;
 	}
-
 	if(iDirMax & 1) {
 		const float f = X.b; X.b = Y.b; Y.b = f;
 	}
-
 	// Two color block.. no need to root-find
 	if(fAB < 1.0f / 4096.0f) {
 		pX->r = X.r; pX->g = X.g; pX->b = X.b; pX->a = 1.0f;
 		pY->r = Y.r; pY->g = Y.g; pY->b = Y.b; pY->a = 1.0f;
 		return;
 	}
-
 	// Use Newton's Method to find local minima of sum-of-squares error.
 	auto const fSteps = static_cast<float>(cSteps - 1);
-
 	for(size_t iIteration = 0; iIteration < 8; iIteration++) {
 		// Calculate new steps
 		HDRColorA pSteps[4];
-
 		for(size_t iStep = 0; iStep < cSteps; iStep++) {
 			pSteps[iStep].r = X.r * pC[iStep] + Y.r * pD[iStep];
 			pSteps[iStep].g = X.g * pC[iStep] + Y.g * pD[iStep];
 			pSteps[iStep].b = X.b * pC[iStep] + Y.b * pD[iStep];
 			pSteps[iStep].a = 1.0f;
 		}
-
 		// Calculate color direction
 		Dir.r = Y.r - X.r;
 		Dir.g = Y.g - X.g;
 		Dir.b = Y.b - X.b;
-
 		const float fLen = (Dir.r * Dir.r + Dir.g * Dir.g + Dir.b * Dir.b);
-
 		if(fLen < (1.0f / 4096.0f))
 			break;
-
 		const float fScale = fSteps / fLen;
-
 		Dir.r *= fScale;
 		Dir.g *= fScale;
 		Dir.b *= fScale;
-
 		// Evaluate function, and derivatives
 		float d2X = 0.f;
 		float d2Y = 0.f;
 		HDRColorA dX = {};
 		HDRColorA dY = {};
-
 		for(size_t iPoint = 0; iPoint < NUM_PIXELS_PER_BLOCK; iPoint++) {
-			const float fDot = (pPoints[iPoint].r - X.r) * Dir.r +
-			    (pPoints[iPoint].g - X.g) * Dir.g +
-			    (pPoints[iPoint].b - X.b) * Dir.b;
-
+			const float fDot = (pPoints[iPoint].r - X.r) * Dir.r + (pPoints[iPoint].g - X.g) * Dir.g + (pPoints[iPoint].b - X.b) * Dir.b;
 			uint32_t iStep;
 			if(fDot <= 0.0f)
 				iStep = 0;
@@ -222,13 +180,11 @@ void OptimizeRGB(_Out_ HDRColorA * pX, _Out_ HDRColorA * pY, _In_reads_(NUM_PIXE
 				iStep = cSteps - 1;
 			else
 				iStep = uint32_t(fDot + 0.5f);
-
 			HDRColorA Diff;
 			Diff.r = pSteps[iStep].r - pPoints[iPoint].r;
 			Diff.g = pSteps[iStep].g - pPoints[iPoint].g;
 			Diff.b = pSteps[iStep].b - pPoints[iPoint].b;
 			Diff.a = 0.0f;
-
 	    #ifdef COLOR_WEIGHTS
 			const float fC = pC[iStep] * pPoints[iPoint].a * (1.0f / 8.0f);
 			const float fD = pD[iStep] * pPoints[iPoint].a * (1.0f / 8.0f);
@@ -236,41 +192,32 @@ void OptimizeRGB(_Out_ HDRColorA * pX, _Out_ HDRColorA * pY, _In_reads_(NUM_PIXE
 			const float fC = pC[iStep] * (1.0f / 8.0f);
 			const float fD = pD[iStep] * (1.0f / 8.0f);
 	    #endif // COLOR_WEIGHTS
-
 			d2X += fC * pC[iStep];
 			dX.r += fC * Diff.r;
 			dX.g += fC * Diff.g;
 			dX.b += fC * Diff.b;
-
 			d2Y += fD * pD[iStep];
 			dY.r += fD * Diff.r;
 			dY.g += fD * Diff.g;
 			dY.b += fD * Diff.b;
 		}
-
 		// Move endpoints
 		if(d2X > 0.0f) {
 			const float f = -1.0f / d2X;
-
 			X.r += dX.r * f;
 			X.g += dX.g * f;
 			X.b += dX.b * f;
 		}
-
 		if(d2Y > 0.0f) {
 			const float f = -1.0f / d2Y;
-
 			Y.r += dY.r * f;
 			Y.g += dY.g * f;
 			Y.b += dY.b * f;
 		}
-
-		if((dX.r * dX.r < fEpsilon) && (dX.g * dX.g < fEpsilon) && (dX.b * dX.b < fEpsilon) &&
-		    (dY.r * dY.r < fEpsilon) && (dY.g * dY.g < fEpsilon) && (dY.b * dY.b < fEpsilon)) {
+		if((dX.r * dX.r < fEpsilon) && (dX.g * dX.g < fEpsilon) && (dX.b * dX.b < fEpsilon) && (dY.r * dY.r < fEpsilon) && (dY.g * dY.g < fEpsilon) && (dY.b * dY.b < fEpsilon)) {
 			break;
 		}
 	}
-
 	pX->r = X.r; pX->g = X.g; pX->b = X.b; pX->a = 1.0f;
 	pY->r = Y.r; pY->g = Y.g; pY->b = Y.b; pY->a = 1.0f;
 }

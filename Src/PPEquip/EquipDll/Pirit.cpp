@@ -2145,7 +2145,7 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 	if(isempty(pMarkCode))
 		ok = -1;
 	else {
-		SString _code;
+		SString temp_buf;
 		SString in_data;
 		SString out_data;
 		SString r_error;
@@ -2226,7 +2226,8 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 				CreateStr(1.0, in_data);
 		}
 		else {
-			CreateStr(static_cast<int>(qtty), in_data);
+			temp_buf.Z().Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ|NMBF_OMITEPS));
+			CreateStr(/*static_cast<int>(qtty)*/temp_buf, in_data);
 		}
 		{
 			// @v11.9.4 {

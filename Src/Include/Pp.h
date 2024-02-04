@@ -7255,6 +7255,7 @@ public:
 		fInitPaths    = 0x0001, // Инициализировать пути (извлекает из pp.ini)
 		fDenyLogQueue = 0x0002, // Не инициализировать очередь журнальных сообщений (вывод прямо в файл)
 		fWsCtlApp     = 0x0004, // @v11.7.1 Объект инициализирован для отдельного приложения WsCtl
+		fNoInstalledInfrastructure = 0x0008 // @v11.9.4 Процесс запускается вне предустановленной инфраструктуры (ресурсы строк, конфигурационные файлы и т.д.)
 	};
 	enum {
 		cmdlHelp = 0,  // ?
@@ -20412,7 +20413,7 @@ public:
 
 	PPEdiProviderPacket();
 	~PPEdiProviderPacket();
-	int    FASTCALL IsEq(const PPEdiProviderPacket & rS) const;
+	bool   FASTCALL IsEq(const PPEdiProviderPacket & rS) const;
 	int    GetExtStrData(int fldID, SString & rBuf) const;
 	int    PutExtStrData(int fldID, const char *);
 	int    MakeUrl(int reserved, InetUrl & rUrl);
@@ -42922,8 +42923,8 @@ public:
 		ctvChecksCount,
 		ctvSKUCount
 	};
-	static int FASTCALL HasGoodsGrouping(Grouping grp)
-		{ return BIN(oneof9(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer, gGoodsDateSerial, gGoodsCard)); } //@erik v10.5.2 add{gGoodsCard}
+	static bool FASTCALL HasGoodsGrouping(Grouping grp)
+		{ return oneof9(grp, gGoods, gGoodsDate, gAgentsNGoods, gCashiersNGoods, gGoodsSCSer, gAmountNGoods, gAgentGoodsSCSer, gGoodsDateSerial, gGoodsCard); } //@erik v10.5.2 add{gGoodsCard}
 	CCheckFilt();
 	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	CCheckFilt & FASTCALL operator = (const CCheckFilt & src);
@@ -42934,9 +42935,9 @@ public:
 	//   и вставляется в список NodeList.
 	//
 	int    SetLocList(const PPIDArray * pLocList);
-	int    HasGoodsGrouping() const { return CCheckFilt::HasGoodsGrouping(Grp); }
-	int    HasExtFiltering() const
-		{ return BIN(AgentID || TableCode || CreationUserID || GuestCount > 0 || (Flags & fStartOrderPeriod && !Period.IsZero()) || (DlvrAddrID || Flags & fZeroDlvrAddr)); }
+	bool   HasGoodsGrouping() const { return CCheckFilt::HasGoodsGrouping(Grp); }
+	bool   HasExtFiltering() const
+		{ return (AgentID || TableCode || CreationUserID || GuestCount > 0 || (Flags & fStartOrderPeriod && !Period.IsZero()) || (DlvrAddrID || Flags & fZeroDlvrAddr)); }
 
 	uint8  ReserveStart[16]; // @#0 !Использовать начиная со старших адресов // @v10.7.3 [8]-->[4] // @v11.9.1 [4]-->[16]
 	PPID   CreationUserID;   // @v10.7.3
@@ -53704,6 +53705,7 @@ public:
 		ResourcesAbstract, // "resources"
 		ValuesAbstract,    // "values"
 		TimezonesAbstract, // @v11.3.6 "timezones"
+		NalogRu_Generic,   // @v11.9.4 Файл в формате nalog.ru (cp-1251). Это семейство форматов используется в России для обмена данными.
 	};
 	PPXmlFileDetector();
 	~PPXmlFileDetector();
@@ -53714,7 +53716,8 @@ protected:
 	TSStack <int> TokPath;
 	uint   ElementCount;
 	int    Result;
-	const  SymbHashTable * P_ShT;
+	const  SymbHashTable * P_ShT; // Токены перечислены в строковом ресурсе PPSTR_HASHTOKEN 
+	const  SymbHashTable * P_ShT_C; // Токены перечислены в строковом ресурсе PPSTR_HASHTOKEN_C (русскоязычные токены)
 };
 //
 // Панель чеков
@@ -55223,6 +55226,8 @@ class DocNalogRu_Base {
 public:
 	struct FileInfo {
 		FileInfo();
+		FileInfo & Z();
+		bool   ParseFileName(const char * pFileName);
 		PPID   SenderPersonID;
 		PPID   ReceiverPersonID;
 		PPID   ProviderPersonID;
@@ -55328,6 +55333,18 @@ protected:
 	SString & FASTCALL Helper_GetToken(long tokId);
 	// @v11.7.0 (заменено на револьверную строку) SString TokBuf;
 	TokenSymbHashTable TsHt;
+};
+
+class DocNalogRu_Reader : public DocNalogRu_Base {
+public:
+	DocNalogRu_Reader();
+	int    ReadFile(const char * pFileName, FileInfo & rHeader, TSCollection <DocumentInfo> & rDocList);
+private:
+	// Читает атрибуты тега <??? Идентиф="key" Значен="val"/>
+	int    ReadExtraValue(const xmlNode * pNode, SString & rKey, SString & rVal);
+	int    ReadAddress(const xmlNode * pNode, Address & rResult);
+	int    ReadFIO(const xmlNode * pNode, FIO & rResult);
+	int    ReadParticipant(const xmlNode * pNode, Participant & rResult);
 };
 
 class DocNalogRu_Generator : public DocNalogRu_Base {

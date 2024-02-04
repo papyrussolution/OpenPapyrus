@@ -158,9 +158,9 @@
 // We normally try to not use many helpers in imgui_demo.cpp in order to make code easier to copy and paste,
 // but making an exception here as those are largely simplifying code...
 // In other imgui sources we can use nicer internal functions from imgui_internal.h (ImMin/ImMax) but not in the demo.
-#define IM_MIN(A, B)            (((A) < (B)) ? (A) : (B))
-#define IM_MAX(A, B)            (((A) >= (B)) ? (A) : (B))
-#define IM_CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
+// @v11.9.4 #define IM_MIN(A, B)            (((A) < (B)) ? (A) : (B))
+// @v11.9.4 #define IM_MAX(A, B)            (((A) >= (B)) ? (A) : (B))
+// @v11.9.4 (replaced with sclamp) #define IM_CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
 
 // Enforce cdecl calling convention for functions called by the standard library, in case compilation settings changed the default to e.g. __vectorcall
 #ifndef IMGUI_CDECL
@@ -1682,7 +1682,7 @@ static void ShowDemoWindowWidgets()
 		ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 		ImGui::Text("Progress Bar");
 
-		float progress_saturated = IM_CLAMP(progress, 0.0f, 1.0f);
+		float progress_saturated = /*IM_CLAMP*/sclamp(progress, 0.0f, 1.0f);
 		char buf[32];
 		sprintf(buf, "%d/%d", (int)(progress_saturated * 1753), 1753);
 		ImGui::ProgressBar(progress, ImVec2(0.f, 0.f), buf);
@@ -6146,12 +6146,9 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
 					const float RAD_MIN = 5.0f;
 					const float RAD_MAX = 70.0f;
 					const float rad = RAD_MIN + (RAD_MAX - RAD_MIN) * (float)n / (8.0f - 1.0f);
-
 					ImGui::BeginGroup();
-
 					ImGui::Text("R: %.f\nN: %d", rad, draw_list->_CalcCircleAutoSegmentCount(rad));
-
-					const float canvas_width = IM_MAX(min_widget_width, rad * 2.0f);
+					const float canvas_width = smax(min_widget_width, rad * 2.0f);
 					const float offset_x     = floorf(canvas_width * 0.5f);
 					const float offset_y     = floorf(RAD_MAX);
 
@@ -7094,12 +7091,14 @@ static void ShowExampleAppConstrainedResize(bool* p_open)
 	struct CustomConstraints {
 		// Helper functions to demonstrate programmatic constraints
 		// FIXME: This doesn't take account of decoration size (e.g. title bar), library should make this easier.
-		static void AspectRatio(ImGuiSizeCallbackData* data)    {
-			float aspect_ratio = *(float*)data->UserData; data->DesiredSize.x = IM_MAX(data->CurrentSize.x, data->CurrentSize.y);
+		static void AspectRatio(ImGuiSizeCallbackData* data)    
+		{
+			float aspect_ratio = *(float*)data->UserData; data->DesiredSize.x = smax(data->CurrentSize.x, data->CurrentSize.y);
 			data->DesiredSize.y = (float)(int)(data->DesiredSize.x / aspect_ratio);
 		}
-		static void Square(ImGuiSizeCallbackData* data)         { data->DesiredSize.x = data->DesiredSize.y = IM_MAX(data->CurrentSize.x, data->CurrentSize.y); }
-		static void Step(ImGuiSizeCallbackData* data)           {
+		static void Square(ImGuiSizeCallbackData* data) { data->DesiredSize.x = data->DesiredSize.y = smax(data->CurrentSize.x, data->CurrentSize.y); }
+		static void Step(ImGuiSizeCallbackData* data)           
+		{
 			float step = *(float*)data->UserData; data->DesiredSize = ImVec2((int)(data->CurrentSize.x / step + 0.5f) * step,
 				(int)(data->CurrentSize.y / step + 0.5f) * step);
 		}

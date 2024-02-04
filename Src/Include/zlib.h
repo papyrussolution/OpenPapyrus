@@ -382,11 +382,11 @@ typedef uLong uLongf;
 		#define Z_U4 ushort
 	#endif
 #endif
-#ifdef Z_U4
-	typedef Z_U4 z_crc_t;
-#else
-	typedef unsigned long z_crc_t;
-#endif
+//#ifdef Z_U4
+	//typedef Z_U4 z_crc_t;
+//#else
+	//typedef unsigned long z_crc_t;
+//#endif
 #ifdef HAVE_UNISTD_H    /* may be set to #if 1 by ./configure */
 	#define Z_HAVE_UNISTD_H
 #endif
@@ -638,9 +638,7 @@ typedef gz_header  * gz_headerp;
 #define Z_TEXT       1
 #define Z_ASCII      Z_TEXT   /* for compatibility with 1.2.2 and earlier */
 #define Z_UNKNOWN    2
-
 #define Z_DEFLATED   8 // The deflate compression method (the only one supported in this version) 
-
 #define Z_NULL       0 // for initializing zalloc, zfree, opaque 
 #define zlib_version zlibVersion() // for compatibility with versions < 1.0.2 
 //
@@ -2157,7 +2155,7 @@ ZEXTERN int gzgetc_(gzFile file); /* backward compatibility */
 /* undocumented functions */
 ZEXTERN const char * zError(int);
 ZEXTERN int inflateSyncPoint(z_streamp);
-ZEXTERN const z_crc_t  * get_crc_table();
+ZEXTERN const uint32 * get_crc_table();
 ZEXTERN int inflateUndermine(z_streamp, int);
 ZEXTERN int inflateValidate(z_streamp, int);
 ZEXTERN unsigned long inflateCodesUsed(z_streamp);

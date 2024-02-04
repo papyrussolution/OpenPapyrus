@@ -119,8 +119,8 @@ TERM_PUBLIC void COREL_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 			default:
 			    // font name 
 			    if(pGp->IsStringValue(pGp->Pgm.GetCurTokenIdx())) {
-				    char * font = pGp->TryToGetString();
-				    strncpy(corel_font, font, MAX_ID_LEN);
+				    const char * font = pGp->TryToGetString();
+				    strnzcpy(corel_font, font, sizeof(corel_font));
 			    }
 			    else {
 				    // We have font size specified 

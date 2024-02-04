@@ -1091,7 +1091,8 @@
 	/* #undef HAVE_ACL_SET_FILE */ /* Define to 1 if you have the `acl_set_file' function. */
 	/* #undef HAVE_ARC4RANDOM_BUF */ /* Define to 1 if you have the `arc4random_buf' function. */
 	/* #undef HAVE_ATTR_XATTR_H */ /* Define to 1 if you have the <attr/xattr.h> header file. */
-	/* #undef HAVE_BCRYPT_H */ /* Define to 1 if you have the <Bcrypt.h> header file. */
+	/* #undef HAVE_BCRYPT_H */ // Define to 1 if you have the <Bcrypt.h> header file
+	#define HAVE_BCRYPT_H 1 // @v11.9.4 // Define to 1 if you have the <Bcrypt.h> header file
 	/* #undef HAVE_BSDXML_H */ /* Define to 1 if you have the <bsdxml.h> header file. */
 	#define HAVE_BZLIB_H 1 /* #undef HAVE_BZLIB_H */ /* Define to 1 if you have the <bzlib.h> header file. */
 	/* #undef HAVE_CHFLAGS */ /* Define to 1 if you have the `chflags' function. */

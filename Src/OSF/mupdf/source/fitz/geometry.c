@@ -335,12 +335,10 @@ fz_irect fz_irect_from_rect(fz_rect r)
 		return fz_empty_irect;
 	if(!fz_is_valid_rect(r))
 		return fz_invalid_irect;
-
-	b.x0 = fz_clamp(floorf(r.x0), MIN_SAFE_INT, MAX_SAFE_INT);
-	b.y0 = fz_clamp(floorf(r.y0), MIN_SAFE_INT, MAX_SAFE_INT);
-	b.x1 = fz_clamp(ceilf(r.x1), MIN_SAFE_INT, MAX_SAFE_INT);
-	b.y1 = fz_clamp(ceilf(r.y1), MIN_SAFE_INT, MAX_SAFE_INT);
-
+	b.x0 = sclampf(floorf(r.x0), MIN_SAFE_INT, MAX_SAFE_INT);
+	b.y0 = sclampf(floorf(r.y0), MIN_SAFE_INT, MAX_SAFE_INT);
+	b.x1 = sclampf(ceilf(r.x1), MIN_SAFE_INT, MAX_SAFE_INT);
+	b.y1 = sclampf(ceilf(r.y1), MIN_SAFE_INT, MAX_SAFE_INT);
 	return b;
 }
 
@@ -361,17 +359,14 @@ fz_rect fz_rect_from_irect(fz_irect a)
 fz_irect fz_round_rect(fz_rect r)
 {
 	fz_irect b;
-	int i;
-
-	i = floorf(r.x0 + 0.001f);
-	b.x0 = fz_clamp(i, MIN_SAFE_INT, MAX_SAFE_INT);
+	int i = floorf(r.x0 + 0.001f);
+	b.x0 = sclampf(i, MIN_SAFE_INT, MAX_SAFE_INT);
 	i = floorf(r.y0 + 0.001f);
-	b.y0 = fz_clamp(i, MIN_SAFE_INT, MAX_SAFE_INT);
+	b.y0 = sclampf(i, MIN_SAFE_INT, MAX_SAFE_INT);
 	i = ceilf(r.x1 - 0.001f);
-	b.x1 = fz_clamp(i, MIN_SAFE_INT, MAX_SAFE_INT);
+	b.x1 = sclampf(i, MIN_SAFE_INT, MAX_SAFE_INT);
 	i = ceilf(r.y1 - 0.001f);
-	b.y1 = fz_clamp(i, MIN_SAFE_INT, MAX_SAFE_INT);
-
+	b.y1 = sclampf(i, MIN_SAFE_INT, MAX_SAFE_INT);
 	return b;
 }
 

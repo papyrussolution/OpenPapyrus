@@ -938,17 +938,13 @@ static char *ossl_strerror(ulong error, char * buf, size_t size)
 #else
 	ERR_error_string_n(error, buf, size);
 #endif
-
 	if(!*buf) {
-		strncpy(buf, (error ? "Unknown error" : "No error"), size);
-		buf[size - 1] = '\0';
+		strnzcpy(buf, (error ? "Unknown error" : "No error"), size);
 	}
-
 	return buf;
 }
 
-static int passwd_callback(char * buf, int num, int encrypting,
-    void * global_passwd)
+static int passwd_callback(char * buf, int num, int encrypting, void * global_passwd)
 {
 	DEBUGASSERT(0 == encrypting);
 
@@ -1372,22 +1368,16 @@ int cert_stuff(struct Curl_easy * data,
 			    if(cert_blob) {
 				    cert_bio = BIO_new_mem_buf(cert_blob->data, (int)(cert_blob->len));
 				    if(!cert_bio) {
-					    failf(data,
-						"BIO_new_mem_buf NULL, " OSSL_PACKAGE
-						" error %s",
-						ossl_strerror(ERR_get_error(), error_buffer,
-						sizeof(error_buffer)) );
+					    failf(data, "BIO_new_mem_buf NULL, " OSSL_PACKAGE " error %s",
+							ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)) );
 					    return 0;
 				    }
 			    }
 			    else {
 				    cert_bio = BIO_new(BIO_s_file());
 				    if(!cert_bio) {
-					    failf(data,
-						"BIO_new return NULL, " OSSL_PACKAGE
-						" error %s",
-						ossl_strerror(ERR_get_error(), error_buffer,
-						sizeof(error_buffer)) );
+					    failf(data, "BIO_new return NULL, " OSSL_PACKAGE " error %s",
+							ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)) );
 					    return 0;
 				    }
 
@@ -1406,28 +1396,17 @@ int cert_stuff(struct Curl_easy * data,
 					cert_blob ? "(memory blob)" : cert_file);
 				    return 0;
 			    }
-
 			    PKCS12_PBE_add();
-
-			    if(!PKCS12_parse(p12, key_passwd, &pri, &x509,
-				&ca)) {
-				    failf(data,
-					"could not parse PKCS12 file, check password, " OSSL_PACKAGE
-					" error %s",
-					ossl_strerror(ERR_get_error(), error_buffer,
-					sizeof(error_buffer)) );
+			    if(!PKCS12_parse(p12, key_passwd, &pri, &x509, &ca)) {
+				    failf(data, "could not parse PKCS12 file, check password, " OSSL_PACKAGE " error %s",
+						ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)) );
 				    PKCS12_free(p12);
 				    return 0;
 			    }
-
 			    PKCS12_free(p12);
-
 			    if(SSL_CTX_use_certificate(ctx, x509) != 1) {
-				    failf(data,
-					"could not load PKCS12 client certificate, " OSSL_PACKAGE
-					" error %s",
-					ossl_strerror(ERR_get_error(), error_buffer,
-					sizeof(error_buffer)) );
+				    failf(data, "could not load PKCS12 client certificate, " OSSL_PACKAGE " error %s",
+						ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)) );
 				    goto fail;
 			    }
 
@@ -2243,8 +2222,7 @@ static CURLcode ossl_verifyhost(struct Curl_easy * data, struct connectdata * co
 			/* error already detected, pass through */
 			;
 		else if(!peer_CN) {
-			failf(data,
-			    "SSL: unable to obtain common name from peer certificate");
+			failf(data, "SSL: unable to obtain common name from peer certificate");
 			result = CURLE_PEER_FAILED_VERIFICATION;
 		}
 		else if(!Curl_cert_hostcheck((const char *)peer_CN,
@@ -3876,12 +3854,10 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter * cf,
 			if(CURLE_SSL_CONNECT_ERROR == result && errdetail == 0) {
 				char extramsg[80] = "";
 				int sockerr = SOCKERRNO;
-
 				if(sockerr && detail == SSL_ERROR_SYSCALL)
 					Curl_strerror(sockerr, extramsg, sizeof(extramsg));
 				failf(data, OSSL_PACKAGE " SSL_connect: %s in connection to %s:%d ",
-				    extramsg[0] ? extramsg : SSL_ERROR_to_str(detail),
-				    connssl->hostname, connssl->port);
+				    extramsg[0] ? extramsg : SSL_ERROR_to_str(detail), connssl->hostname, connssl->port);
 				return result;
 			}
 
@@ -3999,17 +3975,11 @@ static CURLcode servercert(struct Curl_cfilter * cf,
 	char buffer[2048];
 	const char * ptr;
 	BIO * mem = BIO_new(BIO_s_mem());
-	struct ossl_ssl_backend_data * backend =
-	    (struct ossl_ssl_backend_data *)connssl->backend;
-
+	struct ossl_ssl_backend_data * backend = (struct ossl_ssl_backend_data *)connssl->backend;
 	DEBUGASSERT(backend);
-
 	if(!mem) {
-		failf(data,
-		    "BIO_new return NULL, " OSSL_PACKAGE
-		    " error %s",
-		    ossl_strerror(ERR_get_error(), error_buffer,
-		    sizeof(error_buffer)) );
+		failf(data, "BIO_new return NULL, " OSSL_PACKAGE " error %s",
+		    ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)) );
 		return CURLE_OUT_OF_MEMORY;
 	}
 
@@ -4395,8 +4365,7 @@ static ssize_t ossl_send(struct Curl_cfilter * cf, struct Curl_easy * data, cons
 			    else if(sockerr)
 				    Curl_strerror(sockerr, error_buffer, sizeof(error_buffer));
 			    else {
-				    strncpy(error_buffer, SSL_ERROR_to_str(err), sizeof(error_buffer));
-				    error_buffer[sizeof(error_buffer) - 1] = '\0';
+				    strnzcpy(error_buffer, SSL_ERROR_to_str(err), sizeof(error_buffer));
 			    }
 			    failf(data, OSSL_PACKAGE " SSL_write: %s, errno %d",
 				error_buffer, sockerr);
@@ -4500,11 +4469,9 @@ static ssize_t ossl_recv(struct Curl_cfilter * cf, struct Curl_easy * data/* tra
 				    else if(sockerr && err == SSL_ERROR_SYSCALL)
 					    Curl_strerror(sockerr, error_buffer, sizeof(error_buffer));
 				    else {
-					    strncpy(error_buffer, SSL_ERROR_to_str(err), sizeof(error_buffer));
-					    error_buffer[sizeof(error_buffer) - 1] = '\0';
+					    strnzcpy(error_buffer, SSL_ERROR_to_str(err), sizeof(error_buffer));
 				    }
-				    failf(data, OSSL_PACKAGE " SSL_read: %s, errno %d",
-					error_buffer, sockerr);
+				    failf(data, OSSL_PACKAGE " SSL_read: %s, errno %d", error_buffer, sockerr);
 				    *curlcode = CURLE_RECV_ERROR;
 				    nread = -1;
 				    goto out;
@@ -4523,11 +4490,9 @@ static ssize_t ossl_recv(struct Curl_cfilter * cf, struct Curl_easy * data/* tra
 				    if(sockerr)
 					    Curl_strerror(sockerr, error_buffer, sizeof(error_buffer));
 				    else {
-					    msnprintf(error_buffer, sizeof(error_buffer),
-						"Connection closed abruptly");
+					    msnprintf(error_buffer, sizeof(error_buffer), "Connection closed abruptly");
 				    }
-				    failf(data, OSSL_PACKAGE " SSL_read: %s, errno %d"
-					" (Fatal because this is a curl debug build)",
+				    failf(data, OSSL_PACKAGE " SSL_read: %s, errno %d (Fatal because this is a curl debug build)",
 					error_buffer, sockerr);
 				    *curlcode = CURLE_RECV_ERROR;
 				    nread = -1;

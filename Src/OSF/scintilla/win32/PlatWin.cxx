@@ -2244,8 +2244,7 @@ int ListBoxX::Find(const char *)
 void ListBoxX::GetValue(int n, char * value, int len)
 {
 	ListItemData item = lti.Get(n);
-	strncpy(value, item.text, len);
-	value[len-1] = '\0';
+	strnzcpy(value, item.text, len);
 }
 
 void ListBoxX::RegisterImage(int type, const char * xpm_data)

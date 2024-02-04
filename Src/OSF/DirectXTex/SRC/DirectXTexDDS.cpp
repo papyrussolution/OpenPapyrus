@@ -1439,39 +1439,30 @@ _Use_decl_annotations_ HRESULT DirectX::GetMetadataFromDDSFile(const wchar_t* sz
 	std::ifstream inFile(std::filesystem::path(szFile), std::ios::in | std::ios::binary | std::ios::ate);
 	if(!inFile)
 		return E_FAIL;
-
 	std::streampos fileLen = inFile.tellg();
 	if(!inFile)
 		return E_FAIL;
-
 	if(fileLen > UINT32_MAX)
 		return HRESULT_E_FILE_TOO_LARGE;
-
 	inFile.seekg(0, std::ios::beg);
 	if(!inFile)
 		return E_FAIL;
-
 	const size_t len = fileLen;
 #endif
-
 	// Need at least enough data to fill the standard header and magic number to be a valid DDS
 	if(len < (sizeof(DDS_HEADER) + sizeof(uint32_t))) {
 		return E_FAIL;
 	}
-
 	// Read the header in (including extended header if present)
 	uint8_t header[MAX_HEADER_SIZE] = {};
-
 #ifdef _WIN32
 	DWORD bytesRead = 0;
 	if(!ReadFile(hFile.get(), header, MAX_HEADER_SIZE, &bytesRead, nullptr)) {
 		return HRESULT_FROM_WIN32(GetLastError());
 	}
-
 	auto const headerLen = static_cast<size_t>(bytesRead);
 #else
 	auto const headerLen = std::min<size_t>(len, MAX_HEADER_SIZE);
-
 	inFile.read(reinterpret_cast<char*>(header), headerLen);
 	if(!inFile)
 		return E_FAIL;
@@ -1482,29 +1473,20 @@ _Use_decl_annotations_ HRESULT DirectX::GetMetadataFromDDSFile(const wchar_t* sz
 //
 // Load a DDS file in memory
 //
-_Use_decl_annotations_ HRESULT DirectX::LoadFromDDSMemory(const void* pSource,
-    size_t size,
-    DDS_FLAGS flags,
-    TexMetadata* metadata,
-    ScratchImage& image) noexcept
+_Use_decl_annotations_ HRESULT DirectX::LoadFromDDSMemory(const void* pSource, size_t size, DDS_FLAGS flags, TexMetadata* metadata, ScratchImage& image) noexcept
 {
 	if(!pSource || size == 0)
 		return E_INVALIDARG;
-
 	image.Release();
-
 	uint32_t convFlags = 0;
 	TexMetadata mdata;
 	HRESULT hr = DecodeDDSHeader(pSource, size, flags, mdata, convFlags);
 	if(FAILED(hr))
 		return hr;
-
 	size_t offset = sizeof(uint32_t) + sizeof(DDS_HEADER);
 	if(convFlags & CONV_FLAGS_DX10)
 		offset += sizeof(DDS_HEADER_DXT10);
-
 	assert(offset <= size);
-
 	const uint32_t * pal8 = nullptr;
 	if(convFlags & CONV_FLAGS_PAL8) {
 		pal8 = reinterpret_cast<const uint32_t*>(static_cast<const uint8_t*>(pSource) + offset);
@@ -1513,11 +1495,9 @@ _Use_decl_annotations_ HRESULT DirectX::LoadFromDDSMemory(const void* pSource,
 		if(size < offset)
 			return E_FAIL;
 	}
-
 	hr = image.Initialize(mdata);
 	if(FAILED(hr))
 		return hr;
-
 	CP_FLAGS cflags = CP_FLAGS_NONE;
 	if(flags & DDS_FLAGS_LEGACY_DWORD) {
 		cflags |= CP_FLAGS_LEGACY_DWORD;
@@ -1525,23 +1505,15 @@ _Use_decl_annotations_ HRESULT DirectX::LoadFromDDSMemory(const void* pSource,
 	if(flags & DDS_FLAGS_BAD_DXTN_TAILS) {
 		cflags |= CP_FLAGS_BAD_DXTN_TAILS;
 	}
-
 	const void* pPixels = static_cast<const uint8_t*>(pSource) + offset;
 	assert(pPixels);
-	hr = CopyImage(pPixels,
-		size - offset,
-		mdata,
-		cflags,
-		convFlags,
-		pal8,
-		image);
+	hr = CopyImage(pPixels, size - offset, mdata, cflags, convFlags, pal8, image);
 	if(FAILED(hr)) {
 		image.Release();
 		return hr;
 	}
 	if(metadata)
 		memcpy(metadata, &mdata, sizeof(TexMetadata));
-
 	return S_OK;
 }
 //

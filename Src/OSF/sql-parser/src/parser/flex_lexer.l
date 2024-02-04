@@ -242,8 +242,8 @@ CHARACTER[ \t\n]+VARYING TOKEN(CHARACTER_VARYING)
 
 [0-9]+"."[0-9]* |
 "."[0-9]*  {
-  yylval->fval = atof(yytext);
-  return SQL_FLOATVAL;
+	yylval->fval = atof(yytext);
+	return SQL_FLOATVAL;
 }
 
   /*
@@ -252,29 +252,29 @@ CHARACTER[ \t\n]+VARYING TOKEN(CHARACTER_VARYING)
    *   numeric_limits<double>::lowest() == -numeric_limits<double>::max();
    */
 -9223372036854775808 {
-  yylval->ival = LLONG_MIN;
-  return SQL_INTVAL;
+	yylval->ival = LLONG_MIN;
+	return SQL_INTVAL;
 }
 
 [0-9]+ {
-  errno = 0;
-  yylval->ival = strtoll(yytext, nullptr, 0);
-  if(errno) {
-    return slfprintf_stderr("[SQL-Lexer-Error] Integer cannot be parsed - is it out of range?");
-    return 0;
-  }
-  return SQL_INTVAL;
+	errno = 0;
+	yylval->ival = strtoll(yytext, nullptr, 0);
+	if(errno) {
+		slfprintf_stderr("[SQL-Lexer-Error] Integer cannot be parsed - is it out of range?");
+		return 0;
+	}
+	return SQL_INTVAL;
 }
 
 \"[^\"\n]+\" {
-  // Crop the leading and trailing quote char
-  yylval->sval = hsql::substr(yytext, 1, strlen(yytext)-1);
-  return SQL_IDENTIFIER;
+	// Crop the leading and trailing quote char
+	yylval->sval = hsql::substr(yytext, 1, strlen(yytext)-1);
+	return SQL_IDENTIFIER;
 }
 
 [A-Za-z][A-Za-z0-9_]* {
-  yylval->sval = _strdup(yytext);
-  return SQL_IDENTIFIER;
+	yylval->sval = _strdup(yytext);
+	return SQL_IDENTIFIER;
 }
 
 \'                          { BEGIN singlequotedstring; strbuf.clear(); strbuf.str(""); }  // Clear strbuf manually, see #170

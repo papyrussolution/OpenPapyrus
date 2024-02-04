@@ -166,9 +166,9 @@ static inline void jxr_unpack_sample(fz_context * ctx, struct info * info, jxr_i
 			    goto decode_float32;
 decode_float32:
 			    if(k < comps)
-				    dp[k] = sRGB_from_scRGB(fz_clamp(v, 0, 1)) * 255 + 0.5f;
+				    dp[k] = sRGB_from_scRGB(sclampf(v, 0, 1)) * 255 + 0.5f;
 			    else
-				    dp[k] = fz_clamp(v, 0, 1) * 255 + 0.5f;
+				    dp[k] = sclampf(v, 0, 1) * 255 + 0.5f;
 			    break;
 		}
 	}
@@ -185,16 +185,16 @@ static inline void jxr_unpack_alpha_sample(fz_context * ctx, struct info * info,
 		case JXR_BD16: dp[0] = sp[0] >> 8; break;
 
 		case JXR_BD16S:
-		    dp[0] = fz_clamp(sp[0] * (1.0f / (1 << 13)), 0, 1) * 255 + 0.5f;
+		    dp[0] = sclampf(sp[0] * (1.0f / (1 << 13)), 0, 1) * 255 + 0.5f;
 		    break;
 		case JXR_BD32S:
-		    dp[0] = fz_clamp(sp[0] * (1.0f / (1 << 24)), 0, 1) * 255 + 0.5f;
+		    dp[0] = sclampf(sp[0] * (1.0f / (1 << 24)), 0, 1) * 255 + 0.5f;
 		    break;
 		case JXR_BD16F:
-		    dp[0] = fz_clamp(float32_from_float16(sp[0]), 0, 1) * 255 + 0.5f;
+		    dp[0] = sclampf(float32_from_float16(sp[0]), 0, 1) * 255 + 0.5f;
 		    break;
 		case JXR_BD32F:
-		    dp[0] = fz_clamp(float32_from_int32_bits(sp[0]), 0, 1) * 255 + 0.5f;
+		    dp[0] = sclampf(float32_from_int32_bits(sp[0]), 0, 1) * 255 + 0.5f;
 		    break;
 	}
 }

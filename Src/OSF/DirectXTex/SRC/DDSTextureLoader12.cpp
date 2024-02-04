@@ -276,32 +276,22 @@ HRESULT LoadTextureDataFromFile(_In_z_ const wchar_t* fileName, std::unique_ptr<
 
 	// read the data in
 	DWORD bytesRead = 0;
-	if(!ReadFile(hFile.get(),
-	    ddsData.get(),
-	    fileInfo.EndOfFile.LowPart,
-	    &bytesRead,
-	    nullptr
-	    )) {
+	if(!ReadFile(hFile.get(), ddsData.get(), fileInfo.EndOfFile.LowPart, &bytesRead, nullptr)) {
 		ddsData.reset();
 		return HRESULT_FROM_WIN32(GetLastError());
 	}
-
 	if(bytesRead < fileInfo.EndOfFile.LowPart) {
 		ddsData.reset();
 		return E_FAIL;
 	}
-
 	size_t len = fileInfo.EndOfFile.LowPart;
-
     #else // !WIN32
 	std::ifstream inFile(std::filesystem::path(fileName), std::ios::in | std::ios::binary | std::ios::ate);
 	if(!inFile)
 		return E_FAIL;
-
 	std::streampos fileLen = inFile.tellg();
 	if(!inFile)
 		return E_FAIL;
-
 	// Need at least enough data to fill the header and magic number to be a valid DDS
 	if(fileLen < (sizeof(uint32_t) + sizeof(DDS_HEADER)))
 		return E_FAIL;

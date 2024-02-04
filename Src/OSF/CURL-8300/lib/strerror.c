@@ -572,12 +572,9 @@ static const char *get_winsock_error(int err, char * buf, size_t len)
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 	const char * p;
 #endif
-
 	if(!len)
 		return NULL;
-
 	*buf = '\0';
-
 #ifdef CURL_DISABLE_VERBOSE_STRINGS
 	(void)err;
 	return NULL;
@@ -750,8 +747,7 @@ static const char *get_winsock_error(int err, char * buf, size_t len)
 		default:
 		    return NULL;
 	}
-	strncpy(buf, p, len);
-	buf [len-1] = '\0';
+	strnzcpy(buf, p, len);
 	return buf;
 #endif
 }
@@ -821,7 +817,7 @@ static const char *get_winapi_error(int err, char * buf, size_t buflen)
  * Call Curl_sspi_strerror if the error code is definitely Windows SSPI.
  * Call Curl_winapi_strerror if the error code is definitely Windows API.
  */
-const char *Curl_strerror(int err, char * buf, size_t buflen)
+const char * STDCALL Curl_strerror(int err, char * buf, size_t buflen)
 {
 #ifdef PRESERVE_WINDOWS_ERROR_CODE
 	DWORD old_win_err = GetLastError();
@@ -829,14 +825,11 @@ const char *Curl_strerror(int err, char * buf, size_t buflen)
 	int old_errno = errno;
 	char * p;
 	size_t max;
-
 	if(!buflen)
 		return NULL;
-
 #ifndef WIN32
 	DEBUGASSERT(err >= 0);
 #endif
-
 	max = buflen - 1;
 	*buf = '\0';
 
@@ -907,7 +900,6 @@ const char *Curl_strerror(int err, char * buf, size_t buflen)
 	if(old_win_err != GetLastError())
 		SetLastError(old_win_err);
 #endif
-
 	return buf;
 }
 
@@ -922,12 +914,9 @@ const char *Curl_winapi_strerror(DWORD err, char * buf, size_t buflen)
 	DWORD old_win_err = GetLastError();
 #endif
 	int old_errno = errno;
-
 	if(!buflen)
 		return NULL;
-
 	*buf = '\0';
-
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 	if(!get_winapi_error(err, buf, buflen)) {
 		msnprintf(buf, buflen, "Unknown error %lu (0x%08lX)", err, err);
@@ -935,19 +924,15 @@ const char *Curl_winapi_strerror(DWORD err, char * buf, size_t buflen)
 #else
 	{
 		const char * txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
-		strncpy(buf, txt, buflen);
-		buf[buflen - 1] = '\0';
+		strnzcpy(buf, txt, buflen);
 	}
 #endif
-
 	if(errno != old_errno)
 		errno = old_errno;
-
 #ifdef PRESERVE_WINDOWS_ERROR_CODE
 	if(old_win_err != GetLastError())
 		SetLastError(old_win_err);
 #endif
-
 	return buf;
 }
 
@@ -1072,26 +1057,20 @@ const char *Curl_sspi_strerror(int err, char * buf, size_t buflen)
 	else {
 		char txtbuf[80];
 		char msgbuf[256];
-
 		msnprintf(txtbuf, sizeof(txtbuf), "%s (0x%08X)", txt, err);
-
 		if(get_winapi_error(err, msgbuf, sizeof(msgbuf)))
 			msnprintf(buf, buflen, "%s - %s", txtbuf, msgbuf);
 		else {
-			strncpy(buf, txtbuf, buflen);
-			buf[buflen - 1] = '\0';
+			strnzcpy(buf, txtbuf, buflen);
 		}
 	}
-
 #else
 	if(err == SEC_E_OK)
 		txt = "No error";
 	else
 		txt = "Error";
-	strncpy(buf, txt, buflen);
-	buf[buflen - 1] = '\0';
+	strnzcpy(buf, txt, buflen);
 #endif
-
 	if(errno != old_errno)
 		errno = old_errno;
 

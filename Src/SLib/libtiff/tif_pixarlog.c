@@ -156,8 +156,7 @@ static void horizontalAccumulateF(uint16 * wp, int n, int stride, float * op, fl
 			REPEAT(stride, *op = ToLinearF[*wp&mask]; wp++; op++)
 			n -= stride;
 			while(n > 0) {
-				REPEAT(stride,
-				    wp[stride] += *wp; *op = ToLinearF[*wp&mask]; wp++; op++)
+				REPEAT(stride, wp[stride] += *wp; *op = ToLinearF[*wp&mask]; wp++; op++)
 				n -= stride;
 			}
 		}

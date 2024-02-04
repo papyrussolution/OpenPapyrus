@@ -3850,21 +3850,20 @@ int PPEdiProviderPacket::MakeUrl(int reserved, InetUrl & rUrl)
 int PPEdiProviderPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
 int PPEdiProviderPacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
-int FASTCALL PPEdiProviderPacket::IsEq(const PPEdiProviderPacket & rS) const
+bool FASTCALL PPEdiProviderPacket::IsEq(const PPEdiProviderPacket & rS) const
 {
+	static const int extss_list[] = {
+		extssDllModuleName, extssTempPath, extssAddr, extssAddr2, /*extssLogin, extssPassword,*/extssFormatSymb, extssSubIn, extssSubOut
+	};
 	int    eq = 1;
 	if(!Rec.IsEq(rS.Rec))
 		eq = 0;
-	else if(PPCmpExtStrData(extssDllModuleName, ExtString, rS.ExtString, 0) != 0)
-		eq = 0;
-	else if(PPCmpExtStrData(extssTempPath, ExtString, rS.ExtString, 0) != 0)
-		eq = 0;
-	else if(PPCmpExtStrData(extssAddr, ExtString, rS.ExtString, 0) != 0)
-		eq = 0;
-	else if(PPCmpExtStrData(extssAddr2, ExtString, rS.ExtString, 0) != 0)
-		eq = 0;
-	else if(PPCmpExtStrData(extssFormatSymb, ExtString, rS.ExtString, 0) != 0) // @v10.0.02
-		eq = 0;
+	else {
+		for(uint i = 0; eq && i < SIZEOFARRAY(extss_list); i++) {
+			if(PPCmpExtStrData(extss_list[i], ExtString, rS.ExtString, 0) != 0)
+				eq = 0;
+		}
+	}
 	return eq;
 }
 //

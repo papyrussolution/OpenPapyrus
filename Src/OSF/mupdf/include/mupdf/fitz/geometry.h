@@ -10,19 +10,14 @@ static inline int fz_mul255(int a, int b)
 	x += x >> 8;
 	return x >> 8;
 }
-
 /**
         Undo alpha premultiplication.
  */
-static inline int fz_div255(int c, int a) {
-	return a ? c * (255 * 256 / a) >> 8 : 0;
-}
-
+static inline int fz_div255(int c, int a) { return a ? c * (255 * 256 / a) >> 8 : 0; }
 /**
         Expand a value A from the 0...255 range to the 0..256 range
  */
 #define FZ_EXPAND(A) ((A)+((A)>>7))
-
 /**
         Combine values A (in any range) and B (in the 0..256 range),
         to give a single value in the same range as A was.
@@ -69,9 +64,9 @@ static inline size_t fz_minz(size_t a, size_t b) { return (a < b ? a : b); }
 // @sobolev (replaced with smax) static inline int fz_maxi_Removed(int a, int b) { return (a > b ? a : b); }
 static inline size_t fz_maxz(size_t a, size_t b) { return (a > b ? a : b); }
 static inline int64_t fz_maxi64(int64_t a, int64_t b) { return (a > b ? a : b); }
-static inline float fz_clamp(float f, float min, float max) { return (f > min ? (f < max ? f : max) : min); }
+// @sobolev (replaced with sclampf) static inline float fz_clamp(float f, float min, float max) { return (f > min ? (f < max ? f : max) : min); }
 // @sobolev static inline int fz_clampi_Removed(int i, int min, int max) { return (i > min ? (i < max ? i : max) : min); }
-static inline double fz_clampd(double d, double min, double max) { return (d > min ? (d < max ? d : max) : min); }
+// @sobolev (unused) static inline double fz_clampd(double d, double min, double max) { return (d > min ? (d < max ? d : max) : min); }
 static inline void * fz_clampp(void * p, void * min, void * max) { return (p > min ? (p < max ? p : max) : min); }
 
 #define DIV_BY_ZERO(a, b, min, max) (((a) < 0) ^ ((b) < 0) ? (min) : (max))
@@ -253,10 +248,7 @@ static inline fz_matrix fz_make_matrix(float a, float b, float c, float d, float
 	return m;
 }
 
-static inline int fz_is_identity(fz_matrix m)
-{
-	return m.a == 1 && m.b == 0 && m.c == 0 && m.d == 1 && m.e == 0 && m.f == 0;
-}
+static inline int fz_is_identity(fz_matrix m) { return (m.a == 1.0f && m.b == 0.0f && m.c == 0.0f && m.d == 1.0f && m.e == 0.0f && m.f == 0.0f); }
 /**
         Multiply two matrices.
 

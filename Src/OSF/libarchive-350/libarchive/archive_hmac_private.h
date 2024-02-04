@@ -29,12 +29,11 @@
 int __libarchive_hmac_build_hack();
 
 #ifdef __APPLE__
-#include <AvailabilityMacros.h>
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1060
-#define ARCHIVE_HMAC_USE_Apple_CommonCrypto
+	#include <AvailabilityMacros.h>
+	#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1060
+		#define ARCHIVE_HMAC_USE_Apple_CommonCrypto
+	#endif
 #endif
-#endif
-
 #ifdef ARCHIVE_HMAC_USE_Apple_CommonCrypto
 #include <CommonCrypto/CommonHMAC.h>
 
@@ -54,21 +53,16 @@ typedef struct {
 #include <mbedtls/md.h>
 
 typedef mbedtls_md_context_t archive_hmac_sha1_ctx;
-
 #elif defined(HAVE_LIBNETTLE) && defined(HAVE_NETTLE_HMAC_H)
 #include <nettle/hmac.h>
 
 typedef struct hmac_sha1_ctx archive_hmac_sha1_ctx;
-
 #elif defined(HAVE_LIBCRYPTO)
 #include "archive_openssl_hmac_private.h"
 
 typedef HMAC_CTX* archive_hmac_sha1_ctx;
-
 #else
-
 typedef int archive_hmac_sha1_ctx;
-
 #endif
 
 /* HMAC */

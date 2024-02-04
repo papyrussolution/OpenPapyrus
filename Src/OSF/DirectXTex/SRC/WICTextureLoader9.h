@@ -24,7 +24,7 @@
 #endif
 #include <d3d9.h>
 
-#pragma comment(lib,"windowscodecs.lib")
+#pragma comment(lib, "windowscodecs.lib")
 
 #include <cstddef>
 #include <cstdint>

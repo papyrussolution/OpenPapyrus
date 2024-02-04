@@ -128,8 +128,7 @@ static void nosigpipe(struct Curl_easy * data,
 	    sizeof(onoff)) < 0) {
 #if !defined(CURL_DISABLE_VERBOSE_STRINGS)
 		char buffer[STRERROR_LEN];
-		infof(data, "Could not set SO_NOSIGPIPE: %s",
-		    Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
+		infof(data, "Could not set SO_NOSIGPIPE: %s", Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
 #endif
 	}
 }
@@ -635,10 +634,8 @@ static CURLcode bindlocal(struct Curl_easy * data, struct connectdata * conn,
 	{
 		char buffer[STRERROR_LEN];
 		data->state.os_errno = error = SOCKERRNO;
-		failf(data, "bind failed with errno %d: %s",
-		    error, Curl_strerror(error, buffer, sizeof(buffer)));
+		failf(data, "bind failed with errno %d: %s", error, Curl_strerror(error, buffer, sizeof(buffer)));
 	}
-
 	return CURLE_INTERFACE_FAILED;
 }
 
@@ -738,8 +735,7 @@ static CURLcode socket_connect_result(struct Curl_easy * data,
 #else
 		    {
 			    char buffer[STRERROR_LEN];
-			    infof(data, "Immediate connect fail for %s: %s",
-				ipaddress, Curl_strerror(error, buffer, sizeof(buffer)));
+			    infof(data, "Immediate connect fail for %s: %s", ipaddress, Curl_strerror(error, buffer, sizeof(buffer)));
 		    }
 #endif
 		    data->state.os_errno = error;
@@ -836,9 +832,7 @@ static ssize_t nw_in_read(void * pReaderCtx, uchar * buf, size_t len, CURLcode *
 		}
 		else {
 			char buffer[STRERROR_LEN];
-
-			failf(rctx->data, "Recv failure: %s",
-			    Curl_strerror(sockerr, buffer, sizeof(buffer)));
+			failf(rctx->data, "Recv failure: %s", Curl_strerror(sockerr, buffer, sizeof(buffer)));
 			rctx->data->state.os_errno = sockerr;
 			*err = CURLE_RECV_ERROR;
 			nread = -1;
@@ -1183,8 +1177,7 @@ out:
 			{
 				char buffer[STRERROR_LEN];
 				infof(data, "connect to %s port %u failed: %s",
-				    ctx->r_ip, ctx->r_port,
-				    Curl_strerror(ctx->error, buffer, sizeof(buffer)));
+				    ctx->r_ip, ctx->r_port, Curl_strerror(ctx->error, buffer, sizeof(buffer)));
 			}
 #endif
 		}
@@ -1300,15 +1293,12 @@ static ssize_t cf_socket_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 		}
 		else {
 			char buffer[STRERROR_LEN];
-			failf(data, "Send failure: %s",
-			    Curl_strerror(sockerr, buffer, sizeof(buffer)));
+			failf(data, "Send failure: %s", Curl_strerror(sockerr, buffer, sizeof(buffer)));
 			data->state.os_errno = sockerr;
 			*err = CURLE_SEND_ERROR;
 		}
 	}
-
-	CURL_TRC_CF(data, cf, "send(len=%zu) -> %d, err=%d",
-	    orig_len, (int)nwritten, *err);
+	CURL_TRC_CF(data, cf, "send(len=%zu) -> %d, err=%d", orig_len, (int)nwritten, *err);
 	cf->conn->sock[cf->sockindex] = fdsave;
 	return nwritten;
 }
@@ -1327,7 +1317,6 @@ static ssize_t cf_socket_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 	}
 	else {
 		struct reader_ctx rctx;
-
 		rctx.cf = cf;
 		rctx.data = data;
 
@@ -1377,9 +1366,7 @@ static void conn_set_primary_ip(struct Curl_cfilter * cf, struct Curl_easy * dat
 #ifdef HAVE_GETPEERNAME
 	struct cf_socket_ctx * ctx = (cf_socket_ctx *)cf->ctx;
 	if(!(data->conn->handler->protocol & CURLPROTO_TFTP)) {
-		/* TFTP does not connect the endpoint: getpeername() failed with errno
-		   107: Transport endpoint is not connected */
-
+		/* TFTP does not connect the endpoint: getpeername() failed with errno 107: Transport endpoint is not connected */
 		char buffer[STRERROR_LEN];
 		struct Curl_sockaddr_storage ssrem;
 		int port;
@@ -1387,14 +1374,11 @@ static void conn_set_primary_ip(struct Curl_cfilter * cf, struct Curl_easy * dat
 		memzero(&ssrem, plen);
 		if(getpeername(ctx->sock, (struct sockaddr*)&ssrem, &plen)) {
 			int error = SOCKERRNO;
-			failf(data, "getpeername() failed with errno %d: %s",
-			    error, Curl_strerror(error, buffer, sizeof(buffer)));
+			failf(data, "getpeername() failed with errno %d: %s", error, Curl_strerror(error, buffer, sizeof(buffer)));
 			return;
 		}
-		if(!Curl_addr2string((struct sockaddr*)&ssrem, plen,
-		    cf->conn->primary_ip, &port)) {
-			failf(data, "ssrem inet_ntop() failed with errno %d: %s",
-			    errno, Curl_strerror(errno, buffer, sizeof(buffer)));
+		if(!Curl_addr2string((struct sockaddr*)&ssrem, plen, cf->conn->primary_ip, &port)) {
+			failf(data, "ssrem inet_ntop() failed with errno %d: %s", errno, Curl_strerror(errno, buffer, sizeof(buffer)));
 			return;
 		}
 	}
@@ -1830,8 +1814,7 @@ static void set_accepted_remote_ip(struct Curl_cfilter * cf, struct Curl_easy * 
 	memzero(&ssrem, plen);
 	if(getpeername(ctx->sock, (struct sockaddr*)&ssrem, &plen)) {
 		int error = SOCKERRNO;
-		failf(data, "getpeername() failed with errno %d: %s",
-		    error, Curl_strerror(error, buffer, sizeof(buffer)));
+		failf(data, "getpeername() failed with errno %d: %s", error, Curl_strerror(error, buffer, sizeof(buffer)));
 		return;
 	}
 	if(!Curl_addr2string((struct sockaddr*)&ssrem, plen,

@@ -1036,7 +1036,7 @@ escape:
 			    break;
 			case 'p':
 			    if(session->opts.port < 65536) {
-				    char tmp[6];
+				    char tmp[16];
 				    snprintf(tmp, sizeof(tmp), "%u", session->opts.port > 0 ? session->opts.port : 22);
 				    x = sstrdup(tmp);
 			    }

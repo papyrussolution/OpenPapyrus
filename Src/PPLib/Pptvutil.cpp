@@ -6,7 +6,7 @@
 #define HMONITOR_DECLARED
 #include <shlobj.h>
 #include <htmlhelp.h>
-#pragma comment (lib, "htmlhelp.lib")
+#pragma comment(lib, "htmlhelp.lib")
 
 //#define USE_NEW_TIMEPICKER 1 // @v11.2.4
 

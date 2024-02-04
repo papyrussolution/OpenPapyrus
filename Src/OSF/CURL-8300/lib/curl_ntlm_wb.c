@@ -191,19 +191,15 @@ static CURLcode ntlm_wb_init(struct Curl_easy * data, struct ntlmdata * ntlm,
 		    ntlm_auth, errno, Curl_strerror(errno, buffer, sizeof(buffer)));
 		goto done;
 	}
-
 	if(Curl_socketpair(AF_UNIX, SOCK_STREAM, 0, sockfds)) {
-		failf(data, "Could not open socket pair. errno %d: %s",
-		    errno, Curl_strerror(errno, buffer, sizeof(buffer)));
+		failf(data, "Could not open socket pair. errno %d: %s", errno, Curl_strerror(errno, buffer, sizeof(buffer)));
 		goto done;
 	}
-
 	child_pid = fork();
 	if(child_pid == -1) {
 		sclose(sockfds[0]);
 		sclose(sockfds[1]);
-		failf(data, "Could not fork. errno %d: %s",
-		    errno, Curl_strerror(errno, buffer, sizeof(buffer)));
+		failf(data, "Could not fork. errno %d: %s", errno, Curl_strerror(errno, buffer, sizeof(buffer)));
 		goto done;
 	}
 	else if(!child_pid) {
@@ -214,17 +210,13 @@ static CURLcode ntlm_wb_init(struct Curl_easy * data, struct ntlmdata * ntlm,
 		/* Don't use sclose in the child since it fools the socket leak detector */
 		sclose_nolog(sockfds[0]);
 		if(dup2(sockfds[1], STDIN_FILENO) == -1) {
-			failf(data, "Could not redirect child stdin. errno %d: %s",
-			    errno, Curl_strerror(errno, buffer, sizeof(buffer)));
+			failf(data, "Could not redirect child stdin. errno %d: %s", errno, Curl_strerror(errno, buffer, sizeof(buffer)));
 			exit(1);
 		}
-
 		if(dup2(sockfds[1], STDOUT_FILENO) == -1) {
-			failf(data, "Could not redirect child stdout. errno %d: %s",
-			    errno, Curl_strerror(errno, buffer, sizeof(buffer)));
+			failf(data, "Could not redirect child stdout. errno %d: %s", errno, Curl_strerror(errno, buffer, sizeof(buffer)));
 			exit(1);
 		}
-
 		if(domain)
 			execl(ntlm_auth, ntlm_auth,
 			    "--helper-protocol", "ntlmssp-client-1",
@@ -236,15 +228,11 @@ static CURLcode ntlm_wb_init(struct Curl_easy * data, struct ntlmdata * ntlm,
 			execl(ntlm_auth, ntlm_auth,
 			    "--helper-protocol", "ntlmssp-client-1",
 			    "--use-cached-creds",
-			    "--username", username,
-			    NULL);
-
+			    "--username", username, NULL);
 		sclose_nolog(sockfds[1]);
-		failf(data, "Could not execl(). errno %d: %s",
-		    errno, Curl_strerror(errno, buffer, sizeof(buffer)));
+		failf(data, "Could not execl(). errno %d: %s", errno, Curl_strerror(errno, buffer, sizeof(buffer)));
 		exit(1);
 	}
-
 	sclose(sockfds[1]);
 	ntlm->ntlm_auth_hlpr_socket = sockfds[0];
 	ntlm->ntlm_auth_hlpr_pid = child_pid;

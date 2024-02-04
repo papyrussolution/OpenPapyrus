@@ -973,8 +973,7 @@ static CURLcode tftp_connect(struct Curl_easy * data, bool * done)
 			conn->remote_addr->addrlen);
 		if(rc) {
 			char buffer[STRERROR_LEN];
-			failf(data, "bind() failed; %s",
-			    Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
+			failf(data, "bind() failed; %s", Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
 			return CURLE_COULDNT_CONNECT;
 		}
 		conn->bits.bound = TRUE;

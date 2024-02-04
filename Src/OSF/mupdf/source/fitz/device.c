@@ -41,17 +41,16 @@ static void fz_disable_device(fz_context * ctx, fz_device * dev)
 
 void fz_close_device(fz_context * ctx, fz_device * dev)
 {
-	if(dev == NULL)
-		return;
-	fz_try(ctx)
-	{
-		if(dev->close_device)
-			dev->close_device(ctx, dev);
+	if(dev) {
+		fz_try(ctx) {
+			if(dev->close_device)
+				dev->close_device(ctx, dev);
+		}
+		fz_always(ctx)
+			fz_disable_device(ctx, dev);
+		fz_catch(ctx)
+			fz_rethrow(ctx);
 	}
-	fz_always(ctx)
-	fz_disable_device(ctx, dev);
-	fz_catch(ctx)
-	fz_rethrow(ctx);
 }
 
 fz_device * fz_keep_device(fz_context * ctx, fz_device * dev)
@@ -71,15 +70,8 @@ void fz_drop_device(fz_context * ctx, fz_device * dev)
 	}
 }
 
-void fz_enable_device_hints(fz_context * ctx, fz_device * dev, int hints)
-{
-	dev->hints |= hints;
-}
-
-void fz_disable_device_hints(fz_context * ctx, fz_device * dev, int hints)
-{
-	dev->hints &= ~hints;
-}
+void fz_enable_device_hints(fz_context * ctx, fz_device * dev, int hints) { dev->hints |= hints; }
+void fz_disable_device_hints(fz_context * ctx, fz_device * dev, int hints) { dev->hints &= ~hints; }
 
 static void push_clip_stack(fz_context * ctx, fz_device * dev, fz_rect rect, int type)
 {
@@ -355,17 +347,10 @@ void fz_end_mask(fz_context * ctx, fz_device * dev)
 	}
 }
 
-void fz_begin_group(fz_context * ctx,
-    fz_device * dev,
-    fz_rect area,
-    fz_colorspace * cs,
-    int isolated,
-    int knockout,
-    int blendmode,
-    float alpha)
+void fz_begin_group(fz_context * ctx, fz_device * dev, fz_rect area,
+    fz_colorspace * cs, int isolated, int knockout, int blendmode, float alpha)
 {
 	push_clip_stack(ctx, dev, area, fz_device_container_stack_is_group);
-
 	if(dev->begin_group) {
 		fz_try(ctx)
 		dev->begin_group(ctx, dev, area, cs, isolated, knockout, blendmode, alpha);
@@ -380,12 +365,10 @@ void fz_begin_group(fz_context * ctx,
 void fz_end_group(fz_context * ctx, fz_device * dev)
 {
 	pop_clip_stack(ctx, dev, fz_device_container_stack_is_group);
-
 	if(dev->end_group) {
 		fz_try(ctx)
-		dev->end_group(ctx, dev);
-		fz_catch(ctx)
-		{
+			dev->end_group(ctx, dev);
+		fz_catch(ctx) {
 			fz_disable_device(ctx, dev);
 			fz_rethrow(ctx);
 		}
@@ -400,9 +383,7 @@ void fz_begin_tile(fz_context * ctx, fz_device * dev, fz_rect area, fz_rect view
 int fz_begin_tile_id(fz_context * ctx, fz_device * dev, fz_rect area, fz_rect view, float xstep, float ystep, fz_matrix ctm, int id)
 {
 	int result = 0;
-
 	push_clip_stack(ctx, dev, area, fz_device_container_stack_is_tile);
-
 	if(xstep < 0)
 		xstep = -xstep;
 	if(ystep < 0)
@@ -416,14 +397,12 @@ int fz_begin_tile_id(fz_context * ctx, fz_device * dev, fz_rect area, fz_rect vi
 			fz_rethrow(ctx);
 		}
 	}
-
 	return result;
 }
 
 void fz_end_tile(fz_context * ctx, fz_device * dev)
 {
 	pop_clip_stack(ctx, dev, fz_device_container_stack_is_tile);
-
 	if(dev->end_tile) {
 		fz_try(ctx)
 		dev->end_tile(ctx, dev);
@@ -489,7 +468,5 @@ void fz_end_layer(fz_context * ctx, fz_device * dev)
 
 fz_rect fz_device_current_scissor(fz_context * ctx, fz_device * dev)
 {
-	if(dev->container_len > 0)
-		return dev->container[dev->container_len-1].scissor;
-	return fz_infinite_rect;
+	return (dev->container_len > 0) ? dev->container[dev->container_len-1].scissor : fz_infinite_rect;
 }

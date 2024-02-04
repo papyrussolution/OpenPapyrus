@@ -105,6 +105,15 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	else SetInfo("invalid benchmark");
 	if(bm == 0) {
 		{
+			// @v11.9.4 Ситуативный тест проверки преобразования double в строку
+			double qtty = 0.3;
+			str.Z().Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ|NMBF_OMITEPS));
+			SLCHECK_EQ(str, "0.3");
+			qtty = 3.0;
+			str.Z().Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ|NMBF_OMITEPS));
+			SLCHECK_EQ(str, "3");
+		}
+		{
 			//
 			// Тестирование функций сравнения строк
 			//

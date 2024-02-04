@@ -712,7 +712,7 @@ TERM_PUBLIC int MP_set_font(GpTermEntry_Static * pThis, const char * font)
 	if(*font) {
 		size_t sep = strcspn(font, ",");
 		if(sep < sizeof(_MP.MP_fontname))
-			strncpy(_MP.MP_fontname, font, sizeof(_MP.MP_fontname)-1);
+			strnzcpy(_MP.MP_fontname, font, sizeof(_MP.MP_fontname));
 		sscanf(&(font[sep + 1]), "%lf", &_MP.MP_fontsize);
 		if(_MP.MP_fontsize < 5)
 			_MP.MP_fontsize = 5.0;

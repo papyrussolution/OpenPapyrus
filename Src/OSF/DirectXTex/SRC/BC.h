@@ -84,10 +84,10 @@ public:
 
 	HDRColorA& Clamp(_In_ float fMin, _In_ float fMax) noexcept
 	{
-		r = std::min<float>(fMax, std::max<float>(fMin, r));
-		g = std::min<float>(fMax, std::max<float>(fMin, g));
-		b = std::min<float>(fMax, std::max<float>(fMin, b));
-		a = std::min<float>(fMax, std::max<float>(fMin, a));
+		r = sclamp(r, fMin, fMax);
+		g = sclamp(g, fMin, fMax);
+		b = sclamp(b, fMin, fMax);
+		a = sclamp(a, fMin, fMax);
 		return *this;
 	}
 
@@ -98,10 +98,14 @@ public:
 
 inline HDRColorA* HDRColorALerp(_Out_ HDRColorA * pOut, _In_ const HDRColorA * pC1, _In_ const HDRColorA * pC2, _In_ float s) noexcept
 {
-	pOut->r = pC1->r + s * (pC2->r - pC1->r);
-	pOut->g = pC1->g + s * (pC2->g - pC1->g);
-	pOut->b = pC1->b + s * (pC2->b - pC1->b);
-	pOut->a = pC1->a + s * (pC2->a - pC1->a);
+	pOut->r = lerp(pC1->r, pC2->r, s); // @v11.9.4 
+	pOut->g = lerp(pC1->g, pC2->g, s); // @v11.9.4 
+	pOut->b = lerp(pC1->b, pC2->b, s); // @v11.9.4 
+	pOut->a = lerp(pC1->a, pC2->a, s); // @v11.9.4 
+	// @v11.9.4 pOut->r = pC1->r + s * (pC2->r - pC1->r);
+	// @v11.9.4 pOut->g = pC1->g + s * (pC2->g - pC1->g);
+	// @v11.9.4 pOut->b = pC1->b + s * (pC2->b - pC1->b);
+	// @v11.9.4 pOut->a = pC1->a + s * (pC2->a - pC1->a);
 	return pOut;
 }
 

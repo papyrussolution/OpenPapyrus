@@ -4539,7 +4539,8 @@ PPI_OBJECT * PPI_EDI_GetMessageList(int ediMsgType);
 //
 //
 //
-PPXmlFileDetector::PPXmlFileDetector() : SXmlSaxParser(SXmlSaxParser::fStartElement), ElementCount(0), Result(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
+PPXmlFileDetector::PPXmlFileDetector() : SXmlSaxParser(SXmlSaxParser::fStartElement), ElementCount(0), Result(0), 
+	P_ShT(PPGetStringHash(PPSTR_HASHTOKEN)), P_ShT_C(PPGetStringHash(PPSTR_HASHTOKEN_C))
 {
 }
 
@@ -4564,6 +4565,7 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 	int    do_continue = 0;
     if(P_ShT) {
 		uint   _ut = 0;
+		uint   _ut2 = 0; // @v11.9.4
 		size_t colon_pos = 0;
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		(r_temp_buf = pName).ToLower();
@@ -4588,6 +4590,20 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 				case PPHS_VALUES: Result = ValuesAbstract; break;
 				case PPHS_CHEQUE: Result = EgaisCheque; break;
 				case PPHS_TIMEZONES: Result = TimezonesAbstract; break;
+				case 0: // @v11.9.4
+					{
+						// PPHSC_RU_DOCUMENT
+						P_ShT_C->Search(r_temp_buf, &_ut2, 0);
+						if(_ut2 == PPHSC_RU_FILE) {
+							Result = NalogRu_Generic;
+							for(uint i = 0; ppAttrList[i] != 0; i += 2) {
+								const char * p_attr = ppAttrList[i];
+								const char * p_text_data = ppAttrList[i+1];
+								//
+							}
+						}
+					}
+					break;
 			}
 		}
     }
