@@ -2048,7 +2048,7 @@ int PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsgBuf)
 		THROW_PP(pRec->ObjID, PPERR_AR_ZEROLINK_PSN);
 		THROW_PP(psn_obj.Search(pRec->ObjID, &psn_rec) > 0, PPERR_AR_HANGLINK_PSN);
 		if(acs_rec.ObjGroup) {
-			THROW_PP_S(psn_obj.P_Tbl->IsBelongToKind(psn_rec.ID, acs_rec.ObjGroup) > 0, PPERR_AR_INVLINKPERSONKIND, acs_rec.Name); // @v10.3.0 acs_rec.Name
+			THROW_PP_S(psn_obj.P_Tbl->IsBelongsToKind(psn_rec.ID, acs_rec.ObjGroup) > 0, PPERR_AR_INVLINKPERSONKIND, acs_rec.Name); // @v10.3.0 acs_rec.Name
 			THROW_PP(sstreq(psn_rec.Name, pRec->Name), PPERR_AR_UNEQNAME_PSN);
 		}
 	}

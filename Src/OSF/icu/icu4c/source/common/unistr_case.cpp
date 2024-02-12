@@ -32,25 +32,21 @@ int8 UnicodeString::doCaseCompare(int32_t start, int32_t length, const char16_t 
 	}
 	// get the correct pointer
 	const char16_t * chars = getArrayStart();
-
 	chars += start;
 	if(srcStart!=0) {
 		srcChars += srcStart;
 	}
-
 	if(chars != srcChars) {
 		UErrorCode errorCode = U_ZERO_ERROR;
-		int32_t result = u_strcmpFold(chars, length, srcChars, srcLength,
-			options|U_COMPARE_IGNORE_CASE, &errorCode);
+		int32_t result = u_strcmpFold(chars, length, srcChars, srcLength, options|U_COMPARE_IGNORE_CASE, &errorCode);
 		if(result!=0) {
 			return (int8)(result >> 24 | 1);
 		}
 	}
 	else {
 		// get the srcLength if necessary
-		if(srcLength < 0) {
-			srcLength = u_strlen(srcChars + srcStart);
-		}
+		if(srcLength < 0)
+			srcLength = sstrleni(srcChars + srcStart);
 		if(length != srcLength) {
 			return (int8)((length - srcLength) >> 24 | 1);
 		}

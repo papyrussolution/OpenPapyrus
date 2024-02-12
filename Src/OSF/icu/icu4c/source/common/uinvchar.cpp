@@ -443,9 +443,8 @@ U_CFUNC int32_t uprv_compareInvAscii(const UDataSwapper * ds, const char * outSt
 	if(outLength<0) {
 		outLength = (int32_t)strlen(outString);
 	}
-	if(localLength<0) {
-		localLength = u_strlen(localString);
-	}
+	if(localLength < 0)
+		localLength = sstrleni(localString);
 	minLength = outLength<localLength ? outLength : localLength;
 	while(minLength>0) {
 		c = (uint8)*outString++;
@@ -473,20 +472,14 @@ U_CFUNC int32_t uprv_compareInvEbcdic(const UDataSwapper * ds, const char * outS
 	int32_t minLength;
 	UChar32 c1, c2;
 	uint8 c;
-
 	if(outString==NULL || outLength<-1 || localString==NULL || localLength<-1) {
 		return 0;
 	}
-
-	if(outLength<0) {
-		outLength = (int32_t)strlen(outString);
-	}
-	if(localLength<0) {
-		localLength = u_strlen(localString);
-	}
-
+	if(outLength < 0)
+		outLength = sstrleni(outString);
+	if(localLength < 0)
+		localLength = sstrleni(localString);
 	minLength = outLength<localLength ? outLength : localLength;
-
 	while(minLength>0) {
 		c = (uint8)*outString++;
 		if(c==0) {
@@ -498,26 +491,22 @@ U_CFUNC int32_t uprv_compareInvEbcdic(const UDataSwapper * ds, const char * outS
 		else {
 			c1 = -1;
 		}
-
 		c2 = *localString++;
 		if(!UCHAR_IS_INVARIANT(c2)) {
 			c2 = -2;
 		}
-
 		if((c1 -= c2)!=0) {
 			return c1;
 		}
-
 		--minLength;
 	}
-
 	/* strings start with same prefix, compare lengths */
 	return outLength-localLength;
 }
 
-U_CAPI int32_t U_EXPORT2 uprv_compareInvEbcdicAsAscii(const char * s1, const char * s2) {
+U_CAPI int32_t U_EXPORT2 uprv_compareInvEbcdicAsAscii(const char * s1, const char * s2) 
+{
 	int32_t c1, c2;
-
 	for(;; ++s1, ++s2) {
 		c1 = (uint8)*s1;
 		c2 = (uint8)*s2;

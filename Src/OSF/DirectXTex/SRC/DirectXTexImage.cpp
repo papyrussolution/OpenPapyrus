@@ -6,6 +6,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 
 using namespace DirectX;
 using namespace DirectX::Internal;
@@ -17,7 +18,6 @@ namespace {
 		size = (size + alignment - 1) & ~(alignment - 1);
 		return std::aligned_alloc(alignment, size);
 	}
-
 	#define _aligned_free free
 }
 #endif
@@ -462,54 +462,40 @@ _Use_decl_annotations_ HRESULT ScratchImage::InitializeArrayFromImages(const Ima
 {
 	if(!images || !nImages)
 		return E_INVALIDARG;
-
 	const DXGI_FORMAT format = images[0].format;
 	const size_t width = images[0].width;
 	const size_t height = images[0].height;
-
 	for(size_t index = 0; index < nImages; ++index) {
 		if(!images[index].pixels)
 			return E_POINTER;
-
 		if(images[index].format != format || images[index].width != width || images[index].height != height) {
 			// All images must be the same format, width, and height
 			return E_FAIL;
 		}
 	}
-
-	HRESULT hr = (height > 1 || !allow1D)
-	    ? Initialize2D(format, width, height, nImages, 1, flags)
-	    : Initialize1D(format, width, nImages, 1, flags);
-
+	HRESULT hr = (height > 1 || !allow1D) ? Initialize2D(format, width, height, nImages, 1, flags) : Initialize1D(format, width, nImages, 1, flags);
 	if(FAILED(hr))
 		return hr;
-
 	const size_t rowCount = ComputeScanlines(format, height);
 	if(!rowCount)
 		return E_UNEXPECTED;
-
 	for(size_t index = 0; index < nImages; ++index) {
 		const uint8_t* sptr = images[index].pixels;
 		if(!sptr)
 			return E_POINTER;
-
 		assert(index < m_nimages);
 		uint8_t* dptr = m_image[index].pixels;
 		if(!dptr)
 			return E_POINTER;
-
 		const size_t spitch = images[index].rowPitch;
 		const size_t dpitch = m_image[index].rowPitch;
-
 		const size_t size = std::min<size_t>(dpitch, spitch);
-
 		for(size_t y = 0; y < rowCount; ++y) {
 			memcpy(dptr, sptr, size);
 			sptr += spitch;
 			dptr += dpitch;
 		}
 	}
-
 	return S_OK;
 }
 
@@ -517,17 +503,13 @@ _Use_decl_annotations_ HRESULT ScratchImage::InitializeCubeFromImages(const Imag
 {
 	if(!images || !nImages)
 		return E_INVALIDARG;
-
 	// A DirectX11 cubemap is just a 2D texture array that is a multiple of 6 for each cube
 	if((nImages % 6) != 0)
 		return E_INVALIDARG;
-
 	HRESULT hr = InitializeArrayFromImages(images, nImages, false, flags);
 	if(FAILED(hr))
 		return hr;
-
 	m_metadata.miscFlags |= TEX_MISC_TEXTURECUBE;
-
 	return S_OK;
 }
 
@@ -535,44 +517,34 @@ _Use_decl_annotations_ HRESULT ScratchImage::Initialize3DFromImages(const Image*
 {
 	if(!images || !depth)
 		return E_INVALIDARG;
-
 	const DXGI_FORMAT format = images[0].format;
 	const size_t width = images[0].width;
 	const size_t height = images[0].height;
-
 	for(size_t slice = 0; slice < depth; ++slice) {
 		if(!images[slice].pixels)
 			return E_POINTER;
-
 		if(images[slice].format != format || images[slice].width != width || images[slice].height != height) {
 			// All images must be the same format, width, and height
 			return E_FAIL;
 		}
 	}
-
 	HRESULT hr = Initialize3D(format, width, height, depth, 1, flags);
 	if(FAILED(hr))
 		return hr;
-
 	const size_t rowCount = ComputeScanlines(format, height);
 	if(!rowCount)
 		return E_UNEXPECTED;
-
 	for(size_t slice = 0; slice < depth; ++slice) {
 		const uint8_t* sptr = images[slice].pixels;
 		if(!sptr)
 			return E_POINTER;
-
 		assert(slice < m_nimages);
 		uint8_t* dptr = m_image[slice].pixels;
 		if(!dptr)
 			return E_POINTER;
-
 		const size_t spitch = images[slice].rowPitch;
 		const size_t dpitch = m_image[slice].rowPitch;
-
 		const size_t size = std::min<size_t>(dpitch, spitch);
-
 		for(size_t y = 0; y < rowCount; ++y) {
 			memcpy(dptr, sptr, size);
 			sptr += spitch;
@@ -635,16 +607,13 @@ _Use_decl_annotations_ const Image* ScratchImage::GetImage(size_t mip, size_t it
 		    }
 		    else {
 			    size_t d = m_metadata.depth;
-
 			    for(size_t level = 0; level < mip; ++level) {
 				    index += d;
 				    if(d > 1)
 					    d >>= 1;
 			    }
-
 			    if(slice >= d)
 				    return nullptr;
-
 			    index += slice;
 		    }
 		    break;

@@ -6,6 +6,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 #include "filters.h"
 
 using namespace DirectX;

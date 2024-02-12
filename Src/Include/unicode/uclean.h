@@ -1,19 +1,12 @@
+// uclean.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 2001-2014, International Business Machines
- *                Corporation and others. All Rights Reserved.
- ******************************************************************************
- *   file name:  uclean.h
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2001July05
- *   created by: George Rhoten
- */
-
+// Copyright (C) 2001-2014, International Business Machines Corporation and others. All Rights Reserved.
+// file name:  uclean.h
+// encoding:   UTF-8
+// created on: 2001July05
+// created by: George Rhoten
+// 
 #ifndef __UCLEAN_H__
 #define __UCLEAN_H__
 
@@ -146,24 +139,17 @@ typedef void U_CALLCONV UMemFreeFn (const void * context, void * mem);
  *  @stable ICU 2.8
  *  @system
  */
-U_CAPI void U_EXPORT2 u_setMemoryFunctions(const void * context,
-    UMemAllocFn * U_CALLCONV_FPTR a,
-    UMemReallocFn * U_CALLCONV_FPTR r,
-    UMemFreeFn * U_CALLCONV_FPTR f,
-    UErrorCode * status);
+U_CAPI void U_EXPORT2 u_setMemoryFunctions(const void * context, UMemAllocFn * U_CALLCONV_FPTR a,
+    UMemReallocFn * U_CALLCONV_FPTR r, UMemFreeFn * U_CALLCONV_FPTR f, UErrorCode * status);
 
 U_CDECL_END
 
 #ifndef U_HIDE_DEPRECATED_API
-/*********************************************************************************
- *
- * Deprecated Functions
- *
- *    The following functions for user supplied mutexes are no longer supported.
- *    Any attempt to use them will return a U_UNSUPPORTED_ERROR.
- *
- **********************************************************************************/
-
+// 
+// Deprecated Functions
+//   The following functions for user supplied mutexes are no longer supported.
+//   Any attempt to use them will return a U_UNSUPPORTED_ERROR.
+// 
 /**
  * An opaque pointer type that represents an ICU mutex.
  * For user-implemented mutexes, the value will typically point to a

@@ -1,11 +1,42 @@
 // PPREPORT.CPP
-// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 #include <crpe.h>
 #include <crpe2.h>
+
+/*
+PEClosePrintJob
+PECloseSubreport
+PEEnableEvent
+PEExportTo
+-PEGetErrorCode
+-PEGetErrorText
+PEGetExportOptions
+PEGetGroupOptions
+PEGetHandleString
+PEGetNSubreportsInSection
+PEGetNthSubreportInSection
+PEGetReportOptions
+PEGetSectionFormat
+PEGetSelectedPrinter
+PEGetSubreportInfo
+PEGetVersion
+PEOpenPrintJob
+PEOpenSubreport
+PEOutputToPrinter
+PEOutputToWindow
+PESelectPrinter
+PESetEventCallback
+PESetGroupOptions
+PESetNthTableLocation
+PESetReportOptions
+PESetSectionFormat
+PEStartPrintJob
+*/ 
+
 // @v10.8.7 #include <shlwapi.h> // Vadim 03.09.02 - надо подключить shlwapi.lib
 //
 // Закомментировать, если немодальный предварительный просмотр печати будет сбоить
@@ -1694,7 +1725,114 @@ int GetWindowsPrinter(PPID * pPrnID, SString * pPort)
 	return ok;
 }
 
-int CrystalReportPrint(const char * pReportName, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA * pDevMode) // @erik v10.4.10 {
+int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply) // @v11.9.5 @construction
+{
+	int    ok = 1;
+	short  h_job = 0;
+	int    zero_print_device = 0;
+	SString msg_buf;
+	if(rBlk.Action == CrystalReportPrintParamBlock::actionExport) {
+		//
+	}
+	else {
+		SString inner_printer_buf;
+		const char * p_inner_printer = 0;
+		int    num_copies = rBlk.NumCopies;
+		const  DEVMODEA * p_dev_mode = (rBlk.InternalFlags & CrystalReportPrintParamBlock::intfDevModeValid) ? &rBlk.DevMode : 0;
+		if(p_dev_mode) {
+			inner_printer_buf = reinterpret_cast<const char *>(p_dev_mode->dmDeviceName);
+			if(inner_printer_buf.NotEmptyS())
+				p_inner_printer = inner_printer_buf;
+			num_copies = (p_dev_mode->dmCopies > 0 && p_dev_mode->dmCopies <= 1000) ? p_dev_mode->dmCopies : 1;
+		}
+		else {
+			p_inner_printer = rBlk.Printer;
+		}
+		// } __@erik v10.4.10
+		h_job = PEOpenPrintJob(rBlk.ReportPath);
+		PEReportOptions ro;
+		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
+		ro.StructSize = sizeof(ro);
+		PEGetReportOptions(h_job, &ro);
+		ro.morePrintEngineErrorMessages = FALSE;
+		PESetReportOptions(h_job, &ro);
+		if(DS.GetConstTLA().PrintDevice.IsEmpty()) {
+			if(GetWindowsPrinter(0, &DS.GetTLA().PrintDevice) > 0)
+				zero_print_device = 1;
+		}
+		THROW(SetPrinterParam(h_job, p_inner_printer, rBlk.Options, p_dev_mode));
+		THROW(SetupReportLocations(h_job, rBlk.Dir, (rBlk.Options & SPRN_DONTRENAMEFILES) ? 0 : 1));
+		if(rBlk.Options & SPRN_PREVIEW) {
+			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
+				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE | WS_VISIBLE | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
+		}
+		else {
+			THROW_PP(PEOutputToPrinter(h_job, num_copies), PPERR_CRYSTAL_REPORT);
+		}
+		if(rBlk.Options & SPRN_SKIPGRPS)
+			SetupGroupSkipping(h_job);
+		if(rBlk.Options & SPRN_PREVIEW || rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
+			struct PreviewEventParam {
+				static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
+				{
+					if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
+	#ifndef MODELESS_REPORT_PREVIEW
+						EnableWindow(APPL->H_TopOfStack, 1);
+						static_cast<PreviewEventParam *>(pUserData)->StopPreview++;
+	#endif
+					}
+					return TRUE;
+				}
+				int    StopPreview;
+			};
+			PreviewEventParam pep;
+			pep.StopPreview = 0;
+			PEEnableEventInfo eventInfo;
+			eventInfo.StructSize = sizeof(PEEnableEventInfo);
+			eventInfo.closePrintWindowEvent = TRUE;
+			eventInfo.startStopEvent = TRUE;
+			THROW_PP(PEEnableEvent(h_job, &eventInfo), PPERR_CRYSTAL_REPORT);
+			THROW_PP(PESetEventCallback(h_job, PreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
+			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
+	#ifndef MODELESS_REPORT_PREVIEW
+			EnableWindow(APPL->H_TopOfStack, 0); // Запрещает работу в программе пока окно просмотра активно
+			APPL->MsgLoop(0, pep.StopPreview);
+	#endif
+		}
+		else {
+			const uint64 profile_start = SLS.GetProfileTime();
+			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
+			const uint64 profile_end = SLS.GetProfileTime();
+			{
+				msg_buf.Z().CatEq("Report", rBlk.ReportPath);
+				if(!isempty(p_inner_printer)) // Ранее был pPrinter @erik v10.4.10
+					msg_buf.CatDiv(';', 2).CatEq("Printer", p_inner_printer); // Ранее был pPrinter @erik v10.4.10
+				if(num_copies > 1)
+					msg_buf.CatDiv(';', 2).CatEq("Copies", num_copies);
+				msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
+				PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
+			}
+		}
+	}
+	CATCH
+		CrwError = PEGetErrorCode(h_job);
+		// @debug {
+		{
+			PPLoadString("err_crpe", msg_buf);
+			msg_buf.CatDiv(':', 2).Cat(CrwError);
+			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+		}
+		// } @debug
+		ok = 0;
+	ENDCATCH
+	if(h_job)
+		PEClosePrintJob(h_job);
+	if(zero_print_device)
+		DS.GetTLA().PrintDevice.Z();
+	return ok;
+}
+
+int CrystalReportPrint(const char * pReportPath, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA * pDevMode) // @erik v10.4.10 {
 {
 	// __@erik v10.4.10 {
 	//char   printer_tmp[128];
@@ -1714,7 +1852,7 @@ int CrystalReportPrint(const char * pReportName, const char * pDir, const char *
 	// } __@erik v10.4.10
 	int    ok = 1;
 	int    zero_print_device = 0;
-	short  h_job = PEOpenPrintJob(pReportName);
+	short  h_job = PEOpenPrintJob(pReportPath);
 	SString msg_buf;
 	PEReportOptions ro;
 	THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
@@ -1741,7 +1879,7 @@ int CrystalReportPrint(const char * pReportName, const char * pDir, const char *
 		struct PreviewEventParam {
 			static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
 			{
-				if (eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
+				if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
 #ifndef MODELESS_REPORT_PREVIEW
 					EnableWindow(APPL->H_TopOfStack, 1);
 					static_cast<PreviewEventParam *>(pUserData)->StopPreview++;
@@ -1770,7 +1908,7 @@ int CrystalReportPrint(const char * pReportName, const char * pDir, const char *
 		THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
 		const uint64 profile_end = SLS.GetProfileTime();
 		{
-			msg_buf.Z().CatEq("Report", pReportName);
+			msg_buf.Z().CatEq("Report", pReportPath);
 			if(!isempty(p_inner_printer)) // Ранее был pPrinter @erik v10.4.10
 				msg_buf.CatDiv(';', 2).CatEq("Printer", p_inner_printer); // Ранее был pPrinter @erik v10.4.10
 			if(numCopies > 1)
@@ -2523,9 +2661,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					break;
 				case PrnDlgAns::aExport:
 					{
-						const char * p_mail_addr = 0;
-						if(pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS())
-							p_mail_addr = pans.EmailAddr;
+						const char * p_mail_addr = (pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS()) ? pans.EmailAddr.cptr() : 0;
 						ok = CrystalReportExport(fn, ep.Path, pans.ReportName, p_mail_addr, rpt.PrnOptions);
 					}
 					break;
@@ -2655,3 +2791,7 @@ int FASTCALL PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pSt
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+SString & GetCrr32ProxiPipeName(SString & rBuf) { return rBuf.Z().Cat("\\\\.\\pipe\\").Cat(PPConst::PipeCrr32Proxi); } // @v11.9.5

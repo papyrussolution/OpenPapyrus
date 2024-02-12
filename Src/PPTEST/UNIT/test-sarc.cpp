@@ -1,5 +1,5 @@
 // TEST-SARC.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -26,6 +26,64 @@ SLTEST_R(SArchive)
 	SString arc_name;
 	StrAssocArray deflate_result_list;
 	StrAssocArray inflate_result_list;
+	{
+		SFile f;
+		arc_name = "/Papyrus/Src/Rsrc/Data/iso-codes.7z?iso-codes/data/iso_639-3.json";
+		if(f.Open(arc_name, SFile::mRead)) {
+			int debug_counter = 0;
+			uint8 buf[1024];
+			size_t actual_size = 0;
+			while(f.Read(buf, 1, &actual_size) > 0) {
+				debug_counter++;
+			}
+		}
+	}
+	{
+		SFile f;
+		arc_name = "/Papyrus/Src/Rsrc/Data/iso-codes.7z?iso-codes/data/iso_639-3.json";
+		if(f.Open(arc_name, SFile::mRead)) {
+			int debug_counter = 0;
+			SFile::ReadLineCsvContext ctx(',');
+			StringSet ss;
+			SString line_buf;
+			while(f.ReadLine(line_buf, 0) > 0) {
+				debug_counter++;
+			}
+		}
+	}
+	{
+		SFile f;
+		arc_name = "/Papyrus/Src/Rsrc/Data/iso-codes.7z?iso-codes/data/iso_639-3.json";
+		if(f.Open(arc_name, SFile::mRead)) {
+			int debug_counter = 0;
+			SFile::ReadLineCsvContext ctx(',');
+			StringSet ss;
+			SString line_buf;
+			while(f.ReadLineCsv(ctx, ss)) {
+				debug_counter++;
+			}
+		}
+	}
+	{
+		SFile f;
+		arc_name = "D:/DEV/Resource/Data/ETC/USA-Huge-Leak-250-Million-250807711.7z?382.csv";
+		if(f.Open(arc_name, SFile::mRead)) {
+			SFile::ReadLineCsvContext ctx(',');
+			StringSet ss;
+			while(f.ReadLineCsv(ctx, ss)) {
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					
+				}
+			}
+		}
+	}
+	{
+		SFile f;
+		arc_name = "D:/DEV/Resource/Data/ETC/chf.su.7z?www/install/install.css";
+		if(f.Open(arc_name, SFile::mRead)) {
+			
+		}
+	}
 	{
 		int   r;
 		//SArchive arc(SArchive::providerLA);

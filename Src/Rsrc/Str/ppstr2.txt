@@ -18243,6 +18243,8 @@ PPHSC_RU_FILE                  "Файл"
 PPHSC_RU_IDFILE                "ИдФайл"
 PPHSC_RU_VERPROG               "ВерсПрог"
 PPHSC_RU_VERFORM               "ВерсФорм"
+PPHSC_RU_VERFORM2              "ВерсияФормата" // @v11.9.5 SBIS
+PPHSC_RU_FORMAT                "Формат" // @v11.9.5 SBIS
 PPHSC_RU_REPFORM               "ФормаОтч"
 PPHSC_RU_PROGNAME              "НаимПрог"
 PPHSC_RU_PRIMFORM              "Первичная"
@@ -18259,10 +18261,17 @@ PPHSC_RU_MANUFORIMPORTERID_    "ИдПроизвИмп"
 PPHSC_RU_MANUFORIMPORTERINFO   "СведПроизвИмпортер"
 PPHSC_RU_PERSONINFO_PHS        "СведИП"
 PPHSC_RU_PERSONINFO_JUR        "СведЮЛ"
+PPHSC_RU_PERSONINFO_JUR2       "СвЮЛ" // @v11.9.5 SBIS
+PPHSC_RU_PERSONALINFO2         "СвФЛ" // @v11.9.5 SBIS
+PPHSC_RU_BUYER                 "Покупатель" // @v11.9.5 SBIS
+PPHSC_RU_GOODSCODE_BUYER       "КодПокупателя" // @v11.9.5 SBIS
 PPHSC_RU_SUPPLIER              "Поставщик"
 PPHSC_RU_SUPPLIERS             "Поставщики"
 PPHSC_RU_SUPPLIERID            "ИдПостав"
 PPHSC_RU_SUPPLIERID_           "ИдПоставщика"
+PPHSC_RU_GOODSCODE_SUPPL       "КодПоставщика" // @v11.9.5 SBIS
+PPHSC_RU_CONSIGNOR             "Грузоотправитель" // @v11.9.5 SBIS
+PPHSC_RU_CONSIGNEE             "Грузополучатель" // @v11.9.5 SBIS
 PPHSC_RU_MOVING                "Движение"
 PPHSC_RU_SUPPLY                "Поставка"
 PPHSC_RU_RETURN                "Возврат"
@@ -18274,12 +18283,14 @@ PPHSC_RU_ORGADDR               "АдрОрг"
 PPHSC_RU_ORGPHN                "ТелОрг"
 PPHSC_RU_ORGEMAIL              "EmailОтпр"
 PPHSC_RU_KND                   "КНД"
+PPHSC_RU_GLN                   "GLN" // @v11.9.5 SBIS
 PPHSC_RU_EDISIDESINFO          "СвУчДокОбор" // Сведения об участниках электронного документооборота
 PPHSC_RU_EDIPROVIDERINFO       "СвОЭДОтпр"
 PPHSC_RU_EDIPROVIDERID         "ИдЭДО"
 PPHSC_RU_SENDERID              "ИдОтпр"
 PPHSC_RU_RECEIVERID            "ИдПол"
 PPHSC_RU_APPEL                 "Наим"
+PPHSC_RU_APPEL2                "Название" // @v11.9.5 SBIS
 PPHSC_RU_NAMEOFORG             "НаимОрг"
 PPHSC_RU_DOCIDENT              "ИдентДок"
 PPHSC_RU_NAMEOFDOC_S           "НаимДок"
@@ -18315,6 +18326,7 @@ PPHSC_RU_CODEOKV               "КодОКВ"
 PPHSC_RU_WAREINFO              "СведТов"
 PPHSC_RU_WAREEXTRAINFO         "ДопСведТов"
 PPHSC_RU_LINENUMBER            "НомСтр"
+PPHSC_RU_LINENUMBER2           "ПорНомер" // @v11.9.5 SBIS
 PPHSC_RU_WAREQTTY              "КолТов"
 PPHSC_RU_WAREQTTY_BEFORE       "КолТовДо"     // @v11.7.0
 PPHSC_RU_WAREQTTY_AFTER        "КолТовПосле"  // @v11.7.0
@@ -18330,11 +18342,14 @@ PPHSC_RU_WAREIDENT_PACKCODE    "НомУпак"
 PPHSC_RU_WAREIDENT_TPACKCODE   "ИдентТрансУпак" // @v11.5.1
 PPHSC_RU_WAREIDENT_KIZ         "КИЗ"
 PPHSC_RU_OKEI                  "ОКЕИ"
+PPHSC_RU_UOM                   "ЕдИзм" // @v11.9.5 SBIS
 PPHSC_RU_UNITNAME              "НаимЕдИзм"
 PPHSC_RU_UNITNAME_BEFORE       "НаимЕдИзмДо"    // @v11.7.0
 PPHSC_RU_UNITNAME_AFTER        "НаимЕдИзмПосле" // @v11.7.0
 PPHSC_RU_UNITNAME_HOUR         "Час"
 PPHSC_RU_TAXRATE               "НалСт"
+PPHSC_RU_TAXRATE2              "Ставка" // @v11.9.5 SBIS
+PPHSC_RU_TAXRATETYPE           "ТипСтавки" // @v11.9.5 SBIS
 PPHSC_RU_TAXRATE_BEFORE        "НалСтДо"
 PPHSC_RU_TAXRATE_AFTER         "НалСтПосле"
 PPHSC_RU_PRICE                 "Цена"
@@ -18342,6 +18357,9 @@ PPHSC_RU_WAREPRICE             "ЦенаТов"
 PPHSC_RU_WAREPRICE_BEFORE      "ЦенаТовДо"
 PPHSC_RU_WAREPRICE_AFTER       "ЦенаТовПосле"
 PPHSC_RU_QUANTITY              "Количество"
+PPHSC_RU_QT_TY                 "Кол_во" // @v11.9.5 SBIS
+PPHSC_RU_FREIGHTQTTY           "КолМест" // @v11.9.5 SBIS
+PPHSC_RU_VAT                   "НДС" // @v11.9.5 SBIS
 PPHSC_RU_WORKAMTWOVAT          "СтоимБезНДС" // @v11.7.6
 PPHSC_RU_WORKAMT               "СтоимУчНДС"  // @v11.7.6
 PPHSC_RU_WAREAMTWOVAT          "СтТовБезНДС"
@@ -18372,6 +18390,7 @@ PPHSC_RU_NOVAT_TAG             "БезНДС"
 PPHSC_RU_NOVAT_VAL             "без НДС"
 PPHSC_RU_ADDRESS               "Адрес"
 PPHSC_RU_ADDR_RF               "АдрРФ"
+PPHSC_RU_ADDR_FOREIGN          "АдрИно" // @v11.9.5
 PPHSC_RU_ADDR_OFFSHR           "АдрИнф"
 PPHSC_RU_ADDR_TEXT             "АдрТекст"
 PPHSC_RU_ADDR_COUNTRYCODE      "КодСтр"
@@ -18389,12 +18408,13 @@ PPHSC_RU_TOTALTOPAYM           "ВсегоОпл"
 PPHSC_RU_JUR_S                 "ЮЛ"
 PPHSC_RU_IND_S                 "ФЛ"
 PPHSC_RU_PRIVE_S               "ИП"
+PPHSC_RU_INN                   "ИНН" // @v11.9.5 SBIS
 PPHSC_RU_INNJUR                "ИННЮЛ"
 PPHSC_RU_INNPHS                "ИННФЛ"
 PPHSC_RU_KPP                   "КПП"
 PPHSC_RU_KPPJUR                "КППЮЛ"
 PPHSC_RU_OKPO                  "ОКПО"
-PPHSC_RU_IND_REG               "СвГосРегИП" // @v11.7.6 Данные о свидетельстве индивидуального предпримателя //
+PPHSC_RU_IND_REG               "СвГосРегИП" // @v11.7.6 Данные о свидетельстве индивидуального предпринимателя //
 PPHSC_RU_FIO                   "ФИО"
 PPHSC_RU_SURNAME               "Фамилия"
 PPHSC_RU_NAME                  "Имя"
@@ -18424,8 +18444,10 @@ PPHSC_RU_CONSIGNORINFO2        "ГрузОтпр" // внутренний тег
 PPHSC_RU_CONSIGNEEINFO         "ГрузПолуч"
 PPHSC_RU_BANKACCINFO           "БанкРекв"
 PPHSC_RU_ACCNO                 "НомерСчета"
+PPHSC_RU_BANKACCNO             "РСчет" // @v11.9.5 SBIS
 PPHSC_RU_BANKINFO              "СвБанк"
 PPHSC_RU_BANKBIC               "БИК"
+PPHSC_RU_BANKCORRACC           "КСчет" // @v11.9.5 SBIS
 PPHSC_RU_BANKNAME              "НаимБанк"
 PPHSC_RU_IDENTIF               "Идентиф"
 PPHSC_RU_VAL                   "Значен"
@@ -18498,6 +18520,21 @@ PPHSC_RU_CORRACCDT             "КоррСчДебет"   // @v11.7.6
 PPHSC_RU_CORRACCCR             "КоррСчКредит"  // @v11.7.6
 PPHSC_RU_FILEOFINFFLDUUID      "ИдФайлИнфПол"  // @v11.7.6 Идентификатор (GUID) файла информационного поля
 PPHSC_RU_CHZNDISPOSALREASON    "СвВыбытияМАРК" // @v11.8.12
+PPHSC_RU_GTIN                  "GTIN" // @v11.9.5 SBIS
+PPHSC_RU_DATE                  "Дата" // @v11.9.5 SBIS
+PPHSC_RU_FEATURE               "Характеристика" // @v11.9.5 SBIS
+PPHSC_RU_VALUE                 "Значение" // @v11.9.5 SBIS
+PPHSC_RU_IDENTIFIER            "Идентификатор" // @v11.9.5 SBIS
+PPHSC_RU_PARAMETER             "Параметр" // @v11.9.5 SBIS
+PPHSC_RU_CODE                  "Код" // @v11.9.5 SBIS
+PPHSC_RU_MEMO                  "Примечание" // @v11.9.5 SBIS
+PPHSC_RU_AMOUNT                "Сумма" // @v11.9.5 SBIS
+PPHSC_RU_PACKAGE               "Упаковка" // @v11.9.5 SBIS
+PPHSC_RU_DUETIME               "СрокВремя" // @v11.9.5 SBIS
+PPHSC_RU_TABOFDOC              "ТаблДок" // @v11.9.5 SBIS
+PPHSC_RU_TABOFDOCLINE          "СтрТабл" // @v11.9.5 SBIS
+PPHSC_RU_TABOFDOCTOTOAL        "ИтогТабл" // @v11.9.5 SBIS
+PPHSC_RU_EDIOP_ORDER           "Заказ" // @v11.9.5 SBIS (note: точно соответствует PPHSC_VETIS_DOCTYP_16 - пока не знаю какие могут из этого следовать проблемы)
 //
 // Далее следуют 16 типов документов, используемых системой VETIS. Текст точно соответствует xsd спецификации dictionary_v2.0.xsd.
 // Номер после PPHSC_VETIS_DOCTYP_ точно соответствует значению enum в спецификации (хотя, это, скорее всего, и не важно).

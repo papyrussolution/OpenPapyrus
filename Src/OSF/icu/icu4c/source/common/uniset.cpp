@@ -1,10 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-	Copyright (C) 1999-2015, International Business Machines Corporation and others.  All Rights Reserved.
-	Date        Name        Description
-	10/20/99    alan        Creation.
- */
+// Copyright (C) 1999-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 10/20/99    alan        Creation.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/symtable.h"
@@ -2222,13 +2221,13 @@ UnicodeSet * UnicodeSet::freeze() {
 	return this;
 }
 
-int32_t UnicodeSet::span(const char16_t * s, int32_t length, USetSpanCondition spanCondition) const {
-	if(length>0 && bmpSet) {
+int32_t UnicodeSet::span(const char16_t * s, int32_t length, USetSpanCondition spanCondition) const 
+{
+	if(length > 0 && bmpSet) {
 		return (int32_t)(bmpSet->span(s, s+length, spanCondition)-s);
 	}
-	if(length<0) {
-		length = u_strlen(s);
-	}
+	if(length < 0)
+		length = sstrleni(s);
 	if(!length) {
 		return 0;
 	}
@@ -2236,9 +2235,7 @@ int32_t UnicodeSet::span(const char16_t * s, int32_t length, USetSpanCondition s
 		return stringSpan->span(s, length, spanCondition);
 	}
 	else if(hasStrings()) {
-		uint32_t which = spanCondition==USET_SPAN_NOT_CONTAINED ?
-		    UnicodeSetStringSpan::FWD_UTF16_NOT_CONTAINED :
-		    UnicodeSetStringSpan::FWD_UTF16_CONTAINED;
+		uint32_t which = spanCondition==USET_SPAN_NOT_CONTAINED ? UnicodeSetStringSpan::FWD_UTF16_NOT_CONTAINED : UnicodeSetStringSpan::FWD_UTF16_CONTAINED;
 		UnicodeSetStringSpan strSpan(*this, *strings, which);
 		if(strSpan.needsStringSpanUTF16()) {
 			return strSpan.span(s, length, spanCondition);
@@ -2263,9 +2260,8 @@ int32_t UnicodeSet::spanBack(const char16_t * s, int32_t length, USetSpanConditi
 	if(length > 0 && bmpSet) {
 		return (int32_t)(bmpSet->spanBack(s, s+length, spanCondition)-s);
 	}
-	if(length<0) {
-		length = u_strlen(s);
-	}
+	if(length < 0)
+		length = sstrleni(s);
 	if(!length) {
 		return 0;
 	}
@@ -2273,19 +2269,15 @@ int32_t UnicodeSet::spanBack(const char16_t * s, int32_t length, USetSpanConditi
 		return stringSpan->spanBack(s, length, spanCondition);
 	}
 	else if(hasStrings()) {
-		uint32_t which = spanCondition==USET_SPAN_NOT_CONTAINED ?
-		    UnicodeSetStringSpan::BACK_UTF16_NOT_CONTAINED :
-		    UnicodeSetStringSpan::BACK_UTF16_CONTAINED;
+		uint32_t which = spanCondition==USET_SPAN_NOT_CONTAINED ? UnicodeSetStringSpan::BACK_UTF16_NOT_CONTAINED : UnicodeSetStringSpan::BACK_UTF16_CONTAINED;
 		UnicodeSetStringSpan strSpan(*this, *strings, which);
 		if(strSpan.needsStringSpanUTF16()) {
 			return strSpan.spanBack(s, length, spanCondition);
 		}
 	}
-
 	if(spanCondition!=USET_SPAN_NOT_CONTAINED) {
 		spanCondition = USET_SPAN_CONTAINED; // Pin to 0/1 values.
 	}
-
 	UChar32 c;
 	int32_t prev = length;
 	do {

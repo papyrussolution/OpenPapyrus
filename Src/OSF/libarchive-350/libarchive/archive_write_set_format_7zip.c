@@ -570,29 +570,30 @@ static int _7z_close(struct archive_write * a)
 		zip->stream.prop_size = 0;
 		zip->stream.props = NULL;
 		zip->total_number_nonempty_entry = zip->total_number_entry - zip->total_number_empty_entry;
-		/* Connect an empty file list. */
-		if(zip->empty_list.first != NULL) {
+		// Connect an empty file list
+		if(zip->empty_list.first) {
 			*zip->file_list.last = zip->empty_list.first;
 			zip->file_list.last = zip->empty_list.last;
 		}
-		/* Connect a directory file list. */
+		// Connect a directory file list
 		ARCHIVE_RB_TREE_FOREACH(n, &(zip->rbtree)) {
 			file_register(zip, (struct file *)n);
 		}
-		/*
-		 * NOTE: 7z command supports just LZMA1, LZMA2 and COPY for
-		 * the compression type for encoding the header.
-		 */
+		// NOTE: 7z command supports just LZMA1, LZMA2 and COPY for the compression type for encoding the header.
 #if HAVE_LZMA_H
 		header_compression = _7Z_LZMA1;
-		/* If the stored file is only one, do not encode the header.
-		 * This is the same way 7z command does. */
+		// @sobolev (#1532) {
+		if(oneof2(zip->opt_compression, _7Z_LZMA2, _7Z_COPY))
+			header_compression = zip->opt_compression;
+		// } @sobolev (#1532)
+		// If the stored file is only one, do not encode the header. This is the same way 7z command does.
 		if(zip->total_number_entry == 1)
 			header_compression = _7Z_COPY;
 #else
 		header_compression = _7Z_COPY;
 #endif
-		r = _7z_compression_init_encoder(a, header_compression, 6);
+		// @sobolev (#1532) r = _7z_compression_init_encoder(a, header_compression, 6);
+		r = _7z_compression_init_encoder(a, header_compression, zip->opt_compression_level); // @sobolev (#1532) 
 		if(r < 0)
 			return r;
 		zip->crc32flg = PRECODE_CRC32;

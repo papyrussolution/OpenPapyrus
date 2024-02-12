@@ -6,6 +6,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 
 using namespace DirectX;
 using namespace DirectX::Internal;

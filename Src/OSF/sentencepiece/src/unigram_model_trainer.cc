@@ -215,8 +215,7 @@ std::vector<float> Trainer::RunEStep(const TrainerModel &model, float * obj,
 						model.PopulateNodes(&lattice);
 						const float Z = lattice.PopulateMarginal(freq, &expected[n]);
 						ntokens[n] += lattice.Viterbi().first.size();
-						CHECK(!std::isnan(Z))
-						<< "likelihood is NAN. Input sentence may be too long";
+						CHECK(!std::isnan(Z)) << "likelihood is NAN. Input sentence may be too long";
 						objs[n] -= Z / all_sentence_freq;
 					}
 				});

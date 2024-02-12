@@ -260,47 +260,32 @@ typedef struct UCharStringEnumeration {
 	int32_t index, count;
 } UCharStringEnumeration;
 
-static void U_CALLCONV ucharstrenum_close(UEnumeration* en) {
-	uprv_free(en);
-}
+static void U_CALLCONV ucharstrenum_close(UEnumeration* en) { uprv_free(en); }
+static int32_t U_CALLCONV ucharstrenum_count(UEnumeration* en, UErrorCode * /*ec*/) { return ((UCharStringEnumeration*)en)->count; }
 
-static int32_t U_CALLCONV ucharstrenum_count(UEnumeration* en,
-    UErrorCode * /*ec*/) {
-	return ((UCharStringEnumeration*)en)->count;
-}
-
-static const char16_t * U_CALLCONV ucharstrenum_unext(UEnumeration* en,
-    int32_t* resultLength,
-    UErrorCode * /*ec*/) {
+static const char16_t * U_CALLCONV ucharstrenum_unext(UEnumeration* en, int32_t* resultLength, UErrorCode * /*ec*/) 
+{
 	UCharStringEnumeration * e = (UCharStringEnumeration*)en;
 	if(e->index >= e->count) {
 		return NULL;
 	}
 	const char16_t * result = ((const char16_t **)e->uenum.context)[e->index++];
-	if(resultLength) {
-		*resultLength = (int32_t)u_strlen(result);
-	}
+	ASSIGN_PTR(resultLength, sstrleni(result));
 	return result;
 }
 
-static const char * U_CALLCONV ucharstrenum_next(UEnumeration* en,
-    int32_t* resultLength,
-    UErrorCode * /*ec*/) {
+static const char * U_CALLCONV ucharstrenum_next(UEnumeration* en, int32_t* resultLength, UErrorCode * /*ec*/) 
+{
 	UCharStringEnumeration * e = (UCharStringEnumeration*)en;
 	if(e->index >= e->count) {
 		return NULL;
 	}
 	const char * result = ((const char **)e->uenum.context)[e->index++];
-	if(resultLength) {
-		*resultLength = (int32_t)strlen(result);
-	}
+	ASSIGN_PTR(resultLength, sstrleni(result));
 	return result;
 }
 
-static void U_CALLCONV ucharstrenum_reset(UEnumeration* en,
-    UErrorCode * /*ec*/) {
-	((UCharStringEnumeration*)en)->index = 0;
-}
+static void U_CALLCONV ucharstrenum_reset(UEnumeration* en, UErrorCode * /*ec*/) { ((UCharStringEnumeration*)en)->index = 0; }
 
 static const UEnumeration UCHARSTRENUM_VT = {
 	NULL,

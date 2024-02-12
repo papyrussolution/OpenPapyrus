@@ -1994,6 +1994,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				rtl_ext_item.QuotList = pInfo->QuotList;
 				const int c = RetailExtr.GetPrice(grec.ID, 0, 0.0, &rtl_ext_item);
 				THROW(c);
+				Rec.Expiry = rtl_ext_item.Expiry; // @v11.9.5
 				Rec.AllowedPriceR = rtl_ext_item.AllowedPriceR; // @v10.6.4
 				Rec.QuotList = rtl_ext_item.QuotList;
 				const double price_ = (Flags & ACGIF_UNCONDBASEPRICE) ? rtl_ext_item.BasePrice : rtl_ext_item.Price;
@@ -2075,9 +2076,8 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 								Rec.ChZnProdType = static_cast<int16>(gt_rec.ChZnProdType); // @v10.9.0
 							}
 							// @v11.7.10 {
-							if(gt_rec.Flags & GTF_EXCISEPROFORMA) {
+							if(gt_rec.Flags & GTF_EXCISEPROFORMA)
 								Rec.Flags_ |= AsyncCashGoodsInfo::fGExciseProForma;
-							}
 							// } @v11.7.10 
 							if(gt_rec.PriceRestrID) { // @v10.6.4
 								//BillObj->GetPriceRestrictions(grec.ID, 0, )

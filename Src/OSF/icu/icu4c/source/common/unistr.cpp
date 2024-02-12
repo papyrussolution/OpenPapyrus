@@ -173,36 +173,33 @@ UnicodeString::UnicodeString(UChar32 ch) {
 	}
 }
 
-UnicodeString::UnicodeString(const char16_t * text) {
+UnicodeString::UnicodeString(const char16_t * text) 
+{
 	fUnion.fFields.fLengthAndFlags = kShortString;
 	doAppend(text, 0, -1);
 }
 
-UnicodeString::UnicodeString(const char16_t * text,
-    int32_t textLength) {
+UnicodeString::UnicodeString(const char16_t * text, int32_t textLength) 
+{
 	fUnion.fFields.fLengthAndFlags = kShortString;
 	doAppend(text, 0, textLength);
 }
 
-UnicodeString::UnicodeString(bool isTerminated,
-    ConstChar16Ptr textPtr,
-    int32_t textLength) {
+UnicodeString::UnicodeString(bool isTerminated, ConstChar16Ptr textPtr, int32_t textLength) 
+{
 	fUnion.fFields.fLengthAndFlags = kReadonlyAlias;
 	const char16_t * text = textPtr;
 	if(text == NULL) {
 		// treat as an empty string, do not alias
 		setToEmpty();
 	}
-	else if(textLength < -1 ||
-	    (textLength == -1 && !isTerminated) ||
-	    (textLength >= 0 && isTerminated && text[textLength] != 0)
-	    ) {
+	else if(textLength < -1 || (textLength == -1 && !isTerminated) || (textLength >= 0 && isTerminated && text[textLength] != 0)) {
 		setToBogus();
 	}
 	else {
 		if(textLength == -1) {
 			// text is terminated, or else it would have failed the above test
-			textLength = u_strlen(text);
+			textLength = sstrleni(text);
 		}
 		setArray(const_cast<char16_t *>(text), textLength,
 		    isTerminated ? textLength + 1 : textLength);
@@ -618,39 +615,27 @@ bool UnicodeString::doEquals(const UnicodeString & text, int32_t len) const
 	return memcmp(getArrayStart(), text.getArrayStart(), len * U_SIZEOF_UCHAR) == 0;
 }
 
-int8 UnicodeString::doCompare(int32_t start,
-    int32_t length,
-    const char16_t * srcChars,
-    int32_t srcStart,
-    int32_t srcLength) const
+int8 UnicodeString::doCompare(int32_t start, int32_t length, const char16_t * srcChars, int32_t srcStart, int32_t srcLength) const
 {
 	// compare illegal string values
 	if(isBogus()) {
 		return -1;
 	}
-
 	// pin indices to legal values
 	pinIndices(start, length);
-
 	if(srcChars == NULL) {
 		// treat const char16_t *srcChars==NULL as an empty string
 		return length == 0 ? 0 : 1;
 	}
-
 	// get the correct pointer
 	const char16_t * chars = getArrayStart();
-
 	chars += start;
 	srcChars += srcStart;
-
 	int32_t minLength;
 	int8 lengthResult;
-
 	// get the srcLength if necessary
-	if(srcLength < 0) {
-		srcLength = u_strlen(srcChars + srcStart);
-	}
-
+	if(srcLength < 0)
+		srcLength = sstrleni(srcChars + srcStart);
 	// are we comparing different lengths?
 	if(length != srcLength) {
 		if(length < srcLength) {
@@ -1126,10 +1111,9 @@ UnicodeString & UnicodeString::setTo(bool isTerminated, ConstChar16Ptr textPtr, 
 		return *this;
 	}
 	releaseArray();
-
 	if(textLength == -1) {
 		// text is terminated, or else it would have failed the above test
-		textLength = u_strlen(text);
+		textLength = sstrleni(text);
 	}
 	fUnion.fFields.fLengthAndFlags = kReadonlyAlias;
 	setArray((char16_t *)text, textLength, isTerminated ? textLength + 1 : textLength);
@@ -1137,42 +1121,39 @@ UnicodeString & UnicodeString::setTo(bool isTerminated, ConstChar16Ptr textPtr, 
 }
 
 // setTo() analogous to the writable-aliasing constructor with the same signature
-UnicodeString & UnicodeString::setTo(char16_t * buffer,
-    int32_t buffLength,
-    int32_t buffCapacity) {
+UnicodeString & UnicodeString::setTo(char16_t * buffer, int32_t buffLength, int32_t buffCapacity) 
+{
 	if(fUnion.fFields.fLengthAndFlags & kOpenGetBuffer) {
 		// do not modify a string that has an "open" getBuffer(minCapacity)
 		return *this;
 	}
-
 	if(!buffer) {
 		// treat as an empty string, do not alias
 		releaseArray();
 		setToEmpty();
 		return *this;
 	}
-
 	if(buffLength < -1 || buffCapacity < 0 || buffLength > buffCapacity) {
 		setToBogus();
 		return *this;
 	}
 	else if(buffLength == -1) {
 		// buffLength = u_strlen(buff); but do not look beyond buffCapacity
-		const char16_t * p = buffer, * limit = buffer + buffCapacity;
+		const char16_t * p = buffer;
+		const char16_t * limit = buffer + buffCapacity;
 		while(p != limit && *p != 0) {
 			++p;
 		}
 		buffLength = (int32_t)(p - buffer);
 	}
-
 	releaseArray();
-
 	fUnion.fFields.fLengthAndFlags = kWritableAlias;
 	setArray(buffer, buffLength, buffCapacity);
 	return *this;
 }
 
-UnicodeString & UnicodeString::setToUTF8(StringPiece utf8) {
+UnicodeString & UnicodeString::setToUTF8(StringPiece utf8) 
+{
 	unBogus();
 	int32_t length = utf8.length();
 	int32_t capacity;
@@ -1284,11 +1265,9 @@ UnicodeString & UnicodeString::doReplace(int32_t start,
 			}
 		}
 	}
-
 	if(start == oldLength) {
 		return doAppend(srcChars, srcStart, srcLength);
 	}
-
 	if(srcChars == 0) {
 		srcLength = 0;
 	}
@@ -1296,15 +1275,11 @@ UnicodeString & UnicodeString::doReplace(int32_t start,
 		// Perform all remaining operations relative to srcChars + srcStart.
 		// From this point forward, do not use srcStart.
 		srcChars += srcStart;
-		if(srcLength < 0) {
-			// get the srcLength if necessary
-			srcLength = u_strlen(srcChars);
-		}
+		if(srcLength < 0)
+			srcLength = sstrleni(srcChars); // get the srcLength if necessary
 	}
-
 	// pin the indices to legal values
 	pinIndices(start, length);
-
 	// Calculate the size of the string after the replace.
 	// Avoid int32_t overflow.
 	int32_t newLength = oldLength - length;
@@ -1390,18 +1365,17 @@ UnicodeString & UnicodeString::doAppend(const UnicodeString & src, int32_t srcSt
 	return doAppend(src.getArrayStart(), srcStart, srcLength);
 }
 
-UnicodeString & UnicodeString::doAppend(const char16_t * srcChars, int32_t srcStart, int32_t srcLength) {
+UnicodeString & UnicodeString::doAppend(const char16_t * srcChars, int32_t srcStart, int32_t srcLength) 
+{
 	if(!isWritable() || srcLength == 0 || srcChars == NULL) {
 		return *this;
 	}
-
 	// Perform all remaining operations relative to srcChars + srcStart.
 	// From this point forward, do not use srcStart.
 	srcChars += srcStart;
-
 	if(srcLength < 0) {
 		// get the srcLength if necessary
-		if((srcLength = u_strlen(srcChars)) == 0) {
+		if((srcLength = sstrleni(srcChars)) == 0) {
 			return *this;
 		}
 	}

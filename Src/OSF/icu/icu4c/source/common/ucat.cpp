@@ -9,13 +9,8 @@
 #pragma hdrstop
 #include "unicode/ucat.h"
 
-/* Separator between set_num and msg_num */
-static const char SEPARATOR = '%';
-
-/* Maximum length of a set_num/msg_num key, incl. terminating zero.
- * Longest possible key is "-2147483648%-2147483648" */
-#define MAX_KEY_LEN (24)
-
+static const char SEPARATOR = '%'; // Separator between set_num and msg_num
+#define MAX_KEY_LEN (24) // Maximum length of a set_num/msg_num key, incl. terminating zero. Longest possible key is "-2147483648%-2147483648"
 /**
  * Fill in buffer with a set_num/msg_num key string, given the numeric
  * values. Numeric values must be >= 0. Buffer must be of length
@@ -23,20 +18,14 @@ static const char SEPARATOR = '%';
  */
 static char * _catkey(char * buffer, int32_t set_num, int32_t msg_num) 
 {
-	int32_t i = 0;
-	i = T_CString_integerToString(buffer, set_num, 10);
+	int32_t i = T_CString_integerToString(buffer, set_num, 10);
 	buffer[i++] = SEPARATOR;
 	T_CString_integerToString(buffer+i, msg_num, 10);
 	return buffer;
 }
 
-U_CAPI u_nl_catd U_EXPORT2 u_catopen(const char * name, const char * locale, UErrorCode * ec) {
-	return (u_nl_catd)ures_open(name, locale, ec);
-}
-
-U_CAPI void U_EXPORT2 u_catclose(u_nl_catd catd) {
-	ures_close((UResourceBundle*)catd); /* may be NULL */
-}
+U_CAPI u_nl_catd U_EXPORT2 u_catopen(const char * name, const char * locale, UErrorCode * ec) { return (u_nl_catd)ures_open(name, locale, ec); }
+U_CAPI void U_EXPORT2 u_catclose(u_nl_catd catd) { ures_close((UResourceBundle*)catd); /* may be NULL */ }
 
 U_CAPI const char16_t * U_EXPORT2 u_catgets(u_nl_catd catd, int32_t set_num, int32_t msg_num, const char16_t * s, int32_t* len, UErrorCode * ec) 
 {
@@ -52,8 +41,6 @@ U_CAPI const char16_t * U_EXPORT2 u_catgets(u_nl_catd catd, int32_t set_num, int
 	return result;
 __err_label:
 	// In case of any failure, return s 
-	if(len != NULL) {
-		*len = u_strlen(s);
-	}
+	ASSIGN_PTR(len, sstrleni(s));
 	return s;
 }

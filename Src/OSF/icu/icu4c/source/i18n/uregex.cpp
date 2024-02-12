@@ -93,9 +93,8 @@ U_CAPI URegularExpression *  U_EXPORT2 uregex_open(const char16_t * pattern, int
 		return NULL;
 	}
 	int32_t actualPatLen = patternLength;
-	if(actualPatLen == -1) {
-		actualPatLen = u_strlen(pattern);
-	}
+	if(actualPatLen == -1)
+		actualPatLen = sstrleni(pattern);
 	RegularExpression  * re     = new RegularExpression;
 	u_atomic_int32_t   * refC   = (u_atomic_int32_t*)uprv_malloc(sizeof(int32_t));
 	char16_t * patBuf = (char16_t *)uprv_malloc(sizeof(char16_t)*(actualPatLen+1));
@@ -1000,14 +999,11 @@ int32_t RegexCImpl::appendReplacement(RegularExpression * regexp, const char16_t
 	int32_t capacity = *destCapacity;
 	int32_t destIdx  = 0;
 	int32_t i;
-
 	// If it wasn't supplied by the caller,  get the length of the replacement text.
 	//   TODO:  slightly smarter logic in the copy loop could watch for the NUL on
 	//          the fly and avoid this step.
-	if(replacementLength == -1) {
-		replacementLength = u_strlen(replacementText);
-	}
-
+	if(replacementLength == -1)
+		replacementLength = sstrleni(replacementText);
 	// Copy input string from the end of previous match to start of current match
 	if(regexp->fText != NULL) {
 		int32_t matchStart;
@@ -1033,7 +1029,6 @@ int32_t RegexCImpl::appendReplacement(RegularExpression * regexp, const char16_t
 			dest ? &dest[destIdx] : NULL, REMAINING_CAPACITY(destIdx, capacity), &possibleOverflowError);
 	}
 	U_ASSERT(destIdx >= 0);
-
 	// scan the replacement text, looking for substitutions ($n) and \escapes.
 	int32_t replIdx = 0;
 	while(replIdx < replacementLength && U_SUCCESS(*status)) {

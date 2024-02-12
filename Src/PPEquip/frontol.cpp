@@ -84,7 +84,8 @@ ACS_FRONTOL::ACS_FRONTOL(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(0), Im
 
 int ACS_FRONTOL::SetGoodsRestLoadFlag(int updOnly)
 {
-	int    ok = -1, use_replace_qtty_wosale = 0;
+	int    ok = -1;
+	int    use_replace_qtty_wosale = 0;
 	PPIniFile  ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ATOL_QTTYWOSALE, &use_replace_qtty_wosale);
 	if(use_replace_qtty_wosale && (updOnly || PPMessage(mfConf|mfYesNo, PPCFM_LOADGDSRESTWOSALES) == cmYes)) {
@@ -539,10 +540,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 		   				if(unit_obj.Fetch(gds_info.UnitID, &unit_rec) > 0)
 							tail.CatChar((unit_rec.Flags & PPUnit::IntVal) ? '0' : '1'); // Разрешить дробное кол-во
 						else {
-							//
-							// Если для товара не определена единица измерения (правда, так быть не должно),
-							// то НЕ разрешаем дробное количество
-							//
+							// Если для товара не определена единица измерения (правда, так быть не должно), то НЕ разрешаем дробное количество
 							tail.CatChar('0');
 						}
 						for(i = 0; i < 4; i++)
@@ -552,7 +550,10 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						if(gds_info.NoDis > 0)
 							tail.Cat(gds_info.Price, SFMT_MONEY);       // #9 - Min цена товара
 						tail.Semicol();
-						tail.CatCharN(';', 3);                          // #10-#12 - Не используем
+						if(checkdate(gds_info.Expiry))
+							tail.Cat(gds_info.Expiry, DATF_GERMANCENT); // #10 - Срок годности @v11.9.5
+						tail.Semicol();
+						tail.CatCharN(';', 2);                          // #11-#12 - Не используем
 						if(cn_data.DrvVerMajor > 5 || (cn_data.DrvVerMajor == 5 && cn_data.DrvVerMinor >= 16)) {
 							// Номер поля - 13; Обязательное - нет; Тип поля - целое;
 							// Признак предмета расчёта: 0 – товар, кроме подакцизного; 1 – подакцизный товар; 2 – работа;
@@ -563,9 +564,8 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									_tag = '2';
 								tail.CatChar(_tag); // #13 - Признак предмета расчёта
 							}
-							else {
+							else
 								tail.CatChar('0'); // #13 - Признак предмета расчёта
-							}
 						}
 						else {
 							if(gds_info.NoDis <= 0)                         // 
@@ -625,6 +625,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
                             tail.Cat(mark_type).Semicol();                                      // #55 Признак алкогольной продукции // @v11.9.3 1L-->mark_type
                             tail.Cat((agi.StatusFlags & agi.stMarkWanted) ? 0L : 1L).Semicol(); // #56 Признак маркированной алкогольной продукции (0 - маркированная)
                             tail.Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOZERO)).Semicol();          // #57 Крепость алкогольной продукции
+							tail.Semicol();                                                     // #58 Признак способа расчета // @v11.9.5
 						}
 						else {
 							tail.Semicol();         // #53 Код вида алкогольной продукции
@@ -672,10 +673,22 @@ int ACS_FRONTOL::ExportData(int updOnly)
 							tail.Semicol();         // #56 Признак маркированной алкогольной продукции (пока НЕТ)
 							tail.Semicol();         // #57 Крепость алкогольной продукции
 						}
-						if(cn_data.DrvVerMajor > 5 || (cn_data.DrvVerMajor == 5 && cn_data.DrvVerMinor >= 20)) {
-							tail.CatChar('2').Semicol();        // #58 Признак способа расчета
-						}
+						if(cn_data.DrvVerMajor > 5 || (cn_data.DrvVerMajor == 5 && cn_data.DrvVerMinor >= 20))
+							tail.CatChar('2').Semicol();  // #58 Признак способа расчета
+						else
+							tail.Semicol();               // #58 Признак способа расчета // @v11.9.5
 					}
+					// @v11.9.5 {
+					tail.Semicol();               // #59 Код реквизитов агента
+					tail.Semicol();               // #60 Сумма акциза
+					tail.Semicol();               // #61 Код страны происхождения товара
+					tail.Semicol();               // #62 Номер таможенной декларации
+					tail.Semicol();               // #63 Наименование лотереи
+					tail.Semicol();               // #64 Код вида номенклатурной классификации (EAN-13)
+					tail.Semicol();               // #65 Проверка соответствия товара штрихкоду маркировки: 0 – по штрихкодам товара; 1 – по штрихкоду регистрации (def=0)
+					tail.Semicol();               // #66 Мера количества предмета расчета
+					tail.Semicol();               // #67 Признак рецептурности лекарственного препарата
+					// } @v11.9.5 
 					bclen = sstrlen(gds_info.BarCode);
 					if(bclen) {
 						gds_info.AdjustBarcode(check_dig);

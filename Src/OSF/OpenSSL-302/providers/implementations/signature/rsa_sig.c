@@ -426,15 +426,12 @@ static int rsa_signverify_init(void * vprsactx, void * vrsa,
 				    len = OPENSSL_strlcpy(prsactx->mdname, mdname,
 					    sizeof(prsactx->mdname));
 				    if(len >= sizeof(prsactx->mdname)) {
-					    ERR_raise_data(ERR_LIB_PROV, PROV_R_INVALID_DIGEST,
-						"hash algorithm name too long");
+					    ERR_raise_data(ERR_LIB_PROV, PROV_R_INVALID_DIGEST, "hash algorithm name too long");
 					    return 0;
 				    }
-				    len = OPENSSL_strlcpy(prsactx->mgf1_mdname, mgf1mdname,
-					    sizeof(prsactx->mgf1_mdname));
+				    len = OPENSSL_strlcpy(prsactx->mgf1_mdname, mgf1mdname, sizeof(prsactx->mgf1_mdname));
 				    if(len >= sizeof(prsactx->mgf1_mdname)) {
-					    ERR_raise_data(ERR_LIB_PROV, PROV_R_INVALID_DIGEST,
-						"MGF1 hash algorithm name too long");
+					    ERR_raise_data(ERR_LIB_PROV, PROV_R_INVALID_DIGEST, "MGF1 hash algorithm name too long");
 					    return 0;
 				    }
 				    prsactx->saltlen = min_saltlen;

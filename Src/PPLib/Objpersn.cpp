@@ -105,7 +105,7 @@ int FASTCALL GetMainEmployerID(PPID * pID)
 	ASSIGN_PTR(pID, 0);
 	if(GetMainOrgID(&main_org_id)) {
 		PPObjPerson psnobj;
-		if(psnobj.P_Tbl->IsBelongToKind(main_org_id, PPPRK_EMPLOYER)) {
+		if(psnobj.P_Tbl->IsBelongsToKind(main_org_id, PPPRK_EMPLOYER)) {
 			ASSIGN_PTR(pID, main_org_id);
 			return 1;
 		}
@@ -1575,7 +1575,7 @@ int PPObjPerson::GetListByRegNumber(PPID regTypeID, PPID kindID, const char * pS
 		PPID   single_id = rList.getSingle();
 		uint   c = rList.getCount();
 		if(c) do {
-			if(P_Tbl->IsBelongToKind(rList.at(--c), kindID) <= 0)
+			if(P_Tbl->IsBelongsToKind(rList.at(--c), kindID) <= 0)
 				rList.atFree(c);
 		} while(c);
 		if(!rList.getCount()) {
@@ -1713,7 +1713,7 @@ int PPObjPerson::SearchFirstByName(const char * pName, const PPIDArray * pKindLi
 			if(!exclID || id != exclID) {
 				if(kind_count) {
 					for(uint i = 0; ok < 0 && i < kind_count; i++) {
-						if(P_Tbl->IsBelongToKind(id, pKindList->get(i)))
+						if(P_Tbl->IsBelongsToKind(id, pKindList->get(i)))
 							ok = 1;
 					}
 				}
@@ -1738,7 +1738,7 @@ int PPObjPerson::SearchMaxLike(const PPPersonPacket * p, PPID * pID, long flags,
 					const  PPID id = list.at(i);
 					if(id && id != p->Rec.ID) {
 						for(uint j = 0; j < p->Kinds.getCount(); j++) {
-							if(P_Tbl->IsBelongToKind(id, p->Kinds.at(j))) {
+							if(P_Tbl->IsBelongsToKind(id, p->Kinds.at(j))) {
 								ASSIGN_PTR(pID, id);
 								return 1;
 							}
@@ -2172,7 +2172,7 @@ int PPObjPerson::AddSimple(PPID * pID, const char * pName, PPID kindID, PPID sta
 {
 	int    ok = 1;
 	PPID   id = 0;
-	if(!(P_Tbl->SearchByName(pName, &id, 0) > 0 && P_Tbl->IsBelongToKind(id, kindID))) {
+	if(!(P_Tbl->SearchByName(pName, &id, 0) > 0 && P_Tbl->IsBelongsToKind(id, kindID))) {
 		PPPersonPacket pack;
 		pack.Rec.Status = statusID;
 		STRNSCPY(pack.Rec.Name, pName);
@@ -2938,7 +2938,7 @@ int PPObjPerson::GetPersonListByCategory(PPID catID, PPID kindID, PPIDArray & rL
 			uint c = rList.getCount();
 			if(c) do {
 				PPID   id = rList.get(--c);
-				if(!p_t->IsBelongToKind(id, kindID)) {
+				if(!p_t->IsBelongsToKind(id, kindID)) {
 					rList.atFree(c);
 				}
 			} while(c);

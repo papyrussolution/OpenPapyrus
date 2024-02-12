@@ -3978,10 +3978,10 @@ int PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 					}
 					else {
 						if(AlcRepParam.ImportKindID) {
-        					SETFLAG(pItem->Flags, pItem->fIsImport, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ImportKindID));
+        					SETFLAG(pItem->Flags, pItem->fIsImport, PsnObj.P_Tbl->IsBelongsToKind(psn_id, AlcRepParam.ImportKindID));
 						}
 						if(AlcRepParam.ManufKindID) {
-							SETFLAG(pItem->Flags, pItem->fIsManuf, PsnObj.P_Tbl->IsBelongToKind(psn_id, AlcRepParam.ManufKindID));
+							SETFLAG(pItem->Flags, pItem->fIsManuf, PsnObj.P_Tbl->IsBelongsToKind(psn_id, AlcRepParam.ManufKindID));
 						}
 					}
 				}
@@ -5378,9 +5378,9 @@ int FASTCALL PrcssrAlcReport::GetManufPersonType(PPID personID)
 		}
 	}
 	else {
-		if(Cfg.E.ImporterPersonKindID && PsnObj.P_Tbl->IsBelongToKind(personID, Cfg.E.ImporterPersonKindID))
+		if(Cfg.E.ImporterPersonKindID && PsnObj.P_Tbl->IsBelongsToKind(personID, Cfg.E.ImporterPersonKindID))
 			result = 2;
-		else if(PsnObj.P_Tbl->IsBelongToKind(personID, PPPRK_MANUF))
+		else if(PsnObj.P_Tbl->IsBelongsToKind(personID, PPPRK_MANUF))
 			result = 1;
 	}
 	return result;

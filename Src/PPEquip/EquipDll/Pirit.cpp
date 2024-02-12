@@ -120,8 +120,8 @@ struct Config {
 };
 
 struct CheckStruct {
-	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Qtty(0.0), PhQtty(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), UomFragm(0), TaxSys(0), Tax(0),
-		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0), //@erik v10.4.12 add "Stt(0),"
+	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Qtty(0.0), PhQtty(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), UomId(0), UomFragm(0), 
+		TaxSys(0), Tax(0), PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0), //@erik v10.4.12 add "Stt(0),"
 		Timestamp(ZERODATETIME) /*@v11.2.3*/, PrescrDate(ZERODATE)/*@v11.8.0*/
 	{
 	}
@@ -135,6 +135,7 @@ struct CheckStruct {
 		Tax = 0;
 		Ptt = 0; // @v10.4.1
 		Stt = 0; // @erik v10.4.12
+		UomId = 0; // @v11.9.5
 		UomFragm = 0; // @v11.2.5
 		TaxSys = -1; // @v10.6.3 // @v10.6.4 0-->-1
 		Text.Z();
@@ -179,6 +180,7 @@ struct CheckStruct {
 	int    Tax;          //
 	int    Ptt;          // @v10.4.1 // CCheckPacket::PaymentTermTag
 	int    Stt;          // @erik v10.4.12
+	int    UomId;        // @v11.9.5 Ид единицы измерения (SUOM_XXX)
 	int    UomFragm;     // @v11.2.5 Фрагментация единицы измерения //
 	int    ChZnProdType; // @v10.7.2
 	double PaymCash;
@@ -1463,6 +1465,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.Qtty = param_val.ToReal();
 			if(pb.Get("PHQTTY", param_val) > 0) // @v11.9.3
 				Check.PhQtty = param_val.ToReal();
+			if(pb.Get("UOMID", param_val) > 0) // @v11.9.5
+				Check.UomId = param_val.ToLong();
 			if(pb.Get("DRAFTBEERSIMPLIFIED", param_val) > 0) { // @v11.9.4
 				Check.DraftBeerSimplifiedCode = param_val;
 			}
@@ -2526,7 +2530,7 @@ int PiritEquip::RunCheck(int opertype)
 								CreateStr("", in_data); // #14 (tag 1074) Телефон(ы) оператора по приему платежей (для пл.агента/субагента, иначе пустой) 
 								CreateStr("030"/*GTCHZNPT_DRAFTBEER*/, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
-								str.Z().Cat("26.03.2022"); // @v11.9.3
+								str.Z().Cat("26032022"); // @v11.9.3
 								CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
 									// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								/* @v11.9.3 if(Check.CheckNum > 0)
@@ -2584,7 +2588,17 @@ int PiritEquip::RunCheck(int opertype)
 								CreateStr(Check.ChZnPpStatus, in_data); // (Целое число) Присвоенный статус товара (ofdtag-2110)
 								CreateStr(0L, in_data); // (Целое число) Режим обработки кода маркировки (ofdtag-2102) = 0
 								CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (ofdtag-2106)
-								CreateStr(0L, in_data); // (Целое число) Мера количества [единица измерения то есть; 0 - штуки] (ofdtag-2108)
+								{
+									// @v11.9.5 CreateStr(0L, in_data); // (Целое число) Мера количества [единица измерения то есть; 0 - штуки] (ofdtag-2108)
+									// @v11.9.5 {
+									int chzn_uom_id = 0;
+									switch(Check.UomId) {
+										case SUOM_LITER: chzn_uom_id = 41; break;
+										case SUOM_KILOGRAM: chzn_uom_id = 11; break;
+									}
+									// } @v11.9.5 
+									CreateStr(chzn_uom_id, in_data); // uom
+								}
 								THROW(ExecCmd("79", in_data, out_data, r_error)); // query=15
 								//set_chzn_mark = false;
 								//

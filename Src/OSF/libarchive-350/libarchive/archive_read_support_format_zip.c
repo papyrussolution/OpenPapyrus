@@ -204,32 +204,31 @@ struct zip {
  * many compressed bytes were read. */
 static Byte ppmd_read(void * p) 
 {
-	/* Get the handle to current decompression context. */
+	// Get the handle to current decompression context
 	ArchiveRead * a = ((IByteIn*)p)->a;
 	struct zip * zip = (struct zip*)a->format->data;
 	ssize_t bytes_avail = 0;
-	/* Fetch next byte. */
+	// Fetch next byte
 	const uint8 * data = static_cast<const uint8 *>(__archive_read_ahead(a, 1, &bytes_avail));
 	if(bytes_avail < 1) {
 		zip->ppmd8_stream_failed = 1;
 		return 0;
 	}
-	__archive_read_consume(a, 1);
-	/* Increment the counter. */
-	++zip->zipx_ppmd_read_compressed;
-	/* Return the next compressed byte. */
-	return data[0];
+	else {
+		__archive_read_consume(a, 1);
+		++zip->zipx_ppmd_read_compressed; // Increment the counter
+		return data[0]; // Return the next compressed byte
+	}
 }
 /*
    Traditional PKWARE Decryption functions.
  */
 static void trad_enc_update_keys(struct trad_enc_ctx * ctx, uint8 c)
 {
-	uint8 t;
 #define CRC32(c, b) (crc32(c ^ 0xffffffffUL, &b, 1) ^ 0xffffffffUL)
 	ctx->keys[0] = CRC32(ctx->keys[0], c);
 	ctx->keys[1] = (ctx->keys[1] + (ctx->keys[0] & 0xff)) * 134775813L + 1;
-	t = static_cast<uint8>((ctx->keys[1] >> 24) & 0xff);
+	uint8 t = static_cast<uint8>((ctx->keys[1] >> 24) & 0xff);
 	ctx->keys[2] = CRC32(ctx->keys[2], t);
 #undef CRC32
 }

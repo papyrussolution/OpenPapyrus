@@ -19915,10 +19915,9 @@ static int do_meta_command(char * zLine, ShellState * p){
 		}
 		p->cMode = p->mode;
 	}
-	else if(c=='n' && strncmp(azArg[0], "nullvalue", n)==0)       {
+	else if(c=='n' && strncmp(azArg[0], "nullvalue", n)==0) {
 		if(nArg==2) {
-			sqlite3_snprintf(sizeof(p->nullValue), p->nullValue,
-			    "%.*s", (int)ArraySize(p->nullValue)-1, azArg[1]);
+			sqlite3_snprintf(sizeof(p->nullValue), p->nullValue, "%.*s", (int)ArraySize(p->nullValue)-1, azArg[1]);
 		}
 		else {
 			raw_printf(stderr, "Usage: .nullvalue STRING\n");
@@ -20927,12 +20926,10 @@ session_syntax_error:
 			rc = 1;
 		}
 		if(nArg>=2) {
-			sqlite3_snprintf(sizeof(p->colSeparator), p->colSeparator,
-			    "%.*s", (int)ArraySize(p->colSeparator)-1, azArg[1]);
+			sqlite3_snprintf(sizeof(p->colSeparator), p->colSeparator, "%.*s", (int)ArraySize(p->colSeparator)-1, azArg[1]);
 		}
 		if(nArg>=3) {
-			sqlite3_snprintf(sizeof(p->rowSeparator), p->rowSeparator,
-			    "%.*s", (int)ArraySize(p->rowSeparator)-1, azArg[2]);
+			sqlite3_snprintf(sizeof(p->rowSeparator), p->rowSeparator, "%.*s", (int)ArraySize(p->rowSeparator)-1, azArg[2]);
 		}
 	}
 	else if(c=='s' && n>=4 && strncmp(azArg[0], "sha3sum", n)==0)       {

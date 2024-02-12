@@ -17,8 +17,7 @@
 static const ERR_STRING_DATA DSO_str_reasons[] = {
 	{ERR_PACK(ERR_LIB_DSO, 0, DSO_R_CTRL_FAILED), "control command failed"},
 	{ERR_PACK(ERR_LIB_DSO, 0, DSO_R_DSO_ALREADY_LOADED), "dso already loaded"},
-	{ERR_PACK(ERR_LIB_DSO, 0, DSO_R_EMPTY_FILE_STRUCTURE),
-	 "empty file structure"},
+	{ERR_PACK(ERR_LIB_DSO, 0, DSO_R_EMPTY_FILE_STRUCTURE), "empty file structure"},
 	{ERR_PACK(ERR_LIB_DSO, 0, DSO_R_FAILURE), "failure"},
 	{ERR_PACK(ERR_LIB_DSO, 0, DSO_R_FILENAME_TOO_BIG), "filename too big"},
 	{ERR_PACK(ERR_LIB_DSO, 0, DSO_R_FINISH_FAILED),

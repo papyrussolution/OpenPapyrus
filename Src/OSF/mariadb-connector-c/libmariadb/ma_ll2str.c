@@ -14,7 +14,7 @@
 #include <ma_global.h>
 #pragma hdrstop
 
-static char NEAR _dig_vec[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+// @v11.9.5 (replaced with SlConst::P_Rdx36DigU) static char NEAR _dig_vec[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 char * ma_ll2str(long long val, char * dst, int radix)
 {
@@ -43,15 +43,16 @@ char * ma_ll2str(long long val, char * dst, int radix)
 	while((ulonglong)val > (ulonglong)LONG_MAX) {
 		ulonglong quo = (ulonglong)val/(uint)radix;
 		uint rem = (uint)(val- quo* (uint)radix);
-		*--p = _dig_vec[rem];
+		*--p = SlConst::P_Rdx36DigU[rem];
 		val = quo;
 	}
 	long_val = (long)val;
 	while(long_val != 0) {
 		long quo = long_val/radix;
-		*--p = _dig_vec[(uchar)(long_val - quo*radix)];
+		*--p = SlConst::P_Rdx36DigU[(uchar)(long_val - quo*radix)];
 		long_val = quo;
 	}
-	while((*dst++ = *p++) != 0);
+	while((*dst++ = *p++) != 0)
+		;
 	return dst-1;
 }

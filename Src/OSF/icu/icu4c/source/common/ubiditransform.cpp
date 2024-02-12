@@ -1,10 +1,10 @@
-/* ubiditransform.c
- * © 2016 and later: Unicode, Inc. and others.
- * License & terms of use: http://www.unicode.org/copyright.html
- *   encoding:   UTF-8
- *   created on: 2016jul24
- *   created by: Lina Kemmel
- */
+// ubiditransform.c
+// © 2016 and later: Unicode, Inc. and others.
+// License & terms of use: http://www.unicode.org/copyright.html
+// encoding:   UTF-8
+// created on: 2016jul24
+// created by: Lina Kemmel
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ubidi.h"
@@ -23,7 +23,7 @@
 #define CHECK_LEN(STR, LEN, ERROR) UPRV_BLOCK_MACRO_BEGIN { \
 		if(LEN == 0) return 0; \
 		if(LEN < -1) { *(ERROR) = U_ILLEGAL_ARGUMENT_ERROR; return 0; } \
-		if(LEN == -1) LEN = u_strlen(STR); \
+		if(LEN == -1) LEN = sstrleni(STR); \
 } UPRV_BLOCK_MACRO_END
 
 #define MAX_ACTIONS     7

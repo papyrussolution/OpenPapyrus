@@ -1,5 +1,5 @@
 // SDIREC.CPP
-// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -325,6 +325,11 @@ SFileEntryPool::Entry & SFileEntryPool::Entry::Z()
 	return *this;
 }
 
+SString & SFileEntryPool::Entry::GetFullPath(SString & rBuf) const
+{
+	return rBuf.Z().Cat(Path).SetLastSlash().Cat(Name);
+}
+
 SFileEntryPool::SFileEntryPool() : SStrGroup(), State(0), InitPathP(0)
 {
 }
@@ -475,7 +480,7 @@ int SFileEntryPool::Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFul
 		if(pEntry) {
 			ConvertEntry(r_item, *pEntry);
 			if(pFullPath)
-				pFullPath->Z().Cat(pEntry->Path).SetLastSlash().Cat(pEntry->Name);
+				pEntry->GetFullPath(*pFullPath);
 		}
 		else if(pFullPath) {
 			pFullPath->Z();
@@ -491,7 +496,7 @@ int SFileEntryPool::Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFul
 		return 0;
 }
 
-int SFileEntryPool::Add(SFileEntryPool::Entry & rDe, long flags)
+int SFileEntryPool::Add(const SFileEntryPool::Entry & rDe, long flags)
 {
 	int    ok = 1;
     InnerEntry new_entry;
@@ -504,10 +509,13 @@ int SFileEntryPool::Add(SFileEntryPool::Entry & rDe, long flags)
 	new_entry.AccsTm_ = rDe.AccsTm_; // @v11.8.11
 	new_entry.ModTm_ = rDe.ModTm_; // @v11.8.11
     new_entry.Size = rDe.Size;
-    if(rDe.Path.NotEmptyS()) {
+    {
 		SString & r_temp_path = SLS.AcquireRvlStr();
-		const long npf = (flags & scanfKeepCase) ? SFsPath::npfKeepCase : 0;
-		THROW(AddS(SFsPath::NormalizePath(rDe.Path, npf, r_temp_path), &new_entry.PathP));
+		r_temp_path = rDe.Path;
+		if(r_temp_path.NotEmptyS()) {
+			const long npf = (flags & scanfKeepCase) ? SFsPath::npfKeepCase : 0;
+			THROW(AddS(SFsPath::NormalizePath(rDe.Path, npf, r_temp_path), &new_entry.PathP));
+		}
     }
     THROW(AddS(rDe.Name, &new_entry.NameP));
     THROW(L.insert(&new_entry));

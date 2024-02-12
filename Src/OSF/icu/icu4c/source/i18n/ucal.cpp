@@ -19,7 +19,7 @@ static TimeZone* _createTimeZone(const char16_t * zoneID, int32_t len, UErrorCod
 		// Note that if zoneID is invalid, we get back GMT. This odd
 		// behavior is by design and goes back to the JDK. The only
 		// failure we will see is a memory allocation failure.
-		int32_t l = (len<0 ? u_strlen(zoneID) : len);
+		const int32_t l = (len<0 ? sstrleni(zoneID) : len);
 		UnicodeString zoneStrID;
 		zoneStrID.setTo((bool)(len < 0), zoneID, l); /* temporary read-only alias */
 		zone = TimeZone::createTimeZone(zoneStrID);

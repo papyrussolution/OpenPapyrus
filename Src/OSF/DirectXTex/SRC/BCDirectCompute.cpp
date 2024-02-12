@@ -4,6 +4,7 @@
 // Licensed under the MIT License.
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 #include "BCDirectCompute.h"
 
 #if defined(_DEBUG) || defined(PROFILE)

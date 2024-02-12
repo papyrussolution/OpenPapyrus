@@ -1,12 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2007-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
-
+// Copyright (C) 2007-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -18,10 +13,7 @@ U_NAMESPACE_BEGIN
 
 // This is the deleter that will be use to remove TimeZoneRule
 U_CDECL_BEGIN
-static void U_CALLCONV deleteTimeZoneRule(void * obj) {
-	delete (TimeZoneRule*)obj;
-}
-
+static void U_CALLCONV deleteTimeZoneRule(void * obj) { delete (TimeZoneRule*)obj; }
 U_CDECL_END
 
 // Smybol characters used by RFC2445 VTIMEZONE
@@ -33,12 +25,8 @@ static const char16_t PLUS = 0x2B; /* + */
 static const char16_t MINUS = 0x2D; /* - */
 
 // RFC2445 VTIMEZONE tokens
-static const char16_t ICAL_BEGIN_VTIMEZONE[] = {0x42, 0x45, 0x47, 0x49, 0x4E, 0x3A, 0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /*
-                                                                                                                                              "BEGIN:VTIMEZONE"
-       */
-static const char16_t ICAL_END_VTIMEZONE[] = {0x45, 0x4E, 0x44, 0x3A, 0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /*
-                                                                                                                                "END:VTIMEZONE"
-  */
+static const char16_t ICAL_BEGIN_VTIMEZONE[] = {0x42, 0x45, 0x47, 0x49, 0x4E, 0x3A, 0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /* "BEGIN:VTIMEZONE" */
+static const char16_t ICAL_END_VTIMEZONE[] = {0x45, 0x4E, 0x44, 0x3A, 0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /* "END:VTIMEZONE" */
 static const char16_t ICAL_BEGIN[] = {0x42, 0x45, 0x47, 0x49, 0x4E, 0}; /* "BEGIN" */
 static const char16_t ICAL_END[] = {0x45, 0x4E, 0x44, 0}; /* "END" */
 static const char16_t ICAL_VTIMEZONE[] = {0x56, 0x54, 0x49, 0x4D, 0x45, 0x5A, 0x4F, 0x4E, 0x45, 0}; /* "VTIMEZONE" */
@@ -46,26 +34,20 @@ static const char16_t ICAL_TZID[] = {0x54, 0x5A, 0x49, 0x44, 0}; /* "TZID" */
 static const char16_t ICAL_STANDARD[] = {0x53, 0x54, 0x41, 0x4E, 0x44, 0x41, 0x52, 0x44, 0}; /* "STANDARD" */
 static const char16_t ICAL_DAYLIGHT[] = {0x44, 0x41, 0x59, 0x4C, 0x49, 0x47, 0x48, 0x54, 0}; /* "DAYLIGHT" */
 static const char16_t ICAL_DTSTART[] = {0x44, 0x54, 0x53, 0x54, 0x41, 0x52, 0x54, 0}; /* "DTSTART" */
-static const char16_t ICAL_TZOFFSETFROM[] = {0x54, 0x5A, 0x4F, 0x46, 0x46, 0x53, 0x45, 0x54, 0x46, 0x52, 0x4F, 0x4D, 0}; /*
-                                                                                                                         "TZOFFSETFROM"
-    */
-static const char16_t ICAL_TZOFFSETTO[] = {0x54, 0x5A, 0x4F, 0x46, 0x46, 0x53, 0x45, 0x54, 0x54, 0x4F, 0}; /* "TZOFFSETTO"
-        */
+static const char16_t ICAL_TZOFFSETFROM[] = {0x54, 0x5A, 0x4F, 0x46, 0x46, 0x53, 0x45, 0x54, 0x46, 0x52, 0x4F, 0x4D, 0}; /* "TZOFFSETFROM" */
+static const char16_t ICAL_TZOFFSETTO[] = {0x54, 0x5A, 0x4F, 0x46, 0x46, 0x53, 0x45, 0x54, 0x54, 0x4F, 0}; /* "TZOFFSETTO" */
 static const char16_t ICAL_RDATE[] = {0x52, 0x44, 0x41, 0x54, 0x45, 0}; /* "RDATE" */
 static const char16_t ICAL_RRULE[] = {0x52, 0x52, 0x55, 0x4C, 0x45, 0}; /* "RRULE" */
 static const char16_t ICAL_TZNAME[] = {0x54, 0x5A, 0x4E, 0x41, 0x4D, 0x45, 0}; /* "TZNAME" */
 static const char16_t ICAL_TZURL[] = {0x54, 0x5A, 0x55, 0x52, 0x4C, 0}; /* "TZURL" */
-static const char16_t ICAL_LASTMOD[] = {0x4C, 0x41, 0x53, 0x54, 0x2D, 0x4D, 0x4F, 0x44, 0x49, 0x46, 0x49, 0x45, 0x44, 0}; /*
-                                                                                                                          "LAST-MODIFIED"
-     */
+static const char16_t ICAL_LASTMOD[] = {0x4C, 0x41, 0x53, 0x54, 0x2D, 0x4D, 0x4F, 0x44, 0x49, 0x46, 0x49, 0x45, 0x44, 0}; /* "LAST-MODIFIED" */
 
 static const char16_t ICAL_FREQ[] = {0x46, 0x52, 0x45, 0x51, 0}; /* "FREQ" */
 static const char16_t ICAL_UNTIL[] = {0x55, 0x4E, 0x54, 0x49, 0x4C, 0}; /* "UNTIL" */
 static const char16_t ICAL_YEARLY[] = {0x59, 0x45, 0x41, 0x52, 0x4C, 0x59, 0}; /* "YEARLY" */
 static const char16_t ICAL_BYMONTH[] = {0x42, 0x59, 0x4D, 0x4F, 0x4E, 0x54, 0x48, 0}; /* "BYMONTH" */
 static const char16_t ICAL_BYDAY[] = {0x42, 0x59, 0x44, 0x41, 0x59, 0}; /* "BYDAY" */
-static const char16_t ICAL_BYMONTHDAY[] = {0x42, 0x59, 0x4D, 0x4F, 0x4E, 0x54, 0x48, 0x44, 0x41, 0x59, 0}; /* "BYMONTHDAY"
-        */
+static const char16_t ICAL_BYMONTHDAY[] = {0x42, 0x59, 0x4D, 0x4F, 0x4E, 0x54, 0x48, 0x44, 0x41, 0x59, 0}; /* "BYMONTHDAY" */
 
 static const char16_t ICAL_NEWLINE[] = {0x0D, 0x0A, 0}; /* CRLF */
 
@@ -90,7 +72,8 @@ static const char16_t ICU_TZINFO_SIMPLE[] = {0x2F, 0x53, 0x69, 0x6D, 0x70, 0x6C,
 /*
  * Simple fixed digit ASCII number to integer converter
  */
-static int32_t parseAsciiDigits(const UnicodeString & str, int32_t start, int32_t length, UErrorCode & status) {
+static int32_t parseAsciiDigits(const UnicodeString & str, int32_t start, int32_t length, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return 0;
 	}
@@ -294,14 +277,13 @@ static UDate parseDateTimeString(const UnicodeString & str, int32_t offset, UErr
 /*
  * Convert RFC2445 utc-offset string to milliseconds
  */
-static int32_t offsetStrToMillis(const UnicodeString & str, UErrorCode & status) {
+static int32_t offsetStrToMillis(const UnicodeString & str, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-
 	bool isValid = FALSE;
 	int32_t sign = 0, hour = 0, min = 0, sec = 0;
-
 	do {
 		int length = str.length();
 		if(length != 5 && length != 7) {
@@ -330,7 +312,6 @@ static int32_t offsetStrToMillis(const UnicodeString & str, UErrorCode & status)
 		}
 		isValid = true;
 	} while(false);
-
 	if(!isValid) {
 		status = U_INVALID_FORMAT_ERROR;
 		return 0;
@@ -338,11 +319,11 @@ static int32_t offsetStrToMillis(const UnicodeString & str, UErrorCode & status)
 	int32_t millis = sign * ((hour * 60 + min) * 60 + sec) * 1000;
 	return millis;
 }
-
 /*
  * Convert milliseconds to RFC2445 utc-offset string
  */
-static void millisToOffset(int32_t millis, UnicodeString & str) {
+static void millisToOffset(int32_t millis, UnicodeString & str) 
+{
 	str.remove();
 	if(millis >= 0) {
 		str.append(PLUS);
@@ -1705,11 +1686,7 @@ void VTimeZone::parse(UErrorCode & status)
 				UDate lastStart;
 				r->getFinalStart(tmpRaw, tmpDST, lastStart);
 				if(lastStart > start) {
-					finalRule->getNextStart(lastStart,
-					    r->getRawOffset(),
-					    r->getDSTSavings(),
-					    FALSE,
-					    start);
+					finalRule->getNextStart(lastStart, r->getRawOffset(), r->getDSTSavings(), FALSE, start);
 				}
 			}
 
@@ -1717,25 +1694,15 @@ void VTimeZone::parse(UErrorCode & status)
 			UnicodeString tznam;
 			if(start == finalStart) {
 				// Transform this into a single transition
-				newRule = new TimeArrayTimeZoneRule(
-					finalRule->getName(tznam),
-					finalRule->getRawOffset(),
-					finalRule->getDSTSavings(),
-					&finalStart,
-					1,
-					DateTimeRule::UTC_TIME);
+				newRule = new TimeArrayTimeZoneRule(finalRule->getName(tznam), finalRule->getRawOffset(), finalRule->getDSTSavings(),
+					&finalStart, 1, DateTimeRule::UTC_TIME);
 			}
 			else {
 				// Update the end year
 				int32_t y, m, d, dow, doy, mid;
 				Grego::timeToFields(start, y, m, d, dow, doy, mid);
-				newRule = new AnnualTimeZoneRule(
-					finalRule->getName(tznam),
-					finalRule->getRawOffset(),
-					finalRule->getDSTSavings(),
-					*(finalRule->getRule()),
-					finalRule->getStartYear(),
-					y);
+				newRule = new AnnualTimeZoneRule(finalRule->getName(tznam), finalRule->getRawOffset(), finalRule->getDSTSavings(),
+					*(finalRule->getRule()), finalRule->getStartYear(), y);
 			}
 			if(newRule == nullptr) {
 				status = U_MEMORY_ALLOCATION_ERROR;
@@ -1749,7 +1716,6 @@ void VTimeZone::parse(UErrorCode & status)
 			}
 		}
 	}
-
 	while(!rules->isEmpty()) {
 		TimeZoneRule * tzr = (TimeZoneRule*)rules->orphanElementAt(0);
 		rbtz->addTransitionRule(tzr, status);
@@ -1763,11 +1729,9 @@ void VTimeZone::parse(UErrorCode & status)
 	}
 	delete rules;
 	delete dates;
-
 	tz = rbtz;
 	setID(tzid);
 	return;
-
 cleanupParse:
 	if(rules != nullptr) {
 		while(!rules->isEmpty()) {
@@ -1776,31 +1740,24 @@ cleanupParse:
 		}
 		delete rules;
 	}
-	if(dates != nullptr) {
-		delete dates;
-	}
-	if(initialRule != nullptr) {
-		delete initialRule;
-	}
-	if(rbtz != nullptr) {
-		delete rbtz;
-	}
+	delete dates;
+	delete initialRule;
+	delete rbtz;
 	return;
 }
 
-void VTimeZone::write(VTZWriter& writer, UErrorCode & status) const {
+void VTimeZone::write(VTZWriter& writer, UErrorCode & status) const 
+{
 	if(vtzlines != nullptr) {
 		for(int32_t i = 0; i < vtzlines->size(); i++) {
 			UnicodeString * line = (UnicodeString *)vtzlines->elementAt(i);
-			if(line->startsWith(ICAL_TZURL, -1)
-			 && line->charAt(u_strlen(ICAL_TZURL)) == COLON) {
+			if(line->startsWith(ICAL_TZURL, -1) && line->charAt(sstrleni(ICAL_TZURL)) == COLON) {
 				writer.write(ICAL_TZURL);
 				writer.write(COLON);
 				writer.write(tzurl);
 				writer.write(ICAL_NEWLINE);
 			}
-			else if(line->startsWith(ICAL_LASTMOD, -1)
-			 && line->charAt(u_strlen(ICAL_LASTMOD)) == COLON) {
+			else if(line->startsWith(ICAL_LASTMOD, -1) && line->charAt(sstrleni(ICAL_LASTMOD)) == COLON) {
 				UnicodeString utcString;
 				writer.write(ICAL_LASTMOD);
 				writer.write(COLON);
@@ -2656,11 +2613,11 @@ void VTimeZone::endZoneProps(VTZWriter& writer, bool isDst, UErrorCode & status)
 	}
 	writer.write(ICAL_NEWLINE);
 }
-
 /*
  * Write the beginning part of RRULE line
  */
-void VTimeZone::beginRRULE(VTZWriter& writer, int32_t month, UErrorCode & status) const {
+void VTimeZone::beginRRULE(VTZWriter& writer, int32_t month, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -2681,7 +2638,8 @@ void VTimeZone::beginRRULE(VTZWriter& writer, int32_t month, UErrorCode & status
 /*
  * Append the UNTIL attribute after RRULE line
  */
-void VTimeZone::appendUNTIL(VTZWriter& writer, const UnicodeString & until,  UErrorCode & status) const {
+void VTimeZone::appendUNTIL(VTZWriter& writer, const UnicodeString & until,  UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}

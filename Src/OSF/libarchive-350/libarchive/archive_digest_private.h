@@ -246,30 +246,25 @@ typedef uchar archive_sha512_ctx;
 /* defines */
 #if defined(ARCHIVE_CRYPTO_MD5_LIBC) || defined(ARCHIVE_CRYPTO_MD5_LIBMD) || defined(ARCHIVE_CRYPTO_MD5_LIBSYSTEM) || \
 	defined(ARCHIVE_CRYPTO_MD5_MBEDTLS) || defined(ARCHIVE_CRYPTO_MD5_NETTLE) || defined(ARCHIVE_CRYPTO_MD5_OPENSSL) || defined(ARCHIVE_CRYPTO_MD5_WIN)
-#define ARCHIVE_HAS_MD5
+	#define ARCHIVE_HAS_MD5
 #endif
 #define archive_md5_init(ctx) __archive_digest.md5init(ctx)
 #define archive_md5_final(ctx, md) __archive_digest.md5final(ctx, md)
 #define archive_md5_update(ctx, buf, n) __archive_digest.md5update(ctx, buf, n)
 
-#if defined(ARCHIVE_CRYPTO_RMD160_LIBC) || \
-	defined(ARCHIVE_CRYPTO_RMD160_MBEDTLS) || \
-	defined(ARCHIVE_CRYPTO_RMD160_NETTLE) || \
-	defined(ARCHIVE_CRYPTO_RMD160_OPENSSL)
-#define ARCHIVE_HAS_RMD160
+#if defined(ARCHIVE_CRYPTO_RMD160_LIBC) || defined(ARCHIVE_CRYPTO_RMD160_MBEDTLS) || \
+	defined(ARCHIVE_CRYPTO_RMD160_NETTLE) || defined(ARCHIVE_CRYPTO_RMD160_OPENSSL)
+	#define ARCHIVE_HAS_RMD160
 #endif
 #define archive_rmd160_init(ctx) __archive_digest.rmd160init(ctx)
 #define archive_rmd160_final(ctx, md) __archive_digest.rmd160final(ctx, md)
 #define archive_rmd160_update(ctx, buf, n) __archive_digest.rmd160update(ctx, buf, n)
 
-#if defined(ARCHIVE_CRYPTO_SHA1_LIBC) || \
-	defined(ARCHIVE_CRYPTO_SHA1_LIBMD) || \
-	defined(ARCHIVE_CRYPTO_SHA1_LIBSYSTEM) || \
-	defined(ARCHIVE_CRYPTO_SHA1_MBEDTLS) || \
-	defined(ARCHIVE_CRYPTO_SHA1_NETTLE) || \
-	defined(ARCHIVE_CRYPTO_SHA1_OPENSSL) || \
+#if defined(ARCHIVE_CRYPTO_SHA1_LIBC) || defined(ARCHIVE_CRYPTO_SHA1_LIBMD) || \
+	defined(ARCHIVE_CRYPTO_SHA1_LIBSYSTEM) || defined(ARCHIVE_CRYPTO_SHA1_MBEDTLS) || \
+	defined(ARCHIVE_CRYPTO_SHA1_NETTLE) || defined(ARCHIVE_CRYPTO_SHA1_OPENSSL) || \
 	defined(ARCHIVE_CRYPTO_SHA1_WIN)
-#define ARCHIVE_HAS_SHA1
+	#define ARCHIVE_HAS_SHA1
 #endif
 #define archive_sha1_init(ctx) __archive_digest.sha1init(ctx)
 #define archive_sha1_final(ctx, md) __archive_digest.sha1final(ctx, md)

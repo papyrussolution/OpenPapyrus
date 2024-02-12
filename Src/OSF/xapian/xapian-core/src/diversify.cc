@@ -192,10 +192,8 @@ DocumentSet Diversify::Internal::get_dmset(const MSet &mset)
 	Xapian::LCDClusterer lc(k_);
 	Xapian::ClusterSet cset = lc.cluster(mset);
 	compute_similarities(cset);
-
 	// topC contains union of top-r relevant documents of each cluster
 	vector <Xapian::docid> topc;
-
 	// Build topC
 	for(uint c = 0; c < cset.size(); ++c) {
 		auto documents = cset[c].get_documents();

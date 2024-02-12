@@ -1077,7 +1077,6 @@ int32_t TimeZone::getRegion(const UnicodeString & id, char * region, int32_t cap
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-
 	const char16_t * uregion = NULL;
 	// "Etc/Unknown" is not a system zone ID,
 	// but in the zone data
@@ -1088,15 +1087,13 @@ int32_t TimeZone::getRegion(const UnicodeString & id, char * region, int32_t cap
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-	resultLen = u_strlen(uregion);
+	resultLen = sstrleni(uregion);
 	// A region code is represented by invariant characters
 	u_UCharsToChars(uregion, region, smin(resultLen, capacity));
-
 	if(capacity < resultLen) {
 		status = U_BUFFER_OVERFLOW_ERROR;
 		return resultLen;
 	}
-
 	return u_terminateChars(region, capacity, resultLen, &status);
 }
 
@@ -1115,13 +1112,7 @@ UnicodeString &TimeZone::getDisplayName(bool inDaylight, EDisplayType style, Uni
 	return getDisplayName(inDaylight, style, Locale::getDefault(), result);
 }
 
-int32_t TimeZone::getDSTSavings() const 
-{
-	if(useDaylightTime()) {
-		return 3600000;
-	}
-	return 0;
-}
+int32_t TimeZone::getDSTSavings() const { return useDaylightTime() ? 3600000 : 0; }
 
 UnicodeString &TimeZone::getDisplayName(bool inDaylight, EDisplayType style, const Locale & locale, UnicodeString & result) const
 {
@@ -1129,7 +1120,6 @@ UnicodeString &TimeZone::getDisplayName(bool inDaylight, EDisplayType style, con
 	UDate date = Calendar::getNow();
 	UTimeZoneFormatTimeType timeType = UTZFMT_TIME_TYPE_UNKNOWN;
 	int32_t offset;
-
 	if(style == GENERIC_LOCATION || style == LONG_GENERIC || style == SHORT_GENERIC) {
 		LocalPointer<TimeZoneFormat> tzfmt(TimeZoneFormat::createInstance(locale, status));
 		if(U_FAILURE(status)) {

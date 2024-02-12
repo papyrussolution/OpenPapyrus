@@ -6,6 +6,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 
 using namespace DirectX;
 using namespace DirectX::Internal;
@@ -24,48 +25,37 @@ HRESULT PerformFlipRotateUsingWIC(const Image& srcImage, TEX_FR_FLAGS flags, con
 	auto pWIC = GetWICFactory(iswic2);
 	if(!pWIC)
 		return E_NOINTERFACE;
-	if(srcImage.rowPitch > UINT32_MAX || srcImage.slicePitch > UINT32_MAX
-	    || destImage.rowPitch > UINT32_MAX || destImage.slicePitch > UINT32_MAX)
+	if(srcImage.rowPitch > UINT32_MAX || srcImage.slicePitch > UINT32_MAX || destImage.rowPitch > UINT32_MAX || destImage.slicePitch > UINT32_MAX)
 		return HRESULT_E_ARITHMETIC_OVERFLOW;
-
 	ComPtr<IWICBitmap> source;
 	HRESULT hr = pWIC->CreateBitmapFromMemory(static_cast<UINT>(srcImage.width), static_cast<UINT>(srcImage.height), pfGUID,
-		static_cast<UINT>(srcImage.rowPitch), static_cast<UINT>(srcImage.slicePitch),
-		srcImage.pixels, source.GetAddressOf());
+		static_cast<UINT>(srcImage.rowPitch), static_cast<UINT>(srcImage.slicePitch), srcImage.pixels, source.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	ComPtr<IWICBitmapFlipRotator> FR;
 	hr = pWIC->CreateBitmapFlipRotator(FR.GetAddressOf());
 	if(FAILED(hr))
 		return hr;
-
 	hr = FR->Initialize(source.Get(), static_cast<WICBitmapTransformOptions>(flags));
 	if(FAILED(hr))
 		return hr;
-
 	WICPixelFormatGUID pfFR;
 	hr = FR->GetPixelFormat(&pfFR);
 	if(FAILED(hr))
 		return hr;
-
 	if(memcmp(&pfFR, &pfGUID, sizeof(GUID)) != 0) {
 		// Flip/rotate should return the same format as the source...
 		return HRESULT_E_NOT_SUPPORTED;
 	}
-
 	UINT nwidth, nheight;
 	hr = FR->GetSize(&nwidth, &nheight);
 	if(FAILED(hr))
 		return hr;
-
 	if(destImage.width != nwidth || destImage.height != nheight)
 		return E_FAIL;
-
 	hr = FR->CopyPixels(nullptr, static_cast<UINT>(destImage.rowPitch), static_cast<UINT>(destImage.slicePitch), destImage.pixels);
 	if(FAILED(hr))
 		return hr;
-
 	return S_OK;
 }
 
@@ -75,34 +65,26 @@ HRESULT PerformFlipRotateUsingWIC(const Image& srcImage, TEX_FR_FLAGS flags, con
 // For large images we have to use F16 instead of F32 to avoid exceeding the 32-bit
 // memory limitations of WIC.
 //-------------------------------------------------------------------------------------
-HRESULT PerformFlipRotateViaF16(const Image& srcImage,
-    TEX_FR_FLAGS flags,
-    const Image& destImage) noexcept
+HRESULT PerformFlipRotateViaF16(const Image& srcImage, TEX_FR_FLAGS flags, const Image& destImage) noexcept
 {
 	if(!srcImage.pixels || !destImage.pixels)
 		return E_POINTER;
-
 	assert(srcImage.format != DXGI_FORMAT_R16G16B16A16_FLOAT);
 	assert(srcImage.format == destImage.format);
-
 	ScratchImage temp;
 	HRESULT hr = ConvertToR16G16B16A16(srcImage, temp);
 	if(FAILED(hr))
 		return hr;
-
 	const Image * tsrc = temp.GetImage(0, 0, 0);
 	if(!tsrc)
 		return E_POINTER;
-
 	ScratchImage rtemp;
 	hr = rtemp.Initialize2D(DXGI_FORMAT_R16G16B16A16_FLOAT, destImage.width, destImage.height, 1, 1);
 	if(FAILED(hr))
 		return hr;
-
 	const Image * tdest = rtemp.GetImage(0, 0, 0);
 	if(!tdest)
 		return E_POINTER;
-
 	hr = PerformFlipRotateUsingWIC(*tsrc, flags, GUID_WICPixelFormat64bppRGBAHalf, *tdest);
 	if(FAILED(hr))
 		return hr;

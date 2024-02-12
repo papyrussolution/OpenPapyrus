@@ -155,9 +155,8 @@ static unsigned long err_string_data_hash(const ERR_STRING_DATA * a)
 
 static int err_string_data_cmp(const ERR_STRING_DATA * a, const ERR_STRING_DATA * b)
 {
-	if(a->error == b->error)
-		return 0;
-	return a->error > b->error ? 1 : -1;
+	return CMPSIGN(a->error, b->error); // @sobolev
+	// @sobolev return (a->error == b->error) ? 0 : (a->error > b->error ? 1 : -1);
 }
 
 static ERR_STRING_DATA * int_err_get_item(const ERR_STRING_DATA * d)

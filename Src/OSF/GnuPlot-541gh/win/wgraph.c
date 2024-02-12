@@ -1846,8 +1846,7 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 						if(cur_pen > LT_NODRAW) {
 							cur_pen += 2;
 							cur_penstruct =  (lpgw->color && isColor) ?  lpgw->colorpen[cur_pen] : lpgw->monopen[cur_pen];
-							cur_penstruct.lopnStyle =
-							lpgw->dashed ? lpgw->monopen[cur_pen].lopnStyle : lpgw->colorpen[cur_pen].lopnStyle;
+							cur_penstruct.lopnStyle = lpgw->dashed ? lpgw->monopen[cur_pen].lopnStyle : lpgw->colorpen[cur_pen].lopnStyle;
 						}
 						else if(cur_pen == LT_NODRAW) {
 							cur_pen = WGNUMPENS;
@@ -1889,8 +1888,7 @@ static void drawgraph(GW * lpgw, HDC hdc, LPRECT rect)
 						}
 						else if(dt == DASHTYPE_AXIS) {
 							dt = 1;
-							cur_penstruct.lopnStyle =
-							lpgw->dashed ? lpgw->monopen[dt].lopnStyle : lpgw->colorpen[dt].lopnStyle;
+							cur_penstruct.lopnStyle = lpgw->dashed ? lpgw->monopen[dt].lopnStyle : lpgw->colorpen[dt].lopnStyle;
 							draw_new_pens(lpgw, hdc, cur_penstruct);
 						}
 						else if(dt == DASHTYPE_CUSTOM) {
@@ -3403,7 +3401,7 @@ INT_PTR CALLBACK LineStyleDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lp
 					return FALSE;
 			    case LS_MONOSTYLE:
 					plpm->lopnStyle = (UINT)SendDlgItemMessage(hdlg, LS_MONOSTYLE, CB_GETCURSEL, 0, 0L);
-					if(plpm->lopnStyle != 0) {
+					if(plpm->lopnStyle) {
 						plpm->lopnWidth.x = 1;
 						wsprintf(buf, TEXT("%d"), plpm->lopnWidth.x);
 						SetDlgItemText(hdlg, LS_MONOWIDTH, buf);
@@ -3423,7 +3421,7 @@ INT_PTR CALLBACK LineStyleDlgProc(HWND hdlg, UINT wmsg, WPARAM wparam, LPARAM lp
 					return FALSE;
 			    case LS_COLORSTYLE:
 					plpc->lopnStyle = (UINT)SendDlgItemMessage(hdlg, LS_COLORSTYLE, CB_GETCURSEL, 0, 0L);
-					if(plpc->lopnStyle != 0) {
+					if(plpc->lopnStyle) {
 						plpc->lopnWidth.x = 1;
 						wsprintf(buf, TEXT("%d"), plpc->lopnWidth.x);
 						SetDlgItemText(hdlg, LS_COLORWIDTH, buf);

@@ -4141,80 +4141,84 @@ int GoodsStockExt::ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, PPID pa
 	int    ok = -1;
 	double result = 0.0;
 	Pallet plt;
-	if(fromCargoUnit == CARGOUNIT_ITEM) {
-		if(toCargoUnit == CARGOUNIT_ITEM) {
+	if(oneof3(fromCargoUnit, CARGOUNIT_ITEM, CARGOUNIT_PCKG, CARGOUNIT_PALLET) && oneof3(toCargoUnit, CARGOUNIT_ITEM, CARGOUNIT_PCKG, CARGOUNIT_PALLET)) {
+		if(fromCargoUnit == toCargoUnit) {
 			result = srcVal;
 			ok = 1;
 		}
-		else if(toCargoUnit == CARGOUNIT_PCKG) {
-			if(Package > 0.0) {
-				result = srcVal / Package;
-				ok = 1;
+		else {
+			switch(fromCargoUnit) {
+				case CARGOUNIT_ITEM:
+					switch(toCargoUnit) {
+						case CARGOUNIT_PCKG:
+							if(Package > 0.0) {
+								result = srcVal / Package;
+								ok = 1;
+							}
+							break;
+						case CARGOUNIT_PALLET:
+							if(GetPalletEntry(palletTypeID, &plt) > 0) {
+								double layer = static_cast<double>(plt.PacksPerLayer);
+								double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
+								if(pckg_count > 0.0) {
+									if(Package > 0.0)
+										result = srcVal / (pckg_count * Package);
+									else
+										result = srcVal / pckg_count;
+									ok = 1;
+								}
+							}
+							break;
+					}
+					break;
+				case CARGOUNIT_PCKG:
+					switch(toCargoUnit) {
+						case CARGOUNIT_ITEM:
+							if(Package > 0.0) {
+								result = srcVal * Package;
+								ok = 1;
+							}
+							break;
+						case CARGOUNIT_PALLET:
+							if(GetPalletEntry(palletTypeID, &plt) > 0) {
+								double layer = static_cast<double>(plt.PacksPerLayer);
+								double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
+								if(pckg_count > 0.0) {
+									result = srcVal / pckg_count;
+									ok = 1;
+								}
+							}
+							break;
+					}
+					break;
+				case CARGOUNIT_PALLET:
+					switch(toCargoUnit) {
+						case CARGOUNIT_ITEM:
+							if(GetPalletEntry(palletTypeID, &plt) > 0) {
+								double layer = static_cast<double>(plt.PacksPerLayer);
+								double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
+								if(pckg_count > 0.0) {
+									if(Package > 0.0)
+										result = srcVal * (pckg_count * Package);
+									else
+										result = srcVal * pckg_count;
+									ok = 1;
+								}
+							}
+							break;
+						case CARGOUNIT_PCKG:
+							if(GetPalletEntry(palletTypeID, &plt) > 0) {
+								double layer = static_cast<double>(plt.PacksPerLayer);
+								double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
+								if(pckg_count > 0.0) {
+									result = srcVal * pckg_count;
+									ok = 1;
+								}
+							}
+							break;
+					}
+					break;
 			}
-		}
-		else if(toCargoUnit == CARGOUNIT_PALLET) {
-			if(GetPalletEntry(palletTypeID, &plt) > 0) {
-				double layer = static_cast<double>(plt.PacksPerLayer);
-				double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
-				if(pckg_count > 0.0) {
-					if(Package > 0.0)
-						result = srcVal / (pckg_count * Package);
-					else
-						result = srcVal / pckg_count;
-					ok = 1;
-				}
-			}
-		}
-	}
-	else if(fromCargoUnit == CARGOUNIT_PCKG) {
-		if(toCargoUnit == CARGOUNIT_ITEM) {
-			if(Package > 0.0) {
-				result = srcVal * Package;
-				ok = 1;
-			}
-		}
-		else if(toCargoUnit == CARGOUNIT_PCKG) {
-			result = srcVal;
-			ok = 1;
-		}
-		else if(toCargoUnit == CARGOUNIT_PALLET) {
-			if(GetPalletEntry(palletTypeID, &plt) > 0) {
-				double layer = static_cast<double>(plt.PacksPerLayer);
-				double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
-				if(pckg_count > 0.0) {
-					result = srcVal / pckg_count;
-					ok = 1;
-				}
-			}
-		}
-	}
-	else if(fromCargoUnit == CARGOUNIT_PALLET) {
-		if(toCargoUnit == CARGOUNIT_ITEM) {
-			if(GetPalletEntry(palletTypeID, &plt) > 0) {
-				double layer = static_cast<double>(plt.PacksPerLayer);
-				double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
-				if(pckg_count > 0.0) {
-					if(Package > 0.0)
-						result = srcVal * (pckg_count * Package);
-					else
-						result = srcVal * pckg_count;
-					ok = 1;
-				}
-			}
-		}
-		else if(toCargoUnit == CARGOUNIT_PCKG) {
-			if(GetPalletEntry(palletTypeID, &plt) > 0) {
-				double layer = static_cast<double>(plt.PacksPerLayer);
-				double pckg_count = (plt.MaxLayers > 0) ? (layer * plt.MaxLayers) : layer;
-				if(pckg_count > 0.0) {
-					result = srcVal * pckg_count;
-					ok = 1;
-				}
-			}
-		}
-		else if(toCargoUnit == CARGOUNIT_PALLET) {
-			result = srcVal;
-			ok = 1;
 		}
 	}
 	ASSIGN_PTR(pDestVal, result);

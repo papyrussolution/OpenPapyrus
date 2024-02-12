@@ -1,5 +1,5 @@
 // SARC.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -223,9 +223,54 @@ struct SArc_Bz2_Block {
 	SString FileName;
 };
 
+/*static*/int SArchive::ConvertLaEntry(void * pLaEntry, SFileEntryPool::Entry & rFe)
+{
+	int    ok = 1;
+	if(pLaEntry) {
+		ArchiveEntry * p_entry = static_cast<ArchiveEntry *>(pLaEntry);
+		const wchar_t * p_entry_name = archive_entry_pathname_w(p_entry);
+		rFe.Size = archive_entry_size(p_entry);
+		{
+			SString temp_buf;
+			temp_buf.CopyUtf8FromUnicode(p_entry_name, sstrlen(p_entry_name), 1);
+			{
+				uint rp_ = 0;
+				uint rpb_ = 0;
+				const char * p_rp = temp_buf.SearchRChar('/', &rp_);
+				const char * p_rpb = temp_buf.SearchRChar('\\', &rpb_);
+				uint _p = 0;
+				if(p_rp && p_rpb) {
+					_p = MAX(rp_, rpb_)+1;
+				}
+				else if(p_rp)
+					_p = rp_+1;
+				else if(p_rpb)
+					_p = rpb_+1;
+				if(_p == 0) {
+					rFe.Name = temp_buf;
+					rFe.Path.Z();
+				}
+				else {
+					temp_buf.Sub(_p, temp_buf.Len()-_p, rFe.Name);
+					temp_buf.Sub(0, _p-1, rFe.Path);
+				}
+			}
+		}
+		if(archive_entry_mtime_is_set(p_entry)) {
+			time_t mtm = archive_entry_mtime(p_entry);
+			//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
+			rFe.ModTm_ = SUniTime_Internal::EpochToNs100(mtm);
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 /*static*/int SArchive::List(int provider, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool)
 {
 	int    ok = 0;
+	SString temp_buf;
 	Archive * p_larc = 0;
 	switch(provider) {
 		case providerLA:
@@ -242,17 +287,9 @@ struct SArc_Bz2_Block {
 				THROW(r == 0);
 				{
 					ArchiveEntry * p_entry = 0;
-					const wchar_t * p_entry_name = 0;
 					SFileEntryPool::Entry fep_entry;
 					while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
-						p_entry_name = archive_entry_pathname_w(p_entry);
-						fep_entry.Size = archive_entry_size(p_entry);
-						fep_entry.Path.CopyUtf8FromUnicode(p_entry_name, sstrlen(p_entry_name), 1);
-						if(archive_entry_mtime_is_set(p_entry)) {
-							time_t mtm = archive_entry_mtime(p_entry);
-							//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
-							fep_entry.ModTm_ = SUniTime_Internal::EpochToNs100(mtm);
-						}
+						ConvertLaEntry(p_entry, fep_entry);
 						rPool.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 					}				
 				}
@@ -370,111 +407,202 @@ static void extract(const char *filename)
 	return ok;
 }
 
+/*static*/SPtrHandle SArchive::OpenArchiveEntry(int provider, const char * pArcName, const char * pEntryName)
+{
+	SPtrHandle h;
+	Archive * p_larc = 0;
+	LaCbBlock * p_cb_blk = 0;
+	THROW(!isempty(pArcName));
+	THROW(!isempty(pEntryName));
+	THROW(fileExists(pArcName));
+	if(provider == providerLA) {
+		p_larc = archive_read_new();
+		p_cb_blk = new LaCbBlock(0, SKILOBYTE(512));
+		THROW(p_cb_blk->F.Open(pArcName, SFile::mRead | (SFile::mBinary|SFile::mNoStd)));
+		//archive_read_support_compression_all(p_larc);
+		archive_read_support_filter_all(p_larc);
+		archive_read_support_format_all(p_larc);
+		archive_read_support_format_empty(p_larc); // @v11.7.0
+		archive_read_set_seek_callback(p_larc, LaCbSeek);
+		const int r = archive_read_open2(p_larc, p_cb_blk, LaCbOpen, LaCbRead, LaCbSkip, LaCbClose);
+		THROW(r == 0);
+		{
+			ArchiveEntry * p_entry = 0;
+			SFileEntryPool::Entry fep_entry;
+			SString temp_buf;
+			SString arc_sub;
+			SString entry_name;
+			SFsPath::NormalizePath(pEntryName, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, arc_sub);
+			while(!h && archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
+				ConvertLaEntry(p_entry, fep_entry);
+				fep_entry.GetFullPath(entry_name);
+				if(SFsPath::NormalizePath(entry_name, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf).IsEqiUtf8(arc_sub)) {
+					EntryBlock * p_blk = new EntryBlock(provider, p_larc);
+					THROW(p_blk);
+					p_blk->P_CbBlk = p_cb_blk;
+					p_larc = 0; // Объект p_larc переходит в собственность возвращаемого манипулятора 
+					p_cb_blk = 0;
+					h = p_blk;
+				}
+			}				
+		}
+	}
+	CATCH
+		;
+	ENDCATCH
+	if(p_larc) {
+		archive_read_finish(p_larc);
+		p_larc = 0;
+	}
+	delete p_cb_blk;
+	return h;
+}
+
+/*static*/int SArchive::ReadArchiveEntry(SPtrHandle h, void * pBuf, size_t size, size_t * pActualSize)
+{
+	int    ok = 0;
+	size_t actual_size = 0;
+	if(!!h) {
+		EntryBlock * p_ab = static_cast<EntryBlock *>(static_cast<void *>(h));
+		assert(p_ab);
+		if(p_ab->Magic == EntryBlock::MagicValue) {
+			if(p_ab->Provider == providerLA) {
+				if(p_ab->H) {
+					int r = archive_read_data(static_cast<Archive *>(p_ab->H), pBuf, size);
+					if(r < 0)
+						ok = 0;
+					else {
+						actual_size = static_cast<size_t>(r);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pActualSize, actual_size);
+	return ok;
+}
+
+/*static*/int SArchive::SeekArchiveEntry(SPtrHandle h, int64 offs, int whence)
+{
+	int    ok = 0;
+	if(!!h) {
+		EntryBlock * p_ab = static_cast<EntryBlock *>(static_cast<void *>(h));
+		assert(p_ab);
+		if(p_ab->Magic == EntryBlock::MagicValue) {
+			if(p_ab->Provider == providerLA) {
+				if(p_ab->H) {
+					int r = archive_seek_data(static_cast<Archive *>(p_ab->H), offs, whence);
+					if(r == 0)
+						ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+/*static*/int SArchive::CloseArchiveEntry(SPtrHandle h)
+{
+	int    ok = 0;
+	if(!!h) {
+		EntryBlock * p_ab = static_cast<EntryBlock *>(static_cast<void *>(h));
+		assert(p_ab);
+		if(p_ab->Magic == EntryBlock::MagicValue) {
+			if(p_ab->Provider == providerLA) {
+				if(p_ab->H) {
+					archive_read_finish(static_cast<Archive *>(p_ab->H));
+					delete p_ab->P_CbBlk;
+					p_ab->H = 0;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 /*static*/int SArchive::Implement_Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath)
 {
 	int    ok = 0;
 	Archive * p_larc = 0;
 	SString temp_buf;
-	switch(provider) {
-		case providerLA:
-			{
-				p_larc = archive_read_new();
-				LaCbBlock cb_blk(0, SKILOBYTE(512));
-				THROW(cb_blk.F.Open(pName, SFile::mRead | (SFile::mBinary|SFile::mNoStd))); // @v11.6.8 @fix &-->|
-				//archive_read_support_compression_all(p_larc);
-				archive_read_support_filter_all(p_larc);
-				archive_read_support_format_all(p_larc);
-				archive_read_support_format_empty(p_larc); // @v11.7.0
-				archive_read_set_seek_callback(p_larc, LaCbSeek);
-				const int r = archive_read_open2(p_larc, &cb_blk, LaCbOpen, LaCbRead, LaCbSkip, LaCbClose);
-				THROW(r == 0);
-				{
-					ArchiveEntry * p_entry = 0;
-					const wchar_t * p_entry_name = 0;
-					SFileEntryPool::Entry fep_entry;
-					SFsPath ps;
-					SString base_path;
-					SString final_path;
-					if(!isempty(pDestPath)) {
-						(base_path = pDestPath).Strip().RmvLastSlash();
-					}
-					else
-						base_path.Z();
-					while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
-						p_entry_name = archive_entry_pathname_w(p_entry);
-						fep_entry.Size = archive_entry_size(p_entry);
-						fep_entry.Path.CopyUtf8FromUnicode(p_entry_name, sstrlen(p_entry_name), 1);
-						ps.Split(fep_entry.Path);
-						bool suited = false;
-						if(!isempty(pWildcard)) {
-							ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
-							if(SFile::WildcardMatch(pWildcard, temp_buf))
-								suited = true;
-						}
-						else
-							suited = true;
-						if(suited) {
-							if(archive_entry_mtime_is_set(p_entry)) {
-								time_t mtm = archive_entry_mtime(p_entry);
-								//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
-								fep_entry.ModTm_ = SUniTime_Internal::EpochToNs100(mtm);
+	if(provider == providerLA) {
+		p_larc = archive_read_new();
+		LaCbBlock cb_blk(0, SKILOBYTE(512));
+		THROW(cb_blk.F.Open(pName, SFile::mRead | (SFile::mBinary|SFile::mNoStd)));
+		//archive_read_support_compression_all(p_larc);
+		archive_read_support_filter_all(p_larc);
+		archive_read_support_format_all(p_larc);
+		archive_read_support_format_empty(p_larc); // @v11.7.0
+		archive_read_set_seek_callback(p_larc, LaCbSeek);
+		const int r = archive_read_open2(p_larc, &cb_blk, LaCbOpen, LaCbRead, LaCbSkip, LaCbClose);
+		THROW(r == 0);
+		{
+			ArchiveEntry * p_entry = 0;
+			const wchar_t * p_entry_name = 0;
+			SFileEntryPool::Entry fep_entry;
+			SFsPath ps;
+			SString base_path;
+			SString final_path;
+			if(!isempty(pDestPath)) {
+				(base_path = pDestPath).Strip().RmvLastSlash();
+			}
+			else
+				base_path.Z();
+			while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
+				ConvertLaEntry(p_entry, fep_entry);
+				bool suited = false;
+				if(!isempty(pWildcard)) {
+					if(SFile::WildcardMatch(pWildcard, fep_entry.Name))
+						suited = true;
+				}
+				else
+					suited = true;
+				if(suited) {
+					//rPool.Add(fep_entry);
+					{
+						const void * p_buf;
+						size_t buf_size;
+						int64 offset;
+						int local_ok = 0;
+						int rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
+						if(rd_result == ARCHIVE_OK) {
+							if(ps.Dir.NotEmpty()) {
+								ps.Dir.ShiftLeftChr('\\').ShiftLeftChr('/');
+								(final_path = base_path).SetLastSlash().Cat(ps.Dir);
+								ps.Dir = final_path;
 							}
-							//rPool.Add(fep_entry);
-							{
-								const void * p_buf;
-								size_t buf_size;
-								int64 offset;
-								int local_ok = 0;
-								int rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
-								if(rd_result == ARCHIVE_OK) {
-									if(ps.Dir.NotEmpty()) {
-										ps.Dir.ShiftLeftChr('\\').ShiftLeftChr('/');
-										(final_path = base_path).SetLastSlash().Cat(ps.Dir);
-										ps.Dir = final_path;
-									}
-									else {
-										ps.Dir = base_path;
-									}
-									if(!SFile::CreateDir(ps.Dir)) {
+							else {
+								ps.Dir = base_path;
+							}
+							if(!SFile::CreateDir(ps.Dir)) {
+								; // @todo @err
+							}
+							else {
+								ps.Merge(final_path);
+								SFile f_out(final_path, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
+								do {
+									if(!f_out.Write(p_buf, buf_size)) {
+										rd_result = ARCHIVE_FAILED;
 										; // @todo @err
 									}
-									else {
-										ps.Merge(final_path);
-										SFile f_out(final_path, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
-										do {
-											if(!f_out.Write(p_buf, buf_size)) {
-												rd_result = ARCHIVE_FAILED;
-												; // @todo @err
-											}
-											else
-												rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
-										} while(rd_result == ARCHIVE_OK);
-										if(rd_result == ARCHIVE_EOF) {
-											f_out.SetDateTime(0LL, 0LL, fep_entry.ModTm_);
-											local_ok = 1;
-										}
-									}
+									else
+										rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
+								} while(rd_result == ARCHIVE_OK);
+								if(rd_result == ARCHIVE_EOF) {
+									f_out.SetDateTime(0LL, 0LL, fep_entry.ModTm_);
+									local_ok = 1;
 								}
-								/*for(;;) {
-									int r = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
-									if(r == ARCHIVE_EOF) {
-										//return (ARCHIVE_OK);
-										r = ARCHIVE_OK;
-										break;
-									}
-									if(r < ARCHIVE_OK) {
-										//return (r);
-										break;
-									}*/
 							}
 						}
-					}				
+					}
 				}
-				ok = 1;
-			}
-			break;
-		default:
-			break;
+			}				
+		}
+		ok = 1;
+	}
+	else {
+		// @notimpelemted
 	}
 	CATCHZOK
 	if(p_larc) {
@@ -710,32 +838,36 @@ SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pM
 		if(p_blk->F.Read(p_blk->Buf.vptr(), p_blk->Buf.GetSize(), &actual_size)) {
 			result = static_cast<SSIZE_T>(actual_size);
 		}
+		else
+			result = -1;
 	}
 	return result;
 }
 
 /*static*/int64 cdecl SArchive::LaCbSkip(Archive * pA, void * pClientData, int64 request)
 {
-	int64  result = 0;
+	int64  result = -1;
 	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);
 	if(p_blk && p_blk->F.IsValid()) {
 		const int64 preserve_offs = p_blk->F.Tell64();
-		p_blk->F.Seek64(request, SEEK_CUR);
-		const int64 new_offs = p_blk->F.Tell64();
-		result = new_offs - preserve_offs;
+		if(p_blk->F.Seek64(request, SEEK_CUR)) {
+			const int64 new_offs = p_blk->F.Tell64();
+			result = new_offs - preserve_offs;
+		}
 	}
 	return result;
 }
 
 /*static*/int64 cdecl SArchive::LaCbSeek(Archive * pA, void * pClientData, int64 offset, int whence)
 {
-	int64  result = 0;
+	int64  result = -1;
 	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);
 	if(p_blk && p_blk->F.IsValid()) {
 		const int64 preserve_offs = p_blk->F.Tell64();
-		p_blk->F.Seek64(offset, whence);
-		const int64 new_offs = p_blk->F.Tell64();
-		result = new_offs;
+		if(p_blk->F.Seek64(offset, whence)) {
+			const int64 new_offs = p_blk->F.Tell64();
+			result = new_offs;
+		}
 	}
 	return result;
 }

@@ -725,19 +725,15 @@ static int32_t handleGeneratedSpaces(char16_t * dest, int32_t sourceLength,
 			i--;
 			count--;
 		}
-
 		u_memcpy(dest, tempbuffer, sourceLength);
-		destSize = u_strlen(dest);
+		destSize = sstrleni(dest);
 	}
-
 	lamAlefOption = 0;
-
 	if(shapingMode == 0) {
 		if((options&U_SHAPE_LAMALEF_MASK) == U_SHAPE_LAMALEF_NEAR) {
 			lamAlefOption = 1;
 		}
 	}
-
 	if(lamAlefOption) {
 		/* Lam+Alef is already shaped into LamAlef + FFFF */
 		i = 0;
@@ -927,10 +923,9 @@ static int32_t expandCompositCharAtEnd(char16_t * dest, int32_t sourceLength, in
 		i--;
 		j--;
 	}
-
 	if(countr > 0) {
 		u_memmove(tempbuffer, tempbuffer+countr, sourceLength);
-		if(u_strlen(tempbuffer) < sourceLength) {
+		if(sstrleni(tempbuffer) < sourceLength) {
 			for(i = sourceLength-1; i>=sourceLength-countr; i--) {
 				tempbuffer[i] = SPACE_CHAR;
 			}
@@ -1386,18 +1381,15 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const char16_t * source, int32_t sourceLe
 		return 0;
 	}
 	/* Validate  Tashkeel options */
-	if(((options&U_SHAPE_TASHKEEL_MASK) > 0)&&
-	    !(((options & U_SHAPE_TASHKEEL_MASK)==U_SHAPE_TASHKEEL_BEGIN) ||
-	    ((options & U_SHAPE_TASHKEEL_MASK)==U_SHAPE_TASHKEEL_END )
-	    ||((options & U_SHAPE_TASHKEEL_MASK)==U_SHAPE_TASHKEEL_RESIZE )||
+	if(((options&U_SHAPE_TASHKEEL_MASK) > 0)&& !(((options & U_SHAPE_TASHKEEL_MASK)==U_SHAPE_TASHKEEL_BEGIN) ||
+	    ((options & U_SHAPE_TASHKEEL_MASK)==U_SHAPE_TASHKEEL_END) ||((options & U_SHAPE_TASHKEEL_MASK)==U_SHAPE_TASHKEEL_RESIZE )||
 	    ((options & U_SHAPE_TASHKEEL_MASK)==U_SHAPE_TASHKEEL_REPLACE_BY_TATWEEL))) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
 	/* determine the source length */
-	if(sourceLength == -1) {
-		sourceLength = u_strlen(source);
-	}
+	if(sourceLength == -1)
+		sourceLength = sstrleni(source);
 	if(sourceLength<=0) {
 		return u_terminateUChars(dest, destCapacity, 0, pErrorCode);
 	}

@@ -281,33 +281,30 @@ TZGNCore::~TZGNCore()
 	cleanup();
 }
 
-void TZGNCore::initialize(const Locale & locale, UErrorCode & status) {
+void TZGNCore::initialize(const Locale & locale, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	// TimeZoneNames
 	fTimeZoneNames = TimeZoneNames::createInstance(locale, status);
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	// Initialize format patterns
 	UnicodeString rpat(TRUE, gDefRegionPattern, -1);
 	UnicodeString fpat(TRUE, gDefFallbackPattern, -1);
-
 	UErrorCode tmpsts = U_ZERO_ERROR; // OK with fallback warning..
 	UResourceBundle * zoneStrings = ures_open(U_ICUDATA_ZONE, locale.getName(), &tmpsts);
 	zoneStrings = ures_getByKeyWithFallback(zoneStrings, gZoneStrings, zoneStrings, &tmpsts);
-
 	if(U_SUCCESS(tmpsts)) {
 		const char16_t * regionPattern = ures_getStringByKeyWithFallback(zoneStrings, gRegionFormatTag, NULL, &tmpsts);
-		if(U_SUCCESS(tmpsts) && u_strlen(regionPattern) > 0) {
+		if(U_SUCCESS(tmpsts) && sstrleni(regionPattern) > 0) {
 			rpat.setTo(regionPattern, -1);
 		}
 		tmpsts = U_ZERO_ERROR;
 		const char16_t * fallbackPattern = ures_getStringByKeyWithFallback(zoneStrings, gFallbackFormatTag, NULL, &tmpsts);
-		if(U_SUCCESS(tmpsts) && u_strlen(fallbackPattern) > 0) {
+		if(U_SUCCESS(tmpsts) && sstrleni(fallbackPattern) > 0) {
 			fpat.setTo(fallbackPattern, -1);
 		}
 	}
@@ -408,12 +405,12 @@ UnicodeString &TZGNCore::getDisplayName(const TimeZone& tz, UTimeZoneGenericName
 	return name;
 }
 
-UnicodeString &TZGNCore::getGenericLocationName(const UnicodeString & tzCanonicalID, UnicodeString & name) const {
+UnicodeString &TZGNCore::getGenericLocationName(const UnicodeString & tzCanonicalID, UnicodeString & name) const 
+{
 	if(tzCanonicalID.isEmpty()) {
 		name.setToBogus();
 		return name;
 	}
-
 	const char16_t * locname = NULL;
 	TZGNCore * nonConstThis = const_cast<TZGNCore *>(this);
 	umtx_lock(&gLock);
@@ -421,14 +418,12 @@ UnicodeString &TZGNCore::getGenericLocationName(const UnicodeString & tzCanonica
 		locname = nonConstThis->getGenericLocationName(tzCanonicalID);
 	}
 	umtx_unlock(&gLock);
-
 	if(locname == NULL) {
 		name.setToBogus();
 	}
 	else {
-		name.setTo(locname, u_strlen(locname));
+		name.setTo(locname, sstrleni(locname));
 	}
-
 	return name;
 }
 

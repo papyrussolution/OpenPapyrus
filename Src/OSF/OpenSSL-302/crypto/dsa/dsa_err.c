@@ -13,7 +13,6 @@
 #include "crypto/dsaerr.h"
 
 #ifndef OPENSSL_NO_DSA
-
 #ifndef OPENSSL_NO_ERR
 
 static const ERR_STRING_DATA DSA_str_reasons[] = {

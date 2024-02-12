@@ -360,36 +360,44 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 }
 
 #if(_MSC_VER >= 1900) // {
+//
+//
+//
+// Descr: Кодирует real-число в диапазоне [0..upp] в целочисленное представление
+//   шириной bits бит, гранулярностью granulation.
+//   Пояснение по поводу гранулярности: идея заключается в том, чтобы естественно выглядещие 
+//   real-значения кодировались без потери точности. Например, угол 71deg должен после 
+//   кодирования/декодирования оставаться таким же. 
+//   Not a static for the testing purpose
+//
+uint64 UedEncodeRange(uint64 upp, uint granulation, uint bits, double value)
+{
+	assert(value >= 0.0 && value <= static_cast<double>(upp));
+	assert(bits >= 8 && bits <= 64);
+	assert(granulation < ((1ULL << bits) - 1));
+	uint64 result = 0;
+	const uint64 ued_width = ((1ULL << bits) - 1) / granulation * granulation;
+	result = static_cast<uint64>((ued_width / upp) * value);
+	return result;
+}
+
+// Not a static for the testing purpose
+bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * pResult)
+{
+	const uint64 ued_width = ((1ULL << bits) - 1) / granulation * granulation;
+	*pResult = v * static_cast<double>(upp) / static_cast<double>(ued_width);
+	return true;
+}
 
 /*static*/uint64 UED::SetRaw_SphDir(const SphericalDirection & rV)
 {
 	uint64 result = 0;
-	SphericalDirection test_v;
 	if(rV.IsValid()) {
 		constexpr uint _bits = 28;
-		constexpr uint64 ued_coeff = 3600ULL;
-		constexpr uint64 ued_width = ((1ULL << _bits) - 1) / ued_coeff * ued_coeff;
-		uint64 _polarangle = static_cast<uint64>(rV.PolarAngle * 1000000.0);
-		uint64 _azimuth = static_cast<uint64>(rV.Azimuth * 1000000.0);
-		absl::uint128 _p128 = (_polarangle * ued_width);
-		_p128 /= absl::uint128(180ULL * 1000000ULL);
-		assert(_p128 <= ued_width);
-		absl::uint128 _a128 = (_azimuth * ued_width);
-		_a128 /= absl::uint128(360ULL * 1000000ULL);
-		assert(_a128 <= ued_width);
-		uint64 raw = (static_cast<uint64>(_p128) << _bits) | static_cast<uint64>(_a128);
+		uint64 _pa = UedEncodeRange(180, 36000, _bits, rV.PolarAngle);
+		uint64 _a = UedEncodeRange(360, 36000, _bits, rV.Azimuth);
+		uint64 raw = (_pa << _bits) | _a;
 		result = ApplyMetaToRawValue(UED_META_SPHERDIR, raw);
-		// @debug {
-		//
-		// test straighten
-		//
-		absl::uint128 _p128_ = ((result >> _bits) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
-		absl::uint128 _a128_ = (result & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
-		_p128_ /= ued_width;
-		_a128_ /= ued_width;
-		test_v.PolarAngle = (static_cast<double>(_p128_) / 1000000.0);
-		test_v.Azimuth = (static_cast<double>(_a128_) / 1000000.0);
-		// } @debug
 	}
 	return result;
 }
@@ -399,14 +407,10 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	bool   ok = false;
 	if(BelongToMeta(ued, UED_META_SPHERDIR)) {
 		constexpr uint _bits = 28;
-		constexpr uint64 ued_coeff = 3600ULL;
-		constexpr uint64 ued_width = ((1ULL << _bits) - 1) / ued_coeff * ued_coeff;
-		absl::uint128 _p128 = ((ued >> _bits) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
-		absl::uint128 _a128 = (ued & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
-		_p128 /= ued_width;
-		_a128 /= ued_width;
-		rV.PolarAngle = (static_cast<double>(_p128) / 1000000.0);
-		rV.Azimuth = (static_cast<double>(_a128) / 1000000.0);
+		uint64 _pa = ((ued >> _bits) & 0xfffffffULL);
+		uint64 _a = (ued & 0xfffffffULL);
+		UedDecodeRange(_pa, 180, 36000, _bits, &rV.PolarAngle);
+		UedDecodeRange(_a, 360, 36000, _bits, &rV.Azimuth);
 		ok = rV.IsValid();
 	}
 	return ok;
@@ -415,31 +419,12 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 /*static*/uint64 UED::SetRaw_GeoLoc(const SGeoPosLL & rGeoPos)
 {
 	uint64 result = 0;
-	SGeoPosLL test_geopos; // @debug
 	if(rGeoPos.IsValid()) {
 		constexpr uint _bits = 28;
-		constexpr uint64 ued_width = ((1ULL << _bits) - 1); // 28 bits
-		uint64 _lat = static_cast<uint64>((rGeoPos.Lat + 90.0)  * 1000000.0);
-		uint64 _lon = static_cast<uint64>((rGeoPos.Lon + 180.0) * 1000000.0);
-		absl::uint128 _lat128 = (_lat * ued_width);
-		_lat128 /= absl::uint128(180ULL * 1000000ULL);
-		assert(_lat128 <= ued_width);
-		absl::uint128 _lon128 = (_lon * ued_width);
-		_lon128 /= absl::uint128(360ULL * 1000000ULL);
-		assert(_lon128 <= ued_width);
-		uint64 raw = (static_cast<uint64>(_lat128) << _bits) | static_cast<uint64>(_lon128);
+		uint64 _lat = UedEncodeRange(180, 36000, _bits, rGeoPos.Lat + 90.0);
+		uint64 _lon = UedEncodeRange(360, 36000, _bits, rGeoPos.Lon + 180.0);
+		uint64 raw = (_lat << _bits) | _lon;
 		result = ApplyMetaToRawValue(UED_META_GEOLOC, raw);
-		// @debug {
-		//
-		// test straighten
-		//
-		absl::uint128 _lat128_ = ((result >> _bits) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
-		absl::uint128 _lon128_ = (result & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
-		_lat128_ /= ued_width;
-		_lon128_ /= ued_width;
-		test_geopos.Lat = (static_cast<double>(_lat128_) / 1000000.0) - 90.0;
-		test_geopos.Lon = (static_cast<double>(_lon128_) / 1000000.0) - 180.0;
-		// } @debug
 	}
 	return result;
 }
@@ -449,13 +434,12 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	bool   ok = false;
 	if(BelongToMeta(ued, UED_META_GEOLOC)) {
 		constexpr uint _bits = 28;
-		constexpr uint64 ued_width = ((1 << _bits) - 1); // 28 bits
-		absl::uint128 _lat128 = ((ued >> _bits) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
-		absl::uint128 _lon128 = (ued & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
-		_lat128 /= ued_width;
-		_lon128 /= ued_width;
-		rGeoPos.Lat = (static_cast<double>(_lat128) / 1000000.0) - 90.0;
-		rGeoPos.Lon = (static_cast<double>(_lon128) / 1000000.0) - 180.0;
+		uint64 _lat = ((ued >> _bits) & 0xfffffffULL);
+		uint64 _lon = (ued & 0xfffffffULL);
+		UedDecodeRange(_lat, 180, 36000, _bits, &rGeoPos.Lat);
+		UedDecodeRange(_lon, 360, 36000, _bits, &rGeoPos.Lon);
+		rGeoPos.Lat -= 90.0;
+		rGeoPos.Lon -= 180.0;
 		ok = true;
 	}
 	return ok;

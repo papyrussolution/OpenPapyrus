@@ -5,6 +5,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 #include "BC.h"
 
 using namespace DirectX;
@@ -12,10 +13,8 @@ using namespace DirectX;
 // Constants
 //
 // Because these are used in SAL annotations, they need to remain macros rather than const values
-#define BLOCK_LEN 4
-// length of each block in texel
-#define BLOCK_SIZE (BLOCK_LEN * BLOCK_LEN)
-// total texels in a 4x4 block.
+#define BLOCK_LEN 4 // length of each block in texel
+#define BLOCK_SIZE (BLOCK_LEN * BLOCK_LEN) // total texels in a 4x4 block.
 
 namespace {
 //

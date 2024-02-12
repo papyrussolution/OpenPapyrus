@@ -211,7 +211,6 @@ void ufile_flush_io(UFILE * f)
 	if((!f) || (!f->fFile)) {
 		return; /* skip if no file */
 	}
-
 	u_file_write_flush(NULL, 0, f, TRUE, FALSE);
 }
 
@@ -221,17 +220,13 @@ void ufile_close_translit(UFILE * f)
 	if((!f)||(!f->fTranslit))
 		return;
 #endif
-
 	ufile_flush_translit(f);
-
 #if !UCONFIG_NO_TRANSLITERATION
 	if(f->fTranslit->translit)
 		utrans_close(f->fTranslit->translit);
-
 	if(f->fTranslit->buffer) {
 		uprv_free(f->fTranslit->buffer);
 	}
-
 	uprv_free(f->fTranslit);
 	f->fTranslit = NULL;
 #endif
@@ -239,11 +234,9 @@ void ufile_close_translit(UFILE * f)
 
 /* Input/output */
 
-U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_fputs(const char16_t * s,
-    UFILE * f)
+U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */ u_fputs(const char16_t * s, UFILE * f)
 {
-	int32_t count = u_file_write(s, u_strlen(s), f);
+	int32_t count = u_file_write(s, sstrleni(s), f);
 	count += u_file_write(DELIMITERS, DELIMITERS_LEN, f);
 	return count;
 }
@@ -260,11 +253,7 @@ U_CAPI UChar32 U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001
 	return u_file_write(buf, idx, f) == idx ? uc : U_EOF;
 }
 
-U_CFUNC int32_t U_EXPORT2 u_file_write_flush(const char16_t * chars,
-    int32_t count,
-    UFILE * f,
-    bool flushIO,
-    bool flushTranslit)
+U_CFUNC int32_t U_EXPORT2 u_file_write_flush(const char16_t * chars, int32_t count, UFILE * f, bool flushIO, bool flushTranslit)
 {
 	/* Set up conversion parameters */
 	UErrorCode status = U_ZERO_ERROR;
@@ -275,11 +264,8 @@ U_CFUNC int32_t U_EXPORT2 u_file_write_flush(const char16_t * chars,
 	char * myTarget   = charBuffer;
 	int32_t written      = 0;
 	int32_t numConverted = 0;
-
-	if(count < 0) {
-		count = u_strlen(chars);
-	}
-
+	if(count < 0)
+		count = sstrleni(chars);
 #if !UCONFIG_NO_TRANSLITERATION
 	if((f->fTranslit) && (f->fTranslit->translit)) {
 		/* Do the transliteration */

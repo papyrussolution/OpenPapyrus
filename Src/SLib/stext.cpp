@@ -3470,20 +3470,27 @@ const char * byteshift_strstr(const char * pHayStack, const char * pNeedle)
 //
 // Descr: Попытка сформулировать хорошие спецификации для функций преобразования типизированных
 //   бинарных данных (int, double, etc) в текст и обратно.
-//   Идея заключается в том, чтобы этот класс был бы базомым механизмом преобразования данные<->текст,
+//   Идея заключается в том, чтобы этот класс был бы базовым механизмом преобразования данные<->текст,
 //   все остальные функции пректа должны бы обращаться к этим методам за реализацией.
 // 
 class SStrTransform { // @v11.9.2 @construction
 public:
-	static bool ToText(int v, long fmt, char * pBuf, size_t bufLen);
-	static bool ToText(uint v, long fmt, char * pBuf, size_t bufLen);
-	static bool ToText(int64 v, long fmt, char * pBuf, size_t bufLen);
-	static bool ToText(uint64 v, long fmt, char * pBuf, size_t bufLen);
-	static bool ToText(double v, long fmt, char * pBuf, size_t bufLen);
-	static bool ToText(float v, long fmt, char * pBuf, size_t bufLen);
+	static bool ToText(int v, long fmt, char * pBuf, size_t bufSize);
+	static bool ToText(uint v, long fmt, char * pBuf, size_t bufSize);
+	static bool ToText(int64 v, long fmt, char * pBuf, size_t bufSize);
+	static bool ToText(uint64 v, long fmt, char * pBuf, size_t bufSize);
+	static bool ToText(double v, long fmt, char * pBuf, size_t bufSize);
+	static bool ToText(float v, long fmt, char * pBuf, size_t bufSize);
 	static bool ToText(const SUniTime_Internal & rV, long fmt, char * pBuf, size_t bufLen);
 	static bool ToText(const S_GUID & rV, long fmt, char * pBuf, size_t bufLen);
-	static bool FromText(const char * pText, long flags, size_t * pScannedCount, int * pV);
+	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, int * pV);
+	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, uint * pV);
+	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, int64 * pV);
+	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, uint64 * pV);
+	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, double * pV);
+	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, float * pV);
+	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, SUniTime_Internal * pV);
+	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, S_GUID * pV);
 };
 //
 //

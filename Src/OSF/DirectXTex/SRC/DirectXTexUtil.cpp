@@ -6,21 +6,21 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 
 #if (defined(_XBOX_ONE) && defined(_TITLE)) || defined(_GAMING_XBOX)
-static_assert(XBOX_DXGI_FORMAT_R10G10B10_7E3_A2_FLOAT == DXGI_FORMAT_R10G10B10_7E3_A2_FLOAT, "Xbox mismatch detected");
-static_assert(XBOX_DXGI_FORMAT_R10G10B10_6E4_A2_FLOAT == DXGI_FORMAT_R10G10B10_6E4_A2_FLOAT, "Xbox mismatch detected");
-static_assert(XBOX_DXGI_FORMAT_D16_UNORM_S8_UINT == DXGI_FORMAT_D16_UNORM_S8_UINT, "Xbox mismatch detected");
-static_assert(XBOX_DXGI_FORMAT_R16_UNORM_X8_TYPELESS == DXGI_FORMAT_R16_UNORM_X8_TYPELESS, "Xbox mismatch detected");
-static_assert(XBOX_DXGI_FORMAT_X16_TYPELESS_G8_UINT == DXGI_FORMAT_X16_TYPELESS_G8_UINT, "Xbox mismatch detected");
-static_assert(XBOX_DXGI_FORMAT_R10G10B10_SNORM_A2_UNORM == DXGI_FORMAT_R10G10B10_SNORM_A2_UNORM, "Xbox mismatch detected");
-static_assert(XBOX_DXGI_FORMAT_R4G4_UNORM == DXGI_FORMAT_R4G4_UNORM, "Xbox mismatch detected");
+	static_assert(XBOX_DXGI_FORMAT_R10G10B10_7E3_A2_FLOAT == DXGI_FORMAT_R10G10B10_7E3_A2_FLOAT, "Xbox mismatch detected");
+	static_assert(XBOX_DXGI_FORMAT_R10G10B10_6E4_A2_FLOAT == DXGI_FORMAT_R10G10B10_6E4_A2_FLOAT, "Xbox mismatch detected");
+	static_assert(XBOX_DXGI_FORMAT_D16_UNORM_S8_UINT == DXGI_FORMAT_D16_UNORM_S8_UINT, "Xbox mismatch detected");
+	static_assert(XBOX_DXGI_FORMAT_R16_UNORM_X8_TYPELESS == DXGI_FORMAT_R16_UNORM_X8_TYPELESS, "Xbox mismatch detected");
+	static_assert(XBOX_DXGI_FORMAT_X16_TYPELESS_G8_UINT == DXGI_FORMAT_X16_TYPELESS_G8_UINT, "Xbox mismatch detected");
+	static_assert(XBOX_DXGI_FORMAT_R10G10B10_SNORM_A2_UNORM == DXGI_FORMAT_R10G10B10_SNORM_A2_UNORM, "Xbox mismatch detected");
+	static_assert(XBOX_DXGI_FORMAT_R4G4_UNORM == DXGI_FORMAT_R4G4_UNORM, "Xbox mismatch detected");
 #endif
-
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
-static_assert(WIN10_DXGI_FORMAT_P208 == DXGI_FORMAT_P208, "Windows SDK mismatch detected");
-static_assert(WIN10_DXGI_FORMAT_V208 == DXGI_FORMAT_V208, "Windows SDK mismatch detected");
-static_assert(WIN10_DXGI_FORMAT_V408 == DXGI_FORMAT_V408, "Windows SDK mismatch detected");
+	static_assert(WIN10_DXGI_FORMAT_P208 == DXGI_FORMAT_P208, "Windows SDK mismatch detected");
+	static_assert(WIN10_DXGI_FORMAT_V208 == DXGI_FORMAT_V208, "Windows SDK mismatch detected");
+	static_assert(WIN10_DXGI_FORMAT_V408 == DXGI_FORMAT_V408, "Windows SDK mismatch detected");
 #endif
 
 using namespace DirectX;
@@ -29,39 +29,31 @@ using Microsoft::WRL::ComPtr;
 namespace
 {
 #ifdef _WIN32
-//-------------------------------------------------------------------------------------
+//
 // WIC Pixel Format Translation Data
-//-------------------------------------------------------------------------------------
+//
 struct WICTranslate {
 	const GUID& wic;
 	DXGI_FORMAT format;
 	bool srgb;
 };
 
-constexpr WICTranslate g_WICFormats[] =
-{
+constexpr WICTranslate g_WICFormats[] = {
 	{ GUID_WICPixelFormat128bppRGBAFloat,       DXGI_FORMAT_R32G32B32A32_FLOAT,         false },
-
 	{ GUID_WICPixelFormat64bppRGBAHalf,         DXGI_FORMAT_R16G16B16A16_FLOAT,         false },
 	{ GUID_WICPixelFormat64bppRGBA,             DXGI_FORMAT_R16G16B16A16_UNORM,         true },
-
 	{ GUID_WICPixelFormat32bppRGBA,             DXGI_FORMAT_R8G8B8A8_UNORM,             true },
 	{ GUID_WICPixelFormat32bppBGRA,             DXGI_FORMAT_B8G8R8A8_UNORM,             true }, // DXGI 1.1
 	{ GUID_WICPixelFormat32bppBGR,              DXGI_FORMAT_B8G8R8X8_UNORM,             true }, // DXGI 1.1
-
 	{ GUID_WICPixelFormat32bppRGBA1010102XR,    DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM, true }, // DXGI 1.1
 	{ GUID_WICPixelFormat32bppRGBA1010102,      DXGI_FORMAT_R10G10B10A2_UNORM,          true },
-
 	{ GUID_WICPixelFormat16bppBGRA5551,         DXGI_FORMAT_B5G5R5A1_UNORM,             true },
 	{ GUID_WICPixelFormat16bppBGR565,           DXGI_FORMAT_B5G6R5_UNORM,               true },
-
 	{ GUID_WICPixelFormat32bppGrayFloat,        DXGI_FORMAT_R32_FLOAT,                  false },
 	{ GUID_WICPixelFormat16bppGrayHalf,         DXGI_FORMAT_R16_FLOAT,                  false },
 	{ GUID_WICPixelFormat16bppGray,             DXGI_FORMAT_R16_UNORM,                  true },
 	{ GUID_WICPixelFormat8bppGray,              DXGI_FORMAT_R8_UNORM,                   true },
-
 	{ GUID_WICPixelFormat8bppAlpha,             DXGI_FORMAT_A8_UNORM,                   false },
-
 	{ GUID_WICPixelFormatBlackWhite,            DXGI_FORMAT_R1_UNORM,                   false },
 };
 
@@ -71,40 +63,20 @@ IWICImagingFactory* g_Factory = nullptr;
 BOOL WINAPI InitializeWICFactory(PINIT_ONCE, PVOID, PVOID * ifactory) noexcept
 {
     #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8) || defined(_WIN7_PLATFORM_UPDATE)
-	HRESULT hr = CoCreateInstance(
-		CLSID_WICImagingFactory2,
-		nullptr,
-		CLSCTX_INPROC_SERVER,
-		__uuidof(IWICImagingFactory2),
-		ifactory
-		);
-
-	if(SUCCEEDED(hr)) {
-		// WIC2 is available on Windows 10, Windows 8.x, and Windows 7 SP1 with KB 2670838 installed
-		g_WIC2 = true;
-		return TRUE;
-	}
-	else {
-		g_WIC2 = false;
-
-		hr = CoCreateInstance(
-			CLSID_WICImagingFactory1,
-			nullptr,
-			CLSCTX_INPROC_SERVER,
-			__uuidof(IWICImagingFactory),
-			ifactory
-			);
-		return SUCCEEDED(hr) ? TRUE : FALSE;
-	}
+		HRESULT hr = CoCreateInstance(CLSID_WICImagingFactory2, nullptr, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory2), ifactory);
+		if(SUCCEEDED(hr)) {
+			// WIC2 is available on Windows 10, Windows 8.x, and Windows 7 SP1 with KB 2670838 installed
+			g_WIC2 = true;
+			return TRUE;
+		}
+		else {
+			g_WIC2 = false;
+			hr = CoCreateInstance(CLSID_WICImagingFactory1, nullptr, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), ifactory);
+			return SUCCEEDED(hr) ? TRUE : FALSE;
+		}
     #else
-	g_WIC2 = false;
-
-	return SUCCEEDED(CoCreateInstance(
-			   CLSID_WICImagingFactory,
-			   nullptr,
-			   CLSCTX_INPROC_SERVER,
-			   __uuidof(IWICImagingFactory),
-			   ifactory)) ? TRUE : FALSE;
+		g_WIC2 = false;
+		return SUCCEEDED(CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), ifactory)) ? TRUE : FALSE;
     #endif
 }
 
@@ -114,7 +86,6 @@ inline void * _aligned_malloc(size_t size, size_t alignment)
 	size = (size + alignment - 1) & ~(alignment - 1);
 	return std::aligned_alloc(alignment, size);
 }
-
 #define _aligned_free free
 #endif
 }
@@ -129,21 +100,18 @@ _Use_decl_annotations_ DXGI_FORMAT DirectX::Internal::WICToDXGI(const GUID& guid
 		if(memcmp(&g_WICFormats[i].wic, &guid, sizeof(GUID)) == 0)
 			return g_WICFormats[i].format;
 	}
-
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8) || defined(_WIN7_PLATFORM_UPDATE)
 	if(g_WIC2) {
 		if(memcmp(&GUID_WICPixelFormat96bppRGBFloat, &guid, sizeof(GUID)) == 0)
 			return DXGI_FORMAT_R32G32B32_FLOAT;
 	}
 #endif
-
 	return DXGI_FORMAT_UNKNOWN;
 }
 
 _Use_decl_annotations_ bool DirectX::Internal::DXGIToWIC(DXGI_FORMAT format, GUID& guid, bool ignoreRGBvsBGR) noexcept
 {
-	switch(format)
-	{
+	switch(format) {
 		case DXGI_FORMAT_R8G8B8A8_UNORM:
 		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
 		    if(ignoreRGBvsBGR) {
@@ -197,17 +165,14 @@ TEX_FILTER_FLAGS DirectX::Internal::CheckWICColorSpace(_In_ const GUID& sourceGU
 			if(g_WICFormats[i].srgb)
 				srgb |= TEX_FILTER_SRGB_IN;
 		}
-
 		if(memcmp(&g_WICFormats[i].wic, &targetGUID, sizeof(GUID)) == 0) {
 			if(g_WICFormats[i].srgb)
 				srgb |= TEX_FILTER_SRGB_OUT;
 		}
 	}
-
 	if((srgb & (TEX_FILTER_SRGB_IN | TEX_FILTER_SRGB_OUT)) == (TEX_FILTER_SRGB_IN | TEX_FILTER_SRGB_OUT)) {
 		srgb &= ~(TEX_FILTER_SRGB_IN | TEX_FILTER_SRGB_OUT);
 	}
-
 	return srgb;
 }
 //
@@ -240,28 +205,20 @@ IWICImagingFactory* DirectX::GetWICFactory(bool& iswic2) noexcept
 		iswic2 = g_WIC2;
 		return g_Factory;
 	}
-
 	static INIT_ONCE s_initOnce = INIT_ONCE_STATIC_INIT;
-
-	if(!InitOnceExecuteOnce(&s_initOnce,
-	    InitializeWICFactory,
-	    nullptr,
-	    reinterpret_cast<LPVOID*>(&g_Factory))) {
+	if(!InitOnceExecuteOnce(&s_initOnce, InitializeWICFactory, nullptr, reinterpret_cast<LPVOID*>(&g_Factory))) {
 		return nullptr;
 	}
-
 	iswic2 = g_WIC2;
 	return g_Factory;
 }
-
-//-------------------------------------------------------------------------------------
+//
 // Optional initializer for WIC factory
-//-------------------------------------------------------------------------------------
+//
 void DirectX::SetWICFactory(_In_opt_ IWICImagingFactory* pWIC) noexcept
 {
 	if(pWIC == g_Factory)
 		return;
-
 	bool iswic2 = false;
 	if(pWIC) {
     #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8) || defined(_WIN7_PLATFORM_UPDATE)
@@ -273,11 +230,9 @@ void DirectX::SetWICFactory(_In_opt_ IWICImagingFactory* pWIC) noexcept
     #endif
 		pWIC->AddRef();
 	}
-
 	g_WIC2 = iswic2;
 	std::swap(pWIC, g_Factory);
-	if(pWIC)
-		pWIC->Release();
+	CALLPTRMEMB(pWIC, Release());
 }
 
 #endif // WIN32
@@ -358,8 +313,7 @@ _Use_decl_annotations_ bool DirectX::IsPlanar(DXGI_FORMAT fmt) noexcept
 
 _Use_decl_annotations_ bool DirectX::IsDepthStencil(DXGI_FORMAT fmt) noexcept
 {
-	switch(static_cast<int>(fmt))
-	{
+	switch(static_cast<int>(fmt)) {
 		case DXGI_FORMAT_R32G8X24_TYPELESS:
 		case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
 		case DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS:
@@ -490,11 +444,8 @@ _Use_decl_annotations_ bool DirectX::HasAlpha(DXGI_FORMAT fmt) noexcept
 		case XBOX_DXGI_FORMAT_R10G10B10_7E3_A2_FLOAT:
 		case XBOX_DXGI_FORMAT_R10G10B10_6E4_A2_FLOAT:
 		case XBOX_DXGI_FORMAT_R10G10B10_SNORM_A2_UNORM:
-		case WIN11_DXGI_FORMAT_A4B4G4R4_UNORM:
-		    return true;
-
-		default:
-		    return false;
+		case WIN11_DXGI_FORMAT_A4B4G4R4_UNORM: return true;
+		default: return false;
 	}
 }
 //
@@ -506,15 +457,11 @@ _Use_decl_annotations_ size_t DirectX::BitsPerPixel(DXGI_FORMAT fmt) noexcept
 		case DXGI_FORMAT_R32G32B32A32_TYPELESS:
 		case DXGI_FORMAT_R32G32B32A32_FLOAT:
 		case DXGI_FORMAT_R32G32B32A32_UINT:
-		case DXGI_FORMAT_R32G32B32A32_SINT:
-		    return 128;
-
+		case DXGI_FORMAT_R32G32B32A32_SINT: return 128;
 		case DXGI_FORMAT_R32G32B32_TYPELESS:
 		case DXGI_FORMAT_R32G32B32_FLOAT:
 		case DXGI_FORMAT_R32G32B32_UINT:
-		case DXGI_FORMAT_R32G32B32_SINT:
-		    return 96;
-
+		case DXGI_FORMAT_R32G32B32_SINT: return 96;
 		case DXGI_FORMAT_R16G16B16A16_TYPELESS:
 		case DXGI_FORMAT_R16G16B16A16_FLOAT:
 		case DXGI_FORMAT_R16G16B16A16_UNORM:
@@ -531,9 +478,7 @@ _Use_decl_annotations_ size_t DirectX::BitsPerPixel(DXGI_FORMAT fmt) noexcept
 		case DXGI_FORMAT_X32_TYPELESS_G8X24_UINT:
 		case DXGI_FORMAT_Y416:
 		case DXGI_FORMAT_Y210:
-		case DXGI_FORMAT_Y216:
-		    return 64;
-
+		case DXGI_FORMAT_Y216: return 64;
 		case DXGI_FORMAT_R10G10B10A2_TYPELESS:
 		case DXGI_FORMAT_R10G10B10A2_UNORM:
 		case DXGI_FORMAT_R10G10B10A2_UINT:
@@ -574,17 +519,13 @@ _Use_decl_annotations_ size_t DirectX::BitsPerPixel(DXGI_FORMAT fmt) noexcept
 		case DXGI_FORMAT_YUY2:
 		case XBOX_DXGI_FORMAT_R10G10B10_7E3_A2_FLOAT:
 		case XBOX_DXGI_FORMAT_R10G10B10_6E4_A2_FLOAT:
-		case XBOX_DXGI_FORMAT_R10G10B10_SNORM_A2_UNORM:
-		    return 32;
-
+		case XBOX_DXGI_FORMAT_R10G10B10_SNORM_A2_UNORM: return 32;
 		case DXGI_FORMAT_P010:
 		case DXGI_FORMAT_P016:
 		case XBOX_DXGI_FORMAT_D16_UNORM_S8_UINT:
 		case XBOX_DXGI_FORMAT_R16_UNORM_X8_TYPELESS:
 		case XBOX_DXGI_FORMAT_X16_TYPELESS_G8_UINT:
-		case WIN10_DXGI_FORMAT_V408:
-		    return 24;
-
+		case WIN10_DXGI_FORMAT_V408: return 24;
 		case DXGI_FORMAT_R8G8_TYPELESS:
 		case DXGI_FORMAT_R8G8_UNORM:
 		case DXGI_FORMAT_R8G8_UINT:
@@ -603,14 +544,10 @@ _Use_decl_annotations_ size_t DirectX::BitsPerPixel(DXGI_FORMAT fmt) noexcept
 		case DXGI_FORMAT_B4G4R4A4_UNORM:
 		case WIN10_DXGI_FORMAT_P208:
 		case WIN10_DXGI_FORMAT_V208:
-		case WIN11_DXGI_FORMAT_A4B4G4R4_UNORM:
-		    return 16;
-
+		case WIN11_DXGI_FORMAT_A4B4G4R4_UNORM: return 16;
 		case DXGI_FORMAT_NV12:
 		case DXGI_FORMAT_420_OPAQUE:
-		case DXGI_FORMAT_NV11:
-		    return 12;
-
+		case DXGI_FORMAT_NV11: return 12;
 		case DXGI_FORMAT_R8_TYPELESS:
 		case DXGI_FORMAT_R8_UNORM:
 		case DXGI_FORMAT_R8_UINT:
@@ -635,22 +572,15 @@ _Use_decl_annotations_ size_t DirectX::BitsPerPixel(DXGI_FORMAT fmt) noexcept
 		case DXGI_FORMAT_AI44:
 		case DXGI_FORMAT_IA44:
 		case DXGI_FORMAT_P8:
-		case XBOX_DXGI_FORMAT_R4G4_UNORM:
-		    return 8;
-
-		case DXGI_FORMAT_R1_UNORM:
-		    return 1;
-
+		case XBOX_DXGI_FORMAT_R4G4_UNORM: return 8;
+		case DXGI_FORMAT_R1_UNORM: return 1;
 		case DXGI_FORMAT_BC1_TYPELESS:
 		case DXGI_FORMAT_BC1_UNORM:
 		case DXGI_FORMAT_BC1_UNORM_SRGB:
 		case DXGI_FORMAT_BC4_TYPELESS:
 		case DXGI_FORMAT_BC4_UNORM:
-		case DXGI_FORMAT_BC4_SNORM:
-		    return 4;
-
-		default:
-		    return 0;
+		case DXGI_FORMAT_BC4_SNORM: return 4;
+		default: return 0;
 	}
 }
 //
@@ -961,7 +891,6 @@ _Use_decl_annotations_ HRESULT DirectX::ComputePitch(DXGI_FORMAT fmt, size_t wid
 		    assert(!IsCompressed(fmt) && !IsPacked(fmt) && !IsPlanar(fmt));
 		    {
 			    size_t bpp;
-
 			    if(flags & CP_FLAGS_24BPP)
 				    bpp = 24;
 			    else if(flags & CP_FLAGS_16BPP)
@@ -970,7 +899,6 @@ _Use_decl_annotations_ HRESULT DirectX::ComputePitch(DXGI_FORMAT fmt, size_t wid
 				    bpp = 8;
 			    else
 				    bpp = BitsPerPixel(fmt);
-
 			    if(!bpp)
 				    return E_INVALIDARG;
 

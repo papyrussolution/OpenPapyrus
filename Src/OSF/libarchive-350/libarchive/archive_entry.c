@@ -389,15 +389,8 @@ dev_t FASTCALL archive_entry_rdevminor(ArchiveEntry * entry)
 		return minor(entry->ae_stat.aest_rdev);
 }
 
-int64 FASTCALL archive_entry_size(ArchiveEntry * entry)
-{
-	return (entry->ae_stat.aest_size);
-}
-
-int FASTCALL archive_entry_size_is_set(ArchiveEntry * entry)
-{
-	return (entry->ae_set & AE_SET_SIZE);
-}
+int64 FASTCALL archive_entry_size(const ArchiveEntry * entry) { return (entry->ae_stat.aest_size); }
+int FASTCALL archive_entry_size_is_set(ArchiveEntry * entry) { return (entry->ae_set & AE_SET_SIZE); }
 
 const char * FASTCALL archive_entry_sourcepath(ArchiveEntry * entry)
 {

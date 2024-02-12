@@ -1,8 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-	Copyright (C) 2011-2015, International Business Machines Corporation and others. All Rights Reserved.
- */
+// Copyright (C) 2011-2015, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -1460,29 +1459,24 @@ UnicodeString &TimeZoneFormat::formatOffsetLocalizedGMT(int32_t offset, bool isS
 			    break;
 		}
 	}
-
 	result.append(fGMTPatternSuffix);
 	return result;
 }
 
-int32_t TimeZoneFormat::parseOffsetISO8601(const UnicodeString & text, ParsePosition& pos, bool extendedOnly,
-    bool* hasDigitOffset /* = NULL */) const {
-	if(hasDigitOffset) {
-		*hasDigitOffset = FALSE;
-	}
+int32_t TimeZoneFormat::parseOffsetISO8601(const UnicodeString & text, ParsePosition& pos, bool extendedOnly, bool* hasDigitOffset /* = NULL */) const 
+{
+	ASSIGN_PTR(hasDigitOffset, FALSE);
 	int32_t start = pos.getIndex();
 	if(start >= text.length()) {
 		pos.setErrorIndex(start);
 		return 0;
 	}
-
 	char16_t firstChar = text.charAt(start);
 	if(firstChar == ISO8601_UTC || firstChar == (char16_t)(ISO8601_UTC + 0x20)) {
 		// "Z" (or "z") - indicates UTC
 		pos.setIndex(start + 1);
 		return 0;
 	}
-
 	int32_t sign = 1;
 	if(firstChar == PLUS) {
 		sign = 1;
@@ -1508,31 +1502,22 @@ int32_t TimeZoneFormat::parseOffsetISO8601(const UnicodeString & text, ParsePosi
 			posOffset.setIndex(posBasic.getIndex());
 		}
 	}
-
 	if(posOffset.getErrorIndex() != -1) {
 		pos.setErrorIndex(start);
 		return 0;
 	}
-
 	pos.setIndex(posOffset.getIndex());
-	if(hasDigitOffset) {
-		*hasDigitOffset = TRUE;
-	}
+	ASSIGN_PTR(hasDigitOffset, TRUE);
 	return sign * offset;
 }
 
-int32_t TimeZoneFormat::parseOffsetLocalizedGMT(const UnicodeString & text, ParsePosition& pos, bool isShort,
-    bool* hasDigitOffset) const {
+int32_t TimeZoneFormat::parseOffsetLocalizedGMT(const UnicodeString & text, ParsePosition& pos, bool isShort, bool* hasDigitOffset) const 
+{
 	int32_t start = pos.getIndex();
 	int32_t offset = 0;
 	int32_t parsedLength = 0;
-
-	if(hasDigitOffset) {
-		*hasDigitOffset = FALSE;
-	}
-
+	ASSIGN_PTR(hasDigitOffset, FALSE);
 	offset = parseOffsetLocalizedGMTPattern(text, start, isShort, parsedLength);
-
 	// For now, parseOffsetLocalizedGMTPattern handles both long and short
 	// formats, no matter isShort is true or false. This might be changed in future
 	// when strict parsing is necessary, or different set of patterns are used for
@@ -1542,52 +1527,42 @@ int32_t TimeZoneFormat::parseOffsetLocalizedGMT(const UnicodeString & text, Pars
 		offset = parseOffsetLocalizedGMTPattern(text, start, !isShort, parsedLength);
 	}
 #endif
-
 	if(parsedLength > 0) {
-		if(hasDigitOffset) {
-			*hasDigitOffset = TRUE;
-		}
+		ASSIGN_PTR(hasDigitOffset, TRUE);
 		pos.setIndex(start + parsedLength);
 		return offset;
 	}
-
 	// Try the default patterns
 	offset = parseOffsetDefaultLocalizedGMT(text, start, parsedLength);
 	if(parsedLength > 0) {
-		if(hasDigitOffset) {
-			*hasDigitOffset = TRUE;
-		}
+		ASSIGN_PTR(hasDigitOffset, TRUE);
 		pos.setIndex(start + parsedLength);
 		return offset;
 	}
-
 	// Check if this is a GMT zero format
 	if(text.caseCompare(start, fGMTZeroFormat.length(), fGMTZeroFormat, 0) == 0) {
 		pos.setIndex(start + fGMTZeroFormat.length());
 		return 0;
 	}
-
 	// Check if this is a default GMT zero format
 	for(int32_t i = 0; ALT_GMT_STRINGS[i][0] != 0; i++) {
 		const char16_t * defGMTZero = ALT_GMT_STRINGS[i];
-		int32_t defGMTZeroLen = u_strlen(defGMTZero);
+		const int32_t defGMTZeroLen = sstrleni(defGMTZero);
 		if(text.caseCompare(start, defGMTZeroLen, defGMTZero, 0) == 0) {
 			pos.setIndex(start + defGMTZeroLen);
 			return 0;
 		}
 	}
-
 	// Nothing matched
 	pos.setErrorIndex(start);
 	return 0;
 }
 
-int32_t TimeZoneFormat::parseOffsetLocalizedGMTPattern(const UnicodeString & text, int32_t start, bool /*isShort*/,
-    int32_t& parsedLen) const {
+int32_t TimeZoneFormat::parseOffsetLocalizedGMTPattern(const UnicodeString & text, int32_t start, bool /*isShort*/, int32_t& parsedLen) const 
+{
 	int32_t idx = start;
 	int32_t offset = 0;
 	bool parsed = FALSE;
-
 	do {
 		// Prefix part
 		int32_t len = fGMTPatternPrefix.length();
@@ -1688,19 +1663,19 @@ int32_t TimeZoneFormat::parseOffsetFields(const UnicodeString & text, int32_t st
 }
 
 int32_t TimeZoneFormat::parseOffsetFieldsWithPattern(const UnicodeString & text, int32_t start,
-    UVector* patternItems, bool forceSingleHourDigit, int32_t& hour, int32_t& min, int32_t& sec) const {
+    UVector* patternItems, bool forceSingleHourDigit, int32_t& hour, int32_t& min, int32_t& sec) const 
+{
 	bool failed = FALSE;
 	int32_t offsetH, offsetM, offsetS;
 	offsetH = offsetM = offsetS = 0;
 	int32_t idx = start;
-
 	for(int32_t i = 0; i < patternItems->size(); i++) {
 		int32_t len = 0;
 		const GMTOffsetField* field = (const GMTOffsetField*)patternItems->elementAt(i);
 		GMTOffsetField::FieldType fieldType = field->getType();
 		if(fieldType == GMTOffsetField::TEXT) {
 			const char16_t * patStr = field->getPatternText();
-			len = u_strlen(patStr);
+			len = sstrleni(patStr);
 			if(!i) {
 				// When TimeZoneFormat parse() is called from SimpleDateFormat,
 				// leading space characters might be truncated. If the first pattern text
@@ -1739,7 +1714,6 @@ int32_t TimeZoneFormat::parseOffsetFieldsWithPattern(const UnicodeString & text,
 			else if(fieldType == GMTOffsetField::SECOND) {
 				offsetS = parseOffsetFieldWithLocalizedDigits(text, idx, 2, 2, 0, MAX_OFFSET_SECOND, len);
 			}
-
 			if(!len) {
 				failed = TRUE;
 				break;
@@ -1747,16 +1721,13 @@ int32_t TimeZoneFormat::parseOffsetFieldsWithPattern(const UnicodeString & text,
 			idx += len;
 		}
 	}
-
 	if(failed) {
 		hour = min = sec = 0;
 		return 0;
 	}
-
 	hour = offsetH;
 	min = offsetM;
 	sec = offsetS;
-
 	return idx - start;
 }
 
@@ -1827,18 +1798,17 @@ int32_t TimeZoneFormat::parseAbuttingOffsetFields(const UnicodeString & text, in
 	return offset;
 }
 
-int32_t TimeZoneFormat::parseOffsetDefaultLocalizedGMT(const UnicodeString & text, int start, int32_t& parsedLen) const {
+int32_t TimeZoneFormat::parseOffsetDefaultLocalizedGMT(const UnicodeString & text, int start, int32_t& parsedLen) const 
+{
 	int32_t idx = start;
 	int32_t offset = 0;
 	int32_t parsed = 0;
-
 	do {
 		// check global default GMT alternatives
 		int32_t gmtLen = 0;
-
 		for(int32_t i = 0; ALT_GMT_STRINGS[i][0] != 0; i++) {
 			const char16_t * gmt = ALT_GMT_STRINGS[i];
-			int32_t len = u_strlen(gmt);
+			const int32_t len = sstrleni(gmt);
 			if(text.caseCompare(start, len, gmt, 0) == 0) {
 				gmtLen = len;
 				break;
@@ -1848,12 +1818,10 @@ int32_t TimeZoneFormat::parseOffsetDefaultLocalizedGMT(const UnicodeString & tex
 			break;
 		}
 		idx += gmtLen;
-
 		// offset needs a sign char and a digit at minimum
 		if(idx + 1 >= text.length()) {
 			break;
 		}
-
 		// parse sign
 		int32_t sign = 1;
 		char16_t c = text.charAt(idx);
@@ -2435,13 +2403,13 @@ UVector* TimeZoneFormat::parseOffsetPattern(const UnicodeString & pattern, Offse
 	return NULL;
 }
 
-UnicodeString &TimeZoneFormat::expandOffsetPattern(const UnicodeString & offsetHM, UnicodeString & result, UErrorCode & status) {
+UnicodeString &TimeZoneFormat::expandOffsetPattern(const UnicodeString & offsetHM, UnicodeString & result, UErrorCode & status) 
+{
 	result.setToBogus();
 	if(U_FAILURE(status)) {
 		return result;
 	}
-	U_ASSERT(u_strlen(DEFAULT_GMT_OFFSET_MINUTE_PATTERN) == 2);
-
+	U_ASSERT(sstrleni(DEFAULT_GMT_OFFSET_MINUTE_PATTERN) == 2);
 	int32_t idx_mm = offsetHM.indexOf(DEFAULT_GMT_OFFSET_MINUTE_PATTERN, 2, 0);
 	if(idx_mm < 0) {
 		// Bad time zone hour pattern data
@@ -2466,8 +2434,7 @@ UnicodeString &TimeZoneFormat::truncateOffsetPattern(const UnicodeString & offse
 	if(U_FAILURE(status)) {
 		return result;
 	}
-	U_ASSERT(u_strlen(DEFAULT_GMT_OFFSET_MINUTE_PATTERN) == 2);
-
+	U_ASSERT(sstrleni(DEFAULT_GMT_OFFSET_MINUTE_PATTERN) == 2);
 	int32_t idx_mm = offsetHM.indexOf(DEFAULT_GMT_OFFSET_MINUTE_PATTERN, 2, 0);
 	if(idx_mm < 0) {
 		// Bad time zone hour pattern data

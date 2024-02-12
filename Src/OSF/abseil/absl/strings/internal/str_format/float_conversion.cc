@@ -835,9 +835,7 @@ void FormatA(const HexFloatTypeParams float_traits, Int mantissa, int exp,
 	    + 1;                                       // "." (dot)
 	char digits_buffer[kBufSizeForHexFloatRepr];
 	char * digits_iter = digits_buffer;
-	const char * const digits =
-	    static_cast<const char *>("0123456789ABCDEF0123456789abcdef") +
-	    (uppercase ? 0 : 16);
+	const char * const digits = static_cast<const char *>("0123456789ABCDEF0123456789abcdef") + (uppercase ? 0 : 16);
 
 	// =============== Hex Prefix ================
 	*digits_iter++ = '0';

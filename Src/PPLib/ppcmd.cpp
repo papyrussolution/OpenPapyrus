@@ -2504,7 +2504,7 @@ int SelectPersonByCodeDialog::getDTS(Rec * pData)
 				PersonTbl::Rec psn_rec;
 				// @v10.6.4 MEMSZERO(psn_rec);
 				// @v10.6.4 MEMSZERO(sc_rec);
-				if(ScObj.P_Tbl->SearchCode(0, code, &sc_rec) > 0 && PsnObj.P_Tbl->IsBelongToKind(sc_rec.PersonID, PsnKindRec.ID) > 0) {
+				if(ScObj.P_Tbl->SearchCode(0, code, &sc_rec) > 0 && PsnObj.P_Tbl->IsBelongsToKind(sc_rec.PersonID, PsnKindRec.ID) > 0) {
 					Data.PrmrPsnID = sc_rec.PersonID;
 					Data.Sc = sc_rec;
 				}

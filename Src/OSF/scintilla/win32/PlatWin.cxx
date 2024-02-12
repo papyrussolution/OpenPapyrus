@@ -475,11 +475,9 @@ class SurfaceGDI : public SciSurface {
 public:
 	SurfaceGDI();
 	virtual ~SurfaceGDI();
-
 	void Init(WindowID wid);
 	void Init(SurfaceID sid, WindowID wid);
 	void InitPixMap(int width, int height, SciSurface * surface_, WindowID wid);
-
 	void Release();
 	bool Initialised();
 	void PenColour(ColourDesired fore);
@@ -496,7 +494,6 @@ public:
 	void DrawRGBAImage(PRectangle rc, int width, int height, const uchar * pixelsImage);
 	void Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back);
 	void Copy(PRectangle rc, SciPoint from, SciSurface &surfaceSource);
-
 	void DrawTextCommon(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions);
 	void DrawTextNoClip(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
 	void DrawTextClipped(PRectangle rc, SciFont &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
@@ -510,10 +507,8 @@ public:
 	XYPOSITION ExternalLeading(SciFont &font_);
 	XYPOSITION Height(SciFont &font_);
 	XYPOSITION AverageCharWidth(SciFont &font_);
-
 	void SetClip(PRectangle rc);
 	void FlushCachedState();
-
 	void SetUnicodeMode(bool unicodeMode_);
 	void SetDBCSMode(int codePage_);
 };
@@ -1969,10 +1964,7 @@ public:
 			return missing;
 		}
 	}
-	int Count() const
-	{
-		return static_cast<int>(data.size());
-	}
+	int Count() const { return static_cast<int>(data.size()); }
 	void AllocItem(const char * text, int pixId)
 	{
 		ListItemData lid = { text, pixId };
@@ -2126,25 +2118,10 @@ void ListBoxX::SetFont(SciFont &font)
 	}
 }
 
-void ListBoxX::SetAverageCharWidth(int width)
-{
-	aveCharWidth = width;
-}
-
-void ListBoxX::SetVisibleRows(int rows)
-{
-	desiredVisibleRows = rows;
-}
-
-int ListBoxX::GetVisibleRows() const
-{
-	return desiredVisibleRows;
-}
-
-HWND ListBoxX::GetHWND() const
-{
-	return static_cast<HWND>(GetID());
-}
+void ListBoxX::SetAverageCharWidth(int width) { aveCharWidth = width; }
+void ListBoxX::SetVisibleRows(int rows) { desiredVisibleRows = rows; }
+int ListBoxX::GetVisibleRows() const { return desiredVisibleRows; }
+HWND ListBoxX::GetHWND() const { return static_cast<HWND>(GetID()); }
 
 PRectangle ListBoxX::GetDesiredRect()
 {
@@ -2282,15 +2259,12 @@ void ListBoxX::Draw(DRAWITEMSTRUCT * pDrawItem)
 			::SetBkColor(pDrawItem->hDC, ::GetSysColor(COLOR_WINDOW));
 			::SetTextColor(pDrawItem->hDC, ::GetSysColor(COLOR_WINDOWTEXT));
 		}
-
 		ListItemData item = lti.Get(pDrawItem->itemID);
 		int pixId = item.pixId;
 		const char * text = item.text;
 		int len = static_cast<int>(sstrlen(text));
-
 		RECT rcText = rcBox;
 		::InsetRect(&rcText, static_cast<int>(TextInset.x), static_cast<int>(TextInset.y));
-
 		if(unicodeMode) {
 			const TextWide tbuf(text, len, unicodeMode);
 			::DrawTextW(pDrawItem->hDC, tbuf.buffer, tbuf.tlen, &rcText, DT_NOPREFIX|DT_END_ELLIPSIS|DT_SINGLELINE|DT_NOCLIP);
@@ -2369,7 +2343,6 @@ void ListBoxX::AppendListItem(const char * text, const char * numword)
 			pixId = 10 * pixId + (ch - '0');
 		}
 	}
-
 	lti.AllocItem(text, pixId);
 	uint len = static_cast<uint>(sstrlen(text));
 	if(maxItemCharacters < len) {
@@ -2459,24 +2432,6 @@ void ListBoxX::SetRedraw(bool on)
 	if(on)
 		::InvalidateRect(lb, NULL, TRUE);
 }
-
-/*
-static XYPOSITION XYMinimum(XYPOSITION a, XYPOSITION b)
-{
-	if(a < b)
-		return a;
-	else
-		return b;
-}
-
-static XYPOSITION XYMaximum(XYPOSITION a, XYPOSITION b)
-{
-	if(a > b)
-		return a;
-	else
-		return b;
-}
-*/
 
 void ListBoxX::ResizeToCursor()
 {
@@ -2970,45 +2925,14 @@ DynamicLibrary * DynamicLibrary::Load(const char * modulePath)
 	return static_cast<DynamicLibrary *>(new DynamicLibraryImpl(modulePath));
 }
 
-ColourDesired Platform::Chrome()
-{
-	return ::GetSysColor(COLOR_3DFACE);
-}
-
-ColourDesired Platform::ChromeHighlight()
-{
-	return ::GetSysColor(COLOR_3DHIGHLIGHT);
-}
-
-const char * Platform::DefaultFont()
-{
-	return "Verdana";
-}
-
-int Platform::DefaultFontSize()
-{
-	return 8;
-}
-
-uint Platform::DoubleClickTime()
-{
-	return ::GetDoubleClickTime();
-}
-
-bool Platform::MouseButtonBounce()
-{
-	return false;
-}
-
-void Platform::DebugDisplay(const char * s)
-{
-	::OutputDebugStringA(s);
-}
-
-bool Platform::IsKeyDown(int key)
-{
-	return (::GetKeyState(key) & 0x80000000) != 0;
-}
+ColourDesired Platform::Chrome() { return ::GetSysColor(COLOR_3DFACE); }
+ColourDesired Platform::ChromeHighlight() { return ::GetSysColor(COLOR_3DHIGHLIGHT); }
+const char * Platform::DefaultFont() { return "Verdana"; }
+int Platform::DefaultFontSize() { return 8; }
+uint Platform::DoubleClickTime() { return ::GetDoubleClickTime(); }
+bool Platform::MouseButtonBounce() { return false; }
+void Platform::DebugDisplay(const char * s) { ::OutputDebugStringA(s); }
+bool Platform::IsKeyDown(int key) { return (::GetKeyState(key) & 0x80000000) != 0; }
 
 long Platform::SendScintilla(WindowID w, uint msg, ulong wParam, long lParam)
 {

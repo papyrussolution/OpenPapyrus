@@ -1844,7 +1844,7 @@ public:
 				p_ref->Ot.SearchObjectsByGuid(PPOBJ_PERSON, PPTAG_PERSON_UUID, cust.Uid, &ex_psn_list);
 				for(uint i = 0; !ex_psn_id && i < ex_psn_list.getCount(); i++) {
 					const  PPID temp_id = ex_psn_list.get(i);
-					if(temp_id && (!scs_pack.Rec.PersonKindID || psn_obj.P_Tbl->IsBelongToKind(temp_id, scs_pack.Rec.PersonKindID)))
+					if(temp_id && (!scs_pack.Rec.PersonKindID || psn_obj.P_Tbl->IsBelongsToKind(temp_id, scs_pack.Rec.PersonKindID)))
 						ex_psn_id = temp_id;
 				}
 			}

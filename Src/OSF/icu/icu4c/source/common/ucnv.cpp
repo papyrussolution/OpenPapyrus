@@ -71,7 +71,7 @@ U_CAPI UConverter * U_EXPORT2 ucnv_openU(const char16_t * name, UErrorCode * err
 		return NULL;
 	if(!name)
 		return ucnv_open(NULL, err);
-	if(u_strlen(name) >= UCNV_MAX_CONVERTER_NAME_LENGTH) {
+	if(sstrleni(name) >= UCNV_MAX_CONVERTER_NAME_LENGTH) {
 		*err = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -390,12 +390,10 @@ U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv, const char16_t * s, 
 			return;
 		}
 		subChars = (uint8 *)s;
-		if(length < 0) {
-			length = u_strlen(s);
-		}
+		if(length < 0)
+			length = sstrleni(s);
 		length8 = length * U_SIZEOF_UCHAR;
 	}
-
 	/*
 	 * For storing the substitution string, select either the small buffer inside
 	 * UConverter or allocate a subChars buffer.
@@ -1458,9 +1456,8 @@ U_CAPI int32_t U_EXPORT2 ucnv_fromUChars(UConverter * cnv, char * dest, int32_t 
 	/* initialize */
 	ucnv_resetFromUnicode(cnv);
 	originalDest = dest;
-	if(srcLength == -1) {
-		srcLength = u_strlen(src);
-	}
+	if(srcLength == -1)
+		srcLength = sstrleni(src);
 	if(srcLength>0) {
 		srcLimit = src+srcLength;
 		destCapacity = pinCapacity(dest, destCapacity);

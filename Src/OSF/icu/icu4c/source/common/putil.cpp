@@ -2072,7 +2072,7 @@ U_CAPI void U_EXPORT2 u_versionFromUString(UVersionInfo versionArray, const char
 {
 	if(versionArray!=NULL && versionString != NULL) {
 		char versionChars[U_MAX_VERSION_STRING_LENGTH+1];
-		int32_t len = u_strlen(versionString);
+		int32_t len = sstrleni(versionString);
 		if(len>U_MAX_VERSION_STRING_LENGTH) {
 			len = U_MAX_VERSION_STRING_LENGTH;
 		}

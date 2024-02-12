@@ -1,22 +1,16 @@
 // UMUTEX.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1997-2015, International Business Machines Corporation and others.  All Rights Reserved.
- * Modification History:
- *   Date        Name        Description
- *   04/02/97  aliu        Creation.
- *   04/07/99  srl         rewrite - C interface, multiple mutices
- *   05/13/99  stephen     Changed to umutex (from cmutex)
- ******************************************************************************
- */
+// Copyright (C) 1997-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 04/02/97  aliu        Creation.
+// 04/07/99  srl         rewrite - C interface, multiple mutices
+// 05/13/99  stephen     Changed to umutex (from cmutex)
+// 
 #ifndef UMUTEX_H
 #define UMUTEX_H
 
-//#include <atomic>
-//#include <condition_variable>
-//#include <mutex>
-//#include <type_traits>
 #include "unicode/utypes.h"
 #include "unicode/uclean.h"
 #include "unicode/uobject.h"
@@ -53,11 +47,9 @@ template struct std::atomic<std::mutex *>;
 #endif
 
 U_NAMESPACE_BEGIN
-
-/****************************************************************************
-*   Low Level Atomic Operations, ICU wrappers for.
-****************************************************************************/
-
+//
+// Low Level Atomic Operations, ICU wrappers for.
+//
 typedef std::atomic<int32_t> u_atomic_int32_t;
 #define ATOMIC_INT32_T_INITIALIZER(val) ATOMIC_VAR_INIT(val)
 
@@ -65,11 +57,9 @@ inline int32_t umtx_loadAcquire(u_atomic_int32_t &var) { return var.load(std::me
 inline void umtx_storeRelease(u_atomic_int32_t &var, int32_t val) { var.store(val, std::memory_order_release); }
 inline int32_t umtx_atomic_inc(u_atomic_int32_t * var) { return var->fetch_add(1) + 1; }
 inline int32_t umtx_atomic_dec(u_atomic_int32_t * var) { return var->fetch_sub(1) - 1; }
-
-/*************************************************************************************************
-*  UInitOnce Definitions.
-*************************************************************************************************/
-
+//
+// UInitOnce Definitions.
+//
 struct UInitOnce {
 	u_atomic_int32_t fState;
 	UErrorCode fErrCode;
@@ -84,7 +74,8 @@ struct UInitOnce {
 U_COMMON_API bool U_EXPORT2 umtx_initImplPreInit(UInitOnce &);
 U_COMMON_API void U_EXPORT2 umtx_initImplPostInit(UInitOnce &);
 
-template <class T> void umtx_initOnce(UInitOnce &uio, T * obj, void (U_CALLCONV T::* fp)()) {
+template <class T> void umtx_initOnce(UInitOnce &uio, T * obj, void (U_CALLCONV T::* fp)()) 
+{
 	if(umtx_loadAcquire(uio.fState) == 2) {
 		return;
 	}
@@ -111,19 +102,18 @@ inline void umtx_initOnce(UInitOnce &uio, void (U_CALLCONV * fp)())
 //               With ErrorCode, No context parameter.
 inline void umtx_initOnce(UInitOnce &uio, void (U_CALLCONV * fp)(UErrorCode &), UErrorCode &errCode) 
 {
-	if(U_FAILURE(errCode)) {
-		return;
-	}
-	if(umtx_loadAcquire(uio.fState) != 2 && umtx_initImplPreInit(uio)) {
-		// We run the initialization.
-		(*fp)(errCode);
-		uio.fErrCode = errCode;
-		umtx_initImplPostInit(uio);
-	}
-	else {
-		// Someone else already ran the initialization.
-		if(U_FAILURE(uio.fErrCode)) {
-			errCode = uio.fErrCode;
+	if(U_SUCCESS(errCode)) {
+		if(umtx_loadAcquire(uio.fState) != 2 && umtx_initImplPreInit(uio)) {
+			// We run the initialization.
+			(*fp)(errCode);
+			uio.fErrCode = errCode;
+			umtx_initImplPostInit(uio);
+		}
+		else {
+			// Someone else already ran the initialization.
+			if(U_FAILURE(uio.fErrCode)) {
+				errCode = uio.fErrCode;
+			}
 		}
 	}
 }
@@ -143,20 +133,20 @@ template <class T> void umtx_initOnce(UInitOnce &uio, void (U_CALLCONV * fp)(T),
 
 // umtx_initOnce variant for plain functions, or static class functions,
 //               with a context parameter and an error code.
-template <class T> void umtx_initOnce(UInitOnce &uio, void (U_CALLCONV * fp)(T, UErrorCode &), T context, UErrorCode &errCode) {
-	if(U_FAILURE(errCode)) {
-		return;
-	}
-	if(umtx_loadAcquire(uio.fState) != 2 && umtx_initImplPreInit(uio)) {
-		// We run the initialization.
-		(*fp)(context, errCode);
-		uio.fErrCode = errCode;
-		umtx_initImplPostInit(uio);
-	}
-	else {
-		// Someone else already ran the initialization.
-		if(U_FAILURE(uio.fErrCode)) {
-			errCode = uio.fErrCode;
+template <class T> void umtx_initOnce(UInitOnce &uio, void (U_CALLCONV * fp)(T, UErrorCode &), T context, UErrorCode &errCode) 
+{
+	if(U_SUCCESS(errCode)) {
+		if(umtx_loadAcquire(uio.fState) != 2 && umtx_initImplPreInit(uio)) {
+			// We run the initialization.
+			(*fp)(context, errCode);
+			uio.fErrCode = errCode;
+			umtx_initImplPostInit(uio);
+		}
+		else {
+			// Someone else already ran the initialization.
+			if(U_FAILURE(uio.fErrCode)) {
+				errCode = uio.fErrCode;
+			}
 		}
 	}
 }
@@ -196,33 +186,27 @@ template <class T> void umtx_initOnce(UInitOnce &uio, void (U_CALLCONV * fp)(T, 
  *       ...    // Do stuff that is protected by myMutex;
  *    }         // myMutex is released when lock goes out of scope.
  */
-
 class U_COMMON_API UMutex {
 public:
-	UMUTEX_CONSTEXPR UMutex() {
+	UMUTEX_CONSTEXPR UMutex() 
+	{
 	}
-
 	~UMutex() = default;
-
 	UMutex(const UMutex &other) = delete;
 	UMutex & operator = (const UMutex &other) = delete;
 	void * operator new(size_t) = delete;
-
 	// requirements for C++ BasicLockable, allows UMutex to work with std::lock_guard
-	void lock() {
+	void lock() 
+	{
 		std::mutex * m = fMutex.load(std::memory_order_acquire);
-		if(m == nullptr) {
-			m = getMutex();
-		}
+		SETIFZQ(m, getMutex());
 		m->lock();
 	}
-
-	void unlock() {
+	void unlock() 
+	{
 		fMutex.load(std::memory_order_relaxed)->unlock();
 	}
-
 	static void cleanup();
-
 private:
 	alignas(std::mutex) char fStorage[sizeof(std::mutex)] {};
 	std::atomic<std::mutex *> fMutex { nullptr };
@@ -232,7 +216,6 @@ private:
 	 */
 	UMutex * fListLink { nullptr };
 	static UMutex * gListHead;
-
 	/** Out-of-line function to lazily initialize a UMutex on first use.
 	 * Initial fast check is inline, in lock().  The returned value may never
 	 * be nullptr.

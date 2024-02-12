@@ -803,9 +803,10 @@ U_CAPI void * U_EXPORT2 uhash_removeElement(UHashtable * hash, const UHashElemen
 // 
 // PUBLIC Key Hash Functions
 // 
-U_CAPI int32_t U_EXPORT2 uhash_hashUChars(const UHashTok key) {
+U_CAPI int32_t U_EXPORT2 uhash_hashUChars(const UHashTok key) 
+{
 	const char16_t * s = (const char16_t *)key.pointer;
-	return s == NULL ? 0 : ustr_hashUCharsN(s, u_strlen(s));
+	return s == NULL ? 0 : ustr_hashUCharsN(s, sstrleni(s));
 }
 
 U_CAPI int32_t U_EXPORT2 uhash_hashChars(const UHashTok key) 

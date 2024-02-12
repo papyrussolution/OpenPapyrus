@@ -2740,7 +2740,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 #endif
 				defUstr = ures_getStringByKey(&bund1, DEFAULT_TAG, &defLen, &subStatus);
 				if(U_SUCCESS(subStatus) && defLen) {
-					u_UCharsToChars(defUstr, defVal, u_strlen(defUstr));
+					u_UCharsToChars(defUstr, defVal, sstrleni(defUstr));
 #if defined(URES_TREE_DEBUG)
 					slfprintf_stderr("%s;%s -> default %s=%s,  %s\n", path ? path : "ICUDATA", parent, keyword, defVal, u_errorName(subStatus));
 #endif
@@ -2806,7 +2806,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 #endif
 						defUstr = ures_getStringByKey(&bund1, DEFAULT_TAG, &defLen, &subStatus);
 						if(U_SUCCESS(subStatus) && defLen) {
-							u_UCharsToChars(defUstr, defVal, u_strlen(defUstr));
+							u_UCharsToChars(defUstr, defVal, sstrleni(defUstr));
 #if defined(URES_TREE_DEBUG)
 							slfprintf_stderr("%s;%s -> default0 %s=%s,  %s\n", path ? path : "ICUDATA", full, keyword, defVal, u_errorName(subStatus));
 #endif
@@ -2874,7 +2874,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 #endif
 							defUstr = ures_getStringByKey(&bund1, DEFAULT_TAG, &defLen, &subStatus);
 							if(U_SUCCESS(subStatus) && defLen) {
-								u_UCharsToChars(defUstr, defVal, u_strlen(defUstr));
+								u_UCharsToChars(defUstr, defVal, sstrleni(defUstr));
 #if defined(URES_TREE_DEBUG)
 								slfprintf_stderr("%s;%s -> default %s=%s,  %s\n", path ? path : "ICUDATA", full, keyword, defVal, u_errorName(subStatus));
 #endif

@@ -448,14 +448,11 @@ const char * RESearch::Compile(const char * pattern, int length, bool caseSensit
 	char * lp; /* saved pointer     */
 	char * sp = nfa; /* another one       */
 	char * mpMax = mp + MAXNFA - BITBLK - 10;
-
 	int tagi = 0; /* tag stack index   */
 	int tagc = 1; /* actual tag count  */
-
 	int n;
 	char mask; /* xor mask -CCL/NCL */
 	int c1, c2, prevChar;
-
 	if(!pattern || !length) {
 		if(sta)
 			return 0;
@@ -463,7 +460,6 @@ const char * RESearch::Compile(const char * pattern, int length, bool caseSensit
 			return badpat("No previous regular expression");
 	}
 	sta = NOP;
-
 	const char * p = pattern; /* pattern pointer   */
 	for(int i = 0; i < length; i++, p++) {
 		if(mp > mpMax)

@@ -1,12 +1,11 @@
 // rulebasedcollator.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 1996-2015, International Business Machines Corporation and others.  All Rights Reserved.
- * (replaced the former tblcoll.cpp)
- * created on: 2012feb14 with new and old collation code
- * created by: Markus W. Scherer
- */
+// Copyright (C) 1996-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// (replaced the former tblcoll.cpp)
+// created on: 2012feb14 with new and old collation code
+// created by: Markus W. Scherer
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -568,7 +567,8 @@ uint32_t RuleBasedCollator::getVariableTop(UErrorCode & /*errorCode*/) const {
 	return settings->variableTop;
 }
 
-uint32_t RuleBasedCollator::setVariableTop(const char16_t * varTop, int32_t len, UErrorCode & errorCode) {
+uint32_t RuleBasedCollator::setVariableTop(const char16_t * varTop, int32_t len, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
@@ -576,9 +576,8 @@ uint32_t RuleBasedCollator::setVariableTop(const char16_t * varTop, int32_t len,
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-	if(len < 0) {
-		len = u_strlen(varTop);
-	}
+	if(len < 0)
+		len = sstrleni(varTop);
 	if(!len) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
@@ -740,9 +739,9 @@ UCollationResult RuleBasedCollator::compare(const UnicodeString & left, const Un
 		   right.getBuffer(), rightLength, errorCode);
 }
 
-UCollationResult RuleBasedCollator::compare(const char16_t * left, int32_t leftLength,
-    const char16_t * right, int32_t rightLength,
-    UErrorCode & errorCode) const {
+UCollationResult RuleBasedCollator::compare(const char16_t * left, int32_t leftLength, const char16_t * right, int32_t rightLength,
+    UErrorCode & errorCode) const 
+{
 	if(U_FAILURE(errorCode)) {
 		return UCOL_EQUAL;
 	}
@@ -753,20 +752,18 @@ UCollationResult RuleBasedCollator::compare(const char16_t * left, int32_t leftL
 	// Make sure both or neither strings have a known length.
 	// We do not optimize for mixed length/termination.
 	if(leftLength >= 0) {
-		if(rightLength < 0) {
-			rightLength = u_strlen(right);
-		}
+		if(rightLength < 0)
+			rightLength = sstrleni(right);
 	}
 	else {
-		if(rightLength >= 0) {
-			leftLength = u_strlen(left);
-		}
+		if(rightLength >= 0)
+			leftLength = sstrleni(left);
 	}
 	return doCompare(left, leftLength, right, rightLength, errorCode);
 }
 
-UCollationResult RuleBasedCollator::compareUTF8(const StringPiece &left, const StringPiece &right,
-    UErrorCode & errorCode) const {
+UCollationResult RuleBasedCollator::compareUTF8(const StringPiece &left, const StringPiece &right, UErrorCode & errorCode) const 
+{
 	if(U_FAILURE(errorCode)) {
 		return UCOL_EQUAL;
 	}

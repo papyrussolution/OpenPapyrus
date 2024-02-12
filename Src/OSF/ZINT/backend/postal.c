@@ -29,13 +29,11 @@
 
 /* PostNet number encoding table - In this table L is long as S is short */
 static const char * PNTable[10] = {
-	"LLSSS", "SSSLL", "SSLSL", "SSLLS", "SLSSL", "SLSLS", "SLLSS", "LSSSL",
-	"LSSLS", "LSLSS"
+	"LLSSS", "SSSLL", "SSLSL", "SSLLS", "SLSSL", "SLSLS", "SLLSS", "LSSSL", "LSSLS", "LSLSS"
 };
 
 static const char * PLTable[10] = {
-	"SSLLL", "LLLSS", "LLSLS", "LLSSL", "LSLLS", "LSLSL", "LSSLL", "SLLLS",
-	"SLLSL", "SLSLL"
+	"SSLLL", "LLLSS", "LLSLS", "LLSSL", "LSLLS", "LSLSL", "LSSLL", "SLLLS", "SLLSL", "SLSLL"
 };
 
 static const char * RoyalValues[36] = {
@@ -255,7 +253,8 @@ int fim(struct ZintSymbol * symbol, const uchar source[], int length)
 char rm4scc(char source[], uchar dest[], int length)
 {
 	int    row, column, check_digit;
-	char   values[3], set_copy[] = KRSET;
+	char   values[3];
+	const  char set_copy[] = KRSET;
 	int    top = 0;
 	int    bottom = 0;
 	// start character 

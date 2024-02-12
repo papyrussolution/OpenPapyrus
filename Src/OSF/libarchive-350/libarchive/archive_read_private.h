@@ -180,8 +180,6 @@ int __archive_read_header(ArchiveRead *, ArchiveEntry *);
 int __archive_read_program(ArchiveReadFilter *, const char *);
 void __archive_read_free_filters(ArchiveRead *);
 struct archive_read_extract *__archive_read_get_extract(ArchiveRead *);
-
-
 /*
  * Get a decryption passphrase.
  */

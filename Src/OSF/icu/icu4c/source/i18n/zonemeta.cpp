@@ -116,11 +116,8 @@ static const char gWorldTag[]   = "001";
 
 static const char16_t gWorld[] = {0x30, 0x30, 0x31, 0x00}; // "001"
 
-static const char16_t gDefaultFrom[] = {0x31, 0x39, 0x37, 0x30, 0x2D, 0x30, 0x31, 0x2D, 0x30, 0x31,
-				     0x20, 0x30, 0x30, 0x3A, 0x30, 0x30, 0x00}; // "1970-01-01 00:00"
-static const char16_t gDefaultTo[] = {0x39, 0x39, 0x39, 0x39, 0x2D, 0x31, 0x32, 0x2D, 0x33, 0x31,
-				     0x20, 0x32, 0x33, 0x3A, 0x35, 0x39, 0x00}; // "9999-12-31 23:59"
-
+static const char16_t gDefaultFrom[] = {0x31, 0x39, 0x37, 0x30, 0x2D, 0x30, 0x31, 0x2D, 0x30, 0x31, 0x20, 0x30, 0x30, 0x3A, 0x30, 0x30, 0x00}; // "1970-01-01 00:00"
+static const char16_t gDefaultTo[] = {0x39, 0x39, 0x39, 0x39, 0x2D, 0x31, 0x32, 0x2D, 0x33, 0x31, 0x20, 0x32, 0x33, 0x3A, 0x35, 0x39, 0x00}; // "9999-12-31 23:59"
 static const char16_t gCustomTzPrefix[] = {0x47, 0x4D, 0x54, 0};    // "GMT"
 
 #define ASCII_DIGIT(c) (((c)>=0x30 && (c)<=0x39) ? (c)-0x30 : -1)
@@ -129,20 +126,19 @@ static const char16_t gCustomTzPrefix[] = {0x47, 0x4D, 0x54, 0};    // "GMT"
  * Convert a date string used by metazone mappings to UDate.
  * The format used by CLDR metazone mapping is "yyyy-MM-dd HH:mm".
  */
-static UDate parseDate(const char16_t * text, UErrorCode & status) {
+static UDate parseDate(const char16_t * text, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-	int32_t len = u_strlen(text);
+	const int32_t len = sstrleni(text);
 	if(len != 16 && len != 10) {
 		// It must be yyyy-MM-dd HH:mm (length 16) or yyyy-MM-dd (length 10)
 		status = U_INVALID_FORMAT_ERROR;
 		return 0;
 	}
-
 	int32_t year = 0, month = 0, day = 0, hour = 0, min = 0, n;
 	int32_t idx;
-
 	// "yyyy" (0 - 3)
 	for(idx = 0; idx <= 3 && U_SUCCESS(status); idx++) {
 		n = ASCII_DIGIT((int32_t)text[idx]);
@@ -289,10 +285,9 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 				status = U_ILLEGAL_ARGUMENT_ERROR;
 			}
 			else {
-				int32_t len = u_strlen(derefer);
+				const int32_t len = sstrleni(derefer);
 				u_UCharsToChars(derefer, id, len);
 				id[len] = (char)0; // Make sure it is null terminated.
-
 				// replace '/' with ':'
 				char * q = id;
 				while(*q++) {
@@ -300,7 +295,6 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 						*q = ':';
 					}
 				}
-
 				// If a dereference turned something up then look for an alias.
 				// rb still points to the alias table, so we don't have to go looking
 				// for it.
@@ -431,26 +425,18 @@ U_EXPORT2 ZoneMeta::getCanonicalCountry(const UnicodeString & tzid, UnicodeStrin
 			}
 		}
 		umtx_unlock(&gZoneMetaLock);
-
 		if(!cached) {
 			// We need to go through all zones associated with the region.
 			// This is relatively heavy operation.
-
-			U_ASSERT(u_strlen(region) == 2);
-
+			U_ASSERT(sstrleni(region) == 2);
 			u_UCharsToChars(region, regionBuf, 2);
-
-			StringEnumeration * ids = TimeZone::createTimeZoneIDEnumeration(UCAL_ZONE_TYPE_CANONICAL_LOCATION,
-				regionBuf,
-				NULL,
-				status);
+			StringEnumeration * ids = TimeZone::createTimeZoneIDEnumeration(UCAL_ZONE_TYPE_CANONICAL_LOCATION, regionBuf, NULL, status);
 			int32_t idsLen = ids->count(status);
 			if(U_SUCCESS(status) && idsLen == 1) {
 				// only the single zone is available for the region
 				singleZone = TRUE;
 			}
 			delete ids;
-
 			// Cache the result
 			umtx_lock(&gZoneMetaLock);
 			{
@@ -878,7 +864,8 @@ const char16_t * ZoneMeta::getShortID(const TimeZone& tz) {
 	return getShortIDFromCanonical(canonicalID);
 }
 
-const char16_t * ZoneMeta::getShortID(const UnicodeString & id) {
+const char16_t * ZoneMeta::getShortID(const UnicodeString & id) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	const char16_t * canonicalID = ZoneMeta::getCanonicalCLDRID(id, status);
 	if(U_FAILURE(status) || canonicalID == NULL) {
@@ -887,14 +874,13 @@ const char16_t * ZoneMeta::getShortID(const UnicodeString & id) {
 	return ZoneMeta::getShortIDFromCanonical(canonicalID);
 }
 
-const char16_t * ZoneMeta::getShortIDFromCanonical(const char16_t * canonicalID) {
+const char16_t * ZoneMeta::getShortIDFromCanonical(const char16_t * canonicalID) 
+{
 	const char16_t * shortID = NULL;
-	int32_t len = u_strlen(canonicalID);
+	const int32_t len = sstrleni(canonicalID);
 	char tzidKey[ZID_KEY_MAX + 1];
-
 	u_UCharsToChars(canonicalID, tzidKey, len);
 	tzidKey[len] = (char)0; // Make sure it is null terminated.
-
 	// replace '/' with ':'
 	char * p = tzidKey;
 	while(*p++) {
@@ -902,14 +888,12 @@ const char16_t * ZoneMeta::getShortIDFromCanonical(const char16_t * canonicalID)
 			*p = ':';
 		}
 	}
-
 	UErrorCode status = U_ZERO_ERROR;
 	UResourceBundle * rb = ures_openDirect(NULL, gKeyTypeData, &status);
 	ures_getByKey(rb, gTypeMapTag, rb, &status);
 	ures_getByKey(rb, gTimezoneTag, rb, &status);
 	shortID = ures_getStringByKey(rb, tzidKey, NULL, &status);
 	ures_close(rb);
-
 	return shortID;
 }
 

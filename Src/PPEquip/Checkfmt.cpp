@@ -15,6 +15,7 @@ SlipLineParam & SlipLineParam::Z()
 	Font = 0;
 	Kind = 0;
 	Flags = 0;
+	UomId = 0; // @v11.9.5
 	UomFragm = 0; // @v11.2.6
 	Qtty = 0.0;
 	PhQtty = 0.0; // @v11.9.3
@@ -142,6 +143,7 @@ public:
 		uint   PageWidth;     // ==PPSlipFormat::PageWidth  Справочное поле
 		uint   PageLength;    // ==PPSlipFormat::PageLength Справочное поле
 		uint   RegTo;         // ==PPSlipFormat::RegTo      Справочное поле
+		int    UomId;         // @v11.9.5 Ид единицы измерения (SUOM_XXX)     
 		uint   UomFragm;      // @v11.2.6
 		double Qtty;          // Для строки чека (документа) - абсолютное количество, в остальных случаях - 0
 		double PhQtty;        // @v11.9.3 draft-beer
@@ -1502,6 +1504,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			pIter->DivID = 0;
 			pIter->Qtty = 0.0;
 			pIter->Price = 0.0;
+			pIter->UomId = 0; // @v11.9.5
 			pIter->UomFragm = 0; // @v11.2.6
 			pIter->ChZnCode[0] = 0; // @v10.7.0
 			pIter->ChZnGTIN[0] = 0;  // @v10.7.2
@@ -1587,6 +1590,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 										double ratio = 0.0;
 										if(P_Od->GObj.TranslateGoodsUnitToBase(goods_rec, SUOM_LITER, &ratio) > 0) {
 											pIter->PhQtty = pIter->Qtty * ratio;
+											pIter->UomId = SUOM_LITER; // @v11.9.5
 										}
 									}
 									else {
@@ -2559,6 +2563,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegRegular, flags & (PPSlipFormat::Entry::fRegRibbon|PPSlipFormat::Entry::fFiscal));
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegJournal, flags & (PPSlipFormat::Entry::fJRibbon|PPSlipFormat::Entry::fFiscal));
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegFiscal,  flags & PPSlipFormat::Entry::fFiscal);
+			sl_param.UomId = CurIter.UomFragm; // @v11.9.5
 			sl_param.UomFragm = CurIter.UomFragm; // @v11.2.6
 			sl_param.Qtty  = CurIter.Qtty;
 			sl_param.PhQtty = CurIter.PhQtty; // @v11.9.3

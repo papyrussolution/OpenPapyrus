@@ -1777,18 +1777,19 @@ static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
 void SFile::Init()
 {
 	T = tNone;
-	F = 0;
+	//F = 0;
+	H = 0;
 	IH = -1;
 	Mode = 0;
-	Name = 0;
+	Name.Z();
 }
 
 int SFile::InvariantC(SInvariantParam * pInvP) const
 {
 	S_INVARIANT_PROLOG(pInvP);
-	S_ASSERT_P(T != tStdFile || F, pInvP);
+	S_ASSERT_P(!oneof3(T, tStdFile, tSBuffer, tArchive) || !!H, pInvP);
 	S_ASSERT_P(T != tFile   || IH != -1, pInvP);
-	S_ASSERT_P(T != tSBuffer || P_Sb, pInvP);
+	//S_ASSERT_P(T != tSBuffer || P_Sb, pInvP);
 	S_INVARIANT_EPILOG(pInvP);
 }
 
@@ -1817,17 +1818,18 @@ SFile::~SFile()
 	Close();
 }
 
-SFile::operator FILE * () { return (T == tStdFile) ? F : 0; }
-SFile::operator SBuffer * () { return (T == tSBuffer) ? P_Sb : 0; }
-int   SFile::FileNo() const { return (T == tStdFile && F) ? fileno(F) : IH; }
+SFile::operator FILE * () { return GetFilePtr(); }
+SFile::operator SBuffer * () { return GetSBufPtr(); }
+int   SFile::FileNo() const { return GetFilePtr() ? fileno(GetFilePtr()) : ((T == tFile) ? IH : -1); }
 const SString & SFile::GetName() const { return Name; }
 long  SFile::GetMode() const { return Mode; }
 
 int SFile::GetBuffer(SBaseBuffer & rBuf) const
 {
-	if(T == tSBuffer && P_Sb) {
-		rBuf.P_Buf = (char *)P_Sb->GetBuf(0); // @attention @badcast
-		rBuf.Size = P_Sb->GetAvailableSize();
+	SBuffer * p_sb = GetSBufPtr();
+	if(p_sb) {
+		rBuf.P_Buf = (char *)p_sb->GetBuf(0); // @attention @badcast
+		rBuf.Size = p_sb->GetAvailableSize();
 		return 1;
 	}
 	else
@@ -1837,7 +1839,11 @@ int SFile::GetBuffer(SBaseBuffer & rBuf) const
 bool SFile::IsValid() const
 {
 	assert(InvariantC(0));
-	return F ? true : ((IH >= 0 || T == tNullOutput) ? true : SLS.SetError(SLERR_FILENOTOPENED));
+	bool ok = (GetFilePtr() || GetSBufPtr() || (T == tArchive && !!H) || IH >= 0 || T == tNullOutput);
+	if(!ok)
+		SLS.SetError(SLERR_FILENOTOPENED);
+	return ok;
+	//return F ? true : ((IH >= 0 || T == tNullOutput) ? true : SLS.SetError(SLERR_FILENOTOPENED));
 }
 
 int SFile::Open(SBuffer & rBuf, long mode)
@@ -1845,13 +1851,18 @@ int SFile::Open(SBuffer & rBuf, long mode)
 	assert(InvariantC(0));
 	int    ok = 1;
 	Close();
-	THROW_S(P_Sb = new SBuffer(rBuf), SLERR_NOMEM);
-	T = tSBuffer;
+	{
+		H = new SBuffer(rBuf);
+		THROW_S(H, SLERR_NOMEM);
+		T = tSBuffer;
+	}
 	{
 		const long m = (mode & ~(mBinary | mDenyRead | mDenyWrite | mNoStd));
 		Mode = mode;
-		if(m == mReadWriteTrunc)
-			P_Sb->SetWrOffs(0);
+		if(m == mReadWriteTrunc) {
+			assert(GetSBufPtr());
+			GetSBufPtr()->SetWrOffs(0);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1876,7 +1887,8 @@ int SFile::Open(const char * pName, long mode)
 	int    pflag = S_IREAD | S_IWRITE;
 	int    shflag = 0;
 	Mode = mode;
-	switch(mode & ~(mBinary|mDenyRead|mDenyWrite|mNoStd|mNullWrite)) { // @v10.6.0
+	const  long en_mode = (mode & ~(mBinary|mDenyRead|mDenyWrite|mNoStd|mNullWrite|mBuffRd)); // Перечисляемая часть режима открытия файла
+	switch(en_mode) { // @v10.6.0
 		case mRead:
 			oflag |= O_RDONLY;
 			mode_buf.CatChar('r');
@@ -1919,47 +1931,95 @@ int SFile::Open(const char * pName, long mode)
 	else
 		shflag = SH_DENYNO;
 	Close();
-	//
-	// @v11.6.0 Добавлена предварительная обработка имени файла на предмет кодировки:
-	//   - если имя файла состоит только из ascii-символов, то все как обычно (sopen)
-	//   - если имя файла состоит из валидных utf8-символов, то преобразуем его в unicode и используем _wsopen
-	//   - в противном случае уповаем на провидение и используем sopen как есть.
-	//
-	if(_file_name.IsAscii()) {
-		IH = sopen(pName, oflag, shflag, pflag);
-	}
-	else if(_file_name.IsLegalUtf8()) {
-		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
-		r_temp_buf_u.CopyFromUtf8(_file_name);
-		IH = _wsopen(r_temp_buf_u.ucptr(), oflag, shflag, pflag);
-	}
-	else {
-		IH = sopen(pName, oflag, shflag, pflag);
-	}
-	//_wsopen(
-	if(IH >= 0) {
-		if(!(mode & mNoStd)) {
-			F = fdopen(IH, mode_buf);
-			if(F)
-				T = tStdFile;
+	if(_file_name.HasChr('?')) { // @v11.9.5 Возможно, это - архив
+		SString left_buf;
+		SString right_buf;
+		SString temp_buf;
+		const int dr = _file_name.Divide('?', left_buf, right_buf);
+		assert(dr > 0); // Не может быть, что dr <= 0 ибо мы выше проверили, что в строке есть '?'
+		if(dr > 0) {
+			if(left_buf.HasChr('?') || right_buf.HasChr('?')) {
+				// @todo @err (недопустимое имя файла)
+				ok = 0;
+			}
 			else {
-				SLS.SetErrorErrno(pName); // @v11.3.3
-				err_inited = true;
-				close(IH);
-				IH = -1;
+				if(fileExists(left_buf)) {
+					// Трактуем строку pFileName как имя файла внутри архива. При этом
+					// на текущий момент left_buf - имя архива, right_buf - имя файла внутри архива
+					if(en_mode != mRead) { // Архив может быть открыт объектом SFile только для чтения!
+						ok = 0;
+					}
+					else {
+						SFileEntryPool fep;
+						int    arc_format = 0;
+						right_buf = SFsPath::NormalizePath(right_buf, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf);
+						if(SArchive::List(SArchive::providerLA, &arc_format, left_buf, 0, fep) > 0) {
+							SFileEntryPool::Entry fe;
+							SString arc_sub;
+							for(uint i = 0; i < fep.GetCount(); i++) {
+								if(fep.Get(i, &fe, &arc_sub) > 0) {
+									if(SFsPath::NormalizePath(arc_sub, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf).IsEqiUtf8(right_buf)) {
+										H = SArchive::OpenArchiveEntry(SArchive::providerLA, left_buf, right_buf);
+										if(!!H) {
+											T = tArchive;
+											ok = 1;
+										}
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				else {
+					ok = 0;
+				}
 			}
 		}
-		else
-			T = tFile;
 	}
-	if(IsValid()) {
-		Mode = mode;
-		Name = pName;
-		ok = 1;
-	}
-	else {
-		ok = err_inited ? 0 : SLS.SetError(SLERR_OPENFAULT, pName);
-		Init();
+	else { // Валидное имя файла не может содержать символов '?'
+		//
+		// @v11.6.0 Добавлена предварительная обработка имени файла на предмет кодировки:
+		//   - если имя файла состоит только из ascii-символов, то все как обычно (sopen)
+		//   - если имя файла состоит из валидных utf8-символов, то преобразуем его в unicode и используем _wsopen
+		//   - в противном случае уповаем на провидение и используем sopen как есть.
+		//
+		if(_file_name.IsAscii()) {
+			IH = sopen(_file_name, oflag, shflag, pflag);
+		}
+		else if(_file_name.IsLegalUtf8()) {
+			SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+			r_temp_buf_u.CopyFromUtf8(_file_name);
+			IH = _wsopen(r_temp_buf_u.ucptr(), oflag, shflag, pflag);
+		}
+		else {
+			IH = sopen(pName, oflag, shflag, pflag);
+		}
+		//_wsopen(
+		if(IH >= 0) {
+			if(!(mode & mNoStd)) {
+				H = fdopen(IH, mode_buf);
+				if(!!H)
+					T = tStdFile;
+				else {
+					SLS.SetErrorErrno(pName); // @v11.3.3
+					err_inited = true;
+					close(IH);
+					IH = -1;
+				}
+			}
+			else
+				T = tFile;
+		}
+		if(IsValid()) {
+			Mode = mode;
+			Name = pName;
+			ok = 1;
+		}
+		else {
+			ok = err_inited ? 0 : SLS.SetError(SLERR_OPENFAULT, pName);
+			Init();
+		}
 	}
 	return ok;
 }
@@ -1969,7 +2029,7 @@ int SFile::Close()
 	assert(InvariantC(0));
 	int    ok = 1;
 	if(T == tSBuffer) {
-		ZDELETE(P_Sb);
+		delete GetSBufPtr();
 		Init();
 	}
 	else {
@@ -1980,8 +2040,9 @@ int SFile::Close()
 				Unlock((int)(i+1));
 			}
 		}
-		if(F) {
-			fclose(F);
+		FILE * p_f = GetFilePtr();
+		if(p_f) {
+			fclose(p_f);
 			Init();
 		}
 		else if(IH >= 0) {
@@ -2001,30 +2062,41 @@ bool SFile::Seek(long offs, int origin)
 	assert(oneof3(origin, SEEK_SET, SEEK_CUR, SEEK_END));
 	assert(offs >= 0);
 	assert(InvariantC(0));
-	if(T == tSBuffer) {
+	SBuffer * p_sb = GetSBufPtr();
+	if(p_sb) {
 		long o;
 		if(origin == SEEK_CUR)
-			o = static_cast<long>(P_Sb->GetRdOffs() + offs);
+			o = static_cast<long>(p_sb->GetRdOffs() + offs);
 		else if(origin == SEEK_END)
-			o = static_cast<long>(P_Sb->GetWrOffs() + offs);
+			o = static_cast<long>(p_sb->GetWrOffs() + offs);
 		else
 			o = offs;
-		if(checkirange(o, 0L, static_cast<long>(P_Sb->GetWrOffs()))) {
-			P_Sb->SetRdOffs(o);
+		if(checkirange(o, 0L, static_cast<long>(p_sb->GetWrOffs()))) {
+			p_sb->SetRdOffs(o);
 			ok = true;
 		}
 		else
 			ok = false;
 	}
 	else {
-		if(F) {
-			ok = (fseek(F, offs, origin) == 0);
+		if(T == tArchive) {
+			if(!!H) {
+				ok = LOGIC(SArchive::SeekArchiveEntry(H, offs, origin));
+			}
+			else
+				ok = false;
 		}
-		else if(IH >= 0) {
-			ok = (lseek(IH, offs, origin) >= 0);
+		else {
+			FILE * p_f = GetFilePtr();
+			if(p_f) {
+				ok = (fseek(p_f, offs, origin) == 0);
+			}
+			else if(IH >= 0) {
+				ok = (lseek(IH, offs, origin) >= 0);
+			}
+			else
+				ok = false;
 		}
-		else
-			ok = false;
 	}
 	BufR.Z();
 	return ok;
@@ -2036,35 +2108,46 @@ bool SFile::Seek64(int64 offs, int origin)
 	assert(oneof3(origin, SEEK_SET, SEEK_CUR, SEEK_END));
 	assert(offs >= 0LL);
 	assert(InvariantC(0));
-	if(T == tSBuffer) {
+	SBuffer * p_sb = GetSBufPtr();
+	if(p_sb) {
 		int64  o;
 		if(origin == SEEK_CUR)
-			o = P_Sb->GetRdOffs() + offs;
+			o = p_sb->GetRdOffs() + offs;
 		else if(origin == SEEK_END)
-			o = P_Sb->GetWrOffs() + offs;
+			o = p_sb->GetWrOffs() + offs;
 		else
 			o = offs;
-		if(checkirange(o, 0LL, static_cast<int64>(P_Sb->GetWrOffs()))) {
-			P_Sb->SetRdOffs(static_cast<size_t>(o));
+		if(checkirange(o, 0LL, static_cast<int64>(p_sb->GetWrOffs()))) {
+			p_sb->SetRdOffs(static_cast<size_t>(o));
 			ok = true;
 		}
 		else
 			ok = false;
 	}
 	else {
-		if(F) {
-#if (_MSC_VER >= 1900)
-			ok = (_fseeki64(F, offs, origin) == 0);
-#else
-			assert(offs < MAXLONG);
-			ok = (fseek(F, static_cast<long>(offs), origin) == 0);
-#endif
+		if(T == tArchive) {
+			if(!!H) {
+				ok = LOGIC(SArchive::SeekArchiveEntry(H, offs, origin));
+			}
+			else
+				ok = false;
 		}
-		else if(IH >= 0) {
-			ok = (_lseeki64(IH, offs, origin) >= 0);
+		else {
+			FILE * p_f = GetFilePtr();
+			if(p_f) {
+	#if (_MSC_VER >= 1900)
+				ok = (_fseeki64(p_f, offs, origin) == 0);
+	#else
+				assert(offs < MAXLONG);
+				ok = (fseek(p_f, static_cast<long>(offs), origin) == 0);
+	#endif
+			}
+			else if(IH >= 0) {
+				ok = (_lseeki64(IH, offs, origin) >= 0);
+			}
+			else
+				ok = false;
 		}
-		else
-			ok = false;
 	}
 	BufR.Z();
 	return ok;
@@ -2082,12 +2165,14 @@ long SFile::Tell()
 {
 	assert(InvariantC(0));
 	long   t = 0;
-	if(T == tSBuffer) {
-		t = static_cast<long>(P_Sb->GetRdOffs());
+	SBuffer * p_sb = GetSBufPtr();
+	if(p_sb) {
+		t = static_cast<long>(p_sb->GetRdOffs());
 	}
 	else {
-		if(F)
-			t = ftell(F);
+		FILE * p_f = GetFilePtr();
+		if(p_f)
+			t = ftell(p_f);
 		else if(IH >= 0) {
 			t = tell(IH);
 			if(t >= 0) {
@@ -2108,15 +2193,17 @@ int64 SFile::Tell64()
 	assert(InvariantC(0));
 	//return (T == tFile) ? ((IH >= 0) ? _telli64(IH) : 0) : (int64)Tell();
 	int64 t = 0;
-	if(T == tSBuffer) {
-		t = static_cast<int64>(P_Sb->GetRdOffs());
+	SBuffer * p_sb = GetSBufPtr();
+	if(p_sb) {
+		t = static_cast<int64>(p_sb->GetRdOffs());
 	}
 	else {
-		if(F) {
+		FILE * p_f = GetFilePtr();
+		if(p_f) {
 #if (_MSC_VER >= 1900)
-			t = _ftelli64(F);
+			t = _ftelli64(p_f);
 #else
-			t = ftell(F);
+			t = ftell(p_f);
 #endif
 		}
 		else if(IH >= 0) {
@@ -2140,10 +2227,9 @@ int64 SFile::Tell64()
 int SFile::Flush()
 {
 	int    ok = -1;
-	if(T == tStdFile) {
-		if(F)
-			ok = BIN(fflush(F) == 0);
-	}
+	FILE * p_f = GetFilePtr();
+	if(p_f)
+		ok = BIN(fflush(p_f) == 0);
 	return ok;
 }
 
@@ -2153,14 +2239,22 @@ int SFile::Write(const void * pBuf, size_t size)
 	int    ok = 1;
 	if(T == tNullOutput)
 		ok = 1;
-	else if(T == tSBuffer)
-		ok = P_Sb->Write(pBuf, size);
-	else if(F)
-		ok = (fwrite(pBuf, size, 1, F) == 1) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
-	else if(IH >= 0)
-		ok = (write(IH, pBuf, size) == size) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
-	else
-		ok = (SLibError = SLERR_FILENOTOPENED, 0);
+	else if(T == tArchive)
+		ok = 0;
+	else {
+		SBuffer * p_sb = GetSBufPtr();
+		if(p_sb)
+			ok = p_sb->Write(pBuf, size);
+		else {
+			FILE * p_f = GetFilePtr();
+			if(p_f)
+				ok = (fwrite(pBuf, size, 1, p_f) == 1) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
+			else if(IH >= 0)
+				ok = (write(IH, pBuf, size) == size) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
+			else
+				ok = (SLibError = SLERR_FILENOTOPENED, 0);
+		}
+	}
 	return ok;
 }
 
@@ -2186,71 +2280,88 @@ int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 	assert(size < MAXINT32); // @v11.3.7
 	int    ok = 1;
 	int    act_size = 0;
+	SBuffer * p_sb = GetSBufPtr();
 	THROW_S(T != tNullOutput, SLERR_SFILRDNULLOUTP);
-	if(T == tSBuffer) {
-		act_size = P_Sb->Read(pBuf, size);
+	if(p_sb) {
+		act_size = p_sb->Read(pBuf, size);
 	}
 	else {
-		THROW_S_S(F || (IH >= 0), SLERR_FILENOTOPENED, Name);
-		if(F) {
-			const int64 offs = Tell64();
-			if(fread(pBuf, size, 1, F) == 1)
-				act_size = static_cast<int>(size);
-			else {
-				//
-				// Для того чтобы функция считала последний блок из файла, если он не равен size
-				//
-				Seek64(offs, SEEK_SET);
-				act_size = static_cast<int>(fread(pBuf, 1, size, F));
-				if(!act_size) {
-					if(feof(F))
+		if(T == tArchive) {
+			if(!!H) {
+				size_t act_size_u;
+				ok = SArchive::ReadArchiveEntry(H, pBuf, size, &act_size_u);
+				if(ok) {
+					if(act_size_u == 0)
 						ok = -1;
-					else
-						CALLEXCEPT_S_S(SLERR_READFAULT, Name);
+					act_size = static_cast<int>(act_size_u);
 				}
 			}
 		}
-		else if(IH >= 0) {
-			size_t size_to_do = size;
-			int    is_eof = 0;
-			while(ok > 0 && size_to_do) {
-				const size_t br_size = BufR.GetAvailableSize();
-				if(br_size) {
-					const size_t local_size_to_read = MIN(size_to_do, br_size);
-					const size_t local_act_size = BufR.Read(pBuf, local_size_to_read);
-					THROW_S_S(local_act_size == local_size_to_read, SLERR_READFAULT, Name);
-					act_size += local_act_size;
-					size_to_do -= local_act_size;
-				}
-				if(size_to_do) {
-					if(is_eof)
-						ok = -1;
-					else if(Mode & SFile::mBuffRd) {
-						const size_t SFile_MaxRdBuf_Size = 1024 * 1024;
-						assert(!is_eof); // Флаг должен был быть установлен на предыдущей итерации. Если мы сюда попали с этим флагом, значит что-то не так!
-						assert(SFile_MaxRdBuf_Size > BufR.GetAvailableSize());
-						STempBuffer temp_buf(SFile_MaxRdBuf_Size - BufR.GetAvailableSize());
-						THROW(temp_buf.IsValid());
-						const int local_act_size = read(IH, temp_buf, temp_buf.GetSize());
-						THROW_S_S(local_act_size >= 0, SLERR_READFAULT, Name);
-						THROW(BufR.Write(temp_buf, local_act_size));
-						if(local_act_size < static_cast<int>(temp_buf.GetSize())) {
-							is_eof = 1;
-							if(local_act_size == 0)
-								ok = -1;
-						}
-					}
-					else {
-						const int local_act_size = read(IH, pBuf, size_to_do);
-						THROW_S_S(local_act_size >= 0, SLERR_READFAULT, Name);
-						act_size += local_act_size;
-						if(local_act_size < static_cast<int>(size_to_do)) {
-							is_eof = 1;
+		else {
+			FILE * p_f = GetFilePtr();
+			if(p_f) {
+				const int64 offs = Tell64();
+				if(fread(pBuf, size, 1, p_f) == 1)
+					act_size = static_cast<int>(size);
+				else {
+					//
+					// Для того чтобы функция считала последний блок из файла, если он не равен size
+					//
+					Seek64(offs, SEEK_SET);
+					act_size = static_cast<int>(fread(pBuf, 1, size, p_f));
+					if(!act_size) {
+						if(feof(p_f))
 							ok = -1;
-						}
+						else
+							CALLEXCEPT_S_S(SLERR_READFAULT, Name);
+					}
+				}
+			}
+			else if(IH >= 0) {
+				size_t size_to_do = size;
+				int    is_eof = 0;
+				while(ok > 0 && size_to_do) {
+					const size_t br_size = BufR.GetAvailableSize();
+					if(br_size) {
+						const size_t local_size_to_read = MIN(size_to_do, br_size);
+						const size_t local_act_size = BufR.Read(pBuf, local_size_to_read);
+						THROW_S_S(local_act_size == local_size_to_read, SLERR_READFAULT, Name);
+						act_size += local_act_size;
 						size_to_do -= local_act_size;
 					}
+					if(size_to_do) {
+						if(is_eof)
+							ok = -1;
+						else if(Mode & SFile::mBuffRd) {
+							const size_t SFile_MaxRdBuf_Size = 1024 * 1024;
+							assert(!is_eof); // Флаг должен был быть установлен на предыдущей итерации. Если мы сюда попали с этим флагом, значит что-то не так!
+							assert(SFile_MaxRdBuf_Size > BufR.GetAvailableSize());
+							STempBuffer temp_buf(SFile_MaxRdBuf_Size - BufR.GetAvailableSize());
+							THROW(temp_buf.IsValid());
+							const int local_act_size = read(IH, temp_buf, temp_buf.GetSize());
+							THROW_S_S(local_act_size >= 0, SLERR_READFAULT, Name);
+							THROW(BufR.Write(temp_buf, local_act_size));
+							if(local_act_size < static_cast<int>(temp_buf.GetSize())) {
+								is_eof = 1;
+								if(local_act_size == 0)
+									ok = -1;
+							}
+						}
+						else {
+							const int local_act_size = read(IH, pBuf, size_to_do);
+							THROW_S_S(local_act_size >= 0, SLERR_READFAULT, Name);
+							act_size += local_act_size;
+							if(local_act_size < static_cast<int>(size_to_do)) {
+								is_eof = 1;
+								ok = -1;
+							}
+							size_to_do -= local_act_size;
+						}
+					}
 				}
+			}
+			else {
+				CALLEXCEPT_S_S(p_f || (IH >= 0), SLERR_FILENOTOPENED, Name);
 			}
 		}
 	}
@@ -2294,15 +2405,19 @@ int FASTCALL SFile::WriteLine(const char * pBuf)
 			}
 			pBuf = temp_buf;
 		}
-		if(T == tSBuffer)
-			ok = P_Sb->Write(pBuf, size_to_write);
-		else if(F)
-			ok = (fputs(pBuf, F) >= 0) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
-		else if(IH >= 0) {
-			ok = (write(IH, pBuf, size_to_write) == size_to_write) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
+		SBuffer * p_sb = GetSBufPtr();
+		if(p_sb)
+			ok = p_sb->Write(pBuf, size_to_write);
+		else {
+			FILE * p_f = GetFilePtr();
+			if(p_f)
+				ok = (fputs(pBuf, p_f) >= 0) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
+			else if(IH >= 0) {
+				ok = (write(IH, pBuf, size_to_write) == size_to_write) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
+			}
+			else
+				ok = (SLibError = SLERR_FILENOTOPENED, 0);
 		}
-		else
-			ok = (SLibError = SLERR_FILENOTOPENED, 0);
 	}
 	return ok;
 }
@@ -2377,22 +2492,42 @@ int SFile::ReadLine(SString & rBuf, uint flags)
 			CALLEXCEPT_S(SLERR_SFILRDNULLOUTP);
 			break;
 		case tStdFile:
-			THROW_S(F, SLERR_FILENOTOPENED);
 			{
-				THROW(LB.Alloc(1024));
-				//
-				// На случай, если строка в файле длиннее, чем buf_size
-				// считываем ее в цикле до тех пор, пока в конце строки не появится //
-				// перевод каретки.
-				//
-				char * p = 0;
-				while((p = fgets(LB, LB.GetSize(), F)) != 0) {
-					rBuf.Cat(LB);
-					size_t len = sstrlen(LB);
-					if(LB[len-1] == '\n' || (LB[len-2] == 0x0D && LB[len-1] == 0x0A))
-						break;
+				FILE * p_f = GetFilePtr();
+				THROW_S(p_f, SLERR_FILENOTOPENED);
+				{
+					THROW(LB.Alloc(1024));
+					//
+					// На случай, если строка в файле длиннее, чем buf_size
+					// считываем ее в цикле до тех пор, пока в конце строки не появится //
+					// перевод каретки.
+					//
+					char * p = 0;
+					while((p = fgets(LB, LB.GetSize(), p_f)) != 0) {
+						rBuf.Cat(LB);
+						size_t len = sstrlen(LB);
+						if(LB[len-1] == '\n' || (LB[len-2] == 0x0D && LB[len-1] == 0x0A))
+							break;
+					}
+					THROW_S_S(rBuf.Len() || p, SLERR_READFAULT, Name);
 				}
-				THROW_S_S(rBuf.Len() || p, SLERR_READFAULT, Name);
+			}
+			break;
+		case tArchive:
+			if(!!H) {
+				int   rr = 0;
+				int   _done = 0;
+				do {
+            		int8  rd_buf[16];
+					size_t act_size = 0;
+					THROW(rr = Read(rd_buf, 1, &act_size));
+					if(act_size) {
+						if(rd_buf[act_size-1] == '\n' || (rd_buf[act_size-1] == '\x0A' && rBuf.Last() == '\x0D'))
+							_done = 1;
+						rBuf.CatN(reinterpret_cast<const char *>(rd_buf), act_size);
+					}
+				} while(rr > 0 && !_done);
+				THROW_S_S(rBuf.Len(), SLERR_READFAULT, Name);				
 			}
 			break;
 		case tSBuffer:
@@ -2634,8 +2769,9 @@ bool SFile::CalcSize(int64 * pSize)
 	assert(InvariantC(0));
 	bool   ok = true;
 	int64  sz = 0;
-	if(T == tSBuffer)
-		sz = P_Sb->GetWrOffs();
+	SBuffer * p_sb = GetSBufPtr();
+	if(p_sb)
+		sz = p_sb->GetWrOffs();
 	else {
 		THROW(IsValid());
 		{
@@ -2655,8 +2791,9 @@ int SFile::GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME *
 	if(T == tSBuffer)
 		return -1;
 	else if(IsValid()) {
-		if(F) {
-			return SFile::GetTime(SIntHandle(_get_osfhandle(fileno(F))), pCreate, pLastAccess, pModif);
+		FILE * p_f = GetFilePtr();
+		if(p_f) {
+			return SFile::GetTime(SIntHandle(_get_osfhandle(fileno(p_f))), pCreate, pLastAccess, pModif);
 		}
 		else if(IH >= 0) {
 			return SFile::GetTime(SIntHandle(_get_osfhandle(IH)), pCreate, pLastAccess, pModif);
@@ -2670,38 +2807,36 @@ int SFile::GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME *
 
 int SFile::SetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif)
 {
+	int    ok = 0;
 	if(T == tSBuffer)
-		return -1;
+		ok = -1;
 	else if(IsValid()) {
-		if(F) {
-			return SFile::SetTime(SIntHandle(_get_osfhandle(fileno(F))), pCreate, pLastAccess, pModif);
-		}
-		else if(IH >= 0) {
-			return SFile::SetTime(SIntHandle(_get_osfhandle(IH)), pCreate, pLastAccess, pModif);
-		}
+		FILE * p_f = GetFilePtr();
+		if(p_f)
+			ok = SFile::SetTime(SIntHandle(_get_osfhandle(fileno(p_f))), pCreate, pLastAccess, pModif);
+		else if(IH >= 0)
+			ok = SFile::SetTime(SIntHandle(_get_osfhandle(IH)), pCreate, pLastAccess, pModif);
 		else
-			return -1;
+			ok = -1;
 	}
-	else
-		return 0;
+	return ok;
 }
 
 int SFile::SetDateTime(int64 tmNs100Creation, int64 tmNs100LastAccess, int64 tmNs100LastModif)
 {
+	int    ok = 0;
 	if(T == tSBuffer)
-		return -1;
+		ok = -1;
 	else if(IsValid()) {
-		if(F) {
-			return SFile::SetTime(SIntHandle(_get_osfhandle(fileno(F))), tmNs100Creation, tmNs100LastAccess, tmNs100LastModif);
-		}
-		else if(IH >= 0) {
-			return SFile::SetTime(SIntHandle(_get_osfhandle(IH)), tmNs100Creation, tmNs100LastAccess, tmNs100LastModif);
-		}
+		FILE * p_f = GetFilePtr();
+		if(p_f)
+			ok = SFile::SetTime(SIntHandle(_get_osfhandle(fileno(p_f))), tmNs100Creation, tmNs100LastAccess, tmNs100LastModif);
+		else if(IH >= 0)
+			ok = SFile::SetTime(SIntHandle(_get_osfhandle(IH)), tmNs100Creation, tmNs100LastAccess, tmNs100LastModif);
 		else
-			return -1;
+			ok = -1;
 	}
-	else
-		return 0;
+	return ok;
 }
 
 bool SFile::CalcHash(int64 offs, int hashFuncIdent/* SHASHF_XXX */, SBinaryChunk & rHash)

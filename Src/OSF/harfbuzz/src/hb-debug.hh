@@ -170,8 +170,7 @@ const char * func CXX_UNUSED_PARAM,
 bool indented CXX_UNUSED_PARAM,
 uint level CXX_UNUSED_PARAM,
 int level_dir CXX_UNUSED_PARAM,
-const char * message CXX_UNUSED_PARAM,
-...)HB_PRINTF_FUNC(7, 8);
+const char * message CXX_UNUSED_PARAM, ...)HB_PRINTF_FUNC(7, 8);
 template <> inline void HB_PRINTF_FUNC(7, 8)
 _hb_debug_msg<0> (const char * what CXX_UNUSED_PARAM,
 const void * obj CXX_UNUSED_PARAM,
@@ -179,8 +178,8 @@ const char * func CXX_UNUSED_PARAM,
 bool indented CXX_UNUSED_PARAM,
 uint level CXX_UNUSED_PARAM,
 int level_dir CXX_UNUSED_PARAM,
-const char * message CXX_UNUSED_PARAM,
-...) {
+const char * message CXX_UNUSED_PARAM, ...) 
+{
 }
 
 #define DEBUG_MSG_LEVEL(WHAT, OBJ, LEVEL, LEVEL_DIR, ...) _hb_debug_msg<HB_DEBUG_ ## WHAT> (#WHAT, (OBJ), nullptr,    true, (LEVEL), (LEVEL_DIR), __VA_ARGS__)
@@ -189,56 +188,37 @@ const char * message CXX_UNUSED_PARAM,
 /*
  * Printer
  */
-
-template <typename T>
-struct hb_printer_t {
-	const char * print(const T&) {
-		return "something";
-	}
+template <typename T> struct hb_printer_t {
+	const char * print(const T&) { return "something"; }
 };
 
-template <>
-struct hb_printer_t<bool> {
-	const char * print(bool v) {
-		return v ? "true" : "false";
-	}
+template <> struct hb_printer_t<bool> {
+	const char * print(bool v) { return v ? "true" : "false"; }
 };
 
-template <>
-struct hb_printer_t<hb_empty_t> {
-	const char * print(hb_empty_t) {
-		return "";
-	}
+template <> struct hb_printer_t<hb_empty_t> {
+	const char * print(hb_empty_t) { return ""; }
 };
-
 /*
  * Trace
  */
-
-template <typename T>
-static inline void _hb_warn_no_return(bool returned)
+template <typename T> static inline void _hb_warn_no_return(bool returned)
 {
 	if(UNLIKELY(!returned)) {
 		slfprintf_stderr("OUCH, returned with no call to return_trace().  This is a bug, please report.\n");
 	}
 }
 
-template <>
-/*static*/ inline void _hb_warn_no_return<hb_empty_t> (bool returned CXX_UNUSED_PARAM)
-{}
+template <> /*static*/ inline void _hb_warn_no_return<hb_empty_t> (bool returned CXX_UNUSED_PARAM)
+{
+}
 
-template <int max_level, typename ret_t>
-struct hb_auto_trace_t {
-	explicit inline hb_auto_trace_t(uint * plevel_,
-	    const char * what_,
-	    const void * obj_,
-	    const char * func,
-	    const char * message,
-	    ...) HB_PRINTF_FUNC(6, 7)
-		: plevel(plevel_), what(what_), obj(obj_), returned(false)
+template <int max_level, typename ret_t> struct hb_auto_trace_t {
+	explicit inline hb_auto_trace_t(uint * plevel_, const char * what_, const void * obj_, const char * func, const char * message, ...) HB_PRINTF_FUNC(6, 7) : 
+		plevel(plevel_), what(what_), obj(obj_), returned(false)
 	{
-		if(plevel) ++*plevel;
-
+		if(plevel) 
+			++*plevel;
 		va_list ap;
 		va_start(ap, message);
 		_hb_debug_msg_va<max_level> (what, obj, func, true, plevel ? *plevel : 0, +1, message, ap);
@@ -252,21 +232,15 @@ struct hb_auto_trace_t {
 		}
 		if(plevel) --*plevel;
 	}
-
-	template <typename T>
-	T ret(T&& v,
-	    const char * func = "",
-	    uint line = 0)
+	template <typename T> T ret(T&& v, const char * func = "", uint line = 0)
 	{
 		if(UNLIKELY(returned)) {
 			slfprintf_stderr("OUCH, double calls to return_trace().  This is a bug, please report.\n");
 			return hb_forward<T> (v);
 		}
-
-		_hb_debug_msg<max_level> (what, obj, func, true, plevel ? *plevel : 1, -1,
-		"return %s (line %d)",
-		hb_printer_t<decltype(v)>().print(v), line);
-		if(plevel) --*plevel;
+		_hb_debug_msg<max_level> (what, obj, func, true, plevel ? *plevel : 1, -1, "return %s (line %d)", hb_printer_t<decltype(v)>().print(v), line);
+		if(plevel) 
+			--*plevel;
 		plevel = nullptr;
 		returned = true;
 		return hb_forward<T> (v);
@@ -281,30 +255,20 @@ private:
 
 template <typename ret_t> /* Make sure we don't use hb_auto_trace_t when not tracing. */
 struct hb_auto_trace_t<0, ret_t> {
-	explicit inline hb_auto_trace_t(uint * plevel_,
-	    const char * what_,
-	    const void * obj_,
-	    const char * func,
-	    const char * message,
-	    ...) HB_PRINTF_FUNC(6, 7) {
+	explicit inline hb_auto_trace_t(uint * plevel_, const char * what_, const void * obj_, const char * func, const char * message, ...) HB_PRINTF_FUNC(6, 7) 
+	{
 	}
-
-	template <typename T>
-	T ret(T&& v,
-	    const char * func CXX_UNUSED_PARAM = nullptr,
-	    uint line CXX_UNUSED_PARAM = 0) {
+	template <typename T> T ret(T&& v, const char * func CXX_UNUSED_PARAM = nullptr, uint line CXX_UNUSED_PARAM = 0) 
+	{
 		return hb_forward<T> (v);
 	}
 };
 
 /* For disabled tracing; optimize out everything.
  * https://github.com/harfbuzz/harfbuzz/pull/605 */
-template <typename ret_t>
-struct hb_no_trace_t {
-	template <typename T>
-	T ret(T&& v,
-	    const char * func CXX_UNUSED_PARAM = nullptr,
-	    uint line CXX_UNUSED_PARAM = 0) {
+template <typename ret_t> struct hb_no_trace_t {
+	template <typename T> T ret(T&& v, const char * func CXX_UNUSED_PARAM = nullptr, uint line CXX_UNUSED_PARAM = 0) 
+	{
 		return hb_forward<T> (v);
 	}
 };
@@ -314,39 +278,30 @@ struct hb_no_trace_t {
 /*
  * Instances.
  */
-
 #ifndef HB_DEBUG_ARABIC
-#define HB_DEBUG_ARABIC (HB_DEBUG+0)
+	#define HB_DEBUG_ARABIC (HB_DEBUG+0)
 #endif
-
 #ifndef HB_DEBUG_BLOB
-#define HB_DEBUG_BLOB (HB_DEBUG+0)
+	#define HB_DEBUG_BLOB (HB_DEBUG+0)
 #endif
-
 #ifndef HB_DEBUG_CORETEXT
-#define HB_DEBUG_CORETEXT (HB_DEBUG+0)
+	#define HB_DEBUG_CORETEXT (HB_DEBUG+0)
 #endif
-
 #ifndef HB_DEBUG_DIRECTWRITE
-#define HB_DEBUG_DIRECTWRITE (HB_DEBUG+0)
+	#define HB_DEBUG_DIRECTWRITE (HB_DEBUG+0)
 #endif
-
 #ifndef HB_DEBUG_FT
-#define HB_DEBUG_FT (HB_DEBUG+0)
+	#define HB_DEBUG_FT (HB_DEBUG+0)
 #endif
-
 #ifndef HB_DEBUG_OBJECT
-#define HB_DEBUG_OBJECT (HB_DEBUG+0)
+	#define HB_DEBUG_OBJECT (HB_DEBUG+0)
 #endif
-
 #ifndef HB_DEBUG_SHAPE_PLAN
-#define HB_DEBUG_SHAPE_PLAN (HB_DEBUG+0)
+	#define HB_DEBUG_SHAPE_PLAN (HB_DEBUG+0)
 #endif
-
 #ifndef HB_DEBUG_UNISCRIBE
-#define HB_DEBUG_UNISCRIBE (HB_DEBUG+0)
+	#define HB_DEBUG_UNISCRIBE (HB_DEBUG+0)
 #endif
-
 /*
  * With tracing.
  */
@@ -355,58 +310,38 @@ struct hb_no_trace_t {
 #define HB_DEBUG_APPLY (HB_DEBUG+0)
 #endif
 #if HB_DEBUG_APPLY
-#define TRACE_APPLY(this) \
-	hb_auto_trace_t<HB_DEBUG_APPLY, bool> trace \
+#define TRACE_APPLY(this) hb_auto_trace_t<HB_DEBUG_APPLY, bool> trace \
 		(&c->debug_depth, c->get_name(), this, HB_FUNC, \
-	    "idx %d gid %u lookup %d", \
-	    c->buffer->idx, c->buffer->cur().codepoint, (int)c->lookup_index)
+	    "idx %d gid %u lookup %d", c->buffer->idx, c->buffer->cur().codepoint, (int)c->lookup_index)
 #else
-#define TRACE_APPLY(this) hb_no_trace_t<bool> trace
+	#define TRACE_APPLY(this) hb_no_trace_t<bool> trace
 #endif
-
 #ifndef HB_DEBUG_SANITIZE
-#define HB_DEBUG_SANITIZE (HB_DEBUG+0)
+	#define HB_DEBUG_SANITIZE (HB_DEBUG+0)
 #endif
 #if HB_DEBUG_SANITIZE
-#define TRACE_SANITIZE(this) \
-	hb_auto_trace_t<HB_DEBUG_SANITIZE, bool> trace \
-		(&c->debug_depth, c->get_name(), this, HB_FUNC, \
-	    " ")
+	#define TRACE_SANITIZE(this) hb_auto_trace_t<HB_DEBUG_SANITIZE, bool> trace (&c->debug_depth, c->get_name(), this, HB_FUNC, " ")
 #else
-#define TRACE_SANITIZE(this) hb_no_trace_t<bool> trace
+	#define TRACE_SANITIZE(this) hb_no_trace_t<bool> trace
 #endif
-
 #ifndef HB_DEBUG_SERIALIZE
-#define HB_DEBUG_SERIALIZE (HB_DEBUG+0)
+	#define HB_DEBUG_SERIALIZE (HB_DEBUG+0)
 #endif
 #if HB_DEBUG_SERIALIZE
-#define TRACE_SERIALIZE(this) \
-	hb_auto_trace_t<HB_DEBUG_SERIALIZE, bool> trace \
-		(&c->debug_depth, "SERIALIZE", c, HB_FUNC, \
-	    " ")
+	#define TRACE_SERIALIZE(this) hb_auto_trace_t<HB_DEBUG_SERIALIZE, bool> trace (&c->debug_depth, "SERIALIZE", c, HB_FUNC, " ")
 #else
-#define TRACE_SERIALIZE(this) hb_no_trace_t<bool> trace
+	#define TRACE_SERIALIZE(this) hb_no_trace_t<bool> trace
 #endif
-
 #ifndef HB_DEBUG_SUBSET
-#define HB_DEBUG_SUBSET (HB_DEBUG+0)
+	#define HB_DEBUG_SUBSET (HB_DEBUG+0)
 #endif
 #if HB_DEBUG_SUBSET
-#define TRACE_SUBSET(this) \
-	hb_auto_trace_t<HB_DEBUG_SUBSET, bool> trace \
-		(&c->debug_depth, c->get_name(), this, HB_FUNC, \
-	    " ")
+	#define TRACE_SUBSET(this) hb_auto_trace_t<HB_DEBUG_SUBSET, bool> trace(&c->debug_depth, c->get_name(), this, HB_FUNC, " ")
 #else
-#define TRACE_SUBSET(this) hb_no_trace_t<bool> trace
+	#define TRACE_SUBSET(this) hb_no_trace_t<bool> trace
 #endif
-
 #ifndef HB_DEBUG_DISPATCH
-#define HB_DEBUG_DISPATCH ( \
-		HB_DEBUG_APPLY + \
-		HB_DEBUG_SANITIZE + \
-		HB_DEBUG_SERIALIZE + \
-		HB_DEBUG_SUBSET + \
-		0)
+	#define HB_DEBUG_DISPATCH (HB_DEBUG_APPLY + HB_DEBUG_SANITIZE + HB_DEBUG_SERIALIZE + HB_DEBUG_SUBSET + 0)
 #endif
 #if HB_DEBUG_DISPATCH
 #define TRACE_DISPATCH(this, format) \

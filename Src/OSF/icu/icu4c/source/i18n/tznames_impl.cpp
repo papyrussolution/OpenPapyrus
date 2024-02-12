@@ -1,9 +1,8 @@
 // TZNAMES_IMPL.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 2011-2016, International Business Machines Corporation and others. All Rights Reserved.
-*/
+// Copyright (C) 2011-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -479,8 +478,8 @@ const char16_t * ZNStringPool::get(const char16_t * s, UErrorCode & status)
 	if(pooledString) {
 		return pooledString;
 	}
-	int32_t length = u_strlen(s);
-	int32_t remainingLength = POOL_CHUNK_SIZE - fChunks->fLimit;
+	const int32_t length = sstrleni(s);
+	const int32_t remainingLength = POOL_CHUNK_SIZE - fChunks->fLimit;
 	if(remainingLength <= length) {
 		U_ASSERT(length < POOL_CHUNK_SIZE);
 		if(length >= POOL_CHUNK_SIZE) {
@@ -495,7 +494,6 @@ const char16_t * ZNStringPool::get(const char16_t * s, UErrorCode & status)
 		}
 		fChunks->fNext = oldChunk;
 	}
-
 	char16_t * destString = &fChunks->fStrings[fChunks->fLimit];
 	u_strcpy(destString, s);
 	fChunks->fLimit += (length + 1);

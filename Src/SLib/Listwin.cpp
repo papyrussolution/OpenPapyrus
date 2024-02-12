@@ -5,7 +5,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-static const TRect _DefLwRect(0, 0, 80, 25);
+static const TRect _DefLwRect(0, 0, /*80*/0, 25); // @v11.9.5 Из-за того, что ширина списка теперь определяется настройками в uid-papyrus.json здесь она должна быть равна 0
 
 ListWindow::ListWindow(ListBoxDef * pDef, const char * pTitle, int aNum) : TDialog(_DefLwRect, pTitle), PrepareSearchLetter(0), TbId(0)
 {

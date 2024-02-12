@@ -1,21 +1,19 @@
 // NUMFMT.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
- * Modification History:
- *   Date        Name        Description
- *   02/19/97    aliu        Converted from java.
- *   03/18/97    clhuang     Implemented with C++ APIs.
- *   04/17/97    aliu        Enlarged MAX_INTEGER_DIGITS to fully accommodate the
- *        largest double, by default.
- *        Changed DigitCount to int per code review.
- *    07/20/98    stephen        Changed operator== to check for grouping
- *         Changed setMaxIntegerDigits per Java implementation.
- *         Changed setMinIntegerDigits per Java implementation.
- *         Changed setMinFractionDigits per Java implementation.
- *         Changed setMaxFractionDigits per Java implementation.
- */
+// Copyright (C) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 02/19/97    aliu        Converted from java.
+// 03/18/97    clhuang     Implemented with C++ APIs.
+// 04/17/97    aliu        Enlarged MAX_INTEGER_DIGITS to fully accommodate the largest double, by default.
+//   Changed DigitCount to int per code review.
+// 07/20/98    stephen        Changed operator== to check for grouping
+//   Changed setMaxIntegerDigits per Java implementation.
+//   Changed setMinIntegerDigits per Java implementation.
+//   Changed setMinFractionDigits per Java implementation.
+//   Changed setMaxFractionDigits per Java implementation.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -482,20 +480,12 @@ public:
 	bool wasCurrency() const;
 };
 
-inline const Formattable* ArgExtractor::number() const {
-	return num;
-}
+inline const Formattable* ArgExtractor::number() const { return num; }
+inline bool ArgExtractor::wasCurrency() const { return fWasCurrency; }
+inline const char16_t * ArgExtractor::iso() const { return save; }
 
-inline bool ArgExtractor::wasCurrency() const {
-	return fWasCurrency;
-}
-
-inline const char16_t * ArgExtractor::iso() const {
-	return save;
-}
-
-ArgExtractor::ArgExtractor(const NumberFormat& /*nf*/, const Formattable& obj, UErrorCode & /*status*/)
-	: num(&obj), fWasCurrency(FALSE) {
+ArgExtractor::ArgExtractor(const NumberFormat& /*nf*/, const Formattable& obj, UErrorCode & /*status*/) : num(&obj), fWasCurrency(FALSE) 
+{
 	const UObject * o = obj.getObject(); // most commonly o==NULL
 	const CurrencyAmount* amt;
 	if(o && (amt = dynamic_cast<const CurrencyAmount*>(o)) != NULL) {
@@ -1310,11 +1300,9 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 	}
 	if(style==UNUM_CURRENCY || style == UNUM_CURRENCY_ISO || style == UNUM_CURRENCY_ACCOUNTING || style == UNUM_CASH_CURRENCY || style == UNUM_CURRENCY_STANDARD) {
 		const char16_t * currPattern = symbolsToAdopt->getCurrencyPattern();
-		if(currPattern) {
-			pattern.setTo(currPattern, u_strlen(currPattern));
-		}
+		if(currPattern)
+			pattern.setTo(currPattern, sstrleni(currPattern));
 	}
-
 	LocalPointer<NumberFormat> f;
 	if(ns->isAlgorithmic()) {
 		UnicodeString nsDesc;
@@ -1357,10 +1345,8 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 		// replace single currency sign in the pattern with double currency sign
 		// if the style is UNUM_CURRENCY_ISO
 		if(style == UNUM_CURRENCY_ISO) {
-			pattern.findAndReplace(UnicodeString(TRUE, gSingleCurrencySign, 1),
-			    UnicodeString(TRUE, gDoubleCurrencySign, 2));
+			pattern.findAndReplace(UnicodeString(TRUE, gSingleCurrencySign, 1), UnicodeString(TRUE, gDoubleCurrencySign, 2));
 		}
-
 		// "new DecimalFormat()" does not adopt the symbols argument if its memory allocation fails.
 		// So we can't use adoptInsteadAndCheckErrorCode as we need to know if the 'new' failed.
 		DecimalFormatSymbols * syms = symbolsToAdopt.getAlias();
@@ -1374,11 +1360,9 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 		else {
 			status = U_MEMORY_ALLOCATION_ERROR;
 		}
-
 		if(U_FAILURE(status)) {
 			return nullptr;
 		}
-
 		// if it is cash currency style, setCurrencyUsage with usage
 		if(style == UNUM_CASH_CURRENCY) {
 			df->setCurrencyUsage(UCURR_USAGE_CASH, &status);

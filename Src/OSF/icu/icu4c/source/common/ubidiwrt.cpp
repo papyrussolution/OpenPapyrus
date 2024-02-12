@@ -1,23 +1,14 @@
+// ubidiwrt.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 2000-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  ubidiwrt.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 1999aug06
- *   created by: Markus W. Scherer, updated by Matitiahu Allouche
- *
- * This file contains implementations for BiDi functions that use
- * the core algorithm and core API to write reordered text.
- */
+// Copyright (C) 2000-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 1999aug06
+// created by: Markus W. Scherer, updated by Matitiahu Allouche
+//
+// This file contains implementations for BiDi functions that use
+// the core algorithm and core API to write reordered text.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ubidi.h"
@@ -36,7 +27,7 @@
  * - u_charMirror(c) needs the same number of code units as c
  */
 #if defined(UTF_SIZE) && UTF_SIZE==8
-#error reimplement ubidi_writeReordered() for UTF-8, see comment above
+	#error reimplement ubidi_writeReordered() for UTF-8, see comment above
 #endif
 
 #define IS_COMBINING(type) ((1UL<<(type))&(1UL<<U_NON_SPACING_MARK|1UL<<U_COMBINING_SPACING_MARK|1UL<<U_ENCLOSING_MARK))
@@ -315,10 +306,9 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const char16_t * src, int32_t srcLen
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-	if(srcLength == -1) {
-		srcLength = u_strlen(src);
-	}
-	if(srcLength>0) {
+	if(srcLength == -1)
+		srcLength = sstrleni(src);
+	if(srcLength > 0) {
 		destLength = doWriteReverse(src, srcLength, dest, destSize, options, pErrorCode);
 	}
 	else {

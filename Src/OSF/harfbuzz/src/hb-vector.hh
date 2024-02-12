@@ -61,7 +61,7 @@ public:
 	}
 	void fini_deep()
 	{
-		uint count = length;
+		const uint count = length;
 		for(uint i = 0; i < count; i++)
 			arrayZ[i].fini();
 		fini();

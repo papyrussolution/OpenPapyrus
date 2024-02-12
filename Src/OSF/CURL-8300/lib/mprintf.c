@@ -76,21 +76,21 @@
 /*
  * Max integer data types that mprintf.c is capable
  */
-#ifdef HAVE_LONG_LONG_TYPE
-	#define mp_intmax_t LONG_LONG_TYPE
-	#define mp_uintmax_t unsigned LONG_LONG_TYPE
-#else
-	#define mp_intmax_t long
-	#define mp_uintmax_t unsigned long
-#endif
+//#ifdef HAVE_LONG_LONG_TYPE
+	//#define mp_intmax_t_Removed LONG_LONG_TYPE
+	//#define mp_uintmax_t_Removed unsigned LONG_LONG_TYPE
+//#else
+	//#define mp_intmax_t_Removed long
+	//#define mp_uintmax_t_Removed unsigned long
+//#endif
 #define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should fit negative DBL_MAX (317 letters) */
 #define MAX_PARAMETERS 128 /* lame static limit */
 #ifdef __AMIGA__
 	#undef FORMAT_INT
 #endif
 
-static const char lower_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz"; /* Lower-case digits.  */
-static const char upper_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; /* Upper-case digits.  */
+// @v11.9.5 (replaced with SlConst::P_Rdx36DigL) static const char lower_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz"; /* Lower-case digits.  */
+// @v11.9.5 (replaced with SlConst::P_Rdx36DigU) static const char upper_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; /* Upper-case digits.  */
 
 #define OUTCHAR(x)                                     \
 	do {                                                 \
@@ -148,8 +148,8 @@ struct va_stack {
 		char * str;
 		void * ptr;
 		union {
-			mp_intmax_t as_signed;
-			mp_uintmax_t as_unsigned;
+			intmax_t as_signed;
+			uintmax_t as_unsigned;
 		} num;
 		double dnum;
 	} data;
@@ -217,10 +217,9 @@ static bool dprintf_IsQualifierNoDollar(const char * fmt)
 *
 ******************************************************************/
 
-static int dprintf_Pass1(const char * format, struct va_stack * vto,
-    char ** endpos, va_list arglist)
+static int dprintf_Pass1(const char * format, struct va_stack * vto, char ** endpos, va_list arglist)
 {
-	char * fmt = (char *)format;
+	char * fmt = const_cast<char *>(format); // @badcast
 	int param_num = 0;
 	long this_param;
 	long width;
@@ -237,16 +236,12 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 			}
 
 			flags = FLAGS_NEW;
-
 			/* Handle the positional case (N$) */
-
 			param_num++;
-
 			this_param = dprintf_DollarString(fmt, &fmt);
 			if(0 == this_param)
 				/* we got no positional, get the next counter */
 				this_param = param_num;
-
 			if(this_param > max_param)
 				max_param = this_param;
 
@@ -284,7 +279,6 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 					case '.':
 					    if('*' == *fmt) {
 						    /* The precision is picked from a specified parameter */
-
 						    flags |= FLAGS_PRECPARAM;
 						    fmt++;
 						    param_num++;
@@ -480,51 +474,44 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 
 	/* Read the arg list parameters into our data list */
 	for(i = 0; i<max_param; i++) {
-		/* Width/precision arguments must be read before the main argument
-		   they are attached to */
+		/* Width/precision arguments must be read before the main argument they are attached to */
 		if(vto[i].flags & FLAGS_WIDTHPARAM) {
-			vto[vto[i].width].data.num.as_signed =
-			    (mp_intmax_t)va_arg(arglist, int);
+			vto[vto[i].width].data.num.as_signed = (intmax_t)va_arg(arglist, int);
 		}
 		if(vto[i].flags & FLAGS_PRECPARAM) {
-			vto[vto[i].precision].data.num.as_signed =
-			    (mp_intmax_t)va_arg(arglist, int);
+			vto[vto[i].precision].data.num.as_signed = (intmax_t)va_arg(arglist, int);
 		}
-
 		switch(vto[i].type) {
 			case FORMAT_STRING:
 			    vto[i].data.str = va_arg(arglist, char *);
 			    break;
-
 			case FORMAT_INTPTR:
 			case FORMAT_UNKNOWN:
 			case FORMAT_PTR:
 			    vto[i].data.ptr = va_arg(arglist, void *);
 			    break;
-
 			case FORMAT_INT:
 #ifdef HAVE_LONG_LONG_TYPE
 			    if((vto[i].flags & FLAGS_LONGLONG) && (vto[i].flags & FLAGS_UNSIGNED))
-				    vto[i].data.num.as_unsigned =
-					(mp_uintmax_t)va_arg(arglist, mp_uintmax_t);
+				    vto[i].data.num.as_unsigned = (uintmax_t)va_arg(arglist, uintmax_t);
 			    else if(vto[i].flags & FLAGS_LONGLONG)
 				    vto[i].data.num.as_signed =
-					(mp_intmax_t)va_arg(arglist, mp_intmax_t);
+					(intmax_t)va_arg(arglist, intmax_t);
 			    else
 #endif
 			    {
 				    if((vto[i].flags & FLAGS_LONG) && (vto[i].flags & FLAGS_UNSIGNED))
 					    vto[i].data.num.as_unsigned =
-						(mp_uintmax_t)va_arg(arglist, unsigned long);
+						(uintmax_t)va_arg(arglist, unsigned long);
 				    else if(vto[i].flags & FLAGS_LONG)
 					    vto[i].data.num.as_signed =
-						(mp_intmax_t)va_arg(arglist, long);
+						(intmax_t)va_arg(arglist, long);
 				    else if(vto[i].flags & FLAGS_UNSIGNED)
 					    vto[i].data.num.as_unsigned =
-						(mp_uintmax_t)va_arg(arglist, uint);
+						(uintmax_t)va_arg(arglist, uint);
 				    else
 					    vto[i].data.num.as_signed =
-						(mp_intmax_t)va_arg(arglist, int);
+						(intmax_t)va_arg(arglist, int);
 			    }
 			    break;
 
@@ -549,11 +536,9 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 
 static int dprintf_formatf(void * data, /* untouched by format(), just sent to the stream() function in the second argument */
     /* function pointer called for each output character */
-    int (*stream)(int, FILE *),
-    const char * format, /* %-formatted string */
-    va_list ap_save) /* list of parameters */
+    int (*stream)(int, FILE *), const char * format/* %-formatted string */, va_list ap_save/* list of parameters */)
 {
-	const char * digits = lower_digits; /* Base-36 digits for numbers.  */
+	const char * digits = SlConst::P_Rdx36DigL; /* Base-36 digits for numbers.  */
 	char * f; /* Pointer into the format string.  */
 	int done = 0; /* Number of characters written.  */
 	long param; /* current parameter to read */
@@ -567,20 +552,19 @@ static int dprintf_formatf(void * data, /* untouched by format(), just sent to t
 	   byte as margin to avoid the (false?) warning Coverity gives us
 	   otherwise */
 	char * workend = &work[sizeof(work) - 2];
-
 	/* Do the actual %-code parsing */
 	if(dprintf_Pass1(format, vto, endpos, ap_save))
 		return 0;
 	end = &endpos[0]; /* the initial end-position from the list dprintf_Pass1() created for us */
-	f = (char *)format;
+	f = const_cast<char *>(format); // @badcast
 	while(*f != '\0') {
 		int is_alt; /* Format spec modifiers.  */
 		long width; /* Width of a field.  */
 		long prec; /* Precision of a field.  */
 		int is_neg; /* Decimal integer is negative.  */
 		ulong base; /* Base of a number to be written.  */
-		mp_uintmax_t num; /* Integral values to be written.  */
-		mp_intmax_t signed_num; /* Used to convert negative in positive.  */
+		uintmax_t num; /* Integral values to be written.  */
+		intmax_t signed_num; /* Used to convert negative in positive.  */
 		char * w;
 		if(*f != '%') {
 			/* This isn't a format spec, so write everything out until the next one
@@ -602,16 +586,13 @@ static int dprintf_formatf(void * data, /* untouched by format(), just sent to t
 			OUTCHAR('%');
 			continue;
 		}
-
 		/* If this is a positional parameter, the position must follow immediately
 		   after the %, thus create a %<num>$ sequence */
 		param = dprintf_DollarString(f, &f);
-
 		if(!param)
 			param = param_num;
 		else
 			--param;
-
 		param_num++; /* increase this always to allow "%2$s %1$s %s" and then the
 		                third %s will pick the 3rd argument */
 
@@ -671,8 +652,7 @@ static int dprintf_formatf(void * data, /* untouched by format(), just sent to t
 			    }
 			    else if(p->flags & FLAGS_HEX) {
 				    /* Hexadecimal unsigned integer.  */
-
-				    digits = (p->flags & FLAGS_UPPER)? upper_digits : lower_digits;
+				    digits = (p->flags & FLAGS_UPPER) ? SlConst::P_Rdx36DigU : SlConst::P_Rdx36DigL;
 				    base = 16;
 				    goto unsigned_number;
 			    }
@@ -685,13 +665,13 @@ static int dprintf_formatf(void * data, /* untouched by format(), just sent to t
 			    /* Decimal integer.  */
 			    base = 10;
 
-			    is_neg = (p->data.num.as_signed < (mp_intmax_t)0) ? 1 : 0;
+			    is_neg = (p->data.num.as_signed < (intmax_t)0) ? 1 : 0;
 			    if(is_neg) {
 				    /* signed_num might fail to hold absolute negative minimum by 1 */
-				    signed_num = p->data.num.as_signed + (mp_intmax_t)1;
+				    signed_num = p->data.num.as_signed + (intmax_t)1;
 				    signed_num = -signed_num;
-				    num = (mp_uintmax_t)signed_num;
-				    num += (mp_uintmax_t)1;
+				    num = (uintmax_t)signed_num;
+				    num += (uintmax_t)1;
 			    }
 
 			    goto number;
@@ -817,12 +797,11 @@ number:
 			case FORMAT_PTR:
 			    /* Generic pointer.  */
 		    {
-			    void * ptr;
-			    ptr = (void *)p->data.ptr;
+			    void * ptr = (void *)p->data.ptr;
 			    if(ptr) {
 				    /* If the pointer is not NULL, write it as a %#x spec.  */
 				    base = 16;
-				    digits = (p->flags & FLAGS_UPPER)? upper_digits : lower_digits;
+				    digits = (p->flags & FLAGS_UPPER) ? SlConst::P_Rdx36DigU : SlConst::P_Rdx36DigL;
 				    is_alt = 1;
 				    num = (size_t)ptr;
 				    is_neg = 0;

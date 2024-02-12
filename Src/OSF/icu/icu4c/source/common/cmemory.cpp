@@ -92,17 +92,17 @@ U_CAPI void * U_EXPORT2 uprv_calloc(size_t num, size_t size)
 
 U_CAPI void U_EXPORT2 u_setMemoryFunctions(const void * context, UMemAllocFn * a, UMemReallocFn * r, UMemFreeFn * f,  UErrorCode * status)
 {
-	if(U_FAILURE(*status)) {
-		return;
+	if(U_SUCCESS(*status)) {
+		if(!a || !r || !f) {
+			*status = U_ILLEGAL_ARGUMENT_ERROR;
+		}
+		else {
+			pContext  = context;
+			pAlloc    = a;
+			pRealloc  = r;
+			pFree     = f;
+		}
 	}
-	if(a==NULL || r==NULL || f==NULL) {
-		*status = U_ILLEGAL_ARGUMENT_ERROR;
-		return;
-	}
-	pContext  = context;
-	pAlloc    = a;
-	pRealloc  = r;
-	pFree     = f;
 }
 
 U_CFUNC bool cmemory_cleanup() 

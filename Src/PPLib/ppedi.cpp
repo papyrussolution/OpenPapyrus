@@ -2488,6 +2488,40 @@ bool PPEdiProcessor::ProviderImplementation::DeferredPositionBlock::SetupGoods()
 	return (Ti.GoodsID > 0);
 }
 
+PPEdiProcessor::ProviderImplementation::OwnFormatAddress::OwnFormatAddress()
+{
+	CountryCode[0] = 0;
+}
+
+PPEdiProcessor::ProviderImplementation::OwnFormatAddress & PPEdiProcessor::ProviderImplementation::OwnFormatAddress::Z()
+{
+	CountryCode[0] = 0;
+	AddressText.Z();
+	RegionIsoCode.Z();
+	District.Z();
+	City.Z();
+	Settlement.Z();
+	Street.Z();
+	House.Z();
+	Flat.Z();
+	ZIP.Z();
+	return *this;
+}
+
+PPEdiProcessor::ProviderImplementation::OwnFormatContractor::OwnFormatContractor()
+{
+}
+
+PPEdiProcessor::ProviderImplementation::OwnFormatContractor & PPEdiProcessor::ProviderImplementation::OwnFormatContractor::Z()
+{
+	Name.Z();
+	GLN.Z();
+	INN.Z();
+	KPP.Z();
+	Addr.Z();
+	return *this;
+}
+
 PPEdiProcessor::ProviderImplementation::ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
 	Epp(rEpp), MainOrgID(mainOrgID), Flags(flags), P_BObj(BillObj)
 {
@@ -4780,7 +4814,7 @@ public:
 private:
 	struct OwnFormatCommonAttr {
 		OwnFormatCommonAttr();
-		void    Clear();
+		OwnFormatCommonAttr & Z();
 
 		SString Id; // "id"
 		SString Num; // "number"
@@ -4789,34 +4823,6 @@ private:
 		SString Revision; // "revisionNumber"
 		SString UOM; // "unitOfMeasure"
 	};
-	struct OwnFormatAddress {
-		OwnFormatAddress();
-		OwnFormatAddress & Z();
-
-		char   CountryCode[4]; // 2-letter code
-		SString AddressText; // foreign address
-		SString RegionIsoCode;
-		SString District;
-		SString City;       // Город
-		SString Settlement; // Населенный пункт
-		SString Street;
-		SString House;
-		SString Flat;
-		SString ZIP;
-	};
-	struct OwnFormatContractor {
-		OwnFormatContractor();
-		OwnFormatContractor & Z();
-
-		SString Name;
-		SString GLN;
-		SString INN;
-		SString KPP;
-		//
-		OwnFormatAddress Addr;
-	};
-	int    ResolveDlvrLoc(const OwnFormatContractor & rC, PPBillPacket * pPack);
-	int    ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack);
 	int    ReadCommonAttributes(const xmlNode * pNode, OwnFormatCommonAttr & rA);
 	int    ReadOwnFormatDocument(void * pCtx, const char * pFileName, const char * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 	int    WriteOwnFormatContractor(SXml::WDoc & rDoc, const char * pHeaderTag, PPID personID, PPID locID);
@@ -4942,7 +4948,59 @@ EdiProviderImplementation_SBIS::EdiProviderImplementation_SBIS(const PPEdiProvid
 
 int EdiProviderImplementation_SBIS::ReadDocument(const char * pFileName, TSCollection <PPEdiProcessor::Packet> & rList)
 {
+	/*
+		<?xml version='1.0' encoding='UTF-8'?>
+		<Файл ВерсияФормата="3.01" Имя="ON_ORDER___20240124_afcc6890-ba8a-11ee-bc53-005056b8b09c" Формат="&#x417;&#x430;&#x43A;&#x430;&#x437;">
+		  <Документ Дата="24.01.2024" Название="Заказ" Номер="45" СрокВремя="00:00">
+			<Поставщик>
+			  <Адрес АдрТекст="г. Петрозаводск">
+				<АдрРФ Город="г. Петрозаводск" КодРегион="10"/>
+			  </Адрес>
+			  <БанкРекв БИК="048602673" КСчет="30101810600000000673" НаимБанк="КАРЕЛЬСКОЕ ОТДЕЛЕНИЕ N8628 ПАО СБЕРБАНК ПЕТРОЗАВОДСК" РСчет="40802810225000105185"/>
+			  <СвФЛ ИНН="100100910817" Имя="Вера" Название="ИП Санникова Вера Ивановна" ОКПО="0136110185" Отчество="Ивановна" Фамилия="Санникова"/>
+			</Поставщик>
+			<Покупатель>
+			  <Адрес АдрТекст="Респ. Карелия, Костомукшский г.о., г. Костомукша">
+				<АдрИно АдрТекст="Респ. Карелия, Костомукшский г.о., г. Костомукша" КодСтр="643"/>
+			  </Адрес>
+			  <СвФЛ ИНН="100400537995" Имя="Татьяна" Название="ИП Панфилова Татьяна Васильевна" ОКПО="0124820239" Отчество="Васильевна" Фамилия="Панфилова"/>
+			</Покупатель>
+			<ТаблДок>
+			  <СтрТабл GTIN="4670005530015" ЕдИзм="упак" Идентификатор="X2010866" Код="X2010866" КодПокупателя="X2010866" КодПоставщика="4607035892394" Кол_во="2" Название="Кетчуп/томатная паста" ОКЕИ="778" ПорНомер="1" Примечание="томатная паста 2 упак,кетчуп без добавлений 20 пачек" Сумма="0.00">
+				<НДС Ставка="без НДС" ТипСтавки="текст"/>
+				<Характеристика Значение="Кетчуп/томатная паста" Имя="НазваниеПокупателя"/>
+				<Параметр Значение="упак" Имя="ЕдИзмПокупателя"/>
+				<Параметр Значение="778" Имя="ЕдКодПокупателя"/>
+				<Параметр Значение="Кетчуп/томатная паста" Имя="НазваниеПокупателя"/>
+				<Параметр Значение="X2010866" Имя="КодПокупателя"/>
+				<Параметр Значение="2" Имя="КолВоПокупателя"/>
+			  </СтрТабл>
+			  <СтрТабл GTIN="4640174750347" ЕдИзм="кг" Идентификатор="X603192" Код="X603192" КодПокупателя="X603192" КодПоставщика="4600699502821" Кол_во="20" Название="Майонез" ОКЕИ="166" ПорНомер="2" Сумма="0.00">
+				<НДС Ставка="без НДС" ТипСтавки="текст"/>
+				<Характеристика Значение="Майонез" Имя="НазваниеПокупателя"/>
+				<Параметр Значение="кг" Имя="ЕдИзмПокупателя"/>
+				<Параметр Значение="166" Имя="ЕдКодПокупателя"/>
+				<Параметр Значение="Майонез" Имя="НазваниеПокупателя"/>
+				<Параметр Значение="X603192" Имя="КодПокупателя"/>
+				<Параметр Значение="20" Имя="КолВоПокупателя"/>
+			  </СтрТабл>
+			  <ИтогТабл Кол_во="22" Сумма="0.00">
+				<Упаковка КолМест="0"/>
+			  </ИтогТабл>
+			</ТаблДок>
+		  </Документ>
+		</Файл>
+	*/
 	int    ok = -1;
+	xmlParserCtxt * p_ctx = 0;
+	xmlDoc * p_doc = 0;
+	//
+	THROW_SL(fileExists(pFileName));
+	THROW(p_ctx = xmlNewParserCtxt());
+
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_ctx);
 	return ok;
 }
 
@@ -4992,7 +5050,65 @@ int EdiProviderImplementation_SBIS::ReadDocument(const char * pFileName, TSColle
 					PPXmlFileDetector xfd;
 					if(xfd.Run(temp_buf, &format)) {
 						if(format == xfd.NalogRu_Generic) {
-							const int rdr = ReadDocument(temp_buf, rList);
+							//const int rdr = ReadDocument(temp_buf, rList);
+							DocNalogRu_Reader::FileInfo fi;
+							TSCollection <DocNalogRu_Reader::DocumentInfo> temp_doc_list;
+							if(Reader.ReadFile(temp_buf, fi, temp_doc_list) > 0) {
+								for(uint i = 0; i < temp_doc_list.getCount(); i++) {
+									DocNalogRu_Reader::DocumentInfo * p_nr_doc = temp_doc_list.at(i);
+									if(p_nr_doc && p_nr_doc->EdiOp == PPEDIOP_ORDER) {
+										PPEdiProcessor::Packet * p_pack = new PPEdiProcessor::Packet(p_nr_doc->EdiOp);
+										PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_pack->P_Data);
+										if(p_bp) {
+											p_bp->Rec.EdiOp = p_nr_doc->EdiOp;
+											p_bp->Rec.Dt = p_nr_doc->Dt;
+											STRNSCPY(p_bp->Rec.Code, p_nr_doc->Code);
+											{
+												DocNalogRu_Reader::Participant * p_c = p_nr_doc->GetParticipant(EDIPARTYQ_SELLER, false);
+												SETIFZ(p_c, p_nr_doc->GetParticipant(EDIPARTYQ_SUPPLIER, false));
+												SETIFZ(p_c, p_nr_doc->GetParticipant(EDIPARTYQ_CONSIGNOR, false));
+												if(p_c) {
+													OwnFormatContractor ofc;
+													ofc.GLN = p_c->GLN;
+													ofc.INN = p_c->INN;
+													ofc.KPP = p_c->KPP;
+													ofc.Name = p_c->Name_;
+													ResolveOwnFormatContractor(ofc, EDIPARTYQ_SELLER, p_bp);
+												}
+											}
+											{
+												DocNalogRu_Reader::Participant * p_c = p_nr_doc->GetParticipant(EDIPARTYQ_BUYER, false);
+												SETIFZ(p_c, p_nr_doc->GetParticipant(EDIPARTYQ_CONSIGNEE, false));
+												if(p_c) {
+													OwnFormatContractor ofc;
+													ofc.GLN = p_c->GLN;
+													ofc.INN = p_c->INN;
+													ofc.KPP = p_c->KPP;
+													ofc.Name = p_c->Name_;
+													ResolveOwnFormatContractor(ofc, EDIPARTYQ_BUYER, p_bp);
+												}
+											}
+											/*
+											struct ResolveBlock {
+												static PPID Resolve(PPBillImporter * pMaster, DocNalogRu_Reader::Participant * pParticipant, const SString & rInitBillCode, PPID acsID)
+												{
+													PPID   ar_id = 0;
+													if(pParticipant) {
+														if(pParticipant->GLN.NotEmpty())
+															pMaster->ResolveGLN(pParticipant->GLN, rInitBillCode, acsID, &ar_id, 0);
+														if(!ar_id)
+															pMaster->ResolveINN(pParticipant->INN, 0, 0, rInitBillCode, acsID, &ar_id, 0);
+													}
+													return ar_id;
+												}
+											};
+											PPID seller_ar_id = ResolveBlock::Resolve(this, p_seller, init_bill_code, contragent_acs_id);
+											PPID buyer_ar_id  = ResolveBlock::Resolve(this, p_buyer, init_bill_code, contragent_acs_id);
+											*/
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -5017,175 +5133,21 @@ EdiProviderImplementation_Kontur::OwnFormatCommonAttr::OwnFormatCommonAttr() : D
 {
 }
 
-void EdiProviderImplementation_Kontur::OwnFormatCommonAttr::Clear()
+EdiProviderImplementation_Kontur::OwnFormatCommonAttr & EdiProviderImplementation_Kontur::OwnFormatCommonAttr::Z()
 {
 	Id.Z();
 	Num.Z();
 	Dt = ZERODATE;
 	Status.Z();
 	UOM.Z();
-}
-
-EdiProviderImplementation_Kontur::OwnFormatAddress::OwnFormatAddress()
-{
-	CountryCode[0] = 0;
-}
-
-EdiProviderImplementation_Kontur::OwnFormatAddress & EdiProviderImplementation_Kontur::OwnFormatAddress::Z()
-{
-	CountryCode[0] = 0;
-	AddressText.Z();
-	RegionIsoCode.Z();
-	District.Z();
-	City.Z();
-	Settlement.Z();
-	Street.Z();
-	House.Z();
-	Flat.Z();
-	ZIP.Z();
 	return *this;
-}
-
-EdiProviderImplementation_Kontur::OwnFormatContractor::OwnFormatContractor()
-{
-}
-
-EdiProviderImplementation_Kontur::OwnFormatContractor & EdiProviderImplementation_Kontur::OwnFormatContractor::Z()
-{
-	Name.Z();
-	GLN.Z();
-	INN.Z();
-	KPP.Z();
-	Addr.Z();
-	return *this;
-}
-
-int  EdiProviderImplementation_Kontur::ResolveDlvrLoc(const OwnFormatContractor & rC, PPBillPacket * pPack)
-{
-	int    ok = -1;
-	if(rC.GLN.NotEmpty()) {
-		PPIDArray loc_list_by_gln;
-		PPID   final_dlvr_loc_id = 0;
-		PsnObj.LocObj.ResolveGLN(LOCTYP_ADDRESS, rC.GLN, loc_list_by_gln);
-		THROW_PP_S(loc_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLDLVRLOC, rC.GLN);
-		for(uint i = 0; !final_dlvr_loc_id && i < loc_list_by_gln.getCount(); i++) {
-			const  PPID loc_id = loc_list_by_gln.get(i);
-			LocationTbl::Rec loc_rec;
-			if(PsnObj.LocObj.Fetch(loc_id, &loc_rec) > 0) {
-				if(loc_rec.OwnerID) {
-					const  PPID psn_id = ObjectToPerson(pPack->Rec.Object, 0);
-					if(psn_id) {
-						if(loc_rec.OwnerID == psn_id) {
-							final_dlvr_loc_id = loc_id;
-						}
-					}
-					else if(pPack->Rec.Object == 0) {
-						final_dlvr_loc_id = loc_id;
-					}
-				}
-			}
-		}
-		THROW_PP_S(final_dlvr_loc_id, PPERR_EDI_UNBLRSLV_BILLDLVRLOC, rC.GLN);
-		{
-			PPFreight freight;
-			pPack->GetFreight(&freight);
-			freight.SetupDlvrAddr(final_dlvr_loc_id);
-			pPack->SetFreight(&freight);
-			ok = 1;
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-int EdiProviderImplementation_Kontur::ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack)
-{
-	int    ok = 1;
-	if(pPack) {
-		SString msg_buf;
-		const  PPID reg_type_id = PPREGT_GLN;
-		PPIDArray psn_list_by_gln;
-		PPIDArray ar_list;
-		if(rC.GLN.NotEmpty()) {
-			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.GLN);
-			THROW(PsnObj.GetListByRegNumber(reg_type_id, 0, rC.GLN, psn_list_by_gln));
-		}
-		if(rC.INN.NotEmpty())
-			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.INN);
-		if(rC.KPP.NotEmpty())
-			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.KPP);
-		if(rC.Name.NotEmpty())
-			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.Name);
-		msg_buf.SetIfEmpty("*");
-		msg_buf.CatDiv('-', 1).Cat(pPack->Rec.Code).CatDiv('-', 1).Cat(pPack->Rec.Dt, DATF_DMY);
-		if(partyQ == EDIPARTYQ_SELLER) {
-			if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDERRSP, PPEDIOP_DESADV)) {
-				THROW_PP_S(psn_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
-				THROW(ArObj.GetByPersonList(GetSupplAccSheet(), &psn_list_by_gln, &ar_list));
-				THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
-				{
-					PPBillPacket::SetupObjectBlock sob;
-					THROW(pPack->SetupObject(ar_list.get(0), sob));
-				}
-			}
-			else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
-				PPID   main_org_id = 0;
-				for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
-					const  PPID _id = psn_list_by_gln.get(i);
-					if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
-						main_org_id = _id;
-				}
-				THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
-			}
-		}
-		else if(partyQ == EDIPARTYQ_BUYER) {
-			if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDERRSP, PPEDIOP_DESADV)) {
-				PPID   main_org_id = 0;
-				for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
-					const  PPID _id = psn_list_by_gln.get(i);
-					if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
-						main_org_id = _id;
-				}
-				THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
-			}
-			else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
-				THROW_PP_S(psn_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
-				THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_gln, &ar_list));
-				THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
-				{
-					PPBillPacket::SetupObjectBlock sob;
-					THROW(pPack->SetupObject(ar_list.get(0), sob));
-				}
-			}
-		}
-		else if(partyQ == EDIPARTYQ_INVOICEE) {
-		}
-		else if(oneof2(partyQ, EDIPARTYQ_SHIPTO, EDIPARTYQ_CONSIGNEE)) {
-			if(pPack->Rec.EdiOp == PPEDIOP_DESADV) {
-				int lr = ResolveDlvrLoc(rC, pPack);
-				if(!lr) {
-				}
-			}
-			else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
-				int lr = ResolveDlvrLoc(rC, pPack);
-				if(!lr) {
-				}
-			}
-		}
-		else if(partyQ == EDIPARTYQ_CONSIGNOR) {
-		}
-	}
-	else
-		ok = -1;
-	CATCHZOK
-	return ok;
 }
 
 int EdiProviderImplementation_Kontur::ReadCommonAttributes(const xmlNode * pNode, OwnFormatCommonAttr & rA)
 {
 	int    ok = -1;
 	SString temp_buf;
-	rA.Clear();
+	rA.Z();
 	if(SXml::GetAttrib(pNode, "id", rA.Id))
 		ok = 1;
 	if(SXml::GetAttrib(pNode, "number", rA.Num)) {
@@ -7997,7 +7959,6 @@ int PPEdiProcessor::ProviderImplementation::ResolveContractor(const char * pText
 		else {
 			const  PPID reg_type_id = PPREGT_GLN;
 			PPIDArray psn_list_by_gln;
-			//PPIDArray loc_list_by_gln;
 			PPIDArray ar_list;
 			msg_buf.CatDivIfNotEmpty('/', 0).Cat(pText);
 			THROW(PsnObj.GetListByRegNumber(reg_type_id, 0, pText, psn_list_by_gln));
@@ -8015,7 +7976,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveContractor(const char * pText
 					PPID   main_org_id = 0;
 					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
 						const  PPID _id = psn_list_by_gln.get(i);
-						if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
+						if(PsnObj.P_Tbl->IsBelongsToKind(_id, PPPRK_MAIN) > 0)
 							main_org_id = _id;
 					}
 					THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
@@ -8026,7 +7987,7 @@ int PPEdiProcessor::ProviderImplementation::ResolveContractor(const char * pText
 					PPID   main_org_id = 0;
 					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
 						const  PPID _id = psn_list_by_gln.get(i);
-						if(PsnObj.P_Tbl->IsBelongToKind(_id, PPPRK_MAIN) > 0)
+						if(PsnObj.P_Tbl->IsBelongsToKind(_id, PPPRK_MAIN) > 0)
 							main_org_id = _id;
 					}
 					THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
@@ -8043,6 +8004,150 @@ int PPEdiProcessor::ProviderImplementation::ResolveContractor(const char * pText
 			}
 		}
 	}
+	CATCHZOK
+	return ok;
+}
+
+int  PPEdiProcessor::ProviderImplementation::ResolveDlvrLoc(const OwnFormatContractor & rC, PPBillPacket * pPack)
+{
+	int    ok = -1;
+	if(rC.GLN.NotEmpty()) {
+		PPIDArray loc_list_by_gln;
+		PPID   final_dlvr_loc_id = 0;
+		PsnObj.LocObj.ResolveGLN(LOCTYP_ADDRESS, rC.GLN, loc_list_by_gln);
+		THROW_PP_S(loc_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLDLVRLOC, rC.GLN);
+		for(uint i = 0; !final_dlvr_loc_id && i < loc_list_by_gln.getCount(); i++) {
+			const  PPID loc_id = loc_list_by_gln.get(i);
+			LocationTbl::Rec loc_rec;
+			if(PsnObj.LocObj.Fetch(loc_id, &loc_rec) > 0) {
+				if(loc_rec.OwnerID) {
+					const  PPID psn_id = ObjectToPerson(pPack->Rec.Object, 0);
+					if(psn_id) {
+						if(loc_rec.OwnerID == psn_id) {
+							final_dlvr_loc_id = loc_id;
+						}
+					}
+					else if(pPack->Rec.Object == 0) {
+						final_dlvr_loc_id = loc_id;
+					}
+				}
+			}
+		}
+		THROW_PP_S(final_dlvr_loc_id, PPERR_EDI_UNBLRSLV_BILLDLVRLOC, rC.GLN);
+		{
+			PPFreight freight;
+			pPack->GetFreight(&freight);
+			freight.SetupDlvrAddr(final_dlvr_loc_id);
+			pPack->SetFreight(&freight);
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPEdiProcessor::ProviderImplementation::ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack)
+{
+	int    ok = 1;
+	if(pPack) {
+		SString msg_buf;
+		PPIDArray psn_list_by_gln;
+		PPIDArray psn_list_by_inn;
+		PPIDArray ar_list;
+		if(rC.GLN.NotEmpty()) {
+			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.GLN);
+			THROW(PsnObj.GetListByRegNumber(PPREGT_GLN, 0, rC.GLN, psn_list_by_gln));
+		}
+		if(rC.INN.NotEmpty()) {
+			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.INN);
+			THROW(PsnObj.GetListByRegNumber(PPREGT_TPID, 0, rC.INN, psn_list_by_inn));
+		}
+		if(rC.KPP.NotEmpty())
+			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.KPP);
+		if(rC.Name.NotEmpty())
+			msg_buf.CatDivIfNotEmpty('/', 0).Cat(rC.Name);
+		msg_buf.SetIfEmpty("*");
+		msg_buf.CatDiv('-', 1).Cat(pPack->Rec.Code).CatDiv('-', 1).Cat(pPack->Rec.Dt, DATF_DMY);
+		if(partyQ == EDIPARTYQ_SELLER) {
+			if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDERRSP, PPEDIOP_DESADV)) {
+				THROW_PP_S(psn_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+				THROW(ArObj.GetByPersonList(GetSupplAccSheet(), &psn_list_by_gln, &ar_list));
+				THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+				{
+					PPBillPacket::SetupObjectBlock sob;
+					THROW(pPack->SetupObject(ar_list.get(0), sob));
+				}
+			}
+			else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
+				PPID   main_org_id = 0;
+				if(psn_list_by_gln.getCount()) {
+					for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
+						const  PPID _id = psn_list_by_gln.get(i);
+						if(PsnObj.P_Tbl->IsBelongsToKind(_id, PPPRK_MAIN) > 0)
+							main_org_id = _id;
+					}
+				}
+				// @v11.9.5 {
+				else if(psn_list_by_inn.getCount()) {
+					for(uint i = 0; !main_org_id && i < psn_list_by_inn.getCount(); i++) {
+						const  PPID _id = psn_list_by_inn.get(i);
+						if(PsnObj.P_Tbl->IsBelongsToKind(_id, PPPRK_MAIN) > 0)
+							main_org_id = _id;
+					}
+				}
+				// } @v11.9.5 
+				THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
+			}
+		}
+		else if(partyQ == EDIPARTYQ_BUYER) {
+			if(oneof2(pPack->Rec.EdiOp, PPEDIOP_ORDERRSP, PPEDIOP_DESADV)) {
+				PPID   main_org_id = 0;
+				for(uint i = 0; !main_org_id && i < psn_list_by_gln.getCount(); i++) {
+					const  PPID _id = psn_list_by_gln.get(i);
+					if(PsnObj.P_Tbl->IsBelongsToKind(_id, PPPRK_MAIN) > 0)
+						main_org_id = _id;
+				}
+				THROW_PP_S(main_org_id, PPERR_EDI_UNBLRSLV_BILLMAINORG, msg_buf);
+			}
+			else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
+				if(psn_list_by_gln.getCount()) {
+					// @v11.9.5 THROW_PP_S(psn_list_by_gln.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+					THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_gln, &ar_list));
+					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+					{
+						PPBillPacket::SetupObjectBlock sob;
+						THROW(pPack->SetupObject(ar_list.get(0), sob));
+					}
+				}
+				else if(psn_list_by_inn.getCount()) {
+					THROW(ArObj.GetByPersonList(GetSellAccSheet(), &psn_list_by_inn, &ar_list));
+					THROW_PP_S(ar_list.getCount(), PPERR_EDI_UNBLRSLV_BILLOBJ, msg_buf);
+					{
+						PPBillPacket::SetupObjectBlock sob;
+						THROW(pPack->SetupObject(ar_list.get(0), sob));
+					}
+				}
+			}
+		}
+		else if(partyQ == EDIPARTYQ_INVOICEE) {
+		}
+		else if(oneof2(partyQ, EDIPARTYQ_SHIPTO, EDIPARTYQ_CONSIGNEE)) {
+			if(pPack->Rec.EdiOp == PPEDIOP_DESADV) {
+				int lr = ResolveDlvrLoc(rC, pPack);
+				if(!lr) {
+				}
+			}
+			else if(pPack->Rec.EdiOp == PPEDIOP_ORDER) {
+				int lr = ResolveDlvrLoc(rC, pPack);
+				if(!lr) {
+				}
+			}
+		}
+		else if(partyQ == EDIPARTYQ_CONSIGNOR) {
+		}
+	}
+	else
+		ok = -1;
 	CATCHZOK
 	return ok;
 }

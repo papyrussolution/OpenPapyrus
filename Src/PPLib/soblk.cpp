@@ -4460,7 +4460,7 @@ int Backend_SelectObjectBlock::ResolveCrit_Article(int subcriterion, const SStri
 
 int Backend_SelectObjectBlock::ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID)
 {
-	const  PPID acs_id = GetSupplAccSheet();
+	const  PPID acs_id = NZOR(accSheetID, GetSupplAccSheet());
 	PPID   temp_id = 0;
 	switch(subcriterion) {
 		case 0:
@@ -4468,15 +4468,18 @@ int Backend_SelectObjectBlock::ResolveCrit_ArByPerson(int subcriterion, const SS
 			temp_id = rArg.ToLong();
 			break;
 		case scCode:
-			if(acs_id) { // @todo Возможно ошибка
+			if(acs_id) {
 				PPObjAccSheet acs_obj;
 				PPAccSheet acs_rec;
-				if(acs_obj.Fetch(accSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
+				if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 					PPObjPersonKind pk_obj;
 					PPPersonKind pk_rec;
 					if(pk_obj.Fetch(acs_rec.ObjGroup, &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
 						PPIDArray list;
-						if(PsnObj.GetListByRegNumber(pk_rec.CodeRegTypeID, pk_rec.ID, rArg, list) > 0)
+						SString temp_buf = rArg;
+						if(temp_buf.HasPrefixIAscii("SAL"))
+							temp_buf.ShiftLeft(3);
+						if(PsnObj.GetListByRegNumber(pk_rec.CodeRegTypeID, pk_rec.ID, temp_buf, list) > 0)
 							temp_id = list.get(0);
 					}
 				}
@@ -4490,7 +4493,7 @@ int Backend_SelectObjectBlock::ResolveCrit_ArByPerson(int subcriterion, const SS
 			ASSIGN_PTR(pID, 0);
 			return 0;
 	}
-	if(temp_id && accSheetID) { // @todo Возможно ошибка
+	if(temp_id && acs_id) {
 		PPID   ar_id = 0;
 		ArObj.P_Tbl->PersonToArticle(temp_id, acs_id, &ar_id);
 		temp_id = ar_id;

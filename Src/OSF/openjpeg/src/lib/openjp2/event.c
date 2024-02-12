@@ -29,7 +29,7 @@ static char* i2a(unsigned i, char * a, unsigned r)
 	if(i / r > 0) {
 		a = i2a(i / r, a, r);
 	}
-	*a = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i % r];
+	*a = SlConst::P_Rdx36DigU[i % r];
 	return a + 1;
 }
 

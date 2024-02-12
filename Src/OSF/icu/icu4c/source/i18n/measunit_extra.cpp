@@ -1,6 +1,6 @@
 // © 2020 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
+//
 // Extra functions for MeasureUnit not needed for all clients.
 // Separate .o file so that it can be removed for modularity.
 
@@ -896,24 +896,22 @@ CharString U_I18N_API getUnitQuantity(const MeasureUnitImpl &baseMeasureUnitImpl
 			return result;
 		}
 	}
-
 	// If there is no match at all, throw an exception.
 	if(U_FAILURE(localStatus)) {
 		status = U_INVALID_FORMAT_ERROR;
 		return result;
 	}
-
 	if(idx < 0 || idx >= gCategoriesCount) {
 		status = U_INVALID_FORMAT_ERROR;
 		return result;
 	}
-
-	result.appendInvariantChars(gCategories[idx], u_strlen(gCategories[idx]), status);
+	result.appendInvariantChars(gCategories[idx], sstrleni(gCategories[idx]), status);
 	return result;
 }
 
 // In ICU4J, this is MeasureUnit.getSingleUnitImpl().
-SingleUnitImpl SingleUnitImpl::forMeasureUnit(const MeasureUnit& measureUnit, UErrorCode & status) {
+SingleUnitImpl SingleUnitImpl::forMeasureUnit(const MeasureUnit& measureUnit, UErrorCode & status) 
+{
 	MeasureUnitImpl temp;
 	const MeasureUnitImpl& impl = MeasureUnitImpl::forMeasureUnit(measureUnit, temp, status);
 	if(U_FAILURE(status)) {

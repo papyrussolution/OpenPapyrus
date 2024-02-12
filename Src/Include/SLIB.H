@@ -1327,6 +1327,8 @@ public:
 	static constexpr long   OneBillion = 1000000000L; // @v11.7.6
 	static constexpr const char * P_HxDigL  = "0123456789abcdef";
 	static constexpr const char * P_HxDigU  = "0123456789ABCDEF";
+	static constexpr const char * P_Rdx36DigL = "0123456789abcdefghijklmnopqrstuvwxyz"; /* Lower-case digits.  */
+	static constexpr const char * P_Rdx36DigU = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; /* Upper-case digits.  */
 	static constexpr uint16 CrcPoly_ANSI16  = 0xA001;
 	static constexpr uint16 CrcPoly_CCITT16 = 0x1021;
 	static constexpr uint32 CrcPoly_CCITT32 = 0xEDB88320U;
@@ -5088,9 +5090,11 @@ FORCEINLINE bool   isempty(const char16_t * pStr) { return (pStr == 0 || pStr[0]
 FORCEINLINE size_t sstrlen(const char * pStr) { return pStr ? strlen(pStr) : 0; }
 FORCEINLINE size_t sstrlen(const uchar * pStr) { return pStr ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
 FORCEINLINE size_t sstrlen(const wchar_t * pStr) { return pStr  ? wcslen(pStr) : 0; }
+FORCEINLINE size_t sstrlen(const char16_t * pStr) { return pStr  ? wcslen(reinterpret_cast<const wchar_t *>(pStr)) : 0; } // @v11.9.5
 FORCEINLINE int    sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int    sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int    sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
+FORCEINLINE int    sstrleni(const char16_t * pStr) { return static_cast<int>(sstrlen(pStr)); } // @v11.9.5
 //
 // Descr: Если по указателю pStr находится символ (символы) перевода строки, то возвращает
 //   длину комбинации (1 или 2), в противном случае возвращает 0.
@@ -6801,7 +6805,7 @@ public:
 	const void * GetPtr(uint32 id, uint32 * pSize) const;
 	const void * GetPtr() const { return SBaseBuffer::P_Buf; }
 	//
-	// Descr: Упаковывает экземпляр с целью элминировать пустые отрезки.
+	// Descr: Упаковывает экземпляр с целью элиминировать пустые отрезки.
 	// Returns:
 	//   >0 - функция успешно отработала, удалив существовавшие пустые отрезки
 	//   <0 - функция отработала успешно, но пустых отрезков не было, потому ничего делать не пришлось
@@ -7493,6 +7497,7 @@ double FASTCALL R0(double);
 // Descr: Округляет входящий параметр до ближайшего целого числа
 //
 long   FASTCALL R0i(double);
+int64  FASTCALL R0i64(double);
 double FASTCALL R2(double);
 double FASTCALL R3(double);
 double FASTCALL R4(double);
@@ -12522,16 +12527,21 @@ private:
 		tStdFile,
 		tFile,
 		tSBuffer,
-		tNullOutput
+		tNullOutput,
+		tArchive, // @v11.9.5
+		tPipe     // @v11.9.5
 	};
 	void   Init();
+	FILE * GetFilePtr() const { return (T == tStdFile) ? static_cast<FILE *>(static_cast<void *>(H)) : 0; }
+	SBuffer * GetSBufPtr() const { return (T == tSBuffer) ? static_cast<SBuffer *>(static_cast<void *>(H)) : 0; }
 
 	int    T;
 	long   Mode;
-	union {
+	/*union {
 		FILE * F;
 		SBuffer * P_Sb;
-	};
+	};*/
+	SPtrHandle H;
 	int    IH;
 	SString Name;
 	SBuffer BufR; // Буфер чтения ((Mode&mNoStd)&&(Mode&mBuffRd))
@@ -12728,6 +12738,7 @@ public:
 	struct Entry : public SFile::Stat {
 		Entry();
 		Entry & Z();
+		SString & GetFullPath(SString & rBuf) const;
 
 		//uint32 Attr; // SDirEntry::attrXXX
 		//LDATETIME CreateTime;
@@ -12776,7 +12787,7 @@ public:
 	//
 	int    Add(const char * pPath, long flags);
 	int    Add(const char * pPath, const char * pRemoteUrl, long flags);
-	int    Add(SFileEntryPool::Entry & rDe, long flags);
+	int    Add(const SFileEntryPool::Entry & rDe, long flags);
     uint   GetCount() const;
     int    Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const;
 	//
@@ -13016,6 +13027,10 @@ public:
 	static int Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath);
 	static int InflateAll(int provider, const char * pName, uint flags, const char * pDestPath);
 	static int Deflate(int provider, int format, const char * pNameUtf8, uint64 uedArcFormat, const char * pBasePathUtf8, const SFileEntryPool & rPool);
+	static SPtrHandle OpenArchiveEntry(int provider, const char * pArcName, const char * pEntryName);
+	static int ReadArchiveEntry(SPtrHandle h, void * pBuf, size_t size, size_t * pActualSize);
+	static int SeekArchiveEntry(SPtrHandle h, int64 offs, int whence);
+	static int CloseArchiveEntry(SPtrHandle h);
 
 	explicit SArchive(int provider);
 	~SArchive();
@@ -13063,7 +13078,19 @@ private:
 	//archive_seek_callback
 #endif // } 0 @construction
 	// } @v10.4.4
+	struct EntryBlock {
+		static constexpr uint MagicValue = 0x57BE8004U;
+
+		EntryBlock(int provider, void * h) : Magic(MagicValue), Provider(provider), H(h), P_CbBlk(0)
+		{
+		}
+		const  uint Magic;
+		int    Provider;
+		LaCbBlock * P_CbBlk;
+		void * H;
+	};
 	int    Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
+	static int ConvertLaEntry(void * pLaEntry, SFileEntryPool::Entry & rFe);
 	static int Implement_Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath);
 
 	const  int Provider;

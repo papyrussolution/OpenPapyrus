@@ -6,6 +6,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 
 using namespace DirectX;
 using namespace DirectX::Internal;
@@ -26,20 +27,16 @@ HRESULT PremultiplyAlpha_(const Image& srcImage, const Image& destImage) noexcep
 {
 	assert(srcImage.width == destImage.width);
 	assert(srcImage.height == destImage.height);
-
 	auto scanline = make_AlignedArrayXMVECTOR(srcImage.width);
 	if(!scanline)
 		return E_OUTOFMEMORY;
-
 	const uint8_t * pSrc = srcImage.pixels;
 	uint8_t * pDest = destImage.pixels;
 	if(!pSrc || !pDest)
 		return E_POINTER;
-
 	for(size_t h = 0; h < srcImage.height; ++h) {
 		if(!LoadScanline(scanline.get(), srcImage.width, pSrc, srcImage.rowPitch, srcImage.format))
 			return E_FAIL;
-
 		XMVECTOR* ptr = scanline.get();
 		for(size_t w = 0; w < srcImage.width; ++w) {
 			const XMVECTOR v = *ptr;
@@ -47,14 +44,11 @@ HRESULT PremultiplyAlpha_(const Image& srcImage, const Image& destImage) noexcep
 			alpha = XMVectorMultiply(v, alpha);
 			*(ptr++) = XMVectorSelect(v, alpha, g_XMSelect1110);
 		}
-
 		if(!StoreScanline(pDest, destImage.rowPitch, destImage.format, scanline.get(), srcImage.width))
 			return E_FAIL;
-
 		pSrc += srcImage.rowPitch;
 		pDest += destImage.rowPitch;
 	}
-
 	return S_OK;
 }
 
@@ -62,7 +56,6 @@ HRESULT PremultiplyAlphaLinear(const Image& srcImage, TEX_PMALPHA_FLAGS flags, c
 {
 	assert(srcImage.width == destImage.width);
 	assert(srcImage.height == destImage.height);
-
 	static_assert(static_cast<int>(TEX_PMALPHA_SRGB_IN) == static_cast<int>(TEX_FILTER_SRGB_IN), "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
 	static_assert(static_cast<int>(TEX_PMALPHA_SRGB_OUT) == static_cast<int>(TEX_FILTER_SRGB_OUT), "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");
 	static_assert(static_cast<int>(TEX_PMALPHA_SRGB) == static_cast<int>(TEX_FILTER_SRGB), "TEX_PMALHPA_SRGB* should match TEX_FILTER_SRGB*");

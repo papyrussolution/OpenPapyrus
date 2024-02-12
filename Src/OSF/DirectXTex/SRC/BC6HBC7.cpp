@@ -5,6 +5,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 #include "BC.h"
 
 using namespace DirectX;

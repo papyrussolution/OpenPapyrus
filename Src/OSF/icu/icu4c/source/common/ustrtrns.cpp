@@ -1205,7 +1205,7 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 			u_terminateChars(dest, destCapacity, reqLength, pErrorCode);
 			return dest;
 		}
-		srcLength = u_strlen(src);
+		srcLength = sstrleni(src);
 	}
 	/* Faster loop without ongoing checking for pSrcLimit and pDestLimit. */
 	pSrcLimit = src ? (src+srcLength) : NULL;

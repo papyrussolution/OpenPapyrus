@@ -882,7 +882,7 @@ int PPObjBill::GetAlternateArticle(PPID arID, PPID sheetID, PPID * pAltArID)
 	THROW(acs_obj.Fetch(ar_rec.AccSheetID, &main_acs_rec) > 0); // s
 	if(alt_acs_rec.Assoc == main_acs_rec.Assoc && main_acs_rec.Assoc == PPOBJ_PERSON) {
 		PPObjPerson po;
-		if(po.P_Tbl->IsBelongToKind(ar_rec.ObjID, alt_acs_rec.ObjGroup) > 0 && ArObj.P_Tbl->SearchObjRef(sheetID, ar_rec.ObjID, &ar_rec) > 0) {
+		if(po.P_Tbl->IsBelongsToKind(ar_rec.ObjID, alt_acs_rec.ObjGroup) > 0 && ArObj.P_Tbl->SearchObjRef(sheetID, ar_rec.ObjID, &ar_rec) > 0) {
 			ASSIGN_PTR(pAltArID, ar_rec.ID);
 			ok = 1;
 		}

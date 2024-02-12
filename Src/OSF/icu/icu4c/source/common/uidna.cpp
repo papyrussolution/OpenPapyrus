@@ -185,9 +185,8 @@ static int32_t _internal_toASCII(const char16_t * src, int32_t srcLength, char16
 	int32_t j = 0;
 	bool useSTD3ASCIIRules = (bool)((options & UIDNA_USE_STD3_RULES) != 0); //get the options
 	int32_t failPos = -1;
-	if(srcLength == -1) {
-		srcLength = u_strlen(src);
-	}
+	if(srcLength == -1)
+		srcLength = sstrleni(src);
 	if(srcLength > b1Capacity) {
 		b1 = (char16_t *)uprv_malloc(srcLength * U_SIZEOF_UCHAR);
 		if(!b1) {

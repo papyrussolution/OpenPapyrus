@@ -1,21 +1,11 @@
+// sscanf.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 2000-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- * File sscanf.c
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   02/08/00    george      Creation. Copied from uscanf.c
- ******************************************************************************
- */
+// Copyright (C) 2000-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+//   Date        Name        Description
+//   02/08/00    george      Creation. Copied from uscanf.c
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -91,7 +81,7 @@ u_vsscanf_u(const char16_t * buffer, const char16_t * patternSpecification, va_l
 	inStr.fUCBuffer[0] = 0;
 	inStr.str.fBuffer = (char16_t *)buffer;
 	inStr.str.fPos = (char16_t *)buffer;
-	inStr.str.fLimit = buffer + u_strlen(buffer);
+	inStr.str.fLimit = buffer + sstrleni(buffer);
 	if(u_locbund_init(&inStr.str.fBundle, "en_US_POSIX") == 0) {
 		return 0;
 	}

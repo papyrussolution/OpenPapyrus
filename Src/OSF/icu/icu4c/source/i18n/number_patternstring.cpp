@@ -1172,7 +1172,7 @@ void PatternStringUtils::patternInfoToStringBuilder(const AffixPatternProvider& 
 			candidate = patternInfo.charAt(flags, index);
 		}
 		if(candidate == u'-') {
-			if(u_strlen(signSymbols) == 1) {
+			if(sstrleni(signSymbols) == 1) {
 				candidate = signSymbols[0];
 			}
 			else {

@@ -4888,7 +4888,7 @@ int PPSession::SetMainOrgID(PPID id, int enforce)
 	if(enforce || (id != cc.MainOrgID)) {
 		r_tla.InitMainOrgData(1 /* reset global main org attributes */);
 		PPObjPerson psn_obj;
-		if(psn_obj.P_Tbl->IsBelongToKind(id, PPPRK_MAIN) > 0) {
+		if(psn_obj.P_Tbl->IsBelongsToKind(id, PPPRK_MAIN) > 0) {
 			PersonTbl::Rec psn_rec;
 			cc.MainOrgID = id;
 			r_tla.MainOrgCountryCode = 0;

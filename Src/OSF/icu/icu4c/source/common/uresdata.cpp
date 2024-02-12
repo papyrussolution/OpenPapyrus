@@ -262,9 +262,7 @@ static const int8 gPublicTypes[URES_LIMIT] = {
 	URES_NONE
 };
 
-U_CAPI UResType U_EXPORT2 res_getPublicType(Resource res) {
-	return (UResType)gPublicTypes[RES_GET_TYPE(res)];
-}
+U_CAPI UResType U_EXPORT2 res_getPublicType(Resource res) { return (UResType)gPublicTypes[RES_GET_TYPE(res)]; }
 
 U_CAPI const char16_t * U_EXPORT2 res_getStringNoTrace(const ResourceData * pResData, Resource res, int32_t * pLength) {
 	const char16_t * p;
@@ -280,7 +278,7 @@ U_CAPI const char16_t * U_EXPORT2 res_getStringNoTrace(const ResourceData * pRes
 		}
 		first = *p;
 		if(!U16_IS_TRAIL(first)) {
-			length = u_strlen(p);
+			length = sstrleni(p);
 		}
 		else if(first<0xdfef) {
 			length = first&0x3ff;

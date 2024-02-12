@@ -563,46 +563,35 @@ U_CAPI UStringSearch * U_EXPORT2 usearch_openFromCollator(const char16_t * patte
 		*status = U_UNSUPPORTED_ERROR;
 		return nullptr;
 	}
-
 	if(U_SUCCESS(*status)) {
 		initializeFCD(status);
 		if(U_FAILURE(*status)) {
 			return nullptr;
 		}
-
 		UStringSearch * result;
-		if(textlength == -1) {
-			textlength = u_strlen(text);
-		}
-		if(patternlength == -1) {
-			patternlength = u_strlen(pattern);
-		}
+		if(textlength == -1)
+			textlength = sstrleni(text);
+		if(patternlength == -1)
+			patternlength = sstrleni(pattern);
 		if(textlength <= 0 || patternlength <= 0) {
 			*status = U_ILLEGAL_ARGUMENT_ERROR;
 			return nullptr;
 		}
-
 		result = (UStringSearch*)uprv_malloc(sizeof(UStringSearch));
 		if(result == nullptr) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			return nullptr;
 		}
-
 		result->collator    = collator;
 		result->strength    = ucol_getStrength(collator);
 		result->ceMask      = getMask(result->strength);
-		result->toShift     =
-		    ucol_getAttribute(collator, UCOL_ALTERNATE_HANDLING, status) ==
-		    UCOL_SHIFTED;
+		result->toShift     = ucol_getAttribute(collator, UCOL_ALTERNATE_HANDLING, status) == UCOL_SHIFTED;
 		result->variableTop = ucol_getVariableTop(collator, status);
-
 		result->nfd = Normalizer2::getNFDInstance(*status);
-
 		if(U_FAILURE(*status)) {
 			uprv_free(result);
 			return nullptr;
 		}
-
 		result->search     = (USearch*)uprv_malloc(sizeof(USearch));
 		if(result->search == nullptr) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
@@ -864,10 +853,7 @@ U_CAPI const UBreakIterator* U_EXPORT2 usearch_getBreakIterator(const UStringSea
 
 #endif
 
-U_CAPI void U_EXPORT2 usearch_setText(UStringSearch * strsrch,
-    const char16_t * text,
-    int32_t textlength,
-    UErrorCode * status)
+U_CAPI void U_EXPORT2 usearch_setText(UStringSearch * strsrch, const char16_t * text, int32_t textlength, UErrorCode * status)
 {
 	if(U_SUCCESS(*status)) {
 		if(strsrch == nullptr || text == nullptr || textlength < -1 ||
@@ -875,9 +861,8 @@ U_CAPI void U_EXPORT2 usearch_setText(UStringSearch * strsrch,
 			*status = U_ILLEGAL_ARGUMENT_ERROR;
 		}
 		else {
-			if(textlength == -1) {
-				textlength = u_strlen(text);
-			}
+			if(textlength == -1)
+				textlength = sstrleni(text);
 			strsrch->search->text       = text;
 			strsrch->search->textLength = textlength;
 			ucol_setText(strsrch->textIter, text, textlength, status);
@@ -964,25 +949,18 @@ U_CAPI void U_EXPORT2 usearch_setCollator(UStringSearch * strsrch,
 
 U_CAPI UCollator * U_EXPORT2 usearch_getCollator(const UStringSearch * strsrch)
 {
-	if(strsrch) {
-		return (UCollator*)strsrch->collator;
-	}
-	return nullptr;
+	return strsrch ? (UCollator*)strsrch->collator : nullptr;
 }
 
-U_CAPI void U_EXPORT2 usearch_setPattern(UStringSearch * strsrch,
-    const char16_t * pattern,
-    int32_t patternlength,
-    UErrorCode * status)
+U_CAPI void U_EXPORT2 usearch_setPattern(UStringSearch * strsrch, const char16_t * pattern, int32_t patternlength, UErrorCode * status)
 {
 	if(U_SUCCESS(*status)) {
 		if(strsrch == nullptr || pattern == nullptr) {
 			*status = U_ILLEGAL_ARGUMENT_ERROR;
 		}
 		else {
-			if(patternlength == -1) {
-				patternlength = u_strlen(pattern);
-			}
+			if(patternlength == -1)
+				patternlength = sstrleni(pattern);
 			if(patternlength == 0) {
 				*status = U_ILLEGAL_ARGUMENT_ERROR;
 				return;
@@ -994,8 +972,7 @@ U_CAPI void U_EXPORT2 usearch_setPattern(UStringSearch * strsrch,
 	}
 }
 
-U_CAPI const char16_t * U_EXPORT2 usearch_getPattern(const UStringSearch * strsrch,
-    int32_t * length)
+U_CAPI const char16_t * U_EXPORT2 usearch_getPattern(const UStringSearch * strsrch, int32_t * length)
 {
 	if(strsrch) {
 		*length = strsrch->pattern.textLength;

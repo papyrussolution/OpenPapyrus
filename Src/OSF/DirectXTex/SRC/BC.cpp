@@ -5,10 +5,10 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 // Experiemental encoding variants, not enabled by default
 //#define COLOR_WEIGHTS
 //#define COLOR_AVG_0WEIGHTS
-
 #include "BC.h"
 
 using namespace DirectX;
@@ -40,11 +40,8 @@ inline uint16_t Encode565(_In_ const HDRColorA * pColor) noexcept
 	Color.g = (pColor->g < 0.0f) ? 0.0f : (pColor->g > 1.0f) ? 1.0f : pColor->g;
 	Color.b = (pColor->b < 0.0f) ? 0.0f : (pColor->b > 1.0f) ? 1.0f : pColor->b;
 	Color.a = pColor->a;
-	uint16_t w;
-	w = static_cast<uint16_t>(
-		(static_cast<int32_t>(Color.r * 31.0f + 0.5f) << 11)
-		| (static_cast<int32_t>(Color.g * 63.0f + 0.5f) << 5)
-		| (static_cast<int32_t>(Color.b * 31.0f + 0.5f) << 0));
+	uint16_t w = static_cast<uint16_t>((static_cast<int32_t>(Color.r * 31.0f + 0.5f) << 11) | 
+		(static_cast<int32_t>(Color.g * 63.0f + 0.5f) << 5) | (static_cast<int32_t>(Color.b * 31.0f + 0.5f) << 0));
 	return w;
 }
 
@@ -55,31 +52,22 @@ void OptimizeRGB(_Out_ HDRColorA * pX, _Out_ HDRColorA * pY, _In_reads_(NUM_PIXE
 	static const float pD3[] = { 0.0f / 2.0f, 1.0f / 2.0f, 2.0f / 2.0f };
 	static const float pC4[] = { 3.0f / 3.0f, 2.0f / 3.0f, 1.0f / 3.0f, 0.0f / 3.0f };
 	static const float pD4[] = { 0.0f / 3.0f, 1.0f / 3.0f, 2.0f / 3.0f, 3.0f / 3.0f };
-
 	const float * pC = (3 == cSteps) ? pC3 : pC4;
 	const float * pD = (3 == cSteps) ? pD3 : pD4;
-
 	// Find Min and Max points, as starting point
 	HDRColorA X = (flags & BC_FLAGS_UNIFORM) ? HDRColorA(1.f, 1.f, 1.f, 1.f) : g_Luminance;
 	HDRColorA Y = HDRColorA(0.0f, 0.0f, 0.0f, 1.0f);
-
 	for(size_t iPoint = 0; iPoint < NUM_PIXELS_PER_BLOCK; iPoint++) {
 	#ifdef COLOR_WEIGHTS
 		if(pPoints[iPoint].a > 0.0f)
     #endif // COLOR_WEIGHTS
 		{
-			if(pPoints[iPoint].r < X.r)
-				X.r = pPoints[iPoint].r;
-			if(pPoints[iPoint].g < X.g)
-				X.g = pPoints[iPoint].g;
-			if(pPoints[iPoint].b < X.b)
-				X.b = pPoints[iPoint].b;
-			if(pPoints[iPoint].r > Y.r)
-				Y.r = pPoints[iPoint].r;
-			if(pPoints[iPoint].g > Y.g)
-				Y.g = pPoints[iPoint].g;
-			if(pPoints[iPoint].b > Y.b)
-				Y.b = pPoints[iPoint].b;
+			SETMIN(X.r, pPoints[iPoint].r);
+			SETMIN(X.g, pPoints[iPoint].g);
+			SETMIN(X.b, pPoints[iPoint].b);
+			SETMAX(Y.r, pPoints[iPoint].r);
+			SETMAX(Y.g, pPoints[iPoint].g);
+			SETMAX(Y.b, pPoints[iPoint].b);
 		}
 	}
 	// Diagonal axis
@@ -227,21 +215,15 @@ inline void DecodeBC1(_Out_writes_(NUM_PIXELS_PER_BLOCK) XMVECTOR * pColor, _In_
 {
 	assert(pColor && pBC);
 	static_assert(sizeof(D3DX_BC1) == 8, "D3DX_BC1 should be 8 bytes");
-
 	static XMVECTORF32 s_Scale = { { { 1.f / 31.f, 1.f / 63.f, 1.f / 31.f, 1.f } } };
-
 	XMVECTOR clr0 = XMLoadU565(reinterpret_cast<const XMU565*>(&pBC->rgb[0]));
 	XMVECTOR clr1 = XMLoadU565(reinterpret_cast<const XMU565*>(&pBC->rgb[1]));
-
 	clr0 = XMVectorMultiply(clr0, s_Scale);
 	clr1 = XMVectorMultiply(clr1, s_Scale);
-
 	clr0 = XMVectorSwizzle<2, 1, 0, 3>(clr0);
 	clr1 = XMVectorSwizzle<2, 1, 0, 3>(clr1);
-
 	clr0 = XMVectorSelect(g_XMIdentityR3, clr0, g_XMSelect1110);
 	clr1 = XMVectorSelect(g_XMIdentityR3, clr1, g_XMSelect1110);
-
 	XMVECTOR clr2, clr3;
 	if(isbc1 && (pBC->rgb[0] <= pBC->rgb[1])) {
 		clr2 = XMVectorLerp(clr0, clr1, 0.5f);
@@ -275,14 +257,12 @@ void EncodeBC1(_Out_ D3DX_BC1 * pBC, _In_reads_(NUM_PIXELS_PER_BLOCK) const HDRC
 			if(pColor[i].a < threshold)
 				uColorKey++;
 		}
-
 		if(NUM_PIXELS_PER_BLOCK == uColorKey) {
 			pBC->rgb[0] = 0x0000;
 			pBC->rgb[1] = 0xffff;
 			pBC->bitmap = 0xffffffff;
 			return;
 		}
-
 		uSteps = (uColorKey > 0) ? 3u : 4u;
 	}
 	else {
@@ -323,7 +303,6 @@ void EncodeBC1(_Out_ D3DX_BC1 * pBC, _In_reads_(NUM_PIXELS_PER_BLOCK) const HDRC
 			Diff.g = Color[i].a * (Clr.g - Color[i].g);
 			Diff.b = Color[i].a * (Clr.b - Color[i].b);
 			Diff.a = 0.0f;
-
 			if(3 != (i & 3)) {
 				assert(i < 15);
 				_Analysis_assume_(i < 15);
@@ -704,29 +683,22 @@ _Use_decl_annotations_ void DirectX::D3DXEncodeBC2(uint8_t * pBC, const XMVECTOR
 		return;
 	}
 #endif // COLOR_WEIGHTS
-
 	EncodeBC1(&pBC2->bc1, Color, false, 0.f, flags);
 }
-
-//-------------------------------------------------------------------------------------
+//
 // BC3 Compression
-//-------------------------------------------------------------------------------------
+//
 _Use_decl_annotations_ void DirectX::D3DXDecodeBC3(XMVECTOR * pColor, const uint8_t * pBC) noexcept
 {
 	assert(pColor && pBC);
 	static_assert(sizeof(D3DX_BC3) == 16, "D3DX_BC3 should be 16 bytes");
-
 	auto pBC3 = reinterpret_cast<const D3DX_BC3 *>(pBC);
-
 	// RGB part
 	DecodeBC1(pColor, &pBC3->bc1, false);
-
 	// Adaptive 3-bit alpha part
 	float fAlpha[8];
-
 	fAlpha[0] = static_cast<float>(pBC3->alpha[0]) * (1.0f / 255.0f);
 	fAlpha[1] = static_cast<float>(pBC3->alpha[1]) * (1.0f / 255.0f);
-
 	if(pBC3->alpha[0] > pBC3->alpha[1]) {
 		for(size_t i = 1; i < 7; ++i)
 			fAlpha[i + 1] = (fAlpha[0] * float(7u - i) + fAlpha[1] * float(i)) * (1.0f / 7.0f);
@@ -734,18 +706,13 @@ _Use_decl_annotations_ void DirectX::D3DXDecodeBC3(XMVECTOR * pColor, const uint
 	else {
 		for(size_t i = 1; i < 5; ++i)
 			fAlpha[i + 1] = (fAlpha[0] * float(5u - i) + fAlpha[1] * float(i)) * (1.0f / 5.0f);
-
 		fAlpha[6] = 0.0f;
 		fAlpha[7] = 1.0f;
 	}
-
 	uint32_t dw = uint32_t(pBC3->bitmap[0]) | uint32_t(pBC3->bitmap[1] << 8) | uint32_t(pBC3->bitmap[2] << 16);
-
 	for(size_t i = 0; i < 8; ++i, dw >>= 3)
 		pColor[i] = XMVectorSetW(pColor[i], fAlpha[dw & 0x7]);
-
 	dw = uint32_t(pBC3->bitmap[3]) | uint32_t(pBC3->bitmap[4] << 8) | uint32_t(pBC3->bitmap[5] << 16);
-
 	for(size_t i = 8; i < NUM_PIXELS_PER_BLOCK; ++i, dw >>= 3)
 		pColor[i] = XMVectorSetW(pColor[i], fAlpha[dw & 0x7]);
 }
@@ -754,50 +721,38 @@ _Use_decl_annotations_ void DirectX::D3DXEncodeBC3(uint8_t * pBC, const XMVECTOR
 {
 	assert(pBC && pColor);
 	static_assert(sizeof(D3DX_BC3) == 16, "D3DX_BC3 should be 16 bytes");
-
 	HDRColorA Color[NUM_PIXELS_PER_BLOCK];
 	for(size_t i = 0; i < NUM_PIXELS_PER_BLOCK; ++i) {
 		XMStoreFloat4(reinterpret_cast<XMFLOAT4*>(&Color[i]), pColor[i]);
 	}
-
 	auto pBC3 = reinterpret_cast<D3DX_BC3 *>(pBC);
-
 	// Quantize block to A8, using Floyd Stienberg error diffusion.  This
 	// increases the chance that colors will map directly to the quantized
 	// axis endpoints.
 	float fAlpha[NUM_PIXELS_PER_BLOCK] = {};
 	float fError[NUM_PIXELS_PER_BLOCK] = {};
-
 	float fMinAlpha = Color[0].a;
 	float fMaxAlpha = Color[0].a;
-
 	for(size_t i = 0; i < NUM_PIXELS_PER_BLOCK; ++i) {
 		float fAlph = Color[i].a;
 		if(flags & BC_FLAGS_DITHER_A)
 			fAlph += fError[i];
-
 		fAlpha[i] = static_cast<float>(static_cast<int32_t>(fAlph * 255.0f + 0.5f)) * (1.0f / 255.0f);
-
 		if(fAlpha[i] < fMinAlpha)
 			fMinAlpha = fAlpha[i];
 		else if(fAlpha[i] > fMaxAlpha)
 			fMaxAlpha = fAlpha[i];
-
 		if(flags & BC_FLAGS_DITHER_A) {
 			const float fDiff = fAlph - fAlpha[i];
-
 			if(3 != (i & 3)) {
 				assert(i < 15);
 				_Analysis_assume_(i < 15);
 				fError[i + 1] += fDiff * (7.0f / 16.0f);
 			}
-
 			if(i < 12) {
 				if(i & 3)
 					fError[i + 3] += fDiff * (3.0f / 16.0f);
-
 				fError[i + 4] += fDiff * (5.0f / 16.0f);
-
 				if(3 != (i & 3)) {
 					assert(i < 11);
 					_Analysis_assume_(i < 11);
@@ -851,16 +806,12 @@ _Use_decl_annotations_ void DirectX::D3DXEncodeBC3(uint8_t * pBC, const XMVECTOR
 	if(6 == uSteps) {
 		pBC3->alpha[0] = bAlphaA;
 		pBC3->alpha[1] = bAlphaB;
-
 		fStep[0] = fAlphaA;
 		fStep[1] = fAlphaB;
-
 		for(size_t i = 1; i < 5; ++i)
 			fStep[i + 1] = (fStep[0] * float(5u - i) + fStep[1] * float(i)) * (1.0f / 5.0f);
-
 		fStep[6] = 0.0f;
 		fStep[7] = 1.0f;
-
 		pSteps = pSteps6;
 	}
 	else {
@@ -877,7 +828,6 @@ _Use_decl_annotations_ void DirectX::D3DXEncodeBC3(uint8_t * pBC, const XMVECTOR
 	const float fScale = (fStep[0] != fStep[1]) ? (fSteps / (fStep[1] - fStep[0])) : 0.0f;
 	if(flags & BC_FLAGS_DITHER_A)
 		memzero(fError, NUM_PIXELS_PER_BLOCK * sizeof(float));
-
 	for(size_t iSet = 0; iSet < 2; iSet++) {
 		uint32_t dw = 0;
 		const size_t iMin = iSet * 8;
@@ -887,7 +837,6 @@ _Use_decl_annotations_ void DirectX::D3DXEncodeBC3(uint8_t * pBC, const XMVECTOR
 			if(flags & BC_FLAGS_DITHER_A)
 				fAlph += fError[i];
 			const float fDot = (fAlph - fStep[0]) * fScale;
-
 			uint32_t iStep;
 			if(fDot <= 0.0f)
 				iStep = ((6 == uSteps) && (fAlph <= fStep[0] * 0.5f)) ? 6u : 0u;
@@ -895,7 +844,6 @@ _Use_decl_annotations_ void DirectX::D3DXEncodeBC3(uint8_t * pBC, const XMVECTOR
 				iStep = ((6 == uSteps) && (fAlph >= (fStep[1] + 1.0f) * 0.5f)) ? 7u : 1u;
 			else
 				iStep = uint32_t(pSteps[uint32_t(fDot + 0.5f)]);
-
 			dw = (iStep << 21) | (dw >> 3);
 			if(flags & BC_FLAGS_DITHER_A) {
 				const float fDiff = (fAlph - fStep[iStep]);
@@ -904,9 +852,7 @@ _Use_decl_annotations_ void DirectX::D3DXEncodeBC3(uint8_t * pBC, const XMVECTOR
 				if(i < 12) {
 					if(i & 3)
 						fError[i + 3] += fDiff * (3.0f / 16.0f);
-
 					fError[i + 4] += fDiff * (5.0f / 16.0f);
-
 					if(3 != (i & 3))
 						fError[i + 5] += fDiff * (1.0f / 16.0f);
 				}

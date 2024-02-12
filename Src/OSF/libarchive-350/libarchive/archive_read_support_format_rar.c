@@ -510,15 +510,16 @@ static Byte ppmd_read(void * p)
 	ArchiveRead * a = ((IByteIn*)p)->a;
 	struct rar * rar = (struct rar *)(a->format->data);
 	struct rar::rar_br * br = &(rar->br);
-	Byte b;
 	if(!rar_br_read_ahead(a, br, 8)) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated RAR file data");
 		rar->valid = 0;
 		return 0;
 	}
-	b = static_cast<Byte>(rar_br_bits(br, 8));
-	rar_br_consume(br, 8);
-	return b;
+	else {
+		const Byte b = static_cast<Byte>(rar_br_bits(br, 8));
+		rar_br_consume(br, 8);
+		return b;
+	}
 }
 
 int archive_read_support_format_rar(Archive * _a)
@@ -1780,7 +1781,6 @@ static int parse_codes(ArchiveRead * a)
 		}
 		else
 			rar->ppmd_escape = 2;
-
 		if(ppmd_flags & 0x20) {
 			maxorder = (ppmd_flags & 0x1F) + 1;
 			if(maxorder > 16)
@@ -1789,8 +1789,7 @@ static int parse_codes(ArchiveRead * a)
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated RAR file data");
 				return ARCHIVE_FATAL;
 			}
-			/* Make sure ppmd7_contest is freed before Ppmd7_Construct
-			 * because reading a broken file cause this abnormal sequence. */
+			// Make sure ppmd7_contest is freed before Ppmd7_Construct because reading a broken file cause this abnormal sequence
 			__archive_ppmd7_functions.Ppmd7_Free(&rar->ppmd7_context);
 			rar->bytein.a = a;
 			rar->bytein.Read = &ppmd_read;

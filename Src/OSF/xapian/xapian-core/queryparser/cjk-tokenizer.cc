@@ -98,8 +98,7 @@ bool CJK::codepoint_is_cjk_wordchar(uint p)
 size_t CJK::get_cjk(Xapian::Utf8Iterator& it)
 {
 	size_t char_count = 0;
-	while(it != Xapian::Utf8Iterator() &&
-	    codepoint_is_cjk_wordchar(*it)) {
+	while(it != Xapian::Utf8Iterator() && codepoint_is_cjk_wordchar(*it)) {
 		++char_count;
 		++it;
 	}

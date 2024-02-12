@@ -496,10 +496,7 @@ static int GetClosestDecodedValue(const ModuleBitCountType& moduleBitCount)
 int CodewordDecoder::GetDecodedValue(const std::array<int, BARS_IN_MODULE>& moduleBitCount)
 {
 	int decodedValue = GetDecodedCodewordValue(SampleBitCounts(moduleBitCount));
-	if(decodedValue != -1) {
-		return decodedValue;
-	}
-	return GetClosestDecodedValue(moduleBitCount);
+	return (decodedValue != -1) ? decodedValue : GetClosestDecodedValue(moduleBitCount);
 }
 
 /**

@@ -64,17 +64,19 @@ static struct archive_vtable * archive_read_vtable(void)
 /*
  * Allocate, initialize and return a Archive object.
  */
-Archive * archive_read_new(void)                 
+Archive * archive_read_new()
 {
 	ArchiveRead * a = (ArchiveRead *)SAlloc::C(1, sizeof(*a));
 	if(!a)
 		return NULL;
-	a->archive.magic = ARCHIVE_READ_MAGIC;
-	a->archive.state = ARCHIVE_STATE_NEW;
-	a->entry = archive_entry_new2(&a->archive);
-	a->archive.vtable = archive_read_vtable();
-	a->passphrases.last = &a->passphrases.first;
-	return (&a->archive);
+	else {
+		a->archive.magic = ARCHIVE_READ_MAGIC;
+		a->archive.state = ARCHIVE_STATE_NEW;
+		a->entry = archive_entry_new2(&a->archive);
+		a->archive.vtable = archive_read_vtable();
+		a->passphrases.last = &a->passphrases.first;
+		return (&a->archive);
+	}
 }
 /*
  * Record the do-not-extract-to file. This belongs in archive_read_extract.c.
@@ -749,7 +751,8 @@ int64 archive_seek_data(Archive * _a, int64 offset, int whence)
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: No format_seek_data_block function registered");
 		return ARCHIVE_FATAL;
 	}
-	return (a->format->seek_data)(a, offset, whence);
+	else
+		return (a->format->seek_data)(a, offset, whence);
 }
 /*
  * Read the next block of entry data from the archive.

@@ -1640,7 +1640,7 @@ int32_t MessageFormat::findKeyword(const UnicodeString & s, const char16_t * con
 	// in s to lower case.
 	buffer.toLower("");
 	for(int32_t i = 0; list[i]; ++i) {
-		if(!buffer.compare(list[i], u_strlen(list[i]))) {
+		if(!buffer.compare(list[i], sstrleni(list[i]))) {
 			return i;
 		}
 	}

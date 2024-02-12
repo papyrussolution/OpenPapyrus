@@ -6,6 +6,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 
 #ifdef _GAMING_XBOX
 	#error This module is not supported for GDK
@@ -24,32 +25,23 @@ static_assert(static_cast<int>(TEX_DIMENSION_TEXTURE2D) == static_cast<int>(D3D1
 static_assert(static_cast<int>(TEX_DIMENSION_TEXTURE3D) == static_cast<int>(D3D11_RESOURCE_DIMENSION_TEXTURE3D), "header enum mismatch");
 
 namespace {
-HRESULT Capture(_In_ ID3D11DeviceContext* pContext,
-    _In_ ID3D11Resource* pSource,
-    const TexMetadata& metadata,
-    const ScratchImage& result) noexcept
+HRESULT Capture(_In_ ID3D11DeviceContext* pContext, _In_ ID3D11Resource* pSource, const TexMetadata& metadata, const ScratchImage& result) noexcept
 {
 	if(!pContext || !pSource || !result.GetPixels())
 		return E_POINTER;
-
     #if defined(_XBOX_ONE) && defined(_TITLE)
-
 	ComPtr<ID3D11Device> d3dDevice;
 	pContext->GetDevice(d3dDevice.GetAddressOf());
-
 	if(d3dDevice->GetCreationFlags() & D3D11_CREATE_DEVICE_IMMEDIATE_CONTEXT_FAST_SEMANTICS) {
 		ComPtr<ID3D11DeviceX> d3dDeviceX;
 		HRESULT hr = d3dDevice.As(&d3dDeviceX);
 		if(FAILED(hr))
 			return hr;
-
 		ComPtr<ID3D11DeviceContextX> d3dContextX;
 		hr = pContext->QueryInterface(IID_GRAPHICS_PPV_ARGS(d3dContextX.GetAddressOf()));
 		if(FAILED(hr))
 			return hr;
-
 		UINT64 copyFence = d3dContextX->InsertFence(0);
-
 		while(d3dDeviceX->IsFencePending(copyFence)) {
 			SwitchToThread();
 		}
@@ -60,10 +52,8 @@ HRESULT Capture(_In_ ID3D11DeviceContext* pContext,
 	if(metadata.IsVolumemap()) {
 		//--- Volume texture ----------------------------------------------------------
 		assert(metadata.arraySize == 1);
-
 		size_t height = metadata.height;
 		size_t depth = metadata.depth;
-
 		for(size_t level = 0; level < metadata.mipLevels; ++level) {
 			const UINT dindex = D3D11CalcSubresource(static_cast<UINT>(level), 0, static_cast<UINT>(metadata.mipLevels));
 

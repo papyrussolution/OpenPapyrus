@@ -293,12 +293,8 @@ static bool lz_encoder_prepare(lzma_mf * mf, const lzma_allocator * allocator, c
 	}
 	// Maximum number of match finder cycles
 	mf->depth = lz_options->depth;
-	if(mf->depth == 0) {
-		if(is_bt)
-			mf->depth = 16 + mf->nice_len / 2;
-		else
-			mf->depth = 4 + mf->nice_len / 4;
-	}
+	if(mf->depth == 0)
+		mf->depth = is_bt ? (16 + mf->nice_len / 2) : (4 + mf->nice_len / 4);
 	return false;
 }
 
@@ -359,7 +355,7 @@ static bool lz_encoder_init(lzma_mf * mf, const lzma_allocator * allocator, cons
 	}
 	else {
 /*
-                for (uint32 i = 0; i < mf->hash_count; ++i)
+                for(uint32 i = 0; i < mf->hash_count; ++i)
                         mf->hash[i] = EMPTY_HASH_VALUE;
  */
 		memzero(mf->hash, mf->hash_count * sizeof(uint32));
@@ -785,8 +781,7 @@ extern uint32 lzma_mf_hc4_find(lzma_mf * mf, lzma_match * matches)
 			return matches_count;
 		}
 	}
-	if(len_best < 3)
-		len_best = 3;
+	SETMAX(len_best, 3);
 	hc_find(len_best);
 }
 
@@ -838,7 +833,6 @@ static lzma_match * bt_find_func(const uint32 len_limit, const uint32 pos, const
 				matches->len = len;
 				matches->dist = delta - 1;
 				++matches;
-
 				if(len == len_limit) {
 					*ptr1 = pair[0];
 					*ptr0 = pair[1];
@@ -846,7 +840,6 @@ static lzma_match * bt_find_func(const uint32 len_limit, const uint32 pos, const
 				}
 			}
 		}
-
 		if(pb[len] < cur[len]) {
 			*ptr1 = cur_match;
 			ptr1 = pair + 1;
@@ -1002,8 +995,7 @@ extern uint32 lzma_mf_bt4_find(lzma_mf * mf, lzma_match * matches)
 			return matches_count;
 		}
 	}
-	if(len_best < 3)
-		len_best = 3;
+	SETMAX(len_best, 3);
 	bt_find(len_best);
 }
 

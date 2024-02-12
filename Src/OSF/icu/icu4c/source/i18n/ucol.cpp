@@ -1,17 +1,16 @@
 // ucol.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1996-2015, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- * Modification history
- * Date        Name      Comments
- * 1996-1999   various members of ICU team maintained C API for collation framework
- * 02/16/2001  synwee    Added internal method getPrevSpecialCE
- * 03/01/2001  synwee    Added maxexpansion functionality.
- * 03/16/2001  weiv      Collation framework is rewritten in C and made UCA compliant
- * 2012-2014   markus    Rewritten in C++ again.
- */
+// Copyright (C) 1996-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// Modification history
+// Date        Name      Comments
+// 1996-1999   various members of ICU team maintained C API for collation framework
+// 02/16/2001  synwee    Added internal method getPrevSpecialCE
+// 03/01/2001  synwee    Added maxexpansion functionality.
+// 03/16/2001  weiv      Collation framework is rewritten in C and made UCA compliant
+// 2012-2014   markus    Rewritten in C++ again.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -26,10 +25,7 @@ U_CAPI UCollator* U_EXPORT2 ucol_openBinary(const uint8 * bin, int32_t length, c
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-	RuleBasedCollator * coll = new RuleBasedCollator(
-		bin, length,
-		RuleBasedCollator::rbcFromUCollator(base),
-		*status);
+	RuleBasedCollator * coll = new RuleBasedCollator(bin, length, RuleBasedCollator::rbcFromUCollator(base), *status);
 	if(coll == NULL) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
@@ -41,9 +37,7 @@ U_CAPI UCollator* U_EXPORT2 ucol_openBinary(const uint8 * bin, int32_t length, c
 	return coll->toUCollator();
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_cloneBinary(const UCollator * coll,
-    uint8 * buffer, int32_t capacity,
-    UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 ucol_cloneBinary(const UCollator * coll, uint8 * buffer, int32_t capacity, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return 0;
@@ -165,7 +159,7 @@ U_CAPI int32_t U_EXPORT2 ucol_getSortKey(const UCollator * coll, const char16_t 
 {
 	UTRACE_ENTRY(UTRACE_UCOL_GET_SORTKEY);
 	if(UTRACE_LEVEL(UTRACE_VERBOSE)) {
-		UTRACE_DATA3(UTRACE_VERBOSE, "coll=%p, source string = %vh ", coll, source, ((sourceLength==-1 && source) ? u_strlen(source) : sourceLength));
+		UTRACE_DATA3(UTRACE_VERBOSE, "coll=%p, source string = %vh ", coll, source, ((sourceLength==-1 && source) ? sstrleni(source) : sourceLength));
 	}
 	int32_t keySize = Collator::fromUCollator(coll)->getSortKey(source, sourceLength, result, resultLength);
 	UTRACE_DATA2(UTRACE_VERBOSE, "Sort Key = %vb", result, keySize);
@@ -238,52 +232,46 @@ U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8 * source, int32_t sourceLengt
 			    return 0;
 		}
 		result[sourceIndex++] = 0;
-
 		return sourceIndex;
 	}
-	else {
+	else
 		return sourceIndex+boundType+1;
-	}
 }
 
-U_CAPI void U_EXPORT2 ucol_setMaxVariable(UCollator * coll, UColReorderCode group, UErrorCode * pErrorCode) {
-	if(U_FAILURE(*pErrorCode)) {
-		return;
-	}
-	Collator::fromUCollator(coll)->setMaxVariable(group, *pErrorCode);
+U_CAPI void U_EXPORT2 ucol_setMaxVariable(UCollator * coll, UColReorderCode group, UErrorCode * pErrorCode) 
+{
+	if(U_SUCCESS(*pErrorCode))
+		Collator::fromUCollator(coll)->setMaxVariable(group, *pErrorCode);
 }
 
-U_CAPI UColReorderCode U_EXPORT2 ucol_getMaxVariable(const UCollator * coll) {
+U_CAPI UColReorderCode U_EXPORT2 ucol_getMaxVariable(const UCollator * coll) 
+{
 	return Collator::fromUCollator(coll)->getMaxVariable();
 }
 
-U_CAPI uint32_t U_EXPORT2 ucol_setVariableTop(UCollator * coll, const char16_t * varTop, int32_t len, UErrorCode * status) {
+U_CAPI uint32_t U_EXPORT2 ucol_setVariableTop(UCollator * coll, const char16_t * varTop, int32_t len, UErrorCode * status) 
+{
 	if(U_FAILURE(*status) || coll == NULL) {
 		return 0;
 	}
 	return Collator::fromUCollator(coll)->setVariableTop(varTop, len, *status);
 }
 
-U_CAPI uint32_t U_EXPORT2 ucol_getVariableTop(const UCollator * coll, UErrorCode * status) {
-	if(U_FAILURE(*status) || coll == NULL) {
-		return 0;
-	}
-	return Collator::fromUCollator(coll)->getVariableTop(*status);
+U_CAPI uint32_t U_EXPORT2 ucol_getVariableTop(const UCollator * coll, UErrorCode * status) 
+{
+	return (U_SUCCESS(*status) && coll) ? Collator::fromUCollator(coll)->getVariableTop(*status) : 0;
 }
 
-U_CAPI void U_EXPORT2 ucol_restoreVariableTop(UCollator * coll, const uint32_t varTop, UErrorCode * status) {
-	if(U_FAILURE(*status) || coll == NULL) {
-		return;
-	}
-	Collator::fromUCollator(coll)->setVariableTop(varTop, *status);
+U_CAPI void U_EXPORT2 ucol_restoreVariableTop(UCollator * coll, const uint32_t varTop, UErrorCode * status) 
+{
+	if(U_SUCCESS(*status) && coll)
+		Collator::fromUCollator(coll)->setVariableTop(varTop, *status);
 }
 
 U_CAPI void U_EXPORT2 ucol_setAttribute(UCollator * coll, UColAttribute attr, UColAttributeValue value, UErrorCode * status) 
 {
-	if(U_FAILURE(*status) || coll == NULL) {
-		return;
-	}
-	Collator::fromUCollator(coll)->setAttribute(attr, value, *status);
+	if(U_SUCCESS(*status) && coll)
+		Collator::fromUCollator(coll)->setAttribute(attr, value, *status);
 }
 
 U_CAPI UColAttributeValue U_EXPORT2 ucol_getAttribute(const UCollator * coll, UColAttribute attr, UErrorCode * status) 
@@ -308,18 +296,13 @@ U_CAPI UCollationStrength U_EXPORT2 ucol_getStrength(const UCollator * coll)
 
 U_CAPI int32_t U_EXPORT2 ucol_getReorderCodes(const UCollator * coll, int32_t * dest, int32_t destCapacity, UErrorCode * status) 
 {
-	if(U_FAILURE(*status)) {
-		return 0;
-	}
-	return Collator::fromUCollator(coll)->getReorderCodes(dest, destCapacity, *status);
+	return U_SUCCESS(*status) ? Collator::fromUCollator(coll)->getReorderCodes(dest, destCapacity, *status) : 0;
 }
 
 U_CAPI void U_EXPORT2 ucol_setReorderCodes(UCollator* coll, const int32_t* reorderCodes, int32_t reorderCodesLength, UErrorCode * status) 
 {
-	if(U_FAILURE(*status)) {
-		return;
-	}
-	Collator::fromUCollator(coll)->setReorderCodes(reorderCodes, reorderCodesLength, *status);
+	if(U_SUCCESS(*status))
+		Collator::fromUCollator(coll)->setReorderCodes(reorderCodes, reorderCodesLength, *status);
 }
 
 U_CAPI int32_t U_EXPORT2 ucol_getEquivalentReorderCodes(int32_t reorderCode, int32_t* dest, int32_t destCapacity, UErrorCode * pErrorCode) 
@@ -429,15 +412,17 @@ U_CAPI const char16_t * U_EXPORT2 ucol_getRules(const UCollator * coll, int32_t 
 {
 	const RuleBasedCollator * rbc = RuleBasedCollator::rbcFromUCollator(coll);
 	// OK to crash if coll==NULL: We do not want to check "this" pointers.
-	if(rbc != NULL || coll == NULL) {
+	if(rbc || !coll) {
 		const UnicodeString & rules = rbc->getRules();
 		U_ASSERT(rules.getBuffer()[rules.length()] == 0);
 		*length = rules.length();
 		return rules.getBuffer();
 	}
-	static const char16_t _NUL = 0;
-	*length = 0;
-	return &_NUL;
+	else {
+		static const char16_t _NUL = 0;
+		*length = 0;
+		return &_NUL;
+	}
 }
 
 U_CAPI int32_t U_EXPORT2 ucol_getRulesEx(const UCollator * coll, UColRuleOption delta, char16_t * buffer, int32_t bufferLen) 

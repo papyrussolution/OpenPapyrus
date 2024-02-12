@@ -21,20 +21,10 @@
 // For now, we just load the first frame (note: DirectXTex supports multi-frame images)
 
 #include "DirectXTexP.h"
+#pragma hdrstop
 #include "WICTextureLoader9.h"
-
 #include <d3d9types.h>
-
-#include <algorithm>
-#include <cassert>
-#include <cfloat>
-#include <cmath>
-#include <cstring>
-#include <iterator>
-#include <memory>
-
 #include <wincodec.h>
-
 #include <wrl\client.h>
 
 #ifdef _MSC_VER

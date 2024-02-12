@@ -10132,9 +10132,67 @@ private:
 	TSVector <GoodsEntry> GoodsList;
 };
 //
+// 
+//
+class Ostankino : public PrcssrSupplInterchange::ExecuteBlock { // @v11.9.5 @construction
+public:
+	Ostankino(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096)
+	{
+	}
+	~Ostankino()
+	{
+	}
+private:
+	struct GoodsEntry {
+		GoodsEntry()
+		{
+			THISZERO();
+		}
+		PPID   ID;
+		char   ArCode[32];
+		char   Name[128];
+		PPID   UnitID;
+	};
+	const GoodsEntry * SearchGoodsEntry(const TSVector <GoodsEntry> & rGoodsList, PPID goodsID) const
+	{
+		uint   goods_idx = 0;
+		return rGoodsList.lsearch(&goodsID, &goods_idx, CMPF_LONG) ? &rGoodsList.at(goods_idx) : 0;
+	}
+	int    MakeGoodsList(TSVector <GoodsEntry> & rGoodsList)
+	{
+		rGoodsList.clear();
+		int    ok = -1;
+		GoodsFilt filt;
+		if(Ep.GoodsGrpID)
+			filt.GrpIDList.Add(Ep.GoodsGrpID);
+		else
+			filt.SupplID = P.SupplID;
+		GoodsIterator iter(&filt, 0);
+		Goods2Tbl::Rec goods_rec;
+		while(iter.Next(&goods_rec) > 0) {
+			GoodsEntry new_entry;
+			uint   goods_idx = 0;
+			new_entry.ID = goods_rec.ID;
+			const GoodsEntry * p_goods_entry = 0;
+			if(new_entry.ID && !SearchGoodsEntry(rGoodsList, new_entry.ID)) {
+				if(GObj.Search(new_entry.ID, &goods_rec) > 0) {
+					GoodsEntry oe;
+					oe.ID = new_entry.ID;
+					rGoodsList.insert(&oe);
+					//p_goods_entry = &goods_list.at(goods_list.getCount()-1);
+				}
+			}
+		}
+		return ok;
+	}
+	PPLogger & R_Logger;
+	SString TokBuf;
+	TokenSymbHashTable TsHt;
+};
 //
 //
-class VladimirskiyStandard : public PrcssrSupplInterchange::ExecuteBlock { // @v11.5.10 @construction
+//
+class VladimirskiyStandard : public PrcssrSupplInterchange::ExecuteBlock { // @v11.5.10
 public:
 	VladimirskiyStandard(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096), LocAgentTagID(0)
 	{
@@ -10145,7 +10203,6 @@ public:
 	int    Init()
 	{
 		int    ok = 1;
-		// @v11.7.4 {
 		PPObjTag tag_obj;
 		PPID   loc_agent_tag_id = 0;
 		if(tag_obj.FetchBySymb("LOC-AGENT-VLDSTD", &loc_agent_tag_id) > 0) {
@@ -10156,8 +10213,6 @@ public:
 				}
 			}
 		}
-		// } @v11.7.4 
-		//MakeGoodsList();
 		return ok;
 	}
 	struct ObjEntry {
@@ -10525,13 +10580,11 @@ public:
 				}
 			}
 		}
-		// @v11.7.5 {
 		{
 			xmlFreeTextWriter(p_x);
 			p_x = 0;
 			rSsFileName.add(out_file_name); 
 		}
-		// } @v11.7.5 
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
@@ -10707,13 +10760,11 @@ public:
 				}
 			}
 		}
-		// @v11.7.5 {
 		{
 			xmlFreeTextWriter(p_x);
 			p_x = 0;
 			rSsFileName.add(out_file_name); 
 		}
-		// } @v11.7.5 
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
@@ -10807,12 +10858,9 @@ private:
 	}
 	int    MakeGoodsList(TSVector <ObjEntry> & rGoodsList)
 	{
-		//GoodsList.Z();
 		rGoodsList.clear();
 		int    ok = -1;
 		GoodsFilt filt;
-		//filt.Flags |= GoodsFilt::fShowArCode;
-		//filt.CodeArID = P.SupplID;
 		if(Ep.GoodsGrpID)
 			filt.GrpIDList.Add(Ep.GoodsGrpID);
 		else
@@ -10820,7 +10868,6 @@ private:
 		GoodsIterator iter(&filt, 0);
 		Goods2Tbl::Rec goods_rec;
 		while(iter.Next(&goods_rec) > 0) {
-			//GoodsList.add(goods_rec.ID);
 			StockEntry new_entry;
 			uint   goods_idx = 0;
 			new_entry.GoodsID = goods_rec.ID;
@@ -11043,7 +11090,6 @@ private:
 	SString TokBuf;
 	TokenSymbHashTable TsHt;
 	PPID   LocAgentTagID;
-	//PPIDArray GoodsList;
 };
 //
 //

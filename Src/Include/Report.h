@@ -386,10 +386,49 @@ private:
 	size_t TextLen;
 	char * P_Text;
 };
+//
+// Descr: Структура параметров печати для реализации межпроцессного интерфейса для вывода 32-битного CrystalReports в отдельный процесс
+//
+class CrystalReportPrintParamBlock { // @v11.9.5 @construction
+public:
+	CrystalReportPrintParamBlock() : Action(actionUndef), InternalFlags(0), NumCopies(0), Options(0)
+	{
+		MEMSZERO(DevMode);
+	}
+	enum {
+		intfDevModeValid = 0x0001
+	};
+	enum {
+		actionUndef = 0,
+		actionPrint = 1,
+		actionPreview,
+		actionExport
+	};
+	int    Action;
+	uint   InternalFlags;
+	uint32 NumCopies;
+	uint32 Options;
+	DEVMODEA DevMode;
+	SString ReportPath;
+	SString ReportName;
+	SString EmailAddr;   // for Action == actionExport
+	SString Dir;
+	SString Printer;
+};
+
+class CrystalReportPrintReply {
+public:
+	CrystalReportPrintReply() : ErrCode(0)
+	{
+	}
+	int    ErrCode;
+	SString ErrMsg;
+};
 
 int EditPrintParam(PrnDlgAns * pData);
-int CrystalReportPrint(const char *, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode);  //erik{DEVMODEA *pDevMode} add param v10.4.10
-int CrystalReportExport(const char *, const char * pDir, const char * pReportName, const char * pEMailAddr, int options);
+int CrystalReportPrint(const char * pReportPath, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode);  //erik{DEVMODEA *pDevMode} add param v10.4.10
+int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply); // @v11.9.5 @construction
+int CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName, const char * pEMailAddr, int options);
 
 #endif /* __REPORT_H */
 

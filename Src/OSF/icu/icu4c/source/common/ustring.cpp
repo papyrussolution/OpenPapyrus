@@ -1,30 +1,18 @@
+// ustring.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 1998-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- * File ustring.cpp
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   12/07/98    bertrand    Creation.
- ******************************************************************************
- */
+// Copyright (C) 1998-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+//   Date        Name        Description
+//   12/07/98    bertrand    Creation.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "cwchar.h"
 #include "ustr_imp.h"
 
 /* ANSI string.h - style functions ------------------------------------------ */
-
-/* U+ffff is the highest BMP code point, the highest one that fits into a 16-bit char16_t */
-#define U_BMP_MAX 0xffff
+#define U_BMP_MAX 0xffff // U+ffff is the highest BMP code point, the highest one that fits into a 16-bit char16_t
 
 /* Forward binary string search functions ----------------------------------- */
 
@@ -33,7 +21,8 @@
  * All pointers refer to the same buffer.
  * The limit pointer may be NULL, all others must be real pointers.
  */
-static inline bool isMatchAtCPBoundary(const char16_t * start, const char16_t * match, const char16_t * matchLimit, const char16_t * limit) {
+static inline bool isMatchAtCPBoundary(const char16_t * start, const char16_t * match, const char16_t * matchLimit, const char16_t * limit) 
+{
 	if(U16_IS_TRAIL(*match) && start!=match && U16_IS_LEAD(*(match-1))) {
 		/* the leading edge of the match is in the middle of a surrogate pair */
 		return FALSE;
@@ -94,24 +83,19 @@ U_CAPI char16_t * U_EXPORT2 u_strFindFirst(const char16_t * s, int32_t length, c
 		/* not found */
 		return NULL;
 	}
-
-	if(subLength<0) {
-		subLength = u_strlen(sub);
-	}
+	if(subLength < 0)
+		subLength = sstrleni(sub);
 	if(subLength==0) {
 		return (char16_t *)s;
 	}
-
 	/* get sub[0] to search for it fast */
 	cs = *sub++;
 	--subLength;
 	subLimit = sub+subLength;
-
 	if(subLength==0 && !U16_IS_SURROGATE(cs)) {
 		/* the substring consists of a single, non-surrogate BMP code point */
 		return length<0 ? u_strchr(s, cs) : u_memchr(s, cs, length);
 	}
-
 	if(length<0) {
 		/* s is NUL-terminated */
 		while((c = *s++)!=0) {
@@ -279,18 +263,16 @@ U_CAPI char16_t * U_EXPORT2 u_memchr32(const char16_t * s, UChar32 c, int32_t co
 
 /* Backward binary string search functions ---------------------------------- */
 
-U_CAPI char16_t * U_EXPORT2 u_strFindLast(const char16_t * s, int32_t length,
-    const char16_t * sub, int32_t subLength) {
+U_CAPI char16_t * U_EXPORT2 u_strFindLast(const char16_t * s, int32_t length, const char16_t * sub, int32_t subLength) 
+{
 	const char16_t * start, * limit, * p, * q, * subLimit;
 	char16_t c, cs;
-
 	if(sub==NULL || subLength<-1) {
 		return (char16_t *)s;
 	}
 	if(!s || length<-1) {
 		return NULL;
 	}
-
 	/*
 	 * This implementation is more lazy than the one for u_strFindFirst():
 	 * There is no special search code for NUL-terminated strings.
@@ -300,39 +282,29 @@ U_CAPI char16_t * U_EXPORT2 u_strFindLast(const char16_t * s, int32_t length,
 	 *
 	 * markus 2002oct23
 	 */
-
-	if(subLength<0) {
-		subLength = u_strlen(sub);
-	}
+	if(subLength < 0)
+		subLength = sstrleni(sub);
 	if(subLength==0) {
 		return (char16_t *)s;
 	}
-
 	/* get sub[subLength-1] to search for it fast */
 	subLimit = sub+subLength;
 	cs = *(--subLimit);
 	--subLength;
-
 	if(subLength==0 && !U16_IS_SURROGATE(cs)) {
 		/* the substring consists of a single, non-surrogate BMP code point */
 		return length<0 ? u_strrchr(s, cs) : u_memrchr(s, cs, length);
 	}
-
-	if(length<0) {
-		length = u_strlen(s);
-	}
-
+	if(length < 0)
+		length = sstrleni(s);
 	/* subLength was decremented above */
 	if(length<=subLength) {
 		return NULL; /* s is shorter than sub */
 	}
-
 	start = s;
 	limit = s+length;
-
 	/* the substring must start no later than s+subLength */
 	s += subLength;
-
 	while(s!=limit) {
 		c = *(--limit);
 		if(c==cs) {
@@ -732,21 +704,16 @@ U_CFUNC int32_t U_EXPORT2 uprv_strCompare(const char16_t * s1, int32_t length1, 
 			++s1;
 			++s2;
 		}
-
 		/* setup for fix-up */
 		limit2 = start2+length1; /* use length1 here, too, to enforce assumption */
 	}
 	else {
 		/* memcmp/UnicodeString style, both length-specified */
 		int32_t lengthResult;
-
-		if(length1<0) {
-			length1 = u_strlen(s1);
-		}
-		if(length2<0) {
-			length2 = u_strlen(s2);
-		}
-
+		if(length1 < 0)
+			length1 = sstrleni(s1);
+		if(length2 < 0)
+			length2 = sstrleni(s2);
 		/* limit1=start1+min(length1, length2) */
 		if(length1<length2) {
 			lengthResult = -1;
@@ -955,36 +922,30 @@ U_CAPI int32_t U_EXPORT2 u_strncmp(const char16_t * s1,
 	}
 }
 
-U_CAPI int32_t U_EXPORT2 u_strncmpCodePointOrder(const char16_t * s1, const char16_t * s2, int32_t n) {
+U_CAPI int32_t U_EXPORT2 u_strncmpCodePointOrder(const char16_t * s1, const char16_t * s2, int32_t n) 
+{
 	return uprv_strCompare(s1, n, s2, n, TRUE, TRUE);
 }
 
-U_CAPI char16_t * U_EXPORT2 u_strcpy(char16_t * dst,
-    const char16_t * src)
+U_CAPI char16_t * U_EXPORT2 u_strcpy(char16_t * dst, const char16_t * src)
 {
-	char16_t * anchor = dst; /* save a pointer to start of dst */
-
-	while((*(dst++) = *(src++)) != 0) { /* copy string 2 over     */
+	char16_t * anchor = dst; // save a pointer to start of dst
+	while((*(dst++) = *(src++)) != 0) { // copy string 2 over
 	}
-
 	return anchor;
 }
 
-U_CAPI char16_t * U_EXPORT2 u_strncpy(char16_t * dst,
-    const char16_t * src,
-    int32_t n)
+U_CAPI char16_t * U_EXPORT2 u_strncpy(char16_t * dst, const char16_t * src, int32_t n)
 {
 	char16_t * anchor = dst; /* save a pointer to start of dst */
-
-	/* copy string 2 over */
+	// copy string 2 over
 	while(n > 0 && (*(dst++) = *(src++)) != 0) {
 		--n;
 	}
-
 	return anchor;
 }
 
-U_CAPI int32_t U_EXPORT2 u_strlen(const char16_t * s)
+U_CAPI int32_t U_EXPORT2 u_strlen(const char16_t * s) // @v11.9.5 being replaced with sstrleni
 {
 #if U_SIZEOF_WCHAR_T == U_SIZEOF_UCHAR
 	return (int32_t)uprv_wcslen((const wchar_t *)s);

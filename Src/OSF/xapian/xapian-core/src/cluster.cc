@@ -230,16 +230,14 @@ TermIterator::Internal* PointTermIterator::next()
 		started = true;
 		return NULL;
 	}
-	Assert(i != end);
-	++i;
-	return NULL;
+	else {
+		Assert(i != end);
+		++i;
+		return NULL;
+	}
 }
 
-bool PointTermIterator::at_end() const
-{
-	if(!started) return false;
-	return i == end;
-}
+bool PointTermIterator::at_end() const { return started ? (i == end) : false; }
 
 TermIterator PointType::termlist_begin() const
 {
@@ -299,23 +297,19 @@ Point::Point(const FreqSource& freqsource, const Document& document_)
 	LOGCALL_CTOR(API, "Point::initialize", freqsource | document_);
 	doccount size = freqsource.get_doccount();
 	document = document_;
-	for(TermIterator it = document.termlist_begin();
-	    it != document.termlist_end();
-	    ++it) {
-		doccount wdf = it.get_wdf();
+	for(TermIterator it = document.termlist_begin(); it != document.termlist_end(); ++it) {
+		const doccount wdf = it.get_wdf();
 		string term = *it;
-		double termfreq = freqsource.get_termfreq(term);
+		const double termfreq = freqsource.get_termfreq(term);
 
 		// If the term exists in only one document, or if it exists in
 		// every document within the MSet, or if it is a filter term, then
 		// these terms are not used for document vector calculations
 		if(wdf < 1 || termfreq <= 1 || size == termfreq)
 			continue;
-
-		double tf = 1 + log(double(wdf));
-		double idf = log(size / termfreq);
-		double wt = tf * idf;
-
+		const double tf = 1 + log(double(wdf));
+		const double idf = log(size / termfreq);
+		const double wt = tf * idf;
 		weights[term] = wt;
 		magnitude += wt * wt;
 	}
@@ -324,9 +318,7 @@ Point::Point(const FreqSource& freqsource, const Document& document_)
 Centroid::Centroid(const Point& point)
 {
 	LOGCALL_CTOR(API, "Centroid", point);
-	for(TermIterator it = point.termlist_begin();
-	    it != point.termlist_end();
-	    ++it) {
+	for(TermIterator it = point.termlist_begin(); it != point.termlist_end(); ++it) {
 		weights[*it] = point.get_weight(*it);
 	}
 	magnitude = point.get_magnitude();
@@ -338,7 +330,7 @@ void Centroid::divide(double cluster_size)
 	magnitude = 0;
 	unordered_map<string, double>::iterator it;
 	for(it = weights.begin(); it != weights.end(); ++it) {
-		double new_weight = it->second / cluster_size;
+		const double new_weight = it->second / cluster_size;
 		it->second = new_weight;
 		magnitude += new_weight * new_weight;
 	}

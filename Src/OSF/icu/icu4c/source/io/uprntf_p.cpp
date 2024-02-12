@@ -145,7 +145,7 @@ static int32_t u_printf_string_handler(const u_printf_stream_handler * handler, 
 	else {
 		s = (char16_t *)gNullStr;
 	}
-	len = u_strlen(s);
+	len = sstrleni(s);
 	/* width = minimum # of characters to write */
 	/* precision = maximum # of characters to write */
 	if(info->fPrecision != -1 && info->fPrecision < len) {
@@ -169,7 +169,7 @@ static int32_t u_printf_char_handler(const u_printf_stream_handler * handler, vo
 	ufmt_defaultCPToUnicode((const char *)&arg, 2, s, SIZEOFARRAYi(s));
 	/* Remember that this may be an MBCS character */
 	if(arg != 0) {
-		len = u_strlen(s);
+		len = sstrleni(s);
 	}
 	/* width = minimum # of characters to write */
 	/* precision = maximum # of characters to write */
@@ -545,10 +545,7 @@ static int32_t u_printf_scientific_handler(const u_printf_stream_handler * handl
 }
 
 static int32_t u_printf_percent_handler(const u_printf_stream_handler * handler,
-    void * context,
-    ULocaleBundle * formatBundle,
-    const u_printf_spec_info * info,
-    const ufmt_args * args)
+    void * context, ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
 	double num = (double)(args[0].doubleValue);
 	UNumberFormat   * format;
@@ -559,24 +556,18 @@ static int32_t u_printf_percent_handler(const u_printf_stream_handler * handler,
 	int32_t maxDecimalDigits;
 	int32_t resultLen;
 	UErrorCode status = U_ZERO_ERROR;
-
 	prefixBuffer[0] = 0;
-
 	/* mask off any necessary bits */
 	/* if(! info->fIsLongDouble)
 	   num &= DBL_MAX;*/
-
 	/* get the formatter */
 	format = u_locbund_getNumberFormat(formatBundle, UNUM_PERCENT);
-
 	/* handle error */
 	if(format == 0)
 		return 0;
-
 	/* save the formatter's state */
 	minDecimalDigits = unum_getAttribute(format, UNUM_MIN_FRACTION_DIGITS);
 	maxDecimalDigits = unum_getAttribute(format, UNUM_MAX_FRACTION_DIGITS);
-
 	/* set the appropriate flags and number of decimal digits on the formatter */
 	if(info->fPrecision != -1) {
 		/* set the # of decimal digits */
@@ -591,7 +582,6 @@ static int32_t u_printf_percent_handler(const u_printf_stream_handler * handler,
 		/* # of decimal digits is 6 if precision not specified */
 		unum_setAttribute(format, UNUM_FRACTION_DIGITS, 6);
 	}
-
 	/* set whether to show the sign */
 	if(info->fShowSign) {
 		u_printf_set_sign(format, info, prefixBuffer, &prefixBufferLen, &status);
@@ -621,7 +611,7 @@ static int32_t u_printf_ustring_handler(const u_printf_stream_handler * handler,
 	const char16_t * arg = (const char16_t *)(args[0].ptrValue);
 	/* allocate enough space for the buffer */
 	SETIFZQ(arg, gNullStr);
-	len = u_strlen(arg);
+	len = sstrleni(arg);
 	/* width = minimum # of characters to write */
 	/* precision = maximum # of characters to write */
 	if(info->fPrecision != -1 && info->fPrecision < len) {
@@ -755,18 +745,15 @@ static int32_t u_printf_spellout_handler(const u_printf_stream_handler * handler
 	if(U_FAILURE(status)) {
 		resultLen = 0;
 	}
-
 	/* restore the number format */
 	/* TODO: Is this needed? */
 	unum_setAttribute(format, UNUM_MIN_FRACTION_DIGITS, minDecimalDigits);
 	unum_setAttribute(format, UNUM_MAX_FRACTION_DIGITS, maxDecimalDigits);
-
 	if(info->fShowSign) {
 		/* Reset back to original value regardless of what the error was */
 		UErrorCode localStatus = U_ZERO_ERROR;
 		u_printf_reset_sign(format, info, prefixBuffer, &prefixBufferLen, &localStatus);
 	}
-
 	return handler->pad_and_justify(context, info, result, resultLen);
 }
 
@@ -999,13 +986,8 @@ static ufmt_args* parseArguments(const char16_t * alias, va_list ap, UErrorCode 
 }
 
 /* We parse the argument list in Unicode */
-U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
-    const char16_t * fmt,
-    void   * context,
-    u_localized_print_string * locStringContext,
-    ULocaleBundle   * formatBundle,
-    int32_t * written,
-    va_list ap)
+U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler, const char16_t * fmt, void * context,
+    u_localized_print_string * locStringContext, ULocaleBundle   * formatBundle, int32_t * written, va_list ap)
 {
 	uint16 handlerNum;
 	ufmt_args args;
@@ -1013,7 +995,6 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 	u_printf_handler * handler;
 	u_printf_spec spec;
 	u_printf_spec_info * info = &(spec.fInfo);
-
 	const char16_t * alias = fmt;
 	const char16_t * backup;
 	const char16_t * lastAlias;
@@ -1024,13 +1005,11 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 	if(!locStringContext || locStringContext->available >= 0) {
 		/* get the parsed list of argument types */
 		arglist = parseArguments(orgAlias, ap, &status);
-
 		/* Return error if parsing failed. */
 		if(U_FAILURE(status)) {
 			return -1;
 		}
 	}
-
 	/* iterate through the pattern */
 	while(!locStringContext || locStringContext->available >= 0) {
 		/* find the next '%' */
@@ -1038,17 +1017,14 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 		while(*alias != UP_PERCENT && *alias != 0x0000) {
 			alias++;
 		}
-
 		/* write any characters before the '%' */
 		if(alias > lastAlias) {
 			*written += (streamHandler->write)(context, lastAlias, (int32_t)(alias - lastAlias));
 		}
-
 		/* break if at end of string */
 		if(*alias == 0x0000) {
 			break;
 		}
-
 		/* initialize spec to default values */
 		spec.fWidthPos     = -1;
 		spec.fPrecisionPos = -1;
@@ -1063,7 +1039,6 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 		if(ISDIGIT(*alias)) {
 			/* Save the current position */
 			backup = alias;
-
 			/* handle positional parameters */
 			if(ISDIGIT(*alias)) {
 				spec.fArgPos = (int)(*alias++ - DIGIT_ZERO);

@@ -317,9 +317,8 @@ U_CAPI UBiDiDirection U_EXPORT2 ubidi_getBaseDirection(const char16_t * text, in
 	if(text==NULL || length<-1) {
 		return UBIDI_NEUTRAL;
 	}
-	if(length == -1) {
-		length = u_strlen(text);
-	}
+	if(length == -1)
+		length = sstrleni(text);
 	for(i = 0; i < length;) {
 		/* i is incremented by U16_NEXT */
 		U16_NEXT(text, i, length, uchar);
@@ -2241,22 +2240,13 @@ U_CAPI void U_EXPORT2 ubidi_setContext(UBiDi * pBiDi, const char16_t * prologue,
 	RETURN_VOID_IF_NULL_OR_FAILING_ERRCODE(pErrorCode);
 	if(pBiDi==NULL || proLength<-1 || epiLength<-1 || (prologue==NULL && proLength!=0) || (epilogue==NULL && epiLength!=0)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
-		return;
-	}
-	if(proLength == -1) {
-		pBiDi->proLength = u_strlen(prologue);
 	}
 	else {
-		pBiDi->proLength = proLength;
+		pBiDi->proLength = (proLength == -1) ? sstrleni(prologue) : proLength;
+		pBiDi->epiLength = (epiLength == -1) ? sstrleni(epilogue) : epiLength;
+		pBiDi->prologue = prologue;
+		pBiDi->epilogue = epilogue;
 	}
-	if(epiLength == -1) {
-		pBiDi->epiLength = u_strlen(epilogue);
-	}
-	else {
-		pBiDi->epiLength = epiLength;
-	}
-	pBiDi->prologue = prologue;
-	pBiDi->epilogue = epilogue;
 }
 
 static void setParaSuccess(UBiDi * pBiDi) 
@@ -2467,10 +2457,9 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const char16_t * text, int32_
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-	if(length == -1) {
-		length = u_strlen(text);
-	}
-	/* special treatment for RUNS_ONLY mode */
+	if(length == -1)
+		length = sstrleni(text);
+	// special treatment for RUNS_ONLY mode
 	if(pBiDi->reorderingMode==UBIDI_REORDER_RUNS_ONLY) {
 		setParaRunsOnly(pBiDi, text, length, paraLevel, pErrorCode);
 		return;

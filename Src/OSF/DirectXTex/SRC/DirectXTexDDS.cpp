@@ -6,6 +6,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 #include "DDS.h"
 
 using namespace DirectX;
@@ -156,7 +157,6 @@ DXGI_FORMAT GetDXGIFormat(const DDS_HEADER& hdr, const DDS_PIXELFORMAT& ddpf,
 	size_t index = 0;
 	for(index = 0; index < MAP_SIZE; ++index) {
 		const LegacyDDS* entry = &g_LegacyDDSMap[index];
-
 		if((ddpfFlags & DDS_FOURCC) && (entry->ddpf.flags & DDS_FOURCC)) {
 			// In case of FourCC codes, ignore any other bits in ddpf.flags
 			if(ddpf.fourCC == entry->ddpf.fourCC)
@@ -214,27 +214,19 @@ DXGI_FORMAT GetDXGIFormat(const DDS_HEADER& hdr, const DDS_PIXELFORMAT& ddpf,
 			}
 		}
 	}
-
 	if(index >= MAP_SIZE)
 		return DXGI_FORMAT_UNKNOWN;
-
 	uint32_t cflags = g_LegacyDDSMap[index].convFlags;
 	DXGI_FORMAT format = g_LegacyDDSMap[index].format;
-
 	if((cflags & CONV_FLAGS_EXPAND) && (flags & DDS_FLAGS_NO_LEGACY_EXPANSION))
 		return DXGI_FORMAT_UNKNOWN;
-
 	if((format == DXGI_FORMAT_R10G10B10A2_UNORM) && (flags & DDS_FLAGS_NO_R10B10G10A2_FIXUP)) {
 		cflags ^= CONV_FLAGS_SWIZZLE;
 	}
-
-	if((hdr.reserved1[9] == MAKEFOURCC('N', 'V', 'T', 'T'))
-	    && (ddpf.flags & 0x40000000 /* DDPF_SRGB */)) {
+	if((hdr.reserved1[9] == MAKEFOURCC('N', 'V', 'T', 'T')) && (ddpf.flags & 0x40000000 /* DDPF_SRGB */)) {
 		format = MakeSRGB(format);
 	}
-
 	convFlags = cflags;
-
 	return format;
 }
 //
@@ -256,15 +248,12 @@ HRESULT DecodeDDSHeader(_In_reads_bytes_(size) const void* pSource, size_t size,
 	}
 	auto pHeader = reinterpret_cast<const DDS_HEADER*>(static_cast<const uint8_t*>(pSource) + sizeof(uint32_t));
 	// Verify header to validate DDS file
-	if(pHeader->size != sizeof(DDS_HEADER)
-	    || pHeader->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
+	if(pHeader->size != sizeof(DDS_HEADER) || pHeader->ddspf.size != sizeof(DDS_PIXELFORMAT)) {
 		return E_FAIL;
 	}
-
 	metadata.mipLevels = pHeader->mipMapCount;
 	if(metadata.mipLevels == 0)
 		metadata.mipLevels = 1;
-
 	// Check for DX10 extension
 	if((pHeader->ddspf.flags & DDS_FOURCC) && (MAKEFOURCC('D', 'X', '1', '0') == pHeader->ddspf.fourCC)) {
 		// Buffer must be big enough for both headers and magic value
@@ -752,16 +741,14 @@ _Use_decl_annotations_ HRESULT DirectX::EncodeDDSHeader(const TexMetadata& metad
 	else {
 		memcpy(&header->ddspf, &ddpf, sizeof(ddpf));
 	}
-
 	return S_OK;
 }
 
-namespace
-{
-//-------------------------------------------------------------------------------------
+namespace {
+//
 // Converts an image row with optional clearing of alpha value to 1.0
 // Returns true if supported, false if expansion case not supported
-//-------------------------------------------------------------------------------------
+//
 enum TEXP_LEGACY_FORMAT {
 	TEXP_LEGACY_UNKNOWN = 0,
 	TEXP_LEGACY_R8G8B8,
@@ -779,10 +766,8 @@ enum TEXP_LEGACY_FORMAT {
 constexpr TEXP_LEGACY_FORMAT FindLegacyFormat(uint32_t flags) noexcept
 {
 	TEXP_LEGACY_FORMAT lformat = TEXP_LEGACY_UNKNOWN;
-
-	if(flags & CONV_FLAGS_PAL8) {
+	if(flags & CONV_FLAGS_PAL8)
 		lformat = (flags & CONV_FLAGS_A8P8) ? TEXP_LEGACY_A8P8 : TEXP_LEGACY_P8;
-	}
 	else if(flags & CONV_FLAGS_888)
 		lformat = TEXP_LEGACY_R8G8B8;
 	else if(flags & CONV_FLAGS_332)
@@ -799,26 +784,17 @@ constexpr TEXP_LEGACY_FORMAT FindLegacyFormat(uint32_t flags) noexcept
 		lformat = TEXP_LEGACY_L16;
 	else if(flags & CONV_FLAGS_A8L8)
 		lformat = TEXP_LEGACY_A8L8;
-
 	return lformat;
 }
 
-_Success_(return )
-bool LegacyExpandScanline(_Out_writes_bytes_(outSize) void* pDestination,
-    size_t outSize,
-    _In_ DXGI_FORMAT outFormat,
-    _In_reads_bytes_(inSize) const void* pSource,
-    size_t inSize,
-    _In_ TEXP_LEGACY_FORMAT inFormat,
-    _In_reads_opt_(256) const uint32_t* pal8,
+_Success_(return ) bool LegacyExpandScanline(_Out_writes_bytes_(outSize) void* pDestination, size_t outSize, _In_ DXGI_FORMAT outFormat,
+    _In_reads_bytes_(inSize) const void* pSource, size_t inSize, _In_ TEXP_LEGACY_FORMAT inFormat, _In_reads_opt_(256) const uint32_t* pal8,
     _In_ uint32_t tflags) noexcept
 {
 	assert(pDestination && outSize > 0);
 	assert(pSource && inSize > 0);
 	assert(IsValid(outFormat) && !IsPlanar(outFormat) && !IsPalettized(outFormat));
-
-	switch(inFormat)
-	{
+	switch(inFormat) {
 		case TEXP_LEGACY_R8G8B8:
 		    if(outFormat != DXGI_FORMAT_R8G8B8A8_UNORM)
 			    return false;
@@ -844,19 +820,14 @@ bool LegacyExpandScanline(_Out_writes_bytes_(outSize) void* pDestination,
 		    return false;
 
 		case TEXP_LEGACY_R3G3B2:
-		    switch(outFormat)
-		    {
+		    switch(outFormat) {
 			    case DXGI_FORMAT_R8G8B8A8_UNORM:
 				// D3DFMT_R3G3B2 -> DXGI_FORMAT_R8G8B8A8_UNORM
 				if(inSize >= 1 && outSize >= 4) {
 					const uint8_t* __restrict sPtr = static_cast<const uint8_t*>(pSource);
 					uint32_t * __restrict dPtr = static_cast<uint32_t*>(pDestination);
-
-					for(size_t ocount = 0, icount = 0;
-					    ((icount < inSize) && (ocount < (outSize - 3)));
-					    ++icount, ocount += 4) {
+					for(size_t ocount = 0, icount = 0; ((icount < inSize) && (ocount < (outSize - 3))); ++icount, ocount += 4) {
 						const uint8_t t = *(sPtr++);
-
 						uint32_t t1 = uint32_t((t & 0xe0) | ((t & 0xe0) >> 3) | ((t & 0xc0) >> 6));
 						uint32_t t2 = uint32_t(((t & 0x1c) << 11) | ((t & 0x1c) << 8) | ((t & 0x18) << 5));
 						uint32_t t3 =
@@ -868,32 +839,24 @@ bool LegacyExpandScanline(_Out_writes_bytes_(outSize) void* pDestination,
 					return true;
 				}
 				return false;
-
 			    case DXGI_FORMAT_B5G6R5_UNORM:
-				// D3DFMT_R3G3B2 -> DXGI_FORMAT_B5G6R5_UNORM
-				if(inSize >= 1 && outSize >= 2) {
-					const uint8_t* __restrict sPtr = static_cast<const uint8_t*>(pSource);
-					uint16_t * __restrict dPtr = static_cast<uint16_t*>(pDestination);
-
-					for(size_t ocount = 0, icount = 0;
-					    ((icount < inSize) && (ocount < (outSize - 1)));
-					    ++icount, ocount += 2) {
-						const unsigned t = *(sPtr++);
-
-						unsigned t1 = ((t & 0xe0u) << 8) | ((t & 0xc0u) << 5);
-						unsigned t2 = ((t & 0x1cu) << 6) | ((t & 0x1cu) << 3);
-						unsigned t3 = ((t & 0x03u) << 3) | ((t & 0x03u) << 1) | ((t & 0x02) >> 1);
-
-						*(dPtr++) = static_cast<uint16_t>(t1 | t2 | t3);
+					// D3DFMT_R3G3B2 -> DXGI_FORMAT_B5G6R5_UNORM
+					if(inSize >= 1 && outSize >= 2) {
+						const uint8_t* __restrict sPtr = static_cast<const uint8_t*>(pSource);
+						uint16_t * __restrict dPtr = static_cast<uint16_t*>(pDestination);
+						for(size_t ocount = 0, icount = 0; ((icount < inSize) && (ocount < (outSize - 1))); ++icount, ocount += 2) {
+							const uint t = *(sPtr++);
+							uint t1 = ((t & 0xe0u) << 8) | ((t & 0xc0u) << 5);
+							uint t2 = ((t & 0x1cu) << 6) | ((t & 0x1cu) << 3);
+							uint t3 = ((t & 0x03u) << 3) | ((t & 0x03u) << 1) | ((t & 0x02) >> 1);
+							*(dPtr++) = static_cast<uint16_t>(t1 | t2 | t3);
+						}
+						return true;
 					}
-					return true;
-				}
-				return false;
-
+					return false;
 			    default:
-				return false;
+					return false;
 		    }
-
 		case TEXP_LEGACY_A8R3G3B2:
 		    if(outFormat != DXGI_FORMAT_R8G8B8A8_UNORM)
 			    return false;

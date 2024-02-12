@@ -1621,8 +1621,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	GumboTest();
-	//TestGtinStruc();
+	TestGtinStruc();
+	//GumboTest();
 	//Test_SSystemBackup();
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");

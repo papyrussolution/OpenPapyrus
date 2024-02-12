@@ -736,21 +736,16 @@ static void InSymbol(cmsIT8 * it8)
 			//if(FileNest == NULL)
 			//  TODO: how to manage out-of-memory conditions?
 		}
-
-		if(BuildAbsolutePath(it8->str,
-		    it8->FileStack[it8->IncludeSP]->FileName,
-		    FileNest->FileName, cmsMAX_PATH-1) == FALSE) {
+		if(BuildAbsolutePath(it8->str, it8->FileStack[it8->IncludeSP]->FileName, FileNest->FileName, cmsMAX_PATH-1) == FALSE) {
 			SynError(it8, "File path too long");
 			return;
 		}
-
 		FileNest->Stream = fopen(FileNest->FileName, "rt");
 		if(FileNest->Stream == NULL) {
 			SynError(it8, "File %s not found", FileNest->FileName);
 			return;
 		}
 		it8->IncludeSP++;
-
 		it8->ch = ' ';
 		InSymbol(it8);
 	}
@@ -759,7 +754,8 @@ static void InSymbol(cmsIT8 * it8)
 // Checks end of line separator
 static boolint CheckEOLN(cmsIT8 * it8)
 {
-	if(!Check(it8, SEOLN, "Expected separator")) return FALSE;
+	if(!Check(it8, SEOLN, "Expected separator")) 
+		return FALSE;
 	while(it8->sy == SEOLN)
 		InSymbol(it8);
 	return TRUE;

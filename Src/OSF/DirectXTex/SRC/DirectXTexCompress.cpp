@@ -5,6 +5,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 #ifdef _OPENMP
 	#include <omp.h>
 	#pragma warning(disable : 4616 6993)

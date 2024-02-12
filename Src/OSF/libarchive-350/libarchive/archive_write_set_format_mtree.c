@@ -957,17 +957,14 @@ static int write_dot_dot_entry(struct archive_write * a, struct mtree_entry * n)
 {
 	struct mtree_writer * mtree = static_cast<struct mtree_writer *>(a->format_data);
 	int ret;
-
 	if(n->parentdir.s) {
 		if(mtree->indent) {
-			int i, pd = mtree->depth * 4;
-			for(i = 0; i < pd; i++)
+			const int pd = mtree->depth * 4;
+			for(int i = 0; i < pd; i++)
 				archive_strappend_char(&mtree->buf, ' ');
 		}
-		archive_string_sprintf(&mtree->buf, "# %s/%s\n",
-		    n->parentdir.s, n->basename.s);
+		archive_string_sprintf(&mtree->buf, "# %s/%s\n", n->parentdir.s, n->basename.s);
 	}
-
 	if(mtree->indent) {
 		archive_string_empty(&mtree->ebuf);
 		archive_strncat(&mtree->ebuf, "..\n\n", (mtree->dironly) ? 3 : 4);
@@ -975,10 +972,8 @@ static int write_dot_dot_entry(struct archive_write * a, struct mtree_entry * n)
 	}
 	else
 		archive_strncat(&mtree->buf, "..\n\n", (mtree->dironly) ? 3 : 4);
-
 	if(mtree->buf.length > 32768) {
-		ret = __archive_write_output(
-			a, mtree->buf.s, mtree->buf.length);
+		ret = __archive_write_output(a, mtree->buf.s, mtree->buf.length);
 		archive_string_empty(&mtree->buf);
 	}
 	else
@@ -1071,8 +1066,7 @@ static int write_mtree_entry_tree(struct archive_write * a)
 				if(mtree->indent)
 					mtree->depth--;
 				if(mtree->classic) {
-					ret = write_dot_dot_entry(a,
-						np->parent);
+					ret = write_dot_dot_entry(a, np->parent);
 					if(ret != ARCHIVE_OK)
 						return ARCHIVE_FATAL;
 				}
@@ -1095,14 +1089,11 @@ static int archive_write_mtree_finish_entry(struct archive_write * a)
 {
 	struct mtree_writer * mtree = static_cast<struct mtree_writer *>(a->format_data);
 	struct mtree_entry * me;
-
 	if((me = mtree->mtree_entry) == NULL)
 		return ARCHIVE_OK;
 	mtree->mtree_entry = NULL;
-
 	if(me->reg_info)
 		sum_final(mtree, me->reg_info);
-
 	return ARCHIVE_OK;
 }
 
@@ -1138,18 +1129,16 @@ static ssize_t archive_write_mtree_data(struct archive_write * a, const void * b
 static int archive_write_mtree_free(struct archive_write * a)
 {
 	struct mtree_writer * mtree = static_cast<struct mtree_writer *>(a->format_data);
-
-	if(mtree == NULL)
-		return ARCHIVE_OK;
-
-	/* Make sure we do not leave any entries. */
-	mtree_entry_register_free(mtree);
-	archive_string_free(&mtree->cur_dirstr);
-	archive_string_free(&mtree->ebuf);
-	archive_string_free(&mtree->buf);
-	attr_counter_set_free(mtree);
-	SAlloc::F(mtree);
-	a->format_data = NULL;
+	if(mtree) {
+		/* Make sure we do not leave any entries. */
+		mtree_entry_register_free(mtree);
+		archive_string_free(&mtree->cur_dirstr);
+		archive_string_free(&mtree->ebuf);
+		archive_string_free(&mtree->buf);
+		attr_counter_set_free(mtree);
+		SAlloc::F(mtree);
+		a->format_data = NULL;
+	}
 	return ARCHIVE_OK;
 }
 
@@ -1245,13 +1234,9 @@ static int archive_write_mtree_options(struct archive_write * a, const char * ke
 		    break;
 	}
 	if(keybit != 0) {
-		if(value)
-			mtree->keys |= keybit;
-		else
-			mtree->keys &= ~keybit;
+		SETFLAG(mtree->keys, keybit, value);
 		return ARCHIVE_OK;
 	}
-
 	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }
@@ -1286,32 +1271,23 @@ static int archive_write_set_format_mtree_default(Archive * _a, const char * fn)
 	a->format_finish_entry = archive_write_mtree_finish_entry;
 	a->archive.archive_format = ARCHIVE_FORMAT_MTREE;
 	a->archive.archive_format_name = "mtree";
-
 	return ARCHIVE_OK;
 }
 
 int archive_write_set_format_mtree(Archive * _a)
 {
-	return archive_write_set_format_mtree_default(_a,
-		   "archive_write_set_format_mtree");
+	return archive_write_set_format_mtree_default(_a, __FUNCTION__);
 }
 
 int archive_write_set_format_mtree_classic(Archive * _a)
 {
-	int r;
-
-	r = archive_write_set_format_mtree_default(_a,
-		"archive_write_set_format_mtree_classic");
+	int r = archive_write_set_format_mtree_default(_a, __FUNCTION__);
 	if(r == ARCHIVE_OK) {
 		struct archive_write * a = (struct archive_write *)_a;
-		struct mtree_writer * mtree;
-
-		mtree = (struct mtree_writer *)a->format_data;
-
+		struct mtree_writer * mtree = (struct mtree_writer *)a->format_data;
 		/* Set to output a mtree archive in classic format. */
 		mtree->classic = 1;
-		/* Basically, mtree classic format uses '/set' global
-		 * value. */
+		/* Basically, mtree classic format uses '/set' global value. */
 		mtree->output_global_set = 1;
 	}
 	return r;

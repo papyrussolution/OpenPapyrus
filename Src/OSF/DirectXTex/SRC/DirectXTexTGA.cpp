@@ -6,6 +6,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 //
 // The implementation here has the following limitations:
 //      * Does not support files that contain color maps (these are rare in practice)
@@ -17,8 +18,7 @@
 using namespace DirectX;
 using namespace DirectX::Internal;
 
-namespace
-{
+namespace {
 constexpr float GAMMA_EPSILON = 0.01f;
 
 const char g_Signature[] = "TRUEVISION-XFILE.";

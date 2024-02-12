@@ -15,13 +15,9 @@
 //--------------------------------------------------------------------------------------
 
 #include "DirectXTexP.h"
+#pragma hdrstop
 #include "DDSTextureLoader9.h"
 #include <d3d9types.h>
-//#include <algorithm>
-//#include <cassert>
-//#include <cstring>
-//#include <memory>
-//#include <new>
 #include <wrl/client.h>
 
 #ifdef _MSC_VER

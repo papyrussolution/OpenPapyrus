@@ -240,7 +240,7 @@ __LA_DECL dev_t FASTCALL archive_entry_rdevmajor(ArchiveEntry *);
 __LA_DECL dev_t FASTCALL archive_entry_rdevminor(ArchiveEntry *);
 __LA_DECL const char	* FASTCALL archive_entry_sourcepath(ArchiveEntry *);
 __LA_DECL const wchar_t	* FASTCALL archive_entry_sourcepath_w(ArchiveEntry *);
-__LA_DECL int64 FASTCALL archive_entry_size(ArchiveEntry *);
+__LA_DECL int64 FASTCALL archive_entry_size(const ArchiveEntry *);
 __LA_DECL int FASTCALL archive_entry_size_is_set(ArchiveEntry *);
 __LA_DECL const char * FASTCALL archive_entry_strmode(ArchiveEntry *);
 __LA_DECL const char * FASTCALL archive_entry_symlink(ArchiveEntry *);
@@ -342,7 +342,7 @@ __LA_DECL void	archive_entry_set_is_metadata_encrypted(ArchiveEntry *, char is_e
  * that archive_entry_stat is magically defined to
  * archive_entry_stat32 or archive_entry_stat64 as appropriate.
  */
-__LA_DECL const struct stat	*archive_entry_stat(ArchiveEntry *);
+__LA_DECL const struct stat	* archive_entry_stat(ArchiveEntry *);
 __LA_DECL void	archive_entry_copy_stat(ArchiveEntry *, const struct _stat *);
 
 /*

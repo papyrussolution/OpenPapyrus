@@ -48,7 +48,7 @@ typedef unsigned short UInt16;
 
 typedef struct {
 	ArchiveRead * a;
-	Byte (* Read)(void * p); /* reads one byte, returns 0 in case of EOF or error */
+	Byte (* Read)(void * p); // reads one byte, returns 0 in case of EOF or error
 } IByteIn;
 
 typedef struct {

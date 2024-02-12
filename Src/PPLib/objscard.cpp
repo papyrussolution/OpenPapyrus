@@ -3376,7 +3376,7 @@ void SCardDialog::SetupSeries(PPID seriesID, PPID personID)
 	}
 	SETIFZ(psn_kind_id, ScObj.GetConfig().PersonKindID);
 	SETIFZ(psn_kind_id, PPPRK_CLIENT);
-	if(PsnObj.P_Tbl->IsBelongToKind(personID, psn_kind_id) <= 0)
+	if(PsnObj.P_Tbl->IsBelongsToKind(personID, psn_kind_id) <= 0)
 		personID = 0;
 	SetupPersonCombo(this, CTLSEL_SCARD_PERSON, personID, OLW_CANINSERT|OLW_LOADDEFONOPEN, psn_kind_id, 0);
 	// @v11.6.3 {

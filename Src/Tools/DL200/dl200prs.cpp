@@ -1449,16 +1449,11 @@ int PrcssrDL200::Print()
 	int    reply = 0;
 	short  hJob = 0;
 	long   fl = 0;
-	//char * p_loc_fname = 0;
-	//char   report_name[128];
-	//char   fn[MAX_PATH+1];
 	SString fn;
 	SString report_name;
-	//strupr(strcat(strcpy(report_name, "DL2_"), D.Name));
 	(report_name = "DL2_").Cat(D.Name).ToUpper();
 	PrnDlgAns pans(report_name);
 	if(EditPrintParam(&pans) > 0) {
-		//STRNSCPY(fn, pans.Entries.at(pans.Selection)->ReportPath_);
 		fn = pans.Entries.at(pans.Selection)->ReportPath_;
 		switch(pans.Dest) {
 			case PrnDlgAns::aPrint:
@@ -1475,10 +1470,6 @@ int PrcssrDL200::Print()
 				break;
 		}
 	}
-	/*
-	if(ok == 0 && SaveDataStruct(report_name, OutPath, fn) < 0)
-		PPError(PPERR_CRYSTAL_REPORT);
-	*/
 	return ok;
 }
 

@@ -818,14 +818,15 @@ static const char fi_digits[] =
 	"4041424344454647484950515253545556575859"
 	"6061626364656667686970717273747576777879"
 	"8081828384858687888990919293949596979899";
-
+//
+// Integer division is slow so do it for a group of two digits instead
+// of for every digit. The idea comes from the talk by Alexandrescu
+// "Three Optimization Tips for C++". See speed-test for a comparison.
+//
 static char * FASTCALL format_decimal64(uint64 value, char * pBuf, size_t bufSize) 
 {
 	char * ptr = pBuf + (bufSize-1); // Parens to workaround MSVC bug.
 	while(value >= 100) {
-		// Integer division is slow so do it for a group of two digits instead
-		// of for every digit. The idea comes from the talk by Alexandrescu
-		// "Three Optimization Tips for C++". See speed-test for a comparison.
 		uint index = static_cast<uint>((value % 100) * 2);
 		value /= 100;
 		*--ptr = fi_digits[index+1];
@@ -846,9 +847,6 @@ static char * FASTCALL format_decimal32(uint32 value, char * pBuf, size_t bufSiz
 {
 	char * ptr = pBuf + (bufSize-1); // Parens to workaround MSVC bug.
 	while(value >= 100) {
-		// Integer division is slow so do it for a group of two digits instead
-		// of for every digit. The idea comes from the talk by Alexandrescu
-		// "Three Optimization Tips for C++". See speed-test for a comparison.
 		uint index = static_cast<uint>((value % 100) * 2);
 		value /= 100;
 		*--ptr = fi_digits[index+1];

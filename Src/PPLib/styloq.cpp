@@ -1682,7 +1682,7 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid, int b
 				else if(p_item->ObjTypeRestriction == oid.Obj) {
 					if(!p_item->ObjGroupRestriction)
 						suited = true;
-					else if(oid.Obj == PPOBJ_PERSON && psn_obj.P_Tbl->IsBelongToKind(oid.Id, p_item->ObjGroupRestriction))
+					else if(oid.Obj == PPOBJ_PERSON && psn_obj.P_Tbl->IsBelongsToKind(oid.Id, p_item->ObjGroupRestriction))
 						suited = true;
 				}
 				else if(oid.Obj == PPOBJ_USR) {
@@ -1690,7 +1690,7 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid, int b
 					if(p_item->ObjTypeRestriction == PPOBJ_PERSON && usr_obj.Search(oid.Id, &sec_rec) > 0 && sec_rec.PersonID) {
 						if(!p_item->ObjGroupRestriction) 
 							suited = true;
-						else if(psn_obj.P_Tbl->IsBelongToKind(sec_rec.PersonID, p_item->ObjGroupRestriction))
+						else if(psn_obj.P_Tbl->IsBelongsToKind(sec_rec.PersonID, p_item->ObjGroupRestriction))
 							suited = true;
 					}
 				}
@@ -9454,7 +9454,7 @@ int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePac
 					}
 				}
 				// } @v11.6.6 
-				/*if(psn_obj.P_Tbl->IsBelongToKind(person_id, personKindID) > 0) {
+				/*if(psn_obj.P_Tbl->IsBelongsToKind(person_id, personKindID) > 0) {
 					ok = 1;
 				}
 				else {

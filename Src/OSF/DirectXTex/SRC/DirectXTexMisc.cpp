@@ -6,6 +6,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 
 using namespace DirectX;
 using namespace DirectX::Internal;
@@ -22,16 +23,12 @@ HRESULT ComputeMSE_(const Image& image1, const Image& image2, float& mse, _Out_w
 {
 	if(!image1.pixels || !image2.pixels)
 		return E_POINTER;
-
 	assert(image1.width == image2.width && image1.height == image2.height);
 	assert(!IsCompressed(image1.format) && !IsCompressed(image2.format));
-
 	const size_t width = image1.width;
-
 	auto scanline = make_AlignedArrayXMVECTOR(uint64_t(width) * 2);
 	if(!scanline)
 		return E_OUTOFMEMORY;
-
 	// Flags implied from image formats
 	switch(image1.format) {
 		case DXGI_FORMAT_B8G8R8X8_UNORM:
@@ -98,7 +95,6 @@ HRESULT ComputeMSE_(const Image& image1, const Image& image2, float& mse, _Out_w
 			if(flags & CMSE_IMAGE2_X2_BIAS) {
 				v2 = XMVectorMultiplyAdd(v2, two, g_XMNegativeOne);
 			}
-
 			// sum[ (I1 - I2)^2 ]
 			XMVECTOR v = XMVectorSubtract(v1, v2);
 			if(flags & CMSE_IGNORE_RED) {
@@ -113,14 +109,11 @@ HRESULT ComputeMSE_(const Image& image1, const Image& image2, float& mse, _Out_w
 			if(flags & CMSE_IGNORE_ALPHA) {
 				v = XMVectorSelect(v, g_XMZero, g_XMMaskW);
 			}
-
 			acc = XMVectorMultiplyAdd(v, v, acc);
 		}
-
 		pSrc1 += rowPitch1;
 		pSrc2 += rowPitch2;
 	}
-
 	// MSE = sum[ (I1 - I2)^2 ] / w*h
 	const XMVECTOR d = XMVectorReplicate(float(image1.width * image1.height));
 	const XMVECTOR v = XMVectorDivide(acc, d);

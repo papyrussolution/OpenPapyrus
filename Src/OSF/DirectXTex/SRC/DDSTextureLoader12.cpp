@@ -15,11 +15,8 @@
 //--------------------------------------------------------------------------------------
 
 #include "DirectXTexP.h"
+#pragma hdrstop
 #include "DDSTextureLoader12.h"
-//#include <algorithm>
-//#include <cassert>
-//#include <memory>
-//#include <new>
 #ifndef _WIN32
     #include <fstream>
     #include <filesystem>

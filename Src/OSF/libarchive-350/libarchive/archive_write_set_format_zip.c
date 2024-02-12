@@ -730,9 +730,7 @@ static int archive_write_zip_header(struct archive_write * a, ArchiveEntry * ent
 	e += 4;
 
 	/* AES extra data field: WinZIP AES information, ID=0x9901 */
-	if((zip->entry_flags & ZIP_ENTRY_FLAG_ENCRYPTED)
-	    && (zip->entry_encryption == ENCRYPTION_WINZIP_AES128
-	   || zip->entry_encryption == ENCRYPTION_WINZIP_AES256)) {
+	if((zip->entry_flags & ZIP_ENTRY_FLAG_ENCRYPTED) && (zip->entry_encryption == ENCRYPTION_WINZIP_AES128 || zip->entry_encryption == ENCRYPTION_WINZIP_AES256)) {
 		memcpy(e, "\001\231\007\000\001\000AE", 8);
 		/* AES vendor version AE-2 does not store a CRC.
 		 * WinZip 11 uses AE-1, which does store the CRC,
@@ -740,8 +738,7 @@ static int archive_write_zip_header(struct archive_write * a, ArchiveEntry * ent
 		 * is less than 20 bytes. So we simulate what
 		 * WinZip 11 does.
 		 * NOTE: WinZip 9.0 and 10.0 uses AE-2 by default. */
-		if(archive_entry_size_is_set(zip->entry)
-		    && archive_entry_size(zip->entry) < 20) {
+		if(archive_entry_size_is_set(zip->entry) && archive_entry_size(zip->entry) < 20) {
 			archive_le16enc(e+4, AES_VENDOR_AE_2);
 			zip->aes_vendor = AES_VENDOR_AE_2; /* no CRC. */
 		}

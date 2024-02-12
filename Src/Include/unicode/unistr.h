@@ -2761,10 +2761,7 @@ public:
 	 *                   by calling `u_strlen()`.
 	 * @stable ICU 2.0
 	 */
-	UnicodeString(bool isTerminated,
-	    ConstChar16Ptr text,
-	    int32_t textLength);
-
+	UnicodeString(bool isTerminated, ConstChar16Ptr text, int32_t textLength);
 	/**
 	 * Writable-aliasing char16_t* constructor.
 	 * The text will be used for the UnicodeString object, but
@@ -3696,17 +3693,15 @@ inline bool UnicodeString::startsWith(const UnicodeString & srcText, int32_t src
 
 inline bool UnicodeString::startsWith(ConstChar16Ptr srcChars, int32_t srcLength) const 
 {
-	if(srcLength < 0) {
-		srcLength = u_strlen(toUCharPtr(srcChars));
-	}
+	if(srcLength < 0)
+		srcLength = sstrleni(toUCharPtr(srcChars));
 	return doCompare(0, srcLength, srcChars, 0, srcLength) == 0;
 }
 
 inline bool UnicodeString::startsWith(const char16_t * srcChars, int32_t srcStart, int32_t srcLength) const 
 {
-	if(srcLength < 0) {
-		srcLength = u_strlen(toUCharPtr(srcChars));
-	}
+	if(srcLength < 0)
+		srcLength = sstrleni(toUCharPtr(srcChars));
 	return doCompare(0, srcLength, srcChars, srcStart, srcLength) == 0;
 }
 
@@ -3723,17 +3718,15 @@ inline bool UnicodeString::endsWith(const UnicodeString & srcText, int32_t srcSt
 
 inline bool UnicodeString::endsWith(ConstChar16Ptr srcChars, int32_t srcLength) const 
 {
-	if(srcLength < 0) {
-		srcLength = u_strlen(toUCharPtr(srcChars));
-	}
+	if(srcLength < 0)
+		srcLength = sstrleni(toUCharPtr(srcChars));
 	return doCompare(length() - srcLength, srcLength, srcChars, 0, srcLength) == 0;
 }
 
 inline bool UnicodeString::endsWith(const char16_t * srcChars, int32_t srcStart, int32_t srcLength) const 
 {
-	if(srcLength < 0) {
-		srcLength = u_strlen(toUCharPtr(srcChars + srcStart));
-	}
+	if(srcLength < 0)
+		srcLength = sstrleni(toUCharPtr(srcChars + srcStart));
 	return doCompare(length() - srcLength, srcLength, srcChars, srcStart, srcLength) == 0;
 }
 //

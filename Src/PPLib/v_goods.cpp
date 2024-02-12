@@ -5498,7 +5498,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 			if(H.ManufID) {
 				PPObjPerson psn_obj;
 				PersonTbl::Rec psn_rec;
-				if(psn_obj.Fetch(H.ManufID, &psn_rec) > 0 && psn_obj.P_Tbl->IsBelongToKind(H.ManufID, PPPRK_MANUF))
+				if(psn_obj.Fetch(H.ManufID, &psn_rec) > 0 && psn_obj.P_Tbl->IsBelongsToKind(H.ManufID, PPPRK_MANUF))
 					r_pack.Rec.ManufID = H.ManufID;
 			}
 			if(H.BrandID) {

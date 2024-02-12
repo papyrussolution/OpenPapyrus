@@ -807,6 +807,11 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNGTIN, sl_param.ChZnGTIN));
 						}
 						// } @v11.9.4 
+						// @v11.9.5 {
+						if(sl_param.UomId) {
+							THROW(ArrAdd(Arr_In, DVCPARAM_UOMID, sl_param.UomId));
+						}
+						// } @v11.9.5 
 						// @v11.2.6 {
 						if(sl_param.UomFragm > 0) {
 							THROW(ArrAdd(Arr_In, DVCPARAM_UOMFRAGM, static_cast<int>(sl_param.UomFragm)));

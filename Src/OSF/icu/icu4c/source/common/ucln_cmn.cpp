@@ -1,18 +1,11 @@
+// ucln_cmn.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 2001-2014, International Business Machines
- *                Corporation and others. All Rights Reserved.
- ******************************************************************************
- *   file name:  ucln_cmn.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2001July05
- *   created by: George Rhoten
- */
+// Copyright (C) 2001-2014, International Business Machines Corporation and others. All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2001July05
+// created by: George Rhoten
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ucln.h"
@@ -35,9 +28,7 @@ U_CAPI void U_EXPORT2 u_cleanup(void)
 	UTRACE_ENTRY_OC(UTRACE_U_CLEANUP);
 	icu::umtx_lock(NULL); /* Force a memory barrier, so that we are sure to see   */
 	icu::umtx_unlock(NULL); /* all state left around by any other threads.        */
-
 	ucln_lib_cleanup();
-
 	cmemory_cleanup(); /* undo any heap functions set by u_setMemoryFunctions(). */
 	UTRACE_EXIT(); /* Must be before utrace_cleanup(), which turns off tracing. */
 /*#if U_ENABLE_TRACING*/

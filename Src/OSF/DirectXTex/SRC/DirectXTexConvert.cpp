@@ -5,6 +5,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 
 using namespace DirectX;
 using namespace DirectX::Internal;
@@ -652,156 +653,93 @@ _Use_decl_annotations_ bool DirectX::Internal::ExpandScanline(void* pDestination
 	return false;
 
 #pragma warning(suppress: 6101)
-_Use_decl_annotations_ bool DirectX::Internal::LoadScanline(XMVECTOR* pDestination,
-    size_t count,
-    const void* pSource,
-    size_t size,
-    DXGI_FORMAT format) noexcept
+_Use_decl_annotations_ bool DirectX::Internal::LoadScanline(XMVECTOR* pDestination, size_t count, const void* pSource, size_t size, DXGI_FORMAT format) noexcept
 {
 	assert(pDestination && count > 0 && ((reinterpret_cast<uintptr_t>(pDestination) & 0xF) == 0));
 	assert(pSource && size > 0);
 	assert(IsValid(format) && !IsTypeless(format, false) && !IsCompressed(format) && !IsPlanar(format) && !IsPalettized(format));
-
 	XMVECTOR* __restrict dPtr = pDestination;
 	if(!dPtr)
 		return false;
-
 	const XMVECTOR* ePtr = pDestination + count;
-
 	switch(static_cast<int>(format)) {
 		case DXGI_FORMAT_R32G32B32A32_FLOAT:
-	    {
-		    const size_t msize = (size > (sizeof(XMVECTOR)*count)) ? (sizeof(XMVECTOR)*count) : size;
-		    memcpy(dPtr, pSource, msize);
-	    }
+			{
+				const size_t msize = (size > (sizeof(XMVECTOR)*count)) ? (sizeof(XMVECTOR)*count) : size;
+				memcpy(dPtr, pSource, msize);
+			}
 		    return true;
-
-		case DXGI_FORMAT_R32G32B32A32_UINT:
-		    LOAD_SCANLINE(XMUINT4, XMLoadUInt4)
-
-		case DXGI_FORMAT_R32G32B32A32_SINT:
-		    LOAD_SCANLINE(XMINT4, XMLoadSInt4)
-
-		case DXGI_FORMAT_R32G32B32_FLOAT:
-		    LOAD_SCANLINE3(XMFLOAT3, XMLoadFloat3, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R32G32B32_UINT:
-		    LOAD_SCANLINE3(XMUINT3, XMLoadUInt3, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R32G32B32_SINT:
-		    LOAD_SCANLINE3(XMINT3, XMLoadSInt3, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R16G16B16A16_FLOAT:
-		    LOAD_SCANLINE(XMHALF4, XMLoadHalf4)
-
-		case DXGI_FORMAT_R16G16B16A16_UNORM:
-		    LOAD_SCANLINE(XMUSHORTN4, XMLoadUShortN4)
-
-		case DXGI_FORMAT_R16G16B16A16_UINT:
-		    LOAD_SCANLINE(XMUSHORT4, XMLoadUShort4)
-
-		case DXGI_FORMAT_R16G16B16A16_SNORM:
-		    LOAD_SCANLINE(XMSHORTN4, XMLoadShortN4)
-
-		case DXGI_FORMAT_R16G16B16A16_SINT:
-		    LOAD_SCANLINE(XMSHORT4, XMLoadShort4)
-
-		case DXGI_FORMAT_R32G32_FLOAT:
-		    LOAD_SCANLINE2(XMFLOAT2, XMLoadFloat2, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R32G32_UINT:
-		    LOAD_SCANLINE2(XMUINT2, XMLoadUInt2, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R32G32_SINT:
-		    LOAD_SCANLINE2(XMINT2, XMLoadSInt2, g_XMIdentityR3)
-
+		case DXGI_FORMAT_R32G32B32A32_UINT: LOAD_SCANLINE(XMUINT4, XMLoadUInt4)
+		case DXGI_FORMAT_R32G32B32A32_SINT: LOAD_SCANLINE(XMINT4, XMLoadSInt4)
+		case DXGI_FORMAT_R32G32B32_FLOAT: LOAD_SCANLINE3(XMFLOAT3, XMLoadFloat3, g_XMIdentityR3)
+		case DXGI_FORMAT_R32G32B32_UINT: LOAD_SCANLINE3(XMUINT3, XMLoadUInt3, g_XMIdentityR3)
+		case DXGI_FORMAT_R32G32B32_SINT: LOAD_SCANLINE3(XMINT3, XMLoadSInt3, g_XMIdentityR3)
+		case DXGI_FORMAT_R16G16B16A16_FLOAT: LOAD_SCANLINE(XMHALF4, XMLoadHalf4)
+		case DXGI_FORMAT_R16G16B16A16_UNORM: LOAD_SCANLINE(XMUSHORTN4, XMLoadUShortN4)
+		case DXGI_FORMAT_R16G16B16A16_UINT: LOAD_SCANLINE(XMUSHORT4, XMLoadUShort4)
+		case DXGI_FORMAT_R16G16B16A16_SNORM: LOAD_SCANLINE(XMSHORTN4, XMLoadShortN4)
+		case DXGI_FORMAT_R16G16B16A16_SINT: LOAD_SCANLINE(XMSHORT4, XMLoadShort4)
+		case DXGI_FORMAT_R32G32_FLOAT: LOAD_SCANLINE2(XMFLOAT2, XMLoadFloat2, g_XMIdentityR3)
+		case DXGI_FORMAT_R32G32_UINT: LOAD_SCANLINE2(XMUINT2, XMLoadUInt2, g_XMIdentityR3)
+		case DXGI_FORMAT_R32G32_SINT: LOAD_SCANLINE2(XMINT2, XMLoadSInt2, g_XMIdentityR3)
 		case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
-	    {
-		    constexpr size_t psize = sizeof(float) + sizeof(uint32_t);
-		    if(size >= psize) {
-			    auto sPtr = static_cast<const float*>(pSource);
-			    for(size_t icount = 0; icount < (size - psize + 1); icount += psize) {
-				    auto ps8 = reinterpret_cast<const uint8_t*>(&sPtr[1]);
-				    if(dPtr >= ePtr)  break;
-				    *(dPtr++) = XMVectorSet(sPtr[0], static_cast<float>(*ps8), 0.f, 1.f);
-				    sPtr += 2;
-			    }
-			    return true;
-		    }
-	    }
+			{
+				constexpr size_t psize = sizeof(float) + sizeof(uint32_t);
+				if(size >= psize) {
+					auto sPtr = static_cast<const float*>(pSource);
+					for(size_t icount = 0; icount < (size - psize + 1); icount += psize) {
+						auto ps8 = reinterpret_cast<const uint8_t*>(&sPtr[1]);
+						if(dPtr >= ePtr)  break;
+						*(dPtr++) = XMVectorSet(sPtr[0], static_cast<float>(*ps8), 0.f, 1.f);
+						sPtr += 2;
+					}
+					return true;
+				}
+			}
 		    return false;
-
 		case DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS:
-	    {
-		    constexpr size_t psize = sizeof(float) + sizeof(uint32_t);
-		    if(size >= psize) {
-			    auto sPtr = static_cast<const float*>(pSource);
-			    for(size_t icount = 0; icount < (size - psize + 1); icount += psize) {
-				    if(dPtr >= ePtr)  break;
-				    *(dPtr++) = XMVectorSet(sPtr[0], 0.f /* typeless component assumed zero */, 0.f, 1.f);
-				    sPtr += 2;
-			    }
-			    return true;
-		    }
-	    }
+			{
+				constexpr size_t psize = sizeof(float) + sizeof(uint32_t);
+				if(size >= psize) {
+					auto sPtr = static_cast<const float*>(pSource);
+					for(size_t icount = 0; icount < (size - psize + 1); icount += psize) {
+						if(dPtr >= ePtr)  break;
+						*(dPtr++) = XMVectorSet(sPtr[0], 0.f /* typeless component assumed zero */, 0.f, 1.f);
+						sPtr += 2;
+					}
+					return true;
+				}
+			}
 		    return false;
-
 		case DXGI_FORMAT_X32_TYPELESS_G8X24_UINT:
-	    {
-		    constexpr size_t psize = sizeof(float) + sizeof(uint32_t);
-		    if(size >= psize) {
-			    auto sPtr = static_cast<const float*>(pSource);
-			    for(size_t icount = 0; icount < (size - psize + 1); icount += psize) {
-				    auto pg8 = reinterpret_cast<const uint8_t*>(&sPtr[1]);
-				    if(dPtr >= ePtr)  break;
-				    *(dPtr++) = XMVectorSet(0.f /* typeless component assumed zero */, static_cast<float>(*pg8), 0.f, 1.f);
-				    sPtr += 2;
-			    }
-			    return true;
-		    }
-	    }
+			{
+				constexpr size_t psize = sizeof(float) + sizeof(uint32_t);
+				if(size >= psize) {
+					auto sPtr = static_cast<const float*>(pSource);
+					for(size_t icount = 0; icount < (size - psize + 1); icount += psize) {
+						auto pg8 = reinterpret_cast<const uint8_t*>(&sPtr[1]);
+						if(dPtr >= ePtr)  break;
+						*(dPtr++) = XMVectorSet(0.f /* typeless component assumed zero */, static_cast<float>(*pg8), 0.f, 1.f);
+						sPtr += 2;
+					}
+					return true;
+				}
+			}
 		    return false;
-
-		case DXGI_FORMAT_R10G10B10A2_UNORM:
-		    LOAD_SCANLINE(XMUDECN4, XMLoadUDecN4)
-
-		case DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM:
-		    LOAD_SCANLINE(XMUDECN4, XMLoadUDecN4_XR)
-
-		case DXGI_FORMAT_R10G10B10A2_UINT:
-		    LOAD_SCANLINE(XMUDEC4, XMLoadUDec4)
-
-		case DXGI_FORMAT_R11G11B10_FLOAT:
-		    LOAD_SCANLINE3(XMFLOAT3PK, XMLoadFloat3PK, g_XMIdentityR3)
-
+		case DXGI_FORMAT_R10G10B10A2_UNORM: LOAD_SCANLINE(XMUDECN4, XMLoadUDecN4)
+		case DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM: LOAD_SCANLINE(XMUDECN4, XMLoadUDecN4_XR)
+		case DXGI_FORMAT_R10G10B10A2_UINT: LOAD_SCANLINE(XMUDEC4, XMLoadUDec4)
+		case DXGI_FORMAT_R11G11B10_FLOAT: LOAD_SCANLINE3(XMFLOAT3PK, XMLoadFloat3PK, g_XMIdentityR3)
 		case DXGI_FORMAT_R8G8B8A8_UNORM:
-		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
-		    LOAD_SCANLINE(XMUBYTEN4, XMLoadUByteN4)
-
-		case DXGI_FORMAT_R8G8B8A8_UINT:
-		    LOAD_SCANLINE(XMUBYTE4, XMLoadUByte4)
-
-		case DXGI_FORMAT_R8G8B8A8_SNORM:
-		    LOAD_SCANLINE(XMBYTEN4, XMLoadByteN4)
-
-		case DXGI_FORMAT_R8G8B8A8_SINT:
-		    LOAD_SCANLINE(XMBYTE4, XMLoadByte4)
-
-		case DXGI_FORMAT_R16G16_FLOAT:
-		    LOAD_SCANLINE2(XMHALF2, XMLoadHalf2, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R16G16_UNORM:
-		    LOAD_SCANLINE2(XMUSHORTN2, XMLoadUShortN2, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R16G16_UINT:
-		    LOAD_SCANLINE2(XMUSHORT2, XMLoadUShort2, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R16G16_SNORM:
-		    LOAD_SCANLINE2(XMSHORTN2, XMLoadShortN2, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R16G16_SINT:
-		    LOAD_SCANLINE2(XMSHORT2, XMLoadShort2, g_XMIdentityR3)
-
+		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB: LOAD_SCANLINE(XMUBYTEN4, XMLoadUByteN4)
+		case DXGI_FORMAT_R8G8B8A8_UINT: LOAD_SCANLINE(XMUBYTE4, XMLoadUByte4)
+		case DXGI_FORMAT_R8G8B8A8_SNORM: LOAD_SCANLINE(XMBYTEN4, XMLoadByteN4)
+		case DXGI_FORMAT_R8G8B8A8_SINT: LOAD_SCANLINE(XMBYTE4, XMLoadByte4)
+		case DXGI_FORMAT_R16G16_FLOAT: LOAD_SCANLINE2(XMHALF2, XMLoadHalf2, g_XMIdentityR3)
+		case DXGI_FORMAT_R16G16_UNORM: LOAD_SCANLINE2(XMUSHORTN2, XMLoadUShortN2, g_XMIdentityR3)
+		case DXGI_FORMAT_R16G16_UINT: LOAD_SCANLINE2(XMUSHORT2, XMLoadUShort2, g_XMIdentityR3)
+		case DXGI_FORMAT_R16G16_SNORM: LOAD_SCANLINE2(XMSHORTN2, XMLoadShortN2, g_XMIdentityR3)
+		case DXGI_FORMAT_R16G16_SINT: LOAD_SCANLINE2(XMSHORT2, XMLoadShort2, g_XMIdentityR3)
 		case DXGI_FORMAT_D32_FLOAT:
 		case DXGI_FORMAT_R32_FLOAT:
 		    if(size >= sizeof(float)) {
@@ -814,20 +752,19 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanline(XMVECTOR* pDestinati
 			    return true;
 		    }
 		    return false;
-
 		case DXGI_FORMAT_R32_UINT:
 		    if(size >= sizeof(uint32_t)) {
 			    const uint32_t* __restrict sPtr = static_cast<const uint32_t*>(pSource);
 			    for(size_t icount = 0; icount < (size - sizeof(uint32_t) + 1); icount += sizeof(uint32_t)) {
 				    XMVECTOR v = XMLoadInt(sPtr++);
 				    v = XMConvertVectorUIntToFloat(v, 0);
-				    if(dPtr >= ePtr)  break;
+				    if(dPtr >= ePtr)  
+						break;
 				    *(dPtr++) = XMVectorSelect(g_XMIdentityR3, v, g_XMSelect1000);
 			    }
 			    return true;
 		    }
 		    return false;
-
 		case DXGI_FORMAT_R32_SINT:
 		    if(size >= sizeof(int32_t)) {
 			    const int32_t * __restrict sPtr = static_cast<const int32_t*>(pSource);
@@ -840,7 +777,6 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanline(XMVECTOR* pDestinati
 			    return true;
 		    }
 		    return false;
-
 		case DXGI_FORMAT_D24_UNORM_S8_UINT:
 		    if(size >= sizeof(uint32_t)) {
 			    auto sPtr = static_cast<const uint32_t*>(pSource);
@@ -848,51 +784,43 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanline(XMVECTOR* pDestinati
 				    auto const d = static_cast<float>(*sPtr & 0xFFFFFF) / 16777215.f;
 				    auto const s = static_cast<float>((*sPtr & 0xFF000000) >> 24);
 				    ++sPtr;
-				    if(dPtr >= ePtr)  break;
+				    if(dPtr >= ePtr)  
+						break;
 				    *(dPtr++) = XMVectorSet(d, s, 0.f, 1.f);
 			    }
 			    return true;
 		    }
 		    return false;
-
 		case DXGI_FORMAT_R24_UNORM_X8_TYPELESS:
 		    if(size >= sizeof(uint32_t)) {
 			    auto sPtr = static_cast<const uint32_t*>(pSource);
 			    for(size_t icount = 0; icount < (size - sizeof(uint32_t) + 1); icount += sizeof(uint32_t)) {
 				    auto const r = static_cast<float>(*sPtr & 0xFFFFFF) / 16777215.f;
 				    ++sPtr;
-				    if(dPtr >= ePtr)  break;
+				    if(dPtr >= ePtr)  
+						break;
 				    *(dPtr++) = XMVectorSet(r, 0.f /* typeless component assumed zero */, 0.f, 1.f);
 			    }
 			    return true;
 		    }
 		    return false;
-
 		case DXGI_FORMAT_X24_TYPELESS_G8_UINT:
 		    if(size >= sizeof(uint32_t)) {
 			    auto sPtr = static_cast<const uint32_t*>(pSource);
 			    for(size_t icount = 0; icount < (size - sizeof(uint32_t) + 1); icount += sizeof(uint32_t)) {
 				    auto const g = static_cast<float>((*sPtr & 0xFF000000) >> 24);
 				    ++sPtr;
-				    if(dPtr >= ePtr)  break;
+				    if(dPtr >= ePtr)  
+						break;
 				    *(dPtr++) = XMVectorSet(0.f /* typeless component assumed zero */, g, 0.f, 1.f);
 			    }
 			    return true;
 		    }
 		    return false;
-
-		case DXGI_FORMAT_R8G8_UNORM:
-		    LOAD_SCANLINE2(XMUBYTEN2, XMLoadUByteN2, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R8G8_UINT:
-		    LOAD_SCANLINE2(XMUBYTE2, XMLoadUByte2, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R8G8_SNORM:
-		    LOAD_SCANLINE2(XMBYTEN2, XMLoadByteN2, g_XMIdentityR3)
-
-		case DXGI_FORMAT_R8G8_SINT:
-		    LOAD_SCANLINE2(XMBYTE2, XMLoadByte2, g_XMIdentityR3)
-
+		case DXGI_FORMAT_R8G8_UNORM: LOAD_SCANLINE2(XMUBYTEN2, XMLoadUByteN2, g_XMIdentityR3)
+		case DXGI_FORMAT_R8G8_UINT: LOAD_SCANLINE2(XMUBYTE2, XMLoadUByte2, g_XMIdentityR3)
+		case DXGI_FORMAT_R8G8_SNORM: LOAD_SCANLINE2(XMBYTEN2, XMLoadByteN2, g_XMIdentityR3)
+		case DXGI_FORMAT_R8G8_SINT: LOAD_SCANLINE2(XMBYTE2, XMLoadByte2, g_XMIdentityR3)
 		case DXGI_FORMAT_R16_FLOAT:
 		    if(size >= sizeof(HALF)) {
 			    const HALF * __restrict sPtr = static_cast<const HALF*>(pSource);
@@ -903,7 +831,6 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanline(XMVECTOR* pDestinati
 			    return true;
 		    }
 		    return false;
-
 		case DXGI_FORMAT_D16_UNORM:
 		case DXGI_FORMAT_R16_UNORM:
 		    if(size >= sizeof(uint16_t)) {
@@ -1351,7 +1278,6 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanline(XMVECTOR* pDestinati
 			    const XMUDECN4 * __restrict sPtr = static_cast<const XMUDECN4*>(pSource);
 			    for(size_t icount = 0; icount < (size - sizeof(XMUDECN4) + 1); icount += sizeof(XMUDECN4)) {
 				    if(dPtr >= ePtr)  break;
-
 				    XMVECTORF32 vResult = { { {
 					    FloatFrom7e3(sPtr->x),
 					    FloatFrom7e3(sPtr->y),
@@ -1420,10 +1346,9 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanline(XMVECTOR* pDestinati
 #undef LOAD_SCANLINE
 #undef LOAD_SCANLINE3
 #undef LOAD_SCANLINE2
-
-//-------------------------------------------------------------------------------------
+//
 // Stores an image row from standard RGBA XMVECTOR (aligned) array
-//-------------------------------------------------------------------------------------
+//
 #define STORE_SCANLINE(type, func) \
 	if(size >= sizeof(type)) { \
 		type * __restrict dPtr = reinterpret_cast<type*>(pDestination); \
@@ -2458,12 +2383,8 @@ _Use_decl_annotations_ bool DirectX::Internal::StoreScanlineLinear(void* pDestin
 // if C_srgb >  0.04045 -> C_linear = pow( ( C_srgb + a ) / ( 1 + a ), 2.4 )
 //                         where a = 0.055
 //-------------------------------------------------------------------------------------
-_Use_decl_annotations_ bool DirectX::Internal::LoadScanlineLinear(XMVECTOR* pDestination,
-    size_t count,
-    const void* pSource,
-    size_t size,
-    DXGI_FORMAT format,
-    TEX_FILTER_FLAGS flags) noexcept
+_Use_decl_annotations_ bool DirectX::Internal::LoadScanlineLinear(XMVECTOR* pDestination, size_t count, const void* pSource,
+    size_t size, DXGI_FORMAT format, TEX_FILTER_FLAGS flags) noexcept
 {
 	switch(static_cast<int>(format)) {
 		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
@@ -2471,7 +2392,6 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanlineLinear(XMVECTOR* pDes
 		case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
 		    flags |= TEX_FILTER_SRGB;
 		    break;
-
 		case DXGI_FORMAT_R32G32B32A32_FLOAT:
 		case DXGI_FORMAT_R32G32B32_FLOAT:
 		case DXGI_FORMAT_R16G16B16A16_FLOAT:
@@ -2497,13 +2417,11 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanlineLinear(XMVECTOR* pDes
 		case DXGI_FORMAT_B4G4R4A4_UNORM:
 		case WIN11_DXGI_FORMAT_A4B4G4R4_UNORM:
 		    break;
-
 		default:
 		    // can't treat A8, XR, Depth, SNORM, UINT, or SINT as sRGB
 		    flags &= ~TEX_FILTER_SRGB;
 		    break;
 	}
-
 	if(LoadScanline(pDestination, count, pSource, size, format)) {
 		// sRGB input processing (sRGB -> Linear RGB)
 		if(flags & TEX_FILTER_SRGB_IN) {
@@ -2512,10 +2430,8 @@ _Use_decl_annotations_ bool DirectX::Internal::LoadScanlineLinear(XMVECTOR* pDes
 				*ptr = XMColorSRGBToRGB(*ptr);
 			}
 		}
-
 		return true;
 	}
-
 	return false;
 }
 //

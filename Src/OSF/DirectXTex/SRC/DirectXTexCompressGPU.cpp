@@ -5,6 +5,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //
 #include "DirectXTexP.h"
+#pragma hdrstop
 #include "BCDirectCompute.h"
 
 using namespace DirectX;
@@ -30,25 +31,21 @@ HRESULT ConvertToRGBA32(const Image& srcImage, ScratchImage& image, bool srgb, T
 	HRESULT hr = image.Initialize2D(format, srcImage.width, srcImage.height, 1, 1);
 	if(FAILED(hr))
 		return hr;
-
 	const Image * img = image.GetImage(0, 0, 0);
 	if(!img) {
 		image.Release();
 		return E_POINTER;
 	}
-
 	uint8_t* pDest = img->pixels;
 	if(!pDest) {
 		image.Release();
 		return E_POINTER;
 	}
-
 	auto scanline = make_AlignedArrayXMVECTOR(srcImage.width);
 	if(!scanline) {
 		image.Release();
 		return E_OUTOFMEMORY;
 	}
-
 	const uint8_t * pSrc = srcImage.pixels;
 	for(size_t h = 0; h < srcImage.height; ++h) {
 		if(!LoadScanline(scanline.get(), srcImage.width, pSrc, srcImage.rowPitch, srcImage.format)) {
@@ -327,7 +324,6 @@ _Use_decl_annotations_ HRESULT DirectX::Compress(ID3D11Device* pDevice,
 					    return hr;
 				    }
 			    }
-
 			    if(h > 1)
 				    h >>= 1;
 

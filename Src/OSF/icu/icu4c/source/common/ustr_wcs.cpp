@@ -1,23 +1,13 @@
+// ustr_wcs.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2001-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  ustr_wcs.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2004sep07
- *   created by: Markus W. Scherer
- *
- *   u_strToWCS() and u_strFromWCS() functions
- *   moved here from ustrtrns.c for better modularization.
- */
+// Copyright (C) 2001-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2004sep07
+// created by: Markus W. Scherer
+// u_strToWCS() and u_strFromWCS() functions
+// moved here from ustrtrns.c for better modularization.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "cwchar.h"
@@ -73,13 +63,9 @@ static wchar_t * _strToWCS(wchar_t * dest, int32_t destCapacity, int32_t * pDest
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-
-	if(srcLength == -1) {
-		srcLength = u_strlen(pSrc);
-	}
-
+	if(srcLength == -1)
+		srcLength = sstrleni(pSrc);
 	pSrcLimit = pSrc + srcLength;
-
 	for(;;) {
 		/* reset the error state */
 		*pErrorCode = U_ZERO_ERROR;
@@ -207,12 +193,8 @@ cleanup:
 
 #endif
 
-U_CAPI wchar_t * U_EXPORT2 u_strToWCS(wchar_t * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const char16_t * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode) {
+U_CAPI wchar_t * U_EXPORT2 u_strToWCS(wchar_t * dest, int32_t destCapacity, int32_t * pDestLength, const char16_t * src, int32_t srcLength, UErrorCode * pErrorCode) 
+{
 	/* args check */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return NULL;
@@ -223,9 +205,8 @@ U_CAPI wchar_t * U_EXPORT2 u_strToWCS(wchar_t * dest,
 	}
 #ifdef U_WCHAR_IS_UTF16
 	/* wchar_t is UTF-16 just do a memcpy */
-	if(srcLength == -1) {
-		srcLength = u_strlen(src);
-	}
+	if(srcLength == -1)
+		srcLength = sstrleni(src);
 	if(0 < srcLength && srcLength <= destCapacity) {
 		u_memcpy((char16_t *)dest, src, srcLength);
 	}
@@ -442,9 +423,8 @@ U_CAPI char16_t * U_EXPORT2 u_strFromWCS(char16_t * dest, int32_t destCapacity, 
 	}
 #ifdef U_WCHAR_IS_UTF16
 	/* wchar_t is UTF-16 just do a memcpy */
-	if(srcLength == -1) {
-		srcLength = u_strlen((const char16_t *)src);
-	}
+	if(srcLength == -1)
+		srcLength = sstrleni((const char16_t *)src);
 	if(0 < srcLength && srcLength <= destCapacity) {
 		u_memcpy(dest, (const char16_t *)src, srcLength);
 	}

@@ -2427,7 +2427,7 @@ static int PThr4wTest_Eyal1()
 				// get lock on stdout
 				PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mutex_stdout) == 0);
 				// do our job
-				printf("%c", "0123456789abcdefghijklmnopqrstuvwxyz"[who]);
+				printf("%c", SlConst::P_Rdx36DigL[who]);
 				if(!(++nchars % 50))
 					printf("\n");
 				fflush(stdout);

@@ -1161,7 +1161,7 @@ int PersonCore::_SearchKind(PPID id, PPID kind)
 	return Kind.search(1, &k, spEq) ? 1 : PPDbSearchError();
 }
 
-int PersonCore::IsBelongToKind(PPID id, PPID kind)
+int PersonCore::IsBelongsToKind(PPID id, PPID kind)
 {
 	return (_SearchKind(id, kind) > 0) ? 1 : PPSetError(PPERR_PSNDONTBELONGTOKIND);
 }

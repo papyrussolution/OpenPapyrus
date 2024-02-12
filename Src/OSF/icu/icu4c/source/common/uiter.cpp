@@ -167,12 +167,7 @@ U_CAPI void U_EXPORT2 uiter_setString(UCharIterator * iter, const char16_t * s, 
 		if(s!=0 && length>=-1) {
 			*iter = stringIterator;
 			iter->context = s;
-			if(length>=0) {
-				iter->length = length;
-			}
-			else {
-				iter->length = u_strlen(s);
-			}
+			iter->length = (length >= 0) ? length : sstrleni(s);
 			iter->limit = iter->length;
 		}
 		else {
@@ -253,19 +248,19 @@ static const UCharIterator utf16BEIterator = {
  * i.e., before a pair of 0 bytes where the first 0 byte is at an even
  * offset from s.
  */
-static int32_t utf16BE_strlen(const char * s) {
+static int32_t utf16BE_strlen(const char * s) 
+{
 	if(IS_POINTER_EVEN(s)) {
 		/*
 		 * even-aligned, call u_strlen(s)
 		 * we are probably on a little-endian machine, but searching for char16_t NUL
 		 * does not care about endianness
 		 */
-		return u_strlen((const char16_t *)s);
+		return sstrleni((const char16_t *)s);
 	}
 	else {
 		/* odd-aligned, search for pair of 0 bytes */
 		const char * p = s;
-
 		while(!(*p==0 && p[1]==0)) {
 			p += 2;
 		}
@@ -287,12 +282,7 @@ U_CAPI void U_EXPORT2 uiter_setUTF16BE(UCharIterator * iter, const char * s, int
 			}
 			*iter = utf16BEIterator;
 			iter->context = s;
-			if(length>=0) {
-				iter->length = length;
-			}
-			else {
-				iter->length = utf16BE_strlen(s);
-			}
+			iter->length = (length >= 0) ? length : utf16BE_strlen(s);
 			iter->limit = iter->length;
 		}
 		else {
@@ -310,18 +300,14 @@ U_CAPI void U_EXPORT2 uiter_setUTF16BE(UCharIterator * iter, const char * s, int
  * The UCharIterator.context field holds a pointer to the CharacterIterator.
  */
 
-static int32_t U_CALLCONV characterIteratorGetIndex(UCharIterator * iter, UCharIteratorOrigin origin) {
+static int32_t U_CALLCONV characterIteratorGetIndex(UCharIterator * iter, UCharIteratorOrigin origin) 
+{
 	switch(origin) {
-		case UITER_ZERO:
-		    return 0;
-		case UITER_START:
-		    return ((CharacterIterator*)(iter->context))->startIndex();
-		case UITER_CURRENT:
-		    return ((CharacterIterator*)(iter->context))->getIndex();
-		case UITER_LIMIT:
-		    return ((CharacterIterator*)(iter->context))->endIndex();
-		case UITER_LENGTH:
-		    return ((CharacterIterator*)(iter->context))->getLength();
+		case UITER_ZERO: return 0;
+		case UITER_START: return ((CharacterIterator*)(iter->context))->startIndex();
+		case UITER_CURRENT: return ((CharacterIterator*)(iter->context))->getIndex();
+		case UITER_LIMIT: return ((CharacterIterator*)(iter->context))->endIndex();
+		case UITER_LENGTH: return ((CharacterIterator*)(iter->context))->getLength();
 		default:
 		    /* not a valid origin */
 		    /* Should never get here! */
@@ -329,7 +315,8 @@ static int32_t U_CALLCONV characterIteratorGetIndex(UCharIterator * iter, UCharI
 	}
 }
 
-static int32_t U_CALLCONV characterIteratorMove(UCharIterator * iter, int32_t delta, UCharIteratorOrigin origin) {
+static int32_t U_CALLCONV characterIteratorMove(UCharIterator * iter, int32_t delta, UCharIteratorOrigin origin) 
+{
 	switch(origin) {
 		case UITER_ZERO:
 		    ((CharacterIterator*)(iter->context))->setIndex(delta);
@@ -348,49 +335,32 @@ static int32_t U_CALLCONV characterIteratorMove(UCharIterator * iter, int32_t de
 	}
 }
 
-static bool U_CALLCONV characterIteratorHasNext(UCharIterator * iter) {
-	return ((CharacterIterator*)(iter->context))->hasNext();
+static bool U_CALLCONV characterIteratorHasNext(UCharIterator * iter) { return ((CharacterIterator*)(iter->context))->hasNext(); }
+static bool U_CALLCONV characterIteratorHasPrevious(UCharIterator * iter) { return ((CharacterIterator*)(iter->context))->hasPrevious(); }
+
+static UChar32 U_CALLCONV characterIteratorCurrent(UCharIterator * iter) 
+{
+	UChar32 c = ((CharacterIterator*)(iter->context))->current();
+	return (c!=0xffff || ((CharacterIterator*)(iter->context))->hasNext()) ? c : U_SENTINEL;
 }
 
-static bool U_CALLCONV characterIteratorHasPrevious(UCharIterator * iter) {
-	return ((CharacterIterator*)(iter->context))->hasPrevious();
+static UChar32 U_CALLCONV characterIteratorNext(UCharIterator * iter) 
+{
+	return (((CharacterIterator*)(iter->context))->hasNext()) ? ((CharacterIterator*)(iter->context))->nextPostInc() : U_SENTINEL;
 }
 
-static UChar32 U_CALLCONV characterIteratorCurrent(UCharIterator * iter) {
-	UChar32 c;
-
-	c = ((CharacterIterator*)(iter->context))->current();
-	if(c!=0xffff || ((CharacterIterator*)(iter->context))->hasNext()) {
-		return c;
-	}
-	else {
-		return U_SENTINEL;
-	}
+static UChar32 U_CALLCONV characterIteratorPrevious(UCharIterator * iter) 
+{
+	return (((CharacterIterator*)(iter->context))->hasPrevious()) ? ((CharacterIterator*)(iter->context))->previous() : U_SENTINEL;
 }
 
-static UChar32 U_CALLCONV characterIteratorNext(UCharIterator * iter) {
-	if(((CharacterIterator*)(iter->context))->hasNext()) {
-		return ((CharacterIterator*)(iter->context))->nextPostInc();
-	}
-	else {
-		return U_SENTINEL;
-	}
-}
-
-static UChar32 U_CALLCONV characterIteratorPrevious(UCharIterator * iter) {
-	if(((CharacterIterator*)(iter->context))->hasPrevious()) {
-		return ((CharacterIterator*)(iter->context))->previous();
-	}
-	else {
-		return U_SENTINEL;
-	}
-}
-
-static uint32_t U_CALLCONV characterIteratorGetState(const UCharIterator * iter) {
+static uint32_t U_CALLCONV characterIteratorGetState(const UCharIterator * iter) 
+{
 	return ((CharacterIterator*)(iter->context))->getIndex();
 }
 
-static void U_CALLCONV characterIteratorSetState(UCharIterator * iter, uint32_t state, UErrorCode * pErrorCode) {
+static void U_CALLCONV characterIteratorSetState(UCharIterator * iter, uint32_t state, UErrorCode * pErrorCode) 
+{
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		/* do nothing */
 	}

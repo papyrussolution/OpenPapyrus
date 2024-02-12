@@ -481,10 +481,10 @@ U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale, char16_t * buff, i
 #if !UCONFIG_NO_SERVICE
 	const char16_t * result = CReg::get(id);
 	if(result) {
-		if(buffCapacity > u_strlen(result)) {
+		if(buffCapacity > sstrleni(result)) {
 			u_strcpy(buff, result);
 		}
-		resLen = u_strlen(result);
+		resLen = sstrleni(result);
 		return u_terminateUChars(buff, buffCapacity, resLen, ec);
 	}
 #endif
@@ -493,7 +493,6 @@ U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale, char16_t * buff, i
 	if(idDelim) {
 		idDelim[0] = 0;
 	}
-
 	const char16_t * s = NULL; // Currency code from data file.
 	if(id[0] == 0) {
 		// No point looking in the data for an empty string.
@@ -659,34 +658,25 @@ U_CAPI const char16_t * U_EXPORT2 ucurr_getName(const char16_t * currency,
 	// If we've succeeded we're done.  Otherwise, try to fallback.
 	// If that fails (because we are already at root) then exit.
 	if(U_SUCCESS(ec2)) {
-		if(ec2 == U_USING_DEFAULT_WARNING
-		 || (ec2 == U_USING_FALLBACK_WARNING && *ec != U_USING_DEFAULT_WARNING)) {
+		if(ec2 == U_USING_DEFAULT_WARNING || (ec2 == U_USING_FALLBACK_WARNING && *ec != U_USING_DEFAULT_WARNING)) {
 			*ec = ec2;
 		}
 	}
-
-	// We no longer support choice format data in names.  Data should not contain
-	// choice patterns.
-	if(isChoiceFormat != NULL) {
-		*isChoiceFormat = FALSE;
-	}
+	// We no longer support choice format data in names.  Data should not contain choice patterns.
+	ASSIGN_PTR(isChoiceFormat, FALSE);
 	if(U_SUCCESS(ec2)) {
 		U_ASSERT(s != NULL);
 		return s;
 	}
-
 	// If we fail to find a match, use the ISO 4217 code
-	*len = u_strlen(currency); // Should == ISO_CURRENCY_CODE_LENGTH, but maybe not...?
+	*len = sstrleni(currency); // Should == ISO_CURRENCY_CODE_LENGTH, but maybe not...?
 	*ec = U_USING_DEFAULT_WARNING;
 	return currency;
 }
 
-U_CAPI const char16_t * U_EXPORT2 ucurr_getPluralName(const char16_t * currency,
-    const char * locale,
-    bool* isChoiceFormat,
-    const char * pluralCount,
-    int32_t* len,                 // fillin
-    UErrorCode * ec) {
+U_CAPI const char16_t * U_EXPORT2 ucurr_getPluralName(const char16_t * currency, const char * locale, bool* isChoiceFormat, 
+	const char * pluralCount, int32_t* len/*fillin*/, UErrorCode * ec) 
+{
 	// Look up the Currencies resource for the given locale.  The
 	// Currencies locale data looks like this:
 	//|en {
@@ -697,11 +687,9 @@ U_CAPI const char16_t * U_EXPORT2 ucurr_getPluralName(const char16_t * currency,
 	//|    }
 	//|  }
 	//|}
-
 	if(U_FAILURE(*ec)) {
 		return 0;
 	}
-
 	// Use a separate UErrorCode here that does not propagate out of
 	// this function.
 	UErrorCode ec2 = U_ZERO_ERROR;
@@ -712,19 +700,14 @@ U_CAPI const char16_t * U_EXPORT2 ucurr_getPluralName(const char16_t * currency,
 		*ec = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	char buf[ISO_CURRENCY_CODE_LENGTH+1];
 	myUCharsToChars(buf, currency);
-
 	const char16_t * s = NULL;
 	ec2 = U_ZERO_ERROR;
 	UResourceBundle * rb = ures_open(U_ICUDATA_CURR, loc, &ec2);
-
 	rb = ures_getByKey(rb, CURRENCYPLURALS, rb, &ec2);
-
 	// Fetch resource with multi-level resource inheritance fallback
 	rb = ures_getByKeyWithFallback(rb, buf, rb, &ec2);
-
 	s = ures_getStringByKeyWithFallback(rb, pluralCount, len, &ec2);
 	if(U_FAILURE(ec2)) {
 		//  fall back to "other"
@@ -738,20 +721,17 @@ U_CAPI const char16_t * U_EXPORT2 ucurr_getPluralName(const char16_t * currency,
 		}
 	}
 	ures_close(rb);
-
 	// If we've succeeded we're done.  Otherwise, try to fallback.
 	// If that fails (because we are already at root) then exit.
 	if(U_SUCCESS(ec2)) {
-		if(ec2 == U_USING_DEFAULT_WARNING
-		 || (ec2 == U_USING_FALLBACK_WARNING && *ec != U_USING_DEFAULT_WARNING)) {
+		if(ec2 == U_USING_DEFAULT_WARNING || (ec2 == U_USING_FALLBACK_WARNING && *ec != U_USING_DEFAULT_WARNING)) {
 			*ec = ec2;
 		}
 		U_ASSERT(s != NULL);
 		return s;
 	}
-
 	// If we fail to find a match, use the ISO 4217 code
-	*len = u_strlen(currency); // Should == ISO_CURRENCY_CODE_LENGTH, but maybe not...?
+	*len = sstrleni(currency); // Should == ISO_CURRENCY_CODE_LENGTH, but maybe not...?
 	*ec = U_USING_DEFAULT_WARNING;
 	return currency;
 }
@@ -769,21 +749,12 @@ typedef struct {
 	int32_t flag; // flags
 } CurrencyNameStruct;
 
-#ifndef MIN
-#define MIN(a, b) (((a)<(b)) ? (a) : (b))
-#endif
-
-#ifndef MAX
-#define MAX(a, b) (((a)<(b)) ? (b) : (a))
-#endif
-
 // Comparison function used in quick sort.
-static int U_CALLCONV currencyNameComparator(const void * a, const void * b) {
+static int U_CALLCONV currencyNameComparator(const void * a, const void * b) 
+{
 	const CurrencyNameStruct* currName_1 = (const CurrencyNameStruct*)a;
 	const CurrencyNameStruct* currName_2 = (const CurrencyNameStruct*)b;
-	for(int32_t i = 0;
-	    i < MIN(currName_1->currencyNameLen, currName_2->currencyNameLen);
-	    ++i) {
+	for(int32_t i = 0; i < MIN(currName_1->currencyNameLen, currName_2->currencyNameLen); ++i) {
 		if(currName_1->currencyName[i] < currName_2->currencyName[i]) {
 			return -1;
 		}
@@ -808,9 +779,10 @@ static int U_CALLCONV currencyNameComparator(const void * a, const void * b) {
 // For example, given locale as "en_US", the currency names get from resource
 // bundle in "en_US" and "en" are duplicated. The fallback mechanism will count
 // all currency names in "en_US" and "en".
-static void getCurrencyNameCount(const char * loc, int32_t* total_currency_name_count, int32_t* total_currency_symbol_count) {
+static void getCurrencyNameCount(const char * loc, int32_t* total_currency_name_count, int32_t* total_currency_symbol_count) 
+{
 	U_NAMESPACE_USE
-	* total_currency_name_count = 0;
+	*total_currency_name_count = 0;
 	*total_currency_symbol_count = 0;
 	const char16_t * s = NULL;
 	char locale[ULOC_FULLNAME_CAPACITY] = "";
@@ -847,18 +819,17 @@ static void getCurrencyNameCount(const char * loc, int32_t* total_currency_name_
 		ures_close(curr_p);
 		ures_close(curr);
 		ures_close(rb);
-
 		if(!fallback(locale)) {
 			break;
 		}
 	}
 }
 
-static char16_t * toUpperCase(const char16_t * source, int32_t len, const char * locale) {
+static char16_t * toUpperCase(const char16_t * source, int32_t len, const char * locale) 
+{
 	char16_t * dest = NULL;
 	UErrorCode ec = U_ZERO_ERROR;
 	int32_t destLen = u_strToUpper(dest, 0, source, len, locale, &ec);
-
 	ec = U_ZERO_ERROR;
 	dest = (char16_t *)uprv_malloc(sizeof(char16_t) * MAX(destLen, len));
 	u_strToUpper(dest, destLen, source, len, locale, &ec);
@@ -874,46 +845,32 @@ static char16_t * toUpperCase(const char16_t * source, int32_t len, const char *
 // "CurrencyPlural", enable fallback chain.
 // return the malloc-ed currency name arrays and the total number of currency
 // names in the array.
-static void collectCurrencyNames(const char * locale,
-    CurrencyNameStruct** currencyNames,
-    int32_t* total_currency_name_count,
-    CurrencyNameStruct** currencySymbols,
-    int32_t* total_currency_symbol_count,
-    UErrorCode & ec) {
+static void collectCurrencyNames(const char * locale, CurrencyNameStruct** currencyNames, int32_t* total_currency_name_count,
+    CurrencyNameStruct** currencySymbols, int32_t* total_currency_symbol_count, UErrorCode & ec) 
+{
 	U_NAMESPACE_USE
 	const icu::Hashtable * currencySymbolsEquiv = getCurrSymbolsEquiv();
 	// Look up the Currencies resource for the given locale.
 	UErrorCode ec2 = U_ZERO_ERROR;
-
 	char loc[ULOC_FULLNAME_CAPACITY] = "";
 	uloc_getName(locale, loc, sizeof(loc), &ec2);
 	if(U_FAILURE(ec2) || ec2 == U_STRING_NOT_TERMINATED_WARNING) {
 		ec = U_ILLEGAL_ARGUMENT_ERROR;
 	}
-
 	// Get maximum currency name count first.
 	getCurrencyNameCount(loc, total_currency_name_count, total_currency_symbol_count);
-
-	*currencyNames = (CurrencyNameStruct*)uprv_malloc
-		    (sizeof(CurrencyNameStruct) * (*total_currency_name_count));
-	*currencySymbols = (CurrencyNameStruct*)uprv_malloc
-		    (sizeof(CurrencyNameStruct) * (*total_currency_symbol_count));
-
+	*currencyNames = (CurrencyNameStruct*)uprv_malloc(sizeof(CurrencyNameStruct) * (*total_currency_name_count));
+	*currencySymbols = (CurrencyNameStruct*)uprv_malloc(sizeof(CurrencyNameStruct) * (*total_currency_symbol_count));
 	if(currencyNames == NULL || currencySymbols == NULL) {
 		ec = U_MEMORY_ALLOCATION_ERROR;
 	}
-
 	if(U_FAILURE(ec)) return;
-
 	const char16_t * s = NULL; // currency name
 	char * iso = NULL; // currency ISO code
-
 	*total_currency_name_count = 0;
 	*total_currency_symbol_count = 0;
-
 	UErrorCode ec3 = U_ZERO_ERROR;
 	UErrorCode ec4 = U_ZERO_ERROR;
-
 	// Using hash to remove duplicates caused by locale fallback
 	UHashtable * currencyIsoCodes = uhash_open(uhash_hashChars, uhash_compareChars, NULL, &ec3);
 	UHashtable * currencyPluralIsoCodes = uhash_open(uhash_hashChars, uhash_compareChars, NULL, &ec4);
@@ -953,13 +910,11 @@ static void collectCurrencyNames(const char * locale,
 				const UnicodeString * symbol;
 				while((symbol = iter.next()) != NULL) {
 					(*currencySymbols)[*total_currency_symbol_count].IsoCode = iso;
-					(*currencySymbols)[*total_currency_symbol_count].currencyName =
-					    const_cast<char16_t *>(symbol->getBuffer());
+					(*currencySymbols)[*total_currency_symbol_count].currencyName = const_cast<char16_t *>(symbol->getBuffer());
 					(*currencySymbols)[*total_currency_symbol_count].flag = 0;
 					(*currencySymbols)[(*total_currency_symbol_count)++].currencyNameLen = symbol->length();
 				}
 			}
-
 			// Add currency long name.
 			s = ures_getStringByIndex(names, UCURR_LONG_NAME, &len, &ec2);
 			(*currencyNames)[*total_currency_name_count].IsoCode = iso;
@@ -1503,7 +1458,6 @@ void uprv_currencyLeads(const char * locale, icu::UnicodeSet & result, UErrorCod
 		U16_GET(info.currencyName, 0, 0, info.currencyNameLen, cp);
 		result.add(cp);
 	}
-
 	for(int32_t i = 0; i<cacheEntry->totalCurrencyNameCount; i++) {
 		const CurrencyNameStruct& info = cacheEntry->currencyNames[i];
 		UChar32 cp;
@@ -2546,7 +2500,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucurr_getKeywordValuesForLocale(const char * key
 U_CAPI int32_t U_EXPORT2 ucurr_getNumericCode(const char16_t * currency) 
 {
 	int32_t code = 0;
-	if(currency && u_strlen(currency) == ISO_CURRENCY_CODE_LENGTH) {
+	if(currency && sstrleni(currency) == ISO_CURRENCY_CODE_LENGTH) {
 		UErrorCode status = U_ZERO_ERROR;
 		UResourceBundle * bundle = ures_openDirect(0, "currencyNumericCodes", &status);
 		ures_getByKey(bundle, "codeMap", bundle, &status);

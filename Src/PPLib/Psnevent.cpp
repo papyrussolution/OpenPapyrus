@@ -486,7 +486,7 @@ int PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, PPID opID, PPID prmrP
 		THROW(pop_obj.GetPacket(opID, &pop_pack) > 0);
 		if(prmrPersonID) {
 			if(pop_pack.PCPrmr.PersonKindID)
-				THROW(PsnObj.P_Tbl->IsBelongToKind(prmrPersonID, pop_pack.PCPrmr.PersonKindID));
+				THROW(PsnObj.P_Tbl->IsBelongsToKind(prmrPersonID, pop_pack.PCPrmr.PersonKindID));
 			pPack->Rec.PersonID = prmrPersonID;
 		}
 	}
@@ -548,7 +548,7 @@ int PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, const AddPersonEventF
 			}
 		}
 		if(pPack->Rec.PersonID && pop_pack.PCPrmr.PersonKindID) {
-			THROW(PsnObj.P_Tbl->IsBelongToKind(pPack->Rec.PersonID, pop_pack.PCPrmr.PersonKindID));
+			THROW(PsnObj.P_Tbl->IsBelongsToKind(pPack->Rec.PersonID, pop_pack.PCPrmr.PersonKindID));
 		}
 	}
 	{
@@ -585,7 +585,7 @@ int PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, const AddPersonEventF
 			}
 		}
 		if(pPack->Rec.SecondID && pop_pack.PCScnd.PersonKindID) {
-			THROW(PsnObj.P_Tbl->IsBelongToKind(pPack->Rec.SecondID, pop_pack.PCScnd.PersonKindID));
+			THROW(PsnObj.P_Tbl->IsBelongsToKind(pPack->Rec.SecondID, pop_pack.PCScnd.PersonKindID));
 		}
 	}
 	CATCHZOK
@@ -1286,7 +1286,7 @@ int PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, PPID per
 		PersonTbl::Rec psn_rec; // PPObjPerson
 		THROW(PsnObj.Fetch(personID, &psn_rec) > 0);
 		if(pConstr->PersonKindID) {
-			THROW(PsnObj.P_Tbl->IsBelongToKind(personID, pConstr->PersonKindID));
+			THROW(PsnObj.P_Tbl->IsBelongsToKind(personID, pConstr->PersonKindID));
 		}
 		if(pConstr->StatusType) {
 			if(psn_rec.Status) {

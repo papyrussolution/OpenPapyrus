@@ -21,7 +21,8 @@ static void jsB_Number(js_State * J)
 static void Np_valueOf(js_State * J)
 {
 	js_Object * self = js_toobject(J, 0);
-	if(self->type != JS_CNUMBER) js_typeerror(J, "not a number");
+	if(self->type != JS_CNUMBER) 
+		js_typeerror(J, "not a number");
 	js_pushnumber(J, self->u.number);
 }
 
@@ -38,17 +39,14 @@ static void Np_toString(js_State * J)
 	}
 	if(radix < 2 || radix > 36)
 		js_rangeerror(J, "invalid radix");
-
 	/* lame number to string conversion for any radix from 2 to 36 */
 	{
-		static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+		//static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 		double number = self->u.number;
 		int sign = self->u.number < 0;
 		js_Buffer * sb = NULL;
 		uint64_t u, limit = ((uint64_t)1<<52);
-
 		int ndigits, exp, point;
-
 		if(number == 0) {
 			js_pushstring(J, "0"); return;
 		}
@@ -79,7 +77,7 @@ static void Np_toString(js_State * J)
 		/* serialize digits */
 		ndigits = 0;
 		while(u > 0) {
-			buf[ndigits++] = digits[u % radix];
+			buf[ndigits++] = SlConst::P_Rdx36DigL[u % radix];
 			u /= radix;
 		}
 		point = ndigits - exp;

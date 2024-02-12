@@ -1,20 +1,11 @@
+// usprep.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2003-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  usprep.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2003jul2
- *   created by: Ram Viswanadha
- */
+// Copyright (C) 2003-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2003jul2
+// created by: Ram Viswanadha
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -30,7 +21,6 @@
 #include "uprops.h"
 
 U_NAMESPACE_USE
-
 U_CDECL_BEGIN
 
 /*
@@ -603,9 +593,8 @@ U_CAPI int32_t U_EXPORT2 usprep_prepare(const UStringPrepProfile* profile, const
 		return 0;
 	}
 	//get the string length
-	if(srcLength < 0) {
-		srcLength = u_strlen(src);
-	}
+	if(srcLength < 0)
+		srcLength = sstrleni(src);
 	// map
 	UnicodeString s1;
 	char16_t * b1 = s1.getBuffer(srcLength);
@@ -771,44 +760,32 @@ U_CAPI int32_t U_EXPORT2 usprep_swap(const UDataSwapper * ds,
 	for(i = 0; i<16; ++i) {
 		indexes[i] = udata_readInt32(ds, inIndexes[i]);
 	}
-
 	/* calculate the total length of the data */
-	size =
-	    16*4+ /* size of indexes[] */
-	    indexes[_SPREP_INDEX_TRIE_SIZE]+
-	    indexes[_SPREP_INDEX_MAPPING_DATA_SIZE];
-
+	size = 16*4+ /* size of indexes[] */ indexes[_SPREP_INDEX_TRIE_SIZE]+indexes[_SPREP_INDEX_MAPPING_DATA_SIZE];
 	if(length>=0) {
 		if(length<size) {
-			udata_printError(ds, "usprep_swap(): too few bytes (%d after header) for all of StringPrep .spp data\n",
-			    length);
+			udata_printError(ds, "usprep_swap(): too few bytes (%d after header) for all of StringPrep .spp data\n", length);
 			*pErrorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 			return 0;
 		}
-
 		/* copy the data for inaccessible bytes */
 		if(inBytes!=outBytes) {
 			uprv_memcpy(outBytes, inBytes, size);
 		}
-
 		offset = 0;
-
 		/* swap the int32_t indexes[] */
 		count = 16*4;
 		ds->swapArray32(ds, inBytes, count, outBytes, pErrorCode);
 		offset += count;
-
 		/* swap the UTrie */
 		count = indexes[_SPREP_INDEX_TRIE_SIZE];
 		utrie_swap(ds, inBytes+offset, count, outBytes+offset, pErrorCode);
 		offset += count;
-
 		/* swap the uint16 mappingTable[] */
 		count = indexes[_SPREP_INDEX_MAPPING_DATA_SIZE];
 		ds->swapArray16(ds, inBytes+offset, count, outBytes+offset, pErrorCode);
 		//offset+=count;
 	}
-
 	return headerSize+size;
 }
 

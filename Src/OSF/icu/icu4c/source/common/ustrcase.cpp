@@ -1,24 +1,15 @@
+// ustrcase.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2001-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  ustrcase.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2002feb20
- *   created by: Markus W. Scherer
- *
- *   Implementation file for string casing C API functions.
- *   Uses functions from uchar.c for basic functionality that requires access
- *   to the Unicode Character Database (uprops.dat).
- */
+// Copyright (C) 2001-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002feb20
+// created by: Markus W. Scherer
+// 
+// Implementation file for string casing C API functions.
+// Uses functions from uchar.c for basic functionality that requires access
+// to the Unicode Character Database (uprops.dat).
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/casemap.h"
@@ -1249,9 +1240,8 @@ U_CFUNC int32_t ustrcase_map(int32_t caseLocale, uint32_t options, UCASEMAP_BREA
 		return 0;
 	}
 	/* get the string length */
-	if(srcLength == -1) {
-		srcLength = u_strlen(src);
-	}
+	if(srcLength == -1)
+		srcLength = sstrleni(src);
 	/* check for overlapping source and destination */
 	if(dest && ((src>=dest && src<(dest+destCapacity)) || (dest>=src && dest<(src+srcLength)))) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
@@ -1280,9 +1270,8 @@ U_CFUNC int32_t ustrcase_mapWithOverlap(int32_t caseLocale, uint32_t options, UC
 		return 0;
 	}
 	/* get the string length */
-	if(srcLength == -1) {
-		srcLength = u_strlen(src);
-	}
+	if(srcLength == -1)
+		srcLength = sstrleni(src);
 	/* check for overlapping source and destination */
 	if(dest && ((src>=dest && src<(dest+destCapacity)) || (dest>=src && dest<(src+srcLength)))) {
 		/* overlap: provide a temporary destination buffer and later copy the result */

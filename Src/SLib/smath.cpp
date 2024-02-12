@@ -1,5 +1,5 @@
 // SMATH.CPP
-// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1177,6 +1177,7 @@ double STDCALL round(double v, double prec, int dir)
 
 double FASTCALL R0(double v) { return implement_round(v, 0); }
 long   FASTCALL R0i(double v) { return static_cast<long>(implement_round(v, 0)); }
+int64  FASTCALL R0i64(double v) { return static_cast<int64>(implement_round(v, 0)); }
 double FASTCALL R2(double v) { return implement_round(v, 2); }
 double FASTCALL R3(double v) { return implement_round(v, 3); }
 double FASTCALL R4(double v) { return implement_round(v, 4); }
@@ -1468,7 +1469,7 @@ static bool FASTCALL SearchPrimeTab(ulong u)
 	else if((val & 1) == 0)
 		yes = false;
 	else if(val > last_tabbed_value || test) {
-		ulong n = static_cast<ulong>(sqrt(static_cast<double>(val)));
+		const ulong n = static_cast<ulong>(sqrt(static_cast<double>(val)));
 		for(ulong j = 2; j <= n; j++)
 			if((val % j) == 0)
 				yes = false;
@@ -1560,8 +1561,8 @@ int Factorize(ulong val, UlongArray * pList)
 // 
 //   rational_best_approximation(31415, 10000, (1 << 8) - 1, (1 << 5) - 1, &n, &d);
 // 
-//   you may look at given_numerator as a fixed point number,
-//   with the fractional part size described in given_denominator.
+//   you may look at givenNumerator as a fixed point number,
+//   with the fractional part size described in givenDenominator.
 // 
 //   for theoretical background, see: https://en.wikipedia.org/wiki/Continued_fraction
 // 

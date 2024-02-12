@@ -1847,16 +1847,16 @@ void Editor::Paint(SciSurface * surfaceWindow, PRectangle rcArea)
 // Should be merged back into a combined Draw method.
 long Editor::FormatRange(bool draw, Sci_RangeToFormat * pfr)
 {
-	if(!pfr)
-		return 0;
-	AutoSurface surface(pfr->hdc, this, SC_TECHNOLOGY_DEFAULT);
-	if(!surface)
-		return 0;
-	AutoSurface surfaceMeasure(pfr->hdcTarget, this, SC_TECHNOLOGY_DEFAULT);
-	if(!surfaceMeasure) {
-		return 0;
+	long result = 0;
+	if(pfr) {
+		AutoSurface surface(pfr->hdc, this, SC_TECHNOLOGY_DEFAULT);
+		if(!!surface) {
+			AutoSurface surfaceMeasure(pfr->hdcTarget, this, SC_TECHNOLOGY_DEFAULT);
+			if(!!surfaceMeasure)
+				result = view.FormatRange(draw, pfr, surface, surfaceMeasure, *this, vs);
+		}
 	}
-	return view.FormatRange(draw, pfr, surface, surfaceMeasure, *this, vs);
+	return result;
 }
 
 int Editor::TextWidth(int style, const char * text)
@@ -1880,7 +1880,6 @@ void Editor::SetScrollBars()
 	if(modified) {
 		DwellEnd(true);
 	}
-
 	// @todo ensure always showing as many lines as possible
 	// May not be, if, for example, window made larger
 	if(topLine > MaxScrollPos()) {

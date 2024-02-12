@@ -136,7 +136,7 @@ U_CAPI UMessageFormat* U_EXPORT2 umsg_open(const char16_t * pattern, int32_t pat
 	}
 	UParseError tErr;
 	SETIFZQ(parseError, &tErr);
-	int32_t len = (patternLength == -1 ? u_strlen(pattern) : patternLength);
+	const int32_t len = (patternLength == -1 ? sstrleni(pattern) : patternLength);
 	UnicodeString patString(patternLength == -1, pattern, len);
 	MessageFormat* retVal = new MessageFormat(patString, Locale(locale), *parseError, *status);
 	if(retVal == NULL) {
@@ -335,9 +335,8 @@ U_CAPI void U_EXPORT2 umsg_vparse(const UMessageFormat * fmt, const char16_t * s
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-	if(sourceLength == -1) {
-		sourceLength = u_strlen(source);
-	}
+	if(sourceLength == -1)
+		sourceLength = sstrleni(source);
 	UnicodeString srcString(source, sourceLength);
 	Formattable * args = ((const MessageFormat*)fmt)->parse(srcString, *count, *status);
 	UDate * aDate;
@@ -440,9 +439,8 @@ int32_t umsg_autoQuoteApostrophe(const char16_t * pattern, int32_t patternLength
 		return -1;
 	}
 	U_ASSERT(destCapacity >= 0);
-	if(patternLength == -1) {
-		patternLength = u_strlen(pattern);
-	}
+	if(patternLength == -1)
+		patternLength = sstrleni(pattern);
 	for(int i = 0; i < patternLength; ++i) {
 		char16_t c = pattern[i];
 		switch(state) {

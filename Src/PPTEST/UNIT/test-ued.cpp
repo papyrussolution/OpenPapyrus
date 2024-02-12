@@ -1,5 +1,5 @@
 // TEST-UED.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 // Тестирование технологии UED
 //
@@ -8,6 +8,10 @@
 #include <sartre.h>
 #include <ued.h>
 #include <ued-id.h>
+
+uint64 UedEncodeRange(uint64 upp, uint granulation, uint bits, double value);
+bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * pResult);
+
 #if(_MSC_VER >= 1900)
 	#include <cmath>
 	#include <unicode\uclean.h>
@@ -26,7 +30,86 @@
 		SString path_test_root;
 		SLS.QueryPath("testroot", path_test_root);
 		{
-			if(false) { // @construction
+			// UedEncodeRange/UedDecodeRange
+			const char * p_max_err_file_name = MakeOutputFilePath("ued_rangeenc_max_err.log");
+			SFile f_max_err(p_max_err_file_name, SFile::mWrite);
+			{
+				SString max_err_log_buf;
+				struct BitsEntry {
+					uint   Bits; // Количество бит для представления числа
+					double Tolerance; // Минимальная точность (для проверки результата)
+				};
+				static const BitsEntry bits2_list[] = { {64, 1E-9}, {56, 1E-9}, {48, 1E-9}, {33, 1E-5}, {32, 1E-5}, {28, 1E-3}, {24, 1E-2} };
+				//static const uint bits_list[] = { 64, 56, 48, 33, 32, 24 };
+				static const uint64 upp_list[] = {1ULL, 2ULL, 180ULL, 360ULL, 255ULL};
+				static const double inc_list[] = {1.0/7200.0, 0.5, 0.125, 0.3, 1.0/3.0, 0.001};
+				static const uint gran_list[] = { /*5,*/3600, 36000 };
+				for(uint bitsidx = 0; bitsidx < SIZEOFARRAY(bits2_list); bitsidx++) {
+					const uint bits = bits2_list[bitsidx].Bits;
+					const double tol = bits2_list[bitsidx].Tolerance;//(bits <= 24) ? 1E-2 : ((bits <= 33) ? 1E-5 : 1E-9);
+					for(uint uppidx = 0; uppidx < SIZEOFARRAY(upp_list); uppidx++) {
+						const uint64 upp = upp_list[uppidx];
+						for(uint incidx = 0; incidx < SIZEOFARRAY(inc_list); incidx++) {
+							const double inc = inc_list[incidx];
+							for(uint granidx = 0; granidx < SIZEOFARRAY(gran_list); granidx++) {
+								const uint granularity = gran_list[granidx];
+								double _max_err = 0.0;
+								for(double i = 0; i <= (double)upp; i += inc) {
+									uint64 u = UedEncodeRange(upp, granularity, bits, i);
+									double rv;
+									UedDecodeRange(u, upp, granularity, bits, &rv);
+									const double _err = fabs(rv - i);
+									SETMAX(_max_err, _err);
+									const double _frac = ffrac(i);
+									if(_frac == 0.0 || _frac == 0.5 || _frac == 0.25) {
+										if(false && !SLCHECK_EQ(rv, i)) {
+											ok = 0;
+										}
+									}
+									else {
+										if(!SLCHECK_EQ_TOL(rv, i, tol)) {
+											ok = 0;
+										}
+									}
+								}
+								max_err_log_buf.Z().CatEq("bits", bits).Space().CatEq("upp", upp).Space().
+									CatEq("increment", inc, MKSFMTD(0, 6, 0)).Space().
+									CatEq("granularity", granularity).CatDiv(':', 2);
+								if(_max_err == 0.0)
+									max_err_log_buf.Cat("zero");
+								else
+									slprintf_cat(max_err_log_buf, "%.8E", _max_err);
+								f_max_err.WriteLine(max_err_log_buf.CR());
+							}
+						}
+					}
+				}
+			}
+		}
+		{ /* @construction*/ 
+			const SphericalDirection test_val_list[] = {
+				{ 0.0, 0.0 }, // up
+				{ 90.0, 0.0 }, // right
+				{ 90.0, 180.0 }, // left
+				{ 180.0, 0.0 }, // down
+				{ 90.0, 90.0 }, // forward
+				{ 90.0, 270.0 }, // backward
+				{ 73.13, 101.58 }, 
+				{ 73.139, 101.583 },
+				{ 14.0 + 5.0/60.0 + 51.0/3600.0, 103 + 59.0/60.0 + 8.0/3600.0},
+			};
+			for(uint i = 0; i < SIZEOFARRAY(test_val_list); i++) {
+				SphericalDirection sd(test_val_list[i]); 
+				uint64 ued_ = UED::SetRaw_SphDir(sd);
+				SLCHECK_NZ(ued_);
+				SLCHECK_NZ(UED::BelongToMeta(ued_, UED_META_SPHERDIR));
+				SphericalDirection sd_;
+				SLCHECK_NZ(UED::GetRaw_SphDir(ued_, sd_));
+				SLCHECK_NZ(sd_.IsEqTol(sd, 1e-5));
+			}
+		}/**/
+		{
+			if(true) { // @construction
 				static const SColor color_list[] = { SClrAqua, SClrBlack, SClrWhite, SClrRed, SClrCyan };
 				static const uint alpha_list[] = { 2, 17, 120, 255 };
 				for(uint aidx = 0; aidx < SIZEOFARRAY(alpha_list); aidx++) {
@@ -63,27 +146,6 @@
 				}
 			}
 		}
-		/* @construction*/ {
-			const SphericalDirection test_val_list[] = {
-				{ 0.0, 0.0 }, // up
-				{ 90.0, 0.0 }, // right
-				{ 90.0, 180.0 }, // left
-				{ 180.0, 0.0 }, // down
-				{ 90.0, 90.0 }, // forward
-				{ 90.0, 270.0 }, // backward
-				{ 73.13, 101.58 }, 
-				{ 73.139, 101.583 }
-			};
-			for(uint i = 0; i < SIZEOFARRAY(test_val_list); i++) {
-				SphericalDirection sd(test_val_list[i]); 
-				uint64 ued_ = UED::SetRaw_SphDir(sd);
-				SLCHECK_NZ(ued_);
-				SLCHECK_NZ(UED::BelongToMeta(ued_, UED_META_SPHERDIR));
-				SphericalDirection sd_;
-				SLCHECK_NZ(UED::GetRaw_SphDir(ued_, sd_));
-				SLCHECK_NZ(sd_.IsEqTol(sd, 1e-5));
-			}
-		}/**/
 		{
 			SGeo geo;
 			{

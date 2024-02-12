@@ -341,7 +341,7 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 								if(!P_PsnPack->Kinds.lsearch(rt.PersonKindID))
 									r = 0;
 							}
-							else if(!pobj.P_Tbl->IsBelongToKind(Data.ObjID, rt.PersonKindID))
+							else if(!pobj.P_Tbl->IsBelongsToKind(Data.ObjID, rt.PersonKindID))
 								r = 0;
 							if(!r) {
 								ok = PPSetError(PPERR_REGTPERSON);

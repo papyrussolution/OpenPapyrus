@@ -358,31 +358,25 @@ U_CAPI int32_t u_strToPunycode(const char16_t * src, int32_t srcLength,
 }
 
 // decode
-U_CAPI int32_t u_strFromPunycode(const char16_t * src, int32_t srcLength,
-    char16_t * dest, int32_t destCapacity,
-    bool * caseFlags,
-    UErrorCode * pErrorCode) {
-	int32_t n, destLength, i, bias, basicLength, j, in, oldi, w, k, digit, t,
-	    destCPCount, firstSupplementaryIndex, cpLength;
+U_CAPI int32_t u_strFromPunycode(const char16_t * src, int32_t srcLength, char16_t * dest, int32_t destCapacity,
+    bool * caseFlags, UErrorCode * pErrorCode) 
+{
+	int32_t n, destLength, i, bias, basicLength, j, in, oldi, w, k, digit, t, destCPCount, firstSupplementaryIndex, cpLength;
 	char16_t b;
-
 	/* argument checking */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
 	if(src==NULL || srcLength<-1 || (dest==NULL && destCapacity!=0)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-	if(srcLength == -1) {
-		srcLength = u_strlen(src);
-	}
+	if(srcLength == -1)
+		srcLength = sstrleni(src);
 	if(srcLength>DECODE_MAX_CHARS) {
 		*pErrorCode = U_INPUT_TOO_LONG_ERROR;
 		return 0;
 	}
-
 	/*
 	 * Handle the basic code points:
 	 * Let basicLength be the number of input code points

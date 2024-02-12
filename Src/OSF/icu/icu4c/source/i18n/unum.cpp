@@ -1,17 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *   Copyright (C) 1996-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * Modification History:
- *
- *   Date        Name        Description
- *   06/24/99    helena      Integrated Alan's NF enhancements and Java2 bug fixes
- *******************************************************************************
- */
-
+// Copyright (C) 1996-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+//   Date        Name        Description
+//   06/24/99    helena      Integrated Alan's NF enhancements and Java2 bug fixes
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -24,18 +17,13 @@
 
 U_NAMESPACE_USE
 
-U_CAPI UNumberFormat * U_EXPORT2 unum_open(UNumberFormatStyle style,
-    const char16_t * pattern,
-    int32_t patternLength,
-    const char * locale,
-    UParseError*       parseErr,
-    UErrorCode *  status) {
+U_CAPI UNumberFormat * U_EXPORT2 unum_open(UNumberFormatStyle style, const char16_t * pattern, int32_t patternLength,
+    const char * locale, UParseError* parseErr, UErrorCode *  status) 
+{
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-
 	NumberFormat * retVal = NULL;
-
 	switch(style) {
 		case UNUM_DECIMAL:
 		case UNUM_CURRENCY:
@@ -48,17 +36,12 @@ U_CAPI UNumberFormat * U_EXPORT2 unum_open(UNumberFormatStyle style,
 		case UNUM_CURRENCY_STANDARD:
 		    retVal = NumberFormat::createInstance(Locale(locale), style, *status);
 		    break;
-
 		case UNUM_PATTERN_DECIMAL: {
 		    UParseError tErr;
 		    /* UnicodeString can handle the case when patternLength = -1. */
 		    const UnicodeString pat(pattern, patternLength);
-
-		    if(parseErr==NULL) {
-			    parseErr = &tErr;
-		    }
-
-		    DecimalFormatSymbols * syms = new DecimalFormatSymbols(Locale(locale), *status);
+			SETIFZQ(parseErr, &tErr);
+			DecimalFormatSymbols * syms = new DecimalFormatSymbols(Locale(locale), *status);
 		    if(syms == NULL) {
 			    *status = U_MEMORY_ALLOCATION_ERROR;
 			    return NULL;
@@ -686,27 +669,19 @@ U_CAPI void U_EXPORT2 unum_setSymbol(UNumberFormat * fmt, UNumberFormatSymbol sy
 	dcf->setDecimalFormatSymbols(symbols);
 }
 
-U_CAPI void U_EXPORT2 unum_applyPattern(UNumberFormat  * fmt,
-    bool localized,
-    const char16_t    * pattern,
-    int32_t patternLength,
-    UParseError * parseError,
-    UErrorCode * status)
+U_CAPI void U_EXPORT2 unum_applyPattern(UNumberFormat  * fmt, bool localized, const char16_t    * pattern,
+    int32_t patternLength, UParseError * parseError, UErrorCode * status)
 {
 	UErrorCode tStatus = U_ZERO_ERROR;
 	UParseError tParseError;
-
 	if(parseError == NULL) {
 		parseError = &tParseError;
 	}
-
 	if(status==NULL) {
 		status = &tStatus;
 	}
-
-	int32_t len = (patternLength == -1 ? u_strlen(pattern) : patternLength);
+	int32_t len = (patternLength == -1 ? sstrleni(pattern) : patternLength);
 	const UnicodeString pat((char16_t *)pattern, len, len);
-
 	// Verify if the object passed is a DecimalFormat object
 	NumberFormat* nf = reinterpret_cast<NumberFormat*>(fmt);
 	DecimalFormat* df = dynamic_cast<DecimalFormat*>(nf);
@@ -724,9 +699,7 @@ U_CAPI void U_EXPORT2 unum_applyPattern(UNumberFormat  * fmt,
 	}
 }
 
-U_CAPI const char * U_EXPORT2 unum_getLocaleByType(const UNumberFormat * fmt,
-    ULocDataLocaleType type,
-    UErrorCode * status)
+U_CAPI const char * U_EXPORT2 unum_getLocaleByType(const UNumberFormat * fmt, ULocDataLocaleType type, UErrorCode * status)
 {
 	if(!fmt) {
 		if(U_SUCCESS(*status)) {

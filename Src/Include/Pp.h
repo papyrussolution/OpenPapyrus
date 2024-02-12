@@ -567,6 +567,8 @@ public:
 	static constexpr uint PwSize_POP3_2           = 32; // @attention изменение значения требует конвертации хранимого пароля
 	static constexpr uint PwSize_UHTT             = 20; // @attention изменение значения требует конвертации хранимого пароля
 	// } @v11.8.11 
+	static constexpr const char * PipeCrr32Proxi = "PapyrusCrr32Proxi"; // @v11.9.5 @construction Имя именованного канала, по которому осуществляется взаимодействие
+		// с proxi-сервером, обеспечивающим интерфейс с 32-битным клиентом CristalReports.
 };
 //
 // @v11.7.3 (все константы стали static constexpr) extern const PPConstParam _PPConst;
@@ -4504,13 +4506,17 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 #define PPGDSK_BRAND               5L // Брэнды
 #define PPGDSK_BRANDGROUP          6L // Группы брэндов
 #define PPGDSK_SUPRWARE            7L // Составные товары // @vmiller
-
+//
+// Внутрение типы штрихкодов, отражающие специфику товарного кода.
+//
 #define BARCODE_TYPE_UNDEF        -1
 #define BARCODE_TYPE_COMMON        0
-#define BARCODE_TYPE_PREFERRED  1000
-#define BARCODE_TYPE_MARKED    10000 // @v10.4.11 Маркированный код (на товар нанесена специальная марка тупого Российского государства, которое обирает вдов и сирот, обогащая жирных придурков)
-#define BARCODE_TYPE_PREFMARK  11000 // @v10.4.11
-
+#define BARCODE_TYPE_PREFERRED  1000 // Предпочтительный код. Когда необходим единственный код из списка, то код этим признаком используется с приоритетом.
+#define BARCODE_TYPE_MARKED    10000 // @v10.4.11 Маркированный код (на товар нанесена специальная марка тупого российского государства, которое обирает вдов и сирот, обогащая жирных придурков)
+#define BARCODE_TYPE_PREFMARK  11000 // @v10.4.11 
+//
+// Функции для работы с внутренними типами штрихкодов
+//
 int32 FASTCALL MakeInnerBarcodeType(int bt);
 void  FASTCALL SetInnerBarcodeType(int32 * pBarcodeType, int bt);
 void  FASTCALL ResetInnerBarcodeType(int32 * pBarcodeType, int bt);
@@ -9141,7 +9147,7 @@ public:
 	//   >0 - персоналия personID принадлежит виду kindID
 	//   0  - персоналия personID не принадлежит виду kindID
 	//
-	int    IsBelongToKind(PPID personID, PPID kindID);
+	int    IsBelongsToKind(PPID personID, PPID kindID);
 	int    GetListByKind(PPID kindID, PPIDArray * pList);
 	int    Put(PPID * pID, PPPerson * pPack, int use_ta);
 	int    Get(PPID id, PPPerson * pPack);
@@ -21833,6 +21839,7 @@ struct SlipLineParam {
 	int    Font;          // для подкладного документа - номер шрифта подкладного документа; для ленты: 1 - обычный шрифт, >1 - широкий шрифт
 	int    Kind;          // lkXXX
 	int    Flags;         // fXXX
+	int    UomId;         // @v11.9.5 Единица измерения SUOM_XXX
 	uint   UomFragm;      // @v11.2.6 Фрагментация единицы измерения товара
 	double Qtty;          // для regtoFiscal
 	double PhQtty;        // @v11.9.3 for chzn (ChZnProductType==GTCHZNPT_DRAFTBEER)
@@ -31908,6 +31915,7 @@ struct AsyncCashGoodsInfo { // @transient
 		// то Precision = 0.001.
 	long   GoodsFlags;       // Флаги записи товара
 	// @v10.4.11 short  Deleted_;         // Признак того, что товар был удален
+	LDATE  Expiry;           // @v11.9.5 Срок истечения годности @todo
 	long   Flags_;           // @v10.4.11
 	short  NoDis;            // Запрет скидки на товар (> 0 - без скидки, 0 - со скидкой, -1 - со скидкой (признак "без скидки" был снят)
 	int16  ChZnProdType;     // @v10.9.0 Reserve-->ChZnProdType Тип маркированной продукции честный знак
@@ -55234,7 +55242,8 @@ public:
 		LDATETIME CurDtm; // Текущее время. Так как дебильные форматы NALOG.RU требуют текущие время и дату в самых разных
 			// и неожиданных местах в целях избежания противоречивости сформируем один раз это значение для использования везде.
 		enum {
-			fVatFree = 0x0001
+			fVatFree             = 0x0001,
+			fIndepFormatProvider = 0x0002  // @v11.9.5 Если формат является независимой кастомизацией "по мотивам" nalog.ru, то устанавливается этот флаг
 		};
 		long   Flags;
 		S_GUID Uuid;
@@ -55248,9 +55257,12 @@ public:
 		SString FileName;
 		SString FileFormatVer; // ВерсФорм
 		SString ProgVer;       // ВерсПрог
+		SString Indep_Format;  // @v11.9.5 fIndepFormatProvider Наименование формата файла (для независимых провайдеров)
+		SString Indep_Name;    // @v11.9.5 fIndepFormatProvider Наименование документа (похоже по структуре на имя файла, но почему то отличается) (для независимых провайдеров) 
 	};
 	struct Address {
 		Address();
+		int   CountryCode; // @v11.9.5
 		int   RuRegionCode;
 		SString ZIP;
 		SString Destrict; // Район
@@ -55259,6 +55271,7 @@ public:
 		SString House; // Дом
 		SString HouseCorp; // Корпус
 		SString Apart; // Квартира
+		SString FreeFromText; // @v11.9.5 Просто строка адреса в произвольном формате
 	};
 	struct BankAccount {
 		SString Account;
@@ -55290,6 +55303,8 @@ public:
 		GoodsItem();
 		int   RowN;
 		SString GoodsName;
+		SString SupplCode; // @v11.9.5 Код товара у поставщика
+		SString BuyerCode; // @v11.9.5 Код товара у покупателя //
 		SString GTIN; // Штрихкод товара (EAN/UPC)
 		SString NonEAN_Code; // @v11.5.3 Код товара, не являющийся EAN или UPC-кодом. Пытаемся идентифицировать товар по нему как коду по статье
 		SString OKEI;
@@ -55305,9 +55320,11 @@ public:
 	struct DocumentInfo {
 		DocumentInfo();
 		Participant * GetParticipant(int partQ, bool createIfNExists);
+		int    EdiOp; // @v11.9.5 В случае, если формат используется для EDI, то это - тип EDI-операции 
 		SString KND; // КНД
 		SString Function; // Функция
 		LDATE  Dt; // Дата документа (накладной)
+		LDATETIME DueDtm; // @v11.9.5 Для заказов
 		SString Code; // Номер документа (накладной)
 		LDATE  InvcDate; // Дата счет-фактуры
 		SString InvcCode; // Номер счет-фактуры
@@ -55345,6 +55362,7 @@ private:
 	int    ReadAddress(const xmlNode * pNode, Address & rResult);
 	int    ReadFIO(const xmlNode * pNode, FIO & rResult);
 	int    ReadParticipant(const xmlNode * pNode, Participant & rResult);
+	bool   GetAttr(const xmlNode * pN, long tokId, SString & rText);
 };
 
 class DocNalogRu_Generator : public DocNalogRu_Base {
@@ -55957,11 +55975,41 @@ public:
 			double Vat; // Ставка НДС в процентах
 			PPTransferItem Ti;
 		};
+
+		struct OwnFormatAddress {
+			OwnFormatAddress();
+			OwnFormatAddress & Z();
+
+			char   CountryCode[4]; // 2-letter code
+			SString AddressText; // foreign address
+			SString RegionIsoCode;
+			SString District;
+			SString City;       // Город
+			SString Settlement; // Населенный пункт
+			SString Street;
+			SString House;
+			SString Flat;
+			SString ZIP;
+		};
+		struct OwnFormatContractor {
+			OwnFormatContractor();
+			OwnFormatContractor & Z();
+
+			SString Name;
+			SString GLN;
+			SString INN;
+			SString KPP;
+			//
+			OwnFormatAddress Addr;
+		};
+
 		const SString & FASTCALL EncXmlText(const char * pS);
 		const SString & FASTCALL EncXmlText(const SString & rS);
 		int16  FASTCALL StringToRByBill(const SString & rS) const;
 		int    GetGTIN(const SString & rS, DeferredPositionBlock & rBlk);
 		int    GetArCode(const SString & rS, int partyQ, int whoAmI, PPID billArID, DeferredPositionBlock & rBlk);
+		int    ResolveDlvrLoc(const OwnFormatContractor & rC, PPBillPacket * pPack);
+		int    ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack);
 		SString EncBuf;
 	private:
 		int    GetIntermediatePath(const char * pSub, int docType, SString & rBuf);
@@ -58889,6 +58937,7 @@ int    UpdateQuots(const QuotUpdFilt *);
 int    EditQuotRollbackDialog(LDATETIME *pDateTime); // @erik v10.5.8
 int    RollbackQuots(const LDATETIME * pDateTime); // @erik v10.5.8
 int    MakeCRptDataFiles(int verifyAll = 0);    // PPLIB\PPTVUTIL.CPP
+SString & GetCrr32ProxiPipeName(SString & rBuf); // @v11.9.5
 int    RecoverAbsenceLots();   // PPBILL\C_TRFR.CPP
 int    RecoverAbsenceGoods();  // PPBILL\C_TRFR.CPP
 int    RecoverAbsenceBills();  // Восстановление потерянных заголовков документов
@@ -59025,6 +59074,10 @@ public:
 #define RESOLVEGF_SHOWEXTDLG      0x0020 // Отображать диалог DLG_SUBSTGL
 
 int ResolveGoodsDlg(ResolveGoodsItemList * pData, int flags);
+//
+// @v11.9.5 @construction Структуры и функции для работы 32-битного proxi-сервера CristalReports
+//
+
 //
 // Конвертация сертификатов качества в теги лотов (для Лэнда).
 //
